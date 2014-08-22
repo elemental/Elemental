@@ -58,13 +58,17 @@ void Skeleton
     Gemm( NORMAL, NORMAL, F(1), B, K, Z );
 }
 
-template<typename F,Dist UPerm> 
+template<typename F> 
 void Skeleton
-( const DistMatrix<F>& A, 
-  DistMatrix<Int,UPerm,STAR>& permR, DistMatrix<Int,UPerm,STAR>& permC, 
-  DistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl )
+( const AbstractDistMatrix<F>& APre, 
+  AbstractDistMatrix<Int>& permR, AbstractDistMatrix<Int>& permC, 
+  AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Skeleton"))
+
+    auto APtr = ReadProxy( &APre );
+    auto& A = *APtr;
+
     const Grid& g = A.Grid();
 
     // Find the row permutation
@@ -106,9 +110,9 @@ void Skeleton
     Matrix<Int>& permR, Matrix<Int>& permC, \
     Matrix<F>& Z, const QRCtrl<Base<F>> ctrl ); \
   template void Skeleton \
-  ( const DistMatrix<F>& A, \
-    DistMatrix<Int,VR,STAR>& permR, DistMatrix<Int,VR,STAR>& permC, \
-    DistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl );
+  ( const AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<Int>& permR, AbstractDistMatrix<Int>& permC, \
+    AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

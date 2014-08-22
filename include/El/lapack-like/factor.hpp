@@ -620,12 +620,11 @@ void Skeleton
 ( const Matrix<F>& A,
   Matrix<Int>& pR, Matrix<Int>& pC,
   Matrix<F>& Z, const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
-// NOTE: Only instantiated for UPerm=VR
-template<typename F,Dist UPerm>
+template<typename F>
 void Skeleton
-( const DistMatrix<F>& A,
-  DistMatrix<Int,UPerm,STAR>& pR, DistMatrix<Int,UPerm,STAR>& pC,
-  DistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
+( const AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<Int>& pR, AbstractDistMatrix<Int>& pC,
+  AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
 
 // Inline convenience functions
 // ############################

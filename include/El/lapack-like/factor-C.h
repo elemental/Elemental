@@ -996,8 +996,6 @@ ElError ElSkeleton_z
 ( ElConstMatrix_z A, ElMatrix_i pR, ElMatrix_i pC, 
   ElMatrix_z Z, ElQRCtrl_d ctrl );
 
-/* NOTE: 'A' and 'Z' must be in [MC,MR] distributions, while
-         'pR' and 'pC' must be in [VR,STAR] distributions */
 ElError ElSkeletonDist_s
 ( ElConstDistMatrix_s A, ElDistMatrix_i pR, ElDistMatrix_i pC, 
   ElDistMatrix_s Z, ElQRCtrl_s ctrl );

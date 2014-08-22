@@ -10,34 +10,6 @@
 #include "El-C.h"
 using namespace El;
 
-#define DM_CAST(T,A) dynamic_cast<DistMatrix<T>&>(*CReflect(A))
-#define DM_CAST_CONST(T,A) dynamic_cast<const DistMatrix<T>&>(*CReflect(A))
-
-#define DM_MD_STAR_CAST(T,A) \
-  dynamic_cast<DistMatrix<T,MD,STAR>&>(*CReflect(A))
-#define DM_MD_STAR_CAST_CONST(T,A) \
-  dynamic_cast<const DistMatrix<T,MD,STAR>&>(*CReflect(A))
-
-#define DM_STAR_VR_CAST(T,A) \
-  dynamic_cast<DistMatrix<T,STAR,VR>&>(*CReflect(A))
-#define DM_STAR_VR_CAST_CONST(T,A) \
-  dynamic_cast<const DistMatrix<T,STAR,VR>&>(*CReflect(A))
-
-#define DM_STAR_STAR_CAST(T,A) \
-  dynamic_cast<DistMatrix<T,STAR,STAR>&>(*CReflect(A))
-#define DM_STAR_STAR_CAST_CONST(T,A) \
-  dynamic_cast<const DistMatrix<T,STAR,STAR>&>(*CReflect(A))
-
-#define DM_VC_STAR_CAST(T,A) \
-  dynamic_cast<DistMatrix<T,VC,STAR>&>(*CReflect(A))
-#define DM_VC_STAR_CAST_CONST(T,A) \
-  dynamic_cast<const DistMatrix<T,VC,STAR>&>(*CReflect(A))
-
-#define DM_VR_STAR_CAST(T,A) \
-  dynamic_cast<DistMatrix<T,VR,STAR>&>(*CReflect(A))
-#define DM_VR_STAR_CAST_CONST(T,A) \
-  dynamic_cast<const DistMatrix<T,VR,STAR>&>(*CReflect(A))
-
 extern "C" {
 
 ElError ElQRCtrlFillDefault_s( ElQRCtrl_s* ctrl )
@@ -263,7 +235,7 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   ElError ElLU_ ## SIG ( ElMatrix_ ## SIG A ) \
   { EL_TRY( LU( *CReflect(A) ) ) } \
   ElError ElLUDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( LU( DM_CAST(F,A) ) ) } \
+  { EL_TRY( LU( *CReflect(A) ) ) } \
   /* LU with partial pivoting */ \
   ElError ElLUPartialPiv_ ## SIG ( ElMatrix_ ## SIG A, ElMatrix_i p ) \
   { EL_TRY( LU( *CReflect(A), *CReflect(p) ) ) } \
@@ -480,9 +452,8 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   ElError ElSkeletonDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_i pR, ElDistMatrix_i pC, \
     ElDistMatrix_ ## SIG Z, ElQRCtrl_ ## SIGBASE ctrl ) \
-  { EL_TRY( Skeleton( \
-      DM_CAST_CONST(F,A), DM_VR_STAR_CAST(Int,pR), DM_VR_STAR_CAST(Int,pC), \
-      DM_CAST(F,Z), CReflect(ctrl) ) ) }
+  { EL_TRY( Skeleton( *CReflect(A), *CReflect(pR), *CReflect(pC), \
+                      *CReflect(Z), CReflect(ctrl) ) ) }
 
 #define C_PROTO_REAL(SIG,F) \
   C_PROTO_FIELD(SIG,SIG,F) \
@@ -557,8 +528,8 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
     ElConstDistMatrix_ ## SIG u, ElConstDistMatrix_ ## SIG v, \
     Base<F> tau ) \
   { EL_TRY( LUMod( \
-      DM_CAST(F,A), DM_VC_STAR_CAST(Int,p), \
-      DM_CAST_CONST(F,u), DM_CAST_CONST(F,v), false, tau ) ) }
+      *CReflect(A), *CReflect(p), \
+      *CReflect(u), *CReflect(v), false, tau ) ) }
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
   C_PROTO_FIELD(SIG,SIGBASE,F) \
@@ -568,7 +539,7 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   ElError ElLDL_ ## SIG ( ElMatrix_ ## SIG A, bool conjugate ) \
   { EL_TRY( LDL( *CReflect(A), conjugate ) ) } \
   ElError ElLDLDist_ ## SIG ( ElDistMatrix_ ## SIG A, bool conjugate ) \
-  { EL_TRY( LDL( DM_CAST(F,A), conjugate ) ) } \
+  { EL_TRY( LDL( *CReflect(A), conjugate ) ) } \
   /* Return the packed LDL factorization with pivoting */ \
   ElError ElLDLPiv_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG dSub, ElMatrix_i p, bool conjugate, \
@@ -578,18 +549,15 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   ElError ElLDLPivDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG dSub, ElDistMatrix_i p, \
     bool conjugate, ElLDLPivotType pivotType ) \
-  { EL_TRY( LDL( DM_CAST(F,A), DM_MD_STAR_CAST(F,dSub), \
-                 DM_VC_STAR_CAST(Int,p), conjugate, \
-                 CReflect(pivotType) ) ) } \
+  { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), *CReflect(p), \
+                 conjugate, CReflect(pivotType) ) ) } \
   /* Multiply vectors after an unpivoted LDL factorization */ \
   ElError ElMultiplyAfterLDL_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B, bool conjugate ) \
-  { EL_TRY( \
-      ldl::MultiplyAfter( *CReflect(A), *CReflect(B), conjugate ) ) } \
+  { EL_TRY( ldl::MultiplyAfter( *CReflect(A), *CReflect(B), conjugate ) ) } \
   ElError ElMultiplyAfterLDLDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B, bool conjugate ) \
-  { EL_TRY( \
-      ldl::MultiplyAfter( DM_CAST_CONST(F,A), DM_CAST(F,B), conjugate ) ) } \
+  { EL_TRY( ldl::MultiplyAfter( *CReflect(A), *CReflect(B), conjugate ) ) } \
   /* Multiply vectors after a pivoted LDL factorization */ \
   ElError ElMultiplyAfterLDLPiv_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG dSub, ElConstMatrix_i p, \
@@ -601,15 +569,15 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG dSub, \
     ElConstDistMatrix_i p, ElDistMatrix_ ## SIG B, bool conjugate ) \
   { EL_TRY( ldl::MultiplyAfter( \
-      DM_CAST_CONST(F,A), DM_MD_STAR_CAST_CONST(F,dSub), \
-      DM_VC_STAR_CAST_CONST(Int,p), DM_CAST(F,B), conjugate ) ) } \
+      *CReflect(A), *CReflect(dSub), *CReflect(p), *CReflect(B), \
+      conjugate ) ) } \
   /* Solve against vectors after an unpivoted LDL factorization */ \
   ElError ElSolveAfterLDL_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B, bool conjugate ) \
   { EL_TRY( ldl::SolveAfter( *CReflect(A), *CReflect(B), conjugate ) ) } \
   ElError ElSolveAfterLDLDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B, bool conjugate ) \
-  { EL_TRY( ldl::SolveAfter( DM_CAST_CONST(F,A), DM_CAST(F,B), conjugate ) ) } \
+  { EL_TRY( ldl::SolveAfter( *CReflect(A), *CReflect(B), conjugate ) ) } \
   /* Solve against vectors after a pivoted LDL factorization */ \
   ElError ElSolveAfterLDLPiv_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG dSub, ElConstMatrix_i p, \
@@ -621,9 +589,8 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG dSub, \
     ElConstDistMatrix_i p, ElDistMatrix_ ## SIG B, bool conjugate ) \
   { EL_TRY( ldl::SolveAfter( \
-      DM_CAST_CONST(F,A), \
-      DM_MD_STAR_CAST_CONST(F,dSub), DM_VC_STAR_CAST_CONST(Int,p), \
-      DM_CAST(F,B), conjugate ) ) } \
+      *CReflect(A), *CReflect(dSub), *CReflect(p), *CReflect(B), \
+      conjugate ) ) } \
   /* LU factorization
      ================ */ \
   /* Rank-one LU factorization modification */ \
@@ -639,8 +606,8 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
     ElConstDistMatrix_ ## SIG u, ElConstDistMatrix_ ## SIG v, \
     bool conjugate, Base<F> tau ) \
   { EL_TRY( LUMod( \
-      DM_CAST(F,A), DM_VC_STAR_CAST(Int,p), \
-      DM_CAST_CONST(F,u), DM_CAST_CONST(F,v), conjugate, tau ) ) }
+      *CReflect(A), *CReflect(p), \
+      *CReflect(u), *CReflect(v), conjugate, tau ) ) }
 
 #define EL_NO_INT_PROTO
 #include "El/macros/CInstantiate.h"
