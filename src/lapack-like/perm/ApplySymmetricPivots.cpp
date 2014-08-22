@@ -30,10 +30,10 @@ void ApplySymmetricPivots
         SymmetricSwap( uplo, A, k, p.Get(k,0)-offset, conjugate );
 }
 
-template<typename T,Dist UPerm>
+template<typename T>
 void ApplySymmetricPivots
-( UpperOrLower uplo, DistMatrix<T>& A, 
-  const DistMatrix<Int,UPerm,STAR>& pivots, bool conjugate, Int offset )
+( UpperOrLower uplo, AbstractDistMatrix<T>& A, 
+  const AbstractDistMatrix<Int>& pivots, bool conjugate, Int offset )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ApplySymmetricPivots");
@@ -70,10 +70,10 @@ void ApplyInverseSymmetricPivots
         SymmetricSwap( uplo, A, k, p.Get(k,0)-offset, conjugate );
 }
 
-template<typename T,Dist UPerm>
+template<typename T>
 void ApplyInverseSymmetricPivots
-( UpperOrLower uplo, DistMatrix<T>& A, 
-  const DistMatrix<Int,UPerm,STAR>& pivots, bool conjugate, Int offset )
+( UpperOrLower uplo, AbstractDistMatrix<T>& A, 
+  const AbstractDistMatrix<Int>& pivots, bool conjugate, Int offset )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ApplyInverseSymmetricPivots");
@@ -90,27 +90,19 @@ void ApplyInverseSymmetricPivots
         SymmetricSwap( uplo, A, k, pivots.Get(k,0)-offset, conjugate );
 }
 
-#define PROTO_DIST(T,U) \
-  template void ApplySymmetricPivots \
-  ( UpperOrLower uplo, DistMatrix<T>& A, const DistMatrix<Int,U,STAR>& p, \
-    bool conjugate, Int offset ); \
-  template void ApplyInverseSymmetricPivots \
-  ( UpperOrLower uplo, DistMatrix<T>& A, const DistMatrix<Int,U,STAR>& p, \
-    bool conjugate, Int offset );
-
 #define PROTO(T) \
   template void ApplySymmetricPivots \
   ( UpperOrLower uplo, Matrix<T>& A, const Matrix<Int>& p, \
     bool conjugate, Int offset ); \
+  template void ApplySymmetricPivots \
+  ( UpperOrLower uplo, AbstractDistMatrix<T>& A, \
+    const AbstractDistMatrix<Int>& p, bool conjugate, Int offset ); \
   template void ApplyInverseSymmetricPivots \
   ( UpperOrLower uplo, Matrix<T>& A, const Matrix<Int>& p, \
     bool conjugate, Int offset ); \
-  PROTO_DIST(T,MC  ) \
-  PROTO_DIST(T,MD  ) \
-  PROTO_DIST(T,MR  ) \
-  PROTO_DIST(T,STAR) \
-  PROTO_DIST(T,VC  ) \
-  PROTO_DIST(T,VR  )
+  template void ApplyInverseSymmetricPivots \
+  ( UpperOrLower uplo, AbstractDistMatrix<T>& A, \
+    const AbstractDistMatrix<Int>& p, bool conjugate, Int offset );
 
 #include "El/macros/Instantiate.h"
 

@@ -59,34 +59,34 @@ struct PermutationMeta
 // ===================
 template<typename T>
 void ApplyColPivots( Matrix<T>& A, const Matrix<Int>& pivots, Int offset=0 );
-template<typename T,Dist U,Dist V,Dist UPerm>
+template<typename T>
 void ApplyColPivots
-( DistMatrix<T,U,V>& A, const DistMatrix<Int,UPerm,STAR>& pivots, 
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& pivots, 
   Int offset=0 );
 
 template<typename T>
 void ApplyInverseColPivots
 ( Matrix<T>& A, const Matrix<Int>& pivots, Int offset=0 );
-template<typename T,Dist U,Dist V,Dist UPerm>
+template<typename T>
 void ApplyInverseColPivots
-( DistMatrix<T,U,V>& A, const DistMatrix<Int,UPerm,STAR>& pivots, 
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& pivots, 
   Int offset=0 );
 
 // Apply row pivots
 // ================
 template<typename T>
 void ApplyRowPivots( Matrix<T>& A, const Matrix<Int>& pivots, Int offset=0 );
-template<typename T,Dist U,Dist V,Dist UPerm>
+template<typename T>
 void ApplyRowPivots
-( DistMatrix<T,U,V>& A, const DistMatrix<Int,UPerm,STAR>& pivots,
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& pivots,
   Int offset=0 );
 
 template<typename T>
 void ApplyInverseRowPivots
 ( Matrix<T>& A, const Matrix<Int>& pivots, Int offset=0 );
-template<typename T,Dist U,Dist V,Dist UPerm>
+template<typename T>
 void ApplyInverseRowPivots
-( DistMatrix<T,U,V>& A, const DistMatrix<Int,UPerm,STAR>& pivots, 
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& pivots, 
   Int offset=0 );
 
 // Apply symmetric pivots
@@ -96,10 +96,10 @@ void ApplySymmetricPivots
 ( UpperOrLower uplo, Matrix<T>& A, 
   const Matrix<Int>& p, bool conjugate=false, 
   Int offset=0 );
-template<typename T,Dist UPerm>
+template<typename T>
 void ApplySymmetricPivots
-( UpperOrLower uplo, DistMatrix<T>& A,
-  const DistMatrix<Int,UPerm,STAR>& pivots, bool conjugate=false, 
+( UpperOrLower uplo, AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& pivots, bool conjugate=false, 
   Int offset=0 );
 
 template<typename T>
@@ -107,10 +107,10 @@ void ApplyInverseSymmetricPivots
 ( UpperOrLower uplo, Matrix<T>& A, 
   const Matrix<Int>& p, bool conjugate=false, 
   Int offset=0 );
-template<typename T,Dist UPerm>
+template<typename T>
 void ApplyInverseSymmetricPivots
-( UpperOrLower uplo, DistMatrix<T>& A,
-  const DistMatrix<Int,UPerm,STAR>& pivots, bool conjugate=false, 
+( UpperOrLower uplo, AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& pivots, bool conjugate=false, 
   Int offset=0 );
 
 // Explicit permutation
@@ -122,15 +122,14 @@ void ExplicitPermutation
 
 // Invert permutation
 // ==================
-void InvertPermutation( const Matrix<Int>& perm, Matrix<Int>& invPerm );
+void InvertPermutation( const Matrix<Int>& p, Matrix<Int>& pInv );
 void InvertPermutation
-( const AbstractDistMatrix<Int>& perm, AbstractDistMatrix<Int>& invPerm );
+( const AbstractDistMatrix<Int>& p, AbstractDistMatrix<Int>& pInv );
 
 // Parity of a permutation
 // =======================
-bool PermutationParity( const Matrix<Int>& origPerm );
-template<Dist UPerm>
-bool PermutationParity( const DistMatrix<Int,UPerm,STAR>& origPerm );
+bool PermutationParity( const Matrix<Int>& p );
+bool PermutationParity( const AbstractDistMatrix<Int>& p );
 
 // Permute columns
 // ===============

@@ -10,69 +10,69 @@
 
 namespace El {
 
-void InvertPermutation( const Matrix<Int>& perm, Matrix<Int>& invPerm )
+void InvertPermutation( const Matrix<Int>& p, Matrix<Int>& pInv )
 {
     DEBUG_ONLY(
         CallStackEntry cse("InvertPermutation");
-        if( perm.Width() != 1 )
-            LogicError("perm must be a column vector");
+        if( p.Width() != 1 )
+            LogicError("p must be a column vector");
     )
-    const Int n = perm.Height();
-    invPerm.Resize( n, 1 );
+    const Int n = p.Height();
+    pInv.Resize( n, 1 );
     if( n == 0 )
         return;
 
     DEBUG_ONLY(
-        // This is obviously necessary but not sufficient for 'perm' to contain
+        // This is obviously necessary but not sufficient for 'p' to contain
         // a reordering of (0,1,...,n-1).
-        const Int range = MaxNorm( perm ) + 1;
+        const Int range = MaxNorm( p ) + 1;
         if( range != n )
-            LogicError("Invalid permutation range");
+            LogicError("Invalid putation range");
     )
 
     for( Int i=0; i<n; ++i )
-        invPerm.Set( perm.Get(i,0), 0, i );
+        pInv.Set( p.Get(i,0), 0, i );
 }
 
 void InvertPermutation
-( const AbstractDistMatrix<Int>& permPre, AbstractDistMatrix<Int>& invPermPre )
+( const AbstractDistMatrix<Int>& pPre, AbstractDistMatrix<Int>& pInvPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("InvertPermutation");
-        if( permPre.Width() != 1 )
-            LogicError("perm must be a column vector");
+        if( pPre.Width() != 1 )
+            LogicError("p must be a column vector");
     )
 
-    const Int n = permPre.Height();
-    invPermPre.AlignWith( permPre, false );
-    invPermPre.Resize( n, 1 );
+    const Int n = pPre.Height();
+    pInvPre.AlignWith( pPre, false );
+    pInvPre.Resize( n, 1 );
     if( n == 0 )
         return;
 
-    auto permPtr = ReadProxy<Int,VC,STAR>( &permPre ); 
-    auto& perm = *permPtr;
+    auto pPtr = ReadProxy<Int,VC,STAR>( &pPre ); 
+    auto& p = *pPtr;
 
-    auto invPermPtr = WriteProxy<Int,VC,STAR>( &invPermPre ); 
-    auto& invPerm = *invPermPtr;
+    auto pInvPtr = WriteProxy<Int,VC,STAR>( &pInvPre ); 
+    auto& pInv = *pInvPtr;
 
     DEBUG_ONLY(
-        // This is obviously necessary but not sufficient for 'perm' to contain
+        // This is obviously necessary but not sufficient for 'p' to contain
         // a reordering of (0,1,...,n-1).
-        const Int range = MaxNorm( perm ) + 1;
+        const Int range = MaxNorm( p ) + 1;
         if( range != n )
-            LogicError("Invalid permutation range");
+            LogicError("Invalid putation range");
     )
 
-    const mpi::Comm colComm = perm.ColComm();
+    const mpi::Comm colComm = p.ColComm();
     const Int commSize = mpi::Size( colComm );
     std::vector<int> sendCounts(commSize,0), sendDispls(commSize),
                      recvCounts(commSize,0), recvDispls(commSize);
 
     // Compute the send counts
-    for( Int iLoc=0; iLoc<perm.LocalHeight(); ++iLoc )
+    for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
     {
-        const Int iDest = perm.GetLocal(iLoc,0);
-        const Int owner = invPerm.RowOwner(iDest);
+        const Int iDest = p.GetLocal(iLoc,0);
+        const Int owner = pInv.RowOwner(iDest);
         sendCounts[owner] += 2; // we'll send the global index and the value
     }
     // Perform a small AllToAll to get the receive counts
@@ -91,11 +91,11 @@ void InvertPermutation
     // Pack the send data
     std::vector<Int> sendBuf(sendTotal);
     auto offsets = sendDispls;
-    for( Int iLoc=0; iLoc<perm.LocalHeight(); ++iLoc )
+    for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
     {
-        const Int i     = perm.GlobalRow(iLoc);
-        const Int iDest = perm.GetLocal(iLoc,0);
-        const Int owner = invPerm.RowOwner(iDest);
+        const Int i     = p.GlobalRow(iLoc);
+        const Int iDest = p.GetLocal(iLoc,0);
+        const Int owner = pInv.RowOwner(iDest);
         sendBuf[offsets[owner]++] = iDest;
         sendBuf[offsets[owner]++] = i;
     }
@@ -115,8 +115,8 @@ void InvertPermutation
         const Int iDest = recvBuf[2*k+0];
         const Int i     = recvBuf[2*k+1];
 
-        const Int iDestLoc = invPerm.LocalRow(iDest);
-        invPerm.SetLocal( iDestLoc, 0, i );
+        const Int iDestLoc = pInv.LocalRow(iDest);
+        pInv.SetLocal( iDestLoc, 0, i );
     }
 }
 

@@ -50,48 +50,35 @@ bool PermutationParity( const Matrix<Int>& origPerm )
     return isOdd;
 }
 
-template<Dist UPerm>
-bool PermutationParity( const DistMatrix<Int,UPerm,STAR>& origPerm ) 
+bool PermutationParity( const AbstractDistMatrix<Int>& pPre ) 
 {
     DEBUG_ONLY(
         CallStackEntry cse("PermutationParity");
-        if( origPerm.Width() != 1 )
+        if( pPre.Width() != 1 )
             LogicError("permutation must be a column vector");
     )
 
-    DistMatrix<Int,UPerm,STAR> perm( origPerm );
-
-    DistMatrix<Int,UPerm,STAR> invPerm( origPerm.Grid() );
-    InvertPermutation( perm, invPerm );
+    DistMatrix<Int,VC,STAR> p( pPre ), pInv( pPre.Grid() );
+    InvertPermutation( p, pInv );
 
     bool isOdd = false;
-    const Int n = perm.Height();
+    const Int n = p.Height();
     for( Int k=0; k<n; ++k )
     {
-        const Int permVal = perm.Get(k,0);
+        const Int permVal = p.Get(k,0);
         if( permVal != k )
         {
             isOdd = !isOdd;
-            const Int invPermVal = invPerm.Get(k,0);
+            const Int invPermVal = pInv.Get(k,0);
             // We only need to perform half of the swaps
-            //      perm[k] <-> perm[invPerm[k]]
-            //   invPerm[k] <-> invPerm[perk[k]] 
-            // since we will not need to access perm[k] and invPerm[k] again.
-            perm.Set( invPermVal, 0, permVal );
-            invPerm.Set( permVal, 0, invPermVal );
+            //      p[k] <-> p[pInv[k]]
+            //   pInv[k] <-> pInv[p[k]] 
+            // since we will not need to access p[k] and pInv[k] again.
+            p.Set( invPermVal, 0, permVal );
+            pInv.Set( permVal, 0, invPermVal );
         }
     }
     return isOdd;
 }
-
-#define PROTO_DIST(U) \
-  template bool PermutationParity( const DistMatrix<Int,U,STAR>& origPerm );
-
-PROTO_DIST(MC  )
-PROTO_DIST(MD  )
-PROTO_DIST(MR  )
-PROTO_DIST(STAR)
-PROTO_DIST(VC  )
-PROTO_DIST(VR  )
 
 } // namespace El

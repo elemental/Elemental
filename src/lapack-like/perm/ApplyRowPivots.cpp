@@ -73,13 +73,13 @@ void ApplyInverseRowPivots
     }
 }
 
-template<typename T,Dist U,Dist V,Dist UPerm>
+template<typename T>
 void ApplyRowPivots
-( DistMatrix<T,U,V>& A, const DistMatrix<Int,UPerm,STAR>& pivots, Int offset )
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& pivots, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("ApplyRowPivots"))
-    DistMatrix<Int,UPerm,STAR> perm(pivots.Grid()),
-                               invPerm(pivots.Grid());
+    DistMatrix<Int,VC,STAR> perm(pivots.Grid()),
+                            invPerm(pivots.Grid());
     if( pivots.Height() == A.Width() )
     {
         PivotsToInversePermutation( pivots, invPerm, offset );
@@ -92,13 +92,13 @@ void ApplyRowPivots
     PermuteRows( A, perm, invPerm );
 }
 
-template<typename T,Dist U,Dist V,Dist UPerm>
+template<typename T>
 void ApplyInverseRowPivots
-( DistMatrix<T,U,V>& A, const DistMatrix<Int,UPerm,STAR>& pivots, Int offset )
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& pivots, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("ApplyInverseRowPivots"))
-    DistMatrix<Int,UPerm,STAR> perm(pivots.Grid()),
-                               invPerm(pivots.Grid());
+    DistMatrix<Int,VC,STAR> perm(pivots.Grid()),
+                            invPerm(pivots.Grid());
     if( pivots.Height() == A.Width() )
     {
         PivotsToInversePermutation( pivots, invPerm, offset );
@@ -111,53 +111,17 @@ void ApplyInverseRowPivots
     PermuteRows( A, invPerm, perm );
 }
 
-#define PROTO_DIST(T,U,V) \
-  template void ApplyRowPivots \
-  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,MC,STAR>& pivots, Int offset ); \
-  template void ApplyRowPivots \
-  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,MD,STAR>& pivots, Int offset ); \
-  template void ApplyRowPivots \
-  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,MR,STAR>& pivots, Int offset ); \
-  template void ApplyRowPivots \
-  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,VC,STAR>& pivots, Int offset ); \
-  template void ApplyRowPivots \
-  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,VR,STAR>& pivots, Int offset ); \
-  template void ApplyRowPivots \
-  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,STAR,STAR>& pivots, \
-    Int offset ); \
-  template void ApplyInverseRowPivots \
-  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,MC,STAR>& pivots, Int offset ); \
-  template void ApplyInverseRowPivots \
-  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,MD,STAR>& pivots, Int offset ); \
-  template void ApplyInverseRowPivots \
-  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,MR,STAR>& pivots, Int offset ); \
-  template void ApplyInverseRowPivots \
-  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,VC,STAR>& pivots, Int offset ); \
-  template void ApplyInverseRowPivots \
-  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,VR,STAR>& pivots, Int offset ); \
-  template void ApplyInverseRowPivots \
-  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,STAR,STAR>& pivots, \
-    Int offset );
-
 #define PROTO(T) \
   template void ApplyRowPivots \
   ( Matrix<T>& A, const Matrix<Int>& pivots, Int offset ); \
+  template void ApplyRowPivots \
+  ( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& pivots, \
+    Int offset ); \
   template void ApplyInverseRowPivots \
   ( Matrix<T>& A, const Matrix<Int>& pivots, Int offset ); \
-  PROTO_DIST(T,CIRC,CIRC) \
-  PROTO_DIST(T,MC,  MR  ) \
-  PROTO_DIST(T,MC,  STAR) \
-  PROTO_DIST(T,MD,  STAR) \
-  PROTO_DIST(T,MR,  MC  ) \
-  PROTO_DIST(T,MR,  STAR) \
-  PROTO_DIST(T,STAR,MC  ) \
-  PROTO_DIST(T,STAR,MD  ) \
-  PROTO_DIST(T,STAR,MR  ) \
-  PROTO_DIST(T,STAR,STAR) \
-  PROTO_DIST(T,STAR,VC  ) \
-  PROTO_DIST(T,STAR,VR  ) \
-  PROTO_DIST(T,VC,  STAR) \
-  PROTO_DIST(T,VR,  STAR)
+  template void ApplyInverseRowPivots \
+  ( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& pivots, \
+    Int offset );
 
 #include "El/macros/Instantiate.h"
 
