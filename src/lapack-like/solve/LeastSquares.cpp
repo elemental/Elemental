@@ -36,10 +36,13 @@ void LeastSquares
 
 template<typename F> 
 void LeastSquares
-( Orientation orientation, DistMatrix<F>& A, const DistMatrix<F>& B, 
-  DistMatrix<F>& X )
+( Orientation orientation, AbstractDistMatrix<F>& APre,
+  const AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("LeastSquares"))
+
+    auto APtr = ReadProxy( &APre );
+    auto& A = *APtr;
 
     DistMatrix<F,MD,STAR> t(A.Grid());
     DistMatrix<Base<F>,MD,STAR> d(A.Grid());
@@ -63,8 +66,8 @@ void LeastSquares
   ( Orientation orientation, Matrix<F>& A, const Matrix<F>& B, \
     Matrix<F>& X ); \
   template void LeastSquares \
-  ( Orientation orientation, DistMatrix<F>& A, const DistMatrix<F>& B, \
-    DistMatrix<F>& X );
+  ( Orientation orientation, AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& X );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

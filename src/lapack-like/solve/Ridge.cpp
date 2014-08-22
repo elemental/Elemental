@@ -67,10 +67,15 @@ void Ridge
 
 template<typename F> 
 void Ridge
-( const DistMatrix<F>& A, const DistMatrix<F>& B, 
-  Base<F> alpha, DistMatrix<F>& X, RidgeAlg alg )
+( const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& BPre, 
+  Base<F> alpha, AbstractDistMatrix<F>& XPre, RidgeAlg alg )
 {
     DEBUG_ONLY(CallStackEntry cse("Ridge"))
+
+    auto APtr = ReadProxy( &APre );  auto& A = *APtr;
+    auto BPtr = ReadProxy( &BPre );  auto& B = *BPtr;
+    auto XPtr = WriteProxy(& XPre ); auto& X = *XPtr;
+
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -125,8 +130,8 @@ void Ridge
   ( const Matrix<F>& A, const Matrix<F>& B, \
     Base<F> alpha, Matrix<F>& X, RidgeAlg alg ); \
   template void Ridge \
-  ( const DistMatrix<F>& A, const DistMatrix<F>& B, \
-    Base<F> alpha, DistMatrix<F>& X, RidgeAlg alg );
+  ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, \
+    Base<F> alpha, AbstractDistMatrix<F>& X, RidgeAlg alg );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

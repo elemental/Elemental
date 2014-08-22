@@ -17,7 +17,7 @@ namespace El {
 template<typename F>
 void GaussianElimination( Matrix<F>& A, Matrix<F>& B );
 template<typename F>
-void GaussianElimination( DistMatrix<F>& A, DistMatrix<F>& B );
+void GaussianElimination( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
 
 // min_{X,Y} || Y ||_F subject to D = A X + B Y
 // ============================================
@@ -26,7 +26,8 @@ void GLM
 ( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y );
 template<typename F>
 void GLM
-( DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<F>& D, DistMatrix<F>& Y );
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
+  AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& Y );
 
 // B := inv(A) B for a Hermitian A
 // ===============================
@@ -37,7 +38,8 @@ void HermitianSolve
 template<typename F>
 void HermitianSolve
 ( UpperOrLower uplo, Orientation orientation,
-  DistMatrix<F>& A, DistMatrix<F>& B, LDLPivotType pivotType=BUNCH_KAUFMAN_A );
+  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A );
 
 // B := inv(A) for Hermitian Positive-Definite (HPD) A
 // ===================================================
@@ -48,7 +50,7 @@ void HPDSolve
 template<typename F>
 void HPDSolve
 ( UpperOrLower uplo, Orientation orientation,
-  DistMatrix<F>& A, DistMatrix<F>& B );
+  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
 
 // min_X || A X - B ||_F
 // =====================
@@ -58,8 +60,8 @@ void LeastSquares
   Matrix<F>& X );
 template<typename F>
 void LeastSquares
-( Orientation orientation, DistMatrix<F>& A, const DistMatrix<F>& B, 
-  DistMatrix<F>& X );
+( Orientation orientation, AbstractDistMatrix<F>& A, 
+  const AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& X );
 
 // min_X || A X - C ||_F subject to B X = D
 // ========================================
@@ -69,8 +71,9 @@ void LSE
   Matrix<F>& X, bool computeResidual=false );
 template<typename F>
 void LSE
-( DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<F>& C, DistMatrix<F>& D, 
-  DistMatrix<F>& X, bool computeResidual=false );
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
+  AbstractDistMatrix<F>& C, AbstractDistMatrix<F>& D, 
+  AbstractDistMatrix<F>& X, bool computeResidual=false );
 
 // Solve for B in op(H) B - B op(D) = X, where H is Hessenberg
 // ===========================================================
@@ -79,11 +82,11 @@ void MultiShiftHessSolve
 ( UpperOrLower uplo, Orientation orientation,
   F alpha, const Matrix<F>& H, const Matrix<F>& shifts,
   Matrix<F>& X );
-template<typename F,Dist UH,Dist VH,Dist VX>
+template<typename F>
 void MultiShiftHessSolve
 ( UpperOrLower uplo, Orientation orientation,
-  F alpha, const DistMatrix<F,UH,VH>& H, const DistMatrix<F,VX,STAR>& shifts,
-  DistMatrix<F,STAR,VX>& X );
+  F alpha, const AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& shifts,
+  AbstractDistMatrix<F>& X );
 
 // Ridge regression
 // ================
@@ -105,8 +108,8 @@ void Ridge
   Base<F> alpha, Matrix<F>& X, RidgeAlg alg=RIDGE_CHOLESKY );
 template<typename F>
 void Ridge
-( const DistMatrix<F>& A, const DistMatrix<F>& B, 
-  Base<F> alpha, DistMatrix<F>& X, RidgeAlg alg=RIDGE_CHOLESKY );
+( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
+  Base<F> alpha, AbstractDistMatrix<F>& X, RidgeAlg alg=RIDGE_CHOLESKY );
 
 // B := inv(A) B for a symmetric A
 // ===============================
@@ -118,7 +121,7 @@ void SymmetricSolve
 template<typename F>
 void SymmetricSolve
 ( UpperOrLower uplo, Orientation orientation,
-  DistMatrix<F>& A, DistMatrix<F>& B, bool conjugate=false, 
+  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, bool conjugate=false, 
   LDLPivotType pivotType=BUNCH_KAUFMAN_A );
 
 // Tikhonov regularization
@@ -141,8 +144,8 @@ void Tikhonov
   TikhonovAlg alg=TIKHONOV_CHOLESKY );
 template<typename F>
 void Tikhonov
-( const DistMatrix<F>& A, const DistMatrix<F>& B, 
-  const DistMatrix<F>& Gamma, DistMatrix<F>& X, 
+( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
+  const AbstractDistMatrix<F>& Gamma, AbstractDistMatrix<F>& X, 
   TikhonovAlg alg=TIKHONOV_CHOLESKY );
 
 // TODO: Generalized Tikhonov regularization

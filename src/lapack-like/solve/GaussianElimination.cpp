@@ -151,16 +151,24 @@ void GaussianElimination( Matrix<F>& A, Matrix<F>& B )
 }
 
 template<typename F> 
-void GaussianElimination( DistMatrix<F>& A, DistMatrix<F>& B )
+void GaussianElimination
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
 {
     DEBUG_ONLY(CallStackEntry cse("GaussianElimination"))
+
+    // NOTE: Since only the upper triangle of the factorization is formed,
+    //       we could usually get away with A only being a Write proxy.
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
+
     RowEchelon( A, B );
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
 }
 
 #define PROTO(F) \
   template void GaussianElimination( Matrix<F>& A, Matrix<F>& B ); \
-  template void GaussianElimination( DistMatrix<F>& A, DistMatrix<F>& B );
+  template void GaussianElimination \
+  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

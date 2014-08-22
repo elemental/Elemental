@@ -32,12 +32,16 @@ void SymmetricSolve
 
 template<typename F>
 void SymmetricSolve
-( UpperOrLower uplo, Orientation orientation, DistMatrix<F>& A, 
-  DistMatrix<F>& B, bool conjugate, LDLPivotType pivotType )
+( UpperOrLower uplo, Orientation orientation, AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& BPre, bool conjugate, LDLPivotType pivotType )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricSolve"))
     if( uplo == UPPER )
         LogicError("Upper Bunch-Kaufman is not yet supported");
+
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
+    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
+
     DistMatrix<Int,VC,STAR> pPerm(A.Grid()); 
     DistMatrix<F,MD,STAR> dSub(A.Grid());
     LDL( A, dSub, pPerm, conjugate, pivotType );
@@ -57,7 +61,7 @@ void SymmetricSolve
     LDLPivotType pivotType ); \
   template void SymmetricSolve \
   ( UpperOrLower uplo, Orientation orientation, \
-    DistMatrix<F>& A, DistMatrix<F>& B, bool conjugate, \
+    AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, bool conjugate, \
     LDLPivotType pivotType );
 
 #define EL_NO_INT_PROTO

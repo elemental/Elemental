@@ -140,10 +140,18 @@ void LSE
 
 template<typename F> 
 void LSE
-( DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<F>& C, DistMatrix<F>& D, 
-  DistMatrix<F>& X, bool computeResidual )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre, 
+  AbstractDistMatrix<F>& CPre, AbstractDistMatrix<F>& DPre, 
+  AbstractDistMatrix<F>& XPre, bool computeResidual )
 {
     DEBUG_ONLY(CallStackEntry cse("LSE"))
+
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
+    auto DPtr = ReadWriteProxy( &DPre ); auto& D = *DPtr;
+    auto XPtr = WriteProxy( &XPre );     auto& X = *XPtr;
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Int p = B.Height();
@@ -233,8 +241,9 @@ void LSE
   ( Matrix<F>& A, Matrix<F>& B, Matrix<F>& C, Matrix<F>& D, \
     Matrix<F>& X, bool computeResidual ); \
   template void LSE \
-  ( DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<F>& C, DistMatrix<F>& D, \
-    DistMatrix<F>& X, bool computeResidual );
+  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
+    AbstractDistMatrix<F>& C, AbstractDistMatrix<F>& D, \
+    AbstractDistMatrix<F>& X, bool computeResidual );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

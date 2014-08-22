@@ -22,7 +22,7 @@ void HermitianSolve
 template<typename F>
 void HermitianSolve
 ( UpperOrLower uplo, Orientation orientation, 
-  DistMatrix<F>& A, DistMatrix<F>& B, LDLPivotType pivotType )
+  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, LDLPivotType pivotType )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSolve"))
     SymmetricSolve( uplo, orientation, A, B, true, pivotType );
@@ -34,7 +34,8 @@ void HermitianSolve
     Matrix<F>& A, Matrix<F>& B, LDLPivotType pivotType ); \
   template void HermitianSolve \
   ( UpperOrLower uplo, Orientation orientation, \
-    DistMatrix<F>& A, DistMatrix<F>& B, LDLPivotType pivotType );
+    AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
+    LDLPivotType pivotType );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

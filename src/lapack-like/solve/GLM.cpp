@@ -95,9 +95,16 @@ void GLM( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y )
 
 template<typename F> 
 void GLM
-( DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<F>& D, DistMatrix<F>& Y )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre, 
+  AbstractDistMatrix<F>& DPre, AbstractDistMatrix<F>& YPre )
 {
     DEBUG_ONLY(CallStackEntry cse("GLM"))
+
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
+    auto DPtr = ReadWriteProxy( &DPre ); auto& D = *DPtr;
+    auto YPtr = WriteProxy( &YPre );     auto& Y = *YPtr;
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Int p = B.Width();
@@ -155,7 +162,8 @@ void GLM
   template void GLM \
   ( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y ); \
   template void GLM \
-  ( DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<F>& D, DistMatrix<F>& Y );
+  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
+    AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& Y );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

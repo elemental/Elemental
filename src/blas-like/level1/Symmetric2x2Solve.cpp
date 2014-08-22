@@ -326,13 +326,16 @@ template<typename F>
 void
 Symmetric2x2Solve
 ( LeftOrRight side, UpperOrLower uplo,
-  const DistMatrix<F,STAR,STAR>& D, AbstractDistMatrix<F>& A, bool conjugate )
+  const AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& A, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Symmetric2x2Solve"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLocal = A.LocalHeight();
+
+    DistMatrix<F,STAR,STAR> D_STAR_STAR( D );
+
     if( side == LEFT )
     {
         if( m != 2 )
@@ -384,9 +387,9 @@ Symmetric2x2Solve
         {
             if( conjugate )
             {
-                const Real delta11 = D.GetLocalRealPart(0,0);
-                const F delta21 = D.GetLocal(1,0);
-                const Real delta22 = D.GetLocalRealPart(1,1);
+                const Real delta11 = D_STAR_STAR.GetLocalRealPart(0,0);
+                const F delta21 = D_STAR_STAR.GetLocal(1,0);
+                const Real delta22 = D_STAR_STAR.GetLocalRealPart(1,1);
                 const Real delta21Abs = SafeAbs( delta21 );
                 const Real phi21To11 = delta22 / delta21Abs;
                 const Real phi21To22 = delta11 / delta21Abs;
@@ -404,9 +407,9 @@ Symmetric2x2Solve
             }
             else
             {
-                const F delta11 = D.GetLocal(0,0);
-                const F delta21 = D.GetLocal(1,0);
-                const F delta22 = D.GetLocal(1,1);
+                const F delta11 = D_STAR_STAR.GetLocal(0,0);
+                const F delta21 = D_STAR_STAR.GetLocal(1,0);
+                const F delta22 = D_STAR_STAR.GetLocal(1,1);
                 const F chi21To11 = -delta22 / delta21;
                 const F chi21To22 = -delta11 / delta21;
                 const F chi21 = (F(1)/(F(1)-chi21To11*chi21To22))/delta21;
@@ -437,7 +440,7 @@ Symmetric2x2Solve
     const Matrix<F>& D, const Matrix<F>& a1, Matrix<F>& a2, bool conjugate ); \
   template void Symmetric2x2Solve \
   ( LeftOrRight side, UpperOrLower uplo, \
-    const DistMatrix<F,STAR,STAR>& D, AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& A, \
     bool conjugate );
 
 #define EL_NO_INT_PROTO

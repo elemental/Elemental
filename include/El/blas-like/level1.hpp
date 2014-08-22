@@ -389,6 +389,7 @@ void QuasiDiagonalScale
 ( LeftOrRight side, UpperOrLower uplo,
   const Matrix<FMain>& d, const Matrix<F>& dSub,
   Matrix<F>& X, bool conjugated=false );
+// TODO: Switch to full AbstractDistMatrix interface
 template<typename F,typename FMain,Dist U,Dist V>
 void QuasiDiagonalScale
 ( LeftOrRight side, UpperOrLower uplo,
@@ -431,6 +432,7 @@ QuasiDiagonalSolve
 ( LeftOrRight side, UpperOrLower uplo,
   const Matrix<FMain>& d, const Matrix<F>& dSub,
   Matrix<F>& X, bool conjugated=false );
+// TODO: Switch to full AbstractDistMatrix interface
 template<typename F,typename FMain,Dist U,Dist V>
 void
 QuasiDiagonalSolve
@@ -552,7 +554,7 @@ template<typename F>
 void
 Symmetric2x2Scale
 ( LeftOrRight side, UpperOrLower uplo,
-  const DistMatrix<F,STAR,STAR>& D, AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& A,
   bool conjugate=false );
 
 template<typename F>
@@ -580,7 +582,7 @@ template<typename F>
 void
 Symmetric2x2Solve
 ( LeftOrRight side, UpperOrLower uplo,
-  const DistMatrix<F,STAR,STAR>& D, AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& A,
   bool conjugate=false );
 
 template<typename F>

@@ -23,8 +23,6 @@ struct QRCtrl
 
     bool alwaysRecomputeNorms;
 
-    // TODO: Add Chan ratio
-
     QRCtrl()
     : boundRank(false), maxRank(0), adaptive(false), tol(0),
       alwaysRecomputeNorms(false)

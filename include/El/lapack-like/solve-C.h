@@ -23,7 +23,6 @@ ElError ElGaussianElimination_d( ElMatrix_d A, ElMatrix_d B );
 ElError ElGaussianElimination_c( ElMatrix_c A, ElMatrix_c B );
 ElError ElGaussianElimination_z( ElMatrix_z A, ElMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions */
 ElError ElGaussianEliminationDist_s( ElDistMatrix_s A, ElDistMatrix_s B );
 ElError ElGaussianEliminationDist_d( ElDistMatrix_d A, ElDistMatrix_d B );
 ElError ElGaussianEliminationDist_c( ElDistMatrix_c A, ElDistMatrix_c B );
@@ -38,7 +37,6 @@ ElError ElGLM_d( ElMatrix_d A, ElMatrix_d B, ElMatrix_d D, ElMatrix_d Y );
 ElError ElGLM_c( ElMatrix_c A, ElMatrix_c B, ElMatrix_c D, ElMatrix_c Y );
 ElError ElGLM_z( ElMatrix_z A, ElMatrix_z B, ElMatrix_z D, ElMatrix_z Y );
 
-/* NOTE: 'A', 'B', 'D', and 'Y' must be in [MC,MR] distributions */
 ElError ElGLMDist_s
 ( ElDistMatrix_s A, ElDistMatrix_s B, ElDistMatrix_s D, ElDistMatrix_s Y );
 ElError ElGLMDist_d
@@ -55,7 +53,6 @@ ElError ElHermitianSolve_c
 ElError ElHermitianSolve_z
 ( ElUpperOrLower uplo, ElOrientation orientation, ElMatrix_z A, ElMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions */
 ElError ElHermitianSolveDist_c
 ( ElUpperOrLower uplo, ElOrientation orientation, 
   ElDistMatrix_c A, ElDistMatrix_c B );
@@ -76,7 +73,6 @@ ElError ElHPDSolve_c
 ElError ElHPDSolve_z
 ( ElUpperOrLower uplo, ElOrientation orientation, ElMatrix_z A, ElMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions */
 ElError ElHPDSolveDist_s
 ( ElUpperOrLower uplo, ElOrientation orientation, 
   ElDistMatrix_s A, ElDistMatrix_s B );
@@ -103,7 +99,6 @@ ElError ElLeastSquares_c
 ElError ElLeastSquares_z
 ( ElOrientation orientation, ElMatrix_z A, ElConstMatrix_z B, ElMatrix_z X );
 
-/* NOTE: 'A', 'B', and 'X' must be in [MC,MR] distributions */
 ElError ElLeastSquaresDist_s
 ( ElOrientation orientation, 
   ElDistMatrix_s A, ElConstDistMatrix_s B, ElDistMatrix_s X );
@@ -130,7 +125,6 @@ ElError ElLSE_c
 ElError ElLSE_z
 ( ElMatrix_z A, ElMatrix_z B, ElMatrix_z C, ElMatrix_z D, ElMatrix_z X );
 
-/* NOTE: 'A', 'B', 'C', 'D', and 'X' must be in [MC,MR] distributions */
 ElError ElLSEDist_s
 ( ElDistMatrix_s A, ElDistMatrix_s B, ElDistMatrix_s C, ElDistMatrix_s D, 
   ElDistMatrix_s X );
@@ -163,9 +157,6 @@ ElError ElMultiShiftHessSolve_z
 ( ElUpperOrLower uplo, ElOrientation orientation, complex_double alpha,
   ElConstMatrix_z H, ElConstMatrix_z shifts, ElMatrix_z X );
 
-/* NOTE: 'H' must be in a [VC,STAR] distribution, while
-         'shifts' must be in a [VR,STAR] distribution, and
-         'X' must be in a [STAR,VR] distribution */
 ElError ElMultiShiftHessSolveDist_s
 ( ElUpperOrLower uplo, ElOrientation orientation, float alpha,
   ElConstDistMatrix_s H, ElConstDistMatrix_s shifts, ElDistMatrix_s X );
@@ -198,7 +189,6 @@ ElError ElRidge_c
 ElError ElRidge_z
 ( ElConstMatrix_z A, ElConstMatrix_z B, double alpha, ElMatrix_z X );
 
-/* NOTE: 'A', 'B', and 'X' must be in [MC,MR] distributions */
 ElError ElRidgeDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_s B, float alpha, 
   ElDistMatrix_s X );
@@ -227,7 +217,6 @@ ElError ElRidgeX_z
 ( ElConstMatrix_z A, ElConstMatrix_z B, double alpha, ElMatrix_z X,
   ElRidgeAlg alg );
 
-/* NOTE: 'A', 'B', and 'X' must be in [MC,MR] distributions */
 ElError ElRidgeXDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_s B, float alpha, 
   ElDistMatrix_s X, ElRidgeAlg alg );
@@ -252,7 +241,6 @@ ElError ElSymmetricSolve_c
 ElError ElSymmetricSolve_z
 ( ElUpperOrLower uplo, ElOrientation orientation, ElMatrix_z A, ElMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions */
 ElError ElSymmetricSolveDist_s
 ( ElUpperOrLower uplo, ElOrientation orientation, 
   ElDistMatrix_s A, ElDistMatrix_s B );
@@ -286,7 +274,6 @@ ElError ElTikhonov_c
 ElError ElTikhonov_z
 ( ElConstMatrix_z A, ElConstMatrix_z B, ElConstMatrix_z Gamma, ElMatrix_z X );
 
-/* NOTE: 'A', 'B', 'Gamma', and 'X' must be in [MC,MR] distributions */
 ElError ElTikhonovDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_s B, ElConstDistMatrix_s Gamma, 
   ElDistMatrix_s X );
@@ -315,7 +302,6 @@ ElError ElTikhonovX_z
 ( ElConstMatrix_z A, ElConstMatrix_z B, ElConstMatrix_z Gamma, ElMatrix_z X, 
   ElTikhonovAlg alg );
 
-/* NOTE: 'A', 'B', 'Gamma', and 'X' must be in [MC,MR] distributions */
 ElError ElTikhonovXDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_s B, ElConstDistMatrix_s Gamma, 
   ElDistMatrix_s X, ElTikhonovAlg alg );

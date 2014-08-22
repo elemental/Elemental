@@ -23,9 +23,13 @@ void HPDSolve
 template<typename F>
 void HPDSolve
 ( UpperOrLower uplo, Orientation orientation, 
-  DistMatrix<F>& A, DistMatrix<F>& B )
+  AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
 {
     DEBUG_ONLY(CallStackEntry cse("HPDSolve"))
+
+    auto APtr = ReadProxy( &APre );  auto& A = *APtr;
+    auto BPtr = WriteProxy( &BPre ); auto& B = *BPtr;
+
     Cholesky( uplo, A );
     cholesky::SolveAfter( uplo, orientation, A, B );
 }
@@ -36,7 +40,7 @@ void HPDSolve
     Matrix<F>& A, Matrix<F>& B ); \
   template void HPDSolve \
   ( UpperOrLower uplo, Orientation orientation, \
-    DistMatrix<F>& A, DistMatrix<F>& B );
+    AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

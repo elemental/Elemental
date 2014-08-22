@@ -51,10 +51,16 @@ void Tikhonov
 
 template<typename F> 
 void Tikhonov
-( const DistMatrix<F>& A, const DistMatrix<F>& B, 
-  const DistMatrix<F>& Gamma, DistMatrix<F>& X, TikhonovAlg alg )
+( const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& BPre, 
+  const AbstractDistMatrix<F>& Gamma, AbstractDistMatrix<F>& XPre, 
+  TikhonovAlg alg )
 {
     DEBUG_ONLY(CallStackEntry cse("Tikhonov"))
+
+    auto APtr = ReadProxy( &APre );  auto& A = *APtr;
+    auto BPtr = ReadProxy( &BPre );  auto& B = *BPtr;
+    auto XPtr = WriteProxy( &XPre ); auto& X = *XPtr;
+
     const Int m = A.Height();
     const Int n = A.Width();
     if( Gamma.Width() != n )
@@ -93,8 +99,9 @@ void Tikhonov
   ( const Matrix<F>& A, const Matrix<F>& B, \
     const Matrix<F>& Gamma, Matrix<F>& X, TikhonovAlg alg ); \
   template void Tikhonov \
-  ( const DistMatrix<F>& A, const DistMatrix<F>& B, \
-    const DistMatrix<F>& Gamma, DistMatrix<F>& X, TikhonovAlg alg );
+  ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, \
+    const AbstractDistMatrix<F>& Gamma, AbstractDistMatrix<F>& X, \
+    TikhonovAlg alg );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

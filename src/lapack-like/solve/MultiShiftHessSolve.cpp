@@ -207,17 +207,23 @@ UN( F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X )
 //       on every process and this distribution will keep the communication 
 //       balanced.
 
-template<typename F,Dist UH,Dist VH,Dist VX>
+template<typename F>
 inline void
 LN
-( F alpha, const DistMatrix<F,UH,VH>& H, const DistMatrix<F,VX,STAR>& shifts,
-  DistMatrix<F,STAR,VX>& X ) 
+( F alpha, const AbstractDistMatrix<F>& H, 
+  const AbstractDistMatrix<F>& shiftsPre, AbstractDistMatrix<F>& XPre ) 
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("mshs::LN");
-        if( shifts.ColAlign() != X.RowAlign() )
-            LogicError("shifts and X are not aligned");
-    )
+    DEBUG_ONLY(CallStackEntry cse("mshs::LN"))
+
+    auto XPtr = ReadWriteProxy<F,STAR,VR>( &XPre ); 
+    auto& X = *XPtr;
+
+    ProxyCtrl ctrl; 
+    ctrl.colConstrain = true;
+    ctrl.colAlign = X.RowAlign();
+    auto shiftsPtr = ReadProxy( &shiftsPre, ctrl );
+    auto& shifts = *shiftsPtr;
+
     Scale( alpha, X );
 
     const Int m = X.Height();
@@ -233,8 +239,9 @@ LN
     // Initialize the workspace for shifted columns of H
     Matrix<F> W(m,nLoc);
     {
-        auto h0 = H( IR(0,m), IR(0,1) );
-        DistMatrix<F,STAR,STAR> h0_STAR_STAR( h0 );
+        auto h0 = std::unique_ptr<AbstractDistMatrix<F>>( H.Construct() );
+        LockedView( *h0, H, IR(0,m), IR(0,1) );
+        DistMatrix<F,STAR,STAR> h0_STAR_STAR( *h0 );
         for( Int jLoc=0; jLoc<nLoc; ++jLoc )
         {
             MemCopy( W.Buffer(0,jLoc), h0_STAR_STAR.LockedBuffer(), m );
@@ -243,11 +250,12 @@ LN
     }
      
     // Simultaneously find the LQ factorization and solve against L
+    auto hB = std::unique_ptr<AbstractDistMatrix<F>>( H.Construct() );
     DistMatrix<F,STAR,STAR> hB_STAR_STAR( H.Grid() );
     for( Int k=0; k<m-1; ++k )
     {
-        auto hB = H( IR(k+2,m), IR(k+1,k+2) );
-        hB_STAR_STAR = hB;
+        LockedView( *hB, H, IR(k+2,m), IR(k+1,k+2) );
+        hB_STAR_STAR = *hB;
         const F etakkp1 = H.Get(k,k+1);
         const F etakp1kp1 = H.Get(k+1,k+1);
         for( Int jLoc=0; jLoc<nLoc; ++jLoc )
@@ -315,17 +323,23 @@ LN
     }
 }
 
-template<typename F,Dist UH,Dist VH,Dist VX>
+template<typename F>
 inline void
 UN
-( F alpha, const DistMatrix<F,UH,VH>& H, const DistMatrix<F,VX,STAR>& shifts,
-  DistMatrix<F,STAR,VX>& X ) 
+( F alpha, const AbstractDistMatrix<F>& H, 
+  const AbstractDistMatrix<F>& shiftsPre, AbstractDistMatrix<F>& XPre ) 
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("mshs::UN");
-        if( shifts.ColAlign() != X.RowAlign() )
-            LogicError("shifts and X are not aligned");
-    )
+    DEBUG_ONLY(CallStackEntry cse("mshs::UN"))
+
+    auto XPtr = ReadWriteProxy<F,STAR,VR>( &XPre );
+    auto& X = *XPtr;
+
+    ProxyCtrl ctrl;
+    ctrl.colConstrain = true;
+    ctrl.colAlign = X.RowAlign();
+    auto shiftsPtr = ReadProxy( &shiftsPre, ctrl );
+    auto& shifts = *shiftsPtr;
+
     Scale( alpha, X );
 
     const Int m = X.Height();
@@ -341,8 +355,9 @@ UN
     // Initialize the workspace for shifted columns of H
     Matrix<F> W(m,nLoc);
     {
-        auto hLast = H( IR(0,m), IR(m-1,m) );
-        DistMatrix<F,STAR,STAR> hLast_STAR_STAR( hLast );
+        auto hLast = std::unique_ptr<AbstractDistMatrix<F>>( H.Construct() );
+        LockedView( *hLast, H, IR(0,m), IR(m-1,m) );
+        DistMatrix<F,STAR,STAR> hLast_STAR_STAR( *hLast );
         for( Int jLoc=0; jLoc<nLoc; ++jLoc )
         {
             MemCopy( W.Buffer(0,jLoc), hLast_STAR_STAR.LockedBuffer(), m );
@@ -351,11 +366,12 @@ UN
     }
      
     // Simultaneously form the RQ factorization and solve against R
+    auto hT = std::unique_ptr<AbstractDistMatrix<F>>( H.Construct() );
     DistMatrix<F,STAR,STAR> hT_STAR_STAR( H.Grid() );
     for( Int k=m-1; k>0; --k )
     {
-        auto hT = H( IR(0,k-1), IR(k-1,k) );
-        hT_STAR_STAR = hT;
+        LockedView( *hT, H, IR(0,k-1), IR(k-1,k) );
+        hT_STAR_STAR = *hT;
         const F etakkm1 = H.Get(k,k-1);
         const F etakm1km1 = H.Get(k-1,k-1);
         for( Int jLoc=0; jLoc<nLoc; ++jLoc )
@@ -445,11 +461,11 @@ void MultiShiftHessSolve
     }
 }
 
-template<typename F,Dist UH,Dist VH,Dist VX>
+template<typename F>
 void MultiShiftHessSolve
 ( UpperOrLower uplo, Orientation orientation,
-  F alpha, const DistMatrix<F,UH,VH>& H, const DistMatrix<F,VX,STAR>& shifts, 
-  DistMatrix<F,STAR,VX>& X )
+  F alpha, const AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& shifts, 
+  AbstractDistMatrix<F>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("MultiShiftHessSolve"))
     if( uplo == LOWER )
@@ -468,39 +484,15 @@ void MultiShiftHessSolve
     }
 }
 
-#define PROTO_DIST_INNER(F,UH,VH,VX) \
-  template void MultiShiftHessSolve \
-  ( UpperOrLower uplo, Orientation orientation, F alpha, \
-    const DistMatrix<F,UH,VH>& H, const DistMatrix<F,VX,STAR>& shifts, \
-          DistMatrix<F,STAR,VX>& X );
-
-#define PROTO_DIST(F,UH,VH) \
-  PROTO_DIST_INNER(F,UH,VH,MC  ) \
-  PROTO_DIST_INNER(F,UH,VH,MD  ) \
-  PROTO_DIST_INNER(F,UH,VH,MR  ) \
-  PROTO_DIST_INNER(F,UH,VH,STAR) \
-  PROTO_DIST_INNER(F,UH,VH,VC  ) \
-  PROTO_DIST_INNER(F,UH,VH,VR  )
-
 #define PROTO(F) \
   template void MultiShiftHessSolve \
   ( UpperOrLower uplo, Orientation orientation, F alpha, \
     const Matrix<F>& H, const Matrix<F>& shifts, \
           Matrix<F>& X ); \
-  PROTO_DIST(F,CIRC,CIRC) \
-  PROTO_DIST(F,MC,  MR  ) \
-  PROTO_DIST(F,MC,  STAR) \
-  PROTO_DIST(F,MD,  STAR) \
-  PROTO_DIST(F,MR,  MC  ) \
-  PROTO_DIST(F,MR,  STAR) \
-  PROTO_DIST(F,STAR,MC  ) \
-  PROTO_DIST(F,STAR,MD  ) \
-  PROTO_DIST(F,STAR,MR  ) \
-  PROTO_DIST(F,STAR,STAR) \
-  PROTO_DIST(F,STAR,VC  ) \
-  PROTO_DIST(F,STAR,VR  ) \
-  PROTO_DIST(F,VC,  STAR) \
-  PROTO_DIST(F,VR,  STAR)
+  template void MultiShiftHessSolve \
+  ( UpperOrLower uplo, Orientation orientation, F alpha, \
+    const AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& shifts, \
+          AbstractDistMatrix<F>& X );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
