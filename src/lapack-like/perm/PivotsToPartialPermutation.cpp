@@ -11,7 +11,7 @@
 namespace El {
 
 void PivotsToPartialPermutation
-( const Matrix<Int>& pivots, Matrix<Int>& perm, Matrix<Int>& invPerm, 
+( const Matrix<Int>& pivots, Matrix<Int>& p, Matrix<Int>& pInv, 
   Int offset )
 {
     DEBUG_ONLY(
@@ -21,8 +21,8 @@ void PivotsToPartialPermutation
     )
 
     const Int b = pivots.Height();
-    perm.Resize( b, 1 );
-    invPerm.Resize( b, 1 );
+    p.Resize( b, 1 );
+    pInv.Resize( b, 1 );
  
     // Assume that an O(1) number of pivots is supplied and run an algorithm
     // which is quadratic in the number of pivots, but with a low coefficient.
@@ -39,7 +39,7 @@ void PivotsToPartialPermutation
             else if( k == j )
                 k = relSwap;
         }
-        perm.Set( i, 0, k );
+        p.Set( i, 0, k );
     }
 
     for( Int i=0; i<b; ++i )
@@ -53,15 +53,14 @@ void PivotsToPartialPermutation
             else if( k == j )
                 k = relSwap;
         }
-        invPerm.Set( i, 0, k );
+        pInv.Set( i, 0, k );
     }
 }
 
-template<Dist U,Dist UPerm>
 void PivotsToPartialPermutation
-( const DistMatrix<Int,U,    STAR>& pivots, 
-        DistMatrix<Int,UPerm,STAR>& perm, 
-        DistMatrix<Int,UPerm,STAR>& invPerm, Int offset )
+( const AbstractDistMatrix<Int>& pivots, 
+        AbstractDistMatrix<Int>& p, 
+        AbstractDistMatrix<Int>& pInv, Int offset )
 {
     DEBUG_ONLY(
         CallStackEntry cse("PivotsToPartialPermutation");
@@ -70,11 +69,10 @@ void PivotsToPartialPermutation
     )
 
     const Int b = pivots.Height();
-    perm.SetGrid( pivots.Grid() );
-    invPerm.SetGrid( pivots.Grid() );
-    invPerm.AlignWith( perm );
-    invPerm.Resize( b, 1 );
-    perm.Resize( b, 1 );
+    p.SetGrid( pivots.Grid() );
+    pInv.SetGrid( pivots.Grid() );
+    pInv.Resize( b, 1 );
+    p.Resize( b, 1 );
  
     // Assume that an O(1) number of pivots is supplied and run an algorithm
     // which is quadratic in the number of pivots, but with a low coefficient.
@@ -91,7 +89,7 @@ void PivotsToPartialPermutation
             else if( k == j )
                 k = relSwap;
         }
-        perm.Set( i, 0, k );
+        p.Set( i, 0, k );
     }
 
     // Construct the image using a similar algorithm.
@@ -106,29 +104,8 @@ void PivotsToPartialPermutation
             else if( k == j )
                 k = relSwap;
         }
-        invPerm.Set( i, 0, k );
+        pInv.Set( i, 0, k );
     }
 }
-
-#define PROTO_DIST_INTERNAL(U,UPERM) \
-  template void PivotsToPartialPermutation \
-  ( const DistMatrix<Int,U,    STAR>& pivots, \
-          DistMatrix<Int,UPERM,STAR>& perm, \
-          DistMatrix<Int,UPERM,STAR>& invPerm, Int offset );
-
-#define PROTO_DIST(U) \
-  PROTO_DIST_INTERNAL(U,MC  ) \
-  PROTO_DIST_INTERNAL(U,MD  ) \
-  PROTO_DIST_INTERNAL(U,MR  ) \
-  PROTO_DIST_INTERNAL(U,STAR) \
-  PROTO_DIST_INTERNAL(U,VC  ) \
-  PROTO_DIST_INTERNAL(U,VR  ) \
-
-PROTO_DIST(MC  )
-PROTO_DIST(MD  )
-PROTO_DIST(MR  )
-PROTO_DIST(STAR)
-PROTO_DIST(VC  )
-PROTO_DIST(VR  )
 
 } // namespace El

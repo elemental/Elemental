@@ -31,15 +31,19 @@ bool PivotParity( const Matrix<Int>& p, Int pivotOffset )
     return isOdd;
 }
 
-bool PivotParity( const DistMatrix<Int,VC,STAR>& p, Int pivotOffset ) 
+bool PivotParity( const AbstractDistMatrix<Int>& pPre, Int pivotOffset ) 
 {
     DEBUG_ONLY(
         CallStackEntry cse("PivotParity");
-        if( p.Width() != 1 )
+        if( pPre.Width() != 1 )
             LogicError("p must be a column vector");
         if( pivotOffset < 0 )
             LogicError("pivot offset cannot be negative");
     )
+
+    auto pPtr = ReadProxy<Int,VC,STAR>( &pPre );
+    auto& p = *pPtr;
+
     bool isLocallyOdd = false;
     const Int mLocal = p.LocalHeight();
     for( Int iLoc=0; iLoc<mLocal; ++iLoc )

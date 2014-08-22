@@ -42,9 +42,8 @@ void PivotsToPermutation
     }
 }
 
-template<Dist U,Dist UPerm>
 void PivotsToPermutation
-( const DistMatrix<Int,U,STAR>& pivots, DistMatrix<Int,UPerm,STAR>& perm, 
+( const AbstractDistMatrix<Int>& pivots, AbstractDistMatrix<Int>& perm, 
   Int offset )
 {
     DEBUG_ONLY(
@@ -63,7 +62,6 @@ void PivotsToPermutation
     // Initialize to the identity permutation
     const Int range = MaxNorm( pivots ) + 1 - offset;
     perm.SetGrid( pivots.Grid() );
-    perm.AlignWith( pivots );
     perm.Resize( range, 1 );
     for( Int iLoc=0; iLoc<perm.LocalHeight(); ++iLoc )
         perm.SetLocal( iLoc, 0, perm.GlobalRow(iLoc) );
@@ -110,9 +108,8 @@ void PivotsToInversePermutation
     }
 }
 
-template<Dist U,Dist UPerm>
 void PivotsToInversePermutation
-( const DistMatrix<Int,U,STAR>& pivots, DistMatrix<Int,UPerm,STAR>& invPerm, 
+( const AbstractDistMatrix<Int>& pivots, AbstractDistMatrix<Int>& invPerm, 
   Int offset )
 {
     DEBUG_ONLY(
@@ -131,7 +128,6 @@ void PivotsToInversePermutation
     // Initialize to the identity permutation
     const Int range = MaxNorm( pivots ) + 1 - offset;
     invPerm.SetGrid( pivots.Grid() );
-    invPerm.AlignWith( pivots );
     invPerm.Resize( range, 1 );
     for( Int iLoc=0; iLoc<invPerm.LocalHeight(); ++iLoc )
         invPerm.SetLocal( iLoc, 0, invPerm.GlobalRow(iLoc) );
@@ -145,28 +141,5 @@ void PivotsToInversePermutation
         RowSwap( invPerm, i, j );
     }
 }
-
-#define PROTO_DIST_INTERNAL(U,UPERM) \
-  template void PivotsToPermutation \
-  ( const DistMatrix<Int,U,    STAR>& pivots, \
-          DistMatrix<Int,UPERM,STAR>& perm, Int offset ); \
-  template void PivotsToInversePermutation \
-  ( const DistMatrix<Int,U,    STAR>& pivots, \
-          DistMatrix<Int,UPERM,STAR>& invPerm, Int offset );
-
-#define PROTO_DIST(U) \
-  PROTO_DIST_INTERNAL(U,MC  ) \
-  PROTO_DIST_INTERNAL(U,MD  ) \
-  PROTO_DIST_INTERNAL(U,MR  ) \
-  PROTO_DIST_INTERNAL(U,STAR) \
-  PROTO_DIST_INTERNAL(U,VC  ) \
-  PROTO_DIST_INTERNAL(U,VR  ) \
-
-PROTO_DIST(MC  )
-PROTO_DIST(MD  )
-PROTO_DIST(MR  )
-PROTO_DIST(STAR)
-PROTO_DIST(VC  )
-PROTO_DIST(VR  )
 
 } // namespace El
