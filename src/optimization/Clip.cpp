@@ -18,11 +18,8 @@ void LowerClip( Matrix<Real>& X, Real lowerBound )
         if( IsComplex<Real>::val )
             LogicError("Lower clip does not apply to complex data");
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<m; ++i )
-            X.Set( i, j, Max(lowerBound,X.Get(i,j)) );
+    auto lowerClip = [&]( Real alpha ) { return Max(lowerBound,alpha); };
+    EntrywiseMap( X, std::function<Real(Real)>(lowerClip) );
 }
 
 template<typename Real>
@@ -33,11 +30,8 @@ void UpperClip( Matrix<Real>& X, Real upperBound )
         if( IsComplex<Real>::val )
             LogicError("Upper clip does not apply to complex data");
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<m; ++i )
-            X.Set( i, j, Min(upperBound,X.Get(i,j)) );
+    auto upperClip = [&]( Real alpha ) { return Min(upperBound,alpha); };
+    EntrywiseMap( X, std::function<Real(Real)>(upperClip) );
 }
 
 template<typename Real>
@@ -48,57 +42,43 @@ void Clip( Matrix<Real>& X, Real lowerBound, Real upperBound )
         if( IsComplex<Real>::val )
             LogicError("Clip does not apply to complex data");
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<m; ++i )
-            X.Set( i, j, Min(upperBound,Max(lowerBound,X.Get(i,j))) );
+    auto clip = [&]( Real alpha ) 
+                { return Max(lowerBound,Min(upperBound,alpha)); };
+    EntrywiseMap( X, std::function<Real(Real)>(clip) );
 }
 
-template<typename Real,Dist U,Dist V>
-void LowerClip( DistMatrix<Real,U,V>& X, Real lowerBound )
+template<typename Real>
+void LowerClip( AbstractDistMatrix<Real>& X, Real lowerBound )
 { LowerClip( X.Matrix(), lowerBound ); }
-template<typename Real,Dist U,Dist V>
-void UpperClip( DistMatrix<Real,U,V>& X, Real upperBound )
+
+template<typename Real>
+void UpperClip( AbstractDistMatrix<Real>& X, Real upperBound )
 { UpperClip( X.Matrix(), upperBound ); }
-template<typename Real,Dist U,Dist V>
-void Clip( DistMatrix<Real,U,V>& X, Real lowerBound, Real upperBound )
+
+template<typename Real>
+void Clip( AbstractDistMatrix<Real>& X, Real lowerBound, Real upperBound )
 { Clip( X.Matrix(), lowerBound, upperBound ); }
 
-template<typename Real,Dist U,Dist V>
-void LowerClip( BlockDistMatrix<Real,U,V>& X, Real lowerBound )
+template<typename Real>
+void LowerClip( AbstractBlockDistMatrix<Real>& X, Real lowerBound )
 { LowerClip( X.Matrix(), lowerBound ); }
-template<typename Real,Dist U,Dist V>
-void UpperClip( BlockDistMatrix<Real,U,V>& X, Real upperBound )
-{ UpperClip( X.Matrix(), upperBound ); }
-template<typename Real,Dist U,Dist V>
-void Clip( BlockDistMatrix<Real,U,V>& X, Real lowerBound, Real upperBound )
-{ Clip( X.Matrix(), lowerBound, upperBound ); }
 
-#define PROTO_DIST(Real,U,V) \
-  template void LowerClip( DistMatrix<Real,U,V>& X, Real lowerBound ); \
-  template void UpperClip( DistMatrix<Real,U,V>& X, Real upperBound ); \
-  template void Clip \
-  ( DistMatrix<Real,U,V>& X, Real lowerBound, Real upperBound );
+template<typename Real>
+void UpperClip( AbstractBlockDistMatrix<Real>& X, Real upperBound )
+{ UpperClip( X.Matrix(), upperBound ); }
+
+template<typename Real>
+void Clip( AbstractBlockDistMatrix<Real>& X, Real lowerBound, Real upperBound )
+{ Clip( X.Matrix(), lowerBound, upperBound ); }
 
 #define PROTO(Real) \
   template void LowerClip( Matrix<Real>& X, Real lowerBound ); \
+  template void LowerClip( AbstractDistMatrix<Real>& X, Real lowerBound ); \
   template void UpperClip( Matrix<Real>& X, Real upperBound ); \
+  template void UpperClip( AbstractDistMatrix<Real>& X, Real upperBound ); \
   template void Clip( Matrix<Real>& X, Real lowerBound, Real upperBound ); \
-  PROTO_DIST(Real,CIRC,CIRC) \
-  PROTO_DIST(Real,MC,  MR  ) \
-  PROTO_DIST(Real,MC,  STAR) \
-  PROTO_DIST(Real,MD,  STAR) \
-  PROTO_DIST(Real,MR,  MC  ) \
-  PROTO_DIST(Real,MR,  STAR) \
-  PROTO_DIST(Real,STAR,MC  ) \
-  PROTO_DIST(Real,STAR,MD  ) \
-  PROTO_DIST(Real,STAR,MR  ) \
-  PROTO_DIST(Real,STAR,STAR) \
-  PROTO_DIST(Real,STAR,VC  ) \
-  PROTO_DIST(Real,STAR,VR  ) \
-  PROTO_DIST(Real,VC,  STAR) \
-  PROTO_DIST(Real,VR,  STAR)
+  template void Clip \
+  ( AbstractDistMatrix<Real>& X, Real lowerBound, Real upperBound );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

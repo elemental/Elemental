@@ -20,8 +20,8 @@ void Lyapunov
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 template<typename F>
 void Lyapunov
-( const DistMatrix<F>& A, const DistMatrix<F>& C, DistMatrix<F>& X,
-  SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
+( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& C, 
+        AbstractDistMatrix<F>& X, SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 
 // Ricatti
 // =======
@@ -31,7 +31,7 @@ void Ricatti
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 template<typename F>
 void Ricatti
-( DistMatrix<F>& W, DistMatrix<F>& X,
+( AbstractDistMatrix<F>& W, AbstractDistMatrix<F>& X,
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 
 template<typename F>
@@ -42,8 +42,9 @@ void Ricatti
 template<typename F>
 void Ricatti
 ( UpperOrLower uplo,
-  const DistMatrix<F>& A, const DistMatrix<F>& K, const DistMatrix<F>& L,
-  DistMatrix<F>& X, SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& K, 
+  const AbstractDistMatrix<F>& L,       AbstractDistMatrix<F>& X, 
+  SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 
 // Sylvester
 // =========
@@ -53,7 +54,7 @@ void Sylvester
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 template<typename F>
 void Sylvester
-( Int m, DistMatrix<F>& W, DistMatrix<F>& X,
+( Int m, AbstractDistMatrix<F>& W, AbstractDistMatrix<F>& X,
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 
 template<typename F>
@@ -62,8 +63,9 @@ void Sylvester
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 template<typename F>
 void Sylvester
-( const DistMatrix<F>& A, const DistMatrix<F>& B, const DistMatrix<F>& C,
-  DistMatrix<F>& X, SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
+( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
+  const AbstractDistMatrix<F>& C,       AbstractDistMatrix<F>& X, 
+  SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 
 } // namespace El
 

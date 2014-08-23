@@ -35,9 +35,14 @@ void Covariance( const Matrix<F>& D, Matrix<F>& S )
 }
 
 template<typename F>
-void Covariance( const DistMatrix<F>& D, DistMatrix<F>& S )
+void Covariance
+( const AbstractDistMatrix<F>& DPre, AbstractDistMatrix<F>& SPre )
 {
     DEBUG_ONLY(CallStackEntry cse("Covariance"))
+
+    auto DPtr = ReadProxy( &DPre );  auto& D = *DPtr;
+    auto SPtr = WriteProxy( &SPre ); auto& S = *SPtr;
+
     const Grid& g = D.Grid();
     const Int numObs = D.Height();
 
@@ -65,7 +70,8 @@ void Covariance( const DistMatrix<F>& D, DistMatrix<F>& S )
 
 #define PROTO(F) \
   template void Covariance( const Matrix<F>& D, Matrix<F>& S ); \
-  template void Covariance( const DistMatrix<F>& D, DistMatrix<F>& S );
+  template void Covariance \
+  ( const AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& S );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

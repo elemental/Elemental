@@ -42,9 +42,15 @@ void Ricatti( Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl )
 }
 
 template<typename F>
-void Ricatti( DistMatrix<F>& W, DistMatrix<F>& X, SignCtrl<Base<F>> ctrl )
+void Ricatti
+( AbstractDistMatrix<F>& WPre, AbstractDistMatrix<F>& X, 
+  SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Ricatti"))
+
+    auto WPtr = ReadProxy( &WPre );
+    auto& W = *WPtr;
+
     const Grid& g = W.Grid();
     Sign( W, ctrl );
     const Int n = W.Height()/2;
@@ -100,8 +106,9 @@ void Ricatti
 template<typename F>
 void Ricatti
 ( UpperOrLower uplo, 
-  const DistMatrix<F>& A, const DistMatrix<F>& K, const DistMatrix<F>& L, 
-  DistMatrix<F>& X, SignCtrl<Base<F>> ctrl )
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& K, 
+  const AbstractDistMatrix<F>& L,       AbstractDistMatrix<F>& X, 
+  SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Sylvester");
@@ -136,15 +143,17 @@ void Ricatti
   template void Ricatti \
   ( Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl ); \
   template void Ricatti \
-  ( DistMatrix<F>& W, DistMatrix<F>& X, SignCtrl<Base<F>> ctrl ); \
+  ( AbstractDistMatrix<F>& W, AbstractDistMatrix<F>& X, \
+    SignCtrl<Base<F>> ctrl ); \
   template void Ricatti \
   ( UpperOrLower uplo, \
     const Matrix<F>& A, const Matrix<F>& K, const Matrix<F>& L, \
           Matrix<F>& X, SignCtrl<Base<F>> ctrl ); \
   template void Ricatti \
   ( UpperOrLower uplo, \
-    const DistMatrix<F>& A, const DistMatrix<F>& K, const DistMatrix<F>& L, \
-          DistMatrix<F>& X, SignCtrl<Base<F>> ctrl );
+    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& K, \
+    const AbstractDistMatrix<F>& L,       AbstractDistMatrix<F>& X, \
+    SignCtrl<Base<F>> ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

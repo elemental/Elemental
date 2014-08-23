@@ -150,11 +150,17 @@ Int BasisPursuit
 
 template<typename F>
 Int BasisPursuit
-( const DistMatrix<F>& A, const DistMatrix<F>& b, DistMatrix<F>& z,
+( const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& bPre, 
+  AbstractDistMatrix<F>& zPre,
   Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, 
   bool usePinv, Base<F> pinvTol, bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("BasisPursuit"))
+
+    auto APtr = ReadProxy( &APre );  auto& A = *APtr;
+    auto bPtr = ReadProxy( &bPre );  auto& b = *bPtr;
+    auto zPtr = WriteProxy( &zPre ); auto& z = *zPtr;
+
     // Find a means of quickly applyinv pinv(A) and then form pinv(A) b
     // NOTE: If m >= n and A has full column rank, then basis pursuit is 
     //       irrelevant, as there is a unique solution, which is found 
@@ -289,7 +295,8 @@ Int BasisPursuit
     Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
     bool usePinv, Base<F> pinvTol, bool progress ); \
   template Int BasisPursuit \
-  ( const DistMatrix<F>& A, const DistMatrix<F>& b, DistMatrix<F>& z, \
+  ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& b, \
+    AbstractDistMatrix<F>& z, \
     Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
     bool usePinv, Base<F> pinvTol, bool progress );
 

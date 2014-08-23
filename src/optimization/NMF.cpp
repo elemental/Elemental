@@ -31,11 +31,17 @@ void NMF( const Matrix<Real>& A, Matrix<Real>& X, Matrix<Real>& Y )
 }
 
 template<typename Real>
-void NMF( const DistMatrix<Real>& A, DistMatrix<Real>& X, DistMatrix<Real>& Y )
+void NMF
+( const AbstractDistMatrix<Real>& APre, AbstractDistMatrix<Real>& XPre, 
+        AbstractDistMatrix<Real>& YPre )
 {
     DEBUG_ONLY(CallStackEntry cse("NonNegativeLeastSquares"))
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
+
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
+    auto YPtr = WriteProxy( &YPre );     auto& Y = *YPtr;
 
     DistMatrix<Real> AAdj(A.Grid()), XAdj(A.Grid()), YAdj(A.Grid());
     Adjoint( A, AAdj );
@@ -54,7 +60,8 @@ void NMF( const DistMatrix<Real>& A, DistMatrix<Real>& X, DistMatrix<Real>& Y )
   template void NMF \
   ( const Matrix<Real>& A, Matrix<Real>& X, Matrix<Real>& Y ); \
   template void NMF \
-  ( const DistMatrix<Real>& A, DistMatrix<Real>& X, DistMatrix<Real>& Y );
+  ( const AbstractDistMatrix<Real>& A, AbstractDistMatrix<Real>& X, \
+          AbstractDistMatrix<Real>& Y );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

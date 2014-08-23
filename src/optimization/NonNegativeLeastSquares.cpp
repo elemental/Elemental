@@ -32,7 +32,8 @@ Int NonNegativeLeastSquares
 
 template<typename Real>
 Int NonNegativeLeastSquares
-( const DistMatrix<Real>& A, const DistMatrix<Real>& Y, DistMatrix<Real>& Z,
+( const AbstractDistMatrix<Real>& APre, const AbstractDistMatrix<Real>& Y, 
+        AbstractDistMatrix<Real>& Z,
   Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, 
   bool inv, bool progress )
 {
@@ -40,6 +41,9 @@ Int NonNegativeLeastSquares
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
     const Real maxReal = std::numeric_limits<Real>::max();
+
+    auto APtr = ReadProxy( &APre );
+    auto& A = *APtr;
 
     DistMatrix<Real> P(A.Grid()), S(A.Grid());
     Herk( LOWER, ADJOINT, Real(1), A, P );
@@ -56,7 +60,8 @@ Int NonNegativeLeastSquares
     Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
     bool inv, bool progress ); \
   template Int NonNegativeLeastSquares \
-  ( const DistMatrix<Real>& A, const DistMatrix<Real>& Y, DistMatrix<Real>& Z, \
+  ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& Y, \
+          AbstractDistMatrix<Real>& Z, \
     Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
     bool inv, bool progress );
 

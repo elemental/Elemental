@@ -173,12 +173,18 @@ Int LinearProgram
 
 template<typename Real>
 Int LinearProgram
-( const DistMatrix<Real>& A, const DistMatrix<Real>& b,
-  const DistMatrix<Real>& c, DistMatrix<Real>& z, 
+( const AbstractDistMatrix<Real>& APre, const AbstractDistMatrix<Real>& bPre,
+  const AbstractDistMatrix<Real>& cPre,       AbstractDistMatrix<Real>& zPre, 
   Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, 
   bool inv, bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("LinearProgram"))
+
+    auto APtr = ReadProxy( &APre );  auto& A = *APtr;
+    auto bPtr = ReadProxy( &bPre );  auto& b = *bPtr;
+    auto cPtr = ReadProxy( &cPre );  auto& c = *cPtr;
+    auto zPtr = WriteProxy( &zPre ); auto& z = *zPtr;
+
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
     
@@ -335,8 +341,8 @@ Int LinearProgram
     Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
     bool inv, bool progress ); \
   template Int LinearProgram \
-  ( const DistMatrix<Real>& A, const DistMatrix<Real>& b, \
-    const DistMatrix<Real>& c, DistMatrix<Real>& z, \
+  ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, \
+    const AbstractDistMatrix<Real>& c,       AbstractDistMatrix<Real>& z, \
     Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
     bool inv, bool progress );
 

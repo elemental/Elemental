@@ -18,8 +18,8 @@ namespace El {
 
 namespace rpca {
 
-template<typename F,Distribution U,Distribution V>
-inline void NormalizeEntries( DistMatrix<F,U,V>& A )
+template<typename F>
+inline void NormalizeEntries( AbstractDistMatrix<F>& A )
 { 
     auto unitMap = []( F alpha ) 
                    { return alpha==F(0) ? F(1) : alpha/Abs(alpha); };
@@ -29,9 +29,13 @@ inline void NormalizeEntries( DistMatrix<F,U,V>& A )
 // If 'tau' is passed in as zero, it is set to 1/sqrt(max(m,n))
 template<typename F>
 inline void ADMM
-( const DistMatrix<F>& M, DistMatrix<F>& L, DistMatrix<F>& S, 
-  const RpcaCtrl<Base<F>>& ctrl )
+( const AbstractDistMatrix<F>& MPre, AbstractDistMatrix<F>& LPre, 
+        AbstractDistMatrix<F>& SPre, const RpcaCtrl<Base<F>>& ctrl )
 {
+    auto MPtr = ReadProxy( &MPre ); auto& M = *MPtr;
+    auto LPtr = WriteProxy( &LPre ); auto& L = *LPtr;
+    auto SPtr = WriteProxy( &SPre ); auto& S = *SPtr;
+
     typedef Base<F> Real;
     const Int m = M.Height();
     const Int n = M.Width();
@@ -58,6 +62,9 @@ inline void ADMM
     if( ctrl.progress && commRank == 0 )
         std::cout << "|| M ||_F = " << frobM << "\n"
                   << "|| M ||_max = " << maxM << std::endl;
+
+    Zeros( L, m, n );
+    Zeros( S, m, n );
 
     Int numIts = 0;
     while( true )
@@ -124,11 +131,15 @@ inline void ADMM
 // If 'beta' or 'tau' is passed in as zero, then an estimate is used instead
 template<typename F>
 inline void ALM
-( const DistMatrix<F>& M, DistMatrix<F>& L, DistMatrix<F>& S, 
+( const AbstractDistMatrix<F>& MPre, 
+        AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& SPre, 
   const RpcaCtrl<Base<F>>& ctrl )
 {
-    typedef Base<F> Real;
+    auto MPtr = ReadProxy( &MPre ); auto& M = *MPtr;
+    auto LPtr = WriteProxy( &LPre ); auto& L = *LPtr;
+    auto SPtr = WriteProxy( &SPre ); auto& S = *SPtr;
 
+    typedef Base<F> Real;
     const Int m = M.Height();
     const Int n = M.Width();
     const Int commRank = mpi::Rank( M.Grid().Comm() );
@@ -161,6 +172,9 @@ inline void ALM
     if( ctrl.progress && commRank == 0 )
         std::cout << "|| M ||_F = " << frobM << "\n"
                   << "|| M ||_max = " << maxM << std::endl;
+
+    Zeros( L, m, n );
+    Zeros( S, m, n );
 
     Int numIts=0, numPrimalIts=0;
     DistMatrix<F> LLast( M.Grid() ), SLast( M.Grid() ), E( M.Grid() );
@@ -267,7 +281,8 @@ inline void ALM
 
 template<typename F>
 void RPCA
-( const DistMatrix<F>& M, DistMatrix<F>& L, DistMatrix<F>& S,
+( const AbstractDistMatrix<F>& M, AbstractDistMatrix<F>& L, 
+        AbstractDistMatrix<F>& S,
   const RpcaCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("RPCA"))
@@ -279,8 +294,8 @@ void RPCA
 
 #define PROTO(F) \
   template void RPCA \
-  ( const DistMatrix<F>& M, DistMatrix<F>& L, DistMatrix<F>& S, \
-    const RpcaCtrl<Base<F>>& ctrl );
+  ( const AbstractDistMatrix<F>& M, AbstractDistMatrix<F>& L, \
+          AbstractDistMatrix<F>& S, const RpcaCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

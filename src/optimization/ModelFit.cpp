@@ -104,10 +104,16 @@ template<typename Real>
 Int ModelFit
 ( std::function<void(DistMatrix<Real>&,Real)> lossProx,
   std::function<void(DistMatrix<Real>&,Real)> regProx,
-  const DistMatrix<Real>& A, const DistMatrix<Real>& b, DistMatrix<Real>& w, 
+  const AbstractDistMatrix<Real>& APre, const AbstractDistMatrix<Real>& bPre, 
+        AbstractDistMatrix<Real>& wPre, 
   Real rho, Int maxIter, bool inv, bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("ModelFit"))
+
+    auto APtr = ReadProxy( &APre );  auto& A = *APtr;
+    auto bPtr = ReadProxy( &bPre );  auto& b = *bPtr;
+    auto wPtr = WriteProxy( &wPre ); auto& w = *wPtr;
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -195,7 +201,8 @@ Int ModelFit
   template Int ModelFit \
   ( std::function<void(DistMatrix<Real>&,Real)> lossProx, \
     std::function<void(DistMatrix<Real>&,Real)> regProx, \
-    const DistMatrix<Real>& A, const DistMatrix<Real>& b, DistMatrix<Real>& w, \
+    const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, \
+          AbstractDistMatrix<Real>& w, \
     Real rho, Int maxIter, bool inv, bool progress );
 
 #define EL_NO_INT_PROTO

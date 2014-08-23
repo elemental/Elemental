@@ -15,10 +15,14 @@ namespace svt {
 
 // Singular-value soft-thresholding based on TSQR
 
-template<typename F,Dist U>
-Int TSQR( DistMatrix<F,U,STAR>& A, Base<F> tau, bool relative )
+template<typename F>
+Int TSQR( AbstractDistMatrix<F>& APre, Base<F> tau, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("SVT"))
+
+    auto APtr = ReadWriteProxy<F,VC,STAR>( &APre ); 
+    auto& A = *APtr;
+
     const Int p = mpi::Size( A.ColComm() );
     if( p == 1 )
         return SVT( A.Matrix(), tau, relative );

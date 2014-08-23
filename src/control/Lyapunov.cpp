@@ -43,8 +43,8 @@ void Lyapunov
 
 template<typename F>
 void Lyapunov
-( const DistMatrix<F>& A, const DistMatrix<F>& C, DistMatrix<F>& X,
-  SignCtrl<Base<F>> ctrl )
+( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& C, 
+        AbstractDistMatrix<F>& X, SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Sylvester");
@@ -73,8 +73,8 @@ void Lyapunov
   ( const Matrix<F>& A, const Matrix<F>& C, Matrix<F>& X, \
     SignCtrl<Base<F>> ctrl ); \
   template void Lyapunov \
-  ( const DistMatrix<F>& A, const DistMatrix<F>& C, DistMatrix<F>& X, \
-    SignCtrl<Base<F>> ctrl );
+  ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& C, \
+          AbstractDistMatrix<F>& X, SignCtrl<Base<F>> ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

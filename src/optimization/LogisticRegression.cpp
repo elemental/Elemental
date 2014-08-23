@@ -32,20 +32,20 @@ Int LogisticRegression
     for( Int i=0; i<numExamples; ++i )
         A.Set( i, numFeatures, q.Get(i,0) );
 
-    auto logisticProx = [=]( Matrix<Real>& y, Real rho )
+    auto logisticProx = [&]( Matrix<Real>& y, Real rho )
                         { LogisticProx( y, y.Height()*rho ); };
     auto logisticFunc = std::function<void(Matrix<Real>&,Real)>(logisticProx);
 
     std::function<void(Matrix<Real>&,Real)> proxFunc;
     if( penalty == NO_PENALTY )
     {
-        auto noProx = [=]( Matrix<Real>& x, Real rho ) { };
+        auto noProx = [&]( Matrix<Real>& x, Real rho ) { };
         proxFunc = std::function<void(Matrix<Real>&,Real)>(noProx);
     }
     else if( penalty == L1_PENALTY )
     {
         auto oneProx = 
-            [=]( Matrix<Real>& x, Real rho ) 
+            [&]( Matrix<Real>& x, Real rho ) 
             { auto xT = x( IR(0,x.Height()-1), IR(0,1) );
               SoftThreshold( xT, gamma/rho ); };
         proxFunc = std::function<void(Matrix<Real>&,Real)>(oneProx);
@@ -53,7 +53,7 @@ Int LogisticRegression
     else if( penalty == L2_PENALTY )
     {
         auto frobProx = 
-            [=]( Matrix<Real>& x, Real rho ) 
+            [&]( Matrix<Real>& x, Real rho ) 
             { auto xT = x( IR(0,x.Height()-1), IR(0,1) );
               FrobeniusProx( xT, gamma/rho ); };
         proxFunc = std::function<void(Matrix<Real>&,Real)>(frobProx);
@@ -68,7 +68,8 @@ Int LogisticRegression
 
 template<typename Real>
 Int LogisticRegression
-( const DistMatrix<Real>& G, const DistMatrix<Real>& q, DistMatrix<Real>& w, 
+( const AbstractDistMatrix<Real>& G, const AbstractDistMatrix<Real>& q, 
+        AbstractDistMatrix<Real>& w, 
   Real gamma, Regularization penalty, 
   Real rho, Int maxIter, bool inv, bool progress )
 {
@@ -94,7 +95,7 @@ Int LogisticRegression
             A.SetLocal( iLoc, jLoc, q_MC_STAR.GetLocal(iLoc,0) );
     }
 
-    auto logisticProx = [=]( DistMatrix<Real>& y, Real rho )
+    auto logisticProx = [&]( DistMatrix<Real>& y, Real rho )
                         { LogisticProx( y, y.Height()*rho ); };
     auto logisticFunc = 
         std::function<void(DistMatrix<Real>&,Real)>(logisticProx);
@@ -102,13 +103,13 @@ Int LogisticRegression
     std::function<void(DistMatrix<Real>&,Real)> proxFunc;
     if( penalty == NO_PENALTY )
     {
-        auto noProx = [=]( DistMatrix<Real>& x, Real rho ) { };
+        auto noProx = [&]( DistMatrix<Real>& x, Real rho ) { };
         proxFunc = std::function<void(DistMatrix<Real>&,Real)>(noProx);
     }
     else if( penalty == L1_PENALTY )
     {    
         auto oneProx =
-            [=]( DistMatrix<Real>& x, Real rho )
+            [&]( DistMatrix<Real>& x, Real rho )
             { auto xT = x( IR(0,x.Height()-1), IR(0,1) );
               SoftThreshold( xT, gamma/rho ); };
         proxFunc = std::function<void(DistMatrix<Real>&,Real)>(oneProx);
@@ -116,7 +117,7 @@ Int LogisticRegression
     else if( penalty == L2_PENALTY )
     {    
         auto frobProx =
-            [=]( DistMatrix<Real>& x, Real rho )
+            [&]( DistMatrix<Real>& x, Real rho )
             { auto xT = x( IR(0,x.Height()-1), IR(0,1) );
               FrobeniusProx( xT, gamma/rho ); };
         proxFunc = std::function<void(DistMatrix<Real>&,Real)>(frobProx);
@@ -135,7 +136,8 @@ Int LogisticRegression
     Real gamma, Regularization penalty, \
     Real rho, Int maxIter, bool inv, bool progress ); \
   template Int LogisticRegression \
-  ( const DistMatrix<Real>& G, const DistMatrix<Real>& q, DistMatrix<Real>& w, \
+  ( const AbstractDistMatrix<Real>& G, const AbstractDistMatrix<Real>& q, \
+          AbstractDistMatrix<Real>& w, \
     Real gamma, Regularization penalty, \
     Real rho, Int maxIter, bool inv, bool progress );
 

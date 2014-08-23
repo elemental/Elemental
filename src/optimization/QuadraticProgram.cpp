@@ -132,14 +132,19 @@ Int QuadraticProgram
 
 template<typename Real>
 Int QuadraticProgram
-( const DistMatrix<Real>& P, const DistMatrix<Real>& S, Real lb, Real ub,
-  DistMatrix<Real>& Z, 
+( const AbstractDistMatrix<Real>& PPre, const AbstractDistMatrix<Real>& SPre, 
+  Real lb, Real ub, AbstractDistMatrix<Real>& ZPre, 
   Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, 
   bool inv, bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("QuadraticProgram"))
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
+
+    auto PPtr = ReadProxy( &PPre );  auto& P = *PPtr;
+    auto SPtr = ReadProxy( &SPre );  auto& S = *SPtr;
+    auto ZPtr = WriteProxy( &ZPre ); auto& Z = *ZPtr;
+
     const Grid& grid = P.Grid();
     const Int n = P.Height();
     const Int k = S.Width();
@@ -248,8 +253,8 @@ Int QuadraticProgram
     Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
     bool inv, bool progress ); \
   template Int QuadraticProgram \
-  ( const DistMatrix<Real>& P, const DistMatrix<Real>& S, Real lb, Real ub, \
-    DistMatrix<Real>& Z, \
+  ( const AbstractDistMatrix<Real>& P, const AbstractDistMatrix<Real>& S, \
+    Real lb, Real ub, AbstractDistMatrix<Real>& Z, \
     Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
     bool inv, bool progress );
 

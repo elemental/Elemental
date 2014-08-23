@@ -48,9 +48,14 @@ void Sylvester( Int m, Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl )
 
 template<typename F>
 void Sylvester
-( Int m, DistMatrix<F>& W, DistMatrix<F>& X, SignCtrl<Base<F>> ctrl )
+( Int m, AbstractDistMatrix<F>& WPre, AbstractDistMatrix<F>& X, 
+  SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Sylvester"))
+
+    auto WPtr = ReadProxy( &WPre );
+    auto& W = *WPtr;
+
     const Grid& g = W.Grid();
     Sign( W, ctrl );
     DistMatrix<F> WTL(g), WTR(g),
@@ -60,7 +65,7 @@ void Sylvester
          WBL, WBR, m );
     // WTL and WBR should be the positive and negative identity, WBL should be 
     // zero, and WTR should be -2 X
-    X = WTR;
+    Copy( WTR, X );
     Scale( -F(1)/F(2), X );
 
     // TODO: Think of how to probe for checks on other quadrants.
@@ -106,8 +111,9 @@ void Sylvester
 
 template<typename F>
 void Sylvester
-( const DistMatrix<F>& A, const DistMatrix<F>& B, const DistMatrix<F>& C, 
-  DistMatrix<F>& X, SignCtrl<Base<F>> ctrl )
+( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
+  const AbstractDistMatrix<F>& C,       AbstractDistMatrix<F>& X, 
+  SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Sylvester");
@@ -138,13 +144,15 @@ void Sylvester
   template void Sylvester \
   ( Int m, Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl ); \
   template void Sylvester \
-  ( Int m, DistMatrix<F>& W, DistMatrix<F>& X, SignCtrl<Base<F>> ctrl ); \
+  ( Int m, AbstractDistMatrix<F>& W, AbstractDistMatrix<F>& X, \
+    SignCtrl<Base<F>> ctrl ); \
   template void Sylvester \
   ( const Matrix<F>& A, const Matrix<F>& B, const Matrix<F>& C, \
     Matrix<F>& X, SignCtrl<Base<F>> ctrl ); \
   template void Sylvester \
-  ( const DistMatrix<F>& A, const DistMatrix<F>& B, const DistMatrix<F>& C, \
-    DistMatrix<F>& X, SignCtrl<Base<F>> ctrl );
+  ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, \
+    const AbstractDistMatrix<F>& C,       AbstractDistMatrix<F>& X, \
+    SignCtrl<Base<F>> ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

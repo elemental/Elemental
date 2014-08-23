@@ -23,7 +23,7 @@ Int SVT( Matrix<F>& A, Base<F> tau, bool relative )
 }
 
 template<typename F>
-Int SVT( DistMatrix<F>& A, Base<F> tau, bool relative )
+Int SVT( AbstractDistMatrix<F>& A, Base<F> tau, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("SVT"))
     // NOTE: This should be less accurate (but faster) than svt::Normal
@@ -39,7 +39,7 @@ Int SVT( Matrix<F>& A, Base<F> tau, Int relaxedRank, bool relative )
 }
 
 template<typename F>
-Int SVT( DistMatrix<F>& A, Base<F> tau, Int relaxedRank, bool relative )
+Int SVT( AbstractDistMatrix<F>& A, Base<F> tau, Int relaxedRank, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("SVT"))
     // Preprocess with numSteps iterations of pivoted QR factorization
@@ -55,26 +55,27 @@ Int SVT( DistMatrix<F,U,STAR>& A, Base<F> tau, bool relative )
 }
 
 #define PROTO_DIST(F,U) \
-  template Int SVT( DistMatrix<F,U,STAR>& A, Base<F> tau, bool relative ); \
-  template Int svt::TSQR( DistMatrix<F,U,STAR>& A, Base<F> tau, bool relative );
+  template Int SVT( DistMatrix<F,U,STAR>& A, Base<F> tau, bool relative );
 
 #define PROTO(F) \
   template Int SVT( Matrix<F>& A, Base<F> tau, bool relative ); \
-  template Int SVT( DistMatrix<F>& A, Base<F> tau, bool relative ); \
+  template Int SVT( AbstractDistMatrix<F>& A, Base<F> tau, bool relative ); \
   template Int SVT \
   ( Matrix<F>& A, Base<F> tau, Int relaxedRank, bool relative ); \
   template Int SVT \
-  ( DistMatrix<F>& A, Base<F> tau, Int relaxedRank, bool relative ); \
+  ( AbstractDistMatrix<F>& A, Base<F> tau, Int relaxedRank, bool relative ); \
   template Int svt::Cross \
   ( Matrix<F>& A, Base<F> tau, bool relative ); \
   template Int svt::Cross \
-  ( DistMatrix<F>& A, Base<F> tau, bool relative ); \
+  ( AbstractDistMatrix<F>& A, Base<F> tau, bool relative ); \
   template Int svt::Cross \
   ( DistMatrix<F,VC,STAR>& A, Base<F> tau, bool relative ); \
   template Int svt::PivotedQR \
   ( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative ); \
   template Int svt::PivotedQR \
-  ( DistMatrix<F>& A, Base<F> tau, Int numSteps, bool relative ); \
+  ( AbstractDistMatrix<F>& A, Base<F> tau, Int numSteps, bool relative ); \
+  template Int svt::TSQR \
+  ( AbstractDistMatrix<F>& A, Base<F> tau, bool relative ); \
   PROTO_DIST(F,MC  ) \
   PROTO_DIST(F,MD  ) \
   PROTO_DIST(F,MR  ) \

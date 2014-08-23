@@ -49,7 +49,8 @@ Int SVM
 
 template<typename Real>
 Int SVM
-( const DistMatrix<Real>& G, const DistMatrix<Real>& q, DistMatrix<Real>& w, 
+( const AbstractDistMatrix<Real>& G, const AbstractDistMatrix<Real>& q, 
+        AbstractDistMatrix<Real>& w, 
   Real gamma, Real rho, Int maxIter, bool inv, bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("SVM"))
@@ -95,7 +96,8 @@ Int SVM
   ( const Matrix<Real>& G, const Matrix<Real>& q, Matrix<Real>& w, \
     Real gamma, Real rho, Int maxIter, bool inv, bool progress ); \
   template Int SVM \
-  ( const DistMatrix<Real>& G, const DistMatrix<Real>& q, DistMatrix<Real>& w, \
+  ( const AbstractDistMatrix<Real>& G, const AbstractDistMatrix<Real>& q, \
+          AbstractDistMatrix<Real>& w, \
     Real gamma, Real rho, Int maxIter, bool inv, bool progress );
 
 #define EL_NO_INT_PROTO

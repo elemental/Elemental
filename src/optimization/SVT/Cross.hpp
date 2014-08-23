@@ -37,9 +37,13 @@ Int Cross( Matrix<F>& A, Base<F> tau, bool relative )
 }
 
 template<typename F>
-Int Cross( DistMatrix<F>& A, Base<F> tau, bool relative )
+Int Cross( AbstractDistMatrix<F>& APre, Base<F> tau, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("svt::Cross"))
+
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
+
     typedef Base<F> Real;
     DistMatrix<F> U( A );
     DistMatrix<Real,VR,STAR> s( A.Grid() );

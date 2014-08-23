@@ -155,12 +155,17 @@ Int Lasso
 
 template<typename F>
 Int Lasso
-( const DistMatrix<F>& A, const DistMatrix<F>& b, Base<F> lambda,
-  DistMatrix<F>& z, 
+( const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& bPre, 
+  Base<F> lambda, AbstractDistMatrix<F>& zPre, 
   Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, 
   bool inv, bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("Lasso"))
+
+    auto APtr = ReadProxy( &APre );  auto& A = *APtr;
+    auto bPtr = ReadProxy( &bPre );  auto& b = *bPtr;
+    auto zPtr = WriteProxy( &zPre ); auto& z = *zPtr;
+
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -291,8 +296,8 @@ Int Lasso
     Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
     bool inv, bool progress ); \
   template Int Lasso \
-  ( const DistMatrix<F>& A, const DistMatrix<F>& b, Base<F> lambda, \
-    DistMatrix<F>& z, \
+  ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& b, \
+    Base<F> lambda, AbstractDistMatrix<F>& z, \
     Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
     bool inv, bool progress );
 

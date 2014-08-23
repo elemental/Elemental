@@ -129,10 +129,6 @@ main( int argc, char* argv[] )
         if( print )
             Print( M, "Sum of low-rank and sparse" );
 
-        DistMatrix<C> L, S;
-        Zeros( L, m, n );
-        Zeros( S, m, n ); 
-
         // Create a custom set of parameters for RPCA
         RpcaCtrl<double> ctrl;
         ctrl.useALM = useALM;
@@ -145,6 +141,7 @@ main( int argc, char* argv[] )
         ctrl.rho = rho;
         ctrl.tol = tol;
 
+        DistMatrix<C> L, S;
         RPCA( M, L, S, ctrl );
 
         if( display )

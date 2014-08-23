@@ -32,9 +32,13 @@ Int Normal( Matrix<F>& A, Base<F> tau, bool relative )
 }
 
 template<typename F>
-Int Normal( DistMatrix<F>& A, Base<F> tau, bool relative )
+Int Normal( AbstractDistMatrix<F>& APre, Base<F> tau, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("svt::Normal"))
+
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
+
     typedef Base<F> Real;
     DistMatrix<F> U( A );
     DistMatrix<Real,VR,STAR> s( A.Grid() );

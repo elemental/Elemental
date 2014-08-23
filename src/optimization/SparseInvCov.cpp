@@ -108,11 +108,15 @@ Int SparseInvCov
 
 template<typename F>
 Int SparseInvCov
-( const DistMatrix<F>& D, Base<F> lambda, DistMatrix<F>& Z,
+( const AbstractDistMatrix<F>& D, Base<F> lambda, AbstractDistMatrix<F>& ZPre,
   Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, 
   bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("SparseInvCov"))
+
+    auto ZPtr = WriteProxy( &ZPre );
+    auto& Z = *ZPtr;
+
     typedef Base<F> Real;
     const Grid& g = D.Grid();
     const Int n = D.Width();
@@ -120,7 +124,6 @@ Int SparseInvCov
     DistMatrix<F> S(g);
     Covariance( D, S );
     MakeHermitian( LOWER, S );
-
    
     Int numIter=0;
     DistMatrix<F> X(g), U(g), ZOld(g), XHat(g), T(g);
@@ -202,7 +205,7 @@ Int SparseInvCov
     Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
     bool progress ); \
   template Int SparseInvCov \
-  ( const DistMatrix<F>& D, Base<F> lambda, DistMatrix<F>& Z, \
+  ( const AbstractDistMatrix<F>& D, Base<F> lambda, AbstractDistMatrix<F>& Z, \
     Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
     bool progress );
 

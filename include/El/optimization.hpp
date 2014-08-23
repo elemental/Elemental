@@ -32,8 +32,8 @@ Int BasisPursuit
   bool progress=true );
 template<typename F>
 Int BasisPursuit
-( const DistMatrix<F>& A, const DistMatrix<F>& b,
-  DistMatrix<F>& z,
+( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& b,
+        AbstractDistMatrix<F>& z,
   Base<F> rho=1., Base<F> alpha=1.2, Int maxIter=500, Base<F> absTol=1e-6, 
   Base<F> relTol=1e-4, bool usePinv=false, Base<F> pinvTol=0,
   bool progress=true );
@@ -48,8 +48,8 @@ Int Lasso
   Base<F> relTol=1e-4, bool inv=true, bool progress=true );
 template<typename F>
 Int Lasso
-( const DistMatrix<F>& A, const DistMatrix<F>& b, Base<F> lambda,
-  DistMatrix<F>& z,
+( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& b, 
+  Base<F> lambda, AbstractDistMatrix<F>& z,
   Base<F> rho=1, Base<F> alpha=1.2, Int maxIter=500, Base<F> absTol=1e-6, 
   Base<F> relTol=1e-4, bool inv=true, bool progress=true );
 
@@ -63,8 +63,8 @@ Int LinearProgram
   Real absTol=1e-6, Real relTol=1e-4, bool inv=false, bool progress=true );
 template<typename Real>
 Int LinearProgram
-( const DistMatrix<Real>& A, const DistMatrix<Real>& b,
-  const DistMatrix<Real>& c, DistMatrix<Real>& z,
+( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
+  const AbstractDistMatrix<Real>& c,       AbstractDistMatrix<Real>& z,
   Real rho=1, Real alpha=1.2, Int maxIter=500, Real absTol=1e-6,
   Real relTol=1e-4, bool inv=true, bool progress=true );
 
@@ -77,7 +77,8 @@ Int LogisticRegression
   Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
 template<typename Real>
 Int LogisticRegression
-( const DistMatrix<Real>& G, const DistMatrix<Real>& q, DistMatrix<Real>& z,
+( const AbstractDistMatrix<Real>& G, const AbstractDistMatrix<Real>& q, 
+        AbstractDistMatrix<Real>& z,
   Real gamma, Regularization penalty=L1_PENALTY,
   Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
 
@@ -94,7 +95,8 @@ template<typename Real>
 Int ModelFit
 ( std::function<void(DistMatrix<Real>&,Real)> lossProx,
   std::function<void(DistMatrix<Real>&,Real)> regProx,
-  const DistMatrix<Real>& A, const DistMatrix<Real>& b, DistMatrix<Real>& w,
+  const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, 
+        AbstractDistMatrix<Real>& w,
   Real rho, Int maxIter=1000, bool inv=true, bool progress=true );
 
 // Non-negative matrix factorization
@@ -103,7 +105,9 @@ Int ModelFit
 template<typename Real>
 void NMF( const Matrix<Real>& A, Matrix<Real>& X, Matrix<Real>& Y );
 template<typename Real>
-void NMF( const DistMatrix<Real>& A, DistMatrix<Real>& X, DistMatrix<Real>& Y );
+void NMF
+( const AbstractDistMatrix<Real>& A, AbstractDistMatrix<Real>& X, 
+        AbstractDistMatrix<Real>& Y );
 
 // Non-negative least squares
 // ==========================
@@ -115,7 +119,8 @@ Int NonNegativeLeastSquares
   Real relTol=1e-4, bool inv=true, bool progress=true );
 template<typename Real>
 Int NonNegativeLeastSquares
-( const DistMatrix<Real>& A, const DistMatrix<Real>& Y, DistMatrix<Real>& Z, 
+( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& Y, 
+        AbstractDistMatrix<Real>& Z, 
   Real rho=1., Real alpha=1.2, Int maxIter=500, Real absTol=1e-6,
   Real relTol=1e-4, bool inv=true, bool progress=true );
 
@@ -130,8 +135,8 @@ Int QuadraticProgram
   Real relTol=1e-4, bool inv=true, bool progress=true );
 template<typename Real>
 Int QuadraticProgram
-( const DistMatrix<Real>& P, const DistMatrix<Real>& S, Real lb, Real ub,
-  DistMatrix<Real>& Z,
+( const AbstractDistMatrix<Real>& P, const AbstractDistMatrix<Real>& S, 
+  Real lb, Real ub, AbstractDistMatrix<Real>& Z,
   Real rho=1., Real alpha=1.2, Int maxIter=500, Real absTol=1e-6,
   Real relTol=1e-4, bool inv=true, bool progress=true );
 
@@ -162,7 +167,8 @@ struct RpcaCtrl
 
 template<typename F>
 void RPCA
-( const DistMatrix<F>& M, DistMatrix<F>& L, DistMatrix<F>& S,
+( const AbstractDistMatrix<F>& M, AbstractDistMatrix<F>& L, 
+        AbstractDistMatrix<F>& S,
   const RpcaCtrl<Base<F>>& ctrl=RpcaCtrl<Base<F>>() );
 
 // Sparse inverse covariance selection
@@ -174,7 +180,7 @@ Int SparseInvCov
   Base<F> absTol=1e-6, Base<F> relTol=1e-4, bool progress=true );
 template<typename F>
 Int SparseInvCov
-( const DistMatrix<F>& D, Base<F> lambda, DistMatrix<F>& Z,
+( const AbstractDistMatrix<F>& D, Base<F> lambda, AbstractDistMatrix<F>& Z,
   Base<F> rho=1., Base<F> alpha=1.2, Int maxIter=500,
   Base<F> absTol=1e-6, Base<F> relTol=1e-4, bool progress=true );
 
@@ -186,7 +192,8 @@ Int SVM
   Real gamma, Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
 template<typename Real>
 Int SVM
-( const DistMatrix<Real>& G, const DistMatrix<Real>& q, DistMatrix<Real>& z,
+( const AbstractDistMatrix<Real>& G, const AbstractDistMatrix<Real>& q, 
+        AbstractDistMatrix<Real>& z,
   Real gamma, Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
 
 // Utilities
@@ -196,25 +203,25 @@ Int SVM
 // --------
 template<typename Real>
 void LowerClip( Matrix<Real>& X, Real lowerBound=0 );
-template<typename Real,Dist U,Dist V>
-void LowerClip( DistMatrix<Real,U,V>& X, Real lowerBound=0 );
+template<typename Real>
+void LowerClip( AbstractDistMatrix<Real>& X, Real lowerBound=0 );
 
 template<typename Real>
 void UpperClip( Matrix<Real>& X, Real upperBound=0 );
-template<typename Real,Dist U,Dist V>
-void UpperClip( DistMatrix<Real,U,V>& X, Real upperBound=0 );
+template<typename Real>
+void UpperClip( AbstractDistMatrix<Real>& X, Real upperBound=0 );
 
 template<typename Real>
 void Clip( Matrix<Real>& X, Real lowerBound=0, Real upperBound=1 );
-template<typename Real,Dist U,Dist V>
-void Clip( DistMatrix<Real,U,V>& X, Real lowerBound=0, Real upperBound=1 );
+template<typename Real>
+void Clip( AbstractDistMatrix<Real>& X, Real lowerBound=0, Real upperBound=1 );
 
 // Covariance
 // ----------
 template<typename F>
 void Covariance( const Matrix<F>& D, Matrix<F>& S );
 template<typename F>
-void Covariance( const DistMatrix<F>& D, DistMatrix<F>& S );
+void Covariance( const AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& S );
 
 // Frobenius-norm proximal map
 // ---------------------------
@@ -240,14 +247,14 @@ void HingeLossProx( AbstractDistMatrix<Real>& A, Real rho );
 template<typename F>
 Base<F> LogBarrier( UpperOrLower uplo, const Matrix<F>& A );
 template<typename F>
-Base<F> LogBarrier( UpperOrLower uplo, const DistMatrix<F>& A );
+Base<F> LogBarrier( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
 
 template<typename F>
 Base<F> LogBarrier
 ( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false );
 template<typename F>
 Base<F> LogBarrier
-( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false );
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool canOverwrite=false );
 
 // Log-det divergence
 // ------------------
@@ -256,7 +263,8 @@ Base<F> LogDetDiv
 ( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B );
 template<typename F>
 Base<F> LogDetDiv
-( UpperOrLower uplo, const DistMatrix<F>& A, const DistMatrix<F>& B );
+( UpperOrLower uplo, 
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B );
 
 // Logistic proximal map
 // ---------------------
@@ -274,37 +282,40 @@ void LogisticProx( AbstractDistMatrix<Real>& A, Real rho, Int numIts=5 );
 template<typename F>
 Int SVT( Matrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
-Int SVT( DistMatrix<F>& A, Base<F> rho, bool relative=false );
+Int SVT( AbstractDistMatrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
 Int SVT( Matrix<F>& A, Base<F> rho, Int relaxedRank, bool relative=false );
 template<typename F>
-Int SVT( DistMatrix<F>& A, Base<F> rho, Int relaxedRank, bool relative=false );
+Int SVT
+( AbstractDistMatrix<F>& A, Base<F> rho, Int relaxedRank, bool relative=false );
 template<typename F,Dist U>
 Int SVT( DistMatrix<F,U,STAR>& A, Base<F> rho, bool relative=false );
 
 namespace svt {
 
+// TODO: Add SVT control structure
+
 template<typename F>
 Int Cross( Matrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
-Int Cross( DistMatrix<F>& A, Base<F> rho, bool relative=false );
+Int Cross( AbstractDistMatrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
 Int Cross( DistMatrix<F,VC,STAR>& A, Base<F> rho, bool relative=false );
 
 template<typename F>
 Int Normal( Matrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
-Int Normal( DistMatrix<F>& A, Base<F> rho, bool relative=false );
+Int Normal( AbstractDistMatrix<F>& A, Base<F> rho, bool relative=false );
 
 template<typename F>
 Int PivotedQR
 ( Matrix<F>& A, Base<F> rho, Int numSteps, bool relative=false );
 template<typename F>
 Int PivotedQR
-( DistMatrix<F>& A, Base<F> rho, Int numSteps, bool relative=false );
+( AbstractDistMatrix<F>& A, Base<F> rho, Int numSteps, bool relative=false );
 
-template<typename F,Dist U>
-Int TSQR( DistMatrix<F,U,STAR>& A, Base<F> rho, bool relative=false );
+template<typename F>
+Int TSQR( AbstractDistMatrix<F>& A, Base<F> rho, bool relative=false );
 
 } // namespace svt
 

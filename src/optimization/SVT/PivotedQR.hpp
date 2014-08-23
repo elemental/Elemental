@@ -60,13 +60,18 @@ Int PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative )
 }
 
 template<typename F>
-Int PivotedQR( DistMatrix<F>& A, Base<F> tau, Int numSteps, bool relative )
+Int PivotedQR
+( AbstractDistMatrix<F>& APre, Base<F> tau, Int numSteps, bool relative )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svt::PivotedQR");
-        if( numSteps > std::min(A.Height(),A.Width()) )
+        if( numSteps > std::min(APre.Height(),APre.Width()) )
             LogicError("number of steps is too large");
     )
+
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
+
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
