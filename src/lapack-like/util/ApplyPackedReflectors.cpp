@@ -94,7 +94,8 @@ void ApplyPackedReflectors
   VerticalOrHorizontal dir, ForwardOrBackward order, 
   Conjugation conjugation,
   Int offset,
-  const DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& A )
+  const AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& t, 
+        AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("ApplyPackedReflectors"))
     if( side == LEFT )
@@ -149,23 +150,6 @@ void ApplyPackedReflectors
     }
 }
 
-template<typename F> 
-void ApplyPackedReflectors
-( LeftOrRight side, UpperOrLower uplo, 
-  VerticalOrHorizontal dir, ForwardOrBackward order,
-  Conjugation conjugation,
-  Int offset,
-  const DistMatrix<F>& H, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("ApplyPackedReflectors"))
-    DistMatrix<F,MD,STAR> tDiag(A.Grid());
-    tDiag.SetRoot( A.DiagonalRoot(offset) );
-    tDiag.AlignCols( A.DiagonalAlign(offset) );
-    tDiag = t;
-    ApplyPackedReflectors
-    ( side, uplo, dir, order, conjugation, offset, H, tDiag, A );
-}
-
 #define PROTO(F) \
   template void ApplyPackedReflectors \
   ( LeftOrRight side, UpperOrLower uplo, \
@@ -177,14 +161,8 @@ void ApplyPackedReflectors
   ( LeftOrRight side, UpperOrLower uplo, \
     VerticalOrHorizontal dir, ForwardOrBackward order, \
     Conjugation conjugation, Int offset, \
-    const DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t, \
-          DistMatrix<F>& A ); \
-  template void ApplyPackedReflectors \
-  ( LeftOrRight side, UpperOrLower uplo, \
-    VerticalOrHorizontal dir, ForwardOrBackward order, \
-    Conjugation conjugation, Int offset, \
-    const DistMatrix<F>& H, const DistMatrix<F,STAR,STAR>& t, \
-          DistMatrix<F>& A ); 
+    const AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& t, \
+          AbstractDistMatrix<F>& A );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

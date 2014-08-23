@@ -13,61 +13,8 @@
 namespace El {
 namespace hyp_reflector {
 
-template<typename F,Dist U,Dist V>
-F Row( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("hyp_reflector::Row");
-        AssertSameGrids( chi, x );
-        if( chi.Height() != 1 || chi.Width() != 1 )
-            LogicError("chi must be a scalar");
-        if( x.Height() != 1 )
-            LogicError("x must be a row vector");
-        if( chi.ColRank() != chi.ColAlign() || x.ColRank() != x.ColAlign() )
-            LogicError("Reflecting from incorrect process");
-    )
-    typedef Base<F> Real;
-    mpi::Comm rowComm = x.RowComm();
-    const Int rowRank = x.RowRank();
-    const Int rowStride = x.RowStride();
-    const Int rowAlign = chi.RowAlign();
-
-    std::vector<Real> localNorms(rowStride);
-    Real localNorm = Nrm2( x.LockedMatrix() );
-    mpi::AllGather( &localNorm, 1, localNorms.data(), 1, rowComm );
-    Real norm = blas::Nrm2( rowStride, localNorms.data(), 1 );
-
-    Real alpha;
-    if( rowRank == rowAlign )
-    {
-        if( ImagPart(chi.GetLocal(0,0)) != Real(0) )
-            LogicError("chi is assumed to be real");
-        alpha = chi.GetLocalRealPart(0,0);
-    }
-    mpi::Broadcast( alpha, rowAlign, rowComm );
-    const Real delta = alpha*alpha - norm*norm;
-    if( delta < Real(0) )
-        LogicError("Attempted to square-root a negative number");
-    const Real lambda = ( alpha>=0 ? Sqrt(delta) : -Sqrt(delta) );
-    if( rowRank == rowAlign )
-        chi.SetLocal(0,0,-lambda);
-
-    const Real kappa = alpha + lambda;
-    if( kappa == Real(0) )
-    {
-        Zero( x );
-        return Real(1);
-    }
-    else
-    {
-        Scale( Real(1)/kappa, x );
-        Conjugate( x );
-        return (delta+alpha*lambda)/(kappa*kappa);
-    }
-}
-
-template<typename F,Dist U,Dist V>
-F Row( F& chi, DistMatrix<F,U,V>& x )
+template<typename F>
+F Row( F& chi, AbstractDistMatrix<F>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("hyp_reflector::Row");
@@ -106,6 +53,25 @@ F Row( F& chi, DistMatrix<F,U,V>& x )
         Conjugate( x );
         return (delta+alpha*lambda)/(kappa*kappa);
     }
+}
+
+template<typename F>
+F Row( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("hyp_reflector::Row");
+        if( chi.ColRank() != chi.ColAlign() || x.ColRank() != x.ColAlign() )
+            LogicError("Reflecting from incorrect process");
+    )
+    F alpha;
+    if( chi.IsLocal(0,0) )
+        alpha = chi.GetLocal(0,0);
+    mpi::Broadcast( alpha, chi.RowAlign(), chi.RowComm() );
+
+    const F tau = reflector::Row( alpha, x );
+    chi.Set( 0, 0, alpha );
+
+    return tau;
 }
 
 } // namespace hyp_reflector

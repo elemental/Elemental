@@ -25,44 +25,13 @@ F LeftHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x )
         CallStackEntry cse("LeftHyperbolicReflector");
         if( chi.Height() != 1 || chi.Width() != 1 )
             LogicError("chi must be a scalar");
-        if( x.Height() != 1 && x.Width() != 1 )
-            LogicError("x must be a vector");
-        if( ImagPart(chi.Get(0,0)) != Base<F>(0) )
-            LogicError("chi is assumed to be real");
     )
 
-    // Compute lambda = sgn(chi) sqrt([chi;x]^H Sigma [chi;x])
-    //                = sgn(chi) sqrt(chi^2 - x^H x)    
-    typedef Base<F> Real;
-    const Real alpha = chi.GetRealPart(0,0);
-    const Real xNrm = Nrm2( x ); 
-    const Real delta = alpha*alpha - xNrm*xNrm;
-    if( delta < Real(0) )
-        LogicError("Attempted to square-root a negative number");
-    const Real lambda = ( alpha>=0 ? Sqrt(delta) : -Sqrt(delta) );
-    chi.Set(0,0,-lambda);
+    F alpha = chi.Get( 0, 0 );
+    const F tau = LeftHyperbolicReflector( alpha, x );
+    chi.Set( 0, 0, alpha );
 
-    // Implicitly define 
-    //     w := [chi;x] + lambda e_0, and 
-    //     kappa = chi + lambda,
-    // so that
-    //     tau := (w^H Sigma w) / 2 = (delta + lambda^2 + 2 chi lambda) / 2
-    //          = delta + chi lambda
-    // then normalize w so that its first entry is one
-    // TODO: Introduce a threshold instead of the approach from 
-    //       van de Geijn and van Zee's "High-performance up-and-downdating
-    //       via Householder-like transformations"
-    const Real kappa = alpha + lambda;
-    if( kappa == Real(0) )
-    {
-        Zero( x );        
-        return Real(1);
-    }
-    else
-    {
-        Scale( Real(1)/kappa, x );
-        return (delta+alpha*lambda)/(kappa*kappa);
-    }
+    return tau;
 }
 
 template<typename F>
@@ -110,8 +79,9 @@ F LeftHyperbolicReflector( F& chi, Matrix<F>& x )
     }
 }
 
-template<typename F,Dist U,Dist V>
-F LeftHyperbolicReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
+template<typename F>
+F LeftHyperbolicReflector
+( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LeftHyperbolicReflector");
@@ -120,16 +90,22 @@ F LeftHyperbolicReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
             LogicError("chi must be a scalar");
         if( x.Width() != 1 )
             LogicError("x must be a column vector");
+        if( chi.Root() != x.Root() )
+            LogicError("Roots must be the same");
     )
     F tau;
-    if( x.RowRank() == x.RowAlign() )
-        tau = hyp_reflector::Col( chi, x );
-    mpi::Broadcast( tau, x.RowAlign(), x.RowComm() );
+    if( x.CrossRank() == x.Root() )
+    {
+        if( x.RowRank() == x.RowAlign() )
+            tau = hyp_reflector::Col( chi, x );
+        mpi::Broadcast( tau, x.RowAlign(), x.RowComm() );
+    }
+    mpi::Broadcast( tau, x.Root(), x.CrossComm() );
     return tau;
 }
 
-template<typename F,Dist U,Dist V>
-F LeftHyperbolicReflector( F& chi, DistMatrix<F,U,V>& x )
+template<typename F>
+F LeftHyperbolicReflector( F& chi, AbstractDistMatrix<F>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LeftHyperbolicReflector");
@@ -137,9 +113,13 @@ F LeftHyperbolicReflector( F& chi, DistMatrix<F,U,V>& x )
             LogicError("x must be a column vector");
     )
     F tau;
-    if( x.RowRank() == x.RowAlign() )
-        tau = hyp_reflector::Col( chi, x );
-    mpi::Broadcast( tau, x.RowAlign(), x.RowComm() );
+    if( x.CrossRank() == x.Root() )
+    {
+        if( x.RowRank() == x.RowAlign() )
+            tau = hyp_reflector::Col( chi, x );
+        mpi::Broadcast( tau, x.RowAlign(), x.RowComm() );
+    }
+    mpi::Broadcast( tau, x.Root(), x.CrossComm() );
     return tau;
 }
 
@@ -166,8 +146,9 @@ F RightHyperbolicReflector( F& chi, Matrix<F>& x )
     return tau;
 }
 
-template<typename F,Dist U,Dist V>
-F RightHyperbolicReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
+template<typename F>
+F RightHyperbolicReflector
+( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("RightHyperbolicReflector");
@@ -176,16 +157,22 @@ F RightHyperbolicReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
             LogicError("chi must be a scalar");
         if( x.Height() != 1 )
             LogicError("x must be a row vector");
+        if( chi.Root() != x.Root() )
+            LogicError("Roots must be the same");
     )
     F tau;
-    if( x.ColRank() == x.ColAlign() )
-        tau = hyp_reflector::Row( chi, x );
-    mpi::Broadcast( tau, x.ColAlign(), x.ColComm() );
+    if( x.CrossRank() == x.Root() )
+    {
+        if( x.ColRank() == x.ColAlign() )
+            tau = hyp_reflector::Row( chi, x );
+        mpi::Broadcast( tau, x.ColAlign(), x.ColComm() );
+    }
+    mpi::Broadcast( tau, x.Root(), x.CrossComm() );
     return tau;
 }
 
-template<typename F,Dist U,Dist V>
-F RightHyperbolicReflector( F& chi, DistMatrix<F,U,V>& x )
+template<typename F>
+F RightHyperbolicReflector( F& chi, AbstractDistMatrix<F>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("RightHyperbolicReflector");
@@ -193,25 +180,33 @@ F RightHyperbolicReflector( F& chi, DistMatrix<F,U,V>& x )
             LogicError("x must be a row vector");
     )
     F tau;
-    if( x.ColRank() == x.ColAlign() )
-        tau = hyp_reflector::Row( chi, x );
-    mpi::Broadcast( tau, x.ColAlign(), x.ColComm() );
+    if( x.CrossRank() == x.Root() )
+    {
+        if( x.ColRank() == x.ColAlign() )
+            tau = hyp_reflector::Row( chi, x );
+        mpi::Broadcast( tau, x.ColAlign(), x.ColComm() );
+    }
+    mpi::Broadcast( tau, x.Root(), x.CrossComm() );
     return tau;
 }
 
 #define PROTO(F) \
   template F LeftHyperbolicReflector( F& chi, Matrix<F>& x ); \
-  template F LeftHyperbolicReflector( F& chi, DistMatrix<F>& x ); \
+  template F LeftHyperbolicReflector( F& chi, AbstractDistMatrix<F>& x ); \
   template F LeftHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x ); \
-  template F LeftHyperbolicReflector( DistMatrix<F>& chi, DistMatrix<F>& x ); \
+  template F LeftHyperbolicReflector \
+  ( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x ); \
   template F RightHyperbolicReflector( F& chi, Matrix<F>& x ); \
-  template F RightHyperbolicReflector( F& chi, DistMatrix<F>& x ); \
+  template F RightHyperbolicReflector( F& chi, AbstractDistMatrix<F>& x ); \
   template F RightHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x ); \
-  template F RightHyperbolicReflector( DistMatrix<F>& chi, DistMatrix<F>& x ); \
-  template F hyp_reflector::Col( F& chi, DistMatrix<F>& x ); \
-  template F hyp_reflector::Col( DistMatrix<F>& chi, DistMatrix<F>& x ); \
-  template F hyp_reflector::Row( F& chi, DistMatrix<F>& x ); \
-  template F hyp_reflector::Row( DistMatrix<F>& chi, DistMatrix<F>& x );
+  template F RightHyperbolicReflector \
+  ( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x ); \
+  template F hyp_reflector::Col( F& chi, AbstractDistMatrix<F>& x ); \
+  template F hyp_reflector::Col \
+  ( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x ); \
+  template F hyp_reflector::Row( F& chi, AbstractDistMatrix<F>& x ); \
+  template F hyp_reflector::Row \
+  ( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

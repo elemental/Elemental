@@ -28,7 +28,7 @@ void ExpandPackedReflectors
 template<typename F> 
 void ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
-  Int offset, DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t )
+  Int offset, AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& t )
 {
     DEBUG_ONLY(CallStackEntry cse("ExpandPackedReflectors"))
     if( uplo == LOWER && dir == VERTICAL )
@@ -37,29 +37,13 @@ void ExpandPackedReflectors
         LogicError("This option is not yet supported");
 }
 
-template<typename F> 
-void ExpandPackedReflectors
-( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
-  Int offset, DistMatrix<F>& H, const DistMatrix<F,STAR,STAR>& t )
-{
-    DEBUG_ONLY(CallStackEntry cse("ExpandPackedReflectors"))
-    DistMatrix<F,MD,STAR> tDiag(H.Grid());
-    tDiag.SetRoot( H.DiagonalRoot(offset) );
-    tDiag.AlignCols( H.DiagonalAlign(offset) );
-    tDiag = t;
-    ExpandPackedReflectors( uplo, dir, conjugation, offset, H, tDiag );
-}
-
 #define PROTO(F) \
   template void ExpandPackedReflectors \
   ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation, \
     Int offset, Matrix<F>& H, const Matrix<F>& t ); \
   template void ExpandPackedReflectors \
   ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation, \
-    Int offset, DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t ); \
-  template void ExpandPackedReflectors \
-  ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation, \
-    Int offset, DistMatrix<F>& H, const DistMatrix<F,STAR,STAR>& t ); 
+    Int offset, AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& t );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

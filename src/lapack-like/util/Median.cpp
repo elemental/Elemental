@@ -36,11 +36,11 @@ ValueInt<Real> Median( const Matrix<Real>& x )
     return pairs[k/2];
 }
 
-template<typename Real,Dist U,Dist V>
-ValueInt<Real> Median( const DistMatrix<Real,U,V>& x )
+template<typename Real>
+ValueInt<Real> Median( const AbstractDistMatrix<Real>& x )
 {
     DEBUG_ONLY(CallStackEntry cse("Median"))
-    if( U==STAR && V==STAR )
+    if( x.ColDist() == STAR && x.RowDist() == STAR )
     {
         return Median( x.LockedMatrix() );
     }
@@ -53,18 +53,7 @@ ValueInt<Real> Median( const DistMatrix<Real,U,V>& x )
 
 #define PROTO(Real) \
   template ValueInt<Real> Median( const Matrix<Real>& x ); \
-  template ValueInt<Real> Median( const DistMatrix<Real,CIRC,CIRC>& x ); \
-  template ValueInt<Real> Median( const DistMatrix<Real,MC,  MR  >& x ); \
-  template ValueInt<Real> Median( const DistMatrix<Real,MC,  STAR>& x ); \
-  template ValueInt<Real> Median( const DistMatrix<Real,MD,  STAR>& x ); \
-  template ValueInt<Real> Median( const DistMatrix<Real,STAR,MC  >& x ); \
-  template ValueInt<Real> Median( const DistMatrix<Real,STAR,MD  >& x ); \
-  template ValueInt<Real> Median( const DistMatrix<Real,STAR,MR  >& x ); \
-  template ValueInt<Real> Median( const DistMatrix<Real,STAR,STAR>& x ); \
-  template ValueInt<Real> Median( const DistMatrix<Real,STAR,VC  >& x ); \
-  template ValueInt<Real> Median( const DistMatrix<Real,STAR,VR  >& x ); \
-  template ValueInt<Real> Median( const DistMatrix<Real,VC,  STAR>& x ); \
-  template ValueInt<Real> Median( const DistMatrix<Real,VR,  STAR>& x );
+  template ValueInt<Real> Median( const AbstractDistMatrix<Real>& x );
 
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"

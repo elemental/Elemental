@@ -81,22 +81,26 @@ template<typename F>
 void
 RUHF
 ( Conjugation conjugation, Int offset, 
-  const DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& A )
+  const AbstractDistMatrix<F>& HPre, const AbstractDistMatrix<F>& tPre, 
+        AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("apply_packed_reflectors::RUHF");
-        if( A.Width() != H.Width() )
+        if( APre.Width() != HPre.Width() )
             LogicError("A and H must have the same width");
-        AssertSameGrids( H, t, A );
+        AssertSameGrids( HPre, tPre, APre );
     )
+
+    auto HPtr = ReadProxy( &HPre );            auto& H = *HPtr;
+    auto tPtr = ReadProxy<F,MC,STAR>( &tPre ); auto& t = *tPtr;
+    auto APtr = ReadWriteProxy( &APre );       auto& A = *APtr;
+
     const Int mA = A.Height();
     const Int nA = A.Width();
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
         if( t.Height() != diagLength )
             LogicError("t must be the same length as H's offset diag");
-        if( !H.DiagonalAlignedWith( t, offset ) )
-            LogicError("t must be aligned with H's 'offset' diagonal");
     )
     const Grid& g = H.Grid();
     DistMatrix<F> HPanConj(g);

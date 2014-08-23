@@ -117,18 +117,20 @@ template<typename F>
 inline void
 LV
 ( Conjugation conjugation, Int offset, 
-  DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t )
+  AbstractDistMatrix<F>& HPre, const AbstractDistMatrix<F>& tPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("expand_packed_reflectors::LV");
-        AssertSameGrids( H, t );
-        if( offset > 0 || offset < -H.Height() )
+        AssertSameGrids( HPre, tPre );
+        if( offset > 0 || offset < -HPre.Height() )
             LogicError("Transforms out of bounds");
-        if( t.Height() != H.DiagonalLength( offset ) )
+        if( tPre.Height() != HPre.DiagonalLength( offset ) )
             LogicError("t must be the same length as H's offset diag");
-        if( !H.DiagonalAlignedWith( t, offset ) )
-            LogicError("t must be aligned with H's 'offset' diagonal");
     )
+
+    auto tPtr = ReadProxy<F,MC,STAR>( &tPre ); auto& t = *tPtr;
+    auto HPtr = ReadWriteProxy( &HPre );       auto& H = *HPtr;
+
     // Start by zeroing everything above the offset and setting that diagonal
     // to all ones. We can also ensure that H is not wider than it is tall.
     const Int m = H.Height();

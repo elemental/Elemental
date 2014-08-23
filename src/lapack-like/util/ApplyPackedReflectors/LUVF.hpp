@@ -79,21 +79,25 @@ template<typename F>
 inline void
 LUVF
 ( Conjugation conjugation, Int offset, 
-  const DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& A )
+  const AbstractDistMatrix<F>& HPre, const AbstractDistMatrix<F>& tPre, 
+        AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("apply_packed_reflectors::LUVF");
-        AssertSameGrids( H, t, A );
-        if( H.Height() != A.Height() )
+        AssertSameGrids( HPre, tPre, APre );
+        if( HPre.Height() != APre.Height() )
             LogicError("H and A must be the same height");
     )
+
+    auto HPtr = ReadProxy( &HPre );            auto& H = *HPtr;
+    auto tPtr = ReadProxy<F,MC,STAR>( &tPre ); auto& t = *tPtr;
+    auto APtr = ReadWriteProxy( &APre );       auto& A = *APtr;
+
     const Int nA = A.Width();
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
         if( t.Height() != diagLength )
             LogicError("t must be the same length as H's offset diag");
-        if( !H.DiagonalAlignedWith( t, offset ) )
-            LogicError("t must be aligned with H's 'offset' diagonal");
     )
     const Grid& g = H.Grid();
     DistMatrix<F> HPanCopy(g);

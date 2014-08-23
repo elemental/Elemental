@@ -82,31 +82,34 @@ template<typename F>
 inline void
 LLVB
 ( Conjugation conjugation, Int offset, 
-  const DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& A )
+  const AbstractDistMatrix<F>& HPre, const AbstractDistMatrix<F>& tPre, 
+        AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("apply_packed_reflectors::LLVB");
-        if( H.Height() != A.Height() )
+        if( HPre.Height() != APre.Height() )
             LogicError("H and A must have the same height");
-        AssertSameGrids( H, t, A );
+        AssertSameGrids( HPre, tPre, APre );
     )
+
+    auto HPtr = ReadProxy( &HPre );            auto& H = *HPtr;
+    auto tPtr = ReadProxy<F,MC,STAR>( &tPre ); auto& t = *tPtr;
+    auto APtr = ReadWriteProxy( &APre );       auto& A = *APtr;
+
     const Int m = H.Height();
     const Int nA = A.Width();
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
-        if( t.Height() != H.DiagonalLength(offset) )
+        if( t.Height() != diagLength )
             LogicError("t must be the same length as H's offset diag");
-        if( !H.DiagonalAlignedWith( t, offset ) )
-            LogicError("t must be aligned with H's 'offset' diagonal");
     )
     const Grid& g = H.Grid();
     DistMatrix<F> HPanCopy(g);
     DistMatrix<F,VC,  STAR> HPan_VC_STAR(g);
     DistMatrix<F,MC,  STAR> HPan_MC_STAR(g);
-    DistMatrix<F,STAR,STAR> t1_STAR_STAR(g);
-    DistMatrix<F,STAR,STAR> SInv_STAR_STAR(g);
     DistMatrix<F,STAR,MR  > Z_STAR_MR(g);
     DistMatrix<F,STAR,VR  > Z_STAR_VR(g);
+    DistMatrix<F,STAR,STAR> t1_STAR_STAR(g), SInv_STAR_STAR(g);
 
     const Int iOff = ( offset>=0 ? 0      : -offset );
     const Int jOff = ( offset>=0 ? offset : 0       );

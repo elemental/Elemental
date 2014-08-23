@@ -25,13 +25,8 @@ void ApplyPackedReflectors
 ( LeftOrRight side, UpperOrLower uplo,
   VerticalOrHorizontal dir, ForwardOrBackward order,
   Conjugation conjugation, Int offset,
-  const DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& A );
-template<typename F>
-void ApplyPackedReflectors
-( LeftOrRight side, UpperOrLower uplo,
-  VerticalOrHorizontal dir, ForwardOrBackward order,
-  Conjugation conjugation, Int offset,
-  const DistMatrix<F>& H, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& A );
+  const AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& t, 
+        AbstractDistMatrix<F>& A );
 
 // ExpandPackedReflectors
 // ======================
@@ -42,50 +37,40 @@ void ExpandPackedReflectors
 template<typename F>
 void ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
-  Int offset, DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t );
-template<typename F>
-void ExpandPackedReflectors
-( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
-  Int offset, DistMatrix<F>& H, const DistMatrix<F,STAR,STAR>& t );
+  Int offset, AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& t );
 
 // HyperbolicReflector
 // ===================
 template<typename F>
 F LeftHyperbolicReflector( F& chi, Matrix<F>& x );
-// NOTE: Only instantiated for (U,V)=(MC,MR)
-template<typename F,Dist U,Dist V>
-F LeftHyperbolicReflector( F& chi, DistMatrix<F,U,V>& x );
+template<typename F>
+F LeftHyperbolicReflector( F& chi, AbstractDistMatrix<F>& x );
 template<typename F>
 F LeftHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x );
-// NOTE: Only instantiated for (U,V)=(MC,MR)
-template<typename F,Dist U,Dist V>
-F LeftHyperbolicReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x );
+template<typename F>
+F LeftHyperbolicReflector
+( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x );
 
 template<typename F>
 F RightHyperbolicReflector( F& chi, Matrix<F>& x );
-// NOTE: Only instantiated for (U,V)=(MC,MR)
-template<typename F,Dist U,Dist V>
-F RightHyperbolicReflector( F& chi, DistMatrix<F,U,V>& x );
+template<typename F>
+F RightHyperbolicReflector( F& chi, AbstractDistMatrix<F>& x );
 template<typename F>
 F RightHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x );
-// NOTE: Only instantiated for (U,V)=(MC,MR)
-template<typename F,Dist U,Dist V>
-F RightHyperbolicReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x );
+template<typename F>
+F RightHyperbolicReflector
+( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x );
 
 namespace hyp_reflector {
 
-// NOTE: Only instantiated for (U,V)=(MC,MR)
-template<typename F,Dist U,Dist V>
-F Col( F& chi, DistMatrix<F,U,V>& x );
-// NOTE: Only instantiated for (U,V)=(MC,MR)
-template<typename F,Dist U,Dist V>
-F Col( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x );
-// NOTE: Only instantiated for (U,V)=(MC,MR)
-template<typename F,Dist U,Dist V>
-F Row( F& chi, DistMatrix<F,U,V>& x );
-// NOTE: Only instantiated for (U,V)=(MC,MR)
-template<typename F,Dist U,Dist V>
-F Row( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x );
+template<typename F>
+F Col( F& chi, AbstractDistMatrix<F>& x );
+template<typename F>
+F Col( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x );
+template<typename F>
+F Row( F& chi, AbstractDistMatrix<F>& x );
+template<typename F>
+F Row( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x );
 
 } // namespace reflector
 
@@ -93,47 +78,39 @@ F Row( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x );
 // ======
 template<typename Real>
 ValueInt<Real> Median( const Matrix<Real>& x );
-template<typename Real,Dist U,Dist V>
-ValueInt<Real> Median( const DistMatrix<Real,U,V>& x );
+template<typename Real>
+ValueInt<Real> Median( const AbstractDistMatrix<Real>& x );
 
 // Reflector
 // =========
 template<typename F>
 F LeftReflector( F& chi, Matrix<F>& x );
-// NOTE: Only instantiated for (U,V)=(MC,MR)
-template<typename F,Dist U,Dist V>
-F LeftReflector( F& chi, DistMatrix<F,U,V>& x );
+template<typename F>
+F LeftReflector( F& chi, AbstractDistMatrix<F>& x );
 template<typename F>
 F LeftReflector( Matrix<F>& chi, Matrix<F>& x );
-// NOTE: Only instantiated for (U,V)=(MC,MR)
-template<typename F,Dist U,Dist V>
-F LeftReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x );
+template<typename F>
+F LeftReflector( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x );
 
 template<typename F>
 F RightReflector( F& chi, Matrix<F>& x );
-// NOTE: Only instantiated for (U,V)=(MC,MR)
-template<typename F,Dist U,Dist V>
-F RightReflector( F& chi, DistMatrix<F,U,V>& x );
+template<typename F>
+F RightReflector( F& chi, AbstractDistMatrix<F>& x );
 template<typename F>
 F RightReflector( Matrix<F>& chi, Matrix<F>& x );
-// NOTE: Only instantiated for (U,V)=(MC,MR)
-template<typename F,Dist U,Dist V>
-F RightReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x );
+template<typename F>
+F RightReflector( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x );
 
 namespace reflector {
 
-// NOTE: Only instantiated for (U,V)=(MC,MR)
-template<typename F,Dist U,Dist V>
-F Col( F& chi, DistMatrix<F,U,V>& x );
-// NOTE: Only instantiated for (U,V)=(MC,MR)
-template<typename F,Dist U,Dist V>
-F Col( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x );
-// NOTE: Only instantiated for (U,V)=(MC,MR)
-template<typename F,Dist U,Dist V>
-F Row( F& chi, DistMatrix<F,U,V>& x );
-// NOTE: Only instantiated for (U,V)=(MC,MR)
-template<typename F,Dist U,Dist V>
-F Row( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x );
+template<typename F>
+F Col( F& chi, AbstractDistMatrix<F>& x );
+template<typename F>
+F Col( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x );
+template<typename F>
+F Row( F& chi, AbstractDistMatrix<F>& x );
+template<typename F>
+F Row( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x );
 
 } // namespace reflector
 
