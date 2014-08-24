@@ -33,6 +33,7 @@ void Zeros( AbstractBlockDistMatrix<T>& A, Int m, Int n );
 } // namespace El
 
 #include "./lapack-like/util.hpp"
+#include "./lapack-like/reflect.hpp"
 #include "./lapack-like/perm.hpp"
 
 #include "./lapack-like/factor.hpp"

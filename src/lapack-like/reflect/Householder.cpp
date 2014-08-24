@@ -13,8 +13,8 @@
 */
 #include "El.hpp"
 
-#include "./Reflector/Col.hpp"
-#include "./Reflector/Row.hpp"
+#include "./Standard/Col.hpp"
+#include "./Standard/Row.hpp"
 
 namespace El {
 

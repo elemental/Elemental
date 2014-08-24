@@ -8,8 +8,8 @@
 */
 #include "El.hpp"
 
-#include "./ApplyPackedReflectors/Util.hpp"
-#include "./ExpandPackedReflectors/LV.hpp"
+#include "./ApplyPacked/Util.hpp"
+#include "./ExpandPacked/LV.hpp"
 
 namespace El {
 

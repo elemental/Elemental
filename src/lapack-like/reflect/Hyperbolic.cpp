@@ -8,8 +8,8 @@
 */
 #include "El.hpp"
 
-#include "./HyperbolicReflector/Col.hpp"
-#include "./HyperbolicReflector/Row.hpp"
+#include "./Hyperbolic/Col.hpp"
+#include "./Hyperbolic/Row.hpp"
 
 namespace El {
 
