@@ -89,12 +89,19 @@ inline void L( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 //       be combined.
 template<typename F> 
 inline void
-L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
+L
+( AbstractDistMatrix<F>& APre, 
+  AbstractDistMatrix<F>& tPPre, AbstractDistMatrix<F>& tQPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("bidiag::U");
-        AssertSameGrids( A, tP, tQ );
+        AssertSameGrids( APre, tPPre, tQPre );
     )
+
+    auto APtr  = ReadWriteProxy( &APre );           auto& A  = *APtr;
+    auto tPPtr = WriteProxy<F,STAR,STAR>( &tPPre ); auto& tP = *tPPtr;
+    auto tQPtr = WriteProxy<F,STAR,STAR>( &tQPre ); auto& tQ = *tQPtr;
+
     const Int m = A.Height();
     const Int n = A.Width();
     DEBUG_ONLY(

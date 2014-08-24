@@ -15,14 +15,18 @@ namespace El {
 namespace herm_tridiag {
 
 template<typename F> 
-void LSquare( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
+void LSquare( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("herm_tridiag::LSquare");
-        AssertSameGrids( A, t );
-        if( A.Height() != A.Width() )
+        AssertSameGrids( APre, tPre );
+        if( APre.Height() != APre.Width() )
             LogicError("A must be square");
     )
+
+    auto APtr = ReadWriteProxy( &APre );          auto& A = *APtr;
+    auto tPtr = WriteProxy<F,STAR,STAR>( &tPre ); auto& t = *tPtr;
+
     const Grid& g = A.Grid();
     DEBUG_ONLY(
         if( g.Height() != g.Width() )

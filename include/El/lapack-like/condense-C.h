@@ -26,8 +26,6 @@ ElError ElBidiag_d( ElMatrix_d A, ElMatrix_d tP, ElMatrix_d tQ );
 ElError ElBidiag_c( ElMatrix_c A, ElMatrix_c tP, ElMatrix_c tQ );
 ElError ElBidiag_z( ElMatrix_z A, ElMatrix_z tP, ElMatrix_z tQ );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, while
-         'tP' and 'tQ' must be in a [STAR,STAR] distribution */
 ElError ElBidiagDist_s
 ( ElDistMatrix_s A, ElDistMatrix_s tP, ElDistMatrix_s tQ );
 ElError ElBidiagDist_d
@@ -64,8 +62,6 @@ ElError ElApplyQAfterBidiag_z
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstMatrix_z A, ElConstMatrix_z t, ElMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while
-         't' must be in a [MD,STAR] or [STAR,STAR] distribution */
 ElError ElApplyQAfterBidiagDist_s
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstDistMatrix_s A, ElConstDistMatrix_s t, ElDistMatrix_s B );
@@ -94,8 +90,6 @@ ElError ElApplyPAfterBidiag_z
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstMatrix_z A, ElConstMatrix_z t, ElMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while
-         't' must be in a [MD,STAR] or [STAR,STAR] distribution */
 ElError ElApplyPAfterBidiagDist_s
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstDistMatrix_s A, ElConstDistMatrix_s t, ElDistMatrix_s B );
@@ -130,8 +124,6 @@ ElError ElHermitianTridiag_d( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d t );
 ElError ElHermitianTridiag_c( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_c t );
 ElError ElHermitianTridiag_z( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_z t );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, while
-         't' must be in a [STAR,STAR] distribution */
 ElError ElHermitianTridiagDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s t );
 ElError ElHermitianTridiagDist_d
@@ -143,8 +135,6 @@ ElError ElHermitianTridiagDist_z
 
 /* Expert version
    ^^^^^^^^^^^^^^ */
-/* NOTE: 'A' must be in a [MC,MR] distribution, while
-         't' must be in a [STAR,STAR] distribution */
 ElError ElHermitianTridiagXDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s t, 
   ElHermitianTridiagCtrl ctrl );
@@ -165,7 +155,6 @@ ElError ElHermitianTridiagOnly_d( ElUpperOrLower uplo, ElMatrix_d A );
 ElError ElHermitianTridiagOnly_c( ElUpperOrLower uplo, ElMatrix_c A );
 ElError ElHermitianTridiagOnly_z( ElUpperOrLower uplo, ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElHermitianTridiagOnlyDist_s( ElUpperOrLower uplo, ElDistMatrix_s A );
 ElError ElHermitianTridiagOnlyDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
 ElError ElHermitianTridiagOnlyDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
@@ -173,7 +162,6 @@ ElError ElHermitianTridiagOnlyDist_z( ElUpperOrLower uplo, ElDistMatrix_z A );
 
 /* Expert version
    ^^^^^^^^^^^^^^ */
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElHermitianTridiagOnlyXDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElHermitianTridiagCtrl ctrl );
 ElError ElHermitianTridiagOnlyXDist_d
@@ -198,8 +186,6 @@ ElError ElApplyQAfterHermitianTridiag_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstMatrix_z A, ElConstMatrix_z t, ElMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while
-         't' must be in a [MD,STAR] or [STAR,STAR] distribution */ 
 ElError ElApplyQAfterHermitianTridiagDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstDistMatrix_s A, ElConstDistMatrix_s t, ElDistMatrix_s B );
@@ -223,8 +209,6 @@ ElError ElHessenberg_d( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d t );
 ElError ElHessenberg_c( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_c t );
 ElError ElHessenberg_z( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_z t );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, while
-         't' must be in a [STAR,STAR] distribution */
 ElError ElHessenbergDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s t );
 ElError ElHessenbergDist_d
@@ -241,7 +225,6 @@ ElError ElHessenbergOnly_d( ElUpperOrLower uplo, ElMatrix_d A );
 ElError ElHessenbergOnly_c( ElUpperOrLower uplo, ElMatrix_c A );
 ElError ElHessenbergOnly_z( ElUpperOrLower uplo, ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElHessenbergOnlyDist_s( ElUpperOrLower uplo, ElDistMatrix_s A );
 ElError ElHessenbergOnlyDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
 ElError ElHessenbergOnlyDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
@@ -262,8 +245,6 @@ ElError ElApplyQAfterHessenberg_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstMatrix_z A, ElConstMatrix_z t, ElMatrix_z B );
 
-/* NOTE: 'A' and 'H' must be in a [MC,MR] distribution, while
-         't' must be in either a [MD,STAR] or [STAR,STAR] distribution */ 
 ElError ElApplyQAfterHessenbergDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstDistMatrix_s A, ElConstDistMatrix_s t, ElDistMatrix_s B );

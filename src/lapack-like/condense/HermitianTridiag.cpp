@@ -41,10 +41,14 @@ void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A )
 
 template<typename F> 
 void HermitianTridiag
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t,
+( UpperOrLower uplo, AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre,
   const HermitianTridiagCtrl ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiag"))
+
+    auto APtr = ReadWriteProxy( &APre );          auto& A = *APtr;
+    auto tPtr = WriteProxy<F,STAR,STAR>( &tPre ); auto& t = *tPtr;
+
     const Grid& g = A.Grid();
     if( ctrl.approach == HERMITIAN_TRIDIAG_NORMAL )
     {
@@ -122,7 +126,7 @@ void HermitianTridiag
 
 template<typename F>
 void HermitianTridiag
-( UpperOrLower uplo, DistMatrix<F>& A, const HermitianTridiagCtrl ctrl )
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, const HermitianTridiagCtrl ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiag"))
     DistMatrix<F,STAR,STAR> t(A.Grid());
@@ -139,21 +143,18 @@ void HermitianTridiag
   template void HermitianTridiag\
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t ); \
   template void HermitianTridiag\
-  ( UpperOrLower uplo, DistMatrix<F>& A, const HermitianTridiagCtrl ctrl ); \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
+    const HermitianTridiagCtrl ctrl ); \
   template void HermitianTridiag\
-  ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t, \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, \
     const HermitianTridiagCtrl ctrl ); \
   template void herm_tridiag::ApplyQ \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B ); \
   template void herm_tridiag::ApplyQ \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, \
-          DistMatrix<F>& B ); \
-  template void herm_tridiag::ApplyQ \
-  ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, \
-          DistMatrix<F>& B );
+    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, \
+          AbstractDistMatrix<F>& B );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

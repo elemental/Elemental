@@ -22,7 +22,8 @@ void Bidiag( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ );
 
 template<typename F>
 void Bidiag
-( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ );
+( AbstractDistMatrix<F>& A, 
+  AbstractDistMatrix<F>& tP, AbstractDistMatrix<F>& tQ );
 
 // Only return the condensed bidiagonal matrix
 // -------------------------------------------
@@ -30,7 +31,7 @@ template<typename F>
 void Bidiag( Matrix<F>& A ); 
 
 template<typename F>
-void Bidiag( DistMatrix<F>& A );
+void Bidiag( AbstractDistMatrix<F>& A );
 
 namespace bidiag {
 
@@ -42,12 +43,8 @@ void ApplyQ
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
-  const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B );
-
-template<typename F>
-void ApplyQ
-( LeftOrRight side, Orientation orientation,
-  const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& B );
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, 
+        AbstractDistMatrix<F>& B );
 
 template<typename F>
 void ApplyP
@@ -57,12 +54,8 @@ void ApplyP
 template<typename F>
 void ApplyP
 ( LeftOrRight side, Orientation orientation,
-  const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B );
-
-template<typename F>
-void ApplyP
-( LeftOrRight side, Orientation orientation,
-  const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& B );
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, 
+        AbstractDistMatrix<F>& B );
 
 } // namespace bidiag
 
@@ -92,14 +85,14 @@ template<typename F>
 void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t );
 template<typename F>
 void HermitianTridiag
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t,
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t,
   const HermitianTridiagCtrl ctrl=HermitianTridiagCtrl() );
 
 template<typename F>
 void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
 void HermitianTridiag
-( UpperOrLower uplo, DistMatrix<F>& A,
+( UpperOrLower uplo, AbstractDistMatrix<F>& A,
   const HermitianTridiagCtrl ctrl=HermitianTridiagCtrl() );
 
 namespace herm_tridiag {
@@ -111,11 +104,8 @@ void ApplyQ
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B );
-template<typename F>
-void ApplyQ
-( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& B );
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, 
+        AbstractDistMatrix<F>& B );
 
 } // namespace herm_tridiag
 
@@ -124,13 +114,13 @@ void ApplyQ
 template<typename F>
 void Hessenberg( UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
-void Hessenberg( UpperOrLower uplo, DistMatrix<F>& A );
+void Hessenberg( UpperOrLower uplo, AbstractDistMatrix<F>& A );
 
 template<typename F>
 void Hessenberg( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t );
 template<typename F>
 void Hessenberg
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t );
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t );
 
 namespace hessenberg {
 
@@ -141,11 +131,8 @@ void ApplyQ
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B );
-template<typename F>
-void ApplyQ
-( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& B );
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, 
+        AbstractDistMatrix<F>& B );
 
 } // namespace hessenberg
 

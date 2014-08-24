@@ -46,7 +46,8 @@ void ApplyP
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation, 
-  const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, 
+        AbstractDistMatrix<F>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("bidiag::ApplyQ"))
     const bool normal = (orientation==NORMAL);
@@ -59,23 +60,10 @@ void ApplyQ
 }
 
 template<typename F>
-void ApplyQ
-( LeftOrRight side, Orientation orientation, 
-  const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& B )
-{
-    DEBUG_ONLY(CallStackEntry cse("bidiag::ApplyQ"))
-    const Int offset = ( A.Height()>=A.Width() ? 0 : -1 );
-    DistMatrix<F,MD,STAR> tDiag(A.Grid());
-    tDiag.SetRoot( A.DiagonalRoot(offset) );
-    tDiag.AlignCols( A.DiagonalAlign(offset) );
-    tDiag = t;
-    ApplyQ( side, orientation, A, tDiag, B );
-}
-
-template<typename F>
 void ApplyP
 ( LeftOrRight side, Orientation orientation, 
-  const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, 
+        AbstractDistMatrix<F>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("bidiag::ApplyP"))
     const bool normal = (orientation==NORMAL);
@@ -85,20 +73,6 @@ void ApplyP
     const Int offset = ( A.Height()>=A.Width() ? 1 : 0 );
     ApplyPackedReflectors
     ( side, UPPER, HORIZONTAL, direction, conjugation, offset, A, t, B );
-}
-
-template<typename F>
-void ApplyP
-( LeftOrRight side, Orientation orientation, 
-  const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& B )
-{
-    DEBUG_ONLY(CallStackEntry cse("bidiag::ApplyP"))
-    const Int offset = ( A.Height()>=A.Width() ? 1 : 0 );
-    DistMatrix<F,MD,STAR> tDiag(A.Grid());
-    tDiag.SetRoot( A.DiagonalRoot(offset) );
-    tDiag.AlignCols( A.DiagonalAlign(offset) );
-    tDiag = t;
-    ApplyP( side, orientation, A, tDiag, B );
 }
 
 } // namespace bidiag

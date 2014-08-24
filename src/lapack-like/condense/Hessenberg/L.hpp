@@ -75,15 +75,16 @@ inline void L( Matrix<F>& A, Matrix<F>& t )
 }
 
 template<typename F> 
-inline void L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
+inline void L( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("hessenberg::L");
-        AssertSameGrids( A, t );
-        // Is this requirement necessary?!?
-        if( t.Viewing() )
-            LogicError("t must not be a view");
+        AssertSameGrids( APre, tPre );
     )
+
+    auto APtr = ReadWriteProxy( &APre );          auto& A = *APtr;
+    auto tPtr = WriteProxy<F,STAR,STAR>( &tPre ); auto& t = *tPtr;
+
     const Grid& g = A.Grid();
     const Int n = A.Height();
     t.Resize( Max(n-1,0), 1 );

@@ -39,7 +39,8 @@ void ApplyQ
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
-  const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, 
+        AbstractDistMatrix<F>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("hessenberg::ApplyQ"))
     const bool normal = (orientation==NORMAL);
@@ -57,20 +58,6 @@ void ApplyQ
         ApplyPackedReflectors
         ( side, LOWER, VERTICAL, direction, conjugation, -1, A, t, B );
     }
-}
-
-template<typename F>
-void ApplyQ
-( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
-  const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& B )
-{
-    DEBUG_ONLY(CallStackEntry cse("hessenberg::ApplyQ"))
-    const Int offset = ( uplo==LOWER ? 1 : -1 );
-    DistMatrix<F,MD,STAR> tDiag(A.Grid());
-    tDiag.SetRoot( A.DiagonalRoot(offset) );
-    tDiag.AlignCols( A.DiagonalAlign(offset) );
-    tDiag = t;
-    ApplyQ( side, uplo, orientation, A, tDiag, B );
 }
 
 } // namespace hessenberg

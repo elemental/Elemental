@@ -26,7 +26,7 @@ void Hessenberg( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t )
 
 template<typename F> 
 void Hessenberg
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t )
 {
     DEBUG_ONLY(CallStackEntry cse("Hessenberg"))
     if( uplo == UPPER )
@@ -48,7 +48,7 @@ void Hessenberg( UpperOrLower uplo, Matrix<F>& A )
 }
 
 template<typename F> 
-void Hessenberg( UpperOrLower uplo, DistMatrix<F>& A )
+void Hessenberg( UpperOrLower uplo, AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Hessenberg"))
     DistMatrix<F,STAR,STAR> t(A.Grid());
@@ -61,21 +61,17 @@ void Hessenberg( UpperOrLower uplo, DistMatrix<F>& A )
 
 #define PROTO(F) \
   template void Hessenberg( UpperOrLower uplo, Matrix<F>& A ); \
-  template void Hessenberg( UpperOrLower uplo, DistMatrix<F>& A ); \
+  template void Hessenberg( UpperOrLower uplo, AbstractDistMatrix<F>& A ); \
   template void Hessenberg( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t ); \
   template void Hessenberg \
-  ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t ); \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t ); \
   template void hessenberg::ApplyQ \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& H ); \
   template void hessenberg::ApplyQ \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, \
-    DistMatrix<F>& B ); \
-  template void hessenberg::ApplyQ \
-  ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, \
-    DistMatrix<F>& B );
+    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, \
+          AbstractDistMatrix<F>& B );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

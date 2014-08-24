@@ -71,9 +71,13 @@ inline void LUnb( Matrix<F>& A, Matrix<F>& t )
 }
 
 template<typename F> 
-inline void LUnb( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
+inline void LUnb( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
 {
     DEBUG_ONLY(CallStackEntry cse("hessenberg::LUnb"))
+
+    auto APtr = ReadWriteProxy( &APre );          auto& A = *APtr;
+    auto tPtr = WriteProxy<F,STAR,STAR>( &tPre ); auto& t = *tPtr;
+
     const Grid& g = A.Grid();
     const Int n = A.Height();
     const Int tHeight = Max(n-1,0);

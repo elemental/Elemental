@@ -58,14 +58,18 @@ void L( Matrix<F>& A, Matrix<F>& t )
 }
 
 template<typename F> 
-void L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
+void L( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("herm_tridiag::L");
-        AssertSameGrids( A, t );
-        if( A.Height() != A.Width() )
+        AssertSameGrids( APre, tPre );
+        if( APre.Height() != APre.Width() )
             LogicError("A must be square");
     )
+
+    auto APtr = ReadWriteProxy( &APre );          auto& A = *APtr;
+    auto tPtr = WriteProxy<F,STAR,STAR>( &tPre ); auto& t = *tPtr;
+
     const Int n = A.Height();
     if( n == 0 )
     {

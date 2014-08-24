@@ -32,7 +32,8 @@ void ApplyQ
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
-  const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, 
+        AbstractDistMatrix<F>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("hermi_tridiag::ApplyQ"))
     const bool normal = (orientation==NORMAL);
@@ -43,20 +44,6 @@ void ApplyQ
     const Int offset = ( uplo==UPPER ? 1 : -1 );
     ApplyPackedReflectors
     ( side, uplo, VERTICAL, direction, conjugation, offset, A, t, B );
-}
-
-template<typename F>
-void ApplyQ
-( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
-  const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& B )
-{
-    DEBUG_ONLY(CallStackEntry cse("herm_tridiag::ApplyQ"))
-    const Int offset = ( uplo==UPPER ? 1 : -1 );
-    DistMatrix<F,MD,STAR> tDiag(A.Grid());
-    tDiag.SetRoot( A.DiagonalRoot(offset) );
-    tDiag.AlignCols( A.DiagonalAlign(offset) );
-    tDiag = t;
-    ApplyQ( side, uplo, orientation, A, tDiag, B );
 }
 
 } // namespace herm_tridiag

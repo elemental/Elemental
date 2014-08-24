@@ -26,7 +26,8 @@ void Bidiag( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 
 template<typename F> 
 void Bidiag
-( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
+( AbstractDistMatrix<F>& A, 
+  AbstractDistMatrix<F>& tP, AbstractDistMatrix<F>& tQ )
 {
     DEBUG_ONLY(CallStackEntry cse("Bidiag"))
     if( A.Height() >= A.Width() )
@@ -54,7 +55,7 @@ void Bidiag( Matrix<F>& A )
 }
 
 template<typename F> 
-void Bidiag( DistMatrix<F>& A )
+void Bidiag( AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Bidiag"))
     DistMatrix<F,STAR,STAR> tP(A.Grid()), tQ(A.Grid());
@@ -75,31 +76,23 @@ void Bidiag( DistMatrix<F>& A )
   template void Bidiag( Matrix<F>& A ); \
   template void Bidiag( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ ); \
   template void Bidiag \
-  ( DistMatrix<F>& A, \
-    DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ ); \
-  template void Bidiag( DistMatrix<F>& A ); \
+  ( AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& tP, AbstractDistMatrix<F>& tQ ); \
+  template void Bidiag( AbstractDistMatrix<F>& A ); \
   template void bidiag::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B ); \
   template void bidiag::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
-    const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, \
-          DistMatrix<F>& B ); \
-  template void bidiag::ApplyQ \
-  ( LeftOrRight side, Orientation orientation, \
-    const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, \
-          DistMatrix<F>& B ); \
+    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, \
+          AbstractDistMatrix<F>& B ); \
   template void bidiag::ApplyP \
   ( LeftOrRight side, Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B ); \
   template void bidiag::ApplyP \
   ( LeftOrRight side, Orientation orientation, \
-    const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, \
-          DistMatrix<F>& B ); \
-  template void bidiag::ApplyP \
-  ( LeftOrRight side, Orientation orientation, \
-    const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, \
-          DistMatrix<F>& B );
+    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, \
+          AbstractDistMatrix<F>& B );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
