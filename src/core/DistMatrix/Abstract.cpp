@@ -1039,7 +1039,6 @@ Int AbstractDistMatrix<T>::DiagonalAlign( Int offset ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::DiagonalAlign"))
     const El::Grid& grid = this->Grid();
-    const El::DistData& data( *this );
 
     if( this->ColDist() == MC && this->RowDist() == MR )
     {

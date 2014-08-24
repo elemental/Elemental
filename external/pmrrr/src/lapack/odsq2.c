@@ -10,10 +10,12 @@
 /* Table of constant values */
 static int c__1 = 1;
 static int c__2 = 2;
+/*
 static int c__10 = 10;
 static int c__3 = 3;
 static int c__4 = 4;
 static int c__11 = 11;
+*/
 
 /* Subroutine */ 
 int odsq2(int *n, double *z__, int *info)

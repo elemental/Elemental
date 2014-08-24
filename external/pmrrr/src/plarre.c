@@ -115,7 +115,6 @@ int plarre(proc_t *procinfo, char *jobz, char *range, in_t *Dstruct,
 	       val_t *Wstruct, tol_t *tolstruct, int *nzp, int *offsetp)
 {
   /* input variables */
-  int              pid    = procinfo->pid;
   int              nproc  = procinfo->nproc;
   bool             wantZ  = (jobz[0]  == 'V' || jobz[0]  == 'v');
   bool             cntval = (jobz[0]  == 'C' || jobz[0]  == 'c');
@@ -287,7 +286,7 @@ int plarre(proc_t *procinfo, char *jobz, char *range, in_t *Dstruct,
 	ilast_tmp = ifirst_tmp + chunk - 1;
 	ilast_tmp = imin(ilast_tmp, iiu);
       }
-      if (i == pid) {
+      if (i == procinfo->pid) {
 	ifirst    = ifirst_tmp;
 	ilast     = ilast_tmp;
 	isize     = ilast - ifirst + 1;
@@ -415,8 +414,7 @@ int eigval_approx_proc(proc_t *procinfo, int ifirst, int ilast,
 			   int *iwork)
 {
   /* Input parameter */
-  int              pid = procinfo->pid;
-  int              isize        = ilast-ifirst+1;
+  int          isize        = ilast-ifirst+1;
   double       pivmin       = tolstruct->pivmin;
 
   /* double gl, gu, wl, wu; */
@@ -552,7 +550,6 @@ int eigval_root_proc(proc_t *procinfo, int ifirst, int ilast,
 			   int *iwork)
 {
   /* Input parameter */
-  int              pid = procinfo->pid;
   /* int              isize        = ilast-ifirst+1; */
   double       pivmin       = tolstruct->pivmin;
 
@@ -741,8 +738,7 @@ int eigval_refine_proc(proc_t *procinfo, int ifirst, int ilast,
 			   int *iwork)
 {
   /* Input parameter */
-  int              pid = procinfo->pid;
-  int              isize        = ilast-ifirst+1;
+  int          isize        = ilast-ifirst+1;
   double       pivmin       = tolstruct->pivmin;
 
   /* double gl, gu, wl, wu; */
@@ -750,15 +746,15 @@ int eigval_refine_proc(proc_t *procinfo, int ifirst, int ilast,
 
   /* Multithreading */
   int            nthreads;
-  int              max_nthreads = procinfo->nthreads;
-  int            iifirst, iilast, chunk;
+  int            max_nthreads = procinfo->nthreads;
+  int            chunk;
   pthread_t      *threads;
   pthread_attr_t attr;
   auxarg2_t      *auxarg2;
   void           *status;
 
   /* Others */
-  int    nsplit, *isplit;
+  int    *isplit;
   double spdiam;
   int    i_low, i_upp;
   double sigma;
@@ -774,8 +770,7 @@ int eigval_refine_proc(proc_t *procinfo, int ifirst, int ilast,
   isplit = (int *) malloc( n * sizeof(int) );
   assert(isplit != NULL);
 
-  /* This is an unreduced block */
-  nsplit = 1;
+  /* This is an unreduced block (nsplit=1) */
   isplit[0] = n;
   
   /* Prepare multi-threading */
@@ -1041,7 +1036,6 @@ void *eigval_subset_thread_r(void *argin)
   double       *D, *DE2;
   double       rtol1, rtol2, pivmin;
   double       bl_spdiam;
-  val_t        *Wstruct;
 
   /* others */
   int          info, offset;

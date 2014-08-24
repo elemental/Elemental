@@ -43,7 +43,6 @@ void MultiplyAfter
             LogicError("A and B must be the same height");
     )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
-    const Grid& g = APre.Grid();
 
     auto APtr = ReadProxy( &APre );
     auto& A = *APtr;

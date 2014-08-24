@@ -69,8 +69,6 @@ void Swap
 {
     DEBUG_ONLY(CallStackEntry cse("Swap"))
     const Grid& g = X.Grid();
-    const DistData XDistData = X.DistData();
-    const DistData YDistData = Y.DistData();
     if( orientation == NORMAL )
     {
         DEBUG_ONLY(

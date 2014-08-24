@@ -84,7 +84,6 @@ int plarrv(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
 	   int *myfirstp)
 {
   /* Input variables */
-  int            pid     = procinfo->pid;
   int            nthreads = procinfo->nthreads;
   int            n        = Dstruct->n;
   double         *W       = Wstruct->W;

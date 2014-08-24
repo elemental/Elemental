@@ -14,7 +14,9 @@
 
 /* Table of constant values */
 static int c__1 = 1;
+/*
 static int c_n1 = -1;
+*/
 static int c__3 = 3;
 static int c__2 = 2;
 static int c__0 = 0;

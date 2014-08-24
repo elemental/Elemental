@@ -32,7 +32,6 @@ T Trace( const AbstractDistMatrix<T>& A )
     DEBUG_ONLY(CallStackEntry cse("Trace"))
     if( A.Height() != A.Width() )
         LogicError("Cannot compute trace of nonsquare matrix");
-    const Grid& g = A.Grid();
 
     T trace = 0;
     if( A.Participating() )

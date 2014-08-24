@@ -65,8 +65,8 @@ inline void ReportException( const std::exception& e, std::ostream& os )
 {
     try {
         const ArgException& argExcept = dynamic_cast<const ArgException&>(e);
-        if( std::string(e.what()) != "" ) 
-            os << e.what() << std::endl;
+        if( std::string(argExcept.what()) != "" ) 
+            os << argExcept.what() << std::endl;
         DEBUG_ONLY(DumpCallStack(os))
     } 
     catch( std::exception& castExcept ) 

@@ -494,7 +494,6 @@ void HermitianTridiagEigPostEstimate
     auto ZPtr = WriteProxy<Real,STAR,VR>( &ZPre, ZCtrl ); auto& Z = *ZPtr;
 
     const Int n = d.Height();
-    const Grid& g = d.Grid();
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
     DistMatrix<Real,STAR,STAR> e_STAR_STAR( d.Grid() );
     e_STAR_STAR.Resize( n-1, 1, n );

@@ -7,9 +7,6 @@
 #include <float.h>
 #include <assert.h>
 
-/* Table of constant values */
-static int c__1 = 1;
-
 /* Subroutine */ 
 int oerbla(char *srname, int *info)
 {

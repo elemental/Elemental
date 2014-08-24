@@ -70,7 +70,6 @@ Householder
     const Int m = APre.Height();
     const Int n = APre.Width();
     const Int minDim = Min(m,n);
-    const Grid& g = APre.Grid();
 
     auto APtr = ReadWriteProxy( &APre );
     auto& A = *APtr;

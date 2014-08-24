@@ -596,7 +596,6 @@ void invscale_eigenvalues(val_t *Wstruct, double scale,
 static 
 int sort_eigenpairs_local(proc_t *procinfo, int m, val_t *Wstruct, vec_t *Zstruct)
 {
-  int              pid        = procinfo->pid;
   int              n        = Wstruct->n;
   double *restrict W        = Wstruct->W;
   double *restrict work     = Wstruct->gersch;
@@ -853,25 +852,19 @@ int refine_to_highrac(proc_t *procinfo, char *jobz, double *D,
 		      double *E2, in_t *Dstruct, int *nzp,
 		      val_t *Wstruct, tol_t *tolstruct)
 {
-  int              pid    = procinfo->pid;
-  bool             wantZ  = (jobz[0]  == 'V' || jobz[0]  == 'v');
   int              n      = Dstruct->n;
   int              nsplit = Dstruct->nsplit;
   int    *restrict isplit = Dstruct->isplit;
   double           spdiam = Dstruct->spdiam;
-  int              nz     = *nzp;
   double *restrict W      = Wstruct->W;
   double *restrict Werr   = Wstruct->Werr;
-  int    *restrict Windex = Wstruct->Windex;
-  int    *restrict iblock = Wstruct->iblock;
-  int    *restrict iproc  = Wstruct->iproc;
   double           pivmin = tolstruct->pivmin; 
   double           tol    = 4 * DBL_EPSILON; 
   
   double *work;
   int    *iwork;
   int    ifirst, ilast, offset, info;
-  int    i, j, k;
+  int    j;
   int    ibegin, iend, isize, nbl;
 
   work  = (double *) malloc( 2*n * sizeof(double) );

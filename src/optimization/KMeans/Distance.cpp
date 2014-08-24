@@ -21,7 +21,6 @@ template<typename F>
 void Distance( const Matrix<F>& X, const Matrix<F>& C, Matrix<F>& D )
 {
     DEBUG_ONLY(CallStackEntry cse("kmeans::Distance"))
-    const Int dim = X.Height();
     const Int numPoints = X.Width();
     const Int numClusters = C.Width();
 
@@ -47,9 +46,6 @@ void Distance
 ( const DistMatrix<F>& X, const DistMatrix<F>& C, DistMatrix<F>& D )
 {
     DEBUG_ONLY(CallStackEntry cse("kmeans::Distance"))
-    const Int dim = X.Height();
-    const Int numPoints = X.Width();
-    const Int numClusters = C.Width();
 
     // Compute the cross term, 2 RealPart( X^H C ) 
     Gemm( ADJOINT, NORMAL, F(-2), X, C, D );

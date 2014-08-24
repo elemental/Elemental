@@ -53,7 +53,6 @@ void AssignClusters
     DEBUG_ONLY(CallStackEntry cse("kmeans::AssignClusters"))
     typedef Base<F> Real;
     const Int numPoints = D.Height();
-    const Int numClusters = D.Width();
 
     cluster.AlignWith( D );
     dist.AlignWith( D );
