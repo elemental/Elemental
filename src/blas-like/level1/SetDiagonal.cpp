@@ -29,7 +29,6 @@ void SetDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("SetDiagonal"))
     const Int height = A.Height();
-    const Int width = A.Width();
     const Int localWidth = A.LocalWidth();
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
@@ -48,7 +47,6 @@ void SetDiagonal( AbstractBlockDistMatrix<T>& A, S alpha, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("SetDiagonal"))
     const Int height = A.Height();
-    const Int width = A.Width();
     const Int localWidth = A.LocalWidth();
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {

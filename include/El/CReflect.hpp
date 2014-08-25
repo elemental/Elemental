@@ -479,6 +479,70 @@ inline ElSortType CReflect( SortType type )
 inline SortType CReflect( ElSortType type )
 { return static_cast<SortType>(type); }
 
+// Permutations
+// ^^^^^^^^^^^^
+
+inline ElPermutationMeta CReflect( const PermutationMeta& meta )
+{
+    ElPermutationMeta metaC;    
+
+    metaC.align = meta.align;
+    metaC.comm = meta.comm.comm;
+
+    const Int commSize = mpi::Size( meta.comm );
+    metaC.sendCounts = new int[commSize];
+    metaC.sendDispls = new int[commSize];
+    metaC.recvCounts = new int[commSize];
+    metaC.recvDispls = new int[commSize];
+    MemCopy( metaC.sendCounts, meta.sendCounts.data(), commSize );
+    MemCopy( metaC.sendDispls, meta.sendDispls.data(), commSize ); 
+    MemCopy( metaC.recvCounts, meta.recvCounts.data(), commSize );
+    MemCopy( metaC.recvDispls, meta.recvDispls.data(), commSize );
+
+    metaC.numSendIdx = meta.sendIdx.size();
+    metaC.numRecvIdx = meta.recvIdx.size();
+    metaC.sendIdx   = new int[metaC.numSendIdx];
+    metaC.sendRanks = new int[metaC.numSendIdx];
+    metaC.recvIdx   = new int[metaC.numRecvIdx];
+    metaC.recvRanks = new int[metaC.numRecvIdx];
+    MemCopy( metaC.sendIdx,   meta.sendIdx.data(),   metaC.numSendIdx );
+    MemCopy( metaC.sendRanks, meta.sendRanks.data(), metaC.numSendIdx );
+    MemCopy( metaC.recvIdx,   meta.recvIdx.data(),   metaC.numRecvIdx );
+    MemCopy( metaC.recvRanks, meta.recvRanks.data(), metaC.numRecvIdx );
+
+    return metaC;
+}
+
+inline PermutationMeta CReflect( const ElPermutationMeta& metaC )
+{
+    PermutationMeta meta;
+
+    meta.align = metaC.align;
+    meta.comm = metaC.comm;
+
+    int commSize;
+    MPI_Comm_size( metaC.comm, &commSize );
+    meta.sendCounts = 
+        std::vector<int>( metaC.sendCounts, metaC.sendCounts+commSize );
+    meta.sendDispls = 
+        std::vector<int>( metaC.sendDispls, metaC.sendDispls+commSize );
+    meta.recvCounts =
+        std::vector<int>( metaC.recvCounts, metaC.recvCounts+commSize );
+    meta.recvDispls =
+        std::vector<int>( metaC.recvDispls, metaC.recvDispls+commSize );
+
+    meta.sendIdx = 
+        std::vector<int>( metaC.sendIdx, metaC.sendIdx+metaC.numSendIdx );
+    meta.sendRanks =
+        std::vector<int>( metaC.sendRanks, metaC.sendRanks+metaC.numSendIdx );
+    meta.recvIdx =
+        std::vector<int>( metaC.recvIdx, metaC.recvIdx+metaC.numRecvIdx );
+    meta.recvRanks =
+        std::vector<int>( metaC.recvRanks, metaC.recvRanks+metaC.numRecvIdx );
+
+    return meta;
+}
+
 // Condensed form
 // ^^^^^^^^^^^^^^
 inline ElHermitianTridiagApproach 

@@ -50,6 +50,12 @@ struct PermutationMeta
         }
     }
 
+    PermutationMeta()
+    : align(0), comm(mpi::COMM_SELF), 
+      sendCounts(1,0), sendDispls(1,0), 
+      recvCounts(1,0), recvDispls(1,0)
+    { }
+
     PermutationMeta
     ( const AbstractDistMatrix<Int>& p,
       const AbstractDistMatrix<Int>& pInv );
@@ -155,7 +161,7 @@ void PermuteCols
   const AbstractDistMatrix<Int>& pInv );
 
 template<typename T>
-void PermuteCols( AbstractDistMatrix<T>& A, const PermutationMeta& oldMeta );
+void PermuteCols( AbstractDistMatrix<T>& A, const PermutationMeta& meta );
 
 // Permute rows
 // ============
@@ -181,7 +187,7 @@ void PermuteRows
   const AbstractDistMatrix<Int>& pInv );
 
 template<typename T>
-void PermuteRows( AbstractDistMatrix<T>& A, const PermutationMeta& oldMeta );
+void PermuteRows( AbstractDistMatrix<T>& A, const PermutationMeta& meta );
 
 // Parity of a sequence of pivots
 // ==============================
@@ -207,9 +213,9 @@ void PivotsToPermutation
   Int offset=0 );
 
 void PivotsToInversePermutation
-( const Matrix<Int>& pivots, Matrix<Int>& invPerm, Int offset=0 );
+( const Matrix<Int>& pivots, Matrix<Int>& pInv, Int offset=0 );
 void PivotsToInversePermutation
-( const AbstractDistMatrix<Int>& pivots, AbstractDistMatrix<Int>& invPerm,
+( const AbstractDistMatrix<Int>& pivots, AbstractDistMatrix<Int>& pInv,
   Int offset=0 );
 
 } // namespace El
