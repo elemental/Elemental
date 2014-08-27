@@ -31,42 +31,27 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         // Create an n x n complex matrix residing on a single process.
-        DistMatrix<C,CIRC,CIRC> HRoot( n, n );
+        DistMatrix<C,CIRC,CIRC> H( n, n );
         if( mpi::WorldRank() == 0 )
         {
             // Set entry (i,j) to (i+j,i-j)
             for( Int j=0; j<n; ++j )
                 for( Int i=0; i<n; ++i )
-                    HRoot.SetLocal( i, j, C(i+j,i-j) );
+                    H.SetLocal( i, j, C(i+j,i-j) );
         }
         if( print )
-            Print( HRoot, "H on process 0" );
+            Print( H, "H on process 0" );
 
-        // Redistribute into the usual matrix distribution
-        DistMatrix<C> H( HRoot );
-        if( print )
-            Print( H, "H" );
-
-        // Call the eigensolver. We first create an empty complex eigenvector 
-        // matrix, X, and an eigenvalue column vector, w[VR,* ]
-        DistMatrix<Real,VR,STAR> w_VR_STAR;
-        DistMatrix<C> X;
+        // Call the eigensolver.
+        DistMatrix<Real,CIRC,CIRC> w;
+        DistMatrix<C,CIRC,CIRC> X;
         // Optional: set blocksizes and algorithmic choices here. See the 
         //           'Tuning' section of the README for details.
-        HermitianEig( LOWER, H, w_VR_STAR, X, ASCENDING );
+        HermitianEig( LOWER, H, w, X, ASCENDING );
         if( print )
         {
-            Print( w_VR_STAR, "Eigenvalues of H" );
+            Print( w, "Eigenvalues of H" );
             Print( X, "Eigenvectors of H" );
-        }
-
-        // Store a complete copy of w and X on the root
-        DistMatrix<Real,CIRC,CIRC> wRoot( w_VR_STAR );
-        DistMatrix<C,CIRC,CIRC> XRoot( X );
-        if( print )
-        {
-            Print( wRoot, "Eigenvalues on root process" );
-            Print( XRoot, "Eigenvectors on root process" );
         }
     }
     catch( exception& e ) { ReportException(e); }
