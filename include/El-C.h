@@ -27,6 +27,7 @@
 #include "El/blas-like/level3-C.h"
 
 #include "El/lapack-like/perm-C.h"
+#include "El/lapack-like/reflect-C.h"
 
 #include "El/lapack-like/condense-C.h"
 #include "El/lapack-like/factor-C.h"

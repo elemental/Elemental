@@ -86,6 +86,21 @@ inline UnitOrNonUnit CReflect( ElUnitOrNonUnit diag )
 inline ElUnitOrNonUnit CReflect( UnitOrNonUnit diag )
 { return static_cast<ElUnitOrNonUnit>(diag); }
 
+inline VerticalOrHorizontal CReflect( ElVerticalOrHorizontal dir )
+{ return static_cast<VerticalOrHorizontal>(dir); }
+inline ElVerticalOrHorizontal CReflect( VerticalOrHorizontal dir )
+{ return static_cast<ElVerticalOrHorizontal>(dir); }
+
+inline ForwardOrBackward CReflect( ElForwardOrBackward order )
+{ return static_cast<ForwardOrBackward>(order); }
+inline ElForwardOrBackward CReflect( ForwardOrBackward order )
+{ return static_cast<ElForwardOrBackward>(order); }
+
+inline Conjugation CReflect( ElConjugation conjugation )
+{ return static_cast<Conjugation>(conjugation); }
+inline ElConjugation CReflect( Conjugation conjugation )
+{ return static_cast<ElConjugation>(conjugation); }
+
 // Dist
 // ----
 inline Dist   CReflect( ElDist dist ) { return static_cast<  Dist>(dist); }
