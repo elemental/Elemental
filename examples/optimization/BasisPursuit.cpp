@@ -28,7 +28,6 @@ main( int argc, char* argv[] )
         const Int m = Input("--m","height of matrix",100);
         const Int n = Input("--n","width of matrix",200);
         const Int maxIter = Input("--maxIter","maximum # of iter's",500);
-        const Real probNnz = Input("--probNnz","prob. of nonzero x entry",0.1);
         const Real rho = Input("--rho","augmented Lagrangian param.",1.);
         const Real alpha = Input("--alpha","over-relaxation",1.2);
         const Real absTol = Input("--absTol","absolute tolerance",1e-6);

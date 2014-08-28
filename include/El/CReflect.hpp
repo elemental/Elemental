@@ -192,25 +192,50 @@ inline ValueInt<Int> CReflect( ElValueInt_i entryC )
 inline ElValueInt_i CReflect( ValueInt<Int> entry )
 { return {entry.value,entry.index}; }
 
+inline ValueInt<Int>* CReflect( ElValueInt_i* entryC )
+{ return EL_RC(ValueInt<Int>*,entryC); }
+inline ElValueInt_i* CReflect( ValueInt<Int>* entryC )
+{ return EL_RC(ElValueInt_i*,entryC); }
+
 inline ValueInt<float> CReflect( ElValueInt_s entryC )
 { return {entryC.value,entryC.index}; }
 inline ElValueInt_s CReflect( ValueInt<float> entry )
 { return {entry.value,entry.index}; }
+
+inline ValueInt<float>* CReflect( ElValueInt_s* entryC )
+{ return EL_RC(ValueInt<float>*,entryC); }
+inline ElValueInt_s* CReflect( ValueInt<float>* entryC )
+{ return EL_RC(ElValueInt_s*,entryC); }
 
 inline ValueInt<double> CReflect( ElValueInt_d entryC )
 { return {entryC.value,entryC.index}; }
 inline ElValueInt_d CReflect( ValueInt<double> entry )
 { return {entry.value,entry.index}; }
 
+inline ValueInt<double>* CReflect( ElValueInt_d* entryC )
+{ return EL_RC(ValueInt<double>*,entryC); }
+inline ElValueInt_d* CReflect( ValueInt<double>* entryC )
+{ return EL_RC(ElValueInt_d*,entryC); }
+
 inline ValueInt<Complex<float>> CReflect( ElValueInt_c entryC )
 { return {CReflect(entryC.value),entryC.index}; }
 inline ElValueInt_c CReflect( ValueInt<Complex<float>> entry )
 { return {CReflect(entry.value),entry.index}; }
 
+inline ValueInt<Complex<float>>* CReflect( ElValueInt_c* entryC )
+{ return EL_RC(ValueInt<Complex<float>>*,entryC); }
+inline ElValueInt_c* CReflect( ValueInt<Complex<float>>* entryC )
+{ return EL_RC(ElValueInt_c*,entryC); }
+
 inline ValueInt<Complex<double>> CReflect( ElValueInt_z entryC )
 { return {CReflect(entryC.value),entryC.index}; }
 inline ElValueInt_z CReflect( ValueInt<Complex<double>> entry )
 { return {CReflect(entry.value),entry.index}; }
+
+inline ValueInt<Complex<double>>* CReflect( ElValueInt_z* entryC )
+{ return EL_RC(ValueInt<Complex<double>>*,entryC); }
+inline ElValueInt_z* CReflect( ValueInt<Complex<double>>* entryC )
+{ return EL_RC(ElValueInt_z*,entryC); }
 
 inline ValueIntPair<Int> CReflect( ElValueIntPair_i entryC )
 { return {entryC.value,{entryC.indices[0],entryC.indices[1]}}; }

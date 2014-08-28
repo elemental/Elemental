@@ -59,7 +59,6 @@ main( int argc, char* argv[] )
         if( print )
             Print( z, "z" );
         const Real zOneNorm = OneNorm( z );
-        const Real zTwoNorm = FrobeniusNorm( z );
         const Int  zZeroNorm = ZeroNorm( z );
         const Real bTwoNorm = FrobeniusNorm( b );
         Gemv( NORMAL, C(-1), A, z, C(1), b );

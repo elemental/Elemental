@@ -28,6 +28,7 @@
 
 #include "El/lapack-like/perm-C.h"
 #include "El/lapack-like/reflect-C.h"
+#include "El/lapack-like/util-C.h"
 
 #include "El/lapack-like/condense-C.h"
 #include "El/lapack-like/factor-C.h"
