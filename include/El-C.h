@@ -42,6 +42,9 @@
 
 #include "El/matrices-C.h"
 
+#include "El/control-C.h"
+#include "El/optimization-C.h"
+
 #ifdef __cplusplus
 #include "El/CReflect.hpp"
 #endif

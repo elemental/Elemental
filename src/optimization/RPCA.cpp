@@ -30,7 +30,7 @@ inline void NormalizeEntries( AbstractDistMatrix<F>& A )
 template<typename F>
 inline void ADMM
 ( const AbstractDistMatrix<F>& MPre, AbstractDistMatrix<F>& LPre, 
-        AbstractDistMatrix<F>& SPre, const RpcaCtrl<Base<F>>& ctrl )
+        AbstractDistMatrix<F>& SPre, const RPCACtrl<Base<F>>& ctrl )
 {
     auto MPtr = ReadProxy( &MPre ); auto& M = *MPtr;
     auto LPtr = WriteProxy( &LPre ); auto& L = *LPtr;
@@ -133,7 +133,7 @@ template<typename F>
 inline void ALM
 ( const AbstractDistMatrix<F>& MPre, 
         AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& SPre, 
-  const RpcaCtrl<Base<F>>& ctrl )
+  const RPCACtrl<Base<F>>& ctrl )
 {
     auto MPtr = ReadProxy( &MPre ); auto& M = *MPtr;
     auto LPtr = WriteProxy( &LPre ); auto& L = *LPtr;
@@ -283,7 +283,7 @@ template<typename F>
 void RPCA
 ( const AbstractDistMatrix<F>& M, AbstractDistMatrix<F>& L, 
         AbstractDistMatrix<F>& S,
-  const RpcaCtrl<Base<F>>& ctrl )
+  const RPCACtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("RPCA"))
     if( ctrl.useALM )
@@ -295,7 +295,7 @@ void RPCA
 #define PROTO(F) \
   template void RPCA \
   ( const AbstractDistMatrix<F>& M, AbstractDistMatrix<F>& L, \
-          AbstractDistMatrix<F>& S, const RpcaCtrl<Base<F>>& ctrl );
+          AbstractDistMatrix<F>& S, const RPCACtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

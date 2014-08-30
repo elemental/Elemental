@@ -130,7 +130,7 @@ main( int argc, char* argv[] )
             Print( M, "Sum of low-rank and sparse" );
 
         // Create a custom set of parameters for RPCA
-        RpcaCtrl<double> ctrl;
+        RPCACtrl<double> ctrl;
         ctrl.useALM = useALM;
         ctrl.usePivQR = usePivQR;
         ctrl.progress = print;

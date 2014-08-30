@@ -1154,6 +1154,13 @@ inline ElRidgeAlg CReflect( RidgeAlg alg )
 inline RidgeAlg CReflect( ElRidgeAlg alg )
 { return static_cast<RidgeAlg>(alg); }
 
+// Optimization
+// ------------
+inline ElRegularization CReflect( Regularization penalty )
+{ return static_cast<ElRegularization>(penalty); }
+inline Regularization CReflect( ElRegularization penalty )
+{ return static_cast<Regularization>(penalty); }
+
 } // namespace El
 
 #endif // ifndef EL_CREFLECT_C_HPP

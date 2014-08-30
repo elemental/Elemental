@@ -21,6 +21,8 @@ enum Regularization {
 }
 using namespace RegularizationNS;
 
+// TODO: Modify the following routines to use control structures instead
+
 // Basis pursuit: min || z ||_1 such that A z = b
 // ==============================================
 template<typename F>
@@ -144,7 +146,7 @@ Int QuadraticProgram
 // ==========================================
 
 template<typename Real>
-struct RpcaCtrl
+struct RPCACtrl
 {
     bool useALM;
     bool usePivQR;
@@ -158,18 +160,20 @@ struct RpcaCtrl
     Real rho;
     Real tol;
 
-    RpcaCtrl() 
+    RPCACtrl() 
     : useALM(true), usePivQR(false), progress(true), 
       numPivSteps(75), maxIts(1000),
       tau(0), beta(1), rho(6), tol(1e-5)
     { }
 };
 
+// TODO: Sequential implementation
+
 template<typename F>
 void RPCA
 ( const AbstractDistMatrix<F>& M, AbstractDistMatrix<F>& L, 
         AbstractDistMatrix<F>& S,
-  const RpcaCtrl<Base<F>>& ctrl=RpcaCtrl<Base<F>>() );
+  const RPCACtrl<Base<F>>& ctrl=RPCACtrl<Base<F>>() );
 
 // Sparse inverse covariance selection
 // ===================================
