@@ -75,6 +75,34 @@ ElError ElCholeskyDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
 ElError ElCholeskyDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
 ElError ElCholeskyDist_z( ElUpperOrLower uplo, ElDistMatrix_z A );
 
+/* Solve linear systems after factorization
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
+ElError ElSolveAfterCholesky_s
+( ElUpperOrLower uplo, ElOrientation orientation,
+  ElConstMatrix_s A, ElMatrix_s B );
+ElError ElSolveAfterCholesky_d
+( ElUpperOrLower uplo, ElOrientation orientation,
+  ElConstMatrix_d A, ElMatrix_d B );
+ElError ElSolveAfterCholesky_c
+( ElUpperOrLower uplo, ElOrientation orientation,
+  ElConstMatrix_c A, ElMatrix_c B );
+ElError ElSolveAfterCholesky_z
+( ElUpperOrLower uplo, ElOrientation orientation,
+  ElConstMatrix_z A, ElMatrix_z B );
+
+ElError ElSolveAfterCholeskyDist_s
+( ElUpperOrLower uplo, ElOrientation orientation,
+  ElConstDistMatrix_s A, ElDistMatrix_s B );
+ElError ElSolveAfterCholeskyDist_d
+( ElUpperOrLower uplo, ElOrientation orientation,
+  ElConstDistMatrix_d A, ElDistMatrix_d B );
+ElError ElSolveAfterCholeskyDist_c
+( ElUpperOrLower uplo, ElOrientation orientation,
+  ElConstDistMatrix_c A, ElDistMatrix_c B );
+ElError ElSolveAfterCholeskyDist_z
+( ElUpperOrLower uplo, ElOrientation orientation,
+  ElConstDistMatrix_z A, ElDistMatrix_z B );
+
 /* Reverse Cholesky without pivoting, A = L^H L or A = U U^H
    --------------------------------------------------------- */
 ElError ElReverseCholesky_s( ElUpperOrLower uplo, ElMatrix_s A );
@@ -102,6 +130,34 @@ ElError ElCholeskyPivDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_i p );
 ElError ElCholeskyPivDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_i p );
+
+/* Solve linear systems after factorization 
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
+ElError ElSolveAfterCholeskyFullPiv_s
+( ElUpperOrLower uplo, ElOrientation orientation,
+  ElConstMatrix_s A, ElConstMatrix_i p, ElMatrix_s B );
+ElError ElSolveAfterCholeskyFullPiv_d
+( ElUpperOrLower uplo, ElOrientation orientation,
+  ElConstMatrix_d A, ElConstMatrix_i p, ElMatrix_d B );
+ElError ElSolveAfterCholeskyFullPiv_c
+( ElUpperOrLower uplo, ElOrientation orientation,
+  ElConstMatrix_c A, ElConstMatrix_i p, ElMatrix_c B );
+ElError ElSolveAfterCholeskyFullPiv_z
+( ElUpperOrLower uplo, ElOrientation orientation,
+  ElConstMatrix_z A, ElConstMatrix_i p, ElMatrix_z B );
+
+ElError ElSolveAfterCholeskyFullPivDist_s
+( ElUpperOrLower uplo, ElOrientation orientation,
+  ElConstDistMatrix_s A, ElConstDistMatrix_i p, ElDistMatrix_s B );
+ElError ElSolveAfterCholeskyFullPivDist_d
+( ElUpperOrLower uplo, ElOrientation orientation,
+  ElConstDistMatrix_d A, ElConstDistMatrix_i p, ElDistMatrix_d B );
+ElError ElSolveAfterCholeskyFullPivDist_c
+( ElUpperOrLower uplo, ElOrientation orientation,
+  ElConstDistMatrix_c A, ElConstDistMatrix_i p, ElDistMatrix_c B );
+ElError ElSolveAfterCholeskyFullPivDist_z
+( ElUpperOrLower uplo, ElOrientation orientation,
+  ElConstDistMatrix_z A, ElConstDistMatrix_i p, ElDistMatrix_z B );
 
 /* Modify a Cholesky factorization, L L^H + alpha V V^H = LHat LHat^H
    ------------------------------------------------------------------ */
@@ -134,62 +190,6 @@ ElError ElHPSDCholeskyDist_s( ElUpperOrLower uplo, ElDistMatrix_s A );
 ElError ElHPSDCholeskyDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
 ElError ElHPSDCholeskyDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
 ElError ElHPSDCholeskyDist_z( ElUpperOrLower uplo, ElDistMatrix_z A );
-
-/* Solve linear systems after a Cholesky factorization
-   --------------------------------------------------- */
-ElError ElSolveAfterCholesky_s
-( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstMatrix_s A, ElMatrix_s B );
-ElError ElSolveAfterCholesky_d
-( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstMatrix_d A, ElMatrix_d B );
-ElError ElSolveAfterCholesky_c
-( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstMatrix_c A, ElMatrix_c B );
-ElError ElSolveAfterCholesky_z
-( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstMatrix_z A, ElMatrix_z B );
-
-ElError ElSolveAfterCholeskyDist_s
-( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstDistMatrix_s A, ElDistMatrix_s B );
-ElError ElSolveAfterCholeskyDist_d
-( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstDistMatrix_d A, ElDistMatrix_d B );
-ElError ElSolveAfterCholeskyDist_c
-( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstDistMatrix_c A, ElDistMatrix_c B );
-ElError ElSolveAfterCholeskyDist_z
-( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstDistMatrix_z A, ElDistMatrix_z B );
-
-/* Solve linear systems after a Cholesky factorization with full pivoting
-   ---------------------------------------------------------------------- */
-ElError ElSolveAfterCholeskyFullPiv_s
-( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstMatrix_s A, ElConstMatrix_i p, ElMatrix_s B );
-ElError ElSolveAfterCholeskyFullPiv_d
-( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstMatrix_d A, ElConstMatrix_i p, ElMatrix_d B );
-ElError ElSolveAfterCholeskyFullPiv_c
-( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstMatrix_c A, ElConstMatrix_i p, ElMatrix_c B );
-ElError ElSolveAfterCholeskyFullPiv_z
-( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstMatrix_z A, ElConstMatrix_i p, ElMatrix_z B );
-
-ElError ElSolveAfterCholeskyFullPivDist_s
-( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstDistMatrix_s A, ElConstDistMatrix_i p, ElDistMatrix_s B );
-ElError ElSolveAfterCholeskyFullPivDist_d
-( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstDistMatrix_d A, ElConstDistMatrix_i p, ElDistMatrix_d B );
-ElError ElSolveAfterCholeskyFullPivDist_c
-( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstDistMatrix_c A, ElConstDistMatrix_i p, ElDistMatrix_c B );
-ElError ElSolveAfterCholeskyFullPivDist_z
-( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstDistMatrix_z A, ElConstDistMatrix_i p, ElDistMatrix_z B );
 
 /* Generalized QR
    ============== */
@@ -366,6 +366,48 @@ ElError ElInertiaAfterLDLDist_c
 ElError ElInertiaAfterLDLDist_z
 ( ElConstDistMatrix_d d, ElConstDistMatrix_z dSub, ElInertiaType* inertia );
 
+/* Solve linear systems with an unpivoted LDL factorization
+   -------------------------------------------------------- */
+ElError ElSolveAfterLDL_s( ElConstMatrix_s A, ElMatrix_s B );
+ElError ElSolveAfterLDL_d( ElConstMatrix_d A, ElMatrix_d B );
+ElError ElSolveAfterLDL_c( ElConstMatrix_c A, ElMatrix_c B, bool conjugate );
+ElError ElSolveAfterLDL_z( ElConstMatrix_z A, ElMatrix_z B, bool conjugate );
+
+ElError ElSolveAfterLDLDist_s
+( ElConstDistMatrix_s A, ElDistMatrix_s B );
+ElError ElSolveAfterLDLDist_d
+( ElConstDistMatrix_d A, ElDistMatrix_d B );
+ElError ElSolveAfterLDLDist_c
+( ElConstDistMatrix_c A, ElDistMatrix_c B, bool conjugate );
+ElError ElSolveAfterLDLDist_z
+( ElConstDistMatrix_z A, ElDistMatrix_z B, bool conjugate );
+
+/* Solve linear systems with a pivoted LDL factorization
+   ----------------------------------------------------- */
+ElError ElSolveAfterLDLPiv_s
+( ElConstMatrix_s A, ElConstMatrix_s dSub, ElConstMatrix_i p, ElMatrix_s B );
+ElError ElSolveAfterLDLPiv_d
+( ElConstMatrix_d A, ElConstMatrix_d dSub, ElConstMatrix_i p, ElMatrix_d B );
+ElError ElSolveAfterLDLPiv_c
+( ElConstMatrix_c A, ElConstMatrix_c dSub, ElConstMatrix_i p, ElMatrix_c B, 
+  bool conjugate );
+ElError ElSolveAfterLDLPiv_z
+( ElConstMatrix_z A, ElConstMatrix_z dSub, ElConstMatrix_i p, ElMatrix_z B, 
+  bool conjugate );
+
+ElError ElSolveAfterLDLPivDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_s dSub, ElConstDistMatrix_i p, 
+  ElDistMatrix_s B );
+ElError ElSolveAfterLDLPivDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_d dSub, ElConstDistMatrix_i p, 
+  ElDistMatrix_d B );
+ElError ElSolveAfterLDLPivDist_c
+( ElConstDistMatrix_c A, ElConstDistMatrix_c dSub, ElConstDistMatrix_i p, 
+  ElDistMatrix_c B, bool conjugate );
+ElError ElSolveAfterLDLPivDist_z
+( ElConstDistMatrix_z A, ElConstDistMatrix_z dSub, ElConstDistMatrix_i p, 
+  ElDistMatrix_z B, bool conjugate );
+
 /* Multiply vectors after an unpivoted LDL factorization
    ----------------------------------------------------- */
 ElError ElMultiplyAfterLDL_s( ElConstMatrix_s A, ElMatrix_s B );
@@ -538,6 +580,26 @@ ElError ElLUDist_d( ElDistMatrix_d A );
 ElError ElLUDist_c( ElDistMatrix_c A );
 ElError ElLUDist_z( ElDistMatrix_z A );
 
+/* Solve linear systems after factorization
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
+ElError ElSolveAfterLU_s
+( ElOrientation orientation, ElConstMatrix_s A, ElMatrix_s B );
+ElError ElSolveAfterLU_d
+( ElOrientation orientation, ElConstMatrix_d A, ElMatrix_d B );
+ElError ElSolveAfterLU_c
+( ElOrientation orientation, ElConstMatrix_c A, ElMatrix_c B );
+ElError ElSolveAfterLU_z
+( ElOrientation orientation, ElConstMatrix_z A, ElMatrix_z B );
+
+ElError ElSolveAfterLUDist_s
+( ElOrientation orientation, ElConstDistMatrix_s A, ElDistMatrix_s B );
+ElError ElSolveAfterLUDist_d
+( ElOrientation orientation, ElConstDistMatrix_d A, ElDistMatrix_d B );
+ElError ElSolveAfterLUDist_c
+( ElOrientation orientation, ElConstDistMatrix_c A, ElDistMatrix_c B );
+ElError ElSolveAfterLUDist_z
+( ElOrientation orientation, ElConstDistMatrix_z A, ElDistMatrix_z B );
+
 /* LU factorization with partial pivoting
    -------------------------------------- */
 ElError ElLUPartialPiv_s( ElMatrix_s A, ElMatrix_i p );
@@ -549,6 +611,34 @@ ElError ElLUPartialPivDist_s( ElDistMatrix_s A, ElDistMatrix_i p );
 ElError ElLUPartialPivDist_d( ElDistMatrix_d A, ElDistMatrix_i p );
 ElError ElLUPartialPivDist_c( ElDistMatrix_c A, ElDistMatrix_i p );
 ElError ElLUPartialPivDist_z( ElDistMatrix_z A, ElDistMatrix_i p );
+
+/* Solve linear systems after factorization
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
+ElError ElSolveAfterLUPartialPiv_s
+( ElOrientation orientation, 
+  ElConstMatrix_s A, ElConstMatrix_i p, ElMatrix_s B );
+ElError ElSolveAfterLUPartialPiv_d
+( ElOrientation orientation, 
+  ElConstMatrix_d A, ElConstMatrix_i p, ElMatrix_d B );
+ElError ElSolveAfterLUPartialPiv_c
+( ElOrientation orientation, 
+  ElConstMatrix_c A, ElConstMatrix_i p, ElMatrix_c B );
+ElError ElSolveAfterLUPartialPiv_z
+( ElOrientation orientation, 
+  ElConstMatrix_z A, ElConstMatrix_i p, ElMatrix_z B );
+
+ElError ElSolveAfterLUPartialPivDist_s
+( ElOrientation orientation, 
+  ElConstDistMatrix_s A, ElConstDistMatrix_i p, ElDistMatrix_s B );
+ElError ElSolveAfterLUPartialPivDist_d
+( ElOrientation orientation, 
+  ElConstDistMatrix_d A, ElConstDistMatrix_i p, ElDistMatrix_d B );
+ElError ElSolveAfterLUPartialPivDist_c
+( ElOrientation orientation, 
+  ElConstDistMatrix_c A, ElConstDistMatrix_i p, ElDistMatrix_c B );
+ElError ElSolveAfterLUPartialPivDist_z
+( ElOrientation orientation, 
+  ElConstDistMatrix_z A, ElConstDistMatrix_i p, ElDistMatrix_z B );
 
 /* LU factorization with full pivoting
    ----------------------------------- */
@@ -565,6 +655,34 @@ ElError ElLUFullPivDist_c
 ( ElDistMatrix_c A, ElDistMatrix_i p, ElDistMatrix_i q );
 ElError ElLUFullPivDist_z
 ( ElDistMatrix_z A, ElDistMatrix_i p, ElDistMatrix_i q );
+
+/* Solve linear systems after factorization
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
+ElError ElSolveAfterLUFullPiv_s
+( ElOrientation orientation, ElConstMatrix_s A, 
+  ElConstMatrix_i p, ElConstMatrix_i q, ElMatrix_s B );
+ElError ElSolveAfterLUFullPiv_d
+( ElOrientation orientation, ElConstMatrix_d A, 
+  ElConstMatrix_i p, ElConstMatrix_i q, ElMatrix_d B );
+ElError ElSolveAfterLUFullPiv_c
+( ElOrientation orientation, ElConstMatrix_c A, 
+  ElConstMatrix_i p, ElConstMatrix_i q, ElMatrix_c B );
+ElError ElSolveAfterLUFullPiv_z
+( ElOrientation orientation, ElConstMatrix_z A, 
+  ElConstMatrix_i p, ElConstMatrix_i q, ElMatrix_z B );
+
+ElError ElSolveAfterLUFullPivDist_s
+( ElOrientation orientation, ElConstDistMatrix_s A, 
+  ElConstDistMatrix_i p, ElConstDistMatrix_i q, ElDistMatrix_s B );
+ElError ElSolveAfterLUFullPivDist_d
+( ElOrientation orientation, ElConstDistMatrix_d A, 
+  ElConstDistMatrix_i p, ElConstDistMatrix_i q, ElDistMatrix_d B );
+ElError ElSolveAfterLUFullPivDist_c
+( ElOrientation orientation, ElConstDistMatrix_c A, 
+  ElConstDistMatrix_i p, ElConstDistMatrix_i q, ElDistMatrix_c B );
+ElError ElSolveAfterLUFullPivDist_z
+( ElOrientation orientation, ElConstDistMatrix_z A, 
+  ElConstDistMatrix_i p, ElConstDistMatrix_i q, ElDistMatrix_z B );
 
 /* Rank-one LU modification
    ------------------------ */
@@ -593,82 +711,6 @@ ElError ElLUModDist_c
 ElError ElLUModDist_z
 ( ElDistMatrix_z A, ElDistMatrix_i p, 
   ElConstDistMatrix_z u, ElConstDistMatrix_z v, bool conjugate, double tau );
-
-/* Solve linear systems after LU with no pivoting
-   ---------------------------------------------- */
-ElError ElSolveAfterLU_s
-( ElOrientation orientation, ElConstMatrix_s A, ElMatrix_s B );
-ElError ElSolveAfterLU_d
-( ElOrientation orientation, ElConstMatrix_d A, ElMatrix_d B );
-ElError ElSolveAfterLU_c
-( ElOrientation orientation, ElConstMatrix_c A, ElMatrix_c B );
-ElError ElSolveAfterLU_z
-( ElOrientation orientation, ElConstMatrix_z A, ElMatrix_z B );
-
-ElError ElSolveAfterLUDist_s
-( ElOrientation orientation, ElConstDistMatrix_s A, ElDistMatrix_s B );
-ElError ElSolveAfterLUDist_d
-( ElOrientation orientation, ElConstDistMatrix_d A, ElDistMatrix_d B );
-ElError ElSolveAfterLUDist_c
-( ElOrientation orientation, ElConstDistMatrix_c A, ElDistMatrix_c B );
-ElError ElSolveAfterLUDist_z
-( ElOrientation orientation, ElConstDistMatrix_z A, ElDistMatrix_z B );
-
-/* Solve linear systems after LU with partial pivoting
-   --------------------------------------------------- */
-ElError ElSolveAfterLUPartialPiv_s
-( ElOrientation orientation, 
-  ElConstMatrix_s A, ElConstMatrix_i p, ElMatrix_s B );
-ElError ElSolveAfterLUPartialPiv_d
-( ElOrientation orientation, 
-  ElConstMatrix_d A, ElConstMatrix_i p, ElMatrix_d B );
-ElError ElSolveAfterLUPartialPiv_c
-( ElOrientation orientation, 
-  ElConstMatrix_c A, ElConstMatrix_i p, ElMatrix_c B );
-ElError ElSolveAfterLUPartialPiv_z
-( ElOrientation orientation, 
-  ElConstMatrix_z A, ElConstMatrix_i p, ElMatrix_z B );
-
-ElError ElSolveAfterLUPartialPivDist_s
-( ElOrientation orientation, 
-  ElConstDistMatrix_s A, ElConstDistMatrix_i p, ElDistMatrix_s B );
-ElError ElSolveAfterLUPartialPivDist_d
-( ElOrientation orientation, 
-  ElConstDistMatrix_d A, ElConstDistMatrix_i p, ElDistMatrix_d B );
-ElError ElSolveAfterLUPartialPivDist_c
-( ElOrientation orientation, 
-  ElConstDistMatrix_c A, ElConstDistMatrix_i p, ElDistMatrix_c B );
-ElError ElSolveAfterLUPartialPivDist_z
-( ElOrientation orientation, 
-  ElConstDistMatrix_z A, ElConstDistMatrix_i p, ElDistMatrix_z B );
-
-/* Solve linear systems after LU with full pivoting 
-   ------------------------------------------------ */
-ElError ElSolveAfterLUFullPiv_s
-( ElOrientation orientation, ElConstMatrix_s A, 
-  ElConstMatrix_i p, ElConstMatrix_i q, ElMatrix_s B );
-ElError ElSolveAfterLUFullPiv_d
-( ElOrientation orientation, ElConstMatrix_d A, 
-  ElConstMatrix_i p, ElConstMatrix_i q, ElMatrix_d B );
-ElError ElSolveAfterLUFullPiv_c
-( ElOrientation orientation, ElConstMatrix_c A, 
-  ElConstMatrix_i p, ElConstMatrix_i q, ElMatrix_c B );
-ElError ElSolveAfterLUFullPiv_z
-( ElOrientation orientation, ElConstMatrix_z A, 
-  ElConstMatrix_i p, ElConstMatrix_i q, ElMatrix_z B );
-
-ElError ElSolveAfterLUFullPivDist_s
-( ElOrientation orientation, ElConstDistMatrix_s A, 
-  ElConstDistMatrix_i p, ElConstDistMatrix_i q, ElDistMatrix_s B );
-ElError ElSolveAfterLUFullPivDist_d
-( ElOrientation orientation, ElConstDistMatrix_d A, 
-  ElConstDistMatrix_i p, ElConstDistMatrix_i q, ElDistMatrix_d B );
-ElError ElSolveAfterLUFullPivDist_c
-( ElOrientation orientation, ElConstDistMatrix_c A, 
-  ElConstDistMatrix_i p, ElConstDistMatrix_i q, ElDistMatrix_c B );
-ElError ElSolveAfterLUFullPivDist_z
-( ElOrientation orientation, ElConstDistMatrix_z A, 
-  ElConstDistMatrix_i p, ElConstDistMatrix_i q, ElDistMatrix_z B );
 
 /* QR factorization
    ================ */
