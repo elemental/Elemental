@@ -389,8 +389,8 @@ void SolveAfter
 
 } // namespace lu
 
-// QR
-// ==
+// QR factorization
+// ================
 
 // Return R (with non-negative diagonal) such that A = Q R
 // -------------------------------------------------------

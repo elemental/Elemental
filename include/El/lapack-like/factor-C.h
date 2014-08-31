@@ -191,120 +191,6 @@ ElError ElHPSDCholeskyDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
 ElError ElHPSDCholeskyDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
 ElError ElHPSDCholeskyDist_z( ElUpperOrLower uplo, ElDistMatrix_z A );
 
-/* Generalized QR
-   ============== */
-
-/* Return the packed Generalized QR factorization 
-   ---------------------------------------------- */
-ElError ElGQR_s
-( ElMatrix_s A, ElMatrix_s tA, ElMatrix_s dA,
-  ElMatrix_s B, ElMatrix_s tB, ElMatrix_s dB );
-ElError ElGQR_d
-( ElMatrix_d A, ElMatrix_d tA, ElMatrix_d dA,
-  ElMatrix_d B, ElMatrix_d tB, ElMatrix_d dB );
-ElError ElGQR_c
-( ElMatrix_c A, ElMatrix_c tA, ElMatrix_s dA,
-  ElMatrix_c B, ElMatrix_c tB, ElMatrix_s dB );
-ElError ElGQR_z
-( ElMatrix_z A, ElMatrix_z tA, ElMatrix_d dA,
-  ElMatrix_z B, ElMatrix_z tB, ElMatrix_d dB );
-
-ElError ElGQRDist_s
-( ElDistMatrix_s A, ElDistMatrix_s tA, ElDistMatrix_s dA,
-  ElDistMatrix_s B, ElDistMatrix_s tB, ElDistMatrix_s dB );
-ElError ElGQRDist_d
-( ElDistMatrix_d A, ElDistMatrix_d tA, ElDistMatrix_d dA,
-  ElDistMatrix_d B, ElDistMatrix_d tB, ElDistMatrix_d dB );
-ElError ElGQRDist_c
-( ElDistMatrix_c A, ElDistMatrix_c tA, ElDistMatrix_s dA,
-  ElDistMatrix_c B, ElDistMatrix_c tB, ElDistMatrix_s dB );
-ElError ElGQRDist_z
-( ElDistMatrix_z A, ElDistMatrix_z tA, ElDistMatrix_d dA,
-  ElDistMatrix_z B, ElDistMatrix_z tB, ElDistMatrix_d dB );
-
-/* Return just the triangular factors from the GQR factorization
-   ------------------------------------------------------------- */
-ElError ElGQRTriang_s( ElMatrix_s A, ElMatrix_s B );
-ElError ElGQRTriang_d( ElMatrix_d A, ElMatrix_d B );
-ElError ElGQRTriang_c( ElMatrix_c A, ElMatrix_c B );
-ElError ElGQRTriang_z( ElMatrix_z A, ElMatrix_z B );
-
-ElError ElGQRTriangDist_s( ElDistMatrix_s A, ElDistMatrix_s B );
-ElError ElGQRTriangDist_d( ElDistMatrix_d A, ElDistMatrix_d B );
-ElError ElGQRTriangDist_c( ElDistMatrix_c A, ElDistMatrix_c B );
-ElError ElGQRTriangDist_z( ElDistMatrix_z A, ElDistMatrix_z B );
-
-/* Generalized RQ
-   ============== */
-
-/* Return the packed Generalized RQ factorization 
-   ---------------------------------------------- */
-ElError ElGRQ_s
-( ElMatrix_s A, ElMatrix_s tA, ElMatrix_s dA,
-  ElMatrix_s B, ElMatrix_s tB, ElMatrix_s dB );
-ElError ElGRQ_d
-( ElMatrix_d A, ElMatrix_d tA, ElMatrix_d dA,
-  ElMatrix_d B, ElMatrix_d tB, ElMatrix_d dB );
-ElError ElGRQ_c
-( ElMatrix_c A, ElMatrix_c tA, ElMatrix_s dA,
-  ElMatrix_c B, ElMatrix_c tB, ElMatrix_s dB );
-ElError ElGRQ_z
-( ElMatrix_z A, ElMatrix_z tA, ElMatrix_d dA,
-  ElMatrix_z B, ElMatrix_z tB, ElMatrix_d dB );
-
-ElError ElGRQDist_s
-( ElDistMatrix_s A, ElDistMatrix_s tA, ElDistMatrix_s dA,
-  ElDistMatrix_s B, ElDistMatrix_s tB, ElDistMatrix_s dB );
-ElError ElGRQDist_d
-( ElDistMatrix_d A, ElDistMatrix_d tA, ElDistMatrix_d dA,
-  ElDistMatrix_d B, ElDistMatrix_d tB, ElDistMatrix_d dB );
-ElError ElGRQDist_c
-( ElDistMatrix_c A, ElDistMatrix_c tA, ElDistMatrix_s dA,
-  ElDistMatrix_c B, ElDistMatrix_c tB, ElDistMatrix_s dB );
-ElError ElGRQDist_z
-( ElDistMatrix_z A, ElDistMatrix_z tA, ElDistMatrix_d dA,
-  ElDistMatrix_z B, ElDistMatrix_z tB, ElDistMatrix_d dB );
-
-/* Return just the triangular factors from the GRQ factorization
-   ------------------------------------------------------------- */
-ElError ElGRQTriang_s( ElMatrix_s A, ElMatrix_s B );
-ElError ElGRQTriang_d( ElMatrix_d A, ElMatrix_d B );
-ElError ElGRQTriang_c( ElMatrix_c A, ElMatrix_c B );
-ElError ElGRQTriang_z( ElMatrix_z A, ElMatrix_z B );
-
-ElError ElGRQTriangDist_s( ElDistMatrix_s A, ElDistMatrix_s B );
-ElError ElGRQTriangDist_d( ElDistMatrix_d A, ElDistMatrix_d B );
-ElError ElGRQTriangDist_c( ElDistMatrix_c A, ElDistMatrix_c B );
-ElError ElGRQTriangDist_z( ElDistMatrix_z A, ElDistMatrix_z B );
-
-/* Interpolative Decomposition
-   =========================== */
-ElError ElID_s
-( ElMatrix_s A, ElMatrix_i p, ElMatrix_s Z, ElQRCtrl_s ctrl, 
-  bool canOverwrite );
-ElError ElID_d
-( ElMatrix_d A, ElMatrix_i p, ElMatrix_d Z, ElQRCtrl_d ctrl,
-  bool canOverwrite );
-ElError ElID_c
-( ElMatrix_c A, ElMatrix_i p, ElMatrix_c Z, ElQRCtrl_s ctrl,
-  bool canOverWrite );
-ElError ElID_z
-( ElMatrix_z A, ElMatrix_i p, ElMatrix_z Z, ElQRCtrl_d ctrl,
-  bool canOverwrite );
-
-ElError ElIDDist_s
-( ElDistMatrix_s A, ElDistMatrix_i p, ElDistMatrix_s Z, ElQRCtrl_s ctrl, 
-  bool canOverwrite );
-ElError ElIDDist_d
-( ElDistMatrix_d A, ElDistMatrix_i p, ElDistMatrix_d Z, ElQRCtrl_d ctrl, 
-  bool canOverwrite );
-ElError ElIDDist_c
-( ElDistMatrix_c A, ElDistMatrix_i p, ElDistMatrix_c Z, ElQRCtrl_s ctrl, 
-  bool canOverwrite );
-ElError ElIDDist_z
-( ElDistMatrix_z A, ElDistMatrix_i p, ElDistMatrix_z Z, ElQRCtrl_d ctrl, 
-  bool canOverwrite );
-
 /* LDL factorization
    ================= */
 
@@ -449,121 +335,6 @@ ElError ElMultiplyAfterLDLPivDist_c
 ElError ElMultiplyAfterLDLPivDist_z
 ( ElConstDistMatrix_z A, ElConstDistMatrix_z dSub, ElConstDistMatrix_i p, 
   ElDistMatrix_z B, bool conjugate );
-
-/* LQ factorization
-   ================ */
-
-/* Return the packed LQ factorization 
-   ---------------------------------- */
-ElError ElLQ_s( ElMatrix_s A, ElMatrix_s t, ElMatrix_s d );
-ElError ElLQ_d( ElMatrix_d A, ElMatrix_d t, ElMatrix_d d );
-ElError ElLQ_c( ElMatrix_c A, ElMatrix_c t, ElMatrix_s d );
-ElError ElLQ_z( ElMatrix_z A, ElMatrix_z t, ElMatrix_d d );
-
-ElError ElLQDist_s( ElDistMatrix_s A, ElDistMatrix_s t, ElDistMatrix_s d );
-ElError ElLQDist_d( ElDistMatrix_d A, ElDistMatrix_d t, ElDistMatrix_d d );
-ElError ElLQDist_c( ElDistMatrix_c A, ElDistMatrix_c t, ElDistMatrix_s d );
-ElError ElLQDist_z( ElDistMatrix_z A, ElDistMatrix_z t, ElDistMatrix_d d );
-
-/* Return the explicit LQ factorization 
-   ------------------------------------ */
-ElError ElExplicitLQ_s( ElMatrix_s L, ElMatrix_s A );
-ElError ElExplicitLQ_d( ElMatrix_d L, ElMatrix_d A );
-ElError ElExplicitLQ_c( ElMatrix_c L, ElMatrix_c A );
-ElError ElExplicitLQ_z( ElMatrix_z L, ElMatrix_z A );
-
-ElError ElExplicitLQDist_s( ElDistMatrix_s L, ElDistMatrix_s A );
-ElError ElExplicitLQDist_d( ElDistMatrix_d L, ElDistMatrix_d A );
-ElError ElExplicitLQDist_c( ElDistMatrix_c L, ElDistMatrix_c A );
-ElError ElExplicitLQDist_z( ElDistMatrix_z L, ElDistMatrix_z A );
-
-/* Only return the triangular factor, L
-   ------------------------------------ */
-ElError ElLQTriang_s( ElMatrix_s A );
-ElError ElLQTriang_d( ElMatrix_d A );
-ElError ElLQTriang_c( ElMatrix_c A );
-ElError ElLQTriang_z( ElMatrix_z A );
-
-ElError ElLQTriangDist_s( ElDistMatrix_s A );
-ElError ElLQTriangDist_d( ElDistMatrix_d A );
-ElError ElLQTriangDist_c( ElDistMatrix_c A );
-ElError ElLQTriangDist_z( ElDistMatrix_z A );
-
-/* Only return the unitary factor, Q
-   --------------------------------- */
-ElError ElLQUnitary_s( ElMatrix_s A );
-ElError ElLQUnitary_d( ElMatrix_d A );
-ElError ElLQUnitary_c( ElMatrix_c A );
-ElError ElLQUnitary_z( ElMatrix_z A );
-
-ElError ElLQUnitaryDist_s( ElDistMatrix_s A );
-ElError ElLQUnitaryDist_d( ElDistMatrix_d A );
-ElError ElLQUnitaryDist_c( ElDistMatrix_c A );
-ElError ElLQUnitaryDist_z( ElDistMatrix_z A );
-
-/* Apply Q from an LQ factorization to vectors
-   ------------------------------------------- */
-ElError ElApplyQAfterLQ_s
-( ElLeftOrRight side, ElOrientation orientation, 
-  ElConstMatrix_s A, ElConstMatrix_s t, 
-  ElConstMatrix_s d, ElMatrix_s B );
-ElError ElApplyQAfterLQ_d
-( ElLeftOrRight side, ElOrientation orientation, 
-  ElConstMatrix_d A, ElConstMatrix_d t, 
-  ElConstMatrix_d d, ElMatrix_d B );
-ElError ElApplyQAfterLQ_c
-( ElLeftOrRight side, ElOrientation orientation, 
-  ElConstMatrix_c A, ElConstMatrix_c t, 
-  ElConstMatrix_s d, ElMatrix_c B );
-ElError ElApplyQAfterLQ_z
-( ElLeftOrRight side, ElOrientation orientation, 
-  ElConstMatrix_z A, ElConstMatrix_z t, 
-  ElConstMatrix_d d, ElMatrix_z B );
-
-ElError ElApplyQAfterLQDist_s
-( ElLeftOrRight side, ElOrientation orientation, 
-  ElConstDistMatrix_s A, ElConstDistMatrix_s t, 
-  ElConstDistMatrix_s d, ElDistMatrix_s B );
-ElError ElApplyQAfterLQDist_d
-( ElLeftOrRight side, ElOrientation orientation, 
-  ElConstDistMatrix_d A, ElConstDistMatrix_d t, 
-  ElConstDistMatrix_d d, ElDistMatrix_d B );
-ElError ElApplyQAfterLQDist_c
-( ElLeftOrRight side, ElOrientation orientation, 
-  ElConstDistMatrix_c A, ElConstDistMatrix_c t, 
-  ElConstDistMatrix_s d, ElDistMatrix_c B );
-ElError ElApplyQAfterLQDist_z
-( ElLeftOrRight side, ElOrientation orientation, 
-  ElConstDistMatrix_z A, ElConstDistMatrix_z t, 
-  ElConstDistMatrix_d d, ElDistMatrix_z B );
-
-/* Solve against vectors after an LQ factorization
-   ----------------------------------------------- */
-ElError ElSolveAfterLQ_s
-( ElOrientation orientation, ElConstMatrix_s A, ElConstMatrix_s t, 
-  ElConstMatrix_s d, ElConstMatrix_s B, ElMatrix_s X );
-ElError ElSolveAfterLQ_d
-( ElOrientation orientation, ElConstMatrix_d A, ElConstMatrix_d t, 
-  ElConstMatrix_d d, ElConstMatrix_d B, ElMatrix_d X );
-ElError ElSolveAfterLQ_c
-( ElOrientation orientation, ElConstMatrix_c A, ElConstMatrix_c t, 
-  ElConstMatrix_s d, ElConstMatrix_c B, ElMatrix_c X );
-ElError ElSolveAfterLQ_z
-( ElOrientation orientation, ElConstMatrix_z A, ElConstMatrix_z t, 
-  ElConstMatrix_d d, ElConstMatrix_z B, ElMatrix_z X );
-
-ElError ElSolveAfterLQDist_s
-( ElOrientation orientation, ElConstDistMatrix_s A, ElConstDistMatrix_s t, 
-  ElConstDistMatrix_s d, ElConstDistMatrix_s B, ElDistMatrix_s X );
-ElError ElSolveAfterLQDist_d
-( ElOrientation orientation, ElConstDistMatrix_d A, ElConstDistMatrix_d t, 
-  ElConstDistMatrix_d d, ElConstDistMatrix_d B, ElDistMatrix_d X );
-ElError ElSolveAfterLQDist_c
-( ElOrientation orientation, ElConstDistMatrix_c A, ElConstDistMatrix_c t, 
-  ElConstDistMatrix_s d, ElConstDistMatrix_c B, ElDistMatrix_c X );
-ElError ElSolveAfterLQDist_z
-( ElOrientation orientation, ElConstDistMatrix_z A, ElConstDistMatrix_z t, 
-  ElConstDistMatrix_d d, ElConstDistMatrix_z B, ElDistMatrix_z X );
 
 /* LU factorization
    ================ */
@@ -712,6 +483,121 @@ ElError ElLUModDist_z
 ( ElDistMatrix_z A, ElDistMatrix_i p, 
   ElConstDistMatrix_z u, ElConstDistMatrix_z v, bool conjugate, double tau );
 
+/* LQ factorization
+   ================ */
+
+/* Return the packed LQ factorization 
+   ---------------------------------- */
+ElError ElLQ_s( ElMatrix_s A, ElMatrix_s t, ElMatrix_s d );
+ElError ElLQ_d( ElMatrix_d A, ElMatrix_d t, ElMatrix_d d );
+ElError ElLQ_c( ElMatrix_c A, ElMatrix_c t, ElMatrix_s d );
+ElError ElLQ_z( ElMatrix_z A, ElMatrix_z t, ElMatrix_d d );
+
+ElError ElLQDist_s( ElDistMatrix_s A, ElDistMatrix_s t, ElDistMatrix_s d );
+ElError ElLQDist_d( ElDistMatrix_d A, ElDistMatrix_d t, ElDistMatrix_d d );
+ElError ElLQDist_c( ElDistMatrix_c A, ElDistMatrix_c t, ElDistMatrix_s d );
+ElError ElLQDist_z( ElDistMatrix_z A, ElDistMatrix_z t, ElDistMatrix_d d );
+
+/* Return the explicit LQ factorization 
+   ------------------------------------ */
+ElError ElExplicitLQ_s( ElMatrix_s L, ElMatrix_s A );
+ElError ElExplicitLQ_d( ElMatrix_d L, ElMatrix_d A );
+ElError ElExplicitLQ_c( ElMatrix_c L, ElMatrix_c A );
+ElError ElExplicitLQ_z( ElMatrix_z L, ElMatrix_z A );
+
+ElError ElExplicitLQDist_s( ElDistMatrix_s L, ElDistMatrix_s A );
+ElError ElExplicitLQDist_d( ElDistMatrix_d L, ElDistMatrix_d A );
+ElError ElExplicitLQDist_c( ElDistMatrix_c L, ElDistMatrix_c A );
+ElError ElExplicitLQDist_z( ElDistMatrix_z L, ElDistMatrix_z A );
+
+/* Only return the triangular factor, L
+   ------------------------------------ */
+ElError ElLQTriang_s( ElMatrix_s A );
+ElError ElLQTriang_d( ElMatrix_d A );
+ElError ElLQTriang_c( ElMatrix_c A );
+ElError ElLQTriang_z( ElMatrix_z A );
+
+ElError ElLQTriangDist_s( ElDistMatrix_s A );
+ElError ElLQTriangDist_d( ElDistMatrix_d A );
+ElError ElLQTriangDist_c( ElDistMatrix_c A );
+ElError ElLQTriangDist_z( ElDistMatrix_z A );
+
+/* Only return the unitary factor, Q
+   --------------------------------- */
+ElError ElLQUnitary_s( ElMatrix_s A );
+ElError ElLQUnitary_d( ElMatrix_d A );
+ElError ElLQUnitary_c( ElMatrix_c A );
+ElError ElLQUnitary_z( ElMatrix_z A );
+
+ElError ElLQUnitaryDist_s( ElDistMatrix_s A );
+ElError ElLQUnitaryDist_d( ElDistMatrix_d A );
+ElError ElLQUnitaryDist_c( ElDistMatrix_c A );
+ElError ElLQUnitaryDist_z( ElDistMatrix_z A );
+
+/* Apply Q from an LQ factorization to vectors
+   ------------------------------------------- */
+ElError ElApplyQAfterLQ_s
+( ElLeftOrRight side, ElOrientation orientation, 
+  ElConstMatrix_s A, ElConstMatrix_s t, 
+  ElConstMatrix_s d, ElMatrix_s B );
+ElError ElApplyQAfterLQ_d
+( ElLeftOrRight side, ElOrientation orientation, 
+  ElConstMatrix_d A, ElConstMatrix_d t, 
+  ElConstMatrix_d d, ElMatrix_d B );
+ElError ElApplyQAfterLQ_c
+( ElLeftOrRight side, ElOrientation orientation, 
+  ElConstMatrix_c A, ElConstMatrix_c t, 
+  ElConstMatrix_s d, ElMatrix_c B );
+ElError ElApplyQAfterLQ_z
+( ElLeftOrRight side, ElOrientation orientation, 
+  ElConstMatrix_z A, ElConstMatrix_z t, 
+  ElConstMatrix_d d, ElMatrix_z B );
+
+ElError ElApplyQAfterLQDist_s
+( ElLeftOrRight side, ElOrientation orientation, 
+  ElConstDistMatrix_s A, ElConstDistMatrix_s t, 
+  ElConstDistMatrix_s d, ElDistMatrix_s B );
+ElError ElApplyQAfterLQDist_d
+( ElLeftOrRight side, ElOrientation orientation, 
+  ElConstDistMatrix_d A, ElConstDistMatrix_d t, 
+  ElConstDistMatrix_d d, ElDistMatrix_d B );
+ElError ElApplyQAfterLQDist_c
+( ElLeftOrRight side, ElOrientation orientation, 
+  ElConstDistMatrix_c A, ElConstDistMatrix_c t, 
+  ElConstDistMatrix_s d, ElDistMatrix_c B );
+ElError ElApplyQAfterLQDist_z
+( ElLeftOrRight side, ElOrientation orientation, 
+  ElConstDistMatrix_z A, ElConstDistMatrix_z t, 
+  ElConstDistMatrix_d d, ElDistMatrix_z B );
+
+/* Solve against vectors after an LQ factorization
+   ----------------------------------------------- */
+ElError ElSolveAfterLQ_s
+( ElOrientation orientation, ElConstMatrix_s A, ElConstMatrix_s t, 
+  ElConstMatrix_s d, ElConstMatrix_s B, ElMatrix_s X );
+ElError ElSolveAfterLQ_d
+( ElOrientation orientation, ElConstMatrix_d A, ElConstMatrix_d t, 
+  ElConstMatrix_d d, ElConstMatrix_d B, ElMatrix_d X );
+ElError ElSolveAfterLQ_c
+( ElOrientation orientation, ElConstMatrix_c A, ElConstMatrix_c t, 
+  ElConstMatrix_s d, ElConstMatrix_c B, ElMatrix_c X );
+ElError ElSolveAfterLQ_z
+( ElOrientation orientation, ElConstMatrix_z A, ElConstMatrix_z t, 
+  ElConstMatrix_d d, ElConstMatrix_z B, ElMatrix_z X );
+
+ElError ElSolveAfterLQDist_s
+( ElOrientation orientation, ElConstDistMatrix_s A, ElConstDistMatrix_s t, 
+  ElConstDistMatrix_s d, ElConstDistMatrix_s B, ElDistMatrix_s X );
+ElError ElSolveAfterLQDist_d
+( ElOrientation orientation, ElConstDistMatrix_d A, ElConstDistMatrix_d t, 
+  ElConstDistMatrix_d d, ElConstDistMatrix_d B, ElDistMatrix_d X );
+ElError ElSolveAfterLQDist_c
+( ElOrientation orientation, ElConstDistMatrix_c A, ElConstDistMatrix_c t, 
+  ElConstDistMatrix_s d, ElConstDistMatrix_c B, ElDistMatrix_c X );
+ElError ElSolveAfterLQDist_z
+( ElOrientation orientation, ElConstDistMatrix_z A, ElConstDistMatrix_z t, 
+  ElConstDistMatrix_d d, ElConstDistMatrix_z B, ElDistMatrix_z X );
+
 /* QR factorization
    ================ */
 
@@ -825,15 +711,15 @@ ElError ElQRColPivTriangDist_z( ElDistMatrix_z A, ElDistMatrix_i p );
 
 /* Return the unitary factor from QR with no pivoting
    -------------------------------------------------- */
-ElError ElQRTriang_s( ElMatrix_s A );
-ElError ElQRTriang_d( ElMatrix_d A );
-ElError ElQRTriang_c( ElMatrix_c A );
-ElError ElQRTriang_z( ElMatrix_z A );
+ElError ElQRUnitary_s( ElMatrix_s A );
+ElError ElQRUnitary_d( ElMatrix_d A );
+ElError ElQRUnitary_c( ElMatrix_c A );
+ElError ElQRUnitary_z( ElMatrix_z A );
 
-ElError ElQRTriangDist_s( ElDistMatrix_s A );
-ElError ElQRTriangDist_d( ElDistMatrix_d A );
-ElError ElQRTriangDist_c( ElDistMatrix_c A );
-ElError ElQRTriangDist_z( ElDistMatrix_z A );
+ElError ElQRUnitaryDist_s( ElDistMatrix_s A );
+ElError ElQRUnitaryDist_d( ElDistMatrix_d A );
+ElError ElQRUnitaryDist_c( ElDistMatrix_c A );
+ElError ElQRUnitaryDist_z( ElDistMatrix_z A );
 
 /* Return the unitary factor from QR with column pivoting
    ------------------------------------------------------ */
@@ -1022,6 +908,122 @@ ElError ElSolveAfterRQDist_c
 ElError ElSolveAfterRQDist_z
 ( ElOrientation orientation, ElConstDistMatrix_z A, ElConstDistMatrix_z t, 
   ElConstDistMatrix_d d, ElConstDistMatrix_z B, ElDistMatrix_z X );
+
+
+
+/* Generalized QR
+   ============== */
+
+/* Return the packed Generalized QR factorization 
+   ---------------------------------------------- */
+ElError ElGQR_s
+( ElMatrix_s A, ElMatrix_s tA, ElMatrix_s dA,
+  ElMatrix_s B, ElMatrix_s tB, ElMatrix_s dB );
+ElError ElGQR_d
+( ElMatrix_d A, ElMatrix_d tA, ElMatrix_d dA,
+  ElMatrix_d B, ElMatrix_d tB, ElMatrix_d dB );
+ElError ElGQR_c
+( ElMatrix_c A, ElMatrix_c tA, ElMatrix_s dA,
+  ElMatrix_c B, ElMatrix_c tB, ElMatrix_s dB );
+ElError ElGQR_z
+( ElMatrix_z A, ElMatrix_z tA, ElMatrix_d dA,
+  ElMatrix_z B, ElMatrix_z tB, ElMatrix_d dB );
+
+ElError ElGQRDist_s
+( ElDistMatrix_s A, ElDistMatrix_s tA, ElDistMatrix_s dA,
+  ElDistMatrix_s B, ElDistMatrix_s tB, ElDistMatrix_s dB );
+ElError ElGQRDist_d
+( ElDistMatrix_d A, ElDistMatrix_d tA, ElDistMatrix_d dA,
+  ElDistMatrix_d B, ElDistMatrix_d tB, ElDistMatrix_d dB );
+ElError ElGQRDist_c
+( ElDistMatrix_c A, ElDistMatrix_c tA, ElDistMatrix_s dA,
+  ElDistMatrix_c B, ElDistMatrix_c tB, ElDistMatrix_s dB );
+ElError ElGQRDist_z
+( ElDistMatrix_z A, ElDistMatrix_z tA, ElDistMatrix_d dA,
+  ElDistMatrix_z B, ElDistMatrix_z tB, ElDistMatrix_d dB );
+
+/* Return just the triangular factors from the GQR factorization
+   ------------------------------------------------------------- */
+ElError ElGQRTriang_s( ElMatrix_s A, ElMatrix_s B );
+ElError ElGQRTriang_d( ElMatrix_d A, ElMatrix_d B );
+ElError ElGQRTriang_c( ElMatrix_c A, ElMatrix_c B );
+ElError ElGQRTriang_z( ElMatrix_z A, ElMatrix_z B );
+
+ElError ElGQRTriangDist_s( ElDistMatrix_s A, ElDistMatrix_s B );
+ElError ElGQRTriangDist_d( ElDistMatrix_d A, ElDistMatrix_d B );
+ElError ElGQRTriangDist_c( ElDistMatrix_c A, ElDistMatrix_c B );
+ElError ElGQRTriangDist_z( ElDistMatrix_z A, ElDistMatrix_z B );
+
+/* Generalized RQ
+   ============== */
+
+/* Return the packed Generalized RQ factorization 
+   ---------------------------------------------- */
+ElError ElGRQ_s
+( ElMatrix_s A, ElMatrix_s tA, ElMatrix_s dA,
+  ElMatrix_s B, ElMatrix_s tB, ElMatrix_s dB );
+ElError ElGRQ_d
+( ElMatrix_d A, ElMatrix_d tA, ElMatrix_d dA,
+  ElMatrix_d B, ElMatrix_d tB, ElMatrix_d dB );
+ElError ElGRQ_c
+( ElMatrix_c A, ElMatrix_c tA, ElMatrix_s dA,
+  ElMatrix_c B, ElMatrix_c tB, ElMatrix_s dB );
+ElError ElGRQ_z
+( ElMatrix_z A, ElMatrix_z tA, ElMatrix_d dA,
+  ElMatrix_z B, ElMatrix_z tB, ElMatrix_d dB );
+
+ElError ElGRQDist_s
+( ElDistMatrix_s A, ElDistMatrix_s tA, ElDistMatrix_s dA,
+  ElDistMatrix_s B, ElDistMatrix_s tB, ElDistMatrix_s dB );
+ElError ElGRQDist_d
+( ElDistMatrix_d A, ElDistMatrix_d tA, ElDistMatrix_d dA,
+  ElDistMatrix_d B, ElDistMatrix_d tB, ElDistMatrix_d dB );
+ElError ElGRQDist_c
+( ElDistMatrix_c A, ElDistMatrix_c tA, ElDistMatrix_s dA,
+  ElDistMatrix_c B, ElDistMatrix_c tB, ElDistMatrix_s dB );
+ElError ElGRQDist_z
+( ElDistMatrix_z A, ElDistMatrix_z tA, ElDistMatrix_d dA,
+  ElDistMatrix_z B, ElDistMatrix_z tB, ElDistMatrix_d dB );
+
+/* Return just the triangular factors from the GRQ factorization
+   ------------------------------------------------------------- */
+ElError ElGRQTriang_s( ElMatrix_s A, ElMatrix_s B );
+ElError ElGRQTriang_d( ElMatrix_d A, ElMatrix_d B );
+ElError ElGRQTriang_c( ElMatrix_c A, ElMatrix_c B );
+ElError ElGRQTriang_z( ElMatrix_z A, ElMatrix_z B );
+
+ElError ElGRQTriangDist_s( ElDistMatrix_s A, ElDistMatrix_s B );
+ElError ElGRQTriangDist_d( ElDistMatrix_d A, ElDistMatrix_d B );
+ElError ElGRQTriangDist_c( ElDistMatrix_c A, ElDistMatrix_c B );
+ElError ElGRQTriangDist_z( ElDistMatrix_z A, ElDistMatrix_z B );
+
+/* Interpolative Decomposition
+   =========================== */
+ElError ElID_s
+( ElMatrix_s A, ElMatrix_i p, ElMatrix_s Z, ElQRCtrl_s ctrl, 
+  bool canOverwrite );
+ElError ElID_d
+( ElMatrix_d A, ElMatrix_i p, ElMatrix_d Z, ElQRCtrl_d ctrl,
+  bool canOverwrite );
+ElError ElID_c
+( ElMatrix_c A, ElMatrix_i p, ElMatrix_c Z, ElQRCtrl_s ctrl,
+  bool canOverWrite );
+ElError ElID_z
+( ElMatrix_z A, ElMatrix_i p, ElMatrix_z Z, ElQRCtrl_d ctrl,
+  bool canOverwrite );
+
+ElError ElIDDist_s
+( ElDistMatrix_s A, ElDistMatrix_i p, ElDistMatrix_s Z, ElQRCtrl_s ctrl, 
+  bool canOverwrite );
+ElError ElIDDist_d
+( ElDistMatrix_d A, ElDistMatrix_i p, ElDistMatrix_d Z, ElQRCtrl_d ctrl, 
+  bool canOverwrite );
+ElError ElIDDist_c
+( ElDistMatrix_c A, ElDistMatrix_i p, ElDistMatrix_c Z, ElQRCtrl_s ctrl, 
+  bool canOverwrite );
+ElError ElIDDist_z
+( ElDistMatrix_z A, ElDistMatrix_i p, ElDistMatrix_z Z, ElQRCtrl_d ctrl, 
+  bool canOverwrite );
 
 /* Skeleton factorization
    ====================== */
