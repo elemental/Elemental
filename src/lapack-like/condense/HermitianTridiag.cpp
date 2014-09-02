@@ -27,18 +27,6 @@ void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t )
         herm_tridiag::U( A, t );
 }
 
-template<typename F>
-void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("HermitianTridiag"))
-    Matrix<F> t;
-    HermitianTridiag( uplo, A, t );
-    if( uplo == UPPER )
-        MakeTrapezoidal( LOWER, A, 1 );
-    else
-        MakeTrapezoidal( UPPER, A, -1 );
-}
-
 template<typename F> 
 void HermitianTridiag
 ( UpperOrLower uplo, AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre,
@@ -124,11 +112,26 @@ void HermitianTridiag
     }
 }
 
+namespace herm_tridiag {
+
 template<typename F>
-void HermitianTridiag
+void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("herm_tridiag::ExplicitCondensed"))
+    Matrix<F> t;
+    HermitianTridiag( uplo, A, t );
+    if( uplo == UPPER )
+        MakeTrapezoidal( LOWER, A, 1 );
+    else
+        MakeTrapezoidal( UPPER, A, -1 );
+}
+
+
+template<typename F>
+void ExplicitCondensed
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, const HermitianTridiagCtrl ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianTridiag"))
+    DEBUG_ONLY(CallStackEntry cse("herm_tridiag::ExplicitCondensed"))
     DistMatrix<F,STAR,STAR> t(A.Grid());
     HermitianTridiag( uplo, A, t, ctrl );
     if( uplo == UPPER )
@@ -137,16 +140,18 @@ void HermitianTridiag
         MakeTrapezoidal( UPPER, A, -1 );
 }
 
+} // namespace herm_tridiag
+
 #define PROTO(F) \
-  template void HermitianTridiag\
-  ( UpperOrLower uplo, Matrix<F>& A ); \
-  template void HermitianTridiag\
+  template void HermitianTridiag \
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t ); \
-  template void HermitianTridiag\
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
-    const HermitianTridiagCtrl ctrl ); \
-  template void HermitianTridiag\
+  template void HermitianTridiag \
   ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, \
+    const HermitianTridiagCtrl ctrl ); \
+  template void herm_tridiag::ExplicitCondensed \
+  ( UpperOrLower uplo, Matrix<F>& A ); \
+  template void herm_tridiag::ExplicitCondensed \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
     const HermitianTridiagCtrl ctrl ); \
   template void herm_tridiag::ApplyQ \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \

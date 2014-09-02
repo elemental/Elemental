@@ -25,21 +25,28 @@ void Bidiag
 ( AbstractDistMatrix<F>& A, 
   AbstractDistMatrix<F>& tP, AbstractDistMatrix<F>& tQ );
 
-// Only return the condensed bidiagonal matrix
-// -------------------------------------------
-template<typename F>
-void Bidiag( Matrix<F>& A ); 
-
-template<typename F>
-void Bidiag( AbstractDistMatrix<F>& A );
-
 namespace bidiag {
+
+// Overwrite A with B = Q^H A P and additionally return P and Q
+template<typename F>
+void Explicit
+( Matrix<F>& A, 
+  Matrix<F>& P, Matrix<F>& Q );
+template<typename F>
+void Explicit
+( AbstractDistMatrix<F>& A, 
+  AbstractDistMatrix<F>& P, AbstractDistMatrix<F>& Q );
+
+// Only return the condensed bidiagonal matrix
+template<typename F>
+void ExplicitCondensed( Matrix<F>& A ); 
+template<typename F>
+void ExplicitCondensed( AbstractDistMatrix<F>& A );
 
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
   const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B );
-
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
@@ -50,7 +57,6 @@ template<typename F>
 void ApplyP
 ( LeftOrRight side, Orientation orientation,
   const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B );
-
 template<typename F>
 void ApplyP
 ( LeftOrRight side, Orientation orientation,
@@ -88,14 +94,14 @@ void HermitianTridiag
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t,
   const HermitianTridiagCtrl ctrl=HermitianTridiagCtrl() );
 
+namespace herm_tridiag {
+
 template<typename F>
-void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A );
+void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
-void HermitianTridiag
+void ExplicitCondensed
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A,
   const HermitianTridiagCtrl ctrl=HermitianTridiagCtrl() );
-
-namespace herm_tridiag {
 
 template<typename F>
 void ApplyQ
@@ -112,17 +118,17 @@ void ApplyQ
 // Hessenberg
 // ==========
 template<typename F>
-void Hessenberg( UpperOrLower uplo, Matrix<F>& A );
-template<typename F>
-void Hessenberg( UpperOrLower uplo, AbstractDistMatrix<F>& A );
-
-template<typename F>
 void Hessenberg( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t );
 template<typename F>
 void Hessenberg
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t );
 
 namespace hessenberg {
+
+template<typename F>
+void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A );
+template<typename F>
+void ExplicitCondensed( UpperOrLower uplo, AbstractDistMatrix<F>& A );
 
 template<typename F>
 void ApplyQ

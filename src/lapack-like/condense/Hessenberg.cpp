@@ -35,10 +35,12 @@ void Hessenberg
         hessenberg::L( A, t );
 }
 
+namespace hessenberg {
+
 template<typename F>
-void Hessenberg( UpperOrLower uplo, Matrix<F>& A )
+void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("Hessenberg"))
+    DEBUG_ONLY(CallStackEntry cse("hessenberg::ExplicitCondensed"))
     Matrix<F> t;
     Hessenberg( uplo, A, t );
     if( uplo == LOWER )
@@ -48,9 +50,9 @@ void Hessenberg( UpperOrLower uplo, Matrix<F>& A )
 }
 
 template<typename F> 
-void Hessenberg( UpperOrLower uplo, AbstractDistMatrix<F>& A )
+void ExplicitCondensed( UpperOrLower uplo, AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("Hessenberg"))
+    DEBUG_ONLY(CallStackEntry cse("hessenberg::ExplicitCondensed"))
     DistMatrix<F,STAR,STAR> t(A.Grid());
     Hessenberg( uplo, A, t );
     if( uplo == LOWER )
@@ -59,12 +61,16 @@ void Hessenberg( UpperOrLower uplo, AbstractDistMatrix<F>& A )
         MakeTrapezoidal( UPPER, A, -1 );
 }
 
+} // namespace hessenberg
+
 #define PROTO(F) \
-  template void Hessenberg( UpperOrLower uplo, Matrix<F>& A ); \
-  template void Hessenberg( UpperOrLower uplo, AbstractDistMatrix<F>& A ); \
   template void Hessenberg( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t ); \
   template void Hessenberg \
   ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t ); \
+  template void hessenberg::ExplicitCondensed \
+  ( UpperOrLower uplo, Matrix<F>& A ); \
+  template void hessenberg::ExplicitCondensed \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A ); \
   template void hessenberg::ApplyQ \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& H ); \

@@ -29,11 +29,18 @@ ElError ElHermitianTridiagCtrlDefault( ElHermitianTridiagCtrl* ctrl )
   ElError ElBidiagDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG tP, ElDistMatrix_ ## SIG tQ ) \
   { EL_TRY( Bidiag( *CReflect(A), *CReflect(tP), *CReflect(tQ) ) ) } \
+  /* Overwrite A with B = Q^H A P and also return P and Q */ \
+  ElError ElBidiagExplicit_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG P, ElMatrix_ ## SIG Q ) \
+  { EL_TRY( bidiag::Explicit( *CReflect(A), *CReflect(P), *CReflect(Q) ) ) } \
+  ElError ElBidiagExplicitDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG P, ElDistMatrix_ ## SIG Q ) \
+  { EL_TRY( bidiag::Explicit( *CReflect(A), *CReflect(P), *CReflect(Q) ) ) } \
   /* Only return the condensed bidiagonal matrix, B := Q^H A P */ \
-  ElError ElBidiagOnly_ ## SIG ( ElMatrix_ ## SIG A ) \
-  { EL_TRY( Bidiag( *CReflect(A) ) ) } \
-  ElError ElBidiagOnlyDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( Bidiag( *CReflect(A) ) ) } \
+  ElError ElBidiagExplicitCondensed_ ## SIG ( ElMatrix_ ## SIG A ) \
+  { EL_TRY( bidiag::ExplicitCondensed( *CReflect(A) ) ) } \
+  ElError ElBidiagExplicitCondensedDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
+  { EL_TRY( bidiag::ExplicitCondensed( *CReflect(A) ) ) } \
   /* Apply Q from B := Q^H A P to a set of vectors */ \
   ElError ElApplyQAfterBidiag_ ## SIG \
   ( ElLeftOrRight side, ElOrientation orientation, \
@@ -79,16 +86,18 @@ ElError ElHermitianTridiagCtrlDefault( ElHermitianTridiagCtrl* ctrl )
   { EL_TRY( HermitianTridiag( \
       CReflect(uplo), *CReflect(A), *CReflect(t), CReflect(ctrl) ) ) } \
   /* Return only the condensed form */ \
-  ElError ElHermitianTridiagOnly_ ## SIG \
+  ElError ElHermitianTridiagExplicitCondensed_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
-  { EL_TRY( HermitianTridiag( CReflect(uplo), *CReflect(A) ) ) } \
-  ElError ElHermitianTridiagOnlyDist_ ## SIG \
+  { EL_TRY( herm_tridiag::ExplicitCondensed \
+      ( CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElHermitianTridiagExplicitCondensedDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( HermitianTridiag( CReflect(uplo), *CReflect(A) ) ) } \
-  ElError ElHermitianTridiagOnlyXDist_ ## SIG \
+  { EL_TRY( herm_tridiag::ExplicitCondensed \
+      ( CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElHermitianTridiagExplicitCondensedXDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElHermitianTridiagCtrl ctrl ) \
-  { EL_TRY( HermitianTridiag( CReflect(uplo), *CReflect(A), \
-      CReflect(ctrl) ) ) } \
+  { EL_TRY( herm_tridiag::ExplicitCondensed \
+      ( CReflect(uplo), *CReflect(A), CReflect(ctrl) ) ) } \
   /* ApplyQ after HermitianTridiag */ \
   ElError ElApplyQAfterHermitianTridiag_ ## SIG \
   ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, \
@@ -115,12 +124,12 @@ ElError ElHermitianTridiagCtrlDefault( ElHermitianTridiagCtrl* ctrl )
   { EL_TRY( Hessenberg( \
       CReflect(uplo), *CReflect(A), *CReflect(t) ) ) } \
   /* Only return the similar Hessenberg matrix */ \
-  ElError ElHessenbergOnly_ ## SIG \
+  ElError ElHessenbergExplicitCondensed_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
-  { EL_TRY( Hessenberg( CReflect(uplo), *CReflect(A) ) ) } \
-  ElError ElHessenbergOnlyDist_ ## SIG \
+  { EL_TRY( hessenberg::ExplicitCondensed( CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElHessenbergExplicitCondensedDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( Hessenberg( CReflect(uplo), *CReflect(A) ) ) } \
+  { EL_TRY( hessenberg::ExplicitCondensed( CReflect(uplo), *CReflect(A) ) ) } \
   /* Apply Q from a Hessenberg decomposition, H := Q^H A Q */ \
   ElError ElApplyQAfterHessenberg_ ## SIG \
   ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, \

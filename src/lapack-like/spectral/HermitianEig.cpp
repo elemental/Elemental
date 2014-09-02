@@ -262,7 +262,7 @@ void HermitianEig
         ScaleTrapezoid( F(scale), uplo, A );
 
     // Tridiagonalize A
-    HermitianTridiag( uplo, A, ctrl.tridiagCtrl );
+    herm_tridiag::ExplicitCondensed( uplo, A, ctrl.tridiagCtrl );
 
     // Solve the symmetric tridiagonal EVP
     const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );

@@ -649,7 +649,7 @@ Matrix<Int> Helper
         }
         else
         {
-            Hessenberg( UPPER, U );
+            hessenberg::ExplicitCondensed( UPPER, U );
             return HessenbergPseudospectra( U, shifts, invNorms, psCtrl );
         }
     }
@@ -697,7 +697,7 @@ DistMatrix<Int,VR,STAR> Helper
         }
         else
         {
-            Hessenberg( UPPER, U );
+            hessenberg::ExplicitCondensed( UPPER, U );
             return HessenbergPseudospectra( U, shifts, invNorms, psCtrl );
         }
     }
@@ -1799,7 +1799,7 @@ Matrix<Int> Helper
         }
         else
         {
-            Hessenberg( UPPER, B );
+            hessenberg::ExplicitCondensed( UPPER, B );
             return HessenbergPseudospectra
                    ( B, invNormMap, realSize, imagSize, psCtrl );
         }
@@ -1850,7 +1850,7 @@ DistMatrix<Int> Helper
         }
         else
         {
-            Hessenberg( UPPER, B );
+            hessenberg::ExplicitCondensed( UPPER, B );
             return HessenbergPseudospectra
                    ( B, invNormMap, realSize, imagSize, psCtrl );
         }
