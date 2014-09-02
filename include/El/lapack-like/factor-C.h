@@ -934,15 +934,15 @@ ElError ElGQRDist_z
 
 /* Return just the triangular factors from the GQR factorization
    ------------------------------------------------------------- */
-ElError ElGQRTriang_s( ElMatrix_s A, ElMatrix_s B );
-ElError ElGQRTriang_d( ElMatrix_d A, ElMatrix_d B );
-ElError ElGQRTriang_c( ElMatrix_c A, ElMatrix_c B );
-ElError ElGQRTriang_z( ElMatrix_z A, ElMatrix_z B );
+ElError ElGQRExplicitTriang_s( ElMatrix_s A, ElMatrix_s B );
+ElError ElGQRExplicitTriang_d( ElMatrix_d A, ElMatrix_d B );
+ElError ElGQRExplicitTriang_c( ElMatrix_c A, ElMatrix_c B );
+ElError ElGQRExplicitTriang_z( ElMatrix_z A, ElMatrix_z B );
 
-ElError ElGQRTriangDist_s( ElDistMatrix_s A, ElDistMatrix_s B );
-ElError ElGQRTriangDist_d( ElDistMatrix_d A, ElDistMatrix_d B );
-ElError ElGQRTriangDist_c( ElDistMatrix_c A, ElDistMatrix_c B );
-ElError ElGQRTriangDist_z( ElDistMatrix_z A, ElDistMatrix_z B );
+ElError ElGQRExplicitTriangDist_s( ElDistMatrix_s A, ElDistMatrix_s B );
+ElError ElGQRExplicitTriangDist_d( ElDistMatrix_d A, ElDistMatrix_d B );
+ElError ElGQRExplicitTriangDist_c( ElDistMatrix_c A, ElDistMatrix_c B );
+ElError ElGQRExplicitTriangDist_z( ElDistMatrix_z A, ElDistMatrix_z B );
 
 /* Generalized RQ
    ============== */
@@ -977,15 +977,15 @@ ElError ElGRQDist_z
 
 /* Return just the triangular factors from the GRQ factorization
    ------------------------------------------------------------- */
-ElError ElGRQTriang_s( ElMatrix_s A, ElMatrix_s B );
-ElError ElGRQTriang_d( ElMatrix_d A, ElMatrix_d B );
-ElError ElGRQTriang_c( ElMatrix_c A, ElMatrix_c B );
-ElError ElGRQTriang_z( ElMatrix_z A, ElMatrix_z B );
+ElError ElGRQExplicitTriang_s( ElMatrix_s A, ElMatrix_s B );
+ElError ElGRQExplicitTriang_d( ElMatrix_d A, ElMatrix_d B );
+ElError ElGRQExplicitTriang_c( ElMatrix_c A, ElMatrix_c B );
+ElError ElGRQExplicitTriang_z( ElMatrix_z A, ElMatrix_z B );
 
-ElError ElGRQTriangDist_s( ElDistMatrix_s A, ElDistMatrix_s B );
-ElError ElGRQTriangDist_d( ElDistMatrix_d A, ElDistMatrix_d B );
-ElError ElGRQTriangDist_c( ElDistMatrix_c A, ElDistMatrix_c B );
-ElError ElGRQTriangDist_z( ElDistMatrix_z A, ElDistMatrix_z B );
+ElError ElGRQExplicitTriangDist_s( ElDistMatrix_s A, ElDistMatrix_s B );
+ElError ElGRQExplicitTriangDist_d( ElDistMatrix_d A, ElDistMatrix_d B );
+ElError ElGRQExplicitTriangDist_c( ElDistMatrix_c A, ElDistMatrix_c B );
+ElError ElGRQExplicitTriangDist_z( ElDistMatrix_z A, ElDistMatrix_z B );
 
 /* Interpolative Decomposition
    =========================== */

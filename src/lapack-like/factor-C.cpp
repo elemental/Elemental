@@ -121,11 +121,12 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
     ElDistMatrix_ ## SIG tB, ElDistMatrix_ ## SIGBASE dB ) \
   { EL_TRY( GQR( *CReflect(A), *CReflect(tA), *CReflect(dA), \
                  *CReflect(B), *CReflect(tB), *CReflect(dB) ) ) } \
-  ElError ElGQRTriang_ ## SIG ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
-  { EL_TRY( GQR( *CReflect(A), *CReflect(B) ) ) } \
-  ElError ElGQRTriangDist_ ## SIG \
+  ElError ElGQRExplicitTriang_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
+  { EL_TRY( gqr::ExplicitTriang( *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElGQRExplicitTriangDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
-  { EL_TRY( GQR( *CReflect(A), *CReflect(B) ) ) } \
+  { EL_TRY( gqr::ExplicitTriang( *CReflect(A), *CReflect(B) ) ) } \
   /* Generalized RQ
      ============== */ \
   ElError ElGRQ_ ## SIG \
@@ -140,11 +141,12 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
     ElDistMatrix_ ## SIG tB, ElDistMatrix_ ## SIGBASE dB ) \
   { EL_TRY( GRQ( *CReflect(A), *CReflect(tA), *CReflect(dA), \
                  *CReflect(B), *CReflect(tB), *CReflect(dB) ) ) } \
-  ElError ElGRQTriang_ ## SIG ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
-  { EL_TRY( GRQ( *CReflect(A), *CReflect(B) ) ) } \
-  ElError ElGRQTriangDist_ ## SIG \
+  ElError ElGRQExplicitTriang_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
+  { EL_TRY( grq::ExplicitTriang( *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElGRQExplicitTriangDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
-  { EL_TRY( GRQ( *CReflect(A), *CReflect(B) ) ) } \
+  { EL_TRY( grq::ExplicitTriang( *CReflect(A), *CReflect(B) ) ) } \
   /* Interpolative Decomposition 
      =========================== */ \
   ElError ElID_ ## SIG \

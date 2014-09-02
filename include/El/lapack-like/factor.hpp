@@ -550,11 +550,6 @@ void ExplicitTriang( AbstractDistMatrix<F>& A );
 // Generalized QR
 // ==============
 template<typename F>
-void GQR( Matrix<F>& A, Matrix<F>& B );
-template<typename F>
-void GQR( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
-
-template<typename F>
 void GQR
 ( Matrix<F>& A, Matrix<F>& tA, Matrix<Base<F>>& dA,
   Matrix<F>& B, Matrix<F>& tB, Matrix<Base<F>>& dB );
@@ -564,15 +559,19 @@ void GQR
   AbstractDistMatrix<F>& tA, AbstractDistMatrix<Base<F>>& dA,
   AbstractDistMatrix<F>& B, 
   AbstractDistMatrix<F>& tB, AbstractDistMatrix<Base<F>>& dB );
+
+namespace gqr {
+
+template<typename F>
+void ExplicitTriang( Matrix<F>& A, Matrix<F>& B );
+template<typename F>
+void ExplicitTriang( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
+
+} // namespace gqr
 
 // Generalized RQ
 // ==============
 template<typename F>
-void GRQ( Matrix<F>& A, Matrix<F>& B );
-template<typename F>
-void GRQ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
-
-template<typename F>
 void GRQ
 ( Matrix<F>& A, Matrix<F>& tA, Matrix<Base<F>>& dA,
   Matrix<F>& B, Matrix<F>& tB, Matrix<Base<F>>& dB );
@@ -582,6 +581,15 @@ void GRQ
   AbstractDistMatrix<F>& tA, AbstractDistMatrix<Base<F>>& dA,
   AbstractDistMatrix<F>& B, 
   AbstractDistMatrix<F>& tB, AbstractDistMatrix<Base<F>>& dB );
+
+namespace grq {
+
+template<typename F>
+void ExplicitTriang( Matrix<F>& A, Matrix<F>& B );
+template<typename F>
+void ExplicitTriang( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
+
+} // namespace grq
 
 // Interpolative Decomposition
 // ===========================
