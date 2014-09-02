@@ -14,9 +14,40 @@ namespace El {
 namespace lq {
 
 template<typename F>
-void Explicit( Matrix<F>& A )
+void ExplicitTriang( Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("lq::Explicit"))
+    DEBUG_ONLY(CallStackEntry cse("lq::ExplicitTriang"))
+    Matrix<F> t;
+    Matrix<Base<F>> d;
+    LQ( A, t, d );
+
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+    A.Resize( m, minDim );
+    MakeTriangular( LOWER, A );
+}
+
+template<typename F>
+void ExplicitTriang( AbstractDistMatrix<F>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("lq::ExplicitTriang"))
+    const Grid& g = A.Grid();
+    DistMatrix<F,MD,STAR> t(g);
+    DistMatrix<Base<F>,MD,STAR> d(g);
+    LQ( A, t, d );
+
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+    A.Resize( m, minDim );
+    MakeTriangular( LOWER, A );
+}
+
+template<typename F>
+void ExplicitUnitary( Matrix<F>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("lq::ExplicitUnitary"))
     Matrix<F> t;
     Matrix<Base<F>> d;
     LQ( A, t, d );
@@ -29,9 +60,9 @@ void Explicit( Matrix<F>& A )
 }
 
 template<typename F>
-void Explicit( AbstractDistMatrix<F>& APre )
+void ExplicitUnitary( AbstractDistMatrix<F>& APre )
 {
-    DEBUG_ONLY(CallStackEntry cse("lq::Explicit"))
+    DEBUG_ONLY(CallStackEntry cse("lq::ExplicitUnitary"))
     const Grid& g = APre.Grid();
 
     auto APtr = ReadWriteProxy( &APre );

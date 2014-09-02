@@ -39,7 +39,7 @@ void Ridge
             SetDiagonal( ZB, F(alpha*alpha) );
             // NOTE: This QR factorization could exploit the upper-triangular
             //       structure of the diagonal matrix ZB
-            QR( Z );
+            qr::ExplicitTriang( Z );
             Gemm( ADJOINT, NORMAL, F(1), A, B, X );
             cholesky::SolveAfter( LOWER, NORMAL, Z, X );
         }
@@ -99,7 +99,7 @@ void Ridge
             SetDiagonal( ZB, F(alpha*alpha) );
             // NOTE: This QR factorization could exploit the upper-triangular
             //       structure of the diagonal matrix ZB
-            QR( Z );
+            qr::ExplicitTriang( Z );
             Gemm( ADJOINT, NORMAL, F(1), A, B, X );
             cholesky::SolveAfter( LOWER, NORMAL, Z, X );
         }

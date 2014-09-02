@@ -34,6 +34,8 @@ typedef struct
 
 typedef struct 
 {
+    bool colPiv;
+
     bool boundRank;
     ElInt maxRank;
     
@@ -48,6 +50,8 @@ ElError ElQRCtrlFillDefault_s( ElQRCtrl_s* ctrl );
 
 typedef struct 
 {
+    bool colPiv;
+
     bool boundRank;
     ElInt maxRank;
     
@@ -500,39 +504,39 @@ ElError ElLQDist_z( ElDistMatrix_z A, ElDistMatrix_z t, ElDistMatrix_d d );
 
 /* Return the explicit LQ factorization 
    ------------------------------------ */
-ElError ElExplicitLQ_s( ElMatrix_s L, ElMatrix_s A );
-ElError ElExplicitLQ_d( ElMatrix_d L, ElMatrix_d A );
-ElError ElExplicitLQ_c( ElMatrix_c L, ElMatrix_c A );
-ElError ElExplicitLQ_z( ElMatrix_z L, ElMatrix_z A );
+ElError ElLQExplicit_s( ElMatrix_s L, ElMatrix_s A );
+ElError ElLQExplicit_d( ElMatrix_d L, ElMatrix_d A );
+ElError ElLQExplicit_c( ElMatrix_c L, ElMatrix_c A );
+ElError ElLQExplicit_z( ElMatrix_z L, ElMatrix_z A );
 
-ElError ElExplicitLQDist_s( ElDistMatrix_s L, ElDistMatrix_s A );
-ElError ElExplicitLQDist_d( ElDistMatrix_d L, ElDistMatrix_d A );
-ElError ElExplicitLQDist_c( ElDistMatrix_c L, ElDistMatrix_c A );
-ElError ElExplicitLQDist_z( ElDistMatrix_z L, ElDistMatrix_z A );
+ElError ElLQExplicitDist_s( ElDistMatrix_s L, ElDistMatrix_s A );
+ElError ElLQExplicitDist_d( ElDistMatrix_d L, ElDistMatrix_d A );
+ElError ElLQExplicitDist_c( ElDistMatrix_c L, ElDistMatrix_c A );
+ElError ElLQExplicitDist_z( ElDistMatrix_z L, ElDistMatrix_z A );
 
 /* Only return the triangular factor, L
    ------------------------------------ */
-ElError ElLQTriang_s( ElMatrix_s A );
-ElError ElLQTriang_d( ElMatrix_d A );
-ElError ElLQTriang_c( ElMatrix_c A );
-ElError ElLQTriang_z( ElMatrix_z A );
+ElError ElLQExplicitTriang_s( ElMatrix_s A );
+ElError ElLQExplicitTriang_d( ElMatrix_d A );
+ElError ElLQExplicitTriang_c( ElMatrix_c A );
+ElError ElLQExplicitTriang_z( ElMatrix_z A );
 
-ElError ElLQTriangDist_s( ElDistMatrix_s A );
-ElError ElLQTriangDist_d( ElDistMatrix_d A );
-ElError ElLQTriangDist_c( ElDistMatrix_c A );
-ElError ElLQTriangDist_z( ElDistMatrix_z A );
+ElError ElLQExplicitTriangDist_s( ElDistMatrix_s A );
+ElError ElLQExplicitTriangDist_d( ElDistMatrix_d A );
+ElError ElLQExplicitTriangDist_c( ElDistMatrix_c A );
+ElError ElLQExplicitTriangDist_z( ElDistMatrix_z A );
 
 /* Only return the unitary factor, Q
    --------------------------------- */
-ElError ElLQUnitary_s( ElMatrix_s A );
-ElError ElLQUnitary_d( ElMatrix_d A );
-ElError ElLQUnitary_c( ElMatrix_c A );
-ElError ElLQUnitary_z( ElMatrix_z A );
+ElError ElLQExplicitUnitary_s( ElMatrix_s A );
+ElError ElLQExplicitUnitary_d( ElMatrix_d A );
+ElError ElLQExplicitUnitary_c( ElMatrix_c A );
+ElError ElLQExplicitUnitary_z( ElMatrix_z A );
 
-ElError ElLQUnitaryDist_s( ElDistMatrix_s A );
-ElError ElLQUnitaryDist_d( ElDistMatrix_d A );
-ElError ElLQUnitaryDist_c( ElDistMatrix_c A );
-ElError ElLQUnitaryDist_z( ElDistMatrix_z A );
+ElError ElLQExplicitUnitaryDist_s( ElDistMatrix_s A );
+ElError ElLQExplicitUnitaryDist_d( ElDistMatrix_d A );
+ElError ElLQExplicitUnitaryDist_c( ElDistMatrix_c A );
+ElError ElLQExplicitUnitaryDist_z( ElDistMatrix_z A );
 
 /* Apply Q from an LQ factorization to vectors
    ------------------------------------------- */
@@ -657,81 +661,69 @@ ElError ElQRColPivXDist_z
 ( ElDistMatrix_z A, ElDistMatrix_z t, ElDistMatrix_d d, ElDistMatrix_i p,
   ElQRCtrl_d ctrl );
 
-/* Return the explicit QR factorization (with no pivoting)
-   ------------------------------------------------------- */
-ElError ElExplicitQR_s( ElMatrix_s A, ElMatrix_s R );
-ElError ElExplicitQR_d( ElMatrix_d A, ElMatrix_d R );
-ElError ElExplicitQR_c( ElMatrix_c A, ElMatrix_c R );
-ElError ElExplicitQR_z( ElMatrix_z A, ElMatrix_z R );
-
-ElError ElExplicitQRDist_s( ElDistMatrix_s A, ElDistMatrix_s R );
-ElError ElExplicitQRDist_d( ElDistMatrix_d A, ElDistMatrix_d R );
-ElError ElExplicitQRDist_c( ElDistMatrix_c A, ElDistMatrix_c R );
-ElError ElExplicitQRDist_z( ElDistMatrix_z A, ElDistMatrix_z R );
-
-/* Return the explicit QR factorization with column pivoting
-   --------------------------------------------------------- */
-ElError ElExplicitQRColPiv_s( ElMatrix_s A, ElMatrix_s R, ElMatrix_i p );
-ElError ElExplicitQRColPiv_d( ElMatrix_d A, ElMatrix_d R, ElMatrix_i p );
-ElError ElExplicitQRColPiv_c( ElMatrix_c A, ElMatrix_c R, ElMatrix_i p );
-ElError ElExplicitQRColPiv_z( ElMatrix_z A, ElMatrix_z R, ElMatrix_i p );
-
-ElError ElExplicitQRColPivDist_s
-( ElDistMatrix_s A, ElDistMatrix_s R, ElDistMatrix_i p );
-ElError ElExplicitQRColPivDist_d
-( ElDistMatrix_d A, ElDistMatrix_d R, ElDistMatrix_i p );
-ElError ElExplicitQRColPivDist_c
-( ElDistMatrix_c A, ElDistMatrix_c R, ElDistMatrix_i p );
-ElError ElExplicitQRColPivDist_z
-( ElDistMatrix_z A, ElDistMatrix_z R, ElDistMatrix_i p );
-
 /* Return the triangular factor from QR with no pivoting
    ----------------------------------------------------- */
-ElError ElQRTriang_s( ElMatrix_s A );
-ElError ElQRTriang_d( ElMatrix_d A );
-ElError ElQRTriang_c( ElMatrix_c A );
-ElError ElQRTriang_z( ElMatrix_z A );
+ElError ElQRExplicitTriang_s( ElMatrix_s A );
+ElError ElQRExplicitTriang_d( ElMatrix_d A );
+ElError ElQRExplicitTriang_c( ElMatrix_c A );
+ElError ElQRExplicitTriang_z( ElMatrix_z A );
 
-ElError ElQRTriangDist_s( ElDistMatrix_s A );
-ElError ElQRTriangDist_d( ElDistMatrix_d A );
-ElError ElQRTriangDist_c( ElDistMatrix_c A );
-ElError ElQRTriangDist_z( ElDistMatrix_z A );
+ElError ElQRExplicitTriangDist_s( ElDistMatrix_s A );
+ElError ElQRExplicitTriangDist_d( ElDistMatrix_d A );
+ElError ElQRExplicitTriangDist_c( ElDistMatrix_c A );
+ElError ElQRExplicitTriangDist_z( ElDistMatrix_z A );
 
-/* Return the triangular factor and P from QR with column pivoting
-   --------------------------------------------------------------- */
-ElError ElQRColPivTriang_s( ElMatrix_s A, ElMatrix_i p );
-ElError ElQRColPivTriang_d( ElMatrix_d A, ElMatrix_i p );
-ElError ElQRColPivTriang_c( ElMatrix_c A, ElMatrix_i p );
-ElError ElQRColPivTriang_z( ElMatrix_z A, ElMatrix_i p );
+/* Return the unitary factor from QR 
+   --------------------------------- */
+ElError ElQRExplicitUnitary_s( ElMatrix_s A );
+ElError ElQRExplicitUnitary_d( ElMatrix_d A );
+ElError ElQRExplicitUnitary_c( ElMatrix_c A );
+ElError ElQRExplicitUnitary_z( ElMatrix_z A );
 
-ElError ElQRColPivTriangDist_s( ElDistMatrix_s A, ElDistMatrix_i p );
-ElError ElQRColPivTriangDist_d( ElDistMatrix_d A, ElDistMatrix_i p );
-ElError ElQRColPivTriangDist_c( ElDistMatrix_c A, ElDistMatrix_i p );
-ElError ElQRColPivTriangDist_z( ElDistMatrix_z A, ElDistMatrix_i p );
+ElError ElQRExplicitUnitaryDist_s( ElDistMatrix_s A );
+ElError ElQRExplicitUnitaryDist_d( ElDistMatrix_d A );
+ElError ElQRExplicitUnitaryDist_c( ElDistMatrix_c A );
+ElError ElQRExplicitUnitaryDist_z( ElDistMatrix_z A );
 
-/* Return the unitary factor from QR with no pivoting
-   -------------------------------------------------- */
-ElError ElQRUnitary_s( ElMatrix_s A );
-ElError ElQRUnitary_d( ElMatrix_d A );
-ElError ElQRUnitary_c( ElMatrix_c A );
-ElError ElQRUnitary_z( ElMatrix_z A );
+/* Expert version
+   ^^^^^^^^^^^^^^ */
+/* TODO */
 
-ElError ElQRUnitaryDist_s( ElDistMatrix_s A );
-ElError ElQRUnitaryDist_d( ElDistMatrix_d A );
-ElError ElQRUnitaryDist_c( ElDistMatrix_c A );
-ElError ElQRUnitaryDist_z( ElDistMatrix_z A );
+/* Return the explicit Q and R 
+   --------------------------- */
+ElError ElQRExplicit_s( ElMatrix_s A, ElMatrix_s R );
+ElError ElQRExplicit_d( ElMatrix_d A, ElMatrix_d R );
+ElError ElQRExplicit_c( ElMatrix_c A, ElMatrix_c R );
+ElError ElQRExplicit_z( ElMatrix_z A, ElMatrix_z R );
 
-/* Return the unitary factor from QR with column pivoting
-   ------------------------------------------------------ */
-ElError ElQRColPivUnitary_s( ElMatrix_s A );
-ElError ElQRColPivUnitary_d( ElMatrix_d A );
-ElError ElQRColPivUnitary_c( ElMatrix_c A );
-ElError ElQRColPivUnitary_z( ElMatrix_z A );
+ElError ElQRExplicitDist_s( ElDistMatrix_s A, ElDistMatrix_s R );
+ElError ElQRExplicitDist_d( ElDistMatrix_d A, ElDistMatrix_d R );
+ElError ElQRExplicitDist_c( ElDistMatrix_c A, ElDistMatrix_c R );
+ElError ElQRExplicitDist_z( ElDistMatrix_z A, ElDistMatrix_z R );
 
-ElError ElQRColPivUnitaryDist_s( ElDistMatrix_s A );
-ElError ElQRColPivUnitaryDist_d( ElDistMatrix_d A );
-ElError ElQRColPivUnitaryDist_c( ElDistMatrix_c A );
-ElError ElQRColPivUnitaryDist_z( ElDistMatrix_z A );
+/* Expert version
+   ^^^^^^^^^^^^^^ */
+/* TODO */
+
+/* Return the explicit Q, R, and P
+   ------------------------------- */
+ElError ElQRColPivExplicit_s( ElMatrix_s A, ElMatrix_s R, ElMatrix_i P );
+ElError ElQRColPivExplicit_d( ElMatrix_d A, ElMatrix_d R, ElMatrix_i P );
+ElError ElQRColPivExplicit_c( ElMatrix_c A, ElMatrix_c R, ElMatrix_i P );
+ElError ElQRColPivExplicit_z( ElMatrix_z A, ElMatrix_z R, ElMatrix_i P );
+
+ElError ElQRColPivExplicitDist_s
+( ElDistMatrix_s A, ElDistMatrix_s R, ElDistMatrix_i P );
+ElError ElQRColPivExplicitDist_d
+( ElDistMatrix_d A, ElDistMatrix_d R, ElDistMatrix_i P );
+ElError ElQRColPivExplicitDist_c
+( ElDistMatrix_c A, ElDistMatrix_c R, ElDistMatrix_i P );
+ElError ElQRColPivExplicitDist_z
+( ElDistMatrix_z A, ElDistMatrix_z R, ElDistMatrix_i P );
+
+/* Expert version
+   ^^^^^^^^^^^^^^ */
+/* TODO */
 
 /* Perform a Cholesky-based QR factorization
    ----------------------------------------- */
@@ -832,15 +824,15 @@ ElError ElRQDist_z( ElDistMatrix_z A, ElDistMatrix_z t, ElDistMatrix_d d );
 
 /* Only return the triangular factor, L
    ------------------------------------ */
-ElError ElRQTriang_s( ElMatrix_s A );
-ElError ElRQTriang_d( ElMatrix_d A );
-ElError ElRQTriang_c( ElMatrix_c A );
-ElError ElRQTriang_z( ElMatrix_z A );
+ElError ElRQExplicitTriang_s( ElMatrix_s A );
+ElError ElRQExplicitTriang_d( ElMatrix_d A );
+ElError ElRQExplicitTriang_c( ElMatrix_c A );
+ElError ElRQExplicitTriang_z( ElMatrix_z A );
 
-ElError ElRQTriangDist_s( ElDistMatrix_s A );
-ElError ElRQTriangDist_d( ElDistMatrix_d A );
-ElError ElRQTriangDist_c( ElDistMatrix_c A );
-ElError ElRQTriangDist_z( ElDistMatrix_z A );
+ElError ElRQExplicitTriangDist_s( ElDistMatrix_s A );
+ElError ElRQExplicitTriangDist_d( ElDistMatrix_d A );
+ElError ElRQExplicitTriangDist_c( ElDistMatrix_c A );
+ElError ElRQExplicitTriangDist_z( ElDistMatrix_z A );
 
 /* TODO: Only return the unitary factor, Q
    --------------------------------------- */
@@ -908,8 +900,6 @@ ElError ElSolveAfterRQDist_c
 ElError ElSolveAfterRQDist_z
 ( ElOrientation orientation, ElConstDistMatrix_z A, ElConstDistMatrix_z t, 
   ElConstDistMatrix_d d, ElConstDistMatrix_z B, ElDistMatrix_z X );
-
-
 
 /* Generalized QR
    ============== */

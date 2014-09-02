@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_CHOLESKY_RQ_HPP
-#define EL_CHOLESKY_RQ_HPP
+#ifndef EL_RQ_CHOLESKY_HPP
+#define EL_RQ_CHOLESKY_HPP
 
 namespace El {
 namespace rq {

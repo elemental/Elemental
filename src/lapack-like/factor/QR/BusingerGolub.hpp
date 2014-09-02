@@ -44,7 +44,7 @@ FindPivot( const std::vector<Real>& norms, Int col )
 }
 
 template<typename F> 
-inline Int BusingerGolub
+inline void BusingerGolub
 ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Matrix<Int>& p,
   const QRCtrl<Base<F>> ctrl )
 {
@@ -152,17 +152,8 @@ inline Int BusingerGolub
     EntrywiseMap( d, std::function<Real(Real)>(sgn) );
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
 
-    return k;
-}
-
-template<typename F> 
-inline Int BusingerGolub
-( Matrix<F>& A, Matrix<Int>& p, const QRCtrl<Base<F>> ctrl )
-{
-    DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
-    Matrix<F> t;
-    Matrix<Base<F>> d;
-    return BusingerGolub( A, t, d, p, ctrl );
+    // Ensure that t is the correct length
+    t.Resize( k, 1 );
 }
 
 template<typename F>
@@ -323,7 +314,7 @@ ReplaceColNorms
 }
 
 template<typename F>
-inline Int BusingerGolub
+inline void BusingerGolub
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& t, 
   AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<Int>& p, 
   const QRCtrl<Base<F>> ctrl )
@@ -493,19 +484,8 @@ inline Int BusingerGolub
     EntrywiseMap( d, std::function<Real(Real)>(sgn) );
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
 
-    return k;
-}
-
-// If we don't need 't' or 'd' from the above routine
-template<typename F>
-inline Int BusingerGolub
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p,
-  const QRCtrl<Base<F>> ctrl )
-{
-    DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
-    DistMatrix<F,MD,STAR> t( A.Grid() );
-    DistMatrix<Base<F>,MD,STAR> d( A.Grid() );
-    return BusingerGolub( A, t, d, p, ctrl );
+    // Ensure that t is the correct length
+    t.Resize( k, 1 );
 }
 
 } // namespace qr

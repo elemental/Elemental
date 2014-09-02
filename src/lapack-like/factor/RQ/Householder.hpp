@@ -56,17 +56,6 @@ Householder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 
 template<typename F> 
 inline void
-Householder( Matrix<F>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("rq::Householder"))
-    Matrix<F> t;
-    Matrix<Base<F>> d;
-    Householder( A, t, d );
-    MakeTrapezoidal( UPPER, A, Min(A.Height(),A.Width()) );
-}
-
-template<typename F> 
-inline void
 Householder
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre, 
   AbstractDistMatrix<Base<F>>& dPre )
@@ -78,18 +67,12 @@ Householder
     const Int m = APre.Height();
     const Int n = APre.Width();
     const Int minDim = Min(m,n);
-    const Int offset = n-m;
     const Int iOff = m-minDim;
     const Int jOff = n-minDim;
 
     auto APtr = ReadWriteProxy( &APre );
     auto& A = *APtr;
 
-    ProxyCtrl diagCtrl;
-    diagCtrl.rootConstrain = true;
-    diagCtrl.colConstrain = true;
-    diagCtrl.root = A.DiagonalRoot(offset);
-    diagCtrl.colAlign = A.DiagonalAlign(offset);
     auto tPtr = WriteProxy<F,      MD,STAR>( &tPre ); auto& t = *tPtr;
     auto dPtr = WriteProxy<Base<F>,MD,STAR>( &dPre ); auto& d = *dPtr;
     t.Resize( minDim, 1 );
@@ -117,17 +100,6 @@ Householder
         PanelHouseholder( A1L, t1, d1 );
         ApplyQ( RIGHT, ADJOINT, A1L, t1, d1, A0L );
     }
-}
-
-template<typename F> 
-inline void
-Householder( AbstractDistMatrix<F>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("rq::Householder"))
-    DistMatrix<F,MD,STAR> t(A.Grid());
-    DistMatrix<Base<F>,MD,STAR> d(A.Grid());
-    Householder( A, t, d );
-    MakeTrapezoidal( UPPER, A, Min(A.Height(),A.Width()) );
 }
 
 } // namespace rq

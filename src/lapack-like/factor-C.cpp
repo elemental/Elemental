@@ -14,6 +14,7 @@ extern "C" {
 
 ElError ElQRCtrlFillDefault_s( ElQRCtrl_s* ctrl )
 {
+    ctrl->colPiv = false;
     ctrl->boundRank = false;
     ctrl->maxRank = 0;
     ctrl->adaptive = false;
@@ -24,6 +25,7 @@ ElError ElQRCtrlFillDefault_s( ElQRCtrl_s* ctrl )
 
 ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
 {
+    ctrl->colPiv = false;
     ctrl->boundRank = false;
     ctrl->maxRank = 0;
     ctrl->adaptive = false;
@@ -181,22 +183,22 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
     ElDistMatrix_ ## SIGBASE d ) \
   { EL_TRY( LQ( *CReflect(A), *CReflect(t), *CReflect(d) ) ) } \
   /* Explicitly return both factors */ \
-  ElError ElExplicitLQ_ ## SIG \
+  ElError ElLQExplicit_ ## SIG \
   ( ElMatrix_ ## SIG L, ElMatrix_ ## SIG A ) \
   { EL_TRY( lq::Explicit( *CReflect(L), *CReflect(A) ) ) } \
-  ElError ElExplicitLQDist_ ## SIG \
+  ElError ElLQExplicitDist_ ## SIG \
   ( ElDistMatrix_ ## SIG L, ElDistMatrix_ ## SIG A ) \
   { EL_TRY( lq::Explicit( *CReflect(L), *CReflect(A) ) ) } \
   /* Only return the triangular factor */ \
-  ElError ElLQTriang_ ## SIG ( ElMatrix_ ## SIG A ) \
-  { EL_TRY( LQ( *CReflect(A) ) ) } \
-  ElError ElLQTriangDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( LQ( *CReflect(A) ) ) } \
+  ElError ElLQExplicitTriang_ ## SIG ( ElMatrix_ ## SIG A ) \
+  { EL_TRY( lq::ExplicitTriang( *CReflect(A) ) ) } \
+  ElError ElLQExplicitTriangDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
+  { EL_TRY( lq::ExplicitTriang( *CReflect(A) ) ) } \
   /* Only return the unitary factor */ \
-  ElError ElLQUnitary_ ## SIG ( ElMatrix_ ## SIG A ) \
-  { EL_TRY( lq::Explicit( *CReflect(A) ) ) } \
-  ElError ElLQUnitaryDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( lq::Explicit( *CReflect(A) ) ) } \
+  ElError ElLQExplicitUnitary_ ## SIG ( ElMatrix_ ## SIG A ) \
+  { EL_TRY( lq::ExplicitUnitary( *CReflect(A) ) ) } \
+  ElError ElLQExplicitUnitaryDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
+  { EL_TRY( lq::ExplicitUnitary( *CReflect(A) ) ) } \
   /* Apply Q after an LQ factorization */ \
   ElError ElApplyQAfterLQ_ ## SIG \
   ( ElLeftOrRight side, ElOrientation orientation, \
@@ -321,42 +323,29 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
       *CReflect(A), *CReflect(t), *CReflect(d), \
       *CReflect(p), CReflect(ctrl) ) ) } \
   /* Explicitly return Q and R (with no pivoting) */ \
-  ElError ElExplicitQR_ ## SIG \
+  ElError ElQRExplicit_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG R ) \
   { EL_TRY( qr::Explicit( *CReflect(A), *CReflect(R) ) ) } \
   ElError ElExplicitQRDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG R ) \
   { EL_TRY( qr::Explicit( *CReflect(A), *CReflect(R) ) ) } \
   /* Explicitly return Q, R, and P (with column pivoting) */ \
-  ElError ElExplicitQRColPiv_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG R, ElMatrix_i p ) \
-  { EL_TRY( \
-      qr::Explicit( *CReflect(A), *CReflect(R), *CReflect(p) ) ) } \
+  ElError ElQRColPivExplicit_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG R, ElMatrix_i P ) \
+  { EL_TRY( qr::Explicit( *CReflect(A), *CReflect(R), *CReflect(P) ) ) } \
   ElError ElExplicitQRColPivDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG R, ElDistMatrix_i p ) \
-  { EL_TRY( qr::Explicit( *CReflect(A), *CReflect(R), *CReflect(p) ) ) } \
-  /* Return the triangular factor from QR (with no pivoting) */ \
-  ElError ElQRTriang_ ## SIG ( ElMatrix_ ## SIG A ) \
-  { EL_TRY( QR( *CReflect(A) ) ) } \
-  ElError ElQRTriangDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( QR( *CReflect(A) ) ) } \
-  /* Return the triangular factor and P from QR (with column pivoting) */ \
-  ElError ElQRColPivTriang_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElMatrix_i p ) \
-  { EL_TRY( QR( *CReflect(A), *CReflect(p) ) ) } \
-  ElError ElQRColPivTriangDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistMatrix_i p ) \
-  { EL_TRY( QR( *CReflect(A), *CReflect(p) ) ) } \
-  /* Return the unitary factor from QR with no pivoting */ \
-  ElError ElQRUnitary_ ## SIG ( ElMatrix_ ## SIG A ) \
-  { EL_TRY( qr::Explicit( *CReflect(A) ) ) } \
-  ElError ElQRUnitaryDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( qr::Explicit( *CReflect(A) ) ) } \
-  /* Return the unitary factor from QR with column pivoting */ \
-  ElError ElQRColPivUnitary_ ## SIG ( ElMatrix_ ## SIG A ) \
-  { EL_TRY( qr::Explicit( *CReflect(A), true ) ) } \
-  ElError ElQRColPivUnitaryDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( qr::Explicit( *CReflect(A), true ) ) } \
+  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG R, ElDistMatrix_i P ) \
+  { EL_TRY( qr::Explicit( *CReflect(A), *CReflect(R), *CReflect(P) ) ) } \
+  /* Return the triangular factor from QR */ \
+  ElError ElQRExplicitTriang_ ## SIG ( ElMatrix_ ## SIG A ) \
+  { EL_TRY( qr::ExplicitTriang( *CReflect(A) ) ) } \
+  ElError ElQRExplicitTriangDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
+  { EL_TRY( qr::ExplicitTriang( *CReflect(A) ) ) } \
+  /* Return the unitary factor from QR */ \
+  ElError ElQRExplicitUnitary_ ## SIG ( ElMatrix_ ## SIG A ) \
+  { EL_TRY( qr::ExplicitUnitary( *CReflect(A) ) ) } \
+  ElError ElQRExplicitUnitaryDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
+  { EL_TRY( qr::ExplicitUnitary( *CReflect(A) ) ) } \
   /* Cholesky-based QR factorization */ \
   ElError ElCholeskyQR_ ## SIG ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG R ) \
   { EL_TRY( qr::Cholesky( *CReflect(A), *CReflect(R) ) ) } \
@@ -406,10 +395,10 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   { EL_TRY( RQ( *CReflect(A), *CReflect(t), *CReflect(d) ) ) } \
   /* TODO: Explicitly return both factors */ \
   /* Only return the triangular factor */ \
-  ElError ElRQTriang_ ## SIG ( ElMatrix_ ## SIG A ) \
-  { EL_TRY( RQ( *CReflect(A) ) ) } \
-  ElError ElRQTriangDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( RQ( *CReflect(A) ) ) } \
+  ElError ElRQExplicitTriang_ ## SIG ( ElMatrix_ ## SIG A ) \
+  { EL_TRY( rq::ExplicitTriang( *CReflect(A) ) ) } \
+  ElError ElRQExplicitTriangDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
+  { EL_TRY( rq::ExplicitTriang( *CReflect(A) ) ) } \
   /* TODO: Only return the unitary factor */ \
   /* Apply Q after an RQ factorization */ \
   ElError ElApplyQAfterRQ_ ## SIG \

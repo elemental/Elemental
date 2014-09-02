@@ -70,7 +70,7 @@ PseudoTrsm
     DEBUG_ONLY(CallStackEntry cse("id::PseudoTrsm"))
 
     auto RLPtr = ReadProxy<F,STAR,STAR>( &RLPre );    auto& RL = *RLPtr;
-    auto RRPtr = ReadWriteProxy<F,VR,STAR>( &RRPre ); auto& RR = *RRPtr;
+    auto RRPtr = ReadWriteProxy<F,STAR,VR>( &RRPre ); auto& RR = *RRPtr;
 
     PseudoTrsm( RL.LockedMatrix(), RR.Matrix(), tol );
 }
@@ -90,7 +90,10 @@ BusingerGolub
     const Int n = A.Width();
 
     // Perform the pivoted QR factorization
-    const Int numSteps = QR( A, p, ctrl );
+    Matrix<F> t;
+    Matrix<Base<F>> d;
+    QR( A, t, d, p, ctrl );
+    const Int numSteps = t.Height();
 
     const Real eps = lapack::MachineEpsilon<Real>();
     const Real pinvTol = ( ctrl.adaptive ? ctrl.tol : numSteps*eps );
@@ -115,7 +118,10 @@ BusingerGolub
     auto& A = *APtr;
 
     // Perform the pivoted QR factorization
-    const Int numSteps = QR( A, p, ctrl );
+    DistMatrix<F,MD,STAR> t(A.Grid());
+    DistMatrix<Base<F>,MD,STAR> d(A.Grid());
+    QR( A, t, d, p, ctrl );
+    const Int numSteps = t.Height();
 
     const Int n = A.Width();
     const Real eps = lapack::MachineEpsilon<Real>();

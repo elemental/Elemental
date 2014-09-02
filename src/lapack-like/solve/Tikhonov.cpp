@@ -38,7 +38,7 @@ void Tikhonov
             auto ZB = Z( IR(m,m+mGamma), IR(0,n) );
             ZT = A;
             ZB = Gamma;
-            QR( Z );
+            qr::ExplicitTriang( Z ); 
         }
         Gemm( ADJOINT, NORMAL, F(1), A, B, X );
         cholesky::SolveAfter( LOWER, NORMAL, Z, X );
@@ -83,7 +83,7 @@ void Tikhonov
             auto ZB = Z( IR(m,m+mGamma), IR(0,n) );
             ZT = A;
             ZB = Gamma;
-            QR( Z );
+            qr::ExplicitTriang( Z ); 
         }
         Gemm( ADJOINT, NORMAL, F(1), A, B, X );
         cholesky::SolveAfter( LOWER, NORMAL, Z, X );

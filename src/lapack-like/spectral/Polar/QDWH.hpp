@@ -38,6 +38,9 @@ QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const PolarCtrl& ctrl )
     if( m < n )
         LogicError("Height cannot be less than width");
 
+    QRCtrl<Base<F>> qrCtrl;
+    qrCtrl.colPiv = ctrl.colPiv;
+
     const Real eps = lapack::MachineEpsilon<Real>();
     const Real tol = 5*eps;
     const Real cubeRootTol = Pow(tol,oneThird);
@@ -84,7 +87,7 @@ QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const PolarCtrl& ctrl )
             QT = A;
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
-            qr::Explicit( Q, ctrl.colPiv );
+            qr::ExplicitUnitary( Q, qrCtrl );
             Gemm( NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
         }
         else
@@ -128,9 +131,7 @@ QDWH( Matrix<F>& A, const PolarCtrl& ctrl )
     Matrix<F> Y( A );
     if( A.Height() > A.Width() )
     {
-        QR( Y );
-        Y.Resize( A.Width(), A.Width() );
-        MakeTriangular( UPPER, Y );
+        qr::ExplicitTriang( Y );
         try 
         {
             TriangularInverse( UPPER, NON_UNIT, Y );
@@ -180,6 +181,9 @@ QDWHInner
     if( m < n )
         LogicError("Height cannot be less than width");
 
+    QRCtrl<Base<F>> qrCtrl;
+    qrCtrl.colPiv = ctrl.colPiv;
+
     const Real eps = lapack::MachineEpsilon<Real>();
     const Real tol = 5*eps;
     const Real cubeRootTol = Pow(tol,oneThird);
@@ -228,7 +232,7 @@ QDWHInner
             QT = A;
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
-            qr::Explicit( Q, ctrl.colPiv );
+            qr::ExplicitUnitary( Q, qrCtrl );
             Gemm( NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
         }
         else
@@ -276,9 +280,7 @@ QDWH( AbstractDistMatrix<F>& APre, const PolarCtrl& ctrl )
     DistMatrix<F> Y( A );
     if( A.Height() > A.Width() )
     {
-        QR( Y );
-        Y.Resize( A.Width(), A.Width() );
-        MakeTriangular( UPPER, Y );
+        qr::ExplicitTriang( Y );
         try
         {
             TriangularInverse( UPPER, NON_UNIT, Y );
@@ -334,6 +336,9 @@ QDWHInner
     const Int n = A.Height();
     const Real oneThird = Real(1)/Real(3);
 
+    QRCtrl<Base<F>> qrCtrl;
+    qrCtrl.colPiv = ctrl.colPiv;
+
     const Real eps = lapack::MachineEpsilon<Real>();
     const Real tol = 5*eps;
     const Real cubeRootTol = Pow(tol,oneThird);
@@ -381,7 +386,7 @@ QDWHInner
             QT = A;
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
-            qr::Explicit( Q, ctrl.colPiv );
+            qr::ExplicitUnitary( Q, qrCtrl );
             Trrk( uplo, NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
         }
         else
@@ -474,6 +479,9 @@ QDWHInner
     const Int n = A.Height();
     const Real oneThird = Real(1)/Real(3);
 
+    QRCtrl<Base<F>> qrCtrl;
+    qrCtrl.colPiv = ctrl.colPiv;
+
     const Real eps = lapack::MachineEpsilon<Real>();
     const Real tol = 5*eps;
     const Real cubeRootTol = Pow(tol,oneThird);
@@ -521,7 +529,7 @@ QDWHInner
             QT = A;
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
-            qr::Explicit( Q, ctrl.colPiv );
+            qr::ExplicitUnitary( Q, qrCtrl );
             Trrk( uplo, NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
         }
         else

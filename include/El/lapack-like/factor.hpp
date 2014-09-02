@@ -12,23 +12,6 @@
 
 namespace El {
 
-template<typename Real>
-struct QRCtrl
-{
-    bool boundRank;  
-    Int maxRank;
-
-    bool adaptive;
-    Real tol;
-
-    bool alwaysRecomputeNorms;
-
-    QRCtrl()
-    : boundRank(false), maxRank(0), adaptive(false), tol(0),
-      alwaysRecomputeNorms(false)
-    { }
-};
-
 // Cholesky
 // ========
 template<typename F>
@@ -83,66 +66,6 @@ void SolveAfter
         AbstractDistMatrix<F>& B );
 
 } // namespace cholesky
-
-// Generalized QR
-// ==============
-template<typename F>
-void GQR( Matrix<F>& A, Matrix<F>& B );
-template<typename F>
-void GQR( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
-
-template<typename F>
-void GQR
-( Matrix<F>& A, Matrix<F>& tA, Matrix<Base<F>>& dA,
-  Matrix<F>& B, Matrix<F>& tB, Matrix<Base<F>>& dB );
-template<typename F>
-void GQR
-( AbstractDistMatrix<F>& A, 
-  AbstractDistMatrix<F>& tA, AbstractDistMatrix<Base<F>>& dA,
-  AbstractDistMatrix<F>& B, 
-  AbstractDistMatrix<F>& tB, AbstractDistMatrix<Base<F>>& dB );
-
-// Generalized RQ
-// ==============
-template<typename F>
-void GRQ( Matrix<F>& A, Matrix<F>& B );
-template<typename F>
-void GRQ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
-
-template<typename F>
-void GRQ
-( Matrix<F>& A, Matrix<F>& tA, Matrix<Base<F>>& dA,
-  Matrix<F>& B, Matrix<F>& tB, Matrix<Base<F>>& dB );
-template<typename F>
-void GRQ
-( AbstractDistMatrix<F>& A, 
-  AbstractDistMatrix<F>& tA, AbstractDistMatrix<Base<F>>& dA,
-  AbstractDistMatrix<F>& B, 
-  AbstractDistMatrix<F>& tB, AbstractDistMatrix<Base<F>>& dB );
-
-// Interpolative Decomposition
-// ===========================
-template<typename F>
-void ID
-( const Matrix<F>& A, Matrix<Int>& p, 
-        Matrix<F>& Z, 
-  const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
-template<typename F>
-void ID
-( const AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p,
-        AbstractDistMatrix<F>& Z, 
-  const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
-
-template<typename F>
-void ID
-( Matrix<F>& A, Matrix<Int>& p, 
-  Matrix<F>& Z, const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>(), 
-  bool canOverwrite=false );
-template<typename F>
-void ID
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p,
-  AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>(), 
-  bool canOverwrite=false );
 
 // LDL
 // ===
@@ -236,71 +159,6 @@ void SolveAfter
 
 } // namespace ldl
 
-// LQ
-// ==
-
-// Overwrite A with L
-// ------------------
-template<typename F>
-void LQ( Matrix<F>& A );
-template<typename F>
-void LQ( AbstractDistMatrix<F>& A );
-
-// Overwrite A with both L and the scaled Householder vectors
-// ----------------------------------------------------------
-template<typename F>
-void LQ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d );
-template<typename F>
-void LQ
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
-  AbstractDistMatrix<Base<F>>& d );
-
-namespace lq {
-
-// Apply Q using its implicit representation
-// -----------------------------------------
-template<typename F>
-void ApplyQ
-( LeftOrRight side, Orientation orientation,
-  const Matrix<F>& A, const Matrix<F>& t,
-  const Matrix<Base<F>>& d, Matrix<F>& B );
-template<typename F>
-void ApplyQ
-( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t,
-  const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& B );
-
-// Overwrite A with Q
-// ------------------
-template<typename F>
-void Explicit( Matrix<F>& A );
-template<typename F>
-void Explicit( AbstractDistMatrix<F>& A );
-
-// Return both L and Q such that A = L Q
-// -------------------------------------
-template<typename F>
-void Explicit( Matrix<F>& L, Matrix<F>& A );
-template<typename F>
-void Explicit( AbstractDistMatrix<F>& L, AbstractDistMatrix<F>& A );
-
-// Solve a linear system with the implicit representations of L and Q 
-// ------------------------------------------------------------------
-template<typename F>
-void SolveAfter
-( Orientation orientation,
-  const Matrix<F>& A, const Matrix<F>& t,
-  const Matrix<Base<F>>& d, const Matrix<F>& B,
-        Matrix<F>& X );
-template<typename F>
-void SolveAfter
-( Orientation orientation,
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t,
-  const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& B,
-        AbstractDistMatrix<F>& X );
-
-} // namespace lq
-
 // LU
 // ==
 
@@ -389,15 +247,93 @@ void SolveAfter
 
 } // namespace lu
 
+// LQ
+// ==
+
+// Overwrite A with both L and the scaled Householder vectors
+// ----------------------------------------------------------
+template<typename F>
+void LQ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d );
+template<typename F>
+void LQ
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
+  AbstractDistMatrix<Base<F>>& d );
+
+namespace lq {
+
+// Apply Q using its implicit representation
+// -----------------------------------------
+template<typename F>
+void ApplyQ
+( LeftOrRight side, Orientation orientation,
+  const Matrix<F>& A, const Matrix<F>& t,
+  const Matrix<Base<F>>& d, Matrix<F>& B );
+template<typename F>
+void ApplyQ
+( LeftOrRight side, Orientation orientation,
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t,
+  const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& B );
+
+// Solve a linear system with the implicit representations of L and Q 
+// ------------------------------------------------------------------
+template<typename F>
+void SolveAfter
+( Orientation orientation,
+  const Matrix<F>& A, const Matrix<F>& t,
+  const Matrix<Base<F>>& d, const Matrix<F>& B,
+        Matrix<F>& X );
+template<typename F>
+void SolveAfter
+( Orientation orientation,
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t,
+  const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& B,
+        AbstractDistMatrix<F>& X );
+
+// Overwrite A with L
+// ------------------
+template<typename F>
+void ExplicitTriang( Matrix<F>& A );
+template<typename F>
+void ExplicitTriang( AbstractDistMatrix<F>& A );
+
+// Overwrite A with Q
+// ------------------
+template<typename F>
+void ExplicitUnitary( Matrix<F>& A );
+template<typename F>
+void ExplicitUnitary( AbstractDistMatrix<F>& A );
+
+// Return both L and Q such that A = L Q
+// -------------------------------------
+template<typename F>
+void Explicit( Matrix<F>& L, Matrix<F>& A );
+template<typename F>
+void Explicit( AbstractDistMatrix<F>& L, AbstractDistMatrix<F>& A );
+
+} // namespace lq
+
 // QR factorization
 // ================
 
-// Return R (with non-negative diagonal) such that A = Q R
-// -------------------------------------------------------
-template<typename F>
-void QR( Matrix<F>& A );
-template<typename F>
-void QR( AbstractDistMatrix<F>& A );
+template<typename Real>
+struct QRCtrl
+{
+    bool colPiv;
+
+    bool boundRank;  
+    Int maxRank;
+
+    bool adaptive;
+    Real tol;
+
+    bool alwaysRecomputeNorms;
+
+    QRCtrl()
+    : colPiv(false), 
+      boundRank(false), maxRank(0), adaptive(false), tol(0),
+      alwaysRecomputeNorms(false)
+    { }
+};
 
 // Return an implicit representation of Q and R such that A = Q R
 // --------------------------------------------------------------
@@ -409,29 +345,18 @@ void QR
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
   AbstractDistMatrix<Base<F>>& d );
 
-// Return R and (implicit) P such that A P ~= Q R
-// ----------------------------------------------
-template<typename F>
-Int QR
-( Matrix<F>& A, Matrix<Int>& p, 
-  const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
-template<typename F>
-Int QR
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p, 
-  const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
-
 // Return an implicit representation of (Q,R,P) such that A P ~= Q R
 // -----------------------------------------------------------------
 template<typename F>
-Int QR
+void QR
 ( Matrix<F>& A, Matrix<F>& t, 
   Matrix<Base<F>>& d, Matrix<Int>& p,
-  const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
+  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 template<typename F>
-Int QR
+void QR
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
   AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<Int>& p,
-  const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
+  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
 namespace qr {
 
@@ -447,43 +372,6 @@ void ApplyQ
 ( LeftOrRight side, Orientation orientation,
   const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t,
   const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& B );
-
-// Cholesky-based QR
-// -----------------
-template<typename F>
-void Cholesky( Matrix<F>& A, Matrix<F>& R );
-template<typename F>
-void Cholesky( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R );
-
-// Overwrite A with Q
-// ------------------
-template<typename F>
-void Explicit( Matrix<F>& A, bool colPiv=false );
-template<typename F>
-void Explicit( AbstractDistMatrix<F>& A, bool colPiv=false );
-// TODO: Version which accepts QRCtrl
-
-// Return both Q and R such that A = Q R or A P = Q R
-// --------------------------------------------------
-template<typename F>
-void Explicit( Matrix<F>& A, Matrix<F>& R, bool colPiv=false );
-template<typename F>
-void Explicit
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R, bool colPiv=false );
-// TODO: Version which accepts QRCtrl
-
-// Return (Q,R,P) such that A P = Q R
-// ----------------------------------
-// TODO: Return the explicit permutation matrix instead of the representative
-//       vector
-template<typename F>
-void Explicit( Matrix<F>& A, Matrix<F>& R, Matrix<Int>& p );
-// NOTE: Only instantiated for UPerm=VR
-template<typename F>
-void Explicit
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R, 
-  AbstractDistMatrix<Int>& p );
-// TODO: Version which accepts QRCtrl
 
 // Solve a linear system with the implicit QR factorization
 // --------------------------------------------------------
@@ -501,7 +389,53 @@ void SolveAfter
         AbstractDistMatrix<F>& X );
 // TODO: Version which involves permutation matrix
 
-// TODO: Add support for solving with an implicit pivoted QR factorizatino
+// Cholesky-based QR
+// -----------------
+template<typename F>
+void Cholesky( Matrix<F>& A, Matrix<F>& R );
+template<typename F>
+void Cholesky( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R );
+
+// Return R (with non-negative diagonal) such that A = Q R or A P = Q R
+// --------------------------------------------------------------------
+template<typename F>
+void ExplicitTriang
+( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
+template<typename F>
+void ExplicitTriang
+( AbstractDistMatrix<F>& A, const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
+
+// Return Q such that either A = Q R or A P = Q R
+// ----------------------------------------------
+template<typename F>
+void ExplicitUnitary
+( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
+template<typename F>
+void ExplicitUnitary
+( AbstractDistMatrix<F>& A, const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
+
+// Return both Q and R such that A = Q R or A P = Q R
+// --------------------------------------------------
+template<typename F>
+void Explicit
+( Matrix<F>& A, Matrix<F>& R, 
+  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
+template<typename F>
+void Explicit
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R, 
+  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
+
+// Return (Q,R,P) such that A P = Q R
+// ----------------------------------
+// NOTE: Column-pivoting is performed regardless of the value of ctrl.colPiv 
+template<typename F>
+void Explicit
+( Matrix<F>& A, Matrix<F>& R, 
+  Matrix<Int>& P, const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
+template<typename F>
+void Explicit
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R, 
+  AbstractDistMatrix<Int>& P, const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
 template<typename F>
 struct TreeData
@@ -568,11 +502,6 @@ void Scatter( AbstractDistMatrix<F>& A, const TreeData<F>& treeData );
 // RQ
 // ==
 template<typename F>
-void RQ( Matrix<F>& A );
-template<typename F>
-void RQ( AbstractDistMatrix<F>& A );
-
-template<typename F>
 void RQ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d );
 template<typename F>
 void RQ
@@ -592,12 +521,6 @@ void ApplyQ
   const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t,
   const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& B );
 
-// TODO: Think about ensuring this ordering is consistent with lq::Explicit
-template<typename F>
-void Cholesky( Matrix<F>& A, Matrix<F>& R );
-template<typename F>
-void Cholesky( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R );
-
 template<typename F>
 void SolveAfter
 ( Orientation orientation,
@@ -611,7 +534,78 @@ void SolveAfter
   const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& B,
         AbstractDistMatrix<F      >& X );
 
+// TODO: Think about ensuring this ordering is consistent with lq::Explicit
+template<typename F>
+void Cholesky( Matrix<F>& A, Matrix<F>& R );
+template<typename F>
+void Cholesky( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R );
+
+template<typename F>
+void ExplicitTriang( Matrix<F>& A );
+template<typename F>
+void ExplicitTriang( AbstractDistMatrix<F>& A );
+
 } // namespace rq
+
+// Generalized QR
+// ==============
+template<typename F>
+void GQR( Matrix<F>& A, Matrix<F>& B );
+template<typename F>
+void GQR( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
+
+template<typename F>
+void GQR
+( Matrix<F>& A, Matrix<F>& tA, Matrix<Base<F>>& dA,
+  Matrix<F>& B, Matrix<F>& tB, Matrix<Base<F>>& dB );
+template<typename F>
+void GQR
+( AbstractDistMatrix<F>& A, 
+  AbstractDistMatrix<F>& tA, AbstractDistMatrix<Base<F>>& dA,
+  AbstractDistMatrix<F>& B, 
+  AbstractDistMatrix<F>& tB, AbstractDistMatrix<Base<F>>& dB );
+
+// Generalized RQ
+// ==============
+template<typename F>
+void GRQ( Matrix<F>& A, Matrix<F>& B );
+template<typename F>
+void GRQ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
+
+template<typename F>
+void GRQ
+( Matrix<F>& A, Matrix<F>& tA, Matrix<Base<F>>& dA,
+  Matrix<F>& B, Matrix<F>& tB, Matrix<Base<F>>& dB );
+template<typename F>
+void GRQ
+( AbstractDistMatrix<F>& A, 
+  AbstractDistMatrix<F>& tA, AbstractDistMatrix<Base<F>>& dA,
+  AbstractDistMatrix<F>& B, 
+  AbstractDistMatrix<F>& tB, AbstractDistMatrix<Base<F>>& dB );
+
+// Interpolative Decomposition
+// ===========================
+template<typename F>
+void ID
+( const Matrix<F>& A, Matrix<Int>& p, 
+        Matrix<F>& Z, 
+  const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
+template<typename F>
+void ID
+( const AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p,
+        AbstractDistMatrix<F>& Z, 
+  const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
+
+template<typename F>
+void ID
+( Matrix<F>& A, Matrix<Int>& p, 
+  Matrix<F>& Z, const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>(), 
+  bool canOverwrite=false );
+template<typename F>
+void ID
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p,
+  AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>(), 
+  bool canOverwrite=false );
 
 // Skeleton
 // ========

@@ -19,7 +19,7 @@ void GRQ( Matrix<F>& A, Matrix<F>& B )
     RQ( A, tA, dA );
     rq::ApplyQ( RIGHT, ADJOINT, A, tA, dA, B );
     MakeTrapezoidal( UPPER, A, Min(A.Height(),A.Width()) );
-    QR( B );
+    qr::ExplicitTriang( B );
 }
 
 template<typename F> 
@@ -36,7 +36,7 @@ void GRQ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
     RQ( A, tA, dA );
     rq::ApplyQ( RIGHT, ADJOINT, A, tA, dA, B );
     MakeTrapezoidal( UPPER, A, Min(A.Height(),A.Width()) );
-    QR( B );
+    qr::ExplicitTriang( B );
 }
 
 template<typename F> 

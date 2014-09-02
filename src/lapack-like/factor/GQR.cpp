@@ -19,7 +19,7 @@ void GQR( Matrix<F>& A, Matrix<F>& B )
     QR( A, tA, dA );
     qr::ApplyQ( LEFT, ADJOINT, A, tA, dA, B );
     MakeTriangular( UPPER, A );
-    RQ( B );
+    rq::ExplicitTriang( B );
 }
 
 template<typename F> 
@@ -36,7 +36,7 @@ void GQR( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
     QR( A, tA, dA );
     qr::ApplyQ( LEFT, ADJOINT, A, tA, dA, B );
     MakeTriangular( UPPER, A );
-    RQ( B );
+    rq::ExplicitTriang( B );
 }
 
 template<typename F> 

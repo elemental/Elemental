@@ -976,6 +976,7 @@ inline InertiaType CReflect( const ElInertiaType& inertiaC )
 inline ElQRCtrl_s CReflect( const QRCtrl<float>& ctrl )
 { 
     ElQRCtrl_s ctrlC;
+    ctrlC.colPiv = ctrl.colPiv;
     ctrlC.boundRank = ctrl.boundRank;
     ctrlC.maxRank = ctrl.maxRank;
     ctrlC.adaptive = ctrl.adaptive;
@@ -986,6 +987,7 @@ inline ElQRCtrl_s CReflect( const QRCtrl<float>& ctrl )
 inline ElQRCtrl_d CReflect( const QRCtrl<double>& ctrl )
 { 
     ElQRCtrl_d ctrlC;
+    ctrlC.colPiv = ctrl.colPiv;
     ctrlC.boundRank = ctrl.boundRank;
     ctrlC.maxRank = ctrl.maxRank;
     ctrlC.adaptive = ctrl.adaptive;
@@ -997,6 +999,7 @@ inline ElQRCtrl_d CReflect( const QRCtrl<double>& ctrl )
 inline QRCtrl<float> CReflect( const ElQRCtrl_s& ctrlC )
 { 
     QRCtrl<float> ctrl;
+    ctrl.colPiv = ctrlC.colPiv;
     ctrl.boundRank = ctrlC.boundRank;
     ctrl.maxRank = ctrlC.maxRank;
     ctrl.adaptive = ctrlC.adaptive;
@@ -1007,6 +1010,7 @@ inline QRCtrl<float> CReflect( const ElQRCtrl_s& ctrlC )
 inline QRCtrl<double> CReflect( const ElQRCtrl_d& ctrlC )
 { 
     QRCtrl<double> ctrl;
+    ctrl.colPiv = ctrlC.colPiv;
     ctrl.boundRank = ctrlC.boundRank;
     ctrl.maxRank = ctrlC.maxRank;
     ctrl.adaptive = ctrlC.adaptive;

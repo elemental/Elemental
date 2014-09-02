@@ -38,7 +38,7 @@ main( int argc, char* argv[] )
         if( print )
             Print( A, "A" );
 
-        DistMatrix<Int,VR,STAR> perm(g);
+        DistMatrix<Int,VR,STAR> p(g);
         DistMatrix<C,STAR,VR> Z(g);
         QRCtrl<double> ctrl;
         ctrl.boundRank = true;
@@ -48,16 +48,16 @@ main( int argc, char* argv[] )
             ctrl.adaptive = true;
             ctrl.tol = tol;
         }
-        ID( A, perm, Z, ctrl );
+        ID( A, p, Z, ctrl );
         const Int rank = Z.Height();
         if( print )
         {
-            Print( perm, "perm" );
+            Print( p, "p" );
             Print( Z, "Z" );
         }
 
         // Pivot A and form the matrix of its (hopefully) dominant columns
-        InversePermuteCols( A, perm );
+        InversePermuteCols( A, p );
         auto hatA( A );
         hatA.Resize( m, rank );
         if( print )

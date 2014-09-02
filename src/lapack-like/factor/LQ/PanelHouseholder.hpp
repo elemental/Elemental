@@ -70,16 +70,6 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 
 template<typename F>
 inline void
-PanelHouseholder( Matrix<F>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("lq::PanelHouseholder"))
-    Matrix<F> t;
-    Matrix<Base<F>> d;
-    PanelHouseholder( A, t, d );
-}
-
-template<typename F>
-inline void
 PanelHouseholder
 ( DistMatrix<F>& A, AbstractDistMatrix<F>& t, AbstractDistMatrix<Base<F>>& d )
 {
@@ -147,16 +137,6 @@ PanelHouseholder
                { return delta >= Real(0) ? Real(1) : Real(-1); };
     EntrywiseMap( d, std::function<Real(Real)>(sgn) );
     DiagonalScaleTrapezoid( RIGHT, LOWER, NORMAL, d, L );
-}
-
-template<typename F>
-inline void
-PanelHouseholder( AbstractDistMatrix<F>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("lq::PanelHouseholder"))
-    DistMatrix<F,MD,STAR> t(A.Grid());
-    DistMatrix<Base<F>,MD,STAR> d(A.Grid());
-    PanelHouseholder( A, t, d );
 }
 
 } // namespace lq

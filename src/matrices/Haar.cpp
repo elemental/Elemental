@@ -17,7 +17,7 @@ void Haar( Matrix<F>& A, Int n )
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
     //       essentially generates random Householder reflectors
     Gaussian( A, n, n );
-    qr::Explicit( A );
+    qr::ExplicitUnitary( A );
 }
 
 template<typename F>
@@ -37,7 +37,7 @@ void Haar( DistMatrix<F>& A, Int n )
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
     //       essentially generates random Householder reflectors
     Gaussian( A, n, n );
-    qr::Explicit( A );
+    qr::ExplicitUnitary( A );
 }
 
 template<typename F>

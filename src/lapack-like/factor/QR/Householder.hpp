@@ -48,17 +48,6 @@ Householder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 
 template<typename F> 
 inline void
-Householder( Matrix<F>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("qr::Householder"))
-    Matrix<F> t;
-    Matrix<Base<F>> d;
-    Householder( A, t, d );
-    MakeTriangular( UPPER, A );
-}
-
-template<typename F> 
-inline void
 Householder
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre, 
   AbstractDistMatrix<Base<F>>& dPre )
@@ -74,11 +63,6 @@ Householder
     auto APtr = ReadWriteProxy( &APre );
     auto& A = *APtr;
 
-    ProxyCtrl diagCtrl;
-    diagCtrl.rootConstrain = true;
-    diagCtrl.colConstrain = true;
-    diagCtrl.root = A.DiagonalRoot();
-    diagCtrl.colAlign = A.DiagonalAlign();
     auto tPtr = WriteProxy<F,      MD,STAR>( &tPre ); auto& t = *tPtr;
     auto dPtr = WriteProxy<Base<F>,MD,STAR>( &dPre ); auto& d = *dPtr;
     t.Resize( minDim, 1 );
@@ -101,17 +85,6 @@ Householder
         PanelHouseholder( AB1, t1, d1 );
         ApplyQ( LEFT, ADJOINT, AB1, t1, d1, AB2 );
     }
-}
-
-template<typename F> 
-inline void
-Householder( AbstractDistMatrix<F>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("qr::Householder"))
-    DistMatrix<F,MD,STAR> t(A.Grid());
-    DistMatrix<Base<F>,MD,STAR> d(A.Grid());
-    Householder( A, t, d );
-    MakeTriangular( UPPER, A );
 }
 
 } // namespace qr

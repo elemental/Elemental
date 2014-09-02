@@ -10,24 +10,12 @@
 
 #include "./LQ/ApplyQ.hpp"
 #include "./LQ/Householder.hpp"
+
 #include "./LQ/SolveAfter.hpp"
+
 #include "./LQ/Explicit.hpp"
 
 namespace El {
-
-template<typename F> 
-void LQ( Matrix<F>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("LQ"))
-    lq::Householder( A );
-}
-
-template<typename F> 
-void LQ( AbstractDistMatrix<F>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("LQ"))
-    lq::Householder( A );
-}
 
 template<typename F> 
 void LQ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
@@ -50,8 +38,6 @@ void LQ
 // TODO
 
 #define PROTO(F) \
-  template void LQ( Matrix<F>& A ); \
-  template void LQ( AbstractDistMatrix<F>& A ); \
   template void LQ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d ); \
   template void LQ \
   ( AbstractDistMatrix<F>& A, \
@@ -64,11 +50,6 @@ void LQ
   ( LeftOrRight side, Orientation orientation, \
     const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, \
     const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& B ); \
-  template void lq::Explicit( Matrix<F>& A ); \
-  template void lq::Explicit( AbstractDistMatrix<F>& A ); \
-  template void lq::Explicit( Matrix<F>& L, Matrix<F>& A ); \
-  template void lq::Explicit \
-  ( AbstractDistMatrix<F>& L, AbstractDistMatrix<F>& A ); \
   template void lq::SolveAfter \
   ( Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, \
@@ -78,7 +59,14 @@ void LQ
   ( Orientation orientation, \
     const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, \
     const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& B, \
-          AbstractDistMatrix<F>& X );
+          AbstractDistMatrix<F>& X ); \
+  template void lq::Explicit( Matrix<F>& L, Matrix<F>& A ); \
+  template void lq::Explicit \
+  ( AbstractDistMatrix<F>& L, AbstractDistMatrix<F>& A ); \
+  template void lq::ExplicitTriang( Matrix<F>& A ); \
+  template void lq::ExplicitTriang( AbstractDistMatrix<F>& A ); \
+  template void lq::ExplicitUnitary( Matrix<F>& A ); \
+  template void lq::ExplicitUnitary( AbstractDistMatrix<F>& A );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

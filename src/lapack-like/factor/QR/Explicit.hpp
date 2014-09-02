@@ -14,67 +14,115 @@ namespace El {
 namespace qr {
 
 template<typename F>
-void Explicit( Matrix<F>& A, bool colPiv )
+void ExplicitTriang( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
-    Matrix<Int> p;
+    DEBUG_ONLY(CallStackEntry cse("qr::ExplicitTriang"))
     Matrix<F> t;
     Matrix<Base<F>> d;
-    if( colPiv )
-        QR( A, t, d, p );
+    if( ctrl.colPiv )
+    {
+        Matrix<Int> p;
+        BusingerGolub( A, t, d, p, ctrl );
+    }
+    else
+        Householder( A, t, d );
+
+    A.Resize( t.Height(), A.Width() );
+    MakeTriangular( UPPER, A );
+}
+
+template<typename F>
+void ExplicitTriang( AbstractDistMatrix<F>& A, const QRCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CallStackEntry cse("qr::ExplicitTriang"))
+    DistMatrix<F,MD,STAR> t(A.Grid());
+    DistMatrix<Base<F>,MD,STAR> d(A.Grid());
+    if( ctrl.colPiv )
+    {
+        DistMatrix<Int,VC,STAR> p(A.Grid());
+        BusingerGolub( A, t, d, p, ctrl );
+    }
+    else
+        Householder( A, t, d );
+
+    A.Resize( t.Height(), A.Width() );
+    MakeTriangular( UPPER, A );
+}
+
+template<typename F>
+void ExplicitUnitary( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CallStackEntry cse("qr::ExplicitUnitary"))
+    Matrix<F> t;
+    Matrix<Base<F>> d;
+    if( ctrl.colPiv )
+    {
+        Matrix<Int> p;
+        QR( A, t, d, p, ctrl );
+    }
     else
         QR( A, t, d );
+
+    A.Resize( A.Height(), t.Height() );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
     DiagonalScale( RIGHT, NORMAL, d, A );
 }
 
 template<typename F>
-void Explicit( AbstractDistMatrix<F>& APre, bool colPiv )
+void ExplicitUnitary( AbstractDistMatrix<F>& APre, const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
+    DEBUG_ONLY(CallStackEntry cse("qr::ExplicitUnitary"))
 
     auto APtr = ReadWriteProxy( &APre );
     auto& A = *APtr;
 
     const Grid& g = A.Grid();
-    DistMatrix<Int,VR,STAR> p(g);
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
-    if( colPiv )
-        QR( A, t, d, p );
+    if( ctrl.colPiv )
+    {
+        DistMatrix<Int,VR,STAR> p(g);
+        QR( A, t, d, p, ctrl );
+    }
     else
         QR( A, t, d );
 
+    A.Resize( A.Height(), t.Height() );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
     DiagonalScale( RIGHT, NORMAL, d, A );
 }
 
 template<typename F>
-void Explicit( Matrix<F>& A, Matrix<F>& R, bool colPiv )
+void Explicit( Matrix<F>& A, Matrix<F>& R, const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
     Matrix<F> t;
     Matrix<Base<F>> d;
-    Matrix<Int> p;
-    if( colPiv )
-        QR( A, t, d, p );
+    if( ctrl.colPiv )
+    {
+        Matrix<Int> p;
+        QR( A, t, d, p, ctrl );
+    }
     else
         QR( A, t, d );
 
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int minDim = Min(m,n);
-    auto AT = A( IR(0,minDim), IR(0,n) );
+    const Int numIts = t.Height();
+
+    auto AT = A( IR(0,numIts), IR(0,n) );
     R = AT;
     MakeTriangular( UPPER, R );
 
+    A.Resize( m, numIts );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
     DiagonalScale( RIGHT, NORMAL, d, A );
 }
 
 template<typename F>
 void Explicit
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& R, bool colPiv )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& R, 
+  const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
 
@@ -84,46 +132,56 @@ void Explicit
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
-    DistMatrix<Int,VR,STAR> p(g);
-    if( colPiv )
-        QR( A, t, d, p );
+    if( ctrl.colPiv )
+    {
+        DistMatrix<Int,VR,STAR> p(g);
+        QR( A, t, d, p, ctrl );
+    }
     else
         QR( A, t, d );
 
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int minDim = Min(m,n);
-    auto AT = A( IR(0,minDim), IR(0,n) );
+    const Int numIts = t.Height();
+
+    auto AT = A( IR(0,numIts), IR(0,n) );
     Copy( AT, R );
     MakeTriangular( UPPER, R );
 
+    A.Resize( m, numIts );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
     DiagonalScale( RIGHT, NORMAL, d, A );
 }
 
 template<typename F>
-void Explicit( Matrix<F>& A, Matrix<F>& R, Matrix<Int>& p )
+void Explicit
+( Matrix<F>& A, Matrix<F>& R, Matrix<Int>& P, const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
     Matrix<F> t;
     Matrix<Base<F>> d;
-    QR( A, t, d, p );
+    Matrix<Int> p;
+    QR( A, t, d, p, ctrl );
 
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int minDim = Min(m,n);
-    auto AT = A( IR(0,minDim), IR(0,n) );
+    const Int numIts = t.Height();
+
+    auto AT = A( IR(0,numIts), IR(0,n) );
     R = AT;
     MakeTriangular( UPPER, R );
 
+    A.Resize( m, numIts );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
     DiagonalScale( RIGHT, NORMAL, d, A );
+
+    ExplicitPermutation( p, P );
 } 
 
 template<typename F>
 void Explicit
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& R, 
-  AbstractDistMatrix<Int>& p )
+  AbstractDistMatrix<Int>& P, const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
 
@@ -133,17 +191,22 @@ void Explicit
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
-    QR( A, t, d, p );
+    DistMatrix<Int,VC,STAR> p(g);
+    QR( A, t, d, p, ctrl );
 
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int minDim = Min(m,n);
-    auto AT = A( IR(0,minDim), IR(0,n) );
+    const Int numIts = t.Height();
+
+    auto AT = A( IR(0,numIts), IR(0,n) );
     Copy( AT, R );
     MakeTriangular( UPPER, R );
 
+    A.Resize( m, numIts );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
     DiagonalScale( RIGHT, NORMAL, d, A );
+
+    ExplicitPermutation( p, P );
 }
 
 } // namespace qr

@@ -72,16 +72,10 @@ ChanUpper
     auto APtr = ReadWriteProxy( &APre );
     auto& A = *APtr;
 
-    const Grid& g = A.Grid();
-    const Int m = A.Height();
-    const Int n = A.Width();
-    if( m >= heightRatio*n )
+    if( A.Height() >= heightRatio*A.Width() )
     {
-        QR( A );
-        DistMatrix<F> AT(g), AB(g);
-        PartitionDown( A, AT, AB, n );
-        MakeTriangular( UPPER, AT );
-        GolubReinsch( AT, s );
+        qr::ExplicitTriang( A );
+        GolubReinsch( A, s );
     }
     else
     {

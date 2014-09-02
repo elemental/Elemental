@@ -28,7 +28,10 @@ void Skeleton
     // Find the row permutation
     Matrix<F> B;
     Adjoint( A, B );
-    const Int numSteps = QR( B, permR, ctrl );
+    Matrix<F> t;
+    Matrix<Base<F>> d;
+    QR( B, t, d, permR, ctrl );
+    const Int numSteps = t.Height();
 
     // Form pinv(AR')=pinv(AR)'
     Adjoint( A, B );
@@ -46,7 +49,7 @@ void Skeleton
     secondCtrl.adaptive = false;
     secondCtrl.boundRank = true;
     secondCtrl.maxRank = numSteps;
-    QR( B, permC, secondCtrl );
+    QR( B, t, d, permC, secondCtrl );
 
     // Form pinv(AC)
     B = A;
@@ -74,7 +77,10 @@ void Skeleton
     // Find the row permutation
     DistMatrix<F> B(g);
     Adjoint( A, B );
-    const Int numSteps = QR( B, permR, ctrl );
+    DistMatrix<F,MD,STAR> t(g);
+    DistMatrix<Base<F>,MD,STAR> d(g);
+    QR( B, t, d, permR, ctrl );
+    const Int numSteps = t.Height();
 
     // Form pinv(AR')=pinv(AR)'
     Adjoint( A, B );
@@ -92,7 +98,7 @@ void Skeleton
     secondCtrl.adaptive = false;
     secondCtrl.boundRank = true;
     secondCtrl.maxRank = numSteps;
-    QR( B, permC, secondCtrl );
+    QR( B, t, d, permC, secondCtrl );
 
     // Form pinv(AC)
     B = A;

@@ -162,15 +162,9 @@ void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A )
     MakeHermitian( uplo, A );
 
     if( uplo == LOWER )
-    {
-        LQ( A );
-        MakeTriangular( LOWER, A );
-    }
+        lq::ExplicitTriang( A );
     else
-    {
-        QR( A );
-        MakeTriangular( UPPER, A );
-    }
+        qr::ExplicitTriang( A );
 }
 
 template<typename F>
@@ -186,15 +180,9 @@ void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
     MakeHermitian( uplo, A );
 
     if( uplo == LOWER )
-    {
-        LQ( A );
-        MakeTriangular( LOWER, A );
-    }
+        lq::ExplicitTriang( A );
     else
-    {
-        QR( A );
-        MakeTriangular( UPPER, A );
-    }
+        qr::ExplicitTriang( A );
 }
 
 #define PROTO(F) \

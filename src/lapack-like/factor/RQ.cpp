@@ -9,25 +9,15 @@
 #include "El.hpp"
 
 #include "./RQ/ApplyQ.hpp"
-#include "./RQ/Cholesky.hpp"
 #include "./RQ/Householder.hpp"
+
 #include "./RQ/SolveAfter.hpp"
 
+#include "./RQ/Explicit.hpp"
+
+#include "./RQ/Cholesky.hpp"
+
 namespace El {
-
-template<typename F> 
-void RQ( Matrix<F>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("RQ"))
-    rq::Householder( A );
-}
-
-template<typename F> 
-void RQ( AbstractDistMatrix<F>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("RQ"))
-    rq::Householder( A );
-}
 
 template<typename F> 
 void RQ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
@@ -50,8 +40,6 @@ void RQ
 // TODO
 
 #define PROTO(F) \
-  template void RQ( Matrix<F>& A ); \
-  template void RQ( AbstractDistMatrix<F>& A ); \
   template void RQ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d ); \
   template void RQ \
   ( AbstractDistMatrix<F>& A, \
@@ -64,9 +52,6 @@ void RQ
   ( LeftOrRight side, Orientation orientation, \
     const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, \
     const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& B ); \
-  template void rq::Cholesky( Matrix<F>& A, Matrix<F>& R ); \
-  template void rq::Cholesky \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R ); \
   template void rq::SolveAfter \
   ( Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, \
@@ -76,7 +61,12 @@ void RQ
   ( Orientation orientation, \
     const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, \
     const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& B, \
-          AbstractDistMatrix<F>& X );
+          AbstractDistMatrix<F>& X ); \
+  template void rq::Cholesky( Matrix<F>& A, Matrix<F>& R ); \
+  template void rq::Cholesky \
+  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R ); \
+  template void rq::ExplicitTriang( Matrix<F>& A ); \
+  template void rq::ExplicitTriang( AbstractDistMatrix<F>& A );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
