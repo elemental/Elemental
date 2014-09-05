@@ -61,9 +61,9 @@ Ascii( Matrix<T>& A, const std::string filename )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Ascii( DistMatrix<T,U,V>& A, const std::string filename )
+Ascii( AbstractDistMatrix<T>& A, const std::string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::Ascii"))
     std::ifstream file( filename.c_str() );
@@ -109,9 +109,9 @@ Ascii( DistMatrix<T,U,V>& A, const std::string filename )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Ascii( BlockDistMatrix<T,U,V>& A, const std::string filename )
+Ascii( AbstractBlockDistMatrix<T>& A, const std::string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::Ascii"))
     std::ifstream file( filename.c_str() );

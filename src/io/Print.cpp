@@ -41,11 +41,12 @@ void Print( const Matrix<T>& A, std::string title, std::ostream& os )
     os << std::endl;
 }
 
-template<typename T,Dist U,Dist V>
-void Print( const DistMatrix<T,U,V>& A, std::string title, std::ostream& os )
+template<typename T>
+void Print
+( const AbstractDistMatrix<T>& A, std::string title, std::ostream& os )
 {
     DEBUG_ONLY(CallStackEntry cse("Print"))
-    if( U == A.UGath && V == A.VGath )
+    if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
             Print( A.LockedMatrix(), title, os );
@@ -58,12 +59,12 @@ void Print( const DistMatrix<T,U,V>& A, std::string title, std::ostream& os )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 void Print
-( const BlockDistMatrix<T,U,V>& A, std::string title, std::ostream& os )
+( const AbstractBlockDistMatrix<T>& A, std::string title, std::ostream& os )
 {
     DEBUG_ONLY(CallStackEntry cse("Print"))
-    if( U == A.UGath && V == A.VGath )
+    if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
             Print( A.LockedMatrix(), title, os );
@@ -76,38 +77,6 @@ void Print
     }
 }
 
-template<typename T>
-void Print
-( const AbstractDistMatrix<T>& A, std::string title, std::ostream& os )
-{
-    DEBUG_ONLY(CallStackEntry cse("Print"))
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
-      Print( ACast, title, os );
-    #include "El/macros/GuardAndPayload.h"
-}
-
-template<typename T>
-void Print
-( const AbstractBlockDistMatrix<T>& A, std::string title, std::ostream& os )
-{
-    DEBUG_ONLY(CallStackEntry cse("Print"))
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = dynamic_cast<const BlockDistMatrix<T,CDIST,RDIST>&>(A); \
-      Print( ACast, title, os );
-    #include "El/macros/GuardAndPayload.h"
-}
-
-#define DISTPROTO(T,U,V) \
-  template void Print \
-  ( const DistMatrix<T,U,V>& A, std::string title, std::ostream& os ); \
-  template void Print \
-  ( const BlockDistMatrix<T,U,V>& A, std::string title, std::ostream& os );
-
 #define PROTO(T) \
   template void Print \
   ( const std::vector<T>& x, std::string title, std::ostream& os ); \
@@ -117,21 +86,7 @@ void Print
   ( const AbstractDistMatrix<T>& A, std::string title, std::ostream& os ); \
   template void Print \
   ( const AbstractBlockDistMatrix<T>& A, \
-    std::string title, std::ostream& os ); \
-  DISTPROTO(T,CIRC,CIRC); \
-  DISTPROTO(T,MC,  MR  ); \
-  DISTPROTO(T,MC,  STAR); \
-  DISTPROTO(T,MD,  STAR); \
-  DISTPROTO(T,MR,  MC  ); \
-  DISTPROTO(T,MR,  STAR); \
-  DISTPROTO(T,STAR,MC  ); \
-  DISTPROTO(T,STAR,MD  ); \
-  DISTPROTO(T,STAR,MR  ); \
-  DISTPROTO(T,STAR,STAR); \
-  DISTPROTO(T,STAR,VC  ); \
-  DISTPROTO(T,STAR,VR  ); \
-  DISTPROTO(T,VC,  STAR); \
-  DISTPROTO(T,VR,  STAR);
+    std::string title, std::ostream& os );
 
 #include "El/macros/Instantiate.h"
 

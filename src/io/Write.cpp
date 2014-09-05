@@ -43,13 +43,13 @@ void Write
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 void Write
-( const DistMatrix<T,U,V>& A, 
+( const AbstractDistMatrix<T>& A, 
   std::string basename, FileFormat format, std::string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Write"))
-    if( U == A.UGath && V == A.VGath )
+    if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
             Write( A.LockedMatrix(), basename, format, title );
@@ -62,13 +62,13 @@ void Write
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 void Write
-( const BlockDistMatrix<T,U,V>& A, 
+( const AbstractBlockDistMatrix<T>& A, 
   std::string basename, FileFormat format, std::string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Write"))
-    if( U == A.UGath && V == A.VGath )
+    if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
             Write( A.LockedMatrix(), basename, format, title );
@@ -81,42 +81,6 @@ void Write
     }
 }
 
-template<typename T>
-void Write
-( const AbstractDistMatrix<T>& A, std::string basename, FileFormat format,
-  std::string title )
-{
-    DEBUG_ONLY(CallStackEntry cse("Write"))
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
-      Write( ACast, basename, format, title );
-    #include "El/macros/GuardAndPayload.h"
-}
-
-template<typename T>
-void Write
-( const AbstractBlockDistMatrix<T>& A, std::string basename, FileFormat format,
-  std::string title )
-{
-    DEBUG_ONLY(CallStackEntry cse("Write"))
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = dynamic_cast<const BlockDistMatrix<T,CDIST,RDIST>&>(A); \
-      Write( ACast, basename, format, title );
-    #include "El/macros/GuardAndPayload.h"
-}
-
-#define PROTO_DIST(T,U,V) \
-  template void Write \
-  ( const DistMatrix<T,U,V>& A, \
-    std::string basename, FileFormat format, std::string title ); \
-  template void Write \
-  ( const BlockDistMatrix<T,U,V>& A, \
-    std::string basename, FileFormat format, std::string title );
-
 #define PROTO(T) \
   template void Write \
   ( const Matrix<T>& A, \
@@ -126,21 +90,7 @@ void Write
     std::string basename, FileFormat format, std::string title ); \
   template void Write \
   ( const AbstractBlockDistMatrix<T>& A, \
-    std::string basename, FileFormat format, std::string title ); \
-  PROTO_DIST(T,CIRC,CIRC) \
-  PROTO_DIST(T,MC,  MR  ) \
-  PROTO_DIST(T,MC,  STAR) \
-  PROTO_DIST(T,MD,  STAR) \
-  PROTO_DIST(T,MR,  MC  ) \
-  PROTO_DIST(T,MR,  STAR) \
-  PROTO_DIST(T,STAR,MC  ) \
-  PROTO_DIST(T,STAR,MD  ) \
-  PROTO_DIST(T,STAR,MR  ) \
-  PROTO_DIST(T,STAR,STAR) \
-  PROTO_DIST(T,STAR,VC  ) \
-  PROTO_DIST(T,STAR,VR  ) \
-  PROTO_DIST(T,VC,  STAR) \
-  PROTO_DIST(T,VR,  STAR)
+    std::string basename, FileFormat format, std::string title );
 
 #include "El/macros/Instantiate.h"
 

@@ -41,9 +41,9 @@ Binary( Matrix<T>& A, const std::string filename )
             file.read( (char*)A.Buffer(0,j), height*sizeof(T) );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Binary( DistMatrix<T,U,V>& A, const std::string filename )
+Binary( AbstractDistMatrix<T>& A, const std::string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::Binary"))
     std::ifstream file( filename.c_str(), std::ios::binary );
@@ -62,18 +62,17 @@ Binary( DistMatrix<T,U,V>& A, const std::string filename )
         ("Expected file to be ",numBytesExp," bytes but found ",numBytes);
 
     A.Resize( height, width );
-    if( U == A.UGath && V == A.VGath )
+    if( A.CrossRank() != A.Root() )
+        return;
+    if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
-        if( A.CrossRank() == A.Root() )
-        {
-            if( A.Height() == A.LDim() )
-                file.read( (char*)A.Buffer(), height*width*sizeof(T) );
-            else
-                for( Int j=0; j<width; ++j )
-                    file.read( (char*)A.Buffer(0,j), height*sizeof(T) );
-        }
+        if( A.Height() == A.LDim() )
+            file.read( (char*)A.Buffer(), height*width*sizeof(T) );
+        else
+            for( Int j=0; j<width; ++j )
+                file.read( (char*)A.Buffer(0,j), height*sizeof(T) );
     }
-    else if( U == A.UGath )
+    else if( A.ColStride() == 1 )
     {
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
@@ -104,9 +103,9 @@ Binary( DistMatrix<T,U,V>& A, const std::string filename )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Binary( BlockDistMatrix<T,U,V>& A, const std::string filename )
+Binary( AbstractBlockDistMatrix<T>& A, const std::string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::Binary"))
     std::ifstream file( filename.c_str(), std::ios::binary );
@@ -125,18 +124,17 @@ Binary( BlockDistMatrix<T,U,V>& A, const std::string filename )
         ("Expected file to be ",numBytesExp," bytes but found ",numBytes);
 
     A.Resize( height, width );
-    if( U == A.UGath && V == A.VGath )
+    if( A.CrossRank() != A.Root() )
+        return;
+    if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
-        if( A.CrossRank() == A.Root() )
-        {
-            if( A.Height() == A.LDim() )
-                file.read( (char*)A.Buffer(), height*width*sizeof(T) );
-            else
-                for( Int j=0; j<width; ++j )
-                    file.read( (char*)A.Buffer(0,j), height*sizeof(T) );
-        }
+        if( A.Height() == A.LDim() )
+            file.read( (char*)A.Buffer(), height*width*sizeof(T) );
+        else
+            for( Int j=0; j<width; ++j )
+                file.read( (char*)A.Buffer(0,j), height*sizeof(T) );
     }
-    else if( U == A.UGath )
+    else if( A.ColStride() == 1 )
     {
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )

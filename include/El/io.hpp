@@ -117,16 +117,6 @@ void Display( const AbstractBlockDistMatrix<T>& AAbs, std::string title="" );
 template<typename T>
 void Print
 ( const Matrix<T>& A, std::string title="", std::ostream& os=std::cout );
-
-template<typename T,Dist U,Dist V>
-void Print
-( const DistMatrix<T,U,V>& A,
-  std::string title="", std::ostream& os=std::cout );
-template<typename T,Dist U,Dist V>
-void Print
-( const BlockDistMatrix<T,U,V>& A,
-  std::string title="", std::ostream& os=std::cout );
-
 template<typename T>
 void Print
 ( const AbstractDistMatrix<T>& AAbs, std::string title="",
@@ -146,16 +136,6 @@ void Print
 // ====
 template<typename T>
 void Read( Matrix<T>& A, const std::string filename, FileFormat format=AUTO );
-
-template<typename T,Dist U,Dist V>
-void Read
-( DistMatrix<T,U,V>& A, 
-  const std::string filename, FileFormat format=AUTO, bool sequential=false );
-template<typename T,Dist U,Dist V>
-void Read
-( BlockDistMatrix<T,U,V>& A, 
-  const std::string filename, FileFormat format=AUTO, bool sequential=false );
-
 template<typename T>
 void Read
 ( AbstractDistMatrix<T>& A, 
@@ -169,14 +149,6 @@ void Read
 // ===
 template<typename T>
 void Spy( const Matrix<T>& A, std::string title="Default", Base<T> tol=0 );
-
-template<typename T,Distribution U,Distribution V>
-void Spy
-( const DistMatrix<T,U,V>& A, std::string title="Default", Base<T> tol=0 );
-template<typename T,Dist U,Dist V>
-void Spy
-( const BlockDistMatrix<T,U,V>& A, std::string title="Default", Base<T> tol=0 );
-
 template<typename T>
 void Spy
 ( const AbstractDistMatrix<T>& A, std::string title="Default", Base<T> tol=0 );
@@ -191,16 +163,6 @@ template<typename T>
 void Write
 ( const Matrix<T>& A, std::string basename="matrix", FileFormat format=BINARY,
   std::string title="" );
-
-template<typename T,Dist U,Dist V>
-void Write
-( const DistMatrix<T,U,V>& A, std::string basename="matrix",
-  FileFormat format=BINARY, std::string title="" );
-template<typename T,Dist U,Dist V>
-void Write
-( const BlockDistMatrix<T,U,V>& A, std::string basename="matrix",
-  FileFormat format=BINARY, std::string title="" );
-
 template<typename T>
 void Write
 ( const AbstractDistMatrix<T>& A, std::string basename="matrix",

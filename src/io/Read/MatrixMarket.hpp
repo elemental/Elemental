@@ -218,9 +218,9 @@ MatrixMarket( Matrix<T>& A, const std::string filename )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MatrixMarket( DistMatrix<T,U,V>& A, const std::string filename )
+MatrixMarket( AbstractDistMatrix<T>& A, const std::string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::MatrixMarket"))
     DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A.Grid() );
@@ -231,12 +231,12 @@ MatrixMarket( DistMatrix<T,U,V>& A, const std::string filename )
         ( A_CIRC_CIRC.Matrix().Height(), A_CIRC_CIRC.Matrix().Width() );
     }
     A_CIRC_CIRC.MakeSizeConsistent();
-    A = A_CIRC_CIRC;
+    Copy( A_CIRC_CIRC, A );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MatrixMarket( BlockDistMatrix<T,U,V>& A, const std::string filename )
+MatrixMarket( AbstractBlockDistMatrix<T>& A, const std::string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::MatrixMarket"))
     BlockDistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A.Grid() );
@@ -247,7 +247,7 @@ MatrixMarket( BlockDistMatrix<T,U,V>& A, const std::string filename )
         ( A_CIRC_CIRC.Matrix().Height(), A_CIRC_CIRC.Matrix().Width() );
     }
     A_CIRC_CIRC.MakeSizeConsistent();
-    A = A_CIRC_CIRC;
+    Copy( A, A_CIRC_CIRC );
 }
 
 } // namespace read

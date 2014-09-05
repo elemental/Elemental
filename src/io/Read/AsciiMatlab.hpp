@@ -24,9 +24,9 @@ AsciiMatlab( Matrix<T>& A, const std::string filename )
     LogicError("Not yet written");
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-AsciiMatlab( DistMatrix<T,U,V>& A, const std::string filename )
+AsciiMatlab( AbstractDistMatrix<T>& A, const std::string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::AsciiMatlab"))
     std::ifstream file( filename.c_str() );
@@ -35,9 +35,9 @@ AsciiMatlab( DistMatrix<T,U,V>& A, const std::string filename )
     LogicError("Not yet written");
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-AsciiMatlab( BlockDistMatrix<T,U,V>& A, const std::string filename )
+AsciiMatlab( AbstractBlockDistMatrix<T>& A, const std::string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::AsciiMatlab"))
     std::ifstream file( filename.c_str() );
