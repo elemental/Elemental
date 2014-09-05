@@ -92,6 +92,9 @@ struct ValueIntPair<Complex<Real>>
     { return Abs(a.value) > Abs(b.value); }
 };
 
+template<typename F>
+using Entry = ValueIntPair<F>;
+
 // For the safe computation of products. The result is given by 
 //   product = rho * exp(kappa*n)
 // where rho lies in (usually on) the unit circle and kappa is real-valued.

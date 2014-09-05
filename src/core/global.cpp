@@ -596,4 +596,93 @@ template<>
 Int LocalTrrkBlocksize<Complex<double>>()
 { return ::localTrrkComplexDoubleBlocksize; }
 
+template<typename T>
+bool IsSorted( const std::vector<T>& x )
+{
+    const Int vecLength = x.size();
+    for( Int i=1; i<vecLength; ++i )
+    {
+        if( x[i] < x[i-1] )
+            return false;
+    }
+    return true;
+}
+
+// While is_strictly_sorted exists in Boost, it does not exist in the STL (yet)
+template<typename T>
+bool IsStrictlySorted( const std::vector<T>& x )
+{
+    const Int vecLength = x.size();
+    for( Int i=1; i<vecLength; ++i )
+    {
+        if( x[i] <= x[i-1] )
+            return false;
+    }
+    return true;
+}
+
+void Union
+( std::vector<Int>& both,
+  const std::vector<Int>& first, const std::vector<Int>& second )
+{
+    both.resize( first.size()+second.size() );
+    std::vector<Int>::iterator it = std::set_union
+      ( first.begin(), first.end(), second.begin(), second.end(),
+        both.begin() );
+    both.resize( Int(it-both.begin()) );
+}
+
+std::vector<Int>
+Union( const std::vector<Int>& first, const std::vector<Int>& second )
+{
+    std::vector<Int> both;
+    Union( both, first, second );
+    return both;
+}
+
+void RelativeIndices
+( std::vector<Int>& relInds,
+  const std::vector<Int>& sub, const std::vector<Int>& full )
+{
+    const Int numSub = sub.size();
+    relInds.resize( numSub );
+    std::vector<Int>::const_iterator it = full.begin();
+    for( Int i=0; i<numSub; ++i )
+    {
+        const Int index = sub[i];
+        it = std::lower_bound( it, full.end(), index );
+        DEBUG_ONLY(
+            if( it == full.end() )
+                LogicError("Index was not found");
+        )
+        relInds[i] = Int(it-full.begin());
+    }
+}
+
+std::vector<Int> RelativeIndices
+( const std::vector<Int>& sub, const std::vector<Int>& full )
+{
+    std::vector<Int> relInds;
+    RelativeIndices( relInds, sub, full );
+    return relInds;
+}
+
+Int Find( const std::vector<Int>& sortedInds, Int index, std::string msg )
+{
+    DEBUG_ONLY(CallStackEntry cse("Find"))
+    std::vector<Int>::const_iterator vecIt;
+    vecIt = std::lower_bound( sortedInds.begin(), sortedInds.end(), index );
+    DEBUG_ONLY(
+        if( vecIt == sortedInds.end() )
+            LogicError( msg );
+    )
+    return vecIt - sortedInds.begin();
+}
+
+#define EL_NO_COMPLEX_PROTO
+#define PROTO(T) \
+  template bool IsSorted( const std::vector<T>& x ); \
+  template bool IsStrictlySorted( const std::vector<T>& x );
+#include "El/macros/Instantiate.h"
+
 } // namespace El

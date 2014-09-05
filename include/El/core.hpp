@@ -150,4 +150,15 @@ template<typename T,Dist U=MC,Dist V=MR> class BlockDistMatrix;
 #include "El/core/random/impl.hpp"
 #include "El/core/AxpyInterface.hpp"
 
+#include "El/core/Graph.hpp"
+// TODO: Sequential map
+//#include "El/core/Map.hpp"
+#include "El/core/MultiVec.hpp"
+#include "El/core/SparseMatrix.hpp"
+
+#include "El/core/DistGraph.hpp"
+#include "El/core/DistMap.hpp"
+#include "El/core/DistMultiVec.hpp"
+#include "El/core/DistSparseMatrix.hpp"
+
 #endif // ifndef EL_CORE_HPP

@@ -203,6 +203,38 @@ template<typename T, typename ...Args>
 inline std::unique_ptr<T> MakeUnique( Args&& ...args )
 { return std::unique_ptr<T>( new T( std::forward<Args>(args)... ) ); }
 
+template<typename T>
+bool IsSorted( const std::vector<T>& x );
+// While is_strictly_sorted exists in Boost, it does not exist in the STL (yet)
+template<typename T>
+bool IsStrictlySorted( const std::vector<T>& x );
+
+void Union
+( std::vector<Int>& both,
+  const std::vector<Int>& first, const std::vector<Int>& second );
+std::vector<Int>
+Union( const std::vector<Int>& first, const std::vector<Int>& second );
+
+void RelativeIndices
+( std::vector<Int>& relInds,
+  const std::vector<Int>& sub, const std::vector<Int>& full );
+std::vector<Int> RelativeIndices
+( const std::vector<Int>& sub, const std::vector<Int>& full );
+
+Int Find
+( const std::vector<Int>& sortedInds, Int index,
+  std::string msg="Could not find index" );
+
+// TODO: Move this somewhere else or obsolte it entirely
+inline Int
+RowToProcess( Int i, Int blocksize, Int commSize )
+{
+    if( blocksize > 0 )
+        return std::min( i/blocksize, commSize-1 );
+    else
+        return commSize-1;
+}
+
 } // namespace El
 
 #endif // ifndef EL_ENVIRONMENT_DECL_HPP

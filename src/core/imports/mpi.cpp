@@ -2829,5 +2829,80 @@ template void ReduceScatter( const double* sbuf, double* rbuf, const int* rcs, C
 template void ReduceScatter( const Complex<float>* sbuf, Complex<float>* rbuf, const int* rcs, Comm comm );
 template void ReduceScatter( const Complex<double>* sbuf, Complex<double>* rbuf, const int* rcs, Comm comm );
 
+void VerifySendsAndRecvs
+( const std::vector<int>& sendCounts,
+  const std::vector<int>& recvCounts, mpi::Comm comm )
+{
+    DEBUG_ONLY(CallStackEntry cse("mpi::VerifySendsAndRecvs"))
+    const int commSize = mpi::Size( comm );
+    std::vector<int> actualRecvCounts(commSize);
+    mpi::AllToAll
+    ( &sendCounts[0],       1,
+      &actualRecvCounts[0], 1, comm );
+    for( int proc=0; proc<commSize; ++proc )
+        if( actualRecvCounts[proc] != recvCounts[proc] )
+            LogicError
+            ("Expected recv count of ",recvCounts[proc],
+             " but recv'd ",actualRecvCounts[proc]," from process ",proc);
+}
+
+template<typename T>
+void SparseAllToAll
+( const std::vector<T>& sendBuffer,
+  const std::vector<int>& sendCounts, const std::vector<int>& sendDispls,
+        std::vector<T>& recvBuffer,
+  const std::vector<int>& recvCounts, const std::vector<int>& recvDispls,
+        mpi::Comm comm )
+{
+#ifdef USE_CUSTOM_ALLTOALLV
+    const int commSize = mpi::Size( comm );
+    int numSends=0,numRecvs=0;
+    for( int proc=0; proc<commSize; ++proc )
+    {
+        if( sendCounts[proc] != 0 )
+            ++numSends;
+        if( recvCounts[proc] != 0 )
+            ++numRecvs;
+    }
+    std::vector<mpi::Status> statuses(numSends+numRecvs);
+    std::vector<mpi::Request> requests(numSends+numRecvs);
+    int rCount=0;
+    for( int proc=0; proc<commSize; ++proc )
+    {
+        int count = recvCounts[proc];
+        int displ = recvDispls[proc];
+        if( count != 0 )
+            mpi::IRecv
+            ( &recvBuffer[displ], count, proc, comm, requests[rCount++] );
+    }
+#ifdef BARRIER_IN_ALLTOALLV
+    // This should help ensure that recvs are posted before the sends
+    mpi::Barrier( comm );
+#endif
+    for( int proc=0; proc<commSize; ++proc )
+    {
+        int count = sendCounts[proc];
+        int displ = sendDispls[proc];
+        if( count != 0 )
+            mpi::ISend
+            ( &sendBuffer[displ], count, proc, comm, requests[rCount++] );
+    }
+    mpi::WaitAll( numSends+numRecvs, &requests[0], &statuses[0] );
+#else
+    mpi::AllToAll
+    ( &sendBuffer[0], &sendCounts[0], &sendDispls[0],
+      &recvBuffer[0], &recvCounts[0], &recvDispls[0], comm );
+#endif
+}
+
+#define PROTO(T) \
+  template void SparseAllToAll \
+  ( const std::vector<T>& sendBuffer, \
+    const std::vector<int>& sendCounts, const std::vector<int>& sendDispls, \
+          std::vector<T>& recvBuffer, \
+    const std::vector<int>& recvCounts, const std::vector<int>& recvDispls, \
+          mpi::Comm comm );
+#include "El/macros/Instantiate.h"
+
 } // namespace mpi
 } // namespace El

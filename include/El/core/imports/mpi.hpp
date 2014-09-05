@@ -651,6 +651,18 @@ template<> inline Datatype TypeMap<ValueIntPair<float>>()
 template<> inline Datatype TypeMap<ValueIntPair<double>>()
 { return ValueIntPairType<double>(); }
 
+template<typename T>
+void SparseAllToAll
+( const std::vector<T>& sendBuffer,
+  const std::vector<int>& sendCounts, const std::vector<int>& sendDispls,
+        std::vector<T>& recvBuffer,
+  const std::vector<int>& recvCounts, const std::vector<int>& recvDispls,
+        mpi::Comm comm );
+
+void VerifySendsAndRecvs
+( const std::vector<int>& sendCounts,
+  const std::vector<int>& recvCounts, mpi::Comm comm );
+
 } // mpi
 } // elem
 
