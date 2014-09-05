@@ -18,12 +18,14 @@
 #include "El/core.hpp"
 #include "El/blas-like.hpp"
 
-#include "El/io.hpp"
-
 #include "El/lapack-like.hpp"
 #include "El/optimization.hpp"
 #include "El/control.hpp"
 
 #include "El/matrices.hpp"
+
+#include "El/sparse-direct.hpp"
+
+#include "El/io.hpp"
 
 #endif // ifndef EL_HPP

@@ -66,6 +66,13 @@
 #cmakedefine EL_USE_BYTE_ALLGATHERS
 #cmakedefine EL_USE_64BIT_INTS
 
+/* Sparse-direct configuration */
+/* Miscellaneous */
+#cmakedefine EL_USE_CUSTOM_ALLTOALLV
+#cmakedefine EL_BARRIER_IN_ALLTOALLV
+#cmakedefine EL_HAVE_METIS
+#cmakedefine EL_HAVE_PARMETIS
+
 /* Advanced configuration options */
 #cmakedefine EL_ZERO_INIT
 #cmakedefine EL_CACHE_WARNINGS

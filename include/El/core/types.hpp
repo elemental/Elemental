@@ -389,6 +389,28 @@ enum VerticalOrHorizontal
 }
 using namespace VerticalOrHorizontalNS;
 
+// TODO: Distributed file formats?
+namespace FileFormatNS {
+enum FileFormat
+{
+    AUTO, // Automatically detect from file extension
+    ASCII,
+    ASCII_MATLAB,
+    BINARY,
+    BINARY_FLAT,
+    BMP,
+    JPG,
+    JPEG,
+    MATRIX_MARKET,
+    PNG,
+    PPM,
+    XBM,
+    XPM,
+    FileFormat_MAX // For detecting number of entries in enum
+};
+}
+using namespace FileFormatNS;
+
 } // namespace El
 
 #endif // ifndef EL_TYPES_HPP

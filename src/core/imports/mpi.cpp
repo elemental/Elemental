@@ -2854,7 +2854,7 @@ void SparseAllToAll
   const std::vector<int>& recvCounts, const std::vector<int>& recvDispls,
         mpi::Comm comm )
 {
-#ifdef USE_CUSTOM_ALLTOALLV
+#ifdef EL_USE_CUSTOM_ALLTOALLV
     const int commSize = mpi::Size( comm );
     int numSends=0,numRecvs=0;
     for( int proc=0; proc<commSize; ++proc )
@@ -2875,7 +2875,7 @@ void SparseAllToAll
             mpi::IRecv
             ( &recvBuffer[displ], count, proc, comm, requests[rCount++] );
     }
-#ifdef BARRIER_IN_ALLTOALLV
+#ifdef EL_BARRIER_IN_ALLTOALLV
     // This should help ensure that recvs are posted before the sends
     mpi::Barrier( comm );
 #endif

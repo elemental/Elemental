@@ -24,8 +24,8 @@ void ProcessEvents( int numMsecs )
 #endif
 }
 
-template<typename T>
-void Display( const Matrix<T>& A, std::string title )
+template<typename Real>
+void Display( const Matrix<Real>& A, std::string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Display"))
 #ifdef EL_HAVE_QT5
@@ -55,8 +55,8 @@ void Display( const Matrix<T>& A, std::string title )
 #endif
 }
 
-template<typename T>
-void Display( const Matrix<Complex<T>>& A, std::string title )
+template<typename Real>
+void Display( const Matrix<Complex<Real>>& A, std::string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Display"))
 #ifdef EL_HAVE_QT5
@@ -74,7 +74,7 @@ void Display( const Matrix<Complex<T>>& A, std::string title )
     {
         for( Int i=0; i<m; ++i )
         {
-            const Complex<T> alpha = A.Get(i,j);
+            const Complex<Real> alpha = A.Get(i,j);
             const Complex<double> alphaDouble = 
                 Complex<double>(alpha.real(),alpha.imag()); 
             ADouble->Set( i, j, alphaDouble );
@@ -93,8 +93,8 @@ void Display( const Matrix<Complex<T>>& A, std::string title )
 #endif
 }
 
-template<typename T,Dist U,Dist V>
-void Display( const DistMatrix<T,U,V>& A, std::string title )
+template<typename T>
+void Display( const AbstractDistMatrix<T>& A, std::string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Display"))
 #ifdef EL_HAVE_QT5
@@ -104,7 +104,7 @@ void Display( const DistMatrix<T,U,V>& A, std::string title )
         return;
     }
 
-    if( U == A.UGath && V == A.VGath )
+    if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
             Display( A.LockedMatrix(), title );
@@ -120,8 +120,8 @@ void Display( const DistMatrix<T,U,V>& A, std::string title )
 #endif
 }
 
-template<typename T,Dist U,Dist V>
-void Display( const BlockDistMatrix<T,U,V>& A, std::string title )
+template<typename T>
+void Display( const AbstractBlockDistMatrix<T>& A, std::string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Display"))
 #ifdef EL_HAVE_QT5
@@ -131,7 +131,7 @@ void Display( const BlockDistMatrix<T,U,V>& A, std::string title )
         return;
     }
 
-    if( U == A.UGath && V == A.VGath )
+    if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
             Display( A.LockedMatrix(), title );
@@ -147,54 +147,352 @@ void Display( const BlockDistMatrix<T,U,V>& A, std::string title )
 #endif
 }
 
-template<typename T>
-void Display( const AbstractDistMatrix<T>& A, std::string title )
+void Display( const Graph& graph, std::string title )
 {
-    DEBUG_ONLY(CallStackEntry cse("Display"))
-    #define GUARD(CDIST,RDIST) \
-        A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
-      Display( ACast, title );
-    #include "El/macros/GuardAndPayload.h"
+    DEBUG_ONLY(CallStackEntry cse("Display [Graph]"))
+#ifdef HAVE_QT5
+    auto graphMat = new Matrix<int>;
+    const int m = graph.NumTargets();
+    const int n = graph.NumSources();
+    Zeros( *graphMat, m, n );
+
+    const int numEdges = graph.NumEdges();
+    const int* srcBuf = graph.LockedSourceBuffer();
+    const int* tgtBuf = graph.LockedTargetBuffer();
+    for( int e=0; e<numEdges; ++e )
+        graphMat->Set( tgtBuf[e], srcBuf[e], 1 );
+
+    QString qTitle = QString::fromStdString( title );
+    auto spyWindow = new SpyWindow;
+    spyWindow->Spy( graphMat, qTitle );
+    spyWindow->show();
+
+    // Spend at most 200 milliseconds rendering
+    ProcessEvents( 200 );
+#else
+    Print( graph, title );
+#endif
 }
 
-template<typename T>
-void Display( const AbstractBlockDistMatrix<T>& A, std::string title )
+void Display( const DistGraph& graph, std::string title )
 {
-    DEBUG_ONLY(CallStackEntry cse("Display"))
-    #define GUARD(CDIST,RDIST) \
-        A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = dynamic_cast<const BlockDistMatrix<T,CDIST,RDIST>&>(A); \
-      Display( ACast, title );
-    #include "El/macros/GuardAndPayload.h"
+    DEBUG_ONLY(CallStackEntry cse("Display [DistGraph]"))
+#ifdef HAVE_QT5
+    const mpi::Comm comm = graph.Comm();
+    const int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm );
+
+    const int numLocalEdges = graph.NumLocalEdges();
+    std::vector<int> edgeSizes(commSize), edgeOffsets(commSize);
+    mpi::AllGather( &numLocalEdges, 1, &edgeSizes[0], 1, comm );
+    int numEdges=0;
+    for( int q=0; q<commSize; ++q )
+    {
+        edgeOffsets[q] = numEdges;
+        numEdges += edgeSizes[q];
+    }
+
+    std::vector<int> sources, targets;
+    if( commRank == 0 )
+    {
+        sources.resize( numEdges );
+        targets.resize( numEdges );
+    }
+    mpi::Gather
+    ( graph.LockedSourceBuffer(), numLocalEdges,
+      &sources[0], &edgeSizes[0], &edgeOffsets[0], 0, comm );
+    mpi::Gather
+    ( graph.LockedTargetBuffer(), numLocalEdges,
+      &targets[0], &edgeSizes[0], &edgeOffsets[0], 0, comm );
+
+    if( commRank == 0 )
+    {
+        auto graphMat = new Matrix<int>;
+        const int m = graph.NumTargets();
+        const int n = graph.NumSources();
+        Zeros( *graphMat, m, n );
+        for( int e=0; e<numEdges; ++e )
+            graphMat->Set( targets[e], sources[e], 1 );
+
+        QString qTitle = QString::fromStdString( title );
+        auto spyWindow = new SpyWindow;
+        spyWindow->Spy( graphMat, qTitle );
+        spyWindow->show();
+
+        // Spend at most 200 milliseconds rendering
+        ProcessEvents( 200 );
+    }
+#else
+    Print( graph, title );
+#endif
 }
 
-#define DISTPROTO(T,U,V) \
-  template void Display( const DistMatrix<T,U,V>& A, std::string title ); \
-  template void Display( const BlockDistMatrix<T,U,V>& A, std::string title );
+template<typename Real>
+void Display( const SparseMatrix<Real>& A, std::string title )
+{
+    DEBUG_ONLY(CallStackEntry cse("Print [SparseMatrix]"))
+#ifdef HAVE_QT5
+    auto AFull = new Matrix<double>;
+    const int m = A.Height();
+    const int n = A.Width();
+    Zeros( *AFull, m, n );
+
+    const int numEntries = A.NumEntries();
+    const int* srcBuf = A.LockedSourceBuffer();
+    const int* tgtBuf = A.LockedTargetBuffer();
+    const Real* valBuf = A.LockedValueBuffer();
+    for( int s=0; s<numEntries; ++s )
+        AFull->Set( tgtBuf[s], srcBuf[s], double(valBuf[s]) );
+
+    QString qTitle = QString::fromStdString( title );
+    auto displayWindow = new DisplayWindow;
+    displayWindow->Display( AFull, qTitle );
+    displayWindow->show();
+
+    // Spend at most 200 milliseconds rendering
+    ProcessEvents( 200 );
+#else
+    Print( A, title );
+#endif
+}
+
+template<typename Real>
+void Display( const SparseMatrix<Complex<Real>>& A, std::string title )
+{
+    DEBUG_ONLY(CallStackEntry cse("Print [SparseMatrix]"))
+#ifdef HAVE_QT5
+    auto AFull = new Matrix<Complex<double>>;
+    const int m = A.Height();
+    const int n = A.Width();
+    Zeros( *AFull, m, n );
+
+    const int numEntries = A.NumEntries();
+    const int* srcBuf = A.LockedSourceBuffer();
+    const int* tgtBuf = A.LockedTargetBuffer();
+    const Complex<Real>* valBuf = A.LockedValueBuffer();
+    for( int s=0; s<numEntries; ++s )
+    {
+        const Complex<double> alpha =
+            Complex<double>(valBuf[s].real,valBuf[s].imag);
+        AFull->Set( tgtBuf[s], srcBuf[s], alpha );
+    }
+
+    QString qTitle = QString::fromStdString( title );
+    auto displayWindow = new ComplexDisplayWindow;
+    displayWindow->Display( AFull, qTitle );
+    displayWindow->show();
+
+    // Spend at most 200 milliseconds rendering
+    ProcessEvents( 200 );
+#else
+    Print( A, title );
+#endif
+}
+
+template<typename Real>
+void Display( const DistSparseMatrix<Real>& A, std::string title )
+{
+    DEBUG_ONLY(CallStackEntry cse("Display [DistSparseMatrix]"))
+#ifdef HAVE_QT5
+    const mpi::Comm comm = A.Comm();
+    const int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm );
+
+    const int numLocalEntries = A.NumLocalEntries();
+    std::vector<int> nonzeroSizes(commSize), nonzeroOffsets(commSize);
+    mpi::AllGather( &numLocalEntries, 1, &nonzeroSizes[0], 1, comm );
+    int numNonzeros=0;
+    for( int q=0; q<commSize; ++q )
+    {
+        nonzeroOffsets[q] = numNonzeros;
+        numNonzeros += nonzeroSizes[q];
+    }
+
+    std::vector<int> sources, targets;
+    std::vector<Real> values;
+    if( commRank == 0 )
+    {
+        sources.resize( numNonzeros );
+        targets.resize( numNonzeros );
+        values.resize( numNonzeros );
+    }
+    mpi::Gather
+    ( A.LockedSourceBuffer(), numLocalEntries,
+      &sources[0], &nonzeroSizes[0], &nonzeroOffsets[0], 0, comm );
+    mpi::Gather
+    ( A.LockedTargetBuffer(), numLocalEntries,
+      &targets[0], &nonzeroSizes[0], &nonzeroOffsets[0], 0, comm );
+    mpi::Gather
+    ( A.LockedValueBuffer(), numLocalEntries,
+      &values[0], &nonzeroSizes[0], &nonzeroOffsets[0], 0, comm );
+
+    if( commRank == 0 )
+    {
+        auto AFull = new Matrix<double>;
+        const int m = A.Height();
+        const int n = A.Width();
+        Zeros( *AFull, m, n );
+
+        for( int s=0; s<numNonzeros; ++s )
+            AFull->Set( targets[s], sources[s], double(values[s]) );
+
+        QString qTitle = QString::fromStdString( title );
+        auto displayWindow = new DisplayWindow;
+        displayWindow->Display( AFull, qTitle );
+        displayWindow->show();
+
+        // Spend at most 200 milliseconds rendering
+        ProcessEvents( 200 );
+    }
+#else
+    Print( A, title );
+#endif
+}
+
+template<typename Real>
+void Display( const DistSparseMatrix<Complex<Real>>& A, std::string title )
+{
+    DEBUG_ONLY(CallStackEntry cse("Display [DistSparseMatrix]"))
+#ifdef HAVE_QT5
+    const mpi::Comm comm = A.Comm();
+    const int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm );
+
+    const int numLocalEntries = A.NumLocalEntries();
+    std::vector<int> nonzeroSizes(commSize), nonzeroOffsets(commSize);
+    mpi::AllGather( &numLocalEntries, 1, &nonzeroSizes[0], 1, comm );
+    int numNonzeros=0;
+    for( int q=0; q<commSize; ++q )
+    {
+        nonzeroOffsets[q] = numNonzeros;
+        numNonzeros += nonzeroSizes[q];
+    }
+
+    std::vector<int> sources, targets;
+    std::vector<Complex<Real>> values;
+    if( commRank == 0 )
+    {
+        sources.resize( numNonzeros );
+        targets.resize( numNonzeros );
+        values.resize( numNonzeros );
+    }
+    mpi::Gather
+    ( A.LockedSourceBuffer(), numLocalEntries,
+      &sources[0], &nonzeroSizes[0], &nonzeroOffsets[0], 0, comm );
+    mpi::Gather
+    ( A.LockedTargetBuffer(), numLocalEntries,
+      &targets[0], &nonzeroSizes[0], &nonzeroOffsets[0], 0, comm );
+    mpi::Gather
+    ( A.LockedValueBuffer(), numLocalEntries,
+      &values[0], &nonzeroSizes[0], &nonzeroOffsets[0], 0, comm );
+
+    if( commRank == 0 )
+    {
+        auto AFull = new Matrix<Complex<double>>;
+        const int m = A.Height();
+        const int n = A.Width();
+        El::Zeros( *AFull, m, n );
+
+        for( int s=0; s<numNonzeros; ++s )
+        {
+            const Complex<double> alpha =
+                Complex<double>(values[s].real,values[s].imag);
+            AFull->Set( targets[s], sources[s], alpha );
+        }
+
+        QString qTitle = QString::fromStdString( title );
+        auto displayWindow = new El::ComplexDisplayWindow;
+        displayWindow->Display( AFull, qTitle );
+        displayWindow->show();
+
+        // Spend at most 200 milliseconds rendering
+        El::ProcessEvents( 200 );
+    }
+#else
+    Print( A, title );
+#endif
+}
+
+// This data structure is not yet defined
+/*
+void DisplayLocal
+( const DistSymmInfo& info, bool beforeFact, std::string title )
+{
+    DEBUG_ONLY(CallStackEntry cse("DisplayLocal [DistSymmInfo]"))
+#ifdef HAVE_QT5
+    const int n = info.distNodes.back().size + info.distNodes.back().off;
+    auto graphMat = new Matrix<int>;
+    Zeros( *graphMat, n, n );
+
+    const int numLocal = info.localNodes.size();
+    for( int s=0; s<numLocal; ++s )
+    {
+        const SymmNodeInfo& node = info.localNodes[s];
+        for( int j=0; j<node.size; ++j )
+            for( int i=0; i<node.size; ++i )
+                graphMat->Set( i+node.off, j+node.off, 1 );
+        if( beforeFact )
+        {
+            const int origStructSize = node.origLowerStruct.size();
+            for( int i=0; i<origStructSize; ++i )
+                for( int j=0; j<node.size; ++j )
+                    graphMat->Set( node.origLowerStruct[i], j+node.off, 1 );
+        }
+        else
+        {
+            const int structSize = node.lowerStruct.size();
+            for( int i=0; i<structSize; ++i )
+                for( int j=0; j<node.size; ++j )
+                    graphMat->Set( node.lowerStruct[i], j+node.off, 1 );
+        }
+    }
+
+    const int numDist = info.distNodes.size();
+    for( int s=0; s<numDist; ++s )
+    {
+        const DistSymmNodeInfo& node = info.distNodes[s];
+        for( int j=0; j<node.size; ++j )
+            for( int i=0; i<node.size; ++i )
+                graphMat->Set( i+node.off, j+node.off, 1 );
+        if( beforeFact )
+        {
+            const int origStructSize = node.origLowerStruct.size();
+            for( int i=0; i<origStructSize; ++i )
+                for( int j=0; j<node.size; ++j )
+                    graphMat->Set( node.origLowerStruct[i], j+node.off, 1 );
+        }
+        else
+        {
+            const int structSize = node.lowerStruct.size();
+            for( int i=0; i<structSize; ++i )
+                for( int j=0; j<node.size; ++j )
+                    graphMat->Set( node.lowerStruct[i], j+node.off, 1 );
+        }
+    }
+
+    QString qTitle = QString::fromStdString( title );
+    auto spyWindow = new SpyWindow;
+    spyWindow->Spy( graphMat, qTitle );
+    spyWindow->show();
+
+    // Spend at most 200 milliseconds rendering
+    ProcessEvents( 200 );
+#else
+    PrintLocal( info );
+#endif
+}
+*/
 
 #define PROTO(T) \
   template void Display( const Matrix<T>& A, std::string title ); \
-  DISTPROTO(T,CIRC,CIRC); \
-  DISTPROTO(T,MC,  MR  ); \
-  DISTPROTO(T,MC,  STAR); \
-  DISTPROTO(T,MD,  STAR); \
-  DISTPROTO(T,MR,  MC  ); \
-  DISTPROTO(T,MR,  STAR); \
-  DISTPROTO(T,STAR,MC  ); \
-  DISTPROTO(T,STAR,MD  ); \
-  DISTPROTO(T,STAR,MR  ); \
-  DISTPROTO(T,STAR,STAR); \
-  DISTPROTO(T,STAR,VC  ); \
-  DISTPROTO(T,STAR,VR  ); \
-  DISTPROTO(T,VC,  STAR); \
-  DISTPROTO(T,VR,  STAR); \
   template void Display \
   ( const AbstractDistMatrix<T>& A, std::string title ); \
   template void Display \
-  ( const AbstractBlockDistMatrix<T>& A, std::string title ); 
+  ( const AbstractBlockDistMatrix<T>& A, std::string title ); \
+  template void Display \
+  ( const SparseMatrix<T>& A, std::string title ); \
+  template void Display \
+  ( const DistSparseMatrix<T>& A, std::string title );
 
 #include "El/macros/Instantiate.h"
 

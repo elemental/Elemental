@@ -51,6 +51,48 @@ option(EL_USE_64BIT_INTS "Use 64-bit integers where possible" OFF)
 # NOTE: Setting Qt5Widgets_DIR, Qt5_DIR, or Qt5_LIBDIR overrides this variable
 option(EL_USE_QT5 "Attempt to use Qt5?" OFF)
 
+option(EL_USE_CUSTOM_ALLTOALLV "Avoid MPI_Alltoallv for performance reasons" ON)
+option(EL_BARRIER_IN_ALLTOALLV "Barrier before posting non-blocking recvs" OFF)
+
+# NOTE: This will be re-enabled when copyright issues are worked out.
+#       It is important to note that METIS is available under version 2 of the
+#       Apache License, but ParMETIS can only be used for research purposes.
+
+#option(BUILD_PARMETIS "Build the parallel metis library" OFF)
+#if(BUILD_PARMETIS)
+#  add_subdirectory(external/parmetis)
+#  set(EL_HAVE_METIS TRUE)
+#  set(EL_HAVE_PARMETIS TRUE)
+#
+#  set(PARMETIS_ROOT ${PROJECT_SOURCE_DIR}/external/parmetis)
+#  set(METIS_ROOT ${PROJECT_SOURCE_DIR}/external/parmetis/metis)
+#  set(GKLIB_INCLUDE_DIR ${PROJECT_BINARY_DIR}/external/parmetis/include)
+#
+#  include_directories(${GKLIB_INCLUDE_DIR})
+#  add_subdirectory(src/metis)
+#  add_subdirectory(src/parmetis)
+#
+#  include_directories(${METIS_ROOT}/include)
+#  include_directories(${PARMETIS_ROOT}/include)
+#elseif(MANUAL_PARMETIS)
+#  # The following variables need to be specified:
+#  #   PARMETIS_TLS_PATCH: defined iff there is a GKlib configure file
+#  #   GKLIB_INCLUDE_DIR: if PARMETIS_TLS_PATCH is defined, this should point
+#  #                      to the directory containing gklib_tls.h
+#  #   METIS_ROOT: the full path to the root of the MeTiS source tree
+#  #   PARMETIS_ROOT: the full path to the root of the ParMeTiS source tree
+#  set(EL_HAVE_METIS TRUE)
+#  set(EL_HAVE_PARMETIS TRUE)
+#  if(PARMETIS_TLS_PATCH)
+#    include_directories(${GKLIB_INCLUDE_DIR})
+#  endif()
+#  add_subdirectory(src/metis)
+#  add_subdirectory(src/parmetis)
+#
+#  include_directories(${METIS_ROOT}/include)
+#  include_directories(${PARMETIS_ROOT}/include)
+#endif()
+
 ################################################################################
 # Advanced build options                                                       #
 ################################################################################
@@ -173,7 +215,7 @@ if(NOT WIN32) # I forget why we need this guard
   foreach(LANG ${LANGUAGES})
     if(NOT ${LANG}_FLAGS)
       if(EL_DEBUG)
-        # set(${LANG}_FLAGS "-O2 -g -Wunused-variable -Wunused-but-set-variable -Wunused-local-typedefs" CACHE STRING
+        #set(${LANG}_FLAGS "-O2 -g -Wunused-variable -Wunused-but-set-variable -Wunused-local-typedefs" CACHE STRING
         set(${LANG}_FLAGS "-O2 -g" CACHE STRING
           "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
       else()
@@ -301,10 +343,11 @@ include_directories("${PROJECT_BINARY_DIR}/include")
 # Build the test drivers if necessary
 if(EL_TESTS)
   set(TEST_DIR ${PROJECT_SOURCE_DIR}/tests)
-  set(TEST_TYPES core blas-like lapack-like optimization)
+  set(TEST_TYPES core blas-like lapack-like optimization sparse-direct)
   foreach(TYPE ${TEST_TYPES})
-    file(GLOB_RECURSE ${TYPE}_TESTS RELATIVE ${PROJECT_SOURCE_DIR}/tests/${TYPE}/ 
-         "tests/${TYPE}/*.cpp")
+    file(GLOB_RECURSE ${TYPE}_TESTS 
+      RELATIVE ${PROJECT_SOURCE_DIR}/tests/${TYPE}/ "tests/${TYPE}/*.cpp")
+
     set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/${TYPE}")
     foreach(TEST ${${TYPE}_TESTS})
       set(DRIVER ${TEST_DIR}/${TYPE}/${TEST})

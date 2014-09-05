@@ -204,7 +204,7 @@ GolubReinsch
     DEBUG_ONLY(CallStackEntry cse("svd::GolubReinsch"))
     GolubReinschFlame( A, s, V );
 }
-#endif // HAVE_FLA_BSVD
+#endif // EL_HAVE_FLA_BSVD
 
 template<typename F>
 inline void
