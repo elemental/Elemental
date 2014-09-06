@@ -4,3 +4,6 @@
 [submodule "external/OpenBLAS"]
 	path = external/OpenBLAS
 	url = https://github.com/xianyi/OpenBLAS.git
+[submodule "external/metis"]
+	path = external/metis
+	url = git://github.com/poulson/metis.git

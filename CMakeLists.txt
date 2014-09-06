@@ -54,12 +54,14 @@ option(EL_USE_QT5 "Attempt to use Qt5?" OFF)
 option(EL_USE_CUSTOM_ALLTOALLV "Avoid MPI_Alltoallv for performance reasons" ON)
 option(EL_BARRIER_IN_ALLTOALLV "Barrier before posting non-blocking recvs" OFF)
 
-# NOTE: This will be re-enabled when copyright issues are worked out.
-#       It is important to note that METIS is available under version 2 of the
-#       Apache License, but ParMETIS can only be used for research purposes.
-
-#option(BUILD_PARMETIS "Build the parallel metis library" OFF)
-#if(BUILD_PARMETIS)
+# NOTE: ParMETIS cannot yet be legally distributed under an unrestrictive 
+#       license and is currently limited to educational and research purposes.
+#       However, recent versions of METIS can be distributed under the Apache
+#       License Version 2.
+option(BUILD_METIS "Build METIS" ON)
+option(BUILD_PARMETIS "Build ParMETIS" OFF)
+if(BUILD_PARMETIS)
+  message(FATAL_ERROR "ParMETIS cannot be legally distributed with Elemental under a permissive license. A version of Elemental restricted to educational purposes which contains ParMETIS will hopefully soon be available.")
 #  add_subdirectory(external/parmetis)
 #  set(EL_HAVE_METIS TRUE)
 #  set(EL_HAVE_PARMETIS TRUE)
@@ -69,12 +71,10 @@ option(EL_BARRIER_IN_ALLTOALLV "Barrier before posting non-blocking recvs" OFF)
 #  set(GKLIB_INCLUDE_DIR ${PROJECT_BINARY_DIR}/external/parmetis/include)
 #
 #  include_directories(${GKLIB_INCLUDE_DIR})
-#  add_subdirectory(src/metis)
-#  add_subdirectory(src/parmetis)
-#
 #  include_directories(${METIS_ROOT}/include)
 #  include_directories(${PARMETIS_ROOT}/include)
-#elseif(MANUAL_PARMETIS)
+elseif(MANUAL_PARMETIS)
+  message(FATAL_ERROR "ParMETIS cannot be legally distributed with Elemental under a permissive license. A version of Elemental restricted to educational purposes which contains ParMETIS will hopefully soon be available.")
 #  # The following variables need to be specified:
 #  #   PARMETIS_TLS_PATCH: defined iff there is a GKlib configure file
 #  #   GKLIB_INCLUDE_DIR: if PARMETIS_TLS_PATCH is defined, this should point
@@ -86,12 +86,34 @@ option(EL_BARRIER_IN_ALLTOALLV "Barrier before posting non-blocking recvs" OFF)
 #  if(PARMETIS_TLS_PATCH)
 #    include_directories(${GKLIB_INCLUDE_DIR})
 #  endif()
-#  add_subdirectory(src/metis)
-#  add_subdirectory(src/parmetis)
 #
 #  include_directories(${METIS_ROOT}/include)
 #  include_directories(${PARMETIS_ROOT}/include)
-#endif()
+elseif(BUILD_METIS)
+  add_subdirectory(external/metis)
+
+  set(METIS_ROOT ${PROJECT_SOURCE_DIR}/external/metis)
+  include_directories(${METIS_ROOT}/GKlib)
+  include_directories(${METIS_ROOT}/include)
+  include_directories(${METIS_ROOT}/libmetis)
+
+  set(EL_HAVE_METIS TRUE)
+  set(EL_HAVE_PARMETIS FALSE)
+elseif(MANUAL_METIS)
+  # The following variables need to be specified:
+  #   METIS_TLS_PATCH: defined iff there is a GKlib configure file
+  #   GKLIB_INCLUDE_DIR: if PARMETIS_TLS_PATCH is defined, this should point
+  #                      to the directory containing gklib_tls.h
+  #   METIS_ROOT: the full path to the root of the MeTiS source tree
+  if(METIS_TLS_PATCH)
+    include_directories(${GKLIB_INCLUDE_DIR})
+  endif()
+  include_directories(${METIS_ROOT}/include)
+  include_directories(${METIS_ROOT}/libmetis)
+
+  set(EL_HAVE_METIS TRUE)
+  set(EL_HAVE_PARMETIS FALSE)
+endif()
 
 ################################################################################
 # Advanced build options                                                       #
@@ -305,24 +327,37 @@ install(FILES ${PROJECT_BINARY_DIR}/conf/ElVars DESTINATION conf)
 # The main library
 # ================
 
-# Grab the .cpp files
-file(GLOB_RECURSE EL_CPP_SOURCE RELATIVE ${PROJECT_SOURCE_DIR} "src/*.cpp")
+# Grab the .c and .cpp files
+file(GLOB_RECURSE EL_C_CPP_SOURCE RELATIVE ${PROJECT_SOURCE_DIR} 
+  "src/*.c" "src/*.cpp")
 # Grab the C/C++ headers
-file(GLOB_RECURSE EL_CPP_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} 
+file(GLOB_RECURSE EL_C_CPP_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} 
   "include/*.h" "include/*.hpp")
-set(EL_CPP_FILES "${EL_CPP_SOURCE};${EL_CPP_HEADERS};${EL_MOC_SRC}")
+set(EL_C_CPP_FILES "${EL_C_CPP_SOURCE};${EL_C_CPP_HEADERS};${EL_MOC_SRC}")
 
 set(LINK_LIBS ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
+
 if(EL_HAVE_QT5)
   set(LINK_LIBS ${LINK_LIBS} ${Qt5Widgets_LIBRARIES})  
 endif()
-add_library(El ${EL_CPP_FILES})
+
+if(BUILD_PARMETIS)
+  set(LINK_LIBS ${LINK_LIBS} parmetis)
+elseif(MANUAL_PARMETIS)
+  set(LINK_LIBS ${LINK_LIBS} ${PARMETIS_LIBS})
+elseif(BUILD_METIS)
+  set(LINK_LIBS ${LINK_LIBS} metis)
+elseif(MANUAL_METIS)
+  set(LINK_LIBS ${LINK_LIBS} ${METIS_LIBS})
+endif()
+
+add_library(El ${EL_C_CPP_FILES})
 target_link_libraries(El pmrrr ${LINK_LIBS})
 install(TARGETS El DESTINATION lib)
 
 # Define the header-file preparation rules
 set(PREPARED_HEADERS)
-foreach(HEADER ${EL_CPP_HEADERS})
+foreach(HEADER ${EL_C_CPP_HEADERS})
   add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/${HEADER}
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/${HEADER}
             ${PROJECT_BINARY_DIR}/${HEADER}
