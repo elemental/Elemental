@@ -98,6 +98,11 @@ Documentation
 -------------
 [o] Finish adding per-directory README's (e.g., cmake/toolchains/)
 
+Licensing
+---------
+[o] Add discussion of METIS being under the Apache License Version 2 and 
+    ParMETIS being under a more restrictive, educational-only, license
+
 External Interfaces
 -------------------
 [o] Manually expose a C interface

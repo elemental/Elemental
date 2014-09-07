@@ -10,13 +10,7 @@
 #ifndef EL_SPARSEDIRECT_HPP
 #define EL_SPARSEDIRECT_HPP
 
-#include "./sparse-direct/symbolic/DistSeparatorTree.hpp"
-#include "./sparse-direct/symbolic/DistSymmElimTree.hpp"
-#include "./sparse-direct/symbolic/DistSymmInfo.hpp"
-
-#include "./sparse-direct/symbolic/SymmetricAnalysis.hpp"
-
-#include "./sparse-direct/symbolic/NestedDissection.hpp"
-#include "./sparse-direct/symbolic/NaturalNestedDissection.hpp"
+#include "./sparse-direct/symbolic.hpp"
+#include "./sparse-direct/numeric.hpp"
 
 #endif // ifndef EL_SPARSEDIRECT_HPP
