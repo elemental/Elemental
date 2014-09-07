@@ -108,11 +108,8 @@ void Display
 ( const DistSparseMatrix<Complex<Real>>& A, 
   std::string title="DistSparseMatrix" );
 
-// This data structure is not yet defined
-/*
 void DisplayLocal
 ( const DistSymmInfo& info, bool beforeFact, std::string title="" );
-*/
 
 // Print
 // =====
@@ -148,12 +145,9 @@ void Print
 ( const DistSparseMatrix<T>& A, std::string title="DistSparseMatrix",
   std::ostream& os=std::cout );
 
-// This data structure is not yet defined
-/*
 void PrintLocal
 ( const DistSymmInfo& info,
   std::string title="Local DistSymmInfo", std::ostream& os=std::cout );
-*/
 
 // Utilities
 // ---------

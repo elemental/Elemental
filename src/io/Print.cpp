@@ -184,9 +184,7 @@ void Print( const DistSparseMatrix<T>& A, std::string msg, std::ostream& os )
     }
 }
 
-// This data structure is not yet defined
-/*
-void PrintLocal( const DistSymmInfo& info, std::ostream& os )
+void PrintLocal( const DistSymmInfo& info, std::string msg, std::ostream& os )
 {
     DEBUG_ONLY(CallStackEntry cse("PrintLocal [DistSymmInfo]"))
     os << "Local nodes:" << std::endl;
@@ -205,7 +203,6 @@ void PrintLocal( const DistSymmInfo& info, std::ostream& os )
         os << " size=" << node.size << ", offset=" << node.off << "\n";
     }
 }
-*/
 
 // Utilities
 // =========

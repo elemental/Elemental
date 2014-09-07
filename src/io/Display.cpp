@@ -413,8 +413,6 @@ void Display( const DistSparseMatrix<Complex<Real>>& A, std::string title )
 #endif
 }
 
-// This data structure is not yet defined
-/*
 void DisplayLocal
 ( const DistSymmInfo& info, bool beforeFact, std::string title )
 {
@@ -481,7 +479,6 @@ void DisplayLocal
     PrintLocal( info );
 #endif
 }
-*/
 
 #define PROTO(T) \
   template void Display( const Matrix<T>& A, std::string title ); \
