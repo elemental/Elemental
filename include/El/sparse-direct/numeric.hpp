@@ -354,6 +354,25 @@ void Multiply
 ( T alpha, const DistSparseMatrix<T>& A, const DistMultiVec<T>& X,
   T beta,                                      DistMultiVec<T>& Y );
 
+template<typename F>
+void Solve
+( const DistSymmInfo& info,
+  const DistSymmFrontTree<F>& L, DistNodalMultiVec<F>& X );
+template<typename F>
+void Solve
+( const DistSymmInfo& info,
+  const DistSymmFrontTree<F>& L, DistNodalMatrix<F>& X );
+
+template<typename F>
+void SymmetricSolve
+( const DistSparseMatrix<F>& A, DistMultiVec<F>& X,
+  bool conjugate=false,
+  bool sequential=true, int numDistSeps=1, int numSeqSeps=1, int cutoff=128 );
+template<typename F>
+void HermitianSolve
+( const DistSparseMatrix<F>& A, DistMultiVec<F>& X,
+  bool sequential=true, int numDistSeps=1, int numSeqSeps=1, int cutoff=128 );
+
 } // namespace El
 
 #endif // ifndef EL_SPARSEDIRECT_NUMERIC_HPP
