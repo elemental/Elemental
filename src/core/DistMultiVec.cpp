@@ -254,7 +254,18 @@ const DistMultiVec<T>& DistMultiVec<T>::operator=( const DistMultiVec<T>& X )
     return *this;
 }
 
-#define PROTO(T) template class DistMultiVec<T>;
+#define PROTO_INT(T) \
+  template class DistMultiVec<T>; \
+  template void Zero( DistMultiVec<T>& X ); \
+  template void MakeUniform( DistMultiVec<T>& X ); \
+  template void Axpy( T alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y );
+
+#define PROTO(F) \
+  PROTO_INT(F) \
+  template void Norms \
+  ( const DistMultiVec<F>& X, std::vector<Base<F>>& norms ); \
+  template Base<F> Norm( const DistMultiVec<F>& x );
+
 #include "El/macros/Instantiate.h"
 
 } // namespace El
