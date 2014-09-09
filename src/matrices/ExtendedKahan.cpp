@@ -15,7 +15,8 @@
 //     R = | 0    I      phi H_k |,
 //         | 0    0        I     |
 //
-// 0 < mu << 1, and phi^2 + zeta^2 = 1.
+// where H_k is the 2^k x 2^k Hadamard matrix, 0 < mu << 1, and 
+// phi^2 + zeta^2 = 1.
 //
 
 namespace El {

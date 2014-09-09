@@ -17,25 +17,21 @@ void Demmel( Matrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Demmel"))
     typedef Base<F> Real;
-    if( n == 0 )
+    A.Resize( n, n );
+    if( n == 1 )
     {
-        A.Resize( 0, 0 );
-        return;
-    }
-    else if( n == 1 )
-    {
-        A.Resize( 1, 1 );
         A.Set( 0, 0, -Real(1) );
         return;
     }
+    else if( n == 0 )
+        return;
 
-    const Real B = Pow(10.,4./(n-1));
+    const Real beta = Pow(Real(10),Real(4)/(n-1));
 
     const Int numDiags = 2*n-1;
     std::vector<F> a( numDiags, 0 );
-    for( Int j=0; j<n-1; ++j )
-        a[j] = -Pow(B,Real(n-1-j));
-    a[n-1] = -1;
+    for( Int j=0; j<n; ++j )
+        a[j] = -Pow(beta,Real(n-1-j));
     for( Int j=n; j<numDiags; ++j )
         a[j] = 0;
     Toeplitz( A, n, n, a );
@@ -46,25 +42,21 @@ void Demmel( AbstractDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Demmel"))
     typedef Base<F> Real;
-    if( n == 0 )
+    A.Resize( n, n );
+    if( n == 1 )
     {
-        A.Resize( 0, 0 );
-        return;
-    }
-    else if( n == 1 )
-    {
-        A.Resize( 1, 1 );
         A.Set( 0, 0, -Real(1) );
         return;
     }
+    else if( n == 0 )
+        return;
     
-    const Real B = Pow(10.,4./(n-1));
+    const Real beta = Pow(Real(10),Real(4)/(n-1));
 
     const Int numDiags = 2*n-1;
     std::vector<F> a( numDiags, 0 );
-    for( Int j=0; j<n-1; ++j )
-        a[j] = -Pow(B,Real(n-1-j));
-    a[n-1] = -1;
+    for( Int j=0; j<n; ++j )
+        a[j] = -Pow(beta,Real(n-1-j));
     for( Int j=n; j<numDiags; ++j )
         a[j] = 0;
     Toeplitz( A, n, n, a );
@@ -75,25 +67,21 @@ void Demmel( AbstractBlockDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Demmel"))
     typedef Base<F> Real;
-    if( n == 0 )
+    A.Resize( n, n );
+    if( n == 1 )
     {
-        A.Resize( 0, 0 );
-        return;
-    }
-    else if( n == 1 )
-    {
-        A.Resize( 1, 1 );
         A.Set( 0, 0, -Real(1) );
         return;
     }
+    else if( n == 0 )
+        return;
     
-    const Real B = Pow(10.,4./(n-1));
+    const Real beta = Pow(Real(10),Real(4)/(n-1));
 
     const Int numDiags = 2*n-1;
     std::vector<F> a( numDiags, 0 );
-    for( Int j=0; j<n-1; ++j )
-        a[j] = -Pow(B,Real(n-1-j));
-    a[n-1] = -1;
+    for( Int j=0; j<n; ++j )
+        a[j] = -Pow(beta,Real(n-1-j));
     for( Int j=n; j<numDiags; ++j )
         a[j] = 0;
     Toeplitz( A, n, n, a );
