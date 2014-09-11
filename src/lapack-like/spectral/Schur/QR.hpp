@@ -200,7 +200,7 @@ QR
   bool fullTriangle, const HessQRCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 #ifdef EL_HAVE_SCALAPACK
     // Reduce the matrix to upper-Hessenberg form in an elemental form
@@ -258,8 +258,8 @@ QR
   AbstractDistMatrix<F>& QPre, bool fullTriangle, const HessQRCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto QPtr = WriteProxy( &QPre );     auto& Q = *QPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto QPtr = WriteProxy<F,MC,MR>( &QPre );     auto& Q = *QPtr;
 #ifdef EL_HAVE_SCALAPACK
     const Int n = A.Height();
     // Reduce A to upper-Hessenberg form in an element-wise distribution

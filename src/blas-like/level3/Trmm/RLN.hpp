@@ -85,8 +85,8 @@ RLNA
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
+    auto LPtr = ReadProxy<T,MC,MR>( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,STAR,VC  > X1_STAR_VC(g);
     DistMatrix<T,STAR,MC  > X1_STAR_MC(g);
@@ -134,8 +134,8 @@ RLNCOld
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
  
-    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
+    auto LPtr = ReadProxy<T,MC,MR>( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<T,MR,  STAR> L21_MR_STAR(g);
@@ -184,8 +184,8 @@ RLNC
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
+    auto LPtr = ReadProxy<T,MC,MR>( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<T,MR,  STAR> L10Trans_MR_STAR(g);

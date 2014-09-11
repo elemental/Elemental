@@ -106,9 +106,9 @@ LLA
     const Grid& g = APre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
     DistMatrix<T,MC,STAR> B1_MC_STAR(g);
@@ -166,9 +166,9 @@ LLC
     const Grid& g = APre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
     DistMatrix<T,MC,  STAR> AB1_MC_STAR(g);

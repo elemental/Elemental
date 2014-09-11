@@ -313,8 +313,8 @@ LUTLarge
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
+    auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
 
     auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre );
     auto& shifts = *shiftsPtr;
@@ -382,9 +382,12 @@ LUTLarge
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr     = ReadProxy( &UPre );          auto& U = *UPtr;
-    auto XRealPtr = ReadWriteProxy( &XRealPre ); auto& XReal = *XRealPtr;
-    auto XImagPtr = ReadWriteProxy( &XImagPre ); auto& XImag = *XImagPtr;
+    auto UPtr = ReadProxy<Real,MC,MR>( &UPre ); 
+    auto& U = *UPtr;
+    auto XRealPtr = ReadWriteProxy<Real,MC,MR>( &XRealPre ); 
+    auto& XReal = *XRealPtr;
+    auto XImagPtr = ReadWriteProxy<Real,MC,MR>( &XImagPre ); 
+    auto& XImag = *XImagPtr;
 
     auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
     auto& shifts = *shiftsPtr;
@@ -463,8 +466,8 @@ LUTMedium
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
+    auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
 
     auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre );
     auto& shifts = *shiftsPtr;
@@ -538,9 +541,12 @@ LUTMedium
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr     = ReadProxy( &UPre );          auto& U = *UPtr;
-    auto XRealPtr = ReadWriteProxy( &XRealPre ); auto& XReal = *XRealPtr;
-    auto XImagPtr = ReadWriteProxy( &XImagPre ); auto& XImag = *XImagPtr;
+    auto UPtr = ReadProxy<Real,MC,MR>( &UPre ); 
+    auto& U = *UPtr;
+    auto XRealPtr = ReadWriteProxy<Real,MC,MR>( &XRealPre ); 
+    auto& XReal = *XRealPtr;
+    auto XImagPtr = ReadWriteProxy<Real,MC,MR>( &XImagPre ); 
+    auto& XImag = *XImagPtr;
 
     auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
     auto& shifts = *shiftsPtr;

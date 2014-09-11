@@ -81,7 +81,7 @@ void Pseudoinverse( AbstractDistMatrix<F>& APre, Base<F> tolerance )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudoinverse"))
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     // Get the SVD of A
@@ -118,7 +118,7 @@ void HermitianPseudoinverse
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianPseudoinverse"))
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     // Get the EVD of A

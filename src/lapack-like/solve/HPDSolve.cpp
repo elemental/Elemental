@@ -27,8 +27,8 @@ void HPDSolve
 {
     DEBUG_ONLY(CallStackEntry cse("HPDSolve"))
 
-    auto APtr = ReadProxy( &APre );  auto& A = *APtr;
-    auto BPtr = WriteProxy( &BPre ); auto& B = *BPtr;
+    auto APtr = ReadProxy<F,MC,MR>( &APre );  auto& A = *APtr;
+    auto BPtr = WriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
 
     Cholesky( uplo, A );
     cholesky::SolveAfter( uplo, orientation, A, B );

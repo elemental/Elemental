@@ -34,11 +34,11 @@ void Trr2kNNNT
     const Int bsize = Blocksize();
     const Grid& g = EPre.Grid();
 
-    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadProxy( &CPre );      auto& C = *CPtr;
-    auto DPtr = ReadProxy( &DPre );      auto& D = *DPtr;
-    auto EPtr = ReadWriteProxy( &EPre ); auto& E = *EPtr;
+    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadProxy<T,MC,MR>( &CPre );      auto& C = *CPtr;
+    auto DPtr = ReadProxy<T,MC,MR>( &DPre );      auto& D = *DPtr;
+    auto EPtr = ReadWriteProxy<T,MC,MR>( &EPre ); auto& E = *EPtr;
 
     DistMatrix<T,MC,  STAR> A1_MC_STAR(g), C1_MC_STAR(g);
     DistMatrix<T,MR,  STAR> B1Trans_MR_STAR(g);

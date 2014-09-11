@@ -41,7 +41,7 @@ void HermitianFunction
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianFunction [Real]"))
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     if( A.Height() != A.Width() )
@@ -101,7 +101,7 @@ void HermitianFunction
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianFunction [Complex]"))
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<Complex<Real>,MC,MR>( &APre );
     auto& A = *APtr;
 
     if( A.Height() != A.Width() )

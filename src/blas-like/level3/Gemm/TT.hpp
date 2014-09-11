@@ -36,9 +36,9 @@ SUMMA_TTA
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
     DistMatrix<T,STAR,MC  > B1_STAR_MC(g);
@@ -95,9 +95,9 @@ SUMMA_TTB
     const Grid& g = APre.Grid();
     const bool conjugateA = ( orientationOfA == ADJOINT ); 
 
-    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
     DistMatrix<T,VR,  STAR> A1_VR_STAR(g);
@@ -156,9 +156,9 @@ SUMMA_TTC
     const Grid& g = APre.Grid();
     const bool conjugateB = ( orientationOfB == ADJOINT );
 
-    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
     DistMatrix<T,STAR,MC  > A1_STAR_MC(g);

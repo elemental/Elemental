@@ -31,7 +31,7 @@ void ImplicitHaar( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Int n )
 }
 
 template<typename F>
-void Haar( DistMatrix<F>& A, Int n )
+void Haar( AbstractDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Haar"))
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
@@ -42,8 +42,8 @@ void Haar( DistMatrix<F>& A, Int n )
 
 template<typename F>
 void ImplicitHaar
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d, 
-  Int n )
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
+  AbstractDistMatrix<Base<F>>& d, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Haar"))
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
@@ -54,12 +54,12 @@ void ImplicitHaar
 
 #define PROTO(F) \
   template void Haar( Matrix<F>& A, Int n ); \
-  template void Haar( DistMatrix<F>& A, Int n ); \
+  template void Haar( AbstractDistMatrix<F>& A, Int n ); \
   template void ImplicitHaar \
   ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Int n ); \
   template void ImplicitHaar \
-  ( DistMatrix<F>& A, \
-    DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d, Int n );
+  ( AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& t, AbstractDistMatrix<Base<F>>& d, Int n );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

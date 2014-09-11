@@ -14,31 +14,30 @@ template<typename T>
 void Copy( const Matrix<T>& A, Matrix<T>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
-    B = A;
-}
-
-template<typename Real>
-void Copy( const Matrix<Real>& A, Matrix<Complex<Real>>& B )
-{
-    DEBUG_ONLY(CallStackEntry cse("Copy"))
-    auto convert = []( const Real alpha ) { return Complex<Real>(alpha); };
-    EntrywiseMap( A, B, std::function<Complex<Real>(Real)>(convert) );
-}
-
-template<typename T,Dist U,Dist V>
-void Copy( const AbstractDistMatrix<T>& A, DistMatrix<T,U,V>& B )
-{
-    DEBUG_ONLY(CallStackEntry cse("Copy"))
     B = A; 
 }
 
-template<typename Real,Dist U,Dist V>
-void Copy
-( const AbstractDistMatrix<Real>& A, DistMatrix<Complex<Real>,U,V>& B )
+template<typename S,typename T>
+void Copy( const Matrix<S>& A, Matrix<T>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
+    auto convert = []( const S alpha ) { return T(alpha); };
+    EntrywiseMap( A, B, std::function<T(S)>(convert) );
+}
 
-    DistMatrix<Real,U,V> BReal(A.Grid());
+template<typename T,Dist U,Dist V>
+inline void Copy( const AbstractDistMatrix<T>& A, DistMatrix<T,U,V>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Copy"))
+    B = A;
+}
+
+// Datatype conversions should not be very common, and so it is likely best to
+// avoid explicitly instantiating every combination
+template<typename S,typename T,Dist U,Dist V>
+inline void Copy( const AbstractDistMatrix<S>& A, DistMatrix<T,U,V>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Copy"))
     if( A.Grid() == B.Grid() && A.ColDist() == U && A.RowDist() == V )
     {
         if( !B.RootConstrained() )
@@ -55,27 +54,28 @@ void Copy
             return;
         }
     }
-    BReal.AlignWith( B );
-    BReal = A;
+    DistMatrix<S,U,V> BOrig(A.Grid());
+    BOrig.AlignWith( B );
+    BOrig = A;
     B.Resize( A.Height(), A.Width() );
-    Copy( BReal.LockedMatrix(), B.Matrix() );
+    Copy( BOrig.LockedMatrix(), B.Matrix() );
 }
 
 template<typename T,Dist U,Dist V>
-void Copy( const AbstractBlockDistMatrix<T>& A, BlockDistMatrix<T,U,V>& B )
+inline void Copy
+( const AbstractBlockDistMatrix<T>& A, BlockDistMatrix<T,U,V>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
-    // TODO: Add support for shallow copies
     B = A;
 }
 
-template<typename Real,Dist U,Dist V>
-void Copy
-( const AbstractBlockDistMatrix<Real>& A, 
-  BlockDistMatrix<Complex<Real>,U,V>& B )
+// Datatype conversions should not be very common, and so it is likely best to
+// avoid explicitly instantiating every combination
+template<typename S,typename T,Dist U,Dist V>
+inline void Copy
+( const AbstractBlockDistMatrix<S>& A, BlockDistMatrix<T,U,V>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
-
     if( A.Grid() == B.Grid() && A.ColDist() == U && A.RowDist() == V )
     {
         if( !B.RootConstrained() )
@@ -95,16 +95,15 @@ void Copy
             return;
         }
     }
-
-    BlockDistMatrix<Real,U,V> BReal(A.Grid());
-    BReal.AlignWith( B );
-    BReal = A;
+    BlockDistMatrix<S,U,V> BOrig(A.Grid());
+    BOrig.AlignWith( B );
+    BOrig = A;
     B.Resize( A.Height(), A.Width() );
-    Copy( BReal.LockedMatrix(), B.Matrix() );
+    Copy( BOrig.LockedMatrix(), B.Matrix() );
 }
 
-template<typename T>
-void Copy( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
+template<typename S,typename T>
+void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
     #define GUARD(CDIST,RDIST) B.ColDist() == CDIST && B.RowDist() == RDIST
@@ -114,9 +113,8 @@ void Copy( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
     #include "El/macros/GuardAndPayload.h"
 }
 
-template<typename T>
-void Copy
-( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B )
+template<typename S,typename T>
+void Copy( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
     #define GUARD(CDIST,RDIST) B.ColDist() == CDIST && B.RowDist() == RDIST
@@ -126,90 +124,51 @@ void Copy
     #include "El/macros/GuardAndPayload.h"
 }
 
-template<typename Real>
-void Copy
-( const AbstractDistMatrix<Real>& A, AbstractDistMatrix<Complex<Real>>& B )
-{
-    DEBUG_ONLY(CallStackEntry cse("Copy"))
-    #define GUARD(CDIST,RDIST) B.ColDist() == CDIST && B.RowDist() == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-        auto& BCast = dynamic_cast<DistMatrix<Complex<Real>,CDIST,RDIST>&>(B); \
-        Copy( A, BCast );
-    #include "El/macros/GuardAndPayload.h"
-}
+// TODO: include guards so that certain datatypes can be properly disabled 
 
-template<typename Real>
-void Copy
-( const AbstractBlockDistMatrix<Real>& A, 
-        AbstractBlockDistMatrix<Complex<Real>>& B )
-{
-    DEBUG_ONLY(CallStackEntry cse("Copy"))
-    #define GUARD(CDIST,RDIST) B.ColDist() == CDIST && B.RowDist() == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-        auto& BCast = \
-            dynamic_cast<BlockDistMatrix<Complex<Real>,CDIST,RDIST>&>(B); \
-        Copy( A, BCast );
-    #include "El/macros/GuardAndPayload.h"
-}
+#define CONVERT(S,T) \
+  template void Copy( const Matrix<S>& A, Matrix<T>& B ); \
+  template void Copy \
+  ( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B ); \
+  template void Copy \
+  ( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B );
 
-#define DIST_PROTO(T,U,V) \
-  template void Copy( const AbstractDistMatrix<T>& A, DistMatrix<T,U,V>& B ); \
-  template void Copy \
-  ( const AbstractBlockDistMatrix<T>& A, BlockDistMatrix<T,U,V>& B );
+#define PROTO_INT(T) CONVERT(T,T)
 
-#define DIST_PROTO_REAL(T,U,V) \
-  DIST_PROTO(T,U,V) \
-  template void Copy \
-  ( const AbstractDistMatrix<T>& A, DistMatrix<Complex<T>,U,V>& B ); \
-  template void Copy \
-  ( const AbstractBlockDistMatrix<T>& A, BlockDistMatrix<Complex<T>,U,V>& B );
+#define PROTO_REAL(Real) \
+  CONVERT(Real,Real) \
+  /* Promotions up to Real */ \
+  CONVERT(Int,Real) \
+  /* Promotions up from Real */ \
+  CONVERT(Real,Complex<Real>)
 
-#define PROTO_BASE(T) \
-  template void Copy( const Matrix<T>& A, Matrix<T>& B ); \
-  template void Copy \
-  ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
-  template void Copy \
-  ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
+#define PROTO_COMPLEX(C) \
+  CONVERT(C,C) \
+  /* Promotions up to C */ \
+  CONVERT(Int,C)
 
-#define PROTO(T) \
-  PROTO_BASE(T) \
-  DIST_PROTO(T,CIRC,CIRC); \
-  DIST_PROTO(T,MC,  MR  ); \
-  DIST_PROTO(T,MC,  STAR); \
-  DIST_PROTO(T,MD,  STAR); \
-  DIST_PROTO(T,MR,  MC  ); \
-  DIST_PROTO(T,MR,  STAR); \
-  DIST_PROTO(T,STAR,MC  ); \
-  DIST_PROTO(T,STAR,MD  ); \
-  DIST_PROTO(T,STAR,MR  ); \
-  DIST_PROTO(T,STAR,STAR); \
-  DIST_PROTO(T,STAR,VC  ); \
-  DIST_PROTO(T,STAR,VR  ); \
-  DIST_PROTO(T,VC  ,STAR); \
-  DIST_PROTO(T,VR  ,STAR);
+#define PROTO_FLOAT \
+  PROTO_REAL(float) \
+  /* Promotions up from float */ \
+  CONVERT(float,double) \
+  CONVERT(float,Complex<double>)
 
-#define PROTO_REAL(T) \
-  PROTO_BASE(T) \
-  template void Copy( const Matrix<T>& A, Matrix<Complex<T>>& B ); \
-  template void Copy \
-  ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Complex<T>>& B ); \
-  template void Copy \
-  ( const AbstractBlockDistMatrix<T>& A, \
-          AbstractBlockDistMatrix<Complex<T>>& B ); \
-  DIST_PROTO_REAL(T,CIRC,CIRC); \
-  DIST_PROTO_REAL(T,MC,  MR  ); \
-  DIST_PROTO_REAL(T,MC,  STAR); \
-  DIST_PROTO_REAL(T,MD,  STAR); \
-  DIST_PROTO_REAL(T,MR,  MC  ); \
-  DIST_PROTO_REAL(T,MR,  STAR); \
-  DIST_PROTO_REAL(T,STAR,MC  ); \
-  DIST_PROTO_REAL(T,STAR,MD  ); \
-  DIST_PROTO_REAL(T,STAR,MR  ); \
-  DIST_PROTO_REAL(T,STAR,STAR); \
-  DIST_PROTO_REAL(T,STAR,VC  ); \
-  DIST_PROTO_REAL(T,STAR,VR  ); \
-  DIST_PROTO_REAL(T,VC  ,STAR); \
-  DIST_PROTO_REAL(T,VR  ,STAR);
+#define PROTO_DOUBLE \
+  PROTO_REAL(double) \
+  /* Promotions down to float */ \
+  CONVERT(double,float) \
+  /* Mixed conversion */ \
+  CONVERT(double,Complex<float>)
+
+#define PROTO_COMPLEX_FLOAT \
+  PROTO_COMPLEX(Complex<float>) \
+  /* Promotions up from Complex<float> */ \
+  CONVERT(Complex<float>,Complex<double>)
+
+#define PROTO_COMPLEX_DOUBLE \
+  PROTO_COMPLEX(Complex<double>) \
+  /* Promotions down from Complex<double> */ \
+  CONVERT(Complex<double>,Complex<float>)
 
 #include "El/macros/Instantiate.h"
 

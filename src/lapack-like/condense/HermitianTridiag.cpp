@@ -34,7 +34,7 @@ void HermitianTridiag
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiag"))
 
-    auto APtr = ReadWriteProxy( &APre );          auto& A = *APtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto tPtr = WriteProxy<F,STAR,STAR>( &tPre ); auto& t = *tPtr;
 
     const Grid& g = A.Grid();

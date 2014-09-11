@@ -110,9 +110,9 @@ Int ModelFit
 {
     DEBUG_ONLY(CallStackEntry cse("ModelFit"))
 
-    auto APtr = ReadProxy( &APre );  auto& A = *APtr;
-    auto bPtr = ReadProxy( &bPre );  auto& b = *bPtr;
-    auto wPtr = WriteProxy( &wPre ); auto& w = *wPtr;
+    auto APtr = ReadProxy<Real,MC,MR>( &APre );  auto& A = *APtr;
+    auto bPtr = ReadProxy<Real,MC,MR>( &bPre );  auto& b = *bPtr;
+    auto wPtr = WriteProxy<Real,MC,MR>( &wPre ); auto& w = *wPtr;
 
     const Int m = A.Height();
     const Int n = A.Width();

@@ -137,8 +137,8 @@ LLNLarge
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
+    auto LPtr = ReadProxy<F,MC,MR>( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
 
     auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre );
     auto& shifts = *shiftsPtr;
@@ -197,8 +197,8 @@ LLNMedium
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
+    auto LPtr = ReadProxy<F,MC,MR>( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
 
     auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre );
     auto& shifts = *shiftsPtr;

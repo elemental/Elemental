@@ -52,8 +52,8 @@ LUT
 {
     DEBUG_ONLY(CallStackEntry cse("mstrsm::LUT"))
 
-    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
+    auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
 
     auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre );
     auto& shifts = *shiftsPtr;

@@ -44,7 +44,7 @@ void MultiplyAfter
     )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
 
-    auto APtr = ReadProxy( &APre );
+    auto APtr = ReadProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
     const auto d = A.GetDiagonal();
 
@@ -101,8 +101,8 @@ void MultiplyAfter
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy( &APre );      auto& A = *APtr; 
-    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
+    auto APtr = ReadProxy<F,MC,MR>( &APre );      auto& A = *APtr; 
+    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
 
     const auto d = A.GetDiagonal();
 

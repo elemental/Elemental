@@ -114,7 +114,7 @@ Int SparseInvCov
 {
     DEBUG_ONLY(CallStackEntry cse("SparseInvCov"))
 
-    auto ZPtr = WriteProxy( &ZPre );
+    auto ZPtr = WriteProxy<F,MC,MR>( &ZPre );
     auto& Z = *ZPtr;
 
     typedef Base<F> Real;

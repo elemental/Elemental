@@ -247,7 +247,7 @@ MatrixMarket( AbstractBlockDistMatrix<T>& A, const std::string filename )
         ( A_CIRC_CIRC.Matrix().Height(), A_CIRC_CIRC.Matrix().Width() );
     }
     A_CIRC_CIRC.MakeSizeConsistent();
-    Copy( A, A_CIRC_CIRC );
+    Copy( A_CIRC_CIRC, A );
 }
 
 } // namespace read

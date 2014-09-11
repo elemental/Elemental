@@ -26,8 +26,8 @@ RUN
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
+    auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
 
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g); 
     DistMatrix<F,STAR,MR  > U12_STAR_MR(g);

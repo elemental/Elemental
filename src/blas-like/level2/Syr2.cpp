@@ -68,9 +68,9 @@ void Syr2
              DimsString(xPre,"x"),"\n",DimsString(yPre,"y"));
     )
 
-    auto xPtr = ReadProxy( &xPre );      auto& x = *xPtr;
-    auto yPtr = ReadProxy( &yPre );      auto& y = *yPtr;
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto xPtr = ReadProxy<T,MC,MR>( &xPre );      auto& x = *xPtr;
+    auto yPtr = ReadProxy<T,MC,MR>( &yPre );      auto& y = *yPtr;
+    auto APtr = ReadWriteProxy<T,MC,MR>( &APre ); auto& A = *APtr;
 
     const Grid& g = A.Grid();
     const Int localHeight = A.LocalHeight();

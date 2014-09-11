@@ -15,8 +15,7 @@ namespace El {
 template<typename Real>
 void NormalFromEVD
 (       Matrix<Complex<Real>>& A,
-  const Matrix<Complex<Real>>& w,
-  const Matrix<Complex<Real>>& Z )
+  const Matrix<Complex<Real>>& w, const Matrix<Complex<Real>>& Z )
 {
     DEBUG_ONLY(CallStackEntry cse("NormalFromEVD"))
     typedef Complex<Real> C;
@@ -41,12 +40,17 @@ void NormalFromEVD
 
 template<typename Real>
 void NormalFromEVD
-(       DistMatrix<Complex<Real>>& A,
-  const DistMatrix<Complex<Real>,VR,STAR>& w,
-  const DistMatrix<Complex<Real>>& Z )
+(       AbstractDistMatrix<Complex<Real>>& APre,
+  const AbstractDistMatrix<Complex<Real>>& wPre, 
+  const AbstractDistMatrix<Complex<Real>>& ZPre )
 {
     DEBUG_ONLY(CallStackEntry cse("NormalFromEVD"))
     typedef Complex<Real> C;
+
+    auto APtr = WriteProxy<C,MC,MR>( &APre );  auto& A = *APtr;
+    auto wPtr = ReadProxy<C,VR,STAR>( &wPre ); auto& w = *wPtr;
+    auto ZPtr = ReadProxy<C,MC,MR>( &ZPre );   auto& Z = *ZPtr;
+
     const Grid& g = A.Grid();
     DistMatrix<C,MC,  STAR> Z1_MC_STAR(g);
     DistMatrix<C,VR,  STAR> Z1_VR_STAR(g);
@@ -83,9 +87,9 @@ void NormalFromEVD
     const Matrix<Complex<Real>>& w, \
     const Matrix<Complex<Real>>& Z ); \
   template void NormalFromEVD \
-  (       DistMatrix<Complex<Real>>& A, \
-    const DistMatrix<Complex<Real>,VR,STAR>& w, \
-    const DistMatrix<Complex<Real>>& Z );
+  (       AbstractDistMatrix<Complex<Real>>& A, \
+    const AbstractDistMatrix<Complex<Real>>& w, \
+    const AbstractDistMatrix<Complex<Real>>& Z );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

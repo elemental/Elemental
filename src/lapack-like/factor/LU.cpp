@@ -51,7 +51,7 @@ void LU( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(CallStackEntry cse("LU"))
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     const Grid& g = A.Grid();
@@ -170,7 +170,7 @@ void LU( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
         AssertSameGrids( APre, pPre );
     )
 
-    auto APtr = ReadWriteProxy( &APre );          auto& A = *APtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto pPtr = WriteProxy<Int,VC,STAR>( &pPre ); auto& p = *pPtr;
 
     const Grid& g = A.Grid();

@@ -30,8 +30,8 @@ void GRQ
 {
     DEBUG_ONLY(CallStackEntry cse("GRQ"))
     
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
 
     RQ( A, tA, dA );
     rq::ApplyQ( RIGHT, ADJOINT, A, tA, dA, B );
@@ -57,8 +57,8 @@ void ExplicitTriang( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
 {
     DEBUG_ONLY(CallStackEntry cse("grq::ExplicitTriang"))
 
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
 
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> tA(g);

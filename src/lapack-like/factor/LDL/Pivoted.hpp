@@ -852,7 +852,7 @@ UnblockedPivoted
     Zeros( dSub, n-1, 1 );
     p.Resize( n, 1 );
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     // Initialize the permutation to the identity
@@ -1280,7 +1280,7 @@ BlockedPivoted
     }
     dSubPre.Resize( n-1, 1 );
 
-    auto APtr    = ReadWriteProxy( &APre );           auto& A    = *APtr;
+    auto APtr    = ReadWriteProxy<F,MC,MR>( &APre );  auto& A    = *APtr;
     auto dSubPtr = WriteProxy<F,MC,STAR>( &dSubPre ); auto& dSub = *dSubPtr;
     auto pPtr    = WriteProxy<Int,VC,STAR>( &pPre );  auto& p    = *pPtr;
 

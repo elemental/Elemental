@@ -37,10 +37,15 @@ void NormalUniformSpectrum
 
 template<typename Real>
 void NormalUniformSpectrum
-( DistMatrix<Complex<Real>>& A, Int n, Complex<Real> center, Real radius )
+( AbstractDistMatrix<Complex<Real>>& APre, Int n, 
+  Complex<Real> center, Real radius )
 {
     DEBUG_ONLY(CallStackEntry cse("NormalUniformSpectrum"))
     typedef Complex<Real> C;
+
+    auto APtr = WriteProxy<C,MC,MR>( &APre );
+    auto& A = *APtr;
+
     const Grid& grid = A.Grid();
     A.Resize( n, n );
 
@@ -63,59 +68,12 @@ void NormalUniformSpectrum
     qr::ApplyQ( RIGHT, ADJOINT, Q, t, s, A );
 }
 
-template<typename Real,Dist U,Dist V>
-void NormalUniformSpectrum
-( DistMatrix<Complex<Real>,U,V>& A, Int n, Complex<Real> center, Real radius )
-{
-    DEBUG_ONLY(CallStackEntry cse("NormalUniformSpectrum"))
-    typedef Complex<Real> C;
-    const Grid& grid = A.Grid();
-    A.Resize( n, n );
-
-    // Form d and D
-    std::vector<C> d( n );
-    if( grid.Rank() == 0 )
-        for( Int j=0; j<n; ++j )
-            d[j] = SampleBall<C>( center, radius );
-    mpi::Broadcast( d.data(), n, 0, grid.Comm() );
-    DistMatrix<C> ABackup( grid );
-    ABackup.AlignWith( A );
-    Diagonal( ABackup, d );
-
-    // Apply a Haar matrix from both sides
-    DistMatrix<C> Q(grid);
-    DistMatrix<C,MD,STAR> t(grid);
-    DistMatrix<Real,MD,STAR> s(grid);
-    ImplicitHaar( Q, t, s, n );
-
-    // Copy the result into the correct distribution
-    qr::ApplyQ( LEFT, NORMAL, Q, t, s, ABackup );
-    qr::ApplyQ( RIGHT, ADJOINT, Q, t, s, ABackup );
-    A = ABackup;
-}
-
-#define PROTO_DIST(Real,U,V) \
-  template void NormalUniformSpectrum \
-  ( DistMatrix<Complex<Real>,U,V>& A, Int n, \
-    Complex<Real>  center, Real radius );
-
 #define PROTO(Real) \
   template void NormalUniformSpectrum \
   ( Matrix<Complex<Real>>& A, Int n, Complex<Real> center, Real radius ); \
-  PROTO_DIST(Real,CIRC,CIRC) \
-  PROTO_DIST(Real,MC,  MR  ) \
-  PROTO_DIST(Real,MC,  STAR) \
-  PROTO_DIST(Real,MD,  STAR) \
-  PROTO_DIST(Real,MR,  MC  ) \
-  PROTO_DIST(Real,MR,  STAR) \
-  PROTO_DIST(Real,STAR,MC  ) \
-  PROTO_DIST(Real,STAR,MD  ) \
-  PROTO_DIST(Real,STAR,MR  ) \
-  PROTO_DIST(Real,STAR,STAR) \
-  PROTO_DIST(Real,STAR,VC  ) \
-  PROTO_DIST(Real,STAR,VR  ) \
-  PROTO_DIST(Real,VC,  STAR) \
-  PROTO_DIST(Real,VR,  STAR)
+  template void NormalUniformSpectrum \
+  ( AbstractDistMatrix<Complex<Real>>& A, Int n, \
+    Complex<Real> center, Real radius );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

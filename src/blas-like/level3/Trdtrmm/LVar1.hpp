@@ -98,7 +98,7 @@ LVar1( AbstractDistMatrix<F>& LPre, bool conjugate=false )
     const Grid& g = LPre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    auto LPtr = ReadWriteProxy( &LPre );
+    auto LPtr = ReadWriteProxy<F,MC,MR>( &LPre );
     auto& L = *LPtr;
 
     DistMatrix<F,STAR,VR  > L10_STAR_VR(g);
@@ -158,7 +158,7 @@ LVar1
     const Grid& g = LPre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    auto LPtr    = ReadWriteProxy( &LPre );          auto& L = *LPtr;
+    auto LPtr    = ReadWriteProxy<F,MC,MR>( &LPre ); auto& L = *LPtr;
     auto dSubPtr = ReadProxy<F,MD,STAR>( &dSubPre ); auto& dSub = *dSubPtr;
 
     DistMatrix<F,STAR,VR  > L10_STAR_VR(g);

@@ -64,7 +64,7 @@ void CheckRealSchur( const AbstractDistMatrix<Real>& UPre, bool standardForm )
 {
     DEBUG_ONLY(CallStackEntry cse("CheckRealSchur")) 
 
-    auto UPtr = ReadProxy( &UPre );
+    auto UPtr = ReadProxy<Real,MC,MR>( &UPre );
     auto& U = *UPtr;
 
     auto uMain = U.GetDiagonal();

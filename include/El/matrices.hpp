@@ -126,8 +126,8 @@ void EhrenfestDecay( Matrix<F>& A, Int n );
 template<typename F>
 void EhrenfestDecay( AbstractDistMatrix<F>& A, Int n );
 /*
-template<typename F,Dist U,Dist V>
-void EhrenfestDecay( BlockDistMatrix<F,U,V>& A, Int n );
+template<typename F>
+void EhrenfestDecay( AbstractBlockDistMatrix<F,U,V>& A, Int n );
 */
 
 // Extended Kahan
@@ -159,8 +159,8 @@ void Forsythe( AbstractBlockDistMatrix<T>& J, Int n, T alpha, T lambda );
 // ==============================
 template<typename Real>
 void FoxLi( Matrix<Complex<Real>>& A, Int n, Real omega );
-template<typename Real,Dist U,Dist V>
-void FoxLi( DistMatrix<Complex<Real>,U,V>& A, Int n, Real omega );
+template<typename Real>
+void FoxLi( AbstractDistMatrix<Complex<Real>>& A, Int n, Real omega );
 
 // Fourier
 // =======
@@ -229,14 +229,16 @@ void Hanowa( AbstractDistMatrix<T>& A, Int n, T mu );
 template<typename F>
 void HatanoNelson
 ( Matrix<F>& A, Int n, F center, Base<F> radius, F g, bool periodic=true );
-template<typename F,Dist U,Dist V>
+template<typename F>
 void HatanoNelson
-( DistMatrix<F,U,V>& A, Int n, F center, Base<F> radius, F g,
+( AbstractDistMatrix<F>& A, Int n, F center, Base<F> radius, F g,
   bool periodic=true );
-template<typename F,Dist U,Dist V>
+/*
+template<typename F>
 void HatanoNelson
-( BlockDistMatrix<F,U,V>& A, Int n, F center, Base<F> radius, F g,
+( AbstractBlockDistMatrix<F>& A, Int n, F center, Base<F> radius, F g,
   bool periodic=true );
+*/
 
 // Helmholtz
 // =========
@@ -290,8 +292,8 @@ void HermitianFromEVD
   const Matrix<Base<F>>& w, const Matrix<F>& Z );
 template<typename F>
 void HermitianFromEVD
-( UpperOrLower uplo, DistMatrix<F>& A,
-  const DistMatrix<Base<F>,VR,STAR>& w, const DistMatrix<F>& Z );
+( UpperOrLower uplo, AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<Base<F>>& w, const AbstractDistMatrix<F>& Z );
 
 // Hilbert
 // =======
@@ -414,9 +416,9 @@ void NormalFromEVD
   const Matrix<Complex<Real>>& Z );
 template<typename Real>
 void NormalFromEVD
-(       DistMatrix<Complex<Real>>& A,
-  const DistMatrix<Complex<Real>,VR,STAR>& w,
-  const DistMatrix<Complex<Real>>& Z );
+(       AbstractDistMatrix<Complex<Real>>& A,
+  const AbstractDistMatrix<Complex<Real>>& w,
+  const AbstractDistMatrix<Complex<Real>>& Z );
 
 // Ones
 // ====
@@ -610,14 +612,14 @@ void Gaussian
 template<typename F> 
 void Haar( Matrix<F>& A, Int n );
 template<typename F> 
-void Haar( DistMatrix<F>& A, Int n );
+void Haar( AbstractDistMatrix<F>& A, Int n );
 
 template<typename F> 
 void ImplicitHaar( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Int n );
 template<typename F> 
 void ImplicitHaar
-( DistMatrix<F>& A,
-  DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d, Int n );
+( AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& t, AbstractDistMatrix<Base<F>>& d, Int n );
 
 // Hermitian uniform spectrum
 // ==========================
@@ -636,11 +638,7 @@ void NormalUniformSpectrum
   Complex<Real> center=0, Real radius=1 );
 template<typename Real>
 void NormalUniformSpectrum
-( DistMatrix<Complex<Real>>& A, Int n,
-  Complex<Real> center=0, Real radius=1 );
-template<typename Real,Dist U,Dist V>
-void NormalUniformSpectrum
-( DistMatrix<Complex<Real>,U,V>& A, Int n,
+( AbstractDistMatrix<Complex<Real>>& A, Int n,
   Complex<Real> center=0, Real radius=1 );
 
 // Uniform

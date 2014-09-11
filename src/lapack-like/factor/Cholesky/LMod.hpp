@@ -81,8 +81,8 @@ LUpdate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
         AssertSameGrids( LPre, VPre );
     )
 
-    auto LPtr = ReadWriteProxy( &LPre ); auto& L = *LPtr;
-    auto VPtr = ReadWriteProxy( &VPre ); auto& V = *VPtr;
+    auto LPtr = ReadWriteProxy<F,MC,MR>( &LPre ); auto& L = *LPtr;
+    auto VPtr = ReadWriteProxy<F,MC,MR>( &VPre ); auto& V = *VPtr;
 
     const Int m = V.Height();
     const Int n = V.Width();
@@ -197,8 +197,8 @@ LDowndate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
         AssertSameGrids( LPre, VPre );
     )
 
-    auto LPtr = ReadWriteProxy( &LPre ); auto& L = *LPtr;
-    auto VPtr = ReadWriteProxy( &VPre ); auto& V = *VPtr;
+    auto LPtr = ReadWriteProxy<F,MC,MR>( &LPre ); auto& L = *LPtr;
+    auto VPtr = ReadWriteProxy<F,MC,MR>( &VPre ); auto& V = *VPtr;
 
     const Int m = V.Height();
     const Int n = V.Width();

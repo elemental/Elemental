@@ -140,7 +140,7 @@ LVar3( AbstractDistMatrix<F>& APre )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
     const Grid& g = APre.Grid();
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
@@ -198,7 +198,7 @@ ReverseLVar3( AbstractDistMatrix<F>& APre )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
     const Grid& g = APre.Grid();
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);

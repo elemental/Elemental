@@ -68,7 +68,7 @@ void QuasiTriangEig
 {
     DEBUG_ONLY(CallStackEntry cse("schur::QuasiTriangEig"))
 
-    auto UPtr = ReadProxy( &UPre );
+    auto UPtr = ReadProxy<F,MC,MR>( &UPre );
     auto& U = *UPtr;
 
     const Grid& g = U.Grid();

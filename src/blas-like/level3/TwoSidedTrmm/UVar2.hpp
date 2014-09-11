@@ -97,8 +97,8 @@ UVar2
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
 
     // Temporary distributions
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g), U11_STAR_STAR(g), 

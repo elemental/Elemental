@@ -85,8 +85,8 @@ RUTA
     const Grid& g = UPre.Grid();
     const bool conjugate = ( orientation == ADJOINT );
 
-    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
+    auto UPtr = ReadProxy<T,MC,MR>( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,MR,  STAR> X1Trans_MR_STAR(g);
     DistMatrix<T,MC,  STAR> Z1Trans_MC_STAR(g);
@@ -135,8 +135,8 @@ RUTC
     const Grid& g = UPre.Grid();
     const bool conjugate = ( orientation == ADJOINT );
 
-    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
+    auto UPtr = ReadProxy<T,MC,MR>( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<T,MR,  STAR> U12Trans_MR_STAR(g);

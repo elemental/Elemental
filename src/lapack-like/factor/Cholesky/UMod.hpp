@@ -90,8 +90,8 @@ UUpdate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
         AssertSameGrids( UPre, VPre );
     )
 
-    auto UPtr = ReadWriteProxy( &UPre ); auto& U = *UPtr;
-    auto VPtr = ReadWriteProxy( &VPre ); auto& V = *VPtr;
+    auto UPtr = ReadWriteProxy<F,MC,MR>( &UPre ); auto& U = *UPtr;
+    auto VPtr = ReadWriteProxy<F,MC,MR>( &VPre ); auto& V = *VPtr;
 
     const Int m = V.Height();
     const Int n = V.Width();
@@ -224,8 +224,8 @@ UDowndate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
         AssertSameGrids( UPre, VPre );
     )
 
-    auto UPtr = ReadWriteProxy( &UPre ); auto& U = *UPtr;
-    auto VPtr = ReadWriteProxy( &VPre ); auto& V = *VPtr;
+    auto UPtr = ReadWriteProxy<F,MC,MR>( &UPre ); auto& U = *UPtr;
+    auto VPtr = ReadWriteProxy<F,MC,MR>( &VPre ); auto& V = *VPtr;
 
     const Int m = V.Height();
     const Int n = V.Width();

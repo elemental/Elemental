@@ -92,8 +92,8 @@ LVar1
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto LPtr = ReadProxy<F,MC,MR>( &LPre );      auto& L = *LPtr;
 
     // Temporary distributions
     DistMatrix<F,STAR,MR  > L21Adj_STAR_MR(g), Z21_MR_STAR(g);

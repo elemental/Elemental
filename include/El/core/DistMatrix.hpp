@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_DISTMATRIX_HPP
-#define EL_DISTMATRIX_HPP
+#ifndef EL_CORE_DISTMATRIX_HPP
+#define EL_CORE_DISTMATRIX_HPP
 
 namespace El {
 
@@ -85,66 +85,6 @@ inline void AssertSameGrids
     AssertSameGrids( A2, args... );
 }
 
-struct ProxyCtrl 
-{
-    bool colConstrain, rowConstrain, rootConstrain;
-    Int root, colAlign, rowAlign;
-
-    ProxyCtrl() 
-    : colConstrain(false), rowConstrain(false), rootConstrain(false),
-      root(0), colAlign(0), rowAlign(0) 
-    { }
-};
-
-template<typename T,Dist U=MC,Dist V=MR>
-std::shared_ptr<const DistMatrix<T,U,V>> 
-ReadProxy( const AbstractDistMatrix<T>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
-template<typename T,Dist U=MC,Dist V=MR>
-std::shared_ptr<DistMatrix<T,U,V>> 
-ReadProxy( AbstractDistMatrix<T>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
-
-template<typename Real>
-std::shared_ptr<const Matrix<Complex<Real>>> 
-ComplexReadProxy( const Matrix<Real>* A );
-template<typename Real>
-std::shared_ptr<const Matrix<Complex<Real>>> 
-ComplexReadProxy( const Matrix<Complex<Real>>* A  );
-template<typename Real>
-std::shared_ptr<Matrix<Complex<Real>>> 
-ComplexReadProxy( Matrix<Real>* A );
-template<typename Real>
-std::shared_ptr<Matrix<Complex<Real>>> 
-ComplexReadProxy( Matrix<Complex<Real>>* A  );
-
-template<typename Real,Dist U=MC,Dist V=MR>
-std::shared_ptr<const DistMatrix<Complex<Real>,U,V>> 
-ComplexReadProxy
-( const AbstractDistMatrix<Real>* A, 
-  const ProxyCtrl& ctrl=ProxyCtrl() );
-template<typename Real,Dist U=MC,Dist V=MR>
-std::shared_ptr<const DistMatrix<Complex<Real>,U,V>> 
-ComplexReadProxy
-( const AbstractDistMatrix<Complex<Real>>* A, 
-  const ProxyCtrl& ctrl=ProxyCtrl() );
-template<typename Real,Dist U=MC,Dist V=MR>
-std::shared_ptr<DistMatrix<Complex<Real>,U,V>> 
-ComplexReadProxy
-( AbstractDistMatrix<Real>* A, 
-  const ProxyCtrl& ctrl=ProxyCtrl() );
-template<typename Real,Dist U=MC,Dist V=MR>
-std::shared_ptr<DistMatrix<Complex<Real>,U,V>> 
-ComplexReadProxy
-( AbstractDistMatrix<Complex<Real>>* A, 
-  const ProxyCtrl& ctrl=ProxyCtrl() );
-
-template<typename T,Dist U=MC,Dist V=MR>
-std::shared_ptr<DistMatrix<T,U,V>> ReadWriteProxy
-( AbstractDistMatrix<T>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
-
-template<typename T,Dist U=MC,Dist V=MR>
-std::shared_ptr<DistMatrix<T,U,V>> WriteProxy
-( AbstractDistMatrix<T>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
-
 } // namespace El
 
-#endif // ifndef EL_DISTMATRIX_HPP
+#endif // ifndef EL_CORE_DISTMATRIX_HPP

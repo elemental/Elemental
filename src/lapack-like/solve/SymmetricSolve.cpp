@@ -39,8 +39,8 @@ void SymmetricSolve
     if( uplo == UPPER )
         LogicError("Upper Bunch-Kaufman is not yet supported");
 
-    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
-    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
+    auto APtr = ReadProxy<F,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
 
     DistMatrix<Int,VC,STAR> pPerm(A.Grid()); 
     DistMatrix<F,MD,STAR> dSub(A.Grid());

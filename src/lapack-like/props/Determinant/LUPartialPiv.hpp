@@ -76,7 +76,7 @@ SafeProduct<F> AfterLUPartialPiv
     if( APre.Height() != pPre.Height() )
         LogicError("Permutation vector is incorrect length");
 
-    auto APtr = ReadProxy( &APre );              auto& A = *APtr;
+    auto APtr = ReadProxy<F,MC,MR>( &APre );              auto& A = *APtr;
     auto pPtr = ReadProxy<Int,VC,STAR>( &pPre ); auto& p = *pPtr;
 
     typedef Base<F> R;
@@ -117,7 +117,7 @@ LUPartialPiv( AbstractDistMatrix<F>& APre )
     if( APre.Height() != APre.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
 
-    auto APtr = ReadProxy( &APre );
+    auto APtr = ReadProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     SafeProduct<F> det( A.Height() );

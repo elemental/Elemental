@@ -69,7 +69,7 @@ void Skeleton
 {
     DEBUG_ONLY(CallStackEntry cse("Skeleton"))
 
-    auto APtr = ReadProxy( &APre );
+    auto APtr = ReadProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     const Grid& g = A.Grid();

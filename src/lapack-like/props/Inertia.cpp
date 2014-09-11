@@ -31,7 +31,7 @@ InertiaType Inertia
     if( uplo == UPPER )
         LogicError("This option not yet supported");
 
-    auto APtr = ReadProxy( &APre );
+    auto APtr = ReadProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     DistMatrix<Int,VC,STAR> pPerm( A.Grid() );

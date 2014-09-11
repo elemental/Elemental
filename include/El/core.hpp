@@ -29,6 +29,7 @@
 #include <stdexcept>
 #include <string>
 #include <random>
+#include <type_traits>
 #include <vector>
 
 // The DEBUG_ONLY macro is, to the best of my knowledge, the only preprocessor
@@ -135,6 +136,7 @@ template<typename T,Dist U=MC,Dist V=MR> class BlockDistMatrix;
 #include "El/core/Grid.hpp"
 #include "El/core/DistMatrix.hpp"
 #include "El/core/BlockDistMatrix.hpp"
+#include "El/core/Proxy.hpp"
 
 // Implement the intertwined parts of the library
 #include "El/core/Scalar/impl.hpp"

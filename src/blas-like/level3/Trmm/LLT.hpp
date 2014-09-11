@@ -85,8 +85,8 @@ LLTA
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
+    auto LPtr = ReadProxy<T,MC,MR>( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,MC,STAR> X1_MC_STAR(g);
     DistMatrix<T,MR,STAR> Z1_MR_STAR(g);
@@ -132,8 +132,8 @@ LLTCOld
     const Grid& g = LPre.Grid();
     const bool conjugate = ( orientation == ADJOINT );
 
-    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
+    auto LPtr = ReadProxy<T,MC,MR>( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<T,MC,  STAR> L21_MC_STAR(g);
@@ -192,8 +192,8 @@ LLTC
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
+    auto LPtr = ReadProxy<T,MC,MR>( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<T,STAR,MC  > L10_STAR_MC(g);

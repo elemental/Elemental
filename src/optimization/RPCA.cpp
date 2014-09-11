@@ -32,9 +32,9 @@ inline void ADMM
 ( const AbstractDistMatrix<F>& MPre, AbstractDistMatrix<F>& LPre, 
         AbstractDistMatrix<F>& SPre, const RPCACtrl<Base<F>>& ctrl )
 {
-    auto MPtr = ReadProxy( &MPre ); auto& M = *MPtr;
-    auto LPtr = WriteProxy( &LPre ); auto& L = *LPtr;
-    auto SPtr = WriteProxy( &SPre ); auto& S = *SPtr;
+    auto MPtr = ReadProxy<F,MC,MR>( &MPre ); auto& M = *MPtr;
+    auto LPtr = WriteProxy<F,MC,MR>( &LPre ); auto& L = *LPtr;
+    auto SPtr = WriteProxy<F,MC,MR>( &SPre ); auto& S = *SPtr;
 
     typedef Base<F> Real;
     const Int m = M.Height();
@@ -135,9 +135,9 @@ inline void ALM
         AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& SPre, 
   const RPCACtrl<Base<F>>& ctrl )
 {
-    auto MPtr = ReadProxy( &MPre ); auto& M = *MPtr;
-    auto LPtr = WriteProxy( &LPre ); auto& L = *LPtr;
-    auto SPtr = WriteProxy( &SPre ); auto& S = *SPtr;
+    auto MPtr = ReadProxy<F,MC,MR>( &MPre ); auto& M = *MPtr;
+    auto LPtr = WriteProxy<F,MC,MR>( &LPre ); auto& L = *LPtr;
+    auto SPtr = WriteProxy<F,MC,MR>( &SPre ); auto& S = *SPtr;
 
     typedef Base<F> Real;
     const Int m = M.Height();

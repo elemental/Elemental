@@ -158,8 +158,8 @@ void GaussianElimination
 
     // NOTE: Since only the upper triangle of the factorization is formed,
     //       we could usually get away with A only being a Write proxy.
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
 
     RowEchelon( A, B );
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );

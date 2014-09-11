@@ -94,14 +94,16 @@ inline void Helper
     auto wPtr = WriteProxy<Real,VR,STAR>( &wPre, wCtrl ); 
     auto& w = *wPtr;
 
+    // Force the computation to take place with double-precision since PMRRR
+    // currently only supports this case
     const Int n = d.Height();
     const Grid& g = d.Grid();
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR(g);
+    DistMatrix<double,STAR,STAR> d_STAR_STAR(g), e_STAR_STAR(g);
+    Copy( d, d_STAR_STAR );
     e_STAR_STAR.Resize( n-1, 1, n );
-    e_STAR_STAR = e;
+    Copy( e, e_STAR_STAR );
 
-    std::vector<Real> wVector(n);
+    std::vector<double> wVector(n);
     herm_tridiag_eig::Info info;
     if( subset.rangeSubset )
         info = herm_tridiag_eig::Eig
@@ -119,7 +121,7 @@ inline void Helper
             wVector.data(), w.ColComm() );
     w.Resize( info.numGlobalEigenvalues, 1 );
     for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
-        w.SetLocal( iLoc, 0, wVector[iLoc] );
+        w.SetLocal( iLoc, 0, Real(wVector[iLoc]) );
     Sort( w, sort );
 }
 
@@ -138,30 +140,33 @@ inline void Helper
     auto wPtr = WriteProxy<Real,VR,STAR>( &wPre, wCtrl ); 
     auto& w = *wPtr;
 
+    // Force the computation to take place with double-precision since PMRRR
+    // currently only supports this case
     const Int n = d.Height();
     const Grid& g = d.Grid();
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
-    DistMatrix<C,STAR,STAR> e_STAR_STAR(g);
+    DistMatrix<double,STAR,STAR> d_STAR_STAR(g);
+    DistMatrix<Complex<double>,STAR,STAR> e_STAR_STAR(g);
+    Copy( d, d_STAR_STAR );
     e_STAR_STAR.Resize( n-1, 1, n );
-    e_STAR_STAR = e;
+    Copy( e, e_STAR_STAR );
 
-    DistMatrix<Real,STAR,STAR> eReal(g);
+    DistMatrix<double,STAR,STAR> eReal(g);
     eReal.Resize( n-1, 1, n );
 
-    C yLast = 1;
+    Complex<double> yLast = 1;
     for( Int j=0; j<n-1; ++j )
     {
-        const C psi = e_STAR_STAR.GetLocal(j,0);
-        const Real psiAbs = Abs(psi);
-        if( psiAbs == Real(0) )
+        const Complex<double> psi = e_STAR_STAR.GetLocal(j,0);
+        const double psiAbs = Abs(psi);
+        if( psiAbs == double(0) )
             yLast = 1;
         else
-            yLast = ComplexFromPolar(Real(1),Arg(psi*yLast));
+            yLast = ComplexFromPolar(double(1),Arg(psi*yLast));
         eReal.SetLocal( j, 0, psiAbs );
     }
 
     herm_tridiag_eig::Info info;
-    std::vector<Real> wVector(n);
+    std::vector<double> wVector(n);
     if( subset.rangeSubset )
     {
         info = herm_tridiag_eig::Eig
@@ -184,7 +189,7 @@ inline void Helper
     }
     w.Resize( info.numGlobalEigenvalues, 1 );
     for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
-        w.SetLocal( iLoc, 0, wVector[iLoc] );
+        w.SetLocal( iLoc, 0, Real(wVector[iLoc]) );
 
     Sort( w, sort );
 }
@@ -291,26 +296,30 @@ inline void Helper
         AbstractDistMatrix<Real>& ZPre, 
   SortType sort, const HermitianEigSubset<Real>& subset )
 {
+    // NOTE: The computation forces double-precision due to PMRRR limitations
+
     const Int n = d.Height();
     const Grid& g = d.Grid();
-
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR(g);
-    e_STAR_STAR.Resize( n-1, 1, n );
-    e_STAR_STAR = e;
 
     ProxyCtrl wCtrl, ZCtrl;
     wCtrl.colConstrain = true;
     wCtrl.colAlign = 0;
     ZCtrl.rowConstrain = true;
     ZCtrl.rowAlign = 0;
-    auto wPtr = WriteProxy<Real,VR,STAR>( &wPre, wCtrl ); auto& w = *wPtr;
-    auto ZPtr = WriteProxy<Real,STAR,VR>( &ZPre, ZCtrl ); auto& Z = *ZPtr;
+    auto wPtr = WriteProxy<Real,VR,STAR>( &wPre, wCtrl );   
+    auto& w = *wPtr;
+    auto ZPtr = WriteProxy<double,STAR,VR>( &ZPre, ZCtrl ); 
+    auto& Z = *ZPtr;
+
+    DistMatrix<double,STAR,STAR> d_STAR_STAR(g), e_STAR_STAR(g);
+    Copy( d, d_STAR_STAR );
+    e_STAR_STAR.Resize( n-1, 1, n );
+    Copy( e, e_STAR_STAR );
 
     Int k;
     if( subset.rangeSubset )
     {
-        std::vector<Real> dVector(n), eVector(n), wVector(n);
+        std::vector<double> dVector(n), eVector(n), wVector(n);
         MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
         MemCopy( eVector.data(), e_STAR_STAR.Buffer(), n-1 );
         auto estimate = herm_tridiag_eig::EigEstimate
@@ -328,7 +337,7 @@ inline void Helper
     Z.Resize( n, k );
 
     herm_tridiag_eig::Info info;
-    std::vector<Real> wVector(n);
+    std::vector<double> wVector(n);
     if( subset.rangeSubset )
         info = herm_tridiag_eig::Eig
           ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
@@ -346,7 +355,7 @@ inline void Helper
     w.Resize( info.numGlobalEigenvalues, 1 );
     Z.Resize( n, info.numGlobalEigenvalues );
     for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
-        w.SetLocal( iLoc, 0, wVector[iLoc] );
+        w.SetLocal( iLoc, 0, Real(wVector[iLoc]) );
 
     herm_eig::Sort( w, Z, sort );
 }
@@ -359,29 +368,31 @@ inline void Helper
         AbstractDistMatrix<Complex<Real>>& ZPre, 
   SortType sort, const HermitianEigSubset<Real>& subset )
 {
+    // NOTE: The computation forces double-precision due to PMRRR limitations
     const Int n = d.Height();
     const Grid& g = d.Grid();
     typedef Complex<Real> C;
 
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
-    DistMatrix<C,STAR,STAR> e_STAR_STAR(g);
+    DistMatrix<double,STAR,STAR> d_STAR_STAR(g);
+    DistMatrix<Complex<double>,STAR,STAR> e_STAR_STAR(g);
+    Copy( d, d_STAR_STAR );
     e_STAR_STAR.Resize( n-1, 1, n );
-    e_STAR_STAR = e;
+    Copy( e, e_STAR_STAR );
 
-    DistMatrix<C,   STAR,STAR> y(n,1,g);
-    DistMatrix<Real,STAR,STAR> eReal(g);
+    DistMatrix<Complex<double>,STAR,STAR> y(n,1,g);
+    DistMatrix<double,STAR,STAR> eReal(g);
     eReal.Resize( n-1, 1, n );
 
     y.SetLocal(0,0,1);
     for( Int j=0; j<n-1; ++j )
     {
-        const C psi = e_STAR_STAR.GetLocal(j,0);
-        const Real psiAbs = Abs(psi);
-        if( psiAbs == Real(0) )
+        const Complex<double> psi = e_STAR_STAR.GetLocal(j,0);
+        const double psiAbs = Abs(psi);
+        if( psiAbs == double(0) )
             y.SetLocal( j+1, 0, 1 );
         else
             y.SetLocal
-            ( j+1, 0, ComplexFromPolar(Real(1),Arg(psi*y.GetLocal(j,0))) );
+            ( j+1, 0, ComplexFromPolar(double(1),Arg(psi*y.GetLocal(j,0))) );
         eReal.SetLocal( j, 0, psiAbs );
     }
 
@@ -391,12 +402,12 @@ inline void Helper
     ZCtrl.rowConstrain = true;
     ZCtrl.rowAlign = 0;
     auto wPtr = WriteProxy<Real,VR,STAR>( &wPre, wCtrl ); auto& w = *wPtr;
-    auto ZPtr = WriteProxy<C,   STAR,VR>( &ZPre, ZCtrl ); auto& Z = *ZPtr;
+    auto ZPtr = WriteProxy<C,STAR,VR>( &ZPre, ZCtrl );    auto& Z = *ZPtr;
 
     Int k;
     if( subset.rangeSubset )
     {
-        std::vector<Real> dVector(n), eVector(n), wVector(n);
+        std::vector<double> dVector(n), eVector(n), wVector(n);
         MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
         MemCopy( eVector.data(), eReal.Buffer(), n-1 );
         auto estimate = herm_tridiag_eig::EigEstimate
@@ -411,11 +422,11 @@ inline void Helper
         k = ( n==0 ? 0 : subset.upperIndex-subset.lowerIndex+1 );
     else
         k = n;
-    DistMatrix<Real,STAR,VR> ZReal(g);
+    DistMatrix<double,STAR,VR> ZReal(g);
     ZReal.Resize( n, k );
 
     herm_tridiag_eig::Info info;
-    std::vector<Real> wVector(n);
+    std::vector<double> wVector(n);
     if( subset.rangeSubset )
         info = herm_tridiag_eig::Eig
           ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(), 
@@ -441,7 +452,7 @@ inline void Helper
     Z.Resize( n, info.numGlobalEigenvalues );
     for( Int jLoc=0; jLoc<Z.LocalWidth(); ++jLoc )
         for( Int i=0; i<n; ++i )
-            Z.SetLocal( i, jLoc, y.GetLocal(i,0)*ZReal.GetLocal(i,jLoc) );
+            Z.SetLocal( i, jLoc, C(y.GetLocal(i,0)*ZReal.GetLocal(i,jLoc)) );
 }
 
 } // namespace herm_tridiag_eig
@@ -463,11 +474,12 @@ Int HermitianTridiagEigEstimate
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEigEstimate"))
     const Int n = d.Height();
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR( d.Grid() );
+    DistMatrix<double,STAR,STAR> d_STAR_STAR( d.Grid() );
+    DistMatrix<double,STAR,STAR> e_STAR_STAR( d.Grid() );
+    Copy( d, d_STAR_STAR );
     e_STAR_STAR.Resize( n-1, 1, n );
-    e_STAR_STAR = e;
-    std::vector<Real> dVector(n), eVector(n), wVector(n);
+    Copy( e, e_STAR_STAR );
+    std::vector<double> dVector(n), eVector(n), wVector(n);
     MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
     MemCopy( eVector.data(), e_STAR_STAR.Buffer(), n-1 );
     auto estimate = herm_tridiag_eig::EigEstimate
@@ -490,16 +502,19 @@ void HermitianTridiagEigPostEstimate
     wCtrl.colAlign = 0;
     ZCtrl.rowConstrain = true;
     ZCtrl.rowAlign = 0;
-    auto wPtr = WriteProxy<Real,VR,STAR>( &wPre, wCtrl ); auto& w = *wPtr;
-    auto ZPtr = WriteProxy<Real,STAR,VR>( &ZPre, ZCtrl ); auto& Z = *ZPtr;
+    auto wPtr = WriteProxy<Real,VR,STAR>( &wPre, wCtrl ); 
+    auto& w = *wPtr;
+    auto ZPtr = WriteProxy<double,STAR,VR>( &ZPre, ZCtrl ); 
+    auto& Z = *ZPtr;
 
     const Int n = d.Height();
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR( d.Grid() );
+    DistMatrix<double,STAR,STAR> d_STAR_STAR( d.Grid() ),
+                                 e_STAR_STAR( d.Grid() );
+    Copy( d, d_STAR_STAR );
     e_STAR_STAR.Resize( n-1, 1, n );
-    e_STAR_STAR = e;
+    Copy( e, e_STAR_STAR );
 
-    std::vector<Real> wVector(n);
+    std::vector<double> wVector(n);
     auto info = herm_tridiag_eig::Eig
     ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), wVector.data(), 
       Z.Buffer(), Z.LDim(), w.ColComm(), vl, vu );
@@ -507,7 +522,7 @@ void HermitianTridiagEigPostEstimate
 
     w.Resize( k, 1 );
     for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
-        w.SetLocal( iLoc, 0, wVector[iLoc] );
+        w.SetLocal( iLoc, 0, Real(wVector[iLoc]) );
 
     // Shrink Z
     Z.Resize( n, k );
@@ -515,7 +530,7 @@ void HermitianTridiagEigPostEstimate
     herm_eig::Sort( w, Z, sort );
 }
 
-#define PROTO_BASE(F) \
+#define PROTO(F) \
   template void herm_eig::Sort \
   ( Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort ); \
   template void herm_eig::Sort \
@@ -525,10 +540,7 @@ void HermitianTridiagEigPostEstimate
     const HermitianEigSubset<Base<F>>& subset ); \
   template void HermitianTridiagEig \
   ( Matrix<Base<F>>& d, Matrix<F>& e, Matrix<Base<F>>& w, Matrix<F>& Z, \
-    SortType sort, const HermitianEigSubset<Base<F>>& subset );
-
-#define PROTO(F) \
-  PROTO_BASE(F) \
+    SortType sort, const HermitianEigSubset<Base<F>>& subset ); \
   template void HermitianTridiagEig \
   ( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& e, \
           AbstractDistMatrix<Base<F>>& w, \
@@ -549,11 +561,19 @@ void HermitianTridiagEigPostEstimate
           AbstractDistMatrix<Real>& w,       AbstractDistMatrix<Real>& Z, \
     SortType sort, Real vl, Real vu );
 
+#define PROTO_FLOAT \
+  PROTO_REAL(float) \
+  template void herm_eig::Sort \
+  ( AbstractDistMatrix<float>& w, AbstractDistMatrix<double>& Z, \
+    SortType sort );
+
+#define PROTO_COMPLEX_FLOAT \
+  PROTO(Complex<float>) \
+  template void herm_eig::Sort \
+  ( AbstractDistMatrix<float>& w, AbstractDistMatrix<Complex<double>>& Z, \
+    SortType sort );
+
 #define EL_NO_INT_PROTO
-#define PROTO_FLOAT          PROTO_BASE(float)
-#define PROTO_DOUBLE         PROTO_REAL(double)
-#define PROTO_COMPLEX_FLOAT  PROTO_BASE(Complex<float>)
-#define PROTO_COMPLEX_DOUBLE PROTO(Complex<double>)
 #include "El/macros/Instantiate.h"
 
 } // namespace El

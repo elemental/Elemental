@@ -453,6 +453,9 @@ extern "C" {
   ElError ElFoxLi_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt n, Base<T> omega ) \
   { EL_TRY( FoxLi( *CReflect(A), n, omega ) ) } \
+  ElError ElFoxLiDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt n, Base<T> omega ) \
+  { EL_TRY( FoxLi( *CReflect(A), n, omega ) ) } \
   /* Fourier */ \
   ElError ElFourier_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( Fourier( *CReflect(A), n ) ) } \

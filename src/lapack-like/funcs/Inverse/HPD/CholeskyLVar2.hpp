@@ -75,7 +75,7 @@ CholeskyLVar2( AbstractDistMatrix<F>& APre )
             LogicError("Nonsquare matrices cannot be triangular");
     )
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     // Matrix views

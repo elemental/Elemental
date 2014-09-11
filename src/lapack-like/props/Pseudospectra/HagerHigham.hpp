@@ -524,7 +524,7 @@ HagerHigham
     DEBUG_ONLY(CallStackEntry cse("pspec::HagerHigham"))
     typedef Complex<Real> C;
 
-    auto UPtr = ReadProxy( &UPre ); 
+    auto UPtr = ReadProxy<C,MC,MR>( &UPre ); 
     auto& U = *UPtr;
 
     auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
@@ -725,10 +725,10 @@ HagerHigham
     using namespace pspec;
     typedef Complex<Real> C;
 
-    auto UPtr = ReadProxy( &UPre );
+    auto UPtr = ReadProxy<C,MC,MR>( &UPre );
     auto& U = *UPtr;
 
-    auto QPtr = ReadProxy( &QPre );
+    auto QPtr = ReadProxy<C,MC,MR>( &QPre );
     auto& Q = *QPtr;
 
     auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );

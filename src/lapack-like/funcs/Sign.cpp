@@ -214,7 +214,7 @@ void Sign( AbstractDistMatrix<F>& APre, const SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Sign"))
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     sign::Newton( A, ctrl );
@@ -227,8 +227,8 @@ void Sign
 {
     DEBUG_ONLY(CallStackEntry cse("Sign"))
 
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto NPtr = WriteProxy( &NPre );     auto& N = *NPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto NPtr = WriteProxy<F,MC,MR>( &NPre );     auto& N = *NPtr;
 
     DistMatrix<F> ACopy( A );
     sign::Newton( A, ctrl );
@@ -314,7 +314,7 @@ void HermitianSign
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     // Get the EVD of A
@@ -346,8 +346,8 @@ void HermitianSign
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
 
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto NPtr = WriteProxy( &NPre );     auto& N = *NPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto NPtr = WriteProxy<F,MC,MR>( &NPre );     auto& N = *NPtr;
 
     // Get the EVD of A
     typedef Base<F> Real;

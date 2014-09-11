@@ -27,7 +27,7 @@ UVar3Square( AbstractDistMatrix<F>& APre )
             LogicError("CholeskyUVar3Square assumes a square process grid.");
     )
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     // Find the process holding our transposed data

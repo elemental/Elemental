@@ -96,7 +96,7 @@ InverseFreeSign( AbstractDistMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::InverseFreeSign"))
 
-    auto XPtr = ReadWriteProxy( &XPre );
+    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre );
     auto& X = *XPtr;
 
     typedef Base<F> Real;
@@ -211,7 +211,7 @@ InverseFreeSignDivide( AbstractDistMatrix<F>& XPre )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::InverseFreeSignDivide"))
 
-    auto XPtr = ReadWriteProxy( &XPre );
+    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre );
     auto& X = *XPtr;
 
     typedef Base<F> Real;

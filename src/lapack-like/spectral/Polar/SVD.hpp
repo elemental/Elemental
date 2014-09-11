@@ -57,7 +57,7 @@ SVD( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(CallStackEntry cse("polar::SVD"))
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     // Get the SVD of A
@@ -78,8 +78,8 @@ SVD( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& PPre )
 {
     DEBUG_ONLY(CallStackEntry cse("polar::SVD"))
 
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto PPtr = WriteProxy( &PPre );     auto& P = *PPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto PPtr = WriteProxy<F,MC,MR>( &PPre );     auto& P = *PPtr;
 
     // Get the SVD of A
     typedef Base<F> Real;

@@ -146,11 +146,11 @@ void LSE
 {
     DEBUG_ONLY(CallStackEntry cse("LSE"))
 
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
-    auto DPtr = ReadWriteProxy( &DPre ); auto& D = *DPtr;
-    auto XPtr = WriteProxy( &XPre );     auto& X = *XPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy<F,MC,MR>( &CPre ); auto& C = *CPtr;
+    auto DPtr = ReadWriteProxy<F,MC,MR>( &DPre ); auto& D = *DPtr;
+    auto XPtr = WriteProxy<F,MC,MR>( &XPre );     auto& X = *XPtr;
 
     const Int m = A.Height();
     const Int n = A.Width();

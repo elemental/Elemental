@@ -32,13 +32,18 @@ void HatanoNelson
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 void HatanoNelson
-( DistMatrix<F,U,V>& A, Int n, F center, Base<F> radius, F g, bool periodic )
+( AbstractDistMatrix<F>& APre, Int n, 
+  F center, Base<F> radius, F g, bool periodic )
 {
     DEBUG_ONLY(CallStackEntry cse("HatanoNelson"))
     if( n < 3 )
         LogicError("Hatano Nelson requires at least a 3x3 matrix");
+
+    auto APtr = WriteProxy<F,MC,MR>( &APre );
+    auto& A = *APtr;
+
     Zeros( A, n, n );
     auto d = A.GetDiagonal();
     MakeUniform( d, center, radius );
@@ -52,14 +57,19 @@ void HatanoNelson
     }
 }
 
-template<typename F,Dist U,Dist V>
+/*
+template<typename F>
 void HatanoNelson
-( BlockDistMatrix<F,U,V>& A, Int n, F center, Base<F> radius, F g, 
-  bool periodic )
+( AbstractBlockDistMatrix<F>& APre, Int n, 
+  F center, Base<F> radius, F g, bool periodic )
 {
     DEBUG_ONLY(CallStackEntry cse("HatanoNelson"))
     if( n < 3 )
         LogicError("Hatano Nelson requires at least a 3x3 matrix");
+
+    auto APtr = WriteProxy<F,MC,MR>( &APre );
+    auto& A = *APtr;
+
     Zeros( A, n, n );
     auto d = A.GetDiagonal();
     MakeUniform( d, center, radius );
@@ -72,32 +82,14 @@ void HatanoNelson
         A.Set( n-1, 0,   Exp( g) );
     }
 }
-
-#define PROTO_DIST(F,U,V) \
-  template void HatanoNelson \
-  ( DistMatrix<F,U,V>& A, Int n, F center, Base<F> radius, F g, \
-    bool periodic ); \
-  template void HatanoNelson \
-  ( BlockDistMatrix<F,U,V>& A, Int n, F center, Base<F> radius, F g, \
-    bool periodic ); 
+*/
 
 #define PROTO(F) \
   template void HatanoNelson \
   ( Matrix<F>& A, Int n, F center, Base<F> radius, F g, bool periodic ); \
-  PROTO_DIST(F,CIRC,CIRC) \
-  PROTO_DIST(F,MC,  MR  ) \
-  PROTO_DIST(F,MC,  STAR) \
-  PROTO_DIST(F,MD,  STAR) \
-  PROTO_DIST(F,MR,  MC  ) \
-  PROTO_DIST(F,MR,  STAR) \
-  PROTO_DIST(F,STAR,MC  ) \
-  PROTO_DIST(F,STAR,MD  ) \
-  PROTO_DIST(F,STAR,MR  ) \
-  PROTO_DIST(F,STAR,STAR) \
-  PROTO_DIST(F,STAR,VC  ) \
-  PROTO_DIST(F,STAR,VR  ) \
-  PROTO_DIST(F,VC,  STAR) \
-  PROTO_DIST(F,VR,  STAR)
+  template void HatanoNelson \
+  ( AbstractDistMatrix<F>& A, Int n, \
+    F center, Base<F> radius, F g, bool periodic );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

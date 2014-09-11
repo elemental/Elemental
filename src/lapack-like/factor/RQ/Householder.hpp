@@ -70,7 +70,7 @@ Householder
     const Int iOff = m-minDim;
     const Int jOff = n-minDim;
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     auto tPtr = WriteProxy<F,      MD,STAR>( &tPre ); auto& t = *tPtr;

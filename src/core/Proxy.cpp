@@ -10,63 +10,71 @@
 
 namespace El {
 
-template<typename T,Dist U,Dist V>
-std::shared_ptr<const DistMatrix<T,U,V>> ReadProxy
-( const AbstractDistMatrix<T>* A, const ProxyCtrl& ctrl )
+// Read proxy
+// ==========
+
+// Sequential
+// ----------
+
+template<typename T,typename S>
+std::shared_ptr<const Matrix<T>> ReadProxy( const Matrix<S>* A )
 {
-    typedef DistMatrix<T,U,V> DM;
-    const DM* ACast = dynamic_cast<const DM*>(A);
-
-    const bool haveDist = (ACast != nullptr);
-    const bool haveColAlign = haveDist && 
-        (!ctrl.colConstrain || A->ColAlign() == ctrl.colAlign);
-    const bool haveRowAlign = haveDist &&
-        (!ctrl.rowConstrain || A->RowAlign() == ctrl.rowAlign);
-    const bool haveRoot = haveDist &&
-        (!ctrl.rootConstrain || A->Root() == ctrl.root);
-
-    if( haveColAlign && haveRowAlign && haveRoot )
+    if( std::is_same<S,T>::value )
     {
-        return std::shared_ptr<const DM>( ACast, []( const DM* B ) { } );
+        auto ACast = reinterpret_cast<const Matrix<T>*>(A);
+        return std::shared_ptr<const Matrix<T>>
+               ( ACast, []( const Matrix<T>* B ) { } );
     }
     else
     {
-        auto AShared = std::make_shared<DM>( A->Grid() );
-        if( ctrl.rootConstrain )
-            AShared->SetRoot( ctrl.root );
-        if( ctrl.colConstrain )
-            AShared->AlignCols( ctrl.colAlign );
-        if( ctrl.rowConstrain )
-            AShared->AlignRows( ctrl.rowAlign );
+        auto AShared = std::make_shared<Matrix<T>>();
         Copy( *A, *AShared );
         return AShared;
     }
 }
 
-template<typename Real>
-std::shared_ptr<const Matrix<Complex<Real>>> ComplexReadProxy
-( const Matrix<Real>* A )
+template<typename T,typename S>
+std::shared_ptr<Matrix<T>> ReadProxy( Matrix<S>* A )
 {
-    typedef Matrix<Complex<Real>> MCpx;
-    auto AShared = std::make_shared<MCpx>();
-    Copy( *A, *AShared );
-    return AShared;
+    if( std::is_same<S,T>::value )
+    {
+        auto ACast = reinterpret_cast<Matrix<T>*>(A);
+        return std::shared_ptr<Matrix<T>>
+               ( ACast, []( const Matrix<T>* B ) { } );
+    }
+    else 
+    {
+        auto AShared = std::make_shared<Matrix<T>>();
+        Copy( *A, *AShared );
+        return AShared;
+    }
 }
 
-template<typename Real>
-std::shared_ptr<const Matrix<Complex<Real>>> ComplexReadProxy
-( const Matrix<Complex<Real>>* A )
-{
-    typedef Matrix<Complex<Real>> M;
-    return std::shared_ptr<const M>( A, []( const M* B ) { } );
-}
+// Distributed
+// -----------
 
-template<typename Real,Dist U,Dist V>
-std::shared_ptr<const DistMatrix<Complex<Real>,U,V>> ComplexReadProxy
-( const AbstractDistMatrix<Real>* A, const ProxyCtrl& ctrl )
+template<typename T,Dist U,Dist V,typename S>
+std::shared_ptr<const DistMatrix<T,U,V>> 
+ReadProxy( const AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
 {
-    typedef DistMatrix<Complex<Real>,U,V> DMCpx;
-    auto AShared = std::make_shared<DMCpx>( A->Grid() );
+    typedef DistMatrix<T,U,V> DM;
+    if( std::is_same<S,T>::value )
+    {
+        const DM* ACast = dynamic_cast<const DM*>(A);
+
+        const bool haveDist = (ACast != nullptr);
+        const bool haveColAlign = haveDist && 
+            (!ctrl.colConstrain || A->ColAlign() == ctrl.colAlign);
+        const bool haveRowAlign = haveDist &&
+            (!ctrl.rowConstrain || A->RowAlign() == ctrl.rowAlign);
+        const bool haveRoot = haveDist &&
+            (!ctrl.rootConstrain || A->Root() == ctrl.root);
+
+        if( haveColAlign && haveRowAlign && haveRoot )
+            return std::shared_ptr<const DM>( ACast, []( const DM* B ) { } );
+    }
+
+    auto AShared = std::make_shared<DM>( A->Grid() );
     if( ctrl.rootConstrain )
         AShared->SetRoot( ctrl.root );
     if( ctrl.colConstrain )
@@ -77,67 +85,28 @@ std::shared_ptr<const DistMatrix<Complex<Real>,U,V>> ComplexReadProxy
     return AShared;
 }
 
-template<typename Real,Dist U,Dist V>
-std::shared_ptr<const DistMatrix<Complex<Real>,U,V>> ComplexReadProxy
-( const AbstractDistMatrix<Complex<Real>>* A, const ProxyCtrl& ctrl )
-{ return ReadProxy<Complex<Real>,U,V>( A, ctrl ); }
-
-template<typename T,Dist U,Dist V>
-std::shared_ptr<DistMatrix<T,U,V>> ReadProxy
-( AbstractDistMatrix<T>* A, const ProxyCtrl& ctrl )
+template<typename T,Dist U,Dist V,typename S>
+std::shared_ptr<DistMatrix<T,U,V>> 
+ReadProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
 {
     typedef DistMatrix<T,U,V> DM;
-    DM* ACast = dynamic_cast<DM*>(A);
-
-    const bool haveDist = (ACast != nullptr);
-    const bool haveColAlign = haveDist && 
-        (!ctrl.colConstrain || A->ColAlign() == ctrl.colAlign);
-    const bool haveRowAlign = haveDist &&
-        (!ctrl.rowConstrain || A->RowAlign() == ctrl.rowAlign);
-    const bool haveRoot = haveDist &&
-        (!ctrl.rootConstrain || A->Root() == ctrl.root);
-
-    if( haveColAlign && haveRowAlign && haveRoot )
+    if( std::is_same<S,T>::value )
     {
-        return std::shared_ptr<DM>( ACast, []( const DM* B ) { } );
+        DM* ACast = dynamic_cast<DM*>(A);
+
+        const bool haveDist = (ACast != nullptr);
+        const bool haveColAlign = haveDist && 
+            (!ctrl.colConstrain || A->ColAlign() == ctrl.colAlign);
+        const bool haveRowAlign = haveDist &&
+            (!ctrl.rowConstrain || A->RowAlign() == ctrl.rowAlign);
+        const bool haveRoot = haveDist &&
+            (!ctrl.rootConstrain || A->Root() == ctrl.root);
+
+        if( haveColAlign && haveRowAlign && haveRoot )
+            return std::shared_ptr<DM>( ACast, []( const DM* B ) { } );
     }
-    else
-    {
-        auto AShared = std::make_shared<DM>( A->Grid() );
-        if( ctrl.rootConstrain )
-            AShared->SetRoot( ctrl.root );
-        if( ctrl.colConstrain )
-            AShared->AlignCols( ctrl.colAlign );
-        if( ctrl.rowConstrain )
-            AShared->AlignRows( ctrl.rowAlign );
-        Copy( *A, *AShared );
-        return AShared;
-    }
-}
 
-template<typename Real>
-std::shared_ptr<Matrix<Complex<Real>>> ComplexReadProxy( Matrix<Real>* A )
-{
-    typedef Matrix<Complex<Real>> MCpx;
-    auto AShared = std::make_shared<MCpx>();
-    Copy( *A, *AShared );
-    return AShared;
-}
-
-template<typename Real>
-std::shared_ptr<Matrix<Complex<Real>>> ComplexReadProxy
-( Matrix<Complex<Real>>* A )
-{
-    typedef Matrix<Complex<Real>> M;
-    return std::shared_ptr<M>( A, []( const M* B ) { } );
-}
-
-template<typename Real,Dist U,Dist V>
-std::shared_ptr<DistMatrix<Complex<Real>,U,V>> ComplexReadProxy
-( AbstractDistMatrix<Real>* A, const ProxyCtrl& ctrl )
-{
-    typedef DistMatrix<Complex<Real>,U,V> DMCpx;
-    auto AShared = std::make_shared<DMCpx>( A->Grid() );
+    auto AShared = std::make_shared<DM>( A->Grid() );
     if( ctrl.rootConstrain )
         AShared->SetRoot( ctrl.root );
     if( ctrl.colConstrain )
@@ -148,155 +117,257 @@ std::shared_ptr<DistMatrix<Complex<Real>,U,V>> ComplexReadProxy
     return AShared;
 }
 
-template<typename Real,Dist U,Dist V>
-std::shared_ptr<DistMatrix<Complex<Real>,U,V>> ComplexReadProxy
-( AbstractDistMatrix<Complex<Real>>* A, const ProxyCtrl& ctrl )
-{ return ReadProxy<Complex<Real>,U,V>( A, ctrl ); }
+// Read-write proxy
+// ================
 
-template<typename T,Dist U,Dist V>
-std::shared_ptr<DistMatrix<T,U,V>> ReadWriteProxy
-( AbstractDistMatrix<T>* A, const ProxyCtrl& ctrl )
+// Sequential
+// ----------
+
+template<typename T,typename S>
+std::shared_ptr<Matrix<T>> ReadWriteProxy( Matrix<S>* A )
 {
-    typedef DistMatrix<T,U,V> DM;
-    DM* ACast = dynamic_cast<DM*>(A);
-
-    const bool haveDist = (ACast != nullptr);
-    const bool haveColAlign = haveDist &&
-        (!ctrl.colConstrain || A->ColAlign() == ctrl.colAlign);
-    const bool haveRowAlign = haveDist &&
-        (!ctrl.rowConstrain || A->RowAlign() == ctrl.rowAlign);
-    const bool haveRoot = haveDist &&
-        (!ctrl.rootConstrain || A->Root() == ctrl.root);
-
-    if( haveColAlign && haveRowAlign && haveRoot )
+    typedef Matrix<T> M;
+    if( std::is_same<S,T>::value )
     {
-        return std::shared_ptr<DM>( ACast, []( const DM* B ) { } );
+        auto ACast = reinterpret_cast<Matrix<T>*>(A);
+        return std::shared_ptr<Matrix<T>>
+               ( ACast, []( const Matrix<T>* B ) { } );
     }
     else
     {
-        DM* ARaw = new DM( A->Grid() );
-
-        try
-        {
-            if( ctrl.rootConstrain )
-                ARaw->SetRoot( ctrl.root );
-            if( ctrl.colConstrain )
-                ARaw->AlignCols( ctrl.colAlign );
-            if( ctrl.rowConstrain )
-                ARaw->AlignRows( ctrl.rowAlign );
-            Copy( *A, *ARaw );
-        }
-        catch( std::exception& e )
-        {
-            delete ARaw;
-            throw e;
-        }
-
-        return std::shared_ptr<DM>
-               ( ARaw, [=]( const DM* B ) { Copy( *B, *A ); delete B; } );
+        auto B = new M;
+        Copy( *A, *B );
+        return std::shared_ptr<M>
+               ( B, [=]( const M* C ) { Copy( *C, *A ); delete C; } );
     }
 }
 
-template<typename T,Dist U,Dist V>
-std::shared_ptr<DistMatrix<T,U,V>> WriteProxy
-( AbstractDistMatrix<T>* A, const ProxyCtrl& ctrl )
+// Distributed
+// -----------
+
+template<typename T,Dist U,Dist V,typename S>
+std::shared_ptr<DistMatrix<T,U,V>> 
+ReadWriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
 {
     typedef DistMatrix<T,U,V> DM;
-    DM* ACast = dynamic_cast<DM*>(A);
-
-    const bool haveDist = (ACast != nullptr);
-    const bool haveColAlign = haveDist &&
-        (!ctrl.colConstrain || A->ColAlign() == ctrl.colAlign);
-    const bool haveRowAlign = haveDist &&
-        (!ctrl.rowConstrain || A->RowAlign() == ctrl.rowAlign);
-    const bool haveRoot = haveDist &&
-        (!ctrl.rootConstrain || A->Root() == ctrl.root);
-
-    if( haveColAlign && haveRowAlign && haveRoot )
+    if( std::is_same<S,T>::value )
     {
-        return std::shared_ptr<DM>( ACast, []( const DM* B ) { } );
+        DM* ACast = dynamic_cast<DM*>(A);
+
+        const bool haveDist = (ACast != nullptr);
+        const bool haveColAlign = haveDist &&
+            (!ctrl.colConstrain || A->ColAlign() == ctrl.colAlign);
+        const bool haveRowAlign = haveDist &&
+            (!ctrl.rowConstrain || A->RowAlign() == ctrl.rowAlign);
+        const bool haveRoot = haveDist &&
+            (!ctrl.rootConstrain || A->Root() == ctrl.root);
+
+        if( haveColAlign && haveRowAlign && haveRoot )
+            return std::shared_ptr<DM>( ACast, []( const DM* B ) { } );
     }
-    else
+
+    DM* ARaw = new DM( A->Grid() );
+    try
     {
-        DM* ARaw = new DM( A->Grid() );
-
-        try
-        {
-            if( ctrl.rootConstrain )
-                ARaw->SetRoot( ctrl.root );
-            if( ctrl.colConstrain )
-                ARaw->AlignCols( ctrl.colAlign );
-            if( ctrl.rowConstrain )
-                ARaw->AlignRows( ctrl.rowAlign );
-            ARaw->Resize( A->Height(), A->Width() );
-        }
-        catch( std::exception& e )
-        {
-            delete ARaw;
-            throw e;
-        }
-
-        return std::shared_ptr<DM>
-               ( ARaw, [=]( const DM* B ) { Copy( *B, *A ); delete B; } );
+        if( ctrl.rootConstrain )
+            ARaw->SetRoot( ctrl.root );
+        if( ctrl.colConstrain )
+            ARaw->AlignCols( ctrl.colAlign );
+        if( ctrl.rowConstrain )
+            ARaw->AlignRows( ctrl.rowAlign );
+        Copy( *A, *ARaw );
     }
+    catch( std::exception& e )
+    {
+        delete ARaw;
+        throw e;
+    }
+
+    return std::shared_ptr<DM>
+           ( ARaw, [=]( const DM* B ) { Copy( *B, *A ); delete B; } );
 }
 
-#define DIST_PROTO_BASE(T,U,V) \
+// Write proxy
+// ===========
+
+// Sequential
+// ----------
+
+template<typename T,typename S>
+std::shared_ptr<Matrix<T>> WriteProxy( Matrix<S>* A )
+{
+    typedef Matrix<T> M;
+    if( std::is_same<S,T>::value )
+    {
+        auto ACast = reinterpret_cast<Matrix<T>*>(A);
+        return std::shared_ptr<Matrix<T>>
+               ( ACast, []( const Matrix<T>* B ) { } );
+    }
+    else
+        return std::shared_ptr<M>
+               ( new M(A->Height(),A->Width()), 
+                 [=]( const M* B ) { Copy( *B, *A ); delete B; } );
+}
+
+// Distributed
+// -----------
+
+template<typename T,Dist U,Dist V,typename S>
+std::shared_ptr<DistMatrix<T,U,V>> 
+WriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
+{
+    typedef DistMatrix<T,U,V> DM;
+    if( std::is_same<S,T>::value )
+    {
+        DM* ACast = dynamic_cast<DM*>(A);
+
+        const bool haveDist = (ACast != nullptr);
+        const bool haveColAlign = haveDist &&
+            (!ctrl.colConstrain || A->ColAlign() == ctrl.colAlign);
+        const bool haveRowAlign = haveDist &&
+            (!ctrl.rowConstrain || A->RowAlign() == ctrl.rowAlign);
+        const bool haveRoot = haveDist &&
+            (!ctrl.rootConstrain || A->Root() == ctrl.root);
+
+        if( haveColAlign && haveRowAlign && haveRoot )
+            return std::shared_ptr<DM>( ACast, []( const DM* B ) { } );
+    }
+
+    DM* ARaw = new DM( A->Grid() );
+    try
+    {
+        if( ctrl.rootConstrain )
+            ARaw->SetRoot( ctrl.root );
+        if( ctrl.colConstrain )
+            ARaw->AlignCols( ctrl.colAlign );
+        if( ctrl.rowConstrain )
+            ARaw->AlignRows( ctrl.rowAlign );
+        ARaw->Resize( A->Height(), A->Width() );
+    }
+    catch( std::exception& e )
+    {
+        delete ARaw;
+        throw e;
+    }
+
+    return std::shared_ptr<DM>
+           ( ARaw, [=]( const DM* B ) { Copy( *B, *A ); delete B; } );
+}
+
+// TODO: include guards so that certain datatypes can be properly disabled 
+
+#define READ_CONVERT_DIST(S,T,U,V) \
   template std::shared_ptr<const DistMatrix<T,U,V>> \
-  ReadProxy( const AbstractDistMatrix<T>* A, const ProxyCtrl& ctrl ); \
+  ReadProxy( const AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl ); \
   template std::shared_ptr<DistMatrix<T,U,V>> \
-  ReadProxy( AbstractDistMatrix<T>* A, const ProxyCtrl& ctrl ); \
+  ReadProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl );
+
+#define READWRITE_CONVERT_DIST(S,T,U,V) \
   template std::shared_ptr<DistMatrix<T,U,V>> \
-  ReadWriteProxy( AbstractDistMatrix<T>* A, const ProxyCtrl& ctrl ); \
+  ReadWriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl );
+
+#define WRITE_CONVERT_DIST(S,T,U,V) \
   template std::shared_ptr<DistMatrix<T,U,V>> \
-  WriteProxy( AbstractDistMatrix<T>* A, const ProxyCtrl& ctrl );
+  WriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl );
 
-#define DIST_PROTO_FIELD(F,U,V) \
-  DIST_PROTO_BASE(F,U,V) \
-  template std::shared_ptr<const DistMatrix<Complex<Base<F>>,U,V>> \
-  ComplexReadProxy( const AbstractDistMatrix<F>* A, const ProxyCtrl& ctrl ); \
-  template std::shared_ptr<DistMatrix<Complex<Base<F>>,U,V>> \
-  ComplexReadProxy( AbstractDistMatrix<F>* A, const ProxyCtrl& ctrl );
+#define CONVERT_DIST(S,T,U,V) \
+  READ_CONVERT_DIST(S,T,U,V) \
+  READWRITE_CONVERT_DIST(S,T,U,V) \
+  WRITE_CONVERT_DIST(S,T,U,V)
 
-#define PROTO_BASE(T) \
-  DIST_PROTO_BASE(T,CIRC,CIRC); \
-  DIST_PROTO_BASE(T,MC,  MR  ); \
-  DIST_PROTO_BASE(T,MC,  STAR); \
-  DIST_PROTO_BASE(T,MD,  STAR); \
-  DIST_PROTO_BASE(T,MR,  MC  ); \
-  DIST_PROTO_BASE(T,MR,  STAR); \
-  DIST_PROTO_BASE(T,STAR,MC  ); \
-  DIST_PROTO_BASE(T,STAR,MD  ); \
-  DIST_PROTO_BASE(T,STAR,MR  ); \
-  DIST_PROTO_BASE(T,STAR,STAR); \
-  DIST_PROTO_BASE(T,STAR,VC  ); \
-  DIST_PROTO_BASE(T,STAR,VR  ); \
-  DIST_PROTO_BASE(T,VC  ,STAR); \
-  DIST_PROTO_BASE(T,VR  ,STAR);
+#define READ_CONVERT(S,T) \
+  template std::shared_ptr<const Matrix<T>> ReadProxy( const Matrix<S>* A ); \
+  template std::shared_ptr<Matrix<T>> ReadProxy( Matrix<S>* A ); \
+  READ_CONVERT_DIST(S,T,CIRC,CIRC) \
+  READ_CONVERT_DIST(S,T,MC,  MR  ) \
+  READ_CONVERT_DIST(S,T,MC,  STAR) \
+  READ_CONVERT_DIST(S,T,MD,  STAR) \
+  READ_CONVERT_DIST(S,T,MR,  MC  ) \
+  READ_CONVERT_DIST(S,T,MR,  STAR) \
+  READ_CONVERT_DIST(S,T,STAR,MC  ) \
+  READ_CONVERT_DIST(S,T,STAR,MD  ) \
+  READ_CONVERT_DIST(S,T,STAR,MR  ) \
+  READ_CONVERT_DIST(S,T,STAR,STAR) \
+  READ_CONVERT_DIST(S,T,STAR,VC  ) \
+  READ_CONVERT_DIST(S,T,STAR,VR  ) \
+  READ_CONVERT_DIST(S,T,VC,  STAR) \
+  READ_CONVERT_DIST(S,T,VR,  STAR)
 
-#define PROTO_FIELD(F) \
-  template std::shared_ptr<const Matrix<Complex<Base<F>>>> \
-  ComplexReadProxy( const Matrix<F>* A ); \
-  template std::shared_ptr<Matrix<Complex<Base<F>>>> \
-  ComplexReadProxy( Matrix<F>* A ); \
-  DIST_PROTO_FIELD(F,CIRC,CIRC); \
-  DIST_PROTO_FIELD(F,MC,  MR  ); \
-  DIST_PROTO_FIELD(F,MC,  STAR); \
-  DIST_PROTO_FIELD(F,MD,  STAR); \
-  DIST_PROTO_FIELD(F,MR,  MC  ); \
-  DIST_PROTO_FIELD(F,MR,  STAR); \
-  DIST_PROTO_FIELD(F,STAR,MC  ); \
-  DIST_PROTO_FIELD(F,STAR,MD  ); \
-  DIST_PROTO_FIELD(F,STAR,MR  ); \
-  DIST_PROTO_FIELD(F,STAR,STAR); \
-  DIST_PROTO_FIELD(F,STAR,VC  ); \
-  DIST_PROTO_FIELD(F,STAR,VR  ); \
-  DIST_PROTO_FIELD(F,VC  ,STAR); \
-  DIST_PROTO_FIELD(F,VR  ,STAR);
+#define READWRITE_CONVERT(S,T) \
+  template std::shared_ptr<Matrix<T>> ReadWriteProxy( Matrix<S>* A ); \
+  READWRITE_CONVERT_DIST(S,T,CIRC,CIRC) \
+  READWRITE_CONVERT_DIST(S,T,MC,  MR  ) \
+  READWRITE_CONVERT_DIST(S,T,MC,  STAR) \
+  READWRITE_CONVERT_DIST(S,T,MD,  STAR) \
+  READWRITE_CONVERT_DIST(S,T,MR,  MC  ) \
+  READWRITE_CONVERT_DIST(S,T,MR,  STAR) \
+  READWRITE_CONVERT_DIST(S,T,STAR,MC  ) \
+  READWRITE_CONVERT_DIST(S,T,STAR,MD  ) \
+  READWRITE_CONVERT_DIST(S,T,STAR,MR  ) \
+  READWRITE_CONVERT_DIST(S,T,STAR,STAR) \
+  READWRITE_CONVERT_DIST(S,T,STAR,VC  ) \
+  READWRITE_CONVERT_DIST(S,T,STAR,VR  ) \
+  READWRITE_CONVERT_DIST(S,T,VC,  STAR) \
+  READWRITE_CONVERT_DIST(S,T,VR,  STAR)
 
-#define PROTO_INT(T) PROTO_BASE(T)
+#define WRITE_CONVERT(S,T) \
+  template std::shared_ptr<Matrix<T>> WriteProxy( Matrix<S>* A ); \
+  WRITE_CONVERT_DIST(S,T,CIRC,CIRC) \
+  WRITE_CONVERT_DIST(S,T,MC,  MR  ) \
+  WRITE_CONVERT_DIST(S,T,MC,  STAR) \
+  WRITE_CONVERT_DIST(S,T,MD,  STAR) \
+  WRITE_CONVERT_DIST(S,T,MR,  MC  ) \
+  WRITE_CONVERT_DIST(S,T,MR,  STAR) \
+  WRITE_CONVERT_DIST(S,T,STAR,MC  ) \
+  WRITE_CONVERT_DIST(S,T,STAR,MD  ) \
+  WRITE_CONVERT_DIST(S,T,STAR,MR  ) \
+  WRITE_CONVERT_DIST(S,T,STAR,STAR) \
+  WRITE_CONVERT_DIST(S,T,STAR,VC  ) \
+  WRITE_CONVERT_DIST(S,T,STAR,VR  ) \
+  WRITE_CONVERT_DIST(S,T,VC,  STAR) \
+  WRITE_CONVERT_DIST(S,T,VR,  STAR)
 
-#define PROTO(T) PROTO_FIELD(T)
+#define CONVERT(S,T) \
+  READ_CONVERT(S,T) \
+  READWRITE_CONVERT(S,T) \
+  WRITE_CONVERT(S,T)
+
+#define PROTO_INT(T) CONVERT(Int,Int)
+
+#define PROTO_REAL(Real) \
+  CONVERT(Real,Real) \
+  /* Promotions up to Real */ \
+  READ_CONVERT(Int,Real) \
+  /* Promotions up from Real */ \
+  READ_CONVERT(Real,Complex<Real>)
+
+#define PROTO_COMPLEX(C) \
+  CONVERT(C,C) \
+  /* Promotions up to C */ \
+  READ_CONVERT(Int,C)
+
+#define PROTO_FLOAT \
+  PROTO_REAL(float) \
+  /* Promotions up from float */ \
+  CONVERT(float,double) \
+  READ_CONVERT(float,Complex<double>)
+
+#define PROTO_DOUBLE \
+  PROTO_REAL(double) \
+  /* Promotions down to float */ \
+  CONVERT(double,float) \
+  /* Mixed conversion */ \
+  READ_CONVERT(double,Complex<float>)
+
+#define PROTO_COMPLEX_FLOAT \
+  PROTO_COMPLEX(Complex<float>) \
+  /* Promotions up from Complex<float> */ \
+  CONVERT(Complex<float>,Complex<double>)
+
+#define PROTO_COMPLEX_DOUBLE \
+  PROTO_COMPLEX(Complex<double>) \
+  /* Promotions down from Complex<double> */ \
+  CONVERT(Complex<double>,Complex<float>)
 
 #include "El/macros/Instantiate.h"
 

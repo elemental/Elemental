@@ -41,7 +41,7 @@ void LeastSquares
 {
     DEBUG_ONLY(CallStackEntry cse("LeastSquares"))
 
-    auto APtr = ReadProxy( &APre );
+    auto APtr = ReadProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     DistMatrix<F,MD,STAR> t(A.Grid());

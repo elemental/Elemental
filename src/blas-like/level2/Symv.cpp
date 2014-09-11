@@ -75,9 +75,9 @@ void Symv
     )
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
-    auto xPtr = ReadProxy( &xPre );      auto& x = *xPtr;
-    auto yPtr = ReadWriteProxy( &yPre ); auto& y = *yPtr;
+    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
+    auto xPtr = ReadProxy<T,MC,MR>( &xPre );      auto& x = *xPtr;
+    auto yPtr = ReadWriteProxy<T,MC,MR>( &yPre ); auto& y = *yPtr;
 
     Scale( beta, y );
 

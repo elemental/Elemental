@@ -73,7 +73,7 @@ void ExplicitUnitary( AbstractDistMatrix<F>& APre, const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::ExplicitUnitary"))
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     const Grid& g = A.Grid();
@@ -126,7 +126,7 @@ void Explicit
 {
     DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     const Grid& g = A.Grid();
@@ -185,7 +185,7 @@ void Explicit
 {
     DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     const Grid& g = A.Grid();

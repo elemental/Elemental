@@ -313,11 +313,23 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   { EL_TRY( HermitianTridiagEig( \
       *CReflect(d), *CReflect(e), *CReflect(w), \
       CReflect(sort) ) ) } \
+  ElError ElHermitianTridiagEigDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
+    ElDistMatrix_ ## SIGBASE w, ElSortType sort ) \
+  { EL_TRY( HermitianTridiagEig( \
+      *CReflect(d), *CReflect(e), *CReflect(w), \
+      CReflect(sort) ) ) } \
   /* Compute all eigenpairs
      ---------------------- */ \
   ElError ElHermitianTridiagEigPair_ ## SIG \
   ( ElMatrix_ ## SIGBASE d, ElMatrix_ ## SIG e, \
     ElMatrix_ ## SIGBASE w, ElMatrix_ ## SIG Z, ElSortType sort ) \
+  { EL_TRY( HermitianTridiagEig( \
+      *CReflect(d), *CReflect(e), *CReflect(w), *CReflect(Z), \
+      CReflect(sort) ) ) } \
+  ElError ElHermitianTridiagEigPairDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
+    ElDistMatrix_ ## SIGBASE w, ElDistMatrix_ ## SIG Z, ElSortType sort ) \
   { EL_TRY( HermitianTridiagEig( \
       *CReflect(d), *CReflect(e), *CReflect(w), *CReflect(Z), \
       CReflect(sort) ) ) } \
@@ -330,11 +342,25 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   { EL_TRY( HermitianTridiagEig( \
       *CReflect(d), *CReflect(e), *CReflect(w), \
       CReflect(sort), CReflect(subset) ) ) } \
+  ElError ElHermitianTridiagEigPartialDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
+    ElDistMatrix_ ## SIGBASE w, \
+    ElSortType sort, ElHermitianEigSubset_ ## SIGBASE subset ) \
+  { EL_TRY( HermitianTridiagEig( \
+      *CReflect(d), *CReflect(e), *CReflect(w), \
+      CReflect(sort), CReflect(subset) ) ) } \
   /* Compute a subset of eigenpairs
      ------------------------------ */ \
   ElError ElHermitianTridiagEigPairPartial_ ## SIG \
   ( ElMatrix_ ## SIGBASE d, ElMatrix_ ## SIG e, \
     ElMatrix_ ## SIGBASE w, ElMatrix_ ## SIG Z, \
+    ElSortType sort, ElHermitianEigSubset_ ## SIGBASE subset ) \
+  { EL_TRY( HermitianTridiagEig( \
+      *CReflect(d), *CReflect(e), *CReflect(w), *CReflect(Z), \
+      CReflect(sort), CReflect(subset) ) ) } \
+  ElError ElHermitianTridiagEigPairPartialDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
+    ElDistMatrix_ ## SIGBASE w, ElDistMatrix_ ## SIG Z, \
     ElSortType sort, ElHermitianEigSubset_ ## SIGBASE subset ) \
   { EL_TRY( HermitianTridiagEig( \
       *CReflect(d), *CReflect(e), *CReflect(w), *CReflect(Z), \
@@ -423,55 +449,7 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   ElError ElSchurDecompDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG w, \
     ElDistMatrix_ ## SIG Q, bool fullTriangle ) \
-  { EL_TRY( Schur( *CReflect(A), *CReflect(w), *CReflect(Q), fullTriangle ) ) }
-
-#define C_PROTO_DOUBLE_ONLY(SIG,SIGBASE,F) \
-  /* HermitianTridiagEig
-     =================== */ \
-  /* Compute all eigenvalues
-     ----------------------- */ \
-  ElError ElHermitianTridiagEigDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
-    ElDistMatrix_ ## SIGBASE w, ElSortType sort ) \
-  { EL_TRY( HermitianTridiagEig( \
-      *CReflect(d), *CReflect(e), *CReflect(w), CReflect(sort) ) ) } \
-  /* Compute all eigenpairs
-     ---------------------- */ \
-  ElError ElHermitianTridiagEigPairDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
-    ElDistMatrix_ ## SIGBASE w, ElDistMatrix_ ## SIG Z, ElSortType sort ) \
-  { EL_TRY( HermitianTridiagEig( \
-      *CReflect(d), *CReflect(e), *CReflect(w), *CReflect(Z), \
-      CReflect(sort) ) ) } \
-  /* Compute a subset of eigenvalues
-     ------------------------------- */ \
-  ElError ElHermitianTridiagEigPartialDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
-    ElDistMatrix_ ## SIGBASE w, \
-    ElSortType sort, ElHermitianEigSubset_ ## SIGBASE subset ) \
-  { EL_TRY( HermitianTridiagEig( \
-      *CReflect(d), *CReflect(e), *CReflect(w), CReflect(sort), \
-      CReflect(subset) ) ) } \
-  /* Compute a subset of eigenpairs
-     ------------------------------ */ \
-  ElError ElHermitianTridiagEigPairPartialDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
-    ElDistMatrix_ ## SIGBASE w, ElDistMatrix_ ## SIG Z, \
-    ElSortType sort, ElHermitianEigSubset_ ## SIGBASE subset ) \
-  { EL_TRY( HermitianTridiagEig( \
-      *CReflect(d), *CReflect(e), *CReflect(w), *CReflect(Z), \
-      CReflect(sort), CReflect(subset) ) ) } \
-
-#define C_PROTO_REAL(SIG,F) \
-  C_PROTO_FIELD(SIG,SIG,F)
-
-#define C_PROTO_DOUBLE \
-  C_PROTO_FIELD(d,d,double) \
-  C_PROTO_DOUBLE_ONLY(d,d,double)
-
-#define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
-  C_PROTO_FIELD(SIG,SIGBASE,F) \
-  C_PROTO_COMPLEX_ONLY(SIG,SIGBASE,F) \
+  { EL_TRY( Schur( *CReflect(A), *CReflect(w), *CReflect(Q), fullTriangle ) ) }\
   /* SkewHermitianEig
      ================ */ \
   /* Return all eigenpairs
@@ -531,10 +509,12 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
       CReflect(uplo), *CReflect(A), *CReflect(w), \
       *CReflect(Z), CReflect(sort), CReflect(subset) ) ) }
 
-#define C_PROTO_COMPLEX_DOUBLE \
-  C_PROTO_FIELD(z,d,Complex<double>) \
-  C_PROTO_DOUBLE_ONLY(z,d,Complex<double>) \
-  C_PROTO_COMPLEX_ONLY(z,d,Complex<double>)
+#define C_PROTO_REAL(SIG,F) \
+  C_PROTO_FIELD(SIG,SIG,F)
+
+#define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
+  C_PROTO_FIELD(SIG,SIGBASE,F) \
+  C_PROTO_COMPLEX_ONLY(SIG,SIGBASE,F) \
 
 #define EL_NO_INT_PROTO
 #include "El/macros/CInstantiate.h"

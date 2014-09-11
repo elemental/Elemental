@@ -86,7 +86,7 @@ UVar3( UnitOrNonUnit diag, AbstractDistMatrix<F>& UPre )
             LogicError("Nonsquare matrices cannot be triangular");
     )
 
-    auto UPtr = ReadWriteProxy( &UPre );
+    auto UPtr = ReadWriteProxy<F,MC,MR>( &UPre );
     auto& U = *UPtr;
 
     const Grid& g = U.Grid();

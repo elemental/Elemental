@@ -100,10 +100,10 @@ void GLM
 {
     DEBUG_ONLY(CallStackEntry cse("GLM"))
 
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
-    auto DPtr = ReadWriteProxy( &DPre ); auto& D = *DPtr;
-    auto YPtr = WriteProxy( &YPre );     auto& Y = *YPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
+    auto DPtr = ReadWriteProxy<F,MC,MR>( &DPre ); auto& D = *DPtr;
+    auto YPtr = WriteProxy<F,MC,MR>( &YPre );     auto& Y = *YPtr;
 
     const Int m = A.Height();
     const Int n = A.Width();

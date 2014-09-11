@@ -58,7 +58,7 @@ LVar2( AbstractDistMatrix<F>& APre )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     const Grid& g = A.Grid();

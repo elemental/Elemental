@@ -72,9 +72,9 @@ void Ridge
 {
     DEBUG_ONLY(CallStackEntry cse("Ridge"))
 
-    auto APtr = ReadProxy( &APre );  auto& A = *APtr;
-    auto BPtr = ReadProxy( &BPre );  auto& B = *BPtr;
-    auto XPtr = WriteProxy(& XPre ); auto& X = *XPtr;
+    auto APtr = ReadProxy<F,MC,MR>( &APre );  auto& A = *APtr;
+    auto BPtr = ReadProxy<F,MC,MR>( &BPre );  auto& B = *BPtr;
+    auto XPtr = WriteProxy<F,MC,MR>(& XPre ); auto& X = *XPtr;
 
     const Int m = A.Height();
     const Int n = A.Width();

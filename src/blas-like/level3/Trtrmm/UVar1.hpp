@@ -53,7 +53,7 @@ UVar1( AbstractDistMatrix<T>& UPre, bool conjugate=false )
     const Grid& g = UPre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    auto UPtr = ReadWriteProxy( &UPre ); 
+    auto UPtr = ReadWriteProxy<T,MC,MR>( &UPre ); 
     auto& U = *UPtr;
 
     // Temporary distributions

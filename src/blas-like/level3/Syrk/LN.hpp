@@ -28,8 +28,8 @@ LN
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
-    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
+    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
     DistMatrix<T,MC,  STAR> A1_MC_STAR(g);

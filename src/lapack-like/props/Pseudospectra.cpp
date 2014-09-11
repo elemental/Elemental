@@ -27,9 +27,11 @@ Matrix<Int> TriangularPseudospectra
   Matrix<Base<F>>& invNorms, PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectra"))
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
 
     // Force U to be complex in as cheap of a manner as possible
-    auto UPtr = ComplexReadProxy( &UPre ); 
+    auto UPtr = ReadProxy<C>( &UPre ); 
     auto& U = *UPtr;
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
@@ -76,9 +78,11 @@ Matrix<Int> TriangularPseudospectra
   Matrix<Base<F>>& invNorms, PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectra"))
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
 
     // Force U to be complex as cheaply as possible
-    auto UPtr = ComplexReadProxy( &UPre ); 
+    auto UPtr = ReadProxy<C>( &UPre ); 
     auto& U = *UPtr;
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
@@ -116,7 +120,7 @@ Matrix<Int> TriangularPseudospectra
     else
     {
         // Force Q to be complex as cheaply as possible
-        auto QPtr = ComplexReadProxy( &QPre ); 
+        auto QPtr = ReadProxy<C>( &QPre ); 
         return pspec::HagerHigham( U, *QPtr, shifts, invNorms, psCtrl );
     }
 }
@@ -193,9 +197,11 @@ Matrix<Int> HessenbergPseudospectra
   Matrix<Base<F>>& invNorms, PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergHelper"))
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
 
     // Force H to be complex as cheaply as possible
-    auto HPtr = ComplexReadProxy( &HPre );
+    auto HPtr = ReadProxy<C>( &HPre );
     auto& H = *HPtr;
 
     // TODO: Check if the subdiagonal is numerically zero, and, if so, revert to
@@ -225,9 +231,11 @@ Matrix<Int> HessenbergPseudospectra
   PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectra"))
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
 
     // Force H to be complex as cheaply as possible
-    auto HPtr = ComplexReadProxy( &HPre ); 
+    auto HPtr = ReadProxy<C>( &HPre ); 
     auto& H = *HPtr;
 
     // TODO: Check if the subdiagonal is numerically zero, and, if so, revert to
@@ -248,7 +256,7 @@ Matrix<Int> HessenbergPseudospectra
     else
     {
         // Force Q to be complex as cheaply as possible
-        auto QPtr = ComplexReadProxy( &QPre );
+        auto QPtr = ReadProxy<C>( &QPre );
         return pspec::HagerHigham( H, *QPtr, shifts, invNorms, psCtrl );
     }
 }
@@ -260,14 +268,16 @@ DistMatrix<Int,VR,STAR> TriangularPseudospectra
         AbstractDistMatrix<Base<F>>& invNorms, PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectra"))
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
     const Grid& g = UPre.Grid();
 
     // Force 'U' to be complex and in a [MC,MR] distribution
-    auto UPtr = ComplexReadProxy( &UPre );
+    auto UPtr = ReadProxy<C,MC,MR>( &UPre );
     auto& U = *UPtr;
 
     // Force 'shifts' to be in a [VR,STAR] distribution
-    auto shiftsPtr = ReadProxy<Complex<Base<F>>,VR,STAR>( &shiftsPre ); 
+    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre ); 
     auto& shifts = *shiftsPtr;
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
@@ -314,14 +324,16 @@ DistMatrix<Int,VR,STAR> TriangularPseudospectra
         AbstractDistMatrix<Base<F>>& invNorms, PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectra"))
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
     const Grid& g = UPre.Grid();
 
     // Force 'U' to be complex and in a [MC,MR] distribution 
-    auto UPtr = ComplexReadProxy( &UPre ); 
+    auto UPtr = ReadProxy<C,MC,MR>( &UPre ); 
     auto& U = *UPtr;
 
     // Force 'shifts' to be in a [VR,STAR] distribution
-    auto shiftsPtr = ReadProxy<Complex<Base<F>>,VR,STAR>( &shiftsPre ); 
+    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre ); 
     auto& shifts = *shiftsPtr;
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
@@ -361,7 +373,7 @@ DistMatrix<Int,VR,STAR> TriangularPseudospectra
     {
         // Force 'Q' to be complex and in a [MC,MR] distribution as cheaply
         // as possible
-        auto QPtr = ComplexReadProxy( &QPre ); 
+        auto QPtr = ReadProxy<C,MC,MR>( &QPre ); 
         return pspec::HagerHigham( U, *QPtr, shifts, invNorms, psCtrl );
     }
 }
@@ -376,7 +388,7 @@ DistMatrix<Int,VR,STAR> QuasiTriangularPseudospectra
     const Grid& g = UPre.Grid();
 
     // Force 'U' to be in a [MC,MR] distribution
-    auto UPtr = ReadProxy( &UPre ); 
+    auto UPtr = ReadProxy<Real,MC,MR>( &UPre ); 
     auto& U = *UPtr;
 
     // Force 'shifts' to be in a [VR,STAR] distribution
@@ -419,7 +431,7 @@ DistMatrix<Int,VR,STAR> QuasiTriangularPseudospectra
     const Grid& g = UPre.Grid();
 
     // Force 'U' to be in a [MC,MR] distribution
-    auto UPtr = ReadProxy( &UPre ); 
+    auto UPtr = ReadProxy<Real,MC,MR>( &UPre ); 
     auto& U = *UPtr;
 
     // Force 'shifts' to be in a [VR,STAR] distribution
@@ -459,13 +471,15 @@ DistMatrix<Int,VR,STAR> HessenbergPseudospectra
         AbstractDistMatrix<Base<F>>& invNorms, PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectra"))
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
 
     // Force 'H' to be complex in a [MC,MR] distribution
-    auto HPtr = ComplexReadProxy( &HPre );
+    auto HPtr = ReadProxy<C,MC,MR>( &HPre );
     auto& H = *HPtr;
 
     // Force 'shifts' to be in a [VR,STAR] distribution
-    auto shiftsPtr = ReadProxy<Complex<Base<F>>,VR,STAR>( &shiftsPre );
+    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
     auto& shifts = *shiftsPtr;
 
     // TODO: Check if the subdiagonal is sufficiently small, and, if so, revert
@@ -494,13 +508,15 @@ DistMatrix<Int,VR,STAR> HessenbergPseudospectra
         AbstractDistMatrix<Base<F>>& invNorms, PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectra"))
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
 
     // Force 'H' to be complex and in a [MC,MR] distribution
-    auto HPtr = ComplexReadProxy( &HPre );
+    auto HPtr = ReadProxy<C,MC,MR>( &HPre );
     auto& H = *HPtr;
 
     // Force 'shifts' to be in a [VR,STAR] distribution
-    auto shiftsPtr = ReadProxy<Complex<Base<F>>,VR,STAR>( &shiftsPre );
+    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
     auto& shifts = *shiftsPtr;
 
     // TODO: Check if the subdiagonal is sufficiently small, and, if so, revert
@@ -521,7 +537,7 @@ DistMatrix<Int,VR,STAR> HessenbergPseudospectra
     else
     {
         // Force 'Q' to be complex and in a [MC,MR] distribution
-        auto QPtr = ComplexReadProxy( &QPre );
+        auto QPtr = ReadProxy<C,MC,MR>( &QPre );
         return pspec::HagerHigham( H, *QPtr, shifts, invNorms, psCtrl );
     }
 }
@@ -1520,7 +1536,7 @@ DistMatrix<Int> TriangularPseudospectra
     const Grid& g = UPre.Grid();
 
     // Force 'U' to be in a [MC,MR] distribution so that we can get its diagonal
-    auto UPtr = ReadProxy( &UPre ); 
+    auto UPtr = ReadProxy<F,MC,MR>( &UPre ); 
     auto& U = *UPtr;
     auto diag = U.GetDiagonal();
 
@@ -1571,7 +1587,7 @@ DistMatrix<Int> TriangularPseudospectra
     const Grid& g = UPre.Grid();
 
     // Force 'U' to be in a [MC,MR] distribution so that we can get its diagonal
-    auto UPtr = ReadProxy( &UPre ); 
+    auto UPtr = ReadProxy<F,MC,MR>( &UPre ); 
     auto& U = *UPtr;
     auto diag = U.GetDiagonal();
 
@@ -1621,7 +1637,7 @@ DistMatrix<Int> QuasiTriangularPseudospectra
     const Grid& g = UPre.Grid();
 
     // Force 'U' to be in a [MC,MR] distribution to get its eigenvalues
-    auto UPtr = ReadProxy( &UPre ); 
+    auto UPtr = ReadProxy<Real,MC,MR>( &UPre ); 
     auto& U = *UPtr;
     const auto w = schur::QuasiTriangEig( U );
 
@@ -1671,7 +1687,7 @@ DistMatrix<Int> QuasiTriangularPseudospectra
     const Grid& g = UPre.Grid();
 
     // Force 'U' to be in a [MC,MR] distribution to get its eigenvalues
-    auto UPtr = ReadProxy( &UPre ); 
+    auto UPtr = ReadProxy<Real,MC,MR>( &UPre ); 
     auto& U = *UPtr;
     const auto w = schur::QuasiTriangEig( U );
 

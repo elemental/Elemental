@@ -29,8 +29,8 @@ UT
     const Grid& g = APre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
-    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
+    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
     DistMatrix<T,MR,  STAR> A1Trans_MR_STAR(g);

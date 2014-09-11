@@ -180,10 +180,10 @@ Int LinearProgram
 {
     DEBUG_ONLY(CallStackEntry cse("LinearProgram"))
 
-    auto APtr = ReadProxy( &APre );  auto& A = *APtr;
-    auto bPtr = ReadProxy( &bPre );  auto& b = *bPtr;
-    auto cPtr = ReadProxy( &cPre );  auto& c = *cPtr;
-    auto zPtr = WriteProxy( &zPre ); auto& z = *zPtr;
+    auto APtr = ReadProxy<Real,MC,MR>( &APre );  auto& A = *APtr;
+    auto bPtr = ReadProxy<Real,MC,MR>( &bPre );  auto& b = *bPtr;
+    auto cPtr = ReadProxy<Real,MC,MR>( &cPre );  auto& c = *cPtr;
+    auto zPtr = WriteProxy<Real,MC,MR>( &zPre ); auto& z = *zPtr;
 
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");

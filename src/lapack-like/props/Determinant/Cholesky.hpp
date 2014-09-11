@@ -61,7 +61,7 @@ SafeProduct<Base<F>> AfterCholesky
 {
     DEBUG_ONLY(CallStackEntry cse("hpd_det::AfterCholesky"))
 
-    auto APtr = ReadProxy( &APre );
+    auto APtr = ReadProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     typedef Base<F> Real;
@@ -94,7 +94,7 @@ Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(CallStackEntry cse("hpd_det::Cholesky"))
 
-    auto APtr = ReadProxy( &APre );
+    auto APtr = ReadProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     SafeProduct<Base<F>> det( A.Height() );

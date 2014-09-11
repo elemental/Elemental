@@ -171,8 +171,8 @@ LN
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
-    auto xPtr = ReadWriteProxy( &xPre ); auto& x = *xPtr;
+    auto LPtr = ReadProxy<F,MC,MR>( &LPre );      auto& L = *LPtr;
+    auto xPtr = ReadWriteProxy<F,MC,MR>( &xPre ); auto& x = *xPtr;
 
     // Matrix views 
     DistMatrix<F> L11(g), L21(g), x1(g);

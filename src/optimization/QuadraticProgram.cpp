@@ -141,9 +141,9 @@ Int QuadraticProgram
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
 
-    auto PPtr = ReadProxy( &PPre );  auto& P = *PPtr;
-    auto SPtr = ReadProxy( &SPre );  auto& S = *SPtr;
-    auto ZPtr = WriteProxy( &ZPre ); auto& Z = *ZPtr;
+    auto PPtr = ReadProxy<Real,MC,MR>( &PPre );  auto& P = *PPtr;
+    auto SPtr = ReadProxy<Real,MC,MR>( &SPre );  auto& S = *SPtr;
+    auto ZPtr = WriteProxy<Real,MC,MR>( &ZPre ); auto& Z = *ZPtr;
 
     const Grid& grid = P.Grid();
     const Int n = P.Height();

@@ -22,8 +22,7 @@ namespace herm_eig {
 // real eigenvectors of the symmetric tridiagonal matrix at the core of our 
 // eigensolver in order to minimize the temporary memory usage.
 template<typename F>
-void InPlaceRedist
-( DistMatrix<F>& Z, Int rowAlign, const Base<F>* readBuffer )
+void InPlaceRedist( DistMatrix<F>& Z, Int rowAlign, const Base<F>* readBuffer )
 {
     typedef Base<F> Real;
     const Grid& g = Z.Grid();
@@ -252,7 +251,7 @@ void HermitianEig
         return;
     }
 
-    auto APtr = ReadWriteProxy( &APre ); 
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); 
     auto& A = *APtr;
 
     // Check if we need to rescale the matrix, and do so if necessary
@@ -274,22 +273,6 @@ void HermitianEig
     if( needRescaling ) 
         Scale( 1/scale, w );
 }
-
-template<>
-void HermitianEig<float>
-( UpperOrLower uplo, AbstractDistMatrix<float>& A,
-  AbstractDistMatrix<float>& w, SortType sort, 
-  const HermitianEigSubset<float> subset,
-  const HermitianEigCtrl<float> ctrl )
-{ LogicError("HermitianEig not yet implemented for float"); }
-
-template<>
-void HermitianEig<Complex<float>>
-( UpperOrLower uplo, AbstractDistMatrix<Complex<float>>& A,
-  AbstractDistMatrix<float>& w, SortType sort,
-  const HermitianEigSubset<float> subset,
-  const HermitianEigCtrl<float> ctrl )
-{ LogicError("HermitianEig not yet implemented for float"); }
 
 // Compute eigenpairs
 // ==================
@@ -439,7 +422,7 @@ void HermitianEig
         return; 
     }
 
-    auto APtr = ReadWriteProxy( &APre ); 
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); 
     auto& A = *APtr;
 
     // Check if we need to rescale the matrix, and do so if necessary
@@ -482,7 +465,7 @@ void HermitianEig
     proxCtrl.rowConstrain = true;
     proxCtrl.colAlign = 0;
     proxCtrl.rowAlign = 0;
-    auto ZPtr = WriteProxy( &ZPre, proxCtrl );
+    auto ZPtr = WriteProxy<F,MC,MR>( &ZPre, proxCtrl );
     auto& Z = *ZPtr;
     Z.Resize( N, K );
     DistMatrix<Real,STAR,VR> Z_STAR_VR(g);
@@ -548,22 +531,6 @@ void HermitianEig
 
     herm_eig::Sort( w, Z, sort );
 }
-
-template<>
-void HermitianEig<float>
-( UpperOrLower uplo, AbstractDistMatrix<float>& A,
-  AbstractDistMatrix<float>& w, AbstractDistMatrix<float>& Z,
-  SortType sort, const HermitianEigSubset<float> subset,
-  const HermitianEigCtrl<float> ctrl )
-{ LogicError("HermitianEig not yet implemented for float"); }
-
-template<>
-void HermitianEig<Complex<float>>
-( UpperOrLower uplo, AbstractDistMatrix<Complex<float>>& A,
-  AbstractDistMatrix<float>& w, AbstractDistMatrix<Complex<float>>& Z,
-  SortType sort, const HermitianEigSubset<float> subset,
-  const HermitianEigCtrl<float> ctrl )
-{ LogicError("HermitianEig not yet implemented for float"); }
 
 #define EIGVAL_PROTO(F) \
   template void HermitianEig\

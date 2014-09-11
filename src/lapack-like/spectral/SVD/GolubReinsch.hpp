@@ -23,8 +23,8 @@ GolubReinsch
 {
     DEBUG_ONLY(CallStackEntry cse("svd::GolubReinsch"))
 
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto VPtr = WriteProxy( &VPre );     auto& V = *VPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -106,8 +106,8 @@ GolubReinschFlame
 {
     DEBUG_ONLY(CallStackEntry cse("svd::GolubReinschFlame"))
 
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto VPtr = WriteProxy( &VPre );     auto& V = *VPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -212,7 +212,7 @@ GolubReinsch( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::GolubReinsch"))
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     const Int m = A.Height();

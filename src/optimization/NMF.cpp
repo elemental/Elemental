@@ -39,9 +39,9 @@ void NMF
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
 
-    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
-    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
-    auto YPtr = WriteProxy( &YPre );     auto& Y = *YPtr;
+    auto APtr = ReadProxy<Real,MC,MR>( &APre );      auto& A = *APtr;
+    auto XPtr = ReadWriteProxy<Real,MC,MR>( &XPre ); auto& X = *XPtr;
+    auto YPtr = WriteProxy<Real,MC,MR>( &YPre );     auto& Y = *YPtr;
 
     DistMatrix<Real> AAdj(A.Grid()), XAdj(A.Grid()), YAdj(A.Grid());
     Adjoint( A, AAdj );

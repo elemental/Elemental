@@ -238,7 +238,8 @@ ElError ElForsytheDist_z
 ElError ElFoxLi_c( ElMatrix_c A, ElInt n, float omega );
 ElError ElFoxLi_z( ElMatrix_z A, ElInt n, double omega );
 
-/* TODO: Distributed Fox-Li */
+ElError ElFoxLiDist_c( ElDistMatrix_c A, ElInt n, float omega );
+ElError ElFoxLiDist_z( ElDistMatrix_z A, ElInt n, double omega );
 
 /* Fourier
    ======= */

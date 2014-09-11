@@ -40,16 +40,15 @@ void Sort( Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort )
     Z = ZPerm;
 }
 
-template<typename F>
+template<typename Real,typename F>
 void Sort
-( AbstractDistMatrix<Base<F>>& w, AbstractDistMatrix<F>& Z, SortType sort )
+( AbstractDistMatrix<Real>& w, AbstractDistMatrix<F>& Z, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::Sort"))
     if( sort == UNSORTED )
         return;
 
     // Get the sorted eigenvalue information
-    typedef Base<F> Real;
     std::vector<ValueInt<Real>> pairs = TaggedSort( w, sort );
 
     // Locally reorder the eigenvectors and eigenvalues using the new ordering

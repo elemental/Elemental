@@ -114,7 +114,7 @@ BusingerGolub
     DEBUG_ONLY(CallStackEntry cse("id::BusingerGolub"))
     typedef Base<F> Real;
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     // Perform the pivoted QR factorization

@@ -53,7 +53,7 @@ LVar1( AbstractDistMatrix<T>& LPre, bool conjugate=false )
     const Grid& g = LPre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    auto LPtr = ReadWriteProxy( &LPre ); 
+    auto LPtr = ReadWriteProxy<T,MC,MR>( &LPre ); 
     auto& L = *LPtr;
 
     // Temporary distributions

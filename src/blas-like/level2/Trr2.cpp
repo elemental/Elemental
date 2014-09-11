@@ -72,9 +72,9 @@ void Trr2
             LogicError("X and Y must be of width 2");
     )
 
-    auto XPtr = ReadProxy( &XPre );      auto& X = *XPtr;
-    auto YPtr = ReadProxy( &YPre );      auto& Y = *YPtr;
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto XPtr = ReadProxy<T,MC,MR>( &XPre );      auto& X = *XPtr;
+    auto YPtr = ReadProxy<T,MC,MR>( &YPre );      auto& Y = *YPtr;
+    auto APtr = ReadWriteProxy<T,MC,MR>( &APre ); auto& A = *APtr;
 
     const Grid& g = A.Grid();
     const Int mLocal = A.LocalHeight();

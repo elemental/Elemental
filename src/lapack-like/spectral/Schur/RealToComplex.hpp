@@ -57,12 +57,14 @@ void RealToComplex
         AbstractDistMatrix<Complex<Real>>& UPre )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::RealToComplex"))
+    typedef Complex<Real> C;
 
-    auto UQuasiPtr = ReadProxy( &UQuasiPre ); auto& UQuasi = *UQuasiPtr;
-    auto UPtr      = WriteProxy( &UPre );     auto& U      = *UPtr;
+    auto UQuasiPtr = ReadProxy<Real,MC,MR>( &UQuasiPre );
+    auto& UQuasi = *UQuasiPtr;
+    auto UPtr = WriteProxy<C,MC,MR>( &UPre ); 
+    auto& U = *UPtr;
 
     DEBUG_ONLY(CheckRealSchur(UQuasi))
-    typedef Complex<Real> C;
 
     Copy( UQuasi, U );
     const Int n = U.Height();

@@ -32,12 +32,12 @@ Cannon_NN
         LogicError("Process grid must be square for Cannon's");
 
     // Force A, B, and C to be in [MC,MR] distributions aligned with C
-    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
+    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
     ProxyCtrl ctrlA, ctrlB;
     ctrlA.colConstrain = true; ctrlA.colAlign = C.ColAlign();
     ctrlB.rowConstrain = true; ctrlB.rowAlign = C.RowAlign();
-    auto APtr = ReadProxy( &APre, ctrlA ); auto& A = *APtr;
-    auto BPtr = ReadProxy( &BPre, ctrlB ); auto& B = *BPtr;
+    auto APtr = ReadProxy<T,MC,MR>( &APre, ctrlA ); auto& A = *APtr;
+    auto BPtr = ReadProxy<T,MC,MR>( &BPre, ctrlB ); auto& B = *BPtr;
 
     const Int row = g.Row();
     const Int col = g.Col();
@@ -117,9 +117,9 @@ SUMMA_NNA
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
     DistMatrix<T,VR,STAR> B1_VR_STAR(g);
@@ -170,9 +170,9 @@ SUMMA_NNB
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
     DistMatrix<T,STAR,MC> A1_STAR_MC(g);
@@ -220,9 +220,9 @@ SUMMA_NNC
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
     DistMatrix<T,MC,STAR> A1_MC_STAR(g);
@@ -270,9 +270,9 @@ SUMMA_NNDot
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
 
     Scale( beta, C );
     if( A.Height() > B.Width() )

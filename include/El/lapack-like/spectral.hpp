@@ -281,9 +281,9 @@ namespace herm_eig {
 
 template<typename F>
 void Sort( Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort=ASCENDING );
-template<typename F>
+template<typename Real,typename F>
 void Sort
-( AbstractDistMatrix<Base<F>>& w, AbstractDistMatrix<F>& Z,
+( AbstractDistMatrix<Real>& w, AbstractDistMatrix<F>& Z,
   SortType sort=ASCENDING );
 
 } // namespace herm_eig

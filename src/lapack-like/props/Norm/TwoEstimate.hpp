@@ -53,7 +53,7 @@ Base<F> TwoNormEstimate
     DEBUG_ONLY(CallStackEntry cse("TwoNormEstimate"))
     typedef Base<F> Real;
 
-    auto APtr = ReadProxy( &APre );
+    auto APtr = ReadProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -128,7 +128,7 @@ Base<F> HermitianTwoNormEstimate
     DEBUG_ONLY(CallStackEntry cse("HermitianTwoNormEstimate"))
     typedef Base<F> Real;
 
-    auto APtr = ReadProxy( &APre );
+    auto APtr = ReadProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
     const Int n = A.Height();
 
@@ -205,7 +205,7 @@ Base<F> SymmetricTwoNormEstimate
     DEBUG_ONLY(CallStackEntry cse("SymmetricTwoNormEstimate"))
     typedef Base<F> Real;
 
-    auto APtr = ReadProxy( &APre );
+    auto APtr = ReadProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
     const Int n = A.Height();
 

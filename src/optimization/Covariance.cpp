@@ -40,8 +40,8 @@ void Covariance
 {
     DEBUG_ONLY(CallStackEntry cse("Covariance"))
 
-    auto DPtr = ReadProxy( &DPre );  auto& D = *DPtr;
-    auto SPtr = WriteProxy( &SPre ); auto& S = *SPtr;
+    auto DPtr = ReadProxy<F,MC,MR>( &DPre );  auto& D = *DPtr;
+    auto SPtr = WriteProxy<F,MC,MR>( &SPre ); auto& S = *SPtr;
 
     const Grid& g = D.Grid();
     const Int numObs = D.Height();

@@ -65,7 +65,7 @@ void ExplicitUnitary( AbstractDistMatrix<F>& APre )
     DEBUG_ONLY(CallStackEntry cse("lq::ExplicitUnitary"))
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     DistMatrix<F,MD,STAR> t(g);
@@ -108,7 +108,7 @@ void Explicit( AbstractDistMatrix<F>& L, AbstractDistMatrix<F>& APre )
     DEBUG_ONLY(CallStackEntry cse("lq::Explicit"))
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     DistMatrix<F,MD,STAR> t(g);

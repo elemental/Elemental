@@ -1179,8 +1179,8 @@ SDC
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
-    auto APtr = ReadWriteProxy( &APre );        auto& A = *APtr;
-    auto wPtr = WriteProxy<C,VR,STAR>( &wPre ); auto& w = *wPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto wPtr = WriteProxy<C,VR,STAR>( &wPre );   auto& w = *wPtr;
 
     const Grid& g = A.Grid();
     const Int n = A.Height();
@@ -1355,9 +1355,9 @@ SDC
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
-    auto APtr = ReadWriteProxy( &APre );        auto& A = *APtr;
-    auto wPtr = WriteProxy<C,VR,STAR>( &wPre ); auto& w = *wPtr;
-    auto QPtr = WriteProxy( &QPre );            auto& Q = *QPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto wPtr = WriteProxy<C,VR,STAR>( &wPre );   auto& w = *wPtr;
+    auto QPtr = WriteProxy<F,MC,MR>( &QPre );     auto& Q = *QPtr;
 
     const Grid& g = A.Grid();
     const Int n = A.Height();

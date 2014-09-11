@@ -78,8 +78,8 @@ void ApplyQ
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
     const Conjugation conjugation =  ( normal ? CONJUGATED : UNCONJUGATED );
 
-    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
-    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
+    auto APtr = ReadProxy<F,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
 
     ProxyCtrl tCtrl;
     tCtrl.rootConstrain = true;

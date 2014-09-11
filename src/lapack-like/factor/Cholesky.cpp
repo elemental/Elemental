@@ -173,7 +173,7 @@ void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
     DEBUG_ONLY(CallStackEntry cse("HPSDCholesky"))
 
     // NOTE: This should be removed once HPSD, LQ, and QR have been generalized
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     HPSDSquareRoot( uplo, A );

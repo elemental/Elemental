@@ -108,7 +108,7 @@ inline void UUnb
         AssertSameGrids( APre, tPPre, tQPre );
     )
 
-    auto APtr  = ReadWriteProxy( &APre );           auto& A  = *APtr;
+    auto APtr  = ReadWriteProxy<F,MC,MR>( &APre );  auto& A  = *APtr;
     auto tPPtr = WriteProxy<F,STAR,STAR>( &tPPre ); auto& tP = *tPPtr;
     auto tQPtr = WriteProxy<F,STAR,STAR>( &tQPre ); auto& tQ = *tQPtr;
 

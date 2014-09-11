@@ -554,19 +554,15 @@ ElError ElHermitianTridiagEig_c
 ElError ElHermitianTridiagEig_z
 ( ElMatrix_d d, ElMatrix_z e, ElMatrix_d w, ElSortType sort );
 
-/*
 ElError ElHermitianTridiagEigDist_s
 ( ElConstDistMatrix_s d, ElConstDistMatrix_s e, 
   ElDistMatrix_s w, ElSortType sort );
-*/
 ElError ElHermitianTridiagEigDist_d
 ( ElConstDistMatrix_d d, ElConstDistMatrix_d e, 
   ElDistMatrix_d w, ElSortType sort );
-/*
 ElError ElHermitianTridiagEigDist_c
 ( ElConstDistMatrix_s d, ElConstDistMatrix_c e, 
   ElDistMatrix_s w, ElSortType sort );
-*/
 ElError ElHermitianTridiagEigDist_z
 ( ElConstDistMatrix_d d, ElConstDistMatrix_z e, 
   ElDistMatrix_d w, ElSortType sort );
@@ -584,19 +580,15 @@ ElError ElHermitianTridiagEigPair_c
 ElError ElHermitianTridiagEigPair_z
 ( ElMatrix_d d, ElMatrix_z e, ElMatrix_d w, ElMatrix_z Z, ElSortType sort );
 
-/*
 ElError ElHermitianTridiagEigPairDist_s
 ( ElConstDistMatrix_s d, ElConstDistMatrix_s e, 
   ElDistMatrix_s w, ElDistMatrix_s Z, ElSortType sort );
-*/
 ElError ElHermitianTridiagEigPairDist_d
 ( ElConstDistMatrix_d d, ElConstDistMatrix_d e, 
   ElDistMatrix_d w, ElDistMatrix_d Z, ElSortType sort );
-/*
 ElError ElHermitianTridiagEigPairDist_c
 ( ElConstDistMatrix_s d, ElConstDistMatrix_c e, 
   ElDistMatrix_s w, ElDistMatrix_c Z, ElSortType sort );
-*/
 ElError ElHermitianTridiagEigPairDist_z
 ( ElConstDistMatrix_d d, ElConstDistMatrix_z e, 
   ElDistMatrix_d w, ElDistMatrix_z Z, ElSortType sort );
@@ -618,19 +610,15 @@ ElError ElHermitianTridiagEigPartial_z
 ( ElMatrix_d d, ElMatrix_z e, 
   ElMatrix_d w, ElSortType sort, ElHermitianEigSubset_d subset );
 
-/*
 ElError ElHermitianTridiagEigPartialDist_s
 ( ElConstDistMatrix_s d, ElConstDistMatrix_s e, 
   ElDistMatrix_s w, ElSortType sort, ElHermitianEigSubset_s subset );
-*/
 ElError ElHermitianTridiagEigPartialDist_d
 ( ElConstDistMatrix_d d, ElConstDistMatrix_d e, 
   ElDistMatrix_d w, ElSortType sort, ElHermitianEigSubset_d subset );
-/*
 ElError ElHermitianTridiagEigPartialDist_c
 ( ElConstDistMatrix_s d, ElConstDistMatrix_c e, 
   ElDistMatrix_s w, ElSortType sort, ElHermitianEigSubset_s subset );
-*/
 ElError ElHermitianTridiagEigPartialDist_z
 ( ElConstDistMatrix_d d, ElConstDistMatrix_z e, 
   ElDistMatrix_d w, ElSortType sort, ElHermitianEigSubset_d subset );
@@ -652,22 +640,18 @@ ElError ElHermitianTridiagEigPairPartial_z
 ( ElMatrix_d d, ElMatrix_z e, 
   ElMatrix_d w, ElMatrix_z Z, ElSortType sort, ElHermitianEigSubset_d subset );
 
-/*
 ElError ElHermitianTridiagEigPairPartialDist_s
 ( ElConstDistMatrix_s d, ElConstDistMatrix_s e, 
   ElDistMatrix_s w, ElDistMatrix_s Z, 
   ElSortType sort, ElHermitianEigSubset_s subset );
-*/
 ElError ElHermitianTridiagEigPairPartialDist_d
 ( ElConstDistMatrix_d d, ElConstDistMatrix_d e, 
   ElDistMatrix_d w, ElDistMatrix_d Z,
   ElSortType sort, ElHermitianEigSubset_d subset );
-/*
 ElError ElHermitianTridiagEigPairPartialDist_c
 ( ElConstDistMatrix_s d, ElConstDistMatrix_c e, 
   ElDistMatrix_s w, ElDistMatrix_c Z,
   ElSortType sort, ElHermitianEigSubset_s subset );
-*/
 ElError ElHermitianTridiagEigPairPartialDist_z
 ( ElConstDistMatrix_d d, ElConstDistMatrix_z e, 
   ElDistMatrix_d w, ElDistMatrix_z Z,

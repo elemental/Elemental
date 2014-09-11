@@ -111,7 +111,7 @@ Var3( AbstractDistMatrix<F>& APre, bool conjugate=false )
     )
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     const Int n = A.Height();

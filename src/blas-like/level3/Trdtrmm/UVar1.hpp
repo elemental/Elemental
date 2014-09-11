@@ -60,7 +60,7 @@ UVar1( AbstractDistMatrix<F>& UPre, bool conjugate=false )
     const Grid& g = UPre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    auto UPtr = ReadWriteProxy( &UPre ); 
+    auto UPtr = ReadWriteProxy<F,MC,MR>( &UPre ); 
     auto& U = *UPtr;
 
     DistMatrix<F,MC,  STAR> S01_MC_STAR(g);

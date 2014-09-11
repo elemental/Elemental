@@ -80,8 +80,8 @@ void ApplyQ
     const Int offset = APre.Width()-APre.Height();
     const Int minDim = Min(APre.Height(),APre.Width());
 
-    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
-    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
+    auto APtr = ReadProxy<F,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
 
     ProxyCtrl tCtrl;
     tCtrl.rootConstrain = true;

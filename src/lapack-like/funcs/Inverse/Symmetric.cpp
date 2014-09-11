@@ -42,7 +42,7 @@ void SymmetricInverse
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricInverse"))
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     if( uplo == LOWER )

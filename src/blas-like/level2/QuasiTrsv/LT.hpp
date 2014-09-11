@@ -193,8 +193,8 @@ LT
     if( conjugate )
         Conjugate( xPre );
 
-    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
-    auto xPtr = ReadWriteProxy( &xPre ); auto& x = *xPtr;
+    auto LPtr = ReadProxy<F,MC,MR>( &LPre );      auto& L = *LPtr;
+    auto xPtr = ReadWriteProxy<F,MC,MR>( &xPre ); auto& x = *xPtr;
 
     const Range<Int> outerInd( 0, 1 );
 

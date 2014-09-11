@@ -325,7 +325,7 @@ inline void BusingerGolub
     )
     typedef Base<F> Real;
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     const Int m = A.Height();

@@ -59,7 +59,7 @@ UVar2( AbstractDistMatrix<F>& APre )
     )
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     DistMatrix<F,MC,  STAR> A01_MC_STAR(g);

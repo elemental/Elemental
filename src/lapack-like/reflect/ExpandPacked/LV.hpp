@@ -128,8 +128,8 @@ LV
             LogicError("t must be the same length as H's offset diag");
     )
 
-    auto tPtr = ReadProxy<F,MC,STAR>( &tPre ); auto& t = *tPtr;
-    auto HPtr = ReadWriteProxy( &HPre );       auto& H = *HPtr;
+    auto tPtr = ReadProxy<F,MC,STAR>( &tPre );    auto& t = *tPtr;
+    auto HPtr = ReadWriteProxy<F,MC,MR>( &HPre ); auto& H = *HPtr;
 
     // Start by zeroing everything above the offset and setting that diagonal
     // to all ones. We can also ensure that H is not wider than it is tall.

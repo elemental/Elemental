@@ -87,7 +87,7 @@ void AfterLUPartialPiv
 {
     DEBUG_ONLY(CallStackEntry cse("inverse::AfterLUPartialPiv"))
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     if( A.Height() != A.Width() )

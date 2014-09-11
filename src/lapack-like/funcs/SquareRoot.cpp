@@ -102,7 +102,7 @@ Newton( AbstractDistMatrix<F>& APre, const SquareRootCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("square_root::Newton"))
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     typedef Base<F> Real;
@@ -214,7 +214,7 @@ void HPSDSquareRoot
 {
     DEBUG_ONLY(CallStackEntry cse("HPSDSquareRoot"))
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     // Get the EVD of A

@@ -42,7 +42,7 @@ Int NonNegativeLeastSquares
         LogicError("The datatype was assumed to be real");
     const Real maxReal = std::numeric_limits<Real>::max();
 
-    auto APtr = ReadProxy( &APre );
+    auto APtr = ReadProxy<Real,MC,MR>( &APre );
     auto& A = *APtr;
 
     DistMatrix<Real> P(A.Grid()), S(A.Grid());

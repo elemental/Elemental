@@ -27,7 +27,7 @@ LVar3Square( AbstractDistMatrix<F>& APre )
             LogicError("CholeskyLVar3Square requires a square process grid");
     )
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     // Find the process holding our transposed data

@@ -675,7 +675,7 @@ IRA
     using namespace pspec;
     typedef Complex<Real> C;
 
-    auto UPtr = ReadProxy( &UPre );
+    auto UPtr = ReadProxy<C,MC,MR>( &UPre );
     auto& U = *UPtr;
 
     auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
@@ -958,7 +958,7 @@ IRA
     using namespace pspec;
     typedef Complex<Real> C;
 
-    auto UPtr = ReadProxy( &UPre );
+    auto UPtr = ReadProxy<Real,MC,MR>( &UPre );
     auto& U = *UPtr;
 
     auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );

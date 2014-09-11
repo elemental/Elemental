@@ -49,8 +49,8 @@ void HermitianGenDefEig
             LogicError("Hermitian matrices must be square.");
     )
 
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
 
     Cholesky( uplo, B );
     if( pencil == AXBX )
@@ -109,9 +109,9 @@ void HermitianGenDefEig
             LogicError("Hermitian matrices must be square.");
     )
 
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
-    auto XPtr = WriteProxy( &XPre );     auto& X = *XPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
+    auto XPtr = WriteProxy<F,MC,MR>( &XPre );     auto& X = *XPtr;
 
     Cholesky( uplo, B );
     if( pencil == AXBX )

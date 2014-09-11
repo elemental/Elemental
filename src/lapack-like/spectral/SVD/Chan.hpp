@@ -30,8 +30,8 @@ ChanUpper
             LogicError("Nonsensical switchpoint for SVD");
     )
 
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr; 
-    auto VPtr = WriteProxy( &VPre );     auto& V = *VPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr; 
+    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
 
     const Grid& g = A.Grid();
     const Int m = A.Height();
@@ -69,7 +69,7 @@ ChanUpper
             LogicError("Nonsensical switchpoint");
     )
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     if( A.Height() >= heightRatio*A.Width() )
@@ -101,8 +101,8 @@ Chan
             LogicError("Nonsensical switchpoint for SVD");
     )
 
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto VPtr = WriteProxy( &VPre );     auto& V = *VPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
 
     // Check if we need to rescale the matrix, and do so if necessary
     Base<F> scale;
@@ -141,7 +141,7 @@ Chan
 {
     DEBUG_ONLY(CallStackEntry cse("svd::Chan"))
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     // Check if we need to rescale the matrix, and do so if necessary

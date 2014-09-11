@@ -158,8 +158,8 @@ TallAbsoluteThresholded
             LogicError("negative threshold does not make sense");
     )
 
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;    
-    auto VPtr = WriteProxy( &VPre );     auto& V = *VPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;    
+    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
 
     typedef Base<F> Real;
     const Int m = A.Height();
@@ -236,8 +236,8 @@ TallRelativeThresholded
             LogicError("negative threshold does not make sense");
     )
 
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto VPtr = WriteProxy( &VPre );     auto& V = *VPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
 
     const Int n = A.Width();
 
@@ -606,8 +606,8 @@ WideAbsoluteThresholded
             LogicError("negative threshold does not make sense");
     )
 
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto VPtr = WriteProxy( &VPre );     auto& V = *VPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -685,8 +685,8 @@ WideRelativeThresholded
             LogicError("negative threshold does not make sense");
     )
 
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto VPtr = WriteProxy( &VPre );     auto& V = *VPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
 
     const Int m = A.Height();
 

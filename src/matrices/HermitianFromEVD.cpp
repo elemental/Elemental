@@ -14,10 +14,8 @@ namespace El {
 
 template<typename F>
 void HermitianFromEVD
-( UpperOrLower uplo,
-        Matrix<F>& A,
-  const Matrix<Base<F>>& w,
-  const Matrix<F>& Z )
+( UpperOrLower uplo, Matrix<F>& A,
+  const Matrix<Base<F>>& w, const Matrix<F>& Z )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianFromEVD"))
     Matrix<F> Z1Copy, Y1;
@@ -44,15 +42,17 @@ void HermitianFromEVD
 
 template<typename F>
 void HermitianFromEVD
-( UpperOrLower uplo,
-        DistMatrix<F>& A,
-  const DistMatrix<Base<F>,VR,STAR>& w,
-  const DistMatrix<F>& Z )
+( UpperOrLower uplo, AbstractDistMatrix<F>& APre,
+  const AbstractDistMatrix<Base<F>>& wPre, const AbstractDistMatrix<F>& ZPre )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianFromEVD"))
-    const Grid& g = A.Grid();
     typedef Base<F> Real;
 
+    auto APtr = WriteProxy<F,MC,MR>( &APre );     auto& A = *APtr;
+    auto wPtr = ReadProxy<Real,VR,STAR>( &wPre ); auto& w = *wPtr;
+    auto ZPtr = ReadProxy<F,MC,MR>( &ZPre );      auto& Z = *ZPtr;
+
+    const Grid& g = A.Grid();
     DistMatrix<F,MC,  STAR> Z1_MC_STAR(g);
     DistMatrix<F,VR,  STAR> Z1_VR_STAR(g);
     DistMatrix<F,STAR,MR  > Z1Adj_STAR_MR(g);
@@ -91,8 +91,8 @@ void HermitianFromEVD
   ( UpperOrLower uplo, Matrix<F>& A, \
     const Matrix<Base<F>>& w, const Matrix<F>& Z ); \
   template void HermitianFromEVD \
-  ( UpperOrLower uplo, DistMatrix<F>& A, \
-    const DistMatrix<Base<F>,VR,STAR>& w, const DistMatrix<F>& Z );
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<Base<F>>& w, const AbstractDistMatrix<F>& Z );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

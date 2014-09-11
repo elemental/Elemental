@@ -88,8 +88,8 @@ LUNA
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
+    auto UPtr = ReadProxy<T,MC,MR>( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,VR,  STAR> X1_VR_STAR(g);
     DistMatrix<T,STAR,MR  > X1Trans_STAR_MR(g);
@@ -133,8 +133,8 @@ LUNCOld
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
+    auto UPtr = ReadProxy<T,MC,MR>( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<T,STAR,MC  > U12_STAR_MC(g);
@@ -191,8 +191,8 @@ LUNC
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
+    auto UPtr = ReadProxy<T,MC,MR>( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<T,MC,  STAR> U01_MC_STAR(g);

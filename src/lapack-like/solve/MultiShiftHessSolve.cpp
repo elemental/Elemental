@@ -221,7 +221,7 @@ LN
     ProxyCtrl ctrl; 
     ctrl.colConstrain = true;
     ctrl.colAlign = X.RowAlign();
-    auto shiftsPtr = ReadProxy( &shiftsPre, ctrl );
+    auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre, ctrl );
     auto& shifts = *shiftsPtr;
 
     Scale( alpha, X );
@@ -337,7 +337,7 @@ UN
     ProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = X.RowAlign();
-    auto shiftsPtr = ReadProxy( &shiftsPre, ctrl );
+    auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre, ctrl );
     auto& shifts = *shiftsPtr;
 
     Scale( alpha, X );

@@ -170,7 +170,7 @@ QDWHInner
 {
     DEBUG_ONLY(CallStackEntry cse("polar::QDWHInner"))
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     typedef Base<F> Real;
@@ -265,7 +265,7 @@ QDWH( AbstractDistMatrix<F>& APre, const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("polar::QDWH"))
 
-    auto APtr = ReadWriteProxy( &APre ); 
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); 
     auto& A = *APtr;
 
     typedef Base<F> Real;
@@ -307,8 +307,8 @@ QDWH
 {
     DEBUG_ONLY(CallStackEntry cse("polar::QDWH"))
 
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto PPtr = WriteProxy( &PPre );     auto& P = *PPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto PPtr = WriteProxy<F,MC,MR>( &PPre );     auto& P = *PPtr;
 
     DistMatrix<F> ACopy( A );
     const Int numIts = QDWH( A, ctrl );
@@ -470,7 +470,7 @@ QDWHInner
     if( APre.Height() != APre.Width() )
         LogicError("Height must be same as width");
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     typedef Base<F> Real;
@@ -567,7 +567,7 @@ QDWH( UpperOrLower uplo, AbstractDistMatrix<F>& APre, const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_polar::QDWH"))
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     typedef Base<F> Real;
@@ -598,8 +598,8 @@ QDWH
 {
     DEBUG_ONLY(CallStackEntry cse("herm_polar::QDWH"))
 
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto PPtr = WriteProxy( &PPre );     auto& P = *PPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto PPtr = WriteProxy<F,MC,MR>( &PPre );     auto& P = *PPtr;
 
     DistMatrix<F> ACopy( A );
     // NOTE: This might be avoidable

@@ -157,7 +157,7 @@ LUnblockedPivoted
         AssertSameGrids( APre, p );
     )
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     // Initialize the permutation to the identity
@@ -378,7 +378,7 @@ LVar3( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
             LogicError("A must be square");
     )
 
-    auto APtr = ReadWriteProxy( &APre );          auto& A = *APtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto pPtr = WriteProxy<Int,VC,STAR>( &pPre ); auto& p = *pPtr;
 
     // Initialize the permutation to the identity

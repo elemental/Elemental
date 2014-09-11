@@ -541,7 +541,7 @@ void SDC
         return;
     }
 
-    auto APtr = ReadWriteProxy( &APre );           auto& A = *APtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );  auto& A = *APtr;
     auto wPtr = WriteProxy<Real,VR,STAR>( &wPre ); auto& w = *wPtr;
 
     // Perform this level's split
@@ -595,8 +595,8 @@ void SDC
         return;
     }
 
-    auto APtr = ReadWriteProxy( &APre );           auto& A = *APtr;
-    auto QPtr = WriteProxy( &QPre );               auto& Q = *QPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );  auto& A = *APtr;
+    auto QPtr = WriteProxy<F,MC,MR>( &QPre );      auto& Q = *QPtr;
     auto wPtr = WriteProxy<Real,VR,STAR>( &wPre ); auto& w = *wPtr;
 
     // Perform this level's split

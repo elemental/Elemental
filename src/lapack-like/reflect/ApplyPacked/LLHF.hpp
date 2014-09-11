@@ -88,9 +88,9 @@ LLHF
         AssertSameGrids( HPre, tPre, APre );
     )
 
-    auto HPtr = ReadProxy( &HPre );            auto& H = *HPtr;
-    auto tPtr = ReadProxy<F,MC,STAR>( &tPre ); auto& t = *tPtr;
-    auto APtr = ReadWriteProxy( &APre );       auto& A = *APtr;
+    auto HPtr = ReadProxy<F,MC,MR>( &HPre );      auto& H = *HPtr;
+    auto tPtr = ReadProxy<F,MC,STAR>( &tPre );    auto& t = *tPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
 
     const Int nA = A.Width();
     const Int diagLength = H.DiagonalLength(offset);

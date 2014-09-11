@@ -47,7 +47,7 @@ void HermitianUniformSpectrum
     typedef Base<F> Real;
 
     // Switch to [MC,MR] so that qr::ApplyQ is fast
-    auto APtr = WriteProxy( &APre );
+    auto APtr = WriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     // Form d and D

@@ -34,8 +34,8 @@ UT
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
-    auto xPtr = ReadWriteProxy( &xPre ); auto& x = *xPtr;
+    auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
+    auto xPtr = ReadWriteProxy<F,MC,MR>( &xPre ); auto& x = *xPtr;
 
     // Matrix views 
     DistMatrix<F> U11(g), U12(g), x1(g);

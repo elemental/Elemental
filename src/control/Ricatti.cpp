@@ -48,7 +48,7 @@ void Ricatti
 {
     DEBUG_ONLY(CallStackEntry cse("Ricatti"))
 
-    auto WPtr = ReadProxy( &WPre );
+    auto WPtr = ReadProxy<F,MC,MR>( &WPre );
     auto& W = *WPtr;
 
     const Grid& g = W.Grid();

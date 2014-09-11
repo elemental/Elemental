@@ -84,7 +84,7 @@ LVar3( UnitOrNonUnit diag, AbstractDistMatrix<F>& LPre )
             LogicError("Nonsquare matrices cannot be triangular");
     )
 
-    auto LPtr = ReadWriteProxy( &LPre );
+    auto LPtr = ReadWriteProxy<F,MC,MR>( &LPre );
     auto& L = *LPtr;
 
     const Grid& g = L.Grid();

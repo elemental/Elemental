@@ -77,7 +77,7 @@ Full
     const Int n = APre.Width();
     const Int minDim = Min(m,n);
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     // Initialize the permutations P and Q

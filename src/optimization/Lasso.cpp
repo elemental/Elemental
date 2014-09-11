@@ -162,9 +162,9 @@ Int Lasso
 {
     DEBUG_ONLY(CallStackEntry cse("Lasso"))
 
-    auto APtr = ReadProxy( &APre );  auto& A = *APtr;
-    auto bPtr = ReadProxy( &bPre );  auto& b = *bPtr;
-    auto zPtr = WriteProxy( &zPre ); auto& z = *zPtr;
+    auto APtr = ReadProxy<F,MC,MR>( &APre );  auto& A = *APtr;
+    auto bPtr = ReadProxy<F,MC,MR>( &bPre );  auto& b = *bPtr;
+    auto zPtr = WriteProxy<F,MC,MR>( &zPre ); auto& z = *zPtr;
 
     typedef Base<F> Real;
     const Int m = A.Height();

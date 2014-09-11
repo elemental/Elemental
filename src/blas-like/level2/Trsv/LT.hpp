@@ -37,8 +37,8 @@ LT
     const Int kLast = LastOffset( m, bsize );
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
-    auto xPtr = ReadWriteProxy( &xPre ); auto& x = *xPtr;
+    auto LPtr = ReadProxy<F,MC,MR>( &LPre );      auto& L = *LPtr;
+    auto xPtr = ReadWriteProxy<F,MC,MR>( &xPre ); auto& x = *xPtr;
 
     // Matrix views 
     DistMatrix<F> L10(g), L11(g), x1(g);

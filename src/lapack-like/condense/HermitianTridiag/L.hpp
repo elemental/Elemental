@@ -67,7 +67,7 @@ void L( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
             LogicError("A must be square");
     )
 
-    auto APtr = ReadWriteProxy( &APre );          auto& A = *APtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto tPtr = WriteProxy<F,STAR,STAR>( &tPre ); auto& t = *tPtr;
 
     const Int n = A.Height();

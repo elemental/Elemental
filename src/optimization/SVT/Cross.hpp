@@ -41,7 +41,7 @@ Int Cross( AbstractDistMatrix<F>& APre, Base<F> tau, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("svt::Cross"))
 
-    auto APtr = ReadWriteProxy( &APre );
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     typedef Base<F> Real;

@@ -53,7 +53,7 @@ void Sylvester
 {
     DEBUG_ONLY(CallStackEntry cse("Sylvester"))
 
-    auto WPtr = ReadProxy( &WPre );
+    auto WPtr = ReadProxy<F,MC,MR>( &WPre );
     auto& W = *WPtr;
 
     const Grid& g = W.Grid();

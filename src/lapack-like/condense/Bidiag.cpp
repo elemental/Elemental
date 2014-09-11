@@ -75,9 +75,9 @@ void Explicit
 {
     DEBUG_ONLY(CallStackEntry cse("bidiag::Explicit"))
 
-    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
-    auto PPtr = WriteProxy( &PPre );     auto& P = *PPtr;
-    auto QPtr = WriteProxy( &QPre );     auto& Q = *QPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto PPtr = WriteProxy<F,MC,MR>( &PPre );     auto& P = *PPtr;
+    auto QPtr = WriteProxy<F,MC,MR>( &QPre );     auto& Q = *QPtr;
 
     DistMatrix<F,MD,STAR> tP(A.Grid()), tQ(A.Grid());
     Bidiag( A, tP, tQ );

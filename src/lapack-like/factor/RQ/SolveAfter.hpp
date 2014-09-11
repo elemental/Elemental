@@ -86,8 +86,8 @@ void SolveAfter
     if( m > n )
         LogicError("Must have full row rank");
 
-    auto APtr = ReadProxy( &APre );  auto& A = *APtr;
-    auto XPtr = WriteProxy( &XPre ); auto& X = *XPtr;
+    auto APtr = ReadProxy<F,MC,MR>( &APre );  auto& A = *APtr;
+    auto XPtr = WriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
 
     X.Resize( n, B.Width() );
     // TODO: Add scaling
