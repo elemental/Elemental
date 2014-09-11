@@ -119,9 +119,6 @@ void FoxLi( AbstractDistMatrix<Complex<Real>>& APre, Int n, Real omega )
   template void FoxLi \
   ( AbstractDistMatrix<Complex<Real>>& A, Int n, Real omega );
 
-#define PROTO_FLOAT \
-  template void FoxLi( Matrix<Complex<float>>& A, Int n, float omega );
-
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
