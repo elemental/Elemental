@@ -81,8 +81,8 @@ inline Complex<Real> ComplexFromPolar( const Real& r, const Real& theta )
 
 // Size measurements
 // =================
-template<typename F>
-inline Base<F> Abs( const F& alpha ) { return std::abs(alpha); }
+template<typename T>
+inline Base<T> Abs( const T& alpha ) { return std::abs(alpha); }
 
 template<typename Real>
 inline Real SafeAbs( const Real& alpha ) { return Abs(alpha); }

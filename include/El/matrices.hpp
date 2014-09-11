@@ -526,14 +526,14 @@ template<typename S,typename T>
 void Toeplitz
 ( AbstractBlockDistMatrix<S>& A, Int m, Int n, const std::vector<T>& a );
 
-// Trefethen
-// =========
+// Trefethen-Embree
+// ================
 template<typename Real>
-void Trefethen( Matrix<Complex<Real>>& A, Int n );
+void TrefethenEmbree( Matrix<Complex<Real>>& A, Int n );
 template<typename Real>
-void Trefethen( AbstractDistMatrix<Complex<Real>>& A, Int n );
+void TrefethenEmbree( AbstractDistMatrix<Complex<Real>>& A, Int n );
 template<typename Real>
-void Trefethen( AbstractBlockDistMatrix<Complex<Real>>& A, Int n );
+void TrefethenEmbree( AbstractBlockDistMatrix<Complex<Real>>& A, Int n );
 
 // Triangle
 // ========

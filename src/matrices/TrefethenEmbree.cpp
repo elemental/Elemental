@@ -14,12 +14,12 @@ namespace El {
 // Lloyd N. Trefethen and Mark Embree's "Spectra and Pseudospectra" is
 //     f(z) = 2 z^{-3} - z^{-2} + 2i z^{-1} - 4 z^2 - 2i z^3.
 // For lack of a better name, we will refer to such a Toeplitz matrix as a 
-// Trefethen matrix.
+// Trefethen-Embree matrix.
 
 template<typename Real> 
-void Trefethen( Matrix<Complex<Real>>& A, Int n )
+void TrefethenEmbree( Matrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Trefethen"))
+    DEBUG_ONLY(CallStackEntry cse("TrefethenEmbree"))
     if( n < 4 )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;
@@ -32,9 +32,9 @@ void Trefethen( Matrix<Complex<Real>>& A, Int n )
 }
 
 template<typename Real>
-void Trefethen( AbstractDistMatrix<Complex<Real>>& A, Int n )
+void TrefethenEmbree( AbstractDistMatrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Trefethen"))
+    DEBUG_ONLY(CallStackEntry cse("TrefethenEmbree"))
     if( n < 4 )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;
@@ -47,9 +47,9 @@ void Trefethen( AbstractDistMatrix<Complex<Real>>& A, Int n )
 }
 
 template<typename Real>
-void Trefethen( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
+void TrefethenEmbree( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Trefethen"))
+    DEBUG_ONLY(CallStackEntry cse("TrefethenEmbree"))
     if( n < 4 )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;
@@ -62,9 +62,9 @@ void Trefethen( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
 }
 
 #define PROTO(Real) \
-  template void Trefethen( Matrix<Complex<Real>>& A, Int n ); \
-  template void Trefethen( AbstractDistMatrix<Complex<Real>>& A, Int n ); \
-  template void Trefethen( AbstractBlockDistMatrix<Complex<Real>>& A, Int n );
+  template void TrefethenEmbree( Matrix<Complex<Real>>& A, Int n ); \
+  template void TrefethenEmbree( AbstractDistMatrix<Complex<Real>>& A, Int n ); \
+  template void TrefethenEmbree( AbstractBlockDistMatrix<Complex<Real>>& A, Int n );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

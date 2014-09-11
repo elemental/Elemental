@@ -311,7 +311,13 @@ extern "C" {
       HermitianFromEVD( \
         CReflect(uplo), *CReflect(A), \
         *CReflect(w), *CReflect(Z) ) ) } \
-  /* TODO: Distributed HermitianFromEVD */ \
+  ElError ElHermitianFromEVDDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIGBASE w, ElConstDistMatrix_ ## SIG Z ) \
+  { EL_TRY( \
+      HermitianFromEVD( \
+        CReflect(uplo), *CReflect(A), \
+        *CReflect(w), *CReflect(Z) ) ) } \
   /* Hermitian uniform spectrum */ \
   ElError ElHermitianUniformSpectrum_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt n, Base<T> lower, Base<T> upper ) \
@@ -517,11 +523,11 @@ extern "C" {
       NormalUniformSpectrum( \
         *CReflect(A), n, CReflect(center), radius ) ) } \
   /* TODO: Distributed NormalUniformSpectrum */ \
-  /* Trefethen */ \
-  ElError ElTrefethen_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
-  { EL_TRY( Trefethen( *CReflect(A), n ) ) } \
-  ElError ElTrefethenDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
-  { EL_TRY( Trefethen( *CReflect(A), n ) ) } \
+  /* Trefethen-Embree */ \
+  ElError ElTrefethenEmbree_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( TrefethenEmbree( *CReflect(A), n ) ) } \
+  ElError ElTrefethenEmbreeDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( TrefethenEmbree( *CReflect(A), n ) ) } \
   /* Uniform Helmholtz Green's */ \
   ElError ElUniformHelmholtzGreens_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt n, Base<T> lambda ) \

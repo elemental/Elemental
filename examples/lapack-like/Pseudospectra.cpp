@@ -23,11 +23,21 @@ main( int argc, char* argv[] )
         Int r = Input("--gridHeight","process grid height",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int matType =
-            Input("--matType","0:uniform,1:Haar,2:Lotkin,3:Grcar,4:FoxLi,"
-                              "5:HelmholtzPML1D,6:HelmholtzPML2D,7:Trefethen,"
-                              "8:Bull's head,9:Triangle,10:Whale,"
-                              "11:UniformHelmholtzGreen's,12:HatanoNelson,"
-                              "13:Ehrenfest,14:Riffle",4);
+            Input("--matType","0:uniform,"
+                              "1:Haar,"
+                              "2:Lotkin,"
+                              "3:Grcar,"
+                              "4:FoxLi,"
+                              "5:HelmholtzPML1D,"
+                              "6:HelmholtzPML2D,"
+                              "7:TrefethenEmbree,"
+                              "8:Bull's head,"
+                              "9:Triangle,"
+                              "10:Whale,"
+                              "11:UniformHelmholtzGreen's,"
+                              "12:HatanoNelson,"
+                              "13:Ehrenfest,"
+                              "14:Riffle",4);
         const Int normInt = Input("--norm","0:two norm,1:one norm",0);
         const Int n = Input("--size","height of matrix",100);
         const Int nbAlg = Input("--nbAlg","algorithmic blocksize",96);
@@ -163,8 +173,8 @@ main( int argc, char* argv[] )
                 ( ACpx, mx, my, C(omega), numPmlPoints, sigma, pmlExp );
                 isReal = false;
                 break;
-        case 7: matName="Trefethen";
-                Trefethen( ACpx, n );
+        case 7: matName="TrefethenEmbree";
+                TrefethenEmbree( ACpx, n );
                 isReal = false;
                 break;
         case 8: matName="BullsHead";

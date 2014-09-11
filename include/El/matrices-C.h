@@ -501,7 +501,18 @@ ElError ElHermitianFromEVD_z
 ( ElUpperOrLower uplo, ElMatrix_z A, 
   ElConstMatrix_d w, ElConstMatrix_z Z );
 
-/* TODO: Distributed HermitianFromEVD */
+ElError ElHermitianFromEVDDist_s
+( ElUpperOrLower uplo, ElDistMatrix_s A, 
+  ElConstDistMatrix_s w, ElConstDistMatrix_s Z );
+ElError ElHermitianFromEVDDist_d
+( ElUpperOrLower uplo, ElDistMatrix_d A, 
+  ElConstDistMatrix_d w, ElConstDistMatrix_d Z );
+ElError ElHermitianFromEVDDist_c
+( ElUpperOrLower uplo, ElDistMatrix_c A, 
+  ElConstDistMatrix_s w, ElConstDistMatrix_c Z );
+ElError ElHermitianFromEVDDist_z
+( ElUpperOrLower uplo, ElDistMatrix_z A, 
+  ElConstDistMatrix_d w, ElConstDistMatrix_z Z );
 
 /* Hermitian uniform spectrum
    ========================== */
@@ -849,13 +860,13 @@ ElError ElToeplitzDist_c
 ElError ElToeplitzDist_z
 ( ElDistMatrix_z A, ElInt m, ElInt n, ElInt aSize, complex_double* aBuf );
 
-/* Trefethen
-   ========= */
-ElError ElTrefethen_c( ElMatrix_c A, ElInt n );
-ElError ElTrefethen_z( ElMatrix_z A, ElInt n );
+/* Trefethen-Embree
+   ================ */
+ElError ElTrefethenEmbree_c( ElMatrix_c A, ElInt n );
+ElError ElTrefethenEmbree_z( ElMatrix_z A, ElInt n );
 
-ElError ElTrefethenDist_c( ElDistMatrix_c A, ElInt n );
-ElError ElTrefethenDist_z( ElDistMatrix_z A, ElInt n );
+ElError ElTrefethenEmbreeDist_c( ElDistMatrix_c A, ElInt n );
+ElError ElTrefethenEmbreeDist_z( ElDistMatrix_z A, ElInt n );
 
 /* Triangle
    ======== */

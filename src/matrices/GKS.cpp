@@ -8,8 +8,9 @@
 */
 #include "El.hpp"
 
-// The Golub Klema Stewart matrix is upper-triangular with 1/sqrt(j) on its 
-// j'th diagonal entry and -1/sqrt(j) elsewhere in the upper triangle.
+// The Golub Klema Stewart matrix is upper-triangular with 1/sqrt(j+1) in the
+// j'th entry of its main diagonal and -1/sqrt(j+1) elsewhere in the 
+// :math:`j`'th column of the upper triangle.
 // 
 // It was originally introduced as an example of where greedy RRQR fails.
 

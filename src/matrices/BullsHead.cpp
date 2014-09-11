@@ -14,7 +14,7 @@ namespace El {
 //   f(z) = 2i z^{-1} + z^2 + 7/10 z^3.
 // Please see 
 //   L. Reichel and L. N. Trefethen, "Eigenvalues and pseudo-eigenvalues of 
-//   "Toeplitz matrices", Linear Algebra Appl., 1992.
+//   Toeplitz matrices", Linear Algebra Appl., 1992.
 
 template<typename Real> 
 void BullsHead( Matrix<Complex<Real>>& A, Int n )

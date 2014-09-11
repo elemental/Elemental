@@ -65,8 +65,8 @@ template<typename Real>
 void UpdateImagPart( Complex<Real>& alpha, const Real& beta );
 
 // Euclidean (l_2) magnitudes
-template<typename F>
-Base<F> Abs( const F& alpha );
+template<typename T>
+Base<T> Abs( const T& alpha );
 template<typename Real>
 Real SafeAbs( const Real& alpha );
 template<typename Real>
@@ -154,6 +154,18 @@ F Pow( const F& alpha, const T& beta );
 // Logarithm
 template<typename F>
 F Log( const F& alpha );
+
+// Sign function of a scalar
+template<typename Real>
+inline Real Sgn( const Real& alpha, bool symmetric=true )
+{
+    if( alpha < 0 )
+        return Real(-1);
+    else if( alpha > 0 || !symmetric )
+        return Real(1);
+    else
+        return Real(0);
+}
 
 } // namespace El
 
