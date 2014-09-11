@@ -87,10 +87,28 @@ void EntrywiseMap
   PROTO_TYPES(Int,T) \
   PROTO_TYPES(T,T)
 
+#define PROTO_FLOAT \
+  PROTO_REAL(float) \
+  PROTO_TYPES(float,double) \
+  PROTO_TYPES(float,Complex<double>)
+
+#define PROTO_DOUBLE \
+  PROTO_REAL(double) \
+  PROTO_TYPES(double,float) \
+  PROTO_TYPES(double,Complex<float>)
+
 #define PROTO_COMPLEX(T) \
   PROTO(T) \
   PROTO_TYPES(Int,T) \
   PROTO_TYPES(Base<T>,T) 
+
+#define PROTO_COMPLEX_FLOAT \
+  PROTO_COMPLEX(Complex<float>) \
+  PROTO_TYPES(Complex<float>,Complex<double>)
+
+#define PROTO_COMPLEX_DOUBLE \
+  PROTO_COMPLEX(Complex<double>) \
+  PROTO_TYPES(Complex<double>,Complex<float>)
 
 #include "El/macros/Instantiate.h"
 
