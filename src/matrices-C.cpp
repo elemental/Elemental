@@ -131,11 +131,6 @@ extern "C" {
   { EL_TRY( Redheffer( *CReflect(A), n ) ) } \
   ElError ElRedhefferDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( Redheffer( *CReflect(A), n ) ) } \
-  /* Riemann */ \
-  ElError ElRiemann_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
-  { EL_TRY( Riemann( *CReflect(A), n ) ) } \
-  ElError ElRiemannDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
-  { EL_TRY( Riemann( *CReflect(A), n ) ) } \
   /* TriW */ \
   ElError ElTriW_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt m, ElInt n, CREFLECT(T) alpha, ElInt k ) \

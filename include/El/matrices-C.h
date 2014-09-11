@@ -778,20 +778,6 @@ ElError ElRedhefferDist_d( ElDistMatrix_d A, ElInt n );
 ElError ElRedhefferDist_c( ElDistMatrix_c A, ElInt n );
 ElError ElRedhefferDist_z( ElDistMatrix_z A, ElInt n );
 
-/* Riemann
-   ======= */
-ElError ElRiemann_i( ElMatrix_i A, ElInt n );
-ElError ElRiemann_s( ElMatrix_s A, ElInt n );
-ElError ElRiemann_d( ElMatrix_d A, ElInt n );
-ElError ElRiemann_c( ElMatrix_c A, ElInt n );
-ElError ElRiemann_z( ElMatrix_z A, ElInt n );
-
-ElError ElRiemannDist_i( ElDistMatrix_i A, ElInt n );
-ElError ElRiemannDist_s( ElDistMatrix_s A, ElInt n );
-ElError ElRiemannDist_d( ElDistMatrix_d A, ElInt n );
-ElError ElRiemannDist_c( ElDistMatrix_c A, ElInt n );
-ElError ElRiemannDist_z( ElDistMatrix_z A, ElInt n );
-
 /* Riffle
    ====== */
 ElError ElRiffle_s( ElMatrix_s P, ElInt n );

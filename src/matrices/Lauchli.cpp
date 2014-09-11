@@ -14,29 +14,29 @@ template<typename T>
 void Lauchli( Matrix<T>& A, Int n, T mu )
 {
     DEBUG_ONLY(CallStackEntry cse("Lauchli"))
-    A.Resize( n+1, n );
+    Zeros( A, n+1, n );
 
-    auto ABlock = A( IR(0,1), IR(0,n) );
-    Fill( ABlock, T(1) );
+    // Set the first row to all ones
+    auto a0 = A( IR(0,1), IR(0,n) );
+    Fill( a0, T(1) );
 
-    std::vector<T> d(n,mu);
-    ABlock = A( IR(1,n+1), IR(0,n) );
-    Diagonal( ABlock, d );
+    // Set the subdiagonal to mu
+    SetDiagonal( A, mu, -1 );
 }
 
 template<typename T>
 void Lauchli( AbstractDistMatrix<T>& A, Int n, T mu )
 {
     DEBUG_ONLY(CallStackEntry cse("Lauchli"))
-    A.Resize( n+1, n );
+    Zeros( A, n+1, n );
 
-    std::unique_ptr<AbstractDistMatrix<T>> ABlock( A.Construct(A.Grid()) );
-    View( *ABlock, A, IR(0,1), IR(0,n) );
-    Fill( *ABlock, T(1) );
+    // Set the first row to all ones
+    std::unique_ptr<AbstractDistMatrix<T>> a0( A.Construct(A.Grid()) );
+    View( *a0, A, IR(0,1), IR(0,n) );
+    Fill( *a0, T(1) );
 
-    std::vector<T> d(n,mu);
-    View( *ABlock, A, IR(1,n+1), IR(0,n) );
-    Diagonal( *ABlock, d );
+    // Set the subdiagonal to mu
+    SetDiagonal( A, mu, -1 );
 }
 
 #define PROTO(T) \

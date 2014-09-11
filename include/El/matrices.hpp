@@ -465,15 +465,6 @@ void Redheffer( AbstractDistMatrix<T>& R, Int n );
 template<typename T>
 void Redheffer( AbstractBlockDistMatrix<T>& R, Int n );
 
-// Riemann
-// =======
-template<typename T>
-void Riemann( Matrix<T>& R, Int n );
-template<typename T>
-void Riemann( AbstractDistMatrix<T>& R, Int n );
-template<typename T>
-void Riemann( AbstractBlockDistMatrix<T>& R, Int n );
-
 // Riffle
 // ======
 template<typename F>
