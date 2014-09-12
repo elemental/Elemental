@@ -11,7 +11,7 @@
 namespace El {
 
 template<typename T> 
-void TriW( Matrix<T>& A, Int m, Int n, T alpha, Int k )
+void TriW( Matrix<T>& A, Int n, T alpha, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("TriW"))
     if( k < 0 )
@@ -23,7 +23,7 @@ void TriW( Matrix<T>& A, Int m, Int n, T alpha, Int k )
 }
 
 template<typename T>
-void TriW( AbstractDistMatrix<T>& A, Int m, Int n, T alpha, Int k )
+void TriW( AbstractDistMatrix<T>& A, Int n, T alpha, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("TriW"))
     if( k < 0 )
@@ -35,7 +35,7 @@ void TriW( AbstractDistMatrix<T>& A, Int m, Int n, T alpha, Int k )
 }
 
 template<typename T>
-void TriW( AbstractBlockDistMatrix<T>& A, Int m, Int n, T alpha, Int k )
+void TriW( AbstractBlockDistMatrix<T>& A, Int n, T alpha, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("TriW"))
     if( k < 0 )
@@ -47,12 +47,9 @@ void TriW( AbstractBlockDistMatrix<T>& A, Int m, Int n, T alpha, Int k )
 }
 
 #define PROTO(T) \
-  template void TriW \
-  ( Matrix<T>& A, Int m, Int n, T alpha, Int k ); \
-  template void TriW \
-  ( AbstractDistMatrix<T>& A, Int m, Int n, T alpha, Int k ); \
-  template void TriW \
-  ( AbstractBlockDistMatrix<T>& A, Int m, Int n, T alpha, Int k );
+  template void TriW( Matrix<T>& A, Int n, T alpha, Int k ); \
+  template void TriW( AbstractDistMatrix<T>& A, Int n, T alpha, Int k ); \
+  template void TriW( AbstractBlockDistMatrix<T>& A, Int n, T alpha, Int k );
 
 #include "El/macros/Instantiate.h"
 

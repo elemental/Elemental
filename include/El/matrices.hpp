@@ -538,11 +538,11 @@ void Triangle( AbstractBlockDistMatrix<F>& A, Int n );
 // TriW
 // ====
 template<typename T>
-void TriW( Matrix<T>& A, Int m, Int n, T alpha, Int k );
+void TriW( Matrix<T>& A, Int n, T alpha, Int k );
 template<typename T>
-void TriW( AbstractDistMatrix<T>& A, Int m, Int n, T alpha, Int k );
+void TriW( AbstractDistMatrix<T>& A, Int n, T alpha, Int k );
 template<typename T>
-void TriW( AbstractBlockDistMatrix<T>& A, Int m, Int n, T alpha, Int k );
+void TriW( AbstractBlockDistMatrix<T>& A, Int n, T alpha, Int k );
 
 // Walsh
 // =====

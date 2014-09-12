@@ -133,11 +133,11 @@ extern "C" {
   { EL_TRY( Redheffer( *CReflect(A), n ) ) } \
   /* TriW */ \
   ElError ElTriW_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElInt m, ElInt n, CREFLECT(T) alpha, ElInt k ) \
-  { EL_TRY( TriW( *CReflect(A), m, n, CReflect(alpha), k ) ) } \
+  ( ElMatrix_ ## SIG A, ElInt n, CREFLECT(T) alpha, ElInt k ) \
+  { EL_TRY( TriW( *CReflect(A), n, CReflect(alpha), k ) ) } \
   ElError ElTriWDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n, CREFLECT(T) alpha, ElInt k ) \
-  { EL_TRY( TriW( *CReflect(A), m, n, CReflect(alpha), k ) ) } \
+  ( ElDistMatrix_ ## SIG A, ElInt n, CREFLECT(T) alpha, ElInt k ) \
+  { EL_TRY( TriW( *CReflect(A), n, CReflect(alpha), k ) ) } \
   /* Uniform */ \
   ElError ElUniform_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt m, ElInt n, \

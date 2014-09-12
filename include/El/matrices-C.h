@@ -868,27 +868,22 @@ ElError ElTriangleDist_z( ElDistMatrix_z A, ElInt n );
 
 /* TriW
    ==== */
-ElError ElTriW_i
-( ElMatrix_i A, ElInt m, ElInt n, ElInt alpha, ElInt k );
-ElError ElTriW_s
-( ElMatrix_s A, ElInt m, ElInt n, float alpha, ElInt k );
-ElError ElTriW_d
-( ElMatrix_d A, ElInt m, ElInt n, double alpha, ElInt k );
-ElError ElTriW_c
-( ElMatrix_c A, ElInt m, ElInt n, complex_float alpha, ElInt k );
-ElError ElTriW_z
-( ElMatrix_z A, ElInt m, ElInt n, complex_double alpha, ElInt k );
+ElError ElTriW_i( ElMatrix_i A, ElInt n, ElInt alpha, ElInt k );
+ElError ElTriW_s( ElMatrix_s A, ElInt n, float alpha, ElInt k );
+ElError ElTriW_d( ElMatrix_d A, ElInt n, double alpha, ElInt k );
+ElError ElTriW_c( ElMatrix_c A, ElInt n, complex_float alpha, ElInt k );
+ElError ElTriW_z( ElMatrix_z A, ElInt n, complex_double alpha, ElInt k );
 
 ElError ElTriWDist_i
-( ElDistMatrix_i A, ElInt m, ElInt n, ElInt alpha, ElInt k );
+( ElDistMatrix_i A, ElInt n, ElInt alpha, ElInt k );
 ElError ElTriWDist_s
-( ElDistMatrix_s A, ElInt m, ElInt n, float alpha, ElInt k );
+( ElDistMatrix_s A, ElInt n, float alpha, ElInt k );
 ElError ElTriWDist_d
-( ElDistMatrix_d A, ElInt m, ElInt n, double alpha, ElInt k );
+( ElDistMatrix_d A, ElInt n, double alpha, ElInt k );
 ElError ElTriWDist_c
-( ElDistMatrix_c A, ElInt m, ElInt n, complex_float alpha, ElInt k );
+( ElDistMatrix_c A, ElInt n, complex_float alpha, ElInt k );
 ElError ElTriWDist_z
-( ElDistMatrix_z A, ElInt m, ElInt n, complex_double alpha, ElInt k );
+( ElDistMatrix_z A, ElInt n, complex_double alpha, ElInt k );
 
 /* Uniform
    ======= */
