@@ -108,6 +108,9 @@ void Display
 ( const DistSparseMatrix<Complex<Real>>& A, 
   std::string title="DistSparseMatrix" );
 
+// Forward declaration
+struct DistSymmInfo;
+
 void DisplayLocal
 ( const DistSymmInfo& info, bool beforeFact, std::string title="" );
 
