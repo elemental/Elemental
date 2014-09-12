@@ -20,7 +20,7 @@ SafeMpi( int mpiError )
     DEBUG_ONLY(
         if( mpiError != MPI_SUCCESS )    
         {
-            char errorString[200];
+            char errorString[MPI_MAX_ERROR_STRING];
             int lengthOfErrorString;
             MPI_Error_string( mpiError, errorString, &lengthOfErrorString );
             El::RuntimeError( std::string(errorString) );
