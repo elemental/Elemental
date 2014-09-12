@@ -23,21 +23,21 @@ main( int argc, char* argv[] )
         Int r = Input("--gridHeight","process grid height",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int matType = 
-            Input("--matType","0:uniform,"
-                              "1:Haar,"
-                              "2:Lotkin,"
-                              "3:Grcar,"
-                              "4:FoxLi,"
-                              "5:HelmholtzPML1D,"
-                              "6:HelmholtzPML2D,"
-                              "7:TrefethenEmbree,"
-                              "8:Bull's head," 
-                              "9:Triangle,"
-                              "10:Whale,"
-                              "11:UniformHelmholtzGreen's,"
-                              "12:HatanoNelson,"
-                              "13:Ehrenfest,"
-                              "14:Riffle",4);
+            Input("--matType","0:uniform,\n"
+                              "1:Haar,\n"
+                              "2:Lotkin,\n"
+                              "3:Grcar,\n"
+                              "4:FoxLi,\n"
+                              "5:HelmholtzPML1D,\n"
+                              "6:HelmholtzPML2D,\n"
+                              "7:TrefethenEmbree,\n"
+                              "8:Bull's head,\n" 
+                              "9:Triangle,\n"
+                              "10:Whale,\n"
+                              "11:UniformHelmholtzGreen's,\n"
+                              "12:HatanoNelson,\n"
+                              "13:EhrenfestDecay,\n"
+                              "14:RiffleDecay",4);
         const Int normInt = Input("--norm","0:two norm,1:one norm",0);
         const Int n = Input("--size","height of matrix",100);
         const Int nbAlg = Input("--nbAlg","algorithmic blocksize",96);
@@ -194,12 +194,12 @@ main( int argc, char* argv[] )
                  ( AReal, n, realCenter, uniformRadius, gHatano, periodic );
                  isReal = true;
                  break;
-        case 13: matName="Ehrenfest";
+        case 13: matName="EhrenfestDecay";
                  // Force the complex matrix to allow for one-norm pseudospectra
                  EhrenfestDecay( ACpx, n );
                  isReal = false;
                  break;
-        case 14: matName="Riffle";
+        case 14: matName="RiffleDecay";
                  // Force the complex matrix to allow for one-norm pseudospectra
                  RiffleDecay( ACpx, n );
                  isReal = false;

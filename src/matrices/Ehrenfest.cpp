@@ -9,8 +9,10 @@
 #include "El.hpp"
 
 // This is an implementation of the compressed hypercube/Ehrenfest matrix. 
-// The details are taken from Trefethen and Embree's
-// "Spectra and Pseudospectra: The Behavior of Nonnormal Matrices and Operators"
+// The details are taken from Trefethen and Chapman's 
+// "Wave packet pseudomodes of twisted Toeplitz matrices" and 
+// Trefethen and Embree's "Spectra and Pseudospectra: The Behavior of 
+// Nonnormal Matrices and Operators"
 
 namespace El {
 
@@ -23,11 +25,10 @@ void Ehrenfest( Matrix<F>& P, Int n )
     Zeros( P, n, n );
     for( Int j=0; j<n; ++j )
     {
-        P.Set( j, j, Real(1)/Real(n) );
         if( j != 0 )
-            P.Set( j-1, j, Real(n-j)/Real(n) );
+            P.Set( j-1, j, Real(j)/Real(n-1) );
         if( j != n-1 )
-            P.Set( j+1, j, Real(j+1)/Real(n) );
+            P.Set( j+1, j, Real(n-1-j)/Real(n-1) );
     }
 }
 
@@ -41,11 +42,10 @@ void Ehrenfest( AbstractDistMatrix<F>& P, Int n )
     for( Int jLoc=0; jLoc<P.LocalWidth(); ++jLoc )
     {
         const Int j = P.GlobalCol(jLoc);
-        P.Set( j, j, Real(1)/Real(n) );
         if( j != 0 )
-            P.Set( j-1, j, Real(n-j)/Real(n) );
+            P.Set( j-1, j, Real(j)/Real(n-1) );
         if( j != n-1 )
-            P.Set( j+1, j, Real(j+1)/Real(n) );
+            P.Set( j+1, j, Real(n-1-j)/Real(n-1) );
     }
 }
 
@@ -59,11 +59,10 @@ void Ehrenfest( AbstractBlockDistMatrix<F>& P, Int n )
     for( Int jLoc=0; jLoc<P.LocalWidth(); ++jLoc )
     {
         const Int j = P.GlobalCol(jLoc);
-        P.Set( j, j, Real(1)/Real(n) );
         if( j != 0 )
-            P.Set( j-1, j, Real(n-j)/Real(n) );
+            P.Set( j-1, j, Real(j)/Real(n-1) );
         if( j != n-1 )
-            P.Set( j+1, j, Real(j+1)/Real(n) );
+            P.Set( j+1, j, Real(n-1-j)/Real(n-1) );
     }
 }
 

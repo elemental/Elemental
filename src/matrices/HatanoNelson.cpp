@@ -20,16 +20,18 @@ void HatanoNelson
     if( n < 3 )
         LogicError("Hatano Nelson requires at least a 3x3 matrix");
     Zeros( A, n, n );
+
     auto d = A.GetDiagonal();
     MakeUniform( d, center, radius );
     A.SetDiagonal( d );
-    SetDiagonal( A, Exp(g),   1 );
+
+    SetDiagonal( A, Exp(g), 1 );
+    if( periodic )
+        A.Set( n-1, 0, Exp(g) );
+
     SetDiagonal( A, Exp(-g), -1 );
     if( periodic )
-    {
-        A.Set( 0,   n-1, Exp(-g) );
-        A.Set( n-1, 0,   Exp( g) );
-    }
+        A.Set( 0, n-1, Exp(-g) );
 }
 
 template<typename F>
@@ -45,16 +47,18 @@ void HatanoNelson
     auto& A = *APtr;
 
     Zeros( A, n, n );
+
     auto d = A.GetDiagonal();
     MakeUniform( d, center, radius );
     A.SetDiagonal( d );
-    SetDiagonal( A, Exp(g),   1 );
+
+    SetDiagonal( A, Exp(g), 1 );
+    if( periodic )
+        A.Set( n-1, 0, Exp(g) );
+
     SetDiagonal( A, Exp(-g), -1 );
     if( periodic )
-    {
-        A.Set( 0,   n-1, Exp(-g) );
-        A.Set( n-1, 0,   Exp( g) );
-    }
+        A.Set( 0, n-1, Exp(-g) );
 }
 
 /*
@@ -71,16 +75,18 @@ void HatanoNelson
     auto& A = *APtr;
 
     Zeros( A, n, n );
+
     auto d = A.GetDiagonal();
     MakeUniform( d, center, radius );
     A.SetDiagonal( d );
-    SetDiagonal( A, Exp(g),   1 );
+
+    SetDiagonal( A, Exp(g), 1 );
+    if( periodic )
+        A.Set( n-1, 0, Exp(g) );
+
     SetDiagonal( A, Exp(-g), -1 );
     if( periodic )
-    {
-        A.Set( 0,   n-1, Exp(-g) );
-        A.Set( n-1, 0,   Exp( g) );
-    }
+        A.Set( 0, n-1, Exp(-g) );
 }
 */
 
