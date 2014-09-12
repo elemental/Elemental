@@ -62,6 +62,11 @@ extern "C" {
   ElError ElGearDist_ ## SIG \
   ( ElDistMatrix_ ## SIG G, ElInt n, ElInt s, ElInt t ) \
   { EL_TRY( Gear( *CReflect(G), n, s, t ) ) } \
+  /* GEPP Growth */ \
+  ElError ElGEPPGrowth_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( GEPPGrowth( *CReflect(A), n ) ) } \
+  ElError ElGEPPGrowthDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( GEPPGrowth( *CReflect(A), n ) ) } \
   /* Grcar */ \
   ElError ElGrcar_ ## SIG ( ElMatrix_ ## SIG A, ElInt n, ElInt k ) \
   { EL_TRY( Grcar( *CReflect(A), n, k ) ) } \
@@ -84,7 +89,9 @@ extern "C" {
   ElError ElHanowa_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt n, CREFLECT(T) mu ) \
   { EL_TRY( Hanowa( *CReflect(A), n, CReflect(mu) ) ) } \
-  /* TODO: Distributed Hanowa */ \
+  ElError ElHanowaDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt n, CREFLECT(T) mu ) \
+  { EL_TRY( Hanowa( *CReflect(A), n, CReflect(mu) ) ) } \
   /* Identity */ \
   ElError ElIdentity_ ## SIG ( ElMatrix_ ## SIG A, ElInt m, ElInt n ) \
   { EL_TRY( Identity( *CReflect(A), m, n ) ) } \
@@ -263,13 +270,18 @@ extern "C" {
   /* Haar */ \
   ElError ElHaar_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( Haar( *CReflect(A), n ) ) } \
-  /* TODO: Distributed Haar */ \
+  ElError ElHaarDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Haar( *CReflect(A), n ) ) } \
   ElError ElImplicitHaar_ ## SIG \
   ( ElMatrix_ ## SIG A, \
     ElMatrix_ ## SIG t, ElMatrix_ ## SIGBASE d, ElInt n ) \
   { EL_TRY( \
       ImplicitHaar( *CReflect(A), *CReflect(t), *CReflect(d), n ) ) } \
-  /* TODO: Distributed implicit Haar */ \
+  ElError ElImplicitHaarDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, \
+    ElDistMatrix_ ## SIG t, ElDistMatrix_ ## SIGBASE d, ElInt n ) \
+  { EL_TRY( \
+      ImplicitHaar( *CReflect(A), *CReflect(t), *CReflect(d), n ) ) } \
   /* Hatano-Nelson */ \
   ElError ElHatanoNelson_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt n, CREFLECT(T) center, Base<T> radius, \
@@ -278,7 +290,13 @@ extern "C" {
       HatanoNelson( \
         *CReflect(A), n, CReflect(center), radius, CReflect(g), \
         periodic ) ) } \
-  /* TODO: Distributed Hatano-Nelson */ \
+  ElError ElHatanoNelsonDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt n, CREFLECT(T) center, Base<T> radius, \
+    CREFLECT(T) g, bool periodic ) \
+  { EL_TRY( \
+      HatanoNelson( \
+        *CReflect(A), n, CReflect(center), radius, CReflect(g), \
+        periodic ) ) } \
   /* Helmholtz */ \
   ElError ElHelmholtz1D_ ## SIG \
   ( ElMatrix_ ## SIG H, ElInt nx, CREFLECT(T) shift ) \
@@ -510,14 +528,22 @@ extern "C" {
   ( ElMatrix_ ## SIG A, ElConstMatrix_ ## SIG w, ElConstMatrix_ ## SIG Z ) \
   { EL_TRY( \
       NormalFromEVD( *CReflect(A), *CReflect(w), *CReflect(Z) ) ) } \
-  /* TODO: Distributed NormalFromEVD */ \
+  ElError ElNormalFromEVDDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG w, \
+    ElConstDistMatrix_ ## SIG Z ) \
+  { EL_TRY( \
+      NormalFromEVD( *CReflect(A), *CReflect(w), *CReflect(Z) ) ) } \
   /* NormalUniformSpectrum */ \
   ElError ElNormalUniformSpectrum_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt n, CREFLECT(T) center, Base<T> radius ) \
   { EL_TRY( \
       NormalUniformSpectrum( \
         *CReflect(A), n, CReflect(center), radius ) ) } \
-  /* TODO: Distributed NormalUniformSpectrum */ \
+  ElError ElNormalUniformSpectrumDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt n, CREFLECT(T) center, Base<T> radius ) \
+  { EL_TRY( \
+      NormalUniformSpectrum( \
+        *CReflect(A), n, CReflect(center), radius ) ) } \
   /* Trefethen-Embree */ \
   ElError ElTrefethenEmbree_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( TrefethenEmbree( *CReflect(A), n ) ) } \

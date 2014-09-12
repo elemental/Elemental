@@ -12,11 +12,11 @@ using namespace El;
 
 template<typename F,Dist UPerm> 
 void TestCorrectness
-( Int pivoting, bool print, 
+( const DistMatrix<F>& AOrig,
   const DistMatrix<F>& A,
   const DistMatrix<Int,UPerm,STAR>& pPerm,
   const DistMatrix<Int,UPerm,STAR>& qPerm,
-  const DistMatrix<F>& AOrig )
+  Int pivoting, bool print )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
@@ -64,13 +64,17 @@ void TestCorrectness
 
 template<typename F,Dist UPerm> 
 void TestLU
-( Int pivoting, bool testCorrectness, bool print, 
-  Int m, const Grid& g )
+( Int m, const Grid& g, Int pivoting, 
+  bool testCorrectness, bool forceGrowth, bool print )
 {
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<Int,UPerm,STAR> pPerm(g), qPerm(g);
 
-    Uniform( A, m, m );
+    if( forceGrowth )
+        GEPPGrowth( A, m );
+    else
+        Uniform( A, m, m );
+
     if( testCorrectness )
     {
         if( g.Rank() == 0 )
@@ -128,7 +132,7 @@ void TestLU
         }
     }
     if( testCorrectness )
-        TestCorrectness( pivoting, print, A, pPerm, qPerm, AOrig );
+        TestCorrectness( AOrig, A, pPerm, qPerm, pivoting, print );
 }
 
 int 
@@ -146,6 +150,8 @@ main( int argc, char* argv[] )
         const Int m = Input("--height","height of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const Int pivot = Input("--pivot","0: none, 1: partial, 2: full",1);
+        const bool forceGrowth = Input
+            ("--forceGrowth","force element growth?",false);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
@@ -173,11 +179,12 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             cout << "Testing with doubles:" << endl;
-        TestLU<double,VC>( pivot, testCorrectness, print, m, g );
+        TestLU<double,VC>( m, g, pivot, testCorrectness, forceGrowth, print );
 
         if( commRank == 0 )
             cout << "Testing with double-precision complex:" << endl;
-        TestLU<Complex<double>,VC>( pivot, testCorrectness, print, m, g );
+        TestLU<Complex<double>,VC>
+        ( m, g, pivot, testCorrectness, forceGrowth, print );
     }
     catch( exception& e ) { ReportException(e); }
 

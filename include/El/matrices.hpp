@@ -189,6 +189,15 @@ void Gear( AbstractDistMatrix<T>& G, Int n, Int s, Int t );
 template<typename T>
 void Gear( AbstractBlockDistMatrix<T>& G, Int n, Int s, Int t );
 
+// Gaussian Elimination with Partial Pivoting Growth
+// =================================================
+template<typename F>
+void GEPPGrowth( Matrix<F>& A, Int n );
+template<typename F>
+void GEPPGrowth( AbstractDistMatrix<F>& A, Int n );
+template<typename F>
+void GEPPGrowth( AbstractBlockDistMatrix<F>& A, Int n );
+
 // Golub Klema Stewart matrix
 // ==========================
 template<typename F>

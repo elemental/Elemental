@@ -297,6 +297,18 @@ ElError ElGearDist_d( ElDistMatrix_d G, ElInt n, ElInt s, ElInt t );
 ElError ElGearDist_c( ElDistMatrix_c G, ElInt n, ElInt s, ElInt t );
 ElError ElGearDist_z( ElDistMatrix_z G, ElInt n, ElInt s, ElInt t );
 
+/* GEPP Growth
+   =========== */
+ElError ElGEPPGrowth_s( ElMatrix_s A, ElInt n );
+ElError ElGEPPGrowth_d( ElMatrix_d A, ElInt n );
+ElError ElGEPPGrowth_c( ElMatrix_c A, ElInt n );
+ElError ElGEPPGrowth_z( ElMatrix_z A, ElInt n );
+
+ElError ElGEPPGrowthDist_s( ElDistMatrix_s A, ElInt n );
+ElError ElGEPPGrowthDist_d( ElDistMatrix_d A, ElInt n );
+ElError ElGEPPGrowthDist_c( ElDistMatrix_c A, ElInt n );
+ElError ElGEPPGrowthDist_z( ElDistMatrix_z A, ElInt n );
+
 /* Golub Klema Stewart
    =================== */
 ElError ElGKS_s( ElMatrix_s A, ElInt n );
@@ -330,14 +342,20 @@ ElError ElHaar_d( ElMatrix_d A, ElInt n );
 ElError ElHaar_c( ElMatrix_c A, ElInt n );
 ElError ElHaar_z( ElMatrix_z A, ElInt n );
 
-/* TODO: Distributed Haar */
+ElError ElHaarDist_s( ElDistMatrix_s A, ElInt n );
+ElError ElHaarDist_d( ElDistMatrix_d A, ElInt n );
+ElError ElHaarDist_c( ElDistMatrix_c A, ElInt n );
+ElError ElHaarDist_z( ElDistMatrix_z A, ElInt n );
 
 ElError ElImplicitHaar_s( ElMatrix_s A, ElMatrix_s t, ElMatrix_s d, ElInt n );
 ElError ElImplicitHaar_d( ElMatrix_d A, ElMatrix_d t, ElMatrix_d d, ElInt n );
 ElError ElImplicitHaar_c( ElMatrix_c A, ElMatrix_c t, ElMatrix_s d, ElInt n );
 ElError ElImplicitHaar_z( ElMatrix_z A, ElMatrix_z t, ElMatrix_d d, ElInt n );
 
-/* TODO: Distributed implicit Haar */
+ElError ElImplicitHaarDist_s( ElDistMatrix_s A, ElDistMatrix_s t, ElDistMatrix_s d, ElInt n );
+ElError ElImplicitHaarDist_d( ElDistMatrix_d A, ElDistMatrix_d t, ElDistMatrix_d d, ElInt n );
+ElError ElImplicitHaarDist_c( ElDistMatrix_c A, ElDistMatrix_c t, ElDistMatrix_s d, ElInt n );
+ElError ElImplicitHaarDist_z( ElDistMatrix_z A, ElDistMatrix_z t, ElDistMatrix_d d, ElInt n );
 
 /* Hankel
    ====== */
@@ -392,7 +410,18 @@ ElError ElHatanoNelson_z
 ( ElMatrix_z A, ElInt n, complex_double center, double radius, complex_double g,
   bool periodic );
 
-/* TODO: Distributed Hatano-Nelson */
+ElError ElHatanoNelsonDist_s
+( ElDistMatrix_s A, ElInt n, float center, float radius, 
+  float g, bool periodic );
+ElError ElHatanoNelsonDist_d
+( ElDistMatrix_d A, ElInt n, double center, double radius, 
+  double g, bool periodic );
+ElError ElHatanoNelsonDist_c
+( ElDistMatrix_c A, ElInt n, complex_float center, float radius, 
+  complex_float g, bool periodic );
+ElError ElHatanoNelsonDist_z
+( ElDistMatrix_z A, ElInt n, complex_double center, double radius, 
+  complex_double g, bool periodic );
 
 /* Helmholtz
    ========= */
@@ -701,7 +730,10 @@ ElError ElMinIJDist_z( ElDistMatrix_z A, ElInt n );
 ElError ElNormalFromEVD_c( ElMatrix_c A, ElConstMatrix_c w, ElConstMatrix_c Z );
 ElError ElNormalFromEVD_z( ElMatrix_z A, ElConstMatrix_z w, ElConstMatrix_z Z );
 
-/* TODO: Distributed NormalFromEVD */
+ElError ElNormalFromEVDDist_c
+( ElDistMatrix_c A, ElConstDistMatrix_c w, ElConstDistMatrix_c Z );
+ElError ElNormalFromEVDDist_z
+( ElDistMatrix_z A, ElConstDistMatrix_z w, ElConstDistMatrix_z Z );
 
 /* Normal uniform spectrum
    ======================= */
@@ -710,7 +742,10 @@ ElError ElNormalUniformSpectrum_c
 ElError ElNormalUniformSpectrum_z
 ( ElMatrix_z A, ElInt n, complex_double center, double radius );
 
-/* TODO: Distributed NormalUniformSpectrum */
+ElError ElNormalUniformSpectrumDist_c
+( ElDistMatrix_c A, ElInt n, complex_float center, float radius );
+ElError ElNormalUniformSpectrumDist_z
+( ElDistMatrix_z A, ElInt n, complex_double center, double radius );
 
 /* Ones
    ==== */
