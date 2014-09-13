@@ -95,7 +95,29 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   { EL_TRY( *trace = CReflect(Trace(*CReflect(A))) ) } \
   ElError ElTraceDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, CREFLECT(T)* trace ) \
-  { EL_TRY( *trace = CReflect(Trace(*CReflect(A))) ) }
+  { EL_TRY( *trace = CReflect(Trace(*CReflect(A))) ) } \
+  /* Norm
+     ==== */ \
+  /* Max norm
+     -------- */ \
+  ElError ElMaxNorm_ ## SIG ( ElConstMatrix_ ## SIG A, Base<T>* norm ) \
+  { EL_TRY( *norm = MaxNorm( *CReflect(A) ) ) } \
+  ElError ElMaxNormDist_ ## SIG ( ElConstDistMatrix_ ## SIG A, Base<T>* norm ) \
+  { EL_TRY( *norm = MaxNorm( *CReflect(A) ) ) } \
+  ElError ElSymmetricMaxNorm_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, Base<T>* norm ) \
+  { EL_TRY( *norm = SymmetricMaxNorm( CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElSymmetricMaxNormDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, Base<T>* norm ) \
+  { EL_TRY( *norm = SymmetricMaxNorm( CReflect(uplo), *CReflect(A) ) ) } \
+  /* Zero "norm"
+     ----------- */ \
+  ElError ElZeroNorm_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, Base<T> tol, ElInt* numNonzero ) \
+  { EL_TRY( *numNonzero = ZeroNorm( *CReflect(A), tol ) ) } \
+  ElError ElZeroNormDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, Base<T> tol, ElInt* numNonzero) \
+  { EL_TRY( *numNonzero = ZeroNorm( *CReflect(A), tol ) ) }
 
 #define C_PROTO_FIELD(SIG,SIGBASE,F) \
   C_PROTO_BASE(SIG,SIGBASE,F) \
@@ -304,18 +326,6 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
     Base<F>* norm ) \
   { EL_TRY( *norm = SymmetricKyFanSchattenNorm( \
       CReflect(uplo), *CReflect(A), k, p ) ) } \
-  /* Max norm
-     -------- */ \
-  ElError ElMaxNorm_ ## SIG ( ElConstMatrix_ ## SIG A, Base<F>* norm ) \
-  { EL_TRY( *norm = MaxNorm( *CReflect(A) ) ) } \
-  ElError ElMaxNormDist_ ## SIG ( ElConstDistMatrix_ ## SIG A, Base<F>* norm ) \
-  { EL_TRY( *norm = MaxNorm( *CReflect(A) ) ) } \
-  ElError ElSymmetricMaxNorm_ ## SIG \
-  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, Base<F>* norm ) \
-  { EL_TRY( *norm = SymmetricMaxNorm( CReflect(uplo), *CReflect(A) ) ) } \
-  ElError ElSymmetricMaxNormDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, Base<F>* norm ) \
-  { EL_TRY( *norm = SymmetricMaxNorm( CReflect(uplo), *CReflect(A) ) ) } \
   /* Nuclear norm
      ------------ */ \
   ElError ElNuclearNorm_ ## SIG ( ElConstMatrix_ ## SIG A, Base<F>* norm ) \

@@ -90,7 +90,6 @@ ElError ElCondition_s( ElConstMatrix_s A, ElNormType type, float* cond );
 ElError ElCondition_d( ElConstMatrix_d A, ElNormType type, double* cond );
 ElError ElCondition_c( ElConstMatrix_c A, ElNormType type, float* cond );
 ElError ElCondition_z( ElConstMatrix_z A, ElNormType type, double* cond );
-
 ElError ElConditionDist_s
 ( ElConstDistMatrix_s A, ElNormType type, float* cond );
 ElError ElConditionDist_d
@@ -106,7 +105,6 @@ ElError ElFrobeniusCondition_s( ElConstMatrix_s A, float* cond );
 ElError ElFrobeniusCondition_d( ElConstMatrix_d A, double* cond );
 ElError ElFrobeniusCondition_c( ElConstMatrix_c A, float* cond );
 ElError ElFrobeniusCondition_z( ElConstMatrix_z A, double* cond );
-
 ElError ElFrobeniusConditionDist_s( ElConstDistMatrix_s A, float* cond );
 ElError ElFrobeniusConditionDist_d( ElConstDistMatrix_d A, double* cond );
 ElError ElFrobeniusConditionDist_c( ElConstDistMatrix_c A, float* cond );
@@ -118,7 +116,6 @@ ElError ElInfinityCondition_s( ElConstMatrix_s A, float* cond );
 ElError ElInfinityCondition_d( ElConstMatrix_d A, double* cond );
 ElError ElInfinityCondition_c( ElConstMatrix_c A, float* cond );
 ElError ElInfinityCondition_z( ElConstMatrix_z A, double* cond );
-
 ElError ElInfinityConditionDist_s( ElConstDistMatrix_s A, float* cond );
 ElError ElInfinityConditionDist_d( ElConstDistMatrix_d A, double* cond );
 ElError ElInfinityConditionDist_c( ElConstDistMatrix_c A, float* cond );
@@ -130,7 +127,6 @@ ElError ElMaxCondition_s( ElConstMatrix_s A, float* cond );
 ElError ElMaxCondition_d( ElConstMatrix_d A, double* cond );
 ElError ElMaxCondition_c( ElConstMatrix_c A, float* cond );
 ElError ElMaxCondition_z( ElConstMatrix_z A, double* cond );
-
 ElError ElMaxConditionDist_s( ElConstDistMatrix_s A, float* cond );
 ElError ElMaxConditionDist_d( ElConstDistMatrix_d A, double* cond );
 ElError ElMaxConditionDist_c( ElConstDistMatrix_c A, float* cond );
@@ -142,7 +138,6 @@ ElError ElOneCondition_s( ElConstMatrix_s A, float* cond );
 ElError ElOneCondition_d( ElConstMatrix_d A, double* cond );
 ElError ElOneCondition_c( ElConstMatrix_c A, float* cond );
 ElError ElOneCondition_z( ElConstMatrix_z A, double* cond );
-
 ElError ElOneConditionDist_s( ElConstDistMatrix_s A, float* cond );
 ElError ElOneConditionDist_d( ElConstDistMatrix_d A, double* cond );
 ElError ElOneConditionDist_c( ElConstDistMatrix_c A, float* cond );
@@ -154,7 +149,6 @@ ElError ElTwoCondition_s( ElConstMatrix_s A, float* cond );
 ElError ElTwoCondition_d( ElConstMatrix_d A, double* cond );
 ElError ElTwoCondition_c( ElConstMatrix_c A, float* cond );
 ElError ElTwoCondition_z( ElConstMatrix_z A, double* cond );
-
 ElError ElTwoConditionDist_s( ElConstDistMatrix_s A, float* cond );
 ElError ElTwoConditionDist_d( ElConstDistMatrix_d A, double* cond );
 ElError ElTwoConditionDist_c( ElConstDistMatrix_c A, float* cond );
@@ -169,7 +163,6 @@ ElError ElSafeDeterminant_s( ElConstMatrix_s A, ElSafeProduct_s* prod );
 ElError ElSafeDeterminant_d( ElConstMatrix_d A, ElSafeProduct_d* prod );
 ElError ElSafeDeterminant_c( ElConstMatrix_c A, ElSafeProduct_c* prod );
 ElError ElSafeDeterminant_z( ElConstMatrix_z A, ElSafeProduct_z* prod );
-
 ElError ElSafeDeterminantDist_s( ElConstDistMatrix_s A, ElSafeProduct_s* prod );
 ElError ElSafeDeterminantDist_d( ElConstDistMatrix_d A, ElSafeProduct_d* prod );
 ElError ElSafeDeterminantDist_c( ElConstDistMatrix_c A, ElSafeProduct_c* prod );
@@ -184,7 +177,6 @@ ElError ElSafeHPDDeterminant_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, ElSafeProduct_s* prod );
 ElError ElSafeHPDDeterminant_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, ElSafeProduct_d* prod );
-
 ElError ElSafeHPDDeterminantDist_s
 ( ElUpperOrLower uplo, ElConstDistMatrix_s A, ElSafeProduct_s* prod );
 ElError ElSafeHPDDeterminantDist_d
@@ -201,7 +193,6 @@ ElError ElDeterminant_s( ElConstMatrix_s A, float* prod );
 ElError ElDeterminant_d( ElConstMatrix_d A, double* prod );
 ElError ElDeterminant_c( ElConstMatrix_c A, complex_float* prod );
 ElError ElDeterminant_z( ElConstMatrix_z A, complex_double* prod );
-
 ElError ElDeterminantDist_s( ElConstDistMatrix_s A, float* prod );
 ElError ElDeterminantDist_d( ElConstDistMatrix_d A, double* prod );
 ElError ElDeterminantDist_c( ElConstDistMatrix_c A, complex_float* prod );
@@ -216,7 +207,6 @@ ElError ElHPDDeterminant_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float* prod );
 ElError ElHPDDeterminant_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double* prod );
-
 ElError ElHPDDeterminantDist_s
 ( ElUpperOrLower uplo, ElConstDistMatrix_s A, float* prod );
 ElError ElHPDDeterminantDist_d
@@ -242,7 +232,6 @@ ElError ElInertia_c
 ElError ElInertia_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElLDLPivotType pivotType,
   ElInertiaType* inertia );
-
 ElError ElInertiaDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElLDLPivotType pivotType,
   ElInertiaType* inertia );
@@ -262,7 +251,6 @@ ElError ElNorm_s( ElConstMatrix_s A, ElNormType normType, float* norm );
 ElError ElNorm_d( ElConstMatrix_d A, ElNormType normType, double* norm );
 ElError ElNorm_c( ElConstMatrix_c A, ElNormType normType, float* norm );
 ElError ElNorm_z( ElConstMatrix_z A, ElNormType normType, double* norm );
-
 ElError ElNormDist_s
 ( ElConstDistMatrix_s A, ElNormType normType, float* norm );
 ElError ElNormDist_d
@@ -276,7 +264,6 @@ ElError ElHermitianNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, ElNormType normType, float* norm );
 ElError ElHermitianNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, ElNormType normType, double* norm );
-
 ElError ElHermitianNormDist_c
 ( ElUpperOrLower uplo, ElConstDistMatrix_c A, ElNormType normType, 
   float* norm );
@@ -292,7 +279,6 @@ ElError ElSymmetricNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, ElNormType normType, float* norm );
 ElError ElSymmetricNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, ElNormType normType, double* norm );
-
 ElError ElSymmetricNormDist_s
 ( ElUpperOrLower uplo, ElConstDistMatrix_s A, ElNormType normType, 
   float* norm );
@@ -312,7 +298,6 @@ ElError ElEntrywiseNorm_s( ElConstMatrix_s A, float p, float* norm );
 ElError ElEntrywiseNorm_d( ElConstMatrix_d A, double p, double* norm );
 ElError ElEntrywiseNorm_c( ElConstMatrix_c A, float p, float* norm );
 ElError ElEntrywiseNorm_z( ElConstMatrix_z A, double p, double* norm );
-
 ElError ElEntrywiseNormDist_s( ElConstDistMatrix_s A, float p, float* norm );
 ElError ElEntrywiseNormDist_d( ElConstDistMatrix_d A, double p, double* norm );
 ElError ElEntrywiseNormDist_c( ElConstDistMatrix_c A, float p, float* norm );
@@ -322,7 +307,6 @@ ElError ElHermitianEntrywiseNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float p, float* norm );
 ElError ElHermitianEntrywiseNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double p, double* norm );
-
 ElError ElHermitianEntrywiseNormDist_c
 ( ElUpperOrLower uplo, ElConstDistMatrix_c A, float p, float* norm );
 ElError ElHermitianEntrywiseNormDist_z
@@ -336,7 +320,6 @@ ElError ElSymmetricEntrywiseNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float p, float* norm );
 ElError ElSymmetricEntrywiseNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double p, double* norm );
-
 ElError ElSymmetricEntrywiseNormDist_s
 ( ElUpperOrLower uplo, ElConstDistMatrix_s A, float p, float* norm );
 ElError ElSymmetricEntrywiseNormDist_d
@@ -352,7 +335,6 @@ ElError ElEntrywiseOneNorm_s( ElConstMatrix_s A, float* norm );
 ElError ElEntrywiseOneNorm_d( ElConstMatrix_d A, double* norm );
 ElError ElEntrywiseOneNorm_c( ElConstMatrix_c A, float* norm );
 ElError ElEntrywiseOneNorm_z( ElConstMatrix_z A, double* norm );
-
 ElError ElEntrywiseOneNormDist_s( ElConstDistMatrix_s A, float* norm );
 ElError ElEntrywiseOneNormDist_d( ElConstDistMatrix_d A, double* norm );
 ElError ElEntrywiseOneNormDist_c( ElConstDistMatrix_c A, float* norm );
@@ -362,7 +344,6 @@ ElError ElHermitianEntrywiseOneNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float* norm );
 ElError ElHermitianEntrywiseOneNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double* norm );
-
 ElError ElHermitianEntrywiseOneNormDist_c
 ( ElUpperOrLower uplo, ElConstDistMatrix_c A, float* norm );
 ElError ElHermitianEntrywiseOneNormDist_z
@@ -376,7 +357,6 @@ ElError ElSymmetricEntrywiseOneNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float* norm );
 ElError ElSymmetricEntrywiseOneNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double* norm );
-
 ElError ElSymmetricEntrywiseOneNormDist_s
 ( ElUpperOrLower uplo, ElConstDistMatrix_s A, float* norm );
 ElError ElSymmetricEntrywiseOneNormDist_d
@@ -392,7 +372,6 @@ ElError ElFrobeniusNorm_s( ElConstMatrix_s A, float* norm );
 ElError ElFrobeniusNorm_d( ElConstMatrix_d A, double* norm );
 ElError ElFrobeniusNorm_c( ElConstMatrix_c A, float* norm );
 ElError ElFrobeniusNorm_z( ElConstMatrix_z A, double* norm );
-
 ElError ElFrobeniusNormDist_s( ElConstDistMatrix_s A, float* norm );
 ElError ElFrobeniusNormDist_d( ElConstDistMatrix_d A, double* norm );
 ElError ElFrobeniusNormDist_c( ElConstDistMatrix_c A, float* norm );
@@ -402,7 +381,6 @@ ElError ElHermitianFrobeniusNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float* norm );
 ElError ElHermitianFrobeniusNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double* norm );
-
 ElError ElHermitianFrobeniusNormDist_c
 ( ElUpperOrLower uplo, ElConstDistMatrix_c A, float* norm );
 ElError ElHermitianFrobeniusNormDist_z
@@ -416,7 +394,6 @@ ElError ElSymmetricFrobeniusNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float* norm );
 ElError ElSymmetricFrobeniusNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double* norm );
-
 ElError ElSymmetricFrobeniusNormDist_s
 ( ElUpperOrLower uplo, ElConstDistMatrix_s A, float* norm );
 ElError ElSymmetricFrobeniusNormDist_d
@@ -432,7 +409,6 @@ ElError ElInfinityNorm_s( ElConstMatrix_s A, float* norm );
 ElError ElInfinityNorm_d( ElConstMatrix_d A, double* norm );
 ElError ElInfinityNorm_c( ElConstMatrix_c A, float* norm );
 ElError ElInfinityNorm_z( ElConstMatrix_z A, double* norm );
-
 ElError ElInfinityNormDist_s( ElConstDistMatrix_s A, float* norm );
 ElError ElInfinityNormDist_d( ElConstDistMatrix_d A, double* norm );
 ElError ElInfinityNormDist_c( ElConstDistMatrix_c A, float* norm );
@@ -442,7 +418,6 @@ ElError ElHermitianInfinityNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float* norm );
 ElError ElHermitianInfinityNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double* norm );
-
 ElError ElHermitianInfinityNormDist_c
 ( ElUpperOrLower uplo, ElConstDistMatrix_c A, float* norm );
 ElError ElHermitianInfinityNormDist_z
@@ -456,7 +431,6 @@ ElError ElSymmetricInfinityNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float* norm );
 ElError ElSymmetricInfinityNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double* norm );
-
 ElError ElSymmetricInfinityNormDist_s
 ( ElUpperOrLower uplo, ElConstDistMatrix_s A, float* norm );
 ElError ElSymmetricInfinityNormDist_d
@@ -472,7 +446,6 @@ ElError ElKyFanNorm_s( ElConstMatrix_s A, ElInt k, float* norm );
 ElError ElKyFanNorm_d( ElConstMatrix_d A, ElInt k, double* norm );
 ElError ElKyFanNorm_c( ElConstMatrix_c A, ElInt k, float* norm );
 ElError ElKyFanNorm_z( ElConstMatrix_z A, ElInt k, double* norm );
-
 ElError ElKyFanNormDist_s( ElConstDistMatrix_s A, ElInt k, float* norm );
 ElError ElKyFanNormDist_d( ElConstDistMatrix_d A, ElInt k, double* norm );
 ElError ElKyFanNormDist_c( ElConstDistMatrix_c A, ElInt k, float* norm );
@@ -482,7 +455,6 @@ ElError ElHermitianKyFanNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, ElInt k, float* norm );
 ElError ElHermitianKyFanNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, ElInt k, double* norm );
-
 ElError ElHermitianKyFanNormDist_c
 ( ElUpperOrLower uplo, ElConstDistMatrix_c A, ElInt k, float* norm );
 ElError ElHermitianKyFanNormDist_z
@@ -496,7 +468,6 @@ ElError ElSymmetricKyFanNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, ElInt k, float* norm );
 ElError ElSymmetricKyFanNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, ElInt k, double* norm );
-
 ElError ElSymmetricKyFanNormDist_s
 ( ElUpperOrLower uplo, ElConstDistMatrix_s A, ElInt k, float* norm );
 ElError ElSymmetricKyFanNormDist_d
@@ -516,7 +487,6 @@ ElError ElKyFanSchattenNorm_c
 ( ElConstMatrix_c A, ElInt k, float p, float* norm );
 ElError ElKyFanSchattenNorm_z
 ( ElConstMatrix_z A, ElInt k, double p, double* norm );
-
 ElError ElKyFanSchattenNormDist_s
 ( ElConstDistMatrix_s A, ElInt k, float p, float* norm );
 ElError ElKyFanSchattenNormDist_d
@@ -530,7 +500,6 @@ ElError ElHermitianKyFanSchattenNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, ElInt k, float p, float* norm );
 ElError ElHermitianKyFanSchattenNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, ElInt k, double p, double* norm );
-
 ElError ElHermitianKyFanSchattenNormDist_c
 ( ElUpperOrLower uplo, ElConstDistMatrix_c A, ElInt k, float p, float* norm );
 ElError ElHermitianKyFanSchattenNormDist_z
@@ -544,7 +513,6 @@ ElError ElSymmetricKyFanSchattenNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, ElInt k, float p, float* norm );
 ElError ElSymmetricKyFanSchattenNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, ElInt k, double p, double* norm );
-
 ElError ElSymmetricKyFanSchattenNormDist_s
 ( ElUpperOrLower uplo, ElConstDistMatrix_s A, ElInt k, float p, float* norm );
 ElError ElSymmetricKyFanSchattenNormDist_d
@@ -556,11 +524,12 @@ ElError ElSymmetricKyFanSchattenNormDist_z
 
 /* Max norm
    -------- */
+ElError ElMaxNorm_i( ElConstMatrix_i A, ElInt* norm );
 ElError ElMaxNorm_s( ElConstMatrix_s A, float* norm );
 ElError ElMaxNorm_d( ElConstMatrix_d A, double* norm );
 ElError ElMaxNorm_c( ElConstMatrix_c A, float* norm );
 ElError ElMaxNorm_z( ElConstMatrix_z A, double* norm );
-
+ElError ElMaxNormDist_i( ElConstDistMatrix_i A, ElInt* norm );
 ElError ElMaxNormDist_s( ElConstDistMatrix_s A, float* norm );
 ElError ElMaxNormDist_d( ElConstDistMatrix_d A, double* norm );
 ElError ElMaxNormDist_c( ElConstDistMatrix_c A, float* norm );
@@ -570,12 +539,13 @@ ElError ElHermitianMaxNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float* norm );
 ElError ElHermitianMaxNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double* norm );
-
 ElError ElHermitianMaxNormDist_c
 ( ElUpperOrLower uplo, ElConstDistMatrix_c A, float* norm );
 ElError ElHermitianMaxNormDist_z
 ( ElUpperOrLower uplo, ElConstDistMatrix_z A, double* norm );
 
+ElError ElSymmetricMaxNorm_i
+( ElUpperOrLower uplo, ElConstMatrix_i A, ElInt* norm );
 ElError ElSymmetricMaxNorm_s
 ( ElUpperOrLower uplo, ElConstMatrix_s A, float* norm );
 ElError ElSymmetricMaxNorm_d
@@ -584,7 +554,8 @@ ElError ElSymmetricMaxNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float* norm );
 ElError ElSymmetricMaxNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double* norm );
-
+ElError ElSymmetricMaxNormDist_i
+( ElUpperOrLower uplo, ElConstDistMatrix_i A, ElInt* norm );
 ElError ElSymmetricMaxNormDist_s
 ( ElUpperOrLower uplo, ElConstDistMatrix_s A, float* norm );
 ElError ElSymmetricMaxNormDist_d
@@ -600,7 +571,6 @@ ElError ElNuclearNorm_s( ElConstMatrix_s A, float* norm );
 ElError ElNuclearNorm_d( ElConstMatrix_d A, double* norm );
 ElError ElNuclearNorm_c( ElConstMatrix_c A, float* norm );
 ElError ElNuclearNorm_z( ElConstMatrix_z A, double* norm );
-
 ElError ElNuclearNormDist_s( ElConstDistMatrix_s A, float* norm );
 ElError ElNuclearNormDist_d( ElConstDistMatrix_d A, double* norm );
 ElError ElNuclearNormDist_c( ElConstDistMatrix_c A, float* norm );
@@ -610,7 +580,6 @@ ElError ElHermitianNuclearNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float* norm );
 ElError ElHermitianNuclearNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double* norm );
-
 ElError ElHermitianNuclearNormDist_c
 ( ElUpperOrLower uplo, ElConstDistMatrix_c A, float* norm );
 ElError ElHermitianNuclearNormDist_z
@@ -624,7 +593,6 @@ ElError ElSymmetricNuclearNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float* norm );
 ElError ElSymmetricNuclearNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double* norm );
-
 ElError ElSymmetricNuclearNormDist_s
 ( ElUpperOrLower uplo, ElConstDistMatrix_s A, float* norm );
 ElError ElSymmetricNuclearNormDist_d
@@ -640,7 +608,6 @@ ElError ElOneNorm_s( ElConstMatrix_s A, float* norm );
 ElError ElOneNorm_d( ElConstMatrix_d A, double* norm );
 ElError ElOneNorm_c( ElConstMatrix_c A, float* norm );
 ElError ElOneNorm_z( ElConstMatrix_z A, double* norm );
-
 ElError ElOneNormDist_s( ElConstDistMatrix_s A, float* norm );
 ElError ElOneNormDist_d( ElConstDistMatrix_d A, double* norm );
 ElError ElOneNormDist_c( ElConstDistMatrix_c A, float* norm );
@@ -650,7 +617,6 @@ ElError ElHermitianOneNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float* norm );
 ElError ElHermitianOneNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double* norm );
-
 ElError ElHermitianOneNormDist_c
 ( ElUpperOrLower uplo, ElConstDistMatrix_c A, float* norm );
 ElError ElHermitianOneNormDist_z
@@ -664,7 +630,6 @@ ElError ElSymmetricOneNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float* norm );
 ElError ElSymmetricOneNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double* norm );
-
 ElError ElSymmetricOneNormDist_s
 ( ElUpperOrLower uplo, ElConstDistMatrix_s A, float* norm );
 ElError ElSymmetricOneNormDist_d
@@ -680,7 +645,6 @@ ElError ElSchattenNorm_s( ElConstMatrix_s A, float p, float* norm );
 ElError ElSchattenNorm_d( ElConstMatrix_d A, double p, double* norm );
 ElError ElSchattenNorm_c( ElConstMatrix_c A, float p, float* norm );
 ElError ElSchattenNorm_z( ElConstMatrix_z A, double p, double* norm );
-
 ElError ElSchattenNormDist_s( ElConstDistMatrix_s A, float p, float* norm );
 ElError ElSchattenNormDist_d( ElConstDistMatrix_d A, double p, double* norm );
 ElError ElSchattenNormDist_c( ElConstDistMatrix_c A, float p, float* norm );
@@ -690,7 +654,6 @@ ElError ElHermitianSchattenNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float p, float* norm );
 ElError ElHermitianSchattenNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double p, double* norm );
-
 ElError ElHermitianSchattenNormDist_c
 ( ElUpperOrLower uplo, ElConstDistMatrix_c A, float p, float* norm );
 ElError ElHermitianSchattenNormDist_z
@@ -704,7 +667,6 @@ ElError ElSymmetricSchattenNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float p, float* norm );
 ElError ElSymmetricSchattenNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double p, double* norm );
-
 ElError ElSymmetricSchattenNormDist_s
 ( ElUpperOrLower uplo, ElConstDistMatrix_s A, float p, float* norm );
 ElError ElSymmetricSchattenNormDist_d
@@ -720,7 +682,6 @@ ElError ElTwoNorm_s( ElConstMatrix_s A, float* norm );
 ElError ElTwoNorm_d( ElConstMatrix_d A, double* norm );
 ElError ElTwoNorm_c( ElConstMatrix_c A, float* norm );
 ElError ElTwoNorm_z( ElConstMatrix_z A, double* norm );
-
 ElError ElTwoNormDist_s( ElConstDistMatrix_s A, float* norm );
 ElError ElTwoNormDist_d( ElConstDistMatrix_d A, double* norm );
 ElError ElTwoNormDist_c( ElConstDistMatrix_c A, float* norm );
@@ -730,7 +691,6 @@ ElError ElHermitianTwoNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float* norm );
 ElError ElHermitianTwoNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double* norm );
-
 ElError ElHermitianTwoNormDist_c
 ( ElUpperOrLower uplo, ElConstDistMatrix_c A, float* norm );
 ElError ElHermitianTwoNormDist_z
@@ -744,7 +704,6 @@ ElError ElSymmetricTwoNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float* norm );
 ElError ElSymmetricTwoNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double* norm );
-
 ElError ElSymmetricTwoNormDist_s
 ( ElUpperOrLower uplo, ElConstDistMatrix_s A, float* norm );
 ElError ElSymmetricTwoNormDist_d
@@ -756,17 +715,21 @@ ElError ElSymmetricTwoNormDist_z
 
 /* Zero norm
    --------- */
-ElError ElZeroNorm_i( ElConstMatrix_s A, ElInt tol, ElInt* norm );
-ElError ElZeroNorm_s( ElConstMatrix_s A, float tol, ElInt* norm );
-ElError ElZeroNorm_d( ElConstMatrix_d A, double tol, ElInt* norm );
-ElError ElZeroNorm_c( ElConstMatrix_c A, float tol, ElInt* norm );
-ElError ElZeroNorm_z( ElConstMatrix_z A, double tol, ElInt* norm );
-
-ElError ElZeroNormDist_i( ElConstDistMatrix_s A, ElInt tol, ElInt* norm );
-ElError ElZeroNormDist_s( ElConstDistMatrix_s A, float tol, ElInt* norm );
-ElError ElZeroNormDist_d( ElConstDistMatrix_d A, double tol, ElInt* norm );
-ElError ElZeroNormDist_c( ElConstDistMatrix_c A, float tol, ElInt* norm );
-ElError ElZeroNormDist_z( ElConstDistMatrix_z A, double tol, ElInt* norm );
+ElError ElZeroNorm_i( ElConstMatrix_i A, ElInt tol, ElInt* numNonzero );
+ElError ElZeroNorm_s( ElConstMatrix_s A, float tol, ElInt* numNonzero );
+ElError ElZeroNorm_d( ElConstMatrix_d A, double tol, ElInt* numNonzero );
+ElError ElZeroNorm_c( ElConstMatrix_c A, float tol, ElInt* numNonzero );
+ElError ElZeroNorm_z( ElConstMatrix_z A, double tol, ElInt* numNonzero );
+ElError ElZeroNormDist_i
+( ElConstDistMatrix_i A, ElInt tol, ElInt* numNonzero );
+ElError ElZeroNormDist_s
+( ElConstDistMatrix_s A, float tol, ElInt* numNonzero );
+ElError ElZeroNormDist_d
+( ElConstDistMatrix_d A, double tol, ElInt* numNonzero );
+ElError ElZeroNormDist_c
+( ElConstDistMatrix_c A, float tol, ElInt* numNonzero );
+ElError ElZeroNormDist_z
+( ElConstDistMatrix_z A, double tol, ElInt* numNonzero );
 
 /* Two-norm estimates
    ------------------ */
@@ -778,7 +741,6 @@ ElError ElTwoNormEstimate_c
 ( ElConstMatrix_c A, float tol, ElInt maxIts, float* normEst );
 ElError ElTwoNormEstimate_z
 ( ElConstMatrix_z A, double tol, ElInt maxIts, double* normEst );
-
 ElError ElTwoNormEstimateDist_s
 ( ElConstDistMatrix_s A, float tol, ElInt maxIts, float* normEst );
 ElError ElTwoNormEstimateDist_d
@@ -800,7 +762,6 @@ ElError ElSymmetricTwoNormEstimate_c
 ElError ElSymmetricTwoNormEstimate_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double tol, ElInt maxIts, 
   double* normEst );
-
 ElError ElSymmetricTwoNormEstimateDist_s
 ( ElUpperOrLower uplo, ElConstDistMatrix_s A, float tol, ElInt maxIts, 
   float* normEst );
@@ -820,7 +781,6 @@ ElError ElHermitianTwoNormEstimate_c
 ElError ElHermitianTwoNormEstimate_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double tol, ElInt maxIts, 
   double* normEst );
-
 ElError ElHermitianTwoNormEstimateDist_c
 ( ElUpperOrLower uplo, ElConstDistMatrix_c A, float tol, ElInt maxIts, 
   float* normEst );

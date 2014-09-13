@@ -350,20 +350,20 @@ Base<F> SymmetricKyFanSchattenNorm
 
 // Max norm
 // --------
-template<typename F>
-Base<F> MaxNorm( const Matrix<F>& A );
-template<typename F>
-Base<F> MaxNorm( const AbstractDistMatrix<F>& A );
+template<typename T>
+Base<T> MaxNorm( const Matrix<T>& A );
+template<typename T>
+Base<T> MaxNorm( const AbstractDistMatrix<T>& A );
 
-template<typename F>
-Base<F> HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A );
-template<typename F>
-Base<F> HermitianMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+template<typename T>
+Base<T> HermitianMaxNorm( UpperOrLower uplo, const Matrix<T>& A );
+template<typename T>
+Base<T> HermitianMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<T>& A );
 
-template<typename F>
-Base<F> SymmetricMaxNorm( UpperOrLower uplo, const Matrix<F>& A );
-template<typename F>
-Base<F> SymmetricMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+template<typename T>
+Base<T> SymmetricMaxNorm( UpperOrLower uplo, const Matrix<T>& A );
+template<typename T>
+Base<T> SymmetricMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<T>& A );
 
 // Nuclear norm
 // ------------
