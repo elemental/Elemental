@@ -792,53 +792,53 @@ ElError ElHermitianTwoNormEstimateDist_z
    ============= */
 /* Automatic window choice
    ----------------------- */
-ElError ElPseudospectralWindowAuto_s
+ElError ElPseudospectralAutoWindow_s
 ( ElConstMatrix_s A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize );
-ElError ElPseudospectralWindowAuto_d
+ElError ElPseudospectralAutoWindow_d
 ( ElConstMatrix_d A, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize );
-ElError ElPseudospectralWindowAuto_c
+ElError ElPseudospectralAutoWindow_c
 ( ElConstMatrix_c A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize );
-ElError ElPseudospectralWindowAuto_z
+ElError ElPseudospectralAutoWindow_z
 ( ElConstMatrix_z A, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize );
 
-ElError ElPseudospectralWindowAutoDist_s
+ElError ElPseudospectralAutoWindowDist_s
 ( ElConstDistMatrix_s A, ElDistMatrix_s invNormMap, 
   ElInt realSize, ElInt imagSize );
-ElError ElPseudospectralWindowAutoDist_d
+ElError ElPseudospectralAutoWindowDist_d
 ( ElConstDistMatrix_d A, ElDistMatrix_d invNormMap, 
   ElInt realSize, ElInt imagSize );
-ElError ElPseudospectralWindowAutoDist_c
+ElError ElPseudospectralAutoWindowDist_c
 ( ElConstDistMatrix_c A, ElDistMatrix_s invNormMap, 
   ElInt realSize, ElInt imagSize );
-ElError ElPseudospectralWindowAutoDist_z
+ElError ElPseudospectralAutoWindowDist_z
 ( ElConstDistMatrix_z A, ElDistMatrix_d invNormMap, 
   ElInt realSize, ElInt imagSize );
 
 /* Expert version
    ^^^^^^^^^^^^^^ */
-ElError ElPseudospectralWindowAutoX_s
+ElError ElPseudospectralAutoWindowX_s
 ( ElConstMatrix_s A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize,
   ElPseudospecCtrl_s ctrl );
-ElError ElPseudospectralWindowAutoX_d
+ElError ElPseudospectralAutoWindowX_d
 ( ElConstMatrix_d A, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize,
   ElPseudospecCtrl_d ctrl );
-ElError ElPseudospectralWindowAutoX_c
+ElError ElPseudospectralAutoWindowX_c
 ( ElConstMatrix_c A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize,
   ElPseudospecCtrl_s ctrl );
-ElError ElPseudospectralWindowAutoX_z
+ElError ElPseudospectralAutoWindowX_z
 ( ElConstMatrix_z A, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize,
   ElPseudospecCtrl_d ctrl );
 
-ElError ElPseudospectralWindowAutoXDist_s
+ElError ElPseudospectralAutoWindowXDist_s
 ( ElConstDistMatrix_s A, ElDistMatrix_s invNormMap, 
   ElInt realSize, ElInt imagSize, ElPseudospecCtrl_s ctrl );
-ElError ElPseudospectralWindowAutoXDist_d
+ElError ElPseudospectralAutoWindowXDist_d
 ( ElConstDistMatrix_d A, ElDistMatrix_d invNormMap, 
   ElInt realSize, ElInt imagSize, ElPseudospecCtrl_d ctrl );
-ElError ElPseudospectralWindowAutoXDist_c
+ElError ElPseudospectralAutoWindowXDist_c
 ( ElConstDistMatrix_c A, ElDistMatrix_s invNormMap, 
   ElInt realSize, ElInt imagSize, ElPseudospecCtrl_s ctrl );
-ElError ElPseudospectralWindowAutoXDist_z
+ElError ElPseudospectralAutoWindowXDist_z
 ( ElConstDistMatrix_z A, ElDistMatrix_d invNormMap, 
   ElInt realSize, ElInt imagSize, ElPseudospecCtrl_d ctrl );
 

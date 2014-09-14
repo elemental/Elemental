@@ -528,46 +528,46 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
      ============= */ \
   /* Automatic window
      ---------------- */ \
-  ElError ElPseudospectralWindowAuto_ ## SIGBASE \
+  ElError ElPseudospectralAutoWindow_ ## SIGBASE \
   ( ElConstMatrix_ ## SIGBASE A, ElMatrix_ ## SIGBASE invNormMap, \
     ElInt realSize, ElInt imagSize ) \
   { EL_TRY( Pseudospectra( \
       *CReflect(A), *CReflect(invNormMap), realSize, imagSize ) ) } \
-  ElError ElPseudospectralWindowAuto_ ## SIG \
+  ElError ElPseudospectralAutoWindow_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIGBASE invNormMap, \
     ElInt realSize, ElInt imagSize ) \
   { EL_TRY( Pseudospectra( \
       *CReflect(A), *CReflect(invNormMap), realSize, imagSize ) ) } \
-  ElError ElPseudospectralWindowAutoDist_ ## SIGBASE \
+  ElError ElPseudospectralAutoWindowDist_ ## SIGBASE \
   ( ElConstDistMatrix_ ## SIGBASE A, ElDistMatrix_ ## SIGBASE invNormMap, \
     ElInt realSize, ElInt imagSize ) \
   { EL_TRY( Pseudospectra( \
       *CReflect(A), *CReflect(invNormMap), realSize, imagSize ) ) } \
-  ElError ElPseudospectralWindowAutoDist_ ## SIG \
+  ElError ElPseudospectralAutoWindowDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE invNormMap, \
     ElInt realSize, ElInt imagSize ) \
   { EL_TRY( Pseudospectra( \
       *CReflect(A), *CReflect(invNormMap), realSize, imagSize ) ) } \
   /* Expert version */ \
-  ElError ElPseudospectralWindowAutoX_ ## SIGBASE \
+  ElError ElPseudospectralAutoWindowX_ ## SIGBASE \
   ( ElConstMatrix_ ## SIGBASE A, ElMatrix_ ## SIGBASE invNormMap, \
     ElInt realSize, ElInt imagSize, ElPseudospecCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( Pseudospectra( \
       *CReflect(A), *CReflect(invNormMap), realSize, imagSize, \
       CReflect(ctrl) ) ) } \
-  ElError ElPseudospectralWindowAutoX_ ## SIG \
+  ElError ElPseudospectralAutoWindowX_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIGBASE invNormMap, \
     ElInt realSize, ElInt imagSize, ElPseudospecCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( Pseudospectra( \
       *CReflect(A), *CReflect(invNormMap), realSize, imagSize, \
       CReflect(ctrl) ) ) } \
-  ElError ElPseudospectralWindowAutoXDist_ ## SIGBASE \
+  ElError ElPseudospectralAutoWindowXDist_ ## SIGBASE \
   ( ElConstDistMatrix_ ## SIGBASE A, ElDistMatrix_ ## SIGBASE invNormMap, \
     ElInt realSize, ElInt imagSize, ElPseudospecCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( Pseudospectra( \
       *CReflect(A), *CReflect(invNormMap), realSize, imagSize, \
       CReflect(ctrl) ) ) } \
-  ElError ElPseudospectralWindowAutoXDist_ ## SIG \
+  ElError ElPseudospectralAutoWindowXDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE invNormMap, \
     ElInt realSize, ElInt imagSize, ElPseudospecCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( Pseudospectra( \
