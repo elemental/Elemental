@@ -424,7 +424,7 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   /* Compute the full SVD
      -------------------- */ \
   ElError ElHermitianSVD_ ## SIG \
-  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElMatrix_ ## SIGBASE s, 
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElMatrix_ ## SIGBASE s, \
     ElMatrix_ ## SIG U, ElMatrix_ ## SIG V ) \
   { EL_TRY( HermitianSVD( CReflect(uplo), *CReflect(A), \
       *CReflect(s), *CReflect(U), *CReflect(V) ) ) } \
