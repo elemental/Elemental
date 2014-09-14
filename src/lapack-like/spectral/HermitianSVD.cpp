@@ -68,7 +68,7 @@ void HermitianSVD
     Copy( U, V );
     typedef Base<F> Real;
     DistMatrix<Real,VR,STAR> sSgn( s );
-    auto sgnLambda = []( Real sigma ) { return Sgn(sigma,false); }
+    auto sgnLambda = []( Real sigma ) { return Sgn(sigma,false); };
     EntrywiseMap( sSgn, std::function<Real(Real)>(sgnLambda) );
     DiagonalScale( RIGHT, NORMAL, sSgn, U );
 
