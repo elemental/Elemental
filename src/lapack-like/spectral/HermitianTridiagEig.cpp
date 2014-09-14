@@ -107,17 +107,17 @@ inline void Helper
     herm_tridiag_eig::Info info;
     if( subset.rangeSubset )
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
             wVector.data(), w.ColComm(), 
             subset.lowerBound, subset.upperBound );
     else if( subset.indexSubset )
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
             wVector.data(), w.ColComm(), 
             int(subset.lowerIndex), int(subset.upperIndex) );
     else
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
             wVector.data(), w.ColComm() );
     w.Resize( info.numGlobalEigenvalues, 1 );
     for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
