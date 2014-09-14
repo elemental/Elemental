@@ -245,35 +245,36 @@ void HermitianGenDefEig
 // --------------------
 template<typename F>
 void HermitianTridiagEig
-( Matrix<Base<F>>& d, Matrix<F>& e, Matrix<Base<F>>& w, SortType sort=ASCENDING,
+( Matrix<Base<F>>& d, Matrix<F>& dSub, Matrix<Base<F>>& w, 
+  SortType sort=ASCENDING, 
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
 template<typename F>
 void HermitianTridiagEig
-( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& e,
+( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& dSub,
         AbstractDistMatrix<Base<F>>& w, SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
 // Compute eigenpairs
 // ------------------
 template<typename F>
 void HermitianTridiagEig
-( Matrix<Base<F>>& d, Matrix<F>& e, Matrix<Base<F>>& w, Matrix<F>& Z,
+( Matrix<Base<F>>& d, Matrix<F>& dSub, Matrix<Base<F>>& w, Matrix<F>& Z,
   SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
 template<typename F>
 void HermitianTridiagEig
-( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& e,
+( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& dSub,
         AbstractDistMatrix<Base<F>>& w,       AbstractDistMatrix<F>& Z, 
   SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
 
 template<typename Real>
 Int HermitianTridiagEigEstimate
-( const AbstractDistMatrix<Real>& d, const AbstractDistMatrix<Real>& e,
+( const AbstractDistMatrix<Real>& d, const AbstractDistMatrix<Real>& dSub,
         mpi::Comm wColComm, Real vl, Real vu );
 // Z is assumed to be sufficiently large and properly aligned
 template<typename Real>
 void HermitianTridiagEigPostEstimate
-( const AbstractDistMatrix<Real>& d, const AbstractDistMatrix<Real>& e,
+( const AbstractDistMatrix<Real>& d, const AbstractDistMatrix<Real>& dSub,
         AbstractDistMatrix<Real>& w,       AbstractDistMatrix<Real>& Z, 
   SortType sort, Real vl, Real vu );
 

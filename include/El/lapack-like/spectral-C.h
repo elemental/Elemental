@@ -151,6 +151,125 @@ typedef struct {
 } ElSchurCtrl_d;
 ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl );
 
+/* Hermitian tridiagonal eigensolvers
+   ================================== */
+
+/* Compute all eigenvalues
+   ----------------------- */
+ElError ElHermitianTridiagEig_s
+( ElMatrix_s d, ElMatrix_s dSub, ElMatrix_s w, ElSortType sort );
+ElError ElHermitianTridiagEig_d
+( ElMatrix_d d, ElMatrix_d dSub, ElMatrix_d w, ElSortType sort );
+ElError ElHermitianTridiagEig_c
+( ElMatrix_s d, ElMatrix_c dSub, ElMatrix_s w, ElSortType sort );
+ElError ElHermitianTridiagEig_z
+( ElMatrix_d d, ElMatrix_z dSub, ElMatrix_d w, ElSortType sort );
+
+ElError ElHermitianTridiagEigDist_s
+( ElConstDistMatrix_s d, ElConstDistMatrix_s dSub, 
+  ElDistMatrix_s w, ElSortType sort );
+ElError ElHermitianTridiagEigDist_d
+( ElConstDistMatrix_d d, ElConstDistMatrix_d dSub, 
+  ElDistMatrix_d w, ElSortType sort );
+ElError ElHermitianTridiagEigDist_c
+( ElConstDistMatrix_s d, ElConstDistMatrix_c dSub, 
+  ElDistMatrix_s w, ElSortType sort );
+ElError ElHermitianTridiagEigDist_z
+( ElConstDistMatrix_d d, ElConstDistMatrix_z dSub, 
+  ElDistMatrix_d w, ElSortType sort );
+
+/* TODO: Expert version */
+
+/* Compute all eigenpairs
+   ---------------------- */
+ElError ElHermitianTridiagEigPair_s
+( ElMatrix_s d, ElMatrix_s dSub, ElMatrix_s w, ElMatrix_s Z, ElSortType sort );
+ElError ElHermitianTridiagEigPair_d
+( ElMatrix_d d, ElMatrix_d dSub, ElMatrix_d w, ElMatrix_d Z, ElSortType sort );
+ElError ElHermitianTridiagEigPair_c
+( ElMatrix_s d, ElMatrix_c dSub, ElMatrix_s w, ElMatrix_c Z, ElSortType sort );
+ElError ElHermitianTridiagEigPair_z
+( ElMatrix_d d, ElMatrix_z dSub, ElMatrix_d w, ElMatrix_z Z, ElSortType sort );
+
+ElError ElHermitianTridiagEigPairDist_s
+( ElConstDistMatrix_s d, ElConstDistMatrix_s dSub, 
+  ElDistMatrix_s w, ElDistMatrix_s Z, ElSortType sort );
+ElError ElHermitianTridiagEigPairDist_d
+( ElConstDistMatrix_d d, ElConstDistMatrix_d dSub, 
+  ElDistMatrix_d w, ElDistMatrix_d Z, ElSortType sort );
+ElError ElHermitianTridiagEigPairDist_c
+( ElConstDistMatrix_s d, ElConstDistMatrix_c dSub, 
+  ElDistMatrix_s w, ElDistMatrix_c Z, ElSortType sort );
+ElError ElHermitianTridiagEigPairDist_z
+( ElConstDistMatrix_d d, ElConstDistMatrix_z dSub, 
+  ElDistMatrix_d w, ElDistMatrix_z Z, ElSortType sort );
+
+/* TODO: Expert version */
+
+/* Compute a subset of eigenvalues
+   ------------------------------- */
+ElError ElHermitianTridiagEigPartial_s
+( ElMatrix_s d, ElMatrix_s dSub, 
+  ElMatrix_s w, ElSortType sort, ElHermitianEigSubset_s subset );
+ElError ElHermitianTridiagEigPartial_d
+( ElMatrix_d d, ElMatrix_d dSub, 
+  ElMatrix_d w, ElSortType sort, ElHermitianEigSubset_d subset );
+ElError ElHermitianTridiagEigPartial_c
+( ElMatrix_s d, ElMatrix_c dSub, 
+  ElMatrix_s w, ElSortType sort, ElHermitianEigSubset_s subset );
+ElError ElHermitianTridiagEigPartial_z
+( ElMatrix_d d, ElMatrix_z dSub, 
+  ElMatrix_d w, ElSortType sort, ElHermitianEigSubset_d subset );
+
+ElError ElHermitianTridiagEigPartialDist_s
+( ElConstDistMatrix_s d, ElConstDistMatrix_s dSub, 
+  ElDistMatrix_s w, ElSortType sort, ElHermitianEigSubset_s subset );
+ElError ElHermitianTridiagEigPartialDist_d
+( ElConstDistMatrix_d d, ElConstDistMatrix_d dSub, 
+  ElDistMatrix_d w, ElSortType sort, ElHermitianEigSubset_d subset );
+ElError ElHermitianTridiagEigPartialDist_c
+( ElConstDistMatrix_s d, ElConstDistMatrix_c dSub, 
+  ElDistMatrix_s w, ElSortType sort, ElHermitianEigSubset_s subset );
+ElError ElHermitianTridiagEigPartialDist_z
+( ElConstDistMatrix_d d, ElConstDistMatrix_z dSub, 
+  ElDistMatrix_d w, ElSortType sort, ElHermitianEigSubset_d subset );
+
+/* TODO: Expert version */
+
+/* Compute a subset of eigenpairs
+   ------------------------------ */
+ElError ElHermitianTridiagEigPairPartial_s
+( ElMatrix_s d, ElMatrix_s dSub, 
+  ElMatrix_s w,  ElMatrix_s Z, ElSortType sort, ElHermitianEigSubset_s subset );
+ElError ElHermitianTridiagEigPairPartial_d
+( ElMatrix_d d, ElMatrix_d dSub, 
+  ElMatrix_d w, ElMatrix_d Z, ElSortType sort, ElHermitianEigSubset_d subset );
+ElError ElHermitianTridiagEigPairPartial_c
+( ElMatrix_s d, ElMatrix_c dSub, 
+  ElMatrix_s w, ElMatrix_c Z, ElSortType sort, ElHermitianEigSubset_s subset );
+ElError ElHermitianTridiagEigPairPartial_z
+( ElMatrix_d d, ElMatrix_z dSub, 
+  ElMatrix_d w, ElMatrix_z Z, ElSortType sort, ElHermitianEigSubset_d subset );
+
+ElError ElHermitianTridiagEigPairPartialDist_s
+( ElConstDistMatrix_s d, ElConstDistMatrix_s dSub, 
+  ElDistMatrix_s w, ElDistMatrix_s Z, 
+  ElSortType sort, ElHermitianEigSubset_s subset );
+ElError ElHermitianTridiagEigPairPartialDist_d
+( ElConstDistMatrix_d d, ElConstDistMatrix_d dSub, 
+  ElDistMatrix_d w, ElDistMatrix_d Z,
+  ElSortType sort, ElHermitianEigSubset_d subset );
+ElError ElHermitianTridiagEigPairPartialDist_c
+( ElConstDistMatrix_s d, ElConstDistMatrix_c dSub, 
+  ElDistMatrix_s w, ElDistMatrix_c Z,
+  ElSortType sort, ElHermitianEigSubset_s subset );
+ElError ElHermitianTridiagEigPairPartialDist_z
+( ElConstDistMatrix_d d, ElConstDistMatrix_z dSub, 
+  ElDistMatrix_d w, ElDistMatrix_z Z,
+  ElSortType sort, ElHermitianEigSubset_d subset );
+
+/* TODO: Expert version */
+
 /* Hermitian eigensolvers
    ====================== */
 
@@ -540,124 +659,54 @@ ElError ElHermitianGenDefEigPairPartialDist_z
 
 /* TODO: Expert version */
 
-/* Hermitian tridiagonal eigensolvers
-   ================================== */
+/* Hermitian SVD
+   ============= */
 
-/* Compute all eigenvalues
-   ----------------------- */
-ElError ElHermitianTridiagEig_s
-( ElMatrix_s d, ElMatrix_s e, ElMatrix_s w, ElSortType sort );
-ElError ElHermitianTridiagEig_d
-( ElMatrix_d d, ElMatrix_d e, ElMatrix_d w, ElSortType sort );
-ElError ElHermitianTridiagEig_c
-( ElMatrix_s d, ElMatrix_c e, ElMatrix_s w, ElSortType sort );
-ElError ElHermitianTridiagEig_z
-( ElMatrix_d d, ElMatrix_z e, ElMatrix_d w, ElSortType sort );
+/* Compute the singular values
+   --------------------------- */
+ElError ElHermitianSingularValues_s
+( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s s );
+ElError ElHermitianSingularValues_d
+( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d s );
+ElError ElHermitianSingularValues_c
+( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_s s );
+ElError ElHermitianSingularValues_z
+( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d s );
+ElError ElHermitianSingularValuesDist_s
+( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s s );
+ElError ElHermitianSingularValuesDist_d
+( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d s );
+ElError ElHermitianSingularValuesDist_c
+( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_s s );
+ElError ElHermitianSingularValuesDist_z
+( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_d s );
 
-ElError ElHermitianTridiagEigDist_s
-( ElConstDistMatrix_s d, ElConstDistMatrix_s e, 
-  ElDistMatrix_s w, ElSortType sort );
-ElError ElHermitianTridiagEigDist_d
-( ElConstDistMatrix_d d, ElConstDistMatrix_d e, 
-  ElDistMatrix_d w, ElSortType sort );
-ElError ElHermitianTridiagEigDist_c
-( ElConstDistMatrix_s d, ElConstDistMatrix_c e, 
-  ElDistMatrix_s w, ElSortType sort );
-ElError ElHermitianTridiagEigDist_z
-( ElConstDistMatrix_d d, ElConstDistMatrix_z e, 
-  ElDistMatrix_d w, ElSortType sort );
+/* TODO: Expert versions */
 
-/* TODO: Expert version */
+/* Compute the full SVD
+   -------------------- */
+ElError ElHermitianSVD_s
+( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s s, ElMatrix_s U, ElMatrix_s V );
+ElError ElHermitianSVD_d
+( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d s, ElMatrix_d U, ElMatrix_d V );
+ElError ElHermitianSVD_c
+( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_s s, ElMatrix_c U, ElMatrix_c V );
+ElError ElHermitianSVD_z
+( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d s, ElMatrix_z U, ElMatrix_z V );
+ElError ElHermitianSVDDist_s
+( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s s, 
+  ElDistMatrix_s U, ElDistMatrix_s V );
+ElError ElHermitianSVDDist_d
+( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d s, 
+  ElDistMatrix_d U, ElDistMatrix_d V );
+ElError ElHermitianSVDDist_c
+( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_s s, 
+  ElDistMatrix_c U, ElDistMatrix_c V );
+ElError ElHermitianSVDDist_z
+( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_d s, 
+  ElDistMatrix_z U, ElDistMatrix_z V );
 
-/* Compute all eigenpairs
-   ---------------------- */
-ElError ElHermitianTridiagEigPair_s
-( ElMatrix_s d, ElMatrix_s e, ElMatrix_s w, ElMatrix_s Z, ElSortType sort );
-ElError ElHermitianTridiagEigPair_d
-( ElMatrix_d d, ElMatrix_d e, ElMatrix_d w, ElMatrix_d Z, ElSortType sort );
-ElError ElHermitianTridiagEigPair_c
-( ElMatrix_s d, ElMatrix_c e, ElMatrix_s w, ElMatrix_c Z, ElSortType sort );
-ElError ElHermitianTridiagEigPair_z
-( ElMatrix_d d, ElMatrix_z e, ElMatrix_d w, ElMatrix_z Z, ElSortType sort );
-
-ElError ElHermitianTridiagEigPairDist_s
-( ElConstDistMatrix_s d, ElConstDistMatrix_s e, 
-  ElDistMatrix_s w, ElDistMatrix_s Z, ElSortType sort );
-ElError ElHermitianTridiagEigPairDist_d
-( ElConstDistMatrix_d d, ElConstDistMatrix_d e, 
-  ElDistMatrix_d w, ElDistMatrix_d Z, ElSortType sort );
-ElError ElHermitianTridiagEigPairDist_c
-( ElConstDistMatrix_s d, ElConstDistMatrix_c e, 
-  ElDistMatrix_s w, ElDistMatrix_c Z, ElSortType sort );
-ElError ElHermitianTridiagEigPairDist_z
-( ElConstDistMatrix_d d, ElConstDistMatrix_z e, 
-  ElDistMatrix_d w, ElDistMatrix_z Z, ElSortType sort );
-
-/* TODO: Expert version */
-
-/* Compute a subset of eigenvalues
-   ------------------------------- */
-ElError ElHermitianTridiagEigPartial_s
-( ElMatrix_s d, ElMatrix_s e, 
-  ElMatrix_s w, ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianTridiagEigPartial_d
-( ElMatrix_d d, ElMatrix_d e, 
-  ElMatrix_d w, ElSortType sort, ElHermitianEigSubset_d subset );
-ElError ElHermitianTridiagEigPartial_c
-( ElMatrix_s d, ElMatrix_c e, 
-  ElMatrix_s w, ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianTridiagEigPartial_z
-( ElMatrix_d d, ElMatrix_z e, 
-  ElMatrix_d w, ElSortType sort, ElHermitianEigSubset_d subset );
-
-ElError ElHermitianTridiagEigPartialDist_s
-( ElConstDistMatrix_s d, ElConstDistMatrix_s e, 
-  ElDistMatrix_s w, ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianTridiagEigPartialDist_d
-( ElConstDistMatrix_d d, ElConstDistMatrix_d e, 
-  ElDistMatrix_d w, ElSortType sort, ElHermitianEigSubset_d subset );
-ElError ElHermitianTridiagEigPartialDist_c
-( ElConstDistMatrix_s d, ElConstDistMatrix_c e, 
-  ElDistMatrix_s w, ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianTridiagEigPartialDist_z
-( ElConstDistMatrix_d d, ElConstDistMatrix_z e, 
-  ElDistMatrix_d w, ElSortType sort, ElHermitianEigSubset_d subset );
-
-/* TODO: Expert version */
-
-/* Compute a subset of eigenpairs
-   ------------------------------ */
-ElError ElHermitianTridiagEigPairPartial_s
-( ElMatrix_s d, ElMatrix_s e, 
-  ElMatrix_s w,  ElMatrix_s Z, ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianTridiagEigPairPartial_d
-( ElMatrix_d d, ElMatrix_d e, 
-  ElMatrix_d w, ElMatrix_d Z, ElSortType sort, ElHermitianEigSubset_d subset );
-ElError ElHermitianTridiagEigPairPartial_c
-( ElMatrix_s d, ElMatrix_c e, 
-  ElMatrix_s w, ElMatrix_c Z, ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianTridiagEigPairPartial_z
-( ElMatrix_d d, ElMatrix_z e, 
-  ElMatrix_d w, ElMatrix_z Z, ElSortType sort, ElHermitianEigSubset_d subset );
-
-ElError ElHermitianTridiagEigPairPartialDist_s
-( ElConstDistMatrix_s d, ElConstDistMatrix_s e, 
-  ElDistMatrix_s w, ElDistMatrix_s Z, 
-  ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianTridiagEigPairPartialDist_d
-( ElConstDistMatrix_d d, ElConstDistMatrix_d e, 
-  ElDistMatrix_d w, ElDistMatrix_d Z,
-  ElSortType sort, ElHermitianEigSubset_d subset );
-ElError ElHermitianTridiagEigPairPartialDist_c
-( ElConstDistMatrix_s d, ElConstDistMatrix_c e, 
-  ElDistMatrix_s w, ElDistMatrix_c Z,
-  ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianTridiagEigPairPartialDist_z
-( ElConstDistMatrix_d d, ElConstDistMatrix_z e, 
-  ElDistMatrix_d w, ElDistMatrix_z Z,
-  ElSortType sort, ElHermitianEigSubset_d subset );
-
-/* TODO: Expert version */
+/* TODO: Expert versions */
 
 /* Polar decomposition
    =================== */
@@ -782,8 +831,6 @@ ElError ElSVDDist_s( ElDistMatrix_s A, ElDistMatrix_s s, ElDistMatrix_s V );
 ElError ElSVDDist_d( ElDistMatrix_d A, ElDistMatrix_d s, ElDistMatrix_d V );
 ElError ElSVDDist_c( ElDistMatrix_c A, ElDistMatrix_s s, ElDistMatrix_c V );
 ElError ElSVDDist_z( ElDistMatrix_z A, ElDistMatrix_d s, ElDistMatrix_z V );
-
-/* TODO: Expert versions */
 
 #ifdef __cplusplus
 } // extern "C"

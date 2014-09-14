@@ -308,62 +308,62 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   /* Compute all eigenvalues
      ----------------------- */ \
   ElError ElHermitianTridiagEig_ ## SIG \
-  ( ElMatrix_ ## SIGBASE d, ElMatrix_ ## SIG e, \
+  ( ElMatrix_ ## SIGBASE d, ElMatrix_ ## SIG dSub, \
     ElMatrix_ ## SIGBASE w, ElSortType sort ) \
   { EL_TRY( HermitianTridiagEig( \
-      *CReflect(d), *CReflect(e), *CReflect(w), \
+      *CReflect(d), *CReflect(dSub), *CReflect(w), \
       CReflect(sort) ) ) } \
   ElError ElHermitianTridiagEigDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
+  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG dSub, \
     ElDistMatrix_ ## SIGBASE w, ElSortType sort ) \
   { EL_TRY( HermitianTridiagEig( \
-      *CReflect(d), *CReflect(e), *CReflect(w), \
+      *CReflect(d), *CReflect(dSub), *CReflect(w), \
       CReflect(sort) ) ) } \
   /* Compute all eigenpairs
      ---------------------- */ \
   ElError ElHermitianTridiagEigPair_ ## SIG \
-  ( ElMatrix_ ## SIGBASE d, ElMatrix_ ## SIG e, \
+  ( ElMatrix_ ## SIGBASE d, ElMatrix_ ## SIG dSub, \
     ElMatrix_ ## SIGBASE w, ElMatrix_ ## SIG Z, ElSortType sort ) \
   { EL_TRY( HermitianTridiagEig( \
-      *CReflect(d), *CReflect(e), *CReflect(w), *CReflect(Z), \
+      *CReflect(d), *CReflect(dSub), *CReflect(w), *CReflect(Z), \
       CReflect(sort) ) ) } \
   ElError ElHermitianTridiagEigPairDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
+  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG dSub, \
     ElDistMatrix_ ## SIGBASE w, ElDistMatrix_ ## SIG Z, ElSortType sort ) \
   { EL_TRY( HermitianTridiagEig( \
-      *CReflect(d), *CReflect(e), *CReflect(w), *CReflect(Z), \
+      *CReflect(d), *CReflect(dSub), *CReflect(w), *CReflect(Z), \
       CReflect(sort) ) ) } \
   /* Compute a subset of eigenvalues
      ------------------------------- */ \
   ElError ElHermitianTridiagEigPartial_ ## SIG \
-  ( ElMatrix_ ## SIGBASE d, ElMatrix_ ## SIG e, \
+  ( ElMatrix_ ## SIGBASE d, ElMatrix_ ## SIG dSub, \
     ElMatrix_ ## SIGBASE w, \
     ElSortType sort, ElHermitianEigSubset_ ## SIGBASE subset ) \
   { EL_TRY( HermitianTridiagEig( \
-      *CReflect(d), *CReflect(e), *CReflect(w), \
+      *CReflect(d), *CReflect(dSub), *CReflect(w), \
       CReflect(sort), CReflect(subset) ) ) } \
   ElError ElHermitianTridiagEigPartialDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
+  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG dSub, \
     ElDistMatrix_ ## SIGBASE w, \
     ElSortType sort, ElHermitianEigSubset_ ## SIGBASE subset ) \
   { EL_TRY( HermitianTridiagEig( \
-      *CReflect(d), *CReflect(e), *CReflect(w), \
+      *CReflect(d), *CReflect(dSub), *CReflect(w), \
       CReflect(sort), CReflect(subset) ) ) } \
   /* Compute a subset of eigenpairs
      ------------------------------ */ \
   ElError ElHermitianTridiagEigPairPartial_ ## SIG \
-  ( ElMatrix_ ## SIGBASE d, ElMatrix_ ## SIG e, \
+  ( ElMatrix_ ## SIGBASE d, ElMatrix_ ## SIG dSub, \
     ElMatrix_ ## SIGBASE w, ElMatrix_ ## SIG Z, \
     ElSortType sort, ElHermitianEigSubset_ ## SIGBASE subset ) \
   { EL_TRY( HermitianTridiagEig( \
-      *CReflect(d), *CReflect(e), *CReflect(w), *CReflect(Z), \
+      *CReflect(d), *CReflect(dSub), *CReflect(w), *CReflect(Z), \
       CReflect(sort), CReflect(subset) ) ) } \
   ElError ElHermitianTridiagEigPairPartialDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
+  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG dSub, \
     ElDistMatrix_ ## SIGBASE w, ElDistMatrix_ ## SIG Z, \
     ElSortType sort, ElHermitianEigSubset_ ## SIGBASE subset ) \
   { EL_TRY( HermitianTridiagEig( \
-      *CReflect(d), *CReflect(e), *CReflect(w), *CReflect(Z), \
+      *CReflect(d), *CReflect(dSub), *CReflect(w), *CReflect(Z), \
       CReflect(sort), CReflect(subset) ) ) } \
   /* Polar decomposition
      =================== */ \
@@ -410,7 +410,29 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   ElError ElSVDDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s, \
     ElDistMatrix_ ## SIG V ) \
-  { EL_TRY( SVD( *CReflect(A), *CReflect(s), *CReflect(V) ) ) }
+  { EL_TRY( SVD( *CReflect(A), *CReflect(s), *CReflect(V) ) ) } \
+  /* Hermitian Singular Value Decomposition
+     ====================================== */ \
+  /* Compute the singular values
+     --------------------------- */ \
+  ElError ElHermitianSingularValues_ ## SIG \
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElMatrix_ ## SIGBASE s ) \
+  { EL_TRY( HermitianSVD( CReflect(uplo), *CReflect(A), *CReflect(s) ) ) } \
+  ElError ElHermitianSingularValuesDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s ) \
+  { EL_TRY( HermitianSVD( CReflect(uplo), *CReflect(A), *CReflect(s) ) ) } \
+  /* Compute the full SVD
+     -------------------- */ \
+  ElError ElHermitianSVD_ ## SIG \
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElMatrix_ ## SIGBASE s, 
+    ElMatrix_ ## SIG U, ElMatrix_ ## SIG V ) \
+  { EL_TRY( HermitianSVD( CReflect(uplo), *CReflect(A), \
+      *CReflect(s), *CReflect(U), *CReflect(V) ) ) } \
+  ElError ElHermitianSVDDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s, \
+    ElDistMatrix_ ## SIG U, ElDistMatrix_ ## SIG V ) \
+  { EL_TRY( HermitianSVD( CReflect(uplo), *CReflect(A), \
+      *CReflect(s), *CReflect(U), *CReflect(V) ) ) }
 
 #define C_PROTO_COMPLEX_ONLY(SIG,SIGBASE,F) \
   /* Schur decomposition

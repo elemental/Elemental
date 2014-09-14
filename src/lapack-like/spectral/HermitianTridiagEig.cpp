@@ -10,7 +10,7 @@
 
 #include "./HermitianTridiagEig/Sort.hpp"
 
-// NOTE: eReal and ZReal could be packed into their complex counterparts
+// NOTE: dSubReal and ZReal could be packed into their complex counterparts
 
 namespace El {
 
@@ -21,7 +21,7 @@ namespace herm_tridiag_eig {
 
 template<typename Real>
 inline void Helper
-( Matrix<Real>& d, Matrix<Real>& e, Matrix<Real>& w, SortType sort,
+( Matrix<Real>& d, Matrix<Real>& dSub, Matrix<Real>& w, SortType sort,
   const HermitianEigSubset<Real>& subset )
 {
     const Int n = d.Height();
@@ -29,7 +29,7 @@ inline void Helper
     if( subset.rangeSubset )
     {
          const Int k = lapack::SymmetricTridiagEig
-          ( n, d.Buffer(), e.Buffer(), w.Buffer(), 
+          ( n, d.Buffer(), dSub.Buffer(), w.Buffer(), 
             subset.lowerBound, subset.upperBound );
          w.Resize( k, 1 );
     }
@@ -37,46 +37,46 @@ inline void Helper
     {
         const Int numEig = subset.upperIndex-subset.lowerIndex+1;
         lapack::SymmetricTridiagEig
-        ( n, d.Buffer(), e.Buffer(), w.Buffer(), 
+        ( n, d.Buffer(), dSub.Buffer(), w.Buffer(), 
           subset.lowerIndex, subset.upperIndex );
         w.Resize( numEig, 1 );
     }
     else
-        lapack::SymmetricTridiagEig( n, d.Buffer(), e.Buffer(), w.Buffer() );
+        lapack::SymmetricTridiagEig( n, d.Buffer(), dSub.Buffer(), w.Buffer() );
     Sort( w, sort );
 }
 
 template<typename Real>
 inline void Helper
-( Matrix<Real>& d, Matrix<Complex<Real>>& e, Matrix<Real>& w, SortType sort,
+( Matrix<Real>& d, Matrix<Complex<Real>>& dSub, Matrix<Real>& w, SortType sort,
   const HermitianEigSubset<Real>& subset )
 {
     typedef Complex<Real> C;
     const Int n = d.Height();
-    Matrix<Real> eReal( n-1, 1 );
+    Matrix<Real> dSubReal( n-1, 1 );
     C yLast = 1;
     for( Int j=0; j<n-1; ++j )
     {
-        const C psi = e.Get(j,0);
+        const C psi = dSub.Get(j,0);
         const Real psiAbs = Abs(psi);
         if( psiAbs == Real(0) )
             yLast = 1;
         else
             yLast = ComplexFromPolar(Real(1),Arg(psi*yLast));
-        eReal.Set( j, 0, psiAbs );
+        dSubReal.Set( j, 0, psiAbs );
     }
-    HermitianTridiagEig( d, eReal, w, sort, subset );
+    HermitianTridiagEig( d, dSubReal, w, sort, subset );
 }
 
 } // namespace herm_tridiag_eig
 
 template<typename F>
 void HermitianTridiagEig
-( Matrix<Base<F>>& d, Matrix<F>& e, Matrix<Base<F>>& w, SortType sort, 
+( Matrix<Base<F>>& d, Matrix<F>& dSub, Matrix<Base<F>>& w, SortType sort, 
   const HermitianEigSubset<Base<F>>& subset )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
-    herm_tridiag_eig::Helper( d, e, w, sort, subset );
+    herm_tridiag_eig::Helper( d, dSub, w, sort, subset );
 }
 
 namespace herm_tridiag_eig {
@@ -84,7 +84,7 @@ namespace herm_tridiag_eig {
 template<typename Real>
 inline void Helper
 ( const AbstractDistMatrix<Real>& d,
-  const AbstractDistMatrix<Real>& e,
+  const AbstractDistMatrix<Real>& dSub,
         AbstractDistMatrix<Real>& wPre, SortType sort,
   const HermitianEigSubset<Real>& subset )
 {
@@ -98,10 +98,10 @@ inline void Helper
     // currently only supports this case
     const Int n = d.Height();
     const Grid& g = d.Grid();
-    DistMatrix<double,STAR,STAR> d_STAR_STAR(g), e_STAR_STAR(g);
+    DistMatrix<double,STAR,STAR> d_STAR_STAR(g), dSub_STAR_STAR(g);
     Copy( d, d_STAR_STAR );
-    e_STAR_STAR.Resize( n-1, 1, n );
-    Copy( e, e_STAR_STAR );
+    dSub_STAR_STAR.Resize( n-1, 1, n );
+    Copy( dSub, dSub_STAR_STAR );
 
     std::vector<double> wVector(n);
     herm_tridiag_eig::Info info;
@@ -128,7 +128,7 @@ inline void Helper
 template<typename Real>
 inline void Helper
 ( const AbstractDistMatrix<Real         >& d,
-  const AbstractDistMatrix<Complex<Real>>& e,
+  const AbstractDistMatrix<Complex<Real>>& dSub,
         AbstractDistMatrix<Real         >& wPre, 
   SortType sort, const HermitianEigSubset<Real>& subset )
 {
@@ -145,24 +145,24 @@ inline void Helper
     const Int n = d.Height();
     const Grid& g = d.Grid();
     DistMatrix<double,STAR,STAR> d_STAR_STAR(g);
-    DistMatrix<Complex<double>,STAR,STAR> e_STAR_STAR(g);
+    DistMatrix<Complex<double>,STAR,STAR> dSub_STAR_STAR(g);
     Copy( d, d_STAR_STAR );
-    e_STAR_STAR.Resize( n-1, 1, n );
-    Copy( e, e_STAR_STAR );
+    dSub_STAR_STAR.Resize( n-1, 1, n );
+    Copy( dSub, dSub_STAR_STAR );
 
-    DistMatrix<double,STAR,STAR> eReal(g);
-    eReal.Resize( n-1, 1, n );
+    DistMatrix<double,STAR,STAR> dSubReal(g);
+    dSubReal.Resize( n-1, 1, n );
 
     Complex<double> yLast = 1;
     for( Int j=0; j<n-1; ++j )
     {
-        const Complex<double> psi = e_STAR_STAR.GetLocal(j,0);
+        const Complex<double> psi = dSub_STAR_STAR.GetLocal(j,0);
         const double psiAbs = Abs(psi);
         if( psiAbs == double(0) )
             yLast = 1;
         else
             yLast = ComplexFromPolar(double(1),Arg(psi*yLast));
-        eReal.SetLocal( j, 0, psiAbs );
+        dSubReal.SetLocal( j, 0, psiAbs );
     }
 
     herm_tridiag_eig::Info info;
@@ -170,21 +170,21 @@ inline void Helper
     if( subset.rangeSubset )
     {
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(),
+          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(),
             wVector.data(), w.ColComm(),
             subset.lowerBound, subset.upperBound );
     }
     else if( subset.indexSubset )
     {
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(),
+          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(),
             wVector.data(), w.ColComm(),
             int(subset.lowerIndex), int(subset.upperIndex) );
     }
     else
     {
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(),
+          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(),
             wVector.data(), w.ColComm() );
     }
     w.Resize( info.numGlobalEigenvalues, 1 );
@@ -199,12 +199,12 @@ inline void Helper
 template<typename F>
 void HermitianTridiagEig
 ( const AbstractDistMatrix<Base<F>>& d,
-  const AbstractDistMatrix<F      >& e,
+  const AbstractDistMatrix<F      >& dSub,
         AbstractDistMatrix<Base<F>>& w, 
   SortType sort, const HermitianEigSubset<Base<F>>& subset )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
-    herm_tridiag_eig::Helper( d, e, w, sort, subset );
+    herm_tridiag_eig::Helper( d, dSub, w, sort, subset );
 }
 
 // Return eigenpairs
@@ -214,7 +214,7 @@ namespace herm_tridiag_eig {
 
 template<typename Real>
 inline void Helper
-( Matrix<Real>& d, Matrix<Real>& e, Matrix<Real>& w, Matrix<Real>& Z,
+( Matrix<Real>& d, Matrix<Real>& dSub, Matrix<Real>& w, Matrix<Real>& Z,
   SortType sort, const HermitianEigSubset<Real>& subset )
 {
     const Int n = d.Height();
@@ -223,7 +223,7 @@ inline void Helper
     {
          Z.Resize( n, n );
          const Int k = lapack::SymmetricTridiagEig
-          ( n, d.Buffer(), e.Buffer(), w.Buffer(), Z.Buffer(), Z.LDim(),
+          ( n, d.Buffer(), dSub.Buffer(), w.Buffer(), Z.Buffer(), Z.LDim(),
             subset.lowerBound, subset.upperBound );
          w.Resize( k, 1 );
          Z.Resize( n, k );
@@ -233,7 +233,7 @@ inline void Helper
         const Int numEig = subset.upperIndex-subset.lowerIndex+1;
         Z.Resize( n, numEig );
         lapack::SymmetricTridiagEig
-        ( n, d.Buffer(), e.Buffer(), w.Buffer(), Z.Buffer(), Z.LDim(),
+        ( n, d.Buffer(), dSub.Buffer(), w.Buffer(), Z.Buffer(), Z.LDim(),
           subset.lowerIndex, subset.upperIndex );
         w.Resize( numEig, 1 );
     }
@@ -241,34 +241,36 @@ inline void Helper
     {
         Z.Resize( n, n );
         lapack::SymmetricTridiagEig
-        ( n, d.Buffer(), e.Buffer(), w.Buffer(), Z.Buffer(), Z.LDim() );
+        ( n, d.Buffer(), dSub.Buffer(), w.Buffer(), Z.Buffer(), Z.LDim() );
     }
     herm_eig::Sort( w, Z, sort );
 }
 
+// (Y^H T Y) ZHat = ZHat Lambda
+// T (Y ZHat) = (Y ZHat) Lambda
 template<typename Real>
 inline void Helper
-( Matrix<Real>& d, Matrix<Complex<Real>>& e, Matrix<Real>& w, 
+( Matrix<Real>& d, Matrix<Complex<Real>>& dSub, Matrix<Real>& w, 
   Matrix<Complex<Real>>& Z, SortType sort,
   const HermitianEigSubset<Real>& subset )
 {
     typedef Complex<Real> C;
     const Int n = d.Height();
-    Matrix<Real> eReal( n-1, 1 );
+    Matrix<Real> dSubReal( n-1, 1 );
     Matrix<C> y( n, 1 );
     y.Set( 0, 0, 1 );
     for( Int j=0; j<n-1; ++j )
     {
-        const C psi = e.Get(j,0);
+        const C psi = dSub.Get(j,0);
         const Real psiAbs = Abs(psi);
         if( psiAbs == Real(0) )
             y.Set( j+1, 0, 1 );
         else
             y.Set( j+1, 0, ComplexFromPolar(Real(1),Arg(psi*y.Get(j,0))) );
-        eReal.Set( j, 0, psiAbs );
+        dSubReal.Set( j, 0, psiAbs );
     }
     Matrix<Real> ZReal;
-    HermitianTridiagEig( d, eReal, w, ZReal, sort, subset );
+    HermitianTridiagEig( d, dSubReal, w, ZReal, sort, subset );
     Z.Resize( n, ZReal.Width() );
     for( Int j=0; j<ZReal.Width(); ++j )
         for( Int i=0; i<n; ++i )
@@ -279,11 +281,11 @@ inline void Helper
 
 template<typename F>
 void HermitianTridiagEig
-( Matrix<Base<F>>& d, Matrix<F>& e, Matrix<Base<F>>& w, Matrix<F>& Z, 
+( Matrix<Base<F>>& d, Matrix<F>& dSub, Matrix<Base<F>>& w, Matrix<F>& Z, 
   SortType sort, const HermitianEigSubset<Base<F>>& subset )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
-    herm_tridiag_eig::Helper( d, e, w, Z, sort, subset );
+    herm_tridiag_eig::Helper( d, dSub, w, Z, sort, subset );
 }
 
 namespace herm_tridiag_eig {
@@ -291,7 +293,7 @@ namespace herm_tridiag_eig {
 template<typename Real>
 inline void Helper
 ( const AbstractDistMatrix<Real>& d,
-  const AbstractDistMatrix<Real>& e,
+  const AbstractDistMatrix<Real>& dSub,
         AbstractDistMatrix<Real>& wPre, 
         AbstractDistMatrix<Real>& ZPre, 
   SortType sort, const HermitianEigSubset<Real>& subset )
@@ -311,23 +313,23 @@ inline void Helper
     auto ZPtr = WriteProxy<double,STAR,VR>( &ZPre, ZCtrl ); 
     auto& Z = *ZPtr;
 
-    DistMatrix<double,STAR,STAR> d_STAR_STAR(g), e_STAR_STAR(g);
+    DistMatrix<double,STAR,STAR> d_STAR_STAR(g), dSub_STAR_STAR(g);
     Copy( d, d_STAR_STAR );
-    e_STAR_STAR.Resize( n-1, 1, n );
-    Copy( e, e_STAR_STAR );
+    dSub_STAR_STAR.Resize( n-1, 1, n );
+    Copy( dSub, dSub_STAR_STAR );
 
     Int k;
     if( subset.rangeSubset )
     {
-        std::vector<double> dVector(n), eVector(n), wVector(n);
+        std::vector<double> dVector(n), dSubVector(n), wVector(n);
         MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
-        MemCopy( eVector.data(), e_STAR_STAR.Buffer(), n-1 );
+        MemCopy( dSubVector.data(), dSub_STAR_STAR.Buffer(), n-1 );
         auto estimate = herm_tridiag_eig::EigEstimate
-          ( int(n), dVector.data(), eVector.data(),
+          ( int(n), dVector.data(), dSubVector.data(),
             wVector.data(), w.ColComm(),
             subset.lowerBound, subset.upperBound );
         SwapClear( dVector );
-        SwapClear( eVector );
+        SwapClear( dSubVector );
         k = estimate.numGlobalEigenvalues;
     }
     else if( subset.indexSubset )
@@ -340,17 +342,17 @@ inline void Helper
     std::vector<double> wVector(n);
     if( subset.rangeSubset )
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
             wVector.data(), Z.Buffer(), Z.LDim(), w.ColComm(),
             subset.lowerBound, subset.upperBound );
     else if( subset.indexSubset )
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
             wVector.data(), Z.Buffer(), Z.LDim(), w.ColComm(),
             int(subset.lowerIndex), int(subset.upperIndex) );
     else
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
             wVector.data(), Z.Buffer(), Z.LDim(), w.ColComm() );
     w.Resize( info.numGlobalEigenvalues, 1 );
     Z.Resize( n, info.numGlobalEigenvalues );
@@ -363,7 +365,7 @@ inline void Helper
 template<typename Real>
 inline void Helper
 ( const AbstractDistMatrix<Real         >& d,
-  const AbstractDistMatrix<Complex<Real>>& e,
+  const AbstractDistMatrix<Complex<Real>>& dSub,
         AbstractDistMatrix<Real         >& wPre, 
         AbstractDistMatrix<Complex<Real>>& ZPre, 
   SortType sort, const HermitianEigSubset<Real>& subset )
@@ -374,26 +376,26 @@ inline void Helper
     typedef Complex<Real> C;
 
     DistMatrix<double,STAR,STAR> d_STAR_STAR(g);
-    DistMatrix<Complex<double>,STAR,STAR> e_STAR_STAR(g);
+    DistMatrix<Complex<double>,STAR,STAR> dSub_STAR_STAR(g);
     Copy( d, d_STAR_STAR );
-    e_STAR_STAR.Resize( n-1, 1, n );
-    Copy( e, e_STAR_STAR );
+    dSub_STAR_STAR.Resize( n-1, 1, n );
+    Copy( dSub, dSub_STAR_STAR );
 
     DistMatrix<Complex<double>,STAR,STAR> y(n,1,g);
-    DistMatrix<double,STAR,STAR> eReal(g);
-    eReal.Resize( n-1, 1, n );
+    DistMatrix<double,STAR,STAR> dSubReal(g);
+    dSubReal.Resize( n-1, 1, n );
 
     y.SetLocal(0,0,1);
     for( Int j=0; j<n-1; ++j )
     {
-        const Complex<double> psi = e_STAR_STAR.GetLocal(j,0);
+        const Complex<double> psi = dSub_STAR_STAR.GetLocal(j,0);
         const double psiAbs = Abs(psi);
         if( psiAbs == double(0) )
             y.SetLocal( j+1, 0, 1 );
         else
             y.SetLocal
             ( j+1, 0, ComplexFromPolar(double(1),Arg(psi*y.GetLocal(j,0))) );
-        eReal.SetLocal( j, 0, psiAbs );
+        dSubReal.SetLocal( j, 0, psiAbs );
     }
 
     ProxyCtrl wCtrl, ZCtrl;
@@ -407,15 +409,15 @@ inline void Helper
     Int k;
     if( subset.rangeSubset )
     {
-        std::vector<double> dVector(n), eVector(n), wVector(n);
+        std::vector<double> dVector(n), dSubVector(n), wVector(n);
         MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
-        MemCopy( eVector.data(), eReal.Buffer(), n-1 );
+        MemCopy( dSubVector.data(), dSubReal.Buffer(), n-1 );
         auto estimate = herm_tridiag_eig::EigEstimate
-          ( int(n), dVector.data(), eVector.data(),
+          ( int(n), dVector.data(), dSubVector.data(),
             wVector.data(), w.ColComm(),
             subset.lowerBound, subset.upperBound );
         SwapClear( dVector );
-        SwapClear( eVector );
+        SwapClear( dSubVector );
         k = estimate.numGlobalEigenvalues;
     }
     else if( subset.indexSubset )
@@ -429,17 +431,17 @@ inline void Helper
     std::vector<double> wVector(n);
     if( subset.rangeSubset )
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(), 
             wVector.data(), ZReal.Buffer(), ZReal.LDim(), w.ColComm(),
             subset.lowerBound, subset.upperBound );
     else if( subset.indexSubset )
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(), 
             wVector.data(), ZReal.Buffer(), ZReal.LDim(), w.ColComm(),
             int(subset.lowerIndex), int(subset.upperIndex) );
     else
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(), 
             wVector.data(), ZReal.Buffer(), ZReal.LDim(), w.ColComm() );
 
     w.Resize( info.numGlobalEigenvalues, 1 );
@@ -459,31 +461,31 @@ inline void Helper
 
 template<typename F>
 void HermitianTridiagEig
-( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& e,
+( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& dSub,
         AbstractDistMatrix<Base<F>>& w,       AbstractDistMatrix<F>& Z, 
   SortType sort, const HermitianEigSubset<Base<F>>& subset )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
-    herm_tridiag_eig::Helper( d, e, w, Z, sort, subset );
+    herm_tridiag_eig::Helper( d, dSub, w, Z, sort, subset );
 }
 
 template<typename Real>
 Int HermitianTridiagEigEstimate
-( const AbstractDistMatrix<Real>& d, const AbstractDistMatrix<Real>& e,
+( const AbstractDistMatrix<Real>& d, const AbstractDistMatrix<Real>& dSub,
         mpi::Comm wColComm, Real vl, Real vu )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEigEstimate"))
     const Int n = d.Height();
     DistMatrix<double,STAR,STAR> d_STAR_STAR( d.Grid() );
-    DistMatrix<double,STAR,STAR> e_STAR_STAR( d.Grid() );
+    DistMatrix<double,STAR,STAR> dSub_STAR_STAR( d.Grid() );
     Copy( d, d_STAR_STAR );
-    e_STAR_STAR.Resize( n-1, 1, n );
-    Copy( e, e_STAR_STAR );
-    std::vector<double> dVector(n), eVector(n), wVector(n);
+    dSub_STAR_STAR.Resize( n-1, 1, n );
+    Copy( dSub, dSub_STAR_STAR );
+    std::vector<double> dVector(n), dSubVector(n), wVector(n);
     MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
-    MemCopy( eVector.data(), e_STAR_STAR.Buffer(), n-1 );
+    MemCopy( dSubVector.data(), dSub_STAR_STAR.Buffer(), n-1 );
     auto estimate = herm_tridiag_eig::EigEstimate
-    ( int(n), dVector.data(), eVector.data(), wVector.data(), wColComm,
+    ( int(n), dVector.data(), dSubVector.data(), wVector.data(), wColComm,
       vl, vu );
     return estimate.numGlobalEigenvalues;
 }
@@ -491,7 +493,7 @@ Int HermitianTridiagEigEstimate
 // Z is assumed to be sufficiently large and properly aligned
 template<typename Real>
 void HermitianTridiagEigPostEstimate
-( const AbstractDistMatrix<Real>& d,    const AbstractDistMatrix<Real>& e,
+( const AbstractDistMatrix<Real>& d,    const AbstractDistMatrix<Real>& dSub,
         AbstractDistMatrix<Real>& wPre,       AbstractDistMatrix<Real>& ZPre,
   SortType sort, Real vl, Real vu )
 {
@@ -509,14 +511,14 @@ void HermitianTridiagEigPostEstimate
 
     const Int n = d.Height();
     DistMatrix<double,STAR,STAR> d_STAR_STAR( d.Grid() ),
-                                 e_STAR_STAR( d.Grid() );
+                                 dSub_STAR_STAR( d.Grid() );
     Copy( d, d_STAR_STAR );
-    e_STAR_STAR.Resize( n-1, 1, n );
-    Copy( e, e_STAR_STAR );
+    dSub_STAR_STAR.Resize( n-1, 1, n );
+    Copy( dSub, dSub_STAR_STAR );
 
     std::vector<double> wVector(n);
     auto info = herm_tridiag_eig::Eig
-    ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), wVector.data(), 
+    ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), wVector.data(), 
       Z.Buffer(), Z.LDim(), w.ColComm(), vl, vu );
     const Int k = info.numGlobalEigenvalues;
 
@@ -536,17 +538,17 @@ void HermitianTridiagEigPostEstimate
   template void herm_eig::Sort \
   ( AbstractDistMatrix<Base<F>>& w, AbstractDistMatrix<F>& Z, SortType sort ); \
   template void HermitianTridiagEig \
-  ( Matrix<Base<F>>& d, Matrix<F>& e, Matrix<Base<F>>& w, SortType sort, \
+  ( Matrix<Base<F>>& d, Matrix<F>& dSub, Matrix<Base<F>>& w, SortType sort, \
     const HermitianEigSubset<Base<F>>& subset ); \
   template void HermitianTridiagEig \
-  ( Matrix<Base<F>>& d, Matrix<F>& e, Matrix<Base<F>>& w, Matrix<F>& Z, \
+  ( Matrix<Base<F>>& d, Matrix<F>& dSub, Matrix<Base<F>>& w, Matrix<F>& Z, \
     SortType sort, const HermitianEigSubset<Base<F>>& subset ); \
   template void HermitianTridiagEig \
-  ( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& e, \
+  ( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& dSub, \
           AbstractDistMatrix<Base<F>>& w, \
     SortType sort, const HermitianEigSubset<Base<F>>& subset ); \
   template void HermitianTridiagEig \
-  ( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& e, \
+  ( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& dSub, \
           AbstractDistMatrix<Base<F>>& w,       AbstractDistMatrix<F>& Z, \
     SortType sort, const HermitianEigSubset<Base<F>>& subset );
 
@@ -554,10 +556,10 @@ void HermitianTridiagEigPostEstimate
   PROTO(Real) \
   template Int HermitianTridiagEigEstimate \
   ( const AbstractDistMatrix<Real>& d, \
-    const AbstractDistMatrix<Real>& e, \
+    const AbstractDistMatrix<Real>& dSub, \
           mpi::Comm wColComm, Real vl, Real vu ); \
   template void HermitianTridiagEigPostEstimate \
-  ( const AbstractDistMatrix<Real>& d, const AbstractDistMatrix<Real>& e, \
+  ( const AbstractDistMatrix<Real>& d, const AbstractDistMatrix<Real>& dSub, \
           AbstractDistMatrix<Real>& w,       AbstractDistMatrix<Real>& Z, \
     SortType sort, Real vl, Real vu );
 
