@@ -79,8 +79,8 @@ template<typename Real>
 inline Complex<Real> ComplexFromPolar( const Real& r, const Real& theta )
 { return std::polar(r,theta); }
 
-// Size measurements
-// =================
+// Size/sign measurements
+// ======================
 template<typename T>
 inline Base<T> Abs( const T& alpha ) { return std::abs(alpha); }
 
@@ -93,6 +93,17 @@ inline Real SafeAbs( const Complex<Real>& alpha )
 template<typename F>
 inline Base<F> FastAbs( const F& alpha )
 { return Abs(RealPart(alpha)) + Abs(ImagPart(alpha)); }
+
+template<typename Real>
+inline Real Sgn( const Real& alpha, bool symmetric )
+{
+    if( alpha < 0 )
+        return Real(-1);
+    else if( alpha > 0 || !symmetric )
+        return Real(1);
+    else
+        return Real(0);
+}
 
 // Exponentiation
 // ==============

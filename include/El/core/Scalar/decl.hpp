@@ -76,63 +76,44 @@ Real SafeAbs( const Complex<Real>& alpha );
 template<typename F>
 Base<F> FastAbs( const F& alpha );
 
+// Sign function of a scalar
+template<typename Real>
+Real Sgn( const Real& alpha, bool symmetric=true );
+
 // Conjugation
 template<typename Real>
 Real Conj( const Real& alpha );
 template<typename Real>
 Complex<Real> Conj( const Complex<Real>& alpha );
 
-// Square root
-template<typename F>
-F Sqrt( const F& alpha );
+// Exponentiation
+template<typename F> F Exp( const F& alpha );
+template<typename F,typename T> F Pow( const F& alpha, const T& beta );
 
-// Cosine
-template<typename F>
-F Cos( const F& alpha );
+// Inverse exponentiation
+template<typename F> F Log( const F& alpha );
+template<typename F> F Sqrt( const F& alpha );
 
-// Sine
-template<typename F>
-F Sin( const F& alpha );
+// Trigonometric functions
+template<typename F> F Cos( const F& alpha );
+template<typename F> F Sin( const F& alpha );
+template<typename F> F Tan( const F& alpha );
 
-// Tangent
-template<typename F>
-F Tan( const F& alpha );
+// Inverse trigonometric functions
+template<typename F> F Acos( const F& alpha );
+template<typename F> F Asin( const F& alpha );
+template<typename F> F Atan( const F& alpha );
+template<typename Real> Real Atan2( const Real& y, const Real& x );
 
-// Hyperbolic cosine
-template<typename F>
-F Cosh( const F& alpha );
+// Hyperbolic functions
+template<typename F> F Cosh( const F& alpha );
+template<typename F> F Sinh( const F& alpha );
+template<typename F> F Tanh( const F& alpha );
 
-// Hyperbolic sine
-template<typename F>
-F Sinh( const F& alpha );
-
-// Inverse cosine
-template<typename F>
-F Acos( const F& alpha );
-
-// Inverse sine
-template<typename F>
-F Asin( const F& alpha );
-
-// Inverse tangent
-template<typename F>
-F Atan( const F& alpha );
-
-// Coordinate-based inverse tangent
-template<typename Real>
-Real Atan2( const Real& y, const Real& x );
-
-// Inverse hyperbolic cosine
-template<typename F>
-F Acosh( const F& alpha );
-
-// Inverse hyperbolic sine
-template<typename F>
-F Asinh( const F& alpha );
-
-// Inverse hyperbolic tangent
-template<typename F>
-F Atanh( const F& alpha );
+// Inverse hyperbolic functions
+template<typename F> F Acosh( const F& alpha );
+template<typename F> F Asinh( const F& alpha );
+template<typename F> F Atanh( const F& alpha );
 
 // Complex argument
 template<typename F>
@@ -141,31 +122,6 @@ Base<F> Arg( const F& alpha );
 // Convert polar coordinates to the complex number
 template<typename Real>
 Complex<Real> ComplexFromPolar( const Real& r, const Real& theta=0 );
-
-// Exponential
-template<typename F>
-F Exp( const F& alpha );
-
-// Power, return alpha^beta
-// (every combination supported by std::pow)
-template<typename F,typename T>
-F Pow( const F& alpha, const T& beta );
-
-// Logarithm
-template<typename F>
-F Log( const F& alpha );
-
-// Sign function of a scalar
-template<typename Real>
-inline Real Sgn( const Real& alpha, bool symmetric=true )
-{
-    if( alpha < 0 )
-        return Real(-1);
-    else if( alpha > 0 || !symmetric )
-        return Real(1);
-    else
-        return Real(0);
-}
 
 } // namespace El
 
