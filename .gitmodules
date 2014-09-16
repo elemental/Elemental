@@ -8,5 +8,5 @@
 	path = external/metis
 	url = git://github.com/poulson/metis.git
 [submodule "external/KISS-FFT"]
-	path = external/KISS-FFT
+	path = external/kiss_fft
 	url = git://github.com/poulson/KISS-FFT.git
