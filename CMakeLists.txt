@@ -54,6 +54,17 @@ option(EL_USE_QT5 "Attempt to use Qt5?" OFF)
 option(EL_USE_CUSTOM_ALLTOALLV "Avoid MPI_Alltoallv for performance reasons" ON)
 option(EL_BARRIER_IN_ALLTOALLV "Barrier before posting non-blocking recvs" OFF)
 
+option(BUILD_KISSFFT "Build KISS FFT" ON)
+if(BUILD_KISSFFT)
+  add_subdirectory(external/kiss_fft)
+  include_directories(external/kiss_fft)
+elseif(MANUAL_KISSFFT)
+  # The following variables should be set:
+  #   KISSFFT_INCLUDE_DIR: The directory containing kiss_fft.h
+  #   KISSFFT_LIBS: The list of KISS-FFT libraries to link
+  include_directories(${KISSFFT_INCLUDE_DIR})
+endif()
+
 # NOTE: ParMETIS cannot yet be legally distributed under an unrestrictive 
 #       license and is currently limited to educational and research purposes.
 #       However, recent versions of METIS can be distributed under the Apache
@@ -81,6 +92,7 @@ elseif(MANUAL_PARMETIS)
 #  #                      to the directory containing gklib_tls.h
 #  #   METIS_ROOT: the full path to the root of the MeTiS source tree
 #  #   PARMETIS_ROOT: the full path to the root of the ParMeTiS source tree
+#  #   PARMETIS_LIBS: the list of ParMETIS libraries to link to
 #  set(EL_HAVE_METIS TRUE)
 #  set(EL_HAVE_PARMETIS TRUE)
 #  if(PARMETIS_TLS_PATCH)
@@ -105,6 +117,7 @@ elseif(MANUAL_METIS)
   #   GKLIB_INCLUDE_DIR: if PARMETIS_TLS_PATCH is defined, this should point
   #                      to the directory containing gklib_tls.h
   #   METIS_ROOT: the full path to the root of the MeTiS source tree
+  #   METIS_LIBS: the list of METIS libraries to link
   if(METIS_TLS_PATCH)
     include_directories(${GKLIB_INCLUDE_DIR})
   endif()
@@ -339,6 +352,12 @@ set(LINK_LIBS ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
 
 if(EL_HAVE_QT5)
   set(LINK_LIBS ${LINK_LIBS} ${Qt5Widgets_LIBRARIES})  
+endif()
+
+if(BUILD_KISSFFT)
+  set(LINK_LIBS ${LINK_LIBS} kiss_fft)
+elseif(MANUAL_KISSFFT)
+  set(LINK_LIBS ${LINK_LIBS} ${KISSFFT_LIBS})
 endif()
 
 if(BUILD_PARMETIS)
