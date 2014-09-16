@@ -7,20 +7,25 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_SCALAR_IMPL_HPP
-#define EL_SCALAR_IMPL_HPP
+#ifndef EL_ELEMENT_IMPL_HPP
+#define EL_ELEMENT_IMPL_HPP
 
 namespace El {
 
+// Basic element manipulation and I/O
+// ==================================
+
+// Pretty-printing
+// ---------------
 template<typename Real>
-std::ostream& operator<<( std::ostream& os, Complex<Real> alpha )
+inline std::ostream& operator<<( std::ostream& os, Complex<Real> alpha )
 {
     os << alpha.real() << "+" << alpha.imag() << "i";
     return os;
 }
 
-// Basic complex entry manipulation
-// ================================
+// Return the real/imaginary part of an element
+// --------------------------------------------
 template<typename Real>
 inline Real RealPart( const Real&          alpha ) { return alpha; }
 template<typename Real>
@@ -31,6 +36,8 @@ inline Real ImagPart( const Real&          alpha ) { return 0; }
 template<typename Real>
 inline Real ImagPart( const Complex<Real>& alpha ) { return alpha.imag(); }
 
+// Set the real/imaginary part of an element
+// -----------------------------------------
 template<typename Real>
 inline void SetRealPart( Real& alpha, const Real& beta ) { alpha = beta; }
 template<typename Real>
@@ -47,6 +54,8 @@ template<typename Real>
 inline void SetImagPart( Complex<Real>& alpha, const Real& beta )
 { alpha.imag(beta); }
 
+// Update the real/imaginary part of an element
+// --------------------------------------------
 template<typename Real>
 inline void UpdateRealPart( Real& alpha, const Real& beta )
 { alpha += beta; }
@@ -64,6 +73,8 @@ template<typename Real>
 inline void UpdateImagPart( Complex<Real>& alpha, const Real& beta )
 { alpha.imag( alpha.imag()+beta ); }
 
+// Conjugate an element
+// --------------------
 template<typename Real>
 inline Real Conj( const Real& alpha ) { return alpha; }
 
@@ -71,16 +82,20 @@ template<typename Real>
 inline Complex<Real> Conj( const Complex<Real>& alpha )
 { return Complex<Real>(alpha.real(),-alpha.imag()); }
 
+// Return the complex argument
+// ---------------------------
 template<typename F>
 inline Base<F> Arg( const F& alpha )
 { return Atan2( ImagPart(alpha), RealPart(alpha) ); }
 
+// Construct a complex number from its polar coordinates
+// -----------------------------------------------------
 template<typename Real>
 inline Complex<Real> ComplexFromPolar( const Real& r, const Real& theta )
 { return std::polar(r,theta); }
 
-// Size/sign measurements
-// ======================
+// Magnitude and sign
+// ==================
 template<typename T>
 inline Base<T> Abs( const T& alpha ) { return std::abs(alpha); }
 
@@ -113,7 +128,7 @@ inline double Exp( const Int& alpha ) { return std::exp(alpha); }
 
 template<typename F,typename T>
 inline F Pow( const F& alpha, const T& beta ) { return std::pow(alpha,beta); }
-// NOTE: What about integer to a floating-point power? Switch to auto 
+// NOTE: What about an integer to a floating-point power? Switch to auto 
 //       return type inherited from std::pow?
 
 // Inverse exponentiation
@@ -155,10 +170,8 @@ inline F      Atan( const F&   alpha ) { return std::atan(alpha); }
 inline double Atan( const Int& alpha ) { return std::atan(alpha); }
 
 template<typename Real>
-inline Real Atan2( const Real& y, const Real& x ) 
-{ return std::atan2( y, x ); }
-inline double Atan2( const Int& y, const Int& x )
-{ return std::atan2( y, x ); }
+inline Real Atan2( const Real& y, const Real& x ) { return std::atan2( y, x ); }
+inline double Atan2( const Int& y, const Int& x ) { return std::atan2( y, x ); }
 
 // Hyperbolic
 // ==========
@@ -190,4 +203,4 @@ inline double Atanh( const Int& alpha ) { return std::atanh(alpha); }
 
 } // namespace El
 
-#endif // ifndef EL_SCALAR_IMPL_HPP
+#endif // ifndef EL_ELEMENT_IMPL_HPP

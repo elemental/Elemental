@@ -104,7 +104,7 @@
 // Declare the intertwined core parts of our library
 #include "El/core/Timer.hpp"
 #include "El/core/Memory.hpp"
-#include "El/core/Scalar/decl.hpp"
+#include "El/core/Element/decl.hpp"
 #include "El/core/types.hpp"
 #include "El/core/imports/mpi.hpp"
 #include "El/core/imports/choice.hpp"
@@ -139,7 +139,7 @@ template<typename T,Dist U=MC,Dist V=MR> class BlockDistMatrix;
 #include "El/core/Proxy.hpp"
 
 // Implement the intertwined parts of the library
-#include "El/core/Scalar/impl.hpp"
+#include "El/core/Element/impl.hpp"
 #include "El/core/environment/impl.hpp"
 #include "El/core/indexing/impl.hpp"
 

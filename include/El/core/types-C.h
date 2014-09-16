@@ -50,7 +50,7 @@ const char* ElErrorString( ElError error );
 } // extern "C"
 #endif
 
-#include "El/core/Scalar-C.h"
+#include "El/core/Element-C.h"
 
 #ifdef __cplusplus
 extern "C" {

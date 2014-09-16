@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_SCALAR_HPP
-#define EL_SCALAR_HPP
+#ifndef EL_ELEMENT_HPP
+#define EL_ELEMENT_HPP
 
-#include "./Scalar/decl.hpp"
-#include "./Scalar/impl.hpp"
+#include "./Element/decl.hpp"
+#include "./Element/impl.hpp"
 
-#endif // ifndef EL_SCALAR_HPP
+#endif // ifndef EL_ELEMENT_HPP

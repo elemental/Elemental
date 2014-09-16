@@ -67,9 +67,11 @@ extern "C" {
   ElError ElAtanh_ ## SIG ( CREFLECT(F) alpha, CREFLECT(F)* alphaAtanh ) \
   { EL_TRY( *alphaAtanh = CReflect(Atanh(CReflect(alpha))) ) }
 
-#define C_PROTO_REAL_ONLY(SIG,F) \
-  ElError ElAtan2_ ## SIG ( Base<F> y, Base<F> x, Base<F>* result ) \
-  { EL_TRY( *result = Atan2( y, x ) ) }
+#define C_PROTO_REAL_ONLY(SIG,Real) \
+  ElError ElAtan2_ ## SIG ( Real y, Real x, Real* result ) \
+  { EL_TRY( *result = Atan2( y, x ) ) } \
+  ElError ElSgn_ ## SIG ( Real alpha, bool symmetric, Real* result ) \
+  { EL_TRY( *result = Sgn(alpha,symmetric) ) }
 
 #define C_PROTO_COMPLEX_ONLY(SIG,SIGBASE,F) \
   /* Basic complex entry manipulation
@@ -100,7 +102,9 @@ extern "C" {
 
 #define C_PROTO_INT(SIG,T) \
   ElError ElAbs_i( T alpha, T* alphaAbs ) \
-  { EL_TRY( *alphaAbs = Abs(alpha) ) }
+  { EL_TRY( *alphaAbs = Abs(alpha) ) } \
+  ElError ElSgn_i( T alpha, bool symmetric, T* result ) \
+  { EL_TRY( *result = Sgn(alpha,symmetric) ) }
 
 #define C_PROTO_REAL(SIG,F) \
   C_PROTO_FIELD(SIG,SIG,F) \
