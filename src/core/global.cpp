@@ -76,61 +76,48 @@ void PrintVersion( std::ostream& os )
 
 void PrintConfig( std::ostream& os )
 {
-    os << "Elemental configuration:\n"
-       << "  Math libraries:               " << EL_MATH_LIBS << "\n"
-       << "  Have FLAME bidiagonal SVD:    " 
+    os << 
+      "Elemental configuration:\n" <<
+      "  Math libraries:               " << EL_MATH_LIBS << "\n"
 #ifdef EL_HAVE_FLA_BSVD
-       << "YES\n"
+      "  Have FLAME bidiagonal SVD:    YES\n"
 #else
-       << "NO\n"
+      "  Have FLAME bidiagonal SVD:    NO\n"
 #endif
-       << "  Have OpenMP:                  "
 #ifdef EL_HAVE_OPENMP
-       << "YES\n"
+      "  Have OpenMP:                  YES\n"
 #else
-       << "NO\n"
+      "  Have OpenMP:                  NO\n"
 #endif
-       << "  Have Qt5:                     "
 #ifdef EL_HAVE_QT5
-       << "YES\n"
+      "  Have Qt5:                     YES\n"
 #else
-       << "NO\n"
+      "  Have Qt5:                     NO\n"
 #endif
-       << "  Have F90 interface:           "
-#ifdef EL_HAVE_F90_INTERFACE
-       << "YES\n"
-#else
-       << "NO\n"
-#endif
-       << "  Avoiding complex MPI:         "
 #ifdef EL_AVOID_COMPLEX_MPI
-       << "YES\n"
+      "  Avoiding complex MPI:         YES\n"
 #else
-       << "NO\n"
+      "  Avoiding complex MPI:         NO\n"
 #endif
-       << "  Have MPI_Reducescatter_block: "
 #ifdef EL_HAVE_MPI_REDUCE_SCATTER_BLOCK
-       << "YES\n"
+      "  Have MPI_Reducescatter_block: YES\n"
 #else
-       << "NO\n"
+      "  Have MPI_Reducescatter_block: NO\n"
 #endif
-       << "  Have MPI_IN_PLACE:            "
 #ifdef EL_HAVE_MPI_IN_PLACE
-       << "YES\n"
+      "  Have MPI_IN_PLACE:            YES\n"
 #else
-       << "NO\n"
+      "  Have MPI_IN_PLACE:            NO\n"
 #endif
-       << "  AllReduce ReduceScatterBlock: "
 #ifdef EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
-       << "YES\n"
+      "  AllReduce ReduceScatterBlock: YES\n"
 #else
-       << "NO\n"
+      "  AllReduce ReduceScatterBlock: NO\n"
 #endif
-       << "  Use byte Allgathers:          "
 #ifdef EL_USE_BYTE_ALLGATHERS
-       << "YES\n"
+      "  Use byte AllGathers:          YES\n"
 #else
-       << "NO\n"
+      "  Use byte AllGathers:          NO\n"
 #endif
        << std::endl;
 }

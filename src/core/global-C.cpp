@@ -16,12 +16,13 @@ ElError ElPrintVersion( FILE* stream )
     // There does not seem to be a portable means of converting C-style
     // filehandles to C++ filestreams, so we will simply reproduce the 
     // functionality of El::PrintVersion.    
-    fprintf( stream, "Elemental version information:\n"
-                     " Git revision: %s\n"
-                     " Version:      %s.%s\n"
-                     " Build type:   %s\n\n",
-             EL_GIT_SHA1, EL_VERSION_MAJOR, EL_VERSION_MINOR, 
-             EL_CMAKE_BUILD_TYPE );
+    fprintf
+    ( stream, 
+      "Elemental version information:\n"
+      "  Git revision: %s\n"
+      "  Version:      %s.%s\n"
+      "  Build type:   %s\n\n",
+      EL_GIT_SHA1, EL_VERSION_MAJOR, EL_VERSION_MINOR, EL_CMAKE_BUILD_TYPE );
     return EL_SUCCESS;
 }
 
@@ -64,9 +65,96 @@ const char* ElErrorString( ElError error )
     }
 }
 
-// TODO: ElPrintConfig
-// TODO: ElPrintCCompilerInfo
-// TODO: ElPrintCxxCompilerInfo
+ElError ElPrintConfig( FILE* stream )
+{
+    // There does not seem to be a portable means of converting C-style
+    // filehandles to C++ filestreams, so we will simply reproduce the 
+    // functionality of El::PrintConfig.    
+    fprintf
+    ( stream, 
+      "Elemental configuration:\n"
+      "  Math libraries:               %s\n"
+#ifdef EL_HAVE_FLA_BSVD
+      "  Have FLAME bidiagonal SVD:    YES\n"
+#else
+      "  Have FLAME bidiagonal SVD:    NO\n"
+#endif
+#ifdef EL_HAVE_OPENMP
+      "  Have OpenMP:                  YES\n"
+#else
+      "  Have OpenMP:                  NO\n"
+#endif
+#ifdef EL_HAVE_QT5
+      "  Have Qt5:                     YES\n"
+#else
+      "  Have Qt5:                     NO\n"
+#endif
+#ifdef EL_AVOID_COMPLEX_MPI
+      "  Avoiding complex MPI:         YES\n"
+#else
+      "  Avoiding complex MPI:         NO\n"
+#endif
+#ifdef EL_HAVE_MPI_REDUCE_SCATTER_BLOCK
+      "  Have MPI_Reducescatter_block: YES\n"
+#else
+      "  Have MPI_Reducescatter_block: NO\n"
+#endif
+#ifdef EL_HAVE_MPI_IN_PLACE
+      "  Have MPI_IN_PLACE:            YES\n"
+#else
+      "  Have MPI_IN_PLACE:            NO\n"
+#endif
+#ifdef EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+      "  AllReduce ReduceScatterBlock: YES\n"
+#else
+      "  AllReduce ReduceScatterBlock: NO\n"
+#endif
+#ifdef EL_USE_BYTE_ALLGATHERS
+      "  Use byte AllGathers:          YES\n",
+#else
+      "  Use byte AllGathers:          NO\n",
+#endif
+      EL_MATH_LIBS );
+    return EL_SUCCESS;
+}
+
+ElError ElPrintCCompilerInfo( FILE* stream )
+{
+    // There does not seem to be a portable means of converting C-style
+    // filehandles to C++ filestreams, so we will simply reproduce the 
+    // functionality of El::PrintCCompilerInfo.    
+    fprintf
+    ( stream, 
+      "Elemental's C compiler info:\n"
+      "  EL_CMAKE_C_COMPILER:    %s\n"
+      "  EL_MPI_C_COMPILER:      %s\n"
+      "  EL_MPI_C_INCLUDE_PATHS: %s\n"
+      "  EL_MPI_C_COMPILE_FLAGS: %s\n"
+      "  EL_MPI_C_LINK_FLAGS:    %s\n"
+      "  EL_MPI_C_LIBRARIES:     %s\n",
+      EL_CMAKE_C_COMPILER, EL_MPI_C_COMPILER, EL_MPI_C_INCLUDE_PATH,
+      EL_MPI_C_COMPILE_FLAGS, EL_MPI_C_LINK_FLAGS, EL_MPI_C_LIBRARIES );
+    return EL_SUCCESS;
+}
+
+ElError ElPrintCxxCompilerInfo( FILE* stream )
+{
+    // There does not seem to be a portable means of converting C-style
+    // filehandles to C++ filestreams, so we will simply reproduce the 
+    // functionality of El::PrintCxxCompilerInfo.    
+    fprintf
+    ( stream, 
+      "Elemental's C compiler info:\n"
+      "  EL_CMAKE_CXX_COMPILER:    %s\n"
+      "  EL_MPI_CXX_COMPILER:      %s\n"
+      "  EL_MPI_CXX_INCLUDE_PATHS: %s\n"
+      "  EL_MPI_CXX_COMPILE_FLAGS: %s\n"
+      "  EL_MPI_CXX_LINK_FLAGS:    %s\n"
+      "  EL_MPI_CXX_LIBRARIES:     %s\n",
+      EL_CMAKE_CXX_COMPILER, EL_MPI_CXX_COMPILER, EL_MPI_CXX_INCLUDE_PATH,
+      EL_MPI_CXX_COMPILE_FLAGS, EL_MPI_CXX_LINK_FLAGS, EL_MPI_CXX_LIBRARIES );
+    return EL_SUCCESS;
+}
 
 ElError ElInitialize( int* argc, char*** argv )
 { EL_TRY( El::Initialize( *argc, *argv ) ) }
