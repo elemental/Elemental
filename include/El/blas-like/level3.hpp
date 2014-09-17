@@ -107,6 +107,17 @@ void Her2k
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
                  AbstractDistMatrix<T>& C );
 
+// Multiply
+// ========
+// NOTE: The following routine multiplies a sparse matrix by a set of vectors
+//       and is obviously not a BLAS routine. However, it is a basic linear
+//       algebra routine making use of Elemental's core data structures, and
+//       so this is the natural placement
+template<typename T>
+void Multiply
+( T alpha, const DistSparseMatrix<T>& A, const DistMultiVec<T>& X,
+  T beta,                                      DistMultiVec<T>& Y );
+
 // MultiShiftQuasiTrsm
 // ===================
 template<typename F>

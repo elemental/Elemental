@@ -348,12 +348,6 @@ void LowerSolve
 ( Orientation orientation, const DistSymmInfo& info,
   const DistSymmFrontTree<F>& L, DistNodalMatrix<F>& X );
 
-// NOTE: This should not be in the sparse-direct/ folder 
-template<typename T>
-void Multiply
-( T alpha, const DistSparseMatrix<T>& A, const DistMultiVec<T>& X,
-  T beta,                                      DistMultiVec<T>& Y );
-
 template<typename F>
 void Solve
 ( const DistSymmInfo& info,
