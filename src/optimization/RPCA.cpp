@@ -255,7 +255,7 @@ inline void ALM
 
     const double startTime = mpi::Time();
 
-    DistMatrix<F> Y( M );
+    Matrix<F> Y( M );
     NormalizeEntries( Y );
     const Real twoNorm = TwoNorm( Y );
     const Real maxNorm = MaxNorm( Y );
