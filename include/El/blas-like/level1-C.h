@@ -97,13 +97,13 @@ ElError ElCopyDist_z( ElConstDistMatrix_z A, ElDistMatrix_z B );
 /* DiagonalScale 
    ============= */
 ElError ElDiagonalScale_i
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, 
   ElConstMatrix_i d, ElMatrix_i X );
 ElError ElDiagonalScale_s
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side,
   ElConstMatrix_s d, ElMatrix_s X );
 ElError ElDiagonalScale_d
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, 
   ElConstMatrix_d d, ElMatrix_d X );
 ElError ElDiagonalScale_c
 ( ElLeftOrRight side, ElOrientation orientation, 
@@ -113,13 +113,13 @@ ElError ElDiagonalScale_z
   ElConstMatrix_z d, ElMatrix_z X );
 
 ElError ElDiagonalScaleDist_i
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, 
   ElConstDistMatrix_i d, ElDistMatrix_i X );
 ElError ElDiagonalScaleDist_s
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, 
   ElConstDistMatrix_s d, ElDistMatrix_s X );
 ElError ElDiagonalScaleDist_d
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side,
   ElConstDistMatrix_d d, ElDistMatrix_d X );
 ElError ElDiagonalScaleDist_c
 ( ElLeftOrRight side, ElOrientation orientation, 
@@ -131,13 +131,13 @@ ElError ElDiagonalScaleDist_z
 /* DiagonalScaleTrapezoid
    ====================== */
 ElError ElDiagonalScaleTrapezoid_i
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElConstMatrix_i d, ElMatrix_i X, ElInt offset );
 ElError ElDiagonalScaleTrapezoid_s
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo,
   ElConstMatrix_s d, ElMatrix_s X, ElInt offset );
 ElError ElDiagonalScaleTrapezoid_d
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo,
   ElConstMatrix_d d, ElMatrix_d X, ElInt offset );
 ElError ElDiagonalScaleTrapezoid_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
@@ -147,13 +147,13 @@ ElError ElDiagonalScaleTrapezoid_z
   ElConstMatrix_z d, ElMatrix_z X, ElInt offset );
 
 ElError ElDiagonalScaleTrapezoidDist_i
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElConstDistMatrix_i d, ElDistMatrix_i X, ElInt offset );
 ElError ElDiagonalScaleTrapezoidDist_s
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElConstDistMatrix_s d, ElDistMatrix_s X, ElInt offset );
 ElError ElDiagonalScaleTrapezoidDist_d
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElConstDistMatrix_d d, ElDistMatrix_d X, ElInt offset );
 ElError ElDiagonalScaleTrapezoidDist_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
@@ -165,10 +165,10 @@ ElError ElDiagonalScaleTrapezoidDist_z
 /* DiagonalSolve 
    ============= */
 ElError ElDiagonalSolve_s
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, 
   ElConstMatrix_s d, ElMatrix_s X );
 ElError ElDiagonalSolve_d
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, 
   ElConstMatrix_d d, ElMatrix_d X );
 ElError ElDiagonalSolve_c
 ( ElLeftOrRight side, ElOrientation orientation, 
@@ -178,10 +178,10 @@ ElError ElDiagonalSolve_z
   ElConstMatrix_z d, ElMatrix_z X );
 
 ElError ElDiagonalSolveDist_s
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side,
   ElConstDistMatrix_s d, ElDistMatrix_s X );
 ElError ElDiagonalSolveDist_d
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, 
   ElConstDistMatrix_d d, ElDistMatrix_d X );
 ElError ElDiagonalSolveDist_c
 ( ElLeftOrRight side, ElOrientation orientation, 
@@ -189,34 +189,6 @@ ElError ElDiagonalSolveDist_c
 ElError ElDiagonalSolveDist_z
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstDistMatrix_z d, ElDistMatrix_z X );
-
-/* DiagonalSolveTrapezoid
-   ====================== */
-ElError ElDiagonalSolveTrapezoid_s
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
-  ElConstMatrix_s d, ElMatrix_s X, ElInt offset );
-ElError ElDiagonalSolveTrapezoid_d
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
-  ElConstMatrix_d d, ElMatrix_d X, ElInt offset );
-ElError ElDiagonalSolveTrapezoid_c
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
-  ElConstMatrix_c d, ElMatrix_c X, ElInt offset );
-ElError ElDiagonalSolveTrapezoid_z
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
-  ElConstMatrix_z d, ElMatrix_z X, ElInt offset );
-
-ElError ElDiagonalSolveTrapezoidDist_s
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
-  ElConstDistMatrix_s d, ElDistMatrix_s X, ElInt offset );
-ElError ElDiagonalSolveTrapezoidDist_d
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
-  ElConstDistMatrix_d d, ElDistMatrix_d X, ElInt offset );
-ElError ElDiagonalSolveTrapezoidDist_c
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
-  ElConstDistMatrix_c d, ElDistMatrix_c X, ElInt offset );
-ElError ElDiagonalSolveTrapezoidDist_z
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
-  ElConstDistMatrix_z d, ElDistMatrix_z X, ElInt offset );
 
 /* Dot 
    === */

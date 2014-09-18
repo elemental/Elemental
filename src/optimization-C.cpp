@@ -39,6 +39,9 @@ extern "C" {
       *CReflect(z) ) ) } \
   /* Robust Principal Component Analysis
      =================================== */ \
+  ElError ElRPCA_ ## SIG \
+  ( ElConstMatrix_ ## SIG M, ElMatrix_ ## SIG L, ElMatrix_ ## SIG S ) \
+  { EL_TRY( RPCA( *CReflect(M), *CReflect(L), *CReflect(S) ) ) } \
   ElError ElRPCADist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG M, \
     ElDistMatrix_ ## SIG L, ElDistMatrix_ ## SIG S ) \

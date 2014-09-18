@@ -42,36 +42,6 @@ extern "C" {
   ElError ElCopyDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( Copy( *CReflect(A), *CReflect(B) ) ) } \
-  /* DiagonalScale */ \
-  ElError ElDiagonalScale_ ## SIG \
-  ( ElLeftOrRight side, ElOrientation orientation, \
-    ElConstMatrix_ ## SIG d, ElMatrix_ ## SIG X ) \
-  { EL_TRY( \
-      DiagonalScale \
-      ( CReflect(side), CReflect(orientation), \
-        *CReflect(d), *CReflect(X) ) ) } \
-  ElError ElDiagonalScaleDist_ ## SIG \
-  ( ElLeftOrRight side, ElOrientation orientation, \
-    ElConstDistMatrix_ ## SIG d, ElDistMatrix_ ## SIG X ) \
-  { EL_TRY( \
-      DiagonalScale \
-      ( CReflect(side), CReflect(orientation), \
-        *CReflect(d), *CReflect(X) ) ) } \
-  /* DiagonalScaleTrapezoid */ \
-  ElError ElDiagonalScaleTrapezoid_ ## SIG \
-  ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, \
-    ElConstMatrix_ ## SIG d, ElMatrix_ ## SIG X, ElInt offset ) \
-  { EL_TRY( \
-      DiagonalScaleTrapezoid \
-      ( CReflect(side), CReflect(uplo), CReflect(orientation), \
-        *CReflect(d), *CReflect(X), offset ) ) } \
-  ElError ElDiagonalScaleTrapezoidDist_ ## SIG \
-  ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, \
-    ElConstDistMatrix_ ## SIG d, ElDistMatrix_ ## SIG X, ElInt offset ) \
-  { EL_TRY( \
-      DiagonalScaleTrapezoid \
-      ( CReflect(side), CReflect(uplo), CReflect(orientation), \
-        *CReflect(d), *CReflect(X), offset ) ) } \
   /* Dot product (<A,B>=vec(A)^H vec(B)) */ \
   ElError ElDot_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, CREFLECT(T)* prod ) \
@@ -316,7 +286,50 @@ extern "C" {
   ElError ElZeroDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
   { EL_TRY( Zero( *CReflect(A) ) ) }
 
+#define C_PROTO_REALONLY(SIG,Real) \
+  /* DiagonalSolve */ \
+  ElError ElDiagonalSolve_ ## SIG \
+  ( ElLeftOrRight side, \
+    ElConstMatrix_ ## SIG d, ElMatrix_ ## SIG X ) \
+  { EL_TRY( \
+      DiagonalSolve \
+      ( CReflect(side), NORMAL, \
+        *CReflect(d), *CReflect(X) ) ) } \
+  ElError ElDiagonalSolveDist_ ## SIG \
+  ( ElLeftOrRight side, \
+    ElConstDistMatrix_ ## SIG d, ElDistMatrix_ ## SIG X ) \
+  { EL_TRY( \
+      DiagonalSolve \
+      ( CReflect(side), NORMAL, \
+        *CReflect(d), *CReflect(X) ) ) }
+
 #define C_PROTO_NOCOMPLEX(SIG,T) \
+  /* DiagonalScale */ \
+  ElError ElDiagonalScale_ ## SIG \
+  ( ElLeftOrRight side, \
+    ElConstMatrix_ ## SIG d, ElMatrix_ ## SIG X ) \
+  { EL_TRY( \
+      DiagonalScale( CReflect(side), NORMAL, *CReflect(d), *CReflect(X) ) ) } \
+  ElError ElDiagonalScaleDist_ ## SIG \
+  ( ElLeftOrRight side, \
+    ElConstDistMatrix_ ## SIG d, ElDistMatrix_ ## SIG X ) \
+  { EL_TRY( \
+      DiagonalScale( CReflect(side), NORMAL, *CReflect(d), *CReflect(X) ) ) } \
+  /* DiagonalScaleTrapezoid */ \
+  ElError ElDiagonalScaleTrapezoid_ ## SIG \
+  ( ElLeftOrRight side, ElUpperOrLower uplo, \
+    ElConstMatrix_ ## SIG d, ElMatrix_ ## SIG X, ElInt offset ) \
+  { EL_TRY( \
+      DiagonalScaleTrapezoid \
+      ( CReflect(side), CReflect(uplo), NORMAL, \
+        *CReflect(d), *CReflect(X), offset ) ) } \
+  ElError ElDiagonalScaleTrapezoidDist_ ## SIG \
+  ( ElLeftOrRight side, ElUpperOrLower uplo, \
+    ElConstDistMatrix_ ## SIG d, ElDistMatrix_ ## SIG X, ElInt offset ) \
+  { EL_TRY( \
+      DiagonalScaleTrapezoid \
+      ( CReflect(side), CReflect(uplo), NORMAL, \
+        *CReflect(d), *CReflect(X), offset ) ) } \
   /* Max */ \
   ElError ElMax_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElValueIntPair_ ## SIG *entry ) \
@@ -365,21 +378,6 @@ extern "C" {
   { EL_TRY( *entry = CReflect(VectorMin(*CReflect(x))) ) }
 
 #define C_PROTO_FIELD(SIG,SIGBASE,F) \
-  /* DiagonalSolve */ \
-  ElError ElDiagonalSolve_ ## SIG \
-  ( ElLeftOrRight side, ElOrientation orientation, \
-    ElConstMatrix_ ## SIG d, ElMatrix_ ## SIG X ) \
-  { EL_TRY( \
-      DiagonalSolve \
-      ( CReflect(side), CReflect(orientation), \
-        *CReflect(d), *CReflect(X) ) ) } \
-  ElError ElDiagonalSolveDist_ ## SIG \
-  ( ElLeftOrRight side, ElOrientation orientation, \
-    ElConstDistMatrix_ ## SIG d, ElDistMatrix_ ## SIG X ) \
-  { EL_TRY( \
-      DiagonalSolve \
-      ( CReflect(side), CReflect(orientation), \
-        *CReflect(d), *CReflect(X) ) ) } \
   /* Nrm2 (same as FrobeniusNorm) */ \
   ElError ElNrm2_ ## SIG \
   ( ElConstMatrix_ ## SIG A, Base<F> *gamma ) \
@@ -395,10 +393,11 @@ extern "C" {
   C_PROTO_BASE(SIG,SIG,T) \
   C_PROTO_NOCOMPLEX(SIG,T)
 
-#define C_PROTO_REAL(SIG,T) \
-  C_PROTO_BASE(SIG,SIG,T) \
-  C_PROTO_NOCOMPLEX(SIG,T) \
-  C_PROTO_FIELD(SIG,SIG,T)
+#define C_PROTO_REAL(SIG,Real) \
+  C_PROTO_BASE(SIG,SIG,Real) \
+  C_PROTO_NOCOMPLEX(SIG,Real) \
+  C_PROTO_REALONLY(SIG,Real) \
+  C_PROTO_FIELD(SIG,SIG,Real)
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,T) \
   C_PROTO_BASE(SIG,SIGBASE,T) \
@@ -415,6 +414,51 @@ extern "C" {
   { EL_TRY( Conjugate( *CReflect(A) ) ) } \
   ElError ElConjugateDist_ ## SIG( ElDistMatrix_ ## SIG A ) \
   { EL_TRY( Conjugate( *CReflect(A) ) ) } \
+  /* DiagonalScale */ \
+  ElError ElDiagonalScale_ ## SIG \
+  ( ElLeftOrRight side, ElOrientation orientation, \
+    ElConstMatrix_ ## SIG d, ElMatrix_ ## SIG X ) \
+  { EL_TRY( \
+      DiagonalScale \
+      ( CReflect(side), CReflect(orientation), \
+        *CReflect(d), *CReflect(X) ) ) } \
+  ElError ElDiagonalScaleDist_ ## SIG \
+  ( ElLeftOrRight side, ElOrientation orientation, \
+    ElConstDistMatrix_ ## SIG d, ElDistMatrix_ ## SIG X ) \
+  { EL_TRY( \
+      DiagonalScale \
+      ( CReflect(side), CReflect(orientation), \
+        *CReflect(d), *CReflect(X) ) ) } \
+  /* DiagonalScaleTrapezoid */ \
+  ElError ElDiagonalScaleTrapezoid_ ## SIG \
+  ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, \
+    ElConstMatrix_ ## SIG d, ElMatrix_ ## SIG X, ElInt offset ) \
+  { EL_TRY( \
+      DiagonalScaleTrapezoid \
+      ( CReflect(side), CReflect(uplo), CReflect(orientation), \
+        *CReflect(d), *CReflect(X), offset ) ) } \
+  ElError ElDiagonalScaleTrapezoidDist_ ## SIG \
+  ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, \
+    ElConstDistMatrix_ ## SIG d, ElDistMatrix_ ## SIG X, ElInt offset ) \
+  { EL_TRY( \
+      DiagonalScaleTrapezoid \
+      ( CReflect(side), CReflect(uplo), CReflect(orientation), \
+        *CReflect(d), *CReflect(X), offset ) ) } \
+  /* DiagonalSolve */ \
+  ElError ElDiagonalSolve_ ## SIG \
+  ( ElLeftOrRight side, ElOrientation orientation, \
+    ElConstMatrix_ ## SIG d, ElMatrix_ ## SIG X ) \
+  { EL_TRY( \
+      DiagonalSolve \
+      ( CReflect(side), CReflect(orientation), \
+        *CReflect(d), *CReflect(X) ) ) } \
+  ElError ElDiagonalSolveDist_ ## SIG \
+  ( ElLeftOrRight side, ElOrientation orientation, \
+    ElConstDistMatrix_ ## SIG d, ElDistMatrix_ ## SIG X ) \
+  { EL_TRY( \
+      DiagonalSolve \
+      ( CReflect(side), CReflect(orientation), \
+        *CReflect(d), *CReflect(X) ) ) } \
   /* HermitianSwap */ \
   ElError ElHermitianSwap_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElInt to, ElInt from ) \

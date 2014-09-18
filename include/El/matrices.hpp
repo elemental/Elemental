@@ -650,6 +650,10 @@ template<typename T>
 void MakeUniform( AbstractDistMatrix<T>& A, T center=0, Base<T> radius=1 );
 template<typename T>
 void MakeUniform( AbstractBlockDistMatrix<T>& A, T center=0, Base<T> radius=1 );
+template<typename T>
+void MakeUniform( MultiVec<T>& X, T center=0, Base<T> radius=1 );
+template<typename T>
+void MakeUniform( DistMultiVec<T>& X, T center=0, Base<T> radius=1 );
 
 template<typename T>
 void Uniform( Matrix<T>& A, Int m, Int n, T center=0, Base<T> radius=1 );
@@ -659,6 +663,10 @@ void Uniform
 template<typename T>
 void Uniform
 ( AbstractBlockDistMatrix<T>& A, Int m, Int n, T center=0, Base<T> radius=1 );
+template<typename T>
+void Uniform( MultiVec<T>& X, T center=0, Base<T> radius=1 );
+template<typename T>
+void Uniform( DistMultiVec<T>& X, T center=0, Base<T> radius=1 );
 
 // Uniform Helmholtz Green's
 // =========================

@@ -88,8 +88,8 @@ template<typename T>
 void Display
 ( const AbstractBlockDistMatrix<T>& AAbs, std::string title="BlockDistMatrix" );
 
-// Sparse-direct
-// -------------
+// Graphs and sparse matrices
+// --------------------------
 void Display( const Graph& graph, std::string title="Graph" );
 void Display( const DistGraph& graph, std::string title="DistGraph" );
 
@@ -108,9 +108,9 @@ void Display
 ( const DistSparseMatrix<Complex<Real>>& A, 
   std::string title="DistSparseMatrix" );
 
-// Forward declaration
-struct DistSymmInfo;
-
+// Sparse-direct data structures
+// -----------------------------
+struct DistSymmInfo; // forward declaration
 void DisplayLocal
 ( const DistSymmInfo& info, bool beforeFact, std::string title="" );
 
@@ -131,8 +131,8 @@ void Print
 ( const AbstractBlockDistMatrix<T>& AAbs, std::string title="BlockDistMatrix",
   std::ostream& os=std::cout );
 
-// Sparse-direct
-// -------------
+// Graphs and sparse matrices
+// --------------------------
 void Print
 ( const Graph& graph, std::string title="Graph", std::ostream& os=std::cout );
 void Print
@@ -148,6 +148,8 @@ void Print
 ( const DistSparseMatrix<T>& A, std::string title="DistSparseMatrix",
   std::ostream& os=std::cout );
 
+// Sparse-direct
+// -------------
 void PrintLocal
 ( const DistSymmInfo& info,
   std::string title="Local DistSymmInfo", std::ostream& os=std::cout );

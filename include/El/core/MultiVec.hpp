@@ -44,14 +44,6 @@ private:
     Matrix<T> multiVec_;
 };
 
-// Set all of the entries of X to zero
-template<typename T>
-void Zero( MultiVec<T>& X );
-
-// Draw the entries of X uniformly from the unitball in T
-template<typename T>
-void MakeUniform( MultiVec<T>& X );
-
 // Just column-wise l2 norms for now
 template<typename F>
 void Norms( const MultiVec<F>& X, std::vector<Base<F>>& norms );
@@ -59,10 +51,6 @@ void Norms( const MultiVec<F>& X, std::vector<Base<F>>& norms );
 // Just column-wise l2 norms for now
 template<typename F>
 Base<F> Norm( const MultiVec<F>& x );
-
-// Y := alpha X + Y 
-template<typename T>
-void Axpy( T alpha, const MultiVec<T>& X, MultiVec<T>& Y );
 
 } // namespace El
 

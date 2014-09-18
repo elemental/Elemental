@@ -12,28 +12,6 @@
 
 namespace El {
 
-template<typename T>
-void Zero( MultiVec<T>& X )
-{
-    DEBUG_ONLY(CallStackEntry cse("Zero"))
-    const int height = X.Height();
-    const int width = X.Width();
-    for( int j=0; j<width; ++j )
-        for( int i=0; i<height; ++i )
-            X.Set( i, j, T(0) );
-}
-
-template<typename T>
-void MakeUniform( MultiVec<T>& X )
-{
-    DEBUG_ONLY(CallStackEntry cse("MakeUniform"))
-    const int height = X.Height();
-    const int width = X.Width();
-    for( int j=0; j<width; ++j )
-        for( int i=0; i<height; ++i )
-            X.Set( i, j, El::SampleBall<T>() );
-}
-
 template<typename F>
 void Norms( const MultiVec<F>& X, std::vector<Base<F>>& norms )
 {
@@ -78,23 +56,6 @@ Base<F> Norm( const MultiVec<F>& x )
     std::vector<Base<F>> norms;
     Norms( x, norms );
     return norms[0];
-}
-
-template<typename T>
-void Axpy( T alpha, const MultiVec<T>& X, MultiVec<T>& Y )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("Axpy");
-        if( X.Height() != Y.Height() )
-            LogicError("X and Y must be the same height");
-        if( X.Width() != Y.Width() )
-            LogicError("X and Y must be the same width");
-    )
-    const int height = X.Height(); 
-    const int width = X.Width();
-    for( int j=0; j<width; ++j )
-        for( int i=0; i<height; ++i )
-            Y.Update( i, j, alpha*X.Get(i,j) );
 }
 
 template<typename T>

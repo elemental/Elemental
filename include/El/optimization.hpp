@@ -167,7 +167,10 @@ struct RPCACtrl
     { }
 };
 
-// TODO: Sequential implementation
+template<typename F>
+void RPCA
+( const Matrix<F>& M, Matrix<F>& L, Matrix<F>& S,
+  const RPCACtrl<Base<F>>& ctrl=RPCACtrl<Base<F>>() );
 
 template<typename F>
 void RPCA

@@ -12,28 +12,6 @@
 
 namespace El {
 
-template<typename T>
-void Zero( DistMultiVec<T>& X )
-{
-    DEBUG_ONLY(CallStackEntry cse("Zero"))
-    const int localHeight = X.LocalHeight();
-    const int width = X.Width();
-    for( int j=0; j<width; ++j )
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
-            X.SetLocal( iLocal, j, T(0) );
-}
-
-template<typename T>
-void MakeUniform( DistMultiVec<T>& X )
-{
-    DEBUG_ONLY(CallStackEntry cse("MakeUniform"))
-    const int localHeight = X.LocalHeight();
-    const int width = X.Width();
-    for( int j=0; j<width; ++j )
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
-            X.SetLocal( iLocal, j, El::SampleBall<T>() );
-}
-
 template<typename F>
 void Norms( const DistMultiVec<F>& X, std::vector<Base<F>>& norms )
 {
@@ -108,25 +86,6 @@ Base<F> Norm( const DistMultiVec<F>& x )
     std::vector<Base<F>> norms;
     Norms( x, norms );
     return norms[0];
-}
-
-template<typename T>
-void Axpy( T alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("Axpy");
-        if( !mpi::Congruent( X.Comm(), Y.Comm() ) )
-            LogicError("X and Y must have congruent communicators");
-        if( X.Height() != Y.Height() )
-            LogicError("X and Y must be the same height");
-        if( X.Width() != Y.Width() )
-            LogicError("X and Y must be the same width");
-    )
-    const int localHeight = X.LocalHeight(); 
-    const int width = X.Width();
-    for( int j=0; j<width; ++j )
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
-            Y.UpdateLocal( iLocal, j, alpha*X.GetLocal(iLocal,j) );
 }
 
 template<typename T>
@@ -254,11 +213,7 @@ const DistMultiVec<T>& DistMultiVec<T>::operator=( const DistMultiVec<T>& X )
     return *this;
 }
 
-#define PROTO_INT(T) \
-  template class DistMultiVec<T>; \
-  template void Zero( DistMultiVec<T>& X ); \
-  template void MakeUniform( DistMultiVec<T>& X ); \
-  template void Axpy( T alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y );
+#define PROTO_INT(T) template class DistMultiVec<T>;
 
 #define PROTO(F) \
   PROTO_INT(F) \

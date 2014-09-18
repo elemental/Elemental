@@ -81,10 +81,48 @@ void Axpy( S alphaS, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
     }
 }
 
+template<typename T,typename S>
+void Axpy( S alpha, const MultiVec<T>& X, MultiVec<T>& Y )
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("Axpy");
+        if( X.Height() != Y.Height() )
+            LogicError("X and Y must be the same height");
+        if( X.Width() != Y.Width() )
+            LogicError("X and Y must be the same width");
+    )
+    const int height = X.Height();
+    const int width = X.Width();
+    for( int j=0; j<width; ++j )
+        for( int i=0; i<height; ++i )
+            Y.Update( i, j, T(alpha)*X.Get(i,j) );
+}
+
+template<typename T,typename S>
+void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y )
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("Axpy");
+        if( !mpi::Congruent( X.Comm(), Y.Comm() ) )
+            LogicError("X and Y must have congruent communicators");
+        if( X.Height() != Y.Height() )
+            LogicError("X and Y must be the same height");
+        if( X.Width() != Y.Width() )
+            LogicError("X and Y must be the same width");
+    )
+    const int localHeight = X.LocalHeight();
+    const int width = X.Width();
+    for( int j=0; j<width; ++j )
+        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+            Y.UpdateLocal( iLocal, j, T(alpha)*X.GetLocal(iLocal,j) );
+}
+
 #define PROTO_TYPES(T,S) \
   template void Axpy( S alpha, const Matrix<T>& A, Matrix<T>& B ); \
   template void Axpy \
-  ( S alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
+  ( S alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+  template void Axpy( S alpha, const MultiVec<T>& X, MultiVec<T>& Y ); \
+  template void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y );
 
 #define PROTO_INT(T) PROTO_TYPES(T,T)
 

@@ -28,6 +28,10 @@ template<typename T,typename S>
 void Axpy( S alpha, const Matrix<T>& X, Matrix<T>& Y );
 template<typename T,typename S>
 void Axpy( S alpha, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y );
+template<typename T,typename S>
+void Axpy( S alpha, const MultiVec<T>& X, MultiVec<T>& Y );
+template<typename T,typename S>
+void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y );
 
 // AxpyTriangle
 // ============
@@ -611,6 +615,10 @@ template<typename T>
 void Zero( AbstractDistMatrix<T>& A );
 template<typename T>
 void Zero( AbstractBlockDistMatrix<T>& A );
+template<typename T>
+void Zero( MultiVec<T>& A );
+template<typename T>
+void Zero( DistMultiVec<T>& A );
 
 } // namespace El
 

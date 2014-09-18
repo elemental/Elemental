@@ -180,7 +180,10 @@ ElError ElQuadraticProgramDist_d
 
 /* Robust Principal Component Analysis
    =================================== */
-/* TODO: Sequential wrappers */
+ElError ElRPCA_s( ElConstMatrix_s M, ElMatrix_s L, ElMatrix_s S );
+ElError ElRPCA_d( ElConstMatrix_d M, ElMatrix_d L, ElMatrix_d S );
+ElError ElRPCA_c( ElConstMatrix_c M, ElMatrix_c L, ElMatrix_c S );
+ElError ElRPCA_z( ElConstMatrix_z M, ElMatrix_z L, ElMatrix_z S );
 
 ElError ElRPCADist_s
 ( ElConstDistMatrix_s M, ElDistMatrix_s L, ElDistMatrix_s S );
