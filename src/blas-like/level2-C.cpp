@@ -45,18 +45,6 @@ extern "C" {
                        ElConstDistMatrix_ ## SIG y, ElDistMatrix_ ## SIG A ) \
   { EL_TRY( \
       Ger( CReflect(alpha), *CReflect(x), *CReflect(y), *CReflect(A) ) ) } \
-  /* Geru */ \
-  ElError ElGeru_ ## SIG \
-  ( CREFLECT(F) alpha, ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG y, \
-    ElMatrix_ ## SIG A ) \
-  { EL_TRY( \
-      Geru( CReflect(alpha), *CReflect(x), *CReflect(y), \
-           *CReflect(A) ) ) } \
-  ElError ElGeruDist_ ## SIG \
-  ( CREFLECT(F) alpha, ElConstDistMatrix_ ## SIG x, \
-                       ElConstDistMatrix_ ## SIG y, ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( \
-      Geru( CReflect(alpha), *CReflect(x), *CReflect(y), *CReflect(A) ) ) } \
   /* Symv */ \
   ElError ElSymv_ ## SIG \
   ( ElUpperOrLower uplo, \
@@ -147,13 +135,13 @@ extern "C" {
 
 #define C_PROTO_INT(SIG,T) C_PROTO_BASE(SIG,SIG,T)
 
-#define C_PROTO_REAL(SIG,T) \
-  C_PROTO_BASE(SIG,SIG,T) \
-  C_PROTO_FIELD(SIG,SIG,T) \
+#define C_PROTO_REAL(SIG,Real) \
+  C_PROTO_BASE(SIG,SIG,Real) \
+  C_PROTO_FIELD(SIG,SIG,Real) \
   /* Trr */ \
   ElError ElTrr_ ## SIG \
   ( ElUpperOrLower uplo, \
-    CREFLECT(T) alpha, ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG y, \
+    CREFLECT(Real) alpha, ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG y, \
     ElMatrix_ ## SIG A ) \
   { EL_TRY( \
       Trr( CReflect(uplo), \
@@ -161,72 +149,84 @@ extern "C" {
            *CReflect(A) ) ) } \
   ElError ElTrrDist_ ## SIG \
   ( ElUpperOrLower uplo, \
-    CREFLECT(T) alpha, ElConstDistMatrix_ ## SIG x, \
-                       ElConstDistMatrix_ ## SIG y, \
-                       ElDistMatrix_ ## SIG A ) \
+    CREFLECT(Real) alpha, ElConstDistMatrix_ ## SIG x, \
+                          ElConstDistMatrix_ ## SIG y, \
+                          ElDistMatrix_ ## SIG A ) \
   { EL_TRY( \
       Trr( CReflect(uplo), \
            CReflect(alpha), *CReflect(x), *CReflect(y), *CReflect(A) ) ) } \
   /* Trr2 */ \
   ElError ElTrr2_ ## SIG \
   ( ElUpperOrLower uplo, \
-    CREFLECT(T) alpha, ElConstMatrix_ ## SIG X, ElConstMatrix_ ## SIG Y, \
+    CREFLECT(Real) alpha, ElConstMatrix_ ## SIG X, ElConstMatrix_ ## SIG Y, \
     ElMatrix_ ## SIG A ) \
   { EL_TRY( \
       Trr2( CReflect(uplo), \
             CReflect(alpha), *CReflect(X), *CReflect(Y), *CReflect(A) ) ) } \
   ElError ElTrr2Dist_ ## SIG \
   ( ElUpperOrLower uplo, \
-    CREFLECT(T) alpha, ElConstDistMatrix_ ## SIG X, \
-                       ElConstDistMatrix_ ## SIG Y, \
-                       ElDistMatrix_ ## SIG A ) \
+    CREFLECT(Real) alpha, ElConstDistMatrix_ ## SIG X, \
+                          ElConstDistMatrix_ ## SIG Y, \
+                          ElDistMatrix_ ## SIG A ) \
   { EL_TRY( \
       Trr2( CReflect(uplo), \
             CReflect(alpha), *CReflect(X), *CReflect(Y), *CReflect(A) ) ) } 
 
-#define C_PROTO_COMPLEX(SIG,SIGBASE,T) \
-  C_PROTO_BASE(SIG,SIGBASE,T) \
-  C_PROTO_FIELD(SIG,SIGBASE,T) \
+#define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
+  C_PROTO_BASE(SIG,SIGBASE,F) \
+  C_PROTO_FIELD(SIG,SIGBASE,F) \
+  /* Geru */ \
+  ElError ElGeru_ ## SIG \
+  ( CREFLECT(F) alpha, ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG y, \
+    ElMatrix_ ## SIG A ) \
+  { EL_TRY( \
+      Geru( CReflect(alpha), *CReflect(x), *CReflect(y), \
+           *CReflect(A) ) ) } \
+  ElError ElGeruDist_ ## SIG \
+  ( CREFLECT(F) alpha, ElConstDistMatrix_ ## SIG x, \
+                       ElConstDistMatrix_ ## SIG y, ElDistMatrix_ ## SIG A ) \
+  { EL_TRY( \
+      Geru( CReflect(alpha), *CReflect(x), *CReflect(y), *CReflect(A) ) ) } \
   /* Hemv */ \
   ElError ElHemv_ ## SIG \
   ( ElUpperOrLower uplo, \
-    CREFLECT(T) alpha, ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG x, \
-    CREFLECT(T) beta, ElMatrix_ ## SIG y ) \
+    CREFLECT(F) alpha, ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG x, \
+    CREFLECT(F) beta, ElMatrix_ ## SIG y ) \
   { EL_TRY( \
       Hemv( CReflect(uplo), \
             CReflect(alpha), *CReflect(A), *CReflect(x), \
             CReflect(beta), *CReflect(y) ) ) } \
   ElError ElHemvDist_ ## SIG \
   ( ElUpperOrLower uplo, \
-    CREFLECT(T) alpha, ElConstDistMatrix_ ## SIG A, \
+    CREFLECT(F) alpha, ElConstDistMatrix_ ## SIG A, \
                        ElConstDistMatrix_ ## SIG x, \
-    CREFLECT(T) beta,  ElDistMatrix_ ## SIG y ) \
+    CREFLECT(F) beta,  ElDistMatrix_ ## SIG y ) \
   { EL_TRY( \
       Hemv( CReflect(uplo), \
             CReflect(alpha), *CReflect(A), *CReflect(x), \
             CReflect(beta), *CReflect(y) ) ) } \
   /* Her */ \
   ElError ElHer_ ## SIG \
-  ( ElUpperOrLower uplo, CREFLECT(T) alpha, \
+  ( ElUpperOrLower uplo, CREFLECT(F) alpha, \
     ElConstMatrix_ ## SIG x, ElMatrix_ ## SIG A ) \
   { EL_TRY( \
       Her( CReflect(uplo), CReflect(alpha), \
            *CReflect(x), *CReflect(A) ) ) } \
   ElError ElHerDist_ ## SIG \
-  ( ElUpperOrLower uplo, CREFLECT(T) alpha, \
+  ( ElUpperOrLower uplo, CREFLECT(F) alpha, \
     ElConstDistMatrix_ ## SIG x, ElDistMatrix_ ## SIG A ) \
   { EL_TRY( \
       Her( CReflect(uplo), CReflect(alpha), *CReflect(x), *CReflect(A) ) ) } \
   /* Her2 */ \
   ElError ElHer2_ ## SIG \
-  ( ElUpperOrLower uplo, CREFLECT(T) alpha, \
+  ( ElUpperOrLower uplo, CREFLECT(F) alpha, \
     ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG y, \
     ElMatrix_ ## SIG A ) \
   { EL_TRY( \
       Her2( CReflect(uplo), CReflect(alpha), \
             *CReflect(x), *CReflect(y), *CReflect(A) ) ) } \
   ElError ElHer2Dist_ ## SIG \
-  ( ElUpperOrLower uplo, CREFLECT(T) alpha, \
+  ( ElUpperOrLower uplo, CREFLECT(F) alpha, \
     ElConstDistMatrix_ ## SIG x, ElConstDistMatrix_ ## SIG y, \
     ElDistMatrix_ ## SIG A ) \
   { EL_TRY( \
@@ -235,7 +235,7 @@ extern "C" {
   /* Trr */ \
   ElError ElTrr_ ## SIG \
   ( ElUpperOrLower uplo, \
-    CREFLECT(T) alpha, ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG y, \
+    CREFLECT(F) alpha, ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG y, \
     ElMatrix_ ## SIG A, bool conjugate ) \
   { EL_TRY( \
       Trr( CReflect(uplo), \
@@ -243,7 +243,7 @@ extern "C" {
            *CReflect(A), conjugate ) ) } \
   ElError ElTrrDist_ ## SIG \
   ( ElUpperOrLower uplo, \
-    CREFLECT(T) alpha, ElConstDistMatrix_ ## SIG x, \
+    CREFLECT(F) alpha, ElConstDistMatrix_ ## SIG x, \
                        ElConstDistMatrix_ ## SIG y, \
                        ElDistMatrix_ ## SIG A, bool conjugate ) \
   { EL_TRY( \
@@ -253,7 +253,7 @@ extern "C" {
   /* Trr2 */ \
   ElError ElTrr2_ ## SIG \
   ( ElUpperOrLower uplo, \
-    CREFLECT(T) alpha, ElConstMatrix_ ## SIG X, ElConstMatrix_ ## SIG Y, \
+    CREFLECT(F) alpha, ElConstMatrix_ ## SIG X, ElConstMatrix_ ## SIG Y, \
     ElMatrix_ ## SIG A, bool conjugate ) \
   { EL_TRY( \
       Trr2( CReflect(uplo), \
@@ -261,7 +261,7 @@ extern "C" {
             *CReflect(A), conjugate ) ) } \
   ElError ElTrr2Dist_ ## SIG \
   ( ElUpperOrLower uplo, \
-    CREFLECT(T) alpha, ElConstDistMatrix_ ## SIG X, \
+    CREFLECT(F) alpha, ElConstDistMatrix_ ## SIG X, \
                        ElConstDistMatrix_ ## SIG Y, \
                        ElDistMatrix_ ## SIG A, bool conjugate ) \
   { EL_TRY( \

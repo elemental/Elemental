@@ -91,26 +91,11 @@ ElError ElGerDist_z
 
 /* Geru
    ==== */
-ElError ElGeru_i
-( ElInt alpha, ElConstMatrix_i x, ElConstMatrix_i y, ElMatrix_i A );
-ElError ElGeru_s
-( float alpha, ElConstMatrix_s x, ElConstMatrix_s y, ElMatrix_s A );
-ElError ElGeru_d
-( double alpha, ElConstMatrix_d x, ElConstMatrix_d y, ElMatrix_d A );
 ElError ElGeru_c
 ( complex_float alpha, ElConstMatrix_c x, ElConstMatrix_c y, ElMatrix_c A );
 ElError ElGeru_z
 ( complex_double alpha, ElConstMatrix_z x, ElConstMatrix_z y, ElMatrix_z A );
 
-ElError ElGeruDist_i
-( ElInt alpha, ElConstDistMatrix_i x, ElConstDistMatrix_i y, 
-               ElDistMatrix_i A );
-ElError ElGeruDist_s
-( float alpha, ElConstDistMatrix_s x, ElConstDistMatrix_s y, 
-               ElDistMatrix_s A );
-ElError ElGeruDist_d
-( double alpha, ElConstDistMatrix_d x, ElConstDistMatrix_d y, 
-                ElDistMatrix_d A );
 ElError ElGeruDist_c
 ( complex_float alpha, ElConstDistMatrix_c x, ElConstDistMatrix_c y, 
                        ElDistMatrix_c A );
