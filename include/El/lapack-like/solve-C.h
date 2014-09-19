@@ -181,52 +181,28 @@ typedef enum {
 } ElRidgeAlg;
 
 ElError ElRidge_s
-( ElConstMatrix_s A, ElConstMatrix_s B, float alpha, ElMatrix_s X );
-ElError ElRidge_d
-( ElConstMatrix_d A, ElConstMatrix_d B, double alpha, ElMatrix_d X );
-ElError ElRidge_c
-( ElConstMatrix_c A, ElConstMatrix_c B, float alpha, ElMatrix_c X );
-ElError ElRidge_z
-( ElConstMatrix_z A, ElConstMatrix_z B, double alpha, ElMatrix_z X );
-
-ElError ElRidgeDist_s
-( ElConstDistMatrix_s A, ElConstDistMatrix_s B, float alpha, 
-  ElDistMatrix_s X );
-ElError ElRidgeDist_d
-( ElConstDistMatrix_d A, ElConstDistMatrix_d B, double alpha, 
-  ElDistMatrix_d X );
-ElError ElRidgeDist_c
-( ElConstDistMatrix_c A, ElConstDistMatrix_c B, float alpha, 
-  ElDistMatrix_c X );
-ElError ElRidgeDist_z
-( ElConstDistMatrix_z A, ElConstDistMatrix_z B, double alpha, 
-  ElDistMatrix_z X );
-
-/* Expert version
-   -------------- */
-ElError ElRidgeX_s
 ( ElConstMatrix_s A, ElConstMatrix_s B, float alpha, ElMatrix_s X,
   ElRidgeAlg alg );
-ElError ElRidgeX_d
+ElError ElRidge_d
 ( ElConstMatrix_d A, ElConstMatrix_d B, double alpha, ElMatrix_d X,
   ElRidgeAlg alg );
-ElError ElRidgeX_c
+ElError ElRidge_c
 ( ElConstMatrix_c A, ElConstMatrix_c B, float alpha, ElMatrix_c X,
   ElRidgeAlg alg );
-ElError ElRidgeX_z
+ElError ElRidge_z
 ( ElConstMatrix_z A, ElConstMatrix_z B, double alpha, ElMatrix_z X,
   ElRidgeAlg alg );
 
-ElError ElRidgeXDist_s
+ElError ElRidgeDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_s B, float alpha, 
   ElDistMatrix_s X, ElRidgeAlg alg );
-ElError ElRidgeXDist_d
+ElError ElRidgeDist_d
 ( ElConstDistMatrix_d A, ElConstDistMatrix_d B, double alpha, 
   ElDistMatrix_d X, ElRidgeAlg alg );
-ElError ElRidgeXDist_c
+ElError ElRidgeDist_c
 ( ElConstDistMatrix_c A, ElConstDistMatrix_c B, float alpha, 
   ElDistMatrix_c X, ElRidgeAlg alg );
-ElError ElRidgeXDist_z
+ElError ElRidgeDist_z
 ( ElConstDistMatrix_z A, ElConstDistMatrix_z B, double alpha, 
   ElDistMatrix_z X, ElRidgeAlg alg );
 
@@ -266,52 +242,28 @@ typedef enum {
 } ElTikhonovAlg;
 
 ElError ElTikhonov_s
-( ElConstMatrix_s A, ElConstMatrix_s B, ElConstMatrix_s Gamma, ElMatrix_s X );
-ElError ElTikhonov_d
-( ElConstMatrix_d A, ElConstMatrix_d B, ElConstMatrix_d Gamma, ElMatrix_d X );
-ElError ElTikhonov_c
-( ElConstMatrix_c A, ElConstMatrix_c B, ElConstMatrix_c Gamma, ElMatrix_c X );
-ElError ElTikhonov_z
-( ElConstMatrix_z A, ElConstMatrix_z B, ElConstMatrix_z Gamma, ElMatrix_z X );
-
-ElError ElTikhonovDist_s
-( ElConstDistMatrix_s A, ElConstDistMatrix_s B, ElConstDistMatrix_s Gamma, 
-  ElDistMatrix_s X );
-ElError ElTikhonovDist_d
-( ElConstDistMatrix_d A, ElConstDistMatrix_d B, ElConstDistMatrix_d Gamma, 
-  ElDistMatrix_d X );
-ElError ElTikhonovDist_c
-( ElConstDistMatrix_c A, ElConstDistMatrix_c B, ElConstDistMatrix_c Gamma, 
-  ElDistMatrix_c X );
-ElError ElTikhonovDist_z
-( ElConstDistMatrix_z A, ElConstDistMatrix_z B, ElConstDistMatrix_z Gamma, 
-  ElDistMatrix_z X );
-
-/* Expert version
-   -------------- */
-ElError ElTikhonovX_s
 ( ElConstMatrix_s A, ElConstMatrix_s B, ElConstMatrix_s Gamma, ElMatrix_s X, 
   ElTikhonovAlg alg );
-ElError ElTikhonovX_d
+ElError ElTikhonov_d
 ( ElConstMatrix_d A, ElConstMatrix_d B, ElConstMatrix_d Gamma, ElMatrix_d X, 
   ElTikhonovAlg alg );
-ElError ElTikhonovX_c
+ElError ElTikhonov_c
 ( ElConstMatrix_c A, ElConstMatrix_c B, ElConstMatrix_c Gamma, ElMatrix_c X, 
   ElTikhonovAlg alg );
-ElError ElTikhonovX_z
+ElError ElTikhonov_z
 ( ElConstMatrix_z A, ElConstMatrix_z B, ElConstMatrix_z Gamma, ElMatrix_z X, 
   ElTikhonovAlg alg );
 
-ElError ElTikhonovXDist_s
+ElError ElTikhonovDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_s B, ElConstDistMatrix_s Gamma, 
   ElDistMatrix_s X, ElTikhonovAlg alg );
-ElError ElTikhonovXDist_d
+ElError ElTikhonovDist_d
 ( ElConstDistMatrix_d A, ElConstDistMatrix_d B, ElConstDistMatrix_d Gamma, 
   ElDistMatrix_d X, ElTikhonovAlg alg );
-ElError ElTikhonovXDist_c
+ElError ElTikhonovDist_c
 ( ElConstDistMatrix_c A, ElConstDistMatrix_c B, ElConstDistMatrix_c Gamma, 
   ElDistMatrix_c X, ElTikhonovAlg alg );
-ElError ElTikhonovXDist_z
+ElError ElTikhonovDist_z
 ( ElConstDistMatrix_z A, ElConstDistMatrix_z B, ElConstDistMatrix_z Gamma, 
   ElDistMatrix_z X, ElTikhonovAlg alg );
 

@@ -87,19 +87,10 @@ extern "C" {
      ---------------- */ \
   ElError ElRidge_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
-    Base<F> alpha, ElMatrix_ ## SIG X ) \
-  { EL_TRY( Ridge( *CReflect(A), *CReflect(B), alpha, *CReflect(X) ) ) } \
-  ElError ElRidgeDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
-    Base<F> alpha, ElDistMatrix_ ## SIG X ) \
-  { EL_TRY( Ridge( *CReflect(A), *CReflect(B), alpha, *CReflect(X) ) ) } \
-  /* eXpert version */ \
-  ElError ElRidgeX_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
     Base<F> alpha, ElMatrix_ ## SIG X, ElRidgeAlg alg ) \
   { EL_TRY( Ridge( *CReflect(A), *CReflect(B), \
                    alpha, *CReflect(X), CReflect(alg) ) ) } \
-  ElError ElRidgeXDist_ ## SIG \
+  ElError ElRidgeDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
     Base<F> alpha, ElDistMatrix_ ## SIG X, ElRidgeAlg alg ) \
   { EL_TRY( Ridge( *CReflect(A), *CReflect(B), \
@@ -120,22 +111,11 @@ extern "C" {
      ----------------------- */ \
   ElError ElTikhonov_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
-    ElConstMatrix_ ## SIG Gamma, ElMatrix_ ## SIG X ) \
-  { EL_TRY( Tikhonov( *CReflect(A), *CReflect(B), \
-                      *CReflect(Gamma), *CReflect(X) ) ) } \
-  ElError ElTikhonovDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
-    ElConstDistMatrix_ ## SIG Gamma, ElDistMatrix_ ## SIG X ) \
-  { EL_TRY( Tikhonov( *CReflect(A), *CReflect(B), \
-                      *CReflect(Gamma), *CReflect(X) ) ) } \
-  /* eXpert version */ \
-  ElError ElTikhonovX_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
     ElConstMatrix_ ## SIG Gamma, ElMatrix_ ## SIG X, \
     ElTikhonovAlg alg ) \
   { EL_TRY( Tikhonov( *CReflect(A), *CReflect(B), \
                       *CReflect(Gamma), *CReflect(X), CReflect(alg) ) ) } \
-  ElError ElTikhonovXDist_ ## SIG \
+  ElError ElTikhonovDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
     ElConstDistMatrix_ ## SIG Gamma, ElDistMatrix_ ## SIG X, \
     ElTikhonovAlg alg ) \
