@@ -362,15 +362,15 @@ ElError ElSyr2kDist_z
 
 /* Trdtrmm
    ======= */
-ElError ElTrdtrmm_s( ElUpperOrLower uplo, ElMatrix_s A, bool conjugate );
-ElError ElTrdtrmm_d( ElUpperOrLower uplo, ElMatrix_d A, bool conjugate );
+ElError ElTrdtrmm_s( ElUpperOrLower uplo, ElMatrix_s A );
+ElError ElTrdtrmm_d( ElUpperOrLower uplo, ElMatrix_d A );
 ElError ElTrdtrmm_c( ElUpperOrLower uplo, ElMatrix_c A, bool conjugate );
 ElError ElTrdtrmm_z( ElUpperOrLower uplo, ElMatrix_z A, bool conjugate );
 
 ElError ElTrdtrmmDist_s
-( ElUpperOrLower uplo, ElDistMatrix_s A, bool conjugate );
+( ElUpperOrLower uplo, ElDistMatrix_s A );
 ElError ElTrdtrmmDist_d
-( ElUpperOrLower uplo, ElDistMatrix_d A, bool conjugate );
+( ElUpperOrLower uplo, ElDistMatrix_d A );
 ElError ElTrdtrmmDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, bool conjugate );
 ElError ElTrdtrmmDist_z
@@ -381,9 +381,9 @@ ElError ElTrdtrmmDist_z
 /* TODO: Come up with a better name for this and Trdtrmm and make consistent
          with the C++ API */
 ElError ElTrdtrmmQuasi_s
-( ElUpperOrLower uplo, ElMatrix_s A, ElConstMatrix_s dOff, bool conjugate );
+( ElUpperOrLower uplo, ElMatrix_s A, ElConstMatrix_s dOff );
 ElError ElTrdtrmmQuasi_d
-( ElUpperOrLower uplo, ElMatrix_d A, ElConstMatrix_d dOff, bool conjugate );
+( ElUpperOrLower uplo, ElMatrix_d A, ElConstMatrix_d dOff );
 ElError ElTrdtrmmQuasi_c
 ( ElUpperOrLower uplo, ElMatrix_c A, ElConstMatrix_c dOff, bool conjugate );
 ElError ElTrdtrmmQuasi_z
@@ -391,10 +391,10 @@ ElError ElTrdtrmmQuasi_z
 
 ElError ElTrdtrmmQuasiDist_s
 ( ElUpperOrLower uplo, 
-  ElDistMatrix_s A, ElConstDistMatrix_s dOff, bool conjugate );
+  ElDistMatrix_s A, ElConstDistMatrix_s dOff );
 ElError ElTrdtrmmQuasiDist_d
 ( ElUpperOrLower uplo, 
-  ElDistMatrix_d A, ElConstDistMatrix_d dOff, bool conjugate );
+  ElDistMatrix_d A, ElConstDistMatrix_d dOff );
 ElError ElTrdtrmmQuasiDist_c
 ( ElUpperOrLower uplo, 
   ElDistMatrix_c A, ElConstDistMatrix_c dOff, bool conjugate );

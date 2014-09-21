@@ -148,24 +148,6 @@ extern "C" {
       Syr2k( CReflect(uplo), CReflect(orientation), \
             CReflect(alpha), *CReflect(A), *CReflect(B), \
             CReflect(beta), *CReflect(C) ) ) } \
-  /* Trdtrmm */ \
-  ElError ElTrdtrmm_ ## SIG \
-  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, bool conjugate ) \
-  { EL_TRY( Trdtrmm( CReflect(uplo), *CReflect(A), conjugate ) ) } \
-  ElError ElTrdtrmmDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, bool conjugate ) \
-  { EL_TRY( Trdtrmm( CReflect(uplo), *CReflect(A), conjugate ) ) } \
-  /* TrdtrmmQuasi */ \
-  ElError ElTrdtrmmQuasi_ ## SIG \
-  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, \
-    ElConstMatrix_ ## SIG dOff, bool conjugate ) \
-  { EL_TRY( \
-      Trdtrmm( CReflect(uplo), *CReflect(A), *CReflect(dOff), conjugate ) ) } \
-  ElError ElTrdtrmmQuasiDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, \
-    ElConstDistMatrix_ ## SIG dOff, bool conjugate ) \
-  { EL_TRY( \
-      Trdtrmm( CReflect(uplo), *CReflect(A), *CReflect(dOff), conjugate ) ) } \
   /* Trmm */ \
   ElError ElTrmm_ ## SIG \
   ( ElLeftOrRight side, ElUpperOrLower uplo, \
@@ -306,6 +288,24 @@ extern "C" {
 #define C_PROTO_REAL(SIG,Real) \
   C_PROTO_BASE(SIG,SIG,Real) \
   C_PROTO_FIELD(SIG,SIG,Real) \
+  /* Trdtrmm */ \
+  ElError ElTrdtrmm_ ## SIG \
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
+  { EL_TRY( Trdtrmm( CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElTrdtrmmDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
+  { EL_TRY( Trdtrmm( CReflect(uplo), *CReflect(A) ) ) } \
+  /* TrdtrmmQuasi */ \
+  ElError ElTrdtrmmQuasi_ ## SIG \
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG dOff ) \
+  { EL_TRY( \
+      Trdtrmm( CReflect(uplo), *CReflect(A), *CReflect(dOff) ) ) } \
+  ElError ElTrdtrmmQuasiDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIG dOff ) \
+  { EL_TRY( \
+      Trdtrmm( CReflect(uplo), *CReflect(A), *CReflect(dOff) ) ) } \
   /* Trtrmm */ \
   ElError ElTrtrmm_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
@@ -370,6 +370,24 @@ extern "C" {
       Her2k( CReflect(uplo), CReflect(orientation), \
             CReflect(alpha), *CReflect(A), *CReflect(B), \
             CReflect(beta), *CReflect(C) ) ) } \
+  /* Trdtrmm */ \
+  ElError ElTrdtrmm_ ## SIG \
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, bool conjugate ) \
+  { EL_TRY( Trdtrmm( CReflect(uplo), *CReflect(A), conjugate ) ) } \
+  ElError ElTrdtrmmDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, bool conjugate ) \
+  { EL_TRY( Trdtrmm( CReflect(uplo), *CReflect(A), conjugate ) ) } \
+  /* TrdtrmmQuasi */ \
+  ElError ElTrdtrmmQuasi_ ## SIG \
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG dOff, bool conjugate ) \
+  { EL_TRY( \
+      Trdtrmm( CReflect(uplo), *CReflect(A), *CReflect(dOff), conjugate ) ) } \
+  ElError ElTrdtrmmQuasiDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIG dOff, bool conjugate ) \
+  { EL_TRY( \
+      Trdtrmm( CReflect(uplo), *CReflect(A), *CReflect(dOff), conjugate ) ) } \
   /* Trtrmm */ \
   ElError ElTrtrmm_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, bool conjugate ) \
