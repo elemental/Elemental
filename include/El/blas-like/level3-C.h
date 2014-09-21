@@ -171,7 +171,6 @@ ElError ElMultiShiftQuasiTrsm_z
   complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z shifts, 
                         ElMatrix_z B );
 
-
 ElError ElMultiShiftQuasiTrsmDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s shifts, 
@@ -614,13 +613,13 @@ ElError ElTrstrmDist_z
 
 /* Trtrmm
    ====== */
-ElError ElTrtrmm_s( ElUpperOrLower uplo, ElMatrix_s A, bool conjugate );
-ElError ElTrtrmm_d( ElUpperOrLower uplo, ElMatrix_d A, bool conjugate );
+ElError ElTrtrmm_s( ElUpperOrLower uplo, ElMatrix_s A );
+ElError ElTrtrmm_d( ElUpperOrLower uplo, ElMatrix_d A );
 ElError ElTrtrmm_c( ElUpperOrLower uplo, ElMatrix_c A, bool conjugate );
 ElError ElTrtrmm_z( ElUpperOrLower uplo, ElMatrix_z A, bool conjugate );
 
-ElError ElTrtrmmDist_s( ElUpperOrLower uplo, ElDistMatrix_s A, bool conjugate );
-ElError ElTrtrmmDist_d( ElUpperOrLower uplo, ElDistMatrix_d A, bool conjugate );
+ElError ElTrtrmmDist_s( ElUpperOrLower uplo, ElDistMatrix_s A );
+ElError ElTrtrmmDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
 ElError ElTrtrmmDist_c( ElUpperOrLower uplo, ElDistMatrix_c A, bool conjugate );
 ElError ElTrtrmmDist_z( ElUpperOrLower uplo, ElDistMatrix_z A, bool conjugate );
 

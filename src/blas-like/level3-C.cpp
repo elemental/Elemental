@@ -270,13 +270,6 @@ extern "C" {
         CReflect(side), CReflect(uplo), \
         CReflect(orientation), CReflect(diag), \
         CReflect(alpha), *CReflect(A), *CReflect(B) ) ) } \
-  /* Trtrmm */ \
-  ElError ElTrtrmm_ ## SIG \
-  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, bool conjugate ) \
-  { EL_TRY( Trtrmm( CReflect(uplo), *CReflect(A), conjugate ) ) } \
-  ElError ElTrtrmmDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, bool conjugate ) \
-  { EL_TRY( Trtrmm( CReflect(uplo), *CReflect(A), conjugate ) ) } \
   /* TwoSidedTrmm */ \
   ElError ElTwoSidedTrmm_ ## SIG \
   ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, \
@@ -310,9 +303,16 @@ extern "C" {
 
 #define C_PROTO_INT(SIG,T) C_PROTO_BASE(SIG,SIG,T)
 
-#define C_PROTO_REAL(SIG,T) \
-  C_PROTO_BASE(SIG,SIG,T) \
-  C_PROTO_FIELD(SIG,SIG,T)
+#define C_PROTO_REAL(SIG,Real) \
+  C_PROTO_BASE(SIG,SIG,Real) \
+  C_PROTO_FIELD(SIG,SIG,Real) \
+  /* Trtrmm */ \
+  ElError ElTrtrmm_ ## SIG \
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
+  { EL_TRY( Trtrmm( CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElTrtrmmDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
+  { EL_TRY( Trtrmm( CReflect(uplo), *CReflect(A) ) ) }
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,T) \
   C_PROTO_BASE(SIG,SIGBASE,T) \
@@ -369,7 +369,14 @@ extern "C" {
   { EL_TRY( \
       Her2k( CReflect(uplo), CReflect(orientation), \
             CReflect(alpha), *CReflect(A), *CReflect(B), \
-            CReflect(beta), *CReflect(C) ) ) }
+            CReflect(beta), *CReflect(C) ) ) } \
+  /* Trtrmm */ \
+  ElError ElTrtrmm_ ## SIG \
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, bool conjugate ) \
+  { EL_TRY( Trtrmm( CReflect(uplo), *CReflect(A), conjugate ) ) } \
+  ElError ElTrtrmmDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, bool conjugate ) \
+  { EL_TRY( Trtrmm( CReflect(uplo), *CReflect(A), conjugate ) ) }
 
 #include "El/macros/CInstantiate.h"
 
