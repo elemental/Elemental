@@ -117,8 +117,8 @@ void RowSwap( Matrix<T>& A, Int to, Int from )
     if( to == from )
         return;
     const Int n = A.Width();
-    auto aToRow   = ViewRange( A, to,   0, to+1,   n );
-    auto aFromRow = ViewRange( A, from, 0, from+1, n );
+    auto aToRow = A( IR(to,to+1), IR(0,n) );
+    auto aFromRow = A( IR(from,from+1), IR(0,n) );
     Swap( NORMAL, aToRow, aFromRow );
 }
 
@@ -134,8 +134,8 @@ void RowSwap( AbstractDistMatrix<T>& A, Int to, Int from )
     const Int nLocal = A.LocalWidth();
     std::unique_ptr<AbstractDistMatrix<T>> aToRow( A.Construct(A.Grid()) );
     std::unique_ptr<AbstractDistMatrix<T>> aFromRow( A.Construct(A.Grid()) );
-    ViewRange( *aToRow,   A, to,   0, to+1,   n );
-    ViewRange( *aFromRow, A, from, 0, from+1, n );
+    View( *aToRow, A, IR(to,to+1), IR(0,n) );
+    View( *aFromRow, A, IR(from,from+1), IR(0,n) );
     if( aToRow->ColAlign() == aFromRow->ColAlign() )
     {
         if( aToRow->ColShift() == 0 )
@@ -172,8 +172,8 @@ void ColSwap( Matrix<T>& A, Int to, Int from )
     if( to == from )
         return;
     const Int m = A.Height();
-    auto aToCol   = ViewRange( A, 0, to,   m, to+1   );
-    auto aFromCol = ViewRange( A, 0, from, m, from+1 );
+    auto aToCol = A( IR(0,m), IR(to,to+1) );
+    auto aFromCol = A( IR(0,m), IR(from,from+1) );
     Swap( NORMAL, aToCol, aFromCol );
 }
 
@@ -189,8 +189,8 @@ void ColSwap( AbstractDistMatrix<T>& A, Int to, Int from )
     const Int mLocal = A.LocalHeight();
     std::unique_ptr<AbstractDistMatrix<T>> aToCol( A.Construct(A.Grid()) );
     std::unique_ptr<AbstractDistMatrix<T>> aFromCol( A.Construct(A.Grid()) );
-    ViewRange( *aToCol,   A, 0, to,   m, to+1   );
-    ViewRange( *aFromCol, A, 0, from, m, from+1 );
+    View( *aToCol, A, IR(0,m), IR(to,to+1) );
+    View( *aFromCol, A, IR(0,m), IR(from,from+1) );
     if( aToCol->RowAlign() == aFromCol->RowAlign() )
     {
         if( aToCol->RowShift() == 0 )
@@ -233,14 +233,14 @@ void SymmetricSwap
         // Bottom swap
         if( from+1 < n )
         {
-            auto ABot = ViewRange( A, from+1, 0, n, n );
+            auto ABot = A( IR(from+1,n), IR(0,n) );
             ColSwap( ABot, to, from );
         }
         // Inner swap
         if( to+1 < from )
         {
-            auto aToInner   = ViewRange( A, to+1, to,   from,   to+1 );
-            auto aFromInner = ViewRange( A, from, to+1, from+1, from );
+            auto aToInner = A( IR(to+1,from), IR(to,to+1) );
+            auto aFromInner = A( IR(from,from+1), IR(to+1,from) );
             Swap( orientation, aToInner, aFromInner );
         }
         // Corner swap
@@ -260,7 +260,7 @@ void SymmetricSwap
         // Left swap
         if( to > 0 )
         {
-            auto ALeft = ViewRange( A, 0, 0, n, to );
+            auto ALeft = A( IR(0,n), IR(0,to) );
             RowSwap( ALeft, to, from ); 
         }
     }
@@ -269,14 +269,14 @@ void SymmetricSwap
         // Right swap
         if( from+1 < n )
         {
-            auto ARight = ViewRange( A, 0, from+1, n, n );
+            auto ARight = A( IR(0,n), IR(from+1,n) );
             RowSwap( ARight, to, from );
         }
         // Inner swap
         if( to+1 < from )
         {
-            auto aToInner   = ViewRange( A, to,   to+1, to+1, from   );
-            auto aFromInner = ViewRange( A, to+1, from, from, from+1 );
+            auto aToInner = A( IR(to,to+1), IR(to+1,from) );
+            auto aFromInner = A( IR(to+1,from), IR(from,from+1) );
             Swap( orientation, aToInner, aFromInner );
         }
         // Corner swap
@@ -296,7 +296,7 @@ void SymmetricSwap
         // Top swap
         if( to > 0 )
         {
-            auto ATop = ViewRange( A, 0, 0, to, n );
+            auto ATop = A( IR(0,to), IR(0,n) );
             ColSwap( ATop, to, from ); 
         }
     }
@@ -330,7 +330,7 @@ void SymmetricSwap
         if( from+1 < n )
         {
             ADMPtr ABot( A.Construct( A.Grid() ) );
-            ViewRange( *ABot, A, from+1, 0, n, n );
+            View( *ABot, A, IR(from+1,n), IR(0,n) );
             ColSwap( *ABot, to, from );
         }
         // Inner swap
@@ -338,8 +338,8 @@ void SymmetricSwap
         {
             ADMPtr aToInner( A.Construct( A.Grid() ) );
             ADMPtr aFromInner( A.Construct( A.Grid() ) );
-            ViewRange( *aToInner,   A, to+1, to,   from,   to+1 );
-            ViewRange( *aFromInner, A, from, to+1, from+1, from );
+            View( *aToInner, A, IR(to+1,from), IR(to,to+1) );
+            View( *aFromInner, A, IR(from,from+1), IR(to+1,from) );
             Swap( orientation, *aToInner, *aFromInner );
         }
         // Corner swap
@@ -360,7 +360,7 @@ void SymmetricSwap
         if( to > 0 )
         {
             ADMPtr ALeft( A.Construct( A.Grid() ) );
-            ViewRange( *ALeft, A, 0, 0, n, to );
+            View( *ALeft, A, IR(0,n), IR(0,to) );
             RowSwap( *ALeft, to, from ); 
         }
     }
@@ -370,7 +370,7 @@ void SymmetricSwap
         if( from+1 < n )
         {
             ADMPtr ARight( A.Construct( A.Grid() ) );
-            ViewRange( *ARight, A, 0, from+1, n, n );
+            View( *ARight, A, IR(0,n), IR(from+1,n) );
             RowSwap( *ARight, to, from );
         }
         // Inner swap
@@ -378,8 +378,8 @@ void SymmetricSwap
         {
             ADMPtr aToInner( A.Construct( A.Grid() ) );
             ADMPtr aFromInner( A.Construct( A.Grid() ) );
-            ViewRange( *aToInner,   A, to,   to+1, to+1, from   );
-            ViewRange( *aFromInner, A, to+1, from, from, from+1 );
+            View( *aToInner, A, IR(to,to+1), IR(to+1,from) );
+            View( *aFromInner, A, IR(to+1,from), IR(from,from+1) );
             Swap( orientation, *aToInner, *aFromInner );
         }
         // Corner swap
@@ -400,7 +400,7 @@ void SymmetricSwap
         if( to > 0 )
         {
             ADMPtr ATop( A.Construct( A.Grid() ) );
-            ViewRange( *ATop, A, 0, 0, to, n );
+            View( *ATop, A, IR(0,to), IR(0,n) );
             ColSwap( *ATop, to, from ); 
         }
     }

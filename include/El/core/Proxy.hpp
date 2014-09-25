@@ -15,11 +15,11 @@ namespace El {
 struct ProxyCtrl 
 {
     bool colConstrain, rowConstrain, rootConstrain;
-    Int root, colAlign, rowAlign;
+    Int colAlign, rowAlign, root;
 
     ProxyCtrl() 
     : colConstrain(false), rowConstrain(false), rootConstrain(false),
-      root(0), colAlign(0), rowAlign(0) 
+      colAlign(0), rowAlign(0), root(0) 
     { }
 };
 

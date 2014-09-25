@@ -57,13 +57,13 @@ UN
         {
             const Int nb = Min(bsize,m-k);
 
-            LockedViewRange( U01, U, 0, k, k,    k+nb );
-            LockedViewRange( U11, U, k, k, k+nb, k+nb );
+            LockedView( U01, U, IR(0,k), IR(k,k+nb) );
+            LockedView( U11, U, IR(k,k+nb), IR(k,k+nb) );
 
-            ViewRange( x1, x, k, 0, k+nb, 1 );
+            View( x1, x, IR(k,k+nb), IR(0,1) );
 
-            ViewRange( z0_MC_STAR, z_MC_STAR, 0, 0, k,    1 );
-            ViewRange( z1_MC_STAR, z_MC_STAR, k, 0, k+nb, 1 );
+            View( z0_MC_STAR, z_MC_STAR, IR(0,k), IR(0,1) );
+            View( z1_MC_STAR, z_MC_STAR, IR(k,k+nb), IR(0,1) );
 
             if( k+nb != m )
                 x1.RowSumScatterUpdate( F(1), z1_MC_STAR );
@@ -96,13 +96,13 @@ UN
         {
             const Int nb = Min(bsize,m-k);
 
-            LockedViewRange( U01, U, 0, k, k,    k+nb );
-            LockedViewRange( U11, U, k, k, k+nb, k+nb );
+            LockedView( U01, U, IR(0,k), IR(k,k+nb) );
+            LockedView( U11, U, IR(k,k+nb), IR(k,k+nb) );
 
-            ViewRange( x1, x, 0, k, 1, k+nb );
+            View( x1, x, IR(0,1), IR(k,k+nb) );
 
-            ViewRange( z0_STAR_MC, z_STAR_MC, 0, 0, 1, k    );
-            ViewRange( z1_STAR_MC, z_STAR_MC, 0, k, 1, k+nb );
+            View( z0_STAR_MC, z_STAR_MC, IR(0,1), IR(0,k) );
+            View( z1_STAR_MC, z_STAR_MC, IR(0,1), IR(k,k+nb) );
 
             if( k+nb != m )
             {
