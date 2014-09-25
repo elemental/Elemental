@@ -202,17 +202,13 @@ inline void LockedView
 
 template<typename T>
 inline void View
-( Matrix<T>& A, Matrix<T>& B, Range<Int> vertRange, Range<Int> horzRange )
-{ View
-  ( A, B, vertRange.beg, horzRange.beg, 
-          vertRange.end-vertRange.beg, horzRange.end-horzRange.beg ); }
+( Matrix<T>& A, Matrix<T>& B, Range<Int> I, Range<Int> J )
+{ View( A, B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); }
 
 template<typename T>
 inline void LockedView
-( Matrix<T>& A, const Matrix<T>& B, Range<Int> vertRange, Range<Int> horzRange )
-{ LockedView
-  ( A, B, vertRange.beg, horzRange.beg, 
-          vertRange.end-vertRange.beg, horzRange.end-horzRange.beg ); }
+( Matrix<T>& A, const Matrix<T>& B, Range<Int> I, Range<Int> J )
+{ LockedView( A, B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); }
 
 // Return by value
 // ^^^^^^^^^^^^^^^
@@ -236,17 +232,13 @@ inline Matrix<T> LockedView
 
 template<typename T>
 inline Matrix<T> View
-( Matrix<T>& B, Range<Int> vertRange, Range<Int> horzRange )
-{ return View
-  ( B, vertRange.beg, horzRange.beg, 
-       vertRange.end-vertRange.beg, horzRange.end-horzRange.beg ); }
+( Matrix<T>& B, Range<Int> I, Range<Int> J )
+{ return View( B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); }
 
 template<typename T>
 inline Matrix<T> LockedView
-( const Matrix<T>& B, Range<Int> vertRange, Range<Int> horzRange )
-{ return LockedView
-  ( B, vertRange.beg, horzRange.beg, 
-       vertRange.end-vertRange.beg, horzRange.end-horzRange.beg ); }
+( const Matrix<T>& B, Range<Int> I, Range<Int> J )
+{ return LockedView( B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); }
 
 // DistMatrix
 // ----------
@@ -308,18 +300,14 @@ inline void LockedView
 template<typename T>
 inline void View
 ( AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, 
-  Range<Int> vertRange, Range<Int> horzRange )
-{ View
-  ( A, B, vertRange.beg, horzRange.beg,
-          vertRange.end-vertRange.beg, horzRange.end-horzRange.beg ); }
+  Range<Int> I, Range<Int> J )
+{ View( A, B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); }
 
 template<typename T>
 inline void LockedView
 ( AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, 
-  Range<Int> vertRange, Range<Int> horzRange )
-{ LockedView
-  ( A, B, vertRange.beg, horzRange.beg,
-          vertRange.end-vertRange.beg, horzRange.end-horzRange.beg ); }
+  Range<Int> I, Range<Int> J )
+{ LockedView( A, B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); }
 
 // Return by value
 // ^^^^^^^^^^^^^^^
@@ -344,17 +332,13 @@ inline DistMatrix<T,U,V> LockedView
 
 template<typename T,Dist U,Dist V>
 inline DistMatrix<T,U,V> View
-( DistMatrix<T,U,V>& B, Range<Int> vertRange, Range<Int> horzRange )
-{ return View
-  ( B, vertRange.beg, horzRange.beg,
-       vertRange.end-vertRange.beg, horzRange.end-horzRange.beg ); }
+( DistMatrix<T,U,V>& B, Range<Int> I, Range<Int> J )
+{ return View( B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); }
  
 template<typename T,Dist U,Dist V>
 inline DistMatrix<T,U,V> LockedView
-( const DistMatrix<T,U,V>& B, Range<Int> vertRange, Range<Int> horzRange )
-{ return LockedView
-  ( B, vertRange.beg, horzRange.beg,
-       vertRange.end-vertRange.beg, horzRange.end-horzRange.beg ); }
+( const DistMatrix<T,U,V>& B, Range<Int> I, Range<Int> J )
+{ return LockedView( B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); }
 
 // Horizontally merge two contiguous matrices
 // ==========================================
