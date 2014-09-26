@@ -15,8 +15,8 @@
 
 namespace El {
 
-template<typename F>
-Int ZeroNorm( const Matrix<F>& A, Base<F> tol )
+template<typename T>
+Int ZeroNorm( const Matrix<T>& A, Base<T> tol )
 {
     DEBUG_ONLY(CallStackEntry cse("ZeroNorm"))
     Int numNonzeros = 0;
@@ -29,8 +29,8 @@ Int ZeroNorm( const Matrix<F>& A, Base<F> tol )
     return numNonzeros;
 }
 
-template<typename F>
-Int ZeroNorm( const AbstractDistMatrix<F>& A, Base<F> tol )
+template<typename T>
+Int ZeroNorm( const AbstractDistMatrix<T>& A, Base<T> tol )
 {
     DEBUG_ONLY(CallStackEntry cse("ZeroNorm"))
     Int numNonzeros;

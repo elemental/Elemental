@@ -12,11 +12,11 @@
 
 namespace El {
 
-template<typename F> 
-Base<F> MaxNorm( const Matrix<F>& A )
+template<typename T> 
+Base<T> MaxNorm( const Matrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MaxNorm"))
-    typedef Base<F> Real;
+    typedef Base<T> Real;
     Real maxAbs = 0;
     const Int height = A.Height();
     const Int width = A.Width();
@@ -31,14 +31,14 @@ Base<F> MaxNorm( const Matrix<F>& A )
     return maxAbs;
 }
 
-template<typename F>
-Base<F> HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
+template<typename T>
+Base<T> HermitianMaxNorm( UpperOrLower uplo, const Matrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianMaxNorm"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
-    typedef Base<F> Real;
+    typedef Base<T> Real;
     Real maxAbs = 0;
     const Int height = A.Height();
     const Int width = A.Width();
@@ -67,46 +67,35 @@ Base<F> HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
     return maxAbs;
 }
 
-template<typename F>
-Base<F> SymmetricMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
+template<typename T>
+Base<T> SymmetricMaxNorm( UpperOrLower uplo, const Matrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricMaxNorm"))
     return HermitianMaxNorm( uplo, A );
 }
 
-template<typename F>
-Base<F> MaxNorm( const AbstractDistMatrix<F>& A )
+template<typename T>
+Base<T> MaxNorm( const AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MaxNorm"))
-    typedef Base<F> Real;
-    Real norm=0;
+    Base<T> norm=0;
     if( A.Participating() )
     {
-        Real localMaxAbs = 0;
-        const Int localHeight = A.LocalHeight();
-        const Int localWidth = A.LocalWidth();
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            {
-                const Real thisAbs = Abs(A.GetLocal(iLoc,jLoc));
-                localMaxAbs = std::max( localMaxAbs, thisAbs );
-            }
-        }
+        Base<T> localMaxAbs = MaxNorm( A.LockedMatrix() );
         norm = mpi::AllReduce( localMaxAbs, mpi::MAX, A.DistComm() );
     }
     mpi::Broadcast( norm, A.Root(), A.CrossComm() );
     return norm;
 }
 
-template<typename F>
-Base<F> HermitianMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+template<typename T>
+Base<T> HermitianMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianMaxNorm"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
-    typedef Base<F> Real;
+    typedef Base<T> Real;
     Real norm;
     if( A.Participating() )
     {
@@ -145,8 +134,8 @@ Base<F> HermitianMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
     return norm;
 }
 
-template<typename F>
-Base<F> SymmetricMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+template<typename T>
+Base<T> SymmetricMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricMaxNorm"))
     return HermitianMaxNorm( uplo, A );
