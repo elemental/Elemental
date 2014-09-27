@@ -34,9 +34,9 @@ typedef int ElInt;
 typedef unsigned ElUnsigned;
 #endif
 
-typedef struct { ElInt  beg, end; } Range_i;
-typedef struct { float  beg, end; } Range_s;
-typedef struct { double beg, end; } Range_d;
+typedef struct { ElInt  beg, end; } ElRange_i;
+typedef struct { float  beg, end; } ElRange_s;
+typedef struct { double beg, end; } ElRange_d;
 
 typedef enum
 {

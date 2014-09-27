@@ -66,31 +66,31 @@ inline char* CReflect( const std::string& name )
     return buffer;
 }
 
-inline Range<Int> CReflect( Range_i rangeC )
+inline Range<Int> CReflect( ElRange_i rangeC )
 { return Range<Int>(rangeC.beg,rangeC.end); }
-inline Range_i CReflect( Range<Int> range )
+inline ElRange_i CReflect( Range<Int> range )
 { 
-    Range_i rangeC; 
+    ElRange_i rangeC; 
     rangeC.beg = range.beg; 
     rangeC.end = range.end; 
     return rangeC; 
 }
 
-inline Range<float> CReflect( Range_s rangeC )
+inline Range<float> CReflect( ElRange_s rangeC )
 { return Range<float>(rangeC.beg,rangeC.end); }
-inline Range_s CReflect( Range<float> range )
+inline ElRange_s CReflect( Range<float> range )
 { 
-    Range_s rangeC; 
+    ElRange_s rangeC; 
     rangeC.beg = range.beg; 
     rangeC.end = range.end; 
     return rangeC; 
 }
 
-inline Range<double> CReflect( Range_d rangeC )
+inline Range<double> CReflect( ElRange_d rangeC )
 { return Range<double>(rangeC.beg,rangeC.end); }
-inline Range_d CReflect( Range<double> range )
+inline ElRange_d CReflect( Range<double> range )
 { 
-    Range_d rangeC; 
+    ElRange_d rangeC; 
     rangeC.beg = range.beg; 
     rangeC.end = range.end; 
     return rangeC; 
