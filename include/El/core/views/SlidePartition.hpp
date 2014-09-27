@@ -31,7 +31,7 @@ SlidePartitionUp
 {
     DEBUG_ONLY(CallStackEntry cse("SlidePartitionUp"))
     View( AT, A0 );
-    View2x1( AB, A1, A2 );
+    Merge2x1( AB, A1, A2 );
 }
 
 template<typename T>
@@ -43,7 +43,7 @@ SlidePartitionUp
 {
     DEBUG_ONLY(CallStackEntry cse("SlidePartitionUp"))
     View( AT, A0 );
-    View2x1( AB, A1, A2 );
+    Merge2x1( AB, A1, A2 );
 }
 
 template<typename T>
@@ -55,7 +55,7 @@ SlideLockedPartitionUp
 {
     DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionUp"))
     LockedView( AT, A0 );
-    LockedView2x1( AB, A1, A2 );
+    LockedMerge2x1( AB, A1, A2 );
 }
 
 template<typename T>
@@ -67,7 +67,7 @@ SlideLockedPartitionUp
 {
     DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionUp"))
     LockedView( AT, A0 );
-    LockedView2x1( AB, A1, A2 );
+    LockedMerge2x1( AB, A1, A2 );
 }
 
 // Slide a partition downward
@@ -81,7 +81,7 @@ SlidePartitionDown
   M& AB, M& A2 )
 {
     DEBUG_ONLY(CallStackEntry cse("SlidePartitionDown"))
-    View2x1( AT, A0, A1 );
+    Merge2x1( AT, A0, A1 );
     View( AB, A2 );
 }
 
@@ -93,7 +93,7 @@ SlidePartitionDown
   ADM& AB, ADM& A2 )
 {
     DEBUG_ONLY(CallStackEntry cse("SlidePartitionDown"))
-    View2x1( AT, A0, A1 );
+    Merge2x1( AT, A0, A1 );
     View( AB, A2 );
 }
 
@@ -105,7 +105,7 @@ SlideLockedPartitionDown
   M& AB, const M& A2 )
 {
     DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionDown"))
-    LockedView2x1( AT, A0, A1 );
+    LockedMerge2x1( AT, A0, A1 );
     LockedView( AB, A2 );
 }
 
@@ -117,7 +117,7 @@ SlideLockedPartitionDown
   ADM& AB, const ADM& A2 )
 {
     DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionDown"))
-    LockedView2x1( AT, A0, A1 );
+    LockedMerge2x1( AT, A0, A1 );
     LockedView( AB, A2 );
 }
 
@@ -134,7 +134,7 @@ SlidePartitionLeft
 {
     DEBUG_ONLY(CallStackEntry cse("SlidePartitionLeft"))
     View( AL, A0 );
-    View1x2( AR, A1, A2 );
+    Merge1x2( AR, A1, A2 );
 }
 
 template<typename T,Dist U,Dist V>
@@ -145,7 +145,7 @@ SlidePartitionLeft
 {
     DEBUG_ONLY(CallStackEntry cse("SlidePartitionLeft"))
     View( AL, A0 );
-    View1x2( AR, A1, A2 );
+    Merge1x2( AR, A1, A2 );
 }
 
 template<typename T>
@@ -156,7 +156,7 @@ SlideLockedPartitionLeft
 {
     DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionLeft"))
     LockedView( AL, A0 );
-    LockedView1x2( AR, A1, A2 );
+    LockedMerge1x2( AR, A1, A2 );
 }
 
 template<typename T,Dist U,Dist V>
@@ -167,7 +167,7 @@ SlideLockedPartitionLeft
 {
     DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionLeft"))
     LockedView( AL, A0 );
-    LockedView1x2( AR, A1, A2 );
+    LockedMerge1x2( AR, A1, A2 );
 }
 
 // Slide a partition rightward
@@ -180,7 +180,7 @@ SlidePartitionRight
   M& A0, M& A1, M& A2 )
 {
     DEBUG_ONLY(CallStackEntry cse("SlidePartitionRight"))
-    View1x2( AL, A0, A1 );
+    Merge1x2( AL, A0, A1 );
     View( AR, A2 );
 }
 
@@ -191,7 +191,7 @@ SlidePartitionRight
   DM& A0, DM& A1, DM& A2 )
 {
     DEBUG_ONLY(CallStackEntry cse("SlidePartitionRight"))
-    View1x2( AL, A0, A1 );
+    Merge1x2( AL, A0, A1 );
     View( AR, A2 );
 }
 
@@ -202,7 +202,7 @@ SlideLockedPartitionRight
   const M& A0, const M& A1, const M& A2 )
 {
     DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionRight"))
-    LockedView1x2( AL, A0, A1 );
+    LockedMerge1x2( AL, A0, A1 );
     LockedView( AR, A2 );
 }
 
@@ -213,7 +213,7 @@ SlideLockedPartitionRight
   const DM& A0, const DM& A1, const DM& A2 )
 {
     DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionRight"))
-    LockedView1x2( AL, A0, A1 );
+    LockedMerge1x2( AL, A0, A1 );
     LockedView( AR, A2 );
 }
 
@@ -229,10 +229,10 @@ SlidePartitionUpDiagonal
 {
     DEBUG_ONLY(CallStackEntry cse("SlidePartitionUpDiagonal"))
     View( ATL, A00 );
-    View1x2( ATR, A01, A02 );
-    View2x1( ABL, A10, A20 );
-    View2x2( ABR, A11, A12,
-                  A21, A22 );
+    Merge1x2( ATR, A01, A02 );
+    Merge2x1( ABL, A10, A20 );
+    Merge2x2( ABR, A11, A12,
+                   A21, A22 );
 }
 
 template<typename T,Dist U,Dist V>
@@ -244,10 +244,10 @@ SlidePartitionUpDiagonal
 {
     DEBUG_ONLY(CallStackEntry cse("SlidePartitionUpDiagonal"))
     View( ATL, A00 );
-    View1x2( ATR, A01, A02 );
-    View2x1( ABL, A10, A20 );
-    View2x2( ABR, A11, A12,
-                  A21, A22 );
+    Merge1x2( ATR, A01, A02 );
+    Merge2x1( ABL, A10, A20 );
+    Merge2x2( ABR, A11, A12,
+                   A21, A22 );
 }
 
 template<typename T>
@@ -259,10 +259,10 @@ SlideLockedPartitionUpDiagonal
 {
     DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionUpDiagonal"))
     LockedView( ATL, A00 );
-    LockedView1x2( ATR, A01, A02 );
-    LockedView2x1( ABL, A10, A20 );
-    LockedView2x2( ABR, A11, A12,
-                        A21, A22 );
+    LockedMerge1x2( ATR, A01, A02 );
+    LockedMerge2x1( ABL, A10, A20 );
+    LockedMerge2x2( ABR, A11, A12,
+                         A21, A22 );
 }
 
 template<typename T,Dist U,Dist V>
@@ -274,10 +274,10 @@ SlideLockedPartitionUpDiagonal
 {
     DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionUpDiagonal"))
     LockedView( ATL, A00 );
-    LockedView1x2( ATR, A01, A02 );
-    LockedView2x1( ABL, A10, A20 );
-    LockedView2x2( ABR, A11, A12,
-                        A21, A22 );
+    LockedMerge1x2( ATR, A01, A02 );
+    LockedMerge2x1( ABL, A10, A20 );
+    LockedMerge2x2( ABR, A11, A12,
+                         A21, A22 );
 }
 
 // Slide a partition downward on a diagonal
@@ -291,10 +291,10 @@ SlidePartitionDownDiagonal
   M& ABL, M& ABR, M& A20, M& A21, M& A22 )
 {
     DEBUG_ONLY(CallStackEntry cse("SlidePartitionDownDiagonal"))
-    View2x2( ATL, A00, A01,
-                  A10, A11 );
-    View2x1( ATR, A02, A12 );
-    View1x2( ABL, A20, A21 );
+    Merge2x2( ATL, A00, A01,
+                   A10, A11 );
+    Merge2x1( ATR, A02, A12 );
+    Merge1x2( ABL, A20, A21 );
     View( ABR, A22 );
 }
 
@@ -306,10 +306,10 @@ SlidePartitionDownDiagonal
   DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22 )
 {
     DEBUG_ONLY(CallStackEntry cse("SlidePartitionDownDiagonal"))
-    View2x2( ATL, A00, A01,
-                  A10, A11 );
-    View2x1( ATR, A02, A12 );
-    View1x2( ABL, A20, A21 );
+    Merge2x2( ATL, A00, A01,
+                   A10, A11 );
+    Merge2x1( ATR, A02, A12 );
+    Merge1x2( ABL, A20, A21 );
     View( ABR, A22 );
 }
 
@@ -321,10 +321,10 @@ SlideLockedPartitionDownDiagonal
   M& ABL, M& ABR, const M& A20, const M& A21, const M& A22 )
 {
     DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionDownDiagonal"))
-    LockedView2x2( ATL, A00, A01,
-                        A10, A11 );
-    LockedView2x1( ATR, A02, A12 );
-    LockedView1x2( ABL, A20, A21 );
+    LockedMerge2x2( ATL, A00, A01,
+                         A10, A11 );
+    LockedMerge2x1( ATR, A02, A12 );
+    LockedMerge1x2( ABL, A20, A21 );
     LockedView( ABR, A22 );
 }
 
@@ -336,10 +336,10 @@ SlideLockedPartitionDownDiagonal
   DM& ABL, DM& ABR, const DM& A20, const DM& A21, const DM& A22 )
 {
     DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionDownDiagonal"))
-    LockedView2x2( ATL, A00, A01,
-                        A10, A11 );
-    LockedView2x1( ATR, A02, A12 );
-    LockedView1x2( ABL, A20, A21 );
+    LockedMerge2x2( ATL, A00, A01,
+                         A10, A11 );
+    LockedMerge2x1( ATR, A02, A12 );
+    LockedMerge1x2( ABL, A20, A21 );
     LockedView( ABR, A22 );
 }
 
