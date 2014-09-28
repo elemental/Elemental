@@ -15,14 +15,6 @@ namespace trr2k {
 
 #ifndef EL_RELEASE
 
-void EnsureSame
-( const Grid& gA, const Grid& gB, const Grid& gC, 
-  const Grid& gD, const Grid& gE )
-{
-    if( gA != gB || gB != gC || gC != gD || gD != gE )
-        LogicError("Grids must be the same");
-}
-
 template<typename T>
 void EnsureConformal
 ( const DistMatrix<T,MC,STAR>& A, const DistMatrix<T>& E, std::string name )
@@ -55,16 +47,14 @@ void EnsureConformal
         LogicError(name," not conformal with E");
 }
 
-template<typename T,Distribution UA,Distribution VA,
-                    Distribution UB,Distribution VB,
-                    Distribution UC,Distribution VC,
-                    Distribution UD,Distribution VD>
+template<typename T,Dist UA,Dist VA,Dist UB,Dist VB,
+                    Dist UC,Dist VC,Dist UD,Dist VD>
 void CheckInput
 ( const DistMatrix<T,UA,VA>& A, const DistMatrix<T,UB,VB>& B, 
   const DistMatrix<T,UC,VC>& C, const DistMatrix<T,UD,VD>& D,
   const DistMatrix<T>& E )
 {
-    EnsureSame( A.Grid(), B.Grid(), C.Grid(), D.Grid(), E.Grid() );
+    AssertSameGrids( A, B, C, D, E );
     EnsureConformal( A, E, "A" );
     EnsureConformal( B, E, "B" );
     EnsureConformal( C, E, "C" );

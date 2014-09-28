@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_VIEWS_C_H
-#define EL_VIEWS_C_H
+#ifndef EL_VIEW_C_H
+#define EL_VIEW_C_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -147,4 +147,4 @@ ElError ElLockedViewFullDist_z( ElDistMatrix_z A, ElConstDistMatrix_z B );
 } // extern "C"
 #endif
 
-#endif /* ifndef EL_VIEWS_C_H */
+#endif /* ifndef EL_VIEW_C_H */

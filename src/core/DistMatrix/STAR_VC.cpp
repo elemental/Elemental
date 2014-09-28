@@ -149,8 +149,8 @@ DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("[STAR,VC] = [STAR,VR]");
+        AssertSameGrids( *this, A );
         this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
     )
     const Grid& g = this->Grid();
     this->Resize( A.Height(), A.Width() );
@@ -228,8 +228,8 @@ DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("[VC,STAR] = [CIRC,CIRC]");
+        AssertSameGrids( *this, A );
         this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
     )
     const Grid& g = A.Grid();
     const Int m = A.Height();

@@ -332,7 +332,6 @@ public:
     void AssertNotStoringData() const;
     void AssertValidEntry( Int i, Int j ) const;
     void AssertValidSubmatrix( Int i, Int j, Int height, Int width ) const;
-    void AssertSameGrid( const El::Grid& grid ) const;
     void AssertSameSize( Int height, Int width ) const;
 
 protected:

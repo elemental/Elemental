@@ -224,7 +224,7 @@ GeneralBlockDistMatrix<T,U,V>::AllGather
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::AllGather");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     LogicError("This routine is not yet written");
 }
@@ -236,7 +236,7 @@ GeneralBlockDistMatrix<T,U,V>::ColAllGather
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::ColAllGather");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     LogicError("This routine is not yet written");
 }
@@ -248,7 +248,7 @@ GeneralBlockDistMatrix<T,U,V>::RowAllGather
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::RowAllGather");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     LogicError("This routine is not yet written");
 }
@@ -260,7 +260,7 @@ GeneralBlockDistMatrix<T,U,V>::PartialColAllGather
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::PartialColAllGather");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     LogicError("This routine is not yet written");
 }
@@ -272,7 +272,7 @@ GeneralBlockDistMatrix<T,U,V>::PartialRowAllGather
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::PartialRowAllGather");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     LogicError("This routine is not yet written");
 }
@@ -284,7 +284,7 @@ GeneralBlockDistMatrix<T,U,V>::FilterFrom
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::FilterFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     LogicError("This routine is not yet written");
 }
@@ -296,7 +296,7 @@ GeneralBlockDistMatrix<T,U,V>::ColFilterFrom
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::ColFilterFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     LogicError("This routine is not yet written");
 }
@@ -308,7 +308,7 @@ GeneralBlockDistMatrix<T,U,V>::RowFilterFrom
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::RowFilterFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     LogicError("This routine is not yet written");
 }
@@ -320,7 +320,7 @@ GeneralBlockDistMatrix<T,U,V>::PartialColFilterFrom
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::PartialColFilterFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     LogicError("This routine is not yet written");
 }
@@ -332,7 +332,7 @@ GeneralBlockDistMatrix<T,U,V>::PartialRowFilterFrom
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::PartialRowFilterFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     LogicError("This routine is not yet written");
 }
@@ -344,7 +344,7 @@ GeneralBlockDistMatrix<T,U,V>::PartialColAllToAllFrom
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::PartialColAllToAllFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     LogicError("This routine is not yet written");
 }
@@ -356,7 +356,7 @@ GeneralBlockDistMatrix<T,U,V>::PartialRowAllToAllFrom
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::PartialRowAllToAllFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     LogicError("This routine is not yet written");
 }
@@ -368,7 +368,7 @@ GeneralBlockDistMatrix<T,U,V>::PartialColAllToAll
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::PartialColAllToAll");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     LogicError("This routine is not yet written");
 }
@@ -380,7 +380,7 @@ GeneralBlockDistMatrix<T,U,V>::PartialRowAllToAll
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::PartialRowAllToAll");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     LogicError("This routine is not yet written");
 }
@@ -392,7 +392,7 @@ GeneralBlockDistMatrix<T,U,V>::RowSumScatterFrom
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::RowSumScatterFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     this->AlignColsAndResize
     ( A.BlockHeight(), A.ColAlign(), A.ColCut(), A.Height(), A.Width(), 
@@ -410,7 +410,7 @@ GeneralBlockDistMatrix<T,U,V>::ColSumScatterFrom
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::ColSumScatterFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     this->AlignRowsAndResize
     ( A.BlockWidth(), A.RowAlign(), A.RowCut(), A.Height(), A.Width(),
@@ -428,7 +428,7 @@ GeneralBlockDistMatrix<T,U,V>::SumScatterFrom
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::SumScatterFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     this->Resize( A.Height(), A.Width() );
     // NOTE: This will be *slightly* slower than necessary due to the result
@@ -444,7 +444,7 @@ GeneralBlockDistMatrix<T,U,V>::PartialRowSumScatterFrom
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::PartialRowSumScatterFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     this->AlignAndResize
     ( A.BlockHeight(), A.BlockWidth(), 
@@ -463,7 +463,7 @@ GeneralBlockDistMatrix<T,U,V>::PartialColSumScatterFrom
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::PartialColSumScatterFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     this->AlignAndResize
     ( A.BlockHeight(), A.BlockWidth(), 
@@ -482,8 +482,8 @@ GeneralBlockDistMatrix<T,U,V>::RowSumScatterUpdate
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::RowSumScatterUpdate");
+        AssertSameGrids( *this, A );
         this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
         this->AssertSameSize( A.Height(), A.Width() );
     )
     if( !this->Participating() )
@@ -499,8 +499,8 @@ GeneralBlockDistMatrix<T,U,V>::ColSumScatterUpdate
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::ColSumScatterUpdate");
+        AssertSameGrids( *this, A );
         this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
         this->AssertSameSize( A.Height(), A.Width() );
     )
     LogicError("This routine is not yet written");
@@ -513,8 +513,8 @@ GeneralBlockDistMatrix<T,U,V>::SumScatterUpdate
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::SumScatterUpdate");
+        AssertSameGrids( *this, A );
         this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
         this->AssertSameSize( A.Height(), A.Width() );
     )
     if( !this->Participating() )
@@ -529,8 +529,8 @@ GeneralBlockDistMatrix<T,U,V>::PartialRowSumScatterUpdate
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::PartialRowSumScatterUpdate");
+        AssertSameGrids( *this, A );
         this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
         this->AssertSameSize( A.Height(), A.Width() );
     )
     if( !this->Participating() )
@@ -546,8 +546,8 @@ GeneralBlockDistMatrix<T,U,V>::PartialColSumScatterUpdate
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::PartialColSumScatterUpdate");
+        AssertSameGrids( *this, A );
         this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
         this->AssertSameSize( A.Height(), A.Width() );
     )
     if( !this->Participating() )

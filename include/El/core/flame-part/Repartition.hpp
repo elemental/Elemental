@@ -7,16 +7,16 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_VIEWS_REPARTITION_HPP
-#define EL_VIEWS_REPARTITION_HPP
+#ifndef EL_FLAMEPART_REPARTITION_HPP
+#define EL_FLAMEPART_REPARTITION_HPP
 
 #include "./Partition.hpp"
 
 namespace El {
 
 // To make our life easier. Undef'd at the bottom of the header
-#define M  Matrix<T>
-#define DM DistMatrix<T,U,V>
+#define M   Matrix<T>
+#define ADM AbstractDistMatrix<T>
 
 // Repartition upwards from the bottom
 // ===================================
@@ -33,14 +33,18 @@ RepartitionUp
     View( A2, AB );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 RepartitionUp
-( DM& AT, DM& A0,
-          DM& A1,
-  DM& AB, DM& A2, Int A1Height=Blocksize() )
+( ADM& AT, ADM& A0,
+           ADM& A1,
+  ADM& AB, ADM& A2, Int A1Height=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("RepartitionUp"))
+    DEBUG_ONLY(
+      CallStackEntry cse("RepartitionUp");
+      AssertSameGrids( AT, AB, A0, A1, A2 );
+      AssertSameDists( AT, AB, A0, A1, A2 );
+    )
     PartitionUp( AT, A0, A1, A1Height );
     View( A2, AB );
 }
@@ -57,14 +61,18 @@ LockedRepartitionUp
     LockedView( A2, AB );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 LockedRepartitionUp
-( const DM& AT, DM& A0,
-                DM& A1,
-  const DM& AB, DM& A2, Int A1Height=Blocksize() )
+( const ADM& AT, ADM& A0,
+                 ADM& A1,
+  const ADM& AB, ADM& A2, Int A1Height=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionUp"))
+    DEBUG_ONLY(
+      CallStackEntry cse("LockedRepartitionUp");
+      AssertSameGrids( AT, AB, A0, A1, A2 );
+      AssertSameDists( AT, AB, A0, A1, A2 );
+    )
     LockedPartitionUp( AT, A0, A1, A1Height );
     LockedView( A2, AB );
 }
@@ -84,14 +92,18 @@ RepartitionDown
     PartitionDown( AB, A1, A2, A1Height );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 RepartitionDown
-( DM& AT, DM& A0,
-          DM& A1,
-  DM& AB, DM& A2, Int A1Height=Blocksize() )
+( ADM& AT, ADM& A0,
+           ADM& A1,
+  ADM& AB, ADM& A2, Int A1Height=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("RepartitionDown"))
+    DEBUG_ONLY(
+      CallStackEntry cse("RepartitionDown");
+      AssertSameGrids( AT, AB, A0, A1, A2 );
+      AssertSameDists( AT, AB, A0, A1, A2 );
+    )
     View( A0, AT );
     PartitionDown( AB, A1, A2, A1Height );
 }
@@ -108,14 +120,18 @@ LockedRepartitionDown
     LockedPartitionDown( AB, A1, A2, A1Height );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 LockedRepartitionDown
-( const DM& AT, DM& A0,
-                DM& A1,
-  const DM& AB, DM& A2, Int A1Height=Blocksize() )
+( const ADM& AT, ADM& A0,
+                 ADM& A1,
+  const ADM& AB, ADM& A2, Int A1Height=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionDown"))
+    DEBUG_ONLY(
+      CallStackEntry cse("LockedRepartitionDown");
+      AssertSameGrids( AT, AB, A0, A1, A2 );
+      AssertSameDists( AT, AB, A0, A1, A2 );
+    )
     LockedView( A0, AT );
     LockedPartitionDown( AB, A1, A2, A1Height );
 }
@@ -134,13 +150,17 @@ RepartitionLeft
     View( A2, AR );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 RepartitionLeft
-( DM& AL, DM& AR,
-  DM& A0, DM& A1, DM& A2, Int A1Width=Blocksize() )
+( ADM& AL, ADM& AR,
+  ADM& A0, ADM& A1, ADM& A2, Int A1Width=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("RepartitionLeft"))
+    DEBUG_ONLY(
+      CallStackEntry cse("RepartitionLeft");
+      AssertSameGrids( AL, AR, A0, A1, A2 );
+      AssertSameDists( AL, AR, A0, A1, A2 );
+    )
     PartitionLeft( AL, A0, A1, A1Width );
     View( A2, AR );
 }
@@ -156,13 +176,17 @@ LockedRepartitionLeft
     LockedView( A2, AR );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 LockedRepartitionLeft
-( const DM& AL, const DM& AR,
-  DM& A0, DM& A1, DM& A2, Int A1Width=Blocksize() )
+( const ADM& AL, const ADM& AR,
+  ADM& A0, ADM& A1, ADM& A2, Int A1Width=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionLeft"))
+    DEBUG_ONLY(
+      CallStackEntry cse("LockedRepartitionLeft");
+      AssertSameGrids( AL, AR, A0, A1, A2 );
+      AssertSameDists( AL, AR, A0, A1, A2 );
+    )
     LockedPartitionLeft( AL, A0, A1, A1Width );
     LockedView( A2, AR );
 }
@@ -181,13 +205,17 @@ RepartitionRight
     PartitionRight( AR, A1, A2, A1Width );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 RepartitionRight
-( DM& AL, DM& AR,
-  DM& A0, DM& A1, DM& A2, Int A1Width=Blocksize() )
+( ADM& AL, ADM& AR,
+  ADM& A0, ADM& A1, ADM& A2, Int A1Width=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("RepartitionRight"))
+    DEBUG_ONLY(
+      CallStackEntry cse("RepartitionRight");
+      AssertSameGrids( AL, AR, A0, A1, A2 );
+      AssertSameDists( AL, AR, A0, A1, A2 );
+    )
     View( A0, AL );
     PartitionRight( AR, A1, A2, A1Width );
 }
@@ -203,13 +231,17 @@ LockedRepartitionRight
     LockedPartitionRight( AR, A1, A2, A1Width );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 LockedRepartitionRight
-( const DM& AL, const DM& AR,
-  DM& A0, DM& A1, DM& A2, Int A1Width=Blocksize() )
+( const ADM& AL, const ADM& AR,
+  ADM& A0, ADM& A1, ADM& A2, Int A1Width=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionRight"))
+    DEBUG_ONLY(
+      CallStackEntry cse("LockedRepartitionRight");
+      AssertSameGrids( AL, AR, A0, A1, A2 );
+      AssertSameDists( AL, AR, A0, A1, A2 );
+    )
     LockedView( A0, AL );
     LockedPartitionRight( AR, A1, A2, A1Width );
 }
@@ -234,14 +266,20 @@ RepartitionUpDiagonal
     View( A22, ABR );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 RepartitionUpDiagonal
-( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
-                    DM& A10, DM& A11, DM& A12,
-  DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22, Int bsize=Blocksize() )
+( ADM& ATL, ADM& ATR, ADM& A00, ADM& A01, ADM& A02,
+                      ADM& A10, ADM& A11, ADM& A12,
+  ADM& ABL, ADM& ABR, ADM& A20, ADM& A21, ADM& A22, Int bsize=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("RepartitionUpDiagonal"))
+    DEBUG_ONLY(
+      CallStackEntry cse("RepartitionUpDiagonal");
+      AssertSameGrids
+      ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
+      AssertSameDists
+      ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
+    )
     PartitionUpOffsetDiagonal
     ( ATL.Width()-ATL.Height(),
       ATL, A00, A01,
@@ -268,15 +306,21 @@ LockedRepartitionUpDiagonal
     LockedView( A22, ABR );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 LockedRepartitionUpDiagonal
-( const DM& ATL, const DM& ATR, DM& A00, DM& A01, DM& A02,
-                                DM& A10, DM& A11, DM& A12,
-  const DM& ABL, const DM& ABR, DM& A20, DM& A21, DM& A22, 
+( const ADM& ATL, const ADM& ATR, ADM& A00, ADM& A01, ADM& A02,
+                                  ADM& A10, ADM& A11, ADM& A12,
+  const ADM& ABL, const ADM& ABR, ADM& A20, ADM& A21, ADM& A22, 
   Int bsize=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionUpDiagonal"))
+    DEBUG_ONLY(
+      CallStackEntry cse("LockedRepartitionUpDiagonal");
+      AssertSameGrids
+      ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
+      AssertSameDists
+      ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
+    )
     LockedPartitionUpOffsetDiagonal
     ( ATL.Width()-ATL.Height(),
       ATL, A00, A01,
@@ -304,14 +348,20 @@ RepartitionDownDiagonal
     PartitionRight( ATR, A01, A02, A11.Width() );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 RepartitionDownDiagonal
-( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
-                    DM& A10, DM& A11, DM& A12,
-  DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22, Int bsize=Blocksize() )
+( ADM& ATL, ADM& ATR, ADM& A00, ADM& A01, ADM& A02,
+                      ADM& A10, ADM& A11, ADM& A12,
+  ADM& ABL, ADM& ABR, ADM& A20, ADM& A21, ADM& A22, Int bsize=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("RepartitionDownDiagonal"))
+    DEBUG_ONLY(
+      CallStackEntry cse("RepartitionDownDiagonal");
+      AssertSameGrids
+      ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
+      AssertSameDists
+      ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
+    )
     View( A00, ATL );
     PartitionDownDiagonal( ABR, A11, A12,
                                 A21, A22, bsize );
@@ -334,15 +384,21 @@ LockedRepartitionDownDiagonal
     LockedPartitionRight( ATR, A01, A02, A11.Width() );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 LockedRepartitionDownDiagonal
-( const DM& ATL, const DM& ATR, DM& A00, DM& A01, DM& A02,
-                                DM& A10, DM& A11, DM& A12,
-  const DM& ABL, const DM& ABR, DM& A20, DM& A21, DM& A22, 
+( const ADM& ATL, const ADM& ATR, ADM& A00, ADM& A01, ADM& A02,
+                                  ADM& A10, ADM& A11, ADM& A12,
+  const ADM& ABL, const ADM& ABR, ADM& A20, ADM& A21, ADM& A22, 
   Int bsize=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionDownDiagonal"))
+    DEBUG_ONLY(
+      CallStackEntry cse("LockedRepartitionDownDiagonal");
+      AssertSameGrids
+      ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
+      AssertSameDists
+      ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
+    )
     LockedView( A00, ATL );
     LockedPartitionDownDiagonal( ABR, A11, A12,
                                       A21, A22, bsize );
@@ -350,9 +406,9 @@ LockedRepartitionDownDiagonal
     LockedPartitionRight( ATR, A01, A02, A11.Width() );
 }
 
-#undef DM
+#undef ADM
 #undef M
 
 } // namespace El
 
-#endif // ifndef EL_VIEWS_REPARTITION_HPP
+#endif // ifndef EL_FLAMEPART_REPARTITION_HPP

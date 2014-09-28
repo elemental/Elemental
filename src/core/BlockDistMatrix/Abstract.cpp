@@ -1795,13 +1795,6 @@ void AbstractBlockDistMatrix<T>::AssertValidSubmatrix
 }
 
 template<typename T> 
-void AbstractBlockDistMatrix<T>::AssertSameGrid( const El::Grid& grid ) const
-{
-    if( Grid() != grid )
-        LogicError("Assertion that grids match failed");
-}
-
-template<typename T> 
 void AbstractBlockDistMatrix<T>::AssertSameSize( Int height, Int width ) const
 {
     if( Height() != height || Width() != width )

@@ -99,6 +99,27 @@ inline void AssertSameGrids
     AssertSameGrids( A2, args... );
 }
 
+template<typename T>
+inline void AssertSameDists( const AbstractBlockDistMatrix<T>& A ) { }
+
+template<typename T>
+inline void AssertSameDists
+( const AbstractBlockDistMatrix<T>& A1, const AbstractBlockDistMatrix<T>& A2 ) 
+{
+    if( A1.ColDist() != A2.ColDist() || A1.RowDist() != A2.RowDist() )
+        LogicError("Distributions did not match");
+}
+
+template<typename T,typename... Args>
+inline void AssertSameDists
+( const AbstractBlockDistMatrix<T>& A1, const AbstractBlockDistMatrix<T>& A2, 
+  Args&... args )
+{
+    if( A1.ColDist() != A2.ColDist() || A1.RowDist() != A2.RowDist() )
+        LogicError("Distributions did not match");
+    AssertSameDists( A2, args... );
+}
+
 } // namespace El
 
 #endif // ifndef EL_BLOCKDISTMATRIX_HPP

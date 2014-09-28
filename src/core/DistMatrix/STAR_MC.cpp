@@ -86,8 +86,8 @@ DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("[STAR,MC] = [STAR,MR]");
+        AssertSameGrids( *this, A );
         this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
     )
     const El::Grid& g = this->Grid();
     if( A.Height() == 1 )

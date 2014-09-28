@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_VIEWS_MERGE_HPP
-#define EL_VIEWS_MERGE_HPP
+#ifndef EL_FLAMEPART_MERGE_HPP
+#define EL_FLAMEPART_MERGE_HPP
 
 namespace El {
 
@@ -81,10 +81,9 @@ inline void Merge1x2
 {
     DEBUG_ONLY(
         CallStackEntry cse("Merge1x2");
-        AssertSameDist( A.DistData(), BL.DistData() );
-        AssertSameDist( BL.DistData(), BR.DistData() );
+        AssertSameGrids( A, BL, BR );
+        AssertSameDists( A, BL, BR );
         AssertConforming1x2( BL, BR );
-        BL.AssertSameGrid( BR.Grid() );
     )
     A.Attach
     ( BL.Height(), BL.Width()+BR.Width(), BL.Grid(), 
@@ -98,10 +97,9 @@ inline void LockedMerge1x2
 {
     DEBUG_ONLY(
         CallStackEntry cse("LockedMerge1x2");
-        AssertSameDist( A.DistData(), BL.DistData() );
-        AssertSameDist( BL.DistData(), BR.DistData() );
+        AssertSameGrids( A, BL, BR );
+        AssertSameDists( A, BL, BR );
         AssertConforming1x2( BL, BR );
-        BL.AssertSameGrid( BR.Grid() );
     )
     A.LockedAttach
     ( BL.Height(), BL.Width()+BR.Width(), BL.Grid(), 
@@ -197,10 +195,9 @@ inline void Merge2x1
 {
     DEBUG_ONLY(
         CallStackEntry cse("Merge2x1");
-        AssertSameDist( A.DistData(), BT.DistData() );
-        AssertSameDist( BT.DistData(), BB.DistData() );
+        AssertSameGrids( A, BT, BB );
+        AssertSameDists( A, BT, BB );
         AssertConforming2x1( BT, BB );
-        BT.AssertSameGrid( BB.Grid() );
     )
     A.Attach
     ( BT.Height()+BB.Height(), BT.Width(), BT.Grid(), 
@@ -215,10 +212,9 @@ inline void LockedMerge2x1
 {
     DEBUG_ONLY(
         CallStackEntry cse("LockedMerge2x1");
-        AssertSameDist( A.DistData(), BT.DistData() );
-        AssertSameDist( BT.DistData(), BB.DistData() );
+        AssertSameGrids( A, BT, BB );
+        AssertSameDists( A, BT, BB );
         AssertConforming2x1( BT, BB );
-        BT.AssertSameGrid( BB.Grid() );
     )
     A.LockedAttach
     ( BT.Height()+BB.Height(), BT.Width(), BT.Grid(), 
@@ -341,14 +337,9 @@ inline void Merge2x2
 {
     DEBUG_ONLY(
         CallStackEntry cse("Merge2x2");
-        AssertSameDist( A.DistData(), BTL.DistData() );
-        AssertSameDist( BTL.DistData(), BTR.DistData() );
-        AssertSameDist( BTR.DistData(), BBL.DistData() );
-        AssertSameDist( BBL.DistData(), BBR.DistData() );
+        AssertSameGrids( A, BTL, BTR, BBL, BBR );
+        AssertSameDists( A, BTL, BTR, BBL, BBR );
         AssertConforming2x2( BTL, BTR, BBL, BBR );
-        BTL.AssertSameGrid( BTR.Grid() );
-        BTL.AssertSameGrid( BBL.Grid() );
-        BTL.AssertSameGrid( BBR.Grid() );
     )
     A.Attach
     ( BTL.Height()+BBL.Height(), BTL.Width()+BTR.Width(), BTL.Grid(),
@@ -363,14 +354,9 @@ inline void LockedMerge2x2
 {
     DEBUG_ONLY(
         CallStackEntry cse("LockedMerge2x2");
-        AssertSameDist( A.DistData(), BTL.DistData() );
-        AssertSameDist( BTL.DistData(), BTR.DistData() );
-        AssertSameDist( BTR.DistData(), BBL.DistData() );
-        AssertSameDist( BBL.DistData(), BBR.DistData() );
+        AssertSameGrids( A, BTL, BTR, BBL, BBR );
+        AssertSameDists( A, BTL, BTR, BBL, BBR );
         AssertConforming2x2( BTL, BTR, BBL, BBR );
-        BTL.AssertSameGrid( BTR.Grid() );
-        BTL.AssertSameGrid( BBL.Grid() );
-        BTL.AssertSameGrid( BBR.Grid() );
     )
     A.LockedAttach
     ( BTL.Height()+BBL.Height(), BTL.Width()+BTR.Width(), BTL.Grid(),
@@ -403,4 +389,4 @@ inline DistMatrix<T,U,V> LockedMerge2x2
 
 } // namespace El
 
-#endif // ifndef EL_VIEWS_MERGE_HPP
+#endif // ifndef EL_FLAMEPART_MERGE_HPP

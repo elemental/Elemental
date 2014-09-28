@@ -7,16 +7,14 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_VIEWS_PARTITION_HPP
-#define EL_VIEWS_PARTITION_HPP
-
-#include "./View.hpp"
+#ifndef EL_FLAMEPART_PARTITION_HPP
+#define EL_FLAMEPART_PARTITION_HPP
 
 namespace El {
 
 // To make our life easier. Undef'd at the bottom of the header
-#define M  Matrix<T>
-#define DM DistMatrix<T,U,V>
+#define M   Matrix<T>
+#define ADM AbstractDistMatrix<T>
 
 // Partition downwards from the top
 // ================================
@@ -34,13 +32,17 @@ PartitionDown
     View( AB, A, heightAT, 0, heightAB, A.Width() );
 }
 
-template<typename T, Dist U, Dist V>
+template<typename T>
 inline void
 PartitionDown
-( DM& A, DM& AT,
-         DM& AB, Int heightAT=Blocksize() )
+( ADM& A, ADM& AT,
+          ADM& AB, Int heightAT=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("PartitionDown"))
+    DEBUG_ONLY(
+      CallStackEntry cse("PartitionDown");
+      AssertSameGrids( A, AT, AB );
+      AssertSameDists( A, AT, AB );
+    )
     heightAT = Max(Min(heightAT,A.Height()),0);
     const Int heightAB = A.Height()-heightAT;
     View( AT, A, 0,        0, heightAT, A.Width() );
@@ -60,13 +62,17 @@ LockedPartitionDown
     LockedView( AB, A, heightAT, 0, heightAB, A.Width() );
 }
 
-template<typename T, Dist U, Dist V>
+template<typename T>
 inline void
 LockedPartitionDown
-( const DM& A, DM& AT,
-               DM& AB, Int heightAT=Blocksize() )
+( const ADM& A, ADM& AT,
+                ADM& AB, Int heightAT=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionDown"))
+    DEBUG_ONLY(
+      CallStackEntry cse("LockedPartitionDown");
+      AssertSameGrids( A, AT, AB );
+      AssertSameDists( A, AT, AB );
+    )
     heightAT = Max(Min(heightAT,A.Height()),0);
     const Int heightAB = A.Height()-heightAT;
     LockedView( AT, A, 0,        0, heightAT, A.Width() );
@@ -86,13 +92,17 @@ PartitionUp
     PartitionDown( A, AT, AB, A.Height()-heightAB );
 }
 
-template<typename T, Dist U, Dist V>
+template<typename T>
 inline void
 PartitionUp
-( DM& A, DM& AT,
-         DM& AB, Int heightAB=Blocksize() )
+( ADM& A, ADM& AT,
+          ADM& AB, Int heightAB=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("PartitionUp"))
+    DEBUG_ONLY(
+      CallStackEntry cse("PartitionUp");
+      AssertSameGrids( A, AT, AB );
+      AssertSameDists( A, AT, AB );
+    )
     PartitionDown( A, AT, AB, A.Height()-heightAB );
 }
 
@@ -106,13 +116,17 @@ LockedPartitionUp
     LockedPartitionDown( A, AT, AB, A.Height()-heightAB );
 }
 
-template<typename T, Dist U, Dist V>
+template<typename T>
 inline void
 LockedPartitionUp
-( const DM& A, DM& AT,
-               DM& AB, Int heightAB=Blocksize() )
+( const ADM& A, ADM& AT,
+                ADM& AB, Int heightAB=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionUp"))
+    DEBUG_ONLY(
+      CallStackEntry cse("LockedPartitionUp");
+      AssertSameGrids( A, AT, AB );
+      AssertSameDists( A, AT, AB );
+    )
     LockedPartitionDown( A, AT, AB, A.Height()-heightAB );
 }
 
@@ -130,11 +144,15 @@ PartitionRight( M& A, M& AL, M& AR, Int widthAL=Blocksize() )
     View( AR, A, 0, widthAL, A.Height(), widthAR );
 }
 
-template<typename T, Dist U, Dist V>
+template<typename T>
 inline void
-PartitionRight( DM& A, DM& AL, DM& AR, Int widthAL=Blocksize() )
+PartitionRight( ADM& A, ADM& AL, ADM& AR, Int widthAL=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("PartitionRight"))
+    DEBUG_ONLY(
+      CallStackEntry cse("PartitionRight");
+      AssertSameGrids( A, AL, AR );
+      AssertSameDists( A, AL, AR );
+    )
     widthAL = Max(Min(widthAL,A.Width()),0);
     const Int widthAR = A.Width()-widthAL;
     View( AL, A, 0, 0,       A.Height(), widthAL );
@@ -152,11 +170,15 @@ LockedPartitionRight( const M& A, M& AL, M& AR, Int widthAL=Blocksize() )
     LockedView( AR, A, 0, widthAL, A.Height(), widthAR );
 }
 
-template<typename T, Dist U, Dist V>
+template<typename T>
 inline void
-LockedPartitionRight( const DM& A, DM& AL, DM& AR, Int widthAL=Blocksize() )
+LockedPartitionRight( const ADM& A, ADM& AL, ADM& AR, Int widthAL=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionRight"))
+    DEBUG_ONLY(
+      CallStackEntry cse("LockedPartitionRight");
+      AssertSameGrids( A, AL, AR );
+      AssertSameDists( A, AL, AR );
+    )
     widthAL = Max(Min(widthAL,A.Width()),0);
     const Int widthAR = A.Width()-widthAL;
     LockedView( AL, A, 0, 0,       A.Height(), widthAL );
@@ -174,11 +196,15 @@ PartitionLeft( M& A, M& AL, M& AR, Int widthAR=Blocksize() )
     PartitionRight( A, AL, AR, A.Width()-widthAR );
 }
 
-template<typename T, Dist U, Dist V>
+template<typename T>
 inline void
-PartitionLeft( DM& A, DM& AL, DM& AR, Int widthAR=Blocksize() )
+PartitionLeft( ADM& A, ADM& AL, ADM& AR, Int widthAR=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("PartitionLeft"))
+    DEBUG_ONLY(
+      CallStackEntry cse("PartitionLeft");
+      AssertSameGrids( A, AL, AR );
+      AssertSameDists( A, AL, AR );
+    )
     PartitionRight( A, AL, AR, A.Width()-widthAR );
 }
 
@@ -190,11 +216,15 @@ LockedPartitionLeft( const M& A, M& AL, M& AR, Int widthAR=Blocksize() )
     LockedPartitionRight( A, AL, AR, A.Width()-widthAR );
 }
 
-template<typename T, Dist U, Dist V>
+template<typename T>
 inline void
-LockedPartitionLeft( const DM& A, DM& AL, DM& AR, Int widthAR=Blocksize() )
+LockedPartitionLeft( const ADM& A, ADM& AL, ADM& AR, Int widthAR=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionLeft"))
+    DEBUG_ONLY(
+      CallStackEntry cse("LockedPartitionLeft");
+      AssertSameGrids( A, AL, AR );
+      AssertSameDists( A, AL, AR );
+    )
     LockedPartitionRight( A, AL, AR, A.Width()-widthAR );
 }
 
@@ -222,14 +252,18 @@ PartitionDownOffsetDiagonal
     View( ABR, A, mCut, nCut, m-mCut, n-nCut );
 }
 
-template<typename T, Dist U, Dist V>
+template<typename T>
 inline void
 PartitionDownOffsetDiagonal
 ( Int offset,
-  DM& A, DM& ATL, DM& ATR,
-         DM& ABL, DM& ABR, Int diagDist=Blocksize() )
+  ADM& A, ADM& ATL, ADM& ATR,
+          ADM& ABL, ADM& ABR, Int diagDist=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("PartitionDownOffsetDiagonal"))
+    DEBUG_ONLY(
+      CallStackEntry cse("PartitionDownOffsetDiagonal");
+      AssertSameGrids( A, ATL, ATR, ABL, ABR );
+      AssertSameDists( A, ATL, ATR, ABL, ABR );
+    )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int diagLength = A.DiagonalLength(offset);
@@ -264,14 +298,18 @@ LockedPartitionDownOffsetDiagonal
     LockedView( ABR, A, mCut, nCut, m-mCut, n-nCut );
 }
 
-template<typename T, Dist U, Dist V>
+template<typename T>
 inline void
 LockedPartitionDownOffsetDiagonal
 ( Int offset,
-  const DM& A, DM& ATL, DM& ATR,
-               DM& ABL, DM& ABR, Int diagDist=Blocksize() )
+  const ADM& A, ADM& ATL, ADM& ATR,
+                ADM& ABL, ADM& ABR, Int diagDist=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionDownOffsetDiagonal"))
+    DEBUG_ONLY(
+      CallStackEntry cse("LockedPartitionDownOffsetDiagonal");
+      AssertSameGrids( A, ATL, ATR, ABL, ABR );
+      AssertSameDists( A, ATL, ATR, ABL, ABR );
+    )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int diagLength = A.DiagonalLength(offset);
@@ -300,14 +338,18 @@ PartitionUpOffsetDiagonal
     ( offset, A, ATL, ATR, ABL, ABR, A.DiagonalLength(offset)-diagDist );
 }
 
-template<typename T, Dist U, Dist V>
+template<typename T>
 inline void
 PartitionUpOffsetDiagonal
 ( Int offset,
-  DM& A, DM& ATL, DM& ATR,
-         DM& ABL, DM& ABR, Int diagDist=Blocksize() )
+  ADM& A, ADM& ATL, ADM& ATR,
+          ADM& ABL, ADM& ABR, Int diagDist=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("PartitionUpOffsetDiagonal"))
+    DEBUG_ONLY(
+      CallStackEntry cse("PartitionUpOffsetDiagonal");
+      AssertSameGrids( A, ATL, ATR, ABL, ABR );
+      AssertSameDists( A, ATL, ATR, ABL, ABR );
+    )
     PartitionDownOffsetDiagonal
     ( offset, A, ATL, ATR, ABL, ABR, A.DiagonalLength(offset)-diagDist );
 }
@@ -324,14 +366,18 @@ LockedPartitionUpOffsetDiagonal
     ( offset, A, ATL, ATR, ABL, ABR, A.DiagonalLength(offset)-diagDist );
 }
 
-template<typename T, Dist U, Dist V>
+template<typename T>
 inline void
 LockedPartitionUpOffsetDiagonal
 ( Int offset,
-  const DM& A, DM& ATL, DM& ATR,
-               DM& ABL, DM& ABR, Int diagDist=Blocksize() )
+  const ADM& A, ADM& ATL, ADM& ATR,
+                ADM& ABL, ADM& ABR, Int diagDist=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionUpOffsetDiagonal"))
+    DEBUG_ONLY(
+      CallStackEntry cse("LockedPartitionUpOffsetDiagonal");
+      AssertSameGrids( A, ATL, ATR, ABL, ABR );
+      AssertSameDists( A, ATL, ATR, ABL, ABR );
+    )
     LockedPartitionDownOffsetDiagonal
     ( offset, A, ATL, ATR, ABL, ABR, A.DiagonalLength(offset)-diagDist );
 }
@@ -349,13 +395,17 @@ PartitionDownDiagonal
     PartitionDownOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
-template<typename T, Dist U, Dist V>
+template<typename T>
 inline void
 PartitionDownDiagonal
-( DM& A, DM& ATL, DM& ATR,
-         DM& ABL, DM& ABR, Int diagDist=Blocksize() )
+( ADM& A, ADM& ATL, ADM& ATR,
+          ADM& ABL, ADM& ABR, Int diagDist=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("PartitionDownDiagonal"))
+    DEBUG_ONLY(
+      CallStackEntry cse("PartitionDownDiagonal");
+      AssertSameGrids( A, ATL, ATR, ABL, ABR );
+      AssertSameDists( A, ATL, ATR, ABL, ABR );
+    )
     PartitionDownOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
@@ -369,13 +419,17 @@ LockedPartitionDownDiagonal
     LockedPartitionDownOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
-template<typename T, Dist U, Dist V>
+template<typename T>
 inline void
 LockedPartitionDownDiagonal
-( const DM& A, DM& ATL, DM& ATR,
-               DM& ABL, DM& ABR, Int diagDist=Blocksize() )
+( const ADM& A, ADM& ATL, ADM& ATR,
+                ADM& ABL, ADM& ABR, Int diagDist=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionDownDiagonal"))
+    DEBUG_ONLY(
+      CallStackEntry cse("LockedPartitionDownDiagonal");
+      AssertSameGrids( A, ATL, ATR, ABL, ABR );
+      AssertSameDists( A, ATL, ATR, ABL, ABR );
+    )
     LockedPartitionDownOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
@@ -392,13 +446,17 @@ PartitionUpDiagonal
     PartitionUpOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
-template<typename T, Dist U, Dist V>
+template<typename T>
 inline void
 PartitionUpDiagonal
-( DM& A, DM& ATL, DM& ATR,
-         DM& ABL, DM& ABR, Int diagDist=Blocksize() )
+( ADM& A, ADM& ATL, ADM& ATR,
+          ADM& ABL, ADM& ABR, Int diagDist=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("PartitionUpDiagonal"))
+    DEBUG_ONLY(
+      CallStackEntry cse("PartitionUpDiagonal");
+      AssertSameGrids( A, ATL, ATR, ABL, ABR );
+      AssertSameDists( A, ATL, ATR, ABL, ABR );
+    )
     PartitionUpOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
@@ -412,19 +470,23 @@ LockedPartitionUpDiagonal
     LockedPartitionUpOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
-template<typename T, Dist U, Dist V>
+template<typename T>
 inline void
 LockedPartitionUpDiagonal
-( const DM& A, DM& ATL, DM& ATR,
-               DM& ABL, DM& ABR, Int diagDist=Blocksize() )
+( const ADM& A, ADM& ATL, ADM& ATR,
+                ADM& ABL, ADM& ABR, Int diagDist=Blocksize() )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionUpDiagonal"))
+    DEBUG_ONLY(
+      CallStackEntry cse("LockedPartitionUpDiagonal");
+      AssertSameGrids( A, ATL, ATR, ABL, ABR );
+      AssertSameDists( A, ATL, ATR, ABL, ABR );
+    )
     LockedPartitionUpOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
-#undef DM
+#undef ADM
 #undef M
 
 } // namespace El
 
-#endif // ifndef EL_VIEWS_PARTITION_HPP
+#endif // ifndef EL_FLAMEPART_PARTITION_HPP

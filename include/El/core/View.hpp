@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_VIEWS_VIEW_HPP
-#define EL_VIEWS_VIEW_HPP
+#ifndef EL_VIEW_HPP
+#define EL_VIEW_HPP
 
 namespace El {
 
@@ -342,4 +342,4 @@ inline DistMatrix<T,U,V> LockedView
 
 } // namespace El
 
-#endif // ifndef EL_VIEWS_VIEW_HPP
+#endif // ifndef EL_VIEW_HPP

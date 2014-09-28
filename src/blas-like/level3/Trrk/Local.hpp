@@ -15,12 +15,6 @@ namespace trrk {
 
 #ifndef EL_RELEASE
 
-void EnsureSame( const Grid& gA, const Grid& gB, const Grid& gC )
-{
-    if( gA != gB || gB != gC )
-        LogicError("Grids must be the same");
-}
-
 template<typename T>
 void EnsureConformal
 ( const DistMatrix<T,MC,STAR>& A, const DistMatrix<T>& C, std::string name )
@@ -53,13 +47,12 @@ void EnsureConformal
         LogicError(name," not conformal with C");
 }
 
-template<typename T,Distribution UA,Distribution VA,
-                    Distribution UB,Distribution VB>
+template<typename T,Dist UA,Dist VA,Dist UB,Dist VB>
 void CheckInput
 ( const DistMatrix<T,UA,VA>& A, const DistMatrix<T,UB,VB>& B,
   const DistMatrix<T>& C )
 {
-    EnsureSame( A.Grid(), B.Grid(), C.Grid() );
+    AssertSameGrids( A, B, C );
     EnsureConformal( A, C, "A" );
     EnsureConformal( B, C, "B" );
 }

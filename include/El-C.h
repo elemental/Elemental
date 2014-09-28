@@ -19,7 +19,7 @@
 #include "El/core/Grid-C.h"
 #include "El/core/Matrix-C.h"
 #include "El/core/DistMatrix-C.h"
-#include "El/core/views-C.h"
+#include "El/core/View-C.h"
 
 #include "El/io-C.h"
 

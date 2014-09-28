@@ -7,17 +7,14 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_VIEWS_SLIDEPARTITION_HPP
-#define EL_VIEWS_SLIDEPARTITION_HPP
-
-#include "./View.hpp"
+#ifndef EL_FLAMEPART_SLIDEPARTITION_HPP
+#define EL_FLAMEPART_SLIDEPARTITION_HPP
 
 namespace El {
 
 // To make our life easier. Undef'd at the bottom of the header
 #define M   Matrix<T>
 #define ADM AbstractDistMatrix<T>
-#define DM  DistMatrix<T,U,V>
 
 // Slide a partition upward
 // ========================
@@ -41,7 +38,11 @@ SlidePartitionUp
            ADM& A1,
   ADM& AB, ADM& A2 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlidePartitionUp"))
+    DEBUG_ONLY(
+      CallStackEntry cse("SlidePartitionUp");
+      AssertSameGrids( AT, AB, A0, A1, A2 );
+      AssertSameDists( AT, AB, A0, A1, A2 );
+    )
     View( AT, A0 );
     Merge2x1( AB, A1, A2 );
 }
@@ -65,7 +66,11 @@ SlideLockedPartitionUp
            const ADM& A1,
   ADM& AB, const ADM& A2 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionUp"))
+    DEBUG_ONLY(
+      CallStackEntry cse("SlideLockedPartitionUp");
+      AssertSameGrids( AT, AB, A0, A1, A2 );
+      AssertSameDists( AT, AB, A0, A1, A2 );
+    )
     LockedView( AT, A0 );
     LockedMerge2x1( AB, A1, A2 );
 }
@@ -92,7 +97,11 @@ SlidePartitionDown
            ADM& A1,
   ADM& AB, ADM& A2 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlidePartitionDown"))
+    DEBUG_ONLY(
+      CallStackEntry cse("SlidePartitionDown");
+      AssertSameGrids( AT, AB, A0, A1, A2 );
+      AssertSameDists( AT, AB, A0, A1, A2 );
+    )
     Merge2x1( AT, A0, A1 );
     View( AB, A2 );
 }
@@ -116,12 +125,14 @@ SlideLockedPartitionDown
            const ADM& A1,
   ADM& AB, const ADM& A2 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionDown"))
+    DEBUG_ONLY(
+      CallStackEntry cse("SlideLockedPartitionDown");
+      AssertSameGrids( AT, AB, A0, A1, A2 );
+      AssertSameDists( AT, AB, A0, A1, A2 );
+    )
     LockedMerge2x1( AT, A0, A1 );
     LockedView( AB, A2 );
 }
-
-// HERE
 
 // Slide a partition leftward
 // ==========================
@@ -137,13 +148,17 @@ SlidePartitionLeft
     Merge1x2( AR, A1, A2 );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 SlidePartitionLeft
-( DM& AL, DM& AR,
-  DM& A0, DM& A1, DM& A2 )
+( ADM& AL, ADM& AR,
+  ADM& A0, ADM& A1, ADM& A2 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlidePartitionLeft"))
+    DEBUG_ONLY(
+      CallStackEntry cse("SlidePartitionLeft");
+      AssertSameGrids( AL, AR, A0, A1, A2 );
+      AssertSameDists( AL, AR, A0, A1, A2 );
+    )
     View( AL, A0 );
     Merge1x2( AR, A1, A2 );
 }
@@ -159,13 +174,17 @@ SlideLockedPartitionLeft
     LockedMerge1x2( AR, A1, A2 );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 SlideLockedPartitionLeft
-( DM& AL, DM& AR,
-  const DM& A0, const DM& A1, const DM& A2 )
+( ADM& AL, ADM& AR,
+  const ADM& A0, const ADM& A1, const ADM& A2 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionLeft"))
+    DEBUG_ONLY(
+      CallStackEntry cse("SlideLockedPartitionLeft");
+      AssertSameGrids( AL, AR, A0, A1, A2 );
+      AssertSameDists( AL, AR, A0, A1, A2 );
+    )
     LockedView( AL, A0 );
     LockedMerge1x2( AR, A1, A2 );
 }
@@ -184,13 +203,17 @@ SlidePartitionRight
     View( AR, A2 );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 SlidePartitionRight
-( DM& AL, DM& AR,
-  DM& A0, DM& A1, DM& A2 )
+( ADM& AL, ADM& AR,
+  ADM& A0, ADM& A1, ADM& A2 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlidePartitionRight"))
+    DEBUG_ONLY(
+      CallStackEntry cse("SlidePartitionRight");
+      AssertSameGrids( AL, AR, A0, A1, A2 );
+      AssertSameDists( AL, AR, A0, A1, A2 );
+    )
     Merge1x2( AL, A0, A1 );
     View( AR, A2 );
 }
@@ -206,13 +229,17 @@ SlideLockedPartitionRight
     LockedView( AR, A2 );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 SlideLockedPartitionRight
-( DM& AL, DM& AR,
-  const DM& A0, const DM& A1, const DM& A2 )
+( ADM& AL, ADM& AR,
+  const ADM& A0, const ADM& A1, const ADM& A2 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionRight"))
+    DEBUG_ONLY(
+      CallStackEntry cse("SlideLockedPartitionRight");
+      AssertSameGrids( AL, AR, A0, A1, A2 );
+      AssertSameDists( AL, AR, A0, A1, A2 );
+    )
     LockedMerge1x2( AL, A0, A1 );
     LockedView( AR, A2 );
 }
@@ -235,14 +262,20 @@ SlidePartitionUpDiagonal
                    A21, A22 );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 SlidePartitionUpDiagonal
-( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
-                    DM& A10, DM& A11, DM& A12,
-  DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22 )
+( ADM& ATL, ADM& ATR, ADM& A00, ADM& A01, ADM& A02,
+                      ADM& A10, ADM& A11, ADM& A12,
+  ADM& ABL, ADM& ABR, ADM& A20, ADM& A21, ADM& A22 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlidePartitionUpDiagonal"))
+    DEBUG_ONLY(
+      CallStackEntry cse("SlidePartitionUpDiagonal");
+      AssertSameGrids
+      ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
+      AssertSameDists
+      ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
+    )
     View( ATL, A00 );
     Merge1x2( ATR, A01, A02 );
     Merge2x1( ABL, A10, A20 );
@@ -265,14 +298,20 @@ SlideLockedPartitionUpDiagonal
                          A21, A22 );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 SlideLockedPartitionUpDiagonal
-( DM& ATL, DM& ATR, const DM& A00, const DM& A01, const DM& A02,
-                    const DM& A10, const DM& A11, const DM& A12,
-  DM& ABL, DM& ABR, const DM& A20, const DM& A21, const DM& A22 )
+( ADM& ATL, ADM& ATR, const ADM& A00, const ADM& A01, const ADM& A02,
+                      const ADM& A10, const ADM& A11, const ADM& A12,
+  ADM& ABL, ADM& ABR, const ADM& A20, const ADM& A21, const ADM& A22 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionUpDiagonal"))
+    DEBUG_ONLY(
+      CallStackEntry cse("SlideLockedPartitionUpDiagonal");
+      AssertSameGrids
+      ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
+      AssertSameDists
+      ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
+    )
     LockedView( ATL, A00 );
     LockedMerge1x2( ATR, A01, A02 );
     LockedMerge2x1( ABL, A10, A20 );
@@ -298,14 +337,20 @@ SlidePartitionDownDiagonal
     View( ABR, A22 );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 SlidePartitionDownDiagonal
-( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
-                    DM& A10, DM& A11, DM& A12,
-  DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22 )
+( ADM& ATL, ADM& ATR, ADM& A00, ADM& A01, ADM& A02,
+                      ADM& A10, ADM& A11, ADM& A12,
+  ADM& ABL, ADM& ABR, ADM& A20, ADM& A21, ADM& A22 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlidePartitionDownDiagonal"))
+    DEBUG_ONLY(
+      CallStackEntry cse("SlidePartitionDownDiagonal");
+      AssertSameGrids
+      ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
+      AssertSameDists
+      ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
+    )
     Merge2x2( ATL, A00, A01,
                    A10, A11 );
     Merge2x1( ATR, A02, A12 );
@@ -328,14 +373,20 @@ SlideLockedPartitionDownDiagonal
     LockedView( ABR, A22 );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 SlideLockedPartitionDownDiagonal
-( DM& ATL, DM& ATR, const DM& A00, const DM& A01, const DM& A02,
-                    const DM& A10, const DM& A11, const DM& A12,
-  DM& ABL, DM& ABR, const DM& A20, const DM& A21, const DM& A22 )
+( ADM& ATL, ADM& ATR, const ADM& A00, const ADM& A01, const ADM& A02,
+                      const ADM& A10, const ADM& A11, const ADM& A12,
+  ADM& ABL, ADM& ABR, const ADM& A20, const ADM& A21, const ADM& A22 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionDownDiagonal"))
+    DEBUG_ONLY(
+      CallStackEntry cse("SlideLockedPartitionDownDiagonal");
+      AssertSameGrids
+      ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
+      AssertSameDists
+      ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
+    )
     LockedMerge2x2( ATL, A00, A01,
                          A10, A11 );
     LockedMerge2x1( ATR, A02, A12 );
@@ -343,10 +394,9 @@ SlideLockedPartitionDownDiagonal
     LockedView( ABR, A22 );
 }
 
-#undef DM
 #undef ADM
 #undef M
 
 } // namespace El
 
-#endif // ifndef EL_VIEWS_SLIDEPARTITION_HPP
+#endif // ifndef EL_FLAMEPART_SLIDEPARTITION_HPP

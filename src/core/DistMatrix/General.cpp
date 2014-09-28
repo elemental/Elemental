@@ -274,7 +274,7 @@ GeneralDistMatrix<T,U,V>::ColAllGather( DistMatrix<T,UGath,V>& A ) const
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::ColAllGather");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     const Int height = this->Height();
     const Int width = this->Width();
@@ -524,7 +524,7 @@ GeneralDistMatrix<T,U,V>::RowAllGather( DistMatrix<T,U,VGath>& A ) const
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::RowAllGather");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     const Int height = this->Height();
     const Int width = this->Width();
@@ -725,7 +725,7 @@ GeneralDistMatrix<T,U,V>::PartialColAllGather( DistMatrix<T,UPart,V>& A ) const
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::PartialColAllGather");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     const Int height = this->Height();
     const Int width = this->Width();
@@ -867,7 +867,7 @@ GeneralDistMatrix<T,U,V>::PartialRowAllGather( DistMatrix<T,U,VPart>& A ) const
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::PartialRowAllGather");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     const Int height = this->Height();
     const Int width = this->Width();
@@ -989,7 +989,7 @@ GeneralDistMatrix<T,U,V>::FilterFrom( const DistMatrix<T,UGath,VGath>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::FilterFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     const Int height = A.Height();
     const Int width = A.Width();
@@ -1025,7 +1025,7 @@ GeneralDistMatrix<T,U,V>::ColFilterFrom( const DistMatrix<T,UGath,V>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::ColFilterFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     const Int height = A.Height();
     const Int width = A.Width();
@@ -1106,7 +1106,7 @@ GeneralDistMatrix<T,U,V>::RowFilterFrom( const DistMatrix<T,U,VGath>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::RowFilterFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     const Int height = A.Height();
     const Int width = A.Width();
@@ -1184,7 +1184,7 @@ GeneralDistMatrix<T,U,V>::PartialColFilterFrom( const DistMatrix<T,UPart,V>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::PartialColFilterFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     const Int height = A.Height();
     const Int width = A.Width();
@@ -1278,7 +1278,7 @@ GeneralDistMatrix<T,U,V>::PartialRowFilterFrom( const DistMatrix<T,U,VPart>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::PartialRowFilterFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     const Int height = A.Height();
     const Int width = A.Width();
@@ -1371,7 +1371,7 @@ GeneralDistMatrix<T,U,V>::PartialColAllToAllFrom
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::PartialColAllToAllFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     const Int height = A.Height();
     const Int width = A.Width();
@@ -1516,7 +1516,7 @@ GeneralDistMatrix<T,U,V>::PartialRowAllToAllFrom
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::PartialRowAllToAllFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     const Int height = A.Height();
     const Int width = A.Width();
@@ -1661,7 +1661,7 @@ GeneralDistMatrix<T,U,V>::PartialColAllToAll
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::PartialColAllToAll");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     const Int height = this->Height();
     const Int width = this->Width();
@@ -1804,7 +1804,7 @@ GeneralDistMatrix<T,U,V>::PartialRowAllToAll
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::PartialRowAllToAll");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     const Int height = this->Height();
     const Int width = this->Width();
@@ -1944,7 +1944,7 @@ GeneralDistMatrix<T,U,V>::RowSumScatterFrom( const DistMatrix<T,U,VGath>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::RowSumScatterFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     this->AlignColsAndResize
     ( A.ColAlign(), A.Height(), A.Width(), false, false );
@@ -1960,7 +1960,7 @@ GeneralDistMatrix<T,U,V>::ColSumScatterFrom( const DistMatrix<T,UGath,V>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::ColSumScatterFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     this->AlignRowsAndResize
     ( A.RowAlign(), A.Height(), A.Width(), false, false );
@@ -1976,7 +1976,7 @@ GeneralDistMatrix<T,U,V>::SumScatterFrom( const DistMatrix<T,UGath,VGath>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::SumScatterFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     this->Resize( A.Height(), A.Width() );
     // NOTE: This will be *slightly* slower than necessary due to the result
@@ -1992,7 +1992,7 @@ GeneralDistMatrix<T,U,V>::PartialRowSumScatterFrom
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::PartialRowSumScatterFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     this->AlignAndResize
     ( A.ColAlign(), A.RowAlign(), A.Height(), A.Width(), false, false );
@@ -2009,7 +2009,7 @@ GeneralDistMatrix<T,U,V>::PartialColSumScatterFrom
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::PartialColSumScatterFrom");
-        this->AssertSameGrid( A.Grid() );
+        AssertSameGrids( *this, A );
     )
     this->AlignAndResize
     ( A.ColAlign(), A.RowAlign(), A.Height(), A.Width(), false, false );
@@ -2026,8 +2026,8 @@ GeneralDistMatrix<T,U,V>::RowSumScatterUpdate
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::RowSumScatterUpdate");
+        AssertSameGrids( *this, A );
         this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
         this->AssertSameSize( A.Height(), A.Width() );
     )
     if( !this->Participating() )
@@ -2246,8 +2246,8 @@ GeneralDistMatrix<T,U,V>::ColSumScatterUpdate
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::ColSumScatterUpdate");
+        AssertSameGrids( *this, A );
         this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
         this->AssertSameSize( A.Height(), A.Width() );
     )
 #ifdef EL_VECTOR_WARNINGS
@@ -2400,8 +2400,8 @@ GeneralDistMatrix<T,U,V>::SumScatterUpdate
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::SumScatterUpdate");
+        AssertSameGrids( *this, A );
         this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
         this->AssertSameSize( A.Height(), A.Width() );
     )
     if( !this->Participating() )
@@ -2472,8 +2472,8 @@ GeneralDistMatrix<T,U,V>::PartialRowSumScatterUpdate
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::PartialRowSumScatterUpdate");
+        AssertSameGrids( *this, A );
         this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
         this->AssertSameSize( A.Height(), A.Width() );
     )
     if( !this->Participating() )
@@ -2548,8 +2548,8 @@ GeneralDistMatrix<T,U,V>::PartialColSumScatterUpdate
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::PartialColSumScatterUpdate");
+        AssertSameGrids( *this, A );
         this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
         this->AssertSameSize( A.Height(), A.Width() );
     )
     if( !this->Participating() )
