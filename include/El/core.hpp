@@ -145,7 +145,7 @@ template<typename T,Dist U=MC,Dist V=MR> class BlockDistMatrix;
 
 // Declare and implement the decoupled parts of the core of the library
 // (perhaps these should be moved into their own directory?)
-#include "El/core/views/View.hpp"
+#include "El/core/View.hpp"
 #include "El/core/flame-part/Merge.hpp"
 #include "El/core/flame-part/Partition.hpp"
 #include "El/core/flame-part/Repartition.hpp"
