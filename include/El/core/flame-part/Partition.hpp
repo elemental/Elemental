@@ -12,480 +12,222 @@
 
 namespace El {
 
-// To make our life easier. Undef'd at the bottom of the header
-#define M   Matrix<T>
-#define ADM AbstractDistMatrix<T>
-
 // Partition downwards from the top
 // ================================
 
 template<typename T>
-inline void
-PartitionDown
-( M& A, M& AT,
-        M& AB, Int heightAT=Blocksize() ) 
-{
-    DEBUG_ONLY(CallStackEntry cse("PartitionDown"))
-    heightAT = Max(Min(heightAT,A.Height()),0);
-    const Int heightAB = A.Height()-heightAT;
-    View( AT, A, 0,        0, heightAT, A.Width() );
-    View( AB, A, heightAT, 0, heightAB, A.Width() );
-}
+void PartitionDown
+( Matrix<T>& A, Matrix<T>& AT, Matrix<T>& AB, Int heightAT=Blocksize() );
 
 template<typename T>
-inline void
-PartitionDown
-( ADM& A, ADM& AT,
-          ADM& AB, Int heightAT=Blocksize() )
-{
-    DEBUG_ONLY(
-      CallStackEntry cse("PartitionDown");
-      AssertSameGrids( A, AT, AB );
-      AssertSameDists( A, AT, AB );
-    )
-    heightAT = Max(Min(heightAT,A.Height()),0);
-    const Int heightAB = A.Height()-heightAT;
-    View( AT, A, 0,        0, heightAT, A.Width() );
-    View( AB, A, heightAT, 0, heightAB, A.Width() );
-}
+void PartitionDown
+( AbstractDistMatrix<T>& A, 
+  AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& AB, 
+  Int heightAT=Blocksize() );
 
 template<typename T>
-inline void
-LockedPartitionDown
-( const M& A, M& AT,
-              M& AB, Int heightAT=Blocksize() ) 
-{
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionDown"))
-    heightAT = Max(Min(heightAT,A.Height()),0);
-    const Int heightAB = A.Height()-heightAT;
-    LockedView( AT, A, 0,        0, heightAT, A.Width() );
-    LockedView( AB, A, heightAT, 0, heightAB, A.Width() );
-}
+void LockedPartitionDown
+( const Matrix<T>& A, Matrix<T>& AT, Matrix<T>& AB, Int heightAT=Blocksize() );
 
 template<typename T>
-inline void
-LockedPartitionDown
-( const ADM& A, ADM& AT,
-                ADM& AB, Int heightAT=Blocksize() )
-{
-    DEBUG_ONLY(
-      CallStackEntry cse("LockedPartitionDown");
-      AssertSameGrids( A, AT, AB );
-      AssertSameDists( A, AT, AB );
-    )
-    heightAT = Max(Min(heightAT,A.Height()),0);
-    const Int heightAB = A.Height()-heightAT;
-    LockedView( AT, A, 0,        0, heightAT, A.Width() );
-    LockedView( AB, A, heightAT, 0, heightAB, A.Width() );
-}
+void LockedPartitionDown
+( const AbstractDistMatrix<T>& A, 
+        AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& AB, 
+  Int heightAT=Blocksize() );
 
 // Partition upwards from the bottom
 // =================================
 
 template<typename T>
-inline void
-PartitionUp
-( M& A, M& AT,
-        M& AB, Int heightAB=Blocksize() )
-{
-    DEBUG_ONLY(CallStackEntry cse("PartitionUp"))
-    PartitionDown( A, AT, AB, A.Height()-heightAB );
-}
+void PartitionUp
+( Matrix<T>& A, Matrix<T>& AT, Matrix<T>& AB, Int heightAB=Blocksize() );
 
 template<typename T>
-inline void
-PartitionUp
-( ADM& A, ADM& AT,
-          ADM& AB, Int heightAB=Blocksize() )
-{
-    DEBUG_ONLY(
-      CallStackEntry cse("PartitionUp");
-      AssertSameGrids( A, AT, AB );
-      AssertSameDists( A, AT, AB );
-    )
-    PartitionDown( A, AT, AB, A.Height()-heightAB );
-}
+void PartitionUp
+( AbstractDistMatrix<T>& A, 
+  AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& AB, 
+  Int heightAB=Blocksize() );
 
 template<typename T>
-inline void
-LockedPartitionUp
-( const M& A, M& AT,
-              M& AB, Int heightAB=Blocksize() )
-{
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionUp"))
-    LockedPartitionDown( A, AT, AB, A.Height()-heightAB );
-}
+void LockedPartitionUp
+( const Matrix<T>& A, Matrix<T>& AT, Matrix<T>& AB, Int heightAB=Blocksize() );
 
 template<typename T>
-inline void
-LockedPartitionUp
-( const ADM& A, ADM& AT,
-                ADM& AB, Int heightAB=Blocksize() )
-{
-    DEBUG_ONLY(
-      CallStackEntry cse("LockedPartitionUp");
-      AssertSameGrids( A, AT, AB );
-      AssertSameDists( A, AT, AB );
-    )
-    LockedPartitionDown( A, AT, AB, A.Height()-heightAB );
-}
+void LockedPartitionUp
+( const AbstractDistMatrix<T>& A, 
+        AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& AB, 
+  Int heightAB=Blocksize() );
 
 // Partition rightwards from the left
 // ==================================
 
 template<typename T>
-inline void
-PartitionRight( M& A, M& AL, M& AR, Int widthAL=Blocksize() )
-{
-    DEBUG_ONLY(CallStackEntry cse("PartitionRight"))
-    widthAL = Max(Min(widthAL,A.Width()),0);
-    const Int widthAR = A.Width()-widthAL;
-    View( AL, A, 0, 0,       A.Height(), widthAL );
-    View( AR, A, 0, widthAL, A.Height(), widthAR );
-}
+void PartitionRight
+( Matrix<T>& A, Matrix<T>& AL, Matrix<T>& AR, Int widthAL=Blocksize() );
 
 template<typename T>
-inline void
-PartitionRight( ADM& A, ADM& AL, ADM& AR, Int widthAL=Blocksize() )
-{
-    DEBUG_ONLY(
-      CallStackEntry cse("PartitionRight");
-      AssertSameGrids( A, AL, AR );
-      AssertSameDists( A, AL, AR );
-    )
-    widthAL = Max(Min(widthAL,A.Width()),0);
-    const Int widthAR = A.Width()-widthAL;
-    View( AL, A, 0, 0,       A.Height(), widthAL );
-    View( AR, A, 0, widthAL, A.Height(), widthAR );
-}
+void PartitionRight
+( AbstractDistMatrix<T>& A, 
+  AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, 
+  Int widthAL=Blocksize() );
 
 template<typename T>
-inline void
-LockedPartitionRight( const M& A, M& AL, M& AR, Int widthAL=Blocksize() )
-{
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionRight"))
-    widthAL = Max(Min(widthAL,A.Width()),0);
-    const Int widthAR = A.Width()-widthAL;
-    LockedView( AL, A, 0, 0,       A.Height(), widthAL );
-    LockedView( AR, A, 0, widthAL, A.Height(), widthAR );
-}
+void LockedPartitionRight
+( const Matrix<T>& A, Matrix<T>& AL, Matrix<T>& AR, Int widthAL=Blocksize() );
 
 template<typename T>
-inline void
-LockedPartitionRight( const ADM& A, ADM& AL, ADM& AR, Int widthAL=Blocksize() )
-{
-    DEBUG_ONLY(
-      CallStackEntry cse("LockedPartitionRight");
-      AssertSameGrids( A, AL, AR );
-      AssertSameDists( A, AL, AR );
-    )
-    widthAL = Max(Min(widthAL,A.Width()),0);
-    const Int widthAR = A.Width()-widthAL;
-    LockedView( AL, A, 0, 0,       A.Height(), widthAL );
-    LockedView( AR, A, 0, widthAL, A.Height(), widthAR );
-}
+void LockedPartitionRight
+( const AbstractDistMatrix<T>& A, 
+        AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, 
+  Int widthAL=Blocksize() );
 
 // Partition leftwards from the right
 // ==================================
 
 template<typename T>
-inline void
-PartitionLeft( M& A, M& AL, M& AR, Int widthAR=Blocksize() )
-{
-    DEBUG_ONLY(CallStackEntry cse("PartitionLeft"))
-    PartitionRight( A, AL, AR, A.Width()-widthAR );
-}
+void PartitionLeft
+( Matrix<T>& A, Matrix<T>& AL, Matrix<T>& AR, Int widthAR=Blocksize() );
 
 template<typename T>
-inline void
-PartitionLeft( ADM& A, ADM& AL, ADM& AR, Int widthAR=Blocksize() )
-{
-    DEBUG_ONLY(
-      CallStackEntry cse("PartitionLeft");
-      AssertSameGrids( A, AL, AR );
-      AssertSameDists( A, AL, AR );
-    )
-    PartitionRight( A, AL, AR, A.Width()-widthAR );
-}
+void PartitionLeft
+( AbstractDistMatrix<T>& A, 
+  AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, 
+  Int widthAR=Blocksize() );
 
 template<typename T>
-inline void
-LockedPartitionLeft( const M& A, M& AL, M& AR, Int widthAR=Blocksize() )
-{
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionLeft"))
-    LockedPartitionRight( A, AL, AR, A.Width()-widthAR );
-}
+void LockedPartitionLeft
+( const Matrix<T>& A, 
+        Matrix<T>& AL, Matrix<T>& AR, Int widthAR=Blocksize() );
 
 template<typename T>
-inline void
-LockedPartitionLeft( const ADM& A, ADM& AL, ADM& AR, Int widthAR=Blocksize() )
-{
-    DEBUG_ONLY(
-      CallStackEntry cse("LockedPartitionLeft");
-      AssertSameGrids( A, AL, AR );
-      AssertSameDists( A, AL, AR );
-    )
-    LockedPartitionRight( A, AL, AR, A.Width()-widthAR );
-}
+void LockedPartitionLeft
+( const AbstractDistMatrix<T>& A, 
+        AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, 
+  Int widthAR=Blocksize() );
 
 // Partition downward on a particular diagonal
 // ===========================================
 
 template<typename T>
-inline void
-PartitionDownOffsetDiagonal
+void PartitionDownOffsetDiagonal
 ( Int offset,
-  M& A, M& ATL, M& ATR,
-        M& ABL, M& ABR, Int diagDist=Blocksize() )
-{
-    DEBUG_ONLY(CallStackEntry cse("PartitionDownOffsetDiagonal"))
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Int diagLength = A.DiagonalLength(offset);
-    diagDist = Max(Min(diagDist,diagLength),0);
-    
-    const Int mCut = ( offset<=0 ? -offset+diagDist : diagDist );
-    const Int nCut = ( offset<=0 ? diagDist : offset+diagDist );
-    View( ATL, A, 0,    0,    mCut,   nCut   );
-    View( ATR, A, 0,    nCut, mCut,   n-nCut );
-    View( ABL, A, mCut, 0,    m-mCut, nCut   );
-    View( ABR, A, mCut, nCut, m-mCut, n-nCut );
-}
+  Matrix<T>& A, 
+  Matrix<T>& ATL, Matrix<T>& ATR,
+  Matrix<T>& ABL, Matrix<T>& ABR, Int diagDist=Blocksize() );
 
 template<typename T>
-inline void
-PartitionDownOffsetDiagonal
+void PartitionDownOffsetDiagonal
 ( Int offset,
-  ADM& A, ADM& ATL, ADM& ATR,
-          ADM& ABL, ADM& ABR, Int diagDist=Blocksize() )
-{
-    DEBUG_ONLY(
-      CallStackEntry cse("PartitionDownOffsetDiagonal");
-      AssertSameGrids( A, ATL, ATR, ABL, ABR );
-      AssertSameDists( A, ATL, ATR, ABL, ABR );
-    )
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Int diagLength = A.DiagonalLength(offset);
-    diagDist = Max(Min(diagDist,diagLength),0);
-
-    const Int mCut = ( offset<=0 ? -offset+diagDist : diagDist );
-    const Int nCut = ( offset<=0 ? diagDist : offset+diagDist );
-    View( ATL, A, 0,    0,    mCut,   nCut   );
-    View( ATR, A, 0,    nCut, mCut,   n-nCut );
-    View( ABL, A, mCut, 0,    m-mCut, nCut   );
-    View( ABR, A, mCut, nCut, m-mCut, n-nCut );
-}
+  AbstractDistMatrix<T>& A, 
+  AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
+  AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+  Int diagDist=Blocksize() );
 
 template<typename T>
-inline void
-LockedPartitionDownOffsetDiagonal
+void LockedPartitionDownOffsetDiagonal
 ( Int offset,
-  const M& A, M& ATL, M& ATR,
-              M& ABL, M& ABR, Int diagDist=Blocksize() )
-{
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionDownOffsetDiagonal"))
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Int diagLength = A.DiagonalLength(offset);
-    diagDist = Max(Min(diagDist,diagLength),0);
-    
-    const Int mCut = ( offset<=0 ? -offset+diagDist : diagDist );
-    const Int nCut = ( offset<=0 ? diagDist : offset+diagDist );
-    LockedView( ATL, A, 0,    0,    mCut,   nCut   );
-    LockedView( ATR, A, 0,    nCut, mCut,   n-nCut );
-    LockedView( ABL, A, mCut, 0,    m-mCut, nCut   );
-    LockedView( ABR, A, mCut, nCut, m-mCut, n-nCut );
-}
+  const Matrix<T>& A, 
+        Matrix<T>& ATL, Matrix<T>& ATR,
+        Matrix<T>& ABL, Matrix<T>& ABR, Int diagDist=Blocksize() );
 
 template<typename T>
-inline void
-LockedPartitionDownOffsetDiagonal
+void LockedPartitionDownOffsetDiagonal
 ( Int offset,
-  const ADM& A, ADM& ATL, ADM& ATR,
-                ADM& ABL, ADM& ABR, Int diagDist=Blocksize() )
-{
-    DEBUG_ONLY(
-      CallStackEntry cse("LockedPartitionDownOffsetDiagonal");
-      AssertSameGrids( A, ATL, ATR, ABL, ABR );
-      AssertSameDists( A, ATL, ATR, ABL, ABR );
-    )
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Int diagLength = A.DiagonalLength(offset);
-    diagDist = Max(Min(diagDist,diagLength),0);
-    
-    const Int mCut = ( offset<=0 ? -offset+diagDist : diagDist );
-    const Int nCut = ( offset<=0 ? diagDist : offset+diagDist );
-    LockedView( ATL, A, 0,    0,    mCut,   nCut   );
-    LockedView( ATR, A, 0,    nCut, mCut,   n-nCut );
-    LockedView( ABL, A, mCut, 0,    m-mCut, nCut   );
-    LockedView( ABR, A, mCut, nCut, m-mCut, n-nCut );
-}
+  const AbstractDistMatrix<T>& A, 
+        AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
+        AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+  Int diagDist=Blocksize() );
 
 // Partition upwards on a particular diagonal
 // ==========================================
 
 template<typename T>
-inline void
-PartitionUpOffsetDiagonal
+void PartitionUpOffsetDiagonal
 ( Int offset,
-  M& A, M& ATL, M& ATR,
-        M& ABL, M& ABR, Int diagDist=Blocksize() )
-{
-    DEBUG_ONLY(CallStackEntry cse("PartitionUpOffsetDiagonal"))
-    PartitionDownOffsetDiagonal
-    ( offset, A, ATL, ATR, ABL, ABR, A.DiagonalLength(offset)-diagDist );
-}
+  Matrix<T>& A, 
+  Matrix<T>& ATL, Matrix<T>& ATR,
+  Matrix<T>& ABL, Matrix<T>& ABR, Int diagDist=Blocksize() );
 
 template<typename T>
-inline void
-PartitionUpOffsetDiagonal
+void PartitionUpOffsetDiagonal
 ( Int offset,
-  ADM& A, ADM& ATL, ADM& ATR,
-          ADM& ABL, ADM& ABR, Int diagDist=Blocksize() )
-{
-    DEBUG_ONLY(
-      CallStackEntry cse("PartitionUpOffsetDiagonal");
-      AssertSameGrids( A, ATL, ATR, ABL, ABR );
-      AssertSameDists( A, ATL, ATR, ABL, ABR );
-    )
-    PartitionDownOffsetDiagonal
-    ( offset, A, ATL, ATR, ABL, ABR, A.DiagonalLength(offset)-diagDist );
-}
+  AbstractDistMatrix<T>& A, 
+  AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
+  AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+  Int diagDist=Blocksize() );
 
 template<typename T>
-inline void
-LockedPartitionUpOffsetDiagonal
+void LockedPartitionUpOffsetDiagonal
 ( Int offset,
-  const M& A, M& ATL, M& ATR,
-              M& ABL, M& ABR, Int diagDist=Blocksize() )
-{
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionUpOffsetDiagonal"))
-    LockedPartitionDownOffsetDiagonal
-    ( offset, A, ATL, ATR, ABL, ABR, A.DiagonalLength(offset)-diagDist );
-}
+  const Matrix<T>& A, 
+        Matrix<T>& ATL, Matrix<T>& ATR,
+        Matrix<T>& ABL, Matrix<T>& ABR, Int diagDist=Blocksize() );
 
 template<typename T>
-inline void
-LockedPartitionUpOffsetDiagonal
+void LockedPartitionUpOffsetDiagonal
 ( Int offset,
-  const ADM& A, ADM& ATL, ADM& ATR,
-                ADM& ABL, ADM& ABR, Int diagDist=Blocksize() )
-{
-    DEBUG_ONLY(
-      CallStackEntry cse("LockedPartitionUpOffsetDiagonal");
-      AssertSameGrids( A, ATL, ATR, ABL, ABR );
-      AssertSameDists( A, ATL, ATR, ABL, ABR );
-    )
-    LockedPartitionDownOffsetDiagonal
-    ( offset, A, ATL, ATR, ABL, ABR, A.DiagonalLength(offset)-diagDist );
-}
+  const AbstractDistMatrix<T>& A, 
+        AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
+        AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+  Int diagDist=Blocksize() );
 
 // Partition downwards on the main diagonal
 // ========================================
 
 template<typename T>
-inline void
-PartitionDownDiagonal
-( M& A, M& ATL, M& ATR,
-        M& ABL, M& ABR, Int diagDist=Blocksize() )
-{
-    DEBUG_ONLY(CallStackEntry cse("PartitionDownDiagonal"))
-    PartitionDownOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
-}
+void PartitionDownDiagonal
+( Matrix<T>& A, 
+  Matrix<T>& ATL, Matrix<T>& ATR,
+  Matrix<T>& ABL, Matrix<T>& ABR, Int diagDist=Blocksize() );
 
 template<typename T>
-inline void
-PartitionDownDiagonal
-( ADM& A, ADM& ATL, ADM& ATR,
-          ADM& ABL, ADM& ABR, Int diagDist=Blocksize() )
-{
-    DEBUG_ONLY(
-      CallStackEntry cse("PartitionDownDiagonal");
-      AssertSameGrids( A, ATL, ATR, ABL, ABR );
-      AssertSameDists( A, ATL, ATR, ABL, ABR );
-    )
-    PartitionDownOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
-}
+void PartitionDownDiagonal
+( AbstractDistMatrix<T>& A, 
+  AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
+  AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+  Int diagDist=Blocksize() );
 
 template<typename T>
-inline void
-LockedPartitionDownDiagonal
-( const M& A, M& ATL, M& ATR,
-              M& ABL, M& ABR, Int diagDist=Blocksize() )
-{
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionDownDiagonal"))
-    LockedPartitionDownOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
-}
+void LockedPartitionDownDiagonal
+( const Matrix<T>& A, 
+        Matrix<T>& ATL, Matrix<T>& ATR,
+        Matrix<T>& ABL, Matrix<T>& ABR, Int diagDist=Blocksize() );
 
 template<typename T>
-inline void
-LockedPartitionDownDiagonal
-( const ADM& A, ADM& ATL, ADM& ATR,
-                ADM& ABL, ADM& ABR, Int diagDist=Blocksize() )
-{
-    DEBUG_ONLY(
-      CallStackEntry cse("LockedPartitionDownDiagonal");
-      AssertSameGrids( A, ATL, ATR, ABL, ABR );
-      AssertSameDists( A, ATL, ATR, ABL, ABR );
-    )
-    LockedPartitionDownOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
-}
+void LockedPartitionDownDiagonal
+( const AbstractDistMatrix<T>& A, 
+        AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
+        AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+  Int diagDist=Blocksize() );
 
 // Partition upwards on the main diagonal
 // ======================================
 
 template<typename T>
-inline void
-PartitionUpDiagonal
-( M& A, M& ATL, M& ATR,
-        M& ABL, M& ABR, Int diagDist=Blocksize() )
-{
-    DEBUG_ONLY(CallStackEntry cse("PartitionUpDiagonal"))
-    PartitionUpOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
-}
+void PartitionUpDiagonal
+( Matrix<T>& A, 
+  Matrix<T>& ATL, Matrix<T>& ATR,
+  Matrix<T>& ABL, Matrix<T>& ABR, Int diagDist=Blocksize() );
 
 template<typename T>
-inline void
-PartitionUpDiagonal
-( ADM& A, ADM& ATL, ADM& ATR,
-          ADM& ABL, ADM& ABR, Int diagDist=Blocksize() )
-{
-    DEBUG_ONLY(
-      CallStackEntry cse("PartitionUpDiagonal");
-      AssertSameGrids( A, ATL, ATR, ABL, ABR );
-      AssertSameDists( A, ATL, ATR, ABL, ABR );
-    )
-    PartitionUpOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
-}
+void PartitionUpDiagonal
+( AbstractDistMatrix<T>& A, 
+  AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
+  AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+  Int diagDist=Blocksize() );
 
 template<typename T>
-inline void
-LockedPartitionUpDiagonal
-( const M& A, M& ATL, M& ATR,
-              M& ABL, M& ABR, Int diagDist=Blocksize() )
-{
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionUpDiagonal"))
-    LockedPartitionUpOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
-}
+void LockedPartitionUpDiagonal
+( const Matrix<T>& A, 
+        Matrix<T>& ATL, Matrix<T>& ATR,
+        Matrix<T>& ABL, Matrix<T>& ABR, Int diagDist=Blocksize() );
 
 template<typename T>
-inline void
-LockedPartitionUpDiagonal
-( const ADM& A, ADM& ATL, ADM& ATR,
-                ADM& ABL, ADM& ABR, Int diagDist=Blocksize() )
-{
-    DEBUG_ONLY(
-      CallStackEntry cse("LockedPartitionUpDiagonal");
-      AssertSameGrids( A, ATL, ATR, ABL, ABR );
-      AssertSameDists( A, ATL, ATR, ABL, ABR );
-    )
-    LockedPartitionUpOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
-}
-
-#undef ADM
-#undef M
+void LockedPartitionUpDiagonal
+( const AbstractDistMatrix<T>& A, 
+        AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
+        AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+  Int diagDist=Blocksize() );
 
 } // namespace El
 

@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 
-// Horizontally merge two contiguous matrices
-// ==========================================
+/* Horizontally merge two contiguous matrices
+   ========================================== */
 
 ElError ElMerge1x2_i( ElMatrix_i A, ElMatrix_i BL, ElMatrix_i BR );
 ElError ElMerge1x2_s( ElMatrix_s A, ElMatrix_s BL, ElMatrix_s BR );
@@ -54,8 +54,8 @@ ElError ElLockedMerge1x2Dist_c
 ElError ElLockedMerge1x2Dist_z
 ( ElDistMatrix_z A, ElConstDistMatrix_z BL, ElConstDistMatrix_z BR );
 
-// Vertically merge two contiguous matrices
-// ========================================
+/* Vertically merge two contiguous matrices
+   ======================================== */
 
 ElError ElMerge2x1_i( ElMatrix_i A, ElMatrix_i BT, ElMatrix_i BB );
 ElError ElMerge2x1_s( ElMatrix_s A, ElMatrix_s BT, ElMatrix_s BB );
@@ -94,8 +94,8 @@ ElError ElLockedMerge2x1Dist_c
 ElError ElLockedMerge2x1Dist_z
 ( ElDistMatrix_z A, ElConstDistMatrix_z BT, ElConstDistMatrix_z BB );
 
-// Merge a contiguous 2x2 block of matrices
-// ========================================
+/* Merge a contiguous 2x2 block of matrices
+   ======================================== */
 
 ElError ElMerge2x2_i
 ( ElMatrix_i A, 

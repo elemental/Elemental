@@ -132,8 +132,6 @@ inline void Helper
         AbstractDistMatrix<Real         >& wPre, 
   SortType sort, const HermitianEigSubset<Real>& subset )
 {
-    typedef Complex<Real> C;
-
     ProxyCtrl wCtrl;
     wCtrl.colConstrain = true;
     wCtrl.colAlign = 0;

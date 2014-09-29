@@ -668,7 +668,6 @@ Bisect
     )
     xAdj[numLocalSources] = numLocalValidEdges;
 
-    idx_t nparseps = numDistSeps;
     idx_t nseqseps = numSeqSeps;
     real_t imbalance = 1.1;
     std::vector<idx_t> sizes(3);
@@ -781,6 +780,7 @@ Bisect
         perm.Resize( numSources );
 
         // Use the custom ParMETIS interface
+        idx_t nparseps = numDistSeps;
         ElParallelBisect
         ( &vtxDist[0], &xAdj[0], &adjacency[0], &nparseps, &nseqseps, 
           &imbalance, NULL, perm.Buffer(), &sizes[0], &comm.comm );
