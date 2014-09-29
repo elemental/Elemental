@@ -47,25 +47,25 @@ extern "C" {
     ElMatrix_ ## SIG BTL, ElMatrix_ ## SIG BTR, \
     ElMatrix_ ## SIG BBL, ElMatrix_ ## SIG BBR ) \
   { EL_TRY( Merge2x2( *CReflect(A), \
-      *CReflect(BTL), *CReflect(BTR, *CReflect(BBL), *CReflect(BBR)) ) ) } \
+      *CReflect(BTL), *CReflect(BTR), *CReflect(BBL), *CReflect(BBR)) ) } \
   ElError ElMerge2x2Dist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, \
     ElDistMatrix_ ## SIG BTL, ElDistMatrix_ ## SIG BTR, \
     ElDistMatrix_ ## SIG BBL, ElDistMatrix_ ## SIG BBR ) \
   { EL_TRY( Merge2x2( *CReflect(A), \
-      *CReflect(BTL), *CReflect(BTR, *CReflect(BBL), *CReflect(BBR)) ) ) } \
+      *CReflect(BTL), *CReflect(BTR), *CReflect(BBL), *CReflect(BBR)) ) } \
   ElError ElLockedMerge2x2_ ## SIG \
   ( ElMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG BTL, ElConstMatrix_ ## SIG BTR, \
     ElConstMatrix_ ## SIG BBL, ElConstMatrix_ ## SIG BBR ) \
   { EL_TRY( LockedMerge2x2( *CReflect(A), \
-      *CReflect(BTL), *CReflect(BTR, *CReflect(BBL), *CReflect(BBR)) ) ) } \
+      *CReflect(BTL), *CReflect(BTR), *CReflect(BBL), *CReflect(BBR)) ) } \
   ElError ElLockedMerge2x2Dist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, \
     ElConstDistMatrix_ ## SIG BTL, ElConstDistMatrix_ ## SIG BTR, \
     ElConstDistMatrix_ ## SIG BBL, ElConstDistMatrix_ ## SIG BBR ) \
   { EL_TRY( LockedMerge2x2( *CReflect(A), \
-      *CReflect(BTL), *CReflect(BTR, *CReflect(BBL), *CReflect(BBR)) ) ) }
+      *CReflect(BTL), *CReflect(BTR), *CReflect(BBL), *CReflect(BBR)) ) }
 
 #include "El/macros/CInstantiate.h"
 

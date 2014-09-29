@@ -391,10 +391,25 @@ DistMatrix<T,U,V> LockedMerge2x2
   template void LockedMerge2x1 \
   ( AbstractDistMatrix<T>& A, \
     const AbstractDistMatrix<T>& BT, const AbstractDistMatrix<T>& BB ); \
+  template void Merge2x2 \
+  ( Matrix<T>& A, \
+    Matrix<T>& BTL, Matrix<T>& BTR, \
+    Matrix<T>& BBL, Matrix<T>& BBR ); \
+  template void LockedMerge2x2 \
+  ( Matrix<T>& A, \
+    const Matrix<T>& BTL, const Matrix<T>& BTR, \
+    const Matrix<T>& BBL, const Matrix<T>& BBR ); \
   template Matrix<T> Merge1x2( Matrix<T>& BL, Matrix<T>& BR ); \
+  template Matrix<T> LockedMerge1x2 \
+  ( const Matrix<T>& BL, const Matrix<T>& BR ); \
   template Matrix<T> Merge2x1( Matrix<T>& BT, Matrix<T>& BB ); \
+  template Matrix<T> LockedMerge2x1 \
+  ( const Matrix<T>& BT, const Matrix<T>& BB ); \
   template Matrix<T> Merge2x2 \
   ( Matrix<T>& BTL, Matrix<T>& BTR, Matrix<T>& BBL, Matrix<T>& BBR ); \
+  template Matrix<T> LockedMerge2x2 \
+  ( const Matrix<T>& BTL, const Matrix<T>& BTR, \
+    const Matrix<T>& BBL, const Matrix<T>& BBR ); \
   PROTO_DIST(T,CIRC,CIRC) \
   PROTO_DIST(T,MC,  MR  ) \
   PROTO_DIST(T,MC,  STAR) \
@@ -409,5 +424,7 @@ DistMatrix<T,U,V> LockedMerge2x2
   PROTO_DIST(T,STAR,VR  ) \
   PROTO_DIST(T,VC,  STAR) \
   PROTO_DIST(T,VR,  STAR)
+
+#include "El/macros/Instantiate.h"
 
 } // namespace El
