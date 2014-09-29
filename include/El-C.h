@@ -20,6 +20,7 @@
 #include "El/core/Matrix-C.h"
 #include "El/core/DistMatrix-C.h"
 #include "El/core/View-C.h"
+#include "El/core/flame-part/Merge-C.h"
 
 #include "El/io-C.h"
 
