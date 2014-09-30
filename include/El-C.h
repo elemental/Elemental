@@ -22,6 +22,7 @@
 #include "El/core/View-C.h"
 #include "El/core/flame-part/Merge-C.h"
 #include "El/core/flame-part/Partition-C.h"
+#include "El/core/flame-part/Repartition-C.h"
 
 #include "El/io-C.h"
 
