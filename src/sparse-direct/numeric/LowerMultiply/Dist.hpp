@@ -156,7 +156,6 @@ inline void DistLowerMultiplyTranspose
         LogicError("This multiply mode is not yet implemented");
 
     // Directly operate on the root separator's portion of the right-hand sides
-    const DistSymmNodeInfo& rootNode = info.distNodes.back();
     const SymmFront<T>& localRootFront = L.localFronts.back();
     if( numDistNodes == 1 )
     {
