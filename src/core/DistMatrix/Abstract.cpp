@@ -1139,12 +1139,12 @@ AbstractDistMatrix<T>::ConjugateDiagonal( Int offset )
 template<typename T>
 void
 AbstractDistMatrix<T>::GetSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
+( const std::vector<Int>& I, const std::vector<Int>& J, 
   DistMatrix<T,STAR,STAR>& ASub ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetSubmatrix"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     ASub.SetGrid( Grid() );
     ASub.Resize( m, n, m );
     Zeros( ASub, m, n );
@@ -1153,13 +1153,13 @@ AbstractDistMatrix<T>::GetSubmatrix
         // Fill in our locally-owned entries
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1178,12 +1178,12 @@ AbstractDistMatrix<T>::GetSubmatrix
 template<typename T>
 void
 AbstractDistMatrix<T>::GetRealPartOfSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
+( const std::vector<Int>& I, const std::vector<Int>& J, 
   DistMatrix<Base<T>,STAR,STAR>& ASub ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetRealPartOfSubmatrix"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     ASub.SetGrid( Grid() );
     ASub.Resize( m, n, m );
     Zeros( ASub, m, n );
@@ -1192,13 +1192,13 @@ AbstractDistMatrix<T>::GetRealPartOfSubmatrix
         // Fill in our locally-owned entries
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1218,12 +1218,12 @@ AbstractDistMatrix<T>::GetRealPartOfSubmatrix
 template<typename T>
 void
 AbstractDistMatrix<T>::GetImagPartOfSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
+( const std::vector<Int>& I, const std::vector<Int>& J, 
   DistMatrix<Base<T>,STAR,STAR>& ASub ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetImagPartOfSubmatrix"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     ASub.SetGrid( Grid() );
     ASub.Resize( m, n, m );
     Zeros( ASub, m, n );
@@ -1232,13 +1232,13 @@ AbstractDistMatrix<T>::GetImagPartOfSubmatrix
         // Fill in our locally-owned entries
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1258,57 +1258,57 @@ AbstractDistMatrix<T>::GetImagPartOfSubmatrix
 template<typename T>
 DistMatrix<T,STAR,STAR>
 AbstractDistMatrix<T>::GetSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
+( const std::vector<Int>& I, const std::vector<Int>& J ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetSubmatrix"))
     DistMatrix<T,STAR,STAR> ASub( Grid() );
-    GetSubmatrix( rowInd, colInd, ASub );
+    GetSubmatrix( I, J, ASub );
     return ASub;
 }
 
 template<typename T>
 DistMatrix<Base<T>,STAR,STAR>
 AbstractDistMatrix<T>::GetRealPartOfSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
+( const std::vector<Int>& I, const std::vector<Int>& J ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetRealPartOfSubmatrix"))
     DistMatrix<Base<T>,STAR,STAR> ASub( Grid() );
-    GetRealPartOfSubmatrix( rowInd, colInd, ASub );
+    GetRealPartOfSubmatrix( I, J, ASub );
     return ASub;
 }
 
 template<typename T>
 DistMatrix<Base<T>,STAR,STAR>
 AbstractDistMatrix<T>::GetImagPartOfSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
+( const std::vector<Int>& I, const std::vector<Int>& J ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetImagPartOfSubmatrix"))
     DistMatrix<Base<T>,STAR,STAR> ASub( Grid() );
-    GetImagPartOfSubmatrix( rowInd, colInd, ASub );
+    GetImagPartOfSubmatrix( I, J, ASub );
     return ASub;
 }
 
 template<typename T>
 void 
 AbstractDistMatrix<T>::SetSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+( const std::vector<Int>& I, const std::vector<Int>& J,
   const DistMatrix<T,STAR,STAR>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::SetSubmatrix"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     if( Participating() )
     {
         // Fill in our locally-owned entries
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1323,24 +1323,24 @@ AbstractDistMatrix<T>::SetSubmatrix
 template<typename T>
 void 
 AbstractDistMatrix<T>::SetRealPartOfSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+( const std::vector<Int>& I, const std::vector<Int>& J,
   const DistMatrix<Base<T>,STAR,STAR>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::SetRealPartOfSubmatrix"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     if( Participating() )
     {
         // Fill in our locally-owned entries
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1356,24 +1356,24 @@ AbstractDistMatrix<T>::SetRealPartOfSubmatrix
 template<typename T>
 void 
 AbstractDistMatrix<T>::SetImagPartOfSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+( const std::vector<Int>& I, const std::vector<Int>& J,
   const DistMatrix<Base<T>,STAR,STAR>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::SetImagPartOfSubmatrix"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     if( Participating() )
     {
         // Fill in our locally-owned entries
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1389,24 +1389,24 @@ AbstractDistMatrix<T>::SetImagPartOfSubmatrix
 template<typename T>
 void 
 AbstractDistMatrix<T>::UpdateSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+( const std::vector<Int>& I, const std::vector<Int>& J,
   T alpha, const DistMatrix<T,STAR,STAR>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::UpdateSubmatrix"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     if( Participating() )
     {
         // Modify our locally-owned entries
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1422,24 +1422,24 @@ AbstractDistMatrix<T>::UpdateSubmatrix
 template<typename T>
 void 
 AbstractDistMatrix<T>::UpdateRealPartOfSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+( const std::vector<Int>& I, const std::vector<Int>& J,
   Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::UpdateRealPartOfSubmatrix"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     if( Participating() )
     {
         // Modify our locally-owned entries
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1455,24 +1455,24 @@ AbstractDistMatrix<T>::UpdateRealPartOfSubmatrix
 template<typename T>
 void 
 AbstractDistMatrix<T>::UpdateImagPartOfSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+( const std::vector<Int>& I, const std::vector<Int>& J,
   Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::UpdateImagPartOfSubmatrix"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     if( Participating() )
     {
         // Modify our locally-owned entries
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1488,23 +1488,23 @@ AbstractDistMatrix<T>::UpdateImagPartOfSubmatrix
 template<typename T>
 void 
 AbstractDistMatrix<T>::MakeSubmatrixReal
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
+( const std::vector<Int>& I, const std::vector<Int>& J )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::MakeSubmatrixReal"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     if( Participating() )
     {
         // Modify the locally-owned entries 
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1519,23 +1519,23 @@ AbstractDistMatrix<T>::MakeSubmatrixReal
 template<typename T>
 void 
 AbstractDistMatrix<T>::ConjugateSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
+( const std::vector<Int>& I, const std::vector<Int>& J )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::ConjugateSubmatrix"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     if( Participating() )
     {
         // Modify the locally-owned entries 
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1553,109 +1553,109 @@ AbstractDistMatrix<T>::ConjugateSubmatrix
 template<typename T>
 void
 AbstractDistMatrix<T>::GetLocalSubmatrix
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc, 
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc, 
   El::Matrix<T>& ASub ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetLocalSubmatrix"))
-    LockedMatrix().GetSubmatrix( rowIndLoc, colIndLoc, ASub );
+    LockedMatrix().GetSubmatrix( ILoc, JLoc, ASub );
 }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::GetRealPartOfLocalSubmatrix
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc, 
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc, 
   El::Matrix<Base<T>>& ASub ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetRealPartOfLocalSubmatrix"))
-    LockedMatrix().GetRealPartOfSubmatrix( rowIndLoc, colIndLoc, ASub );
+    LockedMatrix().GetRealPartOfSubmatrix( ILoc, JLoc, ASub );
 }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::GetImagPartOfLocalSubmatrix
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc, 
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc, 
   El::Matrix<Base<T>>& ASub ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetImagPartOfLocalSubmatrix"))
-    LockedMatrix().GetImagPartOfSubmatrix( rowIndLoc, colIndLoc, ASub );
+    LockedMatrix().GetImagPartOfSubmatrix( ILoc, JLoc, ASub );
 }
 
 template<typename T>
 void 
 AbstractDistMatrix<T>::SetLocalSubmatrix
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
   const El::Matrix<T>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::SetLocalSubmatrix"))
-    Matrix().SetSubmatrix( rowIndLoc, colIndLoc, ASub );
+    Matrix().SetSubmatrix( ILoc, JLoc, ASub );
 }
 
 template<typename T>
 void 
 AbstractDistMatrix<T>::SetRealPartOfLocalSubmatrix
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
   const El::Matrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::SetRealPartOfLocalSubmatrix"))
-    Matrix().SetRealPartOfSubmatrix( rowIndLoc, colIndLoc, ASub );
+    Matrix().SetRealPartOfSubmatrix( ILoc, JLoc, ASub );
 }
 
 template<typename T>
 void 
 AbstractDistMatrix<T>::SetImagPartOfLocalSubmatrix
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
   const El::Matrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::SetImagPartOfLocalSubmatrix"))
-    Matrix().SetImagPartOfSubmatrix( rowIndLoc, colIndLoc, ASub );
+    Matrix().SetImagPartOfSubmatrix( ILoc, JLoc, ASub );
 }
 
 template<typename T>
 void 
 AbstractDistMatrix<T>::UpdateLocalSubmatrix
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
   T alpha, const El::Matrix<T>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::UpdateLocalSubmatrix"))
-    Matrix().UpdateSubmatrix( rowIndLoc, colIndLoc, alpha, ASub );
+    Matrix().UpdateSubmatrix( ILoc, JLoc, alpha, ASub );
 }
 
 template<typename T>
 void 
 AbstractDistMatrix<T>::UpdateRealPartOfLocalSubmatrix
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
   Base<T> alpha, const El::Matrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::UpdateRealPartOfLocalSubmatrix"))
-    Matrix().UpdateRealPartOfSubmatrix( rowIndLoc, colIndLoc, alpha, ASub );
+    Matrix().UpdateRealPartOfSubmatrix( ILoc, JLoc, alpha, ASub );
 }
 
 template<typename T>
 void 
 AbstractDistMatrix<T>::UpdateImagPartOfLocalSubmatrix
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
   Base<T> alpha, const El::Matrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::UpdateImagPartOfLocalSubmatrix"))
-    Matrix().UpdateImagPartOfSubmatrix( rowIndLoc, colIndLoc, alpha, ASub );
+    Matrix().UpdateImagPartOfSubmatrix( ILoc, JLoc, alpha, ASub );
 }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::MakeLocalSubmatrixReal
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc )
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::MakeLocalSubmatrixReal"))
-    Matrix().MakeSubmatrixReal( rowIndLoc, colIndLoc );
+    Matrix().MakeSubmatrixReal( ILoc, JLoc );
 }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::ConjugateLocalSubmatrix
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc )
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::ConjugateLocalSubmatrix"))
-    Matrix().ConjugateSubmatrix( rowIndLoc, colIndLoc );
+    Matrix().ConjugateSubmatrix( ILoc, JLoc );
 }
 
 // Broadcast the local matrix over a particular communicator

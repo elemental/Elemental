@@ -1154,12 +1154,12 @@ void AbstractBlockDistMatrix<T>::ConjugateDiagonal( Int offset )
 
 template<typename T>
 void AbstractBlockDistMatrix<T>::GetSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
+( const std::vector<Int>& I, const std::vector<Int>& J, 
   DistMatrix<T,STAR,STAR>& ASub ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::GetSubmatrix"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     ASub.SetGrid( Grid() );
     ASub.Resize( m, n, m );
     Zeros( ASub, m, n );
@@ -1168,13 +1168,13 @@ void AbstractBlockDistMatrix<T>::GetSubmatrix
         // Fill in our locally-owned entries
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1192,12 +1192,12 @@ void AbstractBlockDistMatrix<T>::GetSubmatrix
 
 template<typename T>
 void AbstractBlockDistMatrix<T>::GetRealPartOfSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
+( const std::vector<Int>& I, const std::vector<Int>& J, 
   DistMatrix<Base<T>,STAR,STAR>& ASub ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::GetRealPartOfSubmatrix"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     ASub.SetGrid( Grid() );
     ASub.Resize( m, n, m );
     Zeros( ASub, m, n );
@@ -1206,13 +1206,13 @@ void AbstractBlockDistMatrix<T>::GetRealPartOfSubmatrix
         // Fill in our locally-owned entries
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1231,12 +1231,12 @@ void AbstractBlockDistMatrix<T>::GetRealPartOfSubmatrix
 
 template<typename T>
 void AbstractBlockDistMatrix<T>::GetImagPartOfSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
+( const std::vector<Int>& I, const std::vector<Int>& J, 
   DistMatrix<Base<T>,STAR,STAR>& ASub ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::GetImagPartOfSubmatrix"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     ASub.SetGrid( Grid() );
     ASub.Resize( m, n, m );
     Zeros( ASub, m, n );
@@ -1245,13 +1245,13 @@ void AbstractBlockDistMatrix<T>::GetImagPartOfSubmatrix
         // Fill in our locally-owned entries
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1271,57 +1271,57 @@ void AbstractBlockDistMatrix<T>::GetImagPartOfSubmatrix
 template<typename T>
 DistMatrix<T,STAR,STAR>
 AbstractBlockDistMatrix<T>::GetSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
+( const std::vector<Int>& I, const std::vector<Int>& J ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::GetSubmatrix"))
     DistMatrix<T,STAR,STAR> ASub( Grid() );
-    GetSubmatrix( rowInd, colInd, ASub );
+    GetSubmatrix( I, J, ASub );
     return ASub;
 }
 
 template<typename T>
 DistMatrix<Base<T>,STAR,STAR>
 AbstractBlockDistMatrix<T>::GetRealPartOfSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
+( const std::vector<Int>& I, const std::vector<Int>& J ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::GetRealPartOfSubmatrix"))
     DistMatrix<Base<T>,STAR,STAR> ASub( Grid() );
-    GetRealPartOfSubmatrix( rowInd, colInd, ASub );
+    GetRealPartOfSubmatrix( I, J, ASub );
     return ASub;
 }
 
 template<typename T>
 DistMatrix<Base<T>,STAR,STAR>
 AbstractBlockDistMatrix<T>::GetImagPartOfSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
+( const std::vector<Int>& I, const std::vector<Int>& J ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::GetImagPartOfSubmatrix"))
     DistMatrix<Base<T>,STAR,STAR> ASub( Grid() );
-    GetImagPartOfSubmatrix( rowInd, colInd, ASub );
+    GetImagPartOfSubmatrix( I, J, ASub );
     return ASub;
 }
 
 template<typename T>
 void 
 AbstractBlockDistMatrix<T>::SetSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+( const std::vector<Int>& I, const std::vector<Int>& J,
   const DistMatrix<T,STAR,STAR>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::SetSubmatrix"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     if( Participating() )
     {
         // Fill in our locally-owned entries
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1336,24 +1336,24 @@ AbstractBlockDistMatrix<T>::SetSubmatrix
 template<typename T>
 void 
 AbstractBlockDistMatrix<T>::SetRealPartOfSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+( const std::vector<Int>& I, const std::vector<Int>& J,
   const DistMatrix<Base<T>,STAR,STAR>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::SetRealPartOfSubmatrix"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     if( Participating() )
     {
         // Fill in our locally-owned entries
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1369,24 +1369,24 @@ AbstractBlockDistMatrix<T>::SetRealPartOfSubmatrix
 template<typename T>
 void 
 AbstractBlockDistMatrix<T>::SetImagPartOfSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+( const std::vector<Int>& I, const std::vector<Int>& J,
   const DistMatrix<Base<T>,STAR,STAR>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::SetImagPartOfSubmatrix"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     if( Participating() )
     {
         // Fill in our locally-owned entries
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1402,24 +1402,24 @@ AbstractBlockDistMatrix<T>::SetImagPartOfSubmatrix
 template<typename T>
 void 
 AbstractBlockDistMatrix<T>::UpdateSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+( const std::vector<Int>& I, const std::vector<Int>& J,
   T alpha, const DistMatrix<T,STAR,STAR>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::UpdateSubmatrix"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     if( Participating() )
     {
         // Modify our locally-owned entries
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1435,24 +1435,24 @@ AbstractBlockDistMatrix<T>::UpdateSubmatrix
 template<typename T>
 void 
 AbstractBlockDistMatrix<T>::UpdateRealPartOfSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+( const std::vector<Int>& I, const std::vector<Int>& J,
   Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::UpdateRealPartOfSubmatrix"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     if( Participating() )
     {
         // Modify our locally-owned entries
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1468,24 +1468,24 @@ AbstractBlockDistMatrix<T>::UpdateRealPartOfSubmatrix
 template<typename T>
 void 
 AbstractBlockDistMatrix<T>::UpdateImagPartOfSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+( const std::vector<Int>& I, const std::vector<Int>& J,
   Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::UpdateImagPartOfSubmatrix"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     if( Participating() )
     {
         // Modify our locally-owned entries
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1501,23 +1501,23 @@ AbstractBlockDistMatrix<T>::UpdateImagPartOfSubmatrix
 template<typename T>
 void 
 AbstractBlockDistMatrix<T>::MakeSubmatrixReal
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
+( const std::vector<Int>& I, const std::vector<Int>& J )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::MakeSubmatrixReal"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     if( Participating() )
     {
         // Modify the locally-owned entries 
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1532,23 +1532,23 @@ AbstractBlockDistMatrix<T>::MakeSubmatrixReal
 template<typename T>
 void 
 AbstractBlockDistMatrix<T>::ConjugateSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
+( const std::vector<Int>& I, const std::vector<Int>& J )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::ConjugateSubmatrix"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
+    const Int m = I.size();
+    const Int n = J.size();
     if( Participating() )
     {
         // Modify the locally-owned entries 
         for( Int jSub=0; jSub<n; ++jSub )
         {
-            const Int j = colInd[jSub];
+            const Int j = J[jSub];
             if( IsLocalCol(j) )
             {
                 const Int jLoc = LocalCol(j);
                 for( Int iSub=0; iSub<m; ++iSub )
                 {
-                    const Int i = rowInd[iSub];
+                    const Int i = I[iSub];
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
@@ -1565,105 +1565,105 @@ AbstractBlockDistMatrix<T>::ConjugateSubmatrix
 
 template<typename T>
 void AbstractBlockDistMatrix<T>::GetLocalSubmatrix
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc, 
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc, 
   El::Matrix<T>& ASub ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::GetLocalSubmatrix"))
-    LockedMatrix().GetSubmatrix( rowIndLoc, colIndLoc, ASub );
+    LockedMatrix().GetSubmatrix( ILoc, JLoc, ASub );
 }
 
 template<typename T>
 void AbstractBlockDistMatrix<T>::GetRealPartOfLocalSubmatrix
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc, 
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc, 
   El::Matrix<Base<T>>& ASub ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::GetRealPartOfLocalSubmatrix"))
-    LockedMatrix().GetRealPartOfSubmatrix( rowIndLoc, colIndLoc, ASub );
+    LockedMatrix().GetRealPartOfSubmatrix( ILoc, JLoc, ASub );
 }
 
 template<typename T>
 void AbstractBlockDistMatrix<T>::GetImagPartOfLocalSubmatrix
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc, 
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc, 
   El::Matrix<Base<T>>& ASub ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::GetImagPartOfLocalSubmatrix"))
-    LockedMatrix().GetImagPartOfSubmatrix( rowIndLoc, colIndLoc, ASub );
+    LockedMatrix().GetImagPartOfSubmatrix( ILoc, JLoc, ASub );
 }
 
 template<typename T>
 void 
 AbstractBlockDistMatrix<T>::SetLocalSubmatrix
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
   const El::Matrix<T>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::SetLocalSubmatrix"))
-    Matrix().SetSubmatrix( rowIndLoc, colIndLoc, ASub );
+    Matrix().SetSubmatrix( ILoc, JLoc, ASub );
 }
 
 template<typename T>
 void 
 AbstractBlockDistMatrix<T>::SetRealPartOfLocalSubmatrix
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
   const El::Matrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::SetRealPartOfLocalSubmatrix"))
-    Matrix().SetRealPartOfSubmatrix( rowIndLoc, colIndLoc, ASub );
+    Matrix().SetRealPartOfSubmatrix( ILoc, JLoc, ASub );
 }
 
 template<typename T>
 void 
 AbstractBlockDistMatrix<T>::SetImagPartOfLocalSubmatrix
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
   const El::Matrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::SetImagPartOfLocalSubmatrix"))
-    Matrix().SetImagPartOfSubmatrix( rowIndLoc, colIndLoc, ASub );
+    Matrix().SetImagPartOfSubmatrix( ILoc, JLoc, ASub );
 }
 
 template<typename T>
 void 
 AbstractBlockDistMatrix<T>::UpdateLocalSubmatrix
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
   T alpha, const El::Matrix<T>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::UpdateLocalSubmatrix"))
-    Matrix().UpdateSubmatrix( rowIndLoc, colIndLoc, alpha, ASub );
+    Matrix().UpdateSubmatrix( ILoc, JLoc, alpha, ASub );
 }
 
 template<typename T>
 void 
 AbstractBlockDistMatrix<T>::UpdateRealPartOfLocalSubmatrix
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
   Base<T> alpha, const El::Matrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::UpdateRealPartOfLocalSubmatrix"))
-    Matrix().UpdateRealPartOfSubmatrix( rowIndLoc, colIndLoc, alpha, ASub );
+    Matrix().UpdateRealPartOfSubmatrix( ILoc, JLoc, alpha, ASub );
 }
 
 template<typename T>
 void 
 AbstractBlockDistMatrix<T>::UpdateImagPartOfLocalSubmatrix
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
   Base<T> alpha, const El::Matrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::UpdateImagPartOfLocalSubmatrix"))
-    Matrix().UpdateImagPartOfSubmatrix( rowIndLoc, colIndLoc, alpha, ASub );
+    Matrix().UpdateImagPartOfSubmatrix( ILoc, JLoc, alpha, ASub );
 }
 
 template<typename T>
 void AbstractBlockDistMatrix<T>::MakeLocalSubmatrixReal
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc )
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::MakeLocalSubmatrixReal"))
-    Matrix().MakeSubmatrixReal( rowIndLoc, colIndLoc );
+    Matrix().MakeSubmatrixReal( ILoc, JLoc );
 }
 
 template<typename T>
 void AbstractBlockDistMatrix<T>::ConjugateLocalSubmatrix
-( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc )
+( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::ConjugateLocalSubmatrix"))
-    Matrix().ConjugateSubmatrix( rowIndLoc, colIndLoc );
+    Matrix().ConjugateSubmatrix( ILoc, JLoc );
 }
 
 // Broadcast the local matrix over a particular communicator

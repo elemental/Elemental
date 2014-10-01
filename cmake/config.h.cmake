@@ -80,6 +80,13 @@
 #cmakedefine EL_POOL_MEMORY
 #cmakedefine EL_AVOID_OMP_FMA
 
+#cmakedefine EL_DECLSPEC
+#ifdef EL_DECLSPEC
+# define EL_EXPORT __declspec(dllexport)
+#else
+# define EL_EXPORT
+#endif
+
 /* NOTE: Only EL_DISABLE_FLOAT has been tested so far */
 #cmakedefine EL_DISABLE_FLOAT
 #cmakedefine EL_DISABLE_DOUBLE

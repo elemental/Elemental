@@ -31,10 +31,14 @@ typedef enum {
   EL_FileFormat_MAX
 } ElFileFormat;
 
-ElError ElQtImageFormat( ElFileFormat format, const char** formatStr );
-ElError ElFileExtension( ElFileFormat format, const char** fileExt );
-ElError ElFormatFromExtension( const char* ext, ElFileFormat* format );
-ElError ElDetectFormat( const char* filename, ElFileFormat* format );
+EL_EXPORT ElError ElQtImageFormat
+( ElFileFormat format, const char** formatStr );
+EL_EXPORT ElError ElFileExtension
+( ElFileFormat format, const char** fileExt );
+EL_EXPORT ElError ElFormatFromExtension
+( const char* ext, ElFileFormat* format );
+EL_EXPORT ElError ElDetectFormat
+( const char* filename, ElFileFormat* format );
 
 /* TODO: FileSize wrapper. What should the input/output types be? */
 
@@ -47,24 +51,24 @@ typedef enum {
 
 /* Color maps
    ========== */
-ElError ElSetColorMap( ElColorMap map );
-ElError ElGetColorMap( ElColorMap* map );
-ElError ElSetNumDiscreteColors( ElInt numColors );
-ElError ElNumDiscreteColors( ElInt* numColors );
+EL_EXPORT ElError ElSetColorMap( ElColorMap map );
+EL_EXPORT ElError ElGetColorMap( ElColorMap* map );
+EL_EXPORT ElError ElSetNumDiscreteColors( ElInt numColors );
+EL_EXPORT ElError ElNumDiscreteColors( ElInt* numColors );
 
 /* Display
    ======= */
-ElError ElDisplay_i( ElConstMatrix_i A, const char* title );
-ElError ElDisplay_s( ElConstMatrix_s A, const char* title );
-ElError ElDisplay_d( ElConstMatrix_d A, const char* title );
-ElError ElDisplay_c( ElConstMatrix_c A, const char* title );
-ElError ElDisplay_z( ElConstMatrix_z A, const char* title );
+EL_EXPORT ElError ElDisplay_i( ElConstMatrix_i A, const char* title );
+EL_EXPORT ElError ElDisplay_s( ElConstMatrix_s A, const char* title );
+EL_EXPORT ElError ElDisplay_d( ElConstMatrix_d A, const char* title );
+EL_EXPORT ElError ElDisplay_c( ElConstMatrix_c A, const char* title );
+EL_EXPORT ElError ElDisplay_z( ElConstMatrix_z A, const char* title );
 
-ElError ElDisplayDist_i( ElConstDistMatrix_i A, const char* title );
-ElError ElDisplayDist_s( ElConstDistMatrix_s A, const char* title );
-ElError ElDisplayDist_d( ElConstDistMatrix_d A, const char* title );
-ElError ElDisplayDist_c( ElConstDistMatrix_c A, const char* title );
-ElError ElDisplayDist_z( ElConstDistMatrix_z A, const char* title );
+EL_EXPORT ElError ElDisplayDist_i( ElConstDistMatrix_i A, const char* title );
+EL_EXPORT ElError ElDisplayDist_s( ElConstDistMatrix_s A, const char* title );
+EL_EXPORT ElError ElDisplayDist_d( ElConstDistMatrix_d A, const char* title );
+EL_EXPORT ElError ElDisplayDist_c( ElConstDistMatrix_c A, const char* title );
+EL_EXPORT ElError ElDisplayDist_z( ElConstDistMatrix_z A, const char* title );
 
 /* Print 
    ===== */
@@ -73,87 +77,97 @@ ElError ElDisplayDist_z( ElConstDistMatrix_z A, const char* title );
         problematic due to difficulties in converting between FILE* and
         std::ostream 
 */
-ElError ElPrint_i( ElConstMatrix_i A, const char* title );
-ElError ElPrint_s( ElConstMatrix_s A, const char* title );
-ElError ElPrint_d( ElConstMatrix_d A, const char* title );
-ElError ElPrint_c( ElConstMatrix_c A, const char* title );
-ElError ElPrint_z( ElConstMatrix_z A, const char* title );
+EL_EXPORT ElError ElPrint_i( ElConstMatrix_i A, const char* title );
+EL_EXPORT ElError ElPrint_s( ElConstMatrix_s A, const char* title );
+EL_EXPORT ElError ElPrint_d( ElConstMatrix_d A, const char* title );
+EL_EXPORT ElError ElPrint_c( ElConstMatrix_c A, const char* title );
+EL_EXPORT ElError ElPrint_z( ElConstMatrix_z A, const char* title );
 
-ElError ElPrintDist_i( ElConstDistMatrix_i A, const char* title );
-ElError ElPrintDist_s( ElConstDistMatrix_s A, const char* title );
-ElError ElPrintDist_d( ElConstDistMatrix_d A, const char* title );
-ElError ElPrintDist_c( ElConstDistMatrix_c A, const char* title );
-ElError ElPrintDist_z( ElConstDistMatrix_z A, const char* title );
+EL_EXPORT ElError ElPrintDist_i( ElConstDistMatrix_i A, const char* title );
+EL_EXPORT ElError ElPrintDist_s( ElConstDistMatrix_s A, const char* title );
+EL_EXPORT ElError ElPrintDist_d( ElConstDistMatrix_d A, const char* title );
+EL_EXPORT ElError ElPrintDist_c( ElConstDistMatrix_c A, const char* title );
+EL_EXPORT ElError ElPrintDist_z( ElConstDistMatrix_z A, const char* title );
 
 /* Read
    ==== */
-ElError ElRead_i( ElMatrix_i A, const char* filename, ElFileFormat format );
-ElError ElRead_s( ElMatrix_s A, const char* filename, ElFileFormat format );
-ElError ElRead_d( ElMatrix_d A, const char* filename, ElFileFormat format );
-ElError ElRead_c( ElMatrix_c A, const char* filename, ElFileFormat format );
-ElError ElRead_z( ElMatrix_z A, const char* filename, ElFileFormat format );
+EL_EXPORT ElError ElRead_i
+( ElMatrix_i A, const char* filename, ElFileFormat format );
+EL_EXPORT ElError ElRead_s
+( ElMatrix_s A, const char* filename, ElFileFormat format );
+EL_EXPORT ElError ElRead_d
+( ElMatrix_d A, const char* filename, ElFileFormat format );
+EL_EXPORT ElError ElRead_c
+( ElMatrix_c A, const char* filename, ElFileFormat format );
+EL_EXPORT ElError ElRead_z
+( ElMatrix_z A, const char* filename, ElFileFormat format );
 
-ElError ElReadDist_i
+EL_EXPORT ElError ElReadDist_i
 ( ElDistMatrix_i A, const char* filename, ElFileFormat format, 
   bool sequential );
-ElError ElReadDist_s
+EL_EXPORT ElError ElReadDist_s
 ( ElDistMatrix_s A, const char* filename, ElFileFormat format, 
   bool sequential );
-ElError ElReadDist_d
+EL_EXPORT ElError ElReadDist_d
 ( ElDistMatrix_d A, const char* filename, ElFileFormat format, 
   bool sequential );
-ElError ElReadDist_c
+EL_EXPORT ElError ElReadDist_c
 ( ElDistMatrix_c A, const char* filename, ElFileFormat format, 
   bool sequential );
-ElError ElReadDist_z
+EL_EXPORT ElError ElReadDist_z
 ( ElDistMatrix_z A, const char* filename, ElFileFormat format, 
   bool sequential );
 
 /* Spy
    === */
-ElError ElSpy_i( ElConstMatrix_i A, const char* title, ElInt tol );
-ElError ElSpy_s( ElConstMatrix_s A, const char* title, float tol );
-ElError ElSpy_d( ElConstMatrix_d A, const char* title, double tol );
-ElError ElSpy_c( ElConstMatrix_c A, const char* title, float tol );
-ElError ElSpy_z( ElConstMatrix_z A, const char* title, double tol );
+EL_EXPORT ElError ElSpy_i( ElConstMatrix_i A, const char* title, ElInt tol );
+EL_EXPORT ElError ElSpy_s( ElConstMatrix_s A, const char* title, float tol );
+EL_EXPORT ElError ElSpy_d( ElConstMatrix_d A, const char* title, double tol );
+EL_EXPORT ElError ElSpy_c( ElConstMatrix_c A, const char* title, float tol );
+EL_EXPORT ElError ElSpy_z( ElConstMatrix_z A, const char* title, double tol );
 
-ElError ElSpyDist_i( ElConstDistMatrix_i A, const char* title, ElInt tol );
-ElError ElSpyDist_s( ElConstDistMatrix_s A, const char* title, float tol );
-ElError ElSpyDist_d( ElConstDistMatrix_d A, const char* title, double tol );
-ElError ElSpyDist_c( ElConstDistMatrix_c A, const char* title, float tol );
-ElError ElSpyDist_z( ElConstDistMatrix_z A, const char* title, double tol );
+EL_EXPORT ElError ElSpyDist_i
+( ElConstDistMatrix_i A, const char* title, ElInt tol );
+EL_EXPORT ElError ElSpyDist_s
+( ElConstDistMatrix_s A, const char* title, float tol );
+EL_EXPORT ElError ElSpyDist_d
+( ElConstDistMatrix_d A, const char* title, double tol );
+EL_EXPORT ElError ElSpyDist_c
+( ElConstDistMatrix_c A, const char* title, float tol );
+EL_EXPORT ElError ElSpyDist_z
+( ElConstDistMatrix_z A, const char* title, double tol );
 
 /* Write
    ===== */
-ElError ElWrite_i
+EL_EXPORT ElError ElWrite_i
 ( ElConstMatrix_i A, const char* basename, ElFileFormat format, 
   const char* title );
-ElError ElWrite_s
+EL_EXPORT ElError ElWrite_s
 ( ElConstMatrix_s A, const char* basename, ElFileFormat format, 
   const char* title );
-ElError ElWrite_d
+EL_EXPORT ElError ElWrite_d
 ( ElConstMatrix_d A, const char* basename, ElFileFormat format, 
   const char* title );
-ElError ElWrite_c
+EL_EXPORT ElError ElWrite_c
 ( ElConstMatrix_c A, const char* basename, ElFileFormat format, 
   const char* title );
-ElError ElWrite_z
+EL_EXPORT ElError ElWrite_z
 ( ElConstMatrix_z A, const char* basename, ElFileFormat format, 
   const char* title );
 
-ElError ElWriteDist_i
+EL_EXPORT ElError ElWriteDist_i
 ( ElConstDistMatrix_i A, const char* basename, ElFileFormat format, 
   const char* title );
-ElError ElWriteDist_s
+EL_EXPORT ElError ElWriteDist_s
 ( ElConstDistMatrix_s A, const char* basename, ElFileFormat format, 
   const char* title );
-ElError ElWriteDist_d
+EL_EXPORT ElError ElWriteDist_d
 ( ElConstDistMatrix_d A, const char* basename, ElFileFormat format, 
   const char* title );
-ElError ElWriteDist_c
+EL_EXPORT ElError ElWriteDist_c
 ( ElConstDistMatrix_c A, const char* basename, ElFileFormat format, 
   const char* title );
-ElError ElWriteDist_z
+EL_EXPORT ElError ElWriteDist_z
 ( ElConstDistMatrix_z A, const char* basename, ElFileFormat format, 
   const char* title );
 

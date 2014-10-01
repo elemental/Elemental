@@ -16,37 +16,37 @@ extern "C" {
 #include <stdlib.h>
 #endif
 
-ElError ElPrintVersion( FILE* stream );
-ElError ElPrintConfig( FILE* stream );
-ElError ElPrintCCompilerInfo( FILE* stream );
-ElError ElPrintCxxCompilerInfo( FILE* stream );
+EL_EXPORT ElError ElPrintVersion( FILE* stream );
+EL_EXPORT ElError ElPrintConfig( FILE* stream );
+EL_EXPORT ElError ElPrintCCompilerInfo( FILE* stream );
+EL_EXPORT ElError ElPrintCxxCompilerInfo( FILE* stream );
 
-ElError ElInitialize( int* argc, char*** argv );
-ElError ElFinalize();
-ElError ElInitialized( bool* initialized );
+EL_EXPORT ElError ElInitialize( int* argc, char*** argv );
+EL_EXPORT ElError ElFinalize();
+EL_EXPORT ElError ElInitialized( bool* initialized );
 
-ElError ElInput_b
+EL_EXPORT ElError ElInput_b
 ( const char* name, const char* desc, bool defaultVal, bool* val );
-ElError ElInput_i
+EL_EXPORT ElError ElInput_i
 ( const char* name, const char* desc, int defaultVal, int* val );
-ElError ElInput_I
+EL_EXPORT ElError ElInput_I
 ( const char* name, const char* desc, ElInt defaultVal, ElInt* val );
-ElError ElInput_s
+EL_EXPORT ElError ElInput_s
 ( const char* name, const char* desc, float defaultVal, float* val );
-ElError ElInput_d
+EL_EXPORT ElError ElInput_d
 ( const char* name, const char* desc, double defaultVal, double* val );
-ElError ElInput_cstr
+EL_EXPORT ElError ElInput_cstr
 ( const char* name, const char* desc, const char* defaultVal, 
   const char** val );
 
-ElError ElProcessInput();
-ElError ElPrintInputReport();
+EL_EXPORT ElError ElProcessInput();
+EL_EXPORT ElError ElPrintInputReport();
 
-ElError ElBlocksize( ElInt* blocksize );
-ElError ElSetBlocksize( ElInt blocksize );
+EL_EXPORT ElError ElBlocksize( ElInt* blocksize );
+EL_EXPORT ElError ElSetBlocksize( ElInt blocksize );
 
-ElError ElPushBlocksizeStack( ElInt blocksize );
-ElError ElPopBlocksizeStack();
+EL_EXPORT ElError ElPushBlocksizeStack( ElInt blocksize );
+EL_EXPORT ElError ElPopBlocksizeStack();
 
 #define EL_ABORT_ON_ERROR(error) \
   do \

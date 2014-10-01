@@ -18,39 +18,39 @@ extern "C" {
 
 /* Apply packed reflectors
    ======================= */
-ElError ElApplyPackedReflectors_s
+EL_EXPORT ElError ElApplyPackedReflectors_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElVerticalOrHorizontal dir, ElForwardOrBackward order, ElInt offset, 
   ElConstMatrix_s H, ElConstMatrix_s t, ElMatrix_s A );
-ElError ElApplyPackedReflectors_d
+EL_EXPORT ElError ElApplyPackedReflectors_d
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElVerticalOrHorizontal dir, ElForwardOrBackward order, ElInt offset, 
   ElConstMatrix_d H, ElConstMatrix_d t, ElMatrix_d A );
-ElError ElApplyPackedReflectors_c
+EL_EXPORT ElError ElApplyPackedReflectors_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElVerticalOrHorizontal dir, ElForwardOrBackward order, 
   ElConjugation conjugation, ElInt offset, 
   ElConstMatrix_c H, ElConstMatrix_c t, ElMatrix_c A );
-ElError ElApplyPackedReflectors_z
+EL_EXPORT ElError ElApplyPackedReflectors_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElVerticalOrHorizontal dir, ElForwardOrBackward order, 
   ElConjugation conjugation, ElInt offset, 
   ElConstMatrix_z H, ElConstMatrix_z t, ElMatrix_z A );
 
-ElError ElApplyPackedReflectorsDist_s
+EL_EXPORT ElError ElApplyPackedReflectorsDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElVerticalOrHorizontal dir, ElForwardOrBackward order, ElInt offset, 
   ElConstDistMatrix_s H, ElConstDistMatrix_s t, ElDistMatrix_s A );
-ElError ElApplyPackedReflectorsDist_d
+EL_EXPORT ElError ElApplyPackedReflectorsDist_d
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElVerticalOrHorizontal dir, ElForwardOrBackward order, ElInt offset, 
   ElConstDistMatrix_d H, ElConstDistMatrix_d t, ElDistMatrix_d A );
-ElError ElApplyPackedReflectorsDist_c
+EL_EXPORT ElError ElApplyPackedReflectorsDist_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElVerticalOrHorizontal dir, ElForwardOrBackward order, 
   ElConjugation conjugation, ElInt offset, 
   ElConstDistMatrix_c H, ElConstDistMatrix_c t, ElDistMatrix_c A );
-ElError ElApplyPackedReflectorsDist_z
+EL_EXPORT ElError ElApplyPackedReflectorsDist_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElVerticalOrHorizontal dir, ElForwardOrBackward order, 
   ElConjugation conjugation, ElInt offset, 
@@ -58,29 +58,29 @@ ElError ElApplyPackedReflectorsDist_z
 
 /* Expand packed reflectors
    ======================== */
-ElError ElExpandPackedReflectors_s
+EL_EXPORT ElError ElExpandPackedReflectors_s
 ( ElUpperOrLower uplo, ElVerticalOrHorizontal dir, ElInt offset, 
   ElMatrix_s H, ElConstMatrix_s t );
-ElError ElExpandPackedReflectors_d
+EL_EXPORT ElError ElExpandPackedReflectors_d
 ( ElUpperOrLower uplo, ElVerticalOrHorizontal dir, ElInt offset, 
   ElMatrix_d H, ElConstMatrix_d t );
-ElError ElExpandPackedReflectors_c
+EL_EXPORT ElError ElExpandPackedReflectors_c
 ( ElUpperOrLower uplo, ElVerticalOrHorizontal dir, ElConjugation conjugation,
   ElInt offset, ElMatrix_c H, ElConstMatrix_c t );
-ElError ElExpandPackedReflectors_z
+EL_EXPORT ElError ElExpandPackedReflectors_z
 ( ElUpperOrLower uplo, ElVerticalOrHorizontal dir, ElConjugation conjugation,
   ElInt offset, ElMatrix_z H, ElConstMatrix_z t );
 
-ElError ElExpandPackedReflectorsDist_s
+EL_EXPORT ElError ElExpandPackedReflectorsDist_s
 ( ElUpperOrLower uplo, ElVerticalOrHorizontal dir, ElInt offset, 
   ElDistMatrix_s H, ElConstDistMatrix_s t );
-ElError ElExpandPackedReflectorsDist_d
+EL_EXPORT ElError ElExpandPackedReflectorsDist_d
 ( ElUpperOrLower uplo, ElVerticalOrHorizontal dir, ElInt offset, 
   ElDistMatrix_d H, ElConstDistMatrix_d t );
-ElError ElExpandPackedReflectorsDist_c
+EL_EXPORT ElError ElExpandPackedReflectorsDist_c
 ( ElUpperOrLower uplo, ElVerticalOrHorizontal dir, ElConjugation conjugation,
   ElInt offset, ElDistMatrix_c H, ElConstDistMatrix_c t );
-ElError ElExpandPackedReflectorsDist_z
+EL_EXPORT ElError ElExpandPackedReflectorsDist_z
 ( ElUpperOrLower uplo, ElVerticalOrHorizontal dir, ElConjugation conjugation,
   ElInt offset, ElDistMatrix_z H, ElConstDistMatrix_z t );
 
@@ -89,42 +89,42 @@ ElError ElExpandPackedReflectorsDist_z
 
 /* Left application
    ---------------- */
-ElError ElLeftHyperbolicReflector_s
+EL_EXPORT ElError ElLeftHyperbolicReflector_s
 ( float* chi, ElMatrix_s x, float* tau );
-ElError ElLeftHyperbolicReflector_d
+EL_EXPORT ElError ElLeftHyperbolicReflector_d
 ( double* chi, ElMatrix_d x, double* tau );
-ElError ElLeftHyperbolicReflector_c
+EL_EXPORT ElError ElLeftHyperbolicReflector_c
 ( complex_float* chi, ElMatrix_c x, complex_float* tau );
-ElError ElLeftHyperbolicReflector_z
+EL_EXPORT ElError ElLeftHyperbolicReflector_z
 ( complex_double* chi, ElMatrix_z x, complex_double* tau );
 
-ElError ElLeftHyperbolicReflectorDist_s
+EL_EXPORT ElError ElLeftHyperbolicReflectorDist_s
 ( float* chi, ElDistMatrix_s x, float* tau );
-ElError ElLeftHyperbolicReflectorDist_d
+EL_EXPORT ElError ElLeftHyperbolicReflectorDist_d
 ( double* chi, ElDistMatrix_d x, double* tau );
-ElError ElLeftHyperbolicReflectorDist_c
+EL_EXPORT ElError ElLeftHyperbolicReflectorDist_c
 ( complex_float* chi, ElDistMatrix_c x, complex_float* tau );
-ElError ElLeftHyperbolicReflectorDist_z
+EL_EXPORT ElError ElLeftHyperbolicReflectorDist_z
 ( complex_double* chi, ElDistMatrix_z x, complex_double* tau );
 
 /* Right application
    ----------------- */
-ElError ElRightHyperbolicReflector_s
+EL_EXPORT ElError ElRightHyperbolicReflector_s
 ( float* chi, ElMatrix_s x, float* tau );
-ElError ElRightHyperbolicReflector_d
+EL_EXPORT ElError ElRightHyperbolicReflector_d
 ( double* chi, ElMatrix_d x, double* tau );
-ElError ElRightHyperbolicReflector_c
+EL_EXPORT ElError ElRightHyperbolicReflector_c
 ( complex_float* chi, ElMatrix_c x, complex_float* tau );
-ElError ElRightHyperbolicReflector_z
+EL_EXPORT ElError ElRightHyperbolicReflector_z
 ( complex_double* chi, ElMatrix_z x, complex_double* tau );
 
-ElError ElRightHyperbolicReflectorDist_s
+EL_EXPORT ElError ElRightHyperbolicReflectorDist_s
 ( float* chi, ElDistMatrix_s x, float* tau );
-ElError ElRightHyperbolicReflectorDist_d
+EL_EXPORT ElError ElRightHyperbolicReflectorDist_d
 ( double* chi, ElDistMatrix_d x, double* tau );
-ElError ElRightHyperbolicReflectorDist_c
+EL_EXPORT ElError ElRightHyperbolicReflectorDist_c
 ( complex_float* chi, ElDistMatrix_c x, complex_float* tau );
-ElError ElRightHyperbolicReflectorDist_z
+EL_EXPORT ElError ElRightHyperbolicReflectorDist_z
 ( complex_double* chi, ElDistMatrix_z x, complex_double* tau );
 
 /* TODO: Wrappers for versions which only communicate within a particular row 
@@ -135,42 +135,42 @@ ElError ElRightHyperbolicReflectorDist_z
 
 /* Left application
    ---------------- */
-ElError ElLeftReflector_s
+EL_EXPORT ElError ElLeftReflector_s
 ( float* chi, ElMatrix_s x, float* tau );
-ElError ElLeftReflector_d
+EL_EXPORT ElError ElLeftReflector_d
 ( double* chi, ElMatrix_d x, double* tau );
-ElError ElLeftReflector_c
+EL_EXPORT ElError ElLeftReflector_c
 ( complex_float* chi, ElMatrix_c x, complex_float* tau );
-ElError ElLeftReflector_z
+EL_EXPORT ElError ElLeftReflector_z
 ( complex_double* chi, ElMatrix_z x, complex_double* tau );
 
-ElError ElLeftReflectorDist_s
+EL_EXPORT ElError ElLeftReflectorDist_s
 ( float* chi, ElDistMatrix_s x, float* tau );
-ElError ElLeftReflectorDist_d
+EL_EXPORT ElError ElLeftReflectorDist_d
 ( double* chi, ElDistMatrix_d x, double* tau );
-ElError ElLeftReflectorDist_c
+EL_EXPORT ElError ElLeftReflectorDist_c
 ( complex_float* chi, ElDistMatrix_c x, complex_float* tau );
-ElError ElLeftReflectorDist_z
+EL_EXPORT ElError ElLeftReflectorDist_z
 ( complex_double* chi, ElDistMatrix_z x, complex_double* tau );
 
 /* Right application
    ----------------- */
-ElError ElRightReflector_s
+EL_EXPORT ElError ElRightReflector_s
 ( float* chi, ElMatrix_s x, float* tau );
-ElError ElRightReflector_d
+EL_EXPORT ElError ElRightReflector_d
 ( double* chi, ElMatrix_d x, double* tau );
-ElError ElRightReflector_c
+EL_EXPORT ElError ElRightReflector_c
 ( complex_float* chi, ElMatrix_c x, complex_float* tau );
-ElError ElRightReflector_z
+EL_EXPORT ElError ElRightReflector_z
 ( complex_double* chi, ElMatrix_z x, complex_double* tau );
 
-ElError ElRightReflectorDist_s
+EL_EXPORT ElError ElRightReflectorDist_s
 ( float* chi, ElDistMatrix_s x, float* tau );
-ElError ElRightReflectorDist_d
+EL_EXPORT ElError ElRightReflectorDist_d
 ( double* chi, ElDistMatrix_d x, double* tau );
-ElError ElRightReflectorDist_c
+EL_EXPORT ElError ElRightReflectorDist_c
 ( complex_float* chi, ElDistMatrix_c x, complex_float* tau );
-ElError ElRightReflectorDist_z
+EL_EXPORT ElError ElRightReflectorDist_z
 ( complex_double* chi, ElDistMatrix_z x, complex_double* tau );
 
 /* TODO: Wrappers for versions which only communicate within a particular row 

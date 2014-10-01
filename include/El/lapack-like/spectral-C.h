@@ -31,7 +31,7 @@ typedef struct {
   float spreadFactor;
   bool progress;
 } ElHermitianSDCCtrl_s;
-ElError ElHermitianSDCCtrlDefault_s( ElHermitianSDCCtrl_s* ctrl );
+EL_EXPORT ElError ElHermitianSDCCtrlDefault_s( ElHermitianSDCCtrl_s* ctrl );
 
 typedef struct {
   ElInt cutoff;
@@ -40,7 +40,7 @@ typedef struct {
   double spreadFactor;
   bool progress;
 } ElHermitianSDCCtrl_d;
-ElError ElHermitianSDCCtrlDefault_d( ElHermitianSDCCtrl_d* ctrl );
+EL_EXPORT ElError ElHermitianSDCCtrlDefault_d( ElHermitianSDCCtrl_d* ctrl );
 
 /* HermitianEigSubset */
 typedef struct {
@@ -50,7 +50,7 @@ typedef struct {
   bool rangeSubset;
   float lowerBound, upperBound;
 } ElHermitianEigSubset_s;
-ElError ElHermitianEigSubsetDefault_s( ElHermitianEigSubset_s* subset );
+EL_EXPORT ElError ElHermitianEigSubsetDefault_s( ElHermitianEigSubset_s* subset );
 
 typedef struct {
   bool indexSubset;
@@ -59,7 +59,7 @@ typedef struct {
   bool rangeSubset;
   double lowerBound, upperBound;
 } ElHermitianEigSubset_d;
-ElError ElHermitianEigSubsetDefault_d( ElHermitianEigSubset_d* subset );
+EL_EXPORT ElError ElHermitianEigSubsetDefault_d( ElHermitianEigSubset_d* subset );
 
 /* HermitianEigCtrl */
 typedef struct {
@@ -67,14 +67,14 @@ typedef struct {
   ElHermitianSDCCtrl_s sdcCtrl;
   bool useSDC;
 } ElHermitianEigCtrl_s;
-ElError ElHermitianEigCtrlDefault_s( ElHermitianEigCtrl_s* ctrl );
+EL_EXPORT ElError ElHermitianEigCtrlDefault_s( ElHermitianEigCtrl_s* ctrl );
 
 typedef struct {
   ElHermitianTridiagCtrl tridiagCtrl;
   ElHermitianSDCCtrl_d sdcCtrl;
   bool useSDC;
 } ElHermitianEigCtrl_d;
-ElError ElHermitianEigCtrlDefault_d( ElHermitianEigCtrl_d* ctrl );
+EL_EXPORT ElError ElHermitianEigCtrlDefault_d( ElHermitianEigCtrl_d* ctrl );
 
 /* PolarCtrl */
 typedef struct {
@@ -83,7 +83,7 @@ typedef struct {
   ElInt maxIts;
   ElInt numIts;
 } ElPolarCtrl;
-ElError ElPolarCtrlDefault( ElPolarCtrl* ctrl );
+EL_EXPORT ElError ElPolarCtrlDefault( ElPolarCtrl* ctrl );
 
 /* SVDCtrl */
 typedef struct {
@@ -94,7 +94,7 @@ typedef struct {
   bool relative;
   float tol;
 } ElSVDCtrl_s;
-ElError ElSVDCtrlDefault_s( ElSVDCtrl_s* ctrl );
+EL_EXPORT ElError ElSVDCtrlDefault_s( ElSVDCtrl_s* ctrl );
 
 typedef struct {
   bool seqQR;
@@ -104,14 +104,14 @@ typedef struct {
   bool relative;
   double tol;
 } ElSVDCtrl_d;
-ElError ElSVDCtrlDefault_d( ElSVDCtrl_d* ctrl );
+EL_EXPORT ElError ElSVDCtrlDefault_d( ElSVDCtrl_d* ctrl );
 
 /* HessQRCtrl */
 typedef struct {
   bool distAED;
   ElInt blockHeight, blockWidth;
 } ElHessQRCtrl;
-ElError ElHessQRCtrlDefault( ElHessQRCtrl* ctrl );
+EL_EXPORT ElError ElHessQRCtrlDefault( ElHessQRCtrl* ctrl );
 
 /* SDCCtrl */
 typedef struct {
@@ -123,7 +123,7 @@ typedef struct {
   bool progress;
   ElSignCtrl_s signCtrl;
 } ElSDCCtrl_s;
-ElError ElSDCCtrlDefault_s( ElSDCCtrl_s* ctrl );
+EL_EXPORT ElError ElSDCCtrlDefault_s( ElSDCCtrl_s* ctrl );
 
 typedef struct {
   ElInt cutoff;
@@ -134,7 +134,7 @@ typedef struct {
   bool progress;
   ElSignCtrl_d signCtrl;
 } ElSDCCtrl_d;
-ElError ElSDCCtrlDefault_d( ElSDCCtrl_d* ctrl );
+EL_EXPORT ElError ElSDCCtrlDefault_d( ElSDCCtrl_d* ctrl );
 
 /* SchurCtrl */
 typedef struct {
@@ -142,39 +142,39 @@ typedef struct {
   ElHessQRCtrl qrCtrl;
   ElSDCCtrl_s sdcCtrl;
 } ElSchurCtrl_s;
-ElError ElSchurCtrlDefault_s( ElSchurCtrl_s* ctrl );
+EL_EXPORT ElError ElSchurCtrlDefault_s( ElSchurCtrl_s* ctrl );
 
 typedef struct {
   bool useSDC;
   ElHessQRCtrl qrCtrl;
   ElSDCCtrl_d sdcCtrl;
 } ElSchurCtrl_d;
-ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl );
+EL_EXPORT ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl );
 
 /* Hermitian tridiagonal eigensolvers
    ================================== */
 
 /* Compute all eigenvalues
    ----------------------- */
-ElError ElHermitianTridiagEig_s
+EL_EXPORT ElError ElHermitianTridiagEig_s
 ( ElMatrix_s d, ElMatrix_s dSub, ElMatrix_s w, ElSortType sort );
-ElError ElHermitianTridiagEig_d
+EL_EXPORT ElError ElHermitianTridiagEig_d
 ( ElMatrix_d d, ElMatrix_d dSub, ElMatrix_d w, ElSortType sort );
-ElError ElHermitianTridiagEig_c
+EL_EXPORT ElError ElHermitianTridiagEig_c
 ( ElMatrix_s d, ElMatrix_c dSub, ElMatrix_s w, ElSortType sort );
-ElError ElHermitianTridiagEig_z
+EL_EXPORT ElError ElHermitianTridiagEig_z
 ( ElMatrix_d d, ElMatrix_z dSub, ElMatrix_d w, ElSortType sort );
 
-ElError ElHermitianTridiagEigDist_s
+EL_EXPORT ElError ElHermitianTridiagEigDist_s
 ( ElConstDistMatrix_s d, ElConstDistMatrix_s dSub, 
   ElDistMatrix_s w, ElSortType sort );
-ElError ElHermitianTridiagEigDist_d
+EL_EXPORT ElError ElHermitianTridiagEigDist_d
 ( ElConstDistMatrix_d d, ElConstDistMatrix_d dSub, 
   ElDistMatrix_d w, ElSortType sort );
-ElError ElHermitianTridiagEigDist_c
+EL_EXPORT ElError ElHermitianTridiagEigDist_c
 ( ElConstDistMatrix_s d, ElConstDistMatrix_c dSub, 
   ElDistMatrix_s w, ElSortType sort );
-ElError ElHermitianTridiagEigDist_z
+EL_EXPORT ElError ElHermitianTridiagEigDist_z
 ( ElConstDistMatrix_d d, ElConstDistMatrix_z dSub, 
   ElDistMatrix_d w, ElSortType sort );
 
@@ -182,25 +182,25 @@ ElError ElHermitianTridiagEigDist_z
 
 /* Compute all eigenpairs
    ---------------------- */
-ElError ElHermitianTridiagEigPair_s
+EL_EXPORT ElError ElHermitianTridiagEigPair_s
 ( ElMatrix_s d, ElMatrix_s dSub, ElMatrix_s w, ElMatrix_s Z, ElSortType sort );
-ElError ElHermitianTridiagEigPair_d
+EL_EXPORT ElError ElHermitianTridiagEigPair_d
 ( ElMatrix_d d, ElMatrix_d dSub, ElMatrix_d w, ElMatrix_d Z, ElSortType sort );
-ElError ElHermitianTridiagEigPair_c
+EL_EXPORT ElError ElHermitianTridiagEigPair_c
 ( ElMatrix_s d, ElMatrix_c dSub, ElMatrix_s w, ElMatrix_c Z, ElSortType sort );
-ElError ElHermitianTridiagEigPair_z
+EL_EXPORT ElError ElHermitianTridiagEigPair_z
 ( ElMatrix_d d, ElMatrix_z dSub, ElMatrix_d w, ElMatrix_z Z, ElSortType sort );
 
-ElError ElHermitianTridiagEigPairDist_s
+EL_EXPORT ElError ElHermitianTridiagEigPairDist_s
 ( ElConstDistMatrix_s d, ElConstDistMatrix_s dSub, 
   ElDistMatrix_s w, ElDistMatrix_s Z, ElSortType sort );
-ElError ElHermitianTridiagEigPairDist_d
+EL_EXPORT ElError ElHermitianTridiagEigPairDist_d
 ( ElConstDistMatrix_d d, ElConstDistMatrix_d dSub, 
   ElDistMatrix_d w, ElDistMatrix_d Z, ElSortType sort );
-ElError ElHermitianTridiagEigPairDist_c
+EL_EXPORT ElError ElHermitianTridiagEigPairDist_c
 ( ElConstDistMatrix_s d, ElConstDistMatrix_c dSub, 
   ElDistMatrix_s w, ElDistMatrix_c Z, ElSortType sort );
-ElError ElHermitianTridiagEigPairDist_z
+EL_EXPORT ElError ElHermitianTridiagEigPairDist_z
 ( ElConstDistMatrix_d d, ElConstDistMatrix_z dSub, 
   ElDistMatrix_d w, ElDistMatrix_z Z, ElSortType sort );
 
@@ -208,29 +208,29 @@ ElError ElHermitianTridiagEigPairDist_z
 
 /* Compute a subset of eigenvalues
    ------------------------------- */
-ElError ElHermitianTridiagEigPartial_s
+EL_EXPORT ElError ElHermitianTridiagEigPartial_s
 ( ElMatrix_s d, ElMatrix_s dSub, 
   ElMatrix_s w, ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianTridiagEigPartial_d
+EL_EXPORT ElError ElHermitianTridiagEigPartial_d
 ( ElMatrix_d d, ElMatrix_d dSub, 
   ElMatrix_d w, ElSortType sort, ElHermitianEigSubset_d subset );
-ElError ElHermitianTridiagEigPartial_c
+EL_EXPORT ElError ElHermitianTridiagEigPartial_c
 ( ElMatrix_s d, ElMatrix_c dSub, 
   ElMatrix_s w, ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianTridiagEigPartial_z
+EL_EXPORT ElError ElHermitianTridiagEigPartial_z
 ( ElMatrix_d d, ElMatrix_z dSub, 
   ElMatrix_d w, ElSortType sort, ElHermitianEigSubset_d subset );
 
-ElError ElHermitianTridiagEigPartialDist_s
+EL_EXPORT ElError ElHermitianTridiagEigPartialDist_s
 ( ElConstDistMatrix_s d, ElConstDistMatrix_s dSub, 
   ElDistMatrix_s w, ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianTridiagEigPartialDist_d
+EL_EXPORT ElError ElHermitianTridiagEigPartialDist_d
 ( ElConstDistMatrix_d d, ElConstDistMatrix_d dSub, 
   ElDistMatrix_d w, ElSortType sort, ElHermitianEigSubset_d subset );
-ElError ElHermitianTridiagEigPartialDist_c
+EL_EXPORT ElError ElHermitianTridiagEigPartialDist_c
 ( ElConstDistMatrix_s d, ElConstDistMatrix_c dSub, 
   ElDistMatrix_s w, ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianTridiagEigPartialDist_z
+EL_EXPORT ElError ElHermitianTridiagEigPartialDist_z
 ( ElConstDistMatrix_d d, ElConstDistMatrix_z dSub, 
   ElDistMatrix_d w, ElSortType sort, ElHermitianEigSubset_d subset );
 
@@ -238,32 +238,32 @@ ElError ElHermitianTridiagEigPartialDist_z
 
 /* Compute a subset of eigenpairs
    ------------------------------ */
-ElError ElHermitianTridiagEigPairPartial_s
+EL_EXPORT ElError ElHermitianTridiagEigPairPartial_s
 ( ElMatrix_s d, ElMatrix_s dSub, 
   ElMatrix_s w,  ElMatrix_s Z, ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianTridiagEigPairPartial_d
+EL_EXPORT ElError ElHermitianTridiagEigPairPartial_d
 ( ElMatrix_d d, ElMatrix_d dSub, 
   ElMatrix_d w, ElMatrix_d Z, ElSortType sort, ElHermitianEigSubset_d subset );
-ElError ElHermitianTridiagEigPairPartial_c
+EL_EXPORT ElError ElHermitianTridiagEigPairPartial_c
 ( ElMatrix_s d, ElMatrix_c dSub, 
   ElMatrix_s w, ElMatrix_c Z, ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianTridiagEigPairPartial_z
+EL_EXPORT ElError ElHermitianTridiagEigPairPartial_z
 ( ElMatrix_d d, ElMatrix_z dSub, 
   ElMatrix_d w, ElMatrix_z Z, ElSortType sort, ElHermitianEigSubset_d subset );
 
-ElError ElHermitianTridiagEigPairPartialDist_s
+EL_EXPORT ElError ElHermitianTridiagEigPairPartialDist_s
 ( ElConstDistMatrix_s d, ElConstDistMatrix_s dSub, 
   ElDistMatrix_s w, ElDistMatrix_s Z, 
   ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianTridiagEigPairPartialDist_d
+EL_EXPORT ElError ElHermitianTridiagEigPairPartialDist_d
 ( ElConstDistMatrix_d d, ElConstDistMatrix_d dSub, 
   ElDistMatrix_d w, ElDistMatrix_d Z,
   ElSortType sort, ElHermitianEigSubset_d subset );
-ElError ElHermitianTridiagEigPairPartialDist_c
+EL_EXPORT ElError ElHermitianTridiagEigPairPartialDist_c
 ( ElConstDistMatrix_s d, ElConstDistMatrix_c dSub, 
   ElDistMatrix_s w, ElDistMatrix_c Z,
   ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianTridiagEigPairPartialDist_z
+EL_EXPORT ElError ElHermitianTridiagEigPairPartialDist_z
 ( ElConstDistMatrix_d d, ElConstDistMatrix_z dSub, 
   ElDistMatrix_d w, ElDistMatrix_z Z,
   ElSortType sort, ElHermitianEigSubset_d subset );
@@ -275,25 +275,25 @@ ElError ElHermitianTridiagEigPairPartialDist_z
 
 /* Compute all eigenvalues
    ----------------------- */
-ElError ElHermitianEig_s
+EL_EXPORT ElError ElHermitianEig_s
 ( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s w, ElSortType sort );
-ElError ElHermitianEig_d
+EL_EXPORT ElError ElHermitianEig_d
 ( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d w, ElSortType sort );
-ElError ElHermitianEig_c
+EL_EXPORT ElError ElHermitianEig_c
 ( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_s w, ElSortType sort );
-ElError ElHermitianEig_z
+EL_EXPORT ElError ElHermitianEig_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElSortType sort );
 
-ElError ElHermitianEigDist_s
+EL_EXPORT ElError ElHermitianEigDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, 
   ElSortType sort );
-ElError ElHermitianEigDist_d
+EL_EXPORT ElError ElHermitianEigDist_d
 ( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d w,
   ElSortType sort );
-ElError ElHermitianEigDist_c
+EL_EXPORT ElError ElHermitianEigDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_s w,
   ElSortType sort );
-ElError ElHermitianEigDist_z
+EL_EXPORT ElError ElHermitianEigDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_d w,
   ElSortType sort );
 
@@ -301,29 +301,29 @@ ElError ElHermitianEigDist_z
 
 /* Compute the entire eigenvalue decomposition 
    ------------------------------------------- */
-ElError ElHermitianEigPair_s
+EL_EXPORT ElError ElHermitianEigPair_s
 ( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s w, ElMatrix_s Z,
   ElSortType sort );
-ElError ElHermitianEigPair_d
+EL_EXPORT ElError ElHermitianEigPair_d
 ( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d w, ElMatrix_d Z,
   ElSortType sort );
-ElError ElHermitianEigPair_c
+EL_EXPORT ElError ElHermitianEigPair_c
 ( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_s w, ElMatrix_c Z,
   ElSortType sort );
-ElError ElHermitianEigPair_z
+EL_EXPORT ElError ElHermitianEigPair_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElMatrix_z Z,
   ElSortType sort );
 
-ElError ElHermitianEigPairDist_s
+EL_EXPORT ElError ElHermitianEigPairDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, ElDistMatrix_s Z,
   ElSortType sort );
-ElError ElHermitianEigPairDist_d
+EL_EXPORT ElError ElHermitianEigPairDist_d
 ( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d w, ElDistMatrix_d Z,
   ElSortType sort );
-ElError ElHermitianEigPairDist_c
+EL_EXPORT ElError ElHermitianEigPairDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_s w, ElDistMatrix_c Z,
   ElSortType sort );
-ElError ElHermitianEigPairDist_z
+EL_EXPORT ElError ElHermitianEigPairDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_d w, ElDistMatrix_z Z,
   ElSortType sort );
 
@@ -331,29 +331,29 @@ ElError ElHermitianEigPairDist_z
 
 /* Compute a partial set of eigenvalues
    ------------------------------------ */
-ElError ElHermitianEigPartial_s
+EL_EXPORT ElError ElHermitianEigPartial_s
 ( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s w, ElSortType sort,
   ElHermitianEigSubset_s subset );
-ElError ElHermitianEigPartial_d
+EL_EXPORT ElError ElHermitianEigPartial_d
 ( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d w, ElSortType sort,
   ElHermitianEigSubset_d subset );
-ElError ElHermitianEigPartial_c
+EL_EXPORT ElError ElHermitianEigPartial_c
 ( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_s w, ElSortType sort,
   ElHermitianEigSubset_s subset );
-ElError ElHermitianEigPartial_z
+EL_EXPORT ElError ElHermitianEigPartial_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElSortType sort,
   ElHermitianEigSubset_d subset );
 
-ElError ElHermitianEigPartialDist_s
+EL_EXPORT ElError ElHermitianEigPartialDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, ElSortType sort,
   ElHermitianEigSubset_s subset );
-ElError ElHermitianEigPartialDist_d
+EL_EXPORT ElError ElHermitianEigPartialDist_d
 ( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d w, ElSortType sort,
   ElHermitianEigSubset_d subset );
-ElError ElHermitianEigPartialDist_c
+EL_EXPORT ElError ElHermitianEigPartialDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_s w, ElSortType sort,
   ElHermitianEigSubset_s subset );
-ElError ElHermitianEigPartialDist_z
+EL_EXPORT ElError ElHermitianEigPartialDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_d w, ElSortType sort,
   ElHermitianEigSubset_d subset );
 
@@ -361,29 +361,29 @@ ElError ElHermitianEigPartialDist_z
 
 /* Compute a partial set of eigenpairs
    ----------------------------------- */
-ElError ElHermitianEigPairPartial_s
+EL_EXPORT ElError ElHermitianEigPairPartial_s
 ( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s w, ElMatrix_s Z,
   ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianEigPairPartial_d
+EL_EXPORT ElError ElHermitianEigPairPartial_d
 ( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d w, ElMatrix_d Z,
   ElSortType sort, ElHermitianEigSubset_d subset );
-ElError ElHermitianEigPairPartial_c
+EL_EXPORT ElError ElHermitianEigPairPartial_c
 ( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_s w, ElMatrix_c Z,
   ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianEigPairPartial_z
+EL_EXPORT ElError ElHermitianEigPairPartial_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElMatrix_z Z,
   ElSortType sort, ElHermitianEigSubset_d subset );
 
-ElError ElHermitianEigPairPartialDist_s
+EL_EXPORT ElError ElHermitianEigPairPartialDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, ElDistMatrix_s Z, 
   ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianEigPairPartialDist_d
+EL_EXPORT ElError ElHermitianEigPairPartialDist_d
 ( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d w, ElDistMatrix_d Z,
   ElSortType sort, ElHermitianEigSubset_d subset );
-ElError ElHermitianEigPairPartialDist_c
+EL_EXPORT ElError ElHermitianEigPairPartialDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_s w, ElDistMatrix_c Z,
   ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianEigPairPartialDist_z
+EL_EXPORT ElError ElHermitianEigPairPartialDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_d w, ElDistMatrix_z Z,
   ElSortType sort, ElHermitianEigSubset_d subset );
 
@@ -394,25 +394,25 @@ ElError ElHermitianEigPairPartialDist_z
 
 /* Compute all eigenvalues
    ----------------------- */
-ElError ElSkewHermitianEig_s
+EL_EXPORT ElError ElSkewHermitianEig_s
 ( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s w, ElSortType sort );
-ElError ElSkewHermitianEig_d
+EL_EXPORT ElError ElSkewHermitianEig_d
 ( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d w, ElSortType sort );
-ElError ElSkewHermitianEig_c
+EL_EXPORT ElError ElSkewHermitianEig_c
 ( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_s w, ElSortType sort );
-ElError ElSkewHermitianEig_z
+EL_EXPORT ElError ElSkewHermitianEig_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElSortType sort );
 
-ElError ElSkewHermitianEigDist_s
+EL_EXPORT ElError ElSkewHermitianEigDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, 
   ElSortType sort );
-ElError ElSkewHermitianEigDist_d
+EL_EXPORT ElError ElSkewHermitianEigDist_d
 ( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d w,
   ElSortType sort );
-ElError ElSkewHermitianEigDist_c
+EL_EXPORT ElError ElSkewHermitianEigDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_s w,
   ElSortType sort );
-ElError ElSkewHermitianEigDist_z
+EL_EXPORT ElError ElSkewHermitianEigDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_d w,
   ElSortType sort );
 
@@ -420,29 +420,29 @@ ElError ElSkewHermitianEigDist_z
 
 /* Compute the entire eigenvalue decomposition 
    ------------------------------------------- */
-ElError ElSkewHermitianEigPair_s
+EL_EXPORT ElError ElSkewHermitianEigPair_s
 ( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s w, ElMatrix_c Z,
   ElSortType sort );
-ElError ElSkewHermitianEigPair_d
+EL_EXPORT ElError ElSkewHermitianEigPair_d
 ( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d w, ElMatrix_z Z,
   ElSortType sort );
-ElError ElSkewHermitianEigPair_c
+EL_EXPORT ElError ElSkewHermitianEigPair_c
 ( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_s w, ElMatrix_c Z,
   ElSortType sort );
-ElError ElSkewHermitianEigPair_z
+EL_EXPORT ElError ElSkewHermitianEigPair_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElMatrix_z Z,
   ElSortType sort );
 
-ElError ElSkewHermitianEigPairDist_s
+EL_EXPORT ElError ElSkewHermitianEigPairDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, ElDistMatrix_c Z,
   ElSortType sort );
-ElError ElSkewHermitianEigPairDist_d
+EL_EXPORT ElError ElSkewHermitianEigPairDist_d
 ( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d w, ElDistMatrix_z Z,
   ElSortType sort );
-ElError ElSkewHermitianEigPairDist_c
+EL_EXPORT ElError ElSkewHermitianEigPairDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_s w, ElDistMatrix_c Z,
   ElSortType sort );
-ElError ElSkewHermitianEigPairDist_z
+EL_EXPORT ElError ElSkewHermitianEigPairDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_d w, ElDistMatrix_z Z,
   ElSortType sort );
 
@@ -450,29 +450,29 @@ ElError ElSkewHermitianEigPairDist_z
 
 /* Compute a partial set of eigenvalues
    ------------------------------------ */
-ElError ElSkewHermitianEigPartial_s
+EL_EXPORT ElError ElSkewHermitianEigPartial_s
 ( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s w, ElSortType sort,
   ElHermitianEigSubset_s subset );
-ElError ElSkewHermitianEigPartial_d
+EL_EXPORT ElError ElSkewHermitianEigPartial_d
 ( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d w, ElSortType sort,
   ElHermitianEigSubset_d subset );
-ElError ElSkewHermitianEigPartial_c
+EL_EXPORT ElError ElSkewHermitianEigPartial_c
 ( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_s w, ElSortType sort,
   ElHermitianEigSubset_s subset );
-ElError ElSkewHermitianEigPartial_z
+EL_EXPORT ElError ElSkewHermitianEigPartial_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElSortType sort,
   ElHermitianEigSubset_d subset );
 
-ElError ElSkewHermitianEigPartialDist_s
+EL_EXPORT ElError ElSkewHermitianEigPartialDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, ElSortType sort,
   ElHermitianEigSubset_s subset );
-ElError ElSkewHermitianEigPartialDist_d
+EL_EXPORT ElError ElSkewHermitianEigPartialDist_d
 ( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d w, ElSortType sort,
   ElHermitianEigSubset_d subset );
-ElError ElSkewHermitianEigPartialDist_c
+EL_EXPORT ElError ElSkewHermitianEigPartialDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_s w, ElSortType sort,
   ElHermitianEigSubset_s subset );
-ElError ElSkewHermitianEigPartialDist_z
+EL_EXPORT ElError ElSkewHermitianEigPartialDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_d w, ElSortType sort,
   ElHermitianEigSubset_d subset );
 
@@ -480,29 +480,29 @@ ElError ElSkewHermitianEigPartialDist_z
 
 /* Compute a partial set of eigenpairs
    ----------------------------------- */
-ElError ElSkewHermitianEigPairPartial_s
+EL_EXPORT ElError ElSkewHermitianEigPairPartial_s
 ( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s w, ElMatrix_c Z,
   ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElSkewHermitianEigPairPartial_d
+EL_EXPORT ElError ElSkewHermitianEigPairPartial_d
 ( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d w, ElMatrix_z Z,
   ElSortType sort, ElHermitianEigSubset_d subset );
-ElError ElSkewHermitianEigPairPartial_c
+EL_EXPORT ElError ElSkewHermitianEigPairPartial_c
 ( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_s w, ElMatrix_c Z,
   ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElSkewHermitianEigPairPartial_z
+EL_EXPORT ElError ElSkewHermitianEigPairPartial_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElMatrix_z Z,
   ElSortType sort, ElHermitianEigSubset_d subset );
 
-ElError ElSkewHermitianEigPairPartialDist_s
+EL_EXPORT ElError ElSkewHermitianEigPairPartialDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, ElDistMatrix_c Z, 
   ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElSkewHermitianEigPairPartialDist_d
+EL_EXPORT ElError ElSkewHermitianEigPairPartialDist_d
 ( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d w, ElDistMatrix_z Z,
   ElSortType sort, ElHermitianEigSubset_d subset );
-ElError ElSkewHermitianEigPairPartialDist_c
+EL_EXPORT ElError ElSkewHermitianEigPairPartialDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_s w, ElDistMatrix_c Z,
   ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElSkewHermitianEigPairPartialDist_z
+EL_EXPORT ElError ElSkewHermitianEigPairPartialDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_d w, ElDistMatrix_z Z,
   ElSortType sort, ElHermitianEigSubset_d subset );
 
@@ -513,32 +513,32 @@ ElError ElSkewHermitianEigPairPartialDist_z
 
 /* Compute all of the eigenvalues
    ------------------------------ */
-ElError ElHermitianGenDefEig_s
+EL_EXPORT ElError ElHermitianGenDefEig_s
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElMatrix_s A, ElMatrix_s B, ElMatrix_s w, ElSortType sort );
-ElError ElHermitianGenDefEig_d
+EL_EXPORT ElError ElHermitianGenDefEig_d
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElMatrix_d A, ElMatrix_d B, ElMatrix_d w, ElSortType sort );
-ElError ElHermitianGenDefEig_c
+EL_EXPORT ElError ElHermitianGenDefEig_c
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElMatrix_c A, ElMatrix_c B, ElMatrix_s w, ElSortType sort );
-ElError ElHermitianGenDefEig_z
+EL_EXPORT ElError ElHermitianGenDefEig_z
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElMatrix_z A, ElMatrix_z B, ElMatrix_d w, ElSortType sort );
 
-ElError ElHermitianGenDefEigDist_s
+EL_EXPORT ElError ElHermitianGenDefEigDist_s
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElDistMatrix_s A, ElDistMatrix_s B, ElDistMatrix_s w, 
   ElSortType sort );
-ElError ElHermitianGenDefEigDist_d
+EL_EXPORT ElError ElHermitianGenDefEigDist_d
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElDistMatrix_d A, ElDistMatrix_d B, ElDistMatrix_d w,
   ElSortType sort );
-ElError ElHermitianGenDefEigDist_c
+EL_EXPORT ElError ElHermitianGenDefEigDist_c
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElDistMatrix_c A, ElDistMatrix_c B, ElDistMatrix_s w,
   ElSortType sort );
-ElError ElHermitianGenDefEigDist_z
+EL_EXPORT ElError ElHermitianGenDefEigDist_z
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElDistMatrix_z A, ElDistMatrix_z B, ElDistMatrix_d w,
   ElSortType sort );
@@ -547,36 +547,36 @@ ElError ElHermitianGenDefEigDist_z
 
 /* Compute the entire eigenvalue decomposition 
    ------------------------------------------- */
-ElError ElHermitianGenDefEigPair_s
+EL_EXPORT ElError ElHermitianGenDefEigPair_s
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElMatrix_s A, ElMatrix_s B, ElMatrix_s w, ElMatrix_s Z,
   ElSortType sort );
-ElError ElHermitianGenDefEigPair_d
+EL_EXPORT ElError ElHermitianGenDefEigPair_d
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElMatrix_d A, ElMatrix_d B, ElMatrix_d w, ElMatrix_d Z,
   ElSortType sort );
-ElError ElHermitianGenDefEigPair_c
+EL_EXPORT ElError ElHermitianGenDefEigPair_c
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElMatrix_c A, ElMatrix_c B, ElMatrix_s w, ElMatrix_c Z,
   ElSortType sort );
-ElError ElHermitianGenDefEigPair_z
+EL_EXPORT ElError ElHermitianGenDefEigPair_z
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElMatrix_z A, ElMatrix_z B, ElMatrix_d w, ElMatrix_z Z,
   ElSortType sort );
 
-ElError ElHermitianGenDefEigPairDist_s
+EL_EXPORT ElError ElHermitianGenDefEigPairDist_s
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElDistMatrix_s A, ElDistMatrix_s B, ElDistMatrix_s w, ElDistMatrix_s Z,
   ElSortType sort );
-ElError ElHermitianGenDefEigPairDist_d
+EL_EXPORT ElError ElHermitianGenDefEigPairDist_d
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElDistMatrix_d A, ElDistMatrix_d B, ElDistMatrix_d w, ElDistMatrix_d Z,
   ElSortType sort );
-ElError ElHermitianGenDefEigPairDist_c
+EL_EXPORT ElError ElHermitianGenDefEigPairDist_c
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElDistMatrix_c A, ElDistMatrix_c B, ElDistMatrix_s w, ElDistMatrix_c Z,
   ElSortType sort );
-ElError ElHermitianGenDefEigPairDist_z
+EL_EXPORT ElError ElHermitianGenDefEigPairDist_z
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElDistMatrix_z A, ElDistMatrix_z B, ElDistMatrix_d w, ElDistMatrix_z Z,
   ElSortType sort );
@@ -585,36 +585,36 @@ ElError ElHermitianGenDefEigPairDist_z
 
 /* Compute a partial set of eigenvalues
    ------------------------------------ */
-ElError ElHermitianGenDefEigPartial_s
+EL_EXPORT ElError ElHermitianGenDefEigPartial_s
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElMatrix_s A, ElMatrix_s B, ElMatrix_s w, ElSortType sort,
   ElHermitianEigSubset_s subset );
-ElError ElHermitianGenDefEigPartial_d
+EL_EXPORT ElError ElHermitianGenDefEigPartial_d
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElMatrix_d A, ElMatrix_d B, ElMatrix_d w, ElSortType sort,
   ElHermitianEigSubset_d subset );
-ElError ElHermitianGenDefEigPartial_c
+EL_EXPORT ElError ElHermitianGenDefEigPartial_c
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElMatrix_c A, ElMatrix_c B, ElMatrix_s w, ElSortType sort,
   ElHermitianEigSubset_s subset );
-ElError ElHermitianGenDefEigPartial_z
+EL_EXPORT ElError ElHermitianGenDefEigPartial_z
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElMatrix_z A, ElMatrix_z B, ElMatrix_d w, ElSortType sort,
   ElHermitianEigSubset_d subset );
 
-ElError ElHermitianGenDefEigPartialDist_s
+EL_EXPORT ElError ElHermitianGenDefEigPartialDist_s
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElDistMatrix_s A, ElDistMatrix_s B, ElDistMatrix_s w, ElSortType sort,
   ElHermitianEigSubset_s subset );
-ElError ElHermitianGenDefEigPartialDist_d
+EL_EXPORT ElError ElHermitianGenDefEigPartialDist_d
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElDistMatrix_d A, ElDistMatrix_d B, ElDistMatrix_d w, ElSortType sort,
   ElHermitianEigSubset_d subset );
-ElError ElHermitianGenDefEigPartialDist_c
+EL_EXPORT ElError ElHermitianGenDefEigPartialDist_c
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElDistMatrix_c A, ElDistMatrix_c B, ElDistMatrix_s w, ElSortType sort,
   ElHermitianEigSubset_s subset );
-ElError ElHermitianGenDefEigPartialDist_z
+EL_EXPORT ElError ElHermitianGenDefEigPartialDist_z
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElDistMatrix_z A, ElDistMatrix_z B, ElDistMatrix_d w, ElSortType sort,
   ElHermitianEigSubset_d subset );
@@ -623,36 +623,36 @@ ElError ElHermitianGenDefEigPartialDist_z
 
 /* Compute a partial set of eigenpairs
    ----------------------------------- */
-ElError ElHermitianGenDefEigPairPartial_s
+EL_EXPORT ElError ElHermitianGenDefEigPairPartial_s
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElMatrix_s A, ElMatrix_s B, ElMatrix_s w, ElMatrix_s Z, ElSortType sort,
   ElHermitianEigSubset_s subset );
-ElError ElHermitianGenDefEigPairPartial_d
+EL_EXPORT ElError ElHermitianGenDefEigPairPartial_d
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElMatrix_d A, ElMatrix_d B, ElMatrix_d w, ElMatrix_d Z, ElSortType sort,
   ElHermitianEigSubset_d subset );
-ElError ElHermitianGenDefEigPairPartial_c
+EL_EXPORT ElError ElHermitianGenDefEigPairPartial_c
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElMatrix_c A, ElMatrix_c B, ElMatrix_s w, ElMatrix_c Z, ElSortType sort,
   ElHermitianEigSubset_s subset );
-ElError ElHermitianGenDefEigPairPartial_z
+EL_EXPORT ElError ElHermitianGenDefEigPairPartial_z
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElMatrix_z A, ElMatrix_z B, ElMatrix_d w, ElMatrix_z Z, ElSortType sort,
   ElHermitianEigSubset_d subset );
 
-ElError ElHermitianGenDefEigPairPartialDist_s
+EL_EXPORT ElError ElHermitianGenDefEigPairPartialDist_s
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElDistMatrix_s A, ElDistMatrix_s B, ElDistMatrix_s w, ElDistMatrix_s Z,
   ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianGenDefEigPairPartialDist_d
+EL_EXPORT ElError ElHermitianGenDefEigPairPartialDist_d
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElDistMatrix_d A, ElDistMatrix_d B, ElDistMatrix_d w, ElDistMatrix_d Z,
   ElSortType sort, ElHermitianEigSubset_d subset );
-ElError ElHermitianGenDefEigPairPartialDist_c
+EL_EXPORT ElError ElHermitianGenDefEigPairPartialDist_c
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElDistMatrix_c A, ElDistMatrix_c B, ElDistMatrix_s w, ElDistMatrix_c Z,
   ElSortType sort, ElHermitianEigSubset_s subset );
-ElError ElHermitianGenDefEigPairPartialDist_z
+EL_EXPORT ElError ElHermitianGenDefEigPairPartialDist_z
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElDistMatrix_z A, ElDistMatrix_z B, ElDistMatrix_d w, ElDistMatrix_z Z,
   ElSortType sort, ElHermitianEigSubset_d subset );
@@ -664,45 +664,45 @@ ElError ElHermitianGenDefEigPairPartialDist_z
 
 /* Compute the singular values
    --------------------------- */
-ElError ElHermitianSingularValues_s
+EL_EXPORT ElError ElHermitianSingularValues_s
 ( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s s );
-ElError ElHermitianSingularValues_d
+EL_EXPORT ElError ElHermitianSingularValues_d
 ( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d s );
-ElError ElHermitianSingularValues_c
+EL_EXPORT ElError ElHermitianSingularValues_c
 ( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_s s );
-ElError ElHermitianSingularValues_z
+EL_EXPORT ElError ElHermitianSingularValues_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d s );
-ElError ElHermitianSingularValuesDist_s
+EL_EXPORT ElError ElHermitianSingularValuesDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s s );
-ElError ElHermitianSingularValuesDist_d
+EL_EXPORT ElError ElHermitianSingularValuesDist_d
 ( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d s );
-ElError ElHermitianSingularValuesDist_c
+EL_EXPORT ElError ElHermitianSingularValuesDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_s s );
-ElError ElHermitianSingularValuesDist_z
+EL_EXPORT ElError ElHermitianSingularValuesDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_d s );
 
 /* TODO: Expert versions */
 
 /* Compute the full SVD
    -------------------- */
-ElError ElHermitianSVD_s
+EL_EXPORT ElError ElHermitianSVD_s
 ( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s s, ElMatrix_s U, ElMatrix_s V );
-ElError ElHermitianSVD_d
+EL_EXPORT ElError ElHermitianSVD_d
 ( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d s, ElMatrix_d U, ElMatrix_d V );
-ElError ElHermitianSVD_c
+EL_EXPORT ElError ElHermitianSVD_c
 ( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_s s, ElMatrix_c U, ElMatrix_c V );
-ElError ElHermitianSVD_z
+EL_EXPORT ElError ElHermitianSVD_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d s, ElMatrix_z U, ElMatrix_z V );
-ElError ElHermitianSVDDist_s
+EL_EXPORT ElError ElHermitianSVDDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s s, 
   ElDistMatrix_s U, ElDistMatrix_s V );
-ElError ElHermitianSVDDist_d
+EL_EXPORT ElError ElHermitianSVDDist_d
 ( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d s, 
   ElDistMatrix_d U, ElDistMatrix_d V );
-ElError ElHermitianSVDDist_c
+EL_EXPORT ElError ElHermitianSVDDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_s s, 
   ElDistMatrix_c U, ElDistMatrix_c V );
-ElError ElHermitianSVDDist_z
+EL_EXPORT ElError ElHermitianSVDDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_d s, 
   ElDistMatrix_z U, ElDistMatrix_z V );
 
@@ -713,54 +713,58 @@ ElError ElHermitianSVDDist_z
 
 /* Compute just the polar factor
    ----------------------------- */
-ElError ElPolar_s( ElMatrix_s A );
-ElError ElPolar_d( ElMatrix_d A );
-ElError ElPolar_c( ElMatrix_c A );
-ElError ElPolar_z( ElMatrix_z A );
+EL_EXPORT ElError ElPolar_s( ElMatrix_s A );
+EL_EXPORT ElError ElPolar_d( ElMatrix_d A );
+EL_EXPORT ElError ElPolar_c( ElMatrix_c A );
+EL_EXPORT ElError ElPolar_z( ElMatrix_z A );
 
-ElError ElPolarDist_s( ElDistMatrix_s A );
-ElError ElPolarDist_d( ElDistMatrix_d A );
-ElError ElPolarDist_c( ElDistMatrix_c A );
-ElError ElPolarDist_z( ElDistMatrix_z A );
+EL_EXPORT ElError ElPolarDist_s( ElDistMatrix_s A );
+EL_EXPORT ElError ElPolarDist_d( ElDistMatrix_d A );
+EL_EXPORT ElError ElPolarDist_c( ElDistMatrix_c A );
+EL_EXPORT ElError ElPolarDist_z( ElDistMatrix_z A );
 
-ElError ElHermitianPolar_s( ElUpperOrLower uplo, ElMatrix_s A );
-ElError ElHermitianPolar_d( ElUpperOrLower uplo, ElMatrix_d A );
-ElError ElHermitianPolar_c( ElUpperOrLower uplo, ElMatrix_c A );
-ElError ElHermitianPolar_z( ElUpperOrLower uplo, ElMatrix_z A );
+EL_EXPORT ElError ElHermitianPolar_s( ElUpperOrLower uplo, ElMatrix_s A );
+EL_EXPORT ElError ElHermitianPolar_d( ElUpperOrLower uplo, ElMatrix_d A );
+EL_EXPORT ElError ElHermitianPolar_c( ElUpperOrLower uplo, ElMatrix_c A );
+EL_EXPORT ElError ElHermitianPolar_z( ElUpperOrLower uplo, ElMatrix_z A );
 
-ElError ElHermitianPolarDist_s( ElUpperOrLower uplo, ElDistMatrix_s A );
-ElError ElHermitianPolarDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
-ElError ElHermitianPolarDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
-ElError ElHermitianPolarDist_z( ElUpperOrLower uplo, ElDistMatrix_z A );
+EL_EXPORT ElError ElHermitianPolarDist_s
+( ElUpperOrLower uplo, ElDistMatrix_s A );
+EL_EXPORT ElError ElHermitianPolarDist_d
+( ElUpperOrLower uplo, ElDistMatrix_d A );
+EL_EXPORT ElError ElHermitianPolarDist_c
+( ElUpperOrLower uplo, ElDistMatrix_c A );
+EL_EXPORT ElError ElHermitianPolarDist_z
+( ElUpperOrLower uplo, ElDistMatrix_z A );
 
 /* Compute the entire polar decomposition
    -------------------------------------- */
-ElError ElPolarDecomp_s( ElMatrix_s A, ElMatrix_s P );
-ElError ElPolarDecomp_d( ElMatrix_d A, ElMatrix_d P );
-ElError ElPolarDecomp_c( ElMatrix_c A, ElMatrix_c P );
-ElError ElPolarDecomp_z( ElMatrix_z A, ElMatrix_z P );
+EL_EXPORT ElError ElPolarDecomp_s( ElMatrix_s A, ElMatrix_s P );
+EL_EXPORT ElError ElPolarDecomp_d( ElMatrix_d A, ElMatrix_d P );
+EL_EXPORT ElError ElPolarDecomp_c( ElMatrix_c A, ElMatrix_c P );
+EL_EXPORT ElError ElPolarDecomp_z( ElMatrix_z A, ElMatrix_z P );
 
-ElError ElPolarDecompDist_s( ElDistMatrix_s A, ElDistMatrix_s P );
-ElError ElPolarDecompDist_d( ElDistMatrix_d A, ElDistMatrix_d P );
-ElError ElPolarDecompDist_c( ElDistMatrix_c A, ElDistMatrix_c P );
-ElError ElPolarDecompDist_z( ElDistMatrix_z A, ElDistMatrix_z P );
+EL_EXPORT ElError ElPolarDecompDist_s( ElDistMatrix_s A, ElDistMatrix_s P );
+EL_EXPORT ElError ElPolarDecompDist_d( ElDistMatrix_d A, ElDistMatrix_d P );
+EL_EXPORT ElError ElPolarDecompDist_c( ElDistMatrix_c A, ElDistMatrix_c P );
+EL_EXPORT ElError ElPolarDecompDist_z( ElDistMatrix_z A, ElDistMatrix_z P );
 
-ElError ElHermitianPolarDecomp_s
+EL_EXPORT ElError ElHermitianPolarDecomp_s
 ( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s P );
-ElError ElHermitianPolarDecomp_d
+EL_EXPORT ElError ElHermitianPolarDecomp_d
 ( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d P );
-ElError ElHermitianPolarDecomp_c
+EL_EXPORT ElError ElHermitianPolarDecomp_c
 ( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_c P );
-ElError ElHermitianPolarDecomp_z
+EL_EXPORT ElError ElHermitianPolarDecomp_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_z P );
 
-ElError ElHermitianPolarDecompDist_s
+EL_EXPORT ElError ElHermitianPolarDecompDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s P );
-ElError ElHermitianPolarDecompDist_d
+EL_EXPORT ElError ElHermitianPolarDecompDist_d
 ( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d P );
-ElError ElHermitianPolarDecompDist_c
+EL_EXPORT ElError ElHermitianPolarDecompDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_c P );
-ElError ElHermitianPolarDecompDist_z
+EL_EXPORT ElError ElHermitianPolarDecompDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_z P );
 
 /* TODO: Expert versions */
@@ -770,34 +774,38 @@ ElError ElHermitianPolarDecompDist_z
 
 /* Compute just the eigenvalues (and perhaps the Schur factor)
    ----------------------------------------------------------- */
-ElError ElSchur_s( ElMatrix_s A, ElMatrix_c w, bool fullTriangle );
-ElError ElSchur_d( ElMatrix_d A, ElMatrix_z w, bool fullTriangle );
-ElError ElSchur_c( ElMatrix_c A, ElMatrix_c w, bool fullTriangle );
-ElError ElSchur_z( ElMatrix_z A, ElMatrix_z w, bool fullTriangle );
+EL_EXPORT ElError ElSchur_s( ElMatrix_s A, ElMatrix_c w, bool fullTriangle );
+EL_EXPORT ElError ElSchur_d( ElMatrix_d A, ElMatrix_z w, bool fullTriangle );
+EL_EXPORT ElError ElSchur_c( ElMatrix_c A, ElMatrix_c w, bool fullTriangle );
+EL_EXPORT ElError ElSchur_z( ElMatrix_z A, ElMatrix_z w, bool fullTriangle );
 
-ElError ElSchurDist_s( ElDistMatrix_s A, ElDistMatrix_c w, bool fullTriangle );
-ElError ElSchurDist_d( ElDistMatrix_d A, ElDistMatrix_z w, bool fullTriangle );
-ElError ElSchurDist_c( ElDistMatrix_c A, ElDistMatrix_c w, bool fullTriangle );
-ElError ElSchurDist_z( ElDistMatrix_z A, ElDistMatrix_z w, bool fullTriangle );
+EL_EXPORT ElError ElSchurDist_s
+( ElDistMatrix_s A, ElDistMatrix_c w, bool fullTriangle );
+EL_EXPORT ElError ElSchurDist_d
+( ElDistMatrix_d A, ElDistMatrix_z w, bool fullTriangle );
+EL_EXPORT ElError ElSchurDist_c
+( ElDistMatrix_c A, ElDistMatrix_c w, bool fullTriangle );
+EL_EXPORT ElError ElSchurDist_z
+( ElDistMatrix_z A, ElDistMatrix_z w, bool fullTriangle );
 
 /* Compute the eigvalues and Schur vectors (and possibly Schur factor)
    ------------------------------------------------------------------- */
-ElError ElSchurDecomp_s
+EL_EXPORT ElError ElSchurDecomp_s
 ( ElMatrix_s A, ElMatrix_c w, ElMatrix_s Q, bool fullTriangle );
-ElError ElSchurDecomp_d
+EL_EXPORT ElError ElSchurDecomp_d
 ( ElMatrix_d A, ElMatrix_z w, ElMatrix_d Q, bool fullTriangle );
-ElError ElSchurDecomp_c
+EL_EXPORT ElError ElSchurDecomp_c
 ( ElMatrix_c A, ElMatrix_c w, ElMatrix_c Q, bool fullTriangle );
-ElError ElSchurDecomp_z
+EL_EXPORT ElError ElSchurDecomp_z
 ( ElMatrix_z A, ElMatrix_z w, ElMatrix_z Q, bool fullTriangle );
 
-ElError ElSchurDecompDist_s
+EL_EXPORT ElError ElSchurDecompDist_s
 ( ElDistMatrix_s A, ElDistMatrix_c w, ElDistMatrix_s Q, bool fullTriangle );
-ElError ElSchurDecompDist_d
+EL_EXPORT ElError ElSchurDecompDist_d
 ( ElDistMatrix_d A, ElDistMatrix_z w, ElDistMatrix_d Q, bool fullTriangle );
-ElError ElSchurDecompDist_c
+EL_EXPORT ElError ElSchurDecompDist_c
 ( ElDistMatrix_c A, ElDistMatrix_c w, ElDistMatrix_c Q, bool fullTriangle );
-ElError ElSchurDecompDist_z
+EL_EXPORT ElError ElSchurDecompDist_z
 ( ElDistMatrix_z A, ElDistMatrix_z w, ElDistMatrix_z Q, bool fullTriangle );
 
 /* TODO: Expert versions */
@@ -808,29 +816,33 @@ ElError ElSchurDecompDist_z
 
 /* Compute the singular values
    --------------------------- */
-ElError ElSingularValues_s( ElMatrix_s A, ElMatrix_s s );
-ElError ElSingularValues_d( ElMatrix_d A, ElMatrix_d s );
-ElError ElSingularValues_c( ElMatrix_c A, ElMatrix_s s );
-ElError ElSingularValues_z( ElMatrix_z A, ElMatrix_d s );
+EL_EXPORT ElError ElSingularValues_s( ElMatrix_s A, ElMatrix_s s );
+EL_EXPORT ElError ElSingularValues_d( ElMatrix_d A, ElMatrix_d s );
+EL_EXPORT ElError ElSingularValues_c( ElMatrix_c A, ElMatrix_s s );
+EL_EXPORT ElError ElSingularValues_z( ElMatrix_z A, ElMatrix_d s );
 
-ElError ElSingularValuesDist_s( ElDistMatrix_s A, ElDistMatrix_s s );
-ElError ElSingularValuesDist_d( ElDistMatrix_d A, ElDistMatrix_d s );
-ElError ElSingularValuesDist_c( ElDistMatrix_c A, ElDistMatrix_s s );
-ElError ElSingularValuesDist_z( ElDistMatrix_z A, ElDistMatrix_d s );
+EL_EXPORT ElError ElSingularValuesDist_s( ElDistMatrix_s A, ElDistMatrix_s s );
+EL_EXPORT ElError ElSingularValuesDist_d( ElDistMatrix_d A, ElDistMatrix_d s );
+EL_EXPORT ElError ElSingularValuesDist_c( ElDistMatrix_c A, ElDistMatrix_s s );
+EL_EXPORT ElError ElSingularValuesDist_z( ElDistMatrix_z A, ElDistMatrix_d s );
 
 /* TODO: Expert versions */
 
 /* Compute the full SVD
    -------------------- */
-ElError ElSVD_s( ElMatrix_s A, ElMatrix_s s, ElMatrix_s V );
-ElError ElSVD_d( ElMatrix_d A, ElMatrix_d s, ElMatrix_d V );
-ElError ElSVD_c( ElMatrix_c A, ElMatrix_s s, ElMatrix_c V );
-ElError ElSVD_z( ElMatrix_z A, ElMatrix_d s, ElMatrix_z V );
+EL_EXPORT ElError ElSVD_s( ElMatrix_s A, ElMatrix_s s, ElMatrix_s V );
+EL_EXPORT ElError ElSVD_d( ElMatrix_d A, ElMatrix_d s, ElMatrix_d V );
+EL_EXPORT ElError ElSVD_c( ElMatrix_c A, ElMatrix_s s, ElMatrix_c V );
+EL_EXPORT ElError ElSVD_z( ElMatrix_z A, ElMatrix_d s, ElMatrix_z V );
 
-ElError ElSVDDist_s( ElDistMatrix_s A, ElDistMatrix_s s, ElDistMatrix_s V );
-ElError ElSVDDist_d( ElDistMatrix_d A, ElDistMatrix_d s, ElDistMatrix_d V );
-ElError ElSVDDist_c( ElDistMatrix_c A, ElDistMatrix_s s, ElDistMatrix_c V );
-ElError ElSVDDist_z( ElDistMatrix_z A, ElDistMatrix_d s, ElDistMatrix_z V );
+EL_EXPORT ElError ElSVDDist_s
+( ElDistMatrix_s A, ElDistMatrix_s s, ElDistMatrix_s V );
+EL_EXPORT ElError ElSVDDist_d
+( ElDistMatrix_d A, ElDistMatrix_d s, ElDistMatrix_d V );
+EL_EXPORT ElError ElSVDDist_c
+( ElDistMatrix_c A, ElDistMatrix_s s, ElDistMatrix_c V );
+EL_EXPORT ElError ElSVDDist_z
+( ElDistMatrix_z A, ElDistMatrix_d s, ElDistMatrix_z V );
 
 #ifdef __cplusplus
 } // extern "C"

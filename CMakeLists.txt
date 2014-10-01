@@ -26,7 +26,12 @@ set(EL_VERSION_MINOR 85-dev)
 
 # By default, Elemental builds static libraries, but shared libraries are 
 # also supported through this option.
-option(BUILD_SHARED_LIBS "Switch to shared libraries" OFF)
+option(BUILD_SHARED_LIBS "Build shared libraries?" ON)
+if(BUILD_SHARED_LIBS AND WIN32)
+  option(EL_DECLSPEC "Use __declspec(dllexport)?" ON)
+else()
+  option(EL_DECLSPEC "Use __declspec(dllexport)?" OFF)
+endif()
 
 # Whether or not to build a collection of simple example drivers.
 option(EL_EXAMPLES "A collection of simple examples" OFF)

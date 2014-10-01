@@ -219,93 +219,93 @@ public:
     // Global submatrix manipulation
     // -----------------------------
     void GetSubmatrix
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+    ( const std::vector<Int>& I, const std::vector<Int>& J,
       DistMatrix<T,STAR,STAR>& ASub ) const;
     void GetRealPartOfSubmatrix
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+    ( const std::vector<Int>& I, const std::vector<Int>& J,
       DistMatrix<Base<T>,STAR,STAR>& ASub ) const;
     void GetImagPartOfSubmatrix
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+    ( const std::vector<Int>& I, const std::vector<Int>& J,
       DistMatrix<Base<T>,STAR,STAR>& ASub ) const;
 
     DistMatrix<T,STAR,STAR> GetSubmatrix
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const;
+    ( const std::vector<Int>& I, const std::vector<Int>& J ) const;
     DistMatrix<Base<T>,STAR,STAR> GetRealPartOfSubmatrix
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const;
+    ( const std::vector<Int>& I, const std::vector<Int>& J ) const;
     DistMatrix<Base<T>,STAR,STAR> GetImagPartOfSubmatrix
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const;
+    ( const std::vector<Int>& I, const std::vector<Int>& J ) const;
 
     void SetSubmatrix
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+    ( const std::vector<Int>& I, const std::vector<Int>& J,
       const DistMatrix<T,STAR,STAR>& ASub );
     void SetRealPartOfSubmatrix
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+    ( const std::vector<Int>& I, const std::vector<Int>& J,
       const DistMatrix<Base<T>,STAR,STAR>& ASub );
     void SetImagPartOfSubmatrix
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+    ( const std::vector<Int>& I, const std::vector<Int>& J,
       const DistMatrix<Base<T>,STAR,STAR>& ASub );
 
     void UpdateSubmatrix
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+    ( const std::vector<Int>& I, const std::vector<Int>& J,
       T alpha, const DistMatrix<T,STAR,STAR>& ASub );
     void UpdateRealPartOfSubmatrix
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+    ( const std::vector<Int>& I, const std::vector<Int>& J,
       Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub );
     void UpdateImagPartOfSubmatrix
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+    ( const std::vector<Int>& I, const std::vector<Int>& J,
       Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub );
 
     void MakeSubmatrixReal
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd );
+    ( const std::vector<Int>& I, const std::vector<Int>& J );
     void ConjugateSubmatrix
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd );
+    ( const std::vector<Int>& I, const std::vector<Int>& J );
 
     // Local submatrix manipulation
     // ----------------------------
     void GetLocalSubmatrix
-    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
       El::Matrix<T>& ASub ) const;
     void GetRealPartOfLocalSubmatrix
-    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
       El::Matrix<Base<T>>& ASub ) const;
     void GetImagPartOfLocalSubmatrix
-    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
       El::Matrix<Base<T>>& ASub ) const;
 
     El::Matrix<T> GetLocalSubmatrix
-    ( const std::vector<Int>& rowIndLoc, 
-      const std::vector<Int>& colIndLoc ) const;
+    ( const std::vector<Int>& ILoc, 
+      const std::vector<Int>& JLoc ) const;
     El::Matrix<Base<T>> GetRealPartOfLocalSubmatrix
-    ( const std::vector<Int>& rowIndLoc, 
-      const std::vector<Int>& colIndLoc ) const;
+    ( const std::vector<Int>& ILoc, 
+      const std::vector<Int>& JLoc ) const;
     El::Matrix<Base<T>> GetImagPartOfLocalSubmatrix
-    ( const std::vector<Int>& rowIndLoc, 
-      const std::vector<Int>& colIndLoc ) const;
+    ( const std::vector<Int>& ILoc, 
+      const std::vector<Int>& JLoc ) const;
 
     void SetLocalSubmatrix
-    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
       const El::Matrix<T>& ASub );
     void SetRealPartOfLocalSubmatrix
-    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
       const El::Matrix<Base<T>>& ASub );
     void SetImagPartOfLocalSubmatrix
-    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
       const El::Matrix<Base<T>>& ASub );
 
     void UpdateLocalSubmatrix
-    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
       T alpha, const El::Matrix<T>& ASub );
     void UpdateRealPartOfLocalSubmatrix
-    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
       Base<T> alpha, const El::Matrix<Base<T>>& ASub );
     void UpdateImagPartOfLocalSubmatrix
-    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
       Base<T> alpha, const El::Matrix<Base<T>>& ASub );
 
     void MakeLocalSubmatrixReal
-    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc );
+    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc );
     void ConjugateLocalSubmatrix
-    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc );
+    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc );
 
     // Interact over a specified communicator
     // ======================================

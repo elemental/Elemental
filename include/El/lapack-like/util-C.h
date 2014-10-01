@@ -18,36 +18,36 @@ extern "C" {
 
 /* Median
    ====== */
-ElError ElMedian_i( ElConstMatrix_i x, ElValueInt_i* median );
-ElError ElMedian_s( ElConstMatrix_s x, ElValueInt_s* median );
-ElError ElMedian_d( ElConstMatrix_d x, ElValueInt_d* median );
+EL_EXPORT ElError ElMedian_i( ElConstMatrix_i x, ElValueInt_i* median );
+EL_EXPORT ElError ElMedian_s( ElConstMatrix_s x, ElValueInt_s* median );
+EL_EXPORT ElError ElMedian_d( ElConstMatrix_d x, ElValueInt_d* median );
 
-ElError ElMedianDist_i( ElConstDistMatrix_i x, ElValueInt_i* median );
-ElError ElMedianDist_s( ElConstDistMatrix_s x, ElValueInt_s* median );
-ElError ElMedianDist_d( ElConstDistMatrix_d x, ElValueInt_d* median );
+EL_EXPORT ElError ElMedianDist_i( ElConstDistMatrix_i x, ElValueInt_i* median );
+EL_EXPORT ElError ElMedianDist_s( ElConstDistMatrix_s x, ElValueInt_s* median );
+EL_EXPORT ElError ElMedianDist_d( ElConstDistMatrix_d x, ElValueInt_d* median );
 
 /* Sort
    ==== */
-ElError ElSort_i( ElMatrix_i X, ElSortType sort );
-ElError ElSort_s( ElMatrix_s X, ElSortType sort );
-ElError ElSort_d( ElMatrix_d X, ElSortType sort );
+EL_EXPORT ElError ElSort_i( ElMatrix_i X, ElSortType sort );
+EL_EXPORT ElError ElSort_s( ElMatrix_s X, ElSortType sort );
+EL_EXPORT ElError ElSort_d( ElMatrix_d X, ElSortType sort );
 
-ElError ElSortDist_i( ElDistMatrix_i X, ElSortType sort );
-ElError ElSortDist_s( ElDistMatrix_s X, ElSortType sort );
-ElError ElSortDist_d( ElDistMatrix_d X, ElSortType sort );
+EL_EXPORT ElError ElSortDist_i( ElDistMatrix_i X, ElSortType sort );
+EL_EXPORT ElError ElSortDist_s( ElDistMatrix_s X, ElSortType sort );
+EL_EXPORT ElError ElSortDist_d( ElDistMatrix_d X, ElSortType sort );
 
-ElError ElTaggedSort_i
+EL_EXPORT ElError ElTaggedSort_i
 ( ElConstMatrix_i x, ElSortType sort, ElValueInt_i* taggedOrder );
-ElError ElTaggedSort_s
+EL_EXPORT ElError ElTaggedSort_s
 ( ElConstMatrix_s x, ElSortType sort, ElValueInt_s* taggedOrder );
-ElError ElTaggedSort_d
+EL_EXPORT ElError ElTaggedSort_d
 ( ElConstMatrix_d x, ElSortType sort, ElValueInt_d* taggedOrder );
 
-ElError ElTaggedSortDist_i
+EL_EXPORT ElError ElTaggedSortDist_i
 ( ElConstDistMatrix_i x, ElSortType sort, ElValueInt_i* taggedOrder );
-ElError ElTaggedSortDist_s
+EL_EXPORT ElError ElTaggedSortDist_s
 ( ElConstDistMatrix_s x, ElSortType sort, ElValueInt_s* taggedOrder );
-ElError ElTaggedSortDist_d
+EL_EXPORT ElError ElTaggedSortDist_d
 ( ElConstDistMatrix_d x, ElSortType sort, ElValueInt_d* taggedOrder );
 
 #ifdef __cplusplus

@@ -27,413 +27,417 @@ typedef enum {
   EL_GEMM_CANNON
 } ElGemmAlgorithm;
 
-ElError ElGemm_i
+EL_EXPORT ElError ElGemm_i
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   ElInt alpha, ElConstMatrix_i A, ElConstMatrix_i B,
   ElInt beta,  ElMatrix_i C );
-ElError ElGemm_s
+EL_EXPORT ElError ElGemm_s
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   float alpha, ElConstMatrix_s A, ElConstMatrix_s B,
   float beta,  ElMatrix_s C );
-ElError ElGemm_d
+EL_EXPORT ElError ElGemm_d
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   double alpha, ElConstMatrix_d A, ElConstMatrix_d B,
   double beta,  ElMatrix_d C );
-ElError ElGemm_c
+EL_EXPORT ElError ElGemm_c
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   complex_float alpha, ElConstMatrix_c A, ElConstMatrix_c B,
   complex_float beta,  ElMatrix_c C );
-ElError ElGemm_z
+EL_EXPORT ElError ElGemm_z
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z B,
   complex_double beta,  ElMatrix_z C );
 
-ElError ElGemmDist_i
+EL_EXPORT ElError ElGemmDist_i
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   ElInt alpha, ElConstDistMatrix_i A, ElConstDistMatrix_i B,
   ElInt beta,  ElDistMatrix_i C );
-ElError ElGemmDist_s
+EL_EXPORT ElError ElGemmDist_s
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s B,
   float beta,  ElDistMatrix_s C );
-ElError ElGemmDist_d
+EL_EXPORT ElError ElGemmDist_d
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   double alpha, ElConstDistMatrix_d A, ElConstDistMatrix_d B,
   double beta,  ElDistMatrix_d C );
-ElError ElGemmDist_c
+EL_EXPORT ElError ElGemmDist_c
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   complex_float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c B,
   complex_float beta,  ElDistMatrix_c C );
-ElError ElGemmDist_z
+EL_EXPORT ElError ElGemmDist_z
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   complex_double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z B,
   complex_double beta,  ElDistMatrix_z C );
 
 /* Expert version
    ^^^^^^^^^^^^^^ */
-ElError ElGemmXDist_i
+EL_EXPORT ElError ElGemmXDist_i
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   ElInt alpha, ElConstDistMatrix_i A, ElConstDistMatrix_i B,
   ElInt beta,  ElDistMatrix_i C, ElGemmAlgorithm alg );
-ElError ElGemmXDist_s
+EL_EXPORT ElError ElGemmXDist_s
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s B,
   float beta,  ElDistMatrix_s C, ElGemmAlgorithm alg );
-ElError ElGemmXDist_d
+EL_EXPORT ElError ElGemmXDist_d
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   double alpha, ElConstDistMatrix_d A, ElConstDistMatrix_d B,
   double beta,  ElDistMatrix_d C, ElGemmAlgorithm alg );
-ElError ElGemmXDist_c
+EL_EXPORT ElError ElGemmXDist_c
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   complex_float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c B,
   complex_float beta,  ElDistMatrix_c C, ElGemmAlgorithm alg );
-ElError ElGemmXDist_z
+EL_EXPORT ElError ElGemmXDist_z
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   complex_double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z B,
   complex_double beta,  ElDistMatrix_z C, ElGemmAlgorithm alg );
 
 /* Hemm
    ==== */
-ElError ElHemm_c
+EL_EXPORT ElError ElHemm_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   complex_float alpha, ElConstMatrix_c A, ElConstMatrix_c B,
   complex_float beta,  ElMatrix_c C );
-ElError ElHemm_z
+EL_EXPORT ElError ElHemm_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z B,
   complex_double beta,  ElMatrix_z C );
 
-ElError ElHemmDist_c
+EL_EXPORT ElError ElHemmDist_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   complex_float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c B,
   complex_float beta,  ElDistMatrix_c C );
-ElError ElHemmDist_z
+EL_EXPORT ElError ElHemmDist_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   complex_double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z B,
   complex_double beta,  ElDistMatrix_z C );
 
 /* Herk
    ==== */
-ElError ElHerk_c
+EL_EXPORT ElError ElHerk_c
 ( ElUpperOrLower uplo, ElOrientation orientation,
   complex_float alpha, ElConstMatrix_c A, 
   complex_float beta,  ElMatrix_c C );
-ElError ElHerk_z
+EL_EXPORT ElError ElHerk_z
 ( ElUpperOrLower uplo, ElOrientation orientation,
   complex_double alpha, ElConstMatrix_z A, 
   complex_double beta,  ElMatrix_z C );
 
-ElError ElHerkDist_c
+EL_EXPORT ElError ElHerkDist_c
 ( ElUpperOrLower uplo, ElOrientation orientation,
   complex_float alpha, ElConstDistMatrix_c A, 
   complex_float beta,  ElDistMatrix_c C );
-ElError ElHerkDist_z
+EL_EXPORT ElError ElHerkDist_z
 ( ElUpperOrLower uplo, ElOrientation orientation,
   complex_double alpha, ElConstDistMatrix_z A, 
   complex_double beta,  ElDistMatrix_z C );
 
 /* Her2k
    ===== */
-ElError ElHer2k_c
+EL_EXPORT ElError ElHer2k_c
 ( ElUpperOrLower uplo, ElOrientation orientation,
   complex_float alpha, ElConstMatrix_c A, ElConstMatrix_c B,
   complex_float beta,  ElMatrix_c C );
-ElError ElHer2k_z
+EL_EXPORT ElError ElHer2k_z
 ( ElUpperOrLower uplo, ElOrientation orientation,
   complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z B,
   complex_double beta,  ElMatrix_z C );
 
-ElError ElHer2kDist_c
+EL_EXPORT ElError ElHer2kDist_c
 ( ElUpperOrLower uplo, ElOrientation orientation,
   complex_float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c B,
   complex_float beta,  ElDistMatrix_c C );
-ElError ElHer2kDist_z
+EL_EXPORT ElError ElHer2kDist_z
 ( ElUpperOrLower uplo, ElOrientation orientation,
   complex_double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z B,
   complex_double beta,  ElDistMatrix_z C );
 
 /* MultiShiftQuasiTrsm
    =================== */
-ElError ElMultiShiftQuasiTrsm_s
+EL_EXPORT ElError ElMultiShiftQuasiTrsm_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstMatrix_s A, ElConstMatrix_s shifts, 
                ElMatrix_s B );
-ElError ElMultiShiftQuasiTrsm_d
+EL_EXPORT ElError ElMultiShiftQuasiTrsm_d
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   double alpha, ElConstMatrix_d A, ElConstMatrix_d shifts, 
                 ElMatrix_d B );
-ElError ElMultiShiftQuasiTrsm_c
+EL_EXPORT ElError ElMultiShiftQuasiTrsm_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   complex_float alpha, ElConstMatrix_c A, ElConstMatrix_c shifts, 
                        ElMatrix_c B );
-ElError ElMultiShiftQuasiTrsm_z
+EL_EXPORT ElError ElMultiShiftQuasiTrsm_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z shifts, 
                         ElMatrix_z B );
 
-ElError ElMultiShiftQuasiTrsmDist_s
+EL_EXPORT ElError ElMultiShiftQuasiTrsmDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s shifts, 
                ElDistMatrix_s B );
-ElError ElMultiShiftQuasiTrsmDist_d
+EL_EXPORT ElError ElMultiShiftQuasiTrsmDist_d
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   double alpha, ElConstDistMatrix_d A, ElConstDistMatrix_d shifts, 
                 ElDistMatrix_d B );
-ElError ElMultiShiftQuasiTrsmDist_c
+EL_EXPORT ElError ElMultiShiftQuasiTrsmDist_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   complex_float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c shifts, 
                        ElDistMatrix_c B );
-ElError ElMultiShiftQuasiTrsmDist_z
+EL_EXPORT ElError ElMultiShiftQuasiTrsmDist_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   complex_double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z shifts, 
                         ElDistMatrix_z B );
 
 /* MultiShiftTrsm
    ============== */
-ElError ElMultiShiftTrsm_s
+EL_EXPORT ElError ElMultiShiftTrsm_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElMatrix_s A, ElConstMatrix_s shifts, 
                ElMatrix_s B );
-ElError ElMultiShiftTrsm_d
+EL_EXPORT ElError ElMultiShiftTrsm_d
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   double alpha, ElMatrix_d A, ElConstMatrix_d shifts, 
                 ElMatrix_d B );
-ElError ElMultiShiftTrsm_c
+EL_EXPORT ElError ElMultiShiftTrsm_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   complex_float alpha, ElMatrix_c A, ElConstMatrix_c shifts, 
                        ElMatrix_c B );
-ElError ElMultiShiftTrsm_z
+EL_EXPORT ElError ElMultiShiftTrsm_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   complex_double alpha, ElMatrix_z A, ElConstMatrix_z shifts, 
                         ElMatrix_z B );
 
-ElError ElMultiShiftTrsmDist_s
+EL_EXPORT ElError ElMultiShiftTrsmDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s shifts, 
                ElDistMatrix_s B );
-ElError ElMultiShiftTrsmDist_d
+EL_EXPORT ElError ElMultiShiftTrsmDist_d
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   double alpha, ElConstDistMatrix_d A, ElConstDistMatrix_d shifts, 
                 ElDistMatrix_d B );
-ElError ElMultiShiftTrsmDist_c
+EL_EXPORT ElError ElMultiShiftTrsmDist_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   complex_float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c shifts, 
                        ElDistMatrix_c B );
-ElError ElMultiShiftTrsmDist_z
+EL_EXPORT ElError ElMultiShiftTrsmDist_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   complex_double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z shifts, 
                         ElDistMatrix_z B );
 
 /* QuasiTrsm
    ========= */
-ElError ElQuasiTrsm_s
+EL_EXPORT ElError ElQuasiTrsm_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstMatrix_s A, ElMatrix_s B );
-ElError ElQuasiTrsm_d
+EL_EXPORT ElError ElQuasiTrsm_d
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   double alpha, ElConstMatrix_d A, ElMatrix_d B );
-ElError ElQuasiTrsm_c
+EL_EXPORT ElError ElQuasiTrsm_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   complex_float alpha, ElConstMatrix_c A, ElMatrix_c B );
-ElError ElQuasiTrsm_z
+EL_EXPORT ElError ElQuasiTrsm_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   complex_double alpha, ElConstMatrix_z A, ElMatrix_z B );
 
-ElError ElQuasiTrsmDist_s
+EL_EXPORT ElError ElQuasiTrsmDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstDistMatrix_s A, ElDistMatrix_s B );
-ElError ElQuasiTrsmDist_d
+EL_EXPORT ElError ElQuasiTrsmDist_d
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   double alpha, ElConstDistMatrix_d A, ElDistMatrix_d B );
-ElError ElQuasiTrsmDist_c
+EL_EXPORT ElError ElQuasiTrsmDist_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   complex_float alpha, ElConstDistMatrix_c A, ElDistMatrix_c B );
-ElError ElQuasiTrsmDist_z
+EL_EXPORT ElError ElQuasiTrsmDist_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   complex_double alpha, ElConstDistMatrix_z A, ElDistMatrix_z B );
 
 /* Symm
    ==== */
-ElError ElSymm_s
+EL_EXPORT ElError ElSymm_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   float alpha, ElConstMatrix_s A, ElConstMatrix_s B,
   float beta,  ElMatrix_s C );
-ElError ElSymm_d
+EL_EXPORT ElError ElSymm_d
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   double alpha, ElConstMatrix_d A, ElConstMatrix_d B,
   double beta,  ElMatrix_d C );
-ElError ElSymm_c
+EL_EXPORT ElError ElSymm_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   complex_float alpha, ElConstMatrix_c A, ElConstMatrix_c B,
   complex_float beta,  ElMatrix_c C );
-ElError ElSymm_z
+EL_EXPORT ElError ElSymm_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z B,
   complex_double beta,  ElMatrix_z C );
 
-ElError ElSymmDist_s
+EL_EXPORT ElError ElSymmDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s B,
   float beta,  ElDistMatrix_s C );
-ElError ElSymmDist_d
+EL_EXPORT ElError ElSymmDist_d
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   double alpha, ElConstDistMatrix_d A, ElConstDistMatrix_d B,
   double beta,  ElDistMatrix_d C );
-ElError ElSymmDist_c
+EL_EXPORT ElError ElSymmDist_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   complex_float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c B,
   complex_float beta,  ElDistMatrix_c C );
-ElError ElSymmDist_z
+EL_EXPORT ElError ElSymmDist_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   complex_double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z B,
   complex_double beta,  ElDistMatrix_z C );
 
 /* Syrk
    ==== */
-ElError ElSyrk_s
+EL_EXPORT ElError ElSyrk_s
 ( ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstMatrix_s A, 
   float beta,  ElMatrix_s C );
-ElError ElSyrk_d
+EL_EXPORT ElError ElSyrk_d
 ( ElUpperOrLower uplo, ElOrientation orientation,
   double alpha, ElConstMatrix_d A, 
   double beta,  ElMatrix_d C );
-ElError ElSyrk_c
+EL_EXPORT ElError ElSyrk_c
 ( ElUpperOrLower uplo, ElOrientation orientation,
   complex_float alpha, ElConstMatrix_c A, 
   complex_float beta,  ElMatrix_c C );
-ElError ElSyrk_z
+EL_EXPORT ElError ElSyrk_z
 ( ElUpperOrLower uplo, ElOrientation orientation,
   complex_double alpha, ElConstMatrix_z A, 
   complex_double beta,  ElMatrix_z C );
 
-ElError ElSyrkDist_s
+EL_EXPORT ElError ElSyrkDist_s
 ( ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstDistMatrix_s A, 
   float beta,  ElDistMatrix_s C );
-ElError ElSyrkDist_d
+EL_EXPORT ElError ElSyrkDist_d
 ( ElUpperOrLower uplo, ElOrientation orientation,
   double alpha, ElConstDistMatrix_d A, 
   double beta,  ElDistMatrix_d C );
-ElError ElSyrkDist_c
+EL_EXPORT ElError ElSyrkDist_c
 ( ElUpperOrLower uplo, ElOrientation orientation,
   complex_float alpha, ElConstDistMatrix_c A, 
   complex_float beta,  ElDistMatrix_c C );
-ElError ElSyrkDist_z
+EL_EXPORT ElError ElSyrkDist_z
 ( ElUpperOrLower uplo, ElOrientation orientation,
   complex_double alpha, ElConstDistMatrix_z A, 
   complex_double beta,  ElDistMatrix_z C );
 
 /* Syr2k
    ===== */
-ElError ElSyr2k_s
+EL_EXPORT ElError ElSyr2k_s
 ( ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstMatrix_s A, ElConstMatrix_s B,
   float beta,  ElMatrix_s C );
-ElError ElSyr2k_d
+EL_EXPORT ElError ElSyr2k_d
 ( ElUpperOrLower uplo, ElOrientation orientation,
   double alpha, ElConstMatrix_d A, ElConstMatrix_d B,
   double beta,  ElMatrix_d C );
-ElError ElSyr2k_c
+EL_EXPORT ElError ElSyr2k_c
 ( ElUpperOrLower uplo, ElOrientation orientation,
   complex_float alpha, ElConstMatrix_c A, ElConstMatrix_c B,
   complex_float beta,  ElMatrix_c C );
-ElError ElSyr2k_z
+EL_EXPORT ElError ElSyr2k_z
 ( ElUpperOrLower uplo, ElOrientation orientation,
   complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z B,
   complex_double beta,  ElMatrix_z C );
 
-ElError ElSyr2kDist_s
+EL_EXPORT ElError ElSyr2kDist_s
 ( ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s B,
   float beta,  ElDistMatrix_s C );
-ElError ElSyr2kDist_d
+EL_EXPORT ElError ElSyr2kDist_d
 ( ElUpperOrLower uplo, ElOrientation orientation,
   double alpha, ElConstDistMatrix_d A, ElConstDistMatrix_d B,
   double beta,  ElDistMatrix_d C );
-ElError ElSyr2kDist_c
+EL_EXPORT ElError ElSyr2kDist_c
 ( ElUpperOrLower uplo, ElOrientation orientation,
   complex_float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c B,
   complex_float beta,  ElDistMatrix_c C );
-ElError ElSyr2kDist_z
+EL_EXPORT ElError ElSyr2kDist_z
 ( ElUpperOrLower uplo, ElOrientation orientation,
   complex_double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z B,
   complex_double beta,  ElDistMatrix_z C );
 
 /* Trdtrmm
    ======= */
-ElError ElTrdtrmm_s( ElUpperOrLower uplo, ElMatrix_s A );
-ElError ElTrdtrmm_d( ElUpperOrLower uplo, ElMatrix_d A );
-ElError ElTrdtrmm_c( ElUpperOrLower uplo, ElMatrix_c A, bool conjugate );
-ElError ElTrdtrmm_z( ElUpperOrLower uplo, ElMatrix_z A, bool conjugate );
+EL_EXPORT ElError ElTrdtrmm_s
+( ElUpperOrLower uplo, ElMatrix_s A );
+EL_EXPORT ElError ElTrdtrmm_d
+( ElUpperOrLower uplo, ElMatrix_d A );
+EL_EXPORT ElError ElTrdtrmm_c
+( ElUpperOrLower uplo, ElMatrix_c A, bool conjugate );
+EL_EXPORT ElError ElTrdtrmm_z
+( ElUpperOrLower uplo, ElMatrix_z A, bool conjugate );
 
-ElError ElTrdtrmmDist_s
+EL_EXPORT ElError ElTrdtrmmDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A );
-ElError ElTrdtrmmDist_d
+EL_EXPORT ElError ElTrdtrmmDist_d
 ( ElUpperOrLower uplo, ElDistMatrix_d A );
-ElError ElTrdtrmmDist_c
+EL_EXPORT ElError ElTrdtrmmDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, bool conjugate );
-ElError ElTrdtrmmDist_z
+EL_EXPORT ElError ElTrdtrmmDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, bool conjugate );
 
 /* TrdtrmmQuasi
    ============ */
 /* TODO: Come up with a better name for this and Trdtrmm and make consistent
          with the C++ API */
-ElError ElTrdtrmmQuasi_s
+EL_EXPORT ElError ElTrdtrmmQuasi_s
 ( ElUpperOrLower uplo, ElMatrix_s A, ElConstMatrix_s dOff );
-ElError ElTrdtrmmQuasi_d
+EL_EXPORT ElError ElTrdtrmmQuasi_d
 ( ElUpperOrLower uplo, ElMatrix_d A, ElConstMatrix_d dOff );
-ElError ElTrdtrmmQuasi_c
+EL_EXPORT ElError ElTrdtrmmQuasi_c
 ( ElUpperOrLower uplo, ElMatrix_c A, ElConstMatrix_c dOff, bool conjugate );
-ElError ElTrdtrmmQuasi_z
+EL_EXPORT ElError ElTrdtrmmQuasi_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElConstMatrix_z dOff, bool conjugate );
 
-ElError ElTrdtrmmQuasiDist_s
+EL_EXPORT ElError ElTrdtrmmQuasiDist_s
 ( ElUpperOrLower uplo, 
   ElDistMatrix_s A, ElConstDistMatrix_s dOff );
-ElError ElTrdtrmmQuasiDist_d
+EL_EXPORT ElError ElTrdtrmmQuasiDist_d
 ( ElUpperOrLower uplo, 
   ElDistMatrix_d A, ElConstDistMatrix_d dOff );
-ElError ElTrdtrmmQuasiDist_c
+EL_EXPORT ElError ElTrdtrmmQuasiDist_c
 ( ElUpperOrLower uplo, 
   ElDistMatrix_c A, ElConstDistMatrix_c dOff, bool conjugate );
-ElError ElTrdtrmmQuasiDist_z
+EL_EXPORT ElError ElTrdtrmmQuasiDist_z
 ( ElUpperOrLower uplo, 
   ElDistMatrix_z A, ElConstDistMatrix_z dOff, bool conjugate );
 
 /* Trmm
    ==== */
-ElError ElTrmm_s
+EL_EXPORT ElError ElTrmm_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   float alpha, ElConstMatrix_s A, ElMatrix_s B );
-ElError ElTrmm_d
+EL_EXPORT ElError ElTrmm_d
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   double alpha, ElConstMatrix_d A, ElMatrix_d B );
-ElError ElTrmm_c
+EL_EXPORT ElError ElTrmm_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   complex_float alpha, ElConstMatrix_c A, ElMatrix_c B );
-ElError ElTrmm_z
+EL_EXPORT ElError ElTrmm_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   complex_double alpha, ElConstMatrix_z A, ElMatrix_z B );
 
-ElError ElTrmmDist_s
+EL_EXPORT ElError ElTrmmDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   float alpha, ElConstDistMatrix_s A, ElDistMatrix_s B );
-ElError ElTrmmDist_d
+EL_EXPORT ElError ElTrmmDist_d
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   double alpha, ElConstDistMatrix_d A, ElDistMatrix_d B );
-ElError ElTrmmDist_c
+EL_EXPORT ElError ElTrmmDist_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   complex_float alpha, ElConstDistMatrix_c A, ElDistMatrix_c B );
-ElError ElTrmmDist_z
+EL_EXPORT ElError ElTrmmDist_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   complex_double alpha, ElConstDistMatrix_z A, ElDistMatrix_z B );
@@ -441,36 +445,36 @@ ElError ElTrmmDist_z
 /* Trrk
    ==== */
 /* TRiangular Rank-K update */
-ElError ElTrrk_s
+EL_EXPORT ElError ElTrrk_s
 ( ElUpperOrLower uplo, ElOrientation orientA, ElOrientation orientB, 
   float alpha, ElConstMatrix_s A, ElConstMatrix_s B, 
   float beta,                     ElMatrix_s C );
-ElError ElTrrk_d
+EL_EXPORT ElError ElTrrk_d
 ( ElUpperOrLower uplo, ElOrientation orientA, ElOrientation orientB, 
   double alpha, ElConstMatrix_d A, ElConstMatrix_d B, 
   double beta,                     ElMatrix_d C );
-ElError ElTrrk_c
+EL_EXPORT ElError ElTrrk_c
 ( ElUpperOrLower uplo, ElOrientation orientA, ElOrientation orientB, 
   complex_float alpha, ElConstMatrix_c A, ElConstMatrix_c B, 
   complex_float beta,                     ElMatrix_c C );
-ElError ElTrrk_z
+EL_EXPORT ElError ElTrrk_z
 ( ElUpperOrLower uplo, ElOrientation orientA, ElOrientation orientB, 
   complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z B, 
   complex_double beta,                     ElMatrix_z C );
 
-ElError ElTrrkDist_s
+EL_EXPORT ElError ElTrrkDist_s
 ( ElUpperOrLower uplo, ElOrientation orientA, ElOrientation orientB, 
   float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s B, 
   float beta,                         ElDistMatrix_s C );
-ElError ElTrrkDist_d
+EL_EXPORT ElError ElTrrkDist_d
 ( ElUpperOrLower uplo, ElOrientation orientA, ElOrientation orientB, 
   double alpha, ElConstDistMatrix_d A, ElConstDistMatrix_d B, 
   double beta,                         ElDistMatrix_d C );
-ElError ElTrrkDist_c
+EL_EXPORT ElError ElTrrkDist_c
 ( ElUpperOrLower uplo, ElOrientation orientA, ElOrientation orientB, 
   complex_float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c B, 
   complex_float beta,                         ElDistMatrix_c C );
-ElError ElTrrkDist_z
+EL_EXPORT ElError ElTrrkDist_z
 ( ElUpperOrLower uplo, ElOrientation orientA, ElOrientation orientB, 
   complex_double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z B, 
   complex_double beta,                         ElDistMatrix_z C );
@@ -480,28 +484,28 @@ ElError ElTrrkDist_z
 /* TRiangular Rank-2K update */
 /* An optimized sequential implementation does not yet exist */
 /*
-ElError ElTrr2k_s
+EL_EXPORT ElError ElTrr2k_s
 ( ElUpperOrLower uplo, 
   ElOrientation orientA, ElOrientation orientB, 
   ElOrientation orientC, ElOrientation orientD,
   float alpha, ElConstMatrix_s A, ElConstMatrix_s B, 
                ElConstMatrix_s C, ElConstMatrix_s D,
   float beta,                     ElMatrix_s E );
-ElError ElTrr2k_d
+EL_EXPORT ElError ElTrr2k_d
 ( ElUpperOrLower uplo, 
   ElOrientation orientA, ElOrientation orientB, 
   ElOrientation orientC, ElOrientation orientD, 
   double alpha, ElConstMatrix_d A, ElConstMatrix_d B, 
                 ElConstMatrix_d C, ElConstMatrix_d D,
   double beta,                     ElMatrix_d E );
-ElError ElTrr2k_c
+EL_EXPORT ElError ElTrr2k_c
 ( ElUpperOrLower uplo, 
   ElOrientation orientA, ElOrientation orientB, 
   ElOrientation orientC, ElOrientation orientD, 
   complex_float alpha, ElConstMatrix_c A, ElConstMatrix_c B, 
                        ElConstMatrix_c C, ElConstMatrix_c D,
   complex_float beta,                     ElMatrix_c E );
-ElError ElTrr2k_z
+EL_EXPORT ElError ElTrr2k_z
 ( ElUpperOrLower uplo,
   ElOrientation orientA, ElOrientation orientB, 
   ElOrientation orientC, ElOrientation orientD, 
@@ -510,28 +514,28 @@ ElError ElTrr2k_z
   complex_double beta,                     ElMatrix_z E );
 */
 
-ElError ElTrr2kDist_s
+EL_EXPORT ElError ElTrr2kDist_s
 ( ElUpperOrLower uplo, 
   ElOrientation orientA, ElOrientation orientB, 
   ElOrientation orientC, ElOrientation orientD,
   float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s B, 
                ElConstDistMatrix_s C, ElConstDistMatrix_s D,
   float beta,                         ElDistMatrix_s E );
-ElError ElTrr2kDist_d
+EL_EXPORT ElError ElTrr2kDist_d
 ( ElUpperOrLower uplo, 
   ElOrientation orientA, ElOrientation orientB, 
   ElOrientation orientC, ElOrientation orientD, 
   double alpha, ElConstDistMatrix_d A, ElConstDistMatrix_d B, 
                 ElConstDistMatrix_d C, ElConstDistMatrix_d D,
   double beta,                         ElDistMatrix_d E );
-ElError ElTrr2kDist_c
+EL_EXPORT ElError ElTrr2kDist_c
 ( ElUpperOrLower uplo, 
   ElOrientation orientA, ElOrientation orientB, 
   ElOrientation orientC, ElOrientation orientD, 
   complex_float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c B, 
                        ElConstDistMatrix_c C, ElConstDistMatrix_c D,
   complex_float beta,                         ElDistMatrix_c E );
-ElError ElTrr2kDist_z
+EL_EXPORT ElError ElTrr2kDist_z
 ( ElUpperOrLower uplo,
   ElOrientation orientA, ElOrientation orientB, 
   ElOrientation orientC, ElOrientation orientD, 
@@ -541,133 +545,141 @@ ElError ElTrr2kDist_z
 
 /* Trsm
    ==== */
-ElError ElTrsm_s
+EL_EXPORT ElError ElTrsm_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   float alpha, ElConstMatrix_s A, ElMatrix_s B );
-ElError ElTrsm_d
+EL_EXPORT ElError ElTrsm_d
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   double alpha, ElConstMatrix_d A, ElMatrix_d B );
-ElError ElTrsm_c
+EL_EXPORT ElError ElTrsm_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   complex_float alpha, ElConstMatrix_c A, ElMatrix_c B );
-ElError ElTrsm_z
+EL_EXPORT ElError ElTrsm_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   complex_double alpha, ElConstMatrix_z A, ElMatrix_z B );
 
-ElError ElTrsmDist_s
+EL_EXPORT ElError ElTrsmDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   float alpha, ElConstDistMatrix_s A, ElDistMatrix_s B );
-ElError ElTrsmDist_d
+EL_EXPORT ElError ElTrsmDist_d
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   double alpha, ElConstDistMatrix_d A, ElDistMatrix_d B );
-ElError ElTrsmDist_c
+EL_EXPORT ElError ElTrsmDist_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   complex_float alpha, ElConstDistMatrix_c A, ElDistMatrix_c B );
-ElError ElTrsmDist_z
+EL_EXPORT ElError ElTrsmDist_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   complex_double alpha, ElConstDistMatrix_z A, ElDistMatrix_z B );
 
 /* Trstrm
    ====== */
-ElError ElTrstrm_s
+EL_EXPORT ElError ElTrstrm_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   float alpha, ElConstMatrix_s A, ElMatrix_s B );
-ElError ElTrstrm_d
+EL_EXPORT ElError ElTrstrm_d
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   double alpha, ElConstMatrix_d A, ElMatrix_d B );
-ElError ElTrstrm_c
+EL_EXPORT ElError ElTrstrm_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   complex_float alpha, ElConstMatrix_c A, ElMatrix_c B );
-ElError ElTrstrm_z
+EL_EXPORT ElError ElTrstrm_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   complex_double alpha, ElConstMatrix_z A, ElMatrix_z B );
 
-ElError ElTrstrmDist_s
+EL_EXPORT ElError ElTrstrmDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   float alpha, ElConstDistMatrix_s A, ElDistMatrix_s B );
-ElError ElTrstrmDist_d
+EL_EXPORT ElError ElTrstrmDist_d
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   double alpha, ElConstDistMatrix_d A, ElDistMatrix_d B );
-ElError ElTrstrmDist_c
+EL_EXPORT ElError ElTrstrmDist_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   complex_float alpha, ElConstDistMatrix_c A, ElDistMatrix_c B );
-ElError ElTrstrmDist_z
+EL_EXPORT ElError ElTrstrmDist_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
   complex_double alpha, ElConstDistMatrix_z A, ElDistMatrix_z B );
 
 /* Trtrmm
    ====== */
-ElError ElTrtrmm_s( ElUpperOrLower uplo, ElMatrix_s A );
-ElError ElTrtrmm_d( ElUpperOrLower uplo, ElMatrix_d A );
-ElError ElTrtrmm_c( ElUpperOrLower uplo, ElMatrix_c A, bool conjugate );
-ElError ElTrtrmm_z( ElUpperOrLower uplo, ElMatrix_z A, bool conjugate );
+EL_EXPORT ElError ElTrtrmm_s
+( ElUpperOrLower uplo, ElMatrix_s A );
+EL_EXPORT ElError ElTrtrmm_d
+( ElUpperOrLower uplo, ElMatrix_d A );
+EL_EXPORT ElError ElTrtrmm_c
+( ElUpperOrLower uplo, ElMatrix_c A, bool conjugate );
+EL_EXPORT ElError ElTrtrmm_z
+( ElUpperOrLower uplo, ElMatrix_z A, bool conjugate );
 
-ElError ElTrtrmmDist_s( ElUpperOrLower uplo, ElDistMatrix_s A );
-ElError ElTrtrmmDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
-ElError ElTrtrmmDist_c( ElUpperOrLower uplo, ElDistMatrix_c A, bool conjugate );
-ElError ElTrtrmmDist_z( ElUpperOrLower uplo, ElDistMatrix_z A, bool conjugate );
+EL_EXPORT ElError ElTrtrmmDist_s
+( ElUpperOrLower uplo, ElDistMatrix_s A );
+EL_EXPORT ElError ElTrtrmmDist_d
+( ElUpperOrLower uplo, ElDistMatrix_d A );
+EL_EXPORT ElError ElTrtrmmDist_c
+( ElUpperOrLower uplo, ElDistMatrix_c A, bool conjugate );
+EL_EXPORT ElError ElTrtrmmDist_z
+( ElUpperOrLower uplo, ElDistMatrix_z A, bool conjugate );
 
 /* TwoSidedTrmm
    ============ */
-ElError ElTwoSidedTrmm_s
+EL_EXPORT ElError ElTwoSidedTrmm_s
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, ElMatrix_s A, ElConstMatrix_s B );
-ElError ElTwoSidedTrmm_d
+EL_EXPORT ElError ElTwoSidedTrmm_d
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, ElMatrix_d A, ElConstMatrix_d B );
-ElError ElTwoSidedTrmm_c
+EL_EXPORT ElError ElTwoSidedTrmm_c
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, ElMatrix_c A, ElConstMatrix_c B );
-ElError ElTwoSidedTrmm_z
+EL_EXPORT ElError ElTwoSidedTrmm_z
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, ElMatrix_z A, ElConstMatrix_z B );
 
-ElError ElTwoSidedTrmmDist_s
+EL_EXPORT ElError ElTwoSidedTrmmDist_s
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, 
   ElDistMatrix_s A, ElConstDistMatrix_s B );
-ElError ElTwoSidedTrmmDist_d
+EL_EXPORT ElError ElTwoSidedTrmmDist_d
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, 
   ElDistMatrix_d A, ElConstDistMatrix_d B );
-ElError ElTwoSidedTrmmDist_c
+EL_EXPORT ElError ElTwoSidedTrmmDist_c
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, 
   ElDistMatrix_c A, ElConstDistMatrix_c B );
-ElError ElTwoSidedTrmmDist_z
+EL_EXPORT ElError ElTwoSidedTrmmDist_z
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, 
   ElDistMatrix_z A, ElConstDistMatrix_z B );
 
 /* TwoSidedTrsm
    ============ */
-ElError ElTwoSidedTrsm_s
+EL_EXPORT ElError ElTwoSidedTrsm_s
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, ElMatrix_s A, ElConstMatrix_s B );
-ElError ElTwoSidedTrsm_d
+EL_EXPORT ElError ElTwoSidedTrsm_d
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, ElMatrix_d A, ElConstMatrix_d B );
-ElError ElTwoSidedTrsm_c
+EL_EXPORT ElError ElTwoSidedTrsm_c
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, ElMatrix_c A, ElConstMatrix_c B );
-ElError ElTwoSidedTrsm_z
+EL_EXPORT ElError ElTwoSidedTrsm_z
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, ElMatrix_z A, ElConstMatrix_z B );
 
-ElError ElTwoSidedTrsmDist_s
+EL_EXPORT ElError ElTwoSidedTrsmDist_s
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, 
   ElDistMatrix_s A, ElConstDistMatrix_s B );
-ElError ElTwoSidedTrsmDist_d
+EL_EXPORT ElError ElTwoSidedTrsmDist_d
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, 
   ElDistMatrix_d A, ElConstDistMatrix_d B );
-ElError ElTwoSidedTrsmDist_c
+EL_EXPORT ElError ElTwoSidedTrsmDist_c
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, 
   ElDistMatrix_c A, ElConstDistMatrix_c B );
-ElError ElTwoSidedTrsmDist_z
+EL_EXPORT ElError ElTwoSidedTrsmDist_z
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, 
   ElDistMatrix_z A, ElConstDistMatrix_z B );
 
