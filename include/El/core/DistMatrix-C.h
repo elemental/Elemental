@@ -1351,7 +1351,7 @@ EL_EXPORT ElError ElDistMatrixDiagonalRoot_z
    DistMatrix<T,U,V>::GetDiagonal( Int offset ) const
    -------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixGetDiagonal_i
-( ElConstDistMatrix_i A, ElInt offset, ElDistMatrix_s* d );
+( ElConstDistMatrix_i A, ElInt offset, ElDistMatrix_i* d );
 EL_EXPORT ElError ElDistMatrixGetDiagonal_s
 ( ElConstDistMatrix_s A, ElInt offset, ElDistMatrix_s* d );
 EL_EXPORT ElError ElDistMatrixGetDiagonal_d
