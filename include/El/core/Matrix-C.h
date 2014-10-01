@@ -14,6 +14,10 @@
 extern "C" {
 #endif
 
+/* NOTE: "ElInt* I" and "ElInt* J" have been converted to 
+         "ElInt* rowInd" and "ElInt* colInd" due to what appears to be a bug
+         in /usr/bin/c++ in Ubuntu */
+
 /* An anonymous struct meant as a placeholder for Matrix<T>
    -------------------------------------------------------- */
 typedef struct ElMatrix_iDummy* ElMatrix_i;
@@ -408,100 +412,100 @@ EL_EXPORT ElError ElMatrixConjugateDiagonal_z( ElMatrix_z A, ElInt offset );
    -------------------------------------------------------------------------- */
 EL_EXPORT ElError ElMatrixGetSubmatrix_i
 ( ElConstMatrix_i A, 
-  ElInt numRowInds, const ElInt* I, 
-  ElInt numColInds, const ElInt* J, ElMatrix_i* ASub );
+  ElInt numRowInds, const ElInt* rowInd, 
+  ElInt numColInds, const ElInt* colInd, ElMatrix_i* ASub );
 EL_EXPORT ElError ElMatrixGetSubmatrix_s
 ( ElConstMatrix_s A, 
-  ElInt numRowInds, const ElInt* I, 
-  ElInt numColInds, const ElInt* J, ElMatrix_s* ASub );
+  ElInt numRowInds, const ElInt* rowInd, 
+  ElInt numColInds, const ElInt* colInd, ElMatrix_s* ASub );
 EL_EXPORT ElError ElMatrixGetSubmatrix_d
 ( ElConstMatrix_d A, 
-  ElInt numRowInds, const ElInt* I, 
-  ElInt numColInds, const ElInt* J, ElMatrix_d* ASub );
+  ElInt numRowInds, const ElInt* rowInd, 
+  ElInt numColInds, const ElInt* colInd, ElMatrix_d* ASub );
 EL_EXPORT ElError ElMatrixGetSubmatrix_c
 ( ElConstMatrix_c A, 
-  ElInt numRowInds, const ElInt* I, 
-  ElInt numColInds, const ElInt* J, ElMatrix_c* ASub );
+  ElInt numRowInds, const ElInt* rowInd, 
+  ElInt numColInds, const ElInt* colInd, ElMatrix_c* ASub );
 EL_EXPORT ElError ElMatrixGetSubmatrix_z
 ( ElConstMatrix_z A, 
-  ElInt numRowInds, const ElInt* I, 
-  ElInt numColInds, const ElInt* J, ElMatrix_z* ASub );
+  ElInt numRowInds, const ElInt* rowInd, 
+  ElInt numColInds, const ElInt* colInd, ElMatrix_z* ASub );
 
 /* Matrix<Base<T>> Matrix<T>::GetRealPartOfSubmatrix
    ( const std::vector<Int>& I, const std::vector<Int>& J ) const
    -------------------------------------------------------------------------- */
 EL_EXPORT ElError ElMatrixGetRealPartOfSubmatrix_c
 ( ElConstMatrix_c A, 
-  ElInt numRowInds, const ElInt* I, 
-  ElInt numColInds, const ElInt* J, ElMatrix_s* ASub );
+  ElInt numRowInds, const ElInt* rowInd, 
+  ElInt numColInds, const ElInt* colInd, ElMatrix_s* ASub );
 EL_EXPORT ElError ElMatrixGetRealPartOfSubmatrix_z
 ( ElConstMatrix_z A, 
-  ElInt numRowInds, const ElInt* I, 
-  ElInt numColInds, const ElInt* J, ElMatrix_d* ASub );
+  ElInt numRowInds, const ElInt* rowInd, 
+  ElInt numColInds, const ElInt* colInd, ElMatrix_d* ASub );
 
 /* Matrix<Base<T>> Matrix<T>::GetImagPartOfSubmatrix
    ( const std::vector<Int>& I, const std::vector<Int>& J ) const
    -------------------------------------------------------------------------- */
 EL_EXPORT ElError ElMatrixGetImagPartOfSubmatrix_c
 ( ElConstMatrix_c A, 
-  ElInt numRowInds, const ElInt* I, 
-  ElInt numColInds, const ElInt* J, ElMatrix_s* ASub );
+  ElInt numRowInds, const ElInt* rowInd, 
+  ElInt numColInds, const ElInt* colInd, ElMatrix_s* ASub );
 EL_EXPORT ElError ElMatrixGetImagPartOfSubmatrix_z
 ( ElConstMatrix_z A, 
-  ElInt numRowInds, const ElInt* I, 
-  ElInt numColInds, const ElInt* J, ElMatrix_d* ASub );
+  ElInt numRowInds, const ElInt* rowInd, 
+  ElInt numColInds, const ElInt* colInd, ElMatrix_d* ASub );
 
 /* void Matrix<T>::SetSubmatrix
    ( const std::vector<Int>& I, const std::vector<Int>& J, 
      const Matrix<T>& ASub )
    ------------------------------------------------------------------- */
 EL_EXPORT ElError ElMatrixSetSubmatrix_i
-( ElMatrix_i A, const ElInt* I, const ElInt* J, ElConstMatrix_i ASub );
+( ElMatrix_i A, const ElInt* rowInd, const ElInt* colInd, ElConstMatrix_i ASub );
 EL_EXPORT ElError ElMatrixSetSubmatrix_s
-( ElMatrix_s A, const ElInt* I, const ElInt* J, ElConstMatrix_s ASub );
+( ElMatrix_s A, const ElInt* rowInd, const ElInt* colInd, ElConstMatrix_s ASub );
 EL_EXPORT ElError ElMatrixSetSubmatrix_d
-( ElMatrix_d A, const ElInt* I, const ElInt* J, ElConstMatrix_d ASub );
+( ElMatrix_d A, const ElInt* rowInd, const ElInt* colInd, ElConstMatrix_d ASub );
 EL_EXPORT ElError ElMatrixSetSubmatrix_c
-( ElMatrix_c A, const ElInt* I, const ElInt* J, ElConstMatrix_c ASub );
+( ElMatrix_c A, const ElInt* rowInd, const ElInt* colInd, ElConstMatrix_c ASub );
 EL_EXPORT ElError ElMatrixSetSubmatrix_z
-( ElMatrix_z A, const ElInt* I, const ElInt* J, ElConstMatrix_z ASub );
+( ElMatrix_z A, const ElInt* rowInd, const ElInt* colInd, ElConstMatrix_z ASub );
 
 /* void Matrix<T>::SetRealPartOfSubmatrix
    ( const std::vector<Int>& I, const std::vector<Int>& J, 
      const Matrix<Base<T>>& ASub )
    ------------------------------------------------------------------- */
 EL_EXPORT ElError ElMatrixSetRealPartOfSubmatrix_c
-( ElMatrix_c A, const ElInt* I, const ElInt* J, ElConstMatrix_s ASub );
+( ElMatrix_c A, const ElInt* rowInd, const ElInt* colInd, ElConstMatrix_s ASub );
 EL_EXPORT ElError ElMatrixSetRealPartOfSubmatrix_z
-( ElMatrix_z A, const ElInt* I, const ElInt* J, ElConstMatrix_d ASub );
+( ElMatrix_z A, const ElInt* rowInd, const ElInt* colInd, ElConstMatrix_d ASub );
 
 /* void Matrix<T>::SetImagPartOfSubmatrix
    ( const std::vector<Int>& I, const std::vector<Int>& J, 
      const Matrix<Base<T>>& ASub )
    ------------------------------------------------------------------- */
 EL_EXPORT ElError ElMatrixSetImagPartOfSubmatrix_c
-( ElMatrix_c A, const ElInt* I, const ElInt* J, ElConstMatrix_s ASub );
+( ElMatrix_c A, const ElInt* rowInd, const ElInt* colInd, ElConstMatrix_s ASub );
 EL_EXPORT ElError ElMatrixSetImagPartOfSubmatrix_z
-( ElMatrix_z A, const ElInt* I, const ElInt* J, ElConstMatrix_d ASub );
+( ElMatrix_z A, const ElInt* rowInd, const ElInt* colInd, ElConstMatrix_d ASub );
 
 /* void Matrix<T>::UpdateSubmatrix
    ( const std::vector<Int>& I, const std::vector<Int>& J, 
      const Matrix<T>& ASub )
    ------------------------------------------------------------------- */
 EL_EXPORT ElError ElMatrixUpdateSubmatrix_i
-( ElMatrix_i A, const ElInt* I, const ElInt* J, 
+( ElMatrix_i A, const ElInt* rowInd, const ElInt* colInd, 
   ElInt alpha, ElConstMatrix_i ASub );
 EL_EXPORT ElError ElMatrixUpdateSubmatrix_s
-( ElMatrix_s A, const ElInt* I, const ElInt* J, 
+( ElMatrix_s A, const ElInt* rowInd, const ElInt* colInd, 
   float alpha, ElConstMatrix_s ASub );
 EL_EXPORT ElError ElMatrixUpdateSubmatrix_d
-( ElMatrix_d A, const ElInt* I, const ElInt* J, 
+( ElMatrix_d A, const ElInt* rowInd, const ElInt* colInd, 
   double alpha, ElConstMatrix_d ASub );
 EL_EXPORT ElError ElMatrixUpdateSubmatrix_c
-( ElMatrix_c A, const ElInt* I, const ElInt* J, 
+( ElMatrix_c A, const ElInt* rowInd, const ElInt* colInd, 
   complex_float alpha, ElConstMatrix_c ASub );
 EL_EXPORT ElError ElMatrixUpdateSubmatrix_z
-( ElMatrix_z A, const ElInt* I, const ElInt* J, 
+( ElMatrix_z A, const ElInt* rowInd, const ElInt* colInd, 
   complex_double alpha, ElConstMatrix_z ASub );
 
 /* void Matrix<T>::UpdateRealPartOfSubmatrix
@@ -509,10 +513,10 @@ EL_EXPORT ElError ElMatrixUpdateSubmatrix_z
      Base<T> alpha, const Matrix<Base<T>>& ASub )
    ------------------------------------------------------------------- */
 EL_EXPORT ElError ElMatrixUpdateRealPartOfSubmatrix_c
-( ElMatrix_c A, const ElInt* I, const ElInt* J, 
+( ElMatrix_c A, const ElInt* rowInd, const ElInt* colInd, 
   float alpha, ElConstMatrix_s ASub );
 EL_EXPORT ElError ElMatrixUpdateRealPartOfSubmatrix_z
-( ElMatrix_z A, const ElInt* I, const ElInt* J, 
+( ElMatrix_z A, const ElInt* rowInd, const ElInt* colInd, 
   double alpha, ElConstMatrix_d ASub );
 
 /* void Matrix<T>::UpdateImagPartOfSubmatrix
@@ -520,10 +524,10 @@ EL_EXPORT ElError ElMatrixUpdateRealPartOfSubmatrix_z
      Base<T> alpha, const Matrix<Base<T>>& ASub )
    ------------------------------------------------------------------- */
 EL_EXPORT ElError ElMatrixUpdateImagPartOfSubmatrix_c
-( ElMatrix_c A, const ElInt* I, const ElInt* J, 
+( ElMatrix_c A, const ElInt* rowInd, const ElInt* colInd, 
   float alpha, ElConstMatrix_s ASub );
 EL_EXPORT ElError ElMatrixUpdateImagPartOfSubmatrix_z
-( ElMatrix_z A, const ElInt* I, const ElInt* J, 
+( ElMatrix_z A, const ElInt* rowInd, const ElInt* colInd, 
   double alpha, ElConstMatrix_d ASub );
 
 /* void Matrix<T>::MakeSubmatrixReal
@@ -531,20 +535,22 @@ EL_EXPORT ElError ElMatrixUpdateImagPartOfSubmatrix_z
    -------------------------------------------------------------------- */
 EL_EXPORT ElError ElMatrixMakeSubmatrixReal_c
 ( ElMatrix_c A, 
-  ElInt numRowInds, const ElInt* I, ElInt numColInds, const ElInt* J );
+  ElInt numRowInds, const ElInt* rowInd, ElInt numColInds, const ElInt* colInd );
 EL_EXPORT ElError ElMatrixMakeSubmatrixReal_z
 ( ElMatrix_z A, 
-  ElInt numRowInds, const ElInt* I, ElInt numColInds, const ElInt* J );
+  ElInt numRowInds, const ElInt* rowInd, ElInt numColInds, const ElInt* colInd );
 
 /* void Matrix<T>::ConjugateSubmatrix
    ( const std::vector<Int>& I, const std::vector<Int>& J )
    -------------------------------------------------------------------- */
 EL_EXPORT ElError ElMatrixConjugateSubmatrix_c
 ( ElMatrix_c A, 
-  ElInt numRowInds, const ElInt* I, ElInt numColInds, const ElInt* J );
+  ElInt numRowInds, const ElInt* rowInd, 
+  ElInt numColInds, const ElInt* colInd );
 EL_EXPORT ElError ElMatrixConjugateSubmatrix_z
 ( ElMatrix_z A, 
-  ElInt numRowInds, const ElInt* I, ElInt numColInds, const ElInt* J );
+  ElInt numRowInds, const ElInt* rowInd, 
+  ElInt numColInds, const ElInt* colInd );
 
 #ifdef __cplusplus
 } // extern "C"
