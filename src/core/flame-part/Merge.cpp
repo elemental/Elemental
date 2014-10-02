@@ -403,7 +403,7 @@ DistMatrix<T,U,V> LockedMerge2x2
   ( Matrix<T>& A, \
     const Matrix<T>& BTL, const Matrix<T>& BTR, \
     const Matrix<T>& BBL, const Matrix<T>& BBR ); \
- template void LockedMerge2x2 \
+  template void LockedMerge2x2 \
   ( AbstractDistMatrix<T>& A, \
     const AbstractDistMatrix<T>& BTL, const AbstractDistMatrix<T>& BTR, \
     const AbstractDistMatrix<T>& BBL, const AbstractDistMatrix<T>& BBR ); \
