@@ -1,7 +1,7 @@
-### `include/El/core/dist_matrix/`
+### `include/El/core/BlockDistMatrix/`
 
 This folder contains the header files for the various partial specializations of
-the `DistMatrix` class; please see `src/core/dist_matrix` for the 
+the `BlockDistMatrix` class; please see `src/core/BlockDistMatrix` for the 
 corresponding source files. Each specialization involves choosing a 
 sensical pairing of distributions for the rows and columns of the matrix:
 
@@ -46,7 +46,7 @@ communicator where each member process stores the same information, and the
 assigned any data.
 
 To make this discussion more precise, each valid matrix distribution for 
-`DistMatrix` logically arranges the set of `p` processes of the `r` by `c` 
+`BlockDistMatrix` logically arranges the set of `p` processes of the `r` by `c` 
 process grid into a 4D mesh: `ColComm` x `RowComm` x `RedundantComm` x `CrossComm`, where `DistComm` is equal to `ColComm` x `RowComm`.
 
 We are now ready to describe the contents of this folder (in addition to this

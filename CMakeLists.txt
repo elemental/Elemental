@@ -352,6 +352,8 @@ file(GLOB_RECURSE EL_C_CPP_SOURCE RELATIVE ${PROJECT_SOURCE_DIR}
 file(GLOB_RECURSE EL_C_CPP_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} 
   "include/*.h" "include/*.hpp")
 set(EL_C_CPP_FILES "${EL_C_CPP_SOURCE};${EL_C_CPP_HEADERS};${EL_MOC_SRC}")
+file(GLOB_RECURSE EL_PY_INTERFACE RELATIVE ${PROJECT_SOURCE_DIR} 
+  "include/*.py")
 
 set(LINK_LIBS ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
 
@@ -393,6 +395,12 @@ foreach(HEADER ${EL_C_CPP_HEADERS})
 endforeach()
 add_custom_target(prepare_El_headers DEPENDS ${PREPARED_HEADERS})
 add_dependencies(El prepare_El_headers)
+
+# Install the python interface
+foreach(PYFILE ${EL_PY_INTERFACE})
+  get_filename_component(PYFILE_PATH ${PYFILE} PATH)
+  install(FILES ${PROJECT_SOURCE_DIR}/${PYFILE} DESTINATION ${PYFILE_PATH})
+endforeach()
 
 # TODO: Ensure that source files depend on header files
 

@@ -5,4 +5,4 @@ contained. In addition to this README, this folder holds:
 
 -  `El/`: the supporting header files
 -  `El.hpp`: the catch-all header file
--  `El-C.h`: the (in-progress) C interface to Elemental
+-  `El.h`: the C interface to Elemental

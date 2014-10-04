@@ -1,7 +1,7 @@
-### `include/El/core/dist_matrix/`
+### `include/El/core/DistMatrix/`
 
 This folder contains the header files for the various partial specializations of
-the `DistMatrix` class; please see `src/core/dist_matrix` for the 
+the `DistMatrix` class; please see `src/core/DistMatrix` for the 
 corresponding source files. Each specialization involves choosing a 
 sensical pairing of distributions for the rows and columns of the matrix:
 

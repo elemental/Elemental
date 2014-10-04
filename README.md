@@ -39,17 +39,17 @@ This is the root directory of the entire project, and it contains:
 -  `AUTHORS`: the list of source code contributors
 -  `cmake/`: auxiliary files for CMake configuration
 -  `CMakeLists.txt`: the CMake configuration file
--  `doc/`: Sphinx documentation 
 -  `examples/`: various concise examples of Elemental's functionality
 -  `experimental/`: experimental code which is not yet library quality
--  `external/`: non-standard external code which Elemental builds on top of
--  `include/`: Elemental's header files
+-  `external/`: external code which Elemental (optionally) builds on top of
+-  `include/`: Elemental's C++ and C header files, as well as a python interface
 -  `LICENSE`: the New BSD License file
--  `octave/`: pedagogical versions of a couple of algorithms used in Elemental
+-  `octave/`: pedagogical versions of algorithms used in Elemental (at the moment, just a rank-one modification of an LU factorization)
 -  `PUBLICATIONS`: publications directly related to this source code
 -  `README.md`: this file
 -  `REFERENCES`: some publications referenced in the creation of this software
+-  `sanbox/`: A makefile and test driver meant to be modified for testing an installation of the library
 -  `src/`: Elemental's source files
--  `tests/`: programs meant to test the accuracy of Elemental
--  `TODO`: a list of near/long-term goals of the project
+-  `tests/`: programs meant to test the accuracy/correctness of Elemental
+-  `TODO`: an incomplete list of near/long-term goals of the project
 -  `vagrant/`: lightweight preconfigured virtual-machines for Elemental

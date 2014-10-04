@@ -1,4 +1,4 @@
-### `src/lapack-like/HermitianTridiag/`
+### `src/lapack_like/HermitianTridiag/`
 
 This folder contains Elemental's code for reducing a Hermitian matrix to 
 real symmetric tridiagonal form. The various pieces are organized as follows:

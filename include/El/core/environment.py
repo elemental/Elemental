@@ -8,12 +8,15 @@
 #
 
 import ctypes
-#from ctypes.util import find_library
-#libPath = find_library('El')
-#if libPath == None:
-#  raise Exception("Could not find Elemental library")
-#lib = ctypes.cdll.LoadLibrary(libPath)
-lib = ctypes.cdll.LoadLibrary('../build/libEl.so')
+
+# TODO: Greatly improve this search functionality. At the moment, it is likely
+#       necessary to manually specify the path
+from ctypes.util import find_library
+libPath = find_library('El')
+if libPath == None:
+  raise Exception("Could not find Elemental library")
+lib = ctypes.cdll.LoadLibrary(libPath)
+#lib = ctypes.cdll.LoadLibrary('../build/libEl.so')
 
 # Environment
 # ===========
