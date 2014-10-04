@@ -6,8 +6,8 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-import ctypes, numpy, sys
-lib = ctypes.cdll.LoadLibrary('libEl.so')
+from environment import *
+import ctypes, numpy
 
 # TODO: Switch to a different boolean type if appropriate
 from ctypes import c_int    as bType
@@ -20,45 +20,6 @@ from ctypes import POINTER
 
 buffer_from_memory = ctypes.pythonapi.PyBuffer_FromReadWriteMemory
 buffer_from_memory.restype = ctypes.py_object
-
-# Core functionality
-# ******************
-
-# Environment
-# ===========
-
-def Initialize():
-  argc = ctypes.c_int(len(sys.argv))
-  _argv = ""
-  for arg in sys.argv:
-    _argv += arg + ' '
-  argv = pointer(ctypes.c_char_p(_argv))
-  lib.ElInitialize(pointer(argc),pointer(argv))
-
-def Finalize():
-  lib.ElFinalize()
-
-def Initialized():
-  # NOTE: This is not expected to be portable and should be fixed
-  active = bType()
-  activeP = pointer(active) 
-  lib.ElInitialized( activeP )
-  return active
-
-# Create a simple enum for the supported datatypes
-(iTag,sTag,dTag,cTag,zTag)=(0,1,2,3,4)
-def CheckTag(tag):
-  if tag != iTag and \
-     tag != sTag and tag != dTag and \
-     tag != cTag and tag != zTag:
-    print 'Unsupported datatype'
-
-class ComplexFloat(ctypes.Structure):
-  _fields_ = [("real",ctypes.c_float),("imag",ctypes.c_float)]
-cType = ComplexFloat
-class ComplexDouble(ctypes.Structure):
-  _fields_ = [("real",ctypes.c_double),("imag",ctypes.c_double)]
-zType = ComplexDouble
 
 # Matrix
 # ======
@@ -499,6 +460,10 @@ class Matrix(object):
       buf = buffer_from_memory(Buffer(),16*LDim()*Width())
       return numpy.frombuffer(buf,numpy.complex128)
 
+# BLAS 1
+# ======
+# TODO: Move into a separate submodule
+
 def Copy(A,B):
   CheckTag(A.tag)
   if A.tag != B.tag:
@@ -511,14 +476,3 @@ def Copy(A,B):
     elif B.tag == cTag: lib.ElMatrixCopy_c(A.obj,B.obj)
     elif B.tag == zTag: lib.ElMatrixCopy_z(A.obj,B.obj)
   else: print 'Unsupported matrix types'
-
-# Input/Output
-# ************
-def Print(A,s):
-  if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElPrint_i(A.obj,ctypes.c_char_p(s))
-    elif A.tag == sTag: lib.ElPrint_s(A.obj,ctypes.c_char_p(s))
-    elif A.tag == dTag: lib.ElPrint_d(A.obj,ctypes.c_char_p(s))
-    elif A.tag == cTag: lib.ElPrint_c(A.obj,ctypes.c_char_p(s))
-    elif A.tag == zTag: lib.ElPrint_z(A.obj,ctypes.c_char_p(s))
-  else: print 'Unsupported matrix type'
