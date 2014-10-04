@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-C.h"
+#include "El.h"
 
 complex_double MapFunc( complex_double alpha )
 { return alpha*alpha; }

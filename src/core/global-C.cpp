@@ -7,7 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-#include "El-C.h"
+#include "El.h"
 
 extern "C" {
 
@@ -155,6 +155,18 @@ ElError ElPrintCxxCompilerInfo( FILE* stream )
       EL_MPI_CXX_COMPILE_FLAGS, EL_MPI_CXX_LINK_FLAGS, EL_MPI_CXX_LIBRARIES );
     return EL_SUCCESS;
 }
+
+ElError ElMPICommIsVoidPointer( bool* isVoidP )
+{ *isVoidP = El::mpi::CommIsVoidPointer(); }
+
+ElError ElMPIGroupIsVoidPointer( bool* isVoidP )
+{ *isVoidP = El::mpi::GroupIsVoidPointer(); }
+
+ElError ElMPICommWorld( MPI_Comm* commWorld )
+{ *commWorld = MPI_COMM_WORLD; }
+
+ElError ElMPICommSelf( MPI_Comm* commSelf )
+{ *commSelf = MPI_COMM_SELF; }
 
 ElError ElInitialize( int* argc, char*** argv )
 { EL_TRY( El::Initialize( *argc, *argv ) ) }

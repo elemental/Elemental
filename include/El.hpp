@@ -16,15 +16,15 @@
 #endif
 
 #include "El/core.hpp"
-#include "El/blas-like.hpp"
+#include "El/blas_like.hpp"
 
-#include "El/lapack-like.hpp"
+#include "El/lapack_like.hpp"
 #include "El/optimization.hpp"
 #include "El/control.hpp"
 
 #include "El/matrices.hpp"
 
-#include "El/sparse-direct.hpp"
+#include "El/sparse_direct.hpp"
 
 #include "El/io.hpp"
 

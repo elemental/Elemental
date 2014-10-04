@@ -32,6 +32,8 @@
 #define EL_MPI_CXX_COMPILE_FLAGS "@MPI_CXX_COMPILE_FLAGS@"
 #define EL_MPI_CXX_LINK_FLAGS    "@MPI_CXX_LINK_FLAGS@"
 #define EL_MPI_CXX_LIBRARIES     "@MPI_CXX_LIBRARIES@"
+#cmakedefine EL_MPI_COMM_IS_VOIDP
+#cmakedefine EL_MPI_GROUP_IS_VOIDP
 
 /* Math libraries */
 #define EL_MATH_LIBS "@MATH_LIBS@"

@@ -9,31 +9,19 @@
 from environment import *
 import ctypes, numpy
 
-# TODO: Switch to a different boolean type if appropriate
-from ctypes import c_int    as bType
-# TODO: Switch from c_int if Elemental was configured for 64-bit integers
-from ctypes import c_int    as iType
-from ctypes import c_float  as sType
-from ctypes import c_double as dType
-from ctypes import pointer
-from ctypes import POINTER
-
-buffer_from_memory = ctypes.pythonapi.PyBuffer_FromReadWriteMemory
-buffer_from_memory.restype = ctypes.py_object
-
 # Matrix
 # ======
 
 class Matrix(object):
-  def __init__(self,initTag=dTag):
+  def __init__(self,tag=dTag):
     self.obj = ctypes.c_void_p()
-    CheckTag(initTag)
-    if   initTag == iTag: lib.ElMatrixCreate_i(pointer(self.obj))
-    elif initTag == sTag: lib.ElMatrixCreate_s(pointer(self.obj))
-    elif initTag == dTag: lib.ElMatrixCreate_d(pointer(self.obj))
-    elif initTag == cTag: lib.ElMatrixCreate_c(pointer(self.obj))
-    elif initTag == zTag: lib.ElMatrixCreate_z(pointer(self.obj))
-    self.tag = initTag
+    CheckTag(tag)
+    if   tag == iTag: lib.ElMatrixCreate_i(pointer(self.obj))
+    elif tag == sTag: lib.ElMatrixCreate_s(pointer(self.obj))
+    elif tag == dTag: lib.ElMatrixCreate_d(pointer(self.obj))
+    elif tag == cTag: lib.ElMatrixCreate_c(pointer(self.obj))
+    elif tag == zTag: lib.ElMatrixCreate_z(pointer(self.obj))
+    self.tag = tag
   def Destroy(self):
     if   self.tag == iTag: lib.ElMatrixDestroy_i(self.obj)
     elif self.tag == sTag: lib.ElMatrixDestroy_s(self.obj)
@@ -74,81 +62,51 @@ class Matrix(object):
     elif self.tag == zTag: lib.ElMatrixEmpty_z(self.obj)
   def Attach(self,height,width,buf,ldim):
     if   self.tag == iTag:
-      if type(buf) is not POINTER(iType):
-        print 'Invalid buffer type'
-        return
+      if type(buf) is not POINTER(iType): raise Exception("Invalid buffer type")
       lib.ElMatrixAttach_i(self.obj,height,width,buf,ldim)
     elif self.tag == sTag:
-      if type(buf) is not POINTER(sType):
-        print 'Invalid buffer type'
-        return
+      if type(buf) is not POINTER(sType): raise Exception("Invalid buffer type")
       lib.ElMatrixAttach_s(self.obj,height,width,buf,ldim)
     elif self.tag == dTag:
-      if type(buf) is not POINTER(dType):
-        print 'Invalid buffer type'
-        return
+      if type(buf) is not POINTER(dType): raise Exception("Invalid buffer type")
       lib.ElMatrixAttach_d(self.obj,height,width,buf,ldim)
     elif self.tag == cTag:
-      if type(buf) is not POINTER(cType):
-        print 'Invalid buffer type'
-        return
+      if type(buf) is not POINTER(cType): raise Exception("Invalid buffer type")
       lib.ElMatrixAttach_c(self.obj,height,width,buf,ldim)
     elif self.tag == zTag:
-      if type(buf) is not POINTER(zType):
-        print 'Invalid buffer type'
-        return
+      if type(buf) is not POINTER(zType): raise Exception("Invalid buffer type")
       lib.ElMatrixAttach_z(self.obj,height,width,buf,ldim)
   def LockedAttach(self,height,width,buf,ldim):
     if   self.tag == iTag:
-      if type(buf) is not POINTER(iType):
-        print 'Invalid buffer type'
-        return
+      if type(buf) is not POINTER(iType): raise Exception("Invalid buffer type")
       lib.ElMatrixLockedAttach_i(self.obj,height,width,buf,ldim)
     elif self.tag == sTag:
-      if type(buf) is not POINTER(sType):
-        print 'Invalid buffer type'
-        return
+      if type(buf) is not POINTER(sType): raise Exception("Invalid buffer type")
       lib.ElMatrixLockedAttach_s(self.obj,height,width,buf,ldim)
     elif self.tag == dTag:
-      if type(buf) is not POINTER(dType):
-        print 'Invalid buffer type'
-        return
+      if type(buf) is not POINTER(dType): raise Exception("Invalid buffer type")
       lib.ElMatrixLockedAttach_d(self.obj,height,width,buf,ldim)
     elif self.tag == cTag:
-      if type(buf) is not POINTER(cType):
-        print 'Invalid buffer type'
-        return
+      if type(buf) is not POINTER(cType): raise Exception("Invalid buffer type")
       lib.ElMatrixLockedAttach_c(self.obj,height,width,buf,ldim)
     elif self.tag == zTag:
-      if type(buf) is not POINTER(zType):
-        print 'Invalid buffer type'
-        return
+      if type(buf) is not POINTER(zType): raise Exception("Invalid buffer type")
       lib.ElMatrixLockedAttach_z(self.obj,height,width,buf,ldim)
   def Control(self,height,width,buf,ldim):
     if   self.tag == iTag:
-      if type(buf) is not POINTER(iType):
-        print 'Invalid buffer type'
-        return
+      if type(buf) is not POINTER(iType): raise Exception("Invalid buffer type")
       lib.ElMatrixControl_i(self.obj,height,width,buf,ldim)
     elif self.tag == sTag:
-      if type(buf) is not POINTER(sType):
-        print 'Invalid buffer type'
-        return
+      if type(buf) is not POINTER(sType): raise Exception("Invalid buffer type")
       lib.ElMatrixControl_s(self.obj,height,width,buf,ldim)
     elif self.tag == dTag:
-      if type(buf) is not POINTER(dType):
-        print 'Invalid buffer type'
-        return
+      if type(buf) is not POINTER(dType): raise Exception("Invalid buffer type")
       lib.ElMatrixControl_d(self.obj,height,width,buf,ldim)
     elif self.tag == cTag:
-      if type(buf) is not POINTER(cType):
-        print 'Invalid buffer type'
-        return
+      if type(buf) is not POINTER(cType): raise Exception("Invalid buffer type")
       lib.ElMatrixControl_c(self.obj,height,width,buf,ldim)
     elif self.tag == zTag:
-      if type(buf) is not POINTER(zType):
-        print 'Invalid buffer type'
-        return
+      if type(buf) is not POINTER(zType): raise Exception("Invalid buffer type")
       lib.ElMatrixControl_z(self.obj,height,width,buf,ldim)
   def Height(self):
     height = iType()
@@ -310,29 +268,19 @@ class Matrix(object):
       return value
   def Set(self,i,j,value):
     if   self.tag == iTag: 
-      if type(value) is not iType:
-        print 'Invalid scalar type'
-        return
+      if type(value) is not iType: raise Exception("Invalid scalar type")
       lib.ElMatrixSet_i(self.obj,i,j,iType(value))
     elif self.tag == sTag: 
-      if type(value) is not sType:
-        print 'Invalid scalar type'
-        return
+      if type(value) is not sType: raise Exception("Invalid scalar type")
       lib.ElMatrixSet_s(self.obj,i,j,value)
     elif self.tag == dTag: 
-      if type(value) is not dType: 
-        print 'Invalid scalar type'
-        return
+      if type(value) is not dType: raise Exception("Invalid scalar type")
       lib.ElMatrixSet_d(self.obj,i,j,value)
     elif self.tag == cTag: 
-      if type(value) is not cType: 
-        print 'Invalid scalar type'
-        return
+      if type(value) is not cType: raise Exception("Invalid scalar type")
       lib.ElMatrixSet_c(self.obj,i,j,value)
     elif self.tag == zTag: 
-      if type(value) is not zType: 
-        print 'Invalid scalar type'
-        return
+      if type(value) is not zType: raise Exception("Invalid scalar type")
       lib.ElMatrixSet_z(self.obj,i,j,value)
   def SetRealPart(self,i,j,value):
     if self.tag == cTag: 
@@ -345,32 +293,22 @@ class Matrix(object):
       lib.ElMatrixSetImagPart_c(self.obj,i,j,sType(value))
     elif self.tag == zTag: 
       lib.ElMatrixSetImagPart_z(self.obj,i,j,dType(value))
-    else: print 'Datatype does not have an imaginary component'
+    else: raise Exception("Datatype does not have an imaginary component")
   def Update(self,i,j,value):
     if   self.tag == iTag: 
-      if type(value) is not iType:
-        print 'Invalid scalar type'
-        return
+      if type(value) is not iType: raise Exception("Invalid scalar type")
       lib.ElMatrixUpdate_i(self.obj,i,j,iType(value))
     elif self.tag == sTag: 
-      if type(value) is not sType:
-        print 'Invalid scalar type'
-        return
+      if type(value) is not sType: raise Exception("Invalid scalar type")
       lib.ElMatrixUpdate_s(self.obj,i,j,value)
     elif self.tag == dTag: 
-      if type(value) is not dType: 
-        print 'Invalid scalar type'
-        return
+      if type(value) is not dType: raise Exception("Invalid scalar type")
       lib.ElMatrixUpdate_d(self.obj,i,j,value)
     elif self.tag == cTag: 
-      if type(value) is not cType: 
-        print 'Invalid scalar type'
-        return
+      if type(value) is not cType: raise Exception("Invalid scalar type")
       lib.ElMatrixUpdate_c(self.obj,i,j,value)
     elif self.tag == zTag: 
-      if type(value) is not zType: 
-        print 'Invalid scalar type'
-        return
+      if type(value) is not zType: raise Exception("Invalid scalar type")
       lib.ElMatrixUpdate_z(self.obj,i,j,value)
   def UpdateRealPart(self,i,j,value):
     if self.tag == cTag: 
@@ -383,7 +321,7 @@ class Matrix(object):
       lib.ElMatrixUpdateImagPart_c(self.obj,i,j,sType(value))
     elif self.tag == zTag: 
       lib.ElMatrixUpdateImagPart_z(self.obj,i,j,dType(value))
-    else: print 'Datatype does not have an imaginary component'
+    else: raise Exception("Datatype does not have an imaginary component")
   def MakeReal(self,i,j):
     if   self.tag == cTag: lib.ElMatrixMakeReal_c(self.obj,i,j)
     elif self.tag == zTag: lib.ElMatrixMakeReal_z(self.obj,i,j) 
@@ -391,23 +329,23 @@ class Matrix(object):
     if   self.tag == cTag: lib.ElMatrixConjugate_c(self.obj,i,j)
     elif self.tag == zTag: lib.ElMatrixConjugate_z(self.obj,i,j)
   def GetDiagonal(self,offset=iType(0)):
-    print 'GetDiagonal not yet supported by Python interface'
+    raise Exception('GetDiagonal not yet supported by Python interface')
   def GetRealPartOfDiagonal(self,offset=iType(0)):
-    print 'GetRealPartOfDiagonal not yet supported by Python interface'
+    raise Exception('GetRealPartOfDiagonal not yet supported in Python')
   def GetImagPartOfDiagonal(self,offset=iType(0)):
-    print 'GetImagPartOfDiagonal not yet supported by Python interface'
+    raise Exception('GetImagPartOfDiagonal not yet supported in Python')
   def SetDiagonal(self,diag,offset=iType(0)):
-    print 'SetDiagonal not yet supported by Python interface'
+    raise Exception('SetDiagonal not yet supported by Python interface')
   def SetRealPartOfDiagonal(self,diag,offset=iType(0)):
-    print 'SetRealPartOfDiagonal not yet supported by Python interface'
+    raise Exception('SetRealPartOfDiagonal not yet supported in Python')
   def SetImagPartOfDiagonal(self,diag,offset=iType(0)):
-    print 'SetImagPartOfDiagonal not yet supported by Python interface'
+    raise Exception('SetImagPartOfDiagonal not yet supported in Python')
   def UpdateDiagonal(self,diag,offset=iType(0)):
-    print 'UpdateDiagonal not yet supported by Python interface'
+    raise Exception('UpdateDiagonal not yet supported by Python interface')
   def UpdateRealPartOfDiagonal(self,diag,offset=iType(0)):
-    print 'UpdateRealPartOfDiagonal not yet supported by Python interface'
+    raise Exception('UpddateRealPartOfDiagonal not yet supported in Python')
   def UpdateImagPartOfDiagonal(self,diag,offset=iType(0)):
-    print 'UpdateImagPartOfDiagonal not yet supported by Python interface'
+    raise Exception('UpddateImagPartOfDiagonal not yet supported in Python')
   def MakeDiagonalReal(self,offset=iType(0)):
     if   self.tag == iTag: lib.ElMatrixMakeDiagonalReal_i(self.obj,offset)
     elif self.tag == sTag: lib.ElMatrixMakeDiagonalReal_s(self.obj,offset)
@@ -421,27 +359,27 @@ class Matrix(object):
     elif self.tag == cTag: lib.ElMatrixConjugateDiagonal_c(self.obj,offset)
     elif self.tag == zTag: lib.ElMatrixConjugateDiagonal_z(self.obj,offset)
   def GetSubmatrix(self,I,J):
-    print 'GetSubmatrix not yet supported by Python interface'
+    raise Exception('GetSubmatrix not yet supported by Python interface')
   def GetRealPartOfSubmatrix(self,I,J):
-    print 'GetRealPartOfSubmatrix not yet supported by Python interface'
+    raise Exception('GetRealPartOfSubmatrix not yet supported in Python')
   def GetImagPartOfSubmatrix(self,I,J):
-    print 'GetImagPartOfSubmatrix not yet supported by Python interface'
+    raise Exception('GetImagPartOfSubmatrix not yet supported in Python')
   def SetSubmatrix(self,I,J,ASub):
-    print 'SetSubmatrix not yet supported by Python interface'
+    raise Exception('SetSubmatrix not yet supported by Python interface')
   def SetRealPartOfSubmatrix(self,I,J,ASub):
-    print 'SetRealPartOfSubmatrix not yet supported by Python interface'
+    raise Exception('SetRealPartOfSubmatrix not yet supported in Python')
   def SetImagPartOfSubmatrix(self,I,J,ASub):
-    print 'SetImagPartOfSubmatrix not yet supported by Python interface'
+    raise Exception('SetImagPartOfSubmatrix not yet supported in Python')
   def UpdateSubmatrix(self,I,J,ASub):
-    print 'UpdateSubmatrix not yet supported by Python interface'
+    raise Exception('UpdateSubmatrix not yet supported by Python interface')
   def UpdateRealPartOfSubmatrix(self,I,J,ASub):
-    print 'UpdateRealPartOfSubmatrix not yet supported by Python interface'
+    raise Exception('UpdateRealPartOfSubmatrix not yet supported in Python')
   def UpdateImagPartOfSubmatrix(self,I,J,ASub):
-    print 'UpdateImagPartOfSubmatrix not yet supported by Python interface'
+    raise Exception('UpdateImagPartOfSubmatrix not yet supported in Python')
   def MakeSubmatrixReal(self,I,J):
-    print 'MakeSubmatrixReal not yet supported by Python interface'
+    raise Exception('MakeSubmatrixReal not yet supported by Python interface')
   def ConjugateSubmatrix(self,I,J):
-    print 'ConjugateSubmatrix not yet supported by Python interface'
+    raise Exception('ConjugateSubmatrix not yet supported by Python interface')
   def ToNumPy(self):
     if   self.tag == iTag:
       # TODO: Switch to 64-bit based upon Elemental's configuration
@@ -459,20 +397,3 @@ class Matrix(object):
     elif self.tag == zTag:
       buf = buffer_from_memory(Buffer(),16*LDim()*Width())
       return numpy.frombuffer(buf,numpy.complex128)
-
-# BLAS 1
-# ======
-# TODO: Move into a separate submodule
-
-def Copy(A,B):
-  CheckTag(A.tag)
-  if A.tag != B.tag:
-    print 'Copying between datatypes is not yet supported in Python'
-    return
-  if type(A) is Matrix and type(B) is Matrix:
-    if   B.tag == iTag: lib.ElMatrixCopy_i(A.obj,B.obj)
-    elif B.tag == sTag: lib.ElMatrixCopy_s(A.obj,B.obj)
-    elif B.tag == dTag: lib.ElMatrixCopy_d(A.obj,B.obj)
-    elif B.tag == cTag: lib.ElMatrixCopy_c(A.obj,B.obj)
-    elif B.tag == zTag: lib.ElMatrixCopy_z(A.obj,B.obj)
-  else: print 'Unsupported matrix types'

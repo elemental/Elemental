@@ -108,6 +108,9 @@ const Op BINARY_XOR = MPI_BXOR;
 const int MIN_COLL_MSG = 1; // minimum message size for collectives
 inline int Pad( int count ) { return std::max(count,MIN_COLL_MSG); }
 
+bool CommIsVoidPointer();
+bool GroupIsVoidPointer();
+
 // Environment routines
 void Initialize( int& argc, char**& argv );
 int InitializeThread( int& argc, char**& argv, int required );

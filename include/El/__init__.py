@@ -6,7 +6,8 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 
-from core import *
-from io   import *
+from core      import *
+from blas_like import *
+from io        import *
 
 Initialize()

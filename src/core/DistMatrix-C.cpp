@@ -9,7 +9,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-#include "El-C.h"
+#include "El.h"
 using namespace El;
 
 template<typename T>

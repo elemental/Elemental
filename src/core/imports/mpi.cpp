@@ -33,6 +33,24 @@ SafeMpi( int mpiError )
 namespace El {
 namespace mpi {
 
+bool CommIsVoidPointer()
+{
+#ifdef EL_MPI_COMM_IS_VOIDP
+    return true;
+#else
+    return false;
+#endif
+}
+
+bool GroupIsVoidPointer()
+{
+#ifdef EL_MPI_GROUP_IS_VOIDP
+    return true;
+#else
+    return false;
+#endif
+}
+
 // MPI environmental routines
 // ==========================
 

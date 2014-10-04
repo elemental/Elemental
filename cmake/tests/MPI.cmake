@@ -45,8 +45,18 @@ set(MPI_LONG_LONG_CODE
          MPI_Finalize();
          return 0;
      }")
+set(MPI_COMM_IS_VOIDP_CODE
+    "#include \"mpi.h\"
+     void Foo( MPI_Comm comm ) { }
+     void Foo( int comm ) { }")
+set(MPI_GROUP_IS_VOIDP_CODE
+    "#include \"mpi.h\"
+     void Foo( MPI_Group group ) { }
+     void Foo( int group ) { }")
 check_c_source_compiles("${MPI_IN_PLACE_CODE}" EL_HAVE_MPI_IN_PLACE)
 check_c_source_compiles("${MPI_LONG_LONG_CODE}" EL_HAVE_MPI_LONG_LONG)
+check_cxx_source_compiles("${MPI_COMM_IS_VOIDP_CODE}" EL_MPI_COMM_IS_VOIDP)
+check_cxx_source_compiles("${MPI_GROUP_IS_VOIDP_CODE}" EL_MPI_GROUP_IS_VOIDP)
 if(EL_USE_64BIT_INTS AND NOT EL_HAVE_MPI_LONG_LONG)
   message(FATAL_ERROR 
     "Did not detect MPI_LONG_LONG_INT and MPI_UNSIGNED_LONG_LONG")
