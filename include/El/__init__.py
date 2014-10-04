@@ -9,5 +9,3 @@
 from core      import *
 from blas_like import *
 from io        import *
-
-Initialize()
