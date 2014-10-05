@@ -9,7 +9,8 @@
 from environment import *
 import ctypes, numpy
 
-from Grid import DefaultGrid
+import Matrix as M
+import Grid as G
 
 # (Abstract)DistMatrix
 # ====================
@@ -23,7 +24,7 @@ class DistData(ctypes.Structure):
               ('grid',ctypes.c_void_p)]
 
 class DistMatrix(object):
-  def __init__(self,tag=dTag,colDist=MC,rowDist=MR,grid=DefaultGrid()):
+  def __init__(self,tag=dTag,colDist=MC,rowDist=MR,grid=G.DefaultGrid()):
     self.obj = ctypes.c_void_p()
     CheckTag(tag)
     colDistVal = ctypes.c_uint(colDist)
@@ -318,11 +319,28 @@ class DistMatrix(object):
     elif self.tag == zTag: lib.ElDistMatrixLDim_z(self.obj,pointer(ldim))
     return ldim
   def Matrix(self):
-    # TODO
-    raise Exception('Returning the local matrix is not yet supported')
+    A = M.Matrix()
+    A.Destroy() 
+    if   self.tag == iTag: lib.ElDistMatrixMatrix_i(self.obj,pointer(A.obj))
+    elif self.tag == sTag: lib.ElDistMatrixMatrix_s(self.obj,pointer(A.obj))
+    elif self.tag == dTag: lib.ElDistMatrixMatrix_d(self.obj,pointer(A.obj))
+    elif self.tag == cTag: lib.ElDistMatrixMatrix_c(self.obj,pointer(A.obj))
+    elif self.tag == zTag: lib.ElDistMatrixMatrix_z(self.obj,pointer(A.obj))
+    return A
   def LockedMatrix(self):
-    # TODO
-    raise Exception('Returning the (locked) local matrix is not yet supported')
+    A = M.Matrix()
+    A.Destroy() 
+    if   self.tag == iTag: 
+      lib.ElDistMatrixLockedMatrix_i(self.obj,pointer(A.obj))
+    elif self.tag == sTag: 
+      lib.ElDistMatrixLockedMatrix_s(self.obj,pointer(A.obj))
+    elif self.tag == dTag: 
+      lib.ElDistMatrixLockedMatrix_d(self.obj,pointer(A.obj))
+    elif self.tag == cTag: 
+      lib.ElDistMatrixLockedMatrix_c(self.obj,pointer(A.obj))
+    elif self.tag == zTag: 
+      lib.ElDistMatrixLockedMatrix_z(self.obj,pointer(A.obj))
+    return A
   def AllocatedMemory(self):
     # TODO: Python analogue of size_t
     raise Exception('Returning the allocated memory is not yet supported')
@@ -369,8 +387,13 @@ class DistMatrix(object):
       lib.ElDistMatrixLockedBuffer_z(self.obj,pointer(buf))
       return buf
   def Grid(self):
-    # TODO
-    raise Exception('Returning the grid is not yet supported')
+    grid = G.Grid()
+    if   self.tag == iTag: lib.ElDistMatrixGrid_i(self.obj,pointer(grid.obj))
+    elif self.tag == sTag: lib.ElDistMatrixGrid_s(self.obj,pointer(grid.obj))
+    elif self.tag == dTag: lib.ElDistMatrixGrid_d(self.obj,pointer(grid.obj))
+    elif self.tag == cTag: lib.ElDistMatrixGrid_c(self.obj,pointer(grid.obj))
+    elif self.tag == zTag: lib.ElDistMatrixGrid_z(self.obj,pointer(grid.obj))
+    return grid 
   def ColConstrained(self):
     colConst = bType() 
     if   self.tag == iTag: 
@@ -397,4 +420,516 @@ class DistMatrix(object):
     elif self.tag == zTag:
       lib.ElDistMatrixRowConstrained_z(self.obj,pointer(rowConst))
     return rowConst
+  def RootConstrained(self):
+    rootConst = bType() 
+    if   self.tag == iTag: 
+      lib.ElDistMatrixRootConstrained_i(self.obj,pointer(rootConst))
+    elif self.tag == sTag:
+      lib.ElDistMatrixRootConstrained_s(self.obj,pointer(rootConst))
+    elif self.tag == dTag:
+      lib.ElDistMatrixRootConstrained_d(self.obj,pointer(rootConst))
+    elif self.tag == cTag:
+      lib.ElDistMatrixRootConstrained_c(self.obj,pointer(rootConst))
+    elif self.tag == zTag:
+      lib.ElDistMatrixRootConstrained_z(self.obj,pointer(rootConst))
+    return rootConst
+  def ColAlign(self):
+    align = iType()  
+    if   self.tag == iTag: lib.ElDistMatrixColAlign_i(self.obj,pointer(align))
+    elif self.tag == sTag: lib.ElDistMatrixColAlign_s(self.obj,pointer(align))
+    elif self.tag == dTag: lib.ElDistMatrixColAlign_d(self.obj,pointer(align))
+    elif self.tag == cTag: lib.ElDistMatrixColAlign_c(self.obj,pointer(align))
+    elif self.tag == zTag: lib.ElDistMatrixColAlign_z(self.obj,pointer(align))
+    return align
+  def RowAlign(self):
+    align = iType()  
+    if   self.tag == iTag: lib.ElDistMatrixRowAlign_i(self.obj,pointer(align))
+    elif self.tag == sTag: lib.ElDistMatrixRowAlign_s(self.obj,pointer(align))
+    elif self.tag == dTag: lib.ElDistMatrixRowAlign_d(self.obj,pointer(align))
+    elif self.tag == cTag: lib.ElDistMatrixRowAlign_c(self.obj,pointer(align))
+    elif self.tag == zTag: lib.ElDistMatrixRowAlign_z(self.obj,pointer(align))
+    return align
+  def ColShift(self):
+    shift = iType()
+    if   self.tag == iTag: lib.ElDistMatrixColShift_i(self.obj,pointer(shift))
+    elif self.tag == sTag: lib.ElDistMatrixColShift_s(self.obj,pointer(shift))
+    elif self.tag == dTag: lib.ElDistMatrixColShift_d(self.obj,pointer(shift))
+    elif self.tag == cTag: lib.ElDistMatrixColShift_c(self.obj,pointer(shift))
+    elif self.tag == zTag: lib.ElDistMatrixColShift_z(self.obj,pointer(shift))
+    return shift
+  def RowShift(self):
+    shift = iType()
+    if   self.tag == iTag: lib.ElDistMatrixRowShift_i(self.obj,pointer(shift))
+    elif self.tag == sTag: lib.ElDistMatrixRowShift_s(self.obj,pointer(shift))
+    elif self.tag == dTag: lib.ElDistMatrixRowShift_d(self.obj,pointer(shift))
+    elif self.tag == cTag: lib.ElDistMatrixRowShift_c(self.obj,pointer(shift))
+    elif self.tag == zTag: lib.ElDistMatrixRowShift_z(self.obj,pointer(shift))
+    return shift
+  def ColRank(self):
+    rank = iType()
+    if   self.tag == iTag: lib.ElDistMatrixColRank_i(self.obj,pointer(rank))
+    elif self.tag == sTag: lib.ElDistMatrixColRank_s(self.obj,pointer(rank))
+    elif self.tag == dTag: lib.ElDistMatrixColRank_d(self.obj,pointer(rank))
+    elif self.tag == cTag: lib.ElDistMatrixColRank_c(self.obj,pointer(rank))
+    elif self.tag == zTag: lib.ElDistMatrixColRank_z(self.obj,pointer(rank))
+    return rank
+  def RowRank(self):
+    rank = iType()
+    if   self.tag == iTag: lib.ElDistMatrixRowRank_i(self.obj,pointer(rank))
+    elif self.tag == sTag: lib.ElDistMatrixRowRank_s(self.obj,pointer(rank))
+    elif self.tag == dTag: lib.ElDistMatrixRowRank_d(self.obj,pointer(rank))
+    elif self.tag == cTag: lib.ElDistMatrixRowRank_c(self.obj,pointer(rank))
+    elif self.tag == zTag: lib.ElDistMatrixRowRank_z(self.obj,pointer(rank))
+    return rank
+  def PartialColRank(self):
+    rank = iType()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixPartialColRank_i(self.obj,pointer(rank))
+    elif self.tag == sTag: 
+      lib.ElDistMatrixPartialColRank_s(self.obj,pointer(rank))
+    elif self.tag == dTag: 
+      lib.ElDistMatrixPartialColRank_d(self.obj,pointer(rank))
+    elif self.tag == cTag: 
+      lib.ElDistMatrixPartialColRank_c(self.obj,pointer(rank))
+    elif self.tag == zTag: 
+      lib.ElDistMatrixPartialColRank_z(self.obj,pointer(rank))
+    return rank
+  def PartialRowRank(self):
+    rank = iType()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixPartialRowRank_i(self.obj,pointer(rank))
+    elif self.tag == sTag: 
+      lib.ElDistMatrixPartialRowRank_s(self.obj,pointer(rank))
+    elif self.tag == dTag: 
+      lib.ElDistMatrixPartialRowRank_d(self.obj,pointer(rank))
+    elif self.tag == cTag: 
+      lib.ElDistMatrixPartialRowRank_c(self.obj,pointer(rank))
+    elif self.tag == zTag: 
+      lib.ElDistMatrixPartialRowRank_z(self.obj,pointer(rank))
+    return rank
+  def PartialUnionColRank(self):
+    rank = iType()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixPartialUnionColRank_i(self.obj,pointer(rank))
+    elif self.tag == sTag: 
+      lib.ElDistMatrixPartialUnionColRank_s(self.obj,pointer(rank))
+    elif self.tag == dTag: 
+      lib.ElDistMatrixPartialUnionColRank_d(self.obj,pointer(rank))
+    elif self.tag == cTag: 
+      lib.ElDistMatrixPartialUnionColRank_c(self.obj,pointer(rank))
+    elif self.tag == zTag: 
+      lib.ElDistMatrixPartialUnionColRank_z(self.obj,pointer(rank))
+    return rank
+  def PartialUnionRowRank(self):
+    rank = iType()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixPartialUnionRowRank_i(self.obj,pointer(rank))
+    elif self.tag == sTag: 
+      lib.ElDistMatrixPartialUnionRowRank_s(self.obj,pointer(rank))
+    elif self.tag == dTag: 
+      lib.ElDistMatrixPartialUnionRowRank_d(self.obj,pointer(rank))
+    elif self.tag == cTag: 
+      lib.ElDistMatrixPartialUnionRowRank_c(self.obj,pointer(rank))
+    elif self.tag == zTag: 
+      lib.ElDistMatrixPartialUnionRowRank_z(self.obj,pointer(rank))
+    return rank
+  def DistRank(self):
+    rank = iType()
+    if   self.tag == iTag: lib.ElDistMatrixDistRank_i(self.obj,pointer(rank))
+    elif self.tag == sTag: lib.ElDistMatrixDistRank_s(self.obj,pointer(rank))
+    elif self.tag == dTag: lib.ElDistMatrixDistRank_d(self.obj,pointer(rank))
+    elif self.tag == cTag: lib.ElDistMatrixDistRank_c(self.obj,pointer(rank))
+    elif self.tag == zTag: lib.ElDistMatrixDistRank_z(self.obj,pointer(rank))
+    return rank
+  def CrossRank(self):
+    rank = iType()
+    if   self.tag == iTag: lib.ElDistMatrixCrossRank_i(self.obj,pointer(rank))
+    elif self.tag == sTag: lib.ElDistMatrixCrossRank_s(self.obj,pointer(rank))
+    elif self.tag == dTag: lib.ElDistMatrixCrossRank_d(self.obj,pointer(rank))
+    elif self.tag == cTag: lib.ElDistMatrixCrossRank_c(self.obj,pointer(rank))
+    elif self.tag == zTag: lib.ElDistMatrixCrossRank_z(self.obj,pointer(rank))
+    return rank
+  def RedundantRank(self):
+    rank = iType()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixRedundantRank_i(self.obj,pointer(rank))
+    elif self.tag == sTag:
+      lib.ElDistMatrixRedundantRank_s(self.obj,pointer(rank))
+    elif self.tag == dTag:
+      lib.ElDistMatrixRedundantRank_d(self.obj,pointer(rank))
+    elif self.tag == cTag:
+      lib.ElDistMatrixRedundantRank_c(self.obj,pointer(rank))
+    elif self.tag == zTag:
+      lib.ElDistMatrixRedundantRank_z(self.obj,pointer(rank))
+    return rank
+  def Root(self):
+    root = iType()
+    if   self.tag == iTag: lib.ElDistMatrixRoot_i(self.obj,pointer(rank))
+    elif self.tag == sTag: lib.ElDistMatrixRoot_s(self.obj,pointer(rank))
+    elif self.tag == dTag: lib.ElDistMatrixRoot_d(self.obj,pointer(rank))
+    elif self.tag == cTag: lib.ElDistMatrixRoot_c(self.obj,pointer(rank))
+    elif self.tag == zTag: lib.ElDistMatrixRoot_z(self.obj,pointer(rank))
+    return rank
+  def Participating(self):
+    partic = bType()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixParticipating_i(self.obj,pointer(partic))
+    elif self.tag == sTag:
+      lib.ElDistMatrixParticipating_s(self.obj,pointer(partic))
+    elif self.tag == dTag:
+      lib.ElDistMatrixParticipating_d(self.obj,pointer(partic))
+    elif self.tag == cTag:
+      lib.ElDistMatrixParticipating_c(self.obj,pointer(partic))
+    elif self.tag == zTag:
+      lib.ElDistMatrixParticipating_z(self.obj,pointer(partic))
+    return partic
+  def RowOwner(self,i):
+    owner = iType()
+    if   self.tag == iTag: lib.ElDistMatrixRowOwner_i(self.obj,i,pointer(owner))
+    elif self.tag == sTag: lib.ElDistMatrixRowOwner_s(self.obj,i,pointer(owner))
+    elif self.tag == dTag: lib.ElDistMatrixRowOwner_d(self.obj,i,pointer(owner))
+    elif self.tag == cTag: lib.ElDistMatrixRowOwner_c(self.obj,i,pointer(owner))
+    elif self.tag == zTag: lib.ElDistMatrixRowOwner_z(self.obj,i,pointer(owner))
+    return owner
+  def ColOwner(self,j):
+    owner = iType()
+    if   self.tag == iTag: lib.ElDistMatrixColOwner_i(self.obj,j,pointer(owner))
+    elif self.tag == sTag: lib.ElDistMatrixColOwner_s(self.obj,j,pointer(owner))
+    elif self.tag == dTag: lib.ElDistMatrixColOwner_d(self.obj,j,pointer(owner))
+    elif self.tag == cTag: lib.ElDistMatrixColOwner_c(self.obj,j,pointer(owner))
+    elif self.tag == zTag: lib.ElDistMatrixColOwner_z(self.obj,j,pointer(owner))
+    return owner
+  def Owner(self,i,j):
+    owner = iType()
+    if   self.tag == iTag: lib.ElDistMatrixOwner_i(self.obj,i,j,pointer(owner))
+    elif self.tag == sTag: lib.ElDistMatrixOwner_s(self.obj,i,j,pointer(owner))
+    elif self.tag == dTag: lib.ElDistMatrixOwner_d(self.obj,i,j,pointer(owner))
+    elif self.tag == cTag: lib.ElDistMatrixOwner_c(self.obj,i,j,pointer(owner))
+    elif self.tag == zTag: lib.ElDistMatrixOwner_z(self.obj,i,j,pointer(owner))
+    return owner
+  def LocalRow(self,i):
+    iLoc = iType()
+    if   self.tag == iTag: lib.ElDistMatrixLocalRow_i(self.obj,i,pointer(iLoc))
+    elif self.tag == sTag: lib.ElDistMatrixLocalRow_s(self.obj,i,pointer(iLoc))
+    elif self.tag == dTag: lib.ElDistMatrixLocalRow_d(self.obj,i,pointer(iLoc))
+    elif self.tag == cTag: lib.ElDistMatrixLocalRow_c(self.obj,i,pointer(iLoc))
+    elif self.tag == zTag: lib.ElDistMatrixLocalRow_z(self.obj,i,pointer(iLoc))
+    return iLoc
+  def LocalCol(self,j):
+    jLoc = iType()
+    if   self.tag == iTag: lib.ElDistMatrixLocalCol_i(self.obj,j,pointer(jLoc))
+    elif self.tag == sTag: lib.ElDistMatrixLocalCol_s(self.obj,j,pointer(jLoc))
+    elif self.tag == dTag: lib.ElDistMatrixLocalCol_d(self.obj,j,pointer(jLoc))
+    elif self.tag == cTag: lib.ElDistMatrixLocalCol_c(self.obj,j,pointer(jLoc))
+    elif self.tag == zTag: lib.ElDistMatrixLocalCol_z(self.obj,j,pointer(jLoc))
+    return jLoc
+  def LocalRowOffset(self,i):
+    iLoc = iType()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixLocalRowOffset_i(self.obj,i,pointer(iLoc))
+    elif self.tag == sTag:
+      lib.ElDistMatrixLocalRowOffset_s(self.obj,i,pointer(iLoc))
+    elif self.tag == dTag:
+      lib.ElDistMatrixLocalRowOffset_d(self.obj,i,pointer(iLoc))
+    elif self.tag == cTag:
+      lib.ElDistMatrixLocalRowOffset_c(self.obj,i,pointer(iLoc))
+    elif self.tag == zTag:
+      lib.ElDistMatrixLocalRowOffset_z(self.obj,i,pointer(iLoc))
+    return iLoc
+  def LocalColOffset(self,j):
+    jLoc = iType()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixLocalColOffset_i(self.obj,j,pointer(jLoc))
+    elif self.tag == sTag:
+      lib.ElDistMatrixLocalColOffset_s(self.obj,j,pointer(jLoc))
+    elif self.tag == dTag:
+      lib.ElDistMatrixLocalColOffset_d(self.obj,j,pointer(jLoc))
+    elif self.tag == cTag:
+      lib.ElDistMatrixLocalColOffset_c(self.obj,j,pointer(jLoc))
+    elif self.tag == zTag:
+      lib.ElDistMatrixLocalColOffset_z(self.obj,j,pointer(jLoc))
+    return jLoc
+  def GlobalRow(self,iLoc):
+    i = iType()
+    if   self.tag == iTag: lib.ElDistMatrixGlobalRow_i(self.obj,iLoc,pointer(i))
+    elif self.tag == sTag: lib.ElDistMatrixGlobalRow_s(self.obj,iLoc,pointer(i))
+    elif self.tag == dTag: lib.ElDistMatrixGlobalRow_d(self.obj,iLoc,pointer(i))
+    elif self.tag == cTag: lib.ElDistMatrixGlobalRow_c(self.obj,iLoc,pointer(i))
+    elif self.tag == zTag: lib.ElDistMatrixGlobalRow_z(self.obj,iLoc,pointer(i))
+    return i
+  def GlobalCol(self,jLoc):
+    j = jType()
+    if   self.tag == iTag: lib.ElDistMatrixGlobalCol_i(self.obj,jLoc,pointer(j))
+    elif self.tag == sTag: lib.ElDistMatrixGlobalCol_s(self.obj,jLoc,pointer(j))
+    elif self.tag == dTag: lib.ElDistMatrixGlobalCol_d(self.obj,jLoc,pointer(j))
+    elif self.tag == cTag: lib.ElDistMatrixGlobalCol_c(self.obj,jLoc,pointer(j))
+    elif self.tag == zTag: lib.ElDistMatrixGlobalCol_z(self.obj,jLoc,pointer(j))
+    return j
+  def IsLocalRow(self,i):
+    isLocal = bType()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixIsLocalRow_i(self.obj,i,pointer(isLoc))
+    elif self.tag == sTag:
+      lib.ElDistMatrixIsLocalRow_s(self.obj,i,pointer(isLoc))
+    elif self.tag == dTag:
+      lib.ElDistMatrixIsLocalRow_d(self.obj,i,pointer(isLoc))
+    elif self.tag == cTag:
+      lib.ElDistMatrixIsLocalRow_c(self.obj,i,pointer(isLoc))
+    elif self.tag == zTag:
+      lib.ElDistMatrixIsLocalRow_z(self.obj,i,pointer(isLoc))
+    return isLocal
+  def IsLocalCol(self,j):
+    isLocal = bType()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixIsLocalCol_i(self.obj,j,pointer(isLoc))
+    elif self.tag == sTag:
+      lib.ElDistMatrixIsLocalCol_s(self.obj,j,pointer(isLoc))
+    elif self.tag == dTag:
+      lib.ElDistMatrixIsLocalCol_d(self.obj,j,pointer(isLoc))
+    elif self.tag == cTag:
+      lib.ElDistMatrixIsLocalCol_c(self.obj,j,pointer(isLoc))
+    elif self.tag == zTag:
+      lib.ElDistMatrixIsLocalCol_z(self.obj,j,pointer(isLoc))
+    return isLocal
+  def IsLocal(self,i,j):
+    isLocal = bType()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixIsLocal_i(self.obj,i,j,pointer(isLocal))
+    elif self.tag == sTag:
+      lib.ElDistMatrixIsLocal_s(self.obj,i,j,pointer(isLocal))
+    elif self.tag == dTag:
+      lib.ElDistMatrixIsLocal_d(self.obj,i,j,pointer(isLocal))
+    elif self.tag == cTag:
+      lib.ElDistMatrixIsLocal_c(self.obj,i,j,pointer(isLocal))
+    elif self.tag == zTag:
+      lib.ElDistMatrixIsLocal_z(self.obj,i,j,pointer(isLocal))
+    return isLocal
+  def GetDistData(self):
+    distData = DistData()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixDistData_i(self.obj,pointer(distData))
+    elif self.tag == sTag:
+      lib.ElDistMatrixDistData_s(self.obj,pointer(distData))
+    elif self.tag == dTag:
+      lib.ElDistMatrixDistData_d(self.obj,pointer(distData))
+    elif self.tag == cTag:
+      lib.ElDistMatrixDistData_c(self.obj,pointer(distData))
+    elif self.tag == zTag:
+      lib.ElDistMatrixDistData_z(self.obj,pointer(distData))
+    return distData
+  def DistComm(self):
+    comm = MPI_Comm()
+    if   self.tag == iTag: lib.ElDistMatrixDistComm_i(self.obj,pointer(comm))
+    elif self.tag == sTag: lib.ElDistMatrixDistComm_s(self.obj,pointer(comm))
+    elif self.tag == dTag: lib.ElDistMatrixDistComm_d(self.obj,pointer(comm))
+    elif self.tag == cTag: lib.ElDistMatrixDistComm_c(self.obj,pointer(comm))
+    elif self.tag == zTag: lib.ElDistMatrixDistComm_z(self.obj,pointer(comm))
+    return comm
+  def CrossComm(self):
+    comm = MPI_Comm()
+    if   self.tag == iTag: lib.ElDistMatrixCrossComm_i(self.obj,pointer(comm))
+    elif self.tag == sTag: lib.ElDistMatrixCrossComm_s(self.obj,pointer(comm))
+    elif self.tag == dTag: lib.ElDistMatrixCrossComm_d(self.obj,pointer(comm))
+    elif self.tag == cTag: lib.ElDistMatrixCrossComm_c(self.obj,pointer(comm))
+    elif self.tag == zTag: lib.ElDistMatrixCrossComm_z(self.obj,pointer(comm))
+    return comm
+  def RedundantComm(self):
+    comm = MPI_Comm()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixRedundantComm_i(self.obj,pointer(comm))
+    elif self.tag == sTag: 
+      lib.ElDistMatrixRedundantComm_s(self.obj,pointer(comm))
+    elif self.tag == dTag: 
+      lib.ElDistMatrixRedundantComm_d(self.obj,pointer(comm))
+    elif self.tag == cTag: 
+      lib.ElDistMatrixRedundantComm_c(self.obj,pointer(comm))
+    elif self.tag == zTag: 
+      lib.ElDistMatrixRedundantComm_z(self.obj,pointer(comm))
+    return comm
+  def ColComm(self):
+    comm = MPI_Comm()
+    if   self.tag == iTag: lib.ElDistMatrixColComm_i(self.obj,pointer(comm))
+    if   self.tag == sTag: lib.ElDistMatrixColComm_s(self.obj,pointer(comm))
+    if   self.tag == dTag: lib.ElDistMatrixColComm_d(self.obj,pointer(comm))
+    if   self.tag == cTag: lib.ElDistMatrixColComm_c(self.obj,pointer(comm))
+    if   self.tag == zTag: lib.ElDistMatrixColComm_z(self.obj,pointer(comm))
+    return comm
+  def RowComm(self):
+    comm = MPI_Comm()
+    if   self.tag == iTag: lib.ElDistMatrixRowComm_i(self.obj,pointer(comm))
+    if   self.tag == sTag: lib.ElDistMatrixRowComm_s(self.obj,pointer(comm))
+    if   self.tag == dTag: lib.ElDistMatrixRowComm_d(self.obj,pointer(comm))
+    if   self.tag == cTag: lib.ElDistMatrixRowComm_c(self.obj,pointer(comm))
+    if   self.tag == zTag: lib.ElDistMatrixRowComm_z(self.obj,pointer(comm))
+    return comm
+  def PartialColComm(self):
+    comm = MPI_Comm()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixPartialColComm_i(self.obj,pointer(comm))
+    if   self.tag == sTag: 
+      lib.ElDistMatrixPartialColComm_s(self.obj,pointer(comm))
+    if   self.tag == dTag: 
+      lib.ElDistMatrixPartialColComm_d(self.obj,pointer(comm))
+    if   self.tag == cTag: 
+      lib.ElDistMatrixPartialColComm_c(self.obj,pointer(comm))
+    if   self.tag == zTag: 
+      lib.ElDistMatrixPartialColComm_z(self.obj,pointer(comm))
+    return comm
+  def PartialRowComm(self):
+    comm = MPI_Comm()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixPartialRowComm_i(self.obj,pointer(comm))
+    if   self.tag == sTag: 
+      lib.ElDistMatrixPartialRowComm_s(self.obj,pointer(comm))
+    if   self.tag == dTag: 
+      lib.ElDistMatrixPartialRowComm_d(self.obj,pointer(comm))
+    if   self.tag == cTag: 
+      lib.ElDistMatrixPartialRowComm_c(self.obj,pointer(comm))
+    if   self.tag == zTag: 
+      lib.ElDistMatrixPartialRowComm_z(self.obj,pointer(comm))
+    return comm
+  def PartialUnionColComm(self):
+    comm = MPI_Comm()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixPartialUnionColComm_i(self.obj,pointer(comm))
+    if   self.tag == sTag: 
+      lib.ElDistMatrixPartialUnionColComm_s(self.obj,pointer(comm))
+    if   self.tag == dTag: 
+      lib.ElDistMatrixPartialUnionColComm_d(self.obj,pointer(comm))
+    if   self.tag == cTag: 
+      lib.ElDistMatrixPartialUnionColComm_c(self.obj,pointer(comm))
+    if   self.tag == zTag: 
+      lib.ElDistMatrixPartialUnionColComm_z(self.obj,pointer(comm))
+    return comm
+  def PartialUnionRowComm(self):
+    comm = MPI_Comm()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixPartialUnionRowComm_i(self.obj,pointer(comm))
+    if   self.tag == sTag: 
+      lib.ElDistMatrixPartialUnionRowComm_s(self.obj,pointer(comm))
+    if   self.tag == dTag: 
+      lib.ElDistMatrixPartialUnionRowComm_d(self.obj,pointer(comm))
+    if   self.tag == cTag: 
+      lib.ElDistMatrixPartialUnionRowComm_c(self.obj,pointer(comm))
+    if   self.tag == zTag: 
+      lib.ElDistMatrixPartialUnionRowComm_z(self.obj,pointer(comm))
+    return comm
+  def ColStride(self):
+    stride = iType()
+    if   self.tag == iTag: lib.ElDistMatrixColStride_i(self.obj,pointer(stride))
+    elif self.tag == sTag: lib.ElDistMatrixColStride_s(self.obj,pointer(stride))
+    elif self.tag == dTag: lib.ElDistMatrixColStride_d(self.obj,pointer(stride))
+    elif self.tag == cTag: lib.ElDistMatrixColStride_c(self.obj,pointer(stride))
+    elif self.tag == zTag: lib.ElDistMatrixColStride_z(self.obj,pointer(stride))
+    return stride
+  def RowStride(self):
+    stride = iType()
+    if   self.tag == iTag: lib.ElDistMatrixRowStride_i(self.obj,pointer(stride))
+    elif self.tag == sTag: lib.ElDistMatrixRowStride_s(self.obj,pointer(stride))
+    elif self.tag == dTag: lib.ElDistMatrixRowStride_d(self.obj,pointer(stride))
+    elif self.tag == cTag: lib.ElDistMatrixRowStride_c(self.obj,pointer(stride))
+    elif self.tag == zTag: lib.ElDistMatrixRowStride_z(self.obj,pointer(stride))
+    return stride
+  def PartialColStride(self):
+    stride = iType()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixPartialColStride_i(self.obj,pointer(stride))
+    elif self.tag == sTag: 
+      lib.ElDistMatrixPartialColStride_s(self.obj,pointer(stride))
+    elif self.tag == dTag: 
+      lib.ElDistMatrixPartialColStride_d(self.obj,pointer(stride))
+    elif self.tag == cTag: 
+      lib.ElDistMatrixPartialColStride_c(self.obj,pointer(stride))
+    elif self.tag == zTag: 
+      lib.ElDistMatrixPartialColStride_z(self.obj,pointer(stride))
+    return stride
+  def PartialRowStride(self):
+    stride = iType()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixPartialRowStride_i(self.obj,pointer(stride))
+    elif self.tag == sTag: 
+      lib.ElDistMatrixPartialRowStride_s(self.obj,pointer(stride))
+    elif self.tag == dTag: 
+      lib.ElDistMatrixPartialRowStride_d(self.obj,pointer(stride))
+    elif self.tag == cTag: 
+      lib.ElDistMatrixPartialRowStride_c(self.obj,pointer(stride))
+    elif self.tag == zTag: 
+      lib.ElDistMatrixPartialRowStride_z(self.obj,pointer(stride))
+    return stride
+  def PartialUnionColStride(self):
+    stride = iType()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixPartialUnionColStride_i(self.obj,pointer(stride))
+    elif self.tag == sTag: 
+      lib.ElDistMatrixPartialUnionColStride_s(self.obj,pointer(stride))
+    elif self.tag == dTag: 
+      lib.ElDistMatrixPartialUnionColStride_d(self.obj,pointer(stride))
+    elif self.tag == cTag: 
+      lib.ElDistMatrixPartialUnionColStride_c(self.obj,pointer(stride))
+    elif self.tag == zTag: 
+      lib.ElDistMatrixPartialUnionColStride_z(self.obj,pointer(stride))
+    return stride
+  def PartialUnionRowStride(self):
+    stride = iType()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixPartialUnionRowStride_i(self.obj,pointer(stride))
+    elif self.tag == sTag: 
+      lib.ElDistMatrixPartialUnionRowStride_s(self.obj,pointer(stride))
+    elif self.tag == dTag: 
+      lib.ElDistMatrixPartialUnionRowStride_d(self.obj,pointer(stride))
+    elif self.tag == cTag: 
+      lib.ElDistMatrixPartialUnionRowStride_c(self.obj,pointer(stride))
+    elif self.tag == zTag: 
+      lib.ElDistMatrixPartialUnionRowStride_z(self.obj,pointer(stride))
+    return stride
+  def DistSize(self):
+    size = iType()
+    if   self.tag == iTag: lib.ElDistMatrixDistSize_i(self.obj,pointer(size))
+    elif self.tag == sTag: lib.ElDistMatrixDistSize_s(self.obj,pointer(size))
+    elif self.tag == dTag: lib.ElDistMatrixDistSize_d(self.obj,pointer(size))
+    elif self.tag == cTag: lib.ElDistMatrixDistSize_c(self.obj,pointer(size))
+    elif self.tag == zTag: lib.ElDistMatrixDistSize_z(self.obj,pointer(size))
+    return size
+  def CrossSize(self):
+    size = iType()
+    if   self.tag == iTag: lib.ElDistMatrixCrossSize_i(self.obj,pointer(size))
+    elif self.tag == sTag: lib.ElDistMatrixCrossSize_s(self.obj,pointer(size))
+    elif self.tag == dTag: lib.ElDistMatrixCrossSize_d(self.obj,pointer(size))
+    elif self.tag == cTag: lib.ElDistMatrixCrossSize_c(self.obj,pointer(size))
+    elif self.tag == zTag: lib.ElDistMatrixCrossSize_z(self.obj,pointer(size))
+    return size
+  def RedundantSize(self):
+    size = iType()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixRedundantSize_i(self.obj,pointer(size))
+    elif self.tag == sTag: 
+      lib.ElDistMatrixRedundantSize_s(self.obj,pointer(size))
+    elif self.tag == dTag: 
+      lib.ElDistMatrixRedundantSize_d(self.obj,pointer(size))
+    elif self.tag == cTag: 
+      lib.ElDistMatrixRedundantSize_c(self.obj,pointer(size))
+    elif self.tag == zTag: 
+      lib.ElDistMatrixRedundantSize_z(self.obj,pointer(size))
+    return size
+  def Get(self,i,j):
+    if   self.tag == iTag:
+      value = iType()
+      lib.ElDistMatrixGet_i(self.obj,i,j,pointer(value))
+      return value
+    elif self.tag == sTag:
+      value = sType()
+      lib.ElDistMatrixGet_s(self.obj,i,j,pointer(value))
+      return value
+    elif self.tag == dTag:
+      value = dType()
+      lib.ElDistMatrixGet_d(self.obj,i,j,pointer(value))
+      return value
+    elif self.tag == cTag:
+      value = cType()
+      lib.ElDistMatrixGet_c(self.obj,i,j,pointer(value))
+      return value
+    elif self.tag == zTag:
+      value = zType()
+      lib.ElDistMatrixGet_z(self.obj,i,j,pointer(value))
+      return value
   # TODO: Finish implementing class
