@@ -20,6 +20,14 @@ def EnsureCompatibleScalar(value,tag):
   elif tag == zTag and type(value) is zType: return
   raise Exception('Invalid scalar type') 
 
+def EnsureCompatibleBaseScalar(value,tag):
+  if   tag == iTag and type(value) is iType: return
+  elif tag == sTag and type(value) is sType: return
+  elif tag == dTag and type(value) is dType: return
+  elif tag == cTag and type(value) is sType: return
+  elif tag == zTag and type(value) is dType: return
+  raise Exception('Invalid base scalar type') 
+
 def EnsureCompatibleBuffer(buf,tag):
   if   tag == iTag and type(buf) is POINTER(iType): return
   elif tag == sTag and type(buf) is POINTER(sType): return
@@ -253,12 +261,14 @@ class Matrix(object):
     elif self.tag == cTag: lib.ElMatrixSet_c(self.obj,i,j,value)
     elif self.tag == zTag: lib.ElMatrixSet_z(self.obj,i,j,value)
   def SetRealPart(self,i,j,value):
+    EnsureCompatibleBaseScalar(value,self.tag)
     if self.tag == cTag: 
       lib.ElMatrixSetRealPart_c(self.obj,i,j,sType(value))
     elif self.tag == zTag: 
       lib.ElMatrixSetRealPart_z(self.obj,i,j,dType(value))
     else: Set(i,j,value)
   def SetImagPart(self,i,j,value):
+    EnsureCompatibleBaseScalar(value,self.tag)
     if self.tag == cTag: 
       lib.ElMatrixSetImagPart_c(self.obj,i,j,sType(value))
     elif self.tag == zTag: 

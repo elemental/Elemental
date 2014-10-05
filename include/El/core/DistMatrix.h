@@ -1314,15 +1314,15 @@ EL_EXPORT ElError ElDistMatrixConjugateDiagonal_z
 /* bool DistMatrix<T,U,V>::DiagonalAlignedWith
    ( const DistData& data, Int offset ) const
    ------------------------------------------- */
-EL_EXPORT ElError ElDistMatrixAlignedWith_i
+EL_EXPORT ElError ElDistMatrixDiagonalAlignedWith_i
 ( ElConstDistMatrix_i A, ElDistData distData, ElInt offset, bool* aligned );
-EL_EXPORT ElError ElDistMatrixAlignedWith_s
+EL_EXPORT ElError ElDistMatrixDiagonalAlignedWith_s
 ( ElConstDistMatrix_s A, ElDistData distData, ElInt offset, bool* aligned );
-EL_EXPORT ElError ElDistMatrixAlignedWith_d
+EL_EXPORT ElError ElDistMatrixDiagonalAlignedWith_d
 ( ElConstDistMatrix_d A, ElDistData distData, ElInt offset, bool* aligned );
-EL_EXPORT ElError ElDistMatrixAlignedWith_c
+EL_EXPORT ElError ElDistMatrixDiagonalAlignedWith_c
 ( ElConstDistMatrix_c A, ElDistData distData, ElInt offset, bool* aligned );
-EL_EXPORT ElError ElDistMatrixAlignedWith_z
+EL_EXPORT ElError ElDistMatrixDiagonalAlignedWith_z
 ( ElConstDistMatrix_z A, ElDistData distData, ElInt offset, bool* aligned );
 
 /* Int DistMatrix<T,U,V>::DiagonalRoot( Int offset ) const

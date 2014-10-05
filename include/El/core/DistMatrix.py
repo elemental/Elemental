@@ -932,4 +932,161 @@ class DistMatrix(object):
       value = zType()
       lib.ElDistMatrixGet_z(self.obj,i,j,pointer(value))
       return value
-  # TODO: Finish implementing class
+  def GetRealPart(self,i,j):
+    if   self.tag == iTag:
+      value = iType()
+      lib.ElDistMatrixGet_i(self.obj,i,j,pointer(value))
+      return value
+    elif self.tag == sTag:
+      value = sType()
+      lib.ElDistMatrixGet_s(self.obj,i,j,pointer(value))
+      return value
+    elif self.tag == dTag:
+      value = dType()
+      lib.ElDistMatrixGet_d(self.obj,i,j,pointer(value))
+      return value
+    elif self.tag == cTag:
+      value = sType()
+      lib.ElDistMatrixGetRealPart_c(self.obj,i,j,pointer(value))
+      return value
+    elif self.tag == zTag:
+      value = dType()
+      lib.ElDistMatrixGetRealPart_z(self.obj,i,j,pointer(value))
+      return value
+  def GetImagPart(self,i,j):
+    if   self.tag == iTag: return iType(0)
+    elif self.tag == sTag: return sType(0)
+    elif self.tag == dTag: return dType(0)
+    elif self.tag == cTag:
+      value = sType()
+      lib.ElDistMatrixGetRealPart_c(self.obj,i,j,pointer(value))
+      return value
+    elif self.tag == zTag:
+      value = dType()
+      lib.ElDistMatrixGetRealPart_z(self.obj,i,j,pointer(value))
+      return value
+  def Set(self,i,j,value):
+    EnsureConsistentScalar(value,self.tag)
+    if   self.tag == iTag: lib.ElDistMatrixSet_i(self.obj,i,j,value)
+    elif self.tag == sTag: lib.ElDistMatrixSet_s(self.obj,i,j,value)
+    elif self.tag == dTag: lib.ElDistMatrixSet_d(self.obj,i,j,value)
+    elif self.tag == cTag: lib.ElDistMatrixSet_c(self.obj,i,j,value)
+    elif self.tag == zTag: lib.ElDistMatrixSet_z(self.obj,i,j,value)
+  def SetRealPart(self,i,j,value):
+    EnsureConsistentBaseScalar(value,self.tag)
+    if   self.tag == iTag: lib.ElDistMatrixSet_i(self.obj,i,j,value)
+    elif self.tag == sTag: lib.ElDistMatrixSet_s(self.obj,i,j,value)
+    elif self.tag == dTag: lib.ElDistMatrixSet_d(self.obj,i,j,value)
+    elif self.tag == cTag: lib.ElDistMatrixSetRealPart_c(self.obj,i,j,value)
+    elif self.tag == zTag: lib.ElDistMatrixSetRealPart_z(self.obj,i,j,value)
+  def SetImagPart(self,i,j,value):
+    EnsureConsistentBaseScalar(value,self.tag)
+    if   self.tag == cTag: lib.ElDistMatrixSetImagPart_c(self.obj,i,j,value)
+    elif self.tag == zTag: lib.ElDistMatrixSetImagPart_z(self.obj,i,j,value)
+    else: raise Exception('Cannot set imaginary part of a real datatype')
+  def Update(self,i,j,value):
+    EnsureConsistentScalar(value,self.tag)
+    if   self.tag == iTag: lib.ElDistMatrixUpdate_i(self.obj,i,j,value)
+    elif self.tag == sTag: lib.ElDistMatrixUpdate_s(self.obj,i,j,value)
+    elif self.tag == dTag: lib.ElDistMatrixUpdate_d(self.obj,i,j,value)
+    elif self.tag == cTag: lib.ElDistMatrixUpdate_c(self.obj,i,j,value)
+    elif self.tag == zTag: lib.ElDistMatrixUpdate_z(self.obj,i,j,value)
+  def UpdateRealPart(self,i,j,value):
+    EnsureConsistentBaseScalar(value,self.tag)
+    if   self.tag == iTag: lib.ElDistMatrixUpdate_i(self.obj,i,j,value)
+    elif self.tag == sTag: lib.ElDistMatrixUpdate_s(self.obj,i,j,value)
+    elif self.tag == dTag: lib.ElDistMatrixUpdate_d(self.obj,i,j,value)
+    elif self.tag == cTag: lib.ElDistMatrixUpdateRealPart_c(self.obj,i,j,value)
+    elif self.tag == zTag: lib.ElDistMatrixUpdateRealPart_z(self.obj,i,j,value)
+  def UpdateImagPart(self,i,j,value):
+    EnsureConsistentBaseScalar(value,self.tag)
+    if   self.tag == cTag: lib.ElDistMatrixUpdateImagPart_c(self.obj,i,j,value)
+    elif self.tag == zTag: lib.ElDistMatrixUpdateImagPart_z(self.obj,i,j,value)
+    else: raise Exception('Cannot update imaginary part of a real datatype')
+  def MakeReal(self,i,j):
+    if   self.tag == cTag: lib.ElDistMatrixMakeReal_c(self.obj,i,j)
+    elif self.tag == zTag: lib.ElDistMatrixMakeReal_z(self.obj,i,j)
+  def Conjugate(self,i,j):
+    if   self.tag == cTag: lib.ElDistMatrixConjugate_c(self.obj,i,j)
+    elif self.tag == zTag: lib.ElDistMatrixConjugate_z(self.obj,i,j)
+  def GetLocal(self,iLoc,jLoc): 
+    return LockedMatrix().Get(iLoc,jLoc)
+  def GetLocalRealPart(self,iLoc,jLoc): 
+    return LockedMatrix().GetRealPart(iLoc,jLoc)
+  def GetLocalImagPart(self,iLoc,jLoc):
+    return LockedMatrix().GetImagPart(iLoc,jLoc)
+  def SetLocal(self,iLoc,jLoc,value):
+    Matrix().Set(iLoc,jLoc,value)
+  def SetLocalRealPart(self,iLoc,jLoc,value):
+    Matrix().SetRealPart(iLoc,jLoc,value)
+  def SetLocalImagPart(self,iLoc,jLoc,value):
+    Matrix().SetImagPart(iLoc,jLoc,value)
+  def UpdateLocal(self,iLoc,jLoc,value):
+    Matrix().Update(iLoc,jLoc,value)
+  def UpdateLocalRealPart(self,iLoc,jLoc,value):
+    Matrix().UpdateRealPart(iLoc,jLoc,value)
+  def UpdateLocalImagPart(self,iLoc,jLoc,value):
+    Matrix().UpdateImagPart(iLoc,jLoc,value)
+  # TODO: MakeDiagonalReal
+  # TODO: ConjugateDiagonal
+  def DiagonalAlignedWith(distData,offset):
+    aligned = bType()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixDiagonalAlignedWith_i \
+      (self.obj,distData,offset,pointer(aligned))
+    elif self.tag == sTag:
+      lib.ElDistMatrixDiagonalAlignedWith_s \
+      (self.obj,distData,offset,pointer(aligned))
+    elif self.tag == dTag:
+      lib.ElDistMatrixDiagonalAlignedWith_d \
+      (self.obj,distData,offset,pointer(aligned))
+    elif self.tag == cTag:
+      lib.ElDistMatrixDiagonalAlignedWith_c \
+      (self.obj,distData,offset,pointer(aligned))
+    elif self.tag == zTag:
+      lib.ElDistMatrixDiagonalAlignedWith_z \
+      (self.obj,distData,offset,pointer(aligned))
+    return aligned
+  def DiagonalRoot(self,offset):
+    root = iType()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixDiagonalRoot_i(self.obj,offset,pointer(root))
+    elif self.tag == sTag:
+      lib.ElDistMatrixDiagonalRoot_s(self.obj,offset,pointer(root))
+    elif self.tag == dTag:
+      lib.ElDistMatrixDiagonalRoot_d(self.obj,offset,pointer(root))
+    elif self.tag == cTag:
+      lib.ElDistMatrixDiagonalRoot_c(self.obj,offset,pointer(root))
+    elif self.tag == zTag:
+      lib.ElDistMatrixDiagonalRoot_z(self.obj,offset,pointer(root))
+    return root
+  def DiagonalAlign(self,offset):
+    align = iType()
+    if   self.tag == iTag: 
+      lib.ElDistMatrixDiagonalAlign_i(self.obj,offset,pointer(align))
+    elif self.tag == sTag:
+      lib.ElDistMatrixDiagonalAlign_s(self.obj,offset,pointer(align))
+    elif self.tag == dTag:
+      lib.ElDistMatrixDiagonalAlign_d(self.obj,offset,pointer(align))
+    elif self.tag == cTag:
+      lib.ElDistMatrixDiagonalAlign_c(self.obj,offset,pointer(align))
+    elif self.tag == zTag:
+      lib.ElDistMatrixDiagonalAlign_z(self.obj,offset,pointer(align))
+    return align
+  # TODO: GetDiagonal, GetRealPartOfDiagonal, GetImagPartOfDiagonal
+  # TODO: SetDiagonal, SetRealPartOfDiagonal, SetImagPartOfDiagonal
+  # TODO: GetSubmatrix, GetRealPartOfSubmatrix, GetImagPartOfSubmatrix
+  # TODO: SetSubmatrix, SetRealPartOfSubmatrix, SetImagPartOfSubmatrix
+  # TODO: UpdateSubmatrix, UpdateRealPartOfSubmatrix, UpdateImagPartOfSubmatrix
+  # TODO: MakeSubmatrixReal, ConjugateSubmatrix
+  #     Get rid of 'Local' member functions?!?
+  # TODO: GetLocalSubmatrix, GetRealPartOfLocalSubmatrix, ...
+  # TODO: SetLocalSubmatrix, SetRealPartOfLocalSubmatrix, ...
+  # TODO: UpdateLocalSubmatrix, UpdateRealPartOfLocalSubmatrix, ...
+  # TODO: MakeLocalSubmatrixReal, ConjugateLocalSubmatrix
+  def SumOver(self,comm):
+    if   self.tag == iTag: lib.ElDistMatrixSumOver_i(self.obj,comm)
+    elif self.tag == sTag: lib.ElDistMatrixSumOver_s(self.obj,comm)
+    elif self.tag == dTag: lib.ElDistMatrixSumOver_d(self.obj,comm)
+    elif self.tag == cTag: lib.ElDistMatrixSumOver_c(self.obj,comm)
+    elif self.tag == zTag: lib.ElDistMatrixSumOver_z(self.obj,comm)
