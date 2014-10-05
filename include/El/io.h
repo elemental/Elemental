@@ -58,6 +58,8 @@ EL_EXPORT ElError ElNumDiscreteColors( ElInt* numColors );
 
 /* Display
    ======= */
+EL_EXPORT ElError ElProcessEvents( int numMsecs );
+
 EL_EXPORT ElError ElDisplay_i( ElConstMatrix_i A, const char* title );
 EL_EXPORT ElError ElDisplay_s( ElConstMatrix_s A, const char* title );
 EL_EXPORT ElError ElDisplay_d( ElConstMatrix_d A, const char* title );

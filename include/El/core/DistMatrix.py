@@ -9,41 +9,259 @@
 from environment import *
 import ctypes, numpy
 
+from ctypes import c_void_p, c_int, c_uint, c_float, c_double
+
 import Matrix as M
 import Grid as G
+
+from Matrix import EnsureCompatibleScalar
+from Matrix import EnsureCompatibleBaseScalar
+from Matrix import EnsureCompatibleBuffer
 
 # (Abstract)DistMatrix
 # ====================
 
 class DistData(ctypes.Structure):
-  _fields_ = [('colDist',ctypes.c_uint),
-              ('rowDist',ctypes.c_uint), 
+  _fields_ = [('colDist',c_uint),
+              ('rowDist',c_uint), 
               ('colAlign',iType),
               ('rowAlign',iType),
               ('root',iType),
-              ('grid',ctypes.c_void_p)]
+              ('grid',c_void_p)]
+
+lib.ElDistMatrixCreateSpecific_i.argtypes = \
+  [c_uint,c_uint,c_void_p,POINTER(c_void_p)]
+lib.ElDistMatrixCreateSpecific_i.restype = c_uint
+lib.ElDistMatrixCreateSpecific_s.argtypes = \
+  [c_uint,c_uint,c_void_p,POINTER(c_void_p)]
+lib.ElDistMatrixCreateSpecific_s.restype = c_uint
+lib.ElDistMatrixCreateSpecific_d.argtypes = \
+  [c_uint,c_uint,c_void_p,POINTER(c_void_p)]
+lib.ElDistMatrixCreateSpecific_d.restype = c_uint
+lib.ElDistMatrixCreateSpecific_c.argtypes = \
+  [c_uint,c_uint,c_void_p,POINTER(c_void_p)]
+lib.ElDistMatrixCreateSpecific_c.restype = c_uint
+lib.ElDistMatrixCreateSpecific_z.argtypes = \
+  [c_uint,c_uint,c_void_p,POINTER(c_void_p)]
+lib.ElDistMatrixCreateSpecific_z.restype = c_uint
+
+lib.ElDistMatrixDestroy_i.argtypes = [c_void_p]
+lib.ElDistMatrixDestroy_i.restype = c_uint
+lib.ElDistMatrixDestroy_s.argtypes = [c_void_p]
+lib.ElDistMatrixDestroy_s.restype = c_uint
+lib.ElDistMatrixDestroy_d.argtypes = [c_void_p]
+lib.ElDistMatrixDestroy_d.restype = c_uint
+lib.ElDistMatrixDestroy_c.argtypes = [c_void_p]
+lib.ElDistMatrixDestroy_c.restype = c_uint
+lib.ElDistMatrixDestroy_z.argtypes = [c_void_p]
+lib.ElDistMatrixDestroy_z.restype = c_uint
+
+lib.ElDistMatrixEmpty_i.argtypes = [c_void_p]
+lib.ElDistMatrixEmpty_i.restype = c_uint
+lib.ElDistMatrixEmpty_s.argtypes = [c_void_p]
+lib.ElDistMatrixEmpty_s.restype = c_uint
+lib.ElDistMatrixEmpty_d.argtypes = [c_void_p]
+lib.ElDistMatrixEmpty_d.restype = c_uint
+lib.ElDistMatrixEmpty_c.argtypes = [c_void_p]
+lib.ElDistMatrixEmpty_c.restype = c_uint
+lib.ElDistMatrixEmpty_z.argtypes = [c_void_p]
+lib.ElDistMatrixEmpty_z.restype = c_uint
+
+lib.ElDistMatrixEmptyData_i.argtypes = [c_void_p]
+lib.ElDistMatrixEmptyData_i.restype = c_uint
+lib.ElDistMatrixEmptyData_s.argtypes = [c_void_p]
+lib.ElDistMatrixEmptyData_s.restype = c_uint
+lib.ElDistMatrixEmptyData_d.argtypes = [c_void_p]
+lib.ElDistMatrixEmptyData_d.restype = c_uint
+lib.ElDistMatrixEmptyData_c.argtypes = [c_void_p]
+lib.ElDistMatrixEmptyData_c.restype = c_uint
+lib.ElDistMatrixEmptyData_z.argtypes = [c_void_p]
+lib.ElDistMatrixEmptyData_z.restype = c_uint
+
+lib.ElDistMatrixSetGrid_i.argtypes = [c_void_p,c_void_p]
+lib.ElDistMatrixSetGrid_i.restype = c_uint
+lib.ElDistMatrixSetGrid_s.argtypes = [c_void_p,c_void_p]
+lib.ElDistMatrixSetGrid_s.restype = c_uint
+lib.ElDistMatrixSetGrid_d.argtypes = [c_void_p,c_void_p]
+lib.ElDistMatrixSetGrid_d.restype = c_uint
+lib.ElDistMatrixSetGrid_c.argtypes = [c_void_p,c_void_p]
+lib.ElDistMatrixSetGrid_c.restype = c_uint
+lib.ElDistMatrixSetGrid_z.argtypes = [c_void_p,c_void_p]
+lib.ElDistMatrixSetGrid_z.restype = c_uint
+
+lib.ElDistMatrixResize_i.argtypes = [c_void_p,iType,iType]
+lib.ElDistMatrixResize_i.restype = c_uint
+lib.ElDistMatrixResize_s.argtypes = [c_void_p,iType,iType]
+lib.ElDistMatrixResize_s.restype = c_uint
+lib.ElDistMatrixResize_d.argtypes = [c_void_p,iType,iType]
+lib.ElDistMatrixResize_d.restype = c_uint
+lib.ElDistMatrixResize_c.argtypes = [c_void_p,iType,iType]
+lib.ElDistMatrixResize_c.restype = c_uint
+lib.ElDistMatrixResize_z.argtypes = [c_void_p,iType,iType]
+lib.ElDistMatrixResize_z.restype = c_uint
+
+lib.ElDistMatrixResizeWithLDim_i.argtypes = [c_void_p,iType,iType,iType]
+lib.ElDistMatrixResizeWithLDim_i.restype = c_uint
+lib.ElDistMatrixResizeWithLDim_s.argtypes = [c_void_p,iType,iType,iType]
+lib.ElDistMatrixResizeWithLDim_s.restype = c_uint
+lib.ElDistMatrixResizeWithLDim_d.argtypes = [c_void_p,iType,iType,iType]
+lib.ElDistMatrixResizeWithLDim_d.restype = c_uint
+lib.ElDistMatrixResizeWithLDim_c.argtypes = [c_void_p,iType,iType,iType]
+lib.ElDistMatrixResizeWithLDim_c.restype = c_uint
+lib.ElDistMatrixResizeWithLDim_z.argtypes = [c_void_p,iType,iType,iType]
+lib.ElDistMatrixResizeWithLDim_z.restype = c_uint
+
+lib.ElDistMatrixMakeConsistent_i.argtypes = [c_void_p,bType]
+lib.ElDistMatrixMakeConsistent_i.restype = c_uint
+lib.ElDistMatrixMakeConsistent_s.argtypes = [c_void_p,bType]
+lib.ElDistMatrixMakeConsistent_s.restype = c_uint
+lib.ElDistMatrixMakeConsistent_d.argtypes = [c_void_p,bType]
+lib.ElDistMatrixMakeConsistent_d.restype = c_uint
+lib.ElDistMatrixMakeConsistent_c.argtypes = [c_void_p,bType]
+lib.ElDistMatrixMakeConsistent_c.restype = c_uint
+lib.ElDistMatrixMakeConsistent_z.argtypes = [c_void_p,bType]
+lib.ElDistMatrixMakeConsistent_z.restype = c_uint
+
+lib.ElDistMatrixMakeSizeConsistent_i.argtypes = [c_void_p,bType]
+lib.ElDistMatrixMakeSizeConsistent_i.restype = c_uint
+lib.ElDistMatrixMakeSizeConsistent_s.argtypes = [c_void_p,bType]
+lib.ElDistMatrixMakeSizeConsistent_s.restype = c_uint
+lib.ElDistMatrixMakeSizeConsistent_d.argtypes = [c_void_p,bType]
+lib.ElDistMatrixMakeSizeConsistent_d.restype = c_uint
+lib.ElDistMatrixMakeSizeConsistent_c.argtypes = [c_void_p,bType]
+lib.ElDistMatrixMakeSizeConsistent_c.restype = c_uint
+lib.ElDistMatrixMakeSizeConsistent_z.argtypes = [c_void_p,bType]
+lib.ElDistMatrixMakeSizeConsistent_z.restype = c_uint
+
+lib.ElDistMatrixAlign_i.argtypes = [c_void_p,iType,iType,bType]
+lib.ElDistMatrixAlign_i.restype = c_uint
+lib.ElDistMatrixAlign_s.argtypes = [c_void_p,iType,iType,bType]
+lib.ElDistMatrixAlign_s.restype = c_uint
+lib.ElDistMatrixAlign_d.argtypes = [c_void_p,iType,iType,bType]
+lib.ElDistMatrixAlign_d.restype = c_uint
+lib.ElDistMatrixAlign_c.argtypes = [c_void_p,iType,iType,bType]
+lib.ElDistMatrixAlign_c.restype = c_uint
+lib.ElDistMatrixAlign_z.argtypes = [c_void_p,iType,iType,bType]
+lib.ElDistMatrixAlign_z.restype = c_uint
+
+lib.ElDistMatrixAlignCols_i.argtypes = [c_void_p,iType,bType]
+lib.ElDistMatrixAlignCols_i.restype = c_uint
+lib.ElDistMatrixAlignCols_s.argtypes = [c_void_p,iType,bType]
+lib.ElDistMatrixAlignCols_s.restype = c_uint
+lib.ElDistMatrixAlignCols_d.argtypes = [c_void_p,iType,bType]
+lib.ElDistMatrixAlignCols_d.restype = c_uint
+lib.ElDistMatrixAlignCols_c.argtypes = [c_void_p,iType,bType]
+lib.ElDistMatrixAlignCols_c.restype = c_uint
+lib.ElDistMatrixAlignCols_z.argtypes = [c_void_p,iType,bType]
+lib.ElDistMatrixAlignCols_z.restype = c_uint
+
+lib.ElDistMatrixAlignRows_i.argtypes = [c_void_p,iType,bType]
+lib.ElDistMatrixAlignRows_i.restype = c_uint
+lib.ElDistMatrixAlignRows_s.argtypes = [c_void_p,iType,bType]
+lib.ElDistMatrixAlignRows_s.restype = c_uint
+lib.ElDistMatrixAlignRows_d.argtypes = [c_void_p,iType,bType]
+lib.ElDistMatrixAlignRows_d.restype = c_uint
+lib.ElDistMatrixAlignRows_c.argtypes = [c_void_p,iType,bType]
+lib.ElDistMatrixAlignRows_c.restype = c_uint
+lib.ElDistMatrixAlignRows_z.argtypes = [c_void_p,iType,bType]
+lib.ElDistMatrixAlignRows_z.restype = c_uint
+
+# LEFT OFF HERE
+
+lib.ElDistMatrixGet_i.argtypes = [c_void_p,iType,iType,POINTER(iType)]
+lib.ElDistMatrixGet_i.restype = c_uint
+lib.ElDistMatrixGet_s.argtypes = [c_void_p,iType,iType,POINTER(sType)]
+lib.ElDistMatrixGet_s.restype = c_uint
+lib.ElDistMatrixGet_d.argtypes = [c_void_p,iType,iType,POINTER(dType)]
+lib.ElDistMatrixGet_d.restype = c_uint
+lib.ElDistMatrixGet_c.argtypes = [c_void_p,iType,iType,POINTER(cType)]
+lib.ElDistMatrixGet_c.restype = c_uint
+lib.ElDistMatrixGet_z.argtypes = [c_void_p,iType,iType,POINTER(zType)]
+lib.ElDistMatrixGet_z.restype = c_uint
+
+lib.ElDistMatrixGetRealPart_c.argtypes = [c_void_p,iType,iType,POINTER(sType)]
+lib.ElDistMatrixGetRealPart_c.restype = c_uint
+lib.ElDistMatrixGetRealPart_z.argtypes = [c_void_p,iType,iType,POINTER(dType)]
+lib.ElDistMatrixGetRealPart_z.restype = c_uint
+
+lib.ElDistMatrixGetImagPart_c.argtypes = [c_void_p,iType,iType,POINTER(sType)]
+lib.ElDistMatrixGetImagPart_c.restype = c_uint
+lib.ElDistMatrixGetImagPart_z.argtypes = [c_void_p,iType,iType,POINTER(dType)]
+lib.ElDistMatrixGetImagPart_z.restype = c_uint
+
+lib.ElDistMatrixSet_i.argtypes = [c_void_p,iType,iType,iType]
+lib.ElDistMatrixSet_i.restype = c_uint
+lib.ElDistMatrixSet_s.argtypes = [c_void_p,iType,iType,sType]
+lib.ElDistMatrixSet_s.restype = c_uint
+lib.ElDistMatrixSet_d.argtypes = [c_void_p,iType,iType,dType]
+lib.ElDistMatrixSet_d.restype = c_uint
+lib.ElDistMatrixSet_c.argtypes = [c_void_p,iType,iType,cType]
+lib.ElDistMatrixSet_c.restype = c_uint
+lib.ElDistMatrixSet_z.argtypes = [c_void_p,iType,iType,zType]
+lib.ElDistMatrixSet_z.restype = c_uint
+
+lib.ElDistMatrixSetRealPart_c.argtypes = [c_void_p,iType,iType,sType]
+lib.ElDistMatrixSetRealPart_c.restype = c_uint
+lib.ElDistMatrixSetRealPart_z.argtypes = [c_void_p,iType,iType,dType]
+lib.ElDistMatrixSetRealPart_z.restype = c_uint
+
+lib.ElDistMatrixSetImagPart_c.argtypes = [c_void_p,iType,iType,sType]
+lib.ElDistMatrixSetImagPart_c.restype = c_uint
+lib.ElDistMatrixSetImagPart_z.argtypes = [c_void_p,iType,iType,dType]
+lib.ElDistMatrixSetImagPart_z.restype = c_uint
+
+lib.ElDistMatrixUpdate_i.argtypes = [c_void_p,iType,iType,iType]
+lib.ElDistMatrixUpdate_i.restype = c_uint
+lib.ElDistMatrixUpdate_s.argtypes = [c_void_p,iType,iType,sType]
+lib.ElDistMatrixUpdate_s.restype = c_uint
+lib.ElDistMatrixUpdate_d.argtypes = [c_void_p,iType,iType,dType]
+lib.ElDistMatrixUpdate_d.restype = c_uint
+lib.ElDistMatrixUpdate_c.argtypes = [c_void_p,iType,iType,cType]
+lib.ElDistMatrixUpdate_c.restype = c_uint
+lib.ElDistMatrixUpdate_z.argtypes = [c_void_p,iType,iType,zType]
+lib.ElDistMatrixUpdate_z.restype = c_uint
+
+lib.ElDistMatrixUpdateRealPart_c.argtypes = [c_void_p,iType,iType,sType]
+lib.ElDistMatrixUpdateRealPart_c.restype = c_uint
+lib.ElDistMatrixUpdateRealPart_z.argtypes = [c_void_p,iType,iType,dType]
+lib.ElDistMatrixUpdateRealPart_z.restype = c_uint
+
+lib.ElDistMatrixUpdateImagPart_c.argtypes = [c_void_p,iType,iType,sType]
+lib.ElDistMatrixUpdateImagPart_c.restype = c_uint
+lib.ElDistMatrixUpdateImagPart_z.argtypes = [c_void_p,iType,iType,dType]
+lib.ElDistMatrixUpdateImagPart_z.restype = c_uint
+
+lib.ElDistMatrixMakeReal_c.argtypes = [c_void_p,iType,iType]
+lib.ElDistMatrixMakeReal_c.restype = c_uint
+lib.ElDistMatrixMakeReal_z.argtypes = [c_void_p,iType,iType]
+lib.ElDistMatrixMakeReal_z.restype = c_uint
+
+lib.ElDistMatrixConjugate_c.argtypes = [c_void_p,iType,iType]
+lib.ElDistMatrixConjugate_c.restype = c_uint
+lib.ElDistMatrixConjugate_z.argtypes = [c_void_p,iType,iType]
+lib.ElDistMatrixConjugate_z.restype = c_uint
+
+# LEFT OFF HERE
 
 class DistMatrix(object):
   def __init__(self,tag=dTag,colDist=MC,rowDist=MR,grid=G.DefaultGrid()):
-    self.obj = ctypes.c_void_p()
+    self.obj = c_void_p()
     CheckTag(tag)
-    colDistVal = ctypes.c_uint(colDist)
-    rowDistVal = ctypes.c_uint(rowDist)
     if   tag == iTag: 
       lib.ElDistMatrixCreateSpecific_i \
-      (colDistVal,rowDistVal,grid.obj,pointer(self.obj))
+      (colDist,rowDist,grid.obj,pointer(self.obj))
     elif tag == sTag: 
       lib.ElDistMatrixCreateSpecific_s \
-      (colDistVal,rowDistVal,grid.obj,pointer(self.obj))
+      (colDist,rowDist,grid.obj,pointer(self.obj))
     elif tag == dTag: 
       lib.ElDistMatrixCreateSpecific_d \
-      (colDistVal,rowDistVal,grid.obj,pointer(self.obj))
+      (colDist,rowDist,grid.obj,pointer(self.obj))
     elif tag == cTag: 
       lib.ElDistMatrixCreateSpecific_c \
-      (colDistVal,rowDistVal,grid.obj,pointer(self.obj))
+      (colDist,rowDist,grid.obj,pointer(self.obj))
     elif tag == zTag: 
       lib.ElDistMatrixCreateSpecific_z \
-      (colDistVal,rowDistVal,grid.obj,pointer(self.obj))
+      (colDist,rowDist,grid.obj,pointer(self.obj))
     self.tag = tag
   def Destroy(self):
     if   self.tag == iTag: lib.ElDistMatrixDestroy_i(self.obj)
@@ -564,12 +782,12 @@ class DistMatrix(object):
     return rank
   def Root(self):
     root = iType()
-    if   self.tag == iTag: lib.ElDistMatrixRoot_i(self.obj,pointer(rank))
-    elif self.tag == sTag: lib.ElDistMatrixRoot_s(self.obj,pointer(rank))
-    elif self.tag == dTag: lib.ElDistMatrixRoot_d(self.obj,pointer(rank))
-    elif self.tag == cTag: lib.ElDistMatrixRoot_c(self.obj,pointer(rank))
-    elif self.tag == zTag: lib.ElDistMatrixRoot_z(self.obj,pointer(rank))
-    return rank
+    if   self.tag == iTag: lib.ElDistMatrixRoot_i(self.obj,pointer(root))
+    elif self.tag == sTag: lib.ElDistMatrixRoot_s(self.obj,pointer(root))
+    elif self.tag == dTag: lib.ElDistMatrixRoot_d(self.obj,pointer(root))
+    elif self.tag == cTag: lib.ElDistMatrixRoot_c(self.obj,pointer(root))
+    elif self.tag == zTag: lib.ElDistMatrixRoot_z(self.obj,pointer(root))
+    return root
   def Participating(self):
     partic = bType()
     if   self.tag == iTag: 
@@ -966,40 +1184,34 @@ class DistMatrix(object):
       lib.ElDistMatrixGetRealPart_z(self.obj,i,j,pointer(value))
       return value
   def Set(self,i,j,value):
-    EnsureConsistentScalar(value,self.tag)
     if   self.tag == iTag: lib.ElDistMatrixSet_i(self.obj,i,j,value)
     elif self.tag == sTag: lib.ElDistMatrixSet_s(self.obj,i,j,value)
     elif self.tag == dTag: lib.ElDistMatrixSet_d(self.obj,i,j,value)
     elif self.tag == cTag: lib.ElDistMatrixSet_c(self.obj,i,j,value)
     elif self.tag == zTag: lib.ElDistMatrixSet_z(self.obj,i,j,value)
   def SetRealPart(self,i,j,value):
-    EnsureConsistentBaseScalar(value,self.tag)
     if   self.tag == iTag: lib.ElDistMatrixSet_i(self.obj,i,j,value)
     elif self.tag == sTag: lib.ElDistMatrixSet_s(self.obj,i,j,value)
     elif self.tag == dTag: lib.ElDistMatrixSet_d(self.obj,i,j,value)
     elif self.tag == cTag: lib.ElDistMatrixSetRealPart_c(self.obj,i,j,value)
     elif self.tag == zTag: lib.ElDistMatrixSetRealPart_z(self.obj,i,j,value)
   def SetImagPart(self,i,j,value):
-    EnsureConsistentBaseScalar(value,self.tag)
     if   self.tag == cTag: lib.ElDistMatrixSetImagPart_c(self.obj,i,j,value)
     elif self.tag == zTag: lib.ElDistMatrixSetImagPart_z(self.obj,i,j,value)
     else: raise Exception('Cannot set imaginary part of a real datatype')
   def Update(self,i,j,value):
-    EnsureConsistentScalar(value,self.tag)
     if   self.tag == iTag: lib.ElDistMatrixUpdate_i(self.obj,i,j,value)
     elif self.tag == sTag: lib.ElDistMatrixUpdate_s(self.obj,i,j,value)
     elif self.tag == dTag: lib.ElDistMatrixUpdate_d(self.obj,i,j,value)
     elif self.tag == cTag: lib.ElDistMatrixUpdate_c(self.obj,i,j,value)
     elif self.tag == zTag: lib.ElDistMatrixUpdate_z(self.obj,i,j,value)
   def UpdateRealPart(self,i,j,value):
-    EnsureConsistentBaseScalar(value,self.tag)
     if   self.tag == iTag: lib.ElDistMatrixUpdate_i(self.obj,i,j,value)
     elif self.tag == sTag: lib.ElDistMatrixUpdate_s(self.obj,i,j,value)
     elif self.tag == dTag: lib.ElDistMatrixUpdate_d(self.obj,i,j,value)
     elif self.tag == cTag: lib.ElDistMatrixUpdateRealPart_c(self.obj,i,j,value)
     elif self.tag == zTag: lib.ElDistMatrixUpdateRealPart_z(self.obj,i,j,value)
   def UpdateImagPart(self,i,j,value):
-    EnsureConsistentBaseScalar(value,self.tag)
     if   self.tag == cTag: lib.ElDistMatrixUpdateImagPart_c(self.obj,i,j,value)
     elif self.tag == zTag: lib.ElDistMatrixUpdateImagPart_z(self.obj,i,j,value)
     else: raise Exception('Cannot update imaginary part of a real datatype')

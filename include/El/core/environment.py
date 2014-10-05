@@ -16,7 +16,7 @@ libPath = find_library('El')
 if libPath == None:
   raise Exception("Could not find Elemental library")
 lib = ctypes.cdll.LoadLibrary(libPath)
-#lib = ctypes.cdll.LoadLibrary('../build/libEl.so')
+#lib = ctypes.cdll.LoadLibrary('/home/poulson/Source/Internal/Elemental/build/libEl.so')
 
 # Environment
 # ===========
@@ -61,10 +61,17 @@ def CheckTag(tag):
 (MC,MD,MR,VC,VR,STAR,CIRC)=(0,1,2,3,4,5,6)
 
 # Emulate an enum for grid ordering
-(RowMajor,ColMajor)=(0,1)
+(ROW_MAJOR,COL_MAJOR)=(0,1)
 
 # Emulate an enum for left or right
-(Left,Right)=(0,1)
+(LEFT,RIGHT)=(0,1)
+
+# Emulate the file format enum
+(AUTO,ASCII,ASCII_MATLAB,BINARY,BINARY_FLAT,BMP,JPG,JPEG,MATRIX_MARKET,
+ PNG,PPM,XBM,XPM)=(0,1,2,3,4,5,6,7,8,9,10,11,12)
+
+# Emulate a colormap enum
+(GRAYSCALE,GRAYSCALE_DISCRETE,RED_BLACK_GREEN,BLUE_RED)=(0,1,2,3)
 
 # TODO: Many more enums
 

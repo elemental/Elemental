@@ -38,6 +38,11 @@ ElError ElSetNumDiscreteColors( ElInt numColors )
 ElError ElNumDiscreteColors( ElInt* numColors )
 { EL_TRY( *numColors = NumDiscreteColors() ) }
 
+/* Display
+   ======= */
+ElError ElProcessEvents( int numMsecs )
+{ EL_TRY( ProcessEvents(numMsecs) ) }
+
 #define C_PROTO(SIG,SIGBASE,T) \
   /* Display */ \
   ElError ElDisplay_ ## SIG \
