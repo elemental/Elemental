@@ -7,44 +7,313 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from environment import *
-import ctypes, numpy
+import numpy
 
 # Matrix
 # ======
 
-def EnsureCompatibleScalar(value,tag):
-  if   tag == iTag and type(value) is iType: return
-  elif tag == sTag and type(value) is sType: return
-  elif tag == dTag and type(value) is dType: return
-  elif tag == cTag and type(value) is cType: return
-  elif tag == zTag and type(value) is zType: return
-  raise Exception('Invalid scalar type') 
+lib.ElMatrixCreate_i.argtypes = [POINTER(c_void_p)]
+lib.ElMatrixCreate_i.restype = c_uint
+lib.ElMatrixCreate_s.argtypes = [POINTER(c_void_p)]
+lib.ElMatrixCreate_s.restype = c_uint
+lib.ElMatrixCreate_d.argtypes = [POINTER(c_void_p)]
+lib.ElMatrixCreate_d.restype = c_uint
+lib.ElMatrixCreate_c.argtypes = [POINTER(c_void_p)]
+lib.ElMatrixCreate_c.restype = c_uint
+lib.ElMatrixCreate_z.argtypes = [POINTER(c_void_p)]
+lib.ElMatrixCreate_z.restype = c_uint
 
-def EnsureCompatibleBaseScalar(value,tag):
-  if   tag == iTag and type(value) is iType: return
-  elif tag == sTag and type(value) is sType: return
-  elif tag == dTag and type(value) is dType: return
-  elif tag == cTag and type(value) is sType: return
-  elif tag == zTag and type(value) is dType: return
-  raise Exception('Invalid base scalar type') 
+lib.ElMatrixDestroy_i.argtypes = [c_void_p]
+lib.ElMatrixDestroy_i.restype = c_uint
+lib.ElMatrixDestroy_s.argtypes = [c_void_p]
+lib.ElMatrixDestroy_s.restype = c_uint
+lib.ElMatrixDestroy_d.argtypes = [c_void_p]
+lib.ElMatrixDestroy_d.restype = c_uint
+lib.ElMatrixDestroy_c.argtypes = [c_void_p]
+lib.ElMatrixDestroy_c.restype = c_uint
+lib.ElMatrixDestroy_z.argtypes = [c_void_p]
+lib.ElMatrixDestroy_z.restype = c_uint
 
-def EnsureCompatibleBuffer(buf,tag):
-  if   tag == iTag and type(buf) is POINTER(iType): return
-  elif tag == sTag and type(buf) is POINTER(sType): return
-  elif tag == dTag and type(buf) is POINTER(dType): return
-  elif tag == cTag and type(buf) is POINTER(cType): return
-  elif tag == zTag and type(buf) is POINTER(zType): return
-  raise Exception('Invalid buffer type') 
+lib.ElMatrixResize_i.argtypes = [c_void_p,iType,iType]
+lib.ElMatrixResize_i.restype = c_uint
+lib.ElMatrixResize_s.argtypes = [c_void_p,iType,iType]
+lib.ElMatrixResize_s.restype = c_uint
+lib.ElMatrixResize_d.argtypes = [c_void_p,iType,iType]
+lib.ElMatrixResize_d.restype = c_uint
+lib.ElMatrixResize_c.argtypes = [c_void_p,iType,iType]
+lib.ElMatrixResize_c.restype = c_uint
+lib.ElMatrixResize_z.argtypes = [c_void_p,iType,iType]
+lib.ElMatrixResize_z.restype = c_uint
+
+lib.ElMatrixResizeWithLDim_i.argtypes = [c_void_p,iType,iType,iType]
+lib.ElMatrixResizeWithLDim_i.restype = c_uint
+lib.ElMatrixResizeWithLDim_s.argtypes = [c_void_p,iType,iType,iType]
+lib.ElMatrixResizeWithLDim_s.restype = c_uint
+lib.ElMatrixResizeWithLDim_d.argtypes = [c_void_p,iType,iType,iType]
+lib.ElMatrixResizeWithLDim_d.restype = c_uint
+lib.ElMatrixResizeWithLDim_c.argtypes = [c_void_p,iType,iType,iType]
+lib.ElMatrixResizeWithLDim_c.restype = c_uint
+lib.ElMatrixResizeWithLDim_z.argtypes = [c_void_p,iType,iType,iType]
+lib.ElMatrixResizeWithLDim_z.restype = c_uint
+
+lib.ElMatrixEmpty_i.argtypes = [c_void_p]
+lib.ElMatrixEmpty_i.restype = c_uint
+lib.ElMatrixEmpty_s.argtypes = [c_void_p]
+lib.ElMatrixEmpty_s.restype = c_uint
+lib.ElMatrixEmpty_d.argtypes = [c_void_p]
+lib.ElMatrixEmpty_d.restype = c_uint
+lib.ElMatrixEmpty_c.argtypes = [c_void_p]
+lib.ElMatrixEmpty_c.restype = c_uint
+lib.ElMatrixEmpty_z.argtypes = [c_void_p]
+lib.ElMatrixEmpty_z.restype = c_uint
+
+lib.ElMatrixAttach_i.argtypes = [c_void_p,iType,iType,POINTER(iType),iType]
+lib.ElMatrixAttach_i.restype = c_uint
+lib.ElMatrixAttach_s.argtypes = [c_void_p,iType,iType,POINTER(sType),iType]
+lib.ElMatrixAttach_s.restype = c_uint
+lib.ElMatrixAttach_d.argtypes = [c_void_p,iType,iType,POINTER(dType),iType]
+lib.ElMatrixAttach_d.restype = c_uint
+lib.ElMatrixAttach_c.argtypes = [c_void_p,iType,iType,POINTER(cType),iType]
+lib.ElMatrixAttach_c.restype = c_uint
+lib.ElMatrixAttach_z.argtypes = [c_void_p,iType,iType,POINTER(zType),iType]
+lib.ElMatrixAttach_z.restype = c_uint
+
+lib.ElMatrixLockedAttach_i.argtypes = \
+  [c_void_p,iType,iType,POINTER(iType),iType]
+lib.ElMatrixLockedAttach_i.restype = c_uint
+lib.ElMatrixLockedAttach_s.argtypes = \
+  [c_void_p,iType,iType,POINTER(sType),iType]
+lib.ElMatrixLockedAttach_s.restype = c_uint
+lib.ElMatrixLockedAttach_d.argtypes = \
+  [c_void_p,iType,iType,POINTER(dType),iType]
+lib.ElMatrixLockedAttach_d.restype = c_uint
+lib.ElMatrixLockedAttach_c.argtypes = \
+  [c_void_p,iType,iType,POINTER(cType),iType]
+lib.ElMatrixLockedAttach_c.restype = c_uint
+lib.ElMatrixLockedAttach_z.argtypes = \
+  [c_void_p,iType,iType,POINTER(zType),iType]
+lib.ElMatrixLockedAttach_z.restype = c_uint
+
+lib.ElMatrixControl_i.argtypes = [c_void_p,iType,iType,POINTER(iType),iType]
+lib.ElMatrixControl_i.restype = c_uint
+lib.ElMatrixControl_s.argtypes = [c_void_p,iType,iType,POINTER(sType),iType]
+lib.ElMatrixControl_s.restype = c_uint
+lib.ElMatrixControl_d.argtypes = [c_void_p,iType,iType,POINTER(dType),iType]
+lib.ElMatrixControl_d.restype = c_uint
+lib.ElMatrixControl_c.argtypes = [c_void_p,iType,iType,POINTER(cType),iType]
+lib.ElMatrixControl_c.restype = c_uint
+lib.ElMatrixControl_z.argtypes = [c_void_p,iType,iType,POINTER(zType),iType]
+lib.ElMatrixControl_z.restype = c_uint
+
+lib.ElMatrixHeight_i.argtypes = [c_void_p,POINTER(iType)]
+lib.ElMatrixHeight_i.restype = c_uint
+lib.ElMatrixHeight_s.argtypes = [c_void_p,POINTER(iType)]
+lib.ElMatrixHeight_s.restype = c_uint
+lib.ElMatrixHeight_d.argtypes = [c_void_p,POINTER(iType)]
+lib.ElMatrixHeight_d.restype = c_uint
+lib.ElMatrixHeight_c.argtypes = [c_void_p,POINTER(iType)]
+lib.ElMatrixHeight_c.restype = c_uint
+lib.ElMatrixHeight_z.argtypes = [c_void_p,POINTER(iType)]
+lib.ElMatrixHeight_z.restype = c_uint
+
+lib.ElMatrixWidth_i.argtypes = [c_void_p,POINTER(iType)]
+lib.ElMatrixWidth_i.restype = c_uint
+lib.ElMatrixWidth_s.argtypes = [c_void_p,POINTER(iType)]
+lib.ElMatrixWidth_s.restype = c_uint
+lib.ElMatrixWidth_d.argtypes = [c_void_p,POINTER(iType)]
+lib.ElMatrixWidth_d.restype = c_uint
+lib.ElMatrixWidth_c.argtypes = [c_void_p,POINTER(iType)]
+lib.ElMatrixWidth_c.restype = c_uint
+lib.ElMatrixWidth_z.argtypes = [c_void_p,POINTER(iType)]
+lib.ElMatrixWidth_z.restype = c_uint
+
+lib.ElMatrixLDim_i.argtypes = [c_void_p,POINTER(iType)]
+lib.ElMatrixLDim_i.restype = c_uint
+lib.ElMatrixLDim_s.argtypes = [c_void_p,POINTER(iType)]
+lib.ElMatrixLDim_s.restype = c_uint
+lib.ElMatrixLDim_d.argtypes = [c_void_p,POINTER(iType)]
+lib.ElMatrixLDim_d.restype = c_uint
+lib.ElMatrixLDim_c.argtypes = [c_void_p,POINTER(iType)]
+lib.ElMatrixLDim_c.restype = c_uint
+lib.ElMatrixLDim_z.argtypes = [c_void_p,POINTER(iType)]
+lib.ElMatrixLDim_z.restype = c_uint
+
+lib.ElMatrixMemorySize_i.argtypes = [c_void_p,POINTER(iType)]
+lib.ElMatrixMemorySize_i.restype = c_uint
+lib.ElMatrixMemorySize_s.argtypes = [c_void_p,POINTER(iType)]
+lib.ElMatrixMemorySize_s.restype = c_uint
+lib.ElMatrixMemorySize_d.argtypes = [c_void_p,POINTER(iType)]
+lib.ElMatrixMemorySize_d.restype = c_uint
+lib.ElMatrixMemorySize_c.argtypes = [c_void_p,POINTER(iType)]
+lib.ElMatrixMemorySize_c.restype = c_uint
+lib.ElMatrixMemorySize_z.argtypes = [c_void_p,POINTER(iType)]
+lib.ElMatrixMemorySize_z.restype = c_uint
+
+lib.ElMatrixDiagonalLength_i.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElMatrixDiagonalLength_i.restype = c_uint
+lib.ElMatrixDiagonalLength_s.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElMatrixDiagonalLength_s.restype = c_uint
+lib.ElMatrixDiagonalLength_d.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElMatrixDiagonalLength_d.restype = c_uint
+lib.ElMatrixDiagonalLength_c.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElMatrixDiagonalLength_c.restype = c_uint
+lib.ElMatrixDiagonalLength_z.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElMatrixDiagonalLength_z.restype = c_uint
+
+lib.ElMatrixViewing_i.argtypes = [c_void_p,POINTER(bType)]
+lib.ElMatrixViewing_i.restype = c_uint
+lib.ElMatrixViewing_s.argtypes = [c_void_p,POINTER(bType)]
+lib.ElMatrixViewing_s.restype = c_uint
+lib.ElMatrixViewing_d.argtypes = [c_void_p,POINTER(bType)]
+lib.ElMatrixViewing_d.restype = c_uint
+lib.ElMatrixViewing_c.argtypes = [c_void_p,POINTER(bType)]
+lib.ElMatrixViewing_c.restype = c_uint
+lib.ElMatrixViewing_z.argtypes = [c_void_p,POINTER(bType)]
+lib.ElMatrixViewing_z.restype = c_uint
+
+lib.ElMatrixFixedSize_i.argtypes = [c_void_p,POINTER(bType)]
+lib.ElMatrixFixedSize_i.restype = c_uint
+lib.ElMatrixFixedSize_s.argtypes = [c_void_p,POINTER(bType)]
+lib.ElMatrixFixedSize_s.restype = c_uint
+lib.ElMatrixFixedSize_d.argtypes = [c_void_p,POINTER(bType)]
+lib.ElMatrixFixedSize_d.restype = c_uint
+lib.ElMatrixFixedSize_c.argtypes = [c_void_p,POINTER(bType)]
+lib.ElMatrixFixedSize_c.restype = c_uint
+lib.ElMatrixFixedSize_z.argtypes = [c_void_p,POINTER(bType)]
+lib.ElMatrixFixedSize_z.restype = c_uint
+
+lib.ElMatrixLocked_i.argtypes = [c_void_p,POINTER(bType)]
+lib.ElMatrixLocked_i.restype = c_uint
+lib.ElMatrixLocked_s.argtypes = [c_void_p,POINTER(bType)]
+lib.ElMatrixLocked_s.restype = c_uint
+lib.ElMatrixLocked_d.argtypes = [c_void_p,POINTER(bType)]
+lib.ElMatrixLocked_d.restype = c_uint
+lib.ElMatrixLocked_c.argtypes = [c_void_p,POINTER(bType)]
+lib.ElMatrixLocked_c.restype = c_uint
+lib.ElMatrixLocked_z.argtypes = [c_void_p,POINTER(bType)]
+lib.ElMatrixLocked_z.restype = c_uint
+
+lib.ElMatrixBuffer_i.argtypes = [c_void_p,POINTER(POINTER(iType))]
+lib.ElMatrixBuffer_i.restype = c_uint
+lib.ElMatrixBuffer_s.argtypes = [c_void_p,POINTER(POINTER(sType))]
+lib.ElMatrixBuffer_s.restype = c_uint
+lib.ElMatrixBuffer_d.argtypes = [c_void_p,POINTER(POINTER(dType))]
+lib.ElMatrixBuffer_d.restype = c_uint
+lib.ElMatrixBuffer_c.argtypes = [c_void_p,POINTER(POINTER(cType))]
+lib.ElMatrixBuffer_c.restype = c_uint
+lib.ElMatrixBuffer_z.argtypes = [c_void_p,POINTER(POINTER(zType))]
+lib.ElMatrixBuffer_z.restype = c_uint
+
+lib.ElMatrixLockedBuffer_i.argtypes = [c_void_p,POINTER(POINTER(iType))]
+lib.ElMatrixLockedBuffer_i.restype = c_uint
+lib.ElMatrixLockedBuffer_s.argtypes = [c_void_p,POINTER(POINTER(sType))]
+lib.ElMatrixLockedBuffer_s.restype = c_uint
+lib.ElMatrixLockedBuffer_d.argtypes = [c_void_p,POINTER(POINTER(dType))]
+lib.ElMatrixLockedBuffer_d.restype = c_uint
+lib.ElMatrixLockedBuffer_c.argtypes = [c_void_p,POINTER(POINTER(cType))]
+lib.ElMatrixLockedBuffer_c.restype = c_uint
+lib.ElMatrixLockedBuffer_z.argtypes = [c_void_p,POINTER(POINTER(zType))]
+lib.ElMatrixLockedBuffer_z.restype = c_uint
+
+lib.ElMatrixGet_i.argtypes = [c_void_p,iType,iType,POINTER(iType)]
+lib.ElMatrixGet_i.restype = c_uint
+lib.ElMatrixGet_s.argtypes = [c_void_p,iType,iType,POINTER(sType)]
+lib.ElMatrixGet_s.restype = c_uint
+lib.ElMatrixGet_d.argtypes = [c_void_p,iType,iType,POINTER(dType)]
+lib.ElMatrixGet_d.restype = c_uint
+lib.ElMatrixGet_c.argtypes = [c_void_p,iType,iType,POINTER(cType)]
+lib.ElMatrixGet_c.restype = c_uint
+lib.ElMatrixGet_z.argtypes = [c_void_p,iType,iType,POINTER(zType)]
+lib.ElMatrixGet_z.restype = c_uint
+
+lib.ElMatrixGetRealPart_c.argtypes = [c_void_p,iType,iType,POINTER(sType)]
+lib.ElMatrixGetRealPart_c.restype = c_uint
+lib.ElMatrixGetRealPart_z.argtypes = [c_void_p,iType,iType,POINTER(dType)]
+lib.ElMatrixGetRealPart_z.restype = c_uint
+
+lib.ElMatrixGetImagPart_c.argtypes = [c_void_p,iType,iType,POINTER(sType)]
+lib.ElMatrixGetImagPart_c.restype = c_uint
+lib.ElMatrixGetImagPart_z.argtypes = [c_void_p,iType,iType,POINTER(dType)]
+lib.ElMatrixGetImagPart_z.restype = c_uint
+
+lib.ElMatrixSet_i.argtypes = [c_void_p,iType,iType,iType]
+lib.ElMatrixSet_i.restype = c_uint
+lib.ElMatrixSet_s.argtypes = [c_void_p,iType,iType,sType]
+lib.ElMatrixSet_s.restype = c_uint
+lib.ElMatrixSet_d.argtypes = [c_void_p,iType,iType,dType]
+lib.ElMatrixSet_d.restype = c_uint
+lib.ElMatrixSet_c.argtypes = [c_void_p,iType,iType,cType]
+lib.ElMatrixSet_c.restype = c_uint
+lib.ElMatrixSet_z.argtypes = [c_void_p,iType,iType,zType]
+lib.ElMatrixSet_z.restype = c_uint
+
+lib.ElMatrixSetRealPart_c.argtypes = [c_void_p,iType,iType,sType]
+lib.ElMatrixSetRealPart_c.restype = c_uint
+lib.ElMatrixSetRealPart_z.argtypes = [c_void_p,iType,iType,dType]
+lib.ElMatrixSetRealPart_z.restype = c_uint
+
+lib.ElMatrixSetImagPart_c.argtypes = [c_void_p,iType,iType,sType]
+lib.ElMatrixSetImagPart_c.restype = c_uint
+lib.ElMatrixSetImagPart_z.argtypes = [c_void_p,iType,iType,dType]
+lib.ElMatrixSetImagPart_z.restype = c_uint
+
+lib.ElMatrixUpdate_i.argtypes = [c_void_p,iType,iType,iType]
+lib.ElMatrixUpdate_i.restype = c_uint
+lib.ElMatrixUpdate_s.argtypes = [c_void_p,iType,iType,sType]
+lib.ElMatrixUpdate_s.restype = c_uint
+lib.ElMatrixUpdate_d.argtypes = [c_void_p,iType,iType,dType]
+lib.ElMatrixUpdate_d.restype = c_uint
+lib.ElMatrixUpdate_c.argtypes = [c_void_p,iType,iType,cType]
+lib.ElMatrixUpdate_c.restype = c_uint
+lib.ElMatrixUpdate_z.argtypes = [c_void_p,iType,iType,zType]
+lib.ElMatrixUpdate_z.restype = c_uint
+
+lib.ElMatrixUpdateRealPart_c.argtypes = [c_void_p,iType,iType,sType]
+lib.ElMatrixUpdateRealPart_c.restype = c_uint
+lib.ElMatrixUpdateRealPart_z.argtypes = [c_void_p,iType,iType,dType]
+lib.ElMatrixUpdateRealPart_z.restype = c_uint
+
+lib.ElMatrixUpdateImagPart_c.argtypes = [c_void_p,iType,iType,sType]
+lib.ElMatrixUpdateImagPart_c.restype = c_uint
+lib.ElMatrixUpdateImagPart_z.argtypes = [c_void_p,iType,iType,dType]
+lib.ElMatrixUpdateImagPart_z.restype = c_uint
+
+lib.ElMatrixMakeReal_c.argtypes = [c_void_p,iType,iType]
+lib.ElMatrixMakeReal_c.restype = c_uint
+lib.ElMatrixMakeReal_z.argtypes = [c_void_p,iType,iType]
+lib.ElMatrixMakeReal_z.restype = c_uint
+
+lib.ElMatrixConjugate_c.argtypes = [c_void_p,iType,iType]
+lib.ElMatrixConjugate_c.restype = c_uint
+lib.ElMatrixConjugate_z.argtypes = [c_void_p,iType,iType]
+lib.ElMatrixConjugate_z.restype = c_uint
+
+lib.ElMatrixGetDiagonal_i.argtypes = [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetDiagonal_i.restype = c_uint
+lib.ElMatrixGetDiagonal_s.argtypes = [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetDiagonal_s.restype = c_uint
+lib.ElMatrixGetDiagonal_d.argtypes = [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetDiagonal_d.restype = c_uint
+lib.ElMatrixGetDiagonal_c.argtypes = [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetDiagonal_c.restype = c_uint
+lib.ElMatrixGetDiagonal_z.argtypes = [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetDiagonal_z.restype = c_uint
+
+# LEFT OFF HERE
 
 class Matrix(object):
   def __init__(self,tag=dTag):
-    self.obj = ctypes.c_void_p()
+    self.obj = c_void_p()
     CheckTag(tag)
     if   tag == iTag: lib.ElMatrixCreate_i(pointer(self.obj))
     elif tag == sTag: lib.ElMatrixCreate_s(pointer(self.obj))
     elif tag == dTag: lib.ElMatrixCreate_d(pointer(self.obj))
     elif tag == cTag: lib.ElMatrixCreate_c(pointer(self.obj))
     elif tag == zTag: lib.ElMatrixCreate_z(pointer(self.obj))
+    self.tag = tag
+  @classmethod
+  def Uninitialized(self,tag=dTag):
+    self.obj = c_void_p()
     self.tag = tag
   def Destroy(self):
     if   self.tag == iTag: lib.ElMatrixDestroy_i(self.obj)
@@ -80,21 +349,18 @@ class Matrix(object):
     elif self.tag == cTag: lib.ElMatrixEmpty_c(self.obj)
     elif self.tag == zTag: lib.ElMatrixEmpty_z(self.obj)
   def Attach(self,m,n,buf,ldim):
-    EnsureCompatibleBuffer(buf,self.tag)
     if   self.tag == iTag: lib.ElMatrixAttach_i(self.obj,m,n,buf,ldim)
     elif self.tag == sTag: lib.ElMatrixAttach_s(self.obj,m,n,buf,ldim)
     elif self.tag == dTag: lib.ElMatrixAttach_d(self.obj,m,n,buf,ldim)
     elif self.tag == cTag: lib.ElMatrixAttach_c(self.obj,m,n,buf,ldim)
     elif self.tag == zTag: lib.ElMatrixAttach_z(self.obj,m,n,buf,ldim)
   def LockedAttach(self,m,n,buf,ldim):
-    EnsureCompatibleBuffer(buf,self.tag)
     if   self.tag == iTag: lib.ElMatrixLockedAttach_i(self.obj,m,n,buf,ldim)
     elif self.tag == sTag: lib.ElMatrixLockedAttach_s(self.obj,m,n,buf,ldim)
     elif self.tag == dTag: lib.ElMatrixLockedAttach_d(self.obj,m,n,buf,ldim)
     elif self.tag == cTag: lib.ElMatrixLockedAttach_c(self.obj,m,n,buf,ldim)
     elif self.tag == zTag: lib.ElMatrixLockedAttach_z(self.obj,m,n,buf,ldim)
   def Control(self,m,n,buf,ldim):
-    EnsureCompatibleBuffer(buf,self.tag)
     if   self.tag == iTag: lib.ElMatrixControl_i(self.obj,m,n,buf,ldim)
     elif self.tag == sTag: lib.ElMatrixControl_s(self.obj,m,n,buf,ldim)
     elif self.tag == dTag: lib.ElMatrixControl_d(self.obj,m,n,buf,ldim)
@@ -246,36 +512,32 @@ class Matrix(object):
     elif self.tag == sTag: return sType(0)
     elif self.tag == dTag: return dType(0)
     elif self.tag == cTag:
-      value = ctypes.c_float()
+      value = c_float()
       lib.ElMatrixGetImagPart_c(self.obj,i,j,pointer(value))
       return value
     elif self.tag == zTag:
-      value = ctypes.c_double()
+      value = c_double()
       lib.ElMatrixGetImagPart_z(self.obj,i,j,pointer(value))
       return value
   def Set(self,i,j,value):
-    EnsureCompatibleScalar(value,self.tag)
     if   self.tag == iTag: lib.ElMatrixSet_i(self.obj,i,j,iType(value))
     elif self.tag == sTag: lib.ElMatrixSet_s(self.obj,i,j,value)
     elif self.tag == dTag: lib.ElMatrixSet_d(self.obj,i,j,value)
     elif self.tag == cTag: lib.ElMatrixSet_c(self.obj,i,j,value)
     elif self.tag == zTag: lib.ElMatrixSet_z(self.obj,i,j,value)
   def SetRealPart(self,i,j,value):
-    EnsureCompatibleBaseScalar(value,self.tag)
     if self.tag == cTag: 
       lib.ElMatrixSetRealPart_c(self.obj,i,j,sType(value))
     elif self.tag == zTag: 
       lib.ElMatrixSetRealPart_z(self.obj,i,j,dType(value))
     else: Set(i,j,value)
   def SetImagPart(self,i,j,value):
-    EnsureCompatibleBaseScalar(value,self.tag)
     if self.tag == cTag: 
       lib.ElMatrixSetImagPart_c(self.obj,i,j,sType(value))
     elif self.tag == zTag: 
       lib.ElMatrixSetImagPart_z(self.obj,i,j,dType(value))
     else: raise Exception("Datatype does not have an imaginary component")
   def Update(self,i,j,value):
-    EnsureCompatibleScalar(value,self.tag)
     if   self.tag == iTag: lib.ElMatrixUpdate_i(self.obj,i,j,iType(value))
     elif self.tag == sTag: lib.ElMatrixUpdate_s(self.obj,i,j,value)
     elif self.tag == dTag: lib.ElMatrixUpdate_d(self.obj,i,j,value)
@@ -300,7 +562,18 @@ class Matrix(object):
     if   self.tag == cTag: lib.ElMatrixConjugate_c(self.obj,i,j)
     elif self.tag == zTag: lib.ElMatrixConjugate_z(self.obj,i,j)
   def GetDiagonal(self,offset=iType(0)):
-    raise Exception('GetDiagonal not yet supported by Python interface')
+    d = Matrix.Uninitialized(self.tag)
+    if   self.tag == iTag:
+      lib.ElMatrixGetDiagonal_i(self.obj,offset,pointer(d.obj))
+    elif self.tag == sTag:
+      lib.ElMatrixGetDiagonal_s(self.obj,offset,pointer(d.obj))
+    elif self.tag == dTag:
+      lib.ElMatrixGetDiagonal_d(self.obj,offset,pointer(d.obj))
+    elif self.tag == cTag:
+      lib.ElMatrixGetDiagonal_c(self.obj,offset,pointer(d.obj))
+    elif self.tag == zTag:
+      lib.ElMatrixGetDiagonal_z(self.obj,offset,pointer(d.obj))
+    return d
   def GetRealPartOfDiagonal(self,offset=iType(0)):
     raise Exception('GetRealPartOfDiagonal not yet supported in Python')
   def GetImagPartOfDiagonal(self,offset=iType(0)):

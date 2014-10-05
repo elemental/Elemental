@@ -24,30 +24,31 @@ lib = ctypes.cdll.LoadLibrary(libPath)
 # Basic types
 # -----------
 
+from ctypes import c_void_p, c_char_p, c_uint, c_int, c_float, c_double
+from ctypes import pointer, POINTER
+
 # TODO: Switch to a different boolean type if appropriate
-from ctypes import c_int    as bType
+bType = c_int
 # TODO: Switch from c_int if Elemental was configured for 64-bit integers
-from ctypes import c_int    as iType
-from ctypes import c_float  as sType
-from ctypes import c_double as dType
-from ctypes import pointer
-from ctypes import POINTER
+iType = c_int
+sType = c_float
+dType = c_double
 
 # Query Elemental to determine whether MPI_Comm is an 'int' or a void pointer
 commIsVoidP = bType()
 lib.ElMPICommIsVoidPointer(pointer(commIsVoidP))
 if commIsVoidP:
-  MPI_Comm = ctypes.c_void_p
+  MPI_Comm = c_void_p
 else:
-  MPI_Comm = ctypes.c_int
+  MPI_Comm = c_int
 
 # Query Elemental to determine whether MPI_Group is an 'int' or a void pointer
 groupIsVoidP = bType()
 lib.ElMPIGroupIsVoidPointer(pointer(groupIsVoidP))
 if groupIsVoidP:
-  MPI_Group = ctypes.c_void_p
+  MPI_Group = c_void_p
 else:
-  MPI_Group = ctypes.c_int
+  MPI_Group = c_int
 
 # Create a simple enum for the supported datatypes
 (iTag,sTag,dTag,cTag,zTag)=(0,1,2,3,4)
@@ -78,18 +79,21 @@ def CheckTag(tag):
 # Initialization
 # --------------
 
-import sys
+lib.ElInitialize.argtypes = [POINTER(c_int),POINTER(POINTER(c_char_p))]
+lib.ElInitialize.restype = c_uint
 def Initialize():
-  argc = ctypes.c_int(len(sys.argv))
-  _argv = ""
-  for arg in sys.argv:
-    _argv += arg + ' '
-  argv = pointer(ctypes.c_char_p(_argv))
+  argc = c_int()
+  argv = POINTER(c_char_p)()
+  ctypes.pythonapi.Py_GetArgcArgv(ctypes.byref(argc),ctypes.byref(argv))
   lib.ElInitialize(pointer(argc),pointer(argv))
 
+lib.ElFinalize.argtypes = []
+lib.ElFinalize.restype = c_uint
 def Finalize():
   lib.ElFinalize()
 
+lib.ElInitialized.argtypes = [bType]
+lib.ElInitialized.restype = c_uint
 def Initialized():
   # NOTE: This is not expected to be portable and should be fixed
   active = bType()
@@ -98,10 +102,10 @@ def Initialized():
   return active
 
 class ComplexFloat(ctypes.Structure):
-  _fields_ = [("real",ctypes.c_float),("imag",ctypes.c_float)]
+  _fields_ = [("real",sType),("imag",sType)]
 cType = ComplexFloat
 class ComplexDouble(ctypes.Structure):
-  _fields_ = [("real",ctypes.c_double),("imag",ctypes.c_double)]
+  _fields_ = [("real",dType),("imag",dType)]
 zType = ComplexDouble
 
 # Initialize MPI

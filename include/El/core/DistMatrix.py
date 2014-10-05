@@ -9,14 +9,8 @@
 from environment import *
 import ctypes, numpy
 
-from ctypes import c_void_p, c_int, c_uint, c_float, c_double
-
 import Matrix as M
 import Grid as G
-
-from Matrix import EnsureCompatibleScalar
-from Matrix import EnsureCompatibleBaseScalar
-from Matrix import EnsureCompatibleBuffer
 
 # (Abstract)DistMatrix
 # ====================
@@ -166,7 +160,41 @@ lib.ElDistMatrixAlignRows_c.restype = c_uint
 lib.ElDistMatrixAlignRows_z.argtypes = [c_void_p,iType,bType]
 lib.ElDistMatrixAlignRows_z.restype = c_uint
 
-# LEFT OFF HERE
+# TODO
+
+lib.ElDistMatrixAttach_i.argtypes = \
+  [c_void_p,iType,iType,c_void_p,iType,iType,POINTER(iType),iType,iType]
+lib.ElDistMatrixAttach_i.restype = c_uint
+lib.ElDistMatrixAttach_s.argtypes = \
+  [c_void_p,iType,iType,c_void_p,iType,iType,POINTER(sType),iType,iType]
+lib.ElDistMatrixAttach_s.restype = c_uint
+lib.ElDistMatrixAttach_d.argtypes = \
+  [c_void_p,iType,iType,c_void_p,iType,iType,POINTER(dType),iType,iType]
+lib.ElDistMatrixAttach_d.restype = c_uint
+lib.ElDistMatrixAttach_c.argtypes = \
+  [c_void_p,iType,iType,c_void_p,iType,iType,POINTER(cType),iType,iType]
+lib.ElDistMatrixAttach_c.restype = c_uint
+lib.ElDistMatrixAttach_z.argtypes = \
+  [c_void_p,iType,iType,c_void_p,iType,iType,POINTER(zType),iType,iType]
+lib.ElDistMatrixAttach_z.restype = c_uint
+
+lib.ElDistMatrixLockedAttach_i.argtypes = \
+  [c_void_p,iType,iType,c_void_p,iType,iType,POINTER(iType),iType,iType]
+lib.ElDistMatrixLockedAttach_i.restype = c_uint
+lib.ElDistMatrixLockedAttach_s.argtypes = \
+  [c_void_p,iType,iType,c_void_p,iType,iType,POINTER(sType),iType,iType]
+lib.ElDistMatrixLockedAttach_s.restype = c_uint
+lib.ElDistMatrixLockedAttach_d.argtypes = \
+  [c_void_p,iType,iType,c_void_p,iType,iType,POINTER(dType),iType,iType]
+lib.ElDistMatrixLockedAttach_d.restype = c_uint
+lib.ElDistMatrixLockedAttach_c.argtypes = \
+  [c_void_p,iType,iType,c_void_p,iType,iType,POINTER(cType),iType,iType]
+lib.ElDistMatrixLockedAttach_c.restype = c_uint
+lib.ElDistMatrixLockedAttach_z.argtypes = \
+  [c_void_p,iType,iType,c_void_p,iType,iType,POINTER(zType),iType,iType]
+lib.ElDistMatrixLockedAttach_z.restype = c_uint
+
+# TODO
 
 lib.ElDistMatrixGet_i.argtypes = [c_void_p,iType,iType,POINTER(iType)]
 lib.ElDistMatrixGet_i.restype = c_uint
@@ -434,7 +462,6 @@ class DistMatrix(object):
       lib.ElDistMatrixAlignRowsAndResize_z \
       (self.obj,rowAlign,m,n,force,constrain)
   def Attach(self,m,n,grid,colAlign,rowAlign,buf,ldim,root):
-    EnsureCompatibleBuffer(buf,self.tag)
     if   self.tag == iTag: 
       lib.ElDistMatrixAttach_i \
       (self.obj,m,n,grid.obj,colAlign,rowAlign,buf,ldim,root)
@@ -451,7 +478,6 @@ class DistMatrix(object):
       lib.ElDistMatrixAttach_z \
       (self.obj,m,n,grid.obj,colAlign,rowAlign,buf,ldim,root)
   def LockedAttach(self,m,n,buf,ldim):
-    EnsureCompatibleBuffer(buf,self.tag)
     if   self.tag == iTag: 
       lib.ElDistMatrixLockedAttach_i \
       (self.obj,m,n,grid.obj,colAlign,rowAlign,buf,ldim,root)
