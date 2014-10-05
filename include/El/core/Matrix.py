@@ -12,6 +12,22 @@ import ctypes, numpy
 # Matrix
 # ======
 
+def EnsureCompatibleScalar(value,tag):
+  if   tag == iTag and type(value) is iType: return
+  elif tag == sTag and type(value) is sType: return
+  elif tag == dTag and type(value) is dType: return
+  elif tag == cTag and type(value) is cType: return
+  elif tag == zTag and type(value) is zType: return
+  raise Exception('Invalid scalar type') 
+
+def EnsureCompatibleBuffer(buf,tag):
+  if   tag == iTag and type(buf) is POINTER(iType): return
+  elif tag == sTag and type(buf) is POINTER(sType): return
+  elif tag == dTag and type(buf) is POINTER(dType): return
+  elif tag == cTag and type(buf) is POINTER(cType): return
+  elif tag == zTag and type(buf) is POINTER(zType): return
+  raise Exception('Invalid buffer type') 
+
 class Matrix(object):
   def __init__(self,tag=dTag):
     self.obj = ctypes.c_void_p()
@@ -37,93 +53,61 @@ class Matrix(object):
     elif newTag == cTag: lib.ElMatrixCreate_c(pointer(self.obj))
     elif newTag == zTag: lib.ElMatrixCreate_z(pointer(self.obj))
     self.tag = newTag
-  def Resize(self,height,width):
-    if   self.tag == iTag: lib.ElMatrixResize_i(self.obj,height,width)
-    elif self.tag == sTag: lib.ElMatrixResize_s(self.obj,height,width)
-    elif self.tag == dTag: lib.ElMatrixResize_d(self.obj,height,width)
-    elif self.tag == cTag: lib.ElMatrixResize_c(self.obj,height,width)
-    elif self.tag == zTag: lib.ElMatrixResize_z(self.obj,height,width)
-  def ResizeWithLDim(self,height,width,ldim):
-    if   self.tag == iTag: 
-      lib.ElMatrixResizeWithLDim_i(self.obj,height,width,ldim)
-    elif self.tag == sTag: 
-      lib.ElMatrixResizeWithLDim_s(self.obj,height,width,ldim)
-    elif self.tag == dTag: 
-      lib.ElMatrixResizeWithLDim_d(self.obj,height,width,ldim)
-    elif self.tag == cTag: 
-      lib.ElMatrixResizeWithLDim_c(self.obj,height,width,ldim)
-    elif self.tag == zTag: 
-      lib.ElMatrixResizeWithLDim_z(self.obj,height,width,ldim)
+  def Resize(self,m,n):
+    if   self.tag == iTag: lib.ElMatrixResize_i(self.obj,m,n)
+    elif self.tag == sTag: lib.ElMatrixResize_s(self.obj,m,n)
+    elif self.tag == dTag: lib.ElMatrixResize_d(self.obj,m,n)
+    elif self.tag == cTag: lib.ElMatrixResize_c(self.obj,m,n)
+    elif self.tag == zTag: lib.ElMatrixResize_z(self.obj,m,n)
+  def ResizeWithLDim(self,m,n,ldim):
+    if   self.tag == iTag: lib.ElMatrixResizeWithLDim_i(self.obj,m,n,ldim)
+    elif self.tag == sTag: lib.ElMatrixResizeWithLDim_s(self.obj,m,n,ldim)
+    elif self.tag == dTag: lib.ElMatrixResizeWithLDim_d(self.obj,m,n,ldim)
+    elif self.tag == cTag: lib.ElMatrixResizeWithLDim_c(self.obj,m,n,ldim)
+    elif self.tag == zTag: lib.ElMatrixResizeWithLDim_z(self.obj,m,n,ldim)
   def Empty(self):
     if   self.tag == iTag: lib.ElMatrixEmpty_i(self.obj)
     elif self.tag == sTag: lib.ElMatrixEmpty_s(self.obj)
     elif self.tag == dTag: lib.ElMatrixEmpty_d(self.obj)
     elif self.tag == cTag: lib.ElMatrixEmpty_c(self.obj)
     elif self.tag == zTag: lib.ElMatrixEmpty_z(self.obj)
-  def Attach(self,height,width,buf,ldim):
-    if   self.tag == iTag:
-      if type(buf) is not POINTER(iType): raise Exception("Invalid buffer type")
-      lib.ElMatrixAttach_i(self.obj,height,width,buf,ldim)
-    elif self.tag == sTag:
-      if type(buf) is not POINTER(sType): raise Exception("Invalid buffer type")
-      lib.ElMatrixAttach_s(self.obj,height,width,buf,ldim)
-    elif self.tag == dTag:
-      if type(buf) is not POINTER(dType): raise Exception("Invalid buffer type")
-      lib.ElMatrixAttach_d(self.obj,height,width,buf,ldim)
-    elif self.tag == cTag:
-      if type(buf) is not POINTER(cType): raise Exception("Invalid buffer type")
-      lib.ElMatrixAttach_c(self.obj,height,width,buf,ldim)
-    elif self.tag == zTag:
-      if type(buf) is not POINTER(zType): raise Exception("Invalid buffer type")
-      lib.ElMatrixAttach_z(self.obj,height,width,buf,ldim)
-  def LockedAttach(self,height,width,buf,ldim):
-    if   self.tag == iTag:
-      if type(buf) is not POINTER(iType): raise Exception("Invalid buffer type")
-      lib.ElMatrixLockedAttach_i(self.obj,height,width,buf,ldim)
-    elif self.tag == sTag:
-      if type(buf) is not POINTER(sType): raise Exception("Invalid buffer type")
-      lib.ElMatrixLockedAttach_s(self.obj,height,width,buf,ldim)
-    elif self.tag == dTag:
-      if type(buf) is not POINTER(dType): raise Exception("Invalid buffer type")
-      lib.ElMatrixLockedAttach_d(self.obj,height,width,buf,ldim)
-    elif self.tag == cTag:
-      if type(buf) is not POINTER(cType): raise Exception("Invalid buffer type")
-      lib.ElMatrixLockedAttach_c(self.obj,height,width,buf,ldim)
-    elif self.tag == zTag:
-      if type(buf) is not POINTER(zType): raise Exception("Invalid buffer type")
-      lib.ElMatrixLockedAttach_z(self.obj,height,width,buf,ldim)
-  def Control(self,height,width,buf,ldim):
-    if   self.tag == iTag:
-      if type(buf) is not POINTER(iType): raise Exception("Invalid buffer type")
-      lib.ElMatrixControl_i(self.obj,height,width,buf,ldim)
-    elif self.tag == sTag:
-      if type(buf) is not POINTER(sType): raise Exception("Invalid buffer type")
-      lib.ElMatrixControl_s(self.obj,height,width,buf,ldim)
-    elif self.tag == dTag:
-      if type(buf) is not POINTER(dType): raise Exception("Invalid buffer type")
-      lib.ElMatrixControl_d(self.obj,height,width,buf,ldim)
-    elif self.tag == cTag:
-      if type(buf) is not POINTER(cType): raise Exception("Invalid buffer type")
-      lib.ElMatrixControl_c(self.obj,height,width,buf,ldim)
-    elif self.tag == zTag:
-      if type(buf) is not POINTER(zType): raise Exception("Invalid buffer type")
-      lib.ElMatrixControl_z(self.obj,height,width,buf,ldim)
+  def Attach(self,m,n,buf,ldim):
+    EnsureCompatibleBuffer(buf,self.tag)
+    if   self.tag == iTag: lib.ElMatrixAttach_i(self.obj,m,n,buf,ldim)
+    elif self.tag == sTag: lib.ElMatrixAttach_s(self.obj,m,n,buf,ldim)
+    elif self.tag == dTag: lib.ElMatrixAttach_d(self.obj,m,n,buf,ldim)
+    elif self.tag == cTag: lib.ElMatrixAttach_c(self.obj,m,n,buf,ldim)
+    elif self.tag == zTag: lib.ElMatrixAttach_z(self.obj,m,n,buf,ldim)
+  def LockedAttach(self,m,n,buf,ldim):
+    EnsureCompatibleBuffer(buf,self.tag)
+    if   self.tag == iTag: lib.ElMatrixLockedAttach_i(self.obj,m,n,buf,ldim)
+    elif self.tag == sTag: lib.ElMatrixLockedAttach_s(self.obj,m,n,buf,ldim)
+    elif self.tag == dTag: lib.ElMatrixLockedAttach_d(self.obj,m,n,buf,ldim)
+    elif self.tag == cTag: lib.ElMatrixLockedAttach_c(self.obj,m,n,buf,ldim)
+    elif self.tag == zTag: lib.ElMatrixLockedAttach_z(self.obj,m,n,buf,ldim)
+  def Control(self,m,n,buf,ldim):
+    EnsureCompatibleBuffer(buf,self.tag)
+    if   self.tag == iTag: lib.ElMatrixControl_i(self.obj,m,n,buf,ldim)
+    elif self.tag == sTag: lib.ElMatrixControl_s(self.obj,m,n,buf,ldim)
+    elif self.tag == dTag: lib.ElMatrixControl_d(self.obj,m,n,buf,ldim)
+    elif self.tag == cTag: lib.ElMatrixControl_c(self.obj,m,n,buf,ldim)
+    elif self.tag == zTag: lib.ElMatrixControl_z(self.obj,m,n,buf,ldim)
   def Height(self):
-    height = iType()
-    if   self.tag == iTag: lib.ElMatrixHeight_i(self.obj,pointer(height))
-    elif self.tag == sTag: lib.ElMatrixHeight_s(self.obj,pointer(height))
-    elif self.tag == dTag: lib.ElMatrixHeight_d(self.obj,pointer(height))
-    elif self.tag == cTag: lib.ElMatrixHeight_c(self.obj,pointer(height))
-    elif self.tag == zTag: lib.ElMatrixHeight_z(self.obj,pointer(height))
-    return height
+    m = iType()
+    if   self.tag == iTag: lib.ElMatrixHeight_i(self.obj,pointer(m))
+    elif self.tag == sTag: lib.ElMatrixHeight_s(self.obj,pointer(m))
+    elif self.tag == dTag: lib.ElMatrixHeight_d(self.obj,pointer(m))
+    elif self.tag == cTag: lib.ElMatrixHeight_c(self.obj,pointer(m))
+    elif self.tag == zTag: lib.ElMatrixHeight_z(self.obj,pointer(m))
+    return m
   def Width(self):
-    width = iType()
-    if   self.tag == iTag: lib.ElMatrixWidth_i(self.obj,pointer(width))
-    elif self.tag == sTag: lib.ElMatrixWidth_s(self.obj,pointer(width))
-    elif self.tag == dTag: lib.ElMatrixWidth_d(self.obj,pointer(width))
-    elif self.tag == cTag: lib.ElMatrixWidth_c(self.obj,pointer(width))
-    elif self.tag == zTag: lib.ElMatrixWidth_z(self.obj,pointer(width))
-    return width
+    n = iType()
+    if   self.tag == iTag: lib.ElMatrixWidth_i(self.obj,pointer(n))
+    elif self.tag == sTag: lib.ElMatrixWidth_s(self.obj,pointer(n))
+    elif self.tag == dTag: lib.ElMatrixWidth_d(self.obj,pointer(n))
+    elif self.tag == cTag: lib.ElMatrixWidth_c(self.obj,pointer(n))
+    elif self.tag == zTag: lib.ElMatrixWidth_z(self.obj,pointer(n))
+    return n
   def LDim(self):
     ldim = iType()
     if   self.tag == iTag: lib.ElMatrixLDim_i(self.obj,pointer(ldim))
@@ -133,18 +117,13 @@ class Matrix(object):
     elif self.tag == zTag: lib.ElMatrixLDim_z(self.obj,pointer(ldim))
     return ldim 
   def MemorySize(self):
-    memSize = iType()
-    if   self.tag == iTag: 
-      lib.ElMatrixMemorySize_i(self.obj,pointer(memSize))
-    elif self.tag == sTag:
-      lib.ElMatrixMemorySize_s(self.obj,pointer(memSize))
-    elif self.tag == dTag:
-      lib.ElMatrixMemorySize_d(self.obj,pointer(memSize))
-    elif self.tag == cTag:
-      lib.ElMatrixMemorySize_c(self.obj,pointer(memSize))
-    elif self.tag == zTag:
-      lib.ElMatrixMemorySize_z(self.obj,pointer(memSize))
-    return memSize
+    size = iType()
+    if   self.tag == iTag: lib.ElMatrixMemorySize_i(self.obj,pointer(size))
+    elif self.tag == sTag: lib.ElMatrixMemorySize_s(self.obj,pointer(size))
+    elif self.tag == dTag: lib.ElMatrixMemorySize_d(self.obj,pointer(size))
+    elif self.tag == cTag: lib.ElMatrixMemorySize_c(self.obj,pointer(size))
+    elif self.tag == zTag: lib.ElMatrixMemorySize_z(self.obj,pointer(size))
+    return size
   def DiagonalLength(self,offset=iType(0)):
     length = iType()
     if   self.tag == iTag: 
@@ -184,44 +163,44 @@ class Matrix(object):
     return locked
   def Buffer(self):
     if   self.tag == iTag:
-      buf = ctypes.POINTER(iType)()
+      buf = POINTER(iType)()
       lib.ElMatrixBuffer_i(self.obj,pointer(buf)) 
       return buf
     elif self.tag == sTag:
-      buf = ctypes.POINTER(sType)()
+      buf = POINTER(sType)()
       lib.ElMatrixBuffer_s(self.obj,pointer(buf))
       return buf
     elif self.tag == dTag: 
-      buf = ctypes.POINTER(dType)()
+      buf = POINTER(dType)()
       lib.ElMatrixBuffer_d(self.obj,pointer(buf))
       return buf
     elif self.tag == cTag:
-      buf = ctypes.POINTER(cType)()
+      buf = POINTER(cType)()
       lib.ElMatrixBuffer_c(self.obj,pointer(buf))
       return buf
     elif self.tag == zTag:
-      buf = ctypes.POINTER(zType)()
+      buf = POINTER(zType)()
       lib.ElMatrixBuffer_z(self.obj,pointer(buf))
       return buf
   def LockedBuffer(self):
     if   self.tag == iTag:
-      buf = ctypes.POINTER(iType)()
+      buf = POINTER(iType)()
       lib.ElMatrixLockedBuffer_i(self.obj,pointer(buf)) 
       return buf
     elif self.tag == sTag:
-      buf = ctypes.POINTER(sType)()
+      buf = POINTER(sType)()
       lib.ElMatrixLockedBuffer_s(self.obj,pointer(buf))
       return buf
     elif self.tag == dTag: 
-      buf = ctypes.POINTER(dType)()
+      buf = POINTER(dType)()
       lib.ElMatrixLockedBuffer_d(self.obj,pointer(buf))
       return buf
     elif self.tag == cTag:
-      buf = ctypes.POINTER(cType)()
+      buf = POINTER(cType)()
       lib.ElMatrixLockedBuffer_c(self.obj,pointer(buf))
       return buf
     elif self.tag == zTag:
-      buf = ctypes.POINTER(zType)()
+      buf = POINTER(zType)()
       lib.ElMatrixLockedBuffer_z(self.obj,pointer(buf))
       return buf
   def Get(self,i,j):
@@ -267,21 +246,12 @@ class Matrix(object):
       lib.ElMatrixGetImagPart_z(self.obj,i,j,pointer(value))
       return value
   def Set(self,i,j,value):
-    if   self.tag == iTag: 
-      if type(value) is not iType: raise Exception("Invalid scalar type")
-      lib.ElMatrixSet_i(self.obj,i,j,iType(value))
-    elif self.tag == sTag: 
-      if type(value) is not sType: raise Exception("Invalid scalar type")
-      lib.ElMatrixSet_s(self.obj,i,j,value)
-    elif self.tag == dTag: 
-      if type(value) is not dType: raise Exception("Invalid scalar type")
-      lib.ElMatrixSet_d(self.obj,i,j,value)
-    elif self.tag == cTag: 
-      if type(value) is not cType: raise Exception("Invalid scalar type")
-      lib.ElMatrixSet_c(self.obj,i,j,value)
-    elif self.tag == zTag: 
-      if type(value) is not zType: raise Exception("Invalid scalar type")
-      lib.ElMatrixSet_z(self.obj,i,j,value)
+    EnsureCompatibleScalar(value,self.tag)
+    if   self.tag == iTag: lib.ElMatrixSet_i(self.obj,i,j,iType(value))
+    elif self.tag == sTag: lib.ElMatrixSet_s(self.obj,i,j,value)
+    elif self.tag == dTag: lib.ElMatrixSet_d(self.obj,i,j,value)
+    elif self.tag == cTag: lib.ElMatrixSet_c(self.obj,i,j,value)
+    elif self.tag == zTag: lib.ElMatrixSet_z(self.obj,i,j,value)
   def SetRealPart(self,i,j,value):
     if self.tag == cTag: 
       lib.ElMatrixSetRealPart_c(self.obj,i,j,sType(value))
@@ -295,21 +265,12 @@ class Matrix(object):
       lib.ElMatrixSetImagPart_z(self.obj,i,j,dType(value))
     else: raise Exception("Datatype does not have an imaginary component")
   def Update(self,i,j,value):
-    if   self.tag == iTag: 
-      if type(value) is not iType: raise Exception("Invalid scalar type")
-      lib.ElMatrixUpdate_i(self.obj,i,j,iType(value))
-    elif self.tag == sTag: 
-      if type(value) is not sType: raise Exception("Invalid scalar type")
-      lib.ElMatrixUpdate_s(self.obj,i,j,value)
-    elif self.tag == dTag: 
-      if type(value) is not dType: raise Exception("Invalid scalar type")
-      lib.ElMatrixUpdate_d(self.obj,i,j,value)
-    elif self.tag == cTag: 
-      if type(value) is not cType: raise Exception("Invalid scalar type")
-      lib.ElMatrixUpdate_c(self.obj,i,j,value)
-    elif self.tag == zTag: 
-      if type(value) is not zType: raise Exception("Invalid scalar type")
-      lib.ElMatrixUpdate_z(self.obj,i,j,value)
+    EnsureCompatibleScalar(value,self.tag)
+    if   self.tag == iTag: lib.ElMatrixUpdate_i(self.obj,i,j,iType(value))
+    elif self.tag == sTag: lib.ElMatrixUpdate_s(self.obj,i,j,value)
+    elif self.tag == dTag: lib.ElMatrixUpdate_d(self.obj,i,j,value)
+    elif self.tag == cTag: lib.ElMatrixUpdate_c(self.obj,i,j,value)
+    elif self.tag == zTag: lib.ElMatrixUpdate_z(self.obj,i,j,value)
   def UpdateRealPart(self,i,j,value):
     if self.tag == cTag: 
       lib.ElMatrixUpdateRealPart_c(self.obj,i,j,sType(value))
