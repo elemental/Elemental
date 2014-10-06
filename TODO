@@ -31,8 +31,8 @@ Fundamental functionality additions
 
 Incremental functionality improvements
 --------------------------------------
-[o] Generalize vast majority of interfaces to AbstractDistMatrix by making use
-    of the new version of Copy which allows for shallow copies to be requested
+[o] General redistribution routine between any two matrices with any 
+    process grids (with equivalent viewing communicators)
 [o] Add Bunch-Kaufman C now that explicit permutations are used
 [o] Extend operator() submatrix interfaces to support equivalent of ":", e.g.,
     an enum named "ALL"

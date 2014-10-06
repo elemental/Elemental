@@ -561,7 +561,7 @@ void Matrix<T>::SetImagPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
 }
 
 template<typename T>
-void Matrix<T>::UpdateDiagonal( const Matrix<T>& d, Int offset )
+void Matrix<T>::UpdateDiagonal( T alpha, const Matrix<T>& d, Int offset )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::UpdateDiagonal");
@@ -572,11 +572,12 @@ void Matrix<T>::UpdateDiagonal( const Matrix<T>& d, Int offset )
     const Int iOff = ( offset>=0 ? 0      : -offset );
     const Int jOff = ( offset>=0 ? offset : 0       );
     for( Int k=0; k<diagLength; ++k )
-        Set_( k+iOff, k+jOff ) += d.Get(k,0);
+        Set_( k+iOff, k+jOff ) += alpha*d.Get(k,0);
 }
 
 template<typename T>
-void Matrix<T>::UpdateRealPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
+void Matrix<T>::UpdateRealPartOfDiagonal
+( Base<T> alpha, const Matrix<Base<T>>& d, Int offset )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::UpdateRealPartOfDiagonal");
@@ -587,11 +588,12 @@ void Matrix<T>::UpdateRealPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
     const Int iOff = ( offset>=0 ? 0      : -offset );
     const Int jOff = ( offset>=0 ? offset : 0       );
     for( Int k=0; k<diagLength; ++k )
-        El::UpdateRealPart( Set_(k+iOff,k+jOff), d.Get_(k,0) );
+        El::UpdateRealPart( Set_(k+iOff,k+jOff), alpha*d.Get_(k,0) );
 }
 
 template<typename T>
-void Matrix<T>::UpdateImagPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
+void Matrix<T>::UpdateImagPartOfDiagonal
+( Base<T> alpha, const Matrix<Base<T>>& d, Int offset )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::UpdateImagPartOfDiagonal");
@@ -603,7 +605,7 @@ void Matrix<T>::UpdateImagPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
     const Int iOff = ( offset>=0 ? 0      : -offset );
     const Int jOff = ( offset>=0 ? offset : 0       );
     for( Int k=0; k<diagLength; ++k )
-        El::UpdateImagPart( Set_(k+iOff,k+jOff), d.Get_(k,0) );
+        El::UpdateImagPart( Set_(k+iOff,k+jOff), alpha*d.Get_(k,0) );
 }
 
 template<typename T>

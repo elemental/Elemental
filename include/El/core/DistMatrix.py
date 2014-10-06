@@ -269,6 +269,16 @@ lib.ElDistMatrixConjugate_c.restype = c_uint
 lib.ElDistMatrixConjugate_z.argtypes = [c_void_p,iType,iType]
 lib.ElDistMatrixConjugate_z.restype = c_uint
 
+lib.ElDistMatrixMakeDiagonalReal_c.argtypes = [c_void_p,iType]
+lib.ElDistMatrixMakeDiagonalReal_c.restype = c_uint
+lib.ElDistMatrixMakeDiagonalReal_z.argtypes = [c_void_p,iType]
+lib.ElDistMatrixMakeDiagonalReal_z.restype = c_uint
+
+lib.ElDistMatrixConjugateDiagonal_c.argtypes = [c_void_p,iType]
+lib.ElDistMatrixConjugateDiagonal_c.restype = c_uint
+lib.ElDistMatrixConjugateDiagonal_z.argtypes = [c_void_p,iType]
+lib.ElDistMatrixConjugateDiagonal_z.restype = c_uint
+
 # LEFT OFF HERE
 
 class DistMatrix(object):
@@ -563,8 +573,7 @@ class DistMatrix(object):
     elif self.tag == zTag: lib.ElDistMatrixLDim_z(self.obj,pointer(ldim))
     return ldim
   def Matrix(self):
-    A = M.Matrix()
-    A.Destroy() 
+    A = M.Matrix(False)
     if   self.tag == iTag: lib.ElDistMatrixMatrix_i(self.obj,pointer(A.obj))
     elif self.tag == sTag: lib.ElDistMatrixMatrix_s(self.obj,pointer(A.obj))
     elif self.tag == dTag: lib.ElDistMatrixMatrix_d(self.obj,pointer(A.obj))
@@ -572,8 +581,7 @@ class DistMatrix(object):
     elif self.tag == zTag: lib.ElDistMatrixMatrix_z(self.obj,pointer(A.obj))
     return A
   def LockedMatrix(self):
-    A = M.Matrix()
-    A.Destroy() 
+    A = M.Matrix(False)
     if   self.tag == iTag: 
       lib.ElDistMatrixLockedMatrix_i(self.obj,pointer(A.obj))
     elif self.tag == sTag: 
@@ -1216,11 +1224,9 @@ class DistMatrix(object):
     elif self.tag == cTag: lib.ElDistMatrixSet_c(self.obj,i,j,value)
     elif self.tag == zTag: lib.ElDistMatrixSet_z(self.obj,i,j,value)
   def SetRealPart(self,i,j,value):
-    if   self.tag == iTag: lib.ElDistMatrixSet_i(self.obj,i,j,value)
-    elif self.tag == sTag: lib.ElDistMatrixSet_s(self.obj,i,j,value)
-    elif self.tag == dTag: lib.ElDistMatrixSet_d(self.obj,i,j,value)
-    elif self.tag == cTag: lib.ElDistMatrixSetRealPart_c(self.obj,i,j,value)
+    if   self.tag == cTag: lib.ElDistMatrixSetRealPart_c(self.obj,i,j,value)
     elif self.tag == zTag: lib.ElDistMatrixSetRealPart_z(self.obj,i,j,value)
+    else: Set(i,j,value)
   def SetImagPart(self,i,j,value):
     if   self.tag == cTag: lib.ElDistMatrixSetImagPart_c(self.obj,i,j,value)
     elif self.tag == zTag: lib.ElDistMatrixSetImagPart_z(self.obj,i,j,value)
@@ -1232,11 +1238,9 @@ class DistMatrix(object):
     elif self.tag == cTag: lib.ElDistMatrixUpdate_c(self.obj,i,j,value)
     elif self.tag == zTag: lib.ElDistMatrixUpdate_z(self.obj,i,j,value)
   def UpdateRealPart(self,i,j,value):
-    if   self.tag == iTag: lib.ElDistMatrixUpdate_i(self.obj,i,j,value)
-    elif self.tag == sTag: lib.ElDistMatrixUpdate_s(self.obj,i,j,value)
-    elif self.tag == dTag: lib.ElDistMatrixUpdate_d(self.obj,i,j,value)
-    elif self.tag == cTag: lib.ElDistMatrixUpdateRealPart_c(self.obj,i,j,value)
+    if   self.tag == cTag: lib.ElDistMatrixUpdateRealPart_c(self.obj,i,j,value)
     elif self.tag == zTag: lib.ElDistMatrixUpdateRealPart_z(self.obj,i,j,value)
+    else: Update(i,j,value)
   def UpdateImagPart(self,i,j,value):
     if   self.tag == cTag: lib.ElDistMatrixUpdateImagPart_c(self.obj,i,j,value)
     elif self.tag == zTag: lib.ElDistMatrixUpdateImagPart_z(self.obj,i,j,value)
@@ -1265,8 +1269,12 @@ class DistMatrix(object):
     Matrix().UpdateRealPart(iLoc,jLoc,value)
   def UpdateLocalImagPart(self,iLoc,jLoc,value):
     Matrix().UpdateImagPart(iLoc,jLoc,value)
-  # TODO: MakeDiagonalReal
-  # TODO: ConjugateDiagonal
+  def MakeDiagonalReal(self,offset=iType(0)):
+    if   self.tag == cTag: lib.ElDistMatrixMakeDiagonalReal_c(self.obj,offset)
+    elif self.tag == zTag: lib.ElDistMatrixMakeDiagonalReal_z(self.obj,offset)
+  def ConjugateDiagonal(self,offset=iType(0)):
+    if   self.tag == cTag: lib.ElDistMatrixConjugateDiagonal_c(self.obj,offset)
+    elif self.tag == zTag: lib.ElDistMatrixConjugateDiagonal_z(self.obj,offset)
   def DiagonalAlignedWith(distData,offset):
     aligned = bType()
     if   self.tag == iTag: 

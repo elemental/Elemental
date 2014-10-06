@@ -299,22 +299,98 @@ lib.ElMatrixGetDiagonal_c.restype = c_uint
 lib.ElMatrixGetDiagonal_z.argtypes = [c_void_p,iType,POINTER(c_void_p)]
 lib.ElMatrixGetDiagonal_z.restype = c_uint
 
+lib.ElMatrixGetRealPartOfDiagonal_c.argtypes = \
+  [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetRealPartOfDiagonal_c.restype = c_uint
+lib.ElMatrixGetRealPartOfDiagonal_z.argtypes = \
+  [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetRealPartOfDiagonal_z.restype = c_uint
+
+lib.ElMatrixGetImagPartOfDiagonal_i.argtypes = \
+  [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetImagPartOfDiagonal_i.restype = c_uint
+lib.ElMatrixGetImagPartOfDiagonal_s.argtypes = \
+  [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetImagPartOfDiagonal_s.restype = c_uint
+lib.ElMatrixGetImagPartOfDiagonal_d.argtypes = \
+  [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetImagPartOfDiagonal_d.restype = c_uint
+lib.ElMatrixGetImagPartOfDiagonal_c.argtypes = \
+  [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetImagPartOfDiagonal_c.restype = c_uint
+lib.ElMatrixGetImagPartOfDiagonal_z.argtypes = \
+  [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetImagPartOfDiagonal_z.restype = c_uint
+
+lib.ElMatrixSetDiagonal_i.argtypes = [c_void_p,c_void_p,iType]
+lib.ElMatrixSetDiagonal_i.restype = c_uint
+lib.ElMatrixSetDiagonal_s.argtypes = [c_void_p,c_void_p,iType]
+lib.ElMatrixSetDiagonal_s.restype = c_uint
+lib.ElMatrixSetDiagonal_d.argtypes = [c_void_p,c_void_p,iType]
+lib.ElMatrixSetDiagonal_d.restype = c_uint
+lib.ElMatrixSetDiagonal_c.argtypes = [c_void_p,c_void_p,iType]
+lib.ElMatrixSetDiagonal_c.restype = c_uint
+lib.ElMatrixSetDiagonal_z.argtypes = [c_void_p,c_void_p,iType]
+lib.ElMatrixSetDiagonal_z.restype = c_uint
+
+lib.ElMatrixSetRealPartOfDiagonal_c.argtypes = [c_void_p,c_void_p,iType]
+lib.ElMatrixSetRealPartOfDiagonal_c.restype = c_uint
+lib.ElMatrixSetRealPartOfDiagonal_z.argtypes = [c_void_p,c_void_p,iType]
+lib.ElMatrixSetRealPartOfDiagonal_z.restype = c_uint
+
+lib.ElMatrixSetImagPartOfDiagonal_c.argtypes = [c_void_p,c_void_p,iType]
+lib.ElMatrixSetImagPartOfDiagonal_c.restype = c_uint
+lib.ElMatrixSetImagPartOfDiagonal_z.argtypes = [c_void_p,c_void_p,iType]
+lib.ElMatrixSetImagPartOfDiagonal_z.restype = c_uint
+
+lib.ElMatrixUpdateDiagonal_i.argtypes = [c_void_p,iType,c_void_p,iType]
+lib.ElMatrixUpdateDiagonal_i.restype = c_uint
+lib.ElMatrixUpdateDiagonal_s.argtypes = [c_void_p,sType,c_void_p,iType]
+lib.ElMatrixUpdateDiagonal_s.restype = c_uint
+lib.ElMatrixUpdateDiagonal_d.argtypes = [c_void_p,dType,c_void_p,iType]
+lib.ElMatrixUpdateDiagonal_d.restype = c_uint
+lib.ElMatrixUpdateDiagonal_c.argtypes = [c_void_p,cType,c_void_p,iType]
+lib.ElMatrixUpdateDiagonal_c.restype = c_uint
+lib.ElMatrixUpdateDiagonal_z.argtypes = [c_void_p,zType,c_void_p,iType]
+lib.ElMatrixUpdateDiagonal_z.restype = c_uint
+
+lib.ElMatrixUpdateRealPartOfDiagonal_c.argtypes = \
+  [c_void_p,sType,c_void_p,iType]
+lib.ElMatrixUpdateRealPartOfDiagonal_c.restype = c_uint
+lib.ElMatrixUpdateRealPartOfDiagonal_z.argtypes = \
+  [c_void_p,dType,c_void_p,iType]
+lib.ElMatrixUpdateRealPartOfDiagonal_z.restype = c_uint
+
+lib.ElMatrixUpdateImagPartOfDiagonal_c.argtypes = \
+  [c_void_p,sType,c_void_p,iType]
+lib.ElMatrixUpdateImagPartOfDiagonal_c.restype = c_uint
+lib.ElMatrixUpdateImagPartOfDiagonal_z.argtypes = \
+  [c_void_p,dType,c_void_p,iType]
+lib.ElMatrixUpdateImagPartOfDiagonal_z.restype = c_uint
+
+lib.ElMatrixMakeDiagonalReal_c.argtypes = [c_void_p,iType]
+lib.ElMatrixMakeDiagonalReal_c.restype = c_uint
+lib.ElMatrixMakeDiagonalReal_z.argtypes = [c_void_p,iType]
+lib.ElMatrixMakeDiagonalReal_z.restype = c_uint
+
+lib.ElMatrixConjugateDiagonal_c.argtypes = [c_void_p,iType]
+lib.ElMatrixConjugateDiagonal_c.restype = c_uint
+lib.ElMatrixConjugateDiagonal_z.argtypes = [c_void_p,iType]
+lib.ElMatrixConjugateDiagonal_z.restype = c_uint
+
 # LEFT OFF HERE
 
 class Matrix(object):
-  def __init__(self,tag=dTag):
+  def __init__(self,tag=dTag,create=True):
     self.obj = c_void_p()
     CheckTag(tag)
-    if   tag == iTag: lib.ElMatrixCreate_i(pointer(self.obj))
-    elif tag == sTag: lib.ElMatrixCreate_s(pointer(self.obj))
-    elif tag == dTag: lib.ElMatrixCreate_d(pointer(self.obj))
-    elif tag == cTag: lib.ElMatrixCreate_c(pointer(self.obj))
-    elif tag == zTag: lib.ElMatrixCreate_z(pointer(self.obj))
     self.tag = tag
-  @classmethod
-  def Uninitialized(self,tag=dTag):
-    self.obj = c_void_p()
-    self.tag = tag
+    if create:
+      if   tag == iTag: lib.ElMatrixCreate_i(pointer(self.obj))
+      elif tag == sTag: lib.ElMatrixCreate_s(pointer(self.obj))
+      elif tag == dTag: lib.ElMatrixCreate_d(pointer(self.obj))
+      elif tag == cTag: lib.ElMatrixCreate_c(pointer(self.obj))
+      elif tag == zTag: lib.ElMatrixCreate_z(pointer(self.obj))
   def Destroy(self):
     if   self.tag == iTag: lib.ElMatrixDestroy_i(self.obj)
     elif self.tag == sTag: lib.ElMatrixDestroy_s(self.obj)
@@ -562,7 +638,7 @@ class Matrix(object):
     if   self.tag == cTag: lib.ElMatrixConjugate_c(self.obj,i,j)
     elif self.tag == zTag: lib.ElMatrixConjugate_z(self.obj,i,j)
   def GetDiagonal(self,offset=iType(0)):
-    d = Matrix.Uninitialized(self.tag)
+    d = Matrix(self.tag,False)
     if   self.tag == iTag:
       lib.ElMatrixGetDiagonal_i(self.obj,offset,pointer(d.obj))
     elif self.tag == sTag:
@@ -575,32 +651,108 @@ class Matrix(object):
       lib.ElMatrixGetDiagonal_z(self.obj,offset,pointer(d.obj))
     return d
   def GetRealPartOfDiagonal(self,offset=iType(0)):
-    raise Exception('GetRealPartOfDiagonal not yet supported in Python')
+    if self.tag == cTag:
+      d = Matrix(sTag,False)
+      lib.ElMatrixGetRealPartOfDiagonal_c(self.obj,offset,pointer(d.obj))
+      return d
+    elif self.tag == zTag:
+      d = Matrix(dTag,False)
+      lib.ElMatrixGetRealPartOfDiagonal_z(self.obj,offset,pointer(d.obj))
+      return d
+    else: 
+      return GetDiagonal(self,offset)
   def GetImagPartOfDiagonal(self,offset=iType(0)):
-    raise Exception('GetImagPartOfDiagonal not yet supported in Python')
-  def SetDiagonal(self,diag,offset=iType(0)):
-    raise Exception('SetDiagonal not yet supported by Python interface')
-  def SetRealPartOfDiagonal(self,diag,offset=iType(0)):
-    raise Exception('SetRealPartOfDiagonal not yet supported in Python')
-  def SetImagPartOfDiagonal(self,diag,offset=iType(0)):
-    raise Exception('SetImagPartOfDiagonal not yet supported in Python')
-  def UpdateDiagonal(self,diag,offset=iType(0)):
-    raise Exception('UpdateDiagonal not yet supported by Python interface')
-  def UpdateRealPartOfDiagonal(self,diag,offset=iType(0)):
-    raise Exception('UpddateRealPartOfDiagonal not yet supported in Python')
-  def UpdateImagPartOfDiagonal(self,diag,offset=iType(0)):
-    raise Exception('UpddateImagPartOfDiagonal not yet supported in Python')
+    if   self.tag == iTag:
+      d = Matrix(iTag,False)
+      lib.ElMatrixGetImagPartOfDiagonal_i(self.obj,offset,pointer(d.obj))
+      return d
+    elif self.tag == sTag:
+      d = Matrix(sTag,False)
+      lib.ElMatrixGetImagPartOfDiagonal_s(self.obj,offset,pointer(d.obj))
+      return d
+    elif self.tag == dTag:
+      d = Matrix(dTag,False)
+      lib.ElMatrixGetImagPartOfDiagonal_d(self.obj,offset,pointer(d.obj))
+      return d
+    elif self.tag == cTag:
+      d = Matrix(sTag,False)
+      lib.ElMatrixGetImagPartOfDiagonal_c(self.obj,offset,pointer(d.obj))
+      return d
+    elif self.tag == zTag:
+      d = Matrix(dTag,False)
+      lib.ElMatrixGetImagPartOfDiagonal_z(self.obj,offset,pointer(d.obj))
+      return d
+  def SetDiagonal(self,d,offset=iType(0)):
+    if type(d) is not Matrix: raise Exception('diagonal must be a Matrix')
+    if self.tag != d.tag: raise Exception('Datatypes must match')
+    if   self.tag == iTag:
+      lib.ElMatrixSetDiagonal_i(self.obj,d.obj,offset)
+    elif self.tag == sTag:
+      lib.ElMatrixSetDiagonal_s(self.obj,d.obj,offset)
+    elif self.tag == dTag:
+      lib.ElMatrixSetDiagonal_d(self.obj,d.obj,offset)
+    elif self.tag == cTag:
+      lib.ElMatrixSetDiagonal_c(self.obj,d.obj,offset)
+    elif self.tag == zTag:
+      lib.ElMatrixSetDiagonal_z(self.obj,d.obj,offset)
+  def SetRealPartOfDiagonal(self,d,offset=iType(0)):
+    if type(d) is not Matrix: raise Exception('diagonal must be a Matrix')
+    if   self.tag == cTag:
+      if d.tag != sTag: raise Exception('Datatypes must be compatible')
+      lib.ElMatrixSetRealPartOfDiagonal_c(self.obj,d.obj,offset)
+    elif self.tag == zTag:
+      if d.tag != dTag: raise Exception('Datatypes must be compatible')
+      lib.ElMatrixSetRealPartOfDiagonal_z(self.obj,d.obj,offset)
+    else:
+      SetDiagonal(d,offset)
+  def SetImagPartOfDiagonal(self,d,offset=iType(0)):
+    if type(d) is not Matrix: raise Exception('diagonal must be a Matrix')
+    if   self.tag == cTag:
+      if d.tag != sTag: raise Exception('Datatypes must be compatible')
+      lib.ElMatrixSetImagPartOfDiagonal_c(self.obj,d.obj,offset)
+    elif self.tag == zTag:
+      if d.tag != dTag: raise Exception('Datatypes must be compatible')
+      lib.ElMatrixSetImagPartOfDiagonal_z(self.obj,d.obj,offset)
+    else:
+      raise Exception('Cannot set the imaginary part of a real matrix')
+  def UpdateDiagonal(self,alpha,d,offset=iType(0)):
+    if type(d) is not Matrix: raise Exception('diagonal must be a Matrix')
+    if self.tag != d.tag: raise Exception('Datatypes must match')
+    if   self.tag == iTag:
+      lib.ElMatrixUpdateDiagonal_i(self.obj,alpha,d.obj,offset)
+    elif self.tag == sTag:
+      lib.ElMatrixUpdateDiagonal_s(self.obj,alpha,d.obj,offset)
+    elif self.tag == dTag:
+      lib.ElMatrixUpdateDiagonal_d(self.obj,alpha,d.obj,offset)
+    elif self.tag == cTag:
+      lib.ElMatrixUpdateDiagonal_c(self.obj,alpha,d.obj,offset)
+    elif self.tag == zTag:
+      lib.ElMatrixUpdateDiagonal_z(self.obj,alpha,d.obj,offset)
+  def UpdateRealPartOfDiagonal(self,alpha,d,offset=iType(0)):
+    if type(d) is not Matrix: raise Exception('diagonal must be a Matrix')
+    if   self.tag == cTag:
+      if d.tag != sTag: raise Exception('Datatypes must be compatible')
+      lib.ElMatrixUpdateRealPartOfDiagonal_c(self.obj,alpha,d.obj,offset)
+    elif self.tag == zTag:
+      if d.tag != dTag: raise Exception('Datatypes must be compatible')
+      lib.ElMatrixUpdateRealPartOfDiagonal_z(self.obj,alpha,d.obj,offset)
+    else:
+      UpdateDiagonal(alpha,d,offset)
+  def UpdateImagPartOfDiagonal(self,alpha,d,offset=iType(0)):
+    if type(d) is not Matrix: raise Exception('diagonal must be a Matrix')
+    if   self.tag == cTag:
+      if d.tag != sTag: raise Exception('Datatypes must be compatible')
+      lib.ElMatrixUpdateImagPartOfDiagonal_c(self.obj,alpha,d.obj,offset)
+    elif self.tag == zTag:
+      if d.tag != dTag: raise Exception('Datatypes must be compatible')
+      lib.ElMatrixUpdateImagPartOfDiagonal_z(self.obj,alpha,d.obj,offset)
+    else:
+      raise Exception('Cannot update the imaginary part of a real matrix')
   def MakeDiagonalReal(self,offset=iType(0)):
-    if   self.tag == iTag: lib.ElMatrixMakeDiagonalReal_i(self.obj,offset)
-    elif self.tag == sTag: lib.ElMatrixMakeDiagonalReal_s(self.obj,offset)
-    elif self.tag == dTag: lib.ElMatrixMakeDiagonalReal_d(self.obj,offset)
-    elif self.tag == cTag: lib.ElMatrixMakeDiagonalReal_c(self.obj,offset)
+    if   self.tag == cTag: lib.ElMatrixMakeDiagonalReal_c(self.obj,offset)
     elif self.tag == zTag: lib.ElMatrixMakeDiagonalReal_z(self.obj,offset)
   def ConjugateDiagonal(self,offset=iType(0)):
-    if   self.tag == iTag: lib.ElMatrixConjugateDiagonal_i(self.obj,offset)
-    elif self.tag == sTag: lib.ElMatrixConjugateDiagonal_s(self.obj,offset)
-    elif self.tag == dTag: lib.ElMatrixConjugateDiagonal_d(self.obj,offset)
-    elif self.tag == cTag: lib.ElMatrixConjugateDiagonal_c(self.obj,offset)
+    if   self.tag == cTag: lib.ElMatrixConjugateDiagonal_c(self.obj,offset)
     elif self.tag == zTag: lib.ElMatrixConjugateDiagonal_z(self.obj,offset)
   def GetSubmatrix(self,I,J):
     raise Exception('GetSubmatrix not yet supported by Python interface')

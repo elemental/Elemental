@@ -334,6 +334,12 @@ EL_EXPORT ElError ElMatrixGetRealPartOfDiagonal_z
 
 /* Matrix<Base<T>> Matrix<T>::GetImagPartOfDiagonal( Int offset ) const
    -------------------------------------------------------------------- */
+EL_EXPORT ElError ElMatrixGetImagPartOfDiagonal_i
+( ElConstMatrix_i A, ElInt offset, ElMatrix_i* d );
+EL_EXPORT ElError ElMatrixGetImagPartOfDiagonal_s
+( ElConstMatrix_s A, ElInt offset, ElMatrix_s* d );
+EL_EXPORT ElError ElMatrixGetImagPartOfDiagonal_d
+( ElConstMatrix_d A, ElInt offset, ElMatrix_d* d );
 EL_EXPORT ElError ElMatrixGetImagPartOfDiagonal_c
 ( ElConstMatrix_c A, ElInt offset, ElMatrix_s* d );
 EL_EXPORT ElError ElMatrixGetImagPartOfDiagonal_z
@@ -368,34 +374,34 @@ EL_EXPORT ElError ElMatrixSetImagPartOfDiagonal_c
 EL_EXPORT ElError ElMatrixSetImagPartOfDiagonal_z
 ( ElMatrix_z A, ElConstMatrix_d d, ElInt offset );
 
-/* void Matrix<T>::UpdateDiagonal( const Matrix<T>& d, Int offset )
-   ---------------------------------------------------------------- */
+/* void Matrix<T>::UpdateDiagonal( T alpha, const Matrix<T>& d, Int offset )
+   ------------------------------------------------------------------------- */
 EL_EXPORT ElError ElMatrixUpdateDiagonal_i
-( ElMatrix_i A, ElConstMatrix_i d, ElInt offset );
+( ElMatrix_i A, ElInt alpha, ElConstMatrix_i d, ElInt offset );
 EL_EXPORT ElError ElMatrixUpdateDiagonal_s
-( ElMatrix_s A, ElConstMatrix_s d, ElInt offset );
+( ElMatrix_s A, float alpha, ElConstMatrix_s d, ElInt offset );
 EL_EXPORT ElError ElMatrixUpdateDiagonal_d
-( ElMatrix_d A, ElConstMatrix_d d, ElInt offset );
+( ElMatrix_d A, double alpha, ElConstMatrix_d d, ElInt offset );
 EL_EXPORT ElError ElMatrixUpdateDiagonal_c
-( ElMatrix_c A, ElConstMatrix_c d, ElInt offset );
+( ElMatrix_c A, complex_float alpha, ElConstMatrix_c d, ElInt offset );
 EL_EXPORT ElError ElMatrixUpdateDiagonal_z
-( ElMatrix_z A, ElConstMatrix_z d, ElInt offset );
+( ElMatrix_z A, complex_double alpha, ElConstMatrix_z d, ElInt offset );
 
 /* void Matrix<T>::UpdateRealPartOfDiagonal
-   ( const Matrix<Base<T>>& d, Int offset )
-   ---------------------------------------- */
+   ( Base<T> alpha, const Matrix<Base<T>>& d, Int offset )
+   ------------------------------------------------------- */
 EL_EXPORT ElError ElMatrixUpdateRealPartOfDiagonal_c
-( ElMatrix_c A, ElConstMatrix_s d, ElInt offset );
+( ElMatrix_c A, float alpha, ElConstMatrix_s d, ElInt offset );
 EL_EXPORT ElError ElMatrixUpdateRealPartOfDiagonal_z
-( ElMatrix_z A, ElConstMatrix_d d, ElInt offset );
+( ElMatrix_z A, double alpha, ElConstMatrix_d d, ElInt offset );
 
 /* void Matrix<T>::UpdateImagPartOfDiagonal
-   ( const Matrix<Base<T>>& d, Int offset )
-   ---------------------------------------- */
+   ( Base<T> alpha, const Matrix<Base<T>>& d, Int offset )
+   ------------------------------------------------------- */
 EL_EXPORT ElError ElMatrixUpdateImagPartOfDiagonal_c
-( ElMatrix_c A, ElConstMatrix_s d, ElInt offset );
+( ElMatrix_c A, float alpha, ElConstMatrix_s d, ElInt offset );
 EL_EXPORT ElError ElMatrixUpdateImagPartOfDiagonal_z
-( ElMatrix_z A, ElConstMatrix_d d, ElInt offset );
+( ElMatrix_z A, double alpha, ElConstMatrix_d d, ElInt offset );
 
 /* void Matrix<T>::MakeDiaogonalReal( Int offset )
    ----------------------------------------------- */
@@ -446,6 +452,18 @@ EL_EXPORT ElError ElMatrixGetRealPartOfSubmatrix_z
 /* Matrix<Base<T>> Matrix<T>::GetImagPartOfSubmatrix
    ( const std::vector<Int>& I, const std::vector<Int>& J ) const
    -------------------------------------------------------------- */
+EL_EXPORT ElError ElMatrixGetImagPartOfSubmatrix_i
+( ElConstMatrix_i A, 
+  ElInt numRowInds, const ElInt* rowInd, 
+  ElInt numColInds, const ElInt* colInd, ElMatrix_i* ASub );
+EL_EXPORT ElError ElMatrixGetImagPartOfSubmatrix_s
+( ElConstMatrix_s A, 
+  ElInt numRowInds, const ElInt* rowInd, 
+  ElInt numColInds, const ElInt* colInd, ElMatrix_s* ASub );
+EL_EXPORT ElError ElMatrixGetImagPartOfSubmatrix_d
+( ElConstMatrix_d A, 
+  ElInt numRowInds, const ElInt* rowInd, 
+  ElInt numColInds, const ElInt* colInd, ElMatrix_d* ASub );
 EL_EXPORT ElError ElMatrixGetImagPartOfSubmatrix_c
 ( ElConstMatrix_c A, 
   ElInt numRowInds, const ElInt* rowInd, 

@@ -33,7 +33,7 @@ lib.ElPrintDist_c.argtypes = [c_void_p,c_char_p]
 lib.ElPrintDist_c.restype = c_uint
 lib.ElPrintDist_z.argtypes = [c_void_p,c_char_p]
 lib.ElPrintDist_z.restype = c_uint
-def Print(A,title):
+def Print(A,title=''):
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElPrint_i(A.obj,title)
     elif A.tag == sTag: lib.ElPrint_s(A.obj,title)
@@ -97,7 +97,7 @@ lib.ElDisplayDist_c.argtypes = [c_void_p,c_char_p]
 lib.ElDisplayDist_c.restype = c_uint
 lib.ElDisplayDist_z.argtypes = [c_void_p,c_char_p]
 lib.ElDisplayDist_z.restype = c_uint
-def Display(A,title):
+def Display(A,title=''):
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElDisplay_i(A.obj,title)
     elif A.tag == sTag: lib.ElDisplay_s(A.obj,title)
@@ -136,7 +136,7 @@ lib.ElSpyDist_c.argtypes = [c_void_p,c_char_p,sType]
 lib.ElSpyDist_c.restype = c_uint
 lib.ElSpyDist_z.argtypes = [c_void_p,c_char_p,dType]
 lib.ElSpyDist_z.restype = c_uint
-def Spy(A,title,tol):
+def Spy(A,title='',tol=0):
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElSpy_i(A.obj,title,tol)
     elif A.tag == sTag: lib.ElSpy_s(A.obj,title,tol)
@@ -171,7 +171,7 @@ lib.ElReadDist_c.argtypes = [c_void_p,c_char_p,c_uint]
 lib.ElReadDist_c.restype = c_uint
 lib.ElReadDist_z.argtypes = [c_void_p,c_char_p,c_uint]
 lib.ElReadDist_z.restype = c_uint
-def Read(A,filename,fileFormat):
+def Read(A,filename,fileFormat=AUTO):
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElRead_i(A.obj,filename,fileFormat)
     elif A.tag == sTag: lib.ElRead_s(A.obj,filename,fileFormat)
@@ -206,7 +206,7 @@ lib.ElWriteDist_c.argtypes = [c_void_p,c_char_p,c_uint,c_char_p]
 lib.ElWriteDist_c.restype = c_uint
 lib.ElWriteDist_z.argtypes = [c_void_p,c_char_p,c_uint,c_char_p]
 lib.ElWriteDist_z.restype = c_uint
-def Write(A,basename,fileFormat,title):
+def Write(A,basename,fileFormat,title=''):
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElWrite_i(A.obj,basename,fileFormat,title)
     elif A.tag == sTag: lib.ElWrite_s(A.obj,basename,fileFormat,title)

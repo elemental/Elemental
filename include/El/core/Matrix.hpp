@@ -103,9 +103,11 @@ public:
     void SetRealPartOfDiagonal( const Matrix<Base<T>>& d, Int offset=0 );
     void SetImagPartOfDiagonal( const Matrix<Base<T>>& d, Int offset=0 );
 
-    void UpdateDiagonal( const Matrix<T>& d, Int offset=0 );
-    void UpdateRealPartOfDiagonal( const Matrix<Base<T>>& d, Int offset=0 );
-    void UpdateImagPartOfDiagonal( const Matrix<Base<T>>& d, Int offset=0 );
+    void UpdateDiagonal( T alpha, const Matrix<T>& d, Int offset=0 );
+    void UpdateRealPartOfDiagonal
+    ( Base<T> alpha, const Matrix<Base<T>>& d, Int offset=0 );
+    void UpdateImagPartOfDiagonal
+    ( Base<T> alpha, const Matrix<Base<T>>& d, Int offset=0 );
 
     void MakeDiagonalReal( Int offset=0 );
     void ConjugateDiagonal( Int offset=0 );

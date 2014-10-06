@@ -66,8 +66,8 @@ ElError ElDistMatrixGetDiagonal
 // ------------------------------------------------------------
 template<typename T>
 ElError ElDistMatrixGetRealPartOfDiagonal
-( const AbstractDistMatrix<Complex<T>>* AAbs, Int offset, 
-        AbstractDistMatrix<T>** dAbs )
+( const AbstractDistMatrix<T>* AAbs, Int offset, 
+        AbstractDistMatrix<Base<T>>** dAbs )
 {
     const Grid& g = AAbs->Grid();
     Dist U = AAbs->DistData().colDist;
@@ -76,11 +76,10 @@ ElError ElDistMatrixGetRealPartOfDiagonal
     {
         #define GUARD(CDIST,RDIST) U == CDIST && V == RDIST
         #define PAYLOAD(CDIST,RDIST) \
-            auto A = \
-              dynamic_cast<const DistMatrix<Complex<T>,CDIST,RDIST>*>(AAbs); \
+            auto A = dynamic_cast<const DistMatrix<T,CDIST,RDIST>*>(AAbs); \
             DynamicCastCheck(A); \
-            auto* d = new DistMatrix<T,DiagColDist<CDIST,RDIST>(), \
-                                       DiagRowDist<CDIST,RDIST>()>(g); \
+            auto* d = new DistMatrix<Base<T>,DiagColDist<CDIST,RDIST>(), \
+                                             DiagRowDist<CDIST,RDIST>()>(g); \
             A->GetRealPartOfDiagonal( *d, offset ); \
             *dAbs = d;
         #include "El/macros/GuardAndPayload.h"
@@ -96,8 +95,8 @@ ElError ElDistMatrixGetRealPartOfDiagonal
 // ------------------------------------------------------------
 template<typename T>
 ElError ElDistMatrixGetImagPartOfDiagonal
-( const AbstractDistMatrix<Complex<T>>* AAbs, Int offset, 
-        AbstractDistMatrix<T>** dAbs )
+( const AbstractDistMatrix<T>* AAbs, Int offset, 
+        AbstractDistMatrix<Base<T>>** dAbs )
 {
     const Grid& g = AAbs->Grid();
     Dist U = AAbs->DistData().colDist;
@@ -106,11 +105,10 @@ ElError ElDistMatrixGetImagPartOfDiagonal
     {
         #define GUARD(CDIST,RDIST) U == CDIST && V == RDIST
         #define PAYLOAD(CDIST,RDIST) \
-            auto A = \
-              dynamic_cast<const DistMatrix<Complex<T>,CDIST,RDIST>*>(AAbs); \
+            auto A = dynamic_cast<const DistMatrix<T,CDIST,RDIST>*>(AAbs); \
             DynamicCastCheck(A); \
-            auto* d = new DistMatrix<T,DiagColDist<CDIST,RDIST>(), \
-                                       DiagRowDist<CDIST,RDIST>()>(g); \
+            auto* d = new DistMatrix<Base<T>,DiagColDist<CDIST,RDIST>(), \
+                                             DiagRowDist<CDIST,RDIST>()>(g); \
             A->GetImagPartOfDiagonal( *d, offset ); \
             *dAbs = d;
         #include "El/macros/GuardAndPayload.h"
@@ -625,6 +623,17 @@ extern "C" {
     AbstractDistMatrix<T>* dAbsPtr; \
     ElError error = ElDistMatrixGetDiagonal( AAbsPtr, offset, &dAbsPtr ); \
     *d = CReflect(dAbsPtr); \
+    return error; } \
+  /* DistMatrix<Base<T>,UDiag,VDiag> 
+     DistMatrix<T,U,V>::GetImagPartOfDiagonal( Int offset ) const */ \
+  ElError ElDistMatrixGetImagPartOfDiagonal_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElInt offset, \
+    ElDistMatrix_ ## SIGBASE *d ) \
+  { auto AAbsPtr = CReflect(A); \
+    AbstractDistMatrix<Base<T>>* dAbsPtr; \
+    ElError error = \
+      ElDistMatrixGetImagPartOfDiagonal( AAbsPtr, offset, &dAbsPtr ); \
+    *d = CReflect(dAbsPtr); \
     return error; }
 
 #define DISTMATRIX_DIAGONAL_COMPLEX(SIG,SIGBASE,T) \
@@ -646,17 +655,6 @@ extern "C" {
     ElError error = \
       ElDistMatrixGetRealPartOfDiagonal( AAbsPtr, offset, &dAbsPtr ); \
     *d = CReflect(dAbsPtr); \
-    return error; } \
-  /* DistMatrix<Base<T>,UDiag,VDiag> 
-     DistMatrix<T,U,V>::GetImagPartOfDiagonal( Int offset ) const */ \
-  ElError ElDistMatrixGetImagPartOfDiagonal_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt offset, \
-    ElDistMatrix_ ## SIGBASE *d ) \
-  { auto AAbsPtr = CReflect(A); \
-    AbstractDistMatrix<Base<T>>* dAbsPtr; \
-    ElError error = \
-      ElDistMatrixGetImagPartOfDiagonal( AAbsPtr, offset, &dAbsPtr ); \
-    *d = CReflect(dAbsPtr); \
     return error; }
 
 #define DISTMATRIX_SUBMATRIX(SIG,SIGBASE,T) \
@@ -672,6 +670,20 @@ extern "C" {
           std::vector<Int> IVec(I,I+numRowInds); \
           std::vector<Int> JVec(J,J+numColInds); \
           APtr->GetSubmatrix( IVec, JVec, *ASubPtr ); \
+          *ASub = CReflect(ASubPtr); } EL_CATCH; return EL_SUCCESS; } \
+  /* DistMatrix<Base<T>,STAR,STAR> DistMatrix<T,U,V>::GetImagPartOfSubmatrix
+     ( const std::vector<Int>& I, const std::vector<Int>& J ) const
+  */ \
+  ElError ElDistMatrixGetImagPartOfSubmatrix_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, \
+  ElInt numRowInds, const ElInt* I, \
+  ElInt numColInds, const ElInt* J, \
+  ElDistMatrix_ ## SIGBASE *ASub ) \
+  { try { auto APtr = CReflect(A); \
+          auto ASubPtr = new DistMatrix<Base<T>,STAR,STAR>(APtr->Grid()); \
+          std::vector<Int> IVec(I,I+numRowInds); \
+          std::vector<Int> JVec(J,J+numColInds); \
+          APtr->GetImagPartOfSubmatrix( IVec, JVec, *ASubPtr ); \
           *ASub = CReflect(ASubPtr); } EL_CATCH; return EL_SUCCESS; } \
   /* void DistMatrix<T,U,V>::SetSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J,
@@ -722,6 +734,21 @@ extern "C" {
                        JVec(JLoc,JLoc+numColInds); \
       APtr->GetLocalSubmatrix( IVec, JVec, *ASubPtr ); \
       *ASub = CReflect(ASubPtr); } EL_CATCH; return EL_SUCCESS; } \
+  /* Matrix<Base<T>> DistMatrix<T,U,V>::GetImagPartOfLocalSubmatrix
+     ( const std::vector<Int>& I, 
+       const std::vector<Int>& J ) const */ \
+  ElError ElDistMatrixGetImagPartOfLocalSubmatrix_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, \
+    ElInt numRowInds, const ElInt* ILoc, \
+    ElInt numColInds, const ElInt* JLoc, \
+    ElMatrix_ ## SIGBASE *ASub ) \
+  { try { \
+        auto APtr = CReflect(A); \
+        auto ASubPtr = new Matrix<Base<T>>; \
+        std::vector<Int> IVec(ILoc,ILoc+numRowInds), \
+                         JVec(JLoc,JLoc+numColInds); \
+        APtr->GetImagPartOfLocalSubmatrix( IVec, JVec, *ASubPtr ); \
+        *ASub = CReflect(ASubPtr); } EL_CATCH; return EL_SUCCESS; } \
   /* void DistMatrix<T,U,V>::SetLocalSubmatrix
      ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
        const Matrix<T>& ASub ); */ \
@@ -770,20 +797,6 @@ extern "C" {
           std::vector<Int> IVec(I,I+numRowInds); \
           std::vector<Int> JVec(J,J+numColInds); \
           APtr->GetRealPartOfSubmatrix( IVec, JVec, *ASubPtr ); \
-          *ASub = CReflect(ASubPtr); } EL_CATCH; return EL_SUCCESS; } \
-  /* DistMatrix<Base<T>,STAR,STAR> DistMatrix<T,U,V>::GetImagPartOfSubmatrix
-     ( const std::vector<Int>& I, const std::vector<Int>& J ) const
-  */ \
-  ElError ElDistMatrixGetImagPartOfSubmatrix_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, \
-  ElInt numRowInds, const ElInt* I, \
-  ElInt numColInds, const ElInt* J, \
-  ElDistMatrix_ ## SIGBASE *ASub ) \
-  { try { auto APtr = CReflect(A); \
-          auto ASubPtr = new DistMatrix<Base<T>,STAR,STAR>(APtr->Grid()); \
-          std::vector<Int> IVec(I,I+numRowInds); \
-          std::vector<Int> JVec(J,J+numColInds); \
-          APtr->GetImagPartOfSubmatrix( IVec, JVec, *ASubPtr ); \
           *ASub = CReflect(ASubPtr); } EL_CATCH; return EL_SUCCESS; } \
   /* void DistMatrix<T,U,V>::SetRealPartOfSubmatrix
      ( const std::vector<Int>& I, const std::vector<Int>& J,
@@ -893,21 +906,6 @@ extern "C" {
         std::vector<Int> IVec(ILoc,ILoc+numRowInds), \
                          JVec(JLoc,JLoc+numColInds); \
         APtr->GetRealPartOfLocalSubmatrix( IVec, JVec, *ASubPtr ); \
-        *ASub = CReflect(ASubPtr); } EL_CATCH; return EL_SUCCESS; } \
-  /* Matrix<Base<T>> DistMatrix<T,U,V>::GetImagPartOfLocalSubmatrix
-     ( const std::vector<Int>& I, 
-       const std::vector<Int>& J ) const */ \
-  ElError ElDistMatrixGetImagPartOfLocalSubmatrix_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, \
-    ElInt numRowInds, const ElInt* ILoc, \
-    ElInt numColInds, const ElInt* JLoc, \
-    ElMatrix_ ## SIGBASE *ASub ) \
-  { try { \
-        auto APtr = CReflect(A); \
-        auto ASubPtr = new Matrix<Base<T>>; \
-        std::vector<Int> IVec(ILoc,ILoc+numRowInds), \
-                         JVec(JLoc,JLoc+numColInds); \
-        APtr->GetImagPartOfLocalSubmatrix( IVec, JVec, *ASubPtr ); \
         *ASub = CReflect(ASubPtr); } EL_CATCH; return EL_SUCCESS; } \
   /* void DistMatrix<T,U,V>::SetRealPartOfLocalSubmatrix
      ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
