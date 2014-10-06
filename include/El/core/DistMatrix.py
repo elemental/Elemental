@@ -597,47 +597,21 @@ class DistMatrix(object):
     # TODO: Python analogue of size_t
     raise Exception('Returning the allocated memory is not yet supported')
   def Buffer(self):
-    if   self.tag == iTag:
-      buf = POINTER(iType)()
-      lib.ElDistMatrixBuffer_i(self.obj,pointer(buf))
-      return buf
-    elif self.tag == sTag:
-      buf = POINTER(sType)()
-      lib.ElDistMatrixBuffer_s(self.obj,pointer(buf))
-      return buf
-    elif self.tag == dTag:
-      buf = POINTER(dType)()
-      lib.ElDistMatrixBuffer_d(self.obj,pointer(buf))
-      return buf
-    elif self.tag == cTag:
-      buf = POINTER(cType)()
-      lib.ElDistMatrixBuffer_c(self.obj,pointer(buf))
-      return buf
-    elif self.tag == zTag:
-      buf = POINTER(zType)()
-      lib.ElDistMatrixBuffer_z(self.obj,pointer(buf))
-      return buf
+    buf = POINTER(TagToType(self.tag))()
+    if   self.tag == iTag: lib.ElDistMatrixBuffer_i(self.obj,pointer(buf))
+    elif self.tag == sTag: lib.ElDistMatrixBuffer_s(self.obj,pointer(buf))
+    elif self.tag == dTag: lib.ElDistMatrixBuffer_d(self.obj,pointer(buf))
+    elif self.tag == cTag: lib.ElDistMatrixBuffer_c(self.obj,pointer(buf))
+    elif self.tag == zTag: lib.ElDistMatrixBuffer_z(self.obj,pointer(buf))
+    return buf
   def LockedBuffer(self):
-    if   self.tag == iTag:
-      buf = POINTER(iType)()
-      lib.ElDistMatrixLockedBuffer_i(self.obj,pointer(buf))
-      return buf
-    elif self.tag == sTag:
-      buf = POINTER(sType)()
-      lib.ElDistMatrixLockedBuffer_s(self.obj,pointer(buf))
-      return buf
-    elif self.tag == dTag:
-      buf = POINTER(dType)()
-      lib.ElDistMatrixLockedBuffer_d(self.obj,pointer(buf))
-      return buf
-    elif self.tag == cTag:
-      buf = POINTER(cType)()
-      lib.ElDistMatrixLockedBuffer_c(self.obj,pointer(buf))
-      return buf
-    elif self.tag == zTag:
-      buf = POINTER(zType)()
-      lib.ElDistMatrixLockedBuffer_z(self.obj,pointer(buf))
-      return buf
+    buf = POINTER(TagToType(self.tag))()
+    if   self.tag == iTag: lib.ElDistMatrixLockedBuffer_i(self.obj,pointer(buf))
+    elif self.tag == sTag: lib.ElDistMatrixLockedBuffer_s(self.obj,pointer(buf))
+    elif self.tag == dTag: lib.ElDistMatrixLockedBuffer_d(self.obj,pointer(buf))
+    elif self.tag == cTag: lib.ElDistMatrixLockedBuffer_c(self.obj,pointer(buf))
+    elif self.tag == zTag: lib.ElDistMatrixLockedBuffer_z(self.obj,pointer(buf))
+    return buf
   def Grid(self):
     grid = G.Grid()
     if   self.tag == iTag: lib.ElDistMatrixGrid_i(self.obj,pointer(grid.obj))
@@ -1164,47 +1138,23 @@ class DistMatrix(object):
       lib.ElDistMatrixRedundantSize_z(self.obj,pointer(size))
     return size
   def Get(self,i,j):
-    if   self.tag == iTag:
-      value = iType()
-      lib.ElDistMatrixGet_i(self.obj,i,j,pointer(value))
-      return value
-    elif self.tag == sTag:
-      value = sType()
-      lib.ElDistMatrixGet_s(self.obj,i,j,pointer(value))
-      return value
-    elif self.tag == dTag:
-      value = dType()
-      lib.ElDistMatrixGet_d(self.obj,i,j,pointer(value))
-      return value
-    elif self.tag == cTag:
-      value = cType()
-      lib.ElDistMatrixGet_c(self.obj,i,j,pointer(value))
-      return value
-    elif self.tag == zTag:
-      value = zType()
-      lib.ElDistMatrixGet_z(self.obj,i,j,pointer(value))
-      return value
+    value = TagToType(self.tag)()
+    if   self.tag == iTag: lib.ElDistMatrixGet_i(self.obj,i,j,pointer(value))
+    elif self.tag == sTag: lib.ElDistMatrixGet_s(self.obj,i,j,pointer(value))
+    elif self.tag == dTag: lib.ElDistMatrixGet_d(self.obj,i,j,pointer(value))
+    elif self.tag == cTag: lib.ElDistMatrixGet_c(self.obj,i,j,pointer(value))
+    elif self.tag == zTag: lib.ElDistMatrixGet_z(self.obj,i,j,pointer(value))
+    return value
   def GetRealPart(self,i,j):
-    if   self.tag == iTag:
-      value = iType()
-      lib.ElDistMatrixGet_i(self.obj,i,j,pointer(value))
-      return value
-    elif self.tag == sTag:
-      value = sType()
-      lib.ElDistMatrixGet_s(self.obj,i,j,pointer(value))
-      return value
-    elif self.tag == dTag:
-      value = dType()
-      lib.ElDistMatrixGet_d(self.obj,i,j,pointer(value))
-      return value
+    value = TagToType(Base(self.tag))()
+    if   self.tag == iTag: lib.ElDistMatrixGet_i(self.obj,i,j,pointer(value))
+    elif self.tag == sTag: lib.ElDistMatrixGet_s(self.obj,i,j,pointer(value))
+    elif self.tag == dTag: lib.ElDistMatrixGet_d(self.obj,i,j,pointer(value))
     elif self.tag == cTag:
-      value = sType()
       lib.ElDistMatrixGetRealPart_c(self.obj,i,j,pointer(value))
-      return value
     elif self.tag == zTag:
-      value = dType()
       lib.ElDistMatrixGetRealPart_z(self.obj,i,j,pointer(value))
-      return value
+    return value
   def GetImagPart(self,i,j):
     if   self.tag == iTag: return iType(0)
     elif self.tag == sTag: return sType(0)

@@ -62,41 +62,19 @@ lib.ElCauchyDist_z.restype = c_uint
 def Cauchy(A,x,y):
   xLen = len(x)
   yLen = len(y)
+  xBuf = (TagToType(A.tag)*xLen)(*x)
+  yBuf = (TagToType(A.tag)*yLen)(*y)
   if type(A) is Matrix:
-    if   A.tag == sTag: 
-      xBuf = (sType*xLen)(*x)
-      yBuf = (sType*yLen)(*y)
-      lib.ElCauchy_s(A.obj,xLen,xBuf,yLen,yBuf)
-    elif A.tag == dTag:
-      xBuf = (dType*xLen)(*x)
-      yBuf = (dType*yLen)(*y)
-      lib.ElCauchy_d(A.obj,xLen,xBuf,yLen,yBuf)
-    elif A.tag == cTag:
-      xBuf = (cType*xLen)(*x)
-      yBuf = (cType*yLen)(*y)
-      lib.ElCauchy_c(A.obj,xLen,xBuf,yLen,yBuf)
-    elif A.tag == zTag:
-      xBuf = (zType*xLen)(*x)
-      yBuf = (zType*yLen)(*y)
-      lib.ElCauchy_z(A.obj,xLen,xBuf,yLen,yBuf)
+    if   A.tag == sTag: lib.ElCauchy_s(A.obj,xLen,xBuf,yLen,yBuf)
+    elif A.tag == dTag: lib.ElCauchy_d(A.obj,xLen,xBuf,yLen,yBuf)
+    elif A.tag == cTag: lib.ElCauchy_c(A.obj,xLen,xBuf,yLen,yBuf)
+    elif A.tag == zTag: lib.ElCauchy_z(A.obj,xLen,xBuf,yLen,yBuf)
     else: raise Exception('Unsupported datatype')
   elif type(A) is DistMatrix:
-    if   A.tag == sTag: 
-      xBuf = (sType*xLen)(*x)
-      yBuf = (sType*yLen)(*y)
-      lib.ElCauchyDist_s(A.obj,xLen,xBuf,yLen,yBuf)
-    elif A.tag == dTag:
-      xBuf = (dType*xLen)(*x)
-      yBuf = (dType*yLen)(*y)
-      lib.ElCauchyDist_d(A.obj,xLen,xBuf,yLen,yBuf)
-    elif A.tag == cTag:
-      xBuf = (cType*xLen)(*x)
-      yBuf = (cType*yLen)(*y)
-      lib.ElCauchyDist_c(A.obj,xLen,xBuf,yLen,yBuf)
-    elif A.tag == zTag:
-      xBuf = (zType*xLen)(*x)
-      yBuf = (zType*yLen)(*y)
-      lib.ElCauchyDist_z(A.obj,xLen,xBuf,yLen,yBuf)
+    if   A.tag == sTag: lib.ElCauchyDist_s(A.obj,xLen,xBuf,yLen,yBuf)
+    elif A.tag == dTag: lib.ElCauchyDist_d(A.obj,xLen,xBuf,yLen,yBuf)
+    elif A.tag == cTag: lib.ElCauchyDist_c(A.obj,xLen,xBuf,yLen,yBuf)
+    elif A.tag == zTag: lib.ElCauchyDist_z(A.obj,xLen,xBuf,yLen,yBuf)
     else: raise Exception('Unsupported datatype')
   else: raise Exception('Unsupported matrix type')
 
@@ -139,56 +117,28 @@ def CauchyLike(A,r,s,x,y):
   sLen = len(s)
   xLen = len(x)
   yLen = len(y)
+  rBuf = (TagToType(A.tag)*rLen)(*r)
+  sBuf = (TagToType(A.tag)*sLen)(*s)
+  xBuf = (TagToType(A.tag)*xLen)(*x)
+  yBuf = (TagToType(A.tag)*yLen)(*y)
   if type(A) is Matrix:
     if   A.tag == sTag: 
-      rBuf = (sType*rLen)(*r)
-      sBuf = (sType*sLen)(*s)
-      xBuf = (sType*xLen)(*x)
-      yBuf = (sType*yLen)(*y)
       lib.ElCauchyLike_s(A.obj,rLen,rBuf,sLen,sBuf,xLen,xBuf,yLen,yBuf)
     elif A.tag == dTag:
-      rBuf = (dType*rLen)(*r)
-      sBuf = (dType*sLen)(*s)
-      xBuf = (dType*xLen)(*x)
-      yBuf = (dType*yLen)(*y)
       lib.ElCauchyLike_d(A.obj,rLen,rBuf,sLen,sBuf,xLen,xBuf,yLen,yBuf)
     elif A.tag == cTag:
-      rBuf = (cType*rLen)(*r)
-      sBuf = (cType*sLen)(*s)
-      xBuf = (cType*xLen)(*x)
-      yBuf = (cType*yLen)(*y)
       lib.ElCauchyLike_c(A.obj,rLen,rBuf,sLen,sBuf,xLen,xBuf,yLen,yBuf)
     elif A.tag == zTag:
-      rBuf = (zType*rLen)(*r)
-      sBuf = (zType*sLen)(*s)
-      xBuf = (zType*xLen)(*x)
-      yBuf = (zType*yLen)(*y)
       lib.ElCauchyLike_z(A.obj,rLen,rBuf,sLen,sBuf,xLen,xBuf,yLen,yBuf)
     else: raise Exception('Unsupported datatype')
   elif type(A) is DistMatrix:
     if   A.tag == sTag: 
-      rBuf = (sType*rLen)(*r)
-      sBuf = (sType*sLen)(*s)
-      xBuf = (sType*xLen)(*x)
-      yBuf = (sType*yLen)(*y)
       lib.ElCauchyLikeDist_s(A.obj,rLen,rBuf,sLen,sBuf,xLen,xBuf,yLen,yBuf)
     elif A.tag == dTag:
-      rBuf = (dType*rLen)(*r)
-      sBuf = (dType*sLen)(*s)
-      xBuf = (dType*xLen)(*x)
-      yBuf = (dType*yLen)(*y)
       lib.ElCauchyLikeDist_d(A.obj,rLen,rBuf,sLen,sBuf,xLen,xBuf,yLen,yBuf)
     elif A.tag == cTag:
-      rBuf = (cType*rLen)(*r)
-      sBuf = (cType*sLen)(*s)
-      xBuf = (cType*xLen)(*x)
-      yBuf = (cType*yLen)(*y)
       lib.ElCauchyLikeDist_c(A.obj,rLen,rBuf,sLen,sBuf,xLen,xBuf,yLen,yBuf)
     elif A.tag == zTag:
-      rBuf = (zType*rLen)(*r)
-      sBuf = (zType*sLen)(*s)
-      xBuf = (zType*xLen)(*x)
-      yBuf = (zType*yLen)(*y)
       lib.ElCauchyLikeDist_z(A.obj,rLen,rBuf,sLen,sBuf,xLen,xBuf,yLen,yBuf)
     else: raise Exception('Unsupported datatype')
   else: raise Exception('Unsupported matrix type')
@@ -217,39 +167,20 @@ lib.ElCirculantDist_z.argtypes = [c_void_p,iType,POINTER(zType)]
 lib.ElCirculantDist_z.restype = c_uint
 def Circulant(A,a):
   aLen = len(a)
+  aBuf = (TagToType(A.tag)*aLen)(*a)
   if type(A) is Matrix:
-    if   A.tag == iTag: 
-      aBuf = (iType*aLen)(*a)
-      lib.ElCirculant_i(A.obj,aLen,aBuf)
-    elif A.tag == sTag:
-      aBuf = (sType*aLen)(*a)
-      lib.ElCirculant_s(A.obj,aLen,aBuf)
-    elif A.tag == dTag:
-      aBuf = (dType*aLen)(*a)
-      lib.ElCirculant_d(A.obj,aLen,aBuf)
-    elif A.tag == cTag:
-      aBuf = (cType*aLen)(*a)
-      lib.ElCirculant_c(A.obj,aLen,aBuf)
-    elif A.tag == zTag:
-      aBuf = (zType*aLen)(*a)
-      lib.ElCirculant_z(A.obj,aLen,aBuf)
+    if   A.tag == iTag: lib.ElCirculant_i(A.obj,aLen,aBuf)
+    elif A.tag == sTag: lib.ElCirculant_s(A.obj,aLen,aBuf)
+    elif A.tag == dTag: lib.ElCirculant_d(A.obj,aLen,aBuf)
+    elif A.tag == cTag: lib.ElCirculant_c(A.obj,aLen,aBuf)
+    elif A.tag == zTag: lib.ElCirculant_z(A.obj,aLen,aBuf)
     else: raise Exception('Unsupported datatype')
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: 
-      aBuf = (iType*aLen)(*a)
-      lib.ElCirculantDist_i(A.obj,aLen,aBuf)
-    elif A.tag == sTag:
-      aBuf = (sType*aLen)(*a)
-      lib.ElCirculantDist_s(A.obj,aLen,aBuf)
-    elif A.tag == dTag:
-      aBuf = (dType*aLen)(*a)
-      lib.ElCirculantDist_d(A.obj,aLen,aBuf)
-    elif A.tag == cTag:
-      aBuf = (cType*aLen)(*a)
-      lib.ElCirculantDist_c(A.obj,aLen,aBuf)
-    elif A.tag == zTag:
-      aBuf = (zType*aLen)(*a)
-      lib.ElCirculantDist_z(A.obj,aLen,aBuf)
+    if   A.tag == iTag: lib.ElCirculantDist_i(A.obj,aLen,aBuf)
+    elif A.tag == sTag: lib.ElCirculantDist_s(A.obj,aLen,aBuf)
+    elif A.tag == dTag: lib.ElCirculantDist_d(A.obj,aLen,aBuf)
+    elif A.tag == cTag: lib.ElCirculantDist_c(A.obj,aLen,aBuf)
+    elif A.tag == zTag: lib.ElCirculantDist_z(A.obj,aLen,aBuf)
     else: raise Exception('Unsupported datatype')
   else: raise Exception('Unsupported matrix type')
 
@@ -310,39 +241,20 @@ lib.ElDiagonalDist_z.argtypes = [c_void_p,iType,POINTER(zType)]
 lib.ElDiagonalDist_z.restype = c_uint
 def Diagonal(A,d):
   dLen = len(d)
+  dBuf = (TagToType(A.tag)*dLen)(*d)
   if type(A) is Matrix:
-    if   A.tag == iTag: 
-      dBuf = (iType*dLen)(*d)
-      lib.ElDiagonal_i(A.obj,dLen,dBuf)
-    elif A.tag == sTag:
-      dBuf = (sType*dLen)(*d)
-      lib.ElDiagonal_s(A.obj,dLen,dBuf)
-    elif A.tag == dTag:
-      dBuf = (dType*dLen)(*d)
-      lib.ElDiagonal_d(A.obj,dLen,dBuf)
-    elif A.tag == cTag:
-      dBuf = (cType*dLen)(*d)
-      lib.ElDiagonal_c(A.obj,dLen,dBuf)
-    elif A.tag == zTag:
-      dBuf = (zType*zLen)(*d)
-      lib.ElDiagonal_z(A.obj,dLen,dBuf)
+    if   A.tag == iTag: lib.ElDiagonal_i(A.obj,dLen,dBuf)
+    elif A.tag == sTag: lib.ElDiagonal_s(A.obj,dLen,dBuf)
+    elif A.tag == dTag: lib.ElDiagonal_d(A.obj,dLen,dBuf)
+    elif A.tag == cTag: lib.ElDiagonal_c(A.obj,dLen,dBuf)
+    elif A.tag == zTag: lib.ElDiagonal_z(A.obj,dLen,dBuf)
     else: raise Exception('Unsupported datatype')
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: 
-      dBuf = (iType*dLen)(*d)
-      lib.ElDiagonalDist_i(A.obj,dLen,dBuf)
-    elif A.tag == sTag:
-      dBuf = (sType*dLen)(*d)
-      lib.ElDiagonalDist_s(A.obj,dLen,dBuf)
-    elif A.tag == dTag:
-      dBuf = (dType*dLen)(*d)
-      lib.ElDiagonalDist_d(A.obj,dLen,dBuf)
-    elif A.tag == cTag:
-      dBuf = (cType*dLen)(*d)
-      lib.ElDiagonalDist_c(A.obj,dLen,dBuf)
-    elif A.tag == zTag:
-      dBuf = (zType*zLen)(*d)
-      lib.ElDiagonalDist_z(A.obj,dLen,dBuf)
+    if   A.tag == iTag: lib.ElDiagonalDist_i(A.obj,dLen,dBuf)
+    elif A.tag == sTag: lib.ElDiagonalDist_s(A.obj,dLen,dBuf)
+    elif A.tag == dTag: lib.ElDiagonalDist_d(A.obj,dLen,dBuf)
+    elif A.tag == cTag: lib.ElDiagonalDist_c(A.obj,dLen,dBuf)
+    elif A.tag == zTag: lib.ElDiagonalDist_z(A.obj,dLen,dBuf)
     else: raise Exception('Unsupported datatype')
   else: raise Exception('Unsupported matrix type')
 
@@ -357,21 +269,14 @@ lib.ElEgorovDist_c.restype = c_uint
 lib.ElEgorovDist_z.argtypes = [c_void_p,CFUNCTYPE(dType,iType,iType),iType]
 lib.ElEgorovDist_z.restype = c_uint
 def Egorov(A,phase,n):
+  cPhase = CFUNCTYPE(TagToType(Base(A.tag)),iType,iType)(phase)
   if type(A) is Matrix:
-    if   A.tag == cTag:
-      cPhase = CFUNCTYPE(sType,iType,iType)(phase)
-      lib.ElEgorov_c(A.obj,cPhase,n)
-    elif A.tag == zTag:
-      cPhase = CFUNCTYPE(dType,iType,iType)(phase)
-      lib.ElEgorov_z(A.obj,cPhase,n)
+    if   A.tag == cTag: lib.ElEgorov_c(A.obj,cPhase,n)
+    elif A.tag == zTag: lib.ElEgorov_z(A.obj,cPhase,n)
     else: raise Exception('Unsupported datatype')
   elif type(A) is DistMatrix:
-    if   A.tag == cTag:
-      cPhase = CFUNCTYPE(sType,iType,iType)(phase)
-      lib.ElEgorovDist_c(A.obj,cPhase,n)
-    elif A.tag == zTag:
-      cPhase = CFUNCTYPE(dType,iType,iType)(phase)
-      lib.ElEgorovDist_z(A.obj,cPhase,n)
+    if   A.tag == cTag: lib.ElEgorovDist_c(A.obj,cPhase,n)
+    elif A.tag == zTag: lib.ElEgorovDist_z(A.obj,cPhase,n)
     else: raise Exception('Unsupported datatype')
   else: raise Exception('Unsupported matrix type')
 
@@ -523,33 +428,18 @@ lib.ElFiedlerDist_z.argtypes = [c_void_p,iType,POINTER(zType)]
 lib.ElFiedlerDist_z.restype = c_uint
 def Fiedler(A,c):
   cLen = len(c)
+  cBuf = (TagToType(A.tag)*cLen)(*c)
   if type(A) is Matrix:
-    if   A.tag == sTag: 
-      cBuf = (sType*cLen)(*c)
-      lib.ElFiedler_s(A.obj,cLen,cBuf)
-    elif A.tag == dTag:
-      cBuf = (dType*cLen)(*c)
-      lib.ElFiedler_d(A.obj,cLen,cBuf)
-    elif A.tag == cTag:
-      cBuf = (cType*cLen)(*c)
-      lib.ElFiedler_c(A.obj,cLen,cBuf)
-    elif A.tag == zTag:
-      cBuf = (zType*cLen)(*c)
-      lib.ElFiedler_z(A.obj,cLen,cBuf)
+    if   A.tag == sTag: lib.ElFiedler_s(A.obj,cLen,cBuf)
+    elif A.tag == dTag: lib.ElFiedler_d(A.obj,cLen,cBuf)
+    elif A.tag == cTag: lib.ElFiedler_c(A.obj,cLen,cBuf)
+    elif A.tag == zTag: lib.ElFiedler_z(A.obj,cLen,cBuf)
     else: raise Exception('Unsupported datatype')
   elif type(A) is DistMatrix:
-    if   A.tag == sTag: 
-      cBuf = (sType*cLen)(*c)
-      lib.ElFiedlerDist_s(A.obj,cLen,cBuf)
-    elif A.tag == dTag:
-      cBuf = (dType*cLen)(*c)
-      lib.ElFiedlerDist_d(A.obj,cLen,cBuf)
-    elif A.tag == cTag:
-      cBuf = (cType*cLen)(*c)
-      lib.ElFiedlerDist_c(A.obj,cLen,cBuf)
-    elif A.tag == zTag:
-      cBuf = (zType*cLen)(*c)
-      lib.ElFiedlerDist_z(A.obj,cLen,cBuf)
+    if   A.tag == sTag: lib.ElFiedlerDist_s(A.obj,cLen,cBuf)
+    elif A.tag == dTag: lib.ElFiedlerDist_d(A.obj,cLen,cBuf)
+    elif A.tag == cTag: lib.ElFiedlerDist_c(A.obj,cLen,cBuf)
+    elif A.tag == zTag: lib.ElFiedlerDist_z(A.obj,cLen,cBuf)
     else: raise Exception('Unsupported datatype')
   else: raise Exception('Unsupported matrix type')
 
@@ -636,15 +526,254 @@ def Fourier(A,n):
 
 # GCD matrix
 # ----------
-# TODO
+lib.ElGCDMatrix_i.argtypes = [c_void_p,iType,iType]
+lib.ElGCDMatrix_i.restype = c_uint
+lib.ElGCDMatrix_s.argtypes = [c_void_p,iType,iType]
+lib.ElGCDMatrix_s.restype = c_uint
+lib.ElGCDMatrix_d.argtypes = [c_void_p,iType,iType]
+lib.ElGCDMatrix_d.restype = c_uint
+lib.ElGCDMatrix_c.argtypes = [c_void_p,iType,iType]
+lib.ElGCDMatrix_c.restype = c_uint
+lib.ElGCDMatrix_z.argtypes = [c_void_p,iType,iType]
+lib.ElGCDMatrix_z.restype = c_uint
+lib.ElGCDMatrixDist_i.argtypes = [c_void_p,iType,iType]
+lib.ElGCDMatrixDist_i.restype = c_uint
+lib.ElGCDMatrixDist_s.argtypes = [c_void_p,iType,iType]
+lib.ElGCDMatrixDist_s.restype = c_uint
+lib.ElGCDMatrixDist_d.argtypes = [c_void_p,iType,iType]
+lib.ElGCDMatrixDist_d.restype = c_uint
+lib.ElGCDMatrixDist_c.argtypes = [c_void_p,iType,iType]
+lib.ElGCDMatrixDist_c.restype = c_uint
+lib.ElGCDMatrixDist_z.argtypes = [c_void_p,iType,iType]
+lib.ElGCDMatrixDist_z.restype = c_uint
+def GCDMatrix(G,m,n):
+  if type(G) is Matrix:
+    if   G.tag == iTag: lib.ElGCDMatrix_i(G.obj,m,n)
+    elif G.tag == sTag: lib.ElGCDMatrix_s(G.obj,m,n)
+    elif G.tag == dTag: lib.ElGCDMatrix_d(G.obj,m,n)
+    elif G.tag == cTag: lib.ElGCDMatrix_c(G.obj,m,n)
+    elif G.tag == zTag: lib.ElGCDMatrix_z(G.obj,m,n)
+    else: raise Exception('Unsupported datatype')
+  elif type(G) is DistMatrix:
+    if   G.tag == iTag: lib.ElGCDMatrixDist_i(G.obj,m,n)
+    elif G.tag == sTag: lib.ElGCDMatrixDist_s(G.obj,m,n)
+    elif G.tag == dTag: lib.ElGCDMatrixDist_d(G.obj,m,n)
+    elif G.tag == cTag: lib.ElGCDMatrixDist_c(G.obj,m,n)
+    elif G.tag == zTag: lib.ElGCDMatrixDist_z(G.obj,m,n)
+    else: raise Exception('Unsupported datatype')
+  else: raise Exception('Unsupported matrix type')
 
 # Gear matrix
 # -----------
-# TODO
+lib.ElGear_i.argtypes = [c_void_p,iType,iType,iType]
+lib.ElGear_i.restype = c_uint
+lib.ElGear_s.argtypes = [c_void_p,iType,iType,iType]
+lib.ElGear_s.restype = c_uint
+lib.ElGear_d.argtypes = [c_void_p,iType,iType,iType]
+lib.ElGear_d.restype = c_uint
+lib.ElGear_c.argtypes = [c_void_p,iType,iType,iType]
+lib.ElGear_c.restype = c_uint
+lib.ElGear_z.argtypes = [c_void_p,iType,iType,iType]
+lib.ElGear_z.restype = c_uint
+lib.ElGearDist_i.argtypes = [c_void_p,iType,iType,iType]
+lib.ElGearDist_i.restype = c_uint
+lib.ElGearDist_s.argtypes = [c_void_p,iType,iType,iType]
+lib.ElGearDist_s.restype = c_uint
+lib.ElGearDist_d.argtypes = [c_void_p,iType,iType,iType]
+lib.ElGearDist_d.restype = c_uint
+lib.ElGearDist_c.argtypes = [c_void_p,iType,iType,iType]
+lib.ElGearDist_c.restype = c_uint
+lib.ElGearDist_z.argtypes = [c_void_p,iType,iType,iType]
+lib.ElGearDist_z.restype = c_uint
+def Gear(G,n,s,t):
+  if type(G) is Matrix:
+    if   G.tag == iTag: lib.ElGear_i(G.obj,n,s,t)
+    elif G.tag == sTag: lib.ElGear_s(G.obj,n,s,t)
+    elif G.tag == dTag: lib.ElGear_d(G.obj,n,s,t)
+    elif G.tag == cTag: lib.ElGear_c(G.obj,n,s,t)
+    elif G.tag == zTag: lib.ElGear_z(G.obj,n,s,t)
+    else: raise Exception('Unsupported datatype')
+  elif type(G) is DistMatrix:
+    if   G.tag == iTag: lib.ElGearDist_i(G.obj,n,s,t)
+    elif G.tag == sTag: lib.ElGearDist_s(G.obj,n,s,t)
+    elif G.tag == dTag: lib.ElGearDist_d(G.obj,n,s,t)
+    elif G.tag == cTag: lib.ElGearDist_c(G.obj,n,s,t)
+    elif G.tag == zTag: lib.ElGearDist_z(G.obj,n,s,t)
+    else: raise Exception('Unsupported datatype')
+  else: raise Exception('Unsupported matrix type')
 
 # GEPP Growth
 # -----------
-# TODO
+lib.ElGEPPGrowth_s.argtypes = [c_void_p,iType]
+lib.ElGEPPGrowth_s.restype = c_uint
+lib.ElGEPPGrowth_d.argtypes = [c_void_p,iType]
+lib.ElGEPPGrowth_d.restype = c_uint
+lib.ElGEPPGrowth_c.argtypes = [c_void_p,iType]
+lib.ElGEPPGrowth_c.restype = c_uint
+lib.ElGEPPGrowth_z.argtypes = [c_void_p,iType]
+lib.ElGEPPGrowth_z.restype = c_uint
+lib.ElGEPPGrowthDist_s.argtypes = [c_void_p,iType]
+lib.ElGEPPGrowthDist_s.restype = c_uint
+lib.ElGEPPGrowthDist_d.argtypes = [c_void_p,iType]
+lib.ElGEPPGrowthDist_d.restype = c_uint
+lib.ElGEPPGrowthDist_c.argtypes = [c_void_p,iType]
+lib.ElGEPPGrowthDist_c.restype = c_uint
+lib.ElGEPPGrowthDist_z.argtypes = [c_void_p,iType]
+lib.ElGEPPGrowthDist_z.restype = c_uint
+def GEPPGrowth(A,n):
+  if type(A) is Matrix:
+    if   A.tag == sTag: lib.ElGEPPGrowth_s(A.obj,n)
+    elif A.tag == dTag: lib.ElGEPPGrowth_d(A.obj,n)
+    elif A.tag == cTag: lib.ElGEPPGrowth_c(A.obj,n)
+    elif A.tag == zTag: lib.ElGEPPGrowth_z(A.obj,n)
+    else: raise Exception('Unsupported datatype')
+  elif type(A) is DistMatrix:
+    if   A.tag == sTag: lib.ElGEPPGrowthDist_s(A.obj,n)
+    elif A.tag == dTag: lib.ElGEPPGrowthDist_d(A.obj,n)
+    elif A.tag == cTag: lib.ElGEPPGrowthDist_c(A.obj,n)
+    elif A.tag == zTag: lib.ElGEPPGrowthDist_z(A.obj,n)
+    else: raise Exception('Unsupported datatype')
+  else: raise Exception('Unsupported matrix type')
+
+# Golub/Klema/Stewart
+# -------------------
+lib.ElGKS_s.argtypes = [c_void_p,iType]
+lib.ElGKS_s.restype = c_uint
+lib.ElGKS_d.argtypes = [c_void_p,iType]
+lib.ElGKS_d.restype = c_uint
+lib.ElGKS_c.argtypes = [c_void_p,iType]
+lib.ElGKS_c.restype = c_uint
+lib.ElGKS_z.argtypes = [c_void_p,iType]
+lib.ElGKS_z.restype = c_uint
+lib.ElGKSDist_s.argtypes = [c_void_p,iType]
+lib.ElGKSDist_s.restype = c_uint
+lib.ElGKSDist_d.argtypes = [c_void_p,iType]
+lib.ElGKSDist_d.restype = c_uint
+lib.ElGKSDist_c.argtypes = [c_void_p,iType]
+lib.ElGKSDist_c.restype = c_uint
+lib.ElGKSDist_z.argtypes = [c_void_p,iType]
+lib.ElGKSDist_z.restype = c_uint
+def GKS(A,n):
+  if type(A) is Matrix:
+    if   A.tag == sTag: lib.ElGKS_s(A.obj,n)
+    elif A.tag == dTag: lib.ElGKS_d(A.obj,n)
+    elif A.tag == cTag: lib.ElGKS_c(A.obj,n)
+    elif A.tag == zTag: lib.ElGKS_z(A.obj,n)
+    else: raise Exception('Unsupported datatype')
+  elif type(A) is DistMatrix:
+    if   A.tag == sTag: lib.ElGKSDist_s(A.obj,n)
+    elif A.tag == dTag: lib.ElGKSDist_d(A.obj,n)
+    elif A.tag == cTag: lib.ElGKSDist_c(A.obj,n)
+    elif A.tag == zTag: lib.ElGKSDist_z(A.obj,n)
+    else: raise Exception('Unsupported datatype')
+  else: raise Exception('Unsupported matrix type')
+
+# Grcar
+# -----
+lib.ElGrcar_i.argtypes = [c_void_p,iType,iType]
+lib.ElGrcar_i.restype = c_uint
+lib.ElGrcar_s.argtypes = [c_void_p,iType,iType]
+lib.ElGrcar_s.restype = c_uint
+lib.ElGrcar_d.argtypes = [c_void_p,iType,iType]
+lib.ElGrcar_d.restype = c_uint
+lib.ElGrcar_c.argtypes = [c_void_p,iType,iType]
+lib.ElGrcar_c.restype = c_uint
+lib.ElGrcar_z.argtypes = [c_void_p,iType,iType]
+lib.ElGrcar_z.restype = c_uint
+lib.ElGrcarDist_i.argtypes = [c_void_p,iType,iType]
+lib.ElGrcarDist_i.restype = c_uint
+lib.ElGrcarDist_s.argtypes = [c_void_p,iType,iType]
+lib.ElGrcarDist_s.restype = c_uint
+lib.ElGrcarDist_d.argtypes = [c_void_p,iType,iType]
+lib.ElGrcarDist_d.restype = c_uint
+lib.ElGrcarDist_c.argtypes = [c_void_p,iType,iType]
+lib.ElGrcarDist_c.restype = c_uint
+lib.ElGrcarDist_z.argtypes = [c_void_p,iType,iType]
+lib.ElGrcarDist_z.restype = c_uint
+def Grcar(A,n,k):
+  if type(A) is Matrix:
+    if   A.tag == iTag: lib.ElGrcar_i(A.obj,n,k)
+    elif A.tag == sTag: lib.ElGrcar_s(A.obj,n,k)
+    elif A.tag == dTag: lib.ElGrcar_d(A.obj,n,k)
+    elif A.tag == cTag: lib.ElGrcar_c(A.obj,n,k)
+    elif A.tag == zTag: lib.ElGrcar_z(A.obj,n,k)
+    else: raise Exception('Unsupported datatype')
+  elif type(A) is DistMatrix:
+    if   A.tag == iTag: lib.ElGrcarDist_i(A.obj,n,k)
+    elif A.tag == sTag: lib.ElGrcarDist_s(A.obj,n,k)
+    elif A.tag == dTag: lib.ElGrcarDist_d(A.obj,n,k)
+    elif A.tag == cTag: lib.ElGrcarDist_c(A.obj,n,k)
+    elif A.tag == zTag: lib.ElGrcarDist_z(A.obj,n,k)
+    else: raise Exception('Unsupported datatype')
+  else: raise Exception('Unsupported matrix type')
+
+# Haar
+# ----
+lib.ElHaar_s.argtypes = [c_void_p,iType]
+lib.ElHaar_s.restype = c_uint
+lib.ElHaar_d.argtypes = [c_void_p,iType]
+lib.ElHaar_d.restype = c_uint
+lib.ElHaar_c.argtypes = [c_void_p,iType]
+lib.ElHaar_c.restype = c_uint
+lib.ElHaar_z.argtypes = [c_void_p,iType]
+lib.ElHaar_z.restype = c_uint
+lib.ElHaarDist_s.argtypes = [c_void_p,iType]
+lib.ElHaarDist_s.restype = c_uint
+lib.ElHaarDist_d.argtypes = [c_void_p,iType]
+lib.ElHaarDist_d.restype = c_uint
+lib.ElHaarDist_c.argtypes = [c_void_p,iType]
+lib.ElHaarDist_c.restype = c_uint
+lib.ElHaarDist_z.argtypes = [c_void_p,iType]
+lib.ElHaarDist_z.restype = c_uint
+def Haar(A,n):
+  if type(A) is Matrix:
+    if   A.tag == sTag: lib.ElHaar_s(A.obj,n)
+    elif A.tag == dTag: lib.ElHaar_d(A.obj,n)
+    elif A.tag == cTag: lib.ElHaar_c(A.obj,n)
+    elif A.tag == zTag: lib.ElHaar_z(A.obj,n)
+    else: raise Exception('Unsupported datatype')
+  elif type(A) is DistMatrix:
+    if   A.tag == sTag: lib.ElHaarDist_s(A.obj,n)
+    elif A.tag == dTag: lib.ElHaarDist_d(A.obj,n)
+    elif A.tag == cTag: lib.ElHaarDist_c(A.obj,n)
+    elif A.tag == zTag: lib.ElHaarDist_z(A.obj,n)
+    else: raise Exception('Unsupported datatype')
+  else: raise Exception('Unsupported matrix type')
+
+lib.ElImplicitHaar_s.argtypes = [c_void_p,c_void_p,c_void_p,iType]
+lib.ElImplicitHaar_s.restype = c_uint
+lib.ElImplicitHaar_d.argtypes = [c_void_p,c_void_p,c_void_p,iType]
+lib.ElImplicitHaar_d.restype = c_uint
+lib.ElImplicitHaar_c.argtypes = [c_void_p,c_void_p,c_void_p,iType]
+lib.ElImplicitHaar_c.restype = c_uint
+lib.ElImplicitHaar_z.argtypes = [c_void_p,c_void_p,c_void_p,iType]
+lib.ElImplicitHaar_z.restype = c_uint
+lib.ElImplicitHaarDist_s.argtypes = [c_void_p,c_void_p,c_void_p,iType]
+lib.ElImplicitHaarDist_s.restype = c_uint
+lib.ElImplicitHaarDist_d.argtypes = [c_void_p,c_void_p,c_void_p,iType]
+lib.ElImplicitHaarDist_d.restype = c_uint
+lib.ElImplicitHaarDist_c.argtypes = [c_void_p,c_void_p,c_void_p,iType]
+lib.ElImplicitHaarDist_c.restype = c_uint
+lib.ElImplicitHaarDist_z.argtypes = [c_void_p,c_void_p,c_void_p,iType]
+lib.ElImplicitHaarDist_z.restype = c_uint
+def ImplicitHaar(A,t,d,n):
+  if type(A) is not type(d): raise Exception('A and t must be of the same type')
+  if type(A) is not type(t): raise Exception('A and d must be of the same type')
+  if t.tag != A.tag: raise Exception('A and t must have the same datatype')
+  if d.tag != Base(A.tag): raise Exception('d must have the base datatype of A')
+  if type(A) is Matrix:
+    if   A.tag == sTag: lib.ElImplicitHaar_s(A.obj,t.obj,d.obj,n)
+    elif A.tag == dTag: lib.ElImplicitHaar_d(A.obj,t.obj,d.obj,n)
+    elif A.tag == cTag: lib.ElImplicitHaar_c(A.obj,t.obj,d.obj,n)
+    elif A.tag == zTag: lib.ElImplicitHaar_z(A.obj,t.obj,d.obj,n)
+    else: raise Exception('Unsupported datatype')
+  elif type(A) is DistMatrix:
+    if   A.tag == sTag: lib.ElImplicitHaarDist_s(A.obj,t.obj,d.obj,n)
+    elif A.tag == dTag: lib.ElImplicitHaarDist_d(A.obj,t.obj,d.obj,n)
+    elif A.tag == cTag: lib.ElImplicitHaarDist_c(A.obj,t.obj,d.obj,n)
+    elif A.tag == zTag: lib.ElImplicitHaarDist_z(A.obj,t.obj,d.obj,n)
+    else: raise Exception('Unsupported datatype')
+  else: raise Exception('Unsupported matrix type')
 
 # Random
 # ======

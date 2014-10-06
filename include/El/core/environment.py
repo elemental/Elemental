@@ -34,6 +34,13 @@ iType = c_int
 sType = c_float
 dType = c_double
 
+class ComplexFloat(ctypes.Structure):
+  _fields_ = [("real",sType),("imag",sType)]
+cType = ComplexFloat
+class ComplexDouble(ctypes.Structure):
+  _fields_ = [("real",dType),("imag",dType)]
+zType = ComplexDouble
+
 # Query Elemental to determine whether MPI_Comm is an 'int' or a void pointer
 commIsVoidP = bType()
 lib.ElMPICommIsVoidPointer(pointer(commIsVoidP))
@@ -57,6 +64,22 @@ def CheckTag(tag):
      tag != sTag and tag != dTag and \
      tag != cTag and tag != zTag:
     print 'Unsupported datatype'
+
+def Base(tag):
+  if   tag == iTag: return iTag
+  elif tag == sTag: return sTag
+  elif tag == dTag: return dTag
+  elif tag == cTag: return sTag
+  elif tag == zTag: return dTag
+  else: raise Exception('Invalid tag')
+
+def TagToType(tag):
+  if   tag == iTag: return iType
+  elif tag == sTag: return sType
+  elif tag == dTag: return dType
+  elif tag == cTag: return cType
+  elif tag == zTag: return zType
+  else: raise Exception('Invalid tag')
 
 # Emulate an enum for matrix distributions
 (MC,MD,MR,VC,VR,STAR,CIRC)=(0,1,2,3,4,5,6)
@@ -100,13 +123,6 @@ def Initialized():
   activeP = pointer(active)
   lib.ElInitialized( activeP )
   return active
-
-class ComplexFloat(ctypes.Structure):
-  _fields_ = [("real",sType),("imag",sType)]
-cType = ComplexFloat
-class ComplexDouble(ctypes.Structure):
-  _fields_ = [("real",dType),("imag",dType)]
-zType = ComplexDouble
 
 # Initialize MPI
 Initialize()

@@ -623,67 +623,29 @@ class Matrix(object):
     elif self.tag == zTag: lib.ElMatrixLocked_z(self.obj,pointer(locked))
     return locked
   def Buffer(self):
-    if   self.tag == iTag:
-      buf = POINTER(iType)()
-      lib.ElMatrixBuffer_i(self.obj,pointer(buf)) 
-      return buf
-    elif self.tag == sTag:
-      buf = POINTER(sType)()
-      lib.ElMatrixBuffer_s(self.obj,pointer(buf))
-      return buf
-    elif self.tag == dTag: 
-      buf = POINTER(dType)()
-      lib.ElMatrixBuffer_d(self.obj,pointer(buf))
-      return buf
-    elif self.tag == cTag:
-      buf = POINTER(cType)()
-      lib.ElMatrixBuffer_c(self.obj,pointer(buf))
-      return buf
-    elif self.tag == zTag:
-      buf = POINTER(zType)()
-      lib.ElMatrixBuffer_z(self.obj,pointer(buf))
-      return buf
+    buf = POINTER(TagToType(self.tag))()
+    if   self.tag == iTag: lib.ElMatrixBuffer_i(self.obj,pointer(buf)) 
+    elif self.tag == sTag: lib.ElMatrixBuffer_s(self.obj,pointer(buf))
+    elif self.tag == dTag: lib.ElMatrixBuffer_d(self.obj,pointer(buf))
+    elif self.tag == cTag: lib.ElMatrixBuffer_c(self.obj,pointer(buf))
+    elif self.tag == zTag: lib.ElMatrixBuffer_z(self.obj,pointer(buf))
+    return buf
   def LockedBuffer(self):
-    if   self.tag == iTag:
-      buf = POINTER(iType)()
-      lib.ElMatrixLockedBuffer_i(self.obj,pointer(buf)) 
-      return buf
-    elif self.tag == sTag:
-      buf = POINTER(sType)()
-      lib.ElMatrixLockedBuffer_s(self.obj,pointer(buf))
-      return buf
-    elif self.tag == dTag: 
-      buf = POINTER(dType)()
-      lib.ElMatrixLockedBuffer_d(self.obj,pointer(buf))
-      return buf
-    elif self.tag == cTag:
-      buf = POINTER(cType)()
-      lib.ElMatrixLockedBuffer_c(self.obj,pointer(buf))
-      return buf
-    elif self.tag == zTag:
-      buf = POINTER(zType)()
-      lib.ElMatrixLockedBuffer_z(self.obj,pointer(buf))
-      return buf
+    buf = POINTER(TagToType(self.tag))()
+    if   self.tag == iTag: lib.ElMatrixLockedBuffer_i(self.obj,pointer(buf)) 
+    elif self.tag == sTag: lib.ElMatrixLockedBuffer_s(self.obj,pointer(buf))
+    elif self.tag == dTag: lib.ElMatrixLockedBuffer_d(self.obj,pointer(buf))
+    elif self.tag == cTag: lib.ElMatrixLockedBuffer_c(self.obj,pointer(buf))
+    elif self.tag == zTag: lib.ElMatrixLockedBuffer_z(self.obj,pointer(buf))
+    return buf
   def Get(self,i,j):
-    if   self.tag == iTag:
-      value = iType()
-      lib.ElMatrixGet_i(self.obj,i,j,pointer(value))
-      return value
-    elif self.tag == sTag:
-      value = sType()
-      lib.ElMatrixGet_s(self.obj,i,j,pointer(value))
-      return value
-    elif self.tag == dTag:
-      value = dType()
-      lib.ElMatrixGet_d(self.obj,i,j,pointer(value))
-    elif self.tag == cTag:
-      value = cType()
-      lib.ElMatrixGet_c(self.obj,i,j,pointer(value))
-      return value
-    elif self.tag == zTag:
-      value = zType()
-      lib.ElMatrixGet_z(self.obj,i,j,pointer(value))
-      return value
+    value = TagToType(self.tag)()
+    if   self.tag == iTag: lib.ElMatrixGet_i(self.obj,i,j,pointer(value))
+    elif self.tag == sTag: lib.ElMatrixGet_s(self.obj,i,j,pointer(value))
+    elif self.tag == dTag: lib.ElMatrixGet_d(self.obj,i,j,pointer(value))
+    elif self.tag == cTag: lib.ElMatrixGet_c(self.obj,i,j,pointer(value))
+    elif self.tag == zTag: lib.ElMatrixGet_z(self.obj,i,j,pointer(value))
+    return value
   def GetRealPart(self,i,j):
     if self.tag == cTag:
       value = sType()
@@ -773,26 +735,18 @@ class Matrix(object):
     else: 
       return GetDiagonal(self,offset)
   def GetImagPartOfDiagonal(self,offset=iType(0)):
+    d = Matrix(TagToType(Base(self.tag)),False)
     if   self.tag == iTag:
-      d = Matrix(iTag,False)
       lib.ElMatrixGetImagPartOfDiagonal_i(self.obj,offset,pointer(d.obj))
-      return d
     elif self.tag == sTag:
-      d = Matrix(sTag,False)
       lib.ElMatrixGetImagPartOfDiagonal_s(self.obj,offset,pointer(d.obj))
-      return d
     elif self.tag == dTag:
-      d = Matrix(dTag,False)
       lib.ElMatrixGetImagPartOfDiagonal_d(self.obj,offset,pointer(d.obj))
-      return d
     elif self.tag == cTag:
-      d = Matrix(sTag,False)
       lib.ElMatrixGetImagPartOfDiagonal_c(self.obj,offset,pointer(d.obj))
-      return d
     elif self.tag == zTag:
-      d = Matrix(dTag,False)
       lib.ElMatrixGetImagPartOfDiagonal_z(self.obj,offset,pointer(d.obj))
-      return d
+    return d
   def SetDiagonal(self,d,offset=iType(0)):
     if type(d) is not Matrix: raise Exception('diagonal must be a Matrix')
     if self.tag != d.tag: raise Exception('Datatypes must match')
@@ -808,21 +762,19 @@ class Matrix(object):
       lib.ElMatrixSetDiagonal_z(self.obj,d.obj,offset)
   def SetRealPartOfDiagonal(self,d,offset=iType(0)):
     if type(d) is not Matrix: raise Exception('diagonal must be a Matrix')
+    if d.Tag != Base(self.tag): raise Exception('Datatypes must be compatible')
     if   self.tag == cTag:
-      if d.tag != sTag: raise Exception('Datatypes must be compatible')
       lib.ElMatrixSetRealPartOfDiagonal_c(self.obj,d.obj,offset)
     elif self.tag == zTag:
-      if d.tag != dTag: raise Exception('Datatypes must be compatible')
       lib.ElMatrixSetRealPartOfDiagonal_z(self.obj,d.obj,offset)
     else:
       SetDiagonal(d,offset)
   def SetImagPartOfDiagonal(self,d,offset=iType(0)):
     if type(d) is not Matrix: raise Exception('diagonal must be a Matrix')
+    if d.Tag != Base(self.tag): raise Exception('Datatypes must be compatible')
     if   self.tag == cTag:
-      if d.tag != sTag: raise Exception('Datatypes must be compatible')
       lib.ElMatrixSetImagPartOfDiagonal_c(self.obj,d.obj,offset)
     elif self.tag == zTag:
-      if d.tag != dTag: raise Exception('Datatypes must be compatible')
       lib.ElMatrixSetImagPartOfDiagonal_z(self.obj,d.obj,offset)
     else:
       raise Exception('Cannot set the imaginary part of a real matrix')
@@ -841,21 +793,19 @@ class Matrix(object):
       lib.ElMatrixUpdateDiagonal_z(self.obj,alpha,d.obj,offset)
   def UpdateRealPartOfDiagonal(self,alpha,d,offset=iType(0)):
     if type(d) is not Matrix: raise Exception('diagonal must be a Matrix')
+    if d.Tag != Base(self.tag): raise Exception('Datatypes must be compatible')
     if   self.tag == cTag:
-      if d.tag != sTag: raise Exception('Datatypes must be compatible')
       lib.ElMatrixUpdateRealPartOfDiagonal_c(self.obj,alpha,d.obj,offset)
     elif self.tag == zTag:
-      if d.tag != dTag: raise Exception('Datatypes must be compatible')
       lib.ElMatrixUpdateRealPartOfDiagonal_z(self.obj,alpha,d.obj,offset)
     else:
       UpdateDiagonal(alpha,d,offset)
   def UpdateImagPartOfDiagonal(self,alpha,d,offset=iType(0)):
     if type(d) is not Matrix: raise Exception('diagonal must be a Matrix')
+    if d.Tag != Base(self.tag): raise Exception('Datatypes must be compatible')
     if   self.tag == cTag:
-      if d.tag != sTag: raise Exception('Datatypes must be compatible')
       lib.ElMatrixUpdateImagPartOfDiagonal_c(self.obj,alpha,d.obj,offset)
     elif self.tag == zTag:
-      if d.tag != dTag: raise Exception('Datatypes must be compatible')
       lib.ElMatrixUpdateImagPartOfDiagonal_z(self.obj,alpha,d.obj,offset)
     else:
       raise Exception('Cannot update the imaginary part of a real matrix')
@@ -909,31 +859,23 @@ class Matrix(object):
     numColInds = len(J)
     rowInd = (iType*numRowInds)(*I)
     colInd = (iType*numColInds)(*J)
+    ASub = Matrix(TypeToTag(Base(self.tag)),False)
     if   self.tag == iTag: 
-      ASub = Matrix(iTag,False)
       lib.ElMatrixGetImagPartOfSubmatrix_i \
       (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
-      return ASub
     elif self.tag == sTag:
-      ASub = Matrix(sTag,False)
       lib.ElMatrixGetImagPartOfSubmatrix_s \
       (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
-      return ASub
     elif self.tag == dTag:
-      ASub = Matrix(dTag,False)
       lib.ElMatrixGetImagPartOfSubmatrix_d \
       (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
-      return ASub
     elif self.tag == cTag:
-      ASub = Matrix(sTag,False)
       lib.ElMatrixGetImagPartOfSubmatrix_c \
       (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
-      return ASub
     elif self.tag == zTag:
-      ASub = Matrix(dTag,False)
       lib.ElMatrixGetImagPartOfSubmatrix_z \
       (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
-      return ASub
+    return ASub
   def SetSubmatrix(self,I,J,ASub):
     numRowInds = len(I)
     numColInds = len(J)
@@ -957,11 +899,10 @@ class Matrix(object):
     rowInd = (iType*numRowInds)(*I)
     colInd = (iType*numColInds)(*J)
     if type(ASub) is not Matrix: raise Exception('ASub must be a Matrix')
+    if ASub.tag != Base(self.tag): raise Exception('Datatypes must match')
     if   self.tag == cTag:
-      if ASub.tag != sTag: raise Exception('Datatypes must be compatible')
       lib.ElMatrixSetRealPartOfSubmatrix_c(self.obj,rowInd,colInd,ASub.obj)
     elif self.tag == zTag:
-      if ASub.tag != dTag: raise Exception('Datatypes must be compatible')
       lib.ElMatrixSetRealPartOfSubmatrix_z(self.obj,rowInd,colInd,ASub.obj)
     else:
       SetSubmatrix(I,J,ASub)
@@ -971,11 +912,10 @@ class Matrix(object):
     rowInd = (iType*numRowInds)(*I)
     colInd = (iType*numColInds)(*J)
     if type(ASub) is not Matrix: raise Exception('ASub must be a Matrix')
+    if ASub.tag != Base(self.tag): raise Exception('Datatypes must match')
     if   self.tag == cTag:
-      if ASub.tag != sTag: raise Exception('Datatypes must be compatible')
       lib.ElMatrixSetImagPartOfSubmatrix_c(self.obj,rowInd,colInd,ASub.obj)
     elif self.tag == zTag:
-      if ASub.tag != dTag: raise Exception('Datatypes must be compatible')
       lib.ElMatrixSetImagPartOfSubmatrix_z(self.obj,rowInd,colInd,ASub.obj)
     else:
       raise Exception('Cannot set imaginary part of a real matrix')
@@ -1002,12 +942,11 @@ class Matrix(object):
     rowInd = (iType*numRowInds)(*I)
     colInd = (iType*numColInds)(*J)
     if type(ASub) is not Matrix: raise Exception('ASub must be a Matrix')
+    if ASub.tag != Base(self.tag): raise Exception('Datatypes must match')
     if   self.tag == cTag:
-      if ASub.tag != sTag: raise Exception('Datatypes must be compatible')
       lib.ElMatrixUpdateRealPartOfSubmatrix_c \
       (self.obj,rowInd,colInd,alpha,ASub.obj)
     elif self.tag == zTag:
-      if ASub.tag != dTag: raise Exception('Datatypes must be compatible')
       lib.ElMatrixUpdateRealPartOfSubmatrix_z \
       (self.obj,rowInd,colInd,alpha,ASub.obj)
     else:
@@ -1018,12 +957,11 @@ class Matrix(object):
     rowInd = (iType*numRowInds)(*I)
     colInd = (iType*numColInds)(*J)
     if type(ASub) is not Matrix: raise Exception('ASub must be a Matrix')
+    if ASub.tag != Base(self.tag): raise Exception('Datatypes must match')
     if   self.tag == cTag:
-      if ASub.tag != sTag: raise Exception('Datatypes must be compatible')
       lib.ElMatrixUpdateImagPartOfSubmatrix_c \
       (self.obj,rowInd,colInd,alpha,ASub.obj)
     elif self.tag == zTag:
-      if ASub.tag != dTag: raise Exception('Datatypes must be compatible')
       lib.ElMatrixUpdateImagPartOfSubmatrix_z \
       (self.obj,rowInd,colInd,alpha,ASub.obj)
     else:
