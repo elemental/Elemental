@@ -378,7 +378,118 @@ lib.ElMatrixConjugateDiagonal_c.restype = c_uint
 lib.ElMatrixConjugateDiagonal_z.argtypes = [c_void_p,iType]
 lib.ElMatrixConjugateDiagonal_z.restype = c_uint
 
-# LEFT OFF HERE
+lib.ElMatrixGetSubmatrix_i.argtypes = \
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+lib.ElMatrixGetSubmatrix_i.restype = c_uint
+lib.ElMatrixGetSubmatrix_s.argtypes = \
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+lib.ElMatrixGetSubmatrix_s.restype = c_uint
+lib.ElMatrixGetSubmatrix_d.argtypes = \
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+lib.ElMatrixGetSubmatrix_d.restype = c_uint
+lib.ElMatrixGetSubmatrix_c.argtypes = \
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+lib.ElMatrixGetSubmatrix_c.restype = c_uint
+lib.ElMatrixGetSubmatrix_z.argtypes = \
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+lib.ElMatrixGetSubmatrix_z.restype = c_uint
+
+lib.ElMatrixGetRealPartOfSubmatrix_c.argtypes = \
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+lib.ElMatrixGetRealPartOfSubmatrix_c.restype = c_uint
+lib.ElMatrixGetRealPartOfSubmatrix_z.argtypes = \
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+lib.ElMatrixGetRealPartOfSubmatrix_z.restype = c_uint
+
+lib.ElMatrixGetImagPartOfSubmatrix_i.argtypes = \
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+lib.ElMatrixGetImagPartOfSubmatrix_i.restype = c_uint
+lib.ElMatrixGetImagPartOfSubmatrix_s.argtypes = \
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+lib.ElMatrixGetImagPartOfSubmatrix_s.restype = c_uint
+lib.ElMatrixGetImagPartOfSubmatrix_d.argtypes = \
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+lib.ElMatrixGetImagPartOfSubmatrix_d.restype = c_uint
+lib.ElMatrixGetImagPartOfSubmatrix_c.argtypes = \
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+lib.ElMatrixGetImagPartOfSubmatrix_c.restype = c_uint
+lib.ElMatrixGetImagPartOfSubmatrix_z.argtypes = \
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+lib.ElMatrixGetImagPartOfSubmatrix_z.restype = c_uint
+
+lib.ElMatrixSetSubmatrix_i.argtypes = \
+  [c_void_p,POINTER(iType),POINTER(iType),c_void_p]
+lib.ElMatrixSetSubmatrix_i.restype = c_uint
+lib.ElMatrixSetSubmatrix_s.argtypes = \
+  [c_void_p,POINTER(iType),POINTER(iType),c_void_p]
+lib.ElMatrixSetSubmatrix_s.restype = c_uint
+lib.ElMatrixSetSubmatrix_d.argtypes = \
+  [c_void_p,POINTER(iType),POINTER(iType),c_void_p]
+lib.ElMatrixSetSubmatrix_d.restype = c_uint
+lib.ElMatrixSetSubmatrix_c.argtypes = \
+  [c_void_p,POINTER(iType),POINTER(iType),c_void_p]
+lib.ElMatrixSetSubmatrix_c.restype = c_uint
+lib.ElMatrixSetSubmatrix_z.argtypes = \
+  [c_void_p,POINTER(iType),POINTER(iType),c_void_p]
+lib.ElMatrixSetSubmatrix_z.restype = c_uint
+
+lib.ElMatrixSetRealPartOfSubmatrix_c.argtypes = \
+  [c_void_p,POINTER(iType),POINTER(iType),c_void_p]
+lib.ElMatrixSetRealPartOfSubmatrix_c.restype = c_uint
+lib.ElMatrixSetRealPartOfSubmatrix_z.argtypes = \
+  [c_void_p,POINTER(iType),POINTER(iType),c_void_p]
+lib.ElMatrixSetRealPartOfSubmatrix_z.restype = c_uint
+
+lib.ElMatrixSetRealPartOfSubmatrix_c.argtypes = \
+  [c_void_p,POINTER(iType),POINTER(iType),c_void_p]
+lib.ElMatrixSetRealPartOfSubmatrix_c.restype = c_uint
+lib.ElMatrixSetRealPartOfSubmatrix_z.argtypes = \
+  [c_void_p,POINTER(iType),POINTER(iType),c_void_p]
+lib.ElMatrixSetRealPartOfSubmatrix_z.restype = c_uint
+
+lib.ElMatrixUpdateSubmatrix_i.argtypes = \
+  [c_void_p,POINTER(iType),POINTER(iType),iType,c_void_p]
+lib.ElMatrixUpdateSubmatrix_i.restype = c_uint
+lib.ElMatrixUpdateSubmatrix_s.argtypes = \
+  [c_void_p,POINTER(iType),POINTER(iType),sType,c_void_p]
+lib.ElMatrixUpdateSubmatrix_s.restype = c_uint
+lib.ElMatrixUpdateSubmatrix_d.argtypes = \
+  [c_void_p,POINTER(iType),POINTER(iType),dType,c_void_p]
+lib.ElMatrixUpdateSubmatrix_d.restype = c_uint
+lib.ElMatrixUpdateSubmatrix_c.argtypes = \
+  [c_void_p,POINTER(iType),POINTER(iType),cType,c_void_p]
+lib.ElMatrixUpdateSubmatrix_c.restype = c_uint
+lib.ElMatrixUpdateSubmatrix_z.argtypes = \
+  [c_void_p,POINTER(iType),POINTER(iType),zType,c_void_p]
+lib.ElMatrixUpdateSubmatrix_z.restype = c_uint
+
+lib.ElMatrixUpdateRealPartOfSubmatrix_c.argtypes = \
+  [c_void_p,POINTER(iType),POINTER(iType),sType,c_void_p]
+lib.ElMatrixUpdateRealPartOfSubmatrix_c.restype = c_uint
+lib.ElMatrixUpdateRealPartOfSubmatrix_z.argtypes = \
+  [c_void_p,POINTER(iType),POINTER(iType),dType,c_void_p]
+lib.ElMatrixUpdateRealPartOfSubmatrix_z.restype = c_uint
+
+lib.ElMatrixUpdateImagPartOfSubmatrix_c.argtypes = \
+  [c_void_p,POINTER(iType),POINTER(iType),sType,c_void_p]
+lib.ElMatrixUpdateImagPartOfSubmatrix_c.restype = c_uint
+lib.ElMatrixUpdateImagPartOfSubmatrix_z.argtypes = \
+  [c_void_p,POINTER(iType),POINTER(iType),dType,c_void_p]
+lib.ElMatrixUpdateImagPartOfSubmatrix_z.restype = c_uint
+
+lib.ElMatrixMakeSubmatrixReal_c.argtypes = \
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType)]
+lib.ElMatrixMakeSubmatrixReal_c.restype = c_uint
+lib.ElMatrixMakeSubmatrixReal_z.argtypes = \
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType)]
+lib.ElMatrixMakeSubmatrixReal_z.restype = c_uint
+
+lib.ElMatrixConjugateSubmatrix_c.argtypes = \
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType)]
+lib.ElMatrixConjugateSubmatrix_c.restype = c_uint
+lib.ElMatrixConjugateSubmatrix_z.argtypes = \
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType)]
+lib.ElMatrixConjugateSubmatrix_z.restype = c_uint
 
 class Matrix(object):
   def __init__(self,tag=dTag,create=True):
@@ -755,27 +866,208 @@ class Matrix(object):
     if   self.tag == cTag: lib.ElMatrixConjugateDiagonal_c(self.obj,offset)
     elif self.tag == zTag: lib.ElMatrixConjugateDiagonal_z(self.obj,offset)
   def GetSubmatrix(self,I,J):
-    raise Exception('GetSubmatrix not yet supported by Python interface')
+    numRowInds = len(I)
+    numColInds = len(J)
+    rowInd = (iType*numRowInds)(*I)
+    colInd = (iType*numColInds)(*J)
+    ASub = Matrix(self.tag,False)
+    if   self.tag == iTag: 
+      lib.ElMatrixGetSubmatrix_i \
+      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+    elif self.tag == sTag:
+      lib.ElMatrixGetSubmatrix_s \
+      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+    elif self.tag == dTag:
+      lib.ElMatrixGetSubmatrix_d \
+      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+    elif self.tag == cTag:
+      lib.ElMatrixGetSubmatrix_c \
+      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+    elif self.tag == zTag:
+      lib.ElMatrixGetSubmatrix_z \
+      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+    return ASub
   def GetRealPartOfSubmatrix(self,I,J):
-    raise Exception('GetRealPartOfSubmatrix not yet supported in Python')
+    numRowInds = len(I)
+    numColInds = len(J)
+    rowInd = (iType*numRowInds)(*I)
+    colInd = (iType*numColInds)(*J)
+    if self.tag == cTag:
+      ASub = Matrix(sTag,False)
+      lib.ElMatrixGetRealPartOfSubmatrix_c \
+      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+      return ASub
+    elif self.tag == zTag:
+      ASub = Matrix(dTag,False)
+      lib.ElMatrixGetRealPartOfSubmatrix_z \
+      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+      return ASub
+    else:
+      return GetSubmatrix(I,J)
   def GetImagPartOfSubmatrix(self,I,J):
-    raise Exception('GetImagPartOfSubmatrix not yet supported in Python')
+    numRowInds = len(I)
+    numColInds = len(J)
+    rowInd = (iType*numRowInds)(*I)
+    colInd = (iType*numColInds)(*J)
+    if   self.tag == iTag: 
+      ASub = Matrix(iTag,False)
+      lib.ElMatrixGetImagPartOfSubmatrix_i \
+      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+      return ASub
+    elif self.tag == sTag:
+      ASub = Matrix(sTag,False)
+      lib.ElMatrixGetImagPartOfSubmatrix_s \
+      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+      return ASub
+    elif self.tag == dTag:
+      ASub = Matrix(dTag,False)
+      lib.ElMatrixGetImagPartOfSubmatrix_d \
+      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+      return ASub
+    elif self.tag == cTag:
+      ASub = Matrix(sTag,False)
+      lib.ElMatrixGetImagPartOfSubmatrix_c \
+      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+      return ASub
+    elif self.tag == zTag:
+      ASub = Matrix(dTag,False)
+      lib.ElMatrixGetImagPartOfSubmatrix_z \
+      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+      return ASub
   def SetSubmatrix(self,I,J,ASub):
-    raise Exception('SetSubmatrix not yet supported by Python interface')
+    numRowInds = len(I)
+    numColInds = len(J)
+    rowInd = (iType*numRowInds)(*I)
+    colInd = (iType*numColInds)(*J)
+    if type(ASub) is not Matrix: raise Exception('ASub must be a Matrix')
+    if ASub.tag != self.tag: raise Exception('Datatypes must be equal')
+    if   self.tag == iTag: 
+      lib.ElMatrixSetSubmatrix_i(self.obj,rowInd,colInd,ASub.obj)
+    elif self.tag == sTag:
+      lib.ElMatrixSetSubmatrix_s(self.obj,rowInd,colInd,ASub.obj)
+    elif self.tag == dTag:
+      lib.ElMatrixSetSubmatrix_d(self.obj,rowInd,colInd,ASub.obj)
+    elif self.tag == cTag:
+      lib.ElMatrixSetSubmatrix_c(self.obj,rowInd,colInd,ASub.obj)
+    elif self.tag == zTag:
+      lib.ElMatrixSetSubmatrix_z(self.obj,rowInd,colInd,ASub.obj)
   def SetRealPartOfSubmatrix(self,I,J,ASub):
-    raise Exception('SetRealPartOfSubmatrix not yet supported in Python')
+    numRowInds = len(I)
+    numColInds = len(J)
+    rowInd = (iType*numRowInds)(*I)
+    colInd = (iType*numColInds)(*J)
+    if type(ASub) is not Matrix: raise Exception('ASub must be a Matrix')
+    if   self.tag == cTag:
+      if ASub.tag != sTag: raise Exception('Datatypes must be compatible')
+      lib.ElMatrixSetRealPartOfSubmatrix_c(self.obj,rowInd,colInd,ASub.obj)
+    elif self.tag == zTag:
+      if ASub.tag != dTag: raise Exception('Datatypes must be compatible')
+      lib.ElMatrixSetRealPartOfSubmatrix_z(self.obj,rowInd,colInd,ASub.obj)
+    else:
+      SetSubmatrix(I,J,ASub)
   def SetImagPartOfSubmatrix(self,I,J,ASub):
-    raise Exception('SetImagPartOfSubmatrix not yet supported in Python')
-  def UpdateSubmatrix(self,I,J,ASub):
-    raise Exception('UpdateSubmatrix not yet supported by Python interface')
-  def UpdateRealPartOfSubmatrix(self,I,J,ASub):
-    raise Exception('UpdateRealPartOfSubmatrix not yet supported in Python')
-  def UpdateImagPartOfSubmatrix(self,I,J,ASub):
-    raise Exception('UpdateImagPartOfSubmatrix not yet supported in Python')
+    numRowInds = len(I)
+    numColInds = len(J)
+    rowInd = (iType*numRowInds)(*I)
+    colInd = (iType*numColInds)(*J)
+    if type(ASub) is not Matrix: raise Exception('ASub must be a Matrix')
+    if   self.tag == cTag:
+      if ASub.tag != sTag: raise Exception('Datatypes must be compatible')
+      lib.ElMatrixSetImagPartOfSubmatrix_c(self.obj,rowInd,colInd,ASub.obj)
+    elif self.tag == zTag:
+      if ASub.tag != dTag: raise Exception('Datatypes must be compatible')
+      lib.ElMatrixSetImagPartOfSubmatrix_z(self.obj,rowInd,colInd,ASub.obj)
+    else:
+      raise Exception('Cannot set imaginary part of a real matrix')
+  def UpdateSubmatrix(self,I,J,alpha,ASub):
+    numRowInds = len(I)
+    numColInds = len(J)
+    rowInd = (iType*numRowInds)(*I)
+    colInd = (iType*numColInds)(*J)
+    if type(ASub) is not Matrix: raise Exception('ASub must be a Matrix')
+    if ASub.tag != self.tag: raise Exception('Datatypes must be equal')
+    if   self.tag == iTag: 
+      lib.ElMatrixUpdateSubmatrix_i(self.obj,rowInd,colInd,alpha,ASub.obj)
+    elif self.tag == sTag:
+      lib.ElMatrixUpdateSubmatrix_s(self.obj,rowInd,colInd,alpha,ASub.obj)
+    elif self.tag == dTag:
+      lib.ElMatrixUpdateSubmatrix_d(self.obj,rowInd,colInd,alpha,ASub.obj)
+    elif self.tag == cTag:
+      lib.ElMatrixUpdateSubmatrix_c(self.obj,rowInd,colInd,alpha,ASub.obj)
+    elif self.tag == zTag:
+      lib.ElMatrixUpdateSubmatrix_z(self.obj,rowInd,colInd,alpha,ASub.obj)
+  def UpdateRealPartOfSubmatrix(self,I,J,alpha,ASub):
+    numRowInds = len(I)
+    numColInds = len(J)
+    rowInd = (iType*numRowInds)(*I)
+    colInd = (iType*numColInds)(*J)
+    if type(ASub) is not Matrix: raise Exception('ASub must be a Matrix')
+    if   self.tag == cTag:
+      if ASub.tag != sTag: raise Exception('Datatypes must be compatible')
+      lib.ElMatrixUpdateRealPartOfSubmatrix_c \
+      (self.obj,rowInd,colInd,alpha,ASub.obj)
+    elif self.tag == zTag:
+      if ASub.tag != dTag: raise Exception('Datatypes must be compatible')
+      lib.ElMatrixUpdateRealPartOfSubmatrix_z \
+      (self.obj,rowInd,colInd,alpha,ASub.obj)
+    else:
+      UpdateSubmatrix(I,J,alpha,ASub)
+  def UpdateImagPartOfSubmatrix(self,I,J,alpha,ASub):
+    numRowInds = len(I)
+    numColInds = len(J)
+    rowInd = (iType*numRowInds)(*I)
+    colInd = (iType*numColInds)(*J)
+    if type(ASub) is not Matrix: raise Exception('ASub must be a Matrix')
+    if   self.tag == cTag:
+      if ASub.tag != sTag: raise Exception('Datatypes must be compatible')
+      lib.ElMatrixUpdateImagPartOfSubmatrix_c \
+      (self.obj,rowInd,colInd,alpha,ASub.obj)
+    elif self.tag == zTag:
+      if ASub.tag != dTag: raise Exception('Datatypes must be compatible')
+      lib.ElMatrixUpdateImagPartOfSubmatrix_z \
+      (self.obj,rowInd,colInd,alpha,ASub.obj)
+    else:
+      raise Exception('Cannot update imaginary part of a real matrix')
   def MakeSubmatrixReal(self,I,J):
-    raise Exception('MakeSubmatrixReal not yet supported by Python interface')
+    numRowInds = len(I)
+    numColInds = len(J)
+    rowInd = (iType*numRowInds)(*I)
+    colInd = (iType*numColInds)(*J)
+    if   self.tag == iTag: 
+      lib.ElMatrixMakeSubmatrixReal_i \
+      (self.obj,numRowInds,rowInd,numColInds,colInd)
+    elif self.tag == sTag:
+      lib.ElMatrixMakeSubmatrixReal_s \
+      (self.obj,numRowInds,rowInd,numColInds,colInd)
+    elif self.tag == dTag:
+      lib.ElMatrixMakeSubmatrixReal_d \
+      (self.obj,numRowInds,rowInd,numColInds,colInd)
+    elif self.tag == cTag:
+      lib.ElMatrixMakeSubmatrixReal_c \
+      (self.obj,numRowInds,rowInd,numColInds,colInd)
+    elif self.tag == zTag:
+      lib.ElMatrixMakeSubmatrixReal_z \
+      (self.obj,numRowInds,rowInd,numColInds,colInd)
   def ConjugateSubmatrix(self,I,J):
-    raise Exception('ConjugateSubmatrix not yet supported by Python interface')
+    numRowInds = len(I)
+    numColInds = len(J)
+    rowInd = (iType*numRowInds)(*I)
+    colInd = (iType*numColInds)(*J)
+    if   self.tag == iTag: 
+      lib.ElMatrixConjugateSubmatrix_i \
+      (self.obj,numRowInds,rowInd,numColInds,colInd)
+    elif self.tag == sTag:
+      lib.ElMatrixConjugateSubmatrix_s \
+      (self.obj,numRowInds,rowInd,numColInds,colInd)
+    elif self.tag == dTag:
+      lib.ElMatrixConjugateSubmatrix_d \
+      (self.obj,numRowInds,rowInd,numColInds,colInd)
+    elif self.tag == cTag:
+      lib.ElMatrixConjugateSubmatrix_c \
+      (self.obj,numRowInds,rowInd,numColInds,colInd)
+    elif self.tag == zTag:
+      lib.ElMatrixConjugateSubmatrix_z \
+      (self.obj,numRowInds,rowInd,numColInds,colInd)
   def ToNumPy(self):
     if   self.tag == iTag:
       # TODO: Switch to 64-bit based upon Elemental's configuration

@@ -9,3 +9,4 @@
 from core      import *
 from blas_like import *
 from io        import *
+from matrices  import *
