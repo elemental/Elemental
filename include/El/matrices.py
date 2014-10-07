@@ -2234,7 +2234,8 @@ lib.ElGaussianDist_c.argtypes = [c_void_p,iType,iType,cType,sType]
 lib.ElGaussianDist_c.restype = c_uint
 lib.ElGaussianDist_z.argtypes = [c_void_p,iType,iType,zType,dType]
 lib.ElGaussian_z.restype = c_uint
-def Gaussian(A,m,n,mean,stddev):
+def Gaussian(A,m,n,meanPre=0,stddev=1):
+  mean = TagToType(A.tag)(meanPre)
   if type(A) is Matrix:
     if   A.tag == sTag: lib.ElGaussian_s(A.obj,m,n,mean,stddev)
     elif A.tag == dTag: lib.ElGaussian_d(A.obj,m,n,mean,stddev)
@@ -2271,7 +2272,8 @@ lib.ElUniformDist_c.argtypes = [c_void_p,iType,iType,cType,sType]
 lib.ElUniformDist_c.restype = c_uint
 lib.ElUniformDist_z.argtypes = [c_void_p,iType,iType,zType,dType]
 lib.ElUniformDist_z.restype = c_uint
-def Uniform(A,m,n,center,radius):
+def Uniform(A,m,n,centerPre=0,radius=1):
+  center = TagToType(A.tag)(centerPre) 
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElUniform_i(A.obj,m,n,center,radius)
     elif A.tag == sTag: lib.ElUniform_s(A.obj,m,n,center,radius)
@@ -2327,7 +2329,8 @@ lib.ElWignerDist_c.argtypes = [c_void_p,iType,cType,sType]
 lib.ElWignerDist_c.restype = c_uint
 lib.ElWignerDist_z.argtypes = [c_void_p,iType,zType,dType]
 lib.ElWignerDist_z.restype = c_uint
-def Wigner(A,n,mean,stddev):
+def Wigner(A,n,meanPre=0,stddev=1):
+  mean = TagToType(A.tag)(meanPre) 
   if type(A) is Matrix:
     if   A.tag == sTag: lib.ElWigner_s(A.obj,n,mean,stddev)
     elif A.tag == dTag: lib.ElWigner_d(A.obj,n,mean,stddev)

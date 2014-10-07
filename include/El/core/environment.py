@@ -36,9 +36,23 @@ dType = c_double
 
 class ComplexFloat(ctypes.Structure):
   _fields_ = [("real",sType),("imag",sType)]
+  def __init__(self,val0=0,val1=0):
+    if type(val0) is cType or type(val0) is zType:
+      self.real = val0.real
+      self.imag = val0.imag
+    else:
+      self.real = val0
+      self.imag = val1
 cType = ComplexFloat
 class ComplexDouble(ctypes.Structure):
   _fields_ = [("real",dType),("imag",dType)]
+  def __init__(self,val0=0,val1=0):
+    if type(val0) is cType or type(val0) is zType:
+      self.real = val0.real
+      self.imag = val0.imag
+    else:
+      self.real = val0
+      self.imag = val1
 zType = ComplexDouble
 
 # Query Elemental to determine whether MPI_Comm is an 'int' or a void pointer
