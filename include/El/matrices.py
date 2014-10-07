@@ -1138,7 +1138,7 @@ lib.ElHermitianUniformSpectrumDist_c.argtypes = [c_void_p,iType,sType,sType]
 lib.ElHermitianUniformSpectrumDist_c.restype = c_uint
 lib.ElHermitianUniformSpectrumDist_z.argtypes = [c_void_p,iType,dType,dType]
 lib.ElHermitianUniformSpectrumDist_z.restype = c_uint
-def HermitianUniformSpectrum(A,n,lower,upper):
+def HermitianUniformSpectrum(A,n,lower=0,upper=1):
   if type(A) is Matrix:
     if   A.tag == sTag: lib.ElHermitianUniformSpectrum_s(A.obj,n,lower,upper)
     elif A.tag == dTag: lib.ElHermitianUniformSpectrum_d(A.obj,n,lower,upper)
@@ -1647,7 +1647,8 @@ lib.ElNormalUniformSpectrumDist_c.argtypes = [c_void_p,iType,cType,sType]
 lib.ElNormalUniformSpectrumDist_c.restype = c_uint
 lib.ElNormalUniformSpectrumDist_z.argtypes = [c_void_p,iType,zType,dType]
 lib.ElNormalUniformSpectrumDist_z.restype = c_uint
-def NormalUniformSpectrum(A,n,center,radius):
+def NormalUniformSpectrum(A,n,centerPre=0,radius=1):
+  center = TagToType(A.tag)(centerPre)
   if type(A) is Matrix:
     if   A.tag == cTag: lib.ElNormalUniformSpectrum_c(A.obj,n,center,radius)
     elif A.tag == zTag: lib.ElNormalUniformSpectrum_z(A.obj,n,center,radius)
