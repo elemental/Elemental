@@ -87,6 +87,9 @@ def TagToType(tag):
 # Emulate an enum for grid ordering
 (ROW_MAJOR,COL_MAJOR)=(0,1)
 
+# Emulate an enum for upper or lower
+(LOWER,UPPER)=(0,1)
+
 # Emulate an enum for left or right
 (LEFT,RIGHT)=(0,1)
 

@@ -138,6 +138,19 @@ extern "C" {
   { EL_TRY( Redheffer( *CReflect(A), n ) ) } \
   ElError ElRedhefferDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( Redheffer( *CReflect(A), n ) ) } \
+  /* Toeplitz */ \
+  ElError ElToeplitz_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt m, ElInt n, ElInt aSize, CREFLECT(T)* aBuf ) \
+  { try { \
+      std::vector<T> a( CReflect(aBuf), CReflect(aBuf)+aSize ); \
+      Toeplitz( *CReflect(A), m, n, a ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  ElError ElToeplitzDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n, ElInt aSize, CREFLECT(T)* aBuf ) \
+  { try { \
+      std::vector<T> a( CReflect(aBuf), CReflect(aBuf)+aSize ); \
+      Toeplitz( *CReflect(A), m, n, a ); \
+    } EL_CATCH; return EL_SUCCESS; } \
   /* TriW */ \
   ElError ElTriW_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt n, CREFLECT(T) alpha, ElInt k ) \
@@ -414,19 +427,6 @@ extern "C" {
   { EL_TRY( Ris( *CReflect(A), n ) ) } \
   ElError ElRisDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( Ris( *CReflect(A), n ) ) } \
-  /* Toeplitz */ \
-  ElError ElToeplitz_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElInt m, ElInt n, ElInt aSize, CREFLECT(T)* aBuf ) \
-  { try { \
-      std::vector<T> a( CReflect(aBuf), CReflect(aBuf)+aSize ); \
-      Toeplitz( *CReflect(A), m, n, a ); \
-    } EL_CATCH; return EL_SUCCESS; } \
-  ElError ElToeplitzDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n, ElInt aSize, CREFLECT(T)* aBuf ) \
-  { try { \
-      std::vector<T> a( CReflect(aBuf), CReflect(aBuf)+aSize ); \
-      Toeplitz( *CReflect(A), m, n, a ); \
-    } EL_CATCH; return EL_SUCCESS; } \
   /* Triangle */ \
   ElError ElTriangle_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( Triangle( *CReflect(A), n ) ) } \
