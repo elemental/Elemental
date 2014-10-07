@@ -278,6 +278,14 @@ EL_EXPORT ElError ElFourier_z( ElMatrix_z A, ElInt n );
 EL_EXPORT ElError ElFourierDist_c( ElDistMatrix_c A, ElInt n );
 EL_EXPORT ElError ElFourierDist_z( ElDistMatrix_z A, ElInt n );
 
+/* Fourier-Identity
+   ================ */
+EL_EXPORT ElError ElFourierIdentity_c( ElMatrix_c A, ElInt n );
+EL_EXPORT ElError ElFourierIdentity_z( ElMatrix_z A, ElInt n );
+
+EL_EXPORT ElError ElFourierIdentityDist_c( ElDistMatrix_c A, ElInt n );
+EL_EXPORT ElError ElFourierIdentityDist_z( ElDistMatrix_z A, ElInt n );
+
 /* Gaussian
    ======== */
 EL_EXPORT ElError ElGaussian_s

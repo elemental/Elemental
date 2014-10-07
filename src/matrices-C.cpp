@@ -480,6 +480,11 @@ extern "C" {
   { EL_TRY( Fourier( *CReflect(A), n ) ) } \
   ElError ElFourierDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( Fourier( *CReflect(A), n ) ) } \
+  /* Fourier-Identity */ \
+  ElError ElFourierIdentity_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( FourierIdentity( *CReflect(A), n ) ) } \
+  ElError ElFourierIdentityDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( FourierIdentity( *CReflect(A), n ) ) } \
   /* Helmholtz with PML */ \
   ElError ElHelmholtzPML1D_ ## SIG \
   ( ElMatrix_ ## SIG H, ElInt nx, CREFLECT(T) omega, \

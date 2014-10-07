@@ -261,6 +261,18 @@ EL_EXPORT ElError ElClipDist_s
 EL_EXPORT ElError ElClipDist_d
 ( ElDistMatrix_d X, double lowerBound, double upperBound );
 
+/* Coherence
+   --------- */
+EL_EXPORT ElError ElCoherence_s( ElConstMatrix_s A, float* coherence );
+EL_EXPORT ElError ElCoherence_d( ElConstMatrix_d A, double* coherence );
+EL_EXPORT ElError ElCoherence_c( ElConstMatrix_c A, float* coherence );
+EL_EXPORT ElError ElCoherence_z( ElConstMatrix_z A, double* coherence );
+
+EL_EXPORT ElError ElCoherenceDist_s( ElConstDistMatrix_s A, float* coherence );
+EL_EXPORT ElError ElCoherenceDist_d( ElConstDistMatrix_d A, double* coherence );
+EL_EXPORT ElError ElCoherenceDist_c( ElConstDistMatrix_c A, float* coherence );
+EL_EXPORT ElError ElCoherenceDist_z( ElConstDistMatrix_z A, double* coherence );
+
 /* Covariance
    ---------- */
 EL_EXPORT ElError ElCovariance_s( ElConstMatrix_s D, ElMatrix_s S );

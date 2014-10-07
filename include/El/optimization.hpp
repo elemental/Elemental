@@ -40,6 +40,13 @@ Int BasisPursuit
   Base<F> relTol=1e-4, bool usePinv=false, Base<F> pinvTol=0,
   bool progress=true );
 
+// Coherence
+// =========
+template<typename F>
+Base<F> Coherence( const Matrix<F>& A );
+template<typename F>
+Base<F> Coherence( const AbstractDistMatrix<F>& A );
+
 // Least Absolute Shrinkage and Selection Operator (LASSO)
 // =======================================================
 template<typename F>

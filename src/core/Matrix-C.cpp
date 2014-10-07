@@ -51,11 +51,7 @@ extern "C" {
   ( ElMatrix_ ## SIG A, ElInt height, ElInt width, CREFLECT(T)* buffer, \
     ElInt ldim ) \
   { EL_TRY \
-    ( CReflect(A)->Control(height,width,CReflect(buffer),ldim) ) } \
-  /* B = A */ \
-  ElError ElMatrixCopy_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
-  { EL_TRY( *CReflect(B) = *CReflect(A) ) }
+    ( CReflect(A)->Control(height,width,CReflect(buffer),ldim) ) }
 
 #define MATRIX_BASIC(SIG,SIGBASE,T) \
   /* Int Matrix<T>::Height() const */ \

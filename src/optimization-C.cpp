@@ -58,6 +58,14 @@ extern "C" {
   { EL_TRY( *numIts = SparseInvCov( *CReflect(D), lambda, *CReflect(Z) ) ) } \
   /* Utilities
      ========= */ \
+  /* Coherence
+     --------- */ \
+  ElError ElCoherence_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, Base<F>* coherence ) \
+  { EL_TRY( *coherence = Coherence(*CReflect(A)) ) } \
+  ElError ElCoherenceDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, Base<F>* coherence ) \
+  { EL_TRY( *coherence = Coherence(*CReflect(A)) ) } \
   /* Covariance
      ---------- */ \
   ElError ElCovariance_ ## SIG \

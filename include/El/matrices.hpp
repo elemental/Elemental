@@ -171,6 +171,14 @@ void Fourier( AbstractDistMatrix<Complex<Real>>& A, Int n );
 template<typename Real>
 void Fourier( AbstractBlockDistMatrix<Complex<Real>>& A, Int n );
 
+// Fourier-Identity
+// ================
+// A common example of a low-coherence n x 2n matrix, [F I]
+template<typename Real>
+void FourierIdentity( Matrix<Complex<Real>>& A, Int n );
+template<typename Real>
+void FourierIdentity( AbstractDistMatrix<Complex<Real>>& A, Int n );
+
 // Greatest Common Denominator matrix
 // ==================================
 template<typename T>

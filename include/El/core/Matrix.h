@@ -123,14 +123,6 @@ EL_EXPORT ElError ElMatrixControl_z
 ( ElMatrix_z A, ElInt height, ElInt width, 
   complex_double* buffer, ElInt ldim );
 
-/* B := A
-   ------ */
-EL_EXPORT ElError ElMatrixCopy_i( ElConstMatrix_i A, ElMatrix_i B );
-EL_EXPORT ElError ElMatrixCopy_s( ElConstMatrix_s A, ElMatrix_s B );
-EL_EXPORT ElError ElMatrixCopy_d( ElConstMatrix_d A, ElMatrix_d B );
-EL_EXPORT ElError ElMatrixCopy_c( ElConstMatrix_c A, ElMatrix_c B );
-EL_EXPORT ElError ElMatrixCopy_z( ElConstMatrix_z A, ElMatrix_z B );
-
 /* Int Matrix<T>::Height() const
    ----------------------------- */
 EL_EXPORT ElError ElMatrixHeight_i( ElConstMatrix_i A, ElInt* height );

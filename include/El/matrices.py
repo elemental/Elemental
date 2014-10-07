@@ -524,6 +524,27 @@ def Fourier(A,n):
     else: raise Exception('Unsupported datatype')
   else: raise Exception('Unsupported matrix type')
 
+# Fourier-Identity
+# ----------------
+lib.ElFourierIdentity_c.argtypes = [c_void_p,iType]
+lib.ElFourierIdentity_c.restype = c_uint
+lib.ElFourierIdentity_z.argtypes = [c_void_p,iType]
+lib.ElFourierIdentity_z.restype = c_uint
+lib.ElFourierIdentityDist_c.argtypes = [c_void_p,iType]
+lib.ElFourierIdentityDist_c.restype = c_uint
+lib.ElFourierIdentityDist_z.argtypes = [c_void_p,iType]
+lib.ElFourierIdentityDist_z.restype = c_uint
+def FourierIdentity(A,n):
+  if type(A) is Matrix:
+    if   A.tag == cTag: lib.ElFourierIdentity_c(A.obj,n)
+    elif A.tag == zTag: lib.ElFourierIdentity_z(A.obj,n)
+    else: raise Exception('Unsupported datatype')
+  elif type(A) is DistMatrix:
+    if   A.tag == cTag: lib.ElFourierIdentityDist_c(A.obj,n)
+    elif A.tag == zTag: lib.ElFourierIdentityDist_z(A.obj,n)
+    else: raise Exception('Unsupported datatype')
+  else: raise Exception('Unsupported matrix type')
+
 # GCD matrix
 # ----------
 lib.ElGCDMatrix_i.argtypes = [c_void_p,iType,iType]
@@ -772,6 +793,47 @@ def ImplicitHaar(A,t,d,n):
     elif A.tag == dTag: lib.ElImplicitHaarDist_d(A.obj,t.obj,d.obj,n)
     elif A.tag == cTag: lib.ElImplicitHaarDist_c(A.obj,t.obj,d.obj,n)
     elif A.tag == zTag: lib.ElImplicitHaarDist_z(A.obj,t.obj,d.obj,n)
+    else: raise Exception('Unsupported datatype')
+  else: raise Exception('Unsupported matrix type')
+
+# Hankel
+# ------
+lib.ElHankel_i.argtypes = [c_void_p,iType,iType,iType,POINTER(iType)]
+lib.ElHankel_i.restype = c_uint
+lib.ElHankel_s.argtypes = [c_void_p,iType,iType,iType,POINTER(sType)]
+lib.ElHankel_s.restype = c_uint
+lib.ElHankel_d.argtypes = [c_void_p,iType,iType,iType,POINTER(dType)]
+lib.ElHankel_d.restype = c_uint
+lib.ElHankel_c.argtypes = [c_void_p,iType,iType,iType,POINTER(cType)]
+lib.ElHankel_c.restype = c_uint
+lib.ElHankel_z.argtypes = [c_void_p,iType,iType,iType,POINTER(zType)]
+lib.ElHankel_z.restype = c_uint
+lib.ElHankelDist_i.argtypes = [c_void_p,iType,iType,iType,POINTER(iType)]
+lib.ElHankelDist_i.restype = c_uint
+lib.ElHankelDist_s.argtypes = [c_void_p,iType,iType,iType,POINTER(sType)]
+lib.ElHankelDist_s.restype = c_uint
+lib.ElHankelDist_d.argtypes = [c_void_p,iType,iType,iType,POINTER(dType)]
+lib.ElHankelDist_d.restype = c_uint
+lib.ElHankelDist_c.argtypes = [c_void_p,iType,iType,iType,POINTER(cType)]
+lib.ElHankelDist_c.restype = c_uint
+lib.ElHankelDist_z.argtypes = [c_void_p,iType,iType,iType,POINTER(zType)]
+lib.ElHankelDist_z.restype = c_uint
+def Hankel(A,m,n,a):
+  aLen = len(a)
+  aBuf = (TagToType(A.tag)*aLen)(*a)
+  if type(A) is Matrix:
+    if   A.tag == iTag: lib.ElHankel_i(A.obj,m,n,aLen,aBuf)
+    elif A.tag == sTag: lib.ElHankel_s(A.obj,m,n,aLen,aBuf)
+    elif A.tag == dTag: lib.ElHankel_d(A.obj,m,n,aLen,aBuf)
+    elif A.tag == cTag: lib.ElHankel_c(A.obj,m,n,aLen,aBuf)
+    elif A.tag == zTag: lib.ElHankel_z(A.obj,m,n,aLen,aBuf)
+    else: raise Exception('Unsupported datatype')
+  elif type(A) is DistMatrix:
+    if   A.tag == iTag: lib.ElHankelDist_i(A.obj,m,n,aLen,aBuf)
+    elif A.tag == sTag: lib.ElHankelDist_s(A.obj,m,n,aLen,aBuf)
+    elif A.tag == dTag: lib.ElHankelDist_d(A.obj,m,n,aLen,aBuf)
+    elif A.tag == cTag: lib.ElHankelDist_c(A.obj,m,n,aLen,aBuf)
+    elif A.tag == zTag: lib.ElHankelDist_z(A.obj,m,n,aLen,aBuf)
     else: raise Exception('Unsupported datatype')
   else: raise Exception('Unsupported matrix type')
 
