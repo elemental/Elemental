@@ -104,8 +104,8 @@ void DiagonalScaleTrapezoid
         ProxyCtrl ctrl;
         ctrl.rootConstrain = true;
         ctrl.colConstrain = true;
-        ctrl.root = dPre.Root();
-        ctrl.colAlign = dPre.ColAlign();
+        ctrl.root = A.Root();
+        ctrl.colAlign = A.ColAlign();
         auto dPtr = ReadProxy<TDiag,U,GatheredDist<V>()>( &dPre, ctrl );
         auto& d = *dPtr;
 
@@ -154,8 +154,8 @@ void DiagonalScaleTrapezoid
         ProxyCtrl ctrl;
         ctrl.rootConstrain = true;
         ctrl.colConstrain = true;
-        ctrl.root = dPre.Root();
-        ctrl.colAlign = dPre.RowAlign();
+        ctrl.root = A.Root();
+        ctrl.colAlign = A.RowAlign();
         auto dPtr = ReadProxy<TDiag,V,GatheredDist<U>()>( &dPre, ctrl );
         auto& d = *dPtr;
 
