@@ -6,9 +6,4 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-from core         import *
-from blas_like    import *
-from io           import *
-from lapack_like  import *
-from matrices     import *
-from optimization import *
+from props import *
