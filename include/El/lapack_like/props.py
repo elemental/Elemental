@@ -211,3 +211,115 @@ def PseudospectralAutoWindow(A,invNormMap,realSize,imagSize,ctrl):
       (A.obj,invNormMap.obj,realSize,imagSize,ctrl)
     else: raise Exception('Unsupported datatype')
   else: raise Exception('Unsupported matrix type')
+
+lib.ElPseudospectralWindowX_s.argtypes = \
+  [c_void_p,c_void_p,sType,sType,sType,iType,iType,PseudospecCtrl_s]
+lib.ElPseudospectralWindowX_s.restype = c_uint
+lib.ElPseudospectralWindowX_d.argtypes = \
+  [c_void_p,c_void_p,dType,dType,dType,iType,iType,PseudospecCtrl_d]
+lib.ElPseudospectralWindowX_d.restype = c_uint
+lib.ElPseudospectralWindowX_c.argtypes = \
+  [c_void_p,c_void_p,cType,sType,sType,iType,iType,PseudospecCtrl_s]
+lib.ElPseudospectralWindowX_c.restype = c_uint
+lib.ElPseudospectralWindowX_z.argtypes = \
+  [c_void_p,c_void_p,zType,dType,dType,iType,iType,PseudospecCtrl_d]
+lib.ElPseudospectralWindowX_z.restype = c_uint
+lib.ElPseudospectralWindowXDist_s.argtypes = \
+  [c_void_p,c_void_p,sType,sType,sType,iType,iType,PseudospecCtrl_s]
+lib.ElPseudospectralWindowXDist_s.restype = c_uint
+lib.ElPseudospectralWindowXDist_d.argtypes = \
+  [c_void_p,c_void_p,dType,dType,dType,iType,iType,PseudospecCtrl_d]
+lib.ElPseudospectralWindowXDist_d.restype = c_uint
+lib.ElPseudospectralWindowXDist_c.argtypes = \
+  [c_void_p,c_void_p,cType,sType,sType,iType,iType,PseudospecCtrl_s]
+lib.ElPseudospectralWindowXDist_c.restype = c_uint
+lib.ElPseudospectralWindowXDist_z.argtypes = \
+  [c_void_p,c_void_p,zType,dType,dType,iType,iType,PseudospecCtrl_d]
+lib.ElPseudospectralWindowXDist_z.restype = c_uint
+def PseudospectralWindow \
+    (A,invNormMap,centerPre,realWidth,imagWidth,realSize,imagSize,ctrl):
+  center = TagToType(A.tag)(centerPre)
+  if type(A) is not type(invNormMap): 
+    raise Exception('Types of matrices must match')
+  if invNormMap.tag != Base(A.tag): 
+    raise Exception('Datatype of invNormMap must be base of datatype of A')
+  if type(A) is Matrix:
+    if   A.tag == sTag: 
+      lib.ElPseudospectralWindowX_s \
+      (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize,ctrl)
+    elif A.tag == dTag:
+      lib.ElPseudospectralWindowX_d \
+      (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize,ctrl)
+    elif A.tag == cTag:
+      lib.ElPseudospectralWindowX_c \
+      (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize,ctrl)
+    elif A.tag == zTag:
+      lib.ElPseudospectralWindowX_z \
+      (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize,ctrl)
+    else: raise Exception('Unsupported datatype')
+  elif type(A) is DistMatrix:
+    if   A.tag == sTag: 
+      lib.ElPseudospectralWindowXDist_s \
+      (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize,ctrl)
+    elif A.tag == dTag:
+      lib.ElPseudospectralWindowXDist_d \
+      (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize,ctrl)
+    elif A.tag == cTag:
+      lib.ElPseudospectralWindowXDist_c \
+      (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize,ctrl)
+    elif A.tag == zTag:
+      lib.ElPseudospectralWindowXDist_z \
+      (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize,ctrl)
+    else: raise Exception('Unsupported datatype')
+  else: raise Exception('Unsupported matrix type')
+
+lib.ElPseudospectralCloudX_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,PseudospecCtrl_s]
+lib.ElPseudospectralCloudX_s.restype = c_uint
+lib.ElPseudospectralCloudX_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,PseudospecCtrl_d]
+lib.ElPseudospectralCloudX_d.restype = c_uint
+lib.ElPseudospectralCloudX_c.argtypes = \
+  [c_void_p,c_void_p,c_void_p,PseudospecCtrl_s]
+lib.ElPseudospectralCloudX_c.restype = c_uint
+lib.ElPseudospectralCloudX_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,PseudospecCtrl_d]
+lib.ElPseudospectralCloudX_z.restype = c_uint
+lib.ElPseudospectralCloudXDist_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,PseudospecCtrl_s]
+lib.ElPseudospectralCloudXDist_s.restype = c_uint
+lib.ElPseudospectralCloudXDist_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,PseudospecCtrl_d]
+lib.ElPseudospectralCloudXDist_d.restype = c_uint
+lib.ElPseudospectralCloudXDist_c.argtypes = \
+  [c_void_p,c_void_p,c_void_p,PseudospecCtrl_s]
+lib.ElPseudospectralCloudXDist_c.restype = c_uint
+lib.ElPseudospectralCloudXDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,PseudospecCtrl_d]
+lib.ElPseudospectralCloudXDist_z.restype = c_uint
+def PseudospectralCloud(A,shifts,invNorms,ctrl):
+  if type(A) is not type(invNorms): 
+    raise Exception('Types of matrices must match')
+  if invNorms.tag != Base(A.tag): 
+    raise Exception('Datatype of invNorms must be base of datatype of A')
+  if type(A) is Matrix:
+    if   A.tag == sTag: 
+      lib.ElPseudospectralCloudX_s(A.obj,shifts.obj,invNorms.obj,ctrl)
+    elif A.tag == dTag:
+      lib.ElPseudospectralCloudX_d(A.obj,shifts.obj,invNorms.obj,ctrl)
+    elif A.tag == cTag:
+      lib.ElPseudospectralCloudX_c(A.obj,shifts.obj,invNorms.obj,ctrl)
+    elif A.tag == zTag:
+      lib.ElPseudospectralCloudX_z(A.obj,shifts.obj,invNorms.obj,ctrl)
+    else: raise Exception('Unsupported datatype')
+  elif type(A) is DistMatrix:
+    if   A.tag == sTag: 
+      lib.ElPseudospectralCloudXDist_s(A.obj,shifts.obj,invNorms.obj,ctrl)
+    elif A.tag == dTag:
+      lib.ElPseudospectralCloudXDist_d(A.obj,shifts.obj,invNorms.obj,ctrl)
+    elif A.tag == cTag:
+      lib.ElPseudospectralCloudXDist_c(A.obj,shifts.obj,invNorms.obj,ctrl)
+    elif A.tag == zTag:
+      lib.ElPseudospectralCloudXDist_z(A.obj,shifts.obj,invNorms.obj,ctrl)
+    else: raise Exception('Unsupported datatype')
+  else: raise Exception('Unsupported matrix type')

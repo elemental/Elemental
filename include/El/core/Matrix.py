@@ -9,6 +9,9 @@
 from environment import *
 import numpy
 
+buffer_from_memory = ctypes.pythonapi.PyBuffer_FromMemory
+buffer_from_memory.restype = ctypes.py_object
+
 # Matrix
 # ======
 
@@ -679,7 +682,7 @@ class Matrix(object):
       lib.ElMatrixSetRealPart_c(self.obj,i,j,sType(value))
     elif self.tag == zTag: 
       lib.ElMatrixSetRealPart_z(self.obj,i,j,dType(value))
-    else: Set(i,j,value)
+    else: self.Set(i,j,value)
   def SetImagPart(self,i,j,value):
     if self.tag == cTag: 
       lib.ElMatrixSetImagPart_c(self.obj,i,j,sType(value))
@@ -697,7 +700,7 @@ class Matrix(object):
       lib.ElMatrixUpdateRealPart_c(self.obj,i,j,sType(value))
     elif self.tag == zTag: 
       lib.ElMatrixUpdateRealPart_z(self.obj,i,j,dType(value))
-    else: Update(i,j,value)
+    else: self.Update(i,j,value)
   def UpdateImagPart(self,i,j,value):
     if self.tag == cTag: 
       lib.ElMatrixUpdateImagPart_c(self.obj,i,j,sType(value))
@@ -733,7 +736,7 @@ class Matrix(object):
       lib.ElMatrixGetRealPartOfDiagonal_z(self.obj,offset,pointer(d.obj))
       return d
     else: 
-      return GetDiagonal(self,offset)
+      return self.GetDiagonal(self,offset)
   def GetImagPartOfDiagonal(self,offset=iType(0)):
     d = Matrix(TagToType(Base(self.tag)),False)
     if   self.tag == iTag:
@@ -853,7 +856,7 @@ class Matrix(object):
       (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
       return ASub
     else:
-      return GetSubmatrix(I,J)
+      return self.GetSubmatrix(I,J)
   def GetImagPartOfSubmatrix(self,I,J):
     numRowInds = len(I)
     numColInds = len(J)
@@ -905,7 +908,7 @@ class Matrix(object):
     elif self.tag == zTag:
       lib.ElMatrixSetRealPartOfSubmatrix_z(self.obj,rowInd,colInd,ASub.obj)
     else:
-      SetSubmatrix(I,J,ASub)
+      self.SetSubmatrix(I,J,ASub)
   def SetImagPartOfSubmatrix(self,I,J,ASub):
     numRowInds = len(I)
     numColInds = len(J)
@@ -950,7 +953,7 @@ class Matrix(object):
       lib.ElMatrixUpdateRealPartOfSubmatrix_z \
       (self.obj,rowInd,colInd,alpha,ASub.obj)
     else:
-      UpdateSubmatrix(I,J,alpha,ASub)
+      self.UpdateSubmatrix(I,J,alpha,ASub)
   def UpdateImagPartOfSubmatrix(self,I,J,alpha,ASub):
     numRowInds = len(I)
     numColInds = len(J)
@@ -1007,19 +1010,37 @@ class Matrix(object):
       lib.ElMatrixConjugateSubmatrix_z \
       (self.obj,numRowInds,rowInd,numColInds,colInd)
   def ToNumPy(self):
+    m = self.Height().value
+    n = self.Width().value
+    ldim = self.LDim().value
     if   self.tag == iTag:
       # TODO: Switch to 64-bit based upon Elemental's configuration
-      buf = buffer_from_memory(Buffer(),4*LDim()*Width())
-      return numpy.frombuffer(buf,numpy.int32)
+      entrySize = 4
+      bufSize = entrySize*ldim*n
+      buf = buffer_from_memory(self.Buffer(),bufSize)
+      return numpy.ndarray \
+             (shape=(m,n),strides=(ldim*entrySize,entrySize),buffer=buf)
     elif self.tag == sTag:
-      buf = buffer_from_memory(Buffer(),4*LDim()*Width())
-      return buffer_from_memory(buf,numpy.float32)
+      entrySize = 4
+      bufSize = entrySize*ldim*n
+      buf = buffer_from_memory(self.Buffer(),bufSize)
+      return numpy.ndarray \
+             (shape=(m,n),strides=(ldim*entrySize,entrySize),buffer=buf)
     elif self.tag == dTag:
-      buf = buffer_from_memory(Buffer(),8*LDim()*Width())
-      return numpy.frombuffer(buf,numpy.float64)
+      entrySize = 8
+      bufSize = entrySize*ldim*n
+      buf = buffer_from_memory(self.Buffer(),bufSize)
+      return numpy.ndarray \
+             (shape=(m,n),strides=(ldim*entrySize,entrySize),buffer=buf)
     elif self.tag == cTag: 
-      buf = buffer_from_memory(Buffer(),8*LDim()*Width())
-      return numpy.frombuffer(buf,numpy.complex64)
+      entrySize = 8
+      bufSize = entrySize*ldim*n
+      buf = buffer_from_memory(self.Buffer(),bufSize)
+      return numpy.ndarray \
+             (shape=(m,n),strides=(ldim*entrySize,entrySize),buffer=buf)
     elif self.tag == zTag:
-      buf = buffer_from_memory(Buffer(),16*LDim()*Width())
-      return numpy.frombuffer(buf,numpy.complex128)
+      entrySize = 16
+      bufSize = entrySize*ldim*n
+      buf = buffer_from_memory(self.Buffer(),bufSize)
+      return numpy.ndarray \
+             (shape=(m,n),strides=(entrySize,ldim*entrySize),buffer=buf)

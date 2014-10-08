@@ -573,7 +573,7 @@ class DistMatrix(object):
     elif self.tag == zTag: lib.ElDistMatrixLDim_z(self.obj,pointer(ldim))
     return ldim
   def Matrix(self):
-    A = M.Matrix(False)
+    A = M.Matrix(self.tag,False)
     if   self.tag == iTag: lib.ElDistMatrixMatrix_i(self.obj,pointer(A.obj))
     elif self.tag == sTag: lib.ElDistMatrixMatrix_s(self.obj,pointer(A.obj))
     elif self.tag == dTag: lib.ElDistMatrixMatrix_d(self.obj,pointer(A.obj))
@@ -581,7 +581,7 @@ class DistMatrix(object):
     elif self.tag == zTag: lib.ElDistMatrixMatrix_z(self.obj,pointer(A.obj))
     return A
   def LockedMatrix(self):
-    A = M.Matrix(False)
+    A = M.Matrix(self.tag,False)
     if   self.tag == iTag: 
       lib.ElDistMatrixLockedMatrix_i(self.obj,pointer(A.obj))
     elif self.tag == sTag: 
@@ -1176,7 +1176,7 @@ class DistMatrix(object):
   def SetRealPart(self,i,j,value):
     if   self.tag == cTag: lib.ElDistMatrixSetRealPart_c(self.obj,i,j,value)
     elif self.tag == zTag: lib.ElDistMatrixSetRealPart_z(self.obj,i,j,value)
-    else: Set(i,j,value)
+    else: self.Set(i,j,value)
   def SetImagPart(self,i,j,value):
     if   self.tag == cTag: lib.ElDistMatrixSetImagPart_c(self.obj,i,j,value)
     elif self.tag == zTag: lib.ElDistMatrixSetImagPart_z(self.obj,i,j,value)
@@ -1190,7 +1190,7 @@ class DistMatrix(object):
   def UpdateRealPart(self,i,j,value):
     if   self.tag == cTag: lib.ElDistMatrixUpdateRealPart_c(self.obj,i,j,value)
     elif self.tag == zTag: lib.ElDistMatrixUpdateRealPart_z(self.obj,i,j,value)
-    else: Update(i,j,value)
+    else: self.Update(i,j,value)
   def UpdateImagPart(self,i,j,value):
     if   self.tag == cTag: lib.ElDistMatrixUpdateImagPart_c(self.obj,i,j,value)
     elif self.tag == zTag: lib.ElDistMatrixUpdateImagPart_z(self.obj,i,j,value)
@@ -1202,23 +1202,23 @@ class DistMatrix(object):
     if   self.tag == cTag: lib.ElDistMatrixConjugate_c(self.obj,i,j)
     elif self.tag == zTag: lib.ElDistMatrixConjugate_z(self.obj,i,j)
   def GetLocal(self,iLoc,jLoc): 
-    return LockedMatrix().Get(iLoc,jLoc)
+    return self.LockedMatrix().Get(iLoc,jLoc)
   def GetLocalRealPart(self,iLoc,jLoc): 
-    return LockedMatrix().GetRealPart(iLoc,jLoc)
+    return self.LockedMatrix().GetRealPart(iLoc,jLoc)
   def GetLocalImagPart(self,iLoc,jLoc):
-    return LockedMatrix().GetImagPart(iLoc,jLoc)
+    return self.LockedMatrix().GetImagPart(iLoc,jLoc)
   def SetLocal(self,iLoc,jLoc,value):
-    Matrix().Set(iLoc,jLoc,value)
+    self.Matrix().Set(iLoc,jLoc,value)
   def SetLocalRealPart(self,iLoc,jLoc,value):
-    Matrix().SetRealPart(iLoc,jLoc,value)
+    self.Matrix().SetRealPart(iLoc,jLoc,value)
   def SetLocalImagPart(self,iLoc,jLoc,value):
-    Matrix().SetImagPart(iLoc,jLoc,value)
+    self.Matrix().SetImagPart(iLoc,jLoc,value)
   def UpdateLocal(self,iLoc,jLoc,value):
-    Matrix().Update(iLoc,jLoc,value)
+    self.Matrix().Update(iLoc,jLoc,value)
   def UpdateLocalRealPart(self,iLoc,jLoc,value):
-    Matrix().UpdateRealPart(iLoc,jLoc,value)
+    self.Matrix().UpdateRealPart(iLoc,jLoc,value)
   def UpdateLocalImagPart(self,iLoc,jLoc,value):
-    Matrix().UpdateImagPart(iLoc,jLoc,value)
+    self.Matrix().UpdateImagPart(iLoc,jLoc,value)
   def MakeDiagonalReal(self,offset=iType(0)):
     if   self.tag == cTag: lib.ElDistMatrixMakeDiagonalReal_c(self.obj,offset)
     elif self.tag == zTag: lib.ElDistMatrixMakeDiagonalReal_z(self.obj,offset)

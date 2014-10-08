@@ -7,6 +7,7 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from El.core import *
+from El.blas_like import Copy
 
 # Input/Output
 # ************
@@ -95,7 +96,26 @@ lib.ElDisplayDist_c.argtypes = [c_void_p,c_char_p]
 lib.ElDisplayDist_c.restype = c_uint
 lib.ElDisplayDist_z.argtypes = [c_void_p,c_char_p]
 lib.ElDisplayDist_z.restype = c_uint
-def Display(A,title=''):
+def Display(A,tryMatplotlib=True,title=''):
+  if tryMatplotlib:
+    try:  
+      from matplotlib.pyplot import matshow, draw, show
+      if type(A) is Matrix:
+        matshow(A.ToNumPy())
+        draw()
+        show(block=False)
+      elif type(A) is DistMatrix:
+        A_CIRC_CIRC = DistMatrix(A.tag,CIRC,CIRC,A.Grid())
+        Copy(A,A_CIRC_CIRC)
+        matshow(A_CIRC_CIRC.Matrix().ToNumPy())
+        draw()
+        show(block=False)
+      else: raise Exception('Unsupported matrix type')
+      return
+    except: 
+      print 'Could not import matplotlib.pyplot.{matshow,draw,show}'
+      # Just continue
+  # Fall back to the built-in Display if we have not succeeded
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElDisplay_i(A.obj,title)
     elif A.tag == sTag: lib.ElDisplay_s(A.obj,title)
