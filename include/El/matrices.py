@@ -1251,7 +1251,8 @@ lib.ElJordanDist_c.argtypes = [c_void_p,iType,cType]
 lib.ElJordanDist_c.restype = c_uint
 lib.ElJordanDist_z.argtypes = [c_void_p,iType,zType]
 lib.ElJordanDist_z.restype = c_uint
-def Jordan(J,n,lamb):
+def Jordan(J,n,lambPre):
+  lamb = TagToType(J.tag)(lambPre)
   if type(J) is Matrix: 
     if   J.tag == iTag: lib.ElJordan_i(J.obj,n,lamb)
     elif J.tag == sTag: lib.ElJordan_s(J.obj,n,lamb)

@@ -23,8 +23,14 @@ main( int argc, char* argv[] )
         Int r = Input("--gridHeight","process grid height",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int matType =
-            Input("--matType","0:uniform,1:Demmel,2:Lotkin,3:Grcar,4:FoxLi,"
-                  "5:custom real,6:custom complex",1);
+            Input("--matType","0:uniform\n"
+                              "1:Demmel\n"
+                              "2:Lotkin\n"
+                              "3:Grcar\n"
+                              "4:FoxLi\n"
+                              "5:Jordan\n"
+                              "6:custom real\n"
+                              "7:custom complex",1);
         //const Int normInt = Input("--norm","0:two norm,1:one norm",0);
         bool quasi = Input("--quasi","Quasi-triang. real matrix?",true);
         const std::string basename =
@@ -127,7 +133,11 @@ main( int argc, char* argv[] )
             MakeTriangular( UPPER, ACpx );
             isReal = false;
             break;
-        case 5: matName=basename;
+        case 5: matName="Jordan";
+            Jordan( AReal, n, Real(0) );
+            isReal = true;
+            break;
+        case 6: matName=basename;
             os << basename << "-" 
                << AReal.ColStride() << "x" << AReal.RowStride()
                << "-" << AReal.DistRank() << ".bin";
@@ -135,7 +145,7 @@ main( int argc, char* argv[] )
             Read( AReal.Matrix(), os.str(), BINARY );
             isReal = true;
             break;
-        case 6: matName=basename;
+        case 7: matName=basename;
             os << basename << "-" << ACpx.ColStride() << "x" << ACpx.RowStride()
                << "-" << ACpx.DistRank() << ".bin";
             ACpx.Resize( n, n );

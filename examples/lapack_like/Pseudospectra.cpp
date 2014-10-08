@@ -37,7 +37,8 @@ main( int argc, char* argv[] )
                               "11:UniformHelmholtzGreen's,\n"
                               "12:HatanoNelson,\n"
                               "13:EhrenfestDecay,\n"
-                              "14:RiffleDecay",4);
+                              "14:RiffleDecay\n"
+                              "15:Jordan\n",4);
         const Int normInt = Input("--norm","0:two norm,1:one norm",0);
         const Int n = Input("--size","height of matrix",100);
         const Int nbAlg = Input("--nbAlg","algorithmic blocksize",96);
@@ -207,6 +208,10 @@ main( int argc, char* argv[] )
                  // Force the complex matrix to allow for one-norm pseudospectra
                  RiffleDecay( ACpx, n );
                  isReal = false;
+                 break;
+        case 15: matName="Jordan";
+                 Jordan( AReal, n, Real(0) );
+                 isReal = true;
                  break;
         default: LogicError("Invalid matrix type");
         }

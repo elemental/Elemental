@@ -12,34 +12,36 @@ import ctypes
 # Emulate an enum for the sign scaling
 (SIGN_SCALE_NONE,SIGN_SCALE_DET,SIGN_SCALE_FROB)=(0,1,2)
 
+lib.ElSignCtrlDefault_s.argtypes = [c_void_p]
+lib.ElSignCtrlDefault_s.restype = c_uint
 class SignCtrl_s(ctypes.Structure):
   _fields_ = [("maxIts",iType),
               ("tol",sType),
               ("power",sType),
               ("scaling",c_uint)]
-lib.ElSignCtrlDefault_s.argtypes = [POINTER(SignCtrl_s)]
-lib.ElSignCtrlDefault_s.restype = c_uint
-def SignCtrlDefault_s(ctrl):
-  lib.ElSignCtrlDefault_s(pointer(ctrl))
+  def __init__(self):
+    lib.ElSignCtrlDefault_s(pointer(self))
 
+lib.ElSignCtrlDefault_d.argtypes = [c_void_p]
+lib.ElSignCtrlDefault_d.restype = c_uint
 class SignCtrl_d(ctypes.Structure):
   _fields_ = [("maxIts",iType),
               ("tol",dType),
               ("power",dType),
               ("scaling",c_uint)]
-lib.ElSignCtrlDefault_d.argtypes = [POINTER(SignCtrl_d)]
-lib.ElSignCtrlDefault_d.restype = c_uint
-def SignCtrlDefault_d(ctrl):
-  lib.ElSignCtrlDefault_d(pointer(ctrl))
+  def __init__(self):
+    lib.ElSignCtrlDefault_d(pointer(self))
 
+lib.ElHessQRCtrlDefault.argtypes = [c_void_p]
+lib.ElHessQRCtrlDefault.restype = c_uint
 class HessQRCtrl(ctypes.Structure):
   _fields_ = [("distAED",bType),
               ("blockHeight",iType),("blockWidth",iType)]
-lib.ElHessQRCtrlDefault.argtypes = [POINTER(HessQRCtrl)]
-lib.ElHessQRCtrlDefault.restype = c_uint
-def HessQRCtrlDefault(ctrl):
-  lib.ElHessQRCtrlDefault(pointer(ctrl))
+  def __init__(self):
+    lib.ElHessQRCtrlDefault(pointer(self))
 
+lib.ElSDCCtrlDefault_s.argtypes = [c_void_p]
+lib.ElSDCCtrlDefault_s.restype = c_uint
 class SDCCtrl_s(ctypes.Structure):
   _fields_ = [("cutoff",iType),
               ("maxInnerIts",iType),("maxOuterIts",iType),
@@ -48,11 +50,11 @@ class SDCCtrl_s(ctypes.Structure):
               ("random",bType),
               ("progress",bType),
               ("signCtrl",SignCtrl_s)]
-lib.ElSDCCtrlDefault_s.argtypes = [POINTER(SDCCtrl_s)]
-lib.ElSDCCtrlDefault_s.restype = c_uint
-def SDCCtrlDefault_s(ctrl):
-  lib.ElSDCCtrlDefault_s(pointer(ctrl))
+  def __init__(self):
+    lib.ElSDCCtrlDefault_s(pointer(self))
 
+lib.ElSDCCtrlDefault_d.argtypes = [c_void_p]
+lib.ElSDCCtrlDefault_d.restype = c_uint
 class SDCCtrl_d(ctypes.Structure):
   _fields_ = [("cutoff",iType),
               ("maxInnerIts",iType),("maxOuterIts",iType),
@@ -61,29 +63,31 @@ class SDCCtrl_d(ctypes.Structure):
               ("random",bType),
               ("progress",bType),
               ("signCtrl",SignCtrl_d)]
-lib.ElSDCCtrlDefault_d.argtypes = [POINTER(SDCCtrl_d)]
-lib.ElSDCCtrlDefault_d.restype = c_uint
-def SDCCtrlDefault_d(ctrl):
-  lib.ElSDCCtrlDefault_d(pointer(ctrl))
+  def __init__(self):
+    lib.ElSDCCtrlDefault_d(pointer(self))
 
+lib.ElSchurCtrlDefault_s.argtypes = [c_void_p]
+lib.ElSchurCtrlDefault_s.restype = c_uint
 class SchurCtrl_s(ctypes.Structure):
   _fields_ = [("useSDC",bType),
               ("qrCtrl",HessQRCtrl),
               ("sdcCtrl",SDCCtrl_s)]
-lib.ElSchurCtrlDefault_s.argtypes = [POINTER(SchurCtrl_s)]
-lib.ElSchurCtrlDefault_s.restype = c_uint
-def SchurCtrlDefault_s(ctrl):
-  lib.ElSchurCtrlDefault_s(pointer(ctrl))
+  def __init__(self):
+    lib.ElSchurCtrlDefault_s(pointer(self))
 
+lib.ElSchurCtrlDefault_d.argtypes = [c_void_p]
+lib.ElSchurCtrlDefault_d.restype = c_uint
 class SchurCtrl_d(ctypes.Structure):
   _fields_ = [("useSDC",bType),
               ("qrCtrl",HessQRCtrl),
               ("sdcCtrl",SDCCtrl_d)]
-lib.ElSchurCtrlDefault_d.argtypes = [POINTER(SchurCtrl_d)]
-lib.ElSchurCtrlDefault_d.restype = c_uint
-def SchurCtrlDefault_d(ctrl):
-  lib.ElSchurCtrlDefault_d(pointer(ctrl))
+  def __init__(self):
+    lib.ElSchurCtrlDefault_d(pointer(self))
 
+lib.ElSnapshotCtrlDefault.argtypes = [c_void_p]
+lib.ElSnapshotCtrlDefault.restype = c_uint
+lib.ElSnapshotCtrlDestroy.argtypes = [c_void_p]
+lib.ElSnapshotCtrlDestroy.restype = c_uint
 class SnapshotCtrl(ctypes.Structure):
   _fields_ = [("realSize",iType),("imagSize",iType),
               ("imgSaveFreq",iType),("numSaveFreq",iType),
@@ -93,18 +97,18 @@ class SnapshotCtrl(ctypes.Structure):
               ("imgBase",c_char_p),("numBase",c_char_p),
               ("imgFormat",c_uint),("numFormat",c_uint),
               ("itCounts",bType)]
-lib.ElSnapshotCtrlDefault.argtypes = [POINTER(SnapshotCtrl)]
-lib.ElSnapshotCtrlDefault.restype = c_uint
-lib.ElSnapshotCtrlDestroy.argtypes = [POINTER(SnapshotCtrl)]
-lib.ElSnapshotCtrlDestroy.restype = c_uint
-def SnapshotCtrlDefault(ctrl):
-  lib.ElSnaphsotCtrlDefault(pointer(ctrl)) 
-def SnapshotCtrlDestroy(ctrl):
-  lib.ElSnapshotCtrlDestroy(pointer(ctrl))
+  def __init__(self):
+    lib.ElSnaphsotCtrlDefault(pointer(self)) 
+  def Destroy(self):
+    lib.ElSnapshotCtrlDestroy(pointer(self))
 
 # Emulate an enum for the pseudospectral norm
 (PS_TWO_NORM,PS_ONE_NORM)=(0,1)
 
+lib.ElPseudospecCtrlDefault_s.argtypes = [c_void_p]
+lib.ElPseudospecCtrlDefault_s.restype = c_uint
+lib.ElPseudospecCtrlDestroy_s.argtypes = [c_void_p]
+lib.ElPseudospecCtrlDestroy_s.restype = c_uint
 class PseudospecCtrl_s(ctypes.Structure):
   _fields_ = [("norm",c_uint),
               ("blockWidth",iType),
@@ -120,15 +124,15 @@ class PseudospecCtrl_s(ctypes.Structure):
               ("reorthog",bType),
               ("progress",bType),
               ("snapCtrl",SnapshotCtrl)]
-lib.ElPseudospecCtrlDefault_s.argtypes = [POINTER(PseudospecCtrl_s)]
-lib.ElPseudospecCtrlDefault_s.restype = c_uint
-lib.ElPseudospecCtrlDestroy_s.argtypes = [POINTER(PseudospecCtrl_s)]
-lib.ElPseudospecCtrlDestroy_s.restype = c_uint
-def PseudospecCtrlDefault_s(ctrl):
-  lib.ElPseudospecCtrlDefault_s(pointer(ctrl))
-def PseudospecCtrlDestroy_s(ctrl):
-  lib.ElPseudospecCtrlDestroy_s(pointer(ctrl))
+  def __init__(self):
+    lib.ElPseudospecCtrlDefault_s(pointer(self))
+  def Destroy(self):
+    lib.ElPseudospecCtrlDestroy_s(pointer(self))
 
+lib.ElPseudospecCtrlDefault_d.argtypes = [c_void_p]
+lib.ElPseudospecCtrlDefault_d.restype = c_uint
+lib.ElPseudospecCtrlDestroy_d.argtypes = [c_void_p]
+lib.ElPseudospecCtrlDestroy_d.restype = c_uint
 class PseudospecCtrl_d(ctypes.Structure):
   _fields_ = [("norm",c_uint),
               ("blockWidth",iType),
@@ -144,14 +148,10 @@ class PseudospecCtrl_d(ctypes.Structure):
               ("reorthog",bType),
               ("progress",bType),
               ("snapCtrl",SnapshotCtrl)]
-lib.ElPseudospecCtrlDefault_d.argtypes = [POINTER(PseudospecCtrl_d)]
-lib.ElPseudospecCtrlDefault_d.restype = c_uint
-lib.ElPseudospecCtrlDestroy_d.argtypes = [POINTER(PseudospecCtrl_d)]
-lib.ElPseudospecCtrlDestroy_d.restype = c_uint
-def PseudospecCtrlDefault_d(ctrl):
-  lib.ElPseudospecCtrlDefault_d(pointer(ctrl))
-def PseudospecCtrlDestroy_d(ctrl):
-  lib.ElPseudospecCtrlDestroy_d(pointer(ctrl))
+  def __init__(self):
+    lib.ElPseudospecCtrlDefault_d(pointer(self))
+  def Destroy(self):
+    lib.ElPseudospecCtrlDestroy_d(pointer(self))
 
 lib.ElPseudospectralAutoWindowX_s.argtypes = \
   [c_void_p,c_void_p,iType,iType,PseudospecCtrl_s]
