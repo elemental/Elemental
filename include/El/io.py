@@ -107,9 +107,10 @@ def Display(A,tryMatplotlib=True,title=''):
       elif type(A) is DistMatrix:
         A_CIRC_CIRC = DistMatrix(A.tag,CIRC,CIRC,A.Grid())
         Copy(A,A_CIRC_CIRC)
-        matshow(A_CIRC_CIRC.Matrix().ToNumPy())
-        draw()
-        show(block=False)
+        if A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root():
+          matshow(A_CIRC_CIRC.Matrix().ToNumPy())
+          draw()
+          show(block=False)
       else: raise Exception('Unsupported matrix type')
       return
     except: 
