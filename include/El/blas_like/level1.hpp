@@ -211,6 +211,15 @@ template<typename T>
 T HilbertSchmidt
 ( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& C );
 
+// Imaginary part
+// ==============
+template<typename T>
+void ImagPart
+( const Matrix<T>& A, Matrix<Base<T>>& AImag );
+template<typename T>
+void ImagPart
+( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& AImag );
+
 // IndexDependentFill
 // ==================
 template<typename T>
@@ -455,6 +464,15 @@ RightQuasiDiagonalSolve
   const DistMatrix<F,U,V>& XPrev,
   const DistMatrix<F,U,V>& XNext,
   bool conjugated=false );
+
+// Real part
+// =========
+template<typename T>
+void RealPart
+( const Matrix<T>& A, Matrix<Base<T>>& AReal );
+template<typename T>
+void RealPart
+( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& AReal );
 
 // Scale
 // =====

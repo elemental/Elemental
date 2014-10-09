@@ -286,6 +286,8 @@ EL_EXPORT ElError ElEntrywiseMapDist_c
 EL_EXPORT ElError ElEntrywiseMapDist_z
 ( ElDistMatrix_z A, complex_double (*func)(complex_double) );
 
+/* TODO: Version which maps to a different matrix of possibly different type? */
+
 /* Fill
    ==== */
 EL_EXPORT ElError ElFill_i( ElMatrix_i A, ElInt alpha );
@@ -348,6 +350,24 @@ EL_EXPORT ElError ElHilbertSchmidtDist_c
 ( ElConstDistMatrix_c A, ElConstDistMatrix_c B, complex_float* prod );
 EL_EXPORT ElError ElHilbertSchmidtDist_z
 ( ElConstDistMatrix_z A, ElConstDistMatrix_z B, complex_double* prod );
+
+/* Imaginary part
+   ============== */
+EL_EXPORT ElError ElImagPart_i( ElConstMatrix_i A, ElMatrix_i AImag );
+EL_EXPORT ElError ElImagPart_s( ElConstMatrix_s A, ElMatrix_s AImag );
+EL_EXPORT ElError ElImagPart_d( ElConstMatrix_d A, ElMatrix_d AImag );
+EL_EXPORT ElError ElImagPart_c( ElConstMatrix_c A, ElMatrix_s AImag );
+EL_EXPORT ElError ElImagPart_z( ElConstMatrix_z A, ElMatrix_d AImag );
+EL_EXPORT ElError ElImagPartDist_i
+( ElConstDistMatrix_i A, ElDistMatrix_i AImag );
+EL_EXPORT ElError ElImagPartDist_s
+( ElConstDistMatrix_s A, ElDistMatrix_s AImag );
+EL_EXPORT ElError ElImagPartDist_d
+( ElConstDistMatrix_d A, ElDistMatrix_d AImag );
+EL_EXPORT ElError ElImagPartDist_c
+( ElConstDistMatrix_c A, ElDistMatrix_s AImag );
+EL_EXPORT ElError ElImagPartDist_z
+( ElConstDistMatrix_z A, ElDistMatrix_d AImag );
 
 /* IndexDependentFill
    ================== */
@@ -676,6 +696,24 @@ EL_EXPORT ElError ElNrm2Dist_s( ElConstDistMatrix_s A, float* gamma );
 EL_EXPORT ElError ElNrm2Dist_d( ElConstDistMatrix_d A, double* gamma );
 EL_EXPORT ElError ElNrm2Dist_c( ElConstDistMatrix_c A, float* gamma );
 EL_EXPORT ElError ElNrm2Dist_z( ElConstDistMatrix_z A, double* gamma );
+
+/* Real part
+   ========= */
+EL_EXPORT ElError ElRealPart_i( ElConstMatrix_i A, ElMatrix_i AReal );
+EL_EXPORT ElError ElRealPart_s( ElConstMatrix_s A, ElMatrix_s AReal );
+EL_EXPORT ElError ElRealPart_d( ElConstMatrix_d A, ElMatrix_d AReal );
+EL_EXPORT ElError ElRealPart_c( ElConstMatrix_c A, ElMatrix_s AReal );
+EL_EXPORT ElError ElRealPart_z( ElConstMatrix_z A, ElMatrix_d AReal );
+EL_EXPORT ElError ElRealPartDist_i
+( ElConstDistMatrix_i A, ElDistMatrix_i AReal );
+EL_EXPORT ElError ElRealPartDist_s
+( ElConstDistMatrix_s A, ElDistMatrix_s AReal );
+EL_EXPORT ElError ElRealPartDist_d
+( ElConstDistMatrix_d A, ElDistMatrix_d AReal );
+EL_EXPORT ElError ElRealPartDist_c
+( ElConstDistMatrix_c A, ElDistMatrix_s AReal );
+EL_EXPORT ElError ElRealPartDist_z
+( ElConstDistMatrix_z A, ElDistMatrix_d AReal );
 
 /* Scale
    ===== */

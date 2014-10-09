@@ -27,35 +27,6 @@ typedef complex double complex_double;
 /* Basic element manipulation
    ========================== */
 
-/* Return the real/imaginary part of a complex number
-   -------------------------------------------------- */
-EL_EXPORT ElError ElRealPart_c( complex_float alpha, float* result );
-EL_EXPORT ElError ElRealPart_z( complex_double alpha, double* result );
-
-EL_EXPORT ElError ElImagPart_c( complex_float alpha, float* result );
-EL_EXPORT ElError ElImagPart_z( complex_double alpha, double* result );
-
-/* Set the real/imaginary part of a complex number
-   ----------------------------------------------- */
-EL_EXPORT ElError ElSetRealPart_c( complex_float* alpha, float alphaReal );
-EL_EXPORT ElError ElSetRealPart_z( complex_double* alpha, double alphaReal );
-
-EL_EXPORT ElError ElSetImagPart_c( complex_float* alpha, float alphaImag );
-EL_EXPORT ElError ElSetImagPart_z( complex_double* alpha, double alphaImag );
-
-/* Update the real/imaginary part of a complex number
-   -------------------------------------------------- */
-EL_EXPORT ElError ElUpdateRealPart_c( complex_float* alpha, float betaReal );
-EL_EXPORT ElError ElUpdateImagPart_z( complex_double* alpha, double betaReal );
-
-EL_EXPORT ElError ElUpdateImagPart_c( complex_float* alpha, float betaImag );
-EL_EXPORT ElError ElUpdateImagPart_z( complex_double* alpha, double betaImag );
-
-/* Conjugate a complex number
-   -------------------------- */
-EL_EXPORT ElError ElConj_c( complex_float alpha, complex_float* result );
-EL_EXPORT ElError ElConj_z( complex_double alpha, complex_double* result );
-
 /* Return the complex argument of a scalar
    --------------------------------------- */
 EL_EXPORT ElError ElArg_s( float alpha, float* result );

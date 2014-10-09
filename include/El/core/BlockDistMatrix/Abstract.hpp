@@ -27,6 +27,7 @@ public:
 
     virtual ~AbstractBlockDistMatrix();
 
+    // TODO: Template over the type in the same manner as for AbstractDistMatrix
     virtual AbstractBlockDistMatrix<T>* Construct
     ( const El::Grid& g=DefaultGrid(), Int root=0 ) const = 0;
     virtual AbstractBlockDistMatrix<T>* ConstructTranspose

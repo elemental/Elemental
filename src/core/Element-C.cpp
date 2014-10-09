@@ -76,20 +76,6 @@ extern "C" {
 #define C_PROTO_COMPLEX_ONLY(SIG,SIGBASE,F) \
   /* Basic complex entry manipulation
      ================================ */ \
-  ElError ElRealPart_ ## SIG ( CREFLECT(F) alpha, Base<F>* alphaReal ) \
-  { EL_TRY( *alphaReal = RealPart(CReflect(alpha)) ) } \
-  ElError ElImagPart_ ## SIG ( CREFLECT(F) alpha, Base<F>* alphaImag ) \
-  { EL_TRY( *alphaImag = ImagPart(CReflect(alpha)) ) } \
-  ElError ElSetRealPart_ ## SIG ( CREFLECT(F)* alpha, Base<F> alphaReal ) \
-  { EL_TRY( SetRealPart(*CReflect(alpha),alphaReal) ) } \
-  ElError ElSetImagPart_ ## SIG ( CREFLECT(F)* alpha, Base<F> alphaImag ) \
-  { EL_TRY( SetImagPart(*CReflect(alpha),alphaImag) ) } \
-  ElError ElUpdateRealPart_ ## SIG ( CREFLECT(F)* alpha, Base<F> betaReal ) \
-  { EL_TRY( UpdateRealPart(*CReflect(alpha),betaReal) ) } \
-  ElError ElUpdateImagPart_ ## SIG ( CREFLECT(F)* alpha, Base<F> betaImag ) \
-  { EL_TRY( UpdateImagPart(*CReflect(alpha),betaImag) ) } \
-  ElError ElConj_ ## SIG ( CREFLECT(F) alpha, CREFLECT(F)* alphaConj ) \
-  { EL_TRY( *alphaConj = CReflect(Conj(CReflect(alpha))) ) } \
   ElError ElComplexFromPolar_ ## SIG \
   ( Base<F> r, Base<F> theta, CREFLECT(F)* alpha ) \
   { EL_TRY( *alpha = CReflect(ComplexFromPolar(r,theta)) ) } \

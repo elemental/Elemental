@@ -111,6 +111,13 @@ extern "C" {
     CREFLECT(T)* prod ) \
   { EL_TRY( *prod = \
       CReflect(HilbertSchmidt(*CReflect(A),*CReflect(B))) ) } \
+  /* Imaginary part */ \
+  ElError ElImagPart_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIGBASE AImag ) \
+  { EL_TRY( ImagPart( *CReflect(A), *CReflect(AImag) ) ) } \
+  ElError ElImagPartDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE AImag ) \
+  { EL_TRY( ImagPart( *CReflect(A), *CReflect(AImag) ) ) } \
   /* IndexDependentFill */ \
   ElError ElIndexDependentFill_ ## SIG \
   ( ElMatrix_ ## SIG A, CREFLECT(T) (*fill)(ElInt,ElInt) ) \
@@ -218,6 +225,13 @@ extern "C" {
   ElError ElScaleDist_ ## SIG \
   ( CREFLECT(T) alpha, ElDistMatrix_ ## SIG A ) \
   { EL_TRY( Scale( CReflect(alpha), *CReflect(A) ) ) } \
+  /* Real part */ \
+  ElError ElRealPart_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIGBASE AReal ) \
+  { EL_TRY( RealPart( *CReflect(A), *CReflect(AReal) ) ) } \
+  ElError ElRealPartDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE AReal ) \
+  { EL_TRY( RealPart( *CReflect(A), *CReflect(AReal) ) ) } \
   /* ScaleTrapezoid */ \
   ElError ElScaleTrapezoid_ ## SIG \
   ( CREFLECT(T) alpha, ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElInt offset ) \

@@ -563,7 +563,7 @@ class Matrix(object):
     elif self.tag == dTag: lib.ElMatrixHeight_d(self.obj,pointer(m))
     elif self.tag == cTag: lib.ElMatrixHeight_c(self.obj,pointer(m))
     elif self.tag == zTag: lib.ElMatrixHeight_z(self.obj,pointer(m))
-    return m
+    return m.value
   def Width(self):
     n = iType()
     if   self.tag == iTag: lib.ElMatrixWidth_i(self.obj,pointer(n))
@@ -571,7 +571,7 @@ class Matrix(object):
     elif self.tag == dTag: lib.ElMatrixWidth_d(self.obj,pointer(n))
     elif self.tag == cTag: lib.ElMatrixWidth_c(self.obj,pointer(n))
     elif self.tag == zTag: lib.ElMatrixWidth_z(self.obj,pointer(n))
-    return n
+    return n.value
   def LDim(self):
     ldim = iType()
     if   self.tag == iTag: lib.ElMatrixLDim_i(self.obj,pointer(ldim))
@@ -579,7 +579,7 @@ class Matrix(object):
     elif self.tag == dTag: lib.ElMatrixLDim_d(self.obj,pointer(ldim))
     elif self.tag == cTag: lib.ElMatrixLDim_c(self.obj,pointer(ldim))
     elif self.tag == zTag: lib.ElMatrixLDim_z(self.obj,pointer(ldim))
-    return ldim 
+    return ldim.value
   def MemorySize(self):
     size = iType()
     if   self.tag == iTag: lib.ElMatrixMemorySize_i(self.obj,pointer(size))
@@ -587,7 +587,7 @@ class Matrix(object):
     elif self.tag == dTag: lib.ElMatrixMemorySize_d(self.obj,pointer(size))
     elif self.tag == cTag: lib.ElMatrixMemorySize_c(self.obj,pointer(size))
     elif self.tag == zTag: lib.ElMatrixMemorySize_z(self.obj,pointer(size))
-    return size
+    return size.value
   def DiagonalLength(self,offset=iType(0)):
     length = iType()
     if   self.tag == iTag: 
@@ -600,7 +600,7 @@ class Matrix(object):
       lib.ElMatrixDiagonalLength_c(self.obj,offset,pointer(length))
     if   self.tag == zTag: 
       lib.ElMatrixDiagonalLength_z(self.obj,offset,pointer(length))
-    return length
+    return length.value
   def Viewing(self):
     viewing = bType()
     if   self.tag == iTag: lib.ElMatrixViewing_i(self.obj,pointer(viewing))
@@ -608,7 +608,7 @@ class Matrix(object):
     elif self.tag == dTag: lib.ElMatrixViewing_d(self.obj,pointer(viewing))
     elif self.tag == cTag: lib.ElMatrixViewing_c(self.obj,pointer(viewing))
     elif self.tag == zTag: lib.ElMatrixViewing_z(self.obj,pointer(viewing))
-    return viewing 
+    return viewing.value
   def FixedSize(self):
     fixed = bType()
     if   self.tag == iTag: lib.ElMatrixFixedSize_i(self.obj,pointer(fixed))
@@ -616,7 +616,7 @@ class Matrix(object):
     elif self.tag == dTag: lib.ElMatrixFixedSize_d(self.obj,pointer(fixed))
     elif self.tag == cTag: lib.ElMatrixFixedSize_c(self.obj,pointer(fixed))
     elif self.tag == zTag: lib.ElMatrixFixedSize_z(self.obj,pointer(fixed))
-    return fixed
+    return fixed.value
   def Locked(self):
     locked = bType()
     if   self.tag == iTag: lib.ElMatrixLocked_i(self.obj,pointer(locked))
@@ -624,7 +624,7 @@ class Matrix(object):
     elif self.tag == dTag: lib.ElMatrixLocked_d(self.obj,pointer(locked))
     elif self.tag == cTag: lib.ElMatrixLocked_c(self.obj,pointer(locked))
     elif self.tag == zTag: lib.ElMatrixLocked_z(self.obj,pointer(locked))
-    return locked
+    return locked.value
   def Buffer(self):
     buf = POINTER(TagToType(self.tag))()
     if   self.tag == iTag: lib.ElMatrixBuffer_i(self.obj,pointer(buf)) 
@@ -1010,9 +1010,9 @@ class Matrix(object):
       lib.ElMatrixConjugateSubmatrix_z \
       (self.obj,numRowInds,rowInd,numColInds,colInd)
   def ToNumPy(self):
-    m = self.Height().value
-    n = self.Width().value
-    ldim = self.LDim().value
+    m = self.Height()
+    n = self.Width()
+    ldim = self.LDim()
     if   self.tag == iTag:
       # TODO: Switch to 64-bit based upon Elemental's configuration
       entrySize = 4

@@ -7,7 +7,7 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from El.core import *
-from El.blas_like import Copy
+from El.blas_like import Copy, RealPart, ImagPart
 
 # Input/Output
 # ************
@@ -99,22 +99,50 @@ lib.ElDisplayDist_z.restype = c_uint
 def Display(A,tryMatplotlib=True,title=''):
   if tryMatplotlib:
     try:  
-      from matplotlib.pyplot import matshow, draw, show
+      import matplotlib.pyplot as plt
       if type(A) is Matrix:
-        matshow(A.ToNumPy())
-        draw()
-        show(block=False)
+        if A.tag == cTag or A.tag == zTag:
+          AReal = Matrix(Base(A.tag))
+          AImag = Matrix(Base(A.tag))
+          RealPart(A,AReal)
+          ImagPart(A,AImag)
+          fig, (ax1,ax2) = plt.subplots(1,2)
+          ax1.set_title('Real part')
+          ax2.set_title('Imag part')
+          imReal = ax1.imshow(AReal.ToNumPy())
+          imImag = ax2.imshow(AImag.ToNumPy())
+          plt.tight_layout()
+          plt.draw()
+          plt.show(block=False)
+        else:
+          plt.imshow(A.ToNumPy())
+          plt.draw()
+          plt.show(block=False)
       elif type(A) is DistMatrix:
         A_CIRC_CIRC = DistMatrix(A.tag,CIRC,CIRC,A.Grid())
         Copy(A,A_CIRC_CIRC)
         if A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root():
-          matshow(A_CIRC_CIRC.Matrix().ToNumPy())
-          draw()
-          show(block=False)
+          if A.tag == cTag or A.tag == zTag:
+            ALocReal = Matrix(Base(A.tag))
+            ALocImag = Matrix(Base(A.tag))
+            RealPart(A_CIRC_CIRC.Matrix(),ALocReal)
+            ImagPart(A_CIRC_CIRC.Matrix(),ALocImag)
+            fig, (ax1,ax2) = plt.subplots(1,2)
+            ax1.set_title('Real part')
+            ax2.set_title('Imag part')
+            imReal = ax1.imshow(ALocReal.ToNumPy())
+            imImag = ax2.imshow(ALocImag.ToNumPy())
+            plt.tight_layout()
+            plt.draw()
+            plt.show(block=False)
+          else:
+            imshow(A_CIRC_CIRC.Matrix().ToNumPy())
+            plt.draw()
+            plt.show(block=False)
       else: raise Exception('Unsupported matrix type')
       return
     except: 
-      print 'Could not import matplotlib.pyplot.{matshow,draw,show}'
+      print 'Could not import matplotlib.pyplot'
       # Just continue
   # Fall back to the built-in Display if we have not succeeded
   if type(A) is Matrix:

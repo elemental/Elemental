@@ -155,31 +155,31 @@ class Grid(object):
   def Row(self):
     row = c_int()
     lib.ElGridRow(self.obj,pointer(row))
-    return row
+    return row.value
   def Col(self):
     col = c_int()
     lib.ElGridCol(self.obj,pointer(col))
-    return col
+    return col.value
   def Rank(self):
     rank = c_int()
     lib.ElGridRank(self.obj,pointer(rank))
-    return rank
+    return rank.value
   def Height(self):
     height = c_int()
     lib.ElGridHeight(self.obj,pointer(height))
-    return height
+    return height.value
   def Width(self):
     width = c_int()
     lib.ElGridWidth(self.obj,pointer(width))
-    return width
+    return width.value
   def Size(self):
     size = c_int()
     lib.ElGridSize(self.obj,pointer(size))
-    return size
+    return size.value
   def Order(self):
     order = c_uint()
     lib.ElGridOrder(self.obj,pointer(order))
-    return order
+    return order.value
   def ColComm(self):
     colComm = MPI_Comm()
     lib.ElGridColComm(self.obj,pointer(colComm))
@@ -195,35 +195,35 @@ class Grid(object):
   def MCRank(self):
     rank = c_int()
     lib.ElGridMCRank(self.obj,pointer(rank))
-    return rank
+    return rank.value
   def MRRank(self):
     rank = c_int()
     lib.ElGridMRRank(self.obj,pointer(rank))
-    return rank
+    return rank.value
   def VCRank(self):
     rank = c_int()
     lib.ElGridVCRank(self.obj,pointer(rank))
-    return rank
+    return rank.value
   def VRRank(self):
     rank = c_int()
     lib.ElGridVRRank(self.obj,pointer(rank))
-    return rank
+    return rank.value
   def MCSize(self):
     size = c_int()
     lib.ElGridMCSize(self.obj,pointer(size))
-    return size
+    return size.value
   def MRSize(self):
     size = c_int()
     lib.ElGridMRSize(self.obj,pointer(size))
-    return size
+    return size.value
   def VCSize(self):
     size = c_int()
     lib.ElGridVCSize(self.obj,pointer(size))
-    return size
+    return size.value
   def VRSize(self):
     size = c_int()
     lib.ElGridVRSize(self.obj,pointer(size))
-    return size
+    return size.value
   def MCComm(self):
     comm = MPI_Comm()
     lib.ElGridMCComm(self.obj,pointer(comm))
@@ -250,31 +250,31 @@ class Grid(object):
   def GCD(self):
     gcd = c_int()
     lib.ElGridGCD(self.obj,pointer(gcd))
-    return gcd
+    return gcd.value
   def LCM(self):
     lcm = c_int()
     lib.ElGridLCM(self.obj,pointer(lcm))
-    return lcm
+    return lcm.value
   def InGrid(self):
     inGrid = bType()
     lib.ElGridInGrid(self.obj,pointer(inGrid))
-    return inGrid
+    return inGrid.value
   def HaveViewers(self):
     haveViewers = bType() 
     lib.ElGridHaveViewers(self.obj,pointer(haveViewers))
-    return haveViewers
+    return haveViewers.value
   def OwningRank(self):
     rank = c_int()
     lib.ElGridOwningRank(self.obj,pointer(rank))
-    return rank
+    return rank.value
   def ViewingRank(self):
     rank = c_int()
     lib.ElGridViewingRank(self.obj,pointer(rank))
-    return rank
+    return rank.value
   def VCToViewingMap(self,vcRank):
     viewingRank = c_int()
     lib.ElGridVCToViewingMap(self.obj,vcRank,pointer(viewingRank))
-    return viewingRank
+    return viewingRank.value
   def OwningGroup(self):
     group = MPI_Group()
     lib.ElGridOwningGroup(self.obj,pointer(group))
@@ -290,20 +290,20 @@ class Grid(object):
   def DiagPath(self,vcRank):
     diagPath = c_int()
     lib.ElGridDiagPath(self.obj,vcRank,pointer(diagPath))
-    return diagPath
+    return diagPath.value
   def DiagPathRank(self,vcRank):
     pathRank = c_int()
     lib.ElGridDiagPathRank(self.obj,vcRank,pointer(pathRank))
-    return pathRank
+    return pathRank.value
   def FirstVCRank(self,diagPath):
     firstVCRank = c_int()
     lib.ElGridFirstVCRank(self.obj,diagPath,pointer(firstVCRank))
-    return firstVCRank
+    return firstVCRank.value
   # NOTE: The following method is static
   def FindFactor(numProcs):
     factor = c_int()
     lib.ElGridFindFactor(numProcs,pointer(factor))
-    return factor
+    return factor.value
 
 def DefaultGrid():
   return Grid()

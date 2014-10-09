@@ -1,0 +1,28 @@
+Bernoulli, Rademacher, and Three-valued (X in {-1,0,1} with prob {p/2,1-p,p/2})
+Partial Fourier (R_S F), Partial Hadamard (R_S H), (non-square) Haar
+Random circulant selection (via random unit-entry matrix)
+Spikes and sines (Fourier-Identity adjoint) and Spikes and Hadamard
+4-fold overcomplete sinusoids
+translation-invariant wavelets at level j: Phi = Psi_j^T
+
+Spectrum of S = Phi' Phi where Phi is M x m and in N(0,1/M);
+follows Marcenko Pastur law, [l,u] = (1 +- sqrt(m/M))^2*(1+op(1))
+
+"Equiangular tight frames" are tight frames with \mu(A) = 1/sqrt(n), like
+Mercedes-Benz trademark, see Strohmer and Heath (2006) for compressed radar.
+For "brutal windowing", a complex crude Gabor frame is given by:
+    Phi = BlockDiag(F_m,F_m,...,F_m) [n times]
+Instead use "smooth transition between 0 and 1" instead of an indicator, such
+as w_0(t) = exp(-t^2/m^2)
+
+Linear chirp:
+Signal domain 0 <= t < n, n prime
+N = m*n
+  g_k(t) = exp( i (2*pi/n) k t^2 ) / sqrt(n), 0 < t < n
+phi_{k,l}(t) = g_k(t) * exp(i (2*pi/n) t l) / sqrt(n), l=0,...,n-1
+
+Chirp modulation operator:
+  M_{g_k} = diag(g_k)
+Phi_k = M_{g_k} F_n
+Phi = F_n [I M_{g_1} M_{g_2} ... M_{g_k}]
+Phi x = F_n \sum_{i=0}^n M_{g_i} x
