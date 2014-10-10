@@ -193,13 +193,18 @@ EL_EXPORT ElError ElDistMatrixFreeAlignments_d( ElDistMatrix_d A );
 EL_EXPORT ElError ElDistMatrixFreeAlignments_c( ElDistMatrix_c A );
 EL_EXPORT ElError ElDistMatrixFreeAlignments_z( ElDistMatrix_z A );
 
-/* void AbstractDistMatrix<T>::SetRoot( Int root )
-   ----------------------------------------------- */
-EL_EXPORT ElError ElDistMatrixSetRoot_i( ElDistMatrix_i A, ElInt root );
-EL_EXPORT ElError ElDistMatrixSetRoot_s( ElDistMatrix_s A, ElInt root );
-EL_EXPORT ElError ElDistMatrixSetRoot_d( ElDistMatrix_d A, ElInt root );
-EL_EXPORT ElError ElDistMatrixSetRoot_c( ElDistMatrix_c A, ElInt root );
-EL_EXPORT ElError ElDistMatrixSetRoot_z( ElDistMatrix_z A, ElInt root );
+/* void AbstractDistMatrix<T>::SetRoot( Int root, bool constrain )
+   --------------------------------------------------------------- */
+EL_EXPORT ElError ElDistMatrixSetRoot_i
+( ElDistMatrix_i A, ElInt root, bool constrain );
+EL_EXPORT ElError ElDistMatrixSetRoot_s
+( ElDistMatrix_s A, ElInt root, bool constrain );
+EL_EXPORT ElError ElDistMatrixSetRoot_d
+( ElDistMatrix_d A, ElInt root, bool constrain );
+EL_EXPORT ElError ElDistMatrixSetRoot_c
+( ElDistMatrix_c A, ElInt root, bool constrain );
+EL_EXPORT ElError ElDistMatrixSetRoot_z
+( ElDistMatrix_z A, ElInt root, bool constrain );
 
 /* void AbstractDistMatrix<T>::AlignWith
    ( const DistData& data, bool constrain )

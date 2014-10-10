@@ -99,10 +99,10 @@ extern "C" {
   /* void DistMatrix<T,U,V>::FreeAlignments() */ \
   ElError ElDistMatrixFreeAlignments_ ## SIG ( ElDistMatrix_ ## SIG A ) \
   { EL_TRY( CReflect(A)->FreeAlignments() ) } \
-  /* void DistMatrix<T,U,V>::SetRoot( Int root ) */ \
+  /* void DistMatrix<T,U,V>::SetRoot( Int root, bool constrain ) */ \
   ElError ElDistMatrixSetRoot_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElInt root ) \
-  { EL_TRY( CReflect(A)->SetRoot(root) ) } \
+  ( ElDistMatrix_ ## SIG A, ElInt root, bool constrain ) \
+  { EL_TRY( CReflect(A)->SetRoot(root,constrain) ) } \
   /* void DistMatrix<T,U,V>::AlignWith \
      ( const DistData& data, bool constrain ) */ \
   ElError ElDistMatrixAlignWith_ ## SIG \
