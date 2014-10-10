@@ -89,8 +89,8 @@ main( int argc, char* argv[] )
     MPI_Bcast( rowInds, mSub, MPI_INT, 0, MPI_COMM_WORLD );
     MPI_Bcast( colInds, nSub, MPI_INT, 0, MPI_COMM_WORLD );
     ElDistMatrix_z ASub;
-    error = ElDistMatrixGetSubmatrix_z
-            ( A, mSub, rowInds, nSub, colInds, &ASub );
+    error = ElDistMatrixCreateSpecific_z( EL_STAR, EL_STAR, grid, &A );
+    error = ElDistMatrixGetSubmatrix_z( A, mSub, rowInds, nSub, colInds, ASub );
     EL_ABORT_ON_ERROR( error );
     if( print )
     {
