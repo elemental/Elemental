@@ -1155,12 +1155,14 @@ void AbstractBlockDistMatrix<T>::ConjugateDiagonal( Int offset )
 template<typename T>
 void AbstractBlockDistMatrix<T>::GetSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J, 
-  DistMatrix<T,STAR,STAR>& ASub ) const
+  AbstractBlockDistMatrix<T>& ASubPre ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::GetSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
-    ASub.SetGrid( Grid() );
+
+    // TODO: Extend 'Proxy' to support BlockDistMatrix
+    BlockDistMatrix<T,STAR,STAR> ASub(this->Grid());
     ASub.Resize( m, n, m );
     Zeros( ASub, m, n );
     if( Participating() )
@@ -1188,17 +1190,21 @@ void AbstractBlockDistMatrix<T>::GetSubmatrix
     }
     // Broadcast over the cross communicator
     mpi::Broadcast( ASub.Buffer(), m*n, Root(), CrossComm() );
+
+    Copy( ASub, ASubPre );
 }
 
 template<typename T>
 void AbstractBlockDistMatrix<T>::GetRealPartOfSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J, 
-  DistMatrix<Base<T>,STAR,STAR>& ASub ) const
+  AbstractBlockDistMatrix<Base<T>>& ASubPre ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::GetRealPartOfSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
-    ASub.SetGrid( Grid() );
+
+    // TODO: Extend 'Proxy' to support BlockDistMatrix
+    BlockDistMatrix<Base<T>,STAR,STAR> ASub(this->Grid());
     ASub.Resize( m, n, m );
     Zeros( ASub, m, n );
     if( Participating() )
@@ -1227,17 +1233,21 @@ void AbstractBlockDistMatrix<T>::GetRealPartOfSubmatrix
     }
     // Broadcast over the cross communicator
     mpi::Broadcast( ASub.Buffer(), m*n, Root(), CrossComm() );
+
+    Copy( ASub, ASubPre );
 }
 
 template<typename T>
 void AbstractBlockDistMatrix<T>::GetImagPartOfSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J, 
-  DistMatrix<Base<T>,STAR,STAR>& ASub ) const
+  AbstractBlockDistMatrix<Base<T>>& ASubPre ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::GetImagPartOfSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
-    ASub.SetGrid( Grid() );
+
+    // TODO: Extend 'Proxy' to support BlockDistMatrix
+    BlockDistMatrix<Base<T>,STAR,STAR> ASub(this->Grid());
     ASub.Resize( m, n, m );
     Zeros( ASub, m, n );
     if( Participating() )
@@ -1266,37 +1276,39 @@ void AbstractBlockDistMatrix<T>::GetImagPartOfSubmatrix
     }
     // Broadcast over the cross communicator
     mpi::Broadcast( ASub.Buffer(), m*n, Root(), CrossComm() );
+
+    Copy( ASub, ASubPre );
 }
 
 template<typename T>
-DistMatrix<T,STAR,STAR>
+BlockDistMatrix<T,STAR,STAR>
 AbstractBlockDistMatrix<T>::GetSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::GetSubmatrix"))
-    DistMatrix<T,STAR,STAR> ASub( Grid() );
+    BlockDistMatrix<T,STAR,STAR> ASub( this->Grid() );
     GetSubmatrix( I, J, ASub );
     return ASub;
 }
 
 template<typename T>
-DistMatrix<Base<T>,STAR,STAR>
+BlockDistMatrix<Base<T>,STAR,STAR>
 AbstractBlockDistMatrix<T>::GetRealPartOfSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::GetRealPartOfSubmatrix"))
-    DistMatrix<Base<T>,STAR,STAR> ASub( Grid() );
+    BlockDistMatrix<Base<T>,STAR,STAR> ASub( this->Grid() );
     GetRealPartOfSubmatrix( I, J, ASub );
     return ASub;
 }
 
 template<typename T>
-DistMatrix<Base<T>,STAR,STAR>
+BlockDistMatrix<Base<T>,STAR,STAR>
 AbstractBlockDistMatrix<T>::GetImagPartOfSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::GetImagPartOfSubmatrix"))
-    DistMatrix<Base<T>,STAR,STAR> ASub( Grid() );
+    BlockDistMatrix<Base<T>,STAR,STAR> ASub( this->Grid() );
     GetImagPartOfSubmatrix( I, J, ASub );
     return ASub;
 }
@@ -1305,11 +1317,15 @@ template<typename T>
 void 
 AbstractBlockDistMatrix<T>::SetSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J,
-  const DistMatrix<T,STAR,STAR>& ASub )
+  const AbstractBlockDistMatrix<T>& ASubPre )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::SetSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
+
+    // TODO: Extend 'Proxy' implementations to BlockDistMatrix
+    BlockDistMatrix<T,STAR,STAR> ASub(ASubPre);
+
     if( Participating() )
     {
         // Fill in our locally-owned entries
@@ -1337,11 +1353,15 @@ template<typename T>
 void 
 AbstractBlockDistMatrix<T>::SetRealPartOfSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J,
-  const DistMatrix<Base<T>,STAR,STAR>& ASub )
+  const AbstractBlockDistMatrix<Base<T>>& ASubPre )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::SetRealPartOfSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
+
+    // TODO: Extend 'Proxy' implementations to BlockDistMatrix
+    BlockDistMatrix<Base<T>,STAR,STAR> ASub(ASubPre);
+
     if( Participating() )
     {
         // Fill in our locally-owned entries
@@ -1370,11 +1390,15 @@ template<typename T>
 void 
 AbstractBlockDistMatrix<T>::SetImagPartOfSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J,
-  const DistMatrix<Base<T>,STAR,STAR>& ASub )
+  const AbstractBlockDistMatrix<Base<T>>& ASubPre )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::SetImagPartOfSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
+
+    // TODO: Extend 'Proxy' implementations to BlockDistMatrix
+    BlockDistMatrix<Base<T>,STAR,STAR> ASub(ASubPre);
+
     if( Participating() )
     {
         // Fill in our locally-owned entries
@@ -1403,11 +1427,15 @@ template<typename T>
 void 
 AbstractBlockDistMatrix<T>::UpdateSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J,
-  T alpha, const DistMatrix<T,STAR,STAR>& ASub )
+  T alpha, const AbstractBlockDistMatrix<T>& ASubPre )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::UpdateSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
+
+    // TODO: Extend 'Proxy' implementations to BlockDistMatrix
+    BlockDistMatrix<T,STAR,STAR> ASub(ASubPre);
+
     if( Participating() )
     {
         // Modify our locally-owned entries
@@ -1436,11 +1464,15 @@ template<typename T>
 void 
 AbstractBlockDistMatrix<T>::UpdateRealPartOfSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J,
-  Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub )
+  Base<T> alpha, const AbstractBlockDistMatrix<Base<T>>& ASubPre )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::UpdateRealPartOfSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
+
+    // TODO: Extend 'Proxy' implementations to BlockDistMatrix
+    BlockDistMatrix<Base<T>,STAR,STAR> ASub(ASubPre);
+
     if( Participating() )
     {
         // Modify our locally-owned entries
@@ -1469,11 +1501,15 @@ template<typename T>
 void 
 AbstractBlockDistMatrix<T>::UpdateImagPartOfSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J,
-  Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub )
+  Base<T> alpha, const AbstractBlockDistMatrix<Base<T>>& ASubPre )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::UpdateImagPartOfSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
+
+    // TODO: Extend 'Proxy' implementations to BlockDistMatrix
+    BlockDistMatrix<Base<T>,STAR,STAR> ASub(ASubPre);
+
     if( Participating() )
     {
         // Modify our locally-owned entries

@@ -27,7 +27,6 @@ public:
 
     virtual ~AbstractBlockDistMatrix();
 
-    // TODO: Template over the type in the same manner as for AbstractDistMatrix
     virtual AbstractBlockDistMatrix<T>* Construct
     ( const El::Grid& g=DefaultGrid(), Int root=0 ) const = 0;
     virtual AbstractBlockDistMatrix<T>* ConstructTranspose
@@ -229,6 +228,30 @@ public:
     void MakeDiagonalReal( Int offset=0 );
     void ConjugateDiagonal( Int offset=0 );
 
+    virtual void GetDiagonal
+    ( AbstractBlockDistMatrix<T>& d, Int offset=0 ) const = 0;
+    virtual void GetRealPartOfDiagonal
+    ( AbstractBlockDistMatrix<Base<T>>& d, Int offset=0 ) const = 0;
+    virtual void GetImagPartOfDiagonal
+    ( AbstractBlockDistMatrix<Base<T>>& d, Int offset=0 ) const = 0;
+
+    virtual void SetDiagonal
+    ( const AbstractBlockDistMatrix<T>& d, Int offset=0 ) = 0;
+    virtual void SetRealPartOfDiagonal
+    ( const AbstractBlockDistMatrix<Base<T>>& d, Int offset=0 ) = 0;
+    virtual void SetImagPartOfDiagonal
+    ( const AbstractBlockDistMatrix<Base<T>>& d, Int offset=0 ) = 0;
+
+    virtual void UpdateDiagonal
+    ( T alpha, const AbstractBlockDistMatrix<T>& d, 
+      Int offset=0 ) = 0; 
+    virtual void UpdateRealPartOfDiagonal
+    ( Base<T> alpha, const AbstractBlockDistMatrix<Base<T>>& d, 
+      Int offset=0 ) = 0;
+    virtual void UpdateImagPartOfDiagonal
+    ( Base<T> alpha, const AbstractBlockDistMatrix<Base<T>>& d, 
+      Int offset=0 ) = 0;
+
     // Arbitrary-submatrix manipulation
     // ================================
 
@@ -236,39 +259,39 @@ public:
     // -----------------------------
     void GetSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J,
-      DistMatrix<T,STAR,STAR>& ASub ) const;
+      AbstractBlockDistMatrix<T>& ASub ) const;
     void GetRealPartOfSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J,
-      DistMatrix<Base<T>,STAR,STAR>& ASub ) const;
+      AbstractBlockDistMatrix<Base<T>>& ASub ) const;
     void GetImagPartOfSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J,
-      DistMatrix<Base<T>,STAR,STAR>& ASub ) const;
-    DistMatrix<T,STAR,STAR> GetSubmatrix
+      AbstractBlockDistMatrix<Base<T>>& ASub ) const;
+    BlockDistMatrix<T,STAR,STAR> GetSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J ) const;
-    DistMatrix<Base<T>,STAR,STAR> GetRealPartOfSubmatrix
+    BlockDistMatrix<Base<T>,STAR,STAR> GetRealPartOfSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J ) const;
-    DistMatrix<Base<T>,STAR,STAR> GetImagPartOfSubmatrix
+    BlockDistMatrix<Base<T>,STAR,STAR> GetImagPartOfSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J ) const;
 
     void SetSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J,
-      const DistMatrix<T,STAR,STAR>& ASub );
+      const AbstractBlockDistMatrix<T>& ASub );
     void SetRealPartOfSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J,
-      const DistMatrix<Base<T>,STAR,STAR>& ASub );
+      const AbstractBlockDistMatrix<Base<T>>& ASub );
     void SetImagPartOfSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J,
-      const DistMatrix<Base<T>,STAR,STAR>& ASub );
+      const AbstractBlockDistMatrix<Base<T>>& ASub );
 
     void UpdateSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J,
-      T alpha, const DistMatrix<T,STAR,STAR>& ASub );
+      T alpha, const AbstractBlockDistMatrix<T>& ASub );
     void UpdateRealPartOfSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J,
-      Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub );
+      Base<T> alpha, const AbstractBlockDistMatrix<Base<T>>& ASub );
     void UpdateImagPartOfSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J,
-      Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub );
+      Base<T> alpha, const AbstractBlockDistMatrix<Base<T>>& ASub );
 
     void MakeSubmatrixReal
     ( const std::vector<Int>& I, const std::vector<Int>& J );

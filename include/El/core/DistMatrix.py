@@ -279,6 +279,125 @@ lib.ElDistMatrixConjugateDiagonal_c.restype = c_uint
 lib.ElDistMatrixConjugateDiagonal_z.argtypes = [c_void_p,iType]
 lib.ElDistMatrixConjugateDiagonal_z.restype = c_uint
 
+lib.ElDistMatrixMakeDiagonalReal_c.argtypes = [c_void_p,iType]
+lib.ElDistMatrixMakeDiagonalReal_c.restype = c_uint
+lib.ElDistMatrixMakeDiagonalReal_z.argtypes = [c_void_p,iType]
+lib.ElDistMatrixMakeDiagonalReal_z.restype = c_uint
+
+lib.ElDistMatrixConjugateDiagonal_c.argtypes = [c_void_p,iType]
+lib.ElDistMatrixConjugateDiagonal_c.restype = c_uint
+lib.ElDistMatrixConjugateDiagonal_z.argtypes = [c_void_p,iType]
+lib.ElDistMatrixConjugateDiagonal_z.restype = c_uint
+
+lib.ElDistMatrixDiagonalAlignedWith_i.argtypes = \
+  [c_void_p,DistData,iType,POINTER(bType)]
+lib.ElDistMatrixDiagonalAlignedWith_i.restype = c_uint
+lib.ElDistMatrixDiagonalAlignedWith_s.argtypes = \
+  [c_void_p,DistData,iType,POINTER(bType)]
+lib.ElDistMatrixDiagonalAlignedWith_s.restype = c_uint
+lib.ElDistMatrixDiagonalAlignedWith_d.argtypes = \
+  [c_void_p,DistData,iType,POINTER(bType)]
+lib.ElDistMatrixDiagonalAlignedWith_d.restype = c_uint
+lib.ElDistMatrixDiagonalAlignedWith_c.argtypes = \
+  [c_void_p,DistData,iType,POINTER(bType)]
+lib.ElDistMatrixDiagonalAlignedWith_c.restype = c_uint
+lib.ElDistMatrixDiagonalAlignedWith_z.argtypes = \
+  [c_void_p,DistData,iType,POINTER(bType)]
+lib.ElDistMatrixDiagonalAlignedWith_z.restype = c_uint
+
+lib.ElDistMatrixDiagonalRoot_i.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElDistMatrixDiagonalRoot_i.restype = c_uint
+lib.ElDistMatrixDiagonalRoot_s.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElDistMatrixDiagonalRoot_s.restype = c_uint
+lib.ElDistMatrixDiagonalRoot_d.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElDistMatrixDiagonalRoot_d.restype = c_uint
+lib.ElDistMatrixDiagonalRoot_c.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElDistMatrixDiagonalRoot_c.restype = c_uint
+lib.ElDistMatrixDiagonalRoot_z.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElDistMatrixDiagonalRoot_z.restype = c_uint
+
+lib.ElDistMatrixDiagonalAlign_i.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElDistMatrixDiagonalAlign_i.restype = c_uint
+lib.ElDistMatrixDiagonalAlign_s.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElDistMatrixDiagonalAlign_s.restype = c_uint
+lib.ElDistMatrixDiagonalAlign_d.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElDistMatrixDiagonalAlign_d.restype = c_uint
+lib.ElDistMatrixDiagonalAlign_c.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElDistMatrixDiagonalAlign_c.restype = c_uint
+lib.ElDistMatrixDiagonalAlign_z.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElDistMatrixDiagonalAlign_z.restype = c_uint
+
+lib.ElDistMatrixGetDiagonal_i.argtypes = [c_void_p,iType,POINTER(c_void_p)]
+lib.ElDistMatrixGetDiagonal_i.restype = c_uint
+lib.ElDistMatrixGetDiagonal_s.argtypes = [c_void_p,iType,POINTER(c_void_p)]
+lib.ElDistMatrixGetDiagonal_s.restype = c_uint
+lib.ElDistMatrixGetDiagonal_d.argtypes = [c_void_p,iType,POINTER(c_void_p)]
+lib.ElDistMatrixGetDiagonal_d.restype = c_uint
+lib.ElDistMatrixGetDiagonal_c.argtypes = [c_void_p,iType,POINTER(c_void_p)]
+lib.ElDistMatrixGetDiagonal_c.restype = c_uint
+lib.ElDistMatrixGetDiagonal_z.argtypes = [c_void_p,iType,POINTER(c_void_p)]
+lib.ElDistMatrixGetDiagonal_z.restype = c_uint
+
+lib.ElDistMatrixGetRealPartOfDiagonal_c.argtypes = \
+  [c_void_p,iType,POINTER(c_void_p)]
+lib.ElDistMatrixGetRealPartOfDiagonal_c.restype = c_uint
+lib.ElDistMatrixGetRealPartOfDiagonal_z.argtypes = \
+  [c_void_p,iType,POINTER(c_void_p)]
+lib.ElDistMatrixGetRealPartOfDiagonal_z.restype = c_uint
+
+lib.ElDistMatrixGetImagPartOfDiagonal_c.argtypes = \
+  [c_void_p,iType,POINTER(c_void_p)]
+lib.ElDistMatrixGetImagPartOfDiagonal_c.restype = c_uint
+lib.ElDistMatrixGetImagPartOfDiagonal_z.argtypes = \
+  [c_void_p,iType,POINTER(c_void_p)]
+lib.ElDistMatrixGetImagPartOfDiagonal_z.restype = c_uint
+
+lib.ElDistMatrixSetDiagonal_i.argtypes = [c_void_p,c_void_p,iType]
+lib.ElDistMatrixSetDiagonal_i.restype = c_uint
+lib.ElDistMatrixSetDiagonal_s.argtypes = [c_void_p,c_void_p,iType]
+lib.ElDistMatrixSetDiagonal_s.restype = c_uint
+lib.ElDistMatrixSetDiagonal_d.argtypes = [c_void_p,c_void_p,iType]
+lib.ElDistMatrixSetDiagonal_d.restype = c_uint
+lib.ElDistMatrixSetDiagonal_c.argtypes = [c_void_p,c_void_p,iType]
+lib.ElDistMatrixSetDiagonal_c.restype = c_uint
+lib.ElDistMatrixSetDiagonal_z.argtypes = [c_void_p,c_void_p,iType]
+lib.ElDistMatrixSetDiagonal_z.restype = c_uint
+
+lib.ElDistMatrixSetRealPartOfDiagonal_c.argtypes = [c_void_p,c_void_p,iType]
+lib.ElDistMatrixSetRealPartOfDiagonal_c.restype = c_uint
+lib.ElDistMatrixSetRealPartOfDiagonal_z.argtypes = [c_void_p,c_void_p,iType]
+lib.ElDistMatrixSetRealPartOfDiagonal_z.restype = c_uint
+
+lib.ElDistMatrixSetImagPartOfDiagonal_c.argtypes = [c_void_p,c_void_p,iType]
+lib.ElDistMatrixSetImagPartOfDiagonal_c.restype = c_uint
+lib.ElDistMatrixSetImagPartOfDiagonal_z.argtypes = [c_void_p,c_void_p,iType]
+lib.ElDistMatrixSetImagPartOfDiagonal_z.restype = c_uint
+
+lib.ElDistMatrixUpdateDiagonal_i.argtypes = [c_void_p,iType,c_void_p,iType]
+lib.ElDistMatrixUpdateDiagonal_i.restype = c_uint
+lib.ElDistMatrixUpdateDiagonal_s.argtypes = [c_void_p,sType,c_void_p,iType]
+lib.ElDistMatrixUpdateDiagonal_s.restype = c_uint
+lib.ElDistMatrixUpdateDiagonal_d.argtypes = [c_void_p,dType,c_void_p,iType]
+lib.ElDistMatrixUpdateDiagonal_d.restype = c_uint
+lib.ElDistMatrixUpdateDiagonal_c.argtypes = [c_void_p,cType,c_void_p,iType]
+lib.ElDistMatrixUpdateDiagonal_c.restype = c_uint
+lib.ElDistMatrixUpdateDiagonal_z.argtypes = [c_void_p,zType,c_void_p,iType]
+lib.ElDistMatrixUpdateDiagonal_z.restype = c_uint
+
+lib.ElDistMatrixUpdateRealPartOfDiagonal_c.argtypes = \
+  [c_void_p,sType,c_void_p,iType]
+lib.ElDistMatrixUpdateRealPartOfDiagonal_c.restype = c_uint
+lib.ElDistMatrixUpdateRealPartOfDiagonal_z.argtypes = \
+  [c_void_p,dType,c_void_p,iType]
+lib.ElDistMatrixUpdateRealPartOfDiagonal_z.restype = c_uint
+
+lib.ElDistMatrixUpdateImagPartOfDiagonal_c.argtypes = \
+  [c_void_p,sType,c_void_p,iType]
+lib.ElDistMatrixUpdateImagPartOfDiagonal_c.restype = c_uint
+lib.ElDistMatrixUpdateImagPartOfDiagonal_z.argtypes = \
+  [c_void_p,dType,c_void_p,iType]
+lib.ElDistMatrixUpdateImagPartOfDiagonal_z.restype = c_uint
+
 # LEFT OFF HERE
 
 class DistMatrix(object):
@@ -519,18 +638,18 @@ class DistMatrix(object):
     elif self.tag == cTag: lib.ElDistMatrixWidth_c(self.obj,pointer(n))
     elif self.tag == zTag: lib.ElDistMatrixWidth_z(self.obj,pointer(n))
     return n.value
-  def DiagonalLength(self,offset):
+  def DiagonalLength(self,offset=0):
     length = iType()
     if   self.tag == iTag:
-      lib.ElDistMatrixDiagonalLength_i(self.obj,pointer(length))
+      lib.ElDistMatrixDiagonalLength_i(self.obj,offset,pointer(length))
     elif self.tag == sTag:
-      lib.ElDistMatrixDiagonalLength_s(self.obj,pointer(length))
+      lib.ElDistMatrixDiagonalLength_s(self.obj,offset,pointer(length))
     elif self.tag == dTag:
-      lib.ElDistMatrixDiagonalLength_d(self.obj,pointer(length))
+      lib.ElDistMatrixDiagonalLength_d(self.obj,offset,pointer(length))
     elif self.tag == cTag:
-      lib.ElDistMatrixDiagonalLength_c(self.obj,pointer(length))
+      lib.ElDistMatrixDiagonalLength_c(self.obj,offset,pointer(length))
     elif self.tag == zTag:
-      lib.ElDistMatrixDiagonalLength_z(self.obj,pointer(length))
+      lib.ElDistMatrixDiagonalLength_z(self.obj,offset,pointer(length))
     return length.value
   def Viewing(self):
     viewing = bType()
@@ -1219,13 +1338,13 @@ class DistMatrix(object):
     self.Matrix().UpdateRealPart(iLoc,jLoc,value)
   def UpdateLocalImagPart(self,iLoc,jLoc,value):
     self.Matrix().UpdateImagPart(iLoc,jLoc,value)
-  def MakeDiagonalReal(self,offset=iType(0)):
+  def MakeDiagonalReal(self,offset=0):
     if   self.tag == cTag: lib.ElDistMatrixMakeDiagonalReal_c(self.obj,offset)
     elif self.tag == zTag: lib.ElDistMatrixMakeDiagonalReal_z(self.obj,offset)
-  def ConjugateDiagonal(self,offset=iType(0)):
+  def ConjugateDiagonal(self,offset=0):
     if   self.tag == cTag: lib.ElDistMatrixConjugateDiagonal_c(self.obj,offset)
     elif self.tag == zTag: lib.ElDistMatrixConjugateDiagonal_z(self.obj,offset)
-  def DiagonalAlignedWith(distData,offset):
+  def DiagonalAlignedWith(distData,offset=0):
     aligned = bType()
     if   self.tag == iTag: 
       lib.ElDistMatrixDiagonalAlignedWith_i \
@@ -1243,7 +1362,7 @@ class DistMatrix(object):
       lib.ElDistMatrixDiagonalAlignedWith_z \
       (self.obj,distData,offset,pointer(aligned))
     return aligned.value
-  def DiagonalRoot(self,offset):
+  def DiagonalRoot(self,offset=0):
     root = iType()
     if   self.tag == iTag: 
       lib.ElDistMatrixDiagonalRoot_i(self.obj,offset,pointer(root))
@@ -1256,7 +1375,7 @@ class DistMatrix(object):
     elif self.tag == zTag:
       lib.ElDistMatrixDiagonalRoot_z(self.obj,offset,pointer(root))
     return root.value
-  def DiagonalAlign(self,offset):
+  def DiagonalAlign(self,offset=0):
     align = iType()
     if   self.tag == iTag: 
       lib.ElDistMatrixDiagonalAlign_i(self.obj,offset,pointer(align))
@@ -1269,8 +1388,80 @@ class DistMatrix(object):
     elif self.tag == zTag:
       lib.ElDistMatrixDiagonalAlign_z(self.obj,offset,pointer(align))
     return align.value
-  # TODO: GetDiagonal, GetRealPartOfDiagonal, GetImagPartOfDiagonal
-  # TODO: SetDiagonal, SetRealPartOfDiagonal, SetImagPartOfDiagonal
+  def GetDiagonal(self,offset=0):
+    distData = self.GetDistData()
+    diagColDist = DiagColDist(distData.colDist,distData.rowDist)
+    diagRowDist = DiagRowDist(distData.colDist,distData.rowDist)
+    diag = DistMatrix(self.tag,diagColDist,diagRowDist,self.Grid())
+    if   self.tag == iTag: 
+      lib.ElDistMatrixGetDiagonal_i(self.obj,offset,diag.obj)
+    elif self.tag == sTag:
+      lib.ElDistMatrixGetDiagonal_s(self.obj,offset,diag.obj)
+    elif self.tag == dTag:
+      lib.ElDistMatrixGetDiagonal_d(self.obj,offset,diag.obj)
+    elif self.tag == cTag:
+      lib.ElDistMatrixGetDiagonal_c(self.obj,offset,diag.obj)
+    elif self.tag == zTag:
+      lib.ElDistMatrixGetDiagonal_z(self.obj,offset,diag.obj)
+    return diag
+  def GetRealPartOfDiagonal(self,offset=0):
+    distData = self.GetDistData()
+    diagColDist = DiagColDist(distData.colDist,distData.rowDist)
+    diagRowDist = DiagRowDist(distData.colDist,distData.rowDist)
+    diag = DistMatrix(Base(self.tag),diagColDist,diagRowDist,self.Grid())
+    if   self.tag == iTag: 
+      lib.ElDistMatrixGetDiagonal_i(self.obj,offset,diag.obj)
+    elif self.tag == sTag:
+      lib.ElDistMatrixGetDiagonal_s(self.obj,offset,diag.obj)
+    elif self.tag == dTag:
+      lib.ElDistMatrixGetDiagonal_d(self.obj,offset,diag.obj)
+    elif self.tag == cTag:
+      lib.ElDistMatrixGetRealPartOfDiagonal_c(self.obj,offset,diag.obj)
+    elif self.tag == zTag:
+      lib.ElDistMatrixGetRealPartOfDiagonal_z(self.obj,offset,diag.obj)
+    return diag
+  def GetImagPartOfDiagonal(self,offset=0):
+    distData = self.GetDistData()
+    diagColDist = DiagColDist(distData.colDist,distData.rowDist)
+    diagRowDist = DiagRowDist(distData.colDist,distData.rowDist)
+    diag = DistMatrix(Base(self.tag),diagColDist,diagRowDist,self.Grid())
+    if   self.tag == iTag: 
+      lib.ElDistMatrixGetImagPartOfDiagonal_i(self.obj,offset,diag.obj)
+    elif self.tag == sTag:
+      lib.ElDistMatrixGetImagPartOfDiagonal_s(self.obj,offset,diag.obj)
+    elif self.tag == dTag:
+      lib.ElDistMatrixGetImagPartOfDiagonal_d(self.obj,offset,diag.obj)
+    elif self.tag == cTag:
+      lib.ElDistMatrixGetImagPartOfDiagonal_c(self.obj,offset,diag.obj)
+    elif self.tag == zTag:
+      lib.ElDistMatrixGetImagPartOfDiagonal_z(self.obj,offset,diag.obj)
+    return diag
+  def SetDiagonal(self,diag,offset=0):
+    if diag.tag != A.tag: raise Exception('Datatypes did not match')
+    if   self.tag == iTag: 
+      lib.ElDistMatrixSetDiagonal_i(self.obj,diag.obj,offset)
+    elif self.tag == sTag:
+      lib.ElDistMatrixSetDiagonal_s(self.obj,diag.obj,offset)
+    elif self.tag == dTag:
+      lib.ElDistMatrixSetDiagonal_d(self.obj,diag.obj,offset)
+    elif self.tag == cTag:
+      lib.ElDistMatrixSetDiagonal_c(self.obj,diag.obj,offset)
+    elif self.tag == zTag:
+      lib.ElDistMatrixSetDiagonal_z(self.obj,diag.obj,offset)
+  # TODO: SetRealPartOfDiagonal, SetImagPartOfDiagonal
+  def UpdateDiagonal(self,alpha,diag,offset=0):
+    if diag.tag != A.tag: raise Exception('Datatypes did not match')
+    if   self.tag == iTag: 
+      lib.ElDistMatrixUpdateDiagonal_i(self.obj,alpha,diag.obj,offset)
+    elif self.tag == sTag:
+      lib.ElDistMatrixUpdateDiagonal_s(self.obj,alpha,diag.obj,offset)
+    elif self.tag == dTag:
+      lib.ElDistMatrixUpdateDiagonal_d(self.obj,alpha,diag.obj,offset)
+    elif self.tag == cTag:
+      lib.ElDistMatrixUpdateDiagonal_c(self.obj,alpha,diag.obj,offset)
+    elif self.tag == zTag:
+      lib.ElDistMatrixUpdateDiagonal_z(self.obj,alpha,diag.obj,offset)
+  # TODO: UpdateRealPartOfDiagonal, UpdateImagPartOfDiagonal
   # TODO: GetSubmatrix, GetRealPartOfSubmatrix, GetImagPartOfSubmatrix
   # TODO: SetSubmatrix, SetRealPartOfSubmatrix, SetImagPartOfSubmatrix
   # TODO: UpdateSubmatrix, UpdateRealPartOfSubmatrix, UpdateImagPartOfSubmatrix

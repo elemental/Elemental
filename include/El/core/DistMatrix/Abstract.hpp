@@ -213,6 +213,27 @@ public:
     void MakeDiagonalReal( Int offset=0 );
     void ConjugateDiagonal( Int offset=0 );
 
+    virtual void GetDiagonal
+    ( AbstractDistMatrix<T>& d, Int offset=0 ) const = 0;
+    virtual void GetRealPartOfDiagonal
+    ( AbstractDistMatrix<Base<T>>& d, Int offset=0 ) const = 0;
+    virtual void GetImagPartOfDiagonal
+    ( AbstractDistMatrix<Base<T>>& d, Int offset=0 ) const = 0;
+
+    virtual void SetDiagonal
+    ( const AbstractDistMatrix<T>& d, Int offset=0 ) = 0;
+    virtual void SetRealPartOfDiagonal
+    ( const AbstractDistMatrix<Base<T>>& d, Int offset=0 ) = 0;
+    virtual void SetImagPartOfDiagonal
+    ( const AbstractDistMatrix<Base<T>>& d, Int offset=0 ) = 0;
+
+    virtual void UpdateDiagonal
+    ( T alpha, const AbstractDistMatrix<T>& d, Int offset=0 ) = 0;
+    virtual void UpdateRealPartOfDiagonal
+    ( Base<T> alpha, const AbstractDistMatrix<Base<T>>& d, Int offset=0 ) = 0;
+    virtual void UpdateImagPartOfDiagonal
+    ( Base<T> alpha, const AbstractDistMatrix<Base<T>>& d, Int offset=0 ) = 0;
+
     // Arbitrary-submatrix manipulation
     // ================================
 
@@ -220,13 +241,13 @@ public:
     // -----------------------------
     void GetSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J,
-      DistMatrix<T,STAR,STAR>& ASub ) const;
+      AbstractDistMatrix<T>& ASub ) const;
     void GetRealPartOfSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J,
-      DistMatrix<Base<T>,STAR,STAR>& ASub ) const;
+      AbstractDistMatrix<Base<T>>& ASub ) const;
     void GetImagPartOfSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J,
-      DistMatrix<Base<T>,STAR,STAR>& ASub ) const;
+      AbstractDistMatrix<Base<T>>& ASub ) const;
 
     DistMatrix<T,STAR,STAR> GetSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J ) const;
@@ -237,23 +258,23 @@ public:
 
     void SetSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J,
-      const DistMatrix<T,STAR,STAR>& ASub );
+      const AbstractDistMatrix<T>& ASub );
     void SetRealPartOfSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J,
-      const DistMatrix<Base<T>,STAR,STAR>& ASub );
+      const AbstractDistMatrix<Base<T>>& ASub );
     void SetImagPartOfSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J,
-      const DistMatrix<Base<T>,STAR,STAR>& ASub );
+      const AbstractDistMatrix<Base<T>>& ASub );
 
     void UpdateSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J,
-      T alpha, const DistMatrix<T,STAR,STAR>& ASub );
+      T alpha, const AbstractDistMatrix<T>& ASub );
     void UpdateRealPartOfSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J,
-      Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub );
+      Base<T> alpha, const AbstractDistMatrix<Base<T>>& ASub );
     void UpdateImagPartOfSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J,
-      Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub );
+      Base<T> alpha, const AbstractDistMatrix<Base<T>>& ASub );
 
     void MakeSubmatrixReal
     ( const std::vector<Int>& I, const std::vector<Int>& J );

@@ -130,11 +130,11 @@ public:
     // Diagonal manipulation
     // =====================
     void GetDiagonal
-    ( BlockDistMatrix<T,UDiag,VDiag>& d, Int offset=0 ) const;
+    ( AbstractBlockDistMatrix<T>& d, Int offset=0 ) const override;
     void GetRealPartOfDiagonal
-    ( BlockDistMatrix<Base<T>,UDiag,VDiag>& d, Int offset=0 ) const;
+    ( AbstractBlockDistMatrix<Base<T>>& d, Int offset=0 ) const override;
     void GetImagPartOfDiagonal
-    ( BlockDistMatrix<Base<T>,UDiag,VDiag>& d, Int offset=0 ) const;
+    ( AbstractBlockDistMatrix<Base<T>>& d, Int offset=0 ) const override;
 
     BlockDistMatrix<T,UDiag,VDiag> GetDiagonal( Int offset=0 ) const;
     BlockDistMatrix<Base<T>,UDiag,VDiag> 
@@ -142,20 +142,22 @@ public:
     BlockDistMatrix<Base<T>,UDiag,VDiag> 
     GetImagPartOfDiagonal( Int offset=0 ) const;
 
-    void SetDiagonal( const BlockDistMatrix<T,UDiag,VDiag>& d, Int offset=0 );
+    void SetDiagonal
+    ( const AbstractBlockDistMatrix<T>& d, Int offset=0 ) override;
     void SetRealPartOfDiagonal
-    ( const BlockDistMatrix<Base<T>,UDiag,VDiag>& d, Int offset=0 );
+    ( const AbstractBlockDistMatrix<Base<T>>& d, Int offset=0 ) override;
     void SetImagPartOfDiagonal
-    ( const BlockDistMatrix<Base<T>,UDiag,VDiag>& d, Int offset=0 );
+    ( const AbstractBlockDistMatrix<Base<T>>& d, Int offset=0 ) override;
 
     void UpdateDiagonal
-    ( T alpha, const BlockDistMatrix<T,UDiag,VDiag>& d, Int offset=0 );
+    ( T alpha, const AbstractBlockDistMatrix<T>& d, 
+      Int offset=0 ) override;
     void UpdateRealPartOfDiagonal
-    ( Base<T> alpha, const BlockDistMatrix<Base<T>,UDiag,VDiag>& d, 
-      Int offset=0 );
+    ( Base<T> alpha, const AbstractBlockDistMatrix<Base<T>>& d, 
+      Int offset=0 ) override;
     void UpdateImagPartOfDiagonal
-    ( Base<T> alpha, const BlockDistMatrix<Base<T>,UDiag,VDiag>& d, 
-      Int offset=0 );
+    ( Base<T> alpha, const AbstractBlockDistMatrix<Base<T>>& d, 
+      Int offset=0 ) override;
 
 protected:
 
@@ -173,10 +175,10 @@ protected:
     // ========================
     template<typename S,class Function>
     void GetDiagonalHelper
-    ( BlockDistMatrix<S,UDiag,VDiag>& d, Int offset, Function func ) const;
+    ( AbstractBlockDistMatrix<S>& d, Int offset, Function func ) const;
     template<typename S,class Function>
     void SetDiagonalHelper
-    ( const BlockDistMatrix<S,UDiag,VDiag>& d, Int offset, Function func );
+    ( const AbstractBlockDistMatrix<S>& d, Int offset, Function func );
 
     // Friend declarations
     // ===================

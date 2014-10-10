@@ -98,6 +98,22 @@ def TagToType(tag):
 # Emulate an enum for matrix distributions
 (MC,MD,MR,VC,VR,STAR,CIRC)=(0,1,2,3,4,5,6)
 
+def GatheredDist(dist):
+  if   dist == CIRC: return CIRC
+  else: return STAR
+
+def DiagColDist(colDist,rowDist):
+  if colDist == MC and rowDist == MR:   return MD
+  elif colDist == MR and rowDist == MC: return MD
+  elif colDist == STAR:                 return rowDist
+  else:                                 return colDist
+
+def DiagRowDist(colDist,rowDist):
+  if colDist == MC and rowDist == MR:   return STAR
+  elif colDist == MR and rowDist == MC: return STAR
+  elif colDist == STAR:                 return colDist
+  else:                                 return rowDist
+
 # Emulate an enum for grid ordering
 (ROW_MAJOR,COL_MAJOR)=(0,1)
 
@@ -139,7 +155,7 @@ def Initialized():
   active = bType()
   activeP = pointer(active)
   lib.ElInitialized( activeP )
-  return active
+  return active.value
 
 # Initialize MPI
 Initialize()

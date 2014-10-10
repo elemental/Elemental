@@ -888,7 +888,7 @@ Dist GeneralBlockDistMatrix<T,U,V>::PartialUnionRowDist() const
 template<typename T,Dist U,Dist V>
 void
 GeneralBlockDistMatrix<T,U,V>::GetDiagonal
-( BlockDistMatrix<T,UDiag,VDiag>& d, Int offset ) const
+( AbstractBlockDistMatrix<T>& d, Int offset ) const
 {
     DEBUG_ONLY(CallStackEntry cse("GBDM::GetDiagonal"))
     this->GetDiagonalHelper
@@ -898,7 +898,7 @@ GeneralBlockDistMatrix<T,U,V>::GetDiagonal
 template<typename T,Dist U,Dist V>
 void
 GeneralBlockDistMatrix<T,U,V>::GetRealPartOfDiagonal
-( BlockDistMatrix<Base<T>,UDiag,VDiag>& d, Int offset ) const
+( AbstractBlockDistMatrix<Base<T>>& d, Int offset ) const
 {
     DEBUG_ONLY(CallStackEntry cse("GBDM::GetRealPartOfDiagonal"))
     this->GetDiagonalHelper
@@ -908,7 +908,7 @@ GeneralBlockDistMatrix<T,U,V>::GetRealPartOfDiagonal
 template<typename T,Dist U,Dist V>
 void
 GeneralBlockDistMatrix<T,U,V>::GetImagPartOfDiagonal
-( BlockDistMatrix<Base<T>,UDiag,VDiag>& d, Int offset ) const
+( AbstractBlockDistMatrix<Base<T>>& d, Int offset ) const
 {
     DEBUG_ONLY(CallStackEntry cse("GBDM::GetImagPartOfDiagonal"))
     this->GetDiagonalHelper
@@ -948,7 +948,7 @@ GeneralBlockDistMatrix<T,U,V>::GetImagPartOfDiagonal( Int offset ) const
 template<typename T,Dist U,Dist V>
 void
 GeneralBlockDistMatrix<T,U,V>::SetDiagonal
-( const BlockDistMatrix<T,UDiag,VDiag>& d, Int offset )
+( const AbstractBlockDistMatrix<T>& d, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("GBDM::SetDiagonal"))
     this->SetDiagonalHelper
@@ -958,7 +958,7 @@ GeneralBlockDistMatrix<T,U,V>::SetDiagonal
 template<typename T,Dist U,Dist V>
 void
 GeneralBlockDistMatrix<T,U,V>::SetRealPartOfDiagonal
-( const BlockDistMatrix<Base<T>,UDiag,VDiag>& d, Int offset )
+( const AbstractBlockDistMatrix<Base<T>>& d, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("GBDM::SetRealPartOfDiagonal"))
     this->SetDiagonalHelper
@@ -969,7 +969,7 @@ GeneralBlockDistMatrix<T,U,V>::SetRealPartOfDiagonal
 template<typename T,Dist U,Dist V>
 void
 GeneralBlockDistMatrix<T,U,V>::SetImagPartOfDiagonal
-( const BlockDistMatrix<Base<T>,UDiag,VDiag>& d, Int offset )
+( const AbstractBlockDistMatrix<Base<T>>& d, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("GBDM::SetImagPartOfDiagonal"))
     this->SetDiagonalHelper
@@ -980,7 +980,7 @@ GeneralBlockDistMatrix<T,U,V>::SetImagPartOfDiagonal
 template<typename T,Dist U,Dist V>
 void
 GeneralBlockDistMatrix<T,U,V>::UpdateDiagonal
-( T gamma, const BlockDistMatrix<T,UDiag,VDiag>& d, Int offset )
+( T gamma, const AbstractBlockDistMatrix<T>& d, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("GBDM::UpdateDiagonal"))
     this->SetDiagonalHelper
@@ -990,7 +990,7 @@ GeneralBlockDistMatrix<T,U,V>::UpdateDiagonal
 template<typename T,Dist U,Dist V>
 void
 GeneralBlockDistMatrix<T,U,V>::UpdateRealPartOfDiagonal
-( Base<T> gamma, const BlockDistMatrix<Base<T>,UDiag,VDiag>& d, Int offset )
+( Base<T> gamma, const AbstractBlockDistMatrix<Base<T>>& d, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("GBDM::UpdateRealPartOfDiagonal"))
     this->SetDiagonalHelper
@@ -1002,7 +1002,7 @@ GeneralBlockDistMatrix<T,U,V>::UpdateRealPartOfDiagonal
 template<typename T,Dist U,Dist V>
 void
 GeneralBlockDistMatrix<T,U,V>::UpdateImagPartOfDiagonal
-( Base<T> gamma, const BlockDistMatrix<Base<T>,UDiag,VDiag>& d, Int offset )
+( Base<T> gamma, const AbstractBlockDistMatrix<Base<T>>& d, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("GBDM::UpdateImagPartOfDiagonal"))
     this->SetDiagonalHelper
@@ -1020,7 +1020,7 @@ template<typename T,Dist U,Dist V>
 template<typename S,class Function>
 void
 GeneralBlockDistMatrix<T,U,V>::GetDiagonalHelper
-( BlockDistMatrix<S,UDiag,VDiag>& d, Int offset, Function func ) const
+( AbstractBlockDistMatrix<S>& d, Int offset, Function func ) const
 {
     DEBUG_ONLY(CallStackEntry cse("GBDM::GetDiagonalHelper"))
     LogicError("This routine is not yet written");
@@ -1030,7 +1030,7 @@ template<typename T,Dist U,Dist V>
 template<typename S,class Function>
 void
 GeneralBlockDistMatrix<T,U,V>::SetDiagonalHelper
-( const BlockDistMatrix<S,UDiag,VDiag>& d, Int offset, Function func ) 
+( const AbstractBlockDistMatrix<S>& d, Int offset, Function func ) 
 {
     DEBUG_ONLY(
         CallStackEntry cse("GBDM::SetDiagonalHelper");

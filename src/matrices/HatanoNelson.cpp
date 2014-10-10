@@ -36,19 +36,17 @@ void HatanoNelson
 
 template<typename F>
 void HatanoNelson
-( AbstractDistMatrix<F>& APre, Int n, 
+( AbstractDistMatrix<F>& A, Int n, 
   F center, Base<F> radius, F g, bool periodic )
 {
     DEBUG_ONLY(CallStackEntry cse("HatanoNelson"))
     if( n < 3 )
         LogicError("Hatano Nelson requires at least a 3x3 matrix");
 
-    auto APtr = WriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
-
     Zeros( A, n, n );
 
-    auto d = A.GetDiagonal();
+    DistMatrix<F,MC,STAR> d(A.Grid());
+    A.GetDiagonal( d );
     MakeUniform( d, center, radius );
     A.SetDiagonal( d );
 
@@ -60,35 +58,6 @@ void HatanoNelson
     if( periodic )
         A.Set( 0, n-1, Exp(-g) );
 }
-
-/*
-template<typename F>
-void HatanoNelson
-( AbstractBlockDistMatrix<F>& APre, Int n, 
-  F center, Base<F> radius, F g, bool periodic )
-{
-    DEBUG_ONLY(CallStackEntry cse("HatanoNelson"))
-    if( n < 3 )
-        LogicError("Hatano Nelson requires at least a 3x3 matrix");
-
-    auto APtr = WriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
-
-    Zeros( A, n, n );
-
-    auto d = A.GetDiagonal();
-    MakeUniform( d, center, radius );
-    A.SetDiagonal( d );
-
-    SetDiagonal( A, Exp(g), 1 );
-    if( periodic )
-        A.Set( n-1, 0, Exp(g) );
-
-    SetDiagonal( A, Exp(-g), -1 );
-    if( periodic )
-        A.Set( 0, n-1, Exp(-g) );
-}
-*/
 
 #define PROTO(F) \
   template void HatanoNelson \

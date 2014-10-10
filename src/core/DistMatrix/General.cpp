@@ -2954,7 +2954,7 @@ Dist GeneralDistMatrix<T,U,V>::PartialUnionRowDist() const
 // =====================
 template<typename T,Dist U,Dist V>
 void GeneralDistMatrix<T,U,V>::GetDiagonal
-( DistMatrix<T,UDiag,VDiag>& d, Int offset ) const
+( AbstractDistMatrix<T>& d, Int offset ) const
 {
     DEBUG_ONLY(CallStackEntry cse("GDM::GetDiagonal"))
     this->GetDiagonalHelper
@@ -2964,7 +2964,7 @@ void GeneralDistMatrix<T,U,V>::GetDiagonal
 template<typename T,Dist U,Dist V>
 void
 GeneralDistMatrix<T,U,V>::GetRealPartOfDiagonal
-( DistMatrix<Base<T>,UDiag,VDiag>& d, Int offset ) const
+( AbstractDistMatrix<Base<T>>& d, Int offset ) const
 {
     DEBUG_ONLY(CallStackEntry cse("GDM::GetRealPartOfDiagonal"))
     this->GetDiagonalHelper
@@ -2974,7 +2974,7 @@ GeneralDistMatrix<T,U,V>::GetRealPartOfDiagonal
 template<typename T,Dist U,Dist V>
 void
 GeneralDistMatrix<T,U,V>::GetImagPartOfDiagonal
-( DistMatrix<Base<T>,UDiag,VDiag>& d, Int offset ) const
+( AbstractDistMatrix<Base<T>>& d, Int offset ) const
 {
     DEBUG_ONLY(CallStackEntry cse("GDM::GetImagPartOfDiagonal"))
     this->GetDiagonalHelper
@@ -3014,7 +3014,7 @@ GeneralDistMatrix<T,U,V>::GetImagPartOfDiagonal( Int offset ) const
 template<typename T,Dist U,Dist V>
 void
 GeneralDistMatrix<T,U,V>::SetDiagonal
-( const DistMatrix<T,UDiag,VDiag>& d, Int offset )
+( const AbstractDistMatrix<T>& d, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("GDM::SetDiagonal"))
     this->SetDiagonalHelper
@@ -3024,7 +3024,7 @@ GeneralDistMatrix<T,U,V>::SetDiagonal
 template<typename T,Dist U,Dist V>
 void
 GeneralDistMatrix<T,U,V>::SetRealPartOfDiagonal
-( const DistMatrix<Base<T>,UDiag,VDiag>& d, Int offset )
+( const AbstractDistMatrix<Base<T>>& d, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("GDM::SetRealPartOfDiagonal"))
     this->SetDiagonalHelper
@@ -3035,7 +3035,7 @@ GeneralDistMatrix<T,U,V>::SetRealPartOfDiagonal
 template<typename T,Dist U,Dist V>
 void
 GeneralDistMatrix<T,U,V>::SetImagPartOfDiagonal
-( const DistMatrix<Base<T>,UDiag,VDiag>& d, Int offset )
+( const AbstractDistMatrix<Base<T>>& d, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("GDM::SetImagPartOfDiagonal"))
     this->SetDiagonalHelper
@@ -3046,7 +3046,7 @@ GeneralDistMatrix<T,U,V>::SetImagPartOfDiagonal
 template<typename T,Dist U,Dist V>
 void
 GeneralDistMatrix<T,U,V>::UpdateDiagonal
-( T gamma, const DistMatrix<T,UDiag,VDiag>& d, Int offset )
+( T gamma, const AbstractDistMatrix<T>& d, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("GDM::UpdateDiagonal"))
     this->SetDiagonalHelper
@@ -3056,7 +3056,7 @@ GeneralDistMatrix<T,U,V>::UpdateDiagonal
 template<typename T,Dist U,Dist V>
 void
 GeneralDistMatrix<T,U,V>::UpdateRealPartOfDiagonal
-( Base<T> gamma, const DistMatrix<Base<T>,UDiag,VDiag>& d, Int offset )
+( Base<T> gamma, const AbstractDistMatrix<Base<T>>& d, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("GDM::UpdateRealPartOfDiagonal"))
     this->SetDiagonalHelper
@@ -3068,7 +3068,7 @@ GeneralDistMatrix<T,U,V>::UpdateRealPartOfDiagonal
 template<typename T,Dist U,Dist V>
 void
 GeneralDistMatrix<T,U,V>::UpdateImagPartOfDiagonal
-( Base<T> gamma, const DistMatrix<Base<T>,UDiag,VDiag>& d, Int offset )
+( Base<T> gamma, const AbstractDistMatrix<Base<T>>& d, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("GDM::UpdateImagPartOfDiagonal"))
     this->SetDiagonalHelper
@@ -3086,37 +3086,44 @@ template<typename T,Dist U,Dist V>
 template<typename S,class Function>
 void
 GeneralDistMatrix<T,U,V>::GetDiagonalHelper
-( DistMatrix<S,UDiag,VDiag>& d, Int offset, Function func ) const
+( AbstractDistMatrix<S>& dPre, Int offset, Function func ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("GDM::GetDiagonalHelper"))
-    d.SetGrid( this->Grid() );
-    d.SetRoot( this->DiagonalRoot(offset) );
-    d.AlignCols( this->DiagonalAlign(offset), false );
+    DEBUG_ONLY(
+      CallStackEntry cse("GDM::GetDiagonalHelper");
+      AssertSameGrids( *this, dPre );
+    )
+    ProxyCtrl ctrl;
+    ctrl.colConstrain = true;
+    ctrl.colAlign = this->DiagonalAlign(offset);
+    ctrl.root = this->DiagonalRoot(offset);
+    auto dPtr = WriteProxy<S,UDiag,VDiag>(&dPre,ctrl);
+    auto& d = *dPtr;
+
     d.Resize( this->DiagonalLength(offset), 1 );
-    if( !d.Participating() )
-        return;
-
-    const Int diagShift = d.ColShift();
-    const Int diagStride = d.ColStride();
-    const Int iStart = ( offset>=0 ? diagShift        : diagShift-offset );
-    const Int jStart = ( offset>=0 ? diagShift+offset : diagShift        );
-
-    const Int colStride = this->ColStride();
-    const Int rowStride = this->RowStride();
-    const Int iLocStart = (iStart-this->ColShift()) / colStride;
-    const Int jLocStart = (jStart-this->RowShift()) / rowStride;
-
-    const Int localDiagLength = d.LocalHeight();
-    S* dBuf = d.Buffer();
-    const T* buffer = this->LockedBuffer();
-    const Int ldim = this->LDim();
-
-    EL_PARALLEL_FOR
-    for( Int k=0; k<localDiagLength; ++k )
+    if( d.Participating() )
     {
-        const Int iLoc = iLocStart + k*(diagStride/colStride);
-        const Int jLoc = jLocStart + k*(diagStride/rowStride);
-        func( dBuf[k], buffer[iLoc+jLoc*ldim] );
+        const Int diagShift = d.ColShift();
+        const Int diagStride = d.ColStride();
+        const Int iStart = ( offset>=0 ? diagShift        : diagShift-offset );
+        const Int jStart = ( offset>=0 ? diagShift+offset : diagShift        );
+
+        const Int colStride = this->ColStride();
+        const Int rowStride = this->RowStride();
+        const Int iLocStart = (iStart-this->ColShift()) / colStride;
+        const Int jLocStart = (jStart-this->RowShift()) / rowStride;
+
+        const Int localDiagLength = d.LocalHeight();
+        S* dBuf = d.Buffer();
+        const T* buffer = this->LockedBuffer();
+        const Int ldim = this->LDim();
+
+        EL_PARALLEL_FOR
+        for( Int k=0; k<localDiagLength; ++k )
+        {
+            const Int iLoc = iLocStart + k*(diagStride/colStride);
+            const Int jLoc = jLocStart + k*(diagStride/rowStride);
+            func( dBuf[k], buffer[iLoc+jLoc*ldim] );
+        }
     }
 }
 
@@ -3124,13 +3131,19 @@ template<typename T,Dist U,Dist V>
 template<typename S,class Function>
 void
 GeneralDistMatrix<T,U,V>::SetDiagonalHelper
-( const DistMatrix<S,UDiag,VDiag>& d, Int offset, Function func ) 
+( const AbstractDistMatrix<S>& dPre, Int offset, Function func ) 
 {
     DEBUG_ONLY(
-        CallStackEntry cse("GDM::SetDiagonalHelper");
-        if( !this->DiagonalAlignedWith( d, offset ) )
-            LogicError("Invalid diagonal alignment");
+      CallStackEntry cse("GDM::SetDiagonalHelper");
+      AssertSameGrids( *this, dPre );
     )
+    ProxyCtrl ctrl;
+    ctrl.colConstrain = true;
+    ctrl.colAlign = this->DiagonalAlign(offset);
+    ctrl.root = this->DiagonalRoot(offset);
+    auto dPtr = ReadProxy<S,UDiag,VDiag>(&dPre,ctrl); 
+    const auto& d = *dPtr;
+
     if( !d.Participating() )
         return;
 

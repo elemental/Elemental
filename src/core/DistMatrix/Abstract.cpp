@@ -1140,12 +1140,18 @@ template<typename T>
 void
 AbstractDistMatrix<T>::GetSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J, 
-  DistMatrix<T,STAR,STAR>& ASub ) const
+  AbstractDistMatrix<T>& ASubPre ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
-    ASub.SetGrid( Grid() );
+
+    auto ASubPtr = WriteProxy<T,STAR,STAR>(&ASubPre);
+    auto& ASub = *ASubPtr;
+
+    // TODO: Make the following more efficient for non [STAR,STAR]
+
+    ASub.SetGrid( this->Grid() );
     ASub.Resize( m, n, m );
     Zeros( ASub, m, n );
     if( Participating() )
@@ -1179,12 +1185,18 @@ template<typename T>
 void
 AbstractDistMatrix<T>::GetRealPartOfSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J, 
-  DistMatrix<Base<T>,STAR,STAR>& ASub ) const
+  AbstractDistMatrix<Base<T>>& ASubPre ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetRealPartOfSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
-    ASub.SetGrid( Grid() );
+
+    auto ASubPtr = WriteProxy<Base<T>,STAR,STAR>(&ASubPre);
+    auto& ASub = *ASubPtr;
+
+    // TODO: Make the following more efficient for non [STAR,STAR]
+
+    ASub.SetGrid( this->Grid() );
     ASub.Resize( m, n, m );
     Zeros( ASub, m, n );
     if( Participating() )
@@ -1219,12 +1231,18 @@ template<typename T>
 void
 AbstractDistMatrix<T>::GetImagPartOfSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J, 
-  DistMatrix<Base<T>,STAR,STAR>& ASub ) const
+  AbstractDistMatrix<Base<T>>& ASubPre ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetImagPartOfSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
-    ASub.SetGrid( Grid() );
+    
+    auto ASubPtr = WriteProxy<Base<T>,STAR,STAR>(&ASubPre);
+    auto& ASub = *ASubPtr;
+
+    // TODO: Make the following more efficient for non [STAR,STAR]
+
+    ASub.SetGrid( this->Grid() );
     ASub.Resize( m, n, m );
     Zeros( ASub, m, n );
     if( Participating() )
@@ -1261,7 +1279,7 @@ AbstractDistMatrix<T>::GetSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetSubmatrix"))
-    DistMatrix<T,STAR,STAR> ASub( Grid() );
+    DistMatrix<T,STAR,STAR> ASub( this->Grid() );
     GetSubmatrix( I, J, ASub );
     return ASub;
 }
@@ -1272,7 +1290,7 @@ AbstractDistMatrix<T>::GetRealPartOfSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetRealPartOfSubmatrix"))
-    DistMatrix<Base<T>,STAR,STAR> ASub( Grid() );
+    DistMatrix<Base<T>,STAR,STAR> ASub( this->Grid() );
     GetRealPartOfSubmatrix( I, J, ASub );
     return ASub;
 }
@@ -1283,7 +1301,7 @@ AbstractDistMatrix<T>::GetImagPartOfSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetImagPartOfSubmatrix"))
-    DistMatrix<Base<T>,STAR,STAR> ASub( Grid() );
+    DistMatrix<Base<T>,STAR,STAR> ASub( this->Grid() );
     GetImagPartOfSubmatrix( I, J, ASub );
     return ASub;
 }
@@ -1292,11 +1310,15 @@ template<typename T>
 void 
 AbstractDistMatrix<T>::SetSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J,
-  const DistMatrix<T,STAR,STAR>& ASub )
+  const AbstractDistMatrix<T>& ASubPre )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::SetSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
+
+    auto ASubPtr = ReadProxy<T,STAR,STAR>(&ASubPre);
+    const auto& ASub = *ASubPtr;
+
     if( Participating() )
     {
         // Fill in our locally-owned entries
@@ -1324,11 +1346,15 @@ template<typename T>
 void 
 AbstractDistMatrix<T>::SetRealPartOfSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J,
-  const DistMatrix<Base<T>,STAR,STAR>& ASub )
+  const AbstractDistMatrix<Base<T>>& ASubPre )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::SetRealPartOfSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
+
+    auto ASubPtr = ReadProxy<Base<T>,STAR,STAR>(&ASubPre);
+    const auto& ASub = *ASubPtr;
+
     if( Participating() )
     {
         // Fill in our locally-owned entries
@@ -1357,11 +1383,15 @@ template<typename T>
 void 
 AbstractDistMatrix<T>::SetImagPartOfSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J,
-  const DistMatrix<Base<T>,STAR,STAR>& ASub )
+  const AbstractDistMatrix<Base<T>>& ASubPre )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::SetImagPartOfSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
+
+    auto ASubPtr = ReadProxy<Base<T>,STAR,STAR>(&ASubPre);
+    const auto& ASub = *ASubPtr;
+
     if( Participating() )
     {
         // Fill in our locally-owned entries
@@ -1390,11 +1420,15 @@ template<typename T>
 void 
 AbstractDistMatrix<T>::UpdateSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J,
-  T alpha, const DistMatrix<T,STAR,STAR>& ASub )
+  T alpha, const AbstractDistMatrix<T>& ASubPre )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::UpdateSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
+
+    auto ASubPtr = ReadProxy<T,STAR,STAR>(&ASubPre);
+    const auto& ASub = *ASubPtr;
+
     if( Participating() )
     {
         // Modify our locally-owned entries
@@ -1423,11 +1457,15 @@ template<typename T>
 void 
 AbstractDistMatrix<T>::UpdateRealPartOfSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J,
-  Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub )
+  Base<T> alpha, const AbstractDistMatrix<Base<T>>& ASubPre )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::UpdateRealPartOfSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
+
+    auto ASubPtr = ReadProxy<Base<T>,STAR,STAR>(&ASubPre);
+    const auto& ASub = *ASubPtr;
+
     if( Participating() )
     {
         // Modify our locally-owned entries
@@ -1456,11 +1494,15 @@ template<typename T>
 void 
 AbstractDistMatrix<T>::UpdateImagPartOfSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J,
-  Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub )
+  Base<T> alpha, const AbstractDistMatrix<Base<T>>& ASubPre )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::UpdateImagPartOfSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
+
+    auto ASubPtr = ReadProxy<Base<T>,STAR,STAR>(&ASubPre);
+    const auto& ASub = *ASubPtr;
+
     if( Participating() )
     {
         // Modify our locally-owned entries

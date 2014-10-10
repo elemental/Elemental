@@ -291,38 +291,31 @@ lib.ElMatrixConjugate_c.restype = c_uint
 lib.ElMatrixConjugate_z.argtypes = [c_void_p,iType,iType]
 lib.ElMatrixConjugate_z.restype = c_uint
 
-lib.ElMatrixGetDiagonal_i.argtypes = [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetDiagonal_i.argtypes = [c_void_p,iType,c_void_p]
 lib.ElMatrixGetDiagonal_i.restype = c_uint
-lib.ElMatrixGetDiagonal_s.argtypes = [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetDiagonal_s.argtypes = [c_void_p,iType,c_void_p]
 lib.ElMatrixGetDiagonal_s.restype = c_uint
-lib.ElMatrixGetDiagonal_d.argtypes = [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetDiagonal_d.argtypes = [c_void_p,iType,c_void_p]
 lib.ElMatrixGetDiagonal_d.restype = c_uint
-lib.ElMatrixGetDiagonal_c.argtypes = [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetDiagonal_c.argtypes = [c_void_p,iType,c_void_p]
 lib.ElMatrixGetDiagonal_c.restype = c_uint
-lib.ElMatrixGetDiagonal_z.argtypes = [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetDiagonal_z.argtypes = [c_void_p,iType,c_void_p]
 lib.ElMatrixGetDiagonal_z.restype = c_uint
 
-lib.ElMatrixGetRealPartOfDiagonal_c.argtypes = \
-  [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetRealPartOfDiagonal_c.argtypes = [c_void_p,iType,c_void_p]
 lib.ElMatrixGetRealPartOfDiagonal_c.restype = c_uint
-lib.ElMatrixGetRealPartOfDiagonal_z.argtypes = \
-  [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetRealPartOfDiagonal_z.argtypes = [c_void_p,iType,c_void_p]
 lib.ElMatrixGetRealPartOfDiagonal_z.restype = c_uint
 
-lib.ElMatrixGetImagPartOfDiagonal_i.argtypes = \
-  [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetImagPartOfDiagonal_i.argtypes = [c_void_p,iType,c_void_p]
 lib.ElMatrixGetImagPartOfDiagonal_i.restype = c_uint
-lib.ElMatrixGetImagPartOfDiagonal_s.argtypes = \
-  [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetImagPartOfDiagonal_s.argtypes = [c_void_p,iType,c_void_p]
 lib.ElMatrixGetImagPartOfDiagonal_s.restype = c_uint
-lib.ElMatrixGetImagPartOfDiagonal_d.argtypes = \
-  [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetImagPartOfDiagonal_d.argtypes = [c_void_p,iType,c_void_p]
 lib.ElMatrixGetImagPartOfDiagonal_d.restype = c_uint
-lib.ElMatrixGetImagPartOfDiagonal_c.argtypes = \
-  [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetImagPartOfDiagonal_c.argtypes = [c_void_p,iType,c_void_p]
 lib.ElMatrixGetImagPartOfDiagonal_c.restype = c_uint
-lib.ElMatrixGetImagPartOfDiagonal_z.argtypes = \
-  [c_void_p,iType,POINTER(c_void_p)]
+lib.ElMatrixGetImagPartOfDiagonal_z.argtypes = [c_void_p,iType,c_void_p]
 lib.ElMatrixGetImagPartOfDiagonal_z.restype = c_uint
 
 lib.ElMatrixSetDiagonal_i.argtypes = [c_void_p,c_void_p,iType]
@@ -382,42 +375,42 @@ lib.ElMatrixConjugateDiagonal_z.argtypes = [c_void_p,iType]
 lib.ElMatrixConjugateDiagonal_z.restype = c_uint
 
 lib.ElMatrixGetSubmatrix_i.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
 lib.ElMatrixGetSubmatrix_i.restype = c_uint
 lib.ElMatrixGetSubmatrix_s.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
 lib.ElMatrixGetSubmatrix_s.restype = c_uint
 lib.ElMatrixGetSubmatrix_d.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
 lib.ElMatrixGetSubmatrix_d.restype = c_uint
 lib.ElMatrixGetSubmatrix_c.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
 lib.ElMatrixGetSubmatrix_c.restype = c_uint
 lib.ElMatrixGetSubmatrix_z.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
 lib.ElMatrixGetSubmatrix_z.restype = c_uint
 
 lib.ElMatrixGetRealPartOfSubmatrix_c.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
 lib.ElMatrixGetRealPartOfSubmatrix_c.restype = c_uint
 lib.ElMatrixGetRealPartOfSubmatrix_z.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
 lib.ElMatrixGetRealPartOfSubmatrix_z.restype = c_uint
 
 lib.ElMatrixGetImagPartOfSubmatrix_i.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
 lib.ElMatrixGetImagPartOfSubmatrix_i.restype = c_uint
 lib.ElMatrixGetImagPartOfSubmatrix_s.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
 lib.ElMatrixGetImagPartOfSubmatrix_s.restype = c_uint
 lib.ElMatrixGetImagPartOfSubmatrix_d.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
 lib.ElMatrixGetImagPartOfSubmatrix_d.restype = c_uint
 lib.ElMatrixGetImagPartOfSubmatrix_c.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
 lib.ElMatrixGetImagPartOfSubmatrix_c.restype = c_uint
 lib.ElMatrixGetImagPartOfSubmatrix_z.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),POINTER(c_void_p)]
+  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
 lib.ElMatrixGetImagPartOfSubmatrix_z.restype = c_uint
 
 lib.ElMatrixSetSubmatrix_i.argtypes = \
@@ -714,41 +707,41 @@ class Matrix(object):
     if   self.tag == cTag: lib.ElMatrixConjugate_c(self.obj,i,j)
     elif self.tag == zTag: lib.ElMatrixConjugate_z(self.obj,i,j)
   def GetDiagonal(self,offset=iType(0)):
-    d = Matrix(self.tag,False)
+    d = Matrix(self.tag)
     if   self.tag == iTag:
-      lib.ElMatrixGetDiagonal_i(self.obj,offset,pointer(d.obj))
+      lib.ElMatrixGetDiagonal_i(self.obj,offset,d.obj)
     elif self.tag == sTag:
-      lib.ElMatrixGetDiagonal_s(self.obj,offset,pointer(d.obj))
+      lib.ElMatrixGetDiagonal_s(self.obj,offset,d.obj)
     elif self.tag == dTag:
-      lib.ElMatrixGetDiagonal_d(self.obj,offset,pointer(d.obj))
+      lib.ElMatrixGetDiagonal_d(self.obj,offset,d.obj)
     elif self.tag == cTag:
-      lib.ElMatrixGetDiagonal_c(self.obj,offset,pointer(d.obj))
+      lib.ElMatrixGetDiagonal_c(self.obj,offset,d.obj)
     elif self.tag == zTag:
-      lib.ElMatrixGetDiagonal_z(self.obj,offset,pointer(d.obj))
+      lib.ElMatrixGetDiagonal_z(self.obj,offset,d.obj)
     return d
   def GetRealPartOfDiagonal(self,offset=iType(0)):
     if self.tag == cTag:
-      d = Matrix(sTag,False)
-      lib.ElMatrixGetRealPartOfDiagonal_c(self.obj,offset,pointer(d.obj))
+      d = Matrix(sTag)
+      lib.ElMatrixGetRealPartOfDiagonal_c(self.obj,offset,d.obj)
       return d
     elif self.tag == zTag:
-      d = Matrix(dTag,False)
-      lib.ElMatrixGetRealPartOfDiagonal_z(self.obj,offset,pointer(d.obj))
+      d = Matrix(dTag)
+      lib.ElMatrixGetRealPartOfDiagonal_z(self.obj,offset,d.obj)
       return d
     else: 
       return self.GetDiagonal(self,offset)
   def GetImagPartOfDiagonal(self,offset=iType(0)):
-    d = Matrix(TagToType(Base(self.tag)),False)
+    d = Matrix(TagToType(Base(self.tag)))
     if   self.tag == iTag:
-      lib.ElMatrixGetImagPartOfDiagonal_i(self.obj,offset,pointer(d.obj))
+      lib.ElMatrixGetImagPartOfDiagonal_i(self.obj,offset,d.obj)
     elif self.tag == sTag:
-      lib.ElMatrixGetImagPartOfDiagonal_s(self.obj,offset,pointer(d.obj))
+      lib.ElMatrixGetImagPartOfDiagonal_s(self.obj,offset,d.obj)
     elif self.tag == dTag:
-      lib.ElMatrixGetImagPartOfDiagonal_d(self.obj,offset,pointer(d.obj))
+      lib.ElMatrixGetImagPartOfDiagonal_d(self.obj,offset,d.obj)
     elif self.tag == cTag:
-      lib.ElMatrixGetImagPartOfDiagonal_c(self.obj,offset,pointer(d.obj))
+      lib.ElMatrixGetImagPartOfDiagonal_c(self.obj,offset,d.obj)
     elif self.tag == zTag:
-      lib.ElMatrixGetImagPartOfDiagonal_z(self.obj,offset,pointer(d.obj))
+      lib.ElMatrixGetImagPartOfDiagonal_z(self.obj,offset,d.obj)
     return d
   def SetDiagonal(self,d,offset=iType(0)):
     if type(d) is not Matrix: raise Exception('diagonal must be a Matrix')
@@ -823,22 +816,22 @@ class Matrix(object):
     numColInds = len(J)
     rowInd = (iType*numRowInds)(*I)
     colInd = (iType*numColInds)(*J)
-    ASub = Matrix(self.tag,False)
+    ASub = Matrix(self.tag)
     if   self.tag == iTag: 
       lib.ElMatrixGetSubmatrix_i \
-      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+      (self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj)
     elif self.tag == sTag:
       lib.ElMatrixGetSubmatrix_s \
-      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+      (self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj)
     elif self.tag == dTag:
       lib.ElMatrixGetSubmatrix_d \
-      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+      (self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj)
     elif self.tag == cTag:
       lib.ElMatrixGetSubmatrix_c \
-      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+      (self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj)
     elif self.tag == zTag:
       lib.ElMatrixGetSubmatrix_z \
-      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+      (self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj)
     return ASub
   def GetRealPartOfSubmatrix(self,I,J):
     numRowInds = len(I)
@@ -846,14 +839,14 @@ class Matrix(object):
     rowInd = (iType*numRowInds)(*I)
     colInd = (iType*numColInds)(*J)
     if self.tag == cTag:
-      ASub = Matrix(sTag,False)
+      ASub = Matrix(sTag)
       lib.ElMatrixGetRealPartOfSubmatrix_c \
-      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+      (self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj)
       return ASub
     elif self.tag == zTag:
-      ASub = Matrix(dTag,False)
+      ASub = Matrix(dTag)
       lib.ElMatrixGetRealPartOfSubmatrix_z \
-      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+      (self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj)
       return ASub
     else:
       return self.GetSubmatrix(I,J)
@@ -862,22 +855,22 @@ class Matrix(object):
     numColInds = len(J)
     rowInd = (iType*numRowInds)(*I)
     colInd = (iType*numColInds)(*J)
-    ASub = Matrix(TypeToTag(Base(self.tag)),False)
+    ASub = Matrix(TypeToTag(Base(self.tag)))
     if   self.tag == iTag: 
       lib.ElMatrixGetImagPartOfSubmatrix_i \
-      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+      (self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj)
     elif self.tag == sTag:
       lib.ElMatrixGetImagPartOfSubmatrix_s \
-      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+      (self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj)
     elif self.tag == dTag:
       lib.ElMatrixGetImagPartOfSubmatrix_d \
-      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+      (self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj)
     elif self.tag == cTag:
       lib.ElMatrixGetImagPartOfSubmatrix_c \
-      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+      (self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj)
     elif self.tag == zTag:
       lib.ElMatrixGetImagPartOfSubmatrix_z \
-      (self.obj,numRowInds,rowInd,numColInds,colInd,pointer(ASub.obj))
+      (self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj)
     return ASub
   def SetSubmatrix(self,I,J,ASub):
     numRowInds = len(I)

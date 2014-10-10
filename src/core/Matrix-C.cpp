@@ -144,19 +144,15 @@ extern "C" {
   { EL_TRY( CReflect(A)->Conjugate(i,j) ) }
 
 #define MATRIX_DIAGONAL(SIG,SIGBASE,T) \
-  /* Matrix<T> Matrix<T>::GetDiagonal( Int offset ) const */ \
+  /* void Matrix<T>::GetDiagonal( Matrix<T>& d, Int offset ) const */ \
   ElError ElMatrixGetDiagonal_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElInt offset, ElMatrix_ ## SIG *d ) \
-  { EL_TRY( auto dPtr = new Matrix<T>; \
-            CReflect(A)->GetDiagonal( *dPtr, offset ); \
-            *d = CReflect(dPtr) ) } \
-  /* Matrix<Base<T>> Matrix<T>::GetImagPartOfDiagonal( Int offset ) const */ \
+  ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG d, ElInt offset ) \
+  { EL_TRY( CReflect(A)->GetDiagonal(*CReflect(d),offset) ) } \
+  /* void Matrix<T>::GetImagPartOfDiagonal \
+     ( Matrix<Base<T>>& d, Int offset ) const */ \
   ElError ElMatrixGetImagPartOfDiagonal_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElInt offset, \
-    ElMatrix_ ## SIGBASE *d ) \
-  { EL_TRY( auto dPtr = new Matrix<Base<T>>; \
-            CReflect(A)->GetImagPartOfDiagonal( *dPtr, offset ); \
-            *d = CReflect(dPtr) ) } \
+  ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIGBASE d, ElInt offset ) \
+  { EL_TRY( CReflect(A)->GetImagPartOfDiagonal(*CReflect(d),offset) ) } \
   /* void Matrix<T>::SetDiagonal( const Matrix<T>& d, Int offset ) */ \
   ElError ElMatrixSetDiagonal_ ## SIG \
   ( ElMatrix_ ## SIG A, ElConstMatrix_ ## SIG d, ElInt offset ) \
@@ -173,11 +169,8 @@ extern "C" {
 #define MATRIX_DIAGONAL_COMPLEX(SIG,SIGBASE,T) \
   /* Matrix<Base<T>> Matrix<T>::GetRealPartOfDiagonal( Int offset ) const */ \
   ElError ElMatrixGetRealPartOfDiagonal_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElInt offset, \
-    ElMatrix_ ## SIGBASE *d ) \
-  { EL_TRY( auto dPtr = new Matrix<Base<T>>; \
-            CReflect(A)->GetRealPartOfDiagonal( *dPtr, offset ); \
-            *d = CReflect(dPtr) ) } \
+  ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIGBASE d, ElInt offset ) \
+  { EL_TRY( CReflect(A)->GetRealPartOfDiagonal( *CReflect(d), offset ) ) } \
   /* void Matrix<T>::SetRealPartOfDiagonal \
      ( const Matrix<Base<T>>& d, Int offset ) */ \
   ElError ElMatrixSetRealPartOfDiagonal_ ## SIG \
@@ -216,29 +209,26 @@ extern "C" {
   { EL_TRY( CReflect(A)->ConjugateDiagonal(offset) ) }
 
 #define MATRIX_SUBMATRIX(SIG,SIGBASE,T) \
-  /* Matrix<T> Matrix<T>::GetSubmatrix
-     ( const std::vector<Int>& I, \
-       const std::vector<Int>& J ) const */ \
+  /* void Matrix<T>::GetSubmatrix
+     ( const std::vector<Int>& I, const std::vector<Int>& J,
+       Matrix<T>& ASub ) const */ \
   ElError ElMatrixGetSubmatrix_ ## SIG \
   ( ElConstMatrix_ ## SIG A, \
     ElInt numRowInds, const ElInt* I, \
-    ElInt numColInds, const ElInt* J, ElMatrix_ ## SIG *ASub ) \
+    ElInt numColInds, const ElInt* J, ElMatrix_ ## SIG ASub ) \
   { EL_TRY( std::vector<Int> IVec( I, I+numRowInds ); \
             std::vector<Int> JVec( J, J+numColInds ); \
-            auto ASubPtr = new Matrix<T>; \
-            CReflect(A)->GetSubmatrix( IVec, JVec, *ASubPtr ); \
-            *ASub = CReflect(ASubPtr) ) } \
-  /* Matrix<Base<T>> Matrix<T>::GetImagPartOfSubmatrix
-     ( const std::vector<Int>& I, const std::vector<Int>& J ) const */ \
+            CReflect(A)->GetSubmatrix( IVec, JVec, *CReflect(ASub) ); ) } \
+  /* void Matrix<T>::GetImagPartOfSubmatrix
+     ( const std::vector<Int>& I, const std::vector<Int>& J,
+       Matrix<Base<T>>& ASub ) const */ \
   ElError ElMatrixGetImagPartOfSubmatrix_ ## SIG \
   ( ElConstMatrix_ ## SIG A, \
     ElInt numRowInds, const ElInt* I, \
-    ElInt numColInds, const ElInt* J, ElMatrix_ ## SIGBASE *ASub ) \
+    ElInt numColInds, const ElInt* J, ElMatrix_ ## SIGBASE ASub ) \
   { EL_TRY( std::vector<Int> IVec( I, I+numRowInds ); \
             std::vector<Int> JVec( J, J+numColInds ); \
-            auto ASubPtr = new Matrix<Base<T>>; \
-            CReflect(A)->GetImagPartOfSubmatrix( IVec, JVec, *ASubPtr ); \
-            *ASub = CReflect(ASubPtr) ) } \
+            CReflect(A)->GetImagPartOfSubmatrix(IVec,JVec,*CReflect(ASub)) ) } \
   /* void Matrix<T>::SetSubmatrix \
      ( const std::vector<Int>& I, const std::vector<Int>& J, \
        const Matrix<T>& ASub ) */ \
@@ -264,17 +254,16 @@ extern "C" {
             ( IVec, JVec, CReflect(alpha), *CReflect(ASub) ) ) }
 
 #define MATRIX_SUBMATRIX_COMPLEX(SIG,SIGBASE,F) \
-  /* Matrix<Base<F>> Matrix<F>::GetRealPartOfSubmatrix
-     ( const std::vector<Int>& I, const std::vector<Int>& J ) const */ \
+  /* void Matrix<F>::GetRealPartOfSubmatrix
+     ( const std::vector<Int>& I, const std::vector<Int>& J,
+       Matrix<Base<T>>& ASub ) const */ \
   ElError ElMatrixGetRealPartOfSubmatrix_ ## SIG \
   ( ElConstMatrix_ ## SIG A, \
     ElInt numRowInds, const ElInt* I, \
-    ElInt numColInds, const ElInt* J, ElMatrix_ ## SIGBASE *ASub ) \
+    ElInt numColInds, const ElInt* J, ElMatrix_ ## SIGBASE ASub ) \
   { EL_TRY( std::vector<Int> IVec( I, I+numRowInds ); \
             std::vector<Int> JVec( J, J+numColInds ); \
-            auto ASubPtr = new Matrix<Base<F>>; \
-            CReflect(A)->GetRealPartOfSubmatrix( IVec, JVec, *ASubPtr ); \
-            *ASub = CReflect(ASubPtr) ) } \
+            CReflect(A)->GetRealPartOfSubmatrix(IVec,JVec,*CReflect(ASub)) ) } \
   /* void Matrix<F>::SetRealPartOfSubmatrix \
      ( const std::vector<Int>& I, const std::vector<Int>& J, \
        const Matrix<Base<F>>& ASub ) */ \
