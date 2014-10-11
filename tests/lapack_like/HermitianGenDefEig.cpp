@@ -78,7 +78,7 @@ void TestCorrectness
         else
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), B, Z );
         Identity( Y, k, k );
-        Herk( uplo, ADJOINT, F(-1), Z, F(1), Y );
+        Herk( uplo, ADJOINT, Real(-1), Z, Real(1), Y );
         oneNormOfError = OneNorm( Y );
         infNormOfError = InfinityNorm( Y );
         frobNormOfError = FrobeniusNorm( Y );
@@ -142,7 +142,7 @@ void TestCorrectness
         else
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), B, Z );
         Identity( Y, k, k );
-        Herk( uplo, ADJOINT, F(-1), Z, F(1), Y );
+        Herk( uplo, ADJOINT, Real(-1), Z, Real(1), Y );
         oneNormOfError = OneNorm( Y );
         infNormOfError = InfinityNorm( Y );
         frobNormOfError = FrobeniusNorm( Y );
@@ -206,7 +206,7 @@ void TestCorrectness
         else
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), B, Z );
         Identity( Y, k, k );
-        Herk( uplo, ADJOINT, F(-1), Z, F(1), Y );
+        Herk( uplo, ADJOINT, Real(-1), Z, Real(1), Y );
         oneNormOfError = OneNorm( Y );
         infNormOfError = InfinityNorm( Y );
         frobNormOfError = FrobeniusNorm( Y );
@@ -239,7 +239,7 @@ void TestHermitianGenDefEig
         Zeros( B, m, m );
         DistMatrix<F> C(g);
         Uniform( C, m, m );
-        Herk( uplo, ADJOINT, F(1), C, F(0), B );
+        Herk( uplo, ADJOINT, Real(1), C, Real(0), B );
     }
     else
         HermitianUniformSpectrum( B, m, 1, 10 );

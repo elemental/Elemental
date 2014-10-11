@@ -2116,6 +2116,45 @@ def Walsh(A,k,binary=False):
     else: raise Exception('Unsupported datatype')
   else: raise Exception('Unsupported matrix type')
 
+# Walsh-Identity
+# --------------
+lib.ElWalshIdentity_i.argtypes = [c_void_p,iType,bType]
+lib.ElWalshIdentity_i.restype = c_uint
+lib.ElWalshIdentity_s.argtypes = [c_void_p,iType,bType]
+lib.ElWalshIdentity_s.restype = c_uint
+lib.ElWalshIdentity_d.argtypes = [c_void_p,iType,bType]
+lib.ElWalshIdentity_d.restype = c_uint
+lib.ElWalshIdentity_c.argtypes = [c_void_p,iType,bType]
+lib.ElWalshIdentity_c.restype = c_uint
+lib.ElWalshIdentity_z.argtypes = [c_void_p,iType,bType]
+lib.ElWalshIdentity_z.restype = c_uint
+lib.ElWalshIdentityDist_i.argtypes = [c_void_p,iType,bType]
+lib.ElWalshIdentityDist_i.restype = c_uint
+lib.ElWalshIdentityDist_s.argtypes = [c_void_p,iType,bType]
+lib.ElWalshIdentityDist_s.restype = c_uint
+lib.ElWalshIdentityDist_d.argtypes = [c_void_p,iType,bType]
+lib.ElWalshIdentityDist_d.restype = c_uint
+lib.ElWalshIdentityDist_c.argtypes = [c_void_p,iType,bType]
+lib.ElWalshIdentityDist_c.restype = c_uint
+lib.ElWalshIdentityDist_z.argtypes = [c_void_p,iType,bType]
+lib.ElWalshIdentityDist_z.restype = c_uint
+def WalshIdentity(A,k,binary=False):
+  if type(A) is Matrix:
+    if   A.tag == iTag: lib.ElWalshIdentity_i(A.obj,k,binary)
+    elif A.tag == sTag: lib.ElWalshIdentity_s(A.obj,k,binary)
+    elif A.tag == dTag: lib.ElWalshIdentity_d(A.obj,k,binary)
+    elif A.tag == cTag: lib.ElWalshIdentity_c(A.obj,k,binary)
+    elif A.tag == zTag: lib.ElWalshIdentity_z(A.obj,k,binary)
+    else: raise Exception('Unsupported datatype')
+  elif type(A) is DistMatrix:
+    if   A.tag == iTag: lib.ElWalshIdentityDist_i(A.obj,k,binary)
+    elif A.tag == sTag: lib.ElWalshIdentityDist_s(A.obj,k,binary)
+    elif A.tag == dTag: lib.ElWalshIdentityDist_d(A.obj,k,binary)
+    elif A.tag == cTag: lib.ElWalshIdentityDist_c(A.obj,k,binary)
+    elif A.tag == zTag: lib.ElWalshIdentityDist_z(A.obj,k,binary)
+    else: raise Exception('Unsupported datatype')
+  else: raise Exception('Unsupported matrix type')
+
 # Whale
 # -----
 lib.ElWhale_c.argtypes = [c_void_p,iType]

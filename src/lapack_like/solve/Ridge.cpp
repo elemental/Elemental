@@ -24,7 +24,7 @@ void Ridge
         Matrix<F> Z;
         if( alg == RIDGE_CHOLESKY )
         {
-            Herk( LOWER, ADJOINT, F(1), A, Z );
+            Herk( LOWER, ADJOINT, Base<F>(1), A, Z );
             UpdateDiagonal( Z, F(alpha*alpha) );
             Cholesky( LOWER, Z );
             Gemm( ADJOINT, NORMAL, F(1), A, B, X );
@@ -84,7 +84,7 @@ void Ridge
         DistMatrix<F> Z(A.Grid());
         if( alg == RIDGE_CHOLESKY )
         {
-            Herk( LOWER, ADJOINT, F(1), A, Z );
+            Herk( LOWER, ADJOINT, Base<F>(1), A, Z );
             UpdateDiagonal( Z, F(alpha*alpha) );
             Cholesky( LOWER, Z );
             Gemm( ADJOINT, NORMAL, F(1), A, B, X );

@@ -46,7 +46,7 @@ main( int argc, char* argv[] )
         Gemm( NORMAL, NORMAL, C(-1), Q, P, C(1), B );
         const Real frobQDWH = FrobeniusNorm( B );
         Identity( B, n, n );
-        Herk( LOWER, ADJOINT, C(1), Q, C(-1), B );
+        Herk( LOWER, ADJOINT, Real(1), Q, Real(-1), B );
         const Real frobQDWHOrthog = HermitianFrobeniusNorm( LOWER, B );
         if( mpi::WorldRank() == 0 )
         {

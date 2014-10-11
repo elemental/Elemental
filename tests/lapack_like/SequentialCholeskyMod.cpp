@@ -19,7 +19,7 @@ void TestCorrectness
     const Int m = V.Height();
 
     Matrix<F> B( A );
-    Herk( uplo, NORMAL, F(alpha), V, F(1), B );
+    Herk( uplo, NORMAL, alpha, V, Real(1), B );
 
     // Test correctness by multiplying a random set of vectors by 
     // A + alpha V V^H, then using the Cholesky factorization to solve.

@@ -25,7 +25,7 @@ void TestCorrectness
         cout << "  Testing orthogonality of eigenvectors..." << endl;
     DistMatrix<F> X(g);
     Identity( X, k, k );
-    Herk( uplo, ADJOINT, F(-1), Z, F(1), X );
+    Herk( uplo, ADJOINT, Real(-1), Z, Real(1), X );
     Real oneNormOfError = OneNorm( X );
     Real infNormOfError = InfinityNorm( X );
     Real frobNormOfError = FrobeniusNorm( X );

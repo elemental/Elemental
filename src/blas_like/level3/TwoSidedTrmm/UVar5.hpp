@@ -60,7 +60,7 @@ UVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         Axpy( F(1)/F(2), Y01, A01 );
 
         // A00 := A00 + (U01 A01' + A01 U01')
-        Her2k( UPPER, NORMAL, F(1), U01, A01, F(1), A00 );
+        Her2k( UPPER, NORMAL, Base<F>(1), U01, A01, Base<F>(1), A00 );
 
         // A01 := A01 + 1/2 Y01
         Axpy( F(1)/F(2), Y01, A01 );

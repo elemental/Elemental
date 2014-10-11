@@ -23,7 +23,7 @@ void Cholesky( Matrix<F>& A, Matrix<F>& R )
     DEBUG_ONLY(CallStackEntry cse("rq::Cholesky"))
     if( A.Height() > A.Width() )
         LogicError("A A^H will be singular");
-    Herk( UPPER, NORMAL, F(1), A, R );
+    Herk( UPPER, NORMAL, Base<F>(1), A, R );
     El::ReverseCholesky( UPPER, R );
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), R, A );
 }
@@ -41,7 +41,7 @@ void Cholesky( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& RPre )
     auto RPtr = WriteProxy<F,STAR,STAR>( &RPre );   auto& R = *RPtr;
 
     Zeros( R, m, m );
-    Herk( UPPER, NORMAL, F(1), A.Matrix(), F(0), R.Matrix() );
+    Herk( UPPER, NORMAL, Base<F>(1), A.Matrix(), Base<F>(0), R.Matrix() );
     R.SumOver( A.RowComm() );
     El::ReverseCholesky( UPPER, R.Matrix() );
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), R.Matrix(), A.Matrix() );

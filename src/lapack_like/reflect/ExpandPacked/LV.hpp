@@ -91,7 +91,7 @@ LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
 
         Z.Resize( HPanWidth, effectedWidth );
         PartitionLeft( Z, ZNew, ZOld, oldEffectedWidth );
-        Herk( UPPER, ADJOINT, F(1), HPan, SInv );
+        Herk( UPPER, ADJOINT, Base<F>(1), HPan, SInv );
         FixDiagonal( conjugation, t1, SInv );
 
         // Interleave the updates of the already effected portion of the matrix
@@ -198,8 +198,8 @@ LV
         Zeros( SInv_STAR_STAR, HPanWidth, HPanWidth );
         Herk
         ( UPPER, ADJOINT, 
-          F(1), HPan_VC_STAR.LockedMatrix(), 
-          F(0), SInv_STAR_STAR.Matrix() );
+          Base<F>(1), HPan_VC_STAR.LockedMatrix(), 
+          Base<F>(0), SInv_STAR_STAR.Matrix() );
         SInv_STAR_STAR.SumOver( HPan_VC_STAR.ColComm() );
         t1_STAR_STAR = t1;
         FixDiagonal( conjugation, t1_STAR_STAR, SInv_STAR_STAR );

@@ -13,7 +13,7 @@ using namespace El;
 template<typename T> 
 void TestHerk
 ( bool print, UpperOrLower uplo, Orientation orientation,
-  Int m, Int k, T alpha, T beta, const Grid& g )
+  Int m, Int k, Base<T> alpha, Base<T> beta, const Grid& g )
 {
     DistMatrix<T> A(g), C(g);
 
@@ -99,9 +99,7 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             cout << "Testing with double-precision complex:" << endl;
-        TestHerk<Complex<double>>
-        ( print, uplo, orientation, m, k, 
-          Complex<double>(3), Complex<double>(4), g );
+        TestHerk<Complex<double>>( print, uplo, orientation, m, k, 3., 4., g );
     }
     catch( exception& e ) { ReportException(e); }
 

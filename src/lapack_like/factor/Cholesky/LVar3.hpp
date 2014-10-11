@@ -97,7 +97,7 @@ LVar3( Matrix<F>& A )
 
         cholesky::LVar3Unb( A11 );
         Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11, A21 );
-        Herk( LOWER, NORMAL, F(-1), A21, F(1), A22 );
+        Herk( LOWER, NORMAL, Base<F>(-1), A21, Base<F>(1), A22 );
     }
 }
 
@@ -126,7 +126,7 @@ ReverseLVar3( Matrix<F>& A )
 
         cholesky::ReverseLVar3Unb( A11 );
         Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A11, A10 );
-        Herk( LOWER, ADJOINT, F(-1), A10, F(1), A00 );
+        Herk( LOWER, ADJOINT, Base<F>(-1), A10, Base<F>(1), A00 );
     }
 } 
 

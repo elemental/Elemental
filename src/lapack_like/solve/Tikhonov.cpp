@@ -26,8 +26,8 @@ void Tikhonov
         Matrix<F> Z;
         if( alg == TIKHONOV_CHOLESKY )
         {
-            Herk( LOWER, ADJOINT, F(1), A, Z );
-            Herk( LOWER, ADJOINT, F(1), Gamma, F(1), Z );
+            Herk( LOWER, ADJOINT, Base<F>(1), A, Z );
+            Herk( LOWER, ADJOINT, Base<F>(1), Gamma, Base<F>(1), Z );
             Cholesky( LOWER, Z );
         }
         else
@@ -71,8 +71,8 @@ void Tikhonov
         DistMatrix<F> Z(A.Grid());
         if( alg == TIKHONOV_CHOLESKY )
         {
-            Herk( LOWER, ADJOINT, F(1), A, Z );
-            Herk( LOWER, ADJOINT, F(1), Gamma, F(1), Z );
+            Herk( LOWER, ADJOINT, Base<F>(1), A, Z );
+            Herk( LOWER, ADJOINT, Base<F>(1), Gamma, Base<F>(1), Z );
             Cholesky( LOWER, Z );
         }
         else

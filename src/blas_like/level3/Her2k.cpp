@@ -13,62 +13,65 @@ namespace El {
 template<typename T>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
+  Base<T> alpha, const Matrix<T>& A, const Matrix<T>& B, 
+  Base<T> beta,        Matrix<T>& C )
 {
     DEBUG_ONLY(CallStackEntry cse("Her2k"))
-    Syr2k( uplo, orientation, alpha, A, B, beta, C, true );
+    Syr2k( uplo, orientation, T(alpha), A, B, T(beta), C, true );
 }
 
 template<typename T>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
+  Base<T> alpha, const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 {
     DEBUG_ONLY(CallStackEntry cse("Her2k"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
-    Syr2k( uplo, orientation, alpha, A, B, T(0), C, true );
+    Syr2k( uplo, orientation, T(alpha), A, B, T(0), C, true );
 }
 
 template<typename T>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C )
+  Base<T> alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  Base<T> beta,        AbstractDistMatrix<T>& C )
 {
     DEBUG_ONLY(CallStackEntry cse("Her2k"))
-    Syr2k( uplo, orientation, alpha, A, B, beta, C, true );
+    Syr2k( uplo, orientation, T(alpha), A, B, T(beta), C, true );
 }
 
 template<typename T>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C )
+  Base<T> alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+                       AbstractDistMatrix<T>& C )
 {
     DEBUG_ONLY(CallStackEntry cse("Her2k"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
-    Syr2k( uplo, orientation, alpha, A, B, T(0), C, true );
+    Syr2k( uplo, orientation, T(alpha), A, B, T(0), C, true );
 }
 
 #define PROTO(T) \
   template void Her2k \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const Matrix<T>& A, const Matrix<T>& B, \
-    T beta,        Matrix<T>& C ); \
+    Base<T> alpha, const Matrix<T>& A, const Matrix<T>& B, \
+    Base<T> beta,        Matrix<T>& C ); \
   template void Her2k \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const Matrix<T>& A, const Matrix<T>& B, \
-                   Matrix<T>& C ); \
+    Base<T> alpha, const Matrix<T>& A, const Matrix<T>& B, \
+                         Matrix<T>& C ); \
   template void Her2k \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
-                   AbstractDistMatrix<T>& C ); \
+    Base<T> alpha, const AbstractDistMatrix<T>& A, \
+                   const AbstractDistMatrix<T>& B, \
+                         AbstractDistMatrix<T>& C ); \
   template void Her2k \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
-    T beta,        AbstractDistMatrix<T>& C );
+    Base<T> alpha, const AbstractDistMatrix<T>& A, \
+                   const AbstractDistMatrix<T>& B, \
+    Base<T> beta,        AbstractDistMatrix<T>& C );
 
 // blas::Her2k not yet supported for Int
 #define EL_NO_INT_PROTO

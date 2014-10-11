@@ -338,38 +338,34 @@ extern "C" {
   /* Herk */ \
   ElError ElHerk_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \
-    CREFLECT(T) alpha, ElConstMatrix_ ## SIG A, \
-    CREFLECT(T) beta, ElMatrix_ ## SIG C ) \
+    Base<T> alpha, ElConstMatrix_ ## SIG A, \
+    Base<T> beta, ElMatrix_ ## SIG C ) \
   { EL_TRY( \
       Herk( CReflect(uplo), CReflect(orientation), \
-            CReflect(alpha), *CReflect(A), \
-            CReflect(beta), *CReflect(C) ) ) } \
+            alpha, *CReflect(A), beta, *CReflect(C) ) ) } \
   ElError ElHerkDist_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \
-    CREFLECT(T) alpha, ElConstDistMatrix_ ## SIG A, \
-    CREFLECT(T) beta, ElDistMatrix_ ## SIG C ) \
+    Base<T> alpha, ElConstDistMatrix_ ## SIG A, \
+    Base<T> beta, ElDistMatrix_ ## SIG C ) \
   { EL_TRY( \
       Herk( CReflect(uplo), CReflect(orientation), \
-            CReflect(alpha), *CReflect(A), \
-            CReflect(beta), *CReflect(C) ) ) } \
+            alpha, *CReflect(A), beta, *CReflect(C) ) ) } \
   /* Her2k */ \
   ElError ElHer2k_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \
-    CREFLECT(T) alpha, ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
-    CREFLECT(T) beta, ElMatrix_ ## SIG C ) \
+    Base<T> alpha, ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
+    Base<T> beta, ElMatrix_ ## SIG C ) \
   { EL_TRY( \
       Her2k( CReflect(uplo), CReflect(orientation), \
-            CReflect(alpha), *CReflect(A), *CReflect(B), \
-            CReflect(beta), *CReflect(C) ) ) } \
+            alpha, *CReflect(A), *CReflect(B), beta, *CReflect(C) ) ) } \
   ElError ElHer2kDist_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \
-    CREFLECT(T) alpha, ElConstDistMatrix_ ## SIG A, \
-                       ElConstDistMatrix_ ## SIG B, \
-    CREFLECT(T) beta, ElDistMatrix_ ## SIG C ) \
+    Base<T> alpha, ElConstDistMatrix_ ## SIG A, \
+                   ElConstDistMatrix_ ## SIG B, \
+    Base<T> beta,  ElDistMatrix_ ## SIG C ) \
   { EL_TRY( \
       Her2k( CReflect(uplo), CReflect(orientation), \
-            CReflect(alpha), *CReflect(A), *CReflect(B), \
-            CReflect(beta), *CReflect(C) ) ) } \
+             alpha, *CReflect(A), *CReflect(B), beta, *CReflect(C) ) ) } \
   /* Trdtrmm */ \
   ElError ElTrdtrmm_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, bool conjugate ) \

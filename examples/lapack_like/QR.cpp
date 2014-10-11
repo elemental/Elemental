@@ -52,7 +52,7 @@ main( int argc, char* argv[] )
         // Check the numerical orthogonality of Q, || I - Q^H Q ||_F / || A ||_F
         const Int k = std::min(m,n);
         Identity( E, k, k );
-        Herk( LOWER, ADJOINT, C(-1), Q, C(1), E );
+        Herk( LOWER, ADJOINT, Real(-1), Q, Real(1), E );
         const Real frobOrthog = HermitianFrobeniusNorm( LOWER, E ); 
 
         if( mpi::WorldRank() == 0 )

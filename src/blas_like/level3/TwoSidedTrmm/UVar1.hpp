@@ -63,7 +63,7 @@ UVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         twotrmm::UUnb( diag, A11, U11 );
 
         // A11 := A11 + (U12 A12' + A12 U12')
-        Her2k( UPPER, NORMAL, F(1), U12, A12, F(1), A11 );
+        Her2k( UPPER, NORMAL, Base<F>(1), U12, A12, Base<F>(1), A11 );
 
         // A12 := A12 + 1/2 Y12
         Axpy( F(1)/F(2), Y12, A12 );

@@ -66,7 +66,7 @@ RLHF
         MakeTrapezoidal( LOWER, HPanConj, HPanConj.Width()-HPanConj.Height() );
         SetDiagonal( HPanConj, F(1), HPanConj.Width()-HPanConj.Height() );
 
-        Herk( UPPER, NORMAL, F(1), HPanConj, SInv );
+        Herk( UPPER, NORMAL, Base<F>(1), HPanConj, SInv );
         FixDiagonal( conjugation, t1, SInv );
 
         Gemm( NORMAL, ADJOINT, F(1), ALeft, HPanConj, Z );
@@ -130,8 +130,8 @@ RLHF
         Zeros( SInv_STAR_STAR, nb, nb );
         Herk
         ( UPPER, NORMAL,
-          F(1), HPan_STAR_VR.LockedMatrix(),
-          F(0), SInv_STAR_STAR.Matrix() );
+          Base<F>(1), HPan_STAR_VR.LockedMatrix(),
+          Base<F>(0), SInv_STAR_STAR.Matrix() );
         SInv_STAR_STAR.SumOver( HPan_STAR_VR.RowComm() );
         t1_STAR_STAR = t1;
         FixDiagonal( conjugation, t1_STAR_STAR, SInv_STAR_STAR );

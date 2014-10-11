@@ -24,7 +24,7 @@ Base<F> Coherence( const Matrix<F>& A )
     DiagonalSolve( RIGHT, NORMAL, norms, B, true );
     Matrix<F> C;
     Identity( C, A.Width(), A.Width() );
-    Herk( UPPER, ADJOINT, F(-1), B, F(1), C );
+    Herk( UPPER, ADJOINT, Base<F>(-1), B, Base<F>(1), C );
 
     return HermitianMaxNorm( UPPER, C );
 }
@@ -40,7 +40,7 @@ Base<F> Coherence( const AbstractDistMatrix<F>& A )
     DiagonalSolve( RIGHT, NORMAL, norms, B, true );
     DistMatrix<F> C(B.Grid());
     Identity( C, A.Width(), A.Width() );
-    Herk( UPPER, ADJOINT, F(-1), B, F(1), C );
+    Herk( UPPER, ADJOINT, Base<F>(-1), B, Base<F>(1), C );
 
     return HermitianMaxNorm( UPPER, C );
 }

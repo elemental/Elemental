@@ -40,8 +40,8 @@ void Syrk
     {
         blas::Herk
         ( uploChar, transChar, C.Height(), k,
-          alpha, A.LockedBuffer(), A.LDim(),
-          beta,  C.Buffer(),       C.LDim() );
+          RealPart(alpha), A.LockedBuffer(), A.LDim(),
+          RealPart(beta),  C.Buffer(),       C.LDim() );
     }
     else
     {

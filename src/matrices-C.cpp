@@ -172,6 +172,13 @@ extern "C" {
   { EL_TRY( Walsh( *CReflect(A), k, binary ) ) } \
   ElError ElWalshDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt k, bool binary ) \
   { EL_TRY( Walsh( *CReflect(A), k, binary ) ) } \
+  /* Walsh-Identity */ \
+  ElError ElWalshIdentity_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt k, bool binary ) \
+  { EL_TRY( WalshIdentity( *CReflect(A), k, binary ) ) } \
+  ElError ElWalshIdentityDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt k, bool binary ) \
+  { EL_TRY( WalshIdentity( *CReflect(A), k, binary ) ) } \
   /* Wilkinson */ \
   ElError ElWilkinson_ ## SIG ( ElMatrix_ ## SIG A, ElInt k ) \
   { EL_TRY( Wilkinson( *CReflect(A), k ) ) } \

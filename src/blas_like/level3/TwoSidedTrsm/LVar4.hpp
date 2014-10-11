@@ -69,7 +69,7 @@ LVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
         Axpy( F(-1)/F(2), Y21, A21 );
 
         // A22 := A22 - (L21 A21' + A21 L21')
-        Her2k( LOWER, NORMAL, F(-1), L21, A21, F(1), A22 );
+        Her2k( LOWER, NORMAL, Base<F>(-1), L21, A21, Base<F>(1), A22 );
 
         // A21 := A21 - 1/2 Y21
         Axpy( F(-1)/F(2), Y21, A21 );

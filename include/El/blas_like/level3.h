@@ -116,41 +116,37 @@ EL_EXPORT ElError ElHemmDist_z
    ==== */
 EL_EXPORT ElError ElHerk_c
 ( ElUpperOrLower uplo, ElOrientation orientation,
-  complex_float alpha, ElConstMatrix_c A, 
-  complex_float beta,  ElMatrix_c C );
+  float alpha, ElConstMatrix_c A, float beta, ElMatrix_c C );
 EL_EXPORT ElError ElHerk_z
 ( ElUpperOrLower uplo, ElOrientation orientation,
-  complex_double alpha, ElConstMatrix_z A, 
-  complex_double beta,  ElMatrix_z C );
+  double alpha, ElConstMatrix_z A, double beta, ElMatrix_z C );
 
 EL_EXPORT ElError ElHerkDist_c
 ( ElUpperOrLower uplo, ElOrientation orientation,
-  complex_float alpha, ElConstDistMatrix_c A, 
-  complex_float beta,  ElDistMatrix_c C );
+  float alpha, ElConstDistMatrix_c A, float beta, ElDistMatrix_c C );
 EL_EXPORT ElError ElHerkDist_z
 ( ElUpperOrLower uplo, ElOrientation orientation,
-  complex_double alpha, ElConstDistMatrix_z A, 
-  complex_double beta,  ElDistMatrix_z C );
+  double alpha, ElConstDistMatrix_z A, double beta, ElDistMatrix_z C );
 
 /* Her2k
    ===== */
 EL_EXPORT ElError ElHer2k_c
 ( ElUpperOrLower uplo, ElOrientation orientation,
-  complex_float alpha, ElConstMatrix_c A, ElConstMatrix_c B,
-  complex_float beta,  ElMatrix_c C );
+  float alpha, ElConstMatrix_c A, ElConstMatrix_c B,
+  float beta,  ElMatrix_c C );
 EL_EXPORT ElError ElHer2k_z
 ( ElUpperOrLower uplo, ElOrientation orientation,
-  complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z B,
-  complex_double beta,  ElMatrix_z C );
+  double alpha, ElConstMatrix_z A, ElConstMatrix_z B,
+  double beta,  ElMatrix_z C );
 
 EL_EXPORT ElError ElHer2kDist_c
 ( ElUpperOrLower uplo, ElOrientation orientation,
-  complex_float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c B,
-  complex_float beta,  ElDistMatrix_c C );
+  float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c B,
+  float beta,  ElDistMatrix_c C );
 EL_EXPORT ElError ElHer2kDist_z
 ( ElUpperOrLower uplo, ElOrientation orientation,
-  complex_double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z B,
-  complex_double beta,  ElDistMatrix_z C );
+  double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z B,
+  double beta,  ElDistMatrix_z C );
 
 /* MultiShiftQuasiTrsm
    =================== */

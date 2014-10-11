@@ -31,7 +31,7 @@ main( int argc, char* argv[] )
         MakeTrapezoidal( LOWER, L, -1 );
         DistMatrix<C> A;
         Zeros( A, n, n );
-        Herk( LOWER, NORMAL, C(1), L, C(0), A );
+        Herk( LOWER, NORMAL, Real(1), L, Real(0), A );
         if( print )
             Print( A, "A" );
 

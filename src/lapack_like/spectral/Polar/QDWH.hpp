@@ -96,7 +96,7 @@ QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const PolarCtrl& ctrl )
             // Use faster Cholesky-based algorithm since A is well-conditioned
             //
             Identity( C, n, n );
-            Herk( LOWER, ADJOINT, F(c), A, F(1), C );
+            Herk( LOWER, ADJOINT, c, A, Real(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
             Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), C, ATemp );
@@ -241,7 +241,7 @@ QDWHInner
             // Use faster Cholesky-based algorithm since A is well-conditioned
             //
             Identity( C, n, n );
-            Herk( LOWER, ADJOINT, F(c), A, F(1), C );
+            Herk( LOWER, ADJOINT, c, A, Real(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
             Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), C, ATemp );
@@ -399,7 +399,7 @@ QDWHInner
             //       a custom routine for forming L^2, where L is strictly lower
             MakeHermitian( uplo, A );
             Identity( C, n, n );
-            Herk( LOWER, ADJOINT, F(c), A, F(1), C );
+            Herk( LOWER, ADJOINT, c, A, Real(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
             Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), C, ATemp );
@@ -542,7 +542,7 @@ QDWHInner
             //       a custom routine for forming L^2, where L is strictly lower
             MakeHermitian( uplo, A );
             Identity( C, n, n );
-            Herk( LOWER, ADJOINT, F(c), A, F(1), C );
+            Herk( LOWER, ADJOINT, c, A, Real(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
             Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), C, ATemp );

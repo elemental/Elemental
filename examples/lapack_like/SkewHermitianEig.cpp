@@ -77,7 +77,7 @@ main( int argc, char* argv[] )
 
         // Check the orthogonality of X
         Identity( E, n, n );
-        Herk( LOWER, NORMAL, C(-1), X, C(1), E );
+        Herk( LOWER, NORMAL, Real(-1), X, Real(1), E );
         const Real frobOrthog = HermitianFrobeniusNorm( LOWER, E );
 
         if( mpi::WorldRank() == 0 )

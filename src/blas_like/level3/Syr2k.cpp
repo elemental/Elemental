@@ -43,9 +43,9 @@ void Syr2k
     {
         blas::Her2k
         ( uploChar, transChar, C.Height(), k,
-          alpha, A.LockedBuffer(), A.LDim(),
-                 B.LockedBuffer(), B.LDim(),
-          beta,  C.Buffer(),       C.LDim() );
+          RealPart(alpha), A.LockedBuffer(), A.LDim(),
+                           B.LockedBuffer(), B.LDim(),
+          RealPart(beta),  C.Buffer(),       C.LDim() );
     }
     else
     {

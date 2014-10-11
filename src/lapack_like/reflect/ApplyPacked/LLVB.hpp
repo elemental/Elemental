@@ -69,7 +69,7 @@ LLVB
         MakeTriangular( LOWER, HPanCopy );
         SetDiagonal( HPanCopy, F(1) );
 
-        Herk( UPPER, ADJOINT, F(1), HPanCopy, SInv );
+        Herk( UPPER, ADJOINT, Base<F>(1), HPanCopy, SInv );
         FixDiagonal( conjugation, t1, SInv );
 
         Gemm( ADJOINT, NORMAL, F(1), HPanCopy, ABot, Z );
@@ -134,8 +134,8 @@ LLVB
         Zeros( SInv_STAR_STAR, nb, nb );
         Herk
         ( UPPER, ADJOINT, 
-          F(1), HPan_VC_STAR.LockedMatrix(),
-          F(0), SInv_STAR_STAR.Matrix() );     
+          Base<F>(1), HPan_VC_STAR.LockedMatrix(),
+          Base<F>(0), SInv_STAR_STAR.Matrix() );     
         SInv_STAR_STAR.SumOver( HPan_VC_STAR.ColComm() );
         t1_STAR_STAR = t1;
         FixDiagonal( conjugation, t1_STAR_STAR, SInv_STAR_STAR );

@@ -568,6 +568,13 @@ void Walsh( Matrix<T>& A, Int k, bool binary=false );
 template<typename T>
 void Walsh( AbstractDistMatrix<T>& A, Int k, bool binary=false );
 
+// Walsh-Identity
+// ==============
+template<typename T>
+void WalshIdentity( Matrix<T>& A, Int k, bool binary=false );
+template<typename T>
+void WalshIdentity( AbstractDistMatrix<T>& A, Int k, bool binary=false );
+
 // Whale
 // =====
 template<typename Real>

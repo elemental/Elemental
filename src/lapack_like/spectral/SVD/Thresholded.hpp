@@ -45,7 +45,7 @@ inline void TallAbsoluteThresholded
 
     // C := A^H A
     Matrix<F> C;
-    Herk( LOWER, ADJOINT, F(1), A, C );
+    Herk( LOWER, ADJOINT, Real(1), A, C );
 
     // [V,Sigma^2] := eig(C), where each sigma > tol
     HermitianEigSubset<Real> subset;
@@ -93,7 +93,7 @@ inline void TallRelativeThresholded
 
     // C := A^H A
     Matrix<F> C;
-    Herk( LOWER, ADJOINT, F(1), A, C );
+    Herk( LOWER, ADJOINT, Real(1), A, C );
 
     // [V,Sigma^2] := eig(C)
     HermitianEig( LOWER, C, s, V, DESCENDING );
@@ -181,7 +181,7 @@ TallAbsoluteThresholded
     // C := A^H A
     const Grid& g = A.Grid();
     DistMatrix<F> C(g);
-    Herk( LOWER, ADJOINT, F(1), A, C );
+    Herk( LOWER, ADJOINT, Real(1), A, C );
 
     // [V,Sigma^2] := eig(C), where each sigma > tol
     HermitianEigSubset<Real> subset;
@@ -242,13 +242,13 @@ TallRelativeThresholded
     const Int n = A.Width();
 
     // C := A^H A
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     DistMatrix<F> C(g);
-    Herk( LOWER, ADJOINT, F(1), A, C );
+    Herk( LOWER, ADJOINT, Real(1), A, C );
 
     // [V,Sigma^2] := eig(C)
     HermitianEig( LOWER, C, s, V, DESCENDING );
-    typedef Base<F> Real;
     const Real twoNorm = Sqrt(MaxNorm(s));
 
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
@@ -343,7 +343,7 @@ TallAbsoluteThresholded
     const Grid& g = A.Grid();
     DistMatrix<F,STAR,STAR> C(g);
     Zeros( C, n, n );
-    Herk( LOWER, ADJOINT, F(1), A.LockedMatrix(), F(0), C.Matrix() );
+    Herk( LOWER, ADJOINT, Real(1), A.LockedMatrix(), Real(0), C.Matrix() );
     C.SumOver( A.ColComm() );
 
     // [V,Sigma^2] := eig(C), where each sigma > tol
@@ -402,15 +402,15 @@ TallRelativeThresholded
     const Int n = A.Width();
 
     // C := A^H A
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     DistMatrix<F,STAR,STAR> C(g);
     Zeros( C, n, n );
-    Herk( LOWER, ADJOINT, F(1), A.LockedMatrix(), F(0), C.Matrix() );
+    Herk( LOWER, ADJOINT, Real(1), A.LockedMatrix(), Real(0), C.Matrix() );
     C.SumOver( A.ColComm() );
 
     // [V,Sigma^2] := eig(C)
     HermitianEig( LOWER, C, s, V, DESCENDING );
-    typedef Base<F> Real;
     const Real twoNorm = Sqrt(MaxNorm(s));
     
     // Sigma := sqrt(Sigma^2), where each sigma > twoNorm*relTol
@@ -493,7 +493,7 @@ WideAbsoluteThresholded
 
     // C := A A^H
     Matrix<F> C;
-    Herk( LOWER, NORMAL, F(1), A, C );
+    Herk( LOWER, NORMAL, Real(1), A, C );
 
     // [U,Sigma^2] := eig(C), where each sigma > tol
     Matrix<F> U;
@@ -542,7 +542,7 @@ WideRelativeThresholded
 
     // C := A A^H
     Matrix<F> C;
-    Herk( LOWER, NORMAL, F(1), A, C );
+    Herk( LOWER, NORMAL, Real(1), A, C );
 
     // [U,Sigma^2] := eig(C)
     Matrix<F> U;
@@ -630,7 +630,7 @@ WideAbsoluteThresholded
     // C := A A^H
     const Grid& g = A.Grid();
     DistMatrix<F> C( g );
-    Herk( LOWER, NORMAL, F(1), A, C );
+    Herk( LOWER, NORMAL, Real(1), A, C );
 
     // [U,Sigma^2] := eig(C), where each sigma > tol
     DistMatrix<F> U(g);
@@ -691,14 +691,14 @@ WideRelativeThresholded
     const Int m = A.Height();
 
     // C := A A^H
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     DistMatrix<F> C( g );
-    Herk( LOWER, NORMAL, F(1), A, C );
+    Herk( LOWER, NORMAL, Real(1), A, C );
 
     // [U,Sigma^2] := eig(C)
     DistMatrix<F> U(g);
     HermitianEig( LOWER, C, s, U, DESCENDING );
-    typedef Base<F> Real;
     const Real twoNorm = Sqrt(MaxNorm(s));
     
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm

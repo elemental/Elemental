@@ -48,9 +48,9 @@ CholeskyLVar2( Matrix<F>& A )
         Cholesky( LOWER, A11 );
         Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A11, A10 );
         Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11, A21 );
-        Herk( LOWER, ADJOINT, F(1), A10, F(1), A00 );
+        Herk( LOWER, ADJOINT, Base<F>(1), A10, Base<F>(1), A00 );
         Gemm( NORMAL, NORMAL, F(-1), A21, A10, F(1), A20 );
-        Herk( LOWER, NORMAL, F(-1), A21, F(1), A22 );
+        Herk( LOWER, NORMAL, Base<F>(-1), A21, Base<F>(1), A22 );
         Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A11, A10 );
         Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(-1), A11, A21 );
         TriangularInverse( LOWER, NON_UNIT, A11 );

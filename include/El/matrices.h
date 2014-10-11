@@ -1052,6 +1052,25 @@ EL_EXPORT ElError ElWalshDist_d( ElDistMatrix_d A, ElInt k, bool binary );
 EL_EXPORT ElError ElWalshDist_c( ElDistMatrix_c A, ElInt k, bool binary );
 EL_EXPORT ElError ElWalshDist_z( ElDistMatrix_z A, ElInt k, bool binary );
 
+/* Walsh-Identity
+   ============== */
+EL_EXPORT ElError ElWalshIdentity_i( ElMatrix_i A, ElInt k, bool binary );
+EL_EXPORT ElError ElWalshIdentity_s( ElMatrix_s A, ElInt k, bool binary );
+EL_EXPORT ElError ElWalshIdentity_d( ElMatrix_d A, ElInt k, bool binary );
+EL_EXPORT ElError ElWalshIdentity_c( ElMatrix_c A, ElInt k, bool binary );
+EL_EXPORT ElError ElWalshIdentity_z( ElMatrix_z A, ElInt k, bool binary );
+
+EL_EXPORT ElError ElWalshIdentityDist_i
+( ElDistMatrix_i A, ElInt k, bool binary );
+EL_EXPORT ElError ElWalshIdentityDist_s
+( ElDistMatrix_s A, ElInt k, bool binary );
+EL_EXPORT ElError ElWalshIdentityDist_d
+( ElDistMatrix_d A, ElInt k, bool binary );
+EL_EXPORT ElError ElWalshIdentityDist_c
+( ElDistMatrix_c A, ElInt k, bool binary );
+EL_EXPORT ElError ElWalshIdentityDist_z
+( ElDistMatrix_z A, ElInt k, bool binary );
+
 /* Whale
    ===== */
 EL_EXPORT ElError ElWhale_c( ElMatrix_c A, ElInt n );

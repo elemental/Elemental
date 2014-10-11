@@ -50,7 +50,7 @@ void TestCorrectness
     }
     DistMatrix<F> Z(g);
     Zeros( Z, m, m );
-    Herk( uplo, NORMAL, F(1), Y, F(0), Z );
+    Herk( uplo, NORMAL, Real(1), Y, Real(0), Z );
     MakeHermitian( uplo, Z );
     
     // Form X := -I + Q^H Q or Q Q^H

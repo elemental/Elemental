@@ -42,12 +42,12 @@ Int Lasso
     if( m >= n )
     {
         Identity( P, n, n );        
-        Herk( LOWER, ADJOINT, F(1), A, F(rho), P );
+        Herk( LOWER, ADJOINT, Real(1), A, rho, P );
     }
     else
     {
         Identity( P, m, m );
-        Herk( LOWER, NORMAL, F(1), A, F(rho), P );
+        Herk( LOWER, NORMAL, Real(1), A, rho, P );
     }
     if( inv )
         HPDInverse( LOWER, P );
@@ -175,12 +175,12 @@ Int Lasso
     if( m >= n )
     {
         Identity( P, n, n );        
-        Herk( LOWER, ADJOINT, F(1), A, F(rho), P );
+        Herk( LOWER, ADJOINT, Real(1), A, rho, P );
     }
     else
     {
         Identity( P, m, m );
-        Herk( LOWER, NORMAL, F(1), A, F(rho), P );
+        Herk( LOWER, NORMAL, Real(1), A, rho, P );
     }
     if( inv )
         HPDInverse( LOWER, P );

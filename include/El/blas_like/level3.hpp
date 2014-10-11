@@ -66,46 +66,48 @@ void Hemm
 template<typename T>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, T beta, Matrix<T>& C );
+  Base<T> alpha, const Matrix<T>& A, Base<T> beta, Matrix<T>& C );
 
 template<typename T>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, Matrix<T>& C );
+  Base<T> alpha, const Matrix<T>& A, Matrix<T>& C );
 
 template<typename T>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, T beta, AbstractDistMatrix<T>& C );
+  Base<T> alpha, const AbstractDistMatrix<T>& A, 
+  Base<T> beta,        AbstractDistMatrix<T>& C );
 
 template<typename T>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& C );
+  Base<T> alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& C );
 
 // Her2k
 // =====
 template<typename T>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C );
+  Base<T> alpha, const Matrix<T>& A, const Matrix<T>& B, 
+  Base<T> beta,        Matrix<T>& C );
 
 template<typename T>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C );
+  Base<T> alpha, const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C );
 
 template<typename T>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C );
+  Base<T> alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  Base<T> beta,        AbstractDistMatrix<T>& C );
 
 template<typename T>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C );
+  Base<T> alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+                       AbstractDistMatrix<T>& C );
 
 // Multiply
 // ========

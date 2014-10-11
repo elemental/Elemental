@@ -63,7 +63,7 @@ LVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
         twotrmm::LUnb( diag, A11, L11 );
 
         // A11 := A11 + (A21' L21 + L21' A21)
-        Her2k( LOWER, ADJOINT, F(1), A21, L21, F(1), A11 );
+        Her2k( LOWER, ADJOINT, Base<F>(1), A21, L21, Base<F>(1), A11 );
 
         // A21 := A21 + 1/2 Y21
         Axpy( F(1)/F(2), Y21, A21 );

@@ -29,7 +29,7 @@ void Covariance( const Matrix<F>& D, Matrix<F>& S )
         ( n, F(-1), xMean.LockedBuffer(), 1, DDev.Buffer(i,0), DDev.LDim() );
 
     // Form S := 1/(numObs-1) DDev DDev'
-    Herk( LOWER, ADJOINT, F(1)/F(numObs-1), DDev, S );
+    Herk( LOWER, ADJOINT, Base<F>(1)/Base<F>(numObs-1), DDev, S );
     Conjugate( S );
     MakeHermitian( LOWER, S );
 }
@@ -63,7 +63,7 @@ void Covariance
           DDev.Buffer(iLoc,0),          DDev.LDim() );
 
     // Form S := 1/(numObs-1) DDev DDev'
-    Herk( LOWER, ADJOINT, F(1)/F(numObs-1), DDev, S );
+    Herk( LOWER, ADJOINT, Base<F>(1)/Base<F>(numObs-1), DDev, S );
     Conjugate( S );
     MakeHermitian( LOWER, S );
 }
