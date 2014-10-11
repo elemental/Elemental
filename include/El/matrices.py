@@ -1177,16 +1177,16 @@ lib.ElHilbertDist_z.argtypes = [c_void_p,iType]
 lib.ElHilbertDist_z.restype = c_uint
 def Hilbert(A,n):
   if type(A) is Matrix:
-    if   A.tag == sType: lib.ElHilbert_s(A.obj,n)
-    elif A.tag == dType: lib.ElHilbert_d(A.obj,n)
-    elif A.tag == cType: lib.ElHilbert_c(A.obj,n)
-    elif A.tag == zType: lib.ElHilbert_z(A.obj,n)
+    if   A.tag == sTag: lib.ElHilbert_s(A.obj,n)
+    elif A.tag == dTag: lib.ElHilbert_d(A.obj,n)
+    elif A.tag == cTag: lib.ElHilbert_c(A.obj,n)
+    elif A.tag == zTag: lib.ElHilbert_z(A.obj,n)
     else: raise Exception('Unsupported datatype')
   elif type(A) is DistMatrix:
-    if   A.tag == sType: lib.ElHilbertDist_s(A.obj,n)
-    elif A.tag == dType: lib.ElHilbertDist_d(A.obj,n)
-    elif A.tag == cType: lib.ElHilbertDist_c(A.obj,n)
-    elif A.tag == zType: lib.ElHilbertDist_z(A.obj,n)
+    if   A.tag == sTag: lib.ElHilbertDist_s(A.obj,n)
+    elif A.tag == dTag: lib.ElHilbertDist_d(A.obj,n)
+    elif A.tag == cTag: lib.ElHilbertDist_c(A.obj,n)
+    elif A.tag == zTag: lib.ElHilbertDist_z(A.obj,n)
     else: raise Exception('Unsupported datatype')
   else: raise Exception('Unsupported matrix type')
 
