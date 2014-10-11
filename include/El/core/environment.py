@@ -24,7 +24,8 @@ lib = ctypes.cdll.LoadLibrary(libPath)
 # Basic types
 # -----------
 
-from ctypes import c_void_p, c_char_p, c_ubyte, c_uint, c_int, c_float, c_double
+from ctypes import c_size_t, c_ubyte, c_uint, c_int, c_float, c_double
+from ctypes import c_void_p, c_char_p
 from ctypes import pointer, POINTER
 
 # TODO: Switch to a different boolean type if appropriate
