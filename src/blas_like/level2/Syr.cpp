@@ -31,7 +31,8 @@ void Syr
     if( conjugate )
     {
         blas::Her
-        ( uploChar, m, alpha, x.LockedBuffer(), incx, A.Buffer(), A.LDim() );
+        ( uploChar, m, 
+          RealPart(alpha), x.LockedBuffer(), incx, A.Buffer(), A.LDim() );
     }
     else
     {

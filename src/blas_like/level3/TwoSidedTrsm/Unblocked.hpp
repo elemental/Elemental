@@ -58,7 +58,7 @@ LUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 
         // A22 := A22 - (l21 a21' + a21 l21')
         F* A22 = &ABuffer[(j+1)+(j+1)*lda];
-        blas::Her2( 'L', a21Height, F(-1), l21, 1, a21, 1, A22, lda );
+        blas::Her2( 'L', a21Height, Base<F>(-1), l21, 1, a21, 1, A22, lda );
 
         // a21 := a21 - (alpha11/2)l21
         for( Int k=0; k<a21Height; ++k )
@@ -119,7 +119,7 @@ UUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
             u12Conj[k] = Conj(u12[k*ldu]);
         blas::Her2
         ( 'U', a21Height,
-          F(-1), u12Conj.data(), 1, a12Conj.data(), 1, A22, lda );
+          Base<F>(-1), u12Conj.data(), 1, a12Conj.data(), 1, A22, lda );
 
         // a12 := a12 - (alpha11/2)u12
         for( Int k=0; k<a21Height; ++k )

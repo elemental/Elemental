@@ -51,7 +51,7 @@ void U( Matrix<F>& A, Matrix<F>& t )
         Hemv( UPPER, Conj(tau), A00, a01, F(0), w01 );
         const F alpha = -Conj(tau)*Dot( w01, a01 )/F(2);
         Axpy( alpha, a01, w01 );
-        Her2( UPPER, F(-1), a01, w01, A00 );
+        Her2( UPPER, Base<F>(-1), a01, w01, A00 );
         alpha01B.Set(0,0,epsilon1);
     }
 }

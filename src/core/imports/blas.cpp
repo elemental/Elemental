@@ -185,24 +185,24 @@ void EL_BLAS(zhemv)
 
 void EL_BLAS(cher)
 ( const char* uplo, const int* m,
-  const scomplex* alpha,
+  const float* alpha,
   const scomplex* x, const int* incx,
         scomplex* A, const int* lda  );
 void EL_BLAS(zher)
 ( const char* uplo, const int* m,
-  const dcomplex* alpha,
+  const double* alpha,
   const dcomplex* x, const int* incx,
         dcomplex* A, const int* lda  );
 
 void EL_BLAS(cher2)
 ( const char* uplo, const int* m,
-  const scomplex* alpha,
+  const float* alpha,
   const scomplex* x, const int* incx,
   const scomplex* y, const int* incy,
         scomplex* A, const int* lda  );
 void EL_BLAS(zher2)
 ( const char* uplo, const int* m,
-  const dcomplex* alpha,
+  const double* alpha,
   const dcomplex* x, const int* incx,
   const dcomplex* y, const int* incy,
         dcomplex* A, const int* lda  );
@@ -798,12 +798,12 @@ void Her
 
 void Her
 ( char uplo, int m,
-  scomplex alpha, const scomplex* x, int incx, scomplex* A, int lda )
+  float alpha, const scomplex* x, int incx, scomplex* A, int lda )
 { EL_BLAS(cher)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
 
 void Her
 ( char uplo, int m,
-  dcomplex alpha, const dcomplex* x, int incx, dcomplex* A, int lda )
+  double alpha, const dcomplex* x, int incx, dcomplex* A, int lda )
 { EL_BLAS(zher)( &uplo, &m, &alpha, x, &incx, A, &lda ); }
 
 void Her2
@@ -820,14 +820,14 @@ void Her2
 
 void Her2
 ( char uplo, int m,
-  scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
-                        scomplex* A, int lda )
+  float alpha, const scomplex* x, int incx, const scomplex* y, int incy,
+                     scomplex* A, int lda )
 { EL_BLAS(cher2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void Her2
 ( char uplo, int m,
-  dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
-                        dcomplex* A, int lda )
+  double alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
+                      dcomplex* A, int lda )
 { EL_BLAS(zher2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void Symv

@@ -104,25 +104,25 @@ void Hemv
 // Her
 // ===
 template<typename T>
-void Her( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A );
+void Her( UpperOrLower uplo, Base<T> alpha, const Matrix<T>& x, Matrix<T>& A );
 
 template<typename T>
 void Her
 ( UpperOrLower uplo, 
-  T alpha, const AbstractDistMatrix<T>& x, AbstractDistMatrix<T>& A );
+  Base<T> alpha, const AbstractDistMatrix<T>& x, AbstractDistMatrix<T>& A );
 
 // Her2
 // ====
 template<typename T>
 void Her2
 ( UpperOrLower uplo,
-  T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
+  Base<T> alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
 
 template<typename T>
 void Her2
 ( UpperOrLower uplo,
-  T alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y,
-                 AbstractDistMatrix<T>& A );
+  Base<T> alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y,
+                       AbstractDistMatrix<T>& A );
 
 // QuasiTrsv
 // =========

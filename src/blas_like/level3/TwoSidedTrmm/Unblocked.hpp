@@ -47,7 +47,7 @@ LUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& L )
         for( Int k=0; k<j; ++k )
             l10Conj[k] = Conj(l10[k*ldl]);
         blas::Her2
-        ( 'L', j, T(1), a10Conj.data(), 1, l10Conj.data(), 1, A00, lda );
+        ( 'L', j, Base<T>(1), a10Conj.data(), 1, l10Conj.data(), 1, A00, lda );
 
         // a10 := a10 + (alpha11/2)l10
         for( Int k=0; k<j; ++k )
@@ -100,7 +100,7 @@ UUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& U )
 
         // A00 := A00 + (u01 a01' + a01 u01')
         T* A00 = ABuffer;
-        blas::Her2( 'U', j, T(1), u01, 1, a01, 1, A00, lda );
+        blas::Her2( 'U', j, Base<T>(1), u01, 1, a01, 1, A00, lda );
 
         // a01 := a01 + (alpha11/2)u01
         for( Int k=0; k<j; ++k )

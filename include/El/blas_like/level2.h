@@ -127,33 +127,33 @@ EL_EXPORT ElError ElHemvDist_z
 /* Her 
    === */
 EL_EXPORT ElError ElHer_c
-( ElUpperOrLower uplo, complex_float alpha, ElConstMatrix_c x, ElMatrix_c A );
+( ElUpperOrLower uplo, float alpha, ElConstMatrix_c x, ElMatrix_c A );
 EL_EXPORT ElError ElHer_z
-( ElUpperOrLower uplo, complex_double alpha, ElConstMatrix_z x, ElMatrix_z A );
+( ElUpperOrLower uplo, double alpha, ElConstMatrix_z x, ElMatrix_z A );
 
 /* NOTE: 'A' and 'x' must be in [MC,MR] distributions */
 EL_EXPORT ElError ElHerDist_c
-( ElUpperOrLower uplo, complex_float alpha, 
+( ElUpperOrLower uplo, float alpha, 
   ElConstDistMatrix_c x, ElDistMatrix_c A );
 EL_EXPORT ElError ElHerDist_z
-( ElUpperOrLower uplo, complex_double alpha, 
+( ElUpperOrLower uplo, double alpha, 
   ElConstDistMatrix_z x, ElDistMatrix_z A );
 
 /* Her2 
    ==== */
 EL_EXPORT ElError ElHer2_c
-( ElUpperOrLower uplo, complex_float alpha, 
+( ElUpperOrLower uplo, float alpha, 
   ElConstMatrix_c x, ElConstMatrix_c y, ElMatrix_c A );
 EL_EXPORT ElError ElHer2_z
-( ElUpperOrLower uplo, complex_double alpha, 
+( ElUpperOrLower uplo, double alpha, 
   ElConstMatrix_z x, ElConstMatrix_z y, ElMatrix_z A );
 
 /* NOTE: 'A', 'x', and 'y' must be in [MC,MR] distributions */
 EL_EXPORT ElError ElHer2Dist_c
-( ElUpperOrLower uplo, complex_float alpha, 
+( ElUpperOrLower uplo, float alpha, 
   ElConstDistMatrix_c x, ElConstDistMatrix_c y, ElDistMatrix_c A );
 EL_EXPORT ElError ElHer2Dist_z
-( ElUpperOrLower uplo, complex_double alpha, 
+( ElUpperOrLower uplo, double alpha, 
   ElConstDistMatrix_z x, ElConstDistMatrix_z y, ElDistMatrix_z A );
 
 /* QuasiTrsv

@@ -207,10 +207,10 @@ void Her
   double alpha, const double* x, int incx, double* A, int lda );
 void Her
 ( char uplo, int m,
-  scomplex alpha, const scomplex* x, int incx, scomplex* A, int lda );
+  float alpha, const scomplex* x, int incx, scomplex* A, int lda );
 void Her
 ( char uplo, int m,
-  dcomplex alpha, const dcomplex* x, int incx, dcomplex* A, int lda );
+  double alpha, const dcomplex* x, int incx, dcomplex* A, int lda );
 
 void Her2
 ( char uplo, int m,
@@ -222,12 +222,12 @@ void Her2
                       double* A, int lda );
 void Her2
 ( char uplo, int m,
-  scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
-                        scomplex* A, int lda );
+  float alpha, const scomplex* x, int incx, const scomplex* y, int incy,
+                     scomplex* A, int lda );
 void Her2
 ( char uplo, int m,
-  dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
-                        dcomplex* A, int lda );
+  double alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
+                      dcomplex* A, int lda );
 
 void Symv
 ( char uplo, int m,

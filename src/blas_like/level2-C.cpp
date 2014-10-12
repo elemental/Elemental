@@ -207,30 +207,30 @@ extern "C" {
             CReflect(beta), *CReflect(y) ) ) } \
   /* Her */ \
   ElError ElHer_ ## SIG \
-  ( ElUpperOrLower uplo, CREFLECT(F) alpha, \
+  ( ElUpperOrLower uplo, Base<F> alpha, \
     ElConstMatrix_ ## SIG x, ElMatrix_ ## SIG A ) \
   { EL_TRY( \
-      Her( CReflect(uplo), CReflect(alpha), \
+      Her( CReflect(uplo), alpha, \
            *CReflect(x), *CReflect(A) ) ) } \
   ElError ElHerDist_ ## SIG \
-  ( ElUpperOrLower uplo, CREFLECT(F) alpha, \
+  ( ElUpperOrLower uplo, Base<F> alpha, \
     ElConstDistMatrix_ ## SIG x, ElDistMatrix_ ## SIG A ) \
   { EL_TRY( \
-      Her( CReflect(uplo), CReflect(alpha), *CReflect(x), *CReflect(A) ) ) } \
+      Her( CReflect(uplo), alpha, *CReflect(x), *CReflect(A) ) ) } \
   /* Her2 */ \
   ElError ElHer2_ ## SIG \
-  ( ElUpperOrLower uplo, CREFLECT(F) alpha, \
+  ( ElUpperOrLower uplo, Base<F> alpha, \
     ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG y, \
     ElMatrix_ ## SIG A ) \
   { EL_TRY( \
-      Her2( CReflect(uplo), CReflect(alpha), \
+      Her2( CReflect(uplo), alpha, \
             *CReflect(x), *CReflect(y), *CReflect(A) ) ) } \
   ElError ElHer2Dist_ ## SIG \
-  ( ElUpperOrLower uplo, CREFLECT(F) alpha, \
+  ( ElUpperOrLower uplo, Base<F> alpha, \
     ElConstDistMatrix_ ## SIG x, ElConstDistMatrix_ ## SIG y, \
     ElDistMatrix_ ## SIG A ) \
   { EL_TRY( \
-      Her2( CReflect(uplo), CReflect(alpha), \
+      Her2( CReflect(uplo), alpha, \
             *CReflect(x), *CReflect(y), *CReflect(A) ) ) } \
   /* Trr */ \
   ElError ElTrr_ ## SIG \

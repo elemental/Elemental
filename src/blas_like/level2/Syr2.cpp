@@ -36,8 +36,8 @@ void Syr2
     {
         blas::Her2
         ( uploChar, m,
-          alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy,
-                 A.Buffer(), A.LDim() );
+          RealPart(alpha), x.LockedBuffer(), incx, y.LockedBuffer(), incy,
+                           A.Buffer(), A.LDim() );
     }
     else
     {
