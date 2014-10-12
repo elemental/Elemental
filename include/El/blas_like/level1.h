@@ -221,23 +221,11 @@ EL_EXPORT ElError ElDotDist_z
 
 /* Dotu
    ==== */
-EL_EXPORT ElError ElDotu_i
-( ElConstMatrix_i A, ElConstMatrix_i B, ElInt* prod );
-EL_EXPORT ElError ElDotu_s
-( ElConstMatrix_s A, ElConstMatrix_s B, float* prod );
-EL_EXPORT ElError ElDotu_d
-( ElConstMatrix_d A, ElConstMatrix_d B, double* prod );
 EL_EXPORT ElError ElDotu_c
 ( ElConstMatrix_c A, ElConstMatrix_c B, complex_float* prod );
 EL_EXPORT ElError ElDotu_z
 ( ElConstMatrix_z A, ElConstMatrix_z B, complex_double* prod );
 
-EL_EXPORT ElError ElDotuDist_i
-( ElConstDistMatrix_i A, ElConstDistMatrix_i B, ElInt* prod );
-EL_EXPORT ElError ElDotuDist_s
-( ElConstDistMatrix_s A, ElConstDistMatrix_s B, float* prod );
-EL_EXPORT ElError ElDotuDist_d
-( ElConstDistMatrix_d A, ElConstDistMatrix_d B, double* prod );
 EL_EXPORT ElError ElDotuDist_c
 ( ElConstDistMatrix_c A, ElConstDistMatrix_c B, complex_float* prod );
 EL_EXPORT ElError ElDotuDist_z

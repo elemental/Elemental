@@ -230,8 +230,6 @@ EL_EXPORT ElError ElSymvDist_z
 
 /* Syr 
    === */
-EL_EXPORT ElError ElSyr_i
-( ElUpperOrLower uplo, ElInt alpha, ElConstMatrix_i x, ElMatrix_i A );
 EL_EXPORT ElError ElSyr_s
 ( ElUpperOrLower uplo, float alpha, ElConstMatrix_s x, ElMatrix_s A );
 EL_EXPORT ElError ElSyr_d
@@ -241,9 +239,6 @@ EL_EXPORT ElError ElSyr_c
 EL_EXPORT ElError ElSyr_z
 ( ElUpperOrLower uplo, complex_double alpha, ElConstMatrix_z x, ElMatrix_z A );
 
-EL_EXPORT ElError ElSyrDist_i
-( ElUpperOrLower uplo, ElInt alpha, 
-  ElConstDistMatrix_i x, ElDistMatrix_i A );
 EL_EXPORT ElError ElSyrDist_s
 ( ElUpperOrLower uplo, float alpha, 
   ElConstDistMatrix_s x, ElDistMatrix_s A );
@@ -259,9 +254,6 @@ EL_EXPORT ElError ElSyrDist_z
 
 /* Syr2 
    ==== */
-EL_EXPORT ElError ElSyr2_i
-( ElUpperOrLower uplo, ElInt alpha, 
-  ElConstMatrix_i x, ElConstMatrix_i y, ElMatrix_i A );
 EL_EXPORT ElError ElSyr2_s
 ( ElUpperOrLower uplo, float alpha, 
   ElConstMatrix_s x, ElConstMatrix_s y, ElMatrix_s A );
@@ -275,9 +267,6 @@ EL_EXPORT ElError ElSyr2_z
 ( ElUpperOrLower uplo, complex_double alpha, 
   ElConstMatrix_z x, ElConstMatrix_z y, ElMatrix_z A );
 
-EL_EXPORT ElError ElSyr2Dist_i
-( ElUpperOrLower uplo, ElInt alpha, 
-  ElConstDistMatrix_i x, ElConstDistMatrix_i y, ElDistMatrix_i A );
 EL_EXPORT ElError ElSyr2Dist_s
 ( ElUpperOrLower uplo, float alpha, 
   ElConstDistMatrix_s x, ElConstDistMatrix_s y, ElDistMatrix_s A );

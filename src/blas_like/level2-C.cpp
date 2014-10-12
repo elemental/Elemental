@@ -133,7 +133,41 @@ extern "C" {
         CReflect(uplo), CReflect(orientation), CReflect(diag), \
         *CReflect(A), *CReflect(x) ) ) }
 
-#define C_PROTO_INT(SIG,T) C_PROTO_BASE(SIG,SIG,T)
+#define C_PROTO_INT(SIG,T) \
+  C_PROTO_BASE(SIG,SIG,T) \
+  /* Trr */ \
+  ElError ElTrr_ ## SIG \
+  ( ElUpperOrLower uplo, \
+    CREFLECT(T) alpha, ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG y, \
+    ElMatrix_ ## SIG A ) \
+  { EL_TRY( \
+      Trr( CReflect(uplo), \
+           CReflect(alpha), *CReflect(x), *CReflect(y), \
+           *CReflect(A) ) ) } \
+  ElError ElTrrDist_ ## SIG \
+  ( ElUpperOrLower uplo, \
+    CREFLECT(T) alpha, ElConstDistMatrix_ ## SIG x, \
+                       ElConstDistMatrix_ ## SIG y, \
+                       ElDistMatrix_ ## SIG A ) \
+  { EL_TRY( \
+      Trr( CReflect(uplo), \
+           CReflect(alpha), *CReflect(x), *CReflect(y), *CReflect(A) ) ) } \
+  /* Trr2 */ \
+  ElError ElTrr2_ ## SIG \
+  ( ElUpperOrLower uplo, \
+    CREFLECT(T) alpha, ElConstMatrix_ ## SIG X, ElConstMatrix_ ## SIG Y, \
+    ElMatrix_ ## SIG A ) \
+  { EL_TRY( \
+      Trr2( CReflect(uplo), \
+            CReflect(alpha), *CReflect(X), *CReflect(Y), *CReflect(A) ) ) } \
+  ElError ElTrr2Dist_ ## SIG \
+  ( ElUpperOrLower uplo, \
+    CREFLECT(T) alpha, ElConstDistMatrix_ ## SIG X, \
+                       ElConstDistMatrix_ ## SIG Y, \
+                       ElDistMatrix_ ## SIG A ) \
+  { EL_TRY( \
+      Trr2( CReflect(uplo), \
+            CReflect(alpha), *CReflect(X), *CReflect(Y), *CReflect(A) ) ) } 
 
 #define C_PROTO_REAL(SIG,Real) \
   C_PROTO_BASE(SIG,SIG,Real) \
