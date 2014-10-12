@@ -11,8 +11,7 @@
 namespace El {
 
 template<typename FDiag,typename F>
-inline void
-DiagonalSolve
+void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
   const Matrix<FDiag>& d, Matrix<F>& X, bool checkIfSingular )
 {
@@ -57,8 +56,7 @@ DiagonalSolve
 }
 
 template<typename FDiag,typename F,Dist U,Dist V>
-inline void
-DiagonalSolve
+void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
   const AbstractDistMatrix<FDiag>& dPre, 
         DistMatrix<F,U,V>& X, bool checkIfSingular )

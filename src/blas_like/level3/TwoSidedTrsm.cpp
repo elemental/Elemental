@@ -15,8 +15,7 @@
 namespace El {
 
 template<typename F> 
-inline void
-TwoSidedTrsm
+void TwoSidedTrsm
 ( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("TwoSidedTrsm"))
@@ -27,8 +26,7 @@ TwoSidedTrsm
 }
 
 template<typename F> 
-inline void
-TwoSidedTrsm
+void TwoSidedTrsm
 ( UpperOrLower uplo, UnitOrNonUnit diag, 
   AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B )
 {
