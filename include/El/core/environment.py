@@ -127,6 +127,9 @@ def DiagRowDist(colDist,rowDist):
 # Emulate an enum for matrix orientation
 (NORMAL,TRANSPOSE,ADJOINT)=(0,1,2)
 
+# Emulate an enum for unit/non-unit diagonal
+(NON_UNIT,UNIT)=(0,1)
+
 # Emulate the file format enum
 (AUTO,ASCII,ASCII_MATLAB,BINARY,BINARY_FLAT,BMP,JPG,JPEG,MATRIX_MARKET,
  PNG,PPM,XBM,XPM)=(0,1,2,3,4,5,6,7,8,9,10,11,12)
