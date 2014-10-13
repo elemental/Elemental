@@ -7,7 +7,7 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from environment import *
-import numpy
+import numpy as np
 
 buffer_from_memory = ctypes.pythonapi.PyBuffer_FromMemory
 buffer_from_memory.restype = ctypes.py_object
@@ -486,6 +486,28 @@ lib.ElMatrixConjugateSubmatrix_c.restype = c_uint
 lib.ElMatrixConjugateSubmatrix_z.argtypes = \
   [c_void_p,iType,POINTER(iType),iType,POINTER(iType)]
 lib.ElMatrixConjugateSubmatrix_z.restype = c_uint
+
+lib.ElView_i.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
+lib.ElView_i.restype = c_uint
+lib.ElView_s.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
+lib.ElView_s.restype = c_uint
+lib.ElView_d.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
+lib.ElView_d.restype = c_uint
+lib.ElView_c.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
+lib.ElView_c.restype = c_uint
+lib.ElView_z.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
+lib.ElView_z.restype = c_uint
+
+lib.ElLockedView_i.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
+lib.ElLockedView_i.restype = c_uint
+lib.ElLockedView_s.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
+lib.ElLockedView_s.restype = c_uint
+lib.ElLockedView_d.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
+lib.ElLockedView_d.restype = c_uint
+lib.ElLockedView_c.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
+lib.ElLockedView_c.restype = c_uint
+lib.ElLockedView_z.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
+lib.ElLockedView_z.restype = c_uint
 
 class Matrix(object):
   def __init__(self,tag=dTag,create=True):
@@ -1011,29 +1033,49 @@ class Matrix(object):
       entrySize = 4
       bufSize = entrySize*ldim*n
       buf = buffer_from_memory(self.Buffer(),bufSize)
-      return numpy.ndarray \
-             (shape=(m,n),strides=(ldim*entrySize,entrySize),buffer=buf)
+      return np.ndarray(shape=(m,n),strides=(ldim*entrySize,entrySize),
+                        buffer=buf,dtype=np.int32)
     elif self.tag == sTag:
       entrySize = 4
       bufSize = entrySize*ldim*n
       buf = buffer_from_memory(self.Buffer(),bufSize)
-      return numpy.ndarray \
-             (shape=(m,n),strides=(ldim*entrySize,entrySize),buffer=buf)
+      return np.ndarray(shape=(m,n),strides=(ldim*entrySize,entrySize),
+                        buffer=buf,dtype=np.float32)
     elif self.tag == dTag:
       entrySize = 8
       bufSize = entrySize*ldim*n
       buf = buffer_from_memory(self.Buffer(),bufSize)
-      return numpy.ndarray \
-             (shape=(m,n),strides=(ldim*entrySize,entrySize),buffer=buf)
+      return np.ndarray(shape=(m,n),strides=(ldim*entrySize,entrySize),
+                        buffer=buf,dtype=np.float64)
     elif self.tag == cTag: 
       entrySize = 8
       bufSize = entrySize*ldim*n
       buf = buffer_from_memory(self.Buffer(),bufSize)
-      return numpy.ndarray \
-             (shape=(m,n),strides=(ldim*entrySize,entrySize),buffer=buf)
+      return np.ndarray(shape=(m,n),strides=(ldim*entrySize,entrySize),
+                        buffer=buf,dtype=np.complex64)
     elif self.tag == zTag:
       entrySize = 16
       bufSize = entrySize*ldim*n
       buf = buffer_from_memory(self.Buffer(),bufSize)
-      return numpy.ndarray \
-             (shape=(m,n),strides=(entrySize,ldim*entrySize),buffer=buf)
+      return np.ndarray(shape=(m,n),strides=(entrySize,ldim*entrySize),
+                        buffer=buf,dtype=np.complex128)
+  def __getitem__(self,indTup):
+    iInd, jInd = indTup
+    iRan = IndexRange(iInd)
+    jRan = IndexRange(jInd)
+    ASub = Matrix(self.tag)
+    if self.Locked():
+      if   self.tag == iTag: lib.ElLockedView_i(ASub.obj,self.obj,iRan,jRan)
+      elif self.tag == sTag: lib.ElLockedView_s(ASub.obj,self.obj,iRan,jRan)
+      elif self.tag == dTag: lib.ElLockedView_d(ASub.obj,self.obj,iRan,jRan)
+      elif self.tag == cTag: lib.ElLockedView_c(ASub.obj,self.obj,iRan,jRan)
+      elif self.tag == zTag: lib.ElLockedView_z(ASub.obj,self.obj,iRan,jRan)
+      else: raise Exception('Unsupported datatype')
+    else:
+      if   self.tag == iTag: lib.ElView_i(ASub.obj,self.obj,iRan,jRan)
+      elif self.tag == sTag: lib.ElView_s(ASub.obj,self.obj,iRan,jRan)
+      elif self.tag == dTag: lib.ElView_d(ASub.obj,self.obj,iRan,jRan)
+      elif self.tag == cTag: lib.ElView_c(ASub.obj,self.obj,iRan,jRan)
+      elif self.tag == zTag: lib.ElView_z(ASub.obj,self.obj,iRan,jRan)
+      else: raise Exception('Unsupported datatype')
+    return ASub

@@ -38,22 +38,28 @@ dType = c_double
 class ComplexFloat(ctypes.Structure):
   _fields_ = [("real",sType),("imag",sType)]
   def __init__(self,val0=0,val1=0):
+    real = sType()
+    imag = sType()
     if type(val0) is cType or type(val0) is zType:
-      self.real = val0.real
-      self.imag = val0.imag
+      real = val0.real
+      imag = val0.imag
     else:
-      self.real = val0
-      self.imag = val1
+      real = val0
+      imag = val1
+    super(ComplexFloat,self).__init__(real,imag)
 cType = ComplexFloat
 class ComplexDouble(ctypes.Structure):
   _fields_ = [("real",dType),("imag",dType)]
   def __init__(self,val0=0,val1=0):
+    real = dType()
+    imag = dType()
     if type(val0) is cType or type(val0) is zType:
-      self.real = val0.real
-      self.imag = val0.imag
+      real = val0.real
+      imag = val0.imag
     else:
-      self.real = val0
-      self.imag = val1
+      real = val0
+      imag = val1
+    super(ComplexDouble,self).__init__(real,imag)
 zType = ComplexDouble
 
 # Query Elemental to determine whether MPI_Comm is an 'int' or a void pointer
@@ -114,6 +120,22 @@ def DiagRowDist(colDist,rowDist):
   elif colDist == MR and rowDist == MC: return STAR
   elif colDist == STAR:                 return colDist
   else:                                 return rowDist
+
+class IndexRange(ctypes.Structure):
+  _fields_ = [("beg",iType),("end",iType)]
+  def __init__(self,ind0,ind1=None):
+    beg = iType()
+    end = iType()
+    if isinstance(ind0,slice):
+      if ind0.step != None and ind0.step != 1:
+        raise Exception('Slice step must be one')
+      beg = iType(ind0.start)
+      end = iType(ind0.stop)
+    else:
+      beg = iType(ind0)
+      if ind1 is None: end = iType(beg.value+1)
+      else:            end = iType(ind1)
+    super(IndexRange,self).__init__(beg,end)
 
 # Emulate an enum for grid ordering
 (ROW_MAJOR,COL_MAJOR)=(0,1)

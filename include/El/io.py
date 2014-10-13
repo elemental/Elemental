@@ -99,7 +99,9 @@ lib.ElDisplayDist_z.restype = c_uint
 def Display(A,tryMatplotlib=True,title=''):
   if tryMatplotlib:
     try:  
+      import numpy as np
       import matplotlib.pyplot as plt
+      isVec = min(A.Height(),A.Width()) == 1
       if type(A) is Matrix:
         if A.tag == cTag or A.tag == zTag:
           AReal = Matrix(Base(A.tag))
@@ -109,46 +111,31 @@ def Display(A,tryMatplotlib=True,title=''):
           fig, (ax1,ax2) = plt.subplots(1,2)
           ax1.set_title('Real part')
           ax2.set_title('Imag part')
-          imReal = ax1.imshow(AReal.ToNumPy())
-          cBarReal = fig.colorbar(imReal,ax=ax1)
-          imImag = ax2.imshow(AImag.ToNumPy())
-          cBarImag = fig.colorbar(imImag,ax=ax2)
+          if isVec:
+            ax1.plot(np.squeeze(AReal.ToNumPy()))
+            ax2.plot(np.squeeze(AImag.ToNumPy()))
+          else:
+            imReal = ax1.imshow(AReal.ToNumPy())
+            cBarReal = fig.colorbar(imReal,ax=ax1)
+            imImag = ax2.imshow(AImag.ToNumPy())
+            cBarImag = fig.colorbar(imImag,ax=ax2)
           plt.tight_layout()
-          plt.draw()
-          plt.show(block=False)
         else:
           fig = plt.figure()
           axis = fig.add_axes([0.1,0.1,0.8,0.8])
-          im = axis.imshow(A.ToNumPy())
-          fig.colorbar(im,ax=axis)
-          plt.draw()
-          plt.show(block=False)
+          if isVec:
+            axis.plot(np.squeeze(A.ToNumPy()))
+          else:
+            im = axis.imshow(A.ToNumPy())
+            fig.colorbar(im,ax=axis)
+        plt.draw()
+        plt.show(block=False)
       elif type(A) is DistMatrix:
         A_CIRC_CIRC = DistMatrix(A.tag,CIRC,CIRC,A.Grid())
         Copy(A,A_CIRC_CIRC)
         if A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root():
-          if A.tag == cTag or A.tag == zTag:
-            ALocReal = Matrix(Base(A.tag))
-            ALocImag = Matrix(Base(A.tag))
-            RealPart(A_CIRC_CIRC.Matrix(),ALocReal)
-            ImagPart(A_CIRC_CIRC.Matrix(),ALocImag)
-            fig, (ax1,ax2) = plt.subplots(1,2)
-            ax1.set_title('Real part')
-            ax2.set_title('Imag part')
-            imReal = ax1.imshow(ALocReal.ToNumPy())
-            cBarReal = fig.colorbar(imReal,ax=ax1)
-            imImag = ax2.imshow(ALocImag.ToNumPy())
-            cBarImag = fig.colorbar(imImag,ax=ax2)
-            plt.tight_layout()
-            plt.draw()
-            plt.show(block=False)
-          else:
-            fig = plt.figure()
-            axis = fig.add_axes([0.1,0.1,0.8,0.8])
-            im = axis.imshow(A_CIRC_CIRC.Matrix().ToNumPy())
-            fig.colorbar(im,ax=axis)
-            plt.draw()
-            plt.show(block=False)
+          Display(A_CIRC_CIRC.Matrix(),tryMatplotlib,title)
+          return
       else: raise Exception('Unsupported matrix type')
       return
     except: 

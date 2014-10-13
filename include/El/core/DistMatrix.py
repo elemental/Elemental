@@ -1428,6 +1428,28 @@ lib.ElDistMatrixSumOver_c.restype = c_uint
 lib.ElDistMatrixSumOver_z.argtypes = [c_void_p,MPI_Comm]
 lib.ElDistMatrixSumOver_z.restype = c_uint
 
+lib.ElViewDist_i.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
+lib.ElViewDist_i.restype = c_uint
+lib.ElViewDist_s.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
+lib.ElViewDist_s.restype = c_uint
+lib.ElViewDist_d.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
+lib.ElViewDist_d.restype = c_uint
+lib.ElViewDist_c.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
+lib.ElViewDist_c.restype = c_uint
+lib.ElViewDist_z.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
+lib.ElViewDist_z.restype = c_uint
+
+lib.ElLockedViewDist_i.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
+lib.ElLockedViewDist_i.restype = c_uint
+lib.ElLockedViewDist_s.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
+lib.ElLockedViewDist_s.restype = c_uint
+lib.ElLockedViewDist_d.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
+lib.ElLockedViewDist_d.restype = c_uint
+lib.ElLockedViewDist_c.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
+lib.ElLockedViewDist_c.restype = c_uint
+lib.ElLockedViewDist_z.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
+lib.ElLockedViewDist_z.restype = c_uint
+
 class DistMatrix(object):
   def __init__(self,tag=dTag,colDist=MC,rowDist=MR,grid=G.DefaultGrid()):
     self.obj = c_void_p()
@@ -2936,3 +2958,24 @@ class DistMatrix(object):
     elif self.tag == dTag: lib.ElDistMatrixSumOver_d(self.obj,comm)
     elif self.tag == cTag: lib.ElDistMatrixSumOver_c(self.obj,comm)
     elif self.tag == zTag: lib.ElDistMatrixSumOver_z(self.obj,comm)
+  def __getitem__(self,indTup):
+    iInd, jInd = indTup
+    iRan = IndexRange(iInd)
+    jRan = IndexRange(jInd)
+    distData = self.GetDistData()
+    ASub = DistMatrix(self.tag,distData.colDist,distData.rowDist,self.Grid())
+    if self.Locked():
+      if   self.tag == iTag: lib.ElLockedViewDist_i(ASub.obj,self.obj,iRan,jRan)
+      elif self.tag == sTag: lib.ElLockedViewDist_s(ASub.obj,self.obj,iRan,jRan)
+      elif self.tag == dTag: lib.ElLockedViewDist_d(ASub.obj,self.obj,iRan,jRan)
+      elif self.tag == cTag: lib.ElLockedViewDist_c(ASub.obj,self.obj,iRan,jRan)
+      elif self.tag == zTag: lib.ElLockedViewDist_z(ASub.obj,self.obj,iRan,jRan)
+      else: raise Exception('Unsupported datatype')
+    else:
+      if   self.tag == iTag: lib.ElViewDist_i(ASub.obj,self.obj,iRan,jRan)
+      elif self.tag == sTag: lib.ElViewDist_s(ASub.obj,self.obj,iRan,jRan)
+      elif self.tag == dTag: lib.ElViewDist_d(ASub.obj,self.obj,iRan,jRan)
+      elif self.tag == cTag: lib.ElViewDist_c(ASub.obj,self.obj,iRan,jRan)
+      elif self.tag == zTag: lib.ElViewDist_z(ASub.obj,self.obj,iRan,jRan)
+      else: raise Exception('Unsupported datatype')
+    return ASub
