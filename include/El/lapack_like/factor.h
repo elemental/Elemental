@@ -145,29 +145,29 @@ EL_EXPORT ElError ElCholeskyPivDist_z
 
 /* Solve linear systems after factorization 
    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
-EL_EXPORT ElError ElSolveAfterCholeskyFullPiv_s
+EL_EXPORT ElError ElSolveAfterCholeskyPiv_s
 ( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_s A, ElConstMatrix_i p, ElMatrix_s B );
-EL_EXPORT ElError ElSolveAfterCholeskyFullPiv_d
+EL_EXPORT ElError ElSolveAfterCholeskyPiv_d
 ( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_d A, ElConstMatrix_i p, ElMatrix_d B );
-EL_EXPORT ElError ElSolveAfterCholeskyFullPiv_c
+EL_EXPORT ElError ElSolveAfterCholeskyPiv_c
 ( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_c A, ElConstMatrix_i p, ElMatrix_c B );
-EL_EXPORT ElError ElSolveAfterCholeskyFullPiv_z
+EL_EXPORT ElError ElSolveAfterCholeskyPiv_z
 ( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_z A, ElConstMatrix_i p, ElMatrix_z B );
 
-EL_EXPORT ElError ElSolveAfterCholeskyFullPivDist_s
+EL_EXPORT ElError ElSolveAfterCholeskyPivDist_s
 ( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_s A, ElConstDistMatrix_i p, ElDistMatrix_s B );
-EL_EXPORT ElError ElSolveAfterCholeskyFullPivDist_d
+EL_EXPORT ElError ElSolveAfterCholeskyPivDist_d
 ( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_d A, ElConstDistMatrix_i p, ElDistMatrix_d B );
-EL_EXPORT ElError ElSolveAfterCholeskyFullPivDist_c
+EL_EXPORT ElError ElSolveAfterCholeskyPivDist_c
 ( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_c A, ElConstDistMatrix_i p, ElDistMatrix_c B );
-EL_EXPORT ElError ElSolveAfterCholeskyFullPivDist_z
+EL_EXPORT ElError ElSolveAfterCholeskyPivDist_z
 ( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_z A, ElConstDistMatrix_i p, ElDistMatrix_z B );
 

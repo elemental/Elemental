@@ -155,9 +155,9 @@ LVar4
         L10_STAR_MC.AlignWith( A00 );
         L10_STAR_MC = L10_STAR_VR;
         LocalTrr2k
-        ( LOWER, ADJOINT, ADJOINT, ADJOINT,
+        ( LOWER, ADJOINT, ADJOINT, ADJOINT, NORMAL,
           F(1), A10_STAR_MC, L10Adj_MR_STAR, 
-                L10_STAR_MC, A10_STAR_MR, 
+          F(1), L10_STAR_MC, A10_STAR_MR, 
           F(1), A00 );
 
         // A10 := A10 + 1/2 Y10

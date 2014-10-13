@@ -222,12 +222,12 @@ void Her2
                       double* A, int lda );
 void Her2
 ( char uplo, int m,
-  float alpha, const scomplex* x, int incx, const scomplex* y, int incy,
-                     scomplex* A, int lda );
+  scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
+                        scomplex* A, int lda );
 void Her2
 ( char uplo, int m,
-  double alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
-                      dcomplex* A, int lda );
+  dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
+                        dcomplex* A, int lda );
 
 void Symv
 ( char uplo, int m,
@@ -353,12 +353,12 @@ void Her2k
   double beta,        double* C, int ldc );
 void Her2k
 ( char uplo, char trans, int n, int k,
-  float alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
-  float beta,        scomplex* C, int ldc );
+  scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
+  float beta,           scomplex* C, int ldc );
 void Her2k
 ( char uplo, char trans, int n, int k,
-  double alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
-  double beta,        dcomplex* C, int ldc );
+  dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
+  double beta,          dcomplex* C, int ldc );
 
 void Herk
 ( char uplo, char trans, int n, int k,

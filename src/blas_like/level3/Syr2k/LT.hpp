@@ -32,6 +32,7 @@ LT
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+    const T alphaSec = ( conjugate ? Conj(alpha) : alpha );
 
     auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
     auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
@@ -65,8 +66,8 @@ LT
 
         LocalTrr2k
         ( LOWER, orientation, TRANSPOSE, orientation, TRANSPOSE, 
-          alpha, A1_STAR_MC, B1Trans_MR_STAR,
-                 B1_STAR_MC, A1Trans_MR_STAR, T(1), C );
+          alpha,    A1_STAR_MC, B1Trans_MR_STAR,
+          alphaSec, B1_STAR_MC, A1Trans_MR_STAR, T(1), C );
     }
 }
 

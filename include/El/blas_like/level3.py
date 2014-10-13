@@ -223,32 +223,31 @@ lib.ElSyr2kDist_z.argtypes = \
   [c_uint,c_uint,zType,c_void_p,c_void_p,zType,c_void_p]
 lib.ElSyr2kDist_z.restype = c_uint
 
-lib.ElHer2k_c.argtypes = [c_uint,c_uint,sType,c_void_p,c_void_p,sType,c_void_p]
+lib.ElHer2k_c.argtypes = [c_uint,c_uint,cType,c_void_p,c_void_p,sType,c_void_p]
 lib.ElHer2k_c.restype = c_uint
-lib.ElHer2k_z.argtypes = [c_uint,c_uint,dType,c_void_p,c_void_p,dType,c_void_p]
+lib.ElHer2k_z.argtypes = [c_uint,c_uint,zType,c_void_p,c_void_p,dType,c_void_p]
 lib.ElHer2k_z.restype = c_uint
 lib.ElHer2kDist_c.argtypes = \
-  [c_uint,c_uint,sType,c_void_p,c_void_p,sType,c_void_p]
+  [c_uint,c_uint,cType,c_void_p,c_void_p,sType,c_void_p]
 lib.ElHer2kDist_c.restype = c_uint
 lib.ElHer2kDist_z.argtypes = \
-  [c_uint,c_uint,dType,c_void_p,c_void_p,dType,c_void_p]
+  [c_uint,c_uint,zType,c_void_p,c_void_p,dType,c_void_p]
 lib.ElHer2kDist_z.restype = c_uint
 
-def Syr2k(uplo,orient,alphaPre,A,B,betaPre,C,conj=False):
+def Syr2k(uplo,orient,alphaPre,A,B,beta,C,conj=False):
   if A.tag != B.tag or B.tag != C.tag: 
     raise Exception('Datatypes of {A,B,C} must match')
   if type(A) is not type(B) or type(B) is not type(C): 
     raise Exception('Matrix types must match')
   alpha = TagToType(A.tag)(alphaPre)
-  beta = TagToType(A.tag)(betaPre)
   if type(A) is Matrix:
     if   A.tag == sTag: lib.ElSyr2k_s(uplo,orient,alpha,A.obj,B.obj,beta,C.obj)
     elif A.tag == dTag: lib.ElSyr2k_d(uplo,orient,alpha,A.obj,B.obj,beta,C.obj)
     elif A.tag == cTag:
-      if conj: lib.ElHer2k_c(uplo,orient,alpha.real,A.obj,B.obj,beta.real,C.obj)
+      if conj: lib.ElHer2k_c(uplo,orient,alpha,A.obj,B.obj,beta.real,C.obj)
       else:    lib.ElSyr2k_c(uplo,orient,alpha,A.obj,B.obj,beta,C.obj)
     elif A.tag == zTag:
-      if conj: lib.ElHer2k_z(uplo,orient,alpha.real,A.obj,B.obj,beta.real,C.obj)
+      if conj: lib.ElHer2k_z(uplo,orient,alpha,A.obj,B.obj,beta.real,C.obj)
       else:    lib.ElSyr2k_z(uplo,orient,alpha,A.obj,B.obj,beta,C.obj)
     else: raise Exception('Unsupported datatype')
   elif type(A) is DistMatrix:
@@ -258,12 +257,12 @@ def Syr2k(uplo,orient,alphaPre,A,B,betaPre,C,conj=False):
       lib.ElSyr2kDist_d(uplo,orient,alpha,A.obj,B.obj,beta,C.obj)
     elif A.tag == cTag:
       if conj: 
-        lib.ElHer2kDist_c(uplo,orient,alpha.real,A.obj,B.obj,beta.real,C.obj)
+        lib.ElHer2kDist_c(uplo,orient,alpha,A.obj,B.obj,beta.real,C.obj)
       else:
         lib.ElSyr2kDist_c(uplo,orient,alpha,A.obj,B.obj,beta,C.obj)
     elif A.tag == zTag:
       if conj:
-        lib.ElHer2kDist_z(uplo,orient,alpha.real,A.obj,B.obj,beta.real,C.obj)
+        lib.ElHer2kDist_z(uplo,orient,alpha,A.obj,B.obj,beta.real,C.obj)
       else:
         lib.ElSyr2kDist_z(uplo,orient,alpha,A.obj,B.obj,beta,C.obj)
     else: raise Exception('Unsupported datatype')
@@ -601,37 +600,38 @@ def Trrk(uplo,orientA,orientB,alphaPre,A,B,betaPre,C):
 # -----
 #lib.ElTrr2k_s.argtypes = \
 #  [c_uint,c_uint,c_uint,c_uint,c_uint,
-#   sType,c_void_p,c_void_p,c_void_p,c_void_p,sType,c_void_p]
+#   sType,c_void_p,c_void_p,sType,c_void_p,c_void_p,sType,c_void_p]
 #lib.ElTrr2k_s.restype = c_uint
 #lib.ElTrr2k_d.argtypes = \
 #  [c_uint,c_uint,c_uint,c_uint,c_uint,
-#   dType,c_void_p,c_void_p,c_void_p,c_void_p,dType,c_void_p]
+#   dType,c_void_p,c_void_p,dType,c_void_p,c_void_p,dType,c_void_p]
 #lib.ElTrr2k_d.restype = c_uint
 #lib.ElTrr2k_c.argtypes = \
 #  [c_uint,c_uint,c_uint,c_uint,c_uint,
-#   cType,c_void_p,c_void_p,c_void_p,c_void_p,cType,c_void_p]
+#   cType,c_void_p,c_void_p,cType,c_void_p,c_void_p,cType,c_void_p]
 #lib.ElTrr2k_c.restype = c_uint
 #lib.ElTrr2k_z.argtypes = \
 #  [c_uint,c_uint,c_uint,c_uint,c_uint,
-#   zType,c_void_p,c_void_p,c_void_p,c_void_p,zType,c_void_p]
+#   zType,c_void_p,c_void_p,zType,c_void_p,c_void_p,zType,c_void_p]
 #lib.ElTrr2k_z.restype = c_uint
 lib.ElTrr2kDist_s.argtypes = \
   [c_uint,c_uint,c_uint,c_uint,c_uint,
-   sType,c_void_p,c_void_p,c_void_p,c_void_p,sType,c_void_p]
+   sType,c_void_p,c_void_p,sType,c_void_p,c_void_p,sType,c_void_p]
 lib.ElTrr2kDist_s.restype = c_uint
 lib.ElTrr2kDist_d.argtypes = \
   [c_uint,c_uint,c_uint,c_uint,c_uint,
-   dType,c_void_p,c_void_p,c_void_p,c_void_p,dType,c_void_p]
+   dType,c_void_p,c_void_p,dType,c_void_p,c_void_p,dType,c_void_p]
 lib.ElTrr2kDist_d.restype = c_uint
 lib.ElTrr2kDist_c.argtypes = \
   [c_uint,c_uint,c_uint,c_uint,c_uint,
-   cType,c_void_p,c_void_p,c_void_p,c_void_p,cType,c_void_p]
+   cType,c_void_p,c_void_p,cType,c_void_p,c_void_p,cType,c_void_p]
 lib.ElTrr2kDist_c.restype = c_uint
 lib.ElTrr2kDist_z.argtypes = \
   [c_uint,c_uint,c_uint,c_uint,c_uint,
-   zType,c_void_p,c_void_p,c_void_p,c_void_p,zType,c_void_p]
+   zType,c_void_p,c_void_p,zType,c_void_p,c_void_p,zType,c_void_p]
 lib.ElTrr2kDist_z.restype = c_uint
-def Trr2k(uplo,orientA,orientB,orientC,orientD,alphaPre,A,B,C,D,betaPre,E):
+def Trr2k(uplo,orientA,orientB,orientC,orientD,
+          alphaPre,A,B,betaPre,C,D,gammaPre,E):
   if type(A) is not type(B) or type(B) is not type(C) or \
      type(C) is not type(D) or type(D) is not type(E):
     raise Exception('Types of {A,B,C,D,E} must match')
@@ -639,25 +639,26 @@ def Trr2k(uplo,orientA,orientB,orientC,orientD,alphaPre,A,B,C,D,betaPre,E):
     raise Exception('Datatypes of {A,B,C,D,E} must match')
   alpha = TagToType(A.tag)(alphaPre)
   beta = TagToType(A.tag)(betaPre)
+  gamma = TagToType(A.tag)(gammaPre)
   if type(A) is Matrix:
     raise Exception('Sequential implementation does not yet exist')
   elif type(A) is DistMatrix:
     if   A.tag == sTag: 
       lib.ElTrr2kDist_s \
       (uplo,orientA,orientB,orientC,orientD,
-       alpha,A.obj,B.obj,C.obj,D.obj,beta,E.obj)
+       alpha,A.obj,B.obj,beta,C.obj,D.obj,gamma,E.obj)
     elif A.tag == dTag:
       lib.ElTrr2kDist_d \
       (uplo,orientA,orientB,orientC,orientD,
-       alpha,A.obj,B.obj,C.obj,D.obj,beta,E.obj)
+       alpha,A.obj,B.obj,beta,C.obj,D.obj,gamma,E.obj)
     elif A.tag == cTag:
       lib.ElTrr2kDist_c \
       (uplo,orientA,orientB,orientC,orientD,
-       alpha,A.obj,B.obj,C.obj,D.obj,beta,E.obj)
+       alpha,A.obj,B.obj,beta,C.obj,D.obj,gamma,E.obj)
     elif A.tag == zTag:
       lib.ElTrr2kDist_z \
       (uplo,orientA,orientB,orientC,orientD,
-       alpha,A.obj,B.obj,C.obj,D.obj,beta,E.obj)
+       alpha,A.obj,B.obj,beta,C.obj,D.obj,gamma,E.obj)
     else: raise Exception('Unsupported datatype')
   else: raise Exception('Unsupported matrix type')
 

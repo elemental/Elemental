@@ -104,6 +104,18 @@ lib.ElSolveAfterCholesky_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
 lib.ElSolveAfterCholesky_c.restype = c_uint
 lib.ElSolveAfterCholesky_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
 lib.ElSolveAfterCholesky_z.restype = c_uint
+lib.ElSolveAfterCholeskyPiv_s.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,c_void_p]
+lib.ElSolveAfterCholeskyPiv_s.restype = c_uint
+lib.ElSolveAfterCholeskyPiv_d.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,c_void_p]
+lib.ElSolveAfterCholeskyPiv_d.restype = c_uint
+lib.ElSolveAfterCholeskyPiv_c.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,c_void_p]
+lib.ElSolveAfterCholeskyPiv_c.restype = c_uint
+lib.ElSolveAfterCholeskyPiv_z.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,c_void_p]
+lib.ElSolveAfterCholeskyPiv_z.restype = c_uint
 lib.ElSolveAfterCholeskyDist_s.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
 lib.ElSolveAfterCholeskyDist_s.restype = c_uint
 lib.ElSolveAfterCholeskyDist_d.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
@@ -112,7 +124,19 @@ lib.ElSolveAfterCholeskyDist_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
 lib.ElSolveAfterCholeskyDist_c.restype = c_uint
 lib.ElSolveAfterCholeskyDist_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
 lib.ElSolveAfterCholeskyDist_z.restype = c_uint
-def SolveAfterCholesky(uplo,orient,A,B):
+lib.ElSolveAfterCholeskyPivDist_s.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,c_void_p]
+lib.ElSolveAfterCholeskyPivDist_s.restype = c_uint
+lib.ElSolveAfterCholeskyPivDist_d.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,c_void_p]
+lib.ElSolveAfterCholeskyPivDist_d.restype = c_uint
+lib.ElSolveAfterCholeskyPivDist_c.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,c_void_p]
+lib.ElSolveAfterCholeskyPivDist_c.restype = c_uint
+lib.ElSolveAfterCholeskyPivDist_z.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,c_void_p]
+lib.ElSolveAfterCholeskyPivDist_z.restype = c_uint
+def SolveAfterCholesky(uplo,orient,A,B,p=None):
   if type(A) is Matrix:
     if   A.tag == sTag: lib.ElSolveAfterCholesky_s(uplo,orient,A.obj,B.obj)
     elif A.tag == dTag: lib.ElSolveAfterCholesky_d(uplo,orient,A.obj,B.obj)

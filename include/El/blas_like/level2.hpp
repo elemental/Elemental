@@ -116,13 +116,13 @@ void Her
 template<typename T>
 void Her2
 ( UpperOrLower uplo,
-  Base<T> alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
+  T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
 
 template<typename T>
 void Her2
 ( UpperOrLower uplo,
-  Base<T> alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y,
-                       AbstractDistMatrix<T>& A );
+  T alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y,
+                 AbstractDistMatrix<T>& A );
 
 // QuasiTrsv
 // =========

@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void Her2
 ( UpperOrLower uplo,
-  Base<T> alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
+  T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Her2"))
     Syr2( uplo, T(alpha), x, y, A, true );
@@ -22,8 +22,8 @@ void Her2
 template<typename T>
 void Her2
 ( UpperOrLower uplo,
-  Base<T> alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y,
-                       AbstractDistMatrix<T>& A )
+  T alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y,
+                 AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Her2"))
     Syr2( uplo, T(alpha), x, y, A, true );
@@ -31,10 +31,10 @@ void Her2
 
 #define PROTO(T) \
   template void Her2 \
-  ( UpperOrLower uplo, Base<T> alpha, \
+  ( UpperOrLower uplo, T alpha, \
     const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A ); \
   template void Her2 \
-  ( UpperOrLower uplo, Base<T> alpha, \
+  ( UpperOrLower uplo, T alpha, \
     const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y, \
           AbstractDistMatrix<T>& A );
 

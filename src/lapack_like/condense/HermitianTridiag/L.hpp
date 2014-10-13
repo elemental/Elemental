@@ -52,7 +52,7 @@ void L( Matrix<F>& A, Matrix<F>& t )
         Hemv( LOWER, Conj(tau), A22, a21, F(0), w21 );
         const F alpha = -Conj(tau)*Dot( w21, a21 )/F(2);
         Axpy( alpha, a21, w21 );
-        Her2( LOWER, Base<F>(-1), a21, w21, A22 );
+        Her2( LOWER, F(-1), a21, w21, A22 );
         alpha21T.Set(0,0,epsilon1);
     }
 }
@@ -128,9 +128,9 @@ void L( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
             auto W21_MR_STAR = WPan_MR_STAR( ind2-k, ind1-k );
 
             LocalTrr2k
-            ( LOWER, ADJOINT, ADJOINT,
+            ( LOWER, NORMAL, ADJOINT, NORMAL, ADJOINT,
               F(-1), A21_MC_STAR, W21_MR_STAR,
-                     W21_MC_STAR, A21_MR_STAR,
+              F(-1), W21_MC_STAR, A21_MR_STAR,
               F(1),  A22 );
         }
         else

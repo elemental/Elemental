@@ -31,6 +31,7 @@ UN
     const Int r = APre.Width();
     const Int bsize = Blocksize();
     const Grid& g = CPre.Grid();
+    const T alphaSec = ( conjugate ? Conj(alpha) : alpha );
 
     auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
     auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
@@ -64,8 +65,8 @@ UN
 
         LocalTrr2k
         ( UPPER, 
-          alpha, A1_MC_STAR, B1Trans_STAR_MR,
-                 B1_MC_STAR, A1Trans_STAR_MR, T(1), C );
+          alpha,    A1_MC_STAR, B1Trans_STAR_MR,
+          alphaSec, B1_MC_STAR, A1Trans_STAR_MR, T(1), C );
     }
 }
 

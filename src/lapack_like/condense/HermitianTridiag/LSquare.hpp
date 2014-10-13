@@ -89,9 +89,9 @@ void LSquare( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
             auto W21_MR_STAR = WPan_MR_STAR( ind2-k, ind1-k );
 
             LocalTrr2k
-            ( LOWER, ADJOINT, ADJOINT,
+            ( LOWER, NORMAL, ADJOINT, NORMAL, ADJOINT,
               F(-1), A21_MC_STAR, W21_MR_STAR,
-                     W21_MC_STAR, A21_MR_STAR,
+              F(-1), W21_MC_STAR, A21_MR_STAR,
               F(1), A22 );
         }
         else

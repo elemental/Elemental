@@ -254,13 +254,13 @@ lib.ElSyr2Dist_c.restype = c_uint
 lib.ElSyr2Dist_z.argtypes = [c_uint,zType,c_void_p,c_void_p,c_void_p]
 lib.ElSyr2Dist_z.restype = c_uint
 
-lib.ElHer2_c.argtypes = [c_uint,sType,c_void_p,c_void_p,c_void_p]
+lib.ElHer2_c.argtypes = [c_uint,cType,c_void_p,c_void_p,c_void_p]
 lib.ElHer2_c.restype = c_uint
-lib.ElHer2_z.argtypes = [c_uint,dType,c_void_p,c_void_p,c_void_p]
+lib.ElHer2_z.argtypes = [c_uint,zType,c_void_p,c_void_p,c_void_p]
 lib.ElHer2_z.restype = c_uint
-lib.ElHer2Dist_c.argtypes = [c_uint,sType,c_void_p,c_void_p,c_void_p]
+lib.ElHer2Dist_c.argtypes = [c_uint,cType,c_void_p,c_void_p,c_void_p]
 lib.ElHer2Dist_c.restype = c_uint
-lib.ElHer2Dist_z.argtypes = [c_uint,dType,c_void_p,c_void_p,c_void_p]
+lib.ElHer2Dist_z.argtypes = [c_uint,zType,c_void_p,c_void_p,c_void_p]
 lib.ElHer2Dist_z.restype = c_uint
 
 def Syr2(uplo,alphaPre,x,y,A,conj=False):
@@ -273,20 +273,20 @@ def Syr2(uplo,alphaPre,x,y,A,conj=False):
     if   A.tag == sTag: lib.ElSyr2_s(uplo,alpha,x.obj,y.obj,A.obj)
     elif A.tag == dTag: lib.ElSyr2_d(uplo,alpha,x.obj,y.obj,A.obj)
     elif A.tag == cTag:
-      if conj: lib.ElHer2_c(uplo,alpha.real,x.obj,y.obj,A.obj)
+      if conj: lib.ElHer2_c(uplo,alpha,x.obj,y.obj,A.obj)
       else:    lib.ElSyr2_c(uplo,alpha,x.obj,y.obj,A.obj)
     elif A.tag == zTag:
-      if conj: lib.ElHer2_z(uplo,alpha.real,x.obj,y.obj,A.obj)
+      if conj: lib.ElHer2_z(uplo,alpha,x.obj,y.obj,A.obj)
       else:    lib.ElSyr2_z(uplo,alpha,x.obj,y.obj,A.obj)
     else: raise Exception('Unsupported datatype')
   elif type(A) is DistMatrix:
     if   A.tag == sTag: lib.ElSyr2Dist_s(uplo,alpha,x.obj,y.obj,A.obj)
     elif A.tag == dTag: lib.ElSyr2Dist_d(uplo,alpha,x.obj,y.obj,A.obj)
     elif A.tag == cTag:
-      if conj: lib.ElHer2Dist_c(uplo,alpha.real,x.obj,y.obj,A.obj)
+      if conj: lib.ElHer2Dist_c(uplo,alpha,x.obj,y.obj,A.obj)
       else:    lib.ElSyr2Dist_c(uplo,alpha,x.obj,y.obj,A.obj)
     elif A.tag == zTag:
-      if conj: lib.ElHer2Dist_z(uplo,alpha.real,x.obj,y.obj,A.obj)
+      if conj: lib.ElHer2Dist_z(uplo,alpha,x.obj,y.obj,A.obj)
       else:    lib.ElSyr2Dist_z(uplo,alpha,x.obj,y.obj,A.obj)
     else: raise Exception('Unsupported datatype')
   else: raise Exception('Unsupported matrix type')

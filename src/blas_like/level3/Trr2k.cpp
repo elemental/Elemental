@@ -28,183 +28,96 @@
 
 namespace El {
 
-// This will be enabled as soon as the underlying routines are written
-/*
 template<typename T>
 void Trr2k
 ( UpperOrLower uplo, 
-  Orientation orientationOfA, Orientation orientationOfB,
-  Orientation orientationOfC, Orientation orientationOfD,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B,
-           const Matrix<T>& C, const Matrix<T>& D,
-  T beta,        Matrix<T>& E )
-{
-    DEBUG_ONLY(CallStackEntry cse("Trr2k"))
-    const bool normalA = orientationOfA == NORMAL;
-    const bool normalB = orientationOfB == NORMAL;
-    const bool normalC = orientationOfC == NORMAL;
-    const bool normalD = orientationOfD == NORMAL;
-    Int subcase = 8*normalA + 4*normalB + 2*normalC + normalD;
-    switch( subcase )
-    {
-    case 0: 
-        trr2k::Trr2kNNNN( uplo, alpha, A, B, C, D, beta, E );
-        break;
-    case 1:
-        trr2k::Trr2kNNNT
-        ( uplo, orientationOfD, alpha, A, B, C, D, beta, E );
-        break;
-    case 2:
-        trr2k::Trr2kNNTN
-        ( uplo, orientationOfC, alpha, A, B, C, D, beta, E );
-        break;
-    case 3:
-        trr2k::Trr2kNNTT
-        ( uplo, orientationOfC, orientationOfD, alpha, A, B, C, D, beta, E );
-        break;
-    case 4:
-        trr2k::Trr2kNTNN
-        ( uplo, orientationOfB, alpha, A, B, C, D, beta, E );
-        break;
-    case 5:
-        trr2k::Trr2kNTNT
-        ( uplo, orientationOfB, orientationOfD, alpha, A, B, C, D, beta, E );
-        break;
-    case 6:
-        trr2k::Trr2kNTTN
-        ( uplo, orientationOfB, orientationOfC, alpha, A, B, C, D, beta, E );
-        break;
-    case 7:
-        trr2k::Trr2kNTTT
-        ( uplo, orientationOfB, orientationOfC, orientationOfD, 
-          alpha, A, B, C, D, beta, E );
-        break;
-    case 8:
-        trr2k::Trr2kTNNN
-        ( uplo, orientationOfA, alpha, A, B, C, D, beta, E );
-        break;
-    case 9:
-        trr2k::Trr2kTNNT
-        ( uplo, orientationOfA, orientationOfD, alpha, A, B, C, D, beta, E );
-        break;
-    case 10:
-        trr2k::Trr2kTNTN
-        ( uplo, orientationOfA, orientationOfC, alpha, A, B, C, D, beta, E );
-        break;
-    case 11:
-        trr2k::Trr2kTNTT
-        ( uplo, orientationOfA, orientationOfC, orientationOfD,
-          alpha, A, B, C, D, beta, E );
-        break;
-    case 12:
-        trr2k::Trr2kTTNN
-        ( uplo, orientationOfA, orientationOfB, alpha, A, B, C, D, beta, E );
-        break;
-    case 13:
-        trr2k::Trr2kTTNT
-        ( uplo, orientationOfA, orientationOfB, orientationOfD,
-          alpha, A, B, C, D, beta, E );
-        break;
-    case 14:
-        trr2k::Trr2kTTTN
-        ( uplo, orientationOfA, orientationOfB, orientationOfC,
-          alpha, A, B, C, D, beta, E );
-        break;
-    case 15:
-        trr2k::Trr2kTTTN
-        ( uplo, orientationOfA, orientationOfB, orientationOfC, orientationOfD,
-          alpha, A, B, C, D, beta, E );
-        break;
-    default:
-        LogicError("Impossible subcase");
-    }
-}
-*/
-
-template<typename T>
-void Trr2k
-( UpperOrLower uplo, 
-  Orientation orientationOfA, Orientation orientationOfB,
-  Orientation orientationOfC, Orientation orientationOfD,
+  Orientation orientA, Orientation orientB,
+  Orientation orientC, Orientation orientD,
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
            const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
-  T beta,        AbstractDistMatrix<T>& E )
+  T beta,        AbstractDistMatrix<T>& E, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Trr2k"))
-    const bool normalA = orientationOfA == NORMAL;
-    const bool normalB = orientationOfB == NORMAL;
-    const bool normalC = orientationOfC == NORMAL;
-    const bool normalD = orientationOfD == NORMAL;
+    const bool normalA = orientA == NORMAL;
+    const bool normalB = orientB == NORMAL;
+    const bool normalC = orientC == NORMAL;
+    const bool normalD = orientD == NORMAL;
     Int subcase = 8*normalA + 4*normalB + 2*normalC + normalD;
     switch( subcase )
     {
     case 0: 
-        trr2k::Trr2kNNNN( uplo, alpha, A, B, C, D, beta, E );
+        trr2k::Trr2kNNNN( uplo, alpha, A, B, beta, C, D, gamma, E );
         break;
     case 1:
         trr2k::Trr2kNNNT
-        ( uplo, orientationOfD, alpha, A, B, C, D, beta, E );
+        ( uplo, orientD, alpha, A, B, beta, C, D, gamma, E );
         break;
     case 2:
         trr2k::Trr2kNNTN
-        ( uplo, orientationOfC, alpha, A, B, C, D, beta, E );
+        ( uplo, orientC, alpha, A, B, beta, C, D, gamma, E );
         break;
     case 3:
         trr2k::Trr2kNNTT
-        ( uplo, orientationOfC, orientationOfD, alpha, A, B, C, D, beta, E );
+        ( uplo, orientC, orientD, 
+          alpha, A, B, beta, C, D, gamma, E );
         break;
     case 4:
         trr2k::Trr2kNTNN
-        ( uplo, orientationOfB, alpha, A, B, C, D, beta, E );
+        ( uplo, orientB, alpha, A, B, beta, C, D, gamma, E );
         break;
     case 5:
         trr2k::Trr2kNTNT
-        ( uplo, orientationOfB, orientationOfD, alpha, A, B, C, D, beta, E );
+        ( uplo, orientB, orientD, 
+          alpha, A, B, beta, C, D, gamma, E );
         break;
     case 6:
         trr2k::Trr2kNTTN
-        ( uplo, orientationOfB, orientationOfC, alpha, A, B, C, D, beta, E );
+        ( uplo, orientB, orientC, 
+          alpha, A, B, beta, C, D, gamma, E );
         break;
     case 7:
         trr2k::Trr2kNTTT
-        ( uplo, orientationOfB, orientationOfC, orientationOfD, 
-          alpha, A, B, C, D, beta, E );
+        ( uplo, orientB, orientC, orientD, 
+          alpha, A, B, beta, C, D, gamma, E );
         break;
     case 8:
         trr2k::Trr2kTNNN
-        ( uplo, orientationOfA, alpha, A, B, C, D, beta, E );
+        ( uplo, orientA, alpha, A, B, beta, C, D, gamma, E );
         break;
     case 9:
         trr2k::Trr2kTNNT
-        ( uplo, orientationOfA, orientationOfD, alpha, A, B, C, D, beta, E );
+        ( uplo, orientA, orientD, 
+          alpha, A, B, beta, C, D, gamma, E );
         break;
     case 10:
         trr2k::Trr2kTNTN
-        ( uplo, orientationOfA, orientationOfC, alpha, A, B, C, D, beta, E );
+        ( uplo, orientA, orientC, 
+          alpha, A, B, beta, C, D, gamma, E );
         break;
     case 11:
         trr2k::Trr2kTNTT
-        ( uplo, orientationOfA, orientationOfC, orientationOfD,
-          alpha, A, B, C, D, beta, E );
+        ( uplo, orientA, orientC, orientD,
+          alpha, A, B, beta, C, D, gamma, E );
         break;
     case 12:
         trr2k::Trr2kTTNN
-        ( uplo, orientationOfA, orientationOfB, alpha, A, B, C, D, beta, E );
+        ( uplo, orientA, orientB, 
+          alpha, A, B, beta, C, D, gamma, E );
         break;
     case 13:
         trr2k::Trr2kTTNT
-        ( uplo, orientationOfA, orientationOfB, orientationOfD,
-          alpha, A, B, C, D, beta, E );
+        ( uplo, orientA, orientB, orientD,
+          alpha, A, B, beta, C, D, gamma, E );
         break;
     case 14:
         trr2k::Trr2kTTTN
-        ( uplo, orientationOfA, orientationOfB, orientationOfC,
-          alpha, A, B, C, D, beta, E );
+        ( uplo, orientA, orientB, orientC,
+          alpha, A, B, beta, C, D, gamma, E );
         break;
     case 15:
         trr2k::Trr2kTTTT
-        ( uplo, orientationOfA, orientationOfB, orientationOfC, orientationOfD,
-          alpha, A, B, C, D, beta, E );
+        ( uplo, orientA, orientB, orientC, orientD,
+          alpha, A, B, beta, C, D, gamma, E );
         break;
     default:
         LogicError("Impossible subcase");
@@ -214,129 +127,18 @@ void Trr2k
 #define PROTO(T) \
   template void Trr2k \
   ( UpperOrLower uplo, \
-    Orientation orientationOfA, Orientation orientationOfB, \
-    Orientation orientationOfC, Orientation orientationOfD, \
+    Orientation orientA, Orientation orientB, \
+    Orientation orientC, Orientation orientD, \
     T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
-             const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D, \
-    T beta,        AbstractDistMatrix<T>& E ); \
+    T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D, \
+    T gamma,       AbstractDistMatrix<T>& E ); \
   template void LocalTrr2k \
   ( UpperOrLower uplo, \
-    T alpha, const DistMatrix<T,MC,  STAR>& A, \
-             const DistMatrix<T,STAR,MR  >& B, \
-             const DistMatrix<T,MC,  STAR>& C, \
-             const DistMatrix<T,STAR,MR  >& D, \
-    T beta,        DistMatrix<T>& E ); \
-  template void LocalTrr2k \
-  ( UpperOrLower uplo, Orientation orientationOfD, \
-    T alpha, const DistMatrix<T,MC,  STAR>& A,  \
-             const DistMatrix<T,STAR,MR  >& B, \
-             const DistMatrix<T,MC,  STAR>& C, \
-             const DistMatrix<T,MR,  STAR>& D, \
-    T beta,        DistMatrix<T>& E ); \
-  template void LocalTrr2k \
-  ( UpperOrLower uplo, Orientation orientationOfC, \
-    T alpha, const DistMatrix<T,MC,  STAR>& A,  \
-             const DistMatrix<T,STAR,MR  >& B, \
-             const DistMatrix<T,STAR,MC  >& C, \
-             const DistMatrix<T,STAR,MR  >& D, \
-    T beta,        DistMatrix<T>& E ); \
-  template void LocalTrr2k \
-  ( UpperOrLower uplo, Orientation orientationOfC, Orientation orientationOfD, \
-    T alpha, const DistMatrix<T,MC,  STAR>& A, \
-             const DistMatrix<T,STAR,MR  >& B, \
-             const DistMatrix<T,STAR,MC  >& C, \
-             const DistMatrix<T,MR,  STAR>& D, \
-    T beta,        DistMatrix<T>& E ); \
-  template void LocalTrr2k \
-  ( UpperOrLower uplo, Orientation orientationOfB, \
-    T alpha, const DistMatrix<T,MC,  STAR>& A, \
-             const DistMatrix<T,MR,  STAR>& B, \
-             const DistMatrix<T,MC,  STAR>& C, \
-             const DistMatrix<T,STAR,MR  >& D, \
-    T beta,        DistMatrix<T>& E ); \
-  template void LocalTrr2k \
-  ( UpperOrLower uplo, Orientation orientationOfB, Orientation orientationOfD, \
-    T alpha, const DistMatrix<T,MC,STAR>& A, \
-             const DistMatrix<T,MR,STAR>& B, \
-             const DistMatrix<T,MC,STAR>& C, \
-             const DistMatrix<T,MR,STAR>& D, \
-    T beta,        DistMatrix<T>& E ); \
-  template void LocalTrr2k \
-  ( UpperOrLower uplo, Orientation orientationOfB, Orientation orientationOfC, \
-    T alpha, const DistMatrix<T,MC,  STAR>& A, \
-             const DistMatrix<T,MR,  STAR>& B, \
-             const DistMatrix<T,STAR,MC  >& C, \
-             const DistMatrix<T,STAR,MR  >& D, \
-    T beta,        DistMatrix<T>& E ); \
-  template void LocalTrr2k \
-  ( UpperOrLower uplo,          Orientation orientationOfB, \
-    Orientation orientationOfC, Orientation orientationOfD, \
-    T alpha, const DistMatrix<T,MC,  STAR>& A, \
-             const DistMatrix<T,MR,  STAR>& B, \
-             const DistMatrix<T,STAR,MC  >& C, \
-             const DistMatrix<T,MR,  STAR>& D, \
-    T beta,        DistMatrix<T>& E ); \
-  template void LocalTrr2k \
-  ( UpperOrLower uplo, Orientation orientationOfA, \
-    T alpha, const DistMatrix<T,STAR,MC  >& A, \
-             const DistMatrix<T,STAR,MR  >& B, \
-             const DistMatrix<T,MC,  STAR>& C, \
-             const DistMatrix<T,STAR,MR  >& D, \
-    T beta,        DistMatrix<T>& E ); \
-  template void LocalTrr2k \
-  ( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfD, \
-    T alpha, const DistMatrix<T,STAR,MC  >& A, \
-             const DistMatrix<T,STAR,MR>& B, \
-             const DistMatrix<T,MC,  STAR>& C, \
-             const DistMatrix<T,MR,STAR>& D, \
-    T beta,        DistMatrix<T>& E ); \
-  template void LocalTrr2k \
-  ( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfC, \
-    T alpha, const DistMatrix<T,STAR,MC>& A, \
-             const DistMatrix<T,STAR,MR>& B, \
-             const DistMatrix<T,STAR,MC>& C, \
-             const DistMatrix<T,STAR,MR>& D, \
-    T beta,        DistMatrix<T>& E ); \
-  template void LocalTrr2k \
-  ( UpperOrLower uplo,          Orientation orientationOfA, \
-    Orientation orientationOfC, Orientation orientationOfD, \
-    T alpha, const DistMatrix<T,STAR,MC>& A, \
-             const DistMatrix<T,STAR,MR>& B, \
-             const DistMatrix<T,STAR,MC>& C, \
-             const DistMatrix<T,MR,STAR>& D, \
-    T beta,        DistMatrix<T>& E ); \
-  template void LocalTrr2k \
-  ( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB, \
-    T alpha, const DistMatrix<T,STAR,MC  >& A, \
-             const DistMatrix<T,MR,  STAR>& B, \
-             const DistMatrix<T,MC,  STAR>& C, \
-             const DistMatrix<T,STAR,MR  >& D, \
-    T beta,        DistMatrix<T>& E ); \
-  template void LocalTrr2k \
-  ( UpperOrLower uplo,          Orientation orientationOfA, \
-    Orientation orientationOfB, Orientation orientationOfD, \
-    T alpha, const DistMatrix<T,STAR,MC  >& A, \
-             const DistMatrix<T,MR,  STAR>& B, \
-             const DistMatrix<T,MC,  STAR>& C, \
-             const DistMatrix<T,MR,  STAR>& D, \
-    T beta,        DistMatrix<T>& E ); \
-  template void LocalTrr2k \
-  ( UpperOrLower uplo,          Orientation orientationOfA, \
-    Orientation orientationOfB, Orientation orientationOfC, \
-    T alpha, const DistMatrix<T,STAR,MC  >& A, \
-             const DistMatrix<T,MR,  STAR>& B, \
-             const DistMatrix<T,STAR,MC  >& C, \
-             const DistMatrix<T,STAR,MR  >& D, \
-    T beta,        DistMatrix<T>& E ); \
-  template void LocalTrr2k \
-  ( UpperOrLower uplo, \
-    Orientation orientationOfA, Orientation orientationOfB, \
-    Orientation orientationOfC, Orientation orientationOfD, \
-    T alpha, const DistMatrix<T,STAR,MC  >& A, \
-             const DistMatrix<T,MR,  STAR>& B, \
-             const DistMatrix<T,STAR,MC  >& C, \
-             const DistMatrix<T,MR,  STAR>& D, \
-    T beta,        DistMatrix<T>& E  ); \
+    Orientation orientA, Orientation orientB, \
+    Orientation orientC, Orientation orientD, \
+    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
+    T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D, \
+    T gamma,       AbstractDistMatrix<T>& E );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

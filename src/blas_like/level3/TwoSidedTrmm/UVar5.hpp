@@ -148,9 +148,9 @@ UVar5
         U01_MR_STAR.AlignWith( A00 );
         U01_MR_STAR = U01_MC_STAR;
         LocalTrr2k
-        ( UPPER, ADJOINT, ADJOINT,
+        ( UPPER, NORMAL, ADJOINT, NORMAL, ADJOINT,
           F(1), U01_MC_STAR, A01_MR_STAR, 
-                A01_MC_STAR, U01_MR_STAR,
+          F(1), A01_MC_STAR, U01_MR_STAR,
           F(1), A00 );
 
         // A01 := A01 + 1/2 Y01

@@ -16,10 +16,10 @@ namespace trr2k {
 template<typename T>
 void Trr2kNTNT
 ( UpperOrLower uplo,
-  Orientation orientationOfB, Orientation orientationOfD,
+  Orientation orientB, Orientation orientD,
   T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-           const AbstractDistMatrix<T>& CPre, const AbstractDistMatrix<T>& DPre,
-  T beta,        AbstractDistMatrix<T>& EPre )
+  T beta,  const AbstractDistMatrix<T>& CPre, const AbstractDistMatrix<T>& DPre,
+  T gamma,       AbstractDistMatrix<T>& EPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trr2k::Trr2kNTNT");
@@ -68,13 +68,13 @@ void Trr2kNTNT
         B1_VR_STAR = B1;
         D1_VR_STAR = D1;
         B1_VR_STAR.TransposePartialColAllGather
-        ( B1Trans_STAR_MR, (orientationOfB==ADJOINT) );
+        ( B1Trans_STAR_MR, (orientB==ADJOINT) );
         D1_VR_STAR.TransposePartialColAllGather
-        ( D1Trans_STAR_MR, (orientationOfD==ADJOINT) );
+        ( D1Trans_STAR_MR, (orientD==ADJOINT) );
         LocalTrr2k
-        ( uplo, 
+        ( uplo, NORMAL, NORMAL, NORMAL, NORMAL,
           alpha, A1_MC_STAR, B1Trans_STAR_MR, 
-                 C1_MC_STAR, D1Trans_STAR_MR, beta, E );
+          beta,  C1_MC_STAR, D1Trans_STAR_MR, gamma, E );
     }
 }
 

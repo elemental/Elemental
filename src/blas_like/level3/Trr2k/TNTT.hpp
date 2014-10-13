@@ -12,15 +12,15 @@
 namespace El {
 namespace trr2k {
 
-// Distributed E := alpha (A^{T/H} B + C^{T/H} D^{T/H}) + beta E
+// E := alpha A' B + beta C' D' + gamma E
 template<typename T>
 void Trr2kTNTT
 ( UpperOrLower uplo,
-  Orientation orientationOfA,
-  Orientation orientationOfC, Orientation orientationOfD,
+  Orientation orientA,
+  Orientation orientC, Orientation orientD,
   T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-           const AbstractDistMatrix<T>& CPre, const AbstractDistMatrix<T>& DPre,
-  T beta,        AbstractDistMatrix<T>& EPre )
+  T beta,  const AbstractDistMatrix<T>& CPre, const AbstractDistMatrix<T>& DPre,
+  T gamma,       AbstractDistMatrix<T>& EPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trr2k::Trr2kTNTT");
@@ -69,11 +69,11 @@ void Trr2kTNTT
         B1.TransposeColAllGather( B1Trans_MR_STAR );
         D1_VR_STAR = D1;
         D1_VR_STAR.TransposePartialColAllGather
-        ( D1Trans_STAR_MR, (orientationOfD==ADJOINT) );
+        ( D1Trans_STAR_MR, (orientD==ADJOINT) );
         LocalTrr2k
-        ( uplo, orientationOfA, TRANSPOSE, orientationOfC,
+        ( uplo, orientA, TRANSPOSE, orientC, NORMAL,
           alpha, A1_STAR_MC, B1Trans_MR_STAR, 
-                 C1_STAR_MC, D1Trans_STAR_MR, beta, E );
+          beta,  C1_STAR_MC, D1Trans_STAR_MR, gamma, E );
     }
 }
 

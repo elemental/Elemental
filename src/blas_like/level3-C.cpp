@@ -190,14 +190,14 @@ extern "C" {
     ElOrientation orientA, ElOrientation orientB, \
     ElOrientation orientC, ElOrientation orientD, \
     CREFLECT(F) alpha, ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
-                       ElConstMatrix_ ## SIG C, ElConstMatrix_ ## SIG D, \
-    CREFLECT(F) beta,  ElMatrix_ ## SIG E ) \
+    CREFLECT(F) beta,  ElConstMatrix_ ## SIG C, ElConstMatrix_ ## SIG D, \
+    CREFLECT(F) gamma, ElMatrix_ ## SIG E ) \
   { EL_TRY( Trr2k( CReflect(uplo), \
       CReflect(orientA), CReflect(orientB), \
       CReflect(orientC), CReflect(orientD), \
       CReflect(alpha), *CReflect(A), *CReflect(B), \
-                       *CReflect(C), *CReflect(D), \
-      CReflect(beta), *CReflect(E) ) ) } \
+      CReflect(beta),  *CReflect(C), *CReflect(D), \
+      CReflect(gamma), *CReflect(E) ) ) } \
   */ \
   ElError ElTrr2kDist_ ## SIG \
   ( ElUpperOrLower uplo, \
@@ -205,15 +205,15 @@ extern "C" {
     ElOrientation orientC, ElOrientation orientD, \
     CREFLECT(F) alpha, ElConstDistMatrix_ ## SIG A, \
                        ElConstDistMatrix_ ## SIG B, \
-                       ElConstDistMatrix_ ## SIG C, \
+    CREFLECT(F) beta,  ElConstDistMatrix_ ## SIG C, \
                        ElConstDistMatrix_ ## SIG D, \
-    CREFLECT(F) beta,  ElDistMatrix_ ## SIG E ) \
+    CREFLECT(F) gamma, ElDistMatrix_ ## SIG E ) \
   { EL_TRY( Trr2k( CReflect(uplo), \
       CReflect(orientA), CReflect(orientB), \
       CReflect(orientC), CReflect(orientD), \
       CReflect(alpha), *CReflect(A), *CReflect(B), \
-                       *CReflect(C), *CReflect(D), \
-      CReflect(beta), *CReflect(E) ) ) } \
+      CReflect(beta),  *CReflect(C), *CReflect(D), \
+      CReflect(gamma), *CReflect(E) ) ) } \
   /* Trsm */ \
   ElError ElTrsm_ ## SIG \
   ( ElLeftOrRight side, ElUpperOrLower uplo, \

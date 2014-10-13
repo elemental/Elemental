@@ -156,9 +156,9 @@ UVar4
         A01_VR_STAR.AdjointPartialColAllGather( A01Adj_STAR_MR );
         U01_VR_STAR.AdjointPartialColAllGather( U01Adj_STAR_MR );
         LocalTrr2k
-        ( UPPER, ADJOINT, ADJOINT,
+        ( UPPER, ADJOINT, NORMAL, ADJOINT, NORMAL,
           F(1), U01Adj_STAR_MC, A01Adj_STAR_MR, 
-                A01Adj_STAR_MC, U01Adj_STAR_MR, F(1), A00 );
+          F(1), A01Adj_STAR_MC, U01Adj_STAR_MR, F(1), A00 );
 
         // A01 := A01 + 1/2 Y01
         Axpy( F(1)/F(2), Y01_VC_STAR, A01_VC_STAR );

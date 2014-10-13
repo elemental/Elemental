@@ -36,8 +36,8 @@ void Syr2
     {
         blas::Her2
         ( uploChar, m,
-          RealPart(alpha), x.LockedBuffer(), incx, y.LockedBuffer(), incy,
-                           A.Buffer(), A.LDim() );
+          alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy,
+                 A.Buffer(), A.LDim() );
     }
     else
     {
@@ -101,8 +101,8 @@ void Syr2
 
                 const T beta = y_MR_STAR.GetLocal(jLoc,0);
                 const T kappa = x_MR_STAR.GetLocal(jLoc,0);
-                const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
-                const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
+                const T gamma = ( conjugate ? alpha*Conj(beta)  : alpha*beta );
+                const T delta = ( conjugate ? Conj(alpha*kappa) : alpha*kappa );
                 T* ACol = A.Buffer(0,jLoc);
                 for( Int iLoc=heightAboveDiag; iLoc<localHeight; ++iLoc )
                     ACol[iLoc] += gamma*xBuffer[iLoc] + delta*yBuffer[iLoc];
@@ -117,8 +117,8 @@ void Syr2
 
                 const T beta = y_MR_STAR.GetLocal(jLoc,0);
                 const T kappa = x_MR_STAR.GetLocal(jLoc,0);
-                const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
-                const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
+                const T gamma = ( conjugate ? alpha*Conj(beta)  : alpha*beta );
+                const T delta = ( conjugate ? Conj(alpha*kappa) : alpha*kappa );
                 T* ACol = A.Buffer(0,jLoc);
                 for( Int iLoc=0; iLoc<heightToDiag; ++iLoc )
                     ACol[iLoc] += gamma*xBuffer[iLoc] + delta*yBuffer[iLoc];
@@ -155,8 +155,8 @@ void Syr2
 
                 const T beta = y_STAR_MR.GetLocal(0,jLoc);
                 const T kappa = x_MR_STAR.GetLocal(jLoc,0);
-                const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
-                const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
+                const T gamma = ( conjugate ? alpha*Conj(beta) :  alpha*beta );
+                const T delta = ( conjugate ? Conj(alpha*kappa) : alpha*kappa );
                 T* ACol = A.Buffer(0,jLoc);
                 for( Int iLoc=heightAboveDiag; iLoc<localHeight; ++iLoc )
                     ACol[iLoc] += gamma*xBuffer[iLoc] +
@@ -172,8 +172,8 @@ void Syr2
 
                 const T beta = y_STAR_MR.GetLocal(0,jLoc);
                 const T kappa = x_MR_STAR.GetLocal(jLoc,0);
-                const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
-                const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
+                const T gamma = ( conjugate ? alpha*Conj(beta)  : alpha*beta );
+                const T delta = ( conjugate ? Conj(alpha*kappa) : alpha*kappa );
                 T* ACol = A.Buffer(0,jLoc);
                 for( Int iLoc=0; iLoc<heightToDiag; ++iLoc )
                     ACol[iLoc] += gamma*xBuffer[iLoc] +
@@ -211,8 +211,8 @@ void Syr2
 
                 const T beta = x_STAR_MR.GetLocal(0,jLoc);
                 const T kappa = y_MR_STAR.GetLocal(jLoc,0);
-                const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
-                const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
+                const T gamma = ( conjugate ? alpha*Conj(beta)  : alpha*beta );
+                const T delta = ( conjugate ? Conj(alpha*kappa) : alpha*kappa );
                 T* ACol = A.Buffer(0,jLoc);
                 for( Int iLoc=heightAboveDiag; iLoc<localHeight; ++iLoc )
                     ACol[iLoc] += gamma*xBuffer[iLoc*incx] +
@@ -228,8 +228,8 @@ void Syr2
 
                 const T beta = x_STAR_MR.GetLocal(0,jLoc);
                 const T kappa = y_MR_STAR.GetLocal(jLoc,0);
-                const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
-                const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
+                const T gamma = ( conjugate ? alpha*Conj(beta)  : alpha*beta );
+                const T delta = ( conjugate ? Conj(alpha*kappa) : alpha*kappa );
                 T* ACol = A.Buffer(0,jLoc);
                 for( Int iLoc=0; iLoc<heightToDiag; ++iLoc )
                     ACol[iLoc] += gamma*xBuffer[iLoc*incx] +
@@ -264,8 +264,8 @@ void Syr2
 
                 const T beta = y_STAR_MR.GetLocal(0,jLoc);
                 const T kappa = x_STAR_MR.GetLocal(0,jLoc);
-                const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
-                const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
+                const T gamma = ( conjugate ? alpha*Conj(beta)  : alpha*beta );
+                const T delta = ( conjugate ? Conj(alpha*kappa) : alpha*kappa );
                 T* ACol = A.Buffer(0,jLoc);
                 for( Int iLoc=heightAboveDiag; iLoc<localHeight; ++iLoc )
                     ACol[iLoc] += gamma*xBuffer[iLoc*incx] +
@@ -281,8 +281,8 @@ void Syr2
 
                 const T beta = y_STAR_MR.GetLocal(0,jLoc);
                 const T kappa = x_STAR_MR.GetLocal(0,jLoc);
-                const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
-                const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
+                const T gamma = ( conjugate ? alpha*Conj(beta)  : alpha*beta );
+                const T delta = ( conjugate ? Conj(alpha*kappa) : alpha*kappa );
                 T* ACol = A.Buffer(0,jLoc);
                 for( Int iLoc=0; iLoc<heightToDiag; ++iLoc )
                     ACol[iLoc] += gamma*xBuffer[iLoc*incx] +

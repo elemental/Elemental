@@ -196,13 +196,13 @@ void EL_BLAS(zher)
 
 void EL_BLAS(cher2)
 ( const char* uplo, const int* m,
-  const float* alpha,
+  const scomplex* alpha,
   const scomplex* x, const int* incx,
   const scomplex* y, const int* incy,
         scomplex* A, const int* lda  );
 void EL_BLAS(zher2)
 ( const char* uplo, const int* m,
-  const double* alpha,
+  const dcomplex* alpha,
   const dcomplex* x, const int* incx,
   const dcomplex* y, const int* incy,
         dcomplex* A, const int* lda  );
@@ -347,7 +347,7 @@ void EL_BLAS(zhemm)
 void EL_BLAS(cher2k)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
-  const float* alpha,
+  const scomplex* alpha,
   const scomplex* A, const int* lda,
   const scomplex* B, const int* ldb,
   const float* beta,
@@ -355,7 +355,7 @@ void EL_BLAS(cher2k)
 void EL_BLAS(zher2k)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
-  const double* alpha,
+  const dcomplex* alpha,
   const dcomplex* A, const int* lda,
   const dcomplex* B, const int* ldb,
   const double* beta,
@@ -820,14 +820,14 @@ void Her2
 
 void Her2
 ( char uplo, int m,
-  float alpha, const scomplex* x, int incx, const scomplex* y, int incy,
-                     scomplex* A, int lda )
+  scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
+                        scomplex* A, int lda )
 { EL_BLAS(cher2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void Her2
 ( char uplo, int m,
-  double alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
-                      dcomplex* A, int lda )
+  dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
+                        dcomplex* A, int lda )
 { EL_BLAS(zher2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void Symv
@@ -1079,8 +1079,8 @@ void Her2k
 
 void Her2k
 ( char uplo, char trans, int n, int k,
-  float alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
-  float beta,        scomplex* C, int ldc )
+  scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
+  float beta,           scomplex* C, int ldc )
 {
     EL_BLAS(cher2k)
     ( &uplo, &trans, &n, &k, &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
@@ -1088,8 +1088,8 @@ void Her2k
 
 void Her2k
 ( char uplo, char trans, int n, int k,
-  double alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
-  double beta,        dcomplex* C, int ldc )
+  dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
+  double beta,          dcomplex* C, int ldc )
 {
     EL_BLAS(zher2k)
     ( &uplo, &trans, &n, &k, &alpha, A, &lda, B, &ldb, &beta, C, &ldc );

@@ -132,21 +132,21 @@ EL_EXPORT ElError ElHerkDist_z
    ===== */
 EL_EXPORT ElError ElHer2k_c
 ( ElUpperOrLower uplo, ElOrientation orientation,
-  float alpha, ElConstMatrix_c A, ElConstMatrix_c B,
-  float beta,  ElMatrix_c C );
+  complex_float alpha, ElConstMatrix_c A, ElConstMatrix_c B,
+  float beta,          ElMatrix_c C );
 EL_EXPORT ElError ElHer2k_z
 ( ElUpperOrLower uplo, ElOrientation orientation,
-  double alpha, ElConstMatrix_z A, ElConstMatrix_z B,
-  double beta,  ElMatrix_z C );
+  complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z B,
+  double beta,          ElMatrix_z C );
 
 EL_EXPORT ElError ElHer2kDist_c
 ( ElUpperOrLower uplo, ElOrientation orientation,
-  float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c B,
-  float beta,  ElDistMatrix_c C );
+  complex_float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c B,
+  float beta,          ElDistMatrix_c C );
 EL_EXPORT ElError ElHer2kDist_z
 ( ElUpperOrLower uplo, ElOrientation orientation,
-  double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z B,
-  double beta,  ElDistMatrix_z C );
+  complex_double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z B,
+  double beta,          ElDistMatrix_z C );
 
 /* MultiShiftQuasiTrsm
    =================== */

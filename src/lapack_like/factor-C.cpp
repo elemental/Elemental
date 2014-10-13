@@ -92,14 +92,14 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
         CReflect(uplo), CReflect(orientation), \
         *CReflect(A), *CReflect(B) ) ) } \
   /* Solve after a Cholesky factorization (full pivoting) */ \
-  ElError ElSolveAfterCholeskyFullPiv_ ## SIG \
+  ElError ElSolveAfterCholeskyPiv_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \
     ElConstMatrix_ ## SIG A, ElConstMatrix_i p, ElMatrix_ ## SIG B ) \
   { EL_TRY( \
       cholesky::SolveAfter( \
         CReflect(uplo), CReflect(orientation), \
         *CReflect(A), *CReflect(p), *CReflect(B) ) ) } \
-  ElError ElSolveAfterCholeskyFullPivDist_ ## SIG \
+  ElError ElSolveAfterCholeskyPivDist_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \
     ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_i p, \
     ElDistMatrix_ ## SIG B ) \

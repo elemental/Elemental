@@ -142,18 +142,18 @@ EL_EXPORT ElError ElHerDist_z
 /* Her2 
    ==== */
 EL_EXPORT ElError ElHer2_c
-( ElUpperOrLower uplo, float alpha, 
+( ElUpperOrLower uplo, complex_float alpha, 
   ElConstMatrix_c x, ElConstMatrix_c y, ElMatrix_c A );
 EL_EXPORT ElError ElHer2_z
-( ElUpperOrLower uplo, double alpha, 
+( ElUpperOrLower uplo, complex_double alpha, 
   ElConstMatrix_z x, ElConstMatrix_z y, ElMatrix_z A );
 
 /* NOTE: 'A', 'x', and 'y' must be in [MC,MR] distributions */
 EL_EXPORT ElError ElHer2Dist_c
-( ElUpperOrLower uplo, float alpha, 
+( ElUpperOrLower uplo, complex_float alpha, 
   ElConstDistMatrix_c x, ElConstDistMatrix_c y, ElDistMatrix_c A );
 EL_EXPORT ElError ElHer2Dist_z
-( ElUpperOrLower uplo, double alpha, 
+( ElUpperOrLower uplo, complex_double alpha, 
   ElConstDistMatrix_z x, ElConstDistMatrix_z y, ElDistMatrix_z A );
 
 /* QuasiTrsv

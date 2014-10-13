@@ -12,13 +12,13 @@
 namespace El {
 namespace trr2k {
 
-// Distributed E := alpha (A B + C D) + beta E
+// E := alpha A B + beta C D + gamma E
 template<typename T>
 void Trr2kNNNN
 ( UpperOrLower uplo,
   T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-           const AbstractDistMatrix<T>& CPre, const AbstractDistMatrix<T>& DPre,
-  T beta,        AbstractDistMatrix<T>& EPre )
+  T beta,  const AbstractDistMatrix<T>& CPre, const AbstractDistMatrix<T>& DPre,
+  T gamma,       AbstractDistMatrix<T>& EPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trr2k::Trr2kNNNN");
@@ -64,9 +64,9 @@ void Trr2kNNNN
         B1.TransposeColAllGather( B1Trans_MR_STAR );
         D1.TransposeColAllGather( D1Trans_MR_STAR );
         LocalTrr2k
-        ( uplo, TRANSPOSE, TRANSPOSE, 
+        ( uplo, NORMAL, TRANSPOSE, NORMAL, TRANSPOSE, 
           alpha, A1_MC_STAR, B1Trans_MR_STAR, 
-                 C1_MC_STAR, D1Trans_MR_STAR, beta, E );
+          beta,  C1_MC_STAR, D1Trans_MR_STAR, gamma, E );
     }
 }
 

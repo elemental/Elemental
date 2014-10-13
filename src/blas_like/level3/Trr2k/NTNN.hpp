@@ -14,17 +14,16 @@
 namespace El {
 namespace trr2k {
 
-// Distributed E := alpha (A B^{T/H} + C D) + beta E
+// E := alpha A B' + beta C D + beta E
 template<typename T>
 void Trr2kNTNN
-( UpperOrLower uplo,
-  Orientation orientationOfB,
+( UpperOrLower uplo, Orientation orientB,
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-           const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
-  T beta,        AbstractDistMatrix<T>& E )
+  T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
+  T gamma,       AbstractDistMatrix<T>& E )
 {
     DEBUG_ONLY(CallStackEntry cse("trr2k::Trr2kNTNN"))
-    Trr2kNNNT( uplo, orientationOfB, alpha, C, D, A, B, beta, E );
+    Trr2kNNNT( uplo, orientB, beta, C, D, alpha, A, B, gamma, E );
 }
 
 } // namespace trr2k
