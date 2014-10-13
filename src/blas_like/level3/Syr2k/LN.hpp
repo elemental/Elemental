@@ -64,9 +64,9 @@ LN
         B1_VR_STAR.TransposePartialColAllGather( B1Trans_STAR_MR, conjugate );
 
         LocalTrr2k
-        ( LOWER, 
+        ( LOWER, NORMAL, NORMAL, NORMAL, NORMAL,
           alpha,    A1_MC_STAR, B1Trans_STAR_MR,
-          alphaSec, B1_MC_STAR, A1Trans_STAR_MR, T(1), C, conjugate );
+          alphaSec, B1_MC_STAR, A1Trans_STAR_MR, T(1), C );
     }
 }
 

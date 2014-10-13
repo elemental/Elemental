@@ -124,7 +124,7 @@ template<typename T>
 void LocalTrr2k
 ( UpperOrLower uplo, 
   Orientation orientA, Orientation orientB,
-  Orientation orientC, Orientation orientC,
+  Orientation orientC, Orientation orientD,
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
   T gamma,       AbstractDistMatrix<T>& E )

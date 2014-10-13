@@ -253,18 +253,18 @@ extern "C" {
       Her( CReflect(uplo), alpha, *CReflect(x), *CReflect(A) ) ) } \
   /* Her2 */ \
   ElError ElHer2_ ## SIG \
-  ( ElUpperOrLower uplo, Base<F> alpha, \
+  ( ElUpperOrLower uplo, CREFLECT(F) alpha, \
     ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG y, \
     ElMatrix_ ## SIG A ) \
   { EL_TRY( \
-      Her2( CReflect(uplo), alpha, \
+      Her2( CReflect(uplo), CReflect(alpha), \
             *CReflect(x), *CReflect(y), *CReflect(A) ) ) } \
   ElError ElHer2Dist_ ## SIG \
-  ( ElUpperOrLower uplo, Base<F> alpha, \
+  ( ElUpperOrLower uplo, CREFLECT(F) alpha, \
     ElConstDistMatrix_ ## SIG x, ElConstDistMatrix_ ## SIG y, \
     ElDistMatrix_ ## SIG A ) \
   { EL_TRY( \
-      Her2( CReflect(uplo), alpha, \
+      Her2( CReflect(uplo), CReflect(alpha), \
             *CReflect(x), *CReflect(y), *CReflect(A) ) ) } \
   /* Trr */ \
   ElError ElTrr_ ## SIG \

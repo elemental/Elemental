@@ -34,8 +34,8 @@ void Trr2k
   Orientation orientA, Orientation orientB,
   Orientation orientC, Orientation orientD,
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-           const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
-  T beta,        AbstractDistMatrix<T>& E, bool conjugate )
+  T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
+  T gamma,       AbstractDistMatrix<T>& E, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Trr2k"))
     const bool normalA = orientA == NORMAL;

@@ -673,22 +673,24 @@ void LocalTrrk
 
 // Trr2k
 // =====
+/*
 template<typename T>
 void Trr2k
 ( UpperOrLower uplo, 
   Orientation orientationOfA, Orientation orientationOfB,
   Orientation orientationOfC, Orientation orientationOfD,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
-           const Matrix<T>& C, const Matrix<T>& D,
-  T beta,        Matrix<T>& E, bool conjugate=false );
+  T beta,  const Matrix<T>& C, const Matrix<T>& D,
+  Tgamma,        Matrix<T>& E );
+*/
 template<typename T>
 void Trr2k
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
   Orientation orientationOfC, Orientation orientationOfD,
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-           const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
-  T beta,        AbstractDistMatrix<T>& E, bool conjugate=false );
+  T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
+  T gamma,       AbstractDistMatrix<T>& E );
 
 // The distributions of the oriented matrices must match
 template<typename T>

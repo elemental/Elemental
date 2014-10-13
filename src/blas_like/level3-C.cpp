@@ -353,15 +353,15 @@ extern "C" {
   /* Her2k */ \
   ElError ElHer2k_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \
-    Base<T> alpha, ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
+    T alpha, ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
     Base<T> beta, ElMatrix_ ## SIG C ) \
   { EL_TRY( \
       Her2k( CReflect(uplo), CReflect(orientation), \
             alpha, *CReflect(A), *CReflect(B), beta, *CReflect(C) ) ) } \
   ElError ElHer2kDist_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \
-    Base<T> alpha, ElConstDistMatrix_ ## SIG A, \
-                   ElConstDistMatrix_ ## SIG B, \
+    T alpha, ElConstDistMatrix_ ## SIG A, \
+             ElConstDistMatrix_ ## SIG B, \
     Base<T> beta,  ElDistMatrix_ ## SIG C ) \
   { EL_TRY( \
       Her2k( CReflect(uplo), CReflect(orientation), \
