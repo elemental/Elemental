@@ -181,9 +181,9 @@ UVar4
         U12_STAR_MC.AlignWith( A22 );
         U12_STAR_MC = U12_STAR_VC;
         LocalTrr2k
-        ( UPPER, ADJOINT, TRANSPOSE, ADJOINT,
+        ( UPPER, ADJOINT, TRANSPOSE, ADJOINT, NORMAL,
           F(-1), A12_STAR_MC, U12Trans_MR_STAR,
-                 U12_STAR_MC, A12_STAR_MR,
+          F(-1), U12_STAR_MC, A12_STAR_MR,
           F(1), A22 );
 
         // A12 := A12 - 1/2 Y12

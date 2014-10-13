@@ -89,13 +89,13 @@ void Herk
 template<typename T>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const Matrix<T>& A, const Matrix<T>& B, 
+  T alpha,       const Matrix<T>& A, const Matrix<T>& B, 
   Base<T> beta,        Matrix<T>& C );
 
 template<typename T>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C );
+  T alpha, const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C );
 
 template<typename T>
 void Her2k

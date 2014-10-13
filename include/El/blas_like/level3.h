@@ -515,29 +515,29 @@ EL_EXPORT ElError ElTrr2kDist_s
   ElOrientation orientA, ElOrientation orientB, 
   ElOrientation orientC, ElOrientation orientD,
   float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s B, 
-               ElConstDistMatrix_s C, ElConstDistMatrix_s D,
-  float beta,                         ElDistMatrix_s E );
+  float beta,  ElConstDistMatrix_s C, ElConstDistMatrix_s D,
+  float gamma,                        ElDistMatrix_s E );
 EL_EXPORT ElError ElTrr2kDist_d
 ( ElUpperOrLower uplo, 
   ElOrientation orientA, ElOrientation orientB, 
   ElOrientation orientC, ElOrientation orientD, 
   double alpha, ElConstDistMatrix_d A, ElConstDistMatrix_d B, 
-                ElConstDistMatrix_d C, ElConstDistMatrix_d D,
-  double beta,                         ElDistMatrix_d E );
+  double beta,  ElConstDistMatrix_d C, ElConstDistMatrix_d D,
+  double gamma,                        ElDistMatrix_d E );
 EL_EXPORT ElError ElTrr2kDist_c
 ( ElUpperOrLower uplo, 
   ElOrientation orientA, ElOrientation orientB, 
   ElOrientation orientC, ElOrientation orientD, 
   complex_float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c B, 
-                       ElConstDistMatrix_c C, ElConstDistMatrix_c D,
-  complex_float beta,                         ElDistMatrix_c E );
+  complex_float beta,  ElConstDistMatrix_c C, ElConstDistMatrix_c D,
+  complex_float gamma,                        ElDistMatrix_c E );
 EL_EXPORT ElError ElTrr2kDist_z
 ( ElUpperOrLower uplo,
   ElOrientation orientA, ElOrientation orientB, 
   ElOrientation orientC, ElOrientation orientD, 
   complex_double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z B, 
-                        ElConstDistMatrix_z C, ElConstDistMatrix_z D,
-  complex_double beta,                         ElDistMatrix_z E );
+  complex_double beta,  ElConstDistMatrix_z C, ElConstDistMatrix_z D,
+  complex_double gamma,                        ElDistMatrix_z E );
 
 /* Trsm
    ==== */

@@ -176,9 +176,9 @@ LVar4
         A21_VR_STAR.AdjointPartialColAllGather( A21Adj_STAR_MR );
         L21_VR_STAR.AdjointPartialColAllGather( L21Adj_STAR_MR );
         LocalTrr2k
-        ( LOWER, TRANSPOSE,
+        ( LOWER, NORMAL, NORMAL, TRANSPOSE, NORMAL,
           F(-1), L21_MC_STAR,      A21Adj_STAR_MR, 
-                 A21Trans_STAR_MC, L21Adj_STAR_MR,
+          F(-1), A21Trans_STAR_MC, L21Adj_STAR_MR,
           F(1),  A22 );
 
         // A21 := A21 - 1/2 Y21

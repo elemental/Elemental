@@ -51,24 +51,24 @@ LocalTrr2kKernel
 
     const Int half = E.Height() / 2;
     if( transA )
-        PartitionRight( A, *A0, *A1, half );
+        LockedPartitionRight( A, *A0, *A1, half );
     else
-        PartitionDown( A, *A0, *A1, half );
+        LockedPartitionDown( A, *A0, *A1, half );
     if( transB )
-        PartitionDown( B, *B0, *B1, half );
+        LockedPartitionDown( B, *B0, *B1, half );
     else
-        PartitionRight( B, *B0, *B1, half );
+        LockedPartitionRight( B, *B0, *B1, half );
     if( transC )
-        PartitionRight( C, *C0, *C1, half );
+        LockedPartitionRight( C, *C0, *C1, half );
     else
-        PartitionDown( C, *C0, *C1, half );
+        LockedPartitionDown( C, *C0, *C1, half );
     if( transD )
-        PartitionDown( D, *D0, *D1, half );
+        LockedPartitionDown( D, *D0, *D1, half );
     else
-        PartitionRight( D, *D0, *D1, half );
+        LockedPartitionRight( D, *D0, *D1, half );
     PartitionDownDiagonal( E, *ETL, *ETR, *EBL, *EBR, half );
 
-    ScaleTrapezoid( gamma, uplo, *E );
+    ScaleTrapezoid( gamma, uplo, E );
     if( uplo == LOWER )
     {
         Gemm
@@ -163,21 +163,21 @@ void LocalTrr2k
 
         const Int half = E.Height() / 2;
         if( transA )
-            PartitionRight( A, *A0, *A1, half );
+            LockedPartitionRight( A, *A0, *A1, half );
         else
-            PartitionDown( A, *A0, *A1, half );
+            LockedPartitionDown( A, *A0, *A1, half );
         if( transB )
-            PartitionDown( B, *B0, *B1, half );
+            LockedPartitionDown( B, *B0, *B1, half );
         else
-            PartitionRight( B, *B0, *B1, half );
+            LockedPartitionRight( B, *B0, *B1, half );
         if( transC )
-            PartitionRight( C, *C0, *C1, half );
+            LockedPartitionRight( C, *C0, *C1, half );
         else
-            PartitionDown( C, *C0, *C1, half );
+            LockedPartitionDown( C, *C0, *C1, half );
         if( transD )
-            PartitionDown( D, *D0, *D1, half );
+            LockedPartitionDown( D, *D0, *D1, half );
         else
-            PartitionRight( D, *D0, *D1, half );
+            LockedPartitionRight( D, *D0, *D1, half );
         PartitionDownDiagonal( E, *ETL, *ETR, *EBL, *EBR, half );
 
         if( uplo == LOWER )
