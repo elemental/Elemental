@@ -328,14 +328,14 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   ElError ElQRExplicit_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG R ) \
   { EL_TRY( qr::Explicit( *CReflect(A), *CReflect(R) ) ) } \
-  ElError ElExplicitQRDist_ ## SIG \
+  ElError ElQRExplicitDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG R ) \
   { EL_TRY( qr::Explicit( *CReflect(A), *CReflect(R) ) ) } \
   /* Explicitly return Q, R, and P (with column pivoting) */ \
   ElError ElQRColPivExplicit_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG R, ElMatrix_i P ) \
   { EL_TRY( qr::Explicit( *CReflect(A), *CReflect(R), *CReflect(P) ) ) } \
-  ElError ElExplicitQRColPivDist_ ## SIG \
+  ElError ElQRColPivExplicitDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG R, ElDistMatrix_i P ) \
   { EL_TRY( qr::Explicit( *CReflect(A), *CReflect(R), *CReflect(P) ) ) } \
   /* Return the triangular factor from QR */ \

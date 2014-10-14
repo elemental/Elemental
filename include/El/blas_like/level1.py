@@ -1628,6 +1628,7 @@ lib.ElSetDiagonalDist_c.restype = c_uint
 lib.ElSetDiagonalDist_z.argtypes = [c_void_p,zType,iType]
 lib.ElSetDiagonalDist_z.restype = c_uint
 def SetDiagonal(A,alphaPre,offset=0):
+  alpha = TagToType(A.tag)(alphaPre)
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElSetDiagonal_i(A.obj,alpha,offset)
     elif A.tag == sTag: lib.ElSetDiagonal_s(A.obj,alpha,offset)
@@ -1964,6 +1965,7 @@ lib.ElUpdateDiagonalDist_c.restype = c_uint
 lib.ElUpdateDiagonalDist_z.argtypes = [c_void_p,zType,iType]
 lib.ElUpdateDiagonalDist_z.restype = c_uint
 def UpdateDiagonal(A,alphaPre,offset=0):
+  alpha = TagToType(A.tag)(alphaPre)
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElUpdateDiagonal_i(A.obj,alpha,offset)
     elif A.tag == sTag: lib.ElUpdateDiagonal_s(A.obj,alpha,offset)
