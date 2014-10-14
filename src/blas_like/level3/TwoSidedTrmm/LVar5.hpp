@@ -60,7 +60,7 @@ LVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
         Axpy( F(1)/F(2), Y10, A10 );
 
         // A00 := A00 + (L10' A10 + A10' L10)
-        Her2k( LOWER, ADJOINT, Base<F>(1), L10, A10, Base<F>(1), A00 );
+        Her2k( LOWER, ADJOINT, F(1), L10, A10, Base<F>(1), A00 );
 
         // A10 := A10 + 1/2 Y10
         Axpy( F(1)/F(2), Y10, A10 );

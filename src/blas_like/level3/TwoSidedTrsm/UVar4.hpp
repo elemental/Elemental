@@ -69,7 +69,7 @@ UVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         Axpy( F(-1)/F(2), Y12, A12 );
 
         // A22 := A22 - (A12' U12 + U12' A12)
-        Her2k( UPPER, ADJOINT, Base<F>(-1), A12, U12, Base<F>(1), A22 );
+        Her2k( UPPER, ADJOINT, F(-1), A12, U12, Base<F>(1), A22 );
 
         // A12 := A12 - 1/2 Y12
         Axpy( F(-1)/F(2), Y12, A12 );
