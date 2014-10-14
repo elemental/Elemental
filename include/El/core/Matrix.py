@@ -1033,25 +1033,25 @@ class Matrix(object):
       entrySize = 4
       bufSize = entrySize*ldim*n
       buf = buffer_from_memory(self.Buffer(),bufSize)
-      return np.ndarray(shape=(m,n),strides=(ldim*entrySize,entrySize),
+      return np.ndarray(shape=(m,n),strides=(entrySize,ldim*entrySize),
                         buffer=buf,dtype=np.int32)
     elif self.tag == sTag:
       entrySize = 4
       bufSize = entrySize*ldim*n
       buf = buffer_from_memory(self.Buffer(),bufSize)
-      return np.ndarray(shape=(m,n),strides=(ldim*entrySize,entrySize),
+      return np.ndarray(shape=(m,n),strides=(entrySize,ldim*entrySize),
                         buffer=buf,dtype=np.float32)
     elif self.tag == dTag:
       entrySize = 8
       bufSize = entrySize*ldim*n
       buf = buffer_from_memory(self.Buffer(),bufSize)
-      return np.ndarray(shape=(m,n),strides=(ldim*entrySize,entrySize),
+      return np.ndarray(shape=(m,n),strides=(entrySize,ldim*entrySize),
                         buffer=buf,dtype=np.float64)
     elif self.tag == cTag: 
       entrySize = 8
       bufSize = entrySize*ldim*n
       buf = buffer_from_memory(self.Buffer(),bufSize)
-      return np.ndarray(shape=(m,n),strides=(ldim*entrySize,entrySize),
+      return np.ndarray(shape=(m,n),strides=(entrySize,ldim*entrySize),
                         buffer=buf,dtype=np.complex64)
     elif self.tag == zTag:
       entrySize = 16

@@ -112,8 +112,8 @@ def Display(A,tryMatplotlib=True,title=''):
           ax1.set_title('Real part')
           ax2.set_title('Imag part')
           if isVec:
-            ax1.plot(np.squeeze(AReal.ToNumPy()))
-            ax2.plot(np.squeeze(AImag.ToNumPy()))
+            ax1.plot(np.squeeze(AReal.ToNumPy()),'bo-')
+            ax2.plot(np.squeeze(AImag.ToNumPy()),'bo-')
           else:
             imReal = ax1.imshow(AReal.ToNumPy())
             cBarReal = fig.colorbar(imReal,ax=ax1)
@@ -124,7 +124,7 @@ def Display(A,tryMatplotlib=True,title=''):
           fig = plt.figure()
           axis = fig.add_axes([0.1,0.1,0.8,0.8])
           if isVec:
-            axis.plot(np.squeeze(A.ToNumPy()))
+            axis.plot(np.squeeze(A.ToNumPy()),'bo-')
           else:
             im = axis.imshow(A.ToNumPy())
             fig.colorbar(im,ax=axis)

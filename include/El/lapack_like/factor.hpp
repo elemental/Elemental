@@ -72,11 +72,12 @@ void SolveAfter
 namespace LDLPivotTypeNS {
 enum LDLPivotType
 {
-    BUNCH_KAUFMAN_A=0,
-    BUNCH_KAUFMAN_C=1,
-    BUNCH_KAUFMAN_D=2,
-    BUNCH_KAUFMAN_BOUNDED=3,
-    BUNCH_PARLETT=4
+    BUNCH_KAUFMAN_A,
+    BUNCH_KAUFMAN_C,
+    BUNCH_KAUFMAN_D,
+    BUNCH_KAUFMAN_BOUNDED,
+    BUNCH_PARLETT,
+    LDL_WITHOUT_PIVOTING
     /* TODO: Diagonal pivoting? */
 };
 }
@@ -161,6 +162,20 @@ void SolveAfter
 
 // LU
 // ==
+
+// NOTE: This is not yet made use of, but the fully-pivoted version of LU
+//       should (soon?) accept it as an argument and potentially return one or
+//       more of the permutation matrices as the identity
+namespace LUPivotTypeNS {
+enum LUPivotType
+{
+    LU_PARTIAL, 
+    LU_FULL,
+    LU_ROOK, /* not yet supported */
+    LU_WITHOUT_PIVOTING
+};
+}
+using namespace LUPivotTypeNS;
 
 // LU without pivoting
 // -------------------

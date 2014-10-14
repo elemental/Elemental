@@ -16,54 +16,6 @@
 extern "C" {
 #endif
 
-typedef enum
-{
-  EL_BUNCH_KAUFMAN_A,
-  EL_BUNCH_KAUFMAN_C,
-  EL_BUNCH_KAUFMAN_D,
-  EL_BUNCH_KAUFMAN_BOUNDED,
-  EL_BUNCH_PARLETT
-  /* TODO: Diagonal pivoting? */
-} ElLDLPivotType;
-
-typedef struct
-{
-  ElInt nb;
-  ElInt from[2];
-} ElLDLPivot;
-
-typedef struct 
-{
-    bool colPiv;
-
-    bool boundRank;
-    ElInt maxRank;
-    
-    bool adaptive;
-    float tol;
-
-    bool alwaysRecomputeNorms;    
-
-    /* TODO: Add Chan ratio */
-} ElQRCtrl_s;
-EL_EXPORT ElError ElQRCtrlFillDefault_s( ElQRCtrl_s* ctrl );
-
-typedef struct 
-{
-    bool colPiv;
-
-    bool boundRank;
-    ElInt maxRank;
-    
-    bool adaptive;
-    double tol;
-
-    bool alwaysRecomputeNorms;    
-
-    /* TODO: Add Chan ratio */
-} ElQRCtrl_d;
-EL_EXPORT ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl );
-
 /* Cholesky
    ======== */
 
@@ -205,6 +157,23 @@ EL_EXPORT ElError ElHPSDCholeskyDist_z( ElUpperOrLower uplo, ElDistMatrix_z A );
 
 /* LDL factorization
    ================= */
+
+typedef enum
+{
+  EL_BUNCH_KAUFMAN_A,
+  EL_BUNCH_KAUFMAN_C,
+  EL_BUNCH_KAUFMAN_D,
+  EL_BUNCH_KAUFMAN_BOUNDED,
+  EL_BUNCH_PARLETT,
+  LDL_WITHOUT_PIVOTING
+  /* TODO: Diagonal pivoting? */
+} ElLDLPivotType;
+
+typedef struct
+{
+  ElInt nb;
+  ElInt from[2];
+} ElLDLPivot;
 
 /* Packed LDL factorization (without pivoting) 
    ------------------------------------------- */
@@ -358,6 +327,14 @@ EL_EXPORT ElError ElMultiplyAfterLDLPivDist_z
 
 /* LU factorization
    ================ */
+
+typedef enum
+{
+  EL_LU_PARTIAL,
+  EL_LU_FULL,
+  EL_LU_ROOK,
+  EL_LU_WITHOUT_PIVOTING
+} ElLUPivotType;
 
 /* LU factorization with no pivoting
    --------------------------------- */
@@ -624,6 +601,38 @@ EL_EXPORT ElError ElSolveAfterLQDist_z
 
 /* QR factorization
    ================ */
+
+typedef struct 
+{
+    bool colPiv;
+
+    bool boundRank;
+    ElInt maxRank;
+    
+    bool adaptive;
+    float tol;
+
+    bool alwaysRecomputeNorms;    
+
+    /* TODO: Add Chan ratio */
+} ElQRCtrl_s;
+EL_EXPORT ElError ElQRCtrlFillDefault_s( ElQRCtrl_s* ctrl );
+
+typedef struct 
+{
+    bool colPiv;
+
+    bool boundRank;
+    ElInt maxRank;
+    
+    bool adaptive;
+    double tol;
+
+    bool alwaysRecomputeNorms;    
+
+    /* TODO: Add Chan ratio */
+} ElQRCtrl_d;
+EL_EXPORT ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl );
 
 /* Return the packed QR factorization (with no pivoting)
    ----------------------------------------------------- */
