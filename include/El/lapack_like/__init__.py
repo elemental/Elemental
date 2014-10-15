@@ -8,4 +8,5 @@
 #
 from factor   import *
 from condense import *
+from solve    import *
 from props    import *
