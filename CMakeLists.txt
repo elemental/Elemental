@@ -352,8 +352,6 @@ file(GLOB_RECURSE EL_C_CPP_SOURCE RELATIVE ${PROJECT_SOURCE_DIR}
 file(GLOB_RECURSE EL_C_CPP_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} 
   "include/*.h" "include/*.hpp")
 set(EL_C_CPP_FILES "${EL_C_CPP_SOURCE};${EL_C_CPP_HEADERS};${EL_MOC_SRC}")
-file(GLOB_RECURSE EL_PY_INTERFACE RELATIVE ${PROJECT_SOURCE_DIR} 
-  "include/*.py")
 
 set(LINK_LIBS ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
 
@@ -397,10 +395,27 @@ add_custom_target(prepare_El_headers DEPENDS ${PREPARED_HEADERS})
 add_dependencies(El prepare_El_headers)
 
 # Install the python interface
-foreach(PYFILE ${EL_PY_INTERFACE})
-  get_filename_component(PYFILE_PATH ${PYFILE} PATH)
-  install(FILES ${PROJECT_SOURCE_DIR}/${PYFILE} DESTINATION ${PYFILE_PATH})
-endforeach()
+option(INSTALL_PYTHON_PACKAGE "Install python wrappers as package" TRUE)
+
+if(INSTALL_PYTHON_PACKAGE)
+  execute_process( 
+    COMMAND python -c 
+    "from distutils.sysconfig import get_python_lib; print get_python_lib()" 
+    OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  message(STATUS "PYTHON_SITE_PACKAGES=${PYTHON_SITE_PACKAGES}")
+  install(
+    DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+    DESTINATION ${PYTHON_SITE_PACKAGES}
+    FILES_MATCHING PATTERN "*.py"
+  )
+else()
+  install(
+    DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/
+    FILES_MATCHING_PATTERN "*.py"
+  )
+endif()
 
 # TODO: Ensure that source files depend on header files
 

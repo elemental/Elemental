@@ -412,7 +412,7 @@ lib.ElEntrywiseMapDist_c.restype = c_uint
 lib.ElEntrywiseMapDist_z.argtypes = [c_void_p,CFUNCTYPE(zType,zType)]
 lib.ElEntrywiseMapDist_z.restype = c_uint
 def EntrywiseMap(A,mapFunc):
-  cMap = CFUNCTYPE(TagToType(A.tag))(mapFunc)
+  cMap = CFUNCTYPE(TagToType(A.tag),TagToType(A.tag))(mapFunc)
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElEntrywiseMap_i(A.obj,cMap)
     elif A.tag == sTag: lib.ElEntrywiseMap_s(A.obj,cMap)
