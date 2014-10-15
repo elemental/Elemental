@@ -693,7 +693,6 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   C_PROTO_FIELD(SIG,SIGBASE,F) \
   C_PROTO_COMPLEX_ONLY(SIG,SIGBASE,F)
 
-#define EL_NO_INT_PROTO
 #include "El/macros/CInstantiate.h"
 
 } // extern "C"

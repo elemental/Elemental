@@ -314,9 +314,6 @@ def LDL(A,conjugate=True,pivType=BUNCH_KAUFMAN_A):
       return dSub, p
   else: raise Exception('Unsupported matrix type')
 
-class InertiaType(ctypes.Structure):
-  _fields_ = [("numPositive",iType),("numNegative",iType),("numZero",iType)]
-
 lib.ElInertiaAfterLDL_s.argtypes = [c_void_p,c_void_p,POINTER(InertiaType)]
 lib.ElInertiaAfterLDL_s.restype = c_uint
 lib.ElInertiaAfterLDL_d.argtypes = [c_void_p,c_void_p,POINTER(InertiaType)]

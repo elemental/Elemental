@@ -189,6 +189,9 @@ class SafeProduct_c(ctypes.Structure):
 class SafeProduct_z(ctypes.Structure):
   _fields_ = [("rho",zType),("kappa",dType),("n",iType)]
 
+class InertiaType(ctypes.Structure):
+  _fields_ = [("numPositive",iType),("numNegative",iType),("numZero",iType)]
+
 # Initialization
 # --------------
 
