@@ -77,6 +77,17 @@ if groupIsVoidP:
 else:
   MPI_Group = c_int
 
+# Return MPI_COMM_WORLD
+def MPI_COMM_WORLD():
+  comm = MPI_Comm()
+  lib.ElMPICommWorld(pointer(comm))
+  return comm
+# Return MPI_COMM_SELF
+def MPI_COMM_SELF():
+  comm = MPI_Comm()
+  lib.ElMPICommSelf(pointer(comm))
+  return comm
+
 # Create a simple enum for the supported datatypes
 (iTag,sTag,dTag,cTag,zTag)=(0,1,2,3,4)
 def CheckTag(tag):

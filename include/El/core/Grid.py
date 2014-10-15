@@ -143,13 +143,15 @@ class Grid(object):
     if create:
       lib.ElDefaultGrid(pointer(self.obj))
   @classmethod
-  def FromComm(cls,comm,order):
+  def FromComm(cls,comm=MPI_COMM_WORLD(),order=COL_MAJOR):
     g = cls(False)
     lib.ElGridCreate(comm,order,pointer(g.obj))
+    return g
   @classmethod
-  def FromCommSpecific(cls,comm,height,order):
+  def FromCommSpecific(cls,comm,height,order=COL_MAJOR):
     g = cls(False)
     lib.ElGridCreateSpecific(comm,height,order,pointer(g.obj))
+    return g
   def Destroy(self): 
     lib.ElGridDestroy(self.obj)
   def Row(self):
