@@ -96,7 +96,7 @@ lib.ElDisplayDist_c.argtypes = [c_void_p,c_char_p]
 lib.ElDisplayDist_c.restype = c_uint
 lib.ElDisplayDist_z.argtypes = [c_void_p,c_char_p]
 lib.ElDisplayDist_z.restype = c_uint
-def Display(A,tryMatplotlib=True,title=''):
+def Display(A,title='',tryMatplotlib=True):
   if tryMatplotlib:
     try:  
       import numpy as np
@@ -119,6 +119,7 @@ def Display(A,tryMatplotlib=True,title=''):
             cBarReal = fig.colorbar(imReal,ax=ax1)
             imImag = ax2.imshow(AImag.ToNumPy())
             cBarImag = fig.colorbar(imImag,ax=ax2)
+          plt.suptitle(title)
           plt.tight_layout()
         else:
           fig = plt.figure()
@@ -128,13 +129,14 @@ def Display(A,tryMatplotlib=True,title=''):
           else:
             im = axis.imshow(A.ToNumPy())
             fig.colorbar(im,ax=axis)
+          plt.title(title)
         plt.draw()
         plt.show(block=False)
       elif type(A) is DistMatrix:
         A_CIRC_CIRC = DistMatrix(A.tag,CIRC,CIRC,A.Grid())
         Copy(A,A_CIRC_CIRC)
         if A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root():
-          Display(A_CIRC_CIRC.Matrix(),tryMatplotlib,title)
+          Display(A_CIRC_CIRC.Matrix(),title,tryMatplotlib)
           return
       else: raise Exception('Unsupported matrix type')
       return
