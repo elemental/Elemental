@@ -1300,9 +1300,94 @@ def QR(A,piv=False,factType=QR_IMPLICIT,ctrl=None):
       else: raise Exception('Unsupported QR factorization type')
   else: raise Exception('Unsupported matrix type')
 
-# TODO: Cholesky-based QR
-# TODO: Apply Q from a QR factorization to vectors
-# TODO: Solve against vectors after a QR factorization
+lib.ElCholeskyQR_s.argtypes = [c_void_p,c_void_p]
+lib.ElCholeskyQR_s.restype = c_uint
+lib.ElCholeskyQR_d.argtypes = [c_void_p,c_void_p]
+lib.ElCholeskyQR_d.restype = c_uint
+lib.ElCholeskyQR_c.argtypes = [c_void_p,c_void_p]
+lib.ElCholeskyQR_c.restype = c_uint
+lib.ElCholeskyQR_z.argtypes = [c_void_p,c_void_p]
+lib.ElCholeskyQR_z.restype = c_uint
+lib.ElCholeskyQRDist_s.argtypes = [c_void_p,c_void_p]
+lib.ElCholeskyQRDist_s.restype = c_uint
+lib.ElCholeskyQRDist_d.argtypes = [c_void_p,c_void_p]
+lib.ElCholeskyQRDist_d.restype = c_uint
+lib.ElCholeskyQRDist_c.argtypes = [c_void_p,c_void_p]
+lib.ElCholeskyQRDist_c.restype = c_uint
+lib.ElCholeskyQRDist_z.argtypes = [c_void_p,c_void_p]
+lib.ElCholeskyQRDist_z.restype = c_uint
+def CholeskyQR(A):
+  if type(A) is Matrix:
+    R = Matrix(A.tag)
+    if   A.tag == sTag: lib.ElCholeskyQR_s(A.obj,R.obj)
+    elif A.tag == dTag: lib.ElCholeskyQR_d(A.obj,R.obj)
+    elif A.tag == cTag: lib.ElCholeskyQR_c(A.obj,R.obj)
+    elif A.tag == zTag: lib.ElCholeskyQR_z(A.obj,R.obj)
+    else: raise Exception('Unsupported datatype')
+    return R
+  elif type(A) is DistMatrix:
+    R = DistMatrix(A.tag,STAR,STAR,A.Grid())
+    if   A.tag == sTag: lib.ElCholeskyQRDist_s(A.obj,R.obj)
+    elif A.tag == dTag: lib.ElCholeskyQRDist_d(A.obj,R.obj)
+    elif A.tag == cTag: lib.ElCholeskyQRDist_c(A.obj,R.obj)
+    elif A.tag == zTag: lib.ElCholeskyQRDist_z(A.obj,R.obj)
+    else: raise Exception('Unsupported datatype')
+    return R
+  else: raise Exception('Unsupported matrix type')
+
+lib.ElApplyQAfterQR_s.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElApplyQAfterQR_s.restype = c_uint
+lib.ElApplyQAfterQR_d.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElApplyQAfterQR_d.restype = c_uint
+lib.ElApplyQAfterQR_c.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElApplyQAfterQR_c.restype = c_uint
+lib.ElApplyQAfterQR_z.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElApplyQAfterQR_z.restype = c_uint
+lib.ElApplyQAfterQRDist_s.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElApplyQAfterQRDist_s.restype = c_uint
+lib.ElApplyQAfterQRDist_d.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElApplyQAfterQRDist_d.restype = c_uint
+lib.ElApplyQAfterQRDist_c.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElApplyQAfterQRDist_c.restype = c_uint
+lib.ElApplyQAfterQRDist_z.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElApplyQAfterQRDist_z.restype = c_uint
+def ApplyQAfterQR(side,orient,A,t,d,B):
+  if type(A) is not type(t) or type(t) is not type(d) or type(d) is not type(B):
+    raise Exception('Matrix types of {A,t,d,B} must match')
+  if A.tag != t.tag or t.tag != B.tag:
+    raise Exception('Datatypes of {A,t,B} must match')
+  if d.tag != Base(A.tag):
+    raise Exception('Base type of A must match that of d')
+  if type(A) is Matrix:
+    if   A.tag == sTag:
+      lib.ElApplyQAfterQR_s(side,orient,A.tag,t.tag,d.tag,B.tag)
+    elif A.tag == dTag:
+      lib.ElApplyQAfterQR_d(side,orient,A.tag,t.tag,d.tag,B.tag)
+    elif A.tag == cTag:
+      lib.ElApplyQAfterQR_c(side,orient,A.tag,t.tag,d.tag,B.tag)
+    elif A.tag == zTag:
+      lib.ElApplyQAfterQR_z(side,orient,A.tag,t.tag,d.tag,B.tag)
+    else: raise Exception('Unsupported datatype')
+  elif type(A) is DistMatrix:
+    if   A.tag == sTag:
+      lib.ElApplyQAfterQRDist_s(side,orient,A.tag,t.tag,d.tag,B.tag)
+    elif A.tag == dTag:
+      lib.ElApplyQAfterQRDist_d(side,orient,A.tag,t.tag,d.tag,B.tag)
+    elif A.tag == cTag:
+      lib.ElApplyQAfterQRDist_c(side,orient,A.tag,t.tag,d.tag,B.tag)
+    elif A.tag == zTag:
+      lib.ElApplyQAfterQRDist_z(side,orient,A.tag,t.tag,d.tag,B.tag)
+    else: raise Exception('Unsupported datatype')
+  else: raise Exception('Unsupported matrix type')
+
 # TODO: TSQR
 # TODO: ExplicitTSQR
 

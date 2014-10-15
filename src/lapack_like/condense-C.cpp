@@ -37,9 +37,9 @@ ElError ElHermitianTridiagCtrlDefault( ElHermitianTridiagCtrl* ctrl )
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG P, ElDistMatrix_ ## SIG Q ) \
   { EL_TRY( bidiag::Explicit( *CReflect(A), *CReflect(P), *CReflect(Q) ) ) } \
   /* Only return the condensed bidiagonal matrix, B := Q^H A P */ \
-  ElError ElBidiagExplicitCondensed_ ## SIG ( ElMatrix_ ## SIG A ) \
+  ElError ElBidiagOnly_ ## SIG ( ElMatrix_ ## SIG A ) \
   { EL_TRY( bidiag::ExplicitCondensed( *CReflect(A) ) ) } \
-  ElError ElBidiagExplicitCondensedDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
+  ElError ElBidiagOnlyDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
   { EL_TRY( bidiag::ExplicitCondensed( *CReflect(A) ) ) } \
   /* Apply Q from B := Q^H A P to a set of vectors */ \
   ElError ElApplyQAfterBidiag_ ## SIG \
@@ -86,15 +86,15 @@ ElError ElHermitianTridiagCtrlDefault( ElHermitianTridiagCtrl* ctrl )
   { EL_TRY( HermitianTridiag( \
       CReflect(uplo), *CReflect(A), *CReflect(t), CReflect(ctrl) ) ) } \
   /* Return only the condensed form */ \
-  ElError ElHermitianTridiagExplicitCondensed_ ## SIG \
+  ElError ElHermitianTridiagOnly_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
   { EL_TRY( herm_tridiag::ExplicitCondensed \
       ( CReflect(uplo), *CReflect(A) ) ) } \
-  ElError ElHermitianTridiagExplicitCondensedDist_ ## SIG \
+  ElError ElHermitianTridiagOnlyDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
   { EL_TRY( herm_tridiag::ExplicitCondensed \
       ( CReflect(uplo), *CReflect(A) ) ) } \
-  ElError ElHermitianTridiagExplicitCondensedXDist_ ## SIG \
+  ElError ElHermitianTridiagOnlyXDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElHermitianTridiagCtrl ctrl ) \
   { EL_TRY( herm_tridiag::ExplicitCondensed \
       ( CReflect(uplo), *CReflect(A), CReflect(ctrl) ) ) } \
@@ -124,10 +124,10 @@ ElError ElHermitianTridiagCtrlDefault( ElHermitianTridiagCtrl* ctrl )
   { EL_TRY( Hessenberg( \
       CReflect(uplo), *CReflect(A), *CReflect(t) ) ) } \
   /* Only return the similar Hessenberg matrix */ \
-  ElError ElHessenbergExplicitCondensed_ ## SIG \
+  ElError ElHessenbergOnly_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
   { EL_TRY( hessenberg::ExplicitCondensed( CReflect(uplo), *CReflect(A) ) ) } \
-  ElError ElHessenbergExplicitCondensedDist_ ## SIG \
+  ElError ElHessenbergOnlyDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
   { EL_TRY( hessenberg::ExplicitCondensed( CReflect(uplo), *CReflect(A) ) ) } \
   /* Apply Q from a Hessenberg decomposition, H := Q^H A Q */ \
