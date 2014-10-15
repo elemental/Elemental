@@ -147,29 +147,47 @@ class IndexRange(ctypes.Structure):
       else:            end = iType(ind1)
     super(IndexRange,self).__init__(beg,end)
 
-# Emulate an enum for grid ordering
+# Emulate various enums
+# ---------------------
+
+# Grid ordering
 (ROW_MAJOR,COL_MAJOR)=(0,1)
 
-# Emulate an enum for upper or lower
+# Upper or lower
 (LOWER,UPPER)=(0,1)
 
-# Emulate an enum for left or right
+# Left or right
 (LEFT,RIGHT)=(0,1)
 
-# Emulate an enum for matrix orientation
+# Matrix orientation 
 (NORMAL,TRANSPOSE,ADJOINT)=(0,1,2)
 
-# Emulate an enum for unit/non-unit diagonal
+# Unit/non-unit diagonal
 (NON_UNIT,UNIT)=(0,1)
 
-# Emulate the file format enum
+# File format 
 (AUTO,ASCII,ASCII_MATLAB,BINARY,BINARY_FLAT,BMP,JPG,JPEG,MATRIX_MARKET,
  PNG,PPM,XBM,XPM)=(0,1,2,3,4,5,6,7,8,9,10,11,12)
 
-# Emulate a colormap enum
+# Colormap
 (GRAYSCALE,GRAYSCALE_DISCRETE,RED_BLACK_GREEN,BLUE_RED)=(0,1,2,3)
 
+# Norm types
+(ONE_NORM,INFINITY_NORM,ENTRYWISE_ONE_NORM,MAX_NORM,NUCLEAR_NORM,FROBENIUS_NORM,
+ TWO_NORM)=(0,1,2,3,4,5,6)
+
 # TODO: Many more enums
+
+# Miscellaneous small data structures
+# -----------------------------------
+class SafeProduct_s(ctypes.Structure):
+  _fields_ = [("rho",sType),("kappa",sType),("n",iType)]
+class SafeProduct_d(ctypes.Structure):
+  _fields_ = [("rho",dType),("kappa",dType),("n",iType)]
+class SafeProduct_c(ctypes.Structure):
+  _fields_ = [("rho",cType),("kappa",sType),("n",iType)]
+class SafeProduct_z(ctypes.Structure):
+  _fields_ = [("rho",zType),("kappa",dType),("n",iType)]
 
 # Initialization
 # --------------

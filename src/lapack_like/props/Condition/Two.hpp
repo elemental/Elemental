@@ -16,12 +16,12 @@ template<typename F>
 Base<F> TwoCondition( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("TwoCondition"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
     Matrix<F> B( A );
-    Matrix<R> s;
+    Matrix<Real> s;
     SVD( B, s );
 
-    R cond = 1;
+    Real cond = 1;
     const Int numVals = s.Height();
     if( numVals > 0 )
         cond = s.Get(0,0) / s.Get(numVals-1,0);
@@ -32,12 +32,13 @@ template<typename F>
 Base<F> TwoCondition( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("TwoCondition"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
+    Print( A, "A" );
     DistMatrix<F> B( A );
-    DistMatrix<R,VR,STAR> s( A.Grid() );
+    DistMatrix<Real,VR,STAR> s( A.Grid() );
     SVD( B, s );
 
-    R cond = 1;
+    Real cond = 1;
     const Int numVals = s.Height();
     if( numVals > 0 )
         cond = s.Get(0,0) / s.Get(numVals-1,0);
