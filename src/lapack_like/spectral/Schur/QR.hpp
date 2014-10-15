@@ -234,7 +234,7 @@ QR
     ( n, ABlock.Buffer(), desca.data(), w_STAR_STAR.Buffer(), 
       fullTriangle, ctrl.distAED );
     A = ABlock;
-    w = w_STAR_STAR;
+    Copy( w_STAR_STAR, w );
 
     blacs::FreeGrid( context );
     blacs::FreeHandle( bhandle );
@@ -306,8 +306,8 @@ QR
     ( n, ABlock.Buffer(), desca.data(), w_STAR_STAR.Buffer(), 
       QBlock.Buffer(), descq.data(), fullTriangle, multiplyQ, ctrl.distAED );
     A = ABlock;
-    w = w_STAR_STAR;
     Q = QBlock;
+    Copy( w_STAR_STAR, w );
 
     blacs::FreeGrid( context );
     blacs::FreeHandle( bhandle );
