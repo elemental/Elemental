@@ -47,13 +47,13 @@
 #include <semaphore.h>
 #include "mpi.h"
 #include "pmrrr.h"
-#include "plarrv.h"
-#include "global.h"
-#include "queue.h"
-#include "counter.h"
-#include "rrr.h"
-#include "structs.h"
-#include "process_task.h"
+#include "pmrrr/plarrv.h"
+#include "pmrrr/global.h"
+#include "pmrrr/queue.h"
+#include "pmrrr/counter.h"
+#include "pmrrr/rrr.h"
+#include "pmrrr/structs.h"
+#include "pmrrr/process_task.h"
 
 
 #define THREE            3.0

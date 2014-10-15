@@ -42,8 +42,8 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <assert.h>
-#include "global.h"
-#include "queue.h"
+#include "pmrrr/global.h"
+#include "pmrrr/queue.h"
 
 
 

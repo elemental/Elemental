@@ -53,10 +53,10 @@
 
 #include "mpi.h"
 #include "pmrrr.h"
-#include "global.h"
-#include "plarre.h"
-#include "plarrv.h"
-#include "structs.h"
+#include "pmrrr/global.h"
+#include "pmrrr/plarre.h"
+#include "pmrrr/plarrv.h"
+#include "pmrrr/structs.h"
 
 
 static int handle_small_cases(char*, char*, int*, double*, double*,

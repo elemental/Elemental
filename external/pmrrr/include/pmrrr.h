@@ -42,7 +42,7 @@
 #define PPMRRR_H
 
 #include "mpi.h"
-#include "global.h"
+#include "pmrrr/global.h"
 
 /* Parallel computation of all or a subset of eigenvalues and 
  * optionally eigenvectors of a symmetric tridiagonal matrix based on 

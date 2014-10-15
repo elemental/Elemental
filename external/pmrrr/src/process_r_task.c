@@ -45,13 +45,13 @@
 #include <assert.h>
 #include "mpi.h"
 #include "pmrrr.h"
-#include "global.h"
-#include "plarrv.h"
-#include "queue.h"
-#include "counter.h"
-#include "structs.h"
-#include "tasks.h"
-#include "process_task.h"
+#include "pmrrr/global.h"
+#include "pmrrr/plarrv.h"
+#include "pmrrr/queue.h"
+#include "pmrrr/counter.h"
+#include "pmrrr/structs.h"
+#include "pmrrr/tasks.h"
+#include "pmrrr/process_task.h"
 
 
 int PMR_process_r_task(refine_t *rf, proc_t *procinfo, val_t *Wstruct,

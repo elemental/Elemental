@@ -51,9 +51,9 @@
 #include <pthread.h>
 #include "mpi.h"
 #include "pmrrr.h" 
-#include "plarre.h"
-#include "global.h"
-#include "structs.h" 
+#include "pmrrr/plarre.h"
+#include "pmrrr/global.h"
+#include "pmrrr/structs.h" 
 
 
 #define ONE                1.0

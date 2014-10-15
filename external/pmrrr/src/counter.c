@@ -41,8 +41,8 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <assert.h>
-#include "global.h"
-#include "counter.h"
+#include "pmrrr/global.h"
+#include "pmrrr/counter.h"
 
 
 

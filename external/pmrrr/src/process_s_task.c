@@ -45,12 +45,12 @@
 #include <float.h>
 #include <assert.h>
 #include "pmrrr.h"
-#include "global.h"
-#include "rrr.h"
-#include "counter.h"
-#include "structs.h"
-#include "tasks.h"
-#include "process_task.h"
+#include "pmrrr/global.h"
+#include "pmrrr/rrr.h"
+#include "pmrrr/counter.h"
+#include "pmrrr/structs.h"
+#include "pmrrr/tasks.h"
+#include "pmrrr/process_task.h"
 
 
 int PMR_process_s_task(singleton_t *sng, int tid, proc_t *procinfo,

@@ -41,8 +41,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#include "rrr.h"
-#include "global.h"
+#include "pmrrr/rrr.h"
+#include "pmrrr/global.h"
 
 
 

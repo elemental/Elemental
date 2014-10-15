@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "global.h"
+#include "pmrrr/global.h"
 
 /* non-optimized, non-threaded DSCAL replacement */
 void pmrrr_dscal(int *n, double *alpha, double *restrict x, int *incx)

@@ -41,9 +41,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#include "global.h"
-#include "tasks.h"
-#include "rrr.h"
+#include "pmrrr/global.h"
+#include "pmrrr/tasks.h"
+#include "pmrrr/rrr.h"
 
 
 task_t *PMR_create_s_task(int first, int last, int depth,
