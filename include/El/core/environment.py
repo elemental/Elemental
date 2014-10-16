@@ -15,7 +15,6 @@ libPath = find_library('El')
 if libPath == None:
   raise Exception("Could not find Elemental library")
 lib = ctypes.cdll.LoadLibrary(libPath)
-#lib = ctypes.cdll.LoadLibrary('/home/poulson/Source/Internal/Elemental/build/libEl.so')
 
 # Environment
 # ===========
@@ -175,6 +174,9 @@ class IndexRange(ctypes.Structure):
 # Norm types
 (ONE_NORM,INFINITY_NORM,ENTRYWISE_ONE_NORM,MAX_NORM,NUCLEAR_NORM,FROBENIUS_NORM,
  TWO_NORM)=(0,1,2,3,4,5,6)
+
+# Sort type
+(UNSORTED,DESCENDING,ASCENDING)=(0,1,2)
 
 # TODO: Many more enums
 

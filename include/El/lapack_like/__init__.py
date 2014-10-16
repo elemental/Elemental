@@ -8,5 +8,6 @@
 #
 from factor   import *
 from condense import *
+from spectral import *
 from solve    import *
 from props    import *
