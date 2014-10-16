@@ -492,7 +492,7 @@ lib.ElFoxLiDist_c.argtypes = [c_void_p,iType,sType]
 lib.ElFoxLiDist_c.restype = c_uint
 lib.ElFoxLiDist_z.argtypes = [c_void_p,iType,dType]
 lib.ElFoxLiDist_z.restype = c_uint
-def FoxLi(A,n,omega):
+def FoxLi(A,n,omega=48.):
   if type(A) is Matrix:
     if   A.tag == cTag: lib.ElFoxLi_c(A.obj,n,omega)
     elif A.tag == zTag: lib.ElFoxLi_z(A.obj,n,omega)
