@@ -103,6 +103,13 @@ def Base(tag):
   elif tag == zTag: return dTag
   else: raise Exception('Invalid tag')
 
+def Complexify(tag):
+  if   tag == sTag: return cTag
+  elif tag == dTag: return zTag
+  elif tag == cTag: return cTag
+  elif tag == zTag: return zTag
+  else: raise Exception('Invalid tag')
+
 def TagToType(tag):
   if   tag == iTag: return iType
   elif tag == sTag: return sType
@@ -177,6 +184,9 @@ class IndexRange(ctypes.Structure):
 
 # Sort type
 (UNSORTED,DESCENDING,ASCENDING)=(0,1,2)
+
+# Pencil
+(AXBX,ABX,BAX)=(1,2,3)
 
 # TODO: Many more enums
 
