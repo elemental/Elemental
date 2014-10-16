@@ -849,177 +849,177 @@ EL_EXPORT ElError ElHermitianTwoNormEstimateDist_z
    ============= */
 /* Automatic window choice
    ----------------------- */
-EL_EXPORT ElError ElPseudospectralAutoWindow_s
+EL_EXPORT ElError ElSpectralPortrait_s
 ( ElConstMatrix_s A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize );
-EL_EXPORT ElError ElPseudospectralAutoWindow_d
+EL_EXPORT ElError ElSpectralPortrait_d
 ( ElConstMatrix_d A, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize );
-EL_EXPORT ElError ElPseudospectralAutoWindow_c
+EL_EXPORT ElError ElSpectralPortrait_c
 ( ElConstMatrix_c A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize );
-EL_EXPORT ElError ElPseudospectralAutoWindow_z
+EL_EXPORT ElError ElSpectralPortrait_z
 ( ElConstMatrix_z A, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize );
 
-EL_EXPORT ElError ElPseudospectralAutoWindowDist_s
+EL_EXPORT ElError ElSpectralPortraitDist_s
 ( ElConstDistMatrix_s A, ElDistMatrix_s invNormMap, 
   ElInt realSize, ElInt imagSize );
-EL_EXPORT ElError ElPseudospectralAutoWindowDist_d
+EL_EXPORT ElError ElSpectralPortraitDist_d
 ( ElConstDistMatrix_d A, ElDistMatrix_d invNormMap, 
   ElInt realSize, ElInt imagSize );
-EL_EXPORT ElError ElPseudospectralAutoWindowDist_c
+EL_EXPORT ElError ElSpectralPortraitDist_c
 ( ElConstDistMatrix_c A, ElDistMatrix_s invNormMap, 
   ElInt realSize, ElInt imagSize );
-EL_EXPORT ElError ElPseudospectralAutoWindowDist_z
+EL_EXPORT ElError ElSpectralPortraitDist_z
 ( ElConstDistMatrix_z A, ElDistMatrix_d invNormMap, 
   ElInt realSize, ElInt imagSize );
 
 /* Expert version
    ^^^^^^^^^^^^^^ */
-EL_EXPORT ElError ElPseudospectralAutoWindowX_s
+EL_EXPORT ElError ElSpectralPortraitX_s
 ( ElConstMatrix_s A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize,
   ElPseudospecCtrl_s ctrl );
-EL_EXPORT ElError ElPseudospectralAutoWindowX_d
+EL_EXPORT ElError ElSpectralPortraitX_d
 ( ElConstMatrix_d A, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize,
   ElPseudospecCtrl_d ctrl );
-EL_EXPORT ElError ElPseudospectralAutoWindowX_c
+EL_EXPORT ElError ElSpectralPortraitX_c
 ( ElConstMatrix_c A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize,
   ElPseudospecCtrl_s ctrl );
-EL_EXPORT ElError ElPseudospectralAutoWindowX_z
+EL_EXPORT ElError ElSpectralPortraitX_z
 ( ElConstMatrix_z A, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize,
   ElPseudospecCtrl_d ctrl );
 
-EL_EXPORT ElError ElPseudospectralAutoWindowXDist_s
+EL_EXPORT ElError ElSpectralPortraitXDist_s
 ( ElConstDistMatrix_s A, ElDistMatrix_s invNormMap, 
   ElInt realSize, ElInt imagSize, ElPseudospecCtrl_s ctrl );
-EL_EXPORT ElError ElPseudospectralAutoWindowXDist_d
+EL_EXPORT ElError ElSpectralPortraitXDist_d
 ( ElConstDistMatrix_d A, ElDistMatrix_d invNormMap, 
   ElInt realSize, ElInt imagSize, ElPseudospecCtrl_d ctrl );
-EL_EXPORT ElError ElPseudospectralAutoWindowXDist_c
+EL_EXPORT ElError ElSpectralPortraitXDist_c
 ( ElConstDistMatrix_c A, ElDistMatrix_s invNormMap, 
   ElInt realSize, ElInt imagSize, ElPseudospecCtrl_s ctrl );
-EL_EXPORT ElError ElPseudospectralAutoWindowXDist_z
+EL_EXPORT ElError ElSpectralPortraitXDist_z
 ( ElConstDistMatrix_z A, ElDistMatrix_d invNormMap, 
   ElInt realSize, ElInt imagSize, ElPseudospecCtrl_d ctrl );
 
 /* Manual window choice
    -------------------- */
-EL_EXPORT ElError ElPseudospectralWindow_s
+EL_EXPORT ElError ElSpectralWindow_s
 ( ElConstMatrix_s A, ElMatrix_s invNormMap, 
   complex_float center, float realWidth, float imagWidth,
   ElInt realSize, ElInt imagSize );
-EL_EXPORT ElError ElPseudospectralWindow_d
+EL_EXPORT ElError ElSpectralWindow_d
 ( ElConstMatrix_d A, ElMatrix_d invNormMap, 
   complex_double center, double realWidth, double imagWidth,
   ElInt realSize, ElInt imagSize );
-EL_EXPORT ElError ElPseudospectralWindow_c
+EL_EXPORT ElError ElSpectralWindow_c
 ( ElConstMatrix_c A, ElMatrix_s invNormMap, 
   complex_float center, float realWidth, float imagWidth,
   ElInt realSize, ElInt imagSize );
-EL_EXPORT ElError ElPseudospectralWindow_z
+EL_EXPORT ElError ElSpectralWindow_z
 ( ElConstMatrix_z A, ElMatrix_d invNormMap, 
   complex_double center, double realWidth, double imagWidth,
   ElInt realSize, ElInt imagSize );
 
-EL_EXPORT ElError ElPseudospectralWindowDist_s
+EL_EXPORT ElError ElSpectralWindowDist_s
 ( ElConstDistMatrix_s A, ElDistMatrix_s invNormMap, 
   complex_float center, float realWidth, float imagWidth,
   ElInt realSize, ElInt imagSize );
-EL_EXPORT ElError ElPseudospectralWindowDist_d
+EL_EXPORT ElError ElSpectralWindowDist_d
 ( ElConstDistMatrix_d A, ElDistMatrix_d invNormMap, 
   complex_double center, double realWidth, double imagWidth,
   ElInt realSize, ElInt imagSize );
-EL_EXPORT ElError ElPseudospectralWindowDist_c
+EL_EXPORT ElError ElSpectralWindowDist_c
 ( ElConstDistMatrix_c A, ElDistMatrix_s invNormMap, 
   complex_float center, float realWidth, float imagWidth,
   ElInt realSize, ElInt imagSize );
-EL_EXPORT ElError ElPseudospectralWindowDist_z
+EL_EXPORT ElError ElSpectralWindowDist_z
 ( ElConstDistMatrix_z A, ElDistMatrix_d invNormMap, 
   complex_double center, double realWidth, double imagWidth,
   ElInt realSize, ElInt imagSize );
 
 /* Expert version
    ^^^^^^^^^^^^^^ */
-EL_EXPORT ElError ElPseudospectralWindowX_s
+EL_EXPORT ElError ElSpectralWindowX_s
 ( ElConstMatrix_s A, ElMatrix_s invNormMap, 
   complex_float center, float realWidth, float imagWidth,
   ElInt realSize, ElInt imagSize, ElPseudospecCtrl_s ctrl );
-EL_EXPORT ElError ElPseudospectralWindowX_d
+EL_EXPORT ElError ElSpectralWindowX_d
 ( ElConstMatrix_d A, ElMatrix_d invNormMap, 
   complex_double center, double realWidth, double imagWidth,
   ElInt realSize, ElInt imagSize, ElPseudospecCtrl_d ctrl );
-EL_EXPORT ElError ElPseudospectralWindowX_c
+EL_EXPORT ElError ElSpectralWindowX_c
 ( ElConstMatrix_c A, ElMatrix_s invNormMap, 
   complex_float center, float realWidth, float imagWidth,
   ElInt realSize, ElInt imagSize, ElPseudospecCtrl_s ctrl );
-EL_EXPORT ElError ElPseudospectralWindowX_z
+EL_EXPORT ElError ElSpectralWindowX_z
 ( ElConstMatrix_z A, ElMatrix_d invNormMap, 
   complex_double center, double realWidth, double imagWidth,
   ElInt realSize, ElInt imagSize, ElPseudospecCtrl_d ctrl );
 
-EL_EXPORT ElError ElPseudospectralWindowXDist_s
+EL_EXPORT ElError ElSpectralWindowXDist_s
 ( ElConstDistMatrix_s A, ElDistMatrix_s invNormMap, 
   complex_float center, float realWidth, float imagWidth,
   ElInt realSize, ElInt imagSize, ElPseudospecCtrl_s ctrl );
-EL_EXPORT ElError ElPseudospectralWindowXDist_d
+EL_EXPORT ElError ElSpectralWindowXDist_d
 ( ElConstDistMatrix_d A, ElDistMatrix_d invNormMap, 
   complex_double center, double realWidth, double imagWidth,
   ElInt realSize, ElInt imagSize, ElPseudospecCtrl_d ctrl );
-EL_EXPORT ElError ElPseudospectralWindowXDist_c
+EL_EXPORT ElError ElSpectralWindowXDist_c
 ( ElConstDistMatrix_c A, ElDistMatrix_s invNormMap, 
   complex_float center, float realWidth, float imagWidth,
   ElInt realSize, ElInt imagSize, ElPseudospecCtrl_s ctrl );
-EL_EXPORT ElError ElPseudospectralWindowXDist_z
+EL_EXPORT ElError ElSpectralWindowXDist_z
 ( ElConstDistMatrix_z A, ElDistMatrix_d invNormMap, 
   complex_double center, double realWidth, double imagWidth,
   ElInt realSize, ElInt imagSize, ElPseudospecCtrl_d ctrl );
 
 /* Point cloud
    ----------- */
-EL_EXPORT ElError ElPseudospectralCloud_s
+EL_EXPORT ElError ElSpectralCloud_s
 ( ElConstMatrix_s A, ElConstMatrix_c shifts, ElMatrix_s invNormMap );
-EL_EXPORT ElError ElPseudospectralCloud_d
+EL_EXPORT ElError ElSpectralCloud_d
 ( ElConstMatrix_d A, ElConstMatrix_z shifts, ElMatrix_d invNormMap );
-EL_EXPORT ElError ElPseudospectralCloud_c
+EL_EXPORT ElError ElSpectralCloud_c
 ( ElConstMatrix_c A, ElConstMatrix_c shifts, ElMatrix_s invNormMap );
-EL_EXPORT ElError ElPseudospectralCloud_z
+EL_EXPORT ElError ElSpectralCloud_z
 ( ElConstMatrix_z A, ElConstMatrix_z shifts, ElMatrix_d invNormMap );
 
-EL_EXPORT ElError ElPseudospectralCloudDist_s
+EL_EXPORT ElError ElSpectralCloudDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_c shifts, 
   ElDistMatrix_s invNormMap );
-EL_EXPORT ElError ElPseudospectralCloudDist_d
+EL_EXPORT ElError ElSpectralCloudDist_d
 ( ElConstDistMatrix_d A, ElConstDistMatrix_z shifts, 
   ElDistMatrix_d invNormMap );
-EL_EXPORT ElError ElPseudospectralCloudDist_c
+EL_EXPORT ElError ElSpectralCloudDist_c
 ( ElConstDistMatrix_c A, ElConstDistMatrix_c shifts, 
   ElDistMatrix_s invNormMap );
-EL_EXPORT ElError ElPseudospectralCloudDist_z
+EL_EXPORT ElError ElSpectralCloudDist_z
 ( ElConstDistMatrix_z A, ElConstDistMatrix_z shifts, 
   ElDistMatrix_d invNormMap );
 
 /* Expert version
    ^^^^^^^^^^^^^^ */
-EL_EXPORT ElError ElPseudospectralCloudX_s
+EL_EXPORT ElError ElSpectralCloudX_s
 ( ElConstMatrix_s A, ElConstMatrix_c shifts, ElMatrix_s invNormMap,
   ElPseudospecCtrl_s ctrl );
-EL_EXPORT ElError ElPseudospectralCloudX_d
+EL_EXPORT ElError ElSpectralCloudX_d
 ( ElConstMatrix_d A, ElConstMatrix_z shifts, ElMatrix_d invNormMap,
   ElPseudospecCtrl_d ctrl );
-EL_EXPORT ElError ElPseudospectralCloudX_c
+EL_EXPORT ElError ElSpectralCloudX_c
 ( ElConstMatrix_c A, ElConstMatrix_c shifts, ElMatrix_s invNormMap,
   ElPseudospecCtrl_s ctrl );
-EL_EXPORT ElError ElPseudospectralCloudX_z
+EL_EXPORT ElError ElSpectralCloudX_z
 ( ElConstMatrix_z A, ElConstMatrix_z shifts, ElMatrix_d invNormMap,
   ElPseudospecCtrl_d ctrl );
 
-EL_EXPORT ElError ElPseudospectralCloudXDist_s
+EL_EXPORT ElError ElSpectralCloudXDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_c shifts, 
   ElDistMatrix_s invNormMap, ElPseudospecCtrl_s ctrl );
-EL_EXPORT ElError ElPseudospectralCloudXDist_d
+EL_EXPORT ElError ElSpectralCloudXDist_d
 ( ElConstDistMatrix_d A, ElConstDistMatrix_z shifts, 
   ElDistMatrix_d invNormMap, ElPseudospecCtrl_d ctrl );
-EL_EXPORT ElError ElPseudospectralCloudXDist_c
+EL_EXPORT ElError ElSpectralCloudXDist_c
 ( ElConstDistMatrix_c A, ElConstDistMatrix_c shifts, 
   ElDistMatrix_s invNormMap, ElPseudospecCtrl_s ctrl );
-EL_EXPORT ElError ElPseudospectralCloudXDist_z
+EL_EXPORT ElError ElSpectralCloudXDist_z
 ( ElConstDistMatrix_z A, ElConstDistMatrix_z shifts, 
   ElDistMatrix_d invNormMap, ElPseudospecCtrl_d ctrl );
 

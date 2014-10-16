@@ -1893,64 +1893,64 @@ class PseudospecCtrl_d(ctypes.Structure):
 # The choice is based upon a few different norms of the Schur factor, as simply
 # using the spectral radius would be insufficient for highly non-normal 
 # matrices, e.g., a Jordan block with eigenvalue zero
-lib.ElPseudospectralAutoWindow_s.argtypes = [c_void_p,c_void_p,iType,iType]
-lib.ElPseudospectralAutoWindow_s.restype = c_uint
-lib.ElPseudospectralAutoWindow_d.argtypes = [c_void_p,c_void_p,iType,iType]
-lib.ElPseudospectralAutoWindow_d.restype = c_uint
-lib.ElPseudospectralAutoWindow_c.argtypes = [c_void_p,c_void_p,iType,iType]
-lib.ElPseudospectralAutoWindow_c.restype = c_uint
-lib.ElPseudospectralAutoWindow_z.argtypes = [c_void_p,c_void_p,iType,iType]
-lib.ElPseudospectralAutoWindow_z.restype = c_uint
-lib.ElPseudospectralAutoWindowDist_s.argtypes = [c_void_p,c_void_p,iType,iType]
-lib.ElPseudospectralAutoWindowDist_s.restype = c_uint
-lib.ElPseudospectralAutoWindowDist_d.argtypes = [c_void_p,c_void_p,iType,iType]
-lib.ElPseudospectralAutoWindowDist_d.restype = c_uint
-lib.ElPseudospectralAutoWindowDist_c.argtypes = [c_void_p,c_void_p,iType,iType]
-lib.ElPseudospectralAutoWindowDist_c.restype = c_uint
-lib.ElPseudospectralAutoWindowDist_z.argtypes = [c_void_p,c_void_p,iType,iType]
-lib.ElPseudospectralAutoWindowDist_z.restype = c_uint
-lib.ElPseudospectralAutoWindowX_s.argtypes = \
+lib.ElSpectralPortrait_s.argtypes = [c_void_p,c_void_p,iType,iType]
+lib.ElSpectralPortrait_s.restype = c_uint
+lib.ElSpectralPortrait_d.argtypes = [c_void_p,c_void_p,iType,iType]
+lib.ElSpectralPortrait_d.restype = c_uint
+lib.ElSpectralPortrait_c.argtypes = [c_void_p,c_void_p,iType,iType]
+lib.ElSpectralPortrait_c.restype = c_uint
+lib.ElSpectralPortrait_z.argtypes = [c_void_p,c_void_p,iType,iType]
+lib.ElSpectralPortrait_z.restype = c_uint
+lib.ElSpectralPortraitDist_s.argtypes = [c_void_p,c_void_p,iType,iType]
+lib.ElSpectralPortraitDist_s.restype = c_uint
+lib.ElSpectralPortraitDist_d.argtypes = [c_void_p,c_void_p,iType,iType]
+lib.ElSpectralPortraitDist_d.restype = c_uint
+lib.ElSpectralPortraitDist_c.argtypes = [c_void_p,c_void_p,iType,iType]
+lib.ElSpectralPortraitDist_c.restype = c_uint
+lib.ElSpectralPortraitDist_z.argtypes = [c_void_p,c_void_p,iType,iType]
+lib.ElSpectralPortraitDist_z.restype = c_uint
+lib.ElSpectralPortraitX_s.argtypes = \
   [c_void_p,c_void_p,iType,iType,PseudospecCtrl_s]
-lib.ElPseudospectralAutoWindowX_s.restype = c_uint
-lib.ElPseudospectralAutoWindowX_d.argtypes = \
+lib.ElSpectralPortraitX_s.restype = c_uint
+lib.ElSpectralPortraitX_d.argtypes = \
   [c_void_p,c_void_p,iType,iType,PseudospecCtrl_d]
-lib.ElPseudospectralAutoWindowX_d.restype = c_uint
-lib.ElPseudospectralAutoWindowX_c.argtypes = \
+lib.ElSpectralPortraitX_d.restype = c_uint
+lib.ElSpectralPortraitX_c.argtypes = \
   [c_void_p,c_void_p,iType,iType,PseudospecCtrl_s]
-lib.ElPseudospectralAutoWindowX_c.restype = c_uint
-lib.ElPseudospectralAutoWindowX_z.argtypes = \
+lib.ElSpectralPortraitX_c.restype = c_uint
+lib.ElSpectralPortraitX_z.argtypes = \
   [c_void_p,c_void_p,iType,iType,PseudospecCtrl_d]
-lib.ElPseudospectralAutoWindowX_z.restype = c_uint
-lib.ElPseudospectralAutoWindowXDist_s.argtypes = \
+lib.ElSpectralPortraitX_z.restype = c_uint
+lib.ElSpectralPortraitXDist_s.argtypes = \
   [c_void_p,c_void_p,iType,iType,PseudospecCtrl_s]
-lib.ElPseudospectralAutoWindowXDist_s.restype = c_uint
-lib.ElPseudospectralAutoWindowXDist_d.argtypes = \
+lib.ElSpectralPortraitXDist_s.restype = c_uint
+lib.ElSpectralPortraitXDist_d.argtypes = \
   [c_void_p,c_void_p,iType,iType,PseudospecCtrl_d]
-lib.ElPseudospectralAutoWindowXDist_d.restype = c_uint
-lib.ElPseudospectralAutoWindowXDist_c.argtypes = \
+lib.ElSpectralPortraitXDist_d.restype = c_uint
+lib.ElSpectralPortraitXDist_c.argtypes = \
   [c_void_p,c_void_p,iType,iType,PseudospecCtrl_s]
-lib.ElPseudospectralAutoWindowXDist_c.restype = c_uint
-lib.ElPseudospectralAutoWindowXDist_z.argtypes = \
+lib.ElSpectralPortraitXDist_c.restype = c_uint
+lib.ElSpectralPortraitXDist_z.argtypes = \
   [c_void_p,c_void_p,iType,iType,PseudospecCtrl_d]
-lib.ElPseudospectralAutoWindowXDist_z.restype = c_uint
-def PseudospectralAutoWindow(A,realSize=200,imagSize=200,ctrl=None):
+lib.ElSpectralPortraitXDist_z.restype = c_uint
+def SpectralPortrait(A,realSize=200,imagSize=200,ctrl=None):
   if type(A) is Matrix:
     invNormMap = Matrix(Base(A.tag))
     if   A.tag == sTag: 
       if ctrl == None:
-        lib.ElPseudospectralAutoWindow_s \
+        lib.ElSpectralPortrait_s \
         (A.obj,invNormMap.obj,realSize,imagSize)
       else:
-        lib.ElPseudospectralAutoWindowX_s \
+        lib.ElSpectralPortraitX_s \
         (A.obj,invNormMap.obj,realSize,imagSize,ctrl)
     elif A.tag == dTag:
-      lib.ElPseudospectralAutoWindowX_d \
+      lib.ElSpectralPortraitX_d \
       (A.obj,invNormMap.obj,realSize,imagSize,ctrl)
     elif A.tag == cTag:
-      lib.ElPseudospectralAutoWindowX_c \
+      lib.ElSpectralPortraitX_c \
       (A.obj,invNormMap.obj,realSize,imagSize,ctrl)
     elif A.tag == zTag:
-      lib.ElPseudospectralAutoWindowX_z \
+      lib.ElSpectralPortraitX_z \
       (A.obj,invNormMap.obj,realSize,imagSize,ctrl)
     else: raise Exception('Unsupported datatype')
     return invNormMap
@@ -1958,31 +1958,31 @@ def PseudospectralAutoWindow(A,realSize=200,imagSize=200,ctrl=None):
     invNormMap = DistMatrix(Base(A.tag),MC,MR,A.Grid())
     if   A.tag == sTag: 
       if ctrl == None:
-        lib.ElPseudospectralAutoWindowDist_s \
+        lib.ElSpectralPortraitDist_s \
         (A.obj,invNormMap.obj,realSize,imagSize)
       else:
-        lib.ElPseudospectralAutoWindowXDist_s \
+        lib.ElSpectralPortraitXDist_s \
         (A.obj,invNormMap.obj,realSize,imagSize,ctrl)
     elif A.tag == dTag:
       if ctrl == None:
-        lib.ElPseudospectralAutoWindowDist_d \
+        lib.ElSpectralPortraitDist_d \
         (A.obj,invNormMap.obj,realSize,imagSize)
       else:
-        lib.ElPseudospectralAutoWindowXDist_d \
+        lib.ElSpectralPortraitXDist_d \
         (A.obj,invNormMap.obj,realSize,imagSize,ctrl)
     elif A.tag == cTag:
       if ctrl == None:
-        lib.ElPseudospectralAutoWindowDist_c \
+        lib.ElSpectralPortraitDist_c \
         (A.obj,invNormMap.obj,realSize,imagSize)
       else:
-        lib.ElPseudospectralAutoWindowXDist_c \
+        lib.ElSpectralPortraitXDist_c \
         (A.obj,invNormMap.obj,realSize,imagSize,ctrl)
     elif A.tag == zTag:
       if ctrl == None:
-        lib.ElPseudospectralAutoWindowDist_z \
+        lib.ElSpectralPortraitDist_z \
         (A.obj,invNormMap.obj,realSize,imagSize)
       else:
-        lib.ElPseudospectralAutoWindowXDist_z \
+        lib.ElSpectralPortraitXDist_z \
         (A.obj,invNormMap.obj,realSize,imagSize,ctrl)
     else: raise Exception('Unsupported datatype')
     return invNormMap
@@ -1990,86 +1990,86 @@ def PseudospectralAutoWindow(A,realSize=200,imagSize=200,ctrl=None):
 
 # Investigate a particular window of the complex plane
 # ----------------------------------------------------
-lib.ElPseudospectralWindow_s.argtypes = \
+lib.ElSpectralWindow_s.argtypes = \
   [c_void_p,c_void_p,sType,sType,sType,iType,iType]
-lib.ElPseudospectralWindow_s.restype = c_uint
-lib.ElPseudospectralWindow_d.argtypes = \
+lib.ElSpectralWindow_s.restype = c_uint
+lib.ElSpectralWindow_d.argtypes = \
   [c_void_p,c_void_p,dType,dType,dType,iType,iType]
-lib.ElPseudospectralWindow_d.restype = c_uint
-lib.ElPseudospectralWindow_c.argtypes = \
+lib.ElSpectralWindow_d.restype = c_uint
+lib.ElSpectralWindow_c.argtypes = \
   [c_void_p,c_void_p,cType,sType,sType,iType,iType]
-lib.ElPseudospectralWindow_c.restype = c_uint
-lib.ElPseudospectralWindow_z.argtypes = \
+lib.ElSpectralWindow_c.restype = c_uint
+lib.ElSpectralWindow_z.argtypes = \
   [c_void_p,c_void_p,zType,dType,dType,iType,iType]
-lib.ElPseudospectralWindow_z.restype = c_uint
-lib.ElPseudospectralWindowDist_s.argtypes = \
+lib.ElSpectralWindow_z.restype = c_uint
+lib.ElSpectralWindowDist_s.argtypes = \
   [c_void_p,c_void_p,sType,sType,sType,iType,iType]
-lib.ElPseudospectralWindowDist_s.restype = c_uint
-lib.ElPseudospectralWindowDist_d.argtypes = \
+lib.ElSpectralWindowDist_s.restype = c_uint
+lib.ElSpectralWindowDist_d.argtypes = \
   [c_void_p,c_void_p,dType,dType,dType,iType,iType]
-lib.ElPseudospectralWindowDist_d.restype = c_uint
-lib.ElPseudospectralWindowDist_c.argtypes = \
+lib.ElSpectralWindowDist_d.restype = c_uint
+lib.ElSpectralWindowDist_c.argtypes = \
   [c_void_p,c_void_p,cType,sType,sType,iType,iType]
-lib.ElPseudospectralWindowDist_c.restype = c_uint
-lib.ElPseudospectralWindowDist_z.argtypes = \
+lib.ElSpectralWindowDist_c.restype = c_uint
+lib.ElSpectralWindowDist_z.argtypes = \
   [c_void_p,c_void_p,zType,dType,dType,iType,iType]
-lib.ElPseudospectralWindowDist_z.restype = c_uint
-lib.ElPseudospectralWindowX_s.argtypes = \
+lib.ElSpectralWindowDist_z.restype = c_uint
+lib.ElSpectralWindowX_s.argtypes = \
   [c_void_p,c_void_p,sType,sType,sType,iType,iType,PseudospecCtrl_s]
-lib.ElPseudospectralWindowX_s.restype = c_uint
-lib.ElPseudospectralWindowX_d.argtypes = \
+lib.ElSpectralWindowX_s.restype = c_uint
+lib.ElSpectralWindowX_d.argtypes = \
   [c_void_p,c_void_p,dType,dType,dType,iType,iType,PseudospecCtrl_d]
-lib.ElPseudospectralWindowX_d.restype = c_uint
-lib.ElPseudospectralWindowX_c.argtypes = \
+lib.ElSpectralWindowX_d.restype = c_uint
+lib.ElSpectralWindowX_c.argtypes = \
   [c_void_p,c_void_p,cType,sType,sType,iType,iType,PseudospecCtrl_s]
-lib.ElPseudospectralWindowX_c.restype = c_uint
-lib.ElPseudospectralWindowX_z.argtypes = \
+lib.ElSpectralWindowX_c.restype = c_uint
+lib.ElSpectralWindowX_z.argtypes = \
   [c_void_p,c_void_p,zType,dType,dType,iType,iType,PseudospecCtrl_d]
-lib.ElPseudospectralWindowX_z.restype = c_uint
-lib.ElPseudospectralWindowXDist_s.argtypes = \
+lib.ElSpectralWindowX_z.restype = c_uint
+lib.ElSpectralWindowXDist_s.argtypes = \
   [c_void_p,c_void_p,sType,sType,sType,iType,iType,PseudospecCtrl_s]
-lib.ElPseudospectralWindowXDist_s.restype = c_uint
-lib.ElPseudospectralWindowXDist_d.argtypes = \
+lib.ElSpectralWindowXDist_s.restype = c_uint
+lib.ElSpectralWindowXDist_d.argtypes = \
   [c_void_p,c_void_p,dType,dType,dType,iType,iType,PseudospecCtrl_d]
-lib.ElPseudospectralWindowXDist_d.restype = c_uint
-lib.ElPseudospectralWindowXDist_c.argtypes = \
+lib.ElSpectralWindowXDist_d.restype = c_uint
+lib.ElSpectralWindowXDist_c.argtypes = \
   [c_void_p,c_void_p,cType,sType,sType,iType,iType,PseudospecCtrl_s]
-lib.ElPseudospectralWindowXDist_c.restype = c_uint
-lib.ElPseudospectralWindowXDist_z.argtypes = \
+lib.ElSpectralWindowXDist_c.restype = c_uint
+lib.ElSpectralWindowXDist_z.argtypes = \
   [c_void_p,c_void_p,zType,dType,dType,iType,iType,PseudospecCtrl_d]
-lib.ElPseudospectralWindowXDist_z.restype = c_uint
-def PseudospectralWindow \
+lib.ElSpectralWindowXDist_z.restype = c_uint
+def SpectralWindow \
     (A,centerPre,realWidth,imagWidth,realSize=200,imagSize=200,ctrl=None):
   center = TagToType(A.tag)(centerPre)
   if type(A) is Matrix:
     invNormMap = Matrix(Base(A.tag))
     if   A.tag == sTag: 
       if ctrl == None:
-        lib.ElPseudospectralWindow_s \
+        lib.ElSpectralWindow_s \
         (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize)
       else:
-        lib.ElPseudospectralWindowX_s \
+        lib.ElSpectralWindowX_s \
         (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize,ctrl)
     elif A.tag == dTag:
       if ctrl == None:
-        lib.ElPseudospectralWindow_d \
+        lib.ElSpectralWindow_d \
         (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize)
       else:
-        lib.ElPseudospectralWindowX_d \
+        lib.ElSpectralWindowX_d \
         (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize,ctrl)
     elif A.tag == cTag:
       if ctrl == None:
-        lib.ElPseudospectralWindow_c \
+        lib.ElSpectralWindow_c \
         (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize)
       else:
-        lib.ElPseudospectralWindowX_c \
+        lib.ElSpectralWindowX_c \
         (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize,ctrl)
     elif A.tag == zTag:
       if ctrl == None:
-        lib.ElPseudospectralWindow_z \
+        lib.ElSpectralWindow_z \
         (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize)
       else:
-        lib.ElPseudospectralWindowX_z \
+        lib.ElSpectralWindowX_z \
         (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize,ctrl)
     else: raise Exception('Unsupported datatype')
     return invNormMap
@@ -2077,31 +2077,31 @@ def PseudospectralWindow \
     invNormMap = DistMatrix(Base(A.tag),MC,MR,A.Grid())
     if   A.tag == sTag: 
       if ctrl == None:
-        lib.ElPseudospectralWindowDist_s \
+        lib.ElSpectralWindowDist_s \
         (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize)
       else:
-        lib.ElPseudospectralWindowXDist_s \
+        lib.ElSpectralWindowXDist_s \
         (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize,ctrl)
     elif A.tag == dTag:
       if ctrl == None:
-        lib.ElPseudospectralWindowDist_d \
+        lib.ElSpectralWindowDist_d \
         (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize)
       else:
-        lib.ElPseudospectralWindowXDist_d \
+        lib.ElSpectralWindowXDist_d \
         (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize,ctrl)
     elif A.tag == cTag:
       if ctrl == None:
-        lib.ElPseudospectralWindowDist_c \
+        lib.ElSpectralWindowDist_c \
         (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize)
       else:
-        lib.ElPseudospectralWindowXDist_c \
+        lib.ElSpectralWindowXDist_c \
         (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize,ctrl)
     elif A.tag == zTag:
       if ctrl == None:
-        lib.ElPseudospectralWindowDist_z \
+        lib.ElSpectralWindowDist_z \
         (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize)
       else:
-        lib.ElPseudospectralWindowXDist_z \
+        lib.ElSpectralWindowXDist_z \
         (A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize,ctrl)
     else: raise Exception('Unsupported datatype')
     return invNormMap
@@ -2109,93 +2109,93 @@ def PseudospectralWindow \
 
 # Investigate a specific set of points in the complex plane
 # ---------------------------------------------------------
-lib.ElPseudospectralCloud_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPseudospectralCloud_s.restype = c_uint
-lib.ElPseudospectralCloud_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPseudospectralCloud_d.restype = c_uint
-lib.ElPseudospectralCloud_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPseudospectralCloud_c.restype = c_uint
-lib.ElPseudospectralCloud_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPseudospectralCloud_z.restype = c_uint
-lib.ElPseudospectralCloudDist_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPseudospectralCloudDist_s.restype = c_uint
-lib.ElPseudospectralCloudDist_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPseudospectralCloudDist_d.restype = c_uint
-lib.ElPseudospectralCloudDist_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPseudospectralCloudDist_c.restype = c_uint
-lib.ElPseudospectralCloudDist_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPseudospectralCloudDist_z.restype = c_uint
-lib.ElPseudospectralCloudX_s.argtypes = \
+lib.ElSpectralCloud_s.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElSpectralCloud_s.restype = c_uint
+lib.ElSpectralCloud_d.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElSpectralCloud_d.restype = c_uint
+lib.ElSpectralCloud_c.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElSpectralCloud_c.restype = c_uint
+lib.ElSpectralCloud_z.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElSpectralCloud_z.restype = c_uint
+lib.ElSpectralCloudDist_s.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElSpectralCloudDist_s.restype = c_uint
+lib.ElSpectralCloudDist_d.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElSpectralCloudDist_d.restype = c_uint
+lib.ElSpectralCloudDist_c.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElSpectralCloudDist_c.restype = c_uint
+lib.ElSpectralCloudDist_z.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElSpectralCloudDist_z.restype = c_uint
+lib.ElSpectralCloudX_s.argtypes = \
   [c_void_p,c_void_p,c_void_p,PseudospecCtrl_s]
-lib.ElPseudospectralCloudX_s.restype = c_uint
-lib.ElPseudospectralCloudX_d.argtypes = \
+lib.ElSpectralCloudX_s.restype = c_uint
+lib.ElSpectralCloudX_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,PseudospecCtrl_d]
-lib.ElPseudospectralCloudX_d.restype = c_uint
-lib.ElPseudospectralCloudX_c.argtypes = \
+lib.ElSpectralCloudX_d.restype = c_uint
+lib.ElSpectralCloudX_c.argtypes = \
   [c_void_p,c_void_p,c_void_p,PseudospecCtrl_s]
-lib.ElPseudospectralCloudX_c.restype = c_uint
-lib.ElPseudospectralCloudX_z.argtypes = \
+lib.ElSpectralCloudX_c.restype = c_uint
+lib.ElSpectralCloudX_z.argtypes = \
   [c_void_p,c_void_p,c_void_p,PseudospecCtrl_d]
-lib.ElPseudospectralCloudX_z.restype = c_uint
-lib.ElPseudospectralCloudXDist_s.argtypes = \
+lib.ElSpectralCloudX_z.restype = c_uint
+lib.ElSpectralCloudXDist_s.argtypes = \
   [c_void_p,c_void_p,c_void_p,PseudospecCtrl_s]
-lib.ElPseudospectralCloudXDist_s.restype = c_uint
-lib.ElPseudospectralCloudXDist_d.argtypes = \
+lib.ElSpectralCloudXDist_s.restype = c_uint
+lib.ElSpectralCloudXDist_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,PseudospecCtrl_d]
-lib.ElPseudospectralCloudXDist_d.restype = c_uint
-lib.ElPseudospectralCloudXDist_c.argtypes = \
+lib.ElSpectralCloudXDist_d.restype = c_uint
+lib.ElSpectralCloudXDist_c.argtypes = \
   [c_void_p,c_void_p,c_void_p,PseudospecCtrl_s]
-lib.ElPseudospectralCloudXDist_c.restype = c_uint
-lib.ElPseudospectralCloudXDist_z.argtypes = \
+lib.ElSpectralCloudXDist_c.restype = c_uint
+lib.ElSpectralCloudXDist_z.argtypes = \
   [c_void_p,c_void_p,c_void_p,PseudospecCtrl_d]
-lib.ElPseudospectralCloudXDist_z.restype = c_uint
-def PseudospectralCloud(A,shifts,ctrl=None):
+lib.ElSpectralCloudXDist_z.restype = c_uint
+def SpectralCloud(A,shifts,ctrl=None):
   if type(A) is Matrix:
     invNorms = Matrix(Base(A.tag)) 
     if   A.tag == sTag: 
       if ctrl == None:
-        lib.ElPseudospectralCloud_s(A.obj,shifts.obj,invNorms.obj)
+        lib.ElSpectralCloud_s(A.obj,shifts.obj,invNorms.obj)
       else:
-        lib.ElPseudospectralCloudX_s(A.obj,shifts.obj,invNorms.obj,ctrl)
+        lib.ElSpectralCloudX_s(A.obj,shifts.obj,invNorms.obj,ctrl)
     elif A.tag == dTag:
       if ctrl == None:
-        lib.ElPseudospectralCloud_d(A.obj,shifts.obj,invNorms.obj)
+        lib.ElSpectralCloud_d(A.obj,shifts.obj,invNorms.obj)
       else:
-        lib.ElPseudospectralCloudX_d(A.obj,shifts.obj,invNorms.obj,ctrl)
+        lib.ElSpectralCloudX_d(A.obj,shifts.obj,invNorms.obj,ctrl)
     elif A.tag == cTag:
       if ctrl == None:
-        lib.ElPseudospectralCloud_c(A.obj,shifts.obj,invNorms.obj)
+        lib.ElSpectralCloud_c(A.obj,shifts.obj,invNorms.obj)
       else:
-        lib.ElPseudospectralCloudX_c(A.obj,shifts.obj,invNorms.obj,ctrl)
+        lib.ElSpectralCloudX_c(A.obj,shifts.obj,invNorms.obj,ctrl)
     elif A.tag == zTag:
       if ctrl == None:
-        lib.ElPseudospectralCloud_z(A.obj,shifts.obj,invNorms.obj)
+        lib.ElSpectralCloud_z(A.obj,shifts.obj,invNorms.obj)
       else:
-        lib.ElPseudospectralCloudX_z(A.obj,shifts.obj,invNorms.obj,ctrl)
+        lib.ElSpectralCloudX_z(A.obj,shifts.obj,invNorms.obj,ctrl)
     else: raise Exception('Unsupported datatype')
     return invNorms
   elif type(A) is DistMatrix:
     invNorms = DistMatrix(Base(A.tag),VR,STAR,A.Grid())
     if   A.tag == sTag: 
       if ctrl == None:
-        lib.ElPseudospectralCloudDist_s(A.obj,shifts.obj,invNorms.obj)
+        lib.ElSpectralCloudDist_s(A.obj,shifts.obj,invNorms.obj)
       else:
-        lib.ElPseudospectralCloudXDist_s(A.obj,shifts.obj,invNorms.obj,ctrl)
+        lib.ElSpectralCloudXDist_s(A.obj,shifts.obj,invNorms.obj,ctrl)
     elif A.tag == dTag:
       if ctrl == None:
-        lib.ElPseudospectralCloudDist_d(A.obj,shifts.obj,invNorms.obj)
+        lib.ElSpectralCloudDist_d(A.obj,shifts.obj,invNorms.obj)
       else:
-        lib.ElPseudospectralCloudXDist_d(A.obj,shifts.obj,invNorms.obj,ctrl)
+        lib.ElSpectralCloudXDist_d(A.obj,shifts.obj,invNorms.obj,ctrl)
     elif A.tag == cTag:
       if ctrl == None:
-        lib.ElPseudospectralCloudDist_c(A.obj,shifts.obj,invNorms.obj)
+        lib.ElSpectralCloudDist_c(A.obj,shifts.obj,invNorms.obj)
       else:
-        lib.ElPseudospectralCloudXDist_c(A.obj,shifts.obj,invNorms.obj,ctrl)
+        lib.ElSpectralCloudXDist_c(A.obj,shifts.obj,invNorms.obj,ctrl)
     elif A.tag == zTag:
       if ctrl == None:
-        lib.ElPseudospectralCloudDist_z(A.obj,shifts.obj,invNorms.obj)
+        lib.ElSpectralCloudDist_z(A.obj,shifts.obj,invNorms.obj)
       else:
-        lib.ElPseudospectralCloudXDist_z(A.obj,shifts.obj,invNorms.obj,ctrl)
+        lib.ElSpectralCloudXDist_z(A.obj,shifts.obj,invNorms.obj,ctrl)
     else: raise Exception('Unsupported datatype')
     return invNorms
   else: raise Exception('Unsupported matrix type')
