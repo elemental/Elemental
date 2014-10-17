@@ -316,8 +316,8 @@ EL_EXPORT ElError ElPivotParity
 EL_EXPORT ElError ElPivotParityDist
 ( ElConstDistMatrix_i p, ElInt pivotOffset, bool* parity );
 
-/* Convert a pivot sequence to partial permutation vectors
-   ======================================================= */
+/* Convert a pivot sequence to partial permutation vector
+   ====================================================== */
 EL_EXPORT ElError ElPivotsToPartialPermutation
 ( ElConstMatrix_i pivots, ElMatrix_i p, ElMatrix_i pInv, 
   ElInt offset );

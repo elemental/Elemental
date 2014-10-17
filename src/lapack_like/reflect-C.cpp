@@ -12,7 +12,7 @@ using namespace El;
 
 extern "C" {
 
-#define C_PROTO_BASE(SIG,SIGBASE,T) \
+#define C_PROTO_FIELD(SIG,SIGBASE,T) \
   /* Hyperbolic reflector
      ==================== */ \
   /* Left application
@@ -57,7 +57,7 @@ extern "C" {
       RightReflector( *CReflect(chi), *CReflect(x) ) ) }
 
 #define C_PROTO_REAL(SIG,Real) \
-  C_PROTO_BASE(SIG,SIG,Real) \
+  C_PROTO_FIELD(SIG,SIG,Real) \
   /* Apply packed reflectors
      ======================= */ \
   ElError ElApplyPackedReflectors_ ## SIG \
@@ -90,7 +90,7 @@ extern "C" {
       UNCONJUGATED, offset, *CReflect(H), *CReflect(t) ) ) }
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
-  C_PROTO_BASE(SIG,SIGBASE,F) \
+  C_PROTO_FIELD(SIG,SIGBASE,F) \
   /* Apply packed reflectors
      ======================= */ \
   ElError ElApplyPackedReflectors_ ## SIG \

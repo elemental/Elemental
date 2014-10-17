@@ -150,7 +150,7 @@ ElError ElPivotsToInversePermutationDist
 { EL_TRY( PivotsToInversePermutation
           ( *CReflect(pivots), *CReflect(p), offset ) ) }
 
-#define C_PROTO(SIG,SIGBASE,T) \
+#define C_PROTO_BASE(SIG,SIGBASE,T) \
   /* Apply column pivots
      =================== */ \
   ElError ElApplyColPivots_ ## SIG \
@@ -230,8 +230,8 @@ ElError ElPivotsToInversePermutationDist
   ( ElDistMatrix_ ## SIG A, const ElPermutationMeta* meta ) \
   { EL_TRY( PermuteRows( *CReflect(A), CReflect(*meta) ) ) }
 
-#define C_PROTO_REAL(SIG,Real) \
-  C_PROTO(SIG,SIG,Real) \
+#define C_PROTO_NOCOMPLEX(SIG,Real) \
+  C_PROTO_BASE(SIG,SIG,Real) \
   /* Apply symmetric pivots
      ====================== */ \
   ElError ElApplySymmetricPivots_ ## SIG \
@@ -253,10 +253,13 @@ ElError ElPivotsToInversePermutationDist
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElConstDistMatrix_i p, \
     ElInt offset ) \
   { EL_TRY( ApplyInverseSymmetricPivots \
-           ( CReflect(uplo), *CReflect(A), *CReflect(p), false, offset ) ) } \
+           ( CReflect(uplo), *CReflect(A), *CReflect(p), false, offset ) ) }
+
+#define C_PROTO_INT(SIG,T) C_PROTO_NOCOMPLEX(SIG,T)
+#define C_PROTO_REAL(SIG,Real) C_PROTO_NOCOMPLEX(SIG,Real)
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
-  C_PROTO(SIG,SIGBASE,F) \
+  C_PROTO_BASE(SIG,SIGBASE,F) \
   /* Apply symmetric pivots
      ====================== */ \
   ElError ElApplySymmetricPivots_ ## SIG \
