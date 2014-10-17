@@ -1160,17 +1160,17 @@ def SVD(A,vectors=False):
     s = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
     if vectors:
       V = DistMatrix(A.tag,MC,MR,A.Grid())
-      if   A.tag == sTag: lib.ElSVD_s(A.obj,s.obj,V.obj)
-      elif A.tag == dTag: lib.ElSVD_d(A.obj,s.obj,V.obj)
-      elif A.tag == cTag: lib.ElSVD_c(A.obj,s.obj,V.obj)
-      elif A.tag == zTag: lib.ElSVD_z(A.obj,s.obj,V.obj)
+      if   A.tag == sTag: lib.ElSVDDist_s(A.obj,s.obj,V.obj)
+      elif A.tag == dTag: lib.ElSVDDist_d(A.obj,s.obj,V.obj)
+      elif A.tag == cTag: lib.ElSVDDist_c(A.obj,s.obj,V.obj)
+      elif A.tag == zTag: lib.ElSVDDist_z(A.obj,s.obj,V.obj)
       else: raise Exception('Unsupported datatype')
       return s, V
     else:
-      if   A.tag == sTag: lib.ElSingularValues_s(A.obj,s.obj)
-      elif A.tag == dTag: lib.ElSingularValues_d(A.obj,s.obj)
-      elif A.tag == cTag: lib.ElSingularValues_c(A.obj,s.obj)
-      elif A.tag == zTag: lib.ElSingularValues_z(A.obj,s.obj)
+      if   A.tag == sTag: lib.ElSingularValuesDist_s(A.obj,s.obj)
+      elif A.tag == dTag: lib.ElSingularValuesDist_d(A.obj,s.obj)
+      elif A.tag == cTag: lib.ElSingularValuesDist_c(A.obj,s.obj)
+      elif A.tag == zTag: lib.ElSingularValuesDist_z(A.obj,s.obj)
       else: raise Exception('Unsupported datatype')
       return s
   else: raise Exception('Unsupported matrix type')

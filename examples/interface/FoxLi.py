@@ -9,13 +9,22 @@
 import math, El
 n = 100                 # matrix size
 realRes = imagRes = 100 # grid resolution
+
+# Display an instance of the Fox-Li/Landau matrix
 A = El.DistMatrix(El.zTag)
 El.FoxLi(A,n)
 El.Display(A,"Fox-Li/Landau matrix")
+
+# Display its spectral portrait
 portrait = El.SpectralPortrait(A,realRes,imagRes)
-El.EntrywiseMap(portrait,math.log)
+El.EntrywiseMap(portrait,math.log10)
 El.Display(portrait,"spectral portrait of Fox-Li/Landau matrix")
-El.Finalize()
+
+# Display its singular values
+s = El.SVD(A)
+El.EntrywiseMap(s,math.log10)
+El.Display(s,"log10(svd(A))")
 
 # Require the user to press a button before the figures are closed
+El.Finalize()
 raw_input('Press Enter to exit')
