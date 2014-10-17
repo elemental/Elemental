@@ -25,19 +25,21 @@ class PermutationMeta(ctypes.Structure):
   _fields_ = [("align",iType),("comm",MPI_Comm),
               ("sendCounts",POINTER(iType)),("sendDispls",POINTER(iType)),
               ("recvCounts",POINTER(iType)),("recvDispls",POINTER(iType)),
+              ("numSendIdx",iType),         ("numRecvIdx",iType),
+              ("sendIdx",POINTER(iType)),   ("sendRanks",POINTER(iType)),
               ("recvIdx",POINTER(iType)),   ("recvRanks",POINTER(iType))]
   def __init__(self,p,pInv):
     if type(p) is not DistMatrix or type(pInv) is not DistMatrix:
       raise Exception('Types of p and pInv must be DistMatrix')
-    if p.tag != iType or pInv.tag != iType:
+    if p.tag != iTag or pInv.tag != iTag:
       raise Exception('p and pInv must be integral')
-    lib.ElPermutationMetaSet(p.obj,pInv,obj,pointer(self))
+    lib.ElPermutationMetaSet(p.obj,pInv.obj,pointer(self))
   def Set(self,p,pInv):
     if type(p) is not DistMatrix or type(pInv) is not DistMatrix:
       raise Exception('Types of p and pInv must be DistMatrix')
-    if p.tag != iType or pInv.tag != iType:
+    if p.tag != iTag or pInv.tag != iTag:
       raise Exception('p and pInv must be integral')
-    lib.ElPermutationMetaSet(p.obj,pInv,obj,pointer(self))
+    lib.ElPermutationMetaSet(p.obj,pInv.obj,pointer(self))
   def Clear(self,p,pInv):
     lib.ElPermutationMetaClear(pointer(self))
   def TotalSend(self):

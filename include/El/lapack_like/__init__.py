@@ -12,5 +12,6 @@ from perm     import *
 from factor   import *
 from condense import *
 from spectral import *
+from funcs    import *
 from solve    import *
 from props    import *

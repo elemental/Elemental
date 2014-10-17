@@ -149,7 +149,7 @@ ElError ElSquareRootCtrlDefault_d( ElSquareRootCtrl_d* ctrl )
   ElError ElHPSDSquareRoot_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
   { EL_TRY( HPSDSquareRoot( CReflect(uplo), *CReflect(A) ) ) } \
-  ElError ElSHPSDquareRootDist_ ## SIG \
+  ElError ElHPSDSquareRootDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
   { EL_TRY( HPSDSquareRoot( CReflect(uplo), *CReflect(A) ) ) }
 
