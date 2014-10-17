@@ -264,28 +264,329 @@ def ApplyInverseSymmetricPivots(uplo,A,p,conjugate=False,offset=0):
 
 # Explicit permutation
 # ====================
-# TODO
+lib.ElExplicitPermutation.argtypes = [c_void_p,c_void_p]
+lib.ElExplicitPermutation.restype = c_uint
+lib.ElExplicitPermutationDist.argtypes = [c_void_p,c_void_p]
+lib.ElExplicitPermutationDist.restype = c_uint
+def ExplicitPermutation(p):
+  if p.tag != iTag:
+    raise Exception('p must be integral')
+  if type(p) is Matrix:
+    P = Matrix(iTag)
+    lib.ElExplicitPermutation(p.obj,P.obj)
+    return P
+  elif type(p) is DistMatrix:
+    P = DistMatrix(iTag,MC,MR,p.Grid())
+    lib.ElExplicitPermutationDist(p.obj,P.obj)
+    return P
+  else: raise Exception('Unsupported matrix type')
 
 # Invert permutation
 # ==================
-# TODO
+lib.ElInvertPermutation.argtypes = [c_void_p,c_void_p]
+lib.ElInvertPermutation.restype = c_uint
+lib.ElInvertPermutationDist.argtypes = [c_void_p,c_void_p]
+lib.ElInvertPermutationDist.restype = c_uint
+def InvertPermutation(p):
+  if p.tag != iTag:
+    raise Exception('p must be integral')
+  if type(p) is Matrix:
+    pInv = Matrix(iTag)
+    lib.ElInvertPermutation(p.obj,pInv.obj)
+    return pInv
+  elif type(p) is DistMatrix:
+    pInv = DistMatrix(iTag,VC,STAR,p.Grid())
+    lib.ElInvertPermutationDist(p.obj,pInv.obj)
+    return pInv
+  else: raise Exception('Unsupported matrix type')
+
+# Parity of a permutation
+# =======================
+lib.ElPermutationParity.argtypes = [c_void_p,POINTER(bType)]
+lib.ElPermutationParity.restype = c_uint
+lib.ElPermutationParityDist.argtypes = [c_void_p,POINTER(bType)]
+lib.ElPermutationParityDist.restype = c_uint
+def PermutationParity(p):
+  if p.tag != iTag:
+    raise Exception('p must be integral')
+  parity = bType()
+  if type(p) is Matrix:
+    lib.ElPermutationParity(p.obj,pointer(parity))
+  elif type(p) is DistMatrix:
+    lib.ElPermutationParityDist(p.obj,pointer(parity))
+  else: raise Exception('Unsupported matrix type')
+  return parity
 
 # Permute columns
 # ===============
-# TODO
+lib.ElPermuteCols_i.argtypes = [c_void_p,c_void_p]
+lib.ElPermuteCols_i.restype = c_uint
+lib.ElPermuteCols_s.argtypes = [c_void_p,c_void_p]
+lib.ElPermuteCols_s.restype = c_uint
+lib.ElPermuteCols_d.argtypes = [c_void_p,c_void_p]
+lib.ElPermuteCols_d.restype = c_uint
+lib.ElPermuteCols_c.argtypes = [c_void_p,c_void_p]
+lib.ElPermuteCols_c.restype = c_uint
+lib.ElPermuteCols_z.argtypes = [c_void_p,c_void_p]
+lib.ElPermuteCols_z.restype = c_uint
+lib.ElPermuteColsDist_i.argtypes = [c_void_p,c_void_p]
+lib.ElPermuteColsDist_i.restype = c_uint
+lib.ElPermuteColsDist_s.argtypes = [c_void_p,c_void_p]
+lib.ElPermuteColsDist_s.restype = c_uint
+lib.ElPermuteColsDist_d.argtypes = [c_void_p,c_void_p]
+lib.ElPermuteColsDist_d.restype = c_uint
+lib.ElPermuteColsDist_c.argtypes = [c_void_p,c_void_p]
+lib.ElPermuteColsDist_c.restype = c_uint
+lib.ElPermuteColsDist_z.argtypes = [c_void_p,c_void_p]
+lib.ElPermuteColsDist_z.restype = c_uint
+lib.ElPermuteColsBoth_i.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElPermuteColsBoth_i.restype = c_uint
+lib.ElPermuteColsBoth_s.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElPermuteColsBoth_s.restype = c_uint
+lib.ElPermuteColsBoth_d.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElPermuteColsBoth_d.restype = c_uint
+lib.ElPermuteColsBoth_c.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElPermuteColsBoth_c.restype = c_uint
+lib.ElPermuteColsBoth_z.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElPermuteColsBoth_z.restype = c_uint
+lib.ElPermuteColsBothDist_i.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElPermuteColsBothDist_i.restype = c_uint
+lib.ElPermuteColsBothDist_s.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElPermuteColsBothDist_s.restype = c_uint
+lib.ElPermuteColsBothDist_d.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElPermuteColsBothDist_d.restype = c_uint
+lib.ElPermuteColsBothDist_c.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElPermuteColsBothDist_c.restype = c_uint
+lib.ElPermuteColsBothDist_z.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElPermuteColsBothDist_z.restype = c_uint
+def PermuteCols(A,p,pInv=None):
+  if type(A) is Matrix:
+    if pInv == None:
+      if   A.tag == iTag: lib.ElPermuteCols_i(A.obj,p.obj)
+      elif A.tag == sTag: lib.ElPermuteCols_s(A.obj,p.obj)
+      elif A.tag == dTag: lib.ElPermuteCols_d(A.obj,p.obj)
+      elif A.tag == cTag: lib.ElPermuteCols_c(A.obj,p.obj)
+      elif A.tag == zTag: lib.ElPermuteCols_z(A.obj,p.obj)
+      else: raise Exception('Unsupported datatype')
+    else:
+      if type(pInv) != Matrix or pInv.tag != iTag:
+        raise Exception('pInv must be an integer Matrix')
+      if   A.tag == iTag: lib.ElPermuteColsBoth_i(A.obj,p.obj,pInv.obj)
+      elif A.tag == sTag: lib.ElPermuteColsBoth_s(A.obj,p.obj,pInv.obj)
+      elif A.tag == dTag: lib.ElPermuteColsBoth_d(A.obj,p.obj,pInv.obj)
+      elif A.tag == cTag: lib.ElPermuteColsBoth_c(A.obj,p.obj,pInv.obj)
+      elif A.tag == zTag: lib.ElPermuteColsBoth_z(A.obj,p.obj,pInv.obj)
+      else: raise Exception('Unsupported datatype')
+  elif type(A) is DistMatrix:
+    if pInv == None:
+      if   A.tag == iTag: lib.ElPermuteColsDist_i(A.obj,p.obj)
+      elif A.tag == sTag: lib.ElPermuteColsDist_s(A.obj,p.obj)
+      elif A.tag == dTag: lib.ElPermuteColsDist_d(A.obj,p.obj)
+      elif A.tag == cTag: lib.ElPermuteColsDist_c(A.obj,p.obj)
+      elif A.tag == zTag: lib.ElPermuteColsDist_z(A.obj,p.obj)
+      else: raise Exception('Unsupported datatype')
+    else:
+      if type(pInv) != Matrix or pInv.tag != iTag:
+        raise Exception('pInv must be an integer Matrix')
+      if   A.tag == iTag: lib.ElPermuteColsBothDist_i(A.obj,p.obj,pInv.obj)
+      elif A.tag == sTag: lib.ElPermuteColsBothDist_s(A.obj,p.obj,pInv.obj)
+      elif A.tag == dTag: lib.ElPermuteColsBothDist_d(A.obj,p.obj,pInv.obj)
+      elif A.tag == cTag: lib.ElPermuteColsBothDist_c(A.obj,p.obj,pInv.obj)
+      elif A.tag == zTag: lib.ElPermuteColsBothDist_z(A.obj,p.obj,pInv.obj)
+      else: raise Exception('Unsupported datatype')
+  else: raise Exception('Unsupported matrix type')
+
+lib.ElPermuteColsMetaDist_i.argtypes = [c_void_p,POINTER(PermutationMeta)]
+lib.ElPermuteColsMetaDist_i.restype = c_uint
+lib.ElPermuteColsMetaDist_s.argtypes = [c_void_p,POINTER(PermutationMeta)]
+lib.ElPermuteColsMetaDist_s.restype = c_uint
+lib.ElPermuteColsMetaDist_d.argtypes = [c_void_p,POINTER(PermutationMeta)]
+lib.ElPermuteColsMetaDist_d.restype = c_uint
+lib.ElPermuteColsMetaDist_c.argtypes = [c_void_p,POINTER(PermutationMeta)]
+lib.ElPermuteColsMetaDist_c.restype = c_uint
+lib.ElPermuteColsMetaDist_z.argtypes = [c_void_p,POINTER(PermutationMeta)]
+lib.ElPermuteColsMetaDist_z.restype = c_uint
+def PermuteColsMeta(A,meta):
+  if type(A) is DistMatrix:
+    if   A.tag == iTag: lib.ElPermuteColsMetaDist_i(A.obj,pointer(meta))
+    elif A.tag == sTag: lib.ElPermuteColsMetaDist_s(A.obj,pointer(meta))
+    elif A.tag == dTag: lib.ElPermuteColsMetaDist_d(A.obj,pointer(meta))
+    elif A.tag == cTag: lib.ElPermuteColsMetaDist_c(A.obj,pointer(meta))
+    elif A.tag == zTag: lib.ElPermuteColsMetaDist_z(A.obj,pointer(meta))
+    else: raise Exception('Unsupported datatype')
+  else: raise Exception('Unsupported matrix type')
 
 # Permute rows
 # ============
-# TODO
+lib.ElPermuteRows_i.argtypes = [c_void_p,c_void_p]
+lib.ElPermuteRows_i.restype = c_uint
+lib.ElPermuteRows_s.argtypes = [c_void_p,c_void_p]
+lib.ElPermuteRows_s.restype = c_uint
+lib.ElPermuteRows_d.argtypes = [c_void_p,c_void_p]
+lib.ElPermuteRows_d.restype = c_uint
+lib.ElPermuteRows_c.argtypes = [c_void_p,c_void_p]
+lib.ElPermuteRows_c.restype = c_uint
+lib.ElPermuteRows_z.argtypes = [c_void_p,c_void_p]
+lib.ElPermuteRows_z.restype = c_uint
+lib.ElPermuteRowsDist_i.argtypes = [c_void_p,c_void_p]
+lib.ElPermuteRowsDist_i.restype = c_uint
+lib.ElPermuteRowsDist_s.argtypes = [c_void_p,c_void_p]
+lib.ElPermuteRowsDist_s.restype = c_uint
+lib.ElPermuteRowsDist_d.argtypes = [c_void_p,c_void_p]
+lib.ElPermuteRowsDist_d.restype = c_uint
+lib.ElPermuteRowsDist_c.argtypes = [c_void_p,c_void_p]
+lib.ElPermuteRowsDist_c.restype = c_uint
+lib.ElPermuteRowsDist_z.argtypes = [c_void_p,c_void_p]
+lib.ElPermuteRowsDist_z.restype = c_uint
+lib.ElPermuteRowsBoth_i.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElPermuteRowsBoth_i.restype = c_uint
+lib.ElPermuteRowsBoth_s.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElPermuteRowsBoth_s.restype = c_uint
+lib.ElPermuteRowsBoth_d.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElPermuteRowsBoth_d.restype = c_uint
+lib.ElPermuteRowsBoth_c.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElPermuteRowsBoth_c.restype = c_uint
+lib.ElPermuteRowsBoth_z.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElPermuteRowsBoth_z.restype = c_uint
+lib.ElPermuteRowsBothDist_i.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElPermuteRowsBothDist_i.restype = c_uint
+lib.ElPermuteRowsBothDist_s.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElPermuteRowsBothDist_s.restype = c_uint
+lib.ElPermuteRowsBothDist_d.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElPermuteRowsBothDist_d.restype = c_uint
+lib.ElPermuteRowsBothDist_c.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElPermuteRowsBothDist_c.restype = c_uint
+lib.ElPermuteRowsBothDist_z.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElPermuteRowsBothDist_z.restype = c_uint
+def PermuteRows(A,p,pInv=None):
+  if type(A) is Matrix:
+    if pInv == None:
+      if   A.tag == iTag: lib.ElPermuteRows_i(A.obj,p.obj)
+      elif A.tag == sTag: lib.ElPermuteRows_s(A.obj,p.obj)
+      elif A.tag == dTag: lib.ElPermuteRows_d(A.obj,p.obj)
+      elif A.tag == cTag: lib.ElPermuteRows_c(A.obj,p.obj)
+      elif A.tag == zTag: lib.ElPermuteRows_z(A.obj,p.obj)
+      else: raise Exception('Unsupported datatype')
+    else:
+      if type(pInv) != Matrix or pInv.tag != iTag:
+        raise Exception('pInv must be an integer Matrix')
+      if   A.tag == iTag: lib.ElPermuteRowsBoth_i(A.obj,p.obj,pInv.obj)
+      elif A.tag == sTag: lib.ElPermuteRowsBoth_s(A.obj,p.obj,pInv.obj)
+      elif A.tag == dTag: lib.ElPermuteRowsBoth_d(A.obj,p.obj,pInv.obj)
+      elif A.tag == cTag: lib.ElPermuteRowsBoth_c(A.obj,p.obj,pInv.obj)
+      elif A.tag == zTag: lib.ElPermuteRowsBoth_z(A.obj,p.obj,pInv.obj)
+      else: raise Exception('Unsupported datatype')
+  elif type(A) is DistMatrix:
+    if pInv == None:
+      if   A.tag == iTag: lib.ElPermuteRowsDist_i(A.obj,p.obj)
+      elif A.tag == sTag: lib.ElPermuteRowsDist_s(A.obj,p.obj)
+      elif A.tag == dTag: lib.ElPermuteRowsDist_d(A.obj,p.obj)
+      elif A.tag == cTag: lib.ElPermuteRowsDist_c(A.obj,p.obj)
+      elif A.tag == zTag: lib.ElPermuteRowsDist_z(A.obj,p.obj)
+      else: raise Exception('Unsupported datatype')
+    else:
+      if type(pInv) != Matrix or pInv.tag != iTag:
+        raise Exception('pInv must be an integer Matrix')
+      if   A.tag == iTag: lib.ElPermuteRowsBothDist_i(A.obj,p.obj,pInv.obj)
+      elif A.tag == sTag: lib.ElPermuteRowsBothDist_s(A.obj,p.obj,pInv.obj)
+      elif A.tag == dTag: lib.ElPermuteRowsBothDist_d(A.obj,p.obj,pInv.obj)
+      elif A.tag == cTag: lib.ElPermuteRowsBothDist_c(A.obj,p.obj,pInv.obj)
+      elif A.tag == zTag: lib.ElPermuteRowsBothDist_z(A.obj,p.obj,pInv.obj)
+      else: raise Exception('Unsupported datatype')
+  else: raise Exception('Unsupported matrix type')
+
+lib.ElPermuteRowsMetaDist_i.argtypes = [c_void_p,POINTER(PermutationMeta)]
+lib.ElPermuteRowsMetaDist_i.restype = c_uint
+lib.ElPermuteRowsMetaDist_s.argtypes = [c_void_p,POINTER(PermutationMeta)]
+lib.ElPermuteRowsMetaDist_s.restype = c_uint
+lib.ElPermuteRowsMetaDist_d.argtypes = [c_void_p,POINTER(PermutationMeta)]
+lib.ElPermuteRowsMetaDist_d.restype = c_uint
+lib.ElPermuteRowsMetaDist_c.argtypes = [c_void_p,POINTER(PermutationMeta)]
+lib.ElPermuteRowsMetaDist_c.restype = c_uint
+lib.ElPermuteRowsMetaDist_z.argtypes = [c_void_p,POINTER(PermutationMeta)]
+lib.ElPermuteRowsMetaDist_z.restype = c_uint
+def PermuteRowsMeta(A,meta):
+  if type(A) is DistMatrix:
+    if   A.tag == iTag: lib.ElPermuteRowsMetaDist_i(A.obj,pointer(meta))
+    elif A.tag == sTag: lib.ElPermuteRowsMetaDist_s(A.obj,pointer(meta))
+    elif A.tag == dTag: lib.ElPermuteRowsMetaDist_d(A.obj,pointer(meta))
+    elif A.tag == cTag: lib.ElPermuteRowsMetaDist_c(A.obj,pointer(meta))
+    elif A.tag == zTag: lib.ElPermuteRowsMetaDist_z(A.obj,pointer(meta))
+    else: raise Exception('Unsupported datatype')
+  else: raise Exception('Unsupported matrix type')
 
 # Pivot parity
 # ============
-# TODO
+lib.ElPivotParity.argtypes = [c_void_p,iType,POINTER(bType)]
+lib.ElPivotParity.restype = c_uint
+lib.ElPivotParityDist.argtypes = [c_void_p,iType,POINTER(bType)]
+lib.ElPivotParityDist.restype = c_uint
+def PivotParity(p,offset=0):
+  if p.tag != iTag:
+    raise Exception('p must be integral')
+  parity = bType()
+  if type(p) is Matrix:
+    lib.ElPivotParity(p.obj,offset,pointer(parity))
+  elif type(p) is DistMatrix:
+    lib.ElPivotParityDist(p.obj,offset,pointer(parity))
+  else: raise Exception('Unsupported matrix type')
+  return parity
 
 # Convert a pivot sequence to a partial permutation vector
 # ========================================================
-# TODO
+lib.ElPivotsToPartialPermutation.argtypes = [c_void_p,c_void_p,c_void_p,iType]
+lib.ElPivotsToPartialPermutation.restype = c_uint
+lib.ElPivotsToPartialPermutationDist.argtypes = \
+  [c_void_p,c_void_p,c_void_p,iType]
+lib.ElPivotsToPartialPermutationDist.restype = c_uint
+def PivotsToPartialPermutation(pivots,offset=0):
+  if pivots.tag != iTag:
+    raise Exception('pivots must be integral')
+  if type(pivots) is Matrix:
+    p = Matrix(iTag)
+    pInv = Matrix(iTag)
+    lib.ElPivotsToPartialPermutation(pivots.obj,p.obj,pInv.obj,offset)
+    return p, pInv
+  elif type(pivots) is DistMatrix:
+    p = DistMatrix(iTag,VC,STAR,pivots.Grid())
+    pInv = DistMatrix(iTag,VC,STAR,pivots.Grid())
+    lib.ElPivotsToPartialPermutationDist(pivots.obj,p.obj,pInv.obj,offset)
+    return p, pInv
+  else: raise Exception('Unsupported matrix type')
 
 # Convert a pivot sequence to a permutation vector
 # ================================================
-# TODO
+lib.ElPivotsToPermutation.argtypes = [c_void_p,c_void_p,iType]
+lib.ElPivotsToPermutation.restype = c_uint
+lib.ElPivotsToPermutationDist.argtypes = [c_void_p,c_void_p,iType]
+lib.ElPivotsToPermutationDist.restype = c_uint
+def PivotsToPermutation(pivots,offset=0):
+  if pivots.tag != iTag:
+    raise Exception('pivots must be integral')
+  if type(pivots) is Matrix:
+    p = Matrix(iTag)
+    lib.ElPivotsToPermutation(pivots.obj,p.obj,offset)
+    return p
+  elif type(pivots) is DistMatrix:
+    p = DistMatrix(iTag,VC,STAR,pivots.Grid())
+    lib.ElPivotsToPermutationDist(pivots.obj,p.obj,offset)
+    return p
+  else: raise Exception('Unsupported matrix type')
+
+lib.ElPivotsToInversePermutation.argtypes = [c_void_p,c_void_p,iType]
+lib.ElPivotsToInversePermutation.restype = c_uint
+lib.ElPivotsToInversePermutationDist.argtypes = [c_void_p,c_void_p,iType]
+lib.ElPivotsToInversePermutationDist.restype = c_uint
+def PivotsToInversePermutation(pivots,offset=0):
+  if pivots.tag != iTag:
+    raise Exception('pivots must be integral')
+  if type(pivots) is Matrix:
+    pInv = Matrix(iTag)
+    lib.ElPivotsToInversePermutation(pivots.obj,pInv.obj,offset)
+    return pInv
+  elif type(pivots) is DistMatrix:
+    pInv = DistMatrix(iTag,VC,STAR,pivots.Grid())
+    lib.ElPivotsToInversePermutationDist(pivots.obj,pInv.obj,offset)
+    return pInv
+  else: raise Exception('Unsupported matrix type')
+

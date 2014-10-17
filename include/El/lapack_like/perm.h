@@ -157,6 +157,12 @@ EL_EXPORT ElError ElInvertPermutation( ElConstMatrix_i p, ElMatrix_i pInv );
 EL_EXPORT ElError ElInvertPermutationDist
 ( ElConstDistMatrix_i p, ElDistMatrix_i pInv );
 
+/* Parity of a permutation
+   ======================= */
+EL_EXPORT ElError ElPermutationParity( ElConstMatrix_i p, bool* parity );
+EL_EXPORT ElError ElPermutationParityDist
+( ElConstDistMatrix_i p, bool* parity );
+
 /* Permute columns
    =============== */
 
