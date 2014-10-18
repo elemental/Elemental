@@ -231,3 +231,8 @@ def Initialized():
 
 # Initialize MPI
 Initialize()
+
+def TypeExcept():
+  raise Exception('Unsupported matrix type')
+def DataExcept():
+  raise Exception('Unsupported datatype')

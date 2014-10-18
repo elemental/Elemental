@@ -46,37 +46,41 @@ lib.ElBidiagOnlyDist_z.restype = c_uint
 def Bidiag(A,bidiagOnly=False):
   if type(A) is Matrix:
     if bidiagOnly:
-      if   A.tag == sTag: lib.ElBidiagOnly_s(A.tag)
-      elif A.tag == dTag: lib.ElBidiagOnly_d(A.tag)
-      elif A.tag == cTag: lib.ElBidiagOnly_c(A.tag)
-      elif A.tag == zTag: lib.ElBidiagOnly_z(A.tag)
-      else: raise Exception('Unsupported datatype')
+      args = [A.obj]
+      if   A.tag == sTag: lib.ElBidiagOnly_s(*args)
+      elif A.tag == dTag: lib.ElBidiagOnly_d(*args)
+      elif A.tag == cTag: lib.ElBidiagOnly_c(*args)
+      elif A.tag == zTag: lib.ElBidiagOnly_z(*args)
+      else: DataExcept()
     else:
       tP = Matrix(A.tag)
       tQ = Matrix(A.tag)
-      if   A.tag == sTag: lib.ElBidiag_s(A.tag,tP.tag,tQ.tag)
-      elif A.tag == dTag: lib.ElBidiag_d(A.tag,tP.tag,tQ.tag)
-      elif A.tag == cTag: lib.ElBidiag_c(A.tag,tP.tag,tQ.tag)
-      elif A.tag == zTag: lib.ElBidiag_z(A.tag,tP.tag,tQ.tag)
-      else: raise Exception('Unsupported datatype') 
+      args = [A.obj,tP.obj,tQ.obj]
+      if   A.tag == sTag: lib.ElBidiag_s(*args)
+      elif A.tag == dTag: lib.ElBidiag_d(*args)
+      elif A.tag == cTag: lib.ElBidiag_c(*args)
+      elif A.tag == zTag: lib.ElBidiag_z(*args)
+      else: DataExcept()
       return tP, tQ
   elif type(A) is DistMatrix:
     if bidiagOnly:
-      if   A.tag == sTag: lib.ElBidiagOnlyDist_s(A.tag)
-      elif A.tag == dTag: lib.ElBidiagOnlyDist_d(A.tag)
-      elif A.tag == cTag: lib.ElBidiagOnlyDist_c(A.tag)
-      elif A.tag == zTag: lib.ElBidiagOnlyDist_z(A.tag)
-      else: raise Exception('Unsupported datatype')
+      args = [A.obj]
+      if   A.tag == sTag: lib.ElBidiagOnlyDist_s(*args)
+      elif A.tag == dTag: lib.ElBidiagOnlyDist_d(*args)
+      elif A.tag == cTag: lib.ElBidiagOnlyDist_c(*args)
+      elif A.tag == zTag: lib.ElBidiagOnlyDist_z(*args)
+      else: DataExcept()
     else:
       tP = DistMatrix(A.tag,STAR,STAR,A.Grid())
       tQ = DistMatrix(A.tag,STAR,STAR,A.Grid())
-      if   A.tag == sTag: lib.ElBidiagDist_s(A.tag,tP.tag,tQ.tag)
-      elif A.tag == dTag: lib.ElBidiagDist_d(A.tag,tP.tag,tQ.tag)
-      elif A.tag == cTag: lib.ElBidiagDist_c(A.tag,tP.tag,tQ.tag)
-      elif A.tag == zTag: lib.ElBidiagDist_z(A.tag,tP.tag,tQ.tag)
-      else: raise Exception('Unsupported datatype') 
+      args = [A.obj,tP.obj,tQ.obj]
+      if   A.tag == sTag: lib.ElBidiagDist_s(*args)
+      elif A.tag == dTag: lib.ElBidiagDist_d(*args)
+      elif A.tag == cTag: lib.ElBidiagDist_c(*args)
+      elif A.tag == zTag: lib.ElBidiagDist_z(*args)
+      else: DataExcept()
       return tP, tQ
-  else: raise Exception('Unsupported matrix type')
+  else: TypeExcept()
 
 # Apply Q from B := Q^H A P
 lib.ElApplyQAfterBidiag_s.argtypes = [c_uint,c_uint,c_void_p,c_void_p,c_void_p]
@@ -104,23 +108,20 @@ def ApplyQAfterBidiag(side,orient,A,t,B):
     raise Exception('Matrix types of {A,t,B} must match')
   if A.tag != t.tag or t.tag != B.tag:
     raise Exception('Datatypes of {A,t,B} must match')
+  args = [side,orient,A.obj,t.obj,B.obj]
   if type(A) is Matrix:
-    if   A.tag == sTag: lib.ElApplyQAfterBidiag_s(side,orient,A.tag,t.tag,B.tag)
-    elif A.tag == dTag: lib.ElApplyQAfterBidiag_d(side,orient,A.tag,t.tag,B.tag)
-    elif A.tag == cTag: lib.ElApplyQAfterBidiag_c(side,orient,A.tag,t.tag,B.tag)
-    elif A.tag == zTag: lib.ElApplyQAfterBidiag_z(side,orient,A.tag,t.tag,B.tag)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == sTag: lib.ElApplyQAfterBidiag_s(*args)
+    elif A.tag == dTag: lib.ElApplyQAfterBidiag_d(*args)
+    elif A.tag == cTag: lib.ElApplyQAfterBidiag_c(*args)
+    elif A.tag == zTag: lib.ElApplyQAfterBidiag_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == sTag: 
-      lib.ElApplyQAfterBidiagDist_s(side,orient,A.tag,t.tag,B.tag)
-    elif A.tag == dTag: 
-      lib.ElApplyQAfterBidiagDist_d(side,orient,A.tag,t.tag,B.tag)
-    elif A.tag == cTag: 
-      lib.ElApplyQAfterBidiagDist_c(side,orient,A.tag,t.tag,B.tag)
-    elif A.tag == zTag: 
-      lib.ElApplyQAfterBidiagDist_z(side,orient,A.tag,t.tag,B.tag)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == sTag: lib.ElApplyQAfterBidiagDist_s(*args)
+    elif A.tag == dTag: lib.ElApplyQAfterBidiagDist_d(*args)
+    elif A.tag == cTag: lib.ElApplyQAfterBidiagDist_c(*args)
+    elif A.tag == zTag: lib.ElApplyQAfterBidiagDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Apply P from B := Q^H A P
 lib.ElApplyPAfterBidiag_s.argtypes = [c_uint,c_uint,c_void_p,c_void_p,c_void_p]
@@ -148,23 +149,20 @@ def ApplyPAfterBidiag(side,orient,A,t,B):
     raise Exception('Matrix types of {A,t,B} must match')
   if A.tag != t.tag or t.tag != B.tag:
     raise Exception('Datatypes of {A,t,B} must match')
+  args = [side,orient,A.obj,t.obj,B.obj]
   if type(A) is Matrix:
-    if   A.tag == sTag: lib.ElApplyPAfterBidiag_s(side,orient,A.tag,t.tag,B.tag)
-    elif A.tag == dTag: lib.ElApplyPAfterBidiag_d(side,orient,A.tag,t.tag,B.tag)
-    elif A.tag == cTag: lib.ElApplyPAfterBidiag_c(side,orient,A.tag,t.tag,B.tag)
-    elif A.tag == zTag: lib.ElApplyPAfterBidiag_z(side,orient,A.tag,t.tag,B.tag)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == sTag: lib.ElApplyPAfterBidiag_s(*args)
+    elif A.tag == dTag: lib.ElApplyPAfterBidiag_d(*args)
+    elif A.tag == cTag: lib.ElApplyPAfterBidiag_c(*args)
+    elif A.tag == zTag: lib.ElApplyPAfterBidiag_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == sTag: 
-      lib.ElApplyPAfterBidiagDist_s(side,orient,A.tag,t.tag,B.tag)
-    elif A.tag == dTag: 
-      lib.ElApplyPAfterBidiagDist_d(side,orient,A.tag,t.tag,B.tag)
-    elif A.tag == cTag: 
-      lib.ElApplyPAfterBidiagDist_c(side,orient,A.tag,t.tag,B.tag)
-    elif A.tag == zTag: 
-      lib.ElApplyPAfterBidiagDist_z(side,orient,A.tag,t.tag,B.tag)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == sTag: lib.ElApplyPAfterBidiagDist_s(*args)
+    elif A.tag == dTag: lib.ElApplyPAfterBidiagDist_d(*args)
+    elif A.tag == cTag: lib.ElApplyPAfterBidiagDist_c(*args)
+    elif A.tag == zTag: lib.ElApplyPAfterBidiagDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Reduction of a Hermitian matrix to real symmetric tridiagonal form
 # ==================================================================
@@ -236,49 +234,55 @@ lib.ElHermitianTridiagOnlyXDist_z.restype = c_uint
 def HermitianTridiag(uplo,A,onlyTridiag=False,ctrl=None):
   if type(A) is Matrix:
     if onlyTridiag: 
-      if   A.tag == sTag: lib.ElHermitianTridiagOnly_s(uplo,A.tag)
-      elif A.tag == dTag: lib.ElHermitianTridiagOnly_d(uplo,A.tag)
-      elif A.tag == cTag: lib.ElHermitianTridiagOnly_c(uplo,A.tag)
-      elif A.tag == zTag: lib.ElHermitianTridiagOnly_z(uplo,A.tag)
-      else: raise Exception('Unsupported datatype')
+      args = [uplo,A.obj]
+      if   A.tag == sTag: lib.ElHermitianTridiagOnly_s(*args)
+      elif A.tag == dTag: lib.ElHermitianTridiagOnly_d(*args)
+      elif A.tag == cTag: lib.ElHermitianTridiagOnly_c(*args)
+      elif A.tag == zTag: lib.ElHermitianTridiagOnly_z(*args)
+      else: DataExcept()
     else:
       t = Matrix(A.tag)
-      if   A.tag == sTag: lib.ElHermitianTridiag_s(uplo,A.tag,t.tag)
-      elif A.tag == dTag: lib.ElHermitianTridiag_d(uplo,A.tag,t.tag)
-      elif A.tag == cTag: lib.ElHermitianTridiag_c(uplo,A.tag,t.tag)
-      elif A.tag == zTag: lib.ElHermitianTridiag_z(uplo,A.tag,t.tag)
-      else: raise Exception('Unsupported datatype')
+      args = [uplo,A.obj,t.obj]
+      if   A.tag == sTag: lib.ElHermitianTridiag_s(*args)
+      elif A.tag == dTag: lib.ElHermitianTridiag_d(*args)
+      elif A.tag == cTag: lib.ElHermitianTridiag_c(*args)
+      elif A.tag == zTag: lib.ElHermitianTridiag_z(*args)
+      else: DataExcept()
       return t
   elif type(A) is DistMatrix:
     if onlyTridiag: 
       if ctrl == None:
-        if   A.tag == sTag: lib.ElHermitianTridiagOnlyDist_s(uplo,A.tag)
-        elif A.tag == dTag: lib.ElHermitianTridiagOnlyDist_d(uplo,A.tag)
-        elif A.tag == cTag: lib.ElHermitianTridiagOnlyDist_c(uplo,A.tag)
-        elif A.tag == zTag: lib.ElHermitianTridiagOnlyDist_z(uplo,A.tag)
-        else: raise Exception('Unsupported datatype')
+        args = [uplo,A.obj]
+        if   A.tag == sTag: lib.ElHermitianTridiagOnlyDist_s(*args)
+        elif A.tag == dTag: lib.ElHermitianTridiagOnlyDist_d(*args)
+        elif A.tag == cTag: lib.ElHermitianTridiagOnlyDist_c(*args)
+        elif A.tag == zTag: lib.ElHermitianTridiagOnlyDist_z(*args)
+        else: DataExcept()
       else: 
-        if   A.tag == sTag: lib.ElHermitianTridiagOnlyXDist_s(uplo,A.tag,ctrl)
-        elif A.tag == dTag: lib.ElHermitianTridiagOnlyXDist_d(uplo,A.tag,ctrl)
-        elif A.tag == cTag: lib.ElHermitianTridiagOnlyXDist_c(uplo,A.tag,ctrl)
-        elif A.tag == zTag: lib.ElHermitianTridiagOnlyXDist_z(uplo,A.tag,ctrl)
-        else: raise Exception('Unsupported datatype')
+        args = [uplo,A.obj,ctrl]
+        if   A.tag == sTag: lib.ElHermitianTridiagOnlyXDist_s(*args)
+        elif A.tag == dTag: lib.ElHermitianTridiagOnlyXDist_d(*args)
+        elif A.tag == cTag: lib.ElHermitianTridiagOnlyXDist_c(*args)
+        elif A.tag == zTag: lib.ElHermitianTridiagOnlyXDist_z(*args)
+        else: DataExcept()
     else:
       t = Matrix(A.tag)
       if ctrl == None:
-        if   A.tag == sTag: lib.ElHermitianTridiagDist_s(uplo,A.tag,t.tag)
-        elif A.tag == dTag: lib.ElHermitianTridiagDist_d(uplo,A.tag,t.tag)
-        elif A.tag == cTag: lib.ElHermitianTridiagDist_c(uplo,A.tag,t.tag)
-        elif A.tag == zTag: lib.ElHermitianTridiagDist_z(uplo,A.tag,t.tag)
-        else: raise Exception('Unsupported datatype')
+        args = [uplo,A.obj,t.obj]
+        if   A.tag == sTag: lib.ElHermitianTridiagDist_s(*args)
+        elif A.tag == dTag: lib.ElHermitianTridiagDist_d(*args)
+        elif A.tag == cTag: lib.ElHermitianTridiagDist_c(*args)
+        elif A.tag == zTag: lib.ElHermitianTridiagDist_z(*args)
+        else: DataExcept()
       else:
-        if   A.tag == sTag: lib.ElHermitianTridiagXDist_s(uplo,A.tag,t.tag,ctrl)
-        elif A.tag == dTag: lib.ElHermitianTridiagXDist_d(uplo,A.tag,t.tag,ctrl)
-        elif A.tag == cTag: lib.ElHermitianTridiagXDist_c(uplo,A.tag,t.tag,ctrl)
-        elif A.tag == zTag: lib.ElHermitianTridiagXDist_z(uplo,A.tag,t.tag,ctrl)
-        else: raise Exception('Unsupported datatype')
+        args = [uplo,A.obj,t.obj,ctrl]
+        if   A.tag == sTag: lib.ElHermitianTridiagXDist_s(*args)
+        elif A.tag == dTag: lib.ElHermitianTridiagXDist_d(*args)
+        elif A.tag == cTag: lib.ElHermitianTridiagXDist_c(*args)
+        elif A.tag == zTag: lib.ElHermitianTridiagXDist_z(*args)
+        else: DataExcept()
       return t
-  else: raise Exception('Unsupported matrix type')
+  else: TypeExcept()
 
 lib.ElApplyQAfterHermitianTridiag_s.argtypes = \
   [c_uint,c_uint,c_uint,c_void_p,c_void_p,c_void_p]
@@ -309,31 +313,20 @@ def ApplyQAfterHermitianTridiag(side,uplo,orient,A,t,B):
     raise Exception('Matrix types of {A,t,B} must match')
   if A.tag != t.tag or t.tag != B.tag:
     raise Exception('Datatypes of {A,t,B} must match')
+  args = [side,uplo,orient,A.obj,t.obj,B.obj]
   if type(A) is Matrix:
-    if   A.tag == sTag: 
-      lib.ElApplyQAfterHermitianTridiag_s(side,uplo,orient,A.tag,t.tag,B.tag)
-    elif A.tag == dTag: 
-      lib.ElApplyQAfterHermitianTridiag_d(side,uplo,orient,A.tag,t.tag,B.tag)
-    elif A.tag == cTag: 
-      lib.ElApplyQAfterHermitianTridiag_c(side,uplo,orient,A.tag,t.tag,B.tag)
-    elif A.tag == zTag: 
-      lib.ElApplyQAfterHermitianTridiag_z(side,uplo,orient,A.tag,t.tag,B.tag)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == sTag: lib.ElApplyQAfterHermitianTridiag_s(*args)
+    elif A.tag == dTag: lib.ElApplyQAfterHermitianTridiag_d(*args)
+    elif A.tag == cTag: lib.ElApplyQAfterHermitianTridiag_c(*args)
+    elif A.tag == zTag: lib.ElApplyQAfterHermitianTridiag_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == sTag: 
-      lib.ElApplyQAfterHermitianTridiagDist_s \
-      (side,uplo,orient,A.tag,t.tag,B.tag)
-    elif A.tag == dTag: 
-      lib.ElApplyQAfterHermitianTridiagDist_d \
-      (side,uplo,orient,A.tag,t.tag,B.tag)
-    elif A.tag == cTag: 
-      lib.ElApplyQAfterHermitianTridiagDist_c \
-      (side,uplo,orient,A.tag,t.tag,B.tag)
-    elif A.tag == zTag: 
-      lib.ElApplyQAfterHermitianTridiagDist_z \
-      (side,uplo,orient,A.tag,t.tag,B.tag)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == sTag: lib.ElApplyQAfterHermitianTridiagDist_s(*args)
+    elif A.tag == dTag: lib.ElApplyQAfterHermitianTridiagDist_d(*args)
+    elif A.tag == cTag: lib.ElApplyQAfterHermitianTridiagDist_c(*args)
+    elif A.tag == zTag: lib.ElApplyQAfterHermitianTridiagDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Reduction of a square matrix to Hessenberg form by unitary similarity
 # =====================================================================
@@ -372,35 +365,39 @@ lib.ElHessenbergDist_z.restype = c_uint
 def Hessenberg(uplo,A,hessOnly=False):
   if type(A) is Matrix:
     if hessOnly:
-      if   A.tag == sTag: lib.ElHessenbergOnly_s(uplo,A.tag)
-      elif A.tag == dTag: lib.ElHessenbergOnly_d(uplo,A.tag) 
-      elif A.tag == cTag: lib.ElHessenbergOnly_c(uplo,A.tag)
-      elif A.tag == zTag: lib.ElHessenbergOnly_z(uplo,A.tag)
-      else: raise Exception('Unsupported datatype')
+      args = [uplo,A.obj]
+      if   A.tag == sTag: lib.ElHessenbergOnly_s(*args)
+      elif A.tag == dTag: lib.ElHessenbergOnly_d(*args) 
+      elif A.tag == cTag: lib.ElHessenbergOnly_c(*args)
+      elif A.tag == zTag: lib.ElHessenbergOnly_z(*args)
+      else: DataExcept()
     else:
       t = Matrix(A.tag)
-      if   A.tag == sTag: lib.ElHessenberg_s(uplo,A.tag,t.tag)
-      elif A.tag == dTag: lib.ElHessenberg_d(uplo,A.tag,t.tag)
-      elif A.tag == cTag: lib.ElHessenberg_c(uplo,A.tag,t.tag)
-      elif A.tag == zTag: lib.ElHessenberg_z(uplo,A.tag,t.tag)
-      else: raise Exception('Unsupported datatype')
+      args = [uplo,A.obj,t.obj]
+      if   A.tag == sTag: lib.ElHessenberg_s(*args)
+      elif A.tag == dTag: lib.ElHessenberg_d(*args)
+      elif A.tag == cTag: lib.ElHessenberg_c(*args)
+      elif A.tag == zTag: lib.ElHessenberg_z(*args)
+      else: DataExcept()
       return t
   elif type(A) is DistMatrix:
     if hessOnly:
-      if   A.tag == sTag: lib.ElHessenbergOnlyDist_s(uplo,A.tag)
-      elif A.tag == dTag: lib.ElHessenbergOnlyDist_d(uplo,A.tag) 
-      elif A.tag == cTag: lib.ElHessenbergOnlyDist_c(uplo,A.tag)
-      elif A.tag == zTag: lib.ElHessenbergOnlyDist_z(uplo,A.tag)
-      else: raise Exception('Unsupported datatype')
+      args = [uplo,A.obj]
+      if   A.tag == sTag: lib.ElHessenbergOnlyDist_s(*args)
+      elif A.tag == dTag: lib.ElHessenbergOnlyDist_d(*args) 
+      elif A.tag == cTag: lib.ElHessenbergOnlyDist_c(*args)
+      elif A.tag == zTag: lib.ElHessenbergOnlyDist_z(*args)
+      else: DataExcept()
     else:
       t = DistMatrix(A.tag,STAR,STAR,A.Grid())
-      if   A.tag == sTag: lib.ElHessenbergDist_s(uplo,A.tag,t.tag)
-      elif A.tag == dTag: lib.ElHessenbergDist_d(uplo,A.tag,t.tag)
-      elif A.tag == cTag: lib.ElHessenbergDist_c(uplo,A.tag,t.tag)
-      elif A.tag == zTag: lib.ElHessenbergDist_z(uplo,A.tag,t.tag)
-      else: raise Exception('Unsupported datatype')
+      args = [uplo,A.obj,t.obj]
+      if   A.tag == sTag: lib.ElHessenbergDist_s(*args)
+      elif A.tag == dTag: lib.ElHessenbergDist_d(*args)
+      elif A.tag == cTag: lib.ElHessenbergDist_c(*args)
+      elif A.tag == zTag: lib.ElHessenbergDist_z(*args)
+      else: DataExcept()
       return t
-  else: raise Exception('Unsupported matrix type')
+  else: TypeExcept()
 
 lib.ElApplyQAfterHessenberg_s.argtypes = \
   [c_uint,c_uint,c_uint,c_void_p,c_void_p,c_void_p]
@@ -431,24 +428,17 @@ def ApplyQAfterHessenberg(side,uplo,orient,A,t,B):
     raise Exception('Matrix types of {A,t,B} must match')
   if A.tag != t.tag or t.tag != B.tag:
     raise Exception('Datatypes of {A,t,B} must match')
+  args = [side,uplo,orient,A.obj,t.obj,B.obj]
   if type(A) is Matrix:
-    if   A.tag == sTag: 
-      lib.ElApplyQAfterHessenberg_s(side,uplo,orient,A.tag,t.tag,B.tag)
-    elif A.tag == dTag: 
-      lib.ElApplyQAfterHessenberg_d(side,uplo,orient,A.tag,t.tag,B.tag)
-    elif A.tag == cTag: 
-      lib.ElApplyQAfterHessenberg_c(side,uplo,orient,A.tag,t.tag,B.tag)
-    elif A.tag == zTag: 
-      lib.ElApplyQAfterHessenberg_z(side,uplo,orient,A.tag,t.tag,B.tag)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == sTag: lib.ElApplyQAfterHessenberg_s(*args)
+    elif A.tag == dTag: lib.ElApplyQAfterHessenberg_d(*args)
+    elif A.tag == cTag: lib.ElApplyQAfterHessenberg_c(*args)
+    elif A.tag == zTag: lib.ElApplyQAfterHessenberg_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == sTag: 
-      lib.ElApplyQAfterHessenbergDist_s(side,uplo,orient,A.tag,t.tag,B.tag)
-    elif A.tag == dTag: 
-      lib.ElApplyQAfterHessenbergDist_d(side,uplo,orient,A.tag,t.tag,B.tag)
-    elif A.tag == cTag: 
-      lib.ElApplyQAfterHessenbergDist_c(side,uplo,orient,A.tag,t.tag,B.tag)
-    elif A.tag == zTag: 
-      lib.ElApplyQAfterHessenbergDist_z(side,uplo,orient,A.tag,t.tag,B.tag)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == sTag: lib.ElApplyQAfterHessenbergDist_s(*args)
+    elif A.tag == dTag: lib.ElApplyQAfterHessenbergDist_d(*args)
+    elif A.tag == cTag: lib.ElApplyQAfterHessenbergDist_c(*args)
+    elif A.tag == zTag: lib.ElApplyQAfterHessenbergDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
