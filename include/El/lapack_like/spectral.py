@@ -117,112 +117,72 @@ def HermitianTridiagEig(d,dSub,vectors=False,sort=ASCENDING,subset=None):
     if vectors:
       X = Matrix(dSub.tag)
       if subset == None:
-        if   dSub.tag == sTag: 
-          lib.ElHermitianTridiagEigPair_s(d.obj,dSub.obj,w.obj,X.obj,sort)
-        elif dSub.tag == dTag:
-          lib.ElHermitianTridiagEigPair_d(d.obj,dSub.obj,w.obj,X.obj,sort)
-        elif dSub.tag == cTag:
-          lib.ElHermitianTridiagEigPair_c(d.obj,dSub.obj,w.obj,X.obj,sort)
-        elif dSub.tag == zTag:
-          lib.ElHermitianTridiagEigPair_z(d.obj,dSub.obj,w.obj,X.obj,sort)
-        else: raise Exception('Unsupported datatype')
+        args = [d.obj,dSub.obj,w.obj,X.obj,sort]
+        if   dSub.tag == sTag: lib.ElHermitianTridiagEigPair_s(*args)
+        elif dSub.tag == dTag: lib.ElHermitianTridiagEigPair_d(*args)
+        elif dSub.tag == cTag: lib.ElHermitianTridiagEigPair_c(*args)
+        elif dSub.tag == zTag: lib.ElHermitianTridiagEigPair_z(*args)
+        else: DataExcept()
       else:
-        if   dSub.tag == sTag: 
-          lib.ElHermitianTridiagEigPairPartial_s \
-          (d.obj,dSub.obj,w.obj,X.obj,sort,subset)
-        elif dSub.tag == dTag:
-          lib.ElHermitianTridiagEigPairPartial_d \
-          (d.obj,dSub.obj,w.obj,X.obj,sort,subset)
-        elif dSub.tag == cTag:
-          lib.ElHermitianTridiagEigPairPartial_c \
-          (d.obj,dSub.obj,w.obj,X.obj,sort,subset)
-        elif dSub.tag == zTag:
-          lib.ElHermitianTridiagEigPairPartial_z \
-          (d.obj,dSub.obj,w.obj,X.obj,sort,subset)
-        else: raise Exception('Unsupported datatype')
+        args = [d.obj,dSub.obj,w.obj,X.obj,sort,subset]
+        if   dSub.tag == sTag: lib.ElHermitianTridiagEigPairPartial_s(*args)
+        elif dSub.tag == dTag: lib.ElHermitianTridiagEigPairPartial_d(*args)
+        elif dSub.tag == cTag: lib.ElHermitianTridiagEigPairPartial_c(*args)
+        elif dSub.tag == zTag: lib.ElHermitianTridiagEigPairPartial_z(*args)
+        else: DataExcept()
       return w, X
     else:
       if subset == None:
-        if   dSub.tag == sTag: 
-          lib.ElHermitianTridiagEigPair_s(d.obj,dSub.obj,w.obj,sort)
-        elif dSub.tag == dTag:
-          lib.ElHermitianTridiagEigPair_d(d.obj,dSub.obj,w.obj,sort)
-        elif dSub.tag == cTag:
-          lib.ElHermitianTridiagEigPair_c(d.obj,dSub.obj,w.obj,sort)
-        elif dSub.tag == zTag:
-          lib.ElHermitianTridiagEigPair_z(d.obj,dSub.obj,w.obj,sort)
-        else: raise Exception('Unsupported datatype')
+        args = [d.obj,dSub.obj,w.obj,sort]
+        if   dSub.tag == sTag: lib.ElHermitianTridiagEigPair_s(*args)
+        elif dSub.tag == dTag: lib.ElHermitianTridiagEigPair_d(*args)
+        elif dSub.tag == cTag: lib.ElHermitianTridiagEigPair_c(*args)
+        elif dSub.tag == zTag: lib.ElHermitianTridiagEigPair_z(*args)
+        else: DataExcept()
       else:
-        if   dSub.tag == sTag: 
-          lib.ElHermitianTridiagEigPairPartial_s \
-          (d.obj,dSub.obj,w.obj,sort,subset)
-        elif dSub.tag == dTag:
-          lib.ElHermitianTridiagEigPairPartial_d \
-          (d.obj,dSub.obj,w.obj,sort,subset)
-        elif dSub.tag == cTag:
-          lib.ElHermitianTridiagEigPairPartial_c \
-          (d.obj,dSub.obj,w.obj,sort,subset)
-        elif dSub.tag == zTag:
-          lib.ElHermitianTridiagEigPairPartial_z \
-          (d.obj,dSub.obj,w.obj,sort,subset)
-        else: raise Exception('Unsupported datatype')
+        args = [d.obj,dSub.obj,w.obj,sort,subset]
+        if   dSub.tag == sTag: lib.ElHermitianTridiagEigPairPartial_s(*args)
+        elif dSub.tag == dTag: lib.ElHermitianTridiagEigPairPartial_d(*args)
+        elif dSub.tag == cTag: lib.ElHermitianTridiagEigPairPartial_c(*args)
+        elif dSub.tag == zTag: lib.ElHermitianTridiagEigPairPartial_z(*args)
+        else: DataExcept()
       return w
   elif type(d) is DistMatrix:
     w = DistMatrix(d.tag,STAR,STAR,d.Grid())
     if vectors:
       X = DistMatrix(dSub.tag,STAR,VR,dSub.Grid())
       if subset == None:
-        if   dSub.tag == sTag: 
-          lib.ElHermitianTridiagEigPairDist_s(d.obj,dSub.obj,w.obj,X.obj,sort)
-        elif dSub.tag == dTag:
-          lib.ElHermitianTridiagEigPairDist_d(d.obj,dSub.obj,w.obj,X.obj,sort)
-        elif dSub.tag == cTag:
-          lib.ElHermitianTridiagEigPairDist_c(d.obj,dSub.obj,w.obj,X.obj,sort)
-        elif dSub.tag == zTag:
-          lib.ElHermitianTridiagEigPairDist_z(d.obj,dSub.obj,w.obj,X.obj,sort)
-        else: raise Exception('Unsupported datatype')
+        args = [d.obj,dSub.obj,w.obj,X.obj,sort]
+        if   dSub.tag == sTag: lib.ElHermitianTridiagEigPairDist_s(*args)
+        elif dSub.tag == dTag: lib.ElHermitianTridiagEigPairDist_d(*args)
+        elif dSub.tag == cTag: lib.ElHermitianTridiagEigPairDist_c(*args)
+        elif dSub.tag == zTag: lib.ElHermitianTridiagEigPairDist_z(*args)
+        else: DataExcept()
       else:
-        if   dSub.tag == sTag: 
-          lib.ElHermitianTridiagEigPairPartialDist_s \
-          (d.obj,dSub.obj,w.obj,X.obj,sort,subset)
-        elif dSub.tag == dTag:
-          lib.ElHermitianTridiagEigPairPartialDist_d \
-          (d.obj,dSub.obj,w.obj,X.obj,sort,subset)
-        elif dSub.tag == cTag:
-          lib.ElHermitianTridiagEigPairPartialDist_c \
-          (d.obj,dSub.obj,w.obj,X.obj,sort,subset)
-        elif dSub.tag == zTag:
-          lib.ElHermitianTridiagEigPairPartialDist_z \
-          (d.obj,dSub.obj,w.obj,X.obj,sort,subset)
-        else: raise Exception('Unsupported datatype')
+        args = [d.obj,dSub.obj,w.obj,X.obj,sort,subset]
+        if   dSub.tag == sTag: lib.ElHermitianTridiagEigPairPartialDist_s(*args)
+        elif dSub.tag == dTag: lib.ElHermitianTridiagEigPairPartialDist_d(*args)
+        elif dSub.tag == cTag: lib.ElHermitianTridiagEigPairPartialDist_c(*args)
+        elif dSub.tag == zTag: lib.ElHermitianTridiagEigPairPartialDist_z(*args)
+        else: DataExcept()
       return w, X
     else:
       if subset == None:
-        if   dSub.tag == sTag: 
-          lib.ElHermitianTridiagEigPairDist_s(d.obj,dSub.obj,w.obj,sort)
-        elif dSub.tag == dTag:
-          lib.ElHermitianTridiagEigPairDist_d(d.obj,dSub.obj,w.obj,sort)
-        elif dSub.tag == cTag:
-          lib.ElHermitianTridiagEigPairDist_c(d.obj,dSub.obj,w.obj,sort)
-        elif dSub.tag == zTag:
-          lib.ElHermitianTridiagEigPairDist_z(d.obj,dSub.obj,w.obj,sort)
-        else: raise Exception('Unsupported datatype')
+        args = [d.obj,dSub.obj,w.obj,sort]
+        if   dSub.tag == sTag: lib.ElHermitianTridiagEigPairDist_s(*args)
+        elif dSub.tag == dTag: lib.ElHermitianTridiagEigPairDist_d(*args)
+        elif dSub.tag == cTag: lib.ElHermitianTridiagEigPairDist_c(*args)
+        elif dSub.tag == zTag: lib.ElHermitianTridiagEigPairDist_z(*args)
+        else: DataExcept()
       else:
-        if   dSub.tag == sTag: 
-          lib.ElHermitianTridiagEigPairPartialDist_s \
-          (d.obj,dSub.obj,w.obj,sort,subset)
-        elif dSub.tag == dTag:
-          lib.ElHermitianTridiagEigPairPartialDist_d \
-          (d.obj,dSub.obj,w.obj,sort,subset)
-        elif dSub.tag == cTag:
-          lib.ElHermitianTridiagEigPairPartialDist_c \
-          (d.obj,dSub.obj,w.obj,sort,subset)
-        elif dSub.tag == zTag:
-          lib.ElHermitianTridiagEigPairPartialDist_z \
-          (d.obj,dSub.obj,w.obj,sort,subset)
-        else: raise Exception('Unsupported datatype')
+        args = [d.obj,dSub.obj,w.obj,sort,subset]
+        if   dSub.tag == sTag: lib.ElHermitianTridiagEigPairPartialDist_s(*args)
+        elif dSub.tag == dTag: lib.ElHermitianTridiagEigPairPartialDist_d(*args)
+        elif dSub.tag == cTag: lib.ElHermitianTridiagEigPairPartialDist_c(*args)
+        elif dSub.tag == zTag: lib.ElHermitianTridiagEigPairPartialDist_z(*args)
+        else: DataExcept()
       return w
-  else: raise Exception('Unsupported matrix type')
+  else: TypeExcept()
 
 # Hermitian eigensolvers
 # ======================
@@ -317,92 +277,72 @@ def HermitianEig(uplo,A,vectors=False,sort=ASCENDING,subset=None):
     if vectors:
       X = Matrix(Base(A.tag))
       if subset == None:
-        if   A.tag == sTag: 
-          lib.ElHermitianEigPair_s(uplo,A.obj,w.obj,X.obj,sort)
-        elif A.tag == dTag:
-          lib.ElHermitianEigPair_d(uplo,A.obj,w.obj,X.obj,sort)
-        elif A.tag == cTag:
-          lib.ElHermitianEigPair_c(uplo,A.obj,w.obj,X.obj,sort)
-        elif A.tag == zTag:
-          lib.ElHermitianEigPair_z(uplo,A.obj,w.obj,X.obj,sort)
-        else: raise Exception('Unsupported datatype')
+        args = [uplo,A.obj,w.obj,X.obj,sort]
+        if   A.tag == sTag: lib.ElHermitianEigPair_s(*args)
+        elif A.tag == dTag: lib.ElHermitianEigPair_d(*args)
+        elif A.tag == cTag: lib.ElHermitianEigPair_c(*args)
+        elif A.tag == zTag: lib.ElHermitianEigPair_z(*args)
+        else: DataExcept()
       else:
-        if   A.tag == sTag: 
-          lib.ElHermitianEigPairPartial_s(uplo,A.obj,w.obj,X.obj,sort,subset)
-        elif A.tag == dTag:
-          lib.ElHermitianEigPairPartial_d(uplo,A.obj,w.obj,X.obj,sort,subset)
-        elif A.tag == cTag:
-          lib.ElHermitianEigPairPartial_c(uplo,A.obj,w.obj,X.obj,sort,subset)
-        elif A.tag == zTag:
-          lib.ElHermitianEigPairPartial_z(uplo,A.obj,w.obj,X.obj,sort,subset)
-        else: raise Exception('Unsupported datatype')
+        args = [uplo,A.obj,w.obj,X.obj,sort,subset]
+        if   A.tag == sTag: lib.ElHermitianEigPairPartial_s(*args)
+        elif A.tag == dTag: lib.ElHermitianEigPairPartial_d(*args)
+        elif A.tag == cTag: lib.ElHermitianEigPairPartial_c(*args)
+        elif A.tag == zTag: lib.ElHermitianEigPairPartial_z(*args)
+        else: DataExcept()
       return w, X
     else:
       if subset == None:
-        if   A.tag == sTag: lib.ElHermitianEigPair_s(uplo,A.obj,w.obj,sort)
-        elif A.tag == dTag: lib.ElHermitianEigPair_d(uplo,A.obj,w.obj,sort)
-        elif A.tag == cTag: lib.ElHermitianEigPair_c(uplo,A.obj,w.obj,sort)
-        elif A.tag == zTag: lib.ElHermitianEigPair_z(uplo,A.obj,w.obj,sort)
-        else: raise Exception('Unsupported datatype')
+        args = [uplo,A.obj,w.obj,sort]
+        if   A.tag == sTag: lib.ElHermitianEigPair_s(*args)
+        elif A.tag == dTag: lib.ElHermitianEigPair_d(*args)
+        elif A.tag == cTag: lib.ElHermitianEigPair_c(*args)
+        elif A.tag == zTag: lib.ElHermitianEigPair_z(*args)
+        else: DataExcept()
       else:
-        if   A.tag == sTag: 
-          lib.ElHermitianEigPairPartial_s(uplo,A.obj,w.obj,sort,subset)
-        elif A.tag == dTag:
-          lib.ElHermitianEigPairPartial_d(uplo,A.obj,w.obj,sort,subset)
-        elif A.tag == cTag:
-          lib.ElHermitianEigPairPartial_c(uplo,A.obj,w.obj,sort,subset)
-        elif A.tag == zTag:
-          lib.ElHermitianEigPairPartial_z(uplo,A.obj,w.obj,sort,subset)
-        else: raise Exception('Unsupported datatype')
+        args = [uplo,A.obj,w.obj,sort,subset]
+        if   A.tag == sTag: lib.ElHermitianEigPairPartial_s(*args)
+        elif A.tag == dTag: lib.ElHermitianEigPairPartial_d(*args)
+        elif A.tag == cTag: lib.ElHermitianEigPairPartial_c(*args)
+        elif A.tag == zTag: lib.ElHermitianEigPairPartial_z(*args)
+        else: DataExcept()
       return w
   elif type(A) is DistMatrix:
     w = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
     if vectors:
       X = DistMatrix(A.tag,MC,MR,dSub.Grid())
       if subset == None:
-        if   A.tag == sTag: 
-          lib.ElHermitianEigPairDist_s(uplo,A.obj,w.obj,X.obj,sort)
-        elif A.tag == dTag:
-          lib.ElHermitianEigPairDist_d(uplo,A.obj,w.obj,X.obj,sort)
-        elif A.tag == cTag:
-          lib.ElHermitianEigPairDist_c(uplo,A.obj,w.obj,X.obj,sort)
-        elif A.tag == zTag:
-          lib.ElHermitianEigPairDist_z(uplo,A.obj,w.obj,X.obj,sort)
-        else: raise Exception('Unsupported datatype')
+        args = [uplo,A.obj,w.obj,X.obj,sort]
+        if   A.tag == sTag: lib.ElHermitianEigPairDist_s(*args)
+        elif A.tag == dTag: lib.ElHermitianEigPairDist_d(*args)
+        elif A.tag == cTag: lib.ElHermitianEigPairDist_c(*args)
+        elif A.tag == zTag: lib.ElHermitianEigPairDist_z(*args)
+        else: DataExcept()
       else:
-        if   A.tag == sTag: 
-          lib.ElHermitianEigPairPartialDist_s \
-          (uplo,A.obj,w.obj,X.obj,sort,subset)
-        elif A.tag == dTag:
-          lib.ElHermitianEigPairPartialDist_d \
-          (uplo,A.obj,w.obj,X.obj,sort,subset)
-        elif A.tag == cTag:
-          lib.ElHermitianEigPairPartialDist_c \
-          (uplo,A.obj,w.obj,X.obj,sort,subset)
-        elif A.tag == zTag:
-          lib.ElHermitianEigPairPartialDist_z \
-          (uplo,A.obj,w.obj,X.obj,sort,subset)
-        else: raise Exception('Unsupported datatype')
+        args = [uplo,A.obj,w.obj,X.obj,sort,subset]
+        if   A.tag == sTag: lib.ElHermitianEigPairPartialDist_s(*args)
+        elif A.tag == dTag: lib.ElHermitianEigPairPartialDist_d(*args)
+        elif A.tag == cTag: lib.ElHermitianEigPairPartialDist_c(*args)
+        elif A.tag == zTag: lib.ElHermitianEigPairPartialDist_z(*args)
+        else: DataExcept()
       return w, X
     else:
       if subset == None:
-        if   A.tag == sTag: lib.ElHermitianEigPairDist_s(uplo,A.obj,w.obj,sort)
-        elif A.tag == dTag: lib.ElHermitianEigPairDist_d(uplo,A.obj,w.obj,sort)
-        elif A.tag == cTag: lib.ElHermitianEigPairDist_c(uplo,A.obj,w.obj,sort)
-        elif A.tag == zTag: lib.ElHermitianEigPairDist_z(uplo,A.obj,w.obj,sort)
-        else: raise Exception('Unsupported datatype')
+        args = [uplo,A.obj,w.obj,sort]
+        if   A.tag == sTag: lib.ElHermitianEigPairDist_s(*args)
+        elif A.tag == dTag: lib.ElHermitianEigPairDist_d(*args)
+        elif A.tag == cTag: lib.ElHermitianEigPairDist_c(*args)
+        elif A.tag == zTag: lib.ElHermitianEigPairDist_z(*args)
+        else: DataExcept()
       else:
-        if   A.tag == sTag: 
-          lib.ElHermitianEigPairPartialDist_s(uplo,A.obj,w.obj,sort,subset)
-        elif A.tag == dTag:
-          lib.ElHermitianEigPairPartialDist_d(uplo,A.obj,w.obj,sort,subset)
-        elif A.tag == cTag:
-          lib.ElHermitianEigPairPartialDist_c(uplo,A.obj,w.obj,sort,subset)
-        elif A.tag == zTag:
-          lib.ElHermitianEigPairPartialDist_z(uplo,A.obj,w.obj,sort,subset)
-        else: raise Exception('Unsupported datatype')
+        args = [uplo,A.obj,w.obj,sort,subset]
+        if   A.tag == sTag: lib.ElHermitianEigPairPartialDist_s(*args)
+        elif A.tag == dTag: lib.ElHermitianEigPairPartialDist_d(*args)
+        elif A.tag == cTag: lib.ElHermitianEigPairPartialDist_c(*args)
+        elif A.tag == zTag: lib.ElHermitianEigPairPartialDist_z(*args)
+        else: DataExcept()
       return w
-  else: raise Exception('Unsupported matrix type')
+  else: TypeExcept()
 
 # Skew-Hermitian eigensolvers
 # ===========================
@@ -501,100 +441,72 @@ def SkewHermitianEig(uplo,A,vectors=False,sort=ASCENDING,subset=None):
     if vectors:
       X = Matrix(Base(A.tag))
       if subset == None:
-        if   A.tag == sTag: 
-          lib.ElSkewHermitianEigPair_s(uplo,A.obj,w.obj,X.obj,sort)
-        elif A.tag == dTag:
-          lib.ElSkewHermitianEigPair_d(uplo,A.obj,w.obj,X.obj,sort)
-        elif A.tag == cTag:
-          lib.ElSkewHermitianEigPair_c(uplo,A.obj,w.obj,X.obj,sort)
-        elif A.tag == zTag:
-          lib.ElSkewHermitianEigPair_z(uplo,A.obj,w.obj,X.obj,sort)
-        else: raise Exception('Unsupported datatype')
+        args = [uplo,A.obj,w.obj,X.obj,sort]
+        if   A.tag == sTag: lib.ElSkewHermitianEigPair_s(*args)
+        elif A.tag == dTag: lib.ElSkewHermitianEigPair_d(*args)
+        elif A.tag == cTag: lib.ElSkewHermitianEigPair_c(*args)
+        elif A.tag == zTag: lib.ElSkewHermitianEigPair_z(*args)
+        else: DataExcept()
       else:
-        if   A.tag == sTag: 
-          lib.ElSkewHermitianEigPairPartial_s \
-          (uplo,A.obj,w.obj,X.obj,sort,subset)
-        elif A.tag == dTag:
-          lib.ElSkewHermitianEigPairPartial_d \
-          (uplo,A.obj,w.obj,X.obj,sort,subset)
-        elif A.tag == cTag:
-          lib.ElSkewHermitianEigPairPartial_c \
-          (uplo,A.obj,w.obj,X.obj,sort,subset)
-        elif A.tag == zTag:
-          lib.ElSkewHermitianEigPairPartial_z \
-          (uplo,A.obj,w.obj,X.obj,sort,subset)
-        else: raise Exception('Unsupported datatype')
+        args = [uplo,A.obj,w.obj,X.obj,sort,subset]
+        if   A.tag == sTag: lib.ElSkewHermitianEigPairPartial_s(*args)
+        elif A.tag == dTag: lib.ElSkewHermitianEigPairPartial_d(*args)
+        elif A.tag == cTag: lib.ElSkewHermitianEigPairPartial_c(*args)
+        elif A.tag == zTag: lib.ElSkewHermitianEigPairPartial_z(*args)
+        else: DataExcept()
       return w, X
     else:
       if subset == None:
-        if   A.tag == sTag: lib.ElSkewHermitianEigPair_s(uplo,A.obj,w.obj,sort)
-        elif A.tag == dTag: lib.ElSkewHermitianEigPair_d(uplo,A.obj,w.obj,sort)
-        elif A.tag == cTag: lib.ElSkewHermitianEigPair_c(uplo,A.obj,w.obj,sort)
-        elif A.tag == zTag: lib.ElSkewHermitianEigPair_z(uplo,A.obj,w.obj,sort)
-        else: raise Exception('Unsupported datatype')
+        args = [uplo,A.obj,w.obj,sort]
+        if   A.tag == sTag: lib.ElSkewHermitianEigPair_s(*args)
+        elif A.tag == dTag: lib.ElSkewHermitianEigPair_d(*args)
+        elif A.tag == cTag: lib.ElSkewHermitianEigPair_c(*args)
+        elif A.tag == zTag: lib.ElSkewHermitianEigPair_z(*args)
+        else: DataExcept()
       else:
-        if   A.tag == sTag: 
-          lib.ElSkewHermitianEigPairPartial_s(uplo,A.obj,w.obj,sort,subset)
-        elif A.tag == dTag:
-          lib.ElSkewHermitianEigPairPartial_d(uplo,A.obj,w.obj,sort,subset)
-        elif A.tag == cTag:
-          lib.ElSkewHermitianEigPairPartial_c(uplo,A.obj,w.obj,sort,subset)
-        elif A.tag == zTag:
-          lib.ElSkewHermitianEigPairPartial_z(uplo,A.obj,w.obj,sort,subset)
-        else: raise Exception('Unsupported datatype')
+        args = [uplo,A.obj,w.obj,sort,subset]
+        if   A.tag == sTag: lib.ElSkewHermitianEigPairPartial_s(*args)
+        elif A.tag == dTag: lib.ElSkewHermitianEigPairPartial_d(*args)
+        elif A.tag == cTag: lib.ElSkewHermitianEigPairPartial_c(*args)
+        elif A.tag == zTag: lib.ElSkewHermitianEigPairPartial_z(*args)
+        else: DataExcept()
       return w
   elif type(A) is DistMatrix:
     w = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
     if vectors:
       X = DistMatrix(A.tag,MC,MR,dSub.Grid())
       if subset == None:
-        if   A.tag == sTag: 
-          lib.ElSkewHermitianEigPairDist_s(uplo,A.obj,w.obj,X.obj,sort)
-        elif A.tag == dTag:
-          lib.ElSkewHermitianEigPairDist_d(uplo,A.obj,w.obj,X.obj,sort)
-        elif A.tag == cTag:
-          lib.ElSkewHermitianEigPairDist_c(uplo,A.obj,w.obj,X.obj,sort)
-        elif A.tag == zTag:
-          lib.ElSkewHermitianEigPairDist_z(uplo,A.obj,w.obj,X.obj,sort)
-        else: raise Exception('Unsupported datatype')
+        args = [uplo,A.obj,w.obj,X.obj,sort]
+        if   A.tag == sTag: lib.ElSkewHermitianEigPairDist_s(*args)
+        elif A.tag == dTag: lib.ElSkewHermitianEigPairDist_d(*args)
+        elif A.tag == cTag: lib.ElSkewHermitianEigPairDist_c(*args)
+        elif A.tag == zTag: lib.ElSkewHermitianEigPairDist_z(*args)
+        else: DataExcept()
       else:
-        if   A.tag == sTag: 
-          lib.ElSkewHermitianEigPairPartialDist_s \
-          (uplo,A.obj,w.obj,X.obj,sort,subset)
-        elif A.tag == dTag:
-          lib.ElSkewHermitianEigPairPartialDist_d \
-          (uplo,A.obj,w.obj,X.obj,sort,subset)
-        elif A.tag == cTag:
-          lib.ElSkewHermitianEigPairPartialDist_c \
-          (uplo,A.obj,w.obj,X.obj,sort,subset)
-        elif A.tag == zTag:
-          lib.ElSkewHermitianEigPairPartialDist_z \
-          (uplo,A.obj,w.obj,X.obj,sort,subset)
-        else: raise Exception('Unsupported datatype')
+        args = [uplo,A.obj,w.obj,X.obj,sort,subset]
+        if   A.tag == sTag: lib.ElSkewHermitianEigPairPartialDist_s(*args)
+        elif A.tag == dTag: lib.ElSkewHermitianEigPairPartialDist_d(*args)
+        elif A.tag == cTag: lib.ElSkewHermitianEigPairPartialDist_c(*args)
+        elif A.tag == zTag: lib.ElSkewHermitianEigPairPartialDist_z(*args)
+        else: DataExcept()
       return w, X
     else:
       if subset == None:
-        if   A.tag == sTag: 
-          lib.ElSkewHermitianEigPairDist_s(uplo,A.obj,w.obj,sort)
-        elif A.tag == dTag: 
-          lib.ElSkewHermitianEigPairDist_d(uplo,A.obj,w.obj,sort)
-        elif A.tag == cTag: 
-          lib.ElSkewHermitianEigPairDist_c(uplo,A.obj,w.obj,sort)
-        elif A.tag == zTag: 
-          lib.ElSkewHermitianEigPairDist_z(uplo,A.obj,w.obj,sort)
-        else: raise Exception('Unsupported datatype')
+        args = [uplo,A.obj,w.obj,sort]
+        if   A.tag == sTag: lib.ElSkewHermitianEigPairDist_s(*args)
+        elif A.tag == dTag: lib.ElSkewHermitianEigPairDist_d(*args)
+        elif A.tag == cTag: lib.ElSkewHermitianEigPairDist_c(*args)
+        elif A.tag == zTag: lib.ElSkewHermitianEigPairDist_z(*args)
+        else: DataExcept()
       else:
-        if   A.tag == sTag: 
-          lib.ElSkewHermitianEigPairPartialDist_s(uplo,A.obj,w.obj,sort,subset)
-        elif A.tag == dTag:
-          lib.ElSkewHermitianEigPairPartialDist_d(uplo,A.obj,w.obj,sort,subset)
-        elif A.tag == cTag:
-          lib.ElSkewHermitianEigPairPartialDist_c(uplo,A.obj,w.obj,sort,subset)
-        elif A.tag == zTag:
-          lib.ElSkewHermitianEigPairPartialDist_z(uplo,A.obj,w.obj,sort,subset)
-        else: raise Exception('Unsupported datatype')
+        args = [uplo,A.obj,w.obj,sort,subset]
+        if   A.tag == sTag: lib.ElSkewHermitianEigPairPartialDist_s(*args)
+        elif A.tag == dTag: lib.ElSkewHermitianEigPairPartialDist_d(*args)
+        elif A.tag == cTag: lib.ElSkewHermitianEigPairPartialDist_c(*args)
+        elif A.tag == zTag: lib.ElSkewHermitianEigPairPartialDist_z(*args)
+        else: DataExcept()
       return w
-  else: raise Exception('Unsupported matrix type')
+  else: TypeExcept()
 
 # Hermitian generalized-definite eigensolvers
 # ===========================================
@@ -709,120 +621,72 @@ def HermitianGenDefEig(uplo,A,vectors=False,sort=ASCENDING,subset=None):
     if vectors:
       X = Matrix(Base(A.tag))
       if subset == None:
-        if   A.tag == sTag: 
-          lib.ElHermitianGenDefEigPair_s \
-          (pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort)
-        elif A.tag == dTag:
-          lib.ElHermitianGenDefEigPair_d \
-          (pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort)
-        elif A.tag == cTag:
-          lib.ElHermitianGenDefEigPair_c \
-          (pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort)
-        elif A.tag == zTag:
-          lib.ElHermitianGenDefEigPair_z \
-          (pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort)
-        else: raise Exception('Unsupported datatype')
+        args = [pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort]
+        if   A.tag == sTag: lib.ElHermitianGenDefEigPair_s(*args)
+        elif A.tag == dTag: lib.ElHermitianGenDefEigPair_d(*args)
+        elif A.tag == cTag: lib.ElHermitianGenDefEigPair_c(*args)
+        elif A.tag == zTag: lib.ElHermitianGenDefEigPair_z(*args)
+        else: DataExcept()
       else:
-        if   A.tag == sTag: 
-          lib.ElHermitianGenDefEigPairPartial_s \
-          (pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort,subset)
-        elif A.tag == dTag:
-          lib.ElHermitianGenDefEigPairPartial_d \
-          (pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort,subset)
-        elif A.tag == cTag:
-          lib.ElHermitianGenDefEigPairPartial_c \
-          (pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort,subset)
-        elif A.tag == zTag:
-          lib.ElHermitianGenDefEigPairPartial_z \
-          (pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort,subset)
-        else: raise Exception('Unsupported datatype')
+        args = [pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort,subset]
+        if   A.tag == sTag: lib.ElHermitianGenDefEigPairPartial_s(*args)
+        elif A.tag == dTag: lib.ElHermitianGenDefEigPairPartial_d(*args)
+        elif A.tag == cTag: lib.ElHermitianGenDefEigPairPartial_c(*args)
+        elif A.tag == zTag: lib.ElHermitianGenDefEigPairPartial_z(*args)
+        else: DataExcept()
       return w, X
     else:
       if subset == None:
-        if   A.tag == sTag: 
-          lib.ElHermitianGenDefEigPair_s(pencil,uplo,A.obj,B.obj,w.obj,sort)
-        elif A.tag == dTag: 
-          lib.ElHermitianGenDefEigPair_d(pencil,uplo,A.obj,B.obj,w.obj,sort)
-        elif A.tag == cTag: 
-          lib.ElHermitianGenDefEigPair_c(pencil,uplo,A.obj,B.obj,w.obj,sort)
-        elif A.tag == zTag: 
-          lib.ElHermitianGenDefEigPair_z(pencil,uplo,A.obj,B.obj,w.obj,sort)
-        else: raise Exception('Unsupported datatype')
+        args = [pencil,uplo,A.obj,B.obj,w.obj,sort]
+        if   A.tag == sTag: lib.ElHermitianGenDefEigPair_s(*args)
+        elif A.tag == dTag: lib.ElHermitianGenDefEigPair_d(*args)
+        elif A.tag == cTag: lib.ElHermitianGenDefEigPair_c(*args)
+        elif A.tag == zTag: lib.ElHermitianGenDefEigPair_z(*args)
+        else: DataExcept()
       else:
-        if   A.tag == sTag: 
-          lib.ElHermitianGenDefEigPairPartial_s \
-          (pencil,uplo,A.obj,B.obj,w.obj,sort,subset)
-        elif A.tag == dTag:
-          lib.ElHermitianGenDefEigPairPartial_d \
-          (pencil,uplo,A.obj,B.obj,w.obj,sort,subset)
-        elif A.tag == cTag:
-          lib.ElHermitianGenDefEigPairPartial_c \
-          (pencil,uplo,A.obj,B.obj,w.obj,sort,subset)
-        elif A.tag == zTag:
-          lib.ElHermitianGenDefEigPairPartial_z \
-          (pencil,uplo,A.obj,B.obj,w.obj,sort,subset)
-        else: raise Exception('Unsupported datatype')
+        args = [pencil,uplo,A.obj,B.obj,w.obj,sort,subset]
+        if   A.tag == sTag: lib.ElHermitianGenDefEigPairPartial_s(*args)
+        elif A.tag == dTag: lib.ElHermitianGenDefEigPairPartial_d(*args)
+        elif A.tag == cTag: lib.ElHermitianGenDefEigPairPartial_c(*args)
+        elif A.tag == zTag: lib.ElHermitianGenDefEigPairPartial_z(*args)
+        else: DataExcept()
       return w
   elif type(A) is DistMatrix:
     w = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
     if vectors:
       X = DistMatrix(A.tag,MC,MR,dSub.Grid())
       if subset == None:
-        if   A.tag == sTag: 
-          lib.ElHermitianGenDefEigPairDist_s \
-          (pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort)
-        elif A.tag == dTag:
-          lib.ElHermitianGenDefEigPairDist_d \
-          (pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort)
-        elif A.tag == cTag:
-          lib.ElHermitianGenDefEigPairDist_c \
-          (pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort)
-        elif A.tag == zTag:
-          lib.ElHermitianGenDefEigPairDist_z \
-          (pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort)
-        else: raise Exception('Unsupported datatype')
+        args = [pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort]
+        if   A.tag == sTag: lib.ElHermitianGenDefEigPairDist_s(*args)
+        elif A.tag == dTag: lib.ElHermitianGenDefEigPairDist_d(*args)
+        elif A.tag == cTag: lib.ElHermitianGenDefEigPairDist_c(*args)
+        elif A.tag == zTag: lib.ElHermitianGenDefEigPairDist_z(*args)
+        else: DataExcept()
       else:
-        if   A.tag == sTag: 
-          lib.ElHermitianGenDefEigPairPartialDist_s \
-          (pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort,subset)
-        elif A.tag == dTag:
-          lib.ElHermitianGenDefEigPairPartialDist_d \
-          (pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort,subset)
-        elif A.tag == cTag:
-          lib.ElHermitianGenDefEigPairPartialDist_c \
-          (pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort,subset)
-        elif A.tag == zTag:
-          lib.ElHermitianGenDefEigPairPartialDist_z \
-          (pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort,subset)
-        else: raise Exception('Unsupported datatype')
+        args = [pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort,subset]
+        if   A.tag == sTag: lib.ElHermitianGenDefEigPairPartialDist_s(*args)
+        elif A.tag == dTag: lib.ElHermitianGenDefEigPairPartialDist_d(*args)
+        elif A.tag == cTag: lib.ElHermitianGenDefEigPairPartialDist_c(*args)
+        elif A.tag == zTag: lib.ElHermitianGenDefEigPairPartialDist_z(*args)
+        else: DataExcept()
       return w, X
     else:
       if subset == None:
-        if   A.tag == sTag: 
-          lib.ElHermitianGenDefEigPairDist_s(pencil,uplo,A.obj,B.obj,w.obj,sort)
-        elif A.tag == dTag: 
-          lib.ElHermitianGenDefEigPairDist_d(pencil,uplo,A.obj,B.obj,w.obj,sort)
-        elif A.tag == cTag: 
-          lib.ElHermitianGenDefEigPairDist_c(pencil,uplo,A.obj,B.obj,w.obj,sort)
-        elif A.tag == zTag: 
-          lib.ElHermitianGenDefEigPairDist_z(pencil,uplo,A.obj,B.obj,w.obj,sort)
-        else: raise Exception('Unsupported datatype')
+        args = [pencil,uplo,A.obj,B.obj,w.obj,sort]
+        if   A.tag == sTag: lib.ElHermitianGenDefEigPairDist_s(*args)
+        elif A.tag == dTag: lib.ElHermitianGenDefEigPairDist_d(*args)
+        elif A.tag == cTag: lib.ElHermitianGenDefEigPairDist_c(*args)
+        elif A.tag == zTag: lib.ElHermitianGenDefEigPairDist_z(*args)
+        else: DataExcept()
       else:
-        if   A.tag == sTag: 
-          lib.ElHermitianGenDefEigPairPartialDist_s \
-          (pencil,uplo,A.obj,B.obj,w.obj,sort,subset)
-        elif A.tag == dTag:
-          lib.ElHermitianGenDefEigPairPartialDist_d \
-          (pencil,uplo,A.obj,B.obj,w.obj,sort,subset)
-        elif A.tag == cTag:
-          lib.ElHermitianGenDefEigPairPartialDist_c \
-          (pencil,uplo,A.obj,B.obj,w.obj,sort,subset)
-        elif A.tag == zTag:
-          lib.ElHermitianGenDefEigPairPartialDist_z \
-          (pencil,uplo,A.obj,B.obj,w.obj,sort,subset)
-        else: raise Exception('Unsupported datatype')
+        args = [pencil,uplo,A.obj,B.obj,w.obj,sort,subset]
+        if   A.tag == sTag: lib.ElHermitianGenDefEigPairPartialDist_s(*args)
+        elif A.tag == dTag: lib.ElHermitianGenDefEigPairPartialDist_d(*args)
+        elif A.tag == cTag: lib.ElHermitianGenDefEigPairPartialDist_c(*args)
+        elif A.tag == zTag: lib.ElHermitianGenDefEigPairPartialDist_z(*args)
+        else: DataExcept()
       return w
-  else: raise Exception('Unsupported matrix type')
+  else: TypeExcept()
 
 # Hermitian SVD
 # =============
@@ -864,38 +728,42 @@ def HermitianSVD(uplo,A,vectors=True):
     if vectors:
       U = Matrix(A.tag)
       V = Matrix(A.tag)
-      if   A.tag == sTag: lib.ElHermitianSVD_s(uplo,A.obj,s.obj,U.obj,V.obj)
-      elif A.tag == dTag: lib.ElHermitianSVD_d(uplo,A.obj,s.obj,U.obj,V.obj)
-      elif A.tag == cTag: lib.ElHermitianSVD_c(uplo,A.obj,s.obj,U.obj,V.obj)
-      elif A.tag == zTag: lib.ElHermitianSVD_z(uplo,A.obj,s.obj,U.obj,V.obj)
-      else: raise Exception('Unsupported datatype')
+      args = [uplo,A.obj,s.obj,U.obj,V.obj]
+      if   A.tag == sTag: lib.ElHermitianSVD_s(*args)
+      elif A.tag == dTag: lib.ElHermitianSVD_d(*args)
+      elif A.tag == cTag: lib.ElHermitianSVD_c(*args)
+      elif A.tag == zTag: lib.ElHermitianSVD_z(*args)
+      else: DataExcept()
       return U, s, V 
     else:
-      if   A.tag == sTag: lib.ElHermitianSingularValues_s(uplo,A.obj,s.obj)
-      elif A.tag == dTag: lib.ElHermitianSingularValues_d(uplo,A.obj,s.obj)
-      elif A.tag == cTag: lib.ElHermitianSingularValues_c(uplo,A.obj,s.obj)
-      elif A.tag == zTag: lib.ElHermitianSingularValues_z(uplo,A.obj,s.obj)
-      else: raise Exception('Unsupported datatype')
+      args = [uplo,A.obj,s.obj]
+      if   A.tag == sTag: lib.ElHermitianSingularValues_s(*args)
+      elif A.tag == dTag: lib.ElHermitianSingularValues_d(*args)
+      elif A.tag == cTag: lib.ElHermitianSingularValues_c(*args)
+      elif A.tag == zTag: lib.ElHermitianSingularValues_z(*args)
+      else: DataExcept()
     return s
   elif type(A) is DistMatrix:
     s = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
     if vectors:
       U = DistMatrix(A.tag,MC,MR,A.Grid())
       V = DistMatrix(A.tag,MC,MR,A.Grid())
-      if   A.tag == sTag: lib.ElHermitianSVDDist_s(uplo,A.obj,s.obj,U.obj,V.obj)
-      elif A.tag == dTag: lib.ElHermitianSVDDist_d(uplo,A.obj,s.obj,U.obj,V.obj)
-      elif A.tag == cTag: lib.ElHermitianSVDDist_c(uplo,A.obj,s.obj,U.obj,V.obj)
-      elif A.tag == zTag: lib.ElHermitianSVDDist_z(uplo,A.obj,s.obj,U.obj,V.obj)
-      else: raise Exception('Unsupported datatype')
+      args = [uplo,A.obj,s.obj,U.obj,V.obj]
+      if   A.tag == sTag: lib.ElHermitianSVDDist_s(*args)
+      elif A.tag == dTag: lib.ElHermitianSVDDist_d(*args)
+      elif A.tag == cTag: lib.ElHermitianSVDDist_c(*args)
+      elif A.tag == zTag: lib.ElHermitianSVDDist_z(*args)
+      else: DataExcept()
       return U, s, V 
     else:
-      if   A.tag == sTag: lib.ElHermitianSingularValuesDist_s(uplo,A.obj,s.obj)
-      elif A.tag == dTag: lib.ElHermitianSingularValuesDist_d(uplo,A.obj,s.obj)
-      elif A.tag == cTag: lib.ElHermitianSingularValuesDist_c(uplo,A.obj,s.obj)
-      elif A.tag == zTag: lib.ElHermitianSingularValuesDist_z(uplo,A.obj,s.obj)
-      else: raise Exception('Unsupported datatype')
+      args = [uplo,A.obj,s.obj]
+      if   A.tag == sTag: lib.ElHermitianSingularValuesDist_s(*args)
+      elif A.tag == dTag: lib.ElHermitianSingularValuesDist_d(*args)
+      elif A.tag == cTag: lib.ElHermitianSingularValuesDist_c(*args)
+      elif A.tag == zTag: lib.ElHermitianSingularValuesDist_z(*args)
+      else: DataExcept()
     return s
-  else: raise Exception('Unsupported matrix type')
+  else: TypeExcept()
 
 # Polar decomposition
 # ===================
@@ -935,34 +803,38 @@ def Polar(A,fullDecomp=False):
   if type(A) is Matrix:
     if fullDecomp:
       P = Matrix(A.tag)
-      if   A.tag == sTag: lib.ElPolarDecomp_s(A.obj,P.obj)
-      elif A.tag == dTag: lib.ElPolarDecomp_d(A.obj,P.obj)
-      elif A.tag == cTag: lib.ElPolarDecomp_c(A.obj,P.obj)
-      elif A.tag == zTag: lib.ElPolarDecomp_z(A.obj,P.obj)
-      else: raise Exception('Unsupported datatype')
+      args = [A.obj,P.obj]
+      if   A.tag == sTag: lib.ElPolarDecomp_s(*args)
+      elif A.tag == dTag: lib.ElPolarDecomp_d(*args)
+      elif A.tag == cTag: lib.ElPolarDecomp_c(*args)
+      elif A.tag == zTag: lib.ElPolarDecomp_z(*args)
+      else: DataExcept()
       return P
     else:
-      if   A.tag == sTag: lib.ElPolar_s(A.obj)
-      elif A.tag == dTag: lib.ElPolar_d(A.obj)
-      elif A.tag == cTag: lib.ElPolar_c(A.obj)
-      elif A.tag == zTag: lib.ElPolar_z(A.obj)
-      else: raise Exception('Unsupported datatype')
+      args = [A.obj]
+      if   A.tag == sTag: lib.ElPolar_s(*args)
+      elif A.tag == dTag: lib.ElPolar_d(*args)
+      elif A.tag == cTag: lib.ElPolar_c(*args)
+      elif A.tag == zTag: lib.ElPolar_z(*args)
+      else: DataExcept()
   elif type(A) is DistMatrix:
     if fullDecomp:
       P = DistMatrix(A.tag)
-      if   A.tag == sTag: lib.ElPolarDecompDist_s(A.obj,P.obj)
-      elif A.tag == dTag: lib.ElPolarDecompDist_d(A.obj,P.obj)
-      elif A.tag == cTag: lib.ElPolarDecompDist_c(A.obj,P.obj)
-      elif A.tag == zTag: lib.ElPolarDecompDist_z(A.obj,P.obj)
-      else: raise Exception('Unsupported datatype')
+      args = [A.obj,P.obj]
+      if   A.tag == sTag: lib.ElPolarDecompDist_s(*args)
+      elif A.tag == dTag: lib.ElPolarDecompDist_d(*args)
+      elif A.tag == cTag: lib.ElPolarDecompDist_c(*args)
+      elif A.tag == zTag: lib.ElPolarDecompDist_z(*args)
+      else: DataExcept()
       return P
     else:
-      if   A.tag == sTag: lib.ElPolarDist_s(A.obj)
-      elif A.tag == dTag: lib.ElPolarDist_d(A.obj)
-      elif A.tag == cTag: lib.ElPolarDist_c(A.obj)
-      elif A.tag == zTag: lib.ElPolarDist_z(A.obj)
-      else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+      args = [A.obj]
+      if   A.tag == sTag: lib.ElPolarDist_s(*args)
+      elif A.tag == dTag: lib.ElPolarDist_d(*args)
+      elif A.tag == cTag: lib.ElPolarDist_c(*args)
+      elif A.tag == zTag: lib.ElPolarDist_z(*args)
+      else: DataExcept()
+  else: TypeExcept()
 
 lib.ElHermitianPolar_s.argtypes = [c_uint,c_void_p]
 lib.ElHermitianPolar_s.restype = c_uint
@@ -1000,34 +872,38 @@ def HermitianPolar(uplo,A,fullDecomp=False):
   if type(A) is Matrix:
     if fullDecomp:
       P = Matrix(A.tag)
-      if   A.tag == sTag: lib.ElHermitianPolarDecomp_s(uplo,A.obj,P.obj)
-      elif A.tag == dTag: lib.ElHermitianPolarDecomp_d(uplo,A.obj,P.obj)
-      elif A.tag == cTag: lib.ElHermitianPolarDecomp_c(uplo,A.obj,P.obj)
-      elif A.tag == zTag: lib.ElHermitianPolarDecomp_z(uplo,A.obj,P.obj)
-      else: raise Exception('Unsupported datatype')
+      args = [uplo,A.obj,P.obj]
+      if   A.tag == sTag: lib.ElHermitianPolarDecomp_s(*args)
+      elif A.tag == dTag: lib.ElHermitianPolarDecomp_d(*args)
+      elif A.tag == cTag: lib.ElHermitianPolarDecomp_c(*args)
+      elif A.tag == zTag: lib.ElHermitianPolarDecomp_z(*args)
+      else: DataExcept()
       return P
     else:
-      if   A.tag == sTag: lib.ElHermitianPolar_s(uplo,A.obj)
-      elif A.tag == dTag: lib.ElHermitianPolar_d(uplo,A.obj)
-      elif A.tag == cTag: lib.ElHermitianPolar_c(uplo,A.obj)
-      elif A.tag == zTag: lib.ElHermitianPolar_z(uplo,A.obj)
-      else: raise Exception('Unsupported datatype')
+      args = [uplo,A.obj]
+      if   A.tag == sTag: lib.ElHermitianPolar_s(*args)
+      elif A.tag == dTag: lib.ElHermitianPolar_d(*args)
+      elif A.tag == cTag: lib.ElHermitianPolar_c(*args)
+      elif A.tag == zTag: lib.ElHermitianPolar_z(*args)
+      else: DataExcept()
   elif type(A) is DistMatrix:
     if fullDecomp:
       P = Matrix(A.tag)
-      if   A.tag == sTag: lib.ElHermitianPolarDecompDist_s(uplo,A.obj,P.obj)
-      elif A.tag == dTag: lib.ElHermitianPolarDecompDist_d(uplo,A.obj,P.obj)
-      elif A.tag == cTag: lib.ElHermitianPolarDecompDist_c(uplo,A.obj,P.obj)
-      elif A.tag == zTag: lib.ElHermitianPolarDecompDist_z(uplo,A.obj,P.obj)
-      else: raise Exception('Unsupported datatype')
+      args = [uplo,A.obj,P.obj]
+      if   A.tag == sTag: lib.ElHermitianPolarDecompDist_s(*args)
+      elif A.tag == dTag: lib.ElHermitianPolarDecompDist_d(*args)
+      elif A.tag == cTag: lib.ElHermitianPolarDecompDist_c(*args)
+      elif A.tag == zTag: lib.ElHermitianPolarDecompDist_z(*args)
+      else: DataExcept()
       return P
     else:
-      if   A.tag == sTag: lib.ElHermitianPolarDist_s(uplo,A.obj)
-      elif A.tag == dTag: lib.ElHermitianPolarDist_d(uplo,A.obj)
-      elif A.tag == cTag: lib.ElHermitianPolarDist_c(uplo,A.obj)
-      elif A.tag == zTag: lib.ElHermitianPolarDist_z(uplo,A.obj)
-      else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+      args = [uplo,A.obj]
+      if   A.tag == sTag: lib.ElHermitianPolarDist_s(*args)
+      elif A.tag == dTag: lib.ElHermitianPolarDist_d(*args)
+      elif A.tag == cTag: lib.ElHermitianPolarDist_c(*args)
+      elif A.tag == zTag: lib.ElHermitianPolarDist_z(*args)
+      else: DataExcept()
+  else: TypeExcept()
 
 # Schur decomposition
 # ===================
@@ -1068,41 +944,41 @@ def Schur(A,fullTriangle=True,vectors=False):
     w = Matrix(Complexify(A.tag))
     if vectors:
       Q = Matrix(A.tag)
-      if   A.tag == sTag: lib.ElSchurDecomp_s(A.obj,w.obj,Q.obj,fullTriangle)
-      elif A.tag == dTag: lib.ElSchurDecomp_d(A.obj,w.obj,Q.obj,fullTriangle)
-      elif A.tag == cTag: lib.ElSchurDecomp_c(A.obj,w.obj,Q.obj,fullTriangle)
-      elif A.tag == zTag: lib.ElSchurDecomp_z(A.obj,w.obj,Q.obj,fullTriangle)
-      else: raise Exception('Unsupported datatype')
+      args = [A.obj,w.obj,Q.obj,fullTriangle]
+      if   A.tag == sTag: lib.ElSchurDecomp_s(*args)
+      elif A.tag == dTag: lib.ElSchurDecomp_d(*args)
+      elif A.tag == cTag: lib.ElSchurDecomp_c(*args)
+      elif A.tag == zTag: lib.ElSchurDecomp_z(*args)
+      else: DataExcept()
       return w, Q
     else:
-      if   A.tag == sTag: lib.ElSchur_s(A.obj,w.obj,fullTriangle)
-      elif A.tag == dTag: lib.ElSchur_d(A.obj,w.obj,fullTriangle)
-      elif A.tag == cTag: lib.ElSchur_c(A.obj,w.obj,fullTriangle)
-      elif A.tag == zTag: lib.ElSchur_z(A.obj,w.obj,fullTriangle)
-      else: raise Exception('Unsupported datatype')
+      args = [A.obj,w.obj,fullTriangle]
+      if   A.tag == sTag: lib.ElSchur_s(*args)
+      elif A.tag == dTag: lib.ElSchur_d(*args)
+      elif A.tag == cTag: lib.ElSchur_c(*args)
+      elif A.tag == zTag: lib.ElSchur_z(*args)
+      else: DataExcept()
       return w
   elif type(A) is DistMatrix:
     w = DistMatrix(Complexify(A.tag),STAR,STAR,A.Grid())
     if vectors:
       Q = DistMatrix(A.tag,MC,MR,A.Grid())
-      if   A.tag == sTag: 
-        lib.ElSchurDecompDist_s(A.obj,w.obj,Q.obj,fullTriangle)
-      elif A.tag == dTag: 
-        lib.ElSchurDecompDist_d(A.obj,w.obj,Q.obj,fullTriangle)
-      elif A.tag == cTag: 
-        lib.ElSchurDecompDist_c(A.obj,w.obj,Q.obj,fullTriangle)
-      elif A.tag == zTag: 
-        lib.ElSchurDecompDist_z(A.obj,w.obj,Q.obj,fullTriangle)
-      else: raise Exception('Unsupported datatype')
+      args = [A.obj,w.obj,Q.obj,fullTriangle]
+      if   A.tag == sTag: lib.ElSchurDecompDist_s(*args)
+      elif A.tag == dTag: lib.ElSchurDecompDist_d(*args)
+      elif A.tag == cTag: lib.ElSchurDecompDist_c(*args)
+      elif A.tag == zTag: lib.ElSchurDecompDist_z(*args)
+      else: DataExcept()
       return w, Q
     else:
-      if   A.tag == sTag: lib.ElSchurDist_s(A.obj,w.obj,fullTriangle)
-      elif A.tag == dTag: lib.ElSchurDist_d(A.obj,w.obj,fullTriangle)
-      elif A.tag == cTag: lib.ElSchurDist_c(A.obj,w.obj,fullTriangle)
-      elif A.tag == zTag: lib.ElSchurDist_z(A.obj,w.obj,fullTriangle)
-      else: raise Exception('Unsupported datatype')
+      args = [A.obj,w.obj,fullTriangle]
+      if   A.tag == sTag: lib.ElSchurDist_s(*args)
+      elif A.tag == dTag: lib.ElSchurDist_d(*args)
+      elif A.tag == cTag: lib.ElSchurDist_c(*args)
+      elif A.tag == zTag: lib.ElSchurDist_z(*args)
+      else: DataExcept()
       return w
-  else: raise Exception('Unsupported matrix type')
+  else: TypeExcept()
 
 # Singular value decomposition
 # ============================
@@ -1143,34 +1019,38 @@ def SVD(A,vectors=False):
     s = Matrix(Base(A.tag))
     if vectors:
       V = Matrix(A.tag)
-      if   A.tag == sTag: lib.ElSVD_s(A.obj,s.obj,V.obj)
-      elif A.tag == dTag: lib.ElSVD_d(A.obj,s.obj,V.obj)
-      elif A.tag == cTag: lib.ElSVD_c(A.obj,s.obj,V.obj)
-      elif A.tag == zTag: lib.ElSVD_z(A.obj,s.obj,V.obj)
-      else: raise Exception('Unsupported datatype')
+      args = [A.obj,s.obj,V.obj]
+      if   A.tag == sTag: lib.ElSVD_s(*args)
+      elif A.tag == dTag: lib.ElSVD_d(*args)
+      elif A.tag == cTag: lib.ElSVD_c(*args)
+      elif A.tag == zTag: lib.ElSVD_z(*args)
+      else: DataExcept()
       return s, V
     else:
-      if   A.tag == sTag: lib.ElSingularValues_s(A.obj,s.obj)
-      elif A.tag == dTag: lib.ElSingularValues_d(A.obj,s.obj)
-      elif A.tag == cTag: lib.ElSingularValues_c(A.obj,s.obj)
-      elif A.tag == zTag: lib.ElSingularValues_z(A.obj,s.obj)
-      else: raise Exception('Unsupported datatype')
+      args = [A.obj,s.obj]
+      if   A.tag == sTag: lib.ElSingularValues_s(*args)
+      elif A.tag == dTag: lib.ElSingularValues_d(*args)
+      elif A.tag == cTag: lib.ElSingularValues_c(*args)
+      elif A.tag == zTag: lib.ElSingularValues_z(*args)
+      else: DataExcept()
       return s
   elif type(A) is DistMatrix:
     s = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
     if vectors:
       V = DistMatrix(A.tag,MC,MR,A.Grid())
-      if   A.tag == sTag: lib.ElSVDDist_s(A.obj,s.obj,V.obj)
-      elif A.tag == dTag: lib.ElSVDDist_d(A.obj,s.obj,V.obj)
-      elif A.tag == cTag: lib.ElSVDDist_c(A.obj,s.obj,V.obj)
-      elif A.tag == zTag: lib.ElSVDDist_z(A.obj,s.obj,V.obj)
-      else: raise Exception('Unsupported datatype')
+      args = [A.obj,s.obj,V.obj]
+      if   A.tag == sTag: lib.ElSVDDist_s(*args)
+      elif A.tag == dTag: lib.ElSVDDist_d(*args)
+      elif A.tag == cTag: lib.ElSVDDist_c(*args)
+      elif A.tag == zTag: lib.ElSVDDist_z(*args)
+      else: DataExcept()
       return s, V
     else:
-      if   A.tag == sTag: lib.ElSingularValuesDist_s(A.obj,s.obj)
-      elif A.tag == dTag: lib.ElSingularValuesDist_d(A.obj,s.obj)
-      elif A.tag == cTag: lib.ElSingularValuesDist_c(A.obj,s.obj)
-      elif A.tag == zTag: lib.ElSingularValuesDist_z(A.obj,s.obj)
-      else: raise Exception('Unsupported datatype')
+      args = [A.obj,s.obj]
+      if   A.tag == sTag: lib.ElSingularValuesDist_s(*args)
+      elif A.tag == dTag: lib.ElSingularValuesDist_d(*args)
+      elif A.tag == cTag: lib.ElSingularValuesDist_c(*args)
+      elif A.tag == zTag: lib.ElSingularValuesDist_z(*args)
+      else: DataExcept()
       return s
-  else: raise Exception('Unsupported matrix type')
+  else: TypeExcept()

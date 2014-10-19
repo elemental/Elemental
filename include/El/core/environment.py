@@ -200,6 +200,12 @@ class SafeProduct_c(ctypes.Structure):
   _fields_ = [("rho",cType),("kappa",sType),("n",iType)]
 class SafeProduct_z(ctypes.Structure):
   _fields_ = [("rho",zType),("kappa",dType),("n",iType)]
+def TagToSafeProduct(tag):
+  if   tag == sTag: return SafeProduct_s()
+  elif tag == dTag: return SafeProduct_d()
+  elif tag == cTag: return SafeProduct_c()
+  elif tag == zTag: return SafeProduct_z()
+  else: DataExcept()
 
 class InertiaType(ctypes.Structure):
   _fields_ = [("numPositive",iType),("numNegative",iType),("numZero",iType)]

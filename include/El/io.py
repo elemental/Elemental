@@ -33,19 +33,22 @@ lib.ElPrintDist_c.restype = c_uint
 lib.ElPrintDist_z.argtypes = [c_void_p,c_char_p]
 lib.ElPrintDist_z.restype = c_uint
 def Print(A,title=''):
+  args = [A.obj,title]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElPrint_i(A.obj,title)
-    elif A.tag == sTag: lib.ElPrint_s(A.obj,title)
-    elif A.tag == dTag: lib.ElPrint_d(A.obj,title)
-    elif A.tag == cTag: lib.ElPrint_c(A.obj,title)
-    elif A.tag == zTag: lib.ElPrint_z(A.obj,title)
+    if   A.tag == iTag: lib.ElPrint_i(*args)
+    elif A.tag == sTag: lib.ElPrint_s(*args)
+    elif A.tag == dTag: lib.ElPrint_d(*args)
+    elif A.tag == cTag: lib.ElPrint_c(*args)
+    elif A.tag == zTag: lib.ElPrint_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElPrintDist_i(A.obj,title)
-    elif A.tag == sTag: lib.ElPrintDist_s(A.obj,title)
-    elif A.tag == dTag: lib.ElPrintDist_d(A.obj,title)
-    elif A.tag == cTag: lib.ElPrintDist_c(A.obj,title)
-    elif A.tag == zTag: lib.ElPrintDist_z(A.obj,title)
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElPrintDist_i(*args)
+    elif A.tag == sTag: lib.ElPrintDist_s(*args)
+    elif A.tag == dTag: lib.ElPrintDist_d(*args)
+    elif A.tag == cTag: lib.ElPrintDist_c(*args)
+    elif A.tag == zTag: lib.ElPrintDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 lib.ElSetColorMap.argtypes = [c_uint]
 lib.ElSetColorMap.restype = c_uint
@@ -144,23 +147,26 @@ def Display(A,title='',tryMatplotlib=True):
       print 'Could not import matplotlib.pyplot'
       # Just continue
   # Fall back to the built-in Display if we have not succeeded
+  args = [A.obj,title]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElDisplay_i(A.obj,title)
-    elif A.tag == sTag: lib.ElDisplay_s(A.obj,title)
-    elif A.tag == dTag: lib.ElDisplay_d(A.obj,title)
-    elif A.tag == cTag: lib.ElDisplay_c(A.obj,title)
-    elif A.tag == zTag: lib.ElDisplay_z(A.obj,title)
+    if   A.tag == iTag: lib.ElDisplay_i(*args)
+    elif A.tag == sTag: lib.ElDisplay_s(*args)
+    elif A.tag == dTag: lib.ElDisplay_d(*args)
+    elif A.tag == cTag: lib.ElDisplay_c(*args)
+    elif A.tag == zTag: lib.ElDisplay_z(*args)
+    else: DataExcept()
     # Process an extra 200 milliseconds
     ProcessEvents(200)
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElDisplayDist_i(A.obj,title)
-    elif A.tag == sTag: lib.ElDisplayDist_s(A.obj,title)
-    elif A.tag == dTag: lib.ElDisplayDist_d(A.obj,title)
-    elif A.tag == cTag: lib.ElDisplayDist_c(A.obj,title)
-    elif A.tag == zTag: lib.ElDisplayDist_z(A.obj,title)
+    if   A.tag == iTag: lib.ElDisplayDist_i(*args)
+    elif A.tag == sTag: lib.ElDisplayDist_s(*args)
+    elif A.tag == dTag: lib.ElDisplayDist_d(*args)
+    elif A.tag == cTag: lib.ElDisplayDist_c(*args)
+    elif A.tag == zTag: lib.ElDisplayDist_z(*args)
+    else: DataExcept()
     # Process an extra 200 milliseconds
     ProcessEvents(200)
-  else: raise Exception('Unsupported matrix type')
+  else: TypeExcept()
 
 lib.ElSpy_i.argtypes = [c_void_p,c_char_p,iType]
 lib.ElSpy_i.restype = c_uint
@@ -183,19 +189,22 @@ lib.ElSpyDist_c.restype = c_uint
 lib.ElSpyDist_z.argtypes = [c_void_p,c_char_p,dType]
 lib.ElSpyDist_z.restype = c_uint
 def Spy(A,title='',tol=0):
+  args = [A.obj,title,tol]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElSpy_i(A.obj,title,tol)
-    elif A.tag == sTag: lib.ElSpy_s(A.obj,title,tol)
-    elif A.tag == dTag: lib.ElSpy_d(A.obj,title,tol)
-    elif A.tag == cTag: lib.ElSpy_c(A.obj,title,tol)
-    elif A.tag == zTag: lib.ElSpy_z(A.obj,title,tol)
+    if   A.tag == iTag: lib.ElSpy_i(*args)
+    elif A.tag == sTag: lib.ElSpy_s(*args)
+    elif A.tag == dTag: lib.ElSpy_d(*args)
+    elif A.tag == cTag: lib.ElSpy_c(*args)
+    elif A.tag == zTag: lib.ElSpy_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElSpyDist_i(A.obj,title,tol)
-    elif A.tag == sTag: lib.ElSpyDist_s(A.obj,title,tol)
-    elif A.tag == dTag: lib.ElSpyDist_d(A.obj,title,tol)
-    elif A.tag == cTag: lib.ElSpyDist_c(A.obj,title,tol)
-    elif A.tag == zTag: lib.ElSpyDist_z(A.obj,title,tol)
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElSpyDist_i(*args)
+    elif A.tag == sTag: lib.ElSpyDist_s(*args)
+    elif A.tag == dTag: lib.ElSpyDist_d(*args)
+    elif A.tag == cTag: lib.ElSpyDist_c(*args)
+    elif A.tag == zTag: lib.ElSpyDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 lib.ElRead_i.argtypes = [c_void_p,c_char_p,c_uint]
 lib.ElRead_i.restype = c_uint
@@ -218,19 +227,22 @@ lib.ElReadDist_c.restype = c_uint
 lib.ElReadDist_z.argtypes = [c_void_p,c_char_p,c_uint]
 lib.ElReadDist_z.restype = c_uint
 def Read(A,filename,fileFormat=AUTO):
+  args = [A.obj,filename,fileFormat]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElRead_i(A.obj,filename,fileFormat)
-    elif A.tag == sTag: lib.ElRead_s(A.obj,filename,fileFormat)
-    elif A.tag == dTag: lib.ElRead_d(A.obj,filename,fileFormat)
-    elif A.tag == cTag: lib.ElRead_c(A.obj,filename,fileFormat)
-    elif A.tag == zTag: lib.ElRead_z(A.obj,filename,fileFormat)
+    if   A.tag == iTag: lib.ElRead_i(*args)
+    elif A.tag == sTag: lib.ElRead_s(*args)
+    elif A.tag == dTag: lib.ElRead_d(*args)
+    elif A.tag == cTag: lib.ElRead_c(*args)
+    elif A.tag == zTag: lib.ElRead_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElReadDist_i(A.obj,filename,fileFormat)
-    elif A.tag == sTag: lib.ElReadDist_s(A.obj,filename,fileFormat)
-    elif A.tag == dTag: lib.ElReadDist_d(A.obj,filename,fileFormat)
-    elif A.tag == cTag: lib.ElReadDist_c(A.obj,filename,fileFormat)
-    elif A.tag == zTag: lib.ElReadDist_z(A.obj,filename,fileFormat)
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElReadDist_i(*args)
+    elif A.tag == sTag: lib.ElReadDist_s(*args)
+    elif A.tag == dTag: lib.ElReadDist_d(*args)
+    elif A.tag == cTag: lib.ElReadDist_c(*args)
+    elif A.tag == zTag: lib.ElReadDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 lib.ElWrite_i.argtypes = [c_void_p,c_char_p,c_uint,c_char_p]
 lib.ElWrite_i.restype = c_uint
@@ -253,16 +265,19 @@ lib.ElWriteDist_c.restype = c_uint
 lib.ElWriteDist_z.argtypes = [c_void_p,c_char_p,c_uint,c_char_p]
 lib.ElWriteDist_z.restype = c_uint
 def Write(A,basename,fileFormat,title=''):
+  args = [A.obj,basename,fileFormat,title]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElWrite_i(A.obj,basename,fileFormat,title)
-    elif A.tag == sTag: lib.ElWrite_s(A.obj,basename,fileFormat,title)
-    elif A.tag == dTag: lib.ElWrite_d(A.obj,basename,fileFormat,title)
-    elif A.tag == cTag: lib.ElWrite_c(A.obj,basename,fileFormat,title)
-    elif A.tag == zTag: lib.ElWrite_z(A.obj,basename,fileFormat,title)
+    if   A.tag == iTag: lib.ElWrite_i(*args)
+    elif A.tag == sTag: lib.ElWrite_s(*args)
+    elif A.tag == dTag: lib.ElWrite_d(*args)
+    elif A.tag == cTag: lib.ElWrite_c(*args)
+    elif A.tag == zTag: lib.ElWrite_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElWriteDist_i(A.obj,basename,fileFormat,title)
-    elif A.tag == sTag: lib.ElWriteDist_s(A.obj,basename,fileFormat,title)
-    elif A.tag == dTag: lib.ElWriteDist_d(A.obj,basename,fileFormat,title)
-    elif A.tag == cTag: lib.ElWriteDist_c(A.obj,basename,fileFormat,title)
-    elif A.tag == zTag: lib.ElWriteDist_z(A.obj,basename,fileFormat,title)
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElWriteDist_i(*args)
+    elif A.tag == sTag: lib.ElWriteDist_s(*args)
+    elif A.tag == dTag: lib.ElWriteDist_d(*args)
+    elif A.tag == cTag: lib.ElWriteDist_c(*args)
+    elif A.tag == zTag: lib.ElWriteDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()

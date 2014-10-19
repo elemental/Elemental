@@ -35,15 +35,15 @@ def Axpy(alphaPre,X,Y):
     elif X.tag == dTag: lib.ElAxpy_d(alpha,X.obj,Y.obj)
     elif X.tag == cTag: lib.ElAxpy_c(alpha,X.obj,Y.obj)
     elif X.tag == zTag: lib.ElAxpy_z(alpha,X.obj,Y.obj)
-    else: raise Exception('Unsupported datatype')
+    else: DataExcept()
   elif type(X) is DistMatrix:
     if   X.tag == iTag: lib.ElAxpyDist_i(alpha,X.obj,Y.obj)
     elif X.tag == sTag: lib.ElAxpyDist_s(alpha,X.obj,Y.obj)
     elif X.tag == dTag: lib.ElAxpyDist_d(alpha,X.obj,Y.obj)
     elif X.tag == cTag: lib.ElAxpyDist_c(alpha,X.obj,Y.obj)
     elif X.tag == zTag: lib.ElAxpyDist_z(alpha,X.obj,Y.obj)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    else: DataExcept()
+  else: TypeExcept()
 
 # AxpyTriangle
 # ------------
@@ -67,15 +67,15 @@ def AxpyTriangle(uplo,alphaPre,X,Y):
     elif X.tag == dTag: lib.ElAxpyTriangle_d(uplo,alpha,X.obj,Y.obj)
     elif X.tag == cTag: lib.ElAxpyTriangle_c(uplo,alpha,X.obj,Y.obj)
     elif X.tag == zTag: lib.ElAxpyTriangle_z(uplo,alpha,X.obj,Y.obj)
-    else: raise Exception('Unsupported datatype')
+    else: DataExcept()
   elif type(X) is DistMatrix:
     if   X.tag == iTag: lib.ElAxpyTriangleDist_i(uplo,alpha,X.obj,Y.obj)
     elif X.tag == sTag: lib.ElAxpyTriangleDist_s(uplo,alpha,X.obj,Y.obj)
     elif X.tag == dTag: lib.ElAxpyTriangleDist_d(uplo,alpha,X.obj,Y.obj)
     elif X.tag == cTag: lib.ElAxpyTriangleDist_c(uplo,alpha,X.obj,Y.obj)
     elif X.tag == zTag: lib.ElAxpyTriangleDist_z(uplo,alpha,X.obj,Y.obj)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    else: DataExcept()
+  else: TypeExcept()
 
 # Conjugate
 # ---------
@@ -91,12 +91,12 @@ def Conjugate(A):
   if type(A) is Matrix:
     if   A.tag == cTag: lib.ElConjugate_c(A.obj)
     elif A.tag == zTag: lib.ElConjugate_z(A.obj)
-    else: raise Exception('Unsupported datatype')
+    else: DataExcept()
   elif type(A) is DistMatrix:
     if   A.tag == cTag: lib.ElConjugateDist_c(A.obj)
     elif A.tag == zTag: lib.ElConjugateDist_z(A.obj)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    else: DataExcept()
+  else: TypeExcept()
 
 # Copy
 # ----
@@ -126,15 +126,15 @@ def Copy(A,B):
     elif B.tag == dTag: lib.ElCopy_d(A.obj,B.obj)
     elif B.tag == cTag: lib.ElCopy_c(A.obj,B.obj)
     elif B.tag == zTag: lib.ElCopy_z(A.obj,B.obj)
-    else: raise Exception('Unsupported datatype')
+    else: DataExcept()
   elif type(A) is DistMatrix:
     if   B.tag == iTag: lib.ElCopyDist_i(A.obj,B.obj)
     elif B.tag == sTag: lib.ElCopyDist_s(A.obj,B.obj)
     elif B.tag == dTag: lib.ElCopyDist_d(A.obj,B.obj)
     elif B.tag == cTag: lib.ElCopyDist_c(A.obj,B.obj)
     elif B.tag == zTag: lib.ElCopyDist_z(A.obj,B.obj)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix types')
+    else: DataExcept()
+  else: TypeExcept()
 
 # Diagonal scale
 # --------------
@@ -167,15 +167,15 @@ def DiagonalScale(side,orient,d,X):
     elif X.tag == dTag: lib.ElDiagonalScale_d(side,d.obj,X.obj)
     elif X.tag == cTag: lib.ElDiagonalScale_c(side,orient,d.obj,X.obj)
     elif X.tag == zTag: lib.ElDiagonalScale_z(side,orient,d.obj,X.obj)
-    else: raise Exception('Unsupported datatype')
+    else: DataExcept()
   elif type(X) is DistMatrix:
     if   X.tag == iTag: lib.ElDiagonalScaleDist_i(side,d.obj,X.obj)
     elif X.tag == sTag: lib.ElDiagonalScaleDist_s(side,d.obj,X.obj)
     elif X.tag == dTag: lib.ElDiagonalScaleDist_d(side,d.obj,X.obj)
     elif X.tag == cTag: lib.ElDiagonalScaleDist_c(side,orient,d.obj,X.obj)
     elif X.tag == zTag: lib.ElDiagonalScaleDist_z(side,orient,d.obj,X.obj)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    else: DataExcept()
+  else: TypeExcept()
 
 # Diagonal scale trapezoid
 # ------------------------
@@ -223,7 +223,7 @@ def DiagonalScaleTrapezoid(side,uplo,orient,d,X,offset=0):
       lib.ElDiagonalScaleTrapezoid_c(side,uplo,orient,d.obj,X.obj,offset)
     elif X.tag == zTag:
       lib.ElDiagonalScaleTrapezoid_z(side,uplo,orient,d.obj,X.obj,offset)
-    else: raise Exception('Unsupported datatype')
+    else: DataExcept()
   elif type(X) is DistMatrix:
     if   X.tag == iTag:
       lib.ElDiagonalScaleTrapezoidDist_i(side,uplo,d.obj,X.obj,offset)
@@ -235,8 +235,8 @@ def DiagonalScaleTrapezoid(side,uplo,orient,d,X,offset=0):
       lib.ElDiagonalScaleTrapezoidDist_c(side,uplo,orient,d.obj,X.obj,offset)
     elif X.tag == zTag: 
       lib.ElDiagonalScaleTrapezoidDist_z(side,uplo,orient,d.obj,X.obj,offset)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    else: DataExcept()
+  else: TypeExcept()
 
 # Diagonal solve
 # --------------
@@ -264,14 +264,16 @@ def DiagonalSolve(side,orient,d,X):
     elif X.tag == dTag: lib.ElDiagonalSolve_d(side,d.obj,X.obj)
     elif X.tag == cTag: lib.ElDiagonalSolve_c(side,orient,d.obj,X.obj)
     elif X.tag == zTag: lib.ElDiagonalSolve_z(side,orient,d.obj,X.obj)
-    else: raise Exception('Unsupported datatype')
+    else: DataExcept()
   elif type(X) is DistMatrix:
     if   X.tag == sTag: lib.ElDiagonalSolveDist_s(side,d.obj,X.obj)
     elif X.tag == dTag: lib.ElDiagonalSolveDist_d(side,d.obj,X.obj)
     elif X.tag == cTag: lib.ElDiagonalSolveDist_c(side,orient,d.obj,X.obj)
     elif X.tag == zTag: lib.ElDiagonalSolveDist_z(side,orient,d.obj,X.obj)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    else: DataExcept()
+  else: TypeExcept()
+
+# LEFT OFF HERE
 
 # Dot
 # ---
@@ -299,23 +301,23 @@ def Dot(A,B):
   if type(A) is not type(B): raise Exception('Types of A and B must match')
   if A.tag != B.tag: raise Exception('Datatypes of A and B must match')
   prod = TagToType(A.tag)()
+  args = [A.obj,B.obj,pointer(prod)]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElDot_i(A.obj,B.obj,pointer(prod)) 
-    elif A.tag == sTag: lib.ElDot_s(A.obj,B.obj,pointer(prod))
-    elif A.tag == dTag: lib.ElDot_d(A.obj,B.obj,pointer(prod))
-    elif A.tag == cTag: lib.ElDot_c(A.obj,B.obj,pointer(prod))
-    elif A.tag == zTag: lib.ElDot_z(A.obj,B.obj,pointer(prod))
-    else: raise Exception('Unsupported datatype')
-    return prod
+    if   A.tag == iTag: lib.ElDot_i(*args) 
+    elif A.tag == sTag: lib.ElDot_s(*args)
+    elif A.tag == dTag: lib.ElDot_d(*args)
+    elif A.tag == cTag: lib.ElDot_c(*args)
+    elif A.tag == zTag: lib.ElDot_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElDotDist_i(A.obj,B.obj,pointer(prod)) 
-    elif A.tag == sTag: lib.ElDotDist_s(A.obj,B.obj,pointer(prod))
-    elif A.tag == dTag: lib.ElDotDist_d(A.obj,B.obj,pointer(prod))
-    elif A.tag == cTag: lib.ElDotDist_c(A.obj,B.obj,pointer(prod))
-    elif A.tag == zTag: lib.ElDotDist_z(A.obj,B.obj,pointer(prod))
-    else: raise Exception('Unsupported datatype')
-    return prod
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElDotDist_i(*args) 
+    elif A.tag == sTag: lib.ElDotDist_s(*args)
+    elif A.tag == dTag: lib.ElDotDist_d(*args)
+    elif A.tag == cTag: lib.ElDotDist_c(*args)
+    elif A.tag == zTag: lib.ElDotDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
+  return prod
 
 # Dotu
 # ----
@@ -331,23 +333,23 @@ def Dotu(A,B):
   if type(A) is not type(B): raise Exception('Types of A and B must match')
   if A.tag != B.tag: raise Exception('Datatypes of A and B must match')
   prod = TagToType(A.tag)()
+  args = [A.obj,B.obj,pointer(prod)]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElDot_i(A.obj,B.obj,pointer(prod)) 
-    elif A.tag == sTag: lib.ElDot_s(A.obj,B.obj,pointer(prod))
-    elif A.tag == dTag: lib.ElDot_d(A.obj,B.obj,pointer(prod))
-    elif A.tag == cTag: lib.ElDotu_c(A.obj,B.obj,pointer(prod))
-    elif A.tag == zTag: lib.ElDotu_z(A.obj,B.obj,pointer(prod))
-    else: raise Exception('Unsupported datatype')
-    return prod
+    if   A.tag == iTag: lib.ElDot_i(*args) 
+    elif A.tag == sTag: lib.ElDot_s(*args)
+    elif A.tag == dTag: lib.ElDot_d(*args)
+    elif A.tag == cTag: lib.ElDotu_c(*args)
+    elif A.tag == zTag: lib.ElDotu_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElDotDist_i(A.obj,B.obj,pointer(prod)) 
-    elif A.tag == sTag: lib.ElDotDist_s(A.obj,B.obj,pointer(prod))
-    elif A.tag == dTag: lib.ElDotDist_d(A.obj,B.obj,pointer(prod))
-    elif A.tag == cTag: lib.ElDotuDist_c(A.obj,B.obj,pointer(prod))
-    elif A.tag == zTag: lib.ElDotuDist_z(A.obj,B.obj,pointer(prod))
-    else: raise Exception('Unsupported datatype')
-    return prod
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElDotDist_i(*args) 
+    elif A.tag == sTag: lib.ElDotDist_s(*args)
+    elif A.tag == dTag: lib.ElDotDist_d(*args)
+    elif A.tag == cTag: lib.ElDotuDist_c(*args)
+    elif A.tag == zTag: lib.ElDotuDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
+  return prod
 
 # Entrywise fill
 # --------------
@@ -373,21 +375,22 @@ lib.ElEntrywiseFillDist_z.argtypes = [c_void_p,CFUNCTYPE(zType)]
 lib.ElEntrywiseFillDist_z.restype = c_uint
 def EntrywiseFill(A,fill):
   cFill = CFUNCTYPE(TagToType(A.tag))(fill)
+  args = [A.obj,cFill]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElEntrywiseFill_i(A.obj,cFill)
-    elif A.tag == sTag: lib.ElEntrywiseFill_s(A.obj,cFill)
-    elif A.tag == dTag: lib.ElEntrywiseFill_d(A.obj,cFill)
-    elif A.tag == cTag: lib.ElEntrywiseFill_c(A.obj,cFill)
-    elif A.tag == zTag: lib.ElEntrywiseFill_z(A.obj,cFill)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElEntrywiseFill_i(*args)
+    elif A.tag == sTag: lib.ElEntrywiseFill_s(*args)
+    elif A.tag == dTag: lib.ElEntrywiseFill_d(*args)
+    elif A.tag == cTag: lib.ElEntrywiseFill_c(*args)
+    elif A.tag == zTag: lib.ElEntrywiseFill_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElEntrywiseFillDist_i(A.obj,cFill)
-    elif A.tag == sTag: lib.ElEntrywiseFillDist_s(A.obj,cFill)
-    elif A.tag == dTag: lib.ElEntrywiseFillDist_d(A.obj,cFill)
-    elif A.tag == cTag: lib.ElEntrywiseFillDist_c(A.obj,cFill)
-    elif A.tag == zTag: lib.ElEntrywiseFillDist_z(A.obj,cFill)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElEntrywiseFillDist_i(*args)
+    elif A.tag == sTag: lib.ElEntrywiseFillDist_s(*args)
+    elif A.tag == dTag: lib.ElEntrywiseFillDist_d(*args)
+    elif A.tag == cTag: lib.ElEntrywiseFillDist_c(*args)
+    elif A.tag == zTag: lib.ElEntrywiseFillDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Entrywise map
 # -------------
@@ -413,21 +416,22 @@ lib.ElEntrywiseMapDist_z.argtypes = [c_void_p,CFUNCTYPE(zType,zType)]
 lib.ElEntrywiseMapDist_z.restype = c_uint
 def EntrywiseMap(A,mapFunc):
   cMap = CFUNCTYPE(TagToType(A.tag),TagToType(A.tag))(mapFunc)
+  args = [A.obj,cMap]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElEntrywiseMap_i(A.obj,cMap)
-    elif A.tag == sTag: lib.ElEntrywiseMap_s(A.obj,cMap)
-    elif A.tag == dTag: lib.ElEntrywiseMap_d(A.obj,cMap)
-    elif A.tag == cTag: lib.ElEntrywiseMap_c(A.obj,cMap)
-    elif A.tag == zTag: lib.ElEntrywiseMap_z(A.obj,cMap)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElEntrywiseMap_i(*args)
+    elif A.tag == sTag: lib.ElEntrywiseMap_s(*args)
+    elif A.tag == dTag: lib.ElEntrywiseMap_d(*args)
+    elif A.tag == cTag: lib.ElEntrywiseMap_c(*args)
+    elif A.tag == zTag: lib.ElEntrywiseMap_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElEntrywiseMapDist_i(A.obj,cMap)
-    elif A.tag == sTag: lib.ElEntrywiseMapDist_s(A.obj,cMap)
-    elif A.tag == dTag: lib.ElEntrywiseMapDist_d(A.obj,cMap)
-    elif A.tag == cTag: lib.ElEntrywiseMapDist_c(A.obj,cMap)
-    elif A.tag == zTag: lib.ElEntrywiseMapDist_z(A.obj,cMap)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElEntrywiseMapDist_i(*args)
+    elif A.tag == sTag: lib.ElEntrywiseMapDist_s(*args)
+    elif A.tag == dTag: lib.ElEntrywiseMapDist_d(*args)
+    elif A.tag == cTag: lib.ElEntrywiseMapDist_c(*args)
+    elif A.tag == zTag: lib.ElEntrywiseMapDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Fill
 # ----
@@ -453,21 +457,22 @@ lib.ElFillDist_z.argtypes = [c_void_p,zType]
 lib.ElFillDist_z.restype = c_uint
 def Fill(A,alphaPre):
   alpha = TagToType(A.tag)(alphaPre)
+  args = [A.obj,alpha]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElFill_i(A.obj,alpha)
-    elif A.tag == sTag: lib.ElFill_s(A.obj,alpha)
-    elif A.tag == dTag: lib.ElFill_d(A.obj,alpha)
-    elif A.tag == cTag: lib.ElFill_c(A.obj,alpha)
-    elif A.tag == zTag: lib.ElFill_z(A.obj,alpha)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElFill_i(*args)
+    elif A.tag == sTag: lib.ElFill_s(*args)
+    elif A.tag == dTag: lib.ElFill_d(*args)
+    elif A.tag == cTag: lib.ElFill_c(*args)
+    elif A.tag == zTag: lib.ElFill_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElFillDist_i(A.obj,alpha)
-    elif A.tag == sTag: lib.ElFillDist_s(A.obj,alpha)
-    elif A.tag == dTag: lib.ElFillDist_d(A.obj,alpha)
-    elif A.tag == cTag: lib.ElFillDist_c(A.obj,alpha)
-    elif A.tag == zTag: lib.ElFillDist_z(A.obj,alpha)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElFillDist_i(*args)
+    elif A.tag == sTag: lib.ElFillDist_s(*args)
+    elif A.tag == dTag: lib.ElFillDist_d(*args)
+    elif A.tag == cTag: lib.ElFillDist_c(*args)
+    elif A.tag == zTag: lib.ElFillDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Hadamard
 # --------
@@ -496,21 +501,22 @@ def Hadamard(A,B,C):
     raise Exception('Matrix types must match')
   if A.tag != B.tag or B.tag != C.tag:
     raise Exception('Matrix datatypes must match')
+  args = [A.obj,B.obj,C.obj]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElHadamard_i(A.obj,B.obj,C.obj)
-    elif A.tag == sTag: lib.ElHadamard_s(A.obj,B.obj,C.obj)
-    elif A.tag == dTag: lib.ElHadamard_d(A.obj,B.obj,C.obj)
-    elif A.tag == cTag: lib.ElHadamard_c(A.obj,B.obj,C.obj)
-    elif A.tag == zTag: lib.ElHadamard_z(A.obj,B.obj,C.obj)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElHadamard_i(*args)
+    elif A.tag == sTag: lib.ElHadamard_s(*args)
+    elif A.tag == dTag: lib.ElHadamard_d(*args)
+    elif A.tag == cTag: lib.ElHadamard_c(*args)
+    elif A.tag == zTag: lib.ElHadamard_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElHadamardDist_i(A.obj,B.obj,C.obj)
-    elif A.tag == sTag: lib.ElHadamardDist_s(A.obj,B.obj,C.obj)
-    elif A.tag == dTag: lib.ElHadamardDist_d(A.obj,B.obj,C.obj)
-    elif A.tag == cTag: lib.ElHadamardDist_c(A.obj,B.obj,C.obj)
-    elif A.tag == zTag: lib.ElHadamardDist_z(A.obj,B.obj,C.obj)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElHadamardDist_i(*args)
+    elif A.tag == sTag: lib.ElHadamardDist_s(*args)
+    elif A.tag == dTag: lib.ElHadamardDist_d(*args)
+    elif A.tag == cTag: lib.ElHadamardDist_c(*args)
+    elif A.tag == zTag: lib.ElHadamardDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Hilbert-Schmidt
 # ---------------
@@ -538,23 +544,23 @@ def HilbertSchmidt(A,B):
   if type(A) is type(B): raise Exception('Matrix types must match')
   if A.tag != B.tag: raise Exception('Datatypes must match')
   prod = TagToType(A.tag)()
+  args = [A.obj,B.obj,pointer(prod)]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElHilbertSchmidt_i(A.obj,B.obj,pointer(prod))
-    elif A.tag == sTag: lib.ElHilbertSchmidt_s(A.obj,B.obj,pointer(prod))
-    elif A.tag == dTag: lib.ElHilbertSchmidt_d(A.obj,B.obj,pointer(prod))
-    elif A.tag == cTag: lib.ElHilbertSchmidt_c(A.obj,B.obj,pointer(prod))
-    elif A.tag == zTag: lib.ElHilbertSchmidt_z(A.obj,B.obj,pointer(prod))
-    else: raise Exception('Unsupported datatype')
-    return prod
+    if   A.tag == iTag: lib.ElHilbertSchmidt_i(*args)
+    elif A.tag == sTag: lib.ElHilbertSchmidt_s(*args)
+    elif A.tag == dTag: lib.ElHilbertSchmidt_d(*args)
+    elif A.tag == cTag: lib.ElHilbertSchmidt_c(*args)
+    elif A.tag == zTag: lib.ElHilbertSchmidt_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElHilbertSchmidtDist_i(A.obj,B.obj,pointer(prod))
-    elif A.tag == sTag: lib.ElHilbertSchmidtDist_s(A.obj,B.obj,pointer(prod))
-    elif A.tag == dTag: lib.ElHilbertSchmidtDist_d(A.obj,B.obj,pointer(prod))
-    elif A.tag == cTag: lib.ElHilbertSchmidtDist_c(A.obj,B.obj,pointer(prod))
-    elif A.tag == zTag: lib.ElHilbertSchmidtDist_z(A.obj,B.obj,pointer(prod))
-    else: raise Exception('Unsupported datatype')
-    return prod
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElHilbertSchmidtDist_i(*args)
+    elif A.tag == sTag: lib.ElHilbertSchmidtDist_s(*args)
+    elif A.tag == dTag: lib.ElHilbertSchmidtDist_d(*args)
+    elif A.tag == cTag: lib.ElHilbertSchmidtDist_c(*args)
+    elif A.tag == zTag: lib.ElHilbertSchmidtDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
+  return prod
 
 # Index dependent fill
 # --------------------
@@ -585,21 +591,22 @@ lib.ElIndexDependentFillDist_z.argtypes = \
 lib.ElIndexDependentFillDist_z.restype = c_uint
 def IndexDependentFill(A,fill):
   cFill = CFUNCTYPE(TagToType(A.tag),iType,iType)(fill)
+  args = [A.obj,cFill]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElIndexDependentFill_i(A.obj,cFill)
-    elif A.tag == sTag: lib.ElIndexDependentFill_s(A.obj,cFill)
-    elif A.tag == dTag: lib.ElIndexDependentFill_d(A.obj,cFill)
-    elif A.tag == cTag: lib.ElIndexDependentFill_c(A.obj,cFill)
-    elif A.tag == zTag: lib.ElIndexDependentFill_z(A.obj,cFill)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElIndexDependentFill_i(*args)
+    elif A.tag == sTag: lib.ElIndexDependentFill_s(*args)
+    elif A.tag == dTag: lib.ElIndexDependentFill_d(*args)
+    elif A.tag == cTag: lib.ElIndexDependentFill_c(*args)
+    elif A.tag == zTag: lib.ElIndexDependentFill_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElIndexDependentFillDist_i(A.obj,cFill)
-    elif A.tag == sTag: lib.ElIndexDependentFillDist_s(A.obj,cFill)
-    elif A.tag == dTag: lib.ElIndexDependentFillDist_d(A.obj,cFill)
-    elif A.tag == cTag: lib.ElIndexDependentFillDist_c(A.obj,cFill)
-    elif A.tag == zTag: lib.ElIndexDependentFillDist_z(A.obj,cFill)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElIndexDependentFillDist_i(*args)
+    elif A.tag == sTag: lib.ElIndexDependentFillDist_s(*args)
+    elif A.tag == dTag: lib.ElIndexDependentFillDist_d(*args)
+    elif A.tag == cTag: lib.ElIndexDependentFillDist_c(*args)
+    elif A.tag == zTag: lib.ElIndexDependentFillDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Index dependent map
 # -------------------
@@ -636,21 +643,22 @@ lib.ElIndexDependentMapDist_z.restype = c_uint
 def IndexDependentMap(A,mapFunc):
   typeA = TagToType(A)
   cMap = CFUNCTYPE(typeA,iType,iType,typeA)(mapFunc)
+  args = [A.obj,cMap]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElIndexDependentMap_i(A.obj,cMap)
-    elif A.tag == sTag: lib.ElIndexDependentMap_s(A.obj,cMap)
-    elif A.tag == dTag: lib.ElIndexDependentMap_d(A.obj,cMap)
-    elif A.tag == cTag: lib.ElIndexDependentMap_c(A.obj,cMap)
-    elif A.tag == zTag: lib.ElIndexDependentMap_z(A.obj,cMap)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElIndexDependentMap_i(*args)
+    elif A.tag == sTag: lib.ElIndexDependentMap_s(*args)
+    elif A.tag == dTag: lib.ElIndexDependentMap_d(*args)
+    elif A.tag == cTag: lib.ElIndexDependentMap_c(*args)
+    elif A.tag == zTag: lib.ElIndexDependentMap_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElIndexDependentMapDist_i(A.obj,cMap)
-    elif A.tag == sTag: lib.ElIndexDependentMapDist_s(A.obj,cMap)
-    elif A.tag == dTag: lib.ElIndexDependentMapDist_d(A.obj,cMap)
-    elif A.tag == cTag: lib.ElIndexDependentMapDist_c(A.obj,cMap)
-    elif A.tag == zTag: lib.ElIndexDependentMapDist_z(A.obj,cMap)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElIndexDependentMapDist_i(*args)
+    elif A.tag == sTag: lib.ElIndexDependentMapDist_s(*args)
+    elif A.tag == dTag: lib.ElIndexDependentMapDist_d(*args)
+    elif A.tag == cTag: lib.ElIndexDependentMapDist_c(*args)
+    elif A.tag == zTag: lib.ElIndexDependentMapDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Make symmetric/Hermitian
 # ------------------------
@@ -685,29 +693,30 @@ lib.ElMakeHermitianDist_z.argtypes = [c_uint,c_void_p]
 lib.ElMakeHermitianDist_z.restype = c_uint
 
 def MakeSymmetric(uplo,A,conj=False):
+  args = [uplo,A.obj]
   if type(A) is Matrix: 
-    if   A.tag == iTag: lib.ElMakeSymmetric_i(uplo,A.obj)
-    elif A.tag == sTag: lib.ElMakeSymmetric_s(uplo,A.obj)
-    elif A.tag == dTag: lib.ElMakeSymmetric_d(uplo,A.obj)
+    if   A.tag == iTag: lib.ElMakeSymmetric_i(*args)
+    elif A.tag == sTag: lib.ElMakeSymmetric_s(*args)
+    elif A.tag == dTag: lib.ElMakeSymmetric_d(*args)
     elif A.tag == cTag: 
-      if conj: lib.ElMakeHermitian_c(uplo,A.obj)
-      else:    lib.ElMakeSymmetric_c(uplo,A.obj)
+      if conj: lib.ElMakeHermitian_c(*args)
+      else:    lib.ElMakeSymmetric_c(*args)
     elif A.tag == zTag: 
-      if conj: lib.ElMakeHermitian_z(uplo,A.obj)
-      else:    lib.ElMakeSymmetric_z(uplo,A.obj)
-    else: raise Exception('Unsupported datatype')
+      if conj: lib.ElMakeHermitian_z(*args)
+      else:    lib.ElMakeSymmetric_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElMakeSymmetricDist_i(uplo,A.obj)
-    elif A.tag == sTag: lib.ElMakeSymmetricDist_s(uplo,A.obj)
-    elif A.tag == dTag: lib.ElMakeSymmetricDist_d(uplo,A.obj)
+    if   A.tag == iTag: lib.ElMakeSymmetricDist_i(*args)
+    elif A.tag == sTag: lib.ElMakeSymmetricDist_s(*args)
+    elif A.tag == dTag: lib.ElMakeSymmetricDist_d(*args)
     elif A.tag == cTag: 
-      if conj: lib.ElMakeHermitianDist_c(uplo,A.obj)
-      else:    lib.ElMakeSymmetricDist_c(uplo,A.obj)
+      if conj: lib.ElMakeHermitianDist_c(*args)
+      else:    lib.ElMakeSymmetricDist_c(*args)
     elif A.tag == zTag: 
-      if conj: lib.ElMakeHermitianDist_z(uplo,A.obj)
-      else:    lib.ElMakeSymmetricDist_z(uplo,A.obj)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+      if conj: lib.ElMakeHermitianDist_z(*args)
+      else:    lib.ElMakeSymmetricDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 def MakeHermitian(uplo,A):
   MakeSymmetric(uplo,A,True)
@@ -723,13 +732,14 @@ lib.ElMakeRealDist_c.restype = c_uint
 lib.ElMakeRealDist_z.argtypes = [c_uint,c_void_p]
 lib.ElMakeRealDist_z.restype = c_uint
 def MakeReal(uplo,A):
+  args = [uplo,A.obj]
   if type(A) is Matrix:
-    if   A.tag == cTag: lib.ElMakeReal_c(uplo,A.obj)
-    elif A.tag == zTag: lib.ElMakeReal_z(uplo,A.obj)
+    if   A.tag == cTag: lib.ElMakeReal_c(*args)
+    elif A.tag == zTag: lib.ElMakeReal_z(*args)
   elif type(A) is DistMatrix:
-    if   A.tag == cTag: lib.ElMakeRealDist_c(uplo,A.obj)
-    elif A.tag == zTag: lib.ElMakeRealDist_z(uplo,A.obj)
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == cTag: lib.ElMakeRealDist_c(*args)
+    elif A.tag == zTag: lib.ElMakeRealDist_z(*args)
+  else: TypeExcept()
 
 # Make trapezoidal
 # ----------------
@@ -754,21 +764,22 @@ lib.ElMakeTrapezoidalDist_c.restype = c_uint
 lib.ElMakeTrapezoidalDist_z.argtypes = [c_uint,c_void_p,iType]
 lib.ElMakeTrapezoidalDist_z.restype = c_uint
 def MakeTrapezoidal(uplo,A,offset=0):
+  args = [uplo,A.obj,offset]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElMakeTrapezoidal_i(uplo,A.obj,offset)
-    elif A.tag == sTag: lib.ElMakeTrapezoidal_s(uplo,A.obj,offset)
-    elif A.tag == dTag: lib.ElMakeTrapezoidal_d(uplo,A.obj,offset)
-    elif A.tag == cTag: lib.ElMakeTrapezoidal_c(uplo,A.obj,offset)
-    elif A.tag == zTag: lib.ElMakeTrapezoidal_z(uplo,A.obj,offset)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElMakeTrapezoidal_i(*args)
+    elif A.tag == sTag: lib.ElMakeTrapezoidal_s(*args)
+    elif A.tag == dTag: lib.ElMakeTrapezoidal_d(*args)
+    elif A.tag == cTag: lib.ElMakeTrapezoidal_c(*args)
+    elif A.tag == zTag: lib.ElMakeTrapezoidal_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElMakeTrapezoidalDist_i(uplo,A.obj,offset)
-    elif A.tag == sTag: lib.ElMakeTrapezoidalDist_s(uplo,A.obj,offset)
-    elif A.tag == dTag: lib.ElMakeTrapezoidalDist_d(uplo,A.obj,offset)
-    elif A.tag == cTag: lib.ElMakeTrapezoidalDist_c(uplo,A.obj,offset)
-    elif A.tag == zTag: lib.ElMakeTrapezoidalDist_z(uplo,A.obj,offset)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElMakeTrapezoidalDist_i(*args)
+    elif A.tag == sTag: lib.ElMakeTrapezoidalDist_s(*args)
+    elif A.tag == dTag: lib.ElMakeTrapezoidalDist_d(*args)
+    elif A.tag == cTag: lib.ElMakeTrapezoidalDist_c(*args)
+    elif A.tag == zTag: lib.ElMakeTrapezoidalDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Make triangular
 # ---------------
@@ -793,21 +804,22 @@ lib.ElMakeTriangularDist_c.restype = c_uint
 lib.ElMakeTriangularDist_z.argtypes = [c_uint,c_void_p]
 lib.ElMakeTriangularDist_z.restype = c_uint
 def MakeTriangular(uplo,A):
+  args = [uplo,A.obj]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElMakeTriangular_i(uplo,A.obj)
-    elif A.tag == sTag: lib.ElMakeTriangular_s(uplo,A.obj)
-    elif A.tag == dTag: lib.ElMakeTriangular_d(uplo,A.obj)
-    elif A.tag == cTag: lib.ElMakeTriangular_c(uplo,A.obj)
-    elif A.tag == zTag: lib.ElMakeTriangular_z(uplo,A.obj)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElMakeTriangular_i(*args)
+    elif A.tag == sTag: lib.ElMakeTriangular_s(*args)
+    elif A.tag == dTag: lib.ElMakeTriangular_d(*args)
+    elif A.tag == cTag: lib.ElMakeTriangular_c(*args)
+    elif A.tag == zTag: lib.ElMakeTriangular_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElMakeTriangularDist_i(uplo,A.obj)
-    elif A.tag == sTag: lib.ElMakeTriangularDist_s(uplo,A.obj)
-    elif A.tag == dTag: lib.ElMakeTriangularDist_d(uplo,A.obj)
-    elif A.tag == cTag: lib.ElMakeTriangularDist_c(uplo,A.obj)
-    elif A.tag == zTag: lib.ElMakeTriangularDist_z(uplo,A.obj)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElMakeTriangularDist_i(*args)
+    elif A.tag == sTag: lib.ElMakeTriangularDist_s(*args)
+    elif A.tag == dTag: lib.ElMakeTriangularDist_d(*args)
+    elif A.tag == cTag: lib.ElMakeTriangularDist_c(*args)
+    elif A.tag == zTag: lib.ElMakeTriangularDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Max
 # ---
@@ -817,6 +829,17 @@ class ValueInt_s(ctypes.Structure):
   _fields_ = [("value",sType),("index",iType)]
 class ValueInt_d(ctypes.Structure):
   _fields_ = [("value",dType),("index",iType)]
+class ValueInt_c(ctypes.Structure):
+  _fields_ = [("value",cType),("index",iType)]
+class ValueInt_z(ctypes.Structure):
+  _fields_ = [("value",zType),("index",iType)]
+def TagToValueInt(tag):
+  if   tag == iTag: return ValueInt_i()
+  elif tag == sTag: return ValueInt_s()
+  elif tag == dTag: return ValueInt_d()
+  elif tag == cTag: return ValueInt_c()
+  elif tag == zTag: return ValueInt_z()
+  else: DataExcept()
 
 class ValueIntPair_i(ctypes.Structure):
   _fields_ = [("value",iType),("indices",(iType*2))]
@@ -824,6 +847,17 @@ class ValueIntPair_s(ctypes.Structure):
   _fields_ = [("value",sType),("indices",(iType*2))]
 class ValueIntPair_d(ctypes.Structure):
   _fields_ = [("value",dType),("indices",(iType*2))]
+class ValueIntPair_c(ctypes.Structure):
+  _fields_ = [("value",cType),("indices",(iType*2))]
+class ValueIntPair_z(ctypes.Structure):
+  _fields_ = [("value",zType),("indices",(iType*2))]
+def TagToValueIntPair(tag):
+  if   tag == iTag: return ValueIntPair_i()
+  elif tag == sTag: return ValueIntPair_s()
+  elif tag == dTag: return ValueIntPair_d()
+  elif tag == cTag: return ValueIntPair_c()
+  elif tag == zTag: return ValueIntPair_z()
+  else: DataExcept()
 
 lib.ElMax_i.argtypes = [c_void_p,POINTER(ValueIntPair_i)]
 lib.ElMax_i.restype = c_uint
@@ -838,35 +872,20 @@ lib.ElMaxDist_s.restype = c_uint
 lib.ElMaxDist_d.argtypes = [c_void_p,POINTER(ValueIntPair_d)]
 lib.ElMaxDist_d.restype = c_uint
 def Max(A):
+  pair = TagToValueIntPair(A.tag)
+  args = [A.obj,pointer(pair)]
   if type(A) is Matrix:
-    if   A.tag == iTag: 
-      pair = ValueIntPair_i()
-      lib.ElMax_i(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == sTag:
-      pair = ValueIntPair_s()
-      lib.ElMax_s(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == dTag:
-      pair = ValueIntPair_d()
-      lib.ElMax_d(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElMax_i(*args) 
+    elif A.tag == sTag: lib.ElMax_s(*args) 
+    elif A.tag == dTag: lib.ElMax_d(*args) 
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: 
-      pair = ValueIntPair_i()
-      lib.ElMaxDist_i(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == sTag:
-      pair = ValueIntPair_s()
-      lib.ElMaxDist_s(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == dTag:
-      pair = ValueIntPair_d()
-      lib.ElMaxDist_d(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElMaxDist_i(*args) 
+    elif A.tag == sTag: lib.ElMaxDist_s(*args) 
+    elif A.tag == dTag: lib.ElMaxDist_d(*args) 
+    else: DataExcept()
+  else: TypeExcept()
+  return pair.value, pair.indices[0], pair.indices[1]
 
 lib.ElSymmetricMax_i.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_i)]
 lib.ElSymmetricMax_i.restype = c_uint
@@ -881,35 +900,20 @@ lib.ElSymmetricMaxDist_s.restype = c_uint
 lib.ElSymmetricMaxDist_d.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_d)]
 lib.ElSymmetricMaxDist_d.restype = c_uint
 def SymmetricMax(uplo,A):
+  pair = TagToValueIntPair(A.tag)
+  args = [uplo,A.obj,pointer(pair)]
   if type(A) is Matrix:
-    if   A.tag == iTag: 
-      pair = ValueIntPair_i()
-      lib.ElSymmetricMax_i(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == sTag:
-      pair = ValueIntPair_s()
-      lib.ElSymmetricMax_s(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == dTag:
-      pair = ValueIntPair_d()
-      lib.ElSymmetricMax_d(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElSymmetricMax_i(*args) 
+    elif A.tag == sTag: lib.ElSymmetricMax_s(*args) 
+    elif A.tag == dTag: lib.ElSymmetricMax_d(*args) 
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: 
-      pair = ValueIntPair_i()
-      lib.ElSymmetricMaxDist_i(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == sTag:
-      pair = ValueIntPair_s()
-      lib.ElSymmetricMaxDist_s(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == dTag:
-      pair = ValueIntPair_d()
-      lib.ElSymmetricMaxDist_d(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElSymmetricMaxDist_i(*args) 
+    elif A.tag == sTag: lib.ElSymmetricMaxDist_s(*args) 
+    elif A.tag == dTag: lib.ElSymmetricMaxDist_d(*args) 
+    else: DataExcept()
+  else: TypeExcept()
+  return pair.value, pair.indices[0], pair.indices[1]
 
 lib.ElVectorMax_i.argtypes = [c_void_p,POINTER(ValueInt_i)]
 lib.ElVectorMax_i.restype = c_uint
@@ -924,35 +928,20 @@ lib.ElVectorMaxDist_s.restype = c_uint
 lib.ElVectorMaxDist_d.argtypes = [c_void_p,POINTER(ValueInt_d)]
 lib.ElVectorMaxDist_d.restype = c_uint
 def VectorMax(A):
+  pair = TagToValueInt(A.tag)
+  args = [A.obj,pointer(pair)]
   if type(A) is Matrix:
-    if   A.tag == iTag: 
-      pair = ValueInt_i()
-      lib.ElVectorMax_i(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == sTag:
-      pair = ValueInt_s()
-      lib.ElVectorMax_s(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == dTag:
-      pair = ValueInt_d()
-      lib.ElVectorMax_d(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElVectorMax_i(*args) 
+    elif A.tag == sTag: lib.ElVectorMax_s(*args) 
+    elif A.tag == dTag: lib.ElVectorMax_d(*args) 
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: 
-      pair = ValueInt_i()
-      lib.ElVectorMaxDist_i(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == sTag:
-      pair = ValueInt_s()
-      lib.ElVectorMaxDist_s(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == dTag:
-      pair = ValueInt_d()
-      lib.ElVectorMaxDist_d(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElVectorMaxDist_i(*args) 
+    elif A.tag == sTag: lib.ElVectorMaxDist_s(*args) 
+    elif A.tag == dTag: lib.ElVectorMaxDist_d(*args) 
+    else: DataExcept()
+  else: TypeExcept()
+  return pair.value, pair.index
 
 # MaxAbs
 # ------
@@ -977,51 +966,24 @@ lib.ElMaxAbsDist_c.restype = c_uint
 lib.ElMaxAbsDist_z.argtypes = [c_void_p,POINTER(ValueIntPair_d)]
 lib.ElMaxAbsDist_z.restype = c_uint
 def MaxAbs(A):
+  pair = TagToValueIntPair(Base(A.tag))
+  args = [A.obj,pointer(pair)]
   if type(A) is Matrix:
-    if   A.tag == iTag: 
-      pair = ValueIntPair_i()
-      lib.ElMaxAbs_i(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == sTag:
-      pair = ValueIntPair_s()
-      lib.ElMaxAbs_s(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == dTag:
-      pair = ValueIntPair_d()
-      lib.ElMaxAbs_d(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == cTag:
-      pair = ValueIntPair_s()
-      lib.ElMaxAbs_c(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == zTag:
-      pair = ValueIntPair_d()
-      lib.ElMaxAbs_z(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElMaxAbs_i(*args) 
+    elif A.tag == sTag: lib.ElMaxAbs_s(*args) 
+    elif A.tag == dTag: lib.ElMaxAbs_d(*args) 
+    elif A.tag == cTag: lib.ElMaxAbs_c(*args) 
+    elif A.tag == zTag: lib.ElMaxAbs_z(*args) 
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: 
-      pair = ValueIntPair_i()
-      lib.ElMaxAbsDist_i(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == sTag:
-      pair = ValueIntPair_s()
-      lib.ElMaxAbsDist_s(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == dTag:
-      pair = ValueIntPair_d()
-      lib.ElMaxAbsDist_d(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == cTag:
-      pair = ValueIntPair_s()
-      lib.ElMaxAbsDist_c(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == zTag:
-      pair = ValueIntPair_d()
-      lib.ElMaxAbsDist_z(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElMaxAbsDist_i(*args) 
+    elif A.tag == sTag: lib.ElMaxAbsDist_s(*args) 
+    elif A.tag == dTag: lib.ElMaxAbsDist_d(*args) 
+    elif A.tag == cTag: lib.ElMaxAbsDist_c(*args) 
+    elif A.tag == zTag: lib.ElMaxAbsDist_z(*args) 
+    else: DataExcept()
+  else: TypeExcept()
+  return pair.value, pair.indices[0], pair.indices[1]
 
 lib.ElSymmetricMaxAbs_i.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_i)]
 lib.ElSymmetricMaxAbs_i.restype = c_uint
@@ -1044,51 +1006,24 @@ lib.ElSymmetricMaxAbsDist_c.restype = c_uint
 lib.ElSymmetricMaxAbsDist_z.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_d)]
 lib.ElSymmetricMaxAbsDist_z.restype = c_uint
 def SymmetricMaxAbs(uplo,A):
+  pair = TagToValueIntPair(Base(A.tag))
+  args = [uplo,A.obj,pointer(pair)]
   if type(A) is Matrix:
-    if   A.tag == iTag: 
-      pair = ValueIntPair_i()
-      lib.ElSymmetricMaxAbs_i(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == sTag:
-      pair = ValueIntPair_s()
-      lib.ElSymmetricMaxAbs_s(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == dTag:
-      pair = ValueIntPair_d()
-      lib.ElSymmetricMaxAbs_d(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == cTag:
-      pair = ValueIntPair_s()
-      lib.ElSymmetricMaxAbs_c(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == zTag:
-      pair = ValueIntPair_d()
-      lib.ElSymmetricMaxAbs_z(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElSymmetricMaxAbs_i(*args) 
+    elif A.tag == sTag: lib.ElSymmetricMaxAbs_s(*args) 
+    elif A.tag == dTag: lib.ElSymmetricMaxAbs_d(*args) 
+    elif A.tag == cTag: lib.ElSymmetricMaxAbs_c(*args) 
+    elif A.tag == zTag: lib.ElSymmetricMaxAbs_z(*args) 
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: 
-      pair = ValueIntPair_i()
-      lib.ElSymmetricMaxAbsDist_i(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == sTag:
-      pair = ValueIntPair_s()
-      lib.ElSymmetricMaxAbsDist_s(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == dTag:
-      pair = ValueIntPair_d()
-      lib.ElSymmetricMaxAbsDist_d(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == cTag:
-      pair = ValueIntPair_s()
-      lib.ElSymmetricMaxAbsDist_c(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == zTag:
-      pair = ValueIntPair_d()
-      lib.ElSymmetricMaxAbsDist_z(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElSymmetricMaxAbsDist_i(*args) 
+    elif A.tag == sTag: lib.ElSymmetricMaxAbsDist_s(*args) 
+    elif A.tag == dTag: lib.ElSymmetricMaxAbsDist_d(*args) 
+    elif A.tag == cTag: lib.ElSymmetricMaxAbsDist_c(*args) 
+    elif A.tag == zTag: lib.ElSymmetricMaxAbsDist_z(*args) 
+    else: DataExcept()
+  else: TypeExcept()
+  return pair.value, pair.indices[0], pair.indices[1]
 
 lib.ElVectorMaxAbs_i.argtypes = [c_void_p,POINTER(ValueInt_i)]
 lib.ElVectorMaxAbs_i.restype = c_uint
@@ -1111,51 +1046,24 @@ lib.ElVectorMaxAbsDist_c.restype = c_uint
 lib.ElVectorMaxAbsDist_z.argtypes = [c_void_p,POINTER(ValueInt_d)]
 lib.ElVectorMaxAbsDist_z.restype = c_uint
 def VectorMaxAbs(A):
+  pair = TagToValueInt(Base(A.tag))
+  args = [A.obj,pointer(pair)]
   if type(A) is Matrix:
-    if   A.tag == iTag: 
-      pair = ValueInt_i()
-      lib.ElVectorMaxAbs_i(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == sTag:
-      pair = ValueInt_s()
-      lib.ElVectorMaxAbs_s(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == dTag:
-      pair = ValueInt_d()
-      lib.ElVectorMaxAbs_d(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == cTag:
-      pair = ValueInt_s()
-      lib.ElVectorMaxAbs_c(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == zTag:
-      pair = ValueInt_d()
-      lib.ElVectorMaxAbs_z(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElVectorMaxAbs_i(*args) 
+    elif A.tag == sTag: lib.ElVectorMaxAbs_s(*args) 
+    elif A.tag == dTag: lib.ElVectorMaxAbs_d(*args) 
+    elif A.tag == cTag: lib.ElVectorMaxAbs_c(*args) 
+    elif A.tag == zTag: lib.ElVectorMaxAbs_z(*args) 
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: 
-      pair = ValueInt_i()
-      lib.ElVectorMaxAbsDist_i(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == sTag:
-      pair = ValueInt_s()
-      lib.ElVectorMaxAbsDist_s(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == dTag:
-      pair = ValueInt_d()
-      lib.ElVectorMaxAbsDist_d(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == cTag:
-      pair = ValueInt_s()
-      lib.ElVectorMaxAbsDist_c(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == zTag:
-      pair = ValueInt_d()
-      lib.ElVectorMaxAbsDist_z(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElVectorMaxAbsDist_i(*args) 
+    elif A.tag == sTag: lib.ElVectorMaxAbsDist_s(*args) 
+    elif A.tag == dTag: lib.ElVectorMaxAbsDist_d(*args) 
+    elif A.tag == cTag: lib.ElVectorMaxAbsDist_c(*args) 
+    elif A.tag == zTag: lib.ElVectorMaxAbsDist_z(*args) 
+    else: DataExcept()
+  else: TypeExcept()
+  return pair.value, pair.index
 
 # Min
 # ---
@@ -1172,35 +1080,20 @@ lib.ElMinDist_s.restype = c_uint
 lib.ElMinDist_d.argtypes = [c_void_p,POINTER(ValueIntPair_d)]
 lib.ElMinDist_d.restype = c_uint
 def Min(A):
+  pair = TagToValueIntPair(A.tag)
+  args = [A.obj,pointer(pair)]
   if type(A) is Matrix:
-    if   A.tag == iTag: 
-      pair = ValueIntPair_i()
-      lib.ElMin_i(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == sTag:
-      pair = ValueIntPair_s()
-      lib.ElMin_s(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == dTag:
-      pair = ValueIntPair_d()
-      lib.ElMin_d(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElMin_i(*args) 
+    elif A.tag == sTag: lib.ElMin_s(*args) 
+    elif A.tag == dTag: lib.ElMin_d(*args) 
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: 
-      pair = ValueIntPair_i()
-      lib.ElMinDist_i(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == sTag:
-      pair = ValueIntPair_s()
-      lib.ElMinDist_s(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == dTag:
-      pair = ValueIntPair_d()
-      lib.ElMinDist_d(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElMinDist_i(*args) 
+    elif A.tag == sTag: lib.ElMinDist_s(*args) 
+    elif A.tag == dTag: lib.ElMinDist_d(*args) 
+    else: DataExcept()
+  else: TypeExcept()
+  return pair.value, pair.indices[0], pair.indices[1]
 
 lib.ElSymmetricMin_i.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_i)]
 lib.ElSymmetricMin_i.restype = c_uint
@@ -1215,35 +1108,20 @@ lib.ElSymmetricMinDist_s.restype = c_uint
 lib.ElSymmetricMinDist_d.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_d)]
 lib.ElSymmetricMinDist_d.restype = c_uint
 def SymmetricMin(uplo,A):
+  pair = TagToValueIntPair(A.tag)
+  args = [uplo,A.obj,pointer(pair)]
   if type(A) is Matrix:
-    if   A.tag == iTag: 
-      pair = ValueIntPair_i()
-      lib.ElSymmetricMin_i(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == sTag:
-      pair = ValueIntPair_s()
-      lib.ElSymmetricMin_s(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == dTag:
-      pair = ValueIntPair_d()
-      lib.ElSymmetricMin_d(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElSymmetricMin_i(*args) 
+    elif A.tag == sTag: lib.ElSymmetricMin_s(*args) 
+    elif A.tag == dTag: lib.ElSymmetricMin_d(*args) 
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: 
-      pair = ValueIntPair_i()
-      lib.ElSymmetricMinDist_i(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == sTag:
-      pair = ValueIntPair_s()
-      lib.ElSymmetricMinDist_s(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == dTag:
-      pair = ValueIntPair_d()
-      lib.ElSymmetricMinDist_d(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElSymmetricMinDist_i(*args) 
+    elif A.tag == sTag: lib.ElSymmetricMinDist_s(*args) 
+    elif A.tag == dTag: lib.ElSymmetricMinDist_d(*args) 
+    else: DataExcept()
+  else: TypeExcept()
+  return pair.value, pair.indices[0], pair.indices[1]
 
 lib.ElVectorMin_i.argtypes = [c_void_p,POINTER(ValueInt_i)]
 lib.ElVectorMin_i.restype = c_uint
@@ -1258,35 +1136,20 @@ lib.ElVectorMinDist_s.restype = c_uint
 lib.ElVectorMinDist_d.argtypes = [c_void_p,POINTER(ValueInt_d)]
 lib.ElVectorMinDist_d.restype = c_uint
 def VectorMin(A):
+  pair = TagToValueInt(A.tag)
+  args = [A.obj,pointer(pair)]
   if type(A) is Matrix:
-    if   A.tag == iTag: 
-      pair = ValueInt_i()
-      lib.ElVectorMin_i(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == sTag:
-      pair = ValueInt_s()
-      lib.ElVectorMin_s(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == dTag:
-      pair = ValueInt_d()
-      lib.ElVectorMin_d(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElVectorMin_i(*args) 
+    elif A.tag == sTag: lib.ElVectorMin_s(*args) 
+    elif A.tag == dTag: lib.ElVectorMin_d(*args) 
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: 
-      pair = ValueInt_i()
-      lib.ElVectorMinDist_i(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == sTag:
-      pair = ValueInt_s()
-      lib.ElVectorMinDist_s(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == dTag:
-      pair = ValueInt_d()
-      lib.ElVectorMinDist_d(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElVectorMinDist_i(*args) 
+    elif A.tag == sTag: lib.ElVectorMinDist_s(*args) 
+    elif A.tag == dTag: lib.ElVectorMinDist_d(*args) 
+    else: DataExcept()
+  else: TypeExcept()
+  return pair.value, pair.index
 
 # MinAbs
 # ------
@@ -1311,51 +1174,24 @@ lib.ElMinAbsDist_c.restype = c_uint
 lib.ElMinAbsDist_z.argtypes = [c_void_p,POINTER(ValueIntPair_d)]
 lib.ElMinAbsDist_z.restype = c_uint
 def MinAbs(A):
+  pair = TagToValueIntPair(Base(A.tag))
+  args = [A.obj,pointer(pair)]
   if type(A) is Matrix:
-    if   A.tag == iTag: 
-      pair = ValueIntPair_i()
-      lib.ElMinAbs_i(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == sTag:
-      pair = ValueIntPair_s()
-      lib.ElMinAbs_s(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == dTag:
-      pair = ValueIntPair_d()
-      lib.ElMinAbs_d(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == cTag:
-      pair = ValueIntPair_s()
-      lib.ElMinAbs_c(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == zTag:
-      pair = ValueIntPair_d()
-      lib.ElMinAbs_z(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElMinAbs_i(*args) 
+    elif A.tag == sTag: lib.ElMinAbs_s(*args) 
+    elif A.tag == dTag: lib.ElMinAbs_d(*args) 
+    elif A.tag == cTag: lib.ElMinAbs_c(*args) 
+    elif A.tag == zTag: lib.ElMinAbs_z(*args) 
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: 
-      pair = ValueIntPair_i()
-      lib.ElMinAbsDist_i(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == sTag:
-      pair = ValueIntPair_s()
-      lib.ElMinAbsDist_s(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == dTag:
-      pair = ValueIntPair_d()
-      lib.ElMinAbsDist_d(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == cTag:
-      pair = ValueIntPair_s()
-      lib.ElMinAbsDist_c(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == zTag:
-      pair = ValueIntPair_d()
-      lib.ElMinAbsDist_z(A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElMinAbsDist_i(*args) 
+    elif A.tag == sTag: lib.ElMinAbsDist_s(*args) 
+    elif A.tag == dTag: lib.ElMinAbsDist_d(*args) 
+    elif A.tag == cTag: lib.ElMinAbsDist_c(*args) 
+    elif A.tag == zTag: lib.ElMinAbsDist_z(*args) 
+    else: DataExcept()
+  else: TypeExcept()
+  return pair.value, pair.indices[0], pair.indices[1]
 
 lib.ElSymmetricMinAbs_i.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_i)]
 lib.ElSymmetricMinAbs_i.restype = c_uint
@@ -1378,51 +1214,24 @@ lib.ElSymmetricMinAbsDist_c.restype = c_uint
 lib.ElSymmetricMinAbsDist_z.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_d)]
 lib.ElSymmetricMinAbsDist_z.restype = c_uint
 def SymmetricMinAbs(uplo,A):
+  pair = TagToValueIntPair(Base(A.tag))
+  args = [uplo,A.obj,pointer(pair)]
   if type(A) is Matrix:
-    if   A.tag == iTag: 
-      pair = ValueIntPair_i()
-      lib.ElSymmetricMinAbs_i(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == sTag:
-      pair = ValueIntPair_s()
-      lib.ElSymmetricMinAbs_s(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == dTag:
-      pair = ValueIntPair_d()
-      lib.ElSymmetricMinAbs_d(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == cTag:
-      pair = ValueIntPair_s()
-      lib.ElSymmetricMinAbs_c(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == zTag:
-      pair = ValueIntPair_d()
-      lib.ElSymmetricMinAbs_z(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElSymmetricMinAbs_i(*args) 
+    elif A.tag == sTag: lib.ElSymmetricMinAbs_s(*args) 
+    elif A.tag == dTag: lib.ElSymmetricMinAbs_d(*args) 
+    elif A.tag == cTag: lib.ElSymmetricMinAbs_c(*args) 
+    elif A.tag == zTag: lib.ElSymmetricMinAbs_z(*args) 
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: 
-      pair = ValueIntPair_i()
-      lib.ElSymmetricMinAbsDist_i(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == sTag:
-      pair = ValueIntPair_s()
-      lib.ElSymmetricMinAbsDist_s(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == dTag:
-      pair = ValueIntPair_d()
-      lib.ElSymmetricMinAbsDist_d(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == cTag:
-      pair = ValueIntPair_s()
-      lib.ElSymmetricMinAbsDist_c(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    elif A.tag == zTag:
-      pair = ValueIntPair_d()
-      lib.ElSymmetricMinAbsDist_z(uplo,A.obj,pointer(pair)) 
-      return pair.value, pair.indices[0], pair.indices[1]
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElSymmetricMinAbsDist_i(*args) 
+    elif A.tag == sTag: lib.ElSymmetricMinAbsDist_s(*args) 
+    elif A.tag == dTag: lib.ElSymmetricMinAbsDist_d(*args) 
+    elif A.tag == cTag: lib.ElSymmetricMinAbsDist_c(*args) 
+    elif A.tag == zTag: lib.ElSymmetricMinAbsDist_z(*args) 
+    else: DataExcept()
+  else: TypeExcept()
+  return pair.value, pair.indices[0], pair.indices[1]
 
 lib.ElVectorMinAbs_i.argtypes = [c_void_p,POINTER(ValueInt_i)]
 lib.ElVectorMinAbs_i.restype = c_uint
@@ -1445,51 +1254,24 @@ lib.ElVectorMinAbsDist_c.restype = c_uint
 lib.ElVectorMinAbsDist_z.argtypes = [c_void_p,POINTER(ValueInt_d)]
 lib.ElVectorMinAbsDist_z.restype = c_uint
 def VectorMinAbs(A):
+  pair = TagToValueInt(Base(A.tag))
+  args = [A.obj,pointer(pair)]
   if type(A) is Matrix:
-    if   A.tag == iTag: 
-      pair = ValueInt_i()
-      lib.ElVectorMinAbs_i(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == sTag:
-      pair = ValueInt_s()
-      lib.ElVectorMinAbs_s(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == dTag:
-      pair = ValueInt_d()
-      lib.ElVectorMinAbs_d(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == cTag:
-      pair = ValueInt_s()
-      lib.ElVectorMinAbs_c(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == zTag:
-      pair = ValueInt_d()
-      lib.ElVectorMinAbs_z(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElVectorMinAbs_i(*args) 
+    elif A.tag == sTag: lib.ElVectorMinAbs_s(*args) 
+    elif A.tag == dTag: lib.ElVectorMinAbs_d(*args) 
+    elif A.tag == cTag: lib.ElVectorMinAbs_c(*args) 
+    elif A.tag == zTag: lib.ElVectorMinAbs_z(*args) 
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: 
-      pair = ValueInt_i()
-      lib.ElVectorMinAbsDist_i(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == sTag:
-      pair = ValueInt_s()
-      lib.ElVectorMinAbsDist_s(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == dTag:
-      pair = ValueInt_d()
-      lib.ElVectorMinAbsDist_d(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == cTag:
-      pair = ValueInt_s()
-      lib.ElVectorMinAbsDist_c(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    elif A.tag == zTag:
-      pair = ValueInt_d()
-      lib.ElVectorMinAbsDist_z(A.obj,pointer(pair)) 
-      return pair.value, pair.index
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElVectorMinAbsDist_i(*args) 
+    elif A.tag == sTag: lib.ElVectorMinAbsDist_s(*args) 
+    elif A.tag == dTag: lib.ElVectorMinAbsDist_d(*args) 
+    elif A.tag == cTag: lib.ElVectorMinAbsDist_c(*args) 
+    elif A.tag == zTag: lib.ElVectorMinAbsDist_z(*args) 
+    else: DataExcept()
+  else: TypeExcept()
+  return pair.value, pair.index
 
 # Nrm2
 # ----
@@ -1511,19 +1293,20 @@ lib.ElNrm2Dist_z.argtypes = [c_void_p,POINTER(dType)]
 lib.ElNrm2Dist_z.restype = c_uint
 def Nrm2(A):
   gamma = TagToType(Base(A.tag))()
+  args = [A.obj,pointer(gamma)]
   if type(A) is Matrix:
-    if   A.tag == sTag: lib.ElNrm2_s(A.obj,pointer(gamma))
-    elif A.tag == dTag: lib.ElNrm2_d(A.obj,pointer(gamma))
-    elif A.tag == cTag: lib.ElNrm2_c(A.obj,pointer(gamma))
-    elif A.tag == zTag: lib.ElNrm2_z(A.obj,pointer(gamma))
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == sTag: lib.ElNrm2_s(*args)
+    elif A.tag == dTag: lib.ElNrm2_d(*args)
+    elif A.tag == cTag: lib.ElNrm2_c(*args)
+    elif A.tag == zTag: lib.ElNrm2_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == sTag: lib.ElNrm2Dist_s(A.obj,pointer(gamma))
-    elif A.tag == dTag: lib.ElNrm2Dist_d(A.obj,pointer(gamma))
-    elif A.tag == cTag: lib.ElNrm2Dist_c(A.obj,pointer(gamma))
-    elif A.tag == zTag: lib.ElNrm2Dist_z(A.obj,pointer(gamma))
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == sTag: lib.ElNrm2Dist_s(*args)
+    elif A.tag == dTag: lib.ElNrm2Dist_d(*args)
+    elif A.tag == cTag: lib.ElNrm2Dist_c(*args)
+    elif A.tag == zTag: lib.ElNrm2Dist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Scale
 # -----
@@ -1549,21 +1332,22 @@ lib.ElScaleDist_z.argtypes = [zType,c_void_p]
 lib.ElScaleDist_z.restype = c_uint
 def Scale(alphaPre,A):
   alpha = TagToType(A.tag)(alphaPre)
+  args = [alpha,A.obj]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElScale_i(alpha,A.obj)
-    elif A.tag == sTag: lib.ElScale_s(alpha,A.obj)
-    elif A.tag == dTag: lib.ElScale_d(alpha,A.obj)
-    elif A.tag == cTag: lib.ElScale_c(alpha,A.obj)
-    elif A.tag == zTag: lib.ElScale_z(alpha,A.obj)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElScale_i(*args)
+    elif A.tag == sTag: lib.ElScale_s(*args)
+    elif A.tag == dTag: lib.ElScale_d(*args)
+    elif A.tag == cTag: lib.ElScale_c(*args)
+    elif A.tag == zTag: lib.ElScale_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElScaleDist_i(alpha,A.obj)
-    elif A.tag == sTag: lib.ElScaleDist_s(alpha,A.obj)
-    elif A.tag == dTag: lib.ElScaleDist_d(alpha,A.obj)
-    elif A.tag == cTag: lib.ElScaleDist_c(alpha,A.obj)
-    elif A.tag == zTag: lib.ElScaleDist_z(alpha,A.obj)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElScaleDist_i(*args)
+    elif A.tag == sTag: lib.ElScaleDist_s(*args)
+    elif A.tag == dTag: lib.ElScaleDist_d(*args)
+    elif A.tag == cTag: lib.ElScaleDist_c(*args)
+    elif A.tag == zTag: lib.ElScaleDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Scale trapezoid
 # ---------------
@@ -1589,21 +1373,22 @@ lib.ElScaleTrapezoidDist_z.argtypes = [zType,c_uint,c_void_p,iType]
 lib.ElScaleTrapezoidDist_z.restype = c_uint
 def ScaleTrapezoid(alphaPre,uplo,A,offset=0):
   alpha = TagToType(A.tag)(alphaPre)
+  args = [alpha,uplo,A.obj,offset]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElScaleTrapezoid_i(alpha,uplo,A.obj,offset)
-    elif A.tag == sTag: lib.ElScaleTrapezoid_s(alpha,uplo,A.obj,offset)
-    elif A.tag == dTag: lib.ElScaleTrapezoid_d(alpha,uplo,A.obj,offset)
-    elif A.tag == cTag: lib.ElScaleTrapezoid_c(alpha,uplo,A.obj,offset)
-    elif A.tag == zTag: lib.ElScaleTrapezoid_z(alpha,uplo,A.obj,offset)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElScaleTrapezoid_i(*args)
+    elif A.tag == sTag: lib.ElScaleTrapezoid_s(*args)
+    elif A.tag == dTag: lib.ElScaleTrapezoid_d(*args)
+    elif A.tag == cTag: lib.ElScaleTrapezoid_c(*args)
+    elif A.tag == zTag: lib.ElScaleTrapezoid_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElScaleTrapezoidDist_i(alpha,uplo,A.obj,offset)
-    elif A.tag == sTag: lib.ElScaleTrapezoidDist_s(alpha,uplo,A.obj,offset)
-    elif A.tag == dTag: lib.ElScaleTrapezoidDist_d(alpha,uplo,A.obj,offset)
-    elif A.tag == cTag: lib.ElScaleTrapezoidDist_c(alpha,uplo,A.obj,offset)
-    elif A.tag == zTag: lib.ElScaleTrapezoidDist_z(alpha,uplo,A.obj,offset)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElScaleTrapezoidDist_i(*args)
+    elif A.tag == sTag: lib.ElScaleTrapezoidDist_s(*args)
+    elif A.tag == dTag: lib.ElScaleTrapezoidDist_d(*args)
+    elif A.tag == cTag: lib.ElScaleTrapezoidDist_c(*args)
+    elif A.tag == zTag: lib.ElScaleTrapezoidDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Set diagonal
 # ------------
@@ -1629,21 +1414,22 @@ lib.ElSetDiagonalDist_z.argtypes = [c_void_p,zType,iType]
 lib.ElSetDiagonalDist_z.restype = c_uint
 def SetDiagonal(A,alphaPre,offset=0):
   alpha = TagToType(A.tag)(alphaPre)
+  args = [A.obj,alpha,offset]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElSetDiagonal_i(A.obj,alpha,offset)
-    elif A.tag == sTag: lib.ElSetDiagonal_s(A.obj,alpha,offset)
-    elif A.tag == dTag: lib.ElSetDiagonal_d(A.obj,alpha,offset)
-    elif A.tag == cTag: lib.ElSetDiagonal_c(A.obj,alpha,offset)
-    elif A.tag == zTag: lib.ElSetDiagonal_z(A.obj,alpha,offset)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElSetDiagonal_i(*args)
+    elif A.tag == sTag: lib.ElSetDiagonal_s(*args)
+    elif A.tag == dTag: lib.ElSetDiagonal_d(*args)
+    elif A.tag == cTag: lib.ElSetDiagonal_c(*args)
+    elif A.tag == zTag: lib.ElSetDiagonal_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElSetDiagonalDist_i(A.obj,alpha,offset)
-    elif A.tag == sTag: lib.ElSetDiagonalDist_s(A.obj,alpha,offset)
-    elif A.tag == dTag: lib.ElSetDiagonalDist_d(A.obj,alpha,offset)
-    elif A.tag == cTag: lib.ElSetDiagonalDist_c(A.obj,alpha,offset)
-    elif A.tag == zTag: lib.ElSetDiagonalDist_z(A.obj,alpha,offset)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElSetDiagonalDist_i(*args)
+    elif A.tag == sTag: lib.ElSetDiagonalDist_s(*args)
+    elif A.tag == dTag: lib.ElSetDiagonalDist_d(*args)
+    elif A.tag == cTag: lib.ElSetDiagonalDist_c(*args)
+    elif A.tag == zTag: lib.ElSetDiagonalDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Swap
 # ----
@@ -1670,21 +1456,22 @@ lib.ElSwapDist_z.restype = c_uint
 def Swap(orient,X,Y):
   if type(X) is not type(Y): raise Exception('Matrix types must match')
   if X.tag != Y.tag: raise Exception('Matrix datatypes must match')
+  args = [orient,X.obj,Y.obj]
   if type(X) is Matrix:
-    if   A.tag == iTag: lib.ElSwap_i(orient,X.obj,Y.obj)
-    elif A.tag == sTag: lib.ElSwap_s(orient,X.obj,Y.obj)
-    elif A.tag == dTag: lib.ElSwap_d(orient,X.obj,Y.obj)
-    elif A.tag == cTag: lib.ElSwap_c(orient,X.obj,Y.obj)
-    elif A.tag == zTag: lib.ElSwap_z(orient,X.obj,Y.obj)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElSwap_i(*args)
+    elif A.tag == sTag: lib.ElSwap_s(*args)
+    elif A.tag == dTag: lib.ElSwap_d(*args)
+    elif A.tag == cTag: lib.ElSwap_c(*args)
+    elif A.tag == zTag: lib.ElSwap_z(*args)
+    else: DataExcept()
   elif type(X) is DistMatrix:
-    if   A.tag == iTag: lib.ElSwapDist_i(orient,X.obj,Y.obj)
-    elif A.tag == sTag: lib.ElSwapDist_s(orient,X.obj,Y.obj)
-    elif A.tag == dTag: lib.ElSwapDist_d(orient,X.obj,Y.obj)
-    elif A.tag == cTag: lib.ElSwapDist_c(orient,X.obj,Y.obj)
-    elif A.tag == zTag: lib.ElSwapDist_z(orient,X.obj,Y.obj)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElSwapDist_i(*args)
+    elif A.tag == sTag: lib.ElSwapDist_s(*args)
+    elif A.tag == dTag: lib.ElSwapDist_d(*args)
+    elif A.tag == cTag: lib.ElSwapDist_c(*args)
+    elif A.tag == zTag: lib.ElSwapDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 lib.ElRowSwap_i.argtypes = [c_void_p,iType,iType]
 lib.ElRowSwap_i.restype = c_uint
@@ -1707,21 +1494,22 @@ lib.ElRowSwapDist_c.restype = c_uint
 lib.ElRowSwapDist_z.argtypes = [c_void_p,iType,iType]
 lib.ElRowSwapDist_z.restype = c_uint
 def RowSwap(A,iTo,iFrom):
+  args = [A.obj,iTo,iFrom]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElRowSwap_i(A.obj,iTo,iFrom)
-    elif A.tag == sTag: lib.ElRowSwap_s(A.obj,iTo,iFrom)
-    elif A.tag == dTag: lib.ElRowSwap_d(A.obj,iTo,iFrom)
-    elif A.tag == cTag: lib.ElRowSwap_c(A.obj,iTo,iFrom)
-    elif A.tag == zTag: lib.ElRowSwap_z(A.obj,iTo,iFrom)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElRowSwap_i(*args)
+    elif A.tag == sTag: lib.ElRowSwap_s(*args)
+    elif A.tag == dTag: lib.ElRowSwap_d(*args)
+    elif A.tag == cTag: lib.ElRowSwap_c(*args)
+    elif A.tag == zTag: lib.ElRowSwap_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElRowSwapDist_i(A.obj,iTo,iFrom)
-    elif A.tag == sTag: lib.ElRowSwapDist_s(A.obj,iTo,iFrom)
-    elif A.tag == dTag: lib.ElRowSwapDist_d(A.obj,iTo,iFrom)
-    elif A.tag == cTag: lib.ElRowSwapDist_c(A.obj,iTo,iFrom)
-    elif A.tag == zTag: lib.ElRowSwapDist_z(A.obj,iTo,iFrom)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElRowSwapDist_i(*args)
+    elif A.tag == sTag: lib.ElRowSwapDist_s(*args)
+    elif A.tag == dTag: lib.ElRowSwapDist_d(*args)
+    elif A.tag == cTag: lib.ElRowSwapDist_c(*args)
+    elif A.tag == zTag: lib.ElRowSwapDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 lib.ElColSwap_i.argtypes = [c_void_p,iType,iType]
 lib.ElColSwap_i.restype = c_uint
@@ -1744,21 +1532,22 @@ lib.ElColSwapDist_c.restype = c_uint
 lib.ElColSwapDist_z.argtypes = [c_void_p,iType,iType]
 lib.ElColSwapDist_z.restype = c_uint
 def ColSwap(A,jTo,jFrom):
+  args = [A.obj,jTo,jFrom]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElColSwap_i(A.obj,jTo,jFrom)
-    elif A.tag == sTag: lib.ElColSwap_s(A.obj,jTo,jFrom)
-    elif A.tag == dTag: lib.ElColSwap_d(A.obj,jTo,jFrom)
-    elif A.tag == cTag: lib.ElColSwap_c(A.obj,jTo,jFrom)
-    elif A.tag == zTag: lib.ElColSwap_z(A.obj,jTo,jFrom)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElColSwap_i(*args)
+    elif A.tag == sTag: lib.ElColSwap_s(*args)
+    elif A.tag == dTag: lib.ElColSwap_d(*args)
+    elif A.tag == cTag: lib.ElColSwap_c(*args)
+    elif A.tag == zTag: lib.ElColSwap_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElColSwapDist_i(A.obj,jTo,jFrom)
-    elif A.tag == sTag: lib.ElColSwapDist_s(A.obj,jTo,jFrom)
-    elif A.tag == dTag: lib.ElColSwapDist_d(A.obj,jTo,jFrom)
-    elif A.tag == cTag: lib.ElColSwapDist_c(A.obj,jTo,jFrom)
-    elif A.tag == zTag: lib.ElColSwapDist_z(A.obj,jTo,jFrom)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElColSwapDist_i(*args)
+    elif A.tag == sTag: lib.ElColSwapDist_s(*args)
+    elif A.tag == dTag: lib.ElColSwapDist_d(*args)
+    elif A.tag == cTag: lib.ElColSwapDist_c(*args)
+    elif A.tag == zTag: lib.ElColSwapDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 lib.ElSymmetricSwap_i.argtypes = [c_uint,c_void_p,iType,iType]
 lib.ElSymmetricSwap_i.restype = c_uint
@@ -1781,21 +1570,22 @@ lib.ElSymmetricSwapDist_c.restype = c_uint
 lib.ElSymmetricSwapDist_z.argtypes = [c_uint,c_void_p,iType,iType]
 lib.ElSymmetricSwapDist_z.restype = c_uint
 def SymmetricSwap(uplo,A,jTo,jFrom):
+  args = [uplo,A.obj,jTo,jFrom]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElSymmetricSwap_i(uplo,A.obj,jTo,jFrom)
-    elif A.tag == sTag: lib.ElSymmetricSwap_s(uplo,A.obj,jTo,jFrom)
-    elif A.tag == dTag: lib.ElSymmetricSwap_d(uplo,A.obj,jTo,jFrom)
-    elif A.tag == cTag: lib.ElSymmetricSwap_c(uplo,A.obj,jTo,jFrom)
-    elif A.tag == zTag: lib.ElSymmetricSwap_z(uplo,A.obj,jTo,jFrom)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElSymmetricSwap_i(*args)
+    elif A.tag == sTag: lib.ElSymmetricSwap_s(*args)
+    elif A.tag == dTag: lib.ElSymmetricSwap_d(*args)
+    elif A.tag == cTag: lib.ElSymmetricSwap_c(*args)
+    elif A.tag == zTag: lib.ElSymmetricSwap_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElSymmetricSwapDist_i(uplo,A.obj,jTo,jFrom)
-    elif A.tag == sTag: lib.ElSymmetricSwapDist_s(uplo,A.obj,jTo,jFrom)
-    elif A.tag == dTag: lib.ElSymmetricSwapDist_d(uplo,A.obj,jTo,jFrom)
-    elif A.tag == cTag: lib.ElSymmetricSwapDist_c(uplo,A.obj,jTo,jFrom)
-    elif A.tag == zTag: lib.ElSymmetricSwapDist_z(uplo,A.obj,jTo,jFrom)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElSymmetricSwapDist_i(*args)
+    elif A.tag == sTag: lib.ElSymmetricSwapDist_s(*args)
+    elif A.tag == dTag: lib.ElSymmetricSwapDist_d(*args)
+    elif A.tag == cTag: lib.ElSymmetricSwapDist_c(*args)
+    elif A.tag == zTag: lib.ElSymmetricSwapDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Transpose/Adjoint
 # -----------------
@@ -1829,29 +1619,30 @@ def Transpose(A,B,conj=False):
   if A.tag != B.tag:
     raise Exception('Transposing between datatypes not yet supported in Python')
   if type(A) is not type(B): raise Exception('Matrix types must match')
+  args = [A.obj,B.obj]
   if type(A) is Matrix:
-    if   B.tag == iTag: lib.ElTranspose_i(A.obj,B.obj)
-    elif B.tag == sTag: lib.ElTranspose_s(A.obj,B.obj)
-    elif B.tag == dTag: lib.ElTranspose_d(A.obj,B.obj)
+    if   B.tag == iTag: lib.ElTranspose_i(*args)
+    elif B.tag == sTag: lib.ElTranspose_s(*args)
+    elif B.tag == dTag: lib.ElTranspose_d(*args)
     elif B.tag == cTag:
-      if conj: lib.ElAdjoint_c(A.obj,B.obj)
-      else:    lib.ElTranspose_c(A.obj,B.obj)
+      if conj: lib.ElAdjoint_c(*args)
+      else:    lib.ElTranspose_c(*args)
     elif B.tag == zTag: 
-      if conj: lib.ElAdjoint_z(A.obj,B.obj)
-      else:    lib.ElTranspose_z(A.obj,B.obj)
-    else: raise Exception('Unsupported datatype')
+      if conj: lib.ElAdjoint_z(*args)
+      else:    lib.ElTranspose_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   B.tag == iTag: lib.ElTransposeDist_i(A.obj,B.obj)
-    elif B.tag == sTag: lib.ElTransposeDist_s(A.obj,B.obj)
-    elif B.tag == dTag: lib.ElTransposeDist_d(A.obj,B.obj)
+    if   B.tag == iTag: lib.ElTransposeDist_i(*args)
+    elif B.tag == sTag: lib.ElTransposeDist_s(*args)
+    elif B.tag == dTag: lib.ElTransposeDist_d(*args)
     elif B.tag == cTag:
-      if conj: lib.ElAdjointDist_c(A.obj,B.obj)
-      else:    lib.ElTransposeDist_c(A.obj,B.obj)
+      if conj: lib.ElAdjointDist_c(*args)
+      else:    lib.ElTransposeDist_c(*args)
     elif B.tag == zTag: 
-      if conj: lib.ElAdjointDist_z(A.obj,B.obj)
-      else:    lib.ElTransposeDist_z(A.obj,B.obj)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix types')
+      if conj: lib.ElAdjointDist_z(*args)
+      else:    lib.ElTransposeDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 def Adjoint(A,B):
   Transpose(A,B,True)
@@ -1883,21 +1674,22 @@ def RealPart(A,AReal):
   if AReal.tag != Base(A.tag):
     raise Exception('AReal must have the base datatype of A')
   if type(A) is not type(AReal): raise Exception('Matrix types must match')
+  args = [A.obj,AReal.obj]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElRealPart_i(A.obj,AReal.obj)
-    elif A.tag == sTag: lib.ElRealPart_s(A.obj,AReal.obj)
-    elif A.tag == dTag: lib.ElRealPart_d(A.obj,AReal.obj)
-    elif A.tag == cTag: lib.ElRealPart_c(A.obj,AReal.obj)
-    elif A.tag == zTag: lib.ElRealPart_z(A.obj,AReal.obj)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElRealPart_i(*args)
+    elif A.tag == sTag: lib.ElRealPart_s(*args)
+    elif A.tag == dTag: lib.ElRealPart_d(*args)
+    elif A.tag == cTag: lib.ElRealPart_c(*args)
+    elif A.tag == zTag: lib.ElRealPart_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElRealPartDist_i(A.obj,AReal.obj)
-    elif A.tag == sTag: lib.ElRealPartDist_s(A.obj,AReal.obj)
-    elif A.tag == dTag: lib.ElRealPartDist_d(A.obj,AReal.obj)
-    elif A.tag == cTag: lib.ElRealPartDist_c(A.obj,AReal.obj)
-    elif A.tag == zTag: lib.ElRealPartDist_z(A.obj,AReal.obj)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix types')
+    if   A.tag == iTag: lib.ElRealPartDist_i(*args)
+    elif A.tag == sTag: lib.ElRealPartDist_s(*args)
+    elif A.tag == dTag: lib.ElRealPartDist_d(*args)
+    elif A.tag == cTag: lib.ElRealPartDist_c(*args)
+    elif A.tag == zTag: lib.ElRealPartDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Imaginary part
 # --------------
@@ -1926,21 +1718,22 @@ def ImagPart(A,AImag):
   if AImag.tag != Base(A.tag):
     raise Exception('AImag must have the base datatype of A')
   if type(A) is not type(AImag): raise Exception('Matrix types must match')
+  args = [A.obj,AImag.obj]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElImagPart_i(A.obj,AImag.obj)
-    elif A.tag == sTag: lib.ElImagPart_s(A.obj,AImag.obj)
-    elif A.tag == dTag: lib.ElImagPart_d(A.obj,AImag.obj)
-    elif A.tag == cTag: lib.ElImagPart_c(A.obj,AImag.obj)
-    elif A.tag == zTag: lib.ElImagPart_z(A.obj,AImag.obj)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElImagPart_i(*args)
+    elif A.tag == sTag: lib.ElImagPart_s(*args)
+    elif A.tag == dTag: lib.ElImagPart_d(*args)
+    elif A.tag == cTag: lib.ElImagPart_c(*args)
+    elif A.tag == zTag: lib.ElImagPart_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElImagPartDist_i(A.obj,AImag.obj)
-    elif A.tag == sTag: lib.ElImagPartDist_s(A.obj,AImag.obj)
-    elif A.tag == dTag: lib.ElImagPartDist_d(A.obj,AImag.obj)
-    elif A.tag == cTag: lib.ElImagPartDist_c(A.obj,AImag.obj)
-    elif A.tag == zTag: lib.ElImagPartDist_z(A.obj,AImag.obj)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix types')
+    if   A.tag == iTag: lib.ElImagPartDist_i(*args)
+    elif A.tag == sTag: lib.ElImagPartDist_s(*args)
+    elif A.tag == dTag: lib.ElImagPartDist_d(*args)
+    elif A.tag == cTag: lib.ElImagPartDist_c(*args)
+    elif A.tag == zTag: lib.ElImagPartDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Update diagonal
 # ---------------
@@ -1966,21 +1759,22 @@ lib.ElUpdateDiagonalDist_z.argtypes = [c_void_p,zType,iType]
 lib.ElUpdateDiagonalDist_z.restype = c_uint
 def UpdateDiagonal(A,alphaPre,offset=0):
   alpha = TagToType(A.tag)(alphaPre)
+  args = [A.obj,alpha,offset]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElUpdateDiagonal_i(A.obj,alpha,offset)
-    elif A.tag == sTag: lib.ElUpdateDiagonal_s(A.obj,alpha,offset)
-    elif A.tag == dTag: lib.ElUpdateDiagonal_d(A.obj,alpha,offset)
-    elif A.tag == cTag: lib.ElUpdateDiagonal_c(A.obj,alpha,offset)
-    elif A.tag == zTag: lib.ElUpdateDiagonal_z(A.obj,alpha,offset)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElUpdateDiagonal_i(*args)
+    elif A.tag == sTag: lib.ElUpdateDiagonal_s(*args)
+    elif A.tag == dTag: lib.ElUpdateDiagonal_d(*args)
+    elif A.tag == cTag: lib.ElUpdateDiagonal_c(*args)
+    elif A.tag == zTag: lib.ElUpdateDiagonal_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElUpdateDiagonalDist_i(A.obj,alpha,offset)
-    elif A.tag == sTag: lib.ElUpdateDiagonalDist_s(A.obj,alpha,offset)
-    elif A.tag == dTag: lib.ElUpdateDiagonalDist_d(A.obj,alpha,offset)
-    elif A.tag == cTag: lib.ElUpdateDiagonalDist_c(A.obj,alpha,offset)
-    elif A.tag == zTag: lib.ElUpdateDiagonalDist_z(A.obj,alpha,offset)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElUpdateDiagonalDist_i(*args)
+    elif A.tag == sTag: lib.ElUpdateDiagonalDist_s(*args)
+    elif A.tag == dTag: lib.ElUpdateDiagonalDist_d(*args)
+    elif A.tag == cTag: lib.ElUpdateDiagonalDist_c(*args)
+    elif A.tag == zTag: lib.ElUpdateDiagonalDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Zero
 # ----
@@ -2005,18 +1799,19 @@ lib.ElZeroDist_c.restype = c_uint
 lib.ElZeroDist_z.argtypes = [c_void_p]
 lib.ElZeroDist_z.restype = c_uint
 def Zero(A):
+  args = [A.obj]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElZero_i(A.obj)
-    elif A.tag == sTag: lib.ElZero_s(A.obj)
-    elif A.tag == dTag: lib.ElZero_d(A.obj)
-    elif A.tag == cTag: lib.ElZero_c(A.obj)
-    elif A.tag == zTag: lib.ElZero_z(A.obj)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == iTag: lib.ElZero_i(*args)
+    elif A.tag == sTag: lib.ElZero_s(*args)
+    elif A.tag == dTag: lib.ElZero_d(*args)
+    elif A.tag == cTag: lib.ElZero_c(*args)
+    elif A.tag == zTag: lib.ElZero_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElZeroDist_i(A.obj)
-    elif A.tag == sTag: lib.ElZeroDist_s(A.obj)
-    elif A.tag == dTag: lib.ElZeroDist_d(A.obj)
-    elif A.tag == cTag: lib.ElZeroDist_c(A.obj)
-    elif A.tag == zTag: lib.ElZeroDist_z(A.obj)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == iTag: lib.ElZeroDist_i(*args)
+    elif A.tag == sTag: lib.ElZeroDist_s(*args)
+    elif A.tag == dTag: lib.ElZeroDist_d(*args)
+    elif A.tag == cTag: lib.ElZeroDist_c(*args)
+    elif A.tag == zTag: lib.ElZeroDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()

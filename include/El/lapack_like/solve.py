@@ -28,19 +28,20 @@ lib.ElGaussianEliminationDist_c.restype = c_uint
 lib.ElGaussianEliminationDist_z.argtypes = [c_void_p,c_void_p]
 lib.ElGaussianEliminationDist_z.restype = c_uint
 def GaussianElimination(A,B):
+  args = [A.obj,B.obj]
   if type(A) is Matrix:
-    if   A.tag == sTag: lib.ElGaussianElimination_s(A.tag,B.tag)
-    elif A.tag == dTag: lib.ElGaussianElimination_d(A.tag,B.tag)
-    elif A.tag == cTag: lib.ElGaussianElimination_c(A.tag,B.tag)
-    elif A.tag == zTag: lib.ElGaussianElimination_z(A.tag,B.tag)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == sTag: lib.ElGaussianElimination_s(*args)
+    elif A.tag == dTag: lib.ElGaussianElimination_d(*args)
+    elif A.tag == cTag: lib.ElGaussianElimination_c(*args)
+    elif A.tag == zTag: lib.ElGaussianElimination_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == sTag: lib.ElGaussianEliminationDist_s(A.tag,B.tag)
-    elif A.tag == dTag: lib.ElGaussianEliminationDist_d(A.tag,B.tag)
-    elif A.tag == cTag: lib.ElGaussianEliminationDist_c(A.tag,B.tag)
-    elif A.tag == zTag: lib.ElGaussianEliminationDist_z(A.tag,B.tag)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == sTag: lib.ElGaussianEliminationDist_s(*args)
+    elif A.tag == dTag: lib.ElGaussianEliminationDist_d(*args)
+    elif A.tag == cTag: lib.ElGaussianEliminationDist_c(*args)
+    elif A.tag == zTag: lib.ElGaussianEliminationDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # General Linear Model
 # ====================
@@ -65,19 +66,20 @@ def GLM(A,B,D,Y):
     raise Exception('Matrix types of {A,B,D,Y} must match')
   if A.tag != B.tag or B.tag != D.tag or D.tag != Y.tag:
     raise Exception('Datatypes of {A,B,D,Y} must match')
+  args = [A.obj,B.obj,D.obj,Y.obj]
   if type(A) is Matrix:
-    if   A.tag == sTag: lib.ElGLM_s(A.obj,B.obj,D.obj,Y.obj)
-    elif A.tag == dTag: lib.ElGLM_d(A.obj,B.obj,D.obj,Y.obj)
-    elif A.tag == cTag: lib.ElGLM_c(A.obj,B.obj,D.obj,Y.obj)
-    elif A.tag == zTag: lib.ElGLM_z(A.obj,B.obj,D.obj,Y.obj)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == sTag: lib.ElGLM_s(*args)
+    elif A.tag == dTag: lib.ElGLM_d(*args)
+    elif A.tag == cTag: lib.ElGLM_c(*args)
+    elif A.tag == zTag: lib.ElGLM_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == sTag: lib.ElGLMDist_s(A.obj,B.obj,D.obj,Y.obj)
-    elif A.tag == dTag: lib.ElGLMDist_d(A.obj,B.obj,D.obj,Y.obj)
-    elif A.tag == cTag: lib.ElGLMDist_c(A.obj,B.obj,D.obj,Y.obj)
-    elif A.tag == zTag: lib.ElGLMDist_z(A.obj,B.obj,D.obj,Y.obj)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == sTag: lib.ElGLMDist_s(*args)
+    elif A.tag == dTag: lib.ElGLMDist_d(*args)
+    elif A.tag == cTag: lib.ElGLMDist_c(*args)
+    elif A.tag == zTag: lib.ElGLMDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Symmetric/Hermitian solves
 # ==========================
@@ -102,27 +104,28 @@ def SymmetricSolve(uplo,orient,A,B,conjugate=False):
     raise Exception('Types of A and B must match')
   if A.tag != B.tag:
     raise Exception('Datatypes of A and B must match')
+  args = [uplo,orient,A.obj,B.obj]
   if type(A) is Matrix:
-    if   A.tag == sTag: lib.ElSymmetricSolve_s(uplo,orient,A.tag,B.tag)
-    elif A.tag == dTag: lib.ElSymmetricSolve_d(uplo,orient,A.tag,B.tag)
+    if   A.tag == sTag: lib.ElSymmetricSolve_s(*args)
+    elif A.tag == dTag: lib.ElSymmetricSolve_d(*args)
     elif A.tag == cTag:
-      if conjugate: lib.ElHermitianSolve_c(uplo,orient,A.tag,B.tag)
-      else:         lib.ElSymmetricSolve_c(uplo,orient,A.tag,B.tag)
+      if conjugate: lib.ElHermitianSolve_c(*args)
+      else:         lib.ElSymmetricSolve_c(*args)
     elif A.tag == zTag:
-      if conjugate: lib.ElHermitianSolve_z(uplo,orient,A.tag,B.tag)
-      else:         lib.ElSymmetricSolve_z(uplo,orient,A.tag,B.tag)
-    else: raise Exception('Unsupported datatype')
+      if conjugate: lib.ElHermitianSolve_z(*args)
+      else:         lib.ElSymmetricSolve_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == sTag: lib.ElSymmetricSolveDist_s(uplo,orient,A.tag,B.tag)
-    elif A.tag == dTag: lib.ElSymmetricSolveDist_d(uplo,orient,A.tag,B.tag)
+    if   A.tag == sTag: lib.ElSymmetricSolveDist_s(*args)
+    elif A.tag == dTag: lib.ElSymmetricSolveDist_d(*args)
     elif A.tag == cTag:
-      if conjugate: lib.ElHermitianSolveDist_c(uplo,orient,A.tag,B.tag)
-      else:         lib.ElSymmetricSolveDist_c(uplo,orient,A.tag,B.tag)
+      if conjugate: lib.ElHermitianSolveDist_c(*args)
+      else:         lib.ElSymmetricSolveDist_c(*args)
     elif A.tag == zTag:
-      if conjugate: lib.ElHermitianSolveDist_z(uplo,orient,A.tag,B.tag)
-      else:         lib.ElSymmetricSolveDist_z(uplo,orient,A.tag,B.tag)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+      if conjugate: lib.ElHermitianSolveDist_z(*args)
+      else:         lib.ElSymmetricSolveDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 def HermitianSolve(uplo,orient,A,B):
   SymmetricSolve(uplo,orient,A,B,True)
@@ -150,19 +153,20 @@ def HPDSolve(uplo,orient,A,B):
     raise Exception('Matrix types of A and B must match')
   if A.tag != B.tag:
     raise Exception('Datatypes of A and B must match')
+  args = [uplo,orient,A.obj,B.obj]
   if type(A) is Matrix:
-    if   A.tag == sTag: lib.ElHPDSolve_s(uplo,orient,A.obj,B.obj)
-    elif A.tag == dTag: lib.ElHPDSolve_d(uplo,orient,A.obj,B.obj)
-    elif A.tag == cTag: lib.ElHPDSolve_c(uplo,orient,A.obj,B.obj)
-    elif A.tag == zTag: lib.ElHPDSolve_z(uplo,orient,A.obj,B.obj)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == sTag: lib.ElHPDSolve_s(*args)
+    elif A.tag == dTag: lib.ElHPDSolve_d(*args)
+    elif A.tag == cTag: lib.ElHPDSolve_c(*args)
+    elif A.tag == zTag: lib.ElHPDSolve_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == sTag: lib.ElHPDSolveDist_s(uplo,orient,A.obj,B.obj)
-    elif A.tag == dTag: lib.ElHPDSolveDist_d(uplo,orient,A.obj,B.obj)
-    elif A.tag == cTag: lib.ElHPDSolveDist_c(uplo,orient,A.obj,B.obj)
-    elif A.tag == zTag: lib.ElHPDSolveDist_z(uplo,orient,A.obj,B.obj)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == sTag: lib.ElHPDSolveDist_s(*args)
+    elif A.tag == dTag: lib.ElHPDSolveDist_d(*args)
+    elif A.tag == cTag: lib.ElHPDSolveDist_c(*args)
+    elif A.tag == zTag: lib.ElHPDSolveDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Least squares
 # =============
@@ -186,24 +190,26 @@ def LeastSquares(orient,A,B):
   if type(A) is not type(B):
     raise Exception('Matrix types of A and B must match')
   if A.tag != B.tag:
-    raise ExceptioN('Datatypes of A and B must match')
+    raise Exception('Datatypes of A and B must match')
   if type(A) is Matrix:
     X = Matrix(A.tag)
-    if   A.tag == sTag: lib.ElLeastSquares_s(orient,A.obj,B.obj,X.obj)
-    elif A.tag == dTag: lib.ElLeastSquares_d(orient,A.obj,B.obj,X.obj)
-    elif A.tag == cTag: lib.ElLeastSquares_c(orient,A.obj,B.obj,X.obj)
-    elif A.tag == zTag: lib.ElLeastSquares_z(orient,A.obj,B.obj,X.obj)
-    else: raise Exception('Unsupported datatype') 
+    args = [orient,A.obj,B.obj,X.obj]
+    if   A.tag == sTag: lib.ElLeastSquares_s(*args)
+    elif A.tag == dTag: lib.ElLeastSquares_d(*args)
+    elif A.tag == cTag: lib.ElLeastSquares_c(*args)
+    elif A.tag == zTag: lib.ElLeastSquares_z(*args)
+    else: DataExcept()
     return X
   elif type(A) is DistMatrix:
     X = DistMatrix(A.tag,MC,MR,A.Grid())
-    if   A.tag == sTag: lib.ElLeastSquaresDist_s(orient,A.obj,B.obj,X.obj)
-    elif A.tag == dTag: lib.ElLeastSquaresDist_d(orient,A.obj,B.obj,X.obj)
-    elif A.tag == cTag: lib.ElLeastSquaresDist_c(orient,A.obj,B.obj,X.obj)
-    elif A.tag == zTag: lib.ElLeastSquaresDist_z(orient,A.obj,B.obj,X.obj)
-    else: raise Exception('Unsupported datatype') 
+    args = [orient,A.obj,B.obj,X.obj]
+    if   A.tag == sTag: lib.ElLeastSquaresDist_s(*args)
+    elif A.tag == dTag: lib.ElLeastSquaresDist_d(*args)
+    elif A.tag == cTag: lib.ElLeastSquaresDist_c(*args)
+    elif A.tag == zTag: lib.ElLeastSquaresDist_z(*args)
+    else: DataExcept()
     return X
-  else: raise Exception('Unsupported matrix type')
+  else: TypeExcept()
 
 # Equality-constrained least squares
 # ==================================
@@ -230,21 +236,23 @@ def LSE(A,B,C,D):
     raise Exception('Datatypes of {A,B,C,D} must match')
   if type(A) is Matrix:
     X = Matrix(A.tag)
-    if   A.tag == sTag: lib.ElLSE_s(A.obj,B.obj,C.obj,D.obj,X.obj)
-    elif A.tag == dTag: lib.ElLSE_d(A.obj,B.obj,C.obj,D.obj,X.obj)
-    elif A.tag == cTag: lib.ElLSE_c(A.obj,B.obj,C.obj,D.obj,X.obj)
-    elif A.tag == zTag: lib.ElLSE_z(A.obj,B.obj,C.obj,D.obj,X.obj)
-    else: raise Exception('Unsupported datatype')
+    args = [A.obj,B.obj,C.obj,D.obj,X.obj]
+    if   A.tag == sTag: lib.ElLSE_s(*args)
+    elif A.tag == dTag: lib.ElLSE_d(*args)
+    elif A.tag == cTag: lib.ElLSE_c(*args)
+    elif A.tag == zTag: lib.ElLSE_z(*args)
+    else: DataExcept()
     return X
   elif type(A) is DistMatrix:
     X = DistMatrix(A.tag,MC,MR,A.Grid())
-    if   A.tag == sTag: lib.ElLSEDist_s(A.obj,B.obj,C.obj,D.obj,X.obj)
-    elif A.tag == dTag: lib.ElLSEDist_d(A.obj,B.obj,C.obj,D.obj,X.obj)
-    elif A.tag == cTag: lib.ElLSEDist_c(A.obj,B.obj,C.obj,D.obj,X.obj)
-    elif A.tag == zTag: lib.ElLSEDist_z(A.obj,B.obj,C.obj,D.obj,X.obj)
-    else: raise Exception('Unsupported datatype')
+    args = [A.obj,B.obj,C.obj,D.obj,X.obj]
+    if   A.tag == sTag: lib.ElLSEDist_s(*args)
+    elif A.tag == dTag: lib.ElLSEDist_d(*args)
+    elif A.tag == cTag: lib.ElLSEDist_c(*args)
+    elif A.tag == zTag: lib.ElLSEDist_z(*args)
+    else: DataExcept()
     return X
-  else: raise Exception('Unsupported matrix type')
+  else: TypeExcept()
 
 # Multishift Hessenberg solve
 # ===========================
@@ -280,29 +288,23 @@ def MultiShiftHessSolve(uplo,orient,alphaPre,H,shifts,X):
   alpha = TagToType(H.tag)(alphaPre)
   if type(H) is Matrix:
     X = Matrix(H.tag)
-    if   A.tag == sTag: 
-      lib.ElMultiShiftHessSolve_s(uplo,orient,alpha,H.obj,shifts.obj,X.obj)
-    elif A.tag == dTag:
-      lib.ElMultiShiftHessSolve_d(uplo,orient,alpha,H.obj,shifts.obj,X.obj)
-    elif A.tag == cTag:
-      lib.ElMultiShiftHessSolve_c(uplo,orient,alpha,H.obj,shifts.obj,X.obj)
-    elif A.tag == zTag:
-      lib.ElMultiShiftHessSolve_z(uplo,orient,alpha,H.obj,shifts.obj,X.obj)
-    else: raise Exception('Unsupported datatype')
+    args = [uplo,orient,alpha,H.obj,shifts.obj,X.obj]
+    if   A.tag == sTag: lib.ElMultiShiftHessSolve_s(*args)
+    elif A.tag == dTag: lib.ElMultiShiftHessSolve_d(*args)
+    elif A.tag == cTag: lib.ElMultiShiftHessSolve_c(*args)
+    elif A.tag == zTag: lib.ElMultiShiftHessSolve_z(*args)
+    else: DataExcept()
     return X
   elif type(H) is DistMatrix:
     X = DistMatrix(H.tag,MC,MR,H.Grid())
-    if   A.tag == sTag: 
-      lib.ElMultiShiftHessSolveDist_s(uplo,orient,alpha,H.obj,shifts.obj,X.obj)
-    elif A.tag == dTag:
-      lib.ElMultiShiftHessSolveDist_d(uplo,orient,alpha,H.obj,shifts.obj,X.obj)
-    elif A.tag == cTag:
-      lib.ElMultiShiftHessSolveDist_c(uplo,orient,alpha,H.obj,shifts.obj,X.obj)
-    elif A.tag == zTag:
-      lib.ElMultiShiftHessSolveDist_z(uplo,orient,alpha,H.obj,shifts.obj,X.obj)
-    else: raise Exception('Unsupported datatype')
+    args = [uplo,orient,alpha,H.obj,shifts.obj,X.obj]
+    if   A.tag == sTag: lib.ElMultiShiftHessSolveDist_s(*args)
+    elif A.tag == dTag: lib.ElMultiShiftHessSolveDist_d(*args)
+    elif A.tag == cTag: lib.ElMultiShiftHessSolveDist_c(*args)
+    elif A.tag == zTag: lib.ElMultiShiftHessSolveDist_z(*args)
+    else: DataExcept()
     return X
-  else: raise Exception('Unsupported matrix type')
+  else: TypeExcept()
 
 # Ridge regression
 # ================
@@ -328,19 +330,20 @@ def Ridge(A,B,alpha,alg=RIDGE_CHOLESKY):
     raise Exception('Matrix types of A and B must match')
   if A.tag != B.tag:
     raise Exception('Datatypes of A and B must match')
+  args = [A.obj,B.obj,alpha,X.obj,alg]
   if type(A) is Matrix:
-    if   A.tag == sTag: lib.ElRidge_s(A.obj,B.obj,alpha,X.obj,alg)
-    elif A.tag == dTag: lib.ElRidge_d(A.obj,B.obj,alpha,X.obj,alg)
-    elif A.tag == cTag: lib.ElRidge_c(A.obj,B.obj,alpha,X.obj,alg)
-    elif A.tag == zTag: lib.ElRidge_z(A.obj,B.obj,alpha,X.obj,alg)
-    else: raise Exception('Unsupported datatype')
+    if   A.tag == sTag: lib.ElRidge_s(*args)
+    elif A.tag == dTag: lib.ElRidge_d(*args)
+    elif A.tag == cTag: lib.ElRidge_c(*args)
+    elif A.tag == zTag: lib.ElRidge_z(*args)
+    else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == sTag: lib.ElRidgeDist_s(A.obj,B.obj,alpha,X.obj,alg)
-    elif A.tag == dTag: lib.ElRidgeDist_d(A.obj,B.obj,alpha,X.obj,alg)
-    elif A.tag == cTag: lib.ElRidgeDist_c(A.obj,B.obj,alpha,X.obj,alg)
-    elif A.tag == zTag: lib.ElRidgeDist_z(A.obj,B.obj,alpha,X.obj,alg)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   A.tag == sTag: lib.ElRidgeDist_s(*args)
+    elif A.tag == dTag: lib.ElRidgeDist_d(*args)
+    elif A.tag == cTag: lib.ElRidgeDist_c(*args)
+    elif A.tag == zTag: lib.ElRidgeDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Tikhonov regularization
 # =======================
@@ -369,18 +372,20 @@ def Tikhonov(A,B,Gamma,alg=TIKHONOV_CHOLESKY):
     raise Exception('Datatypes of {A,B,Gamma} must match')
   if type(A) is Matrix:
     X = Matrix(A.tag)
-    if   A.tag == sTag: lib.ElTikhonov_s(A.obj,B.obj,Gamma.obj,X.obj,alg)
-    elif A.tag == dTag: lib.ElTikhonov_d(A.obj,B.obj,Gamma.obj,X.obj,alg)
-    elif A.tag == cTag: lib.ElTikhonov_c(A.obj,B.obj,Gamma.obj,X.obj,alg)
-    elif A.tag == zTag: lib.ElTikhonov_z(A.obj,B.obj,Gamma.obj,X.obj,alg)
-    else: raise Exception('Unsupported datatype')
+    args = [A.obj,B.obj,Gamma.obj,X.obj,alg]
+    if   A.tag == sTag: lib.ElTikhonov_s(*args)
+    elif A.tag == dTag: lib.ElTikhonov_d(*args)
+    elif A.tag == cTag: lib.ElTikhonov_c(*args)
+    elif A.tag == zTag: lib.ElTikhonov_z(*args)
+    else: DataExcept()
     return X
   elif type(A) is DistMatrix:
     X = DistMatrix(A.tag,MC,MR,A.Grid())
-    if   A.tag == sTag: lib.ElTikhonovDist_s(A.obj,B.obj,Gamma.obj,X.obj,alg)
-    elif A.tag == dTag: lib.ElTikhonovDist_d(A.obj,B.obj,Gamma.obj,X.obj,alg)
-    elif A.tag == cTag: lib.ElTikhonovDist_c(A.obj,B.obj,Gamma.obj,X.obj,alg)
-    elif A.tag == zTag: lib.ElTikhonovDist_z(A.obj,B.obj,Gamma.obj,X.obj,alg)
-    else: raise Exception('Unsupported datatype')
+    args = [A.obj,B.obj,Gamma.obj,X.obj,alg]
+    if   A.tag == sTag: lib.ElTikhonovDist_s(*args)
+    elif A.tag == dTag: lib.ElTikhonovDist_d(*args)
+    elif A.tag == cTag: lib.ElTikhonovDist_c(*args)
+    elif A.tag == zTag: lib.ElTikhonovDist_z(*args)
+    else: DataExcept()
     return X
-  else: raise Exception('Unsupported matrix type')
+  else: TypeExcept()

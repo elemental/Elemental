@@ -40,35 +40,20 @@ def ApplyPackedReflectors(side,uplo,dir,order,offset,H,t,A):
     raise Exception('Matrix types of {H,t,A} must match')
   if H.tag != t.tag or t.tag != A.tag:
     raise Exception('Datatypes of {H,t,A} must match')
+  args = [side,uplo,dir,order,offset,H.obj,t.obj,A.obj]
   if type(H) is Matrix:
-    if   H.tag == sTag: 
-      lib.ElApplyPackedReflectors_s \
-      (side,uplo,dir,order,offset,H.obj,t.obj,A.obj)
-    elif H.tag == dTag:
-      lib.ElApplyPackedReflectors_d \
-      (side,uplo,dir,order,offset,H.obj,t.obj,A.obj)
-    elif H.tag == cTag:
-      lib.ElApplyPackedReflectors_c \
-      (side,uplo,dir,order,offset,H.obj,t.obj,A.obj)
-    elif H.tag == zTag:
-      lib.ElApplyPackedReflectors_z \
-      (side,uplo,dir,order,offset,H.obj,t.obj,A.obj)
-    else: raise Exception('Unsupported datatype')
+    if   H.tag == sTag: lib.ElApplyPackedReflectors_s(*args)
+    elif H.tag == dTag: lib.ElApplyPackedReflectors_d(*args)
+    elif H.tag == cTag: lib.ElApplyPackedReflectors_c(*args)
+    elif H.tag == zTag: lib.ElApplyPackedReflectors_z(*args)
+    else: DataExcept()
   elif type(H) is DistMatrix:
-    if   H.tag == sTag: 
-      lib.ElApplyPackedReflectorsDist_s \
-      (side,uplo,dir,order,offset,H.obj,t.obj,A.obj)
-    elif H.tag == dTag:
-      lib.ElApplyPackedReflectorsDist_d \
-      (side,uplo,dir,order,offset,H.obj,t.obj,A.obj)
-    elif H.tag == cTag:
-      lib.ElApplyPackedReflectorsDist_c \
-      (side,uplo,dir,order,offset,H.obj,t.obj,A.obj)
-    elif H.tag == zTag:
-      lib.ElApplyPackedReflectorsDist_z \
-      (side,uplo,dir,order,offset,H.obj,t.obj,A.obj)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   H.tag == sTag: lib.ElApplyPackedReflectorsDist_s(*args)
+    elif H.tag == dTag: lib.ElApplyPackedReflectorsDist_d(*args)
+    elif H.tag == cTag: lib.ElApplyPackedReflectorsDist_c(*args)
+    elif H.tag == zTag: lib.ElApplyPackedReflectorsDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Expand packed reflectors
 # ========================
@@ -101,27 +86,20 @@ def ExpandPackedReflectors(uplo,dir,offset,H,t):
     raise Exception('Types of H and t must match')
   if H.tag != t.tag:
     raise Exception('Datatypes of H and t must match')
+  args = [uplo,dir,offset,H.obj,t.obj]
   if type(H) is Matrix:
-    if   H.tag == sTag: 
-      lib.ElExpandPackedReflectors_s(uplo,dir,offset,H.obj,t.obj)
-    elif H.tag == dTag: 
-      lib.ElExpandPackedReflectors_d(uplo,dir,offset,H.obj,t.obj)
-    elif H.tag == cTag: 
-      lib.ElExpandPackedReflectors_c(uplo,dir,offset,H.obj,t.obj)
-    elif H.tag == zTag: 
-      lib.ElExpandPackedReflectors_z(uplo,dir,offset,H.obj,t.obj)
-    else: raise Exception('Unsupported datatype')
+    if   H.tag == sTag: lib.ElExpandPackedReflectors_s(*args)
+    elif H.tag == dTag: lib.ElExpandPackedReflectors_d(*args)
+    elif H.tag == cTag: lib.ElExpandPackedReflectors_c(*args)
+    elif H.tag == zTag: lib.ElExpandPackedReflectors_z(*args)
+    else: DataExcept()
   elif type(H) is DistMatrix:
-    if   H.tag == sTag: 
-      lib.ElExpandPackedReflectorsDist_s(uplo,dir,offset,H.obj,t.obj)
-    elif H.tag == dTag: 
-      lib.ElExpandPackedReflectorsDist_d(uplo,dir,offset,H.obj,t.obj)
-    elif H.tag == cTag: 
-      lib.ElExpandPackedReflectorsDist_c(uplo,dir,offset,H.obj,t.obj)
-    elif H.tag == zTag: 
-      lib.ElExpandPackedReflectorsDist_z(uplo,dir,offset,H.obj,t.obj)
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   H.tag == sTag: lib.ElExpandPackedReflectorsDist_s(*args)
+    elif H.tag == dTag: lib.ElExpandPackedReflectorsDist_d(*args)
+    elif H.tag == cTag: lib.ElExpandPackedReflectorsDist_c(*args)
+    elif H.tag == zTag: lib.ElExpandPackedReflectorsDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
 
 # Hyperbolic reflector
 # ====================
@@ -155,27 +133,20 @@ lib.ElLeftHyperbolicReflectorDist_z.restype = c_uint
 def LeftHyperbolicReflector(chi,x):
   alpha = TagToType(x.tag)(chi)
   tau = TagToType(x.tag)()
+  args = [pointer(alpha),x.obj,pointer(tau)]
   if type(x) is Matrix:
-    if   x.tag == sTag: 
-      lib.ElLeftHyperbolicReflector_s(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == dTag:
-      lib.ElLeftHyperbolicReflector_d(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == cTag:
-      lib.ElLeftHyperbolicReflector_c(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == zTag:
-      lib.ElLeftHyperbolicReflector_z(pointer(alpha),x.obj,pointer(tau))
-    else: raise Exception('Unsupported datatype')
+    if   x.tag == sTag: lib.ElLeftHyperbolicReflector_s(*args)
+    elif x.tag == dTag: lib.ElLeftHyperbolicReflector_d(*args)
+    elif x.tag == cTag: lib.ElLeftHyperbolicReflector_c(*args)
+    elif x.tag == zTag: lib.ElLeftHyperbolicReflector_z(*args)
+    else: DataExcept()
   elif type(x) is DistMatrix:
-    if   x.tag == sTag: 
-      lib.ElLeftHyperbolicReflectorDist_s(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == dTag:
-      lib.ElLeftHyperbolicReflectorDist_d(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == cTag:
-      lib.ElLeftHyperbolicReflectorDist_c(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == zTag:
-      lib.ElLeftHyperbolicReflectorDist_z(pointer(alpha),x.obj,pointer(tau))
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   x.tag == sTag: lib.ElLeftHyperbolicReflectorDist_s(*args)
+    elif x.tag == dTag: lib.ElLeftHyperbolicReflectorDist_d(*args)
+    elif x.tag == cTag: lib.ElLeftHyperbolicReflectorDist_c(*args)
+    elif x.tag == zTag: lib.ElLeftHyperbolicReflectorDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
   return alpha, tau
 
 # Right application
@@ -207,27 +178,20 @@ lib.ElRightHyperbolicReflectorDist_z.restype = c_uint
 def RightHyperbolicReflector(chi,x):
   alpha = TagToType(x.tag)(chi)
   tau = TagToType(x.tag)()
+  args = [pointer(alpha),x.obj,pointer(tau)]
   if type(x) is Matrix:
-    if   x.tag == sTag: 
-      lib.ElRightHyperbolicReflector_s(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == dTag:
-      lib.ElRightHyperbolicReflector_d(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == cTag:
-      lib.ElRightHyperbolicReflector_c(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == zTag:
-      lib.ElRightHyperbolicReflector_z(pointer(alpha),x.obj,pointer(tau))
-    else: raise Exception('Unsupported datatype')
+    if   x.tag == sTag: lib.ElRightHyperbolicReflector_s(*args)
+    elif x.tag == dTag: lib.ElRightHyperbolicReflector_d(*args)
+    elif x.tag == cTag: lib.ElRightHyperbolicReflector_c(*args)
+    elif x.tag == zTag: lib.ElRightHyperbolicReflector_z(*args)
+    else: DataExcept()
   elif type(x) is DistMatrix:
-    if   x.tag == sTag: 
-      lib.ElRightHyperbolicReflectorDist_s(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == dTag:
-      lib.ElRightHyperbolicReflectorDist_d(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == cTag:
-      lib.ElRightHyperbolicReflectorDist_c(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == zTag:
-      lib.ElRightHyperbolicReflectorDist_z(pointer(alpha),x.obj,pointer(tau))
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   x.tag == sTag: lib.ElRightHyperbolicReflectorDist_s(*args)
+    elif x.tag == dTag: lib.ElRightHyperbolicReflectorDist_d(*args)
+    elif x.tag == cTag: lib.ElRightHyperbolicReflectorDist_c(*args)
+    elif x.tag == zTag: lib.ElRightHyperbolicReflectorDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
   return alpha, tau
 
 # Householder reflector
@@ -254,27 +218,20 @@ lib.ElLeftReflectorDist_z.restype = c_uint
 def LeftReflector(chi,x):
   alpha = TagToType(x.tag)(chi)
   tau = TagToType(x.tag)()
+  args = [pointer(alpha),x.obj,pointer(tau)]
   if type(x) is Matrix:
-    if   x.tag == sTag: 
-      lib.ElLeftReflector_s(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == dTag:
-      lib.ElLeftReflector_d(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == cTag:
-      lib.ElLeftReflector_c(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == zTag:
-      lib.ElLeftReflector_z(pointer(alpha),x.obj,pointer(tau))
-    else: raise Exception('Unsupported datatype')
+    if   x.tag == sTag: lib.ElLeftReflector_s(*args)
+    elif x.tag == dTag: lib.ElLeftReflector_d(*args)
+    elif x.tag == cTag: lib.ElLeftReflector_c(*args)
+    elif x.tag == zTag: lib.ElLeftReflector_z(*args)
+    else: DataExcept()
   elif type(x) is DistMatrix:
-    if   x.tag == sTag: 
-      lib.ElLeftReflectorDist_s(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == dTag:
-      lib.ElLeftReflectorDist_d(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == cTag:
-      lib.ElLeftReflectorDist_c(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == zTag:
-      lib.ElLeftReflectorDist_z(pointer(alpha),x.obj,pointer(tau))
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   x.tag == sTag: lib.ElLeftReflectorDist_s(*args)
+    elif x.tag == dTag: lib.ElLeftReflectorDist_d(*args)
+    elif x.tag == cTag: lib.ElLeftReflectorDist_c(*args)
+    elif x.tag == zTag: lib.ElLeftReflectorDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
   return alpha, tau
 
 # Right application
@@ -298,26 +255,18 @@ lib.ElRightReflectorDist_z.restype = c_uint
 def RightReflector(chi,x):
   alpha = TagToType(x.tag)(chi)
   tau = TagToType(x.tag)()
+  args = [pointer(alpha),x.obj,pointer(tau)]
   if type(x) is Matrix:
-    if   x.tag == sTag: 
-      lib.ElRightReflector_s(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == dTag:
-      lib.ElRightReflector_d(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == cTag:
-      lib.ElRightReflector_c(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == zTag:
-      lib.ElRightReflector_z(pointer(alpha),x.obj,pointer(tau))
-    else: raise Exception('Unsupported datatype')
+    if   x.tag == sTag: lib.ElRightReflector_s(*args)
+    elif x.tag == dTag: lib.ElRightReflector_d(*args)
+    elif x.tag == cTag: lib.ElRightReflector_c(*args)
+    elif x.tag == zTag: lib.ElRightReflector_z(*args)
+    else: DataExcept()
   elif type(x) is DistMatrix:
-    if   x.tag == sTag: 
-      lib.ElRightReflectorDist_s(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == dTag:
-      lib.ElRightReflectorDist_d(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == cTag:
-      lib.ElRightReflectorDist_c(pointer(alpha),x.obj,pointer(tau))
-    elif x.tag == zTag:
-      lib.ElRightReflectorDist_z(pointer(alpha),x.obj,pointer(tau))
-    else: raise Exception('Unsupported datatype')
-  else: raise Exception('Unsupported matrix type')
+    if   x.tag == sTag: lib.ElRightReflectorDist_s(*args)
+    elif x.tag == dTag: lib.ElRightReflectorDist_d(*args)
+    elif x.tag == cTag: lib.ElRightReflectorDist_c(*args)
+    elif x.tag == zTag: lib.ElRightReflectorDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
   return alpha, tau
-
