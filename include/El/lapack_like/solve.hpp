@@ -34,12 +34,13 @@ void GLM
 template<typename F>
 void HermitianSolve
 ( UpperOrLower uplo, Orientation orientation, 
-  Matrix<F>& A, Matrix<F>& B, LDLPivotType pivotType=BUNCH_KAUFMAN_A );
+  Matrix<F>& A, Matrix<F>& B, 
+  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 void HermitianSolve
 ( UpperOrLower uplo, Orientation orientation,
   AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A );
+  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
 // B := inv(A) for Hermitian Positive-Definite (HPD) A
 // ===================================================
@@ -117,12 +118,12 @@ template<typename F>
 void SymmetricSolve
 ( UpperOrLower uplo, Orientation orientation, 
   Matrix<F>& A, Matrix<F>& B, bool conjugate=false, 
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A );
+  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 void SymmetricSolve
 ( UpperOrLower uplo, Orientation orientation,
   AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, bool conjugate=false, 
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A );
+  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
 // Tikhonov regularization
 // =======================

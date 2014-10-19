@@ -29,12 +29,16 @@ main( int argc, char* argv[] )
         const double stddev = Input("--stddev","standard dev.",1.);
         const bool conjugate = Input("--conjugate","LDL^H?",false);
         const Int pivotInt = Input("--pivot","pivot type",0);
+        const double gamma = Input("--gamma","pivot constant",0.);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
 
         SetBlocksize( nb );
         const auto pivotType = static_cast<LDLPivotType>(pivotInt);
+        LDLPivotCtrl<Real> ctrl(pivotType);
+        if( gamma != Real(0) )
+            ctrl.gamma = gamma;
 
         C mean( realMean, imagMean );
         Matrix<C> A;
@@ -52,7 +56,7 @@ main( int argc, char* argv[] )
         Matrix<Int> perm;
         Matrix<C> dSub, factA( A );
         MakeTriangular( LOWER, factA );
-        LDL( factA, dSub, perm, conjugate, pivotType );
+        LDL( factA, dSub, perm, conjugate, ctrl );
         if( print && mpi::WorldRank()==0 )
         {
             Print( A,     "A"     );
@@ -92,7 +96,7 @@ main( int argc, char* argv[] )
         if( conjugate )
         {
             // Compute the inertia of A now that we are done with it.
-            auto inertia = Inertia( LOWER, A, pivotType );
+            auto inertia = Inertia( LOWER, A, ctrl );
             if( mpi::WorldRank() == 0 )
             {
                 std::cout << "numPositive=" << inertia.numPositive << "\n"

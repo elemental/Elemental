@@ -29,19 +29,20 @@ def Axpy(alphaPre,X,Y):
   if type(X) is not type(Y): raise Exception('Types of X and Y must match')
   if X.tag != Y.tag: raise Exception('Datatypes of X and Y must match')
   alpha = TagToType(X.tag)(alphaPre)
+  args = [alpha,X.obj,Y.obj]
   if type(X) is Matrix:
-    if   X.tag == iTag: lib.ElAxpy_i(alpha,X.obj,Y.obj)
-    elif X.tag == sTag: lib.ElAxpy_s(alpha,X.obj,Y.obj)
-    elif X.tag == dTag: lib.ElAxpy_d(alpha,X.obj,Y.obj)
-    elif X.tag == cTag: lib.ElAxpy_c(alpha,X.obj,Y.obj)
-    elif X.tag == zTag: lib.ElAxpy_z(alpha,X.obj,Y.obj)
+    if   X.tag == iTag: lib.ElAxpy_i(*args)
+    elif X.tag == sTag: lib.ElAxpy_s(*args)
+    elif X.tag == dTag: lib.ElAxpy_d(*args)
+    elif X.tag == cTag: lib.ElAxpy_c(*args)
+    elif X.tag == zTag: lib.ElAxpy_z(*args)
     else: DataExcept()
   elif type(X) is DistMatrix:
-    if   X.tag == iTag: lib.ElAxpyDist_i(alpha,X.obj,Y.obj)
-    elif X.tag == sTag: lib.ElAxpyDist_s(alpha,X.obj,Y.obj)
-    elif X.tag == dTag: lib.ElAxpyDist_d(alpha,X.obj,Y.obj)
-    elif X.tag == cTag: lib.ElAxpyDist_c(alpha,X.obj,Y.obj)
-    elif X.tag == zTag: lib.ElAxpyDist_z(alpha,X.obj,Y.obj)
+    if   X.tag == iTag: lib.ElAxpyDist_i(*args)
+    elif X.tag == sTag: lib.ElAxpyDist_s(*args)
+    elif X.tag == dTag: lib.ElAxpyDist_d(*args)
+    elif X.tag == cTag: lib.ElAxpyDist_c(*args)
+    elif X.tag == zTag: lib.ElAxpyDist_z(*args)
     else: DataExcept()
   else: TypeExcept()
 
@@ -61,19 +62,20 @@ def AxpyTriangle(uplo,alphaPre,X,Y):
   if type(X) is not type(Y): raise Exception('Types of X and Y must match')
   if X.tag != Y.tag: raise Exception('Datatypes of X and Y must match')
   alpha = TagToType(X.tag)(alphaPre)
+  args = [uplo,alpha,X.obj,Y.obj]
   if type(X) is Matrix:
-    if   X.tag == iTag: lib.ElAxpyTriangle_i(uplo,alpha,X.obj,Y.obj)
-    elif X.tag == sTag: lib.ElAxpyTriangle_s(uplo,alpha,X.obj,Y.obj)
-    elif X.tag == dTag: lib.ElAxpyTriangle_d(uplo,alpha,X.obj,Y.obj)
-    elif X.tag == cTag: lib.ElAxpyTriangle_c(uplo,alpha,X.obj,Y.obj)
-    elif X.tag == zTag: lib.ElAxpyTriangle_z(uplo,alpha,X.obj,Y.obj)
+    if   X.tag == iTag: lib.ElAxpyTriangle_i(*args)
+    elif X.tag == sTag: lib.ElAxpyTriangle_s(*args)
+    elif X.tag == dTag: lib.ElAxpyTriangle_d(*args)
+    elif X.tag == cTag: lib.ElAxpyTriangle_c(*args)
+    elif X.tag == zTag: lib.ElAxpyTriangle_z(*args)
     else: DataExcept()
   elif type(X) is DistMatrix:
-    if   X.tag == iTag: lib.ElAxpyTriangleDist_i(uplo,alpha,X.obj,Y.obj)
-    elif X.tag == sTag: lib.ElAxpyTriangleDist_s(uplo,alpha,X.obj,Y.obj)
-    elif X.tag == dTag: lib.ElAxpyTriangleDist_d(uplo,alpha,X.obj,Y.obj)
-    elif X.tag == cTag: lib.ElAxpyTriangleDist_c(uplo,alpha,X.obj,Y.obj)
-    elif X.tag == zTag: lib.ElAxpyTriangleDist_z(uplo,alpha,X.obj,Y.obj)
+    if   X.tag == iTag: lib.ElAxpyTriangleDist_i(*args)
+    elif X.tag == sTag: lib.ElAxpyTriangleDist_s(*args)
+    elif X.tag == dTag: lib.ElAxpyTriangleDist_d(*args)
+    elif X.tag == cTag: lib.ElAxpyTriangleDist_c(*args)
+    elif X.tag == zTag: lib.ElAxpyTriangleDist_z(*args)
     else: DataExcept()
   else: TypeExcept()
 
@@ -88,13 +90,14 @@ lib.ElConjugateDist_c.restype = c_uint
 lib.ElConjugateDist_z.argtypes = [c_void_p]
 lib.ElConjugateDist_z.restype = c_uint
 def Conjugate(A):
+  args = [A.obj]
   if type(A) is Matrix:
-    if   A.tag == cTag: lib.ElConjugate_c(A.obj)
-    elif A.tag == zTag: lib.ElConjugate_z(A.obj)
+    if   A.tag == cTag: lib.ElConjugate_c(*args)
+    elif A.tag == zTag: lib.ElConjugate_z(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == cTag: lib.ElConjugateDist_c(A.obj)
-    elif A.tag == zTag: lib.ElConjugateDist_z(A.obj)
+    if   A.tag == cTag: lib.ElConjugateDist_c(*args)
+    elif A.tag == zTag: lib.ElConjugateDist_z(*args)
     else: DataExcept()
   else: TypeExcept()
 
@@ -120,19 +123,20 @@ def Copy(A,B):
   if A.tag != B.tag:
     raise Exception('Copying between datatypes is not yet supported in Python')
   if type(A) is not type(B): raise Exception('Matrix types must match')
+  args = [A.obj,B.obj]
   if type(A) is Matrix:
-    if   B.tag == iTag: lib.ElCopy_i(A.obj,B.obj)
-    elif B.tag == sTag: lib.ElCopy_s(A.obj,B.obj)
-    elif B.tag == dTag: lib.ElCopy_d(A.obj,B.obj)
-    elif B.tag == cTag: lib.ElCopy_c(A.obj,B.obj)
-    elif B.tag == zTag: lib.ElCopy_z(A.obj,B.obj)
+    if   B.tag == iTag: lib.ElCopy_i(*args)
+    elif B.tag == sTag: lib.ElCopy_s(*args)
+    elif B.tag == dTag: lib.ElCopy_d(*args)
+    elif B.tag == cTag: lib.ElCopy_c(*args)
+    elif B.tag == zTag: lib.ElCopy_z(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
-    if   B.tag == iTag: lib.ElCopyDist_i(A.obj,B.obj)
-    elif B.tag == sTag: lib.ElCopyDist_s(A.obj,B.obj)
-    elif B.tag == dTag: lib.ElCopyDist_d(A.obj,B.obj)
-    elif B.tag == cTag: lib.ElCopyDist_c(A.obj,B.obj)
-    elif B.tag == zTag: lib.ElCopyDist_z(A.obj,B.obj)
+    if   B.tag == iTag: lib.ElCopyDist_i(*args)
+    elif B.tag == sTag: lib.ElCopyDist_s(*args)
+    elif B.tag == dTag: lib.ElCopyDist_d(*args)
+    elif B.tag == cTag: lib.ElCopyDist_c(*args)
+    elif B.tag == zTag: lib.ElCopyDist_z(*args)
     else: DataExcept()
   else: TypeExcept()
 
@@ -161,19 +165,21 @@ lib.ElDiagonalScaleDist_z.restype = c_uint
 def DiagonalScale(side,orient,d,X):
   if type(d) is not type(X): raise Exception('Matrix types must match')
   if d.tag != X.tag: raise Exception('Matrix datatypes must match')
+  args = [side,d.obj,X.obj]
+  argsCpx = [side,orient,d.obj,X.obj]
   if type(X) is Matrix:
-    if   X.tag == iTag: lib.ElDiagonalScale_i(side,d.obj,X.obj)
-    elif X.tag == sTag: lib.ElDiagonalScale_s(side,d.obj,X.obj)
-    elif X.tag == dTag: lib.ElDiagonalScale_d(side,d.obj,X.obj)
-    elif X.tag == cTag: lib.ElDiagonalScale_c(side,orient,d.obj,X.obj)
-    elif X.tag == zTag: lib.ElDiagonalScale_z(side,orient,d.obj,X.obj)
+    if   X.tag == iTag: lib.ElDiagonalScale_i(*args)
+    elif X.tag == sTag: lib.ElDiagonalScale_s(*args)
+    elif X.tag == dTag: lib.ElDiagonalScale_d(*args)
+    elif X.tag == cTag: lib.ElDiagonalScale_c(*argsCpx)
+    elif X.tag == zTag: lib.ElDiagonalScale_z(*argsCpx)
     else: DataExcept()
   elif type(X) is DistMatrix:
-    if   X.tag == iTag: lib.ElDiagonalScaleDist_i(side,d.obj,X.obj)
-    elif X.tag == sTag: lib.ElDiagonalScaleDist_s(side,d.obj,X.obj)
-    elif X.tag == dTag: lib.ElDiagonalScaleDist_d(side,d.obj,X.obj)
-    elif X.tag == cTag: lib.ElDiagonalScaleDist_c(side,orient,d.obj,X.obj)
-    elif X.tag == zTag: lib.ElDiagonalScaleDist_z(side,orient,d.obj,X.obj)
+    if   X.tag == iTag: lib.ElDiagonalScaleDist_i(*args)
+    elif X.tag == sTag: lib.ElDiagonalScaleDist_s(*args)
+    elif X.tag == dTag: lib.ElDiagonalScaleDist_d(*args)
+    elif X.tag == cTag: lib.ElDiagonalScaleDist_c(*argsCpx)
+    elif X.tag == zTag: lib.ElDiagonalScaleDist_z(*argsCpx)
     else: DataExcept()
   else: TypeExcept()
 
@@ -212,29 +218,21 @@ lib.ElDiagonalScaleTrapezoidDist_z.restype = c_uint
 def DiagonalScaleTrapezoid(side,uplo,orient,d,X,offset=0):
   if type(d) is not type(X): raise Exception('Matrix types must match')
   if d.tag != X.tag: raise Exception('Matrix datatypes must match')
+  args = [side,uplo,d.obj,X.obj,offset]
+  argsCpx = [side,uplo,orient,d.obj,X.obj,offset]
   if type(X) is Matrix:
-    if   X.tag == iTag:
-      lib.ElDiagonalScaleTrapezoid_i(side,uplo,d.obj,X.obj,offset)
-    elif X.tag == sTag:
-      lib.ElDiagonalScaleTrapezoid_s(side,uplo,d.obj,X.obj,offset)
-    elif X.tag == dTag:
-      lib.ElDiagonalScaleTrapezoid_d(side,uplo,d.obj,X.obj,offset)
-    elif X.tag == cTag:
-      lib.ElDiagonalScaleTrapezoid_c(side,uplo,orient,d.obj,X.obj,offset)
-    elif X.tag == zTag:
-      lib.ElDiagonalScaleTrapezoid_z(side,uplo,orient,d.obj,X.obj,offset)
+    if   X.tag == iTag: lib.ElDiagonalScaleTrapezoid_i(*args)
+    elif X.tag == sTag: lib.ElDiagonalScaleTrapezoid_s(*args)
+    elif X.tag == dTag: lib.ElDiagonalScaleTrapezoid_d(*args)
+    elif X.tag == cTag: lib.ElDiagonalScaleTrapezoid_c(*argsCpx)
+    elif X.tag == zTag: lib.ElDiagonalScaleTrapezoid_z(*argsCpx)
     else: DataExcept()
   elif type(X) is DistMatrix:
-    if   X.tag == iTag:
-      lib.ElDiagonalScaleTrapezoidDist_i(side,uplo,d.obj,X.obj,offset)
-    elif X.tag == sTag:
-      lib.ElDiagonalScaleTrapezoidDist_s(side,uplo,d.obj,X.obj,offset)
-    elif X.tag == dTag:
-      lib.ElDiagonalScaleTrapezoidDist_d(side,uplo,d.obj,X.obj,offset)
-    elif X.tag == cTag: 
-      lib.ElDiagonalScaleTrapezoidDist_c(side,uplo,orient,d.obj,X.obj,offset)
-    elif X.tag == zTag: 
-      lib.ElDiagonalScaleTrapezoidDist_z(side,uplo,orient,d.obj,X.obj,offset)
+    if   X.tag == iTag: lib.ElDiagonalScaleTrapezoidDist_i(*args)
+    elif X.tag == sTag: lib.ElDiagonalScaleTrapezoidDist_s(*args)
+    elif X.tag == dTag: lib.ElDiagonalScaleTrapezoidDist_d(*args)
+    elif X.tag == cTag: lib.ElDiagonalScaleTrapezoidDist_c(*argsCpx)
+    elif X.tag == zTag: lib.ElDiagonalScaleTrapezoidDist_z(*argsCpx)
     else: DataExcept()
   else: TypeExcept()
 
@@ -259,21 +257,21 @@ lib.ElDiagonalSolveDist_z.restype = c_uint
 def DiagonalSolve(side,orient,d,X):
   if type(d) is not type(X): raise Exception('Matrix types must match')
   if d.tag != X.tag: raise Exception('Matrix datatypes must match')
+  args = [side,d.obj,X.obj]
+  argsCpx = [side,orient,d.obj,X.obj]
   if type(X) is Matrix:
-    if   X.tag == sTag: lib.ElDiagonalSolve_s(side,d.obj,X.obj)
-    elif X.tag == dTag: lib.ElDiagonalSolve_d(side,d.obj,X.obj)
-    elif X.tag == cTag: lib.ElDiagonalSolve_c(side,orient,d.obj,X.obj)
-    elif X.tag == zTag: lib.ElDiagonalSolve_z(side,orient,d.obj,X.obj)
+    if   X.tag == sTag: lib.ElDiagonalSolve_s(*args)
+    elif X.tag == dTag: lib.ElDiagonalSolve_d(*args)
+    elif X.tag == cTag: lib.ElDiagonalSolve_c(*argsCpx)
+    elif X.tag == zTag: lib.ElDiagonalSolve_z(*argsCpx)
     else: DataExcept()
   elif type(X) is DistMatrix:
-    if   X.tag == sTag: lib.ElDiagonalSolveDist_s(side,d.obj,X.obj)
-    elif X.tag == dTag: lib.ElDiagonalSolveDist_d(side,d.obj,X.obj)
-    elif X.tag == cTag: lib.ElDiagonalSolveDist_c(side,orient,d.obj,X.obj)
-    elif X.tag == zTag: lib.ElDiagonalSolveDist_z(side,orient,d.obj,X.obj)
+    if   X.tag == sTag: lib.ElDiagonalSolveDist_s(*args)
+    elif X.tag == dTag: lib.ElDiagonalSolveDist_d(*args)
+    elif X.tag == cTag: lib.ElDiagonalSolveDist_c(*argsCpx)
+    elif X.tag == zTag: lib.ElDiagonalSolveDist_z(*argsCpx)
     else: DataExcept()
   else: TypeExcept()
-
-# LEFT OFF HERE
 
 # Dot
 # ---

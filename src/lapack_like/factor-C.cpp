@@ -446,10 +446,12 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   { EL_TRY( Skeleton( *CReflect(A), *CReflect(pR), *CReflect(pC), \
                       *CReflect(Z), CReflect(ctrl) ) ) }
 
-#define C_PROTO_REAL(SIG,F) \
-  C_PROTO_FIELD(SIG,SIG,F) \
+#define C_PROTO_REAL(SIG,Real) \
+  C_PROTO_FIELD(SIG,SIG,Real) \
   /* LDL factorization 
      ================= */ \
+  ElError ElLDLPivotConstant_ ## SIG ( ElLDLPivotType pivotType, Real* gamma ) \
+  { EL_TRY( *gamma = LDLPivotConstant<Real>(CReflect(pivotType)) ) } \
   /* Return the packed LDL factorization (without pivoting) */ \
   ElError ElLDL_ ## SIG ( ElMatrix_ ## SIG A ) \
   { EL_TRY( LDL( *CReflect(A), false ) ) } \
@@ -457,15 +459,22 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   { EL_TRY( LDL( *CReflect(A), false ) ) } \
   /* Return the packed LDL factorization with pivoting */ \
   ElError ElLDLPiv_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG dSub, ElMatrix_i p, \
-    ElLDLPivotType pivotType ) \
-  { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), *CReflect(p), false, \
-                 CReflect(pivotType) ) ) } \
+  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG dSub, ElMatrix_i p ) \
+  { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), *CReflect(p), false ) ) } \
   ElError ElLDLPivDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG dSub, ElDistMatrix_i p ) \
+  { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), *CReflect(p), false ) ) } \
+  /* Expert versions */ \
+  ElError ElLDLPivX_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG dSub, ElMatrix_i p, \
+    ElLDLPivotCtrl_ ## SIG ctrl ) \
+  { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), *CReflect(p), false, \
+                 CReflect(ctrl) ) ) } \
+  ElError ElLDLPivXDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG dSub, ElDistMatrix_i p, \
-    ElLDLPivotType pivotType ) \
-  { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), \
-                 *CReflect(p), false, CReflect(pivotType) ) ) } \
+    ElLDLPivotCtrl_ ## SIG ctrl ) \
+  { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), *CReflect(p), false, \
+                 CReflect(ctrl) ) ) } \
   /* Multiply vectors after an unpivoted LDL factorization */ \
   ElError ElMultiplyAfterLDL_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
@@ -509,15 +518,13 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   /* Rank-one LU factorization modification */ \
   ElError ElLUMod_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_i p, \
-    ElConstMatrix_ ## SIG u, ElConstMatrix_ ## SIG v, \
-    Base<F> tau ) \
+    ElConstMatrix_ ## SIG u, ElConstMatrix_ ## SIG v, Real tau ) \
   { EL_TRY( LUMod( \
       *CReflect(A), *CReflect(p), \
       *CReflect(u), *CReflect(v), false, tau ) ) } \
   ElError ElLUModDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_i p, \
-    ElConstDistMatrix_ ## SIG u, ElConstDistMatrix_ ## SIG v, \
-    Base<F> tau ) \
+    ElConstDistMatrix_ ## SIG u, ElConstDistMatrix_ ## SIG v, Real tau ) \
   { EL_TRY( LUMod( \
       *CReflect(A), *CReflect(p), \
       *CReflect(u), *CReflect(v), false, tau ) ) }
@@ -533,15 +540,23 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   { EL_TRY( LDL( *CReflect(A), conjugate ) ) } \
   /* Return the packed LDL factorization with pivoting */ \
   ElError ElLDLPiv_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG dSub, ElMatrix_i p, bool conjugate, \
-    ElLDLPivotType pivotType ) \
-  { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), *CReflect(p), \
-                 conjugate, CReflect(pivotType) ) ) } \
+  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG dSub, ElMatrix_i p, bool conjugate ) \
+  { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), *CReflect(p), conjugate ) ) } \
   ElError ElLDLPivDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG dSub, ElDistMatrix_i p, \
-    bool conjugate, ElLDLPivotType pivotType ) \
-  { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), *CReflect(p), \
-                 conjugate, CReflect(pivotType) ) ) } \
+    bool conjugate ) \
+  { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), *CReflect(p), conjugate ) ) } \
+  /* Expert versions */ \
+  ElError ElLDLPivX_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG dSub, ElMatrix_i p, bool conjugate, \
+    ElLDLPivotCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), *CReflect(p), conjugate, \
+                 CReflect(ctrl) ) ) } \
+  ElError ElLDLPivXDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG dSub, ElDistMatrix_i p, \
+    bool conjugate, ElLDLPivotCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), *CReflect(p), conjugate, \
+                 CReflect(ctrl) ) ) } \
   /* Multiply vectors after an unpivoted LDL factorization */ \
   ElError ElMultiplyAfterLDL_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B, bool conjugate ) \

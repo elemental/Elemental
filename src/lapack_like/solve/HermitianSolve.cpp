@@ -13,29 +13,30 @@ namespace El {
 template<typename F>
 void HermitianSolve
 ( UpperOrLower uplo, Orientation orientation, Matrix<F>& A, Matrix<F>& B, 
-  LDLPivotType pivotType )
+  const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSolve"))
-    SymmetricSolve( uplo, orientation, A, B, true, pivotType );
+    SymmetricSolve( uplo, orientation, A, B, true, ctrl );
 }
 
 template<typename F>
 void HermitianSolve
 ( UpperOrLower uplo, Orientation orientation, 
-  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, LDLPivotType pivotType )
+  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
+  const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSolve"))
-    SymmetricSolve( uplo, orientation, A, B, true, pivotType );
+    SymmetricSolve( uplo, orientation, A, B, true, ctrl );
 }
 
 #define PROTO(F) \
   template void HermitianSolve \
   ( UpperOrLower uplo, Orientation orientation, \
-    Matrix<F>& A, Matrix<F>& B, LDLPivotType pivotType ); \
+    Matrix<F>& A, Matrix<F>& B, const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void HermitianSolve \
   ( UpperOrLower uplo, Orientation orientation, \
     AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
-    LDLPivotType pivotType );
+    const LDLPivotCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

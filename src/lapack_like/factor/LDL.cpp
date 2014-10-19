@@ -35,19 +35,20 @@ void LDL( AbstractDistMatrix<F>& A, bool conjugate )
 template<typename F>
 void LDL
 ( Matrix<F>& A, Matrix<F>& dSub, 
-  Matrix<Int>& p, bool conjugate, LDLPivotType pivotType )
+  Matrix<Int>& p, bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LDL"))
-    ldl::Pivoted( A, dSub, p, conjugate, pivotType );
+    ldl::Pivoted( A, dSub, p, conjugate, ctrl );
 }
 
 template<typename F>
 void LDL
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& dSub, 
-  AbstractDistMatrix<Int>& p, bool conjugate, LDLPivotType pivotType )
+  AbstractDistMatrix<Int>& p, bool conjugate, 
+  const LDLPivotCtrl<Base<F>>& ctrl ) 
 {
     DEBUG_ONLY(CallStackEntry cse("LDL"))
-    ldl::Pivoted( A, dSub, p, conjugate, pivotType );
+    ldl::Pivoted( A, dSub, p, conjugate, ctrl );
 }
 
 #define PROTO(F) \
@@ -55,10 +56,11 @@ void LDL
   template void LDL( AbstractDistMatrix<F>& A, bool conjugate ); \
   template void LDL \
   ( Matrix<F>& A, Matrix<F>& dSub, \
-    Matrix<Int>& p, bool conjugate, LDLPivotType pivotType ); \
+    Matrix<Int>& p, bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void LDL \
   ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& dSub, \
-    AbstractDistMatrix<Int>& p, bool conjugate, LDLPivotType pivotType ); \
+    AbstractDistMatrix<Int>& p, bool conjugate, \
+    const LDLPivotCtrl<Base<F>>& ctrl ); \
   template InertiaType ldl::Inertia \
   ( const Matrix<Base<F>>& d, const Matrix<F>& dSub ); \
   template InertiaType ldl::Inertia \

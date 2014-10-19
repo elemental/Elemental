@@ -12,20 +12,21 @@ namespace El {
 
 template<typename F>
 InertiaType Inertia
-( UpperOrLower uplo, Matrix<F>& A, LDLPivotType pivotType )
+( UpperOrLower uplo, Matrix<F>& A, const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Inertia"))
     if( uplo == UPPER )
         LogicError("This option not yet supported");
     Matrix<Int> pPerm;
     Matrix<F> dSub;
-    LDL( A, dSub, pPerm, true, pivotType );
+    LDL( A, dSub, pPerm, true, ctrl );
     return ldl::Inertia( A.GetRealPartOfDiagonal(), dSub );
 }
 
 template<typename F>
 InertiaType Inertia
-( UpperOrLower uplo, AbstractDistMatrix<F>& APre, LDLPivotType pivotType )
+( UpperOrLower uplo, AbstractDistMatrix<F>& APre, 
+  const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Inertia"))
     if( uplo == UPPER )
@@ -36,15 +37,16 @@ InertiaType Inertia
 
     DistMatrix<Int,VC,STAR> pPerm( A.Grid() );
     DistMatrix<F,MD,STAR> dSub( A.Grid() );
-    LDL( A, dSub, pPerm, true, pivotType );
+    LDL( A, dSub, pPerm, true, ctrl );
     return ldl::Inertia( A.GetRealPartOfDiagonal(), dSub );
 }
 
 #define PROTO(F) \
   template InertiaType Inertia \
-  ( UpperOrLower uplo, Matrix<F>& A, LDLPivotType pivotType ); \
+  ( UpperOrLower uplo, Matrix<F>& A, const LDLPivotCtrl<Base<F>>& ctrl ); \
   template InertiaType Inertia \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, LDLPivotType pivotType );
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
+    const LDLPivotCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

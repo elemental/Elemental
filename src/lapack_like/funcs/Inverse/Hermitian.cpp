@@ -11,35 +11,40 @@
 namespace El {
 
 template<typename F>
-void HermitianInverse( UpperOrLower uplo, Matrix<F>& A, LDLPivotType pivotType )
+void HermitianInverse
+( UpperOrLower uplo, Matrix<F>& A, const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianInverse"))
-    SymmetricInverse( uplo, A, true, pivotType );
+    SymmetricInverse( uplo, A, true, ctrl );
 }
 
 template<typename F>
 void HermitianInverse
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, LDLPivotType pivotType )
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, 
+  const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianInverse"))
-    SymmetricInverse( uplo, A, true, pivotType );
+    SymmetricInverse( uplo, A, true, ctrl );
 }
 
 template<typename F>
 void LocalHermitianInverse
-( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, LDLPivotType pivotType )
+( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, 
+  const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LocalHermitianInverse"))
-    SymmetricInverse( uplo, A.Matrix(), true, pivotType );
+    SymmetricInverse( uplo, A.Matrix(), true, ctrl );
 }
 
 #define PROTO(F) \
   template void HermitianInverse \
-  ( UpperOrLower uplo, Matrix<F>& A, LDLPivotType pivotType ); \
+  ( UpperOrLower uplo, Matrix<F>& A, const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void HermitianInverse \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, LDLPivotType pivotType ); \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
+    const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void LocalHermitianInverse \
-  ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, LDLPivotType pivotType );
+  ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, \
+    const LDLPivotCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

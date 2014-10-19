@@ -242,6 +242,37 @@ def SolveAfterCholeskyPiv(uplo,orient,A,p,B):
 class LDLPivot(ctypes.Structure):
   _fields_ = [("nb",iType),("from",(iType*2))]
 
+lib.ElLDLPivotConstant_s.argtypes = [c_uint,POINTER(sType)]
+lib.ElLDLPivotConstant_s.restype = c_uint
+lib.ElLDLPivotConstant_d.argtypes = [c_uint,POINTER(dType)]
+lib.ElLDLPivotConstant_d.restype = c_uint
+def LDLPivotConstant_s(pivotType):
+  gamma = sType()
+  lib.ElLDLPivotConstant_s(pivotType,pointer(gamma))
+  return gamma
+def LDLPivotConstant_d(pivotType):
+  gamma = dType()
+  lib.ElLDLPivotConstant_d(pivotType,pointer(gamma))
+  return gamma
+
+class LDLPivotCtrl_s(ctypes.Structure):
+  _fields_ = [("pivotType",c_uint),("gamma",sType)]
+  def __init__(self,pivType=BUNCH_KAUFMAN_A):
+    pivotType = pivType
+    gamma = LDLPivotConstant_s(pivType)
+class LDLPivotCtrl_d(ctypes.Structure):
+  _fields_ = [("pivotType",c_uint),("gamma",dType)]
+  def __init__(self,pivType=BUNCH_KAUFMAN_A):
+    pivotType = pivType
+    gamma = LDLPivotConstant_d(pivType)
+
+def TagToPivotCtrl(tag,pivType=BUNCH_KAUFMAN_A):
+  if   tag == sTag: return LDLPivotCtrl_s(pivType)
+  elif tag == dTag: return LDLPivotCtrl_d(pivType)
+  elif tag == cTag: return LDLPivotCtrl_s(pivType)
+  elif tag == zTag: return LDLPivotCtrl_d(pivType)
+  else: DataExcept()
+
 lib.ElLDL_s.argtypes = [c_void_p]
 lib.ElLDL_s.restype = c_uint
 lib.ElLDL_d.argtypes = [c_void_p]
@@ -288,8 +319,9 @@ def LDL(A,conjugate=True,pivType=BUNCH_KAUFMAN_A):
     else:
       dSub = Matrix(A.tag)
       p = Matrix(iTag)
-      args = [A.obj,dSub.obj,p.obj,pivType]
-      argsCpx = [A.obj,dSub.obj,p.obj,conjugate,pivType]
+      ctrl = TagToPivotCtrl(pivType)
+      args = [A.obj,dSub.obj,p.obj,ctrl]
+      argsCpx = [A.obj,dSub.obj,p.obj,conjugate,ctrl]
       if   A.tag == sTag: lib.ElLDLPiv_s(*args)
       elif A.tag == dTag: lib.ElLDLPiv_d(*args)
       elif A.tag == cTag: lib.ElLDLPiv_c(*argsCpx)
@@ -308,8 +340,9 @@ def LDL(A,conjugate=True,pivType=BUNCH_KAUFMAN_A):
     else:
       dSub = DistMatrix(A.tag,VC,STAR,A.Grid())
       p = DistMatrix(iTag,VC,STAR,A.Grid())
-      args = [A.obj,dSub.obj,p.obj,pivType]
-      argsCpx = [A.obj,dSub.obj,p.obj,conjugate,pivType]
+      ctrl = TagToPivotCtrl(pivType)
+      args = [A.obj,dSub.obj,p.obj,ctrl]
+      argsCpx = [A.obj,dSub.obj,p.obj,conjugate,ctrl]
       if   A.tag == sTag: lib.ElLDLPivDist_s(*args)
       elif A.tag == dTag: lib.ElLDLPivDist_d(*args)
       elif A.tag == cTag: lib.ElLDLPivDist_c(*argsCpx)

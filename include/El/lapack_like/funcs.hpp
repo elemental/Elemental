@@ -93,28 +93,29 @@ void LocalHPDInverse( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
 
 template<typename F>
 void HermitianInverse
-( UpperOrLower uplo, Matrix<F>& A, LDLPivotType pivotType=BUNCH_KAUFMAN_A );
+( UpperOrLower uplo, Matrix<F>& A, 
+  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 void HermitianInverse
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, 
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A );
+  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 void LocalHermitianInverse
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A,
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A );
+  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
 template<typename F>
 void SymmetricInverse
 ( UpperOrLower uplo, Matrix<F>& A, bool conjugate=false, 
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A );
+  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 void SymmetricInverse
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool conjugate=false, 
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A );
+  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 void LocalSymmetricInverse
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, bool conjugate=false,
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A );
+  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
 template<typename F>
 void TriangularInverse( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A );

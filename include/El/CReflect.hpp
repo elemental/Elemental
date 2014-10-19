@@ -967,6 +967,36 @@ inline ElLDLPivotType CReflect( LDLPivotType pivotType )
 inline LDLPivotType CReflect( ElLDLPivotType pivotType )
 { return static_cast<LDLPivotType>( pivotType ); }
 
+inline ElLDLPivotCtrl_s CReflect( const LDLPivotCtrl<float>& ctrl )
+{
+    ElLDLPivotCtrl_s ctrlC;
+    ctrlC.pivotType = CReflect(ctrl.pivotType);
+    ctrlC.gamma = ctrl.gamma;
+    return ctrlC;
+}
+inline ElLDLPivotCtrl_d CReflect( const LDLPivotCtrl<double>& ctrl )
+{
+    ElLDLPivotCtrl_d ctrlC;
+    ctrlC.pivotType = CReflect(ctrl.pivotType);
+    ctrlC.gamma = ctrl.gamma;
+    return ctrlC;
+}
+
+inline LDLPivotCtrl<float> CReflect( ElLDLPivotCtrl_s ctrlC )
+{
+    LDLPivotCtrl<float> ctrl;
+    ctrl.pivotType = CReflect(ctrlC.pivotType);
+    ctrl.gamma = ctrlC.gamma;
+    return ctrl;
+}
+inline LDLPivotCtrl<double> CReflect( ElLDLPivotCtrl_d ctrlC )
+{
+    LDLPivotCtrl<double> ctrl;
+    ctrl.pivotType = CReflect(ctrlC.pivotType);
+    ctrl.gamma = ctrlC.gamma;
+    return ctrl;
+}
+
 inline ElLDLPivot CReflect( const LDLPivot& pivot )
 {
     ElLDLPivot pivotC;

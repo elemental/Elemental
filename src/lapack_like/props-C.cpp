@@ -206,15 +206,12 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   /* Inertia
      ======= */ \
   ElError ElInertia_ ## SIG \
-  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElLDLPivotType pivotType, \
-    ElInertiaType* inertia ) \
-  { EL_TRY( *inertia = \
-      CReflect(Inertia(CReflect(uplo), *CReflect(A), CReflect(pivotType))) ) } \
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElInertiaType* inertia ) \
+  { EL_TRY( *inertia = CReflect(Inertia(CReflect(uplo), *CReflect(A))) ) } \
   ElError ElInertiaDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElLDLPivotType pivotType, \
-    ElInertiaType* inertia ) \
-  { EL_TRY( *inertia = \
-      CReflect(Inertia(CReflect(uplo), *CReflect(A), CReflect(pivotType))) ) } \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElInertiaType* inertia ) \
+  { EL_TRY( *inertia = CReflect(Inertia(CReflect(uplo), *CReflect(A))) ) } \
+  /* TODO: Expert versions */ \
   /* Norm
      ==== */ \
   ElError ElNorm_ ## SIG \

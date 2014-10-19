@@ -30,7 +30,7 @@ inline void FrontBlockLDL
         Matrix<Int> p;
         Matrix<F> dSub;
         // TODO: Expose the pivot type as an option?
-        LDL( ATL, dSub, p, conjugate, BUNCH_KAUFMAN_A );
+        LDL( ATL, dSub, p, conjugate );
 
         // Solve against ABL and update ABR
         // NOTE: This does not exploit symmetry
@@ -81,7 +81,7 @@ inline void FrontBlockLDL
         DistMatrix<Int,VC,STAR> p( ATL.Grid() );
         DistMatrix<F,MD,STAR> dSub( ATL.Grid() );
         // TODO: Expose the pivot type as an option?
-        LDL( ATL, dSub, p, conjugate, BUNCH_KAUFMAN_A );
+        LDL( ATL, dSub, p, conjugate );
 
         // Solve against ABL and update ABR
         // NOTE: This update does not exploit symmetry

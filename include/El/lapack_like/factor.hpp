@@ -83,10 +83,32 @@ enum LDLPivotType
 }
 using namespace LDLPivotTypeNS;
 
+template<typename Real>
+Real LDLPivotConstant( LDLPivotType pivType )
+{
+    // TODO: Check that the Bunch-Parlett choice is optimal
+    switch( pivType )
+    {
+    case BUNCH_KAUFMAN_A:
+    case BUNCH_PARLETT:   return (1+Sqrt(Real(17)))/8;
+    case BUNCH_KAUFMAN_D: return Real(0.525);
+    default: LogicError("No default constant exists for this pivot type");
+    }
+}
+
 struct LDLPivot
 {
     Int nb;
     Int from[2];
+};
+
+template<typename Real>
+struct LDLPivotCtrl {
+  LDLPivotType pivotType;
+  Real gamma;
+
+  LDLPivotCtrl( LDLPivotType piv=BUNCH_KAUFMAN_A ) 
+  : pivotType(piv), gamma(LDLPivotConstant<Real>(piv)) { }
 };
 
 // Return the L (and D) from an LDL factorization of A (without pivoting)
@@ -102,12 +124,12 @@ template<typename F>
 void LDL
 ( Matrix<F>& A, Matrix<F>& dSub,
   Matrix<Int>& p, bool conjugate,
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A );
+  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 void LDL
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& dSub,
   AbstractDistMatrix<Int>& p, bool conjugate,
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A );
+  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
 namespace ldl {
 

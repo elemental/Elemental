@@ -52,7 +52,7 @@ main( int argc, char* argv[] )
         DistMatrix<Complex<Real>,VR,STAR> w;
         SchurCtrl<Real> ctrl;
 #ifdef EL_HAVE_SCALAPACK
-        ctrl.qrCtrl.distAed = aed;
+        ctrl.qrCtrl.distAED = aed;
         // TODO: distribution block size
 #else
         ctrl.useSDC = true;

@@ -245,29 +245,23 @@ EL_EXPORT ElError ElHPDDeterminantDist_z
 /* Inertia
    ======= */
 EL_EXPORT ElError ElInertia_s
-( ElUpperOrLower uplo, ElMatrix_s A, ElLDLPivotType pivotType, 
-  ElInertiaType* inertia );
+( ElUpperOrLower uplo, ElMatrix_s A, ElInertiaType* inertia );
 EL_EXPORT ElError ElInertia_d
-( ElUpperOrLower uplo, ElMatrix_d A, ElLDLPivotType pivotType,
-  ElInertiaType* inertia );
+( ElUpperOrLower uplo, ElMatrix_d A, ElInertiaType* inertia );
 EL_EXPORT ElError ElInertia_c
-( ElUpperOrLower uplo, ElMatrix_c A, ElLDLPivotType pivotType,
-  ElInertiaType* inertia );
+( ElUpperOrLower uplo, ElMatrix_c A, ElInertiaType* inertia );
 EL_EXPORT ElError ElInertia_z
-( ElUpperOrLower uplo, ElMatrix_z A, ElLDLPivotType pivotType,
-  ElInertiaType* inertia );
+( ElUpperOrLower uplo, ElMatrix_z A, ElInertiaType* inertia );
 EL_EXPORT ElError ElInertiaDist_s
-( ElUpperOrLower uplo, ElDistMatrix_s A, ElLDLPivotType pivotType,
-  ElInertiaType* inertia );
+( ElUpperOrLower uplo, ElDistMatrix_s A, ElInertiaType* inertia );
 EL_EXPORT ElError ElInertiaDist_d
-( ElUpperOrLower uplo, ElDistMatrix_d A, ElLDLPivotType pivotType,
-  ElInertiaType* inertia );
+( ElUpperOrLower uplo, ElDistMatrix_d A, ElInertiaType* inertia );
 EL_EXPORT ElError ElInertiaDist_c
-( ElUpperOrLower uplo, ElDistMatrix_c A, ElLDLPivotType pivotType,
-  ElInertiaType* inertia );
+( ElUpperOrLower uplo, ElDistMatrix_c A, ElInertiaType* inertia );
 EL_EXPORT ElError ElInertiaDist_z
-( ElUpperOrLower uplo, ElDistMatrix_z A, ElLDLPivotType pivotType,
-  ElInertiaType* inertia );
+( ElUpperOrLower uplo, ElDistMatrix_z A, ElInertiaType* inertia );
+
+/* TODO: Expert versions */
 
 /* Norm
    ==== */

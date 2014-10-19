@@ -13,14 +13,14 @@ namespace El {
 template<typename F>
 void SymmetricSolve
 ( UpperOrLower uplo, Orientation orientation, Matrix<F>& A, 
-  Matrix<F>& B, bool conjugate, LDLPivotType pivotType )
+  Matrix<F>& B, bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricSolve"))
     if( uplo == UPPER )
         LogicError("Upper Bunch-Kaufman is not yet supported");
     Matrix<Int> pPerm; 
     Matrix<F> dSub;
-    LDL( A, dSub, pPerm, conjugate, pivotType );
+    LDL( A, dSub, pPerm, conjugate, ctrl );
     const bool conjFlip = ( (orientation == ADJOINT && conjugate == false) ||
                             (orientation == TRANSPOSE && conjugate == true) );
     if( conjFlip )
@@ -33,7 +33,8 @@ void SymmetricSolve
 template<typename F>
 void SymmetricSolve
 ( UpperOrLower uplo, Orientation orientation, AbstractDistMatrix<F>& APre,
-  AbstractDistMatrix<F>& BPre, bool conjugate, LDLPivotType pivotType )
+  AbstractDistMatrix<F>& BPre, bool conjugate, 
+  const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricSolve"))
     if( uplo == UPPER )
@@ -44,7 +45,7 @@ void SymmetricSolve
 
     DistMatrix<Int,VC,STAR> pPerm(A.Grid()); 
     DistMatrix<F,MD,STAR> dSub(A.Grid());
-    LDL( A, dSub, pPerm, conjugate, pivotType );
+    LDL( A, dSub, pPerm, conjugate, ctrl );
     const bool conjFlip = ( (orientation == ADJOINT && conjugate == false) ||
                             (orientation == TRANSPOSE && conjugate == true) );
     if( conjFlip )
@@ -58,11 +59,11 @@ void SymmetricSolve
   template void SymmetricSolve \
   ( UpperOrLower uplo, Orientation orientation, \
     Matrix<F>& A, Matrix<F>& B, bool conjugate, \
-    LDLPivotType pivotType ); \
+    const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void SymmetricSolve \
   ( UpperOrLower uplo, Orientation orientation, \
     AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, bool conjugate, \
-    LDLPivotType pivotType );
+    const LDLPivotCtrl<Base<F>>& ctrl ); \
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

@@ -193,11 +193,12 @@ SafeProduct<F> AfterLUPartialPiv
 // =======
 template<typename F>
 InertiaType Inertia
-( UpperOrLower uplo, Matrix<F>& A, LDLPivotType pivotType=BUNCH_PARLETT );
+( UpperOrLower uplo, Matrix<F>& A,
+  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 InertiaType Inertia
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, 
-  LDLPivotType pivotType=BUNCH_PARLETT );
+  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
 // Norm
 // ====

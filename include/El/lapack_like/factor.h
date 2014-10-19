@@ -175,6 +175,22 @@ typedef struct
   ElInt from[2];
 } ElLDLPivot;
 
+typedef struct
+{
+  ElLDLPivotType pivotType;
+  float gamma; 
+} ElLDLPivotCtrl_s;
+typedef struct
+{
+  ElLDLPivotType pivotType;
+  double gamma; 
+} ElLDLPivotCtrl_d;
+
+EL_EXPORT ElError ElLDLPivotConstant_s
+( ElLDLPivotType pivotType, float* gamma );
+EL_EXPORT ElError ElLDLPivotConstant_d
+( ElLDLPivotType pivotType, double* gamma );
+
 /* Packed LDL factorization (without pivoting) 
    ------------------------------------------- */
 EL_EXPORT ElError ElLDL_s( ElMatrix_s A );
@@ -190,28 +206,46 @@ EL_EXPORT ElError ElLDLDist_z( ElDistMatrix_z A, bool conjugate );
 /* Packed LDL factorization (with pivoting)
    ---------------------------------------- */
 EL_EXPORT ElError ElLDLPiv_s
-( ElMatrix_s A, ElMatrix_s dSub, ElMatrix_i p, ElLDLPivotType pivotType );
+( ElMatrix_s A, ElMatrix_s dSub, ElMatrix_i p );
 EL_EXPORT ElError ElLDLPiv_d
-( ElMatrix_d A, ElMatrix_d dSub, ElMatrix_i p, ElLDLPivotType pivotType );
+( ElMatrix_d A, ElMatrix_d dSub, ElMatrix_i p );
 EL_EXPORT ElError ElLDLPiv_c
-( ElMatrix_c A, ElMatrix_c dSub, ElMatrix_i p, bool conjugate, 
-  ElLDLPivotType pivotType );
+( ElMatrix_c A, ElMatrix_c dSub, ElMatrix_i p, bool conjugate );
 EL_EXPORT ElError ElLDLPiv_z
-( ElMatrix_z A, ElMatrix_z dSub, ElMatrix_i p, bool conjugate, 
-  ElLDLPivotType pivotType );
+( ElMatrix_z A, ElMatrix_z dSub, ElMatrix_i p, bool conjugate );
 
 EL_EXPORT ElError ElLDLPivDist_s
-( ElDistMatrix_s A, ElDistMatrix_s dSub, ElDistMatrix_i p, 
-  ElLDLPivotType pivotType );
+( ElDistMatrix_s A, ElDistMatrix_s dSub, ElDistMatrix_i p );
 EL_EXPORT ElError ElLDLPivDist_d
-( ElDistMatrix_d A, ElDistMatrix_d dSub, ElDistMatrix_i p, 
-  ElLDLPivotType pivotType );
+( ElDistMatrix_d A, ElDistMatrix_d dSub, ElDistMatrix_i p );
 EL_EXPORT ElError ElLDLPivDist_c
-( ElDistMatrix_c A, ElDistMatrix_c dSub, ElDistMatrix_i p, bool conjugate, 
-  ElLDLPivotType pivotType );
+( ElDistMatrix_c A, ElDistMatrix_c dSub, ElDistMatrix_i p, bool conjugate );
 EL_EXPORT ElError ElLDLPivDist_z
+( ElDistMatrix_z A, ElDistMatrix_z dSub, ElDistMatrix_i p, bool conjugate );
+
+/* Expert versions 
+   ^^^^^^^^^^^^^^^ */
+EL_EXPORT ElError ElLDLPivX_s
+( ElMatrix_s A, ElMatrix_s dSub, ElMatrix_i p, ElLDLPivotCtrl_s );
+EL_EXPORT ElError ElLDLPivX_d
+( ElMatrix_d A, ElMatrix_d dSub, ElMatrix_i p, ElLDLPivotCtrl_d );
+EL_EXPORT ElError ElLDLPivX_c
+( ElMatrix_c A, ElMatrix_c dSub, ElMatrix_i p, bool conjugate, 
+  ElLDLPivotCtrl_s );
+EL_EXPORT ElError ElLDLPivX_z
+( ElMatrix_z A, ElMatrix_z dSub, ElMatrix_i p, bool conjugate, 
+  ElLDLPivotCtrl_d );
+
+EL_EXPORT ElError ElLDLPivXDist_s
+( ElDistMatrix_s A, ElDistMatrix_s dSub, ElDistMatrix_i p, ElLDLPivotCtrl_s );
+EL_EXPORT ElError ElLDLPivXDist_d
+( ElDistMatrix_d A, ElDistMatrix_d dSub, ElDistMatrix_i p, ElLDLPivotCtrl_d );
+EL_EXPORT ElError ElLDLPivXDist_c
+( ElDistMatrix_c A, ElDistMatrix_c dSub, ElDistMatrix_i p, bool conjugate, 
+  ElLDLPivotCtrl_s );
+EL_EXPORT ElError ElLDLPivXDist_z
 ( ElDistMatrix_z A, ElDistMatrix_z dSub, ElDistMatrix_i p, bool conjugate, 
-  ElLDLPivotType pivotType );
+  ElLDLPivotCtrl_d );
 
 /* Return the inertia given the quasi-diagonal factor from an LDL^H 
    ---------------------------------------------------------------- */

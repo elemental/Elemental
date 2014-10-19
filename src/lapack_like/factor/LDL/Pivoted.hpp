@@ -27,7 +27,7 @@ BunchKaufmanA( const Matrix<F>& A, Base<F> gamma )
     typedef Base<F> Real;
     const Int n = A.Height();
     if( gamma == Real(0) )
-        gamma = (1+Sqrt(Real(17)))/8;
+        gamma = LDLPivotConstant<Real>( BUNCH_KAUFMAN_A );
 
     const Real alpha11Abs = Abs(A.Get(0,0));
     const Range<Int> ind1( 0, 1 ),
@@ -82,7 +82,7 @@ BunchKaufmanA( const DistMatrix<F>& A, Base<F> gamma )
     typedef Base<F> Real;
     const Int n = A.Height();
     if( gamma == Real(0) )
-        gamma = (1+Sqrt(Real(17)))/8;
+        gamma = LDLPivotConstant<Real>( BUNCH_KAUFMAN_A );
 
     const Real alpha11Abs = Abs(A.Get(0,0));
     const Range<Int> ind1( 0, 1 ),
@@ -137,7 +137,7 @@ BunchKaufmanD( const Matrix<F>& A, Base<F> gamma )
     typedef Base<F> Real;
     const Int n = A.Height();
     if( gamma == Real(0) )
-        gamma = Real(525)/1000;
+        gamma = LDLPivotConstant<Real>( BUNCH_KAUFMAN_D );
 
     const Real alpha11Abs = Abs(A.Get(0,0));
     const Range<Int> ind1( 0, 1 ),
@@ -185,7 +185,7 @@ BunchKaufmanD( const DistMatrix<F>& A, Base<F> gamma )
     typedef Base<F> Real;
     const Int n = A.Height();
     if( gamma == Real(0) )
-        gamma = Real(525)/1000;
+        gamma = LDLPivotConstant<Real>( BUNCH_KAUFMAN_D );
 
     const Real alpha11Abs = Abs(A.Get(0,0));
     const Range<Int> ind1( 0, 1 ),
@@ -232,7 +232,7 @@ BunchParlett( const Matrix<F>& A, Base<F> gamma )
     DEBUG_ONLY(CallStackEntry cse("ldl::pivot::BunchParlett"))
     typedef Base<F> Real;
     if( gamma == Real(0) )
-        gamma = (1+Sqrt(Real(17)))/8;
+        gamma = LDLPivotConstant<Real>( BUNCH_PARLETT );
 
     const ValueInt<Real> diagMax = VectorMaxAbs( A.GetDiagonal() );
     const ValueIntPair<Real> offDiagMax = SymmetricMaxAbs( LOWER, A );
@@ -260,7 +260,7 @@ BunchParlett( const DistMatrix<F>& A, Base<F> gamma )
     DEBUG_ONLY(CallStackEntry cse("ldl::pivot::BunchParlett"))
     typedef Base<F> Real;
     if( gamma == Real(0) )
-        gamma = (1+Sqrt(Real(17)))/8;
+        gamma = LDLPivotConstant<Real>( BUNCH_PARLETT );
 
     const ValueInt<Real> diagMax = VectorMaxAbs( A.GetDiagonal() );
     const ValueIntPair<Real> offDiagMax = SymmetricMaxAbs( LOWER, A );
@@ -293,7 +293,7 @@ PanelBunchKaufmanA
     const Int n = A.Height();
     const Int k = X.Width();
     if( gamma == Real(0) )
-        gamma = (1+Sqrt(Real(17)))/8;
+        gamma = LDLPivotConstant<Real>( BUNCH_KAUFMAN_A );
 
     const Range<Int> ind0( 0,   k   ),
                      ind1( k,   k+1 ),  ind1Off( 0, 1   ),
@@ -391,7 +391,7 @@ PanelBunchKaufmanA
     if( A.ColAlign() != X.ColAlign() || A.RowAlign() != Y.ColAlign() )
         LogicError("X and Y were not properly aligned with A");
     if( gamma == Real(0) )
-        gamma = (1+Sqrt(Real(17)))/8;
+        gamma = LDLPivotConstant<Real>( BUNCH_KAUFMAN_A );
 
     const Range<Int> ind0( 0,   k   ),
                      ind1( k,   k+1 ),  ind1Off( 0, 1   ),
@@ -488,7 +488,7 @@ PanelBunchKaufmanD
     const Int n = A.Height();
     const Int k = X.Width();
     if( gamma == Real(0) )
-        gamma = Real(525)/1000;
+        gamma = LDLPivotConstant<Real>( BUNCH_KAUFMAN_D );
 
     const Range<Int> ind0( 0, k   ),
                      ind1( k, k+1 ), ind1Off( 0, 1   ),
@@ -577,7 +577,7 @@ PanelBunchKaufmanD
     if( A.ColAlign() != X.ColAlign() || A.RowAlign() != Y.ColAlign() )
         LogicError("X and Y were not properly aligned with A");
     if( gamma == Real(0) )
-        gamma = Real(525)/1000;
+        gamma = LDLPivotConstant<Real>( BUNCH_KAUFMAN_D );
 
     const Range<Int> ind0( 0, k   ),
                      ind1( k, k+1 ), ind1Off( 0, 1   ),
@@ -1322,19 +1322,19 @@ BlockedPivoted
 template<typename F>
 inline void
 Pivoted
-( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, bool conjugate=false,
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A, Base<F> gamma=0 )
+( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, bool conjugate,
+  const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::Pivoted"))
-    switch( pivotType )
+    switch( ctrl.pivotType )
     {
     case BUNCH_KAUFMAN_A:
     case BUNCH_KAUFMAN_C:
     case BUNCH_KAUFMAN_D:
-        BlockedPivoted( A, dSub, p, conjugate, pivotType, gamma );
+        BlockedPivoted( A, dSub, p, conjugate, ctrl.pivotType, ctrl.gamma );
         break;
     default:
-        UnblockedPivoted( A, dSub, p, conjugate, pivotType, gamma );
+        UnblockedPivoted( A, dSub, p, conjugate, ctrl.pivotType, ctrl.gamma );
     }
 }
 
@@ -1342,19 +1342,19 @@ template<typename F>
 inline void
 Pivoted
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& dSub, 
-  AbstractDistMatrix<Int>& p, bool conjugate=false, 
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A, Base<F> gamma=0 )
+  AbstractDistMatrix<Int>& p, bool conjugate, 
+  const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::Pivoted"))
-    switch( pivotType )
+    switch( ctrl.pivotType )
     {
     case BUNCH_KAUFMAN_A:
     case BUNCH_KAUFMAN_C:
     case BUNCH_KAUFMAN_D:
-        BlockedPivoted( A, dSub, p, conjugate, pivotType, gamma );
+        BlockedPivoted( A, dSub, p, conjugate, ctrl.pivotType, ctrl.gamma );
         break;
     default:
-        UnblockedPivoted( A, dSub, p, conjugate, pivotType, gamma );
+        UnblockedPivoted( A, dSub, p, conjugate, ctrl.pivotType, ctrl.gamma );
     }
 }
 

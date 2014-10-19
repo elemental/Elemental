@@ -13,14 +13,15 @@ namespace El {
 // NOTE: This overwrites both triangles of the inverse.
 template<typename F>
 void SymmetricInverse
-( UpperOrLower uplo, Matrix<F>& A, bool conjugate, LDLPivotType pivotType )
+( UpperOrLower uplo, Matrix<F>& A, bool conjugate, 
+  const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricInverse"))
     if( uplo == LOWER )
     {
         Matrix<Int> p;
         Matrix<F> dSub;
-        LDL( A, dSub, p, conjugate, pivotType );
+        LDL( A, dSub, p, conjugate, ctrl );
         TriangularInverse( LOWER, UNIT, A ); 
         Trdtrmm( LOWER, A, dSub, conjugate );
 
@@ -38,7 +39,7 @@ void SymmetricInverse
 template<typename F>
 void SymmetricInverse
 ( UpperOrLower uplo, AbstractDistMatrix<F>& APre, bool conjugate, 
-  LDLPivotType pivotType )
+  const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricInverse"))
 
@@ -50,7 +51,7 @@ void SymmetricInverse
         DistMatrix<Int,VC,STAR> p( A.Grid() );
         DistMatrix<F,MD,STAR> dSub( A.Grid() );
 
-        LDL( A, dSub, p, conjugate, pivotType );
+        LDL( A, dSub, p, conjugate, ctrl );
         TriangularInverse( LOWER, UNIT, A ); 
         Trdtrmm( LOWER, A, dSub, conjugate );
 
@@ -68,22 +69,22 @@ void SymmetricInverse
 template<typename F>
 void LocalSymmetricInverse
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, bool conjugate, 
-  LDLPivotType pivotType )
+  const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LocalSymmetricInverse"))
-    SymmetricInverse( uplo, A.Matrix(), conjugate, pivotType );
+    SymmetricInverse( uplo, A.Matrix(), conjugate, ctrl );
 }
 
 #define PROTO(F) \
   template void SymmetricInverse \
   ( UpperOrLower uplo, Matrix<F>& A, bool conjugate, \
-    LDLPivotType pivotType ); \
+    const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void SymmetricInverse \
   ( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool conjugate, \
-    LDLPivotType pivotType ); \
+    const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void LocalSymmetricInverse \
   ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, bool conjugate, \
-    LDLPivotType pivotType );
+    const LDLPivotCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

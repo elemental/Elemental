@@ -72,7 +72,7 @@ void FrontLDLIntraPiv
     Matrix<F> ATL, ABL;
     PartitionDown( AL, ATL, ABL, n );
 
-    LDL( ATL, subdiag, piv, conjugate, BUNCH_KAUFMAN_A );
+    LDL( ATL, subdiag, piv, conjugate );
     auto diag = ATL.GetDiagonal();
 
     PermuteCols( ABL, piv );
@@ -306,7 +306,7 @@ void FrontLDLIntraPiv
     DistMatrix<F> ATL(g), ABL(g);
     PartitionDown( AL, ATL, ABL, n );
 
-    LDL( ATL, subdiag, p, conjugate, BUNCH_KAUFMAN_A );
+    LDL( ATL, subdiag, p, conjugate );
     auto diag = ATL.GetDiagonal();
 
     PermuteCols( ABL, p );
