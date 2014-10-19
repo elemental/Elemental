@@ -154,6 +154,18 @@ EL_EXPORT ElError ElDiagonalDist_c
 EL_EXPORT ElError ElDiagonalDist_z
 ( ElDistMatrix_z A, ElInt dSize, complex_double* dBuf );
 
+/* Druinsky-Toledo
+   =============== */
+EL_EXPORT ElError ElDruinskyToledo_s( ElMatrix_s A, ElInt n );
+EL_EXPORT ElError ElDruinskyToledo_d( ElMatrix_d A, ElInt n );
+EL_EXPORT ElError ElDruinskyToledo_c( ElMatrix_c A, ElInt n );
+EL_EXPORT ElError ElDruinskyToledo_z( ElMatrix_z A, ElInt n );
+
+EL_EXPORT ElError ElDruinskyToledoDist_s( ElDistMatrix_s A, ElInt n );
+EL_EXPORT ElError ElDruinskyToledoDist_d( ElDistMatrix_d A, ElInt n );
+EL_EXPORT ElError ElDruinskyToledoDist_c( ElDistMatrix_c A, ElInt n );
+EL_EXPORT ElError ElDruinskyToledoDist_z( ElDistMatrix_z A, ElInt n );
+
 /* Egorov
    ====== */
 EL_EXPORT ElError ElEgorov_c

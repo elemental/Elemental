@@ -256,6 +256,40 @@ def Diagonal(A,d):
     else: DataExcept()
   else: TypeExcept()
 
+# DruinskyToledo
+# --------------
+lib.ElDruinskyToledo_s.argtypes = [c_void_p,iType]
+lib.ElDruinskyToledo_s.restype = c_uint
+lib.ElDruinskyToledo_d.argtypes = [c_void_p,iType]
+lib.ElDruinskyToledo_d.restype = c_uint
+lib.ElDruinskyToledo_c.argtypes = [c_void_p,iType]
+lib.ElDruinskyToledo_c.restype = c_uint
+lib.ElDruinskyToledo_z.argtypes = [c_void_p,iType]
+lib.ElDruinskyToledo_z.restype = c_uint
+lib.ElDruinskyToledoDist_s.argtypes = [c_void_p,iType]
+lib.ElDruinskyToledoDist_s.restype = c_uint
+lib.ElDruinskyToledoDist_d.argtypes = [c_void_p,iType]
+lib.ElDruinskyToledoDist_d.restype = c_uint
+lib.ElDruinskyToledoDist_c.argtypes = [c_void_p,iType]
+lib.ElDruinskyToledoDist_c.restype = c_uint
+lib.ElDruinskyToledoDist_z.argtypes = [c_void_p,iType]
+lib.ElDruinskyToledoDist_z.restype = c_uint
+def DruinskyToledo(A,n):
+  args = [A.obj,n]
+  if type(A) is Matrix:
+    if   A.tag == sTag: lib.ElDruinskyToledo_s(*args)
+    elif A.tag == dTag: lib.ElDruinskyToledo_d(*args)
+    elif A.tag == cTag: lib.ElDruinskyToledo_c(*args)
+    elif A.tag == zTag: lib.ElDruinskyToledo_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMatrix:
+    if   A.tag == sTag: lib.ElDruinskyToledoDist_s(*args)
+    elif A.tag == dTag: lib.ElDruinskyToledoDist_d(*args)
+    elif A.tag == cTag: lib.ElDruinskyToledoDist_c(*args)
+    elif A.tag == zTag: lib.ElDruinskyToledoDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
+
 # Egorov
 # ------
 lib.ElEgorov_c.argtypes = [c_void_p,CFUNCTYPE(sType,iType,iType),iType]

@@ -83,6 +83,16 @@ void Diagonal( AbstractDistMatrix<S>& D, const std::vector<T>& d );
 template<typename S,typename T>
 void Diagonal( AbstractBlockDistMatrix<S>& D, const std::vector<T>& d );
 
+// Druinsky-Toledo matrices
+// ========================
+// An example of Bunch-Kaufman A producing large element growth in 
+// floating-point arithmetic. Please see Theorem 5 from:
+//     http://www.alexdruinsky.com/pdfs/bkbound-revised.pdf
+template<typename F>
+void DruinskyToledo( Matrix<F>& A, Int n );
+template<typename F>
+void DruinskyToledo( AbstractDistMatrix<F>& A, Int n );
+
 // Egorov
 // ======
 template<typename Real>

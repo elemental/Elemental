@@ -289,21 +289,21 @@ lib.ElLDLDist_c.argtypes = [c_void_p,bType]
 lib.ElLDLDist_c.restype = c_uint
 lib.ElLDLDist_z.argtypes = [c_void_p,bType]
 lib.ElLDLDist_z.restype = c_uint
-lib.ElLDLPiv_s.argtypes = [c_void_p,c_void_p,c_void_p,c_uint]
+lib.ElLDLPiv_s.argtypes = [c_void_p,c_void_p,c_void_p,LDLPivotCtrl_s]
 lib.ElLDLPiv_s.restype = c_uint
-lib.ElLDLPiv_d.argtypes = [c_void_p,c_void_p,c_void_p,c_uint]
+lib.ElLDLPiv_d.argtypes = [c_void_p,c_void_p,c_void_p,LDLPivotCtrl_d]
 lib.ElLDLPiv_d.restype = c_uint
-lib.ElLDLPiv_c.argtypes = [c_void_p,c_void_p,c_void_p,bType,c_uint]
+lib.ElLDLPiv_c.argtypes = [c_void_p,c_void_p,c_void_p,bType,LDLPivotCtrl_s]
 lib.ElLDLPiv_c.restype = c_uint
-lib.ElLDLPiv_z.argtypes = [c_void_p,c_void_p,c_void_p,bType,c_uint]
+lib.ElLDLPiv_z.argtypes = [c_void_p,c_void_p,c_void_p,bType,LDLPivotCtrl_d]
 lib.ElLDLPiv_z.restype = c_uint
-lib.ElLDLPivDist_s.argtypes = [c_void_p,c_void_p,c_void_p,c_uint]
+lib.ElLDLPivDist_s.argtypes = [c_void_p,c_void_p,c_void_p,LDLPivotCtrl_s]
 lib.ElLDLPivDist_s.restype = c_uint
-lib.ElLDLPivDist_d.argtypes = [c_void_p,c_void_p,c_void_p,c_uint]
+lib.ElLDLPivDist_d.argtypes = [c_void_p,c_void_p,c_void_p,LDLPivotCtrl_d]
 lib.ElLDLPivDist_d.restype = c_uint
-lib.ElLDLPivDist_c.argtypes = [c_void_p,c_void_p,c_void_p,bType,c_uint]
+lib.ElLDLPivDist_c.argtypes = [c_void_p,c_void_p,c_void_p,bType,LDLPivotCtrl_s]
 lib.ElLDLPivDist_c.restype = c_uint
-lib.ElLDLPivDist_z.argtypes = [c_void_p,c_void_p,c_void_p,bType,c_uint]
+lib.ElLDLPivDist_z.argtypes = [c_void_p,c_void_p,c_void_p,bType,LDLPivotCtrl_d]
 lib.ElLDLPivDist_z.restype = c_uint
 
 def LDL(A,conjugate=True,pivType=BUNCH_KAUFMAN_A):
@@ -319,7 +319,7 @@ def LDL(A,conjugate=True,pivType=BUNCH_KAUFMAN_A):
     else:
       dSub = Matrix(A.tag)
       p = Matrix(iTag)
-      ctrl = TagToPivotCtrl(pivType)
+      ctrl = TagToPivotCtrl(A.tag,pivType)
       args = [A.obj,dSub.obj,p.obj,ctrl]
       argsCpx = [A.obj,dSub.obj,p.obj,conjugate,ctrl]
       if   A.tag == sTag: lib.ElLDLPiv_s(*args)
@@ -340,7 +340,7 @@ def LDL(A,conjugate=True,pivType=BUNCH_KAUFMAN_A):
     else:
       dSub = DistMatrix(A.tag,VC,STAR,A.Grid())
       p = DistMatrix(iTag,VC,STAR,A.Grid())
-      ctrl = TagToPivotCtrl(pivType)
+      ctrl = TagToPivotCtrl(A.tag,pivType)
       args = [A.obj,dSub.obj,p.obj,ctrl]
       argsCpx = [A.obj,dSub.obj,p.obj,conjugate,ctrl]
       if   A.tag == sTag: lib.ElLDLPivDist_s(*args)

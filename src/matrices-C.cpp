@@ -238,6 +238,11 @@ extern "C" {
   { EL_TRY( Demmel( *CReflect(A), n ) ) } \
   ElError ElDemmelDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( Demmel( *CReflect(A), n ) ) } \
+  /* Druinsky-Toledo */ \
+  ElError ElDruinskyToledo_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( DruinskyToledo( *CReflect(A), n ) ) } \
+  ElError ElDruinskyToledoDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( DruinskyToledo( *CReflect(A), n ) ) } \
   /* Ehrenfest */ \
   ElError ElEhrenfest_ ## SIG ( ElMatrix_ ## SIG P, ElInt n ) \
   { EL_TRY( Ehrenfest( *CReflect(P), n ) ) } \
