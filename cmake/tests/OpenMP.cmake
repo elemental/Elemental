@@ -1,4 +1,4 @@
-if(HYBRID)
+if(EL_HYBRID)
   if(OpenMP_CXX_FLAGS)
     set(EL_HAVE_OPENMP TRUE)
     set(OpenMP_CXX_FLAGS ${OpenMP_CXX_FLAGS})

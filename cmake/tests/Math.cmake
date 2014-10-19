@@ -1,6 +1,6 @@
 # Check for BLAS and LAPACK support
 # =================================
-if(PURE)
+if(EL_PURE)
   set(MATH_DESC "Unthreaded BLAS/LAPACK link flags")
 else()
   set(MATH_DESC "Threaded BLAS/LAPACK link flags")
