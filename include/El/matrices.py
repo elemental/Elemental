@@ -274,8 +274,8 @@ lib.ElDruinskyToledoDist_c.argtypes = [c_void_p,iType]
 lib.ElDruinskyToledoDist_c.restype = c_uint
 lib.ElDruinskyToledoDist_z.argtypes = [c_void_p,iType]
 lib.ElDruinskyToledoDist_z.restype = c_uint
-def DruinskyToledo(A,n):
-  args = [A.obj,n]
+def DruinskyToledo(A,k):
+  args = [A.obj,k]
   if type(A) is Matrix:
     if   A.tag == sTag: lib.ElDruinskyToledo_s(*args)
     elif A.tag == dTag: lib.ElDruinskyToledo_d(*args)
