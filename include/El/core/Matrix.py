@@ -515,108 +515,118 @@ class Matrix(object):
     CheckTag(tag)
     self.tag = tag
     if create:
-      if   tag == iTag: lib.ElMatrixCreate_i(pointer(self.obj))
-      elif tag == sTag: lib.ElMatrixCreate_s(pointer(self.obj))
-      elif tag == dTag: lib.ElMatrixCreate_d(pointer(self.obj))
-      elif tag == cTag: lib.ElMatrixCreate_c(pointer(self.obj))
-      elif tag == zTag: lib.ElMatrixCreate_z(pointer(self.obj))
+      args = [pointer(self.obj)]
+      if   tag == iTag: lib.ElMatrixCreate_i(*args)
+      elif tag == sTag: lib.ElMatrixCreate_s(*args)
+      elif tag == dTag: lib.ElMatrixCreate_d(*args)
+      elif tag == cTag: lib.ElMatrixCreate_c(*args)
+      elif tag == zTag: lib.ElMatrixCreate_z(*args)
   def Destroy(self):
-    if   self.tag == iTag: lib.ElMatrixDestroy_i(self.obj)
-    elif self.tag == sTag: lib.ElMatrixDestroy_s(self.obj)
-    elif self.tag == dTag: lib.ElMatrixDestroy_d(self.obj)
-    elif self.tag == cTag: lib.ElMatrixDestroy_c(self.obj)
-    elif self.tag == zTag: lib.ElMatrixDestroy_z(self.obj)
+    args = [self.obj]
+    if   self.tag == iTag: lib.ElMatrixDestroy_i(*args)
+    elif self.tag == sTag: lib.ElMatrixDestroy_s(*args)
+    elif self.tag == dTag: lib.ElMatrixDestroy_d(*args)
+    elif self.tag == cTag: lib.ElMatrixDestroy_c(*args)
+    elif self.tag == zTag: lib.ElMatrixDestroy_z(*args)
   def SetType(self,newTag=dTag):
     self.Destroy()
     CheckTag(newTag)
-    if   newTag == iTag: lib.ElMatrixCreate_i(pointer(self.obj))
-    elif newTag == sTag: lib.ElMatrixCreate_s(pointer(self.obj))
-    elif newTag == dTag: lib.ElMatrixCreate_d(pointer(self.obj))
-    elif newTag == cTag: lib.ElMatrixCreate_c(pointer(self.obj))
-    elif newTag == zTag: lib.ElMatrixCreate_z(pointer(self.obj))
+    args = [pointer(self.obj)]
+    if   newTag == iTag: lib.ElMatrixCreate_i(*args)
+    elif newTag == sTag: lib.ElMatrixCreate_s(*args)
+    elif newTag == dTag: lib.ElMatrixCreate_d(*args)
+    elif newTag == cTag: lib.ElMatrixCreate_c(*args)
+    elif newTag == zTag: lib.ElMatrixCreate_z(*args)
     self.tag = newTag
   def Resize(self,m,n):
-    if   self.tag == iTag: lib.ElMatrixResize_i(self.obj,m,n)
-    elif self.tag == sTag: lib.ElMatrixResize_s(self.obj,m,n)
-    elif self.tag == dTag: lib.ElMatrixResize_d(self.obj,m,n)
-    elif self.tag == cTag: lib.ElMatrixResize_c(self.obj,m,n)
-    elif self.tag == zTag: lib.ElMatrixResize_z(self.obj,m,n)
+    args = [self.obj,m,n]
+    if   self.tag == iTag: lib.ElMatrixResize_i(*args)
+    elif self.tag == sTag: lib.ElMatrixResize_s(*args)
+    elif self.tag == dTag: lib.ElMatrixResize_d(*args)
+    elif self.tag == cTag: lib.ElMatrixResize_c(*args)
+    elif self.tag == zTag: lib.ElMatrixResize_z(*args)
   def ResizeWithLDim(self,m,n,ldim):
-    if   self.tag == iTag: lib.ElMatrixResizeWithLDim_i(self.obj,m,n,ldim)
-    elif self.tag == sTag: lib.ElMatrixResizeWithLDim_s(self.obj,m,n,ldim)
-    elif self.tag == dTag: lib.ElMatrixResizeWithLDim_d(self.obj,m,n,ldim)
-    elif self.tag == cTag: lib.ElMatrixResizeWithLDim_c(self.obj,m,n,ldim)
-    elif self.tag == zTag: lib.ElMatrixResizeWithLDim_z(self.obj,m,n,ldim)
+    args = [self.obj,m,n,ldim]
+    if   self.tag == iTag: lib.ElMatrixResizeWithLDim_i(*args)
+    elif self.tag == sTag: lib.ElMatrixResizeWithLDim_s(*args)
+    elif self.tag == dTag: lib.ElMatrixResizeWithLDim_d(*args)
+    elif self.tag == cTag: lib.ElMatrixResizeWithLDim_c(*args)
+    elif self.tag == zTag: lib.ElMatrixResizeWithLDim_z(*args)
   def Empty(self):
-    if   self.tag == iTag: lib.ElMatrixEmpty_i(self.obj)
-    elif self.tag == sTag: lib.ElMatrixEmpty_s(self.obj)
-    elif self.tag == dTag: lib.ElMatrixEmpty_d(self.obj)
-    elif self.tag == cTag: lib.ElMatrixEmpty_c(self.obj)
-    elif self.tag == zTag: lib.ElMatrixEmpty_z(self.obj)
+    args = [self.obj]
+    if   self.tag == iTag: lib.ElMatrixEmpty_i(*args)
+    elif self.tag == sTag: lib.ElMatrixEmpty_s(*args)
+    elif self.tag == dTag: lib.ElMatrixEmpty_d(*args)
+    elif self.tag == cTag: lib.ElMatrixEmpty_c(*args)
+    elif self.tag == zTag: lib.ElMatrixEmpty_z(*args)
   def Attach(self,m,n,buf,ldim):
-    if   self.tag == iTag: lib.ElMatrixAttach_i(self.obj,m,n,buf,ldim)
-    elif self.tag == sTag: lib.ElMatrixAttach_s(self.obj,m,n,buf,ldim)
-    elif self.tag == dTag: lib.ElMatrixAttach_d(self.obj,m,n,buf,ldim)
-    elif self.tag == cTag: lib.ElMatrixAttach_c(self.obj,m,n,buf,ldim)
-    elif self.tag == zTag: lib.ElMatrixAttach_z(self.obj,m,n,buf,ldim)
+    args = [self.obj,m,n,buf,ldim]
+    if   self.tag == iTag: lib.ElMatrixAttach_i(*args)
+    elif self.tag == sTag: lib.ElMatrixAttach_s(*args)
+    elif self.tag == dTag: lib.ElMatrixAttach_d(*args)
+    elif self.tag == cTag: lib.ElMatrixAttach_c(*args)
+    elif self.tag == zTag: lib.ElMatrixAttach_z(*args)
   def LockedAttach(self,m,n,buf,ldim):
-    if   self.tag == iTag: lib.ElMatrixLockedAttach_i(self.obj,m,n,buf,ldim)
-    elif self.tag == sTag: lib.ElMatrixLockedAttach_s(self.obj,m,n,buf,ldim)
-    elif self.tag == dTag: lib.ElMatrixLockedAttach_d(self.obj,m,n,buf,ldim)
-    elif self.tag == cTag: lib.ElMatrixLockedAttach_c(self.obj,m,n,buf,ldim)
-    elif self.tag == zTag: lib.ElMatrixLockedAttach_z(self.obj,m,n,buf,ldim)
+    args = [self.obj,m,n,buf,ldim]
+    if   self.tag == iTag: lib.ElMatrixLockedAttach_i(*args)
+    elif self.tag == sTag: lib.ElMatrixLockedAttach_s(*args)
+    elif self.tag == dTag: lib.ElMatrixLockedAttach_d(*args)
+    elif self.tag == cTag: lib.ElMatrixLockedAttach_c(*args)
+    elif self.tag == zTag: lib.ElMatrixLockedAttach_z(*args)
   def Control(self,m,n,buf,ldim):
-    if   self.tag == iTag: lib.ElMatrixControl_i(self.obj,m,n,buf,ldim)
-    elif self.tag == sTag: lib.ElMatrixControl_s(self.obj,m,n,buf,ldim)
-    elif self.tag == dTag: lib.ElMatrixControl_d(self.obj,m,n,buf,ldim)
-    elif self.tag == cTag: lib.ElMatrixControl_c(self.obj,m,n,buf,ldim)
-    elif self.tag == zTag: lib.ElMatrixControl_z(self.obj,m,n,buf,ldim)
+    args = [self.obj,m,n,buf,ldim]
+    if   self.tag == iTag: lib.ElMatrixControl_i(*args)
+    elif self.tag == sTag: lib.ElMatrixControl_s(*args)
+    elif self.tag == dTag: lib.ElMatrixControl_d(*args)
+    elif self.tag == cTag: lib.ElMatrixControl_c(*args)
+    elif self.tag == zTag: lib.ElMatrixControl_z(*args)
   def Height(self):
     m = iType()
-    if   self.tag == iTag: lib.ElMatrixHeight_i(self.obj,pointer(m))
-    elif self.tag == sTag: lib.ElMatrixHeight_s(self.obj,pointer(m))
-    elif self.tag == dTag: lib.ElMatrixHeight_d(self.obj,pointer(m))
-    elif self.tag == cTag: lib.ElMatrixHeight_c(self.obj,pointer(m))
-    elif self.tag == zTag: lib.ElMatrixHeight_z(self.obj,pointer(m))
+    args = [self.obj,pointer(m)]
+    if   self.tag == iTag: lib.ElMatrixHeight_i(*args)
+    elif self.tag == sTag: lib.ElMatrixHeight_s(*args)
+    elif self.tag == dTag: lib.ElMatrixHeight_d(*args)
+    elif self.tag == cTag: lib.ElMatrixHeight_c(*args)
+    elif self.tag == zTag: lib.ElMatrixHeight_z(*args)
     return m.value
   def Width(self):
     n = iType()
-    if   self.tag == iTag: lib.ElMatrixWidth_i(self.obj,pointer(n))
-    elif self.tag == sTag: lib.ElMatrixWidth_s(self.obj,pointer(n))
-    elif self.tag == dTag: lib.ElMatrixWidth_d(self.obj,pointer(n))
-    elif self.tag == cTag: lib.ElMatrixWidth_c(self.obj,pointer(n))
-    elif self.tag == zTag: lib.ElMatrixWidth_z(self.obj,pointer(n))
+    args = [self.obj,pointer(n)]
+    if   self.tag == iTag: lib.ElMatrixWidth_i(*args)
+    elif self.tag == sTag: lib.ElMatrixWidth_s(*args)
+    elif self.tag == dTag: lib.ElMatrixWidth_d(*args)
+    elif self.tag == cTag: lib.ElMatrixWidth_c(*args)
+    elif self.tag == zTag: lib.ElMatrixWidth_z(*args)
     return n.value
   def LDim(self):
     ldim = iType()
-    if   self.tag == iTag: lib.ElMatrixLDim_i(self.obj,pointer(ldim))
-    elif self.tag == sTag: lib.ElMatrixLDim_s(self.obj,pointer(ldim))
-    elif self.tag == dTag: lib.ElMatrixLDim_d(self.obj,pointer(ldim))
-    elif self.tag == cTag: lib.ElMatrixLDim_c(self.obj,pointer(ldim))
-    elif self.tag == zTag: lib.ElMatrixLDim_z(self.obj,pointer(ldim))
+    args = [self.obj,pointer(ldim)]
+    if   self.tag == iTag: lib.ElMatrixLDim_i(*args)
+    elif self.tag == sTag: lib.ElMatrixLDim_s(*args)
+    elif self.tag == dTag: lib.ElMatrixLDim_d(*args)
+    elif self.tag == cTag: lib.ElMatrixLDim_c(*args)
+    elif self.tag == zTag: lib.ElMatrixLDim_z(*args)
     return ldim.value
   def MemorySize(self):
     size = iType()
-    if   self.tag == iTag: lib.ElMatrixMemorySize_i(self.obj,pointer(size))
-    elif self.tag == sTag: lib.ElMatrixMemorySize_s(self.obj,pointer(size))
-    elif self.tag == dTag: lib.ElMatrixMemorySize_d(self.obj,pointer(size))
-    elif self.tag == cTag: lib.ElMatrixMemorySize_c(self.obj,pointer(size))
-    elif self.tag == zTag: lib.ElMatrixMemorySize_z(self.obj,pointer(size))
+    args = [self.obj,pointer(size)]
+    if   self.tag == iTag: lib.ElMatrixMemorySize_i(*args)
+    elif self.tag == sTag: lib.ElMatrixMemorySize_s(*args)
+    elif self.tag == dTag: lib.ElMatrixMemorySize_d(*args)
+    elif self.tag == cTag: lib.ElMatrixMemorySize_c(*args)
+    elif self.tag == zTag: lib.ElMatrixMemorySize_z(*args)
     return size.value
   def DiagonalLength(self,offset=0):
     length = iType()
-    if   self.tag == iTag: 
-      lib.ElMatrixDiagonalLength_i(self.obj,offset,pointer(length))
-    if   self.tag == sTag: 
-      lib.ElMatrixDiagonalLength_s(self.obj,offset,pointer(length))
-    if   self.tag == dTag: 
-      lib.ElMatrixDiagonalLength_d(self.obj,offset,pointer(length))
-    if   self.tag == cTag: 
-      lib.ElMatrixDiagonalLength_c(self.obj,offset,pointer(length))
-    if   self.tag == zTag: 
-      lib.ElMatrixDiagonalLength_z(self.obj,offset,pointer(length))
+    args = [self.obj,offset,pointer(length)]
+    if   self.tag == iTag: lib.ElMatrixDiagonalLength_i(*args)
+    if   self.tag == sTag: lib.ElMatrixDiagonalLength_s(*args)
+    if   self.tag == dTag: lib.ElMatrixDiagonalLength_d(*args)
+    if   self.tag == cTag: lib.ElMatrixDiagonalLength_c(*args)
+    if   self.tag == zTag: lib.ElMatrixDiagonalLength_z(*args)
     return length.value
   def Viewing(self):
+    # Left off moving downward from HERE
     viewing = bType()
     if   self.tag == iTag: lib.ElMatrixViewing_i(self.obj,pointer(viewing))
     elif self.tag == sTag: lib.ElMatrixViewing_s(self.obj,pointer(viewing))
