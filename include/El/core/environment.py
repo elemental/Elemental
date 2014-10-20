@@ -235,6 +235,18 @@ def Initialized():
   lib.ElInitialized( activeP )
   return active.value
 
+lib.ElSetBlocksize.argtypes = [iType]
+lib.ElSetBlocksize.restype = c_uint
+def SetBlocksize(blocksize):
+  lib.ElSetBlocksize(blocksize)
+
+lib.ElBlocksize.argtypes = [POINTER(iType)]
+lib.ElBlocksize.restype = c_uint
+def Blocksize():
+  blocksize = iType()
+  lib.ElBlocksize(pointer(blocksize))
+  return blocksize
+
 # Initialize MPI
 Initialize()
 

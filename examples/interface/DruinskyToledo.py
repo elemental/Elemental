@@ -7,7 +7,7 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 import math, El
-n = 30                  # matrix size
+n = 100                 # matrix size
 realRes = imagRes = 100 # grid resolution
 
 # Display an instance of the pathological example

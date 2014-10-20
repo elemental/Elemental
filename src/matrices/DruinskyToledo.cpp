@@ -18,9 +18,13 @@ template<typename F>
 void DruinskyToledo( Matrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("DruinskyToledo"))
-    if( n <= 2 )
+    Zeros( A, n, n );
+    if( n == 0 )
+      return;
+    if( n == 1 )
     {
-        Ones( A, n, n );
+        Ones( A, n, n ); 
+        A.Set( n-1, n-1, F(0) );
         return;
     }
     typedef Base<F> Real;
@@ -34,12 +38,10 @@ void DruinskyToledo( Matrix<F>& A, Int n )
         sigma -= 1/d[i];
     }
 
-    A.Resize( n, n );
-
-    auto ABL = A(IR(n-2,n),IR(0,n));
+    auto ABL = A(IR(n-2,n),IR(0,n-1));
     Ones( ABL, ABL.Height(), ABL.Width() );
 
-    auto ATR = A(IR(0,n-2),IR(n-2,n));
+    auto ATR = A(IR(0,n-1),IR(n-2,n));
     Ones( ATR, ATR.Height(), ATR.Width() );
 
     auto ABR = A(IR(0,n-2),IR(0,n-2));
@@ -50,9 +52,13 @@ template<typename F>
 void DruinskyToledo( AbstractDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("DruinskyToledo"))
-    if( n <= 2 )
+    Zeros( A, n, n );
+    if( n == 0 )
+      return;
+    if( n == 1 )
     {
         Ones( A, n, n );
+        A.Set( n-1, n-1, F(0) );
         return;
     }
     typedef Base<F> Real;
@@ -66,15 +72,13 @@ void DruinskyToledo( AbstractDistMatrix<F>& A, Int n )
         sigma -= 1/d[i];
     }
 
-    A.Resize( n, n );
-
     auto ASub = std::unique_ptr<AbstractDistMatrix<F>>( A.Construct() );
 
-    View( *ASub, A, IR(n-2,n), IR(0,  n) );
-    Ones( *ASub, 2, n );
+    View( *ASub, A, IR(n-2,n), IR(0,n-1) );
+    Ones( *ASub, 2, n-1 );
 
-    View( *ASub, A, IR(0,n-2), IR(n-2,n) );
-    Ones( *ASub, n-2, 2 );
+    View( *ASub, A, IR(0,n-1), IR(n-2,n) );
+    Ones( *ASub, n-1, 2 );
 
     View( *ASub, A, IR(0,n-2), IR(0,n-2) );
     Diagonal( *ASub, d );
