@@ -626,48 +626,53 @@ class Matrix(object):
     if   self.tag == zTag: lib.ElMatrixDiagonalLength_z(*args)
     return length.value
   def Viewing(self):
-    # Left off moving downward from HERE
     viewing = bType()
-    if   self.tag == iTag: lib.ElMatrixViewing_i(self.obj,pointer(viewing))
-    elif self.tag == sTag: lib.ElMatrixViewing_s(self.obj,pointer(viewing))
-    elif self.tag == dTag: lib.ElMatrixViewing_d(self.obj,pointer(viewing))
-    elif self.tag == cTag: lib.ElMatrixViewing_c(self.obj,pointer(viewing))
-    elif self.tag == zTag: lib.ElMatrixViewing_z(self.obj,pointer(viewing))
+    args = [self.obj,pointer(viewing)]
+    if   self.tag == iTag: lib.ElMatrixViewing_i(*args)
+    elif self.tag == sTag: lib.ElMatrixViewing_s(*args)
+    elif self.tag == dTag: lib.ElMatrixViewing_d(*args)
+    elif self.tag == cTag: lib.ElMatrixViewing_c(*args)
+    elif self.tag == zTag: lib.ElMatrixViewing_z(*args)
     return viewing.value
   def FixedSize(self):
     fixed = bType()
-    if   self.tag == iTag: lib.ElMatrixFixedSize_i(self.obj,pointer(fixed))
-    elif self.tag == sTag: lib.ElMatrixFixedSize_s(self.obj,pointer(fixed))
-    elif self.tag == dTag: lib.ElMatrixFixedSize_d(self.obj,pointer(fixed))
-    elif self.tag == cTag: lib.ElMatrixFixedSize_c(self.obj,pointer(fixed))
-    elif self.tag == zTag: lib.ElMatrixFixedSize_z(self.obj,pointer(fixed))
+    args = [self.obj,pointer(fixed)]
+    if   self.tag == iTag: lib.ElMatrixFixedSize_i(*args)
+    elif self.tag == sTag: lib.ElMatrixFixedSize_s(*args)
+    elif self.tag == dTag: lib.ElMatrixFixedSize_d(*args)
+    elif self.tag == cTag: lib.ElMatrixFixedSize_c(*args)
+    elif self.tag == zTag: lib.ElMatrixFixedSize_z(*args)
     return fixed.value
   def Locked(self):
     locked = bType()
-    if   self.tag == iTag: lib.ElMatrixLocked_i(self.obj,pointer(locked))
-    elif self.tag == sTag: lib.ElMatrixLocked_s(self.obj,pointer(locked))
-    elif self.tag == dTag: lib.ElMatrixLocked_d(self.obj,pointer(locked))
-    elif self.tag == cTag: lib.ElMatrixLocked_c(self.obj,pointer(locked))
-    elif self.tag == zTag: lib.ElMatrixLocked_z(self.obj,pointer(locked))
+    args = [self.obj,pointer(locked)]
+    if   self.tag == iTag: lib.ElMatrixLocked_i(*args)
+    elif self.tag == sTag: lib.ElMatrixLocked_s(*args)
+    elif self.tag == dTag: lib.ElMatrixLocked_d(*args)
+    elif self.tag == cTag: lib.ElMatrixLocked_c(*args)
+    elif self.tag == zTag: lib.ElMatrixLocked_z(*args)
     return locked.value
   def Buffer(self):
     buf = POINTER(TagToType(self.tag))()
-    if   self.tag == iTag: lib.ElMatrixBuffer_i(self.obj,pointer(buf)) 
-    elif self.tag == sTag: lib.ElMatrixBuffer_s(self.obj,pointer(buf))
-    elif self.tag == dTag: lib.ElMatrixBuffer_d(self.obj,pointer(buf))
-    elif self.tag == cTag: lib.ElMatrixBuffer_c(self.obj,pointer(buf))
-    elif self.tag == zTag: lib.ElMatrixBuffer_z(self.obj,pointer(buf))
+    args = [self.obj,pointer(buf)]
+    if   self.tag == iTag: lib.ElMatrixBuffer_i(*args) 
+    elif self.tag == sTag: lib.ElMatrixBuffer_s(*args)
+    elif self.tag == dTag: lib.ElMatrixBuffer_d(*args)
+    elif self.tag == cTag: lib.ElMatrixBuffer_c(*args)
+    elif self.tag == zTag: lib.ElMatrixBuffer_z(*args)
     return buf
   def LockedBuffer(self):
     buf = POINTER(TagToType(self.tag))()
-    if   self.tag == iTag: lib.ElMatrixLockedBuffer_i(self.obj,pointer(buf)) 
-    elif self.tag == sTag: lib.ElMatrixLockedBuffer_s(self.obj,pointer(buf))
-    elif self.tag == dTag: lib.ElMatrixLockedBuffer_d(self.obj,pointer(buf))
-    elif self.tag == cTag: lib.ElMatrixLockedBuffer_c(self.obj,pointer(buf))
-    elif self.tag == zTag: lib.ElMatrixLockedBuffer_z(self.obj,pointer(buf))
+    args = [self.obj,pointer(buf)]
+    if   self.tag == iTag: lib.ElMatrixLockedBuffer_i(*args) 
+    elif self.tag == sTag: lib.ElMatrixLockedBuffer_s(*args)
+    elif self.tag == dTag: lib.ElMatrixLockedBuffer_d(*args)
+    elif self.tag == cTag: lib.ElMatrixLockedBuffer_c(*args)
+    elif self.tag == zTag: lib.ElMatrixLockedBuffer_z(*args)
     return buf
   def Get(self,i,j):
     value = TagToType(self.tag)()
+    # Left off HERE
     if   self.tag == iTag: lib.ElMatrixGet_i(self.obj,i,j,pointer(value))
     elif self.tag == sTag: lib.ElMatrixGet_s(self.obj,i,j,pointer(value))
     elif self.tag == dTag: lib.ElMatrixGet_d(self.obj,i,j,pointer(value))

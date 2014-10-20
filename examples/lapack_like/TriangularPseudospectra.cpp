@@ -202,16 +202,16 @@ main( int argc, char* argv[] )
             if( isReal )
             {
                 if( quasi )
-                    itCountMap = QuasiTriangularPseudospectra
+                    itCountMap = QuasiTriangularSpectralWindow
                     ( AReal, invNormMap, center, realWidth, imagWidth, 
                       realSize, imagSize, psCtrl );
                 else
-                    itCountMap = TriangularPseudospectra
+                    itCountMap = TriangularSpectralWindow
                     ( AReal, invNormMap, center, realWidth, imagWidth, 
                       realSize, imagSize, psCtrl );
             }
             else
-                itCountMap = TriangularPseudospectra
+                itCountMap = TriangularSpectralWindow
                 ( ACpx, invNormMap, center, realWidth, imagWidth, 
                   realSize, imagSize, psCtrl );
         }
@@ -221,15 +221,15 @@ main( int argc, char* argv[] )
             {
                 if( quasi )
                 {
-                    itCountMap = QuasiTriangularPseudospectra
+                    itCountMap = QuasiTriangularSpectralPortrait
                     ( AReal, invNormMap, realSize, imagSize, psCtrl );
                 }
                 else
-                    itCountMap = TriangularPseudospectra
+                    itCountMap = TriangularSpectralPortrait
                     ( AReal, invNormMap, realSize, imagSize, psCtrl );
             }
             else
-                itCountMap = TriangularPseudospectra
+                itCountMap = TriangularSpectralPortrait
                 ( ACpx, invNormMap, realSize, imagSize, psCtrl );
         }
         const Int numIts = MaxNorm( itCountMap );

@@ -276,19 +276,19 @@ main( int argc, char* argv[] )
                 if( isReal )
                 {
                     if( quasi )
-                        itCountMap = QuasiTriangularPseudospectra
+                        itCountMap = QuasiTriangularSpectralWindow
                         ( AReal, invNormMap, chunkCenter, 
                           realChunkWidth, imagChunkWidth, 
                           realChunkSize, imagChunkSize, psCtrl );
                     else
-                        itCountMap = TriangularPseudospectra
+                        itCountMap = TriangularSpectralWindow
                         ( AReal, invNormMap, chunkCenter, 
                           realChunkWidth, imagChunkWidth, 
                           realChunkSize, imagChunkSize, psCtrl );
                 }
                 else
                 {
-                    itCountMap = TriangularPseudospectra
+                    itCountMap = TriangularSpectralWindow
                     ( ACpx, invNormMap, chunkCenter, 
                       realChunkWidth, imagChunkWidth, 
                       realChunkSize, imagChunkSize, psCtrl );

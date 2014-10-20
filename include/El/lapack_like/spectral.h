@@ -16,32 +16,8 @@
 extern "C" {
 #endif
 
-/* Pencil */
-typedef enum {
-  EL_AXBX=1,
-  EL_ABX=2, 
-  EL_BAX=3
-} ElPencil;
-
-/* HermitianSDCCtrl */
-typedef struct {
-  ElInt cutoff;
-  ElInt maxInnerIts, maxOuterIts;
-  float tol;
-  float spreadFactor;
-  bool progress;
-} ElHermitianSDCCtrl_s;
-EL_EXPORT ElError ElHermitianSDCCtrlDefault_s( ElHermitianSDCCtrl_s* ctrl );
-
-typedef struct {
-  ElInt cutoff;
-  ElInt maxInnerIts, maxOuterIts;
-  double tol;
-  double spreadFactor;
-  bool progress;
-} ElHermitianSDCCtrl_d;
-EL_EXPORT ElError ElHermitianSDCCtrlDefault_d( ElHermitianSDCCtrl_d* ctrl );
-
+/* Hermitian tridiagonal eigensolvers
+   ================================== */
 /* HermitianEigSubset */
 typedef struct {
   bool indexSubset;
@@ -60,99 +36,6 @@ typedef struct {
   double lowerBound, upperBound;
 } ElHermitianEigSubset_d;
 EL_EXPORT ElError ElHermitianEigSubsetDefault_d( ElHermitianEigSubset_d* subset );
-
-/* HermitianEigCtrl */
-typedef struct {
-  ElHermitianTridiagCtrl tridiagCtrl;
-  ElHermitianSDCCtrl_s sdcCtrl;
-  bool useSDC;
-} ElHermitianEigCtrl_s;
-EL_EXPORT ElError ElHermitianEigCtrlDefault_s( ElHermitianEigCtrl_s* ctrl );
-
-typedef struct {
-  ElHermitianTridiagCtrl tridiagCtrl;
-  ElHermitianSDCCtrl_d sdcCtrl;
-  bool useSDC;
-} ElHermitianEigCtrl_d;
-EL_EXPORT ElError ElHermitianEigCtrlDefault_d( ElHermitianEigCtrl_d* ctrl );
-
-/* PolarCtrl */
-typedef struct {
-  bool qdwh;
-  bool colPiv;
-  ElInt maxIts;
-  ElInt numIts;
-} ElPolarCtrl;
-EL_EXPORT ElError ElPolarCtrlDefault( ElPolarCtrl* ctrl );
-
-/* SVDCtrl */
-typedef struct {
-  bool seqQR;
-  double valChanRatio;
-  double fullChanRatio;
-  bool thresholded;
-  bool relative;
-  float tol;
-} ElSVDCtrl_s;
-EL_EXPORT ElError ElSVDCtrlDefault_s( ElSVDCtrl_s* ctrl );
-
-typedef struct {
-  bool seqQR;
-  double valChanRatio;
-  double fullChanRatio;
-  bool thresholded;
-  bool relative;
-  double tol;
-} ElSVDCtrl_d;
-EL_EXPORT ElError ElSVDCtrlDefault_d( ElSVDCtrl_d* ctrl );
-
-/* HessQRCtrl */
-typedef struct {
-  bool distAED;
-  ElInt blockHeight, blockWidth;
-} ElHessQRCtrl;
-EL_EXPORT ElError ElHessQRCtrlDefault( ElHessQRCtrl* ctrl );
-
-/* SDCCtrl */
-typedef struct {
-  ElInt cutoff;
-  ElInt maxInnerIts, maxOuterIts;
-  float tol;
-  float spreadFactor;
-  bool random;
-  bool progress;
-  ElSignCtrl_s signCtrl;
-} ElSDCCtrl_s;
-EL_EXPORT ElError ElSDCCtrlDefault_s( ElSDCCtrl_s* ctrl );
-
-typedef struct {
-  ElInt cutoff;
-  ElInt maxInnerIts, maxOuterIts;
-  double tol;
-  double spreadFactor;
-  bool random;
-  bool progress;
-  ElSignCtrl_d signCtrl;
-} ElSDCCtrl_d;
-EL_EXPORT ElError ElSDCCtrlDefault_d( ElSDCCtrl_d* ctrl );
-
-/* SchurCtrl */
-typedef struct {
-  bool useSDC;
-  ElHessQRCtrl qrCtrl;
-  ElSDCCtrl_s sdcCtrl;
-} ElSchurCtrl_s;
-EL_EXPORT ElError ElSchurCtrlDefault_s( ElSchurCtrl_s* ctrl );
-
-typedef struct {
-  bool useSDC;
-  ElHessQRCtrl qrCtrl;
-  ElSDCCtrl_d sdcCtrl;
-} ElSchurCtrl_d;
-EL_EXPORT ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl );
-
-/* Hermitian tridiagonal eigensolvers
-   ================================== */
 
 /* Compute all eigenvalues
    ----------------------- */
@@ -272,6 +155,39 @@ EL_EXPORT ElError ElHermitianTridiagEigPairPartialDist_z
 
 /* Hermitian eigensolvers
    ====================== */
+/* HermitianSDCCtrl */
+typedef struct {
+  ElInt cutoff;
+  ElInt maxInnerIts, maxOuterIts;
+  float tol;
+  float spreadFactor;
+  bool progress;
+} ElHermitianSDCCtrl_s;
+EL_EXPORT ElError ElHermitianSDCCtrlDefault_s( ElHermitianSDCCtrl_s* ctrl );
+
+typedef struct {
+  ElInt cutoff;
+  ElInt maxInnerIts, maxOuterIts;
+  double tol;
+  double spreadFactor;
+  bool progress;
+} ElHermitianSDCCtrl_d;
+EL_EXPORT ElError ElHermitianSDCCtrlDefault_d( ElHermitianSDCCtrl_d* ctrl );
+
+/* HermitianEigCtrl */
+typedef struct {
+  ElHermitianTridiagCtrl tridiagCtrl;
+  ElHermitianSDCCtrl_s sdcCtrl;
+  bool useSDC;
+} ElHermitianEigCtrl_s;
+EL_EXPORT ElError ElHermitianEigCtrlDefault_s( ElHermitianEigCtrl_s* ctrl );
+
+typedef struct {
+  ElHermitianTridiagCtrl tridiagCtrl;
+  ElHermitianSDCCtrl_d sdcCtrl;
+  bool useSDC;
+} ElHermitianEigCtrl_d;
+EL_EXPORT ElError ElHermitianEigCtrlDefault_d( ElHermitianEigCtrl_d* ctrl );
 
 /* Compute all eigenvalues
    ----------------------- */
@@ -510,6 +426,12 @@ EL_EXPORT ElError ElSkewHermitianEigPairPartialDist_z
 
 /* Hermitian generalized-definite eigensolvers
    =========================================== */
+/* Pencil */
+typedef enum {
+  EL_AXBX=1,
+  EL_ABX=2, 
+  EL_BAX=3
+} ElPencil;
 
 /* Compute all of the eigenvalues
    ------------------------------ */
@@ -710,6 +632,14 @@ EL_EXPORT ElError ElHermitianSVDDist_z
 
 /* Polar decomposition
    =================== */
+/* PolarCtrl */
+typedef struct {
+  bool qdwh;
+  bool colPiv;
+  ElInt maxIts;
+  ElInt numIts;
+} ElPolarCtrl;
+EL_EXPORT ElError ElPolarCtrlDefault( ElPolarCtrl* ctrl );
 
 /* Compute just the polar factor
    ----------------------------- */
@@ -771,6 +701,50 @@ EL_EXPORT ElError ElHermitianPolarDecompDist_z
 
 /* Schur decomposition
    =================== */
+/* HessQRCtrl */
+typedef struct {
+  bool distAED;
+  ElInt blockHeight, blockWidth;
+} ElHessQRCtrl;
+EL_EXPORT ElError ElHessQRCtrlDefault( ElHessQRCtrl* ctrl );
+
+/* SDCCtrl */
+typedef struct {
+  ElInt cutoff;
+  ElInt maxInnerIts, maxOuterIts;
+  float tol;
+  float spreadFactor;
+  bool random;
+  bool progress;
+  ElSignCtrl_s signCtrl;
+} ElSDCCtrl_s;
+EL_EXPORT ElError ElSDCCtrlDefault_s( ElSDCCtrl_s* ctrl );
+
+typedef struct {
+  ElInt cutoff;
+  ElInt maxInnerIts, maxOuterIts;
+  double tol;
+  double spreadFactor;
+  bool random;
+  bool progress;
+  ElSignCtrl_d signCtrl;
+} ElSDCCtrl_d;
+EL_EXPORT ElError ElSDCCtrlDefault_d( ElSDCCtrl_d* ctrl );
+
+/* SchurCtrl */
+typedef struct {
+  bool useSDC;
+  ElHessQRCtrl qrCtrl;
+  ElSDCCtrl_s sdcCtrl;
+} ElSchurCtrl_s;
+EL_EXPORT ElError ElSchurCtrlDefault_s( ElSchurCtrl_s* ctrl );
+
+typedef struct {
+  bool useSDC;
+  ElHessQRCtrl qrCtrl;
+  ElSDCCtrl_d sdcCtrl;
+} ElSchurCtrl_d;
+EL_EXPORT ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl );
 
 /* Compute just the eigenvalues (and perhaps the Schur factor)
    ----------------------------------------------------------- */
@@ -813,6 +787,26 @@ EL_EXPORT ElError ElSchurDecompDist_z
 
 /* Singular Value Decomposition (SVD)
    ================================== */
+/* SVDCtrl */
+typedef struct {
+  bool seqQR;
+  double valChanRatio;
+  double fullChanRatio;
+  bool thresholded;
+  bool relative;
+  float tol;
+} ElSVDCtrl_s;
+EL_EXPORT ElError ElSVDCtrlDefault_s( ElSVDCtrl_s* ctrl );
+
+typedef struct {
+  bool seqQR;
+  double valChanRatio;
+  double fullChanRatio;
+  bool thresholded;
+  bool relative;
+  double tol;
+} ElSVDCtrl_d;
+EL_EXPORT ElError ElSVDCtrlDefault_d( ElSVDCtrl_d* ctrl );
 
 /* Compute the singular values
    --------------------------- */
@@ -843,6 +837,252 @@ EL_EXPORT ElError ElSVDDist_c
 ( ElDistMatrix_c A, ElDistMatrix_s s, ElDistMatrix_c V );
 EL_EXPORT ElError ElSVDDist_z
 ( ElDistMatrix_z A, ElDistMatrix_d s, ElDistMatrix_z V );
+
+/* Pseudospectra
+   ============= */
+typedef enum {
+  EL_PS_TWO_NORM,
+  EL_PS_ONE_NORM
+} ElPseudospecNorm;
+
+typedef struct {
+  ElInt realSize, imagSize;
+
+  ElInt imgSaveFreq, numSaveFreq, imgDispFreq;
+  ElInt imgSaveCount, numSaveCount, imgDispCount;
+  const char *imgBase, *numBase;
+  ElFileFormat imgFormat, numFormat;
+  bool itCounts;
+} ElSnapshotCtrl;
+EL_EXPORT ElError ElSnapshotCtrlDefault( ElSnapshotCtrl* ctrl );
+/* NOTE: Since conversion from SnapshotCtrl involves deep copies of char* */
+EL_EXPORT ElError ElSnapshotCtrlDestroy( const ElSnapshotCtrl* ctrl );
+
+typedef struct {
+  ElPseudospecNorm norm;
+  ElInt blockWidth;
+
+  bool schur;
+  bool forceComplexSchur;
+  bool forceComplexPs;
+  ElSchurCtrl_s schurCtrl;
+
+  ElInt maxIts;
+  float tol;
+  bool deflate;
+
+  bool arnoldi;
+  ElInt basisSize;
+  bool reorthog;
+
+  bool progress;
+
+  ElSnapshotCtrl snapCtrl;
+} ElPseudospecCtrl_s;
+EL_EXPORT ElError ElPseudospecCtrlDefault_s( ElPseudospecCtrl_s* ctrl );
+/* NOTE: Since conversion from SnapshotCtrl involves deep copies of char* */
+EL_EXPORT ElError ElPseudospecCtrlDestroy_s( const ElPseudospecCtrl_s* ctrl );
+
+typedef struct {
+  ElPseudospecNorm norm;
+  ElInt blockWidth;
+
+  bool schur;
+  bool forceComplexSchur;
+  bool forceComplexPs;
+  ElSchurCtrl_d schurCtrl;
+
+  ElInt maxIts;
+  double tol;
+  bool deflate;
+
+  bool arnoldi;
+  ElInt basisSize;
+  bool reorthog;
+
+  bool progress;
+
+  ElSnapshotCtrl snapCtrl;
+} ElPseudospecCtrl_d;
+EL_EXPORT ElError ElPseudospecCtrlDefault_d( ElPseudospecCtrl_d* ctrl );
+/* NOTE: Since conversion from SnapshotCtrl involves deep copies of char* */
+EL_EXPORT ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl );
+
+/* (Pseudo-)Spectral portrait
+   -------------------------- */ 
+EL_EXPORT ElError ElSpectralPortrait_s
+( ElConstMatrix_s A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize );
+EL_EXPORT ElError ElSpectralPortrait_d
+( ElConstMatrix_d A, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize );
+EL_EXPORT ElError ElSpectralPortrait_c
+( ElConstMatrix_c A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize );
+EL_EXPORT ElError ElSpectralPortrait_z
+( ElConstMatrix_z A, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize );
+
+EL_EXPORT ElError ElSpectralPortraitDist_s
+( ElConstDistMatrix_s A, ElDistMatrix_s invNormMap,
+  ElInt realSize, ElInt imagSize );
+EL_EXPORT ElError ElSpectralPortraitDist_d
+( ElConstDistMatrix_d A, ElDistMatrix_d invNormMap,
+  ElInt realSize, ElInt imagSize );
+EL_EXPORT ElError ElSpectralPortraitDist_c
+( ElConstDistMatrix_c A, ElDistMatrix_s invNormMap,
+  ElInt realSize, ElInt imagSize );
+EL_EXPORT ElError ElSpectralPortraitDist_z
+( ElConstDistMatrix_z A, ElDistMatrix_d invNormMap,
+  ElInt realSize, ElInt imagSize );
+
+/* Expert version
+   ^^^^^^^^^^^^^^ */
+EL_EXPORT ElError ElSpectralPortraitX_s
+( ElConstMatrix_s A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize,
+  ElPseudospecCtrl_s ctrl );
+EL_EXPORT ElError ElSpectralPortraitX_d
+( ElConstMatrix_d A, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize,
+  ElPseudospecCtrl_d ctrl );
+EL_EXPORT ElError ElSpectralPortraitX_c
+( ElConstMatrix_c A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize,
+  ElPseudospecCtrl_s ctrl );
+EL_EXPORT ElError ElSpectralPortraitX_z
+( ElConstMatrix_z A, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize,
+  ElPseudospecCtrl_d ctrl );
+
+EL_EXPORT ElError ElSpectralPortraitXDist_s
+( ElConstDistMatrix_s A, ElDistMatrix_s invNormMap,
+  ElInt realSize, ElInt imagSize, ElPseudospecCtrl_s ctrl );
+EL_EXPORT ElError ElSpectralPortraitXDist_d
+( ElConstDistMatrix_d A, ElDistMatrix_d invNormMap,
+  ElInt realSize, ElInt imagSize, ElPseudospecCtrl_d ctrl );
+EL_EXPORT ElError ElSpectralPortraitXDist_c
+( ElConstDistMatrix_c A, ElDistMatrix_s invNormMap,
+  ElInt realSize, ElInt imagSize, ElPseudospecCtrl_s ctrl );
+EL_EXPORT ElError ElSpectralPortraitXDist_z
+( ElConstDistMatrix_z A, ElDistMatrix_d invNormMap,
+  ElInt realSize, ElInt imagSize, ElPseudospecCtrl_d ctrl );
+
+/* (Pseudo-)Spectral window
+   ------------------------ */
+EL_EXPORT ElError ElSpectralWindow_s
+( ElConstMatrix_s A, ElMatrix_s invNormMap,
+  complex_float center, float realWidth, float imagWidth,
+  ElInt realSize, ElInt imagSize );
+EL_EXPORT ElError ElSpectralWindow_d
+( ElConstMatrix_d A, ElMatrix_d invNormMap,
+  complex_double center, double realWidth, double imagWidth,
+  ElInt realSize, ElInt imagSize );
+EL_EXPORT ElError ElSpectralWindow_c
+( ElConstMatrix_c A, ElMatrix_s invNormMap,
+  complex_float center, float realWidth, float imagWidth,
+  ElInt realSize, ElInt imagSize );
+EL_EXPORT ElError ElSpectralWindow_z
+( ElConstMatrix_z A, ElMatrix_d invNormMap,
+  complex_double center, double realWidth, double imagWidth,
+  ElInt realSize, ElInt imagSize );
+
+EL_EXPORT ElError ElSpectralWindowDist_s
+( ElConstDistMatrix_s A, ElDistMatrix_s invNormMap,
+  complex_float center, float realWidth, float imagWidth,
+  ElInt realSize, ElInt imagSize );
+EL_EXPORT ElError ElSpectralWindowDist_d
+( ElConstDistMatrix_d A, ElDistMatrix_d invNormMap,
+  complex_double center, double realWidth, double imagWidth,
+  ElInt realSize, ElInt imagSize );
+EL_EXPORT ElError ElSpectralWindowDist_c
+( ElConstDistMatrix_c A, ElDistMatrix_s invNormMap,
+  complex_float center, float realWidth, float imagWidth,
+  ElInt realSize, ElInt imagSize );
+EL_EXPORT ElError ElSpectralWindowDist_z
+( ElConstDistMatrix_z A, ElDistMatrix_d invNormMap,
+  complex_double center, double realWidth, double imagWidth,
+  ElInt realSize, ElInt imagSize );
+
+/* Expert version
+   ^^^^^^^^^^^^^^ */
+EL_EXPORT ElError ElSpectralWindowX_s
+( ElConstMatrix_s A, ElMatrix_s invNormMap,
+  complex_float center, float realWidth, float imagWidth,
+  ElInt realSize, ElInt imagSize, ElPseudospecCtrl_s ctrl );
+EL_EXPORT ElError ElSpectralWindowX_d
+( ElConstMatrix_d A, ElMatrix_d invNormMap,
+  complex_double center, double realWidth, double imagWidth,
+  ElInt realSize, ElInt imagSize, ElPseudospecCtrl_d ctrl );
+EL_EXPORT ElError ElSpectralWindowX_c
+( ElConstMatrix_c A, ElMatrix_s invNormMap,
+  complex_float center, float realWidth, float imagWidth,
+  ElInt realSize, ElInt imagSize, ElPseudospecCtrl_s ctrl );
+EL_EXPORT ElError ElSpectralWindowX_z
+( ElConstMatrix_z A, ElMatrix_d invNormMap,
+  complex_double center, double realWidth, double imagWidth,
+  ElInt realSize, ElInt imagSize, ElPseudospecCtrl_d ctrl );
+
+EL_EXPORT ElError ElSpectralWindowXDist_s
+( ElConstDistMatrix_s A, ElDistMatrix_s invNormMap,
+  complex_float center, float realWidth, float imagWidth,
+  ElInt realSize, ElInt imagSize, ElPseudospecCtrl_s ctrl );
+EL_EXPORT ElError ElSpectralWindowXDist_d
+( ElConstDistMatrix_d A, ElDistMatrix_d invNormMap,
+  complex_double center, double realWidth, double imagWidth,
+  ElInt realSize, ElInt imagSize, ElPseudospecCtrl_d ctrl );
+EL_EXPORT ElError ElSpectralWindowXDist_c
+( ElConstDistMatrix_c A, ElDistMatrix_s invNormMap,
+  complex_float center, float realWidth, float imagWidth,
+  ElInt realSize, ElInt imagSize, ElPseudospecCtrl_s ctrl );
+EL_EXPORT ElError ElSpectralWindowXDist_z
+( ElConstDistMatrix_z A, ElDistMatrix_d invNormMap,
+  complex_double center, double realWidth, double imagWidth,
+  ElInt realSize, ElInt imagSize, ElPseudospecCtrl_d ctrl );
+
+/* (Pseudo-)Spectral cloud
+   ----------------------- */
+EL_EXPORT ElError ElSpectralCloud_s
+( ElConstMatrix_s A, ElConstMatrix_c shifts, ElMatrix_s invNormMap );
+EL_EXPORT ElError ElSpectralCloud_d
+( ElConstMatrix_d A, ElConstMatrix_z shifts, ElMatrix_d invNormMap );
+EL_EXPORT ElError ElSpectralCloud_c
+( ElConstMatrix_c A, ElConstMatrix_c shifts, ElMatrix_s invNormMap );
+EL_EXPORT ElError ElSpectralCloud_z
+( ElConstMatrix_z A, ElConstMatrix_z shifts, ElMatrix_d invNormMap );
+
+EL_EXPORT ElError ElSpectralCloudDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_c shifts,
+  ElDistMatrix_s invNormMap );
+EL_EXPORT ElError ElSpectralCloudDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_z shifts,
+  ElDistMatrix_d invNormMap );
+EL_EXPORT ElError ElSpectralCloudDist_c
+( ElConstDistMatrix_c A, ElConstDistMatrix_c shifts,
+  ElDistMatrix_s invNormMap );
+EL_EXPORT ElError ElSpectralCloudDist_z
+( ElConstDistMatrix_z A, ElConstDistMatrix_z shifts,
+  ElDistMatrix_d invNormMap );
+
+/* Expert version
+   ^^^^^^^^^^^^^^ */
+EL_EXPORT ElError ElSpectralCloudX_s
+( ElConstMatrix_s A, ElConstMatrix_c shifts, ElMatrix_s invNormMap,
+  ElPseudospecCtrl_s ctrl );
+EL_EXPORT ElError ElSpectralCloudX_d
+( ElConstMatrix_d A, ElConstMatrix_z shifts, ElMatrix_d invNormMap,
+  ElPseudospecCtrl_d ctrl );
+EL_EXPORT ElError ElSpectralCloudX_c
+( ElConstMatrix_c A, ElConstMatrix_c shifts, ElMatrix_s invNormMap,
+  ElPseudospecCtrl_s ctrl );
+EL_EXPORT ElError ElSpectralCloudX_z
+( ElConstMatrix_z A, ElConstMatrix_z shifts, ElMatrix_d invNormMap,
+  ElPseudospecCtrl_d ctrl );
+
+EL_EXPORT ElError ElSpectralCloudXDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_c shifts,
+  ElDistMatrix_s invNormMap, ElPseudospecCtrl_s ctrl );
+EL_EXPORT ElError ElSpectralCloudXDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_z shifts,
+  ElDistMatrix_d invNormMap, ElPseudospecCtrl_d ctrl );
+EL_EXPORT ElError ElSpectralCloudXDist_c
+( ElConstDistMatrix_c A, ElConstDistMatrix_c shifts,
+  ElDistMatrix_s invNormMap, ElPseudospecCtrl_s ctrl );
+EL_EXPORT ElError ElSpectralCloudXDist_z
+( ElConstDistMatrix_z A, ElConstDistMatrix_z shifts,
+  ElDistMatrix_d invNormMap, ElPseudospecCtrl_d ctrl );
 
 #ifdef __cplusplus
 } // extern "C"

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_PSEUDOSPECTRUM_UTIL_REARRANGE_HPP
-#define EL_PSEUDOSPECTRUM_UTIL_REARRANGE_HPP
+#ifndef EL_PSEUDOSPECTRA_UTIL_REARRANGE_HPP
+#define EL_PSEUDOSPECTRA_UTIL_REARRANGE_HPP
 
 namespace El {
 namespace pspec {
@@ -213,4 +213,4 @@ PushBackList
 } // namespace pspec
 } // namespace El
 
-#endif // ifndef EL_PSEUDOSPECTRUM_UTIL_REARRANGE_HPP
+#endif // ifndef EL_PSEUDOSPECTRA_UTIL_REARRANGE_HPP

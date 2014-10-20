@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_PSEUDOSPECTRUM_POWER_HPP
-#define EL_PSEUDOSPECTRUM_POWER_HPP
+#ifndef EL_PSEUDOSPECTRA_POWER_HPP
+#define EL_PSEUDOSPECTRA_POWER_HPP
 
 #include "./Util.hpp"
 
@@ -487,4 +487,4 @@ Power
 } // namespace pspec
 } // namespace El
 
-#endif // ifndef EL_PSEUDOSPECTRUM_POWER_HPP
+#endif // ifndef EL_PSEUDOSPECTRA_POWER_HPP

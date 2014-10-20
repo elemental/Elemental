@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_PSEUDOSPECTRUM_ANALYTIC_HPP
-#define EL_PSEUDOSPECTRUM_ANALYTIC_HPP
+#ifndef EL_PSEUDOSPECTRA_ANALYTIC_HPP
+#define EL_PSEUDOSPECTRA_ANALYTIC_HPP
 
 #include "./Util.hpp"
 
@@ -111,4 +111,4 @@ Analytic
 } // namespace pspec
 } // namespace El
 
-#endif // ifndef EL_PSEUDOSPECTRUM_ANALYTIC_HPP
+#endif // ifndef EL_PSEUDOSPECTRA_ANALYTIC_HPP

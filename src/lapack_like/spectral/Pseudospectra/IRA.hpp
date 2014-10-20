@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_PSEUDOSPECTRUM_IRA_HPP
-#define EL_PSEUDOSPECTRUM_IRA_HPP
+#ifndef EL_PSEUDOSPECTRA_IRA_HPP
+#define EL_PSEUDOSPECTRA_IRA_HPP
 
 #include "./Lanczos.hpp"
 
@@ -1210,4 +1210,4 @@ IRA
 } // namespace pspec
 } // namespace El
 
-#endif // ifndef EL_PSEUDOSPECTRUM_IRA_HPP
+#endif // ifndef EL_PSEUDOSPECTRA_IRA_HPP

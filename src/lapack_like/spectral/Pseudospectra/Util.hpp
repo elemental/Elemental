@@ -7,11 +7,11 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_PSEUDOSPECTRUM_UTIL_HPP
-#define EL_PSEUDOSPECTRUM_UTIL_HPP
+#ifndef EL_PSEUDOSPECTRA_UTIL_HPP
+#define EL_PSEUDOSPECTRA_UTIL_HPP
 
 #include "./Util/Rearrange.hpp"
 #include "./Util/BasicMath.hpp"
 #include "./Util/Snapshot.hpp"
 
-#endif // ifndef EL_PSEUDOSPECTRUM_UTIL_HPP
+#endif // ifndef EL_PSEUDOSPECTRA_UTIL_HPP

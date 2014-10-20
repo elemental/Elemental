@@ -12,15 +12,21 @@
 
 namespace El {
 
-namespace PencilNS {
-enum Pencil
+// Hermitian eigenvalue solvers
+// ============================
+template<typename Real>
+struct HermitianEigSubset
 {
-    AXBX=1,
-    ABX=2,
-    BAX=3
+    bool indexSubset;
+    Int lowerIndex, upperIndex;
+ 
+    bool rangeSubset;
+    Real lowerBound, upperBound;
+
+    HermitianEigSubset() 
+    : indexSubset(false), lowerIndex(0), upperIndex(0), 
+      rangeSubset(false), lowerBound(0), upperBound(0) { }
 };
-}
-using namespace PencilNS;
 
 template<typename Real>
 struct HermitianSDCCtrl {
@@ -39,20 +45,6 @@ struct HermitianSDCCtrl {
 };
 
 template<typename Real>
-struct HermitianEigSubset
-{
-    bool indexSubset;
-    Int lowerIndex, upperIndex;
- 
-    bool rangeSubset;
-    Real lowerBound, upperBound;
-
-    HermitianEigSubset() 
-    : indexSubset(false), lowerIndex(0), upperIndex(0), 
-      rangeSubset(false), lowerBound(0), upperBound(0) { }
-};
-
-template<typename Real>
 struct HermitianEigCtrl
 {
     HermitianTridiagCtrl tridiagCtrl;
@@ -64,105 +56,6 @@ struct HermitianEigCtrl
     { }
 };
 
-struct PolarCtrl {
-    bool qdwh;
-    bool colPiv;
-    Int maxIts;
-    mutable Int numIts;
-
-    PolarCtrl() : qdwh(false), colPiv(false), maxIts(20), numIts(0) { }
-};
-
-template<typename Real>
-struct SVDCtrl {
-    // Bidiagonal SVD options
-    // ----------------------
-
-    // Whether or not sequential implementations should use the QR algorithm
-    // instead of (Cuppen's) Divide and Conquer when computing singular
-    // vectors. When only singular values are requested, a bidiagonal DQDS
-    // algorithm is always run.
-    bool seqQR;
-
-    // Chan's algorithm
-    // ----------------
-
-    // The minimum height/width ratio before preprocessing with a QR 
-    // decomposition when only computing singular values
-    double valChanRatio;
-
-    // The minimum height/width ratio before preprocessing with a QR
-    // decomposition when computing a full SVD
-    double fullChanRatio;
-
-    // Thresholding
-    // ------------
-    // NOTE: Currently only supported when computing both singular values
-    //       and vectors
-
-    // If the sufficiently small singular triplets should be thrown away.
-    // When thresholded, a cross-product algorithm is used. This is often
-    // advantageous since tridiagonal eigensolvers tend to have faster 
-    // parallel implementations than bidiagonal SVD's.
-    bool thresholded;
-
-    // If the tolerance should be relative to the largest singular value
-    bool relative;
-
-    // The numerical tolerance for the thresholding. If this value is kept at
-    // zero, then a value is automatically chosen based upon the matrix
-    Real tol; 
-
-    // Default constructor
-    // -------------------
-    SVDCtrl()
-    : seqQR(false), valChanRatio(1.2), fullChanRatio(1.5),
-      thresholded(false), relative(true), tol(0) { }
-};
-
-// Forward declaration
-template<typename Real> struct SignCtrl;
-
-template<typename Real>
-struct SDCCtrl {
-    Int cutoff;
-    Int maxInnerIts;
-    Int maxOuterIts;
-    Real tol;
-    Real spreadFactor;
-    bool random;
-    bool progress;
-
-    SignCtrl<Real> signCtrl;
-
-    SDCCtrl()
-    : cutoff(256), maxInnerIts(2), maxOuterIts(10),
-      tol(0), spreadFactor(1e-6),
-      random(true), progress(false), signCtrl()
-    { }
-};
-
-struct HessQRCtrl {
-    bool distAED;
-    Int blockHeight, blockWidth;
-
-    HessQRCtrl() 
-    : distAED(false), 
-      blockHeight(DefaultBlockHeight()), blockWidth(DefaultBlockWidth()) 
-    { }
-};
-
-template<typename Real>
-struct SchurCtrl {
-    bool useSDC;
-    HessQRCtrl qrCtrl;
-    SDCCtrl<Real> sdcCtrl;    
-
-    SchurCtrl() : useSDC(false), qrCtrl(), sdcCtrl() { }
-};
-
-// Hermitian eigenvalue solvers
-// ============================
 // Compute eigenvalues
 // -------------------
 template<typename F>
@@ -206,6 +99,16 @@ void HermitianEig
 
 // Hermitian generalized definite eigenvalue solvers
 // =================================================
+namespace PencilNS {
+enum Pencil
+{
+    AXBX=1,
+    ABX=2,
+    BAX=3
+};
+}
+using namespace PencilNS;
+
 // Compute eigenvalues
 // -------------------
 template<typename F>
@@ -291,6 +194,15 @@ void Sort
 
 // Polar decomposition
 // ===================
+struct PolarCtrl {
+    bool qdwh;
+    bool colPiv;
+    Int maxIts;
+    mutable Int numIts;
+
+    PolarCtrl() : qdwh(false), colPiv(false), maxIts(20), numIts(0) { }
+};
+
 template<typename F>
 void Polar( Matrix<F>& A, const PolarCtrl& ctrl=PolarCtrl() );
 template<typename F>
@@ -320,6 +232,47 @@ void HermitianPolar
 
 // Schur decomposition
 // ===================
+// Forward declaration
+template<typename Real> struct SignCtrl;
+
+template<typename Real>
+struct SDCCtrl {
+    Int cutoff;
+    Int maxInnerIts;
+    Int maxOuterIts;
+    Real tol;
+    Real spreadFactor;
+    bool random;
+    bool progress;
+
+    SignCtrl<Real> signCtrl;
+
+    SDCCtrl()
+    : cutoff(256), maxInnerIts(2), maxOuterIts(10),
+      tol(0), spreadFactor(1e-6),
+      random(true), progress(false), signCtrl()
+    { }
+};
+
+struct HessQRCtrl {
+    bool distAED;
+    Int blockHeight, blockWidth;
+
+    HessQRCtrl() 
+    : distAED(false), 
+      blockHeight(DefaultBlockHeight()), blockWidth(DefaultBlockWidth()) 
+    { }
+};
+
+template<typename Real>
+struct SchurCtrl {
+    bool useSDC;
+    HessQRCtrl qrCtrl;
+    SDCCtrl<Real> sdcCtrl;    
+
+    SchurCtrl() : useSDC(false), qrCtrl(), sdcCtrl() { }
+};
+
 template<typename F>
 void Schur
 ( Matrix<F>& A, Matrix<Complex<Base<F>>>& w,
@@ -427,6 +380,52 @@ void SkewHermitianEig
 
 // Singular Value Decomposition
 // ============================
+template<typename Real>
+struct SVDCtrl {
+    // Bidiagonal SVD options
+    // ----------------------
+
+    // Whether or not sequential implementations should use the QR algorithm
+    // instead of (Cuppen's) Divide and Conquer when computing singular
+    // vectors. When only singular values are requested, a bidiagonal DQDS
+    // algorithm is always run.
+    bool seqQR;
+
+    // Chan's algorithm
+    // ----------------
+
+    // The minimum height/width ratio before preprocessing with a QR 
+    // decomposition when only computing singular values
+    double valChanRatio;
+
+    // The minimum height/width ratio before preprocessing with a QR
+    // decomposition when computing a full SVD
+    double fullChanRatio;
+
+    // Thresholding
+    // ------------
+    // NOTE: Currently only supported when computing both singular values
+    //       and vectors
+
+    // If the sufficiently small singular triplets should be thrown away.
+    // When thresholded, a cross-product algorithm is used. This is often
+    // advantageous since tridiagonal eigensolvers tend to have faster 
+    // parallel implementations than bidiagonal SVD's.
+    bool thresholded;
+
+    // If the tolerance should be relative to the largest singular value
+    bool relative;
+
+    // The numerical tolerance for the thresholding. If this value is kept at
+    // zero, then a value is automatically chosen based upon the matrix
+    Real tol; 
+
+    // Default constructor
+    // -------------------
+    SVDCtrl()
+    : seqQR(false), valChanRatio(1.2), fullChanRatio(1.5),
+      thresholded(false), relative(true), tol(0) { }
+};
 
 // Compute the singular values
 // ---------------------------
@@ -463,6 +462,356 @@ void HermitianSVD
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A,
   AbstractDistMatrix<Base<F>>& s, AbstractDistMatrix<F>& U, 
   AbstractDistMatrix<F>& V );
+
+// Pseudospectra
+// =============
+enum PseudospecNorm {
+  PS_TWO_NORM,
+  PS_ONE_NORM
+  /* For now, handle the infinity norm by using the adjoint matrix */
+};
+
+// Configurations for how often and what format numerical (num) and image (img)
+// snapshots of the pseudospectral estimates should be saved
+struct SnapshotCtrl
+{
+    Int realSize, imagSize;
+
+    Int imgSaveFreq, numSaveFreq, imgDispFreq;
+    Int imgSaveCount, numSaveCount, imgDispCount;
+    std::string imgBase, numBase;
+    FileFormat imgFormat, numFormat;
+    bool itCounts;
+
+    SnapshotCtrl()
+    : realSize(0), imagSize(0),
+      imgSaveFreq(-1), numSaveFreq(-1), imgDispFreq(-1),
+      imgSaveCount(0), numSaveCount(0), imgDispCount(0),
+      imgBase("ps"), numBase("ps"), imgFormat(PNG), numFormat(ASCII_MATLAB),
+      itCounts(true)
+    { }
+
+    void ResetCounts()
+    {
+        imgSaveCount = 0;
+        numSaveCount = 0;
+        imgDispCount = 0;
+    }
+    void Iterate()
+    {
+        ++imgSaveCount;
+        ++numSaveCount;
+        ++imgDispCount;
+    }
+};
+
+template<typename Real>
+struct PseudospecCtrl
+{
+    PseudospecNorm norm;
+    Int blockWidth; // block width for block 1-norm estimator
+
+    // Preprocessing configuration
+    bool schur; // begin with reduction to Schur form?
+    bool forceComplexSchur;
+    bool forceComplexPs;
+    SchurCtrl<Real> schurCtrl;
+
+    // Convergence and deflation criteria
+    Int maxIts;
+    Real tol;
+    bool deflate;
+
+    // (Implicitly Restarted) Arnoldi/Lanczos. If basisSize > 1, then
+    // there is implicit restarting
+    bool arnoldi;
+    Int basisSize;
+    bool reorthog; // only matters for IRL, which isn't currently used
+
+    // Whether or not to print progress information at each iteration
+    bool progress;
+
+    SnapshotCtrl snapCtrl;
+
+    PseudospecCtrl()
+    : norm(PS_TWO_NORM), blockWidth(10),
+      schur(true), forceComplexSchur(false), forceComplexPs(false), schurCtrl(),
+      maxIts(200), tol(1e-6), deflate(true),
+      arnoldi(true), basisSize(10), reorthog(true),
+      progress(false), snapCtrl()
+    { }
+};
+
+// (Pseudo-)Spectral portrait
+// --------------------------
+// Treat each pixel as being located a cell center and tesselate a box with
+// said square cells
+template<typename F>
+Matrix<Int> SpectralPortrait
+( const Matrix<F>& A, Matrix<Base<F>>& invNormMap,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+template<typename F>
+DistMatrix<Int> SpectralPortrait
+( const AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& invNormMap,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+
+template<typename F>
+Matrix<Int> TriangularSpectralPortrait
+( const Matrix<F>& U, Matrix<Base<F>>& invNormMap,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+template<typename F>
+DistMatrix<Int> TriangularSpectralPortrait
+( const AbstractDistMatrix<F>& U, AbstractDistMatrix<Base<F>>& invNormMap,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+
+template<typename F>
+Matrix<Int> TriangularSpectralPortrait
+( const Matrix<F>& U, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+template<typename F>
+DistMatrix<Int> TriangularSpectralPortrait
+( const AbstractDistMatrix<F>& U, const AbstractDistMatrix<F>& Q,
+  AbstractDistMatrix<Base<F>>& invNormMap,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+
+template<typename Real>
+Matrix<Int> QuasiTriangularSpectralPortrait
+( const Matrix<Real>& U, Matrix<Real>& invNormMap,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+template<typename Real>
+DistMatrix<Int> QuasiTriangularSpectralPortrait
+( const AbstractDistMatrix<Real>& U, AbstractDistMatrix<Real>& invNormMap,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+
+template<typename Real>
+Matrix<Int> QuasiTriangularSpectralPortrait
+( const Matrix<Real>& U, const Matrix<Real>& Q, Matrix<Real>& invNormMap,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+template<typename Real>
+DistMatrix<Int> QuasiTriangularSpectralPortrait
+( const AbstractDistMatrix<Real>& U, const AbstractDistMatrix<Real>& Q,
+  AbstractDistMatrix<Real>& invNormMap, Int realSize, Int imagSize,
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+
+template<typename F>
+Matrix<Int> HessenbergSpectralPortrait
+( const Matrix<F>& H, Matrix<Base<F>>& invNormMap,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+template<typename F>
+DistMatrix<Int> HessenbergSpectralPortrait
+( const AbstractDistMatrix<F>& H, AbstractDistMatrix<Base<F>>& invNormMap,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+
+template<typename F>
+Matrix<Int> HessenbergSpectralPortrait
+( const Matrix<F>& H, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+template<typename F>
+DistMatrix<Int> HessenbergSpectralPortrait
+( const AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& Q,
+  AbstractDistMatrix<Base<F>>& invNormMap, Int realSize, Int imagSize,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+
+// (Pseudo-)Spectral window
+// ------------------------
+// Treat each pixel as being located a cell center and tesselate a box with
+// said square cells
+template<typename F>
+Matrix<Int> SpectralWindow
+( const Matrix<F>& A, Matrix<Base<F>>& invNormMap,
+  Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+template<typename F>
+DistMatrix<Int> SpectralWindow
+( const AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& invNormMap,
+  Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+
+template<typename F>
+Matrix<Int> TriangularSpectralWindow
+( const Matrix<F>& U, Matrix<Base<F>>& invNormMap,
+  Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+template<typename F>
+DistMatrix<Int> TriangularSpectralWindow
+( const AbstractDistMatrix<F>& U, AbstractDistMatrix<Base<F>>& invNormMap,
+  Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+
+template<typename F>
+Matrix<Int> TriangularSpectralWindow
+( const Matrix<F>& U, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap,
+  Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+template<typename F>
+DistMatrix<Int> TriangularSpectralWindow
+( const AbstractDistMatrix<F>& U, const AbstractDistMatrix<F>& Q,
+  AbstractDistMatrix<Base<F>>& invNormMap,
+  Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+
+template<typename Real>
+Matrix<Int> QuasiTriangularSpectralWindow
+( const Matrix<Real>& U,
+  Matrix<Real>& invNormMap,
+  Complex<Real> center, Real realWidth, Real imagWidth,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+template<typename Real>
+DistMatrix<Int> QuasiTriangularSpectralWindow
+( const AbstractDistMatrix<Real>& U,
+  AbstractDistMatrix<Real>& invNormMap,
+  Complex<Real> center, Real realWidth, Real imagWidth,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+
+template<typename Real>
+Matrix<Int> QuasiTriangularSpectralWindow
+( const Matrix<Real>& U, const Matrix<Real>& Q,
+  Matrix<Real>& invNormMap,
+  Complex<Real> center, Real realWidth, Real imagWidth,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+template<typename Real>
+DistMatrix<Int> QuasiTriangularSpectralWindow
+( const AbstractDistMatrix<Real>& U, const AbstractDistMatrix<Real>& Q,
+  AbstractDistMatrix<Real>& invNormMap,
+  Complex<Real> center, Real realWidth, Real imagWidth,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+
+template<typename F>
+Matrix<Int> HessenbergSpectralWindow
+( const Matrix<F>& H, Matrix<Base<F>>& invNormMap,
+  Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+template<typename F>
+DistMatrix<Int> HessenbergSpectralWindow
+( const AbstractDistMatrix<F>& H, AbstractDistMatrix<Base<F>>& invNormMap,
+  Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+
+template<typename F>
+Matrix<Int> HessenbergSpectralWindow
+( const Matrix<F>& H, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap,
+  Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+template<typename F>
+DistMatrix<Int> HessenbergSpectralWindow
+( const AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& Q,
+  AbstractDistMatrix<Base<F>>& invNormMap,
+  Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
+  Int realSize, Int imagSize,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+
+// (Pseudo-)Spectral cloud
+// -----------------------
+template<typename F>
+Matrix<Int> SpectralCloud
+( const Matrix<F>& A, const Matrix<Complex<Base<F>>>& shifts,
+  Matrix<Base<F>>& invNorms,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+template<typename F>
+DistMatrix<Int,VR,STAR> SpectralCloud
+( const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<Complex<Base<F>>>& shifts,
+  AbstractDistMatrix<Base<F>>& invNorms,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+
+template<typename F>
+Matrix<Int> TriangularSpectralCloud
+( const Matrix<F>& U, const Matrix<Complex<Base<F>>>& shifts,
+  Matrix<Base<F>>& invNorms,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+template<typename F>
+DistMatrix<Int,VR,STAR> TriangularSpectralCloud
+( const AbstractDistMatrix<F>& U,
+  const AbstractDistMatrix<Complex<Base<F>>>& shifts,
+        AbstractDistMatrix<Base<F>>& invNorms,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+
+template<typename F>
+Matrix<Int> TriangularSpectralCloud
+( const Matrix<F>& U, const Matrix<F>& Q,
+  const Matrix<Complex<Base<F>>>& shifts, Matrix<Base<F>>& invNorms,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+template<typename F>
+DistMatrix<Int,VR,STAR> TriangularSpectralCloud
+( const AbstractDistMatrix<F>& U, const AbstractDistMatrix<F>& Q,
+  const AbstractDistMatrix<Complex<Base<F>>>& shifts,
+        AbstractDistMatrix<Base<F>>& invNorms,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+
+template<typename Real>
+Matrix<Int> QuasiTriangularSpectralCloud
+( const Matrix<Real>& U,
+  const Matrix<Complex<Real>>& shifts,
+  Matrix<Real>& invNorms,
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+template<typename Real>
+DistMatrix<Int,VR,STAR> QuasiTriangularSpectralCloud
+( const AbstractDistMatrix<Real>& U,
+  const AbstractDistMatrix<Complex<Real>>& shifts,
+        AbstractDistMatrix<Real>& invNorms,
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+
+template<typename Real>
+Matrix<Int> QuasiTriangularSpectralCloud
+( const Matrix<Real>& U, const Matrix<Real>& Q,
+  const Matrix<Complex<Real>>& shifts,
+  Matrix<Real>& invNorms,
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+template<typename Real>
+DistMatrix<Int,VR,STAR> QuasiTriangularSpectralCloud
+( const AbstractDistMatrix<Real>& U, const AbstractDistMatrix<Real>& Q,
+  const AbstractDistMatrix<Complex<Real>>& shifts,
+        AbstractDistMatrix<Real>& invNorms,
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+
+template<typename F>
+Matrix<Int> HessenbergSpectralCloud
+( const Matrix<F>& H, const Matrix<Complex<Base<F>>>& shifts,
+  Matrix<Base<F>>& invNorms,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+template<typename F>
+DistMatrix<Int,VR,STAR> HessenbergSpectralCloud
+( const AbstractDistMatrix<F>& H,
+  const AbstractDistMatrix<Complex<Base<F>>>& shifts,
+        AbstractDistMatrix<Base<F>>& invNorms,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+
+template<typename F>
+Matrix<Int> HessenbergSpectralCloud
+( const Matrix<F>& H, const Matrix<F>& Q,
+  const Matrix<Complex<Base<F>>>& shifts, Matrix<Base<F>>& invNorms,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+template<typename F>
+DistMatrix<Int,VR,STAR> HessenbergSpectralCloud
+( const AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& Q,
+  const AbstractDistMatrix<Complex<Base<F>>>& shifts,
+        AbstractDistMatrix<Base<F>>& invNorms,
+  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 } // namespace El
 

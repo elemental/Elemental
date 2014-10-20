@@ -9,7 +9,7 @@
 #include "El.hpp"
 
 // TODO: Move 'ColumnNorms' implementation
-#include "../lapack_like/props/Pseudospectra/Util/BasicMath.hpp"
+#include "../lapack_like/spectral/Pseudospectra/Util/BasicMath.hpp"
 
 namespace El {
 

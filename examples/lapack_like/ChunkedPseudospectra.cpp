@@ -416,14 +416,14 @@ main( int argc, char* argv[] )
                 psCtrl.snapCtrl.imgBase = matName+"-"+imgBase+chunkTag;
                 if( isReal )
                 {
-                    itCountMap = QuasiTriangularPseudospectra
+                    itCountMap = QuasiTriangularSpectralWindow
                     ( AReal, QReal, invNormMap, chunkCenter, 
                       realChunkWidth, imagChunkWidth, 
                       realChunkSize, imagChunkSize, psCtrl );
                 }
                 else
                 {
-                    itCountMap = TriangularPseudospectra
+                    itCountMap = TriangularSpectralWindow
                     ( ACpx, QCpx, invNormMap, chunkCenter, 
                       realChunkWidth, imagChunkWidth, 
                       realChunkSize, imagChunkSize, psCtrl );

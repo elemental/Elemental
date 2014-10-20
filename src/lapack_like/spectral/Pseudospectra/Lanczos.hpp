@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_PSEUDOSPECTRUM_LANCZOS_HPP
-#define EL_PSEUDOSPECTRUM_LANCZOS_HPP
+#ifndef EL_PSEUDOSPECTRA_LANCZOS_HPP
+#define EL_PSEUDOSPECTRA_LANCZOS_HPP
 
 #include "./Power.hpp"
 
@@ -651,4 +651,4 @@ Lanczos
 } // namespace pspec
 } // namespace El
 
-#endif // ifndef EL_PSEUDOSPECTRUM_LANCZOS_HPP
+#endif // ifndef EL_PSEUDOSPECTRA_LANCZOS_HPP

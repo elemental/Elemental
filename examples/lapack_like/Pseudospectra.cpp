@@ -278,21 +278,21 @@ main( int argc, char* argv[] )
         if( realWidth != 0. && imagWidth != 0. )
         {
             if( isReal )
-                itCountMap = Pseudospectra
+                itCountMap = SpectralWindow
                 ( AReal, invNormMap, center, realWidth, imagWidth, 
                   realSize, imagSize, psCtrl );
             else
-                itCountMap = Pseudospectra
+                itCountMap = SpectralWindow
                 ( ACpx, invNormMap, center, realWidth, imagWidth, 
                   realSize, imagSize, psCtrl );
         }
         else
         {
             if( isReal )
-                itCountMap = Pseudospectra
+                itCountMap = SpectralPortrait
                 ( AReal, invNormMap, realSize, imagSize, psCtrl );
             else
-                itCountMap = Pseudospectra
+                itCountMap = SpectralPortrait
                 ( ACpx, invNormMap, realSize, imagSize, psCtrl );
         }
         const Int numIts = MaxNorm( itCountMap );
