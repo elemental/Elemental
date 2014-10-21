@@ -6,7 +6,7 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-import ctypes
+import sys, ctypes
 
 # TODO: Greatly improve this search functionality. At the moment, it is likely
 #       necessary to manually specify the path
@@ -247,16 +247,38 @@ def Blocksize():
   lib.ElBlocksize(pointer(blocksize))
   return blocksize
 
-# NOTE: This is a test; I'm not sure if the sys.stdout conversion works
-import sys
-ctypes.pythonapi.PyFile_AsFile.argtypes = [ctypes.py_object]
-ctypes.pythonapi.PyFile_AsFile.restype = c_void_p
+# Import several I/O routines
+# ---------------------------
+import ctypes.pythonapi.PyFile_AsFile as PyFile_AsFile
+PyFile_AsFile.argtypes = [ctypes.py_object]
+PyFile_AsFile.restype = c_void_p
+
 lib.ElPrintVersion.argtypes = [c_void_p]
 lib.ElPrintVersion.restype = c_uint
-def PrintVersion(f=ctypes.pythonapi.PyFile_AsFile(sys.stdout)):
+def PrintVersion(f=PyFile_AsFile(sys.stdout)):
   lib.ElPrintVersion(f)
 
+lib.ElPrintConfig.argtypes = [c_void_p]
+lib.ElPrintConfig.restype = c_uint
+def PrintConfig(f=PyFile_AsFile(sys.stdout)):
+  lib.ElPrintConfig(f)
+
+lib.ElPrintCCompilerInfo.argtypes = [c_void_p]
+lib.ElPrintCCompilerInfo.restype = c_uint
+def PrintCCompilerInfo(f=PyFile_AsFile(sys.stdout)):
+  lib.ElPrintCCompilerInfo(f)
+
+lib.ElPrintCxxCompilerInfo.argtypes = [c_void_p]
+lib.ElPrintCxxCompilerInfo.restype = c_uint
+def PrintCxxCompilerInfo(f=PyFile_AsFile(sys.stdout)):
+  lib.ElPrintCxxCompilerInfo(f)
+
+# Input routines
+# --------------
+# TODO?
+
 # Initialize MPI
+# --------------
 Initialize()
 
 def TypeExcept():

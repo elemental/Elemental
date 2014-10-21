@@ -675,6 +675,15 @@ void NormalUniformSpectrum
 ( AbstractDistMatrix<Complex<Real>>& A, Int n,
   Complex<Real> center=0, Real radius=1 );
 
+// Three-valued
+// ============
+template<typename T>
+void ThreeValued( Matrix<T>& A, Int m, Int n, double p=2./3. );
+template<typename T>
+void ThreeValued( AbstractDistMatrix<T>& A, Int m, Int n, double p=2./3. );
+template<typename T>
+void ThreeValued( AbstractBlockDistMatrix<T>& A, Int m, Int n, double p=2./3. );
+
 // Uniform
 // =======
 // Draw each entry from a uniform PDF over a closed ball.

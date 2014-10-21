@@ -12,33 +12,24 @@ namespace El {
 
 template<typename T>
 void Bernoulli( Matrix<T>& A, Int m, Int n )
-{
+{ 
     DEBUG_ONLY(CallStackEntry cse("Bernoulli"))
-    A.Resize( m, n );
-    auto coinFlip = [=]() { return T(CoinFlip()); };
-    EntrywiseFill( A, std::function<T()>(coinFlip) );
+    ThreeValued( A, m, n, 1. );
 }
 
 template<typename T>
 void Bernoulli( AbstractDistMatrix<T>& A, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Bernoulli"))
-    A.Resize( m, n );
-    if( A.RedundantRank() == 0 )
-        Bernoulli( A.Matrix(), A.LocalHeight(), A.LocalWidth() );
-    A.BroadcastOver( A.RedundantComm(), 0 );
+    ThreeValued( A, m, n, 1. );
 }
 
 template<typename T>
 void Bernoulli( AbstractBlockDistMatrix<T>& A, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Bernoulli"))
-    A.Resize( m, n );
-    if( A.RedundantRank() == 0 )
-        Bernoulli( A.Matrix(), A.LocalHeight(), A.LocalWidth() );
-    A.BroadcastOver( A.RedundantComm(), 0 );
+    ThreeValued( A, m, n, 1. );
 }
-
 
 #define PROTO(T) \
   template void Bernoulli( Matrix<T>& A, Int m, Int n ); \

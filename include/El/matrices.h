@@ -1102,6 +1102,25 @@ EL_EXPORT ElError ElNormalUniformSpectrumDist_c
 EL_EXPORT ElError ElNormalUniformSpectrumDist_z
 ( ElDistMatrix_z A, ElInt n, complex_double center, double radius );
 
+/* Three-valued
+   ============ */
+EL_EXPORT ElError ElThreeValued_i( ElMatrix_i A, ElInt m, ElInt n, double p );
+EL_EXPORT ElError ElThreeValued_s( ElMatrix_s A, ElInt m, ElInt n, double p );
+EL_EXPORT ElError ElThreeValued_d( ElMatrix_d A, ElInt m, ElInt n, double p );
+EL_EXPORT ElError ElThreeValued_c( ElMatrix_c A, ElInt m, ElInt n, double p );
+EL_EXPORT ElError ElThreeValued_z( ElMatrix_z A, ElInt m, ElInt n, double p );
+
+EL_EXPORT ElError ElThreeValuedDist_i
+( ElDistMatrix_i A, ElInt m, ElInt n, double p );
+EL_EXPORT ElError ElThreeValuedDist_s
+( ElDistMatrix_s A, ElInt m, ElInt n, double p );
+EL_EXPORT ElError ElThreeValuedDist_d
+( ElDistMatrix_d A, ElInt m, ElInt n, double p );
+EL_EXPORT ElError ElThreeValuedDist_c
+( ElDistMatrix_c A, ElInt m, ElInt n, double p );
+EL_EXPORT ElError ElThreeValuedDist_z
+( ElDistMatrix_z A, ElInt m, ElInt n, double p );
+
 /* Uniform
    ======= */
 EL_EXPORT ElError ElUniform_i

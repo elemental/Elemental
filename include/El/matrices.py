@@ -16,46 +16,6 @@ from ctypes import CFUNCTYPE
 # Deterministic
 # =============
 
-# Bernoulli
-# ---------
-lib.ElBernoulli_i.argtypes = [c_void_p,iType,iType]
-lib.ElBernoulli_i.restype = c_uint
-lib.ElBernoulli_s.argtypes = [c_void_p,iType,iType]
-lib.ElBernoulli_s.restype = c_uint
-lib.ElBernoulli_d.argtypes = [c_void_p,iType,iType]
-lib.ElBernoulli_d.restype = c_uint
-lib.ElBernoulli_c.argtypes = [c_void_p,iType,iType]
-lib.ElBernoulli_c.restype = c_uint
-lib.ElBernoulli_z.argtypes = [c_void_p,iType,iType]
-lib.ElBernoulli_z.restype = c_uint
-lib.ElBernoulliDist_i.argtypes = [c_void_p,iType,iType]
-lib.ElBernoulliDist_i.restype = c_uint
-lib.ElBernoulliDist_s.argtypes = [c_void_p,iType,iType]
-lib.ElBernoulliDist_s.restype = c_uint
-lib.ElBernoulliDist_d.argtypes = [c_void_p,iType,iType]
-lib.ElBernoulliDist_d.restype = c_uint
-lib.ElBernoulliDist_c.argtypes = [c_void_p,iType,iType]
-lib.ElBernoulliDist_c.restype = c_uint
-lib.ElBernoulliDist_z.argtypes = [c_void_p,iType,iType]
-lib.ElBernoulliDist_z.restype = c_uint
-def Bernoulli(A,m,n):
-  args = [A.obj,m,n]
-  if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElBernoulli_i(*args)
-    elif A.tag == sTag: lib.ElBernoulli_s(*args)
-    elif A.tag == dTag: lib.ElBernoulli_d(*args)
-    elif A.tag == cTag: lib.ElBernoulli_c(*args)
-    elif A.tag == zTag: lib.ElBernoulli_z(*args)
-    else: DataExcept()
-  elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElBernoulliDist_i(*args)
-    elif A.tag == sTag: lib.ElBernoulliDist_s(*args)
-    elif A.tag == dTag: lib.ElBernoulliDist_d(*args)
-    elif A.tag == cTag: lib.ElBernoulliDist_c(*args)
-    elif A.tag == zTag: lib.ElBernoulliDist_z(*args)
-    else: DataExcept()
-  else: TypeExcept()
-
 # Bull's head
 # -----------
 lib.ElBullsHead_c.argtypes = [c_void_p,iType]
@@ -1739,29 +1699,6 @@ def NormalFromEVD(A,w,Z):
     else: DataExcept()
   else: TypeExcept()
 
-# Normal uniform spectrum
-# -----------------------
-lib.ElNormalUniformSpectrum_c.argtypes = [c_void_p,iType,cType,sType]
-lib.ElNormalUniformSpectrum_c.restype = c_uint
-lib.ElNormalUniformSpectrum_z.argtypes = [c_void_p,iType,zType,dType]
-lib.ElNormalUniformSpectrum_z.restype = c_uint
-lib.ElNormalUniformSpectrumDist_c.argtypes = [c_void_p,iType,cType,sType]
-lib.ElNormalUniformSpectrumDist_c.restype = c_uint
-lib.ElNormalUniformSpectrumDist_z.argtypes = [c_void_p,iType,zType,dType]
-lib.ElNormalUniformSpectrumDist_z.restype = c_uint
-def NormalUniformSpectrum(A,n,centerPre=0,radius=1):
-  center = TagToType(A.tag)(centerPre)
-  args = [A.obj,n,center,radius]
-  if type(A) is Matrix:
-    if   A.tag == cTag: lib.ElNormalUniformSpectrum_c(*args)
-    elif A.tag == zTag: lib.ElNormalUniformSpectrum_z(*args)
-    else: DataExcept()
-  elif type(A) is DistMatrix:
-    if   A.tag == cTag: lib.ElNormalUniformSpectrumDist_c(*args)
-    elif A.tag == zTag: lib.ElNormalUniformSpectrumDist_z(*args)
-    else: DataExcept()
-  else: TypeExcept()
-
 # Ones
 # ----
 lib.ElOnes_c.argtypes = [c_void_p,iType,iType]
@@ -2377,6 +2314,46 @@ def Zeros(A,m,n):
 # Random
 # ======
 
+# Bernoulli
+# ---------
+lib.ElBernoulli_i.argtypes = [c_void_p,iType,iType]
+lib.ElBernoulli_i.restype = c_uint
+lib.ElBernoulli_s.argtypes = [c_void_p,iType,iType]
+lib.ElBernoulli_s.restype = c_uint
+lib.ElBernoulli_d.argtypes = [c_void_p,iType,iType]
+lib.ElBernoulli_d.restype = c_uint
+lib.ElBernoulli_c.argtypes = [c_void_p,iType,iType]
+lib.ElBernoulli_c.restype = c_uint
+lib.ElBernoulli_z.argtypes = [c_void_p,iType,iType]
+lib.ElBernoulli_z.restype = c_uint
+lib.ElBernoulliDist_i.argtypes = [c_void_p,iType,iType]
+lib.ElBernoulliDist_i.restype = c_uint
+lib.ElBernoulliDist_s.argtypes = [c_void_p,iType,iType]
+lib.ElBernoulliDist_s.restype = c_uint
+lib.ElBernoulliDist_d.argtypes = [c_void_p,iType,iType]
+lib.ElBernoulliDist_d.restype = c_uint
+lib.ElBernoulliDist_c.argtypes = [c_void_p,iType,iType]
+lib.ElBernoulliDist_c.restype = c_uint
+lib.ElBernoulliDist_z.argtypes = [c_void_p,iType,iType]
+lib.ElBernoulliDist_z.restype = c_uint
+def Bernoulli(A,m,n):
+  args = [A.obj,m,n]
+  if type(A) is Matrix:
+    if   A.tag == iTag: lib.ElBernoulli_i(*args)
+    elif A.tag == sTag: lib.ElBernoulli_s(*args)
+    elif A.tag == dTag: lib.ElBernoulli_d(*args)
+    elif A.tag == cTag: lib.ElBernoulli_c(*args)
+    elif A.tag == zTag: lib.ElBernoulli_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMatrix:
+    if   A.tag == iTag: lib.ElBernoulliDist_i(*args)
+    elif A.tag == sTag: lib.ElBernoulliDist_s(*args)
+    elif A.tag == dTag: lib.ElBernoulliDist_d(*args)
+    elif A.tag == cTag: lib.ElBernoulliDist_c(*args)
+    elif A.tag == zTag: lib.ElBernoulliDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
+
 # Gaussian
 # --------
 lib.ElGaussian_s.argtypes = [c_void_p,iType,iType,sType,sType]
@@ -2409,6 +2386,69 @@ def Gaussian(A,m,n,meanPre=0,stddev=1):
     elif A.tag == dTag: lib.ElGaussianDist_d(*args)
     elif A.tag == cTag: lib.ElGaussianDist_c(*args)
     elif A.tag == zTag: lib.ElGaussianDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
+
+# Normal uniform spectrum
+# -----------------------
+lib.ElNormalUniformSpectrum_c.argtypes = [c_void_p,iType,cType,sType]
+lib.ElNormalUniformSpectrum_c.restype = c_uint
+lib.ElNormalUniformSpectrum_z.argtypes = [c_void_p,iType,zType,dType]
+lib.ElNormalUniformSpectrum_z.restype = c_uint
+lib.ElNormalUniformSpectrumDist_c.argtypes = [c_void_p,iType,cType,sType]
+lib.ElNormalUniformSpectrumDist_c.restype = c_uint
+lib.ElNormalUniformSpectrumDist_z.argtypes = [c_void_p,iType,zType,dType]
+lib.ElNormalUniformSpectrumDist_z.restype = c_uint
+def NormalUniformSpectrum(A,n,centerPre=0,radius=1):
+  center = TagToType(A.tag)(centerPre)
+  args = [A.obj,n,center,radius]
+  if type(A) is Matrix:
+    if   A.tag == cTag: lib.ElNormalUniformSpectrum_c(*args)
+    elif A.tag == zTag: lib.ElNormalUniformSpectrum_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMatrix:
+    if   A.tag == cTag: lib.ElNormalUniformSpectrumDist_c(*args)
+    elif A.tag == zTag: lib.ElNormalUniformSpectrumDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
+
+# Three-valued
+# ------------
+lib.ElThreeValued_i.argtypes = [c_void_p,iType,iType,dType]
+lib.ElThreeValued_i.restype = c_uint
+lib.ElThreeValued_s.argtypes = [c_void_p,iType,iType,dType]
+lib.ElThreeValued_s.restype = c_uint
+lib.ElThreeValued_d.argtypes = [c_void_p,iType,iType,dType]
+lib.ElThreeValued_d.restype = c_uint
+lib.ElThreeValued_c.argtypes = [c_void_p,iType,iType,dType]
+lib.ElThreeValued_c.restype = c_uint
+lib.ElThreeValued_z.argtypes = [c_void_p,iType,iType,dType]
+lib.ElThreeValued_z.restype = c_uint
+lib.ElThreeValuedDist_i.argtypes = [c_void_p,iType,iType,dType]
+lib.ElThreeValuedDist_i.restype = c_uint
+lib.ElThreeValuedDist_s.argtypes = [c_void_p,iType,iType,dType]
+lib.ElThreeValuedDist_s.restype = c_uint
+lib.ElThreeValuedDist_d.argtypes = [c_void_p,iType,iType,dType]
+lib.ElThreeValuedDist_d.restype = c_uint
+lib.ElThreeValuedDist_c.argtypes = [c_void_p,iType,iType,dType]
+lib.ElThreeValuedDist_c.restype = c_uint
+lib.ElThreeValuedDist_z.argtypes = [c_void_p,iType,iType,dType]
+lib.ElThreeValuedDist_z.restype = c_uint
+def ThreeValued(A,m,n,p=2./3.):
+  args = [A.obj,m,n,p]
+  if type(A) is Matrix:
+    if   A.tag == iTag: lib.ElThreeValued_i(*args)
+    elif A.tag == sTag: lib.ElThreeValued_s(*args)
+    elif A.tag == dTag: lib.ElThreeValued_d(*args)
+    elif A.tag == cTag: lib.ElThreeValued_c(*args)
+    elif A.tag == zTag: lib.ElThreeValued_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMatrix:
+    if   A.tag == iTag: lib.ElThreeValuedDist_i(*args)
+    elif A.tag == sTag: lib.ElThreeValuedDist_s(*args)
+    elif A.tag == dTag: lib.ElThreeValuedDist_d(*args)
+    elif A.tag == cTag: lib.ElThreeValuedDist_c(*args)
+    elif A.tag == zTag: lib.ElThreeValuedDist_z(*args)
     else: DataExcept()
   else: TypeExcept()
 
