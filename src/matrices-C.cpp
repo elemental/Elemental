@@ -143,6 +143,13 @@ extern "C" {
   { EL_TRY( Redheffer( *CReflect(A), n ) ) } \
   ElError ElRedhefferDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( Redheffer( *CReflect(A), n ) ) } \
+  /* Three-valued */ \
+  ElError ElThreeValued_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt m, ElInt n, double p ) \
+  { EL_TRY( ThreeValued( *CReflect(A), m, n, p ) ) } \
+  ElError ElThreeValuedDist_ ## SIG  \
+  ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n, double p ) \
+  { EL_TRY( ThreeValued( *CReflect(A), m, n, p ) ) } \
   /* Toeplitz */ \
   ElError ElToeplitz_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt m, ElInt n, ElInt aSize, CREFLECT(T)* aBuf ) \

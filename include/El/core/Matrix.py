@@ -9,7 +9,7 @@
 from environment import *
 import numpy as np
 
-buffer_from_memory = ctypes.pythonapi.PyBuffer_FromMemory
+buffer_from_memory = pythonapi.PyBuffer_FromMemory
 buffer_from_memory.restype = ctypes.py_object
 
 # Matrix

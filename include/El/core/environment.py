@@ -7,6 +7,7 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 import sys, ctypes
+from ctypes import pythonapi
 
 # TODO: Greatly improve this search functionality. At the moment, it is likely
 #       necessary to manually specify the path
@@ -218,7 +219,7 @@ lib.ElInitialize.restype = c_uint
 def Initialize():
   argc = c_int()
   argv = POINTER(c_char_p)()
-  ctypes.pythonapi.Py_GetArgcArgv(ctypes.byref(argc),ctypes.byref(argv))
+  pythonapi.Py_GetArgcArgv(ctypes.byref(argc),ctypes.byref(argv))
   lib.ElInitialize(pointer(argc),pointer(argv))
 
 lib.ElFinalize.argtypes = []
@@ -249,28 +250,27 @@ def Blocksize():
 
 # Import several I/O routines
 # ---------------------------
-import ctypes.pythonapi.PyFile_AsFile as PyFile_AsFile
-PyFile_AsFile.argtypes = [ctypes.py_object]
-PyFile_AsFile.restype = c_void_p
+pythonapi.PyFile_AsFile.argtypes = [ctypes.py_object]
+pythonapi.PyFile_AsFile.restype = c_void_p
 
 lib.ElPrintVersion.argtypes = [c_void_p]
 lib.ElPrintVersion.restype = c_uint
-def PrintVersion(f=PyFile_AsFile(sys.stdout)):
+def PrintVersion(f=pythonapi.PyFile_AsFile(sys.stdout)):
   lib.ElPrintVersion(f)
 
 lib.ElPrintConfig.argtypes = [c_void_p]
 lib.ElPrintConfig.restype = c_uint
-def PrintConfig(f=PyFile_AsFile(sys.stdout)):
+def PrintConfig(f=pythonapi.PyFile_AsFile(sys.stdout)):
   lib.ElPrintConfig(f)
 
 lib.ElPrintCCompilerInfo.argtypes = [c_void_p]
 lib.ElPrintCCompilerInfo.restype = c_uint
-def PrintCCompilerInfo(f=PyFile_AsFile(sys.stdout)):
+def PrintCCompilerInfo(f=pythonapi.PyFile_AsFile(sys.stdout)):
   lib.ElPrintCCompilerInfo(f)
 
 lib.ElPrintCxxCompilerInfo.argtypes = [c_void_p]
 lib.ElPrintCxxCompilerInfo.restype = c_uint
-def PrintCxxCompilerInfo(f=PyFile_AsFile(sys.stdout)):
+def PrintCxxCompilerInfo(f=pythonapi.PyFile_AsFile(sys.stdout)):
   lib.ElPrintCxxCompilerInfo(f)
 
 # Input routines
