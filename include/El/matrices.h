@@ -14,6 +14,9 @@
 extern "C" {
 #endif
 
+/* Deterministic
+   ############# */
+
 /* Bull's head
    =========== */
 EL_EXPORT ElError ElBullsHead_c( ElMatrix_c A, ElInt n );
@@ -298,26 +301,6 @@ EL_EXPORT ElError ElFourierIdentity_z( ElMatrix_z A, ElInt n );
 EL_EXPORT ElError ElFourierIdentityDist_c( ElDistMatrix_c A, ElInt n );
 EL_EXPORT ElError ElFourierIdentityDist_z( ElDistMatrix_z A, ElInt n );
 
-/* Gaussian
-   ======== */
-EL_EXPORT ElError ElGaussian_s
-( ElMatrix_s A, ElInt m, ElInt n, float mean, float stddev );
-EL_EXPORT ElError ElGaussian_d
-( ElMatrix_d A, ElInt m, ElInt n, double mean, double stddev );
-EL_EXPORT ElError ElGaussian_c
-( ElMatrix_c A, ElInt m, ElInt n, complex_float mean, float stddev );
-EL_EXPORT ElError ElGaussian_z
-( ElMatrix_z A, ElInt m, ElInt n, complex_double mean, double stddev );
-
-EL_EXPORT ElError ElGaussianDist_s
-( ElDistMatrix_s A, ElInt m, ElInt n, float mean, float stddev );
-EL_EXPORT ElError ElGaussianDist_d
-( ElDistMatrix_d A, ElInt m, ElInt n, double mean, double stddev );
-EL_EXPORT ElError ElGaussianDist_c
-( ElDistMatrix_c A, ElInt m, ElInt n, complex_float mean, float stddev );
-EL_EXPORT ElError ElGaussianDist_z
-( ElDistMatrix_z A, ElInt m, ElInt n, complex_double mean, double stddev );
-
 /* GCD matrix
    ========== */
 EL_EXPORT ElError ElGCDMatrix_i( ElMatrix_i G, ElInt m, ElInt n );
@@ -384,36 +367,6 @@ EL_EXPORT ElError ElGrcarDist_d( ElDistMatrix_d A, ElInt n, ElInt k );
 EL_EXPORT ElError ElGrcarDist_c( ElDistMatrix_c A, ElInt n, ElInt k );
 EL_EXPORT ElError ElGrcarDist_z( ElDistMatrix_z A, ElInt n, ElInt k );
 
-/* Haar 
-   ==== */
-EL_EXPORT ElError ElHaar_s( ElMatrix_s A, ElInt n );
-EL_EXPORT ElError ElHaar_d( ElMatrix_d A, ElInt n );
-EL_EXPORT ElError ElHaar_c( ElMatrix_c A, ElInt n );
-EL_EXPORT ElError ElHaar_z( ElMatrix_z A, ElInt n );
-
-EL_EXPORT ElError ElHaarDist_s( ElDistMatrix_s A, ElInt n );
-EL_EXPORT ElError ElHaarDist_d( ElDistMatrix_d A, ElInt n );
-EL_EXPORT ElError ElHaarDist_c( ElDistMatrix_c A, ElInt n );
-EL_EXPORT ElError ElHaarDist_z( ElDistMatrix_z A, ElInt n );
-
-EL_EXPORT ElError ElImplicitHaar_s
-( ElMatrix_s A, ElMatrix_s t, ElMatrix_s d, ElInt n );
-EL_EXPORT ElError ElImplicitHaar_d
-( ElMatrix_d A, ElMatrix_d t, ElMatrix_d d, ElInt n );
-EL_EXPORT ElError ElImplicitHaar_c
-( ElMatrix_c A, ElMatrix_c t, ElMatrix_s d, ElInt n );
-EL_EXPORT ElError ElImplicitHaar_z
-( ElMatrix_z A, ElMatrix_z t, ElMatrix_d d, ElInt n );
-
-EL_EXPORT ElError ElImplicitHaarDist_s
-( ElDistMatrix_s A, ElDistMatrix_s t, ElDistMatrix_s d, ElInt n );
-EL_EXPORT ElError ElImplicitHaarDist_d
-( ElDistMatrix_d A, ElDistMatrix_d t, ElDistMatrix_d d, ElInt n );
-EL_EXPORT ElError ElImplicitHaarDist_c
-( ElDistMatrix_c A, ElDistMatrix_c t, ElDistMatrix_s d, ElInt n );
-EL_EXPORT ElError ElImplicitHaarDist_z
-( ElDistMatrix_z A, ElDistMatrix_z t, ElDistMatrix_d d, ElInt n );
-
 /* Hankel
    ====== */
 EL_EXPORT ElError ElHankel_i
@@ -451,35 +404,6 @@ EL_EXPORT ElError ElHanowaDist_s( ElDistMatrix_s A, ElInt n, float mu );
 EL_EXPORT ElError ElHanowaDist_d( ElDistMatrix_d A, ElInt n, double mu );
 EL_EXPORT ElError ElHanowaDist_c( ElDistMatrix_c A, ElInt n, complex_float mu );
 EL_EXPORT ElError ElHanowaDist_z( ElDistMatrix_z A, ElInt n, complex_double mu );
-
-/* Hatano-Nelson
-   ============= */
-EL_EXPORT ElError ElHatanoNelson_s
-( ElMatrix_s A, ElInt n, float center, float radius, float g, 
-  bool periodic );
-EL_EXPORT ElError ElHatanoNelson_d
-( ElMatrix_d A, ElInt n, double center, double radius, double g, 
-  bool periodic );
-EL_EXPORT ElError ElHatanoNelson_c
-( ElMatrix_c A, ElInt n, complex_float center, float radius, complex_float g, 
-  bool periodic );
-EL_EXPORT ElError ElHatanoNelson_z
-( ElMatrix_z A, ElInt n, complex_double center, double radius, complex_double g,
-  bool periodic );
-
-EL_EXPORT ElError ElHatanoNelsonDist_s
-( ElDistMatrix_s A, ElInt n, float center, float radius, 
-  float g, bool periodic );
-EL_EXPORT ElError ElHatanoNelsonDist_d
-( ElDistMatrix_d A, ElInt n, double center, double radius, 
-  double g, bool periodic );
-EL_EXPORT ElError ElHatanoNelsonDist_c
-( ElDistMatrix_c A, ElInt n, complex_float center, float radius, 
-  complex_float g, bool periodic );
-EL_EXPORT ElError ElHatanoNelsonDist_z
-( ElDistMatrix_z A, ElInt n, complex_double center, double radius, 
-  complex_double g, bool periodic );
-
 /* Helmholtz
    ========= */
 EL_EXPORT ElError ElHelmholtz1D_s
@@ -607,26 +531,6 @@ EL_EXPORT ElError ElHermitianFromEVDDist_c
 EL_EXPORT ElError ElHermitianFromEVDDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, 
   ElConstDistMatrix_d w, ElConstDistMatrix_z Z );
-
-/* Hermitian uniform spectrum
-   ========================== */
-EL_EXPORT ElError ElHermitianUniformSpectrum_s
-( ElMatrix_s A, ElInt n, float lower, float upper );
-EL_EXPORT ElError ElHermitianUniformSpectrum_d
-( ElMatrix_d A, ElInt n, double lower, double upper );
-EL_EXPORT ElError ElHermitianUniformSpectrum_c
-( ElMatrix_c A, ElInt n, float lower, float upper );
-EL_EXPORT ElError ElHermitianUniformSpectrum_z
-( ElMatrix_z A, ElInt n, double lower, double upper );
-
-EL_EXPORT ElError ElHermitianUniformSpectrumDist_s
-( ElDistMatrix_s A, ElInt n, float lower, float upper );
-EL_EXPORT ElError ElHermitianUniformSpectrumDist_d
-( ElDistMatrix_d A, ElInt n, double lower, double upper );
-EL_EXPORT ElError ElHermitianUniformSpectrumDist_c
-( ElDistMatrix_c A, ElInt n, float lower, float upper );
-EL_EXPORT ElError ElHermitianUniformSpectrumDist_z
-( ElDistMatrix_z A, ElInt n, double lower, double upper );
 
 /* Hilbert
    ======= */
@@ -820,18 +724,6 @@ EL_EXPORT ElError ElNormalFromEVDDist_c
 EL_EXPORT ElError ElNormalFromEVDDist_z
 ( ElDistMatrix_z A, ElConstDistMatrix_z w, ElConstDistMatrix_z Z );
 
-/* Normal uniform spectrum
-   ======================= */
-EL_EXPORT ElError ElNormalUniformSpectrum_c
-( ElMatrix_c A, ElInt n, complex_float center, float radius );
-EL_EXPORT ElError ElNormalUniformSpectrum_z
-( ElMatrix_z A, ElInt n, complex_double center, double radius );
-
-EL_EXPORT ElError ElNormalUniformSpectrumDist_c
-( ElDistMatrix_c A, ElInt n, complex_float center, float radius );
-EL_EXPORT ElError ElNormalUniformSpectrumDist_z
-( ElDistMatrix_z A, ElInt n, complex_double center, double radius );
-
 /* Ones
    ==== */
 EL_EXPORT ElError ElOnes_i( ElMatrix_i A, ElInt m, ElInt n );
@@ -1014,42 +906,6 @@ EL_EXPORT ElError ElTriWDist_c
 EL_EXPORT ElError ElTriWDist_z
 ( ElDistMatrix_z A, ElInt n, complex_double alpha, ElInt k );
 
-/* Uniform
-   ======= */
-EL_EXPORT ElError ElUniform_i
-( ElMatrix_i A, ElInt m, ElInt n, ElInt center, ElInt radius );
-EL_EXPORT ElError ElUniform_s
-( ElMatrix_s A, ElInt m, ElInt n, float center, float radius );
-EL_EXPORT ElError ElUniform_d
-( ElMatrix_d A, ElInt m, ElInt n, double center, double radius );
-EL_EXPORT ElError ElUniform_c
-( ElMatrix_c A, ElInt m, ElInt n, complex_float center, float radius );
-EL_EXPORT ElError ElUniform_z
-( ElMatrix_z A, ElInt m, ElInt n, complex_double center, double radius );
-
-EL_EXPORT ElError ElUniformDist_i
-( ElDistMatrix_i A, ElInt m, ElInt n, ElInt center, ElInt radius );
-EL_EXPORT ElError ElUniformDist_s
-( ElDistMatrix_s A, ElInt m, ElInt n, float center, float radius );
-EL_EXPORT ElError ElUniformDist_d
-( ElDistMatrix_d A, ElInt m, ElInt n, double center, double radius );
-EL_EXPORT ElError ElUniformDist_c
-( ElDistMatrix_c A, ElInt m, ElInt n, complex_float center, float radius );
-EL_EXPORT ElError ElUniformDist_z
-( ElDistMatrix_z A, ElInt m, ElInt n, complex_double center, double radius );
-
-/* Uniform Helmholtz Green's
-   ========================= */
-EL_EXPORT ElError ElUniformHelmholtzGreens_c
-( ElMatrix_c A, ElInt n, float lambda );
-EL_EXPORT ElError ElUniformHelmholtzGreens_z
-( ElMatrix_z A, ElInt n, double lambda );
-
-EL_EXPORT ElError ElUniformHelmholtzGreensDist_c
-( ElDistMatrix_c A, ElInt n, float lambda );
-EL_EXPORT ElError ElUniformHelmholtzGreensDist_z
-( ElDistMatrix_z A, ElInt n, double lambda );
-
 /* Walsh
    ===== */
 EL_EXPORT ElError ElWalsh_i( ElMatrix_i A, ElInt k, bool binary );
@@ -1091,26 +947,6 @@ EL_EXPORT ElError ElWhale_z( ElMatrix_z A, ElInt n );
 EL_EXPORT ElError ElWhaleDist_c( ElDistMatrix_c A, ElInt n );
 EL_EXPORT ElError ElWhaleDist_z( ElDistMatrix_z A, ElInt n );
 
-/* Wigner
-   ====== */
-EL_EXPORT ElError ElWigner_s
-( ElMatrix_s A, ElInt n, float mean, float stddev );
-EL_EXPORT ElError ElWigner_d
-( ElMatrix_d A, ElInt n, double mean, double stddev );
-EL_EXPORT ElError ElWigner_c
-( ElMatrix_c A, ElInt n, complex_float mean, float stddev );
-EL_EXPORT ElError ElWigner_z
-( ElMatrix_z A, ElInt n, complex_double mean, double stddev );
-
-EL_EXPORT ElError ElWignerDist_s
-( ElDistMatrix_s A, ElInt n, float mean, float stddev );
-EL_EXPORT ElError ElWignerDist_d
-( ElDistMatrix_d A, ElInt n, double mean, double stddev );
-EL_EXPORT ElError ElWignerDist_c
-( ElDistMatrix_c A, ElInt n, complex_float mean, float stddev );
-EL_EXPORT ElError ElWignerDist_z
-( ElDistMatrix_z A, ElInt n, complex_double mean, double stddev );
-
 /* Wilkinson
    ========= */
 EL_EXPORT ElError ElWilkinson_i( ElMatrix_i A, ElInt k );
@@ -1138,6 +974,189 @@ EL_EXPORT ElError ElZerosDist_s( ElDistMatrix_s A, ElInt m, ElInt n );
 EL_EXPORT ElError ElZerosDist_d( ElDistMatrix_d A, ElInt m, ElInt n );
 EL_EXPORT ElError ElZerosDist_c( ElDistMatrix_c A, ElInt m, ElInt n );
 EL_EXPORT ElError ElZerosDist_z( ElDistMatrix_z A, ElInt m, ElInt n );
+
+/* Random
+   ###### */
+
+/* Bernoulli
+   ========= */
+EL_EXPORT ElError ElBernoulli_i( ElMatrix_i A, ElInt m, ElInt n );
+EL_EXPORT ElError ElBernoulli_s( ElMatrix_s A, ElInt m, ElInt n );
+EL_EXPORT ElError ElBernoulli_d( ElMatrix_d A, ElInt m, ElInt n );
+EL_EXPORT ElError ElBernoulli_c( ElMatrix_c A, ElInt m, ElInt n );
+EL_EXPORT ElError ElBernoulli_z( ElMatrix_z A, ElInt m, ElInt n );
+
+EL_EXPORT ElError ElBernoulliDist_i( ElDistMatrix_i A, ElInt m, ElInt n );
+EL_EXPORT ElError ElBernoulliDist_s( ElDistMatrix_s A, ElInt m, ElInt n );
+EL_EXPORT ElError ElBernoulliDist_d( ElDistMatrix_d A, ElInt m, ElInt n );
+EL_EXPORT ElError ElBernoulliDist_c( ElDistMatrix_c A, ElInt m, ElInt n );
+EL_EXPORT ElError ElBernoulliDist_z( ElDistMatrix_z A, ElInt m, ElInt n );
+
+/* Gaussian
+   ======== */
+EL_EXPORT ElError ElGaussian_s
+( ElMatrix_s A, ElInt m, ElInt n, float mean, float stddev );
+EL_EXPORT ElError ElGaussian_d
+( ElMatrix_d A, ElInt m, ElInt n, double mean, double stddev );
+EL_EXPORT ElError ElGaussian_c
+( ElMatrix_c A, ElInt m, ElInt n, complex_float mean, float stddev );
+EL_EXPORT ElError ElGaussian_z
+( ElMatrix_z A, ElInt m, ElInt n, complex_double mean, double stddev );
+
+EL_EXPORT ElError ElGaussianDist_s
+( ElDistMatrix_s A, ElInt m, ElInt n, float mean, float stddev );
+EL_EXPORT ElError ElGaussianDist_d
+( ElDistMatrix_d A, ElInt m, ElInt n, double mean, double stddev );
+EL_EXPORT ElError ElGaussianDist_c
+( ElDistMatrix_c A, ElInt m, ElInt n, complex_float mean, float stddev );
+EL_EXPORT ElError ElGaussianDist_z
+( ElDistMatrix_z A, ElInt m, ElInt n, complex_double mean, double stddev );
+
+/* Haar 
+   ==== */
+EL_EXPORT ElError ElHaar_s( ElMatrix_s A, ElInt n );
+EL_EXPORT ElError ElHaar_d( ElMatrix_d A, ElInt n );
+EL_EXPORT ElError ElHaar_c( ElMatrix_c A, ElInt n );
+EL_EXPORT ElError ElHaar_z( ElMatrix_z A, ElInt n );
+
+EL_EXPORT ElError ElHaarDist_s( ElDistMatrix_s A, ElInt n );
+EL_EXPORT ElError ElHaarDist_d( ElDistMatrix_d A, ElInt n );
+EL_EXPORT ElError ElHaarDist_c( ElDistMatrix_c A, ElInt n );
+EL_EXPORT ElError ElHaarDist_z( ElDistMatrix_z A, ElInt n );
+
+EL_EXPORT ElError ElImplicitHaar_s
+( ElMatrix_s A, ElMatrix_s t, ElMatrix_s d, ElInt n );
+EL_EXPORT ElError ElImplicitHaar_d
+( ElMatrix_d A, ElMatrix_d t, ElMatrix_d d, ElInt n );
+EL_EXPORT ElError ElImplicitHaar_c
+( ElMatrix_c A, ElMatrix_c t, ElMatrix_s d, ElInt n );
+EL_EXPORT ElError ElImplicitHaar_z
+( ElMatrix_z A, ElMatrix_z t, ElMatrix_d d, ElInt n );
+
+EL_EXPORT ElError ElImplicitHaarDist_s
+( ElDistMatrix_s A, ElDistMatrix_s t, ElDistMatrix_s d, ElInt n );
+EL_EXPORT ElError ElImplicitHaarDist_d
+( ElDistMatrix_d A, ElDistMatrix_d t, ElDistMatrix_d d, ElInt n );
+EL_EXPORT ElError ElImplicitHaarDist_c
+( ElDistMatrix_c A, ElDistMatrix_c t, ElDistMatrix_s d, ElInt n );
+EL_EXPORT ElError ElImplicitHaarDist_z
+( ElDistMatrix_z A, ElDistMatrix_z t, ElDistMatrix_d d, ElInt n );
+
+/* Hatano-Nelson
+   ============= */
+EL_EXPORT ElError ElHatanoNelson_s
+( ElMatrix_s A, ElInt n, float center, float radius, float g, 
+  bool periodic );
+EL_EXPORT ElError ElHatanoNelson_d
+( ElMatrix_d A, ElInt n, double center, double radius, double g, 
+  bool periodic );
+EL_EXPORT ElError ElHatanoNelson_c
+( ElMatrix_c A, ElInt n, complex_float center, float radius, complex_float g, 
+  bool periodic );
+EL_EXPORT ElError ElHatanoNelson_z
+( ElMatrix_z A, ElInt n, complex_double center, double radius, complex_double g,
+  bool periodic );
+
+EL_EXPORT ElError ElHatanoNelsonDist_s
+( ElDistMatrix_s A, ElInt n, float center, float radius, 
+  float g, bool periodic );
+EL_EXPORT ElError ElHatanoNelsonDist_d
+( ElDistMatrix_d A, ElInt n, double center, double radius, 
+  double g, bool periodic );
+EL_EXPORT ElError ElHatanoNelsonDist_c
+( ElDistMatrix_c A, ElInt n, complex_float center, float radius, 
+  complex_float g, bool periodic );
+EL_EXPORT ElError ElHatanoNelsonDist_z
+( ElDistMatrix_z A, ElInt n, complex_double center, double radius, 
+  complex_double g, bool periodic );
+
+/* Hermitian uniform spectrum
+   ========================== */
+EL_EXPORT ElError ElHermitianUniformSpectrum_s
+( ElMatrix_s A, ElInt n, float lower, float upper );
+EL_EXPORT ElError ElHermitianUniformSpectrum_d
+( ElMatrix_d A, ElInt n, double lower, double upper );
+EL_EXPORT ElError ElHermitianUniformSpectrum_c
+( ElMatrix_c A, ElInt n, float lower, float upper );
+EL_EXPORT ElError ElHermitianUniformSpectrum_z
+( ElMatrix_z A, ElInt n, double lower, double upper );
+
+EL_EXPORT ElError ElHermitianUniformSpectrumDist_s
+( ElDistMatrix_s A, ElInt n, float lower, float upper );
+EL_EXPORT ElError ElHermitianUniformSpectrumDist_d
+( ElDistMatrix_d A, ElInt n, double lower, double upper );
+EL_EXPORT ElError ElHermitianUniformSpectrumDist_c
+( ElDistMatrix_c A, ElInt n, float lower, float upper );
+EL_EXPORT ElError ElHermitianUniformSpectrumDist_z
+( ElDistMatrix_z A, ElInt n, double lower, double upper );
+
+/* Normal uniform spectrum
+   ======================= */
+EL_EXPORT ElError ElNormalUniformSpectrum_c
+( ElMatrix_c A, ElInt n, complex_float center, float radius );
+EL_EXPORT ElError ElNormalUniformSpectrum_z
+( ElMatrix_z A, ElInt n, complex_double center, double radius );
+
+EL_EXPORT ElError ElNormalUniformSpectrumDist_c
+( ElDistMatrix_c A, ElInt n, complex_float center, float radius );
+EL_EXPORT ElError ElNormalUniformSpectrumDist_z
+( ElDistMatrix_z A, ElInt n, complex_double center, double radius );
+
+/* Uniform
+   ======= */
+EL_EXPORT ElError ElUniform_i
+( ElMatrix_i A, ElInt m, ElInt n, ElInt center, ElInt radius );
+EL_EXPORT ElError ElUniform_s
+( ElMatrix_s A, ElInt m, ElInt n, float center, float radius );
+EL_EXPORT ElError ElUniform_d
+( ElMatrix_d A, ElInt m, ElInt n, double center, double radius );
+EL_EXPORT ElError ElUniform_c
+( ElMatrix_c A, ElInt m, ElInt n, complex_float center, float radius );
+EL_EXPORT ElError ElUniform_z
+( ElMatrix_z A, ElInt m, ElInt n, complex_double center, double radius );
+
+EL_EXPORT ElError ElUniformDist_i
+( ElDistMatrix_i A, ElInt m, ElInt n, ElInt center, ElInt radius );
+EL_EXPORT ElError ElUniformDist_s
+( ElDistMatrix_s A, ElInt m, ElInt n, float center, float radius );
+EL_EXPORT ElError ElUniformDist_d
+( ElDistMatrix_d A, ElInt m, ElInt n, double center, double radius );
+EL_EXPORT ElError ElUniformDist_c
+( ElDistMatrix_c A, ElInt m, ElInt n, complex_float center, float radius );
+EL_EXPORT ElError ElUniformDist_z
+( ElDistMatrix_z A, ElInt m, ElInt n, complex_double center, double radius );
+
+/* Uniform Helmholtz Green's
+   ========================= */
+EL_EXPORT ElError ElUniformHelmholtzGreens_c
+( ElMatrix_c A, ElInt n, float lambda );
+EL_EXPORT ElError ElUniformHelmholtzGreens_z
+( ElMatrix_z A, ElInt n, double lambda );
+
+EL_EXPORT ElError ElUniformHelmholtzGreensDist_c
+( ElDistMatrix_c A, ElInt n, float lambda );
+EL_EXPORT ElError ElUniformHelmholtzGreensDist_z
+( ElDistMatrix_z A, ElInt n, double lambda );
+
+/* Wigner
+   ====== */
+EL_EXPORT ElError ElWigner_s
+( ElMatrix_s A, ElInt n, float mean, float stddev );
+EL_EXPORT ElError ElWigner_d
+( ElMatrix_d A, ElInt n, double mean, double stddev );
+EL_EXPORT ElError ElWigner_c
+( ElMatrix_c A, ElInt n, complex_float mean, float stddev );
+EL_EXPORT ElError ElWigner_z
+( ElMatrix_z A, ElInt n, complex_double mean, double stddev );
+
+EL_EXPORT ElError ElWignerDist_s
+( ElDistMatrix_s A, ElInt n, float mean, float stddev );
+EL_EXPORT ElError ElWignerDist_d
+( ElDistMatrix_d A, ElInt n, double mean, double stddev );
+EL_EXPORT ElError ElWignerDist_c
+( ElDistMatrix_c A, ElInt n, complex_float mean, float stddev );
+EL_EXPORT ElError ElWignerDist_z
+( ElDistMatrix_z A, ElInt n, complex_double mean, double stddev );
 
 #ifdef __cplusplus
 } // extern "C"

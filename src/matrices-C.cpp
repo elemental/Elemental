@@ -13,6 +13,11 @@ using namespace El;
 extern "C" {
 
 #define C_PROTO_BASE(SIG,SIGBASE,T) \
+  /* Bernoulli */ \
+  ElError ElBernoulli_ ## SIG ( ElMatrix_ ## SIG A, ElInt m, ElInt n ) \
+  { EL_TRY( Bernoulli( *CReflect(A), m, n ) ) } \
+  ElError ElBernoulliDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n ) \
+  { EL_TRY( Bernoulli( *CReflect(A), m, n ) ) } \
   /* Circulant */ \
   ElError ElCirculant_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt aSize, CREFLECT(T)* aBuf ) \

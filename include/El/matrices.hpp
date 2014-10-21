@@ -613,6 +613,15 @@ void Zeros( AbstractBlockDistMatrix<T>& A, Int m, Int n );
 // Random
 // ######
 
+// Bernoulli
+// =========
+template<typename T>
+void Bernoulli( Matrix<T>& A, Int m, Int n );
+template<typename T>
+void Bernoulli( AbstractDistMatrix<T>& A, Int m, Int n );
+template<typename T>
+void Bernoulli( AbstractBlockDistMatrix<T>& A, Int m, Int n );
+
 // Gaussian
 // ========
 template<typename F>

@@ -16,6 +16,46 @@ from ctypes import CFUNCTYPE
 # Deterministic
 # =============
 
+# Bernoulli
+# ---------
+lib.ElBernoulli_i.argtypes = [c_void_p,iType,iType]
+lib.ElBernoulli_i.restype = c_uint
+lib.ElBernoulli_s.argtypes = [c_void_p,iType,iType]
+lib.ElBernoulli_s.restype = c_uint
+lib.ElBernoulli_d.argtypes = [c_void_p,iType,iType]
+lib.ElBernoulli_d.restype = c_uint
+lib.ElBernoulli_c.argtypes = [c_void_p,iType,iType]
+lib.ElBernoulli_c.restype = c_uint
+lib.ElBernoulli_z.argtypes = [c_void_p,iType,iType]
+lib.ElBernoulli_z.restype = c_uint
+lib.ElBernoulliDist_i.argtypes = [c_void_p,iType,iType]
+lib.ElBernoulliDist_i.restype = c_uint
+lib.ElBernoulliDist_s.argtypes = [c_void_p,iType,iType]
+lib.ElBernoulliDist_s.restype = c_uint
+lib.ElBernoulliDist_d.argtypes = [c_void_p,iType,iType]
+lib.ElBernoulliDist_d.restype = c_uint
+lib.ElBernoulliDist_c.argtypes = [c_void_p,iType,iType]
+lib.ElBernoulliDist_c.restype = c_uint
+lib.ElBernoulliDist_z.argtypes = [c_void_p,iType,iType]
+lib.ElBernoulliDist_z.restype = c_uint
+def Bernoulli(A,m,n):
+  args = [A.obj,m,n]
+  if type(A) is Matrix:
+    if   A.tag == iTag: lib.ElBernoulli_i(*args)
+    elif A.tag == sTag: lib.ElBernoulli_s(*args)
+    elif A.tag == dTag: lib.ElBernoulli_d(*args)
+    elif A.tag == cTag: lib.ElBernoulli_c(*args)
+    elif A.tag == zTag: lib.ElBernoulli_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMatrix:
+    if   A.tag == iTag: lib.ElBernoulliDist_i(*args)
+    elif A.tag == sTag: lib.ElBernoulliDist_s(*args)
+    elif A.tag == dTag: lib.ElBernoulliDist_d(*args)
+    elif A.tag == cTag: lib.ElBernoulliDist_c(*args)
+    elif A.tag == zTag: lib.ElBernoulliDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
+
 # Bull's head
 # -----------
 lib.ElBullsHead_c.argtypes = [c_void_p,iType]

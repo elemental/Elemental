@@ -247,6 +247,15 @@ def Blocksize():
   lib.ElBlocksize(pointer(blocksize))
   return blocksize
 
+# NOTE: This is a test; I'm not sure if the sys.stdout conversion works
+import sys
+ctypes.pythonapi.PyFile_AsFile.argtypes = [ctypes.py_object]
+ctypes.pythonapi.PyFile_AsFile.restype = c_void_p
+lib.ElPrintVersion.argtypes = [c_void_p]
+lib.ElPrintVersion.restype = c_uint
+def PrintVersion(f=ctypes.pythonapi.PyFile_AsFile(sys.stdout)):
+  lib.ElPrintVersion(f)
+
 # Initialize MPI
 Initialize()
 

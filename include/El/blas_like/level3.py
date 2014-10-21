@@ -399,31 +399,32 @@ lib.ElTrdtrmm_s.argtypes = [c_uint,c_void_p]
 lib.ElTrdtrmm_s.restype = c_uint
 lib.ElTrdtrmm_d.argtypes = [c_uint,c_void_p]
 lib.ElTrdtrmm_d.restype = c_uint
-lib.ElTrdtrmm_c.argtypes = [c_uint,c_void_p]
+lib.ElTrdtrmm_c.argtypes = [c_uint,c_void_p,bType]
 lib.ElTrdtrmm_c.restype = c_uint
-lib.ElTrdtrmm_z.argtypes = [c_uint,c_void_p]
+lib.ElTrdtrmm_z.argtypes = [c_uint,c_void_p,bType]
 lib.ElTrdtrmm_z.restype = c_uint
 lib.ElTrdtrmmDist_s.argtypes = [c_uint,c_void_p]
 lib.ElTrdtrmmDist_s.restype = c_uint
 lib.ElTrdtrmmDist_d.argtypes = [c_uint,c_void_p]
 lib.ElTrdtrmmDist_d.restype = c_uint
-lib.ElTrdtrmmDist_c.argtypes = [c_uint,c_void_p]
+lib.ElTrdtrmmDist_c.argtypes = [c_uint,c_void_p,bType]
 lib.ElTrdtrmmDist_c.restype = c_uint
-lib.ElTrdtrmmDist_z.argtypes = [c_uint,c_void_p]
+lib.ElTrdtrmmDist_z.argtypes = [c_uint,c_void_p,bType]
 lib.ElTrdtrmmDist_z.restype = c_uint
-def Trdtrmm(uplo,A):
+def Trdtrmm(uplo,A,conjugate=False):
   args = [uplo,A.obj]
+  argsCpx = [uplo,A.obj,conjugate]
   if type(A) is Matrix:
     if   A.tag == sTag: lib.ElTrdtrmm_s(*args)
     elif A.tag == dTag: lib.ElTrdtrmm_d(*args)
-    elif A.tag == cTag: lib.ElTrdtrmm_c(*args)
-    elif A.tag == zTag: lib.ElTrdtrmm_z(*args)
+    elif A.tag == cTag: lib.ElTrdtrmm_c(*argsCpx)
+    elif A.tag == zTag: lib.ElTrdtrmm_z(*argsCpx)
     else: DataExcept()
   elif type(A) is DistMatrix:
     if   A.tag == sTag: lib.ElTrdtrmmDist_s(*args)
     elif A.tag == dTag: lib.ElTrdtrmmDist_d(*args)
-    elif A.tag == cTag: lib.ElTrdtrmmDist_c(*args)
-    elif A.tag == zTag: lib.ElTrdtrmmDist_z(*args)
+    elif A.tag == cTag: lib.ElTrdtrmmDist_c(*argsCpx)
+    elif A.tag == zTag: lib.ElTrdtrmmDist_z(*argsCpx)
     else: DataExcept()
   else: TypeExcept()
 
@@ -433,35 +434,36 @@ lib.ElTrdtrmmQuasi_s.argtypes = [c_uint,c_void_p,c_void_p]
 lib.ElTrdtrmmQuasi_s.restype = c_uint
 lib.ElTrdtrmmQuasi_d.argtypes = [c_uint,c_void_p,c_void_p]
 lib.ElTrdtrmmQuasi_d.restype = c_uint
-lib.ElTrdtrmmQuasi_c.argtypes = [c_uint,c_void_p,c_void_p]
+lib.ElTrdtrmmQuasi_c.argtypes = [c_uint,c_void_p,c_void_p,bType]
 lib.ElTrdtrmmQuasi_c.restype = c_uint
-lib.ElTrdtrmmQuasi_z.argtypes = [c_uint,c_void_p,c_void_p]
+lib.ElTrdtrmmQuasi_z.argtypes = [c_uint,c_void_p,c_void_p,bType]
 lib.ElTrdtrmmQuasi_z.restype = c_uint
 lib.ElTrdtrmmQuasiDist_s.argtypes = [c_uint,c_void_p,c_void_p]
 lib.ElTrdtrmmQuasiDist_s.restype = c_uint
 lib.ElTrdtrmmQuasiDist_d.argtypes = [c_uint,c_void_p,c_void_p]
 lib.ElTrdtrmmQuasiDist_d.restype = c_uint
-lib.ElTrdtrmmQuasiDist_c.argtypes = [c_uint,c_void_p,c_void_p]
+lib.ElTrdtrmmQuasiDist_c.argtypes = [c_uint,c_void_p,c_void_p,bType]
 lib.ElTrdtrmmQuasiDist_c.restype = c_uint
-lib.ElTrdtrmmQuasiDist_z.argtypes = [c_uint,c_void_p,c_void_p]
+lib.ElTrdtrmmQuasiDist_z.argtypes = [c_uint,c_void_p,c_void_p,bType]
 lib.ElTrdtrmmQuasiDist_z.restype = c_uint
-def TrdtrmmQuasi(uplo,A,dOff):
+def TrdtrmmQuasi(uplo,A,dOff,conjugate=False):
   if type(A) is not type(dOff): 
     raise Exception('Types of A and dOff must match')
   if A.tag != dOff.tag:
     raise Exception('Datatypes of A and dOff must match')
   args = [uplo,A.obj]
+  argsCpx = [uplo,A.obj,conjugate]
   if type(A) is Matrix:
-    if   A.tag == sTag: lib.ElTrdtrmm_s(*args)
-    elif A.tag == dTag: lib.ElTrdtrmm_d(*args)
-    elif A.tag == cTag: lib.ElTrdtrmm_c(*args)
-    elif A.tag == zTag: lib.ElTrdtrmm_z(*args)
+    if   A.tag == sTag: lib.ElTrdtrmmQuasi_s(*args)
+    elif A.tag == dTag: lib.ElTrdtrmmQuasi_d(*args)
+    elif A.tag == cTag: lib.ElTrdtrmmQuasi_c(*argsCpx)
+    elif A.tag == zTag: lib.ElTrdtrmmQuasi_z(*argsCpx)
     else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == sTag: lib.ElTrdtrmmDist_s(*args)
-    elif A.tag == dTag: lib.ElTrdtrmmDist_d(*args)
-    elif A.tag == cTag: lib.ElTrdtrmmDist_c(*args)
-    elif A.tag == zTag: lib.ElTrdtrmmDist_z(*args)
+    if   A.tag == sTag: lib.ElTrdtrmmQuasiDist_s(*args)
+    elif A.tag == dTag: lib.ElTrdtrmmQuasiDist_d(*args)
+    elif A.tag == cTag: lib.ElTrdtrmmQuasiDist_c(*argsCpx)
+    elif A.tag == zTag: lib.ElTrdtrmmQuasiDist_z(*argsCpx)
     else: DataExcept()
   else: TypeExcept()
 
@@ -698,31 +700,32 @@ lib.ElTrtrmm_s.argtypes = [c_uint,c_void_p]
 lib.ElTrtrmm_s.restype = c_uint
 lib.ElTrtrmm_d.argtypes = [c_uint,c_void_p]
 lib.ElTrtrmm_d.restype = c_uint
-lib.ElTrtrmm_c.argtypes = [c_uint,c_void_p]
+lib.ElTrtrmm_c.argtypes = [c_uint,c_void_p,bType]
 lib.ElTrtrmm_c.restype = c_uint
-lib.ElTrtrmm_z.argtypes = [c_uint,c_void_p]
+lib.ElTrtrmm_z.argtypes = [c_uint,c_void_p,bType]
 lib.ElTrtrmm_z.restype = c_uint
 lib.ElTrtrmmDist_s.argtypes = [c_uint,c_void_p]
 lib.ElTrtrmmDist_s.restype = c_uint
 lib.ElTrtrmmDist_d.argtypes = [c_uint,c_void_p]
 lib.ElTrtrmmDist_d.restype = c_uint
-lib.ElTrtrmmDist_c.argtypes = [c_uint,c_void_p]
+lib.ElTrtrmmDist_c.argtypes = [c_uint,c_void_p,bType]
 lib.ElTrtrmmDist_c.restype = c_uint
-lib.ElTrtrmmDist_z.argtypes = [c_uint,c_void_p]
+lib.ElTrtrmmDist_z.argtypes = [c_uint,c_void_p,bType]
 lib.ElTrtrmmDist_z.restype = c_uint
-def Trtrmm(uplo,A):
+def Trtrmm(uplo,A,conjugate=False):
   args = [uplo,A.obj]
+  argsCpx = [uplo,A.obj,conjugate]
   if type(A) is Matrix:
     if   A.tag == sTag: lib.ElTrtrmm_s(*args)
     elif A.tag == dTag: lib.ElTrtrmm_d(*args)
-    elif A.tag == cTag: lib.ElTrtrmm_c(*args)
-    elif A.tag == zTag: lib.ElTrtrmm_z(*args)
+    elif A.tag == cTag: lib.ElTrtrmm_c(*argsCpx)
+    elif A.tag == zTag: lib.ElTrtrmm_z(*argsCpx)
     else: DataExcept()
   elif type(A) is DistMatrix:
     if   A.tag == sTag: lib.ElTrtrmmDist_s(*args)
     elif A.tag == dTag: lib.ElTrtrmmDist_d(*args)
-    elif A.tag == cTag: lib.ElTrtrmmDist_c(*args)
-    elif A.tag == zTag: lib.ElTrtrmmDist_z(*args)
+    elif A.tag == cTag: lib.ElTrtrmmDist_c(*argsCpx)
+    elif A.tag == zTag: lib.ElTrtrmmDist_z(*argsCpx)
     else: DataExcept()
   else: TypeExcept()
 
