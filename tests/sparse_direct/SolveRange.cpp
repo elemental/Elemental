@@ -60,7 +60,6 @@ main( int argc, char* argv[] )
         const double fillStart = mpi::Time();
         const int firstLocalRow = A.FirstLocalRow();
         const int localHeight = A.LocalHeight();
-        A.StartAssembly();
         A.Reserve( 7*localHeight );
         for( int iLocal=0; iLocal<localHeight; ++iLocal )
         {
@@ -83,7 +82,7 @@ main( int argc, char* argv[] )
             if( z != n3-1 )
                 A.Update( i, i+n1*n2, -1. );
         } 
-        A.StopAssembly();
+        A.MakeConsistent();
         mpi::Barrier( comm );
         const double fillStop =  mpi::Time();
         if( commRank == 0 )

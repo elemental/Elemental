@@ -43,6 +43,14 @@ ElError ElNumDiscreteColors( ElInt* numColors )
 ElError ElProcessEvents( int numMsecs )
 { EL_TRY( ProcessEvents(numMsecs) ) }
 
+ElError ElDisplayGraph( ElConstGraph graph, const char* title )
+{ EL_TRY( Display( *CReflect(graph), std::string(title) ) ) }
+
+/* Print
+   ===== */
+ElError ElPrintGraph( ElConstGraph graph, const char* title )
+{ EL_TRY( Print( *CReflect(graph), std::string(title) ) ) }
+
 #define C_PROTO(SIG,SIGBASE,T) \
   /* Display */ \
   ElError ElDisplay_ ## SIG \

@@ -19,6 +19,8 @@
 #include "El/core/Grid.h"
 #include "El/core/Matrix.h"
 #include "El/core/DistMatrix.h"
+#include "El/core/Graph.h"
+#include "El/core/SparseMatrix.h"
 #include "El/core/View.h"
 #include "El/core/flame_part/Merge.h"
 #include "El/core/flame_part/Partition.h"

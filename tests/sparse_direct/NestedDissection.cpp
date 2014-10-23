@@ -47,7 +47,6 @@ main( int argc, char* argv[] )
             std::cout << "Filling local portion of graph...";
             std::cout.flush();
         }
-        graph.StartAssembly();
         graph.Reserve( 7*numLocalSources );
         for( int iLocal=0; iLocal<numLocalSources; ++iLocal )
         {
@@ -70,7 +69,7 @@ main( int argc, char* argv[] )
             if( z != n-1 )
                 graph.Insert( i, i+n*n );
         }
-        graph.StopAssembly();
+        graph.MakeConsistent();
         mpi::Barrier( comm );
         if( commRank == 0 )
             std::cout << "done" << std::endl;

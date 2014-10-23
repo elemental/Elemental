@@ -41,7 +41,6 @@ main( int argc, char* argv[] )
         // in natural ordering: (x,y,z) at x + y*n + z*n*n
         const int firstLocalSource = graph.FirstLocalSource();
         const int numLocalSources = graph.NumLocalSources();
-        graph.StartAssembly();
         graph.Reserve( 7*numLocalSources );
         for( int iLocal=0; iLocal<numLocalSources; ++iLocal )
         {
@@ -64,7 +63,7 @@ main( int argc, char* argv[] )
             if( z != n-1 )
                 graph.Insert( i, i+n*n );
         }
-        graph.StopAssembly();
+        graph.MakeConsistent();
         if( display )
             Display( graph );
         if( print )

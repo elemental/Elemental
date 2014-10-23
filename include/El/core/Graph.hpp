@@ -21,61 +21,71 @@ class Graph
 {
 public:
     // Constructors and destructors
+    // ============================
     Graph();
-    Graph( int numVertices );
-    Graph( int numSources, int numTargets );
+    Graph( Int numVertices );
+    Graph( Int numSources, Int numTargets );
     Graph( const Graph& graph );
     // NOTE: This requires the DistGraph to be over a single process
     Graph( const DistGraph& graph );
+    // TODO: Move constructor
     ~Graph();
 
-    // High-level information
-    int NumSources() const;
-    int NumTargets() const;
+    // Assignment and reconfiguration
+    // ==============================
 
-    // Assembly-related routines
-    void StartAssembly();
-    void StopAssembly();
-    void Reserve( int numEdges );
-    void Insert( int source, int target );
-    int Capacity() const;
-
-    // Data
-    int NumEdges() const;
-    int Source( int edge ) const;
-    int Target( int edge ) const;
-    int EdgeOffset( int source ) const;
-    int NumConnections( int source ) const;
-    int* SourceBuffer();
-    int* TargetBuffer();
-    const int* LockedSourceBuffer() const;
-    const int* LockedTargetBuffer() const;
-
-    // For resizing the graph
-    void Empty();
-    void Resize( int numVertices );
-    void Resize( int numSources, int numTargets );
-
+    // Make a copy
+    // -----------
     // For copying one graph into another
     const Graph& operator=( const Graph& graph );
     // NOTE: This requires the DistGraph to be over a single process
     const Graph& operator=( const DistGraph& graph );
+    // TODO: Move assignment
+
+    // Change the size of the graph
+    // ----------------------------
+    void Empty();
+    void Resize( Int numVertices );
+    void Resize( Int numSources, Int numTargets );
+
+    // Assembly
+    // --------
+    void Reserve( Int numEdges );
+    void Insert( Int source, Int target );
+    void MakeConsistent();
+
+    // Basic queries
+    // =============
+    Int NumSources() const;
+    Int NumTargets() const;
+    Int NumEdges() const;
+    Int Capacity() const;
+    bool Consistent() const;
+
+    Int Source( Int edge ) const;
+    Int Target( Int edge ) const;
+    Int EdgeOffset( Int source ) const;
+    Int NumConnections( Int source ) const;
+    Int* SourceBuffer();
+    Int* TargetBuffer();
+    const Int* LockedSourceBuffer() const;
+    const Int* LockedTargetBuffer() const;
 
 private:
-    int numSources_, numTargets_;
-    std::vector<int> sources_, targets_;
+    Int numSources_, numTargets_;
+    std::vector<Int> sources_, targets_;
 
     // Helpers for local indexing
-    bool assembling_, sorted_;
-    std::vector<int> edgeOffsets_;
+    bool consistent_;
+    std::vector<Int> edgeOffsets_;
     void ComputeEdgeOffsets();
 
     static bool ComparePairs
-    ( const std::pair<int,int>& a, const std::pair<int,int>& b );
+    ( const std::pair<Int,Int>& a, const std::pair<Int,Int>& b );
 
-    void EnsureNotAssembling() const;
-    void EnsureConsistentSizes() const;
-    void EnsureConsistentCapacities() const;
+    void AssertConsistent() const;
+    void AssertConsistentSizes() const;
+    void AssertConsistentCapacities() const;
 
     friend class DistGraph;
     template<typename F> friend class SparseMatrix;

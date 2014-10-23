@@ -435,6 +435,83 @@ inline ElConstDistMatrix_z
 CReflect( const AbstractDistMatrix<Complex<double>>* A )
 { return (ElConstDistMatrix_z)EL_RC(const struct ElDistMatrix_zDummy*,A); }
 
+/* Graph
+   ----- */
+inline Graph* CReflect( ElGraph graph )
+{ return EL_RC(Graph*,graph); }
+
+inline const Graph* CReflect( ElConstGraph graph )
+{ return EL_RC(const Graph*,graph); }
+
+inline ElGraph CReflect( Graph* graph )
+{ return EL_RC(ElGraph,graph); }
+
+inline ElConstGraph CReflect( const Graph* graph )
+{ return EL_RC(ElConstGraph,graph); }
+
+/* SparseMatrix
+   ------------ */
+inline SparseMatrix<Int>* CReflect( ElSparseMatrix_i A )
+{ return EL_RC(SparseMatrix<Int>*,A); }
+
+inline SparseMatrix<float>* CReflect( ElSparseMatrix_s A )
+{ return EL_RC(SparseMatrix<float>*,A); }
+
+inline SparseMatrix<double>* CReflect( ElSparseMatrix_d A )
+{ return EL_RC(SparseMatrix<double>*,A); }
+
+inline SparseMatrix<Complex<float>>* CReflect( ElSparseMatrix_c A )
+{ return EL_RC(SparseMatrix<Complex<float>>*,A); }
+
+inline SparseMatrix<Complex<double>>* CReflect( ElSparseMatrix_z A )
+{ return EL_RC(SparseMatrix<Complex<double>>*,A); }
+
+inline const SparseMatrix<Int>* CReflect( ElConstSparseMatrix_i A )
+{ return EL_RC(const SparseMatrix<Int>*,A); }
+
+inline const SparseMatrix<float>* CReflect( ElConstSparseMatrix_s A )
+{ return EL_RC(const SparseMatrix<float>*,A); }
+
+inline const SparseMatrix<double>* CReflect( ElConstSparseMatrix_d A )
+{ return EL_RC(const SparseMatrix<double>*,A); }
+
+inline const SparseMatrix<Complex<float>>* CReflect( ElConstSparseMatrix_c A )
+{ return EL_RC(const SparseMatrix<Complex<float>>*,A); }
+
+inline const SparseMatrix<Complex<double>>* CReflect( ElConstSparseMatrix_z A )
+{ return EL_RC(const SparseMatrix<Complex<double>>*,A); }
+
+inline ElSparseMatrix_i CReflect( SparseMatrix<Int>* A )
+{ return (ElSparseMatrix_i)EL_RC(struct ElSparseMatrix_iDummy*,A); }
+
+inline ElSparseMatrix_s CReflect( SparseMatrix<float>* A )
+{ return (ElSparseMatrix_s)EL_RC(struct ElSparseMatrix_sDummy*,A); }
+
+inline ElSparseMatrix_d CReflect( SparseMatrix<double>* A )
+{ return (ElSparseMatrix_d)EL_RC(struct ElSparseMatrix_dDummy*,A); }
+
+inline ElSparseMatrix_c CReflect( SparseMatrix<Complex<float>>* A )
+{ return (ElSparseMatrix_c)EL_RC(struct ElSparseMatrix_cDummy*,A); }
+
+inline ElSparseMatrix_z CReflect( SparseMatrix<Complex<double>>* A )
+{ return (ElSparseMatrix_z)EL_RC(struct ElSparseMatrix_zDummy*,A); }
+
+inline ElConstSparseMatrix_i CReflect( const SparseMatrix<Int>* A )
+{ return (ElConstSparseMatrix_i)EL_RC(const struct ElSparseMatrix_iDummy*,A); }
+
+inline ElConstSparseMatrix_s CReflect( const SparseMatrix<float>* A )
+{ return (ElConstSparseMatrix_s)EL_RC(const struct ElSparseMatrix_sDummy*,A); }
+
+inline ElConstSparseMatrix_d CReflect( const SparseMatrix<double>* A )
+{ return (ElConstSparseMatrix_d)EL_RC(const struct ElSparseMatrix_dDummy*,A); }
+
+inline ElConstSparseMatrix_c CReflect( const SparseMatrix<Complex<float>>* A )
+{ return (ElConstSparseMatrix_c)EL_RC(const struct ElSparseMatrix_cDummy*,A); }
+
+inline ElConstSparseMatrix_z CReflect( const SparseMatrix<Complex<double>>* A )
+{ return (ElConstSparseMatrix_z)EL_RC(const struct ElSparseMatrix_zDummy*,A); }
+
+
 inline ElDistData CReflect( const DistData& data )
 {
     ElDistData distData;

@@ -18,12 +18,24 @@ template<typename T>
 struct SparseMultMeta
 {
     bool ready;
-    int numRecvInds;
-    std::vector<int> sendSizes, sendOffs,
+    Int numRecvInds;
+    std::vector<Int> sendSizes, sendOffs,
                      recvSizes, recvOffs;
-    std::vector<int> sendInds, colOffs;
+    std::vector<Int> sendInds, colOffs;
 
-    SparseMultMeta() : ready(false) { }
+    SparseMultMeta() : ready(false), numRecvInds(0) { }
+
+    void Clear()
+    {
+        ready = false;
+        numRecvInds = 0; 
+        SwapClear( sendSizes );
+        SwapClear( recvSizes );
+        SwapClear( sendOffs );
+        SwapClear( recvOffs );
+        SwapClear( sendInds );
+        SwapClear( colOffs );
+    }
 };
 
 // Use a simple 1d distribution where each process owns a fixed number of rows,
@@ -33,56 +45,72 @@ template<typename T>
 class DistSparseMatrix
 {
 public:
-    // Construction and destruction
+    // Constructors and destructors
+    // ============================
     DistSparseMatrix();
     DistSparseMatrix( mpi::Comm comm );
-    DistSparseMatrix( int height, mpi::Comm comm );
-    DistSparseMatrix( int height, int width, mpi::Comm comm );
+    DistSparseMatrix( Int height, mpi::Comm comm );
+    DistSparseMatrix( Int height, Int width, mpi::Comm comm );
     // TODO: Constructor for building from another DistSparseMatrix
+    // TODO: Move constructor
     ~DistSparseMatrix();
 
+    // Assignment and reconfiguration
+    // ==============================
+
+    // Make a copy
+    // -----------
+    // TODO: operator=
+    // TODO: Move assignment
+
+    // Change the distribution
+    // -----------------------
+    void SetComm( mpi::Comm comm );
+
+    // Change the size of the matrix
+    // -----------------------------
+    void Empty();
+    void Resize( Int height, Int width );
+
+    // Assembly
+    // --------
+    void Reserve( Int numLocalEntries );
+    void Update( Int row, Int col, T value );
+    void MakeConsistent();
+
+    // Queries
+    // =======
+
     // High-level information
-    int Height() const;
-    int Width() const;
+    // ----------------------
+    Int Height() const;
+    Int Width() const;
     El::DistGraph& DistGraph();
     const El::DistGraph& LockedDistGraph() const;
-
-    // Communicator-management
-    void SetComm( mpi::Comm comm );
-    mpi::Comm Comm() const;
+    Int FirstLocalRow() const;
+    Int LocalHeight() const;
+    Int NumLocalEntries() const;
+    Int Capacity() const;
+    bool Consistent() const;
 
     // Distribution information
-    int Blocksize() const;
-    int FirstLocalRow() const;
-    int LocalHeight() const;
+    // ------------------------
+    mpi::Comm Comm() const;
+    Int Blocksize() const;
 
-    // Assembly-related routines
-    void StartAssembly();
-    void StopAssembly();
-    void Reserve( int numLocalEntries );
-    void Update( int row, int col, T value );
-    int Capacity() const;
-
-    // Local data
-    int Row( int localInd ) const;
-    int Col( int localInd ) const;
-    T Value( int localInd ) const;
-    int NumLocalEntries() const;
-    int LocalEntryOffset( int localRow ) const;
-    int NumConnections( int localRow ) const;
-
-    int* SourceBuffer();
-    int* TargetBuffer();
+    // Detailed local information
+    // --------------------------
+    Int Row( Int localInd ) const;
+    Int Col( Int localInd ) const;
+    T Value( Int localInd ) const;
+    Int LocalEntryOffset( Int localRow ) const;
+    Int NumConnections( Int localRow ) const;
+    Int* SourceBuffer();
+    Int* TargetBuffer();
     T* ValueBuffer();
-    const int* LockedSourceBuffer() const;
-    const int* LockedTargetBuffer() const;
+    const Int* LockedSourceBuffer() const;
+    const Int* LockedTargetBuffer() const;
     const T* LockedValueBuffer() const;
-
-    // For modifying the size of the matrix
-    void Empty();
-    void Resize( int height, int width );
-
-    // TODO: operator=
 
     mutable SparseMultMeta<T> multMeta;
 
@@ -92,8 +120,9 @@ private:
 
     static bool CompareEntries( const Entry<T>& a, const Entry<T>& b );
 
-    void EnsureConsistentSizes() const;
-    void EnsureConsistentCapacities() const;
+    void AssertConsistent() const;
+    void AssertConsistentSizes() const;
+    void AssertConsistentCapacities() const;
 
     template<typename U> friend class SparseMatrix;
     template<typename U> friend struct DistSymmFrontTree;

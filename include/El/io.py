@@ -32,6 +32,8 @@ lib.ElPrintDist_c.argtypes = [c_void_p,c_char_p]
 lib.ElPrintDist_c.restype = c_uint
 lib.ElPrintDist_z.argtypes = [c_void_p,c_char_p]
 lib.ElPrintDist_z.restype = c_uint
+lib.ElPrintGraph.argtypes = [c_void_p,c_char_p]
+lib.ElPrintGraph.restype = c_uint
 def Print(A,title=''):
   args = [A.obj,title]
   if type(A) is Matrix:
@@ -48,6 +50,8 @@ def Print(A,title=''):
     elif A.tag == cTag: lib.ElPrintDist_c(*args)
     elif A.tag == zTag: lib.ElPrintDist_z(*args)
     else: DataExcept()
+  elif type(A) is Graph:
+    lib.ElPrintGraph(*args)
   else: TypeExcept()
 
 lib.ElSetColorMap.argtypes = [c_uint]
@@ -99,8 +103,10 @@ lib.ElDisplayDist_c.argtypes = [c_void_p,c_char_p]
 lib.ElDisplayDist_c.restype = c_uint
 lib.ElDisplayDist_z.argtypes = [c_void_p,c_char_p]
 lib.ElDisplayDist_z.restype = c_uint
+lib.ElDisplayGraph.argtypes = [c_void_p,c_char_p]
+lib.ElDisplayGraph.restype = c_uint
 def Display(A,title='',tryMatplotlib=True):
-  if tryMatplotlib:
+  if tryMatplotlib and (type(A) is Matrix or type(A) is DistMatrix):
     try:  
       import numpy as np
       import matplotlib.pyplot as plt
@@ -165,6 +171,9 @@ def Display(A,title='',tryMatplotlib=True):
     elif A.tag == zTag: lib.ElDisplayDist_z(*args)
     else: DataExcept()
     # Process an extra 200 milliseconds
+    ProcessEvents(200)
+  elif type(A) is Graph:
+    lib.ElDisplayGraph(*args)
     ProcessEvents(200)
   else: TypeExcept()
 

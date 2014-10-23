@@ -930,7 +930,6 @@ BuildChildrenFromPerm
 
     // Build the left child's graph
     leftChild.Resize( leftChildSize );
-    leftChild.StartAssembly();
     leftChild.Reserve( leftChildUpperBound );
     for( int s=0; s<leftChildSize; ++s )
     {
@@ -951,11 +950,10 @@ BuildChildrenFromPerm
             leftChild.Insert( source, target );
         }
     }
-    leftChild.StopAssembly();
+    leftChild.MakeConsistent();
 
     // Build the right child's graph
     rightChild.Resize( rightChildSize );
-    rightChild.StartAssembly();
     rightChild.Reserve( rightChildUpperBound );
     for( int s=0; s<rightChildSize; ++s )
     {
@@ -977,7 +975,7 @@ BuildChildrenFromPerm
             rightChild.Insert( source-leftChildSize, target-leftChildSize );
         }
     }
-    rightChild.StopAssembly();
+    rightChild.MakeConsistent();
 }
 
 inline void 
@@ -1176,7 +1174,6 @@ BuildChildFromPerm
     else
         child.Resize( rightChildSize );
 
-    child.StartAssembly();
     child.Reserve( recvInds.size() );
     int off=0;
     for( int s=0; s<numRecvRows; ++s )
@@ -1218,7 +1215,7 @@ BuildChildFromPerm
             }
         }
     }
-    child.StopAssembly();
+    child.MakeConsistent();
 }
 
 inline void

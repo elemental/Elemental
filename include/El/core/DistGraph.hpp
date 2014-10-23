@@ -21,75 +21,91 @@ namespace El {
 class DistGraph
 {
 public:
-    // Construction and destruction
+    // Constructors and destructors
+    // ============================
     DistGraph();
     DistGraph( mpi::Comm comm );
-    DistGraph( int numVertices, mpi::Comm comm );
-    DistGraph( int numSources, int numTargets, mpi::Comm comm );
+    DistGraph( Int numVertices, mpi::Comm comm );
+    DistGraph( Int numSources, Int numTargets, mpi::Comm comm );
     DistGraph( const Graph& graph );
+    // TODO: Move constructor
     DistGraph( const DistGraph& graph );
     ~DistGraph();
 
-    // High-level information
-    int NumSources() const;
-    int NumTargets() const;
+    // Assignment and reconfiguration
+    // ==============================
 
-    // Communicator-management
-    void SetComm( mpi::Comm comm );
-    mpi::Comm Comm() const;
-
-    // Distribution data
-    int Blocksize() const;
-    int FirstLocalSource() const;
-    int NumLocalSources() const;
-
-    // Assembly-related routines
-    void StartAssembly(); 
-    void StopAssembly();
-    void Reserve( int numLocalEdges );
-    void Insert( int source, int target );
-    int Capacity() const;
-
-    // Local data
-    int NumLocalEdges() const;
-    int Source( int localEdge ) const;
-    int Target( int localEdge ) const;
-    int LocalEdgeOffset( int localSource ) const;
-    int NumConnections( int localSource ) const;
-    int* SourceBuffer();
-    int* TargetBuffer();
-    const int* LockedSourceBuffer() const;
-    const int* LockedTargetBuffer() const;
-
-    // For resizing the graph
-    void Empty();
-    void Resize( int numVertices );
-    void Resize( int numSources, int numTargets );
-
-    // For copying one graph into another
+    // Making a copy
+    // -------------
     const DistGraph& operator=( const Graph& graph );
     const DistGraph& operator=( const DistGraph& graph );
+    // TODO: Move assignment
+
+    // Changing the graph size
+    // -----------------------
+    void Empty();
+    void Resize( Int numVertices );
+    void Resize( Int numSources, Int numTargets );
+
+    // Changing the distribution
+    // -------------------------
+    void SetComm( mpi::Comm comm );
+
+    // Assembly
+    // --------
+    void Reserve( Int numLocalEdges );
+    void Insert( Int source, Int target );
+    void MakeConsistent();
+
+    // Queries
+    // =======
+
+    // High-level data
+    // ---------------
+    Int NumSources() const;
+    Int NumTargets() const;
+    Int FirstLocalSource() const;
+    Int NumLocalSources() const;
+    Int NumLocalEdges() const;
+    Int Capacity() const;
+    bool Consistent() const;
+
+    // Distribution information
+    // ------------------------
+    mpi::Comm Comm() const;
+    Int Blocksize() const;
+
+    // Detailed local information
+    // --------------------------
+    Int Source( Int localEdge ) const;
+    Int Target( Int localEdge ) const;
+    Int LocalEdgeOffset( Int localSource ) const;
+    Int NumConnections( Int localSource ) const;
+    Int* SourceBuffer();
+    Int* TargetBuffer();
+    const Int* LockedSourceBuffer() const;
+    const Int* LockedTargetBuffer() const;
 
 private:
-    int numSources_, numTargets_;
+    Int numSources_, numTargets_;
     mpi::Comm comm_;
 
-    int blocksize_;
-    int firstLocalSource_, numLocalSources_;
+    Int blocksize_;
+    Int firstLocalSource_, numLocalSources_;
 
-    std::vector<int> sources_, targets_;
+    std::vector<Int> sources_, targets_;
 
     // Helpers for local indexing
-    bool assembling_, sorted_;
-    std::vector<int> localEdgeOffsets_;
+    bool consistent_;
+    std::vector<Int> localEdgeOffsets_;
     void ComputeLocalEdgeOffsets();
 
     static bool ComparePairs
-    ( const std::pair<int,int>& a, const std::pair<int,int>& b );
+    ( const std::pair<Int,Int>& a, const std::pair<Int,Int>& b );
 
-    void EnsureNotAssembling() const;
-    void EnsureConsistentSizes() const;
-    void EnsureConsistentCapacities() const;
+    void AssertConsistent() const;
+    void AssertConsistentSizes() const;
+    void AssertConsistentCapacities() const;
 
     friend class Graph;
     template<typename F> friend class DistSparseMatrix;
