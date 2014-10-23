@@ -22,6 +22,7 @@
 #include "El/core/Graph.h"
 #include "El/core/DistGraph.h"
 #include "El/core/SparseMatrix.h"
+#include "El/core/DistSparseMatrix.h"
 #include "El/core/View.h"
 #include "El/core/flame_part/Merge.h"
 #include "El/core/flame_part/Partition.h"

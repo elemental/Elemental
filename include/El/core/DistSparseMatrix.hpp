@@ -63,19 +63,24 @@ public:
     // TODO: operator=
     // TODO: Move assignment
 
-    // Change the distribution
-    // -----------------------
-    void SetComm( mpi::Comm comm );
-
     // Change the size of the matrix
     // -----------------------------
     void Empty();
     void Resize( Int height, Int width );
 
+    // Change the distribution
+    // -----------------------
+    void SetComm( mpi::Comm comm );
+
     // Assembly
     // --------
     void Reserve( Int numLocalEntries );
+
+    // A safe procedure for applying a local update
     void Update( Int row, Int col, T value );
+
+    // For applying a sequence of updates and then forcing consistency
+    void QueueUpdate( Int row, Int col, T value );
     void MakeConsistent();
 
     // Queries

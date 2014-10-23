@@ -117,15 +117,15 @@ main( int argc, char* argv[] )
             const C mainTerm = (xTermL+xTermR+yTermL+yTermR)
                 - omega*omega*s1InvM*s2InvM;
 
-            A.Update( i, i, mainTerm );
+            A.QueueUpdate( i, i, mainTerm );
             if( x != 0 )
-                A.Update( i, i-1, -xTermL );
+                A.QueueUpdate( i, i-1, -xTermL );
             if( x != n1-1 )
-                A.Update( i, i+1, -xTermR );
+                A.QueueUpdate( i, i+1, -xTermR );
             if( y != 0 )
-                A.Update( i, i-n1, -yTermL );
+                A.QueueUpdate( i, i-n1, -yTermL );
             if( y != n2-1 )
-                A.Update( i, i+n1, -yTermR );
+                A.QueueUpdate( i, i+n1, -yTermR );
         }
         A.MakeConsistent();
         mpi::Barrier( comm );

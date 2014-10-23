@@ -46,9 +46,14 @@ EL_EXPORT ElError ElGraphResize
    ----------------------------------- */
 EL_EXPORT ElError ElGraphReserve( ElGraph graph, ElInt numEdges );
 
-/* void Graph::Insert( Int row, Int col )
-   -------------------------------------- */
-EL_EXPORT ElError ElGraphInsert( ElGraph graph, ElInt row, ElInt col );
+/* void Graph::Connect( Int source, Int target )
+   --------------------------------------------- */
+EL_EXPORT ElError ElGraphConnect( ElGraph graph, ElInt source, ElInt target );
+
+/* void Graph::QueueConnection( Int source, Int target )
+   ----------------------------------------------------- */
+EL_EXPORT ElError ElGraphQueueConnection
+( ElGraph graph, ElInt source, ElInt target );
 
 /* void Graph::MakeConsistent()
    ---------------------------- */ 

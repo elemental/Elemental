@@ -99,14 +99,9 @@ void Display
 template<typename Real>
 void Display
 ( const SparseMatrix<Complex<Real>>& A, std::string title="SparseMatrix" );
-template<typename Real>
+template<typename T>
 void Display
-( const DistSparseMatrix<Real>& A, 
-  std::string title="DistSparseMatrix" );
-template<typename Real>
-void Display
-( const DistSparseMatrix<Complex<Real>>& A, 
-  std::string title="DistSparseMatrix" );
+( const DistSparseMatrix<T>& A, std::string title="DistSparseMatrix" );
 
 // Sparse-direct data structures
 // -----------------------------

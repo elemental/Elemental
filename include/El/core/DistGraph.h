@@ -50,9 +50,14 @@ EL_EXPORT ElError ElDistGraphSetComm( ElDistGraph graph, MPI_Comm comm );
    --------------------------------------- */
 EL_EXPORT ElError ElDistGraphReserve( ElDistGraph graph, ElInt numEdges );
 
-/* void DistGraph::Insert( Int row, Int col )
-   ------------------------------------------ */
-EL_EXPORT ElError ElDistGraphInsert( ElDistGraph graph, ElInt row, ElInt col );
+/* void DistGraph::Connect( Int row, Int col )
+   ------------------------------------------- */
+EL_EXPORT ElError ElDistGraphConnect( ElDistGraph graph, ElInt row, ElInt col );
+
+/* void DistGraph::QueueConnection( Int row, Int col )
+   ------------------------------------------- */
+EL_EXPORT ElError ElDistGraphQueueConnection
+( ElDistGraph graph, ElInt row, ElInt col );
 
 /* void DistGraph::MakeConsistent()
    -------------------------------- */ 

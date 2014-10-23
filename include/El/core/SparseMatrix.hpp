@@ -51,7 +51,12 @@ public:
     // Assembly
     // --------
     void Reserve( Int numEntries );
+
+    // A safe update mechanism
     void Update( Int row, Int col, T value );
+
+    // For performing many updates and forcing consistency at the end
+    void QueueUpdate( Int row, Int col, T value );
     void MakeConsistent();
 
     // Queries
@@ -92,6 +97,9 @@ private:
     void AssertConsistentCapacities() const;
 
     template<typename U> friend class DistSparseMatrix;
+    template<typename U> 
+    friend void CopyFromRoot
+    ( const DistSparseMatrix<U>& ADist, SparseMatrix<U>& A );
 };
 
 } // namespace El

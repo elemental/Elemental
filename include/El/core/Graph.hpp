@@ -16,6 +16,10 @@ namespace El {
 
 // Forward declaration
 class DistGraph;
+template<typename T>
+class SparseMatrix;
+template<typename T>
+class DistSparseMatrix;
 
 class Graph
 {
@@ -51,7 +55,12 @@ public:
     // Assembly
     // --------
     void Reserve( Int numEdges );
-    void Insert( Int source, Int target );
+
+    // A safe edge insertion procedure
+    void Connect( Int source, Int target );
+
+    // For appending many edges and then forcing consistency at the end
+    void QueueConnection( Int source, Int target );
     void MakeConsistent();
 
     // Queries
@@ -89,6 +98,11 @@ private:
 
     friend class DistGraph;
     template<typename F> friend class SparseMatrix;
+
+    friend void CopyFromRoot( const DistGraph& GDist, Graph& G );
+    template<typename U>
+    friend void CopyFromRoot
+    ( const DistSparseMatrix<U>& ADist, SparseMatrix<U>& A );
 };
 
 } // namespace El

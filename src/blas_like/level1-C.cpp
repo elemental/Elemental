@@ -12,6 +12,12 @@ using namespace El;
 
 extern "C" {
 
+ElError ElCopyGraphFromRoot( ElConstDistGraph GDist, ElGraph G )
+{ EL_TRY( CopyFromRoot( *CReflect(GDist), *CReflect(G) ) ) }
+
+ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
+{ EL_TRY( CopyFromNonRoot( *CReflect(GDist), root ) ) }
+
 #define C_PROTO_BASE(SIG,SIGBASE,T) \
   /* Y := alpha X + Y */ \
   ElError ElAxpy_ ## SIG \
@@ -42,6 +48,12 @@ extern "C" {
   ElError ElCopyDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( Copy( *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElCopySparseMatrixFromRoot_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG ADist, ElSparseMatrix_ ## SIG A ) \
+  { EL_TRY( CopyFromRoot( *CReflect(ADist), *CReflect(A) ) ) } \
+  ElError ElCopySparseMatrixFromNonRoot_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG ADist, ElInt root ) \
+  { EL_TRY( CopyFromNonRoot( *CReflect(ADist), root ) ) } \
   /* Dot product (<A,B>=vec(A)^H vec(B)) */ \
   ElError ElDot_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, CREFLECT(T)* prod ) \

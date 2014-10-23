@@ -9,9 +9,6 @@
 from environment import *
 import numpy as np
 
-buffer_from_memory = pythonapi.PyBuffer_FromMemory
-buffer_from_memory.restype = ctypes.py_object
-
 # SparseMatrix
 # ============
 
@@ -80,6 +77,17 @@ lib.ElSparseMatrixUpdate_c.argtypes = [c_void_p,iType,iType,cType]
 lib.ElSparseMatrixUpdate_c.restype = c_uint
 lib.ElSparseMatrixUpdate_z.argtypes = [c_void_p,iType,iType,zType]
 lib.ElSparseMatrixUpdate_z.restype = c_uint
+
+lib.ElSparseMatrixQueueUpdate_i.argtypes = [c_void_p,iType,iType,iType]
+lib.ElSparseMatrixQueueUpdate_i.restype = c_uint
+lib.ElSparseMatrixQueueUpdate_s.argtypes = [c_void_p,iType,iType,sType]
+lib.ElSparseMatrixQueueUpdate_s.restype = c_uint
+lib.ElSparseMatrixQueueUpdate_d.argtypes = [c_void_p,iType,iType,dType]
+lib.ElSparseMatrixQueueUpdate_d.restype = c_uint
+lib.ElSparseMatrixQueueUpdate_c.argtypes = [c_void_p,iType,iType,cType]
+lib.ElSparseMatrixQueueUpdate_c.restype = c_uint
+lib.ElSparseMatrixQueueUpdate_z.argtypes = [c_void_p,iType,iType,zType]
+lib.ElSparseMatrixQueueUpdate_z.restype = c_uint
 
 lib.ElSparseMatrixMakeConsistent_i.argtypes = [c_void_p]
 lib.ElSparseMatrixMakeConsistent_i.restype = c_uint
@@ -362,6 +370,14 @@ class SparseMatrix(object):
     elif self.tag == cTag: lib.ElSparseMatrixUpdate_c(*args)
     elif self.tag == zTag: lib.ElSparseMatrixUpdate_z(*args)
     else: DataExcept()
+  def QueueUpdate(self,row,col,value):
+    args = [self.obj,row,col,value]
+    if   self.tag == iTag: lib.ElSparseMatrixQueueUpdate_i(*args)
+    elif self.tag == sTag: lib.ElSparseMatrixQueueUpdate_s(*args)
+    elif self.tag == dTag: lib.ElSparseMatrixQueueUpdate_d(*args)
+    elif self.tag == cTag: lib.ElSparseMatrixQueueUpdate_c(*args)
+    elif self.tag == zTag: lib.ElSparseMatrixQueueUpdate_z(*args)
+    else: DataExcept()
   def MakeConsistent(self):
     args = [self.obj]
     if   self.tag == iTag: lib.ElSparseMatrixMakeConsistent_i(*args)
@@ -414,6 +430,7 @@ class SparseMatrix(object):
     return capacity.value
   def Consistent(self):
     consistent = bType()
+    args = [self.obj,pointer(consistent)]
     if   self.tag == iTag: lib.ElSparseMatrixConsistent_i(*args)
     elif self.tag == sTag: lib.ElSparseMatrixConsistent_s(*args)
     elif self.tag == dTag: lib.ElSparseMatrixConsistent_d(*args)

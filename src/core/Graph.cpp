@@ -112,10 +112,17 @@ void Graph::Reserve( Int numEdges )
     targets_.reserve( numEdges );
 }
 
-void Graph::Insert( Int source, Int target )
+void Graph::Connect( Int source, Int target )
+{
+    DEBUG_ONLY(CallStackEntry cse("Graph::Connect"))
+    QueueConnection( source, target );
+    MakeConsistent();
+}
+
+void Graph::QueueConnection( Int source, Int target )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Graph::Insert");
+        CallStackEntry cse("Graph::QueueConnection");
         AssertConsistentSizes();
         const Int capacity = Capacity();
         const Int numEdges = NumEdges();

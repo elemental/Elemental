@@ -13,9 +13,10 @@ n = 20
 G = El.Graph()
 G.Resize(n,n)
 for j in xrange(0,n):
-  G.Insert(j,(j-1)%n)
-  G.Insert(j,j)
-  G.Insert(j,(j+1)%n)
+  G.QueueConnection(j,(j-1)%n)
+  G.QueueConnection(j,j)
+  G.QueueConnection(j,(j+1)%n)
+
 G.MakeConsistent()
 
 # Display the graph (with networkx if possible)

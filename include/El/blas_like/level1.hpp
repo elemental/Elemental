@@ -70,6 +70,14 @@ void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B );
 template<typename S,typename T>
 void Copy( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B );
 
+void CopyFromRoot( const DistGraph& distGraph, Graph& graph );
+void CopyFromNonRoot( const DistGraph& distGraph, Int root=0 );
+
+template<typename T>
+void CopyFromRoot( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A );
+template<typename T>
+void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, Int root=0 );
+
 // DiagonalScale
 // =============
 template<typename TDiag,typename T>

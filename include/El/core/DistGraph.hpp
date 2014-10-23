@@ -54,7 +54,12 @@ public:
     // Assembly
     // --------
     void Reserve( Int numLocalEdges );
-    void Insert( Int source, Int target );
+
+    // A safe edge insertion procedure
+    void Connect( Int source, Int target );
+
+    // For inserting a sequence of edges and then forcing consistency
+    void QueueConnection( Int source, Int target );
     void MakeConsistent();
 
     // Queries

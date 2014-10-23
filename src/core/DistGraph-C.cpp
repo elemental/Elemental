@@ -31,8 +31,11 @@ ElError ElDistGraphSetComm( ElDistGraph graph, MPI_Comm comm )
 ElError ElDistGraphReserve( ElDistGraph graph, ElInt numEdges )
 { EL_TRY( CReflect(graph)->Reserve(numEdges) ) }
 
-ElError ElDistGraphInsert( ElDistGraph graph, ElInt row, ElInt col )
-{ EL_TRY( CReflect(graph)->Insert( row, col ) ) }
+ElError ElDistGraphConnect( ElDistGraph graph, ElInt row, ElInt col )
+{ EL_TRY( CReflect(graph)->Connect( row, col ) ) }
+
+ElError ElDistGraphQueueConnection( ElDistGraph graph, ElInt row, ElInt col )
+{ EL_TRY( CReflect(graph)->QueueConnection( row, col ) ) }
 
 ElError ElDistGraphMakeConsistent( ElDistGraph graph )
 { EL_TRY( CReflect(graph)->MakeConsistent() ) }

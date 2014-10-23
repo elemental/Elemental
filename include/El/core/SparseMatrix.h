@@ -97,6 +97,19 @@ EL_EXPORT ElError ElSparseMatrixUpdate_c
 EL_EXPORT ElError ElSparseMatrixUpdate_z
 ( ElSparseMatrix_z A, ElInt row, ElInt col, complex_double value );
 
+/* void SparseMatrix<T>::QueueUpdate( int row, int col, T value )
+   -------------------------------------------------------------- */
+EL_EXPORT ElError ElSparseMatrixQueueUpdate_i
+( ElSparseMatrix_i A, ElInt row, ElInt col, ElInt value );
+EL_EXPORT ElError ElSparseMatrixQueueUpdate_s
+( ElSparseMatrix_s A, ElInt row, ElInt col, float value );
+EL_EXPORT ElError ElSparseMatrixQueueUpdate_d
+( ElSparseMatrix_d A, ElInt row, ElInt col, double value );
+EL_EXPORT ElError ElSparseMatrixQueueUpdate_c
+( ElSparseMatrix_c A, ElInt row, ElInt col, complex_float value );
+EL_EXPORT ElError ElSparseMatrixQueueUpdate_z
+( ElSparseMatrix_z A, ElInt row, ElInt col, complex_double value );
+
 /* void SparseMatrix<T>::MakeConsistent()
    -------------------------------------- */ 
 EL_EXPORT ElError ElSparseMatrixMakeConsistent_i( ElSparseMatrix_i A );

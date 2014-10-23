@@ -83,11 +83,19 @@ void DistSparseMatrix<T>::Reserve( Int numLocalEntries )
 template<typename T>
 void DistSparseMatrix<T>::Update( Int row, Int col, T value )
 {
+    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::Update"))
+    QueueUpdate( row, col, value );
+    MakeConsistent();
+}
+
+template<typename T>
+void DistSparseMatrix<T>::QueueUpdate( Int row, Int col, T value )
+{
     DEBUG_ONLY(
-        CallStackEntry cse("DistSparseMatrix::Update");
+        CallStackEntry cse("DistSparseMatrix::QueueUpdate");
         AssertConsistentSizes();
     )
-    distGraph_.Insert( row, col );
+    distGraph_.QueueConnection( row, col );
     vals_.push_back( value );
     multMeta.ready = false;
 }

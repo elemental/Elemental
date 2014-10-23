@@ -99,6 +99,33 @@ EL_EXPORT ElError ElCopyDist_d( ElConstDistMatrix_d A, ElDistMatrix_d B );
 EL_EXPORT ElError ElCopyDist_c( ElConstDistMatrix_c A, ElDistMatrix_c B );
 EL_EXPORT ElError ElCopyDist_z( ElConstDistMatrix_z A, ElDistMatrix_z B );
 
+EL_EXPORT ElError ElCopyGraphFromRoot
+( ElConstDistGraph distGraph, ElGraph graph );
+EL_EXPORT ElError ElCopyGraphFromNonRoot
+( ElConstDistGraph distGraph, ElInt root );
+
+EL_EXPORT ElError ElCopySparseMatrixFromRoot_i
+( ElConstDistSparseMatrix_i ADist, ElSparseMatrix_i A );
+EL_EXPORT ElError ElCopySparseMatrixFromRoot_s
+( ElConstDistSparseMatrix_s ADist, ElSparseMatrix_s A );
+EL_EXPORT ElError ElCopySparseMatrixFromRoot_d
+( ElConstDistSparseMatrix_d ADist, ElSparseMatrix_d A );
+EL_EXPORT ElError ElCopySparseMatrixFromRoot_c
+( ElConstDistSparseMatrix_c ADist, ElSparseMatrix_c A );
+EL_EXPORT ElError ElCopySparseMatrixFromRoot_z
+( ElConstDistSparseMatrix_z ADist, ElSparseMatrix_z A );
+
+EL_EXPORT ElError ElCopySparseMatrixFromNonRoot_i
+( ElConstDistSparseMatrix_i ADist, ElInt root );
+EL_EXPORT ElError ElCopySparseMatrixFromNonRoot_s
+( ElConstDistSparseMatrix_s ADist, ElInt root );
+EL_EXPORT ElError ElCopySparseMatrixFromNonRoot_d
+( ElConstDistSparseMatrix_d ADist, ElInt root );
+EL_EXPORT ElError ElCopySparseMatrixFromNonRoot_c
+( ElConstDistSparseMatrix_c ADist, ElInt root );
+EL_EXPORT ElError ElCopySparseMatrixFromNonRoot_z
+( ElConstDistSparseMatrix_z ADist, ElInt root );
+
 /* DiagonalScale 
    ============= */
 EL_EXPORT ElError ElDiagonalScale_i

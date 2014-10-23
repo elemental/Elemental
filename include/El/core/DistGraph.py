@@ -30,8 +30,11 @@ lib.ElDistGraphSetComm.restype = c_uint
 lib.ElDistGraphReserve.argtypes = [c_void_p,iType]
 lib.ElDistGraphReserve.restype = c_uint
 
-lib.ElDistGraphInsert.argtypes = [c_void_p,iType,iType]
-lib.ElDistGraphInsert.restype = c_uint
+lib.ElDistGraphConnect.argtypes = [c_void_p,iType,iType]
+lib.ElDistGraphConnect.restype = c_uint
+
+lib.ElDistGraphQueueConnection.argtypes = [c_void_p,iType,iType]
+lib.ElDistGraphQueueConnection.restype = c_uint
 
 lib.ElDistGraphMakeConsistent.argtypes = [c_void_p]
 lib.ElDistGraphMakeConsistent.restype = c_uint
@@ -108,8 +111,10 @@ class DistGraph(object):
     lib.ElDistGraphSetComm(self,comm)
   def Reserve(self,numEdges):
     lib.ElDistGraphReserve(self.obj,numEdges)
-  def Insert(self,source,target):
-    lib.ElDistGraphInsert(self.obj,source,target)
+  def Connect(self,source,target):
+    lib.ElDistGraphConnect(self.obj,source,target)
+  def QueueConnection(self,source,target):
+    lib.ElDistGraphQueueConnection(self.obj,source,target)
   def MakeConsistent(self):
     lib.ElDistGraphMakeConsistent(self.obj)
   # Queries

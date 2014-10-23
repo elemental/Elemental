@@ -104,11 +104,19 @@ void SparseMatrix<T>::Reserve( Int numEntries )
 template<typename T>
 void SparseMatrix<T>::Update( Int row, Int col, T value )
 {
+    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::Update"))
+    QueueUpdate( row, col, value );
+    MakeConsistent();
+}
+
+template<typename T>
+void SparseMatrix<T>::QueueUpdate( Int row, Int col, T value )
+{
     DEBUG_ONLY(
-        CallStackEntry cse("SparseMatrix::Update");
+        CallStackEntry cse("SparseMatrix::QueueUpdate");
         AssertConsistentSizes();
     )
-    graph_.Insert( row, col );
+    graph_.QueueConnection( row, col );
     vals_.push_back( value );
 }
 

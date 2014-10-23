@@ -163,10 +163,17 @@ void DistGraph::Reserve( Int numLocalEdges )
     targets_.reserve( numLocalEdges );
 }
 
-void DistGraph::Insert( Int source, Int target )
+void DistGraph::Connect( Int source, Int target )
+{
+    DEBUG_ONLY(CallStackEntry cse("DistGraph::Connect"))
+    QueueConnection( source, target );
+    MakeConsistent();
+}
+
+void DistGraph::QueueConnection( Int source, Int target )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("DistGraph::Insert");
+        CallStackEntry cse("DistGraph::QueueConnection");
         AssertConsistentSizes();
         const Int capacity = Capacity();
         const Int numLocalEdges = NumLocalEdges();

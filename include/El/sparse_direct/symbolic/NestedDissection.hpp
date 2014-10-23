@@ -947,7 +947,7 @@ BuildChildrenFromPerm
                 if( target >= leftChildSize && target < (numSources-sepSize) )
                     LogicError("Invalid bisection, left set touches right set");
             )
-            leftChild.Insert( source, target );
+            leftChild.QueueConnection( source, target );
         }
     }
     leftChild.MakeConsistent();
@@ -972,7 +972,8 @@ BuildChildrenFromPerm
                     LogicError("Invalid bisection, right set touches left set");
             )
             // The targets that are in parent separators do not need to be
-            rightChild.Insert( source-leftChildSize, target-leftChildSize );
+            rightChild.QueueConnection
+            ( source-leftChildSize, target-leftChildSize );
         }
     }
     rightChild.MakeConsistent();
@@ -1202,7 +1203,7 @@ BuildChildFromPerm
                          "  ",source," touches ",target," and leftChildSize=",
                          leftChildSize);
                 )
-                child.Insert( source, target );
+                child.QueueConnection( source, target );
             }
             else
             {
@@ -1211,7 +1212,8 @@ BuildChildFromPerm
                         LogicError
                         ("Invalid bisection, right set touches left set");
                 )
-                child.Insert( source-leftChildSize, target-leftChildSize );
+                child.QueueConnection
+                ( source-leftChildSize, target-leftChildSize );
             }
         }
     }

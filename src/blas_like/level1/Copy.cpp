@@ -126,6 +126,129 @@ void Copy( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B )
 
 // TODO: include guards so that certain datatypes can be properly disabled 
 
+void CopyFromRoot( const DistGraph& distGraph, Graph& graph )
+{
+    DEBUG_ONLY(CallStackEntry cse("CopyFromRoot"))
+    const mpi::Comm comm = distGraph.Comm();
+    const int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm );
+
+    const int numLocalEdges = distGraph.NumLocalEdges();
+    std::vector<int> edgeSizes(commSize), edgeOffsets(commSize);
+    mpi::AllGather( &numLocalEdges, 1, &edgeSizes[0], 1, comm );
+    int numEdges=0;
+    for( int q=0; q<commSize; ++q )
+    {
+        edgeOffsets[q] = numEdges;
+        numEdges += edgeSizes[q];
+    }
+
+    graph.Resize( distGraph.NumSources(), distGraph.NumTargets() );
+    graph.Reserve( numEdges );
+    graph.sources_.resize( numEdges );
+    graph.targets_.resize( numEdges );
+    mpi::Gather
+    ( distGraph.LockedSourceBuffer(), numLocalEdges,
+      graph.SourceBuffer(), &edgeSizes[0], &edgeOffsets[0], commRank, comm );
+    mpi::Gather
+    ( distGraph.LockedTargetBuffer(), numLocalEdges,
+      graph.TargetBuffer(), &edgeSizes[0], &edgeOffsets[0], commRank, comm );
+    graph.MakeConsistent();
+}
+
+void CopyFromNonRoot( const DistGraph& distGraph, Int root )
+{
+    DEBUG_ONLY(CallStackEntry cse("CopyFromRoot"))
+    const mpi::Comm comm = distGraph.Comm();
+    const int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm );
+    if( commRank == root )
+        LogicError("Root called CopyFromNonRoot");
+
+    const int numLocalEdges = distGraph.NumLocalEdges();
+    std::vector<int> edgeSizes(commSize), edgeOffsets(commSize);
+    mpi::AllGather( &numLocalEdges, 1, &edgeSizes[0], 1, comm );
+    int numEdges=0;
+    for( int q=0; q<commSize; ++q )
+    {
+        edgeOffsets[q] = numEdges;
+        numEdges += edgeSizes[q];
+    }
+
+    mpi::Gather
+    ( distGraph.LockedSourceBuffer(), numLocalEdges,
+      (Int*)0, &edgeSizes[0], &edgeOffsets[0], root, comm );
+    mpi::Gather
+    ( distGraph.LockedTargetBuffer(), numLocalEdges,
+      (Int*)0, &edgeSizes[0], &edgeOffsets[0], root, comm );
+}
+
+template<typename T>
+void CopyFromRoot( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("CopyFromRoot"))
+    const mpi::Comm comm = ADist.Comm();
+    const int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm );
+
+    const int numLocalEntries = ADist.NumLocalEntries();
+    std::vector<int> entrySizes(commSize), entryOffsets(commSize);
+    mpi::AllGather( &numLocalEntries, 1, &entrySizes[0], 1, comm );
+    int numEntries=0;
+    for( int q=0; q<commSize; ++q )
+    {
+        entryOffsets[q] = numEntries;
+        numEntries += entrySizes[q];
+    }
+
+    A.Resize( ADist.Height(), ADist.Width() );
+    A.Reserve( numEntries );
+    A.graph_.sources_.resize( numEntries );
+    A.graph_.targets_.resize( numEntries );
+    A.vals_.resize( numEntries );
+    mpi::Gather
+    ( ADist.LockedSourceBuffer(), numLocalEntries,
+      A.SourceBuffer(), &entrySizes[0], &entryOffsets[0], commRank, comm );
+    mpi::Gather
+    ( ADist.LockedTargetBuffer(), numLocalEntries,
+      A.TargetBuffer(), &entrySizes[0], &entryOffsets[0], commRank, comm );
+    mpi::Gather
+    ( ADist.LockedValueBuffer(), numLocalEntries,
+      A.ValueBuffer(), &entrySizes[0], &entryOffsets[0], commRank, comm );
+    A.MakeConsistent();
+}
+
+template<typename T>
+void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, Int root )
+{
+    DEBUG_ONLY(CallStackEntry cse("CopyFromRoot"))
+    const mpi::Comm comm = ADist.Comm();
+    const int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm );
+    if( commRank == root )
+        LogicError("Root called CopyFromNonRoot");
+
+    const int numLocalEntries = ADist.NumLocalEntries();
+    std::vector<int> entrySizes(commSize), entryOffsets(commSize);
+    mpi::AllGather( &numLocalEntries, 1, &entrySizes[0], 1, comm );
+    int numEntries=0;
+    for( int q=0; q<commSize; ++q )
+    {
+        entryOffsets[q] = numEntries;
+        numEntries += entrySizes[q];
+    }
+
+    mpi::Gather
+    ( ADist.LockedSourceBuffer(), numLocalEntries,
+      (Int*)0, &entrySizes[0], &entryOffsets[0], root, comm );
+    mpi::Gather
+    ( ADist.LockedTargetBuffer(), numLocalEntries,
+      (Int*)0, &entrySizes[0], &entryOffsets[0], root, comm );
+    mpi::Gather
+    ( ADist.LockedValueBuffer(), numLocalEntries,
+      (T*)0, &entrySizes[0], &entryOffsets[0], root, comm );
+}
+
 #define CONVERT(S,T) \
   template void Copy( const Matrix<S>& A, Matrix<T>& B ); \
   template void Copy \
@@ -133,17 +256,24 @@ void Copy( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B )
   template void Copy \
   ( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B );
 
-#define PROTO_INT(T) CONVERT(T,T)
+#define SAME(T) \
+  CONVERT(T,T) \
+  template void CopyFromRoot \
+  ( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A ); \
+  template void CopyFromNonRoot \
+  ( const DistSparseMatrix<T>& ADist, Int root );
+
+#define PROTO_INT(T) SAME(T) 
 
 #define PROTO_REAL(Real) \
-  CONVERT(Real,Real) \
+  SAME(Real) \
   /* Promotions up to Real */ \
   CONVERT(Int,Real) \
   /* Promotions up from Real */ \
   CONVERT(Real,Complex<Real>)
 
 #define PROTO_COMPLEX(C) \
-  CONVERT(C,C) \
+  SAME(C) \
   /* Promotions up to C */ \
   CONVERT(Int,C)
 

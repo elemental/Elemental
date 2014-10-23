@@ -88,6 +88,8 @@ def MPI_COMM_SELF():
   lib.ElMPICommSelf(pointer(comm))
   return comm
 
+# TODO: Wrappers for MPI_Comm_rank, MPI_Comm_size, etc.
+
 # Create a simple enum for the supported datatypes
 (iTag,sTag,dTag,cTag,zTag)=(0,1,2,3,4)
 def CheckTag(tag):

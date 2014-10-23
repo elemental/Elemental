@@ -87,6 +87,17 @@ EL_EXPORT ElError ElDisplaySparse_c
 EL_EXPORT ElError ElDisplaySparse_z
 ( ElConstSparseMatrix_z A, const char* title );
 
+EL_EXPORT ElError ElDisplayDistSparse_i
+( ElConstDistSparseMatrix_i A, const char* title );
+EL_EXPORT ElError ElDisplayDistSparse_s
+( ElConstDistSparseMatrix_s A, const char* title );
+EL_EXPORT ElError ElDisplayDistSparse_d
+( ElConstDistSparseMatrix_d A, const char* title );
+EL_EXPORT ElError ElDisplayDistSparse_c
+( ElConstDistSparseMatrix_c A, const char* title );
+EL_EXPORT ElError ElDisplayDistSparse_z
+( ElConstDistSparseMatrix_z A, const char* title );
+
 /* Print 
    ===== */
 /* 
@@ -114,6 +125,17 @@ EL_EXPORT ElError ElPrintSparse_s( ElConstSparseMatrix_s A, const char* title );
 EL_EXPORT ElError ElPrintSparse_d( ElConstSparseMatrix_d A, const char* title );
 EL_EXPORT ElError ElPrintSparse_c( ElConstSparseMatrix_c A, const char* title );
 EL_EXPORT ElError ElPrintSparse_z( ElConstSparseMatrix_z A, const char* title );
+
+EL_EXPORT ElError ElPrintDistSparse_i
+( ElConstDistSparseMatrix_i A, const char* title );
+EL_EXPORT ElError ElPrintDistSparse_s
+( ElConstDistSparseMatrix_s A, const char* title );
+EL_EXPORT ElError ElPrintDistSparse_d
+( ElConstDistSparseMatrix_d A, const char* title );
+EL_EXPORT ElError ElPrintDistSparse_c
+( ElConstDistSparseMatrix_c A, const char* title );
+EL_EXPORT ElError ElPrintDistSparse_z
+( ElConstDistSparseMatrix_z A, const char* title );
 
 /* Read
    ==== */

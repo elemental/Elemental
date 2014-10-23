@@ -46,6 +46,16 @@ lib.ElPrintSparse_c.argtypes = [c_void_p,c_char_p]
 lib.ElPrintSparse_c.restype = c_uint
 lib.ElPrintSparse_z.argtypes = [c_void_p,c_char_p]
 lib.ElPrintSparse_z.restype = c_uint
+lib.ElPrintDistSparse_i.argtypes = [c_void_p,c_char_p]
+lib.ElPrintDistSparse_i.restype = c_uint
+lib.ElPrintDistSparse_s.argtypes = [c_void_p,c_char_p]
+lib.ElPrintDistSparse_s.restype = c_uint
+lib.ElPrintDistSparse_d.argtypes = [c_void_p,c_char_p]
+lib.ElPrintDistSparse_d.restype = c_uint
+lib.ElPrintDistSparse_c.argtypes = [c_void_p,c_char_p]
+lib.ElPrintDistSparse_c.restype = c_uint
+lib.ElPrintDistSparse_z.argtypes = [c_void_p,c_char_p]
+lib.ElPrintDistSparse_z.restype = c_uint
 def Print(A,title=''):
   args = [A.obj,title]
   if type(A) is Matrix:
@@ -72,6 +82,13 @@ def Print(A,title=''):
     elif A.tag == dTag: lib.ElPrintSparse_d(*args)
     elif A.tag == cTag: lib.ElPrintSparse_c(*args)
     elif A.tag == zTag: lib.ElPrintSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == iTag: lib.ElPrintDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElPrintDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElPrintDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElPrintDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElPrintDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 
@@ -138,6 +155,16 @@ lib.ElDisplaySparse_c.argtypes = [c_void_p,c_char_p]
 lib.ElDisplaySparse_c.restype = c_uint
 lib.ElDisplaySparse_z.argtypes = [c_void_p,c_char_p]
 lib.ElDisplaySparse_z.restype = c_uint
+lib.ElDisplayDistSparse_i.argtypes = [c_void_p,c_char_p]
+lib.ElDisplayDistSparse_i.restype = c_uint
+lib.ElDisplayDistSparse_s.argtypes = [c_void_p,c_char_p]
+lib.ElDisplayDistSparse_s.restype = c_uint
+lib.ElDisplayDistSparse_d.argtypes = [c_void_p,c_char_p]
+lib.ElDisplayDistSparse_d.restype = c_uint
+lib.ElDisplayDistSparse_c.argtypes = [c_void_p,c_char_p]
+lib.ElDisplayDistSparse_c.restype = c_uint
+lib.ElDisplayDistSparse_z.argtypes = [c_void_p,c_char_p]
+lib.ElDisplayDistSparse_z.restype = c_uint
 def Display(A,title='',tryPython=True):
   if tryPython: 
     if type(A) is Matrix or type(A) is DistMatrix:
@@ -234,6 +261,14 @@ def Display(A,title='',tryPython=True):
     elif A.tag == dTag: lib.ElDisplaySparse_d(*args)
     elif A.tag == cTag: lib.ElDisplaySparse_c(*args)
     elif A.tag == zTag: lib.ElDisplaySparse_z(*args)
+    else: DataExcept()
+    ProcessEvents(numMsExtra)
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == iTag: lib.ElDisplayDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElDisplayDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElDisplayDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElDisplayDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElDisplayDistSparse_z(*args)
     else: DataExcept()
     ProcessEvents(numMsExtra)
   else: TypeExcept()

@@ -27,8 +27,11 @@ ElError ElGraphResize( ElGraph graph, ElInt numSources, ElInt numTargets )
 ElError ElGraphReserve( ElGraph graph, ElInt numEdges )
 { EL_TRY( CReflect(graph)->Reserve(numEdges) ) }
 
-ElError ElGraphInsert( ElGraph graph, ElInt row, ElInt col )
-{ EL_TRY( CReflect(graph)->Insert( row, col ) ) }
+ElError ElGraphConnect( ElGraph graph, ElInt source, ElInt target )
+{ EL_TRY( CReflect(graph)->Connect( source, target ) ) }
+
+ElError ElGraphQueueConnection( ElGraph graph, ElInt source, ElInt target )
+{ EL_TRY( CReflect(graph)->QueueConnection( source, target ) ) }
 
 ElError ElGraphMakeConsistent( ElGraph graph )
 { EL_TRY( CReflect(graph)->MakeConsistent() ) }
