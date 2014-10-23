@@ -76,12 +76,16 @@ lib.ElGraphLockedTargetBuffer.argtypes = [c_void_p,POINTER(POINTER(iType))]
 lib.ElGraphLockedTargetBuffer.restype = c_uint
 
 class Graph(object):
+  # Constructors and destructors
+  # ============================
   def __init__(self,create=True):
     self.obj = c_void_p()
     if create:
       lib.ElGraphCreate(pointer(self.obj))
   def Destroy(self):
     lib.ElGraphDestroy(self.obj)
+  # Assignment and reconfiguration
+  # ==============================
   def Empty(self):
     lib.ElGraphEmpty(self.obj)
   def Resize(self,numSources,numTargets=None):
@@ -94,6 +98,8 @@ class Graph(object):
     lib.ElGraphReserve(self.obj,numEdges)
   def Insert(self,source,target):
     lib.ElGraphInsert(self.obj,source,target)
+  # Queries
+  # =======
   def NumSources(self):
     numSources = iType()
     lib.ElGraphNumSources(self.obj,pointer(numSources))
@@ -102,6 +108,10 @@ class Graph(object):
     numTargets = iType()
     lib.ElGraphNumTargets(self.obj,pointer(numTargets))
     return numTargets.value
+  def NumEdges(self):
+    numEdges = iType()
+    lib.ElGraphNumEdges(self.obj,pointer(numEdges))
+    return numEdges.value
   def Capacity(self):
     capacity = iType()
     lib.ElGraphCapacity(self.obj,pointer(capacity))
@@ -110,10 +120,6 @@ class Graph(object):
     consistent = bType()
     lib.ElGraphConsistent(self.obj,pointer(consistent))
     return consistent.value
-  def NumEdges(self):
-    numEdges = iType()
-    lib.ElGraphNumEdges(self.obj,pointer(numEdges))
-    return numEdges.value
   def Source(self,edge):
     source = iType()
     lib.ElGraphSource(self.obj,edge,pointer(source))

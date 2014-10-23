@@ -54,8 +54,8 @@ public:
     void Update( Int row, Int col, T value );
     void MakeConsistent();
 
-    // Basic queries
-    // =============
+    // Queries
+    // =======
 
     // High-level information
     // ----------------------

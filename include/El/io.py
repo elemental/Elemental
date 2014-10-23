@@ -34,6 +34,16 @@ lib.ElPrintDist_z.argtypes = [c_void_p,c_char_p]
 lib.ElPrintDist_z.restype = c_uint
 lib.ElPrintGraph.argtypes = [c_void_p,c_char_p]
 lib.ElPrintGraph.restype = c_uint
+lib.ElPrintSparse_i.argtypes = [c_void_p,c_char_p]
+lib.ElPrintSparse_i.restype = c_uint
+lib.ElPrintSparse_s.argtypes = [c_void_p,c_char_p]
+lib.ElPrintSparse_s.restype = c_uint
+lib.ElPrintSparse_d.argtypes = [c_void_p,c_char_p]
+lib.ElPrintSparse_d.restype = c_uint
+lib.ElPrintSparse_c.argtypes = [c_void_p,c_char_p]
+lib.ElPrintSparse_c.restype = c_uint
+lib.ElPrintSparse_z.argtypes = [c_void_p,c_char_p]
+lib.ElPrintSparse_z.restype = c_uint
 def Print(A,title=''):
   args = [A.obj,title]
   if type(A) is Matrix:
@@ -52,6 +62,13 @@ def Print(A,title=''):
     else: DataExcept()
   elif type(A) is Graph:
     lib.ElPrintGraph(*args)
+  elif type(A) is SparseMatrix:
+    if   A.tag == iTag: lib.ElPrintSparse_i(*args)
+    elif A.tag == sTag: lib.ElPrintSparse_s(*args)
+    elif A.tag == dTag: lib.ElPrintSparse_d(*args)
+    elif A.tag == cTag: lib.ElPrintSparse_c(*args)
+    elif A.tag == zTag: lib.ElPrintSparse_z(*args)
+    else: DataExcept()
   else: TypeExcept()
 
 lib.ElSetColorMap.argtypes = [c_uint]
@@ -105,6 +122,16 @@ lib.ElDisplayDist_z.argtypes = [c_void_p,c_char_p]
 lib.ElDisplayDist_z.restype = c_uint
 lib.ElDisplayGraph.argtypes = [c_void_p,c_char_p]
 lib.ElDisplayGraph.restype = c_uint
+lib.ElDisplaySparse_i.argtypes = [c_void_p,c_char_p]
+lib.ElDisplaySparse_i.restype = c_uint
+lib.ElDisplaySparse_s.argtypes = [c_void_p,c_char_p]
+lib.ElDisplaySparse_s.restype = c_uint
+lib.ElDisplaySparse_d.argtypes = [c_void_p,c_char_p]
+lib.ElDisplaySparse_d.restype = c_uint
+lib.ElDisplaySparse_c.argtypes = [c_void_p,c_char_p]
+lib.ElDisplaySparse_c.restype = c_uint
+lib.ElDisplaySparse_z.argtypes = [c_void_p,c_char_p]
+lib.ElDisplaySparse_z.restype = c_uint
 def Display(A,title='',tryMatplotlib=True):
   if tryMatplotlib and (type(A) is Matrix or type(A) is DistMatrix):
     try:  
@@ -175,6 +202,13 @@ def Display(A,title='',tryMatplotlib=True):
   elif type(A) is Graph:
     lib.ElDisplayGraph(*args)
     ProcessEvents(200)
+  elif type(A) is SparseMatrix:
+    if   A.tag == iTag: lib.ElDisplaySparse_i(*args)
+    elif A.tag == sTag: lib.ElDisplaySparse_s(*args)
+    elif A.tag == dTag: lib.ElDisplaySparse_d(*args)
+    elif A.tag == cTag: lib.ElDisplaySparse_c(*args)
+    elif A.tag == zTag: lib.ElDisplaySparse_z(*args)
+    else: DataExcept()
   else: TypeExcept()
 
 lib.ElSpy_i.argtypes = [c_void_p,c_char_p,iType]

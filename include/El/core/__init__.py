@@ -6,9 +6,10 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-from environment import *
-from Element     import *
-from Matrix      import *
-from Grid        import *
-from DistMatrix  import *
-from Graph       import *
+from environment  import *
+from Element      import *
+from Matrix       import *
+from Grid         import *
+from DistMatrix   import *
+from Graph        import *
+from SparseMatrix import *

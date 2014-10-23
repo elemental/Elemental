@@ -54,8 +54,8 @@ public:
     void Insert( Int source, Int target );
     void MakeConsistent();
 
-    // Basic queries
-    // =============
+    // Queries
+    // =======
     Int NumSources() const;
     Int NumTargets() const;
     Int NumEdges() const;
