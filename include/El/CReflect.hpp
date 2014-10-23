@@ -449,6 +449,20 @@ inline ElGraph CReflect( Graph* graph )
 inline ElConstGraph CReflect( const Graph* graph )
 { return EL_RC(ElConstGraph,graph); }
 
+/* DistGraph
+   --------- */
+inline DistGraph* CReflect( ElDistGraph graph )
+{ return EL_RC(DistGraph*,graph); }
+
+inline const DistGraph* CReflect( ElConstDistGraph graph )
+{ return EL_RC(const DistGraph*,graph); }
+
+inline ElDistGraph CReflect( DistGraph* graph )
+{ return EL_RC(ElDistGraph,graph); }
+
+inline ElConstDistGraph CReflect( const DistGraph* graph )
+{ return EL_RC(ElConstDistGraph,graph); }
+
 /* SparseMatrix
    ------------ */
 inline SparseMatrix<Int>* CReflect( ElSparseMatrix_i A )

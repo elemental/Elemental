@@ -34,6 +34,8 @@ lib.ElPrintDist_z.argtypes = [c_void_p,c_char_p]
 lib.ElPrintDist_z.restype = c_uint
 lib.ElPrintGraph.argtypes = [c_void_p,c_char_p]
 lib.ElPrintGraph.restype = c_uint
+lib.ElPrintDistGraph.argtypes = [c_void_p,c_char_p]
+lib.ElPrintDistGraph.restype = c_uint
 lib.ElPrintSparse_i.argtypes = [c_void_p,c_char_p]
 lib.ElPrintSparse_i.restype = c_uint
 lib.ElPrintSparse_s.argtypes = [c_void_p,c_char_p]
@@ -62,6 +64,8 @@ def Print(A,title=''):
     else: DataExcept()
   elif type(A) is Graph:
     lib.ElPrintGraph(*args)
+  elif type(A) is DistGraph:
+    lib.ElPrintDistGraph(*args)
   elif type(A) is SparseMatrix:
     if   A.tag == iTag: lib.ElPrintSparse_i(*args)
     elif A.tag == sTag: lib.ElPrintSparse_s(*args)
@@ -122,6 +126,8 @@ lib.ElDisplayDist_z.argtypes = [c_void_p,c_char_p]
 lib.ElDisplayDist_z.restype = c_uint
 lib.ElDisplayGraph.argtypes = [c_void_p,c_char_p]
 lib.ElDisplayGraph.restype = c_uint
+lib.ElDisplayDistGraph.argtypes = [c_void_p,c_char_p]
+lib.ElDisplayDistGraph.restype = c_uint
 lib.ElDisplaySparse_i.argtypes = [c_void_p,c_char_p]
 lib.ElDisplaySparse_i.restype = c_uint
 lib.ElDisplaySparse_s.argtypes = [c_void_p,c_char_p]
@@ -132,55 +138,74 @@ lib.ElDisplaySparse_c.argtypes = [c_void_p,c_char_p]
 lib.ElDisplaySparse_c.restype = c_uint
 lib.ElDisplaySparse_z.argtypes = [c_void_p,c_char_p]
 lib.ElDisplaySparse_z.restype = c_uint
-def Display(A,title='',tryMatplotlib=True):
-  if tryMatplotlib and (type(A) is Matrix or type(A) is DistMatrix):
-    try:  
-      import numpy as np
-      import matplotlib.pyplot as plt
-      isVec = min(A.Height(),A.Width()) == 1
-      if type(A) is Matrix:
-        if A.tag == cTag or A.tag == zTag:
-          AReal = Matrix(Base(A.tag))
-          AImag = Matrix(Base(A.tag))
-          RealPart(A,AReal)
-          ImagPart(A,AImag)
-          fig, (ax1,ax2) = plt.subplots(1,2)
-          ax1.set_title('Real part')
-          ax2.set_title('Imag part')
-          if isVec:
-            ax1.plot(np.squeeze(AReal.ToNumPy()),'bo-')
-            ax2.plot(np.squeeze(AImag.ToNumPy()),'bo-')
+def Display(A,title='',tryPython=True):
+  if tryPython: 
+    if type(A) is Matrix or type(A) is DistMatrix:
+      try:  
+        import numpy as np
+        import matplotlib.pyplot as plt
+        isVec = min(A.Height(),A.Width()) == 1
+        if type(A) is Matrix:
+          if A.tag == cTag or A.tag == zTag:
+            AReal = Matrix(Base(A.tag))
+            AImag = Matrix(Base(A.tag))
+            RealPart(A,AReal)
+            ImagPart(A,AImag)
+            fig, (ax1,ax2) = plt.subplots(1,2)
+            ax1.set_title('Real part')
+            ax2.set_title('Imag part')
+            if isVec:
+              ax1.plot(np.squeeze(AReal.ToNumPy()),'bo-')
+              ax2.plot(np.squeeze(AImag.ToNumPy()),'bo-')
+            else:
+              imReal = ax1.imshow(AReal.ToNumPy())
+              cBarReal = fig.colorbar(imReal,ax=ax1)
+              imImag = ax2.imshow(AImag.ToNumPy())
+              cBarImag = fig.colorbar(imImag,ax=ax2)
+            plt.suptitle(title)
+            plt.tight_layout()
           else:
-            imReal = ax1.imshow(AReal.ToNumPy())
-            cBarReal = fig.colorbar(imReal,ax=ax1)
-            imImag = ax2.imshow(AImag.ToNumPy())
-            cBarImag = fig.colorbar(imImag,ax=ax2)
-          plt.suptitle(title)
-          plt.tight_layout()
-        else:
-          fig = plt.figure()
-          axis = fig.add_axes([0.1,0.1,0.8,0.8])
-          if isVec:
-            axis.plot(np.squeeze(A.ToNumPy()),'bo-')
-          else:
-            im = axis.imshow(A.ToNumPy())
-            fig.colorbar(im,ax=axis)
-          plt.title(title)
+            fig = plt.figure()
+            axis = fig.add_axes([0.1,0.1,0.8,0.8])
+            if isVec:
+              axis.plot(np.squeeze(A.ToNumPy()),'bo-')
+            else:
+              im = axis.imshow(A.ToNumPy())
+              fig.colorbar(im,ax=axis)
+            plt.title(title)
+          plt.draw()
+          plt.show(block=False)
+        elif type(A) is DistMatrix:
+          A_CIRC_CIRC = DistMatrix(A.tag,CIRC,CIRC,A.Grid())
+          Copy(A,A_CIRC_CIRC)
+          if A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root():
+            Display(A_CIRC_CIRC.Matrix(),title,tryPython)
+            return
+        else: raise Exception('Unsupported matrix type')
+        return
+      except: 
+        print 'Could not import matplotlib.pyplot'
+    # TODO: Gather distributed graph on a single process
+    elif type(A) is Graph:
+      try:  
+        import matplotlib.pyplot as plt
+        import networkx as nx
+        numEdges = A.NumEdges() 
+        G = nx.DiGraph()
+        for edge in xrange(0,numEdges):
+          source = A.Source(edge)
+          target = A.Target(edge)
+          G.add_edge(source,target)
+        fig = plt.figure()
+        nx.draw(G)
         plt.draw()
         plt.show(block=False)
-      elif type(A) is DistMatrix:
-        A_CIRC_CIRC = DistMatrix(A.tag,CIRC,CIRC,A.Grid())
-        Copy(A,A_CIRC_CIRC)
-        if A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root():
-          Display(A_CIRC_CIRC.Matrix(),title,tryMatplotlib)
-          return
-      else: raise Exception('Unsupported matrix type')
-      return
-    except: 
-      print 'Could not import matplotlib.pyplot'
-      # Just continue
+        return
+      except:
+        print 'Could not import networkx and matplotlib.pyplot'
   # Fall back to the built-in Display if we have not succeeded
   args = [A.obj,title]
+  numMsExtra = 200
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElDisplay_i(*args)
     elif A.tag == sTag: lib.ElDisplay_s(*args)
@@ -188,8 +213,7 @@ def Display(A,title='',tryMatplotlib=True):
     elif A.tag == cTag: lib.ElDisplay_c(*args)
     elif A.tag == zTag: lib.ElDisplay_z(*args)
     else: DataExcept()
-    # Process an extra 200 milliseconds
-    ProcessEvents(200)
+    ProcessEvents(numMsExtra)
   elif type(A) is DistMatrix:
     if   A.tag == iTag: lib.ElDisplayDist_i(*args)
     elif A.tag == sTag: lib.ElDisplayDist_s(*args)
@@ -197,11 +221,13 @@ def Display(A,title='',tryMatplotlib=True):
     elif A.tag == cTag: lib.ElDisplayDist_c(*args)
     elif A.tag == zTag: lib.ElDisplayDist_z(*args)
     else: DataExcept()
-    # Process an extra 200 milliseconds
-    ProcessEvents(200)
+    ProcessEvents(numMsExtra)
   elif type(A) is Graph:
     lib.ElDisplayGraph(*args)
-    ProcessEvents(200)
+    ProcessEvents(numMsExtra)
+  elif type(A) is DistGraph:
+    lib.ElDisplayDistGraph(*args)
+    ProcessEvents(numMsExtra)
   elif type(A) is SparseMatrix:
     if   A.tag == iTag: lib.ElDisplaySparse_i(*args)
     elif A.tag == sTag: lib.ElDisplaySparse_s(*args)
@@ -209,6 +235,7 @@ def Display(A,title='',tryMatplotlib=True):
     elif A.tag == cTag: lib.ElDisplaySparse_c(*args)
     elif A.tag == zTag: lib.ElDisplaySparse_z(*args)
     else: DataExcept()
+    ProcessEvents(numMsExtra)
   else: TypeExcept()
 
 lib.ElSpy_i.argtypes = [c_void_p,c_char_p,iType]

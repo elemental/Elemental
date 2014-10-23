@@ -9,9 +9,6 @@
 from environment import *
 import numpy as np
 
-buffer_from_memory = pythonapi.PyBuffer_FromMemory
-buffer_from_memory.restype = ctypes.py_object
-
 # Graph
 # ======
 
@@ -27,14 +24,14 @@ lib.ElGraphEmpty.restype = c_uint
 lib.ElGraphResize.argtypes = [c_void_p,iType,iType]
 lib.ElGraphResize.restype = c_uint
 
-lib.ElGraphMakeConsistent.argtypes = [c_void_p]
-lib.ElGraphMakeConsistent.restype = c_uint
-
 lib.ElGraphReserve.argtypes = [c_void_p,iType]
 lib.ElGraphReserve.restype = c_uint
 
 lib.ElGraphInsert.argtypes = [c_void_p,iType,iType]
 lib.ElGraphInsert.restype = c_uint
+
+lib.ElGraphMakeConsistent.argtypes = [c_void_p]
+lib.ElGraphMakeConsistent.restype = c_uint
 
 lib.ElGraphNumSources.argtypes = [c_void_p,POINTER(iType)]
 lib.ElGraphNumSources.restype = c_uint
@@ -42,14 +39,14 @@ lib.ElGraphNumSources.restype = c_uint
 lib.ElGraphNumTargets.argtypes = [c_void_p,POINTER(iType)]
 lib.ElGraphNumTargets.restype = c_uint
 
+lib.ElGraphNumEdges.argtypes = [c_void_p,POINTER(iType)]
+lib.ElGraphNumEdges.restype = c_uint
+
 lib.ElGraphCapacity.argtypes = [c_void_p,POINTER(iType)]
 lib.ElGraphCapacity.restype = c_uint
 
 lib.ElGraphConsistent.argtypes = [c_void_p,POINTER(bType)]
 lib.ElGraphConsistent.restype = c_uint
-
-lib.ElGraphNumEdges.argtypes = [c_void_p,POINTER(iType)]
-lib.ElGraphNumEdges.restype = c_uint
 
 lib.ElGraphSource.argtypes = [c_void_p,iType,POINTER(iType)]
 lib.ElGraphSource.restype = c_uint
@@ -92,12 +89,12 @@ class Graph(object):
     if numTargets == None: 
       numTargets = numSources
     lib.ElGraphResize(self.obj,numSources,numTargets)
-  def MakeConsistent(self):
-    lib.ElGraphMakeConsistent(self.obj)
   def Reserve(self,numEdges):
     lib.ElGraphReserve(self.obj,numEdges)
   def Insert(self,source,target):
     lib.ElGraphInsert(self.obj,source,target)
+  def MakeConsistent(self):
+    lib.ElGraphMakeConsistent(self.obj)
   # Queries
   # =======
   def NumSources(self):

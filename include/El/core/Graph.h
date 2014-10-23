@@ -42,17 +42,17 @@ EL_EXPORT ElError ElGraphEmpty( ElGraph graph );
 EL_EXPORT ElError ElGraphResize
 ( ElGraph graph, ElInt numSources, ElInt numTargets );
 
-/* void Graph::MakeConsistent()
-   ----------------------------- */ 
-EL_EXPORT ElError ElGraphMakeConsistent( ElGraph graph );
-
-/* void Graph::Reserve( int numEdges )
+/* void Graph::Reserve( Int numEdges )
    ----------------------------------- */
 EL_EXPORT ElError ElGraphReserve( ElGraph graph, ElInt numEdges );
 
-/* void Graph::Insert( int row, int col )
+/* void Graph::Insert( Int row, Int col )
    -------------------------------------- */
 EL_EXPORT ElError ElGraphInsert( ElGraph graph, ElInt row, ElInt col );
+
+/* void Graph::MakeConsistent()
+   ---------------------------- */ 
+EL_EXPORT ElError ElGraphMakeConsistent( ElGraph graph );
 
 /* Queries
    ======= */

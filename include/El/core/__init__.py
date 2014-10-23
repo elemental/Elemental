@@ -12,4 +12,5 @@ from Matrix       import *
 from Grid         import *
 from DistMatrix   import *
 from Graph        import *
+from DistGraph    import *
 from SparseMatrix import *

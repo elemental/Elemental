@@ -24,14 +24,14 @@ ElError ElGraphEmpty( ElGraph graph )
 ElError ElGraphResize( ElGraph graph, ElInt numSources, ElInt numTargets )
 { EL_TRY( CReflect(graph)->Resize( numSources, numTargets ) ) }
 
-ElError ElGraphMakeConsistent( ElGraph graph )
-{ EL_TRY( CReflect(graph)->MakeConsistent() ) }
-
 ElError ElGraphReserve( ElGraph graph, ElInt numEdges )
 { EL_TRY( CReflect(graph)->Reserve(numEdges) ) }
 
 ElError ElGraphInsert( ElGraph graph, ElInt row, ElInt col )
 { EL_TRY( CReflect(graph)->Insert( row, col ) ) }
+
+ElError ElGraphMakeConsistent( ElGraph graph )
+{ EL_TRY( CReflect(graph)->MakeConsistent() ) }
 
 ElError ElGraphNumSources( ElConstGraph graph, ElInt* numSources )
 { EL_TRY( *numSources = CReflect(graph)->NumSources() ) } 

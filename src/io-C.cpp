@@ -45,10 +45,14 @@ ElError ElProcessEvents( int numMsecs )
 
 ElError ElDisplayGraph( ElConstGraph graph, const char* title )
 { EL_TRY( Display( *CReflect(graph), std::string(title) ) ) }
+ElError ElDisplayDistGraph( ElConstDistGraph graph, const char* title )
+{ EL_TRY( Display( *CReflect(graph), std::string(title) ) ) }
 
 /* Print
    ===== */
 ElError ElPrintGraph( ElConstGraph graph, const char* title )
+{ EL_TRY( Print( *CReflect(graph), std::string(title) ) ) }
+ElError ElPrintDistGraph( ElConstDistGraph graph, const char* title )
 { EL_TRY( Print( *CReflect(graph), std::string(title) ) ) }
 
 #define C_PROTO(SIG,SIGBASE,T) \
