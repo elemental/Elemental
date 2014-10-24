@@ -22,43 +22,56 @@ class DistMultiVec
 {
 public:
     // Constructors and destructors
+    // ============================
     DistMultiVec();
     DistMultiVec( mpi::Comm comm );
-    DistMultiVec( int height, int width, mpi::Comm comm );
+    DistMultiVec( Int height, Int width, mpi::Comm comm );
     ~DistMultiVec();
 
-    // High-level information
-    int Height() const;
-    int Width() const;
-
-    // Communicator management
-    void SetComm( mpi::Comm comm );
-    mpi::Comm Comm() const;
-
-    // Distribution information
-    int Blocksize() const;
-    int FirstLocalRow() const;
-    int LocalHeight() const;
-
-    // Local data
-    T GetLocal( int localRow, int col ) const;
-    void SetLocal( int localRow, int col, T value );
-    void UpdateLocal( int localRow, int col, T value );
-
-    // For modifying the size of the multi-vector
-    void Empty();
-    void Resize( int height, int width );
-
+    // Assignment  and reconfiguration
+    // ===============================
+   
     // Assignment
+    // ----------
     const DistMultiVec<T>& operator=( const DistMultiVec<T>& X );
 
+    // Change the matrix size
+    // ----------------------
+    void Empty();
+    void Resize( Int height, Int width );
+
+    // Change the distribution
+    // -----------------------
+    void SetComm( mpi::Comm comm );
+
+    // Queries
+    // =======
+
+    // High-level data
+    // ---------------
+    Int Height() const;
+    Int Width() const;
+    Int FirstLocalRow() const;
+    Int LocalHeight() const;
+
+    // Distribution information
+    // ------------------------
+    mpi::Comm Comm() const;
+    Int Blocksize() const;
+
+    // Entrywise manipulation
+    // ======================
+    T GetLocal( Int localRow, Int col ) const;
+    void SetLocal( Int localRow, Int col, T value );
+    void UpdateLocal( Int localRow, Int col, T value );
+
 private:
-    int height_, width_;
+    Int height_, width_;
 
     mpi::Comm comm_;
 
-    int blocksize_;
-    int firstLocalRow_;
+    Int blocksize_;
+    Int firstLocalRow_;
 
     Matrix<T> multiVec_;
 };

@@ -24,6 +24,7 @@
 #include "El/core/SparseMatrix.h"
 #include "El/core/DistSparseMatrix.h"
 #include "El/core/MultiVec.h"
+#include "El/core/DistMultiVec.h"
 #include "El/core/View.h"
 #include "El/core/flame_part/Merge.h"
 #include "El/core/flame_part/Partition.h"

@@ -660,6 +660,68 @@ inline ElConstMultiVec_c CReflect( const MultiVec<Complex<float>>* A )
 inline ElConstMultiVec_z CReflect( const MultiVec<Complex<double>>* A )
 { return (ElConstMultiVec_z)EL_RC(const struct ElMultiVec_zDummy*,A); }
 
+/* DistMultiVec
+   ------------ */
+inline DistMultiVec<Int>* CReflect( ElDistMultiVec_i A )
+{ return EL_RC(DistMultiVec<Int>*,A); }
+
+inline DistMultiVec<float>* CReflect( ElDistMultiVec_s A )
+{ return EL_RC(DistMultiVec<float>*,A); }
+
+inline DistMultiVec<double>* CReflect( ElDistMultiVec_d A )
+{ return EL_RC(DistMultiVec<double>*,A); }
+
+inline DistMultiVec<Complex<float>>* CReflect( ElDistMultiVec_c A )
+{ return EL_RC(DistMultiVec<Complex<float>>*,A); }
+
+inline DistMultiVec<Complex<double>>* CReflect( ElDistMultiVec_z A )
+{ return EL_RC(DistMultiVec<Complex<double>>*,A); }
+
+inline const DistMultiVec<Int>* CReflect( ElConstDistMultiVec_i A )
+{ return EL_RC(const DistMultiVec<Int>*,A); }
+
+inline const DistMultiVec<float>* CReflect( ElConstDistMultiVec_s A )
+{ return EL_RC(const DistMultiVec<float>*,A); }
+
+inline const DistMultiVec<double>* CReflect( ElConstDistMultiVec_d A )
+{ return EL_RC(const DistMultiVec<double>*,A); }
+
+inline const DistMultiVec<Complex<float>>* CReflect( ElConstDistMultiVec_c A )
+{ return EL_RC(const DistMultiVec<Complex<float>>*,A); }
+
+inline const DistMultiVec<Complex<double>>* CReflect( ElConstDistMultiVec_z A )
+{ return EL_RC(const DistMultiVec<Complex<double>>*,A); }
+
+inline ElDistMultiVec_i CReflect( DistMultiVec<Int>* A )
+{ return (ElDistMultiVec_i)EL_RC(struct ElDistMultiVec_iDummy*,A); }
+
+inline ElDistMultiVec_s CReflect( DistMultiVec<float>* A )
+{ return (ElDistMultiVec_s)EL_RC(struct ElDistMultiVec_sDummy*,A); }
+
+inline ElDistMultiVec_d CReflect( DistMultiVec<double>* A )
+{ return (ElDistMultiVec_d)EL_RC(struct ElDistMultiVec_dDummy*,A); }
+
+inline ElDistMultiVec_c CReflect( DistMultiVec<Complex<float>>* A )
+{ return (ElDistMultiVec_c)EL_RC(struct ElDistMultiVec_cDummy*,A); }
+
+inline ElDistMultiVec_z CReflect( DistMultiVec<Complex<double>>* A )
+{ return (ElDistMultiVec_z)EL_RC(struct ElDistMultiVec_zDummy*,A); }
+
+inline ElConstDistMultiVec_i CReflect( const DistMultiVec<Int>* A )
+{ return (ElConstDistMultiVec_i)EL_RC(const struct ElDistMultiVec_iDummy*,A); }
+
+inline ElConstDistMultiVec_s CReflect( const DistMultiVec<float>* A )
+{ return (ElConstDistMultiVec_s)EL_RC(const struct ElDistMultiVec_sDummy*,A); }
+
+inline ElConstDistMultiVec_d CReflect( const DistMultiVec<double>* A )
+{ return (ElConstDistMultiVec_d)EL_RC(const struct ElDistMultiVec_dDummy*,A); }
+
+inline ElConstDistMultiVec_c CReflect( const DistMultiVec<Complex<float>>* A )
+{ return (ElConstDistMultiVec_c)EL_RC(const struct ElDistMultiVec_cDummy*,A); }
+
+inline ElConstDistMultiVec_z CReflect( const DistMultiVec<Complex<double>>* A )
+{ return (ElConstDistMultiVec_z)EL_RC(const struct ElDistMultiVec_zDummy*,A); }
+
 inline ElDistData CReflect( const DistData& data )
 {
     ElDistData distData;

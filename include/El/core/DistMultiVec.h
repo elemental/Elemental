@@ -1,0 +1,209 @@
+/*
+   Copyright (c) 2009-2014, Jack Poulson
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License, 
+   which can be found in the LICENSE file in the root directory, or at 
+   http://opensource.org/licenses/BSD-2-Clause
+*/
+#pragma once
+#ifndef EL_DISTMULTIVEC_C_H
+#define EL_DISTMULTIVEC_C_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* An anonymous struct meant as a placeholder for DistMultiVec<T>
+   -------------------------------------------------------------- */
+typedef struct ElDistMultiVec_iDummy* ElDistMultiVec_i;
+typedef struct ElDistMultiVec_sDummy* ElDistMultiVec_s;
+typedef struct ElDistMultiVec_dDummy* ElDistMultiVec_d;
+typedef struct ElDistMultiVec_cDummy* ElDistMultiVec_c;
+typedef struct ElDistMultiVec_zDummy* ElDistMultiVec_z;
+
+typedef const struct ElDistMultiVec_iDummy* ElConstDistMultiVec_i;
+typedef const struct ElDistMultiVec_sDummy* ElConstDistMultiVec_s;
+typedef const struct ElDistMultiVec_dDummy* ElConstDistMultiVec_d;
+typedef const struct ElDistMultiVec_cDummy* ElConstDistMultiVec_c;
+typedef const struct ElDistMultiVec_zDummy* ElConstDistMultiVec_z;
+
+/* Constructors and destructors
+   ============================ */
+
+/* DistMultiVec<T>::DistMultiVec( mpi::Comm comm )
+   ----------------------------------------------- */
+EL_EXPORT ElError ElDistMultiVecCreate_i( ElDistMultiVec_i* A, MPI_Comm comm );
+EL_EXPORT ElError ElDistMultiVecCreate_s( ElDistMultiVec_s* A, MPI_Comm comm );
+EL_EXPORT ElError ElDistMultiVecCreate_d( ElDistMultiVec_d* A, MPI_Comm comm );
+EL_EXPORT ElError ElDistMultiVecCreate_c( ElDistMultiVec_c* A, MPI_Comm comm );
+EL_EXPORT ElError ElDistMultiVecCreate_z( ElDistMultiVec_z* A, MPI_Comm comm );
+
+/* DistMultiVec<T>::~DistMultiVec()
+   -------------------------------- */
+EL_EXPORT ElError ElDistMultiVecDestroy_i( ElConstDistMultiVec_i A );
+EL_EXPORT ElError ElDistMultiVecDestroy_s( ElConstDistMultiVec_s A );
+EL_EXPORT ElError ElDistMultiVecDestroy_d( ElConstDistMultiVec_d A );
+EL_EXPORT ElError ElDistMultiVecDestroy_c( ElConstDistMultiVec_c A );
+EL_EXPORT ElError ElDistMultiVecDestroy_z( ElConstDistMultiVec_z A );
+
+/* Assignment and reconfiguration
+   ============================== */
+
+/* void DistMultiVec<T>::Empty()
+   ----------------------------- */
+EL_EXPORT ElError ElDistMultiVecEmpty_i( ElDistMultiVec_i A );
+EL_EXPORT ElError ElDistMultiVecEmpty_s( ElDistMultiVec_s A );
+EL_EXPORT ElError ElDistMultiVecEmpty_d( ElDistMultiVec_d A );
+EL_EXPORT ElError ElDistMultiVecEmpty_c( ElDistMultiVec_c A );
+EL_EXPORT ElError ElDistMultiVecEmpty_z( ElDistMultiVec_z A );
+
+/* void DistMultiVec<T>::Resize( Int height, Int width )
+   ----------------------------------------------------- */
+EL_EXPORT ElError ElDistMultiVecResize_i
+( ElDistMultiVec_i A, ElInt height, ElInt width );
+EL_EXPORT ElError ElDistMultiVecResize_s
+( ElDistMultiVec_s A, ElInt height, ElInt width );
+EL_EXPORT ElError ElDistMultiVecResize_d
+( ElDistMultiVec_d A, ElInt height, ElInt width );
+EL_EXPORT ElError ElDistMultiVecResize_c
+( ElDistMultiVec_c A, ElInt height, ElInt width );
+EL_EXPORT ElError ElDistMultiVecResize_z
+( ElDistMultiVec_z A, ElInt height, ElInt width );
+
+/* void DistMultiVec<T>::SetComm( mpi::Comm comm )
+   ----------------------------------------------- */
+EL_EXPORT ElError ElDistMultiVecSetComm_i( ElDistMultiVec_i A, MPI_Comm comm );
+EL_EXPORT ElError ElDistMultiVecSetComm_s( ElDistMultiVec_s A, MPI_Comm comm );
+EL_EXPORT ElError ElDistMultiVecSetComm_d( ElDistMultiVec_d A, MPI_Comm comm );
+EL_EXPORT ElError ElDistMultiVecSetComm_c( ElDistMultiVec_c A, MPI_Comm comm );
+EL_EXPORT ElError ElDistMultiVecSetComm_z( ElDistMultiVec_z A, MPI_Comm comm );
+
+/* Queries
+   ======= */
+
+/* Int DistMultiVec<T>::Height() const
+   ----------------------------------- */
+EL_EXPORT ElError ElDistMultiVecHeight_i
+( ElConstDistMultiVec_i A, ElInt* height );
+EL_EXPORT ElError ElDistMultiVecHeight_s
+( ElConstDistMultiVec_s A, ElInt* height );
+EL_EXPORT ElError ElDistMultiVecHeight_d
+( ElConstDistMultiVec_d A, ElInt* height );
+EL_EXPORT ElError ElDistMultiVecHeight_c
+( ElConstDistMultiVec_c A, ElInt* height );
+EL_EXPORT ElError ElDistMultiVecHeight_z
+( ElConstDistMultiVec_z A, ElInt* height );
+
+/* Int DistMultiVec<T>::Width() const
+   ---------------------------------- */
+EL_EXPORT ElError ElDistMultiVecWidth_i
+( ElConstDistMultiVec_i A, ElInt* width );
+EL_EXPORT ElError ElDistMultiVecWidth_s
+( ElConstDistMultiVec_s A, ElInt* width );
+EL_EXPORT ElError ElDistMultiVecWidth_d
+( ElConstDistMultiVec_d A, ElInt* width );
+EL_EXPORT ElError ElDistMultiVecWidth_c
+( ElConstDistMultiVec_c A, ElInt* width );
+EL_EXPORT ElError ElDistMultiVecWidth_z
+( ElConstDistMultiVec_z A, ElInt* width );
+
+/* Int DistMultiVec<T>::FirstLocalRow() const
+   ------------------------------------------ */
+EL_EXPORT ElError ElDistMultiVecFirstLocalRow_i
+( ElConstDistMultiVec_i A, ElInt* firstLocalRow );
+EL_EXPORT ElError ElDistMultiVecFirstLocalRow_s
+( ElConstDistMultiVec_s A, ElInt* firstLocalRow );
+EL_EXPORT ElError ElDistMultiVecFirstLocalRow_d
+( ElConstDistMultiVec_d A, ElInt* firstLocalRow );
+EL_EXPORT ElError ElDistMultiVecFirstLocalRow_c
+( ElConstDistMultiVec_c A, ElInt* firstLocalRow );
+EL_EXPORT ElError ElDistMultiVecFirstLocalRow_z
+( ElConstDistMultiVec_z A, ElInt* firstLocalRow );
+
+/* Int DistMultiVec<T>::LocalHeight() const
+   ---------------------------------------- */
+EL_EXPORT ElError ElDistMultiVecLocalHeight_i
+( ElConstDistMultiVec_i A, ElInt* localHeight );
+EL_EXPORT ElError ElDistMultiVecLocalHeight_s
+( ElConstDistMultiVec_s A, ElInt* localHeight );
+EL_EXPORT ElError ElDistMultiVecLocalHeight_d
+( ElConstDistMultiVec_d A, ElInt* localHeight );
+EL_EXPORT ElError ElDistMultiVecLocalHeight_c
+( ElConstDistMultiVec_c A, ElInt* localHeight );
+EL_EXPORT ElError ElDistMultiVecLocalHeight_z
+( ElConstDistMultiVec_z A, ElInt* localHeight );
+
+/* mpi::Comm DistMultiVec<T>::Comm() const
+   --------------------------------------- */
+EL_EXPORT ElError ElDistMultiVecComm_i
+( ElConstDistMultiVec_i A, MPI_Comm* comm );
+EL_EXPORT ElError ElDistMultiVecComm_s
+( ElConstDistMultiVec_s A, MPI_Comm* comm );
+EL_EXPORT ElError ElDistMultiVecComm_d
+( ElConstDistMultiVec_d A, MPI_Comm* comm );
+EL_EXPORT ElError ElDistMultiVecComm_c
+( ElConstDistMultiVec_c A, MPI_Comm* comm );
+EL_EXPORT ElError ElDistMultiVecComm_z
+( ElConstDistMultiVec_z A, MPI_Comm* comm );
+
+/* Int DistMultiVec<T>::Blocksize() const
+   -------------------------------------- */
+EL_EXPORT ElError ElDistMultiVecBlocksize_i
+( ElConstDistMultiVec_i A, ElInt* blocksize );
+EL_EXPORT ElError ElDistMultiVecBlocksize_s
+( ElConstDistMultiVec_s A, ElInt* blocksize );
+EL_EXPORT ElError ElDistMultiVecBlocksize_d
+( ElConstDistMultiVec_d A, ElInt* blocksize );
+EL_EXPORT ElError ElDistMultiVecBlocksize_c
+( ElConstDistMultiVec_c A, ElInt* blocksize );
+EL_EXPORT ElError ElDistMultiVecBlocksize_z
+( ElConstDistMultiVec_z A, ElInt* blocksize );
+
+/* Entrywise manipulation
+   ====================== */
+
+/* T DistMultiVec<T>::GetLocal( Int iLocal, Int j ) const
+   ------------------------------------------------------ */
+EL_EXPORT ElError ElDistMultiVecGetLocal_i
+( ElConstDistMultiVec_i A, ElInt iLocal, ElInt j, ElInt* value );
+EL_EXPORT ElError ElDistMultiVecGetLocal_s
+( ElConstDistMultiVec_s A, ElInt iLocal, ElInt j, float* value );
+EL_EXPORT ElError ElDistMultiVecGetLocal_d
+( ElConstDistMultiVec_d A, ElInt iLocal, ElInt j, double* value );
+EL_EXPORT ElError ElDistMultiVecGetLocal_c
+( ElConstDistMultiVec_c A, ElInt iLocal, ElInt j, complex_float* value );
+EL_EXPORT ElError ElDistMultiVecGetLocal_z
+( ElConstDistMultiVec_z A, ElInt iLocal, ElInt j, complex_double* value );
+
+/* void DistMultiVec<T>::SetLocal( Int iLocal, Int j, T value )
+   ------------------------------------------------------------ */
+EL_EXPORT ElError ElDistMultiVecSetLocal_i
+( ElDistMultiVec_i A, ElInt iLocal, ElInt j, ElInt value );
+EL_EXPORT ElError ElDistMultiVecSetLocal_s
+( ElDistMultiVec_s A, ElInt iLocal, ElInt j, float value );
+EL_EXPORT ElError ElDistMultiVecSetLocal_d
+( ElDistMultiVec_d A, ElInt iLocal, ElInt j, double value );
+EL_EXPORT ElError ElDistMultiVecSetLocal_c
+( ElDistMultiVec_c A, ElInt iLocal, ElInt j, complex_float value );
+EL_EXPORT ElError ElDistMultiVecSetLocal_z
+( ElDistMultiVec_z A, ElInt iLocal, ElInt j, complex_double value );
+
+/* void DistMultiVec<T>::UpdateLocal( Int iLocal, Int j, T value )
+   --------------------------------------------------------------- */
+EL_EXPORT ElError ElDistMultiVecUpdateLocal_i
+( ElDistMultiVec_i A, ElInt iLocal, ElInt j, ElInt value );
+EL_EXPORT ElError ElDistMultiVecUpdateLocal_s
+( ElDistMultiVec_s A, ElInt iLocal, ElInt j, float value );
+EL_EXPORT ElError ElDistMultiVecUpdateLocal_d
+( ElDistMultiVec_d A, ElInt iLocal, ElInt j, double value );
+EL_EXPORT ElError ElDistMultiVecUpdateLocal_c
+( ElDistMultiVec_c A, ElInt iLocal, ElInt j, complex_float value );
+EL_EXPORT ElError ElDistMultiVecUpdateLocal_z
+( ElDistMultiVec_z A, ElInt iLocal, ElInt j, complex_double value );
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
+#endif /* ifndef EL_DISTMULTIVEC_C_H */

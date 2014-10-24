@@ -224,6 +224,7 @@ def Display(A,title='',tryPython=True):
           target = A.Target(edge)
           G.add_edge(source,target)
         fig = plt.figure()
+        plt.title(title)
         nx.draw(G)
         plt.draw()
         plt.show(block=False)
