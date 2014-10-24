@@ -33,7 +33,7 @@ extern "C" {
   { EL_TRY( *width = CReflect(A)->Width() ) } \
   /* Entrywise manipulation */ \
   ElError ElMultiVecGet_ ## SIG \
-  ( ElMultiVec_ ## SIG A, ElInt i, ElInt j, CREFLECT(T)* value ) \
+  ( ElConstMultiVec_ ## SIG A, ElInt i, ElInt j, CREFLECT(T)* value ) \
   { EL_TRY( *value = CReflect(CReflect(A)->Get(i,j)) ) } \
   ElError ElMultiVecSet_ ## SIG \
   ( ElMultiVec_ ## SIG A, ElInt i, ElInt j, CREFLECT(T) value ) \
