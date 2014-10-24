@@ -15,3 +15,4 @@ from Graph            import *
 from DistGraph        import *
 from SparseMatrix     import *
 from DistSparseMatrix import *
+from MultiVec         import *

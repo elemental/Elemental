@@ -12,20 +12,21 @@
 
 namespace El {
 
+// TODO: Move these norm computations into another location
 template<typename F>
 void Norms( const MultiVec<F>& X, std::vector<Base<F>>& norms )
 {
     DEBUG_ONLY(CallStackEntry cse("Norms"))
     typedef Base<F> Real;
-    const int height = X.Height();
-    const int width = X.Width();
+    const Int height = X.Height();
+    const Int width = X.Width();
 
     norms.resize( width );
-    for( int j=0; j<width; ++j )
+    for( Int j=0; j<width; ++j )
     {
         Real scale = 0;
         Real scaledSquare = 1;
-        for( int i=0; i<height; ++i )
+        for( Int i=0; i<height; ++i )
         {
             const Real alphaAbs = Abs(X.Get(i,j));
             if( alphaAbs != 0 )
@@ -58,49 +59,22 @@ Base<F> Norm( const MultiVec<F>& x )
     return norms[0];
 }
 
+// Constructors and destructors
+// ============================
+
 template<typename T>
 MultiVec<T>::MultiVec() { }
 
 template<typename T>
-MultiVec<T>::MultiVec( int height, int width )
+MultiVec<T>::MultiVec( Int height, Int width )
 : multiVec_(height,width)
 { }
 
 template<typename T>
 MultiVec<T>::~MultiVec() { }
 
-template<typename T>
-int MultiVec<T>::Height() const { return multiVec_.Height(); }
-template<typename T>
-int MultiVec<T>::Width() const { return multiVec_.Width(); }
-
-template<typename T>
-T MultiVec<T>::Get( int row, int col ) const
-{ 
-    DEBUG_ONLY(CallStackEntry cse("MultiVec::Get"))
-    return multiVec_.Get(row,col);
-}
-
-template<typename T>
-void MultiVec<T>::Set( int row, int col, T value )
-{
-    DEBUG_ONLY(CallStackEntry cse("MultiVec::Set"))
-    multiVec_.Set(row,col,value);
-}
-
-template<typename T>
-void MultiVec<T>::Update( int row, int col, T value )
-{
-    DEBUG_ONLY(CallStackEntry cse("MultiVec::Update"))
-    multiVec_.Update(row,col,value);
-}
-
-template<typename T>
-void MultiVec<T>::Empty() { multiVec_.Empty(); }
-
-template<typename T>
-void MultiVec<T>::Resize( int height, int width )
-{ multiVec_.Resize( height, width ); }
+// Assignment and reconfiguration
+// ==============================
 
 template<typename T>
 const MultiVec<T>& MultiVec<T>::operator=( const MultiVec<T>& X )
@@ -108,6 +82,45 @@ const MultiVec<T>& MultiVec<T>::operator=( const MultiVec<T>& X )
     DEBUG_ONLY(CallStackEntry cse("MultiVec::operator="))
     multiVec_ = X.multiVec_;
     return *this;
+}
+
+template<typename T>
+void MultiVec<T>::Empty() { multiVec_.Empty(); }
+
+template<typename T>
+void MultiVec<T>::Resize( Int height, Int width )
+{ multiVec_.Resize( height, width ); }
+
+// Queries
+// =======
+
+template<typename T>
+Int MultiVec<T>::Height() const { return multiVec_.Height(); }
+template<typename T>
+Int MultiVec<T>::Width() const { return multiVec_.Width(); }
+
+// Entrywise manipulation
+// ======================
+
+template<typename T>
+T MultiVec<T>::Get( Int row, Int col ) const
+{ 
+    DEBUG_ONLY(CallStackEntry cse("MultiVec::Get"))
+    return multiVec_.Get(row,col);
+}
+
+template<typename T>
+void MultiVec<T>::Set( Int row, Int col, T value )
+{
+    DEBUG_ONLY(CallStackEntry cse("MultiVec::Set"))
+    multiVec_.Set(row,col,value);
+}
+
+template<typename T>
+void MultiVec<T>::Update( Int row, Int col, T value )
+{
+    DEBUG_ONLY(CallStackEntry cse("MultiVec::Update"))
+    multiVec_.Update(row,col,value);
 }
 
 #define PROTO(T) template class MultiVec<T>;

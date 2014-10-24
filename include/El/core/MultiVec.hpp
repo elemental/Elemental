@@ -19,26 +19,34 @@ class MultiVec
 {
 public:
     // Constructors and destructors
+    // ============================
     MultiVec();
-    MultiVec( int height, int width );
+    MultiVec( Int height, Int width );
     // TODO: Constructor for building from a MultiVec
     ~MultiVec();
 
-    // High-level information
-    int Height() const;
-    int Width() const;
+    // Assignment and reconfiguration
+    // ==============================
 
-    // Data
-    T Get( int row, int col ) const;
-    void Set( int row, int col, T value );
-    void Update( int row, int col, T value );
-
-    // For modifying the size of the multi-vector
-    void Empty();
-    void Resize( int height, int width );
-
-    // Assignment
+    // Make a copy
+    // -----------
     const MultiVec<T>& operator=( const MultiVec<T>& X );
+
+    // Change the size of the multivec
+    // -------------------------------
+    void Empty();
+    void Resize( Int height, Int width );
+
+    // Queries
+    // =======
+    Int Height() const;
+    Int Width() const;
+
+    // Entrywise manipulation
+    // ======================
+    T Get( Int i, Int j ) const;
+    void Set( Int i, Int j, T value );
+    void Update( Int i, Int j, T value );
 
 private:
     Matrix<T> multiVec_;
