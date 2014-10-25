@@ -249,6 +249,84 @@ void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, Int root )
       (T*)0, &entrySizes[0], &entryOffsets[0], root, comm );
 }
 
+template<typename T>
+void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
+{
+    DEBUG_ONLY(CallStackEntry cse("CopyFromRoot"))
+    const mpi::Comm comm = XDist.Comm();
+    const int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm );
+
+    const int numLocalEntries = XDist.LocalHeight()*XDist.Width();
+    std::vector<int> entrySizes(commSize), entryOffsets(commSize);
+    mpi::AllGather( &numLocalEntries, 1, &entrySizes[0], 1, comm );
+    int numEntries=0;
+    for( int q=0; q<commSize; ++q )
+    {
+        entryOffsets[q] = numEntries;
+        numEntries += entrySizes[q];
+    }
+
+    X.Resize( XDist.Height(), XDist.Width(), XDist.Height() );
+    const auto& XDistLoc = XDist.LockedMatrix();
+    if( XDistLoc.Height() == XDistLoc.LDim() )
+    {
+        mpi::Gather
+        ( XDistLoc.LockedBuffer(), numLocalEntries,
+          X.Buffer(), &entrySizes[0], &entryOffsets[0], commRank, comm );
+    }
+    else
+    {
+        std::vector<T> sendBuf( numLocalEntries );
+        for( Int jLoc=0; jLoc<XDistLoc.Width(); ++jLoc )
+            for( Int iLoc=0; iLoc<XDistLoc.Height(); ++iLoc )
+                sendBuf[iLoc+jLoc*XDistLoc.Height()] = XDistLoc.Get(iLoc,jLoc);
+        mpi::Gather
+        ( sendBuf.data(), numLocalEntries,
+          X.Buffer(), &entrySizes[0], &entryOffsets[0], commRank, comm );
+    }
+}
+
+template<typename T>
+void CopyFromNonRoot( const DistMultiVec<T>& XDist, Int root )
+{
+    DEBUG_ONLY(CallStackEntry cse("CopyFromNonRoot"))
+    const mpi::Comm comm = XDist.Comm();
+    const int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm );
+    if( commRank == root )
+        LogicError("Called CopyFromNonRoot from root");
+
+    const int numLocalEntries = XDist.LocalHeight()*XDist.Width();
+    std::vector<int> entrySizes(commSize), entryOffsets(commSize);
+    mpi::AllGather( &numLocalEntries, 1, &entrySizes[0], 1, comm );
+    int numEntries=0;
+    for( int q=0; q<commSize; ++q )
+    {
+        entryOffsets[q] = numEntries;
+        numEntries += entrySizes[q];
+    }
+
+    const auto& XDistLoc = XDist.LockedMatrix();
+    if( XDistLoc.Height() == XDistLoc.LDim() )
+    {
+        mpi::Gather
+        ( XDistLoc.LockedBuffer(), numLocalEntries,
+          (T*)0, &entrySizes[0], &entryOffsets[0], root, comm );
+    }
+    else
+    {
+        std::vector<T> sendBuf( numLocalEntries );
+        for( Int jLoc=0; jLoc<XDistLoc.Width(); ++jLoc )
+            for( Int iLoc=0; iLoc<XDistLoc.Height(); ++iLoc )
+                sendBuf[iLoc+jLoc*XDistLoc.Height()] = XDistLoc.Get(iLoc,jLoc);
+        mpi::Gather
+        ( sendBuf.data(), numLocalEntries,
+          (T*)0, &entrySizes[0], &entryOffsets[0], root, comm );
+    }
+}
+
+
 #define CONVERT(S,T) \
   template void Copy( const Matrix<S>& A, Matrix<T>& B ); \
   template void Copy \
@@ -260,8 +338,9 @@ void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, Int root )
   CONVERT(T,T) \
   template void CopyFromRoot \
   ( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A ); \
-  template void CopyFromNonRoot \
-  ( const DistSparseMatrix<T>& ADist, Int root );
+  template void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, Int root ); \
+  template void CopyFromRoot( const DistMultiVec<T>& ADist, Matrix<T>& A ); \
+  template void CopyFromNonRoot( const DistMultiVec<T>& ADist, Int root );
 
 #define PROTO_INT(T) SAME(T) 
 

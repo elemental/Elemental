@@ -126,6 +126,28 @@ EL_EXPORT ElError ElCopySparseMatrixFromNonRoot_c
 EL_EXPORT ElError ElCopySparseMatrixFromNonRoot_z
 ( ElConstDistSparseMatrix_z ADist, ElInt root );
 
+EL_EXPORT ElError ElCopyMultiVecFromRoot_i
+( ElConstDistMultiVec_i XDist, ElMatrix_i X );
+EL_EXPORT ElError ElCopyMultiVecFromRoot_s
+( ElConstDistMultiVec_s XDist, ElMatrix_s X );
+EL_EXPORT ElError ElCopyMultiVecFromRoot_d
+( ElConstDistMultiVec_d XDist, ElMatrix_d X );
+EL_EXPORT ElError ElCopyMultiVecFromRoot_c
+( ElConstDistMultiVec_c XDist, ElMatrix_c X );
+EL_EXPORT ElError ElCopyMultiVecFromRoot_z
+( ElConstDistMultiVec_z XDist, ElMatrix_z X );
+
+EL_EXPORT ElError ElCopyMultiVecFromNonRoot_i
+( ElConstDistMultiVec_i XDist, ElInt root );
+EL_EXPORT ElError ElCopyMultiVecFromNonRoot_s
+( ElConstDistMultiVec_s XDist, ElInt root );
+EL_EXPORT ElError ElCopyMultiVecFromNonRoot_d
+( ElConstDistMultiVec_d XDist, ElInt root );
+EL_EXPORT ElError ElCopyMultiVecFromNonRoot_c
+( ElConstDistMultiVec_c XDist, ElInt root );
+EL_EXPORT ElError ElCopyMultiVecFromNonRoot_z
+( ElConstDistMultiVec_z XDist, ElInt root );
+
 /* DiagonalScale 
    ============= */
 EL_EXPORT ElError ElDiagonalScale_i

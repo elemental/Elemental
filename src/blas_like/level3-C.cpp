@@ -39,7 +39,13 @@ extern "C" {
   { EL_TRY( \
       Gemm( CReflect(orientationOfA), CReflect(orientationOfB), \
             CReflect(alpha), *CReflect(A), *CReflect(B), \
-            CReflect(beta), *CReflect(C), CReflect(alg) ) ) } 
+            CReflect(beta), *CReflect(C), CReflect(alg) ) ) } \
+  ElError ElSparseMultiplyDist_ ## SIG \
+  ( CREFLECT(T) alpha, ElConstDistSparseMatrix_ ## SIG A, \
+    ElConstDistMultiVec_ ## SIG X, CREFLECT(T) beta, \
+    ElDistMultiVec_ ## SIG Y ) \
+  { EL_TRY( Multiply( CReflect(alpha), *CReflect(A), *CReflect(X), \
+                      CReflect(beta), *CReflect(Y) ) ) }
 
 #define C_PROTO_FIELD(SIG,SIGBASE,F) \
   /* MultiShiftQuasiTrsm */ \

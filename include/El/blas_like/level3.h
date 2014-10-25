@@ -148,6 +148,24 @@ EL_EXPORT ElError ElHer2kDist_z
   complex_double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z B,
   double beta,          ElDistMatrix_z C );
 
+/* Multiply
+   ======== */
+EL_EXPORT ElError ElSparseMultiplyDist_i
+( ElInt alpha, ElConstDistSparseMatrix_i A, ElConstDistMultiVec_i X, 
+  ElInt beta, ElDistMultiVec_i Y );
+EL_EXPORT ElError ElSparseMultiplyDist_s
+( float alpha, ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s X, 
+  float beta, ElDistMultiVec_s Y );
+EL_EXPORT ElError ElSparseMultiplyDist_d
+( double alpha, ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d X, 
+  double beta, ElDistMultiVec_d Y );
+EL_EXPORT ElError ElSparseMultiplyDist_c
+( complex_float alpha, ElConstDistSparseMatrix_c A, ElConstDistMultiVec_c X, 
+  complex_float beta, ElDistMultiVec_c Y );
+EL_EXPORT ElError ElSparseMultiplyDist_z
+( complex_double alpha, ElConstDistSparseMatrix_z A, ElConstDistMultiVec_z X, 
+  complex_double beta, ElDistMultiVec_z Y );
+
 /* MultiShiftQuasiTrsm
    =================== */
 EL_EXPORT ElError ElMultiShiftQuasiTrsm_s

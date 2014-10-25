@@ -249,7 +249,7 @@ class DistMultiVec(object):
     return firstLocalRow.value
   def LocalHeight(self):
     localHeight = iType()
-    args = [self.obj,pointer(firstLocalRow)]
+    args = [self.obj,pointer(localHeight)]
     if   self.tag == iTag: lib.ElDistMultiVecLocalHeight_i(*args)
     elif self.tag == sTag: lib.ElDistMultiVecLocalHeight_s(*args)
     elif self.tag == dTag: lib.ElDistMultiVecLocalHeight_d(*args)
@@ -289,7 +289,7 @@ class DistMultiVec(object):
     elif self.tag == zTag: lib.ElDistMultiVecGetLocal_z(*args)
     else: DataExcept()
     return value.value
-  def Set(self,iLocal,j,value):
+  def SetLocal(self,iLocal,j,value):
     args = [self.obj,iLocal,j,value]
     if   self.tag == iTag: lib.ElDistMultiVecSetLocal_i(*args)
     elif self.tag == sTag: lib.ElDistMultiVecSetLocal_s(*args)
@@ -297,7 +297,7 @@ class DistMultiVec(object):
     elif self.tag == cTag: lib.ElDistMultiVecSetLocal_c(*args)
     elif self.tag == zTag: lib.ElDistMultiVecSetLocal_z(*args)
     else: DataExcept()
-  def Update(self,iLocal,j,value):
+  def UpdateLocal(self,iLocal,j,value):
     args = [self.obj,iLocal,j,value]
     if   self.tag == iTag: lib.ElDistMultiVecUpdateLocal_i(*args)
     elif self.tag == sTag: lib.ElDistMultiVecUpdateLocal_s(*args)

@@ -219,7 +219,7 @@ def Display(A,title='',tryPython=True):
         import networkx as nx
         numEdges = A.NumEdges() 
         G = nx.DiGraph()
-        for edge in xrange(0,numEdges):
+        for edge in xrange(numEdges):
           source = A.Source(edge)
           target = A.Target(edge)
           G.add_edge(source,target)

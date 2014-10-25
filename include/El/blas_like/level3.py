@@ -262,6 +262,35 @@ def Syr2k(uplo,orient,alphaPre,A,B,beta,C,conj=False):
 def Her2k(uplo,orient,alpha,A,B,beta,C):
   Syr2k(uplo,orient,alpha,A,B,beta,C,True)
 
+# Multiply
+# --------
+lib.ElSparseMultiplyDist_i.argtypes = [iType,c_void_p,c_void_p,iType,c_void_p]
+lib.ElSparseMultiplyDist_i.restype = c_uint
+lib.ElSparseMultiplyDist_s.argtypes = [sType,c_void_p,c_void_p,sType,c_void_p]
+lib.ElSparseMultiplyDist_s.restype = c_uint
+lib.ElSparseMultiplyDist_d.argtypes = [dType,c_void_p,c_void_p,dType,c_void_p]
+lib.ElSparseMultiplyDist_d.restype = c_uint
+lib.ElSparseMultiplyDist_c.argtypes = [cType,c_void_p,c_void_p,cType,c_void_p]
+lib.ElSparseMultiplyDist_c.restype = c_uint
+lib.ElSparseMultiplyDist_z.argtypes = [zType,c_void_p,c_void_p,zType,c_void_p]
+lib.ElSparseMultiplyDist_z.restype = c_uint
+
+# TODO: Generalize so that this is part of a routine 'Multiply'
+def SparseMultiply(alpha,A,X,beta,Y):
+  if type(A) is DistSparseMatrix:
+    if type(X) is not DistMultiVec or type(Y) is not DistMultiVec:
+      raise Exception("Types of X and Y must match")
+    if A.tag != X.tag or X.tag != Y.tag:
+      raise Exception("Datatypes of {A,X,Y} must match")
+    args = [alpha,A.obj,X.obj,beta,Y.obj]
+    if   A.tag == iTag: lib.ElSparseMultiplyDist_i(*args)
+    elif A.tag == sTag: lib.ElSparseMultiplyDist_s(*args)
+    elif A.tag == dTag: lib.ElSparseMultiplyDist_d(*args)
+    elif A.tag == cTag: lib.ElSparseMultiplyDist_c(*args)
+    elif A.tag == zTag: lib.ElSparseMultiplyDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
+
 # MultiShiftQuasiTrsm
 # -------------------
 lib.ElMultiShiftQuasiTrsm_s.argtypes = \

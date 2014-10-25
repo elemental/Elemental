@@ -29,8 +29,6 @@ void Axpy( S alpha, const Matrix<T>& X, Matrix<T>& Y );
 template<typename T,typename S>
 void Axpy( S alpha, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y );
 template<typename T,typename S>
-void Axpy( S alpha, const MultiVec<T>& X, MultiVec<T>& Y );
-template<typename T,typename S>
 void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y );
 
 // AxpyTriangle
@@ -77,6 +75,11 @@ template<typename T>
 void CopyFromRoot( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A );
 template<typename T>
 void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, Int root=0 );
+
+template<typename T>
+void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X );
+template<typename T>
+void CopyFromNonRoot( const DistMultiVec<T>& XDist, Int root=0 );
 
 // DiagonalScale
 // =============
@@ -641,8 +644,6 @@ template<typename T>
 void Zero( AbstractDistMatrix<T>& A );
 template<typename T>
 void Zero( AbstractBlockDistMatrix<T>& A );
-template<typename T>
-void Zero( MultiVec<T>& A );
 template<typename T>
 void Zero( DistMultiVec<T>& A );
 

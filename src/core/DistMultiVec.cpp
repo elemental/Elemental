@@ -202,6 +202,10 @@ template<typename T>
 Int DistMultiVec<T>::FirstLocalRow() const { return firstLocalRow_; }
 template<typename T>
 Int DistMultiVec<T>::LocalHeight() const { return multiVec_.Height(); }
+template<typename T>
+El::Matrix<T>& DistMultiVec<T>::Matrix() { return multiVec_; }
+template<typename T>
+const El::Matrix<T>& DistMultiVec<T>::LockedMatrix() const { return multiVec_; }
 
 // Distribution information
 // ------------------------

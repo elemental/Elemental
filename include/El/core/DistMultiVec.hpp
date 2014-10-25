@@ -53,6 +53,8 @@ public:
     Int Width() const;
     Int FirstLocalRow() const;
     Int LocalHeight() const;
+          El::Matrix<T>& Matrix();
+    const El::Matrix<T>& LockedMatrix() const;
 
     // Distribution information
     // ------------------------
@@ -73,7 +75,7 @@ private:
     Int blocksize_;
     Int firstLocalRow_;
 
-    Matrix<T> multiVec_;
+    El::Matrix<T> multiVec_;
 };
 
 // Just column-wise l2 norms for now
