@@ -13,13 +13,13 @@ using namespace El;
 extern "C" {
 
 #define C_PROTO(SIG,SIGBASE,F) \
-  ElError ElSymmetricSolveSparseDist_ ## SIG \
+  ElError ElSymmetricSolveDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG X ) \
   { EL_TRY( SymmetricSolve( *CReflect(A), *CReflect(X) ) ) }
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
   C_PROTO(SIG,SIGBASE,F) \
-  ElError ElHermitianSolveSparseDist_ ## SIG \
+  ElError ElHermitianSolveDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG X ) \
   { EL_TRY( HermitianSolve( *CReflect(A), *CReflect(X) ) ) }
 

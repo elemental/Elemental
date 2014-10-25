@@ -72,6 +72,17 @@ EL_EXPORT ElError ElDisplayDist_d( ElConstDistMatrix_d A, const char* title );
 EL_EXPORT ElError ElDisplayDist_c( ElConstDistMatrix_c A, const char* title );
 EL_EXPORT ElError ElDisplayDist_z( ElConstDistMatrix_z A, const char* title );
 
+EL_EXPORT ElError ElDisplayDistMultiVec_i
+( ElConstDistMultiVec_i X, const char* title );
+EL_EXPORT ElError ElDisplayDistMultiVec_s
+( ElConstDistMultiVec_s X, const char* title );
+EL_EXPORT ElError ElDisplayDistMultiVec_d
+( ElConstDistMultiVec_d X, const char* title );
+EL_EXPORT ElError ElDisplayDistMultiVec_c
+( ElConstDistMultiVec_c X, const char* title );
+EL_EXPORT ElError ElDisplayDistMultiVec_z
+( ElConstDistMultiVec_z X, const char* title );
+
 EL_EXPORT ElError ElDisplayGraph( ElConstGraph graph, const char* title );
 EL_EXPORT ElError ElDisplayDistGraph
 ( ElConstDistGraph graph, const char* title );
@@ -116,6 +127,17 @@ EL_EXPORT ElError ElPrintDist_s( ElConstDistMatrix_s A, const char* title );
 EL_EXPORT ElError ElPrintDist_d( ElConstDistMatrix_d A, const char* title );
 EL_EXPORT ElError ElPrintDist_c( ElConstDistMatrix_c A, const char* title );
 EL_EXPORT ElError ElPrintDist_z( ElConstDistMatrix_z A, const char* title );
+
+EL_EXPORT ElError ElPrintDistMultiVec_i
+( ElConstDistMultiVec_i X, const char* title );
+EL_EXPORT ElError ElPrintDistMultiVec_s
+( ElConstDistMultiVec_s X, const char* title );
+EL_EXPORT ElError ElPrintDistMultiVec_d
+( ElConstDistMultiVec_d X, const char* title );
+EL_EXPORT ElError ElPrintDistMultiVec_c
+( ElConstDistMultiVec_c X, const char* title );
+EL_EXPORT ElError ElPrintDistMultiVec_z
+( ElConstDistMultiVec_z X, const char* title );
 
 EL_EXPORT ElError ElPrintGraph( ElConstGraph graph, const char* title );
 EL_EXPORT ElError ElPrintDistGraph( ElConstDistGraph graph, const char* title );

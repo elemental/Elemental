@@ -7,6 +7,7 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from environment import *
+from imports     import mpi
 import ctypes, numpy
 
 import Matrix as M
@@ -790,103 +791,103 @@ lib.ElDistMatrixDistData_c.restype = c_uint
 lib.ElDistMatrixDistData_z.argtypes = [c_void_p,POINTER(DistData)]
 lib.ElDistMatrixDistData_z.restype = c_uint
 
-lib.ElDistMatrixDistComm_i.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixDistComm_i.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixDistComm_i.restype = c_uint
-lib.ElDistMatrixDistComm_s.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixDistComm_s.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixDistComm_s.restype = c_uint
-lib.ElDistMatrixDistComm_d.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixDistComm_d.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixDistComm_d.restype = c_uint
-lib.ElDistMatrixDistComm_c.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixDistComm_c.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixDistComm_c.restype = c_uint
-lib.ElDistMatrixDistComm_z.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixDistComm_z.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixDistComm_z.restype = c_uint
 
-lib.ElDistMatrixCrossComm_i.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixCrossComm_i.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixCrossComm_i.restype = c_uint
-lib.ElDistMatrixCrossComm_s.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixCrossComm_s.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixCrossComm_s.restype = c_uint
-lib.ElDistMatrixCrossComm_d.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixCrossComm_d.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixCrossComm_d.restype = c_uint
-lib.ElDistMatrixCrossComm_c.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixCrossComm_c.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixCrossComm_c.restype = c_uint
-lib.ElDistMatrixCrossComm_z.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixCrossComm_z.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixCrossComm_z.restype = c_uint
 
-lib.ElDistMatrixRedundantComm_i.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixRedundantComm_i.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixRedundantComm_i.restype = c_uint
-lib.ElDistMatrixRedundantComm_s.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixRedundantComm_s.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixRedundantComm_s.restype = c_uint
-lib.ElDistMatrixRedundantComm_d.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixRedundantComm_d.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixRedundantComm_d.restype = c_uint
-lib.ElDistMatrixRedundantComm_c.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixRedundantComm_c.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixRedundantComm_c.restype = c_uint
-lib.ElDistMatrixRedundantComm_z.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixRedundantComm_z.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixRedundantComm_z.restype = c_uint
 
-lib.ElDistMatrixColComm_i.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixColComm_i.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixColComm_i.restype = c_uint
-lib.ElDistMatrixColComm_s.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixColComm_s.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixColComm_s.restype = c_uint
-lib.ElDistMatrixColComm_d.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixColComm_d.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixColComm_d.restype = c_uint
-lib.ElDistMatrixColComm_c.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixColComm_c.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixColComm_c.restype = c_uint
-lib.ElDistMatrixColComm_z.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixColComm_z.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixColComm_z.restype = c_uint
 
-lib.ElDistMatrixRowComm_i.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixRowComm_i.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixRowComm_i.restype = c_uint
-lib.ElDistMatrixRowComm_s.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixRowComm_s.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixRowComm_s.restype = c_uint
-lib.ElDistMatrixRowComm_d.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixRowComm_d.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixRowComm_d.restype = c_uint
-lib.ElDistMatrixRowComm_c.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixRowComm_c.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixRowComm_c.restype = c_uint
-lib.ElDistMatrixRowComm_z.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixRowComm_z.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixRowComm_z.restype = c_uint
 
-lib.ElDistMatrixPartialColComm_i.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixPartialColComm_i.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixPartialColComm_i.restype = c_uint
-lib.ElDistMatrixPartialColComm_s.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixPartialColComm_s.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixPartialColComm_s.restype = c_uint
-lib.ElDistMatrixPartialColComm_d.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixPartialColComm_d.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixPartialColComm_d.restype = c_uint
-lib.ElDistMatrixPartialColComm_c.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixPartialColComm_c.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixPartialColComm_c.restype = c_uint
-lib.ElDistMatrixPartialColComm_z.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixPartialColComm_z.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixPartialColComm_z.restype = c_uint
 
-lib.ElDistMatrixPartialRowComm_i.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixPartialRowComm_i.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixPartialRowComm_i.restype = c_uint
-lib.ElDistMatrixPartialRowComm_s.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixPartialRowComm_s.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixPartialRowComm_s.restype = c_uint
-lib.ElDistMatrixPartialRowComm_d.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixPartialRowComm_d.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixPartialRowComm_d.restype = c_uint
-lib.ElDistMatrixPartialRowComm_c.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixPartialRowComm_c.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixPartialRowComm_c.restype = c_uint
-lib.ElDistMatrixPartialRowComm_z.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixPartialRowComm_z.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixPartialRowComm_z.restype = c_uint
 
-lib.ElDistMatrixPartialUnionColComm_i.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixPartialUnionColComm_i.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixPartialUnionColComm_i.restype = c_uint
-lib.ElDistMatrixPartialUnionColComm_s.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixPartialUnionColComm_s.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixPartialUnionColComm_s.restype = c_uint
-lib.ElDistMatrixPartialUnionColComm_d.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixPartialUnionColComm_d.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixPartialUnionColComm_d.restype = c_uint
-lib.ElDistMatrixPartialUnionColComm_c.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixPartialUnionColComm_c.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixPartialUnionColComm_c.restype = c_uint
-lib.ElDistMatrixPartialUnionColComm_z.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixPartialUnionColComm_z.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixPartialUnionColComm_z.restype = c_uint
 
-lib.ElDistMatrixPartialUnionRowComm_i.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixPartialUnionRowComm_i.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixPartialUnionRowComm_i.restype = c_uint
-lib.ElDistMatrixPartialUnionRowComm_s.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixPartialUnionRowComm_s.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixPartialUnionRowComm_s.restype = c_uint
-lib.ElDistMatrixPartialUnionRowComm_d.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixPartialUnionRowComm_d.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixPartialUnionRowComm_d.restype = c_uint
-lib.ElDistMatrixPartialUnionRowComm_c.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixPartialUnionRowComm_c.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixPartialUnionRowComm_c.restype = c_uint
-lib.ElDistMatrixPartialUnionRowComm_z.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMatrixPartialUnionRowComm_z.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMatrixPartialUnionRowComm_z.restype = c_uint
 
 lib.ElDistMatrixColStride_i.argtypes = [c_void_p,POINTER(iType)]
@@ -1413,15 +1414,15 @@ lib.ElDistMatrixConjugateLocalSubmatrix_z.argtypes = \
   [c_void_p,iType,POINTER(iType),iType,POINTER(iType)]
 lib.ElDistMatrixConjugateLocalSubmatrix_z.restype = c_uint
 
-lib.ElDistMatrixSumOver_i.argtypes = [c_void_p,MPI_Comm]
+lib.ElDistMatrixSumOver_i.argtypes = [c_void_p,mpi.Comm]
 lib.ElDistMatrixSumOver_i.restype = c_uint
-lib.ElDistMatrixSumOver_s.argtypes = [c_void_p,MPI_Comm]
+lib.ElDistMatrixSumOver_s.argtypes = [c_void_p,mpi.Comm]
 lib.ElDistMatrixSumOver_s.restype = c_uint
-lib.ElDistMatrixSumOver_d.argtypes = [c_void_p,MPI_Comm]
+lib.ElDistMatrixSumOver_d.argtypes = [c_void_p,mpi.Comm]
 lib.ElDistMatrixSumOver_d.restype = c_uint
-lib.ElDistMatrixSumOver_c.argtypes = [c_void_p,MPI_Comm]
+lib.ElDistMatrixSumOver_c.argtypes = [c_void_p,mpi.Comm]
 lib.ElDistMatrixSumOver_c.restype = c_uint
-lib.ElDistMatrixSumOver_z.argtypes = [c_void_p,MPI_Comm]
+lib.ElDistMatrixSumOver_z.argtypes = [c_void_p,mpi.Comm]
 lib.ElDistMatrixSumOver_z.restype = c_uint
 
 lib.ElViewDist_i.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
@@ -2107,7 +2108,7 @@ class DistMatrix(object):
     else: DataExcept()
     return distData
   def DistComm(self):
-    comm = MPI_Comm()
+    comm = mpi.Comm()
     if   self.tag == iTag: lib.ElDistMatrixDistComm_i(self.obj,pointer(comm))
     elif self.tag == sTag: lib.ElDistMatrixDistComm_s(self.obj,pointer(comm))
     elif self.tag == dTag: lib.ElDistMatrixDistComm_d(self.obj,pointer(comm))
@@ -2116,7 +2117,7 @@ class DistMatrix(object):
     else: DataExcept()
     return comm
   def CrossComm(self):
-    comm = MPI_Comm()
+    comm = mpi.Comm()
     if   self.tag == iTag: lib.ElDistMatrixCrossComm_i(self.obj,pointer(comm))
     elif self.tag == sTag: lib.ElDistMatrixCrossComm_s(self.obj,pointer(comm))
     elif self.tag == dTag: lib.ElDistMatrixCrossComm_d(self.obj,pointer(comm))
@@ -2125,7 +2126,7 @@ class DistMatrix(object):
     else: DataExcept()
     return comm
   def RedundantComm(self):
-    comm = MPI_Comm()
+    comm = mpi.Comm()
     if   self.tag == iTag: 
       lib.ElDistMatrixRedundantComm_i(self.obj,pointer(comm))
     elif self.tag == sTag: 
@@ -2139,7 +2140,7 @@ class DistMatrix(object):
     else: DataExcept()
     return comm
   def ColComm(self):
-    comm = MPI_Comm()
+    comm = mpi.Comm()
     if   self.tag == iTag: lib.ElDistMatrixColComm_i(self.obj,pointer(comm))
     elif self.tag == sTag: lib.ElDistMatrixColComm_s(self.obj,pointer(comm))
     elif self.tag == dTag: lib.ElDistMatrixColComm_d(self.obj,pointer(comm))
@@ -2148,7 +2149,7 @@ class DistMatrix(object):
     else: DataExcept()
     return comm
   def RowComm(self):
-    comm = MPI_Comm()
+    comm = mpi.Comm()
     if   self.tag == iTag: lib.ElDistMatrixRowComm_i(self.obj,pointer(comm))
     elif self.tag == sTag: lib.ElDistMatrixRowComm_s(self.obj,pointer(comm))
     elif self.tag == dTag: lib.ElDistMatrixRowComm_d(self.obj,pointer(comm))
@@ -2157,7 +2158,7 @@ class DistMatrix(object):
     else: DataExcept()
     return comm
   def PartialColComm(self):
-    comm = MPI_Comm()
+    comm = mpi.Comm()
     if   self.tag == iTag: 
       lib.ElDistMatrixPartialColComm_i(self.obj,pointer(comm))
     elif self.tag == sTag: 
@@ -2171,7 +2172,7 @@ class DistMatrix(object):
     else: DataExcept()
     return comm
   def PartialRowComm(self):
-    comm = MPI_Comm()
+    comm = mpi.Comm()
     if   self.tag == iTag: 
       lib.ElDistMatrixPartialRowComm_i(self.obj,pointer(comm))
     elif self.tag == sTag: 
@@ -2185,7 +2186,7 @@ class DistMatrix(object):
     else: DataExcept()
     return comm
   def PartialUnionColComm(self):
-    comm = MPI_Comm()
+    comm = mpi.Comm()
     if   self.tag == iTag: 
       lib.ElDistMatrixPartialUnionColComm_i(self.obj,pointer(comm))
     elif self.tag == sTag: 
@@ -2199,7 +2200,7 @@ class DistMatrix(object):
     else: DataExcept()
     return comm
   def PartialUnionRowComm(self):
-    comm = MPI_Comm()
+    comm = mpi.Comm()
     if   self.tag == iTag: 
       lib.ElDistMatrixPartialUnionRowComm_i(self.obj,pointer(comm))
     elif self.tag == sTag: 

@@ -41,6 +41,12 @@ extern "C" {
   ElError ElDistMultiVecLocalHeight_ ## SIG \
   ( ElConstDistMultiVec_ ## SIG A, ElInt* localHeight ) \
   { EL_TRY( *localHeight = CReflect(A)->LocalHeight() ) } \
+  ElError ElDistMultiVecMatrix_ ## SIG \
+  ( ElDistMultiVec_ ## SIG A, ElMatrix_ ## SIG * ALoc ) \
+  { EL_TRY( *ALoc = CReflect(&CReflect(A)->Matrix()) ) } \
+  ElError ElDistMultiVecLockedMatrix_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG A, ElConstMatrix_ ## SIG * ALoc ) \
+  { EL_TRY( *ALoc = CReflect(&CReflect(A)->LockedMatrix()) ) } \
   ElError ElDistMultiVecComm_ ## SIG \
   ( ElConstDistMultiVec_ ## SIG A, MPI_Comm* comm ) \
   { EL_TRY( *comm = CReflect(A)->Comm().comm ) } \

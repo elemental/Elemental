@@ -7,20 +7,20 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from environment import *
-import numpy as np
+from imports     import mpi
 
 # DistSparseMatrix
 # ================
 
-lib.ElDistSparseMatrixCreate_i.argtypes = [POINTER(c_void_p),MPI_Comm]
+lib.ElDistSparseMatrixCreate_i.argtypes = [POINTER(c_void_p),mpi.Comm]
 lib.ElDistSparseMatrixCreate_i.restype = c_uint
-lib.ElDistSparseMatrixCreate_s.argtypes = [POINTER(c_void_p),MPI_Comm]
+lib.ElDistSparseMatrixCreate_s.argtypes = [POINTER(c_void_p),mpi.Comm]
 lib.ElDistSparseMatrixCreate_s.restype = c_uint
-lib.ElDistSparseMatrixCreate_d.argtypes = [POINTER(c_void_p),MPI_Comm]
+lib.ElDistSparseMatrixCreate_d.argtypes = [POINTER(c_void_p),mpi.Comm]
 lib.ElDistSparseMatrixCreate_d.restype = c_uint
-lib.ElDistSparseMatrixCreate_c.argtypes = [POINTER(c_void_p),MPI_Comm]
+lib.ElDistSparseMatrixCreate_c.argtypes = [POINTER(c_void_p),mpi.Comm]
 lib.ElDistSparseMatrixCreate_c.restype = c_uint
-lib.ElDistSparseMatrixCreate_z.argtypes = [POINTER(c_void_p),MPI_Comm]
+lib.ElDistSparseMatrixCreate_z.argtypes = [POINTER(c_void_p),mpi.Comm]
 lib.ElDistSparseMatrixCreate_z.restype = c_uint
 
 lib.ElDistSparseMatrixDestroy_i.argtypes = [c_void_p]
@@ -56,15 +56,15 @@ lib.ElDistSparseMatrixResize_c.restype = c_uint
 lib.ElDistSparseMatrixResize_z.argtypes = [c_void_p,iType,iType]
 lib.ElDistSparseMatrixResize_z.restype = c_uint
 
-lib.ElDistSparseMatrixSetComm_i.argtypes = [c_void_p,MPI_Comm]
+lib.ElDistSparseMatrixSetComm_i.argtypes = [c_void_p,mpi.Comm]
 lib.ElDistSparseMatrixSetComm_i.restype = c_uint
-lib.ElDistSparseMatrixSetComm_s.argtypes = [c_void_p,MPI_Comm]
+lib.ElDistSparseMatrixSetComm_s.argtypes = [c_void_p,mpi.Comm]
 lib.ElDistSparseMatrixSetComm_s.restype = c_uint
-lib.ElDistSparseMatrixSetComm_d.argtypes = [c_void_p,MPI_Comm]
+lib.ElDistSparseMatrixSetComm_d.argtypes = [c_void_p,mpi.Comm]
 lib.ElDistSparseMatrixSetComm_d.restype = c_uint
-lib.ElDistSparseMatrixSetComm_c.argtypes = [c_void_p,MPI_Comm]
+lib.ElDistSparseMatrixSetComm_c.argtypes = [c_void_p,mpi.Comm]
 lib.ElDistSparseMatrixSetComm_c.restype = c_uint
-lib.ElDistSparseMatrixSetComm_z.argtypes = [c_void_p,MPI_Comm]
+lib.ElDistSparseMatrixSetComm_z.argtypes = [c_void_p,mpi.Comm]
 lib.ElDistSparseMatrixSetComm_z.restype = c_uint
 
 lib.ElDistSparseMatrixReserve_i.argtypes = [c_void_p,iType]
@@ -210,15 +210,15 @@ lib.ElDistSparseMatrixConsistent_c.restype = c_uint
 lib.ElDistSparseMatrixConsistent_z.argtypes = [c_void_p,POINTER(bType)]
 lib.ElDistSparseMatrixConsistent_z.restype = c_uint
 
-lib.ElDistSparseMatrixComm_i.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistSparseMatrixComm_i.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistSparseMatrixComm_i.restype = c_uint
-lib.ElDistSparseMatrixComm_s.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistSparseMatrixComm_s.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistSparseMatrixComm_s.restype = c_uint
-lib.ElDistSparseMatrixComm_d.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistSparseMatrixComm_d.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistSparseMatrixComm_d.restype = c_uint
-lib.ElDistSparseMatrixComm_c.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistSparseMatrixComm_c.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistSparseMatrixComm_c.restype = c_uint
-lib.ElDistSparseMatrixComm_z.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistSparseMatrixComm_z.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistSparseMatrixComm_z.restype = c_uint
 
 lib.ElDistSparseMatrixBlocksize_i.argtypes = [c_void_p,POINTER(iType)]
@@ -396,7 +396,7 @@ lib.ElDistSparseMatrixLockedValueBuffer_z.restype = c_uint
 class DistSparseMatrix(object):
   # Constructors and destructors
   # ============================
-  def __init__(self,tag=dTag,comm=MPI_COMM_WORLD(),create=True):
+  def __init__(self,tag=dTag,comm=mpi.COMM_WORLD(),create=True):
     self.obj = c_void_p()
     self.tag = tag
     CheckTag(tag)
@@ -497,7 +497,7 @@ class DistSparseMatrix(object):
     else: DataExcept()
     return width.value
   def DistGraph(self):
-    graph = El.DistGraph(MPI_COMM_WORLD(),False)
+    graph = El.DistGraph(mpi.COMM_WORLD(),False)
     args = [self.obj,pointer(graph.obj)]
     if   self.tag == iTag: lib.ElDistSparseMatrixDistGraph_i(*args)  
     elif self.tag == sTag: lib.ElDistSparseMatrixDistGraph_s(*args)
@@ -507,7 +507,7 @@ class DistSparseMatrix(object):
     else: DataExcept()
     return graph
   def LockedDistGraph(self):
-    graph = El.DistGraph(MPI_COMM_WORLD(),False)
+    graph = El.DistGraph(mpi.COMM_WORLD(),False)
     args = [self.obj,pointer(graph.obj)]
     if   self.tag == iTag: lib.ElDistSparseMatrixLockedDistGraph_i(*args)  
     elif self.tag == sTag: lib.ElDistSparseMatrixLockedDistGraph_s(*args)
@@ -567,7 +567,7 @@ class DistSparseMatrix(object):
     else: DataExcept()
     return consistent.value
   def Comm(self):
-    comm = MPI_Comm()
+    comm = mpi.Comm()
     args = [self.obj,pointer(comm)]
     if   self.tag == iTag: lib.ElDistSparseMatrixComm_i(*args)
     elif self.tag == sTag: lib.ElDistSparseMatrixComm_s(*args)

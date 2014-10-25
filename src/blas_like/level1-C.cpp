@@ -12,9 +12,13 @@ using namespace El;
 
 extern "C" {
 
+ElError ElCopyGraph( ElConstGraph A, ElGraph B )
+{ EL_TRY( Copy( *CReflect(A), *CReflect(B) ) ) }
+ElError ElCopyDistGraph( ElConstDistGraph A, ElDistGraph B )
+{ EL_TRY( Copy( *CReflect(A), *CReflect(B) ) ) }
+
 ElError ElCopyGraphFromRoot( ElConstDistGraph GDist, ElGraph G )
 { EL_TRY( CopyFromRoot( *CReflect(GDist), *CReflect(G) ) ) }
-
 ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
 { EL_TRY( CopyFromNonRoot( *CReflect(GDist), root ) ) }
 
@@ -48,12 +52,27 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
   ElError ElCopyDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( Copy( *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElCopySparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElSparseMatrix_ ## SIG B ) \
+  { EL_TRY( Copy( *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElCopyDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElDistSparseMatrix_ ## SIG B ) \
+  { EL_TRY( Copy( *CReflect(A), *CReflect(B) ) ) } \
   ElError ElCopySparseMatrixFromRoot_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG ADist, ElSparseMatrix_ ## SIG A ) \
   { EL_TRY( CopyFromRoot( *CReflect(ADist), *CReflect(A) ) ) } \
   ElError ElCopySparseMatrixFromNonRoot_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG ADist, ElInt root ) \
   { EL_TRY( CopyFromNonRoot( *CReflect(ADist), root ) ) } \
+  ElError ElCopyDistMultiVec_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG A, ElDistMultiVec_ ## SIG B ) \
+  { EL_TRY( Copy( *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElCopyMultiVecFromRoot_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG A, ElMatrix_ ## SIG B ) \
+  { EL_TRY( CopyFromRoot( *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElCopyMultiVecFromNonRoot_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG A, ElInt root ) \
+  { EL_TRY( CopyFromNonRoot( *CReflect(A), root ) ) } \
   /* Dot product (<A,B>=vec(A)^H vec(B)) */ \
   ElError ElDot_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, CREFLECT(T)* prod ) \

@@ -16,18 +16,18 @@ extern "C" {
 
 /* Symmetric/Hermitian solves
    ========================== */
-EL_EXPORT ElError ElSymmetricSolveSparseDist_s
+EL_EXPORT ElError ElSymmetricSolveDistSparse_s
 ( ElConstDistSparseMatrix_s A, ElDistMultiVec_s X );
-EL_EXPORT ElError ElSymmetricSolveSparseDist_d
+EL_EXPORT ElError ElSymmetricSolveDistSparse_d
 ( ElConstDistSparseMatrix_d A, ElDistMultiVec_d X );
-EL_EXPORT ElError ElSymmetricSolveSparseDist_c
+EL_EXPORT ElError ElSymmetricSolveDistSparse_c
 ( ElConstDistSparseMatrix_c A, ElDistMultiVec_c X );
-EL_EXPORT ElError ElSymmetricSolveSparseDist_z
+EL_EXPORT ElError ElSymmetricSolveDistSparse_z
 ( ElConstDistSparseMatrix_z A, ElDistMultiVec_z X );
 
-EL_EXPORT ElError ElHermitianSolveSparseDist_c
+EL_EXPORT ElError ElHermitianSolveDistSparse_c
 ( ElConstDistSparseMatrix_c A, ElDistMultiVec_c X );
-EL_EXPORT ElError ElHermitianSolveSparseDist_z
+EL_EXPORT ElError ElHermitianSolveDistSparse_z
 ( ElConstDistSparseMatrix_z A, ElDistMultiVec_z X );
 
 #ifdef __cplusplus

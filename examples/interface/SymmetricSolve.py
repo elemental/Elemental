@@ -8,49 +8,39 @@
 #
 import El
 
-xSize = ySize = 50
+n0 = n1 = 50
 
-def Laplacian(nx,ny):
+def Laplacian(xSize,ySize):
   A = El.DistSparseMatrix(El.dTag)
-  A.Resize(nx*ny,nx*ny)
+  A.Resize(xSize*ySize,xSize*ySize)
   firstLocalRow = A.FirstLocalRow()
   localHeight = A.LocalHeight()
   A.Reserve(5*localHeight)
-  hxInvSq = (1.*(nx+1))**2
-  hyInvSq = (1.*(ny+1))**2
+  hxInvSq = (1.*(xSize+1))**2
+  hyInvSq = (1.*(ySize+1))**2
   for iLoc in xrange(localHeight):
     s = firstLocalRow + iLoc
-    x = s % nx
-    y = s / nx
+    x = s % xSize
+    y = s / xSize
     A.QueueUpdate( s, s, 2*(hxInvSq+hyInvSq) )
-    if x != 0:    A.QueueUpdate( s, s-1, -hxInvSq )
-    if x != nx-1: A.QueueUpdate( s, s+1, -hxInvSq )
-    if y != 0:    A.QueueUpdate( s, s-nx, -hyInvSq )
-    if y != ny-1: A.QueueUpdate( s, s+nx, -hyInvSq )
+    if x != 0:       A.QueueUpdate( s, s-1,     -hxInvSq )
+    if x != xSize-1: A.QueueUpdate( s, s+1,     -hxInvSq )
+    if y != 0:       A.QueueUpdate( s, s-xSize, -hyInvSq )
+    if y != ySize-1: A.QueueUpdate( s, s+xSize, -hyInvSq )
 
   A.MakeConsistent()
   return A
 
-A = Laplacian(xSize,ySize)
+A = Laplacian(n0,n1)
 x = El.DistMultiVec()
 y = El.DistMultiVec()
-x.Resize(xSize*ySize,1)
-y.Resize(xSize*ySize,1)
-xFirst = x.FirstLocalRow()
-xLocalHeight = x.LocalHeight()
-for iLoc in xrange(xLocalHeight):
-  x.SetLocal(iLoc,0,-1.*iLoc)
-  y.SetLocal(iLoc,0,-1.*iLoc)
+El.Uniform( x, n0*n1, 1 )
+El.Copy( x, y )
 
-El.Print( A, "Laplacian" )
 El.Display( A, "Laplacian" )
-
-El.Print( y, "y" )
 El.Display( y, "y" )
 
-El.SymmetricSolve(A,x)
-
-El.Print( x, "x" )
+El.SymmetricSolveSparse(A,x)
 El.Display( x, "x" )
 
 # Require the user to press a button before the figures are closed

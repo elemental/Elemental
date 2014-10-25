@@ -97,13 +97,6 @@ template<typename T>
 void Display( const AbstractDistMatrix<T>& A, std::string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Display"))
-#ifdef EL_HAVE_QT5
-    if( GuiDisabled() )
-    {
-        Print( A, title );
-        return;
-    }
-
     if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
@@ -115,22 +108,12 @@ void Display( const AbstractDistMatrix<T>& A, std::string title )
         if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
             Display( A_CIRC_CIRC.Matrix(), title );
     }
-#else
-    Print( A, title );
-#endif
 }
 
 template<typename T>
 void Display( const AbstractBlockDistMatrix<T>& A, std::string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Display"))
-#ifdef EL_HAVE_QT5
-    if( GuiDisabled() )
-    {
-        Print( A, title );
-        return;
-    }
-
     if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
@@ -142,9 +125,23 @@ void Display( const AbstractBlockDistMatrix<T>& A, std::string title )
         if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
             Display( A_CIRC_CIRC.Matrix(), title );
     }
-#else
-    Print( A, title );
-#endif
+}
+
+template<typename T>
+void Display( const DistMultiVec<T>& X, std::string title )
+{
+    DEBUG_ONLY(CallStackEntry cse("Display [DistMultiVec]"))
+    const Int commRank = mpi::Rank( X.Comm() );
+    if( commRank == 0 )
+    {
+        Matrix<T> XLoc;
+        CopyFromRoot( X, XLoc );
+        Display( XLoc, title );
+    }
+    else
+    {
+        CopyFromNonRoot( X, 0 );
+    }
 }
 
 void Display( const Graph& graph, std::string title )
@@ -348,6 +345,7 @@ void DisplayLocal
   ( const AbstractDistMatrix<T>& A, std::string title ); \
   template void Display \
   ( const AbstractBlockDistMatrix<T>& A, std::string title ); \
+  template void Display( const DistMultiVec<T>& X, std::string title ); \
   template void Display \
   ( const SparseMatrix<T>& A, std::string title ); \
   template void Display \

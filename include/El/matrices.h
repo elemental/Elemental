@@ -975,6 +975,12 @@ EL_EXPORT ElError ElZerosDist_d( ElDistMatrix_d A, ElInt m, ElInt n );
 EL_EXPORT ElError ElZerosDist_c( ElDistMatrix_c A, ElInt m, ElInt n );
 EL_EXPORT ElError ElZerosDist_z( ElDistMatrix_z A, ElInt m, ElInt n );
 
+EL_EXPORT ElError ElZerosDistMultiVec_i( ElDistMultiVec_i A, ElInt m, ElInt n );
+EL_EXPORT ElError ElZerosDistMultiVec_s( ElDistMultiVec_s A, ElInt m, ElInt n );
+EL_EXPORT ElError ElZerosDistMultiVec_d( ElDistMultiVec_d A, ElInt m, ElInt n );
+EL_EXPORT ElError ElZerosDistMultiVec_c( ElDistMultiVec_c A, ElInt m, ElInt n );
+EL_EXPORT ElError ElZerosDistMultiVec_z( ElDistMultiVec_z A, ElInt m, ElInt n );
+
 /* Random
    ###### */
 
@@ -1144,6 +1150,17 @@ EL_EXPORT ElError ElUniformDist_c
 ( ElDistMatrix_c A, ElInt m, ElInt n, complex_float center, float radius );
 EL_EXPORT ElError ElUniformDist_z
 ( ElDistMatrix_z A, ElInt m, ElInt n, complex_double center, double radius );
+
+EL_EXPORT ElError ElUniformDistMultiVec_i
+( ElDistMultiVec_i A, ElInt m, ElInt n, ElInt center, ElInt radius );
+EL_EXPORT ElError ElUniformDistMultiVec_s
+( ElDistMultiVec_s A, ElInt m, ElInt n, float center, float radius );
+EL_EXPORT ElError ElUniformDistMultiVec_d
+( ElDistMultiVec_d A, ElInt m, ElInt n, double center, double radius );
+EL_EXPORT ElError ElUniformDistMultiVec_c
+( ElDistMultiVec_c A, ElInt m, ElInt n, complex_float center, float radius );
+EL_EXPORT ElError ElUniformDistMultiVec_z
+( ElDistMultiVec_z A, ElInt m, ElInt n, complex_double center, double radius );
 
 /* Uniform Helmholtz Green's
    ========================= */

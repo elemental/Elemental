@@ -67,8 +67,22 @@ void Print
     }
 }
 
-// Sparse-direct
-// =============
+template<typename T>
+void Print( const DistMultiVec<T>& X, std::string title, std::ostream& os )
+{
+    DEBUG_ONLY(CallStackEntry cse("Print [DistMultiVec]"))
+    const Int commRank = mpi::Rank( X.Comm() );
+    if( commRank == 0 )
+    {
+        Matrix<T> XLoc;
+        CopyFromRoot( X, XLoc );
+        Print( XLoc, title, os ); 
+    }
+    else
+    {
+        CopyFromNonRoot( X, 0 );
+    }
+}
 
 void Print( const Graph& graph, std::string msg, std::ostream& os )
 {
@@ -136,6 +150,9 @@ void Print( const DistSparseMatrix<T>& A, std::string msg, std::ostream& os )
     }
 }
 
+// Multifrontal
+// ============
+
 void PrintLocal( const DistSymmInfo& info, std::string msg, std::ostream& os )
 {
     DEBUG_ONLY(CallStackEntry cse("PrintLocal [DistSymmInfo]"))
@@ -183,6 +200,8 @@ void Print( const std::vector<T>& x, std::string title, std::ostream& os )
   template void Print \
   ( const AbstractBlockDistMatrix<T>& A, \
     std::string title, std::ostream& os ); \
+  template void Print \
+  ( const DistMultiVec<T>& X, std::string title, std::ostream& os ); \
   template void Print \
   ( const SparseMatrix<T>& A, std::string title, std::ostream& os ); \
   template void Print \

@@ -16,6 +16,7 @@
 #include "El/config.h"
 #include "El/core/types.h"
 #include "El/core/environment.h"
+#include "El/core/imports/mpi.h"
 #include "El/core/Grid.h"
 #include "El/core/Matrix.h"
 #include "El/core/DistMatrix.h"

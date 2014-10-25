@@ -156,18 +156,6 @@ ElError ElPrintCxxCompilerInfo( FILE* stream )
     return EL_SUCCESS;
 }
 
-ElError ElMPICommIsVoidPointer( bool* isVoidP )
-{ *isVoidP = El::mpi::CommIsVoidPointer(); }
-
-ElError ElMPIGroupIsVoidPointer( bool* isVoidP )
-{ *isVoidP = El::mpi::GroupIsVoidPointer(); }
-
-ElError ElMPICommWorld( MPI_Comm* commWorld )
-{ *commWorld = MPI_COMM_WORLD; }
-
-ElError ElMPICommSelf( MPI_Comm* commSelf )
-{ *commSelf = MPI_COMM_SELF; }
-
 ElError ElInitialize( int* argc, char*** argv )
 { EL_TRY( El::Initialize( *argc, *argv ) ) }
 

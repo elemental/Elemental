@@ -134,6 +134,32 @@ EL_EXPORT ElError ElDistMultiVecLocalHeight_c
 EL_EXPORT ElError ElDistMultiVecLocalHeight_z
 ( ElConstDistMultiVec_z A, ElInt* localHeight );
 
+/* Matrix<T>& DistMultiVec<T>::Matrix()
+   ------------------------------------ */
+EL_EXPORT ElError ElDistMultiVecMatrix_i
+( ElDistMultiVec_i A, ElMatrix_i* ALoc );
+EL_EXPORT ElError ElDistMultiVecMatrix_s
+( ElDistMultiVec_s A, ElMatrix_s* ALoc );
+EL_EXPORT ElError ElDistMultiVecMatrix_d
+( ElDistMultiVec_d A, ElMatrix_d* ALoc );
+EL_EXPORT ElError ElDistMultiVecMatrix_c
+( ElDistMultiVec_c A, ElMatrix_c* ALoc );
+EL_EXPORT ElError ElDistMultiVecMatrix_z
+( ElDistMultiVec_z A, ElMatrix_z* ALoc );
+
+/* const Matrix<T>& DistMultiVec<T>::LockedMatrix() const
+   ------------------------------------------------------ */
+EL_EXPORT ElError ElDistMultiVecLockedMatrix_i
+( ElConstDistMultiVec_i A, ElConstMatrix_i* ALoc );
+EL_EXPORT ElError ElDistMultiVecLockedMatrix_s
+( ElConstDistMultiVec_s A, ElConstMatrix_s* ALoc );
+EL_EXPORT ElError ElDistMultiVecLockedMatrix_d
+( ElConstDistMultiVec_d A, ElConstMatrix_d* ALoc );
+EL_EXPORT ElError ElDistMultiVecLockedMatrix_c
+( ElConstDistMultiVec_c A, ElConstMatrix_c* ALoc );
+EL_EXPORT ElError ElDistMultiVecLockedMatrix_z
+( ElConstDistMultiVec_z A, ElConstMatrix_z* ALoc );
+
 /* mpi::Comm DistMultiVec<T>::Comm() const
    --------------------------------------- */
 EL_EXPORT ElError ElDistMultiVecComm_i

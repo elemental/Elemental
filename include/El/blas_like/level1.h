@@ -99,10 +99,30 @@ EL_EXPORT ElError ElCopyDist_d( ElConstDistMatrix_d A, ElDistMatrix_d B );
 EL_EXPORT ElError ElCopyDist_c( ElConstDistMatrix_c A, ElDistMatrix_c B );
 EL_EXPORT ElError ElCopyDist_z( ElConstDistMatrix_z A, ElDistMatrix_z B );
 
+EL_EXPORT ElError ElCopyGraph( ElConstGraph A, ElGraph B );
+EL_EXPORT ElError ElCopyDistGraph( ElConstDistGraph A, ElDistGraph B );
+
 EL_EXPORT ElError ElCopyGraphFromRoot
 ( ElConstDistGraph distGraph, ElGraph graph );
 EL_EXPORT ElError ElCopyGraphFromNonRoot
 ( ElConstDistGraph distGraph, ElInt root );
+
+EL_EXPORT ElError ElCopySparse_i( ElConstSparseMatrix_i A, ElSparseMatrix_i B );
+EL_EXPORT ElError ElCopySparse_s( ElConstSparseMatrix_s A, ElSparseMatrix_s B );
+EL_EXPORT ElError ElCopySparse_d( ElConstSparseMatrix_d A, ElSparseMatrix_d B );
+EL_EXPORT ElError ElCopySparse_c( ElConstSparseMatrix_c A, ElSparseMatrix_c B );
+EL_EXPORT ElError ElCopySparse_z( ElConstSparseMatrix_z A, ElSparseMatrix_z B );
+
+EL_EXPORT ElError ElCopyDistSparse_i
+( ElConstDistSparseMatrix_i A, ElDistSparseMatrix_i B );
+EL_EXPORT ElError ElCopyDistSparse_s
+( ElConstDistSparseMatrix_s A, ElDistSparseMatrix_s B );
+EL_EXPORT ElError ElCopyDistSparse_d
+( ElConstDistSparseMatrix_d A, ElDistSparseMatrix_d B );
+EL_EXPORT ElError ElCopyDistSparse_c
+( ElConstDistSparseMatrix_c A, ElDistSparseMatrix_c B );
+EL_EXPORT ElError ElCopyDistSparse_z
+( ElConstDistSparseMatrix_z A, ElDistSparseMatrix_z B );
 
 EL_EXPORT ElError ElCopySparseMatrixFromRoot_i
 ( ElConstDistSparseMatrix_i ADist, ElSparseMatrix_i A );
@@ -125,6 +145,17 @@ EL_EXPORT ElError ElCopySparseMatrixFromNonRoot_c
 ( ElConstDistSparseMatrix_c ADist, ElInt root );
 EL_EXPORT ElError ElCopySparseMatrixFromNonRoot_z
 ( ElConstDistSparseMatrix_z ADist, ElInt root );
+
+EL_EXPORT ElError ElCopyDistMultiVec_i
+( ElConstDistMultiVec_i A, ElDistMultiVec_i B );
+EL_EXPORT ElError ElCopyDistMultiVec_s
+( ElConstDistMultiVec_s A, ElDistMultiVec_s B );
+EL_EXPORT ElError ElCopyDistMultiVec_d
+( ElConstDistMultiVec_d A, ElDistMultiVec_d B );
+EL_EXPORT ElError ElCopyDistMultiVec_c
+( ElConstDistMultiVec_c A, ElDistMultiVec_c B );
+EL_EXPORT ElError ElCopyDistMultiVec_z
+( ElConstDistMultiVec_z A, ElDistMultiVec_z B );
 
 EL_EXPORT ElError ElCopyMultiVecFromRoot_i
 ( ElConstDistMultiVec_i XDist, ElMatrix_i X );

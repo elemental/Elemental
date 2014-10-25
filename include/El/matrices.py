@@ -2293,6 +2293,16 @@ lib.ElZerosDist_c.argtypes = [c_void_p,iType,iType]
 lib.ElZerosDist_c.restype = c_uint
 lib.ElZerosDist_z.argtypes = [c_void_p,iType,iType]
 lib.ElZerosDist_z.restype = c_uint
+lib.ElZerosDistMultiVec_i.argtypes = [c_void_p,iType,iType]
+lib.ElZerosDistMultiVec_i.restype = c_uint
+lib.ElZerosDistMultiVec_s.argtypes = [c_void_p,iType,iType]
+lib.ElZerosDistMultiVec_s.restype = c_uint
+lib.ElZerosDistMultiVec_d.argtypes = [c_void_p,iType,iType]
+lib.ElZerosDistMultiVec_d.restype = c_uint
+lib.ElZerosDistMultiVec_c.argtypes = [c_void_p,iType,iType]
+lib.ElZerosDistMultiVec_c.restype = c_uint
+lib.ElZerosDistMultiVec_z.argtypes = [c_void_p,iType,iType]
+lib.ElZerosDistMultiVec_z.restype = c_uint
 def Zeros(A,m,n):
   args = [A.obj,m,n]
   if type(A) is Matrix:
@@ -2308,6 +2318,13 @@ def Zeros(A,m,n):
     elif A.tag == dTag: lib.ElZerosDist_d(*args)
     elif A.tag == cTag: lib.ElZerosDist_c(*args)
     elif A.tag == zTag: lib.ElZerosDist_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMultiVec:
+    if   A.tag == iTag: lib.ElZerosDistMultiVec_i(*args)
+    elif A.tag == sTag: lib.ElZerosDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElZerosDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElZerosDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElZerosDistMultiVec_z(*args)
     else: DataExcept()
   else: TypeExcept()
 
@@ -2474,6 +2491,16 @@ lib.ElUniformDist_c.argtypes = [c_void_p,iType,iType,cType,sType]
 lib.ElUniformDist_c.restype = c_uint
 lib.ElUniformDist_z.argtypes = [c_void_p,iType,iType,zType,dType]
 lib.ElUniformDist_z.restype = c_uint
+lib.ElUniformDistMultiVec_i.argtypes = [c_void_p,iType,iType,iType,iType]
+lib.ElUniformDistMultiVec_i.restype = c_uint
+lib.ElUniformDistMultiVec_s.argtypes = [c_void_p,iType,iType,sType,sType]
+lib.ElUniformDistMultiVec_s.restype = c_uint
+lib.ElUniformDistMultiVec_d.argtypes = [c_void_p,iType,iType,dType,dType]
+lib.ElUniformDistMultiVec_d.restype = c_uint
+lib.ElUniformDistMultiVec_c.argtypes = [c_void_p,iType,iType,cType,sType]
+lib.ElUniformDistMultiVec_c.restype = c_uint
+lib.ElUniformDistMultiVec_z.argtypes = [c_void_p,iType,iType,zType,dType]
+lib.ElUniformDistMultiVec_z.restype = c_uint
 def Uniform(A,m,n,centerPre=0,radius=1):
   center = TagToType(A.tag)(centerPre) 
   args = [A.obj,m,n,center,radius]
@@ -2490,6 +2517,13 @@ def Uniform(A,m,n,centerPre=0,radius=1):
     elif A.tag == dTag: lib.ElUniformDist_d(*args)
     elif A.tag == cTag: lib.ElUniformDist_c(*args)
     elif A.tag == zTag: lib.ElUniformDist_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMultiVec:
+    if   A.tag == iTag: lib.ElUniformDistMultiVec_i(*args)
+    elif A.tag == sTag: lib.ElUniformDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElUniformDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElUniformDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElUniformDistMultiVec_z(*args)
     else: DataExcept()
   else: TypeExcept()
 

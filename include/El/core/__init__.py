@@ -7,6 +7,8 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from environment      import *
+from imports          import mpi
+
 from Element          import *
 from Matrix           import *
 from Grid             import *

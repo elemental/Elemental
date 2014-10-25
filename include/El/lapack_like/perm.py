@@ -22,7 +22,7 @@ lib.ElPermutationMetaScaleUp.restype = c_uint
 lib.ElPermutationMetaScaleDown.argtypes = [c_void_p,iType]
 lib.ElPermutationMetaScaleDown.restype = c_uint
 class PermutationMeta(ctypes.Structure):
-  _fields_ = [("align",iType),("comm",MPI_Comm),
+  _fields_ = [("align",iType),("comm",mpi.Comm),
               ("sendCounts",POINTER(iType)),("sendDispls",POINTER(iType)),
               ("recvCounts",POINTER(iType)),("recvDispls",POINTER(iType)),
               ("numSendIdx",iType),         ("numRecvIdx",iType),

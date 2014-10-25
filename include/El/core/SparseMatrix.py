@@ -7,7 +7,6 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from environment import *
-import numpy as np
 
 # SparseMatrix
 # ============

@@ -179,6 +179,10 @@ extern "C" {
   ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n, \
     CREFLECT(T) center, Base<T> radius ) \
   { EL_TRY( Uniform( *CReflect(A), m, n, CReflect(center), radius ) ) } \
+  ElError ElUniformDistMultiVec_ ## SIG \
+  ( ElDistMultiVec_ ## SIG A, ElInt m, ElInt n, \
+    CREFLECT(T) center, Base<T> radius ) \
+  { EL_TRY( Uniform( *CReflect(A), m, n, CReflect(center), radius ) ) } \
   /* Walsh */ \
   ElError ElWalsh_ ## SIG ( ElMatrix_ ## SIG A, ElInt k, bool binary ) \
   { EL_TRY( Walsh( *CReflect(A), k, binary ) ) } \
@@ -200,6 +204,9 @@ extern "C" {
   ElError ElZeros_ ## SIG ( ElMatrix_ ## SIG A, ElInt m, ElInt n ) \
   { EL_TRY( Zeros( *CReflect(A), m, n ) ) } \
   ElError ElZerosDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n ) \
+  { EL_TRY( Zeros( *CReflect(A), m, n ) ) } \
+  ElError ElZerosDistMultiVec_ ## SIG \
+  ( ElDistMultiVec_ ## SIG A, ElInt m, ElInt n ) \
   { EL_TRY( Zeros( *CReflect(A), m, n ) ) }
 
 #define C_PROTO_FIELD(SIG,SIGBASE,T) \

@@ -7,7 +7,7 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from El.core import *
-from El.blas_like import Copy, RealPart, ImagPart
+from El.blas_like import Copy, CopyFromRoot, CopyFromNonRoot, RealPart, ImagPart
 
 # Input/Output
 # ************
@@ -32,6 +32,16 @@ lib.ElPrintDist_c.argtypes = [c_void_p,c_char_p]
 lib.ElPrintDist_c.restype = c_uint
 lib.ElPrintDist_z.argtypes = [c_void_p,c_char_p]
 lib.ElPrintDist_z.restype = c_uint
+lib.ElPrintDistMultiVec_i.argtypes = [c_void_p,c_char_p]
+lib.ElPrintDistMultiVec_i.restype = c_uint
+lib.ElPrintDistMultiVec_s.argtypes = [c_void_p,c_char_p]
+lib.ElPrintDistMultiVec_s.restype = c_uint
+lib.ElPrintDistMultiVec_d.argtypes = [c_void_p,c_char_p]
+lib.ElPrintDistMultiVec_d.restype = c_uint
+lib.ElPrintDistMultiVec_c.argtypes = [c_void_p,c_char_p]
+lib.ElPrintDistMultiVec_c.restype = c_uint
+lib.ElPrintDistMultiVec_z.argtypes = [c_void_p,c_char_p]
+lib.ElPrintDistMultiVec_z.restype = c_uint
 lib.ElPrintGraph.argtypes = [c_void_p,c_char_p]
 lib.ElPrintGraph.restype = c_uint
 lib.ElPrintDistGraph.argtypes = [c_void_p,c_char_p]
@@ -71,6 +81,13 @@ def Print(A,title=''):
     elif A.tag == dTag: lib.ElPrintDist_d(*args)
     elif A.tag == cTag: lib.ElPrintDist_c(*args)
     elif A.tag == zTag: lib.ElPrintDist_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMultiVec:
+    if   A.tag == iTag: lib.ElPrintDistMultiVec_i(*args)
+    elif A.tag == sTag: lib.ElPrintDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElPrintDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElPrintDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElPrintDistMultiVec_z(*args)
     else: DataExcept()
   elif type(A) is Graph:
     lib.ElPrintGraph(*args)
@@ -141,6 +158,16 @@ lib.ElDisplayDist_c.argtypes = [c_void_p,c_char_p]
 lib.ElDisplayDist_c.restype = c_uint
 lib.ElDisplayDist_z.argtypes = [c_void_p,c_char_p]
 lib.ElDisplayDist_z.restype = c_uint
+lib.ElDisplayDistMultiVec_i.argtypes = [c_void_p,c_char_p]
+lib.ElDisplayDistMultiVec_i.restype = c_uint
+lib.ElDisplayDistMultiVec_s.argtypes = [c_void_p,c_char_p]
+lib.ElDisplayDistMultiVec_s.restype = c_uint
+lib.ElDisplayDistMultiVec_d.argtypes = [c_void_p,c_char_p]
+lib.ElDisplayDistMultiVec_d.restype = c_uint
+lib.ElDisplayDistMultiVec_c.argtypes = [c_void_p,c_char_p]
+lib.ElDisplayDistMultiVec_c.restype = c_uint
+lib.ElDisplayDistMultiVec_z.argtypes = [c_void_p,c_char_p]
+lib.ElDisplayDistMultiVec_z.restype = c_uint
 lib.ElDisplayGraph.argtypes = [c_void_p,c_char_p]
 lib.ElDisplayGraph.restype = c_uint
 lib.ElDisplayDistGraph.argtypes = [c_void_p,c_char_p]
@@ -167,52 +194,57 @@ lib.ElDisplayDistSparse_z.argtypes = [c_void_p,c_char_p]
 lib.ElDisplayDistSparse_z.restype = c_uint
 def Display(A,title='',tryPython=True):
   if tryPython: 
-    if type(A) is Matrix or type(A) is DistMatrix:
+    if type(A) is Matrix:
       try:  
         import numpy as np
         import matplotlib.pyplot as plt
         isVec = min(A.Height(),A.Width()) == 1
-        if type(A) is Matrix:
-          if A.tag == cTag or A.tag == zTag:
-            AReal = Matrix(Base(A.tag))
-            AImag = Matrix(Base(A.tag))
-            RealPart(A,AReal)
-            ImagPart(A,AImag)
-            fig, (ax1,ax2) = plt.subplots(1,2)
-            ax1.set_title('Real part')
-            ax2.set_title('Imag part')
-            if isVec:
-              ax1.plot(np.squeeze(AReal.ToNumPy()),'bo-')
-              ax2.plot(np.squeeze(AImag.ToNumPy()),'bo-')
-            else:
-              imReal = ax1.imshow(AReal.ToNumPy())
-              cBarReal = fig.colorbar(imReal,ax=ax1)
-              imImag = ax2.imshow(AImag.ToNumPy())
-              cBarImag = fig.colorbar(imImag,ax=ax2)
-            plt.suptitle(title)
-            plt.tight_layout()
+        if A.tag == cTag or A.tag == zTag:
+          AReal = Matrix(Base(A.tag))
+          AImag = Matrix(Base(A.tag))
+          RealPart(A,AReal)
+          ImagPart(A,AImag)
+          fig, (ax1,ax2) = plt.subplots(1,2)
+          ax1.set_title('Real part')
+          ax2.set_title('Imag part')
+          if isVec:
+            ax1.plot(np.squeeze(AReal.ToNumPy()),'bo-')
+            ax2.plot(np.squeeze(AImag.ToNumPy()),'bo-')
           else:
-            fig = plt.figure()
-            axis = fig.add_axes([0.1,0.1,0.8,0.8])
-            if isVec:
-              axis.plot(np.squeeze(A.ToNumPy()),'bo-')
-            else:
-              im = axis.imshow(A.ToNumPy())
-              fig.colorbar(im,ax=axis)
-            plt.title(title)
-          plt.draw()
-          plt.show(block=False)
-        elif type(A) is DistMatrix:
-          A_CIRC_CIRC = DistMatrix(A.tag,CIRC,CIRC,A.Grid())
-          Copy(A,A_CIRC_CIRC)
-          if A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root():
-            Display(A_CIRC_CIRC.Matrix(),title,tryPython)
-            return
-        else: raise Exception('Unsupported matrix type')
+            imReal = ax1.imshow(AReal.ToNumPy())
+            cBarReal = fig.colorbar(imReal,ax=ax1)
+            imImag = ax2.imshow(AImag.ToNumPy())
+            cBarImag = fig.colorbar(imImag,ax=ax2)
+          plt.suptitle(title)
+          plt.tight_layout()
+        else:
+          fig = plt.figure()
+          axis = fig.add_axes([0.1,0.1,0.8,0.8])
+          if isVec:
+            axis.plot(np.squeeze(A.ToNumPy()),'bo-')
+          else:
+            im = axis.imshow(A.ToNumPy())
+            fig.colorbar(im,ax=axis)
+          plt.title(title)
+        plt.draw()
+        plt.show(block=False)
         return
       except: 
         print 'Could not import matplotlib.pyplot'
-    # TODO: Gather distributed graph on a single process
+    elif type(A) is DistMatrix:
+      A_CIRC_CIRC = DistMatrix(A.tag,CIRC,CIRC,A.Grid())
+      Copy(A,A_CIRC_CIRC)
+      if A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root():
+        Display(A_CIRC_CIRC.Matrix(),title,tryPython)
+      return
+    elif type(A) is DistMultiVec:
+      if mpi.Rank(A.Comm()) == 0:
+        ASeq = Matrix(A.tag)
+        CopyFromRoot(A,ASeq)
+        Display(ASeq,title,tryPython)
+      else:
+        CopyFromNonRoot(A)
+      return
     elif type(A) is Graph:
       try:  
         import matplotlib.pyplot as plt
@@ -231,6 +263,15 @@ def Display(A,title='',tryPython=True):
         return
       except:
         print 'Could not import networkx and matplotlib.pyplot'
+    elif type(A) is DistGraph:
+      if mpi.Rank(A.Comm()) == 0:
+        ASeq = Graph()
+        CopyFromRoot(A,ASeq)
+        Display(ASeq,title,tryPython)
+      else:
+        CopyFromNonRoot(A)
+      return
+    # TODO: matplotlib/networkx support for SparseMatrix and DistSparseMatrix
   # Fall back to the built-in Display if we have not succeeded
   args = [A.obj,title]
   numMsExtra = 200
@@ -248,6 +289,14 @@ def Display(A,title='',tryPython=True):
     elif A.tag == dTag: lib.ElDisplayDist_d(*args)
     elif A.tag == cTag: lib.ElDisplayDist_c(*args)
     elif A.tag == zTag: lib.ElDisplayDist_z(*args)
+    else: DataExcept()
+    ProcessEvents(numMsExtra)
+  elif type(A) is DistMultiVec:
+    if   A.tag == iTag: lib.ElDisplayDistMultiVec_i(*args)
+    elif A.tag == sTag: lib.ElDisplayDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElDisplayDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElDisplayDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElDisplayDistMultiVec_z(*args)
     else: DataExcept()
     ProcessEvents(numMsExtra)
   elif type(A) is Graph:

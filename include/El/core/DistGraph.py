@@ -7,12 +7,12 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from environment import *
-import numpy as np
+from imports     import mpi
 
 # DistGraph
 # =========
 
-lib.ElDistGraphCreate.argtypes = [POINTER(c_void_p),MPI_Comm]
+lib.ElDistGraphCreate.argtypes = [POINTER(c_void_p),mpi.Comm]
 lib.ElDistGraphCreate.restype = c_uint
 
 lib.ElDistGraphDestroy.argtypes = [c_void_p]
@@ -24,7 +24,7 @@ lib.ElDistGraphEmpty.restype = c_uint
 lib.ElDistGraphResize.argtypes = [c_void_p,iType,iType]
 lib.ElDistGraphResize.restype = c_uint
 
-lib.ElDistGraphSetComm.argtypes = [c_void_p,MPI_Comm]
+lib.ElDistGraphSetComm.argtypes = [c_void_p,mpi.Comm]
 lib.ElDistGraphSetComm.restype = c_uint
 
 lib.ElDistGraphReserve.argtypes = [c_void_p,iType]
@@ -60,7 +60,7 @@ lib.ElDistGraphCapacity.restype = c_uint
 lib.ElDistGraphConsistent.argtypes = [c_void_p,POINTER(bType)]
 lib.ElDistGraphConsistent.restype = c_uint
 
-lib.ElDistGraphComm.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistGraphComm.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistGraphComm.restype = c_uint
 
 lib.ElDistGraphBlocksize.argtypes = [c_void_p,POINTER(iType)]
@@ -93,7 +93,7 @@ lib.ElDistGraphLockedTargetBuffer.restype = c_uint
 class DistGraph(object):
   # Constructors and destructors
   # ============================
-  def __init__(self,comm=MPI_COMM_WORLD(),create=True):
+  def __init__(self,comm=mpi.COMM_WORLD(),create=True):
     self.obj = c_void_p()
     if create:
       lib.ElDistGraphCreate(pointer(self.obj),comm)
@@ -148,7 +148,7 @@ class DistGraph(object):
     lib.ElDistGraphConsistent(self.obj,pointer(consistent))
     return consistent.value
   def Comm(self):
-    comm = MPI_Comm()
+    comm = mpi.Comm()
     lib.ElDistGraphComm(self.obj,pointer(comm))
     return comm
   def Blocksize(self):

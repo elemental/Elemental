@@ -63,6 +63,9 @@ ElError ElPrintDistGraph( ElConstDistGraph graph, const char* title )
   ElError ElDisplayDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, const char* title ) \
   { EL_TRY( Display( *CReflect(A), std::string(title) ) ) } \
+  ElError ElDisplayDistMultiVec_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG X, const char* title ) \
+  { EL_TRY( Display( *CReflect(X), std::string(title) ) ) } \
   ElError ElDisplaySparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, const char* title ) \
   { EL_TRY( Display( *CReflect(A), std::string(title) ) ) } \
@@ -76,6 +79,9 @@ ElError ElPrintDistGraph( ElConstDistGraph graph, const char* title )
   ElError ElPrintDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, const char* title ) \
   { EL_TRY( Print( *CReflect(A), std::string(title) ) ) } \
+  ElError ElPrintDistMultiVec_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG X, const char* title ) \
+  { EL_TRY( Print( *CReflect(X), std::string(title) ) ) } \
   ElError ElPrintSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, const char* title ) \
   { EL_TRY( Print( *CReflect(A), std::string(title) ) ) } \

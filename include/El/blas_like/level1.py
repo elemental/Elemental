@@ -119,10 +119,44 @@ lib.ElCopyDist_c.argtypes = [c_void_p,c_void_p]
 lib.ElCopyDist_c.restype = c_uint
 lib.ElCopyDist_z.argtypes = [c_void_p,c_void_p]
 lib.ElCopyDist_z.restype = c_uint
+lib.ElCopyGraph.argtypes = [c_void_p,c_void_p]
+lib.ElCopyGraph.restype = c_uint
+lib.ElCopyDistGraph.argtypes = [c_void_p,c_void_p]
+lib.ElCopyDistGraph.restype = c_uint
+lib.ElCopySparse_i.argtypes = [c_void_p,c_void_p]
+lib.ElCopySparse_i.restype = c_uint
+lib.ElCopySparse_s.argtypes = [c_void_p,c_void_p]
+lib.ElCopySparse_s.restype = c_uint
+lib.ElCopySparse_d.argtypes = [c_void_p,c_void_p]
+lib.ElCopySparse_d.restype = c_uint
+lib.ElCopySparse_c.argtypes = [c_void_p,c_void_p]
+lib.ElCopySparse_c.restype = c_uint
+lib.ElCopySparse_z.argtypes = [c_void_p,c_void_p]
+lib.ElCopySparse_z.restype = c_uint
+lib.ElCopyDistSparse_i.argtypes = [c_void_p,c_void_p]
+lib.ElCopyDistSparse_i.restype = c_uint
+lib.ElCopyDistSparse_s.argtypes = [c_void_p,c_void_p]
+lib.ElCopyDistSparse_s.restype = c_uint
+lib.ElCopyDistSparse_d.argtypes = [c_void_p,c_void_p]
+lib.ElCopyDistSparse_d.restype = c_uint
+lib.ElCopyDistSparse_c.argtypes = [c_void_p,c_void_p]
+lib.ElCopyDistSparse_c.restype = c_uint
+lib.ElCopyDistSparse_z.argtypes = [c_void_p,c_void_p]
+lib.ElCopyDistSparse_z.restype = c_uint
+lib.ElCopyDistMultiVec_i.argtypes = [c_void_p,c_void_p]
+lib.ElCopyDistMultiVec_i.restype = c_uint
+lib.ElCopyDistMultiVec_s.argtypes = [c_void_p,c_void_p]
+lib.ElCopyDistMultiVec_s.restype = c_uint
+lib.ElCopyDistMultiVec_d.argtypes = [c_void_p,c_void_p]
+lib.ElCopyDistMultiVec_d.restype = c_uint
+lib.ElCopyDistMultiVec_c.argtypes = [c_void_p,c_void_p]
+lib.ElCopyDistMultiVec_c.restype = c_uint
+lib.ElCopyDistMultiVec_z.argtypes = [c_void_p,c_void_p]
+lib.ElCopyDistMultiVec_z.restype = c_uint
 def Copy(A,B):
   if A.tag != B.tag:
     raise Exception('Copying between datatypes is not yet supported in Python')
-  if type(A) is not type(B): raise Exception('Matrix types must match')
+  if type(A) is not type(B): raise Exception('Object types must match')
   args = [A.obj,B.obj]
   if type(A) is Matrix:
     if   B.tag == iTag: lib.ElCopy_i(*args)
@@ -137,6 +171,105 @@ def Copy(A,B):
     elif B.tag == dTag: lib.ElCopyDist_d(*args)
     elif B.tag == cTag: lib.ElCopyDist_c(*args)
     elif B.tag == zTag: lib.ElCopyDist_z(*args)
+    else: DataExcept()
+  elif type(A) is Graph:
+    lib.ElCopyGraph(*args)
+  elif type(A) is DistGraph:
+    lib.ElCopyDistGraph(*args)
+  elif type(A) is SparseMatrix:
+    if   A.tag == iTag: lib.ElCopySparse_i(*args)
+    elif A.tag == sTag: lib.ElCopySparse_s(*args)
+    elif A.tag == dTag: lib.ElCopySparse_d(*args)
+    elif A.tag == cTag: lib.ElCopySparse_c(*args)
+    elif A.tag == zTag: lib.ElCopySparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == iTag: lib.ElCopyDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElCopyDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElCopyDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElCopyDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElCopyDistSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMultiVec:
+    if   A.tag == iTag: lib.ElCopyDistMultiVec_i(*args)
+    elif A.tag == sTag: lib.ElCopyDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElCopyDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElCopyDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElCopyDistMultiVec_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
+
+lib.ElCopyGraphFromRoot.argtypes = [c_void_p,c_void_p]
+lib.ElCopyGraphFromRoot.restype = c_uint
+lib.ElCopyMultiVecFromRoot_i.argtypes = [c_void_p,c_void_p]
+lib.ElCopyMultiVecFromRoot_i.restype = c_uint
+lib.ElCopyMultiVecFromRoot_s.argtypes = [c_void_p,c_void_p]
+lib.ElCopyMultiVecFromRoot_s.restype = c_uint
+lib.ElCopyMultiVecFromRoot_d.argtypes = [c_void_p,c_void_p]
+lib.ElCopyMultiVecFromRoot_d.restype = c_uint
+lib.ElCopyMultiVecFromRoot_c.argtypes = [c_void_p,c_void_p]
+lib.ElCopyMultiVecFromRoot_c.restype = c_uint
+lib.ElCopyMultiVecFromRoot_z.argtypes = [c_void_p,c_void_p]
+lib.ElCopyMultiVecFromRoot_z.restype = c_uint
+def CopyFromRoot(ADist,ASeq):
+  args = [ADist.obj,ASeq.obj]
+  if type(ADist) is DistGraph:
+    if type(ASeq) is not Graph:
+      raise Exception("Expected the result to be a Graph")
+    lib.ElCopyGraphFromRoot(*args)
+  elif type(ADist) is DistSparseMatrix:
+    if type(ASeq) is not SparseMatrix:
+      raise Exception("Expected the result to be a SparseMatrix")
+    if ASeq.tag != ADist.tag:
+      raise Exception("Expected the result to be of the same type")
+    if   ADist.tag == iTag: lib.ElCopySparseMatrixFromRoot_i(*args)
+    elif ADist.tag == sTag: lib.ElCopySparseMatrixFromRoot_s(*args)
+    elif ADist.tag == dTag: lib.ElCopySparseMatrixFromRoot_d(*args)
+    elif ADist.tag == cTag: lib.ElCopySparseMatrixFromRoot_c(*args)
+    elif ADist.tag == zTag: lib.ElCopySparseMatrixFromRoot_z(*args)
+    else: DataExcept()
+  elif type(ADist) is DistMultiVec:
+    if type(ASeq) is not Matrix:
+      raise Exception("Expected the result to be a Matrix")
+    if ASeq.tag != ADist.tag:
+      raise Exception("Expected the result to be of the same type")
+    if   ADist.tag == iTag: lib.ElCopyMultiVecFromRoot_i(*args)
+    elif ADist.tag == sTag: lib.ElCopyMultiVecFromRoot_s(*args)
+    elif ADist.tag == dTag: lib.ElCopyMultiVecFromRoot_d(*args)
+    elif ADist.tag == cTag: lib.ElCopyMultiVecFromRoot_c(*args)
+    elif ADist.tag == zTag: lib.ElCopyMultiVecFromRoot_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
+
+lib.ElCopyMultiVecFromNonRoot_i.argtypes = [c_void_p,iType]
+lib.ElCopyMultiVecFromNonRoot_i.restype = c_uint
+lib.ElCopyMultiVecFromNonRoot_s.argtypes = [c_void_p,iType]
+lib.ElCopyMultiVecFromNonRoot_s.restype = c_uint
+lib.ElCopyMultiVecFromNonRoot_d.argtypes = [c_void_p,iType]
+lib.ElCopyMultiVecFromNonRoot_d.restype = c_uint
+lib.ElCopyMultiVecFromNonRoot_c.argtypes = [c_void_p,iType]
+lib.ElCopyMultiVecFromNonRoot_c.restype = c_uint
+lib.ElCopyMultiVecFromNonRoot_z.argtypes = [c_void_p,iType]
+lib.ElCopyMultiVecFromNonRoot_z.restype = c_uint
+lib.ElCopyGraphFromNonRoot.argtypes = [c_void_p,iType]
+lib.ElCopyGraphFromNonRoot.restype = c_uint
+def CopyFromNonRoot(ADist,root=0):
+  args = [ADist.obj,iType]
+  if type(ADist) is DistGraph:
+    lib.ElCopyGraphFromNonRoot(*args)
+  elif type(ADist) is DistSparseMatrix:
+    if   ADist.tag == iTag: lib.ElCopySparseMatrixFromNonRoot_i(*args)
+    elif ADist.tag == sTag: lib.ElCopySparseMatrixFromNonRoot_s(*args)
+    elif ADist.tag == dTag: lib.ElCopySparseMatrixFromNonRoot_d(*args)
+    elif ADist.tag == cTag: lib.ElCopySparseMatrixFromNonRoot_c(*args)
+    elif ADist.tag == zTag: lib.ElCopySparseMatrixFromNonRoot_z(*args)
+    else: DataExcept()
+  elif type(ADist) is DistMultiVec:
+    if   ADist.tag == iTag: lib.ElCopyMultiVecFromNonRoot_i(*args)
+    elif ADist.tag == sTag: lib.ElCopyMultiVecFromNonRoot_s(*args)
+    elif ADist.tag == dTag: lib.ElCopyMultiVecFromNonRoot_d(*args)
+    elif ADist.tag == cTag: lib.ElCopyMultiVecFromNonRoot_c(*args)
+    elif ADist.tag == zTag: lib.ElCopyMultiVecFromNonRoot_z(*args)
     else: DataExcept()
   else: TypeExcept()
 

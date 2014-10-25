@@ -124,7 +124,17 @@ void Copy( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B )
     #include "El/macros/GuardAndPayload.h"
 }
 
-// TODO: include guards so that certain datatypes can be properly disabled 
+void Copy( const Graph& A, Graph& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Copy [Graph]"))
+    B = A;
+}
+
+void Copy( const DistGraph& A, DistGraph& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Copy [DistGraph]"))
+    B = A;
+}
 
 void CopyFromRoot( const DistGraph& distGraph, Graph& graph )
 {
@@ -181,6 +191,20 @@ void CopyFromNonRoot( const DistGraph& distGraph, Int root )
     mpi::Gather
     ( distGraph.LockedTargetBuffer(), numLocalEdges,
       (Int*)0, &edgeSizes[0], &edgeOffsets[0], root, comm );
+}
+
+template<typename T>
+void Copy( const SparseMatrix<T>& A, SparseMatrix<T>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Copy [SparseMatrix]"))
+    B = A;
+}
+
+template<typename T>
+void Copy( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Copy [DistSparseMatrix]"))
+    B = A;
 }
 
 template<typename T>
@@ -247,6 +271,13 @@ void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, Int root )
     mpi::Gather
     ( ADist.LockedValueBuffer(), numLocalEntries,
       (T*)0, &entrySizes[0], &entryOffsets[0], root, comm );
+}
+
+template<typename T>
+void Copy( const DistMultiVec<T>& A, DistMultiVec<T>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Copy [DistMultiVec]"))
+    B = A;
 }
 
 template<typename T>
@@ -326,7 +357,7 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, Int root )
     }
 }
 
-
+// TODO: include guards so that certain datatypes can be properly disabled 
 #define CONVERT(S,T) \
   template void Copy( const Matrix<S>& A, Matrix<T>& B ); \
   template void Copy \
@@ -336,9 +367,12 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, Int root )
 
 #define SAME(T) \
   CONVERT(T,T) \
+  template void Copy( const SparseMatrix<T>& A, SparseMatrix<T>& B ); \
+  template void Copy( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B ); \
   template void CopyFromRoot \
   ( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A ); \
   template void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, Int root ); \
+  template void Copy( const DistMultiVec<T>& A, DistMultiVec<T>& B ); \
   template void CopyFromRoot( const DistMultiVec<T>& ADist, Matrix<T>& A ); \
   template void CopyFromNonRoot( const DistMultiVec<T>& ADist, Int root );
 

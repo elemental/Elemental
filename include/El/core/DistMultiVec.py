@@ -7,20 +7,20 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from environment import *
-import numpy as np
+from imports     import mpi
 
 # DistMultiVec
 # ========
 
-lib.ElDistMultiVecCreate_i.argtypes = [POINTER(c_void_p),MPI_Comm]
+lib.ElDistMultiVecCreate_i.argtypes = [POINTER(c_void_p),mpi.Comm]
 lib.ElDistMultiVecCreate_i.restype = c_uint
-lib.ElDistMultiVecCreate_s.argtypes = [POINTER(c_void_p),MPI_Comm]
+lib.ElDistMultiVecCreate_s.argtypes = [POINTER(c_void_p),mpi.Comm]
 lib.ElDistMultiVecCreate_s.restype = c_uint
-lib.ElDistMultiVecCreate_d.argtypes = [POINTER(c_void_p),MPI_Comm]
+lib.ElDistMultiVecCreate_d.argtypes = [POINTER(c_void_p),mpi.Comm]
 lib.ElDistMultiVecCreate_d.restype = c_uint
-lib.ElDistMultiVecCreate_c.argtypes = [POINTER(c_void_p),MPI_Comm]
+lib.ElDistMultiVecCreate_c.argtypes = [POINTER(c_void_p),mpi.Comm]
 lib.ElDistMultiVecCreate_c.restype = c_uint
-lib.ElDistMultiVecCreate_z.argtypes = [POINTER(c_void_p),MPI_Comm]
+lib.ElDistMultiVecCreate_z.argtypes = [POINTER(c_void_p),mpi.Comm]
 lib.ElDistMultiVecCreate_z.restype = c_uint
 
 lib.ElDistMultiVecDestroy_i.argtypes = [c_void_p]
@@ -56,15 +56,15 @@ lib.ElDistMultiVecResize_c.restype = c_uint
 lib.ElDistMultiVecResize_z.argtypes = [c_void_p,iType,iType]
 lib.ElDistMultiVecResize_z.restype = c_uint
 
-lib.ElDistMultiVecSetComm_i.argtypes = [c_void_p,MPI_Comm]
+lib.ElDistMultiVecSetComm_i.argtypes = [c_void_p,mpi.Comm]
 lib.ElDistMultiVecSetComm_i.restype = c_uint
-lib.ElDistMultiVecSetComm_s.argtypes = [c_void_p,MPI_Comm]
+lib.ElDistMultiVecSetComm_s.argtypes = [c_void_p,mpi.Comm]
 lib.ElDistMultiVecSetComm_s.restype = c_uint
-lib.ElDistMultiVecSetComm_d.argtypes = [c_void_p,MPI_Comm]
+lib.ElDistMultiVecSetComm_d.argtypes = [c_void_p,mpi.Comm]
 lib.ElDistMultiVecSetComm_d.restype = c_uint
-lib.ElDistMultiVecSetComm_c.argtypes = [c_void_p,MPI_Comm]
+lib.ElDistMultiVecSetComm_c.argtypes = [c_void_p,mpi.Comm]
 lib.ElDistMultiVecSetComm_c.restype = c_uint
-lib.ElDistMultiVecSetComm_z.argtypes = [c_void_p,MPI_Comm]
+lib.ElDistMultiVecSetComm_z.argtypes = [c_void_p,mpi.Comm]
 lib.ElDistMultiVecSetComm_z.restype = c_uint
 
 lib.ElDistMultiVecHeight_i.argtypes = [c_void_p,POINTER(iType)]
@@ -111,15 +111,37 @@ lib.ElDistMultiVecLocalHeight_c.restype = c_uint
 lib.ElDistMultiVecLocalHeight_z.argtypes = [c_void_p,POINTER(iType)]
 lib.ElDistMultiVecLocalHeight_z.restype = c_uint
 
-lib.ElDistMultiVecComm_i.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMultiVecMatrix_i.argtypes = [c_void_p,POINTER(c_void_p)]
+lib.ElDistMultiVecMatrix_i.restype = c_uint
+lib.ElDistMultiVecMatrix_s.argtypes = [c_void_p,POINTER(c_void_p)]
+lib.ElDistMultiVecMatrix_s.restype = c_uint
+lib.ElDistMultiVecMatrix_d.argtypes = [c_void_p,POINTER(c_void_p)]
+lib.ElDistMultiVecMatrix_d.restype = c_uint
+lib.ElDistMultiVecMatrix_c.argtypes = [c_void_p,POINTER(c_void_p)]
+lib.ElDistMultiVecMatrix_c.restype = c_uint
+lib.ElDistMultiVecMatrix_z.argtypes = [c_void_p,POINTER(c_void_p)]
+lib.ElDistMultiVecMatrix_z.restype = c_uint
+
+lib.ElDistMultiVecLockedMatrix_i.argtypes = [c_void_p,POINTER(c_void_p)]
+lib.ElDistMultiVecLockedMatrix_i.restype = c_uint
+lib.ElDistMultiVecLockedMatrix_s.argtypes = [c_void_p,POINTER(c_void_p)]
+lib.ElDistMultiVecLockedMatrix_s.restype = c_uint
+lib.ElDistMultiVecLockedMatrix_d.argtypes = [c_void_p,POINTER(c_void_p)]
+lib.ElDistMultiVecLockedMatrix_d.restype = c_uint
+lib.ElDistMultiVecLockedMatrix_c.argtypes = [c_void_p,POINTER(c_void_p)]
+lib.ElDistMultiVecLockedMatrix_c.restype = c_uint
+lib.ElDistMultiVecLockedMatrix_z.argtypes = [c_void_p,POINTER(c_void_p)]
+lib.ElDistMultiVecLockedMatrix_z.restype = c_uint
+
+lib.ElDistMultiVecComm_i.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMultiVecComm_i.restype = c_uint
-lib.ElDistMultiVecComm_s.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMultiVecComm_s.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMultiVecComm_s.restype = c_uint
-lib.ElDistMultiVecComm_d.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMultiVecComm_d.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMultiVecComm_d.restype = c_uint
-lib.ElDistMultiVecComm_c.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMultiVecComm_c.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMultiVecComm_c.restype = c_uint
-lib.ElDistMultiVecComm_z.argtypes = [c_void_p,POINTER(MPI_Comm)]
+lib.ElDistMultiVecComm_z.argtypes = [c_void_p,POINTER(mpi.Comm)]
 lib.ElDistMultiVecComm_z.restype = c_uint
 
 lib.ElDistMultiVecBlocksize_i.argtypes = [c_void_p,POINTER(iType)]
@@ -169,7 +191,7 @@ lib.ElDistMultiVecUpdateLocal_z.restype = c_uint
 class DistMultiVec(object):
   # Constructors and destructors
   # ============================
-  def __init__(self,tag=dTag,comm=MPI_COMM_WORLD(),create=True):
+  def __init__(self,tag=dTag,comm=mpi.COMM_WORLD(),create=True):
     self.obj = c_void_p()
     self.tag = tag
     CheckTag(tag)
@@ -257,8 +279,28 @@ class DistMultiVec(object):
     elif self.tag == zTag: lib.ElDistMultiVecLocalHeight_z(*args)
     else: DataExcept()
     return localHeight.value
+  def Matrix(self):
+    A = Matrix(dTag,False)
+    args = [self.obj,pointer(A.obj)]
+    if   self.tag == iTag: lib.ElDistMultiVecMatrix_i(*args)
+    elif self.tag == sTag: lib.ElDistMultiVecMatrix_s(*args)
+    elif self.tag == dTag: lib.ElDistMultiVecMatrix_d(*args)
+    elif self.tag == cTag: lib.ElDistMultiVecMatrix_c(*args)
+    elif self.tag == zTag: lib.ElDistMultiVecMatrix_z(*args)
+    else: DataExcept()
+    return A
+  def LockedMatrix(self):
+    A = Matrix(dTag,False)
+    args = [self.obj,pointer(A.obj)]
+    if   self.tag == iTag: lib.ElDistMultiVecLockedMatrix_i(*args)
+    elif self.tag == sTag: lib.ElDistMultiVecLockedMatrix_s(*args)
+    elif self.tag == dTag: lib.ElDistMultiVecLockedMatrix_d(*args)
+    elif self.tag == cTag: lib.ElDistMultiVecLockedMatrix_c(*args)
+    elif self.tag == zTag: lib.ElDistMultiVecLockedMatrix_z(*args)
+    else: DataExcept()
+    return A
   def Comm(self):
-    comm = MPI_Comm()
+    comm = mpi.Comm()
     args = [self.obj,pointer(comm)]
     if   self.tag == iTag: lib.ElDistMultiVecComm_i(*args)
     elif self.tag == sTag: lib.ElDistMultiVecComm_s(*args)

@@ -21,12 +21,6 @@ EL_EXPORT ElError ElPrintConfig( FILE* stream );
 EL_EXPORT ElError ElPrintCCompilerInfo( FILE* stream );
 EL_EXPORT ElError ElPrintCxxCompilerInfo( FILE* stream );
 
-EL_EXPORT ElError ElMPICommIsVoidPointer( bool* isVoidP );
-EL_EXPORT ElError ElMPIGroupIsVoidPointer( bool* isVoidP );
-/* These may seem trivial but is useful when calling C from another language */
-EL_EXPORT ElError ElMPICommWorld( MPI_Comm* commWorld );
-EL_EXPORT ElError ElMPICommSelf( MPI_Comm* commSelf );
-
 EL_EXPORT ElError ElInitialize( int* argc, char*** argv );
 EL_EXPORT ElError ElFinalize();
 EL_EXPORT ElError ElInitialized( bool* initialized );

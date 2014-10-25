@@ -83,10 +83,12 @@ template<typename Real>
 void Display( const Matrix<Complex<Real>>& A, std::string title="Matrix" );
 template<typename T>
 void Display
-( const AbstractDistMatrix<T>& AAbs, std::string title="DistMatrix" );
+( const AbstractDistMatrix<T>& A, std::string title="DistMatrix" );
 template<typename T>
 void Display
-( const AbstractBlockDistMatrix<T>& AAbs, std::string title="BlockDistMatrix" );
+( const AbstractBlockDistMatrix<T>& A, std::string title="BlockDistMatrix" );
+template<typename T>
+void Display( const DistMultiVec<T>& X, std::string title="DistMultiVec" );
 
 // Graphs and sparse matrices
 // --------------------------
@@ -119,11 +121,15 @@ void Print
 ( const Matrix<T>& A, std::string title="Matrix", std::ostream& os=std::cout );
 template<typename T>
 void Print
-( const AbstractDistMatrix<T>& AAbs, std::string title="DistMatrix",
+( const AbstractDistMatrix<T>& A, std::string title="DistMatrix",
   std::ostream& os=std::cout );
 template<typename T>
 void Print
-( const AbstractBlockDistMatrix<T>& AAbs, std::string title="BlockDistMatrix",
+( const AbstractBlockDistMatrix<T>& A, std::string title="BlockDistMatrix",
+  std::ostream& os=std::cout );
+template<typename T>
+void Print
+( const DistMultiVec<T>& X, std::string title="DistMultiVec", 
   std::ostream& os=std::cout );
 
 // Graphs and sparse matrices

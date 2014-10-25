@@ -609,6 +609,8 @@ template<typename T>
 void Zeros( AbstractDistMatrix<T>& A, Int m, Int n );
 template<typename T>
 void Zeros( AbstractBlockDistMatrix<T>& A, Int m, Int n );
+template<typename T>
+void Zeros( DistMultiVec<T>& A, Int m, Int n );
 
 // Random
 // ######
@@ -705,7 +707,7 @@ template<typename T>
 void Uniform
 ( AbstractBlockDistMatrix<T>& A, Int m, Int n, T center=0, Base<T> radius=1 );
 template<typename T>
-void Uniform( DistMultiVec<T>& X, T center=0, Base<T> radius=1 );
+void Uniform( DistMultiVec<T>& X, Int m, Int n, T center=0, Base<T> radius=1 );
 
 // Uniform Helmholtz Green's
 // =========================

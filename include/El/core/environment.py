@@ -61,35 +61,6 @@ class ComplexDouble(ctypes.Structure):
     super(ComplexDouble,self).__init__(real,imag)
 zType = ComplexDouble
 
-# Query Elemental to determine whether MPI_Comm is an 'int' or a void pointer
-commIsVoidP = bType()
-lib.ElMPICommIsVoidPointer(pointer(commIsVoidP))
-if commIsVoidP:
-  MPI_Comm = c_void_p
-else:
-  MPI_Comm = c_int
-
-# Query Elemental to determine whether MPI_Group is an 'int' or a void pointer
-groupIsVoidP = bType()
-lib.ElMPIGroupIsVoidPointer(pointer(groupIsVoidP))
-if groupIsVoidP:
-  MPI_Group = c_void_p
-else:
-  MPI_Group = c_int
-
-# Return MPI_COMM_WORLD
-def MPI_COMM_WORLD():
-  comm = MPI_Comm()
-  lib.ElMPICommWorld(pointer(comm))
-  return comm
-# Return MPI_COMM_SELF
-def MPI_COMM_SELF():
-  comm = MPI_Comm()
-  lib.ElMPICommSelf(pointer(comm))
-  return comm
-
-# TODO: Wrappers for MPI_Comm_rank, MPI_Comm_size, etc.
-
 # Create a simple enum for the supported datatypes
 (iTag,sTag,dTag,cTag,zTag)=(0,1,2,3,4)
 def CheckTag(tag):
