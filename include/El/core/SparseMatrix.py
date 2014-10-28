@@ -7,6 +7,7 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from environment import *
+import Graph as G
 
 # SparseMatrix
 # ============
@@ -438,7 +439,7 @@ class SparseMatrix(object):
     else: DataExcept()
     return consistent.value
   def Graph(self):
-    graph = El.Graph(False)
+    graph = G.Graph(False)
     args = [self.obj,pointer(graph.obj)]
     if   self.tag == iTag: lib.ElSparseMatrixGraph_i(*args)  
     elif self.tag == sTag: lib.ElSparseMatrixGraph_s(*args)
@@ -448,7 +449,7 @@ class SparseMatrix(object):
     else: DataExcept()
     return graph
   def LockedGraph(self):
-    graph = El.Graph(False)
+    graph = G.Graph(False)
     args = [self.obj,pointer(graph.obj)]
     if   self.tag == iTag: lib.ElSparseMatrixLockedGraph_i(*args)  
     elif self.tag == sTag: lib.ElSparseMatrixLockedGraph_s(*args)

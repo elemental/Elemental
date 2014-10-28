@@ -9,6 +9,8 @@
 from environment import *
 from imports     import mpi
 
+import Matrix as M
+
 # DistMultiVec
 # ========
 
@@ -280,7 +282,7 @@ class DistMultiVec(object):
     else: DataExcept()
     return localHeight.value
   def Matrix(self):
-    A = Matrix(dTag,False)
+    A = M.Matrix(dTag,False)
     args = [self.obj,pointer(A.obj)]
     if   self.tag == iTag: lib.ElDistMultiVecMatrix_i(*args)
     elif self.tag == sTag: lib.ElDistMultiVecMatrix_s(*args)
@@ -290,7 +292,7 @@ class DistMultiVec(object):
     else: DataExcept()
     return A
   def LockedMatrix(self):
-    A = Matrix(dTag,False)
+    A = M.Matrix(dTag,False)
     args = [self.obj,pointer(A.obj)]
     if   self.tag == iTag: lib.ElDistMultiVecLockedMatrix_i(*args)
     elif self.tag == sTag: lib.ElDistMultiVecLockedMatrix_s(*args)

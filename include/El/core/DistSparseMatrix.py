@@ -9,6 +9,8 @@
 from environment import *
 from imports     import mpi
 
+import DistGraph as DG
+
 # DistSparseMatrix
 # ================
 
@@ -497,7 +499,7 @@ class DistSparseMatrix(object):
     else: DataExcept()
     return width.value
   def DistGraph(self):
-    graph = El.DistGraph(mpi.COMM_WORLD(),False)
+    graph = DG.DistGraph(mpi.COMM_WORLD(),False)
     args = [self.obj,pointer(graph.obj)]
     if   self.tag == iTag: lib.ElDistSparseMatrixDistGraph_i(*args)  
     elif self.tag == sTag: lib.ElDistSparseMatrixDistGraph_s(*args)
@@ -507,7 +509,7 @@ class DistSparseMatrix(object):
     else: DataExcept()
     return graph
   def LockedDistGraph(self):
-    graph = El.DistGraph(mpi.COMM_WORLD(),False)
+    graph = DG.DistGraph(mpi.COMM_WORLD(),False)
     args = [self.obj,pointer(graph.obj)]
     if   self.tag == iTag: lib.ElDistSparseMatrixLockedDistGraph_i(*args)  
     elif self.tag == sTag: lib.ElDistSparseMatrixLockedDistGraph_s(*args)

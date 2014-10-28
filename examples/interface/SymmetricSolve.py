@@ -8,7 +8,7 @@
 #
 import El
 
-n0 = n1 = 50
+n0 = n1 = 20
 
 def Laplacian(xSize,ySize):
   A = El.DistSparseMatrix(El.dTag)
@@ -43,6 +43,7 @@ if rank == 0:
   print "|| y ||_2 =", yNrm
 
 El.Display( A, "Laplacian" )
+El.Display( A.DistGraph(), "Laplacian graph" )
 El.Display( y, "y" )
 
 El.SymmetricSolveSparse(A,x)
