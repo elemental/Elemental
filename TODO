@@ -105,8 +105,7 @@ Licensing
 
 External Interfaces
 -------------------
-[o] Manually expose a C interface
-[o] Use the C interface to interact with other languages (e.g., Python, R, etc.)
+[o] Build a Julia interface on top of the C interface
 
 Build system
 ------------
