@@ -198,7 +198,8 @@ void RiffleDecay( AbstractDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("RiffleDecay"))
     Riffle( A, n );
-    std::unique_ptr<AbstractDistMatrix<F>> PInf( A.Construct(A.Grid()) );
+    std::unique_ptr<AbstractDistMatrix<F>> 
+      PInf( A.Construct(A.Grid(),A.Root()) );
     PInf->AlignWith( A.DistData() );
     RiffleStationary( *PInf, n );
     Axpy( F(-1), *PInf, A );

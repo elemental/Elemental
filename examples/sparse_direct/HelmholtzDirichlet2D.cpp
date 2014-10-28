@@ -101,7 +101,7 @@ main( int argc, char* argv[] )
         MakeUniform( x );
         Zero( y );
         Multiply( C(1), A, x, C(0), y );
-        const double yOrigNorm = Norm( y );
+        const double yOrigNorm = Nrm2( y );
         mpi::Barrier( comm );
         const double multiplyStop = mpi::Time();
         if( commRank == 0 )
@@ -122,14 +122,9 @@ main( int argc, char* argv[] )
             NaturalNestedDissection
             ( n1, n2, 1, graph, map, sepTree, info, cutoff );
         else
-#ifdef HAVE_PARMETIS
             NestedDissection
             ( graph, map, sepTree, info, 
               sequential, numDistSeps, numSeqSeps, cutoff );
-#else 
-            std::cout << "NestedDissection requested but not built with parmetis" << std::endl;
-            return 1;
-#endif 
         map.FormInverse( inverseMap );
         mpi::Barrier( comm );
         const double nestedStop = mpi::Time();
@@ -290,10 +285,10 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             std::cout << "Checking error in computed solution..." << std::endl;
-        const double xNorm = Norm( x );
-        const double yNorm = Norm( y );
+        const double xNorm = Nrm2( x );
+        const double yNorm = Nrm2( y );
         Axpy( C(-1), x, y );
-        const double errorNorm = Norm( y );
+        const double errorNorm = Nrm2( y );
         if( commRank == 0 )
         {
             std::cout << "|| x     ||_2 = " << xNorm << "\n"

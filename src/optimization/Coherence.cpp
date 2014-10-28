@@ -8,9 +8,6 @@
 */
 #include "El.hpp"
 
-// TODO: Move 'ColumnNorms' implementation
-#include "../lapack_like/spectral/Pseudospectra/Util/BasicMath.hpp"
-
 namespace El {
 
 template<typename F>
@@ -19,7 +16,7 @@ Base<F> Coherence( const Matrix<F>& A )
     DEBUG_ONLY(CallStackEntry cse("Coherence"))
     Matrix<F> B( A );
     Matrix<Base<F>> norms;
-    pspec::ColumnNorms( B, norms );
+    ColumnNorms( B, norms );
 
     DiagonalSolve( RIGHT, NORMAL, norms, B, true );
     Matrix<F> C;
@@ -35,7 +32,7 @@ Base<F> Coherence( const AbstractDistMatrix<F>& A )
     DEBUG_ONLY(CallStackEntry cse("Coherence"))
     DistMatrix<F> B( A );
     DistMatrix<Base<F>,MR,STAR> norms(B.Grid());
-    pspec::ColumnNorms( B, norms );
+    ColumnNorms( B, norms );
 
     DiagonalSolve( RIGHT, NORMAL, norms, B, true );
     DistMatrix<F> C(B.Grid());

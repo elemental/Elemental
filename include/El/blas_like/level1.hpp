@@ -41,6 +41,38 @@ void AxpyTriangle
 ( UpperOrLower uplo, S alpha,
   const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y );
 
+// Column norms
+// ============
+template<typename F>
+void ColumnNorms( const Matrix<F>& X, Matrix<Base<F>>& norms );
+template<typename Real>
+void ColumnNorms
+( const Matrix<Real>& XReal, const Matrix<Real>& XImag, 
+  Matrix<Real>& norms );
+
+template<typename F>
+void ColumnNorms
+( const AbstractDistMatrix<F>& X, Matrix<Base<F>>& norms );
+template<typename F,Dist U,Dist V>
+void ColumnNorms
+( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,V,STAR>& norms );
+
+template<typename Real>
+void ColumnNorms
+( const AbstractDistMatrix<Real>& XReal, const AbstractDistMatrix<Real>& XImag, 
+  Matrix<Real>& norms );
+template<typename Real,Dist U,Dist V>
+void ColumnNorms
+( const DistMatrix<Real,U,V>& XReal, const DistMatrix<Real,U,V>& XImag, 
+  DistMatrix<Real,V,STAR>& norms );
+
+template<typename F>
+void ColumnNorms( const DistMultiVec<F>& X, Matrix<Base<F>>& norms );
+template<typename Real>
+void ColumnNorms
+( const DistMultiVec<Real>& XReal, const DistMultiVec<Real>& XImag, 
+  Matrix<Real>& norms );
+
 // Conjugate
 // =========
 template<typename Real>
@@ -395,6 +427,8 @@ template<typename F>
 Base<F> Nrm2( const Matrix<F>& x );
 template<typename F>
 Base<F> Nrm2( const AbstractDistMatrix<F>& x );
+template<typename F>
+Base<F> Nrm2( const DistMultiVec<F>& x );
 
 // QuasiDiagonalScale
 // ==================

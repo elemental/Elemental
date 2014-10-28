@@ -77,11 +77,13 @@ void Swap
         )
         // TODO: Optimize communication
 
-        std::unique_ptr<AbstractDistMatrix<T>> YLikeX( X.Construct(g) );
+        std::unique_ptr<AbstractDistMatrix<T>> 
+          YLikeX( X.Construct(g,X.Root()) );
         YLikeX->AlignWith( X.DistData() );
         Copy( Y, *YLikeX );
 
-        std::unique_ptr<AbstractDistMatrix<T>> XLikeY( Y.Construct(g) );
+        std::unique_ptr<AbstractDistMatrix<T>> 
+          XLikeY( Y.Construct(g,Y.Root()) );
         XLikeY->AlignWith( Y.DistData() );
         Copy( X, *XLikeY );
 
@@ -97,11 +99,13 @@ void Swap
         )
 
         // TODO: Optimize communication
-        std::unique_ptr<AbstractDistMatrix<T>> YTransLikeX( X.Construct(g) );
+        std::unique_ptr<AbstractDistMatrix<T>> 
+          YTransLikeX( X.Construct(g,X.Root()) );
         YTransLikeX->AlignWith( X.DistData() );
         Transpose( Y, *YTransLikeX, conjugate );
 
-        std::unique_ptr<AbstractDistMatrix<T>> XTransLikeY( Y.Construct(g) );
+        std::unique_ptr<AbstractDistMatrix<T>> 
+          XTransLikeY( Y.Construct(g,Y.Root()) );
         XTransLikeY->AlignWith( Y.DistData() );
         Transpose( X, *XTransLikeY, conjugate );
 
@@ -132,8 +136,10 @@ void RowSwap( AbstractDistMatrix<T>& A, Int to, Int from )
         return;
     const Int n = A.Width();
     const Int nLocal = A.LocalWidth();
-    std::unique_ptr<AbstractDistMatrix<T>> aToRow( A.Construct(A.Grid()) );
-    std::unique_ptr<AbstractDistMatrix<T>> aFromRow( A.Construct(A.Grid()) );
+    std::unique_ptr<AbstractDistMatrix<T>> 
+      aToRow( A.Construct(A.Grid(),A.Root()) );
+    std::unique_ptr<AbstractDistMatrix<T>> 
+      aFromRow( A.Construct(A.Grid(),A.Root()) );
     View( *aToRow, A, IR(to,to+1), IR(0,n) );
     View( *aFromRow, A, IR(from,from+1), IR(0,n) );
     if( aToRow->ColAlign() == aFromRow->ColAlign() )
@@ -187,8 +193,10 @@ void ColSwap( AbstractDistMatrix<T>& A, Int to, Int from )
         return;
     const Int m = A.Height();
     const Int mLocal = A.LocalHeight();
-    std::unique_ptr<AbstractDistMatrix<T>> aToCol( A.Construct(A.Grid()) );
-    std::unique_ptr<AbstractDistMatrix<T>> aFromCol( A.Construct(A.Grid()) );
+    std::unique_ptr<AbstractDistMatrix<T>> 
+      aToCol( A.Construct(A.Grid(),A.Root()) );
+    std::unique_ptr<AbstractDistMatrix<T>> 
+      aFromCol( A.Construct(A.Grid(),A.Root()) );
     View( *aToCol, A, IR(0,m), IR(to,to+1) );
     View( *aFromCol, A, IR(0,m), IR(from,from+1) );
     if( aToCol->RowAlign() == aFromCol->RowAlign() )
@@ -329,15 +337,15 @@ void SymmetricSwap
         // Bottom swap
         if( from+1 < n )
         {
-            ADMPtr ABot( A.Construct( A.Grid() ) );
+            ADMPtr ABot( A.Construct( A.Grid(), A.Root() ) );
             View( *ABot, A, IR(from+1,n), IR(0,n) );
             ColSwap( *ABot, to, from );
         }
         // Inner swap
         if( to+1 < from )
         {
-            ADMPtr aToInner( A.Construct( A.Grid() ) );
-            ADMPtr aFromInner( A.Construct( A.Grid() ) );
+            ADMPtr aToInner( A.Construct( A.Grid(), A.Root() ) );
+            ADMPtr aFromInner( A.Construct( A.Grid(), A.Root() ) );
             View( *aToInner, A, IR(to+1,from), IR(to,to+1) );
             View( *aFromInner, A, IR(from,from+1), IR(to+1,from) );
             Swap( orientation, *aToInner, *aFromInner );
@@ -359,7 +367,7 @@ void SymmetricSwap
         // Left swap
         if( to > 0 )
         {
-            ADMPtr ALeft( A.Construct( A.Grid() ) );
+            ADMPtr ALeft( A.Construct( A.Grid(), A.Root() ) );
             View( *ALeft, A, IR(0,n), IR(0,to) );
             RowSwap( *ALeft, to, from ); 
         }
@@ -369,15 +377,15 @@ void SymmetricSwap
         // Right swap
         if( from+1 < n )
         {
-            ADMPtr ARight( A.Construct( A.Grid() ) );
+            ADMPtr ARight( A.Construct( A.Grid(), A.Root() ) );
             View( *ARight, A, IR(0,n), IR(from+1,n) );
             RowSwap( *ARight, to, from );
         }
         // Inner swap
         if( to+1 < from )
         {
-            ADMPtr aToInner( A.Construct( A.Grid() ) );
-            ADMPtr aFromInner( A.Construct( A.Grid() ) );
+            ADMPtr aToInner( A.Construct( A.Grid(), A.Root() ) );
+            ADMPtr aFromInner( A.Construct( A.Grid(), A.Root() ) );
             View( *aToInner, A, IR(to,to+1), IR(to+1,from) );
             View( *aFromInner, A, IR(to+1,from), IR(from,from+1) );
             Swap( orientation, *aToInner, *aFromInner );
@@ -399,7 +407,7 @@ void SymmetricSwap
         // Top swap
         if( to > 0 )
         {
-            ADMPtr ATop( A.Construct( A.Grid() ) );
+            ADMPtr ATop( A.Construct( A.Grid(), A.Root() ) );
             View( *ATop, A, IR(0,to), IR(0,n) );
             ColSwap( *ATop, to, from ); 
         }

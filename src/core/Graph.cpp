@@ -201,8 +201,7 @@ Int Graph::Capacity() const
     return sources_.capacity();
 }
 
-bool Graph::Consistent() const
-{ return consistent_; }
+bool Graph::Consistent() const { return consistent_; }
 
 Int Graph::Source( Int edge ) const
 {
@@ -210,7 +209,6 @@ Int Graph::Source( Int edge ) const
         CallStackEntry cse("Graph::Source");
         if( edge < 0 || edge >= (Int)sources_.size() )
             LogicError("Edge number out of bounds");
-        AssertConsistent();
     )
     return sources_[edge];
 }
@@ -221,7 +219,6 @@ Int Graph::Target( Int edge ) const
         CallStackEntry cse("Graph::Target");
         if( edge < 0 || edge >= (Int)targets_.size() )
             LogicError("Edge number out of bounds");
-        AssertConsistent();
     )
     return targets_[edge];
 }

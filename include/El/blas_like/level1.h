@@ -77,6 +77,18 @@ EL_EXPORT ElError ElAxpyTriangleDist_z
 ( ElUpperOrLower uplo, complex_double alpha, 
   ElConstDistMatrix_z X, ElDistMatrix_z Y );
 
+/* Column norms
+   ============ */
+/* TODO */
+EL_EXPORT ElError ElColumnNormsDistMultiVec_s
+( ElConstDistMultiVec_s A, ElMatrix_s norms );
+EL_EXPORT ElError ElColumnNormsDistMultiVec_d
+( ElConstDistMultiVec_d A, ElMatrix_d norms );
+EL_EXPORT ElError ElColumnNormsDistMultiVec_c
+( ElConstDistMultiVec_c A, ElMatrix_s norms );
+EL_EXPORT ElError ElColumnNormsDistMultiVec_z
+( ElConstDistMultiVec_z A, ElMatrix_d norms );
+
 /* A := Conj(A) 
    ============ */
 EL_EXPORT ElError ElConjugate_c( ElMatrix_c A );
@@ -755,15 +767,20 @@ EL_EXPORT ElError ElVectorMinAbsDist_z
 
 /* Nrm2
    ==== */
-EL_EXPORT ElError ElNrm2_s( ElConstMatrix_s A, float* gamma );
-EL_EXPORT ElError ElNrm2_d( ElConstMatrix_d A, double* gamma );
-EL_EXPORT ElError ElNrm2_c( ElConstMatrix_c A, float* gamma );
-EL_EXPORT ElError ElNrm2_z( ElConstMatrix_z A, double* gamma );
+EL_EXPORT ElError ElNrm2_s( ElConstMatrix_s A, float* norm );
+EL_EXPORT ElError ElNrm2_d( ElConstMatrix_d A, double* norm );
+EL_EXPORT ElError ElNrm2_c( ElConstMatrix_c A, float* norm );
+EL_EXPORT ElError ElNrm2_z( ElConstMatrix_z A, double* norm );
 
-EL_EXPORT ElError ElNrm2Dist_s( ElConstDistMatrix_s A, float* gamma );
-EL_EXPORT ElError ElNrm2Dist_d( ElConstDistMatrix_d A, double* gamma );
-EL_EXPORT ElError ElNrm2Dist_c( ElConstDistMatrix_c A, float* gamma );
-EL_EXPORT ElError ElNrm2Dist_z( ElConstDistMatrix_z A, double* gamma );
+EL_EXPORT ElError ElNrm2Dist_s( ElConstDistMatrix_s A, float* norm );
+EL_EXPORT ElError ElNrm2Dist_d( ElConstDistMatrix_d A, double* norm );
+EL_EXPORT ElError ElNrm2Dist_c( ElConstDistMatrix_c A, float* norm );
+EL_EXPORT ElError ElNrm2Dist_z( ElConstDistMatrix_z A, double* norm );
+
+EL_EXPORT ElError ElNrm2DistMultiVec_s( ElConstDistMultiVec_s A, float* norm );
+EL_EXPORT ElError ElNrm2DistMultiVec_d( ElConstDistMultiVec_d A, double* norm );
+EL_EXPORT ElError ElNrm2DistMultiVec_c( ElConstDistMultiVec_c A, float* norm );
+EL_EXPORT ElError ElNrm2DistMultiVec_z( ElConstDistMultiVec_z A, double* norm );
 
 /* Real part
    ========= */

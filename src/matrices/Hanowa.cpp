@@ -50,7 +50,8 @@ void Hanowa( AbstractDistMatrix<T>& A, Int n, T mu )
 
     for( Int j=0; j<m; ++j )
         d[j] = mu;
-    std::unique_ptr<AbstractDistMatrix<T>> ABlock( A.Construct(A.Grid()) );
+    std::unique_ptr<AbstractDistMatrix<T>> 
+      ABlock( A.Construct(A.Grid(),A.Root()) );
     View( *ABlock, A, IR(0,m), IR(0,m) );
     Diagonal( *ABlock, d );
     View( *ABlock, A, IR(m,2*m), IR(m,2*m) );

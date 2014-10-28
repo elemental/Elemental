@@ -41,8 +41,10 @@ ReshapeIntoGrid
     X.SetGrid( x.Grid() );
     X.Resize( imagSize, realSize );
 
-    auto xSub = std::unique_ptr<AbstractDistMatrix<T>>( x.Construct() );
-    auto XSub = std::unique_ptr<AbstractDistMatrix<T>>( X.Construct() );
+    auto xSub = std::unique_ptr<AbstractDistMatrix<T>>
+    ( x.Construct(x.Grid(),x.Root()) );
+    auto XSub = std::unique_ptr<AbstractDistMatrix<T>>
+    ( X.Construct(X.Grid(),X.Root()) );
 
     for( Int j=0; j<realSize; ++j )
     {
@@ -123,91 +125,115 @@ RestoreOrdering
 template<typename T1,typename T2>
 inline void
 ExtractList
-( const std::vector<std::vector<T1>>& vecList, std::vector<T2>& list, Int i )
+( const std::vector<Matrix<T1>>& vecList, Matrix<T2>& list, Int i )
 {
     DEBUG_ONLY(
         CallStackEntry cse("pspec::ExtractList");
-        if( vecList.size() != 0 && vecList[0].size() <= i )
+        if( vecList.size() != 0 && vecList[0].Height() <= i )
             LogicError("Invalid index");
     )
     const Int numVecs = vecList.size();
-    list.resize( numVecs );
+    list.Resize( numVecs, 1 );
     for( Int k=0; k<numVecs; ++k )
-        list[k] = vecList[k][i];
+        list.Set( k, 0, vecList[k].Get(i,0) );
 }
 
 template<typename T1,typename T2>
 inline void
 ExtractList
-( const std::vector<Matrix<T1>>& matList, std::vector<T2>& list, Int i, Int j )
+( const std::vector<Matrix<T1>>& matList, Matrix<T2>& list, Int i, Int j )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::ExtractList"))
     const Int numMats = matList.size();
-    list.resize( numMats );
+    list.Resize( numMats, 1 );
     for( Int k=0; k<numMats; ++k )
-        list[k] = matList[k].Get( i, j );
+        list.Set( k, 0, matList[k].Get( i, j ) );
 }
 
 template<typename T1,typename T2>
 inline void
 PlaceList
-( std::vector<std::vector<T1>>& vecList, const std::vector<T2>& list, Int i )
+( std::vector<Matrix<T1>>& vecList, const Matrix<T2>& list, Int i )
 {
     DEBUG_ONLY(
         CallStackEntry cse("pspec::PlaceList");
-        if( vecList.size() != 0 && vecList[0].size() <= i )
+        if( vecList.size() != 0 && vecList[0].Height() <= i )
             LogicError("Invalid index");
-        if( vecList.size() != list.size() )
+        if( vecList.size() != list.Height() )
             LogicError("List sizes do not match");
+        if( list.Width() != 1 )
+            LogicError("list should be a column vector");
     )
     const Int numVecs = vecList.size();
     for( Int k=0; k<numVecs; ++k )
-        vecList[k][i] = list[k];
+        vecList[k].Set( i, 0, list.Get(k,0) );
 }
 
 template<typename T1,typename T2>
 inline void
 PlaceList
-( std::vector<Matrix<T1>>& matList, const std::vector<T2>& list, Int i, Int j )
+( std::vector<Matrix<T1>>& matList, const Matrix<T2>& list, Int i, Int j )
 {
     DEBUG_ONLY(
         CallStackEntry cse("pspec::PlaceList");
-        if( matList.size() != list.size() )
+        if( matList.size() != list.Height() )
             LogicError("List sizes do not match");
+        if( list.Width() != 1 )
+            LogicError("List assumed to be a column vector");
     )
     const Int numMats = matList.size();
     for( Int k=0; k<numMats; ++k )
-        matList[k].Set( i, j, list[k] );
+        matList[k].Set( i, j, list.Get(k,0) );
 }
 
 template<typename T1,typename T2>
 inline void
 UpdateList
-( std::vector<Matrix<T1>>& matList, const std::vector<T2>& list, Int i, Int j )
+( std::vector<Matrix<T1>>& matList, const Matrix<T2>& list, Int i, Int j )
 {
     DEBUG_ONLY(
         CallStackEntry cse("pspec::UpdateList");
-        if( matList.size() != list.size() )
+        if( matList.size() != list.Height() )
             LogicError("List sizes do not match");
+        if( list.Width() != 1 )
+            LogicError("list assumed to be a column vector");
     )
     const Int numMats = matList.size();
     for( Int k=0; k<numMats; ++k )
-        matList[k].Update( i, j, list[k] );
+        matList[k].Update( i, j, list.Get(k,0) );
 }
 
 template<typename T1,typename T2>
 inline void
 PushBackList
-( std::vector<std::vector<T1>>& vecList, const std::vector<T2>& list )
+( std::vector<Matrix<T1>>& vecList, const Matrix<T2>& list )
 {
     DEBUG_ONLY(
         CallStackEntry cse("pspec::PushBackList"); 
-        if( vecList.size() != list.size() )
+        if( vecList.size() != list.Height() )
             LogicError("List sizes do not match");
+        if( list.Width() != 1 )
+            LogicError("list assumed to be a column vector");
     )
     const Int numVecs = vecList.size();
     for( Int k=0; k<numVecs; ++k )
-        vecList[k].push_back( list[k] );
+    {
+        const Int m = vecList[k].Height();
+        if( vecList[k].LDim() == m )
+        {
+            std::cerr << "Warning: reallocation required in PushBackList" 
+                      << std::endl;
+            auto A = vecList[k];
+            vecList[k].Resize( m+1, 1 );
+            for( Int i=0; i<m; ++i )
+                vecList[k].Set( i, 0, A.Get(i,0) );
+        }
+        else
+        {
+            vecList[k].Resize( m+1, 1 );
+        }
+        vecList[k].Set( m, 0, list.Get(k,0) );
+    }
 }
 
 } // namespace pspec

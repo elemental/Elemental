@@ -270,7 +270,6 @@ Int DistGraph::Source( Int localEdge ) const
       CallStackEntry cse("DistGraph::Source");
       if( localEdge < 0 || localEdge >= (Int)sources_.size() )
           LogicError("Edge number out of bounds");
-      AssertConsistent();
     )
     return sources_[localEdge];
 }
@@ -281,7 +280,6 @@ Int DistGraph::Target( Int localEdge ) const
       CallStackEntry cse("DistGraph::Target");
       if( localEdge < 0 || localEdge >= (Int)targets_.size() )
           LogicError("Edge number out of bounds");
-      AssertConsistent();
     )
     return targets_[localEdge];
 }

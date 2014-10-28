@@ -274,6 +274,7 @@ Base<F> HermitianNorm
   ( UpperOrLower uplo, const Matrix<F>& A ); \
   template Base<F> SymmetricFrobeniusNorm \
   ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
+  template Base<F> FrobeniusNorm ( const DistMultiVec<F>& A ); \
   template Base<F> InfinityNorm( const Matrix<F>& A ); \
   template Base<F> InfinityNorm ( const AbstractDistMatrix<F>& A ); \
   template Base<F> HermitianInfinityNorm \

@@ -25,7 +25,6 @@ LocalTrr2kKernel
   T gamma,       AbstractDistMatrix<T>& E )
 {
     DEBUG_ONLY(CallStackEntry cse("LocalTrr2kKernel"))
-    const Grid& g = E.Grid();
 
     const bool transA = orientA != NORMAL;
     const bool transB = orientB != NORMAL;
@@ -34,20 +33,20 @@ LocalTrr2kKernel
     // TODO: Stringent distribution and alignment checks
 
     typedef AbstractDistMatrix<T> ADM;
-    auto A0 = std::unique_ptr<ADM>( A.Construct() );
-    auto A1 = std::unique_ptr<ADM>( A.Construct() );
-    auto B0 = std::unique_ptr<ADM>( B.Construct() );
-    auto B1 = std::unique_ptr<ADM>( B.Construct() );
-    auto C0 = std::unique_ptr<ADM>( C.Construct() );
-    auto C1 = std::unique_ptr<ADM>( C.Construct() );
-    auto D0 = std::unique_ptr<ADM>( D.Construct() );
-    auto D1 = std::unique_ptr<ADM>( D.Construct() );
-    auto ETL = std::unique_ptr<ADM>( E.Construct() );
-    auto ETR = std::unique_ptr<ADM>( E.Construct() );
-    auto EBL = std::unique_ptr<ADM>( E.Construct() );
-    auto EBR = std::unique_ptr<ADM>( E.Construct() );
-    auto FTL = std::unique_ptr<ADM>( E.Construct() );
-    auto FBR = std::unique_ptr<ADM>( E.Construct() );
+    auto A0 = std::unique_ptr<ADM>( A.Construct(A.Grid(),A.Root()) );
+    auto A1 = std::unique_ptr<ADM>( A.Construct(A.Grid(),A.Root()) );
+    auto B0 = std::unique_ptr<ADM>( B.Construct(B.Grid(),B.Root()) );
+    auto B1 = std::unique_ptr<ADM>( B.Construct(B.Grid(),B.Root()) );
+    auto C0 = std::unique_ptr<ADM>( C.Construct(C.Grid(),C.Root()) );
+    auto C1 = std::unique_ptr<ADM>( C.Construct(C.Grid(),C.Root()) );
+    auto D0 = std::unique_ptr<ADM>( D.Construct(D.Grid(),D.Root()) );
+    auto D1 = std::unique_ptr<ADM>( D.Construct(D.Grid(),D.Root()) );
+    auto ETL = std::unique_ptr<ADM>( E.Construct(E.Grid(),E.Root()) );
+    auto ETR = std::unique_ptr<ADM>( E.Construct(E.Grid(),E.Root()) );
+    auto EBL = std::unique_ptr<ADM>( E.Construct(E.Grid(),E.Root()) );
+    auto EBR = std::unique_ptr<ADM>( E.Construct(E.Grid(),E.Root()) );
+    auto FTL = std::unique_ptr<ADM>( E.Construct(E.Grid(),E.Root()) );
+    auto FBR = std::unique_ptr<ADM>( E.Construct(E.Grid(),E.Root()) );
 
     const Int half = E.Height() / 2;
     if( transA )
@@ -131,7 +130,6 @@ void LocalTrr2k
 {
     using namespace trr2k;
     DEBUG_ONLY(CallStackEntry cse("LocalTrr2k"))
-    const Grid& g = E.Grid();
 
     const bool transA = orientA != NORMAL;
     const bool transB = orientB != NORMAL;
@@ -139,7 +137,7 @@ void LocalTrr2k
     const bool transD = orientD != NORMAL;
     // TODO: Stringent distribution and alignment checks
 
-    if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
+    if( E.Height() < E.Grid().Width()*LocalTrr2kBlocksize<T>() )
     {
         LocalTrr2kKernel
         ( uplo, orientA, orientB, orientC, orientD, 
@@ -148,18 +146,18 @@ void LocalTrr2k
     else
     {
         typedef AbstractDistMatrix<T> ADM;
-        auto A0 = std::unique_ptr<ADM>( A.Construct() );
-        auto A1 = std::unique_ptr<ADM>( A.Construct() );
-        auto B0 = std::unique_ptr<ADM>( B.Construct() );
-        auto B1 = std::unique_ptr<ADM>( B.Construct() );
-        auto C0 = std::unique_ptr<ADM>( C.Construct() );
-        auto C1 = std::unique_ptr<ADM>( C.Construct() );
-        auto D0 = std::unique_ptr<ADM>( D.Construct() );
-        auto D1 = std::unique_ptr<ADM>( D.Construct() );
-        auto ETL = std::unique_ptr<ADM>( E.Construct() );
-        auto ETR = std::unique_ptr<ADM>( E.Construct() );
-        auto EBL = std::unique_ptr<ADM>( E.Construct() );
-        auto EBR = std::unique_ptr<ADM>( E.Construct() );
+        auto A0 = std::unique_ptr<ADM>( A.Construct(A.Grid(),A.Root()) );
+        auto A1 = std::unique_ptr<ADM>( A.Construct(A.Grid(),A.Root()) );
+        auto B0 = std::unique_ptr<ADM>( B.Construct(B.Grid(),B.Root()) );
+        auto B1 = std::unique_ptr<ADM>( B.Construct(B.Grid(),B.Root()) );
+        auto C0 = std::unique_ptr<ADM>( C.Construct(C.Grid(),C.Root()) );
+        auto C1 = std::unique_ptr<ADM>( C.Construct(C.Grid(),C.Root()) );
+        auto D0 = std::unique_ptr<ADM>( D.Construct(D.Grid(),D.Root()) );
+        auto D1 = std::unique_ptr<ADM>( D.Construct(D.Grid(),D.Root()) );
+        auto ETL = std::unique_ptr<ADM>( E.Construct(E.Grid(),E.Root()) );
+        auto ETR = std::unique_ptr<ADM>( E.Construct(E.Grid(),E.Root()) );
+        auto EBL = std::unique_ptr<ADM>( E.Construct(E.Grid(),E.Root()) );
+        auto EBR = std::unique_ptr<ADM>( E.Construct(E.Grid(),E.Root()) );
 
         const Int half = E.Height() / 2;
         if( transA )

@@ -313,6 +313,55 @@ Base<F> SymmetricFrobeniusNorm
     return HermitianFrobeniusNorm( uplo, A );
 }
 
+template<typename F> 
+Base<F> FrobeniusNorm( const DistMultiVec<F>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("FrobeniusNorm"))
+    typedef Base<F> Real;
+    Real norm;
+    Real locScale=0, locScaledSquare=1;
+    const Int localHeight = A.LocalHeight();
+    const Int width = A.Width();
+    for( Int j=0; j<width; ++j )
+    {
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Real alphaAbs = Abs(A.GetLocal(iLoc,j));
+            if( alphaAbs != 0 )
+            {
+                if( alphaAbs <= locScale )
+                {
+                    const Real relScale = alphaAbs/locScale;
+                    locScaledSquare += relScale*relScale;
+                }
+                else
+                {
+                    const Real relScale = locScale/alphaAbs;
+                    locScaledSquare = locScaledSquare*relScale*relScale + 1;
+                    locScale = alphaAbs; 
+                }
+            }
+        }
+    }
+
+    // Find the maximum relative scale
+    mpi::Comm comm = A.Comm();
+    const Real scale = mpi::AllReduce( locScale, mpi::MAX, comm );
+
+    norm = 0;
+    if( scale != 0 )
+    {
+        // Equilibrate our local scaled sum to the maximum scale
+        Real relScale = locScale/scale;
+        locScaledSquare *= relScale*relScale;
+
+        // The scaled square is now the sum of the local contributions
+        const Real scaledSquare = mpi::AllReduce( locScaledSquare, comm );
+        norm = scale*Sqrt(scaledSquare);
+    }
+    return norm;
+}
+
 } // namespace El
 
 #endif // ifndef EL_NORM_FROBENIUS_HPP

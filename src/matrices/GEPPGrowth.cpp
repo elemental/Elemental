@@ -36,7 +36,8 @@ void GEPPGrowth( AbstractDistMatrix<T>& A, Int n )
         return;
 
     // Set the last column to all ones
-    std::unique_ptr<AbstractDistMatrix<T>> aLast( A.Construct(A.Grid()) );
+    std::unique_ptr<AbstractDistMatrix<T>> 
+      aLast( A.Construct(A.Grid(),A.Root()) );
     View( *aLast, A, IR(0,n), IR(n-1,n) );
     Fill( *aLast, T(1) );
 

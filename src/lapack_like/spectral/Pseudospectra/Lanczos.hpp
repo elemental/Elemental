@@ -20,8 +20,8 @@ const Int HCapacityInit = 10;
 template<typename Real>
 inline void
 ComputeNewEstimates
-( const std::vector<std::vector<Real>>& HDiagList, 
-  const std::vector<std::vector<Real>>& HSubdiagList,
+( const std::vector<Matrix<Real>>& HDiagList, 
+  const std::vector<Matrix<Real>>& HSubdiagList,
   Matrix<Real>& activeEsts )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::ComputeNewEstimates"))
@@ -29,8 +29,9 @@ ComputeNewEstimates
     const Int numShifts = activeEsts.Height();
     if( numShifts == 0 )
         return;
-    const Int krylovSize = HDiagList[0].size();
-    std::vector<Real> HDiag, HSubdiag, w(krylovSize);
+    const Int krylovSize = HDiagList[0].Height();
+    Matrix<Real> HDiag, HSubdiag;
+    std::vector<Real> w(krylovSize);
     for( Int j=0; j<numShifts; ++j )
     {
         HDiag = HDiagList[j]; 
@@ -38,7 +39,7 @@ ComputeNewEstimates
         if( !HasNan(HDiag) && !HasNan(HSubdiag) )
         {
             lapack::SymmetricTridiagEig     
-            ( krylovSize, HDiag.data(), HSubdiag.data(), w.data(), 
+            ( krylovSize, HDiag.Buffer(), HSubdiag.Buffer(), w.data(), 
               krylovSize-1, krylovSize-1 );
             const Real est = Sqrt(w[0]);
             activeEsts.Set( j, 0, Min(est,normCap) );
@@ -51,8 +52,8 @@ ComputeNewEstimates
 template<typename Real>
 inline void
 ComputeNewEstimates
-( const std::vector<std::vector<Real>>& HDiagList, 
-  const std::vector<std::vector<Real>>& HSubdiagList,
+( const std::vector<Matrix<Real>>& HDiagList, 
+  const std::vector<Matrix<Real>>& HSubdiagList,
   DistMatrix<Real,MR,STAR>& activeEsts )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::ComputeNewEstimates"))
@@ -62,8 +63,8 @@ ComputeNewEstimates
 template<typename Real>
 inline void
 Deflate
-( std::vector<std::vector<Real>>& HDiagList,
-  std::vector<std::vector<Real>>& HSubdiagList,
+( std::vector<Matrix<Real>>& HDiagList,
+  std::vector<Matrix<Real>>& HSubdiagList,
   Matrix<Complex<Real>>& activeShifts, 
   Matrix<Int          >& activePreimage,
   Matrix<Complex<Real>>& activeXOld,
@@ -105,8 +106,8 @@ Deflate
 template<typename Real>
 inline void
 Deflate
-( std::vector<std::vector<Real>>& HDiagList,
-  std::vector<std::vector<Real>>& HSubdiagList,
+( std::vector<Matrix<Real>>& HDiagList,
+  std::vector<Matrix<Real>>& HSubdiagList,
   DistMatrix<Complex<Real>,VR,STAR>& activeShifts,
   DistMatrix<Int,          VR,STAR>& activePreimage,
   DistMatrix<Complex<Real>        >& activeXOld,
@@ -130,7 +131,7 @@ Deflate
     DistMatrix<Int, STAR,STAR> convergedCopy( activeConverged );
     DistMatrix<Complex<Real>,VC,STAR> XOldCopy( activeXOld ), XCopy( activeX );
 
-    const Int n = ( activeX.LocalWidth()>0 ? HDiagList[0].size() : 0 );
+    const Int n = ( activeX.LocalWidth()>0 ? HDiagList[0].Height() : 0 );
     for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
     {
         if( convergedCopy.Get(swapFrom,0) )
@@ -144,13 +145,13 @@ Deflate
                     const Int localFrom = activeX.LocalCol(swapFrom);
                     const Int localTo = activeX.LocalCol(swapTo);
                     DEBUG_ONLY(
-                        if( HDiagList[localFrom].size() != n )
+                        if( HDiagList[localFrom].Height() != n )
                             LogicError("Invalid HDiagList size");
-                        if( HDiagList[localTo].size() != n )
+                        if( HDiagList[localTo].Height() != n )
                             LogicError("Invalid HDiagList size");
-                        if( HSubdiagList[localFrom].size() != n )
+                        if( HSubdiagList[localFrom].Height() != n )
                             LogicError("Invalid HSubdiagList size");
-                        if( HSubdiagList[localTo].size() != n )
+                        if( HSubdiagList[localTo].Height() != n )
                             LogicError("Invalid HSubdiagList size");
                     )
                     std::swap( HDiagList[localFrom], HDiagList[localTo] );
@@ -160,34 +161,34 @@ Deflate
                 {
                     const Int localFrom = activeX.LocalCol(swapFrom);
                     DEBUG_ONLY(
-                        if( HDiagList[localFrom].size() != n )
+                        if( HDiagList[localFrom].Height() != n )
                             LogicError("Invalid HDiagList size");
-                        if( HSubdiagList[localFrom].size() != n )
+                        if( HSubdiagList[localFrom].Height() != n )
                             LogicError("Invalid HSubdiagList size");
                     )
                     const Int partner = activeX.ColOwner(swapTo);
                     mpi::TaggedSendRecv
-                    ( HDiagList[localFrom].data(), n,
+                    ( HDiagList[localFrom].Buffer(), n,
                       partner, swapFrom, partner, swapFrom, activeX.RowComm() );
                     mpi::TaggedSendRecv
-                    ( HSubdiagList[localFrom].data(), n, 
+                    ( HSubdiagList[localFrom].Buffer(), n, 
                       partner, swapFrom, partner, swapFrom, activeX.RowComm() );
                 }
                 else if( activeX.IsLocalCol(swapTo) )
                 {
                     const Int localTo = activeX.LocalCol(swapTo);
                     DEBUG_ONLY(
-                        if( HDiagList[localTo].size() != n )
+                        if( HDiagList[localTo].Height() != n )
                             LogicError("Invalid HDiagList size");
-                        if( HSubdiagList[localTo].size() != n )
+                        if( HSubdiagList[localTo].Height() != n )
                             LogicError("Invalid HSubdiagList size");
                     )
                     const Int partner = activeX.ColOwner(swapFrom);
                     mpi::TaggedSendRecv
-                    ( HDiagList[localTo].data(), n,
+                    ( HDiagList[localTo].Buffer(), n,
                       partner, swapFrom, partner, swapFrom, activeX.RowComm() );
                     mpi::TaggedSendRecv
-                    ( HSubdiagList[localTo].data(), n, 
+                    ( HSubdiagList[localTo].Buffer(), n, 
                       partner, swapFrom, partner, swapFrom, activeX.RowComm() );
                 }
 
@@ -262,12 +263,12 @@ Lanczos
     Gaussian( X, n, numShifts );
     FixColumns( X );
     Zeros( XNew, n, numShifts );
-    std::vector<std::vector<Real>> HDiagList( numShifts ),
-                                   HSubdiagList( numShifts );
+    std::vector<Matrix<Real>> HDiagList( numShifts ),
+                              HSubdiagList( numShifts );
     for( Int j=0; j<numShifts; ++j )
     {
-        HDiagList[j].reserve( HCapacityInit );
-        HSubdiagList[j].reserve( HCapacityInit-1 );
+        HDiagList[j].Resize( 0, 1, Max(HCapacityInit,1) );
+        HSubdiagList[j].Resize( 0, 1, Max(HCapacityInit-1,1) );
     }
 
     psCtrl.snapCtrl.ResetCounts();
@@ -278,7 +279,7 @@ Lanczos
     Zeros( estimates, numShifts, 1 );
     auto lastActiveEsts = estimates;
     Matrix<Int> activePreimage;
-    std::vector<Real> realComponents;
+    Matrix<Real> realComponents;
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );
@@ -467,12 +468,13 @@ Lanczos
     Gaussian( X, n, numShifts );
     FixColumns( X );
     Zeros( XNew, n, numShifts );
-    std::vector<std::vector<Real>> HDiagList( X.LocalWidth() ),
-                                   HSubdiagList( X.LocalWidth() );
+    std::vector<Matrix<Real>> HDiagList( X.LocalWidth() ),
+                              HSubdiagList( X.LocalWidth() );
     for( Int j=0; j<X.LocalWidth(); ++j )
     {
-        HDiagList[j].reserve( HCapacityInit );
-        HSubdiagList[j].reserve( HCapacityInit-1 );
+         
+        HDiagList[j].Resize( 0, 1, Max(HCapacityInit,1) );
+        HSubdiagList[j].Resize( 0, 1, Max(HCapacityInit-1,1) );
     }
 
     psCtrl.snapCtrl.ResetCounts();
@@ -484,7 +486,7 @@ Lanczos
     Zeros( estimates, numShifts, 1 );
     auto lastActiveEsts = estimates;
     DistMatrix<Int,VR,STAR> activePreimage(g);
-    std::vector<Real> realComponents;
+    Matrix<Real> realComponents;
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );

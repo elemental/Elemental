@@ -18,8 +18,8 @@ namespace pspec {
 template<typename Real>
 inline void
 ComputeNewEstimates
-( const std::vector<std::vector<Real>>& HDiagList,
-  const std::vector<std::vector<Real>>& HSubdiagList,
+( const std::vector<Matrix<Real>>& HDiagList,
+  const std::vector<Matrix<Real>>& HSubdiagList,
   const Matrix<Int>& activeConverged,
   Matrix<Real>& activeEsts )
 {
@@ -29,7 +29,7 @@ ComputeNewEstimates
     if( numShifts == 0 )
         return;
     const Int basisSize = HDiagList[0].size();
-    std::vector<Real> HDiag, HSubdiag, w(basisSize);
+    Matrix<Real> HDiag, HSubdiag, w(basisSize);
     for( Int j=0; j<numShifts; ++j )
     {
         HDiag = HDiagList[j];
@@ -39,7 +39,7 @@ ComputeNewEstimates
             if( !HasNan(HDiag) && !HasNan(HSubdiag) )
             {
                 lapack::SymmetricTridiagEig
-                ( basisSize, HDiag.data(), HSubdiag.data(), w.data(),
+                ( basisSize, HDiag.Buffer(), HSubdiag.Buffer(), w.data(),
                   basisSize-1, basisSize-1 );
                 const Real est = Sqrt(w[0]);
                 activeEsts.Set( j, 0, Min(est,normCap) );
@@ -53,8 +53,8 @@ ComputeNewEstimates
 template<typename Real>
 inline void
 ComputeNewEstimates
-( const std::vector<std::vector<Real>>& HDiagList,
-  const std::vector<std::vector<Real>>& HSubdiagList,
+( const std::vector<Matrix<Real>>& HDiagList,
+  const std::vector<Matrix<Real>>& HSubdiagList,
   const DistMatrix<Int,MR,STAR>& activeConverged,
         DistMatrix<Real,MR,STAR>& activeEsts )
 {
@@ -67,8 +67,8 @@ ComputeNewEstimates
 template<typename Real>
 inline void
 Restart
-( const std::vector<std::vector<Real>>& HDiagList,
-  const std::vector<std::vector<Real>>& HSubdiagList,
+( const std::vector<Matrix<Real>>& HDiagList,
+  const std::vector<Matrix<Real>>& HSubdiagList,
   const Matrix<Int>& activeConverged,
   std::vector<Matrix<Complex<Real>>>& VList )
 {
@@ -78,7 +78,7 @@ Restart
     if( numShifts == 0 )
         return;
     const Int basisSize = HDiagList[0].size();
-    std::vector<Real> HDiag, HSubdiag, w(basisSize);
+    Matrix<Real> HDiag, HSubdiag, w(basisSize);
     Matrix<Real> q(basisSize,1);
     Matrix<Complex<Real>> u(n,1);
     for( Int j=0; j<numShifts; ++j )
@@ -91,7 +91,7 @@ Restart
             if( !HasNan(HDiag) && !HasNan(HSubdiag) )
             {
                 lapack::SymmetricTridiagEig
-                ( basisSize, HDiag.data(), HSubdiag.data(), w.data(), 
+                ( basisSize, HDiag.Buffer(), HSubdiag.Buffer(), w.data(), 
                   q.Buffer(), basisSize, basisSize-1, basisSize-1 );
 
                 Zeros( u, n, 1 );
@@ -112,8 +112,8 @@ Restart
 template<typename Real>
 inline void
 Restart
-( const std::vector<std::vector<Real>>& HDiagList,
-  const std::vector<std::vector<Real>>& HSubdiagList,
+( const std::vector<Matrix<Real>>& HDiagList,
+  const std::vector<Matrix<Real>>& HSubdiagList,
   const DistMatrix<Int,MR,STAR>& activeConverged,
   std::vector<DistMatrix<Complex<Real>>>& VList )
 {
@@ -171,10 +171,9 @@ IRL
     for( Int j=0; j<basisSize+1; ++j )
         Zeros( VList[j], n, numShifts );
     Gaussian( VList[0], n, numShifts );
-    std::vector<std::vector<Real>> 
-        HDiagList(numShifts), HSubdiagList(numShifts);
-    std::vector<Real> realComponents;
-    std::vector<Complex<Real>> components;
+    std::vector<Matrix<Real>> HDiagList(numShifts), HSubdiagList(numShifts);
+    Matrix<Real> realComponents;
+    Matrix<Complex<Real>> components;
 
     Matrix<Int> activeConverged;
     Zeros( activeConverged, numShifts, 1 );
@@ -204,10 +203,8 @@ IRL
         // Reset the Rayleigh quotients
         for( Int j=0; j<numActive; ++j )
         {
-            HDiagList[j].resize(0);
-            HDiagList[j].reserve(basisSize);
-            HSubdiagList[j].resize(0);
-            HSubdiagList[j].reserve(basisSize);
+            HDiagList[j].Resize( 0, 1, basisSize );
+            HSubdiagList[j].Resize( 0, 1, basisSize );
         }
 
         if( progress )
@@ -422,10 +419,10 @@ IRL
     }
     Gaussian( VList[0], n, numShifts );
     const Int numMRShifts = VList[0].LocalWidth();
-    std::vector<std::vector<Real>> HDiagList(numMRShifts), 
-                                   HSubdiagList(numMRShifts);
-    std::vector<Real> realComponents;
-    std::vector<Complex<Real>> components;
+    std::vector<Matrix<Real>> HDiagList(numMRShifts), 
+                              HSubdiagList(numMRShifts);
+    Matrix<Real> realComponents;
+    Matrix<Complex<Real>> components;
 
     DistMatrix<Int,MR,STAR> activeConverged(g);
     Zeros( activeConverged, numShifts, 1 );
@@ -456,10 +453,8 @@ IRL
         const Int numActiveMR = estimates.LocalHeight();
         for( Int jLoc=0; jLoc<numActiveMR; ++jLoc )
         {
-            HDiagList[jLoc].resize(0);
-            HDiagList[jLoc].reserve(basisSize);
-            HSubdiagList[jLoc].resize(0);
-            HSubdiagList[jLoc].reserve(basisSize);
+            HDiagList[jLoc].Resize( 0, 1, basisSize );
+            HSubdiagList[jLoc].Resize( 0, 1, basisSize );
         }
 
         if( progress )

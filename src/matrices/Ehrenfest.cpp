@@ -152,25 +152,12 @@ void EhrenfestDecay( AbstractDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("EhrenfestDecay"))
     Ehrenfest( A, n );
-    std::unique_ptr<AbstractDistMatrix<F>> PInf( A.Construct(A.Grid()) );
+    std::unique_ptr<AbstractDistMatrix<F>> 
+      PInf( A.Construct(A.Grid(),A.Root()) );
     PInf->AlignWith( A.DistData() );
     EhrenfestStationary( *PInf, n );
     Axpy( F(-1), *PInf, A );
 }
-
-// NOTE: Axpy not yet supported for BlockDistMatrix
-/*
-template<typename F>
-void EhrenfestDecay( AbstractBlockDistMatrix<F>& A, Int n )
-{
-    DEBUG_ONLY(CallStackEntry cse("EhrenfestDecay"))
-    Ehrenfest( A, n );
-    std::unique_ptr<AbstractBlockDistMatrix<F>> PInf( A.Construct(A.Grid()) );
-    PInf->AlignWith( A.DistData() );
-    EhrenfestStationary( *PInf, n );
-    Axpy( F(-1), *PInf, A );
-}
-*/
 
 #define PROTO(F) \
   template void Ehrenfest( Matrix<F>& P, Int n ); \

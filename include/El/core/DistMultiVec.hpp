@@ -78,14 +78,6 @@ private:
     El::Matrix<T> multiVec_;
 };
 
-// Just column-wise l2 norms for now
-template<typename F>
-void Norms( const DistMultiVec<F>& X, std::vector<Base<F>>& norms );
-
-// Simplification for case where there is only one column
-template<typename F>
-Base<F> Norm( const DistMultiVec<F>& x );
-
 } // namespace El
 
 #endif // ifndef EL_CORE_DISTMULTIVEC_DECL_HPP

@@ -101,7 +101,6 @@ void Print( const DistGraph& graph, std::string msg, std::ostream& os )
 {
     DEBUG_ONLY(CallStackEntry cse("Print [DistGraph]"))
     const mpi::Comm comm = graph.Comm();
-    const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm );
     if( commRank == 0 )
     {
@@ -135,7 +134,6 @@ void Print( const DistSparseMatrix<T>& A, std::string msg, std::ostream& os )
 {
     DEBUG_ONLY(CallStackEntry cse("Print [DistSparseMatrix]"))
     const mpi::Comm comm = A.Comm();
-    const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm );
 
     if( commRank == 0 )

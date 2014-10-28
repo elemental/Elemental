@@ -3095,6 +3095,7 @@ GeneralDistMatrix<T,U,V>::GetDiagonalHelper
     ProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = this->DiagonalAlign(offset);
+    ctrl.rootConstrain = true;
     ctrl.root = this->DiagonalRoot(offset);
     auto dPtr = WriteProxy<S,UDiag,VDiag>(&dPre,ctrl);
     auto& d = *dPtr;
@@ -3140,6 +3141,7 @@ GeneralDistMatrix<T,U,V>::SetDiagonalHelper
     ProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = this->DiagonalAlign(offset);
+    ctrl.rootConstrain = true;
     ctrl.root = this->DiagonalRoot(offset);
     auto dPtr = ReadProxy<S,UDiag,VDiag>(&dPre,ctrl); 
     const auto& d = *dPtr;

@@ -8,10 +8,6 @@
 */
 #include "El.hpp"
 
-// For pspec::ColumnNorms
-// TODO: Lift function into a better namespace
-#include "../../lapack_like/spectral/Pseudospectra/Util/BasicMath.hpp"
-
 namespace El {
 namespace kmeans {
 
@@ -29,8 +25,8 @@ void Distance( const Matrix<F>& X, const Matrix<F>& C, Matrix<F>& D )
     MakeReal( D );
     
     Matrix<Base<F>> xNorms, cNorms;
-    pspec::ColumnNorms( X, xNorms );
-    pspec::ColumnNorms( C, cNorms );
+    ColumnNorms( X, xNorms );
+    ColumnNorms( C, cNorms );
 
     auto squareMap = []( Base<F> alpha ) { return alpha*alpha; };
     EntrywiseMap( xNorms, std::function<Base<F>(Base<F>)>(squareMap) );
@@ -54,8 +50,8 @@ void Distance
     DistMatrix<Base<F>,MR,STAR> xNorms_MR_STAR(X.Grid()), 
                                 cNorms_MR_STAR(X.Grid());
     cNorms_MR_STAR.AlignWith( D ); 
-    pspec::ColumnNorms( X, xNorms_MR_STAR );
-    pspec::ColumnNorms( C, cNorms_MR_STAR );
+    ColumnNorms( X, xNorms_MR_STAR );
+    ColumnNorms( C, cNorms_MR_STAR );
 
     auto squareMap = []( Base<F> alpha ) { return alpha*alpha; };
     EntrywiseMap( xNorms_MR_STAR, std::function<Base<F>(Base<F>)>(squareMap) );

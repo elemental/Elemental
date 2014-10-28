@@ -423,13 +423,20 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
   { EL_TRY( *entry = CReflect(VectorMin(*CReflect(x))) ) }
 
 #define C_PROTO_FIELD(SIG,SIGBASE,F) \
+  /* Column norms */ \
+  ElError ElColumnNormsDistMultiVec_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG A, ElMatrix_ ## SIGBASE norms ) \
+  { EL_TRY( ColumnNorms( *CReflect(A), *CReflect(norms) ) ) } \
   /* Nrm2 (same as FrobeniusNorm) */ \
   ElError ElNrm2_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, Base<F> *gamma ) \
-  { EL_TRY( *gamma = Nrm2(*CReflect(A)) ) } \
+  ( ElConstMatrix_ ## SIG A, Base<F>* norm ) \
+  { EL_TRY( *norm = Nrm2(*CReflect(A)) ) } \
   ElError ElNrm2Dist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, Base<F> *gamma ) \
-  { EL_TRY( *gamma = Nrm2(*CReflect(A)) ) } \
+  ( ElConstDistMatrix_ ## SIG A, Base<F>* norm ) \
+  { EL_TRY( *norm = Nrm2(*CReflect(A)) ) } \
+  ElError ElNrm2DistMultiVec_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG A, Base<F>* norm ) \
+  { EL_TRY( *norm = Nrm2( *CReflect(A) ) ) } \
   /* TODO: QuasiDiagonalSolve */ \
   /* TODO: Symmetric2x2Inv */ \
   /* TODO: Symmetric2x2Solve */

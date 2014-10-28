@@ -12,84 +12,6 @@
 
 namespace El {
 
-// TODO: Move these routines into another location
-
-template<typename F>
-void Norms( const DistMultiVec<F>& X, std::vector<Base<F>>& norms )
-{
-    DEBUG_ONLY(CallStackEntry cse("Norms"))
-    typedef Base<F> Real;
-    const Int localHeight = X.LocalHeight();
-    const Int width = X.Width();
-    mpi::Comm comm = X.Comm();
-
-    norms.resize( width );
-    std::vector<Real> localScales( width ),
-                      localScaledSquares( width );
-    for( Int j=0; j<width; ++j )
-    {
-        Real localScale = 0;
-        Real localScaledSquare = 1;
-        for( Int iLocal=0; iLocal<localHeight; ++iLocal )
-        {
-            const Real alphaAbs = Abs(X.GetLocal(iLocal,j));
-            if( alphaAbs != 0 )
-            {
-                if( alphaAbs <= localScale )
-                {
-                    const Real relScale = alphaAbs/localScale;
-                    localScaledSquare += relScale*relScale;
-                }
-                else
-                {
-                    const Real relScale = localScale/alphaAbs;
-                    localScaledSquare = localScaledSquare*relScale*relScale + 1;
-                    localScale = alphaAbs;
-                }
-            }
-        }
-
-        localScales[j] = localScale;
-        localScaledSquares[j] = localScaledSquare;
-    }
-
-    // Find the maximum relative scales
-    std::vector<Real> scales( width );
-    mpi::AllReduce( &localScales[0], &scales[0], width, mpi::MAX, comm );
-
-    // Equilibrate the local scaled sums
-    for( Int j=0; j<width; ++j )
-    {
-        const Real scale = scales[j];
-        if( scale != 0 )
-        {
-            // Equilibrate our local scaled sum to the maximum scale
-            Real relScale = localScales[j]/scale;
-            localScaledSquares[j] *= relScale*relScale;
-        }
-        else
-            localScaledSquares[j] = 0;
-    }
-
-    // Combine the local contributions
-    std::vector<Real> scaledSquares( width );
-    mpi::AllReduce
-    ( &localScaledSquares[0], &scaledSquares[0], width, mpi::SUM, comm );
-    for( Int j=0; j<width; ++j )
-        norms[j] = scales[j]*Sqrt(scaledSquares[j]);
-}
-
-template<typename F>
-Base<F> Norm( const DistMultiVec<F>& x )
-{
-    DEBUG_ONLY(CallStackEntry cse("Norm"))
-    if( x.Width() != 1 )
-        LogicError("Norm only applies when there is one column");
-    std::vector<Base<F>> norms;
-    Norms( x, norms );
-    return norms[0];
-}
-
 // Constructors and destructors
 // ============================
 
@@ -237,13 +159,7 @@ void DistMultiVec<T>::UpdateLocal( Int localRow, Int col, T value )
     multiVec_.Update(localRow,col,value);
 }
 
-#define PROTO_INT(T) template class DistMultiVec<T>;
-
-#define PROTO(F) \
-  PROTO_INT(F) \
-  template void Norms \
-  ( const DistMultiVec<F>& X, std::vector<Base<F>>& norms ); \
-  template Base<F> Norm( const DistMultiVec<F>& x );
+#define PROTO(T) template class DistMultiVec<T>;
 
 #include "El/macros/Instantiate.h"
 

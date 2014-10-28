@@ -79,6 +79,28 @@ def AxpyTriangle(uplo,alphaPre,X,Y):
     else: DataExcept()
   else: TypeExcept()
 
+# Column norms
+# ------------
+lib.ElColumnNormsDistMultiVec_s.argtypes = [c_void_p,c_void_p]
+lib.ElColumnNormsDistMultiVec_s.restype = c_uint
+lib.ElColumnNormsDistMultiVec_d.argtypes = [c_void_p,c_void_p]
+lib.ElColumnNormsDistMultiVec_d.restype = c_uint
+lib.ElColumnNormsDistMultiVec_c.argtypes = [c_void_p,c_void_p]
+lib.ElColumnNormsDistMultiVec_c.restype = c_uint
+lib.ElColumnNormsDistMultiVec_z.argtypes = [c_void_p,c_void_p]
+lib.ElColumnNormsDistMultiVec_z.restype = c_uint
+def ColumnNorms(A):
+  if type(A) is DistMultiVec:
+    norms = Matrix(TagToType(Base(A.tag)))
+    args = [A.obj,norms.obj]
+    if   A.tag == sTag: lib.ElColumnNormsDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElColumnNormsDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElColumnNormsDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElColumnNormsDistMultiVec_z(*args)
+    else: DataExcept()
+    return norms
+  else: TypeExcept()
+
 # Conjugate
 # ---------
 lib.ElConjugate_c.argtypes = [c_void_p]
@@ -254,7 +276,7 @@ lib.ElCopyMultiVecFromNonRoot_z.restype = c_uint
 lib.ElCopyGraphFromNonRoot.argtypes = [c_void_p,iType]
 lib.ElCopyGraphFromNonRoot.restype = c_uint
 def CopyFromNonRoot(ADist,root=0):
-  args = [ADist.obj,iType]
+  args = [ADist.obj,root]
   if type(ADist) is DistGraph:
     lib.ElCopyGraphFromNonRoot(*args)
   elif type(ADist) is DistSparseMatrix:
@@ -1422,6 +1444,14 @@ lib.ElNrm2Dist_c.argtypes = [c_void_p,POINTER(sType)]
 lib.ElNrm2Dist_c.restype = c_uint
 lib.ElNrm2Dist_z.argtypes = [c_void_p,POINTER(dType)]
 lib.ElNrm2Dist_z.restype = c_uint
+lib.ElNrm2DistMultiVec_s.argtypes = [c_void_p,POINTER(sType)]
+lib.ElNrm2DistMultiVec_s.restype = c_uint
+lib.ElNrm2DistMultiVec_d.argtypes = [c_void_p,POINTER(dType)]
+lib.ElNrm2DistMultiVec_d.restype = c_uint
+lib.ElNrm2DistMultiVec_c.argtypes = [c_void_p,POINTER(sType)]
+lib.ElNrm2DistMultiVec_c.restype = c_uint
+lib.ElNrm2DistMultiVec_z.argtypes = [c_void_p,POINTER(dType)]
+lib.ElNrm2DistMultiVec_z.restype = c_uint
 def Nrm2(A):
   gamma = TagToType(Base(A.tag))()
   args = [A.obj,pointer(gamma)]
@@ -1437,7 +1467,14 @@ def Nrm2(A):
     elif A.tag == cTag: lib.ElNrm2Dist_c(*args)
     elif A.tag == zTag: lib.ElNrm2Dist_z(*args)
     else: DataExcept()
+  elif type(A) is DistMultiVec:
+    if   A.tag == sTag: lib.ElNrm2DistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElNrm2DistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElNrm2DistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElNrm2DistMultiVec_z(*args)
+    else: DataExcept()
   else: TypeExcept()
+  return gamma.value
 
 # Scale
 # -----

@@ -453,7 +453,8 @@ endif()
 if(EL_EXAMPLES)
   set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
   set(EXAMPLE_TYPES 
-      optimization core blas_like interface io lapack_like matrices)
+      optimization core blas_like interface io lapack_like matrices 
+      sparse_direct)
   foreach(TYPE ${EXAMPLE_TYPES})
     if(EL_C_INTERFACE)
       file(GLOB_RECURSE ${TYPE}_EXAMPLES RELATIVE 

@@ -268,8 +268,8 @@ IRA
         Zeros( VList[j], n, numShifts );
     Gaussian( VList[0], n, numShifts );
     std::vector<Matrix<Complex<Real>>> HList(numShifts);
-    std::vector<Real> realComponents;
-    std::vector<Complex<Real>> components;
+    Matrix<Real> realComponents;
+    Matrix<Complex<Real>> components;
 
     Matrix<Int> activeConverged;
     Zeros( activeConverged, numShifts, 1 );
@@ -494,8 +494,8 @@ IRA
     Gaussian( VRealList[0], n, numShifts );
     Gaussian( VImagList[0], n, numShifts );
     std::vector<Matrix<Complex<Real>>> HList(numShifts);
-    std::vector<Real> realComponents;
-    std::vector<Complex<Real>> components;
+    Matrix<Real> realComponents;
+    Matrix<Complex<Real>> components;
 
     Matrix<Int> activeConverged;
     Zeros( activeConverged, numShifts, 1 );
@@ -730,8 +730,8 @@ IRA
     Gaussian( VList[0], n, numShifts );
     const Int numMRShifts = VList[0].LocalWidth();
     std::vector<Matrix<Complex<Real>>> HList(numMRShifts);
-    std::vector<Real> realComponents;
-    std::vector<Complex<Real>> components;
+    Matrix<Real> realComponents;
+    Matrix<Complex<Real>> components;
 
     DistMatrix<Int,MR,STAR> activeConverged(g);
     Zeros( activeConverged, numShifts, 1 );
@@ -1012,8 +1012,8 @@ IRA
     Gaussian( VImagList[0], n, numShifts );
     const Int numMRShifts = VRealList[0].LocalWidth();
     std::vector<Matrix<Complex<Real>>> HList(numMRShifts);
-    std::vector<Real> realComponents;
-    std::vector<Complex<Real>> components;
+    Matrix<Real> realComponents;
+    Matrix<Complex<Real>> components;
 
     DistMatrix<Int,MR,STAR> activeConverged(g);
     Zeros( activeConverged, numShifts, 1 );

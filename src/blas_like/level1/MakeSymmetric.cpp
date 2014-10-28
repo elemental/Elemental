@@ -42,7 +42,8 @@ void MakeSymmetric
     if( A.Height() != A.Width() )
         LogicError("Cannot make non-square matrix symmetric");
 
-    std::unique_ptr<AbstractDistMatrix<T>> ATrans( A.Construct(A.Grid()) );
+    std::unique_ptr<AbstractDistMatrix<T>> 
+      ATrans( A.Construct(A.Grid(),A.Root()) );
     Transpose( A, *ATrans, conjugate );
     if( uplo == LOWER )
     {

@@ -31,7 +31,7 @@ void Lauchli( AbstractDistMatrix<T>& A, Int n, T mu )
     Zeros( A, n+1, n );
 
     // Set the first row to all ones
-    std::unique_ptr<AbstractDistMatrix<T>> a0( A.Construct(A.Grid()) );
+    std::unique_ptr<AbstractDistMatrix<T>> a0( A.Construct(A.Grid(),A.Root()) );
     View( *a0, A, IR(0,1), IR(0,n) );
     Fill( *a0, T(1) );
 

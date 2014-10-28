@@ -28,8 +28,8 @@ void FourierIdentity( AbstractDistMatrix<Complex<Real>>& A, Int n )
     typedef Complex<Real> C;
 
     A.Resize( n, 2*n );
-    auto AL = std::unique_ptr<AbstractDistMatrix<C>>( A.Construct() );
-    auto AR = std::unique_ptr<AbstractDistMatrix<C>>( A.Construct() );
+    std::unique_ptr<AbstractDistMatrix<C>> AL( A.Construct(A.Grid(),A.Root()) );
+    std::unique_ptr<AbstractDistMatrix<C>> AR( A.Construct(A.Grid(),A.Root()) );
     View( *AL, A, IR(0,n), IR(0,n) );
     View( *AR, A, IR(0,n), IR(n,2*n) );
     Fourier( *AL, n );

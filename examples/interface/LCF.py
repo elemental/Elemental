@@ -13,6 +13,7 @@ def LCF(lcf):
   G = El.Graph()
   G.Resize(n,n)
 
+  G.Reserve( 4*n )
   for s in xrange(n):
     # Build the links to this node in the Hamiltonian cycle
     tL = (s-1) % n
@@ -31,10 +32,13 @@ levi = [-13,-9,7,-7,9,13]*5
 dodec = [10,7,4,-4,-7,10,-4,7,-7,4]*2
 truncOct = [3,-7,7,-3]*6
 
-El.Display( LCF(levi), "Levi graph" )
-El.Display( LCF(dodec), "Dodecahedral graph" )
-El.Display( LCF(truncOct), "Trunacted octahedral graph" )
+if El.mpi.WorldRank() == 0:
+  El.Display( LCF(levi), "Levi graph" )
+  El.Display( LCF(dodec), "Dodecahedral graph" )
+  El.Display( LCF(truncOct), "Trunacted octahedral graph" )
 
 # Require the user to press a button before the figures are closed
+commSize = El.mpi.Size( El.mpi.COMM_WORLD() )
 El.Finalize()
-raw_input('Press Enter to exit')
+if commSize == 1:
+  raw_input('Press Enter to exit')

@@ -175,7 +175,6 @@ void Display( const DistGraph& graph, std::string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Display [DistGraph]"))
     const mpi::Comm comm = graph.Comm();
-    const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm );
 
     if( commRank == 0 )
@@ -257,7 +256,6 @@ void Display( const DistSparseMatrix<T>& A, std::string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Print [SparseMatrix]"))
     const mpi::Comm comm = A.Comm();
-    const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm );
     
     if( commRank == 0 )

@@ -37,9 +37,21 @@ Base<F> Nrm2( const AbstractDistMatrix<F>& x )
     return FrobeniusNorm( x );
 }
 
+template<typename F>
+Base<F> Nrm2( const DistMultiVec<F>& x )
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("Nrm2");
+        if( x.Height() != 1 && x.Width() != 1 )
+            LogicError("x must be a vector");
+    )
+    return FrobeniusNorm( x );
+}
+
 #define PROTO(F) \
   template Base<F> Nrm2( const Matrix<F>& x ); \
-  template Base<F> Nrm2( const AbstractDistMatrix<F>& x ); 
+  template Base<F> Nrm2( const AbstractDistMatrix<F>& x ); \
+  template Base<F> Nrm2( const DistMultiVec<F>& x );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

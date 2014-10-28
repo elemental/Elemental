@@ -37,12 +37,29 @@ y = El.DistMultiVec()
 El.Uniform( x, n0*n1, 1 )
 El.Copy( x, y )
 
+yNrm = El.Nrm2(y)
+rank = El.mpi.WorldRank()
+if rank == 0:
+  print "|| y ||_2 =", yNrm
+
 El.Display( A, "Laplacian" )
 El.Display( y, "y" )
 
 El.SymmetricSolveSparse(A,x)
 El.Display( x, "x" )
 
+xNrm = El.Nrm2(x)
+if rank == 0:
+  print "|| x ||_2 =", xNrm
+
+El.SparseMultiply(-1.,A,x,1.,y)
+El.Display( y, "A x - y" )
+eNrm = El.Nrm2(y)
+if rank == 0:
+  print "|| A x - y ||_2 =", eNrm
+
 # Require the user to press a button before the figures are closed
+commSize = El.mpi.Size( El.mpi.COMM_WORLD() )
 El.Finalize()
-raw_input('Press Enter to exit')
+if commSize == 1:
+  raw_input('Press Enter to exit')

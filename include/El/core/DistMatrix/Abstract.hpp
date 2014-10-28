@@ -28,11 +28,11 @@ public:
     virtual ~AbstractDistMatrix();
 
     virtual AbstractDistMatrix<T>* Construct
-    ( const El::Grid& g=DefaultGrid(), Int root=0 ) const = 0;
+    ( const El::Grid& g, Int root ) const = 0;
     virtual AbstractDistMatrix<T>* ConstructTranspose
-    ( const El::Grid& g=DefaultGrid(), Int root=0 ) const = 0;
+    ( const El::Grid& g, Int root ) const = 0;
     virtual AbstractDistMatrix<T>* ConstructDiagonal
-    ( const El::Grid& g=DefaultGrid(), Int root=0 ) const = 0;
+    ( const El::Grid& g, Int root ) const = 0;
     // TODO: ConstructPartialCol and friends?
 
     // Assignment and reconfiguration

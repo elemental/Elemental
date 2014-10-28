@@ -86,7 +86,8 @@ void AxpyTriangle
     }
     else
     {
-        std::unique_ptr<AbstractDistMatrix<T>> XCopy( Y.Construct(X.Grid()) );
+        std::unique_ptr<AbstractDistMatrix<T>> 
+          XCopy( Y.Construct(Y.Grid(),Y.Root()) );
         XCopy->AlignWith( YDistData );
         Copy( X, *XCopy );
         AxpyTriangle( uplo, alpha, *XCopy, Y );

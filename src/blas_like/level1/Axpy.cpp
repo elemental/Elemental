@@ -74,7 +74,8 @@ void Axpy( S alphaS, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
     }
     else
     {
-        std::unique_ptr<AbstractDistMatrix<T>> XCopy( Y.Construct(X.Grid()) );
+        std::unique_ptr<AbstractDistMatrix<T>> 
+          XCopy( Y.Construct(Y.Grid(),Y.Root()) );
         XCopy->AlignWith( YDistData );
         Copy( X, *XCopy );
         Axpy( alpha, XCopy->LockedMatrix(), Y.Matrix() );

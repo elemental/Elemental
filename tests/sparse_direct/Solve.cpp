@@ -105,8 +105,8 @@ main( int argc, char* argv[] )
         MakeUniform( X );
         Zero( Y );
         Multiply( 1., A, X, 0., Y );
-        std::vector<double> YOrigNorms;
-        Norms( Y, YOrigNorms );
+        Matrix<double> YOrigNorms;
+        ColumnNorms( Y, YOrigNorms );
         mpi::Barrier( comm );
         const double multiplyStop = mpi::Time();
         if( commRank == 0 )
@@ -302,21 +302,21 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             std::cout << "Checking error in computed solution..." << std::endl;
-        std::vector<double> XNorms, YNorms;
-        Norms( X, XNorms );
-        Norms( Y, YNorms );
+        Matrix<double> XNorms, YNorms;
+        ColumnNorms( X, XNorms );
+        ColumnNorms( Y, YNorms );
         Axpy( -1., X, Y );
-        std::vector<double> errorNorms;
-        Norms( Y, errorNorms );
+        Matrix<double> errorNorms;
+        ColumnNorms( Y, errorNorms );
         if( commRank == 0 )
         {
             for( int j=0; j<numRhs; ++j )
             {
                 std::cout << "Right-hand side " << j << ":\n"
-                          << "|| x     ||_2 = " << XNorms[j] << "\n"
-                          << "|| xComp ||_2 = " << YNorms[j] << "\n"
-                          << "|| A x   ||_2 = " << YOrigNorms[j] << "\n"
-                          << "|| error ||_2 = " << errorNorms[j] << "\n"
+                          << "|| x     ||_2 = " << XNorms.Get(j,0) << "\n"
+                          << "|| xComp ||_2 = " << YNorms.Get(j,0) << "\n"
+                          << "|| A x   ||_2 = " << YOrigNorms.Get(j,0) << "\n"
+                          << "|| error ||_2 = " << errorNorms.Get(j,0) << "\n"
                           << std::endl;
             }
         }

@@ -163,14 +163,9 @@ main( int argc, char* argv[] )
             NaturalNestedDissection
             ( n1, n2, 1, graph, map, sepTree, info, cutoff );
         else
-#ifdef HAVE_PARMETIS
             NestedDissection
             ( graph, map, sepTree, info, 
               sequential, numDistSeps, numSeqSeps, cutoff );
-#else 
-            std::cout << "NestedDissection requested but not built with parmetis" << std::endl;
-            return 1;
-#endif 
         map.FormInverse( inverseMap );
         mpi::Barrier( comm );
         const double nestedStop = mpi::Time();
@@ -332,9 +327,9 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             std::cout << "Checking residual norm of solution..." << std::endl;
-        const double bNorm = Norm( z );
+        const double bNorm = Nrm2( z );
         Multiply( C(-1), A, y, C(1), z );
-        const double errorNorm = Norm( z );
+        const double errorNorm = Nrm2( z );
         if( commRank == 0 )
         {
             std::cout << "|| b     ||_2 = " << bNorm << "\n"

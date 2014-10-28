@@ -85,7 +85,8 @@ void DruinskyToledo( AbstractDistMatrix<F>& A, Int k )
         sigma -= 1/d[i];
     }
 
-    auto ASub = std::unique_ptr<AbstractDistMatrix<F>>( A.Construct() );
+    std::unique_ptr<AbstractDistMatrix<F>> 
+      ASub( A.Construct(A.Grid(),A.Root()) );
 
     View( *ASub, A, IR(k-2,k), IR(0,k) );
     Ones( *ASub, 2, k );

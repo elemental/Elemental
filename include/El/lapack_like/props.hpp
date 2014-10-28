@@ -194,6 +194,8 @@ template<typename F>
 Base<F> FrobeniusNorm( const Matrix<F>& A );
 template<typename F>
 Base<F> FrobeniusNorm( const AbstractDistMatrix<F>& A );
+template<typename F>
+Base<F> FrobeniusNorm( const DistMultiVec<F>& A );
 
 template<typename F>
 Base<F> HermitianFrobeniusNorm
