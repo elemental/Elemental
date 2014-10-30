@@ -153,6 +153,22 @@ lib.ElSyrkDist_c.argtypes = [c_uint,c_uint,cType,c_void_p,cType,c_void_p]
 lib.ElSyrkDist_c.restype = c_uint
 lib.ElSyrkDist_z.argtypes = [c_uint,c_uint,zType,c_void_p,zType,c_void_p]
 lib.ElSyrkDist_z.restype = c_uint
+lib.ElSyrkSparse_s.argtypes = [c_uint,sType,c_void_p,sType,c_void_p]
+lib.ElSyrkSparse_s.restype = c_uint
+lib.ElSyrkSparse_d.argtypes = [c_uint,dType,c_void_p,dType,c_void_p]
+lib.ElSyrkSparse_d.restype = c_uint
+lib.ElSyrkSparse_c.argtypes = [c_uint,cType,c_void_p,cType,c_void_p]
+lib.ElSyrkSparse_c.restype = c_uint
+lib.ElSyrkSparse_z.argtypes = [c_uint,zType,c_void_p,zType,c_void_p]
+lib.ElSyrkSparse_z.restype = c_uint
+lib.ElSyrkDistSparse_s.argtypes = [c_uint,sType,c_void_p,sType,c_void_p]
+lib.ElSyrkDistSparse_s.restype = c_uint
+lib.ElSyrkDistSparse_d.argtypes = [c_uint,dType,c_void_p,dType,c_void_p]
+lib.ElSyrkDistSparse_d.restype = c_uint
+lib.ElSyrkDistSparse_c.argtypes = [c_uint,cType,c_void_p,cType,c_void_p]
+lib.ElSyrkDistSparse_c.restype = c_uint
+lib.ElSyrkDistSparse_z.argtypes = [c_uint,zType,c_void_p,zType,c_void_p]
+lib.ElSyrkDistSparse_z.restype = c_uint
 
 lib.ElHerk_c.argtypes = [c_uint,c_uint,sType,c_void_p,sType,c_void_p]
 lib.ElHerk_c.restype = c_uint
@@ -162,6 +178,14 @@ lib.ElHerkDist_c.argtypes = [c_uint,c_uint,sType,c_void_p,sType,c_void_p]
 lib.ElHerkDist_c.restype = c_uint
 lib.ElHerkDist_z.argtypes = [c_uint,c_uint,dType,c_void_p,dType,c_void_p]
 lib.ElHerkDist_z.restype = c_uint
+lib.ElHerkSparse_c.argtypes = [c_uint,sType,c_void_p,sType,c_void_p]
+lib.ElHerkSparse_c.restype = c_uint
+lib.ElHerkSparse_z.argtypes = [c_uint,dType,c_void_p,dType,c_void_p]
+lib.ElHerkSparse_z.restype = c_uint
+lib.ElHerkDistSparse_c.argtypes = [c_uint,sType,c_void_p,sType,c_void_p]
+lib.ElHerkDistSparse_c.restype = c_uint
+lib.ElHerkDistSparse_z.argtypes = [c_uint,dType,c_void_p,dType,c_void_p]
+lib.ElHerkDistSparse_z.restype = c_uint
 
 def Syrk(uplo,orient,alphaPre,A,betaPre,C,conj=False):
   if A.tag != C.tag: raise Exception('Datatypes of A and C must match')
@@ -169,6 +193,7 @@ def Syrk(uplo,orient,alphaPre,A,betaPre,C,conj=False):
   alpha = TagToType(A.tag)(alphaPre)
   beta = TagToType(A.tag)(betaPre)
   args = [uplo,orient,alpha,A.obj,beta,C.obj]
+  argsSparse = [orient,alpha,A.obj,beta,C.obj]
   if type(A) is Matrix:
     if   A.tag == sTag: lib.ElSyrk_s(*args)
     elif A.tag == dTag: lib.ElSyrk_d(*args)
@@ -188,6 +213,26 @@ def Syrk(uplo,orient,alphaPre,A,betaPre,C,conj=False):
     elif A.tag == zTag:
       if conj: lib.ElHerkDist_z(uplo,orient,alpha.real,A.obj,beta.real,C.obj)
       else:    lib.ElSyrkDist_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == sTag: lib.ElSyrkSparse_s(*argsSparse)
+    elif A.tag == dTag: lib.ElSyrkSparse_d(*argsSparse)
+    elif A.tag == cTag: 
+      if conj: lib.ElHerkSparse_c(orient,alpha.real,A.obj,beta.real,C.obj)
+      else:    lib.ElSyrkSparse_c(*argsSparse)
+    elif A.tag == zTag: 
+      if conj: lib.ElHerkSparse_z(orient,alpha.real,A.obj,beta.real,C.obj)
+      else:    lib.ElSyrkSparse_z(*argsSparse)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == sTag: lib.ElSyrkDistSparse_s(*argsSparse)
+    elif A.tag == dTag: lib.ElSyrkDistSparse_d(*argsSparse)
+    elif A.tag == cTag: 
+      if conj: lib.ElHerkDistSparse_c(orient,alpha.real,A.obj,beta.real,C.obj)
+      else:    lib.ElSyrkDistSparse_c(*argsSparse)
+    elif A.tag == zTag: 
+      if conj: lib.ElHerkDistSparse_z(orient,alpha.real,A.obj,beta.real,C.obj)
+      else:    lib.ElSyrkDistSparse_z(*argsSparse)
     else: DataExcept()
   else: TypeExcept()
 

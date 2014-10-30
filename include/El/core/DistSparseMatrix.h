@@ -321,18 +321,18 @@ EL_EXPORT ElError ElDistSparseMatrixValue_c
 EL_EXPORT ElError ElDistSparseMatrixValue_z
 ( ElConstDistSparseMatrix_z A, ElInt localInd, complex_double* value );
 
-/* Int DistSparseMatrix<T>::LocalEntryOffset( Int localRow ) const
+/* Int DistSparseMatrix<T>::EntryOffset( Int localRow ) const
    --------------------------------------------------------------- */
-EL_EXPORT ElError ElDistSparseMatrixLocalEntryOffset_i
-( ElConstDistSparseMatrix_i A, ElInt localRow, ElInt* localEntryOffset );
-EL_EXPORT ElError ElDistSparseMatrixLocalEntryOffset_s
-( ElConstDistSparseMatrix_s A, ElInt localRow, ElInt* localEntryOffset );
-EL_EXPORT ElError ElDistSparseMatrixLocalEntryOffset_d
-( ElConstDistSparseMatrix_d A, ElInt localRow, ElInt* localEntryOffset );
-EL_EXPORT ElError ElDistSparseMatrixLocalEntryOffset_c
-( ElConstDistSparseMatrix_c A, ElInt localRow, ElInt* localEntryOffset );
-EL_EXPORT ElError ElDistSparseMatrixLocalEntryOffset_z
-( ElConstDistSparseMatrix_z A, ElInt localRow, ElInt* localEntryOffset );
+EL_EXPORT ElError ElDistSparseMatrixEntryOffset_i
+( ElConstDistSparseMatrix_i A, ElInt localRow, ElInt* entryOffset );
+EL_EXPORT ElError ElDistSparseMatrixEntryOffset_s
+( ElConstDistSparseMatrix_s A, ElInt localRow, ElInt* entryOffset );
+EL_EXPORT ElError ElDistSparseMatrixEntryOffset_d
+( ElConstDistSparseMatrix_d A, ElInt localRow, ElInt* entryOffset );
+EL_EXPORT ElError ElDistSparseMatrixEntryOffset_c
+( ElConstDistSparseMatrix_c A, ElInt localRow, ElInt* entryOffset );
+EL_EXPORT ElError ElDistSparseMatrixEntryOffset_z
+( ElConstDistSparseMatrix_z A, ElInt localRow, ElInt* entryOffset );
 
 /* Int DistSparseMatrix<T>::NumConnections( Int localRow ) const
    ---------------------------------------------------- */

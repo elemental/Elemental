@@ -84,7 +84,7 @@ public:
     // --------------------------
     Int Source( Int localEdge ) const;
     Int Target( Int localEdge ) const;
-    Int LocalEdgeOffset( Int localSource ) const;
+    Int EdgeOffset( Int localSource ) const;
     Int NumConnections( Int localSource ) const;
     Int* SourceBuffer();
     Int* TargetBuffer();
@@ -103,7 +103,7 @@ private:
     // Helpers for local indexing
     bool consistent_;
     std::vector<Int> localEdgeOffsets_;
-    void ComputeLocalEdgeOffsets();
+    void ComputeEdgeOffsets();
 
     static bool ComparePairs
     ( const std::pair<Int,Int>& a, const std::pair<Int,Int>& b );
@@ -115,6 +115,11 @@ private:
     friend class Graph;
     template<typename F> friend class DistSparseMatrix;
     template<typename F> friend struct DistSymmFrontTree;
+
+    template<typename U> friend void Syrk
+    ( Orientation orientation,
+      U alpha, const DistSparseMatrix<U>& A,
+      U beta,        DistSparseMatrix<U>& C, bool conjugate=false );
 };
 
 } // namespace El

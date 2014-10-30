@@ -208,8 +208,14 @@ void DistGraph::MakeConsistent()
         // Compress out duplicates
         Int lastUnique=0;
         for( Int e=1; e<numLocalEdges; ++e )
+        {
             if( pairs[e] != pairs[lastUnique] )
-                pairs[++lastUnique] = pairs[e];
+            {
+                ++lastUnique;
+                if( e != lastUnique )
+                    pairs[lastUnique] = pairs[e];
+            }
+        }
         const Int numUnique = lastUnique+1;
 
         sources_.resize( numUnique );
@@ -220,7 +226,7 @@ void DistGraph::MakeConsistent()
             targets_[e] = pairs[e].second;
         }
 
-        ComputeLocalEdgeOffsets();
+        ComputeEdgeOffsets();
 
         consistent_ = true;
     }
@@ -284,10 +290,10 @@ Int DistGraph::Target( Int localEdge ) const
     return targets_[localEdge];
 }
 
-Int DistGraph::LocalEdgeOffset( Int localSource ) const
+Int DistGraph::EdgeOffset( Int localSource ) const
 {
     DEBUG_ONLY(
-      CallStackEntry cse("DistGraph::LocalEdgeOffset");
+      CallStackEntry cse("DistGraph::EdgeOffset");
       if( localSource < 0 || localSource > numLocalSources_ )
           LogicError
           ("Out of bounds localSource: ",localSource,
@@ -303,7 +309,7 @@ Int DistGraph::NumConnections( Int localSource ) const
       CallStackEntry cse("DistGraph::NumConnections");
       AssertConsistent();
     )
-    return LocalEdgeOffset(localSource+1) - LocalEdgeOffset(localSource);
+    return EdgeOffset(localSource+1) - EdgeOffset(localSource);
 }
 
 Int* DistGraph::SourceBuffer() { return &sources_[0]; }
@@ -319,9 +325,9 @@ bool DistGraph::ComparePairs
 ( const std::pair<Int,Int>& a, const std::pair<Int,Int>& b )
 { return a.first < b.first || (a.first == b.first && a.second < b.second); }
 
-void DistGraph::ComputeLocalEdgeOffsets()
+void DistGraph::ComputeEdgeOffsets()
 {
-    DEBUG_ONLY(CallStackEntry cse("DistGraph::ComputeLocalEdgeOffsets"))
+    DEBUG_ONLY(CallStackEntry cse("DistGraph::ComputeEdgeOffsets"))
     // Compute the local edge offsets
     Int sourceOffset = 0;
     Int prevSource = firstLocalSource_-1;

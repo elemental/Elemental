@@ -49,7 +49,7 @@ void Multiply
         meta.recvSizes.clear();
         meta.recvSizes.resize( commSize, 0 );
         meta.recvOffs.resize( commSize );
-        const int blocksize = A.Blocksize();
+        const int blocksize = X.Blocksize();
         {
             int off=0, lastOff=0, qPrev=0;
             std::set<int>::const_iterator setIt;
@@ -114,7 +114,7 @@ void Multiply
 
     // Pack the send values
     const int numSendInds = meta.sendInds.size();
-    const int firstLocalRow = A.FirstLocalRow();
+    const int firstLocalRow = X.FirstLocalRow();
     std::vector<T> sendVals( numSendInds*width );
     for( int s=0; s<numSendInds; ++s )
     {
@@ -137,7 +137,7 @@ void Multiply
     // Perform the local multiply-accumulate, y := alpha A x + y
     for( int iLocal=0; iLocal<YLocalHeight; ++iLocal )
     {
-        const int off = A.LocalEntryOffset( iLocal );
+        const int off = A.EntryOffset( iLocal );
         const int rowSize = A.NumConnections( iLocal );
         for( int k=0; k<rowSize; ++k )
         {

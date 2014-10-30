@@ -67,7 +67,6 @@ template<typename T>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
   Base<T> alpha, const Matrix<T>& A, Base<T> beta, Matrix<T>& C );
-
 template<typename T>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
@@ -78,11 +77,32 @@ void Herk
 ( UpperOrLower uplo, Orientation orientation,
   Base<T> alpha, const AbstractDistMatrix<T>& A, 
   Base<T> beta,        AbstractDistMatrix<T>& C );
-
 template<typename T>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
   Base<T> alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& C );
+
+template<typename T>
+void Herk
+( Orientation orientation,
+  Base<T> alpha, const SparseMatrix<T>& A, 
+  Base<T> beta,        SparseMatrix<T>& C );
+template<typename T>
+void Herk
+( Orientation orientation,
+  Base<T> alpha, const SparseMatrix<T>& A, 
+                       SparseMatrix<T>& C );
+
+template<typename T>
+void Herk
+( Orientation orientation,
+  Base<T> alpha, const DistSparseMatrix<T>& A,
+  Base<T> beta,        DistSparseMatrix<T>& C );
+template<typename T> 
+void Herk
+( Orientation orientation,
+  Base<T> alpha, const DistSparseMatrix<T>& A,
+                       DistSparseMatrix<T>& C );
 
 // Her2k
 // =====
@@ -237,7 +257,6 @@ void Syrk
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const Matrix<T>& A, T beta, Matrix<T>& C,
   bool conjugate=false );
-
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
@@ -249,12 +268,33 @@ void Syrk
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const AbstractDistMatrix<T>& A, 
   T beta,        AbstractDistMatrix<T>& C, bool conjugate=false );
-
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& C,
   bool conjugate=false );
+
+template<typename T>
+void Syrk
+( Orientation orientation,
+  T alpha, const SparseMatrix<T>& A, 
+  T beta,        SparseMatrix<T>& C, bool conjugate=false );
+template<typename T>
+void Syrk
+( Orientation orientation,
+  T alpha, const SparseMatrix<T>& A, 
+                 SparseMatrix<T>& C, bool conjugate=false );
+
+template<typename T>
+void Syrk
+( Orientation orientation,
+  T alpha, const DistSparseMatrix<T>& A, 
+  T beta,        DistSparseMatrix<T>& C, bool conjugate=false );
+template<typename T>
+void Syrk
+( Orientation orientation,
+  T alpha, const DistSparseMatrix<T>& A, 
+                 DistSparseMatrix<T>& C, bool conjugate=false );
 
 // Syr2k
 // =====

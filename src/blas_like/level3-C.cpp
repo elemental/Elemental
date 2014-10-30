@@ -136,6 +136,22 @@ extern "C" {
       Syrk( CReflect(uplo), CReflect(orientation), \
             CReflect(alpha), *CReflect(A), \
             CReflect(beta), *CReflect(C) ) ) } \
+  ElError ElSyrkSparse_ ## SIG \
+  ( ElOrientation orientation, \
+    CREFLECT(F) alpha, ElConstSparseMatrix_ ## SIG A, \
+    CREFLECT(F) beta,  ElSparseMatrix_ ## SIG C ) \
+  { EL_TRY( \
+      Syrk( CReflect(orientation), \
+            CReflect(alpha), *CReflect(A), \
+            CReflect(beta), *CReflect(C) ) ) } \
+  ElError ElSyrkDistSparse_ ## SIG \
+  ( ElOrientation orientation, \
+    CREFLECT(F) alpha, ElConstDistSparseMatrix_ ## SIG A, \
+    CREFLECT(F) beta,  ElDistSparseMatrix_ ## SIG C ) \
+  { EL_TRY( \
+      Syrk( CReflect(orientation), \
+            CReflect(alpha), *CReflect(A), \
+            CReflect(beta), *CReflect(C) ) ) } \
   /* Syr2k */ \
   ElError ElSyr2k_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \
@@ -356,6 +372,22 @@ extern "C" {
   { EL_TRY( \
       Herk( CReflect(uplo), CReflect(orientation), \
             alpha, *CReflect(A), beta, *CReflect(C) ) ) } \
+  ElError ElHerkSparse_ ## SIG \
+  ( ElOrientation orientation, \
+    Base<T> alpha, ElConstSparseMatrix_ ## SIG A, \
+    Base<T> beta,  ElSparseMatrix_ ## SIG C ) \
+  { EL_TRY( \
+      Herk( CReflect(orientation), \
+            alpha, *CReflect(A), \
+            beta, *CReflect(C) ) ) } \
+  ElError ElHerkDistSparse_ ## SIG \
+  ( ElOrientation orientation, \
+    Base<T> alpha, ElConstDistSparseMatrix_ ## SIG A, \
+    Base<T> beta,  ElDistSparseMatrix_ ## SIG C ) \
+  { EL_TRY( \
+      Herk( CReflect(orientation), \
+            alpha, *CReflect(A), \
+            beta, *CReflect(C) ) ) } \
   /* Her2k */ \
   ElError ElHer2k_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \

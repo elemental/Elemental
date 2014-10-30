@@ -303,7 +303,7 @@ NestedDissectionRecursion
             {
                 const int localSource = source - firstLocalSource;
                 const int numConnections = graph.NumConnections( localSource );
-                const int localOff = graph.LocalEdgeOffset( localSource );
+                const int localOff = graph.EdgeOffset( localSource );
                 for( int t=0; t<numConnections; ++t )
                 {
                     const int target = graph.Target( localOff+t );
@@ -1134,7 +1134,7 @@ BuildChildFromPerm
 
             int& off = offs[q];
             const int numConnections = graph.NumConnections( s );
-            const int localEdgeOff = graph.LocalEdgeOffset( s );
+            const int localEdgeOff = graph.EdgeOffset( s );
             for( int j=0; j<numConnections; ++j )
                 sendInds[off++] = graph.Target( localEdgeOff+j );
         }
@@ -1146,7 +1146,7 @@ BuildChildFromPerm
                
             int& off = offs[q];
             const int numConnections = graph.NumConnections( s );
-            const int localEdgeOff = graph.LocalEdgeOffset( s );
+            const int localEdgeOff = graph.EdgeOffset( s );
             for( int j=0; j<numConnections; ++j )
                 sendInds[off++] = graph.Target( localEdgeOff+j );
         }

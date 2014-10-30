@@ -77,9 +77,9 @@ ElError ElDistGraphTarget
 ( ElConstDistGraph graph, ElInt localEdge, ElInt* target )
 { EL_TRY( *target = CReflect(graph)->Target(localEdge) ) }
 
-ElError ElDistGraphLocalEdgeOffset
+ElError ElDistGraphEdgeOffset
 ( ElConstDistGraph graph, ElInt localSource, ElInt* localEdgeOffset )
-{ EL_TRY( *localEdgeOffset = CReflect(graph)->LocalEdgeOffset(localSource) ) }
+{ EL_TRY( *localEdgeOffset = CReflect(graph)->EdgeOffset(localSource) ) }
 
 ElError ElDistGraphNumConnections
 ( ElConstDistGraph graph, ElInt localSource, ElInt* numConnections )

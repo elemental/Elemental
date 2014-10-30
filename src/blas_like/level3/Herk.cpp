@@ -51,6 +51,46 @@ void Herk
     Syrk( uplo, orientation, T(alpha), A, T(0), C, true );
 }
 
+template<typename T>
+void Herk
+( Orientation orientation,
+  Base<T> alpha, const SparseMatrix<T>& A,
+  Base<T> beta,        SparseMatrix<T>& C )
+{
+    DEBUG_ONLY(CallStackEntry cse("Herk"))
+    Syrk( orientation, T(alpha), A, T(beta), C, true );
+}
+
+template<typename T>
+void Herk
+( Orientation orientation,
+  Base<T> alpha, const SparseMatrix<T>& A,
+                       SparseMatrix<T>& C )
+{
+    DEBUG_ONLY(CallStackEntry cse("Herk"))
+    Syrk( orientation, T(alpha), A, C, true );
+}
+
+template<typename T>
+void Herk
+( Orientation orientation,
+  Base<T> alpha, const DistSparseMatrix<T>& A,
+  Base<T> beta,        DistSparseMatrix<T>& C )
+{
+    DEBUG_ONLY(CallStackEntry cse("Herk"))
+    Syrk( orientation, T(alpha), A, T(beta), C, true );
+}
+
+template<typename T>
+void Herk
+( Orientation orientation,
+  Base<T> alpha, const DistSparseMatrix<T>& A,
+                       DistSparseMatrix<T>& C )
+{
+    DEBUG_ONLY(CallStackEntry cse("Herk"))
+    Syrk( orientation, T(alpha), A, C, true );
+}
+
 #define PROTO(T) \
   template void Herk \
   ( UpperOrLower uplo, Orientation orientation, \
@@ -65,7 +105,23 @@ void Herk
   template void Herk \
   ( UpperOrLower uplo, Orientation orientation, \
     Base<T> alpha, const AbstractDistMatrix<T>& A, \
-    Base<T> beta,        AbstractDistMatrix<T>& C );
+    Base<T> beta,        AbstractDistMatrix<T>& C ); \
+  template void Herk \
+  ( Orientation orientation, \
+    Base<T> alpha, const SparseMatrix<T>& A, \
+    Base<T> beta,        SparseMatrix<T>& C ); \
+  template void Herk \
+  ( Orientation orientation, \
+    Base<T> alpha, const SparseMatrix<T>& A, \
+                         SparseMatrix<T>& C ); \
+  template void Herk \
+  ( Orientation orientation, \
+    Base<T> alpha, const DistSparseMatrix<T>& A, \
+    Base<T> beta,        DistSparseMatrix<T>& C ); \
+  template void Herk \
+  ( Orientation orientation, \
+    Base<T> alpha, const DistSparseMatrix<T>& A, \
+                         DistSparseMatrix<T>& C );
 
 // blas::Herk not yet supported for Int
 #define EL_NO_INT_PROTO

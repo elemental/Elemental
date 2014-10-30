@@ -267,21 +267,21 @@ lib.ElDistSparseMatrixValue_c.restype = c_uint
 lib.ElDistSparseMatrixValue_z.argtypes = [c_void_p,iType,POINTER(zType)]
 lib.ElDistSparseMatrixValue_z.restype = c_uint
 
-lib.ElDistSparseMatrixLocalEntryOffset_i.argtypes = \
+lib.ElDistSparseMatrixEntryOffset_i.argtypes = \
   [c_void_p,iType,POINTER(iType)]
-lib.ElDistSparseMatrixLocalEntryOffset_i.restype = c_uint
-lib.ElDistSparseMatrixLocalEntryOffset_s.argtypes = \
+lib.ElDistSparseMatrixEntryOffset_i.restype = c_uint
+lib.ElDistSparseMatrixEntryOffset_s.argtypes = \
   [c_void_p,iType,POINTER(iType)]
-lib.ElDistSparseMatrixLocalEntryOffset_s.restype = c_uint
-lib.ElDistSparseMatrixLocalEntryOffset_d.argtypes = \
+lib.ElDistSparseMatrixEntryOffset_s.restype = c_uint
+lib.ElDistSparseMatrixEntryOffset_d.argtypes = \
   [c_void_p,iType,POINTER(iType)]
-lib.ElDistSparseMatrixLocalEntryOffset_d.restype = c_uint
-lib.ElDistSparseMatrixLocalEntryOffset_c.argtypes = \
+lib.ElDistSparseMatrixEntryOffset_d.restype = c_uint
+lib.ElDistSparseMatrixEntryOffset_c.argtypes = \
   [c_void_p,iType,POINTER(iType)]
-lib.ElDistSparseMatrixLocalEntryOffset_c.restype = c_uint
-lib.ElDistSparseMatrixLocalEntryOffset_z.argtypes = \
+lib.ElDistSparseMatrixEntryOffset_c.restype = c_uint
+lib.ElDistSparseMatrixEntryOffset_z.argtypes = \
   [c_void_p,iType,POINTER(iType)]
-lib.ElDistSparseMatrixLocalEntryOffset_z.restype = c_uint
+lib.ElDistSparseMatrixEntryOffset_z.restype = c_uint
 
 lib.ElDistSparseMatrixNumConnections_i.argtypes = \
   [c_void_p,iType,POINTER(iType)]
@@ -618,14 +618,14 @@ class DistSparseMatrix(object):
     elif self.tag == zTag: lib.ElDistSparseMatrixValue_z(*args)
     else: DataExcept()
     return value.value
-  def LocalEntryOffset(self,localRow):
+  def EntryOffset(self,localRow):
     localOffset = iType()
     args = [self.obj,localRow,pointer(localOffset)]
-    if   self.tag == iTag: lib.ElDistSparseMatrixLocalEntryOffset_i(*args)
-    elif self.tag == sTag: lib.ElDistSparseMatrixLocalEntryOffset_s(*args)
-    elif self.tag == dTag: lib.ElDistSparseMatrixLocalEntryOffset_d(*args)
-    elif self.tag == cTag: lib.ElDistSparseMatrixLocalEntryOffset_c(*args)
-    elif self.tag == zTag: lib.ElDistSparseMatrixLocalEntryOffset_z(*args)
+    if   self.tag == iTag: lib.ElDistSparseMatrixEntryOffset_i(*args)
+    elif self.tag == sTag: lib.ElDistSparseMatrixEntryOffset_s(*args)
+    elif self.tag == dTag: lib.ElDistSparseMatrixEntryOffset_d(*args)
+    elif self.tag == cTag: lib.ElDistSparseMatrixEntryOffset_c(*args)
+    elif self.tag == zTag: lib.ElDistSparseMatrixEntryOffset_z(*args)
     else: DataExcept()
     return localOffset.value
   def NumConnections(self,localRow):

@@ -72,8 +72,8 @@ lib.ElDistGraphSource.restype = c_uint
 lib.ElDistGraphTarget.argtypes = [c_void_p,iType,POINTER(iType)]
 lib.ElDistGraphTarget.restype = c_uint
 
-lib.ElDistGraphLocalEdgeOffset.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElDistGraphLocalEdgeOffset.restype = c_uint
+lib.ElDistGraphEdgeOffset.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElDistGraphEdgeOffset.restype = c_uint
 
 lib.ElDistGraphNumConnections.argtypes = [c_void_p,iType,POINTER(iType)]
 lib.ElDistGraphNumConnections.restype = c_uint
@@ -163,9 +163,9 @@ class DistGraph(object):
     target = iType()
     lib.ElDistGraphTarget(self.obj,localEdge,pointer(target))
     return target.value
-  def LocalEdgeOffset(self,localSource):
+  def EdgeOffset(self,localSource):
     localEdgeOffset = iType()
-    lib.ElDistGraphLocalEdgeOffset(self.obj,source,pointer(localEdgeOffset))
+    lib.ElDistGraphEdgeOffset(self.obj,source,pointer(localEdgeOffset))
     return localEdgeOffset.value
   def NumConnections(self,localSource):
     numConnections = iType()

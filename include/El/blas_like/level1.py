@@ -1498,6 +1498,26 @@ lib.ElScaleDist_c.argtypes = [cType,c_void_p]
 lib.ElScaleDist_c.restype = c_uint
 lib.ElScaleDist_z.argtypes = [zType,c_void_p]
 lib.ElScaleDist_z.restype = c_uint
+lib.ElScaleSparse_i.argtypes = [iType,c_void_p]
+lib.ElScaleSparse_i.restype = c_uint
+lib.ElScaleSparse_s.argtypes = [sType,c_void_p]
+lib.ElScaleSparse_s.restype = c_uint
+lib.ElScaleSparse_d.argtypes = [dType,c_void_p]
+lib.ElScaleSparse_d.restype = c_uint
+lib.ElScaleSparse_c.argtypes = [cType,c_void_p]
+lib.ElScaleSparse_c.restype = c_uint
+lib.ElScaleSparse_z.argtypes = [zType,c_void_p]
+lib.ElScaleSparse_z.restype = c_uint
+lib.ElScaleDistSparse_i.argtypes = [iType,c_void_p]
+lib.ElScaleDistSparse_i.restype = c_uint
+lib.ElScaleDistSparse_s.argtypes = [sType,c_void_p]
+lib.ElScaleDistSparse_s.restype = c_uint
+lib.ElScaleDistSparse_d.argtypes = [dType,c_void_p]
+lib.ElScaleDistSparse_d.restype = c_uint
+lib.ElScaleDistSparse_c.argtypes = [cType,c_void_p]
+lib.ElScaleDistSparse_c.restype = c_uint
+lib.ElScaleDistSparse_z.argtypes = [zType,c_void_p]
+lib.ElScaleDistSparse_z.restype = c_uint
 def Scale(alphaPre,A):
   alpha = TagToType(A.tag)(alphaPre)
   args = [alpha,A.obj]
@@ -1514,6 +1534,20 @@ def Scale(alphaPre,A):
     elif A.tag == dTag: lib.ElScaleDist_d(*args)
     elif A.tag == cTag: lib.ElScaleDist_c(*args)
     elif A.tag == zTag: lib.ElScaleDist_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == iTag: lib.ElScaleSparse_i(*args)
+    elif A.tag == sTag: lib.ElScaleSparse_s(*args)
+    elif A.tag == dTag: lib.ElScaleSparse_d(*args)
+    elif A.tag == cTag: lib.ElScaleSparse_c(*args)
+    elif A.tag == zTag: lib.ElScaleSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == iTag: lib.ElScaleDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElScaleDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElScaleDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElScaleDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElScaleDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 

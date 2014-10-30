@@ -185,7 +185,7 @@ void DistSymmFrontTree<T>::Initialize
             const int i = sendRows[s+off];
             const int iLocal = i - firstLocalRow;
             const int numConnections = sendRowLengths[s+off];
-            const int localEntryOff = A.LocalEntryOffset( iLocal );
+            const int localEntryOff = A.EntryOffset( iLocal );
             for( int t=0; t<numConnections; ++t )
             {
                 const T value = A.Value( localEntryOff+t );

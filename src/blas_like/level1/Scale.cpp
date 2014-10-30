@@ -78,10 +78,50 @@ void Scale( S alpha, AbstractBlockDistMatrix<Real>& AReal,
                      AbstractBlockDistMatrix<Real>& AImag )
 { Scale( alpha, AReal.Matrix(), AImag.Matrix() ); }
 
+template<typename T,typename S>
+void Scale( S alpha, SparseMatrix<T>& A )
+{
+    if( alpha == S(0) )
+    {
+        const Int m = A.Height();
+        const Int n = A.Width();
+        A.Empty();
+        A.Resize( m, n );
+    }
+    else
+    {
+        T* valueBuf = A.ValueBuffer();
+        const Int numEntries = A.NumEntries();
+        for( Int i=0; i<numEntries; ++i )
+            valueBuf[i] *= alpha;
+    }
+}
+
+template<typename T,typename S>
+void Scale( S alpha, DistSparseMatrix<T>& A )
+{
+    if( alpha == S(0) )
+    {
+        const Int m = A.Height();
+        const Int n = A.Width();
+        A.Empty();
+        A.Resize( m, n );
+    }
+    else
+    {
+        T* valueBuf = A.ValueBuffer();
+        const Int numLocalEntries = A.NumLocalEntries();
+        for( Int iLoc=0; iLoc<numLocalEntries; ++iLoc )
+            valueBuf[iLoc] *= alpha;
+    }
+}
+
 #define PROTO_TYPES(T,S) \
   template void Scale( S alpha, Matrix<T>& A ); \
   template void Scale( S alpha, AbstractDistMatrix<T>& A ); \
-  template void Scale( S alpha, AbstractBlockDistMatrix<T>& A );
+  template void Scale( S alpha, AbstractBlockDistMatrix<T>& A ); \
+  template void Scale( S alpha, SparseMatrix<T>& A ); \
+  template void Scale( S alpha, DistSparseMatrix<T>& A );
 
 #define PROTO_INT(T) PROTO_TYPES(T,T)
 

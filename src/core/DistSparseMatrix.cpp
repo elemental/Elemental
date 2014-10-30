@@ -125,9 +125,12 @@ void DistSparseMatrix<T>::MakeConsistent()
                 entries[s].indices[1] != entries[lastUnique].indices[1] )
             {
                 ++lastUnique;
-                entries[lastUnique].indices[0] = entries[s].indices[0];
-                entries[lastUnique].indices[1] = entries[s].indices[1];
-                entries[lastUnique].value = entries[s].value;
+                if( s != lastUnique )
+                {
+                    entries[lastUnique].indices[0] = entries[s].indices[0];
+                    entries[lastUnique].indices[1] = entries[s].indices[1];
+                    entries[lastUnique].value = entries[s].value;
+                }
             }
             else
                 entries[lastUnique].value += entries[s].value;
@@ -144,7 +147,7 @@ void DistSparseMatrix<T>::MakeConsistent()
             vals_[s] = entries[s].value;
         }
 
-        distGraph_.ComputeLocalEdgeOffsets();
+        distGraph_.ComputeEdgeOffsets();
 
         distGraph_.consistent_ = true;
     }
@@ -223,10 +226,10 @@ Int DistSparseMatrix<T>::Col( Int localInd ) const
 }
 
 template<typename T>
-Int DistSparseMatrix<T>::LocalEntryOffset( Int localRow ) const
+Int DistSparseMatrix<T>::EntryOffset( Int localRow ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::LocalEntryOffset"))
-    return distGraph_.LocalEdgeOffset( localRow );
+    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::EntryOffset"))
+    return distGraph_.EdgeOffset( localRow );
 }
 
 template<typename T>

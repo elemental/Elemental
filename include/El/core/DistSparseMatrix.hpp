@@ -108,7 +108,7 @@ public:
     Int Row( Int localInd ) const;
     Int Col( Int localInd ) const;
     T Value( Int localInd ) const;
-    Int LocalEntryOffset( Int localRow ) const;
+    Int EntryOffset( Int localRow ) const;
     Int NumConnections( Int localRow ) const;
     Int* SourceBuffer();
     Int* TargetBuffer();
@@ -131,6 +131,11 @@ private:
 
     template<typename U> friend class SparseMatrix;
     template<typename U> friend struct DistSymmFrontTree;
+
+    template<typename U> friend void Syrk
+    ( Orientation orientation, 
+      U alpha, const DistSparseMatrix<U>& A, 
+      U beta,        DistSparseMatrix<U>& C, bool conjugate=false );
 };
 
 } // namespace El
