@@ -29,7 +29,7 @@ def LaplacianPlusIdentity(xSize,ySize):
       if y != 0:       A.QueueUpdate( s, s-xSize, -hyInvSq )
       if y != ySize-1: A.QueueUpdate( s, s+xSize, -hyInvSq )
     else:
-      A.QueueUpdate( s, s-xSize*ySize, 1 )
+      A.QueueUpdate( s, s-xSize*ySize, 2*(hxInvSq+hyInvSq) )
 
   A.MakeConsistent()
   return A
@@ -53,7 +53,7 @@ def LaplacianPlusIdentityAdjoint(xSize,ySize):
     if y != 0:       A.QueueUpdate( s, s-xSize, -hyInvSq )
     if y != ySize-1: A.QueueUpdate( s, s+xSize, -hyInvSq )
 
-    A.QueueUpdate( s, s+xSize*ySize, 1 )
+    A.QueueUpdate( s, s+xSize*ySize, 2*(hxInvSq+hyInvSq) )
 
   A.MakeConsistent()
   return A
