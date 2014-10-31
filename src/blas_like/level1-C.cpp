@@ -319,6 +319,12 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
   ElError ElTransposeDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( Transpose(*CReflect(A),*CReflect(B),false) ) } \
+  ElError ElTransposeSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElSparseMatrix_ ## SIG B ) \
+  { EL_TRY( Transpose(*CReflect(A),*CReflect(B),false) ) } \
+  ElError ElTransposeDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElDistSparseMatrix_ ## SIG B ) \
+  { EL_TRY( Transpose(*CReflect(A),*CReflect(B),false) ) } \
   /* UpdateDiagonal */ \
   ElError ElUpdateDiagonal_ ## SIG \
   ( ElMatrix_ ## SIG A, CREFLECT(T) alpha, ElInt offset ) \
@@ -469,6 +475,12 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
   { EL_TRY( Adjoint( *CReflect(A), *CReflect(B) ) ) } \
   ElError ElAdjointDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
+  { EL_TRY( Adjoint( *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElAdjointSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElSparseMatrix_ ## SIG B ) \
+  { EL_TRY( Adjoint( *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElAdjointDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElDistSparseMatrix_ ## SIG B ) \
   { EL_TRY( Adjoint( *CReflect(A), *CReflect(B) ) ) } \
   /* Conjugate */ \
   ElError ElConjugate_ ## SIG( ElMatrix_ ## SIG A ) \

@@ -122,18 +122,20 @@ void Graph::Connect( Int source, Int target )
 void Graph::QueueConnection( Int source, Int target )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Graph::QueueConnection");
-        AssertConsistentSizes();
-        const Int capacity = Capacity();
-        const Int numEdges = NumEdges();
-        if( source < 0 || source >= numSources_ )
-            LogicError
-            ("Source was out of bounds: ",source," is not in [0,",
-             numSources_,")");
-        if( numEdges == capacity )
-            std::cerr << "WARNING: Pushing back without first reserving space" 
-                      << std::endl;
+      CallStackEntry cse("Graph::QueueConnection");
+      AssertConsistentSizes();
+      const Int capacity = Capacity();
+      const Int numEdges = NumEdges();
+      if( numEdges == capacity )
+          std::cerr << "WARNING: Pushing back without first reserving space" 
+                    << std::endl;
     )
+    if( source < 0 || source >= numSources_ )
+        LogicError
+        ("Source was out of bounds: ",source," is not in [0,",numSources_,")");
+    if( target < 0 || target >= numTargets_ )
+        LogicError
+        ("Target was out of bounds: ",target," is not in [0,",numTargets_,")");
     sources_.push_back( source );
     targets_.push_back( target );
     consistent_ = false;
@@ -185,8 +187,8 @@ Int Graph::NumTargets() const { return numTargets_; }
 Int Graph::NumEdges() const
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Graph::NumEdges");
-        AssertConsistentSizes();
+      CallStackEntry cse("Graph::NumEdges");
+      AssertConsistentSizes();
     )
     return sources_.size();
 }
@@ -194,9 +196,9 @@ Int Graph::NumEdges() const
 Int Graph::Capacity() const
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Graph::Capacity");
-        AssertConsistentSizes();
-        AssertConsistentCapacities();
+      CallStackEntry cse("Graph::Capacity");
+      AssertConsistentSizes();
+      AssertConsistentCapacities();
     )
     return sources_.capacity();
 }
@@ -206,9 +208,9 @@ bool Graph::Consistent() const { return consistent_; }
 Int Graph::Source( Int edge ) const
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Graph::Source");
-        if( edge < 0 || edge >= (Int)sources_.size() )
-            LogicError("Edge number out of bounds");
+      CallStackEntry cse("Graph::Source");
+      if( edge < 0 || edge >= (Int)sources_.size() )
+          LogicError("Edge number out of bounds");
     )
     return sources_[edge];
 }
@@ -216,9 +218,9 @@ Int Graph::Source( Int edge ) const
 Int Graph::Target( Int edge ) const
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Graph::Target");
-        if( edge < 0 || edge >= (Int)targets_.size() )
-            LogicError("Edge number out of bounds");
+      CallStackEntry cse("Graph::Target");
+      if( edge < 0 || edge >= (Int)targets_.size() )
+          LogicError("Edge number out of bounds");
     )
     return targets_[edge];
 }
@@ -226,14 +228,14 @@ Int Graph::Target( Int edge ) const
 Int Graph::EdgeOffset( Int source ) const
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Graph::EdgeOffset");
-        if( source < 0 )
-            LogicError("Negative source index");
-        if( source > numSources_ )
-            LogicError
-            ("Source index was too large: ",source," is not in [0,",
-             numSources_,"]");
-        AssertConsistent();
+      CallStackEntry cse("Graph::EdgeOffset");
+      if( source < 0 )
+          LogicError("Negative source index");
+      if( source > numSources_ )
+          LogicError
+          ("Source index was too large: ",source," is not in [0,",
+           numSources_,"]");
+      AssertConsistent();
     )
     return edgeOffsets_[source];
 }

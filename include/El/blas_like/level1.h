@@ -24,6 +24,16 @@ EL_EXPORT ElError ElAdjoint_z( ElConstMatrix_z A, ElMatrix_z B );
 EL_EXPORT ElError ElAdjointDist_c( ElConstDistMatrix_c A, ElDistMatrix_c B );
 EL_EXPORT ElError ElAdjointDist_z( ElConstDistMatrix_z A, ElDistMatrix_z B );
 
+EL_EXPORT ElError ElAdjointSparse_c
+( ElConstSparseMatrix_c A, ElSparseMatrix_c B );
+EL_EXPORT ElError ElAdjointSparse_z
+( ElConstSparseMatrix_z A, ElSparseMatrix_z B );
+
+EL_EXPORT ElError ElAdjointDistSparse_c
+( ElConstDistSparseMatrix_c A, ElDistSparseMatrix_c B );
+EL_EXPORT ElError ElAdjointDistSparse_z
+( ElConstDistSparseMatrix_z A, ElDistSparseMatrix_z B );
+
 /* Y := alpha A X + Y 
    ================== */
 EL_EXPORT ElError ElAxpy_i
@@ -983,6 +993,28 @@ EL_EXPORT ElError ElTransposeDist_s( ElConstDistMatrix_s A, ElDistMatrix_s B );
 EL_EXPORT ElError ElTransposeDist_d( ElConstDistMatrix_d A, ElDistMatrix_d B );
 EL_EXPORT ElError ElTransposeDist_c( ElConstDistMatrix_c A, ElDistMatrix_c B );
 EL_EXPORT ElError ElTransposeDist_z( ElConstDistMatrix_z A, ElDistMatrix_z B );
+
+EL_EXPORT ElError ElTransposeSparse_i
+( ElConstSparseMatrix_i A, ElSparseMatrix_i B );
+EL_EXPORT ElError ElTransposeSparse_s
+( ElConstSparseMatrix_s A, ElSparseMatrix_s B );
+EL_EXPORT ElError ElTransposeSparse_d
+( ElConstSparseMatrix_d A, ElSparseMatrix_d B );
+EL_EXPORT ElError ElTransposeSparse_c
+( ElConstSparseMatrix_c A, ElSparseMatrix_c B );
+EL_EXPORT ElError ElTransposeSparse_z
+( ElConstSparseMatrix_z A, ElSparseMatrix_z B );
+
+EL_EXPORT ElError ElTransposeDistSparse_i
+( ElConstDistSparseMatrix_i A, ElDistSparseMatrix_i B );
+EL_EXPORT ElError ElTransposeDistSparse_s
+( ElConstDistSparseMatrix_s A, ElDistSparseMatrix_s B );
+EL_EXPORT ElError ElTransposeDistSparse_d
+( ElConstDistSparseMatrix_d A, ElDistSparseMatrix_d B );
+EL_EXPORT ElError ElTransposeDistSparse_c
+( ElConstDistSparseMatrix_c A, ElDistSparseMatrix_c B );
+EL_EXPORT ElError ElTransposeDistSparse_z
+( ElConstDistSparseMatrix_z A, ElDistSparseMatrix_z B );
 
 /* UpdateDiagonal
    ============== */

@@ -1808,6 +1808,8 @@ def SymmetricSwap(uplo,A,jTo,jFrom):
 
 # Transpose/Adjoint
 # -----------------
+lib.ElTranspose_i.argtypes = [c_void_p,c_void_p]
+lib.ElTranspose_i.restype = c_uint
 lib.ElTranspose_s.argtypes = [c_void_p,c_void_p]
 lib.ElTranspose_s.restype = c_uint
 lib.ElTranspose_d.argtypes = [c_void_p,c_void_p]
@@ -1816,6 +1818,8 @@ lib.ElTranspose_c.argtypes = [c_void_p,c_void_p]
 lib.ElTranspose_c.restype = c_uint
 lib.ElTranspose_z.argtypes = [c_void_p,c_void_p]
 lib.ElTranspose_z.restype = c_uint
+lib.ElTransposeDist_i.argtypes = [c_void_p,c_void_p]
+lib.ElTransposeDist_i.restype = c_uint
 lib.ElTransposeDist_s.argtypes = [c_void_p,c_void_p]
 lib.ElTransposeDist_s.restype = c_uint
 lib.ElTransposeDist_d.argtypes = [c_void_p,c_void_p]
@@ -1824,6 +1828,26 @@ lib.ElTransposeDist_c.argtypes = [c_void_p,c_void_p]
 lib.ElTransposeDist_c.restype = c_uint
 lib.ElTransposeDist_z.argtypes = [c_void_p,c_void_p]
 lib.ElTransposeDist_z.restype = c_uint
+lib.ElTransposeSparse_i.argtypes = [c_void_p,c_void_p]
+lib.ElTransposeSparse_i.restype = c_uint
+lib.ElTransposeSparse_s.argtypes = [c_void_p,c_void_p]
+lib.ElTransposeSparse_s.restype = c_uint
+lib.ElTransposeSparse_d.argtypes = [c_void_p,c_void_p]
+lib.ElTransposeSparse_d.restype = c_uint
+lib.ElTransposeSparse_c.argtypes = [c_void_p,c_void_p]
+lib.ElTransposeSparse_c.restype = c_uint
+lib.ElTransposeSparse_z.argtypes = [c_void_p,c_void_p]
+lib.ElTransposeSparse_z.restype = c_uint
+lib.ElTransposeDistSparse_i.argtypes = [c_void_p,c_void_p]
+lib.ElTransposeDistSparse_i.restype = c_uint
+lib.ElTransposeDistSparse_s.argtypes = [c_void_p,c_void_p]
+lib.ElTransposeDistSparse_s.restype = c_uint
+lib.ElTransposeDistSparse_d.argtypes = [c_void_p,c_void_p]
+lib.ElTransposeDistSparse_d.restype = c_uint
+lib.ElTransposeDistSparse_c.argtypes = [c_void_p,c_void_p]
+lib.ElTransposeDistSparse_c.restype = c_uint
+lib.ElTransposeDistSparse_z.argtypes = [c_void_p,c_void_p]
+lib.ElTransposeDistSparse_z.restype = c_uint
 
 lib.ElAdjoint_c.argtypes = [c_void_p,c_void_p]
 lib.ElAdjoint_c.restype = c_uint
@@ -1833,6 +1857,14 @@ lib.ElAdjointDist_c.argtypes = [c_void_p,c_void_p]
 lib.ElAdjointDist_c.restype = c_uint
 lib.ElAdjointDist_z.argtypes = [c_void_p,c_void_p]
 lib.ElAdjointDist_z.restype = c_uint
+lib.ElAdjointSparse_c.argtypes = [c_void_p,c_void_p]
+lib.ElAdjointSparse_c.restype = c_uint
+lib.ElAdjointSparse_z.argtypes = [c_void_p,c_void_p]
+lib.ElAdjointSparse_z.restype = c_uint
+lib.ElAdjointDistSparse_c.argtypes = [c_void_p,c_void_p]
+lib.ElAdjointDistSparse_c.restype = c_uint
+lib.ElAdjointDistSparse_z.argtypes = [c_void_p,c_void_p]
+lib.ElAdjointDistSparse_z.restype = c_uint
 
 def Transpose(A,B,conj=False):
   if A.tag != B.tag:
@@ -1840,26 +1872,48 @@ def Transpose(A,B,conj=False):
   if type(A) is not type(B): raise Exception('Matrix types must match')
   args = [A.obj,B.obj]
   if type(A) is Matrix:
-    if   B.tag == iTag: lib.ElTranspose_i(*args)
-    elif B.tag == sTag: lib.ElTranspose_s(*args)
-    elif B.tag == dTag: lib.ElTranspose_d(*args)
-    elif B.tag == cTag:
+    if   A.tag == iTag: lib.ElTranspose_i(*args)
+    elif A.tag == sTag: lib.ElTranspose_s(*args)
+    elif A.tag == dTag: lib.ElTranspose_d(*args)
+    elif A.tag == cTag:
       if conj: lib.ElAdjoint_c(*args)
       else:    lib.ElTranspose_c(*args)
-    elif B.tag == zTag: 
+    elif A.tag == zTag: 
       if conj: lib.ElAdjoint_z(*args)
       else:    lib.ElTranspose_z(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
-    if   B.tag == iTag: lib.ElTransposeDist_i(*args)
-    elif B.tag == sTag: lib.ElTransposeDist_s(*args)
-    elif B.tag == dTag: lib.ElTransposeDist_d(*args)
-    elif B.tag == cTag:
+    if   A.tag == iTag: lib.ElTransposeDist_i(*args)
+    elif A.tag == sTag: lib.ElTransposeDist_s(*args)
+    elif A.tag == dTag: lib.ElTransposeDist_d(*args)
+    elif A.tag == cTag:
       if conj: lib.ElAdjointDist_c(*args)
       else:    lib.ElTransposeDist_c(*args)
-    elif B.tag == zTag: 
+    elif A.tag == zTag: 
       if conj: lib.ElAdjointDist_z(*args)
       else:    lib.ElTransposeDist_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == iTag: lib.ElTransposeSparse_i(*args)
+    elif A.tag == sTag: lib.ElTransposeSparse_s(*args)
+    elif A.tag == dTag: lib.ElTransposeSparse_d(*args)
+    elif A.tag == cTag:
+      if conj: lib.ElAdjointSparse_c(*args)
+      else:    lib.ElTransposeSparse_c(*args)
+    elif A.tag == zTag:
+      if conj: lib.ElAdjointSparse_z(*args)
+      else:    lib.ElTransposeSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == iTag: lib.ElTransposeDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElTransposeDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElTransposeDistSparse_d(*args)
+    elif A.tag == cTag:
+      if conj: lib.ElAdjointDistSparse_c(*args)
+      else:    lib.ElTransposeDistSparse_c(*args)
+    elif A.tag == zTag:
+      if conj: lib.ElAdjointDistSparse_z(*args)
+      else:    lib.ElTransposeDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 

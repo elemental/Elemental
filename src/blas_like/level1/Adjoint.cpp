@@ -32,12 +32,28 @@ void Adjoint
     Transpose( A, B, true );
 }
 
+template<typename T>
+void Adjoint( const SparseMatrix<T>& A, SparseMatrix<T>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Adjoint"))
+    Transpose( A, B, true );
+}
+
+template<typename T>
+void Adjoint( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Adjoint"))
+    Transpose( A, B, true );
+}
+
 #define PROTO(T) \
   template void Adjoint( const Matrix<T>& A, Matrix<T>& B ); \
   template void Adjoint \
   ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
   template void Adjoint \
-  ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
+  ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B ); \
+  template void Adjoint( const SparseMatrix<T>& A, SparseMatrix<T>& B ); \
+  template void Adjoint( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B );
 
 #include "El/macros/Instantiate.h"
 

@@ -25,7 +25,6 @@ void Multiply
             LogicError("A, X, and Y did not conform");
     )
     const Int m = A.Height();
-    const Int n = A.Width();
     const Int b = X.Width();
 
     // Y := beta Y
@@ -97,85 +96,88 @@ void Multiply
     // Y := beta Y
     Scale( beta, Y );
 
-    if( orientation == NORMAL )
+    SparseMultMeta<T>& meta = A.multMeta;
+    if( !meta.ready )
     {
-        SparseNormalMultMeta<T>& meta = A.normalMultMeta;
-        if( !meta.ready )
+        // Compute the set of row indices that we need from X in a normal
+        // multiply or update of Y in the adjoint case
+        const Int numLocalEntries = A.NumLocalEntries();
+        std::set<Int> indexSet;
+        for( Int e=0; e<numLocalEntries; ++e )
+            indexSet.insert( A.Col(e) );
+        const Int numRecvInds = indexSet.size();
+        std::vector<Int> recvInds( numRecvInds );
+        meta.recvSizes.clear();
+        meta.recvSizes.resize( commSize, 0 );
+        meta.recvOffs.resize( commSize );
+        const Int blocksize = X.Blocksize();
         {
-            // Compute the set of row indices that we need from X
-            const Int numLocalEntries = A.NumLocalEntries();
-            std::set<Int> indexSet;
-            for( Int e=0; e<numLocalEntries; ++e )
-                indexSet.insert( A.Col(e) );
-            const Int numRecvInds = indexSet.size();
-            std::vector<Int> recvInds( numRecvInds );
-            meta.recvSizes.clear();
-            meta.recvSizes.resize( commSize, 0 );
-            meta.recvOffs.resize( commSize );
-            const Int blocksize = X.Blocksize();
+            Int off=0, lastOff=0, qPrev=0;
+            std::set<Int>::const_iterator setIt;
+            for( setIt=indexSet.begin(); setIt!=indexSet.end(); ++setIt )
             {
-                Int off=0, lastOff=0, qPrev=0;
-                std::set<Int>::const_iterator setIt;
-                for( setIt=indexSet.begin(); setIt!=indexSet.end(); ++setIt )
-                {
-                    const Int j = *setIt;
-                    const Int q = RowToProcess( j, blocksize, commSize );
-                    while( qPrev != q )
-                    {
-                        meta.recvSizes[qPrev] = off - lastOff;
-                        meta.recvOffs[qPrev+1] = off;
-    
-                        lastOff = off;
-                        ++qPrev;
-                    }
-                    recvInds[off++] = j;
-                }
-                while( qPrev != commSize-1 )
+                const Int j = *setIt;
+                const Int q = RowToProcess( j, blocksize, commSize );
+                while( qPrev != q )
                 {
                     meta.recvSizes[qPrev] = off - lastOff;
                     meta.recvOffs[qPrev+1] = off;
+
                     lastOff = off;
                     ++qPrev;
                 }
-                meta.recvSizes[commSize-1] = off - lastOff;
+                recvInds[off++] = j;
             }
-
-            // Coordinate
-            meta.sendSizes.resize( commSize );
-            mpi::AllToAll( &meta.recvSizes[0], 1, &meta.sendSizes[0], 1, comm );
-            Int numSendInds=0;
-            meta.sendOffs.resize( commSize );
-            for( int q=0; q<commSize; ++q )
+            while( qPrev != commSize-1 )
             {
-                meta.sendOffs[q] = numSendInds;
-                numSendInds += meta.sendSizes[q];
+                meta.recvSizes[qPrev] = off - lastOff;
+                meta.recvOffs[qPrev+1] = off;
+                lastOff = off;
+                ++qPrev;
             }
-            meta.sendInds.resize( numSendInds );
-            mpi::AllToAll
-            ( &recvInds[0],       &meta.recvSizes[0], &meta.recvOffs[0],
-              &meta.sendInds[0], &meta.sendSizes[0], &meta.sendOffs[0], comm );
-
-            meta.colOffs.resize( numLocalEntries );
-            for( Int s=0; s<numLocalEntries; ++s )
-                meta.colOffs[s] = Find( recvInds, A.Col(s) );
-            meta.numRecvInds = numRecvInds;
-            meta.ready = true;
+            meta.recvSizes[commSize-1] = off - lastOff;
         }
 
-        // Convert the sizes and offsets to be compatible with the current width
-        const Int b = X.Width();
-        std::vector<int> recvSizes=meta.recvSizes,
-                         recvOffs=meta.recvOffs,
-                         sendSizes=meta.sendSizes,
-                         sendOffs=meta.sendOffs;
+        // Coordinate
+        meta.sendSizes.resize( commSize );
+        mpi::AllToAll
+        ( meta.recvSizes.data(), 1, meta.sendSizes.data(), 1, comm );
+        Int numSendInds=0;
+        meta.sendOffs.resize( commSize );
         for( int q=0; q<commSize; ++q )
         {
-            recvSizes[q] *= b;    
-            recvOffs[q] *= b;
-            sendSizes[q] *= b;
-            sendOffs[q] *= b;
+            meta.sendOffs[q] = numSendInds;
+            numSendInds += meta.sendSizes[q];
         }
+        meta.sendInds.resize( numSendInds );
+        mpi::AllToAll
+        ( recvInds.data(), meta.recvSizes.data(), meta.recvOffs.data(),
+          meta.sendInds.data(), meta.sendSizes.data(), meta.sendOffs.data(), 
+          comm );
 
+        meta.colOffs.resize( numLocalEntries );
+        for( Int s=0; s<numLocalEntries; ++s )
+            meta.colOffs[s] = Find( recvInds, A.Col(s) );
+        meta.numRecvInds = numRecvInds;
+        meta.ready = true;
+    }
+
+    // Convert the sizes and offsets to be compatible with the current width
+    const Int b = X.Width();
+    std::vector<int> recvSizes=meta.recvSizes,
+                     recvOffs=meta.recvOffs,
+                     sendSizes=meta.sendSizes,
+                     sendOffs=meta.sendOffs;
+    for( int q=0; q<commSize; ++q )
+    {
+        recvSizes[q] *= b;    
+        recvOffs[q] *= b;
+        sendSizes[q] *= b;
+        sendOffs[q] *= b;
+    }
+
+    if( orientation == NORMAL )
+    {
         // Pack the send values
         const Int numSendInds = meta.sendInds.size();
         const Int firstLocalRow = X.FirstLocalRow();
@@ -195,8 +197,8 @@ void Multiply
         // Now send them
         std::vector<T> recvVals( meta.numRecvInds*b );
         mpi::AllToAll
-        ( &sendVals[0], &sendSizes[0], &sendOffs[0],
-          &recvVals[0], &recvSizes[0], &recvOffs[0], comm );
+        ( sendVals.data(), sendSizes.data(), sendOffs.data(),
+          recvVals.data(), recvSizes.data(), recvOffs.data(), comm );
      
         // Perform the local multiply-accumulate, y := alpha A x + y
         const Int YLocalHeight = Y.LocalHeight();
@@ -208,7 +210,7 @@ void Multiply
             {
                 const Int colOff = meta.colOffs[k+off];
                 const T AVal = A.Value(k+off);
-                for( int t=0; t<b; ++t )
+                for( Int t=0; t<b; ++t )
                 {
                     const T XVal = recvVals[colOff*b+t];
                     Y.UpdateLocal( iLocal, t, alpha*AVal*XVal );
@@ -218,7 +220,49 @@ void Multiply
     }
     else
     {
-        LogicError("Distributed adjoint sparse multiply not yet supported");
+        // Form and pack the updates to Y
+        const bool conjugate = ( orientation == ADJOINT );
+        std::vector<T> sendVals( meta.numRecvInds*b );
+        const Int ALocalHeight = A.LocalHeight();
+        for( Int iLocal=0; iLocal<ALocalHeight; ++iLocal )
+        {
+            const Int off = A.EntryOffset( iLocal );
+            const Int rowSize = A.NumConnections( iLocal );
+            for( Int k=0; k<rowSize; ++k )
+            {
+                const Int colOff = meta.colOffs[k+off];
+                const T AVal = A.Value(k+off);
+                for( Int t=0; t<b; ++t )
+                {
+                    const T XVal = X.GetLocal(iLocal,t);
+                    if( conjugate )
+                        sendVals[colOff*b+t] = alpha*Conj(AVal)*XVal;
+                    else
+                        sendVals[colOff*b+t] = alpha*AVal*XVal;
+                }
+            }
+        }
+
+        // Inject the updates to Y into the network
+        const Int numRecvInds = meta.sendInds.size();
+        std::vector<T> recvVals( numRecvInds*b );
+        mpi::AllToAll
+        ( sendVals.data(), recvSizes.data(), recvOffs.data(),
+          recvVals.data(), sendSizes.data(), sendOffs.data(), comm );
+     
+        // Accumulate the received indices onto Y
+        const Int firstLocalRow = Y.FirstLocalRow();
+        for( Int s=0; s<numRecvInds; ++s )
+        {
+            const Int i = meta.sendInds[s];
+            const Int iLocal = i - firstLocalRow;
+            DEBUG_ONLY(
+                if( iLocal < 0 || iLocal >= Y.LocalHeight() )
+                    LogicError("iLocal was out of bounds");
+            )
+            for( Int t=0; t<b; ++t )
+                Y.UpdateLocal( iLocal, t, recvVals[s*b+t] );
+        }
     }
 }
 

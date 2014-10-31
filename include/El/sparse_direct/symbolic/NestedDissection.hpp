@@ -910,10 +910,11 @@ BuildChildrenFromPerm
   int rightChildSize, Graph& rightChild )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("BuildChildrenFromPerm");
-        const int sepSize = graph.NumSources() - leftChildSize - rightChildSize;
+      CallStackEntry cse("BuildChildrenFromPerm");
+      const int sepSize = graph.NumSources() - leftChildSize - rightChildSize;
     )
     const int numSources = graph.NumSources();
+    const int numTargets = graph.NumTargets();
 
     // Build the inverse permutation
     std::vector<int> inversePerm( numSources );
@@ -929,7 +930,7 @@ BuildChildrenFromPerm
             graph.NumConnections( inversePerm[s+leftChildSize] );
 
     // Build the left child's graph
-    leftChild.Resize( leftChildSize );
+    leftChild.Resize( leftChildSize, numTargets );
     leftChild.Reserve( leftChildUpperBound );
     for( int s=0; s<leftChildSize; ++s )
     {
@@ -944,8 +945,8 @@ BuildChildrenFromPerm
                                  perm[inverseTarget] :
                                  inverseTarget );
             DEBUG_ONLY(
-                if( target >= leftChildSize && target < (numSources-sepSize) )
-                    LogicError("Invalid bisection, left set touches right set");
+              if( target >= leftChildSize && target < (numSources-sepSize) )
+                  LogicError("Invalid bisection, left set touches right set");
             )
             leftChild.QueueConnection( source, target );
         }
@@ -953,7 +954,7 @@ BuildChildrenFromPerm
     leftChild.MakeConsistent();
 
     // Build the right child's graph
-    rightChild.Resize( rightChildSize );
+    rightChild.Resize( rightChildSize, numTargets-leftChildSize );
     rightChild.Reserve( rightChildUpperBound );
     for( int s=0; s<rightChildSize; ++s )
     {
@@ -968,8 +969,8 @@ BuildChildrenFromPerm
                                  perm[inverseTarget] :
                                  inverseTarget );
             DEBUG_ONLY(
-                if( target < leftChildSize )
-                    LogicError("Invalid bisection, right set touches left set");
+              if( target < leftChildSize )
+                  LogicError("Invalid bisection, right set touches left set");
             )
             // The targets that are in parent separators do not need to be
             rightChild.QueueConnection
@@ -985,12 +986,13 @@ BuildChildFromPerm
   int leftChildSize, int rightChildSize,
   bool& onLeft, DistGraph& child )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("BuildChildFromPerm");
-        const int numSources = graph.NumSources();
-        const int sepSize = numSources - leftChildSize - rightChildSize;
-    )
+    DEBUG_ONLY(CallStackEntry cse("BuildChildFromPerm"))
+    const Int numSources = graph.NumSources();
+    const Int numTargets = graph.NumTargets();
     const int numLocalSources = graph.NumLocalSources();
+    DEBUG_ONLY(
+      const int sepSize = numSources - leftChildSize - rightChildSize;
+    )
 
     mpi::Comm comm = graph.Comm();
     const int commSize = mpi::Size( comm );
@@ -1171,9 +1173,9 @@ BuildChildFromPerm
     mpi::Split( comm, onLeft, childTeamRank, childComm );
     child.SetComm( childComm );
     if( onLeft )
-        child.Resize( leftChildSize );
+        child.Resize( leftChildSize, numTargets );
     else
-        child.Resize( rightChildSize );
+        child.Resize( rightChildSize, numTargets-leftChildSize );
 
     child.Reserve( recvInds.size() );
     int off=0;

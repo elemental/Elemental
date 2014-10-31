@@ -173,19 +173,22 @@ void DistGraph::Connect( Int source, Int target )
 void DistGraph::QueueConnection( Int source, Int target )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("DistGraph::QueueConnection");
-        AssertConsistentSizes();
-        const Int capacity = Capacity();
-        const Int numLocalEdges = NumLocalEdges();
-        if( source < firstLocalSource_ || 
-            source >= firstLocalSource_+numLocalSources_ )
-            LogicError
-            ("Source was out of bounds: ",source," is not in [",
-             firstLocalSource_,",",firstLocalSource_+numLocalSources_,")");
-        if( numLocalEdges == capacity )
-            std::cerr << "WARNING: Pushing back without first reserving space" 
-                      << std::endl;
+      CallStackEntry cse("DistGraph::QueueConnection");
+      AssertConsistentSizes();
+      const Int capacity = Capacity();
+      const Int numLocalEdges = NumLocalEdges();
+      if( numLocalEdges == capacity )
+          std::cerr << "WARNING: Pushing back without first reserving space" 
+                    << std::endl;
     )
+    if( source < firstLocalSource_ || 
+        source >= firstLocalSource_+numLocalSources_ )
+        LogicError
+        ("Source was out of local bounds: ",source," is not in [",
+         firstLocalSource_,",",firstLocalSource_+numLocalSources_,")");
+    if( target < 0 || target >= numTargets_ )
+        LogicError
+        ("Target was out of bounds: ",target," is not in [0,",numTargets_,")");
     sources_.push_back( source );
     targets_.push_back( target );
     consistent_ = false;
@@ -337,8 +340,8 @@ void DistGraph::ComputeEdgeOffsets()
     {
         const Int source = Source( localEdge );
         DEBUG_ONLY(
-            if( source < prevSource )
-                RuntimeError("sources were not properly sorted");
+          if( source < prevSource )
+              RuntimeError("sources were not properly sorted");
         )
         while( source != prevSource )
         {

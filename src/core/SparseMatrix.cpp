@@ -113,8 +113,8 @@ template<typename T>
 void SparseMatrix<T>::QueueUpdate( Int row, Int col, T value )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("SparseMatrix::QueueUpdate");
-        AssertConsistentSizes();
+      CallStackEntry cse("SparseMatrix::QueueUpdate");
+      AssertConsistentSizes();
     )
     graph_.QueueConnection( row, col );
     vals_.push_back( value );
@@ -134,8 +134,8 @@ template<typename T>
 Int SparseMatrix<T>::NumEntries() const
 {
     DEBUG_ONLY(
-        CallStackEntry cse("SparseMatrix::NumEntries");
-        AssertConsistentSizes();
+      CallStackEntry cse("SparseMatrix::NumEntries");
+      AssertConsistentSizes();
     )
     return graph_.NumEdges();
 }
@@ -144,9 +144,9 @@ template<typename T>
 Int SparseMatrix<T>::Capacity() const
 {
     DEBUG_ONLY(
-        CallStackEntry cse("SparseMatrix::Capacity");
-        AssertConsistentSizes();
-        AssertConsistentCapacities();
+      CallStackEntry cse("SparseMatrix::Capacity");
+      AssertConsistentSizes();
+      AssertConsistentCapacities();
     )
     return graph_.Capacity();
 }
@@ -193,9 +193,9 @@ template<typename T>
 T SparseMatrix<T>::Value( Int index ) const
 { 
     DEBUG_ONLY(
-        CallStackEntry cse("SparseMatrix::Value");
-        if( index < 0 || index >= vals_.size() )
-            LogicError("Entry number out of bounds");
+      CallStackEntry cse("SparseMatrix::Value");
+      if( index < 0 || index >= vals_.size() )
+          LogicError("Entry number out of bounds");
     )
     return vals_[index];
 }

@@ -21,6 +21,10 @@ void Adjoint( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
 template<typename T>
 void Adjoint
 ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
+template<typename T>
+void Adjoint( const SparseMatrix<T>& A, SparseMatrix<T>& B );
+template<typename T>
+void Adjoint( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B );
 
 // Axpy
 // ====
@@ -674,6 +678,12 @@ template<typename T>
 void Transpose
 ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B,
   bool conjugate=false );
+template<typename T>
+void Transpose
+( const SparseMatrix<T>& A, SparseMatrix<T>& B, bool conjugate=false );
+template<typename T>
+void Transpose
+( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B, bool conjugate=false );
 
 // UpdateDiagonal
 // ==============
