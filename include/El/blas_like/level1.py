@@ -1518,6 +1518,16 @@ lib.ElScaleDistSparse_c.argtypes = [cType,c_void_p]
 lib.ElScaleDistSparse_c.restype = c_uint
 lib.ElScaleDistSparse_z.argtypes = [zType,c_void_p]
 lib.ElScaleDistSparse_z.restype = c_uint
+lib.ElScaleDistMultiVec_i.argtypes = [iType,c_void_p]
+lib.ElScaleDistMultiVec_i.restype = c_uint
+lib.ElScaleDistMultiVec_s.argtypes = [sType,c_void_p]
+lib.ElScaleDistMultiVec_s.restype = c_uint
+lib.ElScaleDistMultiVec_d.argtypes = [dType,c_void_p]
+lib.ElScaleDistMultiVec_d.restype = c_uint
+lib.ElScaleDistMultiVec_c.argtypes = [cType,c_void_p]
+lib.ElScaleDistMultiVec_c.restype = c_uint
+lib.ElScaleDistMultiVec_z.argtypes = [zType,c_void_p]
+lib.ElScaleDistMultiVec_z.restype = c_uint
 def Scale(alphaPre,A):
   alpha = TagToType(A.tag)(alphaPre)
   args = [alpha,A.obj]
@@ -1548,6 +1558,13 @@ def Scale(alphaPre,A):
     elif A.tag == dTag: lib.ElScaleDistSparse_d(*args)
     elif A.tag == cTag: lib.ElScaleDistSparse_c(*args)
     elif A.tag == zTag: lib.ElScaleDistSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMultiVec:
+    if   A.tag == iTag: lib.ElScaleDistMultiVec_i(*args)
+    elif A.tag == sTag: lib.ElScaleDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElScaleDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElScaleDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElScaleDistMultiVec_z(*args)
     else: DataExcept()
   else: TypeExcept()
 

@@ -116,12 +116,17 @@ void Scale( S alpha, DistSparseMatrix<T>& A )
     }
 }
 
+template<typename T,typename S>
+void Scale( S alpha, DistMultiVec<T>& A )
+{ Scale( alpha, A.Matrix() ); }
+
 #define PROTO_TYPES(T,S) \
   template void Scale( S alpha, Matrix<T>& A ); \
   template void Scale( S alpha, AbstractDistMatrix<T>& A ); \
   template void Scale( S alpha, AbstractBlockDistMatrix<T>& A ); \
   template void Scale( S alpha, SparseMatrix<T>& A ); \
-  template void Scale( S alpha, DistSparseMatrix<T>& A );
+  template void Scale( S alpha, DistSparseMatrix<T>& A ); \
+  template void Scale( S alpha, DistMultiVec<T>& A );
 
 #define PROTO_INT(T) PROTO_TYPES(T,T)
 

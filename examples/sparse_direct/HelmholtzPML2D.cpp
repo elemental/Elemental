@@ -328,7 +328,7 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             std::cout << "Checking residual norm of solution..." << std::endl;
         const double bNorm = Nrm2( z );
-        Multiply( C(-1), A, y, C(1), z );
+        Multiply( NORMAL, C(-1), A, y, C(1), z );
         const double errorNorm = Nrm2( z );
         if( commRank == 0 )
         {

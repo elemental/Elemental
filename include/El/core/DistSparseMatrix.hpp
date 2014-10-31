@@ -15,7 +15,7 @@
 namespace El {
 
 template<typename T>
-struct SparseMultMeta
+struct SparseNormalMultMeta
 {
     bool ready;
     Int numRecvInds;
@@ -23,7 +23,31 @@ struct SparseMultMeta
                      recvSizes, recvOffs;
     std::vector<Int> sendInds, colOffs;
 
-    SparseMultMeta() : ready(false), numRecvInds(0) { }
+    SparseNormalMultMeta() : ready(false), numRecvInds(0) { }
+
+    void Clear()
+    {
+        ready = false;
+        numRecvInds = 0; 
+        SwapClear( sendSizes );
+        SwapClear( recvSizes );
+        SwapClear( sendOffs );
+        SwapClear( recvOffs );
+        SwapClear( sendInds );
+        SwapClear( colOffs );
+    }
+};
+
+template<typename T>
+struct SparseAdjointMultMeta
+{
+    bool ready;
+    Int numRecvInds;
+    std::vector<Int> sendSizes, sendOffs,
+                     recvSizes, recvOffs;
+    std::vector<Int> sendInds, colOffs;
+
+    SparseAdjointMultMeta() : ready(false), numRecvInds(0) { }
 
     void Clear()
     {
@@ -117,7 +141,8 @@ public:
     const Int* LockedTargetBuffer() const;
     const T* LockedValueBuffer() const;
 
-    mutable SparseMultMeta<T> multMeta;
+    mutable SparseNormalMultMeta<T> normalMultMeta;
+    mutable SparseAdjointMultMeta<T> adjointMultMeta;
 
 private:
     El::DistGraph distGraph_;

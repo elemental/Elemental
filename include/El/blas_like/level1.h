@@ -831,6 +831,17 @@ EL_EXPORT ElError ElScaleDistSparse_c
 EL_EXPORT ElError ElScaleDistSparse_z
 ( complex_double alpha, ElDistSparseMatrix_z A );
 
+EL_EXPORT ElError ElScaleDistMultiVec_i
+( ElInt alpha, ElDistMultiVec_i A );
+EL_EXPORT ElError ElScaleDistMultiVec_s
+( float alpha, ElDistMultiVec_s A );
+EL_EXPORT ElError ElScaleDistMultiVec_d
+( double alpha, ElDistMultiVec_d A );
+EL_EXPORT ElError ElScaleDistMultiVec_c
+( complex_float alpha, ElDistMultiVec_c A );
+EL_EXPORT ElError ElScaleDistMultiVec_z
+( complex_double alpha, ElDistMultiVec_z A );
+
 /* ScaleTrapezoid
    ============== */
 EL_EXPORT ElError ElScaleTrapezoid_i

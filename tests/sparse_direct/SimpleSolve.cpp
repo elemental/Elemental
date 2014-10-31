@@ -98,7 +98,7 @@ main( int argc, char* argv[] )
         DistMultiVec<double> X( N, numRhs, comm ), Y( N, numRhs, comm );
         MakeUniform( X );
         Zero( Y );
-        Multiply( 1., A, X, 0., Y );
+        Multiply( NORMAL, 1., A, X, 0., Y );
         Matrix<double> YOrigNorms;
         ColumnNorms( Y, YOrigNorms );
         mpi::Barrier( comm );

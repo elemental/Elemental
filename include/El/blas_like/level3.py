@@ -309,25 +309,58 @@ def Her2k(uplo,orient,alpha,A,B,beta,C):
 
 # Multiply
 # --------
-lib.ElSparseMultiplyDist_i.argtypes = [iType,c_void_p,c_void_p,iType,c_void_p]
+lib.ElSparseMultiply_i.argtypes = \
+  [c_uint,iType,c_void_p,c_void_p,iType,c_void_p]
+lib.ElSparseMultiply_i.restype = c_uint
+lib.ElSparseMultiply_s.argtypes = \
+  [c_uint,sType,c_void_p,c_void_p,sType,c_void_p]
+lib.ElSparseMultiply_s.restype = c_uint
+lib.ElSparseMultiply_d.argtypes = \
+  [c_uint,dType,c_void_p,c_void_p,dType,c_void_p]
+lib.ElSparseMultiply_d.restype = c_uint
+lib.ElSparseMultiply_c.argtypes = \
+  [c_uint,cType,c_void_p,c_void_p,cType,c_void_p]
+lib.ElSparseMultiply_c.restype = c_uint
+lib.ElSparseMultiply_z.argtypes = \
+  [c_uint,zType,c_void_p,c_void_p,zType,c_void_p]
+lib.ElSparseMultiply_z.restype = c_uint
+
+lib.ElSparseMultiplyDist_i.argtypes = \
+  [c_uint,iType,c_void_p,c_void_p,iType,c_void_p]
 lib.ElSparseMultiplyDist_i.restype = c_uint
-lib.ElSparseMultiplyDist_s.argtypes = [sType,c_void_p,c_void_p,sType,c_void_p]
+lib.ElSparseMultiplyDist_s.argtypes = \
+  [c_uint,sType,c_void_p,c_void_p,sType,c_void_p]
 lib.ElSparseMultiplyDist_s.restype = c_uint
-lib.ElSparseMultiplyDist_d.argtypes = [dType,c_void_p,c_void_p,dType,c_void_p]
+lib.ElSparseMultiplyDist_d.argtypes = \
+  [c_uint,dType,c_void_p,c_void_p,dType,c_void_p]
 lib.ElSparseMultiplyDist_d.restype = c_uint
-lib.ElSparseMultiplyDist_c.argtypes = [cType,c_void_p,c_void_p,cType,c_void_p]
+lib.ElSparseMultiplyDist_c.argtypes = \
+  [c_uint,cType,c_void_p,c_void_p,cType,c_void_p]
 lib.ElSparseMultiplyDist_c.restype = c_uint
-lib.ElSparseMultiplyDist_z.argtypes = [zType,c_void_p,c_void_p,zType,c_void_p]
+lib.ElSparseMultiplyDist_z.argtypes = \
+  [c_uint,zType,c_void_p,c_void_p,zType,c_void_p]
 lib.ElSparseMultiplyDist_z.restype = c_uint
 
 # TODO: Generalize so that this is part of a routine 'Multiply'
-def SparseMultiply(alpha,A,X,beta,Y):
-  if type(A) is DistSparseMatrix:
+def SparseMultiply(orient,alpha,A,X,beta,Y):
+  if type(A) is SparseMatrix:
+    if type(X) is not Matrix or type(Y) is not Matrix:
+      raise Exception("Types of X and Y must match")
+    if A.tag != X.tag or X.tag != Y.tag:
+      raise Exception("Datatypes of {A,X,Y} must match")
+    args = [orient,alpha,A.obj,X.obj,beta,Y.obj]
+    if   A.tag == iTag: lib.ElSparseMultiply_i(*args)
+    elif A.tag == sTag: lib.ElSparseMultiply_s(*args)
+    elif A.tag == dTag: lib.ElSparseMultiply_d(*args)
+    elif A.tag == cTag: lib.ElSparseMultiply_c(*args)
+    elif A.tag == zTag: lib.ElSparseMultiply_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
     if type(X) is not DistMultiVec or type(Y) is not DistMultiVec:
       raise Exception("Types of X and Y must match")
     if A.tag != X.tag or X.tag != Y.tag:
       raise Exception("Datatypes of {A,X,Y} must match")
-    args = [alpha,A.obj,X.obj,beta,Y.obj]
+    args = [orient,alpha,A.obj,X.obj,beta,Y.obj]
     if   A.tag == iTag: lib.ElSparseMultiplyDist_i(*args)
     elif A.tag == sTag: lib.ElSparseMultiplyDist_s(*args)
     elif A.tag == dTag: lib.ElSparseMultiplyDist_d(*args)

@@ -100,7 +100,7 @@ main( int argc, char* argv[] )
         DistMultiVec<C> x( N, 1, comm ), y( N, 1, comm );
         MakeUniform( x );
         Zero( y );
-        Multiply( C(1), A, x, C(0), y );
+        Multiply( NORMAL, C(1), A, x, C(0), y );
         const double yOrigNorm = Nrm2( y );
         mpi::Barrier( comm );
         const double multiplyStop = mpi::Time();

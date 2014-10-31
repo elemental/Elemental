@@ -74,7 +74,7 @@ y = El.DistMultiVec()
 El.Uniform( y, 2*n0*n1, 1 )
 x = El.DistMultiVec()
 El.Zeros( x, n0*n1, 1 )
-El.SparseMultiply( 1, AAdj, y, 0, x )
+El.SparseMultiply( El.NORMAL, 1, AAdj, y, 0, x )
 El.Display( y, "y" )
 El.Display( x, "A^H y" )
 
@@ -89,7 +89,7 @@ xNrm = El.Nrm2(x)
 if rank == 0:
   print "|| x ||_2 =", xNrm
 
-El.SparseMultiply(-1.,A,x,1.,y)
+El.SparseMultiply(El.NORMAL,-1.,A,x,1.,y)
 El.Display( y, "A x - y" )
 eNrm = El.Nrm2(y)
 if rank == 0:

@@ -53,7 +53,7 @@ xNrm = El.Nrm2(x)
 if rank == 0:
   print "|| x ||_2 =", xNrm
 
-El.SparseMultiply(-1.,A,x,1.,y)
+El.SparseMultiply(El.NORMAL,-1.,A,x,1.,y)
 El.Display( y, "A x - y" )
 eNrm = El.Nrm2(y)
 if rank == 0:

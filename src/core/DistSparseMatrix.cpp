@@ -52,7 +52,8 @@ void DistSparseMatrix<T>::Empty()
 {
     distGraph_.Empty();
     SwapClear( vals_ );
-    multMeta.Clear();
+    normalMultMeta.Clear();
+    adjointMultMeta.Clear();
 }
 
 template<typename T>
@@ -97,7 +98,8 @@ void DistSparseMatrix<T>::QueueUpdate( Int row, Int col, T value )
     )
     distGraph_.QueueConnection( row, col );
     vals_.push_back( value );
-    multMeta.ready = false;
+    normalMultMeta.ready = false;
+    adjointMultMeta.ready = false;
 }
 
 template<typename T>

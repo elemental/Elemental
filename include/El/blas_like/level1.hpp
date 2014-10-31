@@ -539,6 +539,8 @@ template<typename T,typename S>
 void Scale( S alpha, SparseMatrix<T>& A );
 template<typename T,typename S>
 void Scale( S alpha, DistSparseMatrix<T>& A );
+template<typename T,typename S>
+void Scale( S alpha, DistMultiVec<T>& A );
 
 template<typename Real,typename S>
 void Scale( S alpha, Matrix<Real>& AReal, Matrix<Real>& AImag );

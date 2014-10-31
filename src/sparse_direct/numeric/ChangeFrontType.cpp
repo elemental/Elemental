@@ -12,6 +12,66 @@
 
 namespace El {
 
+template<typename T>
+inline void ConvertFrom1dTo2d( DistSymmFrontTree<T>& L )
+{
+    DEBUG_ONLY(CallStackEntry cse("ConvertFrom1dTo2d"))
+    if( !FrontsAre1d(L.frontType) )
+        LogicError("Treated a 2D front type as 1D");
+
+    DistSymmFront<T>& leafFront = L.distFronts[0];
+    if( leafFront.front1dL.Locked() )
+        leafFront.front2dL.LockedAttach
+        ( leafFront.front1dL.LocalHeight(), 
+          leafFront.front1dL.LocalWidth(), 
+          leafFront.front1dL.Grid(), 0, 0,
+          leafFront.front1dL.LockedMatrix() );
+    else
+        leafFront.front2dL.Attach
+        ( leafFront.front1dL.Height(), 
+          leafFront.front1dL.Width(), 
+          leafFront.front1dL.Grid(), 0, 0, 
+          leafFront.front1dL.Matrix() );
+    const Int numDistNodes = L.distFronts.size();    
+    for( Int s=1; s<numDistNodes; ++s )
+    {
+        DistSymmFront<T>& front = L.distFronts[s];
+        front.front2dL.SetGrid( front.front1dL.Grid() );
+        front.front2dL = front.front1dL;
+        front.front1dL.Empty();
+    }
+}
+
+template<typename T>
+inline void ConvertFrom2dTo1d( DistSymmFrontTree<T>& L )
+{
+    DEBUG_ONLY(CallStackEntry cse("ConvertFrom2dTo1d"))
+    if( FrontsAre1d(L.frontType) )
+        LogicError("Treated a 1D front type as 2D");
+
+    DistSymmFront<T>& leafFront = L.distFronts[0];
+    if( leafFront.front2dL.Locked() )
+        leafFront.front1dL.LockedAttach
+        ( leafFront.front2dL.Height(),
+          leafFront.front2dL.Width(), 
+          leafFront.front2dL.Grid(), 0, 0, 
+          leafFront.front2dL.LockedMatrix() );
+    else
+        leafFront.front1dL.Attach
+        ( leafFront.front2dL.Height(), 
+          leafFront.front2dL.Width(), 
+          leafFront.front2dL.Grid(), 0, 0, 
+          leafFront.front2dL.Matrix() );
+    const Int numDistNodes = L.distFronts.size();    
+    for( Int s=1; s<numDistNodes; ++s )
+    {
+        DistSymmFront<T>& front = L.distFronts[s];
+        front.front1dL.SetGrid( front.front2dL.Grid() );
+        front.front1dL = front.front2dL;
+        front.front2dL.Empty();
+    }
+}
+
 // This routine could be modified later so that it uses much less memory
 // by replacing the '=' redistributions with piece-by-piece redistributions.
 template<typename F>
@@ -21,68 +81,44 @@ void ChangeFrontType( DistSymmFrontTree<F>& L, SymmFrontType frontType )
     // Check if this call can be a no-op
     if( frontType == L.frontType ) 
         return;
-    const int numDistNodes = L.distFronts.size();    
-    const SymmFrontType oldFrontType = L.frontType;
-    DistSymmFront<F>& leafFront = L.distFronts[0];
 
-    if( frontType == ConvertTo2d(oldFrontType) )
+    if( frontType == SYMM_1D && FrontsAre1d(L.frontType) )
     {
-        // 1d -> 2d
-        if( leafFront.front1dL.Locked() )
-            leafFront.front2dL.LockedAttach
-            ( leafFront.front1dL.LocalHeight(), 
-              leafFront.front1dL.LocalWidth(), 
-              leafFront.front1dL.Grid(), 0, 0,
-              leafFront.front1dL.LockedMatrix() );
-        else
-            leafFront.front2dL.Attach
-            ( leafFront.front1dL.Height(), 
-              leafFront.front1dL.Width(), 
-              leafFront.front1dL.Grid(), 0, 0, 
-              leafFront.front1dL.Matrix() );
-        for( int s=1; s<numDistNodes; ++s )
-        {
-            DistSymmFront<F>& front = L.distFronts[s];
-            front.front2dL.SetGrid( front.front1dL.Grid() );
-            front.front2dL = front.front1dL;
-            front.front1dL.Empty();
-        }
+        // No action is required
     }
-    else if( frontType == ConvertTo1d(oldFrontType) )
+    else if( frontType == SYMM_1D && !FrontsAre1d(L.frontType) )
     {
-        // 2d -> 1d
-        if( leafFront.front2dL.Locked() )
-            leafFront.front1dL.LockedAttach
-            ( leafFront.front2dL.Height(),
-              leafFront.front2dL.Width(), 
-              leafFront.front2dL.Grid(), 0, 0, 
-              leafFront.front2dL.LockedMatrix() );
-        else
-            leafFront.front1dL.Attach
-            ( leafFront.front2dL.Height(), 
-              leafFront.front2dL.Width(), 
-              leafFront.front2dL.Grid(), 0, 0, 
-              leafFront.front2dL.Matrix() );
-        for( int s=1; s<numDistNodes; ++s )
-        {
-            DistSymmFront<F>& front = L.distFronts[s];
-            front.front1dL.SetGrid( front.front2dL.Grid() );
-            front.front1dL = front.front2dL;
-            front.front2dL.Empty();
-        }
+        ConvertFrom2dTo1d( L );    
+    }
+    else if( frontType == SYMM_2D && !FrontsAre1d(L.frontType) ) 
+    {
+        // No action is required
+    }
+    else if( frontType == SYMM_2D && FrontsAre1d(L.frontType) )
+    {
+        ConvertFrom1dTo2d( L );
+    }
+    else if( frontType == ConvertTo2d(L.frontType) )
+    {
+        ConvertFrom1dTo2d( L );
+    }
+    else if( frontType == ConvertTo1d(L.frontType) )
+    {
+        ConvertFrom2dTo1d( L );
     }
     else if( SelInvFactorization(frontType) && 
-             ConvertTo2d(frontType) == ConvertTo2d(AppendSelInv(oldFrontType)) )
+             ConvertTo2d(frontType) == ConvertTo2d(AppendSelInv(L.frontType)) )
     {
         // We must perform selective inversion with a 2D distribution
-        if( FrontsAre1d(oldFrontType) )
-            ChangeFrontType( L, ConvertTo2d(oldFrontType) );
+        if( FrontsAre1d(L.frontType) )
+            ChangeFrontType( L, ConvertTo2d(L.frontType) );
         // Perform selective inversion
-        for( int s=1; s<numDistNodes; ++s )
+        const Int numDistNodes = L.distFronts.size();    
+        for( Int s=1; s<numDistNodes; ++s )
         {
             // Invert the unit-diagonal lower triangle
             DistSymmFront<F>& front = L.distFronts[s];
-            const int snSize = front.front2dL.Width();
+            const Int snSize = front.front2dL.Width();
             auto LT = front.front2dL( IR(0,snSize), IR(0,snSize) );
             TriangularInverse( LOWER, UNIT, LT );
         }

@@ -40,11 +40,20 @@ extern "C" {
       Gemm( CReflect(orientationOfA), CReflect(orientationOfB), \
             CReflect(alpha), *CReflect(A), *CReflect(B), \
             CReflect(beta), *CReflect(C), CReflect(alg) ) ) } \
+  ElError ElSparseMultiply_ ## SIG \
+  ( ElOrientation orientation, \
+    CREFLECT(T) alpha, ElConstSparseMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG X, CREFLECT(T) beta, ElMatrix_ ## SIG Y ) \
+  { EL_TRY( Multiply( CReflect(orientation), \
+                      CReflect(alpha), *CReflect(A), *CReflect(X), \
+                      CReflect(beta), *CReflect(Y) ) ) } \
   ElError ElSparseMultiplyDist_ ## SIG \
-  ( CREFLECT(T) alpha, ElConstDistSparseMatrix_ ## SIG A, \
+  ( ElOrientation orientation, \
+    CREFLECT(T) alpha, ElConstDistSparseMatrix_ ## SIG A, \
     ElConstDistMultiVec_ ## SIG X, CREFLECT(T) beta, \
     ElDistMultiVec_ ## SIG Y ) \
-  { EL_TRY( Multiply( CReflect(alpha), *CReflect(A), *CReflect(X), \
+  { EL_TRY( Multiply( CReflect(orientation), \
+                      CReflect(alpha), *CReflect(A), *CReflect(X), \
                       CReflect(beta), *CReflect(Y) ) ) }
 
 #define C_PROTO_FIELD(SIG,SIGBASE,F) \

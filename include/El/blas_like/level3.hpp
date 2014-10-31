@@ -137,7 +137,14 @@ void Her2k
 //       so this is the natural placement
 template<typename T>
 void Multiply
-( T alpha, const DistSparseMatrix<T>& A, const DistMultiVec<T>& X,
+( Orientation orientation,
+  T alpha, const SparseMatrix<T>& A, const Matrix<T>& X,
+  T beta,                                  Matrix<T>& Y );
+
+template<typename T>
+void Multiply
+( Orientation orientation,
+  T alpha, const DistSparseMatrix<T>& A, const DistMultiVec<T>& X,
   T beta,                                      DistMultiVec<T>& Y );
 
 // MultiShiftQuasiTrsm

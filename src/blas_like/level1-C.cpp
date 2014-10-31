@@ -254,6 +254,9 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
   ElError ElScaleDistSparse_ ## SIG \
   ( CREFLECT(T) alpha, ElDistSparseMatrix_ ## SIG A ) \
   { EL_TRY( Scale( CReflect(alpha), *CReflect(A) ) ) } \
+  ElError ElScaleDistMultiVec_ ## SIG \
+  ( CREFLECT(T) alpha, ElDistMultiVec_ ## SIG A ) \
+  { EL_TRY( Scale( CReflect(alpha), *CReflect(A) ) ) } \
   /* Real part */ \
   ElError ElRealPart_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIGBASE AReal ) \
