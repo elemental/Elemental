@@ -38,35 +38,18 @@ A = ExtendedLaplacian(n0,n1)
 El.Display( A, "A" )
 El.Display( A.DistGraph(), "Graph of A" )
 
-AAdj = El.DistSparseMatrix()
-El.Adjoint( A, AAdj )
-El.Display( AAdj, "A^H" )
-
-C = El.DistSparseMatrix()
-C.Resize( n0*n1, n0*n1 )
-El.Syrk( El.LOWER, El.ADJOINT, 1, A, 0, C ) # NOTE: 'LOWER' does not do anything
-El.Display( C, "A^H A" )
-El.Display( C.DistGraph(), "Graph of A^H A" )
-
 y = El.DistMultiVec()
 El.Uniform( y, 2*n0*n1, 1 )
-x = El.DistMultiVec()
-El.Zeros( x, n0*n1, 1 )
-El.SparseMultiply( El.NORMAL, 1, AAdj, y, 0, x )
 El.Display( y, "y" )
-El.Display( x, "A^H y" )
-
-El.SymmetricSolveSparse(C,x)
-
-yNrm = El.Nrm2(y)
 rank = El.mpi.WorldRank()
+yNrm = El.Nrm2(y)
 if rank == 0:
   print "|| y ||_2 =", yNrm
 
+x = El.LeastSquares(A,y)
 xNrm = El.Nrm2(x)
 if rank == 0:
   print "|| x ||_2 =", xNrm
-
 El.SparseMultiply(El.NORMAL,-1.,A,x,1.,y)
 El.Display( y, "A x - y" )
 eNrm = El.Nrm2(y)

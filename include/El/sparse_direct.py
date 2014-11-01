@@ -24,7 +24,7 @@ lib.ElHermitianSolveDistSparse_z.restype = c_uint
 def SymmetricSolveSparse(A,X,conjugate=False):
   if type(A) is DistSparseMatrix:
     if type(X) is not DistMultiVec:
-      TypeExcept()
+      raise Exception('X expected to be a DistMultiVec')
     args = [A.obj,X.obj]
     if   A.tag == sTag: lib.ElSymmetricSolveDistSparse_s(*args)
     elif A.tag == dTag: lib.ElSymmetricSolveDistSparse_d(*args)
@@ -38,3 +38,27 @@ def SymmetricSolveSparse(A,X,conjugate=False):
   else: TypeExcept()
 def HermitianSolveSparse(A,X):
   SymmetricSolveSparse(A,X,True)
+
+lib.ElLeastSquaresDistSparse_s.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElLeastSquaresDistSparse_s.restype = c_uint
+lib.ElLeastSquaresDistSparse_d.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElLeastSquaresDistSparse_d.restype = c_uint
+lib.ElLeastSquaresDistSparse_c.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElLeastSquaresDistSparse_c.restype = c_uint
+lib.ElLeastSquaresDistSparse_z.argtypes = [c_void_p,c_void_p,c_void_p]
+lib.ElLeastSquaresDistSparse_z.restype = c_uint
+def LeastSquares(A,Y):
+  if type(A) is DistSparseMatrix:
+    if type(Y) is not DistMultiVec:
+      raise Exception("Expected Y to be a DistMultiVec")
+    if A.tag != Y.tag:
+      raise Exception("Expected datatypes of A and Y to match")
+    X = DistMultiVec(A.tag)
+    args = [A.obj,Y.obj,X.obj]
+    if   A.tag == sTag: lib.ElLeastSquaresDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElLeastSquaresDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElLeastSquaresDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElLeastSquaresDistSparse_z(*args)
+    else: DataExcept()
+    return X
+  else: TypeExcept()

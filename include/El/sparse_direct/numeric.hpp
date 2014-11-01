@@ -367,6 +367,11 @@ void HermitianSolve
 ( const DistSparseMatrix<F>& A, DistMultiVec<F>& X,
   bool sequential=true, int numDistSeps=1, int numSeqSeps=1, int cutoff=128 );
 
+template<typename F>
+void LeastSquares
+( const DistSparseMatrix<F>& A, const DistMultiVec<F>& Y, DistMultiVec<F>& X,
+  bool sequential=true, int numDistSeps=1, int numSeqSeps=1, int cutoff=128 );
+
 } // namespace El
 
 #endif // ifndef EL_SPARSEDIRECT_NUMERIC_HPP

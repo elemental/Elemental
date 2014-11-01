@@ -15,7 +15,11 @@ extern "C" {
 #define C_PROTO(SIG,SIGBASE,F) \
   ElError ElSymmetricSolveDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG X ) \
-  { EL_TRY( SymmetricSolve( *CReflect(A), *CReflect(X) ) ) }
+  { EL_TRY( SymmetricSolve( *CReflect(A), *CReflect(X) ) ) } \
+  ElError ElLeastSquaresDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG X, \
+    ElDistMultiVec_ ## SIG Y ) \
+  { EL_TRY( LeastSquares( *CReflect(A), *CReflect(X), *CReflect(Y) ) ) }
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
   C_PROTO(SIG,SIGBASE,F) \

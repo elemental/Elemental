@@ -30,6 +30,17 @@ EL_EXPORT ElError ElHermitianSolveDistSparse_c
 EL_EXPORT ElError ElHermitianSolveDistSparse_z
 ( ElConstDistSparseMatrix_z A, ElDistMultiVec_z X );
 
+/* Least squares
+   ============= */
+EL_EXPORT ElError ElLeastSquaresDistSparse_s
+( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s Y, ElDistMultiVec_s X );
+EL_EXPORT ElError ElLeastSquaresDistSparse_d
+( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d Y, ElDistMultiVec_d X );
+EL_EXPORT ElError ElLeastSquaresDistSparse_c
+( ElConstDistSparseMatrix_c A, ElConstDistMultiVec_c Y, ElDistMultiVec_c X );
+EL_EXPORT ElError ElLeastSquaresDistSparse_z
+( ElConstDistSparseMatrix_z A, ElConstDistMultiVec_z Y, ElDistMultiVec_z X );
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
