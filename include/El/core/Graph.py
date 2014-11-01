@@ -29,8 +29,14 @@ lib.ElGraphReserve.restype = c_uint
 lib.ElGraphConnect.argtypes = [c_void_p,iType,iType]
 lib.ElGraphConnect.restype = c_uint
 
+lib.ElGraphDisconnect.argtypes = [c_void_p,iType,iType]
+lib.ElGraphDisconnect.restype = c_uint
+
 lib.ElGraphQueueConnection.argtypes = [c_void_p,iType,iType]
 lib.ElGraphQueueConnection.restype = c_uint
+
+lib.ElGraphQueueDisconnection.argtypes = [c_void_p,iType,iType]
+lib.ElGraphQueueDisconnection.restype = c_uint
 
 lib.ElGraphMakeConsistent.argtypes = [c_void_p]
 lib.ElGraphMakeConsistent.restype = c_uint
@@ -95,8 +101,12 @@ class Graph(object):
     lib.ElGraphReserve(self.obj,numEdges)
   def Connect(self,source,target):
     lib.ElGraphConnect(self.obj,source,target)
+  def Disconnect(self,source,target):
+    lib.ElGraphDisconnect(self.obj,source,target)
   def QueueConnection(self,source,target):
     lib.ElGraphQueueConnection(self.obj,source,target)
+  def QueueDisconnection(self,source,target):
+    lib.ElGraphQueueDisconnection(self.obj,source,target)
   def MakeConsistent(self):
     lib.ElGraphMakeConsistent(self.obj)
   # Queries

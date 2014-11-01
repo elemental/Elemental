@@ -50,9 +50,19 @@ EL_EXPORT ElError ElGraphReserve( ElGraph graph, ElInt numEdges );
    --------------------------------------------- */
 EL_EXPORT ElError ElGraphConnect( ElGraph graph, ElInt source, ElInt target );
 
+/* void Graph::Disconnect( Int source, Int target )
+   ------------------------------------------------ */
+EL_EXPORT ElError ElGraphDisconnect
+( ElGraph graph, ElInt source, ElInt target );
+
 /* void Graph::QueueConnection( Int source, Int target )
    ----------------------------------------------------- */
 EL_EXPORT ElError ElGraphQueueConnection
+( ElGraph graph, ElInt source, ElInt target );
+
+/* void Graph::QueueDisconnection( Int source, Int target )
+   -------------------------------------------------------- */
+EL_EXPORT ElError ElGraphQueueDisconnection
 ( ElGraph graph, ElInt source, ElInt target );
 
 /* void Graph::MakeConsistent()

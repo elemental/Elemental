@@ -89,32 +89,95 @@ void DistSparseMatrix<T>::Update( Int row, Int col, T value )
 }
 
 template<typename T>
+void DistSparseMatrix<T>::UpdateLocal( Int localRow, Int col, T value )
+{
+    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::UpdateLocal"))
+    QueueLocalUpdate( localRow, col, value );
+    MakeConsistent();
+}
+
+template<typename T>
+void DistSparseMatrix<T>::Zero( Int row, Int col )
+{
+    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::Zero"))
+    QueueZero( row, col );
+    MakeConsistent();
+}
+
+template<typename T>
+void DistSparseMatrix<T>::ZeroLocal( Int localRow, Int col )
+{
+    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::ZeroLocal"))
+    QueueLocalZero( localRow, col );
+    MakeConsistent();
+}
+
+template<typename T>
 void DistSparseMatrix<T>::QueueUpdate( Int row, Int col, T value )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("DistSparseMatrix::QueueUpdate");
-        AssertConsistentSizes();
-    )
-    distGraph_.QueueConnection( row, col );
+    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::QueueUpdate"))
+    if( row >= FirstLocalRow() && row < FirstLocalRow()+LocalHeight() )
+        QueueLocalUpdate( row-FirstLocalRow(), col, value );
+}
+
+template<typename T>
+void DistSparseMatrix<T>::QueueLocalUpdate( Int localRow, Int col, T value )
+{
+    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::QueueLocalUpdate"))
+    distGraph_.QueueLocalConnection( localRow, col );
     vals_.push_back( value );
+    multMeta.ready = false;
+}
+
+template<typename T>
+void DistSparseMatrix<T>::QueueZero( Int row, Int col )
+{
+    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::QueueZero"))
+    if( row >= FirstLocalRow() && row < FirstLocalRow()+LocalHeight() )
+        QueueLocalZero( row-FirstLocalRow(), col );
+}
+
+template<typename T>
+void DistSparseMatrix<T>::QueueLocalZero( Int localRow, Int col )
+{
+    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::QueueZero"))
+    distGraph_.QueueLocalDisconnection( localRow, col );
     multMeta.ready = false;
 }
 
 template<typename T>
 void DistSparseMatrix<T>::MakeConsistent()
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::MakeConsistent"))
+    DEBUG_ONLY(
+      CallStackEntry cse("DistSparseMatrix::MakeConsistent");
+      if( distGraph_.sources_.size() != distGraph_.targets_.size() || 
+          distGraph_.targets_.size() != vals_.size() )
+          LogicError("Inconsistent sparse matrix buffer sizes");
+    )
 
     if( !distGraph_.consistent_ )
     {
         const Int numLocalEntries = vals_.size();
+        Int numRemoved = 0;
         std::vector<Entry<T>> entries( numLocalEntries );
         for( Int s=0; s<numLocalEntries; ++s )
         {
-            entries[s].indices[0] = distGraph_.sources_[s];
-            entries[s].indices[1] = distGraph_.targets_[s];
-            entries[s].value = vals_[s];
+            std::pair<Int,Int> 
+              candidate(distGraph_.sources_[s],distGraph_.targets_[s]);
+            if( distGraph_.markedForRemoval_.find(candidate) ==
+                distGraph_.markedForRemoval_.end() )
+            {
+                entries[s-numRemoved].indices[0] = distGraph_.sources_[s];
+                entries[s-numRemoved].indices[1] = distGraph_.targets_[s];
+                entries[s-numRemoved].value = vals_[s];
+            }
+            else
+            {
+                ++numRemoved;
+            }
         }
+        distGraph_.markedForRemoval_.clear();
+        entries.resize( numLocalEntries-numRemoved );
         std::sort( entries.begin(), entries.end(), CompareEntries );
 
         // Compress out duplicates
@@ -136,6 +199,7 @@ void DistSparseMatrix<T>::MakeConsistent()
                 entries[lastUnique].value += entries[s].value;
         }
         const Int numUnique = lastUnique+1;
+        entries.resize( numUnique );
 
         distGraph_.sources_.resize( numUnique );
         distGraph_.targets_.resize( numUnique );
@@ -180,21 +244,14 @@ Int DistSparseMatrix<T>::LocalHeight() const
 template<typename T>
 Int DistSparseMatrix<T>::NumLocalEntries() const
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("DistSparseMatrix::NumLocalEntries");
-        AssertConsistentSizes();
-    )
+    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::NumLocalEntries"))
     return distGraph_.NumLocalEdges();
 }
 
 template<typename T>
 Int DistSparseMatrix<T>::Capacity() const
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("DistSparseMatrix::Capacity");
-        AssertConsistentSizes();
-        AssertConsistentCapacities();
-    )
+    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::Capacity"))
     return distGraph_.Capacity();
 }
 
@@ -256,7 +313,7 @@ Int* DistSparseMatrix<T>::SourceBuffer() { return distGraph_.SourceBuffer(); }
 template<typename T>
 Int* DistSparseMatrix<T>::TargetBuffer() { return distGraph_.TargetBuffer(); }
 template<typename T>
-T* DistSparseMatrix<T>::ValueBuffer() { return &vals_[0]; }
+T* DistSparseMatrix<T>::ValueBuffer() { return vals_.data(); }
 
 template<typename T>
 const Int* DistSparseMatrix<T>::LockedSourceBuffer() const
@@ -268,7 +325,7 @@ const Int* DistSparseMatrix<T>::LockedTargetBuffer() const
 
 template<typename T>
 const T* DistSparseMatrix<T>::LockedValueBuffer() const
-{ return &vals_[0]; }
+{ return vals_.data(); }
 
 // Auxiliary routines
 // ==================
@@ -283,22 +340,6 @@ void DistSparseMatrix<T>::AssertConsistent() const
 { 
     if( !Consistent() )
         LogicError("Distributed sparse matrix must be consistent");
-}
-
-template<typename T>
-void DistSparseMatrix<T>::AssertConsistentSizes() const
-{ 
-    distGraph_.AssertConsistentSizes();
-    if( distGraph_.NumLocalEdges() != (int)vals_.size() )
-        LogicError("Inconsistent sparsity sizes");
-}
-
-template<typename T>
-void DistSparseMatrix<T>::AssertConsistentCapacities() const
-{ 
-    distGraph_.AssertConsistentCapacities();
-    if( distGraph_.Capacity() != vals_.capacity() )
-        LogicError("Inconsistent sparsity capacities");
 }
 
 #define PROTO(T) template class DistSparseMatrix<T>;

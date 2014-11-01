@@ -34,8 +34,29 @@ ElError ElDistGraphReserve( ElDistGraph graph, ElInt numEdges )
 ElError ElDistGraphConnect( ElDistGraph graph, ElInt row, ElInt col )
 { EL_TRY( CReflect(graph)->Connect( row, col ) ) }
 
+ElError ElDistGraphConnectLocal( ElDistGraph graph, ElInt localRow, ElInt col )
+{ EL_TRY( CReflect(graph)->ConnectLocal( localRow, col ) ) }
+
+ElError ElDistGraphDisconnect( ElDistGraph graph, ElInt row, ElInt col )
+{ EL_TRY( CReflect(graph)->Disconnect( row, col ) ) }
+
+ElError ElDistGraphDisconnectLocal
+( ElDistGraph graph, ElInt localRow, ElInt col )
+{ EL_TRY( CReflect(graph)->DisconnectLocal( localRow, col ) ) }
+
 ElError ElDistGraphQueueConnection( ElDistGraph graph, ElInt row, ElInt col )
 { EL_TRY( CReflect(graph)->QueueConnection( row, col ) ) }
+
+ElError ElDistGraphQueueLocalConnection
+( ElDistGraph graph, ElInt localRow, ElInt col )
+{ EL_TRY( CReflect(graph)->QueueLocalConnection( localRow, col ) ) }
+
+ElError ElDistGraphQueueDisconnection( ElDistGraph graph, ElInt row, ElInt col )
+{ EL_TRY( CReflect(graph)->QueueDisconnection( row, col ) ) }
+
+ElError ElDistGraphQueueLocalDisconnection
+( ElDistGraph graph, ElInt localRow, ElInt col )
+{ EL_TRY( CReflect(graph)->QueueLocalDisconnection( localRow, col ) ) }
 
 ElError ElDistGraphMakeConsistent( ElDistGraph graph )
 { EL_TRY( CReflect(graph)->MakeConsistent() ) }

@@ -19,11 +19,15 @@ void LeastSquares
 ( const DistSparseMatrix<F>& A, const DistMultiVec<F>& Y, DistMultiVec<F>& X,
   bool sequential, int numDistSeps, int numSeqSteps, int cutoff )
 {
-    DEBUG_ONLY(CallStackEntry cse("LeastSquares"))
+    DEBUG_ONLY(
+        CallStackEntry cse("LeastSquares");
+        if( A.Height() != Y.Height() )
+            LogicError("Heights of A and Y must match");
+    )
     const Int n = A.Width();
     DistSparseMatrix<F> C(A.Comm());
-    C.Resize( n, n );
-    Syrk( ADJOINT, F(1), A, F(0), C );
+    Herk( ADJOINT, Base<F>(1), A, C );
+    X.SetComm( Y.Comm() );
     Zeros( X, n, Y.Width() );
     Multiply( ADJOINT, F(1), A, Y, F(0), X ); 
     HermitianSolve( C, X, sequential, numDistSeps, numSeqSteps, cutoff );

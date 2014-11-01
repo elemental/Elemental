@@ -55,11 +55,17 @@ public:
     // --------
     void Reserve( Int numLocalEdges );
 
-    // A safe edge insertion procedure
+    // Safe edge insertion/removal procedure
     void Connect( Int source, Int target );
+    void ConnectLocal( Int localSource, Int target );
+    void Disconnect( Int source, Int target ); 
+    void DisconnectLocal( Int localSource, Int target );
 
-    // For inserting a sequence of edges and then forcing consistency
+    // For inserting/removing a sequence of edges and then forcing consistency
     void QueueConnection( Int source, Int target );
+    void QueueLocalConnection( Int localSource, Int target ); 
+    void QueueDisconnection( Int source, Int target );
+    void QueueLocalDisconnection( Int localSource, Int target );
     void MakeConsistent();
 
     // Queries
@@ -99,6 +105,7 @@ private:
     Int firstLocalSource_, numLocalSources_;
 
     std::vector<Int> sources_, targets_;
+    std::set<std::pair<Int,Int>> markedForRemoval_;
 
     // Helpers for local indexing
     bool consistent_;
@@ -109,8 +116,6 @@ private:
     ( const std::pair<Int,Int>& a, const std::pair<Int,Int>& b );
 
     void AssertConsistent() const;
-    void AssertConsistentSizes() const;
-    void AssertConsistentCapacities() const;
 
     friend class Graph;
     template<typename F> friend class DistSparseMatrix;

@@ -78,6 +78,17 @@ lib.ElSparseMatrixUpdate_c.restype = c_uint
 lib.ElSparseMatrixUpdate_z.argtypes = [c_void_p,iType,iType,zType]
 lib.ElSparseMatrixUpdate_z.restype = c_uint
 
+lib.ElSparseMatrixZero_i.argtypes = [c_void_p,iType,iType]
+lib.ElSparseMatrixZero_i.restype = c_uint
+lib.ElSparseMatrixZero_s.argtypes = [c_void_p,iType,iType]
+lib.ElSparseMatrixZero_s.restype = c_uint
+lib.ElSparseMatrixZero_d.argtypes = [c_void_p,iType,iType]
+lib.ElSparseMatrixZero_d.restype = c_uint
+lib.ElSparseMatrixZero_c.argtypes = [c_void_p,iType,iType]
+lib.ElSparseMatrixZero_c.restype = c_uint
+lib.ElSparseMatrixZero_z.argtypes = [c_void_p,iType,iType]
+lib.ElSparseMatrixZero_z.restype = c_uint
+
 lib.ElSparseMatrixQueueUpdate_i.argtypes = [c_void_p,iType,iType,iType]
 lib.ElSparseMatrixQueueUpdate_i.restype = c_uint
 lib.ElSparseMatrixQueueUpdate_s.argtypes = [c_void_p,iType,iType,sType]
@@ -88,6 +99,17 @@ lib.ElSparseMatrixQueueUpdate_c.argtypes = [c_void_p,iType,iType,cType]
 lib.ElSparseMatrixQueueUpdate_c.restype = c_uint
 lib.ElSparseMatrixQueueUpdate_z.argtypes = [c_void_p,iType,iType,zType]
 lib.ElSparseMatrixQueueUpdate_z.restype = c_uint
+
+lib.ElSparseMatrixQueueZero_i.argtypes = [c_void_p,iType,iType]
+lib.ElSparseMatrixQueueZero_i.restype = c_uint
+lib.ElSparseMatrixQueueZero_s.argtypes = [c_void_p,iType,iType]
+lib.ElSparseMatrixQueueZero_s.restype = c_uint
+lib.ElSparseMatrixQueueZero_d.argtypes = [c_void_p,iType,iType]
+lib.ElSparseMatrixQueueZero_d.restype = c_uint
+lib.ElSparseMatrixQueueZero_c.argtypes = [c_void_p,iType,iType]
+lib.ElSparseMatrixQueueZero_c.restype = c_uint
+lib.ElSparseMatrixQueueZero_z.argtypes = [c_void_p,iType,iType]
+lib.ElSparseMatrixQueueZero_z.restype = c_uint
 
 lib.ElSparseMatrixMakeConsistent_i.argtypes = [c_void_p]
 lib.ElSparseMatrixMakeConsistent_i.restype = c_uint
@@ -370,6 +392,14 @@ class SparseMatrix(object):
     elif self.tag == cTag: lib.ElSparseMatrixUpdate_c(*args)
     elif self.tag == zTag: lib.ElSparseMatrixUpdate_z(*args)
     else: DataExcept()
+  def Zero(self,row,col):
+    args = [self.obj,row,col]
+    if   self.tag == iTag: lib.ElSparseMatrixZero_i(*args)
+    elif self.tag == sTag: lib.ElSparseMatrixZero_s(*args)
+    elif self.tag == dTag: lib.ElSparseMatrixZero_d(*args)
+    elif self.tag == cTag: lib.ElSparseMatrixZero_c(*args)
+    elif self.tag == zTag: lib.ElSparseMatrixZero_z(*args)
+    else: DataExcept()
   def QueueUpdate(self,row,col,value):
     args = [self.obj,row,col,value]
     if   self.tag == iTag: lib.ElSparseMatrixQueueUpdate_i(*args)
@@ -377,6 +407,14 @@ class SparseMatrix(object):
     elif self.tag == dTag: lib.ElSparseMatrixQueueUpdate_d(*args)
     elif self.tag == cTag: lib.ElSparseMatrixQueueUpdate_c(*args)
     elif self.tag == zTag: lib.ElSparseMatrixQueueUpdate_z(*args)
+    else: DataExcept()
+  def QueueZero(self,row,col):
+    args = [self.obj,row,col]
+    if   self.tag == iTag: lib.ElSparseMatrixQueueZero_i(*args)
+    elif self.tag == sTag: lib.ElSparseMatrixQueueZero_s(*args)
+    elif self.tag == dTag: lib.ElSparseMatrixQueueZero_d(*args)
+    elif self.tag == cTag: lib.ElSparseMatrixQueueZero_c(*args)
+    elif self.tag == zTag: lib.ElSparseMatrixQueueZero_z(*args)
     else: DataExcept()
   def MakeConsistent(self):
     args = [self.obj]

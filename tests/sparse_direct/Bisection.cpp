@@ -49,19 +49,19 @@ main( int argc, char* argv[] )
             const int y = (i/n) % n;
             const int z = i/(n*n);
 
-            graph.QueueConnection( i, i );
+            graph.QueueLocalConnection( iLocal, i );
             if( x != 0 )
-                graph.QueueConnection( i, i-1 );
+                graph.QueueLocalConnection( iLocal, i-1 );
             if( x != n-1 )
-                graph.QueueConnection( i, i+1 );
+                graph.QueueLocalConnection( iLocal, i+1 );
             if( y != 0 )
-                graph.QueueConnection( i, i-n );
+                graph.QueueLocalConnection( iLocal, i-n );
             if( y != n-1 )
-                graph.QueueConnection( i, i+n );
+                graph.QueueLocalConnection( iLocal, i+n );
             if( z != 0 )
-                graph.QueueConnection( i, i-n*n );
+                graph.QueueLocalConnection( iLocal, i-n*n );
             if( z != n-1 )
-                graph.QueueConnection( i, i+n*n );
+                graph.QueueLocalConnection( iLocal, i+n*n );
         }
         graph.MakeConsistent();
         if( display )

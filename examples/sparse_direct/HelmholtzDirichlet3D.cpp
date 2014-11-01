@@ -75,19 +75,19 @@ main( int argc, char* argv[] )
             const int y = (i/n1) % n2;
             const int z = i/(n1*n2);
 
-            A.QueueUpdate( i, i, mainTerm );
+            A.QueueLocalUpdate( iLocal, i, mainTerm );
             if( x != 0 )
-                A.QueueUpdate( i, i-1, -hxInvSquared );
+                A.QueueLocalUpdate( iLocal, i-1, -hxInvSquared );
             if( x != n1-1 )
-                A.QueueUpdate( i, i+1, -hxInvSquared );
+                A.QueueLocalUpdate( iLocal, i+1, -hxInvSquared );
             if( y != 0 )
-                A.QueueUpdate( i, i-n1, -hyInvSquared );
+                A.QueueLocalUpdate( iLocal, i-n1, -hyInvSquared );
             if( y != n2-1 )
-                A.QueueUpdate( i, i+n1, -hyInvSquared );
+                A.QueueLocalUpdate( iLocal, i+n1, -hyInvSquared );
             if( z != 0 )
-                A.QueueUpdate( i, i-n1*n2, -hzInvSquared );
+                A.QueueLocalUpdate( iLocal, i-n1*n2, -hzInvSquared );
             if( z != n3-1 )
-                A.QueueUpdate( i, i+n1*n2, -hzInvSquared );
+                A.QueueLocalUpdate( iLocal, i+n1*n2, -hzInvSquared );
         } 
         A.MakeConsistent();
         mpi::Barrier( comm );

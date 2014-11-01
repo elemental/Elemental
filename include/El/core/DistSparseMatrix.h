@@ -89,7 +89,7 @@ EL_EXPORT ElError ElDistSparseMatrixSetComm_c
 EL_EXPORT ElError ElDistSparseMatrixSetComm_z
 ( ElDistSparseMatrix_z A, MPI_Comm comm );
 
-/* void DistSparseMatrix<T>::Reserve( int numEntries )
+/* void DistSparseMatrix<T>::Reserve( Int numEntries )
    --------------------------------------------------- */
 EL_EXPORT ElError ElDistSparseMatrixReserve_i
 ( ElDistSparseMatrix_i A, ElInt numEntries );
@@ -102,7 +102,7 @@ EL_EXPORT ElError ElDistSparseMatrixReserve_c
 EL_EXPORT ElError ElDistSparseMatrixReserve_z
 ( ElDistSparseMatrix_z A, ElInt numEntries );
 
-/* void DistSparseMatrix<T>::Update( int row, int col, T value )
+/* void DistSparseMatrix<T>::Update( Int row, Int col, T value )
    ------------------------------------------------------------- */
 EL_EXPORT ElError ElDistSparseMatrixUpdate_i
 ( ElDistSparseMatrix_i A, ElInt row, ElInt col, ElInt value );
@@ -115,7 +115,46 @@ EL_EXPORT ElError ElDistSparseMatrixUpdate_c
 EL_EXPORT ElError ElDistSparseMatrixUpdate_z
 ( ElDistSparseMatrix_z A, ElInt row, ElInt col, complex_double value );
 
-/* void DistSparseMatrix<T>::QueueUpdate( int row, int col, T value )
+/* void DistSparseMatrix<T>::UpdateLocal( Int localRow, Int col, T value )
+   ----------------------------------------------------------------------- */
+EL_EXPORT ElError ElDistSparseMatrixUpdateLocal_i
+( ElDistSparseMatrix_i A, ElInt localRow, ElInt col, ElInt value );
+EL_EXPORT ElError ElDistSparseMatrixUpdateLocal_s
+( ElDistSparseMatrix_s A, ElInt localRow, ElInt col, float value );
+EL_EXPORT ElError ElDistSparseMatrixUpdateLocal_d
+( ElDistSparseMatrix_d A, ElInt localRow, ElInt col, double value );
+EL_EXPORT ElError ElDistSparseMatrixUpdateLocal_c
+( ElDistSparseMatrix_c A, ElInt localRow, ElInt col, complex_float value );
+EL_EXPORT ElError ElDistSparseMatrixUpdateLocal_z
+( ElDistSparseMatrix_z A, ElInt localRow, ElInt col, complex_double value );
+
+/* void DistSparseMatrix<T>::Zero( Int row, Int col )
+   -------------------------------------------------- */
+EL_EXPORT ElError ElDistSparseMatrixZero_i
+( ElDistSparseMatrix_i A, ElInt row, ElInt col );
+EL_EXPORT ElError ElDistSparseMatrixZero_s
+( ElDistSparseMatrix_s A, ElInt row, ElInt col );
+EL_EXPORT ElError ElDistSparseMatrixZero_d
+( ElDistSparseMatrix_d A, ElInt row, ElInt col );
+EL_EXPORT ElError ElDistSparseMatrixZero_c
+( ElDistSparseMatrix_c A, ElInt row, ElInt col );
+EL_EXPORT ElError ElDistSparseMatrixZero_z
+( ElDistSparseMatrix_z A, ElInt row, ElInt col );
+
+/* void DistSparseMatrix<T>::ZeroLocal( Int localRow, Int col )
+   ------------------------------------------------------------ */
+EL_EXPORT ElError ElDistSparseMatrixZeroLocal_i
+( ElDistSparseMatrix_i A, ElInt localRow, ElInt col );
+EL_EXPORT ElError ElDistSparseMatrixZeroLocal_s
+( ElDistSparseMatrix_s A, ElInt localRow, ElInt col );
+EL_EXPORT ElError ElDistSparseMatrixZeroLocal_d
+( ElDistSparseMatrix_d A, ElInt localRow, ElInt col );
+EL_EXPORT ElError ElDistSparseMatrixZeroLocal_c
+( ElDistSparseMatrix_c A, ElInt localRow, ElInt col );
+EL_EXPORT ElError ElDistSparseMatrixZeroLocal_z
+( ElDistSparseMatrix_z A, ElInt localRow, ElInt col );
+
+/* void DistSparseMatrix<T>::QueueUpdate( Int row, Int col, T value )
    ------------------------------------------------------------------ */
 EL_EXPORT ElError ElDistSparseMatrixQueueUpdate_i
 ( ElDistSparseMatrix_i A, ElInt row, ElInt col, ElInt value );
@@ -127,6 +166,46 @@ EL_EXPORT ElError ElDistSparseMatrixQueueUpdate_c
 ( ElDistSparseMatrix_c A, ElInt row, ElInt col, complex_float value );
 EL_EXPORT ElError ElDistSparseMatrixQueueUpdate_z
 ( ElDistSparseMatrix_z A, ElInt row, ElInt col, complex_double value );
+
+/* void DistSparseMatrix<T>::QueueLocalUpdate
+   ( Int localRow, Int col, T value )
+   ------------------------------------------ */
+EL_EXPORT ElError ElDistSparseMatrixQueueLocalUpdate_i
+( ElDistSparseMatrix_i A, ElInt localRow, ElInt col, ElInt value );
+EL_EXPORT ElError ElDistSparseMatrixQueueLocalUpdate_s
+( ElDistSparseMatrix_s A, ElInt localRow, ElInt col, float value );
+EL_EXPORT ElError ElDistSparseMatrixQueueLocalUpdate_d
+( ElDistSparseMatrix_d A, ElInt localRow, ElInt col, double value );
+EL_EXPORT ElError ElDistSparseMatrixQueueLocalUpdate_c
+( ElDistSparseMatrix_c A, ElInt localRow, ElInt col, complex_float value );
+EL_EXPORT ElError ElDistSparseMatrixQueueLocalUpdate_z
+( ElDistSparseMatrix_z A, ElInt localRow, ElInt col, complex_double value );
+
+/* void DistSparseMatrix<T>::QueueZero( Int row, Int col )
+   ------------------------------------------------------- */
+EL_EXPORT ElError ElDistSparseMatrixQueueZero_i
+( ElDistSparseMatrix_i A, ElInt row, ElInt col );
+EL_EXPORT ElError ElDistSparseMatrixQueueZero_s
+( ElDistSparseMatrix_s A, ElInt row, ElInt col );
+EL_EXPORT ElError ElDistSparseMatrixQueueZero_d
+( ElDistSparseMatrix_d A, ElInt row, ElInt col );
+EL_EXPORT ElError ElDistSparseMatrixQueueZero_c
+( ElDistSparseMatrix_c A, ElInt row, ElInt col );
+EL_EXPORT ElError ElDistSparseMatrixQueueZero_z
+( ElDistSparseMatrix_z A, ElInt row, ElInt col );
+
+/* void DistSparseMatrix<T>::QueueLocalZero( Int localRow, Int col )
+   ----------------------------------------------------------------- */
+EL_EXPORT ElError ElDistSparseMatrixQueueLocalZero_i
+( ElDistSparseMatrix_i A, ElInt localRow, ElInt col );
+EL_EXPORT ElError ElDistSparseMatrixQueueLocalZero_s
+( ElDistSparseMatrix_s A, ElInt localRow, ElInt col );
+EL_EXPORT ElError ElDistSparseMatrixQueueLocalZero_d
+( ElDistSparseMatrix_d A, ElInt localRow, ElInt col );
+EL_EXPORT ElError ElDistSparseMatrixQueueLocalZero_c
+( ElDistSparseMatrix_c A, ElInt localRow, ElInt col );
+EL_EXPORT ElError ElDistSparseMatrixQueueLocalZero_z
+( ElDistSparseMatrix_z A, ElInt localRow, ElInt col );
 
 /* void DistSparseMatrix<T>::MakeConsistent()
    ------------------------------------------ */ 

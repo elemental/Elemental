@@ -52,11 +52,13 @@ public:
     // --------
     void Reserve( Int numEntries );
 
-    // A safe update mechanism
+    // A safe update/zeroing mechanism
     void Update( Int row, Int col, T value );
+    void Zero( Int row, Int col );
 
     // For performing many updates and forcing consistency at the end
     void QueueUpdate( Int row, Int col, T value );
+    void QueueZero( Int row, Int col );
     void MakeConsistent();
 
     // Queries
@@ -93,8 +95,6 @@ private:
     static bool CompareEntries( const Entry<T>& a, const Entry<T>& b );
 
     void AssertConsistent() const;
-    void AssertConsistentSizes() const;
-    void AssertConsistentCapacities() const;
 
     template<typename U> friend class DistSparseMatrix;
     template<typename U> 

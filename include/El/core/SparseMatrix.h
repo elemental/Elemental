@@ -71,7 +71,7 @@ EL_EXPORT ElError ElSparseMatrixResize_c
 EL_EXPORT ElError ElSparseMatrixResize_z
 ( ElSparseMatrix_z A, ElInt height, ElInt width );
 
-/* void SparseMatrix<T>::Reserve( int numEntries )
+/* void SparseMatrix<T>::Reserve( Int numEntries )
    ----------------------------------------------- */
 EL_EXPORT ElError ElSparseMatrixReserve_i
 ( ElSparseMatrix_i A, ElInt numEntries );
@@ -84,7 +84,7 @@ EL_EXPORT ElError ElSparseMatrixReserve_c
 EL_EXPORT ElError ElSparseMatrixReserve_z
 ( ElSparseMatrix_z A, ElInt numEntries );
 
-/* void SparseMatrix<T>::Update( int row, int col, T value )
+/* void SparseMatrix<T>::Update( Int row, Int col, T value )
    --------------------------------------------------------- */
 EL_EXPORT ElError ElSparseMatrixUpdate_i
 ( ElSparseMatrix_i A, ElInt row, ElInt col, ElInt value );
@@ -97,7 +97,20 @@ EL_EXPORT ElError ElSparseMatrixUpdate_c
 EL_EXPORT ElError ElSparseMatrixUpdate_z
 ( ElSparseMatrix_z A, ElInt row, ElInt col, complex_double value );
 
-/* void SparseMatrix<T>::QueueUpdate( int row, int col, T value )
+/* void SparseMatrix<T>::Zero( Int row, Int col )
+   ---------------------------------------------- */
+EL_EXPORT ElError ElSparseMatrixZero_i
+( ElSparseMatrix_i A, ElInt row, ElInt col );
+EL_EXPORT ElError ElSparseMatrixZero_s
+( ElSparseMatrix_s A, ElInt row, ElInt col );
+EL_EXPORT ElError ElSparseMatrixZero_d
+( ElSparseMatrix_d A, ElInt row, ElInt col );
+EL_EXPORT ElError ElSparseMatrixZero_c
+( ElSparseMatrix_c A, ElInt row, ElInt col );
+EL_EXPORT ElError ElSparseMatrixZero_z
+( ElSparseMatrix_z A, ElInt row, ElInt col );
+
+/* void SparseMatrix<T>::QueueUpdate( Int row, Int col, T value )
    -------------------------------------------------------------- */
 EL_EXPORT ElError ElSparseMatrixQueueUpdate_i
 ( ElSparseMatrix_i A, ElInt row, ElInt col, ElInt value );
@@ -109,6 +122,19 @@ EL_EXPORT ElError ElSparseMatrixQueueUpdate_c
 ( ElSparseMatrix_c A, ElInt row, ElInt col, complex_float value );
 EL_EXPORT ElError ElSparseMatrixQueueUpdate_z
 ( ElSparseMatrix_z A, ElInt row, ElInt col, complex_double value );
+
+/* void SparseMatrix<T>::QueueZero( Int row, Int col )
+   --------------------------------------------------- */
+EL_EXPORT ElError ElSparseMatrixQueueZero_i
+( ElSparseMatrix_i A, ElInt row, ElInt col );
+EL_EXPORT ElError ElSparseMatrixQueueZero_s
+( ElSparseMatrix_s A, ElInt row, ElInt col );
+EL_EXPORT ElError ElSparseMatrixQueueZero_d
+( ElSparseMatrix_d A, ElInt row, ElInt col );
+EL_EXPORT ElError ElSparseMatrixQueueZero_c
+( ElSparseMatrix_c A, ElInt row, ElInt col );
+EL_EXPORT ElError ElSparseMatrixQueueZero_z
+( ElSparseMatrix_z A, ElInt row, ElInt col );
 
 /* void SparseMatrix<T>::MakeConsistent()
    -------------------------------------- */ 

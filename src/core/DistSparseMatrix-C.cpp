@@ -33,9 +33,29 @@ extern "C" {
   ElError ElDistSparseMatrixUpdate_ ## SIG \
   ( ElDistSparseMatrix_ ## SIG A, ElInt row, ElInt col, CREFLECT(T) value ) \
   { EL_TRY( CReflect(A)->Update(row,col,CReflect(value)) ) } \
+  ElError ElDistSparseMatrixUpdateLocal_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG A, \
+    ElInt localRow, ElInt col, CREFLECT(T) value ) \
+  { EL_TRY( CReflect(A)->UpdateLocal(localRow,col,CReflect(value)) ) } \
+  ElError ElDistSparseMatrixZero_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG A, ElInt row, ElInt col ) \
+  { EL_TRY( CReflect(A)->Zero(row,col) ) } \
+  ElError ElDistSparseMatrixZeroLocal_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG A, ElInt localRow, ElInt col ) \
+  { EL_TRY( CReflect(A)->ZeroLocal(localRow,col) ) } \
   ElError ElDistSparseMatrixQueueUpdate_ ## SIG \
   ( ElDistSparseMatrix_ ## SIG A, ElInt row, ElInt col, CREFLECT(T) value ) \
   { EL_TRY( CReflect(A)->QueueUpdate(row,col,CReflect(value)) ) } \
+  ElError ElDistSparseMatrixQueueLocalUpdate_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG A, \
+    ElInt localRow, ElInt col, CREFLECT(T) value ) \
+  { EL_TRY( CReflect(A)->QueueLocalUpdate(localRow,col,CReflect(value)) ) } \
+  ElError ElDistSparseMatrixQueueZero_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG A, ElInt row, ElInt col ) \
+  { EL_TRY( CReflect(A)->QueueZero(row,col) ) } \
+  ElError ElDistSparseMatrixQueueLocalZero_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG A, ElInt localRow, ElInt col ) \
+  { EL_TRY( CReflect(A)->QueueLocalZero(localRow,col) ) } \
   ElError ElDistSparseMatrixMakeConsistent_ ## SIG \
   ( ElDistSparseMatrix_ ## SIG A ) \
   { EL_TRY( CReflect(A)->MakeConsistent() ) } \

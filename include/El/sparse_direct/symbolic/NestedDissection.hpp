@@ -1183,15 +1183,7 @@ BuildChildFromPerm
     {
         const int source = rowRecvInds[s];
         const int numConnections = rowRecvLengths[s];
-        DEBUG_ONLY(
-            const int childFirstLocalSource = child.FirstLocalSource();
-            const int numChildLocalSources = child.NumLocalSources();
-            const int adjustedSource = 
-                ( onLeft ? source : source-leftChildSize );
-            if( adjustedSource < childFirstLocalSource || 
-                adjustedSource >= childFirstLocalSource+numChildLocalSources )
-                LogicError("source was out of bounds");
-        )
+        const int childFirstLocalSource = child.FirstLocalSource();
         for( int t=0; t<numConnections; ++t )
         {
             const int target = recvInds[off++];
@@ -1205,7 +1197,8 @@ BuildChildFromPerm
                          "  ",source," touches ",target," and leftChildSize=",
                          leftChildSize);
                 )
-                child.QueueConnection( source, target );
+                child.QueueLocalConnection
+                ( source-childFirstLocalSource, target );
             }
             else
             {
@@ -1214,8 +1207,9 @@ BuildChildFromPerm
                         LogicError
                         ("Invalid bisection, right set touches left set");
                 )
-                child.QueueConnection
-                ( source-leftChildSize, target-leftChildSize );
+                child.QueueLocalConnection
+                ( source-leftChildSize-childFirstLocalSource, 
+                  target-leftChildSize );
             }
         }
     }

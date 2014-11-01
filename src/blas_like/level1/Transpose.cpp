@@ -209,7 +209,9 @@ void Transpose
       valueRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
     B.Reserve( totalRecv );
     for( Int k=0; k<totalRecv; ++k )
-        B.QueueUpdate( sourceRecvBuf[k], targetRecvBuf[k], valueRecvBuf[k] );
+        B.QueueLocalUpdate
+        ( sourceRecvBuf[k]-B.FirstLocalRow(), 
+          targetRecvBuf[k], valueRecvBuf[k] );
     B.MakeConsistent();
 }
 

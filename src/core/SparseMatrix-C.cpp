@@ -28,9 +28,15 @@ extern "C" {
   ElError ElSparseMatrixUpdate_ ## SIG \
   ( ElSparseMatrix_ ## SIG A, ElInt row, ElInt col, CREFLECT(T) value ) \
   { EL_TRY( CReflect(A)->Update(row,col,CReflect(value)) ) } \
+  ElError ElSparseMatrixZero_ ## SIG \
+  ( ElSparseMatrix_ ## SIG A, ElInt row, ElInt col ) \
+  { EL_TRY( CReflect(A)->Zero(row,col) ) } \
   ElError ElSparseMatrixQueueUpdate_ ## SIG \
   ( ElSparseMatrix_ ## SIG A, ElInt row, ElInt col, CREFLECT(T) value ) \
   { EL_TRY( CReflect(A)->QueueUpdate(row,col,CReflect(value)) ) } \
+  ElError ElSparseMatrixQueueZero_ ## SIG \
+  ( ElSparseMatrix_ ## SIG A, ElInt row, ElInt col ) \
+  { EL_TRY( CReflect(A)->QueueZero(row,col) ) } \
   ElError ElSparseMatrixMakeConsistent_ ## SIG ( ElSparseMatrix_ ## SIG A ) \
   { EL_TRY( CReflect(A)->MakeConsistent() ) } \
   ElError ElSparseMatrixHeight_ ## SIG \

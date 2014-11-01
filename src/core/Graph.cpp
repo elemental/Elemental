@@ -119,11 +119,17 @@ void Graph::Connect( Int source, Int target )
     MakeConsistent();
 }
 
+void Graph::Disconnect( Int source, Int target )
+{
+    DEBUG_ONLY(CallStackEntry cse("Graph::Disconnect"))
+    QueueDisconnection( source, target );
+    MakeConsistent();
+}
+
 void Graph::QueueConnection( Int source, Int target )
 {
     DEBUG_ONLY(
       CallStackEntry cse("Graph::QueueConnection");
-      AssertConsistentSizes();
       const Int capacity = Capacity();
       const Int numEdges = NumEdges();
       if( numEdges == capacity )
@@ -141,28 +147,51 @@ void Graph::QueueConnection( Int source, Int target )
     consistent_ = false;
 }
 
+void Graph::QueueDisconnection( Int source, Int target )
+{
+    DEBUG_ONLY(CallStackEntry cse("Graph::QueueDisconnection"))
+    markedForRemoval_.insert( std::pair<Int,Int>(source,target) );
+    consistent_ = false;
+}
+
 void Graph::MakeConsistent()
 {
-    DEBUG_ONLY(CallStackEntry cse("Graph::MakeConsistent"))
+    DEBUG_ONLY(
+      CallStackEntry cse("Graph::MakeConsistent");
+      if( sources_.size() != targets_.size() )
+          LogicError("Inconsistent graph buffer sizes");
+    )
     if( !consistent_ )
     {
         const Int numEdges = sources_.size();
         // TODO: Consider switching to using the following by default so that
         //       no extra allocation/memcpy is required
+        Int numRemoved=0;
         std::vector<std::pair<Int,Int>> pairs( numEdges );
         for( Int e=0; e<numEdges; ++e )
         {
-            pairs[e].first = sources_[e];
-            pairs[e].second = targets_[e];
+            std::pair<Int,Int> candidate(sources_[e],targets_[e]);
+            if( markedForRemoval_.find(candidate) == markedForRemoval_.end() )
+            {
+                pairs[e-numRemoved].first = sources_[e];
+                pairs[e-numRemoved].second = targets_[e];
+            }
+            else
+            {
+                ++numRemoved;
+            }
         }
+        markedForRemoval_.clear();
+        pairs.resize( numEdges-numRemoved );
         std::sort( pairs.begin(), pairs.end(), ComparePairs );
 
         // Compress out duplicates
         Int lastUnique=0;
-        for( Int e=1; e<numEdges; ++e )
+        for( Int e=1; e<pairs.size(); ++e )
             if( pairs[e] != pairs[lastUnique] )
                 pairs[++lastUnique] = pairs[e];
         const Int numUnique = lastUnique+1;
+        pairs.resize( numUnique );
 
         sources_.resize( numUnique );
         targets_.resize( numUnique );
@@ -186,21 +215,14 @@ Int Graph::NumTargets() const { return numTargets_; }
 
 Int Graph::NumEdges() const
 {
-    DEBUG_ONLY(
-      CallStackEntry cse("Graph::NumEdges");
-      AssertConsistentSizes();
-    )
+    DEBUG_ONLY(CallStackEntry cse("Graph::NumEdges"))
     return sources_.size();
 }
 
 Int Graph::Capacity() const
 {
-    DEBUG_ONLY(
-      CallStackEntry cse("Graph::Capacity");
-      AssertConsistentSizes();
-      AssertConsistentCapacities();
-    )
-    return sources_.capacity();
+    DEBUG_ONLY(CallStackEntry cse("Graph::Capacity"))
+    return std::min(sources_.capacity(),targets_.capacity());
 }
 
 bool Graph::Consistent() const { return consistent_; }
@@ -249,11 +271,11 @@ Int Graph::NumConnections( Int source ) const
     return EdgeOffset(source+1) - EdgeOffset(source);
 }
 
-Int* Graph::SourceBuffer() { return &sources_[0]; }
-Int* Graph::TargetBuffer() { return &targets_[0]; }
+Int* Graph::SourceBuffer() { return sources_.data(); }
+Int* Graph::TargetBuffer() { return targets_.data(); }
 
-const Int* Graph::LockedSourceBuffer() const { return &sources_[0]; }
-const Int* Graph::LockedTargetBuffer() const { return &targets_[0]; }
+const Int* Graph::LockedSourceBuffer() const { return sources_.data(); }
+const Int* Graph::LockedTargetBuffer() const { return targets_.data(); }
 
 // Auxiliary functions
 // ===================
@@ -290,18 +312,6 @@ void Graph::AssertConsistent() const
 { 
     if( !consistent_ )
         LogicError("Graph was not consistent; run MakeConsistent()");
-}
-
-void Graph::AssertConsistentSizes() const
-{ 
-    if( sources_.size() != targets_.size() )
-        LogicError("Inconsistent graph sizes");
-}
-
-void Graph::AssertConsistentCapacities() const
-{ 
-    if( sources_.capacity() != targets_.capacity() )
-        LogicError("Inconsistent graph capacities");
 }
 
 } // namespace El

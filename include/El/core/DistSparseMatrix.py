@@ -91,6 +91,39 @@ lib.ElDistSparseMatrixUpdate_c.restype = c_uint
 lib.ElDistSparseMatrixUpdate_z.argtypes = [c_void_p,iType,iType,zType]
 lib.ElDistSparseMatrixUpdate_z.restype = c_uint
 
+lib.ElDistSparseMatrixUpdateLocal_i.argtypes = [c_void_p,iType,iType,iType]
+lib.ElDistSparseMatrixUpdateLocal_i.restype = c_uint
+lib.ElDistSparseMatrixUpdateLocal_s.argtypes = [c_void_p,iType,iType,sType]
+lib.ElDistSparseMatrixUpdateLocal_s.restype = c_uint
+lib.ElDistSparseMatrixUpdateLocal_d.argtypes = [c_void_p,iType,iType,dType]
+lib.ElDistSparseMatrixUpdateLocal_d.restype = c_uint
+lib.ElDistSparseMatrixUpdateLocal_c.argtypes = [c_void_p,iType,iType,cType]
+lib.ElDistSparseMatrixUpdateLocal_c.restype = c_uint
+lib.ElDistSparseMatrixUpdateLocal_z.argtypes = [c_void_p,iType,iType,zType]
+lib.ElDistSparseMatrixUpdateLocal_z.restype = c_uint
+
+lib.ElDistSparseMatrixZero_i.argtypes = [c_void_p,iType,iType]
+lib.ElDistSparseMatrixZero_i.restype = c_uint
+lib.ElDistSparseMatrixZero_s.argtypes = [c_void_p,iType,iType]
+lib.ElDistSparseMatrixZero_s.restype = c_uint
+lib.ElDistSparseMatrixZero_d.argtypes = [c_void_p,iType,iType]
+lib.ElDistSparseMatrixZero_d.restype = c_uint
+lib.ElDistSparseMatrixZero_c.argtypes = [c_void_p,iType,iType]
+lib.ElDistSparseMatrixZero_c.restype = c_uint
+lib.ElDistSparseMatrixZero_z.argtypes = [c_void_p,iType,iType]
+lib.ElDistSparseMatrixZero_z.restype = c_uint
+
+lib.ElDistSparseMatrixZeroLocal_i.argtypes = [c_void_p,iType,iType]
+lib.ElDistSparseMatrixZeroLocal_i.restype = c_uint
+lib.ElDistSparseMatrixZeroLocal_s.argtypes = [c_void_p,iType,iType]
+lib.ElDistSparseMatrixZeroLocal_s.restype = c_uint
+lib.ElDistSparseMatrixZeroLocal_d.argtypes = [c_void_p,iType,iType]
+lib.ElDistSparseMatrixZeroLocal_d.restype = c_uint
+lib.ElDistSparseMatrixZeroLocal_c.argtypes = [c_void_p,iType,iType]
+lib.ElDistSparseMatrixZeroLocal_c.restype = c_uint
+lib.ElDistSparseMatrixZeroLocal_z.argtypes = [c_void_p,iType,iType]
+lib.ElDistSparseMatrixZeroLocal_z.restype = c_uint
+
 lib.ElDistSparseMatrixQueueUpdate_i.argtypes = [c_void_p,iType,iType,iType]
 lib.ElDistSparseMatrixQueueUpdate_i.restype = c_uint
 lib.ElDistSparseMatrixQueueUpdate_s.argtypes = [c_void_p,iType,iType,sType]
@@ -101,6 +134,39 @@ lib.ElDistSparseMatrixQueueUpdate_c.argtypes = [c_void_p,iType,iType,cType]
 lib.ElDistSparseMatrixQueueUpdate_c.restype = c_uint
 lib.ElDistSparseMatrixQueueUpdate_z.argtypes = [c_void_p,iType,iType,zType]
 lib.ElDistSparseMatrixQueueUpdate_z.restype = c_uint
+
+lib.ElDistSparseMatrixQueueLocalUpdate_i.argtypes = [c_void_p,iType,iType,iType]
+lib.ElDistSparseMatrixQueueLocalUpdate_i.restype = c_uint
+lib.ElDistSparseMatrixQueueLocalUpdate_s.argtypes = [c_void_p,iType,iType,sType]
+lib.ElDistSparseMatrixQueueLocalUpdate_s.restype = c_uint
+lib.ElDistSparseMatrixQueueLocalUpdate_d.argtypes = [c_void_p,iType,iType,dType]
+lib.ElDistSparseMatrixQueueLocalUpdate_d.restype = c_uint
+lib.ElDistSparseMatrixQueueLocalUpdate_c.argtypes = [c_void_p,iType,iType,cType]
+lib.ElDistSparseMatrixQueueLocalUpdate_c.restype = c_uint
+lib.ElDistSparseMatrixQueueLocalUpdate_z.argtypes = [c_void_p,iType,iType,zType]
+lib.ElDistSparseMatrixQueueLocalUpdate_z.restype = c_uint
+
+lib.ElDistSparseMatrixQueueZero_i.argtypes = [c_void_p,iType,iType]
+lib.ElDistSparseMatrixQueueZero_i.restype = c_uint
+lib.ElDistSparseMatrixQueueZero_s.argtypes = [c_void_p,iType,iType]
+lib.ElDistSparseMatrixQueueZero_s.restype = c_uint
+lib.ElDistSparseMatrixQueueZero_d.argtypes = [c_void_p,iType,iType]
+lib.ElDistSparseMatrixQueueZero_d.restype = c_uint
+lib.ElDistSparseMatrixQueueZero_c.argtypes = [c_void_p,iType,iType]
+lib.ElDistSparseMatrixQueueZero_c.restype = c_uint
+lib.ElDistSparseMatrixQueueZero_z.argtypes = [c_void_p,iType,iType]
+lib.ElDistSparseMatrixQueueZero_z.restype = c_uint
+
+lib.ElDistSparseMatrixQueueLocalZero_i.argtypes = [c_void_p,iType,iType]
+lib.ElDistSparseMatrixQueueLocalZero_i.restype = c_uint
+lib.ElDistSparseMatrixQueueLocalZero_s.argtypes = [c_void_p,iType,iType]
+lib.ElDistSparseMatrixQueueLocalZero_s.restype = c_uint
+lib.ElDistSparseMatrixQueueLocalZero_d.argtypes = [c_void_p,iType,iType]
+lib.ElDistSparseMatrixQueueLocalZero_d.restype = c_uint
+lib.ElDistSparseMatrixQueueLocalZero_c.argtypes = [c_void_p,iType,iType]
+lib.ElDistSparseMatrixQueueLocalZero_c.restype = c_uint
+lib.ElDistSparseMatrixQueueLocalZero_z.argtypes = [c_void_p,iType,iType]
+lib.ElDistSparseMatrixQueueLocalZero_z.restype = c_uint
 
 lib.ElDistSparseMatrixMakeConsistent_i.argtypes = [c_void_p]
 lib.ElDistSparseMatrixMakeConsistent_i.restype = c_uint
@@ -460,6 +526,30 @@ class DistSparseMatrix(object):
     elif self.tag == cTag: lib.ElDistSparseMatrixUpdate_c(*args)
     elif self.tag == zTag: lib.ElDistSparseMatrixUpdate_z(*args)
     else: DataExcept()
+  def UpdateLocal(self,localRow,col,value):
+    args = [self.obj,localRow,col,value]
+    if   self.tag == iTag: lib.ElDistSparseMatrixUpdateLocal_i(*args)
+    elif self.tag == sTag: lib.ElDistSparseMatrixUpdateLocal_s(*args)
+    elif self.tag == dTag: lib.ElDistSparseMatrixUpdateLocal_d(*args)
+    elif self.tag == cTag: lib.ElDistSparseMatrixUpdateLocal_c(*args)
+    elif self.tag == zTag: lib.ElDistSparseMatrixUpdateLocal_z(*args)
+    else: DataExcept()
+  def Zero(self,row,col):
+    args = [self.obj,row,col]
+    if   self.tag == iTag: lib.ElDistSparseMatrixZero_i(*args)
+    elif self.tag == sTag: lib.ElDistSparseMatrixZero_s(*args)
+    elif self.tag == dTag: lib.ElDistSparseMatrixZero_d(*args)
+    elif self.tag == cTag: lib.ElDistSparseMatrixZero_c(*args)
+    elif self.tag == zTag: lib.ElDistSparseMatrixZero_z(*args)
+    else: DataExcept()
+  def ZeroLocal(self,localRow,col):
+    args = [self.obj,localRow,col]
+    if   self.tag == iTag: lib.ElDistSparseMatrixZeroLocal_i(*args)
+    elif self.tag == sTag: lib.ElDistSparseMatrixZeroLocal_s(*args)
+    elif self.tag == dTag: lib.ElDistSparseMatrixZeroLocal_d(*args)
+    elif self.tag == cTag: lib.ElDistSparseMatrixZeroLocal_c(*args)
+    elif self.tag == zTag: lib.ElDistSparseMatrixZeroLocal_z(*args)
+    else: DataExcept()
   def QueueUpdate(self,row,col,value):
     args = [self.obj,row,col,value]
     if   self.tag == iTag: lib.ElDistSparseMatrixQueueUpdate_i(*args)
@@ -467,6 +557,30 @@ class DistSparseMatrix(object):
     elif self.tag == dTag: lib.ElDistSparseMatrixQueueUpdate_d(*args)
     elif self.tag == cTag: lib.ElDistSparseMatrixQueueUpdate_c(*args)
     elif self.tag == zTag: lib.ElDistSparseMatrixQueueUpdate_z(*args)
+    else: DataExcept()
+  def QueueLocalUpdate(self,localRow,col,value):
+    args = [self.obj,localRow,col,value]
+    if   self.tag == iTag: lib.ElDistSparseMatrixQueueLocalUpdate_i(*args)
+    elif self.tag == sTag: lib.ElDistSparseMatrixQueueLocalUpdate_s(*args)
+    elif self.tag == dTag: lib.ElDistSparseMatrixQueueLocalUpdate_d(*args)
+    elif self.tag == cTag: lib.ElDistSparseMatrixQueueLocalUpdate_c(*args)
+    elif self.tag == zTag: lib.ElDistSparseMatrixQueueLocalUpdate_z(*args)
+    else: DataExcept()
+  def QueueZero(self,row,col):
+    args = [self.obj,row,col]
+    if   self.tag == iTag: lib.ElDistSparseMatrixQueueZero_i(*args)
+    elif self.tag == sTag: lib.ElDistSparseMatrixQueueZero_s(*args)
+    elif self.tag == dTag: lib.ElDistSparseMatrixQueueZero_d(*args)
+    elif self.tag == cTag: lib.ElDistSparseMatrixQueueZero_c(*args)
+    elif self.tag == zTag: lib.ElDistSparseMatrixQueueZero_z(*args)
+    else: DataExcept()
+  def QueueLocalZero(self,localRow,col):
+    args = [self.obj,localRow,col]
+    if   self.tag == iTag: lib.ElDistSparseMatrixQueueLocalZero_i(*args)
+    elif self.tag == sTag: lib.ElDistSparseMatrixQueueLocalZero_s(*args)
+    elif self.tag == dTag: lib.ElDistSparseMatrixQueueLocalZero_d(*args)
+    elif self.tag == cTag: lib.ElDistSparseMatrixQueueLocalZero_c(*args)
+    elif self.tag == zTag: lib.ElDistSparseMatrixQueueLocalZero_z(*args)
     else: DataExcept()
   def MakeConsistent(self):
     args = [self.obj]

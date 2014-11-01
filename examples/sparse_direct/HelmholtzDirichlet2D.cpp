@@ -70,15 +70,15 @@ main( int argc, char* argv[] )
             const int x = i % n1;
             const int y = i/n1;
 
-            A.QueueUpdate( i, i, mainTerm );
+            A.QueueLocalUpdate( iLocal, i, mainTerm );
             if( x != 0 )
-                A.QueueUpdate( i, i-1, -hxInvSquared );
+                A.QueueLocalUpdate( iLocal, i-1, -hxInvSquared );
             if( x != n1-1 )
-                A.QueueUpdate( i, i+1, -hxInvSquared );
+                A.QueueLocalUpdate( iLocal, i+1, -hxInvSquared );
             if( y != 0 )
-                A.QueueUpdate( i, i-n1, -hyInvSquared );
+                A.QueueLocalUpdate( iLocal, i-n1, -hyInvSquared );
             if( y != n2-1 )
-                A.QueueUpdate( i, i+n1, -hyInvSquared );
+                A.QueueLocalUpdate( iLocal, i+n1, -hyInvSquared );
         } 
         A.MakeConsistent();
         mpi::Barrier( comm );

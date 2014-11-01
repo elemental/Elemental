@@ -170,42 +170,107 @@ void DistGraph::Connect( Int source, Int target )
     MakeConsistent();
 }
 
+void DistGraph::ConnectLocal( Int localSource, Int target )
+{
+    DEBUG_ONLY(CallStackEntry cse("DistGraph::ConnectLocal"))
+    QueueLocalConnection( localSource, target );
+    MakeConsistent();
+}
+
+void DistGraph::Disconnect( Int source, Int target )
+{
+    DEBUG_ONLY(CallStackEntry cse("DistGraph::Disconnect"))
+    QueueDisconnection( source, target );
+    MakeConsistent();
+}
+
+void DistGraph::DisconnectLocal( Int localSource, Int target )
+{
+    DEBUG_ONLY(CallStackEntry cse("DistGraph::DisconnectLocal"))
+    QueueLocalDisconnection( localSource, target );
+    MakeConsistent();
+}
+
 void DistGraph::QueueConnection( Int source, Int target )
 {
+    DEBUG_ONLY(CallStackEntry cse("DistGraph::QueueConnection"))
+    if( source < firstLocalSource_ || 
+        source >= firstLocalSource_+numLocalSources_ )
+        QueueLocalConnection( source-firstLocalSource_, target );
+}
+
+void DistGraph::QueueLocalConnection( Int localSource, Int target )
+{
     DEBUG_ONLY(
-      CallStackEntry cse("DistGraph::QueueConnection");
-      AssertConsistentSizes();
+      CallStackEntry cse("DistGraph::QueueLocalConnection");
       const Int capacity = Capacity();
       const Int numLocalEdges = NumLocalEdges();
       if( numLocalEdges == capacity )
           std::cerr << "WARNING: Pushing back without first reserving space" 
                     << std::endl;
     )
-    if( source < firstLocalSource_ || 
-        source >= firstLocalSource_+numLocalSources_ )
+    if( localSource < 0 || localSource >= numLocalSources_ )
         LogicError
-        ("Source was out of local bounds: ",source," is not in [",
-         firstLocalSource_,",",firstLocalSource_+numLocalSources_,")");
+        ("Local source was out of bounds: ",localSource," is not in [0,",
+         numLocalSources_,")");
     if( target < 0 || target >= numTargets_ )
         LogicError
         ("Target was out of bounds: ",target," is not in [0,",numTargets_,")");
-    sources_.push_back( source );
+    sources_.push_back( firstLocalSource_+localSource );
     targets_.push_back( target );
+    consistent_ = false;
+}
+
+void DistGraph::QueueDisconnection( Int source, Int target )
+{
+    DEBUG_ONLY(CallStackEntry cse("DistGraph::QueueDisconnection"))
+    if( source < firstLocalSource_ || 
+        source >= firstLocalSource_+numLocalSources_ )
+        QueueLocalDisconnection( source-firstLocalSource_, target );
+}
+
+void DistGraph::QueueLocalDisconnection( Int localSource, Int target )
+{
+    DEBUG_ONLY(CallStackEntry cse("DistGraph::QueueLocalDisconnection"))
+    if( localSource < 0 || localSource >= numLocalSources_ )
+        LogicError
+        ("Local source was out of bounds: ",localSource," is not in [0,",
+         numLocalSources_,")");
+    if( target < 0 || target >= numTargets_ )
+        LogicError
+        ("Target was out of bounds: ",target," is not in [0,",numTargets_,")");
+    markedForRemoval_.insert
+    ( std::pair<Int,Int>(firstLocalSource_+localSource,target) );
     consistent_ = false;
 }
 
 void DistGraph::MakeConsistent()
 {
-    DEBUG_ONLY(CallStackEntry cse("DistGraph::MakeConsistent"))
+    DEBUG_ONLY(
+        CallStackEntry cse("DistGraph::MakeConsistent");
+        if( sources_.size() != targets_.size() )
+            LogicError("Inconsistent graph buffer sizes");
+    )
     if( !consistent_ )
     {
         const Int numLocalEdges = sources_.size();
+        Int numRemoved = 0;
         std::vector<std::pair<Int,Int>> pairs( numLocalEdges );
         for( Int e=0; e<numLocalEdges; ++e )
         {
-            pairs[e].first = sources_[e];
-            pairs[e].second = targets_[e];
+            std::pair<Int,Int> candidate(sources_[e],targets_[e]);
+            if( markedForRemoval_.find(candidate) == markedForRemoval_.end() )
+            {
+                pairs[e-numRemoved].first = sources_[e];
+                pairs[e-numRemoved].second = targets_[e];
+            }
+            else
+            {
+                ++numRemoved;
+            }
         }
+        markedForRemoval_.clear();
+        pairs.resize( numLocalEdges-numRemoved );
         std::sort( pairs.begin(), pairs.end(), ComparePairs );
 
         // Compress out duplicates
@@ -220,6 +285,7 @@ void DistGraph::MakeConsistent()
             }
         }
         const Int numUnique = lastUnique+1;
+        pairs.resize( numUnique );
 
         sources_.resize( numUnique );
         targets_.resize( numUnique );
@@ -247,21 +313,14 @@ Int DistGraph::NumLocalSources() const { return numLocalSources_; }
 
 Int DistGraph::NumLocalEdges() const
 {
-    DEBUG_ONLY(
-      CallStackEntry cse("DistGraph::NumLocalEdges");
-      AssertConsistentSizes();
-    )
+    DEBUG_ONLY(CallStackEntry cse("DistGraph::NumLocalEdges"))
     return sources_.size();
 }
 
 Int DistGraph::Capacity() const
 {
-    DEBUG_ONLY(
-      CallStackEntry cse("DistGraph::Capacity");
-      AssertConsistentSizes();
-      AssertConsistentCapacities();
-    )
-    return sources_.capacity();
+    DEBUG_ONLY(CallStackEntry cse("DistGraph::Capacity"))
+    return std::min(sources_.capacity(),targets_.capacity());
 }
 
 bool DistGraph::Consistent() const { return consistent_; }
@@ -315,11 +374,11 @@ Int DistGraph::NumConnections( Int localSource ) const
     return EdgeOffset(localSource+1) - EdgeOffset(localSource);
 }
 
-Int* DistGraph::SourceBuffer() { return &sources_[0]; }
-Int* DistGraph::TargetBuffer() { return &targets_[0]; }
+Int* DistGraph::SourceBuffer() { return sources_.data(); }
+Int* DistGraph::TargetBuffer() { return targets_.data(); }
 
-const Int* DistGraph::LockedSourceBuffer() const { return &sources_[0]; }
-const Int* DistGraph::LockedTargetBuffer() const { return &targets_[0]; }
+const Int* DistGraph::LockedSourceBuffer() const { return sources_.data(); }
+const Int* DistGraph::LockedTargetBuffer() const { return targets_.data(); }
 
 // Auxiliary routines
 // ==================
@@ -356,18 +415,6 @@ void DistGraph::AssertConsistent() const
 {
     if( !consistent_ )
         LogicError("DistGraph was not consistent");
-}
-
-void DistGraph::AssertConsistentSizes() const
-{ 
-    if( sources_.size() != targets_.size() )
-        LogicError("Inconsistent graph sizes");
-}
-
-void DistGraph::AssertConsistentCapacities() const
-{ 
-    if( sources_.capacity() != targets_.capacity() )
-        LogicError("Inconsistent graph capacities");
 }
 
 } // namespace El

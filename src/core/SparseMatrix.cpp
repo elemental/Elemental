@@ -110,14 +110,26 @@ void SparseMatrix<T>::Update( Int row, Int col, T value )
 }
 
 template<typename T>
+void SparseMatrix<T>::Zero( Int row, Int col )
+{
+    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::Zero"))
+    QueueZero( row, col );
+    MakeConsistent();
+}
+
+template<typename T>
 void SparseMatrix<T>::QueueUpdate( Int row, Int col, T value )
 {
-    DEBUG_ONLY(
-      CallStackEntry cse("SparseMatrix::QueueUpdate");
-      AssertConsistentSizes();
-    )
+    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::QueueUpdate"))
     graph_.QueueConnection( row, col );
     vals_.push_back( value );
+}
+
+template<typename T>
+void SparseMatrix<T>::QueueZero( Int row, Int col )
+{
+    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::QueueUpdate"))
+    graph_.QueueDisconnection( row, col );
 }
 
 // Queries
@@ -133,21 +145,14 @@ Int SparseMatrix<T>::Width() const { return graph_.NumTargets(); }
 template<typename T>
 Int SparseMatrix<T>::NumEntries() const
 {
-    DEBUG_ONLY(
-      CallStackEntry cse("SparseMatrix::NumEntries");
-      AssertConsistentSizes();
-    )
+    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::NumEntries"))
     return graph_.NumEdges();
 }
 
 template<typename T>
 Int SparseMatrix<T>::Capacity() const
 {
-    DEBUG_ONLY(
-      CallStackEntry cse("SparseMatrix::Capacity");
-      AssertConsistentSizes();
-      AssertConsistentCapacities();
-    )
+    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::Capacity"))
     return graph_.Capacity();
 }
 
@@ -205,7 +210,7 @@ Int* SparseMatrix<T>::SourceBuffer() { return graph_.SourceBuffer(); }
 template<typename T>
 Int* SparseMatrix<T>::TargetBuffer() { return graph_.TargetBuffer(); }
 template<typename T>
-T* SparseMatrix<T>::ValueBuffer() { return &vals_[0]; }
+T* SparseMatrix<T>::ValueBuffer() { return vals_.data(); }
 
 template<typename T>
 const Int* SparseMatrix<T>::LockedSourceBuffer() const
@@ -215,7 +220,7 @@ const Int* SparseMatrix<T>::LockedTargetBuffer() const
 { return graph_.LockedTargetBuffer(); }
 template<typename T>
 const T* SparseMatrix<T>::LockedValueBuffer() const
-{ return &vals_[0]; }
+{ return vals_.data(); }
 
 // Auxiliary routines
 // ==================
@@ -228,17 +233,34 @@ bool SparseMatrix<T>::CompareEntries( const Entry<T>& a, const Entry<T>& b )
 template<typename T>
 void SparseMatrix<T>::MakeConsistent()
 {
-    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::MakeConsistent"))
+    DEBUG_ONLY(
+      CallStackEntry cse("SparseMatrix::MakeConsistent");
+      if( graph_.sources_.size() != graph_.targets_.size() || 
+          graph_.targets_.size() != vals_.size() )
+          LogicError("Inconsistent sparse matrix buffer sizes");
+    )
     if( !graph_.consistent_ )
     {
         const Int numEntries = vals_.size();
+        Int numRemoved = 0;
         std::vector<Entry<T>> entries( numEntries );
         for( Int s=0; s<numEntries; ++s )
         {
-            entries[s].indices[0] = graph_.sources_[s];
-            entries[s].indices[1] = graph_.targets_[s];
-            entries[s].value = vals_[s];
+            std::pair<Int,Int> candidate(graph_.sources_[s],graph_.targets_[s]);
+            if( graph_.markedForRemoval_.find(candidate) == 
+                graph_.markedForRemoval_.end() )
+            {
+                entries[s-numRemoved].indices[0] = graph_.sources_[s];
+                entries[s-numRemoved].indices[1] = graph_.targets_[s];
+                entries[s-numRemoved].value = vals_[s];
+            }
+            else
+            {
+                ++numRemoved;
+            }
         }
+        graph_.markedForRemoval_.clear();
+        entries.resize( numEntries-numRemoved );
         std::sort( entries.begin(), entries.end(), CompareEntries );
 
         // Compress out duplicates
@@ -257,6 +279,7 @@ void SparseMatrix<T>::MakeConsistent()
                 entries[lastUnique].value += entries[s].value;
         }
         const Int numUnique = lastUnique+1;
+        entries.resize( numUnique );
 
         graph_.sources_.resize( numUnique );
         graph_.targets_.resize( numUnique );
@@ -277,22 +300,6 @@ void SparseMatrix<T>::MakeConsistent()
 template<typename T>
 void SparseMatrix<T>::AssertConsistent() const
 { graph_.AssertConsistent(); }
-
-template<typename T>
-void SparseMatrix<T>::AssertConsistentSizes() const
-{ 
-    graph_.AssertConsistentSizes();
-    if( graph_.NumEdges() != vals_.size() )
-        LogicError("Inconsistent sparsity sizes");
-}
-
-template<typename T>
-void SparseMatrix<T>::AssertConsistentCapacities() const
-{ 
-    graph_.AssertConsistentCapacities();
-    if( graph_.Capacity() != vals_.capacity() )
-        LogicError("Inconsistent sparsity capacities");
-}
 
 #define PROTO(T) template class SparseMatrix<T>;
 #include "El/macros/Instantiate.h"

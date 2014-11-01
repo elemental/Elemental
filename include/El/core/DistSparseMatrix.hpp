@@ -77,11 +77,17 @@ public:
     // --------
     void Reserve( Int numLocalEntries );
 
-    // A safe procedure for applying a local update
+    // A safe procedure for applying a local update or zeroing an entry
     void Update( Int row, Int col, T value );
+    void UpdateLocal( Int localRow, Int col, T value );
+    void Zero( Int row, Int col );
+    void ZeroLocal( Int localRow, Int col );
 
     // For applying a sequence of updates and then forcing consistency
     void QueueUpdate( Int row, Int col, T value );
+    void QueueLocalUpdate( Int localRow, Int col, T value );
+    void QueueZero( Int row, Int col );
+    void QueueLocalZero( Int localRow, Int col );
     void MakeConsistent();
 
     // Queries
@@ -127,8 +133,6 @@ private:
     static bool CompareEntries( const Entry<T>& a, const Entry<T>& b );
 
     void AssertConsistent() const;
-    void AssertConsistentSizes() const;
-    void AssertConsistentCapacities() const;
 
     template<typename U> friend class SparseMatrix;
     template<typename U> friend struct DistSymmFrontTree;

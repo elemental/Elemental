@@ -56,11 +56,13 @@ public:
     // --------
     void Reserve( Int numEdges );
 
-    // A safe edge insertion procedure
+    // Safe (but high overhead) edge insertion/removal procedures
     void Connect( Int source, Int target );
+    void Disconnect( Int source, Int target );
 
-    // For appending many edges and then forcing consistency at the end
+    // For appending/removing many edges and then forcing consistency at the end
     void QueueConnection( Int source, Int target );
+    void QueueDisconnection( Int source, Int target );
     void MakeConsistent();
 
     // Queries
@@ -83,6 +85,7 @@ public:
 private:
     Int numSources_, numTargets_;
     std::vector<Int> sources_, targets_;
+    std::set<std::pair<Int,Int>> markedForRemoval_;
 
     // Helpers for local indexing
     bool consistent_;
@@ -93,8 +96,6 @@ private:
     ( const std::pair<Int,Int>& a, const std::pair<Int,Int>& b );
 
     void AssertConsistent() const;
-    void AssertConsistentSizes() const;
-    void AssertConsistentCapacities() const;
 
     friend class DistGraph;
     template<typename F> friend class SparseMatrix;

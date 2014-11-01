@@ -18,18 +18,18 @@ def ExtendedLaplacian(xSize,ySize):
   A.Reserve(5*localHeight)
   hxInvSq = (1.*(xSize+1))**2
   hyInvSq = (1.*(ySize+1))**2
-  for iLoc in xrange(localHeight):
-    s = firstLocalRow + iLoc
+  for sLoc in xrange(localHeight):
+    s = firstLocalRow + sLoc
     if s < xSize*ySize:
       x = s % xSize
       y = s / xSize
-      A.QueueUpdate( s, s, 2*(hxInvSq+hyInvSq) )
-      if x != 0:       A.QueueUpdate( s, s-1,     -hxInvSq )
-      if x != xSize-1: A.QueueUpdate( s, s+1,     -hxInvSq )
-      if y != 0:       A.QueueUpdate( s, s-xSize, -hyInvSq )
-      if y != ySize-1: A.QueueUpdate( s, s+xSize, -hyInvSq )
+      A.QueueLocalUpdate( sLoc, s, 2*(hxInvSq+hyInvSq) )
+      if x != 0:       A.QueueLocalUpdate( sLoc, s-1,     -hxInvSq )
+      if x != xSize-1: A.QueueLocalUpdate( sLoc, s+1,     -hxInvSq )
+      if y != 0:       A.QueueLocalUpdate( sLoc, s-xSize, -hyInvSq )
+      if y != ySize-1: A.QueueLocalUpdate( sLoc, s+xSize, -hyInvSq )
     else:
-      A.QueueUpdate( s, s-xSize*ySize, 2*(hxInvSq+hyInvSq) )
+      A.QueueLocalUpdate( sLoc, s-xSize*ySize, 2*(hxInvSq+hyInvSq) )
 
   A.MakeConsistent()
   return A
@@ -41,6 +41,7 @@ El.Display( A.DistGraph(), "Graph of A" )
 y = El.DistMultiVec()
 El.Uniform( y, 2*n0*n1, 1 )
 El.Display( y, "y" )
+El.Print( y, "y" )
 rank = El.mpi.WorldRank()
 yNrm = El.Nrm2(y)
 if rank == 0:
@@ -48,10 +49,13 @@ if rank == 0:
 
 x = El.LeastSquares(A,y)
 xNrm = El.Nrm2(x)
+El.Display( x, "x" )
+El.Print( x, "x" )
 if rank == 0:
   print "|| x ||_2 =", xNrm
 El.SparseMultiply(El.NORMAL,-1.,A,x,1.,y)
 El.Display( y, "A x - y" )
+El.Print( y, "A x - y" )
 eNrm = El.Nrm2(y)
 if rank == 0:
   print "|| A x - y ||_2 / || y ||_2 =", eNrm/yNrm

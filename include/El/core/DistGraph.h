@@ -54,10 +54,40 @@ EL_EXPORT ElError ElDistGraphReserve( ElDistGraph graph, ElInt numEdges );
    ------------------------------------------- */
 EL_EXPORT ElError ElDistGraphConnect( ElDistGraph graph, ElInt row, ElInt col );
 
+/* void DistGraph::ConnectLocal( Int localRow, Int col )
+   ----------------------------------------------------- */
+EL_EXPORT ElError ElDistGraphConnectLocal
+( ElDistGraph graph, ElInt localRow, ElInt col );
+
+/* void DistGraph::Disconnect( Int row, Int col )
+   ---------------------------------------------- */
+EL_EXPORT ElError ElDistGraphDisconnect
+( ElDistGraph graph, ElInt row, ElInt col );
+
+/* void DistGraph::DisconnectLocal( Int localRow, Int col )
+   -------------------------------------------------------- */
+EL_EXPORT ElError ElDistGraphDisconnectLocal
+( ElDistGraph graph, ElInt localRow, ElInt col );
+
 /* void DistGraph::QueueConnection( Int row, Int col )
-   ------------------------------------------- */
+   --------------------------------------------------- */
 EL_EXPORT ElError ElDistGraphQueueConnection
 ( ElDistGraph graph, ElInt row, ElInt col );
+
+/* void DistGraph::QueueLocalConnection( Int localRow, Int col )
+   ------------------------------------------------------------- */
+EL_EXPORT ElError ElDistGraphQueueLocalConnection
+( ElDistGraph graph, ElInt localRow, ElInt col );
+
+/* void DistGraph::QueueDisconnection( Int row, Int col )
+   ------------------------------------------------------ */
+EL_EXPORT ElError ElDistGraphQueueDisconnection
+( ElDistGraph graph, ElInt row, ElInt col );
+
+/* void DistGraph::QueueLocalDisconnection( Int localRow, Int col )
+   ---------------------------------------------------------------- */
+EL_EXPORT ElError ElDistGraphQueueLocalDisconnection
+( ElDistGraph graph, ElInt localRow, ElInt col );
 
 /* void DistGraph::MakeConsistent()
    -------------------------------- */ 

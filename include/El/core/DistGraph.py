@@ -33,8 +33,26 @@ lib.ElDistGraphReserve.restype = c_uint
 lib.ElDistGraphConnect.argtypes = [c_void_p,iType,iType]
 lib.ElDistGraphConnect.restype = c_uint
 
+lib.ElDistGraphConnectLocal.argtypes = [c_void_p,iType,iType]
+lib.ElDistGraphConnectLocal.restype = c_uint
+
+lib.ElDistGraphDisconnect.argtypes = [c_void_p,iType,iType]
+lib.ElDistGraphDisconnect.restype = c_uint
+
+lib.ElDistGraphDisconnectLocal.argtypes = [c_void_p,iType,iType]
+lib.ElDistGraphDisconnectLocal.restype = c_uint
+
 lib.ElDistGraphQueueConnection.argtypes = [c_void_p,iType,iType]
 lib.ElDistGraphQueueConnection.restype = c_uint
+
+lib.ElDistGraphQueueLocalConnection.argtypes = [c_void_p,iType,iType]
+lib.ElDistGraphQueueLocalConnection.restype = c_uint
+
+lib.ElDistGraphQueueDisconnection.argtypes = [c_void_p,iType,iType]
+lib.ElDistGraphQueueDisconnection.restype = c_uint
+
+lib.ElDistGraphQueueLocalDisconnection.argtypes = [c_void_p,iType,iType]
+lib.ElDistGraphQueueLocalDisconnection.restype = c_uint
 
 lib.ElDistGraphMakeConsistent.argtypes = [c_void_p]
 lib.ElDistGraphMakeConsistent.restype = c_uint
@@ -113,8 +131,20 @@ class DistGraph(object):
     lib.ElDistGraphReserve(self.obj,numEdges)
   def Connect(self,source,target):
     lib.ElDistGraphConnect(self.obj,source,target)
+  def ConnectLocal(self,localSource,target):
+    lib.ElDistGraphConnectLocal(self.obj,localSource,target)
+  def Disconnect(self,source,target):
+    lib.ElDistGraphDisconnect(self.obj,source,target)
+  def DisconnectLocal(self,localSource,target):
+    lib.ElDistGraphDisconnectLocal(self.obj,localSource,target)
   def QueueConnection(self,source,target):
     lib.ElDistGraphQueueConnection(self.obj,source,target)
+  def QueueLocalConnection(self,localSource,target):
+    lib.ElDistGraphQueueLocalConnection(self.obj,localSource,target)
+  def QueueDisconnection(self,source,target):
+    lib.ElDistGraphQueueDisconnection(self.obj,source,target)
+  def QueueLocalDisconnection(self,localSource,target):
+    lib.ElDistGraphQueueLocalDisconnection(self.obj,localSource,target)
   def MakeConsistent(self):
     lib.ElDistGraphMakeConsistent(self.obj)
   # Queries

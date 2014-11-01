@@ -264,7 +264,9 @@ void Syrk
       valueRecvBuf.data(), recvSizes.data(), recvOffsets.data(), comm );
     C.Reserve( newCapacity );
     for( Int k=0; k<totalRecv; ++k )
-        C.QueueUpdate( sourceRecvBuf[k], targetRecvBuf[k], valueRecvBuf[k] );
+        C.QueueLocalUpdate
+        ( sourceRecvBuf[k]-C.FirstLocalRow(), 
+          targetRecvBuf[k], valueRecvBuf[k] );
     // NOTE: In order to avoid unnecessary workspace, we can directly manipulate
     //       the internals of the class
     /*

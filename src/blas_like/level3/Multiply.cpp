@@ -20,9 +20,8 @@ void Multiply
 {
     DEBUG_ONLY(
         CallStackEntry cse("Multiply");
-        if( A.Height() != Y.Height() || A.Width() != X.Height() || 
-            X.Width() != Y.Width() )
-            LogicError("A, X, and Y did not conform");
+        if( X.Width() != Y.Width() )
+            LogicError("X and Y must have the same width");
     )
     const Int m = A.Height();
     const Int b = X.Width();
@@ -34,6 +33,10 @@ void Multiply
     if( orientation == NORMAL )
     {
         // Y := alpha A X + Y
+        if( A.Height() != Y.Height() )
+            LogicError("A and Y must have the same height");
+        if( A.Width() != X.Height() )
+            LogicError("The width of A must match the height of X");
         for( Int i=0; i<m; ++i )
         {
             const Int off = A.EntryOffset( i );
@@ -53,6 +56,10 @@ void Multiply
     else
     {
         // Y := alpha A' X + Y
+        if( A.Width() != Y.Height() )
+            LogicError("The width of A must match the height of Y");
+        if( A.Height() != X.Height() )
+            LogicError("The height of A must match the height of X");
         const bool conjugate = ( orientation == ADJOINT );
         for( Int i=0; i<m; ++i ) 
         {
@@ -83,9 +90,8 @@ void Multiply
 {
     DEBUG_ONLY(
         CallStackEntry cse("Multiply");
-        if( A.Height() != Y.Height() || A.Width() != X.Height() || 
-            X.Width() != Y.Width() )
-            LogicError("A, X, and Y did not conform");
+        if( X.Width() != Y.Width() )
+            LogicError("X and Y must have the same width");
         if( !mpi::Congruent( A.Comm(), X.Comm() ) || 
             !mpi::Congruent( X.Comm(), Y.Comm() ) )
             LogicError("Communicators did not match");
@@ -110,7 +116,8 @@ void Multiply
         meta.recvSizes.clear();
         meta.recvSizes.resize( commSize, 0 );
         meta.recvOffs.resize( commSize );
-        const Int blocksize = X.Blocksize();
+        const Int blocksize = 
+          ( orientation == NORMAL ? X.Blocksize() : Y.Blocksize() );;
         {
             Int off=0, lastOff=0, qPrev=0;
             std::set<Int>::const_iterator setIt;
@@ -178,6 +185,11 @@ void Multiply
 
     if( orientation == NORMAL )
     {
+        if( A.Height() != Y.Height() )
+            LogicError("A and Y must have the same height");
+        if( A.Width() != X.Height() )
+            LogicError("The width of A must match the height of X");
+
         // Pack the send values
         const Int numSendInds = meta.sendInds.size();
         const Int firstLocalRow = X.FirstLocalRow();
@@ -188,7 +200,8 @@ void Multiply
             const Int iLocal = i - firstLocalRow;
             DEBUG_ONLY(
                 if( iLocal < 0 || iLocal >= X.LocalHeight() )
-                    LogicError("iLocal was out of bounds");
+                    LogicError("iLocal was out of bounds: ",iLocal,
+                                " not in [0,",X.LocalHeight(),")");
             )
             for( Int t=0; t<b; ++t )
                 sendVals[s*b+t] = X.GetLocal( iLocal, t );
@@ -201,8 +214,8 @@ void Multiply
           recvVals.data(), recvSizes.data(), recvOffs.data(), comm );
      
         // Perform the local multiply-accumulate, y := alpha A x + y
-        const Int YLocalHeight = Y.LocalHeight();
-        for( Int iLocal=0; iLocal<YLocalHeight; ++iLocal )
+        const Int ALocalHeight = A.LocalHeight();
+        for( Int iLocal=0; iLocal<ALocalHeight; ++iLocal )
         {
             const Int off = A.EntryOffset( iLocal );
             const Int rowSize = A.NumConnections( iLocal );
@@ -220,9 +233,14 @@ void Multiply
     }
     else
     {
+        if( A.Width() != Y.Height() )
+            LogicError("The width of A must match the height of Y");
+        if( A.Height() != X.Height() )
+            LogicError("The height of A must match the height of X");
+
         // Form and pack the updates to Y
         const bool conjugate = ( orientation == ADJOINT );
-        std::vector<T> sendVals( meta.numRecvInds*b );
+        std::vector<T> sendVals( meta.numRecvInds*b, 0 );
         const Int ALocalHeight = A.LocalHeight();
         for( Int iLocal=0; iLocal<ALocalHeight; ++iLocal )
         {
@@ -236,9 +254,9 @@ void Multiply
                 {
                     const T XVal = X.GetLocal(iLocal,t);
                     if( conjugate )
-                        sendVals[colOff*b+t] = alpha*Conj(AVal)*XVal;
+                        sendVals[colOff*b+t] += alpha*Conj(AVal)*XVal;
                     else
-                        sendVals[colOff*b+t] = alpha*AVal*XVal;
+                        sendVals[colOff*b+t] += alpha*AVal*XVal;
                 }
             }
         }
@@ -258,7 +276,8 @@ void Multiply
             const Int iLocal = i - firstLocalRow;
             DEBUG_ONLY(
                 if( iLocal < 0 || iLocal >= Y.LocalHeight() )
-                    LogicError("iLocal was out of bounds");
+                    LogicError("iLocal was out of bounds: ",iLocal,
+                                " not in [0,",Y.LocalHeight(),")");
             )
             for( Int t=0; t<b; ++t )
                 Y.UpdateLocal( iLocal, t, recvVals[s*b+t] );

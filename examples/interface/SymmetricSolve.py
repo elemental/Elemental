@@ -18,15 +18,15 @@ def Laplacian(xSize,ySize):
   A.Reserve(5*localHeight)
   hxInvSq = (1.*(xSize+1))**2
   hyInvSq = (1.*(ySize+1))**2
-  for iLoc in xrange(localHeight):
-    s = firstLocalRow + iLoc
+  for sLoc in xrange(localHeight):
+    s = firstLocalRow + sLoc
     x = s % xSize
     y = s / xSize
-    A.QueueUpdate( s, s, 2*(hxInvSq+hyInvSq) )
-    if x != 0:       A.QueueUpdate( s, s-1,     -hxInvSq )
-    if x != xSize-1: A.QueueUpdate( s, s+1,     -hxInvSq )
-    if y != 0:       A.QueueUpdate( s, s-xSize, -hyInvSq )
-    if y != ySize-1: A.QueueUpdate( s, s+xSize, -hyInvSq )
+    A.QueueLocalUpdate( sLoc, s, 2*(hxInvSq+hyInvSq) )
+    if x != 0:       A.QueueLocalUpdate( sLoc, s-1,     -hxInvSq )
+    if x != xSize-1: A.QueueLocalUpdate( sLoc, s+1,     -hxInvSq )
+    if y != 0:       A.QueueLocalUpdate( sLoc, s-xSize, -hyInvSq )
+    if y != ySize-1: A.QueueLocalUpdate( sLoc, s+xSize, -hyInvSq )
 
   A.MakeConsistent()
   return A

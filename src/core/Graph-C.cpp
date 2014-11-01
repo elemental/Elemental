@@ -30,8 +30,14 @@ ElError ElGraphReserve( ElGraph graph, ElInt numEdges )
 ElError ElGraphConnect( ElGraph graph, ElInt source, ElInt target )
 { EL_TRY( CReflect(graph)->Connect( source, target ) ) }
 
+ElError ElGraphDisconnect( ElGraph graph, ElInt source, ElInt target )
+{ EL_TRY( CReflect(graph)->Disconnect( source, target ) ) }
+
 ElError ElGraphQueueConnection( ElGraph graph, ElInt source, ElInt target )
 { EL_TRY( CReflect(graph)->QueueConnection( source, target ) ) }
+
+ElError ElGraphQueueDisconnection( ElGraph graph, ElInt source, ElInt target )
+{ EL_TRY( CReflect(graph)->QueueDisconnection( source, target ) ) }
 
 ElError ElGraphMakeConsistent( ElGraph graph )
 { EL_TRY( CReflect(graph)->MakeConsistent() ) }
