@@ -26,7 +26,7 @@ El.Copy( A, A_LU )
 
 # Display the relevant pieces of pivoted LDL factorization
 dSub, p = El.LDL(A,False,El.BUNCH_KAUFMAN_A)
-El.MakeTriangular(El.LOWER,A)
+El.MakeTrapezoidal(El.LOWER,A)
 El.Display(dSub,"Subdiagonal of D from LDL")
 El.Display(p,"LDL permutation")
 El.EntrywiseMap(A,lambda x:math.log10(max(abs(x),1)))

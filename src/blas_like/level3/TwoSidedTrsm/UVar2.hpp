@@ -162,7 +162,7 @@ UVar2
         LocalGemm( ADJOINT, NORMAL, F(1), A01_MC_STAR, U01, F(1), X11_STAR_MR );
         X11.AlignWith( A11 );
         X11.ColSumScatterFrom( X11_STAR_MR );
-        MakeTriangular( UPPER, X11 );
+        MakeTrapezoidal( UPPER, X11 );
         Axpy( F(-1), X11, A11 );
 
         // A01 := A01 inv(U11)

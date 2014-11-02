@@ -54,7 +54,7 @@ void TestCorrectness
 
     // Form L Q
     auto L( A );
-    MakeTriangular( LOWER, L );
+    MakeTrapezoidal( LOWER, L );
     lq::ApplyQ( RIGHT, NORMAL, A, t, d, L );
 
     // Form L Q - A

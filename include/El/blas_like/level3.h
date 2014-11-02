@@ -129,20 +129,20 @@ EL_EXPORT ElError ElHerkDist_z
   double alpha, ElConstDistMatrix_z A, double beta, ElDistMatrix_z C );
 
 EL_EXPORT ElError ElHerkSparse_c
-( ElOrientation orientation,
+( ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstSparseMatrix_c A,
   float beta,  ElSparseMatrix_c C );
 EL_EXPORT ElError ElHerkSparse_z
-( ElOrientation orientation,
+( ElUpperOrLower uplo, ElOrientation orientation,
   double alpha, ElConstSparseMatrix_z A,
   double beta,  ElSparseMatrix_z C );
 
 EL_EXPORT ElError ElHerkDistSparse_c
-( ElOrientation orientation,
+( ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstDistSparseMatrix_c A,
   float beta,  ElDistSparseMatrix_c C );
 EL_EXPORT ElError ElHerkDistSparse_z
-( ElOrientation orientation,
+( ElUpperOrLower uplo, ElOrientation orientation,
   double alpha, ElConstDistSparseMatrix_z A,
   double beta,  ElDistSparseMatrix_z C );
 
@@ -383,36 +383,36 @@ EL_EXPORT ElError ElSyrkDist_z
   complex_double beta,  ElDistMatrix_z C );
 
 EL_EXPORT ElError ElSyrkSparse_s
-( ElOrientation orientation,
+( ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstSparseMatrix_s A,
   float beta,  ElSparseMatrix_s C );
 EL_EXPORT ElError ElSyrkSparse_d
-( ElOrientation orientation,
+( ElUpperOrLower uplo, ElOrientation orientation,
   double alpha, ElConstSparseMatrix_d A,
   double beta,  ElSparseMatrix_d C );
 EL_EXPORT ElError ElSyrkSparse_c
-( ElOrientation orientation,
+( ElUpperOrLower uplo, ElOrientation orientation,
   complex_float alpha, ElConstSparseMatrix_c A,
   complex_float beta,  ElSparseMatrix_c C );
 EL_EXPORT ElError ElSyrkSparse_z
-( ElOrientation orientation,
+( ElUpperOrLower uplo, ElOrientation orientation,
   complex_double alpha, ElConstSparseMatrix_z A,
   complex_double beta,  ElSparseMatrix_z C );
 
 EL_EXPORT ElError ElSyrkDistSparse_s
-( ElOrientation orientation,
+( ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstDistSparseMatrix_s A,
   float beta,  ElDistSparseMatrix_s C );
 EL_EXPORT ElError ElSyrkDistSparse_d
-( ElOrientation orientation,
+( ElUpperOrLower uplo, ElOrientation orientation,
   double alpha, ElConstDistSparseMatrix_d A,
   double beta,  ElDistSparseMatrix_d C );
 EL_EXPORT ElError ElSyrkDistSparse_c
-( ElOrientation orientation,
+( ElUpperOrLower uplo, ElOrientation orientation,
   complex_float alpha, ElConstDistSparseMatrix_c A,
   complex_float beta,  ElDistSparseMatrix_c C );
 EL_EXPORT ElError ElSyrkDistSparse_z
-( ElOrientation orientation,
+( ElUpperOrLower uplo, ElOrientation orientation,
   complex_double alpha, ElConstDistSparseMatrix_z A,
   complex_double beta,  ElDistSparseMatrix_z C );
 

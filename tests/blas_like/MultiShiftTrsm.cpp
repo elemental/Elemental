@@ -30,7 +30,7 @@ void TestMultiShiftTrsm
         HermitianUniformSpectrum( U, n, 1, 10 );
         Uniform( shifts, m, 1, F(0), Real(0.5) );
     }
-    MakeTriangular( uplo, U );
+    MakeTrapezoidal( uplo, U );
 
     auto modShifts(shifts);
     if( orientation == ADJOINT )

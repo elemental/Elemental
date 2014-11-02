@@ -53,7 +53,7 @@ void TestCorrectness
 
     // Form Q R
     auto U( A );
-    MakeTriangular( UPPER, U );
+    MakeTrapezoidal( UPPER, U );
     qr::ApplyQ( LEFT, NORMAL, A, t, d, U );
 
     // Form Q R - A

@@ -55,7 +55,7 @@ main( int argc, char* argv[] )
         // Make a copy of A and then overwrite it with its LDL factorization
         Matrix<Int> perm;
         Matrix<C> dSub, factA( A );
-        MakeTriangular( LOWER, factA );
+        MakeTrapezoidal( LOWER, factA );
         LDL( factA, dSub, perm, conjugate, ctrl );
         if( print && mpi::WorldRank()==0 )
         {

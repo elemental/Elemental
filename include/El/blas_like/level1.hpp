@@ -35,15 +35,15 @@ void Axpy( S alpha, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y );
 template<typename T,typename S>
 void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y );
 
-// AxpyTriangle
-// ============
+// AxpyTrapezoid
+// =============
 template<typename T,typename S>
-void AxpyTriangle
-( UpperOrLower uplo, S alpha, const Matrix<T>& X, Matrix<T>& Y );
+void AxpyTrapezoid
+( UpperOrLower uplo, S alpha, const Matrix<T>& X, Matrix<T>& Y, Int offset=0 );
 template<typename T,typename S>
-void AxpyTriangle
+void AxpyTrapezoid
 ( UpperOrLower uplo, S alpha,
-  const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y );
+  const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y, Int offset=0 );
 
 // Column norms
 // ============
@@ -316,6 +316,11 @@ void MakeHermitian( UpperOrLower uplo, Matrix<T>& A );
 template<typename T>
 void MakeHermitian( UpperOrLower uplo, AbstractDistMatrix<T>& A );
 
+template<typename T>
+void MakeHermitian( UpperOrLower uplo, SparseMatrix<T>& A );
+template<typename T>
+void MakeHermitian( UpperOrLower uplo, DistSparseMatrix<T>& A );
+
 // MakeReal
 // ========
 template<typename Real>
@@ -329,9 +334,16 @@ void MakeReal( AbstractDistMatrix<T>& A );
 // =============
 template<typename T>
 void MakeSymmetric( UpperOrLower uplo, Matrix<T>& A, bool conjugate=false );
-template<typename F>
+template<typename T>
 void MakeSymmetric
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool conjugate=false );
+( UpperOrLower uplo, AbstractDistMatrix<T>& A, bool conjugate=false );
+
+template<typename T>
+void MakeSymmetric
+( UpperOrLower uplo, SparseMatrix<T>& A, bool conjugate=false );
+template<typename T>
+void MakeSymmetric
+( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate=false );
 
 // MakeTrapezoidal
 // ===============
@@ -344,14 +356,10 @@ template<typename T>
 void MakeTrapezoidal
 ( UpperOrLower uplo, AbstractBlockDistMatrix<T>& A, Int offset=0 );
 
-// MakeTriangular
-// ==============
 template<typename T>
-void MakeTriangular( UpperOrLower uplo, Matrix<T>& A );
+void MakeTrapezoidal( UpperOrLower uplo, SparseMatrix<T>& A, Int offset=0 );
 template<typename T>
-void MakeTriangular( UpperOrLower uplo, AbstractDistMatrix<T>& A );
-template<typename T>
-void MakeTriangular( UpperOrLower uplo, AbstractBlockDistMatrix<T>& A );
+void MakeTrapezoidal( UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset=0 );
 
 // Max
 // ===
@@ -563,6 +571,12 @@ void ScaleTrapezoid( S alpha, UpperOrLower uplo, Matrix<T>& A, Int offset=0 );
 template<typename T,typename S>
 void ScaleTrapezoid
 ( S alpha, UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset=0 );
+template<typename T,typename S>
+void ScaleTrapezoid
+( S alpha, UpperOrLower uplo, SparseMatrix<T>& A, Int offset=0 );
+template<typename T,typename S>
+void ScaleTrapezoid
+( S alpha, UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset=0 );
 
 // SetDiagonal
 // ===========

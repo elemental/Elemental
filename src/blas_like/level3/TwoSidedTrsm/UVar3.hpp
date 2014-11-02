@@ -158,7 +158,7 @@ UVar3
         ( UPPER, ADJOINT, 
           F(1), A01_VC_STAR.Matrix(), U01_VC_STAR.Matrix(),
           F(0), X11_STAR_STAR.Matrix() );
-        MakeTriangular( UPPER, X11_STAR_STAR );
+        MakeTrapezoidal( UPPER, X11_STAR_STAR );
         A11.SumScatterUpdate( F(-1), X11_STAR_STAR );
 
         // A11 := inv(U11)' A11 inv(U11)

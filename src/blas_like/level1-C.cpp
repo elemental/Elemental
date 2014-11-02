@@ -31,20 +31,20 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
   ( CREFLECT(T) alpha, ElConstDistMatrix_ ## SIG X, ElDistMatrix_ ## SIG Y ) \
   { EL_TRY( Axpy( CReflect(alpha), *CReflect(X), *CReflect(Y) ) ) } \
   /* tri(Y) := tri(alpha X + Y) */ \
-  ElError ElAxpyTriangle_ ## SIG \
+  ElError ElAxpyTrapezoid_ ## SIG \
   ( ElUpperOrLower uplo, CREFLECT(T) alpha, \
-    ElConstMatrix_ ## SIG X, ElMatrix_ ## SIG Y ) \
+    ElConstMatrix_ ## SIG X, ElMatrix_ ## SIG Y, ElInt offset ) \
   { EL_TRY \
-    ( AxpyTriangle \
+    ( AxpyTrapezoid \
       ( CReflect(uplo), CReflect(alpha), \
-        *CReflect(X), *CReflect(Y) ) ) } \
-  ElError ElAxpyTriangleDist_ ## SIG \
+        *CReflect(X), *CReflect(Y), offset ) ) } \
+  ElError ElAxpyTrapezoidDist_ ## SIG \
   ( ElUpperOrLower uplo, CREFLECT(T) alpha, \
-    ElConstDistMatrix_ ## SIG X, ElDistMatrix_ ## SIG Y ) \
+    ElConstDistMatrix_ ## SIG X, ElDistMatrix_ ## SIG Y, ElInt offset ) \
   { EL_TRY \
-    ( AxpyTriangle \
+    ( AxpyTrapezoid \
       ( CReflect(uplo), CReflect(alpha), \
-        *CReflect(X), *CReflect(Y) ) ) } \
+        *CReflect(X), *CReflect(Y), offset ) ) } \
   /* B = A */ \
   ElError ElCopy_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
@@ -180,6 +180,12 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
   ElError ElMakeSymmetricDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
   { EL_TRY( MakeSymmetric( CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElMakeSymmetricSparse_ ## SIG \
+  ( ElUpperOrLower uplo, ElSparseMatrix_ ## SIG A ) \
+  { EL_TRY( MakeSymmetric( CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElMakeSymmetricDistSparse_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistSparseMatrix_ ## SIG A ) \
+  { EL_TRY( MakeSymmetric( CReflect(uplo), *CReflect(A) ) ) } \
   /* MakeTrapezoidal */ \
   ElError ElMakeTrapezoidal_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElInt offset ) \
@@ -187,13 +193,12 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
   ElError ElMakeTrapezoidalDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElInt offset ) \
   { EL_TRY( MakeTrapezoidal( CReflect(uplo), *CReflect(A), offset ) ) } \
-  /* MakeTriangular */ \
-  ElError ElMakeTriangular_ ## SIG \
-  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
-  { EL_TRY( MakeTriangular( CReflect(uplo), *CReflect(A) ) ) } \
-  ElError ElMakeTriangularDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( MakeTriangular( CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElMakeTrapezoidalSparse_ ## SIG \
+  ( ElUpperOrLower uplo, ElSparseMatrix_ ## SIG A, ElInt offset ) \
+  { EL_TRY( MakeTrapezoidal( CReflect(uplo), *CReflect(A), offset ) ) } \
+  ElError ElMakeTrapezoidalDistSparse_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistSparseMatrix_ ## SIG A, ElInt offset ) \
+  { EL_TRY( MakeTrapezoidal( CReflect(uplo), *CReflect(A), offset ) ) } \
   /* MaxAbs */ \
   ElError ElMaxAbs_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElValueIntPair_ ## SIGBASE *entry ) \
@@ -545,6 +550,12 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
   { EL_TRY( MakeHermitian( CReflect(uplo), *CReflect(A) ) ) } \
   ElError ElMakeHermitianDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
+  { EL_TRY( MakeHermitian( CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElMakeHermitianSparse_ ## SIG \
+  ( ElUpperOrLower uplo, ElSparseMatrix_ ## SIG A ) \
+  { EL_TRY( MakeHermitian( CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElMakeHermitianDistSparse_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistSparseMatrix_ ## SIG A ) \
   { EL_TRY( MakeHermitian( CReflect(uplo), *CReflect(A) ) ) } \
   /* MakeReal */ \
   ElError ElMakeReal_ ## SIG \

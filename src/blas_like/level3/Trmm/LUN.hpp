@@ -62,7 +62,7 @@ LocalAccumulateLUN
 
         D11.AlignWith( U11 );
         D11 = U11;
-        MakeTriangular( UPPER, D11 );
+        MakeTrapezoidal( UPPER, D11 );
         if( diag == UNIT )
             SetDiagonal( D11, T(1) );
         LocalGemm( NORMAL, orientation, alpha, D11, X1Trans, T(1), Z1 );

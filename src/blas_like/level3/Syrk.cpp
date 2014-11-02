@@ -94,7 +94,7 @@ void Syrk
 
 template<typename T>
 void Syrk
-( Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const SparseMatrix<T>& A, 
   T beta, SparseMatrix<T>& C, bool conjugate )
 {
@@ -107,7 +107,7 @@ void Syrk
     if( C.Height() != n || C.Width() != n )
         LogicError("C was of the incorrect size");
 
-    Scale( beta, C );
+    ScaleTrapezoid( beta, uplo, C );
 
     // Compute an upper bound on the required capacity
     // ===============================================
@@ -132,11 +132,14 @@ void Syrk
             for( Int jConn=0; jConn<numConn; ++jConn )
             {
                 const Int j = A.Col(offset+jConn);
-                const T A_kj = A.Value(offset+jConn);
-                if( conjugate )
-                    C.QueueUpdate( i, j, T(alpha)*Conj(A_ki)*A_kj ); 
-                else
-                    C.QueueUpdate( i, j, T(alpha)*A_ki*A_kj );
+                if( (uplo == LOWER && i >= j) || (uplo == UPPER && i <= j) )
+                {
+                    const T A_kj = A.Value(offset+jConn);
+                    if( conjugate )
+                        C.QueueUpdate( i, j, T(alpha)*Conj(A_ki)*A_kj ); 
+                    else
+                        C.QueueUpdate( i, j, T(alpha)*A_ki*A_kj );
+                }
             }
         }
     }
@@ -148,7 +151,7 @@ void Syrk
 
 template<typename T>
 void Syrk
-( Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const SparseMatrix<T>& A, 
                  SparseMatrix<T>& C, bool conjugate )
 {
@@ -159,19 +162,18 @@ void Syrk
         C.Resize( m, m );     
     else
         C.Resize( n, n );
-    Syrk( orientation, alpha, A, T(0), C, conjugate );
+    Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
 }
 
 template<typename T>
 void Syrk
-( Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const DistSparseMatrix<T>& A, 
   T beta, DistSparseMatrix<T>& C, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Syrk"))
     if( orientation == NORMAL )
         LogicError("Normal option of sparse Syrk not yet supported");
-
 
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
@@ -182,7 +184,7 @@ void Syrk
     if( C.Comm() != comm )
         LogicError("Communicators of A and C must match");
 
-    Scale( beta, C );
+    ScaleTrapezoid( beta, uplo, C );
 
     // Count the number of entries that we will send to each process
     // =============================================================
@@ -197,7 +199,12 @@ void Syrk
         {
             const Int i = A.Col(offset+iConn);
             const Int owner = RowToProcess( i, blocksizeC, commSize );
-            sendSizes[owner] += numConn;
+            for( Int jConn=0; jConn<numConn; ++jConn )
+            {
+                const Int j = A.Col(offset+jConn);
+                if( (uplo==LOWER && i>=j) || (uplo==UPPER && i<=j) )
+                    ++sendSizes[owner];
+            }
         }
     }
 
@@ -235,14 +242,17 @@ void Syrk
             for( Int jConn=0; jConn<numConn; ++jConn )
             {
                 const Int j = A.Col(offset+jConn);
-                const T A_kj = A.Value(offset+jConn);
-                const Int s = offsets[owner]++;
-                sourceBuf[s] = i;
-                targetBuf[s] = j;
-                if( conjugate )
-                    valueBuf[s] = T(alpha)*Conj(A_ki)*A_kj;
-                else
-                    valueBuf[s] = T(alpha)*A_ki*A_kj;
+                if( (uplo==LOWER && i>=j) || (uplo==UPPER && i<=j) )
+                {
+                    const T A_kj = A.Value(offset+jConn);
+                    const Int s = offsets[owner]++;
+                    sourceBuf[s] = i;
+                    targetBuf[s] = j;
+                    if( conjugate )
+                        valueBuf[s] = T(alpha)*Conj(A_ki)*A_kj;
+                    else
+                        valueBuf[s] = T(alpha)*A_ki*A_kj;
+                }
             }
         }
     }
@@ -295,7 +305,7 @@ void Syrk
 
 template<typename T>
 void Syrk
-( Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const DistSparseMatrix<T>& A, 
                  DistSparseMatrix<T>& C, bool conjugate )
 {
@@ -306,7 +316,7 @@ void Syrk
         C.Resize( m, m );     
     else
         C.Resize( n, n );
-    Syrk( orientation, alpha, A, T(0), C, conjugate );
+    Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
 }
 
 #define PROTO(T) \
@@ -325,19 +335,19 @@ void Syrk
     T alpha, const AbstractDistMatrix<T>& A, \
                    AbstractDistMatrix<T>& C, bool conjugate ); \
   template void Syrk \
-  ( Orientation orientation, \
+  ( UpperOrLower uplo, Orientation orientation, \
     T alpha, const SparseMatrix<T>& A, \
     T beta,        SparseMatrix<T>& C, bool conjugate ); \
   template void Syrk \
-  ( Orientation orientation, \
+  ( UpperOrLower uplo, Orientation orientation, \
     T alpha, const SparseMatrix<T>& A, \
                    SparseMatrix<T>& C, bool conjugate ); \
   template void Syrk \
-  ( Orientation orientation, \
+  ( UpperOrLower uplo, Orientation orientation, \
     T alpha, const DistSparseMatrix<T>& A, \
     T beta,        DistSparseMatrix<T>& C, bool conjugate ); \
   template void Syrk \
-  ( Orientation orientation, \
+  ( UpperOrLower uplo, Orientation orientation, \
     T alpha, const DistSparseMatrix<T>& A, \
                    DistSparseMatrix<T>& C, bool conjugate );
 

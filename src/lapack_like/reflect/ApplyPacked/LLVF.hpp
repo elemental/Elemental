@@ -65,7 +65,7 @@ LLVF
         auto t1   = t( IR(k,k+nb), IR(0,1)      );
 
         HPanCopy = HPan;
-        MakeTriangular( LOWER, HPanCopy );
+        MakeTrapezoidal( LOWER, HPanCopy );
         SetDiagonal( HPanCopy, F(1) );
 
         Herk( LOWER, ADJOINT, Base<F>(1), HPanCopy, SInv );
@@ -125,7 +125,7 @@ LLVF
         auto t1   = t( IR(k,k+nb), IR(0,1)      );
 
         HPanCopy = HPan;
-        MakeTriangular( LOWER, HPanCopy );
+        MakeTrapezoidal( LOWER, HPanCopy );
         SetDiagonal( HPanCopy, F(1) );
 
         HPan_VC_STAR = HPanCopy;

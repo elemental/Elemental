@@ -74,7 +74,7 @@ void LocalAccumulateRU
 
         D11.AlignWith( A11 );
         D11 = A11;
-        MakeTriangular( UPPER, D11 );
+        MakeTrapezoidal( UPPER, D11 );
         LocalGemm
         ( orientation, orientation,
           alpha, D11, B1_STAR_MC, T(1), Z1Trans_MR_STAR );
@@ -204,7 +204,7 @@ RUC
         AT1_VR_STAR.TransposePartialColAllGather( AT1Trans_STAR_MR, conjugate );
         A1RTrans_MR_STAR.AlignWith( CR );
         A1R.TransposeColAllGather( A1RTrans_MR_STAR, conjugate );
-        MakeTriangular( LOWER, A1RTrans_MR_STAR );
+        MakeTrapezoidal( LOWER, A1RTrans_MR_STAR );
         MakeTrapezoidal( LOWER, AT1Trans_STAR_MR, k-1 );
 
         B1_MC_STAR = B1;

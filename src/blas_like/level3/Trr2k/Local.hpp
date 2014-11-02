@@ -101,7 +101,7 @@ LocalTrr2kKernel
     ( orientC, orientD,
       beta, C0->LockedMatrix(), D0->LockedMatrix(),
       T(1), FTL->Matrix() );
-    AxpyTriangle( uplo, T(1), *FTL, *ETL );
+    AxpyTrapezoid( uplo, T(1), *FTL, *ETL );
 
     FBR->AlignWith( *EBR );
     FBR->Resize( EBR->Height(), EBR->Width() );
@@ -113,7 +113,7 @@ LocalTrr2kKernel
     ( orientC, orientD,
       beta, C1->LockedMatrix(), D1->LockedMatrix(),
       T(1), FBR->Matrix() );
-    AxpyTriangle( uplo, T(1), *FBR, *EBR );
+    AxpyTrapezoid( uplo, T(1), *FBR, *EBR );
 }
 
 } // namespace trr2k

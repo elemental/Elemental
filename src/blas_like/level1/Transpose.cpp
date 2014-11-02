@@ -138,7 +138,6 @@ void Transpose
     // Compute the number of entries of A to send to each process
     // ==========================================================
     std::vector<int> sendCounts(commSize,0);
-    const Int firstLocalRow = A.FirstLocalRow();
     const Int localHeight = A.LocalHeight();
     const Int blocksizeB = B.Blocksize();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
@@ -175,6 +174,7 @@ void Transpose
     std::vector<Int> sourceBuf(totalSend), targetBuf(totalSend);
     std::vector<T> valueBuf(totalSend);
     std::vector<int> offsets = sendOffsets;
+    const Int firstLocalRow = A.FirstLocalRow();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = firstLocalRow + iLoc;

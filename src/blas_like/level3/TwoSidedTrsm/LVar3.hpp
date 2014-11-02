@@ -157,7 +157,7 @@ LVar3
         ( LOWER, NORMAL, 
           F(1), A10_STAR_VR.Matrix(), L10_STAR_VR.Matrix(),
           F(0), X11_STAR_STAR.Matrix() );
-        MakeTriangular( LOWER, X11_STAR_STAR );
+        MakeTrapezoidal( LOWER, X11_STAR_STAR );
         A11.SumScatterUpdate( F(-1), X11_STAR_STAR );
 
         // A11 := inv(L11) A11 inv(L11)'

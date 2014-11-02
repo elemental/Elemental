@@ -35,7 +35,7 @@ main( int argc, char* argv[] )
         {
             LDL( W, true );
             auto d = W.GetDiagonal();
-            MakeTriangular( LOWER, W );
+            MakeTrapezoidal( LOWER, W );
             SetDiagonal( W, 1. );
 
             if( display )

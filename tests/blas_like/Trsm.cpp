@@ -24,7 +24,7 @@ void TestTrsm
     else
         HermitianUniformSpectrum( A, n, 1, 10 );
     auto S( A );
-    MakeTriangular( uplo, S );
+    MakeTrapezoidal( uplo, S );
 
     Uniform( X, m, n );
     DistMatrix<F> Y(g);

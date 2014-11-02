@@ -72,12 +72,12 @@ void TestCorrectness
     // Compare the appropriate portion of AOrig and B
     if( m >= n )
     {
-        MakeTriangular( UPPER, AOrig );
+        MakeTrapezoidal( UPPER, AOrig );
         MakeTrapezoidal( LOWER, AOrig, 1 );
     }
     else
     {
-        MakeTriangular( LOWER, AOrig ); 
+        MakeTrapezoidal( LOWER, AOrig ); 
         MakeTrapezoidal( UPPER, AOrig, -1 );
     }
     Axpy( F(-1), AOrig, B );

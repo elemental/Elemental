@@ -165,7 +165,7 @@ LVar2
         ( NORMAL, NORMAL, F(1), L10, A10Adj_MR_STAR, F(1), X11_MC_STAR );
         X11.AlignWith( A11 );
         X11.RowSumScatterFrom( X11_MC_STAR );
-        AxpyTriangle( LOWER, F(-1), X11, A11 );
+        AxpyTrapezoid( LOWER, F(-1), X11, A11 );
 
         // A10 := inv(L11) A10
         L11_STAR_STAR = L11;

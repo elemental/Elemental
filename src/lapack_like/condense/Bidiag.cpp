@@ -52,7 +52,7 @@ void Explicit( Matrix<F>& A, Matrix<F>& P, Matrix<F>& Q )
         Identity( P, A.Width(), A.Width() );
         bidiag::ApplyP( LEFT, NORMAL, A, tP, P ); 
  
-        MakeTriangular( UPPER, A );    
+        MakeTrapezoidal( UPPER, A );    
         MakeTrapezoidal( LOWER, A, 1 );
     }
     else
@@ -63,7 +63,7 @@ void Explicit( Matrix<F>& A, Matrix<F>& P, Matrix<F>& Q )
         Identity( P, A.Width(), A.Width() );
         bidiag::ApplyP( LEFT, NORMAL, A, tP, P ); 
 
-        MakeTriangular( LOWER, A );    
+        MakeTrapezoidal( LOWER, A );    
         MakeTrapezoidal( UPPER, A, -1 );
     }
 }
@@ -89,7 +89,7 @@ void Explicit
         Identity( P, A.Width(), A.Width() );
         bidiag::ApplyP( LEFT, NORMAL, A, tP, P ); 
  
-        MakeTriangular( UPPER, A );    
+        MakeTrapezoidal( UPPER, A );    
         MakeTrapezoidal( LOWER, A, 1 );
     }
     else
@@ -100,7 +100,7 @@ void Explicit
         Identity( P, A.Width(), A.Width() );
         bidiag::ApplyP( LEFT, NORMAL, A, tP, P ); 
 
-        MakeTriangular( LOWER, A );    
+        MakeTrapezoidal( LOWER, A );    
         MakeTrapezoidal( UPPER, A, -1 );
     }
 }
@@ -113,12 +113,12 @@ void ExplicitCondensed( Matrix<F>& A )
     Bidiag( A, tP, tQ );
     if( A.Height() >= A.Width() )
     {
-        MakeTriangular( UPPER, A );    
+        MakeTrapezoidal( UPPER, A );    
         MakeTrapezoidal( LOWER, A, 1 );
     }
     else
     {
-        MakeTriangular( LOWER, A );    
+        MakeTrapezoidal( LOWER, A );    
         MakeTrapezoidal( UPPER, A, -1 );
     }
 }
@@ -131,12 +131,12 @@ void ExplicitCondensed( AbstractDistMatrix<F>& A )
     Bidiag( A, tP, tQ );
     if( A.Height() >= A.Width() )
     {
-        MakeTriangular( UPPER, A );    
+        MakeTrapezoidal( UPPER, A );    
         MakeTrapezoidal( LOWER, A, 1 );
     }
     else
     {
-        MakeTriangular( LOWER, A );    
+        MakeTrapezoidal( LOWER, A );    
         MakeTrapezoidal( UPPER, A, -1 );
     }
 }

@@ -78,7 +78,7 @@ main( int argc, char* argv[] )
         // Check the error in the pivoted QR factorization, 
         // || A P - Q R ||_F / || A ||_F
         auto E( QRPiv );
-        MakeTriangular( UPPER, E );
+        MakeTrapezoidal( UPPER, E );
         qr::ApplyQ( LEFT, NORMAL, QRPiv, tPiv, dPiv, E );
         PermuteCols( E, perm );
         Axpy( C(-1), A, E );
@@ -91,7 +91,7 @@ main( int argc, char* argv[] )
         // Check the error in the standard QR factorization, 
         // || A - Q R ||_F / || A ||_F
         E = QRNoPiv;
-        MakeTriangular( UPPER, E );
+        MakeTrapezoidal( UPPER, E );
         qr::ApplyQ( LEFT, NORMAL, QRNoPiv, tNoPiv, dNoPiv, E );
         Axpy( C(-1), A, E );
         const Real frobQRNoPiv = FrobeniusNorm( E );

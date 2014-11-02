@@ -26,7 +26,8 @@ void LeastSquares
     )
     const Int n = A.Width();
     DistSparseMatrix<F> C(A.Comm());
-    Herk( ADJOINT, Base<F>(1), A, C );
+    Herk( LOWER, ADJOINT, Base<F>(1), A, C );
+    MakeHermitian( LOWER, C );
     X.SetComm( Y.Comm() );
     Zeros( X, n, Y.Width() );
     Multiply( ADJOINT, F(1), A, Y, F(0), X ); 

@@ -103,7 +103,7 @@ void TestTwoSidedTrsm
     DistMatrix<F> A(g), B(g), AOrig(g);
     HermitianUniformSpectrum( A, m, 1, 10 );
     HermitianUniformSpectrum( B, m, 1, 10 );
-    MakeTriangular( uplo, B );
+    MakeTrapezoidal( uplo, B );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )

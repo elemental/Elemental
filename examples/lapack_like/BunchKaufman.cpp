@@ -56,7 +56,7 @@ main( int argc, char* argv[] )
         DistMatrix<Int,VC,STAR> p;
         DistMatrix<C,MD,STAR> dSub;
         DistMatrix<C> factA( A );
-        MakeTriangular( LOWER, factA );
+        MakeTrapezoidal( LOWER, factA );
         LDL( factA, dSub, p, conjugate, ctrl );
         if( print )
         {

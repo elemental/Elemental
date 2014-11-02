@@ -55,7 +55,7 @@ inline void FrontLDL( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate )
         PartitionDown( S21, S21T, S21B, AL22.Width() );
         PartitionDown( AL21, AL21T, AL21B, AL22.Width() );
         Gemm( NORMAL, orientation, F(-1), S21, AL21T, F(1), AL22 );
-        MakeTriangular( LOWER, AL22 );
+        MakeTrapezoidal( LOWER, AL22 );
         Trrk( LOWER, NORMAL, orientation, F(-1), S21B, AL21B, F(1), ABR );
     }
 }

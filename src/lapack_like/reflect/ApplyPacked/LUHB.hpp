@@ -66,7 +66,7 @@ LUHB
         auto t1   = t( IR(k,k+nb),   IR(0,1)   );
 
         Conjugate( HPan, HPanConj );
-        MakeTriangular( UPPER, HPanConj );
+        MakeTrapezoidal( UPPER, HPanConj );
         SetDiagonal( HPanConj, F(1) );
 
         Herk( UPPER, NORMAL, Base<F>(1), HPanConj, SInv );
@@ -126,7 +126,7 @@ LUHB
         auto t1   = t( IR(k,k+nb),   IR(0,1)   );
 
         Conjugate( HPan, HPanConj );
-        MakeTriangular( UPPER, HPanConj );
+        MakeTrapezoidal( UPPER, HPanConj );
         SetDiagonal( HPanConj, F(1) );
 
         HPan_STAR_VR = HPanConj;

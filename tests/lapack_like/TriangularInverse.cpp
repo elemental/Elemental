@@ -60,7 +60,7 @@ void TestTriangularInverse
 {
     DistMatrix<F> A(g), AOrig(g);
     HermitianUniformSpectrum( A, m, 1, 10 );
-    MakeTriangular( uplo, A );
+    MakeTrapezoidal( uplo, A );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )

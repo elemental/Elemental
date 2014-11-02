@@ -22,7 +22,7 @@ void TestSyrk
     else
         Uniform( A, k, m );
     Uniform( C, m, m );
-    MakeTriangular( uplo, C );
+    MakeTrapezoidal( uplo, C );
     if( print )
     {
         Print( A, "A" );

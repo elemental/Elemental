@@ -86,11 +86,53 @@ ScaleTrapezoid
     }
 }
 
+template<typename T,typename S>
+void
+ScaleTrapezoid
+( S alpha, UpperOrLower uplo, SparseMatrix<T>& A, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("ScaleTrapezoid"))
+    const Int numEntries = A.NumEntries();
+    const Int* sBuf = A.LockedSourceBuffer();
+    const Int *tBuf = A.LockedTargetBuffer();
+    T* vBuf = A.ValueBuffer();
+    for( Int k=0; k<numEntries; ++k )
+    {
+        const Int i = sBuf[k];
+        const Int j = tBuf[k];
+        if( (uplo==LOWER && j-i <= offset) || (uplo==UPPER && j-i >= offset) )
+            vBuf[k] *= alpha;    
+    }
+}
+
+template<typename T,typename S>
+void
+ScaleTrapezoid
+( S alpha, UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("ScaleTrapezoid"))
+    const Int numLocalEntries = A.NumLocalEntries();
+    const Int* sBuf = A.LockedSourceBuffer();
+    const Int *tBuf = A.LockedTargetBuffer();
+    T* vBuf = A.ValueBuffer();
+    for( Int k=0; k<numLocalEntries; ++k )
+    {
+        const Int i = sBuf[k];
+        const Int j = tBuf[k];
+        if( (uplo==LOWER && j-i <= offset) || (uplo==UPPER && j-i >= offset) )
+            vBuf[k] *= alpha;    
+    }
+}
+
 #define PROTO_TYPES(T,S) \
   template void ScaleTrapezoid \
   ( S alpha, UpperOrLower uplo, Matrix<T>& A, Int offset ); \
   template void ScaleTrapezoid \
-  ( S alpha, UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset );
+  ( S alpha, UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset ); \
+  template void ScaleTrapezoid \
+  ( S alpha, UpperOrLower uplo, SparseMatrix<T>& A, Int offset ); \
+  template void ScaleTrapezoid \
+  ( S alpha, UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset );
 
 #define PROTO_INT(T) PROTO_TYPES(T,T)
 

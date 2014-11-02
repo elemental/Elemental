@@ -71,7 +71,7 @@ main( int argc, char* argv[] )
         ctrl.sdcCtrl.signCtrl.progress = progress;
 #endif
         Schur( T, w, Q, fullTriangle, ctrl );
-        MakeTriangular( UPPER, T );
+        MakeTrapezoidal( UPPER, T );
 
         if( display )
         {

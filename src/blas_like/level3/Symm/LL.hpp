@@ -73,7 +73,7 @@ void LocalAccumulateLL
 
         D11.AlignWith( A11 );
         D11 = A11;
-        MakeTriangular( LOWER, D11 );
+        MakeTrapezoidal( LOWER, D11 );
         LocalGemm
         ( NORMAL, orientation, alpha, D11, B1Trans_STAR_MR, T(1), Z1_MC_STAR );
         SetDiagonal( D11, T(0) );
@@ -198,7 +198,7 @@ LLC
         A1L_STAR_MC.AlignWith( CT );
         AB1_MC_STAR = AB1;
         A1L_STAR_MC = A1L;
-        MakeTriangular( LOWER, AB1_MC_STAR );
+        MakeTrapezoidal( LOWER, AB1_MC_STAR );
         MakeTrapezoidal( LOWER, A1L_STAR_MC, k-1 );
 
         B1.TransposeColAllGather( B1Trans_MR_STAR );

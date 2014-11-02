@@ -49,13 +49,13 @@ void Reduce( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
         if( top )
         {
             ZTop = lastZ;
-            MakeTriangular( UPPER, ZTop );
+            MakeTrapezoidal( UPPER, ZTop );
             mpi::Recv( ZBot.Buffer(), n*n, partner, colComm );
         }
         else
         {
             ZBot = lastZ;
-            MakeTriangular( UPPER, ZBot );
+            MakeTrapezoidal( UPPER, ZBot );
             mpi::Send( ZBot.LockedBuffer(), n*n, partner, colComm );
             break;
         }
@@ -262,7 +262,7 @@ FormR( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
         auto R = RootQR(A,treeData);
         auto RTop = R( IR(0,n), IR(0,n) );
         RRoot.CopyFromRoot( RTop );
-        MakeTriangular( UPPER, RRoot );
+        MakeTrapezoidal( UPPER, RRoot );
     }
     else
         RRoot.CopyFromNonRoot();

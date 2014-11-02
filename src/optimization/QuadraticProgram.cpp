@@ -44,7 +44,7 @@ Int QuadraticProgram
     else
     {
         Cholesky( LOWER, LMod );
-        MakeTriangular( LOWER, LMod );
+        MakeTrapezoidal( LOWER, LMod );
     }
 
     // Start the ADMM
@@ -159,7 +159,7 @@ Int QuadraticProgram
     else
     {
         Cholesky( LOWER, LMod );
-        MakeTriangular( LOWER, LMod );
+        MakeTrapezoidal( LOWER, LMod );
     }
 
     // Start the ADMM

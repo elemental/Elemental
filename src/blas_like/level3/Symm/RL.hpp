@@ -74,7 +74,7 @@ void LocalAccumulateRL
 
         D11.AlignWith( A11 );
         D11 = A11;
-        MakeTriangular( LOWER, D11 );
+        MakeTrapezoidal( LOWER, D11 );
         LocalGemm
         ( orientation, orientation,
           alpha, D11, B1_STAR_MC, T(1), Z1Trans_MR_STAR );

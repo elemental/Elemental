@@ -39,7 +39,7 @@ main( int argc, char* argv[] )
         HPSDCholesky( LOWER, A );
         if( print )
         {
-            MakeTriangular( LOWER, A );
+            MakeTrapezoidal( LOWER, A );
             Print( A, "chol(A)" );
         }
     }

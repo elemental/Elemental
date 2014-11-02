@@ -82,7 +82,7 @@ LLN
         trstrm::LLNUnb( diag, F(1), L11, X11 );
         Gemm( NORMAL, NORMAL, F(-1), L21, X10, F(1), X20 );
         Z11 = X11;
-        MakeTriangular( LOWER, Z11 );
+        MakeTrapezoidal( LOWER, Z11 );
         Gemm( NORMAL, NORMAL, F(-1), L21, Z11, F(1), X21 );
     }
 }
@@ -138,7 +138,7 @@ LLN
         X11 = X11_STAR_STAR;
         X11_STAR_MR.AlignWith( X21 );
         X11_STAR_MR = X11_STAR_STAR;
-        MakeTriangular( LOWER, X11_STAR_MR );
+        MakeTrapezoidal( LOWER, X11_STAR_MR );
 
         X10_STAR_MR.AlignWith( X20 );
         X10_STAR_MR = X10_STAR_VR;

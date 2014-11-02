@@ -28,7 +28,7 @@ void ExplicitTriang( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl )
         Householder( A, t, d );
 
     A.Resize( t.Height(), A.Width() );
-    MakeTriangular( UPPER, A );
+    MakeTrapezoidal( UPPER, A );
 }
 
 template<typename F>
@@ -46,7 +46,7 @@ void ExplicitTriang( AbstractDistMatrix<F>& A, const QRCtrl<Base<F>>& ctrl )
         Householder( A, t, d );
 
     A.Resize( t.Height(), A.Width() );
-    MakeTriangular( UPPER, A );
+    MakeTrapezoidal( UPPER, A );
 }
 
 template<typename F>
@@ -112,7 +112,7 @@ void Explicit( Matrix<F>& A, Matrix<F>& R, const QRCtrl<Base<F>>& ctrl )
 
     auto AT = A( IR(0,numIts), IR(0,n) );
     R = AT;
-    MakeTriangular( UPPER, R );
+    MakeTrapezoidal( UPPER, R );
 
     A.Resize( m, numIts );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
@@ -146,7 +146,7 @@ void Explicit
 
     auto AT = A( IR(0,numIts), IR(0,n) );
     Copy( AT, R );
-    MakeTriangular( UPPER, R );
+    MakeTrapezoidal( UPPER, R );
 
     A.Resize( m, numIts );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
@@ -169,7 +169,7 @@ void Explicit
 
     auto AT = A( IR(0,numIts), IR(0,n) );
     R = AT;
-    MakeTriangular( UPPER, R );
+    MakeTrapezoidal( UPPER, R );
 
     A.Resize( m, numIts );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
@@ -200,7 +200,7 @@ void Explicit
 
     auto AT = A( IR(0,numIts), IR(0,n) );
     Copy( AT, R );
-    MakeTriangular( UPPER, R );
+    MakeTrapezoidal( UPPER, R );
 
     A.Resize( m, numIts );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );

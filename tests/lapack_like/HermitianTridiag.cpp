@@ -59,8 +59,8 @@ void TestCorrectness
         Display( B, "Rotated tridiagonal" );
 
     // Compare the appropriate triangle of AOrig and B
-    MakeTriangular( uplo, AOrig );
-    MakeTriangular( uplo, B );
+    MakeTrapezoidal( uplo, AOrig );
+    MakeTrapezoidal( uplo, B );
     Axpy( F(-1), AOrig, B );
     if( print )
         Print( B, "Error in rotated tridiagonal" );

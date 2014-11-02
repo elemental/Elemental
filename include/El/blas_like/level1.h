@@ -60,32 +60,37 @@ EL_EXPORT ElError ElAxpyDist_z
 
 /* tri(Y) := tri(alpha A X + Y)
    ============================ */
-EL_EXPORT ElError ElAxpyTriangle_i
-( ElUpperOrLower uplo, ElInt alpha, ElConstMatrix_i X, ElMatrix_i Y );
-EL_EXPORT ElError ElAxpyTriangle_s
-( ElUpperOrLower uplo, float alpha, ElConstMatrix_s X, ElMatrix_s Y );
-EL_EXPORT ElError ElAxpyTriangle_d
-( ElUpperOrLower uplo, double alpha, ElConstMatrix_d X, ElMatrix_d Y );
-EL_EXPORT ElError ElAxpyTriangle_c
-( ElUpperOrLower uplo, complex_float alpha, ElConstMatrix_c X, ElMatrix_c Y );
-EL_EXPORT ElError ElAxpyTriangle_z
-( ElUpperOrLower uplo, complex_double alpha, ElConstMatrix_z X, ElMatrix_z Y );
-
-EL_EXPORT ElError ElAxpyTriangleDist_i
+EL_EXPORT ElError ElAxpyTrapezoid_i
 ( ElUpperOrLower uplo, ElInt alpha, 
-  ElConstDistMatrix_i X, ElDistMatrix_i Y );
-EL_EXPORT ElError ElAxpyTriangleDist_s
+  ElConstMatrix_i X, ElMatrix_i Y, ElInt offset );
+EL_EXPORT ElError ElAxpyTrapezoid_s
 ( ElUpperOrLower uplo, float alpha, 
-  ElConstDistMatrix_s X, ElDistMatrix_s Y );
-EL_EXPORT ElError ElAxpyTriangleDist_d
+  ElConstMatrix_s X, ElMatrix_s Y, ElInt offset );
+EL_EXPORT ElError ElAxpyTrapezoid_d
 ( ElUpperOrLower uplo, double alpha, 
-  ElConstDistMatrix_d X, ElDistMatrix_d Y );
-EL_EXPORT ElError ElAxpyTriangleDist_c
+  ElConstMatrix_d X, ElMatrix_d Y, ElInt offset );
+EL_EXPORT ElError ElAxpyTrapezoid_c
 ( ElUpperOrLower uplo, complex_float alpha, 
-  ElConstDistMatrix_c X, ElDistMatrix_c Y );
-EL_EXPORT ElError ElAxpyTriangleDist_z
+  ElConstMatrix_c X, ElMatrix_c Y, ElInt offset );
+EL_EXPORT ElError ElAxpyTrapezoid_z
 ( ElUpperOrLower uplo, complex_double alpha, 
-  ElConstDistMatrix_z X, ElDistMatrix_z Y );
+  ElConstMatrix_z X, ElMatrix_z Y, ElInt offset );
+
+EL_EXPORT ElError ElAxpyTrapezoidDist_i
+( ElUpperOrLower uplo, ElInt alpha, 
+  ElConstDistMatrix_i X, ElDistMatrix_i Y, ElInt offset );
+EL_EXPORT ElError ElAxpyTrapezoidDist_s
+( ElUpperOrLower uplo, float alpha, 
+  ElConstDistMatrix_s X, ElDistMatrix_s Y, ElInt offset );
+EL_EXPORT ElError ElAxpyTrapezoidDist_d
+( ElUpperOrLower uplo, double alpha, 
+  ElConstDistMatrix_d X, ElDistMatrix_d Y, ElInt offset );
+EL_EXPORT ElError ElAxpyTrapezoidDist_c
+( ElUpperOrLower uplo, complex_float alpha, 
+  ElConstDistMatrix_c X, ElDistMatrix_c Y, ElInt offset );
+EL_EXPORT ElError ElAxpyTrapezoidDist_z
+( ElUpperOrLower uplo, complex_double alpha, 
+  ElConstDistMatrix_z X, ElDistMatrix_z Y, ElInt offset );
 
 /* Column norms
    ============ */
@@ -519,6 +524,16 @@ EL_EXPORT ElError ElMakeHermitianDist_c
 EL_EXPORT ElError ElMakeHermitianDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A );
 
+EL_EXPORT ElError ElMakeHermitianSparse_c
+( ElUpperOrLower uplo, ElSparseMatrix_c A );
+EL_EXPORT ElError ElMakeHermitianSparse_z
+( ElUpperOrLower uplo, ElSparseMatrix_z A );
+
+EL_EXPORT ElError ElMakeHermitianDistSparse_c
+( ElUpperOrLower uplo, ElDistSparseMatrix_c A );
+EL_EXPORT ElError ElMakeHermitianDistSparse_z
+( ElUpperOrLower uplo, ElDistSparseMatrix_z A );
+
 /* MakeReal
    ======== */
 EL_EXPORT ElError ElMakeReal_c( ElMatrix_c A );
@@ -546,6 +561,28 @@ EL_EXPORT ElError ElMakeSymmetricDist_c
 EL_EXPORT ElError ElMakeSymmetricDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A );
 
+EL_EXPORT ElError ElMakeSymmetricSparse_i
+( ElUpperOrLower uplo, ElSparseMatrix_i A );
+EL_EXPORT ElError ElMakeSymmetricSparse_s
+( ElUpperOrLower uplo, ElSparseMatrix_s A );
+EL_EXPORT ElError ElMakeSymmetricSparse_d
+( ElUpperOrLower uplo, ElSparseMatrix_d A );
+EL_EXPORT ElError ElMakeSymmetricSparse_c
+( ElUpperOrLower uplo, ElSparseMatrix_c A );
+EL_EXPORT ElError ElMakeSymmetricSparse_z
+( ElUpperOrLower uplo, ElSparseMatrix_z A );
+
+EL_EXPORT ElError ElMakeSymmetricDistSparse_i
+( ElUpperOrLower uplo, ElDistSparseMatrix_i A );
+EL_EXPORT ElError ElMakeSymmetricDistSparse_s
+( ElUpperOrLower uplo, ElDistSparseMatrix_s A );
+EL_EXPORT ElError ElMakeSymmetricDistSparse_d
+( ElUpperOrLower uplo, ElDistSparseMatrix_d A );
+EL_EXPORT ElError ElMakeSymmetricDistSparse_c
+( ElUpperOrLower uplo, ElDistSparseMatrix_c A );
+EL_EXPORT ElError ElMakeSymmetricDistSparse_z
+( ElUpperOrLower uplo, ElDistSparseMatrix_z A );
+
 /* MakeTrapezoidal
    =============== */
 EL_EXPORT ElError ElMakeTrapezoidal_i
@@ -570,24 +607,27 @@ EL_EXPORT ElError ElMakeTrapezoidalDist_c
 EL_EXPORT ElError ElMakeTrapezoidalDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, ElInt offset );
 
-/* MakeTriangular
-   ============== */
-EL_EXPORT ElError ElMakeTriangular_i( ElUpperOrLower uplo, ElMatrix_i A );
-EL_EXPORT ElError ElMakeTriangular_s( ElUpperOrLower uplo, ElMatrix_s A );
-EL_EXPORT ElError ElMakeTriangular_d( ElUpperOrLower uplo, ElMatrix_d A );
-EL_EXPORT ElError ElMakeTriangular_c( ElUpperOrLower uplo, ElMatrix_c A );
-EL_EXPORT ElError ElMakeTriangular_z( ElUpperOrLower uplo, ElMatrix_z A );
+EL_EXPORT ElError ElMakeTrapezoidalSparse_i
+( ElUpperOrLower uplo, ElSparseMatrix_i A, ElInt offset );
+EL_EXPORT ElError ElMakeTrapezoidalSparse_s
+( ElUpperOrLower uplo, ElSparseMatrix_s A, ElInt offset );
+EL_EXPORT ElError ElMakeTrapezoidalSparse_d
+( ElUpperOrLower uplo, ElSparseMatrix_d A, ElInt offset );
+EL_EXPORT ElError ElMakeTrapezoidalSparse_c
+( ElUpperOrLower uplo, ElSparseMatrix_c A, ElInt offset );
+EL_EXPORT ElError ElMakeTrapezoidalSparse_z
+( ElUpperOrLower uplo, ElSparseMatrix_z A, ElInt offset );
 
-EL_EXPORT ElError ElMakeTriangularDist_i
-( ElUpperOrLower uplo, ElDistMatrix_i A );
-EL_EXPORT ElError ElMakeTriangularDist_s
-( ElUpperOrLower uplo, ElDistMatrix_s A );
-EL_EXPORT ElError ElMakeTriangularDist_d
-( ElUpperOrLower uplo, ElDistMatrix_d A );
-EL_EXPORT ElError ElMakeTriangularDist_c
-( ElUpperOrLower uplo, ElDistMatrix_c A );
-EL_EXPORT ElError ElMakeTriangularDist_z
-( ElUpperOrLower uplo, ElDistMatrix_z A );
+EL_EXPORT ElError ElMakeTrapezoidalDistSparse_i
+( ElUpperOrLower uplo, ElDistSparseMatrix_i A, ElInt offset );
+EL_EXPORT ElError ElMakeTrapezoidalDistSparse_s
+( ElUpperOrLower uplo, ElDistSparseMatrix_s A, ElInt offset );
+EL_EXPORT ElError ElMakeTrapezoidalDistSparse_d
+( ElUpperOrLower uplo, ElDistSparseMatrix_d A, ElInt offset );
+EL_EXPORT ElError ElMakeTrapezoidalDistSparse_c
+( ElUpperOrLower uplo, ElDistSparseMatrix_c A, ElInt offset );
+EL_EXPORT ElError ElMakeTrapezoidalDistSparse_z
+( ElUpperOrLower uplo, ElDistSparseMatrix_z A, ElInt offset );
 
 /* Max
    === */
@@ -875,6 +915,30 @@ EL_EXPORT ElError ElScaleTrapezoidDist_c
 ( complex_float alpha, ElUpperOrLower uplo, ElDistMatrix_c A, ElInt offset );
 EL_EXPORT ElError ElScaleTrapezoidDist_z
 ( complex_double alpha, ElUpperOrLower uplo, ElDistMatrix_z A, ElInt offset );
+
+EL_EXPORT ElError ElScaleTrapezoidSparse_i
+( ElInt alpha, ElUpperOrLower uplo, ElSparseMatrix_i A, ElInt offset );
+EL_EXPORT ElError ElScaleTrapezoidSparse_s
+( float alpha, ElUpperOrLower uplo, ElSparseMatrix_s A, ElInt offset );
+EL_EXPORT ElError ElScaleTrapezoidSparse_d
+( double alpha, ElUpperOrLower uplo, ElSparseMatrix_d A, ElInt offset );
+EL_EXPORT ElError ElScaleTrapezoidSparse_c
+( complex_float alpha, ElUpperOrLower uplo, ElSparseMatrix_c A, ElInt offset );
+EL_EXPORT ElError ElScaleTrapezoidSparse_z
+( complex_double alpha, ElUpperOrLower uplo, ElSparseMatrix_z A, ElInt offset );
+
+EL_EXPORT ElError ElScaleTrapezoidSparseDist_i
+( ElInt alpha, ElUpperOrLower uplo, ElDistSparseMatrix_i A, ElInt offset );
+EL_EXPORT ElError ElScaleTrapezoidSparseDist_s
+( float alpha, ElUpperOrLower uplo, ElDistSparseMatrix_s A, ElInt offset );
+EL_EXPORT ElError ElScaleTrapezoidSparseDist_d
+( double alpha, ElUpperOrLower uplo, ElDistSparseMatrix_d A, ElInt offset );
+EL_EXPORT ElError ElScaleTrapezoidSparseDist_c
+( complex_float alpha, ElUpperOrLower uplo, 
+  ElDistSparseMatrix_c A, ElInt offset );
+EL_EXPORT ElError ElScaleTrapezoidSparseDist_z
+( complex_double alpha, ElUpperOrLower uplo, 
+  ElDistSparseMatrix_z A, ElInt offset );
 
 /* SetDiagonal
    =========== */

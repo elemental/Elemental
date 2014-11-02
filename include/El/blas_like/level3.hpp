@@ -84,23 +84,23 @@ void Herk
 
 template<typename T>
 void Herk
-( Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   Base<T> alpha, const SparseMatrix<T>& A, 
   Base<T> beta,        SparseMatrix<T>& C );
 template<typename T>
 void Herk
-( Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   Base<T> alpha, const SparseMatrix<T>& A, 
                        SparseMatrix<T>& C );
 
 template<typename T>
 void Herk
-( Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   Base<T> alpha, const DistSparseMatrix<T>& A,
   Base<T> beta,        DistSparseMatrix<T>& C );
 template<typename T> 
 void Herk
-( Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   Base<T> alpha, const DistSparseMatrix<T>& A,
                        DistSparseMatrix<T>& C );
 
@@ -283,23 +283,23 @@ void Syrk
 
 template<typename T>
 void Syrk
-( Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const SparseMatrix<T>& A, 
   T beta,        SparseMatrix<T>& C, bool conjugate=false );
 template<typename T>
 void Syrk
-( Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const SparseMatrix<T>& A, 
                  SparseMatrix<T>& C, bool conjugate=false );
 
 template<typename T>
 void Syrk
-( Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const DistSparseMatrix<T>& A, 
   T beta,        DistSparseMatrix<T>& C, bool conjugate=false );
 template<typename T>
 void Syrk
-( Orientation orientation,
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const DistSparseMatrix<T>& A, 
                  DistSparseMatrix<T>& C, bool conjugate=false );
 

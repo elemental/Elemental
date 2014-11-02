@@ -22,7 +22,7 @@ QR( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, bool fullTriangle )
     w.Resize( n, 1 );
     lapack::Schur( n, A.Buffer(), A.LDim(), w.Buffer(), fullTriangle );
     if( IsComplex<F>::val )
-        MakeTriangular( UPPER, A );
+        MakeTrapezoidal( UPPER, A );
     else
     {
         MakeTrapezoidal( UPPER, A, -1 );
@@ -43,7 +43,7 @@ QR
     lapack::Schur
     ( n, A.Buffer(), A.LDim(), w.Buffer(), Q.Buffer(), Q.LDim(), fullTriangle );
     if( IsComplex<F>::val )
-        MakeTriangular( UPPER, A );
+        MakeTrapezoidal( UPPER, A );
     else
     {
         MakeTrapezoidal( UPPER, A, -1 );
@@ -104,7 +104,7 @@ QR
     LogicError("Distributed schur::QR currently requires ScaLAPACK support");
 #endif
     if( IsComplex<F>::val )
-        MakeTriangular( UPPER, A );
+        MakeTrapezoidal( UPPER, A );
     else
     {
         MakeTrapezoidal( UPPER, A, -1 );
@@ -184,7 +184,7 @@ QR
     LogicError("Distributed schur::QR currently requires ScaLAPACK support");
 #endif
     if( IsComplex<F>::val )
-        MakeTriangular( UPPER, A );
+        MakeTrapezoidal( UPPER, A );
     else
     {
         MakeTrapezoidal( UPPER, A, -1 );
@@ -243,7 +243,7 @@ QR
     LogicError("Distributed schur::QR currently requires ScaLAPACK support");
 #endif
     if( IsComplex<F>::val )
-        MakeTriangular( UPPER, A );
+        MakeTrapezoidal( UPPER, A );
     else
     {
         MakeTrapezoidal( UPPER, A, -1 );
@@ -316,7 +316,7 @@ QR
     LogicError("Distributed schur::QR currently requires ScaLAPACK support");
 #endif
     if( IsComplex<F>::val )
-        MakeTriangular( UPPER, A );
+        MakeTrapezoidal( UPPER, A );
     else
     {
         MakeTrapezoidal( UPPER, A, -1 );

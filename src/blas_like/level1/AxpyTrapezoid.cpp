@@ -11,40 +11,48 @@
 namespace El {
 
 template<typename T,typename S>
-void AxpyTriangle
-( UpperOrLower uplo, S alphaS, const Matrix<T>& X, Matrix<T>& Y )
+void AxpyTrapezoid
+( UpperOrLower uplo, S alphaS, const Matrix<T>& X, Matrix<T>& Y, Int offset )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("AxpyTriangle");
+        CallStackEntry cse("AxpyTrapezoid");
         if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
             X.Height() != Y.Height() )
-            LogicError("Nonconformal AxpyTriangle");
+            LogicError("Nonconformal AxpyTrapezoid");
     )
     const T alpha = T(alphaS);
+    const Int m = X.Height();
+    const Int n = X.Width();
     if( uplo == UPPER )
     {
-        for( Int j=0; j<X.Width(); ++j )
-            blas::Axpy( j+1, alpha, X.LockedBuffer(0,j), 1, Y.Buffer(0,j), 1 );
+        for( Int j=0; j<n; ++j )
+        {
+            const Int iSize = Max(Min(j+1-offset,m),0);
+            blas::Axpy
+            ( iSize, alpha, X.LockedBuffer(0,j), 1, Y.Buffer(0,j), 1 );
+        }
     }
     else
     {
-        const Int n = X.Height();
-        for( Int j=0; j<X.Width(); ++j )
-            blas::Axpy( n-j, alpha, X.LockedBuffer(j,j), 1, Y.Buffer(j,j), 1 );
+        for( Int j=0; j<n; ++j )
+        {
+            const Int i = Max(Min(j-offset,m),0);
+            blas::Axpy( m-i, alpha, X.LockedBuffer(i,j), 1, Y.Buffer(i,j), 1 );
+        }
     }
 }
 
 template<typename T,typename S>
-void AxpyTriangle
+void AxpyTrapezoid
 ( UpperOrLower uplo, S alphaS, 
-  const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
+  const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y, Int offset )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("AxpyTriangle");
+        CallStackEntry cse("AxpyTrapezoid");
         AssertSameGrids( X, Y );
         if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
             X.Height() != Y.Height() )
-            LogicError("Nonconformal AxpyTriangle");
+            LogicError("Nonconformal AxpyTrapezoid");
     )
     const T alpha = T(alphaS);
 
@@ -64,7 +72,7 @@ void AxpyTriangle
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
                 const Int j = X.GlobalCol(jLoc);
-                const Int localHeightAbove = X.LocalRowOffset(j+1);
+                const Int localHeightAbove = X.LocalRowOffset(j+1-offset);
                 blas::Axpy
                 ( localHeightAbove, alpha, 
                   &XBuffer[jLoc*XLDim], 1, &YBuffer[jLoc*YLDim], 1 );
@@ -75,7 +83,7 @@ void AxpyTriangle
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
                 const Int j = X.GlobalCol(jLoc);
-                const Int localHeightAbove = X.LocalRowOffset(j);
+                const Int localHeightAbove = X.LocalRowOffset(j-offset);
                 const Int localHeightBelow = localHeight - localHeightAbove;
                 blas::Axpy
                 ( localHeightBelow, alpha, 
@@ -90,16 +98,17 @@ void AxpyTriangle
           XCopy( Y.Construct(Y.Grid(),Y.Root()) );
         XCopy->AlignWith( YDistData );
         Copy( X, *XCopy );
-        AxpyTriangle( uplo, alpha, *XCopy, Y );
+        AxpyTrapezoid( uplo, alpha, *XCopy, Y, offset );
     }
 }
 
 #define PROTO_TYPES(T,S) \
-  template void AxpyTriangle \
-  ( UpperOrLower uplo, S alpha, const Matrix<T>& A, Matrix<T>& B ); \
-  template void AxpyTriangle \
+  template void AxpyTrapezoid \
   ( UpperOrLower uplo, S alpha, \
-    const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
+    const Matrix<T>& A, Matrix<T>& B, Int offset ); \
+  template void AxpyTrapezoid \
+  ( UpperOrLower uplo, S alpha, \
+    const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, Int offset );
 
 #define PROTO_INT(T) PROTO_TYPES(T,T)
 

@@ -31,11 +31,11 @@ Base<F> LogDetDiv( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
     }
     else
     {
-        MakeTriangular( uplo, ACopy );
+        MakeTrapezoidal( uplo, ACopy );
         Trsm( LEFT, uplo, NORMAL, NON_UNIT, F(1), BCopy, ACopy );
     }
 
-    MakeTriangular( uplo, ACopy );
+    MakeTrapezoidal( uplo, ACopy );
     const Real frobNorm = FrobeniusNorm( ACopy );
 
     Matrix<F> d;
@@ -72,11 +72,11 @@ Base<F> LogDetDiv
     }
     else
     {
-        MakeTriangular( uplo, ACopy );
+        MakeTrapezoidal( uplo, ACopy );
         Trsm( LEFT, uplo, NORMAL, NON_UNIT, F(1), BCopy, ACopy );
     }
 
-    MakeTriangular( uplo, ACopy );
+    MakeTrapezoidal( uplo, ACopy );
     const Real frobNorm = FrobeniusNorm( ACopy );
 
     Real localLogDet(0);

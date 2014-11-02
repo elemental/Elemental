@@ -25,6 +25,16 @@ lib.ElAxpy_c.argtypes = [cType,c_void_p,c_void_p]
 lib.ElAxpy_c.restype = c_uint
 lib.ElAxpy_z.argtypes = [zType,c_void_p,c_void_p]
 lib.ElAxpy_z.restype = c_uint
+lib.ElAxpyDist_i.argtypes = [iType,c_void_p,c_void_p]
+lib.ElAxpyDist_i.restype = c_uint
+lib.ElAxpyDist_s.argtypes = [sType,c_void_p,c_void_p]
+lib.ElAxpyDist_s.restype = c_uint
+lib.ElAxpyDist_d.argtypes = [dType,c_void_p,c_void_p]
+lib.ElAxpyDist_d.restype = c_uint
+lib.ElAxpyDist_c.argtypes = [cType,c_void_p,c_void_p]
+lib.ElAxpyDist_c.restype = c_uint
+lib.ElAxpyDist_z.argtypes = [zType,c_void_p,c_void_p]
+lib.ElAxpyDist_z.restype = c_uint
 def Axpy(alphaPre,X,Y):
   if type(X) is not type(Y): raise Exception('Types of X and Y must match')
   if X.tag != Y.tag: raise Exception('Datatypes of X and Y must match')
@@ -46,23 +56,33 @@ def Axpy(alphaPre,X,Y):
     else: DataExcept()
   else: TypeExcept()
 
-# AxpyTriangle
-# ------------
-lib.ElAxpyTriangle_i.argtypes = [c_uint,iType,c_void_p,c_void_p]
-lib.ElAxpyTriangle_i.restype = c_uint
-lib.ElAxpyTriangle_s.argtypes = [c_uint,sType,c_void_p,c_void_p]
-lib.ElAxpyTriangle_s.restype = c_uint
-lib.ElAxpyTriangle_d.argtypes = [c_uint,dType,c_void_p,c_void_p]
-lib.ElAxpyTriangle_d.restype = c_uint
-lib.ElAxpyTriangle_c.argtypes = [c_uint,cType,c_void_p,c_void_p]
-lib.ElAxpyTriangle_c.restype = c_uint
-lib.ElAxpyTriangle_z.argtypes = [c_uint,zType,c_void_p,c_void_p]
-lib.ElAxpyTriangle_z.restype = c_uint
-def AxpyTriangle(uplo,alphaPre,X,Y):
+# AxpyTrapezoid
+# -------------
+lib.ElAxpyTrapezoid_i.argtypes = [c_uint,iType,c_void_p,c_void_p,iType]
+lib.ElAxpyTrapezoid_i.restype = c_uint
+lib.ElAxpyTrapezoid_s.argtypes = [c_uint,sType,c_void_p,c_void_p,iType]
+lib.ElAxpyTrapezoid_s.restype = c_uint
+lib.ElAxpyTrapezoid_d.argtypes = [c_uint,dType,c_void_p,c_void_p,iType]
+lib.ElAxpyTrapezoid_d.restype = c_uint
+lib.ElAxpyTrapezoid_c.argtypes = [c_uint,cType,c_void_p,c_void_p,iType]
+lib.ElAxpyTrapezoid_c.restype = c_uint
+lib.ElAxpyTrapezoid_z.argtypes = [c_uint,zType,c_void_p,c_void_p,iType]
+lib.ElAxpyTrapezoid_z.restype = c_uint
+lib.ElAxpyTrapezoidDist_i.argtypes = [c_uint,iType,c_void_p,c_void_p,iType]
+lib.ElAxpyTrapezoidDist_i.restype = c_uint
+lib.ElAxpyTrapezoidDist_s.argtypes = [c_uint,sType,c_void_p,c_void_p,iType]
+lib.ElAxpyTrapezoidDist_s.restype = c_uint
+lib.ElAxpyTrapezoidDist_d.argtypes = [c_uint,dType,c_void_p,c_void_p,iType]
+lib.ElAxpyTrapezoidDist_d.restype = c_uint
+lib.ElAxpyTrapezoidDist_c.argtypes = [c_uint,cType,c_void_p,c_void_p,iType]
+lib.ElAxpyTrapezoidDist_c.restype = c_uint
+lib.ElAxpyTrapezoidDist_z.argtypes = [c_uint,zType,c_void_p,c_void_p,iType]
+lib.ElAxpyTrapezoidDist_z.restype = c_uint
+def AxpyTriangle(uplo,alphaPre,X,Y,offset=0):
   if type(X) is not type(Y): raise Exception('Types of X and Y must match')
   if X.tag != Y.tag: raise Exception('Datatypes of X and Y must match')
   alpha = TagToType(X.tag)(alphaPre)
-  args = [uplo,alpha,X.obj,Y.obj]
+  args = [uplo,alpha,X.obj,Y.obj,offset]
   if type(X) is Matrix:
     if   X.tag == iTag: lib.ElAxpyTriangle_i(*args)
     elif X.tag == sTag: lib.ElAxpyTriangle_s(*args)
@@ -835,6 +855,26 @@ lib.ElMakeSymmetricDist_c.argtypes = [c_uint,c_void_p]
 lib.ElMakeSymmetricDist_c.restype = c_uint
 lib.ElMakeSymmetricDist_z.argtypes = [c_uint,c_void_p]
 lib.ElMakeSymmetricDist_z.restype = c_uint
+lib.ElMakeSymmetricSparse_i.argtypes = [c_uint,c_void_p]
+lib.ElMakeSymmetricSparse_i.restype = c_uint
+lib.ElMakeSymmetricSparse_s.argtypes = [c_uint,c_void_p]
+lib.ElMakeSymmetricSparse_s.restype = c_uint
+lib.ElMakeSymmetricSparse_d.argtypes = [c_uint,c_void_p]
+lib.ElMakeSymmetricSparse_d.restype = c_uint
+lib.ElMakeSymmetricSparse_c.argtypes = [c_uint,c_void_p]
+lib.ElMakeSymmetricSparse_c.restype = c_uint
+lib.ElMakeSymmetricSparse_z.argtypes = [c_uint,c_void_p]
+lib.ElMakeSymmetricSparse_z.restype = c_uint
+lib.ElMakeSymmetricDistSparse_i.argtypes = [c_uint,c_void_p]
+lib.ElMakeSymmetricDistSparse_i.restype = c_uint
+lib.ElMakeSymmetricDistSparse_s.argtypes = [c_uint,c_void_p]
+lib.ElMakeSymmetricDistSparse_s.restype = c_uint
+lib.ElMakeSymmetricDistSparse_d.argtypes = [c_uint,c_void_p]
+lib.ElMakeSymmetricDistSparse_d.restype = c_uint
+lib.ElMakeSymmetricDistSparse_c.argtypes = [c_uint,c_void_p]
+lib.ElMakeSymmetricDistSparse_c.restype = c_uint
+lib.ElMakeSymmetricDistSparse_z.argtypes = [c_uint,c_void_p]
+lib.ElMakeSymmetricDistSparse_z.restype = c_uint
 
 lib.ElMakeHermitian_c.argtypes = [c_uint,c_void_p]
 lib.ElMakeHermitian_c.restype = c_uint
@@ -844,6 +884,14 @@ lib.ElMakeHermitianDist_c.argtypes = [c_uint,c_void_p]
 lib.ElMakeHermitianDist_c.restype = c_uint
 lib.ElMakeHermitianDist_z.argtypes = [c_uint,c_void_p]
 lib.ElMakeHermitianDist_z.restype = c_uint
+lib.ElMakeHermitianSparse_c.argtypes = [c_uint,c_void_p]
+lib.ElMakeHermitianSparse_c.restype = c_uint
+lib.ElMakeHermitianSparse_z.argtypes = [c_uint,c_void_p]
+lib.ElMakeHermitianSparse_z.restype = c_uint
+lib.ElMakeHermitianDistSparse_c.argtypes = [c_uint,c_void_p]
+lib.ElMakeHermitianDistSparse_c.restype = c_uint
+lib.ElMakeHermitianDistSparse_z.argtypes = [c_uint,c_void_p]
+lib.ElMakeHermitianDistSparse_z.restype = c_uint
 
 def MakeSymmetric(uplo,A,conj=False):
   args = [uplo,A.obj]
@@ -868,6 +916,28 @@ def MakeSymmetric(uplo,A,conj=False):
     elif A.tag == zTag: 
       if conj: lib.ElMakeHermitianDist_z(*args)
       else:    lib.ElMakeSymmetricDist_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == iTag: lib.ElMakeSymmetricSparse_i(*args)
+    elif A.tag == sTag: lib.ElMakeSymmetricSparse_s(*args)
+    elif A.tag == dTag: lib.ElMakeSymmetricSparse_d(*args)
+    elif A.tag == cTag:
+      if conjugate: lib.ElMakeHermitianSparse_c(*args)
+      else:         lib.ElMakeHermitianSparse_c(*args)
+    elif A.tag == zTag:
+      if conjugate: lib.ElMakeHermitianSparse_z(*args)
+      else:         lib.ElMakeHermitianSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == iTag: lib.ElMakeSymmetricDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElMakeSymmetricDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElMakeSymmetricDistSparse_d(*args)
+    elif A.tag == cTag:
+      if conjugate: lib.ElMakeHermitianDistSparse_c(*args)
+      else:         lib.ElMakeHermitianDistSparse_c(*args)
+    elif A.tag == zTag:
+      if conjugate: lib.ElMakeHermitianDistSparse_z(*args)
+      else:         lib.ElMakeHermitianDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 
@@ -916,6 +986,16 @@ lib.ElMakeTrapezoidalDist_c.argtypes = [c_uint,c_void_p,iType]
 lib.ElMakeTrapezoidalDist_c.restype = c_uint
 lib.ElMakeTrapezoidalDist_z.argtypes = [c_uint,c_void_p,iType]
 lib.ElMakeTrapezoidalDist_z.restype = c_uint
+lib.ElMakeTrapezoidalSparse_i.argtypes = [c_uint,c_void_p,iType]
+lib.ElMakeTrapezoidalSparse_i.restype = c_uint
+lib.ElMakeTrapezoidalSparse_s.argtypes = [c_uint,c_void_p,iType]
+lib.ElMakeTrapezoidalSparse_s.restype = c_uint
+lib.ElMakeTrapezoidalSparse_d.argtypes = [c_uint,c_void_p,iType]
+lib.ElMakeTrapezoidalSparse_d.restype = c_uint
+lib.ElMakeTrapezoidalSparse_c.argtypes = [c_uint,c_void_p,iType]
+lib.ElMakeTrapezoidalSparse_c.restype = c_uint
+lib.ElMakeTrapezoidalSparse_z.argtypes = [c_uint,c_void_p,iType]
+lib.ElMakeTrapezoidalSparse_z.restype = c_uint
 def MakeTrapezoidal(uplo,A,offset=0):
   args = [uplo,A.obj,offset]
   if type(A) is Matrix:
@@ -932,45 +1012,19 @@ def MakeTrapezoidal(uplo,A,offset=0):
     elif A.tag == cTag: lib.ElMakeTrapezoidalDist_c(*args)
     elif A.tag == zTag: lib.ElMakeTrapezoidalDist_z(*args)
     else: DataExcept()
-  else: TypeExcept()
-
-# Make triangular
-# ---------------
-lib.ElMakeTriangular_i.argtypes = [c_uint,c_void_p]
-lib.ElMakeTriangular_i.restype = c_uint
-lib.ElMakeTriangular_s.argtypes = [c_uint,c_void_p]
-lib.ElMakeTriangular_s.restype = c_uint
-lib.ElMakeTriangular_d.argtypes = [c_uint,c_void_p]
-lib.ElMakeTriangular_d.restype = c_uint
-lib.ElMakeTriangular_c.argtypes = [c_uint,c_void_p]
-lib.ElMakeTriangular_c.restype = c_uint
-lib.ElMakeTriangular_z.argtypes = [c_uint,c_void_p]
-lib.ElMakeTriangular_z.restype = c_uint
-lib.ElMakeTriangularDist_i.argtypes = [c_uint,c_void_p]
-lib.ElMakeTriangularDist_i.restype = c_uint
-lib.ElMakeTriangularDist_s.argtypes = [c_uint,c_void_p]
-lib.ElMakeTriangularDist_s.restype = c_uint
-lib.ElMakeTriangularDist_d.argtypes = [c_uint,c_void_p]
-lib.ElMakeTriangularDist_d.restype = c_uint
-lib.ElMakeTriangularDist_c.argtypes = [c_uint,c_void_p]
-lib.ElMakeTriangularDist_c.restype = c_uint
-lib.ElMakeTriangularDist_z.argtypes = [c_uint,c_void_p]
-lib.ElMakeTriangularDist_z.restype = c_uint
-def MakeTriangular(uplo,A):
-  args = [uplo,A.obj]
-  if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElMakeTriangular_i(*args)
-    elif A.tag == sTag: lib.ElMakeTriangular_s(*args)
-    elif A.tag == dTag: lib.ElMakeTriangular_d(*args)
-    elif A.tag == cTag: lib.ElMakeTriangular_c(*args)
-    elif A.tag == zTag: lib.ElMakeTriangular_z(*args)
+  elif type(A) is SparseMatrix:
+    if   A.tag == iTag: lib.ElMakeTrapezoidalSparse_i(*args)
+    elif A.tag == sTag: lib.ElMakeTrapezoidalSparse_s(*args)
+    elif A.tag == dTag: lib.ElMakeTrapezoidalSparse_d(*args)
+    elif A.tag == cTag: lib.ElMakeTrapezoidalSparse_c(*args)
+    elif A.tag == zTag: lib.ElMakeTrapezoidalSparse_z(*args)
     else: DataExcept()
-  elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElMakeTriangularDist_i(*args)
-    elif A.tag == sTag: lib.ElMakeTriangularDist_s(*args)
-    elif A.tag == dTag: lib.ElMakeTriangularDist_d(*args)
-    elif A.tag == cTag: lib.ElMakeTriangularDist_c(*args)
-    elif A.tag == zTag: lib.ElMakeTriangularDist_z(*args)
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == iTag: lib.ElMakeTrapezoidalDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElMakeTrapezoidalDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElMakeTrapezoidalDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElMakeTrapezoidalDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElMakeTrapezoidalDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 
@@ -1590,6 +1644,26 @@ lib.ElScaleTrapezoidDist_c.argtypes = [cType,c_uint,c_void_p,iType]
 lib.ElScaleTrapezoidDist_c.restype = c_uint
 lib.ElScaleTrapezoidDist_z.argtypes = [zType,c_uint,c_void_p,iType]
 lib.ElScaleTrapezoidDist_z.restype = c_uint
+lib.ElScaleTrapezoidSparse_i.argtypes = [iType,c_uint,c_void_p,iType]
+lib.ElScaleTrapezoidSparse_i.restype = c_uint
+lib.ElScaleTrapezoidSparse_s.argtypes = [sType,c_uint,c_void_p,iType]
+lib.ElScaleTrapezoidSparse_s.restype = c_uint
+lib.ElScaleTrapezoidSparse_d.argtypes = [dType,c_uint,c_void_p,iType]
+lib.ElScaleTrapezoidSparse_d.restype = c_uint
+lib.ElScaleTrapezoidSparse_c.argtypes = [cType,c_uint,c_void_p,iType]
+lib.ElScaleTrapezoidSparse_c.restype = c_uint
+lib.ElScaleTrapezoidSparse_z.argtypes = [zType,c_uint,c_void_p,iType]
+lib.ElScaleTrapezoidSparse_z.restype = c_uint
+lib.ElScaleTrapezoidDistSparse_i.argtypes = [iType,c_uint,c_void_p,iType]
+lib.ElScaleTrapezoidDistSparse_i.restype = c_uint
+lib.ElScaleTrapezoidDistSparse_s.argtypes = [sType,c_uint,c_void_p,iType]
+lib.ElScaleTrapezoidDistSparse_s.restype = c_uint
+lib.ElScaleTrapezoidDistSparse_d.argtypes = [dType,c_uint,c_void_p,iType]
+lib.ElScaleTrapezoidDistSparse_d.restype = c_uint
+lib.ElScaleTrapezoidDistSparse_c.argtypes = [cType,c_uint,c_void_p,iType]
+lib.ElScaleTrapezoidDistSparse_c.restype = c_uint
+lib.ElScaleTrapezoidDistSparse_z.argtypes = [zType,c_uint,c_void_p,iType]
+lib.ElScaleTrapezoidDistSparse_z.restype = c_uint
 def ScaleTrapezoid(alphaPre,uplo,A,offset=0):
   alpha = TagToType(A.tag)(alphaPre)
   args = [alpha,uplo,A.obj,offset]
@@ -1606,6 +1680,20 @@ def ScaleTrapezoid(alphaPre,uplo,A,offset=0):
     elif A.tag == dTag: lib.ElScaleTrapezoidDist_d(*args)
     elif A.tag == cTag: lib.ElScaleTrapezoidDist_c(*args)
     elif A.tag == zTag: lib.ElScaleTrapezoidDist_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == iTag: lib.ElScaleTrapezoidSparse_i(*args)
+    elif A.tag == sTag: lib.ElScaleTrapezoidSparse_s(*args)
+    elif A.tag == dTag: lib.ElScaleTrapezoidSparse_d(*args)
+    elif A.tag == cTag: lib.ElScaleTrapezoidSparse_c(*args)
+    elif A.tag == zTag: lib.ElScaleTrapezoidSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == iTag: lib.ElScaleTrapezoidDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElScaleTrapezoidDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElScaleTrapezoidDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElScaleTrapezoidDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElScaleTrapezoidDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 

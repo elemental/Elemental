@@ -27,7 +27,7 @@ void TestTrmm
     
     // Form an explicit triangular copy to apply with Gemm
     auto S( A );
-    MakeTriangular( uplo, S );
+    MakeTrapezoidal( uplo, S );
 
     if( print )
     {

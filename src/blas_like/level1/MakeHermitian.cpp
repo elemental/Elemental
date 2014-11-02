@@ -24,9 +24,25 @@ void MakeHermitian( UpperOrLower uplo, AbstractDistMatrix<T>& A )
     MakeSymmetric( uplo, A, true );
 }
 
-#define PROTO(F) \
-  template void MakeHermitian( UpperOrLower uplo, Matrix<F>& A ); \
-  template void MakeHermitian( UpperOrLower uplo, AbstractDistMatrix<F>& A );
+template<typename T>
+void MakeHermitian( UpperOrLower uplo, SparseMatrix<T>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("MakeHermitian"))
+    MakeSymmetric( uplo, A, true );
+}
+
+template<typename T>
+void MakeHermitian( UpperOrLower uplo, DistSparseMatrix<T>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("MakeHermitian"))
+    MakeSymmetric( uplo, A, true );
+}
+
+#define PROTO(T) \
+  template void MakeHermitian( UpperOrLower uplo, Matrix<T>& A ); \
+  template void MakeHermitian( UpperOrLower uplo, AbstractDistMatrix<T>& A ); \
+  template void MakeHermitian( UpperOrLower uplo, SparseMatrix<T>& A ); \
+  template void MakeHermitian( UpperOrLower uplo, DistSparseMatrix<T>& A );
 
 #include "El/macros/Instantiate.h"
 

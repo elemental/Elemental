@@ -67,7 +67,7 @@ Int LinearProgram
     if( inv )
     {
         X22 = B22;
-        MakeTriangular( LOWER, X22 );
+        MakeTrapezoidal( LOWER, X22 );
         SetDiagonal( X22, Real(1) );
         TriangularInverse( LOWER, UNIT, X22 );
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, Real(1), B22, X22 );
@@ -231,7 +231,7 @@ Int LinearProgram
     if( inv )
     {
         X22 = B22;
-        MakeTriangular( LOWER, X22 );
+        MakeTrapezoidal( LOWER, X22 );
         SetDiagonal( X22, Real(1) );
         TriangularInverse( LOWER, UNIT, X22 );
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, Real(1), B22, X22 );

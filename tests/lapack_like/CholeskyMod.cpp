@@ -94,7 +94,7 @@ void TestCholeskyMod
              << "  Time = " << runTime << " seconds. GFlops = " 
              << gFlops << endl;
     }
-    MakeTriangular( uplo, T );
+    MakeTrapezoidal( uplo, T );
     if( print )
         Print( T, "Cholesky factor" );
 

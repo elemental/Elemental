@@ -89,7 +89,7 @@ inline void LocalColAccumulateL
         D11.AlignWith( A11 );
         // TODO: These diagonal block updates can be greatly improved
         D11 = A11;
-        MakeTriangular( LOWER, D11 );
+        MakeTrapezoidal( LOWER, D11 );
         LocalGemv( NORMAL, alpha, D11, x1_MR_STAR, T(1), z1_MC_STAR );
         SetDiagonal( D11, T(0) );
         LocalGemv( orientation, alpha, D11, x1_MC_STAR, T(1), z1_MR_STAR );
@@ -180,7 +180,7 @@ inline void LocalRowAccumulateL
         D11.AlignWith( A11 );
         // TODO: These diagonal block updates can be greatly improved
         D11 = A11;
-        MakeTriangular( LOWER, D11 );
+        MakeTrapezoidal( LOWER, D11 );
         LocalGemv( NORMAL, alpha, D11, x1_STAR_MR, T(1), z1_STAR_MC );
         SetDiagonal( D11, T(0) );
         LocalGemv( orientation, alpha, D11, x1_STAR_MC, T(1), z1_STAR_MR );

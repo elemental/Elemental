@@ -37,7 +37,7 @@ Int PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative )
 
     Matrix<F> U( ACopyUpper ), V;
     Matrix<Real> s;
-    MakeTriangular( UPPER, U );
+    MakeTrapezoidal( UPPER, U );
 
     SVDCtrl<Real> svdCtrl;
     svdCtrl.thresholded = true;
@@ -88,7 +88,7 @@ Int PivotedQR
 
     DistMatrix<F> U( ACopyUpper ), V(g);
     DistMatrix<Real,VR,STAR> s(g);
-    MakeTriangular( UPPER, U );
+    MakeTrapezoidal( UPPER, U );
 
     SVDCtrl<Real> svdCtrl;
     svdCtrl.thresholded = true;

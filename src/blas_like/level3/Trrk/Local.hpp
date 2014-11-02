@@ -150,10 +150,10 @@ TrrkNNKernel
         Gemm( NORMAL, NORMAL, alpha, AT, BR, T(1), CTR );
 
     Gemm( NORMAL, NORMAL, alpha, AT, BL, DTL );
-    AxpyTriangle( uplo, T(1), DTL, CTL );
+    AxpyTrapezoid( uplo, T(1), DTL, CTL );
 
     Gemm( NORMAL, NORMAL, alpha, AB, BR, DBR );
-    AxpyTriangle( uplo, T(1), DBR, CBR );
+    AxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
 
 // Distributed C := alpha A B + beta C
@@ -192,11 +192,11 @@ LocalTrrkKernel
 
     DTL.AlignWith( CTL );
     LocalGemm( NORMAL, NORMAL, alpha, AT, BL, DTL );
-    AxpyTriangle( uplo, T(1), DTL, CTL );
+    AxpyTrapezoid( uplo, T(1), DTL, CTL );
 
     DBR.AlignWith( CBR );
     LocalGemm( NORMAL, NORMAL, alpha, AB, BR, DBR );
-    AxpyTriangle( uplo, T(1), DBR, CBR );
+    AxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
 
 // Local C := alpha A B^{T/H} + beta C
@@ -232,10 +232,10 @@ TrrkNTKernel
         Gemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), CTR );
 
     Gemm( NORMAL, orientationOfB, alpha, AT, BT, DTL );
-    AxpyTriangle( uplo, T(1), DTL, CTL );
+    AxpyTrapezoid( uplo, T(1), DTL, CTL );
 
     Gemm( NORMAL, orientationOfB, alpha, AB, BB, DBR );
-    AxpyTriangle( uplo, T(1), DBR, CBR );
+    AxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
 
 // Distributed C := alpha A B^{T/H} + beta C
@@ -275,11 +275,11 @@ LocalTrrkKernel
 
     DTL.AlignWith( CTL );
     LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, DTL );
-    AxpyTriangle( uplo, T(1), DTL, CTL );
+    AxpyTrapezoid( uplo, T(1), DTL, CTL );
 
     DBR.AlignWith( CBR );
     LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, DBR );
-    AxpyTriangle( uplo, T(1), DBR, CBR );
+    AxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
 
 // Local C := alpha A^{T/H} B + beta C
@@ -315,10 +315,10 @@ TrrkTNKernel
         Gemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), CTR );
 
     Gemm( orientationOfA, NORMAL, alpha, AL, BL, DTL );
-    AxpyTriangle( uplo, T(1), DTL, CTL );
+    AxpyTrapezoid( uplo, T(1), DTL, CTL );
 
     Gemm( orientationOfA, NORMAL, alpha, AR, BR, DBR );
-    AxpyTriangle( uplo, T(1), DBR, CBR );
+    AxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
 
 // Distributed C := alpha A^{T/H} B + beta C
@@ -358,11 +358,11 @@ LocalTrrkKernel
 
     DTL.AlignWith( CTL );
     LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, DTL );
-    AxpyTriangle( uplo, T(1), DTL, CTL );
+    AxpyTrapezoid( uplo, T(1), DTL, CTL );
 
     DBR.AlignWith( CBR );
     LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, DBR );
-    AxpyTriangle( uplo, T(1), DBR, CBR );
+    AxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
 
 // Local C := alpha A^{T/H} B^{T/H} + beta C
@@ -399,10 +399,10 @@ TrrkTTKernel
         Gemm( orientationOfA, orientationOfB, alpha, AL, BB, T(1), CTR );
 
     Gemm( orientationOfA, orientationOfB, alpha, AL, BT, DTL );
-    AxpyTriangle( uplo, T(1), DTL, CTL );
+    AxpyTrapezoid( uplo, T(1), DTL, CTL );
 
     Gemm( orientationOfA, orientationOfB, alpha, AR, BB, DBR );
-    AxpyTriangle( uplo, T(1), DBR, CBR );
+    AxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
 
 // Distributed C := alpha A^{T/H} B^{T/H} + beta C
@@ -443,11 +443,11 @@ LocalTrrkKernel
 
     DTL.AlignWith( CTL );
     LocalGemm( orientationOfA, orientationOfB, alpha, AL, BT, DTL );
-    AxpyTriangle( uplo, T(1), DTL, CTL );
+    AxpyTrapezoid( uplo, T(1), DTL, CTL );
 
     DBR.AlignWith( CBR );
     LocalGemm( orientationOfA, orientationOfB, alpha, AR, BB, DBR );
-    AxpyTriangle( uplo, T(1), DBR, CBR );
+    AxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
 
 // Local C := alpha A B + beta C

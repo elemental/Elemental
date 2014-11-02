@@ -55,7 +55,7 @@ void AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& p )
         auto L21( A21 );
 
         // Zero the strictly lower triangular portion of A1
-        MakeTriangular( UPPER, A11 );
+        MakeTrapezoidal( UPPER, A11 );
         Zero( A21 );
 
         // Perform the lazy update of A1
@@ -132,7 +132,7 @@ void AfterLUPartialPiv
         L21_VR_STAR.TransposePartialColAllGather( L21Trans_STAR_MR );
 
         // Zero the strictly lower triangular portion of A1
-        MakeTriangular( UPPER, A11 );
+        MakeTrapezoidal( UPPER, A11 );
         Zero( A21 );
 
         // Perform the lazy update of A1

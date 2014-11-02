@@ -130,13 +130,50 @@ MakeTrapezoidal
     }
 }
 
+template<typename T>
+void MakeTrapezoidal( UpperOrLower uplo, SparseMatrix<T>& A, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("MakeTrapezoidal"))
+    const Int numEntries = A.NumEntries();
+    for( Int k=0; k<numEntries; ++k )
+    {
+        const Int i = A.Row(k);
+        const Int j = A.Col(k);
+        if( (uplo == LOWER && j-i > offset) || 
+            (uplo == UPPER && j-i < offset) )
+            A.QueueZero( i, j );
+    }
+    A.MakeConsistent();
+}
+
+template<typename T>
+void MakeTrapezoidal( UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("MakeTrapezoidal"))
+    const Int firstLocalRow = A.FirstLocalRow();
+    const Int numLocalEntries = A.NumLocalEntries();
+    for( Int k=0; k<numLocalEntries; ++k )
+    {
+        const Int i = A.Row(k);
+        const Int j = A.Col(k);
+        if( (uplo == LOWER && j-i > offset) || 
+            (uplo == UPPER && j-i < offset) )
+            A.QueueLocalZero( i-firstLocalRow, j );
+    }
+    A.MakeConsistent();
+}
+
 #define PROTO(T) \
   template void MakeTrapezoidal \
   ( UpperOrLower uplo, Matrix<T>& A, Int offset ); \
   template void MakeTrapezoidal \
   ( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset ); \
   template void MakeTrapezoidal \
-  ( UpperOrLower uplo, AbstractBlockDistMatrix<T>& A, Int offset );
+  ( UpperOrLower uplo, AbstractBlockDistMatrix<T>& A, Int offset ); \
+  template void MakeTrapezoidal \
+  ( UpperOrLower uplo, SparseMatrix<T>& A, Int offset ); \
+  template void MakeTrapezoidal \
+  ( UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset );
 
 #include "El/macros/Instantiate.h"
 

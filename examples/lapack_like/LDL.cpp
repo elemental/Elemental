@@ -49,7 +49,7 @@ main( int argc, char* argv[] )
         auto d = factA.GetDiagonal();
 
         DistMatrix<C> L( factA );
-        MakeTriangular( LOWER, L );
+        MakeTrapezoidal( LOWER, L );
         SetDiagonal( L, C(1) );
 
         DistMatrix<C> LD( L );
