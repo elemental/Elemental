@@ -272,14 +272,22 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
   /* ScaleTrapezoid */ \
   ElError ElScaleTrapezoid_ ## SIG \
   ( CREFLECT(T) alpha, ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElInt offset ) \
-  { EL_TRY( \
-      ScaleTrapezoid \
+  { EL_TRY( ScaleTrapezoid \
       ( CReflect(alpha), CReflect(uplo), *CReflect(A), offset ) ) } \
   ElError ElScaleTrapezoidDist_ ## SIG \
   ( CREFLECT(T) alpha, ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, \
     ElInt offset ) \
-  { EL_TRY( \
-      ScaleTrapezoid \
+  { EL_TRY( ScaleTrapezoid \
+      ( CReflect(alpha), CReflect(uplo), *CReflect(A), offset ) ) } \
+  ElError ElScaleTrapezoidSparse_ ## SIG \
+  ( CREFLECT(T) alpha, ElUpperOrLower uplo, ElSparseMatrix_ ## SIG A, \
+    ElInt offset ) \
+  { EL_TRY( ScaleTrapezoid \
+      ( CReflect(alpha), CReflect(uplo), *CReflect(A), offset ) ) } \
+  ElError ElScaleTrapezoidDistSparse_ ## SIG \
+  ( CREFLECT(T) alpha, ElUpperOrLower uplo, ElDistSparseMatrix_ ## SIG A, \
+    ElInt offset ) \
+  { EL_TRY( ScaleTrapezoid \
       ( CReflect(alpha), CReflect(uplo), *CReflect(A), offset ) ) } \
   /* SetDiagonal */ \
   ElError ElSetDiagonal_ ## SIG \

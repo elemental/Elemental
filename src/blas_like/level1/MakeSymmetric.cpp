@@ -129,12 +129,12 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
         LogicError("Cannot make non-square matrix symmetric");
 
     MakeTrapezoidal( uplo, A );
+    const Int numLocalEntries = A.NumLocalEntries();
+    T* vBuf = A.ValueBuffer();
+    const Int* sBuf = A.LockedSourceBuffer();
+    const Int* tBuf = A.LockedTargetBuffer();
     if( conjugate && IsComplex<T>::val )
     {
-        const Int numLocalEntries = A.NumLocalEntries();
-        T* vBuf = A.ValueBuffer();
-        const Int* sBuf = A.LockedSourceBuffer();
-        const Int* tBuf = A.LockedTargetBuffer();
         for( Int k=0; k<numLocalEntries; ++k )
             if( sBuf[k] == tBuf[k] )
                 vBuf[k] = RealPart(vBuf[k]);
@@ -145,22 +145,15 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
     mpi::Comm comm = A.Comm();
     const int commSize = mpi::Size(comm);
     std::vector<int> sendCounts(commSize,0);
-    const Int firstLocalRow = A.FirstLocalRow();
-    const Int localHeight = A.LocalHeight();
     const Int blocksize = A.Blocksize();
-    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+    for( Int k=0; k<numLocalEntries; ++k )
     {
-        const Int i = firstLocalRow + iLoc;
-        const Int offset = A.EntryOffset( iLoc );
-        const Int rowSize = A.NumConnections( iLoc );
-        for( Int k=0; k<rowSize; ++k )
-        {
-            const Int j = A.Col(offset+k);
-            if( (uplo == LOWER && i < j) || (uplo == UPPER && i > j) )
-            { 
-                const Int owner = RowToProcess( j, blocksize, commSize );
-                ++sendCounts[owner];
-            }
+        const Int i = sBuf[k];
+        const Int j = tBuf[k];
+        if( (uplo == LOWER && i > j) || (uplo == UPPER && i < j) )
+        { 
+            const Int owner = RowToProcess( j, blocksize, commSize );
+            ++sendCounts[owner];
         }
     }
 
@@ -183,47 +176,44 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
 
     // Pack the triplets
     // =================
-    std::vector<Int> sourceBuf(totalSend), targetBuf(totalSend);
-    std::vector<T> valueBuf(totalSend);
+    std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
+    std::vector<T> vSendBuf(totalSend);
     std::vector<int> offsets = sendOffsets;
-    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+    for( Int k=0; k<numLocalEntries; ++k )
     {
-        const Int i = firstLocalRow + iLoc;
-        const Int rowSize = A.NumConnections( iLoc );
-        const Int offset = A.EntryOffset( iLoc );
-        for( Int k=0; k<rowSize; ++k )
+        const Int i = sBuf[k];
+        const Int j = tBuf[k];
+        if( (uplo == LOWER && i > j) || (uplo == UPPER && i < j) )
         {
-            const Int j = A.Col(offset+k);
-            if( (uplo == LOWER && i > j) || (uplo == UPPER && i < j) )
-            {
-                const Int owner = RowToProcess( j, blocksize, commSize );
-                const Int s = offsets[owner];
-                sourceBuf[s] = j;
-                targetBuf[s] = i;
-                valueBuf[s] = A.Value(offset+k);
-                ++offsets[owner];
-            }
+            const Int owner = RowToProcess( j, blocksize, commSize );
+            const Int s = offsets[owner];
+            sSendBuf[s] = j;
+            tSendBuf[s] = i;
+            if( conjugate )
+                vSendBuf[s] = Conj(vBuf[k]);
+            else
+                vSendBuf[s] = vBuf[k];
+            ++offsets[owner];
         }
     }
 
     // Exchange and unpack the triplets
     // ================================
-    std::vector<Int> sourceRecvBuf(totalRecv), targetRecvBuf(totalRecv);
-    std::vector<T> valueRecvBuf(totalRecv);
+    std::vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
+    std::vector<T> vRecvBuf(totalRecv);
     mpi::AllToAll
-    ( sourceBuf.data(), sendCounts.data(), sendOffsets.data(),
-      sourceRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
     mpi::AllToAll
-    ( targetBuf.data(), sendCounts.data(), sendOffsets.data(),
-      targetRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    ( tSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      tRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
     mpi::AllToAll
-    ( valueBuf.data(), sendCounts.data(), sendOffsets.data(),
-      valueRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
     A.Reserve( A.NumLocalEntries()+totalRecv );
     for( Int k=0; k<totalRecv; ++k )
         A.QueueLocalUpdate
-        ( sourceRecvBuf[k]-firstLocalRow,
-          targetRecvBuf[k], valueRecvBuf[k] );
+        ( sRecvBuf[k]-A.FirstLocalRow(), tRecvBuf[k], vRecvBuf[k] );
     A.MakeConsistent();
 }
 

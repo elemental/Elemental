@@ -101,22 +101,19 @@ void Transpose
     DEBUG_ONLY(CallStackEntry cse("Transpose"))
     const Int m = A.Height();
     const Int n = A.Width();
+    const Int numEntries = A.NumEntries();
     B.Empty();
     B.Resize( n, m );
-    B.Reserve( A.NumEntries() );
-    for( Int i=0; i<m; ++i )
+    B.Reserve( numEntries );
+    for( Int k=0; k<numEntries; ++k )
     {
-        const Int offset = A.EntryOffset( i ); 
-        const Int rowSize = A.NumConnections( i );
-        for( Int k=0; k<rowSize; ++k )
-        {
-            const Int j = A.Col(offset+k);
-            const T AVal = A.Value(offset+k);
-            if( conjugate )
-                B.QueueUpdate( j, i, Conj(AVal) );
-            else
-                B.QueueUpdate( j, i, AVal );
-        }
+        const Int i = A.Row(k);
+        const Int j = A.Col(k);
+        const T alpha = A.Value(k);
+        if( conjugate )
+            B.QueueUpdate( j, i, Conj(alpha) );
+        else
+            B.QueueUpdate( j, i, alpha );
     }
     B.MakeConsistent();
 }
@@ -138,18 +135,16 @@ void Transpose
     // Compute the number of entries of A to send to each process
     // ==========================================================
     std::vector<int> sendCounts(commSize,0);
-    const Int localHeight = A.LocalHeight();
+    const Int numLocalEntries = A.NumLocalEntries();
+    const T* vBuf = A.LockedValueBuffer();
+    const Int* sBuf = A.LockedSourceBuffer();
+    const Int* tBuf = A.LockedTargetBuffer();
     const Int blocksizeB = B.Blocksize();
-    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+    for( Int k=0; k<numLocalEntries; ++k )
     {
-        const Int offset = A.EntryOffset( iLoc );
-        const Int rowSize = A.NumConnections( iLoc );
-        for( Int k=0; k<rowSize; ++k )
-        {
-            const Int j = A.Col(offset+k);
-            const Int owner = RowToProcess( j, blocksizeB, commSize );
-            ++sendCounts[owner];
-        }
+        const Int j = tBuf[k];
+        const Int owner = RowToProcess( j, blocksizeB, commSize );
+        ++sendCounts[owner];
     }
 
     // Communicate to determine the number we receive from each process
@@ -171,47 +166,42 @@ void Transpose
 
     // Pack the triplets
     // =================
-    std::vector<Int> sourceBuf(totalSend), targetBuf(totalSend);
-    std::vector<T> valueBuf(totalSend);
+    std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
+    std::vector<T> vSendBuf(totalSend);
     std::vector<int> offsets = sendOffsets;
-    const Int firstLocalRow = A.FirstLocalRow();
-    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+    for( Int k=0; k<numLocalEntries; ++k )
     {
-        const Int i = firstLocalRow + iLoc;
-        const Int rowSize = A.NumConnections( iLoc );
-        const Int offset = A.EntryOffset( iLoc );
-        for( Int k=0; k<rowSize; ++k )
-        {
-            const Int j = A.Col(offset+k);
-            const Int owner = RowToProcess( j, blocksizeB, commSize );
-            const Int s = offsets[owner];
-            sourceBuf[s] = j;
-            targetBuf[s] = i;
-            valueBuf[s] = A.Value(offset+k); 
-            ++offsets[owner];
-        }
+        const Int j = tBuf[k];
+        const Int owner = RowToProcess( j, blocksizeB, commSize );
+        const Int s = offsets[owner];
+        sSendBuf[s] = j;
+        tSendBuf[s] = sBuf[k];
+        if( conjugate )
+            vSendBuf[s] = Conj(vBuf[k]);
+        else
+            vSendBuf[s] = vBuf[k];
+        ++offsets[owner];
     }
 
     // Exchange and unpack the triplets
     // ================================
     // TODO: Switch to a mechanism which directly unpacks into the 
     //       class's local storage?
-    std::vector<Int> sourceRecvBuf(totalRecv), targetRecvBuf(totalRecv);
-    std::vector<T> valueRecvBuf(totalRecv);
+    std::vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
+    std::vector<T> vRecvBuf(totalRecv);
     mpi::AllToAll
-    ( sourceBuf.data(), sendCounts.data(), sendOffsets.data(),
-      sourceRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
     mpi::AllToAll
-    ( targetBuf.data(), sendCounts.data(), sendOffsets.data(),
-      targetRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    ( tSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      tRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
     mpi::AllToAll
-    ( valueBuf.data(), sendCounts.data(), sendOffsets.data(),
-      valueRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
     B.Reserve( totalRecv );
     for( Int k=0; k<totalRecv; ++k )
         B.QueueLocalUpdate
-        ( sourceRecvBuf[k]-B.FirstLocalRow(), 
-          targetRecvBuf[k], valueRecvBuf[k] );
+        ( sRecvBuf[k]-B.FirstLocalRow(), tRecvBuf[k], vRecvBuf[k] );
     B.MakeConsistent();
 }
 

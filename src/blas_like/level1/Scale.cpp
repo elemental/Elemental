@@ -92,8 +92,8 @@ void Scale( S alpha, SparseMatrix<T>& A )
     {
         T* valueBuf = A.ValueBuffer();
         const Int numEntries = A.NumEntries();
-        for( Int i=0; i<numEntries; ++i )
-            valueBuf[i] *= alpha;
+        for( Int k=0; k<numEntries; ++k )
+            valueBuf[k] *= alpha;
     }
 }
 
@@ -111,8 +111,8 @@ void Scale( S alpha, DistSparseMatrix<T>& A )
     {
         T* valueBuf = A.ValueBuffer();
         const Int numLocalEntries = A.NumLocalEntries();
-        for( Int iLoc=0; iLoc<numLocalEntries; ++iLoc )
-            valueBuf[iLoc] *= alpha;
+        for( Int k=0; k<numLocalEntries; ++k )
+            valueBuf[k] *= alpha;
     }
 }
 
