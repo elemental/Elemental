@@ -45,6 +45,27 @@ void AxpyTrapezoid
 template<typename T,typename S>
 void AxpyTrapezoid
 ( UpperOrLower uplo, S alphaS, 
+  const SparseMatrix<T>& X, SparseMatrix<T>& Y, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("AxpyTrapezoid"))
+    if( X.Height() != Y.Height() || X.Width() != Y.Width() )
+        LogicError("X and Y must have the same dimensions");
+    const T alpha = T(alphaS);
+    const Int numEntries = X.NumEntries();
+    Y.Reserve( Y.NumEntries()+numEntries );
+    for( Int k=0; k<numEntries; ++k )
+    {
+        const Int i = X.Row(k);
+        const Int j = X.Col(k);
+        if( (uplo==UPPER && j-i >= offset) || (uplo==LOWER && j-i <= offset) )
+            Y.QueueUpdate( i-firstRow, j, alpha*X.Value(k) );
+    }
+    Y.MakeConsistent();
+}
+
+template<typename T,typename S>
+void AxpyTrapezoid
+( UpperOrLower uplo, S alphaS, 
   const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y, Int offset )
 {
     DEBUG_ONLY(
@@ -102,13 +123,43 @@ void AxpyTrapezoid
     }
 }
 
+template<typename T,typename S>
+void AxpyTrapezoid
+( UpperOrLower uplo, S alphaS, 
+  const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("AxpyTrapezoid"))
+    if( X.Height() != Y.Height() || X.Width() != Y.Width() )
+        LogicError("X and Y must have the same dimensions");
+    if( X.Comm() != Y.Comm() )
+        LogicError("X and Y must have the same communicator");
+    const T alpha = T(alphaS);
+    const Int numLocalEntries = X.NumLocalEntries();
+    const Int firstLocalRow = X.FirstLocalRow();
+    Y.Reserve( Y.NumLocalEntries()+numLocalEntries );
+    for( Int k=0; k<numLocalEntries; ++k )
+    {
+        const Int i = X.Row(k);
+        const Int j = X.Col(k);
+        if( (uplo==UPPER && j-i >= offset) || (uplo==LOWER && j-i <= offset) )
+            Y.QueueLocalUpdate( i-firstLocalRow, j, alpha*X.Value(k) );
+    }
+    Y.MakeConsistent();
+}
+
 #define PROTO_TYPES(T,S) \
   template void AxpyTrapezoid \
   ( UpperOrLower uplo, S alpha, \
     const Matrix<T>& A, Matrix<T>& B, Int offset ); \
   template void AxpyTrapezoid \
   ( UpperOrLower uplo, S alpha, \
-    const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, Int offset );
+    const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, Int offset ); \
+  template void AxpyTrapezoid \
+  ( UpperOrLower uplo, S alpha, \
+    const SparseMatrix<T>& A, SparseMatrix<T>& B, Int offset ); \
+  template void AxpyTrapezoid \
+  ( UpperOrLower uplo, S alpha, \
+    const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B, Int offset );
 
 #define PROTO_INT(T) PROTO_TYPES(T,T)
 

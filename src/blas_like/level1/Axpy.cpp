@@ -57,6 +57,20 @@ void Axpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y )
 }
 
 template<typename T,typename S>
+void Axpy( S alphaS, const SparseMatrix<T>& X, SparseMatrix<T>& Y )
+{
+    DEBUG_ONLY(CallStackEntry cse("Axpy"))
+    if( X.Height() != Y.Height() || X.Width() != Y.Width() )
+        LogicError("X and Y must have the same dimensions");
+    const T alpha = T(alphaS);
+    const Int numEntries = X.NumEntries();
+    Y.Reserve( Y.NumEntries()+numEntries );
+    for( Int k=0; k<numEntries; ++k ) 
+        Y.QueueUpdate( X.Row(k), X.Col(k), alpha*X.Value(k) );
+    Y.MakeConsistent();
+}
+
+template<typename T,typename S>
 void Axpy( S alphaS, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
 {
     DEBUG_ONLY(
@@ -83,6 +97,24 @@ void Axpy( S alphaS, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
 }
 
 template<typename T,typename S>
+void Axpy( S alphaS, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y )
+{
+    DEBUG_ONLY(CallStackEntry cse("Axpy"))
+    if( X.Height() != Y.Height() || X.Width() != Y.Width() )
+        LogicError("X and Y must have the same dimensions");
+    if( X.Comm() != Y.Comm() )
+        LogicError("X and Y must have the same communicator");
+    const T alpha = T(alphaS);
+    const Int numLocalEntries = X.NumLocalEntries();
+    const Int firstLocalRow = X.FirstLocalRow();
+    Y.Reserve( Y.NumLocalEntries()+numLocalEntries );
+    for( Int k=0; k<numLocalEntries; ++k ) 
+        Y.QueueLocalUpdate
+        ( X.Row(k)-firstLocalRow, X.Col(k), alpha*X.Value(k) );
+    Y.MakeConsistent();
+}
+
+template<typename T,typename S>
 void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y )
 {
     DEBUG_ONLY(
@@ -105,6 +137,10 @@ void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y )
   template void Axpy( S alpha, const Matrix<T>& A, Matrix<T>& B ); \
   template void Axpy \
   ( S alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+  template void Axpy \
+  ( S alpha, const SparseMatrix<T>& A, SparseMatrix<T>& B ); \
+  template void Axpy \
+  ( S alpha, const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B ); \
   template void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y );
 
 #define PROTO_INT(T) PROTO_TYPES(T,T)

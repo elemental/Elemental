@@ -34,6 +34,10 @@ template<typename T,typename S>
 void Axpy( S alpha, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y );
 template<typename T,typename S>
 void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y );
+template<typename T,typename S>
+void Axpy( S alpha, const SparseMatrix<T>& X, SparseMatrix<T>& Y );
+template<typename T,typename S>
+void Axpy( S alpha, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y );
 
 // AxpyTrapezoid
 // =============
@@ -44,6 +48,14 @@ template<typename T,typename S>
 void AxpyTrapezoid
 ( UpperOrLower uplo, S alpha,
   const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y, Int offset=0 );
+template<typename T,typename S>
+void AxpyTrapezoid
+( UpperOrLower uplo, S alpha, 
+  const SparseMatrix<T>& X, SparseMatrix<T>& Y, Int offset=0 );
+template<typename T,typename S>
+void AxpyTrapezoid
+( UpperOrLower uplo, S alpha, 
+  const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y, Int offset=0 );
 
 // Column norms
 // ============
@@ -224,12 +236,20 @@ void EntrywiseFill
 template<typename T>
 void EntrywiseMap( Matrix<T>& A, std::function<T(T)> func );
 template<typename T>
+void EntrywiseMap( SparseMatrix<T>& A, std::function<T(T)> func );
+template<typename T>
 void EntrywiseMap( AbstractDistMatrix<T>& A, std::function<T(T)> func );
 template<typename T>
 void EntrywiseMap( AbstractBlockDistMatrix<T>& A, std::function<T(T)> func );
+template<typename T>
+void EntrywiseMap( DistSparseMatrix<T>& A, std::function<T(T)> func );
 
 template<typename S,typename T>
-void EntrywiseMap( const Matrix<S>& A, Matrix<T>& B, std::function<T(S)> func );
+void EntrywiseMap
+( const Matrix<S>& A, Matrix<T>& B, std::function<T(S)> func );
+template<typename S,typename T>
+void EntrywiseMap
+( const SparseMatrix<S>& A, SparseMatrix<T>& B, std::function<T(T)> func );
 template<typename S,typename T>
 void EntrywiseMap
 ( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B, 
@@ -238,6 +258,10 @@ template<typename S,typename T>
 void EntrywiseMap
 ( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B, 
   std::function<T(S)> func );
+template<typename S,typename T>
+void EntrywiseMap
+( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B, 
+  std::function<T(T)> func );
 
 // Fill
 // ====

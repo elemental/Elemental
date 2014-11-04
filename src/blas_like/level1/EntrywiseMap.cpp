@@ -22,12 +22,32 @@ void EntrywiseMap( Matrix<T>& A, std::function<T(T)> func )
 }
 
 template<typename T>
+void EntrywiseMap( SparseMatrix<T>& A, std::function<T(T)> func )
+{
+    DEBUG_ONLY(CallStackEntry cse("EntrywiseMap"))
+    T* vBuf = A.ValueBuffer();
+    const Int numEntries = A.NumEntries();
+    for( Int k=0; k<numEntries; ++k )
+        vBuf[k] = func(vBuf[k]);
+}
+
+template<typename T>
 void EntrywiseMap( AbstractDistMatrix<T>& A, std::function<T(T)> func )
 { EntrywiseMap( A.Matrix(), func ); }
 
 template<typename T>
 void EntrywiseMap( AbstractBlockDistMatrix<T>& A, std::function<T(T)> func )
 { EntrywiseMap( A.Matrix(), func ); }
+
+template<typename T>
+void EntrywiseMap( DistSparseMatrix<T>& A, std::function<T(T)> func )
+{
+    DEBUG_ONLY(CallStackEntry cse("EntrywiseMap"))
+    T* vBuf = A.ValueBuffer();
+    const Int numLocalEntries = A.NumLocalEntries();
+    for( Int k=0; k<numLocalEntries; ++k )
+        vBuf[k] = func(vBuf[k]);
+}
 
 template<typename S,typename T>
 void EntrywiseMap( const Matrix<S>& A, Matrix<T>& B, std::function<T(S)> func )
@@ -39,6 +59,22 @@ void EntrywiseMap( const Matrix<S>& A, Matrix<T>& B, std::function<T(S)> func )
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
             B.Set( i, j, func(A.Get(i,j)) );
+}
+
+template<typename S,typename T>
+void EntrywiseMap
+( const SparseMatrix<S>& A, SparseMatrix<T>& B, std::function<T(S)> func )
+{
+    DEBUG_ONLY(CallStackEntry cse("EntrywiseMap"))
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int numEntries = A.NumEntries();
+    B.Empty();
+    B.Resize( m, n );
+    B.Reserve( numEntries );
+    for( Int k=0; k<numEntries; ++k )
+        B.QueueUpdate( A.Row(k), A.Col(k), func(A.Value(k)) );
+    B.MakeConsistent();
 }
 
 template<typename S,typename T>
@@ -97,14 +133,39 @@ void EntrywiseMap
     }
 }
 
+template<typename S,typename T>
+void EntrywiseMap
+( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B, 
+  std::function<T(S)> func )
+{
+    DEBUG_ONLY(CallStackEntry cse("EntrywiseMap"))
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int numLocalEntries = A.NumLocalEntries();
+    const Int firstLocalRow = A.FirstLocalRow();
+    B.Empty();
+    B.SetComm( A.Comm() );
+    B.Resize( m, n );
+    B.Reserve( numLocalEntries );
+    for( Int k=0; k<numLocalEntries; ++k )
+        B.QueueLocalUpdate
+        ( A.Row(k)-firstLocalRow, A.Col(k), func(A.Value(k)) );
+    B.MakeConsistent();
+}
+
 #define PROTO_TYPES(S,T) \
   template void EntrywiseMap \
   ( const Matrix<S>& A, Matrix<T>& B, std::function<T(S)> func ); \
+  template void EntrywiseMap \
+  ( const SparseMatrix<S>& A, SparseMatrix<T>& B, std::function<T(S)> func ); \
   template void EntrywiseMap \
   ( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B, \
     std::function<T(S)> func ); \
   template void EntrywiseMap \
   ( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B, \
+    std::function<T(S)> func ); \
+  template void EntrywiseMap \
+  ( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B, \
     std::function<T(S)> func );
 
 #define PROTO(T) \
@@ -114,10 +175,13 @@ void EntrywiseMap
   PROTO_TYPES(T,Complex<float>) \
   PROTO_TYPES(T,Complex<double>) \
   template void EntrywiseMap( Matrix<T>& A, std::function<T(T)> func ); \
+  template void EntrywiseMap( SparseMatrix<T>& A, std::function<T(T)> func ); \
   template void EntrywiseMap \
   ( AbstractDistMatrix<T>& A, std::function<T(T)> func ); \
   template void EntrywiseMap \
-  ( AbstractBlockDistMatrix<T>& A, std::function<T(T)> func ); 
+  ( AbstractBlockDistMatrix<T>& A, std::function<T(T)> func ); \
+  template void EntrywiseMap \
+  ( DistSparseMatrix<T>& A, std::function<T(T)> func );
 
 #include "El/macros/Instantiate.h"
 

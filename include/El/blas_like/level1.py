@@ -35,6 +35,26 @@ lib.ElAxpyDist_c.argtypes = [cType,c_void_p,c_void_p]
 lib.ElAxpyDist_c.restype = c_uint
 lib.ElAxpyDist_z.argtypes = [zType,c_void_p,c_void_p]
 lib.ElAxpyDist_z.restype = c_uint
+lib.ElAxpySparse_i.argtypes = [iType,c_void_p,c_void_p]
+lib.ElAxpySparse_i.restype = c_uint
+lib.ElAxpySparse_s.argtypes = [sType,c_void_p,c_void_p]
+lib.ElAxpySparse_s.restype = c_uint
+lib.ElAxpySparse_d.argtypes = [dType,c_void_p,c_void_p]
+lib.ElAxpySparse_d.restype = c_uint
+lib.ElAxpySparse_c.argtypes = [cType,c_void_p,c_void_p]
+lib.ElAxpySparse_c.restype = c_uint
+lib.ElAxpySparse_z.argtypes = [zType,c_void_p,c_void_p]
+lib.ElAxpySparse_z.restype = c_uint
+lib.ElAxpyDistSparse_i.argtypes = [iType,c_void_p,c_void_p]
+lib.ElAxpyDistSparse_i.restype = c_uint
+lib.ElAxpyDistSparse_s.argtypes = [sType,c_void_p,c_void_p]
+lib.ElAxpyDistSparse_s.restype = c_uint
+lib.ElAxpyDistSparse_d.argtypes = [dType,c_void_p,c_void_p]
+lib.ElAxpyDistSparse_d.restype = c_uint
+lib.ElAxpyDistSparse_c.argtypes = [cType,c_void_p,c_void_p]
+lib.ElAxpyDistSparse_c.restype = c_uint
+lib.ElAxpyDistSparse_z.argtypes = [zType,c_void_p,c_void_p]
+lib.ElAxpyDistSparse_z.restype = c_uint
 def Axpy(alphaPre,X,Y):
   if type(X) is not type(Y): raise Exception('Types of X and Y must match')
   if X.tag != Y.tag: raise Exception('Datatypes of X and Y must match')
@@ -53,6 +73,20 @@ def Axpy(alphaPre,X,Y):
     elif X.tag == dTag: lib.ElAxpyDist_d(*args)
     elif X.tag == cTag: lib.ElAxpyDist_c(*args)
     elif X.tag == zTag: lib.ElAxpyDist_z(*args)
+    else: DataExcept()
+  elif type(X) is SparseMatrix:
+    if   X.tag == iTag: lib.ElAxpySparse_i(*args)
+    elif X.tag == sTag: lib.ElAxpySparse_s(*args)
+    elif X.tag == dTag: lib.ElAxpySparse_d(*args)
+    elif X.tag == cTag: lib.ElAxpySparse_c(*args)
+    elif X.tag == zTag: lib.ElAxpySparse_z(*args)
+    else: DataExcept()
+  elif type(X) is DistSparseMatrix:
+    if   X.tag == iTag: lib.ElAxpyDistSparse_i(*args)
+    elif X.tag == sTag: lib.ElAxpyDistSparse_s(*args)
+    elif X.tag == dTag: lib.ElAxpyDistSparse_d(*args)
+    elif X.tag == cTag: lib.ElAxpyDistSparse_c(*args)
+    elif X.tag == zTag: lib.ElAxpyDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 
@@ -78,6 +112,26 @@ lib.ElAxpyTrapezoidDist_c.argtypes = [c_uint,cType,c_void_p,c_void_p,iType]
 lib.ElAxpyTrapezoidDist_c.restype = c_uint
 lib.ElAxpyTrapezoidDist_z.argtypes = [c_uint,zType,c_void_p,c_void_p,iType]
 lib.ElAxpyTrapezoidDist_z.restype = c_uint
+lib.ElAxpyTrapezoidSparse_i.argtypes = [c_uint,iType,c_void_p,c_void_p,iType]
+lib.ElAxpyTrapezoidSparse_i.restype = c_uint
+lib.ElAxpyTrapezoidSparse_s.argtypes = [c_uint,sType,c_void_p,c_void_p,iType]
+lib.ElAxpyTrapezoidSparse_s.restype = c_uint
+lib.ElAxpyTrapezoidSparse_d.argtypes = [c_uint,dType,c_void_p,c_void_p,iType]
+lib.ElAxpyTrapezoidSparse_d.restype = c_uint
+lib.ElAxpyTrapezoidSparse_c.argtypes = [c_uint,cType,c_void_p,c_void_p,iType]
+lib.ElAxpyTrapezoidSparse_c.restype = c_uint
+lib.ElAxpyTrapezoidSparse_z.argtypes = [c_uint,zType,c_void_p,c_void_p,iType]
+lib.ElAxpyTrapezoidSparse_z.restype = c_uint
+lib.ElAxpyTrapezoidDistSparse_i.argtypes = [c_uint,iType,c_void_p,c_void_p,iType]
+lib.ElAxpyTrapezoidDistSparse_i.restype = c_uint
+lib.ElAxpyTrapezoidDistSparse_s.argtypes = [c_uint,sType,c_void_p,c_void_p,iType]
+lib.ElAxpyTrapezoidDistSparse_s.restype = c_uint
+lib.ElAxpyTrapezoidDistSparse_d.argtypes = [c_uint,dType,c_void_p,c_void_p,iType]
+lib.ElAxpyTrapezoidDistSparse_d.restype = c_uint
+lib.ElAxpyTrapezoidDistSparse_c.argtypes = [c_uint,cType,c_void_p,c_void_p,iType]
+lib.ElAxpyTrapezoidDistSparse_c.restype = c_uint
+lib.ElAxpyTrapezoidDistSparse_z.argtypes = [c_uint,zType,c_void_p,c_void_p,iType]
+lib.ElAxpyTrapezoidDistSparse_z.restype = c_uint
 def AxpyTriangle(uplo,alphaPre,X,Y,offset=0):
   if type(X) is not type(Y): raise Exception('Types of X and Y must match')
   if X.tag != Y.tag: raise Exception('Datatypes of X and Y must match')
@@ -96,6 +150,20 @@ def AxpyTriangle(uplo,alphaPre,X,Y,offset=0):
     elif X.tag == dTag: lib.ElAxpyTriangleDist_d(*args)
     elif X.tag == cTag: lib.ElAxpyTriangleDist_c(*args)
     elif X.tag == zTag: lib.ElAxpyTriangleDist_z(*args)
+    else: DataExcept()
+  elif type(X) is SparseMatrix:
+    if   X.tag == iTag: lib.ElAxpyTriangleSparse_i(*args)
+    elif X.tag == sTag: lib.ElAxpyTriangleSparse_s(*args)
+    elif X.tag == dTag: lib.ElAxpyTriangleSparse_d(*args)
+    elif X.tag == cTag: lib.ElAxpyTriangleSparse_c(*args)
+    elif X.tag == zTag: lib.ElAxpyTriangleSparse_z(*args)
+    else: DataExcept()
+  elif type(X) is DistSparseMatrix:
+    if   X.tag == iTag: lib.ElAxpyTriangleDistSparse_i(*args)
+    elif X.tag == sTag: lib.ElAxpyTriangleDistSparse_s(*args)
+    elif X.tag == dTag: lib.ElAxpyTriangleDistSparse_d(*args)
+    elif X.tag == cTag: lib.ElAxpyTriangleDistSparse_c(*args)
+    elif X.tag == zTag: lib.ElAxpyTriangleDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 
@@ -587,6 +655,27 @@ lib.ElEntrywiseMapDist_c.argtypes = [c_void_p,CFUNCTYPE(cType,cType)]
 lib.ElEntrywiseMapDist_c.restype = c_uint
 lib.ElEntrywiseMapDist_z.argtypes = [c_void_p,CFUNCTYPE(zType,zType)]
 lib.ElEntrywiseMapDist_z.restype = c_uint
+lib.ElEntrywiseMapSparse_i.argtypes = [c_void_p,CFUNCTYPE(iType,iType)]
+lib.ElEntrywiseMapSparse_i.restype = c_uint
+lib.ElEntrywiseMapSparse_s.argtypes = [c_void_p,CFUNCTYPE(sType,sType)]
+lib.ElEntrywiseMapSparse_s.restype = c_uint
+lib.ElEntrywiseMapSparse_d.argtypes = [c_void_p,CFUNCTYPE(dType,dType)]
+lib.ElEntrywiseMapSparse_d.restype = c_uint
+lib.ElEntrywiseMapSparse_c.argtypes = [c_void_p,CFUNCTYPE(cType,cType)]
+lib.ElEntrywiseMapSparse_c.restype = c_uint
+lib.ElEntrywiseMapSparse_z.argtypes = [c_void_p,CFUNCTYPE(zType,zType)]
+lib.ElEntrywiseMapSparse_z.restype = c_uint
+lib.ElEntrywiseMapDistSparse_i.argtypes = [c_void_p,CFUNCTYPE(iType,iType)]
+lib.ElEntrywiseMapDistSparse_i.restype = c_uint
+lib.ElEntrywiseMapDistSparse_s.argtypes = [c_void_p,CFUNCTYPE(sType,sType)]
+lib.ElEntrywiseMapDistSparse_s.restype = c_uint
+lib.ElEntrywiseMapDistSparse_d.argtypes = [c_void_p,CFUNCTYPE(dType,dType)]
+lib.ElEntrywiseMapDistSparse_d.restype = c_uint
+lib.ElEntrywiseMapDistSparse_c.argtypes = [c_void_p,CFUNCTYPE(cType,cType)]
+lib.ElEntrywiseMapDistSparse_c.restype = c_uint
+lib.ElEntrywiseMapDistSparse_z.argtypes = [c_void_p,CFUNCTYPE(zType,zType)]
+lib.ElEntrywiseMapDistSparse_z.restype = c_uint
+
 def EntrywiseMap(A,mapFunc):
   cMap = CFUNCTYPE(TagToType(A.tag),TagToType(A.tag))(mapFunc)
   args = [A.obj,cMap]
@@ -603,6 +692,20 @@ def EntrywiseMap(A,mapFunc):
     elif A.tag == dTag: lib.ElEntrywiseMapDist_d(*args)
     elif A.tag == cTag: lib.ElEntrywiseMapDist_c(*args)
     elif A.tag == zTag: lib.ElEntrywiseMapDist_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == iTag: lib.ElEntrywiseMapSparse_i(*args)
+    elif A.tag == sTag: lib.ElEntrywiseMapSparse_s(*args)
+    elif A.tag == dTag: lib.ElEntrywiseMapSparse_d(*args)
+    elif A.tag == cTag: lib.ElEntrywiseMapSparse_c(*args)
+    elif A.tag == zTag: lib.ElEntrywiseMapSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == iTag: lib.ElEntrywiseMapDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElEntrywiseMapDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElEntrywiseMapDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElEntrywiseMapDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElEntrywiseMapDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 

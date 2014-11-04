@@ -58,6 +58,28 @@ EL_EXPORT ElError ElAxpyDist_c
 EL_EXPORT ElError ElAxpyDist_z
 ( complex_double alpha, ElConstDistMatrix_z X, ElDistMatrix_z Y );
 
+EL_EXPORT ElError ElAxpySparse_i
+( ElInt alpha, ElConstSparseMatrix_i X, ElSparseMatrix_i Y );
+EL_EXPORT ElError ElAxpySparse_s
+( float alpha, ElConstSparseMatrix_s X, ElSparseMatrix_s Y );
+EL_EXPORT ElError ElAxpySparse_d
+( double alpha, ElConstSparseMatrix_d X, ElSparseMatrix_d Y );
+EL_EXPORT ElError ElAxpySparse_c
+( complex_float alpha, ElConstSparseMatrix_c X, ElSparseMatrix_c Y );
+EL_EXPORT ElError ElAxpySparse_z
+( complex_double alpha, ElConstSparseMatrix_z X, ElSparseMatrix_z Y );
+
+EL_EXPORT ElError ElAxpyDistSparse_i
+( ElInt alpha, ElConstDistSparseMatrix_i X, ElDistSparseMatrix_i Y );
+EL_EXPORT ElError ElAxpyDistSparse_s
+( float alpha, ElConstDistSparseMatrix_s X, ElDistSparseMatrix_s Y );
+EL_EXPORT ElError ElAxpyDistSparse_d
+( double alpha, ElConstDistSparseMatrix_d X, ElDistSparseMatrix_d Y );
+EL_EXPORT ElError ElAxpyDistSparse_c
+( complex_float alpha, ElConstDistSparseMatrix_c X, ElDistSparseMatrix_c Y );
+EL_EXPORT ElError ElAxpyDistSparse_z
+( complex_double alpha, ElConstDistSparseMatrix_z X, ElDistSparseMatrix_z Y );
+
 /* tri(Y) := tri(alpha A X + Y)
    ============================ */
 EL_EXPORT ElError ElAxpyTrapezoid_i
@@ -91,6 +113,38 @@ EL_EXPORT ElError ElAxpyTrapezoidDist_c
 EL_EXPORT ElError ElAxpyTrapezoidDist_z
 ( ElUpperOrLower uplo, complex_double alpha, 
   ElConstDistMatrix_z X, ElDistMatrix_z Y, ElInt offset );
+
+EL_EXPORT ElError ElAxpyTrapezoidSparse_i
+( ElUpperOrLower uplo, ElInt alpha, 
+  ElConstSparseMatrix_i X, ElSparseMatrix_i Y, ElInt offset );
+EL_EXPORT ElError ElAxpyTrapezoidSparse_s
+( ElUpperOrLower uplo, float alpha, 
+  ElConstSparseMatrix_s X, ElSparseMatrix_s Y, ElInt offset );
+EL_EXPORT ElError ElAxpyTrapezoidSparse_d
+( ElUpperOrLower uplo, double alpha, 
+  ElConstSparseMatrix_d X, ElSparseMatrix_d Y, ElInt offset );
+EL_EXPORT ElError ElAxpyTrapezoidSparse_c
+( ElUpperOrLower uplo, complex_float alpha, 
+  ElConstSparseMatrix_c X, ElSparseMatrix_c Y, ElInt offset );
+EL_EXPORT ElError ElAxpyTrapezoidSparse_z
+( ElUpperOrLower uplo, complex_double alpha, 
+  ElConstSparseMatrix_z X, ElSparseMatrix_z Y, ElInt offset );
+
+EL_EXPORT ElError ElAxpyTrapezoidDistSparse_i
+( ElUpperOrLower uplo, ElInt alpha, 
+  ElConstDistSparseMatrix_i X, ElDistSparseMatrix_i Y, ElInt offset );
+EL_EXPORT ElError ElAxpyTrapezoidDistSparse_s
+( ElUpperOrLower uplo, float alpha, 
+  ElConstDistSparseMatrix_s X, ElDistSparseMatrix_s Y, ElInt offset );
+EL_EXPORT ElError ElAxpyTrapezoidDistSparse_d
+( ElUpperOrLower uplo, double alpha, 
+  ElConstDistSparseMatrix_d X, ElDistSparseMatrix_d Y, ElInt offset );
+EL_EXPORT ElError ElAxpyTrapezoidDistSparse_c
+( ElUpperOrLower uplo, complex_float alpha, 
+  ElConstDistSparseMatrix_c X, ElDistSparseMatrix_c Y, ElInt offset );
+EL_EXPORT ElError ElAxpyTrapezoidDistSparse_z
+( ElUpperOrLower uplo, complex_double alpha, 
+  ElConstDistSparseMatrix_z X, ElDistSparseMatrix_z Y, ElInt offset );
 
 /* Column norms
    ============ */
@@ -380,6 +434,28 @@ EL_EXPORT ElError ElEntrywiseMapDist_c
 ( ElDistMatrix_c A, complex_float (*func)(complex_float) );
 EL_EXPORT ElError ElEntrywiseMapDist_z
 ( ElDistMatrix_z A, complex_double (*func)(complex_double) );
+
+EL_EXPORT ElError ElEntrywiseMapSparse_i
+( ElSparseMatrix_i A, ElInt (*func)(ElInt) );
+EL_EXPORT ElError ElEntrywiseMapSparse_s
+( ElSparseMatrix_s A, float (*func)(float) );
+EL_EXPORT ElError ElEntrywiseMapSparse_d
+( ElSparseMatrix_d A, double (*func)(double) );
+EL_EXPORT ElError ElEntrywiseMapSparse_c
+( ElSparseMatrix_c A, complex_float (*func)(complex_float) );
+EL_EXPORT ElError ElEntrywiseMapSparse_z
+( ElSparseMatrix_z A, complex_double (*func)(complex_double) );
+
+EL_EXPORT ElError ElEntrywiseMapDistSparse_i
+( ElDistSparseMatrix_i A, ElInt (*func)(ElInt) );
+EL_EXPORT ElError ElEntrywiseMapDistSparse_s
+( ElDistSparseMatrix_s A, float (*func)(float) );
+EL_EXPORT ElError ElEntrywiseMapDistSparse_d
+( ElDistSparseMatrix_d A, double (*func)(double) );
+EL_EXPORT ElError ElEntrywiseMapDistSparse_c
+( ElDistSparseMatrix_c A, complex_float (*func)(complex_float) );
+EL_EXPORT ElError ElEntrywiseMapDistSparse_z
+( ElDistSparseMatrix_z A, complex_double (*func)(complex_double) );
 
 /* TODO: Version which maps to a different matrix of possibly different type? */
 

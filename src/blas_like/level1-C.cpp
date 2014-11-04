@@ -30,6 +30,14 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
   ElError ElAxpyDist_ ## SIG \
   ( CREFLECT(T) alpha, ElConstDistMatrix_ ## SIG X, ElDistMatrix_ ## SIG Y ) \
   { EL_TRY( Axpy( CReflect(alpha), *CReflect(X), *CReflect(Y) ) ) } \
+  ElError ElAxpySparse_ ## SIG \
+  ( CREFLECT(T) alpha, \
+    ElConstSparseMatrix_ ## SIG X, ElSparseMatrix_ ## SIG Y ) \
+  { EL_TRY( Axpy( CReflect(alpha), *CReflect(X), *CReflect(Y) ) ) } \
+  ElError ElAxpyDistSparse_ ## SIG \
+  ( CREFLECT(T) alpha, \
+    ElConstDistSparseMatrix_ ## SIG X, ElDistSparseMatrix_ ## SIG Y ) \
+  { EL_TRY( Axpy( CReflect(alpha), *CReflect(X), *CReflect(Y) ) ) } \
   /* tri(Y) := tri(alpha X + Y) */ \
   ElError ElAxpyTrapezoid_ ## SIG \
   ( ElUpperOrLower uplo, CREFLECT(T) alpha, \
@@ -41,6 +49,21 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
   ElError ElAxpyTrapezoidDist_ ## SIG \
   ( ElUpperOrLower uplo, CREFLECT(T) alpha, \
     ElConstDistMatrix_ ## SIG X, ElDistMatrix_ ## SIG Y, ElInt offset ) \
+  { EL_TRY \
+    ( AxpyTrapezoid \
+      ( CReflect(uplo), CReflect(alpha), \
+        *CReflect(X), *CReflect(Y), offset ) ) } \
+  ElError ElAxpyTrapezoidSparse_ ## SIG \
+  ( ElUpperOrLower uplo, CREFLECT(T) alpha, \
+    ElConstSparseMatrix_ ## SIG X, ElSparseMatrix_ ## SIG Y, ElInt offset ) \
+  { EL_TRY \
+    ( AxpyTrapezoid \
+      ( CReflect(uplo), CReflect(alpha), \
+        *CReflect(X), *CReflect(Y), offset ) ) } \
+  ElError ElAxpyTrapezoidDistSparse_ ## SIG \
+  ( ElUpperOrLower uplo, CREFLECT(T) alpha, \
+    ElConstDistSparseMatrix_ ## SIG X, ElDistSparseMatrix_ ## SIG Y, \
+    ElInt offset ) \
   { EL_TRY \
     ( AxpyTrapezoid \
       ( CReflect(uplo), CReflect(alpha), \
@@ -104,6 +127,20 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElEntrywiseMapDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, CREFLECT(T) (*func)(CREFLECT(T)) ) \
+  { try { \
+      auto newMap = [&]( T alpha ) \
+        { return CReflect(func(CReflect(alpha))); }; \
+      EntrywiseMap( *CReflect(A), std::function<T(T)>(newMap) ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  ElError ElEntrywiseMapSparse_ ## SIG \
+  ( ElSparseMatrix_ ## SIG A, CREFLECT(T) (*func)(CREFLECT(T)) ) \
+  { try { \
+      auto newMap = [&]( T alpha ) \
+        { return CReflect(func(CReflect(alpha))); }; \
+      EntrywiseMap( *CReflect(A), std::function<T(T)>(newMap) ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  ElError ElEntrywiseMapDistSparse_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG A, CREFLECT(T) (*func)(CREFLECT(T)) ) \
   { try { \
       auto newMap = [&]( T alpha ) \
         { return CReflect(func(CReflect(alpha))); }; \
