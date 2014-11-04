@@ -9,7 +9,6 @@
 #include "El.hpp"
 
 #include "./Norm/Entrywise.hpp"
-#include "./Norm/EntrywiseOne.hpp"
 #include "./Norm/Frobenius.hpp"
 #include "./Norm/Infinity.hpp"
 #include "./Norm/KyFan.hpp"
@@ -36,7 +35,7 @@ Base<F> Norm( const Matrix<F>& A, NormType type )
     {
     // The following norms are rather cheap to compute
     case ENTRYWISE_ONE_NORM:
-        norm = EntrywiseOneNorm( A );
+        norm = EntrywiseNorm( A, Base<F>(1) );
         break;
     case FROBENIUS_NORM: 
         norm = FrobeniusNorm( A );
@@ -73,7 +72,7 @@ Base<F> SymmetricNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
         norm = SymmetricFrobeniusNorm( uplo, A );
         break;
     case ENTRYWISE_ONE_NORM:
-        norm = SymmetricEntrywiseOneNorm( uplo, A );
+        norm = SymmetricEntrywiseNorm( uplo, A, Base<F>(1) );
         break;
     case INFINITY_NORM:
         norm = SymmetricInfinityNorm( uplo, A );
@@ -107,7 +106,7 @@ Base<F> HermitianNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
         norm = HermitianFrobeniusNorm( uplo, A );
         break;
     case ENTRYWISE_ONE_NORM:
-        norm = HermitianEntrywiseOneNorm( uplo, A );
+        norm = HermitianEntrywiseNorm( uplo, A, Base<F>(1) );
         break;
     case INFINITY_NORM:
         norm = HermitianInfinityNorm( uplo, A );
@@ -141,7 +140,7 @@ Base<F> Norm( const AbstractDistMatrix<F>& A, NormType type )
         norm = FrobeniusNorm( A );
         break;
     case ENTRYWISE_ONE_NORM:
-        norm = EntrywiseOneNorm( A );
+        norm = EntrywiseNorm( A, Base<F>(1) );
         break;
     case INFINITY_NORM:
         norm = InfinityNorm( A );
@@ -176,7 +175,7 @@ Base<F> SymmetricNorm
         norm = SymmetricFrobeniusNorm( uplo, A );
         break;
     case ENTRYWISE_ONE_NORM:
-        norm = SymmetricEntrywiseOneNorm( uplo, A );
+        norm = SymmetricEntrywiseNorm( uplo, A, Base<F>(1) );
         break;
     case INFINITY_NORM:
         norm = SymmetricInfinityNorm( uplo, A );
@@ -211,7 +210,7 @@ Base<F> HermitianNorm
         norm = HermitianFrobeniusNorm( uplo, A );
         break;
     case ENTRYWISE_ONE_NORM:
-        norm = HermitianEntrywiseOneNorm( uplo, A );
+        norm = HermitianEntrywiseNorm( uplo, A, Base<F>(1) );
         break;
     case INFINITY_NORM:
         norm = HermitianInfinityNorm( uplo, A );
@@ -246,24 +245,24 @@ Base<F> HermitianNorm
   ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, NormType type ); \
   template Base<F> EntrywiseNorm( const Matrix<F>& A, Base<F> p ); \
   template Base<F> EntrywiseNorm( const AbstractDistMatrix<F>& A, Base<F> p ); \
+  template Base<F> EntrywiseNorm( const SparseMatrix<F>& A, Base<F> p ); \
+  template Base<F> EntrywiseNorm( const DistSparseMatrix<F>& A, Base<F> p ); \
   template Base<F> HermitianEntrywiseNorm \
   ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p ); \
   template Base<F> HermitianEntrywiseNorm \
   ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p ); \
+  template Base<F> HermitianEntrywiseNorm \
+  ( UpperOrLower uplo, const SparseMatrix<F>& A, Base<F> p ); \
+  template Base<F> HermitianEntrywiseNorm \
+  ( UpperOrLower uplo, const DistSparseMatrix<F>& A, Base<F> p ); \
   template Base<F> SymmetricEntrywiseNorm \
   ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p ); \
   template Base<F> SymmetricEntrywiseNorm \
   ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p ); \
-  template Base<F> EntrywiseOneNorm( const Matrix<F>& A ); \
-  template Base<F> EntrywiseOneNorm ( const AbstractDistMatrix<F>& A ); \
-  template Base<F> HermitianEntrywiseOneNorm \
-  ( UpperOrLower uplo, const Matrix<F>& A ); \
-  template Base<F> HermitianEntrywiseOneNorm \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
-  template Base<F> SymmetricEntrywiseOneNorm \
-  ( UpperOrLower uplo, const Matrix<F>& A ); \
-  template Base<F> SymmetricEntrywiseOneNorm \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
+  template Base<F> SymmetricEntrywiseNorm \
+  ( UpperOrLower uplo, const SparseMatrix<F>& A, Base<F> p ); \
+  template Base<F> SymmetricEntrywiseNorm \
+  ( UpperOrLower uplo, const DistSparseMatrix<F>& A, Base<F> p ); \
   template Base<F> FrobeniusNorm( const Matrix<F>& A ); \
   template Base<F> FrobeniusNorm ( const AbstractDistMatrix<F>& A ); \
   template Base<F> FrobeniusNorm( const SparseMatrix<F>& A ); \

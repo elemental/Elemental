@@ -88,7 +88,7 @@ Int SparseInvCov
         {
             const Real trace = RealPart(HilbertSchmidt( S, X ));
             const SafeProduct<Real> safeDet = SafeHPDDeterminant( LOWER, X );
-            const Real ZOne = EntrywiseOneNorm( Z );
+            const Real ZOne = EntrywiseNorm( Z, Real(1) );
             const Real objective = trace-safeDet.kappa*safeDet.n+lambda*ZOne;
             std::cout << numIter << ": "
               << "||X-Z||_F=" << rNorm << ", "
@@ -180,7 +180,7 @@ Int SparseInvCov
         {
             const Real trace = RealPart(HilbertSchmidt( S, X ));
             const SafeProduct<Real> safeDet = SafeHPDDeterminant( LOWER, X );
-            const Real ZOne = EntrywiseOneNorm( Z );
+            const Real ZOne = EntrywiseNorm( Z, Real(1) );
             const Real objective = trace-safeDet.kappa*safeDet.n+lambda*ZOne;
             if( g.Rank() == 0 )
                 std::cout << numIter << ": "

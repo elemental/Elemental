@@ -181,6 +181,12 @@ extern "C" {
   ElError ElEntrywiseNormDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, Base<F> p, Base<F>* norm ) \
   { EL_TRY( *norm = EntrywiseNorm( *CReflect(A), p ) ) } \
+  ElError ElEntrywiseNormSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, Base<F> p, Base<F>* norm ) \
+  { EL_TRY( *norm = EntrywiseNorm( *CReflect(A), p ) ) } \
+  ElError ElEntrywiseNormDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, Base<F> p, Base<F>* norm ) \
+  { EL_TRY( *norm = EntrywiseNorm( *CReflect(A), p ) ) } \
   ElError ElSymmetricEntrywiseNorm_ ## SIG \
   ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, Base<F> p, Base<F>* norm ) \
   { EL_TRY( *norm = SymmetricEntrywiseNorm( \
@@ -190,22 +196,16 @@ extern "C" {
     Base<F>* norm ) \
   { EL_TRY( *norm = SymmetricEntrywiseNorm( \
       CReflect(uplo), *CReflect(A), p ) ) } \
-  /* Entrywise one norm
-     ------------------ */ \
-  ElError ElEntrywiseOneNorm_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, Base<F>* norm ) \
-  { EL_TRY( *norm = EntrywiseOneNorm( *CReflect(A) ) ) } \
-  ElError ElEntrywiseOneNormDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, Base<F>* norm ) \
-  { EL_TRY( *norm = EntrywiseOneNorm( *CReflect(A) ) ) } \
-  ElError ElSymmetricEntrywiseOneNorm_ ## SIG \
-  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, Base<F>* norm ) \
-  { EL_TRY( *norm = SymmetricEntrywiseOneNorm( \
-      CReflect(uplo), *CReflect(A) ) ) } \
-  ElError ElSymmetricEntrywiseOneNormDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, Base<F>* norm ) \
-  { EL_TRY( *norm = SymmetricEntrywiseOneNorm( \
-      CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElSymmetricEntrywiseNormSparse_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstSparseMatrix_ ## SIG A, Base<F> p, \
+    Base<F>* norm ) \
+  { EL_TRY( *norm = SymmetricEntrywiseNorm( \
+      CReflect(uplo), *CReflect(A), p ) ) } \
+  ElError ElSymmetricEntrywiseNormDistSparse_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstDistSparseMatrix_ ## SIG A, Base<F> p, \
+    Base<F>* norm ) \
+  { EL_TRY( *norm = SymmetricEntrywiseNorm( \
+      CReflect(uplo), *CReflect(A), p ) ) } \
   /* Frobenius norm
      -------------- */ \
   ElError ElFrobeniusNorm_ ## SIG \
@@ -375,16 +375,16 @@ extern "C" {
     Base<F>* norm ) \
   { EL_TRY( *norm = HermitianEntrywiseNorm( \
       CReflect(uplo), *CReflect(A), p ) ) } \
-  /* Entrywise one norm
-     ------------------ */ \
-  ElError ElHermitianEntrywiseOneNorm_ ## SIG \
-  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, Base<F>* norm ) \
-  { EL_TRY( *norm = HermitianEntrywiseOneNorm( \
-      CReflect(uplo), *CReflect(A) ) ) } \
-  ElError ElHermitianEntrywiseOneNormDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, Base<F>* norm ) \
-  { EL_TRY( *norm = HermitianEntrywiseOneNorm( \
-      CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElHermitianEntrywiseNormSparse_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstSparseMatrix_ ## SIG A, Base<F> p, \
+    Base<F>* norm ) \
+  { EL_TRY( *norm = HermitianEntrywiseNorm( \
+      CReflect(uplo), *CReflect(A), p ) ) } \
+  ElError ElHermitianEntrywiseNormDistSparse_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstDistSparseMatrix_ ## SIG A, Base<F> p, \
+    Base<F>* norm ) \
+  { EL_TRY( *norm = HermitianEntrywiseNorm( \
+      CReflect(uplo), *CReflect(A), p ) ) } \
   /* Frobenius norm
      -------------- */ \
   ElError ElHermitianFrobeniusNorm_ ## SIG \

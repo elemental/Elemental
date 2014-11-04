@@ -17,13 +17,26 @@ Base<F> EntrywiseNorm( const Matrix<F>& A, Base<F> p )
 {
     DEBUG_ONLY(CallStackEntry cse("EntrywiseNorm"))
     // TODO: Make this more numerically stable
-    typedef Base<F> R;
-    R sum = 0;
+    typedef Base<F> Real;
+    Real sum = 0;
     const Int width = A.Width();
     const Int height = A.Height();
     for( Int j=0; j<width; ++j )
         for( Int i=0; i<height; ++i )
             sum += Pow( Abs(A.Get(i,j)), p );
+    return Pow( sum, 1/p );
+}
+
+template<typename F> 
+Base<F> EntrywiseNorm( const SparseMatrix<F>& A, Base<F> p )
+{
+    DEBUG_ONLY(CallStackEntry cse("EntrywiseNorm"))
+    // TODO: Make this more numerically stable
+    typedef Base<F> Real;
+    Real sum = 0;
+    const Int numEntries = A.NumEntries();
+    for( Int k=0; k<numEntries; ++k )
+        sum += Pow( Abs(A.Value(k)), p );
     return Pow( sum, 1/p );
 }
 
@@ -36,8 +49,8 @@ Base<F> HermitianEntrywiseNorm
         LogicError("Hermitian matrices must be square.");
 
     // TODO: make this more numerically stable
-    typedef Base<F> R;
-    R sum = 0;
+    typedef Base<F> Real;
+    Real sum = 0;
     const Int height = A.Height();
     const Int width = A.Width();
     if( uplo == UPPER )
@@ -46,7 +59,7 @@ Base<F> HermitianEntrywiseNorm
         {
             for( Int i=0; i<j; ++i )
             {
-                const R term = Pow( Abs(A.Get(i,j)), p );
+                const Real term = Pow( Abs(A.Get(i,j)), p );
                 if( i ==j )
                     sum += term;
                 else
@@ -60,7 +73,7 @@ Base<F> HermitianEntrywiseNorm
         {
             for( Int i=j+1; i<height; ++i )
             {
-                const R term = Pow( Abs(A.Get(i,j)), p );
+                const Real term = Pow( Abs(A.Get(i,j)), p );
                 if( i ==j )
                     sum += term;
                 else
@@ -71,9 +84,38 @@ Base<F> HermitianEntrywiseNorm
     return Pow( sum, 1/p );
 }
 
+template<typename F> 
+Base<F> HermitianEntrywiseNorm
+( UpperOrLower uplo, const SparseMatrix<F>& A, Base<F> p )
+{
+    DEBUG_ONLY(CallStackEntry cse("HermitianEntrywiseNorm"))
+    // TODO: Make this more numerically stable
+    typedef Base<F> Real;
+    Real sum = 0;
+    const Int numEntries = A.NumEntries();
+    for( Int k=0; k<numEntries; ++k )
+    {
+        const Int i = A.Row(k);
+        const Int j = A.Col(k);
+        if( (uplo==UPPER && i<j) || (uplo==LOWER && i>j) )
+            sum += 2*Pow( Abs(A.Value(k)), p );
+        else if( i == j )
+            sum += Pow( Abs(A.Value(k)), p );
+    }
+    return Pow( sum, 1/p );
+}
+
 template<typename F>
 Base<F> SymmetricEntrywiseNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p )
+{
+    DEBUG_ONLY(CallStackEntry cse("SymmetricEntrywiseNorm"))
+    return HermitianEntrywiseNorm( uplo, A, p );
+}
+
+template<typename F>
+Base<F> SymmetricEntrywiseNorm
+( UpperOrLower uplo, const SparseMatrix<F>& A, Base<F> p )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricEntrywiseNorm"))
     return HermitianEntrywiseNorm( uplo, A, p );
@@ -98,6 +140,21 @@ Base<F> EntrywiseNorm( const AbstractDistMatrix<F>& A, Base<F> p )
     }
     mpi::Broadcast( norm, A.Root(), A.CrossComm() );
     return norm;
+}
+
+template<typename F> 
+Base<F> EntrywiseNorm( const DistSparseMatrix<F>& A, Base<F> p )
+{
+    DEBUG_ONLY(CallStackEntry cse("EntrywiseNorm"))
+    typedef Base<F> Real;
+
+    Real localSum = 0;
+    const Int numLocalEntries = A.NumLocalEntries();
+    for( Int k=0; k<numLocalEntries; ++k )
+        localSum += Pow( Abs(A.Value(k)), p ); 
+
+    const Real sum = mpi::AllReduce( localSum, A.Comm() );
+    return Pow( sum, Real(1)/p );
 }
 
 template<typename F>
@@ -155,9 +212,40 @@ Base<F> HermitianEntrywiseNorm
     return Pow( sum, 1/p );
 }
 
+template<typename F> 
+Base<F> HermitianEntrywiseNorm
+( UpperOrLower uplo, const DistSparseMatrix<F>& A, Base<F> p )
+{
+    DEBUG_ONLY(CallStackEntry cse("HermitianEntrywiseNorm"))
+    typedef Base<F> Real;
+
+    Real localSum = 0;
+    const Int numLocalEntries = A.NumLocalEntries();
+    for( Int k=0; k<numLocalEntries; ++k )
+    {
+        const Int i = A.Row(k);
+        const Int j = A.Col(k); 
+        if( (uplo==UPPER && i<j) || (uplo==LOWER && i>j) )
+            localSum += 2*Pow( Abs(A.Value(k)), p ); 
+        else if( i == j )
+            localSum += Pow( Abs(A.Value(k)), p ); 
+    }
+
+    const Real sum = mpi::AllReduce( localSum, A.Comm() );
+    return Pow( sum, Real(1)/p );
+}
+
 template<typename F>
 Base<F> SymmetricEntrywiseNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p )
+{
+    DEBUG_ONLY(CallStackEntry cse("SymmetricEntrywiseNorm"))
+    return HermitianEntrywiseNorm( uplo, A, p );
+}
+
+template<typename F>
+Base<F> SymmetricEntrywiseNorm
+( UpperOrLower uplo, const DistSparseMatrix<F>& A, Base<F> p )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricEntrywiseNorm"))
     return HermitianEntrywiseNorm( uplo, A, p );

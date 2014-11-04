@@ -498,7 +498,23 @@ lib.ElEntrywiseNormDist_c.argtypes = [c_void_p,sType,POINTER(sType)]
 lib.ElEntrywiseNormDist_c.restype = c_uint
 lib.ElEntrywiseNormDist_z.argtypes = [c_void_p,dType,POINTER(dType)]
 lib.ElEntrywiseNormDist_z.restype = c_uint
-def EntrywiseNorm(A,p):
+lib.ElEntrywiseNormSparse_s.argtypes = [c_void_p,sType,POINTER(sType)]
+lib.ElEntrywiseNormSparse_s.restype = c_uint
+lib.ElEntrywiseNormSparse_d.argtypes = [c_void_p,dType,POINTER(dType)]
+lib.ElEntrywiseNormSparse_d.restype = c_uint
+lib.ElEntrywiseNormSparse_c.argtypes = [c_void_p,sType,POINTER(sType)]
+lib.ElEntrywiseNormSparse_c.restype = c_uint
+lib.ElEntrywiseNormSparse_z.argtypes = [c_void_p,dType,POINTER(dType)]
+lib.ElEntrywiseNormSparse_z.restype = c_uint
+lib.ElEntrywiseNormDistSparse_s.argtypes = [c_void_p,sType,POINTER(sType)]
+lib.ElEntrywiseNormDistSparse_s.restype = c_uint
+lib.ElEntrywiseNormDistSparse_d.argtypes = [c_void_p,dType,POINTER(dType)]
+lib.ElEntrywiseNormDistSparse_d.restype = c_uint
+lib.ElEntrywiseNormDistSparse_c.argtypes = [c_void_p,sType,POINTER(sType)]
+lib.ElEntrywiseNormDistSparse_c.restype = c_uint
+lib.ElEntrywiseNormDistSparse_z.argtypes = [c_void_p,dType,POINTER(dType)]
+lib.ElEntrywiseNormDistSparse_z.restype = c_uint
+def EntrywiseNorm(A,p=1):
   norm = TagToType(Base(A.tag))()
   args = [A.obj,p,pointer(norm)]
   if type(A) is Matrix:
@@ -512,6 +528,18 @@ def EntrywiseNorm(A,p):
     elif A.tag == dTag: lib.ElEntrywiseNormDist_d(*args)
     elif A.tag == cTag: lib.ElEntrywiseNormDist_c(*args)
     elif A.tag == zTag: lib.ElEntrywiseNormDist_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == sTag: lib.ElEntrywiseNormSparse_s(*args)
+    elif A.tag == dTag: lib.ElEntrywiseNormSparse_d(*args)
+    elif A.tag == cTag: lib.ElEntrywiseNormSparse_c(*args)
+    elif A.tag == zTag: lib.ElEntrywiseNormSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == sTag: lib.ElEntrywiseNormDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElEntrywiseNormDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElEntrywiseNormDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElEntrywiseNormDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
   return norm
@@ -536,135 +564,62 @@ lib.ElSymmetricEntrywiseNormDist_c.restype = c_uint
 lib.ElSymmetricEntrywiseNormDist_z.argtypes = \
   [c_uint,c_void_p,dType,POINTER(dType)]
 lib.ElSymmetricEntrywiseNormDist_z.restype = c_uint
-lib.ElHermitianEntrywiseNorm_c.argtypes = [c_uint,c_void_p,sType,POINTER(sType)]
-lib.ElHermitianEntrywiseNorm_c.restype = c_uint
-lib.ElHermitianEntrywiseNorm_z.argtypes = [c_uint,c_void_p,dType,POINTER(dType)]
-lib.ElHermitianEntrywiseNorm_z.restype = c_uint
-lib.ElHermitianEntrywiseNormDist_c.argtypes = \
+lib.ElSymmetricEntrywiseNormSparse_s.argtypes = \
   [c_uint,c_void_p,sType,POINTER(sType)]
-lib.ElHermitianEntrywiseNormDist_c.restype = c_uint
-lib.ElHermitianEntrywiseNormDist_z.argtypes = \
+lib.ElSymmetricEntrywiseNormSparse_s.restype = c_uint
+lib.ElSymmetricEntrywiseNormSparse_d.argtypes = \
   [c_uint,c_void_p,dType,POINTER(dType)]
-lib.ElHermitianEntrywiseNormDist_z.restype = c_uint
-def SymmetricEntrywiseNorm(uplo,A,p,conjugate=False):
+lib.ElSymmetricEntrywiseNormSparse_d.restype = c_uint
+lib.ElSymmetricEntrywiseNormSparse_c.argtypes = \
+  [c_uint,c_void_p,sType,POINTER(sType)]
+lib.ElSymmetricEntrywiseNormSparse_c.restype = c_uint
+lib.ElSymmetricEntrywiseNormSparse_z.argtypes = \
+  [c_uint,c_void_p,dType,POINTER(dType)]
+lib.ElSymmetricEntrywiseNormSparse_z.restype = c_uint
+lib.ElSymmetricEntrywiseNormDistSparse_s.argtypes = \
+  [c_uint,c_void_p,sType,POINTER(sType)]
+lib.ElSymmetricEntrywiseNormDistSparse_s.restype = c_uint
+lib.ElSymmetricEntrywiseNormDistSparse_d.argtypes = \
+  [c_uint,c_void_p,dType,POINTER(dType)]
+lib.ElSymmetricEntrywiseNormDistSparse_d.restype = c_uint
+lib.ElSymmetricEntrywiseNormDistSparse_c.argtypes = \
+  [c_uint,c_void_p,sType,POINTER(sType)]
+lib.ElSymmetricEntrywiseNormDistSparse_c.restype = c_uint
+lib.ElSymmetricEntrywiseNormDistSparse_z.argtypes = \
+  [c_uint,c_void_p,dType,POINTER(dType)]
+lib.ElSymmetricEntrywiseNormDistSparse_z.restype = c_uint
+
+def SymmetricEntrywiseNorm(uplo,A,p=1):
   norm = TagToType(Base(A.tag))()
   args = [uplo,A.obj,p,pointer(norm)]
   if type(A) is Matrix:
     if   A.tag == sTag: lib.ElSymmetricEntrywiseNorm_s(*args)
     elif A.tag == dTag: lib.ElSymmetricEntrywiseNorm_d(*args)
-    elif A.tag == cTag: 
-      if conjugate: lib.ElHermitianEntrywiseNorm_c(*args)
-      else:         lib.ElSymmetricEntrywiseNorm_c(*args)
-    elif A.tag == zTag: 
-      if conjugate: lib.ElHermitianEntrywiseNorm_z(*args)
-      else:         lib.ElSymmetricEntrywiseNorm_z(*args)
+    elif A.tag == cTag: lib.ElSymmetricEntrywiseNorm_c(*args)
+    elif A.tag == zTag: lib.ElSymmetricEntrywiseNorm_z(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
     if   A.tag == sTag: lib.ElSymmetricEntrywiseNormDist_s(*args)
     elif A.tag == dTag: lib.ElSymmetricEntrywiseNormDist_d(*args)
-    elif A.tag == cTag: 
-      if conjugate: lib.ElHermitianEntrywiseNormDist_c(*args)
-      else:         lib.ElSymmetricEntrywiseNormDist_c(*args)
-    elif A.tag == zTag: 
-      if conjugate: lib.ElHermitianEntrywiseNormDist_z(*args)
-      else:         lib.ElSymmetricEntrywiseNormDist_z(*args)
+    elif A.tag == cTag: lib.ElSymmetricEntrywiseNormDist_c(*args)
+    elif A.tag == zTag: lib.ElSymmetricEntrywiseNormDist_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == sTag: lib.ElSymmetricEntrywiseNormSparse_s(*args)
+    elif A.tag == dTag: lib.ElSymmetricEntrywiseNormSparse_d(*args)
+    elif A.tag == cTag: lib.ElSymmetricEntrywiseNormSparse_c(*args)
+    elif A.tag == zTag: lib.ElSymmetricEntrywiseNormSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == sTag: lib.ElSymmetricEntrywiseNormDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElSymmetricEntrywiseNormDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElSymmetricEntrywiseNormDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElSymmetricEntrywiseNormDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
   return norm
-def HermitianEntrywiseNorm(uplo,A,p):
-  return SymmetricEntrywiseNorm(uplo,A,p,True)
-
-lib.ElEntrywiseOneNorm_s.argtypes = [c_void_p,POINTER(sType)]
-lib.ElEntrywiseOneNorm_s.restype = c_uint
-lib.ElEntrywiseOneNorm_d.argtypes = [c_void_p,POINTER(dType)]
-lib.ElEntrywiseOneNorm_d.restype = c_uint
-lib.ElEntrywiseOneNorm_c.argtypes = [c_void_p,POINTER(sType)]
-lib.ElEntrywiseOneNorm_c.restype = c_uint
-lib.ElEntrywiseOneNorm_z.argtypes = [c_void_p,POINTER(dType)]
-lib.ElEntrywiseOneNorm_z.restype = c_uint
-lib.ElEntrywiseOneNormDist_s.argtypes = [c_void_p,POINTER(sType)]
-lib.ElEntrywiseOneNormDist_s.restype = c_uint
-lib.ElEntrywiseOneNormDist_d.argtypes = [c_void_p,POINTER(dType)]
-lib.ElEntrywiseOneNormDist_d.restype = c_uint
-lib.ElEntrywiseOneNormDist_c.argtypes = [c_void_p,POINTER(sType)]
-lib.ElEntrywiseOneNormDist_c.restype = c_uint
-lib.ElEntrywiseOneNormDist_z.argtypes = [c_void_p,POINTER(dType)]
-lib.ElEntrywiseOneNormDist_z.restype = c_uint
-def EntrywiseOneNorm(A):
-  norm = TagToType(Base(A.tag))()
-  args = [A.obj,pointer(norm)]
-  if type(A) is Matrix:
-    if   A.tag == sTag: lib.ElEntrywiseOneNorm_s(*args)
-    elif A.tag == dTag: lib.ElEntrywiseOneNorm_d(*args)
-    elif A.tag == cTag: lib.ElEntrywiseOneNorm_c(*args)
-    elif A.tag == zTag: lib.ElEntrywiseOneNorm_z(*args)
-    else: DataExcept()
-  elif type(A) is DistMatrix:
-    if   A.tag == sTag: lib.ElEntrywiseOneNormDist_s(*args)
-    elif A.tag == dTag: lib.ElEntrywiseOneNormDist_d(*args)
-    elif A.tag == cTag: lib.ElEntrywiseOneNormDist_c(*args)
-    elif A.tag == zTag: lib.ElEntrywiseOneNormDist_z(*args)
-    else: DataExcept()
-  else: TypeExcept()
-  return norm
-
-lib.ElSymmetricEntrywiseOneNorm_s.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElSymmetricEntrywiseOneNorm_s.restype = c_uint
-lib.ElSymmetricEntrywiseOneNorm_d.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElSymmetricEntrywiseOneNorm_d.restype = c_uint
-lib.ElSymmetricEntrywiseOneNorm_c.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElSymmetricEntrywiseOneNorm_c.restype = c_uint
-lib.ElSymmetricEntrywiseOneNorm_z.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElSymmetricEntrywiseOneNorm_z.restype = c_uint
-lib.ElSymmetricEntrywiseOneNormDist_s.argtypes = \
-  [c_uint,c_void_p,POINTER(sType)]
-lib.ElSymmetricEntrywiseOneNormDist_s.restype = c_uint
-lib.ElSymmetricEntrywiseOneNormDist_d.argtypes = \
-  [c_uint,c_void_p,POINTER(dType)]
-lib.ElSymmetricEntrywiseOneNormDist_d.restype = c_uint
-lib.ElSymmetricEntrywiseOneNormDist_c.argtypes = \
-  [c_uint,c_void_p,POINTER(sType)]
-lib.ElSymmetricEntrywiseOneNormDist_c.restype = c_uint
-lib.ElSymmetricEntrywiseOneNormDist_z.argtypes = \
-  [c_uint,c_void_p,POINTER(dType)]
-lib.ElSymmetricEntrywiseOneNormDist_z.restype = c_uint
-lib.ElHermitianEntrywiseOneNorm_c.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElHermitianEntrywiseOneNorm_c.restype = c_uint
-lib.ElHermitianEntrywiseOneNorm_z.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElHermitianEntrywiseOneNorm_z.restype = c_uint
-lib.ElHermitianEntrywiseOneNormDist_c.argtypes = \
-  [c_uint,c_void_p,POINTER(sType)]
-lib.ElHermitianEntrywiseOneNormDist_c.restype = c_uint
-lib.ElHermitianEntrywiseOneNormDist_z.argtypes = \
-  [c_uint,c_void_p,POINTER(dType)]
-lib.ElHermitianEntrywiseOneNormDist_z.restype = c_uint
-def SymmetricEntrywiseOneNorm(uplo,A,conjugate=False):
-  norm = TagToType(Base(A.tag))()
-  args = [uplo,A.obj,pointer(norm)]
-  if type(A) is Matrix:
-    if   A.tag == sTag: lib.ElSymmetricEntrywiseOneNorm_s(*args)
-    elif A.tag == dTag: lib.ElSymmetricEntrywiseOneNorm_d(*args)
-    elif A.tag == cTag: 
-      if conjugate: lib.ElHermitianEntrywiseOneNorm_c(*args)
-      else:         lib.ElSymmetricEntrywiseOneNorm_c(*args)
-    elif A.tag == zTag: 
-      if conjugate: lib.ElHermitianEntrywiseOneNorm_z(*args)
-      else:         lib.ElSymmetricEntrywiseOneNorm_z(*args)
-    else: DataExcept()
-  elif type(A) is DistMatrix:
-    if   A.tag == sTag: lib.ElSymmetricEntrywiseOneNormDist_s(*args)
-    elif A.tag == dTag: lib.ElSymmetricEntrywiseOneNormDist_d(*args)
-    elif A.tag == cTag: 
-      if conjugate: lib.ElHermitianEntrywiseOneNormDist_c(*args)
-      else:         lib.ElSymmetricEntrywiseOneNormDist_c(*args)
-    elif A.tag == zTag: 
-      if conjugate: lib.ElHermitianEntrywiseOneNormDist_z(*args)
-      else:         lib.ElSymmetricEntrywiseOneNormDist_z(*args)
-    else: DataExcept()
-  else: TypeExcept()
-  return norm
-def HermitianEntrywiseOneNorm(uplo,A):
-  return SymmetricEntrywiseOneNorm(uplo,A,True)
+def HermitianEntrywiseNorm(uplo,A,p=1):
+  return SymmetricEntrywiseNorm(uplo,A,p)
 
 lib.ElFrobeniusNorm_s.argtypes = [c_void_p,POINTER(sType)]
 lib.ElFrobeniusNorm_s.restype = c_uint
@@ -773,76 +728,37 @@ lib.ElSymmetricFrobeniusNormDistSparse_z.argtypes = \
   [c_uint,c_void_p,POINTER(dType)]
 lib.ElSymmetricFrobeniusNormDistSparse_z.restype = c_uint
 
-lib.ElHermitianFrobeniusNorm_c.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElHermitianFrobeniusNorm_c.restype = c_uint
-lib.ElHermitianFrobeniusNorm_z.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElHermitianFrobeniusNorm_z.restype = c_uint
-lib.ElHermitianFrobeniusNormDist_c.argtypes = \
-  [c_uint,c_void_p,POINTER(sType)]
-lib.ElHermitianFrobeniusNormDist_c.restype = c_uint
-lib.ElHermitianFrobeniusNormDist_z.argtypes = \
-  [c_uint,c_void_p,POINTER(dType)]
-lib.ElHermitianFrobeniusNormDist_z.restype = c_uint
-lib.ElHermitianFrobeniusNormSparse_c.argtypes = \
-  [c_uint,c_void_p,POINTER(sType)]
-lib.ElHermitianFrobeniusNormSparse_c.restype = c_uint
-lib.ElHermitianFrobeniusNormSparse_z.argtypes = \
-  [c_uint,c_void_p,POINTER(dType)]
-lib.ElHermitianFrobeniusNormSparse_z.restype = c_uint
-lib.ElHermitianFrobeniusNormDistSparse_c.argtypes = \
-  [c_uint,c_void_p,POINTER(sType)]
-lib.ElHermitianFrobeniusNormDistSparse_c.restype = c_uint
-lib.ElHermitianFrobeniusNormDistSparse_z.argtypes = \
-  [c_uint,c_void_p,POINTER(dType)]
-lib.ElHermitianFrobeniusNormDistSparse_z.restype = c_uint
-
-def SymmetricFrobeniusNorm(uplo,A,conjugate=False):
+def SymmetricFrobeniusNorm(uplo,A):
   norm = TagToType(Base(A.tag))()
   args = [uplo,A.obj,pointer(norm)]
   if type(A) is Matrix:
     if   A.tag == sTag: lib.ElSymmetricFrobeniusNorm_s(*args)
     elif A.tag == dTag: lib.ElSymmetricFrobeniusNorm_d(*args)
-    elif A.tag == cTag: 
-      if conjugate: lib.ElHermitianFrobeniusNorm_c(*args)
-      else:         lib.ElSymmetricFrobeniusNorm_c(*args)
-    elif A.tag == zTag: 
-      if conjugate: lib.ElHermitianFrobeniusNorm_z(*args)
-      else:         lib.ElSymmetricFrobeniusNorm_z(*args)
+    elif A.tag == cTag: lib.ElSymmetricFrobeniusNorm_c(*args)
+    elif A.tag == zTag: lib.ElSymmetricFrobeniusNorm_z(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
     if   A.tag == sTag: lib.ElSymmetricFrobeniusNormDist_s(*args)
     elif A.tag == dTag: lib.ElSymmetricFrobeniusNormDist_d(*args)
-    elif A.tag == cTag: 
-      if conjugate: lib.ElHermitianFrobeniusNormDist_c(*args)
-      else:         lib.ElSymmetricFrobeniusNormDist_c(*args)
-    elif A.tag == zTag: 
-      if conjugate: lib.ElHermitianFrobeniusNormDist_z(*args)
-      else:         lib.ElSymmetricFrobeniusNormDist_z(*args)
+    elif A.tag == cTag: lib.ElSymmetricFrobeniusNormDist_c(*args)
+    elif A.tag == zTag: lib.ElSymmetricFrobeniusNormDist_z(*args)
     else: DataExcept()
   elif type(A) is SparseMatrix:
     if   A.tag == sTag: lib.ElSymmetricFrobeniusNormSparse_s(*args)
     elif A.tag == dTag: lib.ElSymmetricFrobeniusNormSparse_d(*args)
-    elif A.tag == cTag: 
-      if conjugate: lib.ElHermitianFrobeniusNormSparse_c(*args)
-      else:         lib.ElSymmetricFrobeniusNormSparse_c(*args)
-    elif A.tag == zTag: 
-      if conjugate: lib.ElHermitianFrobeniusNormSparse_z(*args)
-      else:         lib.ElSymmetricFrobeniusNormSparse_z(*args)
+    elif A.tag == cTag: lib.ElSymmetricFrobeniusNormSparse_c(*args)
+    elif A.tag == zTag: lib.ElSymmetricFrobeniusNormSparse_z(*args)
     else: DataExcept()
   elif type(A) is DistSparseMatrix:
     if   A.tag == sTag: lib.ElSymmetricFrobeniusNormDistSparse_s(*args)
     elif A.tag == dTag: lib.ElSymmetricFrobeniusNormDistSparse_d(*args)
-    elif A.tag == cTag: 
-      if conjugate: lib.ElHermitianFrobeniusNormDistSparse_c(*args)
-      else:         lib.ElSymmetricFrobeniusNormDistSparse_c(*args)
-    elif A.tag == zTag: 
-      if conjugate: lib.ElHermitianFrobeniusNormDistSparse_z(*args)
-      else:         lib.ElSymmetricFrobeniusNormDistSparse_z(*args)
+    elif A.tag == cTag: lib.ElSymmetricFrobeniusNormDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElSymmetricFrobeniusNormDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
   return norm
 def HermitianFrobeniusNorm(uplo,A):
-  return SymmetricFrobeniusNorm(uplo,A,True)
+  return SymmetricFrobeniusNorm(uplo,A)
 
 lib.ElInfinityNorm_s.argtypes = [c_void_p,POINTER(sType)]
 lib.ElInfinityNorm_s.restype = c_uint
@@ -898,43 +814,25 @@ lib.ElSymmetricInfinityNormDist_c.restype = c_uint
 lib.ElSymmetricInfinityNormDist_z.argtypes = \
   [c_uint,c_void_p,POINTER(dType)]
 lib.ElSymmetricInfinityNormDist_z.restype = c_uint
-lib.ElHermitianInfinityNorm_c.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElHermitianInfinityNorm_c.restype = c_uint
-lib.ElHermitianInfinityNorm_z.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElHermitianInfinityNorm_z.restype = c_uint
-lib.ElHermitianInfinityNormDist_c.argtypes = \
-  [c_uint,c_void_p,POINTER(sType)]
-lib.ElHermitianInfinityNormDist_c.restype = c_uint
-lib.ElHermitianInfinityNormDist_z.argtypes = \
-  [c_uint,c_void_p,POINTER(dType)]
-lib.ElHermitianInfinityNormDist_z.restype = c_uint
-def SymmetricInfinityNorm(uplo,A,conjugate=False):
+def SymmetricInfinityNorm(uplo,A):
   norm = TagToType(Base(A.tag))()
   args = [uplo,A.obj,pointer(norm)]
   if type(A) is Matrix:
     if   A.tag == sTag: lib.ElSymmetricInfinityNorm_s(*args)
     elif A.tag == dTag: lib.ElSymmetricInfinityNorm_d(*args)
-    elif A.tag == cTag: 
-      if conjugate: lib.ElHermitianInfinityNorm_c(*args)
-      else:         lib.ElSymmetricInfinityNorm_c(*args)
-    elif A.tag == zTag: 
-      if conjugate: lib.ElHermitianInfinityNorm_z(*args)
-      else:         lib.ElSymmetricInfinityNorm_z(*args)
+    elif A.tag == cTag: lib.ElSymmetricInfinityNorm_c(*args)
+    elif A.tag == zTag: lib.ElSymmetricInfinityNorm_z(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
     if   A.tag == sTag: lib.ElSymmetricInfinityNormDist_s(*args)
     elif A.tag == dTag: lib.ElSymmetricInfinityNormDist_d(*args)
-    elif A.tag == cTag: 
-      if conjugate: lib.ElHermitianInfinityNormDist_c(*args)
-      else:         lib.ElSymmetricInfinityNormDist_c(*args)
-    elif A.tag == zTag: 
-      if conjugate: lib.ElHermitianInfinityNormDist_z(*args)
-      else:         lib.ElSymmetricInfinityNormDist_z(*args)
+    elif A.tag == cTag: lib.ElSymmetricInfinityNormDist_c(*args)
+    elif A.tag == zTag: lib.ElSymmetricInfinityNormDist_z(*args)
     else: DataExcept()
   else: TypeExcept()
   return norm
 def HermitianInfinityNorm(uplo,A):
-  return SymmetricInfinityNorm(uplo,A,True)
+  return SymmetricInfinityNorm(uplo,A)
 
 lib.ElKyFanNorm_s.argtypes = [c_void_p,iType,POINTER(sType)]
 lib.ElKyFanNorm_s.restype = c_uint
@@ -1242,74 +1140,41 @@ lib.ElSymmetricMaxNormDistSparse_c.restype = c_uint
 lib.ElSymmetricMaxNormDistSparse_z.argtypes = [c_uint,c_void_p,POINTER(dType)]
 lib.ElSymmetricMaxNormDistSparse_z.restype = c_uint
 
-lib.ElHermitianMaxNorm_c.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElHermitianMaxNorm_c.restype = c_uint
-lib.ElHermitianMaxNorm_z.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElHermitianMaxNorm_z.restype = c_uint
-lib.ElHermitianMaxNormDist_c.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElHermitianMaxNormDist_c.restype = c_uint
-lib.ElHermitianMaxNormDist_z.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElHermitianMaxNormDist_z.restype = c_uint
-lib.ElHermitianMaxNormSparse_c.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElHermitianMaxNormSparse_c.restype = c_uint
-lib.ElHermitianMaxNormSparse_z.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElHermitianMaxNormSparse_z.restype = c_uint
-lib.ElHermitianMaxNormDistSparse_c.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElHermitianMaxNormDistSparse_c.restype = c_uint
-lib.ElHermitianMaxNormDistSparse_z.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElHermitianMaxNormDistSparse_z.restype = c_uint
-
-def SymmetricMaxNorm(uplo,A,conjugate=False):
+def SymmetricMaxNorm(uplo,A):
   norm = TagToType(Base(A.tag))()
   args = [uplo,A.obj,pointer(norm)]
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElSymmetricMaxNorm_i(*args)
     elif A.tag == sTag: lib.ElSymmetricMaxNorm_s(*args)
     elif A.tag == dTag: lib.ElSymmetricMaxNorm_d(*args)
-    elif A.tag == cTag: 
-      if conjugate: lib.ElHermitianMaxNorm_c(*args)
-      else:         lib.ElSymmetricMaxNorm_c(*args)
-    elif A.tag == zTag: 
-      if conjugate: lib.ElHermitianMaxNorm_z(*args)
-      else:         lib.ElSymmetricMaxNorm_z(*args)
+    elif A.tag == cTag: lib.ElSymmetricMaxNorm_c(*args)
+    elif A.tag == zTag: lib.ElSymmetricMaxNorm_z(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
     if   A.tag == iTag: lib.ElSymmetricMaxNormDist_i(*args)
     elif A.tag == sTag: lib.ElSymmetricMaxNormDist_s(*args)
     elif A.tag == dTag: lib.ElSymmetricMaxNormDist_d(*args)
-    elif A.tag == cTag: 
-      if conjugate: lib.ElHermitianMaxNormDist_c(*args)
-      else:         lib.ElSymmetricMaxNormDist_c(*args)
-    elif A.tag == zTag: 
-      if conjugate: lib.ElHermitianMaxNormDist_z(*args)
-      else:         lib.ElSymmetricMaxNormDist_z(*args)
+    elif A.tag == cTag: lib.ElSymmetricMaxNormDist_c(*args)
+    elif A.tag == zTag: lib.ElSymmetricMaxNormDist_z(*args)
     else: DataExcept()
   elif type(A) is SparseMatrix:
     if   A.tag == iTag: lib.ElSymmetricMaxNormSparse_i(*args)
     elif A.tag == sTag: lib.ElSymmetricMaxNormSparse_s(*args)
     elif A.tag == dTag: lib.ElSymmetricMaxNormSparse_d(*args)
-    elif A.tag == cTag: 
-      if conjugate: lib.ElHermitianMaxNormSparse_c(*args)
-      else:         lib.ElSymmetricMaxNormSparse_c(*args)
-    elif A.tag == zTag: 
-      if conjugate: lib.ElHermitianMaxNormSparse_z(*args)
-      else:         lib.ElSymmetricMaxNormSparse_z(*args)
+    elif A.tag == cTag: lib.ElSymmetricMaxNormSparse_c(*args)
+    elif A.tag == zTag: lib.ElSymmetricMaxNormSparse_z(*args)
     else: DataExcept()
   elif type(A) is DistSparseMatrix:
     if   A.tag == iTag: lib.ElSymmetricMaxNormDistSparse_i(*args)
     elif A.tag == sTag: lib.ElSymmetricMaxNormDistSparse_s(*args)
     elif A.tag == dTag: lib.ElSymmetricMaxNormDistSparse_d(*args)
-    elif A.tag == cTag: 
-      if conjugate: lib.ElHermitianMaxNormDistSparse_c(*args)
-      else:         lib.ElSymmetricMaxNormDistSparse_c(*args)
-    elif A.tag == zTag: 
-      if conjugate: lib.ElHermitianMaxNormDistSparse_z(*args)
-      else:         lib.ElSymmetricMaxNormDistSparse_z(*args)
+    elif A.tag == cTag: lib.ElSymmetricMaxNormDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElSymmetricMaxNormDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
   return norm
 def HermitianMaxNorm(uplo,A):
-  return SymmetricMaxNorm(uplo,A,True)
+  return SymmetricMaxNorm(uplo,A)
 
 lib.ElNuclearNorm_s.argtypes = [c_void_p,POINTER(sType)]
 lib.ElNuclearNorm_s.restype = c_uint
@@ -1447,41 +1312,25 @@ lib.ElSymmetricOneNormDist_c.argtypes = [c_uint,c_void_p,POINTER(sType)]
 lib.ElSymmetricOneNormDist_c.restype = c_uint
 lib.ElSymmetricOneNormDist_z.argtypes = [c_uint,c_void_p,POINTER(dType)]
 lib.ElSymmetricOneNormDist_z.restype = c_uint
-lib.ElHermitianOneNorm_c.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElHermitianOneNorm_c.restype = c_uint
-lib.ElHermitianOneNorm_z.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElHermitianOneNorm_z.restype = c_uint
-lib.ElHermitianOneNormDist_c.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElHermitianOneNormDist_c.restype = c_uint
-lib.ElHermitianOneNormDist_z.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElHermitianOneNormDist_z.restype = c_uint
-def SymmetricOneNorm(uplo,A,conjugate=False):
+def SymmetricOneNorm(uplo,A):
   norm = TagToType(Base(A.tag))()
   args = [uplo,A.obj,pointer(norm)]
   if type(A) is Matrix:
     if   A.tag == sTag: lib.ElSymmetricOneNorm_s(*args)
     elif A.tag == dTag: lib.ElSymmetricOneNorm_d(*args)
-    elif A.tag == cTag: 
-      if conjugate: lib.ElHermitianOneNorm_c(*args)
-      else:         lib.ElSymmetricOneNorm_c(*args)
-    elif A.tag == zTag: 
-      if conjugate: lib.ElHermitianOneNorm_z(*args)
-      else:         lib.ElSymmetricOneNorm_z(*args)
+    elif A.tag == cTag: lib.ElSymmetricOneNorm_c(*args)
+    elif A.tag == zTag: lib.ElSymmetricOneNorm_z(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
     if   A.tag == sTag: lib.ElSymmetricOneNormDist_s(*args)
     elif A.tag == dTag: lib.ElSymmetricOneNormDist_d(*args)
-    elif A.tag == cTag: 
-      if conjugate: lib.ElHermitianOneNormDist_c(*args)
-      else:         lib.ElSymmetricOneNormDist_c(*args)
-    elif A.tag == zTag: 
-      if conjugate: lib.ElHermitianOneNormDist_z(*args)
-      else:         lib.ElSymmetricOneNormDist_z(*args)
+    elif A.tag == cTag: lib.ElSymmetricOneNormDist_c(*args)
+    elif A.tag == zTag: lib.ElSymmetricOneNormDist_z(*args)
     else: DataExcept()
   else: TypeExcept()
   return norm
 def HermitianOneNorm(uplo,A):
-  return SymmetricOneNorm(uplo,A,True)
+  return SymmetricOneNorm(uplo,A)
 
 lib.ElSchattenNorm_s.argtypes = [c_void_p,sType,POINTER(sType)]
 lib.ElSchattenNorm_s.restype = c_uint
