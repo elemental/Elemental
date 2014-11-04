@@ -178,21 +178,8 @@ void ColumnNorms( const DistMultiVec<F>& X, Matrix<Base<F>>& norms )
         Real localScaledSquare = 1;
         for( Int iLocal=0; iLocal<localHeight; ++iLocal )
         {
-            const Real alphaAbs = Abs(X.GetLocal(iLocal,j));
-            if( alphaAbs != 0 )
-            {
-                if( alphaAbs <= localScale )
-                {
-                    const Real relScale = alphaAbs/localScale;
-                    localScaledSquare += relScale*relScale;
-                }
-                else
-                {
-                    const Real relScale = localScale/alphaAbs;
-                    localScaledSquare = localScaledSquare*relScale*relScale + 1;
-                    localScale = alphaAbs;
-                }
-            }
+            UpdateScaledSquare
+            ( X.GetLocal(iLocal,j), localScale, localScaledSquare );
         }
 
         localScales[j] = localScale;

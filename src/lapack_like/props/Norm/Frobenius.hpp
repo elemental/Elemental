@@ -16,32 +16,27 @@ template<typename F>
 Base<F> FrobeniusNorm( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("FrobeniusNorm"))
-    typedef Base<F> R;
-    R scale = 0;
-    R scaledSquare = 1;
+    typedef Base<F> Real;
+    Real scale = 0;
+    Real scaledSquare = 1;
     const Int width = A.Width();
     const Int height = A.Height();
     for( Int j=0; j<width; ++j )
-    {
         for( Int i=0; i<height; ++i )
-        {
-            const R alphaAbs = Abs(A.Get(i,j));
-            if( alphaAbs != 0 )
-            {
-                if( alphaAbs <= scale )
-                {
-                    const R relScale = alphaAbs/scale;
-                    scaledSquare += relScale*relScale;
-                }
-                else
-                {
-                    const R relScale = scale/alphaAbs;
-                    scaledSquare = scaledSquare*relScale*relScale + 1;
-                    scale = alphaAbs;
-                }
-            }
-        }
-    }
+            UpdateScaledSquare( A.Get(i,j), scale, scaledSquare );
+    return scale*Sqrt(scaledSquare);
+}
+
+template<typename F> 
+Base<F> FrobeniusNorm( const SparseMatrix<F>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("FrobeniusNorm"))
+    typedef Base<F> Real;
+    Real scale = 0;
+    Real scaledSquare = 1;
+    const Int numEntries = A.NumEntries();
+    for( Int k=0; k<numEntries; ++k )
+        UpdateScaledSquare( A.Value(k), scale, scaledSquare );
     return scale*Sqrt(scaledSquare);
 }
 
@@ -52,9 +47,9 @@ Base<F> HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
-    typedef Base<F> R;
-    R scale = 0;
-    R scaledSquare = 1;
+    typedef Base<F> Real;
+    Real scale = 0;
+    Real scaledSquare = 1;
     const Int height = A.Height();
     const Int width = A.Width();
     if( uplo == UPPER )
@@ -63,37 +58,10 @@ Base<F> HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
         {
             for( Int i=0; i<j; ++i )
             {
-                const R alphaAbs = Abs(A.Get(i,j));
-                if( alphaAbs != 0 )
-                {
-                    if( alphaAbs <= scale )
-                    {
-                        const R relScale = alphaAbs/scale;
-                        scaledSquare += 2*relScale*relScale;
-                    }
-                    else
-                    {
-                        const R relScale = scale/alphaAbs;
-                        scaledSquare = scaledSquare*relScale*relScale + 2;
-                        scale = alphaAbs;
-                    }
-                }
+                UpdateScaledSquare( A.Get(i,j), scale, scaledSquare );
+                UpdateScaledSquare( A.Get(i,j), scale, scaledSquare );
             }
-            const R alphaAbs = Abs(A.Get(j,j));
-            if( alphaAbs != 0 )
-            {
-                if( alphaAbs <= scale )
-                {
-                    const R relScale = alphaAbs/scale;
-                    scaledSquare += relScale*relScale;
-                }
-                else
-                {
-                    const R relScale = scale/alphaAbs;
-                    scaledSquare = scaledSquare*relScale*relScale + 1;
-                    scale = alphaAbs;
-                }
-            }
+            UpdateScaledSquare( A.Get(j,j), scale, scaledSquare );
         }
     }
     else
@@ -102,37 +70,35 @@ Base<F> HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
         {
             for( Int i=j+1; i<height; ++i )
             {
-                const R alphaAbs = Abs(A.Get(i,j));
-                if( alphaAbs != 0 )
-                {
-                    if( alphaAbs <= scale )
-                    {
-                        const R relScale = alphaAbs/scale;
-                        scaledSquare += 2*relScale*relScale;
-                    }
-                    else
-                    {
-                        const R relScale = scale/alphaAbs;
-                        scaledSquare = scaledSquare*relScale*relScale + 2;
-                        scale = alphaAbs;
-                    }
-                }
+                UpdateScaledSquare( A.Get(i,j), scale, scaledSquare );
+                UpdateScaledSquare( A.Get(i,j), scale, scaledSquare );
             }
-            const R alphaAbs = Abs(A.Get(j,j));
-            if( alphaAbs != 0 )
-            {
-                if( alphaAbs <= scale )
-                {
-                    const R relScale = alphaAbs/scale;
-                    scaledSquare += relScale*relScale;
-                }
-                else
-                {
-                    const R relScale = scale/alphaAbs;
-                    scaledSquare = scaledSquare*relScale*relScale + 1;
-                    scale = alphaAbs;
-                }
-            }
+            UpdateScaledSquare( A.Get(j,j), scale, scaledSquare );
+        }
+    }
+    return scale*Sqrt(scaledSquare);
+}
+
+template<typename F> 
+Base<F> HermitianFrobeniusNorm( UpperOrLower uplo, const SparseMatrix<F>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("HermitianFrobeniusNorm"))
+    typedef Base<F> Real;
+    Real scale = 0;
+    Real scaledSquare = 1;
+    const Int numEntries = A.NumEntries();
+    for( Int k=0; k<numEntries; ++k )
+    {
+        const Int i = A.Row(k);
+        const Int j = A.Col(k);
+        if( (uplo==LOWER && i>j) || (uplo==UPPER && i<j) )
+        { 
+            UpdateScaledSquare( A.Value(k), scale, scaledSquare );
+            UpdateScaledSquare( A.Value(k), scale, scaledSquare );
+        }
+        else if( i == j )
+        {
+            UpdateScaledSquare( A.Value(k), scale, scaledSquare );
         }
     }
     return scale*Sqrt(scaledSquare);
@@ -140,6 +106,13 @@ Base<F> HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 
 template<typename F>
 Base<F> SymmetricFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("SymmetricFrobeniusNorm"))
+    return HermitianFrobeniusNorm( uplo, A );
+}
+
+template<typename F>
+Base<F> SymmetricFrobeniusNorm( UpperOrLower uplo, const SparseMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricFrobeniusNorm"))
     return HermitianFrobeniusNorm( uplo, A );
@@ -157,33 +130,16 @@ Base<F> FrobeniusNorm( const AbstractDistMatrix<F>& A )
         const Int localHeight = A.LocalHeight();
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            {
-                const Real alphaAbs = Abs(A.GetLocal(iLoc,jLoc));
-                if( alphaAbs != 0 )
-                {
-                    if( alphaAbs <= locScale )
-                    {
-                        const Real relScale = alphaAbs/locScale;
-                        locScaledSquare += relScale*relScale;
-                    }
-                    else
-                    {
-                        const Real relScale = locScale/alphaAbs;
-                        locScaledSquare = locScaledSquare*relScale*relScale + 1;
-                        locScale = alphaAbs; 
-                    }
-                }
-            }
-        }
+                UpdateScaledSquare
+                ( A.GetLocal(iLoc,jLoc), locScale, locScaledSquare );
 
         // Find the maximum relative scale
         mpi::Comm comm = A.DistComm();
         const Real scale = mpi::AllReduce( locScale, mpi::MAX, comm );
 
         norm = 0;
-        if( scale != 0 )
+        if( scale != Real(0) )
         {
             // Equilibrate our local scaled sum to the maximum scale
             Real relScale = locScale/scale;
@@ -195,6 +151,37 @@ Base<F> FrobeniusNorm( const AbstractDistMatrix<F>& A )
         }
     }
     mpi::Broadcast( norm, A.Root(), A.CrossComm() );
+    return norm;
+}
+
+template<typename F> 
+Base<F> FrobeniusNorm( const DistSparseMatrix<F>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("FrobeniusNorm"))
+    typedef Base<F> Real;
+    Real norm;
+
+    Real locScale=0, locScaledSquare=1;
+    const Int numLocalEntries = A.NumLocalEntries();
+    for( Int k=0; k<numLocalEntries; ++k )
+        UpdateScaledSquare( A.Value(k), locScale, locScaledSquare );
+
+    // Find the maximum relative scale
+    mpi::Comm comm = A.Comm();
+    const Real scale = mpi::AllReduce( locScale, mpi::MAX, comm );
+
+    norm = 0;
+    if( scale != Real(0) )
+    {
+        // Equilibrate our local scaled sum to the maximum scale
+        Real relScale = locScale/scale;
+        locScaledSquare *= relScale*relScale;
+
+        // The scaled square is now the sum of the local contributions
+        const Real scaledSquare = mpi::AllReduce( locScaledSquare, comm );
+        norm = scale*Sqrt(scaledSquare);
+    }
+
     return norm;
 }
 
@@ -210,9 +197,10 @@ Base<F> HermitianFrobeniusNorm
     Real norm;
     if( A.Participating() )
     {
-        Real localScale = 0;
-        Real localScaledSquare = 1;
+        Real locScale = 0;
+        Real locScaledSquare = 1;
         const Int localWidth = A.LocalWidth();
+        const Int localHeight = A.LocalHeight();
         if( uplo == UPPER )
         {
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
@@ -222,29 +210,11 @@ Base<F> HermitianFrobeniusNorm
                 for( Int iLoc=0; iLoc<numUpperRows; ++iLoc )
                 {
                     const Int i = A.GlobalRow(iLoc);
-                    const Real alphaAbs = Abs(A.GetLocal(iLoc,jLoc));
-                    if( alphaAbs != 0 )
-                    {
-                        if( alphaAbs <= localScale )
-                        {
-                            const Real relScale = alphaAbs/localScale;
-                            if( i != j )
-                                localScaledSquare += 2*relScale*relScale;
-                            else
-                                localScaledSquare += relScale*relScale;
-                        }
-                        else
-                        {
-                            const Real relScale = localScale/alphaAbs;
-                            if( i != j )
-                                localScaledSquare =
-                                    localScaledSquare*relScale*relScale + 2;
-                            else
-                                localScaledSquare =
-                                    localScaledSquare*relScale*relScale + 1;
-                            localScale = alphaAbs;
-                        }
-                    }
+                    UpdateScaledSquare
+                    ( A.GetLocal(iLoc,jLoc), locScale, locScaledSquare );
+                    if( i != j )
+                        UpdateScaledSquare
+                        ( A.GetLocal(iLoc,jLoc), locScale, locScaledSquare );
                 }
             }
         }
@@ -254,50 +224,31 @@ Base<F> HermitianFrobeniusNorm
             {
                 const Int j = A.GlobalCol(jLoc);
                 const Int numStrictlyUpperRows = A.LocalRowOffset(j);
-                for( Int iLoc=numStrictlyUpperRows;
-                     iLoc<A.LocalHeight(); ++iLoc )
+                for( Int iLoc=numStrictlyUpperRows; iLoc<localHeight; ++iLoc )
                 {
                     const Int i = A.GlobalRow(iLoc);
-                    const Real alphaAbs = Abs(A.GetLocal(iLoc,jLoc));
-                    if( alphaAbs != 0 )
-                    {
-                        if( alphaAbs <= localScale )
-                        {
-                            const Real relScale = alphaAbs/localScale;
-                            if( i != j )
-                                localScaledSquare += 2*relScale*relScale;
-                            else
-                                localScaledSquare += relScale*relScale;
-                        }
-                        else
-                        {
-                            const Real relScale = localScale/alphaAbs;
-                            if( i != j )
-                                localScaledSquare =
-                                    localScaledSquare*relScale*relScale + 2;
-                            else
-                                localScaledSquare =
-                                    localScaledSquare*relScale*relScale + 1;
-                            localScale = alphaAbs;
-                        }
-                    }
+                    UpdateScaledSquare
+                    ( A.GetLocal(iLoc,jLoc), locScale, locScaledSquare );
+                    if( i != j )
+                        UpdateScaledSquare
+                        ( A.GetLocal(iLoc,jLoc), locScale, locScaledSquare );
                 }
             }
         }
 
         // Find the maximum relative scale
-        const Real scale = mpi::AllReduce( localScale, mpi::MAX, A.DistComm() );
+        const Real scale = mpi::AllReduce( locScale, mpi::MAX, A.DistComm() );
 
         norm = 0;
-        if( scale != 0 )
+        if( scale != Real(0) )
         {
             // Equilibrate our local scaled sum to the maximum scale
-            Real relScale = localScale/scale;
-            localScaledSquare *= relScale*relScale;
+            Real relScale = locScale/scale;
+            locScaledSquare *= relScale*relScale;
 
             // The scaled square is now the sum of the local contributions
             const Real scaledSquare = 
-                mpi::AllReduce( localScaledSquare, A.Grid().VCComm() );
+                mpi::AllReduce( locScaledSquare, A.DistComm() );
             norm = scale*Sqrt(scaledSquare);
         }
     }
@@ -305,9 +256,60 @@ Base<F> HermitianFrobeniusNorm
     return norm;
 }
 
+template<typename F> 
+Base<F> HermitianFrobeniusNorm
+( UpperOrLower uplo, const DistSparseMatrix<F>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("HermitianFrobeniusNorm"))
+    typedef Base<F> Real;
+    Real norm;
+
+    Real locScale=0, locScaledSquare=1;
+    const Int numLocalEntries = A.NumLocalEntries();
+    for( Int k=0; k<numLocalEntries; ++k )
+    {
+        const Int i = A.Row(k);
+        const Int j = A.Col(k);
+        const F value = A.Value(k);
+        if( (uplo==UPPER && i<j) || (uplo==LOWER && i>j) )
+        {
+            UpdateScaledSquare( value, locScale, locScaledSquare );
+            UpdateScaledSquare( value, locScale, locScaledSquare );
+        }
+        else if( i ==j )
+            UpdateScaledSquare( value, locScale, locScaledSquare );
+    }
+
+    // Find the maximum relative scale
+    mpi::Comm comm = A.Comm();
+    const Real scale = mpi::AllReduce( locScale, mpi::MAX, comm );
+
+    norm = 0;
+    if( scale != Real(0) )
+    {
+        // Equilibrate our local scaled sum to the maximum scale
+        Real relScale = locScale/scale;
+        locScaledSquare *= relScale*relScale;
+
+        // The scaled square is now the sum of the local contributions
+        const Real scaledSquare = mpi::AllReduce( locScaledSquare, comm );
+        norm = scale*Sqrt(scaledSquare);
+    }
+
+    return norm;
+}
+
 template<typename F>
 Base<F> SymmetricFrobeniusNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("SymmetricFrobeniusNorm"))
+    return HermitianFrobeniusNorm( uplo, A );
+}
+
+template<typename F>
+Base<F> SymmetricFrobeniusNorm
+( UpperOrLower uplo, const DistSparseMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricFrobeniusNorm"))
     return HermitianFrobeniusNorm( uplo, A );
@@ -323,33 +325,15 @@ Base<F> FrobeniusNorm( const DistMultiVec<F>& A )
     const Int localHeight = A.LocalHeight();
     const Int width = A.Width();
     for( Int j=0; j<width; ++j )
-    {
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Real alphaAbs = Abs(A.GetLocal(iLoc,j));
-            if( alphaAbs != 0 )
-            {
-                if( alphaAbs <= locScale )
-                {
-                    const Real relScale = alphaAbs/locScale;
-                    locScaledSquare += relScale*relScale;
-                }
-                else
-                {
-                    const Real relScale = locScale/alphaAbs;
-                    locScaledSquare = locScaledSquare*relScale*relScale + 1;
-                    locScale = alphaAbs; 
-                }
-            }
-        }
-    }
+            UpdateScaledSquare( A.GetLocal(iLoc,j), locScale, locScaledSquare );
 
     // Find the maximum relative scale
     mpi::Comm comm = A.Comm();
     const Real scale = mpi::AllReduce( locScale, mpi::MAX, comm );
 
     norm = 0;
-    if( scale != 0 )
+    if( scale != Real(0) )
     {
         // Equilibrate our local scaled sum to the maximum scale
         Real relScale = locScale/scale;

@@ -29,11 +29,23 @@ extern "C" {
   { EL_TRY( *norm = MaxNorm( *CReflect(A) ) ) } \
   ElError ElMaxNormDist_ ## SIG ( ElConstDistMatrix_ ## SIG A, Base<T>* norm ) \
   { EL_TRY( *norm = MaxNorm( *CReflect(A) ) ) } \
+  ElError ElMaxNormSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, Base<T>* norm ) \
+  { EL_TRY( *norm = MaxNorm( *CReflect(A) ) ) } \
+  ElError ElMaxNormDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, Base<T>* norm ) \
+  { EL_TRY( *norm = MaxNorm( *CReflect(A) ) ) } \
   ElError ElSymmetricMaxNorm_ ## SIG \
   ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, Base<T>* norm ) \
   { EL_TRY( *norm = SymmetricMaxNorm( CReflect(uplo), *CReflect(A) ) ) } \
   ElError ElSymmetricMaxNormDist_ ## SIG \
   ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, Base<T>* norm ) \
+  { EL_TRY( *norm = SymmetricMaxNorm( CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElSymmetricMaxNormSparse_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstSparseMatrix_ ## SIG A, Base<T>* norm ) \
+  { EL_TRY( *norm = SymmetricMaxNorm( CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElSymmetricMaxNormDistSparse_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstDistSparseMatrix_ ## SIG A, Base<T>* norm ) \
   { EL_TRY( *norm = SymmetricMaxNorm( CReflect(uplo), *CReflect(A) ) ) } \
   /* Zero "norm"
      ----------- */ \
@@ -42,6 +54,12 @@ extern "C" {
   { EL_TRY( *numNonzero = ZeroNorm( *CReflect(A), tol ) ) } \
   ElError ElZeroNormDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, Base<T> tol, ElInt* numNonzero) \
+  { EL_TRY( *numNonzero = ZeroNorm( *CReflect(A), tol ) ) } \
+  ElError ElZeroNormSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, Base<T> tol, ElInt* numNonzero ) \
+  { EL_TRY( *numNonzero = ZeroNorm( *CReflect(A), tol ) ) } \
+  ElError ElZeroNormDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, Base<T> tol, ElInt* numNonzero ) \
   { EL_TRY( *numNonzero = ZeroNorm( *CReflect(A), tol ) ) }
 
 #define C_PROTO_FIELD(SIG,SIGBASE,F) \
@@ -196,11 +214,23 @@ extern "C" {
   ElError ElFrobeniusNormDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, Base<F>* norm ) \
   { EL_TRY( *norm = FrobeniusNorm( *CReflect(A) ) ) } \
+  ElError ElFrobeniusNormSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, Base<F>* norm ) \
+  { EL_TRY( *norm = FrobeniusNorm( *CReflect(A) ) ) } \
+  ElError ElFrobeniusNormDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, Base<F>* norm ) \
+  { EL_TRY( *norm = FrobeniusNorm( *CReflect(A) ) ) } \
   ElError ElSymmetricFrobeniusNorm_ ## SIG \
   ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, Base<F>* norm ) \
   { EL_TRY( *norm = SymmetricFrobeniusNorm( CReflect(uplo), *CReflect(A) ) ) } \
   ElError ElSymmetricFrobeniusNormDist_ ## SIG \
   ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, Base<F>* norm ) \
+  { EL_TRY( *norm = SymmetricFrobeniusNorm( CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElSymmetricFrobeniusNormSparse_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstSparseMatrix_ ## SIG A, Base<F>* norm ) \
+  { EL_TRY( *norm = SymmetricFrobeniusNorm( CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElSymmetricFrobeniusNormDistSparse_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstDistSparseMatrix_ ## SIG A, Base<F>* norm ) \
   { EL_TRY( *norm = SymmetricFrobeniusNorm( CReflect(uplo), *CReflect(A) ) ) } \
   /* Infinity norm
      ------------- */ \
@@ -363,6 +393,12 @@ extern "C" {
   ElError ElHermitianFrobeniusNormDist_ ## SIG \
   ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, Base<F>* norm ) \
   { EL_TRY( *norm = HermitianFrobeniusNorm( CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElHermitianFrobeniusNormSparse_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstSparseMatrix_ ## SIG A, Base<F>* norm ) \
+  { EL_TRY( *norm = HermitianFrobeniusNorm( CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElHermitianFrobeniusNormDistSparse_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstDistSparseMatrix_ ## SIG A, Base<F>* norm ) \
+  { EL_TRY( *norm = HermitianFrobeniusNorm( CReflect(uplo), *CReflect(A) ) ) } \
   /* Infinity norm
      ------------- */ \
   ElError ElHermitianInfinityNorm_ ## SIG \
@@ -398,6 +434,12 @@ extern "C" {
   { EL_TRY( *norm = HermitianMaxNorm( CReflect(uplo), *CReflect(A) ) ) } \
   ElError ElHermitianMaxNormDist_ ## SIG \
   ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, Base<F>* norm ) \
+  { EL_TRY( *norm = HermitianMaxNorm( CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElHermitianMaxNormSparse_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstSparseMatrix_ ## SIG A, Base<F>* norm ) \
+  { EL_TRY( *norm = HermitianMaxNorm( CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElHermitianMaxNormDistSparse_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstDistSparseMatrix_ ## SIG A, Base<F>* norm ) \
   { EL_TRY( *norm = HermitianMaxNorm( CReflect(uplo), *CReflect(A) ) ) } \
   /* Nuclear norm
      ------------ */ \

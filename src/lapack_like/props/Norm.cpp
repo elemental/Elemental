@@ -266,14 +266,24 @@ Base<F> HermitianNorm
   ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
   template Base<F> FrobeniusNorm( const Matrix<F>& A ); \
   template Base<F> FrobeniusNorm ( const AbstractDistMatrix<F>& A ); \
+  template Base<F> FrobeniusNorm( const SparseMatrix<F>& A ); \
+  template Base<F> FrobeniusNorm( const DistSparseMatrix<F>& A ); \
   template Base<F> HermitianFrobeniusNorm \
   ( UpperOrLower uplo, const Matrix<F>& A ); \
   template Base<F> HermitianFrobeniusNorm \
   ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
+  template Base<F> HermitianFrobeniusNorm \
+  ( UpperOrLower uplo, const SparseMatrix<F>& A ); \
+  template Base<F> HermitianFrobeniusNorm \
+  ( UpperOrLower uplo, const DistSparseMatrix<F>& A ); \
   template Base<F> SymmetricFrobeniusNorm \
   ( UpperOrLower uplo, const Matrix<F>& A ); \
   template Base<F> SymmetricFrobeniusNorm \
   ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
+  template Base<F> SymmetricFrobeniusNorm \
+  ( UpperOrLower uplo, const SparseMatrix<F>& A ); \
+  template Base<F> SymmetricFrobeniusNorm \
+  ( UpperOrLower uplo, const DistSparseMatrix<F>& A ); \
   template Base<F> FrobeniusNorm ( const DistMultiVec<F>& A ); \
   template Base<F> InfinityNorm( const Matrix<F>& A ); \
   template Base<F> InfinityNorm ( const AbstractDistMatrix<F>& A ); \
@@ -309,14 +319,24 @@ Base<F> HermitianNorm
   ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k, Base<F> p ); \
   template Base<F> MaxNorm( const Matrix<F>& A ); \
   template Base<F> MaxNorm ( const AbstractDistMatrix<F>& A ); \
+  template Base<F> MaxNorm( const SparseMatrix<F>& A ); \
+  template Base<F> MaxNorm( const DistSparseMatrix<F>& A ); \
   template Base<F> HermitianMaxNorm \
   ( UpperOrLower uplo, const Matrix<F>& A ); \
   template Base<F> HermitianMaxNorm \
   ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
+  template Base<F> HermitianMaxNorm \
+  ( UpperOrLower uplo, const SparseMatrix<F>& A ); \
+  template Base<F> HermitianMaxNorm \
+  ( UpperOrLower uplo, const DistSparseMatrix<F>& A ); \
   template Base<F> SymmetricMaxNorm \
   ( UpperOrLower uplo, const Matrix<F>& A ); \
   template Base<F> SymmetricMaxNorm \
   ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
+  template Base<F> SymmetricMaxNorm \
+  ( UpperOrLower uplo, const SparseMatrix<F>& A ); \
+  template Base<F> SymmetricMaxNorm \
+  ( UpperOrLower uplo, const DistSparseMatrix<F>& A ); \
   template Base<F> NuclearNorm( const Matrix<F>& A ); \
   template Base<F> NuclearNorm( const AbstractDistMatrix<F>& A ); \
   template Base<F> HermitianNuclearNorm \
@@ -370,21 +390,35 @@ Base<F> HermitianNorm
   ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> tol, \
     Int maxIts ); \
   template Int ZeroNorm( const Matrix<F>& A, Base<F> tol ); \
-  template Int ZeroNorm( const AbstractDistMatrix<F>& A, Base<F> tol );
+  template Int ZeroNorm( const AbstractDistMatrix<F>& A, Base<F> tol ); \
+  template Int ZeroNorm( const SparseMatrix<F>& A, Base<F> tol ); \
+  template Int ZeroNorm( const DistSparseMatrix<F>& A, Base<F> tol );
 
 #define PROTO_INT(T) \
-  template Int ZeroNorm( const Matrix<Int>& A, Int tol ); \
-  template Int ZeroNorm( const AbstractDistMatrix<Int>& A, Int tol ); \
-  template Int MaxNorm( const Matrix<Int>& A ); \
-  template Int MaxNorm ( const AbstractDistMatrix<Int>& A ); \
-  template Int HermitianMaxNorm \
-  ( UpperOrLower uplo, const Matrix<Int>& A ); \
-  template Int HermitianMaxNorm \
-  ( UpperOrLower uplo, const AbstractDistMatrix<Int>& A ); \
-  template Int SymmetricMaxNorm \
-  ( UpperOrLower uplo, const Matrix<Int>& A ); \
-  template Int SymmetricMaxNorm \
-  ( UpperOrLower uplo, const AbstractDistMatrix<Int>& A );
+  template T ZeroNorm( const Matrix<T>& A, T tol ); \
+  template T ZeroNorm( const AbstractDistMatrix<T>& A, T tol ); \
+  template T ZeroNorm( const SparseMatrix<T>& A, T tol ); \
+  template T ZeroNorm( const DistSparseMatrix<T>& A, T tol ); \
+  template T MaxNorm( const Matrix<T>& A ); \
+  template T MaxNorm ( const AbstractDistMatrix<T>& A ); \
+  template T MaxNorm( const SparseMatrix<T>& A ); \
+  template T MaxNorm( const DistSparseMatrix<T>& A ); \
+  template T HermitianMaxNorm \
+  ( UpperOrLower uplo, const Matrix<T>& A ); \
+  template T HermitianMaxNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<T>& A ); \
+  template T HermitianMaxNorm \
+  ( UpperOrLower uplo, const SparseMatrix<T>& A ); \
+  template T HermitianMaxNorm \
+  ( UpperOrLower uplo, const DistSparseMatrix<T>& A ); \
+  template T SymmetricMaxNorm \
+  ( UpperOrLower uplo, const Matrix<T>& A ); \
+  template T SymmetricMaxNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<T>& A ); \
+  template T SymmetricMaxNorm \
+  ( UpperOrLower uplo, const SparseMatrix<T>& A ); \
+  template T SymmetricMaxNorm \
+  ( UpperOrLower uplo, const DistSparseMatrix<T>& A );
 
 #include "El/macros/Instantiate.h"
 

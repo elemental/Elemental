@@ -235,6 +235,9 @@ RowToProcess( Int i, Int blocksize, Int commSize )
         return commSize-1;
 }
 
+template<typename F>
+void UpdateScaledSquare( F alpha, Base<F>& scale, Base<F>& scaledSquare );
+
 } // namespace El
 
 #endif // ifndef EL_ENVIRONMENT_DECL_HPP

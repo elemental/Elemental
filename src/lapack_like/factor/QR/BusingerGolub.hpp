@@ -186,27 +186,10 @@ ColNorms( const DistMatrix<F>& A, std::vector<Base<F>>& norms )
     std::vector<Real> localScales(localWidth,0), 
                       localScaledSquares(localWidth,1);
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Real alphaAbs = Abs(A.GetLocal(iLoc,jLoc));    
-            if( alphaAbs != 0 )
-            {
-                if( alphaAbs <= localScales[jLoc] )
-                {
-                    const Real relScale = alphaAbs/localScales[jLoc];
-                    localScaledSquares[jLoc] += relScale*relScale;
-                }
-                else
-                {
-                    const Real relScale = localScales[jLoc]/alphaAbs;
-                    localScaledSquares[jLoc] = 
-                        localScaledSquares[jLoc]*relScale*relScale + 1;
-                    localScales[jLoc] = alphaAbs;
-                }
-            }
-        }
-    }
+            UpdateScaledSquare
+            ( A.GetLocal(iLoc,jLoc), 
+              localScales[jLoc], localScaledSquares[jLoc] );
 
     // Find the maximum relative scales 
     std::vector<Real> scales(localWidth);
@@ -258,28 +241,10 @@ ReplaceColNorms
     std::vector<Real> localScales(numInaccurate,0), 
                       localScaledSquares(numInaccurate,1);
     for( Int s=0; s<numInaccurate; ++s )
-    {
-        const Int jLoc = inaccurateNorms[s];
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Real alphaAbs = Abs(A.GetLocal(iLoc,jLoc));    
-            if( alphaAbs != 0 )
-            {
-                if( alphaAbs <= localScales[s] )
-                {
-                    const Real relScale = alphaAbs/localScales[s];
-                    localScaledSquares[s] += relScale*relScale;
-                }
-                else
-                {
-                    const Real relScale = localScales[s]/alphaAbs;
-                    localScaledSquares[s] = 
-                        localScaledSquares[s]*relScale*relScale + 1;
-                    localScales[s] = alphaAbs;
-                }
-            }
-        }
-    }
+            UpdateScaledSquare
+            ( A.GetLocal(iLoc,inaccurateNorms[s]), 
+              localScales[s], localScaledSquares[s] );
 
     // Find the maximum relative scales 
     std::vector<Real> scales(numInaccurate);

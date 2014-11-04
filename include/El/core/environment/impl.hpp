@@ -156,6 +156,27 @@ EnsureConsistent( T alpha, mpi::Comm comm, std::string name )
     }
 }
 
+template<typename F>
+inline void UpdateScaledSquare( F alpha, Base<F>& scale, Base<F>& scaledSquare )
+{
+    typedef Base<F> Real;
+    Real alphaAbs = Abs(alpha);
+    if( alphaAbs != 0 )
+    {
+        if( alphaAbs <= scale )
+        {
+            const Real relScale = alphaAbs/scale;
+            scaledSquare += relScale*relScale;
+        }
+        else
+        {
+            const Real relScale = scale/alphaAbs;
+            scaledSquare = scaledSquare*relScale*relScale + Real(1);
+            scale = alphaAbs;
+        }
+    }
+}
+
 } // namespace El
 
 #endif // ifndef EL_ENVIRONMENT_IMPL_HPP

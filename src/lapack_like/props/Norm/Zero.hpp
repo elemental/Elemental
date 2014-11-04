@@ -30,6 +30,18 @@ Int ZeroNorm( const Matrix<T>& A, Base<T> tol )
 }
 
 template<typename T>
+Int ZeroNorm( const SparseMatrix<T>& A, Base<T> tol )
+{
+    DEBUG_ONLY(CallStackEntry cse("ZeroNorm"))
+    Int numNonzeros = 0;
+    const Int numEntries = A.NumEntries();
+    for( Int k=0; k<numEntries; ++k )
+        if( Abs(A.Value(k)) > tol )
+            ++numNonzeros;
+    return numNonzeros;
+}
+
+template<typename T>
 Int ZeroNorm( const AbstractDistMatrix<T>& A, Base<T> tol )
 {
     DEBUG_ONLY(CallStackEntry cse("ZeroNorm"))
@@ -41,6 +53,18 @@ Int ZeroNorm( const AbstractDistMatrix<T>& A, Base<T> tol )
     }
     mpi::Broadcast( numNonzeros, A.Root(), A.CrossComm() );
     return numNonzeros;
+}
+
+template<typename T>
+Int ZeroNorm( const DistSparseMatrix<T>& A, Base<T> tol )
+{
+    DEBUG_ONLY(CallStackEntry cse("ZeroNorm"))
+    Int numNonzeros = 0;
+    const Int numLocalEntries = A.NumLocalEntries();
+    for( Int k=0; k<numLocalEntries; ++k )
+        if( Abs(A.Value(k)) > tol )
+            ++numNonzeros;
+    return mpi::AllReduce( numNonzeros, A.Comm() );
 }
 
 } // namespace El
