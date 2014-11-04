@@ -249,7 +249,7 @@ void EntrywiseMap
 ( const Matrix<S>& A, Matrix<T>& B, std::function<T(S)> func );
 template<typename S,typename T>
 void EntrywiseMap
-( const SparseMatrix<S>& A, SparseMatrix<T>& B, std::function<T(T)> func );
+( const SparseMatrix<S>& A, SparseMatrix<T>& B, std::function<T(S)> func );
 template<typename S,typename T>
 void EntrywiseMap
 ( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B, 
@@ -261,7 +261,7 @@ void EntrywiseMap
 template<typename S,typename T>
 void EntrywiseMap
 ( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B, 
-  std::function<T(T)> func );
+  std::function<T(S)> func );
 
 // Fill
 // ====
