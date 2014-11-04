@@ -58,7 +58,7 @@ void AxpyTrapezoid
         const Int i = X.Row(k);
         const Int j = X.Col(k);
         if( (uplo==UPPER && j-i >= offset) || (uplo==LOWER && j-i <= offset) )
-            Y.QueueUpdate( i-firstRow, j, alpha*X.Value(k) );
+            Y.QueueUpdate( i, j, alpha*X.Value(k) );
     }
     Y.MakeConsistent();
 }
