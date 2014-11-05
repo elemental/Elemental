@@ -99,8 +99,15 @@ void Syrk
   T beta, SparseMatrix<T>& C, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Syrk"))
+
     if( orientation == NORMAL )
-        LogicError("Normal option of sparse Syrk not yet supported");
+    {
+        SparseMatrix<T> B;
+        Transpose( A, B, conjugate );
+        const Orientation newOrient = ( conjugate ? ADJOINT : TRANSPOSE );
+        Syrk( uplo, newOrient, alpha, B, beta, C, conjugate );
+        return;
+    }
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -172,8 +179,15 @@ void Syrk
   T beta, DistSparseMatrix<T>& C, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Syrk"))
+
     if( orientation == NORMAL )
-        LogicError("Normal option of sparse Syrk not yet supported");
+    {
+        DistSparseMatrix<T> B(A.Comm());
+        Transpose( A, B, conjugate );
+        const Orientation newOrient = ( conjugate ? ADJOINT : TRANSPOSE );
+        Syrk( uplo, newOrient, alpha, B, beta, C, conjugate );
+        return;
+    }
 
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
