@@ -416,7 +416,7 @@ else()
   install(
     DIRECTORY ${PROJECT_SOURCE_DIR}/include/
     DESTINATION ${CMAKE_INSTALL_PREFIX}/include/
-    FILES_MATCHING_PATTERN "*.py"
+    FILES_MATCHING PATTERN "*.py"
   )
 endif()
 
