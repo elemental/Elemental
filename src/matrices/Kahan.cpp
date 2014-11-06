@@ -22,7 +22,7 @@ void Kahan( Matrix<F>& A, Int n, F phi )
     const F zeta = Sqrt(F(1)-phi*Conj(phi));
     typedef Base<F> Real;
     auto kahanFill = 
-      [=]( Int i, Int j )
+      [=]( Int i, Int j ) -> F
       { if( i == j )      { return      Pow(zeta,Real(i)); }
         else if(  i < j ) { return -phi*Pow(zeta,Real(i)); }
         else              { return F(0);                   } };
@@ -37,7 +37,7 @@ void Kahan( AbstractDistMatrix<F>& A, Int n, F phi )
     const F zeta = Sqrt(F(1)-phi*Conj(phi));
     typedef Base<F> Real;
     auto kahanFill = 
-      [=]( Int i, Int j )
+      [=]( Int i, Int j ) -> F
       { if( i == j )      { return      Pow(zeta,Real(i)); }
         else if(  i < j ) { return -phi*Pow(zeta,Real(i)); }
         else              { return F(0);                   } };
@@ -52,7 +52,7 @@ void Kahan( AbstractBlockDistMatrix<F>& A, Int n, F phi )
     const F zeta = Sqrt(F(1)-phi*Conj(phi));
     typedef Base<F> Real;
     auto kahanFill = 
-      [=]( Int i, Int j )
+      [=]( Int i, Int j ) -> F
       { if( i == j )      { return      Pow(zeta,Real(i)); }
         else if(  i < j ) { return -phi*Pow(zeta,Real(i)); }
         else              { return F(0);                   } };
