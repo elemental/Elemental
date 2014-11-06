@@ -17,7 +17,7 @@ void Egorov
     DEBUG_ONLY(CallStackEntry cse("Egorov"))
     A.Resize( n, n );
     auto egorovFill = 
-      [&]( Int i, Int j )
+      [&]( Int i, Int j ) -> Complex<Real>
       { const Real theta = phase(i,j);
         return Complex<Real>(Cos(theta),Sin(theta)); }; 
     IndexDependentFill( A, std::function<Complex<Real>(Int,Int)>(egorovFill) );
@@ -31,7 +31,7 @@ void Egorov
     DEBUG_ONLY(CallStackEntry cse("Egorov"))
     A.Resize( n, n );
     auto egorovFill = 
-      [&]( Int i, Int j )
+      [&]( Int i, Int j ) -> Complex<Real>
       { const Real theta = phase(i,j);
         return Complex<Real>(Cos(theta),Sin(theta)); }; 
     IndexDependentFill( A, std::function<Complex<Real>(Int,Int)>(egorovFill) );
@@ -45,7 +45,7 @@ void Egorov
     DEBUG_ONLY(CallStackEntry cse("Egorov"))
     A.Resize( n, n );
     auto egorovFill = 
-      [&]( Int i, Int j )
+      [&]( Int i, Int j ) -> Complex<Real>
       { const Real theta = phase(i,j);
         return Complex<Real>(Cos(theta),Sin(theta)); }; 
     IndexDependentFill( A, std::function<Complex<Real>(Int,Int)>(egorovFill) );
