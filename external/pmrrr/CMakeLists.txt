@@ -51,7 +51,8 @@ set(PMRRR_SRC "${PMRRR_C};${PMRRR_H}")
 # Define the main library and its link libraries
 add_library(pmrrr ${LIBRARY_TYPE} ${PMRRR_SRC})
 target_link_libraries(pmrrr 
-  ${MPI_LINK_FLAGS} ${MPI_C_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${MATH_LIBS})
+  ${MPI_C_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${MATH_LIBS})
+set_target_properties(pmrrr PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
 install(TARGETS pmrrr DESTINATION lib)
 set(CMAKE_THREAD_LIBS_INIT ${CMAKE_THREAD_LIBS_INIT} PARENT_SCOPE)
 
