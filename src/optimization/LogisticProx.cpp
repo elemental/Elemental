@@ -20,7 +20,7 @@ void LogisticProx( Matrix<Real>& A, Real tau, Int numIts )
 {
     DEBUG_ONLY(CallStackEntry cse("LogisticProx"))
     auto logisticProx = 
-      [=]( Real alpha )
+      [=]( Real alpha ) -> Real
       {
         // Use an initial guess based upon the rough normal vector to
         // the logistic curve
@@ -56,7 +56,7 @@ void LogisticProx( AbstractDistMatrix<Real>& A, Real tau, Int numIts )
 {
     DEBUG_ONLY(CallStackEntry cse("LogisticProx"))
     auto logisticProx = 
-      [=]( Real alpha )
+      [=]( Real alpha ) -> Real
       {
         // Use an initial guess based upon the rough normal vector to
         // the logistic curve
