@@ -24,7 +24,7 @@ void Walsh( Matrix<T>& A, Int k, bool binary )
     const T onValue = 1;
     const T offValue = ( binary ? 0 : -1 );
     auto walshFill = 
-      [&]( Int i, Int j )
+      [&]( Int i, Int j ) -> T
       {
         // Recurse on the quadtree, flipping the sign of the entry each
         // time we are in the bottom-right quadrant
@@ -59,7 +59,7 @@ void Walsh( AbstractDistMatrix<T>& A, Int k, bool binary )
     const T onValue = 1;
     const T offValue = ( binary ? 0 : -1 );
     auto walshFill = 
-      [&]( Int i, Int j )
+      [&]( Int i, Int j ) -> T
       {
         // Recurse on the quadtree, flipping the sign of the entry each
         // time we are in the bottom-right quadrant

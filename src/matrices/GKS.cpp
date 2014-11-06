@@ -22,7 +22,7 @@ void GKS( Matrix<F>& A, Int n )
     DEBUG_ONLY(CallStackEntry cse("GKS"))
     A.Resize( n, n );
     auto gksFill = 
-      []( Int i, Int j ) 
+      []( Int i, Int j ) -> F
       { if( i < j )       { return -F(1)/Sqrt(F(j+1)); }
         else if( i == j ) { return  F(1)/Sqrt(F(j+1)); }
         else              { return  F(0);            } };
@@ -35,7 +35,7 @@ void GKS( AbstractDistMatrix<F>& A, Int n )
     DEBUG_ONLY(CallStackEntry cse("GKS"))
     A.Resize( n, n );
     auto gksFill = 
-      []( Int i, Int j ) 
+      []( Int i, Int j ) -> F 
       { if( i < j )       { return -F(1)/Sqrt(F(j+1)); }
         else if( i == j ) { return  F(1)/Sqrt(F(j+1)); }
         else              { return  F(0);            } };
@@ -48,7 +48,7 @@ void GKS( AbstractBlockDistMatrix<F>& A, Int n )
     DEBUG_ONLY(CallStackEntry cse("GKS"))
     A.Resize( n, n );
     auto gksFill = 
-      []( Int i, Int j ) 
+      []( Int i, Int j ) -> F
       { if( i < j )       { return -F(1)/Sqrt(F(j+1)); }
         else if( i == j ) { return  F(1)/Sqrt(F(j+1)); }
         else              { return  F(0);            } };
