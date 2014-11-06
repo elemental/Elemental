@@ -46,7 +46,7 @@ El.Display( A, "Laplacian" )
 El.Display( A.DistGraph(), "Laplacian graph" )
 El.Display( y, "y" )
 
-El.SymmetricSolveSparse(A,x)
+El.SymmetricSolve(A,x)
 El.Display( x, "x" )
 
 xNrm = El.Nrm2(x)

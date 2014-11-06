@@ -33,13 +33,47 @@ EL_EXPORT ElError ElHermitianSolveDistSparse_z
 /* Least squares
    ============= */
 EL_EXPORT ElError ElLeastSquaresDistSparse_s
-( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s Y, ElDistMultiVec_s X );
+( ElOrientation orientation,
+  ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s Y, ElDistMultiVec_s X );
 EL_EXPORT ElError ElLeastSquaresDistSparse_d
-( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d Y, ElDistMultiVec_d X );
+( ElOrientation orientation,
+  ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d Y, ElDistMultiVec_d X );
 EL_EXPORT ElError ElLeastSquaresDistSparse_c
-( ElConstDistSparseMatrix_c A, ElConstDistMultiVec_c Y, ElDistMultiVec_c X );
+( ElOrientation orientation,
+  ElConstDistSparseMatrix_c A, ElConstDistMultiVec_c Y, ElDistMultiVec_c X );
 EL_EXPORT ElError ElLeastSquaresDistSparse_z
-( ElConstDistSparseMatrix_z A, ElConstDistMultiVec_z Y, ElDistMultiVec_z X );
+( ElOrientation orientation,
+  ElConstDistSparseMatrix_z A, ElConstDistMultiVec_z Y, ElDistMultiVec_z X );
+
+/* Ridge regression
+   ================ */
+EL_EXPORT ElError ElRidgeDistSparse_s
+( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s Y, 
+  float alpha, ElDistMultiVec_s X );
+EL_EXPORT ElError ElRidgeDistSparse_d
+( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d Y, 
+  double alpha, ElDistMultiVec_d X );
+EL_EXPORT ElError ElRidgeDistSparse_c
+( ElConstDistSparseMatrix_c A, ElConstDistMultiVec_c Y, 
+  float alpha, ElDistMultiVec_c X );
+EL_EXPORT ElError ElRidgeDistSparse_z
+( ElConstDistSparseMatrix_z A, ElConstDistMultiVec_z Y, 
+  double alpha, ElDistMultiVec_z X );
+
+/* Tikhonov regularization
+   ======================= */
+EL_EXPORT ElError ElTikhonovDistSparse_s
+( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s Y, 
+  ElConstDistSparseMatrix_s Gamma, ElDistMultiVec_s X );
+EL_EXPORT ElError ElTikhonovDistSparse_d
+( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d Y, 
+  ElConstDistSparseMatrix_d Gamma, ElDistMultiVec_d X );
+EL_EXPORT ElError ElTikhonovDistSparse_c
+( ElConstDistSparseMatrix_c A, ElConstDistMultiVec_c Y, 
+  ElConstDistSparseMatrix_c Gamma, ElDistMultiVec_c X );
+EL_EXPORT ElError ElTikhonovDistSparse_z
+( ElConstDistSparseMatrix_z A, ElConstDistMultiVec_z Y, 
+  ElConstDistSparseMatrix_z Gamma, ElDistMultiVec_z X );
 
 #ifdef __cplusplus
 } // extern "C"

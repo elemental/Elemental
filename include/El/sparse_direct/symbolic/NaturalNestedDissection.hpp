@@ -22,7 +22,7 @@ void NaturalNestedDissection
         DistMap& map,
         DistSeparatorTree& sepTree, 
         DistSymmInfo& info,
-        int cutoff=128, 
+        int cutoff=128,
         bool storeFactRecvInds=false );
 
 int NaturalBisect
@@ -68,7 +68,7 @@ NaturalNestedDissectionRecursion
         DistSymmElimTree& eTree,
         int parent, 
         int off, 
-        int cutoff=128 )
+        int cutoff )
 {
     DEBUG_ONLY(CallStackEntry cse("NaturalNestedDissectionRecursion"))
     if( graph.NumSources() <= cutoff )
@@ -200,7 +200,7 @@ NaturalNestedDissectionRecursion
         int depth, 
         int off, 
         bool onLeft,
-        int cutoff=128 )
+        int cutoff )
 {
     DEBUG_ONLY(CallStackEntry cse("NaturalNestedDissectionRecursion"))
     const int distDepth = sepTree.distSeps.size();

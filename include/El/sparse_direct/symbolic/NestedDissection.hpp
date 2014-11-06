@@ -38,23 +38,33 @@ void ElBisect
 
 namespace El {
 
+struct BisectCtrl
+{
+    bool sequential;
+    int numDistSeps;
+    int numSeqSeps;
+    int cutoff;
+    bool storeFactRecvInds;
+
+    BisectCtrl()
+    : sequential(true), numDistSeps(1), numSeqSeps(1), cutoff(128),
+      storeFactRecvInds(false) 
+    { }
+};
+
 void NestedDissection
 ( const DistGraph& graph, 
         DistMap& map,
         DistSeparatorTree& sepTree, 
         DistSymmInfo& info,
-        bool sequential=true,
-        int numDistSeps=1, 
-        int numSeqSeps=1, 
-        int cutoff=128, 
-        bool storeFactRecvInds=false );
+  const BisectCtrl& ctrl=BisectCtrl() );
 
 int Bisect
 ( const Graph& graph, 
         Graph& leftChild, 
         Graph& rightChild, 
         std::vector<int>& perm, 
-        int numSeps=5 );
+  const BisectCtrl& ctrl=BisectCtrl() );
 
 // NOTE: for two or more processes
 int Bisect
@@ -62,9 +72,7 @@ int Bisect
         DistGraph& child, 
         DistMap& perm,
         bool& onLeft,
-        bool sequential=true,
-        int numDistSeps=1, 
-        int numSeqSeps=1 );
+  const BisectCtrl& ctrl=BisectCtrl() );
 
 int DistributedDepth( mpi::Comm comm );
 void EnsurePermutation( const std::vector<int>& map );
@@ -124,11 +132,10 @@ NestedDissectionRecursion
         DistSymmElimTree& eTree,
         int parent, 
         int off, 
-        int numSeps=5,
-        int cutoff=128 )
+  const BisectCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("NestedDissectionRecursion"))
-    if( graph.NumSources() <= cutoff )
+    if( graph.NumSources() <= ctrl.cutoff )
     {
         // Fill in this node of the local separator tree
         const int numSources = graph.NumSources();
@@ -167,8 +174,7 @@ NestedDissectionRecursion
         // Partition the graph and construct the inverse map
         Graph leftChild, rightChild;
         std::vector<int> map;
-        const int sepSize = 
-            Bisect( graph, leftChild, rightChild, map, numSeps );
+        const int sepSize = Bisect( graph, leftChild, rightChild, map, ctrl );
         const int numSources = graph.NumSources();
         std::vector<int> inverseMap( numSources );
         for( int s=0; s<numSources; ++s )
@@ -233,11 +239,10 @@ NestedDissectionRecursion
         node.children[1] = eTree.localNodes.size();
         NestedDissectionRecursion
         ( rightChild, rightPerm, sepTree, eTree, parent, off+leftChildSize,
-          numSeps, cutoff );
+          ctrl );
         node.children[0] = eTree.localNodes.size();
         NestedDissectionRecursion
-        ( leftChild, leftPerm, sepTree, eTree, parent, off, 
-          numSeps, cutoff );
+        ( leftChild, leftPerm, sepTree, eTree, parent, off, ctrl );
     }
 }
 
@@ -250,10 +255,7 @@ NestedDissectionRecursion
         int depth, 
         int off, 
         bool onLeft,
-        bool sequential=true,
-        int numDistSeps=1, 
-        int numSeqSeps=1,
-        int cutoff=128 )
+  const BisectCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("NestedDissectionRecursion"))
     const int distDepth = sepTree.distSeps.size();
@@ -264,10 +266,7 @@ NestedDissectionRecursion
         DistGraph child;
         bool childIsOnLeft;
         DistMap map;
-        const int sepSize = 
-            Bisect
-            ( graph, child, map, childIsOnLeft, 
-              sequential, numDistSeps, numSeqSeps );
+        const int sepSize = Bisect( graph, child, map, childIsOnLeft, ctrl );
         const int numSources = graph.NumSources();
         const int childSize = child.NumSources();
         const int leftChildSize = 
@@ -359,10 +358,10 @@ NestedDissectionRecursion
         // Recurse
         const int newOff = ( childIsOnLeft ? off : off+leftChildSize );
         NestedDissectionRecursion
-        ( child, newPerm, sepTree, eTree, depth+1, newOff, 
-          childIsOnLeft, sequential, numDistSeps, numSeqSeps, cutoff );
+        ( child, newPerm, sepTree, eTree, depth+1, newOff, childIsOnLeft, 
+          ctrl );
     }
-    else if( graph.NumSources() <= cutoff )
+    else if( graph.NumSources() <= ctrl.cutoff )
     {
         // Convert to a sequential graph
         const int numSources = graph.NumSources();
@@ -413,7 +412,7 @@ NestedDissectionRecursion
         Graph leftChild, rightChild;
         std::vector<int> map;
         const int sepSize = 
-            Bisect( seqGraph, leftChild, rightChild, map, numSeqSeps );
+            Bisect( seqGraph, leftChild, rightChild, map, ctrl );
         const int numSources = graph.NumSources();
         std::vector<int> inverseMap( numSources );
         for( int s=0; s<numSources; ++s )
@@ -484,11 +483,10 @@ NestedDissectionRecursion
         localNode.children[1] = eTree.localNodes.size();
         NestedDissectionRecursion
         ( rightChild, rightPerm, sepTree, eTree, parent, off+leftChildSize, 
-          numSeqSeps, cutoff );
+          ctrl );
         localNode.children[0] = eTree.localNodes.size();
         NestedDissectionRecursion
-        ( leftChild, leftPerm, sepTree, eTree, parent, off, 
-          numSeqSeps, cutoff );
+        ( leftChild, leftPerm, sepTree, eTree, parent, off, ctrl );
     }
 }
 
@@ -498,11 +496,7 @@ NestedDissection
         DistMap& map,
         DistSeparatorTree& sepTree, 
         DistSymmInfo& info,
-        bool sequential,
-        int numDistSeps, 
-        int numSeqSeps, 
-        int cutoff,
-        bool storeFactRecvInds )
+  const BisectCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("NestedDissection"))
     // NOTE: There is a potential memory leak here if these data structures 
@@ -522,9 +516,7 @@ NestedDissection
     const int numLocalSources = perm.NumLocalSources();
     for( int s=0; s<numLocalSources; ++s )
         perm.SetLocal( s, s+firstLocalSource );
-    NestedDissectionRecursion
-    ( graph, perm, sepTree, eTree, 0, 0, false, sequential, 
-      numDistSeps, numSeqSeps, cutoff );
+    NestedDissectionRecursion( graph, perm, sepTree, eTree, 0, 0, false, ctrl );
 
     ReverseOrder( sepTree, eTree );
 
@@ -533,13 +525,13 @@ NestedDissection
     DEBUG_ONLY(EnsurePermutation( map ))
 
     // Run the symbolic analysis
-    SymmetricAnalysis( eTree, info, storeFactRecvInds );
+    SymmetricAnalysis( eTree, info, ctrl.storeFactRecvInds );
 }
 
 inline int 
 Bisect
 ( const Graph& graph ,Graph& leftChild, Graph& rightChild,
-  std::vector<int>& perm, int numSeps )
+  std::vector<int>& perm, const BisectCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Bisect"))
 #ifdef EL_HAVE_METIS
@@ -589,7 +581,7 @@ Bisect
 
     // Use the custom METIS interface
     idx_t nvtxs = numSources;
-    idx_t nseps = numSeps;
+    idx_t nseps = ctrl.numSeqSeps;
     real_t imbalance = 1.1;
     std::vector<idx_t> sizes(3);
     ElBisect
@@ -611,9 +603,7 @@ Bisect
         DistGraph& child, 
         DistMap& perm,
         bool& onLeft, 
-        bool sequential,
-        int numDistSeps, 
-        int numSeqSeps )
+  const BisectCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Bisect"))
 #ifdef EL_HAVE_METIS
@@ -668,10 +658,10 @@ Bisect
     )
     xAdj[numLocalSources] = numLocalValidEdges;
 
-    idx_t nseqseps = numSeqSeps;
+    idx_t nseqseps = ctrl.numSeqSeps;
     real_t imbalance = 1.1;
     std::vector<idx_t> sizes(3);
-    if( sequential )
+    if( ctrl.sequential )
     {
         // Gather the number of local valid edges on the root process
         std::vector<int> edgeSizes( commSize ), edgeOffs;
@@ -780,7 +770,7 @@ Bisect
         perm.Resize( numSources );
 
         // Use the custom ParMETIS interface
-        idx_t nparseps = numDistSeps;
+        idx_t nparseps = ctrl.numDistSeps;
         ElParallelBisect
         ( &vtxDist[0], &xAdj[0], &adjacency[0], &nparseps, &nseqseps, 
           &imbalance, NULL, perm.Buffer(), &sizes[0], &comm.comm );

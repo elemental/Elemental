@@ -37,6 +37,12 @@ main( int argc, char* argv[] )
         const bool display = Input("--display","display matrix?",false);
         ProcessInput();
 
+        BisectCtrl ctrl;
+        ctrl.sequential = sequential;
+        ctrl.numSeqSeps = numSeqSeps;
+        ctrl.numDistSeps = numDistSeps;
+        ctrl.cutoff = cutoff;
+
         const int N = n1*n2*n3;
         DistSparseMatrix<double> A( N, comm );
 
@@ -113,8 +119,7 @@ main( int argc, char* argv[] )
             std::cout.flush();
         }
         const double solveStart = mpi::Time();
-        SymmetricSolve
-        ( A, Y, false, sequential, numDistSeps, numSeqSeps, cutoff );
+        SymmetricSolve( A, Y, false, ctrl );
         const double solveStop = mpi::Time();
         if( commRank == 0 )
             std::cout << "done, " << solveStop-solveStart << " seconds"

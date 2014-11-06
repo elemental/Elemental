@@ -62,12 +62,46 @@ void UpdateDiagonal( AbstractBlockDistMatrix<T>& A, S alpha, Int offset )
     }
 }
 
+template<typename T,typename S>
+void UpdateDiagonal( SparseMatrix<T>& A, S alpha, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("UpdateDiagonal"))
+    const Int m = A.Height();
+    const Int n = A.Width();
+    A.Reserve( A.Capacity()+m );
+    for( Int i=0; i<m; ++i )
+    { 
+        if( i+offset >= 0 && i+offset < n )
+            A.QueueUpdate( i, i+offset, T(alpha) );
+    }
+    A.MakeConsistent();
+}
+
+template<typename T,typename S>
+void UpdateDiagonal( DistSparseMatrix<T>& A, S alpha, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("UpdateDiagonal"))
+    const Int mLocal = A.LocalHeight();
+    const Int firstLocalRow = A.FirstLocalRow();
+    const Int n = A.Width();
+    A.Reserve( A.Capacity()+mLocal );
+    for( Int iLocal=0; iLocal<mLocal; ++iLocal )
+    {
+        const Int i = iLocal+firstLocalRow;
+        if( i+offset >= 0 && i+offset < n )
+            A.QueueLocalUpdate( iLocal, i+offset, alpha );
+    }
+    A.MakeConsistent();
+}
+
 #define PROTO_TYPES(T,S) \
   template void UpdateDiagonal( Matrix<T>& A, S alpha, Int offset ); \
   template void UpdateDiagonal \
   ( AbstractDistMatrix<T>& A, S alpha, Int offset ); \
   template void UpdateDiagonal \
-  ( AbstractBlockDistMatrix<T>& A, S alpha, Int offset );
+  ( AbstractBlockDistMatrix<T>& A, S alpha, Int offset ); \
+  template void UpdateDiagonal( SparseMatrix<T>& A, S alpha, Int offset ); \
+  template void UpdateDiagonal( DistSparseMatrix<T>& A, S alpha, Int offset ); \
 
 #define PROTO_INT(T) PROTO_TYPES(T,T)
 

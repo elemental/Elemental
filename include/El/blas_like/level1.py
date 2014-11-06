@@ -2221,6 +2221,26 @@ lib.ElUpdateDiagonalDist_c.argtypes = [c_void_p,cType,iType]
 lib.ElUpdateDiagonalDist_c.restype = c_uint
 lib.ElUpdateDiagonalDist_z.argtypes = [c_void_p,zType,iType]
 lib.ElUpdateDiagonalDist_z.restype = c_uint
+lib.ElUpdateDiagonalSparse_i.argtypes = [c_void_p,iType,iType]
+lib.ElUpdateDiagonalSparse_i.restype = c_uint
+lib.ElUpdateDiagonalSparse_s.argtypes = [c_void_p,sType,iType]
+lib.ElUpdateDiagonalSparse_s.restype = c_uint
+lib.ElUpdateDiagonalSparse_d.argtypes = [c_void_p,dType,iType]
+lib.ElUpdateDiagonalSparse_d.restype = c_uint
+lib.ElUpdateDiagonalSparse_c.argtypes = [c_void_p,cType,iType]
+lib.ElUpdateDiagonalSparse_c.restype = c_uint
+lib.ElUpdateDiagonalSparse_z.argtypes = [c_void_p,zType,iType]
+lib.ElUpdateDiagonalSparse_z.restype = c_uint
+lib.ElUpdateDiagonalDistSparse_i.argtypes = [c_void_p,iType,iType]
+lib.ElUpdateDiagonalDistSparse_i.restype = c_uint
+lib.ElUpdateDiagonalDistSparse_s.argtypes = [c_void_p,sType,iType]
+lib.ElUpdateDiagonalDistSparse_s.restype = c_uint
+lib.ElUpdateDiagonalDistSparse_d.argtypes = [c_void_p,dType,iType]
+lib.ElUpdateDiagonalDistSparse_d.restype = c_uint
+lib.ElUpdateDiagonalDistSparse_c.argtypes = [c_void_p,cType,iType]
+lib.ElUpdateDiagonalDistSparse_c.restype = c_uint
+lib.ElUpdateDiagonalDistSparse_z.argtypes = [c_void_p,zType,iType]
+lib.ElUpdateDiagonalDistSparse_z.restype = c_uint
 def UpdateDiagonal(A,alphaPre,offset=0):
   alpha = TagToType(A.tag)(alphaPre)
   args = [A.obj,alpha,offset]
@@ -2237,6 +2257,20 @@ def UpdateDiagonal(A,alphaPre,offset=0):
     elif A.tag == dTag: lib.ElUpdateDiagonalDist_d(*args)
     elif A.tag == cTag: lib.ElUpdateDiagonalDist_c(*args)
     elif A.tag == zTag: lib.ElUpdateDiagonalDist_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == iTag: lib.ElUpdateDiagonalSparse_i(*args)
+    elif A.tag == sTag: lib.ElUpdateDiagonalSparse_s(*args)
+    elif A.tag == dTag: lib.ElUpdateDiagonalSparse_d(*args)
+    elif A.tag == cTag: lib.ElUpdateDiagonalSparse_c(*args)
+    elif A.tag == zTag: lib.ElUpdateDiagonalSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == iTag: lib.ElUpdateDiagonalDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElUpdateDiagonalDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElUpdateDiagonalDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElUpdateDiagonalDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElUpdateDiagonalDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 

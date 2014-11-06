@@ -34,6 +34,11 @@ main( int argc, char* argv[] )
         const bool display = Input("--display","display graph?",false);
         ProcessInput();
 
+        BisectCtrl ctrl;
+        ctrl.sequential = sequential;
+        ctrl.numSeqSeps = numSeqSeps;
+        ctrl.numDistSeps = numDistSeps;
+
         const int numVertices = n*n*n;
         DistGraph graph( numVertices, comm );
 
@@ -75,9 +80,7 @@ main( int argc, char* argv[] )
             DistMap map;
             bool haveLeftChild;
             const int sepSize = 
-                Bisect
-                ( graph, child, map, haveLeftChild, 
-                  sequential, numDistSeps, numSeqSeps );
+                Bisect( graph, child, map, haveLeftChild, ctrl );
 
             int leftChildSize, rightChildSize;
             if( haveLeftChild )
@@ -110,7 +113,7 @@ main( int argc, char* argv[] )
             Graph leftChild, rightChild;
             std::vector<int> map;
             const int sepSize = 
-                Bisect( seqGraph, leftChild, rightChild, map, numSeqSeps );
+                Bisect( seqGraph, leftChild, rightChild, map, ctrl );
 
             const int leftChildSize = leftChild.NumSources();
             const int rightChildSize = rightChild.NumSources();

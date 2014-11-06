@@ -359,18 +359,28 @@ void Solve
 
 template<typename F>
 void SymmetricSolve
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& X,
-  bool conjugate=false,
-  bool sequential=true, int numDistSeps=1, int numSeqSeps=1, int cutoff=128 );
+( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, bool conjugate=false, 
+  const BisectCtrl& ctrl=BisectCtrl() );
 template<typename F>
 void HermitianSolve
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& X,
-  bool sequential=true, int numDistSeps=1, int numSeqSeps=1, int cutoff=128 );
+( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, 
+  const BisectCtrl& ctrl=BisectCtrl() );
 
 template<typename F>
 void LeastSquares
-( const DistSparseMatrix<F>& A, const DistMultiVec<F>& Y, DistMultiVec<F>& X,
-  bool sequential=true, int numDistSeps=1, int numSeqSeps=1, int cutoff=128 );
+( Orientation orientation,
+  const DistSparseMatrix<F>& A, const DistMultiVec<F>& Y, DistMultiVec<F>& X,
+  const BisectCtrl& ctrl=BisectCtrl() );
+
+template<typename F>
+void Ridge
+( const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, Base<F> alpha,
+        DistMultiVec<F>& X, const BisectCtrl& ctrl=BisectCtrl() );
+template<typename F>
+void Tikhonov
+( const DistSparseMatrix<F>& A, const DistMultiVec<F>& B,
+  const DistSparseMatrix<F>& Gamma, DistMultiVec<F>& X,
+  const BisectCtrl& ctrl=BisectCtrl() );
 
 } // namespace El
 

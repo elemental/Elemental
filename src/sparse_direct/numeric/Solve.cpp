@@ -70,16 +70,13 @@ void Solve
 template<typename F>
 void SymmetricSolve
 ( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, 
-  bool conjugate,
-  bool sequential, int numDistSeps, int numSeqSeps, int cutoff )
+  bool conjugate, const BisectCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricSolve"))
     DistSymmInfo info;
     DistSeparatorTree sepTree;
     DistMap map, inverseMap;
-    NestedDissection
-    ( A.LockedDistGraph(), map, sepTree, info, 
-      sequential, numDistSeps, numSeqSeps, cutoff );
+    NestedDissection( A.LockedDistGraph(), map, sepTree, info, ctrl );
     map.FormInverse( inverseMap );
 
     DistSymmFrontTree<F> frontTree( A, map, sepTree, info, conjugate );
@@ -93,11 +90,10 @@ void SymmetricSolve
 
 template<typename F>
 void HermitianSolve
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, 
-  bool sequential, int numDistSeps, int numSeqSeps, int cutoff )
+( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, const BisectCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSolve"))
-    SymmetricSolve( A, X, true, sequential, numDistSeps, numSeqSeps, cutoff );
+    SymmetricSolve( A, X, true, ctrl );
 }
 
 #define PROTO(F) \
@@ -108,12 +104,11 @@ void HermitianSolve
   ( const DistSymmInfo& info, \
     const DistSymmFrontTree<F>& L, DistNodalMatrix<F>& X ); \
   template void SymmetricSolve \
-  ( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, \
-    bool conjugate, bool sequential, int numDistSteps, int numSeqSteps, \
-    int cutoff ); \
+  ( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, bool conjugate, \
+    const BisectCtrl& ctrl ); \
   template void HermitianSolve \
   ( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, \
-    bool sequential, int numDistSteps, int numSeqSteps, int cutoff );
+    const BisectCtrl& ctrl );
  
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

@@ -17,9 +17,20 @@ extern "C" {
   ( ElConstDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG X ) \
   { EL_TRY( SymmetricSolve( *CReflect(A), *CReflect(X) ) ) } \
   ElError ElLeastSquaresDistSparse_ ## SIG \
-  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG X, \
+  ( ElOrientation orientation, \
+    ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG X, \
     ElDistMultiVec_ ## SIG Y ) \
-  { EL_TRY( LeastSquares( *CReflect(A), *CReflect(X), *CReflect(Y) ) ) }
+  { EL_TRY( LeastSquares( CReflect(orientation), \
+      *CReflect(A), *CReflect(X), *CReflect(Y) ) ) } \
+  ElError ElRidgeDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG X, \
+    Base<F> alpha, ElDistMultiVec_ ## SIG Y ) \
+  { EL_TRY( Ridge( *CReflect(A), *CReflect(X), alpha, *CReflect(Y) ) ) } \
+  ElError ElTikhonovDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG X, \
+    ElConstDistSparseMatrix_ ## SIG Gamma, ElDistMultiVec_ ## SIG Y ) \
+  { EL_TRY( Tikhonov( *CReflect(A), *CReflect(X), *CReflect(Gamma), \
+                      *CReflect(Y) ) ) }
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
   C_PROTO(SIG,SIGBASE,F) \

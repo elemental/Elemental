@@ -382,6 +382,12 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
   ElError ElUpdateDiagonalDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, CREFLECT(T) alpha, ElInt offset ) \
   { EL_TRY( UpdateDiagonal( *CReflect(A), CReflect(alpha), offset ) ) } \
+  ElError ElUpdateDiagonalSparse_ ## SIG \
+  ( ElSparseMatrix_ ## SIG A, CREFLECT(T) alpha, ElInt offset ) \
+  { EL_TRY( UpdateDiagonal( *CReflect(A), CReflect(alpha), offset ) ) } \
+  ElError ElUpdateDiagonalDistSparse_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG A, CREFLECT(T) alpha, ElInt offset ) \
+  { EL_TRY( UpdateDiagonal( *CReflect(A), CReflect(alpha), offset ) ) } \
   /* Zero */ \
   ElError ElZero_ ## SIG ( ElMatrix_ ## SIG A ) \
   { EL_TRY( Zero( *CReflect(A) ) ) } \

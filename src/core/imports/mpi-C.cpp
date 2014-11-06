@@ -12,16 +12,16 @@
 extern "C" {
 
 ElError ElMPICommIsVoidPointer( bool* isVoidP )
-{ *isVoidP = El::mpi::CommIsVoidPointer(); }
+{ *isVoidP = El::mpi::CommIsVoidPointer(); return EL_SUCCESS; }
 
 ElError ElMPIGroupIsVoidPointer( bool* isVoidP )
-{ *isVoidP = El::mpi::GroupIsVoidPointer(); }
+{ *isVoidP = El::mpi::GroupIsVoidPointer(); return EL_SUCCESS; }
 
 ElError ElMPICommWorld( MPI_Comm* commWorld )
-{ *commWorld = MPI_COMM_WORLD; }
+{ *commWorld = MPI_COMM_WORLD; return EL_SUCCESS; }
 
 ElError ElMPICommSelf( MPI_Comm* commSelf )
-{ *commSelf = MPI_COMM_SELF; }
+{ *commSelf = MPI_COMM_SELF; return EL_SUCCESS; }
 
 ElError ElMPICommRank( MPI_Comm comm, int* rank )
 { EL_TRY( *rank = El::mpi::Rank(El::mpi::Comm(comm)) ) }

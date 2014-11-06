@@ -119,12 +119,20 @@ main( int argc, char* argv[] )
         DistSeparatorTree sepTree;
         DistMap map, inverseMap;
         if( natural )
+        {
             NaturalNestedDissection
             ( n1, n2, 1, graph, map, sepTree, info, cutoff );
+        }
         else
-            NestedDissection
-            ( graph, map, sepTree, info, 
-              sequential, numDistSeps, numSeqSeps, cutoff );
+        {
+            BisectCtrl ctrl;
+            ctrl.sequential = sequential;
+            ctrl.numSeqSeps = numSeqSeps;
+            ctrl.numDistSeps = numDistSeps;
+            ctrl.cutoff = cutoff;
+
+            NestedDissection( graph, map, sepTree, info, ctrl );
+        }
         map.FormInverse( inverseMap );
         mpi::Barrier( comm );
         const double nestedStop = mpi::Time();

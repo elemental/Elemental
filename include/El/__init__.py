@@ -10,7 +10,6 @@ from core          import *
 from blas_like     import *
 from io            import *
 from lapack_like   import *
-from sparse_direct import *
 from matrices      import *
 from optimization  import *
 from control       import *

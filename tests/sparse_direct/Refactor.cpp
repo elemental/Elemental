@@ -39,6 +39,12 @@ main( int argc, char* argv[] )
         const bool display = Input("--display","display matrix?",false);
         ProcessInput();
 
+        BisectCtrl ctrl;
+        ctrl.sequential = sequential;
+        ctrl.numSeqSeps = numSeqSeps;
+        ctrl.numDistSeps = numDistSeps;
+        ctrl.cutoff = cutoff;
+
         const int N = n1*n2*n3;
         DistSparseMatrix<double> A( N, comm );
 
@@ -101,9 +107,7 @@ main( int argc, char* argv[] )
         DistSymmInfo info;
         DistSeparatorTree sepTree;
         DistMap map, inverseMap;
-        NestedDissection
-        ( graph, map, sepTree, info, 
-          sequential, numDistSeps, numSeqSeps, cutoff );
+        NestedDissection( graph, map, sepTree, info, ctrl );
         map.FormInverse( inverseMap );
         mpi::Barrier( comm );
         const double nestedStop = mpi::Time();

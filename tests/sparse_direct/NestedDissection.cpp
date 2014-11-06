@@ -34,6 +34,12 @@ main( int argc, char* argv[] )
         const bool display = Input("--display","display graph?",false);
         ProcessInput();
 
+        BisectCtrl ctrl;
+        ctrl.sequential = sequential;
+        ctrl.numSeqSeps = numSeqSeps;
+        ctrl.numDistSeps = numDistSeps;
+        ctrl.cutoff = cutoff;
+
         const int numVertices = n*n*n;
         DistGraph graph( numVertices, comm );
 
@@ -86,9 +92,7 @@ main( int argc, char* argv[] )
         DistSymmInfo info;
         DistSeparatorTree sepTree;
         DistMap map;
-        NestedDissection
-        ( graph, map, sepTree, info, 
-          sequential, numDistSeps, numSeqSeps, cutoff );
+        NestedDissection( graph, map, sepTree, info, ctrl );
         mpi::Barrier( comm );
         if( commRank == 0 )
             std::cout << "done" << std::endl;

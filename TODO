@@ -33,6 +33,7 @@ Fundamental functionality additions
 
 Incremental functionality improvements
 --------------------------------------
+[o] Sequential versions of sparse-direct solvers
 [o] General redistribution routine between any two matrices with any 
     process grids (with equivalent viewing communicators)
 [o] Add Bunch-Kaufman C now that explicit permutations are used
@@ -89,6 +90,7 @@ Instrumentation/visualization/testing
 
 Consistency/modularity
 ----------------------
+[o] Merge sparse-direct/ and lapack-like/ folders. No clear separation anymore
 [-] Modify Grid to return communicators based upon the distribution, e.g., 
     Comm(VC)?
 [-] Extract BLAS/LAPACK/MPI wrappers into a separate project

@@ -99,13 +99,25 @@ lib.ElSymmetricSolveDist_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
 lib.ElSymmetricSolveDist_c.restype = c_uint
 lib.ElSymmetricSolveDist_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
 lib.ElSymmetricSolveDist_z.restype = c_uint
-def SymmetricSolve(uplo,orient,A,B,conjugate=False):
-  if type(A) is not type(B):
-    raise Exception('Types of A and B must match')
+lib.ElSymmetricSolveDistSparse_s.argtypes = [c_void_p,c_void_p]
+lib.ElSymmetricSolveDistSparse_s.restype = c_uint
+lib.ElSymmetricSolveDistSparse_d.argtypes = [c_void_p,c_void_p]
+lib.ElSymmetricSolveDistSparse_d.restype = c_uint
+lib.ElSymmetricSolveDistSparse_c.argtypes = [c_void_p,c_void_p]
+lib.ElSymmetricSolveDistSparse_c.restype = c_uint
+lib.ElSymmetricSolveDistSparse_z.argtypes = [c_void_p,c_void_p]
+lib.ElSymmetricSolveDistSparse_z.restype = c_uint
+lib.ElHermitianSolveDistSparse_c.argtypes = [c_void_p,c_void_p]
+lib.ElHermitianSolveDistSparse_c.restype = c_uint
+lib.ElHermitianSolveDistSparse_z.argtypes = [c_void_p,c_void_p]
+lib.ElHermitianSolveDistSparse_z.restype = c_uint
+def SymmetricSolve(A,B,conjugate=False,uplo=LOWER,orient=NORMAL):
   if A.tag != B.tag:
     raise Exception('Datatypes of A and B must match')
-  args = [uplo,orient,A.obj,B.obj]
   if type(A) is Matrix:
+    if type(B) is not Matrix:
+      raise Exception('Expected RHS to be a Matrix')
+    args = [uplo,orient,A.obj,B.obj]
     if   A.tag == sTag: lib.ElSymmetricSolve_s(*args)
     elif A.tag == dTag: lib.ElSymmetricSolve_d(*args)
     elif A.tag == cTag:
@@ -116,6 +128,9 @@ def SymmetricSolve(uplo,orient,A,B,conjugate=False):
       else:         lib.ElSymmetricSolve_z(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
+    if type(B) is not DistMatrix:
+      raise Exception('Expected RHS to be a DistMatrix')
+    args = [uplo,orient,A.obj,B.obj]
     if   A.tag == sTag: lib.ElSymmetricSolveDist_s(*args)
     elif A.tag == dTag: lib.ElSymmetricSolveDist_d(*args)
     elif A.tag == cTag:
@@ -124,6 +139,21 @@ def SymmetricSolve(uplo,orient,A,B,conjugate=False):
     elif A.tag == zTag:
       if conjugate: lib.ElHermitianSolveDist_z(*args)
       else:         lib.ElSymmetricSolveDist_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if orient != NORMAL:
+      raise Exception('Non-normal sparse orientations not yet supported')
+    if type(B) is not DistMultiVec:
+      raise Exception('Expected RHS to be a DistMultiVec')
+    args = [A.obj,B.obj]
+    if   A.tag == sTag: lib.ElSymmetricSolveDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElSymmetricSolveDistSparse_d(*args)
+    elif A.tag == cTag:
+      if conjugate: lib.ElHermitianSolveDistSparse_c(*args)
+      else:         lib.ElSymmetricSolveDistSparse_c(*args)
+    elif A.tag == zTag:
+      if conjugate: lib.ElHermitianSolveDistSparse_z(*args)
+      else:         lib.ElSymmetricSolveDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 
@@ -186,12 +216,20 @@ lib.ElLeastSquaresDist_c.argtypes = [c_uint,c_void_p,c_void_p,c_void_p]
 lib.ElLeastSquaresDist_c.restype = c_uint
 lib.ElLeastSquaresDist_z.argtypes = [c_uint,c_void_p,c_void_p,c_void_p]
 lib.ElLeastSquaresDist_z.restype = c_uint
-def LeastSquares(orient,A,B):
-  if type(A) is not type(B):
-    raise Exception('Matrix types of A and B must match')
+lib.ElLeastSquaresDistSparse_s.argtypes = [c_uint,c_void_p,c_void_p,c_void_p]
+lib.ElLeastSquaresDistSparse_s.restype = c_uint
+lib.ElLeastSquaresDistSparse_d.argtypes = [c_uint,c_void_p,c_void_p,c_void_p]
+lib.ElLeastSquaresDistSparse_d.restype = c_uint
+lib.ElLeastSquaresDistSparse_c.argtypes = [c_uint,c_void_p,c_void_p,c_void_p]
+lib.ElLeastSquaresDistSparse_c.restype = c_uint
+lib.ElLeastSquaresDistSparse_z.argtypes = [c_uint,c_void_p,c_void_p,c_void_p]
+lib.ElLeastSquaresDistSparse_z.restype = c_uint
+def LeastSquares(A,B,orient=NORMAL):
   if A.tag != B.tag:
     raise Exception('Datatypes of A and B must match')
   if type(A) is Matrix:
+    if type(B) is not Matrix:
+      raise Exception('RHS was expected to be a Matrix')
     X = Matrix(A.tag)
     args = [orient,A.obj,B.obj,X.obj]
     if   A.tag == sTag: lib.ElLeastSquares_s(*args)
@@ -201,12 +239,25 @@ def LeastSquares(orient,A,B):
     else: DataExcept()
     return X
   elif type(A) is DistMatrix:
+    if type(B) is not DistMatrix:
+      raise Exception('RHS was expected to be a DistMatrix')
     X = DistMatrix(A.tag,MC,MR,A.Grid())
     args = [orient,A.obj,B.obj,X.obj]
     if   A.tag == sTag: lib.ElLeastSquaresDist_s(*args)
     elif A.tag == dTag: lib.ElLeastSquaresDist_d(*args)
     elif A.tag == cTag: lib.ElLeastSquaresDist_c(*args)
     elif A.tag == zTag: lib.ElLeastSquaresDist_z(*args)
+    else: DataExcept()
+    return X
+  elif type(A) is DistSparseMatrix:
+    if type(B) is not DistMultiVec:
+      raise Exception('RHS was expected to be a DistMultiVec')
+    X = DistMultiVec(A.tag,A.Comm())
+    args = [orient,A.obj,B.obj,X.obj]
+    if   A.tag == sTag: lib.ElLeastSquaresDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElLeastSquaresDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElLeastSquaresDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElLeastSquaresDistSparse_z(*args)
     else: DataExcept()
     return X
   else: TypeExcept()
@@ -325,24 +376,50 @@ lib.ElRidgeDist_c.argtypes = [c_void_p,c_void_p,sType,c_void_p,c_uint]
 lib.ElRidgeDist_c.restype = c_uint
 lib.ElRidgeDist_z.argtypes = [c_void_p,c_void_p,sType,c_void_p,c_uint]
 lib.ElRidgeDist_z.restype = c_uint
+lib.ElRidgeDistSparse_s.argtypes = [c_void_p,c_void_p,sType,c_void_p]
+lib.ElRidgeDistSparse_s.restype = c_uint
+lib.ElRidgeDistSparse_d.argtypes = [c_void_p,c_void_p,sType,c_void_p]
+lib.ElRidgeDistSparse_d.restype = c_uint
+lib.ElRidgeDistSparse_c.argtypes = [c_void_p,c_void_p,sType,c_void_p]
+lib.ElRidgeDistSparse_c.restype = c_uint
+lib.ElRidgeDistSparse_z.argtypes = [c_void_p,c_void_p,sType,c_void_p]
+lib.ElRidgeDistSparse_z.restype = c_uint
 def Ridge(A,B,alpha,alg=RIDGE_CHOLESKY):
-  if type(A) is not type(B):
-    raise Exception('Matrix types of A and B must match')
   if A.tag != B.tag:
     raise Exception('Datatypes of A and B must match')
-  args = [A.obj,B.obj,alpha,X.obj,alg]
   if type(A) is Matrix:
+    if type(B) is not Matrix:
+      raise Exception('Expected RHS to be a Matrix')
+    X = Matrix(A.tag)
+    args = [A.obj,B.obj,alpha,X.obj,alg]
     if   A.tag == sTag: lib.ElRidge_s(*args)
     elif A.tag == dTag: lib.ElRidge_d(*args)
     elif A.tag == cTag: lib.ElRidge_c(*args)
     elif A.tag == zTag: lib.ElRidge_z(*args)
     else: DataExcept()
+    return X
   elif type(A) is DistMatrix:
+    if type(B) is not DistMatrix:
+      raise Exception('Expected RHS to be a DistMatrix')
+    X = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,B.obj,alpha,X.obj,alg]
     if   A.tag == sTag: lib.ElRidgeDist_s(*args)
     elif A.tag == dTag: lib.ElRidgeDist_d(*args)
     elif A.tag == cTag: lib.ElRidgeDist_c(*args)
     elif A.tag == zTag: lib.ElRidgeDist_z(*args)
     else: DataExcept()
+    return X
+  elif type(A) is DistSparseMatrix:
+    if type(B) is not DistMultiVec:
+      raise Exception('Expected RHS to be a DistMultiVec')
+    X = DistMultiVec(A.tag,A.Comm())
+    args = [A.obj,B.obj,alpha,X.obj]
+    if   A.tag == sTag: lib.ElRidgeDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElRidgeDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElRidgeDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElRidgeDistSparse_z(*args)
+    else: DataExcept()
+    return X
   else: TypeExcept()
 
 # Tikhonov regularization
@@ -365,12 +442,23 @@ lib.ElTikhonovDist_c.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
 lib.ElTikhonovDist_c.restype = c_uint
 lib.ElTikhonovDist_z.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
 lib.ElTikhonovDist_z.restype = c_uint
+lib.ElTikhonovDistSparse_s.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElTikhonovDistSparse_s.restype = c_uint
+lib.ElTikhonovDistSparse_d.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElTikhonovDistSparse_d.restype = c_uint
+lib.ElTikhonovDistSparse_c.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElTikhonovDistSparse_c.restype = c_uint
+lib.ElTikhonovDistSparse_z.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElTikhonovDistSparse_z.restype = c_uint
+
 def Tikhonov(A,B,Gamma,alg=TIKHONOV_CHOLESKY):
-  if type(A) is not type(B) or type(B) is not type(Gamma):
-    raise Exception('Matrix types of {A,B,Gamma} must match')
+  if type(A) is not type(Gamma):
+    raise Exception('Matrix types of A and Gamma must match')
   if A.tag != B.tag or B.tag != Gamma.tag:
     raise Exception('Datatypes of {A,B,Gamma} must match')
   if type(A) is Matrix:
+    if type(B) is not Matrix:
+      raise Exception('Expected RHS to be a Matrix')
     X = Matrix(A.tag)
     args = [A.obj,B.obj,Gamma.obj,X.obj,alg]
     if   A.tag == sTag: lib.ElTikhonov_s(*args)
@@ -380,12 +468,25 @@ def Tikhonov(A,B,Gamma,alg=TIKHONOV_CHOLESKY):
     else: DataExcept()
     return X
   elif type(A) is DistMatrix:
+    if type(B) is not DistMatrix:
+      raise Exception('Expected RHS to be a DistMatrix')
     X = DistMatrix(A.tag,MC,MR,A.Grid())
     args = [A.obj,B.obj,Gamma.obj,X.obj,alg]
     if   A.tag == sTag: lib.ElTikhonovDist_s(*args)
     elif A.tag == dTag: lib.ElTikhonovDist_d(*args)
     elif A.tag == cTag: lib.ElTikhonovDist_c(*args)
     elif A.tag == zTag: lib.ElTikhonovDist_z(*args)
+    else: DataExcept()
+    return X
+  elif type(A) is DistSparseMatrix:
+    if type(B) is not DistMultiVec:
+      raise Exception('Expected RHS to be a DistMultiVec')
+    X = DistMultiVec(A.tag,A.Comm())
+    args = [A.obj,B.obj,Gamma.obj,X.obj]
+    if   A.tag == sTag: lib.ElTikhonovDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElTikhonovDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElTikhonovDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElTikhonovDistSparse_z(*args)
     else: DataExcept()
     return X
   else: TypeExcept()

@@ -1180,6 +1180,28 @@ EL_EXPORT ElError ElUpdateDiagonalDist_c
 EL_EXPORT ElError ElUpdateDiagonalDist_z
 ( ElDistMatrix_z A, complex_double alpha, ElInt offset );
 
+EL_EXPORT ElError ElUpdateDiagonalSparse_i
+( ElSparseMatrix_i A, ElInt alpha, ElInt offset );
+EL_EXPORT ElError ElUpdateDiagonalSparse_s
+( ElSparseMatrix_s A, float alpha, ElInt offset );
+EL_EXPORT ElError ElUpdateDiagonalSparse_d
+( ElSparseMatrix_d A, double alpha, ElInt offset );
+EL_EXPORT ElError ElUpdateDiagonalSparse_c
+( ElSparseMatrix_c A, complex_float alpha, ElInt offset );
+EL_EXPORT ElError ElUpdateDiagonalSparse_z
+( ElSparseMatrix_z A, complex_double alpha, ElInt offset );
+
+EL_EXPORT ElError ElUpdateDiagonalDistSparse_i
+( ElDistSparseMatrix_i A, ElInt alpha, ElInt offset );
+EL_EXPORT ElError ElUpdateDiagonalDistSparse_s
+( ElDistSparseMatrix_s A, float alpha, ElInt offset );
+EL_EXPORT ElError ElUpdateDiagonalDistSparse_d
+( ElDistSparseMatrix_d A, double alpha, ElInt offset );
+EL_EXPORT ElError ElUpdateDiagonalDistSparse_c
+( ElDistSparseMatrix_c A, complex_float alpha, ElInt offset );
+EL_EXPORT ElError ElUpdateDiagonalDistSparse_z
+( ElDistSparseMatrix_z A, complex_double alpha, ElInt offset );
+
 /* Zero
    ==== */
 EL_EXPORT ElError ElZero_i( ElMatrix_i A );
