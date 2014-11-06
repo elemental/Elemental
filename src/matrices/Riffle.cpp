@@ -29,7 +29,7 @@ void Riffle( Matrix<F>& P, Int n )
 
     P.Resize( n, n );
     auto riffleFill = 
-      [&]( Int i, Int j )
+      [&]( Int i, Int j ) -> F
       { const Int k = 2*i - j + 1;
         if( k >= 0 && k <= n+1 )
             return Exp(logBinom[k]-gamma+logEuler[j]-logEuler[i]);
@@ -52,7 +52,7 @@ void Riffle( AbstractDistMatrix<F>& P, Int n )
 
     P.Resize( n, n );
     auto riffleFill = 
-      [&]( Int i, Int j )
+      [&]( Int i, Int j ) -> F
       { const Int k = 2*i - j + 1;
         if( k >= 0 && k <= n+1 )
             return Exp(logBinom[k]-gamma+logEuler[j]-logEuler[i]);
@@ -75,7 +75,7 @@ void Riffle( AbstractBlockDistMatrix<F>& P, Int n )
 
     P.Resize( n, n );
     auto riffleFill = 
-      [&]( Int i, Int j )
+      [&]( Int i, Int j ) -> F
       { const Int k = 2*i - j + 1;
         if( k >= 0 && k <= n+1 )
             return Exp(logBinom[k]-gamma+logEuler[j]-logEuler[i]);
