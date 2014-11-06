@@ -124,7 +124,7 @@ private:
     template<typename U> friend void Syrk
     ( Orientation orientation,
       U alpha, const DistSparseMatrix<U>& A,
-      U beta,        DistSparseMatrix<U>& C, bool conjugate=false );
+      U beta,        DistSparseMatrix<U>& C, bool conjugate );
 };
 
 } // namespace El

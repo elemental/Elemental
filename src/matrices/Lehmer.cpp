@@ -16,7 +16,7 @@ void Lehmer( Matrix<F>& L, Int n )
     DEBUG_ONLY(CallStackEntry cse("Lehmer"))
     L.Resize( n, n );
     auto lehmerFill = 
-      []( Int i, Int j )
+      []( Int i, Int j ) -> F
       { if( i < j ) { return F(i+1)/F(j+1); }
         else        { return F(j+1)/F(i+1); } };
     IndexDependentFill( L, std::function<F(Int,Int)>(lehmerFill) );
@@ -28,7 +28,7 @@ void Lehmer( AbstractDistMatrix<F>& L, Int n )
     DEBUG_ONLY(CallStackEntry cse("Lehmer"))
     L.Resize( n, n );
     auto lehmerFill = 
-      []( Int i, Int j )
+      []( Int i, Int j ) -> F
       { if( i < j ) { return F(i+1)/F(j+1); }
         else        { return F(j+1)/F(i+1); } };
     IndexDependentFill( L, std::function<F(Int,Int)>(lehmerFill) );
@@ -40,7 +40,7 @@ void Lehmer( AbstractBlockDistMatrix<F>& L, Int n )
     DEBUG_ONLY(CallStackEntry cse("Lehmer"))
     L.Resize( n, n );
     auto lehmerFill = 
-      []( Int i, Int j )
+      []( Int i, Int j ) -> F
       { if( i < j ) { return F(i+1)/F(j+1); }
         else        { return F(j+1)/F(i+1); } };
     IndexDependentFill( L, std::function<F(Int,Int)>(lehmerFill) );

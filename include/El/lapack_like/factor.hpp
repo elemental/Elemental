@@ -92,7 +92,9 @@ Real LDLPivotConstant( LDLPivotType pivType )
     case BUNCH_KAUFMAN_A:
     case BUNCH_PARLETT:   return (1+Sqrt(Real(17)))/8;
     case BUNCH_KAUFMAN_D: return Real(0.525);
-    default: LogicError("No default constant exists for this pivot type");
+    default: 
+        LogicError("No default constant exists for this pivot type");
+        return 0;
     }
 }
 
