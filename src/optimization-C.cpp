@@ -159,7 +159,7 @@ extern "C" {
         ( std::function<void(Matrix<Real>&,Real)>(lossLambda), \
           std::function<void(Matrix<Real>&,Real)>(regLambda), \
           *CReflect(A), *CReflect(b), *CReflect(w), rho ); \
-    } EL_CATCH } \
+    } EL_CATCH; return EL_SUCCESS; } \
   ElError ElModelFitDist_ ## SIG \
   ( void (*lossProx)(ElDistMatrix_ ## SIG,Real), \
     void (*regProx)(ElDistMatrix_ ## SIG,Real), \
@@ -174,7 +174,7 @@ extern "C" {
         ( std::function<void(DistMatrix<Real>&,Real)>(lossLambda), \
           std::function<void(DistMatrix<Real>&,Real)>(regLambda), \
           *CReflect(A), *CReflect(b), *CReflect(w), rho ); \
-    } EL_CATCH } \
+    } EL_CATCH; return EL_SUCCESS; } \
   /* Non-negative matrix factorization
      ================================= */ \
   ElError ElNMF_ ## SIG \
