@@ -377,6 +377,9 @@ endif()
 
 add_library(El ${EL_C_CPP_FILES})
 target_link_libraries(El pmrrr ${LINK_LIBS})
+if(MPI_LINK_FLAGS)
+  set_target_properties(El PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
+endif()
 install(TARGETS El DESTINATION lib)
 
 # Define the header-file preparation rules
