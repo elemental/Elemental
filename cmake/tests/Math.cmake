@@ -36,7 +36,7 @@ else()
   endif()
 endif()
 # Check the BLAS and LAPACK underscore conventions
-set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS} ${MPI_C_LINK_FLAGS}")
+set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS} ${MPI_LINK_FLAGS}")
 set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
 set(CMAKE_REQUIRED_LIBRARIES "${MATH_LIBS};${MPI_C_LIBRARIES}")
 check_function_exists(daxpy  EL_HAVE_DAXPY)

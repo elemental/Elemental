@@ -18,7 +18,7 @@ include(language_support_v2)
 
 project(Elemental)
 set(EL_VERSION_MAJOR 0)
-set(EL_VERSION_MINOR 85-dev)
+set(EL_VERSION_MINOR 85)
 
 ################################################################################
 # Common build options                                                         #
