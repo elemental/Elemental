@@ -27,10 +27,9 @@ set(MPI_C_COMPILE_FLAGS    "")
 set(MPI_CXX_COMPILE_FLAGS  "")
 set(MPI_C_INCLUDE_PATH     "${MPI_ROOT}/include")
 set(MPI_CXX_INCLUDE_PATH   "${MPI_ROOT}/include")
-set(MPI_C_LINK_FLAGS       "-L${MPI_ROOT}/lib -L${PAMI_ROOT}/lib -L${SPI_ROOT}/lib")
-set(MPI_CXX_LINK_FLAGS     "${MPI_C_LINK_FLAGS}")
-set(MPI_C_LIBRARIES       "${MPI_C_LINK_FLAGS}   -lmpich -lopa -lmpl -lpami -lSPI -lSPI_cnk -lrt -lpthread -lstdc++ -lpthread")
-set(MPI_CXX_LIBRARIES     "${MPI_CXX_LINK_FLAGS} -lcxxmpich ${MPI_C_LIBRARIES}")
+set(MPI_LINK_FLAGS       "-L${MPI_ROOT}/lib -L${PAMI_ROOT}/lib -L${SPI_ROOT}/lib")
+set(MPI_C_LIBRARIES       "${MPI_LINK_FLAGS}   -lmpich -lopa -lmpl -lpami -lSPI -lSPI_cnk -lrt -lpthread -lstdc++ -lpthread")
+set(MPI_CXX_LIBRARIES     "${MPI_LINK_FLAGS} -lcxxmpich ${MPI_C_LIBRARIES}")
 
 if(CMAKE_BUILD_TYPE MATCHES PureDebug OR
    CMAKE_BUILD_TYPE MATCHES HybridDebug)
