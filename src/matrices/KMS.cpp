@@ -16,7 +16,7 @@ void KMS( Matrix<T>& K, Int n, T rho )
     DEBUG_ONLY(CallStackEntry cse("KMS"))
     K.Resize( n, n );
     auto kmsFill = 
-      [=]( Int i, Int j )
+      [=]( Int i, Int j ) -> T
       { if( i < j ) { return Pow(rho,T(j-i));       } 
         else        { return Conj(Pow(rho,T(i-j))); } };
     IndexDependentFill( K, std::function<T(Int,Int)>(kmsFill) );
@@ -28,7 +28,7 @@ void KMS( AbstractDistMatrix<T>& K, Int n, T rho )
     DEBUG_ONLY(CallStackEntry cse("KMS"))
     K.Resize( n, n );
     auto kmsFill = 
-      [=]( Int i, Int j )
+      [=]( Int i, Int j ) -> T
       { if( i < j ) { return Pow(rho,T(j-i));       } 
         else        { return Conj(Pow(rho,T(i-j))); } };
     IndexDependentFill( K, std::function<T(Int,Int)>(kmsFill) );
@@ -40,7 +40,7 @@ void KMS( AbstractBlockDistMatrix<T>& K, Int n, T rho )
     DEBUG_ONLY(CallStackEntry cse("KMS"))
     K.Resize( n, n );
     auto kmsFill = 
-      [=]( Int i, Int j )
+      [=]( Int i, Int j ) -> T
       { if( i < j ) { return Pow(rho,T(j-i));       } 
         else        { return Conj(Pow(rho,T(i-j))); } };
     IndexDependentFill( K, std::function<T(Int,Int)>(kmsFill) );
