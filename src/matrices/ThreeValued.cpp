@@ -15,7 +15,7 @@ void ThreeValued( Matrix<T>& A, Int m, Int n, double p )
 {
     DEBUG_ONLY(CallStackEntry cse("ThreeValued"))
     A.Resize( m, n );
-    auto tripleCoin = [=]() 
+    auto tripleCoin = [=]() -> T
     { 
         const double alpha = SampleUniform<double>(0,1);
         if( alpha <= p/2 ) return T(-1);
