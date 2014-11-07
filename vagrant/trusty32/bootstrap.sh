@@ -7,10 +7,13 @@ apt-get update
 #apt-get install -y qt5-default
 #apt-get install -y imagemagick
 
+# Python visualization
+apt-get install -y python-matplotlib
+apt-get install -y python-networkx
+
 # Compilers
-apt-get install -y g++-4.7
-apt-get install -y gfortran-4.7
-apt-get install -y clang-3.4
+apt-get install -y gfortran-4.8
+apt-get install -y clang-3.5
 
 # Message Passing Interface
 apt-get install -y libmpich2-dev
@@ -26,5 +29,5 @@ apt-get install -y cmake
 apt-get install -y git
 
 # Check out Elemental
-git clone http://github.com/elemental/Elemental.git
+git clone --recursive http://github.com/elemental/Elemental.git
 chown -R vagrant Elemental
