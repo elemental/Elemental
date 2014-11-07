@@ -4,7 +4,7 @@
 apt-get update
 
 ## Qt5 visualization
-#apt-get install -y qt5-default
+apt-get install -y qt5-default
 #apt-get install -y imagemagick
 
 # Python visualization
