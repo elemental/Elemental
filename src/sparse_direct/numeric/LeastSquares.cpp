@@ -24,32 +24,59 @@ void LeastSquares
         if( orientation != NORMAL && A.Width() != Y.Height() )
             LogicError("Width of A and height of Y must match");
     )
-    if( A.Width() > A.Height() )
-        LogicError("LeastSquares currently assumes height(A) >= width(A)");
+    const Int m = A.Height();
+    const Int n = A.Width();
     DistSparseMatrix<F> C(A.Comm());
+    X.SetComm( Y.Comm() );
     if( orientation == NORMAL )
     {
-        const Int n = A.Width();
-        Herk( LOWER, ADJOINT, Base<F>(1), A, C );
-        MakeHermitian( LOWER, C );
-        X.SetComm( Y.Comm() );
         Zeros( X, n, Y.Width() );
-        Multiply( ADJOINT, F(1), A, Y, F(0), X ); 
+        if( m >= n )
+        {
+            Herk( LOWER, ADJOINT, Base<F>(1), A, C );
+            MakeHermitian( LOWER, C );
+
+            Multiply( ADJOINT, F(1), A, Y, F(0), X ); 
+            HermitianSolve( C, X, ctrl );
+        }
+        else
+        {
+            Herk( LOWER, NORMAL, Base<F>(1), A, C );
+            MakeHermitian( LOWER, C );
+
+            DistMultiVec<F> YCopy(Y.Comm());
+            YCopy = Y;
+            HermitianSolve( C, YCopy, ctrl ); 
+            Multiply( ADJOINT, F(1), A, YCopy, F(0), X );
+        }
     }
     else if( orientation == ADJOINT || !IsComplex<F>::val )
     {
-        const Int n = A.Height();
-        Herk( LOWER, NORMAL, Base<F>(1), A, C );
-        MakeHermitian( LOWER, C );
-        X.SetComm( Y.Comm() );
-        Zeros( X, n, Y.Width() );
-        Multiply( NORMAL, F(1), A, Y, F(0), X );
+        Zeros( X, m, Y.Width() );
+        if( m >= n )
+        {
+            Herk( LOWER, NORMAL, Base<F>(1), A, C );
+            MakeHermitian( LOWER, C );
+
+            Multiply( NORMAL, F(1), A, Y, F(0), X );
+            HermitianSolve( C, X, ctrl );
+        }
+        else
+        {
+            Herk( LOWER, ADJOINT, Base<F>(1), A, C );
+            MakeHermitian( LOWER, C );
+
+            DistMultiVec<F> YCopy(Y.Comm());
+            YCopy = Y;
+            HermitianSolve( C, YCopy, ctrl );
+            Multiply( NORMAL, F(1), A, YCopy, F(0), X );
+        }
     }
     else
     {
         LogicError("Complex transposed option not yet supported");
     }
-    HermitianSolve( C, X, ctrl );
+
 }
 
 #define PROTO(F) \
