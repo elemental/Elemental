@@ -21,6 +21,8 @@ void Tikhonov
         if( A.Height() != Y.Height() )
             LogicError("Heights of A and Y must match");
     )
+    if( A.Width() > A.Height() )
+        LogicError("Tikhonov currently assumes height(A) >= width(A)");
     const Int n = A.Width();
     DistSparseMatrix<F> C(A.Comm());
     Herk( LOWER, ADJOINT, Base<F>(1), A, C );

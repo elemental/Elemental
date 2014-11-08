@@ -24,6 +24,8 @@ void LeastSquares
         if( orientation != NORMAL && A.Width() != Y.Height() )
             LogicError("Width of A and height of Y must match");
     )
+    if( A.Width() > A.Height() )
+        LogicError("LeastSquares currently assumes height(A) >= width(A)");
     DistSparseMatrix<F> C(A.Comm());
     if( orientation == NORMAL )
     {
