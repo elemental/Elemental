@@ -197,7 +197,9 @@ def Display(A,title='',tryPython=True):
     if type(A) is Matrix:
       try:  
         import numpy as np
+        import matplotlib as mpl
         import matplotlib.pyplot as plt
+        isInline = 'inline' in mpl.get_backend()
         isVec = min(A.Height(),A.Width()) == 1
         if A.tag == cTag or A.tag == zTag:
           AReal = Matrix(Base(A.tag))
@@ -227,7 +229,8 @@ def Display(A,title='',tryPython=True):
             fig.colorbar(im,ax=axis)
           plt.title(title)
         plt.draw()
-        plt.show(block=False)
+        if not isInline:
+            plt.show(block=False)
         return
       except: 
         print 'Could not import matplotlib.pyplot'
@@ -235,13 +238,13 @@ def Display(A,title='',tryPython=True):
       A_CIRC_CIRC = DistMatrix(A.tag,CIRC,CIRC,A.Grid())
       Copy(A,A_CIRC_CIRC)
       if A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root():
-        Display(A_CIRC_CIRC.Matrix(),title,tryPython)
+        Display(A_CIRC_CIRC.Matrix(),title,True)
       return
     elif type(A) is DistMultiVec:
       if mpi.Rank(A.Comm()) == 0:
         ASeq = Matrix(A.tag)
         CopyFromRoot(A,ASeq)
-        Display(ASeq,title,tryPython)
+        Display(ASeq,title,True)
       else:
         CopyFromNonRoot(A)
       return
@@ -259,7 +262,8 @@ def Display(A,title='',tryPython=True):
         plt.title(title)
         nx.draw(G)
         plt.draw()
-        plt.show(block=False)
+        if not isInline:
+            plt.show(block=False)
         return
       except:
         print 'Could not import networkx and matplotlib.pyplot'
@@ -267,7 +271,7 @@ def Display(A,title='',tryPython=True):
       if mpi.Rank(A.Comm()) == 0:
         ASeq = Graph()
         CopyFromRoot(A,ASeq)
-        Display(ASeq,title,tryPython)
+        Display(ASeq,title,True)
       else:
         CopyFromNonRoot(A)
       return
