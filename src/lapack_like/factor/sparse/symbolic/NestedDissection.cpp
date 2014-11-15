@@ -29,8 +29,7 @@ DistributedDepthRecursion
         ( commRank-smallTeamSize, largeTeamSize, distDepth );
 }
 
-inline int
-DistributedDepth( mpi::Comm comm )
+int DistributedDepth( mpi::Comm comm )
 {
     unsigned commRank = mpi::Rank( comm );
     unsigned commSize = mpi::Size( comm );
@@ -699,8 +698,7 @@ int Bisect
 #endif
 }
 
-inline void
-EnsurePermutation( const std::vector<int>& map )
+void EnsurePermutation( const std::vector<int>& map )
 {
     DEBUG_ONLY(CallStackEntry cse("EnsurePermutation"))
     const int numSources = map.size();
@@ -714,8 +712,7 @@ EnsurePermutation( const std::vector<int>& map )
              " in sequential map");
 }
 
-inline void
-EnsurePermutation( const DistMap& map )
+void EnsurePermutation( const DistMap& map )
 {
     DEBUG_ONLY(CallStackEntry cse("EnsurePermutation"))
     mpi::Comm comm = map.Comm();
@@ -734,8 +731,7 @@ EnsurePermutation( const DistMap& map )
                  " in parallel map");
 }
 
-inline void
-ReverseOrder( DistSeparatorTree& sepTree, DistSymmElimTree& eTree )
+void ReverseOrder( DistSeparatorTree& sepTree, DistSymmElimTree& eTree )
 {
     // Reverse the order of the pointers and indices in the elimination and 
     // separator trees (so that the leaves come first)
@@ -805,8 +801,7 @@ ReverseOrder( DistSeparatorTree& sepTree, DistSymmElimTree& eTree )
     }
 }
 
-inline void
-BuildChildrenFromPerm
+void BuildChildrenFromPerm
 ( const Graph& graph, const std::vector<int>& perm, 
   int leftChildSize, Graph& leftChild,
   int rightChildSize, Graph& rightChild )
@@ -882,8 +877,7 @@ BuildChildrenFromPerm
     rightChild.MakeConsistent();
 }
 
-inline void 
-BuildChildFromPerm
+void BuildChildFromPerm
 ( const DistGraph& graph, const DistMap& perm,
   int leftChildSize, int rightChildSize,
   bool& onLeft, DistGraph& child )
