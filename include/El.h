@@ -51,8 +51,6 @@
 
 #include "El/lapack_like/props.h"
 
-#include "El/sparse_direct.h"
-
 #include "El/matrices.h"
 
 #include "El/control.h"

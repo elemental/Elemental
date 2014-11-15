@@ -711,4 +711,7 @@ LocalLU( DistMatrix<F,STAR,STAR>& A )
 
 } // namespace El
 
+#include "El/lapack_like/factor/symbolic.hpp"
+#include "El/lapack_like/factor/numeric.hpp"
+
 #endif // ifndef EL_FACTOR_HPP

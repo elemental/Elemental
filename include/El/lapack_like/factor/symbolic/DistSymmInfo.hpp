@@ -119,21 +119,6 @@ void GetChildGridDims
 ( const DistSymmNodeInfo& node, const DistSymmNodeInfo& childNode,
   int* childGridDims );
 
-//----------------------------------------------------------------------------//
-// Implementation begins here                                                 //
-//----------------------------------------------------------------------------//
-
-inline
-DistSymmInfo::~DistSymmInfo()
-{
-    const int numDist = distNodes.size();
-    for( int s=0; s<numDist; ++s )
-    {
-        delete distNodes[s].grid;
-        mpi::Free( distNodes[s].comm );
-    }
-}
-
 } // namespace El
 
 #endif // ifndef EL_SYMBOLIC_DISTSYMMINFO_HPP

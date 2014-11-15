@@ -55,6 +55,12 @@ extern "C" {
     ElConstDistMatrix_ ## SIG B, ElDistMatrix_ ## SIG X ) \
   { EL_TRY( LeastSquares( CReflect(orientation), *CReflect(A), \
                           *CReflect(B), *CReflect(X) ) ) } \
+  ElError ElLeastSquaresDistSparse_ ## SIG \
+  ( ElOrientation orientation, \
+    ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG X, \
+    ElDistMultiVec_ ## SIG Y ) \
+  { EL_TRY( LeastSquares( CReflect(orientation), \
+      *CReflect(A), *CReflect(X), *CReflect(Y) ) ) } \
   /* Equality-constrained Least Squares
      ---------------------------------- */ \
   ElError ElLSE_ ## SIG \
@@ -95,6 +101,10 @@ extern "C" {
     Base<F> alpha, ElDistMatrix_ ## SIG X, ElRidgeAlg alg ) \
   { EL_TRY( Ridge( *CReflect(A), *CReflect(B), \
                    alpha, *CReflect(X), CReflect(alg) ) ) } \
+  ElError ElRidgeDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG X, \
+    Base<F> alpha, ElDistMultiVec_ ## SIG Y ) \
+  { EL_TRY( Ridge( *CReflect(A), *CReflect(X), alpha, *CReflect(Y) ) ) } \
   /* Symmetric solve
      --------------- */ \
   ElError ElSymmetricSolve_ ## SIG \
@@ -107,6 +117,9 @@ extern "C" {
     ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( SymmetricSolve( CReflect(uplo), CReflect(orientation), \
                             *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElSymmetricSolveDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG X ) \
+  { EL_TRY( SymmetricSolve( *CReflect(A), *CReflect(X) ) ) } \
   /* Tikhonov regularization
      ----------------------- */ \
   ElError ElTikhonov_ ## SIG \
@@ -120,7 +133,12 @@ extern "C" {
     ElConstDistMatrix_ ## SIG Gamma, ElDistMatrix_ ## SIG X, \
     ElTikhonovAlg alg ) \
   { EL_TRY( Tikhonov( *CReflect(A), *CReflect(B), \
-                      *CReflect(Gamma), *CReflect(X), CReflect(alg) ) ) }
+                      *CReflect(Gamma), *CReflect(X), CReflect(alg) ) ) } \
+  ElError ElTikhonovDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG X, \
+    ElConstDistSparseMatrix_ ## SIG Gamma, ElDistMultiVec_ ## SIG Y ) \
+  { EL_TRY( Tikhonov( *CReflect(A), *CReflect(X), *CReflect(Gamma), \
+                      *CReflect(Y) ) ) }
 
 #define C_PROTO_REAL(SIG,F) \
   C_PROTO_FIELD(SIG,SIG,F)
@@ -138,7 +156,10 @@ extern "C" {
   ( ElUpperOrLower uplo, ElOrientation orientation, \
     ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( HermitianSolve( CReflect(uplo), CReflect(orientation), \
-                            *CReflect(A), *CReflect(B) ) ) } 
+                            *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElHermitianSolveDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG X ) \
+  { EL_TRY( HermitianSolve( *CReflect(A), *CReflect(X) ) ) }
 
 #define EL_NO_INT_PROTO
 #include "El/macros/CInstantiate.h"

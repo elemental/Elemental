@@ -18,7 +18,7 @@ include(language_support_v2)
 
 project(Elemental)
 set(EL_VERSION_MAJOR 0)
-set(EL_VERSION_MINOR 85)
+set(EL_VERSION_MINOR 86-dev)
 
 ################################################################################
 # Common build options                                                         #
@@ -428,7 +428,7 @@ include_directories("${PROJECT_BINARY_DIR}/include")
 # Build the test drivers if necessary
 if(EL_TESTS)
   set(TEST_DIR ${PROJECT_SOURCE_DIR}/tests)
-  set(TEST_TYPES core blas_like lapack_like optimization sparse_direct)
+  set(TEST_TYPES core blas_like lapack_like optimization)
   foreach(TYPE ${TEST_TYPES})
     file(GLOB_RECURSE ${TYPE}_TESTS 
       RELATIVE ${PROJECT_SOURCE_DIR}/tests/${TYPE}/ "tests/${TYPE}/*.cpp")
@@ -456,8 +456,7 @@ endif()
 if(EL_EXAMPLES)
   set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
   set(EXAMPLE_TYPES 
-      optimization core blas_like interface io lapack_like matrices 
-      sparse_direct)
+      optimization core blas_like interface io lapack_like matrices)
   foreach(TYPE ${EXAMPLE_TYPES})
     if(EL_C_INTERFACE)
       file(GLOB_RECURSE ${TYPE}_EXAMPLES RELATIVE 

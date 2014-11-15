@@ -8,54 +8,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_SYMBOLIC_NATURALNESTEDDISSECTION_HPP
-#define EL_SYMBOLIC_NATURALNESTEDDISSECTION_HPP
+#include "El.hpp"
 
 namespace El {
-
-void NaturalNestedDissection
-(       int nx, 
-        int ny, 
-        int nz,
-  const DistGraph& graph, 
-        DistMap& map,
-        DistSeparatorTree& sepTree, 
-        DistSymmInfo& info,
-        int cutoff=128,
-        bool storeFactRecvInds=false );
-
-int NaturalBisect
-(       int nx, 
-        int ny, 
-        int nz, 
-  const Graph& graph, 
-        int& nxLeft, 
-        int& nyLeft, 
-        int& nzLeft,
-        Graph& leftChild, 
-        int& nxRight, 
-        int& nyRight, 
-        int& nzRight,
-        Graph& rightChild, 
-        std::vector<int>& perm );
-
-// NOTE: for two or more processes
-int NaturalBisect
-(       int nx, 
-        int ny, 
-        int nz,
-  const DistGraph& graph, 
-        int& nxChild, 
-        int& nyChild, 
-        int& nzChild,
-        DistGraph& child, 
-        DistMap& perm,
-        bool& onLeft );
-
-//----------------------------------------------------------------------------//
-// Implementation begins here                                                 //
-//----------------------------------------------------------------------------//
 
 inline void
 NaturalNestedDissectionRecursion
@@ -444,8 +399,7 @@ NaturalNestedDissectionRecursion
     }
 }
 
-inline void 
-NaturalNestedDissection
+void NaturalNestedDissection
 (       int nx,
         int ny,
         int nz,
@@ -487,8 +441,7 @@ NaturalNestedDissection
     SymmetricAnalysis( eTree, info, storeFactRecvInds );
 }
 
-inline int 
-NaturalBisect
+int NaturalBisect
 (       int nx, 
         int ny, 
         int nz,
@@ -618,8 +571,7 @@ NaturalBisect
     return sepSize;
 }
 
-inline int 
-NaturalBisect
+int NaturalBisect
 (       int nx,
         int ny,
         int nz,
@@ -803,5 +755,3 @@ NaturalBisect
 }
 
 } // namespace El
-
-#endif // ifndef EL_SYMBOLIC_NATURALNESTEDDISSECTION_HPP

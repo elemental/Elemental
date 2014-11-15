@@ -8,94 +8,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_SYMBOLIC_NESTEDDISSECTION_HPP
-#define EL_SYMBOLIC_NESTEDDISSECTION_HPP
-
-#ifdef EL_HAVE_PARMETIS
-
-#include "parmetis.h"
-extern "C" {
-void ElBisect
-( idx_t* nvtxs, idx_t* xAdj, idx_t* adjacency, idx_t* nseps, real_t* imbalance,
-  idx_t* perm, idx_t* sizes );
-void ElParallelBisect
-( idx_t* vtxDist, idx_t* xAdj, idx_t* adjacency, 
-  idx_t* nparseps, idx_t* nseqseps, real_t* imbalance, idx_t* options, 
-  idx_t* perm, idx_t* sizes, MPI_Comm* comm );
-} // extern "C"
-
-#elif defined(EL_HAVE_METIS)
-
-#include "metis.h"
-extern "C" {
-void ElBisect
-( idx_t* nvtxs, idx_t* xAdj, idx_t* adjacency, idx_t* nseps, real_t* imbalance,
-  idx_t* perm, idx_t* sizes );
-} // extern "C"
-
-#endif
+#include "El.hpp"
 
 namespace El {
-
-struct BisectCtrl
-{
-    bool sequential;
-    int numDistSeps;
-    int numSeqSeps;
-    int cutoff;
-    bool storeFactRecvInds;
-
-    BisectCtrl()
-    : sequential(true), numDistSeps(1), numSeqSeps(1), cutoff(128),
-      storeFactRecvInds(false) 
-    { }
-};
-
-void NestedDissection
-( const DistGraph& graph, 
-        DistMap& map,
-        DistSeparatorTree& sepTree, 
-        DistSymmInfo& info,
-  const BisectCtrl& ctrl=BisectCtrl() );
-
-int Bisect
-( const Graph& graph, 
-        Graph& leftChild, 
-        Graph& rightChild, 
-        std::vector<int>& perm, 
-  const BisectCtrl& ctrl=BisectCtrl() );
-
-// NOTE: for two or more processes
-int Bisect
-( const DistGraph& graph, 
-        DistGraph& child, 
-        DistMap& perm,
-        bool& onLeft,
-  const BisectCtrl& ctrl=BisectCtrl() );
-
-int DistributedDepth( mpi::Comm comm );
-void EnsurePermutation( const std::vector<int>& map );
-void EnsurePermutation( const DistMap& map );
-void ReverseOrder( DistSeparatorTree& sepTree, DistSymmElimTree& eTree );
-
-void BuildChildrenFromPerm
-( const Graph& graph, const std::vector<int>& perm, 
-  int leftChildSize, Graph& leftChild,
-  int rightChildSize, Graph& rightChild );
-void BuildChildFromPerm
-( const DistGraph& graph, const DistMap& perm,
-  int leftChildSize, int rightChildSize,
-  bool& onLeft, DistGraph& child );
-
-void BuildMap
-( const DistGraph& graph, 
-  const DistSeparatorTree& sepTree, 
-        DistMap& map );
-
-//----------------------------------------------------------------------------//
-// Implementation begins here                                                 //
-//----------------------------------------------------------------------------//
 
 inline void
 DistributedDepthRecursion
@@ -490,8 +405,7 @@ NestedDissectionRecursion
     }
 }
 
-inline void 
-NestedDissection
+void NestedDissection
 ( const DistGraph& graph, 
         DistMap& map,
         DistSeparatorTree& sepTree, 
@@ -528,8 +442,7 @@ NestedDissection
     SymmetricAnalysis( eTree, info, ctrl.storeFactRecvInds );
 }
 
-inline int 
-Bisect
+int Bisect
 ( const Graph& graph ,Graph& leftChild, Graph& rightChild,
   std::vector<int>& perm, const BisectCtrl& ctrl )
 {
@@ -597,8 +510,7 @@ Bisect
 #endif
 }
 
-inline int 
-Bisect
+int Bisect
 ( const DistGraph& graph, 
         DistGraph& child, 
         DistMap& perm,
@@ -1366,5 +1278,3 @@ BuildMap
 }
 
 } // namespace El
-
-#endif // ifndef EL_SYMBOLIC_NESTEDDISSECTION_HPP

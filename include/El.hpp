@@ -24,8 +24,6 @@
 
 #include "El/matrices.hpp"
 
-#include "El/sparse_direct.hpp"
-
 #include "El/io.hpp"
 
 #endif // ifndef EL_HPP
