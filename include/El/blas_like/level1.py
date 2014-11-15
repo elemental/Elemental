@@ -2296,6 +2296,37 @@ lib.ElZeroDist_c.argtypes = [c_void_p]
 lib.ElZeroDist_c.restype = c_uint
 lib.ElZeroDist_z.argtypes = [c_void_p]
 lib.ElZeroDist_z.restype = c_uint
+lib.ElZeroSparse_i.argtypes = [c_void_p]
+lib.ElZeroSparse_i.restype = c_uint
+lib.ElZeroSparse_s.argtypes = [c_void_p]
+lib.ElZeroSparse_s.restype = c_uint
+lib.ElZeroSparse_d.argtypes = [c_void_p]
+lib.ElZeroSparse_d.restype = c_uint
+lib.ElZeroSparse_c.argtypes = [c_void_p]
+lib.ElZeroSparse_c.restype = c_uint
+lib.ElZeroSparse_z.argtypes = [c_void_p]
+lib.ElZeroSparse_z.restype = c_uint
+lib.ElZeroDistSparse_i.argtypes = [c_void_p]
+lib.ElZeroDistSparse_i.restype = c_uint
+lib.ElZeroDistSparse_s.argtypes = [c_void_p]
+lib.ElZeroDistSparse_s.restype = c_uint
+lib.ElZeroDistSparse_d.argtypes = [c_void_p]
+lib.ElZeroDistSparse_d.restype = c_uint
+lib.ElZeroDistSparse_c.argtypes = [c_void_p]
+lib.ElZeroDistSparse_c.restype = c_uint
+lib.ElZeroDistSparse_z.argtypes = [c_void_p]
+lib.ElZeroDistSparse_z.restype = c_uint
+lib.ElZeroDistMultiVec_i.argtypes = [c_void_p]
+lib.ElZeroDistMultiVec_i.restype = c_uint
+lib.ElZeroDistMultiVec_s.argtypes = [c_void_p]
+lib.ElZeroDistMultiVec_s.restype = c_uint
+lib.ElZeroDistMultiVec_d.argtypes = [c_void_p]
+lib.ElZeroDistMultiVec_d.restype = c_uint
+lib.ElZeroDistMultiVec_c.argtypes = [c_void_p]
+lib.ElZeroDistMultiVec_c.restype = c_uint
+lib.ElZeroDistMultiVec_z.argtypes = [c_void_p]
+lib.ElZeroDistMultiVec_z.restype = c_uint
+
 def Zero(A):
   args = [A.obj]
   if type(A) is Matrix:
@@ -2311,5 +2342,26 @@ def Zero(A):
     elif A.tag == dTag: lib.ElZeroDist_d(*args)
     elif A.tag == cTag: lib.ElZeroDist_c(*args)
     elif A.tag == zTag: lib.ElZeroDist_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == iTag: lib.ElZeroSparse_i(*args)
+    elif A.tag == sTag: lib.ElZeroSparse_s(*args)
+    elif A.tag == dTag: lib.ElZeroSparse_d(*args)
+    elif A.tag == cTag: lib.ElZeroSparse_c(*args)
+    elif A.tag == zTag: lib.ElZeroSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == iTag: lib.ElZeroDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElZeroDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElZeroDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElZeroDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElZeroDistSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMultiVec:
+    if   A.tag == iTag: lib.ElZeroDistMultiVec_i(*args)
+    elif A.tag == sTag: lib.ElZeroDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElZeroDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElZeroDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElZeroDistMultiVec_z(*args)
     else: DataExcept()
   else: TypeExcept()

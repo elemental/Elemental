@@ -166,9 +166,9 @@ void Syrk
     const Int m = A.Height();
     const Int n = A.Width();
     if( orientation == NORMAL )
-        C.Resize( m, m );     
+        Zeros( C, m, m );
     else
-        C.Resize( n, n );
+        Zeros( C, n, n );
     Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
 }
 
@@ -327,9 +327,9 @@ void Syrk
     const Int m = A.Height();
     const Int n = A.Width();
     if( orientation == NORMAL )
-        C.Resize( m, m );     
+        Zeros( C, m, m );
     else
-        C.Resize( n, n );
+        Zeros( C, n, n );
     Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
 }
 

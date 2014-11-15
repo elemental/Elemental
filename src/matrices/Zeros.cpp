@@ -35,6 +35,22 @@ void Zeros( AbstractBlockDistMatrix<T>& A, Int m, Int n )
 }
 
 template<typename T>
+void Zeros( SparseMatrix<T>& A, Int m, Int n )
+{
+    DEBUG_ONLY(CallStackEntry cse("Zeros"))
+    A.Resize( m, n );
+    Zero( A );
+}
+
+template<typename T>
+void Zeros( DistSparseMatrix<T>& A, Int m, Int n )
+{
+    DEBUG_ONLY(CallStackEntry cse("Zeros"))
+    A.Resize( m, n );
+    Zero( A );
+}
+
+template<typename T>
 void Zeros( DistMultiVec<T>& A, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Zeros"))
@@ -46,6 +62,8 @@ void Zeros( DistMultiVec<T>& A, Int m, Int n )
   template void Zeros( Matrix<T>& A, Int m, Int n ); \
   template void Zeros( AbstractDistMatrix<T>& A, Int m, Int n ); \
   template void Zeros( AbstractBlockDistMatrix<T>& A, Int m, Int n ); \
+  template void Zeros( SparseMatrix<T>& A, Int m, Int n ); \
+  template void Zeros( DistSparseMatrix<T>& A, Int m, Int n ); \
   template void Zeros( DistMultiVec<T>& A, Int m, Int n );
 
 #include "El/macros/Instantiate.h"

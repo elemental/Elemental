@@ -64,6 +64,26 @@ Int Lasso
 
 // Linear program
 // ==============
+
+namespace lin_prog {
+
+template<typename Real>
+void FormAugmentedSystem
+( const SparseMatrix<Real>& A, 
+  const Matrix<Real>& b, const Matrix<Real>& c,
+  const Matrix<Real>& x, const Matrix<Real>& l, const Matrix<Real>& s,
+  Real tau, SparseMatrix<Real>& J, Matrix<Real>& y );
+
+template<typename Real>
+void FormAugmentedSystem
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
+  const DistMultiVec<Real>& x, const DistMultiVec<Real>& l, 
+  const DistMultiVec<Real>& s,
+  Real tau, DistSparseMatrix<Real>& J, DistMultiVec<Real>& y );
+
+} // namespace lin_prog
+
 template<typename Real>
 Int LinearProgram
 ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,

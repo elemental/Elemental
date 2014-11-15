@@ -102,8 +102,7 @@ void Transpose
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntries = A.NumEntries();
-    B.Empty();
-    B.Resize( n, m );
+    Zeros( B, n, m );
     B.Reserve( numEntries );
     for( Int k=0; k<numEntries; ++k )
     {
@@ -128,21 +127,17 @@ void Transpose
     mpi::Comm comm = A.Comm();
     const Int commSize = mpi::Size( comm );
 
-    B.Empty();
-    B.SetComm( A.Comm() );
-    B.Resize( n, m );
+    B.SetComm( comm );
+    Zeros( B, n, m );
 
     // Compute the number of entries of A to send to each process
     // ==========================================================
     std::vector<int> sendCounts(commSize,0);
     const Int numLocalEntries = A.NumLocalEntries();
-    const T* vBuf = A.LockedValueBuffer();
-    const Int* sBuf = A.LockedSourceBuffer();
-    const Int* tBuf = A.LockedTargetBuffer();
     const Int blocksizeB = B.Blocksize();
     for( Int k=0; k<numLocalEntries; ++k )
     {
-        const Int j = tBuf[k];
+        const Int j = A.Col(k);
         const Int owner = RowToProcess( j, blocksizeB, commSize );
         ++sendCounts[owner];
     }
@@ -171,15 +166,15 @@ void Transpose
     std::vector<int> offsets = sendOffsets;
     for( Int k=0; k<numLocalEntries; ++k )
     {
-        const Int j = tBuf[k];
+        const Int j = A.Col(k);
         const Int owner = RowToProcess( j, blocksizeB, commSize );
         const Int s = offsets[owner];
         sSendBuf[s] = j;
-        tSendBuf[s] = sBuf[k];
+        tSendBuf[s] = A.Row(k);
         if( conjugate )
-            vSendBuf[s] = Conj(vBuf[k]);
+            vSendBuf[s] = Conj(A.Value(k));
         else
-            vSendBuf[s] = vBuf[k];
+            vSendBuf[s] = A.Value(k);
         ++offsets[owner];
     }
 

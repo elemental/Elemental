@@ -1216,6 +1216,18 @@ EL_EXPORT ElError ElZeroDist_d( ElDistMatrix_d A );
 EL_EXPORT ElError ElZeroDist_c( ElDistMatrix_c A );
 EL_EXPORT ElError ElZeroDist_z( ElDistMatrix_z A );
 
+EL_EXPORT ElError ElZeroSparse_i( ElSparseMatrix_i A );
+EL_EXPORT ElError ElZeroSparse_s( ElSparseMatrix_s A );
+EL_EXPORT ElError ElZeroSparse_d( ElSparseMatrix_d A );
+EL_EXPORT ElError ElZeroSparse_c( ElSparseMatrix_c A );
+EL_EXPORT ElError ElZeroSparse_z( ElSparseMatrix_z A );
+
+EL_EXPORT ElError ElZeroDistSparse_i( ElDistSparseMatrix_i A );
+EL_EXPORT ElError ElZeroDistSparse_s( ElDistSparseMatrix_s A );
+EL_EXPORT ElError ElZeroDistSparse_d( ElDistSparseMatrix_d A );
+EL_EXPORT ElError ElZeroDistSparse_c( ElDistSparseMatrix_c A );
+EL_EXPORT ElError ElZeroDistSparse_z( ElDistSparseMatrix_z A );
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

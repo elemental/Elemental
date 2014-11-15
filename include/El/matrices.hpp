@@ -610,6 +610,10 @@ void Zeros( AbstractDistMatrix<T>& A, Int m, Int n );
 template<typename T>
 void Zeros( AbstractBlockDistMatrix<T>& A, Int m, Int n );
 template<typename T>
+void Zeros( SparseMatrix<T>& A, Int m, Int n );
+template<typename T>
+void Zeros( DistSparseMatrix<T>& A, Int m, Int n );
+template<typename T>
 void Zeros( DistMultiVec<T>& A, Int m, Int n );
 
 // Random

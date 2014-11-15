@@ -392,6 +392,12 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
   ElError ElZero_ ## SIG ( ElMatrix_ ## SIG A ) \
   { EL_TRY( Zero( *CReflect(A) ) ) } \
   ElError ElZeroDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
+  { EL_TRY( Zero( *CReflect(A) ) ) } \
+  ElError ElZeroSparse_ ## SIG ( ElSparseMatrix_ ## SIG A ) \
+  { EL_TRY( Zero( *CReflect(A) ) ) } \
+  ElError ElZeroDistSparse_ ## SIG ( ElDistSparseMatrix_ ## SIG A ) \
+  { EL_TRY( Zero( *CReflect(A) ) ) } \
+  ElError ElZeroDistMultiVec_ ## SIG ( ElDistMultiVec_ ## SIG A ) \
   { EL_TRY( Zero( *CReflect(A) ) ) }
 
 #define C_PROTO_REALONLY(SIG,Real) \

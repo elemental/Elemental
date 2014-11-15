@@ -975,6 +975,23 @@ EL_EXPORT ElError ElZerosDist_d( ElDistMatrix_d A, ElInt m, ElInt n );
 EL_EXPORT ElError ElZerosDist_c( ElDistMatrix_c A, ElInt m, ElInt n );
 EL_EXPORT ElError ElZerosDist_z( ElDistMatrix_z A, ElInt m, ElInt n );
 
+EL_EXPORT ElError ElZerosSparse_i( ElSparseMatrix_i A, ElInt m, ElInt n );
+EL_EXPORT ElError ElZerosSparse_s( ElSparseMatrix_s A, ElInt m, ElInt n );
+EL_EXPORT ElError ElZerosSparse_d( ElSparseMatrix_d A, ElInt m, ElInt n );
+EL_EXPORT ElError ElZerosSparse_c( ElSparseMatrix_c A, ElInt m, ElInt n );
+EL_EXPORT ElError ElZerosSparse_z( ElSparseMatrix_z A, ElInt m, ElInt n );
+
+EL_EXPORT ElError ElZerosDistSparse_i
+( ElDistSparseMatrix_i A, ElInt m, ElInt n );
+EL_EXPORT ElError ElZerosDistSparse_s
+( ElDistSparseMatrix_s A, ElInt m, ElInt n );
+EL_EXPORT ElError ElZerosDistSparse_d
+( ElDistSparseMatrix_d A, ElInt m, ElInt n );
+EL_EXPORT ElError ElZerosDistSparse_c
+( ElDistSparseMatrix_c A, ElInt m, ElInt n );
+EL_EXPORT ElError ElZerosDistSparse_z
+( ElDistSparseMatrix_z A, ElInt m, ElInt n );
+
 EL_EXPORT ElError ElZerosDistMultiVec_i( ElDistMultiVec_i A, ElInt m, ElInt n );
 EL_EXPORT ElError ElZerosDistMultiVec_s( ElDistMultiVec_s A, ElInt m, ElInt n );
 EL_EXPORT ElError ElZerosDistMultiVec_d( ElDistMultiVec_d A, ElInt m, ElInt n );

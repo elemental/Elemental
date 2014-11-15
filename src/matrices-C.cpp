@@ -205,6 +205,11 @@ extern "C" {
   { EL_TRY( Zeros( *CReflect(A), m, n ) ) } \
   ElError ElZerosDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n ) \
   { EL_TRY( Zeros( *CReflect(A), m, n ) ) } \
+  ElError ElZerosSparse_ ## SIG ( ElSparseMatrix_ ## SIG A, ElInt m, ElInt n ) \
+  { EL_TRY( Zeros( *CReflect(A), m, n ) ) } \
+  ElError ElZerosDistSparse_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG A, ElInt m, ElInt n ) \
+  { EL_TRY( Zeros( *CReflect(A), m, n ) ) } \
   ElError ElZerosDistMultiVec_ ## SIG \
   ( ElDistMultiVec_ ## SIG A, ElInt m, ElInt n ) \
   { EL_TRY( Zeros( *CReflect(A), m, n ) ) }

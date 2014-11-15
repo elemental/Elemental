@@ -745,6 +745,10 @@ void Zero( AbstractDistMatrix<T>& A );
 template<typename T>
 void Zero( AbstractBlockDistMatrix<T>& A );
 template<typename T>
+void Zero( SparseMatrix<T>& A );
+template<typename T>
+void Zero( DistSparseMatrix<T>& A );
+template<typename T>
 void Zero( DistMultiVec<T>& A );
 
 } // namespace El
