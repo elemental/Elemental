@@ -306,6 +306,9 @@ int DistMap::FirstLocalSource() const { return firstLocalSource_; }
 
 int DistMap::NumLocalSources() const { return map_.size(); }
 
+int DistMap::RowOwner( int i ) const 
+{ return RowToProcess( i, blocksize_, mpi::Size(comm_) ); }
+
 int DistMap::GetLocal( int localSource ) const
 { 
     DEBUG_ONLY(

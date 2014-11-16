@@ -54,6 +54,7 @@ public:
     int Blocksize() const;
     int FirstLocalSource() const;
     int NumLocalSources() const;
+    int RowOwner( int i ) const;
 
     // Local data
     int GetLocal( int localSource ) const;

@@ -78,8 +78,14 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
   ElError ElCopySparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, ElSparseMatrix_ ## SIG B ) \
   { EL_TRY( Copy( *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElCopySparseToDense_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
+  { EL_TRY( Copy( *CReflect(A), *CReflect(B) ) ) } \
   ElError ElCopyDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElDistSparseMatrix_ ## SIG B ) \
+  { EL_TRY( Copy( *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElCopyDistSparseToDense_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( Copy( *CReflect(A), *CReflect(B) ) ) } \
   ElError ElCopySparseMatrixFromRoot_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG ADist, ElSparseMatrix_ ## SIG A ) \

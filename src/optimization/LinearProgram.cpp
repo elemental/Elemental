@@ -101,34 +101,20 @@ void FormAugmentedSystem
     // Compute the number of entries to send to each process
     // -----------------------------------------------------
     std::vector<int> sendCounts(commSize,0);
-    const Int blocksizeJ = J.Blocksize();
     // For placing A into the top-right corner
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     for( Int k=0; k<A.NumLocalEntries(); ++k )
-    {
-        const Int i = A.Row(k);
-        const Int owner = RowToProcess( i, blocksizeJ, commSize );
-        ++sendCounts[owner];
-    }
+        ++sendCounts[ J.RowOwner(A.Row(k)) ];
     // For placing A^T into the bottom-left corner
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     for( Int k=0; k<ATrans.NumLocalEntries(); ++k )
-    {
-        const Int i = ATrans.Row(k) + m;
-        const Int owner = RowToProcess( i, blocksizeJ, commSize );
-        ++sendCounts[owner];
-    }
+        ++sendCounts[ J.RowOwner( ATrans.Row(k)+m ) ];
     // For placing -diag(s)/diag(x) into the bottom-right corner
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     for( Int k=0; k<x.LocalHeight(); ++k )
-    {
-        const Int i = k + x.FirstLocalRow() + m;
-        const Int owner = RowToProcess( i, blocksizeJ, commSize );
-        ++sendCounts[owner];
-    }
-
+        ++sendCounts[ J.RowOwner( k+x.FirstLocalRow()+m ) ];
     // Communicate to determine the number we receive from each process
-    // ----------------------------------------------------------------
+    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     std::vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
     
@@ -148,7 +134,7 @@ void FormAugmentedSystem
     // -----------------
     std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
     std::vector<Real> vSendBuf(totalSend);
-    std::vector<int> offsets = sendOffsets;
+    auto offsets = sendOffsets;
     // Pack A
     // ^^^^^^
     for( Int k=0; k<A.NumLocalEntries(); ++k ) 
@@ -156,7 +142,7 @@ void FormAugmentedSystem
         const Int i = A.Row(k);
         const Int j = A.Col(k) + m;
         const Real value = A.Value(k);
-        const Int owner = RowToProcess( i, blocksizeJ, commSize );
+        const Int owner = J.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         tSendBuf[offsets[owner]] = j; 
         vSendBuf[offsets[owner]] = value;
@@ -169,7 +155,7 @@ void FormAugmentedSystem
         const Int i = ATrans.Row(k) + m;
         const Int j = ATrans.Col(k);
         const Real value = A.Value(k);
-        const Int owner = RowToProcess( i, blocksizeJ, commSize );
+        const Int owner = J.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         tSendBuf[offsets[owner]] = j;
         vSendBuf[offsets[owner]] = value;
@@ -182,7 +168,7 @@ void FormAugmentedSystem
         const Int i = k + x.FirstLocalRow() + m;
         const Int j = i;
         const Int value = -s.GetLocal(k,0)/x.GetLocal(k,0);
-        const Int owner = RowToProcess( i, blocksizeJ, commSize );
+        const Int owner = J.RowOwner(i);
         sSendBuf[offsets[owner]] = i; 
         tSendBuf[offsets[owner]] = j;
         vSendBuf[offsets[owner]] = value;
@@ -210,6 +196,7 @@ void FormAugmentedSystem
 
     // Form the two halves of the right-hand side
     // ==========================================
+    Zeros( y, m+n, 1 );
     DistMultiVec<Real> yT(comm), yB(comm);
     yT = b;
     yB = c;
@@ -223,20 +210,9 @@ void FormAugmentedSystem
     for( Int q=0; q<commSize; ++q )
         sendCounts[commSize] = 0;
     for( Int k=0; k<yT.LocalHeight(); ++k )
-    {
-        const Int i = k + yT.FirstLocalRow();
-        const Int owner = RowToProcess( i, blocksizeJ, commSize );
-        ++sendCounts[owner];
-    }
+        ++sendCounts[ y.RowOwner( k+yT.FirstLocalRow() ) ];
     for( Int k=0; k<yB.LocalHeight(); ++k )
-    {
-        const Int i = k + yB.FirstLocalRow() + m;
-        const Int owner = RowToProcess( i, blocksizeJ, commSize );
-        ++sendCounts[owner];
-    }
-
-    // Communicate to determine the number we receive from each process
-    // ----------------------------------------------------------------
+        ++sendCounts[ y.RowOwner( k+yB.FirstLocalRow()+m ) ];
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
     
     // Convert the send/recv counts into offsets and total sizes
@@ -259,7 +235,7 @@ void FormAugmentedSystem
     {
         const Int i = k + yT.FirstLocalRow();
         const Real value = yT.GetLocal(k,0);
-        const Int owner = RowToProcess( i, blocksizeJ, commSize );
+        const Int owner = y.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         vSendBuf[offsets[owner]] = value;
         ++offsets[owner];
@@ -268,7 +244,7 @@ void FormAugmentedSystem
     {
         const Int i = k + yB.FirstLocalRow() + m;
         const Real value = yB.GetLocal(k,0);
-        const Int owner = RowToProcess( i, blocksizeJ, commSize );
+        const Int owner = y.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         vSendBuf[offsets[owner]] = value;
         ++offsets[owner];

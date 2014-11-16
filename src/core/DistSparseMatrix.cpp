@@ -265,6 +265,9 @@ template<typename T>
 mpi::Comm DistSparseMatrix<T>::Comm() const { return distGraph_.Comm(); }
 template<typename T>
 Int DistSparseMatrix<T>::Blocksize() const { return distGraph_.Blocksize(); }
+template<typename T>
+Int DistSparseMatrix<T>::RowOwner( Int i ) const 
+{ return RowToProcess( i, Blocksize(), mpi::Size(Comm()) ); }
 
 // Detailed local information
 // --------------------------

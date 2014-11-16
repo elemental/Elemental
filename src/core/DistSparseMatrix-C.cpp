@@ -92,6 +92,9 @@ extern "C" {
   ElError ElDistSparseMatrixBlocksize_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElInt* blocksize ) \
   { EL_TRY( *blocksize = CReflect(A)->Blocksize() ) } \
+  ElError ElDistSparseMatrixRowOwner_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElInt i, ElInt* owner ) \
+  { EL_TRY( *owner = CReflect(A)->RowOwner(i) ) } \
   ElError ElDistSparseMatrixRow_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElInt localInd, ElInt* row ) \
   { EL_TRY( *row = CReflect(A)->Row(localInd) ) } \

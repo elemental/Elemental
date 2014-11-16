@@ -194,6 +194,17 @@ EL_EXPORT ElError ElCopySparse_d( ElConstSparseMatrix_d A, ElSparseMatrix_d B );
 EL_EXPORT ElError ElCopySparse_c( ElConstSparseMatrix_c A, ElSparseMatrix_c B );
 EL_EXPORT ElError ElCopySparse_z( ElConstSparseMatrix_z A, ElSparseMatrix_z B );
 
+EL_EXPORT ElError ElCopySparseToDense_i
+( ElConstSparseMatrix_i A, ElMatrix_i B );
+EL_EXPORT ElError ElCopySparseToDense_s
+( ElConstSparseMatrix_s A, ElMatrix_s B );
+EL_EXPORT ElError ElCopySparseToDense_d
+( ElConstSparseMatrix_d A, ElMatrix_d B );
+EL_EXPORT ElError ElCopySparseToDense_c
+( ElConstSparseMatrix_c A, ElMatrix_c B );
+EL_EXPORT ElError ElCopySparseToDense_z
+( ElConstSparseMatrix_z A, ElMatrix_z B );
+
 EL_EXPORT ElError ElCopyDistSparse_i
 ( ElConstDistSparseMatrix_i A, ElDistSparseMatrix_i B );
 EL_EXPORT ElError ElCopyDistSparse_s
@@ -204,6 +215,17 @@ EL_EXPORT ElError ElCopyDistSparse_c
 ( ElConstDistSparseMatrix_c A, ElDistSparseMatrix_c B );
 EL_EXPORT ElError ElCopyDistSparse_z
 ( ElConstDistSparseMatrix_z A, ElDistSparseMatrix_z B );
+
+EL_EXPORT ElError ElCopyDistSparseToDense_i
+( ElConstDistSparseMatrix_i A, ElDistMatrix_i B );
+EL_EXPORT ElError ElCopyDistSparseToDense_s
+( ElConstDistSparseMatrix_s A, ElDistMatrix_s B );
+EL_EXPORT ElError ElCopyDistSparseToDense_d
+( ElConstDistSparseMatrix_d A, ElDistMatrix_d B );
+EL_EXPORT ElError ElCopyDistSparseToDense_c
+( ElConstDistSparseMatrix_c A, ElDistMatrix_c B );
+EL_EXPORT ElError ElCopyDistSparseToDense_z
+( ElConstDistSparseMatrix_z A, ElDistMatrix_z B );
 
 EL_EXPORT ElError ElCopySparseMatrixFromRoot_i
 ( ElConstDistSparseMatrix_i ADist, ElSparseMatrix_i A );

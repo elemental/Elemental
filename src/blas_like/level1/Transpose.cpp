@@ -133,17 +133,8 @@ void Transpose
     // Compute the number of entries of A to send to each process
     // ==========================================================
     std::vector<int> sendCounts(commSize,0);
-    const Int numLocalEntries = A.NumLocalEntries();
-    const Int blocksizeB = B.Blocksize();
-    for( Int k=0; k<numLocalEntries; ++k )
-    {
-        const Int j = A.Col(k);
-        const Int owner = RowToProcess( j, blocksizeB, commSize );
-        ++sendCounts[owner];
-    }
-
-    // Communicate to determine the number we receive from each process
-    // ================================================================
+    for( Int k=0; k<A.NumLocalEntries(); ++k )
+        ++sendCounts[ B.RowOwner(A.Col(k)) ];
     std::vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
 
@@ -164,10 +155,10 @@ void Transpose
     std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
     std::vector<T> vSendBuf(totalSend);
     std::vector<int> offsets = sendOffsets;
-    for( Int k=0; k<numLocalEntries; ++k )
+    for( Int k=0; k<A.NumLocalEntries(); ++k )
     {
         const Int j = A.Col(k);
-        const Int owner = RowToProcess( j, blocksizeB, commSize );
+        const Int owner = B.RowOwner(j);
         const Int s = offsets[owner];
         sSendBuf[s] = j;
         tSendBuf[s] = A.Row(k);

@@ -361,6 +361,19 @@ EL_EXPORT ElError ElDistSparseMatrixBlocksize_c
 EL_EXPORT ElError ElDistSparseMatrixBlocksize_z
 ( ElConstDistSparseMatrix_z A, ElInt* blocksize );
 
+/* Int DistSparseMatrix<T>::RowOwner( Int i ) const
+   ------------------------------------------------ */
+EL_EXPORT ElError ElDistSparseMatrixRowOwner_i
+( ElConstDistSparseMatrix_i A, ElInt i, ElInt* owner );
+EL_EXPORT ElError ElDistSparseMatrixRowOwner_s
+( ElConstDistSparseMatrix_s A, ElInt i, ElInt* owner );
+EL_EXPORT ElError ElDistSparseMatrixRowOwner_d
+( ElConstDistSparseMatrix_d A, ElInt i, ElInt* owner );
+EL_EXPORT ElError ElDistSparseMatrixRowOwner_c
+( ElConstDistSparseMatrix_c A, ElInt i, ElInt* owner );
+EL_EXPORT ElError ElDistSparseMatrixRowOwner_z
+( ElConstDistSparseMatrix_z A, ElInt i, ElInt* owner );
+
 /* Int DistSparseMatrix<T>::Row( Int localInd ) const
    -------------------------------------------------- */
 EL_EXPORT ElError ElDistSparseMatrixRow_i

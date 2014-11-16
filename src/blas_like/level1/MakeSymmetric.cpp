@@ -145,20 +145,13 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
     mpi::Comm comm = A.Comm();
     const int commSize = mpi::Size(comm);
     std::vector<int> sendCounts(commSize,0);
-    const Int blocksize = A.Blocksize();
     for( Int k=0; k<numLocalEntries; ++k )
     {
         const Int i = sBuf[k];
         const Int j = tBuf[k];
         if( (uplo == LOWER && i > j) || (uplo == UPPER && i < j) )
-        { 
-            const Int owner = RowToProcess( j, blocksize, commSize );
-            ++sendCounts[owner];
-        }
+            ++sendCounts[ A.RowOwner(j) ];
     }
-
-    // Communicate to determine the number we receive from each process
-    // ================================================================
     std::vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
 
@@ -185,7 +178,7 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
         const Int j = tBuf[k];
         if( (uplo == LOWER && i > j) || (uplo == UPPER && i < j) )
         {
-            const Int owner = RowToProcess( j, blocksize, commSize );
+            const Int owner = A.RowOwner(j);
             const Int s = offsets[owner];
             sSendBuf[s] = j;
             tSendBuf[s] = i;

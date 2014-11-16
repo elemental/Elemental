@@ -157,6 +157,17 @@ lib.ElDistMultiVecBlocksize_c.restype = c_uint
 lib.ElDistMultiVecBlocksize_z.argtypes = [c_void_p,POINTER(iType)]
 lib.ElDistMultiVecBlocksize_z.restype = c_uint
 
+lib.ElDistMultiVecRowOwner_i.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElDistMultiVecRowOwner_i.restype = c_uint
+lib.ElDistMultiVecRowOwner_s.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElDistMultiVecRowOwner_s.restype = c_uint
+lib.ElDistMultiVecRowOwner_d.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElDistMultiVecRowOwner_d.restype = c_uint
+lib.ElDistMultiVecRowOwner_c.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElDistMultiVecRowOwner_c.restype = c_uint
+lib.ElDistMultiVecRowOwner_z.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElDistMultiVecRowOwner_z.restype = c_uint
+
 lib.ElDistMultiVecGetLocal_i.argtypes = [c_void_p,iType,iType,POINTER(iType)]
 lib.ElDistMultiVecGetLocal_i.restype = c_uint
 lib.ElDistMultiVecGetLocal_s.argtypes = [c_void_p,iType,iType,POINTER(sType)]
@@ -321,6 +332,16 @@ class DistMultiVec(object):
     elif self.tag == zTag: lib.ElDistMultiVecBlocksize_z(*args)
     else: DataExcept()
     return blocksize.value
+  def RowOwner(self,i):
+    owner = iType()
+    args = [self.obj,i,pointer(owner)]
+    if   self.tag == iTag: lib.ElDistMultiVecRowOwner_i(*args)
+    elif self.tag == sTag: lib.ElDistMultiVecRowOwner_s(*args)
+    elif self.tag == dTag: lib.ElDistMultiVecRowOwner_d(*args)
+    elif self.tag == cTag: lib.ElDistMultiVecRowOwner_c(*args)
+    elif self.tag == zTag: lib.ElDistMultiVecRowOwner_z(*args)
+    else: DataExcept()
+    return owner.value
   # Entrywise manipulation
   # ======================
   def GetLocal(self,iLocal,j):

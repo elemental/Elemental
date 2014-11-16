@@ -204,7 +204,6 @@ void Syrk
     // =============================================================
     std::vector<int> sendSizes(commSize,0);
     const Int localHeightA = A.LocalHeight();
-    const Int blocksizeC = C.Blocksize();
     for( Int kLoc=0; kLoc<localHeightA; ++kLoc )
     {
         const Int offset = A.EntryOffset(kLoc);
@@ -212,7 +211,7 @@ void Syrk
         for( Int iConn=0; iConn<numConn; ++iConn )
         {
             const Int i = A.Col(offset+iConn);
-            const Int owner = RowToProcess( i, blocksizeC, commSize );
+            const Int owner = C.RowOwner(i);
             for( Int jConn=0; jConn<numConn; ++jConn )
             {
                 const Int j = A.Col(offset+jConn);
@@ -221,9 +220,6 @@ void Syrk
             }
         }
     }
-
-    // Get the number of entries that we will recv from each process
-    // =============================================================
     std::vector<int> recvSizes(commSize);
     mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, comm );
 
@@ -252,7 +248,7 @@ void Syrk
         {
             const Int i = A.Col(offset+iConn);
             const T A_ki = A.Value(offset+iConn);
-            const Int owner = RowToProcess( i, blocksizeC, commSize );
+            const Int owner = C.RowOwner(i);
             for( Int jConn=0; jConn<numConn; ++jConn )
             {
                 const Int j = A.Col(offset+jConn);

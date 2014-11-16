@@ -100,6 +100,41 @@ def Lasso(A,b,lamb):
 
 # Linear program
 # ==============
+lib.ElLinearProgramFormAugmentedSystem_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,sType, \
+   c_void_p,c_void_p]
+lib.ElLinearProgramFormAugmentedSystem_s.restype = c_uint
+lib.ElLinearProgramFormAugmentedSystem_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,dType, \
+   c_void_p,c_void_p]
+lib.ElLinearProgramFormAugmentedSystem_d.restype = c_uint
+lib.ElLinearProgramFormAugmentedSystemDist_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,sType, \
+   c_void_p,c_void_p]
+lib.ElLinearProgramFormAugmentedSystemDist_s.restype = c_uint
+lib.ElLinearProgramFormAugmentedSystemDist_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,dType, \
+   c_void_p,c_void_p]
+lib.ElLinearProgramFormAugmentedSystemDist_d.restype = c_uint
+def LinearProgramFormAugmentedSystem(A,b,c,x,l,s,tau):
+  if type(A) is SparseMatrix:
+    J = SparseMatrix(A.tag)
+    y = Matrix(A.tag)
+    args = [A.obj,b.obj,c.obj,x.obj,l.obj,s.obj,tau,J.obj,y.obj]
+    if   A.tag == sTag: lib.ElLinearProgramFormAugmentedSystem_s(*args)
+    elif A.tag == dTag: lib.ElLinearProgramFormAugmentedSystem_d(*args)
+    else: DataExcept()
+    return J, y
+  elif type(A) is DistSparseMatrix:
+    J = DistSparseMatrix(A.tag,A.Comm())
+    y = DistMultiVec(A.tag,A.Comm())
+    args = [A.obj,b.obj,c.obj,x.obj,l.obj,s.obj,tau,J.obj,y.obj]
+    if   A.tag == sTag: lib.ElLinearProgramFormAugmentedSystemDist_s(*args)
+    elif A.tag == dTag: lib.ElLinearProgramFormAugmentedSystemDist_d(*args)
+    else: DataExcept()
+    return J, y
+  else: TypeExcept()
+
 lib.ElLinearProgram_s.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,POINTER(iType)]
 lib.ElLinearProgram_s.restype = c_uint

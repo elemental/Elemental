@@ -202,11 +202,104 @@ void Copy( const SparseMatrix<T>& A, SparseMatrix<T>& B )
     B = A;
 }
 
+template<typename S,typename T>
+void Copy( const SparseMatrix<S>& A, SparseMatrix<T>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Copy"))
+    auto convert = []( const S alpha ) { return T(alpha); };
+    EntrywiseMap( A, B, std::function<T(S)>(convert) );
+}
+
+template<typename S,typename T>
+void Copy( const SparseMatrix<S>& A, Matrix<T>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Copy"))
+    Zeros( B, A.Height(), A.Width() );
+    for( Int k=0; k<A.NumEntries(); ++k )
+        B.Update( A.Row(k), A.Col(k), T(A.Value(k)) );
+}
+
 template<typename T>
 void Copy( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy [DistSparseMatrix]"))
     B = A;
+}
+
+template<typename S,typename T>
+void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Copy"))
+    const Int m = A.Height();
+    const Int n = A.Width();
+    mpi::Comm comm = A.Comm();
+    const Int commSize = mpi::Size( comm ); 
+    // TODO: Generalize to support congruent communicators
+    if( B.Grid().Comm() != comm )
+        LogicError("Communicators of A and B must match");
+    if( B.CrossSize() != 1 || B.RedundantSize() != 1 )
+        LogicError("Trivial cross and redundant communicators required");
+
+    Zeros( B, m, n );
+
+    // Compute the number of entries of A to send to each member of B
+    // ==============================================================
+    std::vector<int> sendCounts(commSize,0);
+    for( Int k=0; k<A.NumLocalEntries(); ++k )
+    {
+        const Int i = A.Row(k);
+        const Int j = A.Col(k);
+        const Int owner = B.Owner(i,j);
+        ++sendCounts[owner];
+    }
+    std::vector<int> recvCounts(commSize);
+    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
+
+    // Convert the send/recv counts into offsets and total sizes
+    // =========================================================
+    Int totalSend=0, totalRecv=0;
+    std::vector<int> sendOffsets(commSize), recvOffsets(commSize);
+    for( Int q=0; q<commSize; ++q )
+    {
+        sendOffsets[q] = totalSend;
+        recvOffsets[q] = totalRecv;
+        totalSend += sendCounts[q];
+        totalRecv += recvCounts[q];
+    }
+
+    // Pack the triplets
+    // =================
+    std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
+    std::vector<T> vSendBuf(totalSend);
+    std::vector<int> offsets = sendOffsets;
+    for( Int k=0; k<A.NumLocalEntries(); ++k )
+    {
+        const Int i = A.Row(k);
+        const Int j = A.Col(k);
+        const T value = T(A.Value(k));
+        const Int owner = B.Owner(i,j);
+        sSendBuf[offsets[owner]] = i;
+        tSendBuf[offsets[owner]] = j;
+        vSendBuf[offsets[owner]] = value;
+        ++offsets[owner];
+    }
+
+    // Exchange and unpack the triplets
+    // ================================
+    std::vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
+    std::vector<T> vRecvBuf(totalRecv);
+    mpi::AllToAll
+    ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    mpi::AllToAll
+    ( tSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      tRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    mpi::AllToAll
+    ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    for( Int k=0; k<totalRecv; ++k )
+        B.UpdateLocal
+        ( B.LocalRow(sRecvBuf[k]), B.LocalCol(tRecvBuf[k]), vRecvBuf[k] );
 }
 
 template<typename T>
@@ -377,6 +470,10 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, Int root )
 // TODO: include guards so that certain datatypes can be properly disabled 
 #define CONVERT(S,T) \
   template void Copy( const Matrix<S>& A, Matrix<T>& B ); \
+  template void Copy( const SparseMatrix<S>& A, SparseMatrix<T>& B ); \
+  template void Copy( const SparseMatrix<S>& A, Matrix<T>& B ); \
+  template void Copy \
+  ( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B ); \
   template void Copy \
   ( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B ); \
   template void Copy \
@@ -384,7 +481,6 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, Int root )
 
 #define SAME(T) \
   CONVERT(T,T) \
-  template void Copy( const SparseMatrix<T>& A, SparseMatrix<T>& B ); \
   template void Copy( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B ); \
   template void CopyFromRoot \
   ( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A ); \

@@ -34,7 +34,6 @@ void DistSymmFrontTree<T>::Initialize
     
     mpi::Comm comm = A.Comm();
     const DistGraph& graph = A.LockedDistGraph();
-    const int blocksize = A.Blocksize();
     const int commSize = mpi::Size( comm );
     const int numLocal = sepTree.localSepsAndLeaves.size();
     const int numDist = sepTree.distSeps.size();
@@ -61,7 +60,7 @@ void DistSymmFrontTree<T>::Initialize
                 if( i < 0 || i >= numSources )
                     LogicError("separator index was out of bounds");
             )
-            const int q = RowToProcess( i, blocksize, commSize );
+            const int q = A.RowOwner(i);
             ++recvRowSizes[q];
         }
     }
@@ -80,7 +79,7 @@ void DistSymmFrontTree<T>::Initialize
                 if( i < 0 || i >= numSources )
                     LogicError("separator index was out of bounds");
             )
-            const int q = RowToProcess( i, blocksize, commSize );
+            const int q = A.RowOwner(i);
             ++recvRowSizes[q];
         }
     }
@@ -104,7 +103,7 @@ void DistSymmFrontTree<T>::Initialize
                 if( i < 0 || i >= numSources )
                     LogicError("separator index was out of bounds");
             )
-            const int q = RowToProcess( i, blocksize, commSize );
+            const int q = A.RowOwner(i);
             DEBUG_ONLY(
                 if( offs[q] >= numRecvRows )
                     LogicError("offset got too large");
@@ -127,7 +126,7 @@ void DistSymmFrontTree<T>::Initialize
                 if( i < 0 || i >= numSources )
                     LogicError("separator index was out of bounds");
             )
-            const int q = RowToProcess( i, blocksize, commSize );
+            const int q = A.RowOwner(i);
             DEBUG_ONLY(
                 if( offs[q] >= numRecvRows )
                     LogicError("offset got too large");
@@ -257,7 +256,7 @@ void DistSymmFrontTree<T>::Initialize
         for( int t=0; t<size; ++t )
         {
             const int i = sepOrLeaf.inds[t];
-            const int q = RowToProcess( i, blocksize, commSize );
+            const int q = A.RowOwner(i);
 
             int& entryOff = entryOffs[q];
             const int numEntries = recvRowLengths[offs[q]++];
@@ -319,7 +318,7 @@ void DistSymmFrontTree<T>::Initialize
         for( int t=rowShift; t<size; t+=rowStride )
         {
             const int i = sep.inds[t];
-            const int q = RowToProcess( i, blocksize, commSize );
+            const int q = A.RowOwner(i);
             const int localCol = (t-rowShift) / rowStride;
 
             int& entryOff = entryOffs[q];

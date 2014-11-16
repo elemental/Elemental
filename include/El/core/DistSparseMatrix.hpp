@@ -109,6 +109,7 @@ public:
     // ------------------------
     mpi::Comm Comm() const;
     Int Blocksize() const;
+    Int RowOwner( Int i ) const;
 
     // Detailed local information
     // --------------------------

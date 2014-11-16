@@ -123,8 +123,14 @@ void CopyFromNonRoot( const DistGraph& distGraph, Int root=0 );
 
 template<typename T>
 void Copy( const SparseMatrix<T>& A, SparseMatrix<T>& B );
+template<typename S,typename T>
+void Copy( const SparseMatrix<S>& A, SparseMatrix<T>& B );
+template<typename S,typename T>
+void Copy( const SparseMatrix<S>& A, Matrix<T>& B );
 template<typename T>
 void Copy( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B );
+template<typename S,typename T>
+void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B );
 template<typename T>
 void CopyFromRoot( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A );
 template<typename T>

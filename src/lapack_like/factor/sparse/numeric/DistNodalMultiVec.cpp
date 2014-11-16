@@ -109,14 +109,9 @@ void DistNodalMultiVec<T>::Pull
     mpi::Comm comm = X.Comm();
     const int commSize = mpi::Size( comm );
     std::vector<int> recvSizes( commSize, 0 );
-    const int blocksize = X.Blocksize();
     for( int s=0; s<numRecvInds; ++s )
-    {
-        const int i = mappedInds[s];
-        const int q = RowToProcess( i, blocksize, commSize );
-        ++recvSizes[q];
-    }
-    std::vector<int> recvOffs( commSize );
+        ++recvSizes[ X.RowOwner( mappedInds[s] ) ];
+    std::vector<int> recvOffs(commSize);
     off=0;
     for( int q=0; q<commSize; ++q )
     {
@@ -128,15 +123,15 @@ void DistNodalMultiVec<T>::Pull
     for( int s=0; s<numRecvInds; ++s )
     {
         const int i = mappedInds[s];
-        const int q = RowToProcess( i, blocksize, commSize );
+        const int q = X.RowOwner(i);
         recvInds[offs[q]++] = i;
     }
 
     // Coordinate for the coming AllToAll to exchange the indices of X
-    std::vector<int> sendSizes( commSize );
+    std::vector<int> sendSizes(commSize);
     mpi::AllToAll( &recvSizes[0], 1, &sendSizes[0], 1, comm );
     int numSendInds=0;
-    std::vector<int> sendOffs( commSize );
+    std::vector<int> sendOffs(commSize);
     for( int q=0; q<commSize; ++q )
     {
         sendOffs[q] = numSendInds;
@@ -183,7 +178,7 @@ void DistNodalMultiVec<T>::Pull
         for( int t=0; t<nodeInfo.size; ++t )
         {
             const int i = mappedInds[off++];
-            const int q = RowToProcess( i, blocksize, commSize );
+            const int q = X.RowOwner(i);
             for( int j=0; j<width_; ++j )
                 localNodes[s].Set( t, j, recvVals[offs[q]++] );
         }
@@ -199,7 +194,7 @@ void DistNodalMultiVec<T>::Pull
         for( int tLoc=0; tLoc<localHeight; ++tLoc )
         {
             const int i = mappedInds[off++];
-            const int q = RowToProcess( i, blocksize, commSize );
+            const int q = X.RowOwner(i);
             for( int j=0; j<width_; ++j )
                 XNode.SetLocal( tLoc, j, recvVals[offs[q]++] );
         }
@@ -224,7 +219,6 @@ void DistNodalMultiVec<T>::Push
     X.Resize( height, width );
 
     const int commSize = mpi::Size( comm );
-    const int blocksize = X.Blocksize();
     const int firstLocalRow = X.FirstLocalRow();
     const int numDist = info.distNodes.size();
     const int numLocal = info.localNodes.size();
@@ -251,14 +245,10 @@ void DistNodalMultiVec<T>::Push
     inverseMap.Translate( mappedInds );
 
     // Figure out how many indices each process owns that we need to send
-    std::vector<int> sendSizes( commSize, 0 );
+    std::vector<int> sendSizes(commSize,0);
     for( int s=0; s<numSendInds; ++s )
-    {
-        const int i = mappedInds[s];
-        const int q = RowToProcess( i, blocksize, commSize );
-        ++sendSizes[q];
-    }
-    std::vector<int> sendOffs( commSize );
+        ++sendSizes[ X.RowOwner(mappedInds[s]) ];
+    std::vector<int> sendOffs(commSize);
     off=0;
     for( int q=0; q<commSize; ++q )
     {
@@ -277,7 +267,7 @@ void DistNodalMultiVec<T>::Push
         for( int t=0; t<nodeInfo.size; ++t )
         {
             const int i = mappedInds[off++];
-            const int q = RowToProcess( i, blocksize, commSize );
+            const int q = X.RowOwner(i);
             for( int j=0; j<width; ++j )
                 sendVals[offs[q]*width+j] = localNodes[s].Get(t,j);    
             sendInds[offs[q]++] = i;
@@ -290,7 +280,7 @@ void DistNodalMultiVec<T>::Push
         for( int tLoc=0; tLoc<localHeight; ++tLoc )
         {
             const int i = mappedInds[off++];
-            const int q = RowToProcess( i, blocksize, commSize );
+            const int q = X.RowOwner(i);
             for( int j=0; j<width; ++j )
                 sendVals[offs[q]*width+j] = XNode.GetLocal(tLoc,j);
             sendInds[offs[q]++] = i;
@@ -298,10 +288,10 @@ void DistNodalMultiVec<T>::Push
     }
 
     // Coordinate for the coming AllToAll to exchange the indices of x
-    std::vector<int> recvSizes( commSize );
+    std::vector<int> recvSizes(commSize);
     mpi::AllToAll( &sendSizes[0], 1, &recvSizes[0], 1, comm );
     int numRecvInds=0;
-    std::vector<int> recvOffs( commSize );
+    std::vector<int> recvOffs(commSize);
     for( int q=0; q<commSize; ++q )
     {
         recvOffs[q] = numRecvInds;
