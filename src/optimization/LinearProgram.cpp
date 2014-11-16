@@ -154,7 +154,7 @@ void FormAugmentedSystem
     {
         const Int i = ATrans.Row(k) + m;
         const Int j = ATrans.Col(k);
-        const Real value = A.Value(k);
+        const Real value = ATrans.Value(k);
         const Int owner = J.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         tSendBuf[offsets[owner]] = j;

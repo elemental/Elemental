@@ -234,9 +234,8 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
     const Int commSize = mpi::Size( comm ); 
-    // TODO: Generalize to support congruent communicators
-    if( B.Grid().Comm() != comm )
-        LogicError("Communicators of A and B must match");
+    if( !mpi::Congruent( B.Grid().Comm(), comm ) )
+        LogicError("Communicators of A and B must be congruent");
     if( B.CrossSize() != 1 || B.RedundantSize() != 1 )
         LogicError("Trivial cross and redundant communicators required");
 

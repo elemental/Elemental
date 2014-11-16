@@ -243,6 +243,16 @@ lib.ElCopySparse_c.argtypes = [c_void_p,c_void_p]
 lib.ElCopySparse_c.restype = c_uint
 lib.ElCopySparse_z.argtypes = [c_void_p,c_void_p]
 lib.ElCopySparse_z.restype = c_uint
+lib.ElCopySparseToDense_i.argtypes = [c_void_p,c_void_p]
+lib.ElCopySparseToDense_i.restype = c_uint
+lib.ElCopySparseToDense_s.argtypes = [c_void_p,c_void_p]
+lib.ElCopySparseToDense_s.restype = c_uint
+lib.ElCopySparseToDense_d.argtypes = [c_void_p,c_void_p]
+lib.ElCopySparseToDense_d.restype = c_uint
+lib.ElCopySparseToDense_c.argtypes = [c_void_p,c_void_p]
+lib.ElCopySparseToDense_c.restype = c_uint
+lib.ElCopySparseToDense_z.argtypes = [c_void_p,c_void_p]
+lib.ElCopySparseToDense_z.restype = c_uint
 lib.ElCopyDistSparse_i.argtypes = [c_void_p,c_void_p]
 lib.ElCopyDistSparse_i.restype = c_uint
 lib.ElCopyDistSparse_s.argtypes = [c_void_p,c_void_p]
@@ -253,6 +263,16 @@ lib.ElCopyDistSparse_c.argtypes = [c_void_p,c_void_p]
 lib.ElCopyDistSparse_c.restype = c_uint
 lib.ElCopyDistSparse_z.argtypes = [c_void_p,c_void_p]
 lib.ElCopyDistSparse_z.restype = c_uint
+lib.ElCopyDistSparseToDense_i.argtypes = [c_void_p,c_void_p]
+lib.ElCopyDistSparseToDense_i.restype = c_uint
+lib.ElCopyDistSparseToDense_s.argtypes = [c_void_p,c_void_p]
+lib.ElCopyDistSparseToDense_s.restype = c_uint
+lib.ElCopyDistSparseToDense_d.argtypes = [c_void_p,c_void_p]
+lib.ElCopyDistSparseToDense_d.restype = c_uint
+lib.ElCopyDistSparseToDense_c.argtypes = [c_void_p,c_void_p]
+lib.ElCopyDistSparseToDense_c.restype = c_uint
+lib.ElCopyDistSparseToDense_z.argtypes = [c_void_p,c_void_p]
+lib.ElCopyDistSparseToDense_z.restype = c_uint
 lib.ElCopyDistMultiVec_i.argtypes = [c_void_p,c_void_p]
 lib.ElCopyDistMultiVec_i.restype = c_uint
 lib.ElCopyDistMultiVec_s.argtypes = [c_void_p,c_void_p]
@@ -266,9 +286,10 @@ lib.ElCopyDistMultiVec_z.restype = c_uint
 def Copy(A,B):
   if A.tag != B.tag:
     raise Exception('Copying between datatypes is not yet supported in Python')
-  if type(A) is not type(B): raise Exception('Object types must match')
   args = [A.obj,B.obj]
   if type(A) is Matrix:
+    if type(B) is not Matrix:
+      raise Exception('Expected B to be a Matrix')
     if   B.tag == iTag: lib.ElCopy_i(*args)
     elif B.tag == sTag: lib.ElCopy_s(*args)
     elif B.tag == dTag: lib.ElCopy_d(*args)
@@ -276,6 +297,8 @@ def Copy(A,B):
     elif B.tag == zTag: lib.ElCopy_z(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
+    if type(B) is not DistMatrix:
+      raise Exception('Expected B to be a DistMatrix')
     if   B.tag == iTag: lib.ElCopyDist_i(*args)
     elif B.tag == sTag: lib.ElCopyDist_s(*args)
     elif B.tag == dTag: lib.ElCopyDist_d(*args)
@@ -283,23 +306,47 @@ def Copy(A,B):
     elif B.tag == zTag: lib.ElCopyDist_z(*args)
     else: DataExcept()
   elif type(A) is Graph:
+    if type(B) is not Graph:
+      raise Exception('Expected B to be a Graph')
     lib.ElCopyGraph(*args)
   elif type(A) is DistGraph:
+    if type(B) is not DistGraph:
+      raise Exception('Expected B to be a DistGraph')
     lib.ElCopyDistGraph(*args)
   elif type(A) is SparseMatrix:
-    if   A.tag == iTag: lib.ElCopySparse_i(*args)
-    elif A.tag == sTag: lib.ElCopySparse_s(*args)
-    elif A.tag == dTag: lib.ElCopySparse_d(*args)
-    elif A.tag == cTag: lib.ElCopySparse_c(*args)
-    elif A.tag == zTag: lib.ElCopySparse_z(*args)
-    else: DataExcept()
+    if type(B) is SparseMatrix:
+      if   A.tag == iTag: lib.ElCopySparse_i(*args)
+      elif A.tag == sTag: lib.ElCopySparse_s(*args)
+      elif A.tag == dTag: lib.ElCopySparse_d(*args)
+      elif A.tag == cTag: lib.ElCopySparse_c(*args)
+      elif A.tag == zTag: lib.ElCopySparse_z(*args)
+      else: DataExcept()
+    elif type(B) is Matrix:
+      if   A.tag == iTag: lib.ElCopySparseToDense_i(*args)
+      elif A.tag == sTag: lib.ElCopySparseToDense_s(*args)
+      elif A.tag == dTag: lib.ElCopySparseToDense_d(*args)
+      elif A.tag == cTag: lib.ElCopySparseToDense_c(*args)
+      elif A.tag == zTag: lib.ElCopySparseToDense_z(*args)
+      else: DataExcept()
+    else:
+      raise Exception('Expected B to be a (Sparse)Matrix')
   elif type(A) is DistSparseMatrix:
-    if   A.tag == iTag: lib.ElCopyDistSparse_i(*args)
-    elif A.tag == sTag: lib.ElCopyDistSparse_s(*args)
-    elif A.tag == dTag: lib.ElCopyDistSparse_d(*args)
-    elif A.tag == cTag: lib.ElCopyDistSparse_c(*args)
-    elif A.tag == zTag: lib.ElCopyDistSparse_z(*args)
-    else: DataExcept()
+    if type(B) is DistSparseMatrix:
+      if   A.tag == iTag: lib.ElCopyDistSparse_i(*args)
+      elif A.tag == sTag: lib.ElCopyDistSparse_s(*args)
+      elif A.tag == dTag: lib.ElCopyDistSparse_d(*args)
+      elif A.tag == cTag: lib.ElCopyDistSparse_c(*args)
+      elif A.tag == zTag: lib.ElCopyDistSparse_z(*args)
+      else: DataExcept()
+    elif type(B) is DistMatrix:
+      if   A.tag == iTag: lib.ElCopyDistSparseToDense_i(*args)
+      elif A.tag == sTag: lib.ElCopyDistSparseToDense_s(*args)
+      elif A.tag == dTag: lib.ElCopyDistSparseToDense_d(*args)
+      elif A.tag == cTag: lib.ElCopyDistSparseToDense_c(*args)
+      elif A.tag == zTag: lib.ElCopyDistSparseToDense_z(*args)
+      else: DataExcept()
+    else:
+      raise Exception('Expected B to be a Dist(Sparse)Matrix')
   elif type(A) is DistMultiVec:
     if   A.tag == iTag: lib.ElCopyDistMultiVec_i(*args)
     elif A.tag == sTag: lib.ElCopyDistMultiVec_s(*args)
