@@ -20,7 +20,7 @@ def AsymmSparse(xSize,ySize):
     s = firstLocalRow + sLoc
     x = s % xSize
     y = s / xSize
-    A.QueueLocalUpdate( sLoc, s, 3 )
+    A.QueueLocalUpdate( sLoc, s, 5 )
     if x != 0:       A.QueueLocalUpdate( sLoc, s-1,     -1 )
     if x != xSize-1: A.QueueLocalUpdate( sLoc, s+1,      1 )
     if y != 0:       A.QueueLocalUpdate( sLoc, s-xSize, -2 )
@@ -36,7 +36,7 @@ c = El.DistMultiVec()
 x = El.DistMultiVec()
 l = El.DistMultiVec()
 s = El.DistMultiVec()
-El.Uniform(b,n0*n1,1,0.5,0.4999)
+El.Uniform(b,n0*n1,1)
 El.Uniform(c,n0*n1,1,0.5,0.4999)
 El.Uniform(x,n0*n1,1,0.5,0.4999)
 El.Uniform(l,n0*n1,1,0.5,0.4999)
@@ -49,18 +49,15 @@ El.Display( c, "c" )
 El.Display( x, "x" )
 El.Display( l, "l" )
 El.Display( s, "s" )
-
-ADense = El.DistMatrix()
-El.Copy( A, ADense )
 El.Display( A, "A" )
-El.Display( ADense, "ADense" )
 
-JDense = El.DistMatrix()
-El.Copy( J, JDense )
 El.Display( J, "J" )
-El.Display( JDense, "JDense" )
-
 El.Display( y, "y" )
+
+d = El.DistMultiVec(y.tag,y.Comm())
+El.Copy(y,d)
+El.SymmetricSolve(J,d)
+El.Display( d, "J \ y" )
 
 # Require the user to press a button before the figures are closed
 commSize = El.mpi.Size( El.mpi.COMM_WORLD() )

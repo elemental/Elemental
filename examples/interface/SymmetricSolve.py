@@ -57,7 +57,7 @@ El.SparseMultiply(El.NORMAL,-1.,A,x,1.,y)
 El.Display( y, "A x - y" )
 eNrm = El.Nrm2(y)
 if rank == 0:
-  print "|| A x - y ||_2 =", eNrm
+  print "|| A x - y ||_2 / || y ||_2 =", eNrm/yNrm
 
 # Require the user to press a button before the figures are closed
 commSize = El.mpi.Size( El.mpi.COMM_WORLD() )

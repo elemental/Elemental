@@ -135,6 +135,41 @@ def LinearProgramFormAugmentedSystem(A,b,c,x,l,s,tau):
     return J, y
   else: TypeExcept()
 
+lib.ElLinearProgramFormNormalSystem_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,sType, \
+   c_void_p,c_void_p]
+lib.ElLinearProgramFormNormalSystem_s.restype = c_uint
+lib.ElLinearProgramFormNormalSystem_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,dType, \
+   c_void_p,c_void_p]
+lib.ElLinearProgramFormNormalSystem_d.restype = c_uint
+lib.ElLinearProgramFormNormalSystemDist_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,sType, \
+   c_void_p,c_void_p]
+lib.ElLinearProgramFormNormalSystemDist_s.restype = c_uint
+lib.ElLinearProgramFormNormalSystemDist_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,dType, \
+   c_void_p,c_void_p]
+lib.ElLinearProgramFormNormalSystemDist_d.restype = c_uint
+def LinearProgramFormNormalSystem(A,b,c,x,l,s,tau):
+  if type(A) is SparseMatrix:
+    J = SparseMatrix(A.tag)
+    y = Matrix(A.tag)
+    args = [A.obj,b.obj,c.obj,x.obj,l.obj,s.obj,tau,J.obj,y.obj]
+    if   A.tag == sTag: lib.ElLinearProgramFormNormalSystem_s(*args)
+    elif A.tag == dTag: lib.ElLinearProgramFormNormalSystem_d(*args)
+    else: DataExcept()
+    return J, y
+  elif type(A) is DistSparseMatrix:
+    J = DistSparseMatrix(A.tag,A.Comm())
+    y = DistMultiVec(A.tag,A.Comm())
+    args = [A.obj,b.obj,c.obj,x.obj,l.obj,s.obj,tau,J.obj,y.obj]
+    if   A.tag == sTag: lib.ElLinearProgramFormNormalSystemDist_s(*args)
+    elif A.tag == dTag: lib.ElLinearProgramFormNormalSystemDist_d(*args)
+    else: DataExcept()
+    return J, y
+  else: TypeExcept()
+
 lib.ElLinearProgram_s.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,POINTER(iType)]
 lib.ElLinearProgram_s.restype = c_uint

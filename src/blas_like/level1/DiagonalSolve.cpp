@@ -13,12 +13,12 @@ namespace El {
 template<typename FDiag,typename F>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
-  const Matrix<FDiag>& d, Matrix<F>& X, bool checkIfSingular )
+  const Matrix<FDiag>& d, Matrix<F>& A, bool checkIfSingular )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalSolve"))
-    const Int m = X.Height();
-    const Int n = X.Width();
-    const Int ldim = X.LDim();
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int ldim = A.LDim();
     if( side == LEFT )
     {
         for( Int i=0; i<m; ++i )
@@ -27,13 +27,13 @@ void DiagonalSolve
             if( checkIfSingular && delta == F(0) )
                 throw SingularMatrixException();
             const F deltaInv = F(1)/delta;
-            F* XBuffer = X.Buffer(i,0);
+            F* ABuffer = A.Buffer(i,0);
             if( orientation == ADJOINT )
                 for( Int j=0; j<n; ++j )
-                    XBuffer[j*ldim] *= Conj(deltaInv);
+                    ABuffer[j*ldim] *= Conj(deltaInv);
             else
                 for( Int j=0; j<n; ++j )
-                    XBuffer[j*ldim] *= deltaInv;
+                    ABuffer[j*ldim] *= deltaInv;
         }
     }
     else
@@ -44,13 +44,13 @@ void DiagonalSolve
             if( checkIfSingular && delta == F(0) )
                 throw SingularMatrixException();
             const F deltaInv = F(1)/delta;
-            F* XBuffer = X.Buffer(0,j);
+            F* ABuffer = A.Buffer(0,j);
             if( orientation == ADJOINT )
                 for( Int i=0; i<m; ++i )
-                    XBuffer[i] *= Conj(deltaInv);
+                    ABuffer[i] *= Conj(deltaInv);
             else
                 for( Int i=0; i<m; ++i )
-                    XBuffer[i] *= deltaInv;
+                    ABuffer[i] *= deltaInv;
         }
     }
 }
@@ -59,87 +59,155 @@ template<typename FDiag,typename F,Dist U,Dist V>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
   const AbstractDistMatrix<FDiag>& dPre, 
-        DistMatrix<F,U,V>& X, bool checkIfSingular )
+        DistMatrix<F,U,V>& A, bool checkIfSingular )
 {
     DEBUG_ONLY(
         CallStackEntry cse("DiagonalSolve");
-        AssertSameGrids( dPre, X );
+        AssertSameGrids( dPre, A );
     )
     if( side == LEFT )
     {
         ProxyCtrl ctrl;
         ctrl.rootConstrain = true;
         ctrl.colConstrain = true;
-        ctrl.root = X.Root();
-        ctrl.colAlign = X.ColAlign();
+        ctrl.root = A.Root();
+        ctrl.colAlign = A.ColAlign();
         auto dPtr = ReadProxy<FDiag,U,GatheredDist<V>()>( &dPre, ctrl );
         auto& d = *dPtr;
         DiagonalSolve
-        ( LEFT, orientation, d.LockedMatrix(), X.Matrix(), checkIfSingular );
+        ( LEFT, orientation, d.LockedMatrix(), A.Matrix(), checkIfSingular );
     }
     else
     {
         ProxyCtrl ctrl;
         ctrl.rootConstrain = true;
         ctrl.colConstrain = true;
-        ctrl.root = X.Root();
-        ctrl.colAlign = X.RowAlign();
+        ctrl.root = A.Root();
+        ctrl.colAlign = A.RowAlign();
         auto dPtr = ReadProxy<FDiag,V,GatheredDist<U>()>( &dPre, ctrl );
         auto& d = *dPtr;
         DiagonalSolve
-        ( RIGHT, orientation, d.LockedMatrix(), X.Matrix(), checkIfSingular );
+        ( RIGHT, orientation, d.LockedMatrix(), A.Matrix(), checkIfSingular );
     }
 }
 
-template<typename F>
+template<typename FDiag,typename F>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<F>& d, AbstractDistMatrix<F>& X,
+  const AbstractDistMatrix<FDiag>& d, AbstractDistMatrix<F>& A,
   bool checkIfSingular )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalSolve"))
-    #define GUARD(CDIST,RDIST) X.ColDist() == CDIST && X.RowDist() == RDIST
+    #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-        auto& XCast = dynamic_cast<DistMatrix<F,CDIST,RDIST>&>(X); \
-        DiagonalSolve( side, orientation, d, XCast, checkIfSingular );
+        auto& ACast = dynamic_cast<DistMatrix<F,CDIST,RDIST>&>(A); \
+        DiagonalSolve( side, orientation, d, ACast, checkIfSingular );
     #include "El/macros/GuardAndPayload.h"
 }
 
-template<typename F>
+template<typename FDiag,typename F>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<F>& d, AbstractDistMatrix<Complex<F>>& X,
-  bool checkIfSingular )
+  const Matrix<FDiag>& d, SparseMatrix<F>& A, bool checkIfSingular )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalSolve"))
-    #define GUARD(CDIST,RDIST) X.ColDist() == CDIST && X.RowDist() == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-        auto& XCast = dynamic_cast<DistMatrix<Complex<F>,CDIST,RDIST>&>(X); \
-        DiagonalSolve( side, orientation, d, XCast, checkIfSingular );
-    #include "El/macros/GuardAndPayload.h"
+    if( d.Width() != 1 )
+        LogicError("d must be a column vector");
+    const bool conjugate = ( orientation == ADJOINT );
+    F* vBuf = A.ValueBuffer();
+    if( side == LEFT )
+    {
+        if( d.Height() != A.Height() )
+            LogicError("The size of d must match the height of A");
+        for( Int k=0; k<A.NumEntries(); ++k )
+        {
+            const Int i = A.Row(k);
+            const FDiag delta = ( conjugate ? Conj(d.Get(i,0)) : d.Get(i,0) );
+            if( checkIfSingular && delta == FDiag(0) )
+                throw SingularMatrixException();
+            vBuf[k] /= F(delta);
+        }
+    }
+    else
+    {
+        if( d.Height() != A.Width() )
+            LogicError("The size of d must match the width of A");
+        for( Int k=0; k<A.NumEntries(); ++k )
+        {
+            const Int j = A.Col(k);
+            const FDiag delta = ( conjugate ? Conj(d.Get(j,0)) : d.Get(j,0) );
+            if( checkIfSingular && delta == FDiag(0) )
+                throw SingularMatrixException();
+            vBuf[k] /= F(delta);
+        }
+    }
+}
+
+template<typename FDiag,typename F>
+void DiagonalSolve
+( LeftOrRight side, Orientation orientation,
+  const DistMultiVec<FDiag>& d, DistSparseMatrix<F>& A, bool checkIfSingular )
+{
+    DEBUG_ONLY(CallStackEntry cse("DiagonalSolve"))
+    if( d.Width() != 1 )
+        LogicError("d must be a column vector");
+    if( !mpi::Congruent( d.Comm(), A.Comm() ) )
+        LogicError("Communicators must be congruent");
+    const bool conjugate = ( orientation == ADJOINT );
+    if( side == LEFT )
+    {
+        if( d.Height() != A.Height() )
+            LogicError("The length of d must match the height of A");
+        // TODO: Ensure that the DistMultiVec conforms
+        F* vBuf = A.ValueBuffer();
+        const Int firstLocalRow = d.FirstLocalRow();
+        for( Int k=0; k<A.NumLocalEntries(); ++k )
+        {
+            const Int i = A.Row(k);
+            const Int iLoc = i - firstLocalRow;
+            const FDiag delta = 
+              ( conjugate ? Conj(d.GetLocal(iLoc,0)) : d.GetLocal(iLoc,0) );
+            if( checkIfSingular && delta == FDiag(0) )
+                throw SingularMatrixException();
+            vBuf[k] /= F(delta);
+        }
+    }
+    else
+    {
+        // NOTE: This is likely grossly suboptimal
+        DistSparseMatrix<F> ATrans;
+        Transpose( A, ATrans, conjugate );
+        DiagonalSolve( LEFT, NORMAL, d, ATrans );
+        Transpose( ATrans, A, conjugate );
+    }
 }
 
 #define DIST_PROTO(T,U,V) \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, DistMatrix<T,U,V>& X, \
+    const AbstractDistMatrix<T>& d, DistMatrix<T,U,V>& A, \
     bool checkIfSingular );
 
 #define DIST_PROTO_REAL(T,U,V) \
-  DIST_PROTO(T,U,V) \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, DistMatrix<Complex<T>,U,V>& X, \
+    const AbstractDistMatrix<T>& d, DistMatrix<Complex<T>,U,V>& A, \
     bool checkIfSingular );
 
 #define PROTO(T) \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
-    const Matrix<T>& d, Matrix<T>& X, bool checkIfSingular ); \
+    const Matrix<T>& d, Matrix<T>& A, bool checkIfSingular ); \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, AbstractDistMatrix<T>& X, \
+    const AbstractDistMatrix<T>& d, AbstractDistMatrix<T>& A, \
     bool checkIfSingular ); \
+  template void DiagonalSolve \
+  ( LeftOrRight side, Orientation orientation, \
+    const Matrix<T>& d, SparseMatrix<T>& A, bool checkIfSingular ); \
+  template void DiagonalSolve \
+  ( LeftOrRight side, Orientation orientation, \
+    const DistMultiVec<T>& d, DistSparseMatrix<T>& A, bool checkIfSingular ); \
   DIST_PROTO(T,CIRC,CIRC); \
   DIST_PROTO(T,MC,  MR  ); \
   DIST_PROTO(T,MC,  STAR); \
@@ -156,19 +224,21 @@ void DiagonalSolve
   DIST_PROTO(T,VR  ,STAR);
 
 #define PROTO_REAL(T) \
+  PROTO(T) \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
-    const Matrix<T>& d, Matrix<T>& X, bool checkIfSingular ); \
+    const Matrix<T>& d, Matrix<Complex<T>>& A, bool checkIfSingular ); \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
-    const Matrix<T>& d, Matrix<Complex<T>>& X, bool checkIfSingular ); \
-  template void DiagonalSolve \
-  ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, AbstractDistMatrix<T>& X, \
+    const AbstractDistMatrix<T>& d, AbstractDistMatrix<Complex<T>>& A, \
     bool checkIfSingular ); \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, AbstractDistMatrix<Complex<T>>& X, \
+    const Matrix<T>& d, SparseMatrix<Complex<T>>& A, \
+    bool checkIfSingular ); \
+  template void DiagonalSolve \
+  ( LeftOrRight side, Orientation orientation, \
+    const DistMultiVec<T>& d, DistSparseMatrix<Complex<T>>& A, \
     bool checkIfSingular ); \
   DIST_PROTO_REAL(T,CIRC,CIRC); \
   DIST_PROTO_REAL(T,MC,  MR  ); \

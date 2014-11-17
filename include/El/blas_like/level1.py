@@ -452,24 +452,65 @@ lib.ElDiagonalScaleDist_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
 lib.ElDiagonalScaleDist_c.restype = c_uint
 lib.ElDiagonalScaleDist_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
 lib.ElDiagonalScaleDist_z.restype = c_uint
-def DiagonalScale(side,orient,d,X):
-  if type(d) is not type(X): raise Exception('Matrix types must match')
-  if d.tag != X.tag: raise Exception('Matrix datatypes must match')
-  args = [side,d.obj,X.obj]
-  argsCpx = [side,orient,d.obj,X.obj]
-  if type(X) is Matrix:
-    if   X.tag == iTag: lib.ElDiagonalScale_i(*args)
-    elif X.tag == sTag: lib.ElDiagonalScale_s(*args)
-    elif X.tag == dTag: lib.ElDiagonalScale_d(*args)
-    elif X.tag == cTag: lib.ElDiagonalScale_c(*argsCpx)
-    elif X.tag == zTag: lib.ElDiagonalScale_z(*argsCpx)
+lib.ElDiagonalScaleSparse_i.argtypes = [c_uint,c_void_p,c_void_p]
+lib.ElDiagonalScaleSparse_i.restype = c_uint
+lib.ElDiagonalScaleSparse_s.argtypes = [c_uint,c_void_p,c_void_p]
+lib.ElDiagonalScaleSparse_s.restype = c_uint
+lib.ElDiagonalScaleSparse_d.argtypes = [c_uint,c_void_p,c_void_p]
+lib.ElDiagonalScaleSparse_d.restype = c_uint
+lib.ElDiagonalScaleSparse_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
+lib.ElDiagonalScaleSparse_c.restype = c_uint
+lib.ElDiagonalScaleSparse_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
+lib.ElDiagonalScaleSparse_z.restype = c_uint
+lib.ElDiagonalScaleDistSparse_i.argtypes = [c_uint,c_void_p,c_void_p]
+lib.ElDiagonalScaleDistSparse_i.restype = c_uint
+lib.ElDiagonalScaleDistSparse_s.argtypes = [c_uint,c_void_p,c_void_p]
+lib.ElDiagonalScaleDistSparse_s.restype = c_uint
+lib.ElDiagonalScaleDistSparse_d.argtypes = [c_uint,c_void_p,c_void_p]
+lib.ElDiagonalScaleDistSparse_d.restype = c_uint
+lib.ElDiagonalScaleDistSparse_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
+lib.ElDiagonalScaleDistSparse_c.restype = c_uint
+lib.ElDiagonalScaleDistSparse_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
+lib.ElDiagonalScaleDistSparse_z.restype = c_uint
+def DiagonalScale(side,orient,d,A):
+  if d.tag != A.tag: raise Exception('Matrix datatypes must match')
+  args = [side,d.obj,A.obj]
+  argsCpx = [side,orient,d.obj,A.obj]
+  if type(A) is Matrix:
+    if type(d) is not Matrix:
+      raise Exception('Expected d to be a Matrix')
+    if   A.tag == iTag: lib.ElDiagonalScale_i(*args)
+    elif A.tag == sTag: lib.ElDiagonalScale_s(*args)
+    elif A.tag == dTag: lib.ElDiagonalScale_d(*args)
+    elif A.tag == cTag: lib.ElDiagonalScale_c(*argsCpx)
+    elif A.tag == zTag: lib.ElDiagonalScale_z(*argsCpx)
     else: DataExcept()
-  elif type(X) is DistMatrix:
-    if   X.tag == iTag: lib.ElDiagonalScaleDist_i(*args)
-    elif X.tag == sTag: lib.ElDiagonalScaleDist_s(*args)
-    elif X.tag == dTag: lib.ElDiagonalScaleDist_d(*args)
-    elif X.tag == cTag: lib.ElDiagonalScaleDist_c(*argsCpx)
-    elif X.tag == zTag: lib.ElDiagonalScaleDist_z(*argsCpx)
+  elif type(A) is DistMatrix:
+    if type(d) is not DistMatrix:
+      raise Exception('Expected d to be a DistMatrix')
+    if   A.tag == iTag: lib.ElDiagonalScaleDist_i(*args)
+    elif A.tag == sTag: lib.ElDiagonalScaleDist_s(*args)
+    elif A.tag == dTag: lib.ElDiagonalScaleDist_d(*args)
+    elif A.tag == cTag: lib.ElDiagonalScaleDist_c(*argsCpx)
+    elif A.tag == zTag: lib.ElDiagonalScaleDist_z(*argsCpx)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if type(d) is not Matrix:
+      raise Exception('Expected d to be a Matrix')
+    if   A.tag == iTag: lib.ElDiagonalScaleSparse_i(*args)
+    elif A.tag == sTag: lib.ElDiagonalScaleSparse_s(*args)
+    elif A.tag == dTag: lib.ElDiagonalScaleSparse_d(*args)
+    elif A.tag == cTag: lib.ElDiagonalScaleSparse_c(*argsCpx)
+    elif A.tag == zTag: lib.ElDiagonalScaleSparse_z(*argsCpx)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if type(d) is not DistMultiVec:
+      raise Exception('Expected d to be a DistMultiVec')
+    if   A.tag == iTag: lib.ElDiagonalScaleDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElDiagonalScaleDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElDiagonalScaleDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElDiagonalScaleDistSparse_c(*argsCpx)
+    elif A.tag == zTag: lib.ElDiagonalScaleDistSparse_z(*argsCpx)
     else: DataExcept()
   else: TypeExcept()
 
@@ -505,24 +546,75 @@ lib.ElDiagonalScaleTrapezoidDist_c.restype = c_uint
 lib.ElDiagonalScaleTrapezoidDist_z.argtypes = \
   [c_uint,c_uint,c_uint,c_void_p,c_void_p,iType]
 lib.ElDiagonalScaleTrapezoidDist_z.restype = c_uint
-def DiagonalScaleTrapezoid(side,uplo,orient,d,X,offset=0):
-  if type(d) is not type(X): raise Exception('Matrix types must match')
-  if d.tag != X.tag: raise Exception('Matrix datatypes must match')
-  args = [side,uplo,d.obj,X.obj,offset]
-  argsCpx = [side,uplo,orient,d.obj,X.obj,offset]
-  if type(X) is Matrix:
-    if   X.tag == iTag: lib.ElDiagonalScaleTrapezoid_i(*args)
-    elif X.tag == sTag: lib.ElDiagonalScaleTrapezoid_s(*args)
-    elif X.tag == dTag: lib.ElDiagonalScaleTrapezoid_d(*args)
-    elif X.tag == cTag: lib.ElDiagonalScaleTrapezoid_c(*argsCpx)
-    elif X.tag == zTag: lib.ElDiagonalScaleTrapezoid_z(*argsCpx)
+lib.ElDiagonalScaleTrapezoidSparse_i.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,iType]
+lib.ElDiagonalScaleTrapezoidSparse_i.restype = c_uint
+lib.ElDiagonalScaleTrapezoidSparse_s.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,iType]
+lib.ElDiagonalScaleTrapezoidSparse_s.restype = c_uint
+lib.ElDiagonalScaleTrapezoidSparse_d.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,iType]
+lib.ElDiagonalScaleTrapezoidSparse_d.restype = c_uint
+lib.ElDiagonalScaleTrapezoidSparse_c.argtypes = \
+  [c_uint,c_uint,c_uint,c_void_p,c_void_p,iType]
+lib.ElDiagonalScaleTrapezoidSparse_c.restype = c_uint
+lib.ElDiagonalScaleTrapezoidSparse_z.argtypes = \
+  [c_uint,c_uint,c_uint,c_void_p,c_void_p,iType]
+lib.ElDiagonalScaleTrapezoidSparse_z.restype = c_uint
+lib.ElDiagonalScaleTrapezoidDistSparse_i.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,iType]
+lib.ElDiagonalScaleTrapezoidDistSparse_i.restype = c_uint
+lib.ElDiagonalScaleTrapezoidDistSparse_s.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,iType]
+lib.ElDiagonalScaleTrapezoidDistSparse_s.restype = c_uint
+lib.ElDiagonalScaleTrapezoidDistSparse_d.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p,iType]
+lib.ElDiagonalScaleTrapezoidDistSparse_d.restype = c_uint
+lib.ElDiagonalScaleTrapezoidDistSparse_c.argtypes = \
+  [c_uint,c_uint,c_uint,c_void_p,c_void_p,iType]
+lib.ElDiagonalScaleTrapezoidDistSparse_c.restype = c_uint
+lib.ElDiagonalScaleTrapezoidDistSparse_z.argtypes = \
+  [c_uint,c_uint,c_uint,c_void_p,c_void_p,iType]
+lib.ElDiagonalScaleTrapezoidDistSparse_z.restype = c_uint
+def DiagonalScaleTrapezoid(side,uplo,orient,d,A,offset=0):
+  if d.tag != A.tag: raise Exception('Matrix datatypes must match')
+  args = [side,uplo,d.obj,A.obj,offset]
+  argsCpx = [side,uplo,orient,d.obj,A.obj,offset]
+  if type(A) is Matrix:
+    if type(d) is not Matrix:
+      raise Exception('Expected d to be a Matrix')
+    if   A.tag == iTag: lib.ElDiagonalScaleTrapezoid_i(*args)
+    elif A.tag == sTag: lib.ElDiagonalScaleTrapezoid_s(*args)
+    elif A.tag == dTag: lib.ElDiagonalScaleTrapezoid_d(*args)
+    elif A.tag == cTag: lib.ElDiagonalScaleTrapezoid_c(*argsCpx)
+    elif A.tag == zTag: lib.ElDiagonalScaleTrapezoid_z(*argsCpx)
     else: DataExcept()
-  elif type(X) is DistMatrix:
-    if   X.tag == iTag: lib.ElDiagonalScaleTrapezoidDist_i(*args)
-    elif X.tag == sTag: lib.ElDiagonalScaleTrapezoidDist_s(*args)
-    elif X.tag == dTag: lib.ElDiagonalScaleTrapezoidDist_d(*args)
-    elif X.tag == cTag: lib.ElDiagonalScaleTrapezoidDist_c(*argsCpx)
-    elif X.tag == zTag: lib.ElDiagonalScaleTrapezoidDist_z(*argsCpx)
+  elif type(A) is DistMatrix:
+    if type(d) is not DistMatrix:
+      raise Exception('Expected d to be a DistMatrix')
+    if   A.tag == iTag: lib.ElDiagonalScaleTrapezoidDist_i(*args)
+    elif A.tag == sTag: lib.ElDiagonalScaleTrapezoidDist_s(*args)
+    elif A.tag == dTag: lib.ElDiagonalScaleTrapezoidDist_d(*args)
+    elif A.tag == cTag: lib.ElDiagonalScaleTrapezoidDist_c(*argsCpx)
+    elif A.tag == zTag: lib.ElDiagonalScaleTrapezoidDist_z(*argsCpx)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if type(d) is not Matrix:
+      raise Exception('Expected d to be a Matrix')
+    if   A.tag == iTag: lib.ElDiagonalScaleTrapezoidSparse_i(*args)
+    elif A.tag == sTag: lib.ElDiagonalScaleTrapezoidSparse_s(*args)
+    elif A.tag == dTag: lib.ElDiagonalScaleTrapezoidSparse_d(*args)
+    elif A.tag == cTag: lib.ElDiagonalScaleTrapezoidSparse_c(*argsCpx)
+    elif A.tag == zTag: lib.ElDiagonalScaleTrapezoidSparse_z(*argsCpx)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if type(d) is not DistMultiVec:
+      raise Exception('Expected d to be a DistMultiVec')
+    if   A.tag == iTag: lib.ElDiagonalScaleTrapezoidDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElDiagonalScaleTrapezoidDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElDiagonalScaleTrapezoidDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElDiagonalScaleTrapezoidDistSparse_c(*argsCpx)
+    elif A.tag == zTag: lib.ElDiagonalScaleTrapezoidDistSparse_z(*argsCpx)
     else: DataExcept()
   else: TypeExcept()
 
@@ -544,22 +636,57 @@ lib.ElDiagonalSolveDist_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
 lib.ElDiagonalSolveDist_c.restype = c_uint
 lib.ElDiagonalSolveDist_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
 lib.ElDiagonalSolveDist_z.restype = c_uint
-def DiagonalSolve(side,orient,d,X):
-  if type(d) is not type(X): raise Exception('Matrix types must match')
-  if d.tag != X.tag: raise Exception('Matrix datatypes must match')
-  args = [side,d.obj,X.obj]
-  argsCpx = [side,orient,d.obj,X.obj]
-  if type(X) is Matrix:
-    if   X.tag == sTag: lib.ElDiagonalSolve_s(*args)
-    elif X.tag == dTag: lib.ElDiagonalSolve_d(*args)
-    elif X.tag == cTag: lib.ElDiagonalSolve_c(*argsCpx)
-    elif X.tag == zTag: lib.ElDiagonalSolve_z(*argsCpx)
+lib.ElDiagonalSolveSparse_s.argtypes = [c_uint,c_void_p,c_void_p]
+lib.ElDiagonalSolveSparse_s.restype = c_uint
+lib.ElDiagonalSolveSparse_d.argtypes = [c_uint,c_void_p,c_void_p]
+lib.ElDiagonalSolveSparse_d.restype = c_uint
+lib.ElDiagonalSolveSparse_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
+lib.ElDiagonalSolveSparse_c.restype = c_uint
+lib.ElDiagonalSolveSparse_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
+lib.ElDiagonalSolveSparse_z.restype = c_uint
+lib.ElDiagonalSolveDistSparse_s.argtypes = [c_uint,c_void_p,c_void_p]
+lib.ElDiagonalSolveDistSparse_s.restype = c_uint
+lib.ElDiagonalSolveDistSparse_d.argtypes = [c_uint,c_void_p,c_void_p]
+lib.ElDiagonalSolveDistSparse_d.restype = c_uint
+lib.ElDiagonalSolveDistSparse_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
+lib.ElDiagonalSolveDistSparse_c.restype = c_uint
+lib.ElDiagonalSolveDistSparse_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
+lib.ElDiagonalSolveDistSparse_z.restype = c_uint
+def DiagonalSolve(side,orient,d,A):
+  if d.tag != A.tag: raise Exception('Matrix datatypes must match')
+  args = [side,d.obj,A.obj]
+  argsCpx = [side,orient,d.obj,A.obj]
+  if type(A) is Matrix:
+    if type(d) is not Matrix:
+      raise Exception('Expected d to be a Matrix')
+    if   A.tag == sTag: lib.ElDiagonalSolve_s(*args)
+    elif A.tag == dTag: lib.ElDiagonalSolve_d(*args)
+    elif A.tag == cTag: lib.ElDiagonalSolve_c(*argsCpx)
+    elif A.tag == zTag: lib.ElDiagonalSolve_z(*argsCpx)
     else: DataExcept()
-  elif type(X) is DistMatrix:
-    if   X.tag == sTag: lib.ElDiagonalSolveDist_s(*args)
-    elif X.tag == dTag: lib.ElDiagonalSolveDist_d(*args)
-    elif X.tag == cTag: lib.ElDiagonalSolveDist_c(*argsCpx)
-    elif X.tag == zTag: lib.ElDiagonalSolveDist_z(*argsCpx)
+  elif type(A) is DistMatrix:
+    if type(d) is not DistMatrix:
+      raise Exception('Expected d to be a DistMatrix')
+    if   A.tag == sTag: lib.ElDiagonalSolveDist_s(*args)
+    elif A.tag == dTag: lib.ElDiagonalSolveDist_d(*args)
+    elif A.tag == cTag: lib.ElDiagonalSolveDist_c(*argsCpx)
+    elif A.tag == zTag: lib.ElDiagonalSolveDist_z(*argsCpx)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if type(d) is not Matrix:
+      raise Exception('Expected d to be a Matrix')
+    if   A.tag == sTag: lib.ElDiagonalSolveSparse_s(*args)
+    elif A.tag == dTag: lib.ElDiagonalSolveSparse_d(*args)
+    elif A.tag == cTag: lib.ElDiagonalSolveSparse_c(*argsCpx)
+    elif A.tag == zTag: lib.ElDiagonalSolveSparse_z(*argsCpx)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if type(d) is not DistMultiVec:
+      raise Exception('Expected d to be a DistMultiVec')
+    if   A.tag == sTag: lib.ElDiagonalSolveDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElDiagonalSolveDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElDiagonalSolveDistSparse_c(*argsCpx)
+    elif A.tag == zTag: lib.ElDiagonalSolveDistSparse_z(*argsCpx)
     else: DataExcept()
   else: TypeExcept()
 

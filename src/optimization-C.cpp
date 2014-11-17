@@ -138,6 +138,25 @@ extern "C" {
       *CReflect(A),*CReflect(b),*CReflect(c), \
       *CReflect(x),*CReflect(l),*CReflect(s), \
       tau,*CReflect(J),*CReflect(y)) ) } \
+  ElError ElLinearProgramFormNormalSystem_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
+    ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG l, ElConstMatrix_ ## SIG s, \
+    Real tau, ElSparseMatrix_ ## SIG J, ElMatrix_ ## SIG y ) \
+  { EL_TRY( lin_prog::FormNormalSystem( \
+      *CReflect(A),*CReflect(b),*CReflect(c), \
+      *CReflect(x),*CReflect(l),*CReflect(s), \
+      tau,*CReflect(J),*CReflect(y)) ) } \
+  ElError ElLinearProgramFormNormalSystemDist_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, \
+    ElConstDistMultiVec_ ## SIG b, ElConstDistMultiVec_ ## SIG c, \
+    ElConstDistMultiVec_ ## SIG x, ElConstDistMultiVec_ ## SIG l, \
+    ElConstDistMultiVec_ ## SIG s, \
+    Real tau, ElDistSparseMatrix_ ## SIG J, ElDistMultiVec_ ## SIG y ) \
+  { EL_TRY( lin_prog::FormNormalSystem( \
+      *CReflect(A),*CReflect(b),*CReflect(c), \
+      *CReflect(x),*CReflect(l),*CReflect(s), \
+      tau,*CReflect(J),*CReflect(y)) ) } \
   ElError ElLinearProgram_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
     ElConstMatrix_ ## SIG c, ElMatrix_ ## SIG z, ElInt* numIts ) \

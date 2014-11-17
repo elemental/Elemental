@@ -427,29 +427,54 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
   /* DiagonalScale */ \
   ElError ElDiagonalScale_ ## SIG \
   ( ElLeftOrRight side, \
-    ElConstMatrix_ ## SIG d, ElMatrix_ ## SIG X ) \
+    ElConstMatrix_ ## SIG d, ElMatrix_ ## SIG A ) \
   { EL_TRY( \
-      DiagonalScale( CReflect(side), NORMAL, *CReflect(d), *CReflect(X) ) ) } \
+      DiagonalScale( CReflect(side), NORMAL, *CReflect(d), *CReflect(A) ) ) } \
   ElError ElDiagonalScaleDist_ ## SIG \
   ( ElLeftOrRight side, \
-    ElConstDistMatrix_ ## SIG d, ElDistMatrix_ ## SIG X ) \
+    ElConstDistMatrix_ ## SIG d, ElDistMatrix_ ## SIG A ) \
   { EL_TRY( \
-      DiagonalScale( CReflect(side), NORMAL, *CReflect(d), *CReflect(X) ) ) } \
+      DiagonalScale( CReflect(side), NORMAL, *CReflect(d), *CReflect(A) ) ) } \
+  ElError ElDiagonalScaleSparse_ ## SIG \
+  ( ElLeftOrRight side, \
+    ElConstMatrix_ ## SIG d, ElSparseMatrix_ ## SIG A ) \
+  { EL_TRY( \
+      DiagonalScale( CReflect(side), NORMAL, *CReflect(d), *CReflect(A) ) ) } \
+  ElError ElDiagonalScaleDistSparse_ ## SIG \
+  ( ElLeftOrRight side, \
+    ElConstDistMultiVec_ ## SIG d, ElDistSparseMatrix_ ## SIG A ) \
+  { EL_TRY( \
+      DiagonalScale( CReflect(side), NORMAL, *CReflect(d), *CReflect(A) ) ) } \
   /* DiagonalScaleTrapezoid */ \
   ElError ElDiagonalScaleTrapezoid_ ## SIG \
   ( ElLeftOrRight side, ElUpperOrLower uplo, \
-    ElConstMatrix_ ## SIG d, ElMatrix_ ## SIG X, ElInt offset ) \
+    ElConstMatrix_ ## SIG d, ElMatrix_ ## SIG A, ElInt offset ) \
   { EL_TRY( \
       DiagonalScaleTrapezoid \
       ( CReflect(side), CReflect(uplo), NORMAL, \
-        *CReflect(d), *CReflect(X), offset ) ) } \
+        *CReflect(d), *CReflect(A), offset ) ) } \
   ElError ElDiagonalScaleTrapezoidDist_ ## SIG \
   ( ElLeftOrRight side, ElUpperOrLower uplo, \
-    ElConstDistMatrix_ ## SIG d, ElDistMatrix_ ## SIG X, ElInt offset ) \
+    ElConstDistMatrix_ ## SIG d, ElDistMatrix_ ## SIG A, ElInt offset ) \
   { EL_TRY( \
       DiagonalScaleTrapezoid \
       ( CReflect(side), CReflect(uplo), NORMAL, \
-        *CReflect(d), *CReflect(X), offset ) ) } \
+        *CReflect(d), *CReflect(A), offset ) ) } \
+  ElError ElDiagonalScaleTrapezoidSparse_ ## SIG \
+  ( ElLeftOrRight side, ElUpperOrLower uplo, \
+    ElConstMatrix_ ## SIG d, ElSparseMatrix_ ## SIG A, ElInt offset ) \
+  { EL_TRY( \
+      DiagonalScaleTrapezoid \
+      ( CReflect(side), CReflect(uplo), NORMAL, \
+        *CReflect(d), *CReflect(A), offset ) ) } \
+  ElError ElDiagonalScaleTrapezoidDistSparse_ ## SIG \
+  ( ElLeftOrRight side, ElUpperOrLower uplo, \
+    ElConstDistMultiVec_ ## SIG d, ElDistSparseMatrix_ ## SIG A, \
+    ElInt offset ) \
+  { EL_TRY( \
+      DiagonalScaleTrapezoid \
+      ( CReflect(side), CReflect(uplo), NORMAL, \
+        *CReflect(d), *CReflect(A), offset ) ) } \
   /* Unconjugated dot product, vec(A)^T vec(B) */ \
   ElError ElDotu_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, CREFLECT(T)* prod ) \
@@ -588,18 +613,32 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
   /* DiagonalSolve */ \
   ElError ElDiagonalSolve_ ## SIG \
   ( ElLeftOrRight side, ElOrientation orientation, \
-    ElConstMatrix_ ## SIG d, ElMatrix_ ## SIG X ) \
+    ElConstMatrix_ ## SIG d, ElMatrix_ ## SIG A ) \
   { EL_TRY( \
       DiagonalSolve \
       ( CReflect(side), CReflect(orientation), \
-        *CReflect(d), *CReflect(X) ) ) } \
+        *CReflect(d), *CReflect(A) ) ) } \
   ElError ElDiagonalSolveDist_ ## SIG \
   ( ElLeftOrRight side, ElOrientation orientation, \
-    ElConstDistMatrix_ ## SIG d, ElDistMatrix_ ## SIG X ) \
+    ElConstDistMatrix_ ## SIG d, ElDistMatrix_ ## SIG A ) \
   { EL_TRY( \
       DiagonalSolve \
       ( CReflect(side), CReflect(orientation), \
-        *CReflect(d), *CReflect(X) ) ) } \
+        *CReflect(d), *CReflect(A) ) ) } \
+  ElError ElDiagonalSolveSparse_ ## SIG \
+  ( ElLeftOrRight side, ElOrientation orientation, \
+    ElConstMatrix_ ## SIG d, ElSparseMatrix_ ## SIG A ) \
+  { EL_TRY( \
+      DiagonalSolve \
+      ( CReflect(side), CReflect(orientation), \
+        *CReflect(d), *CReflect(A) ) ) } \
+  ElError ElDiagonalSolveDistSparse_ ## SIG \
+  ( ElLeftOrRight side, ElOrientation orientation, \
+    ElConstDistMultiVec_ ## SIG d, ElDistSparseMatrix_ ## SIG A ) \
+  { EL_TRY( \
+      DiagonalSolve \
+      ( CReflect(side), CReflect(orientation), \
+        *CReflect(d), *CReflect(A) ) ) } \
   /* HermitianSwap */ \
   ElError ElHermitianSwap_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElInt to, ElInt from ) \

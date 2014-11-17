@@ -265,6 +265,138 @@ void FormAugmentedSystem
         y.UpdateLocal( sRecvBuf[k]-J.FirstLocalRow(), 0, vRecvBuf[k] );
 }
 
+// Form 
+//
+//    J = | A D^2 A^T |, and 
+//    y = [ -r_b + A ( - diag(s)^{-1} diag(x) r_c + x - tau diag(s)^{-1} e ) ]
+//
+// where 
+//
+//    D   = diag(x)^{1/2} / diag(s)^{1/2},
+//    e   = ones(n,1),
+//    r_b = A x - b, and
+//    r_c = A^T l + s - c.
+//
+// The implied system is of the form
+//
+//   J | \Delta l | = y,
+// 
+//  \Delta s = -r_c - A^T \Delta l, and
+//  \Delta x = -x + tau diag(s)^{-1} e - diag(s)^{-1} diag(x) \Delta s.
+//
+
+template<typename Real>
+void FormNormalSystem
+( const SparseMatrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
+  const Matrix<Real>& x, const Matrix<Real>& l, const Matrix<Real>& s,
+  Real tau, SparseMatrix<Real>& J, Matrix<Real>& y )
+{
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::FormNormalSystem"))
+    const Int n = A.Width();
+
+    // Form D = diag(d) = diag(x)^{1/2} / diag(s)^{1/2}
+    // ================================================
+    Matrix<Real> d;
+    d.Resize( n, 1 );
+    for( Int i=0; i<n; ++i )
+        d.Set( i, 0, Sqrt(x.Get(i,0))/Sqrt(s.Get(i,0)) );
+
+    // Form the Jacobian, J
+    // ====================
+    SparseMatrix<Real> G;
+    Transpose( A, G );
+    DiagonalScale( LEFT, NORMAL, d, G );
+    Syrk( LOWER, TRANSPOSE, Real(1), G, J );
+    MakeSymmetric( LOWER, J );
+
+    // Form the right-hand side, y
+    // ===========================
+    // Form the 'c' residual, A^T l + s - c
+    // ------------------------------------
+    Matrix<Real> cResid;
+    cResid = s;
+    Axpy( Real(-1), c, cResid );
+    Multiply( TRANSPOSE, Real(1), A, l, Real(1), cResid );
+    // Form the portion of the right-hand side to be multiplied by A
+    // -------------------------------------------------------------
+    Matrix<Real> g;
+    g = cResid;
+    for( Int i=0; i<n; ++i )
+    {
+        const Real gamma = g.Get(i,0); 
+        const Real si = s.Get(i,0);
+        const Real xi = x.Get(i,0);
+        g.Set( i, 0, -gamma*xi/si + - tau/si );
+    }
+    // Form the right-hand side, y
+    // ---------------------------
+    y = b;
+    Multiply( NORMAL, Real(1), A, g, Real(1), y );
+}
+
+template<typename Real>
+void FormNormalSystem
+( const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
+  const DistMultiVec<Real>& x, const DistMultiVec<Real>& l, 
+  const DistMultiVec<Real>& s,
+  Real tau, DistSparseMatrix<Real>& J, DistMultiVec<Real>& y )
+{
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::FormNormalSystem"))
+    const Int n = A.Width();
+    mpi::Comm comm = A.Comm();
+    if( !mpi::Congruent( comm, b.Comm() ) )
+        LogicError("Communicators of A and b must match");
+    if( !mpi::Congruent( comm, c.Comm() ) )
+        LogicError("Communicators of A and c must match");
+    if( !mpi::Congruent( comm, x.Comm() ) )
+        LogicError("Communicators of A and x must match");
+    if( !mpi::Congruent( comm, l.Comm() ) )
+        LogicError("Communicators of A and l must match");
+    if( !mpi::Congruent( comm, s.Comm() ) )
+        LogicError("Communicators of A and s must match");
+
+    // Form D = diag(d) = diag(x)^{1/2} / diag(s)^{1/2}
+    // ================================================
+    DistMultiVec<Real> d(comm);
+    d.Resize( n, 1 );
+    for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
+        d.SetLocal
+        ( iLoc, 0, Sqrt(x.GetLocal(iLoc,0))/Sqrt(s.GetLocal(iLoc,0)) );
+
+    // Form the Jacobian, J
+    // ====================
+    DistSparseMatrix<Real> G(comm);
+    Transpose( A, G );
+    DiagonalScale( LEFT, NORMAL, d, G );
+    Syrk( LOWER, TRANSPOSE, Real(1), G, J );
+    MakeSymmetric( LOWER, J );
+
+    // Form the right-hand side, y
+    // ===========================
+    // Form the 'c' residual, A^T l + s - c
+    // ------------------------------------
+    DistMultiVec<Real> cResid(comm);
+    cResid = s;
+    Axpy( Real(-1), c, cResid );
+    Multiply( TRANSPOSE, Real(1), A, l, Real(1), cResid );
+    // Form the portion of the right-hand side to be multiplied by A
+    // -------------------------------------------------------------
+    DistMultiVec<Real> g(comm);
+    g = cResid;
+    for( Int iLoc=0; iLoc<g.LocalHeight(); ++iLoc )
+    {
+        const Real gamma = g.GetLocal(iLoc,0); 
+        const Real si = s.GetLocal(iLoc,0);
+        const Real xi = x.GetLocal(iLoc,0);
+        g.SetLocal( iLoc, 0, -gamma*xi/si + - tau/si );
+    }
+    // Form the right-hand side, y
+    // ---------------------------
+    y = b;
+    Multiply( NORMAL, Real(1), A, g, Real(1), y );
+}
+
 } // namespace lin_prog
 
 // These implementations are adaptations of the solver described at
@@ -598,6 +730,17 @@ Int LinearProgram
     const Matrix<Real>& x, const Matrix<Real>& l, const Matrix<Real>& s, \
     Real tau, SparseMatrix<Real>& J, Matrix<Real>& y ); \
   template void lin_prog::FormAugmentedSystem \
+  ( const DistSparseMatrix<Real>& A, \
+    const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, \
+    const DistMultiVec<Real>& x, const DistMultiVec<Real>& l, \
+    const DistMultiVec<Real>& s, \
+    Real tau, DistSparseMatrix<Real>& J, DistMultiVec<Real>& y ); \
+  template void lin_prog::FormNormalSystem \
+  ( const SparseMatrix<Real>& A, \
+    const Matrix<Real>& b, const Matrix<Real>& c, \
+    const Matrix<Real>& x, const Matrix<Real>& l, const Matrix<Real>& s, \
+    Real tau, SparseMatrix<Real>& J, Matrix<Real>& y ); \
+  template void lin_prog::FormNormalSystem \
   ( const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& x, const DistMultiVec<Real>& l, \

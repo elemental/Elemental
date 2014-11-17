@@ -94,6 +94,28 @@ EL_EXPORT ElError ElLinearProgramFormAugmentedSystemDist_d
   ElConstDistMultiVec_d x, ElConstDistMultiVec_d l, ElConstDistMultiVec_d s,
   double tau, ElDistSparseMatrix_d J, ElDistMultiVec_d y );  
 
+EL_EXPORT ElError ElLinearProgramFormNormalSystem_s
+( ElConstSparseMatrix_s A,
+  ElConstMatrix_s b, ElConstMatrix_s c,
+  ElConstMatrix_s x, ElConstMatrix_s l, ElConstMatrix_s s,
+  float tau, ElSparseMatrix_s J, ElMatrix_s y );  
+EL_EXPORT ElError ElLinearProgramFormNormalSystem_d
+( ElConstSparseMatrix_d A,
+  ElConstMatrix_d b, ElConstMatrix_d c,
+  ElConstMatrix_d x, ElConstMatrix_d l, ElConstMatrix_d s,
+  double tau, ElSparseMatrix_d J, ElMatrix_d y );  
+
+EL_EXPORT ElError ElLinearProgramFormNormalSystemDist_s
+( ElConstDistSparseMatrix_s A,
+  ElConstDistMultiVec_s b, ElConstDistMultiVec_s c,
+  ElConstDistMultiVec_s x, ElConstDistMultiVec_s l, ElConstDistMultiVec_s s,
+  float tau, ElDistSparseMatrix_s J, ElDistMultiVec_s y );  
+EL_EXPORT ElError ElLinearProgramFormNormalSystemDist_d
+( ElConstDistSparseMatrix_d A,
+  ElConstDistMultiVec_d b, ElConstDistMultiVec_d c,
+  ElConstDistMultiVec_d x, ElConstDistMultiVec_d l, ElConstDistMultiVec_d s,
+  double tau, ElDistSparseMatrix_d J, ElDistMultiVec_d y );  
+
 EL_EXPORT ElError ElLinearProgram_s
 ( ElConstMatrix_s A, ElConstMatrix_s b, ElConstMatrix_s c, 
   ElMatrix_s z, ElInt* numIts );

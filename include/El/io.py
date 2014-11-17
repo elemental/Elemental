@@ -275,7 +275,17 @@ def Display(A,title='',tryPython=True):
       else:
         CopyFromNonRoot(A)
       return
-    # TODO: matplotlib/networkx support for SparseMatrix and DistSparseMatrix
+    elif type(A) is SparseMatrix:
+      ADense = Matrix(A.tag)
+      Copy(A,ADense)
+      Display(ADense,title,True)
+      return
+    elif type(A) is DistSparseMatrix:
+      grid = Grid(A.Comm())
+      ADense = DistMatrix(A.tag,MC,MR,grid)
+      Copy(A,ADense)
+      Display(ADense,title,True)
+      return
   # Fall back to the built-in Display if we have not succeeded
   args = [A.obj,title]
   numMsExtra = 200

@@ -13,24 +13,24 @@ namespace El {
 template<typename TDiag,typename T>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const Matrix<TDiag>& d, Matrix<T>& X )
+  const Matrix<TDiag>& d, Matrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
-    const Int m = X.Height();
-    const Int n = X.Width();
-    const Int ldim = X.LDim();
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int ldim = A.LDim();
     if( side == LEFT )
     {
         for( Int i=0; i<m; ++i )
         {
             const T delta = d.Get(i,0);
-            T* XBuffer = X.Buffer(i,0);
+            T* ABuffer = A.Buffer(i,0);
             if( orientation == ADJOINT )
                 for( Int j=0; j<n; ++j )
-                    XBuffer[j*ldim] *= Conj(delta);
+                    ABuffer[j*ldim] *= Conj(delta);
             else
                 for( Int j=0; j<n; ++j )
-                    XBuffer[j*ldim] *= delta;
+                    ABuffer[j*ldim] *= delta;
         }
     }
     else
@@ -38,13 +38,13 @@ void DiagonalScale
         for( Int j=0; j<n; ++j )
         {
             const T delta = d.Get(j,0);
-            T* XBuffer = X.Buffer(0,j);
+            T* ABuffer = A.Buffer(0,j);
             if( orientation == ADJOINT )
                 for( Int i=0; i<m; ++i )
-                    XBuffer[i] *= Conj(delta);
+                    ABuffer[i] *= Conj(delta);
             else
                 for( Int i=0; i<m; ++i )
-                    XBuffer[i] *= delta;
+                    ABuffer[i] *= delta;
         }
     }
 }
@@ -52,7 +52,7 @@ void DiagonalScale
 template<typename TDiag,typename T,Dist U,Dist V>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<TDiag>& dPre, DistMatrix<T,U,V>& X )
+  const AbstractDistMatrix<TDiag>& dPre, DistMatrix<T,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
     if( side == LEFT )
@@ -60,69 +60,134 @@ void DiagonalScale
         ProxyCtrl ctrl;
         ctrl.rootConstrain = true;
         ctrl.colConstrain = true;
-        ctrl.root = X.Root();
-        ctrl.colAlign = X.ColAlign();
+        ctrl.root = A.Root();
+        ctrl.colAlign = A.ColAlign();
         auto dPtr = ReadProxy<TDiag,U,GatheredDist<V>()>( &dPre, ctrl );
         auto& d = *dPtr;
-        DiagonalScale( LEFT, orientation, d.LockedMatrix(), X.Matrix() );
+        DiagonalScale( LEFT, orientation, d.LockedMatrix(), A.Matrix() );
     }
     else
     {
         ProxyCtrl ctrl;
         ctrl.rootConstrain = true;
         ctrl.colConstrain = true;
-        ctrl.root = X.Root();
-        ctrl.colAlign = X.RowAlign();
+        ctrl.root = A.Root();
+        ctrl.colAlign = A.RowAlign();
         auto dPtr = ReadProxy<TDiag,V,GatheredDist<U>()>( &dPre, ctrl );
         auto& d = *dPtr;
-        DiagonalScale( RIGHT, orientation, d.LockedMatrix(), X.Matrix() );
+        DiagonalScale( RIGHT, orientation, d.LockedMatrix(), A.Matrix() );
     }
 }
 
-template<typename T>
+template<typename TDiag,typename T>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<T>& d, AbstractDistMatrix<T>& X )
+  const AbstractDistMatrix<TDiag>& d, AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
-    #define GUARD(CDIST,RDIST) X.ColDist() == CDIST && X.RowDist() == RDIST
+    #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-        auto& XCast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(X); \
-        DiagonalScale( side, orientation, d, XCast );
+        auto& ACast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
+        DiagonalScale( side, orientation, d, ACast );
     #include "El/macros/GuardAndPayload.h"
 }
 
-template<typename T>
+template<typename TDiag,typename T>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<T>& d, AbstractDistMatrix<Complex<T>>& X )
+  const Matrix<TDiag>& d, SparseMatrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
-    #define GUARD(CDIST,RDIST) X.ColDist() == CDIST && X.RowDist() == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-        auto& XCast = dynamic_cast<DistMatrix<Complex<T>,CDIST,RDIST>&>(X); \
-        DiagonalScale( side, orientation, d, XCast );
-    #include "El/macros/GuardAndPayload.h"
+    if( d.Width() != 1 )
+        LogicError("d must be a column vector");
+    const bool conjugate = ( orientation == ADJOINT );
+    T* vBuf = A.ValueBuffer();
+    if( side == LEFT )
+    {
+        if( d.Height() != A.Height() )
+            LogicError("The size of d must match the height of A");
+        for( Int k=0; k<A.NumEntries(); ++k )
+        {
+            const Int i = A.Row(k);
+            const TDiag delta = ( conjugate ? Conj(d.Get(i,0)) : d.Get(i,0) );
+            vBuf[k] *= T(delta);
+        }
+    }
+    else
+    {
+        if( d.Height() != A.Width() )
+            LogicError("The size of d must match the width of A");
+        for( Int k=0; k<A.NumEntries(); ++k )
+        {
+            const Int j = A.Col(k);
+            const TDiag delta = ( conjugate ? Conj(d.Get(j,0)) : d.Get(j,0) );
+            vBuf[k] *= T(delta);
+        }
+    }
+}
+
+template<typename TDiag,typename T>
+void DiagonalScale
+( LeftOrRight side, Orientation orientation,
+  const DistMultiVec<TDiag>& d, DistSparseMatrix<T>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
+    if( d.Width() != 1 )
+        LogicError("d must be a column vector");
+    if( !mpi::Congruent( d.Comm(), A.Comm() ) )
+        LogicError("Communicators must be congruent");
+    const bool conjugate = ( orientation == ADJOINT );
+    if( side == LEFT )
+    {
+        if( d.Height() != A.Height() )
+            LogicError("The size of d must match the height of A");
+        // TODO: Ensure that the DistMultiVec conforms
+        T* vBuf = A.ValueBuffer();
+        const Int firstLocalRow = d.FirstLocalRow();
+        for( Int k=0; k<A.NumLocalEntries(); ++k )
+        {
+            const Int i = A.Row(k);
+            const Int iLoc = i - firstLocalRow;
+            const TDiag delta = 
+              ( conjugate ? Conj(d.GetLocal(iLoc,0)) : d.GetLocal(iLoc,0) );
+            vBuf[k] *= T(delta);
+        }
+    }
+    else
+    {
+        if( d.Height() != A.Width() )
+            LogicError("The size of d must match the width of A");
+        // NOTE: This is likely grossly suboptimal
+        DistSparseMatrix<T> ATrans;
+        Transpose( A, ATrans, conjugate );
+        DiagonalScale( LEFT, NORMAL, d, ATrans );
+        Transpose( ATrans, A, conjugate );
+    }
 }
 
 #define DIST_PROTO(T,U,V) \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, DistMatrix<T,U,V>& X );
+    const AbstractDistMatrix<T>& d, DistMatrix<T,U,V>& A );
 
 #define DIST_PROTO_REAL(T,U,V) \
-  DIST_PROTO(T,U,V) \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, DistMatrix<Complex<T>,U,V>& X );
+    const AbstractDistMatrix<T>& d, DistMatrix<Complex<T>,U,V>& A );
 
 #define PROTO(T) \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const Matrix<T>& d, Matrix<T>& X ); \
+    const Matrix<T>& d, Matrix<T>& A ); \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, AbstractDistMatrix<T>& X ); \
+    const AbstractDistMatrix<T>& d, AbstractDistMatrix<T>& A ); \
+  template void DiagonalScale \
+  ( LeftOrRight side, Orientation orientation, \
+    const Matrix<T>& d, SparseMatrix<T>& A ); \
+  template void DiagonalScale \
+  ( LeftOrRight side, Orientation orientation, \
+    const DistMultiVec<T>& d, DistSparseMatrix<T>& A ); \
   DIST_PROTO(T,CIRC,CIRC); \
   DIST_PROTO(T,MC,  MR  ); \
   DIST_PROTO(T,MC,  STAR); \
@@ -139,18 +204,19 @@ void DiagonalScale
   DIST_PROTO(T,VR  ,STAR);
 
 #define PROTO_REAL(T) \
+  PROTO(T) \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const Matrix<T>& d, Matrix<T>& X ); \
+    const Matrix<T>& d, Matrix<Complex<T>>& A ); \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const Matrix<T>& d, Matrix<Complex<T>>& X ); \
+    const AbstractDistMatrix<T>& d, AbstractDistMatrix<Complex<T>>& A ); \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, AbstractDistMatrix<T>& X ); \
+    const Matrix<T>& d, SparseMatrix<Complex<T>>& A ); \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, AbstractDistMatrix<Complex<T>>& X ); \
+    const DistMultiVec<T>& d, DistSparseMatrix<Complex<T>>& A ); \
   DIST_PROTO_REAL(T,CIRC,CIRC); \
   DIST_PROTO_REAL(T,MC,  MR  ); \
   DIST_PROTO_REAL(T,MC,  STAR); \

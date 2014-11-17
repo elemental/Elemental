@@ -148,22 +148,27 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, Int root=0 );
 template<typename TDiag,typename T>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const Matrix<TDiag>& d, Matrix<T>& X );
+  const Matrix<TDiag>& d, Matrix<T>& A );
 
 template<typename TDiag,typename T,Dist U,Dist V>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<TDiag>& d, DistMatrix<T,U,V>& X );
+  const AbstractDistMatrix<TDiag>& d, DistMatrix<T,U,V>& A );
 
-template<typename T>
+template<typename TDiag,typename T>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<T>& d, AbstractDistMatrix<T>& X );
+  const AbstractDistMatrix<TDiag>& d, AbstractDistMatrix<T>& A );
 
-template<typename Real>
+template<typename TDiag,typename T>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<Real>& d, AbstractDistMatrix<Complex<Real>>& X );
+  const Matrix<TDiag>& d, SparseMatrix<T>& A );
+
+template<typename TDiag,typename T>
+void DiagonalScale
+( LeftOrRight side, Orientation orientation,
+  const DistMultiVec<TDiag>& d, DistSparseMatrix<T>& A );
 
 // DiagonalScaleTrapezoid
 // ======================
@@ -177,40 +182,50 @@ void DiagonalScaleTrapezoid
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
   const AbstractDistMatrix<TDiag>& d, DistMatrix<T,U,V>& A, Int offset=0 );
 
-template<typename T>
+template<typename TDiag,typename T>
 void DiagonalScaleTrapezoid
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const AbstractDistMatrix<T>& d, AbstractDistMatrix<T>& A, Int offset=0 );
+  const AbstractDistMatrix<TDiag>& d, AbstractDistMatrix<T>& A, Int offset=0 );
 
-template<typename Real>
+template<typename TDiag,typename T>
 void DiagonalScaleTrapezoid
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const AbstractDistMatrix<Real>& d,
-        AbstractDistMatrix<Complex<Real>>& A, Int offset=0 );
+  const Matrix<TDiag>& d, SparseMatrix<T>& A, Int offset=0 );
+
+template<typename TDiag,typename T>
+void DiagonalScaleTrapezoid
+( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
+  const DistMultiVec<TDiag>& d, DistSparseMatrix<T>& A, Int offset=0 );
 
 // DiagonalSolve
 // =============
 template<typename FDiag,typename F>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
-  const Matrix<FDiag>& d, Matrix<F>& X, bool checkIfSingular=true );
+  const Matrix<FDiag>& d, Matrix<F>& A, bool checkIfSingular=true );
 
 template<typename FDiag,typename F,Dist U,Dist V>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<FDiag>& d, DistMatrix<F,U,V>& X,
+  const AbstractDistMatrix<FDiag>& d, DistMatrix<F,U,V>& A,
   bool checkIfSingular=true );
 
-template<typename F>
+template<typename FDiag,typename F>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<F>& d, AbstractDistMatrix<F>& X,
+  const AbstractDistMatrix<FDiag>& d, AbstractDistMatrix<F>& A,
   bool checkIfSingular=true );
 
-template<typename F>
+template<typename FDiag,typename F>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<F>& d, AbstractDistMatrix<Complex<F>>& X,
+  const Matrix<FDiag>& d, SparseMatrix<F>& A, 
+  bool checkIfSingular=true );
+
+template<typename FDiag,typename F>
+void DiagonalSolve
+( LeftOrRight side, Orientation orientation,
+  const DistMultiVec<FDiag>& d, DistSparseMatrix<F>& A, 
   bool checkIfSingular=true );
 
 // Dot

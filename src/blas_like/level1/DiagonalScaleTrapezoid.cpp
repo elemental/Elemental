@@ -201,51 +201,62 @@ void DiagonalScaleTrapezoid
     }
 }
 
-template<typename T>
+template<typename TDiag,typename T>
 void DiagonalScaleTrapezoid
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const AbstractDistMatrix<T>& d, AbstractDistMatrix<T>& X, Int offset )
+  const AbstractDistMatrix<TDiag>& d, AbstractDistMatrix<T>& A, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
-    #define GUARD(CDIST,RDIST) X.ColDist() == CDIST && X.RowDist() == RDIST
+    #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-        auto& XCast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(X); \
-        DiagonalScaleTrapezoid( side, uplo, orientation, d, XCast, offset );
+        auto& ACast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
+        DiagonalScaleTrapezoid( side, uplo, orientation, d, ACast, offset );
     #include "El/macros/GuardAndPayload.h"
 }
 
-template<typename T>
+template<typename TDiag,typename T>
 void DiagonalScaleTrapezoid
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const AbstractDistMatrix<T>& d, AbstractDistMatrix<Complex<T>>& X, 
-  Int offset )
+  const Matrix<TDiag>& d, SparseMatrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
-    #define GUARD(CDIST,RDIST) X.ColDist() == CDIST && X.RowDist() == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-        auto& XCast = dynamic_cast<DistMatrix<Complex<T>,CDIST,RDIST>&>(X); \
-        DiagonalScaleTrapezoid( side, uplo, orientation, d, XCast, offset );
-    #include "El/macros/GuardAndPayload.h"
+    DEBUG_ONLY(CallStackEntry cse("DiagonalScaleTrapezoid"))
+    LogicError("This routine is not yet written");
+}
+
+template<typename TDiag,typename T>
+void DiagonalScaleTrapezoid
+( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
+  const DistMultiVec<TDiag>& d, DistSparseMatrix<T>& A, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("DiagonalScaleTrapezoid"))
+    LogicError("This routine is not yet written");
 }
 
 #define DIST_PROTO(T,U,V) \
   template void DiagonalScaleTrapezoid \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, DistMatrix<T,U,V>& X, Int offset );
+    const AbstractDistMatrix<T>& d, DistMatrix<T,U,V>& A, Int offset );
 
 #define DIST_PROTO_REAL(T,U,V) \
-  DIST_PROTO(T,U,V) \
   template void DiagonalScaleTrapezoid \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, DistMatrix<Complex<T>,U,V>& X, Int offset );
+    const AbstractDistMatrix<T>& d, DistMatrix<Complex<T>,U,V>& A, Int offset );
 
 #define PROTO(T) \
   template void DiagonalScaleTrapezoid \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const Matrix<T>& d, Matrix<T>& X, Int offset ); \
+    const Matrix<T>& d, Matrix<T>& A, Int offset ); \
   template void DiagonalScaleTrapezoid \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, AbstractDistMatrix<T>& X, Int offset ); \
+    const AbstractDistMatrix<T>& d, AbstractDistMatrix<T>& A, Int offset ); \
+  template void DiagonalScaleTrapezoid \
+  ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
+    const Matrix<T>& d, SparseMatrix<T>& A, \
+    Int offset ); \
+  template void DiagonalScaleTrapezoid \
+  ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
+    const DistMultiVec<T>& d, DistSparseMatrix<T>& A, \
+    Int offset ); \
   DIST_PROTO(T,CIRC,CIRC); \
   DIST_PROTO(T,MC,  MR  ); \
   DIST_PROTO(T,MC,  STAR); \
@@ -262,18 +273,21 @@ void DiagonalScaleTrapezoid
   DIST_PROTO(T,VR  ,STAR);
 
 #define PROTO_REAL(T) \
+  PROTO(T) \
   template void DiagonalScaleTrapezoid \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const Matrix<T>& d, Matrix<T>& X, Int offset ); \
+    const Matrix<T>& d, Matrix<Complex<T>>& A, Int offset ); \
   template void DiagonalScaleTrapezoid \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const Matrix<T>& d, Matrix<Complex<T>>& X, Int offset ); \
+    const AbstractDistMatrix<T>& d, AbstractDistMatrix<Complex<T>>& A, \
+    Int offset ); \
   template void DiagonalScaleTrapezoid \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, AbstractDistMatrix<T>& X, Int offset ); \
+    const Matrix<T>& d, SparseMatrix<Complex<T>>& A, \
+    Int offset ); \
   template void DiagonalScaleTrapezoid \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, AbstractDistMatrix<Complex<T>>& X, \
+    const DistMultiVec<T>& d, DistSparseMatrix<Complex<T>>& A, \
     Int offset ); \
   DIST_PROTO_REAL(T,CIRC,CIRC); \
   DIST_PROTO_REAL(T,MC,  MR  ); \
