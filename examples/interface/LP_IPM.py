@@ -42,7 +42,7 @@ El.Uniform(x,n0*n1,1,0.5,0.4999)
 El.Uniform(l,n0*n1,1,0.5,0.4999)
 El.Uniform(s,n0*n1,1,0.5,0.4999)
 tau = 0.01
-J, y = El.LinearProgramFormAugmentedSystem(A,b,c,x,l,s,tau)
+J, y = El.LinearProgramFormNormalSystem(A,b,c,x,l,s,tau)
 
 El.Display( b, "b" )
 El.Display( c, "c" )
