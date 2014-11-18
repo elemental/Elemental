@@ -1068,6 +1068,7 @@ void BuildChildFromPerm
     mpi::Comm childComm;
     mpi::Split( comm, onLeft, childTeamRank, childComm );
     child.SetComm( childComm );
+    mpi::Free( childComm );
     if( onLeft )
         child.Resize( leftChildSize, numTargets );
     else

@@ -372,36 +372,31 @@ void Finalize()
         delete ::args;
         ::args = 0;
 
-        if( ::elemInitializedMpi )
-        {
-            // Destroy the types and ops needed for ValueInt
-            mpi::DestroyValueIntType<Int>();
-            mpi::DestroyValueIntType<float>();
-            mpi::DestroyValueIntType<double>();
-            mpi::DestroyMaxLocOp<Int>();
-            mpi::DestroyMaxLocOp<float>();
-            mpi::DestroyMaxLocOp<double>();
-            mpi::DestroyMinLocOp<Int>();
-            mpi::DestroyMinLocOp<float>();
-            mpi::DestroyMinLocOp<double>();
+        // Destroy the types and ops needed for ValueInt
+        mpi::DestroyValueIntType<Int>();
+        mpi::DestroyValueIntType<float>();
+        mpi::DestroyValueIntType<double>();
+        mpi::DestroyMaxLocOp<Int>();
+        mpi::DestroyMaxLocOp<float>();
+        mpi::DestroyMaxLocOp<double>();
+        mpi::DestroyMinLocOp<Int>();
+        mpi::DestroyMinLocOp<float>();
+        mpi::DestroyMinLocOp<double>();
 
-            // Do the same for ValueIntPair
-            mpi::DestroyValueIntPairType<Int>();
-            mpi::DestroyValueIntPairType<float>();
-            mpi::DestroyValueIntPairType<double>();
-            mpi::DestroyMaxLocPairOp<Int>();
-            mpi::DestroyMaxLocPairOp<float>();
-            mpi::DestroyMaxLocPairOp<double>();
-            mpi::DestroyMinLocPairOp<Int>();
-            mpi::DestroyMinLocPairOp<float>();
-            mpi::DestroyMinLocPairOp<double>();
+        // Do the same for ValueIntPair
+        mpi::DestroyValueIntPairType<Int>();
+        mpi::DestroyValueIntPairType<float>();
+        mpi::DestroyValueIntPairType<double>();
+        mpi::DestroyMaxLocPairOp<Int>();
+        mpi::DestroyMaxLocPairOp<float>();
+        mpi::DestroyMaxLocPairOp<double>();
+        mpi::DestroyMinLocPairOp<Int>();
+        mpi::DestroyMinLocPairOp<float>();
+        mpi::DestroyMinLocPairOp<double>();
 
-            // Delete the default grid
-            delete ::defaultGrid;
-            ::defaultGrid = 0;
-
-            mpi::Finalize();
-        }
+        // Delete the default grid
+        delete ::defaultGrid;
+        ::defaultGrid = 0;
 
 #ifdef EL_HAVE_QT5
         if( ::elemInitializedQt )
@@ -418,9 +413,10 @@ void Finalize()
             delete[] ::argvSave;
         }
 #endif
+        if( ::elemInitializedMpi )
+            mpi::Finalize();
 
-        delete ::defaultGrid;
-        ::defaultGrid = 0;
+
         while( ! ::blocksizeStack.empty() )
             ::blocksizeStack.pop();
     }
