@@ -399,13 +399,14 @@ add_dependencies(El prepare_El_headers)
 
 # Install the python interface
 option(INSTALL_PYTHON_PACKAGE "Install python wrappers as package" TRUE)
-
 if(INSTALL_PYTHON_PACKAGE)
-  execute_process( 
-    COMMAND python -c 
-    "from distutils.sysconfig import get_python_lib; print get_python_lib()" 
-    OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
+  if(NOT PYTHON_SITE_PACKAGES)
+    execute_process( 
+      COMMAND python -c 
+      "from distutils.sysconfig import get_python_lib; print get_python_lib()" 
+      OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+  endif()
   message(STATUS "PYTHON_SITE_PACKAGES=${PYTHON_SITE_PACKAGES}")
   install(
     DIRECTORY ${PROJECT_SOURCE_DIR}/include/
