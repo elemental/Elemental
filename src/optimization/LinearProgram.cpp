@@ -335,6 +335,51 @@ void FormNormalSystem
 }
 
 template<typename Real>
+void SolveNormalSystem
+( const SparseMatrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
+  const Matrix<Real>& x, const Matrix<Real>& l, const Matrix<Real>& s,
+  Real tau, const SparseMatrix<Real>& J, const Matrix<Real>& y,
+  Matrix<Real>& dx, Matrix<Real>& dl, Matrix<Real>& ds )
+{
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::SolveNormalSystem"))
+    const Int n = A.Width();
+
+    // NOTE: SymmetricSolve not yet supported for sequential matrices
+    /*
+    // Compute the proposed change in the Lagrange multiplier
+    // ======================================================
+    dl = y;
+    SymmetricSolve( J, dl );
+
+    // Compute the proposed change in the dual variable
+    // ================================================
+    // ds := c - s
+    // -----------
+    ds = c; 
+    Axpy( Real(-1), s, ds );
+    // g := l + dl
+    // -----------
+    Matrix<Real> g;
+    g = l;
+    Axpy( Real(1), dl, g );
+    // ds := ds - A^T g = c - s - A^T (l + dl)
+    // ---------------------------------------
+    Multiply( TRANSPOSE, Real(-1), A, g, Real(1), ds );
+
+    // Compute the proposed change in the primal variable
+    // ==================================================
+    Zeros( dx, n, 1 );
+    for( Int i=0; i<n; ++i )
+    {
+        const Real xi = x.Get(i,0);
+        const Real si = s.Get(i,0);
+        const Real dsi = ds.Get(i,0);
+        dx.Set( i, 0, -xi + tau/si - dsi*xi/si );
+    }
+    */
+}
+
+template<typename Real>
 void FormNormalSystem
 ( const DistSparseMatrix<Real>& A, 
   const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
@@ -395,6 +440,52 @@ void FormNormalSystem
     // ---------------------------
     y = b;
     Multiply( NORMAL, Real(1), A, g, Real(1), y );
+}
+
+template<typename Real>
+void SolveNormalSystem
+( const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
+  const DistMultiVec<Real>& x, const DistMultiVec<Real>& l, 
+  const DistMultiVec<Real>& s,
+  Real tau, const DistSparseMatrix<Real>& J, const DistMultiVec<Real>& y,
+  DistMultiVec<Real>& dx, DistMultiVec<Real>& dl, DistMultiVec<Real>& ds )
+{
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::SolveNormalSystem"))
+    // TODO: Check that the communicators are congruent
+
+    // Compute the proposed change in the Lagrange multiplier
+    // ======================================================
+    dl = y;
+    SymmetricSolve( J, dl );
+
+    // Compute the proposed change in the dual variable
+    // ================================================
+    // ds := c - s
+    // -----------
+    ds = c; 
+    Axpy( Real(-1), s, ds );
+    // g := l + dl
+    // -----------
+    DistMultiVec<Real> g(A.Comm());
+    g = l;
+    Axpy( Real(1), dl, g );
+    // ds := ds - A^T g = c - s - A^T (l + dl)
+    // ---------------------------------------
+    Multiply( TRANSPOSE, Real(-1), A, g, Real(1), ds );
+
+    // Compute the proposed change in the primal variable
+    // ==================================================
+    const Int n = A.Width();
+    Zeros( dx, n, 1 );
+    const Int nLoc = dx.LocalHeight();
+    for( Int iLoc=0; iLoc<nLoc; ++iLoc )
+    {
+        const Real xi = x.GetLocal(iLoc,0);
+        const Real si = s.GetLocal(iLoc,0);
+        const Real dsi = ds.GetLocal(iLoc,0);
+        dx.SetLocal( iLoc, 0, -xi + tau/si - dsi*xi/si );
+    }
 }
 
 } // namespace lin_prog
@@ -740,12 +831,24 @@ Int LinearProgram
     const Matrix<Real>& b, const Matrix<Real>& c, \
     const Matrix<Real>& x, const Matrix<Real>& l, const Matrix<Real>& s, \
     Real tau, SparseMatrix<Real>& J, Matrix<Real>& y ); \
+  template void lin_prog::SolveNormalSystem \
+  ( const SparseMatrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, \
+    const Matrix<Real>& x, const Matrix<Real>& l, const Matrix<Real>& s, \
+    Real tau, const SparseMatrix<Real>& J, const Matrix<Real>& y, \
+    Matrix<Real>& dx, Matrix<Real>& dl, Matrix<Real>& ds ); \
   template void lin_prog::FormNormalSystem \
   ( const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& x, const DistMultiVec<Real>& l, \
     const DistMultiVec<Real>& s, \
     Real tau, DistSparseMatrix<Real>& J, DistMultiVec<Real>& y ); \
+  template void lin_prog::SolveNormalSystem \
+  ( const DistSparseMatrix<Real>& A, \
+    const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, \
+    const DistMultiVec<Real>& x, const DistMultiVec<Real>& l, \
+    const DistMultiVec<Real>& s, \
+    Real tau, const DistSparseMatrix<Real>& J, const DistMultiVec<Real>& y, \
+    DistMultiVec<Real>& dx, DistMultiVec<Real>& dl, DistMultiVec<Real>& ds ); \
   template Int LinearProgram \
   ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, \
     Matrix<Real>& z, \

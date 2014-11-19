@@ -88,6 +88,12 @@ void FormNormalSystem
   const Matrix<Real>& b, const Matrix<Real>& c,
   const Matrix<Real>& x, const Matrix<Real>& l, const Matrix<Real>& s,
   Real tau, SparseMatrix<Real>& J, Matrix<Real>& y );
+template<typename Real>
+void SolveNormalSystem
+( const SparseMatrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
+  const Matrix<Real>& x, const Matrix<Real>& l, const Matrix<Real>& s,
+  Real tau, const SparseMatrix<Real>& J, const Matrix<Real>& y,
+  Matrix<Real>& dx, Matrix<Real>& dl, Matrix<Real>& ds );
 
 template<typename Real>
 void FormNormalSystem
@@ -96,6 +102,14 @@ void FormNormalSystem
   const DistMultiVec<Real>& x, const DistMultiVec<Real>& l, 
   const DistMultiVec<Real>& s,
   Real tau, DistSparseMatrix<Real>& J, DistMultiVec<Real>& y );
+template<typename Real>
+void SolveNormalSystem
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
+  const DistMultiVec<Real>& x, const DistMultiVec<Real>& l,
+  const DistMultiVec<Real>& s,
+  Real tau, const DistSparseMatrix<Real>& J, const DistMultiVec<Real>& y,
+  DistMultiVec<Real>& dx, DistMultiVec<Real>& dl, DistMultiVec<Real>& ds );
 
 } // namespace lin_prog
 
