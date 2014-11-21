@@ -171,15 +171,9 @@ GeneralBlockDistMatrix<T,U,V>::Translate( BlockDistMatrix<T,U,V>& A ) const
 
         // Translate the send/recv counts into displacements and allocate
         // the send and recv buffers
-        std::vector<int> sendDispls(distSize), recvDispls(distSize);
-        int totalSend=0, totalRecv=0; 
-        for( int q=0; q<distSize; ++q )
-        {
-            sendDispls[q] = totalSend;
-            recvDispls[q] = totalRecv;
-            totalSend += sendCounts[q];
-            totalRecv += recvCounts[q];
-        }
+        std::vector<int> sendDispls, recvDispls;
+        const Int totalSend = Scan( sendCounts, sendDispls );
+        const Int totalRecv = Scan( recvCounts, recvDispls );
         std::vector<T> sendBuf(totalSend), recvBuf(totalRecv);
 
         // Pack the send data

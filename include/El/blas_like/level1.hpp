@@ -234,6 +234,8 @@ template<typename T>
 T Dot( const Matrix<T>& A, const Matrix<T>& B );
 template<typename T>
 T Dot( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B );
+template<typename T>
+T Dot( const DistMultiVec<T>& A, const DistMultiVec<T>& B );
 
 // Dotu
 // ====
@@ -241,6 +243,8 @@ template<typename T>
 T Dotu( const Matrix<T>& A, const Matrix<T>& B );
 template<typename T>
 T Dotu( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B );
+template<typename T>
+T Dotu( const DistMultiVec<T>& A, const DistMultiVec<T>& B );
 
 // EntrywiseFill
 // =============
@@ -310,6 +314,8 @@ T HilbertSchmidt( const Matrix<T>& A, const Matrix<T>& B );
 template<typename T>
 T HilbertSchmidt
 ( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& C );
+template<typename T>
+T HilbertSchmidt( const DistMultiVec<T>& A, const DistMultiVec<T>& B );
 
 // Imaginary part
 // ==============

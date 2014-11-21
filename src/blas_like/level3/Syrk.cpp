@@ -225,21 +225,15 @@ void Syrk
 
     // Convert the send and recv counts to offsets and total sizes
     // ===========================================================
-    Int totalSend=0, totalRecv=0;
-    std::vector<int> sendOffsets(commSize), recvOffsets(commSize);
-    for( Int q=0; q<commSize; ++q )
-    {
-        sendOffsets[q] = totalSend;
-        recvOffsets[q] = totalRecv;
-        totalSend += sendSizes[q];
-        totalRecv += recvSizes[q];
-    }
+    std::vector<int> sendOffsets, recvOffsets;
+    const int totalSend = Scan( sendSizes, sendOffsets );
+    const int totalRecv = Scan( recvSizes, recvOffsets );
 
     // Pack the send buffers
     // ===================== 
     std::vector<Int> sourceBuf(totalSend), targetBuf(totalSend);
     std::vector<T> valueBuf(totalSend);
-    std::vector<int> offsets = sendOffsets;
+    auto offsets = sendOffsets;
     for( Int kLoc=0; kLoc<localHeightA; ++kLoc )
     {
         const Int offset = A.EntryOffset(kLoc);

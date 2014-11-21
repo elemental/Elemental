@@ -57,10 +57,34 @@ T HilbertSchmidt
     return innerProd;
 }
 
+template<typename T>
+T HilbertSchmidt( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("HilbertSchmidt"))
+    if( !mpi::Congruent( A.Comm(), B.Comm() ) )
+        LogicError("A and B must be congruent");
+    if( A.Height() != B.Height() || A.Width() != B.Width() )
+        LogicError("A and B must have the same dimensions");
+    if( A.LocalHeight() != B.LocalHeight() )
+        LogicError("A and B must have the same local heights");
+    if( A.FirstLocalRow() != B.FirstLocalRow() )
+        LogicError("A and B must own the same rows");
+
+    T localInnerProd = 0;
+    const Int localHeight = A.LocalHeight(); 
+    const Int width = A.Width();
+    for( Int j=0; j<width; ++j )
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+            localInnerProd += Conj(A.GetLocal(iLoc,j))*B.GetLocal(iLoc,j);
+    return mpi::AllReduce( localInnerProd, A.Comm() );
+}
+
 #define PROTO(T) \
   template T HilbertSchmidt( const Matrix<T>& A, const Matrix<T>& B ); \
   template T HilbertSchmidt \
-  ( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B );
+  ( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B ); \
+  template T HilbertSchmidt \
+  ( const DistMultiVec<T>& A, const DistMultiVec<T>& B );
 
 #include "El/macros/Instantiate.h"
 

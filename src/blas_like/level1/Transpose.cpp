@@ -140,21 +140,15 @@ void Transpose
 
     // Convert the send/recv counts into offsets and total sizes
     // =========================================================
-    Int totalSend=0, totalRecv=0;
-    std::vector<int> sendOffsets(commSize), recvOffsets(commSize);
-    for( Int q=0; q<commSize; ++q )
-    {
-        sendOffsets[q] = totalSend;
-        recvOffsets[q] = totalRecv;
-        totalSend += sendCounts[q];
-        totalRecv += recvCounts[q];
-    }
+    std::vector<int> sendOffsets, recvOffsets;
+    const int totalSend = Scan( sendCounts, sendOffsets );
+    const int totalRecv = Scan( recvCounts, recvOffsets );
 
     // Pack the triplets
     // =================
     std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
     std::vector<T> vSendBuf(totalSend);
-    std::vector<int> offsets = sendOffsets;
+    auto offsets = sendOffsets;
     for( Int k=0; k<A.NumLocalEntries(); ++k )
     {
         const Int j = A.Col(k);

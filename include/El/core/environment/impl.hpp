@@ -138,6 +138,20 @@ SwapClear( T& x )
 { T().swap( x ); }
 
 template<typename T>
+inline T 
+Scan( const std::vector<T>& counts, std::vector<T>& offsets )
+{
+    offsets.resize( counts.size() );
+    T total = 0;
+    for( Int i=0; i<counts.size(); ++i )
+    {
+        offsets[i] = total;
+        total += counts[i];
+    }
+    return total;
+}
+
+template<typename T>
 inline void
 EnsureConsistent( T alpha, mpi::Comm comm, std::string name )
 {

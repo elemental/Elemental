@@ -143,15 +143,11 @@ void CopyFromRoot( const DistGraph& distGraph, Graph& graph )
     const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm );
 
-    const int numLocalEdges = distGraph.NumLocalEdges();
-    std::vector<int> edgeSizes(commSize), edgeOffsets(commSize);
+    const Int numLocalEdges = distGraph.NumLocalEdges();
+    std::vector<int> edgeSizes(commSize);
     mpi::AllGather( &numLocalEdges, 1, edgeSizes.data(), 1, comm );
-    int numEdges=0;
-    for( int q=0; q<commSize; ++q )
-    {
-        edgeOffsets[q] = numEdges;
-        numEdges += edgeSizes[q];
-    }
+    std::vector<int> edgeOffsets;
+    const int numEdges = Scan( edgeSizes, edgeOffsets );
 
     graph.Resize( distGraph.NumSources(), distGraph.NumTargets() );
     graph.Reserve( numEdges );
@@ -177,15 +173,11 @@ void CopyFromNonRoot( const DistGraph& distGraph, Int root )
     if( commRank == root )
         LogicError("Root called CopyFromNonRoot");
 
-    const int numLocalEdges = distGraph.NumLocalEdges();
-    std::vector<int> edgeSizes(commSize), edgeOffsets(commSize);
+    const Int numLocalEdges = distGraph.NumLocalEdges();
+    std::vector<int> edgeSizes(commSize);
     mpi::AllGather( &numLocalEdges, 1, edgeSizes.data(), 1, comm );
-    int numEdges=0;
-    for( int q=0; q<commSize; ++q )
-    {
-        edgeOffsets[q] = numEdges;
-        numEdges += edgeSizes[q];
-    }
+    std::vector<int> edgeOffsets;
+    const int numEdges = Scan( edgeSizes, edgeOffsets );
 
     mpi::Gather
     ( distGraph.LockedSourceBuffer(), numLocalEdges,
@@ -251,26 +243,20 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
         const Int owner = B.Owner(i,j);
         ++sendCounts[owner];
     }
-    std::vector<int> recvCounts(commSize);
+    std::vector<Int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
 
     // Convert the send/recv counts into offsets and total sizes
     // =========================================================
-    Int totalSend=0, totalRecv=0;
-    std::vector<int> sendOffsets(commSize), recvOffsets(commSize);
-    for( Int q=0; q<commSize; ++q )
-    {
-        sendOffsets[q] = totalSend;
-        recvOffsets[q] = totalRecv;
-        totalSend += sendCounts[q];
-        totalRecv += recvCounts[q];
-    }
+    std::vector<int> sendOffsets, recvOffsets;
+    const int totalSend = Scan( sendCounts, sendOffsets );
+    const int totalRecv = Scan( recvCounts, recvOffsets );
 
     // Pack the triplets
     // =================
     std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
     std::vector<T> vSendBuf(totalSend);
-    std::vector<int> offsets = sendOffsets;
+    auto offsets = sendOffsets;
     for( Int k=0; k<A.NumLocalEntries(); ++k )
     {
         const Int i = A.Row(k);
@@ -310,14 +296,10 @@ void CopyFromRoot( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A )
     const int commRank = mpi::Rank( comm );
 
     const int numLocalEntries = ADist.NumLocalEntries();
-    std::vector<int> entrySizes(commSize), entryOffsets(commSize);
+    std::vector<int> entrySizes(commSize);
     mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
-    int numEntries=0;
-    for( int q=0; q<commSize; ++q )
-    {
-        entryOffsets[q] = numEntries;
-        numEntries += entrySizes[q];
-    }
+    std::vector<int> entryOffsets;
+    const int numEntries = Scan( entrySizes, entryOffsets );
 
     A.Resize( ADist.Height(), ADist.Width() );
     A.Reserve( numEntries );
@@ -350,14 +332,10 @@ void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, Int root )
         LogicError("Root called CopyFromNonRoot");
 
     const int numLocalEntries = ADist.NumLocalEntries();
-    std::vector<int> entrySizes(commSize), entryOffsets(commSize);
+    std::vector<int> entrySizes(commSize);
     mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
-    int numEntries=0;
-    for( int q=0; q<commSize; ++q )
-    {
-        entryOffsets[q] = numEntries;
-        numEntries += entrySizes[q];
-    }
+    std::vector<int> entryOffsets;
+    const int numEntries = Scan( entrySizes, entryOffsets );
 
     mpi::Gather
     ( ADist.LockedSourceBuffer(), numLocalEntries,
@@ -388,14 +366,10 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
     const Int m = XDist.Height();
     const Int n = XDist.Width();
     const int numLocalEntries = XDist.LocalHeight()*n;
-    std::vector<int> entrySizes(commSize), entryOffsets(commSize);
+    std::vector<int> entrySizes(commSize);
     mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
-    int numEntries=0;
-    for( int q=0; q<commSize; ++q )
-    {
-        entryOffsets[q] = numEntries;
-        numEntries += entrySizes[q];
-    }
+    std::vector<int> entryOffsets;
+    const int numEntries = Scan( entrySizes, entryOffsets );
 
     std::vector<T> recvBuf( m*n );
     X.Resize( m, n, m );
@@ -438,14 +412,10 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, Int root )
         LogicError("Called CopyFromNonRoot from root");
 
     const int numLocalEntries = XDist.LocalHeight()*XDist.Width();
-    std::vector<int> entrySizes(commSize), entryOffsets(commSize);
+    std::vector<int> entrySizes(commSize);
     mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
-    int numEntries=0;
-    for( int q=0; q<commSize; ++q )
-    {
-        entryOffsets[q] = numEntries;
-        numEntries += entrySizes[q];
-    }
+    std::vector<int> entryOffsets;
+    const int numEntries = Scan( entrySizes, entryOffsets );
 
     const auto& XDistLoc = XDist.LockedMatrix();
     if( XDistLoc.Height() == XDistLoc.LDim() )

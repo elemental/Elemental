@@ -204,6 +204,9 @@ inline std::unique_ptr<T> MakeUnique( Args&& ...args )
 { return std::unique_ptr<T>( new T( std::forward<Args>(args)... ) ); }
 
 template<typename T>
+T Scan( const std::vector<T>& counts, std::vector<T>& offsets );
+
+template<typename T>
 bool IsSorted( const std::vector<T>& x );
 // While is_strictly_sorted exists in Boost, it does not exist in the STL (yet)
 template<typename T>

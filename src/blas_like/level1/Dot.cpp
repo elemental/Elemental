@@ -24,10 +24,18 @@ T Dot( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B )
     return HilbertSchmidt( A, B );
 }
 
+template<typename T>
+T Dot( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Dot"))
+    return HilbertSchmidt( A, B );
+}
+
 #define PROTO(T) \
   template T Dot( const Matrix<T>& A, const Matrix<T>& B ); \
   template T Dot \
-  ( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B ); 
+  ( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B ); \
+  template T Dot( const DistMultiVec<T>& A, const DistMultiVec<T>& B );
 
 #include "El/macros/Instantiate.h"
 

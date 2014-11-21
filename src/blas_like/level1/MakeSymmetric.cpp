@@ -157,15 +157,9 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
 
     // Convert the send/recv counts into offsets and total sizes
     // =========================================================
-    Int totalSend=0, totalRecv=0;
-    std::vector<int> sendOffsets(commSize), recvOffsets(commSize);
-    for( Int q=0; q<commSize; ++q )
-    {
-        sendOffsets[q] = totalSend;
-        recvOffsets[q] = totalRecv;
-        totalSend += sendCounts[q];
-        totalRecv += recvCounts[q];
-    }
+    std::vector<int> sendOffsets, recvOffsets;
+    const int totalSend = Scan( sendCounts, sendOffsets );
+    const int totalRecv = Scan( recvCounts, recvOffsets );
 
     // Pack the triplets
     // =================

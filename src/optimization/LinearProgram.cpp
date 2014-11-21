@@ -120,15 +120,9 @@ void FormAugmentedSystem
     
     // Convert the send/recv counts into offsets and total sizes
     // ---------------------------------------------------------
-    Int totalSend=0, totalRecv=0;
-    std::vector<int> sendOffsets(commSize), recvOffsets(commSize);
-    for( Int q=0; q<commSize; ++q )
-    {
-        sendOffsets[q] = totalSend;
-        recvOffsets[q] = totalRecv;
-        totalSend += sendCounts[q];
-        totalRecv += recvCounts[q];
-    }
+    std::vector<int> sendOffsets, recvOffsets;
+    int totalSend = Scan( sendCounts, sendOffsets );
+    int totalRecv = Scan( recvCounts, recvOffsets );
 
     // Pack the triplets
     // -----------------
@@ -217,14 +211,8 @@ void FormAugmentedSystem
     
     // Convert the send/recv counts into offsets and total sizes
     // ---------------------------------------------------------
-    totalSend=0, totalRecv=0;
-    for( Int q=0; q<commSize; ++q )
-    {
-        sendOffsets[q] = totalSend;
-        recvOffsets[q] = totalRecv;
-        totalSend += sendCounts[q];
-        totalRecv += recvCounts[q];
-    }
+    totalSend = Scan( sendCounts, sendOffsets );
+    totalRecv = Scan( recvCounts, recvOffsets );
 
     // Pack the triplets
     // -----------------
