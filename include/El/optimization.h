@@ -168,6 +168,32 @@ EL_EXPORT ElError ElLinearProgramIPFLineSearchDist_d
   ElConstDistMultiVec_d dx, ElConstDistMultiVec_d dl, ElConstDistMultiVec_d ds,
   double gamma, double beta, double psi, bool print, double* alpha );
 
+EL_EXPORT ElError ElLinearProgramIPF_s
+( ElConstSparseMatrix_s A,
+  ElConstMatrix_s b, ElConstMatrix_s c,
+  ElMatrix_s x, ElMatrix_s l, ElMatrix_s s,
+  float muTol, float rbTol, float rcTol, ElInt maxIts,
+  float sigma, float gamma, float beta, float psi, bool print );
+EL_EXPORT ElError ElLinearProgramIPF_d
+( ElConstSparseMatrix_d A,
+  ElConstMatrix_d b, ElConstMatrix_d c,
+  ElMatrix_d x, ElMatrix_d l, ElMatrix_d s,
+  double muTol, double rbTol, double rcTol, ElInt maxIts,
+  double sigma, double gamma, double beta, double psi, bool print );
+
+EL_EXPORT ElError ElLinearProgramIPFDist_s
+( ElConstDistSparseMatrix_s A,
+  ElConstDistMultiVec_s b, ElConstDistMultiVec_s c,
+  ElDistMultiVec_s x, ElDistMultiVec_s l, ElDistMultiVec_s s,
+  float muTol, float rbTol, float rcTol, ElInt maxIts,
+  float sigma, float gamma, float beta, float psi, bool print );
+EL_EXPORT ElError ElLinearProgramIPFDist_d
+( ElConstDistSparseMatrix_d A,
+  ElConstDistMultiVec_d b, ElConstDistMultiVec_d c,
+  ElDistMultiVec_d x, ElDistMultiVec_d l, ElDistMultiVec_d s,
+  double muTol, double rbTol, double rcTol, ElInt maxIts,
+  double sigma, double gamma, double beta, double psi, bool print );
+
 EL_EXPORT ElError ElLinearProgram_s
 ( ElConstMatrix_s A, ElConstMatrix_s b, ElConstMatrix_s c, 
   ElMatrix_s z, ElInt* numIts );

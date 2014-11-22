@@ -208,6 +208,27 @@ extern "C" {
       *CReflect(x), *CReflect(l), *CReflect(s), \
       *CReflect(dx), *CReflect(dl), *CReflect(ds), \
       gamma, beta, psi, print ) ) } \
+  ElError ElLinearProgramIPF_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
+    ElMatrix_ ## SIG x, ElMatrix_ ## SIG l, ElMatrix_ ## SIG s, \
+    Real muTol, Real rbTol, Real rcTol, ElInt maxIts, \
+    Real sigma, Real gamma, Real beta, Real psi, bool print ) \
+  { EL_TRY( lin_prog::IPF( \
+      *CReflect(A), *CReflect(b), *CReflect(c), \
+      *CReflect(x), *CReflect(l), *CReflect(s), \
+      muTol, rbTol, rcTol, maxIts, sigma, gamma, beta, psi, print ) ) } \
+  ElError ElLinearProgramIPFDist_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, \
+    ElConstDistMultiVec_ ## SIG b, ElConstDistMultiVec_ ## SIG c, \
+    ElDistMultiVec_ ## SIG x, ElDistMultiVec_ ## SIG l, \
+    ElDistMultiVec_ ## SIG s, \
+    Real muTol, Real rbTol, Real rcTol, ElInt maxIts, \
+    Real sigma, Real gamma, Real beta, Real psi, bool print ) \
+  { EL_TRY( lin_prog::IPF( \
+      *CReflect(A), *CReflect(b), *CReflect(c), \
+      *CReflect(x), *CReflect(l), *CReflect(s), \
+      muTol, rbTol, rcTol, maxIts, sigma, gamma, beta, psi, print ) ) } \
   ElError ElLinearProgram_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
     ElConstMatrix_ ## SIG c, ElMatrix_ ## SIG z, ElInt* numIts ) \

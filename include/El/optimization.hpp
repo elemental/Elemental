@@ -131,6 +131,23 @@ Real IPFLineSearch
   const DistMultiVec<Real>& ds,
   Real gamma, Real beta, Real psi=100, bool print=false );
 
+template<typename Real>
+void IPF
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& b,  const Matrix<Real>& c,
+  Matrix<Real>& x, Matrix<Real>& l, Matrix<Real>& s,
+  Real muTol=1e-10, Real rbTol=1e-10, Real rcTol=1e-10, Int maxIts=1000,
+  Real sigma=0.9, Real gamma=1e-3, Real beta=2, Real psi=100, 
+  bool print=false );
+template<typename Real>
+void IPF
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c,
+  DistMultiVec<Real>& x, DistMultiVec<Real>& l, DistMultiVec<Real>& s,
+  Real muTol=1e-10, Real rbTol=1e-10, Real rcTol=1e-10, Int maxIts=1000,
+  Real sigma=0.9, Real gamma=1e-3, Real beta=2, Real psi=100, 
+  bool print=false );
+
 } // namespace lin_prog
 
 template<typename Real>

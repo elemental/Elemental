@@ -256,7 +256,7 @@ void FormAugmentedSystem
 // Form 
 //
 //    J = | A D^2 A^T |, and 
-//    y = [ -r_b + A ( - diag(s)^{-1} diag(x) r_c + x - tau diag(s)^{-1} e ) ]
+//    y = [ b - A diag(s)^{-1} ( diag(x) r_c + tau e ) ]
 //
 // where 
 //
@@ -314,12 +314,12 @@ void FormNormalSystem
         const Real gamma = g.Get(i,0); 
         const Real si = s.Get(i,0);
         const Real xi = x.Get(i,0);
-        g.Set( i, 0, -gamma*xi/si + - tau/si );
+        g.Set( i, 0, (gamma*xi + tau)/si );
     }
     // Form the right-hand side, y
     // ---------------------------
     y = b;
-    Multiply( NORMAL, Real(1), A, g, Real(1), y );
+    Multiply( NORMAL, Real(-1), A, g, Real(1), y );
 }
 
 template<typename Real>
@@ -362,7 +362,7 @@ void SolveNormalSystem
         const Real xi = x.Get(i,0);
         const Real si = s.Get(i,0);
         const Real dsi = ds.Get(i,0);
-        dx.Set( i, 0, -xi + tau/si - dsi*xi/si );
+        dx.Set( i, 0, -xi + (tau - dsi*xi)/si );
     }
     */
 }
@@ -422,12 +422,12 @@ void FormNormalSystem
         const Real gamma = g.GetLocal(iLoc,0); 
         const Real si = s.GetLocal(iLoc,0);
         const Real xi = x.GetLocal(iLoc,0);
-        g.SetLocal( iLoc, 0, -gamma*xi/si + - tau/si );
+        g.SetLocal( iLoc, 0, (gamma*xi + tau)/si );
     }
     // Form the right-hand side, y
     // ---------------------------
     y = b;
-    Multiply( NORMAL, Real(1), A, g, Real(1), y );
+    Multiply( NORMAL, Real(-1), A, g, Real(1), y );
 }
 
 template<typename Real>
@@ -472,7 +472,7 @@ void SolveNormalSystem
         const Real xi = x.GetLocal(iLoc,0);
         const Real si = s.GetLocal(iLoc,0);
         const Real dsi = ds.GetLocal(iLoc,0);
-        dx.SetLocal( iLoc, 0, -xi + tau/si - dsi*xi/si );
+        dx.SetLocal( iLoc, 0, -xi + (tau - dsi*xi)/si );
     }
 }
 
@@ -497,20 +497,7 @@ Real IPFLineSearch
     const Int m = A.Height();
     const Int n = A.Width();
 
-    // Get the upper bound on the step length from the Armijo condition,
-    //   \mu(\alpha) \le (1 - \alpha/\psi) \mu,
-    // where 
-    //   \mu = x^T s / n 
-    // is the current duality measure, and 
-    //   \mu(\alpha) = (x + \alpha dx)^T (s + \alpha ds) / n,
-    // is the duality measure after a step of length \alpha.
-    // The upper bound can be seen to be
-    //   \alpha_{\text{max}} = (x^T s / \psi - dx^T s - x^T ds)) / dx^T ds.
-    const Real alphaMax = (Dot(x,s)/psi - Dot(dx,s) - Dot(x,ds)) / Dot(dx,dx);
-    if( print )
-        std::cout << "alpha_max = " << alphaMax << std::endl;
-
-    // Continually halve alphaMax until it is small enough so that the new
+    // Continually halve the step size until it is small enough so that the new
     // state lies within the "-\infty" neighborhood of the central path, i.e.,
     //  (a) || r_b(\alpha) ||_2 \le || r_b ||_2 \beta \mu(\alpha) / \mu,
     //  (b) || r_c(\alpha) ||_2 \le || r_c ||_2 \beta \mu(\alpha) / \mu,
@@ -521,7 +508,10 @@ Real IPFLineSearch
     //    l(\alpha) = l + \alpha dl,
     //    s(\alpha) = s + \alpha ds,
     //    r_b(\alpha) = A x(\alpha) - b, and
-    //    r_c(\alpha) = A^T l(\alpha) + s(\alpha) - c.
+    //    r_c(\alpha) = A^T l(\alpha) + s(\alpha) - c,
+    // and the Armijo condition,
+    //   \mu(\alpha) \le (1 - \alpha/\psi) \mu,
+    // is also satisfied.
     // ===============================================
     // Setup
     // -----
@@ -536,7 +526,7 @@ Real IPFLineSearch
     Multiply( TRANSPOSE, Real(1), A, dl, Real(0), AT_dl );
     rb = A_x; 
     Axpy( Real(-1), b, rb );
-    rc = AT_dl;
+    rc = AT_l;
     Axpy( Real(1), s, rc );
     Axpy( Real(-1), c, rc );
     const Real rbNrm2 = Nrm2( rb );
@@ -544,23 +534,10 @@ Real IPFLineSearch
     const Real mu = Dot(x,s) / n;
     // Perform the line search using the cached data
     // ---------------------------------------------
-    Real alpha = alphaMax;
+    Real alpha = 1;
     Matrix<Real> x_alpha, l_alpha, s_alpha, rb_alpha, rc_alpha;
     for( Int k=0; k<100; ++k, alpha=alpha/2 )
     {
-        // r_b(\alpha) = r_b + \alpha A dx
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        rb_alpha = rb;
-        Axpy( alpha, A_dx, rb_alpha );
-        const Real rb_alphaNrm2 = Nrm2( rb_alpha );
-
-        // r_c(\alpha) = r_c + \alpha A^T dl + \alpha ds
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        rc_alpha = rc;
-        Axpy( alpha, AT_dl, rc_alpha );
-        Axpy( alpha, ds, rc_alpha );
-        const Real rc_alphaNrm2 = Nrm2( rc_alpha );
-
         // x(\alpha) = x + \alpha dx
         // ^^^^^^^^^^^^^^^^^^^^^^^^^
         x_alpha = x;
@@ -574,15 +551,13 @@ Real IPFLineSearch
         // \mu(\alpha) = x(\alpha)^T s / n
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         const Real mu_alpha = Dot(x_alpha,s_alpha) / n;
+        if( mu_alpha > (1-alpha/psi)*mu )
+        {
+            if( print )
+                std::cout << "Armijo condition not satisfied" << std::endl;
+            continue;
+        }
 
-        // Check || r_b(\alpha) ||_2 \le || r_b ||_2 \beta \mu(\alpha) / \mu
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
-        if( rb_alphaNrm2 > rbNrm2*beta*mu_alpha/mu )
-            continue;
-        // Check || r_c(\alpha) ||_2 \le || r_c ||_2 \beta \mu(\alpha) / \mu
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
-        if( rc_alphaNrm2 > rcNrm2*beta*mu_alpha/mu )
-            continue;
         // Check 
         //    x(\alpha), s(\alpha) > 0, and 
         //    x_i(\alpha) s_i(\alpha) \ge \gamma \mu(\alpha)
@@ -590,16 +565,44 @@ Real IPFLineSearch
         bool allGreater = true;
         for( Int i=0; i<n; ++i )
         {
-            const Real xi = x.Get(i,0);
-            const Real si = s.Get(i,0);
             const Real xi_alpha = x_alpha.Get(i,0);
             const Real si_alpha = s_alpha.Get(i,0);
-            if( xi <= Real(0) || si <= Real(0) )
+            if( xi_alpha <= Real(0) || si_alpha <= Real(0) )
                 allGreater = false;
             if( xi_alpha*si_alpha < gamma*mu_alpha )
                 allGreater = false;
         }
-        if( allGreater )
+        if( !allGreater )
+        {
+            if( print )
+                std::cout << "  entrywise failure" << std::endl;
+            continue;
+        }
+        // Check || r_b(\alpha) ||_2 \le || r_b ||_2 \beta \mu(\alpha) / \mu
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        rb_alpha = rb;
+        Axpy( alpha, A_dx, rb_alpha );
+        const Real rb_alphaNrm2 = Nrm2( rb_alpha );
+        if( rb_alphaNrm2 > rbNrm2*beta*mu_alpha/mu )
+        {
+            if( print )
+                std::cout << "  r_b failure: " << rb_alphaNrm2 << " > "
+                          << rbNrm2*beta*mu_alpha/mu << std::endl;
+            continue;
+        }
+        // Check || r_c(\alpha) ||_2 \le || r_c ||_2 \beta \mu(\alpha) / \mu
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        rc_alpha = rc;
+        Axpy( alpha, AT_dl, rc_alpha );
+        Axpy( alpha, ds, rc_alpha );
+        const Real rc_alphaNrm2 = Nrm2( rc_alpha );
+        if( rc_alphaNrm2 > rcNrm2*beta*mu_alpha/mu )
+        {
+            if( print )
+                std::cout << "  r_c failure: " << rc_alphaNrm2 << " > "
+                          << rcNrm2*beta*mu_alpha/mu << std::endl;
+        }
+        else
             break;
     }
     return alpha;
@@ -633,22 +636,9 @@ Real IPFLineSearch
     const Int n = A.Width();
     const Int nLocal = x.LocalHeight();
     mpi::Comm comm = A.Comm();
+    const Int commRank = mpi::Rank(comm);
 
-    // Get the upper bound on the step length from the Armijo condition,
-    //   \mu(\alpha) \le (1 - \alpha/\psi) \mu,
-    // where 
-    //   \mu = x^T s / n 
-    // is the current duality measure, and 
-    //   \mu(\alpha) = (x + \alpha dx)^T (s + \alpha ds) / n,
-    // is the duality measure after a step of length \alpha.
-    // The upper bound can be seen to be
-    //   \alpha_{\text{max}} = (x^T s / \psi - dx^T s - x^T ds)) / dx^T ds.
-    const Real alphaMax = (Dot(x,s)/psi - Dot(dx,s) - Dot(x,ds)) / Dot(dx,dx);
-    if( print )
-        if( mpi::Rank(comm) == 0 )
-            std::cout << "alpha_max = " << alphaMax << std::endl;
-
-    // Continually halve alphaMax until it is small enough so that the new
+    // Continually halve the step size until it is small enough so that the new
     // state lies within the "-\infty" neighborhood of the central path, i.e.,
     //  (a) || r_b(\alpha) ||_2 \le || r_b ||_2 \beta \mu(\alpha) / \mu,
     //  (b) || r_c(\alpha) ||_2 \le || r_c ||_2 \beta \mu(\alpha) / \mu,
@@ -659,7 +649,10 @@ Real IPFLineSearch
     //    l(\alpha) = l + \alpha dl,
     //    s(\alpha) = s + \alpha ds,
     //    r_b(\alpha) = A x(\alpha) - b, and
-    //    r_c(\alpha) = A^T l(\alpha) + s(\alpha) - c.
+    //    r_c(\alpha) = A^T l(\alpha) + s(\alpha) - c,
+    // and the Armijo condition,
+    //   \mu(\alpha) \le (1 - \alpha/\psi) \mu,
+    // is also satisfied.
     // ===============================================
     // Setup
     // -----
@@ -675,7 +668,7 @@ Real IPFLineSearch
     Multiply( TRANSPOSE, Real(1), A, dl, Real(0), AT_dl );
     rb = A_x; 
     Axpy( Real(-1), b, rb );
-    rc = AT_dl;
+    rc = AT_l;
     Axpy( Real(1), s, rc );
     Axpy( Real(-1), c, rc );
     const Real rbNrm2 = Nrm2( rb );
@@ -683,24 +676,11 @@ Real IPFLineSearch
     const Real mu = Dot(x,s) / n;
     // Perform the line search using the cached data
     // ---------------------------------------------
-    Real alpha = alphaMax;
+    Real alpha = 1;
     DistMultiVec<Real> x_alpha(comm), l_alpha(comm), s_alpha(comm), 
                        rb_alpha(comm), rc_alpha(comm);
     for( Int k=0; k<100; ++k, alpha=alpha/2 )
     {
-        // r_b(\alpha) = r_b + \alpha A dx
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        rb_alpha = rb;
-        Axpy( alpha, A_dx, rb_alpha );
-        const Real rb_alphaNrm2 = Nrm2( rb_alpha );
-
-        // r_c(\alpha) = r_c + \alpha A^T dl + \alpha ds
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        rc_alpha = rc;
-        Axpy( alpha, AT_dl, rc_alpha );
-        Axpy( alpha, ds, rc_alpha );
-        const Real rc_alphaNrm2 = Nrm2( rc_alpha );
-
         // x(\alpha) = x + \alpha dx
         // ^^^^^^^^^^^^^^^^^^^^^^^^^
         x_alpha = x;
@@ -714,15 +694,13 @@ Real IPFLineSearch
         // \mu(\alpha) = x(\alpha)^T s / n
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         const Real mu_alpha = Dot(x_alpha,s_alpha) / n;
+        if( mu_alpha > (1-alpha/psi)*mu )
+        {
+            if( print && commRank == 0 )
+                std::cout << "Armijo condition not satisfied" << std::endl;
+            continue;
+        }
 
-        // Check || r_b(\alpha) ||_2 \le || r_b ||_2 \beta \mu(\alpha) / \mu
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
-        if( rb_alphaNrm2 > rbNrm2*beta*mu_alpha/mu )
-            continue;
-        // Check || r_c(\alpha) ||_2 \le || r_c ||_2 \beta \mu(\alpha) / \mu
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
-        if( rc_alphaNrm2 > rcNrm2*beta*mu_alpha/mu )
-            continue;
         // Check 
         //    x(\alpha), s(\alpha) > 0, and 
         //    x_i(\alpha) s_i(\alpha) \ge \gamma \mu(\alpha)
@@ -730,21 +708,181 @@ Real IPFLineSearch
         bool allLocalGreater = true;
         for( Int iLoc=0; iLoc<nLocal; ++iLoc )
         {
-            const Real xi = x.GetLocal(iLoc,0);
-            const Real si = s.GetLocal(iLoc,0);
             const Real xi_alpha = x_alpha.GetLocal(iLoc,0);
             const Real si_alpha = s_alpha.GetLocal(iLoc,0);
-            if( xi <= Real(0) || si <= Real(0) )
+            if( xi_alpha <= Real(0) || si_alpha <= Real(0) )
                 allLocalGreater = false;
             if( xi_alpha*si_alpha < gamma*mu_alpha )
                 allLocalGreater = false;
         }
         const Int numLocalLess = ( allLocalGreater ? 0 : 1 );
         const Int numLess = mpi::AllReduce( numLocalLess, comm ); 
-        if( numLess == 0 )
+        if( numLess != 0 )
+        {
+            if( print && commRank == 0 )
+                std::cout << "  entrywise failure" << std::endl;
+            continue;
+        }
+        // Check || r_b(\alpha) ||_2 \le || r_b ||_2 \beta \mu(\alpha) / \mu
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        rb_alpha = rb;
+        Axpy( alpha, A_dx, rb_alpha );
+        const Real rb_alphaNrm2 = Nrm2( rb_alpha );
+        if( rb_alphaNrm2 > rbNrm2*beta*mu_alpha/mu )
+        {
+            if( print && commRank == 0 )
+                std::cout << "  r_b failure: " << rb_alphaNrm2 << " > "
+                          << rbNrm2*beta*mu_alpha/mu << std::endl;
+            continue;
+        }
+        // Check || r_c(\alpha) ||_2 \le || r_c ||_2 \beta \mu(\alpha) / \mu
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        rc_alpha = rc;
+        Axpy( alpha, AT_dl, rc_alpha );
+        Axpy( alpha, ds, rc_alpha );
+        const Real rc_alphaNrm2 = Nrm2( rc_alpha );
+        if( rc_alphaNrm2 > rcNrm2*beta*mu_alpha/mu )
+        {
+            if( print && commRank == 0 )
+                std::cout << "  r_c failure: " << rc_alphaNrm2 << " > "
+                          << rcNrm2*beta*mu_alpha/mu << std::endl;
+        }
+        else
             break;
     }
     return alpha;
+}
+
+template<typename Real>
+void IPF
+( const SparseMatrix<Real>& A, 
+  const Matrix<Real>& b,  const Matrix<Real>& c,
+  Matrix<Real>& x, Matrix<Real>& l, Matrix<Real>& s,
+  Real muTol, Real rbTol, Real rcTol, Int maxIts,
+  Real sigma, Real gamma, Real beta, Real psi, bool print )
+{
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
+    const Int n = A.Width();
+    SparseMatrix<Real> J;
+    Matrix<Real> y, rb, rc, dx, dl, ds;
+    for( Int numIts=0; numIts<maxIts; ++numIts )
+    {
+        // Check for convergence
+        // =====================
+        // mu = x^T x / n
+        // ---------------
+        const Real mu = Dot(x,s) / n;
+        // || r_b ||_2 = || A x - b ||_2
+        // -----------------------------
+        rb = b;
+        Multiply( NORMAL, Real(1), A, x, Real(-1), rb );
+        const Real rbNrm2 = Nrm2( rb );
+        // || r_c ||_2 = || A^T l + s - c ||_2
+        // -----------------------------------
+        rc = c;
+        Multiply( TRANSPOSE, Real(1), A, l, Real(-1), rc );
+        Axpy( Real(1), s, rc );
+        const Real rcNrm2 = Nrm2( rc );
+        // Now check the pieces
+        // --------------------
+        if( mu <= muTol && rbNrm2 <= rbTol && rcNrm2 <= rcTol )
+            break;
+        else if( print )
+            std::cout << "  iter " << numIts
+                      << ": || r_b ||_2 = " << rbNrm2
+                      << ", || r_c ||_2 = " << rcNrm2
+                      << ", mu = " << mu << std::endl;
+
+        // Construct the reduced KKT system, J dl = y
+        // ==========================================
+        FormNormalSystem( A, b, c, x, l, s, sigma*mu, J, y );
+
+        // Compute the proposed step from the KKT system
+        // =============================================
+        SolveNormalSystem( A, b, c, x, l, s, sigma*mu, J, y, dx, dl, ds );
+
+        // Decide on the step length
+        // =========================
+        const Real alpha =
+          IPFLineSearch
+          ( A, b, c, x, l, s, dx, dl, ds, gamma, beta, psi, print );
+        if( print )
+            std::cout << "  alpha = " << alpha << std::endl;
+
+        // Update the state by stepping a distance of alpha
+        // ================================================
+        Axpy( alpha, dx, x );
+        Axpy( alpha, dl, l );
+        Axpy( alpha, ds, s );
+    }
+}
+
+template<typename Real>
+void IPF
+( const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c,
+  DistMultiVec<Real>& x, DistMultiVec<Real>& l, DistMultiVec<Real>& s,
+  Real muTol, Real rbTol, Real rcTol, Int maxIts,
+  Real sigma, Real gamma, Real beta, Real psi, bool print )
+{
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
+    // TODO: Input checks
+    const Int n = A.Width();
+    mpi::Comm comm = A.Comm();
+
+    DistSparseMatrix<Real> J(comm);
+    DistMultiVec<Real> y(comm), rb(comm), rc(comm), 
+                       dx(comm), dl(comm), ds(comm);
+    for( Int numIts=0; numIts<maxIts; ++numIts )
+    {
+        // Check for convergence
+        // =====================
+        // mu = x^T x / n
+        // ---------------
+        const Real mu = Dot(x,s) / n;
+        // || r_b ||_2 = || A x - b ||_2
+        // -----------------------------
+        rb = b; 
+        Multiply( NORMAL, Real(1), A, x, Real(-1), rb );
+        const Real rbNrm2 = Nrm2( rb );
+        // || r_c ||_2 = || A^T l + s - c ||_2
+        // -----------------------------------
+        rc = c;
+        Multiply( TRANSPOSE, Real(1), A, l, Real(-1), rc );
+        Axpy( Real(1), s, rc );
+        const Real rcNrm2 = Nrm2( rc );
+        // Now check the pieces
+        // --------------------
+        if( mu <= muTol && rbNrm2 <= rbTol && rcNrm2 <= rcTol )
+            break;
+        else if( print && mpi::Rank(comm) == 0 )
+            std::cout << "  iter " << numIts 
+                      << ": || r_b ||_2 = " << rbNrm2 
+                      << ", || r_c ||_2 = " << rcNrm2 
+                      << ", mu = " << mu << std::endl;
+
+        // Construct the reduced KKT system, J dl = y
+        // ==========================================
+        FormNormalSystem( A, b, c, x, l, s, sigma*mu, J, y );
+       
+        // Compute the proposed step from the KKT system
+        // =============================================
+        SolveNormalSystem( A, b, c, x, l, s, sigma*mu, J, y, dx, dl, ds );
+
+        // Decide on the step length
+        // =========================
+        const Real alpha = 
+          IPFLineSearch 
+          ( A, b, c, x, l, s, dx, dl, ds, gamma, beta, psi, print );
+        if( print && mpi::Rank(comm) == 0 )
+            std::cout << "  alpha = " << alpha << std::endl;
+
+        // Update the state by stepping a distance of alpha
+        // ================================================
+        Axpy( alpha, dx, x );
+        Axpy( alpha, dl, l );
+        Axpy( alpha, ds, s );
+    }
 }
 
 } // namespace lin_prog
@@ -1123,6 +1261,18 @@ Int LinearProgram
     const DistMultiVec<Real>& dx, const DistMultiVec<Real>& dl, \
     const DistMultiVec<Real>& ds, \
     Real gamma, Real beta, Real psi, bool print ); \
+  template void lin_prog::IPF \
+  ( const SparseMatrix<Real>& A, \
+    const Matrix<Real>& b,  const Matrix<Real>& c, \
+    Matrix<Real>& x, Matrix<Real>& l, Matrix<Real>& s, \
+    Real muTol, Real rbTol, Real rcTol, Int maxIts, \
+    Real sigma, Real gamma, Real beta, Real psi, bool print ); \
+  template void lin_prog::IPF \
+  ( const DistSparseMatrix<Real>& A, \
+    const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c, \
+    DistMultiVec<Real>& x, DistMultiVec<Real>& l, DistMultiVec<Real>& s, \
+    Real muTol, Real rbTol, Real rcTol, Int maxIts, \
+    Real sigma, Real gamma, Real beta, Real psi, bool print ); \
   template Int LinearProgram \
   ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, \
     Matrix<Real>& z, \
