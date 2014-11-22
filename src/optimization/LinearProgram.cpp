@@ -535,7 +535,7 @@ Real IPFLineSearch
     // Perform the line search using the cached data
     // ---------------------------------------------
     Real alpha = 1;
-    Matrix<Real> x_alpha, l_alpha, s_alpha, rb_alpha, rc_alpha;
+    Matrix<Real> x_alpha, s_alpha, rb_alpha, rc_alpha;
     for( Int k=0; k<100; ++k, alpha=alpha/2 )
     {
         // x(\alpha) = x + \alpha dx
@@ -677,7 +677,7 @@ Real IPFLineSearch
     // Perform the line search using the cached data
     // ---------------------------------------------
     Real alpha = 1;
-    DistMultiVec<Real> x_alpha(comm), l_alpha(comm), s_alpha(comm), 
+    DistMultiVec<Real> x_alpha(comm), s_alpha(comm), 
                        rb_alpha(comm), rc_alpha(comm);
     for( Int k=0; k<100; ++k, alpha=alpha/2 )
     {
@@ -769,7 +769,7 @@ void IPF
     {
         // Check for convergence
         // =====================
-        // mu = x^T x / n
+        // mu = x^T s / n
         // ---------------
         const Real mu = Dot(x,s) / n;
         // || r_b ||_2 = || A x - b ||_2
@@ -837,7 +837,7 @@ void IPF
     {
         // Check for convergence
         // =====================
-        // mu = x^T x / n
+        // mu = x^T s / n
         // ---------------
         const Real mu = Dot(x,s) / n;
         // || r_b ||_2 = || A x - b ||_2
