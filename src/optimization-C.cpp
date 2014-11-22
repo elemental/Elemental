@@ -157,6 +157,57 @@ extern "C" {
       *CReflect(A),*CReflect(b),*CReflect(c), \
       *CReflect(x),*CReflect(l),*CReflect(s), \
       tau,*CReflect(J),*CReflect(y)) ) } \
+  ElError ElLinearProgramSolveNormalSystem_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
+    ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG l, ElConstMatrix_ ## SIG s, \
+    Real tau, ElConstSparseMatrix_ ## SIG J, ElConstMatrix_ ## SIG y, \
+    ElMatrix_ ## SIG dx, ElMatrix_ ## SIG dl, ElMatrix_ ## SIG ds ) \
+  { EL_TRY( lin_prog::SolveNormalSystem( \
+      *CReflect(A),*CReflect(b),*CReflect(c), \
+      *CReflect(x),*CReflect(l),*CReflect(s), \
+      tau,*CReflect(J),*CReflect(y), \
+      *CReflect(dx), *CReflect(dl), *CReflect(ds)) ) } \
+  ElError ElLinearProgramSolveNormalSystemDist_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, \
+    ElConstDistMultiVec_ ## SIG b, ElConstDistMultiVec_ ## SIG c, \
+    ElConstDistMultiVec_ ## SIG x, ElConstDistMultiVec_ ## SIG l, \
+    ElConstDistMultiVec_ ## SIG s, \
+    Real tau, ElConstDistSparseMatrix_ ## SIG J, \
+    ElConstDistMultiVec_ ## SIG y, \
+    ElDistMultiVec_ ## SIG dx, ElDistMultiVec_ ## SIG dl, \
+    ElDistMultiVec_ ## SIG ds ) \
+  { EL_TRY( lin_prog::SolveNormalSystem( \
+      *CReflect(A),*CReflect(b),*CReflect(c), \
+      *CReflect(x),*CReflect(l),*CReflect(s), \
+      tau,*CReflect(J),*CReflect(y), \
+      *CReflect(dx), *CReflect(dl), *CReflect(ds)) ) } \
+  ElError ElLinearProgramIPFLineSearch_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
+    ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG l, \
+    ElConstMatrix_ ## SIG s, \
+    ElConstMatrix_ ## SIG dx, ElConstMatrix_ ## SIG dl, \
+    ElConstMatrix_ ## SIG ds, \
+    Real gamma, Real beta, Real psi, bool print, Real* alpha ) \
+  { EL_TRY( *alpha = lin_prog::IPFLineSearch( \
+      *CReflect(A), *CReflect(b), *CReflect(c), \
+      *CReflect(x), *CReflect(l), *CReflect(s), \
+      *CReflect(dx), *CReflect(dl), *CReflect(ds), \
+      gamma, beta, psi, print ) ) } \
+  ElError ElLinearProgramIPFLineSearchDist_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, \
+    ElConstDistMultiVec_ ## SIG b, ElConstDistMultiVec_ ## SIG c, \
+    ElConstDistMultiVec_ ## SIG x, ElConstDistMultiVec_ ## SIG l, \
+    ElConstDistMultiVec_ ## SIG s, \
+    ElConstDistMultiVec_ ## SIG dx, ElConstDistMultiVec_ ## SIG dl, \
+    ElConstDistMultiVec_ ## SIG ds, \
+    Real gamma, Real beta, Real psi, bool print, Real* alpha ) \
+  { EL_TRY( *alpha = lin_prog::IPFLineSearch( \
+      *CReflect(A), *CReflect(b), *CReflect(c), \
+      *CReflect(x), *CReflect(l), *CReflect(s), \
+      *CReflect(dx), *CReflect(dl), *CReflect(ds), \
+      gamma, beta, psi, print ) ) } \
   ElError ElLinearProgram_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
     ElConstMatrix_ ## SIG c, ElMatrix_ ## SIG z, ElInt* numIts ) \

@@ -111,6 +111,26 @@ void SolveNormalSystem
   Real tau, const DistSparseMatrix<Real>& J, const DistMultiVec<Real>& y,
   DistMultiVec<Real>& dx, DistMultiVec<Real>& dl, DistMultiVec<Real>& ds );
 
+template<typename Real>
+Real IPFLineSearch
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& b,  const Matrix<Real>& c,
+  const Matrix<Real>& x,  const Matrix<Real>& l,  const Matrix<Real>& s,
+  const Matrix<Real>& dx, const Matrix<Real>& dl, const Matrix<Real>& ds,
+  Real gamma, Real beta, Real psi=100, bool print=false );
+template<typename Real>
+Real IPFLineSearch
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b,
+  const DistMultiVec<Real>& c,
+  const DistMultiVec<Real>& x,
+  const DistMultiVec<Real>& l,
+  const DistMultiVec<Real>& s,
+  const DistMultiVec<Real>& dx,
+  const DistMultiVec<Real>& dl,
+  const DistMultiVec<Real>& ds,
+  Real gamma, Real beta, Real psi=100, bool print=false );
+
 } // namespace lin_prog
 
 template<typename Real>

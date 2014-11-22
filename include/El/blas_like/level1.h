@@ -492,6 +492,17 @@ EL_EXPORT ElError ElDotDist_c
 EL_EXPORT ElError ElDotDist_z
 ( ElConstDistMatrix_z A, ElConstDistMatrix_z B, complex_double* prod );
 
+EL_EXPORT ElError ElDotDistMultiVec_i
+( ElConstDistMultiVec_i A, ElConstDistMultiVec_i B, ElInt* prod );
+EL_EXPORT ElError ElDotDistMultiVec_s
+( ElConstDistMultiVec_s A, ElConstDistMultiVec_s B, float* prod );
+EL_EXPORT ElError ElDotDistMultiVec_d
+( ElConstDistMultiVec_d A, ElConstDistMultiVec_d B, double* prod );
+EL_EXPORT ElError ElDotDistMultiVec_c
+( ElConstDistMultiVec_c A, ElConstDistMultiVec_c B, complex_float* prod );
+EL_EXPORT ElError ElDotDistMultiVec_z
+( ElConstDistMultiVec_z A, ElConstDistMultiVec_z B, complex_double* prod );
+
 /* Dotu
    ==== */
 EL_EXPORT ElError ElDotu_c
@@ -503,6 +514,11 @@ EL_EXPORT ElError ElDotuDist_c
 ( ElConstDistMatrix_c A, ElConstDistMatrix_c B, complex_float* prod );
 EL_EXPORT ElError ElDotuDist_z
 ( ElConstDistMatrix_z A, ElConstDistMatrix_z B, complex_double* prod );
+
+EL_EXPORT ElError ElDotuDistMultiVec_c
+( ElConstDistMultiVec_c A, ElConstDistMultiVec_c B, complex_float* prod );
+EL_EXPORT ElError ElDotuDistMultiVec_z
+( ElConstDistMultiVec_z A, ElConstDistMultiVec_z B, complex_double* prod );
 
 /* EntrywiseFill
    ============= */
@@ -633,6 +649,17 @@ EL_EXPORT ElError ElHilbertSchmidtDist_c
 ( ElConstDistMatrix_c A, ElConstDistMatrix_c B, complex_float* prod );
 EL_EXPORT ElError ElHilbertSchmidtDist_z
 ( ElConstDistMatrix_z A, ElConstDistMatrix_z B, complex_double* prod );
+
+EL_EXPORT ElError ElHilbertSchmidtDistMultiVec_i
+( ElConstDistMultiVec_i A, ElConstDistMultiVec_i B, ElInt* prod );
+EL_EXPORT ElError ElHilbertSchmidtDistMultiVec_s
+( ElConstDistMultiVec_s A, ElConstDistMultiVec_s B, float* prod );
+EL_EXPORT ElError ElHilbertSchmidtDistMultiVec_d
+( ElConstDistMultiVec_d A, ElConstDistMultiVec_d B, double* prod );
+EL_EXPORT ElError ElHilbertSchmidtDistMultiVec_c
+( ElConstDistMultiVec_c A, ElConstDistMultiVec_c B, complex_float* prod );
+EL_EXPORT ElError ElHilbertSchmidtDistMultiVec_z
+( ElConstDistMultiVec_z A, ElConstDistMultiVec_z B, complex_double* prod );
 
 /* Imaginary part
    ============== */

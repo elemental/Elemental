@@ -476,6 +476,277 @@ void SolveNormalSystem
     }
 }
 
+template<typename Real>
+Real IPFLineSearch
+( const SparseMatrix<Real>& A, 
+  const Matrix<Real>& b,  const Matrix<Real>& c,
+  const Matrix<Real>& x,  const Matrix<Real>& l,  const Matrix<Real>& s,
+  const Matrix<Real>& dx, const Matrix<Real>& dl, const Matrix<Real>& ds,
+  Real gamma, Real beta, Real psi, bool print )
+{
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::IPFLineSearch"))
+    if( gamma <= Real(0) || gamma >= Real(1) )
+        LogicError("gamma must be in (0,1)");
+    if( beta < Real(1) )
+        LogicError("beta must be at least one");
+    // TODO: Ensure the dimensions match
+    if( b.Width() != 1 || c.Width() != 1 ||
+        x.Width() != 1 || l.Width() != 1 || s.Width() != 1 ||
+        dx.Width() != 1 || dl.Width() != 1 || ds.Width() != 1 )
+        LogicError("{b,c,x,l,s,dx,dl,ds} must be column vectors");
+    const Int m = A.Height();
+    const Int n = A.Width();
+
+    // Get the upper bound on the step length from the Armijo condition,
+    //   \mu(\alpha) \le (1 - \alpha/\psi) \mu,
+    // where 
+    //   \mu = x^T s / n 
+    // is the current duality measure, and 
+    //   \mu(\alpha) = (x + \alpha dx)^T (s + \alpha ds) / n,
+    // is the duality measure after a step of length \alpha.
+    // The upper bound can be seen to be
+    //   \alpha_{\text{max}} = (x^T s / \psi - dx^T s - x^T ds)) / dx^T ds.
+    const Real alphaMax = (Dot(x,s)/psi - Dot(dx,s) - Dot(x,ds)) / Dot(dx,dx);
+    if( print )
+        std::cout << "alpha_max = " << alphaMax << std::endl;
+
+    // Continually halve alphaMax until it is small enough so that the new
+    // state lies within the "-\infty" neighborhood of the central path, i.e.,
+    //  (a) || r_b(\alpha) ||_2 \le || r_b ||_2 \beta \mu(\alpha) / \mu,
+    //  (b) || r_c(\alpha) ||_2 \le || r_c ||_2 \beta \mu(\alpha) / \mu,
+    //  (c) x(\alpha), s(\alpha) > 0, and, for all i,
+    //  (d) x_i(\alpha) s_i(\alpha) \ge \gamma \mu(\alpha),
+    // where 
+    //    x(\alpha) = x + \alpha dx,
+    //    l(\alpha) = l + \alpha dl,
+    //    s(\alpha) = s + \alpha ds,
+    //    r_b(\alpha) = A x(\alpha) - b, and
+    //    r_c(\alpha) = A^T l(\alpha) + s(\alpha) - c.
+    // ===============================================
+    // Setup
+    // -----
+    Matrix<Real> A_x, A_dx, AT_l, AT_dl, rb, rc;
+    Zeros( A_x,   m, 1 );
+    Zeros( A_dx,  m, 1 );
+    Zeros( AT_l,  n, 1 );
+    Zeros( AT_dl, n, 1 );
+    Multiply( NORMAL,    Real(1), A, x,  Real(0), A_x   );
+    Multiply( NORMAL,    Real(1), A, dx, Real(0), A_dx  );
+    Multiply( TRANSPOSE, Real(1), A, l,  Real(0), AT_l  );
+    Multiply( TRANSPOSE, Real(1), A, dl, Real(0), AT_dl );
+    rb = A_x; 
+    Axpy( Real(-1), b, rb );
+    rc = AT_dl;
+    Axpy( Real(1), s, rc );
+    Axpy( Real(-1), c, rc );
+    const Real rbNrm2 = Nrm2( rb );
+    const Real rcNrm2 = Nrm2( rc );
+    const Real mu = Dot(x,s) / n;
+    // Perform the line search using the cached data
+    // ---------------------------------------------
+    Real alpha = alphaMax;
+    Matrix<Real> x_alpha, l_alpha, s_alpha, rb_alpha, rc_alpha;
+    for( Int k=0; k<100; ++k, alpha=alpha/2 )
+    {
+        // r_b(\alpha) = r_b + \alpha A dx
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        rb_alpha = rb;
+        Axpy( alpha, A_dx, rb_alpha );
+        const Real rb_alphaNrm2 = Nrm2( rb_alpha );
+
+        // r_c(\alpha) = r_c + \alpha A^T dl + \alpha ds
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        rc_alpha = rc;
+        Axpy( alpha, AT_dl, rc_alpha );
+        Axpy( alpha, ds, rc_alpha );
+        const Real rc_alphaNrm2 = Nrm2( rc_alpha );
+
+        // x(\alpha) = x + \alpha dx
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^
+        x_alpha = x;
+        Axpy( alpha, dx, x_alpha );
+
+        // s(\alpha) = s + \alpha ds
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        s_alpha = s;
+        Axpy( alpha, ds, s_alpha );
+
+        // \mu(\alpha) = x(\alpha)^T s / n
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        const Real mu_alpha = Dot(x_alpha,s_alpha) / n;
+
+        // Check || r_b(\alpha) ||_2 \le || r_b ||_2 \beta \mu(\alpha) / \mu
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        if( rb_alphaNrm2 > rbNrm2*beta*mu_alpha/mu )
+            continue;
+        // Check || r_c(\alpha) ||_2 \le || r_c ||_2 \beta \mu(\alpha) / \mu
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        if( rc_alphaNrm2 > rcNrm2*beta*mu_alpha/mu )
+            continue;
+        // Check 
+        //    x(\alpha), s(\alpha) > 0, and 
+        //    x_i(\alpha) s_i(\alpha) \ge \gamma \mu(\alpha)
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        bool allGreater = true;
+        for( Int i=0; i<n; ++i )
+        {
+            const Real xi = x.Get(i,0);
+            const Real si = s.Get(i,0);
+            const Real xi_alpha = x_alpha.Get(i,0);
+            const Real si_alpha = s_alpha.Get(i,0);
+            if( xi <= Real(0) || si <= Real(0) )
+                allGreater = false;
+            if( xi_alpha*si_alpha < gamma*mu_alpha )
+                allGreater = false;
+        }
+        if( allGreater )
+            break;
+    }
+    return alpha;
+}
+
+template<typename Real>
+Real IPFLineSearch
+( const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& b, 
+  const DistMultiVec<Real>& c,
+  const DistMultiVec<Real>& x, 
+  const DistMultiVec<Real>& l, 
+  const DistMultiVec<Real>& s,
+  const DistMultiVec<Real>& dx, 
+  const DistMultiVec<Real>& dl, 
+  const DistMultiVec<Real>& ds,
+  Real gamma, Real beta, Real psi, bool print )
+{
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::IPFLineSearch"))
+    if( gamma <= Real(0) || gamma >= Real(1) )
+        LogicError("gamma must be in (0,1)");
+    if( beta < Real(1) )
+        LogicError("beta must be at least one");
+    // TODO: Ensure communicators are congruent
+    // TODO: Ensure the dimensions match
+    if( b.Width() != 1 || c.Width() != 1 ||
+        x.Width() != 1 || l.Width() != 1 || s.Width() != 1 ||
+        dx.Width() != 1 || dl.Width() != 1 || ds.Width() != 1 )
+        LogicError("{b,c,x,l,s,dx,dl,ds} must be column vectors");
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int nLocal = x.LocalHeight();
+    mpi::Comm comm = A.Comm();
+
+    // Get the upper bound on the step length from the Armijo condition,
+    //   \mu(\alpha) \le (1 - \alpha/\psi) \mu,
+    // where 
+    //   \mu = x^T s / n 
+    // is the current duality measure, and 
+    //   \mu(\alpha) = (x + \alpha dx)^T (s + \alpha ds) / n,
+    // is the duality measure after a step of length \alpha.
+    // The upper bound can be seen to be
+    //   \alpha_{\text{max}} = (x^T s / \psi - dx^T s - x^T ds)) / dx^T ds.
+    const Real alphaMax = (Dot(x,s)/psi - Dot(dx,s) - Dot(x,ds)) / Dot(dx,dx);
+    if( print )
+        if( mpi::Rank(comm) == 0 )
+            std::cout << "alpha_max = " << alphaMax << std::endl;
+
+    // Continually halve alphaMax until it is small enough so that the new
+    // state lies within the "-\infty" neighborhood of the central path, i.e.,
+    //  (a) || r_b(\alpha) ||_2 \le || r_b ||_2 \beta \mu(\alpha) / \mu,
+    //  (b) || r_c(\alpha) ||_2 \le || r_c ||_2 \beta \mu(\alpha) / \mu,
+    //  (c) x(\alpha), s(\alpha) > 0, and, for all i,
+    //  (d) x_i(\alpha) s_i(\alpha) \ge \gamma \mu(\alpha),
+    // where 
+    //    x(\alpha) = x + \alpha dx,
+    //    l(\alpha) = l + \alpha dl,
+    //    s(\alpha) = s + \alpha ds,
+    //    r_b(\alpha) = A x(\alpha) - b, and
+    //    r_c(\alpha) = A^T l(\alpha) + s(\alpha) - c.
+    // ===============================================
+    // Setup
+    // -----
+    DistMultiVec<Real> A_x(comm), A_dx(comm), AT_l(comm), AT_dl(comm), 
+                       rb(comm), rc(comm);
+    Zeros( A_x,   m, 1 );
+    Zeros( A_dx,  m, 1 );
+    Zeros( AT_l,  n, 1 );
+    Zeros( AT_dl, n, 1 );
+    Multiply( NORMAL,    Real(1), A, x,  Real(0), A_x   );
+    Multiply( NORMAL,    Real(1), A, dx, Real(0), A_dx  );
+    Multiply( TRANSPOSE, Real(1), A, l,  Real(0), AT_l  );
+    Multiply( TRANSPOSE, Real(1), A, dl, Real(0), AT_dl );
+    rb = A_x; 
+    Axpy( Real(-1), b, rb );
+    rc = AT_dl;
+    Axpy( Real(1), s, rc );
+    Axpy( Real(-1), c, rc );
+    const Real rbNrm2 = Nrm2( rb );
+    const Real rcNrm2 = Nrm2( rc );
+    const Real mu = Dot(x,s) / n;
+    // Perform the line search using the cached data
+    // ---------------------------------------------
+    Real alpha = alphaMax;
+    DistMultiVec<Real> x_alpha(comm), l_alpha(comm), s_alpha(comm), 
+                       rb_alpha(comm), rc_alpha(comm);
+    for( Int k=0; k<100; ++k, alpha=alpha/2 )
+    {
+        // r_b(\alpha) = r_b + \alpha A dx
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        rb_alpha = rb;
+        Axpy( alpha, A_dx, rb_alpha );
+        const Real rb_alphaNrm2 = Nrm2( rb_alpha );
+
+        // r_c(\alpha) = r_c + \alpha A^T dl + \alpha ds
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        rc_alpha = rc;
+        Axpy( alpha, AT_dl, rc_alpha );
+        Axpy( alpha, ds, rc_alpha );
+        const Real rc_alphaNrm2 = Nrm2( rc_alpha );
+
+        // x(\alpha) = x + \alpha dx
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^
+        x_alpha = x;
+        Axpy( alpha, dx, x_alpha );
+
+        // s(\alpha) = s + \alpha ds
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        s_alpha = s;
+        Axpy( alpha, ds, s_alpha );
+
+        // \mu(\alpha) = x(\alpha)^T s / n
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        const Real mu_alpha = Dot(x_alpha,s_alpha) / n;
+
+        // Check || r_b(\alpha) ||_2 \le || r_b ||_2 \beta \mu(\alpha) / \mu
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        if( rb_alphaNrm2 > rbNrm2*beta*mu_alpha/mu )
+            continue;
+        // Check || r_c(\alpha) ||_2 \le || r_c ||_2 \beta \mu(\alpha) / \mu
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        if( rc_alphaNrm2 > rcNrm2*beta*mu_alpha/mu )
+            continue;
+        // Check 
+        //    x(\alpha), s(\alpha) > 0, and 
+        //    x_i(\alpha) s_i(\alpha) \ge \gamma \mu(\alpha)
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        bool allLocalGreater = true;
+        for( Int iLoc=0; iLoc<nLocal; ++iLoc )
+        {
+            const Real xi = x.GetLocal(iLoc,0);
+            const Real si = s.GetLocal(iLoc,0);
+            const Real xi_alpha = x_alpha.GetLocal(iLoc,0);
+            const Real si_alpha = s_alpha.GetLocal(iLoc,0);
+            if( xi <= Real(0) || si <= Real(0) )
+                allLocalGreater = false;
+            if( xi_alpha*si_alpha < gamma*mu_alpha )
+                allLocalGreater = false;
+        }
+        const Int numLocalLess = ( allLocalGreater ? 0 : 1 );
+        const Int numLess = mpi::AllReduce( numLocalLess, comm ); 
+        if( numLess == 0 )
+            break;
+    }
+    return alpha;
+}
+
 } // namespace lin_prog
 
 // These implementations are adaptations of the solver described at
@@ -524,6 +795,7 @@ Int LinearProgram
     L21 = A; Scale( 1/rho, L21 );
     Herk( LOWER, NORMAL, -1/rho, A, B22 );
     MakeHermitian( LOWER, B22 );
+    // TODO: Replace with sparse-direct Cholesky version?
     Matrix<Int> perm2;
     LU( B22, perm2 );
     PermuteRows( L21, perm2 );
@@ -837,6 +1109,20 @@ Int LinearProgram
     const DistMultiVec<Real>& s, \
     Real tau, const DistSparseMatrix<Real>& J, const DistMultiVec<Real>& y, \
     DistMultiVec<Real>& dx, DistMultiVec<Real>& dl, DistMultiVec<Real>& ds ); \
+  template Real lin_prog::IPFLineSearch \
+  ( const SparseMatrix<Real>& A, \
+    const Matrix<Real>& b,  const Matrix<Real>& c, \
+    const Matrix<Real>& x,  const Matrix<Real>& l,  const Matrix<Real>& s, \
+    const Matrix<Real>& dx, const Matrix<Real>& dl, const Matrix<Real>& ds, \
+    Real gamma, Real beta, Real psi, bool print ); \
+  template Real lin_prog::IPFLineSearch \
+  ( const DistSparseMatrix<Real>& A, \
+    const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c, \
+    const DistMultiVec<Real>& x,  const DistMultiVec<Real>& l, \
+    const DistMultiVec<Real>& s, \
+    const DistMultiVec<Real>& dx, const DistMultiVec<Real>& dl, \
+    const DistMultiVec<Real>& ds, \
+    Real gamma, Real beta, Real psi, bool print ); \
   template Int LinearProgram \
   ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, \
     Matrix<Real>& z, \

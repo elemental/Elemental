@@ -10,6 +10,8 @@
 #ifndef EL_SOLVE_HPP
 #define EL_SOLVE_HPP
 
+#include "El/lapack_like/factor.hpp"
+
 namespace El {
 
 // B := inv(A) B for a general square A
@@ -42,6 +44,15 @@ void HermitianSolve
   AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
+template<typename F>
+void HermitianSolve
+( const SparseMatrix<F>& A, Matrix<F>& X,
+  const BisectCtrl& ctrl=BisectCtrl() );
+template<typename F>
+void HermitianSolve
+( const DistSparseMatrix<F>& A, DistMultiVec<F>& X,
+  const BisectCtrl& ctrl=BisectCtrl() );
+
 // B := inv(A) for Hermitian Positive-Definite (HPD) A
 // ===================================================
 template<typename F>
@@ -63,6 +74,17 @@ template<typename F>
 void LeastSquares
 ( Orientation orientation, AbstractDistMatrix<F>& A, 
   const AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& X );
+
+template<typename F>
+void LeastSquares
+( Orientation orientation,
+  const SparseMatrix<F>& A, const Matrix<F>& Y, Matrix<F>& X,
+  const BisectCtrl& ctrl=BisectCtrl() );
+template<typename F>
+void LeastSquares
+( Orientation orientation,
+  const DistSparseMatrix<F>& A, const DistMultiVec<F>& Y, DistMultiVec<F>& X,
+  const BisectCtrl& ctrl=BisectCtrl() );
 
 // min_X || A X - C ||_F subject to B X = D
 // ========================================
@@ -112,6 +134,15 @@ void Ridge
 ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
   Base<F> alpha, AbstractDistMatrix<F>& X, RidgeAlg alg=RIDGE_CHOLESKY );
 
+template<typename F>
+void Ridge
+( const SparseMatrix<F>& A, const Matrix<F>& B, Base<F> alpha,
+        Matrix<F>& X, const BisectCtrl& ctrl=BisectCtrl() );
+template<typename F>
+void Ridge
+( const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, Base<F> alpha,
+        DistMultiVec<F>& X, const BisectCtrl& ctrl=BisectCtrl() );
+
 // B := inv(A) B for a symmetric A
 // ===============================
 template<typename F>
@@ -124,6 +155,15 @@ void SymmetricSolve
 ( UpperOrLower uplo, Orientation orientation,
   AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, bool conjugate=false, 
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
+
+template<typename F>
+void SymmetricSolve
+( const SparseMatrix<F>& A, Matrix<F>& X, bool conjugate=false,
+  const BisectCtrl& ctrl=BisectCtrl() );
+template<typename F>
+void SymmetricSolve
+( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, bool conjugate=false,
+  const BisectCtrl& ctrl=BisectCtrl() );
 
 // Tikhonov regularization
 // =======================
@@ -148,6 +188,17 @@ void Tikhonov
 ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
   const AbstractDistMatrix<F>& Gamma, AbstractDistMatrix<F>& X, 
   TikhonovAlg alg=TIKHONOV_CHOLESKY );
+
+template<typename F>
+void Tikhonov
+( const SparseMatrix<F>& A, const Matrix<F>& B,
+  const SparseMatrix<F>& Gamma, Matrix<F>& X,
+  const BisectCtrl& ctrl=BisectCtrl() );
+template<typename F>
+void Tikhonov
+( const DistSparseMatrix<F>& A, const DistMultiVec<F>& B,
+  const DistSparseMatrix<F>& Gamma, DistMultiVec<F>& X,
+  const BisectCtrl& ctrl=BisectCtrl() );
 
 // TODO: Generalized Tikhonov regularization
 

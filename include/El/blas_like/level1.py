@@ -712,6 +712,16 @@ lib.ElDotDist_c.argtypes = [c_void_p,c_void_p,POINTER(cType)]
 lib.ElDotDist_c.restype = c_uint
 lib.ElDotDist_z.argtypes = [c_void_p,c_void_p,POINTER(zType)]
 lib.ElDotDist_z.restype = c_uint
+lib.ElDotDistMultiVec_i.argtypes = [c_void_p,c_void_p,POINTER(iType)]
+lib.ElDotDistMultiVec_i.restype = c_uint
+lib.ElDotDistMultiVec_s.argtypes = [c_void_p,c_void_p,POINTER(sType)]
+lib.ElDotDistMultiVec_s.restype = c_uint
+lib.ElDotDistMultiVec_d.argtypes = [c_void_p,c_void_p,POINTER(dType)]
+lib.ElDotDistMultiVec_d.restype = c_uint
+lib.ElDotDistMultiVec_c.argtypes = [c_void_p,c_void_p,POINTER(cType)]
+lib.ElDotDistMultiVec_c.restype = c_uint
+lib.ElDotDistMultiVec_z.argtypes = [c_void_p,c_void_p,POINTER(zType)]
+lib.ElDotDistMultiVec_z.restype = c_uint
 def Dot(A,B):
   if type(A) is not type(B): raise Exception('Types of A and B must match')
   if A.tag != B.tag: raise Exception('Datatypes of A and B must match')
@@ -731,8 +741,15 @@ def Dot(A,B):
     elif A.tag == cTag: lib.ElDotDist_c(*args)
     elif A.tag == zTag: lib.ElDotDist_z(*args)
     else: DataExcept()
+  elif type(A) is DistMultiVec:
+    if   A.tag == iTag: lib.ElDotDistMultiVec_i(*args) 
+    elif A.tag == sTag: lib.ElDotDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElDotDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElDotDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElDotDistMultiVec_z(*args)
+    else: DataExcept()
   else: TypeExcept()
-  return prod
+  return prod.value
 
 # Dotu
 # ----
@@ -744,6 +761,10 @@ lib.ElDotDist_c.argtypes = [c_void_p,c_void_p,POINTER(cType)]
 lib.ElDotDist_c.restype = c_uint
 lib.ElDotDist_z.argtypes = [c_void_p,c_void_p,POINTER(zType)]
 lib.ElDotDist_z.restype = c_uint
+lib.ElDotDistMultiVec_c.argtypes = [c_void_p,c_void_p,POINTER(cType)]
+lib.ElDotDistMultiVec_c.restype = c_uint
+lib.ElDotDistMultiVec_z.argtypes = [c_void_p,c_void_p,POINTER(zType)]
+lib.ElDotDistMultiVec_z.restype = c_uint
 def Dotu(A,B):
   if type(A) is not type(B): raise Exception('Types of A and B must match')
   if A.tag != B.tag: raise Exception('Datatypes of A and B must match')
@@ -763,8 +784,15 @@ def Dotu(A,B):
     elif A.tag == cTag: lib.ElDotuDist_c(*args)
     elif A.tag == zTag: lib.ElDotuDist_z(*args)
     else: DataExcept()
+  elif type(A) is DistMultiVec:
+    if   A.tag == iTag: lib.ElDotDistMultiVec_i(*args) 
+    elif A.tag == sTag: lib.ElDotDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElDotDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElDotuDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElDotuDistMultiVec_z(*args)
+    else: DataExcept()
   else: TypeExcept()
-  return prod
+  return prod.value
 
 # Entrywise fill
 # --------------
@@ -990,6 +1018,16 @@ lib.ElHilbertSchmidtDist_c.argtypes = [c_void_p,c_void_p,POINTER(cType)]
 lib.ElHilbertSchmidtDist_c.restype = c_uint
 lib.ElHilbertSchmidtDist_z.argtypes = [c_void_p,c_void_p,POINTER(zType)]
 lib.ElHilbertSchmidtDist_z.restype = c_uint
+lib.ElHilbertSchmidtDistMultiVec_i.argtypes = [c_void_p,c_void_p,POINTER(iType)]
+lib.ElHilbertSchmidtDistMultiVec_i.restype = c_uint
+lib.ElHilbertSchmidtDistMultiVec_s.argtypes = [c_void_p,c_void_p,POINTER(sType)]
+lib.ElHilbertSchmidtDistMultiVec_s.restype = c_uint
+lib.ElHilbertSchmidtDistMultiVec_d.argtypes = [c_void_p,c_void_p,POINTER(dType)]
+lib.ElHilbertSchmidtDistMultiVec_d.restype = c_uint
+lib.ElHilbertSchmidtDistMultiVec_c.argtypes = [c_void_p,c_void_p,POINTER(cType)]
+lib.ElHilbertSchmidtDistMultiVec_c.restype = c_uint
+lib.ElHilbertSchmidtDistMultiVec_z.argtypes = [c_void_p,c_void_p,POINTER(zType)]
+lib.ElHilbertSchmidtDistMultiVec_z.restype = c_uint
 def HilbertSchmidt(A,B):
   if type(A) is type(B): raise Exception('Matrix types must match')
   if A.tag != B.tag: raise Exception('Datatypes must match')
@@ -1009,8 +1047,15 @@ def HilbertSchmidt(A,B):
     elif A.tag == cTag: lib.ElHilbertSchmidtDist_c(*args)
     elif A.tag == zTag: lib.ElHilbertSchmidtDist_z(*args)
     else: DataExcept()
+  elif type(A) is DistMultiVec:
+    if   A.tag == iTag: lib.ElHilbertSchmidtDistMultiVec_i(*args)
+    elif A.tag == sTag: lib.ElHilbertSchmidtDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElHilbertSchmidtDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElHilbertSchmidtDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElHilbertSchmidtDistMultiVec_z(*args)
+    else: DataExcept()
   else: TypeExcept()
-  return prod
+  return prod.value
 
 # Index dependent fill
 # --------------------

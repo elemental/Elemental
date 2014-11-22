@@ -36,19 +36,19 @@ PROTO_INT(Int)
 #endif
 
 #ifndef EL_NO_REAL_PROTO
-# if !defined(EL_NO_FLOAT_PROTO) && !defined(EL_DISABLE_FLOAT)
+# if !defined(EL_NO_FLOAT_PROTO)
 PROTO_FLOAT
 # endif
-# if !defined(EL_NO_DOUBLE_PROTO) && !defined(EL_DISABLE_DOUBLE)
+# if !defined(EL_NO_DOUBLE_PROTO)
 PROTO_DOUBLE
 # endif
 #endif
 
-#if !defined(EL_NO_COMPLEX_PROTO) && !defined(EL_DISABLE_COMPLEX)
-# if !defined(EL_NO_COMPLEX_FLOAT_PROTO) && !defined(EL_DISABLE_FLOAT)
+#if !defined(EL_NO_COMPLEX_PROTO)
+# if !defined(EL_NO_COMPLEX_FLOAT_PROTO)
 PROTO_COMPLEX_FLOAT
 # endif
-# if !defined(EL_NO_COMPLEX_DOUBLE_PROTO) && !defined(EL_DISABLE_DOUBLE)
+# if !defined(EL_NO_COMPLEX_DOUBLE_PROTO)
 PROTO_COMPLEX_DOUBLE
 # endif
 #endif

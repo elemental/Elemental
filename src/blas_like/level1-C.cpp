@@ -110,6 +110,10 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
     CREFLECT(T)* prod ) \
   { EL_TRY( *prod = CReflect(Dot(*CReflect(A),*CReflect(B))) ) } \
+  ElError ElDotDistMultiVec_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG A, ElConstDistMultiVec_ ## SIG B, \
+    CREFLECT(T)* prod ) \
+  { EL_TRY( *prod = CReflect(Dot(*CReflect(A),*CReflect(B))) ) } \
   /* EntrywiseFill */ \
   ElError ElEntrywiseFill_ ## SIG \
   ( ElMatrix_ ## SIG A, CREFLECT(T) (*fill)() ) \
@@ -177,6 +181,10 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
     CREFLECT(T)* prod ) \
   { EL_TRY( *prod = \
       CReflect(HilbertSchmidt(*CReflect(A),*CReflect(B))) ) } \
+  ElError ElHilbertSchmidtDistMultiVec_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG A, ElConstDistMultiVec_ ## SIG B, \
+    CREFLECT(T)* prod ) \
+  { EL_TRY( *prod = CReflect(HilbertSchmidt(*CReflect(A),*CReflect(B))) ) } \
   /* Imaginary part */ \
   ElError ElImagPart_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIGBASE AImag ) \
@@ -487,6 +495,10 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
   { EL_TRY( *prod = CReflect(Dotu(*CReflect(A),*CReflect(B))) ) } \
   ElError ElDotuDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
+    CREFLECT(T)* prod ) \
+  { EL_TRY( *prod = CReflect(Dotu(*CReflect(A),*CReflect(B))) ) } \
+  ElError ElDotuDistMultiVec_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG A, ElConstDistMultiVec_ ## SIG B, \
     CREFLECT(T)* prod ) \
   { EL_TRY( *prod = CReflect(Dotu(*CReflect(A),*CReflect(B))) ) } \
   /* Max */ \

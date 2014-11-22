@@ -333,12 +333,14 @@ void LDL
 template<typename T>
 void InitializeDistLeaf( const DistSymmInfo& info, DistSymmFrontTree<T>& L );
 
+// TODO: Reformat and rename to Trmm
 template<typename T>
 void LowerMultiply
 ( Orientation orientation, int diagOffset,
   const DistSymmInfo& info, const DistSymmFrontTree<T>& L,
   DistNodalMultiVec<T>& X );
 
+// TODO: Reformat and rename to Trsm
 template<typename F>
 void LowerSolve
 ( Orientation orientation, const DistSymmInfo& info,
@@ -356,31 +358,6 @@ template<typename F>
 void Solve
 ( const DistSymmInfo& info,
   const DistSymmFrontTree<F>& L, DistNodalMatrix<F>& X );
-
-template<typename F>
-void SymmetricSolve
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, bool conjugate=false, 
-  const BisectCtrl& ctrl=BisectCtrl() );
-template<typename F>
-void HermitianSolve
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, 
-  const BisectCtrl& ctrl=BisectCtrl() );
-
-template<typename F>
-void LeastSquares
-( Orientation orientation,
-  const DistSparseMatrix<F>& A, const DistMultiVec<F>& Y, DistMultiVec<F>& X,
-  const BisectCtrl& ctrl=BisectCtrl() );
-
-template<typename F>
-void Ridge
-( const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, Base<F> alpha,
-        DistMultiVec<F>& X, const BisectCtrl& ctrl=BisectCtrl() );
-template<typename F>
-void Tikhonov
-( const DistSparseMatrix<F>& A, const DistMultiVec<F>& B,
-  const DistSparseMatrix<F>& Gamma, DistMultiVec<F>& X,
-  const BisectCtrl& ctrl=BisectCtrl() );
 
 } // namespace El
 

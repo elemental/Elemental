@@ -20,11 +20,11 @@ def AsymmSparse(xSize,ySize):
     s = firstLocalRow + sLoc
     x = s % xSize
     y = s / xSize
-    A.QueueLocalUpdate( sLoc, s, 5 )
-    if x != 0:       A.QueueLocalUpdate( sLoc, s-1,     -1 )
-    if x != xSize-1: A.QueueLocalUpdate( sLoc, s+1,      1 )
-    if y != 0:       A.QueueLocalUpdate( sLoc, s-xSize, -2 )
-    if y != ySize-1: A.QueueLocalUpdate( sLoc, s+xSize,  2 )
+    A.QueueLocalUpdate( sLoc, s, 11 )
+    if x != 0:       A.QueueLocalUpdate( sLoc, s-1,     1 )
+    if x != xSize-1: A.QueueLocalUpdate( sLoc, s+1,     2 )
+    if y != 0:       A.QueueLocalUpdate( sLoc, s-xSize, 3 )
+    if y != ySize-1: A.QueueLocalUpdate( sLoc, s+xSize, 4 )
 
   A.MakeConsistent()
   return A
@@ -36,12 +36,15 @@ c = El.DistMultiVec()
 x = El.DistMultiVec()
 l = El.DistMultiVec()
 s = El.DistMultiVec()
-El.Uniform(b,n0*n1,1)
+El.Uniform(b,n0*n1,1,0.5,0.4999)
 El.Uniform(c,n0*n1,1,0.5,0.4999)
 El.Uniform(x,n0*n1,1,0.5,0.4999)
 El.Uniform(l,n0*n1,1,0.5,0.4999)
 El.Uniform(s,n0*n1,1,0.5,0.4999)
-tau = 0.01
+
+mu = El.Dot(x,s) / (1.*n0*n1)
+sigma = 0.9
+tau = mu*sigma
 J, y = El.LinearProgramFormNormalSystem(A,b,c,x,l,s,tau)
 
 El.Display( b, "b" )
@@ -54,10 +57,20 @@ El.Display( A, "A" )
 El.Display( J, "J" )
 El.Display( y, "y" )
 
-d = El.DistMultiVec(y.tag,y.Comm())
-El.Copy(y,d)
-El.SymmetricSolve(J,d)
-El.Display( d, "J \ y" )
+dx, dl, ds = El.LinearProgramSolveNormalSystem(A,b,c,x,l,s,tau,J,y)
+
+El.Display( dx, "dx" )
+El.Display( dl, "dl" )
+El.Display( ds, "ds" )
+
+gamma = 0.5
+beta = 1.1
+psi = 100
+progress = True
+alpha = El.LinearProgramIPFLineSearch(A,b,c,x,l,s,dx,dl,ds, \
+                                      gamma,beta,psi,progress)
+if El.mpi.WorldRank() == 0:
+  print "alpha =", alpha
 
 # Require the user to press a button before the figures are closed
 commSize = El.mpi.Size( El.mpi.COMM_WORLD() )

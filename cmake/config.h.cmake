@@ -89,11 +89,6 @@
 # define EL_EXPORT
 #endif
 
-/* NOTE: Only EL_DISABLE_FLOAT has been tested so far */
-#cmakedefine EL_DISABLE_FLOAT
-#cmakedefine EL_DISABLE_DOUBLE
-#cmakedefine EL_DISABLE_COMPLEX
-
 #cmakedefine EL_HAVE_VALGRIND
 
 #endif /* EL_CONFIG_H */
