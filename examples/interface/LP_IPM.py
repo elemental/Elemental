@@ -35,6 +35,7 @@ El.Display( A, "A" )
 # ================================================
 xGen = El.DistMultiVec()
 El.Uniform(xGen,n,1,0.5,0.4999)
+El.Display( xGen, "xGen" )
 b = El.DistMultiVec()
 El.Zeros( b, m, 1 )
 El.SparseMultiply( El.NORMAL, 1., A, xGen, 0., b )
@@ -54,9 +55,9 @@ El.Uniform(x,n,1,0.5,0.4999)
 El.Uniform(l,m,1,0.5,0.4999)
 El.Uniform(s,n,1,0.5,0.4999)
 
-muTol = 1e-10
-rbTol = 1e-10
-rcTol = 1e-10
+muTol = 1e-7
+rbTol = 1e-7
+rcTol = 1e-7
 maxIts = 1000
 sigma = 0.9
 gamma = 1e-3

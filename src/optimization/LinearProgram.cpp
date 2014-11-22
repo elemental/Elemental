@@ -270,7 +270,7 @@ void FormAugmentedSystem
 //   J | \Delta l | = y,
 // 
 //  \Delta s = -r_c - A^T \Delta l, and
-//  \Delta x = -x + tau diag(s)^{-1} e - diag(s)^{-1} diag(x) \Delta s.
+//  \Delta x = -x + diag(s)^{-1} (tau e - diag(x) \Delta s).
 //
 
 template<typename Real>
@@ -562,20 +562,20 @@ Real IPFLineSearch
         //    x(\alpha), s(\alpha) > 0, and 
         //    x_i(\alpha) s_i(\alpha) \ge \gamma \mu(\alpha)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        bool allGreater = true;
+        bool balanced = true;
         for( Int i=0; i<n; ++i )
         {
             const Real xi_alpha = x_alpha.Get(i,0);
             const Real si_alpha = s_alpha.Get(i,0);
             if( xi_alpha <= Real(0) || si_alpha <= Real(0) )
-                allGreater = false;
+                balanced = false;
             if( xi_alpha*si_alpha < gamma*mu_alpha )
-                allGreater = false;
+                balanced = false;
         }
-        if( !allGreater )
+        if( !balanced )
         {
             if( print )
-                std::cout << "  entrywise failure" << std::endl;
+                std::cout << "  unbalanced entries" << std::endl;
             continue;
         }
         // Check || r_b(\alpha) ||_2 \le || r_b ||_2 \beta \mu(\alpha) / \mu
@@ -705,22 +705,22 @@ Real IPFLineSearch
         //    x(\alpha), s(\alpha) > 0, and 
         //    x_i(\alpha) s_i(\alpha) \ge \gamma \mu(\alpha)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        bool allLocalGreater = true;
+        byte locallyBalanced = true;
         for( Int iLoc=0; iLoc<nLocal; ++iLoc )
         {
             const Real xi_alpha = x_alpha.GetLocal(iLoc,0);
             const Real si_alpha = s_alpha.GetLocal(iLoc,0);
             if( xi_alpha <= Real(0) || si_alpha <= Real(0) )
-                allLocalGreater = false;
+                locallyBalanced = false;
             if( xi_alpha*si_alpha < gamma*mu_alpha )
-                allLocalGreater = false;
+                locallyBalanced = false;
         }
-        const Int numLocalLess = ( allLocalGreater ? 0 : 1 );
-        const Int numLess = mpi::AllReduce( numLocalLess, comm ); 
-        if( numLess != 0 )
+        const byte balanced = 
+            mpi::AllReduce( locallyBalanced, mpi::BINARY_AND, comm ); 
+        if( !balanced )
         {
             if( print && commRank == 0 )
-                std::cout << "  entrywise failure" << std::endl;
+                std::cout << "  unbalanced entries" << std::endl;
             continue;
         }
         // Check || r_b(\alpha) ||_2 \le || r_b ||_2 \beta \mu(\alpha) / \mu
@@ -788,10 +788,10 @@ void IPF
         if( mu <= muTol && rbNrm2 <= rbTol && rcNrm2 <= rcTol )
             break;
         else if( print )
-            std::cout << "  iter " << numIts
-                      << ": || r_b ||_2 = " << rbNrm2
-                      << ", || r_c ||_2 = " << rcNrm2
-                      << ", mu = " << mu << std::endl;
+            std::cout << " iter " << numIts << ":\n"
+                      << "  || r_b ||_2  = " << rbNrm2
+                      << "  || r_c ||_2  = " << rcNrm2
+                      << "  mu = " << mu << std::endl;
 
         // Construct the reduced KKT system, J dl = y
         // ==========================================
@@ -800,6 +800,47 @@ void IPF
         // Compute the proposed step from the KKT system
         // =============================================
         SolveNormalSystem( A, b, c, x, l, s, sigma*mu, J, y, dx, dl, ds );
+
+#ifndef RELEASE
+          // Sanity checks
+          // =============
+          Matrix<Real> dsError, dxError, dlError;
+
+          dsError.Resize( n, 1 );
+          for( Int i=0; i<n; ++i )
+          {
+              const Real xi = x.Get(i,0);
+              const Real si = s.Get(i,0);
+              dsError.Set( i, 0, xi*si - sigma*mu );
+          }
+          const Real rmuNrm2 = Nrm2( dsError );
+          for( Int i=0; i<n; ++i )
+          {
+              const Real xi = x.Get(i,0);
+              const Real si = s.Get(i,0);
+              const Real dxi = dx.Get(i,0);
+              const Real dsi = ds.Get(i,0);
+              dsError.Update( i, 0, xi*dsi + si*dxi );
+          }
+          const Real dsErrorNrm2 = Nrm2( dsError );
+
+          dlError = ds;
+          Multiply( TRANSPOSE, Real(1), A, dl, Real(1), dlError );
+          Axpy( Real(1), rc, dlError );
+          const Real dlErrorNrm2 = Nrm2( dlError );
+
+          dxError = rb;
+          Multiply( NORMAL, Real(1), A, dx, Real(1), dxError );
+          const Real dxErrorNrm2 = Nrm2( dxError );
+  
+          if( print )
+              std::cout << "  || dsError ||_2 / || r_mu ||_2 = " 
+                        << dsErrorNrm2/rmuNrm2 << "\n"
+                        << "  || dxError ||_2 / || r_c ||_2 = " 
+                        << dxErrorNrm2/rcNrm2 << "\n"
+                        << "  || dlError ||_2 / || r_b ||_2 = " 
+                        << dlErrorNrm2/rbNrm2 << std::endl;
+#endif
 
         // Decide on the step length
         // =========================
@@ -829,6 +870,7 @@ void IPF
     // TODO: Input checks
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
+    const Int commRank = mpi::Rank(comm);
 
     DistSparseMatrix<Real> J(comm);
     DistMultiVec<Real> y(comm), rb(comm), rc(comm), 
@@ -855,11 +897,11 @@ void IPF
         // --------------------
         if( mu <= muTol && rbNrm2 <= rbTol && rcNrm2 <= rcTol )
             break;
-        else if( print && mpi::Rank(comm) == 0 )
-            std::cout << "  iter " << numIts 
-                      << ": || r_b ||_2 = " << rbNrm2 
-                      << ", || r_c ||_2 = " << rcNrm2 
-                      << ", mu = " << mu << std::endl;
+        else if( print && commRank == 0 )
+            std::cout << "  iter " << numIts << ": \n"
+                      << "  || r_b ||_2 = " << rbNrm2 
+                      << "  || r_c ||_2 = " << rcNrm2 
+                      << "  mu = " << mu << std::endl;
 
         // Construct the reduced KKT system, J dl = y
         // ==========================================
@@ -869,12 +911,53 @@ void IPF
         // =============================================
         SolveNormalSystem( A, b, c, x, l, s, sigma*mu, J, y, dx, dl, ds );
 
+#ifndef RELEASE
+          // Sanity checks
+          // =============
+          DistMultiVec<Real> dsError(comm), dxError(comm), dlError(comm);
+
+          dsError.Resize( n, 1 );
+          for( Int iLoc=0; iLoc<dsError.LocalHeight(); ++iLoc )
+          {
+              const Real xi = x.GetLocal(iLoc,0);
+              const Real si = s.GetLocal(iLoc,0);
+              dsError.SetLocal( iLoc, 0, xi*si - sigma*mu );
+          }
+          const Real rmuNrm2 = Nrm2( dsError );
+          for( Int iLoc=0; iLoc<dsError.LocalHeight(); ++iLoc )
+          {
+              const Real xi = x.GetLocal(iLoc,0);
+              const Real si = s.GetLocal(iLoc,0);
+              const Real dxi = dx.GetLocal(iLoc,0);
+              const Real dsi = ds.GetLocal(iLoc,0);
+              dsError.UpdateLocal( iLoc, 0, xi*dsi + si*dxi );
+          }
+          const Real dsErrorNrm2 = Nrm2( dsError );
+
+          dlError = ds;
+          Multiply( TRANSPOSE, Real(1), A, dl, Real(1), dlError );
+          Axpy( Real(1), rc, dlError );
+          const Real dlErrorNrm2 = Nrm2( dlError );
+
+          dxError = rb;
+          Multiply( NORMAL, Real(1), A, dx, Real(1), dxError );
+          const Real dxErrorNrm2 = Nrm2( dxError );
+
+          if( print && commRank == 0 )
+              std::cout << "  || dsError ||_2 / || r_mu ||_2 = " 
+                        << dsErrorNrm2/rmuNrm2 << "\n"
+                        << "  || dxError ||_2 / || r_c ||_2 = " 
+                        << dxErrorNrm2/rcNrm2 << "\n"
+                        << "  || dlError ||_2 / || r_b ||_2 = " 
+                        << dlErrorNrm2/rbNrm2 << std::endl;
+#endif
+
         // Decide on the step length
         // =========================
         const Real alpha = 
           IPFLineSearch 
           ( A, b, c, x, l, s, dx, dl, ds, gamma, beta, psi, print );
-        if( print && mpi::Rank(comm) == 0 )
+        if( print && commRank == 0 )
             std::cout << "  alpha = " << alpha << std::endl;
 
         // Update the state by stepping a distance of alpha

@@ -151,12 +151,12 @@ inline F SampleNormal( F mean, Base<F> stddev )
 template<>
 inline float
 SampleBall<float>( float center, float radius )
-{ return SampleUniform<float>(center-radius/2,center+radius/2); }
+{ return SampleUniform<float>(center-radius,center+radius); }
 
 template<>
 inline double
 SampleBall<double>( double center, double radius )
-{ return SampleUniform<double>(center-radius/2,center+radius/2); }
+{ return SampleUniform<double>(center-radius,center+radius); }
 
 template<>
 inline Complex<float>
