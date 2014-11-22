@@ -63,8 +63,8 @@ El.Display( dx, "dx" )
 El.Display( dl, "dl" )
 El.Display( ds, "ds" )
 
-gamma = 0.5
-beta = 1.1
+gamma = 1e-3
+beta = 2
 psi = 100
 progress = True
 alpha = El.LinearProgramIPFLineSearch(A,b,c,x,l,s,dx,dl,ds, \
