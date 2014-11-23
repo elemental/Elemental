@@ -122,131 +122,131 @@ extern "C" {
   ElError ElLinearProgramFormAugmentedSystem_ ## SIG \
   ( ElConstMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
-    ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG l, ElConstMatrix_ ## SIG s, \
+    ElConstMatrix_ ## SIG s, ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG l, \
     Real tau, ElMatrix_ ## SIG J, ElMatrix_ ## SIG y ) \
   { EL_TRY( lin_prog::FormAugmentedSystem( \
       *CReflect(A),*CReflect(b),*CReflect(c), \
-      *CReflect(x),*CReflect(l),*CReflect(s), \
+      *CReflect(s),*CReflect(x),*CReflect(l), \
       tau,*CReflect(J),*CReflect(y)) ) } \
   ElError ElLinearProgramFormAugmentedSystemDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, \
     ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
-    ElConstDistMatrix_ ## SIG x, ElConstDistMatrix_ ## SIG l, \
-    ElConstDistMatrix_ ## SIG s, \
+    ElConstDistMatrix_ ## SIG s, ElConstDistMatrix_ ## SIG x, \
+    ElConstDistMatrix_ ## SIG l, \
     Real tau, ElDistMatrix_ ## SIG J, ElDistMatrix_ ## SIG y ) \
   { EL_TRY( lin_prog::FormAugmentedSystem( \
       *CReflect(A),*CReflect(b),*CReflect(c), \
-      *CReflect(x),*CReflect(l),*CReflect(s), \
+      *CReflect(s),*CReflect(x),*CReflect(l), \
       tau,*CReflect(J),*CReflect(y)) ) } \
   ElError ElLinearProgramFormAugmentedSystemSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
-    ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG l, ElConstMatrix_ ## SIG s, \
+    ElConstMatrix_ ## SIG s, ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG l, \
     Real tau, ElSparseMatrix_ ## SIG J, ElMatrix_ ## SIG y ) \
   { EL_TRY( lin_prog::FormAugmentedSystem( \
       *CReflect(A),*CReflect(b),*CReflect(c), \
-      *CReflect(x),*CReflect(l),*CReflect(s), \
+      *CReflect(s),*CReflect(x),*CReflect(l), \
       tau,*CReflect(J),*CReflect(y)) ) } \
   ElError ElLinearProgramFormAugmentedSystemDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, \
     ElConstDistMultiVec_ ## SIG b, ElConstDistMultiVec_ ## SIG c, \
-    ElConstDistMultiVec_ ## SIG x, ElConstDistMultiVec_ ## SIG l, \
-    ElConstDistMultiVec_ ## SIG s, \
+    ElConstDistMultiVec_ ## SIG s, ElConstDistMultiVec_ ## SIG x, \
+    ElConstDistMultiVec_ ## SIG l, \
     Real tau, ElDistSparseMatrix_ ## SIG J, ElDistMultiVec_ ## SIG y ) \
   { EL_TRY( lin_prog::FormAugmentedSystem( \
       *CReflect(A),*CReflect(b),*CReflect(c), \
-      *CReflect(x),*CReflect(l),*CReflect(s), \
+      *CReflect(s),*CReflect(x),*CReflect(l), \
       tau,*CReflect(J),*CReflect(y)) ) } \
   ElError ElLinearProgramFormNormalSystemSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
-    ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG l, ElConstMatrix_ ## SIG s, \
+    ElConstMatrix_ ## SIG s, ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG l, \
     Real tau, ElSparseMatrix_ ## SIG J, ElMatrix_ ## SIG y ) \
   { EL_TRY( lin_prog::FormNormalSystem( \
       *CReflect(A),*CReflect(b),*CReflect(c), \
-      *CReflect(x),*CReflect(l),*CReflect(s), \
+      *CReflect(s),*CReflect(x),*CReflect(l), \
       tau,*CReflect(J),*CReflect(y)) ) } \
   ElError ElLinearProgramFormNormalSystemDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, \
     ElConstDistMultiVec_ ## SIG b, ElConstDistMultiVec_ ## SIG c, \
-    ElConstDistMultiVec_ ## SIG x, ElConstDistMultiVec_ ## SIG l, \
-    ElConstDistMultiVec_ ## SIG s, \
+    ElConstDistMultiVec_ ## SIG s, ElConstDistMultiVec_ ## SIG x, \
+    ElConstDistMultiVec_ ## SIG l, \
     Real tau, ElDistSparseMatrix_ ## SIG J, ElDistMultiVec_ ## SIG y ) \
   { EL_TRY( lin_prog::FormNormalSystem( \
       *CReflect(A),*CReflect(b),*CReflect(c), \
-      *CReflect(x),*CReflect(l),*CReflect(s), \
+      *CReflect(s),*CReflect(x),*CReflect(l), \
       tau,*CReflect(J),*CReflect(y)) ) } \
   ElError ElLinearProgramSolveNormalSystemSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
-    ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG l, ElConstMatrix_ ## SIG s, \
+    ElConstMatrix_ ## SIG s, ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG l, \
     Real tau, ElConstSparseMatrix_ ## SIG J, ElConstMatrix_ ## SIG y, \
-    ElMatrix_ ## SIG dx, ElMatrix_ ## SIG dl, ElMatrix_ ## SIG ds ) \
+    ElMatrix_ ## SIG ds, ElMatrix_ ## SIG dx, ElMatrix_ ## SIG dl ) \
   { EL_TRY( lin_prog::SolveNormalSystem( \
       *CReflect(A),*CReflect(b),*CReflect(c), \
-      *CReflect(x),*CReflect(l),*CReflect(s), \
+      *CReflect(s),*CReflect(x),*CReflect(l), \
       tau,*CReflect(J),*CReflect(y), \
-      *CReflect(dx), *CReflect(dl), *CReflect(ds)) ) } \
+      *CReflect(ds), *CReflect(dx), *CReflect(dl)) ) } \
   ElError ElLinearProgramSolveNormalSystemDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, \
     ElConstDistMultiVec_ ## SIG b, ElConstDistMultiVec_ ## SIG c, \
-    ElConstDistMultiVec_ ## SIG x, ElConstDistMultiVec_ ## SIG l, \
-    ElConstDistMultiVec_ ## SIG s, \
+    ElConstDistMultiVec_ ## SIG s, ElConstDistMultiVec_ ## SIG x, \
+    ElConstDistMultiVec_ ## SIG l, \
     Real tau, ElConstDistSparseMatrix_ ## SIG J, \
     ElConstDistMultiVec_ ## SIG y, \
-    ElDistMultiVec_ ## SIG dx, ElDistMultiVec_ ## SIG dl, \
-    ElDistMultiVec_ ## SIG ds ) \
+    ElDistMultiVec_ ## SIG ds, ElDistMultiVec_ ## SIG dx, \
+    ElDistMultiVec_ ## SIG dl ) \
   { EL_TRY( lin_prog::SolveNormalSystem( \
       *CReflect(A),*CReflect(b),*CReflect(c), \
-      *CReflect(x),*CReflect(l),*CReflect(s), \
+      *CReflect(s),*CReflect(x),*CReflect(l), \
       tau,*CReflect(J),*CReflect(y), \
-      *CReflect(dx), *CReflect(dl), *CReflect(ds)) ) } \
+      *CReflect(ds), *CReflect(dx), *CReflect(dl)) ) } \
   ElError ElLinearProgramIPFLineSearchSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
-    ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG l, \
-    ElConstMatrix_ ## SIG s, \
-    ElConstMatrix_ ## SIG dx, ElConstMatrix_ ## SIG dl, \
-    ElConstMatrix_ ## SIG ds, \
+    ElConstMatrix_ ## SIG s, ElConstMatrix_ ## SIG x, \
+    ElConstMatrix_ ## SIG l, \
+    ElConstMatrix_ ## SIG ds, ElConstMatrix_ ## SIG dx, \
+    ElConstMatrix_ ## SIG dl, \
     Real gamma, Real beta, Real psi, bool print, Real* alpha ) \
   { EL_TRY( *alpha = lin_prog::IPFLineSearch( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(x), *CReflect(l), *CReflect(s), \
-      *CReflect(dx), *CReflect(dl), *CReflect(ds), \
+      *CReflect(s), *CReflect(x), *CReflect(l), \
+      *CReflect(ds), *CReflect(dx), *CReflect(dl), \
       gamma, beta, psi, print ) ) } \
   ElError ElLinearProgramIPFLineSearchDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, \
     ElConstDistMultiVec_ ## SIG b, ElConstDistMultiVec_ ## SIG c, \
-    ElConstDistMultiVec_ ## SIG x, ElConstDistMultiVec_ ## SIG l, \
-    ElConstDistMultiVec_ ## SIG s, \
-    ElConstDistMultiVec_ ## SIG dx, ElConstDistMultiVec_ ## SIG dl, \
-    ElConstDistMultiVec_ ## SIG ds, \
+    ElConstDistMultiVec_ ## SIG s, ElConstDistMultiVec_ ## SIG x, \
+    ElConstDistMultiVec_ ## SIG l, \
+    ElConstDistMultiVec_ ## SIG ds, ElConstDistMultiVec_ ## SIG dx, \
+    ElConstDistMultiVec_ ## SIG dl, \
     Real gamma, Real beta, Real psi, bool print, Real* alpha ) \
   { EL_TRY( *alpha = lin_prog::IPFLineSearch( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(x), *CReflect(l), *CReflect(s), \
-      *CReflect(dx), *CReflect(dl), *CReflect(ds), \
+      *CReflect(s), *CReflect(x), *CReflect(l), \
+      *CReflect(ds), *CReflect(dx), *CReflect(dl), \
       gamma, beta, psi, print ) ) } \
   ElError ElLinearProgramIPFSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
-    ElMatrix_ ## SIG x, ElMatrix_ ## SIG l, ElMatrix_ ## SIG s, \
+    ElMatrix_ ## SIG s, ElMatrix_ ## SIG x, ElMatrix_ ## SIG l, \
     Real muTol, Real rbTol, Real rcTol, ElInt maxIts, \
     Real sigma, Real gamma, Real beta, Real psi, bool print ) \
   { EL_TRY( lin_prog::IPF( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(x), *CReflect(l), *CReflect(s), \
+      *CReflect(s), *CReflect(x), *CReflect(l), \
       muTol, rbTol, rcTol, maxIts, sigma, gamma, beta, psi, print ) ) } \
   ElError ElLinearProgramIPFDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, \
     ElConstDistMultiVec_ ## SIG b, ElConstDistMultiVec_ ## SIG c, \
-    ElDistMultiVec_ ## SIG x, ElDistMultiVec_ ## SIG l, \
-    ElDistMultiVec_ ## SIG s, \
+    ElDistMultiVec_ ## SIG s, ElDistMultiVec_ ## SIG x, \
+    ElDistMultiVec_ ## SIG l, \
     Real muTol, Real rbTol, Real rcTol, ElInt maxIts, \
     Real sigma, Real gamma, Real beta, Real psi, bool print ) \
   { EL_TRY( lin_prog::IPF( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(x), *CReflect(l), *CReflect(s), \
+      *CReflect(s), *CReflect(x), *CReflect(l), \
       muTol, rbTol, rcTol, maxIts, sigma, gamma, beta, psi, print ) ) } \
   ElError ElLinearProgram_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \

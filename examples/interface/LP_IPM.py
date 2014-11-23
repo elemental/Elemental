@@ -46,6 +46,10 @@ El.Display( b, "b" )
 c = El.DistMultiVec()
 El.Uniform(c,n,1,0.5,0.4999)
 
+El.Print( A, "A" )
+El.Print( b, "b" )
+El.Print( c, "c" )
+
 # Generate random initial guesses
 # ===============================
 x = El.DistMultiVec()
@@ -64,11 +68,11 @@ gamma = 1e-3
 beta = 1.5
 psi = 100
 progress = True
-El.LinearProgramIPF(A,b,c,x,l,s,muTol,rbTol,rcTol,maxIts,
+El.LinearProgramIPF(A,b,c,s,x,l,muTol,rbTol,rcTol,maxIts,
                     sigma,gamma,beta,psi,progress)
-El.Display( x, "x" )
-El.Display( l, "l" )
-El.Display( s, "s" )
+El.Display( x, "s" )
+El.Display( l, "x" )
+El.Display( s, "l" )
 
 obj = El.Dot(c,x)
 if El.mpi.WorldRank() == 0:

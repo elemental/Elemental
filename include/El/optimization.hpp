@@ -68,85 +68,108 @@ Int Lasso
 namespace lin_prog {
 
 template<typename Real>
+void FormSystem
+( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
+  const Matrix<Real>& s, const Matrix<Real>& x, const Matrix<Real>& l,
+  Real tau, Matrix<Real>& J, Matrix<Real>& y );
+template<typename Real>
+void FormSystem
+( const AbstractDistMatrix<Real>& A, 
+  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
+  const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& x, 
+  const AbstractDistMatrix<Real>& l,
+  Real tau, AbstractDistMatrix<Real>& J, AbstractDistMatrix<Real>& y );
+
+template<typename Real>
+void SolveSystem
+( Int m, Int n, Matrix<Real>& J, Matrix<Real>& y,
+  Matrix<Real>& ds, Matrix<Real>& dx, Matrix<Real>& dl );
+template<typename Real>
+void SolveSystem
+( Int m, Int n, AbstractDistMatrix<Real>& J, AbstractDistMatrix<Real>& y,
+  AbstractDistMatrix<Real>& ds, AbstractDistMatrix<Real>& dx, 
+  AbstractDistMatrix<Real>& dl );
+
+template<typename Real>
 void FormAugmentedSystem
 ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
-  const Matrix<Real>& x, const Matrix<Real>& l, const Matrix<Real>& s,
+  const Matrix<Real>& s, const Matrix<Real>& x, const Matrix<Real>& l,
   Real tau, Matrix<Real>& J, Matrix<Real>& y );
 template<typename Real>
 void FormAugmentedSystem
 ( const AbstractDistMatrix<Real>& A, 
   const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& l, 
-  const AbstractDistMatrix<Real>& s,
+  const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& x, 
+  const AbstractDistMatrix<Real>& l,
   Real tau, AbstractDistMatrix<Real>& J, AbstractDistMatrix<Real>& y );
 template<typename Real>
 void FormAugmentedSystem
 ( const SparseMatrix<Real>& A, 
   const Matrix<Real>& b, const Matrix<Real>& c,
-  const Matrix<Real>& x, const Matrix<Real>& l, const Matrix<Real>& s,
+  const Matrix<Real>& s, const Matrix<Real>& x, const Matrix<Real>& l,
   Real tau, SparseMatrix<Real>& J, Matrix<Real>& y );
 template<typename Real>
 void FormAugmentedSystem
 ( const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
-  const DistMultiVec<Real>& x, const DistMultiVec<Real>& l, 
-  const DistMultiVec<Real>& s,
+  const DistMultiVec<Real>& s, const DistMultiVec<Real>& x, 
+  const DistMultiVec<Real>& l,
   Real tau, DistSparseMatrix<Real>& J, DistMultiVec<Real>& y );
 
 template<typename Real>
 void FormNormalSystem
 ( const SparseMatrix<Real>& A, 
   const Matrix<Real>& b, const Matrix<Real>& c,
-  const Matrix<Real>& x, const Matrix<Real>& l, const Matrix<Real>& s,
+  const Matrix<Real>& s, const Matrix<Real>& x, const Matrix<Real>& l,
   Real tau, SparseMatrix<Real>& J, Matrix<Real>& y );
-template<typename Real>
-void SolveNormalSystem
-( const SparseMatrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
-  const Matrix<Real>& x, const Matrix<Real>& l, const Matrix<Real>& s,
-  Real tau, const SparseMatrix<Real>& J, const Matrix<Real>& y,
-  Matrix<Real>& dx, Matrix<Real>& dl, Matrix<Real>& ds );
-
 template<typename Real>
 void FormNormalSystem
 ( const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
-  const DistMultiVec<Real>& x, const DistMultiVec<Real>& l, 
-  const DistMultiVec<Real>& s,
+  const DistMultiVec<Real>& s, const DistMultiVec<Real>& x, 
+  const DistMultiVec<Real>& l,
   Real tau, DistSparseMatrix<Real>& J, DistMultiVec<Real>& y );
+
+template<typename Real>
+void SolveNormalSystem
+( const SparseMatrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
+  const Matrix<Real>& s, const Matrix<Real>& x, const Matrix<Real>& l,
+  Real tau, const SparseMatrix<Real>& J, const Matrix<Real>& y,
+  Matrix<Real>& ds, Matrix<Real>& dx, Matrix<Real>& dl );
 template<typename Real>
 void SolveNormalSystem
 ( const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
-  const DistMultiVec<Real>& x, const DistMultiVec<Real>& l,
-  const DistMultiVec<Real>& s,
+  const DistMultiVec<Real>& s, const DistMultiVec<Real>& x,
+  const DistMultiVec<Real>& l,
   Real tau, const DistSparseMatrix<Real>& J, const DistMultiVec<Real>& y,
-  DistMultiVec<Real>& dx, DistMultiVec<Real>& dl, DistMultiVec<Real>& ds );
+  DistMultiVec<Real>& ds, DistMultiVec<Real>& dx, DistMultiVec<Real>& dl );
 
 template<typename Real>
 Real IPFLineSearch
 ( const SparseMatrix<Real>& A,
   const Matrix<Real>& b,  const Matrix<Real>& c,
-  const Matrix<Real>& x,  const Matrix<Real>& l,  const Matrix<Real>& s,
-  const Matrix<Real>& dx, const Matrix<Real>& dl, const Matrix<Real>& ds,
+  const Matrix<Real>& s,  const Matrix<Real>& x,  const Matrix<Real>& l,
+  const Matrix<Real>& ds, const Matrix<Real>& dx, const Matrix<Real>& dl,
   Real gamma, Real beta, Real psi=100, bool print=false );
 template<typename Real>
 Real IPFLineSearch
 ( const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b,
   const DistMultiVec<Real>& c,
+  const DistMultiVec<Real>& s,
   const DistMultiVec<Real>& x,
   const DistMultiVec<Real>& l,
-  const DistMultiVec<Real>& s,
+  const DistMultiVec<Real>& ds,
   const DistMultiVec<Real>& dx,
   const DistMultiVec<Real>& dl,
-  const DistMultiVec<Real>& ds,
   Real gamma, Real beta, Real psi=100, bool print=false );
 
 template<typename Real>
 void IPF
 ( const SparseMatrix<Real>& A,
   const Matrix<Real>& b,  const Matrix<Real>& c,
-  Matrix<Real>& x, Matrix<Real>& l, Matrix<Real>& s,
+  Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
   Real muTol=1e-10, Real rbTol=1e-10, Real rcTol=1e-10, Int maxIts=1000,
   Real sigma=0.9, Real gamma=1e-3, Real beta=2, Real psi=100, 
   bool print=false );
@@ -154,7 +177,7 @@ template<typename Real>
 void IPF
 ( const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c,
-  DistMultiVec<Real>& x, DistMultiVec<Real>& l, DistMultiVec<Real>& s,
+  DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l,
   Real muTol=1e-10, Real rbTol=1e-10, Real rcTol=1e-10, Int maxIts=1000,
   Real sigma=0.9, Real gamma=1e-3, Real beta=2, Real psi=100, 
   bool print=false );

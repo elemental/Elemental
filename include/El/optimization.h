@@ -75,144 +75,144 @@ EL_EXPORT ElError ElLassoDist_z
 EL_EXPORT ElError ElLinearProgramFormAugmentedSystem_s
 ( ElConstMatrix_s A,
   ElConstMatrix_s b, ElConstMatrix_s c,
-  ElConstMatrix_s x, ElConstMatrix_s l, ElConstMatrix_s s,
+  ElConstMatrix_s s, ElConstMatrix_s x, ElConstMatrix_s l,
   float tau, ElMatrix_s J, ElMatrix_s y );  
 EL_EXPORT ElError ElLinearProgramFormAugmentedSystem_d
 ( ElConstMatrix_d A,
   ElConstMatrix_d b, ElConstMatrix_d c,
-  ElConstMatrix_d x, ElConstMatrix_d l, ElConstMatrix_d s,
+  ElConstMatrix_d s, ElConstMatrix_d x, ElConstMatrix_d l,
   double tau, ElMatrix_d J, ElMatrix_d y );  
 
 EL_EXPORT ElError ElLinearProgramFormAugmentedSystemDist_s
 ( ElConstDistMatrix_s A,
   ElConstDistMatrix_s b, ElConstDistMatrix_s c,
-  ElConstDistMatrix_s x, ElConstDistMatrix_s l, ElConstDistMatrix_s s,
+  ElConstDistMatrix_s s, ElConstDistMatrix_s x, ElConstDistMatrix_s l,
   float tau, ElDistMatrix_s J, ElDistMatrix_s y );  
 EL_EXPORT ElError ElLinearProgramFormAugmentedSystemDist_d
 ( ElConstDistMatrix_d A,
   ElConstDistMatrix_d b, ElConstDistMatrix_d c,
-  ElConstDistMatrix_d x, ElConstDistMatrix_d l, ElConstDistMatrix_d s,
+  ElConstDistMatrix_d s, ElConstDistMatrix_d x, ElConstDistMatrix_d l,
   double tau, ElDistMatrix_d J, ElDistMatrix_d y );  
 
 EL_EXPORT ElError ElLinearProgramFormAugmentedSystemSparse_s
 ( ElConstSparseMatrix_s A,
   ElConstMatrix_s b, ElConstMatrix_s c,
-  ElConstMatrix_s x, ElConstMatrix_s l, ElConstMatrix_s s,
+  ElConstMatrix_s s, ElConstMatrix_s x, ElConstMatrix_s l,
   float tau, ElSparseMatrix_s J, ElMatrix_s y );  
 EL_EXPORT ElError ElLinearProgramFormAugmentedSystemSparse_d
 ( ElConstSparseMatrix_d A,
   ElConstMatrix_d b, ElConstMatrix_d c,
-  ElConstMatrix_d x, ElConstMatrix_d l, ElConstMatrix_d s,
+  ElConstMatrix_d s, ElConstMatrix_d x, ElConstMatrix_d l,
   double tau, ElSparseMatrix_d J, ElMatrix_d y );  
 
 EL_EXPORT ElError ElLinearProgramFormAugmentedSystemDistSparse_s
 ( ElConstDistSparseMatrix_s A,
   ElConstDistMultiVec_s b, ElConstDistMultiVec_s c,
-  ElConstDistMultiVec_s x, ElConstDistMultiVec_s l, ElConstDistMultiVec_s s,
+  ElConstDistMultiVec_s s, ElConstDistMultiVec_s x, ElConstDistMultiVec_s l,
   float tau, ElDistSparseMatrix_s J, ElDistMultiVec_s y );  
 EL_EXPORT ElError ElLinearProgramFormAugmentedSystemDistSparse_d
 ( ElConstDistSparseMatrix_d A,
   ElConstDistMultiVec_d b, ElConstDistMultiVec_d c,
-  ElConstDistMultiVec_d x, ElConstDistMultiVec_d l, ElConstDistMultiVec_d s,
+  ElConstDistMultiVec_d s, ElConstDistMultiVec_d x, ElConstDistMultiVec_d l,
   double tau, ElDistSparseMatrix_d J, ElDistMultiVec_d y );  
 
 EL_EXPORT ElError ElLinearProgramFormNormalSystemSparse_s
 ( ElConstSparseMatrix_s A,
   ElConstMatrix_s b, ElConstMatrix_s c,
-  ElConstMatrix_s x, ElConstMatrix_s l, ElConstMatrix_s s,
+  ElConstMatrix_s s, ElConstMatrix_s x, ElConstMatrix_s l,
   float tau, ElSparseMatrix_s J, ElMatrix_s y );  
 EL_EXPORT ElError ElLinearProgramFormNormalSystemSparse_d
 ( ElConstSparseMatrix_d A,
   ElConstMatrix_d b, ElConstMatrix_d c,
-  ElConstMatrix_d x, ElConstMatrix_d l, ElConstMatrix_d s,
+  ElConstMatrix_d s, ElConstMatrix_d x, ElConstMatrix_d l,
   double tau, ElSparseMatrix_d J, ElMatrix_d y );  
 
 EL_EXPORT ElError ElLinearProgramFormNormalSystemDistSparse_s
 ( ElConstDistSparseMatrix_s A,
   ElConstDistMultiVec_s b, ElConstDistMultiVec_s c,
-  ElConstDistMultiVec_s x, ElConstDistMultiVec_s l, ElConstDistMultiVec_s s,
+  ElConstDistMultiVec_s s, ElConstDistMultiVec_s x, ElConstDistMultiVec_s l,
   float tau, ElDistSparseMatrix_s J, ElDistMultiVec_s y );  
 EL_EXPORT ElError ElLinearProgramFormNormalSystemDistSparse_d
 ( ElConstDistSparseMatrix_d A,
   ElConstDistMultiVec_d b, ElConstDistMultiVec_d c,
-  ElConstDistMultiVec_d x, ElConstDistMultiVec_d l, ElConstDistMultiVec_d s,
+  ElConstDistMultiVec_d s, ElConstDistMultiVec_d x, ElConstDistMultiVec_d l,
   double tau, ElDistSparseMatrix_d J, ElDistMultiVec_d y );  
 
 EL_EXPORT ElError ElLinearProgramSolveNormalSystemSparse_s
 ( ElConstSparseMatrix_s A,
   ElConstMatrix_s b, ElConstMatrix_s c,
-  ElConstMatrix_s x, ElConstMatrix_s l, ElConstMatrix_s s,
+  ElConstMatrix_s s, ElConstMatrix_s x, ElConstMatrix_s l,
   float tau, ElConstSparseMatrix_s J, ElConstMatrix_s y,
-  ElMatrix_s dx, ElMatrix_s dl, ElMatrix_s ds ); 
+  ElMatrix_s ds, ElMatrix_s dx, ElMatrix_s dl ); 
 EL_EXPORT ElError ElLinearProgramSolveNormalSystemSparse_d
 ( ElConstSparseMatrix_d A,
   ElConstMatrix_d b, ElConstMatrix_d c,
-  ElConstMatrix_d x, ElConstMatrix_d l, ElConstMatrix_d s,
+  ElConstMatrix_d s, ElConstMatrix_d x, ElConstMatrix_d l,
   double tau, ElConstSparseMatrix_d J, ElConstMatrix_d y,
-  ElMatrix_d dx, ElMatrix_d dl, ElMatrix_d ds ); 
+  ElMatrix_d ds, ElMatrix_d dx, ElMatrix_d dl ); 
 
 EL_EXPORT ElError ElLinearProgramSolveNormalSystemDistSparse_s
 ( ElConstDistSparseMatrix_s A,
   ElConstDistMultiVec_s b, ElConstDistMultiVec_s c,
-  ElConstDistMultiVec_s x, ElConstDistMultiVec_s l, ElConstDistMultiVec_s s,
+  ElConstDistMultiVec_s s, ElConstDistMultiVec_s x, ElConstDistMultiVec_s l,
   float tau, ElConstDistSparseMatrix_s J, ElConstDistMultiVec_s y,
-  ElDistMultiVec_s dx, ElDistMultiVec_s dl, ElDistMultiVec_s ds ); 
+  ElDistMultiVec_s ds, ElDistMultiVec_s dx, ElDistMultiVec_s dl ); 
 EL_EXPORT ElError ElLinearProgramSolveNormalSystemDistSparse_d
 ( ElConstDistSparseMatrix_d A,
   ElConstDistMultiVec_d b, ElConstDistMultiVec_d c,
-  ElConstDistMultiVec_d x, ElConstDistMultiVec_d l, ElConstDistMultiVec_d s,
+  ElConstDistMultiVec_d s, ElConstDistMultiVec_d x, ElConstDistMultiVec_d l,
   double tau, ElConstDistSparseMatrix_d J, ElConstDistMultiVec_d y,
-  ElDistMultiVec_d dx, ElDistMultiVec_d dl, ElDistMultiVec_d ds ); 
+  ElDistMultiVec_d ds, ElDistMultiVec_d dx, ElDistMultiVec_d dl ); 
 
 EL_EXPORT ElError ElLinearProgramIPFLineSearchSparse_s
 ( ElConstSparseMatrix_s A,
   ElConstMatrix_s b, ElConstMatrix_s c,
-  ElConstMatrix_s x, ElConstMatrix_s l, ElConstMatrix_s s,
-  ElConstMatrix_s dx, ElConstMatrix_s dl, ElConstMatrix_s ds,
+  ElConstMatrix_s s, ElConstMatrix_s x, ElConstMatrix_s l,
+  ElConstMatrix_s ds, ElConstMatrix_s dx, ElConstMatrix_s dl,
   float gamma, float beta, float psi, bool print, float* alpha );
 EL_EXPORT ElError ElLinearProgramIPFLineSearchSparse_d
 ( ElConstSparseMatrix_d A,
   ElConstMatrix_d b, ElConstMatrix_d c,
-  ElConstMatrix_d x, ElConstMatrix_d l, ElConstMatrix_d s,
-  ElConstMatrix_d dx, ElConstMatrix_d dl, ElConstMatrix_d ds,
+  ElConstMatrix_d s, ElConstMatrix_d x, ElConstMatrix_d l,
+  ElConstMatrix_d ds, ElConstMatrix_d dx, ElConstMatrix_d dl,
   double gamma, double beta, double psi, bool print, double* alpha );
 
 EL_EXPORT ElError ElLinearProgramIPFLineSearchDistSparse_s
 ( ElConstDistSparseMatrix_s A,
   ElConstDistMultiVec_s b, ElConstDistMultiVec_s c,
-  ElConstDistMultiVec_s x, ElConstDistMultiVec_s l, ElConstDistMultiVec_s s,
-  ElConstDistMultiVec_s dx, ElConstDistMultiVec_s dl, ElConstDistMultiVec_s ds,
+  ElConstDistMultiVec_s s, ElConstDistMultiVec_s x, ElConstDistMultiVec_s l,
+  ElConstDistMultiVec_s ds, ElConstDistMultiVec_s dx, ElConstDistMultiVec_s dl,
   float gamma, float beta, float psi, bool print, float* alpha );
 EL_EXPORT ElError ElLinearProgramIPFLineSearchDistSparse_d
 ( ElConstDistSparseMatrix_d A,
   ElConstDistMultiVec_d b, ElConstDistMultiVec_d c,
-  ElConstDistMultiVec_d x, ElConstDistMultiVec_d l, ElConstDistMultiVec_d s,
-  ElConstDistMultiVec_d dx, ElConstDistMultiVec_d dl, ElConstDistMultiVec_d ds,
+  ElConstDistMultiVec_d s, ElConstDistMultiVec_d x, ElConstDistMultiVec_d l,
+  ElConstDistMultiVec_d ds, ElConstDistMultiVec_d dx, ElConstDistMultiVec_d dl,
   double gamma, double beta, double psi, bool print, double* alpha );
 
 EL_EXPORT ElError ElLinearProgramIPFSparse_s
 ( ElConstSparseMatrix_s A,
   ElConstMatrix_s b, ElConstMatrix_s c,
-  ElMatrix_s x, ElMatrix_s l, ElMatrix_s s,
+  ElMatrix_s s, ElMatrix_s x, ElMatrix_s l,
   float muTol, float rbTol, float rcTol, ElInt maxIts,
   float sigma, float gamma, float beta, float psi, bool print );
 EL_EXPORT ElError ElLinearProgramIPFSparse_d
 ( ElConstSparseMatrix_d A,
   ElConstMatrix_d b, ElConstMatrix_d c,
-  ElMatrix_d x, ElMatrix_d l, ElMatrix_d s,
+  ElMatrix_d s, ElMatrix_d x, ElMatrix_d l,
   double muTol, double rbTol, double rcTol, ElInt maxIts,
   double sigma, double gamma, double beta, double psi, bool print );
 
 EL_EXPORT ElError ElLinearProgramIPFDistSparse_s
 ( ElConstDistSparseMatrix_s A,
   ElConstDistMultiVec_s b, ElConstDistMultiVec_s c,
-  ElDistMultiVec_s x, ElDistMultiVec_s l, ElDistMultiVec_s s,
+  ElDistMultiVec_s s, ElDistMultiVec_s x, ElDistMultiVec_s l,
   float muTol, float rbTol, float rcTol, ElInt maxIts,
   float sigma, float gamma, float beta, float psi, bool print );
 EL_EXPORT ElError ElLinearProgramIPFDistSparse_d
 ( ElConstDistSparseMatrix_d A,
   ElConstDistMultiVec_d b, ElConstDistMultiVec_d c,
-  ElDistMultiVec_d x, ElDistMultiVec_d l, ElDistMultiVec_d s,
+  ElDistMultiVec_d s, ElDistMultiVec_d x, ElDistMultiVec_d l,
   double muTol, double rbTol, double rcTol, ElInt maxIts,
   double sigma, double gamma, double beta, double psi, bool print );
 
