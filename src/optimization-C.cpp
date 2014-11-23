@@ -193,6 +193,23 @@ extern "C" {
       *CReflect(A),*CReflect(b),*CReflect(c), \
       *CReflect(s),*CReflect(x),*CReflect(l), \
       tau,*CReflect(J),*CReflect(y)) ) } \
+  ElError ElLinearProgramSolveAugmentedSystem_ ## SIG \
+  ( ElConstMatrix_ ## SIG s, ElConstMatrix_ ## SIG x, \
+    Real tau, ElMatrix_ ## SIG J, ElMatrix_ ## SIG y, \
+    ElMatrix_ ## SIG ds, ElMatrix_ ## SIG dx, ElMatrix_ ## SIG dl ) \
+  { EL_TRY( lin_prog::SolveAugmentedSystem( \
+      *CReflect(s), *CReflect(x), \
+      tau, *CReflect(J), *CReflect(y), \
+      *CReflect(ds), *CReflect(dx), *CReflect(dl) ) ) } \
+  ElError ElLinearProgramSolveAugmentedSystemDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG s, ElConstDistMatrix_ ## SIG x, \
+    Real tau, ElDistMatrix_ ## SIG J, ElDistMatrix_ ## SIG y, \
+    ElDistMatrix_ ## SIG ds, ElDistMatrix_ ## SIG dx, \
+    ElDistMatrix_ ## SIG dl ) \
+  { EL_TRY( lin_prog::SolveAugmentedSystem( \
+      *CReflect(s), *CReflect(x), \
+      tau, *CReflect(J), *CReflect(y), \
+      *CReflect(ds), *CReflect(dx), *CReflect(dl) ) ) } \
   /* Normal system
      ------------- */ \
   ElError ElLinearProgramFormNormalSystemSparse_ ## SIG \

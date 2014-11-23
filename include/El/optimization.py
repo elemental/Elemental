@@ -241,6 +241,39 @@ def LinearProgramFormAugmentedSystem(A,b,c,s,x,l,tau):
     return J, y
   else: TypeExcept()
 
+lib.ElLinearProgramSolveAugmentedSystem_s.argtypes = \
+  [c_void_p,c_void_p,sType,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElLinearProgramSolveAugmentedSystem_s.restype = c_uint
+lib.ElLinearProgramSolveAugmentedSystem_d.argtypes = \
+  [c_void_p,c_void_p,dType,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElLinearProgramSolveAugmentedSystem_d.restype = c_uint
+lib.ElLinearProgramSolveAugmentedSystemDist_s.argtypes = \
+  [c_void_p,c_void_p,sType,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElLinearProgramSolveAugmentedSystemDist_s.restype = c_uint
+lib.ElLinearProgramSolveAugmentedSystemDist_d.argtypes = \
+  [c_void_p,c_void_p,dType,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElLinearProgramSolveAugmentedSystemDist_d.restype = c_uint
+def LinearProgramSolveAugmentedSystem(s,x,tau,J,y):
+  if type(J) is Matrix:
+    ds = Matrix(J.tag)
+    dx = Matrix(J.tag)
+    dl = Matrix(J.tag)
+    args = [s.obj,x.obj,tau,J.obj,y.obj,ds.obj,dx.obj,dl.obj]
+    if   J.tag == sTag: lib.ElLinearProgramSolveAugmentedSystem_s(*args)
+    elif J.tag == dTag: lib.ElLinearProgramSolveAugmentedSystem_d(*args)
+    else: DataExcept()
+    return ds, dx, dl
+  elif type(J) is DistMatrix:
+    ds = DistMatrix(J.tag,MC,MR,J.Grid())
+    dx = DistMatrix(J.tag,MC,MR,J.Grid())
+    dl = DistMatrix(J.tag,MC,MR,J.Grid())
+    args = [s.obj,x.obj,tau,J.obj,y.obj,ds.obj,dx.obj,dl.obj]
+    if   J.tag == sTag: lib.ElLinearProgramSolveAugmentedSystemDist_s(*args)
+    elif J.tag == dTag: lib.ElLinearProgramSolveAugmentedSystemDist_d(*args)
+    else: DataExcept()
+    return ds, dx, dl
+  else: TypeExcept()
+
 lib.ElLinearProgramFormNormalSystemSparse_s.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,sType,
    c_void_p,c_void_p]

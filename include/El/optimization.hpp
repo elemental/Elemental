@@ -67,6 +67,8 @@ Int Lasso
 
 namespace lin_prog {
 
+// Full system
+// -----------
 template<typename Real>
 void FormSystem
 ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
@@ -90,6 +92,8 @@ void SolveSystem
   AbstractDistMatrix<Real>& ds, AbstractDistMatrix<Real>& dx, 
   AbstractDistMatrix<Real>& dl );
 
+// Augmented system
+// ----------------
 template<typename Real>
 void FormAugmentedSystem
 ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
@@ -116,6 +120,20 @@ void FormAugmentedSystem
   const DistMultiVec<Real>& l,
   Real tau, DistSparseMatrix<Real>& J, DistMultiVec<Real>& y );
 
+template<typename Real>
+void SolveAugmentedSystem
+( const Matrix<Real>& s, const Matrix<Real>& x,
+  Real tau, Matrix<Real>& J, Matrix<Real>& y,
+  Matrix<Real>& ds, Matrix<Real>& dx, Matrix<Real>& dl );
+template<typename Real>
+void SolveAugmentedSystem
+( const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& x,
+  Real tau, AbstractDistMatrix<Real>& J, AbstractDistMatrix<Real>& y,
+  AbstractDistMatrix<Real>& ds, AbstractDistMatrix<Real>& dx, 
+  AbstractDistMatrix<Real>& dl );
+
+// Normal system
+// -------------
 template<typename Real>
 void FormNormalSystem
 ( const SparseMatrix<Real>& A, 
@@ -145,6 +163,8 @@ void SolveNormalSystem
   Real tau, const DistSparseMatrix<Real>& J, const DistMultiVec<Real>& y,
   DistMultiVec<Real>& ds, DistMultiVec<Real>& dx, DistMultiVec<Real>& dl );
 
+// Line search
+// -----------
 template<typename Real>
 Real IPFLineSearch
 ( const Matrix<Real>& A,
@@ -181,6 +201,8 @@ Real IPFLineSearch
   const DistMultiVec<Real>& dl,
   Real gamma, Real beta, Real psi=100, bool print=false );
 
+// IPF
+// ---
 template<typename Real>
 void IPF
 ( const Matrix<Real>& A,

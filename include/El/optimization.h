@@ -157,6 +157,24 @@ EL_EXPORT ElError ElLinearProgramFormAugmentedSystemDistSparse_d
   ElConstDistMultiVec_d s, ElConstDistMultiVec_d x, ElConstDistMultiVec_d l,
   double tau, ElDistSparseMatrix_d J, ElDistMultiVec_d y );  
 
+EL_EXPORT ElError ElLinearProgramSolveAugmentedSystem_s
+( ElConstMatrix_s s, ElConstMatrix_s x,
+  float tau, ElMatrix_s J, ElMatrix_s y,
+  ElMatrix_s ds, ElMatrix_s dx, ElMatrix_s dl );
+EL_EXPORT ElError ElLinearProgramSolveAugmentedSystem_d
+( ElConstMatrix_d s, ElConstMatrix_d x,
+  double tau, ElMatrix_d J, ElMatrix_d y,
+  ElMatrix_d ds, ElMatrix_d dx, ElMatrix_d dl );
+
+EL_EXPORT ElError ElLinearProgramSolveAugmentedSystemDist_s
+( ElConstDistMatrix_s s, ElConstDistMatrix_s x,
+  float tau, ElDistMatrix_s J, ElDistMatrix_s y,
+  ElDistMatrix_s ds, ElDistMatrix_s dx, ElDistMatrix_s dl );
+EL_EXPORT ElError ElLinearProgramSolveAugmentedSystemDist_d
+( ElConstDistMatrix_d s, ElConstDistMatrix_d x,
+  double tau, ElDistMatrix_d J, ElDistMatrix_d y,
+  ElDistMatrix_d ds, ElDistMatrix_d dx, ElDistMatrix_d dl );
+
 /* Normal system
    ------------- */
 EL_EXPORT ElError ElLinearProgramFormNormalSystemSparse_s

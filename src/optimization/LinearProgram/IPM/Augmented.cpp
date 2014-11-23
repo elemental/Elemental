@@ -22,9 +22,9 @@ namespace lin_prog {
 //    r_c = A^T l + s - c.
 //
 // The implied system is of the form
-//   J | \Delta x | = y,
-//     | \Delta l |
-// and \Delta s = -s + tau inv(X) e - inv(X) S \Delta x.
+//   J | dx | = y,
+//     | dl |
+// and ds = tau inv(X) e - inv(X) S dx - s.
 //
 
 template<typename Real>
@@ -62,6 +62,39 @@ void FormAugmentedSystem
         yx.Update( j, 0, -tau/x.Get(j,0) );
     yl = b;
     Gemv( NORMAL, Real(-1), A, x, Real(1), yl );
+}
+
+template<typename Real>
+void SolveAugmentedSystem
+( const Matrix<Real>& s, const Matrix<Real>& x,
+  Real tau, Matrix<Real>& J, Matrix<Real>& y,
+  Matrix<Real>& ds, Matrix<Real>& dx, Matrix<Real>& dl )
+{
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::SolveAugmentedSystem"))
+    const Int n = s.Height();
+    const Int m = J.Height() - n;
+
+    // Compute the proposed update, [dx; dl]
+    // =====================================
+    SymmetricSolve( LOWER, NORMAL, J, y );
+    dx.Resize( n, 1 );
+    dy.Resize( m, 1 );
+    const IR xInd(0,n), lInd(n,n+m);
+    auto yx = y(xInd,IR(0,1));
+    auto yl = y(lInd,IR(0,1));
+    dx = yx;
+    dl = yl;
+
+    // Compute ds = tau inv(X) e - inv(X) S dx - s
+    // ===========================================
+    ds.Resize( n, 1 );
+    for( Int i=0; i<n; ++i )
+    {
+        const Real xi = x.Get(i,0);
+        const Real si = s.Get(i,0);
+        const Real dxi = dx.Get(i,0);
+        ds.Set( i, 0, (tau-si*dxi)/xi - si );
+    }
 }
 
 template<typename Real>
@@ -107,6 +140,58 @@ void FormAugmentedSystem
     auto yl = y(lInd,IR(0,1));
     yl = b;
     Gemv( NORMAL, Real(-1), A, x, Real(1), yl );
+}
+
+template<typename Real>
+void SolveAugmentedSystem
+( const AbstractDistMatrix<Real>& sPre, const AbstractDistMatrix<Real>& xPre,
+  Real tau, AbstractDistMatrix<Real>& J, AbstractDistMatrix<Real>& yPre,
+  AbstractDistMatrix<Real>& dsPre, AbstractDistMatrix<Real>& dxPre, 
+  AbstractDistMatrix<Real>& dl )
+{
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::SolveAugmentedSystem"))
+
+    ProxyCtrl ctrl;
+    ctrl.colConstrain = true;
+    ctrl.rowConstrain = true;
+    ctrl.colAlign = 0;
+    ctrl.rowAlign = 0;
+
+    auto sPtr = ReadProxy<Read,MC,MR>(&spre,ctrl); auto& s = *sPtr;
+    auto xPtr = ReadProxy<Read,MC,MR>(&xPre,ctrl); auto& x = *xPtr;
+
+    auto yPtr = ReadWriteProxy<Read,MC,MR>(&yPre); auto& y = *yPtr;
+
+    auto dsPtr = WriteProxy<Read,MC,MR>(&dsPre,ctrl); auto& ds = *dsPtr;
+    auto dxPtr = WriteProxy<Read,MC,MR>(&dxPre,ctrl); auto& dx = *dxPtr;
+
+    const Int n = s.Height();
+    const Int m = J.Height() - n;
+
+    // Compute the proposed update, [dx; dl]
+    // =====================================
+    SymmetricSolve( LOWER, NORMAL, J, y );
+    dx.Resize( n, 1 );
+    dy.Resize( m, 1 );
+    const IR xInd(0,n), lInd(n,n+m);
+    auto yx = y(xInd,IR(0,1));
+    auto yl = y(lInd,IR(0,1));
+    dx = yx;
+    dl = yl;
+
+    // Compute ds = tau inv(X) e - inv(X) S dx - s
+    // ===========================================
+    ds.Resize( n, 1 );
+    if( ds.IsLocalCol(0) )
+    {
+        for( Int iLoc=0; iLoc<ds.LocalHeight(); ++iLoc )
+        {
+            const Real xi = x.GetLocal(iLoc,0);
+            const Real si = s.GetLocal(iLoc,0);
+            const Real dxi = dx.GetLocal(iLoc,0);
+            ds.SetLocal( iLoc, 0, (tau-si*dxi)/xi - si );
+        }
+    }
 }
 
 template<typename Real>
@@ -356,7 +441,16 @@ void FormAugmentedSystem
     const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& s, const DistMultiVec<Real>& x, \
     const DistMultiVec<Real>& l, \
-    Real tau, DistSparseMatrix<Real>& J, DistMultiVec<Real>& y );
+    Real tau, DistSparseMatrix<Real>& J, DistMultiVec<Real>& y ); \
+  template void SolveAugmentedSystem \
+  ( const Matrix<Real>& s, const Matrix<Real>& x, \
+    Real tau, Matrix<Real>& J, Matrix<Real>& y, \
+    Matrix<Real>& ds, Matrix<Real>& dx, Matrix<Real>& dl ); \
+  template void SolveAugmentedSystem \
+  ( const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& x, \
+    Real tau, AbstractDistMatrix<Real>& J, AbstractDistMatrix<Real>& y, \
+    AbstractDistMatrix<Real>& ds, AbstractDistMatrix<Real>& dx, \
+    AbstractDistMatrix<Real>& dl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
