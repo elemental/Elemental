@@ -34,6 +34,85 @@ namespace lin_prog {
 
 template<typename Real>
 void FormAugmentedSystem
+( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
+  const Matrix<Real>& x, const Matrix<Real>& l, const Matrix<Real>& s,
+  Real tau, Matrix<Real>& J, Matrix<Real>& y )
+{
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::FormAugmentedSystem"))
+    const Int m = A.Height();
+    const Int n = A.Width();
+
+    // Form the Jacobian, J
+    // ====================
+    Zeros( J, m+n, m+n );
+    auto JTR = J(IR(0,m  ),IR(m,m+n));
+    auto JBL = J(IR(m,m+n),IR(0,m  ));
+    auto JBR = J(IR(m,m+n),IR(m,m+n));
+    JTR = A;
+    Transpose( A, JBL );
+    Matrix<Real> d( s );
+    Scale( Real(-1), d );
+    DiagonalSolve( LEFT, NORMAL, x, d );
+    Diagonal( JBR, d );
+
+    // Form the right-hand side, y
+    // ===========================
+    Zeros( y, m+n, 1 );
+    auto yT = y(IR(0,m),IR(0,1));
+    yT = b;
+    Gemv( NORMAL, Real(-1), A, x, Real(1), yT );
+    auto yB = y(IR(m,m+n),IR(0,1));
+    yB = c;
+    Gemv( TRANSPOSE, Real(-1), A, l, Real(1), yB );
+    for( Int j=0; j<n; ++j )
+        yB.Update( j, 0, -tau/x.Get(j,0) );
+}
+
+template<typename Real>
+void FormAugmentedSystem
+( const AbstractDistMatrix<Real>& A, 
+  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
+  const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& l, 
+  const AbstractDistMatrix<Real>& s,
+  Real tau, AbstractDistMatrix<Real>& JPre, AbstractDistMatrix<Real>& yPre )
+{
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::FormAugmentedSystem"))
+    const Int m = A.Height();
+    const Int n = A.Width();
+
+    auto JPtr = WriteProxy<Real,MC,MR>(&JPre); auto& J = *JPtr;
+    auto yPtr = WriteProxy<Real,MC,MR>(&yPre); auto& y = *yPtr;
+
+    // Form the Jacobian, J
+    // ====================
+    Zeros( J, m+n, m+n );
+    auto JTR = J(IR(0,m  ),IR(m,m+n));
+    auto JBL = J(IR(m,m+n),IR(0,m  ));
+    auto JBR = J(IR(m,m+n),IR(m,m+n));
+    JTR = A;
+    Transpose( A, JBL );
+    DistMatrix<Real,STAR,STAR> d( s );
+    Scale( Real(-1), d );
+    DiagonalSolve( LEFT, NORMAL, x, d );
+    Diagonal( JBR, d.Matrix() );
+
+    // Form the right-hand side, y
+    // ===========================
+    Zeros( y, m+n, 1 );
+    auto yT = y(IR(0,m),IR(0,1));
+    yT = b;
+    Gemv( NORMAL, Real(-1), A, x, Real(1), yT );
+    auto yB = y(IR(m,m+n),IR(0,1));
+    yB = c;
+    Gemv( TRANSPOSE, Real(-1), A, l, Real(1), yB );
+    DistMatrix<Real> g( x );
+    auto lambda = [&]( Real alpha ) { return -tau/alpha; };
+    EntrywiseMap( g, std::function<Real(Real)>(lambda) );
+    Axpy( Real(1), g, yB );
+}
+
+template<typename Real>
+void FormAugmentedSystem
 ( const SparseMatrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
   const Matrix<Real>& x, const Matrix<Real>& l, const Matrix<Real>& s,
   Real tau, SparseMatrix<Real>& J, Matrix<Real>& y )
@@ -1296,6 +1375,16 @@ Int LinearProgram
 }
 
 #define PROTO(Real) \
+  template void lin_prog::FormAugmentedSystem \
+  ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, \
+    const Matrix<Real>& x, const Matrix<Real>& l, const Matrix<Real>& s, \
+    Real tau, Matrix<Real>& J, Matrix<Real>& y ); \
+  template void lin_prog::FormAugmentedSystem \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
+    const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& l, \
+    const AbstractDistMatrix<Real>& s, \
+    Real tau, AbstractDistMatrix<Real>& J, AbstractDistMatrix<Real>& y ); \
   template void lin_prog::FormAugmentedSystem \
   ( const SparseMatrix<Real>& A, \
     const Matrix<Real>& b, const Matrix<Real>& c, \

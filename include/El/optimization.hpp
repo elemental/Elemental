@@ -69,11 +69,22 @@ namespace lin_prog {
 
 template<typename Real>
 void FormAugmentedSystem
+( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
+  const Matrix<Real>& x, const Matrix<Real>& l, const Matrix<Real>& s,
+  Real tau, Matrix<Real>& J, Matrix<Real>& y );
+template<typename Real>
+void FormAugmentedSystem
+( const AbstractDistMatrix<Real>& A, 
+  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
+  const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& l, 
+  const AbstractDistMatrix<Real>& s,
+  Real tau, AbstractDistMatrix<Real>& J, AbstractDistMatrix<Real>& y );
+template<typename Real>
+void FormAugmentedSystem
 ( const SparseMatrix<Real>& A, 
   const Matrix<Real>& b, const Matrix<Real>& c,
   const Matrix<Real>& x, const Matrix<Real>& l, const Matrix<Real>& s,
   Real tau, SparseMatrix<Real>& J, Matrix<Real>& y );
-
 template<typename Real>
 void FormAugmentedSystem
 ( const DistSparseMatrix<Real>& A,

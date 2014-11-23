@@ -116,76 +116,110 @@ lib.ElLinearProgramFormAugmentedSystemDist_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,dType,
    c_void_p,c_void_p]
 lib.ElLinearProgramFormAugmentedSystemDist_d.restype = c_uint
+lib.ElLinearProgramFormAugmentedSystemSparse_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,sType,
+   c_void_p,c_void_p]
+lib.ElLinearProgramFormAugmentedSystemSparse_s.restype = c_uint
+lib.ElLinearProgramFormAugmentedSystemSparse_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,dType,
+   c_void_p,c_void_p]
+lib.ElLinearProgramFormAugmentedSystemSparse_d.restype = c_uint
+lib.ElLinearProgramFormAugmentedSystemDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,sType,
+   c_void_p,c_void_p]
+lib.ElLinearProgramFormAugmentedSystemDistSparse_s.restype = c_uint
+lib.ElLinearProgramFormAugmentedSystemDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,dType,
+   c_void_p,c_void_p]
+lib.ElLinearProgramFormAugmentedSystemDistSparse_d.restype = c_uint
 def LinearProgramFormAugmentedSystem(A,b,c,x,l,s,tau):
-  if type(A) is SparseMatrix:
-    J = SparseMatrix(A.tag)
+  if type(A) is Matrix:
+    J = Matrix(A.tag)
     y = Matrix(A.tag)
     args = [A.obj,b.obj,c.obj,x.obj,l.obj,s.obj,tau,J.obj,y.obj]
     if   A.tag == sTag: lib.ElLinearProgramFormAugmentedSystem_s(*args)
     elif A.tag == dTag: lib.ElLinearProgramFormAugmentedSystem_d(*args)
     else: DataExcept()
     return J, y
-  elif type(A) is DistSparseMatrix:
-    J = DistSparseMatrix(A.tag,A.Comm())
-    y = DistMultiVec(A.tag,A.Comm())
+  elif type(A) is DistMatrix:
+    J = DistMatrix(A.tag)
+    y = DistMatrix(A.tag)
     args = [A.obj,b.obj,c.obj,x.obj,l.obj,s.obj,tau,J.obj,y.obj]
     if   A.tag == sTag: lib.ElLinearProgramFormAugmentedSystemDist_s(*args)
     elif A.tag == dTag: lib.ElLinearProgramFormAugmentedSystemDist_d(*args)
     else: DataExcept()
     return J, y
-  else: TypeExcept()
-
-lib.ElLinearProgramFormNormalSystem_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,sType,
-   c_void_p,c_void_p]
-lib.ElLinearProgramFormNormalSystem_s.restype = c_uint
-lib.ElLinearProgramFormNormalSystem_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,dType,
-   c_void_p,c_void_p]
-lib.ElLinearProgramFormNormalSystem_d.restype = c_uint
-lib.ElLinearProgramFormNormalSystemDist_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,sType,
-   c_void_p,c_void_p]
-lib.ElLinearProgramFormNormalSystemDist_s.restype = c_uint
-lib.ElLinearProgramFormNormalSystemDist_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,dType,
-   c_void_p,c_void_p]
-lib.ElLinearProgramFormNormalSystemDist_d.restype = c_uint
-def LinearProgramFormNormalSystem(A,b,c,x,l,s,tau):
-  if type(A) is SparseMatrix:
+  elif type(A) is SparseMatrix:
     J = SparseMatrix(A.tag)
     y = Matrix(A.tag)
     args = [A.obj,b.obj,c.obj,x.obj,l.obj,s.obj,tau,J.obj,y.obj]
-    if   A.tag == sTag: lib.ElLinearProgramFormNormalSystem_s(*args)
-    elif A.tag == dTag: lib.ElLinearProgramFormNormalSystem_d(*args)
+    if   A.tag == sTag: lib.ElLinearProgramFormAugmentedSystemSparse_s(*args)
+    elif A.tag == dTag: lib.ElLinearProgramFormAugmentedSystemSparse_d(*args)
     else: DataExcept()
     return J, y
   elif type(A) is DistSparseMatrix:
     J = DistSparseMatrix(A.tag,A.Comm())
     y = DistMultiVec(A.tag,A.Comm())
     args = [A.obj,b.obj,c.obj,x.obj,l.obj,s.obj,tau,J.obj,y.obj]
-    if   A.tag == sTag: lib.ElLinearProgramFormNormalSystemDist_s(*args)
-    elif A.tag == dTag: lib.ElLinearProgramFormNormalSystemDist_d(*args)
+    if   A.tag == sTag: 
+      lib.ElLinearProgramFormAugmentedSystemDistSparse_s(*args)
+    elif A.tag == dTag: 
+      lib.ElLinearProgramFormAugmentedSystemDistSparse_d(*args)
     else: DataExcept()
     return J, y
   else: TypeExcept()
 
-lib.ElLinearProgramSolveNormalSystem_s.argtypes = \
+lib.ElLinearProgramFormNormalSystemSparse_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,sType,
+   c_void_p,c_void_p]
+lib.ElLinearProgramFormNormalSystemSparse_s.restype = c_uint
+lib.ElLinearProgramFormNormalSystemSparse_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,dType,
+   c_void_p,c_void_p]
+lib.ElLinearProgramFormNormalSystemSparse_d.restype = c_uint
+lib.ElLinearProgramFormNormalSystemDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,sType,
+   c_void_p,c_void_p]
+lib.ElLinearProgramFormNormalSystemDistSparse_s.restype = c_uint
+lib.ElLinearProgramFormNormalSystemDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,dType,
+   c_void_p,c_void_p]
+lib.ElLinearProgramFormNormalSystemDistSparse_d.restype = c_uint
+def LinearProgramFormNormalSystem(A,b,c,x,l,s,tau):
+  if type(A) is SparseMatrix:
+    J = SparseMatrix(A.tag)
+    y = Matrix(A.tag)
+    args = [A.obj,b.obj,c.obj,x.obj,l.obj,s.obj,tau,J.obj,y.obj]
+    if   A.tag == sTag: lib.ElLinearProgramFormNormalSystemSparse_s(*args)
+    elif A.tag == dTag: lib.ElLinearProgramFormNormalSystemSparse_d(*args)
+    else: DataExcept()
+    return J, y
+  elif type(A) is DistSparseMatrix:
+    J = DistSparseMatrix(A.tag,A.Comm())
+    y = DistMultiVec(A.tag,A.Comm())
+    args = [A.obj,b.obj,c.obj,x.obj,l.obj,s.obj,tau,J.obj,y.obj]
+    if   A.tag == sTag: lib.ElLinearProgramFormNormalSystemDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElLinearProgramFormNormalSystemDistSparse_d(*args)
+    else: DataExcept()
+    return J, y
+  else: TypeExcept()
+
+lib.ElLinearProgramSolveNormalSystemSparse_s.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,sType,
    c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElLinearProgramSolveNormalSystem_s.restype = c_uint
-lib.ElLinearProgramSolveNormalSystem_d.argtypes = \
+lib.ElLinearProgramSolveNormalSystemSparse_s.restype = c_uint
+lib.ElLinearProgramSolveNormalSystemSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,dType,
    c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElLinearProgramSolveNormalSystem_d.restype = c_uint
-lib.ElLinearProgramSolveNormalSystemDist_s.argtypes = \
+lib.ElLinearProgramSolveNormalSystemSparse_d.restype = c_uint
+lib.ElLinearProgramSolveNormalSystemDistSparse_s.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,sType,
    c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElLinearProgramSolveNormalSystemDist_s.restype = c_uint
-lib.ElLinearProgramSolveNormalSystemDist_d.argtypes = \
+lib.ElLinearProgramSolveNormalSystemDistSparse_s.restype = c_uint
+lib.ElLinearProgramSolveNormalSystemDistSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,dType,
    c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElLinearProgramSolveNormalSystemDist_d.restype = c_uint
+lib.ElLinearProgramSolveNormalSystemDistSparse_d.restype = c_uint
 def LinearProgramSolveNormalSystem(A,b,c,x,l,s,tau,J,y):
   if type(A) is SparseMatrix:
     dx = Matrix(A.tag)
@@ -193,8 +227,8 @@ def LinearProgramSolveNormalSystem(A,b,c,x,l,s,tau,J,y):
     ds = Matrix(A.tag)
     args = [A.obj,b.obj,c.obj,x.obj,l.obj,s.obj,tau,J.obj,y.obj,
             dx.obj,dl.obj,ds.obj]
-    if   A.tag == sTag: lib.ElLinearProgramSolveNormalSystem_s(*args)
-    elif A.tag == dTag: lib.ElLinearProgramSolveNormalSystem_d(*args)
+    if   A.tag == sTag: lib.ElLinearProgramSolveNormalSystemSparse_s(*args)
+    elif A.tag == dTag: lib.ElLinearProgramSolveNormalSystemSparse_d(*args)
     else: DataExcept()
     return dx, dl, ds
   elif type(A) is DistSparseMatrix:
@@ -203,36 +237,36 @@ def LinearProgramSolveNormalSystem(A,b,c,x,l,s,tau,J,y):
     ds = DistMultiVec(A.tag,A.Comm())
     args = [A.obj,b.obj,c.obj,x.obj,l.obj,s.obj,tau,J.obj,y.obj,
             dx.obj,dl.obj,ds.obj]
-    if   A.tag == sTag: lib.ElLinearProgramSolveNormalSystemDist_s(*args)
-    elif A.tag == dTag: lib.ElLinearProgramSolveNormalSystemDist_d(*args)
+    if   A.tag == sTag: lib.ElLinearProgramSolveNormalSystemDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElLinearProgramSolveNormalSystemDistSparse_d(*args)
     else: DataExcept()
     return dx, dl, ds
   else: TypeExcept()
 
-lib.ElLinearProgramIPFLineSearch_s.argtypes = \
+lib.ElLinearProgramIPFLineSearchSparse_s.argtypes = \
   [c_void_p,c_void_p,c_void_p,
    c_void_p,c_void_p,c_void_p,
    c_void_p,c_void_p,c_void_p,
    sType,sType,sType,bType,POINTER(sType)]
-lib.ElLinearProgramIPFLineSearch_s.restype = c_uint
-lib.ElLinearProgramIPFLineSearch_d.argtypes = \
+lib.ElLinearProgramIPFLineSearchSparse_s.restype = c_uint
+lib.ElLinearProgramIPFLineSearchSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,
    c_void_p,c_void_p,c_void_p,
    c_void_p,c_void_p,c_void_p,
    dType,dType,dType,bType,POINTER(dType)]
-lib.ElLinearProgramIPFLineSearch_d.restype = c_uint
-lib.ElLinearProgramIPFLineSearchDist_s.argtypes = \
+lib.ElLinearProgramIPFLineSearchSparse_d.restype = c_uint
+lib.ElLinearProgramIPFLineSearchDistSparse_s.argtypes = \
   [c_void_p,c_void_p,c_void_p,
    c_void_p,c_void_p,c_void_p,
    c_void_p,c_void_p,c_void_p,
    sType,sType,sType,bType,POINTER(sType)]
-lib.ElLinearProgramIPFLineSearchDist_s.restype = c_uint
-lib.ElLinearProgramIPFLineSearchDist_d.argtypes = \
+lib.ElLinearProgramIPFLineSearchDistSparse_s.restype = c_uint
+lib.ElLinearProgramIPFLineSearchDistSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,
    c_void_p,c_void_p,c_void_p,
    c_void_p,c_void_p,c_void_p,
    dType,dType,dType,bType,POINTER(dType)]
-lib.ElLinearProgramIPFLineSearchDist_d.restype = c_uint
+lib.ElLinearProgramIPFLineSearchDistSparse_d.restype = c_uint
 def LinearProgramIPFLineSearch(A,b,c,x,l,s,dx,dl,ds,
                                gamma,beta,psi=100,progress=False):
   if type(A) is SparseMatrix:
@@ -243,8 +277,8 @@ def LinearProgramIPFLineSearch(A,b,c,x,l,s,dx,dl,ds,
     alpha = TagToType(A.tag)()
     args = [A.obj,b.obj,c.obj,x.obj,l.obj,s.obj,dx.obj,dl.obj,ds.obj,
             gamma,beta,psi,progress,pointer(alpha)]
-    if   A.tag == sTag: lib.ElLinearProgramIPFLineSearch_s(*args)
-    elif A.tag == dTag: lib.ElLinearProgramIPFLineSearch_d(*args)
+    if   A.tag == sTag: lib.ElLinearProgramIPFLineSearchSparse_s(*args)
+    elif A.tag == dTag: lib.ElLinearProgramIPFLineSearchSparse_d(*args)
     else: DataExcept()
     return alpha
   elif type(A) is DistSparseMatrix:
@@ -257,28 +291,28 @@ def LinearProgramIPFLineSearch(A,b,c,x,l,s,dx,dl,ds,
     alpha = TagToType(A.tag)()
     args = [A.obj,b.obj,c.obj,x.obj,l.obj,s.obj,dx.obj,dl.obj,ds.obj,
             gamma,beta,psi,progress,pointer(alpha)]
-    if   A.tag == sTag: lib.ElLinearProgramIPFLineSearchDist_s(*args)
-    elif A.tag == dTag: lib.ElLinearProgramIPFLineSearchDist_d(*args)
+    if   A.tag == sTag: lib.ElLinearProgramIPFLineSearchDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElLinearProgramIPFLineSearchDistSparse_d(*args)
     else: DataExcept()
     return alpha
   else: TypeExcept()
 
-lib.ElLinearProgramIPF_s.argtypes = \
+lib.ElLinearProgramIPFSparse_s.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,
    sType,sType,sType,iType,sType,sType,sType,sType,bType]
-lib.ElLinearProgramIPF_s.restype = c_uint
-lib.ElLinearProgramIPF_d.argtypes = \
+lib.ElLinearProgramIPFSparse_s.restype = c_uint
+lib.ElLinearProgramIPFSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,
    dType,dType,dType,iType,dType,dType,dType,dType,bType]
-lib.ElLinearProgramIPF_d.restype = c_uint
-lib.ElLinearProgramIPFDist_s.argtypes = \
+lib.ElLinearProgramIPFSparse_d.restype = c_uint
+lib.ElLinearProgramIPFDistSparse_s.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,
    sType,sType,sType,iType,sType,sType,sType,sType,bType]
-lib.ElLinearProgramIPFDist_s.restype = c_uint
-lib.ElLinearProgramIPFDist_d.argtypes = \
+lib.ElLinearProgramIPFDistSparse_s.restype = c_uint
+lib.ElLinearProgramIPFDistSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,
    dType,dType,dType,iType,dType,dType,dType,dType,bType]
-lib.ElLinearProgramIPFDist_d.restype = c_uint
+lib.ElLinearProgramIPFDistSparse_d.restype = c_uint
 def LinearProgramIPF(A,b,c,x,l,s,
                      muTol=1e-10,rbTol=1e-10,rcTol=1e-10,maxIts=1000,
                      sigma=0.9,gamma=1e-3,beta=2,psi=100,progress=False):
@@ -289,16 +323,16 @@ def LinearProgramIPF(A,b,c,x,l,s,
        type(x) is not Matrix or type(l) is not Matrix or \
        type(s) is not Matrix:
       raise Exception('Expected {b,c,x,l,s} to be of type Matrix')
-    if   A.tag == sTag: lib.ElLinearProgramIPF_s(*args)
-    elif A.tag == dTag: lib.ElLinearProgramIPF_d(*args)
+    if   A.tag == sTag: lib.ElLinearProgramIPFSparse_s(*args)
+    elif A.tag == dTag: lib.ElLinearProgramIPFSparse_d(*args)
     else: DataExcept()
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec or type(c) is not DistMultiVec or \
        type(x) is not DistMultiVec or type(l) is not DistMultiVec or \
        type(s) is not DistMultiVec:
       raise Exception('Expected {b,c,x,l,s} to be of type DistMultiVec')
-    if   A.tag == sTag: lib.ElLinearProgramIPFDist_s(*args)
-    elif A.tag == dTag: lib.ElLinearProgramIPFDist_d(*args)
+    if   A.tag == sTag: lib.ElLinearProgramIPFDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElLinearProgramIPFDistSparse_d(*args)
     else: DataExcept()
   else: TypeExcept()
 

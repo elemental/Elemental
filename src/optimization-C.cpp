@@ -120,15 +120,34 @@ extern "C" {
   /* Linear program
      ============== */ \
   ElError ElLinearProgramFormAugmentedSystem_ ## SIG \
-  ( ElConstSparseMatrix_ ## SIG A, \
+  ( ElConstMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
     ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG l, ElConstMatrix_ ## SIG s, \
-    Real tau, ElSparseMatrix_ ## SIG J, ElMatrix_ ## SIG y ) \
+    Real tau, ElMatrix_ ## SIG J, ElMatrix_ ## SIG y ) \
   { EL_TRY( lin_prog::FormAugmentedSystem( \
       *CReflect(A),*CReflect(b),*CReflect(c), \
       *CReflect(x),*CReflect(l),*CReflect(s), \
       tau,*CReflect(J),*CReflect(y)) ) } \
   ElError ElLinearProgramFormAugmentedSystemDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
+    ElConstDistMatrix_ ## SIG x, ElConstDistMatrix_ ## SIG l, \
+    ElConstDistMatrix_ ## SIG s, \
+    Real tau, ElDistMatrix_ ## SIG J, ElDistMatrix_ ## SIG y ) \
+  { EL_TRY( lin_prog::FormAugmentedSystem( \
+      *CReflect(A),*CReflect(b),*CReflect(c), \
+      *CReflect(x),*CReflect(l),*CReflect(s), \
+      tau,*CReflect(J),*CReflect(y)) ) } \
+  ElError ElLinearProgramFormAugmentedSystemSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
+    ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG l, ElConstMatrix_ ## SIG s, \
+    Real tau, ElSparseMatrix_ ## SIG J, ElMatrix_ ## SIG y ) \
+  { EL_TRY( lin_prog::FormAugmentedSystem( \
+      *CReflect(A),*CReflect(b),*CReflect(c), \
+      *CReflect(x),*CReflect(l),*CReflect(s), \
+      tau,*CReflect(J),*CReflect(y)) ) } \
+  ElError ElLinearProgramFormAugmentedSystemDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, \
     ElConstDistMultiVec_ ## SIG b, ElConstDistMultiVec_ ## SIG c, \
     ElConstDistMultiVec_ ## SIG x, ElConstDistMultiVec_ ## SIG l, \
@@ -138,7 +157,7 @@ extern "C" {
       *CReflect(A),*CReflect(b),*CReflect(c), \
       *CReflect(x),*CReflect(l),*CReflect(s), \
       tau,*CReflect(J),*CReflect(y)) ) } \
-  ElError ElLinearProgramFormNormalSystem_ ## SIG \
+  ElError ElLinearProgramFormNormalSystemSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
     ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG l, ElConstMatrix_ ## SIG s, \
@@ -147,7 +166,7 @@ extern "C" {
       *CReflect(A),*CReflect(b),*CReflect(c), \
       *CReflect(x),*CReflect(l),*CReflect(s), \
       tau,*CReflect(J),*CReflect(y)) ) } \
-  ElError ElLinearProgramFormNormalSystemDist_ ## SIG \
+  ElError ElLinearProgramFormNormalSystemDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, \
     ElConstDistMultiVec_ ## SIG b, ElConstDistMultiVec_ ## SIG c, \
     ElConstDistMultiVec_ ## SIG x, ElConstDistMultiVec_ ## SIG l, \
@@ -157,7 +176,7 @@ extern "C" {
       *CReflect(A),*CReflect(b),*CReflect(c), \
       *CReflect(x),*CReflect(l),*CReflect(s), \
       tau,*CReflect(J),*CReflect(y)) ) } \
-  ElError ElLinearProgramSolveNormalSystem_ ## SIG \
+  ElError ElLinearProgramSolveNormalSystemSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
     ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG l, ElConstMatrix_ ## SIG s, \
@@ -168,7 +187,7 @@ extern "C" {
       *CReflect(x),*CReflect(l),*CReflect(s), \
       tau,*CReflect(J),*CReflect(y), \
       *CReflect(dx), *CReflect(dl), *CReflect(ds)) ) } \
-  ElError ElLinearProgramSolveNormalSystemDist_ ## SIG \
+  ElError ElLinearProgramSolveNormalSystemDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, \
     ElConstDistMultiVec_ ## SIG b, ElConstDistMultiVec_ ## SIG c, \
     ElConstDistMultiVec_ ## SIG x, ElConstDistMultiVec_ ## SIG l, \
@@ -182,7 +201,7 @@ extern "C" {
       *CReflect(x),*CReflect(l),*CReflect(s), \
       tau,*CReflect(J),*CReflect(y), \
       *CReflect(dx), *CReflect(dl), *CReflect(ds)) ) } \
-  ElError ElLinearProgramIPFLineSearch_ ## SIG \
+  ElError ElLinearProgramIPFLineSearchSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
     ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG l, \
@@ -195,7 +214,7 @@ extern "C" {
       *CReflect(x), *CReflect(l), *CReflect(s), \
       *CReflect(dx), *CReflect(dl), *CReflect(ds), \
       gamma, beta, psi, print ) ) } \
-  ElError ElLinearProgramIPFLineSearchDist_ ## SIG \
+  ElError ElLinearProgramIPFLineSearchDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, \
     ElConstDistMultiVec_ ## SIG b, ElConstDistMultiVec_ ## SIG c, \
     ElConstDistMultiVec_ ## SIG x, ElConstDistMultiVec_ ## SIG l, \
@@ -208,7 +227,7 @@ extern "C" {
       *CReflect(x), *CReflect(l), *CReflect(s), \
       *CReflect(dx), *CReflect(dl), *CReflect(ds), \
       gamma, beta, psi, print ) ) } \
-  ElError ElLinearProgramIPF_ ## SIG \
+  ElError ElLinearProgramIPFSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
     ElMatrix_ ## SIG x, ElMatrix_ ## SIG l, ElMatrix_ ## SIG s, \
@@ -218,7 +237,7 @@ extern "C" {
       *CReflect(A), *CReflect(b), *CReflect(c), \
       *CReflect(x), *CReflect(l), *CReflect(s), \
       muTol, rbTol, rcTol, maxIts, sigma, gamma, beta, psi, print ) ) } \
-  ElError ElLinearProgramIPFDist_ ## SIG \
+  ElError ElLinearProgramIPFDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, \
     ElConstDistMultiVec_ ## SIG b, ElConstDistMultiVec_ ## SIG c, \
     ElDistMultiVec_ ## SIG x, ElDistMultiVec_ ## SIG l, \

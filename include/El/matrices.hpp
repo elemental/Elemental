@@ -79,9 +79,15 @@ void Demmel( AbstractBlockDistMatrix<F>& A, Int n );
 template<typename S,typename T>
 void Diagonal( Matrix<S>& D, const std::vector<T>& d );
 template<typename S,typename T>
+void Diagonal( Matrix<S>& D, const Matrix<T>& d );
+template<typename S,typename T>
 void Diagonal( AbstractDistMatrix<S>& D, const std::vector<T>& d );
 template<typename S,typename T>
+void Diagonal( AbstractDistMatrix<S>& D, const Matrix<T>& d );
+template<typename S,typename T>
 void Diagonal( AbstractBlockDistMatrix<S>& D, const std::vector<T>& d );
+template<typename S,typename T>
+void Diagonal( AbstractBlockDistMatrix<S>& D, const Matrix<T>& d );
 
 // Druinsky-Toledo matrices
 // ========================
