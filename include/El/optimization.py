@@ -454,40 +454,40 @@ def LinearProgramIPFLineSearch(A,b,c,s,x,l,ds,dx,dl,
 
 lib.ElLinearProgramIPF_s.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,
-   sType,sType,sType,iType,sType,sType,sType,sType,bType]
+   sType,iType,sType,sType,sType,sType,bType]
 lib.ElLinearProgramIPF_s.restype = c_uint
 lib.ElLinearProgramIPF_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,
-   dType,dType,dType,iType,dType,dType,dType,dType,bType]
+   dType,iType,dType,dType,dType,dType,bType]
 lib.ElLinearProgramIPF_d.restype = c_uint
 lib.ElLinearProgramIPFDist_s.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,
-   sType,sType,sType,iType,sType,sType,sType,sType,bType]
+   sType,iType,sType,sType,sType,sType,bType]
 lib.ElLinearProgramIPFDist_s.restype = c_uint
 lib.ElLinearProgramIPFDist_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,
-   dType,dType,dType,iType,dType,dType,dType,dType,bType]
+   dType,iType,dType,dType,dType,dType,bType]
 lib.ElLinearProgramIPFDist_d.restype = c_uint
 lib.ElLinearProgramIPFSparse_s.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,
-   sType,sType,sType,iType,sType,sType,sType,sType,bType]
+   sType,iType,sType,sType,sType,sType,bType]
 lib.ElLinearProgramIPFSparse_s.restype = c_uint
 lib.ElLinearProgramIPFSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,
-   dType,dType,dType,iType,dType,dType,dType,dType,bType]
+   dType,iType,dType,dType,dType,dType,bType]
 lib.ElLinearProgramIPFSparse_d.restype = c_uint
 lib.ElLinearProgramIPFDistSparse_s.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,
-   sType,sType,sType,iType,sType,sType,sType,sType,bType]
+   sType,iType,sType,sType,sType,sType,bType]
 lib.ElLinearProgramIPFDistSparse_s.restype = c_uint
 lib.ElLinearProgramIPFDistSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,
-   dType,dType,dType,iType,dType,dType,dType,dType,bType]
+   dType,iType,dType,dType,dType,dType,bType]
 lib.ElLinearProgramIPFDistSparse_d.restype = c_uint
 def LinearProgramIPF(A,b,c,s,x,l,
-                     muTol=1e-10,rbTol=1e-10,rcTol=1e-10,maxIts=1000,
+                     tol=1e-8,maxIts=1000,
                      sigma=0.9,gamma=1e-3,beta=2,psi=100,progress=False):
-  args = [A.obj,b.obj,c.obj,s.obj,x.obj,l.obj,muTol,rbTol,rcTol,maxIts,
+  args = [A.obj,b.obj,c.obj,s.obj,x.obj,l.obj,tol,maxIts,
           sigma,gamma,beta,psi,progress]
   if type(A) is Matrix:
     if type(b) is not Matrix or type(c) is not Matrix or \

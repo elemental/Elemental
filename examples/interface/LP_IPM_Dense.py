@@ -50,17 +50,14 @@ El.Uniform(x,n,1,0.5,0.4999)
 El.Uniform(l,m,1,0.5,0.4999)
 El.Uniform(s,n,1,0.5,0.4999)
 
-muTol = 1e-10
-rbTol = 1e-10
-rcTol = 1e-10
+tol = 1e-10
 maxIts = 1000
 sigma = 0.9
 gamma = 1e-3
 beta = 1.5
 psi = 100
 progress = True
-El.LinearProgramIPF(A,b,c,s,x,l,muTol,rbTol,rcTol,maxIts,
-                    sigma,gamma,beta,psi,progress)
+El.LinearProgramIPF(A,b,c,s,x,l,tol,maxIts,sigma,gamma,beta,psi,progress)
 El.Display( s, "s" )
 El.Display( x, "x" )
 El.Display( l, "l" )

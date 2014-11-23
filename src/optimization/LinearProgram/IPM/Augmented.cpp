@@ -78,7 +78,7 @@ void SolveAugmentedSystem
     // =====================================
     SymmetricSolve( LOWER, NORMAL, J, y );
     dx.Resize( n, 1 );
-    dy.Resize( m, 1 );
+    dl.Resize( m, 1 );
     const IR xInd(0,n), lInd(n,n+m);
     auto yx = y(xInd,IR(0,1));
     auto yl = y(lInd,IR(0,1));
@@ -157,13 +157,13 @@ void SolveAugmentedSystem
     ctrl.colAlign = 0;
     ctrl.rowAlign = 0;
 
-    auto sPtr = ReadProxy<Read,MC,MR>(&spre,ctrl); auto& s = *sPtr;
-    auto xPtr = ReadProxy<Read,MC,MR>(&xPre,ctrl); auto& x = *xPtr;
+    auto sPtr = ReadProxy<Real,MC,MR>(&sPre,ctrl); auto& s = *sPtr;
+    auto xPtr = ReadProxy<Real,MC,MR>(&xPre,ctrl); auto& x = *xPtr;
 
-    auto yPtr = ReadWriteProxy<Read,MC,MR>(&yPre); auto& y = *yPtr;
+    auto yPtr = ReadWriteProxy<Real,MC,MR>(&yPre); auto& y = *yPtr;
 
-    auto dsPtr = WriteProxy<Read,MC,MR>(&dsPre,ctrl); auto& ds = *dsPtr;
-    auto dxPtr = WriteProxy<Read,MC,MR>(&dxPre,ctrl); auto& dx = *dxPtr;
+    auto dsPtr = WriteProxy<Real,MC,MR>(&dsPre,ctrl); auto& ds = *dsPtr;
+    auto dxPtr = WriteProxy<Real,MC,MR>(&dxPre,ctrl); auto& dx = *dxPtr;
 
     const Int n = s.Height();
     const Int m = J.Height() - n;
@@ -172,12 +172,12 @@ void SolveAugmentedSystem
     // =====================================
     SymmetricSolve( LOWER, NORMAL, J, y );
     dx.Resize( n, 1 );
-    dy.Resize( m, 1 );
+    dl.Resize( m, 1 );
     const IR xInd(0,n), lInd(n,n+m);
     auto yx = y(xInd,IR(0,1));
     auto yl = y(lInd,IR(0,1));
     dx = yx;
-    dl = yl;
+    Copy( yl, dl );
 
     // Compute ds = tau inv(X) e - inv(X) S dx - s
     // ===========================================

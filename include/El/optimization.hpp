@@ -208,7 +208,7 @@ void IPF
 ( const Matrix<Real>& A,
   const Matrix<Real>& b,  const Matrix<Real>& c,
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
-  Real muTol=1e-10, Real rbTol=1e-10, Real rcTol=1e-10, Int maxIts=1000,
+  Real tol=1e-8, Int maxIts=1000,
   Real sigma=0.9, Real gamma=1e-3, Real beta=2, Real psi=100, 
   bool print=false );
 template<typename Real>
@@ -217,7 +217,7 @@ void IPF
   const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c,
   AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, 
   AbstractDistMatrix<Real>& l,
-  Real muTol=1e-10, Real rbTol=1e-10, Real rcTol=1e-10, Int maxIts=1000,
+  Real tol=1e-8, Int maxIts=1000,
   Real sigma=0.9, Real gamma=1e-3, Real beta=2, Real psi=100, 
   bool print=false );
 template<typename Real>
@@ -225,7 +225,7 @@ void IPF
 ( const SparseMatrix<Real>& A,
   const Matrix<Real>& b,  const Matrix<Real>& c,
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
-  Real muTol=1e-10, Real rbTol=1e-10, Real rcTol=1e-10, Int maxIts=1000,
+  Real tol=1e-8, Int maxIts=1000,
   Real sigma=0.9, Real gamma=1e-3, Real beta=2, Real psi=100, 
   bool print=false );
 template<typename Real>
@@ -233,7 +233,7 @@ void IPF
 ( const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c,
   DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l,
-  Real muTol=1e-10, Real rbTol=1e-10, Real rcTol=1e-10, Int maxIts=1000,
+  Real tol=1e-8, Int maxIts=1000,
   Real sigma=0.9, Real gamma=1e-3, Real beta=2, Real psi=100, 
   bool print=false );
 

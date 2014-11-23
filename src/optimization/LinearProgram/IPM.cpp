@@ -16,7 +16,7 @@ void IPF
 ( const Matrix<Real>& A, 
   const Matrix<Real>& b,  const Matrix<Real>& c,
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
-  Real muTol, Real rbTol, Real rcTol, Int maxIts,
+  Real tol, Int maxIts,
   Real sigma, Real gamma, Real beta, Real psi, bool print )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
@@ -27,32 +27,42 @@ void IPF
     {
         // Check for convergence
         // =====================
-        // mu = x^T s / n
-        // ---------------
-        const Real mu = Dot(x,s) / n;
-        // || r_b ||_2 = || A x - b ||_2
-        // -----------------------------
+        // |c^T x - b^T l| / (1 + |c^T x|) <= tol ?
+        // ----------------------------------------
+        const Real primObj = Dot(c,x);
+        const Real dualObj = Dot(b,l); 
+        const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
+        // || r_b ||_2 / (1 + || b ||_2) <= tol ?
+        // --------------------------------------
+        const Real bNrm2 = Nrm2( b );
         rb = b;
         Gemv( NORMAL, Real(1), A, x, Real(-1), rb );
         const Real rbNrm2 = Nrm2( rb );
-        // || r_c ||_2 = || A^T l + s - c ||_2
-        // -----------------------------------
+        const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
+        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
+        // --------------------------------------
+        const Real cNrm2 = Nrm2( c );
         rc = c;
         Gemv( TRANSPOSE, Real(1), A, l, Real(-1), rc );
         Axpy( Real(1), s, rc );
         const Real rcNrm2 = Nrm2( rc );
+        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
-        if( mu <= muTol && rbNrm2 <= rbTol && rcNrm2 <= rcTol )
+        if( objConv <= tol && rbConv <= tol && rcConv <= tol )
             break;
         else if( print )
             std::cout << " iter " << numIts << ":\n"
-                      << "  || r_b ||_2  = " << rbNrm2
-                      << "  || r_c ||_2  = " << rcNrm2
-                      << "  mu = " << mu << std::endl;
+                      << "  |c^T x - b^T l| / (1 + |c^T x|) = "
+                      << objConv << "\n"
+                      << "  || r_b ||_2 / (1 + || b ||_2)   = "
+                      << rbConv << "\n"
+                      << "  || r_c ||_2 / (1 + || c ||_2)   = "
+                      << rcConv << std::endl;
 
         // Construct the reduced KKT system, J dl = y
         // ==========================================
+        const Real mu = Dot(x,s) / n;
         FormSystem( A, b, c, s, x, l, sigma*mu, J, y );
 
         // Compute the proposed step from the KKT system
@@ -122,7 +132,7 @@ void IPF
   const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c,
   AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, 
   AbstractDistMatrix<Real>& l,
-  Real muTol, Real rbTol, Real rcTol, Int maxIts,
+  Real tol, Int maxIts,
   Real sigma, Real gamma, Real beta, Real psi, bool print )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
@@ -137,32 +147,42 @@ void IPF
     {
         // Check for convergence
         // =====================
-        // mu = x^T s / n
-        // ---------------
-        const Real mu = Dot(x,s) / n;
-        // || r_b ||_2 = || A x - b ||_2
-        // -----------------------------
+        // |c^T x - b^T l| / (1 + |c^T x|) <= tol ?
+        // ----------------------------------------
+        const Real primObj = Dot(c,x);
+        const Real dualObj = Dot(b,l);
+        const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
+        // || r_b ||_2 / (1 + || b ||_2) <= tol ?
+        // --------------------------------------
+        const Real bNrm2 = Nrm2( b );
         rb = b;
         Gemv( NORMAL, Real(1), A, x, Real(-1), rb );
         const Real rbNrm2 = Nrm2( rb );
-        // || r_c ||_2 = || A^T l + s - c ||_2
-        // -----------------------------------
+        const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
+        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
+        // --------------------------------------
+        const Real cNrm2 = Nrm2( c );
         rc = c;
         Gemv( TRANSPOSE, Real(1), A, l, Real(-1), rc );
         Axpy( Real(1), s, rc );
         const Real rcNrm2 = Nrm2( rc );
+        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
-        if( mu <= muTol && rbNrm2 <= rbTol && rcNrm2 <= rcTol )
+        if( objConv <= tol && rbConv <= tol && rcConv <= tol )
             break;
         else if( print && commRank == 0 )
             std::cout << " iter " << numIts << ":\n"
-                      << "  || r_b ||_2  = " << rbNrm2
-                      << "  || r_c ||_2  = " << rcNrm2
-                      << "  mu = " << mu << std::endl;
+                      << "  |c^T x - b^T l| / (1 + |c^T x|) = "
+                      << objConv << "\n"
+                      << "  || r_b ||_2 / (1 + || b ||_2)   = "
+                      << rbConv << "\n"
+                      << "  || r_c ||_2 / (1 + || c ||_2)   = "
+                      << rcConv << std::endl;
 
         // Construct the reduced KKT system, J dl = y
         // ==========================================
+        const Real mu = Dot(x,s) / n;
         FormSystem( A, b, c, s, x, l, sigma*mu, J, y );
 
         // Compute the proposed step from the KKT system
@@ -231,7 +251,7 @@ void IPF
 ( const SparseMatrix<Real>& A, 
   const Matrix<Real>& b,  const Matrix<Real>& c,
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
-  Real muTol, Real rbTol, Real rcTol, Int maxIts,
+  Real tol, Int maxIts,
   Real sigma, Real gamma, Real beta, Real psi, bool print )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
@@ -242,32 +262,42 @@ void IPF
     {
         // Check for convergence
         // =====================
-        // mu = x^T s / n
-        // ---------------
-        const Real mu = Dot(x,s) / n;
-        // || r_b ||_2 = || A x - b ||_2
-        // -----------------------------
+        // |c^T x - b^T l| / (1 + |c^T x|) <= tol ?
+        // ----------------------------------------
+        const Real primObj = Dot(c,x);
+        const Real dualObj = Dot(b,l);
+        const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
+        // || r_b ||_2 / (1 + || b ||_2) <= tol ?
+        // --------------------------------------
+        const Real bNrm2 = Nrm2( b );
         rb = b;
         Multiply( NORMAL, Real(1), A, x, Real(-1), rb );
         const Real rbNrm2 = Nrm2( rb );
-        // || r_c ||_2 = || A^T l + s - c ||_2
-        // -----------------------------------
+        const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
+        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
+        // --------------------------------------
+        const Real cNrm2 = Nrm2( c );
         rc = c;
         Multiply( TRANSPOSE, Real(1), A, l, Real(-1), rc );
         Axpy( Real(1), s, rc );
         const Real rcNrm2 = Nrm2( rc );
+        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
-        if( mu <= muTol && rbNrm2 <= rbTol && rcNrm2 <= rcTol )
+        if( objConv <= tol && rbConv <= tol && rcConv <= tol )
             break;
         else if( print )
             std::cout << " iter " << numIts << ":\n"
-                      << "  || r_b ||_2  = " << rbNrm2
-                      << "  || r_c ||_2  = " << rcNrm2
-                      << "  mu = " << mu << std::endl;
+                      << "  |c^T x - b^T l| / (1 + |c^T x|) = "
+                      << objConv << "\n"
+                      << "  || r_b ||_2 / (1 + || b ||_2)   = "
+                      << rbConv << "\n"
+                      << "  || r_c ||_2 / (1 + || c ||_2)   = "
+                      << rcConv << std::endl;
 
         // Construct the reduced KKT system, J dl = y
         // ==========================================
+        const Real mu = Dot(x,s) / n;
         FormNormalSystem( A, b, c, s, x, l, sigma*mu, J, y );
 
         // Compute the proposed step from the KKT system
@@ -336,7 +366,7 @@ void IPF
 ( const DistSparseMatrix<Real>& A, 
   const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c,
   DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l,
-  Real muTol, Real rbTol, Real rcTol, Int maxIts,
+  Real tol, Int maxIts,
   Real sigma, Real gamma, Real beta, Real psi, bool print )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
@@ -352,32 +382,42 @@ void IPF
     {
         // Check for convergence
         // =====================
-        // mu = x^T s / n
-        // ---------------
-        const Real mu = Dot(x,s) / n;
-        // || r_b ||_2 = || A x - b ||_2
-        // -----------------------------
-        rb = b; 
+        // |c^T x - b^T l| / (1 + |c^T x|) <= tol ?
+        // ----------------------------------------
+        const Real primObj = Dot(c,x);
+        const Real dualObj = Dot(b,l);
+        const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
+        // || r_b ||_2 / (1 + || b ||_2) <= tol ?
+        // --------------------------------------
+        const Real bNrm2 = Nrm2( b );
+        rb = b;
         Multiply( NORMAL, Real(1), A, x, Real(-1), rb );
         const Real rbNrm2 = Nrm2( rb );
-        // || r_c ||_2 = || A^T l + s - c ||_2
-        // -----------------------------------
+        const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
+        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
+        // --------------------------------------
+        const Real cNrm2 = Nrm2( c );
         rc = c;
         Multiply( TRANSPOSE, Real(1), A, l, Real(-1), rc );
         Axpy( Real(1), s, rc );
         const Real rcNrm2 = Nrm2( rc );
+        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
-        if( mu <= muTol && rbNrm2 <= rbTol && rcNrm2 <= rcTol )
+        if( objConv <= tol && rbConv <= tol && rcConv <= tol )
             break;
         else if( print && commRank == 0 )
-            std::cout << "  iter " << numIts << ": \n"
-                      << "  || r_b ||_2 = " << rbNrm2 
-                      << "  || r_c ||_2 = " << rcNrm2 
-                      << "  mu = " << mu << std::endl;
+            std::cout << " iter " << numIts << ":\n"
+                      << "  |c^T x - b^T l| / (1 + |c^T x|) = "
+                      << objConv << "\n"
+                      << "  || r_b ||_2 / (1 + || b ||_2)   = "
+                      << rbConv << "\n"
+                      << "  || r_c ||_2 / (1 + || c ||_2)   = "
+                      << rcConv << std::endl;
 
         // Construct the reduced KKT system, J dl = y
         // ==========================================
+        const Real mu = Dot(x,s) / n;
         FormNormalSystem( A, b, c, s, x, l, sigma*mu, J, y );
        
         // Compute the proposed step from the KKT system
@@ -446,26 +486,26 @@ void IPF
   ( const Matrix<Real>& A, \
     const Matrix<Real>& b,  const Matrix<Real>& c, \
     Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l, \
-    Real muTol, Real rbTol, Real rcTol, Int maxIts, \
+    Real tol, Int maxIts, \
     Real sigma, Real gamma, Real beta, Real psi, bool print ); \
   template void IPF \
   ( const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c, \
     AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, \
     AbstractDistMatrix<Real>& l, \
-    Real muTol, Real rbTol, Real rcTol, Int maxIts, \
+    Real tol, Int maxIts, \
     Real sigma, Real gamma, Real beta, Real psi, bool print ); \
   template void IPF \
   ( const SparseMatrix<Real>& A, \
     const Matrix<Real>& b,  const Matrix<Real>& c, \
     Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l, \
-    Real muTol, Real rbTol, Real rcTol, Int maxIts, \
+    Real tol, Int maxIts, \
     Real sigma, Real gamma, Real beta, Real psi, bool print ); \
   template void IPF \
   ( const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c, \
     DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l, \
-    Real muTol, Real rbTol, Real rcTol, Int maxIts, \
+    Real tol, Int maxIts, \
     Real sigma, Real gamma, Real beta, Real psi, bool print );
 
 #define EL_NO_INT_PROTO
