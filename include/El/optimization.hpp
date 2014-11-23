@@ -147,6 +147,22 @@ void SolveNormalSystem
 
 template<typename Real>
 Real IPFLineSearch
+( const Matrix<Real>& A,
+  const Matrix<Real>& b,  const Matrix<Real>& c,
+  const Matrix<Real>& s,  const Matrix<Real>& x,  const Matrix<Real>& l,
+  const Matrix<Real>& ds, const Matrix<Real>& dx, const Matrix<Real>& dl,
+  Real gamma, Real beta, Real psi=100, bool print=false );
+template<typename Real>
+Real IPFLineSearch
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c,
+  const AbstractDistMatrix<Real>& s,  const AbstractDistMatrix<Real>& x,  
+  const AbstractDistMatrix<Real>& l,
+  const AbstractDistMatrix<Real>& ds, const AbstractDistMatrix<Real>& dx, 
+  const AbstractDistMatrix<Real>& dl,
+  Real gamma, Real beta, Real psi=100, bool print=false );
+template<typename Real>
+Real IPFLineSearch
 ( const SparseMatrix<Real>& A,
   const Matrix<Real>& b,  const Matrix<Real>& c,
   const Matrix<Real>& s,  const Matrix<Real>& x,  const Matrix<Real>& l,
@@ -165,6 +181,23 @@ Real IPFLineSearch
   const DistMultiVec<Real>& dl,
   Real gamma, Real beta, Real psi=100, bool print=false );
 
+template<typename Real>
+void IPF
+( const Matrix<Real>& A,
+  const Matrix<Real>& b,  const Matrix<Real>& c,
+  Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
+  Real muTol=1e-10, Real rbTol=1e-10, Real rcTol=1e-10, Int maxIts=1000,
+  Real sigma=0.9, Real gamma=1e-3, Real beta=2, Real psi=100, 
+  bool print=false );
+template<typename Real>
+void IPF
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c,
+  AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, 
+  AbstractDistMatrix<Real>& l,
+  Real muTol=1e-10, Real rbTol=1e-10, Real rcTol=1e-10, Int maxIts=1000,
+  Real sigma=0.9, Real gamma=1e-3, Real beta=2, Real psi=100, 
+  bool print=false );
 template<typename Real>
 void IPF
 ( const SparseMatrix<Real>& A,

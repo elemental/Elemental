@@ -41,7 +41,7 @@ void FormSystem
     auto yx = y(xInd,IR(0,1));
     auto yl = y(lInd,IR(0,1));
     for( Int i=0; i<n; ++i )
-        ys.Set( i, 0, x.Get(i,0)*s.Get(i,0)-tau );
+        ys.Set( i, 0, -x.Get(i,0)*s.Get(i,0)+tau );
     yx = c;
     Gemv( TRANSPOSE, Real(-1), A, l, Real(1), yx );
     Axpy( Real(-1), s, yx );
@@ -89,7 +89,7 @@ void FormSystem
     for( Int iLoc=0; iLoc<ys.LocalHeight(); ++iLoc )
     {
         const Int i = ys.GlobalRow(iLoc);
-        ys.SetLocal( iLoc, 0, x.Get(i,0)*s.Get(i,0)-tau );
+        ys.SetLocal( iLoc, 0, -x.Get(i,0)*s.Get(i,0)+tau );
     }
     yx = c;
     Gemv( TRANSPOSE, Real(-1), A, l, Real(1), yx );
@@ -106,7 +106,7 @@ void SolveSystem
     DEBUG_ONLY(CallStackEntry cse("lin_prog::SolveSystem"))
     if( J.Height() != 2*n+m || J.Width() != 2*n+m )
         LogicError("Jacobian was the wrong size");
-    if( y.Height() != 2*n+m || y.Width() )
+    if( y.Height() != 2*n+m || y.Width() != 1 )
         LogicError("Right-hand side was the wrong size");
 
     GaussianElimination( J, y );
@@ -131,7 +131,7 @@ void SolveSystem
 
     if( J.Height() != 2*n+m || J.Width() != 2*n+m )
         LogicError("Jacobian was the wrong size");
-    if( y.Height() != 2*n+m || y.Width() )
+    if( y.Height() != 2*n+m || y.Width() != 1 )
         LogicError("Right-hand side was the wrong size");
 
     GaussianElimination( J, y );
