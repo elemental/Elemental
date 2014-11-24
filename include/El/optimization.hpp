@@ -65,6 +65,17 @@ Int Lasso
 // Linear program
 // ==============
 
+// TODO: Come up with a standard interface for all of the algorithms.
+//       The primary difficulty is deciding how to handle initial guesses.
+template<typename Real>
+void LinearProgram
+( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
+  Matrix<Real>& x );
+template<typename Real>
+void LinearProgram
+( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
+  const AbstractDistMatrix<Real>& c,       AbstractDistMatrix<Real>& x );
+
 namespace lin_prog {
 
 // Full system
@@ -237,20 +248,20 @@ void IPF
   Real sigma=0.9, Real gamma=1e-3, Real beta=2, Real psi=100, 
   bool print=false );
 
-} // namespace lin_prog
-
 template<typename Real>
-Int LinearProgram
+Int ADMM
 ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
   Matrix<Real>& z,
   Real rho=1., Real alpha=1.2, Int maxIter=500,
   Real absTol=1e-6, Real relTol=1e-4, bool inv=false, bool progress=true );
 template<typename Real>
-Int LinearProgram
+Int ADMM
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
   const AbstractDistMatrix<Real>& c,       AbstractDistMatrix<Real>& z,
   Real rho=1, Real alpha=1.2, Int maxIter=500, Real absTol=1e-6,
   Real relTol=1e-4, bool inv=true, bool progress=true );
+
+} // namespace lin_prog
 
 // Logistic Regression
 // ===================

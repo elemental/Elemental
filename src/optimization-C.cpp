@@ -119,6 +119,16 @@ extern "C" {
   C_PROTO_FIELD(SIG,SIG,Real) \
   /* Linear program
      ============== */ \
+  ElError ElLinearProgram_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    ElConstMatrix_ ## SIG c, ElMatrix_ ## SIG x ) \
+  { EL_TRY( LinearProgram( *CReflect(A), *CReflect(b), *CReflect(c), \
+      *CReflect(x) ) ) } \
+  ElError ElLinearProgramDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
+    ElConstDistMatrix_ ## SIG c, ElDistMatrix_ ## SIG x ) \
+  { EL_TRY( LinearProgram( *CReflect(A), *CReflect(b), *CReflect(c), \
+      *CReflect(x) ) ) } \
   /* Full system 
      ----------- */ \
   ElError ElLinearProgramFormSystem_ ## SIG \
@@ -355,16 +365,16 @@ extern "C" {
       tol, maxIts, sigma, gamma, beta, psi, print ) ) } \
   /* ADMM
      ---- */ \
-  ElError ElLinearProgram_ ## SIG \
+  ElError ElLinearProgramADMM_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
     ElConstMatrix_ ## SIG c, ElMatrix_ ## SIG z, ElInt* numIts ) \
-  { EL_TRY( *numIts = LinearProgram( *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(z) ) ) } \
-  ElError ElLinearProgramDist_ ## SIG \
+  { EL_TRY( *numIts = lin_prog::ADMM( \
+      *CReflect(A), *CReflect(b), *CReflect(c), *CReflect(z) ) ) } \
+  ElError ElLinearProgramADMMDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
     ElConstDistMatrix_ ## SIG c, ElDistMatrix_ ## SIG z, ElInt* numIts ) \
-  { EL_TRY( *numIts = LinearProgram( *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(z) ) ) } \
+  { EL_TRY( *numIts = lin_prog::ADMM( \
+      *CReflect(A), *CReflect(b), *CReflect(c), *CReflect(z) ) ) } \
   /* Logistic regression
      =================== */ \
   ElError ElLogisticRegression_ ## SIG \

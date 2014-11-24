@@ -72,6 +72,17 @@ EL_EXPORT ElError ElLassoDist_z
 
 /* Linear program
    ============== */
+EL_EXPORT ElError ElLinearProgram_s
+( ElConstMatrix_s A, ElConstMatrix_s b, ElConstMatrix_s c, ElMatrix_s x );
+EL_EXPORT ElError ElLinearProgram_d
+( ElConstMatrix_d A, ElConstMatrix_d b, ElConstMatrix_d c, ElMatrix_d x );
+
+EL_EXPORT ElError ElLinearProgramDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_s b, ElConstDistMatrix_s c, 
+  ElDistMatrix_s x );
+EL_EXPORT ElError ElLinearProgramDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElConstDistMatrix_d c, 
+  ElDistMatrix_d x );
 
 /* Full system
    ----------- */
@@ -331,17 +342,17 @@ EL_EXPORT ElError ElLinearProgramIPFDistSparse_d
 
 /* ADMM
    ---- */
-EL_EXPORT ElError ElLinearProgram_s
+EL_EXPORT ElError ElLinearProgramADMM_s
 ( ElConstMatrix_s A, ElConstMatrix_s b, ElConstMatrix_s c, 
   ElMatrix_s z, ElInt* numIts );
-EL_EXPORT ElError ElLinearProgram_d
+EL_EXPORT ElError ElLinearProgramADMM_d
 ( ElConstMatrix_d A, ElConstMatrix_d b, ElConstMatrix_d c, 
   ElMatrix_d z, ElInt* numIts );
 
-EL_EXPORT ElError ElLinearProgramDist_s
+EL_EXPORT ElError ElLinearProgramADMMDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_s b, ElConstDistMatrix_s c, 
   ElDistMatrix_s z, ElInt* numIts );
-EL_EXPORT ElError ElLinearProgramDist_d
+EL_EXPORT ElError ElLinearProgramADMMDist_d
 ( ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElConstDistMatrix_d c, 
   ElDistMatrix_d z, ElInt* numIts );
 

@@ -100,6 +100,35 @@ def Lasso(A,b,lamb):
 
 # Linear program
 # ==============
+lib.ElLinearProgram_s.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElLinearProgram_s.restype = c_uint
+lib.ElLinearProgram_d.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElLinearProgram_d.restype = c_uint
+lib.ElLinearProgramDist_s.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElLinearProgramDist_s.restype = c_uint
+lib.ElLinearProgramDist_d.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElLinearProgramDist_d.restype = c_uint
+def LinearProgram(A,b,c):
+  if type(A) is not type(b) or type(b) is not type(c):
+    raise Exception('Types of {A,b,c} must match')
+  if A.tag != b.tag or b.tag != c.tag:
+    raise Exception('Datatypes of {A,b,c} must match')
+  if type(A) is Matrix:
+    x = Matrix(A.tag)
+    args = [A.obj,b.obj,c.obj,x.obj]
+    if   A.tag == sTag: lib.ElLinearProgram_s(*args)
+    elif A.tag == dTag: lib.ElLinearProgram_d(*args)
+    else: DataExcept()
+    return x
+  elif type(A) is DistMatrix:
+    x = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,b.obj,c.obj,x.obj]
+    if   A.tag == sTag: lib.ElLinearProgramDist_s(*args)
+    elif A.tag == dTag: lib.ElLinearProgramDist_d(*args)
+    else: DataExcept()
+    return x
+  else: TypeExcept()
+
 lib.ElLinearProgramFormSystem_s.argtypes = \
   [c_void_p,c_void_p,c_void_p,
    c_void_p,c_void_p,c_void_p,
@@ -523,23 +552,24 @@ def LinearProgramIPF(A,b,c,s,x,l,
     else: DataExcept()
   else: TypeExcept()
 
-lib.ElLinearProgram_s.argtypes = \
+lib.ElLinearProgramADMM_s.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,POINTER(iType)]
-lib.ElLinearProgram_s.restype = c_uint
-lib.ElLinearProgram_d.argtypes = \
+lib.ElLinearProgramADMM_s.restype = c_uint
+lib.ElLinearProgramADMM_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,POINTER(iType)]
-lib.ElLinearProgram_d.restype = c_uint
-lib.ElLinearProgramDist_s.argtypes = \
+lib.ElLinearProgramADMM_d.restype = c_uint
+lib.ElLinearProgramADMMDist_s.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,POINTER(iType)]
-lib.ElLinearProgramDist_s.restype = c_uint
-lib.ElLinearProgramDist_d.argtypes = \
+lib.ElLinearProgramADMMDist_s.restype = c_uint
+lib.ElLinearProgramADMMDist_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,POINTER(iType)]
-lib.ElLinearProgramDist_d.restype = c_uint
-def LinearProgram(A,b,c):
+lib.ElLinearProgramADMMDist_d.restype = c_uint
+def LinearProgramADMM(A,b,c):
   if type(A) is not type(b) or type(b) is not type(c):
     raise Exception('Types of {A,b,c} must match')
   if A.tag != b.tag or b.tag != c.tag:
     raise Exception('Datatypes of {A,b,c} must match')
+  numIts = iType()
   if type(A) is Matrix:
     z = Matrix(A.tag)
     args = [A.obj,b.obj,c.obj,z.obj,pointer(numIts)]
