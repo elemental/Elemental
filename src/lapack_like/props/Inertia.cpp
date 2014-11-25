@@ -17,9 +17,9 @@ InertiaType Inertia
     DEBUG_ONLY(CallStackEntry cse("Inertia"))
     if( uplo == UPPER )
         LogicError("This option not yet supported");
-    Matrix<Int> pPerm;
+    Matrix<Int> p;
     Matrix<F> dSub;
-    LDL( A, dSub, pPerm, true, ctrl );
+    LDL( A, dSub, p, true, ctrl );
     return ldl::Inertia( A.GetRealPartOfDiagonal(), dSub );
 }
 
@@ -35,9 +35,9 @@ InertiaType Inertia
     auto APtr = ReadProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
-    DistMatrix<Int,VC,STAR> pPerm( A.Grid() );
+    DistMatrix<Int,VC,STAR> p( A.Grid() );
     DistMatrix<F,MD,STAR> dSub( A.Grid() );
-    LDL( A, dSub, pPerm, true, ctrl );
+    LDL( A, dSub, p, true, ctrl );
     return ldl::Inertia( A.GetRealPartOfDiagonal(), dSub );
 }
 

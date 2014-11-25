@@ -213,7 +213,7 @@ Base<F> HPDDeterminant
   template SafeProduct<Base<F>> hpd_det::AfterCholesky \
   ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
   template SafeProduct<F> det::AfterLUPartialPiv \
-  ( const Matrix<F>& A, const Matrix<Int>& pPerm ); \
+  ( const Matrix<F>& A, const Matrix<Int>& p ); \
   template SafeProduct<F> det::AfterLUPartialPiv \
   ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<Int>& p );
 

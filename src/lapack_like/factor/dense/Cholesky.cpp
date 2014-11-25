@@ -38,7 +38,7 @@ void Cholesky( UpperOrLower uplo, Matrix<F>& A )
 }
 
 template<typename F>
-void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& pPerm )
+void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& p )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Cholesky");
@@ -46,9 +46,9 @@ void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& pPerm )
             LogicError("A must be square");
     )
     if( uplo == LOWER )
-        cholesky::LVar3( A, pPerm );
+        cholesky::LVar3( A, p );
     else
-        cholesky::UVar3( A, pPerm );
+        cholesky::UVar3( A, p );
 }
 
 template<typename F>
@@ -88,13 +88,13 @@ void Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A )
 
 template<typename F> 
 void Cholesky
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& pPerm )
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p )
 {
     DEBUG_ONLY(CallStackEntry cse("Cholesky"))
     if( uplo == LOWER )
-        cholesky::LVar3( A, pPerm );
+        cholesky::LVar3( A, p );
     else
-        cholesky::UVar3( A, pPerm );
+        cholesky::UVar3( A, p );
 }
 
 template<typename F> 
@@ -209,10 +209,10 @@ void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
     const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B ); \
   template void cholesky::SolveAfter \
   ( UpperOrLower uplo, Orientation orientation, \
-    const Matrix<F>& A, const Matrix<Int>& pPerm, Matrix<F>& B ); \
+    const Matrix<F>& A, const Matrix<Int>& p, Matrix<F>& B ); \
   template void cholesky::SolveAfter \
   ( UpperOrLower uplo, Orientation orientation, \
-    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<Int>& pPerm, \
+    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<Int>& p, \
           AbstractDistMatrix<F>& B ); 
 
 #define EL_NO_INT_PROTO

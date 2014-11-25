@@ -18,8 +18,7 @@ void MPC
 ( const Matrix<Real>& A, 
   const Matrix<Real>& b,  const Matrix<Real>& c,
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
-  Real tol, Int maxIts,
-  Real maxPriStepRatio, Real maxDualStepRatio, 
+  Real tol, Int maxIts, Real maxStepRatio,
   bool print, System system )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::MPC"))    
@@ -30,7 +29,9 @@ void MPC
     const Int n = A.Width();
     Matrix<Real> J, y, rmu, rb, rc, 
                  dsAff, dxAff, dlAff,
-                 dsCC,  dxCC,  dlCC;
+                 ds,    dx,    dl;
+    Matrix<Real> dSub;
+    Matrix<Int> p;
 #ifndef RELEASE
     Matrix<Real> dsError, dxError, dlError;
 #endif
@@ -88,7 +89,8 @@ void MPC
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            GaussianElimination( J, y );
+            LU( J, p );
+            lu::SolveAfter( NORMAL, J, p, y );
             ExpandKKTSolution( m, n, y, dsAff, dxAff, dlAff );
         }
         else if( system == AUGMENTED_KKT )
@@ -100,7 +102,8 @@ void MPC
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            SymmetricSolve( LOWER, NORMAL, J, y );
+            LDL( J, dSub, p, false );
+            ldl::SolveAfter( J, dSub, p, y, false );
             ExpandAugmentedSolution( s, x, rmu, y, dsAff, dxAff, dlAff );
         }
         else
@@ -131,16 +134,16 @@ void MPC
         Real dxErrorNrm2 = Nrm2( dxError );
 
         if( print )
-            std::cout << "  || dsAffError ||_2 / || r_mu ||_2 = " 
-                      << dsErrorNrm2/rmuNrm2 << "\n"
-                      << "  || dxAffError ||_2 / || r_c ||_2 = " 
-                      << dxErrorNrm2/rcNrm2 << "\n"
-                      << "  || dlAffError ||_2 / || r_b ||_2 = " 
-                      << dlErrorNrm2/rbNrm2 << std::endl;
+            std::cout << "  || dsAffError ||_2 / (1 + || r_mu ||_2) = " 
+                      << dsErrorNrm2/(1+rmuNrm2) << "\n"
+                      << "  || dxAffError ||_2 / (1 + || r_c ||_2) = " 
+                      << dxErrorNrm2/(1+rcNrm2) << "\n"
+                      << "  || dlAffError ||_2 / (1 + || r_b ||_2) = " 
+                      << dlErrorNrm2/(1+rbNrm2) << std::endl;
 #endif
 
-        // Compute the maximum steps which preserve positivity
-        // ===================================================
+        // Compute the maximum affine [0,1]-step which preserves positivity
+        // ================================================================
         Real alphaAffPri = 1; 
         for( Int i=0; i<n; ++i )
         {
@@ -161,12 +164,12 @@ void MPC
         // Compute what the new duality measure would become
         // =================================================
         const Real mu = Dot(x,s) / n;
-        // NOTE: dsCC and dxCC are used as temporaries
-        dxCC = x;
-        dsCC = s;
-        Axpy( alphaAffPri, dxAff, dxCC );
-        Axpy( alphaAffDual, dsAff, dsCC );
-        const Real muAff = Dot(dxCC,dsCC) / n;
+        // NOTE: ds and dx are used as temporaries
+        dx = x;
+        ds = s;
+        Axpy( alphaAffPri, dxAff, dx );
+        Axpy( alphaAffDual, dsAff, ds );
+        const Real muAff = Dot(dx,ds) / n;
 
         // Compute a centrality parameter using Mehotra's formula
         // ======================================================
@@ -175,10 +178,69 @@ void MPC
 
         // Solve for the centering-corrector 
         // =================================
-        // TODO
-        LogicError("This routine is not yet finished");
+        Zeros( rc, n, 1 );
+        Zeros( rb, m, 1 );
+        for( Int i=0; i<n; ++i )
+            rmu.Set( i, 0, sigma*mu - dxAff.Get(i,0)*dsAff.Get(i,0) );
+        if( system == FULL_KKT )
+        {
+            // Construct the new full KKT RHS
+            // ------------------------------
+            KKTRHS( rmu, rc, rb, y );
 
-        // TODO ...
+            // Compute the proposed step from the KKT system
+            // ---------------------------------------------
+            lu::SolveAfter( NORMAL, J, p, y );
+            ExpandKKTSolution( m, n, y, ds, dx, dl );
+        }
+        else if( system == AUGMENTED_KKT )
+        {
+            // Construct the reduced KKT system
+            // --------------------------------
+            AugmentedKKTRHS( x, rmu, rc, rb, y );
+
+            // Compute the proposed step from the KKT system
+            // ---------------------------------------------
+            ldl::SolveAfter( J, dSub, p, y, false );
+            ExpandAugmentedSolution( s, x, rmu, y, ds, dx, dl );
+        }
+        else
+            LogicError("Unsupported system option");
+
+        // TODO: Residual checks for center-corrector
+
+        // Add in the affine search direction
+        // ==================================
+        Axpy( Real(1), dsAff, ds );
+        Axpy( Real(1), dxAff, dx );
+        Axpy( Real(1), dlAff, dl );
+
+        // Compute the max positive [0,1/maxStepRatio] step length
+        // =======================================================
+        Real alphaPri = 1/maxStepRatio;
+        for( Int i=0; i<n; ++i )
+        {
+            const Real xi = x.Get(i,0);
+            const Real dxi = dx.Get(i,0);
+            if( dxi < Real(0) )
+                alphaPri = Min(alphaPri,-xi/dxi);
+        }
+        Real alphaDual = 1/maxStepRatio;
+        for( Int i=0; i<n; ++i )
+        {
+            const Real si = s.Get(i,0);
+            const Real dsi = ds.Get(i,0);
+            if( dsi < Real(0) )
+                alphaDual = Min(alphaDual,-si/dsi);
+        }
+        alphaPri = Min(maxStepRatio*alphaPri,Real(1));
+        alphaDual = Min(maxStepRatio*alphaDual,Real(1));
+
+        // Update the current estimates
+        // ============================
+        Axpy( alphaPri,  dx, x );
+        Axpy( alphaDual, ds, s ); 
+        Axpy( alphaDual, dl, l );
     }
 }
 
@@ -187,8 +249,7 @@ void MPC
   ( const Matrix<Real>& A, \
     const Matrix<Real>& b,  const Matrix<Real>& c, \
     Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l, \
-    Real tol, Int maxIts, \
-    Real maxPriStepRatio, Real maxDualStepRatio, \
+    Real tol, Int maxIts, Real maxStepRatio, \
     bool print, System system ); 
 
 #define EL_NO_INT_PROTO

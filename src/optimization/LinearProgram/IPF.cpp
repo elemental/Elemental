@@ -126,12 +126,12 @@ void IPF
         const Real dxErrorNrm2 = Nrm2( dxError );
 
         if( print )
-            std::cout << "  || dsError ||_2 / || r_mu ||_2 = " 
-                      << dsErrorNrm2/rmuNrm2 << "\n"
-                      << "  || dxError ||_2 / || r_c ||_2 = " 
-                      << dxErrorNrm2/rcNrm2 << "\n"
-                      << "  || dlError ||_2 / || r_b ||_2 = " 
-                      << dlErrorNrm2/rbNrm2 << std::endl;
+            std::cout << "  || dsError ||_2 / (1 + || r_mu ||_2) = " 
+                      << dsErrorNrm2/(1+rmuNrm2) << "\n"
+                      << "  || dxError ||_2 / (1 + || r_c ||_2) = " 
+                      << dxErrorNrm2/(1+rcNrm2) << "\n"
+                      << "  || dlError ||_2 / (1 + || r_b ||_2) = " 
+                      << dlErrorNrm2/(1+rbNrm2) << std::endl;
 #endif
 
         // Decide on the step length
@@ -270,12 +270,12 @@ void IPF
         const Real dxErrorNrm2 = Nrm2( dxError );
 
         if( print && commRank == 0 )
-            std::cout << "  || dsError ||_2 / || r_mu ||_2 = " 
-                      << dsErrorNrm2/rmuNrm2 << "\n"
-                      << "  || dxError ||_2 / || r_c ||_2 = " 
-                      << dxErrorNrm2/rcNrm2 << "\n"
-                      << "  || dlError ||_2 / || r_b ||_2 = " 
-                      << dlErrorNrm2/rbNrm2 << std::endl;
+            std::cout << "  || dsError ||_2 / (1 + || r_mu ||_2) = " 
+                      << dsErrorNrm2/(1+rmuNrm2) << "\n"
+                      << "  || dxError ||_2 / (1 + || r_c ||_2) = " 
+                      << dxErrorNrm2/(1+rcNrm2) << "\n"
+                      << "  || dlError ||_2 / (1 + || r_b ||_2) = " 
+                      << dlErrorNrm2/(1+rbNrm2) << std::endl;
 #endif
 
         // Decide on the step length
@@ -393,12 +393,12 @@ void IPF
         const Real dxErrorNrm2 = Nrm2( dxError );
 
         if( print )
-            std::cout << "  || dsError ||_2 / || r_mu ||_2 = " 
-                      << dsErrorNrm2/rmuNrm2 << "\n"
-                      << "  || dxError ||_2 / || r_c ||_2 = " 
-                      << dxErrorNrm2/rcNrm2 << "\n"
-                      << "  || dlError ||_2 / || r_b ||_2 = " 
-                      << dlErrorNrm2/rbNrm2 << std::endl;
+            std::cout << "  || dsError ||_2 / (1 + || r_mu ||_2) = " 
+                      << dsErrorNrm2/(1+rmuNrm2) << "\n"
+                      << "  || dxError ||_2 / (1 + || r_c ||_2) = " 
+                      << dxErrorNrm2/(1+rcNrm2) << "\n"
+                      << "  || dlError ||_2 / (1 + || r_b ||_2) = " 
+                      << dlErrorNrm2/(1+rbNrm2) << std::endl;
 #endif
 
         // Decide on the step length
@@ -538,12 +538,12 @@ void IPF
         const Real dxErrorNrm2 = Nrm2( dxError );
 
         if( print && commRank == 0 )
-            std::cout << "  || dsError ||_2 / || r_mu ||_2 = " 
-                      << dsErrorNrm2/rmuNrm2 << "\n"
-                      << "  || dxError ||_2 / || r_c ||_2 = " 
-                      << dxErrorNrm2/rcNrm2 << "\n"
-                      << "  || dlError ||_2 / || r_b ||_2 = " 
-                      << dlErrorNrm2/rbNrm2 << std::endl;
+            std::cout << "  || dsError ||_2 / (1 + || r_mu ||_2) = " 
+                      << dsErrorNrm2/(1+rmuNrm2) << "\n"
+                      << "  || dxError ||_2 / (1 + || r_c ||_2) = " 
+                      << dxErrorNrm2/(1+rcNrm2) << "\n"
+                      << "  || dlError ||_2 / (1 + || r_b ||_2) = " 
+                      << dlErrorNrm2/(1+rbNrm2) << std::endl;
 #endif
 
         // Decide on the step length

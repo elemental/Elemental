@@ -18,14 +18,14 @@ void SymmetricSolve
     DEBUG_ONLY(CallStackEntry cse("SymmetricSolve"))
     if( uplo == UPPER )
         LogicError("Upper Bunch-Kaufman is not yet supported");
-    Matrix<Int> pPerm; 
+    Matrix<Int> p; 
     Matrix<F> dSub;
-    LDL( A, dSub, pPerm, conjugate, ctrl );
+    LDL( A, dSub, p, conjugate, ctrl );
     const bool conjFlip = ( (orientation == ADJOINT && conjugate == false) ||
                             (orientation == TRANSPOSE && conjugate == true) );
     if( conjFlip )
         Conjugate( B );
-    ldl::SolveAfter( A, dSub, pPerm, B, conjugate );
+    ldl::SolveAfter( A, dSub, p, B, conjugate );
     if( conjFlip )
         Conjugate( B );
 }
@@ -43,14 +43,14 @@ void SymmetricSolve
     auto APtr = ReadProxy<F,MC,MR>( &APre );      auto& A = *APtr;
     auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
 
-    DistMatrix<Int,VC,STAR> pPerm(A.Grid()); 
+    DistMatrix<Int,VC,STAR> p(A.Grid()); 
     DistMatrix<F,MD,STAR> dSub(A.Grid());
-    LDL( A, dSub, pPerm, conjugate, ctrl );
+    LDL( A, dSub, p, conjugate, ctrl );
     const bool conjFlip = ( (orientation == ADJOINT && conjugate == false) ||
                             (orientation == TRANSPOSE && conjugate == true) );
     if( conjFlip )
         Conjugate( B );
-    ldl::SolveAfter( A, dSub, pPerm, B, conjugate );
+    ldl::SolveAfter( A, dSub, p, B, conjugate );
     if( conjFlip )
         Conjugate( B );
 }
