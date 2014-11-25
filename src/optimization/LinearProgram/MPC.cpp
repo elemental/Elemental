@@ -28,7 +28,7 @@ void MPC
 
     const Int m = A.Height();
     const Int n = A.Width();
-    Matrix<Real> J, y, rb, rc, 
+    Matrix<Real> J, y, rmu, rb, rc, 
                  dsAff, dxAff, dlAff,
                  dsCC,  dxCC,  dlCC;
 #ifndef RELEASE
@@ -71,12 +71,18 @@ void MPC
                       << "  || r_c ||_2 / (1 + || c ||_2)   = "
                       << rcConv << std::endl;
 
+        // r_mu := X S e
+        // =============
+        rmu.Resize( n, 1 );
+        for( Int i=0; i<n; ++i )
+            rmu.Set( i, 0, x.Get(i,0)*s.Get(i,0) );
+
         // Compute the affine search direction
         // ===================================
         if( system == LIN_PROG_FULL )
         {
-            // Construct the reduced KKT system, J dl = y
-            // ------------------------------------------
+            // Construct the full KKT system
+            // -----------------------------
             FormSystem( A, b, c, s, x, l, Real(0), J, y );
 
             // Compute the proposed step from the KKT system
@@ -85,13 +91,15 @@ void MPC
         }
         else if( system == LIN_PROG_AUGMENTED )
         {
-            // Construct the reduced KKT system, J dl = y
-            // ------------------------------------------
-            FormAugmentedSystem( A, b, c, s, x, l, Real(0), J, y );
+            // Construct the reduced KKT system
+            // --------------------------------
+            AugmentedKKT( A, s, x, J );
+            AugmentedKKTRHS( x, rmu, rc, rb, y );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            SolveAugmentedSystem( s, x, Real(0), J, y, dsAff, dxAff, dlAff );
+            SymmetricSolve( LOWER, NORMAL, J, y );
+            ExpandAugmentedSolution( s, x, rmu, y, dsAff, dxAff, dlAff );
         }
         else
             LogicError("Unsupported system option");
@@ -99,14 +107,8 @@ void MPC
 #ifndef RELEASE
         // Sanity checks
         // =============
-        dsError.Resize( n, 1 );
-        for( Int i=0; i<n; ++i )
-        {
-            const Real xi = x.Get(i,0);
-            const Real si = s.Get(i,0);
-            dsError.Set( i, 0, xi*si );
-        }
-        Real rmuNrm2 = Nrm2( dsError );
+        Real rmuNrm2 = Nrm2( rmu ); 
+        dsError = rmu;
         for( Int i=0; i<n; ++i )
         {
             const Real xi = x.Get(i,0);

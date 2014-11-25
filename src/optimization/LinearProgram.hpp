@@ -39,41 +39,52 @@ void SolveSystem
 // Augmented system
 // ----------------
 template<typename Real>
-void FormAugmentedSystem
-( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
-  const Matrix<Real>& s, const Matrix<Real>& x, const Matrix<Real>& l,
-  Real tau, Matrix<Real>& J, Matrix<Real>& y );
+void AugmentedKKT
+( const Matrix<Real>& A,
+  const Matrix<Real>& s, const Matrix<Real>& x,
+  Matrix<Real>& J );
 template<typename Real>
-void FormAugmentedSystem
+void AugmentedKKT
 ( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& l,
-  Real tau, AbstractDistMatrix<Real>& J, AbstractDistMatrix<Real>& y );
+  AbstractDistMatrix<Real>& J );
 template<typename Real>
-void FormAugmentedSystem
+void AugmentedKKT
 ( const SparseMatrix<Real>& A,
-  const Matrix<Real>& b, const Matrix<Real>& c,
-  const Matrix<Real>& s, const Matrix<Real>& x, const Matrix<Real>& l,
-  Real tau, SparseMatrix<Real>& J, Matrix<Real>& y );
+  const Matrix<Real>& s, const Matrix<Real>& x,
+  SparseMatrix<Real>& J );
 template<typename Real>
-void FormAugmentedSystem
+void AugmentedKKT
 ( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& s, const DistMultiVec<Real>& x,
-  const DistMultiVec<Real>& l,
-  Real tau, DistSparseMatrix<Real>& J, DistMultiVec<Real>& y );
+  DistSparseMatrix<Real>& J );
 
 template<typename Real>
-void SolveAugmentedSystem
+void AugmentedKKTRHS
+( const Matrix<Real>& x,
+  const Matrix<Real>& rmu, const Matrix<Real>& rc, const Matrix<Real>& rb,
+  Matrix<Real>& y );
+template<typename Real>
+void AugmentedKKTRHS
+( const AbstractDistMatrix<Real>& x,
+  const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& rc, 
+  const AbstractDistMatrix<Real>& rb, AbstractDistMatrix<Real>& y );
+template<typename Real>
+void AugmentedKKTRHS
+( const DistMultiVec<Real>& x,
+  const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rc, 
+  const DistMultiVec<Real>& rb, DistMultiVec<Real>& y );
+
+template<typename Real>
+void ExpandAugmentedSolution
 ( const Matrix<Real>& s, const Matrix<Real>& x,
-  Real tau, Matrix<Real>& J, Matrix<Real>& y,
+  const Matrix<Real>& rmu, const Matrix<Real>& y,
   Matrix<Real>& ds, Matrix<Real>& dx, Matrix<Real>& dl );
 template<typename Real>
-void SolveAugmentedSystem
+void ExpandAugmentedSolution
 ( const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& x,
-  Real tau, AbstractDistMatrix<Real>& J, AbstractDistMatrix<Real>& y,
-  AbstractDistMatrix<Real>& ds, AbstractDistMatrix<Real>& dx,
+  const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& y,
+  AbstractDistMatrix<Real>& ds, AbstractDistMatrix<Real>& dx, 
   AbstractDistMatrix<Real>& dl );
 
 // Normal system

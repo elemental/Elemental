@@ -26,8 +26,8 @@ void IPF
 
     const Int m = A.Height();
     const Int n = A.Width();
-    Matrix<Real> J, y, rb, rc, ds, dx, dl;
-#ifndef RELEASE
+    Matrix<Real> J, y, rmu, rb, rc, ds, dx, dl;
+#ifndef EL_RELEASE
     Matrix<Real> dsError, dxError, dlError;
 #endif
     for( Int numIts=0; numIts<maxIts; ++numIts )
@@ -67,14 +67,17 @@ void IPF
                       << "  || r_c ||_2 / (1 + || c ||_2)   = "
                       << rcConv << std::endl;
 
-        // Compute the duality measure
-        // ===========================
+        // Compute the duality measure and r_mu = X S e - tau e
+        // ====================================================
         const Real mu = Dot(x,s) / n;
+        rmu.Resize( n, 1 );
+        for( Int i=0; i<n; ++i )
+            rmu.Set( i, 0, x.Get(i,0)*s.Get(i,0) - sigma*mu );
 
         if( system == LIN_PROG_FULL )
         {
-            // Construct the reduced KKT system, J dl = y
-            // ==========================================
+            // Construct the full KKT system
+            // =============================
             FormSystem( A, b, c, s, x, l, sigma*mu, J, y );
 
             // Compute the proposed step from the KKT system
@@ -83,28 +86,24 @@ void IPF
         }
         else if( system == LIN_PROG_AUGMENTED )
         {
-            // Construct the reduced KKT system, J dl = y
-            // ==========================================
-            FormAugmentedSystem( A, b, c, s, x, l, sigma*mu, J, y );
+            // Construct the reduced KKT system
+            // ================================
+            AugmentedKKT( A, s, x, J );
+            AugmentedKKTRHS( x, rmu, rc, rb, y );
 
             // Compute the proposed step from the KKT system
             // =============================================
-            SolveAugmentedSystem( s, x, sigma*mu, J, y, ds, dx, dl );
+            SymmetricSolve( LOWER, NORMAL, J, y );
+            ExpandAugmentedSolution( s, x, rmu, y, ds, dx, dl );
         }
         else
             LogicError("Unsupported system option");
 
-#ifndef RELEASE
+#ifndef EL_RELEASE
         // Sanity checks
         // =============
-        dsError.Resize( n, 1 );
-        for( Int i=0; i<n; ++i )
-        {
-            const Real xi = x.Get(i,0);
-            const Real si = s.Get(i,0);
-            dsError.Set( i, 0, xi*si - sigma*mu );
-        }
-        const Real rmuNrm2 = Nrm2( dsError );
+        const Real rmuNrm2 = Nrm2( rmu );
+        dsError = rmu;
         for( Int i=0; i<n; ++i )
         {
             const Real xi = x.Get(i,0);
@@ -167,9 +166,9 @@ void IPF
     const Grid& grid = A.Grid();
     const Int commRank = A.Grid().Rank();
 
-    DistMatrix<Real> J(grid), y(grid), rb(grid), rc(grid), 
+    DistMatrix<Real> J(grid), y(grid), rmu(grid), rb(grid), rc(grid), 
                      ds(grid), dx(grid), dl(grid);
-#ifndef RELEASE
+#ifndef EL_RELEASE
     DistMatrix<Real> dsError(grid), dxError(grid), dlError(grid);
 #endif
     for( Int numIts=0; numIts<maxIts; ++numIts )
@@ -209,14 +208,18 @@ void IPF
                       << "  || r_c ||_2 / (1 + || c ||_2)   = "
                       << rcConv << std::endl;
 
-        // Compute the duality measure
-        // ===========================
+        // Compute the duality measure and r_mu = X S e - tau e
+        // ====================================================
         const Real mu = Dot(x,s) / n;
+        rmu.Resize( n, 1 );
+        for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
+            rmu.SetLocal
+            ( iLoc, 0, x.GetLocal(iLoc,0)*s.GetLocal(iLoc,0) - sigma*mu );
 
         if( system == LIN_PROG_FULL )
         {
-            // Construct the reduced KKT system, J dl = y
-            // ==========================================
+            // Construct the full KKT system
+            // =============================
             FormSystem( A, b, c, s, x, l, sigma*mu, J, y );
 
             // Compute the proposed step from the KKT system
@@ -225,28 +228,24 @@ void IPF
         }
         else if( system == LIN_PROG_AUGMENTED )
         {
-            // Construct the reduced KKT system, J dl = y
-            // ==========================================
-            FormAugmentedSystem( A, b, c, s, x, l, sigma*mu, J, y );
+            // Construct the reduced KKT system
+            // ================================
+            AugmentedKKT( A, s, x, J );
+            AugmentedKKTRHS( x, rmu, rc, rb, y );
 
             // Compute the proposed step from the KKT system
             // =============================================
-            SolveAugmentedSystem( s, x, sigma*mu, J, y, ds, dx, dl );
+            SymmetricSolve( LOWER, NORMAL, J, y );
+            ExpandAugmentedSolution( s, x, rmu, y, ds, dx, dl );
         }
         else
             LogicError("Unsupported system option");
 
-#ifndef RELEASE
+#ifndef EL_RELEASE
         // Sanity checks
         // =============
-        dsError.Resize( n, 1 );
-        for( Int i=0; i<n; ++i )
-        {
-            const Real xi = x.Get(i,0);
-            const Real si = s.Get(i,0);
-            dsError.Set( i, 0, xi*si - sigma*mu );
-        }
-        const Real rmuNrm2 = Nrm2( dsError );
+        const Real rmuNrm2 = Nrm2( rmu );
+        dsError = rmu;
         for( Int i=0; i<n; ++i )
         {
             const Real xi = x.Get(i,0);
@@ -307,7 +306,7 @@ void IPF
     const Int n = A.Width();
     SparseMatrix<Real> J;
     Matrix<Real> rmu, rc, rb, ds, dx, dl;
-#ifndef RELEASE
+#ifndef EL_RELEASE
     Matrix<Real> dsError, dxError, dlError;
 #endif
     for( Int numIts=0; numIts<maxIts; ++numIts )
@@ -365,7 +364,7 @@ void IPF
         LogicError("Sequential SymmetricSolve not yet supported");
         ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
 
-#ifndef RELEASE
+#ifndef EL_RELEASE
         // Sanity checks
         // =============
         const Real rmuNrm2 = Nrm2( rmu );
@@ -440,7 +439,7 @@ void IPF
 
     DistMultiVec<Real> rmu(comm), rb(comm), rc(comm), 
                        ds(comm), dx(comm), dl(comm);
-#ifndef RELEASE
+#ifndef EL_RELEASE
     DistMultiVec<Real> dsError(comm), dxError(comm), dlError(comm);
 #endif
     for( Int numIts=0; numIts<maxIts; ++numIts )
@@ -510,7 +509,7 @@ void IPF
         dlNodal.Push( invMap, info, dl );
         ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
 
-#ifndef RELEASE
+#ifndef EL_RELEASE
         // Sanity checks
         // =============
         const Real rmuNrm2 = Nrm2( rmu );

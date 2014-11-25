@@ -30,6 +30,8 @@ namespace lin_prog {
 //  dx = -(r_mu - X ds) / S
 //
 
+// TODO: Dense versions
+
 template<typename Real>
 void NormalKKT
 ( const SparseMatrix<Real>& A,
