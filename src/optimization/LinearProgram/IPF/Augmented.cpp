@@ -12,19 +12,19 @@ namespace El {
 namespace lin_prog {
 
 // Form 
-//    J = | -S*inv(X) A^T | and y = | -r_c + s - tau inv(X) e |,
-//        |  A        0   |         | -r_b                    |
+//    J = | -S*inv(X) A^T | and y = | -r_c + r_mu / X |,
+//        |  A        0   |         | -r_b            |
 // where 
 //    S   = diag(s),
 //    X   = diag(x),
 //    e   = ones(n,1),
-//    r_b = A x - b, and
-//    r_c = A^T l + s - c.
+//    r_b = A x - b,
+//    r_c = A^T l + s - c, and
+//    r_mu = X S e - tau e.
 //
 // The implied system is of the form
-//   J | dx | = y,
+//   J | dx | = y,     ds = -(r_mu - S dx) / X.
 //     | dl |
-// and ds = tau inv(X) e - inv(X) S dx - s.
 //
 
 template<typename Real>

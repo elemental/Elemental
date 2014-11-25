@@ -12,34 +12,35 @@ namespace El {
 namespace lin_prog {
 
 // Form 
-//    J = | A X*inv(S) A^T |, and 
-//    y = [ b - A inv(S) ( X r_c + tau e ) ]
+//    J = | A X inv(S) A^T |, and 
+//    y = [ -r_b + A inv(S) (r_mu - X r_c) ]
 // where 
 //    X   = diag(x),
 //    S   = diag(s),
 //    e   = ones(n,1),
-//    r_b = A x - b, and
-//    r_c = A^T l + s - c.
+//    r_b = A x - b, 
+//    r_c = A^T l + s - c, and
+//    r_mu = X S e - tau e.
 //
 // The implied system is of the form
 //
-//   J | \Delta l | = y,
+//   J | dl | = y,
 // 
-//  \Delta s = -r_c - A^T \Delta l, and
-//  \Delta x = -x + inv(S)(tau e - X \Delta s).
+//  ds = -r_c - A^T dl, and
+//  dx = -(r_mu - X ds) / S
 //
 
 template<typename Real>
-void FormNormalSystem
-( const SparseMatrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
-  const Matrix<Real>& s, const Matrix<Real>& x, const Matrix<Real>& l,
-  Real tau, SparseMatrix<Real>& J, Matrix<Real>& y )
+void NormalKKT
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& s, const Matrix<Real>& x,
+  SparseMatrix<Real>& J )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::FormNormalSystem"))
-    const Int n = A.Width();
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::NormalKKT"))
 
     // Form X^{1/2} / S^{1/2}
     // ======================
+    const Int n = A.Width();
     Matrix<Real> d;
     d.Resize( n, 1 );
     for( Int i=0; i<n; ++i )
@@ -52,51 +53,42 @@ void FormNormalSystem
     DiagonalScale( LEFT, NORMAL, d, G );
     Syrk( LOWER, TRANSPOSE, Real(1), G, J );
     MakeSymmetric( LOWER, J );
-
-    // Form the right-hand side, y
-    // ===========================
-    // Form the 'c' residual, A^T l + s - c
-    // ------------------------------------
-    Matrix<Real> cResid;
-    cResid = s;
-    Axpy( Real(-1), c, cResid );
-    Multiply( TRANSPOSE, Real(1), A, l, Real(1), cResid );
-    // Form the portion of the right-hand side to be multiplied by A
-    // -------------------------------------------------------------
-    Matrix<Real> g;
-    g = cResid;
-    for( Int i=0; i<n; ++i )
-    {
-        const Real gamma = g.Get(i,0); 
-        const Real si = s.Get(i,0);
-        const Real xi = x.Get(i,0);
-        g.Set( i, 0, (gamma*xi + tau)/si );
-    }
-    // Form the right-hand side, y
-    // ---------------------------
-    y = b;
-    Multiply( NORMAL, Real(-1), A, g, Real(1), y );
 }
 
 template<typename Real>
-void FormNormalSystem
-( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
-  const DistMultiVec<Real>& s, const DistMultiVec<Real>& x, 
-  const DistMultiVec<Real>& l,
-  Real tau, DistSparseMatrix<Real>& J, DistMultiVec<Real>& y )
+void NormalKKTRHS
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& s, const Matrix<Real>& x, 
+  const Matrix<Real>& rmu, const Matrix<Real>& rc, const Matrix<Real>& rb,
+        Matrix<Real>& y )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::FormNormalSystem"))
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::NormalKKTRHS"))
+
+    // Form the portion of the right-hand side to be multiplied by A
+    // =============================================================
+    const Int n = A.Width();
+    Matrix<Real> g;
+    g.Resize( n, 1 );
+    for( Int i=0; i<n; ++i )
+        g.Set( i, 0, (rmu.Get(i,0)-x.Get(i,0)*rc.Get(i,0))/s.Get(i,0) );
+
+    // Form the right-hand side, y
+    // ===========================
+    y = rb;
+    Multiply( NORMAL, Real(1), A, g, Real(-1), y );
+}
+
+template<typename Real>
+void NormalKKT
+( const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& s, const DistMultiVec<Real>& x, 
+  DistSparseMatrix<Real>& J )
+{
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::NormalKKT"))
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
-    if( !mpi::Congruent( comm, b.Comm() ) )
-        LogicError("Communicators of A and b must match");
-    if( !mpi::Congruent( comm, c.Comm() ) )
-        LogicError("Communicators of A and c must match");
     if( !mpi::Congruent( comm, x.Comm() ) )
         LogicError("Communicators of A and x must match");
-    if( !mpi::Congruent( comm, l.Comm() ) )
-        LogicError("Communicators of A and l must match");
     if( !mpi::Congruent( comm, s.Comm() ) )
         LogicError("Communicators of A and s must match");
 
@@ -115,147 +107,136 @@ void FormNormalSystem
     DiagonalScale( LEFT, NORMAL, d, G );
     Syrk( LOWER, TRANSPOSE, Real(1), G, J );
     MakeSymmetric( LOWER, J );
+}
+
+template<typename Real>
+void NormalKKTRHS
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& s, const DistMultiVec<Real>& x, 
+  const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rc, 
+  const DistMultiVec<Real>& rb,
+        DistMultiVec<Real>& y )
+{
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::NormalKKTRHS"))
+    const Int n = A.Width();
+    mpi::Comm comm = A.Comm();
+    if( !mpi::Congruent( comm, rmu.Comm() ) )
+        LogicError("Communicators of A and r_mu must match");
+    if( !mpi::Congruent( comm, rc.Comm() ) )
+        LogicError("Communicators of A and r_c must match");
+    if( !mpi::Congruent( comm, rb.Comm() ) )
+        LogicError("Communicators of A and r_b must match");
+    if( !mpi::Congruent( comm, s.Comm() ) )
+        LogicError("Communicators of A and s must match");
+    if( !mpi::Congruent( comm, x.Comm() ) )
+        LogicError("Communicators of A and x must match");
+
+    // Form the portion of the right-hand side to be multiplied by A
+    // =============================================================
+    DistMultiVec<Real> g(comm);
+    g.Resize( n, 1 );
+    for( Int iLoc=0; iLoc<g.LocalHeight(); ++iLoc )
+    {
+        const Real rmu_i = rmu.GetLocal(iLoc,0);
+        const Real rc_i = rc.GetLocal(iLoc,0);
+        const Real x_i = x.GetLocal(iLoc,0);
+        const Real s_i = s.GetLocal(iLoc,0);
+        g.SetLocal( iLoc, 0, (rmu_i-x_i*rc_i)/s_i );
+    }
 
     // Form the right-hand side, y
     // ===========================
-    // Form the 'c' residual, A^T l + s - c
-    // ------------------------------------
-    DistMultiVec<Real> cResid(comm);
-    cResid = s;
-    Axpy( Real(-1), c, cResid );
-    Multiply( TRANSPOSE, Real(1), A, l, Real(1), cResid );
-    // Form the portion of the right-hand side to be multiplied by A
-    // -------------------------------------------------------------
-    DistMultiVec<Real> g(comm);
-    g = cResid;
-    for( Int iLoc=0; iLoc<g.LocalHeight(); ++iLoc )
-    {
-        const Real gamma = g.GetLocal(iLoc,0); 
-        const Real si = s.GetLocal(iLoc,0);
-        const Real xi = x.GetLocal(iLoc,0);
-        g.SetLocal( iLoc, 0, (gamma*xi + tau)/si );
-    }
-    // Form the right-hand side, y
-    // ---------------------------
-    y = b;
-    Multiply( NORMAL, Real(-1), A, g, Real(1), y );
+    y = rb;
+    Multiply( NORMAL, Real(1), A, g, Real(-1), y );
 }
 
 template<typename Real>
-void SolveNormalSystem
-( const SparseMatrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
-  const Matrix<Real>& s, const Matrix<Real>& x, const Matrix<Real>& l,
-  Real tau, const SparseMatrix<Real>& J, const Matrix<Real>& y,
-  Matrix<Real>& ds, Matrix<Real>& dx, Matrix<Real>& dl )
+void ExpandNormalSolution
+( const SparseMatrix<Real>& A, const Matrix<Real>& c,
+  const Matrix<Real>& s,       const Matrix<Real>& x,
+  const Matrix<Real>& rmu,     const Matrix<Real>& rc,
+  const Matrix<Real>& dl, Matrix<Real>& ds, Matrix<Real>& dx )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::SolveNormalSystem"))
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::ExpandNormalSolution"))
+
+    // ds := -r_c - A^T dl
+    // ===================
+    ds = rc;
+    Multiply( TRANSPOSE, Real(-1), A, dl, Real(-1), ds );
+
+    // dx := -(r_mu + X ds) / S
+    // ========================
     const Int n = A.Width();
-
-    // NOTE: SymmetricSolve not yet supported for sequential matrices
-    /*
-    // Compute the proposed change in the Lagrange multiplier
-    // ======================================================
-    dl = y;
-    SymmetricSolve( J, dl );
-
-    // Compute the proposed change in the dual variable
-    // ================================================
-    // ds := c - s
-    // -----------
-    ds = c; 
-    Axpy( Real(-1), s, ds );
-    // g := l + dl
-    // -----------
-    Matrix<Real> g;
-    g = l;
-    Axpy( Real(1), dl, g );
-    // ds := ds - A^T g = c - s - A^T (l + dl)
-    // ---------------------------------------
-    Multiply( TRANSPOSE, Real(-1), A, g, Real(1), ds );
-
-    // Compute the proposed change in the primal variable
-    // ==================================================
     Zeros( dx, n, 1 );
     for( Int i=0; i<n; ++i )
     {
-        const Real xi = x.Get(i,0);
-        const Real si = s.Get(i,0);
-        const Real dsi = ds.Get(i,0);
-        dx.Set( i, 0, -xi + (tau - dsi*xi)/si );
+        const Real s_i = s.Get(i,0);
+        const Real x_i = x.Get(i,0);
+        const Real rmu_i = rmu.Get(i,0);
+        const Real ds_i = ds.Get(i,0);
+        dx.Set( i, 0, -(rmu_i+x_i*ds_i)/s_i );
     }
-    */
 }
 
 template<typename Real>
-void SolveNormalSystem
-( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
-  const DistMultiVec<Real>& s, const DistMultiVec<Real>& x, 
-  const DistMultiVec<Real>& l,
-  Real tau, const DistSparseMatrix<Real>& J, const DistMultiVec<Real>& y,
-  DistMultiVec<Real>& ds, DistMultiVec<Real>& dx, DistMultiVec<Real>& dl )
+void ExpandNormalSolution
+( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& c,
+  const DistMultiVec<Real>& s,     const DistMultiVec<Real>& x,
+  const DistMultiVec<Real>& rmu,   const DistMultiVec<Real>& rc,
+  const DistMultiVec<Real>& dl,
+  DistMultiVec<Real>& ds, DistMultiVec<Real>& dx )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::SolveNormalSystem"))
-    // TODO: Check that the communicators are congruent
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::ExpandNormalSolution"))
 
-    // Compute the proposed change in the Lagrange multiplier
-    // ======================================================
-    dl = y;
-    SymmetricSolve( J, dl );
+    // ds := -r_c - A^T dl
+    // ===================
+    ds = rc;
+    Multiply( TRANSPOSE, Real(-1), A, dl, Real(-1), ds );
 
-    // Compute the proposed change in the dual variable
-    // ================================================
-    // ds := c - s
-    // -----------
-    ds = c; 
-    Axpy( Real(-1), s, ds );
-    // g := l + dl
-    // -----------
-    DistMultiVec<Real> g(A.Comm());
-    g = l;
-    Axpy( Real(1), dl, g );
-    // ds := ds - A^T g = c - s - A^T (l + dl)
-    // ---------------------------------------
-    Multiply( TRANSPOSE, Real(-1), A, g, Real(1), ds );
-
-    // Compute the proposed change in the primal variable
-    // ==================================================
+    // dx := -(r_mu + X ds) / S
+    // ========================
     const Int n = A.Width();
     Zeros( dx, n, 1 );
-    const Int nLoc = dx.LocalHeight();
-    for( Int iLoc=0; iLoc<nLoc; ++iLoc )
+    for( Int iLoc=0; iLoc<dx.LocalHeight(); ++iLoc )
     {
-        const Real xi = x.GetLocal(iLoc,0);
-        const Real si = s.GetLocal(iLoc,0);
-        const Real dsi = ds.GetLocal(iLoc,0);
-        dx.SetLocal( iLoc, 0, -xi + (tau - dsi*xi)/si );
+        const Real s_i = s.GetLocal(iLoc,0);
+        const Real x_i = x.GetLocal(iLoc,0);
+        const Real rmu_i = rmu.GetLocal(iLoc,0);
+        const Real ds_i = ds.GetLocal(iLoc,0);
+        dx.SetLocal( iLoc, 0, -(rmu_i+x_i*ds_i)/s_i );
     }
 }
 
 #define PROTO(Real) \
-  template void FormNormalSystem \
+  template void NormalKKT \
   ( const SparseMatrix<Real>& A, \
-    const Matrix<Real>& b, const Matrix<Real>& c, \
-    const Matrix<Real>& s, const Matrix<Real>& x, const Matrix<Real>& l, \
-    Real tau, SparseMatrix<Real>& J, Matrix<Real>& y ); \
-  template void FormNormalSystem \
+    const Matrix<Real>& s, const Matrix<Real>& x, \
+    SparseMatrix<Real>& J ); \
+  template void NormalKKT \
   ( const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& s, const DistMultiVec<Real>& x, \
-    const DistMultiVec<Real>& l, \
-    Real tau, DistSparseMatrix<Real>& J, DistMultiVec<Real>& y ); \
-  template void SolveNormalSystem \
-  ( const SparseMatrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, \
-    const Matrix<Real>& s, const Matrix<Real>& x, const Matrix<Real>& l, \
-    Real tau, const SparseMatrix<Real>& J, const Matrix<Real>& y, \
-    Matrix<Real>& dx, Matrix<Real>& dl, Matrix<Real>& ds ); \
-  template void SolveNormalSystem \
+    DistSparseMatrix<Real>& J ); \
+  template void NormalKKTRHS \
+  ( const SparseMatrix<Real>& A, \
+    const Matrix<Real>& s, const Matrix<Real>& x, \
+    const Matrix<Real>& rmu, const Matrix<Real>& rc, const Matrix<Real>& rb, \
+          Matrix<Real>& y ); \
+  template void NormalKKTRHS \
   ( const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& s, const DistMultiVec<Real>& x, \
-    const DistMultiVec<Real>& l, \
-    Real tau, const DistSparseMatrix<Real>& J, const DistMultiVec<Real>& y, \
-    DistMultiVec<Real>& ds, DistMultiVec<Real>& dx, DistMultiVec<Real>& dl );
+    const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rc, \
+    const DistMultiVec<Real>& rb, DistMultiVec<Real>& y ); \
+  template void ExpandNormalSolution \
+  ( const SparseMatrix<Real>& A, const Matrix<Real>& c, \
+    const Matrix<Real>& s,       const Matrix<Real>& x, \
+    const Matrix<Real>& rmu,     const Matrix<Real>& rc, \
+    const Matrix<Real>& dl, Matrix<Real>& ds, Matrix<Real>& dx ); \
+  template void ExpandNormalSolution \
+  ( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& c, \
+    const DistMultiVec<Real>& s,     const DistMultiVec<Real>& x, \
+    const DistMultiVec<Real>& rmu,  const DistMultiVec<Real>& rc, \
+    const DistMultiVec<Real>& dl, \
+    DistMultiVec<Real>& ds, DistMultiVec<Real>& dx );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

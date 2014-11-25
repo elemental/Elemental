@@ -78,139 +78,14 @@ void LinearProgram
 
 namespace lin_prog {
 
-// Full system
-// -----------
-template<typename Real>
-void FormSystem
-( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
-  const Matrix<Real>& s, const Matrix<Real>& x, const Matrix<Real>& l,
-  Real tau, Matrix<Real>& J, Matrix<Real>& y );
-template<typename Real>
-void FormSystem
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& x, 
-  const AbstractDistMatrix<Real>& l,
-  Real tau, AbstractDistMatrix<Real>& J, AbstractDistMatrix<Real>& y );
-
-template<typename Real>
-void SolveSystem
-( Int m, Int n, Matrix<Real>& J, Matrix<Real>& y,
-  Matrix<Real>& ds, Matrix<Real>& dx, Matrix<Real>& dl );
-template<typename Real>
-void SolveSystem
-( Int m, Int n, AbstractDistMatrix<Real>& J, AbstractDistMatrix<Real>& y,
-  AbstractDistMatrix<Real>& ds, AbstractDistMatrix<Real>& dx, 
-  AbstractDistMatrix<Real>& dl );
-
-// Augmented system
-// ----------------
-template<typename Real>
-void FormAugmentedSystem
-( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
-  const Matrix<Real>& s, const Matrix<Real>& x, const Matrix<Real>& l,
-  Real tau, Matrix<Real>& J, Matrix<Real>& y );
-template<typename Real>
-void FormAugmentedSystem
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& x, 
-  const AbstractDistMatrix<Real>& l,
-  Real tau, AbstractDistMatrix<Real>& J, AbstractDistMatrix<Real>& y );
-template<typename Real>
-void FormAugmentedSystem
-( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& b, const Matrix<Real>& c,
-  const Matrix<Real>& s, const Matrix<Real>& x, const Matrix<Real>& l,
-  Real tau, SparseMatrix<Real>& J, Matrix<Real>& y );
-template<typename Real>
-void FormAugmentedSystem
-( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
-  const DistMultiVec<Real>& s, const DistMultiVec<Real>& x, 
-  const DistMultiVec<Real>& l,
-  Real tau, DistSparseMatrix<Real>& J, DistMultiVec<Real>& y );
-
-template<typename Real>
-void SolveAugmentedSystem
-( const Matrix<Real>& s, const Matrix<Real>& x,
-  Real tau, Matrix<Real>& J, Matrix<Real>& y,
-  Matrix<Real>& ds, Matrix<Real>& dx, Matrix<Real>& dl );
-template<typename Real>
-void SolveAugmentedSystem
-( const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& x,
-  Real tau, AbstractDistMatrix<Real>& J, AbstractDistMatrix<Real>& y,
-  AbstractDistMatrix<Real>& ds, AbstractDistMatrix<Real>& dx, 
-  AbstractDistMatrix<Real>& dl );
-
-// Normal system
-// -------------
-template<typename Real>
-void FormNormalSystem
-( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& b, const Matrix<Real>& c,
-  const Matrix<Real>& s, const Matrix<Real>& x, const Matrix<Real>& l,
-  Real tau, SparseMatrix<Real>& J, Matrix<Real>& y );
-template<typename Real>
-void FormNormalSystem
-( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
-  const DistMultiVec<Real>& s, const DistMultiVec<Real>& x, 
-  const DistMultiVec<Real>& l,
-  Real tau, DistSparseMatrix<Real>& J, DistMultiVec<Real>& y );
-
-template<typename Real>
-void SolveNormalSystem
-( const SparseMatrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
-  const Matrix<Real>& s, const Matrix<Real>& x, const Matrix<Real>& l,
-  Real tau, const SparseMatrix<Real>& J, const Matrix<Real>& y,
-  Matrix<Real>& ds, Matrix<Real>& dx, Matrix<Real>& dl );
-template<typename Real>
-void SolveNormalSystem
-( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
-  const DistMultiVec<Real>& s, const DistMultiVec<Real>& x,
-  const DistMultiVec<Real>& l,
-  Real tau, const DistSparseMatrix<Real>& J, const DistMultiVec<Real>& y,
-  DistMultiVec<Real>& ds, DistMultiVec<Real>& dx, DistMultiVec<Real>& dl );
-
-// Line search
-// -----------
-template<typename Real>
-Real IPFLineSearch
-( const Matrix<Real>& A,
-  const Matrix<Real>& b,  const Matrix<Real>& c,
-  const Matrix<Real>& s,  const Matrix<Real>& x,  const Matrix<Real>& l,
-  const Matrix<Real>& ds, const Matrix<Real>& dx, const Matrix<Real>& dl,
-  Real gamma, Real beta, Real psi=100, bool print=false );
-template<typename Real>
-Real IPFLineSearch
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& s,  const AbstractDistMatrix<Real>& x,  
-  const AbstractDistMatrix<Real>& l,
-  const AbstractDistMatrix<Real>& ds, const AbstractDistMatrix<Real>& dx, 
-  const AbstractDistMatrix<Real>& dl,
-  Real gamma, Real beta, Real psi=100, bool print=false );
-template<typename Real>
-Real IPFLineSearch
-( const SparseMatrix<Real>& A,
-  const Matrix<Real>& b,  const Matrix<Real>& c,
-  const Matrix<Real>& s,  const Matrix<Real>& x,  const Matrix<Real>& l,
-  const Matrix<Real>& ds, const Matrix<Real>& dx, const Matrix<Real>& dl,
-  Real gamma, Real beta, Real psi=100, bool print=false );
-template<typename Real>
-Real IPFLineSearch
-( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& b,
-  const DistMultiVec<Real>& c,
-  const DistMultiVec<Real>& s,
-  const DistMultiVec<Real>& x,
-  const DistMultiVec<Real>& l,
-  const DistMultiVec<Real>& ds,
-  const DistMultiVec<Real>& dx,
-  const DistMultiVec<Real>& dl,
-  Real gamma, Real beta, Real psi=100, bool print=false );
+namespace SystemNS {
+enum System {
+  LIN_PROG_FULL,
+  LIN_PROG_AUGMENTED,
+  LIN_PROG_NORMAL
+};
+}
+using namespace SystemNS;
 
 // IPF
 // ---
@@ -221,7 +96,7 @@ void IPF
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
   Real tol=1e-8, Int maxIts=1000,
   Real sigma=0.9, Real gamma=1e-3, Real beta=2, Real psi=100, 
-  bool print=false );
+  bool print=false, System system=LIN_PROG_AUGMENTED );
 template<typename Real>
 void IPF
 ( const AbstractDistMatrix<Real>& A,
@@ -230,7 +105,7 @@ void IPF
   AbstractDistMatrix<Real>& l,
   Real tol=1e-8, Int maxIts=1000,
   Real sigma=0.9, Real gamma=1e-3, Real beta=2, Real psi=100, 
-  bool print=false );
+  bool print=false, System system=LIN_PROG_AUGMENTED );
 template<typename Real>
 void IPF
 ( const SparseMatrix<Real>& A,

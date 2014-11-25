@@ -2,7 +2,8 @@
 <img src="http://libelemental.org/_static/elemental.png">
 </p>
 
-**Elemental** is a modern C++ library for distributed-memory dense and sparse-direct linear algebra.
+**Elemental** is a modern C++ library for distributed-memory dense and 
+sparse-direct linear algebra and optimization.
 The library was initially released in
 [Elemental: A new framework for distributed memory dense linear algebra](https://dl.acm.org/citation.cfm?doid=2427023.2427030) 
 and has recently absorbed the functionality from the sparse-direct solver

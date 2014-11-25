@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "../LinearProgram.hpp"
 
 namespace El {
 namespace lin_prog {
@@ -17,12 +18,18 @@ void IPF
   const Matrix<Real>& b,  const Matrix<Real>& c,
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
   Real tol, Int maxIts,
-  Real sigma, Real gamma, Real beta, Real psi, bool print )
+  Real sigma, Real gamma, Real beta, Real psi, bool print, System system )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
+
+    // TODO: Check that x and s are strictly positive
+
     const Int m = A.Height();
     const Int n = A.Width();
-    Matrix<Real> J, y, rb, rc, dx, dl, ds;
+    Matrix<Real> J, y, rb, rc, ds, dx, dl;
+#ifndef RELEASE
+    Matrix<Real> dsError, dxError, dlError;
+#endif
     for( Int numIts=0; numIts<maxIts; ++numIts )
     {
         // Check for convergence
@@ -60,54 +67,70 @@ void IPF
                       << "  || r_c ||_2 / (1 + || c ||_2)   = "
                       << rcConv << std::endl;
 
-        // Construct the reduced KKT system, J dl = y
-        // ==========================================
+        // Compute the duality measure
+        // ===========================
         const Real mu = Dot(x,s) / n;
-        FormSystem( A, b, c, s, x, l, sigma*mu, J, y );
 
-        // Compute the proposed step from the KKT system
-        // =============================================
-        SolveSystem( m, n, J, y, ds, dx, dl );
+        if( system == LIN_PROG_FULL )
+        {
+            // Construct the reduced KKT system, J dl = y
+            // ==========================================
+            FormSystem( A, b, c, s, x, l, sigma*mu, J, y );
+
+            // Compute the proposed step from the KKT system
+            // =============================================
+            SolveSystem( m, n, J, y, ds, dx, dl );
+        }
+        else if( system == LIN_PROG_AUGMENTED )
+        {
+            // Construct the reduced KKT system, J dl = y
+            // ==========================================
+            FormAugmentedSystem( A, b, c, s, x, l, sigma*mu, J, y );
+
+            // Compute the proposed step from the KKT system
+            // =============================================
+            SolveAugmentedSystem( s, x, sigma*mu, J, y, ds, dx, dl );
+        }
+        else
+            LogicError("Unsupported system option");
 
 #ifndef RELEASE
-          // Sanity checks
-          // =============
-          Matrix<Real> dsError, dxError, dlError;
+        // Sanity checks
+        // =============
+        dsError.Resize( n, 1 );
+        for( Int i=0; i<n; ++i )
+        {
+            const Real xi = x.Get(i,0);
+            const Real si = s.Get(i,0);
+            dsError.Set( i, 0, xi*si - sigma*mu );
+        }
+        const Real rmuNrm2 = Nrm2( dsError );
+        for( Int i=0; i<n; ++i )
+        {
+            const Real xi = x.Get(i,0);
+            const Real si = s.Get(i,0);
+            const Real dxi = dx.Get(i,0);
+            const Real dsi = ds.Get(i,0);
+            dsError.Update( i, 0, xi*dsi + si*dxi );
+        }
+        const Real dsErrorNrm2 = Nrm2( dsError );
 
-          dsError.Resize( n, 1 );
-          for( Int i=0; i<n; ++i )
-          {
-              const Real xi = x.Get(i,0);
-              const Real si = s.Get(i,0);
-              dsError.Set( i, 0, xi*si - sigma*mu );
-          }
-          const Real rmuNrm2 = Nrm2( dsError );
-          for( Int i=0; i<n; ++i )
-          {
-              const Real xi = x.Get(i,0);
-              const Real si = s.Get(i,0);
-              const Real dxi = dx.Get(i,0);
-              const Real dsi = ds.Get(i,0);
-              dsError.Update( i, 0, xi*dsi + si*dxi );
-          }
-          const Real dsErrorNrm2 = Nrm2( dsError );
+        dlError = ds;
+        Gemv( TRANSPOSE, Real(1), A, dl, Real(1), dlError );
+        Axpy( Real(1), rc, dlError );
+        const Real dlErrorNrm2 = Nrm2( dlError );
 
-          dlError = ds;
-          Gemv( TRANSPOSE, Real(1), A, dl, Real(1), dlError );
-          Axpy( Real(1), rc, dlError );
-          const Real dlErrorNrm2 = Nrm2( dlError );
+        dxError = rb;
+        Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
+        const Real dxErrorNrm2 = Nrm2( dxError );
 
-          dxError = rb;
-          Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
-          const Real dxErrorNrm2 = Nrm2( dxError );
-  
-          if( print )
-              std::cout << "  || dsError ||_2 / || r_mu ||_2 = " 
-                        << dsErrorNrm2/rmuNrm2 << "\n"
-                        << "  || dxError ||_2 / || r_c ||_2 = " 
-                        << dxErrorNrm2/rcNrm2 << "\n"
-                        << "  || dlError ||_2 / || r_b ||_2 = " 
-                        << dlErrorNrm2/rbNrm2 << std::endl;
+        if( print )
+            std::cout << "  || dsError ||_2 / || r_mu ||_2 = " 
+                      << dsErrorNrm2/rmuNrm2 << "\n"
+                      << "  || dxError ||_2 / || r_c ||_2 = " 
+                      << dxErrorNrm2/rcNrm2 << "\n"
+                      << "  || dlError ||_2 / || r_b ||_2 = " 
+                      << dlErrorNrm2/rbNrm2 << std::endl;
 #endif
 
         // Decide on the step length
@@ -133,16 +156,22 @@ void IPF
   AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, 
   AbstractDistMatrix<Real>& l,
   Real tol, Int maxIts,
-  Real sigma, Real gamma, Real beta, Real psi, bool print )
+  Real sigma, Real gamma, Real beta, Real psi, bool print, System system )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
+
+    // TODO: Check that x and s are strictly positive
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& grid = A.Grid();
     const Int commRank = A.Grid().Rank();
 
     DistMatrix<Real> J(grid), y(grid), rb(grid), rc(grid), 
-                     dx(grid), dl(grid), ds(grid);
+                     ds(grid), dx(grid), dl(grid);
+#ifndef RELEASE
+    DistMatrix<Real> dsError(grid), dxError(grid), dlError(grid);
+#endif
     for( Int numIts=0; numIts<maxIts; ++numIts )
     {
         // Check for convergence
@@ -180,54 +209,70 @@ void IPF
                       << "  || r_c ||_2 / (1 + || c ||_2)   = "
                       << rcConv << std::endl;
 
-        // Construct the reduced KKT system, J dl = y
-        // ==========================================
+        // Compute the duality measure
+        // ===========================
         const Real mu = Dot(x,s) / n;
-        FormSystem( A, b, c, s, x, l, sigma*mu, J, y );
 
-        // Compute the proposed step from the KKT system
-        // =============================================
-        SolveSystem( m, n, J, y, ds, dx, dl );
+        if( system == LIN_PROG_FULL )
+        {
+            // Construct the reduced KKT system, J dl = y
+            // ==========================================
+            FormSystem( A, b, c, s, x, l, sigma*mu, J, y );
+
+            // Compute the proposed step from the KKT system
+            // =============================================
+            SolveSystem( m, n, J, y, ds, dx, dl );
+        }
+        else if( system == LIN_PROG_AUGMENTED )
+        {
+            // Construct the reduced KKT system, J dl = y
+            // ==========================================
+            FormAugmentedSystem( A, b, c, s, x, l, sigma*mu, J, y );
+
+            // Compute the proposed step from the KKT system
+            // =============================================
+            SolveAugmentedSystem( s, x, sigma*mu, J, y, ds, dx, dl );
+        }
+        else
+            LogicError("Unsupported system option");
 
 #ifndef RELEASE
-          // Sanity checks
-          // =============
-          DistMatrix<Real> dsError(grid), dxError(grid), dlError(grid);
+        // Sanity checks
+        // =============
+        dsError.Resize( n, 1 );
+        for( Int i=0; i<n; ++i )
+        {
+            const Real xi = x.Get(i,0);
+            const Real si = s.Get(i,0);
+            dsError.Set( i, 0, xi*si - sigma*mu );
+        }
+        const Real rmuNrm2 = Nrm2( dsError );
+        for( Int i=0; i<n; ++i )
+        {
+            const Real xi = x.Get(i,0);
+            const Real si = s.Get(i,0);
+            const Real dxi = dx.Get(i,0);
+            const Real dsi = ds.Get(i,0);
+            dsError.Update( i, 0, xi*dsi + si*dxi );
+        }
+        const Real dsErrorNrm2 = Nrm2( dsError );
 
-          dsError.Resize( n, 1 );
-          for( Int i=0; i<n; ++i )
-          {
-              const Real xi = x.Get(i,0);
-              const Real si = s.Get(i,0);
-              dsError.Set( i, 0, xi*si - sigma*mu );
-          }
-          const Real rmuNrm2 = Nrm2( dsError );
-          for( Int i=0; i<n; ++i )
-          {
-              const Real xi = x.Get(i,0);
-              const Real si = s.Get(i,0);
-              const Real dxi = dx.Get(i,0);
-              const Real dsi = ds.Get(i,0);
-              dsError.Update( i, 0, xi*dsi + si*dxi );
-          }
-          const Real dsErrorNrm2 = Nrm2( dsError );
+        dlError = ds;
+        Gemv( TRANSPOSE, Real(1), A, dl, Real(1), dlError );
+        Axpy( Real(1), rc, dlError );
+        const Real dlErrorNrm2 = Nrm2( dlError );
 
-          dlError = ds;
-          Gemv( TRANSPOSE, Real(1), A, dl, Real(1), dlError );
-          Axpy( Real(1), rc, dlError );
-          const Real dlErrorNrm2 = Nrm2( dlError );
+        dxError = rb;
+        Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
+        const Real dxErrorNrm2 = Nrm2( dxError );
 
-          dxError = rb;
-          Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
-          const Real dxErrorNrm2 = Nrm2( dxError );
-  
-          if( print && commRank == 0 )
-              std::cout << "  || dsError ||_2 / || r_mu ||_2 = " 
-                        << dsErrorNrm2/rmuNrm2 << "\n"
-                        << "  || dxError ||_2 / || r_c ||_2 = " 
-                        << dxErrorNrm2/rcNrm2 << "\n"
-                        << "  || dlError ||_2 / || r_b ||_2 = " 
-                        << dlErrorNrm2/rbNrm2 << std::endl;
+        if( print && commRank == 0 )
+            std::cout << "  || dsError ||_2 / || r_mu ||_2 = " 
+                      << dsErrorNrm2/rmuNrm2 << "\n"
+                      << "  || dxError ||_2 / || r_c ||_2 = " 
+                      << dxErrorNrm2/rcNrm2 << "\n"
+                      << "  || dlError ||_2 / || r_b ||_2 = " 
+                      << dlErrorNrm2/rbNrm2 << std::endl;
 #endif
 
         // Decide on the step length
@@ -246,6 +291,7 @@ void IPF
     }
 }
 
+// TODO: Cache the symbolic analysis
 template<typename Real>
 void IPF
 ( const SparseMatrix<Real>& A, 
@@ -255,9 +301,15 @@ void IPF
   Real sigma, Real gamma, Real beta, Real psi, bool print )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
+
+    // TODO: Check that x and s are strictly positive
+
     const Int n = A.Width();
     SparseMatrix<Real> J;
-    Matrix<Real> y, rb, rc, dx, dl, ds;
+    Matrix<Real> rmu, rc, rb, ds, dx, dl;
+#ifndef RELEASE
+    Matrix<Real> dsError, dxError, dlError;
+#endif
     for( Int numIts=0; numIts<maxIts; ++numIts )
     {
         // Check for convergence
@@ -295,54 +347,55 @@ void IPF
                       << "  || r_c ||_2 / (1 + || c ||_2)   = "
                       << rcConv << std::endl;
 
+        // Compute the duality measure and r_mu = X S e - tau e
+        // ====================================================
+        const Real mu = Dot(x,s) / n;
+        rmu.Resize( n, 1 );      
+        for( Int i=0; i<n; ++i )
+            rmu.Set( i, 0, x.Get(i,0)*s.Get(i,0) - sigma*mu );
+
         // Construct the reduced KKT system, J dl = y
         // ==========================================
-        const Real mu = Dot(x,s) / n;
-        FormNormalSystem( A, b, c, s, x, l, sigma*mu, J, y );
+        NormalKKT( A, s, x, J );
+        NormalKKTRHS( A, s, x, rmu, rc, rb, dl );
 
         // Compute the proposed step from the KKT system
         // =============================================
-        SolveNormalSystem( A, b, c, s, x, l, sigma*mu, J, y, ds, dx, dl );
+        //SymmetricSolve( J, dl );
+        LogicError("Sequential SymmetricSolve not yet supported");
+        ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
 
 #ifndef RELEASE
-          // Sanity checks
-          // =============
-          Matrix<Real> dsError, dxError, dlError;
+        // Sanity checks
+        // =============
+        const Real rmuNrm2 = Nrm2( rmu );
+        dsError = rmu;
+        for( Int i=0; i<n; ++i )
+        {
+            const Real xi = x.Get(i,0);
+            const Real si = s.Get(i,0);
+            const Real dxi = dx.Get(i,0);
+            const Real dsi = ds.Get(i,0);
+            dsError.Update( i, 0, xi*dsi + si*dxi );
+        }
+        const Real dsErrorNrm2 = Nrm2( dsError );
 
-          dsError.Resize( n, 1 );
-          for( Int i=0; i<n; ++i )
-          {
-              const Real xi = x.Get(i,0);
-              const Real si = s.Get(i,0);
-              dsError.Set( i, 0, xi*si - sigma*mu );
-          }
-          const Real rmuNrm2 = Nrm2( dsError );
-          for( Int i=0; i<n; ++i )
-          {
-              const Real xi = x.Get(i,0);
-              const Real si = s.Get(i,0);
-              const Real dxi = dx.Get(i,0);
-              const Real dsi = ds.Get(i,0);
-              dsError.Update( i, 0, xi*dsi + si*dxi );
-          }
-          const Real dsErrorNrm2 = Nrm2( dsError );
+        dlError = ds;
+        Multiply( TRANSPOSE, Real(1), A, dl, Real(1), dlError );
+        Axpy( Real(1), rc, dlError );
+        const Real dlErrorNrm2 = Nrm2( dlError );
 
-          dlError = ds;
-          Multiply( TRANSPOSE, Real(1), A, dl, Real(1), dlError );
-          Axpy( Real(1), rc, dlError );
-          const Real dlErrorNrm2 = Nrm2( dlError );
+        dxError = rb;
+        Multiply( NORMAL, Real(1), A, dx, Real(1), dxError );
+        const Real dxErrorNrm2 = Nrm2( dxError );
 
-          dxError = rb;
-          Multiply( NORMAL, Real(1), A, dx, Real(1), dxError );
-          const Real dxErrorNrm2 = Nrm2( dxError );
-  
-          if( print )
-              std::cout << "  || dsError ||_2 / || r_mu ||_2 = " 
-                        << dsErrorNrm2/rmuNrm2 << "\n"
-                        << "  || dxError ||_2 / || r_c ||_2 = " 
-                        << dxErrorNrm2/rcNrm2 << "\n"
-                        << "  || dlError ||_2 / || r_b ||_2 = " 
-                        << dlErrorNrm2/rbNrm2 << std::endl;
+        if( print )
+            std::cout << "  || dsError ||_2 / || r_mu ||_2 = " 
+                      << dsErrorNrm2/rmuNrm2 << "\n"
+                      << "  || dxError ||_2 / || r_c ||_2 = " 
+                      << dxErrorNrm2/rcNrm2 << "\n"
+                      << "  || dlError ||_2 / || r_b ||_2 = " 
+                      << dlErrorNrm2/rbNrm2 << std::endl;
 #endif
 
         // Decide on the step length
@@ -361,6 +414,7 @@ void IPF
     }
 }
 
+// TODO: Cache the symbolic analysis
 template<typename Real>
 void IPF
 ( const DistSparseMatrix<Real>& A, 
@@ -370,14 +424,19 @@ void IPF
   Real sigma, Real gamma, Real beta, Real psi, bool print )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
-    // TODO: Input checks
+
+    // TODO: Check that x and s are strictly positive
+
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
 
     DistSparseMatrix<Real> J(comm);
-    DistMultiVec<Real> y(comm), rb(comm), rc(comm), 
-                       dx(comm), dl(comm), ds(comm);
+    DistMultiVec<Real> rmu(comm), rb(comm), rc(comm), 
+                       ds(comm), dx(comm), dl(comm);
+#ifndef RELEASE
+    DistMultiVec<Real> dsError(comm), dxError(comm), dlError(comm);
+#endif
     for( Int numIts=0; numIts<maxIts; ++numIts )
     {
         // Check for convergence
@@ -415,54 +474,58 @@ void IPF
                       << "  || r_c ||_2 / (1 + || c ||_2)   = "
                       << rcConv << std::endl;
 
+        // Compute the duality measure and r_mu = X S e - tau e
+        // ====================================================
+        const Real mu = Dot(x,s) / n;
+        rmu.Resize( n, 1 );
+        for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
+        {
+            const Real xi = x.GetLocal(iLoc,0);
+            const Real si = s.GetLocal(iLoc,0);
+            rmu.SetLocal( iLoc, 0, xi*si - sigma*mu );
+        }
+
         // Construct the reduced KKT system, J dl = y
         // ==========================================
-        const Real mu = Dot(x,s) / n;
-        FormNormalSystem( A, b, c, s, x, l, sigma*mu, J, y );
-       
+        NormalKKT( A, s, x, J );
+        NormalKKTRHS( A, s, x, rmu, rc, rb, dl );
+
         // Compute the proposed step from the KKT system
         // =============================================
-        SolveNormalSystem( A, b, c, s, x, l, sigma*mu, J, y, ds, dx, dl );
+        SymmetricSolve( J, dl );
+        ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
 
 #ifndef RELEASE
-          // Sanity checks
-          // =============
-          DistMultiVec<Real> dsError(comm), dxError(comm), dlError(comm);
+        // Sanity checks
+        // =============
+        const Real rmuNrm2 = Nrm2( rmu );
+        dsError = rmu;
+        for( Int iLoc=0; iLoc<dsError.LocalHeight(); ++iLoc )
+        {
+            const Real xi = x.GetLocal(iLoc,0);
+            const Real si = s.GetLocal(iLoc,0);
+            const Real dxi = dx.GetLocal(iLoc,0);
+            const Real dsi = ds.GetLocal(iLoc,0);
+            dsError.UpdateLocal( iLoc, 0, xi*dsi + si*dxi );
+        }
+        const Real dsErrorNrm2 = Nrm2( dsError );
 
-          dsError.Resize( n, 1 );
-          for( Int iLoc=0; iLoc<dsError.LocalHeight(); ++iLoc )
-          {
-              const Real xi = x.GetLocal(iLoc,0);
-              const Real si = s.GetLocal(iLoc,0);
-              dsError.SetLocal( iLoc, 0, xi*si - sigma*mu );
-          }
-          const Real rmuNrm2 = Nrm2( dsError );
-          for( Int iLoc=0; iLoc<dsError.LocalHeight(); ++iLoc )
-          {
-              const Real xi = x.GetLocal(iLoc,0);
-              const Real si = s.GetLocal(iLoc,0);
-              const Real dxi = dx.GetLocal(iLoc,0);
-              const Real dsi = ds.GetLocal(iLoc,0);
-              dsError.UpdateLocal( iLoc, 0, xi*dsi + si*dxi );
-          }
-          const Real dsErrorNrm2 = Nrm2( dsError );
+        dlError = ds;
+        Multiply( TRANSPOSE, Real(1), A, dl, Real(1), dlError );
+        Axpy( Real(1), rc, dlError );
+        const Real dlErrorNrm2 = Nrm2( dlError );
 
-          dlError = ds;
-          Multiply( TRANSPOSE, Real(1), A, dl, Real(1), dlError );
-          Axpy( Real(1), rc, dlError );
-          const Real dlErrorNrm2 = Nrm2( dlError );
+        dxError = rb;
+        Multiply( NORMAL, Real(1), A, dx, Real(1), dxError );
+        const Real dxErrorNrm2 = Nrm2( dxError );
 
-          dxError = rb;
-          Multiply( NORMAL, Real(1), A, dx, Real(1), dxError );
-          const Real dxErrorNrm2 = Nrm2( dxError );
-
-          if( print && commRank == 0 )
-              std::cout << "  || dsError ||_2 / || r_mu ||_2 = " 
-                        << dsErrorNrm2/rmuNrm2 << "\n"
-                        << "  || dxError ||_2 / || r_c ||_2 = " 
-                        << dxErrorNrm2/rcNrm2 << "\n"
-                        << "  || dlError ||_2 / || r_b ||_2 = " 
-                        << dlErrorNrm2/rbNrm2 << std::endl;
+        if( print && commRank == 0 )
+            std::cout << "  || dsError ||_2 / || r_mu ||_2 = " 
+                      << dsErrorNrm2/rmuNrm2 << "\n"
+                      << "  || dxError ||_2 / || r_c ||_2 = " 
+                      << dxErrorNrm2/rcNrm2 << "\n"
+                      << "  || dlError ||_2 / || r_b ||_2 = " 
+                      << dlErrorNrm2/rbNrm2 << std::endl;
 #endif
 
         // Decide on the step length
@@ -487,14 +550,14 @@ void IPF
     const Matrix<Real>& b,  const Matrix<Real>& c, \
     Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l, \
     Real tol, Int maxIts, \
-    Real sigma, Real gamma, Real beta, Real psi, bool print ); \
+    Real sigma, Real gamma, Real beta, Real psi, bool print, System system ); \
   template void IPF \
   ( const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c, \
     AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, \
     AbstractDistMatrix<Real>& l, \
     Real tol, Int maxIts, \
-    Real sigma, Real gamma, Real beta, Real psi, bool print ); \
+    Real sigma, Real gamma, Real beta, Real psi, bool print, System system ); \
   template void IPF \
   ( const SparseMatrix<Real>& A, \
     const Matrix<Real>& b,  const Matrix<Real>& c, \
