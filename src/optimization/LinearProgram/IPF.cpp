@@ -74,17 +74,19 @@ void IPF
         for( Int i=0; i<n; ++i )
             rmu.Set( i, 0, x.Get(i,0)*s.Get(i,0) - sigma*mu );
 
-        if( system == LIN_PROG_FULL )
+        if( system == FULL_KKT )
         {
             // Construct the full KKT system
             // =============================
-            FormSystem( A, b, c, s, x, l, sigma*mu, J, y );
+            KKT( A, s, x, J );
+            KKTRHS( rmu, rc, rb, y );
 
             // Compute the proposed step from the KKT system
             // =============================================
-            SolveSystem( m, n, J, y, ds, dx, dl );
+            GaussianElimination( J, y );
+            ExpandKKTSolution( m, n, y, ds, dx, dl );
         }
-        else if( system == LIN_PROG_AUGMENTED )
+        else if( system == AUGMENTED_KKT )
         {
             // Construct the reduced KKT system
             // ================================
@@ -216,17 +218,19 @@ void IPF
             rmu.SetLocal
             ( iLoc, 0, x.GetLocal(iLoc,0)*s.GetLocal(iLoc,0) - sigma*mu );
 
-        if( system == LIN_PROG_FULL )
+        if( system == FULL_KKT )
         {
             // Construct the full KKT system
             // =============================
-            FormSystem( A, b, c, s, x, l, sigma*mu, J, y );
+            KKT( A, s, x, J );
+            KKTRHS( rmu, rc, rb, y );
 
             // Compute the proposed step from the KKT system
             // =============================================
-            SolveSystem( m, n, J, y, ds, dx, dl );
+            GaussianElimination( J, y );
+            ExpandKKTSolution( m, n, y, ds, dx, dl );
         }
-        else if( system == LIN_PROG_AUGMENTED )
+        else if( system == AUGMENTED_KKT )
         {
             // Construct the reduced KKT system
             // ================================

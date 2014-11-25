@@ -80,9 +80,9 @@ namespace lin_prog {
 
 namespace SystemNS {
 enum System {
-  LIN_PROG_FULL,
-  LIN_PROG_AUGMENTED,
-  LIN_PROG_NORMAL
+  FULL_KKT,
+  AUGMENTED_KKT,
+  NORMAL_KKT
 };
 }
 using namespace SystemNS;
@@ -96,7 +96,7 @@ void IPF
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
   Real tol=1e-8, Int maxIts=1000,
   Real sigma=0.9, Real gamma=1e-3, Real beta=2, Real psi=100, 
-  bool print=false, System system=LIN_PROG_AUGMENTED );
+  bool print=false, System system=AUGMENTED_KKT );
 template<typename Real>
 void IPF
 ( const AbstractDistMatrix<Real>& A,
@@ -105,7 +105,7 @@ void IPF
   AbstractDistMatrix<Real>& l,
   Real tol=1e-8, Int maxIts=1000,
   Real sigma=0.9, Real gamma=1e-3, Real beta=2, Real psi=100, 
-  bool print=false, System system=LIN_PROG_AUGMENTED );
+  bool print=false, System system=AUGMENTED_KKT );
 template<typename Real>
 void IPF
 ( const SparseMatrix<Real>& A,

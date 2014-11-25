@@ -79,17 +79,19 @@ void MPC
 
         // Compute the affine search direction
         // ===================================
-        if( system == LIN_PROG_FULL )
+        if( system == FULL_KKT )
         {
             // Construct the full KKT system
             // -----------------------------
-            FormSystem( A, b, c, s, x, l, Real(0), J, y );
+            KKT( A, s, x, J );
+            KKTRHS( rmu, rc, rb, y );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            SolveSystem( m, n, J, y, dsAff, dxAff, dlAff );
+            GaussianElimination( J, y );
+            ExpandKKTSolution( m, n, y, dsAff, dxAff, dlAff );
         }
-        else if( system == LIN_PROG_AUGMENTED )
+        else if( system == AUGMENTED_KKT )
         {
             // Construct the reduced KKT system
             // --------------------------------

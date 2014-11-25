@@ -14,26 +14,32 @@ namespace lin_prog {
 // Full system
 // -----------
 template<typename Real>
-void FormSystem
-( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
-  const Matrix<Real>& s, const Matrix<Real>& x, const Matrix<Real>& l,
-  Real tau, Matrix<Real>& J, Matrix<Real>& y );
+void KKT
+( const Matrix<Real>& A, const Matrix<Real>& s, const Matrix<Real>& x,
+  Matrix<Real>& J );
 template<typename Real>
-void FormSystem
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
+void KKT
+( const AbstractDistMatrix<Real>& A, 
   const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& l,
-  Real tau, AbstractDistMatrix<Real>& J, AbstractDistMatrix<Real>& y );
+  AbstractDistMatrix<Real>& J );
 
 template<typename Real>
-void SolveSystem
-( Int m, Int n, Matrix<Real>& J, Matrix<Real>& y,
+void KKTRHS
+( const Matrix<Real>& rmu, const Matrix<Real>& rc,
+  const Matrix<Real>& rb, Matrix<Real>& y );
+template<typename Real>
+void KKTRHS
+( const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& rc,
+  const AbstractDistMatrix<Real>& rb, AbstractDistMatrix<Real>& y );
+
+template<typename Real>
+void ExpandKKTSolution
+( Int m, Int n, const Matrix<Real>& y,
   Matrix<Real>& ds, Matrix<Real>& dx, Matrix<Real>& dl );
 template<typename Real>
-void SolveSystem
-( Int m, Int n, AbstractDistMatrix<Real>& J, AbstractDistMatrix<Real>& y,
-  AbstractDistMatrix<Real>& ds, AbstractDistMatrix<Real>& dx,
+void ExpandKKTSolution
+( Int m, Int n, const AbstractDistMatrix<Real>& yPre,
+  AbstractDistMatrix<Real>& ds, AbstractDistMatrix<Real>& dx, 
   AbstractDistMatrix<Real>& dl );
 
 // Augmented system
