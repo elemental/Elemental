@@ -11,6 +11,10 @@
 namespace El {
 namespace lin_prog {
 
+//     | X S 0   |
+// J = | I 0 A^T |, with the variable ordering (s,x,l)
+//     | 0 A 0   |
+
 template<typename Real>
 void KKT
 ( const Matrix<Real>& A, const Matrix<Real>& s, const Matrix<Real>& x,

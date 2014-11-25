@@ -14,8 +14,8 @@ template<typename F,Dist UPerm>
 void TestCorrectness
 ( const DistMatrix<F>& AOrig,
   const DistMatrix<F>& A,
-  const DistMatrix<Int,UPerm,STAR>& pPerm,
-  const DistMatrix<Int,UPerm,STAR>& qPerm,
+  const DistMatrix<Int,UPerm,STAR>& p,
+  const DistMatrix<Int,UPerm,STAR>& q,
   Int pivoting, bool print )
 {
     typedef Base<F> Real;
@@ -32,9 +32,9 @@ void TestCorrectness
     if( pivoting == 0 )
         lu::SolveAfter( NORMAL, A, Y );
     else if( pivoting == 1 )
-        lu::SolveAfter( NORMAL, A, pPerm, Y );
+        lu::SolveAfter( NORMAL, A, p, Y );
     else
-        lu::SolveAfter( NORMAL, A, pPerm, qPerm, Y );
+        lu::SolveAfter( NORMAL, A, p, q, Y );
 
     // Now investigate the residual, ||AOrig Y - X||_oo
     const Real oneNormOfX = OneNorm( X );
@@ -68,7 +68,7 @@ void TestLU
   bool testCorrectness, bool forceGrowth, bool print )
 {
     DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<Int,UPerm,STAR> pPerm(g), qPerm(g);
+    DistMatrix<Int,UPerm,STAR> p(g), q(g);
 
     if( forceGrowth )
         GEPPGrowth( A, m );
@@ -99,9 +99,9 @@ void TestLU
     if( pivoting == 0 )
         LU( A );
     else if( pivoting == 1 )
-        LU( A, pPerm );
+        LU( A, p );
     else if( pivoting == 2 )
-        LU( A, pPerm, qPerm );
+        LU( A, p, q );
 
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
@@ -118,21 +118,21 @@ void TestLU
         Print( A, "A after factorization" );
         if( pivoting >= 1 )
         {
-            Print( pPerm, "pPerm after factorization");
+            Print( p, "p after factorization");
             DistMatrix<Int> P(g);
-            ExplicitPermutation( pPerm, P );
+            ExplicitPermutation( p, P );
             Print( P, "P" );
         }
         if( pivoting == 2 )
         {
-            Print( qPerm, "qPerm after factorization");
+            Print( q, "q after factorization");
             DistMatrix<Int> Q(g);
-            ExplicitPermutation( qPerm, Q );
+            ExplicitPermutation( q, Q );
             Print( Q, "Q" );
         }
     }
     if( testCorrectness )
-        TestCorrectness( AOrig, A, pPerm, qPerm, pivoting, print );
+        TestCorrectness( AOrig, A, p, q, pivoting, print );
 }
 
 int 

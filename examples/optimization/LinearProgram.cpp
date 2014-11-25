@@ -62,8 +62,9 @@ main( int argc, char* argv[] )
         if( mpi::WorldRank() == 0 )
             std::cout << "c'xTrue=" << objectiveTrue << std::endl;
 
+        // TODO: Also test one or more Interior Point Method
         DistMatrix<Real> z;
-        LinearProgram
+        lin_prog::ADMM
         ( A, b, c, z, rho, alpha, maxIter, absTol, relTol, inv, progress );
 
         if( print )

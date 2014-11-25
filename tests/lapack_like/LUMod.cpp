@@ -14,7 +14,7 @@ template<typename F,Dist UPerm>
 void TestCorrectness
 ( bool print, 
   const DistMatrix<F>& A,
-  const DistMatrix<Int,UPerm,STAR>& perm,
+  const DistMatrix<Int,UPerm,STAR>& p,
   const DistMatrix<F>& AOrig )
 {
     typedef Base<F> Real;
@@ -28,7 +28,7 @@ void TestCorrectness
     DistMatrix<F> X(g);
     Uniform( X, n, 100 );
     auto Y( X );
-    lu::SolveAfter( NORMAL, A, perm, Y );
+    lu::SolveAfter( NORMAL, A, p, Y );
 
     // Now investigate the residual, ||AOrig Y - X||_oo
     const Real oneNormOfX = OneNorm( X );
@@ -62,7 +62,7 @@ void TestLUMod
   bool testCorrectness, bool print, Int m, const Grid& g )
 {
     DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<Int,UPerm,STAR> perm(g);
+    DistMatrix<Int,UPerm,STAR> p(g);
 
     Uniform( A, m, m );
     if( testCorrectness )
@@ -87,7 +87,7 @@ void TestLUMod
         }
         mpi::Barrier( g.Comm() );
         const double startTime = mpi::Time();
-        LU( A, perm );
+        LU( A, p );
         mpi::Barrier( g.Comm() );
         const double runTime = mpi::Time() - startTime;
         const double realGFlops = 2./3.*Pow(double(m),3.)/(1.e9*runTime);
@@ -100,9 +100,9 @@ void TestLUMod
     if( print )
     {
         Print( A, "A after original factorization" );
-        Print( perm, "perm after original factorization");
+        Print( p, "p after original factorization");
         DistMatrix<Int> P(g);
-        ExplicitPermutation( perm, P );
+        ExplicitPermutation( p, P );
         Print( P, "P" );
     }
 
@@ -126,7 +126,7 @@ void TestLUMod
         }
         mpi::Barrier( g.Comm() );
         const double startTime = mpi::Time();
-        LUMod( A, perm, u, v, conjugate, tau );
+        LUMod( A, p, u, v, conjugate, tau );
         mpi::Barrier( g.Comm() );
         const double runTime = mpi::Time() - startTime;
         if( g.Rank() == 0 )
@@ -136,14 +136,14 @@ void TestLUMod
     if( print )
     {
         Print( A, "A after modification" );
-        Print( perm, "perm after modification");
+        Print( p, "p after modification");
         DistMatrix<Int> P(g);
-        ExplicitPermutation( perm, P );
+        ExplicitPermutation( p, P );
         Print( P, "P" );
     }
 
     if( testCorrectness )
-        TestCorrectness( print, A, perm, AOrig );
+        TestCorrectness( print, A, p, AOrig );
 }
 
 int 

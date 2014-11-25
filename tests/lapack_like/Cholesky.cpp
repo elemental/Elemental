@@ -14,7 +14,7 @@ template<typename F,Dist UPerm>
 void TestCorrectness
 ( bool pivot, UpperOrLower uplo,
   const DistMatrix<F>& A,
-  const DistMatrix<Int,UPerm,STAR>& pPerm,
+  const DistMatrix<Int,UPerm,STAR>& p,
   const DistMatrix<F>& AOrig )
 {
     typedef Base<F> Real;
@@ -36,7 +36,7 @@ void TestCorrectness
     const Real frobNormY = FrobeniusNorm( Y );
 
     if( pivot )
-        cholesky::SolveAfter( uplo, NORMAL, A, pPerm, Y );
+        cholesky::SolveAfter( uplo, NORMAL, A, p, Y );
     else
         cholesky::SolveAfter( uplo, NORMAL, A, Y );
     Axpy( F(-1), Y, X );
@@ -65,7 +65,7 @@ void TestCholesky
   UpperOrLower uplo, Int m, const Grid& g )
 {
     DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<Int,UPerm,STAR> pPerm(g);
+    DistMatrix<Int,UPerm,STAR> p(g);
 
     HermitianUniformSpectrum( A, m, 1e-9, 10 );
     if( testCorrectness )
@@ -90,7 +90,7 @@ void TestCholesky
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     if( pivot )
-        Cholesky( uplo, A, pPerm );
+        Cholesky( uplo, A, p );
     else
         Cholesky( uplo, A );
     mpi::Barrier( g.Comm() );
@@ -107,12 +107,12 @@ void TestCholesky
     { 
         Print( A, "A after factorization" );
         if( pivot )
-            Print( pPerm, "pPerm" );
+            Print( p, "p" );
     }
     if( printDiag )
         Print( A.GetRealPartOfDiagonal(), "diag(A)" );
     if( testCorrectness )
-        TestCorrectness( pivot, uplo, A, pPerm, AOrig );
+        TestCorrectness( pivot, uplo, A, p, AOrig );
 }
 
 int 
