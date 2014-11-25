@@ -431,7 +431,13 @@ void IPF
     mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
 
+    DistSymmInfo info;
+    DistSeparatorTree sepTree;
+    DistMap map, invMap;
     DistSparseMatrix<Real> J(comm);
+    DistSymmFrontTree<Real> JFrontTree;
+    DistNodalMultiVec<Real> dlNodal;
+
     DistMultiVec<Real> rmu(comm), rb(comm), rc(comm), 
                        ds(comm), dx(comm), dl(comm);
 #ifndef RELEASE
@@ -492,7 +498,16 @@ void IPF
 
         // Compute the proposed step from the KKT system
         // =============================================
-        SymmetricSolve( J, dl );
+        if( numIts == 0 )
+        {
+            NestedDissection( J.LockedDistGraph(), map, sepTree, info );
+            map.FormInverse( invMap );
+        }
+        JFrontTree.Initialize( J, map, sepTree, info );
+        LDL( info, JFrontTree, LDL_INTRAPIV_1D ); 
+        dlNodal.Pull( invMap, info, dl );
+        Solve( info, JFrontTree, dlNodal );
+        dlNodal.Push( invMap, info, dl );
         ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
 
 #ifndef RELEASE
