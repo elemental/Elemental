@@ -95,8 +95,8 @@ void MPC
         }
         else if( system == AUGMENTED_KKT )
         {
-            // Construct the reduced KKT system
-            // --------------------------------
+            // Construct the "augmented" KKT system
+            // ------------------------------------
             AugmentedKKT( A, s, x, J );
             AugmentedKKTRHS( x, rmu, rc, rb, y );
 
@@ -106,8 +106,19 @@ void MPC
             ldl::SolveAfter( J, dSub, p, y, false );
             ExpandAugmentedSolution( s, x, rmu, y, dsAff, dxAff, dlAff );
         }
-        else
-            LogicError("Unsupported system option");
+        else if( system == NORMAL_KKT )
+        {
+            // Construct the "normal" KKT system
+            // ---------------------------------
+            NormalKKT( A, s, x, J );
+            NormalKKTRHS( A, s, x, rmu, rc, rb, dl );
+
+            // Compute the proposed step from the KKT system
+            // ---------------------------------------------
+            LDL( J, dSub, p, false );
+            ldl::SolveAfter( J, dSub, p, dl, false );
+            ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
+        }
 
 #ifndef RELEASE
         // Sanity checks
@@ -195,8 +206,8 @@ void MPC
         }
         else if( system == AUGMENTED_KKT )
         {
-            // Construct the reduced KKT system
-            // --------------------------------
+            // Construct the new "augmented" KKT RHS
+            // -------------------------------------
             AugmentedKKTRHS( x, rmu, rc, rb, y );
 
             // Compute the proposed step from the KKT system
@@ -204,8 +215,17 @@ void MPC
             ldl::SolveAfter( J, dSub, p, y, false );
             ExpandAugmentedSolution( s, x, rmu, y, ds, dx, dl );
         }
-        else
-            LogicError("Unsupported system option");
+        else if( system == NORMAL_KKT )
+        {
+            // Construct the new "normal" KKT RHS
+            // ----------------------------------
+            NormalKKTRHS( A, s, x, rmu, rc, rb, dl );
+
+            // Compute the proposed step from the KKT system
+            // ---------------------------------------------
+            ldl::SolveAfter( J, dSub, p, dl, false );
+            ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
+        }
 
         // TODO: Residual checks for center-corrector
 

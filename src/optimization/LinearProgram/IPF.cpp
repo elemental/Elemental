@@ -98,8 +98,18 @@ void IPF
             SymmetricSolve( LOWER, NORMAL, J, y );
             ExpandAugmentedSolution( s, x, rmu, y, ds, dx, dl );
         }
-        else
-            LogicError("Unsupported system option");
+        else if( system == NORMAL_KKT )
+        {
+            // Construct the reduced KKT system
+            // ================================
+            NormalKKT( A, s, x, J );
+            NormalKKTRHS( A, s, x, rmu, rc, rb, dl );
+
+            // Compute the proposed step from the KKT system
+            // =============================================
+            SymmetricSolve( LOWER, NORMAL, J, dl );
+            ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
+        }
 
 #ifndef EL_RELEASE
         // Sanity checks
@@ -242,8 +252,18 @@ void IPF
             SymmetricSolve( LOWER, NORMAL, J, y );
             ExpandAugmentedSolution( s, x, rmu, y, ds, dx, dl );
         }
-        else
-            LogicError("Unsupported system option");
+        else if( system == NORMAL_KKT )
+        {
+            // Construct the reduced KKT system
+            // ================================
+            NormalKKT( A, s, x, J );
+            NormalKKTRHS( A, s, x, rmu, rc, rb, dl );
+
+            // Compute the proposed step from the KKT system
+            // =============================================
+            SymmetricSolve( LOWER, NORMAL, J, dl );
+            ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
+        }
 
 #ifndef EL_RELEASE
         // Sanity checks
@@ -496,7 +516,9 @@ void IPF
 
         // Construct the reduced KKT system, J dl = y
         // ==========================================
-        NormalKKT( A, s, x, J );
+        // NOTE: Explicit symmetry is currently required for both METIS and
+        //       for the frontal tree initialization
+        NormalKKT( A, s, x, J, false );
         NormalKKTRHS( A, s, x, rmu, rc, rb, dl );
 
         // Compute the proposed step from the KKT system

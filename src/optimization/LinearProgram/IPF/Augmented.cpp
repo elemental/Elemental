@@ -31,7 +31,7 @@ template<typename Real>
 void AugmentedKKT
 ( const Matrix<Real>& A, 
   const Matrix<Real>& s, const Matrix<Real>& x,
-  Matrix<Real>& J )
+  Matrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::AugmentedKKT"))
     const Int m = A.Height();
@@ -45,15 +45,16 @@ void AugmentedKKT
     Scale( Real(-1), d );
     DiagonalSolve( LEFT, NORMAL, x, d );
     Diagonal( Jxx, d );
-    Transpose( A, Jxl );
     Jlx = A;
+    if( !onlyLower )
+        Transpose( A, Jxl );
 }
 
 template<typename Real>
 void AugmentedKKT
 ( const AbstractDistMatrix<Real>& A, 
   const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& x,
-  AbstractDistMatrix<Real>& JPre )
+  AbstractDistMatrix<Real>& JPre, bool onlyLower )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::AugmentedKKT"))
     const Int m = A.Height();
@@ -70,15 +71,16 @@ void AugmentedKKT
     Scale( Real(-1), d );
     DiagonalSolve( LEFT, NORMAL, x, d );
     Diagonal( Jxx, d.Matrix() );
-    Transpose( A, Jxl );
     Jlx = A;
+    if( !onlyLower )
+        Transpose( A, Jxl );
 }
 
 template<typename Real>
 void AugmentedKKT
 ( const SparseMatrix<Real>& A, 
   const Matrix<Real>& s, const Matrix<Real>& x,
-  SparseMatrix<Real>& J )
+  SparseMatrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::AugmentedKKT"))
     const Int m = A.Height();
@@ -98,7 +100,8 @@ void AugmentedKKT
         // A update
         J.Update( i+n, j, value );
         // A^T update
-        J.Update( j, i+n, value );
+        if( !onlyLower )
+            J.Update( j, i+n, value );
     }
     J.MakeConsistent();
 }
@@ -107,7 +110,7 @@ template<typename Real>
 void AugmentedKKT
 ( const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& s, const DistMultiVec<Real>& x,
-  DistSparseMatrix<Real>& J )
+  DistSparseMatrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::AugmentedKKT"))
     const Int m = A.Height();
@@ -131,8 +134,9 @@ void AugmentedKKT
         ++sendCounts[ J.RowOwner(A.Row(k)+n) ];
     // For placing A^T into the top-right corner
     // -----------------------------------------
-    for( Int k=0; k<ATrans.NumLocalEntries(); ++k )
-        ++sendCounts[ J.RowOwner(ATrans.Row(k)) ];
+    if( !onlyLower )
+        for( Int k=0; k<ATrans.NumLocalEntries(); ++k )
+            ++sendCounts[ J.RowOwner(ATrans.Row(k)) ];
     // For placing -S*inv(X) into the top-left corner
     // ----------------------------------------------
     for( Int k=0; k<x.LocalHeight(); ++k )
@@ -168,16 +172,19 @@ void AugmentedKKT
     }
     // Pack A^T
     // --------
-    for( Int k=0; k<ATrans.NumLocalEntries(); ++k )
+    if( !onlyLower )
     {
-        const Int i = ATrans.Row(k);
-        const Int j = ATrans.Col(k) + n;
-        const Real value = ATrans.Value(k);
-        const Int owner = J.RowOwner(i);
-        sSendBuf[offsets[owner]] = i;
-        tSendBuf[offsets[owner]] = j;
-        vSendBuf[offsets[owner]] = value;
-        ++offsets[owner];
+        for( Int k=0; k<ATrans.NumLocalEntries(); ++k )
+        {
+            const Int i = ATrans.Row(k);
+            const Int j = ATrans.Col(k) + n;
+            const Real value = ATrans.Value(k);
+            const Int owner = J.RowOwner(i);
+            sSendBuf[offsets[owner]] = i;
+            tSendBuf[offsets[owner]] = j;
+            vSendBuf[offsets[owner]] = value;
+            ++offsets[owner];
+        }
     }
     // Pack -S inv(X)
     // --------------
@@ -439,19 +446,19 @@ void ExpandAugmentedSolution
   template void AugmentedKKT \
   ( const Matrix<Real>& A, \
     const Matrix<Real>& s, const Matrix<Real>& x, \
-    Matrix<Real>& J ); \
+    Matrix<Real>& J, bool onlyLower ); \
   template void AugmentedKKT \
   ( const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& x, \
-    AbstractDistMatrix<Real>& J ); \
+    AbstractDistMatrix<Real>& J, bool onlyLower ); \
   template void AugmentedKKT \
   ( const SparseMatrix<Real>& A, \
     const Matrix<Real>& s, const Matrix<Real>& x, \
-    SparseMatrix<Real>& J ); \
+    SparseMatrix<Real>& J, bool onlyLower ); \
   template void AugmentedKKT \
   ( const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& s, const DistMultiVec<Real>& x, \
-    DistSparseMatrix<Real>& J ); \
+    DistSparseMatrix<Real>& J, bool onlyLower ); \
   template void AugmentedKKTRHS \
   ( const Matrix<Real>& x, \
     const Matrix<Real>& rmu, const Matrix<Real>& rc, const Matrix<Real>& rb, \

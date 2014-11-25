@@ -76,8 +76,6 @@ void LinearProgram
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
   const AbstractDistMatrix<Real>& c,       AbstractDistMatrix<Real>& x );
 
-namespace lin_prog {
-
 namespace SystemNS {
 enum System {
   FULL_KKT,
@@ -86,6 +84,8 @@ enum System {
 };
 }
 using namespace SystemNS;
+
+namespace lin_prog {
 
 // IPF
 // ---
@@ -96,7 +96,7 @@ void IPF
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
   Real tol=1e-8, Int maxIts=1000,
   Real sigma=0.9, Real gamma=1e-3, Real beta=2, Real psi=100, 
-  bool print=false, System system=AUGMENTED_KKT );
+  bool print=false, System system=NORMAL_KKT );
 template<typename Real>
 void IPF
 ( const AbstractDistMatrix<Real>& A,
@@ -105,7 +105,7 @@ void IPF
   AbstractDistMatrix<Real>& l,
   Real tol=1e-8, Int maxIts=1000,
   Real sigma=0.9, Real gamma=1e-3, Real beta=2, Real psi=100, 
-  bool print=false, System system=AUGMENTED_KKT );
+  bool print=false, System system=NORMAL_KKT );
 template<typename Real>
 void IPF
 ( const SparseMatrix<Real>& A,
