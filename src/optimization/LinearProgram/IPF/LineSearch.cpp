@@ -17,12 +17,12 @@ Real IPFLineSearch
   const Matrix<Real>& b,  const Matrix<Real>& c,
   const Matrix<Real>& s,  const Matrix<Real>& x,  const Matrix<Real>& l,
   const Matrix<Real>& ds, const Matrix<Real>& dx, const Matrix<Real>& dl,
-  Real gamma, Real beta, Real psi, bool print )
+  const IPFLineSearchCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPFLineSearch"))
-    if( gamma <= Real(0) || gamma >= Real(1) )
+    if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
         LogicError("gamma must be in (0,1)");
-    if( beta < Real(1) )
+    if( ctrl.beta < Real(1) )
         LogicError("beta must be at least one");
     // TODO: Ensure the dimensions match
     if( b.Width() != 1 || c.Width() != 1 ||
@@ -86,9 +86,9 @@ Real IPFLineSearch
         // \mu(\alpha) = x(\alpha)^T s / n
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         const Real mu_alpha = Dot(x_alpha,s_alpha) / n;
-        if( mu_alpha > (1-alpha/psi)*mu )
+        if( mu_alpha > (1-alpha/ctrl.psi)*mu )
         {
-            if( print )
+            if( ctrl.print )
                 std::cout << "Armijo condition not satisfied" << std::endl;
             continue;
         }
@@ -104,12 +104,12 @@ Real IPFLineSearch
             const Real si_alpha = s_alpha.Get(i,0);
             if( xi_alpha <= Real(0) || si_alpha <= Real(0) )
                 balanced = false;
-            if( xi_alpha*si_alpha < gamma*mu_alpha )
+            if( xi_alpha*si_alpha < ctrl.gamma*mu_alpha )
                 balanced = false;
         }
         if( !balanced )
         {
-            if( print )
+            if( ctrl.print )
                 std::cout << "  unbalanced entries" << std::endl;
             continue;
         }
@@ -118,11 +118,11 @@ Real IPFLineSearch
         rb_alpha = rb;
         Axpy( alpha, A_dx, rb_alpha );
         const Real rb_alphaNrm2 = Nrm2( rb_alpha );
-        if( rb_alphaNrm2 > rbNrm2*beta*mu_alpha/mu )
+        if( rb_alphaNrm2 > rbNrm2*ctrl.beta*mu_alpha/mu )
         {
-            if( print )
+            if( ctrl.print )
                 std::cout << "  r_b failure: " << rb_alphaNrm2 << " > "
-                          << rbNrm2*beta*mu_alpha/mu << std::endl;
+                          << rbNrm2*ctrl.beta*mu_alpha/mu << std::endl;
             continue;
         }
         // Check || r_c(\alpha) ||_2 \le || r_c ||_2 \beta \mu(\alpha) / \mu
@@ -131,11 +131,11 @@ Real IPFLineSearch
         Axpy( alpha, AT_dl, rc_alpha );
         Axpy( alpha, ds, rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
-        if( rc_alphaNrm2 > rcNrm2*beta*mu_alpha/mu )
+        if( rc_alphaNrm2 > rcNrm2*ctrl.beta*mu_alpha/mu )
         {
-            if( print )
+            if( ctrl.print )
                 std::cout << "  r_c failure: " << rc_alphaNrm2 << " > "
-                          << rcNrm2*beta*mu_alpha/mu << std::endl;
+                          << rcNrm2*ctrl.beta*mu_alpha/mu << std::endl;
         }
         else
             break;
@@ -151,12 +151,12 @@ Real IPFLineSearch
   const AbstractDistMatrix<Real>& l,
   const AbstractDistMatrix<Real>& ds, const AbstractDistMatrix<Real>& dx, 
   const AbstractDistMatrix<Real>& dl,
-  Real gamma, Real beta, Real psi, bool print )
+  const IPFLineSearchCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPFLineSearch"))
-    if( gamma <= Real(0) || gamma >= Real(1) )
+    if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
         LogicError("gamma must be in (0,1)");
-    if( beta < Real(1) )
+    if( ctrl.beta < Real(1) )
         LogicError("beta must be at least one");
 
     auto APtr = ReadProxy<Real,MC,MR>(&APre);
@@ -230,9 +230,9 @@ Real IPFLineSearch
         // \mu(\alpha) = x(\alpha)^T s / n
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         const Real mu_alpha = Dot(x_alpha,s_alpha) / n;
-        if( mu_alpha > (1-alpha/psi)*mu )
+        if( mu_alpha > (1-alpha/ctrl.psi)*mu )
         {
-            if( print && commRank == 0 )
+            if( ctrl.print && commRank == 0 )
                 std::cout << "Armijo condition not satisfied" << std::endl;
             continue;
         }
@@ -250,7 +250,7 @@ Real IPFLineSearch
                 const Real si_alpha = s_alpha.GetLocal(iLoc,0);
                 if( xi_alpha <= Real(0) || si_alpha <= Real(0) )
                     locallyBalanced = false;
-                if( xi_alpha*si_alpha < gamma*mu_alpha )
+                if( xi_alpha*si_alpha < ctrl.gamma*mu_alpha )
                     locallyBalanced = false;
             }
         }
@@ -258,7 +258,7 @@ Real IPFLineSearch
             mpi::AllReduce( locallyBalanced, mpi::BINARY_AND, grid.VCComm() );
         if( !balanced )
         {
-            if( print && commRank == 0 )
+            if( ctrl.print && commRank == 0 )
                 std::cout << "  unbalanced entries" << std::endl;
             continue;
         }
@@ -267,11 +267,11 @@ Real IPFLineSearch
         rb_alpha = rb;
         Axpy( alpha, A_dx, rb_alpha );
         const Real rb_alphaNrm2 = Nrm2( rb_alpha );
-        if( rb_alphaNrm2 > rbNrm2*beta*mu_alpha/mu )
+        if( rb_alphaNrm2 > rbNrm2*ctrl.beta*mu_alpha/mu )
         {
-            if( print && commRank == 0 )
+            if( ctrl.print && commRank == 0 )
                 std::cout << "  r_b failure: " << rb_alphaNrm2 << " > "
-                          << rbNrm2*beta*mu_alpha/mu << std::endl;
+                          << rbNrm2*ctrl.beta*mu_alpha/mu << std::endl;
             continue;
         }
         // Check || r_c(\alpha) ||_2 \le || r_c ||_2 \beta \mu(\alpha) / \mu
@@ -280,11 +280,11 @@ Real IPFLineSearch
         Axpy( alpha, AT_dl, rc_alpha );
         Axpy( alpha, ds, rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
-        if( rc_alphaNrm2 > rcNrm2*beta*mu_alpha/mu )
+        if( rc_alphaNrm2 > rcNrm2*ctrl.beta*mu_alpha/mu )
         {
-            if( print && commRank == 0 )
+            if( ctrl.print && commRank == 0 )
                 std::cout << "  r_c failure: " << rc_alphaNrm2 << " > "
-                          << rcNrm2*beta*mu_alpha/mu << std::endl;
+                          << rcNrm2*ctrl.beta*mu_alpha/mu << std::endl;
         }
         else
             break;
@@ -298,12 +298,12 @@ Real IPFLineSearch
   const Matrix<Real>& b,  const Matrix<Real>& c,
   const Matrix<Real>& s,  const Matrix<Real>& x,  const Matrix<Real>& l,
   const Matrix<Real>& ds, const Matrix<Real>& dx, const Matrix<Real>& dl,
-  Real gamma, Real beta, Real psi, bool print )
+  const IPFLineSearchCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPFLineSearch"))
-    if( gamma <= Real(0) || gamma >= Real(1) )
+    if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
         LogicError("gamma must be in (0,1)");
-    if( beta < Real(1) )
+    if( ctrl.beta < Real(1) )
         LogicError("beta must be at least one");
     // TODO: Ensure the dimensions match
     if( b.Width() != 1 || c.Width() != 1 ||
@@ -367,9 +367,9 @@ Real IPFLineSearch
         // \mu(\alpha) = x(\alpha)^T s / n
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         const Real mu_alpha = Dot(x_alpha,s_alpha) / n;
-        if( mu_alpha > (1-alpha/psi)*mu )
+        if( mu_alpha > (1-alpha/ctrl.psi)*mu )
         {
-            if( print )
+            if( ctrl.print )
                 std::cout << "Armijo condition not satisfied" << std::endl;
             continue;
         }
@@ -385,12 +385,12 @@ Real IPFLineSearch
             const Real si_alpha = s_alpha.Get(i,0);
             if( xi_alpha <= Real(0) || si_alpha <= Real(0) )
                 balanced = false;
-            if( xi_alpha*si_alpha < gamma*mu_alpha )
+            if( xi_alpha*si_alpha < ctrl.gamma*mu_alpha )
                 balanced = false;
         }
         if( !balanced )
         {
-            if( print )
+            if( ctrl.print )
                 std::cout << "  unbalanced entries" << std::endl;
             continue;
         }
@@ -399,11 +399,11 @@ Real IPFLineSearch
         rb_alpha = rb;
         Axpy( alpha, A_dx, rb_alpha );
         const Real rb_alphaNrm2 = Nrm2( rb_alpha );
-        if( rb_alphaNrm2 > rbNrm2*beta*mu_alpha/mu )
+        if( rb_alphaNrm2 > rbNrm2*ctrl.beta*mu_alpha/mu )
         {
-            if( print )
+            if( ctrl.print )
                 std::cout << "  r_b failure: " << rb_alphaNrm2 << " > "
-                          << rbNrm2*beta*mu_alpha/mu << std::endl;
+                          << rbNrm2*ctrl.beta*mu_alpha/mu << std::endl;
             continue;
         }
         // Check || r_c(\alpha) ||_2 \le || r_c ||_2 \beta \mu(\alpha) / \mu
@@ -412,11 +412,11 @@ Real IPFLineSearch
         Axpy( alpha, AT_dl, rc_alpha );
         Axpy( alpha, ds, rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
-        if( rc_alphaNrm2 > rcNrm2*beta*mu_alpha/mu )
+        if( rc_alphaNrm2 > rcNrm2*ctrl.beta*mu_alpha/mu )
         {
-            if( print )
+            if( ctrl.print )
                 std::cout << "  r_c failure: " << rc_alphaNrm2 << " > "
-                          << rcNrm2*beta*mu_alpha/mu << std::endl;
+                          << rcNrm2*ctrl.beta*mu_alpha/mu << std::endl;
         }
         else
             break;
@@ -435,12 +435,12 @@ Real IPFLineSearch
   const DistMultiVec<Real>& ds, 
   const DistMultiVec<Real>& dx, 
   const DistMultiVec<Real>& dl,
-  Real gamma, Real beta, Real psi, bool print )
+  const IPFLineSearchCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPFLineSearch"))
-    if( gamma <= Real(0) || gamma >= Real(1) )
+    if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
         LogicError("gamma must be in (0,1)");
-    if( beta < Real(1) )
+    if( ctrl.beta < Real(1) )
         LogicError("beta must be at least one");
     // TODO: Ensure communicators are congruent
     // TODO: Ensure the dimensions match
@@ -510,9 +510,9 @@ Real IPFLineSearch
         // \mu(\alpha) = x(\alpha)^T s / n
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         const Real mu_alpha = Dot(x_alpha,s_alpha) / n;
-        if( mu_alpha > (1-alpha/psi)*mu )
+        if( mu_alpha > (1-alpha/ctrl.psi)*mu )
         {
-            if( print && commRank == 0 )
+            if( ctrl.print && commRank == 0 )
                 std::cout << "Armijo condition not satisfied" << std::endl;
             continue;
         }
@@ -528,14 +528,14 @@ Real IPFLineSearch
             const Real si_alpha = s_alpha.GetLocal(iLoc,0);
             if( xi_alpha <= Real(0) || si_alpha <= Real(0) )
                 locallyBalanced = false;
-            if( xi_alpha*si_alpha < gamma*mu_alpha )
+            if( xi_alpha*si_alpha < ctrl.gamma*mu_alpha )
                 locallyBalanced = false;
         }
         const byte balanced = 
             mpi::AllReduce( locallyBalanced, mpi::BINARY_AND, comm ); 
         if( !balanced )
         {
-            if( print && commRank == 0 )
+            if( ctrl.print && commRank == 0 )
                 std::cout << "  unbalanced entries" << std::endl;
             continue;
         }
@@ -544,11 +544,11 @@ Real IPFLineSearch
         rb_alpha = rb;
         Axpy( alpha, A_dx, rb_alpha );
         const Real rb_alphaNrm2 = Nrm2( rb_alpha );
-        if( rb_alphaNrm2 > rbNrm2*beta*mu_alpha/mu )
+        if( rb_alphaNrm2 > rbNrm2*ctrl.beta*mu_alpha/mu )
         {
-            if( print && commRank == 0 )
+            if( ctrl.print && commRank == 0 )
                 std::cout << "  r_b failure: " << rb_alphaNrm2 << " > "
-                          << rbNrm2*beta*mu_alpha/mu << std::endl;
+                          << rbNrm2*ctrl.beta*mu_alpha/mu << std::endl;
             continue;
         }
         // Check || r_c(\alpha) ||_2 \le || r_c ||_2 \beta \mu(\alpha) / \mu
@@ -557,11 +557,11 @@ Real IPFLineSearch
         Axpy( alpha, AT_dl, rc_alpha );
         Axpy( alpha, ds, rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
-        if( rc_alphaNrm2 > rcNrm2*beta*mu_alpha/mu )
+        if( rc_alphaNrm2 > rcNrm2*ctrl.beta*mu_alpha/mu )
         {
-            if( print && commRank == 0 )
+            if( ctrl.print && commRank == 0 )
                 std::cout << "  r_c failure: " << rc_alphaNrm2 << " > "
-                          << rcNrm2*beta*mu_alpha/mu << std::endl;
+                          << rcNrm2*ctrl.beta*mu_alpha/mu << std::endl;
         }
         else
             break;
@@ -575,7 +575,7 @@ Real IPFLineSearch
     const Matrix<Real>& b,  const Matrix<Real>& c, \
     const Matrix<Real>& s,  const Matrix<Real>& x,  const Matrix<Real>& l, \
     const Matrix<Real>& ds, const Matrix<Real>& dx, const Matrix<Real>& dl, \
-    Real gamma, Real beta, Real psi, bool print ); \
+    const IPFLineSearchCtrl<Real>& ctrl ); \
   template Real IPFLineSearch \
   ( const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c, \
@@ -583,13 +583,13 @@ Real IPFLineSearch
     const AbstractDistMatrix<Real>& l, \
     const AbstractDistMatrix<Real>& ds, const AbstractDistMatrix<Real>& dx, \
     const AbstractDistMatrix<Real>& dl, \
-    Real gamma, Real beta, Real psi, bool print ); \
+    const IPFLineSearchCtrl<Real>& ctrl ); \
   template Real IPFLineSearch \
   ( const SparseMatrix<Real>& A, \
     const Matrix<Real>& b,  const Matrix<Real>& c, \
     const Matrix<Real>& s,  const Matrix<Real>& x,  const Matrix<Real>& l, \
     const Matrix<Real>& ds, const Matrix<Real>& dx, const Matrix<Real>& dl, \
-    Real gamma, Real beta, Real psi, bool print ); \
+    const IPFLineSearchCtrl<Real>& ctrl ); \
   template Real IPFLineSearch \
   ( const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c, \
@@ -597,7 +597,7 @@ Real IPFLineSearch
     const DistMultiVec<Real>& l, \
     const DistMultiVec<Real>& ds, const DistMultiVec<Real>& dx, \
     const DistMultiVec<Real>& dl, \
-    Real gamma, Real beta, Real psi, bool print );
+    const IPFLineSearchCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

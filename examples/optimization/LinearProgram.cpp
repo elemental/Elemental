@@ -41,6 +41,14 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
+        lin_prog::ADMMCtrl<Real> admmCtrl;
+        admmCtrl.rho = rho; 
+        admmCtrl.alpha = alpha;
+        admmCtrl.absTol = absTol;
+        admmCtrl.relTol = relTol;
+        admmCtrl.inv = inv;
+        admmCtrl.print = progress;
+
         DistMatrix<Real> A, b, c, xTrue;
         Uniform( A, m, n, 1., 1. ); // mean=radius=1, so sample in [0,2]
         Zeros( xTrue, n, 1 );
@@ -64,8 +72,7 @@ main( int argc, char* argv[] )
 
         // TODO: Also test one or more Interior Point Method
         DistMatrix<Real> z;
-        lin_prog::ADMM
-        ( A, b, c, z, rho, alpha, maxIter, absTol, relTol, inv, progress );
+        lin_prog::ADMM( A, b, c, z, admmCtrl );
 
         if( print )
             Print( z, "z" );

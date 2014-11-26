@@ -177,7 +177,7 @@ Real IPFLineSearch
   const Matrix<Real>& b,  const Matrix<Real>& c,
   const Matrix<Real>& s,  const Matrix<Real>& x,  const Matrix<Real>& l,
   const Matrix<Real>& ds, const Matrix<Real>& dx, const Matrix<Real>& dl,
-  Real gamma, Real beta, Real psi=100, bool print=false );
+  const IPFLineSearchCtrl<Real>& ctrl );
 template<typename Real>
 Real IPFLineSearch
 ( const AbstractDistMatrix<Real>& A,
@@ -186,14 +186,14 @@ Real IPFLineSearch
   const AbstractDistMatrix<Real>& l,
   const AbstractDistMatrix<Real>& ds, const AbstractDistMatrix<Real>& dx,
   const AbstractDistMatrix<Real>& dl,
-  Real gamma, Real beta, Real psi=100, bool print=false );
+  const IPFLineSearchCtrl<Real>& ctrl );
 template<typename Real>
 Real IPFLineSearch
 ( const SparseMatrix<Real>& A,
   const Matrix<Real>& b,  const Matrix<Real>& c,
   const Matrix<Real>& s,  const Matrix<Real>& x,  const Matrix<Real>& l,
   const Matrix<Real>& ds, const Matrix<Real>& dx, const Matrix<Real>& dl,
-  Real gamma, Real beta, Real psi=100, bool print=false );
+  const IPFLineSearchCtrl<Real>& ctrl );
 template<typename Real>
 Real IPFLineSearch
 ( const DistSparseMatrix<Real>& A,
@@ -205,7 +205,7 @@ Real IPFLineSearch
   const DistMultiVec<Real>& ds,
   const DistMultiVec<Real>& dx,
   const DistMultiVec<Real>& dl,
-  Real gamma, Real beta, Real psi=100, bool print=false );
+  const IPFLineSearchCtrl<Real>& ctrl );
 
 } // namespace lin_prog
 } // namespace El

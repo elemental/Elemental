@@ -89,52 +89,36 @@ EL_EXPORT ElError ElLinearProgramDist_d
 EL_EXPORT ElError ElLinearProgramIPF_s
 ( ElConstMatrix_s A,
   ElConstMatrix_s b, ElConstMatrix_s c,
-  ElMatrix_s s, ElMatrix_s x, ElMatrix_s l,
-  float tol, ElInt maxIts,
-  float sigma, float gamma, float beta, float psi, bool print );
+  ElMatrix_s s, ElMatrix_s x, ElMatrix_s l );
 EL_EXPORT ElError ElLinearProgramIPF_d
 ( ElConstMatrix_d A,
   ElConstMatrix_d b, ElConstMatrix_d c,
-  ElMatrix_d s, ElMatrix_d x, ElMatrix_d l,
-  double tol, ElInt maxIts,
-  double sigma, double gamma, double beta, double psi, bool print );
+  ElMatrix_d s, ElMatrix_d x, ElMatrix_d l );
 EL_EXPORT ElError ElLinearProgramIPFSparse_s
 ( ElConstSparseMatrix_s A,
   ElConstMatrix_s b, ElConstMatrix_s c,
-  ElMatrix_s s, ElMatrix_s x, ElMatrix_s l,
-  float tol, ElInt maxIts,
-  float sigma, float gamma, float beta, float psi, bool print );
+  ElMatrix_s s, ElMatrix_s x, ElMatrix_s l );
 EL_EXPORT ElError ElLinearProgramIPFSparse_d
 ( ElConstSparseMatrix_d A,
   ElConstMatrix_d b, ElConstMatrix_d c,
-  ElMatrix_d s, ElMatrix_d x, ElMatrix_d l,
-  double tol, ElInt maxIts,
-  double sigma, double gamma, double beta, double psi, bool print );
+  ElMatrix_d s, ElMatrix_d x, ElMatrix_d l );
 
 EL_EXPORT ElError ElLinearProgramIPFDist_s
 ( ElConstDistMatrix_s A,
   ElConstDistMatrix_s b, ElConstDistMatrix_s c,
-  ElDistMatrix_s s, ElDistMatrix_s x, ElDistMatrix_s l,
-  float tol, ElInt maxIts,
-  float sigma, float gamma, float beta, float psi, bool print );
+  ElDistMatrix_s s, ElDistMatrix_s x, ElDistMatrix_s l );
 EL_EXPORT ElError ElLinearProgramIPFDist_d
 ( ElConstDistMatrix_d A,
   ElConstDistMatrix_d b, ElConstDistMatrix_d c,
-  ElDistMatrix_d s, ElDistMatrix_d x, ElDistMatrix_d l,
-  double tol, ElInt maxIts,
-  double sigma, double gamma, double beta, double psi, bool print );
+  ElDistMatrix_d s, ElDistMatrix_d x, ElDistMatrix_d l );
 EL_EXPORT ElError ElLinearProgramIPFDistSparse_s
 ( ElConstDistSparseMatrix_s A,
   ElConstDistMultiVec_s b, ElConstDistMultiVec_s c,
-  ElDistMultiVec_s s, ElDistMultiVec_s x, ElDistMultiVec_s l,
-  float tol, ElInt maxIts,
-  float sigma, float gamma, float beta, float psi, bool print );
+  ElDistMultiVec_s s, ElDistMultiVec_s x, ElDistMultiVec_s l );
 EL_EXPORT ElError ElLinearProgramIPFDistSparse_d
 ( ElConstDistSparseMatrix_d A,
   ElConstDistMultiVec_d b, ElConstDistMultiVec_d c,
-  ElDistMultiVec_d s, ElDistMultiVec_d x, ElDistMultiVec_d l,
-  double tol, ElInt maxIts,
-  double sigma, double gamma, double beta, double psi, bool print );
+  ElDistMultiVec_d s, ElDistMultiVec_d x, ElDistMultiVec_d l );
 
 /* ADMM
    ---- */

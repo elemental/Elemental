@@ -24,8 +24,7 @@ template<typename Real>
 Int ADMM
 ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, 
   Matrix<Real>& z,
-  Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, 
-  bool inv, bool progress )
+  const ADMMCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::ADMM"))
     if( IsComplex<Real>::val ) 
@@ -54,8 +53,8 @@ Int ADMM
     // where [L22,U22] are stored within B22.
     Matrix<Real> U12, L21, B22, bPiv;
     Adjoint( A, U12 );
-    L21 = A; Scale( 1/rho, L21 );
-    Herk( LOWER, NORMAL, -1/rho, A, B22 );
+    L21 = A; Scale( 1/ctrl.rho, L21 );
+    Herk( LOWER, NORMAL, -1/ctrl.rho, A, B22 );
     MakeHermitian( LOWER, B22 );
     // TODO: Replace with sparse-direct Cholesky version?
     Matrix<Int> perm2;
@@ -66,7 +65,7 @@ Int ADMM
 
     // Possibly form the inverse of L22 U22
     Matrix<Real> X22;
-    if( inv )
+    if( ctrl.inv )
     {
         X22 = B22;
         MakeTrapezoidal( LOWER, X22 );
@@ -85,7 +84,7 @@ Int ADMM
     Zeros( z, n, 1 );
     Zeros( u, n, 1 );
     Zeros( t, n, 1 );
-    while( numIter < maxIter )
+    while( numIter < ctrl.maxIter )
     {
         zOld = z;
 
@@ -102,11 +101,11 @@ Int ADMM
         //                                  | P22' b    |
         xTmp = z;
         Axpy( Real(-1), u, xTmp );
-        Scale( rho, xTmp );
+        Scale( ctrl.rho, xTmp );
         Axpy( Real(-1), c, xTmp );
         y = bPiv;
         Gemv( NORMAL, Real(-1), L21, xTmp, Real(1), y );
-        if( inv )
+        if( ctrl.inv )
         {
             Gemv( NORMAL, Real(1), X22, y, t );
             y = t;
@@ -117,12 +116,12 @@ Int ADMM
             Trsv( UPPER, NORMAL, NON_UNIT, B22, y );
         }
         Gemv( NORMAL, Real(-1), U12, y, Real(1), xTmp );
-        Scale( 1/rho, xTmp );
+        Scale( 1/ctrl.rho, xTmp );
 
         // xHat := alpha*x + (1-alpha)*zOld
         xHat = xTmp;
-        Scale( alpha, xHat );
-        Axpy( 1-alpha, zOld, xHat );
+        Scale( ctrl.alpha, xHat );
+        Axpy( 1-ctrl.alpha, zOld, xHat );
 
         // z := pos(xHat+u)
         z = xHat;
@@ -142,14 +141,14 @@ Int ADMM
         // sNorm := |rho| || z - zOld ||_2
         t = z;
         Axpy( Real(-1), zOld, t );
-        const Real sNorm = Abs(rho)*FrobeniusNorm( t );
+        const Real sNorm = Abs(ctrl.rho)*FrobeniusNorm( t );
 
-        const Real epsPri = Sqrt(Real(n))*absTol +
-            relTol*Max(FrobeniusNorm(xTmp),FrobeniusNorm(z));
-        const Real epsDual = Sqrt(Real(n))*absTol +
-            relTol*Abs(rho)*FrobeniusNorm(u);
+        const Real epsPri = Sqrt(Real(n))*ctrl.absTol +
+            ctrl.relTol*Max(FrobeniusNorm(xTmp),FrobeniusNorm(z));
+        const Real epsDual = Sqrt(Real(n))*ctrl.absTol +
+            ctrl.relTol*Abs(ctrl.rho)*FrobeniusNorm(u);
 
-        if( progress )
+        if( ctrl.print )
         {
             t = xTmp;
             LowerClip( t, Real(0) );
@@ -167,7 +166,7 @@ Int ADMM
             break;
         ++numIter;
     }
-    if( maxIter == numIter )
+    if( ctrl.maxIter == numIter )
         std::cout << "ADMM failed to converge" << std::endl;
     x = xTmp;
     return numIter;
@@ -177,8 +176,7 @@ template<typename Real>
 Int ADMM
 ( const AbstractDistMatrix<Real>& APre, const AbstractDistMatrix<Real>& bPre,
   const AbstractDistMatrix<Real>& cPre,       AbstractDistMatrix<Real>& zPre, 
-  Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, 
-  bool inv, bool progress )
+  const ADMMCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::ADMM"))
 
@@ -219,8 +217,8 @@ Int ADMM
     L21.Align( n%L21.ColStride(), 0                 );
     B22.Align( n%B22.ColStride(), n%B22.RowStride() );
     Adjoint( A, U12 );
-    L21 = A; Scale( 1/rho, L21 );
-    Herk( LOWER, NORMAL, -1/rho, A, B22 );
+    L21 = A; Scale( 1/ctrl.rho, L21 );
+    Herk( LOWER, NORMAL, -1/ctrl.rho, A, B22 );
     MakeHermitian( LOWER, B22 );
     DistMatrix<Int,VC,STAR> perm2(grid);
     LU( B22, perm2 );
@@ -230,7 +228,7 @@ Int ADMM
 
     // Possibly form the inverse of L22 U22
     DistMatrix<Real> X22(grid);
-    if( inv )
+    if( ctrl.inv )
     {
         X22 = B22;
         MakeTrapezoidal( LOWER, X22 );
@@ -247,7 +245,7 @@ Int ADMM
     Zeros( z, n, 1 );
     Zeros( u, n, 1 );
     Zeros( t, n, 1 );
-    while( numIter < maxIter )
+    while( numIter < ctrl.maxIter )
     {
         zOld = z;
 
@@ -264,11 +262,11 @@ Int ADMM
         //                                  | P22' b    |
         xTmp = z;
         Axpy( Real(-1), u, xTmp );
-        Scale( rho, xTmp );
+        Scale( ctrl.rho, xTmp );
         Axpy( Real(-1), c, xTmp );
         y = bPiv;
         Gemv( NORMAL, Real(-1), L21, xTmp, Real(1), y );
-        if( inv )
+        if( ctrl.inv )
         {
             Gemv( NORMAL, Real(1), X22, y, t );
             y = t;
@@ -279,12 +277,12 @@ Int ADMM
             Trsv( UPPER, NORMAL, NON_UNIT, B22, y );
         }
         Gemv( NORMAL, Real(-1), U12, y, Real(1), xTmp );
-        Scale( 1/rho, xTmp );
+        Scale( 1/ctrl.rho, xTmp );
 
         // xHat := alpha*x + (1-alpha)*zOld
         xHat = xTmp;
-        Scale( alpha, xHat );
-        Axpy( 1-alpha, zOld, xHat );
+        Scale( ctrl.alpha, xHat );
+        Axpy( 1-ctrl.alpha, zOld, xHat );
 
         // z := pos(xHat+u)
         z = xHat;
@@ -304,14 +302,14 @@ Int ADMM
         // sNorm := |rho| || z - zOld ||_2
         t = z;
         Axpy( Real(-1), zOld, t );
-        const Real sNorm = Abs(rho)*FrobeniusNorm( t );
+        const Real sNorm = Abs(ctrl.rho)*FrobeniusNorm( t );
 
-        const Real epsPri = Sqrt(Real(n))*absTol +
-            relTol*Max(FrobeniusNorm(xTmp),FrobeniusNorm(z));
-        const Real epsDual = Sqrt(Real(n))*absTol +
-            relTol*Abs(rho)*FrobeniusNorm(u);
+        const Real epsPri = Sqrt(Real(n))*ctrl.absTol +
+            ctrl.relTol*Max(FrobeniusNorm(xTmp),FrobeniusNorm(z));
+        const Real epsDual = Sqrt(Real(n))*ctrl.absTol +
+            ctrl.relTol*Abs(ctrl.rho)*FrobeniusNorm(u);
 
-        if( progress )
+        if( ctrl.print )
         {
             t = xTmp;
             LowerClip( t, Real(0) );
@@ -330,7 +328,7 @@ Int ADMM
             break;
         ++numIter;
     }
-    if( maxIter == numIter && grid.Rank() == 0 )
+    if( ctrl.maxIter == numIter && grid.Rank() == 0 )
         std::cout << "ADMM failed to converge" << std::endl;
     x = xTmp;
     return numIter;
@@ -340,13 +338,11 @@ Int ADMM
   template Int ADMM \
   ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, \
     Matrix<Real>& z, \
-    Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
-    bool inv, bool progress ); \
+    const ADMMCtrl<Real>& ctrl ); \
   template Int ADMM \
   ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, \
     const AbstractDistMatrix<Real>& c,       AbstractDistMatrix<Real>& z, \
-    Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
-    bool inv, bool progress );
+    const ADMMCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

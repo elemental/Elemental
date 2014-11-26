@@ -9,6 +9,8 @@
 #include "El.hpp"
 #include "../LinearProgram.hpp"
 
+// TODO: Add a warning if the maximum number of iterations is exceeded
+
 namespace El {
 namespace lin_prog {
 
@@ -17,8 +19,7 @@ void IPF
 ( const Matrix<Real>& A, 
   const Matrix<Real>& b,  const Matrix<Real>& c,
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
-  Real tol, Int maxIts,
-  Real sigma, Real gamma, Real beta, Real psi, bool print, System system )
+  const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
 
@@ -30,7 +31,7 @@ void IPF
 #ifndef EL_RELEASE
     Matrix<Real> dsError, dxError, dlError;
 #endif
-    for( Int numIts=0; numIts<maxIts; ++numIts )
+    for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
     {
         // Check for convergence
         // =====================
@@ -56,9 +57,9 @@ void IPF
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
-        if( objConv <= tol && rbConv <= tol && rcConv <= tol )
+        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
             break;
-        else if( print )
+        else if( ctrl.print )
             std::cout << " iter " << numIts << ":\n"
                       << "  |c^T x - b^T l| / (1 + |c^T x|) = "
                       << objConv << "\n"
@@ -72,9 +73,9 @@ void IPF
         const Real mu = Dot(x,s) / n;
         rmu.Resize( n, 1 );
         for( Int i=0; i<n; ++i )
-            rmu.Set( i, 0, x.Get(i,0)*s.Get(i,0) - sigma*mu );
+            rmu.Set( i, 0, x.Get(i,0)*s.Get(i,0) - ctrl.centering*mu );
 
-        if( system == FULL_KKT )
+        if( ctrl.system == FULL_KKT )
         {
             // Construct the full KKT system
             // =============================
@@ -86,7 +87,7 @@ void IPF
             GaussianElimination( J, y );
             ExpandKKTSolution( m, n, y, ds, dx, dl );
         }
-        else if( system == AUGMENTED_KKT )
+        else if( ctrl.system == AUGMENTED_KKT )
         {
             // Construct the reduced KKT system
             // ================================
@@ -98,7 +99,7 @@ void IPF
             SymmetricSolve( LOWER, NORMAL, J, y );
             ExpandAugmentedSolution( s, x, rmu, y, ds, dx, dl );
         }
-        else if( system == NORMAL_KKT )
+        else if( ctrl.system == NORMAL_KKT )
         {
             // Construct the reduced KKT system
             // ================================
@@ -135,7 +136,7 @@ void IPF
         Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
         const Real dxErrorNrm2 = Nrm2( dxError );
 
-        if( print )
+        if( ctrl.print )
             std::cout << "  || dsError ||_2 / (1 + || r_mu ||_2) = " 
                       << dsErrorNrm2/(1+rmuNrm2) << "\n"
                       << "  || dxError ||_2 / (1 + || r_c ||_2) = " 
@@ -147,9 +148,8 @@ void IPF
         // Decide on the step length
         // =========================
         const Real alpha =
-          IPFLineSearch
-          ( A, b, c, s, x, l, ds, dx, dl, gamma, beta, psi, print );
-        if( print )
+          IPFLineSearch( A, b, c, s, x, l, ds, dx, dl, ctrl.lineSearchCtrl );
+        if( ctrl.print )
             std::cout << "  alpha = " << alpha << std::endl;
 
         // Update the state by stepping a distance of alpha
@@ -162,14 +162,22 @@ void IPF
 
 template<typename Real>
 void IPF
-( const AbstractDistMatrix<Real>& A, 
+( const AbstractDistMatrix<Real>& APre, 
   const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c,
-  AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, 
-  AbstractDistMatrix<Real>& l,
-  Real tol, Int maxIts,
-  Real sigma, Real gamma, Real beta, Real psi, bool print, System system )
+  AbstractDistMatrix<Real>& sPre, AbstractDistMatrix<Real>& xPre, 
+  AbstractDistMatrix<Real>& l, const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
+
+    ProxyCtrl proxCtrl;
+    proxCtrl.colConstrain = true;
+    proxCtrl.rowConstrain = true;
+    proxCtrl.colAlign = 0;
+    proxCtrl.rowAlign = 0;
+
+    auto APtr = ReadProxy<Real,MC,MR>(&APre,proxCtrl);      auto& A = *APtr;
+    auto sPtr = ReadWriteProxy<Real,MC,MR>(&sPre,proxCtrl); auto& s = *sPtr;
+    auto xPtr = ReadWriteProxy<Real,MC,MR>(&xPre,proxCtrl); auto& x = *xPtr;
 
     // TODO: Check that x and s are strictly positive
 
@@ -180,10 +188,13 @@ void IPF
 
     DistMatrix<Real> J(grid), y(grid), rmu(grid), rb(grid), rc(grid), 
                      ds(grid), dx(grid), dl(grid);
+    ds.AlignWith( s );
+    dx.AlignWith( x );
 #ifndef EL_RELEASE
     DistMatrix<Real> dsError(grid), dxError(grid), dlError(grid);
+    dsError.AlignWith( ds );
 #endif
-    for( Int numIts=0; numIts<maxIts; ++numIts )
+    for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
     {
         // Check for convergence
         // =====================
@@ -209,9 +220,9 @@ void IPF
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
-        if( objConv <= tol && rbConv <= tol && rcConv <= tol )
+        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
             break;
-        else if( print && commRank == 0 )
+        else if( ctrl.print && commRank == 0 )
             std::cout << " iter " << numIts << ":\n"
                       << "  |c^T x - b^T l| / (1 + |c^T x|) = "
                       << objConv << "\n"
@@ -226,9 +237,10 @@ void IPF
         rmu.Resize( n, 1 );
         for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
             rmu.SetLocal
-            ( iLoc, 0, x.GetLocal(iLoc,0)*s.GetLocal(iLoc,0) - sigma*mu );
+            ( iLoc, 0, 
+              x.GetLocal(iLoc,0)*s.GetLocal(iLoc,0) - ctrl.centering*mu );
 
-        if( system == FULL_KKT )
+        if( ctrl.system == FULL_KKT )
         {
             // Construct the full KKT system
             // =============================
@@ -240,7 +252,7 @@ void IPF
             GaussianElimination( J, y );
             ExpandKKTSolution( m, n, y, ds, dx, dl );
         }
-        else if( system == AUGMENTED_KKT )
+        else if( ctrl.system == AUGMENTED_KKT )
         {
             // Construct the reduced KKT system
             // ================================
@@ -252,7 +264,7 @@ void IPF
             SymmetricSolve( LOWER, NORMAL, J, y );
             ExpandAugmentedSolution( s, x, rmu, y, ds, dx, dl );
         }
-        else if( system == NORMAL_KKT )
+        else if( ctrl.system == NORMAL_KKT )
         {
             // Construct the reduced KKT system
             // ================================
@@ -269,14 +281,15 @@ void IPF
         // Sanity checks
         // =============
         const Real rmuNrm2 = Nrm2( rmu );
+        // TODO: Find a more convenient syntax for expressing this operation
         dsError = rmu;
-        for( Int i=0; i<n; ++i )
+        for( Int iLoc=0; iLoc<dsError.LocalHeight(); ++iLoc )
         {
-            const Real xi = x.Get(i,0);
-            const Real si = s.Get(i,0);
-            const Real dxi = dx.Get(i,0);
-            const Real dsi = ds.Get(i,0);
-            dsError.Update( i, 0, xi*dsi + si*dxi );
+            const Real xi = x.GetLocal(iLoc,0);
+            const Real si = s.GetLocal(iLoc,0);
+            const Real dxi = dx.GetLocal(iLoc,0);
+            const Real dsi = ds.GetLocal(iLoc,0);
+            dsError.UpdateLocal( iLoc, 0, xi*dsi + si*dxi );
         }
         const Real dsErrorNrm2 = Nrm2( dsError );
 
@@ -289,7 +302,7 @@ void IPF
         Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
         const Real dxErrorNrm2 = Nrm2( dxError );
 
-        if( print && commRank == 0 )
+        if( ctrl.print && commRank == 0 )
             std::cout << "  || dsError ||_2 / (1 + || r_mu ||_2) = " 
                       << dsErrorNrm2/(1+rmuNrm2) << "\n"
                       << "  || dxError ||_2 / (1 + || r_c ||_2) = " 
@@ -301,9 +314,8 @@ void IPF
         // Decide on the step length
         // =========================
         const Real alpha =
-          IPFLineSearch
-          ( A, b, c, s, x, l, ds, dx, dl, gamma, beta, psi, print );
-        if( print && commRank == 0 )
+          IPFLineSearch( A, b, c, s, x, l, ds, dx, dl, ctrl.lineSearchCtrl );
+        if( ctrl.print && commRank == 0 )
             std::cout << "  alpha = " << alpha << std::endl;
 
         // Update the state by stepping a distance of alpha
@@ -320,8 +332,7 @@ void IPF
 ( const SparseMatrix<Real>& A, 
   const Matrix<Real>& b,  const Matrix<Real>& c,
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
-  Real tol, Int maxIts,
-  Real sigma, Real gamma, Real beta, Real psi, bool print )
+  const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
 
@@ -333,7 +344,7 @@ void IPF
 #ifndef EL_RELEASE
     Matrix<Real> dsError, dxError, dlError;
 #endif
-    for( Int numIts=0; numIts<maxIts; ++numIts )
+    for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
     {
         // Check for convergence
         // =====================
@@ -359,9 +370,9 @@ void IPF
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
-        if( objConv <= tol && rbConv <= tol && rcConv <= tol )
+        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
             break;
-        else if( print )
+        else if( ctrl.print )
             std::cout << " iter " << numIts << ":\n"
                       << "  |c^T x - b^T l| / (1 + |c^T x|) = "
                       << objConv << "\n"
@@ -375,7 +386,7 @@ void IPF
         const Real mu = Dot(x,s) / n;
         rmu.Resize( n, 1 );      
         for( Int i=0; i<n; ++i )
-            rmu.Set( i, 0, x.Get(i,0)*s.Get(i,0) - sigma*mu );
+            rmu.Set( i, 0, x.Get(i,0)*s.Get(i,0) - ctrl.centering*mu );
 
         // Construct the reduced KKT system, J dl = y
         // ==========================================
@@ -412,7 +423,7 @@ void IPF
         Multiply( NORMAL, Real(1), A, dx, Real(1), dxError );
         const Real dxErrorNrm2 = Nrm2( dxError );
 
-        if( print )
+        if( ctrl.print )
             std::cout << "  || dsError ||_2 / (1 + || r_mu ||_2) = " 
                       << dsErrorNrm2/(1+rmuNrm2) << "\n"
                       << "  || dxError ||_2 / (1 + || r_c ||_2) = " 
@@ -424,9 +435,8 @@ void IPF
         // Decide on the step length
         // =========================
         const Real alpha =
-          IPFLineSearch
-          ( A, b, c, s, x, l, ds, dx, dl, gamma, beta, psi, print );
-        if( print )
+          IPFLineSearch( A, b, c, s, x, l, ds, dx, dl, ctrl.lineSearchCtrl );
+        if( ctrl.print )
             std::cout << "  alpha = " << alpha << std::endl;
 
         // Update the state by stepping a distance of alpha
@@ -443,8 +453,7 @@ void IPF
 ( const DistSparseMatrix<Real>& A, 
   const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c,
   DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l,
-  Real tol, Int maxIts,
-  Real sigma, Real gamma, Real beta, Real psi, bool print )
+  const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
 
@@ -466,7 +475,7 @@ void IPF
 #ifndef EL_RELEASE
     DistMultiVec<Real> dsError(comm), dxError(comm), dlError(comm);
 #endif
-    for( Int numIts=0; numIts<maxIts; ++numIts )
+    for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
     {
         // Check for convergence
         // =====================
@@ -492,9 +501,9 @@ void IPF
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
-        if( objConv <= tol && rbConv <= tol && rcConv <= tol )
+        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
             break;
-        else if( print && commRank == 0 )
+        else if( ctrl.print && commRank == 0 )
             std::cout << " iter " << numIts << ":\n"
                       << "  |c^T x - b^T l| / (1 + |c^T x|) = "
                       << objConv << "\n"
@@ -511,7 +520,7 @@ void IPF
         {
             const Real xi = x.GetLocal(iLoc,0);
             const Real si = s.GetLocal(iLoc,0);
-            rmu.SetLocal( iLoc, 0, xi*si - sigma*mu );
+            rmu.SetLocal( iLoc, 0, xi*si - ctrl.centering*mu );
         }
 
         // Construct the reduced KKT system, J dl = y
@@ -559,7 +568,7 @@ void IPF
         Multiply( NORMAL, Real(1), A, dx, Real(1), dxError );
         const Real dxErrorNrm2 = Nrm2( dxError );
 
-        if( print && commRank == 0 )
+        if( ctrl.print && commRank == 0 )
             std::cout << "  || dsError ||_2 / (1 + || r_mu ||_2) = " 
                       << dsErrorNrm2/(1+rmuNrm2) << "\n"
                       << "  || dxError ||_2 / (1 + || r_c ||_2) = " 
@@ -571,9 +580,8 @@ void IPF
         // Decide on the step length
         // =========================
         const Real alpha = 
-          IPFLineSearch 
-          ( A, b, c, s, x, l, ds, dx, dl, gamma, beta, psi, print );
-        if( print && commRank == 0 )
+          IPFLineSearch ( A, b, c, s, x, l, ds, dx, dl, ctrl.lineSearchCtrl );
+        if( ctrl.print && commRank == 0 )
             std::cout << "  alpha = " << alpha << std::endl;
 
         // Update the state by stepping a distance of alpha
@@ -589,27 +597,23 @@ void IPF
   ( const Matrix<Real>& A, \
     const Matrix<Real>& b,  const Matrix<Real>& c, \
     Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l, \
-    Real tol, Int maxIts, \
-    Real sigma, Real gamma, Real beta, Real psi, bool print, System system ); \
+    const IPFCtrl<Real>& ctrl ); \
   template void IPF \
   ( const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c, \
     AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, \
     AbstractDistMatrix<Real>& l, \
-    Real tol, Int maxIts, \
-    Real sigma, Real gamma, Real beta, Real psi, bool print, System system ); \
+    const IPFCtrl<Real>& ctrl ); \
   template void IPF \
   ( const SparseMatrix<Real>& A, \
     const Matrix<Real>& b,  const Matrix<Real>& c, \
     Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l, \
-    Real tol, Int maxIts, \
-    Real sigma, Real gamma, Real beta, Real psi, bool print ); \
+    const IPFCtrl<Real>& ctrl ); \
   template void IPF \
   ( const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c, \
     DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l, \
-    Real tol, Int maxIts, \
-    Real sigma, Real gamma, Real beta, Real psi, bool print );
+    const IPFCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

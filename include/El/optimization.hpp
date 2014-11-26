@@ -76,65 +76,134 @@ void LinearProgram
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
   const AbstractDistMatrix<Real>& c,       AbstractDistMatrix<Real>& x );
 
-namespace SystemNS {
-enum System {
+namespace KKTSystemNS {
+enum KKTSystem {
   FULL_KKT,
   AUGMENTED_KKT,
   NORMAL_KKT
 };
 }
-using namespace SystemNS;
+using namespace KKTSystemNS;
 
 namespace lin_prog {
 
-// IPF
-// ---
+// Mehotra's Predictor-Corrector Infeasible Interior Point Method (MPC)
+// --------------------------------------------------------------------
+template<typename Real>
+struct MPCCtrl {
+    Real tol;
+    Int maxIts;
+    Real maxStepRatio;
+    KKTSystem system;
+    bool print;
+
+    // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
+    //       the default, (muAff/mu)^3 
+
+    MPCCtrl()
+    : tol(1e-8), maxIts(1000), maxStepRatio(0.99), system(NORMAL_KKT),
+      print(false)
+    { }
+};
+
+template<typename Real>
+void MPC
+( const Matrix<Real>& A,
+  const Matrix<Real>& b, const Matrix<Real>& c,
+  Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
+  const MPCCtrl<Real>& ctrl=MPCCtrl<Real>() );
+template<typename Real>
+void MPC
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
+  AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, 
+  AbstractDistMatrix<Real>& l,
+  const MPCCtrl<Real>& ctrl=MPCCtrl<Real>() );
+
+// Infeasible Path-Following Interior Point Method (IPF)
+// -----------------------------------------------------
+template<typename Real>
+struct IPFLineSearchCtrl {
+    Real gamma;
+    Real beta;
+    Real psi;
+    bool print;
+
+    IPFLineSearchCtrl()
+    : gamma(1e-3), beta(2), psi(100), print(false)
+    { }
+};
+
+template<typename Real>
+struct IPFCtrl {
+    Real tol;
+    Int maxIts;
+    Real centering; 
+    KKTSystem system;
+
+    IPFLineSearchCtrl<Real> lineSearchCtrl;
+
+    bool print;
+
+    IPFCtrl() 
+    : tol(1e-8), maxIts(1000), centering(0.9), system(NORMAL_KKT), print(false)
+    { }
+};
+
 template<typename Real>
 void IPF
 ( const Matrix<Real>& A,
-  const Matrix<Real>& b,  const Matrix<Real>& c,
+  const Matrix<Real>& b, const Matrix<Real>& c,
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
-  Real tol=1e-8, Int maxIts=1000,
-  Real sigma=0.9, Real gamma=1e-3, Real beta=2, Real psi=100, 
-  bool print=false, System system=NORMAL_KKT );
+  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 template<typename Real>
 void IPF
 ( const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c,
   AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, 
-  AbstractDistMatrix<Real>& l,
-  Real tol=1e-8, Int maxIts=1000,
-  Real sigma=0.9, Real gamma=1e-3, Real beta=2, Real psi=100, 
-  bool print=false, System system=NORMAL_KKT );
+  AbstractDistMatrix<Real>& l, const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 template<typename Real>
 void IPF
 ( const SparseMatrix<Real>& A,
   const Matrix<Real>& b,  const Matrix<Real>& c,
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
-  Real tol=1e-8, Int maxIts=1000,
-  Real sigma=0.9, Real gamma=1e-3, Real beta=2, Real psi=100, 
-  bool print=false );
+  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 template<typename Real>
 void IPF
 ( const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c,
   DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l,
-  Real tol=1e-8, Int maxIts=1000,
-  Real sigma=0.9, Real gamma=1e-3, Real beta=2, Real psi=100, 
-  bool print=false );
+  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
+
+// Alternating Direction Method of Multipliers (ADMM)
+// --------------------------------------------------
+template<typename Real>
+struct ADMMCtrl
+{
+    Real rho;
+    Real alpha;
+    Int maxIter;
+    Real absTol;
+    Real relTol;
+    bool inv;
+    bool print;
+
+    ADMMCtrl()
+    : rho(1), alpha(1.2), maxIter(500), absTol(1e-6), relTol(1e-4), inv(true),
+      print(true)
+    { }
+};
 
 template<typename Real>
 Int ADMM
 ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
   Matrix<Real>& z,
-  Real rho=1., Real alpha=1.2, Int maxIter=500,
-  Real absTol=1e-6, Real relTol=1e-4, bool inv=false, bool progress=true );
+  const ADMMCtrl<Real>& ctrl=ADMMCtrl<Real>() );
 template<typename Real>
 Int ADMM
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
   const AbstractDistMatrix<Real>& c,       AbstractDistMatrix<Real>& z,
-  Real rho=1, Real alpha=1.2, Int maxIter=500, Real absTol=1e-6,
-  Real relTol=1e-4, bool inv=true, bool progress=true );
+  const ADMMCtrl<Real>& ctrl=ADMMCtrl<Real>() );
 
 } // namespace lin_prog
 

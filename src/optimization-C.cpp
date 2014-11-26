@@ -134,44 +134,32 @@ extern "C" {
   ElError ElLinearProgramIPF_ ## SIG \
   ( ElConstMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
-    ElMatrix_ ## SIG s, ElMatrix_ ## SIG x, ElMatrix_ ## SIG l, \
-    Real tol, ElInt maxIts, \
-    Real sigma, Real gamma, Real beta, Real psi, bool print ) \
+    ElMatrix_ ## SIG s, ElMatrix_ ## SIG x, ElMatrix_ ## SIG l ) \
   { EL_TRY( lin_prog::IPF( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(s), *CReflect(x), *CReflect(l), \
-      tol, maxIts, sigma, gamma, beta, psi, print ) ) } \
+      *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
   ElError ElLinearProgramIPFDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, \
     ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
-    ElDistMatrix_ ## SIG s, ElDistMatrix_ ## SIG x, ElDistMatrix_ ## SIG l, \
-    Real tol, ElInt maxIts, \
-    Real sigma, Real gamma, Real beta, Real psi, bool print ) \
+    ElDistMatrix_ ## SIG s, ElDistMatrix_ ## SIG x, ElDistMatrix_ ## SIG l ) \
   { EL_TRY( lin_prog::IPF( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(s), *CReflect(x), *CReflect(l), \
-      tol, maxIts, sigma, gamma, beta, psi, print ) ) } \
+      *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
   ElError ElLinearProgramIPFSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
-    ElMatrix_ ## SIG s, ElMatrix_ ## SIG x, ElMatrix_ ## SIG l, \
-    Real tol, ElInt maxIts, \
-    Real sigma, Real gamma, Real beta, Real psi, bool print ) \
+    ElMatrix_ ## SIG s, ElMatrix_ ## SIG x, ElMatrix_ ## SIG l ) \
   { EL_TRY( lin_prog::IPF( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(s), *CReflect(x), *CReflect(l), \
-      tol, maxIts, sigma, gamma, beta, psi, print ) ) } \
+      *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
   ElError ElLinearProgramIPFDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, \
     ElConstDistMultiVec_ ## SIG b, ElConstDistMultiVec_ ## SIG c, \
     ElDistMultiVec_ ## SIG s, ElDistMultiVec_ ## SIG x, \
-    ElDistMultiVec_ ## SIG l, \
-    Real tol, ElInt maxIts, \
-    Real sigma, Real gamma, Real beta, Real psi, bool print ) \
+    ElDistMultiVec_ ## SIG l ) \
   { EL_TRY( lin_prog::IPF( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(s), *CReflect(x), *CReflect(l), \
-      tol, maxIts, sigma, gamma, beta, psi, print ) ) } \
+      *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
   /* ADMM
      ---- */ \
   ElError ElLinearProgramADMM_ ## SIG \
