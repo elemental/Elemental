@@ -84,6 +84,18 @@ EL_EXPORT ElError ElLinearProgramDist_d
 ( ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElConstDistMatrix_d c, 
   ElDistMatrix_d x );
 
+EL_EXPORT ElError ElLinearProgramSparse_s
+( ElConstSparseMatrix_s A, ElConstMatrix_s b, ElConstMatrix_s c, ElMatrix_s x );
+EL_EXPORT ElError ElLinearProgramSparse_d
+( ElConstSparseMatrix_d A, ElConstMatrix_d b, ElConstMatrix_d c, ElMatrix_d x );
+
+EL_EXPORT ElError ElLinearProgramDistSparse_s
+( ElConstDistSparseMatrix_s A, 
+  ElConstDistMultiVec_s b, ElConstDistMultiVec_s c, ElDistMultiVec_s x );
+EL_EXPORT ElError ElLinearProgramDistSparse_d
+( ElConstDistSparseMatrix_d A, 
+  ElConstDistMultiVec_d b, ElConstDistMultiVec_d c, ElDistMultiVec_d x );
+
 /* Infeasible Path-following IPM
    ----------------------------- */
 EL_EXPORT ElError ElLinearProgramIPF_s
@@ -139,6 +151,24 @@ EL_EXPORT ElError ElLinearProgramMPCDist_d
 ( ElConstDistMatrix_d A,
   ElConstDistMatrix_d b, ElConstDistMatrix_d c,
   ElDistMatrix_d s, ElDistMatrix_d x, ElDistMatrix_d l );
+
+EL_EXPORT ElError ElLinearProgramMPCSparse_s
+( ElConstSparseMatrix_s A,
+  ElConstMatrix_s b, ElConstMatrix_s c,
+  ElMatrix_s s, ElMatrix_s x, ElMatrix_s l );
+EL_EXPORT ElError ElLinearProgramMPCSparse_d
+( ElConstSparseMatrix_d A,
+  ElConstMatrix_d b, ElConstMatrix_d c,
+  ElMatrix_d s, ElMatrix_d x, ElMatrix_d l );
+
+EL_EXPORT ElError ElLinearProgramMPCDistSparse_s
+( ElConstDistSparseMatrix_s A,
+  ElConstDistMultiVec_s b, ElConstDistMultiVec_s c,
+  ElDistMultiVec_s s, ElDistMultiVec_s x, ElDistMultiVec_s l );
+EL_EXPORT ElError ElLinearProgramMPCDistSparse_d
+( ElConstDistSparseMatrix_d A,
+  ElConstDistMultiVec_d b, ElConstDistMultiVec_d c,
+  ElDistMultiVec_d s, ElDistMultiVec_d x, ElDistMultiVec_d l );
 
 /* ADMM
    ---- */

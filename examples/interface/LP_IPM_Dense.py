@@ -67,7 +67,7 @@ El.Display( l, "l IPF" )
 
 obj = El.Dot(c,x)
 if El.mpi.WorldRank() == 0:
-  print "c^T x =", obj
+  print "IPF c^T x =", obj
 
 El.Copy( sOrig, s )
 El.Copy( xOrig, x )
@@ -79,6 +79,10 @@ print "MPC time:", endMPC-startMPC
 El.Display( s, "s MPC" )
 El.Display( x, "x MPC" )
 El.Display( l, "l MPC" )
+
+obj = El.Dot(c,x)
+if El.mpi.WorldRank() == 0:
+  print "MPC c^T x =", obj
 
 # Require the user to press a button before the figures are closed
 commSize = El.mpi.Size( El.mpi.COMM_WORLD() )

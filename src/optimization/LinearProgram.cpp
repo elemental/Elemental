@@ -63,7 +63,49 @@ void LinearProgram
     }
 }
 
-// TODO: Sparse versions of LinearProgram
+template<typename Real>
+void LinearProgram
+( const SparseMatrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, 
+  Matrix<Real>& x, const LinProgCtrl<Real>& ctrl )
+{
+    DEBUG_ONLY(CallStackEntry cse("LinearProgram"))
+    if( ctrl.alg == LIN_PROG_IPF )
+    {
+       Matrix<Real> s, l;
+       Uniform( s, A.Width(), 1, Real(0.5), Real(0.49) );
+       Zeros( l, A.Height(), 1 );
+       lin_prog::IPF( A, b, c, s, x, l, ctrl.ipfCtrl );
+    }
+    else // ctrl.alg == LIN_PROG_MPC
+    {
+       Matrix<Real> s, l;
+       Uniform( s, A.Width(), 1, Real(0.5), Real(0.49) );
+       Zeros( l, A.Height(), 1 );
+       lin_prog::MPC( A, b, c, s, x, l, ctrl.mpcCtrl );
+    }
+}
+
+template<typename Real>
+void LinearProgram
+( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, 
+  DistMultiVec<Real>& x, const LinProgCtrl<Real>& ctrl )
+{
+    DEBUG_ONLY(CallStackEntry cse("LinearProgram"))
+    if( ctrl.alg == LIN_PROG_IPF )
+    {
+       DistMultiVec<Real> s(A.Comm()), l(A.Comm());
+       Uniform( s, A.Width(), 1, Real(0.5), Real(0.49) );
+       Zeros( l, A.Height(), 1 );
+       lin_prog::IPF( A, b, c, s, x, l, ctrl.ipfCtrl );
+    }
+    else // ctrl.alg == LIN_PROG_MPC
+    {
+       DistMultiVec<Real> s(A.Comm()), l(A.Comm());
+       Uniform( s, A.Width(), 1, Real(0.5), Real(0.49) );
+       Zeros( l, A.Height(), 1 );
+       lin_prog::MPC( A, b, c, s, x, l, ctrl.mpcCtrl );
+    }
+}
 
 #define PROTO(Real) \
   template void LinearProgram \
@@ -72,7 +114,14 @@ void LinearProgram
   template void LinearProgram \
   ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, \
     const AbstractDistMatrix<Real>& c,       AbstractDistMatrix<Real>& x, \
-    const LinProgCtrl<Real>& ctrl );
+    const LinProgCtrl<Real>& ctrl ); \
+  template void LinearProgram \
+  ( const SparseMatrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, \
+    Matrix<Real>& x, const LinProgCtrl<Real>& ctrl ); \
+  template void LinearProgram \
+  ( const DistSparseMatrix<Real>& A, \
+    const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, \
+    DistMultiVec<Real>& x, const LinProgCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

@@ -201,6 +201,18 @@ lib.ElLinearProgramMPCDist_s.restype = c_uint
 lib.ElLinearProgramMPCDist_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
 lib.ElLinearProgramMPCDist_d.restype = c_uint
+lib.ElLinearProgramMPCSparse_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElLinearProgramMPCSparse_s.restype = c_uint
+lib.ElLinearProgramMPCSparse_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElLinearProgramMPCSparse_d.restype = c_uint
+lib.ElLinearProgramMPCDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElLinearProgramMPCDistSparse_s.restype = c_uint
+lib.ElLinearProgramMPCDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElLinearProgramMPCDistSparse_d.restype = c_uint
 def LinearProgramMPC(A,b,c,s,x,l):
   args = [A.obj,b.obj,c.obj,s.obj,x.obj,l.obj]
   if type(A) is Matrix:
@@ -218,6 +230,22 @@ def LinearProgramMPC(A,b,c,s,x,l):
       raise Exception('Expected {b,c,x,l,s} to be of type Matrix')
     if   A.tag == sTag: lib.ElLinearProgramMPCDist_s(*args)
     elif A.tag == dTag: lib.ElLinearProgramMPCDist_d(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if type(b) is not Matrix or type(c) is not Matrix or \
+       type(x) is not Matrix or type(l) is not Matrix or \
+       type(s) is not Matrix:
+      raise Exception('Expected {b,c,x,l,s} to be of type Matrix')
+    if   A.tag == sTag: lib.ElLinearProgramMPCSparse_s(*args)
+    elif A.tag == dTag: lib.ElLinearProgramMPCSparse_d(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if type(b) is not DistMultiVec or type(c) is not DistMultiVec or \
+       type(x) is not DistMultiVec or type(l) is not DistMultiVec or \
+       type(s) is not DistMultiVec:
+      raise Exception('Expected {b,c,x,l,s} to be of type DistMultiVec')
+    if   A.tag == sTag: lib.ElLinearProgramMPCDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElLinearProgramMPCDistSparse_d(*args)
     else: DataExcept()
   else: TypeExcept()
 

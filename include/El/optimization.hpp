@@ -160,8 +160,6 @@ struct LinProgCtrl
     LinProgCtrl() : alg(LIN_PROG_MPC) { }
 };
 
-// TODO: Come up with a standard interface for all of the algorithms.
-//       The primary difficulty is deciding how to handle initial guesses.
 template<typename Real>
 void LinearProgram
 ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
@@ -171,6 +169,15 @@ void LinearProgram
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
   const AbstractDistMatrix<Real>& c,       AbstractDistMatrix<Real>& x,
   const LinProgCtrl<Real>& ctrl=LinProgCtrl<Real>() );
+template<typename Real>
+void LinearProgram
+( const SparseMatrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
+  Matrix<Real>& x, const LinProgCtrl<Real>& ctrl=LinProgCtrl<Real>() );
+template<typename Real>
+void LinearProgram
+( const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
+  DistMultiVec<Real>& x, const LinProgCtrl<Real>& ctrl=LinProgCtrl<Real>() );
 
 namespace lin_prog {
 
@@ -188,6 +195,18 @@ void MPC
   const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
   AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, 
   AbstractDistMatrix<Real>& l,
+  const MPCCtrl<Real>& ctrl=MPCCtrl<Real>() );
+template<typename Real>
+void MPC
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& b, const Matrix<Real>& c,
+  Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
+  const MPCCtrl<Real>& ctrl=MPCCtrl<Real>() );
+template<typename Real>
+void MPC
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
+  DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l,
   const MPCCtrl<Real>& ctrl=MPCCtrl<Real>() );
 
 // Infeasible Path-Following Interior Point Method (IPF)
