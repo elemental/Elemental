@@ -182,47 +182,47 @@ extern "C" {
       lin_prog::IPF( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
       *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
-  /* MPC
+  /* Mehrotra
      --- */ \
-  ElError ElLinearProgramMPC_ ## SIG \
+  ElError ElLinearProgramMehrotra_ ## SIG \
   ( ElConstMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
     ElMatrix_ ## SIG s, ElMatrix_ ## SIG x, ElMatrix_ ## SIG l ) \
   { EL_TRY( \
-      lin_prog::MPCCtrl<Real> ctrl; \
+      lin_prog::MehrotraCtrl<Real> ctrl; \
       ctrl.print = true; \
-      lin_prog::MPC( \
+      lin_prog::Mehrotra( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
       *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
-  ElError ElLinearProgramMPCDist_ ## SIG \
+  ElError ElLinearProgramMehrotraDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, \
     ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
     ElDistMatrix_ ## SIG s, ElDistMatrix_ ## SIG x, ElDistMatrix_ ## SIG l ) \
   { EL_TRY( \
-      lin_prog::MPCCtrl<Real> ctrl; \
+      lin_prog::MehrotraCtrl<Real> ctrl; \
       ctrl.print = true; \
-      lin_prog::MPC( \
+      lin_prog::Mehrotra( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
       *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
-  ElError ElLinearProgramMPCSparse_ ## SIG \
+  ElError ElLinearProgramMehrotraSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
     ElMatrix_ ## SIG s, ElMatrix_ ## SIG x, ElMatrix_ ## SIG l ) \
   { EL_TRY( \
-      lin_prog::MPCCtrl<Real> ctrl; \
+      lin_prog::MehrotraCtrl<Real> ctrl; \
       ctrl.print = true; \
-      lin_prog::MPC( \
+      lin_prog::Mehrotra( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
       *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
-  ElError ElLinearProgramMPCDistSparse_ ## SIG \
+  ElError ElLinearProgramMehrotraDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, \
     ElConstDistMultiVec_ ## SIG b, ElConstDistMultiVec_ ## SIG c, \
     ElDistMultiVec_ ## SIG s, ElDistMultiVec_ ## SIG x, \
     ElDistMultiVec_ ## SIG l ) \
   { EL_TRY( \
-      lin_prog::MPCCtrl<Real> ctrl; \
+      lin_prog::MehrotraCtrl<Real> ctrl; \
       ctrl.print = true; \
-      lin_prog::MPC( \
+      lin_prog::Mehrotra( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
       *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
   /* ADMM

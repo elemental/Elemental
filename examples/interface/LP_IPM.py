@@ -83,18 +83,18 @@ if worldRank == 0:
 El.Copy( sOrig, s )
 El.Copy( xOrig, x )
 El.Copy( lOrig, l )
-startMPC = time.clock()
-El.LinearProgramMPC(A,b,c,s,x,l)
-endMPC = time.clock()
+startMehrotra = time.clock()
+El.LinearProgramMehrotra(A,b,c,s,x,l)
+endMehrotra = time.clock()
 if worldRank == 0:
-  print "MPC time:", endMPC-startMPC
+  print "Mehrotra time:", endMehrotra-startMehrotra
 El.Display( x, "s" )
 El.Display( l, "x" )
 El.Display( s, "l" )
 
 obj = El.Dot(c,x)
 if worldRank == 0:
-  print "MPC c^T x =", obj
+  print "Mehrotra c^T x =", obj
 
 # Require the user to press a button before the figures are closed
 commSize = El.mpi.Size( El.mpi.COMM_WORLD() )
