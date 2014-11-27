@@ -11,6 +11,7 @@ import time
 
 m = 200
 n = 400
+worldRank = El.mpi.WorldRank()
 
 def Rectang(m,n):
   A = El.DistSparseMatrix()
@@ -69,13 +70,14 @@ El.Copy( lOrig, l )
 startIPF = time.clock()
 El.LinearProgramIPF(A,b,c,s,x,l)
 endIPF = time.clock()
-print "IPF time:", endIPF-startIPF
+if worldRank == 0:
+  print "IPF time:", endIPF-startIPF
 El.Display( x, "s" )
 El.Display( l, "x" )
 El.Display( s, "l" )
 
 obj = El.Dot(c,x)
-if El.mpi.WorldRank() == 0:
+if worldRank == 0:
   print "IPF c^T x =", obj
 
 El.Copy( sOrig, s )
@@ -84,13 +86,14 @@ El.Copy( lOrig, l )
 startMPC = time.clock()
 El.LinearProgramMPC(A,b,c,s,x,l)
 endMPC = time.clock()
-print "MPC time:", endMPC-startMPC
+if worldRank == 0:
+  print "MPC time:", endMPC-startMPC
 El.Display( x, "s" )
 El.Display( l, "x" )
 El.Display( s, "l" )
 
 obj = El.Dot(c,x)
-if El.mpi.WorldRank() == 0:
+if worldRank == 0:
   print "MPC c^T x =", obj
 
 # Require the user to press a button before the figures are closed
