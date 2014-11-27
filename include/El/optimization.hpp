@@ -105,7 +105,7 @@ struct IPFCtrl {
 };
 
 template<typename Real>
-struct MPCCtrl {
+struct MehrotraCtrl {
     Real tol;
     Int maxIts;
     Real maxStepRatio;
@@ -115,7 +115,7 @@ struct MPCCtrl {
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
     //       the default, (muAff/mu)^3 
 
-    MPCCtrl()
+    MehrotraCtrl()
     : tol(1e-8), maxIts(1000), maxStepRatio(0.99), system(NORMAL_KKT),
       print(false)
     { }
@@ -144,7 +144,7 @@ namespace LinProgAlgNS {
 enum LinProgAlg {
     LIN_PROG_ADMM,
     LIN_PROG_IPF,
-    LIN_PROG_MPC
+    LIN_PROG_MEHROTRA
 };
 } // namespace LinProgAlgNS
 using namespace LinProgAlgNS;
@@ -155,9 +155,9 @@ struct LinProgCtrl
     LinProgAlg alg;
     lin_prog::ADMMCtrl<Real> admmCtrl;
     lin_prog::IPFCtrl<Real> ipfCtrl;
-    lin_prog::MPCCtrl<Real> mpcCtrl;
+    lin_prog::MehrotraCtrl<Real> mehrotraCtrl;
 
-    LinProgCtrl() : alg(LIN_PROG_MPC) { }
+    LinProgCtrl() : alg(LIN_PROG_MEHROTRA) { }
 };
 
 template<typename Real>
@@ -181,33 +181,33 @@ void LinearProgram
 
 namespace lin_prog {
 
-// Mehotra's Predictor-Corrector Infeasible Interior Point Method (MPC)
+// Mehotra's Predictor-Corrector Infeasible Interior Point Method (Mehrotra)
 // --------------------------------------------------------------------
 template<typename Real>
-void MPC
+void Mehrotra
 ( const Matrix<Real>& A,
   const Matrix<Real>& b, const Matrix<Real>& c,
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
-  const MPCCtrl<Real>& ctrl=MPCCtrl<Real>() );
+  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
-void MPC
+void Mehrotra
 ( const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
   AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, 
   AbstractDistMatrix<Real>& l,
-  const MPCCtrl<Real>& ctrl=MPCCtrl<Real>() );
+  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
-void MPC
+void Mehrotra
 ( const SparseMatrix<Real>& A,
   const Matrix<Real>& b, const Matrix<Real>& c,
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
-  const MPCCtrl<Real>& ctrl=MPCCtrl<Real>() );
+  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
-void MPC
+void Mehrotra
 ( const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
   DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l,
-  const MPCCtrl<Real>& ctrl=MPCCtrl<Real>() );
+  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 
 // Infeasible Path-Following Interior Point Method (IPF)
 // -----------------------------------------------------

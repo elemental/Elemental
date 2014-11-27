@@ -16,13 +16,13 @@ namespace lin_prog {
 
 // TODO: Add std::function<Real(Real)> to generalize sigma = (mu_aff/mu)^3
 template<typename Real>
-void MPC
+void Mehrotra
 ( const Matrix<Real>& A, 
   const Matrix<Real>& b,  const Matrix<Real>& c,
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
-  const MPCCtrl<Real>& ctrl )
+  const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::MPC"))    
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::Mehrotra"))    
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -291,14 +291,14 @@ void MPC
 }
 
 template<typename Real>
-void MPC
+void Mehrotra
 ( const AbstractDistMatrix<Real>& APre, 
   const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c,
   AbstractDistMatrix<Real>& sPre, AbstractDistMatrix<Real>& xPre, 
   AbstractDistMatrix<Real>& l,
-  const MPCCtrl<Real>& ctrl )
+  const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::MPC"))    
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::Mehrotra"))    
 
     ProxyCtrl control;
     control.colConstrain = true;
@@ -620,13 +620,13 @@ void MPC
 }
 
 template<typename Real>
-void MPC
+void Mehrotra
 ( const SparseMatrix<Real>& A, 
   const Matrix<Real>& b,  const Matrix<Real>& c,
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
-  const MPCCtrl<Real>& ctrl )
+  const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::MPC"))    
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::Mehrotra"))    
 
     // TODO: Check that x and s are strictly positive
 
@@ -846,13 +846,13 @@ void MPC
 }
 
 template<typename Real>
-void MPC
+void Mehrotra
 ( const DistSparseMatrix<Real>& A, 
   const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c,
   DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l,
-  const MPCCtrl<Real>& ctrl )
+  const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::MPC"))    
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::Mehrotra"))    
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -1093,27 +1093,27 @@ void MPC
 }
 
 #define PROTO(Real) \
-  template void MPC \
+  template void Mehrotra \
   ( const Matrix<Real>& A, \
     const Matrix<Real>& b,  const Matrix<Real>& c, \
     Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l, \
-    const MPCCtrl<Real>& ctrl ); \
-  template void MPC \
+    const MehrotraCtrl<Real>& ctrl ); \
+  template void Mehrotra \
   ( const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c, \
     AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, \
     AbstractDistMatrix<Real>& l, \
-    const MPCCtrl<Real>& ctrl ); \
-  template void MPC \
+    const MehrotraCtrl<Real>& ctrl ); \
+  template void Mehrotra \
   ( const SparseMatrix<Real>& A, \
     const Matrix<Real>& b,  const Matrix<Real>& c, \
     Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l, \
-    const MPCCtrl<Real>& ctrl ); \
-  template void MPC \
+    const MehrotraCtrl<Real>& ctrl ); \
+  template void Mehrotra \
   ( const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c, \
     DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l, \
-    const MPCCtrl<Real>& ctrl );
+    const MehrotraCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
