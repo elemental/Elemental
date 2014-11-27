@@ -139,10 +139,10 @@ void IPF
         if( ctrl.print )
             std::cout << "  || dsError ||_2 / (1 + || r_mu ||_2) = " 
                       << dsErrorNrm2/(1+rmuNrm2) << "\n"
-                      << "  || dxError ||_2 / (1 + || r_c ||_2) = " 
-                      << dxErrorNrm2/(1+rcNrm2) << "\n"
-                      << "  || dlError ||_2 / (1 + || r_b ||_2) = " 
-                      << dlErrorNrm2/(1+rbNrm2) << std::endl;
+                      << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
+                      << dxErrorNrm2/(1+rbNrm2) << "\n"
+                      << "  || dlError ||_2 / (1 + || r_c ||_2) = " 
+                      << dlErrorNrm2/(1+rcNrm2) << std::endl;
 #endif
 
         // Decide on the step length
@@ -174,7 +174,6 @@ void IPF
     proxCtrl.rowConstrain = true;
     proxCtrl.colAlign = 0;
     proxCtrl.rowAlign = 0;
-
     auto APtr = ReadProxy<Real,MC,MR>(&APre,proxCtrl);      auto& A = *APtr;
     auto sPtr = ReadWriteProxy<Real,MC,MR>(&sPre,proxCtrl); auto& s = *sPtr;
     auto xPtr = ReadWriteProxy<Real,MC,MR>(&xPre,proxCtrl); auto& x = *xPtr;
@@ -188,7 +187,7 @@ void IPF
 
     DistMatrix<Real> J(grid), y(grid), rmu(grid), rb(grid), rc(grid), 
                      ds(grid), dx(grid), dl(grid);
-    ds.AlignWith( s );
+    ds.AlignWith( x );
     dx.AlignWith( x );
 #ifndef EL_RELEASE
     DistMatrix<Real> dsError(grid), dxError(grid), dlError(grid);
@@ -235,10 +234,11 @@ void IPF
         // ====================================================
         const Real mu = Dot(x,s) / n;
         rmu.Resize( n, 1 );
-        for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
-            rmu.SetLocal
-            ( iLoc, 0, 
-              x.GetLocal(iLoc,0)*s.GetLocal(iLoc,0) - ctrl.centering*mu );
+        if( rmu.IsLocalCol(0) )
+            for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
+                rmu.SetLocal
+                ( iLoc, 0, 
+                  x.GetLocal(iLoc,0)*s.GetLocal(iLoc,0) - ctrl.centering*mu );
 
         if( ctrl.system == FULL_KKT )
         {
@@ -283,13 +283,16 @@ void IPF
         const Real rmuNrm2 = Nrm2( rmu );
         // TODO: Find a more convenient syntax for expressing this operation
         dsError = rmu;
-        for( Int iLoc=0; iLoc<dsError.LocalHeight(); ++iLoc )
+        if( dsError.IsLocalCol(0) )
         {
-            const Real xi = x.GetLocal(iLoc,0);
-            const Real si = s.GetLocal(iLoc,0);
-            const Real dxi = dx.GetLocal(iLoc,0);
-            const Real dsi = ds.GetLocal(iLoc,0);
-            dsError.UpdateLocal( iLoc, 0, xi*dsi + si*dxi );
+            for( Int iLoc=0; iLoc<dsError.LocalHeight(); ++iLoc )
+            {
+                const Real xi = x.GetLocal(iLoc,0);
+                const Real si = s.GetLocal(iLoc,0);
+                const Real dxi = dx.GetLocal(iLoc,0);
+                const Real dsi = ds.GetLocal(iLoc,0);
+                dsError.UpdateLocal( iLoc, 0, xi*dsi + si*dxi );
+            }
         }
         const Real dsErrorNrm2 = Nrm2( dsError );
 
@@ -305,10 +308,10 @@ void IPF
         if( ctrl.print && commRank == 0 )
             std::cout << "  || dsError ||_2 / (1 + || r_mu ||_2) = " 
                       << dsErrorNrm2/(1+rmuNrm2) << "\n"
-                      << "  || dxError ||_2 / (1 + || r_c ||_2) = " 
-                      << dxErrorNrm2/(1+rcNrm2) << "\n"
-                      << "  || dlError ||_2 / (1 + || r_b ||_2) = " 
-                      << dlErrorNrm2/(1+rbNrm2) << std::endl;
+                      << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
+                      << dxErrorNrm2/(1+rbNrm2) << "\n"
+                      << "  || dlError ||_2 / (1 + || r_c ||_2) = " 
+                      << dlErrorNrm2/(1+rcNrm2) << std::endl;
 #endif
 
         // Decide on the step length
@@ -426,10 +429,10 @@ void IPF
         if( ctrl.print )
             std::cout << "  || dsError ||_2 / (1 + || r_mu ||_2) = " 
                       << dsErrorNrm2/(1+rmuNrm2) << "\n"
-                      << "  || dxError ||_2 / (1 + || r_c ||_2) = " 
-                      << dxErrorNrm2/(1+rcNrm2) << "\n"
-                      << "  || dlError ||_2 / (1 + || r_b ||_2) = " 
-                      << dlErrorNrm2/(1+rbNrm2) << std::endl;
+                      << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
+                      << dxErrorNrm2/(1+rbNrm2) << "\n"
+                      << "  || dlError ||_2 / (1 + || r_c ||_2) = " 
+                      << dlErrorNrm2/(1+rcNrm2) << std::endl;
 #endif
 
         // Decide on the step length
@@ -571,10 +574,10 @@ void IPF
         if( ctrl.print && commRank == 0 )
             std::cout << "  || dsError ||_2 / (1 + || r_mu ||_2) = " 
                       << dsErrorNrm2/(1+rmuNrm2) << "\n"
-                      << "  || dxError ||_2 / (1 + || r_c ||_2) = " 
-                      << dxErrorNrm2/(1+rcNrm2) << "\n"
-                      << "  || dlError ||_2 / (1 + || r_b ||_2) = " 
-                      << dlErrorNrm2/(1+rbNrm2) << std::endl;
+                      << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
+                      << dxErrorNrm2/(1+rbNrm2) << "\n"
+                      << "  || dlError ||_2 / (1 + || r_c ||_2) = " 
+                      << dlErrorNrm2/(1+rcNrm2) << std::endl;
 #endif
 
         // Decide on the step length

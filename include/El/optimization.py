@@ -189,6 +189,38 @@ def LinearProgramIPF(A,b,c,s,x,l):
     else: DataExcept()
   else: TypeExcept()
 
+lib.ElLinearProgramMPC_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElLinearProgramMPC_s.restype = c_uint
+lib.ElLinearProgramMPC_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElLinearProgramMPC_d.restype = c_uint
+lib.ElLinearProgramMPCDist_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElLinearProgramMPCDist_s.restype = c_uint
+lib.ElLinearProgramMPCDist_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElLinearProgramMPCDist_d.restype = c_uint
+def LinearProgramMPC(A,b,c,s,x,l):
+  args = [A.obj,b.obj,c.obj,s.obj,x.obj,l.obj]
+  if type(A) is Matrix:
+    if type(b) is not Matrix or type(c) is not Matrix or \
+       type(x) is not Matrix or type(l) is not Matrix or \
+       type(s) is not Matrix:
+      raise Exception('Expected {b,c,x,l,s} to be of type Matrix')
+    if   A.tag == sTag: lib.ElLinearProgramMPC_s(*args)
+    elif A.tag == dTag: lib.ElLinearProgramMPC_d(*args)
+    else: DataExcept()
+  elif type(A) is DistMatrix:
+    if type(b) is not DistMatrix or type(c) is not DistMatrix or \
+       type(x) is not DistMatrix or type(l) is not DistMatrix or \
+       type(s) is not DistMatrix:
+      raise Exception('Expected {b,c,x,l,s} to be of type Matrix')
+    if   A.tag == sTag: lib.ElLinearProgramMPCDist_s(*args)
+    elif A.tag == dTag: lib.ElLinearProgramMPCDist_d(*args)
+    else: DataExcept()
+  else: TypeExcept()
+
 lib.ElLinearProgramADMM_s.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,POINTER(iType)]
 lib.ElLinearProgramADMM_s.restype = c_uint

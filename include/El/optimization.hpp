@@ -65,17 +65,6 @@ Int Lasso
 // Linear program
 // ==============
 
-// TODO: Come up with a standard interface for all of the algorithms.
-//       The primary difficulty is deciding how to handle initial guesses.
-template<typename Real>
-void LinearProgram
-( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
-  Matrix<Real>& x );
-template<typename Real>
-void LinearProgram
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
-  const AbstractDistMatrix<Real>& c,       AbstractDistMatrix<Real>& x );
-
 namespace KKTSystemNS {
 enum KKTSystem {
   FULL_KKT,
@@ -87,41 +76,6 @@ using namespace KKTSystemNS;
 
 namespace lin_prog {
 
-// Mehotra's Predictor-Corrector Infeasible Interior Point Method (MPC)
-// --------------------------------------------------------------------
-template<typename Real>
-struct MPCCtrl {
-    Real tol;
-    Int maxIts;
-    Real maxStepRatio;
-    KKTSystem system;
-    bool print;
-
-    // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
-    //       the default, (muAff/mu)^3 
-
-    MPCCtrl()
-    : tol(1e-8), maxIts(1000), maxStepRatio(0.99), system(NORMAL_KKT),
-      print(false)
-    { }
-};
-
-template<typename Real>
-void MPC
-( const Matrix<Real>& A,
-  const Matrix<Real>& b, const Matrix<Real>& c,
-  Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
-  const MPCCtrl<Real>& ctrl=MPCCtrl<Real>() );
-template<typename Real>
-void MPC
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
-  AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, 
-  AbstractDistMatrix<Real>& l,
-  const MPCCtrl<Real>& ctrl=MPCCtrl<Real>() );
-
-// Infeasible Path-Following Interior Point Method (IPF)
-// -----------------------------------------------------
 template<typename Real>
 struct IPFLineSearchCtrl {
     Real gamma;
@@ -151,6 +105,94 @@ struct IPFCtrl {
 };
 
 template<typename Real>
+struct MPCCtrl {
+    Real tol;
+    Int maxIts;
+    Real maxStepRatio;
+    KKTSystem system;
+    bool print;
+
+    // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
+    //       the default, (muAff/mu)^3 
+
+    MPCCtrl()
+    : tol(1e-8), maxIts(1000), maxStepRatio(0.99), system(NORMAL_KKT),
+      print(false)
+    { }
+};
+
+template<typename Real>
+struct ADMMCtrl
+{
+    Real rho;
+    Real alpha;
+    Int maxIter;
+    Real absTol;
+    Real relTol;
+    bool inv;
+    bool print;
+
+    ADMMCtrl()
+    : rho(1), alpha(1.2), maxIter(500), absTol(1e-6), relTol(1e-4), inv(true),
+      print(true)
+    { }
+};
+
+} // namespace lin_prog
+
+namespace LinProgAlgNS {
+enum LinProgAlg {
+    LIN_PROG_ADMM,
+    LIN_PROG_IPF,
+    LIN_PROG_MPC
+};
+} // namespace LinProgAlgNS
+using namespace LinProgAlgNS;
+
+template<typename Real>
+struct LinProgCtrl 
+{
+    LinProgAlg alg;
+    lin_prog::ADMMCtrl<Real> admmCtrl;
+    lin_prog::IPFCtrl<Real> ipfCtrl;
+    lin_prog::MPCCtrl<Real> mpcCtrl;
+
+    LinProgCtrl() : alg(LIN_PROG_MPC) { }
+};
+
+// TODO: Come up with a standard interface for all of the algorithms.
+//       The primary difficulty is deciding how to handle initial guesses.
+template<typename Real>
+void LinearProgram
+( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
+  Matrix<Real>& x, const LinProgCtrl<Real>& ctrl=LinProgCtrl<Real>() );
+template<typename Real>
+void LinearProgram
+( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
+  const AbstractDistMatrix<Real>& c,       AbstractDistMatrix<Real>& x,
+  const LinProgCtrl<Real>& ctrl=LinProgCtrl<Real>() );
+
+namespace lin_prog {
+
+// Mehotra's Predictor-Corrector Infeasible Interior Point Method (MPC)
+// --------------------------------------------------------------------
+template<typename Real>
+void MPC
+( const Matrix<Real>& A,
+  const Matrix<Real>& b, const Matrix<Real>& c,
+  Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
+  const MPCCtrl<Real>& ctrl=MPCCtrl<Real>() );
+template<typename Real>
+void MPC
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
+  AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, 
+  AbstractDistMatrix<Real>& l,
+  const MPCCtrl<Real>& ctrl=MPCCtrl<Real>() );
+
+// Infeasible Path-Following Interior Point Method (IPF)
+// -----------------------------------------------------
+template<typename Real>
 void IPF
 ( const Matrix<Real>& A,
   const Matrix<Real>& b, const Matrix<Real>& c,
@@ -177,23 +219,6 @@ void IPF
 
 // Alternating Direction Method of Multipliers (ADMM)
 // --------------------------------------------------
-template<typename Real>
-struct ADMMCtrl
-{
-    Real rho;
-    Real alpha;
-    Int maxIter;
-    Real absTol;
-    Real relTol;
-    bool inv;
-    bool print;
-
-    ADMMCtrl()
-    : rho(1), alpha(1.2), maxIter(500), absTol(1e-6), relTol(1e-4), inv(true),
-      print(true)
-    { }
-};
-
 template<typename Real>
 Int ADMM
 ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,

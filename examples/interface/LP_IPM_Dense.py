@@ -7,6 +7,7 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 import El
+import time
 
 m = 200
 n = 400
@@ -43,21 +44,41 @@ El.Uniform(c,n,1,0.5,0.4999)
 
 # Generate random initial guesses
 # ===============================
+sOrig = El.DistMatrix()
+xOrig = El.DistMatrix()
+lOrig = El.DistMatrix()
+El.Uniform(sOrig,n,1,0.5,0.4999)
+El.Uniform(xOrig,n,1,0.5,0.4999)
+El.Uniform(lOrig,m,1,0.5,0.4999)
+s = El.DistMatrix()
 x = El.DistMatrix()
 l = El.DistMatrix()
-s = El.DistMatrix()
-El.Uniform(x,n,1,0.5,0.4999)
-El.Uniform(l,m,1,0.5,0.4999)
-El.Uniform(s,n,1,0.5,0.4999)
 
+El.Copy( sOrig, s )
+El.Copy( xOrig, x )
+El.Copy( lOrig, l )
+startIPF = time.clock()
 El.LinearProgramIPF(A,b,c,s,x,l)
-El.Display( s, "s" )
-El.Display( x, "x" )
-El.Display( l, "l" )
+endIPF = time.clock()
+print "IPF time:", endIPF-startIPF
+El.Display( s, "s IPF" )
+El.Display( x, "x IPF" )
+El.Display( l, "l IPF" )
 
 obj = El.Dot(c,x)
 if El.mpi.WorldRank() == 0:
   print "c^T x =", obj
+
+El.Copy( sOrig, s )
+El.Copy( xOrig, x )
+El.Copy( lOrig, l )
+startMPC = time.clock()
+El.LinearProgramMPC(A,b,c,s,x,l)
+endMPC = time.clock()
+print "MPC time:", endMPC-startMPC
+El.Display( s, "s MPC" )
+El.Display( x, "x MPC" )
+El.Display( l, "l MPC" )
 
 # Require the user to press a button before the figures are closed
 commSize = El.mpi.Size( El.mpi.COMM_WORLD() )

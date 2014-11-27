@@ -120,6 +120,26 @@ EL_EXPORT ElError ElLinearProgramIPFDistSparse_d
   ElConstDistMultiVec_d b, ElConstDistMultiVec_d c,
   ElDistMultiVec_d s, ElDistMultiVec_d x, ElDistMultiVec_d l );
 
+/* Mehotra's Predictor-Corrector IPM
+   --------------------------------- */
+EL_EXPORT ElError ElLinearProgramMPC_s
+( ElConstMatrix_s A,
+  ElConstMatrix_s b, ElConstMatrix_s c,
+  ElMatrix_s s, ElMatrix_s x, ElMatrix_s l );
+EL_EXPORT ElError ElLinearProgramMPC_d
+( ElConstMatrix_d A,
+  ElConstMatrix_d b, ElConstMatrix_d c,
+  ElMatrix_d s, ElMatrix_d x, ElMatrix_d l );
+
+EL_EXPORT ElError ElLinearProgramMPCDist_s
+( ElConstDistMatrix_s A,
+  ElConstDistMatrix_s b, ElConstDistMatrix_s c,
+  ElDistMatrix_s s, ElDistMatrix_s x, ElDistMatrix_s l );
+EL_EXPORT ElError ElLinearProgramMPCDist_d
+( ElConstDistMatrix_d A,
+  ElConstDistMatrix_d b, ElConstDistMatrix_d c,
+  ElDistMatrix_d s, ElDistMatrix_d x, ElDistMatrix_d l );
+
 /* ADMM
    ---- */
 EL_EXPORT ElError ElLinearProgramADMM_s

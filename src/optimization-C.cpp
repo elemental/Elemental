@@ -142,9 +142,12 @@ extern "C" {
   ( ElConstDistMatrix_ ## SIG A, \
     ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
     ElDistMatrix_ ## SIG s, ElDistMatrix_ ## SIG x, ElDistMatrix_ ## SIG l ) \
-  { EL_TRY( lin_prog::IPF( \
+  { EL_TRY( \
+      lin_prog::IPFCtrl<Real> ctrl; \
+      ctrl.print = true; \
+      lin_prog::IPF( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
+      *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
   ElError ElLinearProgramIPFSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
@@ -160,6 +163,28 @@ extern "C" {
   { EL_TRY( lin_prog::IPF( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
       *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
+  /* MPC
+     --- */ \
+  ElError ElLinearProgramMPC_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
+    ElMatrix_ ## SIG s, ElMatrix_ ## SIG x, ElMatrix_ ## SIG l ) \
+  { EL_TRY( \
+      lin_prog::MPCCtrl<Real> ctrl; \
+      ctrl.print = true; \
+      lin_prog::MPC( \
+      *CReflect(A), *CReflect(b), *CReflect(c), \
+      *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
+  ElError ElLinearProgramMPCDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
+    ElDistMatrix_ ## SIG s, ElDistMatrix_ ## SIG x, ElDistMatrix_ ## SIG l ) \
+  { EL_TRY( \
+      lin_prog::MPCCtrl<Real> ctrl; \
+      ctrl.print = true; \
+      lin_prog::MPC( \
+      *CReflect(A), *CReflect(b), *CReflect(c), \
+      *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
   /* ADMM
      ---- */ \
   ElError ElLinearProgramADMM_ ## SIG \

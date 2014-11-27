@@ -38,6 +38,23 @@ void MPC
 #endif
     for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
     {
+#ifndef RELEASE
+        // Check that no entries of x or s are non-positive
+        // ================================================
+        Int numNonPos_x = 0;
+        for( Int i=0; i<x.Height(); ++i )
+            if( x.Get(i,0) <= Real(0) )
+                ++numNonPos_x;
+        Int numNonPos_s = 0;
+        for( Int i=0; i<s.Height(); ++i )
+            if( s.Get(i,0) <= Real(0) )
+                ++numNonPos_s;
+        if( numNonPos_x > 0 || numNonPos_s > 0 )
+            std::cout << numNonPos_x << " entries of x were nonzero and "
+                      << numNonPos_s << " entries of s were nonzero"
+                      << std::endl;
+#endif
+
         // Check for convergence
         // =====================
         // |c^T x - b^T l| / (1 + |c^T x|) <= tol ?
@@ -112,13 +129,13 @@ void MPC
             // Construct the "normal" KKT system
             // ---------------------------------
             NormalKKT( A, s, x, J );
-            NormalKKTRHS( A, s, x, rmu, rc, rb, dl );
+            NormalKKTRHS( A, s, x, rmu, rc, rb, dlAff );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             LDL( J, dSub, p, false );
-            ldl::SolveAfter( J, dSub, p, dl, false );
-            ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
+            ldl::SolveAfter( J, dSub, p, dlAff, false );
+            ExpandNormalSolution( A, c, s, x, rmu, rc, dlAff, dsAff, dxAff );
         }
 
 #ifndef RELEASE
@@ -148,10 +165,10 @@ void MPC
         if( ctrl.print )
             std::cout << "  || dsAffError ||_2 / (1 + || r_mu ||_2) = " 
                       << dsErrorNrm2/(1+rmuNrm2) << "\n"
-                      << "  || dxAffError ||_2 / (1 + || r_c ||_2) = " 
-                      << dxErrorNrm2/(1+rcNrm2) << "\n"
-                      << "  || dlAffError ||_2 / (1 + || r_b ||_2) = " 
-                      << dlErrorNrm2/(1+rbNrm2) << std::endl;
+                      << "  || dxAffError ||_2 / (1 + || r_b ||_2) = " 
+                      << dxErrorNrm2/(1+rbNrm2) << "\n"
+                      << "  || dlAffError ||_2 / (1 + || r_c ||_2) = " 
+                      << dlErrorNrm2/(1+rcNrm2) << std::endl;
 #endif
 
         // Compute the maximum affine [0,1]-step which preserves positivity
@@ -172,6 +189,9 @@ void MPC
             if( dsAffi < Real(0) )
                 alphaAffDual = Min(alphaAffDual,-si/dsAffi);
         }
+        if( ctrl.print )
+            std::cout << "  alphaAffPri = " << alphaAffPri 
+                      << ", alphaAffDual = " << alphaAffDual << std::endl;
 
         // Compute what the new duality measure would become
         // =================================================
@@ -187,13 +207,17 @@ void MPC
         // ======================================================
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3)); 
+        if( ctrl.print )
+            std::cout << "  muAff = " << muAff 
+                      << ", mu = " << mu 
+                      << ", sigma = " << sigma << std::endl;
 
         // Solve for the centering-corrector 
         // =================================
         Zeros( rc, n, 1 );
         Zeros( rb, m, 1 );
         for( Int i=0; i<n; ++i )
-            rmu.Set( i, 0, sigma*mu - dxAff.Get(i,0)*dsAff.Get(i,0) );
+            rmu.Set( i, 0, dxAff.Get(i,0)*dsAff.Get(i,0) - sigma*mu );
         if( ctrl.system == FULL_KKT )
         {
             // Construct the new full KKT RHS
@@ -256,6 +280,9 @@ void MPC
         }
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        if( ctrl.print )
+            std::cout << "  alphaPri = " << alphaPri 
+                      << ", alphaDual = " << alphaDual << std::endl;
 
         // Update the current estimates
         // ============================
@@ -280,8 +307,7 @@ void MPC
     control.rowConstrain = true;
     control.colAlign = 0;
     control.rowAlign = 0;
-
-    auto APtr = ReadProxy<Real,MC,MR>(&APre,control); auto& A = *APtr;
+    auto APtr = ReadProxy<Real,MC,MR>(&APre,control);      auto& A = *APtr;
     auto sPtr = ReadWriteProxy<Real,MC,MR>(&sPre,control); auto& s = *sPtr;
     auto xPtr = ReadWriteProxy<Real,MC,MR>(&xPre,control); auto& x = *xPtr;
 
@@ -296,10 +322,11 @@ void MPC
         J(grid), y(grid), rmu(grid), rb(grid), rc(grid), 
         dsAff(grid), dxAff(grid), dlAff(grid),
         ds(grid),    dx(grid),    dl(grid);
-    ds.AlignWith( s );
+    ds.AlignWith( x );
     dx.AlignWith( x );
-    dsAff.AlignWith( s );
+    dsAff.AlignWith( x );
     dxAff.AlignWith( x );
+    rmu.AlignWith( x );
     DistMatrix<Real> dSub(grid);
     DistMatrix<Int> p(grid);
 #ifndef RELEASE
@@ -308,6 +335,27 @@ void MPC
 #endif
     for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
     {
+#ifndef RELEASE
+        // Check that no entries of x or s are non-positive
+        // ================================================
+        Int numNonPos_x = 0;
+        if( x.IsLocalCol(0) )
+            for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
+                if( x.GetLocal(iLoc,0) <= Real(0) ) 
+                    ++numNonPos_x;
+        numNonPos_x = mpi::AllReduce( numNonPos_x, x.DistComm() );
+        Int numNonPos_s = 0;
+        if( s.IsLocalCol(0) )
+            for( Int iLoc=0; iLoc<s.LocalHeight(); ++iLoc )
+                if( s.GetLocal(iLoc,0) <= Real(0) )
+                    ++numNonPos_s;
+        numNonPos_s = mpi::AllReduce( numNonPos_s, s.DistComm() );
+        if( (numNonPos_x > 0 || numNonPos_s > 0) && commRank == 0 )
+            std::cout << numNonPos_x << " entries of x were nonzero and " 
+                      << numNonPos_s << " entries of s were nonzero" 
+                      << std::endl;
+#endif
+
         // Check for convergence
         // =====================
         // |c^T x - b^T l| / (1 + |c^T x|) <= tol ?
@@ -347,8 +395,9 @@ void MPC
         // =============
         // TODO: Find a more convenient syntax for expressing this operation
         rmu.Resize( n, 1 );
-        for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
-            rmu.SetLocal( iLoc, 0, x.GetLocal(iLoc,0)*s.GetLocal(iLoc,0) );
+        if( rmu.IsLocalCol(0) )
+            for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
+                rmu.SetLocal( iLoc, 0, x.GetLocal(iLoc,0)*s.GetLocal(iLoc,0) );
 
         // Compute the affine search direction
         // ===================================
@@ -383,13 +432,13 @@ void MPC
             // Construct the "normal" KKT system
             // ---------------------------------
             NormalKKT( A, s, x, J );
-            NormalKKTRHS( A, s, x, rmu, rc, rb, dl );
+            NormalKKTRHS( A, s, x, rmu, rc, rb, dlAff );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             LDL( J, dSub, p, false );
-            ldl::SolveAfter( J, dSub, p, dl, false );
-            ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
+            ldl::SolveAfter( J, dSub, p, dlAff, false );
+            ExpandNormalSolution( A, c, s, x, rmu, rc, dlAff, dsAff, dxAff );
         }
 
 #ifndef RELEASE
@@ -398,13 +447,16 @@ void MPC
         Real rmuNrm2 = Nrm2( rmu ); 
         // TODO: Find a more convenient syntax for expressing this operation
         dsError = rmu;
-        for( Int iLoc=0; iLoc<dsError.LocalHeight(); ++iLoc )
+        if( dsError.IsLocalCol(0) )
         {
-            const Real xi = x.GetLocal(iLoc,0);
-            const Real si = s.GetLocal(iLoc,0);
-            const Real dxi = dxAff.GetLocal(iLoc,0);
-            const Real dsi = dsAff.GetLocal(iLoc,0);
-            dsError.UpdateLocal( iLoc, 0, xi*dsi + si*dxi );
+            for( Int iLoc=0; iLoc<dsError.LocalHeight(); ++iLoc )
+            {
+                const Real xi = x.GetLocal(iLoc,0);
+                const Real si = s.GetLocal(iLoc,0);
+                const Real dxi = dxAff.GetLocal(iLoc,0);
+                const Real dsi = dsAff.GetLocal(iLoc,0);
+                dsError.UpdateLocal( iLoc, 0, xi*dsi + si*dxi );
+            }
         }
         Real dsErrorNrm2 = Nrm2( dsError );
 
@@ -420,34 +472,43 @@ void MPC
         if( ctrl.print && commRank == 0 )
             std::cout << "  || dsAffError ||_2 / (1 + || r_mu ||_2) = " 
                       << dsErrorNrm2/(1+rmuNrm2) << "\n"
-                      << "  || dxAffError ||_2 / (1 + || r_c ||_2) = " 
-                      << dxErrorNrm2/(1+rcNrm2) << "\n"
-                      << "  || dlAffError ||_2 / (1 + || r_b ||_2) = " 
-                      << dlErrorNrm2/(1+rbNrm2) << std::endl;
+                      << "  || dxAffError ||_2 / (1 + || r_b ||_2) = " 
+                      << dxErrorNrm2/(1+rbNrm2) << "\n"
+                      << "  || dlAffError ||_2 / (1 + || r_c ||_2) = " 
+                      << dlErrorNrm2/(1+rcNrm2) << std::endl;
 #endif
 
         // Compute the maximum affine [0,1]-step which preserves positivity
         // ================================================================
         Real alphaAffPri = 1; 
         // TODO: Find a more convenient way to represent this operation
-        for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
+        if( x.IsLocalCol(0) )
         {
-            const Real xi = x.GetLocal(iLoc,0);
-            const Real dxAffi = dxAff.GetLocal(iLoc,0);
-            if( dxAffi < Real(0) )
-                alphaAffPri = Min(alphaAffPri,-xi/dxAffi);
+            for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
+            {
+                const Real xi = x.GetLocal(iLoc,0);
+                const Real dxAffi = dxAff.GetLocal(iLoc,0);
+                if( dxAffi < Real(0) )
+                    alphaAffPri = Min(alphaAffPri,-xi/dxAffi);
+            }
         }
-        alphaAffPri = mpi::AllReduce( alphaAffPri, mpi::MIN, grid.VCComm() );
+        alphaAffPri = mpi::AllReduce( alphaAffPri, mpi::MIN, x.DistComm() );
         Real alphaAffDual = 1; 
         // TODO: Find a more convenient way to represent this operation
-        for( Int iLoc=0; iLoc<s.LocalHeight(); ++iLoc )
+        if( s.IsLocalCol(0) )
         {
-            const Real si = s.GetLocal(iLoc,0);
-            const Real dsAffi = dsAff.GetLocal(iLoc,0);
-            if( dsAffi < Real(0) )
-                alphaAffDual = Min(alphaAffDual,-si/dsAffi);
+            for( Int iLoc=0; iLoc<s.LocalHeight(); ++iLoc )
+            {
+                const Real si = s.GetLocal(iLoc,0);
+                const Real dsAffi = dsAff.GetLocal(iLoc,0);
+                if( dsAffi < Real(0) )
+                    alphaAffDual = Min(alphaAffDual,-si/dsAffi);
+            }
         }
-        alphaAffDual = mpi::AllReduce( alphaAffDual, mpi::MIN, grid.VCComm() );
+        alphaAffDual = mpi::AllReduce( alphaAffDual, mpi::MIN, s.DistComm() );
+        if( ctrl.print && commRank == 0 )
+            std::cout << "  alphaAffPri = " << alphaAffPri 
+                      << ", alphaAffDual = " << alphaAffDual << std::endl;
 
         // Compute what the new duality measure would become
         // =================================================
@@ -463,16 +524,21 @@ void MPC
         // ======================================================
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3)); 
+        if( ctrl.print && commRank == 0 )
+            std::cout << "  muAff = " << muAff 
+                      << ", mu = " << mu 
+                      << ", sigma = " << sigma << std::endl;
 
         // Solve for the centering-corrector 
         // =================================
         Zeros( rc, n, 1 );
         Zeros( rb, m, 1 );
         // TODO: Find a more convenient means of expressing this operation
-        for( Int iLoc=0; iLoc<dxAff.LocalHeight(); ++iLoc )
-            rmu.SetLocal
-            ( iLoc, 0, 
-              sigma*mu - dxAff.GetLocal(iLoc,0)*dsAff.GetLocal(iLoc,0) );
+        if( dxAff.IsLocalCol(0) )
+            for( Int iLoc=0; iLoc<dxAff.LocalHeight(); ++iLoc )
+                rmu.SetLocal
+                ( iLoc, 0, 
+                  dxAff.GetLocal(iLoc,0)*dsAff.GetLocal(iLoc,0) - sigma*mu );
         if( ctrl.system == FULL_KKT )
         {
             // Construct the new full KKT RHS
@@ -519,26 +585,35 @@ void MPC
         // =======================================================
         Real alphaPri = 1/ctrl.maxStepRatio;
         // TODO: Find a more convenient means of expressing this operation
-        for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
+        if( x.IsLocalCol(0) )
         {
-            const Real xi = x.GetLocal(iLoc,0);
-            const Real dxi = dx.GetLocal(iLoc,0);
-            if( dxi < Real(0) )
-                alphaPri = Min(alphaPri,-xi/dxi);
+            for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
+            {
+                const Real xi = x.GetLocal(iLoc,0);
+                const Real dxi = dx.GetLocal(iLoc,0);
+                if( dxi < Real(0) )
+                    alphaPri = Min(alphaPri,-xi/dxi);
+            }
         }
-        alphaPri = mpi::AllReduce( alphaPri, mpi::MIN, grid.VCComm() );
+        alphaPri = mpi::AllReduce( alphaPri, mpi::MIN, x.DistComm() );
         Real alphaDual = 1/ctrl.maxStepRatio;
         // TODO: Find a more convenient means of expressing this operation
-        for( Int iLoc=0; iLoc<s.LocalHeight(); ++iLoc )
+        if( s.IsLocalCol(0) )
         {
-            const Real si = s.GetLocal(iLoc,0);
-            const Real dsi = ds.GetLocal(iLoc,0);
-            if( dsi < Real(0) )
-                alphaDual = Min(alphaDual,-si/dsi);
+            for( Int iLoc=0; iLoc<s.LocalHeight(); ++iLoc )
+            {
+                const Real si = s.GetLocal(iLoc,0);
+                const Real dsi = ds.GetLocal(iLoc,0);
+                if( dsi < Real(0) )
+                    alphaDual = Min(alphaDual,-si/dsi);
+            }
         }
-        alphaDual = mpi::AllReduce( alphaDual, mpi::MIN, grid.VCComm() );
+        alphaDual = mpi::AllReduce( alphaDual, mpi::MIN, s.DistComm() );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        if( ctrl.print && commRank == 0 )
+            std::cout << "  alphaPri = " << alphaAffPri 
+                      << ", alphaDual = " << alphaAffDual << std::endl;
 
         // Update the current estimates
         // ============================
