@@ -65,8 +65,70 @@ void Solve
         // Solve against the (conjugate-)transpose of the unit diagonal L
         LowerSolve( orientation, info, L, X );
     }
+} 
+
+template<typename F>
+void SolveWithIterativeRefinement
+( const DistSparseMatrix<F>& A,
+  const DistMap& invMap, const DistSymmInfo& info,
+  const DistSymmFrontTree<F>& AFact, DistMultiVec<F>& y,
+  Base<F> minReductionFactor, Int maxRefineIts )
+{
+    DEBUG_ONLY(CallStackEntry cse("IterativeRefinement"))
+    mpi::Comm comm = y.Comm();
+
+    DistMultiVec<F> yOrig(comm);
+    yOrig = y;
+
+    // Compute the initial guess
+    // =========================
+    DistMultiVec<F> x(comm);
+    DistNodalMultiVec<F> xNodal;
+    xNodal.Pull( invMap, info, y );
+    Solve( info, AFact, xNodal );
+    xNodal.Push( invMap, info, x );
+
+    if( maxRefineIts > 0 )
+    {
+        DistMultiVec<F> dx(comm), xCand(comm); 
+        Multiply( NORMAL, F(-1), A, x, F(1), y );
+        Base<F> errorNorm = Nrm2( y );
+        for( Int refineIt=0; refineIt<maxRefineIts; ++refineIt )
+        {
+            // Compute the proposed update to the solution
+            // -------------------------------------------
+            xNodal.Pull( invMap, info, y );
+            Solve( info, AFact, xNodal );
+            xNodal.Push( invMap, info, dx );
+            xCand = x;
+            Axpy( F(1), dx, xCand );
+
+            // If the proposed update lowers the residual, accept it
+            // -----------------------------------------------------
+            y = yOrig;
+            Multiply( NORMAL, F(-1), A, xCand, F(1), y );
+            Base<F> newErrorNorm = Nrm2( y );
+            if( minReductionFactor*newErrorNorm < errorNorm )
+            {
+                x = xCand;
+                errorNorm = newErrorNorm;
+            }
+            if( newErrorNorm < errorNorm )
+            {
+                x = xCand;
+                errorNorm = newErrorNorm;
+                break;
+            }
+            else
+                break;
+        }
+    }
+    // Store the final result
+    // ======================
+    y = x;
 }
 
+// TODO: Add iterative refinement parameter
 template<typename F>
 void SymmetricSolve
 ( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, 
@@ -88,6 +150,7 @@ void SymmetricSolve
     XNodal.Push( inverseMap, info, X );
 }
 
+// TODO: Add iterative refinement parameter
 template<typename F>
 void HermitianSolve
 ( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, const BisectCtrl& ctrl )
@@ -103,6 +166,11 @@ void HermitianSolve
   template void Solve \
   ( const DistSymmInfo& info, \
     const DistSymmFrontTree<F>& L, DistNodalMatrix<F>& X ); \
+  template void SolveWithIterativeRefinement \
+  ( const DistSparseMatrix<F>& A, \
+    const DistMap& invMap, const DistSymmInfo& info, \
+    const DistSymmFrontTree<F>& AFact, DistMultiVec<F>& y, \
+    Base<F> minReductionFactor, Int maxRefineIts ); \
   template void SymmetricSolve \
   ( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, bool conjugate, \
     const BisectCtrl& ctrl ); \

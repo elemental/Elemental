@@ -350,14 +350,22 @@ void LowerSolve
 ( Orientation orientation, const DistSymmInfo& info,
   const DistSymmFrontTree<F>& L, DistNodalMatrix<F>& X );
 
+// TODO: Reformat and rename to ldl::SolveAfter
 template<typename F>
 void Solve
 ( const DistSymmInfo& info,
-  const DistSymmFrontTree<F>& L, DistNodalMultiVec<F>& X );
+  const DistSymmFrontTree<F>& AFact, DistNodalMultiVec<F>& X );
 template<typename F>
 void Solve
 ( const DistSymmInfo& info,
-  const DistSymmFrontTree<F>& L, DistNodalMatrix<F>& X );
+  const DistSymmFrontTree<F>& AFact, DistNodalMatrix<F>& X );
+
+template<typename F>
+void SolveWithIterativeRefinement
+( const DistSparseMatrix<F>& A,
+  const DistMap& invMap, const DistSymmInfo& info,
+  const DistSymmFrontTree<F>& AFact, DistMultiVec<F>& y,
+  Base<F> minReductionFactor=2, Int maxRefineIts=10 );
 
 } // namespace El
 

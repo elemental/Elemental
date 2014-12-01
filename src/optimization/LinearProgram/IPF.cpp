@@ -471,7 +471,6 @@ void IPF
     DistMap map, invMap;
     DistSparseMatrix<Real> J(comm);
     DistSymmFrontTree<Real> JFrontTree;
-    DistNodalMultiVec<Real> dlNodal;
 
     DistMultiVec<Real> rmu(comm), rb(comm), rc(comm), 
                        ds(comm), dx(comm), dl(comm);
@@ -542,9 +541,10 @@ void IPF
         }
         JFrontTree.Initialize( J, map, sepTree, info );
         LDL( info, JFrontTree, LDL_INTRAPIV_1D ); 
-        dlNodal.Pull( invMap, info, dl );
-        Solve( info, JFrontTree, dlNodal );
-        dlNodal.Push( invMap, info, dl );
+        const Real minReductionFactor = 2;
+        const Int maxRefineIts = 10;
+        SolveWithIterativeRefinement
+        ( J, invMap, info, JFrontTree, dl, minReductionFactor, maxRefineIts );
         ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
 
 #ifndef EL_RELEASE

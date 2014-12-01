@@ -864,9 +864,8 @@ void Mehrotra
     DistMap map, invMap;
     DistSparseMatrix<Real> J(comm);
     DistSymmFrontTree<Real> JFrontTree;
-    DistNodalMultiVec<Real> dlNodal;
 
-    DistMultiVec<Real> y(comm), rmu(comm), rb(comm), rc(comm), 
+    DistMultiVec<Real> rmu(comm), rb(comm), rc(comm), 
                        dsAff(comm), dxAff(comm), dlAff(comm),
                        ds(comm),    dx(comm),    dl(comm);
 #ifndef RELEASE
@@ -950,9 +949,11 @@ void Mehrotra
         }
         JFrontTree.Initialize( J, map, sepTree, info );
         LDL( info, JFrontTree, LDL_INTRAPIV_1D );
-        dlNodal.Pull( invMap, info, dlAff );
-        Solve( info, JFrontTree, dlNodal );
-        dlNodal.Push( invMap, info, dlAff );
+        const Real minReductionFactor = 2;
+        const Int maxRefineIts = 10;
+        SolveWithIterativeRefinement
+        ( J, invMap, info, JFrontTree, dlAff, 
+          minReductionFactor, maxRefineIts );
         ExpandNormalSolution( A, c, s, x, rmu, rc, dlAff, dsAff, dxAff );
 
 #ifndef RELEASE
@@ -1045,9 +1046,8 @@ void Mehrotra
 
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
-        dlNodal.Pull( invMap, info, dl );
-        Solve( info, JFrontTree, dlNodal );
-        dlNodal.Push( invMap, info, dl );
+        SolveWithIterativeRefinement
+        ( J, invMap, info, JFrontTree, dl, minReductionFactor, maxRefineIts );
         ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
 
         // TODO: Residual checks for center-corrector
