@@ -40,6 +40,7 @@ LocalLDL( DistSymmInfo& info, DistSymmFrontTree<F>& L )
         )
 
         // Add updates from children (if they exist)
+        // TODO: Generalize to an arbitrary number of children
         Zeros( frontBR, updateSize, updateSize );
         const int numChildren = node.children.size();
         if( numChildren == 2 )
