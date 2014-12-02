@@ -7,21 +7,21 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_LDL_REGULARIZEDVAR3_HPP
-#define EL_LDL_REGULARIZEDVAR3_HPP
+#ifndef EL_REGLDL_VAR3_HPP
+#define EL_REGLDL_VAR3_HPP
 
 namespace El {
-namespace ldl {
+namespace reg_ldl {
 
 // Unblocked serial LDL _without_ partial pivoting
 template<typename F> 
 inline void
-RegularizedVar3Unb
+Var3Unb
 ( Matrix<F>& A, Base<F> pivTol, Base<F> regMag,
   const Matrix<Int>& pivSign, Matrix<Base<F>>& reg )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ldl::RegularizedVar3Unb");
+        CallStackEntry cse("reg_ldl::Var3Unb");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( pivSign.Height() != A.Height() || pivSign.Width() != 1 )
@@ -66,12 +66,12 @@ RegularizedVar3Unb
 // Blocked serial LDL _without_ partial pivoting
 template<typename F>
 inline void
-RegularizedVar3
+Var3
 ( Matrix<F>& A, Base<F> pivTol, Base<F> regMag,
   const Matrix<Int>& pivSign, Matrix<Base<F>>& reg )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ldl::RegularizedVar3");
+        CallStackEntry cse("reg_ldl::Var3");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )
@@ -93,7 +93,7 @@ RegularizedVar3
         auto pivSign1 = pivSign( ind1, IR(0,1) );
         auto reg1 = reg( ind1, IR(0,1) );
 
-        ldl::RegularizedVar3Unb( A11, pivTol, regMag, pivSign1, reg1 );
+        Var3Unb( A11, pivTol, regMag, pivSign1, reg1 );
         A11.GetDiagonal( d1 );
         Trsm( RIGHT, LOWER, ADJOINT, UNIT, F(1), A11, A21 );
         S21 = A21;
@@ -104,13 +104,13 @@ RegularizedVar3
 
 template<typename F>
 inline void
-RegularizedVar3
+Var3
 ( AbstractDistMatrix<F>& APre, Base<F> pivTol, Base<F> regMag,
   const AbstractDistMatrix<Int>& pivSignPre, 
         AbstractDistMatrix<Base<F>>& regPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ldl::RegularizedVar3");
+        CallStackEntry cse("reg_ldl::Var3");
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");
         // TODO: pivSign check
@@ -157,7 +157,7 @@ RegularizedVar3
         A11_STAR_STAR = A11;
         pivSign1_STAR_STAR = pivSign1;
         reg1_STAR_STAR = reg1;
-        ldl::RegularizedVar3
+        RegularizedLDL
         ( A11_STAR_STAR.Matrix(), pivTol, regMag, 
           pivSign1_STAR_STAR.LockedMatrix(), reg1_STAR_STAR.Matrix() );
         A11_STAR_STAR.GetDiagonal( d1_STAR_STAR );
@@ -185,7 +185,7 @@ RegularizedVar3
     }
 }
 
-} // namespace ldl
+} // namespace reg_ldl
 } // namespace El
 
-#endif // ifndef EL_LDL_REGULARIZEDVAR3_HPP
+#endif // ifndef EL_REGLDL_VAR3_HPP

@@ -384,8 +384,8 @@ Int SVM
         AbstractDistMatrix<Real>& z,
   Real gamma, Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
 
-// Utilities
-// =========
+// Proximal maps
+// =============
 
 // Clipping
 // --------
@@ -403,13 +403,6 @@ template<typename Real>
 void Clip( Matrix<Real>& X, Real lowerBound=0, Real upperBound=1 );
 template<typename Real>
 void Clip( AbstractDistMatrix<Real>& X, Real lowerBound=0, Real upperBound=1 );
-
-// Covariance
-// ----------
-template<typename F>
-void Covariance( const Matrix<F>& D, Matrix<F>& S );
-template<typename F>
-void Covariance( const AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& S );
 
 // Frobenius-norm proximal map
 // ---------------------------
@@ -429,30 +422,6 @@ template<typename Real>
 void HingeLossProx( Matrix<Real>& A, Real rho );
 template<typename Real>
 void HingeLossProx( AbstractDistMatrix<Real>& A, Real rho );
-
-// Log barrier
-// -----------
-template<typename F>
-Base<F> LogBarrier( UpperOrLower uplo, const Matrix<F>& A );
-template<typename F>
-Base<F> LogBarrier( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
-
-template<typename F>
-Base<F> LogBarrier
-( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false );
-template<typename F>
-Base<F> LogBarrier
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool canOverwrite=false );
-
-// Log-det divergence
-// ------------------
-template<typename F>
-Base<F> LogDetDiv
-( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B );
-template<typename F>
-Base<F> LogDetDiv
-( UpperOrLower uplo, 
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B );
 
 // Logistic proximal map
 // ---------------------
@@ -522,6 +491,54 @@ void SoftThreshold
 template<typename F>
 void SoftThreshold
 ( AbstractDistMatrix<F>& A, Base<F> rho, bool relative=false );
+
+// Utilities
+// =========
+
+// Covariance
+// ----------
+template<typename F>
+void Covariance( const Matrix<F>& D, Matrix<F>& S );
+template<typename F>
+void Covariance( const AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& S );
+
+// Log barrier
+// -----------
+template<typename F>
+Base<F> LogBarrier( UpperOrLower uplo, const Matrix<F>& A );
+template<typename F>
+Base<F> LogBarrier( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+
+template<typename F>
+Base<F> LogBarrier
+( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false );
+template<typename F>
+Base<F> LogBarrier
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool canOverwrite=false );
+
+// Log-det divergence
+// ------------------
+template<typename F>
+Base<F> LogDetDiv
+( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B );
+template<typename F>
+Base<F> LogDetDiv
+( UpperOrLower uplo, 
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B );
+
+// Regularized LDL
+// ---------------
+// NOTE: If the pivot candidate is not at least as large as the pivot tolerance
+//       and with the specified sign, then it is perturbed to the specified
+//       regularization magnitude with the specified sign.
+template<typename F>
+void RegularizedLDL
+( Matrix<F>& A, Base<F> pivTol, Base<F> regMag,
+  const Matrix<Int>& pivSign, Matrix<Base<F>>& reg );
+template<typename F>
+void RegularizedLDL
+( AbstractDistMatrix<F>& A, Base<F> pivTol, Base<F> regMag,
+  const AbstractDistMatrix<Int>& pivSign, AbstractDistMatrix<Base<F>>& reg );
 
 } // namespace El
 

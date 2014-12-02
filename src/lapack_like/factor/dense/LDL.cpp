@@ -9,7 +9,6 @@
 #include "El.hpp"
 
 #include "./LDL/Var3.hpp"
-#include "./LDL/RegularizedVar3.hpp"
 
 #include "./LDL/Pivoted.hpp"
 
@@ -19,6 +18,9 @@
 #include "./LDL/Inertia.hpp"
 
 namespace El {
+
+// Unpivoted
+// =========
 
 template<typename F>
 void LDL( Matrix<F>& A, bool conjugate )
@@ -33,6 +35,9 @@ void LDL( AbstractDistMatrix<F>& A, bool conjugate )
     DEBUG_ONLY(CallStackEntry cse("LDL"))
     ldl::Var3( A, conjugate );
 }
+
+// Pivoted
+// =======
 
 template<typename F>
 void LDL

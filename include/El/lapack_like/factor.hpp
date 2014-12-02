@@ -120,20 +120,6 @@ void LDL( Matrix<F>& A, bool conjugate );
 template<typename F>
 void LDL( AbstractDistMatrix<F>& A, bool conjugate );
 
-// Regularized versions
-// ^^^^^^^^^^^^^^^^^^^^
-// NOTE: If the pivot candidate is not at least as large as the pivot tolerance
-//       and with the specified sign, then it is perturbed to the specified
-//       regularization magnitude with the specified sign.
-template<typename F>
-void RegularizedLDL
-( Matrix<F>& A, Base<F> pivTol, Base<F> regMag, 
-  const Matrix<Int>& pivSign, Matrix<Base<F>>& reg );
-template<typename F>
-void RegularizedLDL
-( AbstractDistMatrix<F>& A, Base<F> pivTol, Base<F> regMag,
-  const AbstractDistMatrix<Int>& pivSign, AbstractDistMatrix<Base<F>>& reg );
-
 // Return an implicit representation of a pivoted LDL factorization of A
 // ---------------------------------------------------------------------
 template<typename F>
