@@ -9,6 +9,8 @@
 #include "El.hpp"
 
 #include "./LDL/Var3.hpp"
+#include "./LDL/RegularizedVar3.hpp"
+
 #include "./LDL/Pivoted.hpp"
 
 #include "./LDL/MultiplyAfter.hpp"
