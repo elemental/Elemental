@@ -704,7 +704,7 @@ void Mehrotra
 
             // Compute the proposed step from the KKT system 
             // ---------------------------------------------
-            //RegularizedLDL( J, dSub, p, false );
+            //RegularizedLDL...
             LogicError("Sequential SymmetricSolve not yet supported");
             // Solve ...
             ExpandAugmentedSolution( s, x, rmu, y, dsAff, dxAff, dlAff );
@@ -895,10 +895,8 @@ void Mehrotra
                        ds(comm),    dx(comm),    dl(comm);
     DistNodalMultiVec<Real> yNodal;
 
-    DistMultiVec<Int> pivSign(comm);
-    DistNodalMultiVec<Int> pivSignNodal;
-    DistMultiVec<Real> reg(comm);
-    DistNodalMultiVec<Real> regNodal;
+    DistMultiVec<Real> regCand(comm), reg(comm);
+    DistNodalMultiVec<Real> regCandNodal, regNodal;
 
 #ifndef EL_RELEASE
     DistMultiVec<Real> dsError(comm), dxError(comm), dlError(comm);
@@ -975,18 +973,19 @@ void Mehrotra
             AugmentedKKT( A, s, x, J, false );
             AugmentedKKTRHS( x, rmu, rc, rb, y );
             const Real pivTol = MaxNorm(J)*epsilon;
-            // TODO: Generalize regularization magnitudes to a full vector.
-            //       Perhaps combine with pivot signs. 
-            const Real regMag = Sqrt(epsilon);
-            pivSign.Resize( n+m, 1 );
-            for( Int iLoc=0; iLoc<pivSign.LocalHeight(); ++iLoc )
+            const Real regMagPrimal = Pow(epsilon,Real(0.75));
+            const Real regMagLagrange = Pow(epsilon,Real(0.5));
+            regCand.Resize( n+m, 1 );
+            for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
             {
-                const Int i = pivSign.FirstLocalRow() + iLoc;
+                const Int i = regCand.FirstLocalRow() + iLoc;
                 if( i < n )
-                    pivSign.SetLocal( iLoc, 0, Real(-1) );
+                    regCand.SetLocal( iLoc, 0, -regMagPrimal );
                 else
-                    pivSign.SetLocal( iLoc, 0, Real(1) );
+                    regCand.SetLocal( iLoc, 0, regMagLagrange );
             }
+            // Do not use any a priori regularization
+            Zeros( reg, m+n, 1 );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
@@ -996,12 +995,10 @@ void Mehrotra
                 map.FormInverse( invMap );
             }
             JFrontTree.Initialize( J, map, sepTree, info );
-            pivSignNodal.Pull( invMap, info, pivSign );
-            Zeros( reg, m+n, 1 );
+            regCandNodal.Pull( invMap, info, regCand );
             regNodal.Pull( invMap, info, reg );
             RegularizedLDL
-            ( info, JFrontTree, pivTol, regMag, 
-              pivSignNodal, regNodal, LDL_1D );
+            ( info, JFrontTree, pivTol, regCandNodal, regNodal, LDL_1D );
             regNodal.Push( invMap, info, reg );
             // NOTE: Need to modify iterative refinement procedure
             /*

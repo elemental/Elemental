@@ -529,22 +529,24 @@ Base<F> LogDetDiv
 // Regularized LDL
 // ---------------
 // NOTE: If the pivot candidate is not at least as large as the pivot tolerance
-//       and with the specified sign, then it is perturbed to the specified
-//       regularization magnitude with the specified sign.
+//       and with the implied sign, then it is increased by the specified value.
 template<typename F>
 void RegularizedLDL
-( Matrix<F>& A, Base<F> pivTol, Base<F> regMag,
-  const Matrix<Int>& pivSign, Matrix<Base<F>>& reg );
+( Matrix<F>& A, Base<F> pivTol,
+  const Matrix<Base<F>>& regCand, 
+        Matrix<Base<F>>& reg );
 template<typename F>
 void RegularizedLDL
-( AbstractDistMatrix<F>& A, Base<F> pivTol, Base<F> regMag,
-  const AbstractDistMatrix<Int>& pivSign, AbstractDistMatrix<Base<F>>& reg );
+( AbstractDistMatrix<F>& A, Base<F> pivTol,
+  const AbstractDistMatrix<Base<F>>& regCand, 
+        AbstractDistMatrix<Base<F>>& reg );
 
 template<typename F>
 void RegularizedLDL
 ( DistSymmInfo& info, DistSymmFrontTree<F>& L,
-  Base<F> pivTol, Base<F> regMag,
-  const DistNodalMultiVec<Int>& pivSign, DistNodalMultiVec<Base<F>>& reg,
+  Base<F> pivTol,
+  const DistNodalMultiVec<Base<F>>& regCand, 
+        DistNodalMultiVec<Base<F>>& reg,
   SymmFrontType newFrontType=LDL_1D );
 
 } // namespace El

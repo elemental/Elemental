@@ -13,19 +13,19 @@
 namespace El {
 namespace reg_ldl {
 
-// Unblocked serial LDL _without_ partial pivoting
 template<typename F> 
 inline void
 Var3Unb
-( Matrix<F>& A, Base<F> pivTol, Base<F> regMag,
-  const Matrix<Int>& pivSign, Matrix<Base<F>>& reg )
+( Matrix<F>& A, Base<F> pivTol, 
+  const Matrix<Base<F>>& regCand, 
+        Matrix<Base<F>>& reg )
 {
     DEBUG_ONLY(
         CallStackEntry cse("reg_ldl::Var3Unb");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
-        if( pivSign.Height() != A.Height() || pivSign.Width() != 1 )
-            LogicError("pivSign must be a conforming column vector");
+        if( regCand.Height() != A.Height() || regCand.Width() != 1 )
+            LogicError("regCand must be a conforming column vector");
     )
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -38,11 +38,13 @@ Var3Unb
         const Int a21Height = n - (j+1);
 
         Real alpha11 = RealPart(ABuffer[j+j*ldim]);
-        const Real sign = pivSign.Get(j,0);
+        alpha11 += reg.Get(j,0);
+        const Real rho = regCand.Get(j,0);
+        const Real sign = rho/Abs(rho);
         if( sign*alpha11 <= pivTol )
         {
-            reg.Set( j, 0, sign*regMag-alpha11 );
-            alpha11 = sign*regMag;     
+            reg.Update( j, 0, rho );
+            alpha11 += rho;
         }
         ABuffer[j+j*ldim] = alpha11;
 
@@ -63,12 +65,12 @@ Var3Unb
     }
 }
 
-// Blocked serial LDL _without_ partial pivoting
 template<typename F>
 inline void
 Var3
-( Matrix<F>& A, Base<F> pivTol, Base<F> regMag,
-  const Matrix<Int>& pivSign, Matrix<Base<F>>& reg )
+( Matrix<F>& A, Base<F> pivTol, 
+  const Matrix<Base<F>>& regCand, 
+        Matrix<Base<F>>& reg )
 {
     DEBUG_ONLY(
         CallStackEntry cse("reg_ldl::Var3");
@@ -90,10 +92,10 @@ Var3
         auto A21 = A( ind2, ind1 );
         auto A22 = A( ind2, ind2 );
 
-        auto pivSign1 = pivSign( ind1, IR(0,1) );
+        auto regCand1 = regCand( ind1, IR(0,1) );
         auto reg1 = reg( ind1, IR(0,1) );
 
-        Var3Unb( A11, pivTol, regMag, pivSign1, reg1 );
+        Var3Unb( A11, pivTol,regCand1, reg1 );
         A11.GetDiagonal( d1 );
         Trsm( RIGHT, LOWER, ADJOINT, UNIT, F(1), A11, A21 );
         S21 = A21;
@@ -105,15 +107,15 @@ Var3
 template<typename F>
 inline void
 Var3
-( AbstractDistMatrix<F>& APre, Base<F> pivTol, Base<F> regMag,
-  const AbstractDistMatrix<Int>& pivSignPre, 
+( AbstractDistMatrix<F>& APre, Base<F> pivTol,
+  const AbstractDistMatrix<Base<F>>& regCandPre, 
         AbstractDistMatrix<Base<F>>& regPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("reg_ldl::Var3");
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");
-        // TODO: pivSign check
+        // TODO: regCand and reg checks
     )
     typedef Base<F> Real;
     const Grid& g = APre.Grid();
@@ -121,10 +123,10 @@ Var3
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); 
     auto& A = *APtr;
 
-    auto pivSignPtr = ReadProxy<Int,MC,STAR>( &pivSignPre ); 
-    auto& pivSign = *pivSignPtr;
+    auto regCandPtr = ReadProxy<Real,MC,STAR>( &regCandPre ); 
+    auto& regCand = *regCandPtr;
 
-    auto regPtr = WriteProxy<Real,MC,STAR>( &regPre );
+    auto regPtr = ReadWriteProxy<Real,MC,STAR>( &regPre );
     auto& reg = *regPtr;
 
     const Int n = A.Height();
@@ -136,8 +138,7 @@ Var3
     DistMatrix<F,STAR,MC  > S21Trans_STAR_MC(g);
     DistMatrix<F,STAR,MR  > A21Trans_STAR_MR(g);
 
-    DistMatrix<Real,MC,STAR> reg1_STAR_STAR(g);
-    DistMatrix<Int, MC,STAR> pivSign1_STAR_STAR(g);
+    DistMatrix<Real,MC,STAR> regCand1_STAR_STAR(g), reg1_STAR_STAR(g);
 
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
@@ -151,15 +152,15 @@ Var3
         auto A21 = A( ind2, ind1 );
         auto A22 = A( ind2, ind2 );
 
-        auto pivSign1 = pivSign( ind1, IR(0,1) );
+        auto regCand1 = regCand( ind1, IR(0,1) );
         auto reg1 = reg( ind1, IR(0,1) );
 
         A11_STAR_STAR = A11;
-        pivSign1_STAR_STAR = pivSign1;
+        regCand1_STAR_STAR = regCand1;
         reg1_STAR_STAR = reg1;
         RegularizedLDL
-        ( A11_STAR_STAR.Matrix(), pivTol, regMag, 
-          pivSign1_STAR_STAR.LockedMatrix(), reg1_STAR_STAR.Matrix() );
+        ( A11_STAR_STAR.Matrix(), pivTol, 
+          regCand1_STAR_STAR.LockedMatrix(), reg1_STAR_STAR.Matrix() );
         A11_STAR_STAR.GetDiagonal( d1_STAR_STAR );
         A11 = A11_STAR_STAR;
         reg1 = reg1_STAR_STAR;

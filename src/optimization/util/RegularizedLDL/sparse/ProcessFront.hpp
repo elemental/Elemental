@@ -17,9 +17,8 @@ namespace reg_ldl {
 
 template<typename F>
 inline void ProcessFront
-( Matrix<F>& AL, Matrix<F>& ABR, 
-  Base<F> pivTol, Base<F> regMag, 
-  const Matrix<Int>& pivSign, Matrix<Base<F>>& reg )
+( Matrix<F>& AL, Matrix<F>& ABR, Base<F> pivTol, 
+  const Matrix<Base<F>>& regCand, Matrix<Base<F>>& reg )
 {
     DEBUG_ONLY(
         CallStackEntry cse("reg_ldl::ProcessFront");
@@ -47,10 +46,10 @@ inline void ProcessFront
         auto AL21 = AL( ind2Vert, ind1     );
         auto AL22 = AL( ind2Vert, ind2Horz );
 
-        auto pivSign1 = pivSign( ind1, IR(0,1) );
+        auto regCand1 = regCand( ind1, IR(0,1) );
         auto reg1 = reg( ind1, IR(0,1) );
 
-        RegularizedLDL( AL11, pivTol, regMag, pivSign1, reg1 );
+        RegularizedLDL( AL11, pivTol, regCand1, reg1 );
         AL11.GetDiagonal( d1 );
 
         Trsm( RIGHT, LOWER, ADJOINT, UNIT, F(1), AL11, AL21 );
@@ -68,9 +67,9 @@ inline void ProcessFront
 
 template<typename F> 
 inline void ProcessFrontGeneral
-( DistMatrix<F>& AL, DistMatrix<F>& ABR,
-  Base<F> pivTol, Base<F> regMag, 
-  const DistMatrix<Int,VC,STAR>& pivSign, DistMatrix<Base<F>,VC,STAR>& reg )
+( DistMatrix<F>& AL, DistMatrix<F>& ABR, Base<F> pivTol,
+  const DistMatrix<Base<F>,VC,STAR>& regCand, 
+        DistMatrix<Base<F>,VC,STAR>& reg )
 {
     DEBUG_ONLY(
         CallStackEntry cse("reg_ldl::ProcessFrontGeneral");
@@ -102,8 +101,7 @@ inline void ProcessFrontGeneral
     DistMatrix<F,STAR,MR> rightL(g), rightR(g);
     DistMatrix<F> AL22T(g), AL22B(g);
 
-    DistMatrix<Int,STAR,STAR> pivSign1_STAR_STAR(g);
-    DistMatrix<Base<F>,STAR,STAR> reg1_STAR_STAR(g);
+    DistMatrix<Base<F>,STAR,STAR> regCand1_STAR_STAR(g), reg1_STAR_STAR(g);
 
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
@@ -115,15 +113,15 @@ inline void ProcessFrontGeneral
         auto AL21 = AL( ind2Vert, ind1     );
         auto AL22 = AL( ind2Vert, ind2Horz );
 
-        auto pivSign1 = pivSign( ind1, IR(0,1) );
+        auto regCand1 = regCand( ind1, IR(0,1) );
         auto reg1 = reg( ind1, IR(0,1) );
 
         AL11_STAR_STAR = AL11; 
-        pivSign1_STAR_STAR = pivSign1;
+        regCand1_STAR_STAR = regCand1;
         reg1_STAR_STAR = reg1;
         RegularizedLDL
-        ( AL11_STAR_STAR.Matrix(), pivTol, regMag,
-          pivSign1_STAR_STAR.LockedMatrix(), reg1_STAR_STAR.Matrix() );
+        ( AL11_STAR_STAR.Matrix(), pivTol, 
+          regCand1_STAR_STAR.LockedMatrix(), reg1_STAR_STAR.Matrix() );
         AL11_STAR_STAR.GetDiagonal( d1_STAR_STAR );
         AL11 = AL11_STAR_STAR;
         reg1 = reg1_STAR_STAR;
@@ -156,9 +154,9 @@ inline void ProcessFrontGeneral
 
 template<typename F>
 inline void ProcessFrontSquare
-( DistMatrix<F>& AL, DistMatrix<F>& ABR,
-  Base<F> pivTol, Base<F> regMag, 
-  const DistMatrix<Int,VC,STAR>& pivSign, DistMatrix<Base<F>,VC,STAR>& reg )
+( DistMatrix<F>& AL, DistMatrix<F>& ABR, Base<F> pivTol, 
+  const DistMatrix<Base<F>,VC,STAR>& regCand, 
+        DistMatrix<Base<F>,VC,STAR>& reg )
 {
     DEBUG_ONLY(
         CallStackEntry cse("reg_ldl::ProcessFrontSquare");
@@ -208,8 +206,7 @@ inline void ProcessFrontSquare
     DistMatrix<F,STAR,MR> rightL(g), rightR(g);
     DistMatrix<F> AL22T(g), AL22B(g);
 
-    DistMatrix<Int,STAR,STAR> pivSign1_STAR_STAR(g);
-    DistMatrix<Base<F>,STAR,STAR> reg1_STAR_STAR(g);
+    DistMatrix<Base<F>,STAR,STAR> regCand1_STAR_STAR(g), reg1_STAR_STAR(g);
 
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
@@ -221,15 +218,15 @@ inline void ProcessFrontSquare
         auto AL21 = AL( ind2Vert, ind1     );
         auto AL22 = AL( ind2Vert, ind2Horz );
 
-        auto pivSign1 = pivSign( ind1, IR(0,1) );
+        auto regCand1 = regCand( ind1, IR(0,1) );
         auto reg1 = reg( ind1, IR(0,1) );
 
         AL11_STAR_STAR = AL11; 
-        pivSign1_STAR_STAR = pivSign1;
+        regCand1_STAR_STAR = regCand1;
         reg1_STAR_STAR = reg1;
         RegularizedLDL
-        ( AL11_STAR_STAR.Matrix(), pivTol, regMag,
-          pivSign1_STAR_STAR.LockedMatrix(), reg1_STAR_STAR.Matrix() );
+        ( AL11_STAR_STAR.Matrix(), pivTol, 
+          regCand1_STAR_STAR.LockedMatrix(), reg1_STAR_STAR.Matrix() );
         AL11_STAR_STAR.GetDiagonal( d1_STAR_STAR );
         AL11 = AL11_STAR_STAR;
         reg1 = reg1_STAR_STAR;
@@ -284,16 +281,16 @@ inline void ProcessFrontSquare
 
 template<typename F> 
 inline void ProcessFront
-( DistMatrix<F>& AL, DistMatrix<F>& ABR,
-  Base<F> pivTol, Base<F> regMag, 
-  const DistMatrix<Int,VC,STAR>& pivSign, DistMatrix<Base<F>,VC,STAR>& reg )
+( DistMatrix<F>& AL, DistMatrix<F>& ABR, Base<F> pivTol, 
+  const DistMatrix<Base<F>,VC,STAR>& regCand, 
+        DistMatrix<Base<F>,VC,STAR>& reg )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_ldl::ProcessFront"))
     const Grid& grid = AL.Grid();
     if( grid.Height() == grid.Width() )
-        ProcessFrontSquare( AL, ABR, pivTol, regMag, pivSign, reg );
+        ProcessFrontSquare( AL, ABR, pivTol, regCand, reg );
     else
-        ProcessFrontGeneral( AL, ABR, pivTol, regMag, pivSign, reg );
+        ProcessFrontGeneral( AL, ABR, pivTol, regCand, reg );
 }
 
 } // namespace reg_ldl

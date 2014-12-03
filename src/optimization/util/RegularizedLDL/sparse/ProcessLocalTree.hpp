@@ -17,9 +17,8 @@ namespace reg_ldl {
 
 template<typename F> 
 inline void ProcessLocalTree
-( DistSymmInfo& info, DistSymmFrontTree<F>& L, 
-  Base<F> pivTol, Base<F> regMag, 
-  const DistNodalMultiVec<Int>& pivSign, DistNodalMultiVec<Base<F>>& reg )
+( DistSymmInfo& info, DistSymmFrontTree<F>& L, Base<F> pivTol,
+  const DistNodalMultiVec<Base<F>>& regCand, DistNodalMultiVec<Base<F>>& reg )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_ldl::ProcessLocalTree"))
 
@@ -96,8 +95,8 @@ inline void ProcessLocalTree
 
         // Call the custom partial LDL
         ProcessFront
-        ( frontL, frontBR, pivTol, regMag, 
-          pivSign.localNodes[s], reg.localNodes[s] );
+        ( frontL, frontBR, pivTol, 
+          regCand.localNodes[s], reg.localNodes[s] );
         frontL.GetDiagonal( front.diag );
         SetDiagonal( frontL, F(1) );
     }

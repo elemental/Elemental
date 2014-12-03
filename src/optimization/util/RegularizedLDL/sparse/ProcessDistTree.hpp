@@ -17,9 +17,8 @@ namespace reg_ldl {
 
 template<typename F> 
 inline void ProcessDistTree
-( DistSymmInfo& info, DistSymmFrontTree<F>& L,
-  Base<F> pivTol, Base<F> regMag,
-  const DistNodalMultiVec<Int>& pivSign, DistNodalMultiVec<Base<F>>& reg )
+( DistSymmInfo& info, DistSymmFrontTree<F>& L, Base<F> pivTol, 
+  const DistNodalMultiVec<Base<F>>& regCand, DistNodalMultiVec<Base<F>>& reg )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_ldl::ProcessDistTree"))
 
@@ -185,8 +184,8 @@ inline void ProcessDistTree
 
         // Now that the frontal matrix is set up, perform the factorization
         ProcessFront
-        ( front.front2dL, front.work2d, pivTol, regMag,
-          pivSign.distNodes[s-1], reg.distNodes[s-1] );
+        ( front.front2dL, front.work2d, pivTol, 
+          regCand.distNodes[s-1], reg.distNodes[s-1] );
 
         // Store the diagonal in a [VC,* ] distribution
         auto diag = front.front2dL.GetDiagonal();
