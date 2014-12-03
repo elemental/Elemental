@@ -7,9 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-#include "../LinearProgram.hpp"
-
-// TODO: Add a warning if the maximum number of iterations is exceeded
+#include "./util.hpp"
 
 namespace El {
 namespace lin_prog {
@@ -29,7 +27,7 @@ void IPF
 #ifndef EL_RELEASE
     Matrix<Real> dsError, dxError, dlError;
 #endif
-    for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
+    for( Int numIts=0; ; ++numIts )
     {
         // Check that no entries of x or s are non-positive
         // ================================================
@@ -80,6 +78,12 @@ void IPF
                       << rbConv << "\n"
                       << "  || r_c ||_2 / (1 + || c ||_2)   = "
                       << rcConv << std::endl;
+
+        // Raise an exception after an unacceptable number of iterations
+        // =============================================================
+        if( numIts == ctrl.maxIts )
+            RuntimeError
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
         // Compute the duality measure and r_mu = X S e - tau e
         // ====================================================
@@ -191,8 +195,6 @@ void IPF
     auto sPtr = ReadWriteProxy<Real,MC,MR>(&sPre,proxCtrl); auto& s = *sPtr;
     auto xPtr = ReadWriteProxy<Real,MC,MR>(&xPre,proxCtrl); auto& x = *xPtr;
 
-    // TODO: Check that x and s are strictly positive
-
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& grid = A.Grid();
@@ -206,7 +208,7 @@ void IPF
     DistMatrix<Real> dsError(grid), dxError(grid), dlError(grid);
     dsError.AlignWith( ds );
 #endif
-    for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
+    for( Int numIts=0; ; ++numIts )
     {
         // Check that no entries of x or s are non-positive
         // ================================================
@@ -261,6 +263,12 @@ void IPF
                       << rbConv << "\n"
                       << "  || r_c ||_2 / (1 + || c ||_2)   = "
                       << rcConv << std::endl;
+
+        // Raise an exception after an unacceptable number of iterations
+        // =============================================================
+        if( numIts == ctrl.maxIts )
+            RuntimeError
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
         // Compute the duality measure and r_mu = X S e - tau e
         // ====================================================
@@ -361,7 +369,6 @@ void IPF
     }
 }
 
-// TODO: Cache the symbolic analysis
 template<typename Real>
 void IPF
 ( const SparseMatrix<Real>& A, 
@@ -377,7 +384,7 @@ void IPF
 #ifndef EL_RELEASE
     Matrix<Real> dsError, dxError, dlError;
 #endif
-    for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
+    for( Int numIts=0; ; ++numIts )
     {
         // Check that no entries of x or s are non-positive
         // ================================================
@@ -428,6 +435,12 @@ void IPF
                       << rbConv << "\n"
                       << "  || r_c ||_2 / (1 + || c ||_2)   = "
                       << rcConv << std::endl;
+
+        // Raise an exception after an unacceptable number of iterations
+        // =============================================================
+        if( numIts == ctrl.maxIts )
+            RuntimeError
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
         // Compute the duality measure and r_mu = X S e - tau e
         // ====================================================
@@ -519,7 +532,7 @@ void IPF
 #ifndef EL_RELEASE
     DistMultiVec<Real> dsError(comm), dxError(comm), dlError(comm);
 #endif
-    for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
+    for( Int numIts=0; ; ++numIts )
     {
         // Check that no entries of x or s are non-positive
         // ================================================
@@ -572,6 +585,12 @@ void IPF
                       << rbConv << "\n"
                       << "  || r_c ||_2 / (1 + || c ||_2)   = "
                       << rcConv << std::endl;
+
+        // Raise an exception after an unacceptable number of iterations
+        // =============================================================
+        if( numIts == ctrl.maxIts )
+            RuntimeError
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
         // Compute the duality measure and r_mu = X S e - tau e
         // ====================================================

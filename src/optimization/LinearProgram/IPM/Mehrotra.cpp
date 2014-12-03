@@ -7,14 +7,11 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-#include "../LinearProgram.hpp"
-
-// TODO: Add warnings if the maximum number of iterations is exceeded
+#include "./util.hpp"
 
 namespace El {
 namespace lin_prog {
 
-// TODO: Add std::function<Real(Real)> to generalize sigma = (mu_aff/mu)^3
 template<typename Real>
 void Mehrotra
 ( const Matrix<Real>& A, 
@@ -34,7 +31,7 @@ void Mehrotra
 #ifndef EL_RELEASE
     Matrix<Real> dsError, dxError, dlError;
 #endif
-    for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
+    for( Int numIts=0; ; ++numIts )
     {
         // Check that no entries of x or s are non-positive
         // ================================================
@@ -85,6 +82,12 @@ void Mehrotra
                       << rbConv << "\n"
                       << "  || r_c ||_2 / (1 + || c ||_2)   = "
                       << rcConv << std::endl;
+
+        // Raise an exception after an unacceptable number of iterations
+        // =============================================================
+        if( numIts == ctrl.maxIts )
+            RuntimeError
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
         // r_mu := X S e
         // =============
@@ -327,7 +330,7 @@ void Mehrotra
     DistMatrix<Real> dsError(grid), dxError(grid), dlError(grid);
     dsError.AlignWith( ds );
 #endif
-    for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
+    for( Int numIts=0; ; ++numIts )
     {
         // Check that no entries of x or s are non-positive
         // ================================================
@@ -382,6 +385,12 @@ void Mehrotra
                       << rbConv << "\n"
                       << "  || r_c ||_2 / (1 + || c ||_2)   = "
                       << rcConv << std::endl;
+
+        // Raise an exception after an unacceptable number of iterations
+        // =============================================================
+        if( numIts == ctrl.maxIts )
+            RuntimeError
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
         // r_mu := X S e
         // =============
@@ -635,7 +644,7 @@ void Mehrotra
 #ifndef EL_RELEASE
     Matrix<Real> dsError, dxError, dlError;
 #endif
-    for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
+    for( Int numIts=0; ; ++numIts )
     {
         // Check that no entries of x or s are non-positive
         // ================================================
@@ -686,6 +695,12 @@ void Mehrotra
                       << rbConv << "\n"
                       << "  || r_c ||_2 / (1 + || c ||_2)   = "
                       << rcConv << std::endl;
+
+        // Raise an exception after an unacceptable number of iterations
+        // =============================================================
+        if( numIts == ctrl.maxIts )
+            RuntimeError
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
         // r_mu := X S e
         // =============
@@ -901,7 +916,7 @@ void Mehrotra
 #ifndef EL_RELEASE
     DistMultiVec<Real> dsError(comm), dxError(comm), dlError(comm);
 #endif
-    for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
+    for( Int numIts=0; ; ++numIts )
     {
         // Check that no entries of x or s are non-positive
         // ================================================
@@ -954,6 +969,12 @@ void Mehrotra
                       << rbConv << "\n"
                       << "  || r_c ||_2 / (1 + || c ||_2)   = "
                       << rcConv << std::endl;
+
+        // Raise an exception after an unacceptable number of iterations
+        // =============================================================
+        if( numIts == ctrl.maxIts )
+            RuntimeError
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
         // r_mu := X S e
         // =============
