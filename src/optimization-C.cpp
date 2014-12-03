@@ -146,42 +146,34 @@ extern "C" {
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
     ElMatrix_ ## SIG s, ElMatrix_ ## SIG x, ElMatrix_ ## SIG l ) \
   { EL_TRY( \
-      lin_prog::IPFCtrl<Real> ctrl; \
-      ctrl.print = true; \
       lin_prog::IPF( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
+      *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
   ElError ElLinearProgramIPFDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, \
     ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
     ElDistMatrix_ ## SIG s, ElDistMatrix_ ## SIG x, ElDistMatrix_ ## SIG l ) \
   { EL_TRY( \
-      lin_prog::IPFCtrl<Real> ctrl; \
-      ctrl.print = true; \
       lin_prog::IPF( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
+      *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
   ElError ElLinearProgramIPFSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
     ElMatrix_ ## SIG s, ElMatrix_ ## SIG x, ElMatrix_ ## SIG l ) \
   { EL_TRY( \
-      lin_prog::IPFCtrl<Real> ctrl; \
-      ctrl.print = true; \
       lin_prog::IPF( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
+      *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
   ElError ElLinearProgramIPFDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, \
     ElConstDistMultiVec_ ## SIG b, ElConstDistMultiVec_ ## SIG c, \
     ElDistMultiVec_ ## SIG s, ElDistMultiVec_ ## SIG x, \
     ElDistMultiVec_ ## SIG l ) \
   { EL_TRY( \
-      lin_prog::IPFCtrl<Real> ctrl; \
-      ctrl.print = true; \
       lin_prog::IPF( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
+      *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
   /* Mehrotra
      -------- */ \
   ElError ElLinearProgramMehrotra_ ## SIG \
@@ -189,43 +181,34 @@ extern "C" {
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
     ElMatrix_ ## SIG s, ElMatrix_ ## SIG x, ElMatrix_ ## SIG l ) \
   { EL_TRY( \
-      lin_prog::MehrotraCtrl<Real> ctrl; \
-      ctrl.print = true; \
       lin_prog::Mehrotra( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
+      *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
   ElError ElLinearProgramMehrotraDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, \
     ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
     ElDistMatrix_ ## SIG s, ElDistMatrix_ ## SIG x, ElDistMatrix_ ## SIG l ) \
   { EL_TRY( \
-      lin_prog::MehrotraCtrl<Real> ctrl; \
-      ctrl.print = true; \
       lin_prog::Mehrotra( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
+      *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
   ElError ElLinearProgramMehrotraSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
     ElMatrix_ ## SIG s, ElMatrix_ ## SIG x, ElMatrix_ ## SIG l ) \
   { EL_TRY( \
-      lin_prog::MehrotraCtrl<Real> ctrl; \
-      ctrl.print = true; \
       lin_prog::Mehrotra( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
+      *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
   ElError ElLinearProgramMehrotraDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, \
     ElConstDistMultiVec_ ## SIG b, ElConstDistMultiVec_ ## SIG c, \
     ElDistMultiVec_ ## SIG s, ElDistMultiVec_ ## SIG x, \
     ElDistMultiVec_ ## SIG l ) \
   { EL_TRY( \
-      lin_prog::MehrotraCtrl<Real> ctrl; \
-      ctrl.print = true; \
-      ctrl.system = AUGMENTED_KKT; \
       lin_prog::Mehrotra( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
+      *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
   /* ADMM
      ---- */ \
   ElError ElLinearProgramADMM_ ## SIG \

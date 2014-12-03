@@ -13,6 +13,7 @@ m = 200
 n = 400
 worldRank = El.mpi.WorldRank()
 
+# Make a sparse matrix with the last column dense
 def Rectang(m,n):
   A = El.DistSparseMatrix()
   A.Resize(m,n)
@@ -26,6 +27,8 @@ def Rectang(m,n):
     if s != n-1: A.QueueLocalUpdate( sLoc, s+1,   2 )
     if s >= m:   A.QueueLocalUpdate( sLoc, s-m,   3 )
     if s <  n-m: A.QueueLocalUpdate( sLoc, s+m,   4 )
+    # The dense last column
+    A.QueueLocalUpdate( sLoc, n-1, 5 );
 
   A.MakeConsistent()
   return A

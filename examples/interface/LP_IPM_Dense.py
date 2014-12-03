@@ -13,6 +13,7 @@ m = 200
 n = 400
 worldRank = El.mpi.WorldRank()
 
+# Make a sparse matrix with the last column dense
 def RectangDense(m,n):
   A = El.DistMatrix()
   El.Zeros( A, m, n )
@@ -22,6 +23,8 @@ def RectangDense(m,n):
     if s != n-1: A.Update( s, s+1,   2 )
     if s >= m:   A.Update( s, s-m,   3 )
     if s <  n-m: A.Update( s, s+m,   4 )
+    # The dense last column
+    A.Update( s, n-1, 5 );
 
   return A
 

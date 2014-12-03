@@ -99,9 +99,11 @@ struct IPFCtrl {
 
     bool print;
 
-    IPFCtrl() 
-    : tol(1e-8), maxIts(1000), centering(0.9), system(NORMAL_KKT), print(false)
-    { }
+    IPFCtrl( bool isSparse=true ) 
+    : tol(1e-8), maxIts(1000), centering(0.9), print(false)
+    {
+        system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT );
+    }
 };
 
 template<typename Real>
@@ -115,10 +117,11 @@ struct MehrotraCtrl {
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
     //       the default, (muAff/mu)^3 
 
-    MehrotraCtrl()
-    : tol(1e-8), maxIts(1000), maxStepRatio(0.99), system(NORMAL_KKT),
-      print(false)
-    { }
+    MehrotraCtrl( bool isSparse=true )
+    : tol(1e-8), maxIts(1000), maxStepRatio(0.99), print(false)
+    { 
+        system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT );
+    }
 };
 
 template<typename Real>
@@ -157,57 +160,60 @@ struct LinProgCtrl
     lin_prog::IPFCtrl<Real> ipfCtrl;
     lin_prog::MehrotraCtrl<Real> mehrotraCtrl;
 
-    LinProgCtrl() : alg(LIN_PROG_MEHROTRA) { }
+    LinProgCtrl( bool isSparse=true ) 
+    : alg(LIN_PROG_MEHROTRA), ipfCtrl(isSparse), mehrotraCtrl(isSparse)
+    { }
 };
 
 template<typename Real>
 void LinearProgram
 ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
-  Matrix<Real>& x, const LinProgCtrl<Real>& ctrl=LinProgCtrl<Real>() );
+  Matrix<Real>& x, const LinProgCtrl<Real>& ctrl=LinProgCtrl<Real>(false) );
 template<typename Real>
 void LinearProgram
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
   const AbstractDistMatrix<Real>& c,       AbstractDistMatrix<Real>& x,
-  const LinProgCtrl<Real>& ctrl=LinProgCtrl<Real>() );
+  const LinProgCtrl<Real>& ctrl=LinProgCtrl<Real>(false) );
 template<typename Real>
 void LinearProgram
 ( const SparseMatrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c,
-  Matrix<Real>& x, const LinProgCtrl<Real>& ctrl=LinProgCtrl<Real>() );
+  Matrix<Real>& x, const LinProgCtrl<Real>& ctrl=LinProgCtrl<Real>(true) );
 template<typename Real>
 void LinearProgram
 ( const DistSparseMatrix<Real>& A, 
   const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
-  DistMultiVec<Real>& x, const LinProgCtrl<Real>& ctrl=LinProgCtrl<Real>() );
+  DistMultiVec<Real>& x, 
+  const LinProgCtrl<Real>& ctrl=LinProgCtrl<Real>(true) );
 
 namespace lin_prog {
 
-// Mehotra's Predictor-Corrector Infeasible Interior Point Method (Mehrotra)
-// --------------------------------------------------------------------
+// Mehrotra's Predictor-Corrector Infeasible Interior Point Method
+// ---------------------------------------------------------------
 template<typename Real>
 void Mehrotra
 ( const Matrix<Real>& A,
   const Matrix<Real>& b, const Matrix<Real>& c,
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>(false) );
 template<typename Real>
 void Mehrotra
 ( const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
   AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, 
   AbstractDistMatrix<Real>& l,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>(false) );
 template<typename Real>
 void Mehrotra
 ( const SparseMatrix<Real>& A,
   const Matrix<Real>& b, const Matrix<Real>& c,
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>(true) );
 template<typename Real>
 void Mehrotra
 ( const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
   DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>(true) );
 
 // Infeasible Path-Following Interior Point Method (IPF)
 // -----------------------------------------------------
@@ -216,25 +222,26 @@ void IPF
 ( const Matrix<Real>& A,
   const Matrix<Real>& b, const Matrix<Real>& c,
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
-  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
+  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>(false) );
 template<typename Real>
 void IPF
 ( const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c,
   AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, 
-  AbstractDistMatrix<Real>& l, const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
+  AbstractDistMatrix<Real>& l, 
+  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>(false) );
 template<typename Real>
 void IPF
 ( const SparseMatrix<Real>& A,
   const Matrix<Real>& b,  const Matrix<Real>& c,
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
-  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
+  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>(true) );
 template<typename Real>
 void IPF
 ( const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c,
   DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l,
-  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
+  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>(true) );
 
 // Alternating Direction Method of Multipliers (ADMM)
 // --------------------------------------------------
