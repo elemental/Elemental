@@ -72,9 +72,9 @@ El.LinearProgramIPF(A,b,c,s,x,l)
 endIPF = time.clock()
 if worldRank == 0:
   print "IPF time:", endIPF-startIPF
-El.Display( x, "s" )
-El.Display( l, "x" )
-El.Display( s, "l" )
+El.Display( x, "s IPF" )
+El.Display( l, "x IPF" )
+El.Display( s, "l IPF" )
 
 obj = El.Dot(c,x)
 if worldRank == 0:
@@ -88,9 +88,9 @@ El.LinearProgramMehrotra(A,b,c,s,x,l)
 endMehrotra = time.clock()
 if worldRank == 0:
   print "Mehrotra time:", endMehrotra-startMehrotra
-El.Display( x, "s" )
-El.Display( l, "x" )
-El.Display( s, "l" )
+El.Display( x, "s Mehotra" )
+El.Display( l, "x Mehotra" )
+El.Display( s, "l Mehotra" )
 
 obj = El.Dot(c,x)
 if worldRank == 0:

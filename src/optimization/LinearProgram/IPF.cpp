@@ -23,8 +23,6 @@ void IPF
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
 
-    // TODO: Check that x and s are strictly positive
-
     const Int m = A.Height();
     const Int n = A.Width();
     Matrix<Real> J, y, rmu, rb, rc, ds, dx, dl;
@@ -33,6 +31,21 @@ void IPF
 #endif
     for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
     {
+        // Check that no entries of x or s are non-positive
+        // ================================================
+        Int numNonPos_x = 0;
+        for( Int i=0; i<x.Height(); ++i )
+            if( x.Get(i,0) <= Real(0) )
+                ++numNonPos_x;
+        Int numNonPos_s = 0;
+        for( Int i=0; i<s.Height(); ++i )
+            if( s.Get(i,0) <= Real(0) )
+                ++numNonPos_s;
+        if( numNonPos_x > 0 || numNonPos_s > 0 )
+            LogicError
+            (numNonPos_x," entries of x were nonpositive and ",
+             numNonPos_s," entries of s were nonpositive");
+
         // Check for convergence
         // =====================
         // |c^T x - b^T l| / (1 + |c^T x|) <= tol ?
@@ -195,6 +208,25 @@ void IPF
 #endif
     for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
     {
+        // Check that no entries of x or s are non-positive
+        // ================================================
+        Int numNonPos_x = 0;
+        if( x.IsLocalCol(0) )
+            for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
+                if( x.GetLocal(iLoc,0) <= Real(0) )
+                    ++numNonPos_x;
+        numNonPos_x = mpi::AllReduce( numNonPos_x, x.DistComm() );
+        Int numNonPos_s = 0;
+        if( s.IsLocalCol(0) )
+            for( Int iLoc=0; iLoc<s.LocalHeight(); ++iLoc )
+                if( s.GetLocal(iLoc,0) <= Real(0) )
+                    ++numNonPos_s;
+        numNonPos_s = mpi::AllReduce( numNonPos_s, s.DistComm() );
+        if( numNonPos_x > 0 || numNonPos_s > 0 )
+            LogicError
+            (numNonPos_x," entries of x were nonpositive and ",
+             numNonPos_s," entries of s were nonpositive");
+
         // Check for convergence
         // =====================
         // |c^T x - b^T l| / (1 + |c^T x|) <= tol ?
@@ -339,8 +371,6 @@ void IPF
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
 
-    // TODO: Check that x and s are strictly positive
-
     const Int n = A.Width();
     SparseMatrix<Real> J;
     Matrix<Real> rmu, rc, rb, ds, dx, dl;
@@ -349,6 +379,21 @@ void IPF
 #endif
     for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
     {
+        // Check that no entries of x or s are non-positive
+        // ================================================
+        Int numNonPos_x = 0;
+        for( Int i=0; i<x.Height(); ++i )
+            if( x.Get(i,0) <= Real(0) )
+                ++numNonPos_x;
+        Int numNonPos_s = 0;
+        for( Int i=0; i<s.Height(); ++i )
+            if( s.Get(i,0) <= Real(0) )
+                ++numNonPos_s;
+        if( numNonPos_x > 0 || numNonPos_s > 0 )
+            LogicError
+            (numNonPos_x," entries of x were nonpositive and ",
+             numNonPos_s," entries of s were nonpositive");
+
         // Check for convergence
         // =====================
         // |c^T x - b^T l| / (1 + |c^T x|) <= tol ?
@@ -450,7 +495,6 @@ void IPF
     }
 }
 
-// TODO: Cache the symbolic analysis
 template<typename Real>
 void IPF
 ( const DistSparseMatrix<Real>& A, 
@@ -459,8 +503,6 @@ void IPF
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
-
-    // TODO: Check that x and s are strictly positive
 
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
@@ -479,6 +521,23 @@ void IPF
 #endif
     for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
     {
+        // Check that no entries of x or s are non-positive
+        // ================================================
+        Int numNonPos_x = 0;
+        for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
+            if( x.GetLocal(iLoc,0) <= Real(0) )
+                ++numNonPos_x;
+        numNonPos_x = mpi::AllReduce( numNonPos_x, comm );
+        Int numNonPos_s = 0;
+        for( Int iLoc=0; iLoc<s.LocalHeight(); ++iLoc )
+            if( s.GetLocal(iLoc,0) <= Real(0) )
+                ++numNonPos_s;
+        numNonPos_s = mpi::AllReduce( numNonPos_s, comm );
+        if( numNonPos_x > 0 || numNonPos_s > 0 )
+            LogicError
+            (numNonPos_x," entries of x were nonpositive and ",
+             numNonPos_s," entries of s were nonpositive");
+
         // Check for convergence
         // =====================
         // |c^T x - b^T l| / (1 + |c^T x|) <= tol ?

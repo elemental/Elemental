@@ -183,7 +183,7 @@ extern "C" {
       *CReflect(A), *CReflect(b), *CReflect(c), \
       *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
   /* Mehrotra
-     --- */ \
+     -------- */ \
   ElError ElLinearProgramMehrotra_ ## SIG \
   ( ElConstMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
@@ -222,6 +222,7 @@ extern "C" {
   { EL_TRY( \
       lin_prog::MehrotraCtrl<Real> ctrl; \
       ctrl.print = true; \
+      ctrl.system = AUGMENTED_KKT; \
       lin_prog::Mehrotra( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
       *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \

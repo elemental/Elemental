@@ -31,12 +31,11 @@ void Mehrotra
                  ds,    dx,    dl;
     Matrix<Real> dSub;
     Matrix<Int> p;
-#ifndef RELEASE
+#ifndef EL_RELEASE
     Matrix<Real> dsError, dxError, dlError;
 #endif
     for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
     {
-#ifndef RELEASE
         // Check that no entries of x or s are non-positive
         // ================================================
         Int numNonPos_x = 0;
@@ -48,10 +47,9 @@ void Mehrotra
             if( s.Get(i,0) <= Real(0) )
                 ++numNonPos_s;
         if( numNonPos_x > 0 || numNonPos_s > 0 )
-            std::cout << numNonPos_x << " entries of x were nonzero and "
-                      << numNonPos_s << " entries of s were nonzero"
-                      << std::endl;
-#endif
+            LogicError
+            (numNonPos_x," entries of x were nonpositive and ",
+             numNonPos_s," entries of s were nonpositive");
 
         // Check for convergence
         // =====================
@@ -136,7 +134,7 @@ void Mehrotra
             ExpandNormalSolution( A, c, s, x, rmu, rc, dlAff, dsAff, dxAff );
         }
 
-#ifndef RELEASE
+#ifndef EL_RELEASE
         // Sanity checks
         // =============
         Real rmuNrm2 = Nrm2( rmu ); 
@@ -325,13 +323,12 @@ void Mehrotra
     rmu.AlignWith( x );
     DistMatrix<Real> dSub(grid);
     DistMatrix<Int> p(grid);
-#ifndef RELEASE
+#ifndef EL_RELEASE
     DistMatrix<Real> dsError(grid), dxError(grid), dlError(grid);
     dsError.AlignWith( ds );
 #endif
     for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
     {
-#ifndef RELEASE
         // Check that no entries of x or s are non-positive
         // ================================================
         Int numNonPos_x = 0;
@@ -346,11 +343,10 @@ void Mehrotra
                 if( s.GetLocal(iLoc,0) <= Real(0) )
                     ++numNonPos_s;
         numNonPos_s = mpi::AllReduce( numNonPos_s, s.DistComm() );
-        if( (numNonPos_x > 0 || numNonPos_s > 0) && commRank == 0 )
-            std::cout << numNonPos_x << " entries of x were nonzero and " 
-                      << numNonPos_s << " entries of s were nonzero" 
-                      << std::endl;
-#endif
+        if( numNonPos_x > 0 || numNonPos_s > 0 )
+            LogicError
+            (numNonPos_x," entries of x were nonpositive and ",
+             numNonPos_s," entries of s were nonpositive");
 
         // Check for convergence
         // =====================
@@ -437,7 +433,7 @@ void Mehrotra
             ExpandNormalSolution( A, c, s, x, rmu, rc, dlAff, dsAff, dxAff );
         }
 
-#ifndef RELEASE
+#ifndef EL_RELEASE
         // Sanity checks
         // =============
         Real rmuNrm2 = Nrm2( rmu ); 
@@ -628,8 +624,6 @@ void Mehrotra
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::Mehrotra"))    
 
-    // TODO: Check that x and s are strictly positive
-
     const Int m = A.Height();
     const Int n = A.Width();
     SparseMatrix<Real> J;
@@ -638,12 +632,11 @@ void Mehrotra
                  ds,    dx,    dl;
     Matrix<Real> dSub;
     Matrix<Int> p;
-#ifndef RELEASE
+#ifndef EL_RELEASE
     Matrix<Real> dsError, dxError, dlError;
 #endif
     for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
     {
-#ifndef RELEASE
         // Check that no entries of x or s are non-positive
         // ================================================
         Int numNonPos_x = 0;
@@ -655,10 +648,9 @@ void Mehrotra
             if( s.Get(i,0) <= Real(0) )
                 ++numNonPos_s;
         if( numNonPos_x > 0 || numNonPos_s > 0 )
-            std::cout << numNonPos_x << " entries of x were nonzero and "
-                      << numNonPos_s << " entries of s were nonzero"
-                      << std::endl;
-#endif
+            LogicError
+            (numNonPos_x," entries of x were nonpositive and ",
+             numNonPos_s," entries of s were nonpositive");
 
         // Check for convergence
         // =====================
@@ -703,21 +695,39 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        // Construct the "normal" KKT system
-        // ---------------------------------
-        NormalKKT( A, s, x, J );
-        NormalKKTRHS( A, s, x, rmu, rc, rb, dlAff );
+        if( ctrl.system == AUGMENTED_KKT )
+        {
+            // Construct the "normal" KKT system
+            // ---------------------------------
+            AugmentedKKT( A, s, x, J );
+            AugmentedKKTRHS( x, rmu, rc, rb, y );
 
-        // Compute the proposed step from the KKT system
-        // ---------------------------------------------
-        //LDL( J, dSub, p, false );
-        //ldl::SolveAfter( J, dSub, p, dlAff, false );
-        LogicError("Sequential SymmetricSolve not yet supported");
-        ExpandNormalSolution( A, c, s, x, rmu, rc, dlAff, dsAff, dxAff );
+            // Compute the proposed step from the KKT system 
+            // ---------------------------------------------
+            //RegularizedLDL( J, dSub, p, false );
+            LogicError("Sequential SymmetricSolve not yet supported");
+            // Solve ...
+            ExpandAugmentedSolution( s, x, rmu, y, dsAff, dxAff, dlAff );
+        }
+        else // ctrl.system == NORMAL_KKT
+        {
+            // Construct the "normal" KKT system
+            // ---------------------------------
+            NormalKKT( A, s, x, J );
+            NormalKKTRHS( A, s, x, rmu, rc, rb, dlAff );
 
-#ifndef RELEASE
+            // Compute the proposed step from the KKT system
+            // ---------------------------------------------
+            //LDL( J, dSub, p, false );
+            LogicError("Sequential SymmetricSolve not yet supported");
+            // Solve ...
+            ExpandNormalSolution( A, c, s, x, rmu, rc, dlAff, dsAff, dxAff );
+        }
+
+#ifndef EL_RELEASE
         // Sanity checks
         // =============
+        // TODO: Incorporate regularization if it was added
         Real rmuNrm2 = Nrm2( rmu ); 
         dsError = rmu;
         for( Int i=0; i<n; ++i )
@@ -795,15 +805,28 @@ void Mehrotra
         Zeros( rb, m, 1 );
         for( Int i=0; i<n; ++i )
             rmu.Set( i, 0, dxAff.Get(i,0)*dsAff.Get(i,0) - sigma*mu );
-        // Construct the new "normal" KKT RHS
-        // ----------------------------------
-        NormalKKTRHS( A, s, x, rmu, rc, rb, dl );
+        if( ctrl.system == AUGMENTED_KKT )
+        {
+            // Construct the new "augmented" KKT RHS
+            // -------------------------------------
+            AugmentedKKTRHS( x, rmu, rc, rb, y );
 
-        // Compute the proposed step from the KKT system
-        // ---------------------------------------------
-        //ldl::SolveAfter( J, dSub, p, dl, false );
-        LogicError("Sequential SymmetricSolve not yet supported");
-        ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
+            // Compute the proposed step from the KKT system
+            // ---------------------------------------------
+            // Solve ...
+            ExpandAugmentedSolution( s, x, rmu, y, ds, dx, dl );
+        }
+        else // ctrl.system == NORMAL_KKT
+        {
+            // Construct the new "normal" KKT RHS
+            // ----------------------------------
+            NormalKKTRHS( A, s, x, rmu, rc, rb, dl );
+
+            // Compute the proposed step from the KKT system
+            // ---------------------------------------------
+            // Solve ...
+            ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
+        }
 
         // TODO: Residual checks for center-corrector
 
@@ -858,6 +881,7 @@ void Mehrotra
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
+    const Real epsilon = lapack::MachineEpsilon<Real>();
 
     DistSymmInfo info;
     DistSeparatorTree sepTree;
@@ -865,15 +889,22 @@ void Mehrotra
     DistSparseMatrix<Real> J(comm);
     DistSymmFrontTree<Real> JFrontTree;
 
-    DistMultiVec<Real> rmu(comm), rb(comm), rc(comm), 
+
+    DistMultiVec<Real> y(comm), rmu(comm), rb(comm), rc(comm), 
                        dsAff(comm), dxAff(comm), dlAff(comm),
                        ds(comm),    dx(comm),    dl(comm);
-#ifndef RELEASE
+    DistNodalMultiVec<Real> yNodal;
+
+    DistMultiVec<Int> pivSign(comm);
+    DistNodalMultiVec<Int> pivSignNodal;
+    DistMultiVec<Real> reg(comm);
+    DistNodalMultiVec<Real> regNodal;
+
+#ifndef EL_RELEASE
     DistMultiVec<Real> dsError(comm), dxError(comm), dlError(comm);
 #endif
     for( Int numIts=0; numIts<ctrl.maxIts; ++numIts )
     {
-#ifndef RELEASE
         // Check that no entries of x or s are non-positive
         // ================================================
         Int numNonPos_x = 0;
@@ -886,11 +917,10 @@ void Mehrotra
             if( s.GetLocal(iLoc,0) <= Real(0) )
                 ++numNonPos_s;
         numNonPos_s = mpi::AllReduce( numNonPos_s, comm );
-        if( (numNonPos_x > 0 || numNonPos_s > 0) && commRank == 0 )
-            std::cout << numNonPos_x << " entries of x were nonzero and "
-                      << numNonPos_s << " entries of s were nonzero"
-                      << std::endl;
-#endif
+        if( numNonPos_x > 0 || numNonPos_s > 0 )
+            LogicError
+            (numNonPos_x," entries of x were nonpositive and ",
+             numNonPos_s," entries of s were nonpositive");
 
         // Check for convergence
         // =====================
@@ -935,28 +965,78 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        // Construct the "normal" KKT system
-        // ---------------------------------
-        NormalKKT( A, s, x, J, false );
-        NormalKKTRHS( A, s, x, rmu, rc, rb, dlAff );
-
-        // Compute the proposed step from the KKT system
-        // ---------------------------------------------
-        if( numIts == 0 )
-        {
-            NestedDissection( J.LockedDistGraph(), map, sepTree, info );
-            map.FormInverse( invMap );
-        }
-        JFrontTree.Initialize( J, map, sepTree, info );
-        LDL( info, JFrontTree, LDL_INTRAPIV_1D );
         const Real minReductionFactor = 2;
         const Int maxRefineIts = 10;
-        SolveWithIterativeRefinement
-        ( J, invMap, info, JFrontTree, dlAff, 
-          minReductionFactor, maxRefineIts );
-        ExpandNormalSolution( A, c, s, x, rmu, rc, dlAff, dsAff, dxAff );
+        if( ctrl.system == AUGMENTED_KKT )
+        {
+            // Construct the "normal" KKT system
+            // ---------------------------------
+            // TODO: Add default regularization
+            AugmentedKKT( A, s, x, J, false );
+            AugmentedKKTRHS( x, rmu, rc, rb, y );
+            const Real pivTol = MaxNorm(J)*epsilon;
+            // TODO: Generalize regularization magnitudes to a full vector.
+            //       Perhaps combine with pivot signs. 
+            const Real regMag = Sqrt(epsilon);
+            pivSign.Resize( n+m, 1 );
+            for( Int iLoc=0; iLoc<pivSign.LocalHeight(); ++iLoc )
+            {
+                const Int i = pivSign.FirstLocalRow() + iLoc;
+                if( i < n )
+                    pivSign.SetLocal( iLoc, 0, Real(-1) );
+                else
+                    pivSign.SetLocal( iLoc, 0, Real(1) );
+            }
 
-#ifndef RELEASE
+            // Compute the proposed step from the KKT system
+            // ---------------------------------------------
+            if( numIts == 0 )
+            {
+                NestedDissection( J.LockedDistGraph(), map, sepTree, info );
+                map.FormInverse( invMap );
+            }
+            JFrontTree.Initialize( J, map, sepTree, info );
+            pivSignNodal.Pull( invMap, info, pivSign );
+            Zeros( reg, m+n, 1 );
+            regNodal.Pull( invMap, info, reg );
+            RegularizedLDL
+            ( info, JFrontTree, pivTol, regMag, 
+              pivSignNodal, regNodal, LDL_1D );
+            regNodal.Push( invMap, info, reg );
+            // NOTE: Need to modify iterative refinement procedure
+            /*
+            SolveWithIterativeRefinement
+            ( J, invMap, info, JFrontTree, y, 
+              minReductionFactor, maxRefineIts );
+            */
+            yNodal.Pull( invMap, info, y );
+            Solve( info, JFrontTree, yNodal );
+            yNodal.Push( invMap, info, y );
+            ExpandAugmentedSolution( s, x, rmu, y, dsAff, dxAff, dlAff );
+        }
+        else // ctrl.system == NORMAL_KKT
+        {
+            // Construct the "normal" KKT system
+            // ---------------------------------
+            NormalKKT( A, s, x, J, false );
+            NormalKKTRHS( A, s, x, rmu, rc, rb, dlAff );
+
+            // Compute the proposed step from the KKT system
+            // ---------------------------------------------
+            if( numIts == 0 )
+            {
+                NestedDissection( J.LockedDistGraph(), map, sepTree, info );
+                map.FormInverse( invMap );
+            }
+            JFrontTree.Initialize( J, map, sepTree, info );
+            LDL( info, JFrontTree, LDL_1D );
+            SolveWithIterativeRefinement
+            ( J, invMap, info, JFrontTree, dlAff, 
+              minReductionFactor, maxRefineIts );
+            ExpandNormalSolution( A, c, s, x, rmu, rc, dlAff, dsAff, dxAff );
+        }
+
+#ifndef EL_RELEASE
         // Sanity checks
         // =============
         Real rmuNrm2 = Nrm2( rmu ); 
@@ -1040,15 +1120,33 @@ void Mehrotra
             rmu.SetLocal
             ( iLoc, 0, 
               dxAff.GetLocal(iLoc,0)*dsAff.GetLocal(iLoc,0) - sigma*mu );
-        // Construct the new "normal" KKT RHS
-        // ----------------------------------
-        NormalKKTRHS( A, s, x, rmu, rc, rb, dl );
+        if( ctrl.system == AUGMENTED_KKT )
+        {
+            // Construct the new "normal" KKT RHS
+            // ----------------------------------
+            AugmentedKKTRHS( x, rmu, rc, rb, y );
 
-        // Compute the proposed step from the KKT system
-        // ---------------------------------------------
-        SolveWithIterativeRefinement
-        ( J, invMap, info, JFrontTree, dl, minReductionFactor, maxRefineIts );
-        ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
+            // Compute the proposed step from the KKT system
+            // ---------------------------------------------
+            // TODO: Iterative refinement
+            yNodal.Pull( invMap, info, y );
+            Solve( info, JFrontTree, yNodal );
+            yNodal.Push( invMap, info, y );
+            ExpandAugmentedSolution( s, x, rmu, y, ds, dx, dl );
+        }
+        else
+        {
+            // Construct the new "normal" KKT RHS
+            // ----------------------------------
+            NormalKKTRHS( A, s, x, rmu, rc, rb, dl );
+
+            // Compute the proposed step from the KKT system
+            // ---------------------------------------------
+            SolveWithIterativeRefinement
+            ( J, invMap, info, JFrontTree, dl, 
+              minReductionFactor, maxRefineIts );
+            ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
+        }
 
         // TODO: Residual checks for center-corrector
 

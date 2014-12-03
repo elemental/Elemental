@@ -192,7 +192,7 @@ void AugmentedKKT
     {
         const Int i = k + x.FirstLocalRow();
         const Int j = i;
-        const Int value = -s.GetLocal(k,0)/x.GetLocal(k,0);
+        const Real value = -s.GetLocal(k,0)/x.GetLocal(k,0);
         const Int owner = J.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         tSendBuf[offsets[owner]] = j;
@@ -440,7 +440,94 @@ void ExpandAugmentedSolution
     }
 }
 
-// TODO: ExpandAugmentedSolution for DistMultiVec
+template<typename Real>
+void ExpandAugmentedSolution
+( const DistMultiVec<Real>& s, const DistMultiVec<Real>& x,
+  const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& y,
+  DistMultiVec<Real>& ds, DistMultiVec<Real>& dx, DistMultiVec<Real>& dl )
+{
+    DEBUG_ONLY(CallStackEntry cse("lin_prog::ExpandAugmentedSolution"))
+    const Int n = rmu.Height();
+    const Int m = y.Height() - n;
+    mpi::Comm comm = s.Comm();
+    const Int commSize = mpi::Size(comm);
+
+    // Extract dx and dl from [dx; dl]
+    // ===============================
+    dx.Resize( n, 1 );
+    dl.Resize( m, 1 );
+    // Compute the number of entries to send to each process
+    // -----------------------------------------------------
+    std::vector<int> sendCounts(commSize,0);
+    for( Int iLoc=0; iLoc<y.LocalHeight(); ++iLoc )
+    {
+        const Int i = y.FirstLocalRow() + iLoc;
+        if( i < n )
+            ++sendCounts[ dx.RowOwner(i) ];
+        else
+            ++sendCounts[ dl.RowOwner(i-n) ];
+    }
+    // Communicate to determine the number we receive from each process
+    // ----------------------------------------------------------------
+    std::vector<int> recvCounts(commSize);
+    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
+    std::vector<int> sendOffsets, recvOffsets;
+    int totalSend = Scan( sendCounts, sendOffsets );
+    int totalRecv = Scan( recvCounts, recvOffsets );
+    // Pack the entries and row indices of dx and dl
+    // ---------------------------------------------
+    std::vector<Int> sSendBuf(totalSend);
+    std::vector<Real> vSendBuf(totalSend);
+    auto offsets = sendOffsets;
+    for( Int iLoc=0; iLoc<y.LocalHeight(); ++iLoc )
+    {
+        const Int i = y.FirstLocalRow() + iLoc;
+        if( i < n )
+        {
+            const Int owner = dx.RowOwner(i); 
+            sSendBuf[offsets[owner]] = i; 
+            vSendBuf[offsets[owner]] = y.GetLocal(iLoc,0);
+            ++offsets[owner]; 
+        }
+        else
+        {
+            const Int owner = dl.RowOwner(i-n);
+            sSendBuf[offsets[owner]] = i;
+            vSendBuf[offsets[owner]] = y.GetLocal(iLoc,0);
+            ++offsets[owner];
+        }
+    }
+    // Exchange and unpack the entries and indices
+    // -------------------------------------------
+    std::vector<Int> sRecvBuf(totalRecv);
+    std::vector<Real> vRecvBuf(totalRecv);
+    mpi::AllToAll
+    ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    mpi::AllToAll
+    ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    for( Int k=0; k<totalRecv; ++k )
+    {
+        const Int i = sRecvBuf[k];
+        if( i < n )
+            dx.SetLocal( i-dx.FirstLocalRow(), 0, vRecvBuf[k] );
+        else
+            dl.SetLocal( i-n-dl.FirstLocalRow(), 0, vRecvBuf[k] );
+    }
+
+    // ds := -(r_mu + S dx) / X
+    // ========================
+    ds.Resize( n, 1 );
+    for( Int iLoc=0; iLoc<ds.LocalHeight(); ++iLoc )
+    {
+        const Real x_i = x.GetLocal(iLoc,0);
+        const Real s_i = s.GetLocal(iLoc,0);
+        const Real dx_i = dx.GetLocal(iLoc,0);
+        const Real rmu_i = rmu.GetLocal(iLoc,0);
+        ds.SetLocal( iLoc, 0, -(rmu_i + s_i*dx_i)/x_i );
+    }
+}
 
 #define PROTO(Real) \
   template void AugmentedKKT \
@@ -479,7 +566,11 @@ void ExpandAugmentedSolution
   ( const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& x, \
     const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& y, \
     AbstractDistMatrix<Real>& ds, AbstractDistMatrix<Real>& dx, \
-    AbstractDistMatrix<Real>& dl );
+    AbstractDistMatrix<Real>& dl ); \
+  template void ExpandAugmentedSolution \
+  ( const DistMultiVec<Real>& s, const DistMultiVec<Real>& x, \
+    const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& y, \
+    DistMultiVec<Real>& ds, DistMultiVec<Real>& dx, DistMultiVec<Real>& dl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

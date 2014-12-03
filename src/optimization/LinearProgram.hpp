@@ -92,6 +92,11 @@ void ExpandAugmentedSolution
   const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& y,
   AbstractDistMatrix<Real>& ds, AbstractDistMatrix<Real>& dx, 
   AbstractDistMatrix<Real>& dl );
+template<typename Real>
+void ExpandAugmentedSolution
+( const DistMultiVec<Real>& s, const DistMultiVec<Real>& x,
+  const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& y,
+  DistMultiVec<Real>& ds, DistMultiVec<Real>& dx, DistMultiVec<Real>& dl );
 
 // Normal system
 // -------------
