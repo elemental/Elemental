@@ -9,20 +9,17 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_SPARSEDIRECT_NUMERIC_LDL_LOCAL_HPP
-#define EL_SPARSEDIRECT_NUMERIC_LDL_LOCAL_HPP
+#ifndef EL_OPTIMIZATION_REGLDL_PROCESSLOCALTREE_HPP
+#define EL_OPTIMIZATION_REGLDL_PROCESSLOCALTREE_HPP
 
 namespace El {
+namespace reg_ldl {
 
 template<typename F> 
 inline void 
-LocalLDL( DistSymmInfo& info, DistSymmFrontTree<F>& L )
+ProcessLocalTree( DistSymmInfo& info, DistSymmFrontTree<F>& L )
 {
-    DEBUG_ONLY(CallStackEntry cse("LocalLDL"))
-    const bool blockLDL = ( L.frontType == BLOCK_LDL_2D ||
-                            L.frontType == BLOCK_LDL_INTRAPIV_2D );
-    const bool intraPiv = ( L.frontType == LDL_INTRAPIV_2D || 
-                            L.frontType == BLOCK_LDL_INTRAPIV_2D );
+    DEBUG_ONLY(CallStackEntry cse("reg_ldl::ProcessLocalTree"))
 
     const int numLocalNodes = info.localNodes.size();
     for( int s=0; s<numLocalNodes; ++s )
@@ -96,24 +93,15 @@ LocalLDL( DistSymmInfo& info, DistSymmFrontTree<F>& L )
         }
 
         // Call the custom partial LDL
-        if( blockLDL )
-            FrontBlockLDL( frontL, frontBR, L.isHermitian, intraPiv );
-        else if( intraPiv )
-        {
-            FrontLDLIntraPiv
-            ( frontL, front.subdiag, front.piv, frontBR, L.isHermitian );
-            frontL.GetDiagonal( front.diag );
-            SetDiagonal( frontL, F(1) );
-        }
-        else
-        {
-            FrontLDL( frontL, frontBR, L.isHermitian );
-            frontL.GetDiagonal( front.diag );
-            SetDiagonal( frontL, F(1) );
-        }
+        // TODO: Add regularization
+        LogicError("Regularization has not yet been added");
+        ProcessFront( frontL, frontBR, L.isHermitian );
+        frontL.GetDiagonal( front.diag );
+        SetDiagonal( frontL, F(1) );
     }
 }
 
+} // namespace reg_ldl
 } // namespace El
 
-#endif // ifndef EL_SPARSEDIRECT_NUMERIC_LDL_LOCAL_HPP
+#endif // ifndef EL_OPTIMIZATION_REGLDL_PROCESSLOCALTREE_HPP

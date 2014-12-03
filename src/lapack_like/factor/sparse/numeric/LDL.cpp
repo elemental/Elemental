@@ -10,11 +10,11 @@
 */
 #include "El.hpp"
 
-#include "./LDL/Front.hpp"
-#include "./LDL/FrontBlock.hpp"
+#include "./LDL/ProcessFront.hpp"
+#include "./LDL/ProcessFrontBlock.hpp"
 
-#include "./LDL/Local.hpp"
-#include "./LDL/Dist.hpp"
+#include "./LDL/ProcessLocalTree.hpp"
+#include "./LDL/ProcessDistTree.hpp"
 
 namespace El {
 
@@ -45,8 +45,8 @@ LDL( DistSymmInfo& info, DistSymmFrontTree<F>& L, SymmFrontType newFrontType )
 
     // Perform the initial factorization
     L.frontType = InitialFactorType(newFrontType);
-    LocalLDL( info, L );
-    DistLDL( info, L );
+    ldl::ProcessLocalTree( info, L );
+    ldl::ProcessDistTree( info, L );
 
     // Convert the fronts from the initial factorization to the requested form
     ChangeFrontType( L, newFrontType );

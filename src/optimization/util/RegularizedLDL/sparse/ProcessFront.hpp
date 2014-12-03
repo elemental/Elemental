@@ -9,16 +9,17 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_SPARSEDIRECT_NUMERIC_LDL_FRONT_HPP
-#define EL_SPARSEDIRECT_NUMERIC_LDL_FRONT_HPP
+#ifndef EL_OPTIMIZATION_REGLDL_PROCESSFRONT_HPP
+#define EL_OPTIMIZATION_REGLDL_PROCESSFRONT_HPP
 
 namespace El {
+namespace reg_ldl {
 
 template<typename F>
-inline void FrontLDL( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate )
+inline void ProcessFront( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("FrontLDL");
+        CallStackEntry cse("reg_ldl::ProcessFront");
         if( ABR.Height() != ABR.Width() )
             LogicError("ABR must be square");
         if( AL.Height() != AL.Width() + ABR.Width() )
@@ -44,6 +45,8 @@ inline void FrontLDL( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate )
         auto AL21 = AL( ind2Vert, ind1     );
         auto AL22 = AL( ind2Vert, ind2Horz );
 
+        // TODO: Replace with Regularized LDL
+        LogicError("Have not yet added regularization");
         LDL( AL11, conjugate );
         AL11.GetDiagonal( d1 );
 
@@ -60,37 +63,12 @@ inline void FrontLDL( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate )
     }
 }
 
-template<typename F>
-void FrontLDLIntraPiv
-( Matrix<F>& AL, Matrix<F>& subdiag, Matrix<Int>& piv, Matrix<F>& ABR,
-  bool conjugate )
-{
-    DEBUG_ONLY(CallStackEntry cse("FrontLDLIntraPiv"))
-    const Int n = AL.Width();
-    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
-
-    Matrix<F> ATL, ABL;
-    PartitionDown( AL, ATL, ABL, n );
-
-    LDL( ATL, subdiag, piv, conjugate );
-    auto diag = ATL.GetDiagonal();
-
-    PermuteCols( ABL, piv );
-    Trsm( RIGHT, LOWER, orientation, UNIT, F(1), ATL, ABL );
-    Matrix<F> SBL( ABL );
-
-    QuasiDiagonalSolve( RIGHT, LOWER, diag, subdiag, ABL, conjugate );
-    Trrk( LOWER, NORMAL, orientation, F(-1), SBL, ABL, F(1), ABR );
-}
-
-namespace internal {
-
 template<typename F> 
-inline void FrontLDLGeneral
+inline void ProcessFrontGeneral
 ( DistMatrix<F>& AL, DistMatrix<F>& ABR, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::FrontLDLGeneral");
+        CallStackEntry cse("reg_ldl::ProcessFrontGeneral");
         if( ABR.Height() != ABR.Width() )
             LogicError("ABR must be square");
         if( AL.Height() != AL.Width()+ABR.Height() )
@@ -164,11 +142,11 @@ inline void FrontLDLGeneral
 }
 
 template<typename F>
-inline void FrontLDLSquare
+inline void ProcessFrontSquare
 ( DistMatrix<F>& AL, DistMatrix<F>& ABR, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::FrontLDLSquare");
+        CallStackEntry cse("reg_ldl::ProcessFrontSquare");
         if( ABR.Height() != ABR.Width() )
             LogicError("ABR must be square");
         if( AL.Height() != AL.Width()+ABR.Height() )
@@ -280,51 +258,19 @@ inline void FrontLDLSquare
     }
 }
 
-} // namespace internal
-
 template<typename F> 
-inline void FrontLDL( DistMatrix<F>& AL, DistMatrix<F>& ABR, bool conjugate )
+inline void ProcessFront
+( DistMatrix<F>& AL, DistMatrix<F>& ABR, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrontLDL"))
+    DEBUG_ONLY(CallStackEntry cse("reg_ldl::ProcessFront"))
     const Grid& grid = AL.Grid();
     if( grid.Height() == grid.Width() )
-        internal::FrontLDLSquare( AL, ABR, conjugate );
+        ProcessFrontSquare( AL, ABR, conjugate );
     else
-        internal::FrontLDLGeneral( AL, ABR, conjugate );
+        ProcessFrontGeneral( AL, ABR, conjugate );
 }
 
-template<typename F>
-void FrontLDLIntraPiv
-( DistMatrix<F>& AL, DistMatrix<F,MD,STAR>& subdiag, 
-  DistMatrix<Int,VC,STAR>& p, DistMatrix<F>& ABR, bool conjugate )
-{
-    DEBUG_ONLY(CallStackEntry cse("FrontLDLIntraPiv"))
-    const Grid& g = AL.Grid();
-    const Int n = AL.Width();
-    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
-    
-    DistMatrix<F> ATL(g), ABL(g);
-    PartitionDown( AL, ATL, ABL, n );
-
-    LDL( ATL, subdiag, p, conjugate );
-    auto diag = ATL.GetDiagonal();
-
-    PermuteCols( ABL, p );
-    Trsm( RIGHT, LOWER, orientation, UNIT, F(1), ATL, ABL );
-    DistMatrix<F,MC,STAR> SBL_MC_STAR(g);
-    SBL_MC_STAR.AlignWith( ABR );
-    SBL_MC_STAR = ABL;
-
-    QuasiDiagonalSolve( RIGHT, LOWER, diag, subdiag, ABL, conjugate );
-    DistMatrix<F,VR,STAR> ABL_VR_STAR(g);
-    DistMatrix<F,STAR,MR> ABLTrans_STAR_MR(g);
-    ABL_VR_STAR.AlignWith( ABR );
-    ABLTrans_STAR_MR.AlignWith( ABR );
-    ABL_VR_STAR = ABL;
-    ABL_VR_STAR.TransposePartialColAllGather( ABLTrans_STAR_MR, conjugate );
-    LocalTrrk( LOWER, F(-1), SBL_MC_STAR, ABLTrans_STAR_MR, F(1), ABR );
-}
-
+} // namespace reg_ldl
 } // namespace El
 
-#endif // ifndef EL_SPARSEDIRECT_NUMERIC_LDL_FRONT_HPP
+#endif // ifndef EL_OPTIMIZATION_REGLDL_PROCESSFRONT_HPP

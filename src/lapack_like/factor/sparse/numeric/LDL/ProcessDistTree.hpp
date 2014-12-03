@@ -9,16 +9,17 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_SPARSEDIRECT_NUMERIC_LDL_DIST_HPP
-#define EL_SPARSEDIRECT_NUMERIC_LDL_DIST_HPP
+#ifndef EL_LDL_PROCESSDISTTREE_HPP
+#define EL_LDL_PROCESSDISTTREE_HPP
 
 namespace El {
+namespace ldl {
 
 template<typename F> 
 inline void 
-DistLDL( DistSymmInfo& info, DistSymmFrontTree<F>& L )
+ProcessDistTree( DistSymmInfo& info, DistSymmFrontTree<F>& L )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistLDL"))
+    DEBUG_ONLY(CallStackEntry cse("ldl::ProcessDistTree"))
     const SymmFrontType type = L.frontType;
     const bool blocked = BlockFactorization(type);
     const bool pivoted = PivotedFactorization(type);
@@ -198,14 +199,14 @@ DistLDL( DistSymmInfo& info, DistSymmFrontTree<F>& L )
         // Now that the frontal matrix is set up, perform the factorization
         if( blocked )
         {
-            FrontBlockLDL
+            ProcessFrontBlock
             ( front.front2dL, front.work2d, L.isHermitian, pivoted );
         }
         else if( pivoted )
         {
             DistMatrix<F,MD,STAR> subdiag( grid );
             front.piv.SetGrid( grid );
-            FrontLDLIntraPiv
+            ProcessFrontIntraPiv
             ( front.front2dL, subdiag, front.piv, front.work2d, L.isHermitian );
 
             // Store the main and subdiagonals in [VC,* ] distributions
@@ -218,7 +219,7 @@ DistLDL( DistSymmInfo& info, DistSymmFrontTree<F>& L )
         }
         else
         {
-            FrontLDL( front.front2dL, front.work2d, L.isHermitian );
+            ProcessFront( front.front2dL, front.work2d, L.isHermitian );
 
             // Store the diagonal in a [VC,* ] distribution
             auto diag = front.front2dL.GetDiagonal();
@@ -231,6 +232,7 @@ DistLDL( DistSymmInfo& info, DistSymmFrontTree<F>& L )
     L.distFronts.back().work2d.Empty();
 }
 
+} // namespace ldl
 } // namespace El
 
-#endif // ifndef EL_SPARSEDIRECT_NUMERIC_LDL_DIST_HPP
+#endif // ifndef EL_LDL_PROCESSDISTTREE_HPP

@@ -8,7 +8,11 @@
 */
 #include "El.hpp"
 
-#include "./RegularizedLDL/Var3.hpp"
+#include "./RegularizedLDL/dense/Var3.hpp"
+
+#include "./RegularizedLDL/sparse/ProcessFront.hpp"
+#include "./RegularizedLDL/sparse/ProcessLocalTree.hpp"
+#include "./RegularizedLDL/sparse/ProcessDistTree.hpp"
 
 namespace El {
 
@@ -30,6 +34,28 @@ void RegularizedLDL
     reg_ldl::Var3( A, pivTol, regMag, pivSign, reg );
 }
 
+// TODO: Modify this routine to incorporate regularization
+template<typename F>
+void RegularizedLDL
+( DistSymmInfo& info, DistSymmFrontTree<F>& L, SymmFrontType newFrontType )
+{
+    DEBUG_ONLY(CallStackEntry cse("RegularizedLDL"))
+    LogicError("No regularization has yet been incorporated");
+    if( !Unfactored(L.frontType) )
+        LogicError("Matrix is already factored");
+
+    // Convert from 1D to 2D if necessary
+    ChangeFrontType( L, SYMM_2D );
+
+    // Perform the initial factorization
+    L.frontType = InitialFactorType(newFrontType);
+    reg_ldl::ProcessLocalTree( info, L );
+    reg_ldl::ProcessDistTree( info, L );
+
+    // Convert the fronts from the initial factorization to the requested form
+    ChangeFrontType( L, newFrontType );
+}
+
 #define PROTO(F) \
   template void RegularizedLDL \
   ( Matrix<F>& A, Base<F> pivTol, Base<F> regMag, \
@@ -37,7 +63,9 @@ void RegularizedLDL
   template void RegularizedLDL \
   ( AbstractDistMatrix<F>& A, Base<F> pivTol, Base<F> regMag, \
     const AbstractDistMatrix<Int>& pivSign, \
-          AbstractDistMatrix<Base<F>>& reg );
+          AbstractDistMatrix<Base<F>>& reg ); \
+  template void RegularizedLDL \
+  ( DistSymmInfo& info, DistSymmFrontTree<F>& L, SymmFrontType newFrontType );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

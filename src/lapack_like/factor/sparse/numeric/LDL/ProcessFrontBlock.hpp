@@ -9,16 +9,17 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_SPARSEDIRECT_NUMERIC_LDL_FRONTBLOCK_HPP
-#define EL_SPARSEDIRECT_NUMERIC_LDL_FRONTBLOCK_HPP
+#ifndef EL_LDL_PROCESSFRONTBLOCK_HPP
+#define EL_LDL_PROCESSFRONTBLOCK_HPP
 
 namespace El {
+namespace ldl {
 
 template<typename F> 
-inline void FrontBlockLDL
+inline void ProcessFrontBlock
 ( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate, bool intraPiv )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrontBlockLDL"))
+    DEBUG_ONLY(CallStackEntry cse("ldl::ProcessFrontBlock"))
     Matrix<F> ATL, ABL;
     PartitionDown( AL, ATL, ABL, AL.Width() );
     
@@ -34,7 +35,7 @@ inline void FrontBlockLDL
 
         // Solve against ABL and update ABR
         // NOTE: This does not exploit symmetry
-        ldl::SolveAfter( ATL, dSub, p, ABL, conjugate );
+        SolveAfter( ATL, dSub, p, ABL, conjugate );
         const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
         Gemm( NORMAL, orientation, F(-1), ABL, BBL, F(1), ABR );
 
@@ -52,7 +53,7 @@ inline void FrontBlockLDL
     else
     {
         // Call the standard routine
-        FrontLDL( AL, ABR, conjugate );
+        ProcessFront( AL, ABR, conjugate );
 
         // Copy the original contents of ABL back
         ABL = BBL;
@@ -65,10 +66,10 @@ inline void FrontBlockLDL
 }
 
 template<typename F>
-inline void FrontBlockLDL
+inline void ProcessFrontBlock
 ( DistMatrix<F>& AL, DistMatrix<F>& ABR, bool conjugate, bool intraPiv )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrontBlockLDL"))
+    DEBUG_ONLY(CallStackEntry cse("ldl::ProcessFrontBlock"))
     const Grid& g = AL.Grid();
     DistMatrix<F> ATL(g), ABL(g);
     PartitionDown( AL, ATL, ABL, AL.Width() );
@@ -85,7 +86,7 @@ inline void FrontBlockLDL
 
         // Solve against ABL and update ABR
         // NOTE: This update does not exploit symmetry
-        ldl::SolveAfter( ATL, dSub, p, ABL, conjugate );
+        SolveAfter( ATL, dSub, p, ABL, conjugate );
         const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
         Gemm( NORMAL, orientation, F(-1), ABL, BBL, F(1), ABR );
 
@@ -100,7 +101,7 @@ inline void FrontBlockLDL
     else
     {
         // Call the standard routine
-        FrontLDL( AL, ABR, conjugate );
+        ProcessFront( AL, ABR, conjugate );
 
         // Copy the original contents of ABL back
         ABL = BBL;
@@ -112,6 +113,7 @@ inline void FrontBlockLDL
     MakeSymmetric( LOWER, ATL, conjugate );
 }
 
+} // namespace ldl
 } // namespace El
 
-#endif // ifndef EL_SPARSEDIRECT_NUMERIC_LDL_FRONTBLOCK_HPP
+#endif // ifndef EL_LDL_PROCESSFRONTBLOCK_HPP
