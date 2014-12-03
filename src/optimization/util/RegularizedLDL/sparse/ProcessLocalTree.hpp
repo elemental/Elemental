@@ -16,8 +16,10 @@ namespace El {
 namespace reg_ldl {
 
 template<typename F> 
-inline void 
-ProcessLocalTree( DistSymmInfo& info, DistSymmFrontTree<F>& L )
+inline void ProcessLocalTree
+( DistSymmInfo& info, DistSymmFrontTree<F>& L, 
+  Base<F> pivTol, Base<F> regMag, 
+  const DistNodalMultiVec<Int>& pivSign, DistNodalMultiVec<Base<F>>& reg )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_ldl::ProcessLocalTree"))
 
@@ -93,9 +95,9 @@ ProcessLocalTree( DistSymmInfo& info, DistSymmFrontTree<F>& L )
         }
 
         // Call the custom partial LDL
-        // TODO: Add regularization
-        LogicError("Regularization has not yet been added");
-        ProcessFront( frontL, frontBR, L.isHermitian );
+        ProcessFront
+        ( frontL, frontBR, pivTol, regMag, 
+          pivSign.localNodes[s], reg.localNodes[s] );
         frontL.GetDiagonal( front.diag );
         SetDiagonal( frontL, F(1) );
     }

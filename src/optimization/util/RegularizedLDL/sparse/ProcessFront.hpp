@@ -16,7 +16,10 @@ namespace El {
 namespace reg_ldl {
 
 template<typename F>
-inline void ProcessFront( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate )
+inline void ProcessFront
+( Matrix<F>& AL, Matrix<F>& ABR, 
+  Base<F> pivTol, Base<F> regMag, 
+  const Matrix<Int>& pivSign, Matrix<Base<F>>& reg )
 {
     DEBUG_ONLY(
         CallStackEntry cse("reg_ldl::ProcessFront");
@@ -27,7 +30,6 @@ inline void ProcessFront( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate )
     )
     const Int m = AL.Height();
     const Int n = AL.Width();
-    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
     Matrix<F> d1;
     Matrix<F> S21;
@@ -45,27 +47,30 @@ inline void ProcessFront( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate )
         auto AL21 = AL( ind2Vert, ind1     );
         auto AL22 = AL( ind2Vert, ind2Horz );
 
-        // TODO: Replace with Regularized LDL
-        LogicError("Have not yet added regularization");
-        LDL( AL11, conjugate );
+        auto pivSign1 = pivSign( ind1, IR(0,1) );
+        auto reg1 = reg( ind1, IR(0,1) );
+
+        RegularizedLDL( AL11, pivTol, regMag, pivSign1, reg1 );
         AL11.GetDiagonal( d1 );
 
-        Trsm( RIGHT, LOWER, orientation, UNIT, F(1), AL11, AL21 );
+        Trsm( RIGHT, LOWER, ADJOINT, UNIT, F(1), AL11, AL21 );
 
         S21 = AL21;
         DiagonalSolve( RIGHT, NORMAL, d1, AL21 );
 
         PartitionDown( S21, S21T, S21B, AL22.Width() );
         PartitionDown( AL21, AL21T, AL21B, AL22.Width() );
-        Gemm( NORMAL, orientation, F(-1), S21, AL21T, F(1), AL22 );
+        Gemm( NORMAL, ADJOINT, F(-1), S21, AL21T, F(1), AL22 );
         MakeTrapezoidal( LOWER, AL22 );
-        Trrk( LOWER, NORMAL, orientation, F(-1), S21B, AL21B, F(1), ABR );
+        Trrk( LOWER, NORMAL, ADJOINT, F(-1), S21B, AL21B, F(1), ABR );
     }
 }
 
 template<typename F> 
 inline void ProcessFrontGeneral
-( DistMatrix<F>& AL, DistMatrix<F>& ABR, bool conjugate=false )
+( DistMatrix<F>& AL, DistMatrix<F>& ABR,
+  Base<F> pivTol, Base<F> regMag, 
+  const DistMatrix<Int,VC,STAR>& pivSign, DistMatrix<Base<F>,VC,STAR>& reg )
 {
     DEBUG_ONLY(
         CallStackEntry cse("reg_ldl::ProcessFrontGeneral");
@@ -85,7 +90,6 @@ inline void ProcessFrontGeneral
     const Grid& g = AL.Grid();
     const Int m = AL.Height();
     const Int n = AL.Width();
-    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
     DistMatrix<F,STAR,STAR> AL11_STAR_STAR(g);
     DistMatrix<F,STAR,STAR> d1_STAR_STAR(g);
@@ -98,6 +102,9 @@ inline void ProcessFrontGeneral
     DistMatrix<F,STAR,MR> rightL(g), rightR(g);
     DistMatrix<F> AL22T(g), AL22B(g);
 
+    DistMatrix<Int,STAR,STAR> pivSign1_STAR_STAR(g);
+    DistMatrix<Base<F>,STAR,STAR> reg1_STAR_STAR(g);
+
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
@@ -108,15 +115,23 @@ inline void ProcessFrontGeneral
         auto AL21 = AL( ind2Vert, ind1     );
         auto AL22 = AL( ind2Vert, ind2Horz );
 
+        auto pivSign1 = pivSign( ind1, IR(0,1) );
+        auto reg1 = reg( ind1, IR(0,1) );
+
         AL11_STAR_STAR = AL11; 
-        LocalLDL( AL11_STAR_STAR, conjugate );
+        pivSign1_STAR_STAR = pivSign1;
+        reg1_STAR_STAR = reg1;
+        RegularizedLDL
+        ( AL11_STAR_STAR.Matrix(), pivTol, regMag,
+          pivSign1_STAR_STAR.LockedMatrix(), reg1_STAR_STAR.Matrix() );
         AL11_STAR_STAR.GetDiagonal( d1_STAR_STAR );
         AL11 = AL11_STAR_STAR;
+        reg1 = reg1_STAR_STAR;
 
         AL21_VC_STAR.AlignWith( AL22 );
         AL21_VC_STAR = AL21;
         LocalTrsm
-        ( RIGHT, LOWER, orientation, UNIT, F(1), AL11_STAR_STAR, AL21_VC_STAR );
+        ( RIGHT, LOWER, ADJOINT, UNIT, F(1), AL11_STAR_STAR, AL21_VC_STAR );
 
         S21Trans_STAR_MC.AlignWith( AL22 );
         AL21_VC_STAR.TransposePartialColAllGather( S21Trans_STAR_MC );
@@ -124,17 +139,15 @@ inline void ProcessFrontGeneral
         AL21_VR_STAR.AlignWith( AL22 );
         AL21_VR_STAR = AL21_VC_STAR;
         AL21Trans_STAR_MR.AlignWith( AL22 );
-        AL21_VR_STAR.TransposePartialColAllGather
-        ( AL21Trans_STAR_MR, conjugate );
+        AL21_VR_STAR.AdjointPartialColAllGather( AL21Trans_STAR_MR );
 
         // Partition the update of the bottom-right corner into three pieces
         PartitionRight( S21Trans_STAR_MC, leftL, leftR, AL22.Width() );
         PartitionRight( AL21Trans_STAR_MR, rightL, rightR, AL22.Width() );
         PartitionDown( AL22, AL22T, AL22B, AL22.Width() );
-        LocalTrrk
-        ( LOWER, orientation, F(-1), leftL, rightL, F(1), AL22T );
-        LocalGemm( orientation, NORMAL, F(-1), leftR, rightL, F(1), AL22B );
-        LocalTrrk( LOWER, orientation, F(-1), leftR, rightR, F(1), ABR );
+        LocalTrrk( LOWER, ADJOINT, F(-1), leftL, rightL, F(1), AL22T );
+        LocalGemm( ADJOINT, NORMAL, F(-1), leftR, rightL, F(1), AL22B );
+        LocalTrrk( LOWER, ADJOINT, F(-1), leftR, rightR, F(1), ABR );
 
         DiagonalSolve( LEFT, NORMAL, d1_STAR_STAR, S21Trans_STAR_MC );
         AL21.TransposeRowFilterFrom( S21Trans_STAR_MC );
@@ -143,7 +156,9 @@ inline void ProcessFrontGeneral
 
 template<typename F>
 inline void ProcessFrontSquare
-( DistMatrix<F>& AL, DistMatrix<F>& ABR, bool conjugate=false )
+( DistMatrix<F>& AL, DistMatrix<F>& ABR,
+  Base<F> pivTol, Base<F> regMag, 
+  const DistMatrix<Int,VC,STAR>& pivSign, DistMatrix<Base<F>,VC,STAR>& reg )
 {
     DEBUG_ONLY(
         CallStackEntry cse("reg_ldl::ProcessFrontSquare");
@@ -163,7 +178,6 @@ inline void ProcessFrontSquare
     const Grid& g = AL.Grid();
     const Int m = AL.Height();
     const Int n = AL.Width();
-    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     DEBUG_ONLY(
         if( g.Height() != g.Width() )
             LogicError("This routine assumes a square process grid");
@@ -194,6 +208,9 @@ inline void ProcessFrontSquare
     DistMatrix<F,STAR,MR> rightL(g), rightR(g);
     DistMatrix<F> AL22T(g), AL22B(g);
 
+    DistMatrix<Int,STAR,STAR> pivSign1_STAR_STAR(g);
+    DistMatrix<Base<F>,STAR,STAR> reg1_STAR_STAR(g);
+
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
@@ -204,15 +221,23 @@ inline void ProcessFrontSquare
         auto AL21 = AL( ind2Vert, ind1     );
         auto AL22 = AL( ind2Vert, ind2Horz );
 
+        auto pivSign1 = pivSign( ind1, IR(0,1) );
+        auto reg1 = reg( ind1, IR(0,1) );
+
         AL11_STAR_STAR = AL11; 
-        LocalLDL( AL11_STAR_STAR, conjugate );
+        pivSign1_STAR_STAR = pivSign1;
+        reg1_STAR_STAR = reg1;
+        RegularizedLDL
+        ( AL11_STAR_STAR.Matrix(), pivTol, regMag,
+          pivSign1_STAR_STAR.LockedMatrix(), reg1_STAR_STAR.Matrix() );
         AL11_STAR_STAR.GetDiagonal( d1_STAR_STAR );
         AL11 = AL11_STAR_STAR;
+        reg1 = reg1_STAR_STAR;
 
         AL21_VC_STAR.AlignWith( AL22 );
         AL21_VC_STAR = AL21;
         LocalTrsm
-        ( RIGHT, LOWER, orientation, UNIT, F(1), AL11_STAR_STAR, AL21_VC_STAR );
+        ( RIGHT, LOWER, ADJOINT, UNIT, F(1), AL11_STAR_STAR, AL21_VC_STAR );
 
         S21Trans_STAR_MC.AlignWith( AL22 );
         AL21_VC_STAR.TransposePartialColAllGather( S21Trans_STAR_MC );
@@ -241,17 +266,16 @@ inline void ProcessFrontSquare
                   recvSize, transposeRank, g.VCComm() );
             }
             DiagonalSolve( LEFT, NORMAL, d1_STAR_STAR, AL21Trans_STAR_MR );
-            if( conjugate )
-                Conjugate( AL21Trans_STAR_MR );
+            Conjugate( AL21Trans_STAR_MR );
         }
 
         // Partition the update of the bottom-right corner into three pieces
         PartitionRight( S21Trans_STAR_MC, leftL, leftR, AL22.Width() );
         PartitionRight( AL21Trans_STAR_MR, rightL, rightR, AL22.Width() );
         PartitionDown( AL22, AL22T, AL22B, AL22.Width() );
-        LocalTrrk( LOWER, orientation, F(-1), leftL, rightL, F(1), AL22T );
-        LocalGemm( orientation, NORMAL, F(-1), leftR, rightL, F(1), AL22B );
-        LocalTrrk( LOWER, orientation, F(-1), leftR, rightR, F(1), ABR );
+        LocalTrrk( LOWER, ADJOINT, F(-1), leftL, rightL, F(1), AL22T );
+        LocalGemm( ADJOINT, NORMAL, F(-1), leftR, rightL, F(1), AL22B );
+        LocalTrrk( LOWER, ADJOINT, F(-1), leftR, rightR, F(1), ABR );
 
         DiagonalSolve( LEFT, NORMAL, d1_STAR_STAR, S21Trans_STAR_MC );
         AL21.TransposeRowFilterFrom( S21Trans_STAR_MC );
@@ -260,14 +284,16 @@ inline void ProcessFrontSquare
 
 template<typename F> 
 inline void ProcessFront
-( DistMatrix<F>& AL, DistMatrix<F>& ABR, bool conjugate )
+( DistMatrix<F>& AL, DistMatrix<F>& ABR,
+  Base<F> pivTol, Base<F> regMag, 
+  const DistMatrix<Int,VC,STAR>& pivSign, DistMatrix<Base<F>,VC,STAR>& reg )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_ldl::ProcessFront"))
     const Grid& grid = AL.Grid();
     if( grid.Height() == grid.Width() )
-        ProcessFrontSquare( AL, ABR, conjugate );
+        ProcessFrontSquare( AL, ABR, pivTol, regMag, pivSign, reg );
     else
-        ProcessFrontGeneral( AL, ABR, conjugate );
+        ProcessFrontGeneral( AL, ABR, pivTol, regMag, pivSign, reg );
 }
 
 } // namespace reg_ldl

@@ -15,10 +15,11 @@
 namespace El {
 namespace reg_ldl {
 
-// TODO: Add regularization
 template<typename F> 
-inline void 
-ProcessDistTree( DistSymmInfo& info, DistSymmFrontTree<F>& L )
+inline void ProcessDistTree
+( DistSymmInfo& info, DistSymmFrontTree<F>& L,
+  Base<F> pivTol, Base<F> regMag,
+  const DistNodalMultiVec<Int>& pivSign, DistNodalMultiVec<Base<F>>& reg )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_ldl::ProcessDistTree"))
 
@@ -183,9 +184,9 @@ ProcessDistTree( DistSymmInfo& info, DistSymmFrontTree<F>& L )
             commMeta.EmptyChildRecvIndices();
 
         // Now that the frontal matrix is set up, perform the factorization
-        // TODO: Add regularization
-        LogicError("Regularization has not yet been added");
-        ProcessFront( front.front2dL, front.work2d, L.isHermitian );
+        ProcessFront
+        ( front.front2dL, front.work2d, pivTol, regMag,
+          pivSign.distNodes[s-1], reg.distNodes[s-1] );
 
         // Store the diagonal in a [VC,* ] distribution
         auto diag = front.front2dL.GetDiagonal();

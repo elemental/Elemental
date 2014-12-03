@@ -34,13 +34,14 @@ void RegularizedLDL
     reg_ldl::Var3( A, pivTol, regMag, pivSign, reg );
 }
 
-// TODO: Modify this routine to incorporate regularization
 template<typename F>
 void RegularizedLDL
-( DistSymmInfo& info, DistSymmFrontTree<F>& L, SymmFrontType newFrontType )
+( DistSymmInfo& info, DistSymmFrontTree<F>& L,
+  Base<F> pivTol, Base<F> regMag,
+  const DistNodalMultiVec<Int>& pivSign, DistNodalMultiVec<Base<F>>& reg,
+  SymmFrontType newFrontType )
 {
     DEBUG_ONLY(CallStackEntry cse("RegularizedLDL"))
-    LogicError("No regularization has yet been incorporated");
     if( !Unfactored(L.frontType) )
         LogicError("Matrix is already factored");
 
@@ -49,8 +50,8 @@ void RegularizedLDL
 
     // Perform the initial factorization
     L.frontType = InitialFactorType(newFrontType);
-    reg_ldl::ProcessLocalTree( info, L );
-    reg_ldl::ProcessDistTree( info, L );
+    reg_ldl::ProcessLocalTree( info, L, pivTol, regMag, pivSign, reg );
+    reg_ldl::ProcessDistTree( info, L, pivTol, regMag, pivSign, reg );
 
     // Convert the fronts from the initial factorization to the requested form
     ChangeFrontType( L, newFrontType );
@@ -65,7 +66,10 @@ void RegularizedLDL
     const AbstractDistMatrix<Int>& pivSign, \
           AbstractDistMatrix<Base<F>>& reg ); \
   template void RegularizedLDL \
-  ( DistSymmInfo& info, DistSymmFrontTree<F>& L, SymmFrontType newFrontType );
+  ( DistSymmInfo& info, DistSymmFrontTree<F>& L, \
+    Base<F> pivTol, Base<F> regMag, \
+    const DistNodalMultiVec<Int>& pivSign, DistNodalMultiVec<Base<F>>& reg, \
+    SymmFrontType newFrontType );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

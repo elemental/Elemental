@@ -540,6 +540,13 @@ void RegularizedLDL
 ( AbstractDistMatrix<F>& A, Base<F> pivTol, Base<F> regMag,
   const AbstractDistMatrix<Int>& pivSign, AbstractDistMatrix<Base<F>>& reg );
 
+template<typename F>
+void RegularizedLDL
+( DistSymmInfo& info, DistSymmFrontTree<F>& L,
+  Base<F> pivTol, Base<F> regMag,
+  const DistNodalMultiVec<Int>& pivSign, DistNodalMultiVec<Base<F>>& reg,
+  SymmFrontType newFrontType=LDL_1D );
+
 } // namespace El
 
 #endif // ifndef EL_OPTIMIZATION_HPP
