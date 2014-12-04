@@ -70,24 +70,6 @@ s = El.DistMultiVec()
 El.Copy( sOrig, s )
 El.Copy( xOrig, x )
 El.Copy( lOrig, l )
-startIPF = time.clock()
-El.LinearProgramIPF(A,b,c,s,x,l)
-endIPF = time.clock()
-if worldRank == 0:
-  print "IPF time:", endIPF-startIPF
-
-if display:
-  El.Display( x, "s IPF" )
-  El.Display( l, "x IPF" )
-  El.Display( s, "l IPF" )
-
-obj = El.Dot(c,x)
-if worldRank == 0:
-  print "IPF c^T x =", obj
-
-El.Copy( sOrig, s )
-El.Copy( xOrig, x )
-El.Copy( lOrig, l )
 startMehrotra = time.clock()
 El.LinearProgramMehrotra(A,b,c,s,x,l)
 endMehrotra = time.clock()
@@ -102,6 +84,24 @@ if display:
 obj = El.Dot(c,x)
 if worldRank == 0:
   print "Mehrotra c^T x =", obj
+
+El.Copy( sOrig, s )
+El.Copy( xOrig, x )
+El.Copy( lOrig, l )
+startIPF = time.clock()
+El.LinearProgramIPF(A,b,c,s,x,l)
+endIPF = time.clock()
+if worldRank == 0:
+  print "IPF time:", endIPF-startIPF
+
+if display:
+  El.Display( x, "s IPF" )
+  El.Display( l, "x IPF" )
+  El.Display( s, "l IPF" )
+
+obj = El.Dot(c,x)
+if worldRank == 0:
+  print "IPF c^T x =", obj
 
 # Require the user to press a button before the figures are closed
 commSize = El.mpi.Size( El.mpi.COMM_WORLD() )
