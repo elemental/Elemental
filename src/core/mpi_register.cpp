@@ -140,9 +140,9 @@ void CreateValueIntType()
 
     ValueInt<T> v;
     MPI_Aint startAddr, valueAddr, indexAddr;
-    MPI_Address( &v,       &startAddr );
-    MPI_Address( &v.value, &valueAddr );
-    MPI_Address( &v.index, &indexAddr );
+    MPI_Get_address( &v,       &startAddr );
+    MPI_Get_address( &v.value, &valueAddr );
+    MPI_Get_address( &v.index, &indexAddr );
 
     MPI_Aint displs[2];
     displs[0] = valueAddr - startAddr;
@@ -181,9 +181,9 @@ void CreateValueIntPairType()
 
     ValueIntPair<T> v;
     MPI_Aint startAddr, valueAddr, indexAddr;
-    MPI_Address( &v,        &startAddr );
-    MPI_Address( &v.value,  &valueAddr );
-    MPI_Address( v.indices, &indexAddr );
+    MPI_Get_address( &v,        &startAddr );
+    MPI_Get_address( &v.value,  &valueAddr );
+    MPI_Get_address( v.indices, &indexAddr );
 
     MPI_Aint displs[2];
     displs[0] = valueAddr - startAddr;

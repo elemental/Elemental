@@ -154,9 +154,11 @@ extern "C" {
     ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
     ElDistMatrix_ ## SIG s, ElDistMatrix_ ## SIG x, ElDistMatrix_ ## SIG l ) \
   { EL_TRY( \
+      lin_prog::IPFCtrl<Real> ctrl(false); \
+      ctrl.print = true; \
       lin_prog::IPF( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
+      *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
   ElError ElLinearProgramIPFSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
@@ -171,9 +173,11 @@ extern "C" {
     ElDistMultiVec_ ## SIG s, ElDistMultiVec_ ## SIG x, \
     ElDistMultiVec_ ## SIG l ) \
   { EL_TRY( \
+      lin_prog::IPFCtrl<Real> ctrl(true); \
+      ctrl.print = true; \
       lin_prog::IPF( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
+      *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
   /* Mehrotra
      -------- */ \
   ElError ElLinearProgramMehrotra_ ## SIG \
@@ -189,9 +193,11 @@ extern "C" {
     ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
     ElDistMatrix_ ## SIG s, ElDistMatrix_ ## SIG x, ElDistMatrix_ ## SIG l ) \
   { EL_TRY( \
+      lin_prog::MehrotraCtrl<Real> ctrl(false); \
+      ctrl.print = true; \
       lin_prog::Mehrotra( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
+      *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
   ElError ElLinearProgramMehrotraSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
@@ -206,9 +212,11 @@ extern "C" {
     ElDistMultiVec_ ## SIG s, ElDistMultiVec_ ## SIG x, \
     ElDistMultiVec_ ## SIG l ) \
   { EL_TRY( \
+      lin_prog::MehrotraCtrl<Real> ctrl(true); \
+      ctrl.print = true; \
       lin_prog::Mehrotra( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
+      *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
   /* ADMM
      ---- */ \
   ElError ElLinearProgramADMM_ ## SIG \

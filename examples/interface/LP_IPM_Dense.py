@@ -9,8 +9,9 @@
 import El
 import time
 
-m = 200
-n = 400
+m = 2000
+n = 4000
+display = False
 worldRank = El.mpi.WorldRank()
 
 # Make a sparse matrix with the last column dense
@@ -24,27 +25,30 @@ def RectangDense(m,n):
     if s >= m:   A.Update( s, s-m,   3 )
     if s <  n-m: A.Update( s, s+m,   4 )
     # The dense last column
-    A.Update( s, n-1, 5 );
+    A.Update( s, n-1, 5./m );
 
   return A
 
 A = RectangDense(m,n)
-El.Display( A, "A" )
 
 # Generate a right-hand side in the positive image
 # ================================================
 xGen = El.DistMatrix()
 El.Uniform(xGen,n,1,0.5,0.4999)
-El.Display( xGen, "xGen" )
 b = El.DistMatrix()
 El.Zeros( b, m, 1 )
 El.Gemv( El.NORMAL, 1., A, xGen, 0., b )
-El.Display( b, "b" )
 
 # Generate a random positive cost function
 # ========================================
 c = El.DistMatrix()
 El.Uniform(c,n,1,0.5,0.4999)
+
+if display:
+  El.Display( A,    "A"    )
+  El.Display( xGen, "xGen" )
+  El.Display( b,    "b"    )
+  El.Display( c,    "c"    )
 
 # Generate random initial guesses
 # ===============================
@@ -66,9 +70,11 @@ El.LinearProgramIPF(A,b,c,s,x,l)
 endIPF = time.clock()
 if worldRank == 0:
   print "IPF time:", endIPF-startIPF
-El.Display( s, "s IPF" )
-El.Display( x, "x IPF" )
-El.Display( l, "l IPF" )
+
+if display:
+  El.Display( s, "s IPF" )
+  El.Display( x, "x IPF" )
+  El.Display( l, "l IPF" )
 
 obj = El.Dot(c,x)
 if worldRank == 0:
@@ -82,9 +88,11 @@ El.LinearProgramMehrotra(A,b,c,s,x,l)
 endMehrotra = time.clock()
 if worldRank == 0:
   print "Mehrotra time:", endMehrotra-startMehrotra
-El.Display( s, "s Mehrotra" )
-El.Display( x, "x Mehrotra" )
-El.Display( l, "l Mehrotra" )
+
+if display:
+  El.Display( s, "s Mehrotra" )
+  El.Display( x, "x Mehrotra" )
+  El.Display( l, "l Mehrotra" )
 
 obj = El.Dot(c,x)
 if worldRank == 0:

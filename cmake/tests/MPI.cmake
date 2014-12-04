@@ -5,9 +5,9 @@ endif()
 include_directories(${MPI_CXX_INCLUDE_PATH})
 set(EXTRA_FLAGS "${EXTRA_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
 # Look for MPI_Reduce_scatter_block (and MPI_Reduce_scatter as sanity check)
-set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS} ${MPI_LINK_FLAGS}")
-set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
-set(CMAKE_REQUIRED_LIBRARIES ${MPI_C_LIBRARIES})
+set(CMAKE_REQUIRED_FLAGS "${MPI_CXX_COMPILE_FLAGS} ${MPI_LINK_FLAGS}")
+set(CMAKE_REQUIRED_INCLUDES ${MPI_CXX_INCLUDE_PATH})
+set(CMAKE_REQUIRED_LIBRARIES ${MPI_CXX_LIBRARIES})
 check_function_exists(MPI_Reduce_scatter EL_HAVE_MPI_REDUCE_SCATTER)
 if(NOT EL_HAVE_MPI_REDUCE_SCATTER)
   message(FATAL_ERROR "Could not find MPI_Reduce_scatter")
@@ -48,13 +48,25 @@ set(MPI_LONG_LONG_CODE
 set(MPI_COMM_IS_VOIDP_CODE
     "#include \"mpi.h\"
      void Foo( MPI_Comm comm ) { }
-     void Foo( int comm ) { }")
+     void Foo( int comm ) { }
+     int main( int argc, char* argv[] )
+     {
+         MPI_Init( &argc, &argv );
+         MPI_Finalize();
+         return 0;
+     }")
 set(MPI_GROUP_IS_VOIDP_CODE
     "#include \"mpi.h\"
      void Foo( MPI_Group group ) { }
-     void Foo( int group ) { }")
-check_c_source_compiles("${MPI_IN_PLACE_CODE}" EL_HAVE_MPI_IN_PLACE)
-check_c_source_compiles("${MPI_LONG_LONG_CODE}" EL_HAVE_MPI_LONG_LONG)
+     void Foo( int group ) { }
+     int main( int argc, char* argv[] )
+     {
+         MPI_Init( &argc, &argv );
+         MPI_Finalize();
+         return 0;
+     }")
+check_cxx_source_compiles("${MPI_IN_PLACE_CODE}" EL_HAVE_MPI_IN_PLACE)
+check_cxx_source_compiles("${MPI_LONG_LONG_CODE}" EL_HAVE_MPI_LONG_LONG)
 check_cxx_source_compiles("${MPI_COMM_IS_VOIDP_CODE}" EL_MPI_COMM_IS_VOIDP)
 check_cxx_source_compiles("${MPI_GROUP_IS_VOIDP_CODE}" EL_MPI_GROUP_IS_VOIDP)
 if(EL_USE_64BIT_INTS AND NOT EL_HAVE_MPI_LONG_LONG)
@@ -73,4 +85,4 @@ set(MPI_COMM_F2C_CODE
      MPI_Finalize();
      return 0;
  }")
-check_c_source_compiles("${MPI_COMM_F2C_CODE}" EL_HAVE_MPI_COMM_F2C)
+check_cxx_source_compiles("${MPI_COMM_F2C_CODE}" EL_HAVE_MPI_COMM_F2C)
