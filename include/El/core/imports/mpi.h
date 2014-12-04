@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 
-EL_EXPORT ElError ElMPICommIsVoidPointer( bool* isVoidP );
-EL_EXPORT ElError ElMPIGroupIsVoidPointer( bool* isVoidP );
+EL_EXPORT ElError ElMPICommSameSizeAsInteger( bool* sameSize );
+EL_EXPORT ElError ElMPIGroupSameSizeAsInteger( bool* sameSize );
 /* These may seem trivial but is useful when calling C from another language */
 EL_EXPORT ElError ElMPICommWorld( MPI_Comm* commWorld );
 EL_EXPORT ElError ElMPICommSelf( MPI_Comm* commSelf );

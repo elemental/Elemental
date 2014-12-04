@@ -9,20 +9,22 @@
 from ..environment import *
 
 # Query Elemental to determine whether MPI_Comm is an 'int' or a void pointer
-commIsVoidP = bType()
-lib.ElMPICommIsVoidPointer(pointer(commIsVoidP))
-if commIsVoidP:
-  Comm = c_void_p
-else:
+# TODO: Complain if not same size as c_int or c_void_p
+commSameSizeAsInteger = bType()
+lib.ElMPICommSameSizeAsInteger(pointer(commSameSizeAsInteger))
+if commSameSizeAsInteger:
   Comm = c_int
+else:
+  Comm = c_void_p
 
 # Query Elemental to determine whether MPI_Group is an 'int' or a void pointer
-groupIsVoidP = bType()
-lib.ElMPIGroupIsVoidPointer(pointer(groupIsVoidP))
-if groupIsVoidP:
-  Group = c_void_p
-else:
+# TODO: Complain if not same size as c_int or c_void_p
+groupSameSizeAsInteger = bType()
+lib.ElMPIGroupSameSizeAsInteger(pointer(groupSameSizeAsInteger))
+if groupSameSizeAsInteger:
   Group = c_int
+else:
+  Group = c_void_p
 
 # Return MPI_COMM_WORLD
 lib.ElMPICommWorld.argtypes = [POINTER(Comm)]

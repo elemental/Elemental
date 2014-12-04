@@ -11,11 +11,11 @@
 
 extern "C" {
 
-ElError ElMPICommIsVoidPointer( bool* isVoidP )
-{ *isVoidP = El::mpi::CommIsVoidPointer(); return EL_SUCCESS; }
+ElError ElMPICommSameSizeAsInteger( bool* sameSize )
+{ *sameSize = El::mpi::CommSameSizeAsInteger(); return EL_SUCCESS; }
 
-ElError ElMPIGroupIsVoidPointer( bool* isVoidP )
-{ *isVoidP = El::mpi::GroupIsVoidPointer(); return EL_SUCCESS; }
+ElError ElMPIGroupSameSizeAsInteger( bool* sameSize )
+{ *sameSize = El::mpi::GroupSameSizeAsInteger(); return EL_SUCCESS; }
 
 ElError ElMPICommWorld( MPI_Comm* commWorld )
 { *commWorld = MPI_COMM_WORLD; return EL_SUCCESS; }

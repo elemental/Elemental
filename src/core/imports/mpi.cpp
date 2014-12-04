@@ -33,23 +33,11 @@ SafeMpi( int mpiError )
 namespace El {
 namespace mpi {
 
-bool CommIsVoidPointer()
-{
-#ifdef EL_MPI_COMM_IS_VOIDP
-    return true;
-#else
-    return false;
-#endif
-}
+bool CommSameSizeAsInteger()
+{ return sizeof(MPI_Comm) == sizeof(int); }
 
-bool GroupIsVoidPointer()
-{
-#ifdef EL_MPI_GROUP_IS_VOIDP
-    return true;
-#else
-    return false;
-#endif
-}
+bool GroupSameSizeAsInteger()
+{ return sizeof(MPI_Group) == sizeof(int); }
 
 // MPI environmental routines
 // ==========================
