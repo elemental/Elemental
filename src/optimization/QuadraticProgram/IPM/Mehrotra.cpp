@@ -20,7 +20,6 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("quad_prog::Mehrotra"))    
-    LogicError("Conversion from an LP IPM not yet finished");
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -51,10 +50,12 @@ void Mehrotra
 
         // Check for convergence
         // =====================
-        // |c^T x - b^T l| / (1 + |c^T x|) <= tol ?
-        // ----------------------------------------
-        const Real primObj = Dot(c,x);
-        const Real dualObj = Dot(b,l); 
+        // |c^T x + x^T Q x - b^T l| / (1 + |c^T x + 1/2 x^T Q x|) <= tol ?
+        // ----------------------------------------------------------------
+        Hemv( LOWER, Real(1), Q, x, Real(0), y );
+        const Real xTQx = Dot(x,y);
+        const Real primObj = Dot(c,x) + xTQx/2;
+        const Real dualObj = Dot(b,l) - xTQx/2; 
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -63,25 +64,27 @@ void Mehrotra
         Gemv( NORMAL, Real(1), A, x, Real(-1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
-        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
-        // --------------------------------------
-        const Real cNrm2 = Nrm2( c );
-        rc = c;
+        // || r_c ||_2 / (1 + || c + Q x ||_2) <= tol ?
+        // --------------------------------------------
+        // NOTE: y currently contains Q x
+        Axpy( Real(1), c, y );
+        const Real objGradNrm2 = Nrm2( y );
+        rc = y;
         Gemv( TRANSPOSE, Real(1), A, l, Real(-1), rc );
         Axpy( Real(1), s, rc );
         const Real rcNrm2 = Nrm2( rc );
-        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
+        const Real rcConv = rcNrm2 / (Real(1)+objGradNrm2);
         // Now check the pieces
         // --------------------
         if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
             break;
         else if( ctrl.print )
             std::cout << " iter " << numIts << ":\n"
-                      << "  |c^T x - b^T l| / (1 + |c^T x|) = "
+                      << "  |primObj - dualObj| / (1 + |primObj|) = "
                       << objConv << "\n"
-                      << "  || r_b ||_2 / (1 + || b ||_2)   = "
+                      << "  || r_b ||_2 / (1 + || b ||_2)         = "
                       << rbConv << "\n"
-                      << "  || r_c ||_2 / (1 + || c ||_2)   = "
+                      << "  || r_c ||_2 / (1 + || c + Q x ||_2)   = "
                       << rcConv << std::endl;
 
         // Raise an exception after an unacceptable number of iterations
@@ -142,6 +145,7 @@ void Mehrotra
 
         dlError = dsAff;
         Gemv( TRANSPOSE, Real(1), A, dlAff, Real(1), dlError );
+        Hemv( LOWER, Real(-1), Q, dx, Real(1), dlError );
         Axpy( Real(1), rc, dlError );
         Real dlErrorNrm2 = Nrm2( dlError );
 
@@ -152,9 +156,9 @@ void Mehrotra
         if( ctrl.print )
             std::cout << "  || dsAffError ||_2 / (1 + || r_mu ||_2) = " 
                       << dsErrorNrm2/(1+rmuNrm2) << "\n"
-                      << "  || dxAffError ||_2 / (1 + || r_b ||_2) = " 
+                      << "  || dxAffError ||_2 / (1 + || r_b ||_2)  = " 
                       << dxErrorNrm2/(1+rbNrm2) << "\n"
-                      << "  || dlAffError ||_2 / (1 + || r_c ||_2) = " 
+                      << "  || dlAffError ||_2 / (1 + || r_c ||_2)  = " 
                       << dlErrorNrm2/(1+rcNrm2) << std::endl;
 #endif
 
@@ -277,7 +281,6 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("quad_prog::Mehrotra"))
-    LogicError("Conversion from an LP IPM not yet finished");
 
     ProxyCtrl control;
     control.colConstrain = true;
@@ -332,10 +335,13 @@ void Mehrotra
 
         // Check for convergence
         // =====================
-        // |c^T x - b^T l| / (1 + |c^T x|) <= tol ?
-        // ----------------------------------------
-        const Real primObj = Dot(c,x);
-        const Real dualObj = Dot(b,l); 
+        // |c^T x + x^T Q x - b^T l| / (1 + |c^T x + 1/2 x^T Q x|) <= tol ?
+        // ----------------------------------------------------------------
+        Zeros( y, n, 1 );
+        Hemv( LOWER, Real(1), Q, x, Real(0), y );
+        const Real xTQx = Dot(x,y);
+        const Real primObj = Dot(c,x) + xTQx/2;
+        const Real dualObj = Dot(b,l) - xTQx/2; 
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -344,25 +350,27 @@ void Mehrotra
         Gemv( NORMAL, Real(1), A, x, Real(-1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
-        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
-        // --------------------------------------
-        const Real cNrm2 = Nrm2( c );
-        rc = c;
+        // || r_c ||_2 / (1 + || c + Q x ||_2) <= tol ?
+        // --------------------------------------------
+        // NOTE: y currently contains Q x
+        Axpy( Real(1), c, y );
+        const Real objGradNrm2 = Nrm2( y );
+        rc = y;
         Gemv( TRANSPOSE, Real(1), A, l, Real(-1), rc );
         Axpy( Real(1), s, rc );
         const Real rcNrm2 = Nrm2( rc );
-        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
+        const Real rcConv = rcNrm2 / (Real(1)+objGradNrm2);
         // Now check the pieces
         // --------------------
         if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
             break;
         else if( ctrl.print && commRank == 0 )
             std::cout << " iter " << numIts << ":\n"
-                      << "  |c^T x - b^T l| / (1 + |c^T x|) = "
+                      << "  |primObj - dualObj| / (1 + |primObj|) = "
                       << objConv << "\n"
-                      << "  || r_b ||_2 / (1 + || b ||_2)   = "
+                      << "  || r_b ||_2 / (1 + || b ||_2)         = "
                       << rbConv << "\n"
-                      << "  || r_c ||_2 / (1 + || c ||_2)   = "
+                      << "  || r_c ||_2 / (1 + || c + Q x ||_2)   = "
                       << rcConv << std::endl;
 
         // Raise an exception after an unacceptable number of iterations
@@ -429,6 +437,7 @@ void Mehrotra
 
         dlError = dsAff;
         Gemv( TRANSPOSE, Real(1), A, dlAff, Real(1), dlError );
+        Hemv( LOWER, Real(-1), Q, dxAff, Real(1), dlError );
         Axpy( Real(1), rc, dlError );
         Real dlErrorNrm2 = Nrm2( dlError );
 
@@ -439,9 +448,9 @@ void Mehrotra
         if( ctrl.print && commRank == 0 )
             std::cout << "  || dsAffError ||_2 / (1 + || r_mu ||_2) = " 
                       << dsErrorNrm2/(1+rmuNrm2) << "\n"
-                      << "  || dxAffError ||_2 / (1 + || r_b ||_2) = " 
+                      << "  || dxAffError ||_2 / (1 + || r_b ||_2)  = " 
                       << dxErrorNrm2/(1+rbNrm2) << "\n"
-                      << "  || dlAffError ||_2 / (1 + || r_c ||_2) = " 
+                      << "  || dlAffError ||_2 / (1 + || r_c ||_2)  = " 
                       << dlErrorNrm2/(1+rcNrm2) << std::endl;
 #endif
 
@@ -598,7 +607,6 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("quad_prog::Mehrotra"))    
-    LogicError("Conversion from an LP IPM not yet finished");
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -645,10 +653,14 @@ void Mehrotra
 
         // Check for convergence
         // =====================
-        // |c^T x - b^T l| / (1 + |c^T x|) <= tol ?
-        // ----------------------------------------
-        const Real primObj = Dot(c,x);
-        const Real dualObj = Dot(b,l); 
+        // |c^T x + x^T Q x - b^T l| / (1 + |c^T x + 1/2 x^T Q x|) <= tol ?
+        // ----------------------------------------------------------------
+        Zeros( y, n, 1 );
+        // NOTE: This assumes that Q is explicitly Hermitian
+        Multiply( NORMAL, Real(1), Q, x, Real(0), y );
+        const Real xTQx = Dot(x,y);
+        const Real primObj = Dot(c,x) + xTQx/2;
+        const Real dualObj = Dot(b,l) - xTQx/2; 
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -657,25 +669,27 @@ void Mehrotra
         Multiply( NORMAL, Real(1), A, x, Real(-1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
-        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
-        // --------------------------------------
-        const Real cNrm2 = Nrm2( c );
-        rc = c;
+        // || r_c ||_2 / (1 + || c + Q x ||_2) <= tol ?
+        // --------------------------------------------
+        // NOTE: y currently contains Q x
+        Axpy( Real(1), c, y );
+        const Real objGradNrm2 = Nrm2( y );
+        rc = y;
         Multiply( TRANSPOSE, Real(1), A, l, Real(-1), rc );
         Axpy( Real(1), s, rc );
         const Real rcNrm2 = Nrm2( rc );
-        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
+        const Real rcConv = rcNrm2 / (Real(1)+objGradNrm2);
         // Now check the pieces
         // --------------------
         if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
             break;
         else if( ctrl.print && commRank == 0 )
             std::cout << " iter " << numIts << ":\n"
-                      << "  |c^T x - b^T l| / (1 + |c^T x|) = "
+                      << "  |primObj - dualObj| / (1 + |primObj|) = "
                       << objConv << "\n"
-                      << "  || r_b ||_2 / (1 + || b ||_2)   = "
+                      << "  || r_b ||_2 / (1 + || b ||_2)         = "
                       << rbConv << "\n"
-                      << "  || r_c ||_2 / (1 + || c ||_2)   = "
+                      << "  || r_c ||_2 / (1 + || c + Q x ||_2)   = "
                       << rcConv << std::endl;
 
         // Raise an exception after an unacceptable number of iterations
@@ -758,6 +772,7 @@ void Mehrotra
 
         dlError = dsAff;
         Multiply( TRANSPOSE, Real(1), A, dlAff, Real(1), dlError );
+        Multiply( NORMAL, Real(-1), Q, dxAff, Real(1), dlError );
         Axpy( Real(1), rc, dlError );
         Real dlErrorNrm2 = Nrm2( dlError );
 
@@ -768,9 +783,9 @@ void Mehrotra
         if( ctrl.print && commRank == 0 )
             std::cout << "  || dsAffError ||_2 / (1 + || r_mu ||_2) = " 
                       << dsErrorNrm2/(1+rmuNrm2) << "\n"
-                      << "  || dxAffError ||_2 / (1 + || r_b ||_2) = " 
+                      << "  || dxAffError ||_2 / (1 + || r_b ||_2)  = " 
                       << dxErrorNrm2/(1+rbNrm2) << "\n"
-                      << "  || dlAffError ||_2 / (1 + || r_c ||_2) = " 
+                      << "  || dlAffError ||_2 / (1 + || r_c ||_2)  = " 
                       << dlErrorNrm2/(1+rcNrm2) << std::endl;
 #endif
 

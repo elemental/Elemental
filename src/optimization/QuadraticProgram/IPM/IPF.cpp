@@ -150,9 +150,9 @@ void IPF
         if( ctrl.print )
             std::cout << "  || dsError ||_2 / (1 + || r_mu ||_2) = " 
                       << dsErrorNrm2/(1+rmuNrm2) << "\n"
-                      << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
+                      << "  || dxError ||_2 / (1 + || r_b ||_2)  = " 
                       << dxErrorNrm2/(1+rbNrm2) << "\n"
-                      << "  || dlError ||_2 / (1 + || r_c ||_2) = " 
+                      << "  || dlError ||_2 / (1 + || r_c ||_2)  = " 
                       << dlErrorNrm2/(1+rcNrm2) << std::endl;
 #endif
 
@@ -337,9 +337,9 @@ void IPF
         if( ctrl.print && commRank == 0 )
             std::cout << "  || dsError ||_2 / (1 + || r_mu ||_2) = " 
                       << dsErrorNrm2/(1+rmuNrm2) << "\n"
-                      << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
+                      << "  || dxError ||_2 / (1 + || r_b ||_2)  = " 
                       << dxErrorNrm2/(1+rbNrm2) << "\n"
-                      << "  || dlError ||_2 / (1 + || r_c ||_2) = " 
+                      << "  || dlError ||_2 / (1 + || r_c ||_2)  = " 
                       << dlErrorNrm2/(1+rcNrm2) << std::endl;
 #endif
 
@@ -557,9 +557,9 @@ void IPF
         if( ctrl.print && commRank == 0 )
             std::cout << "  || dsError ||_2 / (1 + || r_mu ||_2) = " 
                       << dsErrorNrm2/(1+rmuNrm2) << "\n"
-                      << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
+                      << "  || dxError ||_2 / (1 + || r_b ||_2)  = " 
                       << dxErrorNrm2/(1+rbNrm2) << "\n"
-                      << "  || dlError ||_2 / (1 + || r_c ||_2) = " 
+                      << "  || dlError ||_2 / (1 + || r_c ||_2)  = " 
                       << dlErrorNrm2/(1+rcNrm2) << std::endl;
 #endif
 

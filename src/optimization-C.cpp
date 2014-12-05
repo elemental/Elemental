@@ -299,7 +299,116 @@ extern "C" {
       *CReflect(Z) ) ) } \
   /* Quadratic program
      ================= */ \
-  /* TODO: IPF and Mehrotra in conic form */ \
+  ElError ElQuadraticProgram_ ## SIG \
+  ( ElConstMatrix_ ## SIG Q, ElConstMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
+    ElMatrix_ ## SIG x ) \
+  { EL_TRY( QuadraticProgram( \
+      *CReflect(Q), *CReflect(A), \
+      *CReflect(b), *CReflect(c), *CReflect(x) ) ) } \
+  ElError ElQuadraticProgramDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG Q, ElConstDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
+    ElDistMatrix_ ## SIG x ) \
+  { EL_TRY( QuadraticProgram( \
+      *CReflect(Q), *CReflect(A), \
+      *CReflect(b), *CReflect(c), *CReflect(x) ) ) } \
+  ElError ElQuadraticProgramSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG Q, ElConstSparseMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
+    ElMatrix_ ## SIG x ) \
+  { EL_TRY( QuadraticProgram( \
+      *CReflect(Q), *CReflect(A), \
+      *CReflect(b), *CReflect(c), *CReflect(x) ) ) } \
+  ElError ElQuadraticProgramDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG Q, ElConstDistSparseMatrix_ ## SIG A, \
+    ElConstDistMultiVec_ ## SIG b, ElConstDistMultiVec_ ## SIG c, \
+    ElDistMultiVec_ ## SIG x ) \
+  { EL_TRY( QuadraticProgram( \
+      *CReflect(Q), *CReflect(A), \
+      *CReflect(b), *CReflect(c), *CReflect(x) ) ) } \
+  /* IPF 
+     --- */ \
+  ElError ElQuadraticProgramIPF_ ## SIG \
+  ( ElConstMatrix_ ## SIG Q, ElConstMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
+    ElMatrix_ ## SIG s, ElMatrix_ ## SIG x, ElMatrix_ ## SIG l ) \
+  { EL_TRY( quad_prog::IPF( \
+      *CReflect(Q), *CReflect(A), \
+      *CReflect(b), *CReflect(c),  \
+      *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
+  ElError ElQuadraticProgramIPFDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG Q, ElConstDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
+    ElDistMatrix_ ## SIG s, ElDistMatrix_ ## SIG x, ElDistMatrix_ ## SIG l ) \
+  { EL_TRY( \
+      quad_prog::IPFCtrl<Real> ctrl; \
+      ctrl.print = true; \
+      quad_prog::IPF( \
+      *CReflect(Q), *CReflect(A), \
+      *CReflect(b), *CReflect(c), \
+      *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
+  ElError ElQuadraticProgramIPFSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG Q, ElConstSparseMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
+    ElMatrix_ ## SIG s, ElMatrix_ ## SIG x, ElMatrix_ ## SIG l ) \
+  { EL_TRY( quad_prog::IPF( \
+      *CReflect(Q), *CReflect(A), \
+      *CReflect(b), *CReflect(c), \
+      *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
+  ElError ElQuadraticProgramIPFDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG Q, ElConstDistSparseMatrix_ ## SIG A, \
+    ElConstDistMultiVec_ ## SIG b, ElConstDistMultiVec_ ## SIG c, \
+    ElDistMultiVec_ ## SIG s, ElDistMultiVec_ ## SIG x, \
+    ElDistMultiVec_ ## SIG l ) \
+  { EL_TRY( \
+      quad_prog::IPFCtrl<Real> ctrl; \
+      ctrl.print = true; \
+      quad_prog::IPF( \
+      *CReflect(Q), *CReflect(A), \
+      *CReflect(b), *CReflect(c), \
+      *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
+  /* Mehrotra
+     -------- */ \
+  ElError ElQuadraticProgramMehrotra_ ## SIG \
+  ( ElConstMatrix_ ## SIG Q, ElConstMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
+    ElMatrix_ ## SIG s, ElMatrix_ ## SIG x, ElMatrix_ ## SIG l ) \
+  { EL_TRY( quad_prog::Mehrotra( \
+      *CReflect(Q), *CReflect(A), \
+      *CReflect(b), *CReflect(c),  \
+      *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
+  ElError ElQuadraticProgramMehrotraDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG Q, ElConstDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
+    ElDistMatrix_ ## SIG s, ElDistMatrix_ ## SIG x, ElDistMatrix_ ## SIG l ) \
+  { EL_TRY( \
+      quad_prog::MehrotraCtrl<Real> ctrl; \
+      ctrl.print = true; \
+      quad_prog::Mehrotra( \
+      *CReflect(Q), *CReflect(A), \
+      *CReflect(b), *CReflect(c), \
+      *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
+  ElError ElQuadraticProgramMehrotraSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG Q, ElConstSparseMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
+    ElMatrix_ ## SIG s, ElMatrix_ ## SIG x, ElMatrix_ ## SIG l ) \
+  { EL_TRY( quad_prog::Mehrotra( \
+      *CReflect(Q), *CReflect(A), \
+      *CReflect(b), *CReflect(c), \
+      *CReflect(s), *CReflect(x), *CReflect(l) ) ) } \
+  ElError ElQuadraticProgramMehrotraDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG Q, ElConstDistSparseMatrix_ ## SIG A, \
+    ElConstDistMultiVec_ ## SIG b, ElConstDistMultiVec_ ## SIG c, \
+    ElDistMultiVec_ ## SIG s, ElDistMultiVec_ ## SIG x, \
+    ElDistMultiVec_ ## SIG l ) \
+  { EL_TRY( \
+      quad_prog::MehrotraCtrl<Real> ctrl; \
+      ctrl.print = true; \
+      quad_prog::Mehrotra( \
+      *CReflect(Q), *CReflect(A), \
+      *CReflect(b), *CReflect(c), \
+      *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \
   /* ADMM (non-conic form)
      --------------------- */ \
   ElError ElQuadraticProgramADMM_ ## SIG \
