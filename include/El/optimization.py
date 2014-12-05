@@ -423,36 +423,36 @@ def NonNegativeLeastSquares(A,Y):
 
 # Quadratic program
 # =================
-lib.ElQuadraticProgram_s.argtypes = \
+lib.ElQuadraticProgramADMM_s.argtypes = \
   [c_void_p,c_void_p,sType,sType,c_void_p,POINTER(iType)]
-lib.ElQuadraticProgram_s.restype = c_uint
-lib.ElQuadraticProgram_d.argtypes = \
+lib.ElQuadraticProgramADMM_s.restype = c_uint
+lib.ElQuadraticProgramADMM_d.argtypes = \
   [c_void_p,c_void_p,sType,sType,c_void_p,POINTER(iType)]
-lib.ElQuadraticProgram_d.restype = c_uint
-lib.ElQuadraticProgramDist_s.argtypes = \
+lib.ElQuadraticProgramADMM_d.restype = c_uint
+lib.ElQuadraticProgramADMMDist_s.argtypes = \
   [c_void_p,c_void_p,sType,sType,c_void_p,POINTER(iType)]
-lib.ElQuadraticProgramDist_s.restype = c_uint
-lib.ElQuadraticProgramDist_d.argtypes = \
+lib.ElQuadraticProgramADMMDist_s.restype = c_uint
+lib.ElQuadraticProgramADMMDist_d.argtypes = \
   [c_void_p,c_void_p,sType,sType,c_void_p,POINTER(iType)]
-lib.ElQuadraticProgramDist_d.restype = c_uint
-def QuadraticProgram(P,S,lb,ub):
-  if type(P) is not type(S):
-    raise Exception('Types of P and S must match')
-  if P.tag != S.tag:
-    raise Exception('Datatypes of P and S must match')
+lib.ElQuadraticProgramADMMDist_d.restype = c_uint
+def QuadraticProgram(Q,C,lb,ub):
+  if type(Q) is not type(C):
+    raise Exception('Types of Q and C must match')
+  if Q.tag != C.tag:
+    raise Exception('Datatypes of Q and C must match')
   numIts = iType()
-  if type(P) is Matrix:
-    Z = Matrix(P.tag)
-    args = [P.obj,S.obj,lb,ub,Z.obj,pointer(numIts)]
-    if   P.tag == sTag: lib.ElQuadraticProgram_s(*args)
-    elif P.tag == dTag: lib.ElQuadraticProgram_d(*args)
+  if type(Q) is Matrix:
+    Z = Matrix(Q.tag)
+    args = [Q.obj,C.obj,lb,ub,Z.obj,pointer(numIts)]
+    if   Q.tag == sTag: lib.ElQuadraticProgramADMM_s(*args)
+    elif Q.tag == dTag: lib.ElQuadraticProgramADMM_d(*args)
     else: DataExcept()
     return Z, numIts
-  elif type(P) is DistMatrix:
-    Z = DistMatrix(P.tag,MC,MR,P.Grid())
-    args = [P.obj,S.obj,lb,ub,Z.obj,pointer(numIts)]
-    if   P.tag == sTag: lib.ElQuadraticProgramDist_s(*args)
-    elif P.tag == dTag: lib.ElQuadraticProgramDist_d(*args)
+  elif type(Q) is DistMatrix:
+    Z = DistMatrix(Q.tag,MC,MR,Q.Grid())
+    args = [Q.obj,C.obj,lb,ub,Z.obj,pointer(numIts)]
+    if   Q.tag == sTag: lib.ElQuadraticProgramADMMDist_s(*args)
+    elif Q.tag == dTag: lib.ElQuadraticProgramADMMDist_d(*args)
     else: DataExcept()
     return Z, numIts
   else: TypeExcept()

@@ -22,6 +22,7 @@ void LinearProgram
     }
     else if( ctrl.alg == LIN_PROG_IPF )
     {
+       // TODO: Use better initializations
        Matrix<Real> s, l;
        Uniform( s, A.Width(), 1, Real(0.5), Real(0.49) );
        Zeros( l, A.Height(), 1 );
@@ -29,6 +30,7 @@ void LinearProgram
     }
     else if( ctrl.alg == LIN_PROG_MEHROTRA )
     {
+       // TODO: Use better initializations
        Matrix<Real> s, l;
        Uniform( s, A.Width(), 1, Real(0.5), Real(0.49) );
        Zeros( l, A.Height(), 1 );
@@ -49,6 +51,7 @@ void LinearProgram
     }
     else if( ctrl.alg == LIN_PROG_IPF )
     {
+       // TODO: Use better initializations
        DistMatrix<Real> s(A.Grid()), l(A.Grid());
        Uniform( s, A.Width(), 1, Real(0.5), Real(0.49) );
        Zeros( l, A.Height(), 1 );
@@ -56,6 +59,7 @@ void LinearProgram
     }
     else if( ctrl.alg == LIN_PROG_MEHROTRA )
     {
+       // TODO: Use better initializations
        DistMatrix<Real> s(A.Grid()), l(A.Grid());
        Uniform( s, A.Width(), 1, Real(0.5), Real(0.49) );
        Zeros( l, A.Height(), 1 );
@@ -71,6 +75,7 @@ void LinearProgram
     DEBUG_ONLY(CallStackEntry cse("LinearProgram"))
     if( ctrl.alg == LIN_PROG_IPF )
     {
+       // TODO: Use better initializations
        Matrix<Real> s, l;
        Uniform( s, A.Width(), 1, Real(0.5), Real(0.49) );
        Zeros( l, A.Height(), 1 );
@@ -78,6 +83,7 @@ void LinearProgram
     }
     else // ctrl.alg == LIN_PROG_MEHROTRA
     {
+       // TODO: Use better initializations
        Matrix<Real> s, l;
        Uniform( s, A.Width(), 1, Real(0.5), Real(0.49) );
        Zeros( l, A.Height(), 1 );
@@ -93,6 +99,7 @@ void LinearProgram
     DEBUG_ONLY(CallStackEntry cse("LinearProgram"))
     if( ctrl.alg == LIN_PROG_IPF )
     {
+       // TODO: Use better initializations
        DistMultiVec<Real> s(A.Comm()), l(A.Comm());
        Uniform( s, A.Width(), 1, Real(0.5), Real(0.49) );
        Zeros( l, A.Height(), 1 );
@@ -100,6 +107,7 @@ void LinearProgram
     }
     else // ctrl.alg == LIN_PROG_MEHROTRA
     {
+       // TODO: Use better initializations
        DistMultiVec<Real> s(A.Comm()), l(A.Comm());
        Uniform( s, A.Width(), 1, Real(0.5), Real(0.49) );
        Zeros( l, A.Height(), 1 );

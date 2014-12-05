@@ -9,17 +9,17 @@
 #include "El.hpp"
 
 namespace El {
-namespace lin_prog {
+namespace quad_prog {
 
 // Form 
-//    J = | -S*inv(X) A^T | and y = | -r_c + r_mu / X |,
-//        |  A        0   |         | -r_b            |
+//    J = | -Q-S*inv(X) A^T | and y = | -r_c + r_mu / X |,
+//        |  A          0   |         | -r_b            |
 // where 
 //    S   = diag(s),
 //    X   = diag(x),
 //    e   = ones(n,1),
 //    r_b = A x - b,
-//    r_c = A^T l + s - c, and
+//    r_c = A^T l + s - Q x - c, and
 //    r_mu = X S e - tau e.
 //
 // The implied system is of the form
@@ -29,11 +29,11 @@ namespace lin_prog {
 
 template<typename Real>
 void AugmentedKKT
-( const Matrix<Real>& A, 
+( const Matrix<Real>& Q, const Matrix<Real>& A, 
   const Matrix<Real>& s, const Matrix<Real>& x,
-  Matrix<Real>& J, bool onlyLower )
+        Matrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::AugmentedKKT"))
+    DEBUG_ONLY(CallStackEntry cse("quad_prog::AugmentedKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -45,6 +45,7 @@ void AugmentedKKT
     Scale( Real(-1), d );
     DiagonalSolve( LEFT, NORMAL, x, d );
     Diagonal( Jxx, d );
+    Axpy( Real(-1), Q, Jxx );
     Jlx = A;
     if( !onlyLower )
         Transpose( A, Jxl );
@@ -52,11 +53,11 @@ void AugmentedKKT
 
 template<typename Real>
 void AugmentedKKT
-( const AbstractDistMatrix<Real>& A, 
+( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A, 
   const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& x,
   AbstractDistMatrix<Real>& JPre, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::AugmentedKKT"))
+    DEBUG_ONLY(CallStackEntry cse("quad_prog::AugmentedKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -71,6 +72,7 @@ void AugmentedKKT
     Scale( Real(-1), d );
     DiagonalSolve( LEFT, NORMAL, x, d );
     Diagonal( Jxx, d.Matrix() );
+    Axpy( Real(-1), Q, Jxx );
     Jlx = A;
     if( !onlyLower )
         Transpose( A, Jxl );
@@ -78,26 +80,28 @@ void AugmentedKKT
 
 template<typename Real>
 void AugmentedKKT
-( const SparseMatrix<Real>& A, 
+( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A, 
   const Matrix<Real>& s, const Matrix<Real>& x,
   SparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::AugmentedKKT"))
+    DEBUG_ONLY(CallStackEntry cse("quad_prog::AugmentedKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int numEntries = A.NumEntries();
 
     Zeros( J, m+n, m+n );
     if( onlyLower )
-        J.Reserve( numEntries + n );
+        J.Reserve( A.NumEntries() + Q.NumEntries() + n );
     else
-        J.Reserve( 2*numEntries + n ); 
+        J.Reserve( 2*A.NumEntries() + Q.NumEntries() + n ); 
 
     // -S*inv(X) updates
     for( Int j=0; j<n; ++j )
         J.Update( j, j, -s.Get(j,0)/x.Get(j,0) );
+    // -Q update
+    for( Int k=0; k<Q.NumEntries(); ++k )
+        J.Update( Q.Row(k), Q.Col(k), -Q.Value(k) );
     // A and A^T updates
-    for( Int k=0; k<numEntries; ++k )
+    for( Int k=0; k<A.NumEntries(); ++k )
     {
         J.Update( A.Row(k)+n, A.Col(k), A.Value(k) );
         if( !onlyLower )
@@ -108,11 +112,11 @@ void AugmentedKKT
 
 template<typename Real>
 void AugmentedKKT
-( const DistSparseMatrix<Real>& A,
+( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& s, const DistMultiVec<Real>& x,
   DistSparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::AugmentedKKT"))
+    DEBUG_ONLY(CallStackEntry cse("quad_prog::AugmentedKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -141,6 +145,10 @@ void AugmentedKKT
     // ----------------------------------------------
     for( Int k=0; k<x.LocalHeight(); ++k )
         ++sendCounts[ J.RowOwner( k+x.FirstLocalRow() ) ];
+    // For placing -Q into the top-left corner
+    // ---------------------------------------
+    for( Int k=0; k<Q.NumLocalEntries(); ++k )
+        ++sendCounts[ J.RowOwner(Q.Row(k)) ];
     // Communicate to determine the number we receive from each process
     // ----------------------------------------------------------------
     std::vector<int> recvCounts(commSize);
@@ -199,6 +207,19 @@ void AugmentedKKT
         vSendBuf[offsets[owner]] = value;
         ++offsets[owner];
     }
+    // Pack Q
+    // ------
+    for( Int k=0; k<Q.NumLocalEntries(); ++k )
+    {
+        const Int i = Q.Row(k);
+        const Int j = Q.Col(k);
+        const Real value = Q.Value(k);
+        const Int owner = J.RowOwner(i);
+        sSendBuf[offsets[owner]] = i; 
+        tSendBuf[offsets[owner]] = j;
+        vSendBuf[offsets[owner]] = value;
+        ++offsets[owner];
+    }
 
     // Exchange and unpack the triplets
     // ================================
@@ -226,7 +247,7 @@ void AugmentedKKTRHS
   const Matrix<Real>& rmu, const Matrix<Real>& rc, const Matrix<Real>& rb,
   Matrix<Real>& y )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::AugmentedKKTRHS"))
+    DEBUG_ONLY(CallStackEntry cse("quad_prog::AugmentedKKTRHS"))
     const Int m = rb.Height();
     const Int n = rmu.Height();
     const IR xInd(0,n), lInd(n,n+m);
@@ -250,7 +271,7 @@ void AugmentedKKTRHS
   const AbstractDistMatrix<Real>& rb,
   AbstractDistMatrix<Real>& yPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::AugmentedKKTRHS"))
+    DEBUG_ONLY(CallStackEntry cse("quad_prog::AugmentedKKTRHS"))
 
     ProxyCtrl ctrl;
     ctrl.colConstrain = true;
@@ -283,7 +304,7 @@ void AugmentedKKTRHS
   const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rc, 
   const DistMultiVec<Real>& rb, DistMultiVec<Real>& y )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::FormAugmentedSystem"))
+    DEBUG_ONLY(CallStackEntry cse("quad_prog::FormAugmentedSystem"))
     const Int m = rb.Height();
     const Int n = x.Height();
 
@@ -363,7 +384,7 @@ void ExpandAugmentedSolution
   const Matrix<Real>& rmu, const Matrix<Real>& y,
   Matrix<Real>& ds, Matrix<Real>& dx, Matrix<Real>& dl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::ExpandAugmentedSolution"))
+    DEBUG_ONLY(CallStackEntry cse("quad_prog::ExpandAugmentedSolution"))
     const Int n = rmu.Height();
     const Int m = y.Height() - n;
 
@@ -397,7 +418,7 @@ void ExpandAugmentedSolution
   AbstractDistMatrix<Real>& dsPre, AbstractDistMatrix<Real>& dxPre, 
   AbstractDistMatrix<Real>& dl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::ExpandAugmentedSolution"))
+    DEBUG_ONLY(CallStackEntry cse("quad_prog::ExpandAugmentedSolution"))
 
     ProxyCtrl ctrl;
     ctrl.colConstrain = true;
@@ -446,7 +467,7 @@ void ExpandAugmentedSolution
   const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& y,
   DistMultiVec<Real>& ds, DistMultiVec<Real>& dx, DistMultiVec<Real>& dl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::ExpandAugmentedSolution"))
+    DEBUG_ONLY(CallStackEntry cse("quad_prog::ExpandAugmentedSolution"))
     const Int n = rmu.Height();
     const Int m = y.Height() - n;
     mpi::Comm comm = s.Comm();
@@ -531,19 +552,19 @@ void ExpandAugmentedSolution
 
 #define PROTO(Real) \
   template void AugmentedKKT \
-  ( const Matrix<Real>& A, \
+  ( const Matrix<Real>& Q, const Matrix<Real>& A, \
     const Matrix<Real>& s, const Matrix<Real>& x, \
     Matrix<Real>& J, bool onlyLower ); \
   template void AugmentedKKT \
-  ( const AbstractDistMatrix<Real>& A, \
+  ( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& x, \
     AbstractDistMatrix<Real>& J, bool onlyLower ); \
   template void AugmentedKKT \
-  ( const SparseMatrix<Real>& A, \
+  ( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A, \
     const Matrix<Real>& s, const Matrix<Real>& x, \
     SparseMatrix<Real>& J, bool onlyLower ); \
   template void AugmentedKKT \
-  ( const DistSparseMatrix<Real>& A, \
+  ( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& s, const DistMultiVec<Real>& x, \
     DistSparseMatrix<Real>& J, bool onlyLower ); \
   template void AugmentedKKTRHS \
@@ -576,5 +597,5 @@ void ExpandAugmentedSolution
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
-} // namespace lin_prog
+} // namespace quad_prog
 } // namespace El

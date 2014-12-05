@@ -299,15 +299,18 @@ extern "C" {
       *CReflect(Z) ) ) } \
   /* Quadratic program
      ================= */ \
-  ElError ElQuadraticProgram_ ## SIG \
-  ( ElConstMatrix_ ## SIG P, ElConstMatrix_ ## SIG S, \
+  /* TODO: IPF and Mehrotra in conic form */ \
+  /* ADMM (non-conic form)
+     --------------------- */ \
+  ElError ElQuadraticProgramADMM_ ## SIG \
+  ( ElConstMatrix_ ## SIG Q, ElConstMatrix_ ## SIG C, \
     Real lb, Real ub, ElMatrix_ ## SIG Z, ElInt* numIts ) \
-  { EL_TRY( *numIts = QuadraticProgram( *CReflect(P), *CReflect(S), lb, ub, \
+  { EL_TRY( *numIts = quad_prog::ADMM( *CReflect(Q), *CReflect(C), lb, ub, \
       *CReflect(Z) ) ) } \
-  ElError ElQuadraticProgramDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG P, ElConstDistMatrix_ ## SIG S, \
+  ElError ElQuadraticProgramADMMDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG Q, ElConstDistMatrix_ ## SIG C, \
     Real lb, Real ub, ElDistMatrix_ ## SIG Z, ElInt* numIts ) \
-  { EL_TRY( *numIts = QuadraticProgram( *CReflect(P), *CReflect(S), lb, ub, \
+  { EL_TRY( *numIts = quad_prog::ADMM( *CReflect(Q), *CReflect(C), lb, ub, \
       *CReflect(Z) ) ) } \
   /* Support Vector Machine
      ====================== */ \

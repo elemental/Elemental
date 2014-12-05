@@ -262,18 +262,20 @@ EL_EXPORT ElError ElNonNegativeLeastSquaresDist_d
 
 /* Quadratic program
    ================= */
-EL_EXPORT ElError ElQuadraticProgram_s
-( ElConstMatrix_s P, ElConstMatrix_s S, float lb, float ub, 
+/* ADMM (non-conic form)
+   --------------------- */
+EL_EXPORT ElError ElQuadraticProgramADMM_s
+( ElConstMatrix_s Q, ElConstMatrix_s C, float lb, float ub, 
   ElMatrix_s Z, ElInt* numIts );
-EL_EXPORT ElError ElQuadraticProgram_d
-( ElConstMatrix_d P, ElConstMatrix_d S, double lb, double ub, 
+EL_EXPORT ElError ElQuadraticProgramADMM_d
+( ElConstMatrix_d Q, ElConstMatrix_d C, double lb, double ub, 
   ElMatrix_d Z, ElInt* numIts );
 
-EL_EXPORT ElError ElQuadraticProgramDist_s
-( ElConstDistMatrix_s P, ElConstDistMatrix_s S, float lb, float ub, 
+EL_EXPORT ElError ElQuadraticProgramADMMDist_s
+( ElConstDistMatrix_s Q, ElConstDistMatrix_s C, float lb, float ub, 
   ElDistMatrix_s Z, ElInt* numIts );
-EL_EXPORT ElError ElQuadraticProgramDist_d
-( ElConstDistMatrix_d P, ElConstDistMatrix_d S, double lb, double ub, 
+EL_EXPORT ElError ElQuadraticProgramADMMDist_d
+( ElConstDistMatrix_d Q, ElConstDistMatrix_d C, double lb, double ub, 
   ElDistMatrix_d Z, ElInt* numIts );
 
 /* TODO: Expert versions */

@@ -10,16 +10,16 @@
 #include "./util.hpp"
 
 namespace El {
-namespace lin_prog {
+namespace quad_prog {
 
 template<typename Real>
 void IPF
-( const Matrix<Real>& A, 
-  const Matrix<Real>& b,  const Matrix<Real>& c,
+( const Matrix<Real>& Q, const Matrix<Real>& A, 
+  const Matrix<Real>& b, const Matrix<Real>& c,
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
   const IPFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
+    DEBUG_ONLY(CallStackEntry cse("quad_prog::IPF"))    
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -46,10 +46,13 @@ void IPF
 
         // Check for convergence
         // =====================
-        // |c^T x - b^T l| / (1 + |c^T x|) <= tol ?
-        // ----------------------------------------
-        const Real primObj = Dot(c,x);
-        const Real dualObj = Dot(b,l); 
+        // |c^T x + x^T Q x - b^T l| / (1 + |c^T x + 1/2 x^T Q x|) <= tol ?
+        // ----------------------------------------------------------------
+        Zeros( y, n, 1 );
+        Hemv( LOWER, Real(1), Q, x, Real(0), y );
+        const Real xTQx = Dot(x,y);
+        const Real primObj = Dot(c,x) + xTQx/2;
+        const Real dualObj = Dot(b,l) - xTQx/2; 
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -58,25 +61,27 @@ void IPF
         Gemv( NORMAL, Real(1), A, x, Real(-1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
-        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
-        // --------------------------------------
-        const Real cNrm2 = Nrm2( c );
-        rc = c;
+        // || r_c ||_2 / (1 + || c + Q x ||_2) <= tol ?
+        // --------------------------------------------
+        // NOTE: y currently contains Q x
+        Axpy( Real(1), c, y );
+        const Real objGradNrm2 = Nrm2( y );
+        rc = y;
         Gemv( TRANSPOSE, Real(1), A, l, Real(-1), rc );
         Axpy( Real(1), s, rc );
         const Real rcNrm2 = Nrm2( rc );
-        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
+        const Real rcConv = rcNrm2 / (Real(1)+objGradNrm2);
         // Now check the pieces
         // --------------------
         if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
             break;
         else if( ctrl.print )
             std::cout << " iter " << numIts << ":\n"
-                      << "  |c^T x - b^T l| / (1 + |c^T x|) = "
+                      << "  | primObj - dualObj | / (1 + |primObj|) = "
                       << objConv << "\n"
-                      << "  || r_b ||_2 / (1 + || b ||_2)   = "
+                      << "  || r_b ||_2 / (1 + || b ||_2)           = "
                       << rbConv << "\n"
-                      << "  || r_c ||_2 / (1 + || c ||_2)   = "
+                      << "  || r_c ||_2 / (1 + || c + Q x ||_2)     = "
                       << rcConv << std::endl;
 
         // Raise an exception after an unacceptable number of iterations
@@ -96,7 +101,7 @@ void IPF
         {
             // Construct the full KKT system
             // =============================
-            KKT( A, s, x, J );
+            KKT( Q, A, s, x, J );
             KKTRHS( rmu, rc, rb, y );
 
             // Compute the proposed step from the KKT system
@@ -104,29 +109,17 @@ void IPF
             GaussianElimination( J, y );
             ExpandKKTSolution( m, n, y, ds, dx, dl );
         }
-        else if( ctrl.system == AUGMENTED_KKT )
+        else // ctrl.system == AUGMENTED_KKT
         {
             // Construct the reduced KKT system
             // ================================
-            AugmentedKKT( A, s, x, J );
+            AugmentedKKT( Q, A, s, x, J );
             AugmentedKKTRHS( x, rmu, rc, rb, y );
 
             // Compute the proposed step from the KKT system
             // =============================================
             SymmetricSolve( LOWER, NORMAL, J, y );
             ExpandAugmentedSolution( s, x, rmu, y, ds, dx, dl );
-        }
-        else if( ctrl.system == NORMAL_KKT )
-        {
-            // Construct the reduced KKT system
-            // ================================
-            NormalKKT( A, s, x, J );
-            NormalKKTRHS( A, s, x, rmu, rc, rb, dl );
-
-            // Compute the proposed step from the KKT system
-            // =============================================
-            SymmetricSolve( LOWER, NORMAL, J, dl );
-            ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
         }
 
 #ifndef EL_RELEASE
@@ -146,6 +139,7 @@ void IPF
 
         dlError = ds;
         Gemv( TRANSPOSE, Real(1), A, dl, Real(1), dlError );
+        Hemv( LOWER, Real(-1), Q, dx, Real(1), dlError );
         Axpy( Real(1), rc, dlError );
         const Real dlErrorNrm2 = Nrm2( dlError );
 
@@ -165,7 +159,7 @@ void IPF
         // Decide on the step length
         // =========================
         const Real alpha =
-          IPFLineSearch( A, b, c, s, x, l, ds, dx, dl, ctrl.lineSearchCtrl );
+          IPFLineSearch( Q, A, b, c, s, x, l, ds, dx, dl, ctrl.lineSearchCtrl );
         if( ctrl.print )
             std::cout << "  alpha = " << alpha << std::endl;
 
@@ -179,18 +173,19 @@ void IPF
 
 template<typename Real>
 void IPF
-( const AbstractDistMatrix<Real>& APre, 
-  const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c,
+( const AbstractDistMatrix<Real>& QPre, const AbstractDistMatrix<Real>& APre, 
+  const AbstractDistMatrix<Real>& b,    const AbstractDistMatrix<Real>& c,
   AbstractDistMatrix<Real>& sPre, AbstractDistMatrix<Real>& xPre, 
   AbstractDistMatrix<Real>& l, const IPFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
+    DEBUG_ONLY(CallStackEntry cse("quad_prog::IPF"))    
 
     ProxyCtrl proxCtrl;
     proxCtrl.colConstrain = true;
     proxCtrl.rowConstrain = true;
     proxCtrl.colAlign = 0;
     proxCtrl.rowAlign = 0;
+    auto QPtr = ReadProxy<Real,MC,MR>(&QPre,proxCtrl);      auto& Q = *QPtr;
     auto APtr = ReadProxy<Real,MC,MR>(&APre,proxCtrl);      auto& A = *APtr;
     auto sPtr = ReadWriteProxy<Real,MC,MR>(&sPre,proxCtrl); auto& s = *sPtr;
     auto xPtr = ReadWriteProxy<Real,MC,MR>(&xPre,proxCtrl); auto& x = *xPtr;
@@ -231,10 +226,13 @@ void IPF
 
         // Check for convergence
         // =====================
-        // |c^T x - b^T l| / (1 + |c^T x|) <= tol ?
-        // ----------------------------------------
-        const Real primObj = Dot(c,x);
-        const Real dualObj = Dot(b,l);
+        // |c^T x + x^T Q x - b^T l| / (1 + |c^T x + 1/2 x^T Q x|) <= tol ?
+        // ----------------------------------------------------------------
+        Zeros( y, n, 1 );
+        Hemv( LOWER, Real(1), Q, x, Real(0), y );
+        const Real xTQx = Dot(x,y);
+        const Real primObj = Dot(c,x) + xTQx/2;
+        const Real dualObj = Dot(b,l) - xTQx/2;
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -243,25 +241,27 @@ void IPF
         Gemv( NORMAL, Real(1), A, x, Real(-1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
-        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
-        // --------------------------------------
-        const Real cNrm2 = Nrm2( c );
-        rc = c;
+        // || r_c ||_2 / (1 + || c + Q x ||_2) <= tol ?
+        // --------------------------------------------
+        // NOTE: y currently contains Q x
+        Axpy( Real(1), c, y );
+        const Real objGradNrm2 = Nrm2( y );
+        rc = y;
         Gemv( TRANSPOSE, Real(1), A, l, Real(-1), rc );
         Axpy( Real(1), s, rc );
         const Real rcNrm2 = Nrm2( rc );
-        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
+        const Real rcConv = rcNrm2 / (Real(1)+objGradNrm2);
         // Now check the pieces
         // --------------------
         if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
             break;
         else if( ctrl.print && commRank == 0 )
             std::cout << " iter " << numIts << ":\n"
-                      << "  |c^T x - b^T l| / (1 + |c^T x|) = "
+                      << "  |primObj - dualObj| / (1 + |primObj|) = "
                       << objConv << "\n"
-                      << "  || r_b ||_2 / (1 + || b ||_2)   = "
+                      << "  || r_b ||_2 / (1 + || b ||_2)         = "
                       << rbConv << "\n"
-                      << "  || r_c ||_2 / (1 + || c ||_2)   = "
+                      << "  || r_c ||_2 / (1 + || c + Q x ||_2)   = "
                       << rcConv << std::endl;
 
         // Raise an exception after an unacceptable number of iterations
@@ -284,7 +284,7 @@ void IPF
         {
             // Construct the full KKT system
             // =============================
-            KKT( A, s, x, J );
+            KKT( Q, A, s, x, J );
             KKTRHS( rmu, rc, rb, y );
 
             // Compute the proposed step from the KKT system
@@ -292,29 +292,17 @@ void IPF
             GaussianElimination( J, y );
             ExpandKKTSolution( m, n, y, ds, dx, dl );
         }
-        else if( ctrl.system == AUGMENTED_KKT )
+        else // ctrl.system == AUGMENTED_KKT
         {
             // Construct the reduced KKT system
             // ================================
-            AugmentedKKT( A, s, x, J );
+            AugmentedKKT( Q, A, s, x, J );
             AugmentedKKTRHS( x, rmu, rc, rb, y );
 
             // Compute the proposed step from the KKT system
             // =============================================
             SymmetricSolve( LOWER, NORMAL, J, y );
             ExpandAugmentedSolution( s, x, rmu, y, ds, dx, dl );
-        }
-        else if( ctrl.system == NORMAL_KKT )
-        {
-            // Construct the reduced KKT system
-            // ================================
-            NormalKKT( A, s, x, J );
-            NormalKKTRHS( A, s, x, rmu, rc, rb, dl );
-
-            // Compute the proposed step from the KKT system
-            // =============================================
-            SymmetricSolve( LOWER, NORMAL, J, dl );
-            ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
         }
 
 #ifndef EL_RELEASE
@@ -338,6 +326,7 @@ void IPF
 
         dlError = ds;
         Gemv( TRANSPOSE, Real(1), A, dl, Real(1), dlError );
+        Hemv( LOWER, Real(-1), Q, dx, Real(1), dlError );
         Axpy( Real(1), rc, dlError );
         const Real dlErrorNrm2 = Nrm2( dlError );
 
@@ -357,7 +346,7 @@ void IPF
         // Decide on the step length
         // =========================
         const Real alpha =
-          IPFLineSearch( A, b, c, s, x, l, ds, dx, dl, ctrl.lineSearchCtrl );
+          IPFLineSearch( Q, A, b, c, s, x, l, ds, dx, dl, ctrl.lineSearchCtrl );
         if( ctrl.print && commRank == 0 )
             std::cout << "  alpha = " << alpha << std::endl;
 
@@ -371,23 +360,23 @@ void IPF
 
 template<typename Real>
 void IPF
-( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& b,  const Matrix<Real>& c,
+( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A, 
+  const Matrix<Real>& b,       const Matrix<Real>& c,
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
   const IPFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
+    DEBUG_ONLY(CallStackEntry cse("quad_prog::IPF"))    
     LogicError("Sequential sparse-direct solvers not yet supported");
 }
 
 template<typename Real>
 void IPF
-( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c,
+( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
   DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l,
   const IPFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
+    DEBUG_ONLY(CallStackEntry cse("quad_prog::IPF"))    
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -433,10 +422,14 @@ void IPF
 
         // Check for convergence
         // =====================
-        // |c^T x - b^T l| / (1 + |c^T x|) <= tol ?
-        // ----------------------------------------
-        const Real primObj = Dot(c,x);
-        const Real dualObj = Dot(b,l);
+        // |c^T x + x^T Q x - b^T l| / (1 + |c^T x + 1/2 x^T Q x|) <= tol ?
+        // ----------------------------------------------------------------
+        Zeros( y, n, 1 );
+        // NOTE: This assumes that Q is explicitly Hermitian
+        Multiply( NORMAL, Real(1), Q, x, Real(0), y );
+        const Real xTQx = Dot(x,y);
+        const Real primObj = Dot(c,x) + xTQx/2;
+        const Real dualObj = Dot(b,l) - xTQx/2;
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -445,25 +438,27 @@ void IPF
         Multiply( NORMAL, Real(1), A, x, Real(-1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
-        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
-        // --------------------------------------
-        const Real cNrm2 = Nrm2( c );
-        rc = c;
+        // || r_c ||_2 / (1 + || c + Q x ||_2) <= tol ?
+        // --------------------------------------------
+        // NOTE: y currently contains Q x
+        Axpy( Real(1), c, y );
+        const Real objGradNrm2 = Nrm2( y );
+        rc = y;
         Multiply( TRANSPOSE, Real(1), A, l, Real(-1), rc );
         Axpy( Real(1), s, rc );
         const Real rcNrm2 = Nrm2( rc );
-        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
+        const Real rcConv = rcNrm2 / (Real(1)+objGradNrm2);
         // Now check the pieces
         // --------------------
         if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
             break;
         else if( ctrl.print && commRank == 0 )
             std::cout << " iter " << numIts << ":\n"
-                      << "  |c^T x - b^T l| / (1 + |c^T x|) = "
+                      << "  |primObj - dualObj| / (1 + |primObj|) = "
                       << objConv << "\n"
-                      << "  || r_b ||_2 / (1 + || b ||_2)   = "
+                      << "  || r_b ||_2 / (1 + || b ||_2)         = "
                       << rbConv << "\n"
-                      << "  || r_c ||_2 / (1 + || c ||_2)   = "
+                      << "  || r_c ||_2 / (1 + || c + Q x ||_2)   = "
                       << rcConv << std::endl;
 
         // Raise an exception after an unacceptable number of iterations
@@ -487,12 +482,12 @@ void IPF
         // ============================
         const Real minReductionFactor = 2;
         const Int maxRefineIts = 10;
-        if( ctrl.system == AUGMENTED_KKT )
+        // ctrl.system == AUGMENTED_KKT
         {
             // Construct the "normal" KKT system
             // ---------------------------------
             // TODO: Add default regularization
-            AugmentedKKT( A, s, x, J, false );
+            AugmentedKKT( Q, A, s, x, J, false );
             AugmentedKKTRHS( x, rmu, rc, rb, y );
             const Real pivTol = MaxNorm(J)*epsilon;
             const Real regMagPrimal = Pow(epsilon,Real(0.75));
@@ -533,31 +528,6 @@ void IPF
             yNodal.Push( invMap, info, y );
             ExpandAugmentedSolution( s, x, rmu, y, ds, dx, dl );
         }
-        else // ctrl.system == NORMAL_KKT
-        {
-            // Construct the reduced KKT system, J dl = y
-            // ------------------------------------------
-            // NOTE: Explicit symmetry is currently required for both METIS and
-            //       for the frontal tree initialization
-            NormalKKT( A, s, x, J, false );
-            NormalKKTRHS( A, s, x, rmu, rc, rb, dl );
-
-            // Compute the proposed step from the KKT system
-            // ---------------------------------------------
-            if( numIts == 0 )
-            {
-                NestedDissection( J.LockedDistGraph(), map, sepTree, info );
-                map.FormInverse( invMap );
-            }
-            JFrontTree.Initialize( J, map, sepTree, info );
-            LDL( info, JFrontTree, LDL_INTRAPIV_1D ); 
-            const Real minReductionFactor = 2;
-            const Int maxRefineIts = 10;
-            SolveWithIterativeRefinement
-            ( J, invMap, info, JFrontTree, dl, 
-              minReductionFactor, maxRefineIts );
-            ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
-        }
 
 #ifndef EL_RELEASE
         // Sanity checks
@@ -576,6 +546,7 @@ void IPF
 
         dlError = ds;
         Multiply( TRANSPOSE, Real(1), A, dl, Real(1), dlError );
+        Multiply( NORMAL, Real(-1), Q, dx, Real(1), dlError );
         Axpy( Real(1), rc, dlError );
         const Real dlErrorNrm2 = Nrm2( dlError );
 
@@ -595,7 +566,7 @@ void IPF
         // Decide on the step length
         // =========================
         const Real alpha = 
-          IPFLineSearch( A, b, c, s, x, l, ds, dx, dl, ctrl.lineSearchCtrl );
+          IPFLineSearch( Q, A, b, c, s, x, l, ds, dx, dl, ctrl.lineSearchCtrl );
         if( ctrl.print && commRank == 0 )
             std::cout << "  alpha = " << alpha << std::endl;
 
@@ -609,24 +580,24 @@ void IPF
 
 #define PROTO(Real) \
   template void IPF \
-  ( const Matrix<Real>& A, \
-    const Matrix<Real>& b,  const Matrix<Real>& c, \
+  ( const Matrix<Real>& Q, const Matrix<Real>& A, \
+    const Matrix<Real>& b, const Matrix<Real>& c, \
     Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l, \
     const IPFCtrl<Real>& ctrl ); \
   template void IPF \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c, \
+  ( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
     AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, \
     AbstractDistMatrix<Real>& l, \
     const IPFCtrl<Real>& ctrl ); \
   template void IPF \
-  ( const SparseMatrix<Real>& A, \
-    const Matrix<Real>& b,  const Matrix<Real>& c, \
+  ( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A, \
+    const Matrix<Real>& b,       const Matrix<Real>& c, \
     Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l, \
     const IPFCtrl<Real>& ctrl ); \
   template void IPF \
-  ( const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c, \
+  ( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A, \
+    const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, \
     DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l, \
     const IPFCtrl<Real>& ctrl );
 
@@ -634,5 +605,5 @@ void IPF
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
-} // namespace lin_prog
+} // namespace quad_prog
 } // namespace El

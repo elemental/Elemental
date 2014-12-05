@@ -16,10 +16,10 @@ using namespace El;
 //
 // via the Quadratic Program
 //
-//     minimize    (1/2) x' P x + q' x 
+//     minimize    (1/2) x' Q x + c' x 
 //     subject to  x >= 0
 //
-// with P = A^T A and q = -A^H y.
+// with Q = A^T A and c = -A^H y.
 //
 
 typedef double Real;

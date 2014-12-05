@@ -316,19 +316,198 @@ Int NonNegativeLeastSquares
 
 // Quadratic program
 // =================
-// TODO: Generalize to complex
+
+namespace quad_prog {
+
 template<typename Real>
-Int QuadraticProgram
-( const Matrix<Real>& P, const Matrix<Real>& S, Real lb, Real ub,
-  Matrix<Real>& Z, 
-  Real rho=1., Real alpha=1.2, Int maxIter=500, Real absTol=1e-6,
-  Real relTol=1e-4, bool inv=true, bool progress=true );
+struct IPFLineSearchCtrl {
+    Real gamma;
+    Real beta;
+    Real psi;
+    bool print;
+
+    IPFLineSearchCtrl()
+    : gamma(1e-3), beta(2), psi(100), print(false)
+    { }
+};
+
 template<typename Real>
-Int QuadraticProgram
-( const AbstractDistMatrix<Real>& P, const AbstractDistMatrix<Real>& S, 
+struct IPFCtrl {
+    Real tol;
+    Int maxIts;
+    Real centering;
+    KKTSystem system;
+
+    IPFLineSearchCtrl<Real> lineSearchCtrl;
+
+    bool print;
+
+    IPFCtrl()
+    : tol(1e-8), maxIts(1000), centering(0.9), system(AUGMENTED_KKT), 
+      print(false)
+    { }
+};
+
+template<typename Real>
+struct MehrotraCtrl {
+    Real tol;
+    Int maxIts;
+    Real maxStepRatio;
+    KKTSystem system;
+    bool print;
+
+    // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
+    //       the default, (muAff/mu)^3 
+
+    MehrotraCtrl()
+    : tol(1e-8), maxIts(1000), maxStepRatio(0.99), system(AUGMENTED_KKT), 
+      print(false)
+    { }
+};
+
+template<typename Real>
+struct ADMMCtrl
+{
+    Real rho;
+    Real alpha;
+    Int maxIter;
+    Real absTol;
+    Real relTol;
+    bool inv;
+    bool print;
+
+    ADMMCtrl()
+    : rho(1), alpha(1.2), maxIter(500), absTol(1e-6), relTol(1e-4), inv(true),
+      print(true)
+    { }
+};
+
+} // namespace quad_prog
+
+namespace QuadProgAlgNS {
+enum QuadProgAlg {
+    QUAD_PROG_ADMM, // NOTE: There is no conic-form ADMM code as of yet
+    QUAD_PROG_IPF,
+    QUAD_PROG_MEHROTRA
+};
+} // namespace QuadProgAlgNS
+using namespace QuadProgAlgNS;
+
+template<typename Real>
+struct QuadProgCtrl 
+{
+    QuadProgAlg alg;
+    quad_prog::ADMMCtrl<Real> admmCtrl;
+    quad_prog::IPFCtrl<Real> ipfCtrl;
+    quad_prog::MehrotraCtrl<Real> mehrotraCtrl;
+
+    QuadProgCtrl() 
+    : alg(QUAD_PROG_MEHROTRA)
+    { }
+};
+
+// Solve the following (conic form) quadratic program:
+//   min 1/2 x' Q x + c' x, subject to A x = b and x >= 0
+//    x
+// using an Interior Point Method
+template<typename Real>
+void QuadraticProgram
+( const Matrix<Real>& Q, const Matrix<Real>& A, 
+  const Matrix<Real>& b, const Matrix<Real>& c,
+        Matrix<Real>& x,
+  const QuadProgCtrl<Real>& ctrl=QuadProgCtrl<Real>() );
+template<typename Real>
+void QuadraticProgram
+( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A, 
+  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
+        AbstractDistMatrix<Real>& x,
+  const QuadProgCtrl<Real>& ctrl=QuadProgCtrl<Real>() );
+template<typename Real>
+void QuadraticProgram
+( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A, 
+  const Matrix<Real>& b, const Matrix<Real>& c,
+        Matrix<Real>& x,
+  const QuadProgCtrl<Real>& ctrl=QuadProgCtrl<Real>() );
+template<typename Real>
+void QuadraticProgram
+( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
+        DistMultiVec<Real>& x,
+  const QuadProgCtrl<Real>& ctrl=QuadProgCtrl<Real>() );
+
+namespace quad_prog {
+
+// Mehrotra's Predictor-Corrector Infeasible Interior Point Method
+// ---------------------------------------------------------------
+template<typename Real>
+void Mehrotra
+( const Matrix<Real>& Q, const Matrix<Real>& A,
+  const Matrix<Real>& b, const Matrix<Real>& c,
+  Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
+  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+template<typename Real>
+void Mehrotra
+( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
+  AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, 
+  AbstractDistMatrix<Real>& l,
+  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+template<typename Real>
+void Mehrotra
+( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A,
+  const Matrix<Real>& b, const Matrix<Real>& c,
+  Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
+  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+template<typename Real>
+void Mehrotra
+( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
+  DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l,
+  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+
+// Infeasible Path-Following Interior Point Method (IPF)
+// -----------------------------------------------------
+template<typename Real>
+void IPF
+( const Matrix<Real>& Q, const Matrix<Real>& A,
+  const Matrix<Real>& b, const Matrix<Real>& c,
+  Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
+  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
+template<typename Real>
+void IPF
+( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
+  AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, 
+  AbstractDistMatrix<Real>& l, 
+  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
+template<typename Real>
+void IPF
+( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A,
+  const Matrix<Real>& b, const Matrix<Real>& c,
+  Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
+  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
+template<typename Real>
+void IPF
+( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
+  DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l,
+  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
+
+// Solve a set of quadratic programs of the form 
+//   min 1/2 x' Q x + c' x, subject to l_b <= x <= u_b
+//    x
+template<typename Real>
+Int ADMM
+( const Matrix<Real>& Q, const Matrix<Real>& C, 
+  Real lb, Real ub, Matrix<Real>& Z, 
+  const ADMMCtrl<Real>& ctrl=ADMMCtrl<Real>() );
+template<typename Real>
+Int ADMM
+( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& C, 
   Real lb, Real ub, AbstractDistMatrix<Real>& Z,
-  Real rho=1., Real alpha=1.2, Int maxIter=500, Real absTol=1e-6,
-  Real relTol=1e-4, bool inv=true, bool progress=true );
+  const ADMMCtrl<Real>& ctrl=ADMMCtrl<Real>() );
+
+} // namespace quad_prog
 
 // Robust Principal Component Analysis (RPCA)
 // ==========================================

@@ -9,17 +9,17 @@
 #include "El.hpp"
 
 namespace El {
-namespace lin_prog {
+namespace quad_prog {
 
 template<typename Real>
 Real IPFLineSearch
-( const Matrix<Real>& A, 
+( const Matrix<Real>& Q,  const Matrix<Real>& A, 
   const Matrix<Real>& b,  const Matrix<Real>& c,
   const Matrix<Real>& s,  const Matrix<Real>& x,  const Matrix<Real>& l,
   const Matrix<Real>& ds, const Matrix<Real>& dx, const Matrix<Real>& dl,
   const IPFLineSearchCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::IPFLineSearch"))
+    DEBUG_ONLY(CallStackEntry cse("quad_prog::IPFLineSearch"))
     if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
         LogicError("gamma must be in (0,1)");
     if( ctrl.beta < Real(1) )
@@ -43,18 +43,22 @@ Real IPFLineSearch
     //    l(alpha) = l + alpha dl,
     //    s(alpha) = s + alpha ds,
     //    r_b(alpha) = A x(alpha) - b, and
-    //    r_c(alpha) = A^T l(alpha) + s(alpha) - c,
+    //    r_c(alpha) = A^T l(alpha) + s(alpha) - Q x(alpha) - c,
     // and the Armijo condition,
     //   mu(alpha) <= (1 - alpha/\psi) mu,
     // is also satisfied.
     // ===============================================
     // Setup
     // -----
-    Matrix<Real> A_x, A_dx, AT_l, AT_dl, rb, rc;
+    Matrix<Real> Q_x, Q_dx, A_x, A_dx, AT_l, AT_dl, rb, rc;
+    Zeros( Q_x,   n, 1 );
+    Zeros( Q_dx,  n, 1 );
     Zeros( A_x,   m, 1 );
     Zeros( A_dx,  m, 1 );
     Zeros( AT_l,  n, 1 );
     Zeros( AT_dl, n, 1 );
+    Hemv( LOWER,     Real(1), Q, x,  Real(0), Q_x   );
+    Hemv( LOWER,     Real(1), Q, dx, Real(0), Q_dx  );
     Gemv( NORMAL,    Real(1), A, x,  Real(0), A_x   );
     Gemv( NORMAL,    Real(1), A, dx, Real(0), A_dx  );
     Gemv( TRANSPOSE, Real(1), A, l,  Real(0), AT_l  );
@@ -62,8 +66,9 @@ Real IPFLineSearch
     rb = A_x; 
     Axpy( Real(-1), b, rb );
     rc = AT_l;
-    Axpy( Real(1),  s, rc );
-    Axpy( Real(-1), c, rc );
+    Axpy( Real(1),  s,   rc );
+    Axpy( Real(-1), Q_x, rc );
+    Axpy( Real(-1), c,   rc );
     const Real rbNrm2 = Nrm2( rb );
     const Real rcNrm2 = Nrm2( rc );
     const Real mu = Dot(x,s) / n;
@@ -128,8 +133,9 @@ Real IPFLineSearch
         // Check || r_c(alpha) ||_2 <= || r_c ||_2 beta mu(alpha) / mu
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
-        Axpy( alpha, AT_dl, rc_alpha );
-        Axpy( alpha, ds,    rc_alpha );
+        Axpy( -alpha, Q_dx,  rc_alpha );
+        Axpy(  alpha, AT_dl, rc_alpha );
+        Axpy(  alpha, ds,    rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
         if( rc_alphaNrm2 > rcNrm2*ctrl.beta*mu_alpha/mu )
         {
@@ -145,22 +151,22 @@ Real IPFLineSearch
 
 template<typename Real>
 Real IPFLineSearch
-( const AbstractDistMatrix<Real>& APre, 
-  const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& s,  const AbstractDistMatrix<Real>& x,  
+( const AbstractDistMatrix<Real>& QPre, const AbstractDistMatrix<Real>& APre, 
+  const AbstractDistMatrix<Real>& b,    const AbstractDistMatrix<Real>& c,
+  const AbstractDistMatrix<Real>& s,    const AbstractDistMatrix<Real>& x,  
   const AbstractDistMatrix<Real>& l,
-  const AbstractDistMatrix<Real>& ds, const AbstractDistMatrix<Real>& dx, 
+  const AbstractDistMatrix<Real>& ds,   const AbstractDistMatrix<Real>& dx, 
   const AbstractDistMatrix<Real>& dl,
   const IPFLineSearchCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::IPFLineSearch"))
+    DEBUG_ONLY(CallStackEntry cse("quad_prog::IPFLineSearch"))
     if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
         LogicError("gamma must be in (0,1)");
     if( ctrl.beta < Real(1) )
         LogicError("beta must be at least one");
 
-    auto APtr = ReadProxy<Real,MC,MR>(&APre);
-    auto& A = *APtr;
+    auto QPtr = ReadProxy<Real,MC,MR>(&QPre); auto& Q = *QPtr;
+    auto APtr = ReadProxy<Real,MC,MR>(&APre); auto& A = *APtr;
 
     // TODO: Ensure the dimensions match
     if( b.Width() != 1 || c.Width() != 1 ||
@@ -190,12 +196,16 @@ Real IPFLineSearch
     // ===============================================
     // Setup
     // -----
-    DistMatrix<Real> A_x(grid), A_dx(grid), AT_l(grid), AT_dl(grid), 
-                     rb(grid), rc(grid);
+    DistMatrix<Real> Q_x(grid), Q_dx(grid), A_x(grid), A_dx(grid), 
+                     AT_l(grid), AT_dl(grid), rb(grid), rc(grid);
+    Zeros( Q_x,   n, 1 );
+    Zeros( Q_dx,  n, 1 );
     Zeros( A_x,   m, 1 );
     Zeros( A_dx,  m, 1 );
     Zeros( AT_l,  n, 1 );
     Zeros( AT_dl, n, 1 );
+    Hemv( LOWER,     Real(1), Q, x,  Real(0), Q_x   );
+    Hemv( LOWER,     Real(1), Q, dx, Real(0), Q_dx  );
     Gemv( NORMAL,    Real(1), A, x,  Real(0), A_x   );
     Gemv( NORMAL,    Real(1), A, dx, Real(0), A_dx  );
     Gemv( TRANSPOSE, Real(1), A, l,  Real(0), AT_l  );
@@ -203,8 +213,9 @@ Real IPFLineSearch
     rb = A_x; 
     Axpy( Real(-1), b, rb );
     rc = AT_l;
-    Axpy( Real(1),  s, rc );
-    Axpy( Real(-1), c, rc );
+    Axpy( Real(1),  s,   rc );
+    Axpy( Real(-1), Q_x, rc );
+    Axpy( Real(-1), c,   rc );
     const Real rbNrm2 = Nrm2( rb );
     const Real rcNrm2 = Nrm2( rc );
     const Real mu = Dot(x,s) / n;
@@ -277,8 +288,9 @@ Real IPFLineSearch
         // Check || r_c(alpha) ||_2 <= || r_c ||_2 beta mu(alpha) / mu
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
-        Axpy( alpha, AT_dl, rc_alpha );
-        Axpy( alpha, ds,    rc_alpha );
+        Axpy( -alpha, Q_dx,  rc_alpha );
+        Axpy(  alpha, AT_dl, rc_alpha );
+        Axpy(  alpha, ds,    rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
         if( rc_alphaNrm2 > rcNrm2*ctrl.beta*mu_alpha/mu )
         {
@@ -294,13 +306,13 @@ Real IPFLineSearch
 
 template<typename Real>
 Real IPFLineSearch
-( const SparseMatrix<Real>& A, 
+( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A, 
   const Matrix<Real>& b,  const Matrix<Real>& c,
   const Matrix<Real>& s,  const Matrix<Real>& x,  const Matrix<Real>& l,
   const Matrix<Real>& ds, const Matrix<Real>& dx, const Matrix<Real>& dl,
   const IPFLineSearchCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::IPFLineSearch"))
+    DEBUG_ONLY(CallStackEntry cse("quad_prog::IPFLineSearch"))
     if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
         LogicError("gamma must be in (0,1)");
     if( ctrl.beta < Real(1) )
@@ -331,11 +343,16 @@ Real IPFLineSearch
     // ===============================================
     // Setup
     // -----
-    Matrix<Real> A_x, A_dx, AT_l, AT_dl, rb, rc;
+    Matrix<Real> Q_x, Q_dx, A_x, A_dx, AT_l, AT_dl, rb, rc;
+    Zeros( Q_x,   n, 1 );
+    Zeros( Q_dx,  n, 1 );
     Zeros( A_x,   m, 1 );
     Zeros( A_dx,  m, 1 );
     Zeros( AT_l,  n, 1 );
     Zeros( AT_dl, n, 1 );
+    // NOTE: Q must be explicitly Hermitian
+    Multiply( NORMAL,    Real(1), Q, x,  Real(0), Q_x   );
+    Multiply( NORMAL,    Real(1), Q, dx, Real(0), Q_dx  );
     Multiply( NORMAL,    Real(1), A, x,  Real(0), A_x   );
     Multiply( NORMAL,    Real(1), A, dx, Real(0), A_dx  );
     Multiply( TRANSPOSE, Real(1), A, l,  Real(0), AT_l  );
@@ -343,8 +360,9 @@ Real IPFLineSearch
     rb = A_x; 
     Axpy( Real(-1), b, rb );
     rc = AT_l;
-    Axpy( Real(1),  s, rc );
-    Axpy( Real(-1), c, rc );
+    Axpy( Real(1),  s,   rc );
+    Axpy( Real(-1), Q_x, rc );
+    Axpy( Real(-1), c,   rc );
     const Real rbNrm2 = Nrm2( rb );
     const Real rcNrm2 = Nrm2( rc );
     const Real mu = Dot(x,s) / n;
@@ -409,8 +427,9 @@ Real IPFLineSearch
         // Check || r_c(alpha) ||_2 <= || r_c ||_2 beta mu(alpha) / mu
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
-        Axpy( alpha, AT_dl, rc_alpha );
-        Axpy( alpha, ds,    rc_alpha );
+        Axpy( -alpha, Q_dx,  rc_alpha );
+        Axpy(  alpha, AT_dl, rc_alpha );
+        Axpy(  alpha, ds,    rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
         if( rc_alphaNrm2 > rcNrm2*ctrl.beta*mu_alpha/mu )
         {
@@ -426,7 +445,8 @@ Real IPFLineSearch
 
 template<typename Real>
 Real IPFLineSearch
-( const DistSparseMatrix<Real>& A, 
+( const DistSparseMatrix<Real>& Q, 
+  const DistSparseMatrix<Real>& A, 
   const DistMultiVec<Real>& b, 
   const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& s, 
@@ -437,7 +457,7 @@ Real IPFLineSearch
   const DistMultiVec<Real>& dl,
   const IPFLineSearchCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::IPFLineSearch"))
+    DEBUG_ONLY(CallStackEntry cse("quad_prog::IPFLineSearch"))
     if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
         LogicError("gamma must be in (0,1)");
     if( ctrl.beta < Real(1) )
@@ -472,12 +492,17 @@ Real IPFLineSearch
     // ===============================================
     // Setup
     // -----
-    DistMultiVec<Real> A_x(comm), A_dx(comm), AT_l(comm), AT_dl(comm), 
-                       rb(comm), rc(comm);
+    DistMultiVec<Real> Q_x(comm), Q_dx(comm), A_x(comm), A_dx(comm), 
+                       AT_l(comm), AT_dl(comm), rb(comm), rc(comm);
+    Zeros( Q_x,   n, 1 );
+    Zeros( Q_dx,  n, 1 );
     Zeros( A_x,   m, 1 );
     Zeros( A_dx,  m, 1 );
     Zeros( AT_l,  n, 1 );
     Zeros( AT_dl, n, 1 );
+    // NOTE: Q must be explicitly Hermitian
+    Multiply( NORMAL,    Real(1), Q, x,  Real(0), Q_x   );
+    Multiply( NORMAL,    Real(1), Q, dx, Real(0), Q_dx  );
     Multiply( NORMAL,    Real(1), A, x,  Real(0), A_x   );
     Multiply( NORMAL,    Real(1), A, dx, Real(0), A_dx  );
     Multiply( TRANSPOSE, Real(1), A, l,  Real(0), AT_l  );
@@ -485,8 +510,9 @@ Real IPFLineSearch
     rb = A_x; 
     Axpy( Real(-1), b, rb );
     rc = AT_l;
-    Axpy( Real(1),  s, rc );
-    Axpy( Real(-1), c, rc );
+    Axpy( Real(1),  s,   rc );
+    Axpy( Real(-1), Q_x, rc );
+    Axpy( Real(-1), c,   rc );
     const Real rbNrm2 = Nrm2( rb );
     const Real rcNrm2 = Nrm2( rc );
     const Real mu = Dot(x,s) / n;
@@ -554,8 +580,9 @@ Real IPFLineSearch
         // Check || r_c(alpha) ||_2 <= || r_c ||_2 beta mu(alpha) / mu
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
-        Axpy( alpha, AT_dl, rc_alpha );
-        Axpy( alpha, ds,    rc_alpha );
+        Axpy( -alpha, Q_dx,  rc_alpha );
+        Axpy(  alpha, AT_dl, rc_alpha );
+        Axpy(  alpha, ds,    rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
         if( rc_alphaNrm2 > rcNrm2*ctrl.beta*mu_alpha/mu )
         {
@@ -571,13 +598,13 @@ Real IPFLineSearch
 
 #define PROTO(Real) \
   template Real IPFLineSearch \
-  ( const Matrix<Real>& A, \
+  ( const Matrix<Real>& Q,  const Matrix<Real>& A, \
     const Matrix<Real>& b,  const Matrix<Real>& c, \
     const Matrix<Real>& s,  const Matrix<Real>& x,  const Matrix<Real>& l, \
     const Matrix<Real>& ds, const Matrix<Real>& dx, const Matrix<Real>& dl, \
     const IPFLineSearchCtrl<Real>& ctrl ); \
   template Real IPFLineSearch \
-  ( const AbstractDistMatrix<Real>& A, \
+  ( const AbstractDistMatrix<Real>& Q,  const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c, \
     const AbstractDistMatrix<Real>& s,  const AbstractDistMatrix<Real>& x, \
     const AbstractDistMatrix<Real>& l, \
@@ -585,13 +612,13 @@ Real IPFLineSearch
     const AbstractDistMatrix<Real>& dl, \
     const IPFLineSearchCtrl<Real>& ctrl ); \
   template Real IPFLineSearch \
-  ( const SparseMatrix<Real>& A, \
+  ( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A, \
     const Matrix<Real>& b,  const Matrix<Real>& c, \
     const Matrix<Real>& s,  const Matrix<Real>& x,  const Matrix<Real>& l, \
     const Matrix<Real>& ds, const Matrix<Real>& dx, const Matrix<Real>& dl, \
     const IPFLineSearchCtrl<Real>& ctrl ); \
   template Real IPFLineSearch \
-  ( const DistSparseMatrix<Real>& A, \
+  ( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& s,  const DistMultiVec<Real>& x, \
     const DistMultiVec<Real>& l, \
@@ -603,5 +630,5 @@ Real IPFLineSearch
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
-} // namespace lin_prog
+} // namespace quad_prog
 } // namespace El

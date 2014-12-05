@@ -14,7 +14,7 @@ using namespace El;
 // which is derived from the distributed ADMM article of Boyd et al.
 //
 // This example attempts to solve the following convex optimization problem:
-//     minimize    (1/2) x' P x + q' x 
+//     minimize    (1/2) x' Q x + c' x 
 //     subject to  lb <= x <= ub
 //
 
@@ -44,33 +44,33 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<Real> P, q, xTrue;
-        HermitianUniformSpectrum( P, n, lbEig, ubEig );
+        DistMatrix<Real> Q, c, xTrue;
+        HermitianUniformSpectrum( Q, n, lbEig, ubEig );
         // Alternate the entries of xTrue between ub and lb
         Zeros( xTrue, n, 1 );
         if( xTrue.LocalWidth() == 1 )
             for( Int iLoc=0; iLoc<xTrue.LocalHeight(); ++iLoc )
                 xTrue.SetLocal( iLoc, 0, 
                     ( xTrue.GlobalRow(iLoc)%2==0 ? lb : ub ) );
-        // Set q := - P xTrue - du + dl
-        Zeros( q, n, 1 );
-        Hemv( LOWER, Real(-1), P, xTrue, Real(0), q );
-        if( q.LocalWidth() == 1 )
-            for( Int iLoc=0; iLoc<q.LocalHeight(); ++iLoc )
-                q.UpdateLocal( iLoc, 0,
-                    ( q.GlobalRow(iLoc)%2==0 ? 0.5 : -0.5 ) );
+        // Set c := - Q xTrue - du + dl
+        Zeros( c, n, 1 );
+        Hemv( LOWER, Real(-1), Q, xTrue, Real(0), c );
+        if( c.LocalWidth() == 1 )
+            for( Int iLoc=0; iLoc<c.LocalHeight(); ++iLoc )
+                c.UpdateLocal( iLoc, 0,
+                    ( c.GlobalRow(iLoc)%2==0 ? 0.5 : -0.5 ) );
         if( print )
         {
-            Print( P, "P" );
-            Print( q, "q" );
+            Print( Q, "Q" );
+            Print( c, "c" );
             Print( xTrue, "xTrue" );
         }
         if( display )
-            Display( P, "P" );
+            Display( Q, "Q" );
 
         DistMatrix<Real> z;
         QuadraticProgram
-        ( P, q, lb, ub, z, rho, alpha, maxIter, absTol, relTol, inv, progress );
+        ( Q, c, lb, ub, z, rho, alpha, maxIter, absTol, relTol, inv, progress );
 
         if( print )
             Print( z, "z" );

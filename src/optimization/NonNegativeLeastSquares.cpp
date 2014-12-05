@@ -21,13 +21,21 @@ Int NonNegativeLeastSquares
         LogicError("The datatype was assumed to be real");
     const Real maxReal = std::numeric_limits<Real>::max();
 
-    Matrix<Real> P, S;
-    Herk( LOWER, ADJOINT, Real(1), A, P );
-    Gemm( ADJOINT, NORMAL, Real(-1), A, Y, S );
+    Matrix<Real> Q, C;
+    Herk( LOWER, ADJOINT, Real(1), A, Q );
+    Gemm( ADJOINT, NORMAL, Real(-1), A, Y, C );
+
+    // TODO: Accept this as an argument to NonNegativeLeastSquares instead
+    quad_prog::ADMMCtrl<Real> ctrl;
+    ctrl.rho = rho;
+    ctrl.alpha = alpha;
+    ctrl.maxIter = maxIter;
+    ctrl.absTol = absTol;
+    ctrl.relTol = relTol;
+    ctrl.inv = inv;
+    ctrl.print = progress;
     
-    return QuadraticProgram
-    ( P, S, Real(0), maxReal, Z, rho, alpha, maxIter, absTol, relTol, inv,
-     progress );
+    return quad_prog::ADMM( Q, C, Real(0), maxReal, Z, ctrl );
 }
 
 template<typename Real>
@@ -45,13 +53,21 @@ Int NonNegativeLeastSquares
     auto APtr = ReadProxy<Real,MC,MR>( &APre );
     auto& A = *APtr;
 
-    DistMatrix<Real> P(A.Grid()), S(A.Grid());
-    Herk( LOWER, ADJOINT, Real(1), A, P );
-    Gemm( ADJOINT, NORMAL, Real(-1), A, Y, S );
+    DistMatrix<Real> Q(A.Grid()), C(A.Grid());
+    Herk( LOWER, ADJOINT, Real(1), A, Q );
+    Gemm( ADJOINT, NORMAL, Real(-1), A, Y, C );
     
-    return QuadraticProgram
-    ( P, S, Real(0), maxReal, Z, rho, alpha, maxIter, absTol, relTol, inv,
-     progress );
+    // TODO: Accept this as an argument to NonNegativeLeastSquares instead
+    quad_prog::ADMMCtrl<Real> ctrl;
+    ctrl.rho = rho;
+    ctrl.alpha = alpha;
+    ctrl.maxIter = maxIter;
+    ctrl.absTol = absTol;
+    ctrl.relTol = relTol;
+    ctrl.inv = inv;
+    ctrl.print = progress;
+    
+    return quad_prog::ADMM( Q, C, Real(0), maxReal, Z, ctrl );
 }
 
 #define PROTO(Real) \
