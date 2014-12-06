@@ -207,13 +207,13 @@ void AugmentedKKT
         vSendBuf[offsets[owner]] = value;
         ++offsets[owner];
     }
-    // Pack Q
-    // ------
+    // Pack -Q
+    // -------
     for( Int k=0; k<Q.NumLocalEntries(); ++k )
     {
         const Int i = Q.Row(k);
         const Int j = Q.Col(k);
-        const Real value = Q.Value(k);
+        const Real value = -Q.Value(k);
         const Int owner = J.RowOwner(i);
         sSendBuf[offsets[owner]] = i; 
         tSendBuf[offsets[owner]] = j;

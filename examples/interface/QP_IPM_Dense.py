@@ -9,8 +9,8 @@
 import El
 import time
 
-m = 10
-n = 12
+m = 2000
+n = 4000
 testMehrotra = True
 testIPF = True
 display = False
