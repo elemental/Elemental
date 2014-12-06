@@ -165,7 +165,9 @@ void IPF
         // Decide on the step length
         // =========================
         const Real alpha =
-          IPFLineSearch( A, b, c, s, x, l, ds, dx, dl, ctrl.lineSearchCtrl );
+          IPFLineSearch
+          ( A, b, c, s, x, l, ds, dx, dl, 
+           ctrl.tol*(1+bNrm2), ctrl.tol*(1+cNrm2), ctrl.lineSearchCtrl );
         if( ctrl.print )
             std::cout << "  alpha = " << alpha << std::endl;
 
@@ -357,7 +359,9 @@ void IPF
         // Decide on the step length
         // =========================
         const Real alpha =
-          IPFLineSearch( A, b, c, s, x, l, ds, dx, dl, ctrl.lineSearchCtrl );
+          IPFLineSearch
+          ( A, b, c, s, x, l, ds, dx, dl, 
+            ctrl.tol*(1+bNrm2), ctrl.tol*(1+cNrm2), ctrl.lineSearchCtrl );
         if( ctrl.print && commRank == 0 )
             std::cout << "  alpha = " << alpha << std::endl;
 
@@ -595,7 +599,9 @@ void IPF
         // Decide on the step length
         // =========================
         const Real alpha = 
-          IPFLineSearch( A, b, c, s, x, l, ds, dx, dl, ctrl.lineSearchCtrl );
+          IPFLineSearch
+          ( A, b, c, s, x, l, ds, dx, dl, 
+            ctrl.tol*(1+bNrm2), ctrl.tol*(1+cNrm2), ctrl.lineSearchCtrl );
         if( ctrl.print && commRank == 0 )
             std::cout << "  alpha = " << alpha << std::endl;
 

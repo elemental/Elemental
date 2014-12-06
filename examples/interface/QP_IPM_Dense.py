@@ -9,46 +9,48 @@
 import El
 import time
 
-m = 2000
-n = 4000
+m = 10
+n = 12
 testMehrotra = True
 testIPF = True
 display = False
 worldRank = El.mpi.WorldRank()
 
-# Make a sparse matrix with the last column dense
-def Rectang(m,n):
-  A = El.DistSparseMatrix()
-  A.Resize(m,n)
-  firstLocalRow = A.FirstLocalRow()
-  localHeight = A.LocalHeight()
-  A.Reserve(5*localHeight)
-  for sLoc in xrange(localHeight):
-    s = firstLocalRow + sLoc
-    A.QueueLocalUpdate( sLoc, s, 11 )
-    if s != 0:   A.QueueLocalUpdate( sLoc, s-1,   1 )
-    if s != n-1: A.QueueLocalUpdate( sLoc, s+1,   2 )
-    if s >= m:   A.QueueLocalUpdate( sLoc, s-m,   3 )
-    if s <  n-m: A.QueueLocalUpdate( sLoc, s+m,   4 )
-    # The dense last column
-    A.QueueLocalUpdate( sLoc, n-1, 5./m );
+# Make a sparse semidefinite matrix
+def Semidefinite(n):
+  Q = El.DistMatrix()
+  El.Identity( Q, n, n )
+  return Q
 
-  A.MakeConsistent()
+# Make a sparse matrix with the last column dense
+def RectangDense(m,n):
+  A = El.DistMatrix()
+  El.Zeros( A, m, n )
+  for s in xrange(m):
+    A.Update( s, s, 11 )
+    if s != 0:   A.Update( s, s-1,   1 )
+    if s != n-1: A.Update( s, s+1,   2 )
+    if s >= m:   A.Update( s, s-m,   3 )
+    if s <  n-m: A.Update( s, s+m,   4 )
+    # The dense last column
+    A.Update( s, n-1, 5./m );
+
   return A
 
-A = Rectang(m,n)
+Q = Semidefinite(n)
+A = RectangDense(m,n)
 
 # Generate a right-hand side in the positive image
 # ================================================
-xGen = El.DistMultiVec()
+xGen = El.DistMatrix()
 El.Uniform(xGen,n,1,0.5,0.4999)
-b = El.DistMultiVec()
+b = El.DistMatrix()
 El.Zeros( b, m, 1 )
-El.SparseMultiply( El.NORMAL, 1., A, xGen, 0., b )
+El.Gemv( El.NORMAL, 1., A, xGen, 0., b )
 
 # Generate a random positive cost function
 # ========================================
-c = El.DistMultiVec()
+c = El.DistMatrix()
 El.Uniform(c,n,1,0.5,0.4999)
 
 if display:
@@ -59,53 +61,61 @@ if display:
 
 # Generate random initial guesses
 # ===============================
-xOrig = El.DistMultiVec()
-lOrig = El.DistMultiVec()
-sOrig = El.DistMultiVec()
+sOrig = El.DistMatrix()
+xOrig = El.DistMatrix()
+lOrig = El.DistMatrix()
+El.Uniform(sOrig,n,1,0.5,0.4999)
 El.Uniform(xOrig,n,1,0.5,0.4999)
 El.Uniform(lOrig,m,1,0.5,0.4999)
-El.Uniform(sOrig,n,1,0.5,0.4999)
-x = El.DistMultiVec()
-l = El.DistMultiVec()
-s = El.DistMultiVec()
+s = El.DistMatrix()
+x = El.DistMatrix()
+l = El.DistMatrix()
 
 if testMehrotra:
   El.Copy( sOrig, s )
   El.Copy( xOrig, x )
   El.Copy( lOrig, l )
   startMehrotra = time.clock()
-  El.LinearProgramMehrotra(A,b,c,s,x,l)
+  El.QuadraticProgramMehrotra(Q,A,b,c,s,x,l)
   endMehrotra = time.clock()
   if worldRank == 0:
     print "Mehrotra time:", endMehrotra-startMehrotra
 
   if display:
-    El.Display( x, "s Mehotra" )
-    El.Display( l, "x Mehotra" )
-    El.Display( s, "l Mehotra" )
+    El.Display( s, "s Mehrotra" )
+    El.Display( x, "x Mehrotra" )
+    El.Display( l, "l Mehrotra" )
 
-  obj = El.Dot(c,x)
+  Q_x = El.DistMatrix()
+  El.Zeros( Q_x, n, 1 )
+  El.Gemv( El.NORMAL, 1., Q, x, 0., Q_x )
+  xTQx = El.Dot(x,Q_x)
+  obj = El.Dot(c,x) + xTQx/2
   if worldRank == 0:
-    print "Mehrotra c^T x =", obj
+    print "Mehrotra primal objective =", obj
 
 if testIPF:
   El.Copy( sOrig, s )
   El.Copy( xOrig, x )
   El.Copy( lOrig, l )
   startIPF = time.clock()
-  El.LinearProgramIPF(A,b,c,s,x,l)
+  El.QuadraticProgramIPF(Q,A,b,c,s,x,l)
   endIPF = time.clock()
   if worldRank == 0:
     print "IPF time:", endIPF-startIPF
 
   if display:
-    El.Display( x, "s IPF" )
-    El.Display( l, "x IPF" )
-    El.Display( s, "l IPF" )
+    El.Display( s, "s IPF" )
+    El.Display( x, "x IPF" )
+    El.Display( l, "l IPF" )
 
-  obj = El.Dot(c,x)
+  Q_x = El.DistMatrix()
+  El.Zeros( Q_x, n, 1 )
+  El.Gemv( El.NORMAL, 1., Q, x, 0., Q_x )
+  xTQx = El.Dot(x,Q_x)
+  obj = El.Dot(c,x) + xTQx/2
   if worldRank == 0:
-    print "IPF c^T x =", obj
+    print "IPF primal objective =", obj
 
 # Require the user to press a button before the figures are closed
 commSize = El.mpi.Size( El.mpi.COMM_WORLD() )

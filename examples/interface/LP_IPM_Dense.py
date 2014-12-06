@@ -11,6 +11,8 @@ import time
 
 m = 2000
 n = 4000
+testMehrotra = True
+testIPF = True
 display = False
 worldRank = El.mpi.WorldRank()
 
@@ -62,41 +64,43 @@ s = El.DistMatrix()
 x = El.DistMatrix()
 l = El.DistMatrix()
 
-El.Copy( sOrig, s )
-El.Copy( xOrig, x )
-El.Copy( lOrig, l )
-startMehrotra = time.clock()
-El.LinearProgramMehrotra(A,b,c,s,x,l)
-endMehrotra = time.clock()
-if worldRank == 0:
-  print "Mehrotra time:", endMehrotra-startMehrotra
+if testMehrotra:
+  El.Copy( sOrig, s )
+  El.Copy( xOrig, x )
+  El.Copy( lOrig, l )
+  startMehrotra = time.clock()
+  El.LinearProgramMehrotra(A,b,c,s,x,l)
+  endMehrotra = time.clock()
+  if worldRank == 0:
+    print "Mehrotra time:", endMehrotra-startMehrotra
 
-if display:
-  El.Display( s, "s Mehrotra" )
-  El.Display( x, "x Mehrotra" )
-  El.Display( l, "l Mehrotra" )
+  if display:
+    El.Display( s, "s Mehrotra" )
+    El.Display( x, "x Mehrotra" )
+    El.Display( l, "l Mehrotra" )
 
-obj = El.Dot(c,x)
-if worldRank == 0:
-  print "Mehrotra c^T x =", obj
+  obj = El.Dot(c,x)
+  if worldRank == 0:
+    print "Mehrotra c^T x =", obj
 
-El.Copy( sOrig, s )
-El.Copy( xOrig, x )
-El.Copy( lOrig, l )
-startIPF = time.clock()
-El.LinearProgramIPF(A,b,c,s,x,l)
-endIPF = time.clock()
-if worldRank == 0:
-  print "IPF time:", endIPF-startIPF
+if testIPF:
+  El.Copy( sOrig, s )
+  El.Copy( xOrig, x )
+  El.Copy( lOrig, l )
+  startIPF = time.clock()
+  El.LinearProgramIPF(A,b,c,s,x,l)
+  endIPF = time.clock()
+  if worldRank == 0:
+    print "IPF time:", endIPF-startIPF
 
-if display:
-  El.Display( s, "s IPF" )
-  El.Display( x, "x IPF" )
-  El.Display( l, "l IPF" )
+  if display:
+    El.Display( s, "s IPF" )
+    El.Display( x, "x IPF" )
+    El.Display( l, "l IPF" )
 
-obj = El.Dot(c,x)
-if worldRank == 0:
-  print "IPF c^T x =", obj
+  obj = El.Dot(c,x)
+  if worldRank == 0:
+    print "IPF c^T x =", obj
 
 # Require the user to press a button before the figures are closed
 commSize = El.mpi.Size( El.mpi.COMM_WORLD() )

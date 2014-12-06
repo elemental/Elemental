@@ -9,13 +9,12 @@
 import El
 import time
 
-m = 2000
-n = 4000
+m = 10
+n = 12
+testIPF = True
+testMehrotra = True
 display = False
 worldRank = El.mpi.WorldRank()
-if worldRank == 0:
-  print "WARNING: The following routines are still being debugged!"
-  raw_input('Press Enter to proceed')
 
 # Make Q a sparse semidefinite matrix
 def Semidefinite(n):
@@ -86,48 +85,51 @@ x = El.DistMultiVec()
 l = El.DistMultiVec()
 s = El.DistMultiVec()
 
-El.Copy( sOrig, s )
-El.Copy( xOrig, x )
-El.Copy( lOrig, l )
-startMehrotra = time.clock()
-El.QuadraticProgramMehrotra(Q,A,b,c,s,x,l)
-endMehrotra = time.clock()
-if worldRank == 0:
-  print "Mehrotra time:", endMehrotra-startMehrotra
+if testMehrotra:
+  El.Copy( sOrig, s )
+  El.Copy( xOrig, x )
+  El.Copy( lOrig, l )
+  startMehrotra = time.clock()
+  El.QuadraticProgramMehrotra(Q,A,b,c,s,x,l)
+  endMehrotra = time.clock()
+  if worldRank == 0:
+    print "Mehrotra time:", endMehrotra-startMehrotra
 
-if display:
-  El.Display( x, "s Mehotra" )
-  El.Display( l, "x Mehotra" )
-  El.Display( s, "l Mehotra" )
+  if display:
+    El.Display( x, "s Mehotra" )
+    El.Display( l, "x Mehotra" )
+    El.Display( s, "l Mehotra" )
 
-Q_x = El.DistMultiVec()
-El.Zeros( Q_x, n, 1 )
-El.SparseMultiply( El.NORMAL, 1., Q, x, 0., Q_x )
-xTQx = El.Dot(x,Q_x)
-obj = El.Dot(c,x) + xTQx/2
-if worldRank == 0:
-  print "Mehrotra primal objective =", obj
+  Q_x = El.DistMultiVec()
+  El.Zeros( Q_x, n, 1 )
+  El.SparseMultiply( El.NORMAL, 1., Q, x, 0., Q_x )
+  xTQx = El.Dot(x,Q_x)
+  obj = El.Dot(c,x) + xTQx/2
+  if worldRank == 0:
+    print "Mehrotra primal objective =", obj
 
-El.Copy( sOrig, s )
-El.Copy( xOrig, x )
-El.Copy( lOrig, l )
-startIPF = time.clock()
-El.QuadraticProgramIPF(Q,A,b,c,s,x,l)
-endIPF = time.clock()
-if worldRank == 0:
-  print "IPF time:", endIPF-startIPF
+if testIPF:
+  El.Copy( sOrig, s )
+  El.Copy( xOrig, x )
+  El.Copy( lOrig, l )
+  startIPF = time.clock()
+  El.QuadraticProgramIPF(Q,A,b,c,s,x,l)
+  endIPF = time.clock()
+  if worldRank == 0:
+    print "IPF time:", endIPF-startIPF
 
-if display:
-  El.Display( x, "s IPF" )
-  El.Display( l, "x IPF" )
-  El.Display( s, "l IPF" )
+  if display:
+    El.Display( x, "s IPF" )
+    El.Display( l, "x IPF" )
+    El.Display( s, "l IPF" )
 
-El.Zeros( Q_x, n, 1 )
-El.SparseMultiply( El.NORMAL, 1., Q, x, 0., Q_x )
-xTQx = El.Dot(x,Q_x)
-obj = El.Dot(c,x) + xTQx/2
-if worldRank == 0:
-  print "IPF primal objective =", obj
+  Q_x = El.DistMultiVec() 
+  El.Zeros( Q_x, n, 1 )
+  El.SparseMultiply( El.NORMAL, 1., Q, x, 0., Q_x )
+  xTQx = El.Dot(x,Q_x)
+  obj = El.Dot(c,x) + xTQx/2
+  if worldRank == 0:
+    print "IPF primal objective =", obj
 
 # Require the user to press a button before the figures are closed
 commSize = El.mpi.Size( El.mpi.COMM_WORLD() )

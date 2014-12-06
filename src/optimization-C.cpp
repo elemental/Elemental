@@ -156,6 +156,7 @@ extern "C" {
   { EL_TRY( \
       lin_prog::IPFCtrl<Real> ctrl(false); \
       ctrl.print = true; \
+      ctrl.lineSearchCtrl.print = true; \
       lin_prog::IPF( \
       *CReflect(A), *CReflect(b), *CReflect(c), \
       *CReflect(s), *CReflect(x), *CReflect(l), ctrl ) ) } \

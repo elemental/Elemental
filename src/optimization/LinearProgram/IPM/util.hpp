@@ -182,6 +182,7 @@ Real IPFLineSearch
   const Matrix<Real>& b,  const Matrix<Real>& c,
   const Matrix<Real>& s,  const Matrix<Real>& x,  const Matrix<Real>& l,
   const Matrix<Real>& ds, const Matrix<Real>& dx, const Matrix<Real>& dl,
+  Real bTol, Real cTol,
   const IPFLineSearchCtrl<Real>& ctrl );
 template<typename Real>
 Real IPFLineSearch
@@ -191,6 +192,7 @@ Real IPFLineSearch
   const AbstractDistMatrix<Real>& l,
   const AbstractDistMatrix<Real>& ds, const AbstractDistMatrix<Real>& dx,
   const AbstractDistMatrix<Real>& dl,
+  Real bTol, Real cTol,
   const IPFLineSearchCtrl<Real>& ctrl );
 template<typename Real>
 Real IPFLineSearch
@@ -198,6 +200,7 @@ Real IPFLineSearch
   const Matrix<Real>& b,  const Matrix<Real>& c,
   const Matrix<Real>& s,  const Matrix<Real>& x,  const Matrix<Real>& l,
   const Matrix<Real>& ds, const Matrix<Real>& dx, const Matrix<Real>& dl,
+  Real bTol, Real cTol,
   const IPFLineSearchCtrl<Real>& ctrl );
 template<typename Real>
 Real IPFLineSearch
@@ -210,6 +213,7 @@ Real IPFLineSearch
   const DistMultiVec<Real>& ds,
   const DistMultiVec<Real>& dx,
   const DistMultiVec<Real>& dl,
+  Real bTol, Real cTol,
   const IPFLineSearchCtrl<Real>& ctrl );
 
 } // namespace lin_prog

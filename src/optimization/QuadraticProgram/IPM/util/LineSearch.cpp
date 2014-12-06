@@ -17,6 +17,7 @@ Real IPFLineSearch
   const Matrix<Real>& b,  const Matrix<Real>& c,
   const Matrix<Real>& s,  const Matrix<Real>& x,  const Matrix<Real>& l,
   const Matrix<Real>& ds, const Matrix<Real>& dx, const Matrix<Real>& dl,
+  Real bTol, Real cTol,
   const IPFLineSearchCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("quad_prog::IPFLineSearch"))
@@ -118,30 +119,32 @@ Real IPFLineSearch
                 std::cout << "  unbalanced entries" << std::endl;
             continue;
         }
-        // Check || r_b(alpha) ||_2 <= || r_b ||_2 beta mu(alpha) / mu
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        // Check ||r_b(alpha)||_2 <= Max(bTol,||r_b||_2 beta mu(alpha)/mu)
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rb_alpha = rb;
         Axpy( alpha, A_dx, rb_alpha );
         const Real rb_alphaNrm2 = Nrm2( rb_alpha );
-        if( rb_alphaNrm2 > rbNrm2*ctrl.beta*mu_alpha/mu )
+        if( rb_alphaNrm2 > Max(bTol,rbNrm2*ctrl.beta*mu_alpha/mu) )
         {
             if( ctrl.print )
-                std::cout << "  r_b failure: " << rb_alphaNrm2 << " > "
-                          << rbNrm2*ctrl.beta*mu_alpha/mu << std::endl;
+                std::cout << "  r_b failure: " << rb_alphaNrm2 << " > Max("
+                          << bTol << "," << rbNrm2*ctrl.beta*mu_alpha/mu << ")"
+                          << std::endl;
             continue;
         }
-        // Check || r_c(alpha) ||_2 <= || r_c ||_2 beta mu(alpha) / mu
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha)/mu)
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
         Axpy( -alpha, Q_dx,  rc_alpha );
         Axpy(  alpha, AT_dl, rc_alpha );
         Axpy(  alpha, ds,    rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
-        if( rc_alphaNrm2 > rcNrm2*ctrl.beta*mu_alpha/mu )
+        if( rc_alphaNrm2 > Max(cTol,rcNrm2*ctrl.beta*mu_alpha/mu) )
         {
             if( ctrl.print )
-                std::cout << "  r_c failure: " << rc_alphaNrm2 << " > "
-                          << rcNrm2*ctrl.beta*mu_alpha/mu << std::endl;
+                std::cout << "  r_c failure: " << rc_alphaNrm2 << " > Max("
+                          << cTol << "," << rcNrm2*ctrl.beta*mu_alpha/mu << ")"
+                          << std::endl;
         }
         else
             break;
@@ -157,6 +160,7 @@ Real IPFLineSearch
   const AbstractDistMatrix<Real>& l,
   const AbstractDistMatrix<Real>& ds,   const AbstractDistMatrix<Real>& dx, 
   const AbstractDistMatrix<Real>& dl,
+  Real bTol, Real cTol,
   const IPFLineSearchCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("quad_prog::IPFLineSearch"))
@@ -273,30 +277,32 @@ Real IPFLineSearch
                 std::cout << "  unbalanced entries" << std::endl;
             continue;
         }
-        // Check || r_b(alpha) ||_2 <= || r_b ||_2 beta mu(alpha) / mu
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        // Check ||r_b(alpha)||_2 <= Max(bTol,||r_b||_2 beta mu(alpha)/mu)
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rb_alpha = rb;
         Axpy( alpha, A_dx, rb_alpha );
         const Real rb_alphaNrm2 = Nrm2( rb_alpha );
-        if( rb_alphaNrm2 > rbNrm2*ctrl.beta*mu_alpha/mu )
+        if( rb_alphaNrm2 > Max(bTol,rbNrm2*ctrl.beta*mu_alpha/mu) )
         {
             if( ctrl.print && commRank == 0 )
-                std::cout << "  r_b failure: " << rb_alphaNrm2 << " > "
-                          << rbNrm2*ctrl.beta*mu_alpha/mu << std::endl;
+                std::cout << "  r_b failure: " << rb_alphaNrm2 << " > Max("
+                          << bTol << "," << rbNrm2*ctrl.beta*mu_alpha/mu << ")"
+                          << std::endl;
             continue;
         }
-        // Check || r_c(alpha) ||_2 <= || r_c ||_2 beta mu(alpha) / mu
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha)/mu)
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
         Axpy( -alpha, Q_dx,  rc_alpha );
         Axpy(  alpha, AT_dl, rc_alpha );
         Axpy(  alpha, ds,    rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
-        if( rc_alphaNrm2 > rcNrm2*ctrl.beta*mu_alpha/mu )
+        if( rc_alphaNrm2 > Max(cTol,rcNrm2*ctrl.beta*mu_alpha/mu) )
         {
             if( ctrl.print && commRank == 0 )
-                std::cout << "  r_c failure: " << rc_alphaNrm2 << " > "
-                          << rcNrm2*ctrl.beta*mu_alpha/mu << std::endl;
+                std::cout << "  r_c failure: " << rc_alphaNrm2 << " > Max("
+                          << cTol << "," << rcNrm2*ctrl.beta*mu_alpha/mu << ")"
+                          << std::endl;
         }
         else
             break;
@@ -310,6 +316,7 @@ Real IPFLineSearch
   const Matrix<Real>& b,  const Matrix<Real>& c,
   const Matrix<Real>& s,  const Matrix<Real>& x,  const Matrix<Real>& l,
   const Matrix<Real>& ds, const Matrix<Real>& dx, const Matrix<Real>& dl,
+  Real bTol, Real cTol,
   const IPFLineSearchCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("quad_prog::IPFLineSearch"))
@@ -412,30 +419,32 @@ Real IPFLineSearch
                 std::cout << "  unbalanced entries" << std::endl;
             continue;
         }
-        // Check || r_b(alpha) ||_2 <= || r_b ||_2 beta mu(alpha) / mu
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        // Check ||r_b(alpha)||_2 <= Max(bTol,||r_b||_2 beta mu(alpha)/mu)
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rb_alpha = rb;
         Axpy( alpha, A_dx, rb_alpha );
         const Real rb_alphaNrm2 = Nrm2( rb_alpha );
-        if( rb_alphaNrm2 > rbNrm2*ctrl.beta*mu_alpha/mu )
+        if( rb_alphaNrm2 > Max(bTol,rbNrm2*ctrl.beta*mu_alpha/mu) )
         {
             if( ctrl.print )
-                std::cout << "  r_b failure: " << rb_alphaNrm2 << " > "
-                          << rbNrm2*ctrl.beta*mu_alpha/mu << std::endl;
+                std::cout << "  r_b failure: " << rb_alphaNrm2 << " > Max("
+                          << bTol << "," << rbNrm2*ctrl.beta*mu_alpha/mu << ")"
+                          << std::endl;
             continue;
         }
-        // Check || r_c(alpha) ||_2 <= || r_c ||_2 beta mu(alpha) / mu
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha)/mu)
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
         Axpy( -alpha, Q_dx,  rc_alpha );
         Axpy(  alpha, AT_dl, rc_alpha );
         Axpy(  alpha, ds,    rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
-        if( rc_alphaNrm2 > rcNrm2*ctrl.beta*mu_alpha/mu )
+        if( rc_alphaNrm2 > Max(cTol,rcNrm2*ctrl.beta*mu_alpha/mu) )
         {
             if( ctrl.print )
-                std::cout << "  r_c failure: " << rc_alphaNrm2 << " > "
-                          << rcNrm2*ctrl.beta*mu_alpha/mu << std::endl;
+                std::cout << "  r_c failure: " << rc_alphaNrm2 << " > Max("
+                          << cTol << "," << rcNrm2*ctrl.beta*mu_alpha/mu << ")"
+                          << std::endl;
         }
         else
             break;
@@ -455,6 +464,7 @@ Real IPFLineSearch
   const DistMultiVec<Real>& ds, 
   const DistMultiVec<Real>& dx, 
   const DistMultiVec<Real>& dl,
+  Real bTol, Real cTol,
   const IPFLineSearchCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("quad_prog::IPFLineSearch"))
@@ -565,30 +575,32 @@ Real IPFLineSearch
                 std::cout << "  unbalanced entries" << std::endl;
             continue;
         }
-        // Check || r_b(alpha) ||_2 <= || r_b ||_2 beta mu(alpha) / mu
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        // Check ||r_b(alpha)||_2 <= Max(bTol,||r_b||_2 beta mu(alpha)/mu)
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rb_alpha = rb;
         Axpy( alpha, A_dx, rb_alpha );
         const Real rb_alphaNrm2 = Nrm2( rb_alpha );
-        if( rb_alphaNrm2 > rbNrm2*ctrl.beta*mu_alpha/mu )
+        if( rb_alphaNrm2 > Max(bTol,rbNrm2*ctrl.beta*mu_alpha/mu) )
         {
             if( ctrl.print && commRank == 0 )
-                std::cout << "  r_b failure: " << rb_alphaNrm2 << " > "
-                          << rbNrm2*ctrl.beta*mu_alpha/mu << std::endl;
+                std::cout << "  r_b failure: " << rb_alphaNrm2 << " > Max("
+                          << bTol << "," << rbNrm2*ctrl.beta*mu_alpha/mu << ")"
+                          << std::endl;
             continue;
         }
-        // Check || r_c(alpha) ||_2 <= || r_c ||_2 beta mu(alpha) / mu
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha)/mu)
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
         Axpy( -alpha, Q_dx,  rc_alpha );
         Axpy(  alpha, AT_dl, rc_alpha );
         Axpy(  alpha, ds,    rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
-        if( rc_alphaNrm2 > rcNrm2*ctrl.beta*mu_alpha/mu )
+        if( rc_alphaNrm2 > Max(cTol,rcNrm2*ctrl.beta*mu_alpha/mu) )
         {
             if( ctrl.print && commRank == 0 )
-                std::cout << "  r_c failure: " << rc_alphaNrm2 << " > "
-                          << rcNrm2*ctrl.beta*mu_alpha/mu << std::endl;
+                std::cout << "  r_c failure: " << rc_alphaNrm2 << " > Max("
+                          << cTol << "," << rcNrm2*ctrl.beta*mu_alpha/mu << ")"
+                          << std::endl;
         }
         else
             break;
@@ -602,6 +614,7 @@ Real IPFLineSearch
     const Matrix<Real>& b,  const Matrix<Real>& c, \
     const Matrix<Real>& s,  const Matrix<Real>& x,  const Matrix<Real>& l, \
     const Matrix<Real>& ds, const Matrix<Real>& dx, const Matrix<Real>& dl, \
+    Real bTol, Real cTol, \
     const IPFLineSearchCtrl<Real>& ctrl ); \
   template Real IPFLineSearch \
   ( const AbstractDistMatrix<Real>& Q,  const AbstractDistMatrix<Real>& A, \
@@ -610,12 +623,14 @@ Real IPFLineSearch
     const AbstractDistMatrix<Real>& l, \
     const AbstractDistMatrix<Real>& ds, const AbstractDistMatrix<Real>& dx, \
     const AbstractDistMatrix<Real>& dl, \
+    Real bTol, Real cTol, \
     const IPFLineSearchCtrl<Real>& ctrl ); \
   template Real IPFLineSearch \
   ( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A, \
     const Matrix<Real>& b,  const Matrix<Real>& c, \
     const Matrix<Real>& s,  const Matrix<Real>& x,  const Matrix<Real>& l, \
     const Matrix<Real>& ds, const Matrix<Real>& dx, const Matrix<Real>& dl, \
+    Real bTol, Real cTol, \
     const IPFLineSearchCtrl<Real>& ctrl ); \
   template Real IPFLineSearch \
   ( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A, \
@@ -624,6 +639,7 @@ Real IPFLineSearch
     const DistMultiVec<Real>& l, \
     const DistMultiVec<Real>& ds, const DistMultiVec<Real>& dx, \
     const DistMultiVec<Real>& dl, \
+    Real bTol, Real cTol, \
     const IPFLineSearchCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
