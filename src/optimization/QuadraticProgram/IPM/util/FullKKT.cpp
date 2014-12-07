@@ -11,14 +11,14 @@
 namespace El {
 namespace quad_prog {
 
-//     | X  S 0   |
-// J = | I -Q A^T |, with the variable ordering (s,x,l)
+//     | X  Z 0   |
+// J = | I -Q A^T |, with the variable ordering (z,x,y)
 //     | 0  A 0   |
 
 template<typename Real>
 void KKT
 ( const Matrix<Real>& Q, const Matrix<Real>& A, 
-  const Matrix<Real>& s, const Matrix<Real>& x,
+  const Matrix<Real>& x, const Matrix<Real>& z,
         Matrix<Real>& J )
 {
     DEBUG_ONLY(CallStackEntry cse("quad_prog::KKT"))
@@ -26,23 +26,23 @@ void KKT
     const Int n = A.Width();
 
     Zeros( J, 2*n+m, 2*n+m );
-    const IR sInd(0,n), xInd(n,2*n), lInd(2*n,2*n+m);
-    auto Jss = J(sInd,sInd); auto Jsx = J(sInd,xInd); auto Jsl = J(sInd,lInd);
-    auto Jxs = J(xInd,sInd); auto Jxx = J(xInd,xInd); auto Jxl = J(xInd,lInd);
-    auto Jls = J(lInd,sInd); auto Jlx = J(lInd,xInd); auto Jll = J(lInd,lInd);
-    Diagonal( Jss, x );
-    Diagonal( Jsx, s );
-    Identity( Jxs, n, n );
+    const IR zInd(0,n), xInd(n,2*n), yInd(2*n,2*n+m);
+    auto Jzz = J(zInd,zInd); auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd);
+    auto Jxz = J(xInd,zInd); auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd);
+    auto Jyz = J(yInd,zInd); auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd);
+    Diagonal( Jzz, x );
+    Diagonal( Jzx, z );
+    Identity( Jxz, n, n );
     Jxx = Q;
     Scale( Real(-1), Jxx );
-    Transpose( A, Jxl ); 
-    Jlx = A;
+    Transpose( A, Jxy ); 
+    Jyx = A;
 }
 
 template<typename Real>
 void KKT
 ( const AbstractDistMatrix<Real>& Q,    const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& sPre, const AbstractDistMatrix<Real>& xPre,
+  const AbstractDistMatrix<Real>& xPre, const AbstractDistMatrix<Real>& zPre,
   AbstractDistMatrix<Real>& JPre )
 {
     DEBUG_ONLY(CallStackEntry cse("quad_prog::KKT"))
@@ -50,132 +50,132 @@ void KKT
     const Int n = A.Width();
 
     auto xPtr = ReadProxy<Real,STAR,STAR>(&xPre); auto& x = *xPtr;
-    auto sPtr = ReadProxy<Real,STAR,STAR>(&sPre); auto& s = *sPtr;
+    auto zPtr = ReadProxy<Real,STAR,STAR>(&zPre); auto& z = *zPtr;
     auto JPtr = WriteProxy<Real,MC,MR>(&JPre); auto& J = *JPtr;
 
     Zeros( J, 2*n+m, 2*n+m );
-    IR sInd(0,n), xInd(n,2*n), lInd(2*n,2*n+m);
-    auto Jss = J(sInd,sInd); auto Jsx = J(sInd,xInd); auto Jsl = J(sInd,lInd);
-    auto Jxs = J(xInd,sInd); auto Jxx = J(xInd,xInd); auto Jxl = J(xInd,lInd);
-    auto Jls = J(lInd,sInd); auto Jlx = J(lInd,xInd); auto Jll = J(lInd,lInd);
-    Diagonal( Jss, x.LockedMatrix() );
-    Diagonal( Jsx, s.LockedMatrix() );
-    Identity( Jxs, n, n );
+    IR zInd(0,n), xInd(n,2*n), yInd(2*n,2*n+m);
+    auto Jzz = J(zInd,zInd); auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd);
+    auto Jxz = J(xInd,zInd); auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd);
+    auto Jyz = J(yInd,zInd); auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd);
+    Diagonal( Jzz, x.LockedMatrix() );
+    Diagonal( Jzx, z.LockedMatrix() );
+    Identity( Jxz, n, n );
     Jxx = Q;
     Scale( Real(-1), Jxx );
-    Transpose( A, Jxl );
-    Jlx = A;
+    Transpose( A, Jxy );
+    Jyx = A;
 }
 
 template<typename Real>
 void KKTRHS
 ( const Matrix<Real>& rmu, const Matrix<Real>& rc, const Matrix<Real>& rb,
-  Matrix<Real>& y )
+  Matrix<Real>& rhs )
 {
     DEBUG_ONLY(CallStackEntry cse("quad_prog::KKTRHS"))
     const Int m = rb.Height();
     const Int n = rc.Height();
-    const IR sInd(0,n), xInd(n,2*n), lInd(2*n,2*n+m);
-    Zeros( y, 2*n+m, 1 );
+    const IR zInd(0,n), xInd(n,2*n), yInd(2*n,2*n+m);
+    Zeros( rhs, 2*n+m, 1 );
 
-    auto ys = y(sInd,IR(0,1));
-    ys = rmu;
-    Scale( Real(-1), ys );
+    auto rhs_z = rhs(zInd,IR(0,1));
+    rhs_z = rmu;
+    Scale( Real(-1), rhs_z );
 
-    auto yx = y(xInd,IR(0,1));
-    yx = rc;
-    Scale( Real(-1), yx );
+    auto rhs_x = rhs(xInd,IR(0,1));
+    rhs_x = rc;
+    Scale( Real(-1), rhs_x );
 
-    auto yl = y(lInd,IR(0,1));
-    yl = rb;
-    Scale( Real(-1), yl );
+    auto rhs_y = rhs(yInd,IR(0,1));
+    rhs_y = rb;
+    Scale( Real(-1), rhs_y );
 }
 
 template<typename Real>
 void KKTRHS
 ( const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& rc, 
-  const AbstractDistMatrix<Real>& rb, AbstractDistMatrix<Real>& yPre )
+  const AbstractDistMatrix<Real>& rb, AbstractDistMatrix<Real>& rhsPre )
 {
     DEBUG_ONLY(CallStackEntry cse("quad_prog::KKTRHS"))
 
-    auto yPtr = WriteProxy<Real,MC,MR>(&yPre); 
-    auto& y = *yPtr;
+    auto rhsPtr = WriteProxy<Real,MC,MR>(&rhsPre); 
+    auto& rhs = *rhsPtr;
 
     const Int m = rb.Height();
     const Int n = rc.Height();
-    const IR sInd(0,n), xInd(n,2*n), lInd(2*n,2*n+m);
-    Zeros( y, 2*n+m, 1 );
+    const IR zInd(0,n), xInd(n,2*n), yInd(2*n,2*n+m);
+    Zeros( rhs, 2*n+m, 1 );
 
-    auto ys = y(sInd,IR(0,1));
-    Copy( rmu, ys );
-    Scale( Real(-1), ys );
+    auto rhs_z = rhs(zInd,IR(0,1));
+    Copy( rmu, rhs_z );
+    Scale( Real(-1), rhs_z );
 
-    auto yx = y(xInd,IR(0,1));
-    Copy( rc, yx );
-    Scale( Real(-1), yx );
+    auto rhs_x = rhs(xInd,IR(0,1));
+    Copy( rc, rhs_x );
+    Scale( Real(-1), rhs_x );
 
-    auto yl = y(lInd,IR(0,1));
-    Copy( rb, yl );
-    Scale( Real(-1), yl );
+    auto rhs_y = rhs(yInd,IR(0,1));
+    Copy( rb, rhs_y );
+    Scale( Real(-1), rhs_y );
 }
 
 template<typename Real>
 void ExpandKKTSolution
-( Int m, Int n, const Matrix<Real>& y, 
-  Matrix<Real>& ds, Matrix<Real>& dx, Matrix<Real>& dl )
+( Int m, Int n, const Matrix<Real>& rhs, 
+  Matrix<Real>& dx, Matrix<Real>& dy, Matrix<Real>& dz )
 {
     DEBUG_ONLY(CallStackEntry cse("quad_prog::ExpandKKTSolution"))
-    if( y.Height() != 2*n+m || y.Width() != 1 )
+    if( rhs.Height() != 2*n+m || rhs.Width() != 1 )
         LogicError("Right-hand side was the wrong size");
 
-    const IR sInd(0,n), xInd(n,2*n), lInd(2*n,2*n+m);    
-    ds = y(sInd,IR(0,1));
-    dx = y(xInd,IR(0,1));
-    dl = y(lInd,IR(0,1));
+    const IR zInd(0,n), xInd(n,2*n), yInd(2*n,2*n+m);    
+    dz = rhs(zInd,IR(0,1));
+    dx = rhs(xInd,IR(0,1));
+    dy = rhs(yInd,IR(0,1));
 }
 
 template<typename Real>
 void ExpandKKTSolution
-( Int m, Int n, const AbstractDistMatrix<Real>& yPre, 
-  AbstractDistMatrix<Real>& ds, AbstractDistMatrix<Real>& dx, 
-  AbstractDistMatrix<Real>& dl )
+( Int m, Int n, const AbstractDistMatrix<Real>& rhsPre, 
+  AbstractDistMatrix<Real>& dx, AbstractDistMatrix<Real>& dy, 
+  AbstractDistMatrix<Real>& dz )
 {
     DEBUG_ONLY(CallStackEntry cse("quad_prog::ExpandKKTSolution"))
     
-    auto yPtr = ReadProxy<Real,MC,MR>(&yPre);    
-    auto& y = *yPtr;
+    auto rhsPtr = ReadProxy<Real,MC,MR>(&rhsPre);    
+    auto& rhs = *rhsPtr;
 
-    if( y.Height() != 2*n+m || y.Width() != 1 )
+    if( rhs.Height() != 2*n+m || rhs.Width() != 1 )
         LogicError("Right-hand side was the wrong size");
 
-    const IR sInd(0,n), xInd(n,2*n), lInd(2*n,2*n+m);    
-    Copy( y(sInd,IR(0,1)), ds );
-    Copy( y(xInd,IR(0,1)), dx );
-    Copy( y(lInd,IR(0,1)), dl );
+    const IR zInd(0,n), xInd(n,2*n), yInd(2*n,2*n+m);    
+    Copy( rhs(zInd,IR(0,1)), dz );
+    Copy( rhs(xInd,IR(0,1)), dx );
+    Copy( rhs(yInd,IR(0,1)), dy );
 }
 
 #define PROTO(Real) \
   template void KKT \
   ( const Matrix<Real>& Q, const Matrix<Real>& A, \
-    const Matrix<Real>& s, const Matrix<Real>& x, \
+    const Matrix<Real>& x, const Matrix<Real>& z, \
     Matrix<Real>& J ); \
   template void KKT \
   ( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& x, \
+    const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z, \
     AbstractDistMatrix<Real>& J ); \
   template void KKTRHS \
   ( const Matrix<Real>& rmu, const Matrix<Real>& rc, \
-    const Matrix<Real>& rb, Matrix<Real>& y ); \
+    const Matrix<Real>& rb, Matrix<Real>& rhs ); \
   template void KKTRHS \
   ( const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& rc, \
-    const AbstractDistMatrix<Real>& rb, AbstractDistMatrix<Real>& y ); \
+    const AbstractDistMatrix<Real>& rb, AbstractDistMatrix<Real>& rhs ); \
   template void ExpandKKTSolution \
-  ( Int m, Int n, const Matrix<Real>& yPre, \
-    Matrix<Real>& ds, Matrix<Real>& dx, Matrix<Real>& dl ); \
+  ( Int m, Int n, const Matrix<Real>& rhs, \
+    Matrix<Real>& dx, Matrix<Real>& dy, Matrix<Real>& dz ); \
   template void ExpandKKTSolution \
-  ( Int m, Int n, const AbstractDistMatrix<Real>& yPre, \
-    AbstractDistMatrix<Real>& ds, AbstractDistMatrix<Real>& dx, \
-    AbstractDistMatrix<Real>& dl );
+  ( Int m, Int n, const AbstractDistMatrix<Real>& rhs, \
+    AbstractDistMatrix<Real>& dx, AbstractDistMatrix<Real>& dy, \
+    AbstractDistMatrix<Real>& dz );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

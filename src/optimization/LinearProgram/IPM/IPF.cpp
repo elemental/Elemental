@@ -12,44 +12,61 @@
 namespace El {
 namespace lin_prog {
 
+// The following solves a linear program in reduced conic form:
+//   min c^T x
+//   s.t. x >= 0,
+//        A x = b.
+//
+// Standard conic form would instead be of the form
+//   min c^T x
+//   s.t. G x + s = h,
+//        A x = b,
+//        s >= 0,
+// or, equivalently,
+//   min c^T x 
+//   s.t. G x <= h,
+//        A x = b.
+//
 template<typename Real>
 void IPF
 ( const Matrix<Real>& A, 
   const Matrix<Real>& b,  const Matrix<Real>& c,
-  Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
+  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
 
     const Int m = A.Height();
     const Int n = A.Width();
-    Matrix<Real> J, y, rmu, rb, rc, ds, dx, dl;
+    Matrix<Real> J, rhs, 
+                 rmu, rb, rc, 
+                 dx, dy, dz;
 #ifndef EL_RELEASE
-    Matrix<Real> dsError, dxError, dlError;
+    Matrix<Real> dxError, dyError, dzError;
 #endif
     for( Int numIts=0; ; ++numIts )
     {
-        // Check that no entries of x or s are non-positive
+        // Check that no entries of x or z are non-positive
         // ================================================
         Int numNonPos_x = 0;
         for( Int i=0; i<x.Height(); ++i )
             if( x.Get(i,0) <= Real(0) )
                 ++numNonPos_x;
-        Int numNonPos_s = 0;
-        for( Int i=0; i<s.Height(); ++i )
-            if( s.Get(i,0) <= Real(0) )
-                ++numNonPos_s;
-        if( numNonPos_x > 0 || numNonPos_s > 0 )
+        Int numNonPos_z = 0;
+        for( Int i=0; i<z.Height(); ++i )
+            if( z.Get(i,0) <= Real(0) )
+                ++numNonPos_z;
+        if( numNonPos_x > 0 || numNonPos_z > 0 )
             LogicError
             (numNonPos_x," entries of x were nonpositive and ",
-             numNonPos_s," entries of s were nonpositive");
+             numNonPos_z," entries of z were nonpositive");
 
         // Check for convergence
         // =====================
-        // |c^T x - b^T l| / (1 + |c^T x|) <= tol ?
+        // |c^T x - b^T y| / (1 + |c^T x|) <= tol ?
         // ----------------------------------------
         const Real primObj = Dot(c,x);
-        const Real dualObj = Dot(b,l); 
+        const Real dualObj = Dot(b,y); 
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -62,8 +79,8 @@ void IPF
         // --------------------------------------
         const Real cNrm2 = Nrm2( c );
         rc = c;
-        Gemv( TRANSPOSE, Real(1), A, l, Real(-1), rc );
-        Axpy( Real(1), s, rc );
+        Gemv( TRANSPOSE, Real(1), A, y, Real(-1), rc );
+        Axpy( Real(1), z, rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
@@ -72,7 +89,7 @@ void IPF
             break;
         else if( ctrl.print )
             std::cout << " iter " << numIts << ":\n"
-                      << "  |c^T x - b^T l| / (1 + |c^T x|) = "
+                      << "  |c^T x - b^T y| / (1 + |c^T x|) = "
                       << objConv << "\n"
                       << "  || r_b ||_2 / (1 + || b ||_2)   = "
                       << rbConv << "\n"
@@ -85,97 +102,97 @@ void IPF
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // Compute the duality measure and r_mu = X S e - tau e
+        // Compute the duality measure and r_mu = X Z e - tau e
         // ====================================================
-        const Real mu = Dot(x,s) / n;
+        const Real mu = Dot(x,z) / n;
         rmu.Resize( n, 1 );
         for( Int i=0; i<n; ++i )
-            rmu.Set( i, 0, x.Get(i,0)*s.Get(i,0) - ctrl.centering*mu );
+            rmu.Set( i, 0, x.Get(i,0)*z.Get(i,0) - ctrl.centering*mu );
 
         if( ctrl.system == FULL_KKT )
         {
             // Construct the full KKT system
             // =============================
-            KKT( A, s, x, J );
-            KKTRHS( rmu, rc, rb, y );
+            KKT( A, x, z, J );
+            KKTRHS( rmu, rc, rb, rhs );
 
             // Compute the proposed step from the KKT system
             // =============================================
-            GaussianElimination( J, y );
-            ExpandKKTSolution( m, n, y, ds, dx, dl );
+            GaussianElimination( J, rhs );
+            ExpandKKTSolution( m, n, rhs, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
         {
             // Construct the reduced KKT system
             // ================================
-            AugmentedKKT( A, s, x, J );
-            AugmentedKKTRHS( x, rmu, rc, rb, y );
+            AugmentedKKT( A, x, z, J );
+            AugmentedKKTRHS( x, rmu, rc, rb, rhs );
 
             // Compute the proposed step from the KKT system
             // =============================================
-            SymmetricSolve( LOWER, NORMAL, J, y );
-            ExpandAugmentedSolution( s, x, rmu, y, ds, dx, dl );
+            SymmetricSolve( LOWER, NORMAL, J, rhs );
+            ExpandAugmentedSolution( x, z, rmu, rhs, dx, dy, dz );
         }
         else if( ctrl.system == NORMAL_KKT )
         {
             // Construct the reduced KKT system
             // ================================
-            NormalKKT( A, s, x, J );
-            NormalKKTRHS( A, s, x, rmu, rc, rb, dl );
+            NormalKKT( A, x, z, J );
+            NormalKKTRHS( A, x, z, rmu, rc, rb, dy );
 
             // Compute the proposed step from the KKT system
             // =============================================
-            SymmetricSolve( LOWER, NORMAL, J, dl );
-            ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
+            SymmetricSolve( LOWER, NORMAL, J, dy );
+            ExpandNormalSolution( A, c, x, z, rmu, rc, dx, dy, dz );
         }
 
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
         const Real rmuNrm2 = Nrm2( rmu );
-        dsError = rmu;
+        dzError = rmu;
         for( Int i=0; i<n; ++i )
         {
             const Real xi = x.Get(i,0);
-            const Real si = s.Get(i,0);
+            const Real zi = z.Get(i,0);
             const Real dxi = dx.Get(i,0);
-            const Real dsi = ds.Get(i,0);
-            dsError.Update( i, 0, xi*dsi + si*dxi );
+            const Real dzi = dz.Get(i,0);
+            dzError.Update( i, 0, xi*dzi + zi*dxi );
         }
-        const Real dsErrorNrm2 = Nrm2( dsError );
+        const Real dzErrorNrm2 = Nrm2( dzError );
 
-        dlError = ds;
-        Gemv( TRANSPOSE, Real(1), A, dl, Real(1), dlError );
-        Axpy( Real(1), rc, dlError );
-        const Real dlErrorNrm2 = Nrm2( dlError );
+        dyError = dz;
+        Gemv( TRANSPOSE, Real(1), A, dy, Real(1), dyError );
+        Axpy( Real(1), rc, dyError );
+        const Real dyErrorNrm2 = Nrm2( dyError );
 
         dxError = rb;
         Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
         const Real dxErrorNrm2 = Nrm2( dxError );
 
         if( ctrl.print )
-            std::cout << "  || dsError ||_2 / (1 + || r_mu ||_2) = " 
-                      << dsErrorNrm2/(1+rmuNrm2) << "\n"
-                      << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
+            std::cout << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
                       << dxErrorNrm2/(1+rbNrm2) << "\n"
-                      << "  || dlError ||_2 / (1 + || r_c ||_2) = " 
-                      << dlErrorNrm2/(1+rcNrm2) << std::endl;
+                      << "  || dyError ||_2 / (1 + || r_c ||_2) = " 
+                      << dyErrorNrm2/(1+rcNrm2) << "\n"
+                      << "  || dzError ||_2 / (1 + || r_mu ||_2) = " 
+                      << dzErrorNrm2/(1+rmuNrm2) << std::endl;
 #endif
 
         // Decide on the step length
         // =========================
         const Real alpha =
           IPFLineSearch
-          ( A, b, c, s, x, l, ds, dx, dl, 
+          ( A, b, c, x, y, z, dx, dy, dz, 
            ctrl.tol*(1+bNrm2), ctrl.tol*(1+cNrm2), ctrl.lineSearchCtrl );
         if( ctrl.print )
             std::cout << "  alpha = " << alpha << std::endl;
 
         // Update the state by stepping a distance of alpha
         // ================================================
-        Axpy( alpha, ds, s );
         Axpy( alpha, dx, x );
-        Axpy( alpha, dl, l );
+        Axpy( alpha, dy, y );
+        Axpy( alpha, dz, z );
     }
 }
 
@@ -183,8 +200,8 @@ template<typename Real>
 void IPF
 ( const AbstractDistMatrix<Real>& APre, 
   const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c,
-  AbstractDistMatrix<Real>& sPre, AbstractDistMatrix<Real>& xPre, 
-  AbstractDistMatrix<Real>& l, const IPFCtrl<Real>& ctrl )
+  AbstractDistMatrix<Real>& xPre, AbstractDistMatrix<Real>& y, 
+  AbstractDistMatrix<Real>& zPre, const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
 
@@ -194,25 +211,26 @@ void IPF
     proxCtrl.colAlign = 0;
     proxCtrl.rowAlign = 0;
     auto APtr = ReadProxy<Real,MC,MR>(&APre,proxCtrl);      auto& A = *APtr;
-    auto sPtr = ReadWriteProxy<Real,MC,MR>(&sPre,proxCtrl); auto& s = *sPtr;
     auto xPtr = ReadWriteProxy<Real,MC,MR>(&xPre,proxCtrl); auto& x = *xPtr;
+    auto zPtr = ReadWriteProxy<Real,MC,MR>(&zPre,proxCtrl); auto& z = *zPtr;
 
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& grid = A.Grid();
     const Int commRank = A.Grid().Rank();
 
-    DistMatrix<Real> J(grid), y(grid), rmu(grid), rb(grid), rc(grid), 
-                     ds(grid), dx(grid), dl(grid);
-    ds.AlignWith( x );
+    DistMatrix<Real> J(grid), rhs(grid), 
+                     rmu(grid), rb(grid), rc(grid), 
+                     dx(grid), dy(grid), dz(grid);
     dx.AlignWith( x );
+    dz.AlignWith( x );
 #ifndef EL_RELEASE
-    DistMatrix<Real> dsError(grid), dxError(grid), dlError(grid);
-    dsError.AlignWith( ds );
+    DistMatrix<Real> dxError(grid), dyError(grid), dzError(grid);
+    dzError.AlignWith( dz );
 #endif
     for( Int numIts=0; ; ++numIts )
     {
-        // Check that no entries of x or s are non-positive
+        // Check that no entries of x or z are non-positive
         // ================================================
         Int numNonPos_x = 0;
         if( x.IsLocalCol(0) )
@@ -220,23 +238,23 @@ void IPF
                 if( x.GetLocal(iLoc,0) <= Real(0) )
                     ++numNonPos_x;
         numNonPos_x = mpi::AllReduce( numNonPos_x, x.DistComm() );
-        Int numNonPos_s = 0;
-        if( s.IsLocalCol(0) )
-            for( Int iLoc=0; iLoc<s.LocalHeight(); ++iLoc )
-                if( s.GetLocal(iLoc,0) <= Real(0) )
-                    ++numNonPos_s;
-        numNonPos_s = mpi::AllReduce( numNonPos_s, s.DistComm() );
-        if( numNonPos_x > 0 || numNonPos_s > 0 )
+        Int numNonPos_z = 0;
+        if( z.IsLocalCol(0) )
+            for( Int iLoc=0; iLoc<z.LocalHeight(); ++iLoc )
+                if( z.GetLocal(iLoc,0) <= Real(0) )
+                    ++numNonPos_z;
+        numNonPos_z = mpi::AllReduce( numNonPos_z, z.DistComm() );
+        if( numNonPos_x > 0 || numNonPos_z > 0 )
             LogicError
             (numNonPos_x," entries of x were nonpositive and ",
-             numNonPos_s," entries of s were nonpositive");
+             numNonPos_z," entries of z were nonpositive");
 
         // Check for convergence
         // =====================
-        // |c^T x - b^T l| / (1 + |c^T x|) <= tol ?
+        // |c^T x - b^T y| / (1 + |c^T x|) <= tol ?
         // ----------------------------------------
         const Real primObj = Dot(c,x);
-        const Real dualObj = Dot(b,l);
+        const Real dualObj = Dot(b,y);
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -249,8 +267,8 @@ void IPF
         // --------------------------------------
         const Real cNrm2 = Nrm2( c );
         rc = c;
-        Gemv( TRANSPOSE, Real(1), A, l, Real(-1), rc );
-        Axpy( Real(1), s, rc );
+        Gemv( TRANSPOSE, Real(1), A, y, Real(-1), rc );
+        Axpy( Real(1), z, rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
@@ -259,7 +277,7 @@ void IPF
             break;
         else if( ctrl.print && commRank == 0 )
             std::cout << " iter " << numIts << ":\n"
-                      << "  |c^T x - b^T l| / (1 + |c^T x|) = "
+                      << "  |c^T x - b^T y| / (1 + |c^T x|) = "
                       << objConv << "\n"
                       << "  || r_b ||_2 / (1 + || b ||_2)   = "
                       << rbConv << "\n"
@@ -272,51 +290,51 @@ void IPF
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // Compute the duality measure and r_mu = X S e - tau e
+        // Compute the duality measure and r_mu = X Z e - tau e
         // ====================================================
-        const Real mu = Dot(x,s) / n;
+        const Real mu = Dot(x,z) / n;
         rmu.Resize( n, 1 );
         if( rmu.IsLocalCol(0) )
             for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
                 rmu.SetLocal
                 ( iLoc, 0, 
-                  x.GetLocal(iLoc,0)*s.GetLocal(iLoc,0) - ctrl.centering*mu );
+                  x.GetLocal(iLoc,0)*z.GetLocal(iLoc,0) - ctrl.centering*mu );
 
         if( ctrl.system == FULL_KKT )
         {
             // Construct the full KKT system
             // =============================
-            KKT( A, s, x, J );
-            KKTRHS( rmu, rc, rb, y );
+            KKT( A, x, z, J );
+            KKTRHS( rmu, rc, rb, rhs );
 
             // Compute the proposed step from the KKT system
             // =============================================
-            GaussianElimination( J, y );
-            ExpandKKTSolution( m, n, y, ds, dx, dl );
+            GaussianElimination( J, rhs );
+            ExpandKKTSolution( m, n, rhs, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
         {
             // Construct the reduced KKT system
             // ================================
-            AugmentedKKT( A, s, x, J );
-            AugmentedKKTRHS( x, rmu, rc, rb, y );
+            AugmentedKKT( A, x, z, J );
+            AugmentedKKTRHS( x, rmu, rc, rb, rhs );
 
             // Compute the proposed step from the KKT system
             // =============================================
-            SymmetricSolve( LOWER, NORMAL, J, y );
-            ExpandAugmentedSolution( s, x, rmu, y, ds, dx, dl );
+            SymmetricSolve( LOWER, NORMAL, J, rhs );
+            ExpandAugmentedSolution( x, z, rmu, rhs, dx, dy, dz );
         }
         else if( ctrl.system == NORMAL_KKT )
         {
             // Construct the reduced KKT system
             // ================================
-            NormalKKT( A, s, x, J );
-            NormalKKTRHS( A, s, x, rmu, rc, rb, dl );
+            NormalKKT( A, x, z, J );
+            NormalKKTRHS( A, x, z, rmu, rc, rb, dy );
 
             // Compute the proposed step from the KKT system
             // =============================================
-            SymmetricSolve( LOWER, NORMAL, J, dl );
-            ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
+            SymmetricSolve( LOWER, NORMAL, J, dy );
+            ExpandNormalSolution( A, c, x, z, rmu, rc, dx, dy, dz );
         }
 
 #ifndef EL_RELEASE
@@ -324,52 +342,52 @@ void IPF
         // =============
         const Real rmuNrm2 = Nrm2( rmu );
         // TODO: Find a more convenient syntax for expressing this operation
-        dsError = rmu;
-        if( dsError.IsLocalCol(0) )
+        dzError = rmu;
+        if( dzError.IsLocalCol(0) )
         {
-            for( Int iLoc=0; iLoc<dsError.LocalHeight(); ++iLoc )
+            for( Int iLoc=0; iLoc<dzError.LocalHeight(); ++iLoc )
             {
                 const Real xi = x.GetLocal(iLoc,0);
-                const Real si = s.GetLocal(iLoc,0);
+                const Real zi = z.GetLocal(iLoc,0);
                 const Real dxi = dx.GetLocal(iLoc,0);
-                const Real dsi = ds.GetLocal(iLoc,0);
-                dsError.UpdateLocal( iLoc, 0, xi*dsi + si*dxi );
+                const Real dzi = dz.GetLocal(iLoc,0);
+                dzError.UpdateLocal( iLoc, 0, xi*dzi + zi*dxi );
             }
         }
-        const Real dsErrorNrm2 = Nrm2( dsError );
+        const Real dzErrorNrm2 = Nrm2( dzError );
 
-        dlError = ds;
-        Gemv( TRANSPOSE, Real(1), A, dl, Real(1), dlError );
-        Axpy( Real(1), rc, dlError );
-        const Real dlErrorNrm2 = Nrm2( dlError );
+        dyError = dz;
+        Gemv( TRANSPOSE, Real(1), A, dy, Real(1), dyError );
+        Axpy( Real(1), rc, dyError );
+        const Real dyErrorNrm2 = Nrm2( dyError );
 
         dxError = rb;
         Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
         const Real dxErrorNrm2 = Nrm2( dxError );
 
         if( ctrl.print && commRank == 0 )
-            std::cout << "  || dsError ||_2 / (1 + || r_mu ||_2) = " 
-                      << dsErrorNrm2/(1+rmuNrm2) << "\n"
-                      << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
+            std::cout << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
                       << dxErrorNrm2/(1+rbNrm2) << "\n"
-                      << "  || dlError ||_2 / (1 + || r_c ||_2) = " 
-                      << dlErrorNrm2/(1+rcNrm2) << std::endl;
+                      << "  || dyError ||_2 / (1 + || r_c ||_2) = " 
+                      << dyErrorNrm2/(1+rcNrm2) << "\n"
+                      << "  || dzError ||_2 / (1 + || r_mu ||_2) = " 
+                      << dzErrorNrm2/(1+rmuNrm2) << std::endl;
 #endif
 
         // Decide on the step length
         // =========================
         const Real alpha =
           IPFLineSearch
-          ( A, b, c, s, x, l, ds, dx, dl, 
+          ( A, b, c, x, y, z, dx, dy, dz, 
             ctrl.tol*(1+bNrm2), ctrl.tol*(1+cNrm2), ctrl.lineSearchCtrl );
         if( ctrl.print && commRank == 0 )
             std::cout << "  alpha = " << alpha << std::endl;
 
         // Update the state by stepping a distance of alpha
         // ================================================
-        Axpy( alpha, ds, s );
         Axpy( alpha, dx, x );
-        Axpy( alpha, dl, l );
+        Axpy( alpha, dy, y );
+        Axpy( alpha, dz, z );
     }
 }
 
@@ -377,7 +395,7 @@ template<typename Real>
 void IPF
 ( const SparseMatrix<Real>& A, 
   const Matrix<Real>& b,  const Matrix<Real>& c,
-  Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
+  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
@@ -388,7 +406,7 @@ template<typename Real>
 void IPF
 ( const DistSparseMatrix<Real>& A, 
   const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c,
-  DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l,
+  DistMultiVec<Real>& x, DistMultiVec<Real>& y, DistMultiVec<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
@@ -405,42 +423,42 @@ void IPF
     DistSparseMatrix<Real> J(comm);
     DistSymmFrontTree<Real> JFrontTree;
 
-    DistMultiVec<Real> y(comm),
+    DistMultiVec<Real> rhs(comm),
                        rmu(comm), rb(comm), rc(comm), 
-                       ds(comm),  dx(comm), dl(comm);
-    DistNodalMultiVec<Real> yNodal;
+                       dx(comm),  dy(comm), dz(comm);
+    DistNodalMultiVec<Real> rhsNodal;
 
     DistMultiVec<Real> regCand(comm), reg(comm);
     DistNodalMultiVec<Real> regCandNodal, regNodal;
 
 #ifndef EL_RELEASE
-    DistMultiVec<Real> dsError(comm), dxError(comm), dlError(comm);
+    DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm);
 #endif
     for( Int numIts=0; ; ++numIts )
     {
-        // Check that no entries of x or s are non-positive
+        // Check that no entries of x or z are non-positive
         // ================================================
         Int numNonPos_x = 0;
         for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
             if( x.GetLocal(iLoc,0) <= Real(0) )
                 ++numNonPos_x;
         numNonPos_x = mpi::AllReduce( numNonPos_x, comm );
-        Int numNonPos_s = 0;
-        for( Int iLoc=0; iLoc<s.LocalHeight(); ++iLoc )
-            if( s.GetLocal(iLoc,0) <= Real(0) )
-                ++numNonPos_s;
-        numNonPos_s = mpi::AllReduce( numNonPos_s, comm );
-        if( numNonPos_x > 0 || numNonPos_s > 0 )
+        Int numNonPos_z = 0;
+        for( Int iLoc=0; iLoc<z.LocalHeight(); ++iLoc )
+            if( z.GetLocal(iLoc,0) <= Real(0) )
+                ++numNonPos_z;
+        numNonPos_z = mpi::AllReduce( numNonPos_z, comm );
+        if( numNonPos_x > 0 || numNonPos_z > 0 )
             LogicError
             (numNonPos_x," entries of x were nonpositive and ",
-             numNonPos_s," entries of s were nonpositive");
+             numNonPos_z," entries of z were nonpositive");
 
         // Check for convergence
         // =====================
-        // |c^T x - b^T l| / (1 + |c^T x|) <= tol ?
+        // |c^T x - b^T y| / (1 + |c^T x|) <= tol ?
         // ----------------------------------------
         const Real primObj = Dot(c,x);
-        const Real dualObj = Dot(b,l);
+        const Real dualObj = Dot(b,y);
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -453,8 +471,8 @@ void IPF
         // --------------------------------------
         const Real cNrm2 = Nrm2( c );
         rc = c;
-        Multiply( TRANSPOSE, Real(1), A, l, Real(-1), rc );
-        Axpy( Real(1), s, rc );
+        Multiply( TRANSPOSE, Real(1), A, y, Real(-1), rc );
+        Axpy( Real(1), z, rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
@@ -463,7 +481,7 @@ void IPF
             break;
         else if( ctrl.print && commRank == 0 )
             std::cout << " iter " << numIts << ":\n"
-                      << "  |c^T x - b^T l| / (1 + |c^T x|) = "
+                      << "  |c^T x - b^T y| / (1 + |c^T x|) = "
                       << objConv << "\n"
                       << "  || r_b ||_2 / (1 + || b ||_2)   = "
                       << rbConv << "\n"
@@ -476,15 +494,15 @@ void IPF
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // Compute the duality measure and r_mu = X S e - tau e
+        // Compute the duality measure and r_mu = X Z e - tau e
         // ====================================================
-        const Real mu = Dot(x,s) / n;
+        const Real mu = Dot(x,z) / n;
         rmu.Resize( n, 1 );
         for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
         {
             const Real xi = x.GetLocal(iLoc,0);
-            const Real si = s.GetLocal(iLoc,0);
-            rmu.SetLocal( iLoc, 0, xi*si - ctrl.centering*mu );
+            const Real zi = z.GetLocal(iLoc,0);
+            rmu.SetLocal( iLoc, 0, xi*zi - ctrl.centering*mu );
         }
 
         // Compute the search direction
@@ -496,8 +514,8 @@ void IPF
             // Construct the "normal" KKT system
             // ---------------------------------
             // TODO: Add default regularization
-            AugmentedKKT( A, s, x, J, false );
-            AugmentedKKTRHS( x, rmu, rc, rb, y );
+            AugmentedKKT( A, x, z, J, false );
+            AugmentedKKTRHS( x, rmu, rc, rb, rhs );
             const Real pivTol = MaxNorm(J)*epsilon;
             const Real regMagPrimal = Pow(epsilon,Real(0.75));
             const Real regMagLagrange = Pow(epsilon,Real(0.5));
@@ -529,22 +547,22 @@ void IPF
             // TODO: Iterative refinement
             /*
             SolveWithIterativeRefinement
-            ( J, invMap, info, JFrontTree, y, 
+            ( J, invMap, info, JFrontTree, rhs, 
               minReductionFactor, maxRefineIts );
             */
-            yNodal.Pull( invMap, info, y );
-            Solve( info, JFrontTree, yNodal );
-            yNodal.Push( invMap, info, y );
-            ExpandAugmentedSolution( s, x, rmu, y, ds, dx, dl );
+            rhsNodal.Pull( invMap, info, rhs );
+            Solve( info, JFrontTree, rhsNodal );
+            rhsNodal.Push( invMap, info, rhs );
+            ExpandAugmentedSolution( x, z, rmu, rhs, dx, dy, dz );
         }
         else // ctrl.system == NORMAL_KKT
         {
-            // Construct the reduced KKT system, J dl = y
-            // ------------------------------------------
+            // Construct the reduced KKT system, J dy = rhs
+            // --------------------------------------------
             // NOTE: Explicit symmetry is currently required for both METIS and
             //       for the frontal tree initialization
-            NormalKKT( A, s, x, J, false );
-            NormalKKTRHS( A, s, x, rmu, rc, rb, dl );
+            NormalKKT( A, x, z, J, false );
+            NormalKKTRHS( A, x, z, rmu, rc, rb, dy );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
@@ -558,58 +576,58 @@ void IPF
             const Real minReductionFactor = 2;
             const Int maxRefineIts = 10;
             SolveWithIterativeRefinement
-            ( J, invMap, info, JFrontTree, dl, 
+            ( J, invMap, info, JFrontTree, dy, 
               minReductionFactor, maxRefineIts );
-            ExpandNormalSolution( A, c, s, x, rmu, rc, dl, ds, dx );
+            ExpandNormalSolution( A, c, x, z, rmu, rc, dx, dy, dz );
         }
 
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
         const Real rmuNrm2 = Nrm2( rmu );
-        dsError = rmu;
-        for( Int iLoc=0; iLoc<dsError.LocalHeight(); ++iLoc )
+        dzError = rmu;
+        for( Int iLoc=0; iLoc<dzError.LocalHeight(); ++iLoc )
         {
             const Real xi = x.GetLocal(iLoc,0);
-            const Real si = s.GetLocal(iLoc,0);
+            const Real zi = z.GetLocal(iLoc,0);
             const Real dxi = dx.GetLocal(iLoc,0);
-            const Real dsi = ds.GetLocal(iLoc,0);
-            dsError.UpdateLocal( iLoc, 0, xi*dsi + si*dxi );
+            const Real dzi = dz.GetLocal(iLoc,0);
+            dzError.UpdateLocal( iLoc, 0, xi*dzi + zi*dxi );
         }
-        const Real dsErrorNrm2 = Nrm2( dsError );
+        const Real dzErrorNrm2 = Nrm2( dzError );
 
-        dlError = ds;
-        Multiply( TRANSPOSE, Real(1), A, dl, Real(1), dlError );
-        Axpy( Real(1), rc, dlError );
-        const Real dlErrorNrm2 = Nrm2( dlError );
+        dyError = dz;
+        Multiply( TRANSPOSE, Real(1), A, dy, Real(1), dyError );
+        Axpy( Real(1), rc, dyError );
+        const Real dyErrorNrm2 = Nrm2( dyError );
 
         dxError = rb;
         Multiply( NORMAL, Real(1), A, dx, Real(1), dxError );
         const Real dxErrorNrm2 = Nrm2( dxError );
 
         if( ctrl.print && commRank == 0 )
-            std::cout << "  || dsError ||_2 / (1 + || r_mu ||_2) = " 
-                      << dsErrorNrm2/(1+rmuNrm2) << "\n"
-                      << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
+            std::cout << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
                       << dxErrorNrm2/(1+rbNrm2) << "\n"
-                      << "  || dlError ||_2 / (1 + || r_c ||_2) = " 
-                      << dlErrorNrm2/(1+rcNrm2) << std::endl;
+                      << "  || dyError ||_2 / (1 + || r_c ||_2) = " 
+                      << dyErrorNrm2/(1+rcNrm2) << "\n"
+                      << "  || dzError ||_2 / (1 + || r_mu ||_2) = " 
+                      << dzErrorNrm2/(1+rmuNrm2) << std::endl;
 #endif
 
         // Decide on the step length
         // =========================
         const Real alpha = 
           IPFLineSearch
-          ( A, b, c, s, x, l, ds, dx, dl, 
+          ( A, b, c, x, y, z, dx, dy, dz, 
             ctrl.tol*(1+bNrm2), ctrl.tol*(1+cNrm2), ctrl.lineSearchCtrl );
         if( ctrl.print && commRank == 0 )
             std::cout << "  alpha = " << alpha << std::endl;
 
         // Update the state by stepping a distance of alpha
         // ================================================
-        Axpy( alpha, ds, s );
         Axpy( alpha, dx, x );
-        Axpy( alpha, dl, l );
+        Axpy( alpha, dy, y );
+        Axpy( alpha, dz, z );
     }
 }
 
@@ -617,23 +635,23 @@ void IPF
   template void IPF \
   ( const Matrix<Real>& A, \
     const Matrix<Real>& b,  const Matrix<Real>& c, \
-    Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l, \
+    Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z, \
     const IPFCtrl<Real>& ctrl ); \
   template void IPF \
   ( const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c, \
-    AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, \
-    AbstractDistMatrix<Real>& l, \
+    AbstractDistMatrix<Real>& x, AbstractDistMatrix<Real>& y, \
+    AbstractDistMatrix<Real>& z, \
     const IPFCtrl<Real>& ctrl ); \
   template void IPF \
   ( const SparseMatrix<Real>& A, \
     const Matrix<Real>& b,  const Matrix<Real>& c, \
-    Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l, \
+    Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z, \
     const IPFCtrl<Real>& ctrl ); \
   template void IPF \
   ( const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c, \
-    DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l, \
+    DistMultiVec<Real>& x, DistMultiVec<Real>& y, DistMultiVec<Real>& z, \
     const IPFCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO

@@ -23,18 +23,18 @@ void LinearProgram
     else if( ctrl.alg == LIN_PROG_IPF )
     {
        // TODO: Use better initializations
-       Matrix<Real> s, l;
-       Uniform( s, A.Width(), 1, Real(0.5), Real(0.49) );
-       Zeros( l, A.Height(), 1 );
-       lin_prog::IPF( A, b, c, s, x, l, ctrl.ipfCtrl );
+       Matrix<Real> y, z;
+       Zeros( y, A.Height(), 1 );
+       Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
+       lin_prog::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
     }
     else if( ctrl.alg == LIN_PROG_MEHROTRA )
     {
        // TODO: Use better initializations
-       Matrix<Real> s, l;
-       Uniform( s, A.Width(), 1, Real(0.5), Real(0.49) );
-       Zeros( l, A.Height(), 1 );
-       lin_prog::Mehrotra( A, b, c, s, x, l, ctrl.mehrotraCtrl );
+       Matrix<Real> y, z;
+       Zeros( y, A.Height(), 1 );
+       Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
+       lin_prog::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
     }
 }
 
@@ -52,66 +52,68 @@ void LinearProgram
     else if( ctrl.alg == LIN_PROG_IPF )
     {
        // TODO: Use better initializations
-       DistMatrix<Real> s(A.Grid()), l(A.Grid());
-       Uniform( s, A.Width(), 1, Real(0.5), Real(0.49) );
-       Zeros( l, A.Height(), 1 );
-       lin_prog::IPF( A, b, c, s, x, l, ctrl.ipfCtrl );
+       DistMatrix<Real> y(A.Grid()), z(A.Grid());
+       Zeros( y, A.Height(), 1 );
+       Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
+       lin_prog::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
     }
     else if( ctrl.alg == LIN_PROG_MEHROTRA )
     {
        // TODO: Use better initializations
-       DistMatrix<Real> s(A.Grid()), l(A.Grid());
-       Uniform( s, A.Width(), 1, Real(0.5), Real(0.49) );
-       Zeros( l, A.Height(), 1 );
-       lin_prog::Mehrotra( A, b, c, s, x, l, ctrl.mehrotraCtrl );
+       DistMatrix<Real> y(A.Grid()), z(A.Grid());
+       Zeros( y, A.Height(), 1 );
+       Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
+       lin_prog::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
     }
 }
 
 template<typename Real>
 void LinearProgram
-( const SparseMatrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, 
+( const SparseMatrix<Real>& A, 
+  const Matrix<Real>& b, const Matrix<Real>& c, 
   Matrix<Real>& x, const LinProgCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LinearProgram"))
     if( ctrl.alg == LIN_PROG_IPF )
     {
        // TODO: Use better initializations
-       Matrix<Real> s, l;
-       Uniform( s, A.Width(), 1, Real(0.5), Real(0.49) );
-       Zeros( l, A.Height(), 1 );
-       lin_prog::IPF( A, b, c, s, x, l, ctrl.ipfCtrl );
+       Matrix<Real> y, z;
+       Zeros( y, A.Height(), 1 );
+       Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
+       lin_prog::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
     }
     else // ctrl.alg == LIN_PROG_MEHROTRA
     {
        // TODO: Use better initializations
-       Matrix<Real> s, l;
-       Uniform( s, A.Width(), 1, Real(0.5), Real(0.49) );
-       Zeros( l, A.Height(), 1 );
-       lin_prog::Mehrotra( A, b, c, s, x, l, ctrl.mehrotraCtrl );
+       Matrix<Real> y, z;
+       Zeros( y, A.Height(), 1 );
+       Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
+       lin_prog::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
     }
 }
 
 template<typename Real>
 void LinearProgram
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, 
+( const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, 
   DistMultiVec<Real>& x, const LinProgCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LinearProgram"))
     if( ctrl.alg == LIN_PROG_IPF )
     {
        // TODO: Use better initializations
-       DistMultiVec<Real> s(A.Comm()), l(A.Comm());
-       Uniform( s, A.Width(), 1, Real(0.5), Real(0.49) );
-       Zeros( l, A.Height(), 1 );
-       lin_prog::IPF( A, b, c, s, x, l, ctrl.ipfCtrl );
+       DistMultiVec<Real> y(A.Comm()), z(A.Comm());
+       Zeros( y, A.Height(), 1 );
+       Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
+       lin_prog::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
     }
     else // ctrl.alg == LIN_PROG_MEHROTRA
     {
        // TODO: Use better initializations
-       DistMultiVec<Real> s(A.Comm()), l(A.Comm());
-       Uniform( s, A.Width(), 1, Real(0.5), Real(0.49) );
-       Zeros( l, A.Height(), 1 );
-       lin_prog::Mehrotra( A, b, c, s, x, l, ctrl.mehrotraCtrl );
+       DistMultiVec<Real> y(A.Comm()), z(A.Comm());
+       Zeros( y, A.Height(), 1 );
+       Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
+       lin_prog::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
     }
 }
 

@@ -76,29 +76,29 @@ if display:
 # Generate random initial guesses
 # ===============================
 xOrig = El.DistMultiVec()
-lOrig = El.DistMultiVec()
-sOrig = El.DistMultiVec()
+yOrig = El.DistMultiVec()
+zOrig = El.DistMultiVec()
 El.Uniform(xOrig,n,1,0.5,0.4999)
-El.Uniform(lOrig,m,1,0.5,0.4999)
-El.Uniform(sOrig,n,1,0.5,0.4999)
+El.Uniform(yOrig,m,1,0.5,0.4999)
+El.Uniform(zOrig,n,1,0.5,0.4999)
 x = El.DistMultiVec()
-l = El.DistMultiVec()
-s = El.DistMultiVec()
+y = El.DistMultiVec()
+z = El.DistMultiVec()
 
 if testMehrotra:
-  El.Copy( sOrig, s )
   El.Copy( xOrig, x )
-  El.Copy( lOrig, l )
+  El.Copy( yOrig, y )
+  El.Copy( zOrig, z )
   startMehrotra = time.clock()
-  El.QuadraticProgramMehrotra(Q,A,b,c,s,x,l)
+  El.QuadraticProgramMehrotra(Q,A,b,c,x,y,z)
   endMehrotra = time.clock()
   if worldRank == 0:
     print "Mehrotra time:", endMehrotra-startMehrotra
 
   if display:
-    El.Display( x, "s Mehotra" )
-    El.Display( l, "x Mehotra" )
-    El.Display( s, "l Mehotra" )
+    El.Display( x, "x Mehotra" )
+    El.Display( y, "y Mehotra" )
+    El.Display( z, "z Mehotra" )
 
   Q_x = El.DistMultiVec()
   El.Zeros( Q_x, n, 1 )
@@ -109,19 +109,19 @@ if testMehrotra:
     print "Mehrotra primal objective =", obj
 
 if testIPF:
-  El.Copy( sOrig, s )
   El.Copy( xOrig, x )
-  El.Copy( lOrig, l )
+  El.Copy( yOrig, y )
+  El.Copy( zOrig, z )
   startIPF = time.clock()
-  El.QuadraticProgramIPF(Q,A,b,c,s,x,l)
+  El.QuadraticProgramIPF(Q,A,b,c,x,y,z)
   endIPF = time.clock()
   if worldRank == 0:
     print "IPF time:", endIPF-startIPF
 
   if display:
-    El.Display( x, "s IPF" )
-    El.Display( l, "x IPF" )
-    El.Display( s, "l IPF" )
+    El.Display( x, "x IPF" )
+    El.Display( y, "y IPF" )
+    El.Display( z, "z IPF" )
 
   Q_x = El.DistMultiVec() 
   El.Zeros( Q_x, n, 1 )

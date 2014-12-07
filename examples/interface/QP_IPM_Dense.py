@@ -61,30 +61,30 @@ if display:
 
 # Generate random initial guesses
 # ===============================
-sOrig = El.DistMatrix()
 xOrig = El.DistMatrix()
-lOrig = El.DistMatrix()
-El.Uniform(sOrig,n,1,0.5,0.4999)
+yOrig = El.DistMatrix()
+zOrig = El.DistMatrix()
 El.Uniform(xOrig,n,1,0.5,0.4999)
-El.Uniform(lOrig,m,1,0.5,0.4999)
-s = El.DistMatrix()
+El.Uniform(yOrig,n,1,0.5,0.4999)
+El.Uniform(zOrig,m,1,0.5,0.4999)
 x = El.DistMatrix()
-l = El.DistMatrix()
+y = El.DistMatrix()
+z = El.DistMatrix()
 
 if testMehrotra:
-  El.Copy( sOrig, s )
   El.Copy( xOrig, x )
-  El.Copy( lOrig, l )
+  El.Copy( yOrig, y )
+  El.Copy( zOrig, z )
   startMehrotra = time.clock()
-  El.QuadraticProgramMehrotra(Q,A,b,c,s,x,l)
+  El.QuadraticProgramMehrotra(Q,A,b,c,x,y,z)
   endMehrotra = time.clock()
   if worldRank == 0:
     print "Mehrotra time:", endMehrotra-startMehrotra
 
   if display:
-    El.Display( s, "s Mehrotra" )
     El.Display( x, "x Mehrotra" )
-    El.Display( l, "l Mehrotra" )
+    El.Display( y, "y Mehrotra" )
+    El.Display( z, "z Mehrotra" )
 
   Q_x = El.DistMatrix()
   El.Zeros( Q_x, n, 1 )
@@ -95,19 +95,19 @@ if testMehrotra:
     print "Mehrotra primal objective =", obj
 
 if testIPF:
-  El.Copy( sOrig, s )
   El.Copy( xOrig, x )
-  El.Copy( lOrig, l )
+  El.Copy( yOrig, y )
+  El.Copy( zOrig, z )
   startIPF = time.clock()
-  El.QuadraticProgramIPF(Q,A,b,c,s,x,l)
+  El.QuadraticProgramIPF(Q,A,b,c,x,y,z)
   endIPF = time.clock()
   if worldRank == 0:
     print "IPF time:", endIPF-startIPF
 
   if display:
-    El.Display( s, "s IPF" )
     El.Display( x, "x IPF" )
-    El.Display( l, "l IPF" )
+    El.Display( y, "y IPF" )
+    El.Display( z, "z IPF" )
 
   Q_x = El.DistMatrix()
   El.Zeros( Q_x, n, 1 )

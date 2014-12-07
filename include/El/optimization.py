@@ -174,37 +174,37 @@ lib.ElLinearProgramIPFDistSparse_s.restype = c_uint
 lib.ElLinearProgramIPFDistSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
 lib.ElLinearProgramIPFDistSparse_d.restype = c_uint
-def LinearProgramIPF(A,b,c,s,x,l):
-  args = [A.obj,b.obj,c.obj,s.obj,x.obj,l.obj]
+def LinearProgramIPF(A,b,c,x,y,z):
+  args = [A.obj,b.obj,c.obj,x.obj,y.obj,z.obj]
   if type(A) is Matrix:
     if type(b) is not Matrix or type(c) is not Matrix or \
-       type(x) is not Matrix or type(l) is not Matrix or \
-       type(s) is not Matrix:
-      raise Exception('Expected {b,c,x,l,s} to be of type Matrix')
+       type(x) is not Matrix or type(y) is not Matrix or \
+       type(z) is not Matrix:
+      raise Exception('Expected {b,c,x,y,z} to be of type Matrix')
     if   A.tag == sTag: lib.ElLinearProgramIPF_s(*args)
     elif A.tag == dTag: lib.ElLinearProgramIPF_d(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
     if type(b) is not DistMatrix or type(c) is not DistMatrix or \
-       type(x) is not DistMatrix or type(l) is not DistMatrix or \
-       type(s) is not DistMatrix:
-      raise Exception('Expected {b,c,x,l,s} to be of type Matrix')
+       type(x) is not DistMatrix or type(y) is not DistMatrix or \
+       type(z) is not DistMatrix:
+      raise Exception('Expected {b,c,x,y,z} to be of type Matrix')
     if   A.tag == sTag: lib.ElLinearProgramIPFDist_s(*args)
     elif A.tag == dTag: lib.ElLinearProgramIPFDist_d(*args)
     else: DataExcept()
   elif type(A) is SparseMatrix:
     if type(b) is not Matrix or type(c) is not Matrix or \
-       type(x) is not Matrix or type(l) is not Matrix or \
-       type(s) is not Matrix:
-      raise Exception('Expected {b,c,x,l,s} to be of type Matrix')
+       type(x) is not Matrix or type(y) is not Matrix or \
+       type(z) is not Matrix:
+      raise Exception('Expected {b,c,x,y,z} to be of type Matrix')
     if   A.tag == sTag: lib.ElLinearProgramIPFSparse_s(*args)
     elif A.tag == dTag: lib.ElLinearProgramIPFSparse_d(*args)
     else: DataExcept()
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec or type(c) is not DistMultiVec or \
-       type(x) is not DistMultiVec or type(l) is not DistMultiVec or \
-       type(s) is not DistMultiVec:
-      raise Exception('Expected {b,c,x,l,s} to be of type DistMultiVec')
+       type(x) is not DistMultiVec or type(y) is not DistMultiVec or \
+       type(z) is not DistMultiVec:
+      raise Exception('Expected {b,c,x,y,z} to be of type DistMultiVec')
     if   A.tag == sTag: lib.ElLinearProgramIPFDistSparse_s(*args)
     elif A.tag == dTag: lib.ElLinearProgramIPFDistSparse_d(*args)
     else: DataExcept()
@@ -235,37 +235,37 @@ lib.ElLinearProgramMehrotraDistSparse_s.restype = c_uint
 lib.ElLinearProgramMehrotraDistSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
 lib.ElLinearProgramMehrotraDistSparse_d.restype = c_uint
-def LinearProgramMehrotra(A,b,c,s,x,l):
-  args = [A.obj,b.obj,c.obj,s.obj,x.obj,l.obj]
+def LinearProgramMehrotra(A,b,c,x,y,z):
+  args = [A.obj,b.obj,c.obj,x.obj,y.obj,z.obj]
   if type(A) is Matrix:
     if type(b) is not Matrix or type(c) is not Matrix or \
-       type(x) is not Matrix or type(l) is not Matrix or \
-       type(s) is not Matrix:
-      raise Exception('Expected {b,c,x,l,s} to be of type Matrix')
+       type(x) is not Matrix or type(y) is not Matrix or \
+       type(z) is not Matrix:
+      raise Exception('Expected {b,c,x,y,z} to be of type Matrix')
     if   A.tag == sTag: lib.ElLinearProgramMehrotra_s(*args)
     elif A.tag == dTag: lib.ElLinearProgramMehrotra_d(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
     if type(b) is not DistMatrix or type(c) is not DistMatrix or \
-       type(x) is not DistMatrix or type(l) is not DistMatrix or \
-       type(s) is not DistMatrix:
-      raise Exception('Expected {b,c,x,l,s} to be of type Matrix')
+       type(x) is not DistMatrix or type(y) is not DistMatrix or \
+       type(z) is not DistMatrix:
+      raise Exception('Expected {b,c,x,y,z} to be of type Matrix')
     if   A.tag == sTag: lib.ElLinearProgramMehrotraDist_s(*args)
     elif A.tag == dTag: lib.ElLinearProgramMehrotraDist_d(*args)
     else: DataExcept()
   elif type(A) is SparseMatrix:
     if type(b) is not Matrix or type(c) is not Matrix or \
-       type(x) is not Matrix or type(l) is not Matrix or \
-       type(s) is not Matrix:
-      raise Exception('Expected {b,c,x,l,s} to be of type Matrix')
+       type(x) is not Matrix or type(y) is not Matrix or \
+       type(z) is not Matrix:
+      raise Exception('Expected {b,c,x,y,z} to be of type Matrix')
     if   A.tag == sTag: lib.ElLinearProgramMehrotraSparse_s(*args)
     elif A.tag == dTag: lib.ElLinearProgramMehrotraSparse_d(*args)
     else: DataExcept()
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec or type(c) is not DistMultiVec or \
-       type(x) is not DistMultiVec or type(l) is not DistMultiVec or \
-       type(s) is not DistMultiVec:
-      raise Exception('Expected {b,c,x,l,s} to be of type DistMultiVec')
+       type(x) is not DistMultiVec or type(y) is not DistMultiVec or \
+       type(z) is not DistMultiVec:
+      raise Exception('Expected {b,c,x,y,z} to be of type DistMultiVec')
     if   A.tag == sTag: lib.ElLinearProgramMehrotraDistSparse_s(*args)
     elif A.tag == dTag: lib.ElLinearProgramMehrotraDistSparse_d(*args)
     else: DataExcept()
@@ -529,39 +529,39 @@ lib.ElQuadraticProgramIPFDistSparse_s.restype = c_uint
 lib.ElQuadraticProgramIPFDistSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
 lib.ElQuadraticProgramIPFDistSparse_d.restype = c_uint
-def QuadraticProgramIPF(Q,A,b,c,s,x,l):
+def QuadraticProgramIPF(Q,A,b,c,x,y,z):
   if type(A) is not type(Q):
     raise Exception("Expected A and Q to have the same type")
-  args = [Q.obj,A.obj,b.obj,c.obj,s.obj,x.obj,l.obj]
+  args = [Q.obj,A.obj,b.obj,c.obj,x.obj,y.obj,z.obj]
   if type(A) is Matrix:
     if type(b) is not Matrix or type(c) is not Matrix or \
-       type(x) is not Matrix or type(l) is not Matrix or \
-       type(s) is not Matrix:
-      raise Exception('Expected {b,c,x,l,s} to be of type Matrix')
+       type(x) is not Matrix or type(y) is not Matrix or \
+       type(z) is not Matrix:
+      raise Exception('Expected {b,c,x,y,z} to be of type Matrix')
     if   A.tag == sTag: lib.ElQuadraticProgramIPF_s(*args)
     elif A.tag == dTag: lib.ElQuadraticProgramIPF_d(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
     if type(b) is not DistMatrix or type(c) is not DistMatrix or \
-       type(x) is not DistMatrix or type(l) is not DistMatrix or \
-       type(s) is not DistMatrix:
-      raise Exception('Expected {b,c,x,l,s} to be of type Matrix')
+       type(x) is not DistMatrix or type(y) is not DistMatrix or \
+       type(z) is not DistMatrix:
+      raise Exception('Expected {b,c,x,y,z} to be of type Matrix')
     if   A.tag == sTag: lib.ElQuadraticProgramIPFDist_s(*args)
     elif A.tag == dTag: lib.ElQuadraticProgramIPFDist_d(*args)
     else: DataExcept()
   elif type(A) is SparseMatrix:
     if type(b) is not Matrix or type(c) is not Matrix or \
-       type(x) is not Matrix or type(l) is not Matrix or \
-       type(s) is not Matrix:
-      raise Exception('Expected {b,c,x,l,s} to be of type Matrix')
+       type(x) is not Matrix or type(y) is not Matrix or \
+       type(z) is not Matrix:
+      raise Exception('Expected {b,c,x,y,z} to be of type Matrix')
     if   A.tag == sTag: lib.ElQuadraticProgramIPFSparse_s(*args)
     elif A.tag == dTag: lib.ElQuadraticProgramIPFSparse_d(*args)
     else: DataExcept()
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec or type(c) is not DistMultiVec or \
-       type(x) is not DistMultiVec or type(l) is not DistMultiVec or \
-       type(s) is not DistMultiVec:
-      raise Exception('Expected {b,c,x,l,s} to be of type DistMultiVec')
+       type(x) is not DistMultiVec or type(y) is not DistMultiVec or \
+       type(z) is not DistMultiVec:
+      raise Exception('Expected {b,c,x,y,z} to be of type DistMultiVec')
     if   A.tag == sTag: lib.ElQuadraticProgramIPFDistSparse_s(*args)
     elif A.tag == dTag: lib.ElQuadraticProgramIPFDistSparse_d(*args)
     else: DataExcept()
@@ -592,39 +592,39 @@ lib.ElQuadraticProgramMehrotraDistSparse_s.restype = c_uint
 lib.ElQuadraticProgramMehrotraDistSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
 lib.ElQuadraticProgramMehrotraDistSparse_d.restype = c_uint
-def QuadraticProgramMehrotra(Q,A,b,c,s,x,l):
+def QuadraticProgramMehrotra(Q,A,b,c,x,y,z):
   if type(A) is not type(Q):
     raise Exception("Expected A and Q to have the same type")
-  args = [Q.obj,A.obj,b.obj,c.obj,s.obj,x.obj,l.obj]
+  args = [Q.obj,A.obj,b.obj,c.obj,x.obj,y.obj,z.obj]
   if type(A) is Matrix:
     if type(b) is not Matrix or type(c) is not Matrix or \
-       type(x) is not Matrix or type(l) is not Matrix or \
-       type(s) is not Matrix:
-      raise Exception('Expected {b,c,x,l,s} to be of type Matrix')
+       type(x) is not Matrix or type(y) is not Matrix or \
+       type(z) is not Matrix:
+      raise Exception('Expected {b,c,x,y,z} to be of type Matrix')
     if   A.tag == sTag: lib.ElQuadraticProgramMehrotra_s(*args)
     elif A.tag == dTag: lib.ElQuadraticProgramMehrotra_d(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
     if type(b) is not DistMatrix or type(c) is not DistMatrix or \
-       type(x) is not DistMatrix or type(l) is not DistMatrix or \
-       type(s) is not DistMatrix:
-      raise Exception('Expected {b,c,x,l,s} to be of type Matrix')
+       type(x) is not DistMatrix or type(y) is not DistMatrix or \
+       type(z) is not DistMatrix:
+      raise Exception('Expected {b,c,x,y,z} to be of type Matrix')
     if   A.tag == sTag: lib.ElQuadraticProgramMehrotraDist_s(*args)
     elif A.tag == dTag: lib.ElQuadraticProgramMehrotraDist_d(*args)
     else: DataExcept()
   elif type(A) is SparseMatrix:
     if type(b) is not Matrix or type(c) is not Matrix or \
-       type(x) is not Matrix or type(l) is not Matrix or \
-       type(s) is not Matrix:
-      raise Exception('Expected {b,c,x,l,s} to be of type Matrix')
+       type(x) is not Matrix or type(y) is not Matrix or \
+       type(z) is not Matrix:
+      raise Exception('Expected {b,c,x,y,z} to be of type Matrix')
     if   A.tag == sTag: lib.ElQuadraticProgramMehrotraSparse_s(*args)
     elif A.tag == dTag: lib.ElQuadraticProgramMehrotraSparse_d(*args)
     else: DataExcept()
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec or type(c) is not DistMultiVec or \
-       type(x) is not DistMultiVec or type(l) is not DistMultiVec or \
-       type(s) is not DistMultiVec:
-      raise Exception('Expected {b,c,x,l,s} to be of type DistMultiVec')
+       type(x) is not DistMultiVec or type(y) is not DistMultiVec or \
+       type(z) is not DistMultiVec:
+      raise Exception('Expected {b,c,x,y,z} to be of type DistMultiVec')
     if   A.tag == sTag: lib.ElQuadraticProgramMehrotraDistSparse_s(*args)
     elif A.tag == dTag: lib.ElQuadraticProgramMehrotraDistSparse_d(*args)
     else: DataExcept()

@@ -193,26 +193,26 @@ template<typename Real>
 void Mehrotra
 ( const Matrix<Real>& A,
   const Matrix<Real>& b, const Matrix<Real>& c,
-  Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
+  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>(false) );
 template<typename Real>
 void Mehrotra
 ( const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
-  AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, 
-  AbstractDistMatrix<Real>& l,
+  AbstractDistMatrix<Real>& x, AbstractDistMatrix<Real>& y,
+  AbstractDistMatrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>(false) );
 template<typename Real>
 void Mehrotra
 ( const SparseMatrix<Real>& A,
   const Matrix<Real>& b, const Matrix<Real>& c,
-  Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
+  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>(true) );
 template<typename Real>
 void Mehrotra
 ( const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
-  DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l,
+  DistMultiVec<Real>& x, DistMultiVec<Real>& y, DistMultiVec<Real>& z,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>(true) );
 
 // Infeasible Path-Following Interior Point Method (IPF)
@@ -221,26 +221,26 @@ template<typename Real>
 void IPF
 ( const Matrix<Real>& A,
   const Matrix<Real>& b, const Matrix<Real>& c,
-  Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
+  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>(false) );
 template<typename Real>
 void IPF
 ( const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c,
-  AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, 
-  AbstractDistMatrix<Real>& l, 
+  AbstractDistMatrix<Real>& x, AbstractDistMatrix<Real>& y, 
+  AbstractDistMatrix<Real>& z, 
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>(false) );
 template<typename Real>
 void IPF
 ( const SparseMatrix<Real>& A,
   const Matrix<Real>& b,  const Matrix<Real>& c,
-  Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
+  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>(true) );
 template<typename Real>
 void IPF
 ( const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c,
-  DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l,
+  DistMultiVec<Real>& x, DistMultiVec<Real>& y, DistMultiVec<Real>& z,
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>(true) );
 
 // Alternating Direction Method of Multipliers (ADMM)
@@ -443,26 +443,26 @@ template<typename Real>
 void Mehrotra
 ( const Matrix<Real>& Q, const Matrix<Real>& A,
   const Matrix<Real>& b, const Matrix<Real>& c,
-  Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
+  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra
 ( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
-  AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, 
-  AbstractDistMatrix<Real>& l,
+  AbstractDistMatrix<Real>& x, AbstractDistMatrix<Real>& y, 
+  AbstractDistMatrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra
 ( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A,
   const Matrix<Real>& b, const Matrix<Real>& c,
-  Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
+  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra
 ( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
-  DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l,
+  DistMultiVec<Real>& x, DistMultiVec<Real>& y, DistMultiVec<Real>& z,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 
 // Infeasible Path-Following Interior Point Method (IPF)
@@ -471,26 +471,26 @@ template<typename Real>
 void IPF
 ( const Matrix<Real>& Q, const Matrix<Real>& A,
   const Matrix<Real>& b, const Matrix<Real>& c,
-  Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
+  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 template<typename Real>
 void IPF
 ( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
-  AbstractDistMatrix<Real>& s, AbstractDistMatrix<Real>& x, 
-  AbstractDistMatrix<Real>& l, 
+  AbstractDistMatrix<Real>& x, AbstractDistMatrix<Real>& y,
+  AbstractDistMatrix<Real>& z, 
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 template<typename Real>
 void IPF
 ( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A,
   const Matrix<Real>& b, const Matrix<Real>& c,
-  Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
+  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 template<typename Real>
 void IPF
 ( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
-  DistMultiVec<Real>& s, DistMultiVec<Real>& x, DistMultiVec<Real>& l,
+  DistMultiVec<Real>& x, DistMultiVec<Real>& y, DistMultiVec<Real>& z,
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 
 // Solve a set of quadratic programs of the form 
