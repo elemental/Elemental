@@ -743,6 +743,20 @@ Base<F> LogDetDiv
 ( UpperOrLower uplo, 
   const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B );
 
+// Number of non-positive entries
+// ------------------------------
+// TODO: Add more general cone membership checks
+template<typename Real>
+Int NumNonPositive( const Matrix<Real>& A );
+template<typename Real>
+Int NumNonPositive( const SparseMatrix<Real>& A );
+template<typename Real>
+Int NumNonPositive( const AbstractDistMatrix<Real>& A );
+template<typename Real>
+Int NumNonPositive( const DistSparseMatrix<Real>& A );
+template<typename Real>
+Int NumNonPositive( const DistMultiVec<Real>& A );
+
 // Regularized LDL
 // ---------------
 // NOTE: If the pivot candidate is not at least as large as the pivot tolerance

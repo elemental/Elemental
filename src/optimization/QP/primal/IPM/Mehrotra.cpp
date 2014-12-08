@@ -49,18 +49,12 @@ void Mehrotra
     {
         // Check that no entries of x or z are non-positive
         // ================================================
-        Int numNonPos_x = 0;
-        for( Int i=0; i<x.Height(); ++i )
-            if( x.Get(i,0) <= Real(0) )
-                ++numNonPos_x;
-        Int numNonPos_z = 0;
-        for( Int i=0; i<z.Height(); ++i )
-            if( z.Get(i,0) <= Real(0) )
-                ++numNonPos_z;
-        if( numNonPos_x > 0 || numNonPos_z > 0 )
+        const Int xNumNonPos = NumNonPositive( x );
+        const Int zNumNonPos = NumNonPositive( z );
+        if( xNumNonPos > 0 || zNumNonPos > 0 )
             LogicError
-            (numNonPos_x," entries of x were nonpositive and ",
-             numNonPos_z," entries of z were nonpositive");
+            (xNumNonPos," entries of x were nonpositive and ",
+             zNumNonPos," entries of z were nonpositive");
 
         // Check for convergence
         // =====================
@@ -331,22 +325,12 @@ void Mehrotra
     {
         // Check that no entries of x or z are non-positive
         // ================================================
-        Int numNonPos_x = 0;
-        if( x.IsLocalCol(0) )
-            for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
-                if( x.GetLocal(iLoc,0) <= Real(0) ) 
-                    ++numNonPos_x;
-        numNonPos_x = mpi::AllReduce( numNonPos_x, x.DistComm() );
-        Int numNonPos_z = 0;
-        if( z.IsLocalCol(0) )
-            for( Int iLoc=0; iLoc<z.LocalHeight(); ++iLoc )
-                if( z.GetLocal(iLoc,0) <= Real(0) )
-                    ++numNonPos_z;
-        numNonPos_z = mpi::AllReduce( numNonPos_z, z.DistComm() );
-        if( numNonPos_x > 0 || numNonPos_z > 0 )
+        const Int xNumNonPos = NumNonPositive( x );
+        const Int zNumNonPos = NumNonPositive( z );
+        if( xNumNonPos > 0 || zNumNonPos > 0 )
             LogicError
-            (numNonPos_x," entries of x were nonpositive and ",
-             numNonPos_z," entries of z were nonpositive");
+            (xNumNonPos," entries of x were nonpositive and ",
+             zNumNonPos," entries of z were nonpositive");
 
         // Check for convergence
         // =====================
@@ -651,20 +635,12 @@ void Mehrotra
     {
         // Check that no entries of x or z are non-positive
         // ================================================
-        Int numNonPos_x = 0;
-        for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
-            if( x.GetLocal(iLoc,0) <= Real(0) )
-                ++numNonPos_x;
-        numNonPos_x = mpi::AllReduce( numNonPos_x, comm );
-        Int numNonPos_z = 0;
-        for( Int iLoc=0; iLoc<z.LocalHeight(); ++iLoc )
-            if( z.GetLocal(iLoc,0) <= Real(0) )
-                ++numNonPos_z;
-        numNonPos_z = mpi::AllReduce( numNonPos_z, comm );
-        if( numNonPos_x > 0 || numNonPos_z > 0 )
+        const Int xNumNonPos = NumNonPositive( x );
+        const Int zNumNonPos = NumNonPositive( z );
+        if( xNumNonPos > 0 || zNumNonPos > 0 )
             LogicError
-            (numNonPos_x," entries of x were nonpositive and ",
-             numNonPos_z," entries of z were nonpositive");
+            (xNumNonPos," entries of x were nonpositive and ",
+             zNumNonPos," entries of z were nonpositive");
 
         // Check for convergence
         // =====================
