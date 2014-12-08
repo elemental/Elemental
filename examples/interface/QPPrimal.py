@@ -90,7 +90,7 @@ if testMehrotra:
   El.Copy( yOrig, y )
   El.Copy( zOrig, z )
   startMehrotra = time.clock()
-  El.QuadraticProgramMehrotra(Q,A,b,c,x,y,z)
+  El.QPPrimalMehrotra(Q,A,b,c,x,y,z)
   endMehrotra = time.clock()
   if worldRank == 0:
     print "Mehrotra time:", endMehrotra-startMehrotra
@@ -113,7 +113,7 @@ if testIPF:
   El.Copy( yOrig, y )
   El.Copy( zOrig, z )
   startIPF = time.clock()
-  El.QuadraticProgramIPF(Q,A,b,c,x,y,z)
+  El.QPPrimalIPF(Q,A,b,c,x,y,z)
   endIPF = time.clock()
   if worldRank == 0:
     print "IPF time:", endIPF-startIPF

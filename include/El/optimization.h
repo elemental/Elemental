@@ -72,117 +72,119 @@ EL_EXPORT ElError ElLassoDist_z
 
 /* Linear program
    ============== */
-EL_EXPORT ElError ElLinearProgram_s
+/* Primal conic form
+   ----------------- */ 
+EL_EXPORT ElError ElLPPrimal_s
 ( ElConstMatrix_s A, ElConstMatrix_s b, ElConstMatrix_s c, ElMatrix_s x );
-EL_EXPORT ElError ElLinearProgram_d
+EL_EXPORT ElError ElLPPrimal_d
 ( ElConstMatrix_d A, ElConstMatrix_d b, ElConstMatrix_d c, ElMatrix_d x );
 
-EL_EXPORT ElError ElLinearProgramDist_s
+EL_EXPORT ElError ElLPPrimalDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_s b, ElConstDistMatrix_s c, 
   ElDistMatrix_s x );
-EL_EXPORT ElError ElLinearProgramDist_d
+EL_EXPORT ElError ElLPPrimalDist_d
 ( ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElConstDistMatrix_d c, 
   ElDistMatrix_d x );
 
-EL_EXPORT ElError ElLinearProgramSparse_s
+EL_EXPORT ElError ElLPPrimalSparse_s
 ( ElConstSparseMatrix_s A, ElConstMatrix_s b, ElConstMatrix_s c, ElMatrix_s x );
-EL_EXPORT ElError ElLinearProgramSparse_d
+EL_EXPORT ElError ElLPPrimalSparse_d
 ( ElConstSparseMatrix_d A, ElConstMatrix_d b, ElConstMatrix_d c, ElMatrix_d x );
 
-EL_EXPORT ElError ElLinearProgramDistSparse_s
+EL_EXPORT ElError ElLPPrimalDistSparse_s
 ( ElConstDistSparseMatrix_s A, 
   ElConstDistMultiVec_s b, ElConstDistMultiVec_s c, ElDistMultiVec_s x );
-EL_EXPORT ElError ElLinearProgramDistSparse_d
+EL_EXPORT ElError ElLPPrimalDistSparse_d
 ( ElConstDistSparseMatrix_d A, 
   ElConstDistMultiVec_d b, ElConstDistMultiVec_d c, ElDistMultiVec_d x );
 
 /* Infeasible Path-following IPM
-   ----------------------------- */
-EL_EXPORT ElError ElLinearProgramIPF_s
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
+EL_EXPORT ElError ElLPPrimalIPF_s
 ( ElConstMatrix_s A,
   ElConstMatrix_s b, ElConstMatrix_s c,
   ElMatrix_s x, ElMatrix_s y, ElMatrix_s z );
-EL_EXPORT ElError ElLinearProgramIPF_d
+EL_EXPORT ElError ElLPPrimalIPF_d
 ( ElConstMatrix_d A,
   ElConstMatrix_d b, ElConstMatrix_d c,
   ElMatrix_d x, ElMatrix_d y, ElMatrix_d z );
-EL_EXPORT ElError ElLinearProgramIPFSparse_s
+EL_EXPORT ElError ElLPPrimalIPFSparse_s
 ( ElConstSparseMatrix_s A,
   ElConstMatrix_s b, ElConstMatrix_s c,
   ElMatrix_s x, ElMatrix_s y, ElMatrix_s z );
-EL_EXPORT ElError ElLinearProgramIPFSparse_d
+EL_EXPORT ElError ElLPPrimalIPFSparse_d
 ( ElConstSparseMatrix_d A,
   ElConstMatrix_d b, ElConstMatrix_d c,
   ElMatrix_d x, ElMatrix_d y, ElMatrix_d z );
 
-EL_EXPORT ElError ElLinearProgramIPFDist_s
+EL_EXPORT ElError ElLPPrimalIPFDist_s
 ( ElConstDistMatrix_s A,
   ElConstDistMatrix_s b, ElConstDistMatrix_s c,
   ElDistMatrix_s x, ElDistMatrix_s y, ElDistMatrix_s z );
-EL_EXPORT ElError ElLinearProgramIPFDist_d
+EL_EXPORT ElError ElLPPrimalIPFDist_d
 ( ElConstDistMatrix_d A,
   ElConstDistMatrix_d b, ElConstDistMatrix_d c,
   ElDistMatrix_d x, ElDistMatrix_d y, ElDistMatrix_d z );
-EL_EXPORT ElError ElLinearProgramIPFDistSparse_s
+EL_EXPORT ElError ElLPPrimalIPFDistSparse_s
 ( ElConstDistSparseMatrix_s A,
   ElConstDistMultiVec_s b, ElConstDistMultiVec_s c,
   ElDistMultiVec_s x, ElDistMultiVec_s y, ElDistMultiVec_s z );
-EL_EXPORT ElError ElLinearProgramIPFDistSparse_d
+EL_EXPORT ElError ElLPPrimalIPFDistSparse_d
 ( ElConstDistSparseMatrix_d A,
   ElConstDistMultiVec_d b, ElConstDistMultiVec_d c,
   ElDistMultiVec_d x, ElDistMultiVec_d y, ElDistMultiVec_d z );
 
 /* Mehotra's Predictor-Corrector IPM
-   --------------------------------- */
-EL_EXPORT ElError ElLinearProgramMehrotra_s
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
+EL_EXPORT ElError ElLPPrimalMehrotra_s
 ( ElConstMatrix_s A,
   ElConstMatrix_s b, ElConstMatrix_s c,
   ElMatrix_s x, ElMatrix_s y, ElMatrix_s z );
-EL_EXPORT ElError ElLinearProgramMehrotra_d
+EL_EXPORT ElError ElLPPrimalMehrotra_d
 ( ElConstMatrix_d A,
   ElConstMatrix_d b, ElConstMatrix_d c,
   ElMatrix_d x, ElMatrix_d y, ElMatrix_d z );
 
-EL_EXPORT ElError ElLinearProgramMehrotraDist_s
+EL_EXPORT ElError ElLPPrimalMehrotraDist_s
 ( ElConstDistMatrix_s A,
   ElConstDistMatrix_s b, ElConstDistMatrix_s c,
   ElDistMatrix_s x, ElDistMatrix_s y, ElDistMatrix_s z );
-EL_EXPORT ElError ElLinearProgramMehrotraDist_d
+EL_EXPORT ElError ElLPPrimalMehrotraDist_d
 ( ElConstDistMatrix_d A,
   ElConstDistMatrix_d b, ElConstDistMatrix_d c,
   ElDistMatrix_d x, ElDistMatrix_d y, ElDistMatrix_d z );
 
-EL_EXPORT ElError ElLinearProgramMehrotraSparse_s
+EL_EXPORT ElError ElLPPrimalMehrotraSparse_s
 ( ElConstSparseMatrix_s A,
   ElConstMatrix_s b, ElConstMatrix_s c,
   ElMatrix_s x, ElMatrix_s y, ElMatrix_s z );
-EL_EXPORT ElError ElLinearProgramMehrotraSparse_d
+EL_EXPORT ElError ElLPPrimalMehrotraSparse_d
 ( ElConstSparseMatrix_d A,
   ElConstMatrix_d b, ElConstMatrix_d c,
   ElMatrix_d x, ElMatrix_d y, ElMatrix_d z );
 
-EL_EXPORT ElError ElLinearProgramMehrotraDistSparse_s
+EL_EXPORT ElError ElLPPrimalMehrotraDistSparse_s
 ( ElConstDistSparseMatrix_s A,
   ElConstDistMultiVec_s b, ElConstDistMultiVec_s c,
   ElDistMultiVec_s x, ElDistMultiVec_s y, ElDistMultiVec_s z );
-EL_EXPORT ElError ElLinearProgramMehrotraDistSparse_d
+EL_EXPORT ElError ElLPPrimalMehrotraDistSparse_d
 ( ElConstDistSparseMatrix_d A,
   ElConstDistMultiVec_d b, ElConstDistMultiVec_d c,
   ElDistMultiVec_d x, ElDistMultiVec_d y, ElDistMultiVec_d z );
 
-/* ADMM
-   ---- */
-EL_EXPORT ElError ElLinearProgramADMM_s
+/* Alternating Direction Method of Multipliers
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
+EL_EXPORT ElError ElLPPrimalADMM_s
 ( ElConstMatrix_s A, ElConstMatrix_s b, ElConstMatrix_s c, 
   ElMatrix_s z, ElInt* numIts );
-EL_EXPORT ElError ElLinearProgramADMM_d
+EL_EXPORT ElError ElLPPrimalADMM_d
 ( ElConstMatrix_d A, ElConstMatrix_d b, ElConstMatrix_d c, 
   ElMatrix_d z, ElInt* numIts );
 
-EL_EXPORT ElError ElLinearProgramADMMDist_s
+EL_EXPORT ElError ElLPPrimalADMMDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_s b, ElConstDistMatrix_s c, 
   ElDistMatrix_s z, ElInt* numIts );
-EL_EXPORT ElError ElLinearProgramADMMDist_d
+EL_EXPORT ElError ElLPPrimalADMMDist_d
 ( ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElConstDistMatrix_d c, 
   ElDistMatrix_d z, ElInt* numIts );
 
@@ -262,131 +264,136 @@ EL_EXPORT ElError ElNonNegativeLeastSquaresDist_d
 
 /* Quadratic program
    ================= */
-EL_EXPORT ElError ElQuadraticProgram_s
+/* Primal conic form
+   ----------------- */
+EL_EXPORT ElError ElQPPrimal_s
 ( ElConstMatrix_s Q, ElConstMatrix_s A, 
   ElConstMatrix_s b, ElConstMatrix_s c,
   ElMatrix_s x );
-EL_EXPORT ElError ElQuadraticProgram_d
+EL_EXPORT ElError ElQPPrimal_d
 ( ElConstMatrix_d Q, ElConstMatrix_d A, 
   ElConstMatrix_d b, ElConstMatrix_d c,
   ElMatrix_d x );
 
-EL_EXPORT ElError ElQuadraticProgramDist_s
+EL_EXPORT ElError ElQPPrimalDist_s
 ( ElConstDistMatrix_s Q, ElConstDistMatrix_s A, 
   ElConstDistMatrix_s b, ElConstDistMatrix_s c,
   ElDistMatrix_s x );
-EL_EXPORT ElError ElQuadraticProgramDist_d
+EL_EXPORT ElError ElQPPrimalDist_d
 ( ElConstDistMatrix_d Q, ElConstDistMatrix_d A, 
   ElConstDistMatrix_d b, ElConstDistMatrix_d c,
   ElDistMatrix_d x );
 
-EL_EXPORT ElError ElQuadraticProgramSparse_s
+EL_EXPORT ElError ElQPPrimalSparse_s
 ( ElConstSparseMatrix_s Q, ElConstSparseMatrix_s A, 
   ElConstMatrix_s b, ElConstMatrix_s c,
   ElMatrix_s x );
-EL_EXPORT ElError ElQuadraticProgramSparse_d
+EL_EXPORT ElError ElQPPrimalSparse_d
 ( ElConstSparseMatrix_d Q, ElConstSparseMatrix_d A, 
   ElConstMatrix_d b, ElConstMatrix_d c,
   ElMatrix_d x );
 
-EL_EXPORT ElError ElQuadraticProgramDistSparse_s
+EL_EXPORT ElError ElQPPrimalDistSparse_s
 ( ElConstDistSparseMatrix_s Q, ElConstDistSparseMatrix_s A, 
   ElConstDistMultiVec_s b, ElConstDistMultiVec_s c,
   ElDistMultiVec_s x );
-EL_EXPORT ElError ElQuadraticProgramDistSparse_d
+EL_EXPORT ElError ElQPPrimalDistSparse_d
 ( ElConstDistSparseMatrix_d Q, ElConstDistSparseMatrix_d A, 
   ElConstDistMultiVec_d b, ElConstDistMultiVec_d c,
   ElDistMultiVec_d x );
 
-/* IPF
-   --- */
-EL_EXPORT ElError ElQuadraticProgramIPF_s
+/* Infeasible Path-Following
+   ^^^^^^^^^^^^^^^^^^^^^^^^^ */
+EL_EXPORT ElError ElQPPrimalIPF_s
 ( ElConstMatrix_s Q, ElConstMatrix_s A, 
   ElConstMatrix_s b, ElConstMatrix_s c,
   ElMatrix_s x, ElMatrix_s y, ElMatrix_s z );
-EL_EXPORT ElError ElQuadraticProgramIPF_d
+EL_EXPORT ElError ElQPPrimalIPF_d
 ( ElConstMatrix_d Q, ElConstMatrix_d A, 
   ElConstMatrix_d b, ElConstMatrix_d c,
   ElMatrix_d x, ElMatrix_d y, ElMatrix_d z );
 
-EL_EXPORT ElError ElQuadraticProgramIPFDist_s
+EL_EXPORT ElError ElQPPrimalIPFDist_s
 ( ElConstDistMatrix_s Q, ElConstDistMatrix_s A, 
   ElConstDistMatrix_s b, ElConstDistMatrix_s c,
   ElDistMatrix_s x, ElDistMatrix_s y, ElDistMatrix_s z );
-EL_EXPORT ElError ElQuadraticProgramIPFDist_d
+EL_EXPORT ElError ElQPPrimalIPFDist_d
 ( ElConstDistMatrix_d Q, ElConstDistMatrix_d A, 
   ElConstDistMatrix_d b, ElConstDistMatrix_d c,
   ElDistMatrix_d x, ElDistMatrix_d y, ElDistMatrix_d z );
 
-EL_EXPORT ElError ElQuadraticProgramIPFSparse_s
+EL_EXPORT ElError ElQPPrimalIPFSparse_s
 ( ElConstSparseMatrix_s Q, ElConstSparseMatrix_s A, 
   ElConstMatrix_s b, ElConstMatrix_s c,
   ElMatrix_s x, ElMatrix_s y, ElMatrix_s z );
-EL_EXPORT ElError ElQuadraticProgramIPFSparse_d
+EL_EXPORT ElError ElQPPrimalIPFSparse_d
 ( ElConstSparseMatrix_d Q, ElConstSparseMatrix_d A, 
   ElConstMatrix_d b, ElConstMatrix_d c,
   ElMatrix_d x, ElMatrix_d y, ElMatrix_d z );
 
-EL_EXPORT ElError ElQuadraticProgramIPFDistSparse_s
+EL_EXPORT ElError ElQPPrimalIPFDistSparse_s
 ( ElConstDistSparseMatrix_s Q, ElConstDistSparseMatrix_s A, 
   ElConstDistMultiVec_s b, ElConstDistMultiVec_s c,
   ElDistMultiVec_s x, ElDistMultiVec_s y, ElDistMultiVec_s z );
-EL_EXPORT ElError ElQuadraticProgramIPFDistSparse_d
+EL_EXPORT ElError ElQPPrimalIPFDistSparse_d
 ( ElConstDistSparseMatrix_d Q, ElConstDistSparseMatrix_d A, 
   ElConstDistMultiVec_d b, ElConstDistMultiVec_d c,
   ElDistMultiVec_d x, ElDistMultiVec_d y, ElDistMultiVec_d z );
 
-/* Mehrotra
+/* Mehrotra Predictor-Corrector
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
+EL_EXPORT ElError ElQPPrimalMehrotra_s
+( ElConstMatrix_s Q, ElConstMatrix_s A, 
+  ElConstMatrix_s b, ElConstMatrix_s c,
+  ElMatrix_s x, ElMatrix_s y, ElMatrix_s z );
+EL_EXPORT ElError ElQPPrimalMehrotra_d
+( ElConstMatrix_d Q, ElConstMatrix_d A, 
+  ElConstMatrix_d b, ElConstMatrix_d c,
+  ElMatrix_d x, ElMatrix_d y, ElMatrix_d z );
+
+EL_EXPORT ElError ElQPPrimalMehrotraDist_s
+( ElConstDistMatrix_s Q, ElConstDistMatrix_s A, 
+  ElConstDistMatrix_s b, ElConstDistMatrix_s c,
+  ElDistMatrix_s x, ElDistMatrix_s y, ElDistMatrix_s z );
+EL_EXPORT ElError ElQPPrimalMehrotraDist_d
+( ElConstDistMatrix_d Q, ElConstDistMatrix_d A, 
+  ElConstDistMatrix_d b, ElConstDistMatrix_d c,
+  ElDistMatrix_d x, ElDistMatrix_d y, ElDistMatrix_d z );
+
+EL_EXPORT ElError ElQPPrimalMehrotraSparse_s
+( ElConstSparseMatrix_s Q, ElConstSparseMatrix_s A, 
+  ElConstMatrix_s b, ElConstMatrix_s c,
+  ElMatrix_s x, ElMatrix_s y, ElMatrix_s z );
+EL_EXPORT ElError ElQPPrimalMehrotraSparse_d
+( ElConstSparseMatrix_d Q, ElConstSparseMatrix_d A, 
+  ElConstMatrix_d b, ElConstMatrix_d c,
+  ElMatrix_d x, ElMatrix_d y, ElMatrix_d z );
+
+EL_EXPORT ElError ElQPPrimalMehrotraDistSparse_s
+( ElConstDistSparseMatrix_s Q, ElConstDistSparseMatrix_s A, 
+  ElConstDistMultiVec_s b, ElConstDistMultiVec_s c,
+  ElDistMultiVec_s x, ElDistMultiVec_s y, ElDistMultiVec_s z );
+EL_EXPORT ElError ElQPPrimalMehrotraDistSparse_d
+( ElConstDistSparseMatrix_d Q, ElConstDistSparseMatrix_d A, 
+  ElConstDistMultiVec_d b, ElConstDistMultiVec_d c,
+  ElDistMultiVec_d x, ElDistMultiVec_d y, ElDistMultiVec_d z );
+
+/* Box form
    -------- */
-EL_EXPORT ElError ElQuadraticProgramMehrotra_s
-( ElConstMatrix_s Q, ElConstMatrix_s A, 
-  ElConstMatrix_s b, ElConstMatrix_s c,
-  ElMatrix_s x, ElMatrix_s y, ElMatrix_s z );
-EL_EXPORT ElError ElQuadraticProgramMehrotra_d
-( ElConstMatrix_d Q, ElConstMatrix_d A, 
-  ElConstMatrix_d b, ElConstMatrix_d c,
-  ElMatrix_d x, ElMatrix_d y, ElMatrix_d z );
 
-EL_EXPORT ElError ElQuadraticProgramMehrotraDist_s
-( ElConstDistMatrix_s Q, ElConstDistMatrix_s A, 
-  ElConstDistMatrix_s b, ElConstDistMatrix_s c,
-  ElDistMatrix_s x, ElDistMatrix_s y, ElDistMatrix_s z );
-EL_EXPORT ElError ElQuadraticProgramMehrotraDist_d
-( ElConstDistMatrix_d Q, ElConstDistMatrix_d A, 
-  ElConstDistMatrix_d b, ElConstDistMatrix_d c,
-  ElDistMatrix_d x, ElDistMatrix_d y, ElDistMatrix_d z );
-
-EL_EXPORT ElError ElQuadraticProgramMehrotraSparse_s
-( ElConstSparseMatrix_s Q, ElConstSparseMatrix_s A, 
-  ElConstMatrix_s b, ElConstMatrix_s c,
-  ElMatrix_s x, ElMatrix_s y, ElMatrix_s z );
-EL_EXPORT ElError ElQuadraticProgramMehrotraSparse_d
-( ElConstSparseMatrix_d Q, ElConstSparseMatrix_d A, 
-  ElConstMatrix_d b, ElConstMatrix_d c,
-  ElMatrix_d x, ElMatrix_d y, ElMatrix_d z );
-
-EL_EXPORT ElError ElQuadraticProgramMehrotraDistSparse_s
-( ElConstDistSparseMatrix_s Q, ElConstDistSparseMatrix_s A, 
-  ElConstDistMultiVec_s b, ElConstDistMultiVec_s c,
-  ElDistMultiVec_s x, ElDistMultiVec_s y, ElDistMultiVec_s z );
-EL_EXPORT ElError ElQuadraticProgramMehrotraDistSparse_d
-( ElConstDistSparseMatrix_d Q, ElConstDistSparseMatrix_d A, 
-  ElConstDistMultiVec_d b, ElConstDistMultiVec_d c,
-  ElDistMultiVec_d x, ElDistMultiVec_d y, ElDistMultiVec_d z );
-
-/* ADMM (non-conic form)
-   --------------------- */
-EL_EXPORT ElError ElQuadraticProgramADMM_s
+/* Alternating Direction Method of Multipliers
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
+EL_EXPORT ElError ElQPBoxADMM_s
 ( ElConstMatrix_s Q, ElConstMatrix_s C, float lb, float ub, 
   ElMatrix_s Z, ElInt* numIts );
-EL_EXPORT ElError ElQuadraticProgramADMM_d
+EL_EXPORT ElError ElQPBoxADMM_d
 ( ElConstMatrix_d Q, ElConstMatrix_d C, double lb, double ub, 
   ElMatrix_d Z, ElInt* numIts );
 
-EL_EXPORT ElError ElQuadraticProgramADMMDist_s
+EL_EXPORT ElError ElQPBoxADMMDist_s
 ( ElConstDistMatrix_s Q, ElConstDistMatrix_s C, float lb, float ub, 
   ElDistMatrix_s Z, ElInt* numIts );
-EL_EXPORT ElError ElQuadraticProgramADMMDist_d
+EL_EXPORT ElError ElQPBoxADMMDist_d
 ( ElConstDistMatrix_d Q, ElConstDistMatrix_d C, double lb, double ub, 
   ElDistMatrix_d Z, ElInt* numIts );
 

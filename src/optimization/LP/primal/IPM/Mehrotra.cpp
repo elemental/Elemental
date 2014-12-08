@@ -10,22 +10,20 @@
 #include "./util.hpp"
 
 namespace El {
-namespace lin_prog {
+namespace lp {
+namespace primal {
 
-// The following solves a linear program in reduced conic form:
-//   min c^T x
-//   s.t. x >= 0,
-//        A x = b.
+// The following solves a linear program in "primal" conic form:
 //
-// Standard conic form would instead be of the form
 //   min c^T x
-//   s.t. G x + s = h,
-//        A x = b,
-//        s >= 0,
-// or, equivalently,
-//   min c^T x 
-//   s.t. G x <= h,
-//        A x = b.
+//   s.t. A x = b, x >= 0,
+//
+// as opposed to the more general "dual" conic form:
+//
+//   min c^T x
+//   s.t. A x = b, h - G x >= 0,
+//
+// using a Mehrotra Predictor-Corrector scheme.
 //
 template<typename Real>
 void Mehrotra
@@ -34,7 +32,7 @@ void Mehrotra
   Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::Mehrotra"))    
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::Mehrotra"))    
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -315,7 +313,7 @@ void Mehrotra
   AbstractDistMatrix<Real>& zPre,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::Mehrotra"))    
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::Mehrotra"))    
 
     ProxyCtrl control;
     control.colConstrain = true;
@@ -648,7 +646,7 @@ void Mehrotra
   Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::Mehrotra"))    
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::Mehrotra"))    
     LogicError("Sequential sparse-direct solvers not yet supported");
 }
 
@@ -659,7 +657,7 @@ void Mehrotra
   DistMultiVec<Real>& x, DistMultiVec<Real>& y, DistMultiVec<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::Mehrotra"))    
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::Mehrotra"))    
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -1004,5 +1002,6 @@ void Mehrotra
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
-} // namespace lin_prog
+} // namespace primal
+} // namespace lp
 } // namespace El

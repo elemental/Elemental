@@ -11,127 +11,130 @@
 namespace El {
 
 template<typename Real>
-void LinearProgram
-( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, 
-  Matrix<Real>& x, const LinProgCtrl<Real>& ctrl )
+void LP
+( const Matrix<Real>& A, 
+  const Matrix<Real>& b, const Matrix<Real>& c, 
+        Matrix<Real>& x, const lp::primal::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LinearProgram"))
-    if( ctrl.alg == LIN_PROG_ADMM )
+    DEBUG_ONLY(CallStackEntry cse("LP"))
+    if( ctrl.approach == LP_ADMM )
     {
-       lin_prog::ADMM( A, b, c, x, ctrl.admmCtrl );
+       lp::primal::ADMM( A, b, c, x, ctrl.admmCtrl );
     }
-    else if( ctrl.alg == LIN_PROG_IPF )
+    else if( ctrl.approach == LP_IPF )
     {
        // TODO: Use better initializations
        Matrix<Real> y, z;
        Zeros( y, A.Height(), 1 );
        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
-       lin_prog::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
+       lp::primal::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
     }
-    else if( ctrl.alg == LIN_PROG_MEHROTRA )
+    else if( ctrl.approach == LP_MEHROTRA )
     {
        // TODO: Use better initializations
        Matrix<Real> y, z;
        Zeros( y, A.Height(), 1 );
        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
-       lin_prog::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
+       lp::primal::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
     }
 }
 
 template<typename Real>
-void LinearProgram
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
-  const AbstractDistMatrix<Real>& c,       AbstractDistMatrix<Real>& x,
-  const LinProgCtrl<Real>& ctrl )
+void LP
+( const AbstractDistMatrix<Real>& A, 
+  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
+        AbstractDistMatrix<Real>& x, const lp::primal::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LinearProgram"))
-    if( ctrl.alg == LIN_PROG_ADMM )
+    DEBUG_ONLY(CallStackEntry cse("LP"))
+    if( ctrl.approach == LP_ADMM )
     {
-       lin_prog::ADMM( A, b, c, x, ctrl.admmCtrl );
+       lp::primal::ADMM( A, b, c, x, ctrl.admmCtrl );
     }
-    else if( ctrl.alg == LIN_PROG_IPF )
+    else if( ctrl.approach == LP_IPF )
     {
        // TODO: Use better initializations
        DistMatrix<Real> y(A.Grid()), z(A.Grid());
        Zeros( y, A.Height(), 1 );
        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
-       lin_prog::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
+       lp::primal::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
     }
-    else if( ctrl.alg == LIN_PROG_MEHROTRA )
+    else if( ctrl.approach == LP_MEHROTRA )
     {
        // TODO: Use better initializations
        DistMatrix<Real> y(A.Grid()), z(A.Grid());
        Zeros( y, A.Height(), 1 );
        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
-       lin_prog::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
+       lp::primal::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
     }
 }
 
 template<typename Real>
-void LinearProgram
+void LP
 ( const SparseMatrix<Real>& A, 
   const Matrix<Real>& b, const Matrix<Real>& c, 
-  Matrix<Real>& x, const LinProgCtrl<Real>& ctrl )
+        Matrix<Real>& x, const lp::primal::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LinearProgram"))
-    if( ctrl.alg == LIN_PROG_IPF )
+    DEBUG_ONLY(CallStackEntry cse("LP"))
+    if( ctrl.approach == LP_IPF )
     {
        // TODO: Use better initializations
        Matrix<Real> y, z;
        Zeros( y, A.Height(), 1 );
        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
-       lin_prog::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
+       lp::primal::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
     }
-    else // ctrl.alg == LIN_PROG_MEHROTRA
+    else // ctrl.approach == LP_MEHROTRA
     {
        // TODO: Use better initializations
        Matrix<Real> y, z;
        Zeros( y, A.Height(), 1 );
        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
-       lin_prog::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
+       lp::primal::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
     }
 }
 
 template<typename Real>
-void LinearProgram
+void LP
 ( const DistSparseMatrix<Real>& A, 
   const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, 
-  DistMultiVec<Real>& x, const LinProgCtrl<Real>& ctrl )
+        DistMultiVec<Real>& x, const lp::primal::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LinearProgram"))
-    if( ctrl.alg == LIN_PROG_IPF )
+    DEBUG_ONLY(CallStackEntry cse("LP"))
+    if( ctrl.approach == LP_IPF )
     {
        // TODO: Use better initializations
        DistMultiVec<Real> y(A.Comm()), z(A.Comm());
        Zeros( y, A.Height(), 1 );
        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
-       lin_prog::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
+       lp::primal::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
     }
-    else // ctrl.alg == LIN_PROG_MEHROTRA
+    else // ctrl.approach == LP_MEHROTRA
     {
        // TODO: Use better initializations
        DistMultiVec<Real> y(A.Comm()), z(A.Comm());
        Zeros( y, A.Height(), 1 );
        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
-       lin_prog::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
+       lp::primal::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
     }
 }
 
 #define PROTO(Real) \
-  template void LinearProgram \
-  ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, \
-    Matrix<Real>& x, const LinProgCtrl<Real>& ctrl ); \
-  template void LinearProgram \
-  ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, \
-    const AbstractDistMatrix<Real>& c,       AbstractDistMatrix<Real>& x, \
-    const LinProgCtrl<Real>& ctrl ); \
-  template void LinearProgram \
-  ( const SparseMatrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, \
-    Matrix<Real>& x, const LinProgCtrl<Real>& ctrl ); \
-  template void LinearProgram \
+  template void LP \
+  ( const Matrix<Real>& A, \
+    const Matrix<Real>& b, const Matrix<Real>& c, \
+          Matrix<Real>& x, const lp::primal::Ctrl<Real>& ctrl ); \
+  template void LP \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
+          AbstractDistMatrix<Real>& x, const lp::primal::Ctrl<Real>& ctrl ); \
+  template void LP \
+  ( const SparseMatrix<Real>& A, \
+    const Matrix<Real>& b, const Matrix<Real>& c, \
+          Matrix<Real>& x, const lp::primal::Ctrl<Real>& ctrl ); \
+  template void LP \
   ( const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, \
-    DistMultiVec<Real>& x, const LinProgCtrl<Real>& ctrl );
+          DistMultiVec<Real>& x, const lp::primal::Ctrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

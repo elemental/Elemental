@@ -9,7 +9,8 @@
 #include "El.hpp"
 
 namespace El {
-namespace lin_prog {
+namespace lp {
+namespace primal {
 
 // Form 
 //    J = | -Z*inv(X) A^T | and rhs = | -r_c + r_mu / X |,
@@ -33,7 +34,7 @@ void AugmentedKKT
   const Matrix<Real>& x, const Matrix<Real>& z,
   Matrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::AugmentedKKT"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::AugmentedKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -56,7 +57,7 @@ void AugmentedKKT
   const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z,
   AbstractDistMatrix<Real>& JPre, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::AugmentedKKT"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::AugmentedKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -82,7 +83,7 @@ void AugmentedKKT
   const Matrix<Real>& x, const Matrix<Real>& z,
   SparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::AugmentedKKT"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::AugmentedKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntries = A.NumEntries();
@@ -112,7 +113,7 @@ void AugmentedKKT
   const DistMultiVec<Real>& x, const DistMultiVec<Real>& z,
   DistSparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::AugmentedKKT"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::AugmentedKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -226,7 +227,7 @@ void AugmentedKKTRHS
   const Matrix<Real>& rmu, const Matrix<Real>& rc, const Matrix<Real>& rb,
   Matrix<Real>& rhs )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::AugmentedKKTRHS"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::AugmentedKKTRHS"))
     const Int m = rb.Height();
     const Int n = rmu.Height();
     const IR xInd(0,n), yInd(n,n+m);
@@ -250,7 +251,7 @@ void AugmentedKKTRHS
   const AbstractDistMatrix<Real>& rb,
   AbstractDistMatrix<Real>& rhsPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::AugmentedKKTRHS"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::AugmentedKKTRHS"))
 
     ProxyCtrl ctrl;
     ctrl.colConstrain = true;
@@ -283,7 +284,7 @@ void AugmentedKKTRHS
   const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rc, 
   const DistMultiVec<Real>& rb, DistMultiVec<Real>& rhs )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::FormAugmentedSystem"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::FormAugmentedSystem"))
     const Int m = rb.Height();
     const Int n = x.Height();
 
@@ -363,7 +364,7 @@ void ExpandAugmentedSolution
   const Matrix<Real>& rmu, const Matrix<Real>& rhs,
   Matrix<Real>& dx, Matrix<Real>& dy, Matrix<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::ExpandAugmentedSolution"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandAugmentedSolution"))
     const Int n = rmu.Height();
     const Int m = rhs.Height() - n;
 
@@ -398,7 +399,7 @@ void ExpandAugmentedSolution
   AbstractDistMatrix<Real>& dxPre, AbstractDistMatrix<Real>& dy, 
   AbstractDistMatrix<Real>& dzPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::ExpandAugmentedSolution"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandAugmentedSolution"))
 
     ProxyCtrl ctrl;
     ctrl.colConstrain = true;
@@ -447,7 +448,7 @@ void ExpandAugmentedSolution
   const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rhs,
   DistMultiVec<Real>& dx, DistMultiVec<Real>& dy, DistMultiVec<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::ExpandAugmentedSolution"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandAugmentedSolution"))
     const Int n = rmu.Height();
     const Int m = rhs.Height() - n;
     mpi::Comm comm = z.Comm();
@@ -577,5 +578,6 @@ void ExpandAugmentedSolution
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
-} // namespace lin_prog
+} // namespace primal
+} // namespace lp
 } // namespace El

@@ -9,10 +9,11 @@
 import El
 import time
 
-m = 2000
-n = 4000
+m = 1000
+n = 2000
 testMehrotra = True
 testIPF = True
+testADMM = False
 display = False
 worldRank = El.mpi.WorldRank()
 
@@ -58,8 +59,8 @@ xOrig = El.DistMatrix()
 yOrig = El.DistMatrix()
 zOrig = El.DistMatrix()
 El.Uniform(xOrig,n,1,0.5,0.4999)
-El.Uniform(yOrig,n,1,0.5,0.4999)
-El.Uniform(zOrig,m,1,0.5,0.4999)
+El.Uniform(yOrig,m,1,0.5,0.4999)
+El.Uniform(zOrig,n,1,0.5,0.4999)
 x = El.DistMatrix()
 y = El.DistMatrix()
 z = El.DistMatrix()
@@ -69,7 +70,7 @@ if testMehrotra:
   El.Copy( yOrig, y )
   El.Copy( zOrig, z )
   startMehrotra = time.clock()
-  El.LinearProgramMehrotra(A,b,c,x,y,z)
+  El.LPPrimalMehrotra(A,b,c,x,y,z)
   endMehrotra = time.clock()
   if worldRank == 0:
     print "Mehrotra time:", endMehrotra-startMehrotra
@@ -88,7 +89,7 @@ if testIPF:
   El.Copy( yOrig, y )
   El.Copy( zOrig, z )
   startIPF = time.clock()
-  El.LinearProgramIPF(A,b,c,x,y,z)
+  El.LPPrimalIPF(A,b,c,x,y,z)
   endIPF = time.clock()
   if worldRank == 0:
     print "IPF time:", endIPF-startIPF
@@ -101,6 +102,20 @@ if testIPF:
   obj = El.Dot(c,x)
   if worldRank == 0:
     print "IPF c^T x =", obj
+
+if testADMM:
+  startADMM = time.clock()
+  x = El.LPPrimalADMM(A,b,c)
+  endADMM = time.clock()
+  if worldRank == 0:
+    print "ADMM time:", endADMM-startADMM
+
+  if display:
+    El.Display( x, "x ADMM" )
+
+  obj = El.Dot(c,x)
+  if worldRank == 0:
+    print "ADMM c^T x =", obj
 
 # Require the user to press a button before the figures are closed
 commSize = El.mpi.Size( El.mpi.COMM_WORLD() )

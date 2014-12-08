@@ -26,7 +26,7 @@ Int NonNegativeLeastSquares
     Gemm( ADJOINT, NORMAL, Real(-1), A, Y, C );
 
     // TODO: Accept this as an argument to NonNegativeLeastSquares instead
-    quad_prog::ADMMCtrl<Real> ctrl;
+    qp::box::ADMMCtrl<Real> ctrl;
     ctrl.rho = rho;
     ctrl.alpha = alpha;
     ctrl.maxIter = maxIter;
@@ -35,7 +35,7 @@ Int NonNegativeLeastSquares
     ctrl.inv = inv;
     ctrl.print = progress;
     
-    return quad_prog::ADMM( Q, C, Real(0), maxReal, Z, ctrl );
+    return qp::box::ADMM( Q, C, Real(0), maxReal, Z, ctrl );
 }
 
 template<typename Real>
@@ -58,7 +58,7 @@ Int NonNegativeLeastSquares
     Gemm( ADJOINT, NORMAL, Real(-1), A, Y, C );
     
     // TODO: Accept this as an argument to NonNegativeLeastSquares instead
-    quad_prog::ADMMCtrl<Real> ctrl;
+    qp::box::ADMMCtrl<Real> ctrl;
     ctrl.rho = rho;
     ctrl.alpha = alpha;
     ctrl.maxIter = maxIter;
@@ -67,7 +67,7 @@ Int NonNegativeLeastSquares
     ctrl.inv = inv;
     ctrl.print = progress;
     
-    return quad_prog::ADMM( Q, C, Real(0), maxReal, Z, ctrl );
+    return qp::box::ADMM( Q, C, Real(0), maxReal, Z, ctrl );
 }
 
 #define PROTO(Real) \

@@ -9,7 +9,8 @@
 #include "El.hpp"
 
 namespace El {
-namespace lin_prog {
+namespace lp {
+namespace primal {
 
 // These implementations are adaptations of the solver described at
 //    http://www.stanford.edu/~boyd/papers/admm/linprog/linprog.html
@@ -26,9 +27,7 @@ Int ADMM
   Matrix<Real>& z,
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::ADMM"))
-    if( IsComplex<Real>::val ) 
-        LogicError("The datatype was assumed to be real");
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::ADMM"))
     
     // Cache a custom partially-pivoted LU factorization of 
     //    |  rho*I   A^H | = | B11  B12 |
@@ -178,16 +177,13 @@ Int ADMM
   const AbstractDistMatrix<Real>& cPre,       AbstractDistMatrix<Real>& zPre, 
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::ADMM"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::ADMM"))
 
     auto APtr = ReadProxy<Real,MC,MR>( &APre );  auto& A = *APtr;
     auto bPtr = ReadProxy<Real,MC,MR>( &bPre );  auto& b = *bPtr;
     auto cPtr = ReadProxy<Real,MC,MR>( &cPre );  auto& c = *cPtr;
     auto zPtr = WriteProxy<Real,MC,MR>( &zPre ); auto& z = *zPtr;
 
-    if( IsComplex<Real>::val ) 
-        LogicError("The datatype was assumed to be real");
-    
     // Cache a custom partially-pivoted LU factorization of 
     //    |  rho*I   A^H | = | B11  B12 |
     //    |  A       0   |   | B21  B22 |
@@ -348,5 +344,6 @@ Int ADMM
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
-} // namespace lin_prog
+} // namespace primal
+} // namespace lp
 } // namespace El

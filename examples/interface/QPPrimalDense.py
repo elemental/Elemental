@@ -9,46 +9,49 @@
 import El
 import time
 
-m = 2000
-n = 4000
+m = 1000
+n = 2000
 testMehrotra = True
 testIPF = True
+#testADMM = False
 display = False
 worldRank = El.mpi.WorldRank()
 
-# Make a sparse matrix with the last column dense
-def Rectang(m,n):
-  A = El.DistSparseMatrix()
-  A.Resize(m,n)
-  firstLocalRow = A.FirstLocalRow()
-  localHeight = A.LocalHeight()
-  A.Reserve(5*localHeight)
-  for sLoc in xrange(localHeight):
-    s = firstLocalRow + sLoc
-    A.QueueLocalUpdate( sLoc, s, 11 )
-    if s != 0:   A.QueueLocalUpdate( sLoc, s-1,   1 )
-    if s != n-1: A.QueueLocalUpdate( sLoc, s+1,   2 )
-    if s >= m:   A.QueueLocalUpdate( sLoc, s-m,   3 )
-    if s <  n-m: A.QueueLocalUpdate( sLoc, s+m,   4 )
-    # The dense last column
-    A.QueueLocalUpdate( sLoc, n-1, 5./m );
+# Make a sparse semidefinite matrix
+def Semidefinite(n):
+  Q = El.DistMatrix()
+  El.Identity( Q, n, n )
+  return Q
 
-  A.MakeConsistent()
+# Make a sparse matrix with the last column dense
+def RectangDense(m,n):
+  A = El.DistMatrix()
+  El.Zeros( A, m, n )
+  for s in xrange(m):
+    A.Update( s, s, 11 )
+    if s != 0:   A.Update( s, s-1,   1 )
+    if s != n-1: A.Update( s, s+1,   2 )
+    if s >= m:   A.Update( s, s-m,   3 )
+    if s <  n-m: A.Update( s, s+m,   4 )
+    # The dense last column
+    A.Update( s, n-1, 5./m );
+
   return A
 
-A = Rectang(m,n)
+Q = Semidefinite(n)
+A = RectangDense(m,n)
 
 # Generate a right-hand side in the positive image
 # ================================================
-xGen = El.DistMultiVec()
+xGen = El.DistMatrix()
 El.Uniform(xGen,n,1,0.5,0.4999)
-b = El.DistMultiVec()
+b = El.DistMatrix()
 El.Zeros( b, m, 1 )
-El.SparseMultiply( El.NORMAL, 1., A, xGen, 0., b )
+El.Gemv( El.NORMAL, 1., A, xGen, 0., b )
 
 # Generate a random positive cost function
 # ========================================
-c = El.DistMultiVec()
+c = El.DistMatrix()
 El.Uniform(c,n,1,0.5,0.4999)
 
 if display:
@@ -59,41 +62,45 @@ if display:
 
 # Generate random initial guesses
 # ===============================
-xOrig = El.DistMultiVec()
-yOrig = El.DistMultiVec()
-zOrig = El.DistMultiVec()
+xOrig = El.DistMatrix()
+yOrig = El.DistMatrix()
+zOrig = El.DistMatrix()
 El.Uniform(xOrig,n,1,0.5,0.4999)
 El.Uniform(yOrig,m,1,0.5,0.4999)
 El.Uniform(zOrig,n,1,0.5,0.4999)
-x = El.DistMultiVec()
-y = El.DistMultiVec()
-z = El.DistMultiVec()
+x = El.DistMatrix()
+y = El.DistMatrix()
+z = El.DistMatrix()
 
 if testMehrotra:
   El.Copy( xOrig, x )
   El.Copy( yOrig, y )
   El.Copy( zOrig, z )
   startMehrotra = time.clock()
-  El.LinearProgramMehrotra(A,b,c,x,y,z)
+  El.QPPrimalMehrotra(Q,A,b,c,x,y,z)
   endMehrotra = time.clock()
   if worldRank == 0:
     print "Mehrotra time:", endMehrotra-startMehrotra
 
   if display:
-    El.Display( x, "x Mehotra" )
-    El.Display( y, "y Mehotra" )
-    El.Display( z, "z Mehotra" )
+    El.Display( x, "x Mehrotra" )
+    El.Display( y, "y Mehrotra" )
+    El.Display( z, "z Mehrotra" )
 
-  obj = El.Dot(c,x)
+  Q_x = El.DistMatrix()
+  El.Zeros( Q_x, n, 1 )
+  El.Gemv( El.NORMAL, 1., Q, x, 0., Q_x )
+  xTQx = El.Dot(x,Q_x)
+  obj = El.Dot(c,x) + xTQx/2
   if worldRank == 0:
-    print "Mehrotra c^T x =", obj
+    print "Mehrotra primal objective =", obj
 
 if testIPF:
   El.Copy( xOrig, x )
   El.Copy( yOrig, y )
   El.Copy( zOrig, z )
   startIPF = time.clock()
-  El.LinearProgramIPF(A,b,c,x,y,z)
+  El.QPPrimalIPF(Q,A,b,c,x,y,z)
   endIPF = time.clock()
   if worldRank == 0:
     print "IPF time:", endIPF-startIPF
@@ -103,9 +110,15 @@ if testIPF:
     El.Display( y, "y IPF" )
     El.Display( z, "z IPF" )
 
-  obj = El.Dot(c,x)
+  Q_x = El.DistMatrix()
+  El.Zeros( Q_x, n, 1 )
+  El.Gemv( El.NORMAL, 1., Q, x, 0., Q_x )
+  xTQx = El.Dot(x,Q_x)
+  obj = El.Dot(c,x) + xTQx/2
   if worldRank == 0:
-    print "IPF c^T x =", obj
+    print "IPF primal objective =", obj
+
+# TODO: Add ADMM test after implementation exists
 
 # Require the user to press a button before the figures are closed
 commSize = El.mpi.Size( El.mpi.COMM_WORLD() )

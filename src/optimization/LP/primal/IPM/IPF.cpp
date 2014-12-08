@@ -10,23 +10,22 @@
 #include "./util.hpp"
 
 namespace El {
-namespace lin_prog {
+namespace lp {
+namespace primal {
 
-// The following solves a linear program in reduced conic form:
-//   min c^T x
-//   s.t. x >= 0,
-//        A x = b.
+// The following solves a linear program in "primal" conic form:
 //
-// Standard conic form would instead be of the form
 //   min c^T x
-//   s.t. G x + s = h,
-//        A x = b,
-//        s >= 0,
-// or, equivalently,
-//   min c^T x 
-//   s.t. G x <= h,
-//        A x = b.
+//   s.t. A x = b, x >= 0,
 //
+// as opposed to the more general "dual" conic form:
+//
+//   min c^T x
+//   s.t. A x = b, h - G x >= 0,
+//
+// using a simple Infeasible Path Following (IPF) scheme. This routine
+// should only be used for academic purposes, as the Mehrotra alternative
+// typically requires an order of magnitude fewer iterations.
 template<typename Real>
 void IPF
 ( const Matrix<Real>& A, 
@@ -34,7 +33,7 @@ void IPF
   Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::IPF"))    
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -203,7 +202,7 @@ void IPF
   AbstractDistMatrix<Real>& xPre, AbstractDistMatrix<Real>& y, 
   AbstractDistMatrix<Real>& zPre, const IPFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::IPF"))    
 
     ProxyCtrl proxCtrl;
     proxCtrl.colConstrain = true;
@@ -398,7 +397,7 @@ void IPF
   Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::IPF"))    
     LogicError("Sequential sparse-direct solvers not yet supported");
 }
 
@@ -409,7 +408,7 @@ void IPF
   DistMultiVec<Real>& x, DistMultiVec<Real>& y, DistMultiVec<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::IPF"))    
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::IPF"))    
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -634,23 +633,23 @@ void IPF
 #define PROTO(Real) \
   template void IPF \
   ( const Matrix<Real>& A, \
-    const Matrix<Real>& b,  const Matrix<Real>& c, \
+    const Matrix<Real>& b, const Matrix<Real>& c, \
     Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z, \
     const IPFCtrl<Real>& ctrl ); \
   template void IPF \
   ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c, \
+    const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
     AbstractDistMatrix<Real>& x, AbstractDistMatrix<Real>& y, \
     AbstractDistMatrix<Real>& z, \
     const IPFCtrl<Real>& ctrl ); \
   template void IPF \
   ( const SparseMatrix<Real>& A, \
-    const Matrix<Real>& b,  const Matrix<Real>& c, \
+    const Matrix<Real>& b, const Matrix<Real>& c, \
     Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z, \
     const IPFCtrl<Real>& ctrl ); \
   template void IPF \
   ( const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c, \
+    const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, \
     DistMultiVec<Real>& x, DistMultiVec<Real>& y, DistMultiVec<Real>& z, \
     const IPFCtrl<Real>& ctrl );
 
@@ -658,5 +657,6 @@ void IPF
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
-} // namespace lin_prog
+} // namespace primal
+} // namespace lp
 } // namespace El

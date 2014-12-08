@@ -9,7 +9,8 @@
 #include "El.hpp"
 
 namespace El {
-namespace quad_prog {
+namespace qp {
+namespace primal {
 
 // Form 
 //    J = | -Q-Z*inv(X) A^T | and y = | -r_c + r_mu / X |,
@@ -33,7 +34,7 @@ void AugmentedKKT
   const Matrix<Real>& x, const Matrix<Real>& z,
         Matrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::AugmentedKKT"))
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::AugmentedKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -57,7 +58,7 @@ void AugmentedKKT
   const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z,
   AbstractDistMatrix<Real>& JPre, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::AugmentedKKT"))
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::AugmentedKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -84,7 +85,7 @@ void AugmentedKKT
   const Matrix<Real>& x, const Matrix<Real>& z,
   SparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::AugmentedKKT"))
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::AugmentedKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -116,7 +117,7 @@ void AugmentedKKT
   const DistMultiVec<Real>& x, const DistMultiVec<Real>& z,
   DistSparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::AugmentedKKT"))
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::AugmentedKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -247,7 +248,7 @@ void AugmentedKKTRHS
   const Matrix<Real>& rmu, const Matrix<Real>& rc, const Matrix<Real>& rb,
   Matrix<Real>& rhs )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::AugmentedKKTRHS"))
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::AugmentedKKTRHS"))
     const Int m = rb.Height();
     const Int n = rmu.Height();
     const IR xInd(0,n), yInd(n,n+m);
@@ -271,7 +272,7 @@ void AugmentedKKTRHS
   const AbstractDistMatrix<Real>& rb,
   AbstractDistMatrix<Real>& rhsPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::AugmentedKKTRHS"))
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::AugmentedKKTRHS"))
 
     ProxyCtrl ctrl;
     ctrl.colConstrain = true;
@@ -304,7 +305,7 @@ void AugmentedKKTRHS
   const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rc, 
   const DistMultiVec<Real>& rb, DistMultiVec<Real>& rhs )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::FormAugmentedSystem"))
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::FormAugmentedSystem"))
     const Int m = rb.Height();
     const Int n = x.Height();
 
@@ -384,7 +385,7 @@ void ExpandAugmentedSolution
   const Matrix<Real>& rmu, const Matrix<Real>& rhs,
   Matrix<Real>& dx, Matrix<Real>& dy, Matrix<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::ExpandAugmentedSolution"))
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::ExpandAugmentedSolution"))
     const Int n = rmu.Height();
     const Int m = rhs.Height() - n;
 
@@ -420,7 +421,7 @@ void ExpandAugmentedSolution
         AbstractDistMatrix<Real>& dy, 
         AbstractDistMatrix<Real>& dzPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::ExpandAugmentedSolution"))
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::ExpandAugmentedSolution"))
 
     ProxyCtrl ctrl;
     ctrl.colConstrain = true;
@@ -469,7 +470,7 @@ void ExpandAugmentedSolution
   const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rhs,
   DistMultiVec<Real>& dx, DistMultiVec<Real>& dy, DistMultiVec<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::ExpandAugmentedSolution"))
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::ExpandAugmentedSolution"))
     const Int n = rmu.Height();
     const Int m = rhs.Height() - n;
     mpi::Comm comm = z.Comm();
@@ -599,5 +600,6 @@ void ExpandAugmentedSolution
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
-} // namespace quad_prog
+} // namespace primal
+} // namespace qp
 } // namespace El

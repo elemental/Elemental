@@ -9,7 +9,8 @@
 #include "El.hpp"
 
 namespace El {
-namespace quad_prog {
+namespace qp {
+namespace primal {
 
 template<typename Real>
 Real IPFLineSearch
@@ -20,7 +21,7 @@ Real IPFLineSearch
   Real bTol, Real cTol,
   const IPFLineSearchCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::IPFLineSearch"))
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::IPFLineSearch"))
     if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
         LogicError("gamma must be in (0,1)");
     if( ctrl.beta < Real(1) )
@@ -163,7 +164,7 @@ Real IPFLineSearch
   Real bTol, Real cTol,
   const IPFLineSearchCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::IPFLineSearch"))
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::IPFLineSearch"))
     if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
         LogicError("gamma must be in (0,1)");
     if( ctrl.beta < Real(1) )
@@ -319,7 +320,7 @@ Real IPFLineSearch
   Real bTol, Real cTol,
   const IPFLineSearchCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::IPFLineSearch"))
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::IPFLineSearch"))
     if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
         LogicError("gamma must be in (0,1)");
     if( ctrl.beta < Real(1) )
@@ -467,7 +468,7 @@ Real IPFLineSearch
   Real bTol, Real cTol,
   const IPFLineSearchCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::IPFLineSearch"))
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::IPFLineSearch"))
     if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
         LogicError("gamma must be in (0,1)");
     if( ctrl.beta < Real(1) )
@@ -646,5 +647,6 @@ Real IPFLineSearch
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
-} // namespace quad_prog
+} // namespace primal
+} // namespace qp
 } // namespace El

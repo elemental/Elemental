@@ -9,7 +9,8 @@
 #include "El.hpp"
 
 namespace El {
-namespace lin_prog {
+namespace lp {
+namespace primal {
 
 // Form 
 //    J = | A X inv(Z) A^T |, and 
@@ -36,7 +37,7 @@ void NormalKKT
   const Matrix<Real>& x, const Matrix<Real>& z,
   Matrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::NormalKKT"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::NormalKKT"))
 
     // Form D := X^{1/2} / Z^{1/2}
     // ===========================
@@ -61,7 +62,7 @@ void NormalKKT
   const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z,
   AbstractDistMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::NormalKKT"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::NormalKKT"))
 
     // Form X^{1/2} and Z^{1/2}
     // ========================
@@ -89,7 +90,7 @@ void NormalKKT
   const Matrix<Real>& x, const Matrix<Real>& z,
   SparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::NormalKKT"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::NormalKKT"))
 
     // Form D := X^{1/2} / Z^{1/2}
     // ===========================
@@ -115,7 +116,7 @@ void NormalKKT
   const DistMultiVec<Real>& x, const DistMultiVec<Real>& z, 
   DistSparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::NormalKKT"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::NormalKKT"))
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
     if( !mpi::Congruent( comm, x.Comm() ) )
@@ -148,7 +149,7 @@ void NormalKKTRHS
   const Matrix<Real>& rmu, const Matrix<Real>& rc, const Matrix<Real>& rb,
         Matrix<Real>& rhs )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::NormalKKTRHS"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::NormalKKTRHS"))
 
     // Form the portion of the right-hand side to be multiplied by A
     // =============================================================
@@ -170,7 +171,7 @@ void NormalKKTRHS
   const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& rc, 
   const AbstractDistMatrix<Real>& rb,        AbstractDistMatrix<Real>& rhs )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::NormalKKTRHS"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::NormalKKTRHS"))
 
     // Form the portion of the right-hand side to be multiplied by A
     // =============================================================
@@ -192,7 +193,7 @@ void NormalKKTRHS
   const Matrix<Real>& rmu, const Matrix<Real>& rc, const Matrix<Real>& rb,
         Matrix<Real>& rhs )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::NormalKKTRHS"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::NormalKKTRHS"))
 
     // Form the portion of the right-hand side to be multiplied by A
     // =============================================================
@@ -215,7 +216,7 @@ void NormalKKTRHS
   const DistMultiVec<Real>& rb,
         DistMultiVec<Real>& rhs )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::NormalKKTRHS"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::NormalKKTRHS"))
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
     if( !mpi::Congruent( comm, rmu.Comm() ) )
@@ -255,7 +256,7 @@ void ExpandNormalSolution
   const Matrix<Real>& rmu, const Matrix<Real>& rc,
   Matrix<Real>& dx, const Matrix<Real>& dy, Matrix<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::ExpandNormalSolution"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandNormalSolution"))
 
     // dz := -r_c - A^T dy
     // ===================
@@ -280,7 +281,7 @@ void ExpandNormalSolution
   const AbstractDistMatrix<Real>& dy, 
         AbstractDistMatrix<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::ExpandNormalSolution"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandNormalSolution"))
 
     // dz := -r_c - A^T dy
     // ===================
@@ -303,7 +304,7 @@ void ExpandNormalSolution
   const Matrix<Real>& rmu,     const Matrix<Real>& rc,
   Matrix<Real>& dx, const Matrix<Real>& dy, Matrix<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::ExpandNormalSolution"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandNormalSolution"))
 
     // dz := -r_c - A^T dy
     // ===================
@@ -328,7 +329,7 @@ void ExpandNormalSolution
   const DistMultiVec<Real>& dy, 
         DistMultiVec<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::ExpandNormalSolution"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandNormalSolution"))
 
     // dz := -r_c - A^T dy
     // ===================
@@ -418,5 +419,6 @@ void ExpandNormalSolution
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
-} // namespace lin_prog
+} // namespace primal
+} // namespace lp
 } // namespace El

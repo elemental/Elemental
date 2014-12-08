@@ -10,8 +10,21 @@
 #include "./util.hpp"
 
 namespace El {
-namespace quad_prog {
+namespace qp {
+namespace primal {
 
+// The following solves a quadratic program in "primal" conic form:
+//
+//   min 1/2 x^T Q x + c^T x
+//   s.t. A x = b, x >= 0,
+//
+// as opposed to the more general "dual" conic form:
+//
+//   min 1/2 x^T Q x + c^T x
+//   s.t. A x = b, h - G x >= 0,
+//
+// using a Mehrotra Predictor-Corrector scheme.
+//
 template<typename Real>
 void Mehrotra
 ( const Matrix<Real>& Q, const Matrix<Real>& A, 
@@ -19,7 +32,7 @@ void Mehrotra
   Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::Mehrotra"))    
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::Mehrotra"))    
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -281,7 +294,7 @@ void Mehrotra
   AbstractDistMatrix<Real>& zPre,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::Mehrotra"))
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::Mehrotra"))
 
     ProxyCtrl control;
     control.colConstrain = true;
@@ -597,7 +610,7 @@ void Mehrotra
   Matrix<Real>& s, Matrix<Real>& x, Matrix<Real>& l,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::Mehrotra"))    
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::Mehrotra"))    
     LogicError("Sequential sparse-direct solvers not yet supported");
 }
 
@@ -608,7 +621,7 @@ void Mehrotra
   DistMultiVec<Real>& x, DistMultiVec<Real>& y, DistMultiVec<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::Mehrotra"))    
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::Mehrotra"))    
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -926,5 +939,6 @@ void Mehrotra
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
-} // namespace quad_prog
+} // namespace primal
+} // namespace qp
 } // namespace El

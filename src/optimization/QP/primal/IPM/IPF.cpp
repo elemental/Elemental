@@ -10,8 +10,22 @@
 #include "./util.hpp"
 
 namespace El {
-namespace quad_prog {
+namespace qp {
+namespace primal {
 
+// The following solves a quadratic program in "primal" conic form:
+//
+//   min 1/2 x^T Q x + c^T x
+//   s.t. A x = b, x >= 0,
+//
+// as opposed to the more general "dual" conic form:
+//
+//   min 1/2 x^T Q x + c^T x
+//   s.t. A x = b, h - G x >= 0,
+//
+// using a simple Infeasible Path Following (IPF) scheme. This routine
+// should only be used for academic purposes, as the Mehrotra alternative
+// typically requires an order of magnitude fewer iterations.
 template<typename Real>
 void IPF
 ( const Matrix<Real>& Q, const Matrix<Real>& A, 
@@ -19,7 +33,7 @@ void IPF
   Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::IPF"))    
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::IPF"))    
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -180,7 +194,7 @@ void IPF
   AbstractDistMatrix<Real>& xPre, AbstractDistMatrix<Real>& y, 
   AbstractDistMatrix<Real>& zPre, const IPFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::IPF"))    
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::IPF"))    
 
     ProxyCtrl proxCtrl;
     proxCtrl.colConstrain = true;
@@ -370,7 +384,7 @@ void IPF
   Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::IPF"))    
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::IPF"))    
     LogicError("Sequential sparse-direct solvers not yet supported");
 }
 
@@ -381,7 +395,7 @@ void IPF
   DistMultiVec<Real>& x, DistMultiVec<Real>& y, DistMultiVec<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("quad_prog::IPF"))    
+    DEBUG_ONLY(CallStackEntry cse("qp::primal::IPF"))    
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -612,5 +626,6 @@ void IPF
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
-} // namespace quad_prog
+} // namespace primal
+} // namespace qp
 } // namespace El

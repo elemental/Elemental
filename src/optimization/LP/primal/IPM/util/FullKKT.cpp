@@ -9,7 +9,8 @@
 #include "El.hpp"
 
 namespace El {
-namespace lin_prog {
+namespace lp {
+namespace primal {
 
 //     | X Z 0   |
 // J = | I 0 A^T |, with the variable ordering (z,x,y)
@@ -20,7 +21,7 @@ void KKT
 ( const Matrix<Real>& A, const Matrix<Real>& x, const Matrix<Real>& z,
   Matrix<Real>& J )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::KKT"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::KKT"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -42,7 +43,7 @@ void KKT
   const AbstractDistMatrix<Real>& xPre, const AbstractDistMatrix<Real>& zPre,
   AbstractDistMatrix<Real>& JPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::KKT"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::KKT"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -67,7 +68,7 @@ void KKTRHS
 ( const Matrix<Real>& rmu, const Matrix<Real>& rc, const Matrix<Real>& rb,
   Matrix<Real>& rhs )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::KKTRHS"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::KKTRHS"))
     const Int m = rb.Height();
     const Int n = rc.Height();
     const IR zInd(0,n), xInd(n,2*n), yInd(2*n,2*n+m);
@@ -91,7 +92,7 @@ void KKTRHS
 ( const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& rc, 
   const AbstractDistMatrix<Real>& rb, AbstractDistMatrix<Real>& rhsPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::KKTRHS"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::KKTRHS"))
 
     auto rhsPtr = WriteProxy<Real,MC,MR>(&rhsPre); 
     auto& rhs = *rhsPtr;
@@ -119,7 +120,7 @@ void ExpandKKTSolution
 ( Int m, Int n, const Matrix<Real>& rhs, 
   Matrix<Real>& dx, Matrix<Real>& dy, Matrix<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::ExpandKKTSolution"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandKKTSolution"))
     if( rhs.Height() != 2*n+m || rhs.Width() != 1 )
         LogicError("Right-hand side was the wrong size");
 
@@ -135,7 +136,7 @@ void ExpandKKTSolution
   AbstractDistMatrix<Real>& dx, AbstractDistMatrix<Real>& dy, 
   AbstractDistMatrix<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_prog::ExpandKKTSolution"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandKKTSolution"))
     
     auto rhsPtr = ReadProxy<Real,MC,MR>(&rhsPre);    
     auto& rhs = *rhsPtr;
@@ -176,5 +177,6 @@ void ExpandKKTSolution
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
-} // namespace lin_prog
+} // namespace primal
+} // namespace lp
 } // namespace El
