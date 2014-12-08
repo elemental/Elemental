@@ -117,7 +117,10 @@ template<typename S,typename T>
 void Copy( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B );
 
 void Copy( const Graph& A, Graph& B );
+void Copy( const Graph& A, DistGraph& B );
+void Copy( const DistGraph& A, Graph& B );
 void Copy( const DistGraph& A, DistGraph& B );
+
 void CopyFromRoot( const DistGraph& distGraph, Graph& graph );
 void CopyFromNonRoot( const DistGraph& distGraph, Int root=0 );
 

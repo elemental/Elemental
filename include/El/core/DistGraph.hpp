@@ -118,6 +118,10 @@ private:
     void AssertConsistent() const;
 
     friend class Graph;
+    friend void Copy( const Graph& A, DistGraph& B );
+    friend void Copy( const DistGraph& A, Graph& B );
+    friend void Copy( const DistGraph& A, DistGraph& B );
+
     template<typename F> friend class DistSparseMatrix;
     template<typename F> friend struct DistSymmFrontTree;
 

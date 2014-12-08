@@ -50,32 +50,14 @@ Graph::~Graph() { }
 const Graph& Graph::operator=( const Graph& graph )
 {
     DEBUG_ONLY(CallStackEntry cse("Graph::operator="))
-    numSources_ = graph.numSources_;
-    numTargets_ = graph.numTargets_;
-    sources_ = graph.sources_; 
-    targets_ = graph.targets_;
-
-    consistent_ = graph.consistent_;
-    edgeOffsets_ = graph.edgeOffsets_;
+    Copy( graph, *this );
     return *this;
 }
 
 const Graph& Graph::operator=( const DistGraph& graph )
 {
     DEBUG_ONLY(CallStackEntry cse("Graph::operator="))
-    mpi::Comm comm = graph.Comm();
-    const int commSize = mpi::Size( comm );
-    if( commSize != 1 )
-        LogicError
-        ("Cannot yet construct sequential graph from distributed graph");
-
-    numSources_ = graph.numSources_;
-    numTargets_ = graph.numTargets_;
-    sources_ = graph.sources_; 
-    targets_ = graph.targets_;
-
-    consistent_ = graph.consistent_;
-    edgeOffsets_ = graph.localEdgeOffsets_;
+    Copy( graph, *this );
     return *this;
 }
 

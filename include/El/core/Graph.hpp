@@ -100,6 +100,10 @@ private:
     friend class DistGraph;
     template<typename F> friend class SparseMatrix;
 
+    friend void Copy( const Graph& A, Graph& B );
+    friend void Copy( const Graph& A, DistGraph& B );
+    friend void Copy( const DistGraph& A, Graph& B );
+
     friend void CopyFromRoot( const DistGraph& GDist, Graph& G );
     template<typename U>
     friend void CopyFromRoot

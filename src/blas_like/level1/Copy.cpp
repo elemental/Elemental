@@ -14,7 +14,17 @@ template<typename T>
 void Copy( const Matrix<T>& A, Matrix<T>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
-    B = A; 
+    const Int height = A.Height();
+    const Int width = A.Width();
+    B.Resize( height, width ); 
+
+    const Int ALDim = A.LDim();
+    const Int BLDim = B.LDim();
+    const T* ABuf = A.LockedBuffer();
+    T* BBuf = B.Buffer();
+    EL_PARALLEL_FOR
+    for( Int j=0; j<width; ++j )
+        MemCopy( &BBuf[j*BLDim], &ABuf[j*ALDim], height );
 }
 
 template<typename S,typename T>
@@ -127,13 +137,66 @@ void Copy( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B )
 void Copy( const Graph& A, Graph& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy [Graph]"))
-    B = A;
+    const Int numSources = A.NumSources();
+    const Int numTargets = A.NumTargets();
+
+    B.Resize( numSources, numTargets );
+    // Directly assign instead of queueing up the individual edges
+    B.sources_ = A.sources_;
+    B.targets_ = A.targets_;
+    B.consistent_ = A.consistent_;
+    B.edgeOffsets_ = A.edgeOffsets_;
+    B.MakeConsistent();
+}
+
+void Copy( const Graph& A, DistGraph& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Copy [Graph/DistGraph]"))
+    const Int numSources = A.NumSources();
+    const Int numTargets = A.NumTargets();
+
+    B.SetComm( mpi::COMM_SELF );
+    B.Resize( numSources, numTargets );
+    // Directly assign instead of queueing up the individual edges
+    B.sources_ = A.sources_;
+    B.targets_ = A.targets_;
+    B.consistent_ = A.consistent_;
+    B.localEdgeOffsets_ = A.edgeOffsets_;
+    B.MakeConsistent();
+}
+
+void Copy( const DistGraph& A, Graph& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Copy [DistGraph/Graph]"))
+    const Int numSources = A.NumSources();
+    const Int numTargets = A.NumTargets();
+    mpi::Comm comm = A.Comm();
+    if( mpi::Size(comm) != 1 )
+        LogicError("Cannot yet construct sequential graph from distributed");
+
+    B.Resize( numSources, numTargets );
+    // Directly assign instead of queueing up the individual edges
+    B.sources_ = A.sources_;
+    B.targets_ = A.targets_;
+    B.consistent_ = A.consistent_;
+    B.edgeOffsets_ = A.localEdgeOffsets_;
+    B.MakeConsistent();
 }
 
 void Copy( const DistGraph& A, DistGraph& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy [DistGraph]"))
-    B = A;
+    const Int numSources = A.NumSources();
+    const Int numTargets = A.NumTargets();
+    
+    B.SetComm( A.Comm() );
+    B.Resize( numSources, numTargets );
+    // Directly assign instead of queueing up the individual edges
+    B.sources_ = A.sources_;
+    B.targets_ = A.targets_;
+    B.consistent_ = A.consistent_;
+    B.localEdgeOffsets_ = A.localEdgeOffsets_;
+    B.MakeConsistent();
 }
 
 void CopyFromRoot( const DistGraph& distGraph, Graph& graph )
@@ -352,7 +415,9 @@ template<typename T>
 void Copy( const DistMultiVec<T>& A, DistMultiVec<T>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy [DistMultiVec]"))
-    B = A;
+    B.SetComm( A.Comm() );
+    B.Resize( A.Height(), A.Width() );
+    B.Matrix() = A.LockedMatrix();
 }
 
 template<typename T>

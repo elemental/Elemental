@@ -49,13 +49,10 @@ DistMultiVec<T>::~DistMultiVec()
 // Make a copy
 // -----------
 template<typename T>
-const DistMultiVec<T>& DistMultiVec<T>::operator=( const DistMultiVec<T>& X )
+const DistMultiVec<T>& DistMultiVec<T>::operator=( const DistMultiVec<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("DistMultiVec::operator="))
-    height_ = X.height_;
-    width_ = X.width_;
-    SetComm( X.comm_ );
-    multiVec_ = X.multiVec_;
+    Copy( A, *this );
     return *this;
 }
 

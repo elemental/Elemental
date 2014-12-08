@@ -14,6 +14,8 @@ namespace El {
 
 // Constructors and destructors
 // ============================
+// TODO: Always duplicate the communicator and do not treat mpi::COMM_WORLD
+//       and mpi::COMM_SELF as special cases.
 
 DistGraph::DistGraph()
 : numSources_(0), numTargets_(0), comm_(mpi::COMM_WORLD), consistent_(true)
@@ -63,32 +65,14 @@ DistGraph::~DistGraph()
 const DistGraph& DistGraph::operator=( const Graph& graph )
 {
     DEBUG_ONLY(CallStackEntry cse("DistGraph::operator="))
-    numSources_ = graph.numSources_; 
-    numTargets_ = graph.numTargets_;
-
-    SetComm( mpi::COMM_SELF );
-
-    sources_ = graph.sources_;
-    targets_ = graph.targets_;
-
-    consistent_ = graph.consistent_;
-    localEdgeOffsets_ = graph.edgeOffsets_;
+    Copy( graph, *this );
     return *this;
 }
 
 const DistGraph& DistGraph::operator=( const DistGraph& graph )
 {
     DEBUG_ONLY(CallStackEntry cse("DistGraph::operator="))
-    numSources_ = graph.numSources_;
-    numTargets_ = graph.numTargets_;
-
-    SetComm( graph.comm_ );
-
-    sources_ = graph.sources_;
-    targets_ = graph.targets_;
-
-    consistent_ = graph.consistent_;
-    localEdgeOffsets_ = graph.localEdgeOffsets_;
+    Copy( graph, *this );
     return *this;
 }
 

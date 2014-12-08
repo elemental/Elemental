@@ -129,25 +129,8 @@ const Matrix<T> Matrix<T>::operator()
 template<typename T>
 Matrix<T>& Matrix<T>::operator=( const Matrix<T>& A )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("Matrix::operator=");
-        if( Locked() )
-            LogicError("Cannot assign to a locked view");
-        if( viewType_ != OWNER && 
-            (A.Height() != Height() || A.Width() != Width()) )
-            LogicError("Cannot assign to a view of different dimensions");
-    )
-    if( viewType_ == OWNER )
-        Resize( A.Height(), A.Width() );
-    const Int height = Height();
-    const Int width = Width();
-    const Int ldim = LDim();
-    const Int ldimOfA = A.LDim();
-    const T* src = A.LockedBuffer();
-    T* dst = Buffer();
-    EL_PARALLEL_FOR
-    for( Int j=0; j<width; ++j )
-        MemCopy( &dst[j*ldim], &src[j*ldimOfA], height );
+    DEBUG_ONLY(CallStackEntry cse("Matrix::operator="))
+    Copy( A, *this );
     return *this;
 }
 
