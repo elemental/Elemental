@@ -816,6 +816,16 @@ lib.ElEntrywiseFillDist_c.argtypes = [c_void_p,CFUNCTYPE(cType)]
 lib.ElEntrywiseFillDist_c.restype = c_uint
 lib.ElEntrywiseFillDist_z.argtypes = [c_void_p,CFUNCTYPE(zType)]
 lib.ElEntrywiseFillDist_z.restype = c_uint
+lib.ElEntrywiseFillDistMultiVec_i.argtypes = [c_void_p,CFUNCTYPE(iType)]
+lib.ElEntrywiseFillDistMultiVec_i.restype = c_uint
+lib.ElEntrywiseFillDistMultiVec_s.argtypes = [c_void_p,CFUNCTYPE(sType)]
+lib.ElEntrywiseFillDistMultiVec_s.restype = c_uint
+lib.ElEntrywiseFillDistMultiVec_d.argtypes = [c_void_p,CFUNCTYPE(dType)]
+lib.ElEntrywiseFillDistMultiVec_d.restype = c_uint
+lib.ElEntrywiseFillDistMultiVec_c.argtypes = [c_void_p,CFUNCTYPE(cType)]
+lib.ElEntrywiseFillDistMultiVec_c.restype = c_uint
+lib.ElEntrywiseFillDistMultiVec_z.argtypes = [c_void_p,CFUNCTYPE(zType)]
+lib.ElEntrywiseFillDistMultiVec_z.restype = c_uint
 def EntrywiseFill(A,fill):
   cFill = CFUNCTYPE(TagToType(A.tag))(fill)
   args = [A.obj,cFill]
@@ -832,6 +842,13 @@ def EntrywiseFill(A,fill):
     elif A.tag == dTag: lib.ElEntrywiseFillDist_d(*args)
     elif A.tag == cTag: lib.ElEntrywiseFillDist_c(*args)
     elif A.tag == zTag: lib.ElEntrywiseFillDist_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMultiVec:
+    if   A.tag == iTag: lib.ElEntrywiseFillDistMultiVec_i(*args)
+    elif A.tag == sTag: lib.ElEntrywiseFillDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElEntrywiseFillDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElEntrywiseFillDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElEntrywiseFillDistMultiVec_z(*args)
     else: DataExcept()
   else: TypeExcept()
 
@@ -877,7 +894,16 @@ lib.ElEntrywiseMapDistSparse_c.argtypes = [c_void_p,CFUNCTYPE(cType,cType)]
 lib.ElEntrywiseMapDistSparse_c.restype = c_uint
 lib.ElEntrywiseMapDistSparse_z.argtypes = [c_void_p,CFUNCTYPE(zType,zType)]
 lib.ElEntrywiseMapDistSparse_z.restype = c_uint
-
+lib.ElEntrywiseMapDistMultiVec_i.argtypes = [c_void_p,CFUNCTYPE(iType,iType)]
+lib.ElEntrywiseMapDistMultiVec_i.restype = c_uint
+lib.ElEntrywiseMapDistMultiVec_s.argtypes = [c_void_p,CFUNCTYPE(sType,sType)]
+lib.ElEntrywiseMapDistMultiVec_s.restype = c_uint
+lib.ElEntrywiseMapDistMultiVec_d.argtypes = [c_void_p,CFUNCTYPE(dType,dType)]
+lib.ElEntrywiseMapDistMultiVec_d.restype = c_uint
+lib.ElEntrywiseMapDistMultiVec_c.argtypes = [c_void_p,CFUNCTYPE(cType,cType)]
+lib.ElEntrywiseMapDistMultiVec_c.restype = c_uint
+lib.ElEntrywiseMapDistMultiVec_z.argtypes = [c_void_p,CFUNCTYPE(zType,zType)]
+lib.ElEntrywiseMapDistMultiVec_z.restype = c_uint
 def EntrywiseMap(A,mapFunc):
   cMap = CFUNCTYPE(TagToType(A.tag),TagToType(A.tag))(mapFunc)
   args = [A.obj,cMap]
@@ -908,6 +934,13 @@ def EntrywiseMap(A,mapFunc):
     elif A.tag == dTag: lib.ElEntrywiseMapDistSparse_d(*args)
     elif A.tag == cTag: lib.ElEntrywiseMapDistSparse_c(*args)
     elif A.tag == zTag: lib.ElEntrywiseMapDistSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMultiVec:
+    if   A.tag == iTag: lib.ElEntrywiseMapDistMultiVec_i(*args)
+    elif A.tag == sTag: lib.ElEntrywiseMapDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElEntrywiseMapDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElEntrywiseMapDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElEntrywiseMapDistMultiVec_z(*args)
     else: DataExcept()
   else: TypeExcept()
 

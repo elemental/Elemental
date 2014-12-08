@@ -2422,7 +2422,15 @@ lib.ElGaussianDist_d.restype = c_uint
 lib.ElGaussianDist_c.argtypes = [c_void_p,iType,iType,cType,sType]
 lib.ElGaussianDist_c.restype = c_uint
 lib.ElGaussianDist_z.argtypes = [c_void_p,iType,iType,zType,dType]
-lib.ElGaussian_z.restype = c_uint
+lib.ElGaussianDist_z.restype = c_uint
+lib.ElGaussianDistMultiVec_s.argtypes = [c_void_p,iType,iType,sType,sType]
+lib.ElGaussianDistMultiVec_s.restype = c_uint
+lib.ElGaussianDistMultiVec_d.argtypes = [c_void_p,iType,iType,dType,dType]
+lib.ElGaussianDistMultiVec_d.restype = c_uint
+lib.ElGaussianDistMultiVec_c.argtypes = [c_void_p,iType,iType,cType,sType]
+lib.ElGaussianDistMultiVec_c.restype = c_uint
+lib.ElGaussianDistMultiVec_z.argtypes = [c_void_p,iType,iType,zType,dType]
+lib.ElGaussianDistMultiVec_z.restype = c_uint
 def Gaussian(A,m,n,meanPre=0,stddev=1):
   mean = TagToType(A.tag)(meanPre)
   args = [A.obj,m,n,mean,stddev]
@@ -2437,6 +2445,12 @@ def Gaussian(A,m,n,meanPre=0,stddev=1):
     elif A.tag == dTag: lib.ElGaussianDist_d(*args)
     elif A.tag == cTag: lib.ElGaussianDist_c(*args)
     elif A.tag == zTag: lib.ElGaussianDist_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMultiVec:
+    if   A.tag == sTag: lib.ElGaussianDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElGaussianDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElGaussianDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElGaussianDistMultiVec_z(*args)
     else: DataExcept()
   else: TypeExcept()
 

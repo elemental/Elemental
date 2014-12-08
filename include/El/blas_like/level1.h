@@ -539,6 +539,17 @@ EL_EXPORT ElError ElEntrywiseFillDist_c
 EL_EXPORT ElError ElEntrywiseFillDist_z
 ( ElDistMatrix_z A, complex_double (*fill)() );
 
+EL_EXPORT ElError ElEntrywiseFillDistMultiVec_i
+( ElDistMultiVec_i A, ElInt (*fill)() );
+EL_EXPORT ElError ElEntrywiseFillDistMultiVec_s
+( ElDistMultiVec_s A, float (*fill)() );
+EL_EXPORT ElError ElEntrywiseFillDistMultiVec_d
+( ElDistMultiVec_d A, double (*fill)() );
+EL_EXPORT ElError ElEntrywiseFillDistMultiVec_c
+( ElDistMultiVec_c A, complex_float (*fill)() );
+EL_EXPORT ElError ElEntrywiseFillDistMultiVec_z
+( ElDistMultiVec_z A, complex_double (*fill)() );
+
 /* EntrywiseMap
    ============ */
 EL_EXPORT ElError ElEntrywiseMap_i
@@ -584,6 +595,17 @@ EL_EXPORT ElError ElEntrywiseMapDistSparse_c
 ( ElDistSparseMatrix_c A, complex_float (*func)(complex_float) );
 EL_EXPORT ElError ElEntrywiseMapDistSparse_z
 ( ElDistSparseMatrix_z A, complex_double (*func)(complex_double) );
+
+EL_EXPORT ElError ElEntrywiseMapDistMultiVec_i
+( ElDistMultiVec_i A, ElInt (*func)(ElInt) );
+EL_EXPORT ElError ElEntrywiseMapDistMultiVec_s
+( ElDistMultiVec_s A, float (*func)(float) );
+EL_EXPORT ElError ElEntrywiseMapDistMultiVec_d
+( ElDistMultiVec_d A, double (*func)(double) );
+EL_EXPORT ElError ElEntrywiseMapDistMultiVec_c
+( ElDistMultiVec_c A, complex_float (*func)(complex_float) );
+EL_EXPORT ElError ElEntrywiseMapDistMultiVec_z
+( ElDistMultiVec_z A, complex_double (*func)(complex_double) );
 
 /* TODO: Version which maps to a different matrix of possibly different type? */
 

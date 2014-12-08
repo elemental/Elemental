@@ -1035,6 +1035,15 @@ EL_EXPORT ElError ElGaussianDist_c
 EL_EXPORT ElError ElGaussianDist_z
 ( ElDistMatrix_z A, ElInt m, ElInt n, complex_double mean, double stddev );
 
+EL_EXPORT ElError ElGaussianDistMultiVec_s
+( ElDistMultiVec_s A, ElInt m, ElInt n, float mean, float stddev );
+EL_EXPORT ElError ElGaussianDistMultiVec_d
+( ElDistMultiVec_d A, ElInt m, ElInt n, double mean, double stddev );
+EL_EXPORT ElError ElGaussianDistMultiVec_c
+( ElDistMultiVec_c A, ElInt m, ElInt n, complex_float mean, float stddev );
+EL_EXPORT ElError ElGaussianDistMultiVec_z
+( ElDistMultiVec_z A, ElInt m, ElInt n, complex_double mean, double stddev );
+
 /* Haar 
    ==== */
 EL_EXPORT ElError ElHaar_s( ElMatrix_s A, ElInt n );

@@ -255,6 +255,8 @@ void EntrywiseFill( AbstractDistMatrix<T>& A, std::function<T(void)> func );
 template<typename T>
 void EntrywiseFill
 ( AbstractBlockDistMatrix<T>& A, std::function<T(void)> func );
+template<typename T>
+void EntrywiseFill( DistMultiVec<T>& A, std::function<T(void)> func );
 
 // EntrywiseMap
 // ============
@@ -268,6 +270,8 @@ template<typename T>
 void EntrywiseMap( AbstractBlockDistMatrix<T>& A, std::function<T(T)> func );
 template<typename T>
 void EntrywiseMap( DistSparseMatrix<T>& A, std::function<T(T)> func );
+template<typename T>
+void EntrywiseMap( DistMultiVec<T>& A, std::function<T(T)> func );
 
 template<typename S,typename T>
 void EntrywiseMap
@@ -286,6 +290,10 @@ void EntrywiseMap
 template<typename S,typename T>
 void EntrywiseMap
 ( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B, 
+  std::function<T(S)> func );
+template<typename S,typename T>
+void EntrywiseMap
+( const DistMultiVec<S>& A, DistMultiVec<T>& B, 
   std::function<T(S)> func );
 
 // Fill

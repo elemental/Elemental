@@ -643,6 +643,8 @@ void MakeGaussian( AbstractDistMatrix<F>& A, F mean=0, Base<F> stddev=1 );
 template<typename F>
 void MakeGaussian
 ( AbstractBlockDistMatrix<F>& A, F mean=0, Base<F> stddev=1 );
+template<typename F>
+void MakeGaussian( DistMultiVec<F>& A, F mean=0, Base<F> stddev=1 );
 
 template<typename F>
 void Gaussian( Matrix<F>& A, Int m, Int n, F mean=0, Base<F> stddev=1 );
@@ -652,6 +654,9 @@ void Gaussian
 template<typename F>
 void Gaussian
 ( AbstractBlockDistMatrix<F>& A, Int m, Int n, F mean=0, Base<F> stddev=1 );
+template<typename F>
+void Gaussian
+( DistMultiVec<F>& A, Int m, Int n, F mean=0, Base<F> stddev=1 );
 
 // Haar
 // ====

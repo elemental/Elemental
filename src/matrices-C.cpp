@@ -311,6 +311,10 @@ extern "C" {
   ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n, \
     CREFLECT(T) mean, Base<T> stddev ) \
   { EL_TRY( Gaussian( *CReflect(A), m, n, CReflect(mean), stddev ) ) } \
+  ElError ElGaussianDistMultiVec_ ## SIG \
+  ( ElDistMultiVec_ ## SIG A, ElInt m, ElInt n, \
+    CREFLECT(T) mean, Base<T> stddev ) \
+  { EL_TRY( Gaussian( *CReflect(A), m, n, CReflect(mean), stddev ) ) } \
   /* Golub Klema Stewart */ \
   ElError ElGKS_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( GKS( *CReflect(A), n ) ) } \

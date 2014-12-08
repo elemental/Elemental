@@ -38,6 +38,14 @@ void MakeGaussian( AbstractBlockDistMatrix<F>& A, F mean, Base<F> stddev )
 }
 
 template<typename F>
+void MakeGaussian( DistMultiVec<F>& A, F mean, Base<F> stddev )
+{
+    DEBUG_ONLY(CallStackEntry cse("MakeGaussian"))
+    auto sampleNormal = [=]() { return SampleNormal(mean,stddev); };
+    EntrywiseFill( A, std::function<F()>(sampleNormal) );
+}
+
+template<typename F>
 void Gaussian( Matrix<F>& A, Int m, Int n, F mean, Base<F> stddev )
 {
     DEBUG_ONLY(CallStackEntry cse("Gaussian"))
@@ -63,6 +71,15 @@ void Gaussian
     MakeGaussian( A, mean, stddev );
 }
 
+template<typename F>
+void Gaussian
+( DistMultiVec<F>& A, Int m, Int n, F mean, Base<F> stddev )
+{
+    DEBUG_ONLY(CallStackEntry cse("Gaussian"))
+    A.Resize( m, n );
+    MakeGaussian( A, mean, stddev );
+}
+
 #define PROTO(F) \
   template void MakeGaussian \
   ( Matrix<F>& A, F mean, Base<F> stddev ); \
@@ -70,12 +87,16 @@ void Gaussian
   ( AbstractDistMatrix<F>& A, F mean, Base<F> stddev ); \
   template void MakeGaussian \
   ( AbstractBlockDistMatrix<F>& A, F mean, Base<F> stddev ); \
+  template void MakeGaussian \
+  ( DistMultiVec<F>& A, F mean, Base<F> stddev ); \
   template void Gaussian \
   ( Matrix<F>& A, Int m, Int n, F mean, Base<F> stddev ); \
   template void Gaussian \
   ( AbstractDistMatrix<F>& A, Int m, Int n, F mean, Base<F> stddev ); \
   template void Gaussian \
-  ( AbstractBlockDistMatrix<F>& A, Int m, Int n, F mean, Base<F> stddev );
+  ( AbstractBlockDistMatrix<F>& A, Int m, Int n, F mean, Base<F> stddev ); \
+  template void Gaussian \
+  ( DistMultiVec<F>& A, Int m, Int n, F mean, Base<F> stddev );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

@@ -26,36 +26,38 @@ def Rectang(m,n):
   for sLoc in xrange(localHeight):
     s = firstLocalRow + sLoc
     A.QueueLocalUpdate( sLoc, s, 11 )
-    if s != 0:   A.QueueLocalUpdate( sLoc, s-1,   1 )
-    if s != n-1: A.QueueLocalUpdate( sLoc, s+1,   2 )
-    if s >= m:   A.QueueLocalUpdate( sLoc, s-m,   3 )
-    if s <  n-m: A.QueueLocalUpdate( sLoc, s+m,   4 )
+    if s != 0:   A.QueueLocalUpdate( sLoc, s-1, -1 )
+    if s != n-1: A.QueueLocalUpdate( sLoc, s+1,  2 )
+    if s >= m:   A.QueueLocalUpdate( sLoc, s-m, -3 )
+    if s <  n-m: A.QueueLocalUpdate( sLoc, s+m,  4 )
     # The dense last column
-    A.QueueLocalUpdate( sLoc, n-1, 5./m );
+    A.QueueLocalUpdate( sLoc, n-1, -5/m );
 
   A.MakeConsistent()
   return A
 
 A = Rectang(m,n)
 
-# Generate a right-hand side in the positive image
-# ================================================
+# Generate a b which implies a primal feasible x
+# ==============================================
 xGen = El.DistMultiVec()
-El.Uniform(xGen,n,1,0.5,0.4999)
+El.Uniform(xGen,n,1,0.5,0.5)
 b = El.DistMultiVec()
 El.Zeros( b, m, 1 )
 El.SparseMultiply( El.NORMAL, 1., A, xGen, 0., b )
 
-# Generate a random positive cost function
-# ========================================
+# Generate a c which implies a dual feasible (y,z)
+# ================================================
+yGen = El.DistMultiVec()
+El.Gaussian(yGen,m,1)
 c = El.DistMultiVec()
-El.Uniform(c,n,1,0.5,0.4999)
+El.Uniform(c,n,1,0.5,0.5)
+El.SparseMultiply( El.TRANSPOSE, 1., A, yGen, 1., c )
 
 if display:
-  El.Display( A,    "A"    )
-  El.Display( xGen, "xGen" )
-  El.Display( b,    "b"    )
-  El.Display( c,    "c"    )
+  El.Display( A, "A" )
+  El.Display( b, "b" )
+  El.Display( c, "c" )
 
 # Generate random initial guesses
 # ===============================

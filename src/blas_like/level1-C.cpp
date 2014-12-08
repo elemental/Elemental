@@ -127,6 +127,12 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
       auto newFill = [&]() { return CReflect(fill()); }; \
       EntrywiseFill( *CReflect(A), std::function<T(void)>(newFill) ); \
     } EL_CATCH; return EL_SUCCESS; } \
+  ElError ElEntrywiseFillDistMultiVec_ ## SIG \
+  ( ElDistMultiVec_ ## SIG A, CREFLECT(T) (*fill)() ) \
+  { try { \
+      auto newFill = [&]() { return CReflect(fill()); }; \
+      EntrywiseFill( *CReflect(A), std::function<T(void)>(newFill) ); \
+    } EL_CATCH; return EL_SUCCESS; } \
   /* EntrywiseMap */ \
   ElError ElEntrywiseMap_ ## SIG \
   ( ElMatrix_ ## SIG A, CREFLECT(T) (*func)(CREFLECT(T)) ) \
@@ -151,6 +157,13 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, ElInt root )
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElEntrywiseMapDistSparse_ ## SIG \
   ( ElDistSparseMatrix_ ## SIG A, CREFLECT(T) (*func)(CREFLECT(T)) ) \
+  { try { \
+      auto newMap = [&]( T alpha ) \
+        { return CReflect(func(CReflect(alpha))); }; \
+      EntrywiseMap( *CReflect(A), std::function<T(T)>(newMap) ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  ElError ElEntrywiseMapDistMultiVec_ ## SIG \
+  ( ElDistMultiVec_ ## SIG A, CREFLECT(T) (*func)(CREFLECT(T)) ) \
   { try { \
       auto newMap = [&]( T alpha ) \
         { return CReflect(func(CReflect(alpha))); }; \

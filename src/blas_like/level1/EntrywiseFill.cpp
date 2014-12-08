@@ -29,13 +29,19 @@ template<typename T>
 void EntrywiseFill( AbstractBlockDistMatrix<T>& A, std::function<T(void)> func )
 { EntrywiseFill( A.Matrix(), func ); }
 
+template<typename T>
+void EntrywiseFill( DistMultiVec<T>& A, std::function<T(void)> func )
+{ EntrywiseFill( A.Matrix(), func ); }
+
 #define PROTO(T) \
   template void EntrywiseFill \
   ( Matrix<T>& A, std::function<T(void)> func ); \
   template void EntrywiseFill \
   ( AbstractDistMatrix<T>& A, std::function<T(void)> func ); \
   template void EntrywiseFill \
-  ( AbstractBlockDistMatrix<T>& A, std::function<T(void)> func );
+  ( AbstractBlockDistMatrix<T>& A, std::function<T(void)> func ); \
+  template void EntrywiseFill \
+  ( DistMultiVec<T>& A, std::function<T(void)> func );
 
 #include "El/macros/Instantiate.h"
 
