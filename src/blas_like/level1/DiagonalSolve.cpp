@@ -72,7 +72,7 @@ void DiagonalSolve
         ctrl.colConstrain = true;
         ctrl.root = A.Root();
         ctrl.colAlign = A.ColAlign();
-        auto dPtr = ReadProxy<FDiag,U,GatheredDist<V>()>( &dPre, ctrl );
+        auto dPtr = ReadProxy<FDiag,U,Collect<V>()>( &dPre, ctrl );
         auto& d = *dPtr;
         DiagonalSolve
         ( LEFT, orientation, d.LockedMatrix(), A.Matrix(), checkIfSingular );
@@ -84,7 +84,7 @@ void DiagonalSolve
         ctrl.colConstrain = true;
         ctrl.root = A.Root();
         ctrl.colAlign = A.RowAlign();
-        auto dPtr = ReadProxy<FDiag,V,GatheredDist<U>()>( &dPre, ctrl );
+        auto dPtr = ReadProxy<FDiag,V,Collect<U>()>( &dPre, ctrl );
         auto& d = *dPtr;
         DiagonalSolve
         ( RIGHT, orientation, d.LockedMatrix(), A.Matrix(), checkIfSingular );

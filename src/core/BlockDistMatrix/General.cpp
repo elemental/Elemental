@@ -866,16 +866,16 @@ template<typename T,Dist U,Dist V>
 Dist GeneralBlockDistMatrix<T,U,V>::RowDist() const { return V; }
 template<typename T,Dist U,Dist V>
 Dist GeneralBlockDistMatrix<T,U,V>::PartialColDist() const 
-{ return PartialDist<U>(); }
+{ return Partial<U>(); }
 template<typename T,Dist U,Dist V>
 Dist GeneralBlockDistMatrix<T,U,V>::PartialRowDist() const 
-{ return PartialDist<V>(); }
+{ return Partial<V>(); }
 template<typename T,Dist U,Dist V>
 Dist GeneralBlockDistMatrix<T,U,V>::PartialUnionColDist() const
-{ return El::PartialUnionColDist<U,V>(); }
+{ return PartialUnionCol<U,V>(); }
 template<typename T,Dist U,Dist V>
 Dist GeneralBlockDistMatrix<T,U,V>::PartialUnionRowDist() const
-{ return El::PartialUnionRowDist<U,V>(); }
+{ return PartialUnionRow<U,V>(); }
 
 // Diagonal manipulation
 // =====================

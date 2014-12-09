@@ -49,7 +49,7 @@ DM& DM::operator=( const DM& A )
 {
     DEBUG_ONLY(CallStackEntry cse("DM[MC,MR] = DM[MC,MR]"))
     if( this->Grid() == A.Grid() )
-        A.Translate( *this );
+        copy::Translate( A, *this );
     else
         this->CopyFromDifferentGrid( A );
     return *this;

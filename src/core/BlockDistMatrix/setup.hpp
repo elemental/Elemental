@@ -142,11 +142,12 @@ BlockDistMatrix<T,RowDist,ColDist>* BDM::ConstructTranspose
 { return new BlockDistMatrix<T,RowDist,ColDist>(g,root); }
 
 template<typename T> 
-BlockDistMatrix<T,DiagColDist<ColDist,RowDist>(),
-                  DiagRowDist<ColDist,RowDist>()>* BDM::ConstructDiagonal
+BlockDistMatrix<T,DiagCol<ColDist,RowDist>(),
+                  DiagRow<ColDist,RowDist>()>* 
+BDM::ConstructDiagonal
 ( const El::Grid& g, Int root ) const
-{ return new BlockDistMatrix<T,DiagColDist<ColDist,RowDist>(),
-                               DiagRowDist<ColDist,RowDist>()>(g,root); }
+{ return new BlockDistMatrix<T,DiagCol<ColDist,RowDist>(),
+                               DiagRow<ColDist,RowDist>()>(g,root); }
 
 template<typename T>
 template<Dist U,Dist V>

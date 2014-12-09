@@ -82,194 +82,6 @@ GeneralDistMatrix<T,U,V>::AlignRowsWith
 
 template<typename T,Dist U,Dist V>
 void
-GeneralDistMatrix<T,U,V>::Translate( DistMatrix<T,U,V>& A ) const
-{
-    DEBUG_ONLY(CallStackEntry cse("GDM::Translate"))
-    const Grid& g = this->Grid();
-    const Int height = this->Height();
-    const Int width = this->Width();
-    const Int colAlign = this->ColAlign();
-    const Int rowAlign = this->RowAlign();
-    const Int root = this->Root();
-    A.SetGrid( g );
-    if( !A.RootConstrained() )
-        A.SetRoot( root );
-    if( !A.ColConstrained() )
-        A.AlignCols( colAlign, false );
-    if( !A.RowConstrained() )
-        A.AlignRows( rowAlign, false );
-    A.Resize( height, width );
-    if( !g.InGrid() )
-        return;
-
-    const bool aligned = colAlign == A.ColAlign() && rowAlign == A.RowAlign();
-    if( aligned && root == A.Root() )
-    {
-        A.matrix_ = this->matrix_;
-    }
-    else
-    {
-#ifdef EL_UNALIGNED_WARNINGS
-        if( g.Rank() == 0 )
-            std::cerr << "Unaligned [U,V] <- [U,V]" << std::endl;
-#endif
-        const Int colRank = this->ColRank();
-        const Int rowRank = this->RowRank();
-        const Int crossRank = this->CrossRank();
-        const Int colStride = this->ColStride();
-        const Int rowStride = this->RowStride();
-        const Int maxHeight = MaxLength( height, colStride );
-        const Int maxWidth  = MaxLength( width,  rowStride );
-        const Int pkgSize = mpi::Pad( maxHeight*maxWidth );
-        T* buffer=0;
-        if( crossRank == root || crossRank == A.Root() )
-            buffer = A.auxMemory_.Require( pkgSize );
-
-        const Int colAlignA = A.ColAlign();
-        const Int rowAlignA = A.RowAlign();
-        const Int localHeightA = 
-            Length( height, colRank, colAlignA, colStride );
-        const Int localWidthA = Length( width, rowRank, rowAlignA, rowStride );
-        const Int recvSize = mpi::Pad( localHeightA*localWidthA );
-
-        if( crossRank == root )
-        {
-            // Pack the local data
-            const Int localHeight = this->LocalHeight();
-            const Int localWidth = this->LocalWidth();
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-                MemCopy
-                ( &buffer[jLoc*localHeight], this->LockedBuffer(0,jLoc), 
-                  localHeight );
-
-            if( !aligned )
-            {
-                // If we were not aligned, then SendRecv over the DistComm
-                const Int toRow = Mod(colRank+colAlignA-colAlign,colStride);
-                const Int toCol = Mod(rowRank+rowAlignA-rowAlign,rowStride);
-                const Int fromRow = Mod(colRank+colAlign-colAlignA,colStride);
-                const Int fromCol = Mod(rowRank+rowAlign-rowAlignA,rowStride);
-                const Int toRank = toRow + toCol*colStride;
-                const Int fromRank = fromRow + fromCol*colStride;
-                mpi::SendRecv
-                ( buffer, pkgSize, toRank, fromRank, this->DistComm() );
-            }
-        }
-        if( root != A.Root() )
-        {
-            // Send to the correct new root over the cross communicator
-            if( crossRank == root )
-                mpi::Send( buffer, recvSize, A.Root(), A.CrossComm() );
-            else if( crossRank == A.Root() )
-                mpi::Recv( buffer, recvSize, root, A.CrossComm() );
-        }
-        // Unpack
-        if( crossRank == A.Root() )
-            for( Int jLoc=0; jLoc<localWidthA; ++jLoc )
-                MemCopy
-                ( A.Buffer(0,jLoc), &buffer[jLoc*localHeightA], localHeightA );
-        if( crossRank == root || crossRank == A.Root() )
-            A.auxMemory_.Release();
-    }
-}
-
-template<typename T,Dist U,Dist V>
-void
-GeneralDistMatrix<T,U,V>::AllGather( DistMatrix<T,UGath,VGath>& A ) const
-{
-    DEBUG_ONLY(CallStackEntry cse("GDM::AllGather"))
-    const Int height = this->Height();
-    const Int width = this->Width();
-    A.SetGrid( this->Grid() );
-    A.Resize( height, width );
-
-    if( this->Participating() )
-    {
-        const Int colStride = this->ColStride(); 
-        const Int rowStride = this->RowStride();
-        const Int distStride = colStride*rowStride;
-
-        const Int thisLocalHeight = this->LocalHeight();
-        const Int thisLocalWidth = this->LocalWidth();
-        const Int maxLocalHeight = MaxLength(height,colStride);
-        const Int maxLocalWidth = MaxLength(width,rowStride);
-
-        const Int portionSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
-        T* buffer = A.auxMemory_.Require( (distStride+1)*portionSize );
-        T* sendBuf = &buffer[0];
-        T* recvBuf = &buffer[portionSize];
-
-        // Pack
-        const Int ldim = this->LDim();
-        const T* thisBuf = this->LockedBuffer();
-        EL_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
-            MemCopy
-            ( &sendBuf[jLoc*thisLocalHeight], &thisBuf[jLoc*ldim], 
-              thisLocalHeight );
-
-        // Communicate
-        mpi::AllGather
-        ( sendBuf, portionSize, recvBuf, portionSize, this->DistComm() );
-
-        // Unpack
-        T* ABuf = A.Buffer();
-        const Int ALDim = A.LDim();
-        const Int colAlign = this->ColAlign();
-        const Int rowAlign = this->RowAlign();
-        EL_OUTER_PARALLEL_FOR
-        for( Int l=0; l<rowStride; ++l )
-        {
-            const Int rowShift = Shift_( l, rowAlign, rowStride );
-            const Int localWidth = Length_( width, rowShift, rowStride );
-            for( Int k=0; k<colStride; ++k )
-            {
-                const T* data = &recvBuf[(k+l*colStride)*portionSize];
-                const Int colShift = Shift_( k, colAlign, colStride );
-                const Int localHeight = Length_( height, colShift, colStride );
-                EL_INNER_PARALLEL_FOR
-                for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-                {
-                    T* destCol = 
-                        &ABuf[colShift+(rowShift+jLoc*rowStride)*ALDim];
-                    const T* sourceCol = &data[jLoc*localHeight];
-                    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                        destCol[iLoc*colStride] = sourceCol[iLoc];
-                }
-            }
-        }
-        A.auxMemory_.Release();
-    }
-    if( this->Grid().InGrid() && this->CrossComm() != mpi::COMM_SELF )
-    {
-        // Pack from the root
-        const Int localHeight = A.LocalHeight();
-        const Int localWidth = A.LocalWidth();
-        T* buf = A.auxMemory_.Require( localHeight*localWidth );
-        if( this->CrossRank() == this->Root() )
-        {
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-                MemCopy
-                ( &buf[jLoc*localHeight], A.LockedBuffer(0,jLoc), localHeight );
-        }
-
-        // Broadcast from the root
-        mpi::Broadcast
-        ( buf, localHeight*localWidth, this->Root(), this->CrossComm() );
-
-        // Unpack if not the root
-        if( this->CrossRank() != this->Root() )
-        {
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-                MemCopy
-                ( A.Buffer(0,jLoc), &buf[jLoc*localHeight], localHeight );
-        }
-        A.auxMemory_.Release();
-    }
-}
-
-template<typename T,Dist U,Dist V>
-void
 GeneralDistMatrix<T,U,V>::ColAllGather( DistMatrix<T,UGath,V>& A ) const
 {
     DEBUG_ONLY(
@@ -2939,16 +2751,16 @@ template<typename T,Dist U,Dist V>
 Dist GeneralDistMatrix<T,U,V>::RowDist() const { return V; }
 template<typename T,Dist U,Dist V>
 Dist GeneralDistMatrix<T,U,V>::PartialColDist() const 
-{ return PartialDist<U>(); }
+{ return Partial<U>(); }
 template<typename T,Dist U,Dist V>
 Dist GeneralDistMatrix<T,U,V>::PartialRowDist() const 
-{ return PartialDist<V>(); }
+{ return Partial<V>(); }
 template<typename T,Dist U,Dist V>
 Dist GeneralDistMatrix<T,U,V>::PartialUnionColDist() const 
-{ return El::PartialUnionColDist<U,V>(); }
+{ return PartialUnionCol<U,V>(); }
 template<typename T,Dist U,Dist V>
 Dist GeneralDistMatrix<T,U,V>::PartialUnionRowDist() const 
-{ return El::PartialUnionRowDist<U,V>(); }
+{ return PartialUnionRow<U,V>(); }
 
 // Diagonal manipulation
 // =====================

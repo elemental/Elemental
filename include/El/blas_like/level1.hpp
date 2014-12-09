@@ -146,6 +146,18 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X );
 template<typename T>
 void CopyFromNonRoot( const DistMultiVec<T>& XDist, Int root=0 );
 
+namespace copy {
+
+template<typename T,Dist U,Dist V>
+void AllGather
+( const DistMatrix<T,        U,           V      >& A, 
+        DistMatrix<T,Collect<U>(),Collect<V>()>& B );
+
+template<typename T,Dist U,Dist V>
+void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B );
+
+} // namespace copy
+
 // DiagonalScale
 // =============
 template<typename TDiag,typename T>

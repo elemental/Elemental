@@ -86,8 +86,14 @@ void MemSwap( T* a, T* b, T* temp, std::size_t numEntries );
 // Generalization of std::memcpy so that unit strides are not required
 template<typename T>
 void StridedMemCopy
-(       T* dest,   std::size_t destStride,
-  const T* source, std::size_t sourceStride, std::size_t numEntries );
+(       T* dest,   Int destStride,
+  const T* source, Int sourceStride, Int numEntries );
+
+template<typename T>
+void InterleaveMatrix
+( Int localHeight, Int localWidth,
+  const T* A, Int colStrideA, Int rowStrideA,
+        T* B, Int colStrideB, Int rowStrideB );
 
 // Replacement for std::memset, which is likely suboptimal and hard to extend
 // to non-POD datatypes. Notice that sizeof(T) is no longer required.

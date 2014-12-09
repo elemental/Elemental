@@ -117,7 +117,7 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [MC,MR]"))
-    A.AllGather( *this );
+    copy::AllGather( A, *this );
     return *this;
 }
 
@@ -157,7 +157,7 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [MR,MC]"))
-    A.AllGather( *this );
+    copy::AllGather( A, *this );
     return *this;
 }
 

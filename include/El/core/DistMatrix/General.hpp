@@ -20,14 +20,15 @@ public:
     // ========
     typedef AbstractDistMatrix<T> absType;
     typedef GeneralDistMatrix<T,U,V> type;
-    static constexpr Dist UDiag = DiagColDist<U,V>();
-    static constexpr Dist VDiag = DiagRowDist<U,V>();
-    static constexpr Dist UGath = GatheredDist<U>();
-    static constexpr Dist VGath = GatheredDist<V>();
-    static constexpr Dist UPart = PartialDist<U>();
-    static constexpr Dist VPart = PartialDist<V>();
-    static constexpr Dist UScat = PartialUnionColDist<U,V>();
-    static constexpr Dist VScat = PartialUnionRowDist<U,V>();
+    static constexpr Dist UGath = Collect<U>();
+    static constexpr Dist VGath = Collect<V>();
+    static constexpr Dist UPart = Partial<U>();
+    static constexpr Dist VPart = Partial<V>();
+
+    static constexpr Dist UDiag = DiagCol<U,V>();
+    static constexpr Dist VDiag = DiagRow<U,V>();
+    static constexpr Dist UScat = PartialUnionCol<U,V>();
+    static constexpr Dist VScat = PartialUnionRow<U,V>();
 
     // Constructors and destructors
     // ============================
@@ -46,9 +47,6 @@ public:
     ( const El::DistData& data, bool constrain=true, bool allowMismatch=false )
     override;
 
-    void Translate( DistMatrix<T,U,V>& A ) const;
-
-    void AllGather( DistMatrix<T,UGath,VGath>& A ) const;
     void ColAllGather( DistMatrix<T,UGath,V>& A ) const;
     void RowAllGather( DistMatrix<T,U,VGath>& A ) const;
     void PartialColAllGather( DistMatrix<T,UPart,V>& A ) const;

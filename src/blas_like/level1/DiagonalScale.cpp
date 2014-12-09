@@ -62,7 +62,7 @@ void DiagonalScale
         ctrl.colConstrain = true;
         ctrl.root = A.Root();
         ctrl.colAlign = A.ColAlign();
-        auto dPtr = ReadProxy<TDiag,U,GatheredDist<V>()>( &dPre, ctrl );
+        auto dPtr = ReadProxy<TDiag,U,Collect<V>()>( &dPre, ctrl );
         auto& d = *dPtr;
         DiagonalScale( LEFT, orientation, d.LockedMatrix(), A.Matrix() );
     }
@@ -73,7 +73,7 @@ void DiagonalScale
         ctrl.colConstrain = true;
         ctrl.root = A.Root();
         ctrl.colAlign = A.RowAlign();
-        auto dPtr = ReadProxy<TDiag,V,GatheredDist<U>()>( &dPre, ctrl );
+        auto dPtr = ReadProxy<TDiag,V,Collect<U>()>( &dPre, ctrl );
         auto& d = *dPtr;
         DiagonalScale( RIGHT, orientation, d.LockedMatrix(), A.Matrix() );
     }

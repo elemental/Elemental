@@ -23,7 +23,7 @@ PermutationMeta::PermutationMeta
             LogicError("perm and invPerm must have the same row dist");
         if( perm.ColAlign() != invPerm.ColAlign() )
             LogicError("perm and invPerm must align");
-        if( perm.RowDist() != GatheredDist( perm.ColDist() ) )
+        if( perm.RowDist() != Collect( perm.ColDist() ) )
             LogicError("permutations must have column distributions");
     )
     comm = perm.ColComm();

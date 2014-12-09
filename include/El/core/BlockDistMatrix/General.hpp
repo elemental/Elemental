@@ -20,14 +20,15 @@ public:
     // ========
     typedef AbstractBlockDistMatrix<T> absType;
     typedef GeneralBlockDistMatrix<T,U,V> type;
-    static constexpr Dist UDiag = DiagColDist<U,V>();
-    static constexpr Dist VDiag = DiagRowDist<U,V>();
-    static constexpr Dist UGath = GatheredDist<U>();
-    static constexpr Dist VGath = GatheredDist<V>();
-    static constexpr Dist UPart = PartialDist<U>();
-    static constexpr Dist VPart = PartialDist<V>();
-    static constexpr Dist UScat = PartialUnionColDist<U,V>();
-    static constexpr Dist VScat = PartialUnionRowDist<U,V>();
+    static constexpr Dist UGath = Collect<U>();
+    static constexpr Dist VGath = Collect<V>();
+    static constexpr Dist UPart = Partial<U>();
+    static constexpr Dist VPart = Partial<V>();
+
+    static constexpr Dist UDiag = DiagCol<U,V>();
+    static constexpr Dist VDiag = DiagRow<U,V>();
+    static constexpr Dist UScat = PartialUnionCol<U,V>();
+    static constexpr Dist VScat = PartialUnionRow<U,V>();
 
     // Constructors and destructors
     // ============================

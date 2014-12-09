@@ -117,11 +117,32 @@ MemSwap( T* a, T* b, T* temp, std::size_t numEntries )
 template<typename T>
 inline void
 StridedMemCopy
-(       T* dest,   std::size_t destStride, 
-  const T* source, std::size_t sourceStride, std::size_t numEntries )
+(       T* dest,   Int destStride, 
+  const T* source, Int sourceStride, Int numEntries )
 {
     // For now, use the BLAS wrappers/generalization
     blas::Copy( numEntries, source, sourceStride, dest, destStride );
+}
+
+template<typename T>
+inline void
+InterleaveMatrix
+( Int localHeight, Int localWidth,
+  const T* A, Int colStrideA, Int rowStrideA,
+        T* B, Int colStrideB, Int rowStrideB )
+{
+    if( colStrideA == 1 && colStrideB == 1 )
+    {
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            MemCopy( &B[jLoc*rowStrideB], &A[jLoc*rowStrideA], localHeight );
+    }
+    else
+    {
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            StridedMemCopy
+            ( &B[jLoc*rowStrideB], colStrideB,
+              &A[jLoc*rowStrideA], colStrideA, localHeight );
+    }
 }
 
 template<typename T>

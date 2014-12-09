@@ -978,8 +978,8 @@ bool AbstractDistMatrix<T>::DiagonalAlignedWith
         return false;
 
     const Int diagAlign = this->DiagonalAlign(offset);
-    const Dist UDiag = DiagColDist( this->ColDist(), this->RowDist() ); 
-    const Dist VDiag = DiagRowDist( this->ColDist(), this->RowDist() );
+    const Dist UDiag = DiagCol( this->ColDist(), this->RowDist() ); 
+    const Dist VDiag = DiagRow( this->ColDist(), this->RowDist() );
     if( d.colDist == UDiag && d.rowDist == VDiag )
         return d.colAlign == diagAlign;
     else if( d.colDist == VDiag && d.rowDist == UDiag )

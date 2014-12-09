@@ -47,7 +47,7 @@ template<typename T>
 DM& DM::operator=( const DM& A )
 {
     DEBUG_ONLY(CallStackEntry cse("DM[MD,STAR] = DM[MD,STAR]"))
-    A.Translate( *this );
+    copy::Translate( A, *this );
     return *this;
 }
 

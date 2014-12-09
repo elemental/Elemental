@@ -138,8 +138,8 @@ void PermuteCols
     ctrl.root = A.Root();
     ctrl.colAlign = A.RowAlign();
 
-    auto permPtr    = ReadProxy<Int,V,GatheredDist<U>()>( &permPre,    ctrl );
-    auto invPermPtr = ReadProxy<Int,V,GatheredDist<U>()>( &invPermPre, ctrl );
+    auto permPtr    = ReadProxy<Int,V,Collect<U>()>( &permPre,    ctrl );
+    auto invPermPtr = ReadProxy<Int,V,Collect<U>()>( &invPermPre, ctrl );
 
     if( A.Participating() )
     {
