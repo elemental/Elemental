@@ -17,6 +17,8 @@ void AllGather
         DistMatrix<T,Collect<U>(),Collect<V>()>& B ) 
 {
     DEBUG_ONLY(CallStackEntry cse("copy::AllGather"))
+    AssertSameGrids( A, B );
+
     const Int height = A.Height();
     const Int width = A.Width();
     B.SetGrid( A.Grid() );

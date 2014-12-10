@@ -152,6 +152,10 @@ template<typename T,Dist U,Dist V>
 void AllGather
 ( const DistMatrix<T,        U,           V      >& A, 
         DistMatrix<T,Collect<U>(),Collect<V>()>& B );
+template<typename T,Dist U,Dist V>
+void ColAllGather
+( const DistMatrix<T,        U,   V>& A,
+        DistMatrix<T,Collect<U>(),V>& B );
 
 template<typename T,Dist U,Dist V>
 void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B );

@@ -54,7 +54,7 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[STAR,MR] = [MC,MR]"))
-    A.ColAllGather( *this );
+    copy::ColAllGather( A, *this );
     return *this;
 }
 
