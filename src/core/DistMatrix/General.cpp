@@ -117,10 +117,6 @@ GeneralDistMatrix<T,U,V>::PartialColAllGather( DistMatrix<T,UPart,V>& A ) const
         if( this->LocalWidth() != this->Width() )
             LogicError("This routine assumes rows are not distributed");
     )
-    const T* thisBuf = this->LockedBuffer();
-    const Int ldim = this->LDim();
-    T* ABuf = A.Buffer();
-    const Int ALDim = A.LDim();
 
     const Int colAlign = this->ColAlign();
     const Int colAlignA = A.ColAlign();
@@ -140,13 +136,10 @@ GeneralDistMatrix<T,U,V>::PartialColAllGather( DistMatrix<T,UPart,V>& A ) const
     if( colAlignA == colAlign % colStridePart ) 
     {
         // Pack
-        EL_PARALLEL_FOR
-        for( Int j=0; j<width; ++j )
-        {
-            const T* thisCol = &thisBuf[j*ldim];
-            T* firstBufCol = &firstBuf[j*thisLocalHeight];
-            MemCopy( firstBufCol, thisCol, thisLocalHeight );
-        }
+        InterleaveMatrix
+        ( thisLocalHeight, width,
+          this->LockedBuffer(), 1, this->LDim(),
+          firstBuf,             1, thisLocalHeight );
 
         // Communicate
         mpi::AllGather
@@ -157,19 +150,14 @@ GeneralDistMatrix<T,U,V>::PartialColAllGather( DistMatrix<T,UPart,V>& A ) const
         EL_OUTER_PARALLEL_FOR
         for( Int k=0; k<colStrideUnion; ++k )
         {
-            const T* data = &secondBuf[k*portionSize];
             const Int colShift = 
                 Shift_( colRankPart+k*colStridePart, colAlign, colStride );
             const Int colOffset = (colShift-colShiftA) / colStridePart;
             const Int localHeight = Length_( height, colShift, colStride );
-            EL_INNER_PARALLEL_FOR
-            for( Int j=0; j<width; ++j )
-            {
-                const T* dataCol = &data[j*localHeight];
-                T* ACol = &ABuf[colOffset+j*ALDim];
-                for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                    ACol[iLoc*colStrideUnion] = dataCol[iLoc];
-            }
+            InterleaveMatrix
+            ( localHeight, width,
+              &secondBuf[k*portionSize], 1,              localHeight,
+              A.Buffer(colOffset,0),     colStrideUnion, A.LDim() );
         }
     }
     else
@@ -180,17 +168,13 @@ GeneralDistMatrix<T,U,V>::PartialColAllGather( DistMatrix<T,UPart,V>& A ) const
 #endif
         // Perform a SendRecv to match the row alignments
         const Int colRank = this->ColRank();
-        const Int sendColRank = 
-            (colRank+colStride+colAlignA-colAlign) % colStride;
-        const Int recvColRank = 
-            (colRank+colStride+colAlign-colAlignA) % colStride;
-        EL_PARALLEL_FOR
-        for( Int j=0; j<width; ++j ) 
-        {
-            const T* thisCol = &thisBuf[j*ldim];
-            T* secondBufCol = &secondBuf[j*thisLocalHeight];
-            MemCopy( secondBufCol, thisCol, thisLocalHeight );
-        }
+        const Int colDiff = colAlignA-colAlign;
+        const Int sendColRank = Mod( this->ColRank()+colDiff, colStride );
+        const Int recvColRank = Mod( this->ColRank()-colDiff, colStride );
+        InterleaveMatrix
+        ( thisLocalHeight, width,
+          this->LockedBuffer(), 1, this->LDim(),
+          secondBuf,            1, thisLocalHeight );
         mpi::SendRecv
         ( secondBuf, portionSize, sendColRank,
           firstBuf,  portionSize, recvColRank, this->ColComm() );
@@ -204,19 +188,14 @@ GeneralDistMatrix<T,U,V>::PartialColAllGather( DistMatrix<T,UPart,V>& A ) const
         EL_OUTER_PARALLEL_FOR
         for( Int k=0; k<colStrideUnion; ++k )
         {
-            const T* data = &secondBuf[k*portionSize];
             const Int colShift = 
                 Shift_( colRankPart+colStridePart*k, colAlignA, colStride );
             const Int colOffset = (colShift-colShiftA) / colStridePart;
             const Int localHeight = Length_( height, colShift, colStride );
-            EL_INNER_PARALLEL_FOR
-            for( Int j=0; j<width; ++j )
-            {
-                const T* dataCol = &data[j*localHeight];
-                T* ACol = &ABuf[colOffset+j*ALDim];
-                for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                    ACol[iLoc*colStrideUnion] = dataCol[iLoc];
-            }
+            InterleaveMatrix
+            ( localHeight, width,
+              &secondBuf[k*portionSize], 1,              localHeight,
+              A.Buffer(colOffset,0),     colStrideUnion, A.LDim() );
         }
     }
     A.auxMemory_.Release();
@@ -264,13 +243,10 @@ GeneralDistMatrix<T,U,V>::PartialRowAllGather( DistMatrix<T,U,VPart>& A ) const
     if( rowAlignA == rowAlign % rowStridePart ) 
     {
         // Pack
-        EL_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
-        {
-            const T* thisCol = &thisBuf[jLoc*ldim];
-            T* firstBufCol = &firstBuf[jLoc*height];
-            MemCopy( firstBufCol, thisCol, height );
-        }
+        InterleaveMatrix
+        ( height, thisLocalWidth,
+          this->LockedBuffer(), 1, this->LDim(),
+          firstBuf,             1, height );
 
         // Communicate
         mpi::AllGather
@@ -281,18 +257,14 @@ GeneralDistMatrix<T,U,V>::PartialRowAllGather( DistMatrix<T,U,VPart>& A ) const
         EL_OUTER_PARALLEL_FOR
         for( Int k=0; k<rowStrideUnion; ++k )
         {
-            const T* data = &secondBuf[k*portionSize];
             const Int rowShift = 
                 Shift_( rowRankPart+k*rowStridePart, rowAlign, rowStride );
             const Int rowOffset = (rowShift-rowShiftA) / rowStridePart;
             const Int localWidth = Length_( width, rowShift, rowStride );
-            EL_INNER_PARALLEL_FOR
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            {
-                const T* dataCol = &data[jLoc*height];
-                T* ACol = &ABuf[(rowOffset+jLoc*rowStrideUnion)*ALDim];
-                MemCopy( ACol, dataCol, height );
-            }
+            InterleaveMatrix
+            ( height, localWidth,
+              &secondBuf[k*portionSize], 1, height,
+              A.Buffer(0,rowOffset),     1, rowStrideUnion*A.LDim() );
         }
     }
     else
@@ -302,18 +274,13 @@ GeneralDistMatrix<T,U,V>::PartialRowAllGather( DistMatrix<T,U,VPart>& A ) const
             std::cerr << "Unaligned PartialRowAllGather" << std::endl;
 #endif
         // Perform a SendRecv to match the row alignments
-        const Int rowRank = this->RowRank();
-        const Int sendRowRank = 
-            (rowRank+rowStride+rowAlignA-rowAlign) % rowStride;
-        const Int recvRowRank = 
-            (rowRank+rowStride+rowAlign-rowAlignA) % rowStride;
-        EL_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc ) 
-        {
-            const T* thisCol = &thisBuf[jLoc*ldim];
-            T* secondBufCol = &secondBuf[jLoc*height];
-            MemCopy( secondBufCol, thisCol, height );
-        }
+        const Int rowDiff = rowAlignA - rowAlign;
+        const Int sendRowRank = Mod( this->RowRank()+rowDiff, rowStride );
+        const Int recvRowRank = Mod( this->RowRank()-rowDiff, rowStride );
+        InterleaveMatrix
+        ( height, thisLocalWidth,
+          this->LockedBuffer(), 1, this->LDim(),
+          secondBuf,            1, height );
         mpi::SendRecv
         ( secondBuf, portionSize, sendRowRank,
           firstBuf,  portionSize, recvRowRank, this->RowComm() );
@@ -332,13 +299,10 @@ GeneralDistMatrix<T,U,V>::PartialRowAllGather( DistMatrix<T,U,VPart>& A ) const
                 Shift_( rowRankPart+rowStridePart*k, rowAlignA, rowStride );
             const Int rowOffset = (rowShift-rowShiftA) / rowStridePart;
             const Int localWidth = Length_( width, rowShift, rowStride );
-            EL_INNER_PARALLEL_FOR
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            {
-                const T* dataCol = &data[jLoc*height];
-                T* ACol = &ABuf[(rowOffset+jLoc*rowStrideUnion)*ALDim];
-                MemCopy( ACol, dataCol, height );
-            }
+            InterleaveMatrix
+            ( height, localWidth,
+              data,                  1, height,
+              A.Buffer(0,rowOffset), 1, rowStrideUnion*A.LDim() );
         }
     }
     A.auxMemory_.Release();
@@ -352,9 +316,7 @@ GeneralDistMatrix<T,U,V>::FilterFrom( const DistMatrix<T,UGath,VGath>& A )
         CallStackEntry cse("GDM::FilterFrom");
         AssertSameGrids( *this, A );
     )
-    const Int height = A.Height();
-    const Int width = A.Width();
-    this->Resize( height, width );
+    this->Resize( A.Height(), A.Width() );
     if( !this->Participating() )
         return;
 
@@ -363,21 +325,10 @@ GeneralDistMatrix<T,U,V>::FilterFrom( const DistMatrix<T,UGath,VGath>& A )
     const Int colShift = this->ColShift();
     const Int rowShift = this->RowShift();
 
-    const Int localHeight = this->LocalHeight();
-    const Int localWidth = this->LocalWidth();
-    
-    T* thisBuf = this->Buffer();
-    const Int ldim = this->LDim();
-    const T* ABuf = A.LockedBuffer();
-    const Int ALDim = A.LDim();
-    EL_PARALLEL_FOR
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        T* thisCol = &thisBuf[jLoc*ldim];
-        const T* ACol = &ABuf[colShift+(rowShift+jLoc*rowStride)*ALDim];
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            thisCol[iLoc] = ACol[iLoc*colStride];
-    }
+    InterleaveMatrix
+    ( this->LocalHeight(), this->LocalWidth(),
+      A.LockedBuffer(colShift,rowShift), colStride, rowStride*A.LDim(),
+      this->Buffer(),                    1,         this->LDim() );
 }
 
 template<typename T,Dist U,Dist V>
@@ -388,35 +339,24 @@ GeneralDistMatrix<T,U,V>::ColFilterFrom( const DistMatrix<T,UGath,V>& A )
         CallStackEntry cse("GDM::ColFilterFrom");
         AssertSameGrids( *this, A );
     )
-    const Int height = A.Height();
-    const Int width = A.Width();
-    this->AlignRowsAndResize( A.RowAlign(), height, width, false, false );
+    this->AlignRowsAndResize
+    ( A.RowAlign(), A.Height(), A.Width(), false, false );
     if( !this->Participating() )
         return;
 
     const Int colStride = this->ColStride();
     const Int colShift = this->ColShift();
-    const Int rowAlign = this->RowAlign();
-    const Int rowAlignA = A.RowAlign();
+    const Int rowDiff = this->RowAlign() - A.RowAlign();
 
     const Int localHeight = this->LocalHeight();
     const Int localWidth = this->LocalWidth();
     
-    T* thisBuf = this->Buffer();
-    const Int ldim = this->LDim();
-    const T* ABuf = A.LockedBuffer();
-    const Int ALDim = A.LDim();
-
-    if( rowAlign == rowAlignA )
+    if( rowDiff == 0 )
     {
-        EL_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            T* thisCol = &thisBuf[jLoc*ldim];
-            const T* ACol = &ABuf[colShift+jLoc*ALDim];
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                thisCol[iLoc] = ACol[iLoc*colStride];
-        }
+        InterleaveMatrix
+        ( localHeight, localWidth,
+          A.LockedBuffer(colShift,0), colStride, A.LDim(),
+          this->Buffer(),             1,         this->LDim() );
     }
     else
     {
@@ -425,11 +365,8 @@ GeneralDistMatrix<T,U,V>::ColFilterFrom( const DistMatrix<T,UGath,V>& A )
             std::cerr << "Unaligned ColFilterFrom" << std::endl;
 #endif
         const Int rowStride = this->RowStride();
-        const Int rowRank = this->RowRank();
-        const Int sendRowRank = 
-            (rowRank+rowStride+rowAlign-rowAlignA) % rowStride;
-        const Int recvRowRank = 
-            (rowRank+rowStride+rowAlignA-rowAlign) % rowStride;
+        const Int sendRowRank = Mod( this->RowRank()+rowDiff, rowStride );
+        const Int recvRowRank = Mod( this->RowRank()-rowDiff, rowStride );
         const Int localWidthA = A.LocalWidth();
         const Int sendSize = localHeight*localWidthA;
         const Int recvSize = localHeight*localWidth;
@@ -438,14 +375,10 @@ GeneralDistMatrix<T,U,V>::ColFilterFrom( const DistMatrix<T,UGath,V>& A )
         T* recvBuf = &buffer[sendSize];
         
         // Pack
-        EL_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidthA; ++jLoc )
-        {
-            T* sendCol = &sendBuf[jLoc*localHeight];
-            const T* ACol = &ABuf[colShift+jLoc*ALDim];
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                sendCol[iLoc] = ACol[iLoc*colStride];
-        }
+        InterleaveMatrix
+        ( localHeight, localWidthA,
+          A.LockedBuffer(colShift,0), colStride, A.LDim(),
+          sendBuf,                    1,         localHeight );
 
         // Realign
         mpi::SendRecv
@@ -453,10 +386,10 @@ GeneralDistMatrix<T,U,V>::ColFilterFrom( const DistMatrix<T,UGath,V>& A )
           recvBuf, recvSize, recvRowRank, this->RowComm() );
 
         // Unpack
-        EL_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy
-            ( &thisBuf[jLoc*ldim], &recvBuf[jLoc*localHeight], localHeight );
+        InterleaveMatrix
+        ( localHeight, localWidth,
+          recvBuf,        1, localHeight,
+          this->Buffer(), 1, this->LDim() );
         this->auxMemory_.Release();
     }
 }
@@ -469,34 +402,24 @@ GeneralDistMatrix<T,U,V>::RowFilterFrom( const DistMatrix<T,U,VGath>& A )
         CallStackEntry cse("GDM::RowFilterFrom");
         AssertSameGrids( *this, A );
     )
-    const Int height = A.Height();
-    const Int width = A.Width();
-    this->AlignColsAndResize( A.ColAlign(), height, width, false, false );
+    this->AlignColsAndResize
+    ( A.ColAlign(), A.Height(), A.Width(), false, false );
     if( !this->Participating() )
         return;
 
-    const Int colAlign = this->ColAlign();
-    const Int colAlignA = A.ColAlign();
+    const Int colDiff = this->ColAlign() - A.ColAlign();
     const Int rowStride = this->RowStride();
     const Int rowShift = this->RowShift();
 
     const Int localHeight = this->LocalHeight();
     const Int localWidth = this->LocalWidth();
     
-    T* thisBuf = this->Buffer();
-    const Int ldim = this->LDim();
-    const T* ABuf = A.LockedBuffer();
-    const Int ALDim = A.LDim();
-    
-    if( colAlign == colAlignA )
+    if( colDiff == 0 )
     {
-        EL_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            T* thisCol = &thisBuf[jLoc*ldim];
-            const T* ACol = &ABuf[(rowShift+jLoc*rowStride)*ALDim];
-            MemCopy( thisCol, ACol, localHeight );
-        }
+        InterleaveMatrix
+        ( localHeight, localWidth,
+          A.LockedBuffer(0,rowShift), 1, rowStride*A.LDim(),
+          this->Buffer(),             1, this->LDim() );
     }
     else
     {
@@ -506,10 +429,8 @@ GeneralDistMatrix<T,U,V>::RowFilterFrom( const DistMatrix<T,U,VGath>& A )
 #endif
         const Int colRank = this->ColRank();
         const Int colStride = this->ColStride();
-        const Int sendColRank = 
-            (colRank+colStride+colAlign-colAlignA) % colStride;
-        const Int recvColRank = 
-            (colRank+colStride+colAlignA-colAlign) % colStride;
+        const Int sendColRank = Mod( this->ColRank()+colDiff, colStride );
+        const Int recvColRank = Mod( this->ColRank()-colDiff, colStride );
         const Int localHeightA = A.LocalHeight();
         const Int sendSize = localHeightA*localWidth;
         const Int recvSize = localHeight *localWidth;
@@ -519,11 +440,10 @@ GeneralDistMatrix<T,U,V>::RowFilterFrom( const DistMatrix<T,U,VGath>& A )
         T* recvBuf = &buffer[sendSize];
 
         // Pack
-        EL_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy
-            ( &sendBuf[jLoc*localHeightA],
-              &ABuf[(rowShift+jLoc*rowStride)*ALDim], localHeightA );
+        InterleaveMatrix
+        ( localHeightA, localWidth,
+          A.LockedBuffer(0,rowShift), 1, rowStride*A.LDim(),
+          sendBuf,                    1, localHeightA );
 
         // Realign
         mpi::SendRecv
@@ -531,10 +451,10 @@ GeneralDistMatrix<T,U,V>::RowFilterFrom( const DistMatrix<T,U,VGath>& A )
           recvBuf, recvSize, recvColRank, this->ColComm() );
 
         // Unpack
-        EL_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy
-            ( &thisBuf[jLoc*ldim], &recvBuf[jLoc*localHeight], localHeight );
+        InterleaveMatrix
+        ( localHeight, localWidth,
+          recvBuf,        1, localHeight,
+          this->Buffer(), 1, this->LDim() );
         this->auxMemory_.Release();
     }
 }
@@ -554,30 +474,22 @@ GeneralDistMatrix<T,U,V>::PartialColFilterFrom( const DistMatrix<T,UPart,V>& A )
         return;
 
     const Int colAlign = this->ColAlign();
-    const Int colAlignA = A.ColAlign();
     const Int colStride = this->ColStride();
     const Int colStridePart = this->PartialColStride();
     const Int colStrideUnion = this->PartialUnionColStride();
     const Int colShiftA = A.ColShift();
+    const Int colDiff = (colAlign%colStridePart)-A.ColAlign();
 
     const Int localHeight = this->LocalHeight();
 
-    T* thisBuf = this->Buffer();
-    const Int ldim = this->LDim();
-    const T* ABuf = A.LockedBuffer();
-    const Int ALDim = A.LDim();
-    if( colAlign % colStridePart == colAlignA )
+    if( colDiff == 0 )
     {
         const Int colShift = this->ColShift();
         const Int colOffset = (colShift-colShiftA) / colStridePart;
-        EL_PARALLEL_FOR
-        for( Int j=0; j<width; ++j )
-        {
-            T* thisCol = &thisBuf[j*ldim];
-            const T* ACol = &ABuf[colOffset+j*ALDim];
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                thisCol[iLoc] = ACol[iLoc*colStrideUnion];
-        }
+        InterleaveMatrix
+        ( localHeight, width,
+          A.LockedBuffer(colOffset,0), colStrideUnion, A.LDim(),
+          this->Buffer(),              1,              this->LDim() );
     }
     else
     {
@@ -587,16 +499,11 @@ GeneralDistMatrix<T,U,V>::PartialColFilterFrom( const DistMatrix<T,UPart,V>& A )
 #endif
         const Int colRankPart = this->PartialColRank();
         const Int colRankUnion = this->PartialUnionColRank();
-        const Int colShiftA = A.ColShift();
 
         // Realign
         // -------
-        const Int sendColRankPart = 
-            (colRankPart+colStridePart+(colAlign%colStridePart)-colAlignA) % 
-            colStridePart;
-        const Int recvColRankPart =
-            (colRankPart+colStridePart+colAlignA-(colAlign%colStridePart)) %
-            colStridePart;
+        const Int sendColRankPart = Mod( colRankPart+colDiff, colStridePart );
+        const Int recvColRankPart = Mod( colRankPart-colDiff, colStridePart );
         const Int sendColRank = sendColRankPart + colStridePart*colRankUnion;
         const Int sendColShift = Shift( sendColRank, colAlign, colStride );
         const Int sendColOffset = (sendColShift-colShiftA) / colStridePart;
@@ -607,14 +514,10 @@ GeneralDistMatrix<T,U,V>::PartialColFilterFrom( const DistMatrix<T,UPart,V>& A )
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[sendSize];
         // Pack
-        EL_PARALLEL_FOR
-        for( Int j=0; j<width; ++j )
-        {
-            T* sendCol = &sendBuf[j*localHeightSend];
-            const T* ACol = &ABuf[sendColOffset+j*ALDim];
-            for( Int iLoc=0; iLoc<localHeightSend; ++iLoc )
-                sendCol[iLoc] = ACol[iLoc*colStrideUnion];
-        }
+        InterleaveMatrix
+        ( localHeightSend, width,
+          A.LockedBuffer(sendColOffset,0), colStrideUnion, A.LDim(),
+          sendBuf,                         1,              localHeightSend );
         // Change the column alignment
         mpi::SendRecv
         ( sendBuf, sendSize, sendColRankPart,
@@ -622,13 +525,10 @@ GeneralDistMatrix<T,U,V>::PartialColFilterFrom( const DistMatrix<T,UPart,V>& A )
 
         // Unpack
         // ------
-        EL_PARALLEL_FOR
-        for( Int j=0; j<width; ++j )
-        {
-            const T* recvCol = &recvBuf[j*localHeight];
-            T* thisCol = &thisBuf[j*ldim];
-            MemCopy( thisCol, recvCol, localHeight );
-        }
+        InterleaveMatrix
+        ( localHeight, width,
+          recvBuf,        1, localHeight,
+          this->Buffer(), 1, this->LDim() );
         this->auxMemory_.Release();
     }
 }
@@ -648,29 +548,22 @@ GeneralDistMatrix<T,U,V>::PartialRowFilterFrom( const DistMatrix<T,U,VPart>& A )
         return;
 
     const Int rowAlign = this->RowAlign();
-    const Int rowAlignA = A.RowAlign();
     const Int rowStride = this->RowStride();
     const Int rowStridePart = this->PartialRowStride();
     const Int rowStrideUnion = this->PartialUnionRowStride();
     const Int rowShiftA = A.RowShift();
+    const Int rowDiff = (rowAlign%rowStridePart) - A.RowAlign();
 
     const Int localWidth = this->LocalWidth();
 
-    T* thisBuf = this->Buffer();
-    const Int ldim = this->LDim();
-    const T* ABuf = A.LockedBuffer();
-    const Int ALDim = A.LDim();
-    if( rowAlign % rowStridePart == rowAlignA )
+    if( rowDiff == 0 )
     {
         const Int rowShift = this->RowShift();
         const Int rowOffset = (rowShift-rowShiftA) / rowStridePart;
-        EL_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            T* thisCol = &thisBuf[jLoc*ldim];
-            const T* ACol = &ABuf[(rowOffset+jLoc*rowStrideUnion)*ALDim];
-            MemCopy( thisCol, ACol, height );
-        }
+        InterleaveMatrix
+        ( height, localWidth,
+          A.LockedBuffer(0,rowOffset), 1, rowStrideUnion*A.LDim(),
+          this->Buffer(),              1, this->LDim() );
     }
     else
     {
@@ -680,16 +573,11 @@ GeneralDistMatrix<T,U,V>::PartialRowFilterFrom( const DistMatrix<T,U,VPart>& A )
 #endif
         const Int rowRankPart = this->PartialRowRank();
         const Int rowRankUnion = this->PartialUnionRowRank();
-        const Int rowShiftA = A.RowShift();
 
         // Realign
         // -------
-        const Int sendRowRankPart = 
-            (rowRankPart+rowStridePart+(rowAlign%rowStridePart)-rowAlignA) % 
-            rowStridePart;
-        const Int recvRowRankPart =
-            (rowRankPart+rowStridePart+rowAlignA-(rowAlign%rowStridePart)) %
-            rowStridePart;
+        const Int sendRowRankPart = Mod( rowRankPart+rowDiff, rowStridePart );
+        const Int recvRowRankPart = Mod( rowRankPart-rowDiff, rowStridePart );
         const Int sendRowRank = sendRowRankPart + rowStridePart*rowRankUnion;
         const Int sendRowShift = Shift( sendRowRank, rowAlign, rowStride );
         const Int sendRowOffset = (sendRowShift-rowShiftA) / rowStridePart;
@@ -700,13 +588,10 @@ GeneralDistMatrix<T,U,V>::PartialRowFilterFrom( const DistMatrix<T,U,VPart>& A )
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[sendSize];
         // Pack
-        EL_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidthSend; ++jLoc )
-        {
-            T* sendCol = &sendBuf[jLoc*height];
-            const T* ACol = &ABuf[(sendRowOffset+jLoc*rowStrideUnion)*ALDim];
-            MemCopy( sendCol, ACol, height );
-        }
+        InterleaveMatrix
+        ( height, localWidthSend,
+          A.LockedBuffer(0,sendRowOffset), 1, rowStrideUnion*A.LDim(),
+          sendBuf,                         1, height );
         // Change the column alignment
         mpi::SendRecv
         ( sendBuf, sendSize, sendRowRankPart,
@@ -714,16 +599,15 @@ GeneralDistMatrix<T,U,V>::PartialRowFilterFrom( const DistMatrix<T,U,VPart>& A )
 
         // Unpack
         // ------
-        EL_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            const T* recvCol = &recvBuf[jLoc*height];
-            T* thisCol = &thisBuf[jLoc*ldim];
-            MemCopy( thisCol, recvCol, height );
-        }
+        InterleaveMatrix
+        ( height, localWidth,
+          recvBuf,        1, height,
+          this->Buffer(), 1, this->LDim() );
         this->auxMemory_.Release();
     }
 }
+
+// LEFT OFF HERE
 
 template<typename T,Dist U,Dist V>
 void
