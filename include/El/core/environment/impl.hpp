@@ -158,7 +158,7 @@ InterleaveMatrixUpdate
         blas::Axpy
         ( localHeight, alpha, 
           &A[rowStrideA*jLoc], colStrideA,
-          &B[rowStrideB*jLoc], rowStrideB );
+          &B[rowStrideB*jLoc], colStrideB );
 }
 
 template<typename T>
