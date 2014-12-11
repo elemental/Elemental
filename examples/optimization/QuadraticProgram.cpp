@@ -44,6 +44,15 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
+        qp::box::ADMMCtrl<Real> ctrl;
+        ctrl.rho = rho;
+        ctrl.alpha = alpha;
+        ctrl.maxIter = maxIter;
+        ctrl.absTol = absTol;
+        ctrl.relTol = relTol;
+        ctrl.inv = inv;
+        ctrl.print = progress;
+
         DistMatrix<Real> Q, c, xTrue;
         HermitianUniformSpectrum( Q, n, lbEig, ubEig );
         // Alternate the entries of xTrue between ub and lb
@@ -69,8 +78,7 @@ main( int argc, char* argv[] )
             Display( Q, "Q" );
 
         DistMatrix<Real> z;
-        QuadraticProgram
-        ( Q, c, lb, ub, z, rho, alpha, maxIter, absTol, relTol, inv, progress );
+        qp::box::ADMM( Q, c, lb, ub, z, ctrl );
 
         if( print )
             Print( z, "z" );

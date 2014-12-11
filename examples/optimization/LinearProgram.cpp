@@ -41,7 +41,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        lin_prog::ADMMCtrl<Real> admmCtrl;
+        lp::primal::ADMMCtrl<Real> admmCtrl;
         admmCtrl.rho = rho; 
         admmCtrl.alpha = alpha;
         admmCtrl.absTol = absTol;
@@ -72,7 +72,7 @@ main( int argc, char* argv[] )
 
         // TODO: Also test one or more Interior Point Method
         DistMatrix<Real> z;
-        lin_prog::ADMM( A, b, c, z, admmCtrl );
+        lp::primal::ADMM( A, b, c, z, admmCtrl );
 
         if( print )
             Print( z, "z" );
