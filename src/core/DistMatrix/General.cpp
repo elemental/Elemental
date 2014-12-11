@@ -82,207 +82,6 @@ GeneralDistMatrix<T,U,V>::AlignRowsWith
 
 template<typename T,Dist U,Dist V>
 void
-GeneralDistMatrix<T,U,V>::RowAllGather( DistMatrix<T,U,VGath>& A ) const
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GDM::RowAllGather");
-        AssertSameGrids( *this, A );
-    )
-    const Int height = this->Height();
-    const Int width = this->Width();
-    A.AlignColsAndResize( this->ColAlign(), height, width, false, false );
-
-    if( this->Participating() )
-    {
-        if( this->ColAlign() == A.ColAlign() )
-        {
-            if( width == 1 )
-            {
-                if( this->RowRank() == this->RowAlign() )
-                    A.matrix_ = this->LockedMatrix();
-                mpi::Broadcast
-                ( A.matrix_.Buffer(), A.LocalHeight(), this->RowAlign(), 
-                  this->RowComm() );
-            }
-            else
-            {
-                const Int rowStride = this->RowStride();
-                const Int thisLocalWidth = this->LocalWidth();
-                const Int localHeight = this->LocalHeight();
-                const Int maxLocalWidth = MaxLength(width,rowStride);
-
-                const Int portionSize = mpi::Pad( localHeight*maxLocalWidth );
-                T* buffer = A.auxMemory_.Require( (rowStride+1)*portionSize );
-                T* sendBuf = &buffer[0];
-                T* recvBuf = &buffer[portionSize];
-
-                // Pack
-                const Int ldim = this->LDim();
-                const T* thisBuf = this->LockedBuffer();
-                EL_PARALLEL_FOR
-                for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
-                {
-                    const T* thisCol = &thisBuf[jLoc*ldim];
-                    T* sendBufCol = &sendBuf[jLoc*localHeight];
-                    MemCopy( sendBufCol, thisCol, localHeight );
-                }
-
-                // Communicate
-                mpi::AllGather
-                ( sendBuf, portionSize, recvBuf, portionSize, this->RowComm() );
-
-                // Unpack
-                T* ABuf = A.Buffer();
-                const Int ALDim = A.LDim();
-                const Int rowAlign = this->RowAlign();
-                EL_OUTER_PARALLEL_FOR 
-                for( Int k=0; k<rowStride; ++k )
-                {
-                    const T* data = &recvBuf[k*portionSize];
-                    const Int rowShift = Shift_( k, rowAlign, rowStride );
-                    const Int localWidth = 
-                        Length_( width, rowShift, rowStride );
-                    EL_INNER_PARALLEL_FOR
-                    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-                    {
-                        const T* dataCol = &data[jLoc*localHeight];
-                        T* ACol = &ABuf[(rowShift+jLoc*rowStride)*ALDim];
-                        MemCopy( ACol, dataCol, localHeight );
-                    }
-                }
-                A.auxMemory_.Release();
-            }
-        }
-        else
-        {
-#ifdef EL_UNALIGNED_WARNINGS
-            if( this->Grid().Rank() == 0 )
-                std::cerr << "Unaligned RowAllGather." << std::endl;
-#endif
-            const Int colStride = this->ColStride();
-            const Int rowStride = this->RowStride(); 
-            const Int colRank = this->ColRank();
-
-            const Int colAlign = this->ColAlign();
-            const Int colAlignA = A.ColAlign();
-            const Int sendColRank = 
-                (colRank+colStride+colAlignA-colAlign) % colStride;
-            const Int recvColRank = 
-                (colRank+colStride+colAlign-colAlignA) % colStride;
-
-            if( width == 1 )
-            {
-                const Int localHeightA = A.LocalHeight();
-                if( this->RowRank() == this->RowAlign() )
-                {
-                    const Int localHeight = this->LocalHeight();    
-                    T* buffer = A.auxMemory_.Require( localHeight );
-
-                    // Pack
-                    const T* thisCol = this->LockedBuffer();
-                    MemCopy( buffer, thisCol, localHeight );
-
-                    // Realign
-                    mpi::SendRecv
-                    ( buffer, localHeight, sendColRank,
-                      A.matrix_.Buffer(), localHeightA, recvColRank, 
-                      this->ColComm() );
-                    A.auxMemory_.Release();
-                }
-
-                // Perform the row broadcast
-                mpi::Broadcast
-                ( A.matrix_.Buffer(), localHeightA, this->RowAlign(), 
-                  this->RowComm() );
-            }
-            else
-            {
-                const Int localHeight = this->LocalHeight();
-                const Int thisLocalWidth = this->LocalWidth();
-                const Int localHeightA = A.LocalHeight();
-                const Int maxLocalHeight = MaxLength(height,colStride);
-                const Int maxLocalWidth = MaxLength(width,rowStride);
-
-                const Int portionSize = 
-                    mpi::Pad( maxLocalHeight*maxLocalWidth );
-                T* buffer = A.auxMemory_.Require( (rowStride+1)*portionSize );
-                T* firstBuf = &buffer[0];
-                T* secondBuf = &buffer[portionSize];
-
-                // Pack
-                const Int ldim = this->LDim();
-                const T* thisBuf = this->LockedBuffer();
-                EL_PARALLEL_FOR
-                for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
-                {
-                    const T* thisCol = &thisBuf[jLoc*ldim];
-                    T* secondBufCol = &secondBuf[jLoc*localHeight];
-                    MemCopy( secondBufCol, thisCol, localHeight );
-                }
-
-                // Realign
-                mpi::SendRecv
-                ( secondBuf, portionSize, sendColRank,
-                  firstBuf,  portionSize, recvColRank, this->ColComm() );
-            
-                // Perform the row AllGather
-                mpi::AllGather
-                ( firstBuf,  portionSize, 
-                  secondBuf, portionSize, this->RowComm() );
-
-                // Unpack
-                T* ABuf = A.Buffer();
-                const Int ALDim = A.LDim();
-                const Int rowAlign = this->RowAlign();
-                EL_OUTER_PARALLEL_FOR
-                for( Int k=0; k<rowStride; ++k )
-                {
-                    const T* data = &secondBuf[k*portionSize];
-                    const Int rowShift = Shift_( k, rowAlign, rowStride );
-                    const Int localWidth = 
-                        Length_( width, rowShift, rowStride );
-                    EL_INNER_PARALLEL_FOR
-                    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-                    {
-                        const T* dataCol = &data[jLoc*localHeightA];
-                        T* ACol = &ABuf[(rowShift+jLoc*rowStride)*ALDim]; 
-                        MemCopy( ACol, dataCol, localHeightA );
-                    }
-                }
-                A.auxMemory_.Release();
-            }
-        }
-    }
-    if( this->Grid().InGrid() && this->CrossComm() != mpi::COMM_SELF )
-    {
-        // Pack from the root
-        const Int localHeight = A.LocalHeight();
-        const Int localWidth = A.LocalWidth();
-        T* buf = A.auxMemory_.Require( localHeight*localWidth );
-        if( this->CrossRank() == this->Root() )
-        {
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-                MemCopy
-                ( &buf[jLoc*localHeight], A.LockedBuffer(0,jLoc), localHeight );
-        }
-
-        // Broadcast from the root
-        mpi::Broadcast
-        ( buf, localHeight*localWidth, this->Root(), this->CrossComm() );
-
-        // Unpack if not the root
-        if( this->CrossRank() != this->Root() )
-        {
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-                MemCopy
-                ( A.Buffer(0,jLoc), &buf[jLoc*localHeight], localHeight );
-        }
-        A.auxMemory_.Release();
-    }
-}
-
-template<typename T,Dist U,Dist V>
-void
 GeneralDistMatrix<T,U,V>::PartialColAllGather( DistMatrix<T,UPart,V>& A ) const
 {
     DEBUG_ONLY(
@@ -1706,6 +1505,7 @@ GeneralDistMatrix<T,U,V>::RowSumScatterUpdate
             T* recvBuf = &buffer[portionSize];
 
             // Pack 
+            // TODO: This pack is silly. Remove it
             const T* ACol = A.LockedBuffer();
             MemCopy( sendBuf, ACol, localHeightA );
 
@@ -1757,23 +1557,16 @@ GeneralDistMatrix<T,U,V>::RowSumScatterUpdate
             T* secondBuf = &buffer[recvSize_RS];
 
             // Pack 
-            const T* ABuffer = A.LockedBuffer();
-            const Int ALDim = A.LDim();
             EL_OUTER_PARALLEL_FOR
             for( Int k=0; k<rowStride; ++k )
             {
-                T* data = &secondBuf[k*recvSize_RS];
                 const Int thisRowShift = Shift_( k, rowAlign, rowStride );
                 const Int thisLocalWidth = 
                     Length_(width,thisRowShift,rowStride);
-                EL_INNER_PARALLEL_FOR
-                for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
-                {
-                    const T* ACol = 
-                        &ABuffer[(thisRowShift+jLoc*rowStride)*ALDim];
-                    T* dataCol = &data[jLoc*localHeightA];
-                    MemCopy( dataCol, ACol, localHeightA );
-                }
+                InterleaveMatrix
+                ( localHeightA, thisLocalWidth,
+                  A.LockedBuffer(0,thisRowShift), 1, rowStride*A.LDim(),
+                  &secondBuf[k*recvSize_RS],      1, localHeightA );
             }
 
             // Reduce-scatter over each process row
@@ -1786,16 +1579,10 @@ GeneralDistMatrix<T,U,V>::RowSumScatterUpdate
               secondBuf, localHeight*localWidth,  recvRow, this->ColComm() );
 
             // Update with our received data
-            T* thisBuffer = this->Buffer();
-            const Int thisLDim = this->LDim();
-            EL_FMA_PARALLEL_FOR
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            {
-                const T* secondBufCol = &secondBuf[jLoc*localHeight];
-                T* thisCol = &thisBuffer[jLoc*thisLDim];
-                for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                    thisCol[iLoc] += alpha*secondBufCol[iLoc];
-            }
+            InterleaveMatrixUpdate
+            ( alpha, localHeight, localWidth,
+              secondBuf,      1, localHeight,
+              this->Buffer(), 1, this->LDim() );
             this->auxMemory_.Release();
         }
     }
@@ -1847,39 +1634,26 @@ GeneralDistMatrix<T,U,V>::ColSumScatterUpdate
         const Int sendSize = colStride*recvSize;
 
         // Pack 
-        const T* ABuffer = A.LockedBuffer();
-        const Int ALDim = A.LDim();
         T* buffer = this->auxMemory_.Require( sendSize );
         EL_OUTER_PARALLEL_FOR
         for( Int k=0; k<colStride; ++k )
         {
-            T* data = &buffer[k*recvSize];
             const Int thisColShift = Shift_( k, colAlign, colStride );
             const Int thisLocalHeight = Length_(height,thisColShift,colStride);
-            EL_INNER_PARALLEL_FOR
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            {
-                T* destCol = &data[jLoc*thisLocalHeight];
-                const T* sourceCol = &ABuffer[thisColShift+jLoc*ALDim];
-                for( Int iLoc=0; iLoc<thisLocalHeight; ++iLoc )
-                    destCol[iLoc] = sourceCol[iLoc*colStride];
-            }
+            InterleaveMatrix
+            ( thisLocalHeight, localWidth,
+              A.LockedBuffer(thisColShift,0), colStride, A.LDim(),
+              &buffer[k*recvSize],            1,         thisLocalHeight );
         }
 
         // Communicate
         mpi::ReduceScatter( buffer, recvSize, this->ColComm() );
 
         // Update with our received data
-        T* thisBuffer = this->Buffer();
-        const Int thisLDim = this->LDim();
-        EL_FMA_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            const T* bufferCol = &buffer[jLoc*localHeight];
-            T* thisCol = &thisBuffer[jLoc*thisLDim];
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                thisCol[iLoc] += alpha*bufferCol[iLoc];
-        }
+        InterleaveMatrixUpdate
+        ( alpha, localHeight, localWidth,
+          buffer,         1, localHeight,
+          this->Buffer(), 1, this->LDim() );
         this->auxMemory_.Release();
     }
     else
@@ -1914,22 +1688,15 @@ GeneralDistMatrix<T,U,V>::ColSumScatterUpdate
         T* secondBuf = &buffer[recvSize_RS];
 
         // Pack
-        const T* ABuffer = A.LockedBuffer();
-        const Int ALDim = A.LDim();
         EL_OUTER_PARALLEL_FOR
         for( Int k=0; k<colStride; ++k )
         {
-            T* data = &secondBuf[k*recvSize_RS];
             const Int thisColShift = Shift_( k, colAlign, colStride );
             const Int thisLocalHeight = Length_(height,thisColShift,colStride);
-            EL_INNER_PARALLEL_FOR
-            for( Int jLoc=0; jLoc<localWidthA; ++jLoc )
-            {
-                T* destCol = &data[jLoc*thisLocalHeight];
-                const T* sourceCol = &ABuffer[thisColShift+jLoc*ALDim];
-                for( Int iLoc=0; iLoc<thisLocalHeight; ++iLoc )
-                    destCol[iLoc] = sourceCol[iLoc*colStride];
-            }
+            InterleaveMatrix
+            ( thisLocalHeight, localWidthA,
+              A.LockedBuffer(thisColShift,0), colStride, A.LDim(),
+              &secondBuf[k*recvSize_RS],      1,         thisLocalHeight );
         }
 
         // Reduce-scatter over each col
@@ -1941,16 +1708,10 @@ GeneralDistMatrix<T,U,V>::ColSumScatterUpdate
           secondBuf, localHeight*localWidth,  recvCol, this->RowComm() );
 
         // Update with our received data
-        T* thisBuffer = this->Buffer();
-        const Int thisLDim = this->LDim();
-        EL_FMA_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            const T* secondBufCol = &secondBuf[jLoc*localHeight];
-            T* thisCol = &thisBuffer[jLoc*thisLDim];
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                thisCol[iLoc] += alpha*secondBufCol[iLoc];
-        }
+        InterleaveMatrixUpdate
+        ( alpha, localHeight, localWidth,
+          secondBuf,      1, localHeight,
+          this->Buffer(), 1, this->LDim() );
         this->auxMemory_.Release();
     }
 }
@@ -1985,8 +1746,6 @@ GeneralDistMatrix<T,U,V>::SumScatterUpdate
     const Int sendSize = colStride*rowStride*recvSize;
 
     // Pack 
-    const T* ABuffer = A.LockedBuffer();
-    const Int ALDim = A.LDim();
     T* buffer = this->auxMemory_.Require( sendSize );
     EL_OUTER_PARALLEL_FOR
     for( Int l=0; l<rowStride; ++l )
@@ -1998,15 +1757,10 @@ GeneralDistMatrix<T,U,V>::SumScatterUpdate
             T* data = &buffer[(k+l*colStride)*recvSize];
             const Int thisColShift = Shift_( k, colAlign, colStride );
             const Int thisLocalHeight = Length_(height,thisColShift,colStride);
-            EL_INNER_PARALLEL_FOR
-            for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
-            {
-                T* destCol = &data[jLoc*thisLocalHeight];
-                const T* sourceCol =
-                    &ABuffer[thisColShift+(thisRowShift+jLoc*rowStride)*ALDim];
-                for( Int iLoc=0; iLoc<thisLocalHeight; ++iLoc )
-                    destCol[iLoc] = sourceCol[iLoc*colStride];
-            }
+            InterleaveMatrix
+            ( thisLocalHeight, thisLocalWidth,
+              A.LockedBuffer(thisColShift,thisRowShift), colStride, A.LDim(),
+              data, 1, thisLocalHeight );
         }
     }
 
@@ -2014,16 +1768,10 @@ GeneralDistMatrix<T,U,V>::SumScatterUpdate
     mpi::ReduceScatter( buffer, recvSize, this->DistComm() );
 
     // Unpack our received data
-    T* thisBuffer = this->Buffer();
-    const Int thisLDim = this->LDim();
-    EL_FMA_PARALLEL_FOR
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const T* bufferCol = &buffer[jLoc*localHeight];
-        T* thisCol = &thisBuffer[jLoc*thisLDim];
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            thisCol[iLoc] += alpha*bufferCol[iLoc];
-    }
+    InterleaveMatrixUpdate
+    ( alpha, localHeight, localWidth,
+      buffer,         1, localHeight,
+      this->Buffer(), 1, this->LDim() );
     this->auxMemory_.Release();
 }
 
@@ -2058,8 +1806,6 @@ GeneralDistMatrix<T,U,V>::PartialRowSumScatterUpdate
         const Int sendSize = rowStrideUnion*recvSize;
 
         // Pack
-        const T* ABuf = A.LockedBuffer();
-        const Int ALDim = A.LDim();
         T* buffer = this->auxMemory_.Require( sendSize );
         EL_OUTER_PARALLEL_FOR
         for( Int k=0; k<rowStrideUnion; ++k )
@@ -2071,36 +1817,24 @@ GeneralDistMatrix<T,U,V>::PartialRowSumScatterUpdate
                 (thisRowShift-rowShiftOfA) / rowStridePart;
             const Int thisLocalWidth = 
                 Length_( width, thisRowShift, rowStride );
-            EL_INNER_PARALLEL_FOR
-            for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
-            {
-                const T* ACol = 
-                    &ABuf[(thisRowOffset+jLoc*rowStrideUnion)*ALDim];
-                T* dataCol = &data[jLoc*height];
-                MemCopy( dataCol, ACol, height );
-            }
+            InterleaveMatrix
+            ( height, thisLocalWidth,
+              A.LockedBuffer(0,thisRowOffset), 1, rowStrideUnion*A.LDim(),
+              data,                            1, height );
         }
     
         // Communicate
         mpi::ReduceScatter( buffer, recvSize, this->PartialUnionRowComm() );
 
         // Unpack our received data
-        T* thisBuf = this->Buffer();
-        const Int thisLDim = this->LDim();
-        EL_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            const T* bufferCol = &buffer[jLoc*height];
-            T* thisCol = &thisBuf[jLoc*thisLDim];
-            for( Int i=0; i<height; ++i )
-                thisCol[i] += alpha*bufferCol[i];
-        }
+        InterleaveMatrixUpdate
+        ( alpha, height, localWidth,
+          buffer,         1, height,
+          this->Buffer(), 1, this->LDim() );
         this->auxMemory_.Release();
     }
     else
-    {
         LogicError("Unaligned PartialRowSumScatterUpdate not implemented");
-    }
 }
 
 template<typename T,Dist U,Dist V>
@@ -2158,30 +1892,20 @@ GeneralDistMatrix<T,U,V>::PartialColSumScatterUpdate
                 (thisColShift-colShiftOfA) / colStridePart;
             const Int thisLocalHeight = 
                 Length_( height, thisColShift, colStride );
-            EL_INNER_PARALLEL_FOR
-            for( Int j=0; j<width; ++j )
-            {
-                T* destCol = &data[j*thisLocalHeight];
-                const T* sourceCol = &ABuf[thisColOffset+j*ALDim];
-                for( Int iLoc=0; iLoc<thisLocalHeight; ++iLoc )
-                    destCol[iLoc] = sourceCol[iLoc*colStrideUnion];
-            }
+            InterleaveMatrix
+            ( thisLocalHeight, width,
+              A.LockedBuffer(thisColOffset,0), colStrideUnion, A.LDim(),
+              data, 1, thisLocalHeight );
         }
 
         // Communicate
         mpi::ReduceScatter( buffer, recvSize, this->PartialUnionColComm() );
 
         // Unpack our received data
-        T* thisBuf = this->Buffer();
-        const Int thisLDim = this->LDim();
-        EL_PARALLEL_FOR
-        for( Int j=0; j<width; ++j )
-        {
-            const T* bufferCol = &buffer[j*localHeight];
-            T* thisCol = &thisBuf[j*thisLDim];
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                thisCol[iLoc] += alpha*bufferCol[iLoc];
-        }
+        InterleaveMatrixUpdate
+        ( alpha, localHeight, width,
+          buffer,         1, localHeight,
+          this->Buffer(), 1, this->LDim() );
         this->auxMemory_.Release();
     }
     else
@@ -2200,7 +1924,7 @@ GeneralDistMatrix<T,U,V>::TransposeColAllGather
     ATrans.AlignWith( *this );
     ATrans.Resize( this->Width(), this->Height() );
     Transpose( this->LockedMatrix(), ATrans.Matrix(), conjugate );
-    ATrans.RowAllGather( A );
+    copy::RowAllGather( ATrans, A );
 }
 
 template<typename T,Dist U,Dist V>

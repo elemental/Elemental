@@ -110,13 +110,13 @@ void ColAllGather
             if( height == 1 )
             {
                 const Int localWidthB = B.LocalWidth();
+                std::vector<T> buffer;
                 T* bcastBuf;
 
                 if( A.ColRank() == A.ColAlign() )
                 {
                     const Int localWidth = A.LocalWidth();
-
-                    std::vector<T> buffer( localWidth+localWidthB );
+                    buffer.resize( localWidth+localWidthB );
                     T* sendBuf = &buffer[0];
                     bcastBuf   = &buffer[localWidth];
 

@@ -131,6 +131,7 @@ InterleaveMatrix
   const T* A, Int colStrideA, Int rowStrideA,
         T* B, Int colStrideB, Int rowStrideB )
 {
+    // TODO: Add OpenMP parallelization and/or optimize
     if( colStrideA == 1 && colStrideB == 1 )
     {
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
@@ -146,6 +147,21 @@ InterleaveMatrix
 }
 
 template<typename T>
+inline void
+InterleaveMatrixUpdate
+( T alpha, Int localHeight, Int localWidth,
+  const T* A, Int colStrideA, Int rowStrideA,
+        T* B, Int colStrideB, Int rowStrideB )
+{
+    // TODO: Add OpenMP parallelization and/or optimize
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+        blas::Axpy
+        ( localHeight, alpha, 
+          &A[rowStrideA*jLoc], colStrideA,
+          &B[rowStrideB*jLoc], rowStrideB );
+}
+
+template<typename T>
 inline void 
 MemZero( T* buffer, std::size_t numEntries )
 {
@@ -154,9 +170,7 @@ MemZero( T* buffer, std::size_t numEntries )
 }
 
 template<typename T>
-inline void
-SwapClear( T& x )
-{ T().swap( x ); }
+inline void SwapClear( T& x ) { T().swap( x ); }
 
 template<typename T>
 inline T 
