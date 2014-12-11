@@ -13,14 +13,18 @@ using namespace El;
 template<typename F> 
 void TestCorrectness
 ( const DistMatrix<F,VC,  STAR>& A,
-        DistMatrix<F,VC,  STAR>& B, Base<F> tau )
+        DistMatrix<F,VC,  STAR>& B, Base<F> tau, bool print )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
 
     DistMatrix<F> BNormal( A );
     SVT( BNormal, tau );
+    if( print )
+        Print( BNormal, "BNormal" );
     Axpy( F(-1), B, BNormal );
+    if( print )
+        Print( BNormal, "E" );
     const Real AFrob = FrobeniusNorm( A );
     const Real BFrob = FrobeniusNorm( B );
     const Real errorFrob = FrobeniusNorm( BNormal );
@@ -53,13 +57,11 @@ void TestSVT
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     if( g.Rank() == 0 )
-    {
         cout << "DONE. Time = " << runTime << " seconds." << endl;
-    }
     if( print )
         Print( B, "B" );
     if( testCorrectness )
-        TestCorrectness( A, B, tau );
+        TestCorrectness( A, B, tau, print );
 }
 
 int 
@@ -87,7 +89,7 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
         if( commRank == 0 )
-            cout << "Will test TSQR" << endl;
+            cout << "Will test TS-SVT" << endl;
 
         if( commRank == 0 )
             cout << "Testing with doubles:" << endl;

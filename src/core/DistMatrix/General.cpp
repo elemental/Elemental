@@ -1032,7 +1032,7 @@ GeneralDistMatrix<T,U,V>::PartialRowAllToAll
             InterleaveMatrix
             ( localHeightA, localWidth,
               &secondBuf[k*portionSize], 1, localHeightA,
-              A.Buffer(0,rowOffset), 1, rowStrideUnion*A.LDim() );
+              A.Buffer(0,rowOffset),     1, rowStrideUnion*A.LDim() );
         }
     }
     else

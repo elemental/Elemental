@@ -51,7 +51,10 @@ inline void TallAbsoluteThresholded
     HermitianEigSubset<Real> subset;
     subset.rangeSubset = true;
     subset.lowerBound = tol*tol;
-    subset.upperBound = frobNorm*frobNorm;
+    // NOTE: While the square of the Frobenius norm should be a strict upper
+    //       bound with exact computation, it has been observed that it can
+    //       be lower than the finite-precision result in practice
+    subset.upperBound = 2*frobNorm*frobNorm;
     HermitianEig( LOWER, C, s, V, DESCENDING, subset );
     
     // Sigma := sqrt(Sigma^2)
@@ -187,7 +190,10 @@ TallAbsoluteThresholded
     HermitianEigSubset<Real> subset;
     subset.rangeSubset = true;
     subset.lowerBound = tol*tol;
-    subset.upperBound = frobNorm*frobNorm;
+    // NOTE: While the square of the Frobenius norm should be a strict upper
+    //       bound with exact computation, it has been observed that it can
+    //       be lower than the finite-precision result in practice
+    subset.upperBound = 2*frobNorm*frobNorm;
     HermitianEig( LOWER, C, s, V, DESCENDING, subset );
     
     // Sigma := sqrt(Sigma^2)
@@ -350,7 +356,10 @@ TallAbsoluteThresholded
     HermitianEigSubset<Real> subset;
     subset.rangeSubset = true;
     subset.lowerBound = tol*tol;
-    subset.upperBound = frobNorm*frobNorm;
+    // NOTE: While the square of the Frobenius norm should be a strict upper
+    //       bound with exact computation, it has been observed that it can
+    //       be lower than the finite-precision result in practice
+    subset.upperBound = 2*frobNorm*frobNorm;
     HermitianEig( LOWER, C, s, V, DESCENDING, subset );
     const int k = s.Height();
     
@@ -500,7 +509,10 @@ WideAbsoluteThresholded
     HermitianEigSubset<Real> subset;
     subset.rangeSubset = true;
     subset.lowerBound = tol*tol;
-    subset.upperBound = frobNorm*frobNorm;
+    // NOTE: While the square of the Frobenius norm should be a strict upper
+    //       bound with exact computation, it has been observed that it can
+    //       be lower than the finite-precision result in practice
+    subset.upperBound = 2*frobNorm*frobNorm;
     HermitianEig( LOWER, C, s, U, DESCENDING, subset );
     
     // Sigma := sqrt(Sigma^2)
@@ -637,7 +649,10 @@ WideAbsoluteThresholded
     HermitianEigSubset<Real> subset;
     subset.rangeSubset = true;
     subset.lowerBound = tol*tol;
-    subset.upperBound = frobNorm*frobNorm;
+    // NOTE: While the square of the Frobenius norm should be a strict upper
+    //       bound with exact computation, it has been observed that it can
+    //       be lower than the finite-precision result in practice
+    subset.upperBound = 2*frobNorm*frobNorm;
     HermitianEig( LOWER, C, s, U, DESCENDING, subset );
     
     // Sigma := sqrt(Sigma^2)
