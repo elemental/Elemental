@@ -82,234 +82,6 @@ GeneralDistMatrix<T,U,V>::AlignRowsWith
 
 template<typename T,Dist U,Dist V>
 void
-GeneralDistMatrix<T,U,V>::PartialColAllGather( DistMatrix<T,UPart,V>& A ) const
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GDM::PartialColAllGather");
-        AssertSameGrids( *this, A );
-    )
-    const Int height = this->Height();
-    const Int width = this->Width();
-#ifdef EL_VECTOR_WARNINGS
-    if( width == 1 && this->Grid().Rank() == 0 )
-    {
-        std::cerr <<
-          "The vector version of PartialColAllGather is not yet written but "
-          "would only require modifying the vector version of "
-          "PartialRowAllGather" << std::endl;
-    }
-#endif
-#ifdef EL_CACHE_WARNINGS
-    if( width && this->Grid().Rank() == 0 )
-    {
-        std::cerr <<
-          "PartialColAllGather potentially causes a large amount of cache-"
-          "thrashing. If possible, avoid it by performing the redistribution"
-          "on the (conjugate-)transpose" << std::endl;
-    }
-#endif
-    A.AlignColsAndResize
-    ( this->ColAlign()%A.ColStride(), height, width, false, false );
-    if( !this->Participating() )
-        return;
-
-    DEBUG_ONLY(
-        if( this->LocalWidth() != this->Width() )
-            LogicError("This routine assumes rows are not distributed");
-    )
-
-    const Int colAlign = this->ColAlign();
-    const Int colAlignA = A.ColAlign();
-    const Int colStride = this->ColStride();
-    const Int colStrideUnion = this->PartialUnionColStride();
-    const Int colStridePart = this->PartialColStride();
-    const Int colRankPart = this->PartialColRank();
-    const Int colShiftA = A.ColShift();
-
-    const Int thisLocalHeight = this->LocalHeight();
-    const Int maxLocalHeight = MaxLength(height,colStride);
-    const Int portionSize = mpi::Pad( maxLocalHeight*width );
-    T* buffer = A.auxMemory_.Require( (colStrideUnion+1)*portionSize );
-    T* firstBuf = &buffer[0];
-    T* secondBuf = &buffer[portionSize];
-
-    if( colAlignA == colAlign % colStridePart ) 
-    {
-        // Pack
-        InterleaveMatrix
-        ( thisLocalHeight, width,
-          this->LockedBuffer(), 1, this->LDim(),
-          firstBuf,             1, thisLocalHeight );
-
-        // Communicate
-        mpi::AllGather
-        ( firstBuf, portionSize, secondBuf, portionSize, 
-          this->PartialUnionColComm() );
-
-        // Unpack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<colStrideUnion; ++k )
-        {
-            const Int colShift = 
-                Shift_( colRankPart+k*colStridePart, colAlign, colStride );
-            const Int colOffset = (colShift-colShiftA) / colStridePart;
-            const Int localHeight = Length_( height, colShift, colStride );
-            InterleaveMatrix
-            ( localHeight, width,
-              &secondBuf[k*portionSize], 1,              localHeight,
-              A.Buffer(colOffset,0),     colStrideUnion, A.LDim() );
-        }
-    }
-    else
-    {
-#ifdef EL_UNALIGNED_WARNINGS
-        if( this->Grid().Rank() == 0 )
-            std::cerr << "Unaligned PartialColAllGather" << std::endl;
-#endif
-        // Perform a SendRecv to match the row alignments
-        const Int colRank = this->ColRank();
-        const Int colDiff = colAlignA-colAlign;
-        const Int sendColRank = Mod( colRank+colDiff, colStride );
-        const Int recvColRank = Mod( colRank-colDiff, colStride );
-        InterleaveMatrix
-        ( thisLocalHeight, width,
-          this->LockedBuffer(), 1, this->LDim(),
-          secondBuf,            1, thisLocalHeight );
-        mpi::SendRecv
-        ( secondBuf, portionSize, sendColRank,
-          firstBuf,  portionSize, recvColRank, this->ColComm() );
-
-        // Use the SendRecv as an input to the partial union AllGather
-        mpi::AllGather
-        ( firstBuf,  portionSize, 
-          secondBuf, portionSize, this->PartialUnionColComm() );
-
-        // Unpack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<colStrideUnion; ++k )
-        {
-            const Int colShift = 
-                Shift_( colRankPart+colStridePart*k, colAlignA, colStride );
-            const Int colOffset = (colShift-colShiftA) / colStridePart;
-            const Int localHeight = Length_( height, colShift, colStride );
-            InterleaveMatrix
-            ( localHeight, width,
-              &secondBuf[k*portionSize], 1,              localHeight,
-              A.Buffer(colOffset,0),     colStrideUnion, A.LDim() );
-        }
-    }
-    A.auxMemory_.Release();
-}
-
-template<typename T,Dist U,Dist V>
-void
-GeneralDistMatrix<T,U,V>::PartialRowAllGather( DistMatrix<T,U,VPart>& A ) const
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GDM::PartialRowAllGather");
-        AssertSameGrids( *this, A );
-    )
-    const Int height = this->Height();
-    const Int width = this->Width();
-    A.AlignRowsAndResize
-    ( this->RowAlign()%A.RowStride(), height, width, false, false );
-    if( !this->Participating() )
-        return;
-
-    DEBUG_ONLY(
-        if( this->LocalHeight() != this->Height() )
-            LogicError("This routine assumes columns are not distributed");
-    )
-    const T* thisBuf = this->LockedBuffer();
-    const Int ldim = this->LDim();
-    T* ABuf = A.Buffer();
-    const Int ALDim = A.LDim();
-
-    const Int rowAlign = this->RowAlign();
-    const Int rowAlignA = A.RowAlign();
-    const Int rowStride = this->RowStride();
-    const Int rowStrideUnion = this->PartialUnionRowStride();
-    const Int rowStridePart = this->PartialRowStride();
-    const Int rowRankPart = this->PartialRowRank();
-    const Int rowShiftA = A.RowShift();
-
-    const Int thisLocalWidth = this->LocalWidth();
-    const Int maxLocalWidth = MaxLength(width,rowStride);
-    const Int portionSize = mpi::Pad( height*maxLocalWidth );
-    T* buffer = A.auxMemory_.Require( (rowStrideUnion+1)*portionSize );
-    T* firstBuf = &buffer[0];
-    T* secondBuf = &buffer[portionSize];
-
-    if( rowAlignA == rowAlign % rowStridePart ) 
-    {
-        // Pack
-        InterleaveMatrix
-        ( height, thisLocalWidth,
-          this->LockedBuffer(), 1, this->LDim(),
-          firstBuf,             1, height );
-
-        // Communicate
-        mpi::AllGather
-        ( firstBuf, portionSize, secondBuf, portionSize, 
-          this->PartialUnionRowComm() );
-
-        // Unpack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<rowStrideUnion; ++k )
-        {
-            const Int rowShift = 
-                Shift_( rowRankPart+k*rowStridePart, rowAlign, rowStride );
-            const Int rowOffset = (rowShift-rowShiftA) / rowStridePart;
-            const Int localWidth = Length_( width, rowShift, rowStride );
-            InterleaveMatrix
-            ( height, localWidth,
-              &secondBuf[k*portionSize], 1, height,
-              A.Buffer(0,rowOffset),     1, rowStrideUnion*A.LDim() );
-        }
-    }
-    else
-    {
-#ifdef EL_UNALIGNED_WARNINGS
-        if( this->Grid().Rank() == 0 )
-            std::cerr << "Unaligned PartialRowAllGather" << std::endl;
-#endif
-        // Perform a SendRecv to match the row alignments
-        const Int rowDiff = rowAlignA - rowAlign;
-        const Int sendRowRank = Mod( this->RowRank()+rowDiff, rowStride );
-        const Int recvRowRank = Mod( this->RowRank()-rowDiff, rowStride );
-        InterleaveMatrix
-        ( height, thisLocalWidth,
-          this->LockedBuffer(), 1, this->LDim(),
-          secondBuf,            1, height );
-        mpi::SendRecv
-        ( secondBuf, portionSize, sendRowRank,
-          firstBuf,  portionSize, recvRowRank, this->RowComm() );
-
-        // Use the SendRecv as an input to the partial union AllGather
-        mpi::AllGather
-        ( firstBuf,  portionSize, 
-          secondBuf, portionSize, this->PartialUnionRowComm() );
-
-        // Unpack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<rowStrideUnion; ++k )
-        {
-            const T* data = &secondBuf[k*portionSize];
-            const Int rowShift = 
-                Shift_( rowRankPart+rowStridePart*k, rowAlignA, rowStride );
-            const Int rowOffset = (rowShift-rowShiftA) / rowStridePart;
-            const Int localWidth = Length_( width, rowShift, rowStride );
-            InterleaveMatrix
-            ( height, localWidth,
-              data,                  1, height,
-              A.Buffer(0,rowOffset), 1, rowStrideUnion*A.LDim() );
-        }
-    }
-    A.auxMemory_.Release();
-}
-
-template<typename T,Dist U,Dist V>
-void
 GeneralDistMatrix<T,U,V>::FilterFrom( const DistMatrix<T,UGath,VGath>& A )
 {
     DEBUG_ONLY(
@@ -1330,8 +1102,6 @@ GeneralDistMatrix<T,U,V>::RowSumScatterUpdate
     }
 }
 
-// Stopped introducing InterleaveMatrix HERE
-
 template<typename T,Dist U,Dist V>
 void
 GeneralDistMatrix<T,U,V>::ColSumScatterUpdate
@@ -1364,14 +1134,16 @@ GeneralDistMatrix<T,U,V>::ColSumScatterUpdate
 #endif
     if( !this->Participating() )
         return;
+    const Int height = this->Height(); 
+    const Int localHeight = this->LocalHeight();
+    const Int localWidth = this->LocalWidth();
 
-    if( this->RowAlign() == A.RowAlign() )
+    const Int colAlign = this->ColAlign();
+    const Int colStride = this->ColStride();
+
+    const Int rowDiff = this->RowAlign()-A.RowAlign();
+    if( rowDiff == 0 )
     {
-        const Int colStride = this->ColStride();
-        const Int colAlign = this->ColAlign();
-        const Int height = this->Height();
-        const Int localHeight = this->LocalHeight();
-        const Int localWidth = this->LocalWidth();
         const Int maxLocalHeight = MaxLength(height,colStride);
 
         const Int recvSize = mpi::Pad( maxLocalHeight*localWidth );
@@ -1406,25 +1178,12 @@ GeneralDistMatrix<T,U,V>::ColSumScatterUpdate
         if( this->Grid().Rank() == 0 )
             std::cerr << "Unaligned ColSumScatterUpdate" << std::endl;
 #endif
-        const Int colStride = this->ColStride();
-        const Int rowStride = this->RowStride();
-        const Int rowRank = this->RowRank();
-
-        const Int colAlign = this->ColAlign();
-        const Int rowAlign = this->RowAlign();
-        const Int rowAlignA = A.RowAlign();
-        const Int sendCol = (rowRank+rowStride+rowAlign-rowAlignA) % rowStride;
-        const Int recvCol = (rowRank+rowStride+rowAlignA-rowAlign) % rowStride;
-
-        const Int height = this->Height();
-        const Int localHeight = this->LocalHeight();
-        const Int localWidth = this->LocalWidth();
         const Int localWidthA = A.LocalWidth();
         const Int maxLocalHeight = MaxLength(height,colStride);
 
         const Int recvSize_RS = mpi::Pad( maxLocalHeight*localWidthA );
-        const Int sendSize_RS = colStride * recvSize_RS;
-        const Int recvSize_SR = localHeight * localWidth;
+        const Int sendSize_RS = colStride*recvSize_RS;
+        const Int recvSize_SR = localHeight*localWidth;
 
         T* buffer = this->auxMemory_.Require
             ( recvSize_RS + std::max(sendSize_RS,recvSize_SR) );
@@ -1447,6 +1206,8 @@ GeneralDistMatrix<T,U,V>::ColSumScatterUpdate
         mpi::ReduceScatter( secondBuf, firstBuf, recvSize_RS, this->ColComm() );
 
         // Trade reduced data with the appropriate col
+        const Int sendCol = Mod( this->RowRank()+rowDiff, this->RowStride() );
+        const Int recvCol = Mod( this->RowRank()-rowDiff, this->RowStride() );
         mpi::SendRecv
         ( firstBuf,  localHeight*localWidthA, sendCol,
           secondBuf, localHeight*localWidth,  recvCol, this->RowComm() );
@@ -1681,7 +1442,7 @@ GeneralDistMatrix<T,U,V>::TransposePartialColAllGather
     ATrans.AlignWith( *this );
     ATrans.Resize( this->Width(), this->Height() );
     Transpose( this->LockedMatrix(), ATrans.Matrix(), conjugate );
-    ATrans.PartialRowAllGather( A );
+    copy::PartialRowAllGather( ATrans, A );
 }
 
 template<typename T,Dist U,Dist V>
@@ -2131,30 +1892,30 @@ GeneralDistMatrix<T,U,V>::GetDiagonalHelper
     auto& d = *dPtr;
 
     d.Resize( this->DiagonalLength(offset), 1 );
-    if( d.Participating() )
+    if( !d.Participating() )
+        return;
+
+    const Int diagShift = d.ColShift();
+    const Int iStart = diagShift + Max(-offset,0);
+    const Int jStart = diagShift + Max( offset,0);
+
+    const Int colStride = this->ColStride();
+    const Int rowStride = this->RowStride();
+    const Int iLocStart = (iStart-this->ColShift()) / colStride;
+    const Int jLocStart = (jStart-this->RowShift()) / rowStride;
+    const Int iLocStride = d.ColStride() / colStride;
+    const Int jLocStride = d.ColStride() / rowStride;
+
+    const Int localDiagLength = d.LocalHeight();
+    S* dBuf = d.Buffer();
+    const T* buffer = this->LockedBuffer();
+    const Int ldim = this->LDim();
+    EL_PARALLEL_FOR
+    for( Int k=0; k<localDiagLength; ++k )
     {
-        const Int diagShift = d.ColShift();
-        const Int diagStride = d.ColStride();
-        const Int iStart = ( offset>=0 ? diagShift        : diagShift-offset );
-        const Int jStart = ( offset>=0 ? diagShift+offset : diagShift        );
-
-        const Int colStride = this->ColStride();
-        const Int rowStride = this->RowStride();
-        const Int iLocStart = (iStart-this->ColShift()) / colStride;
-        const Int jLocStart = (jStart-this->RowShift()) / rowStride;
-
-        const Int localDiagLength = d.LocalHeight();
-        S* dBuf = d.Buffer();
-        const T* buffer = this->LockedBuffer();
-        const Int ldim = this->LDim();
-
-        EL_PARALLEL_FOR
-        for( Int k=0; k<localDiagLength; ++k )
-        {
-            const Int iLoc = iLocStart + k*(diagStride/colStride);
-            const Int jLoc = jLocStart + k*(diagStride/rowStride);
-            func( dBuf[k], buffer[iLoc+jLoc*ldim] );
-        }
+        const Int iLoc = iLocStart + k*iLocStride;
+        const Int jLoc = jLocStart + k*jLocStride;
+        func( dBuf[k], buffer[iLoc+jLoc*ldim] );
     }
 }
 
@@ -2180,25 +1941,26 @@ GeneralDistMatrix<T,U,V>::SetDiagonalHelper
         return;
 
     const Int diagShift = d.ColShift();
-    const Int diagStride = d.ColStride();
-    const Int iStart = ( offset>=0 ? diagShift        : diagShift-offset );
-    const Int jStart = ( offset>=0 ? diagShift+offset : diagShift        );
+    const Int iStart = diagShift + Max(-offset,0);
+    const Int jStart = diagShift + Max( offset,0);
 
     const Int colStride = this->ColStride();
     const Int rowStride = this->RowStride();
     const Int iLocStart = (iStart-this->ColShift()) / colStride;
     const Int jLocStart = (jStart-this->RowShift()) / rowStride;
+    const Int iLocStride = d.ColStride() / colStride;
+    const Int jLocStride = d.ColStride() / rowStride;
 
+    const Int diagStride = d.ColStride();
     const Int localDiagLength = d.LocalHeight();
     const S* dBuf = d.LockedBuffer();
     T* buffer = this->Buffer();
     const Int ldim = this->LDim();
-
     EL_PARALLEL_FOR
     for( Int k=0; k<localDiagLength; ++k )
     {
-        const Int iLoc = iLocStart + k*(diagStride/colStride);
-        const Int jLoc = jLocStart + k*(diagStride/rowStride);
+        const Int iLoc = iLocStart + k*iLocStride;
+        const Int jLoc = jLocStart + k*jLocStride;
         func( buffer[iLoc+jLoc*ldim], dBuf[k] );
     }
 }

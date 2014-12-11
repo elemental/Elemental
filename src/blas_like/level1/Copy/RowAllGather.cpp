@@ -24,7 +24,8 @@ void RowAllGather
 
     if( A.Participating() )
     {
-        if( A.ColAlign() == B.ColAlign() )
+        const Int colDiff = B.ColAlign() - A.ColAlign();
+        if( colDiff == 0 )
         {
             if( width == 1 )
             {
@@ -59,14 +60,13 @@ void RowAllGather
                 EL_OUTER_PARALLEL_FOR
                 for( Int k=0; k<rowStride; ++k )
                 {
-                    const T* data = &recvBuf[k*portionSize];
                     const Int rowShift = Shift_( k, rowAlign, rowStride );
                     const Int localWidth =
                         Length_( width, rowShift, rowStride );
                     InterleaveMatrix
                     ( localHeight, localWidth,
-                      data,                 1, localHeight,
-                      B.Buffer(0,rowShift), 1, rowStride*B.LDim() );
+                      &recvBuf[k*portionSize], 1, localHeight,
+                      B.Buffer(0,rowShift),    1, rowStride*B.LDim() );
                 }
             }
         }
@@ -76,11 +76,8 @@ void RowAllGather
             if( A.Grid().Rank() == 0 )
                 std::cerr << "Unaligned RowAllGather." << std::endl;
 #endif
-
-            const Int colDiff = B.ColAlign() - A.ColAlign();
-            const Int colStride = A.ColStride();
-            const Int sendColRank = Mod( A.ColRank()+colDiff, colStride );
-            const Int recvColRank = Mod( A.ColRank()-colDiff, colStride );
+            const Int sendColRank = Mod( A.ColRank()+colDiff, A.ColStride() );
+            const Int recvColRank = Mod( A.ColRank()-colDiff, A.ColStride() );
 
             if( width == 1 )
             {
@@ -100,7 +97,7 @@ void RowAllGather
                 const Int localHeight = A.LocalHeight();
                 const Int localWidthA = A.LocalWidth();
                 const Int localHeightB = B.LocalHeight();
-                const Int maxLocalHeight = MaxLength(height,colStride);
+                const Int maxLocalHeight = MaxLength(height,A.ColStride());
                 const Int maxLocalWidth = MaxLength(width,rowStride);
 
                 const Int portionSize = mpi::Pad(maxLocalHeight*maxLocalWidth);
@@ -129,14 +126,13 @@ void RowAllGather
                 EL_OUTER_PARALLEL_FOR
                 for( Int k=0; k<rowStride; ++k )
                 {
-                    const T* data = &secondBuf[k*portionSize];
                     const Int rowShift = Shift_( k, rowAlign, rowStride );
                     const Int localWidth =
                         Length_( width, rowShift, rowStride );
                     InterleaveMatrix
                     ( localHeightB, localWidth,
-                      data,                 1, localHeightB,
-                      B.Buffer(0,rowShift), 1, rowStride*B.LDim() );
+                      &secondBuf[k*portionSize], 1, localHeightB,
+                      B.Buffer(0,rowShift),      1, rowStride*B.LDim() );
                 }
             }
         }

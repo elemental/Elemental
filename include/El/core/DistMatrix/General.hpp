@@ -47,9 +47,6 @@ public:
     ( const El::DistData& data, bool constrain=true, bool allowMismatch=false )
     override;
 
-    void PartialColAllGather( DistMatrix<T,UPart,V>& A ) const;
-    void PartialRowAllGather( DistMatrix<T,U,VPart>& A ) const;
-
     void FilterFrom( const DistMatrix<T,UGath,VGath>& A );
     void ColFilterFrom( const DistMatrix<T,UGath,V>& A );
     void RowFilterFrom( const DistMatrix<T,U,VGath>& A );

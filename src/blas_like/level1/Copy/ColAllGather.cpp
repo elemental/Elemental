@@ -35,7 +35,8 @@ void ColAllGather
 
     if( A.Participating() )
     {
-        if( A.RowAlign() == B.RowAlign() )
+        const Int rowDiff = B.RowAlign()-A.RowAlign();
+        if( rowDiff == 0 )
         {
             if( height == 1 )
             {
@@ -102,10 +103,8 @@ void ColAllGather
             if( A.Grid().Rank() == 0 )
                 std::cerr << "Unaligned [U,V] -> [* ,V]." << std::endl;
 #endif
-            const Int rowDiff = B.RowAlign()-A.RowAlign();
-            const Int rowStride = A.RowStride();
-            const Int sendRowRank = Mod( A.RowRank()+rowDiff, rowStride );
-            const Int recvRowRank = Mod( A.RowRank()-rowDiff, rowStride );
+            const Int sendRowRank = Mod( A.RowRank()+rowDiff, A.RowStride() );
+            const Int recvRowRank = Mod( A.RowRank()-rowDiff, A.RowStride() );
 
             if( height == 1 )
             {
@@ -150,7 +149,7 @@ void ColAllGather
                 const Int localHeightA = A.LocalHeight();
                 const Int colStride = A.ColStride();
                 const Int maxLocalHeight = MaxLength(height,colStride);
-                const Int maxLocalWidth = MaxLength(width,rowStride);
+                const Int maxLocalWidth = MaxLength(width,A.RowStride());
                 const Int portionSize =
                     mpi::Pad( maxLocalHeight*maxLocalWidth );
 

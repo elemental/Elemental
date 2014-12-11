@@ -160,6 +160,14 @@ template<typename T,Dist U,Dist V>
 void RowAllGather
 ( const DistMatrix<T,U,        V   >& A,
         DistMatrix<T,U,Collect<V>()>& B );
+template<typename T,Dist U,Dist V>
+void PartialColAllGather
+( const DistMatrix<T,        U,   V>& A,
+        DistMatrix<T,Partial<U>(),V>& B );
+template<typename T,Dist U,Dist V>
+void PartialRowAllGather
+( const DistMatrix<T,U,        V   >& A,
+        DistMatrix<T,U,Partial<V>()>& B );
 
 template<typename T,Dist U,Dist V>
 void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B );
