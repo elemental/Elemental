@@ -12,23 +12,23 @@ namespace El {
 namespace copy {
 
 template<typename T,Dist U,Dist V>
-void ColSumScatter
-( const DistMatrix<T,Collect<U>(),V>& A,
-        DistMatrix<T,        U,   V>& B )
+void PartialRowSumScatter
+( const DistMatrix<T,U,Partial<V>()>& A,
+        DistMatrix<T,U,        V   >& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::ColSumScatter"))
+    DEBUG_ONLY(CallStackEntry cse("copy::PartialRowSumScatter"))
     AssertSameGrids( A, B );
 
-    B.AlignRowsAndResize
-    ( A.RowAlign(), A.Height(), A.Width(), false, false );
+    B.AlignAndResize
+    ( A.ColAlign(), A.RowAlign(), A.Height(), A.Width(), false, false );
     Zeros( B.Matrix(), B.LocalHeight(), B.LocalWidth() );
-    axpy::ColSumScatter( T(1), A, B );
+    axpy::PartialRowSumScatter( T(1), A, B );
 }
 
 #define PROTO_DIST(T,U,V) \
-  template void ColSumScatter \
-  ( const DistMatrix<T,Collect<U>(),V>& A, \
-          DistMatrix<T,        U,   V>& B );
+  template void PartialRowSumScatter \
+  ( const DistMatrix<T,U,Partial<V>()>& A, \
+          DistMatrix<T,U,        V   >& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

@@ -144,7 +144,7 @@ Transpose
 
     DistMatrix<T,VR,STAR> z_VR_STAR(g);
     z_VR_STAR.AlignWith( A );
-    z_VR_STAR.PartialColSumScatterFrom( z_MR_STAR );
+    copy::PartialColSumScatter( z_MR_STAR, z_VR_STAR );
     Axpy( T(1), z_VR_STAR, y );
 }
 

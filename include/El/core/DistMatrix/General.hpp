@@ -47,14 +47,6 @@ public:
     ( const El::DistData& data, bool constrain=true, bool allowMismatch=false )
     override;
 
-    void SumScatterFrom( const DistMatrix<T,UGath,VGath>& A );
-    void PartialRowSumScatterFrom( const DistMatrix<T,U,VPart>& A );
-    void PartialColSumScatterFrom( const DistMatrix<T,UPart,V>& A );
-
-    void SumScatterUpdate( T alpha, const DistMatrix<T,UGath,VGath>& A );
-    void PartialRowSumScatterUpdate( T alpha, const DistMatrix<T,U,VPart>& A );
-    void PartialColSumScatterUpdate( T alpha, const DistMatrix<T,UPart,V>& A );
-
     // Transposed variants of some of the above routines which avoid 
     // large amounts of non-uniform data access
     // -------------------------------------------------------------

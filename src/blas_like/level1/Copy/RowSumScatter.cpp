@@ -21,8 +21,6 @@ void RowSumScatter
 
     B.AlignColsAndResize
     ( A.ColAlign(), A.Height(), A.Width(), false, false );
-    // NOTE: This will be *slightly* slower than necessary due to the result
-    //       of the MPI operations being added rather than just copied
     Zeros( B.Matrix(), B.LocalHeight(), B.LocalWidth() );
     axpy::RowSumScatter( T(1), A, B );
 }

@@ -42,11 +42,25 @@ void Axpy( S alpha, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y );
 namespace axpy {
 
 template<typename T,Dist U,Dist V>
+void SumScatter
+( T alpha, const DistMatrix<T,Collect<U>(),Collect<V>()>& A, 
+                 DistMatrix<T,        U,           V   >& B );
+template<typename T,Dist U,Dist V>
 void ColSumScatter
-( T alpha, const DistMatrix<T,Collect<U>(),V>& A, DistMatrix<T,U,V>& B );
+( T alpha, const DistMatrix<T,Collect<U>(),V>& A, 
+                 DistMatrix<T,        U,   V>& B );
 template<typename T,Dist U,Dist V>
 void RowSumScatter
-( T alpha, const DistMatrix<T,U,Collect<V>()>& A, DistMatrix<T,U,V>& B );
+( T alpha, const DistMatrix<T,U,Collect<V>()>& A, 
+                 DistMatrix<T,U,        V   >& B );
+template<typename T,Dist U,Dist V>
+void PartialColSumScatter
+( T alpha, const DistMatrix<T,Partial<U>(),V>& A, 
+                 DistMatrix<T,        U,   V>& B );
+template<typename T,Dist U,Dist V>
+void PartialRowSumScatter
+( T alpha, const DistMatrix<T,U,Partial<V>()>& A, 
+                 DistMatrix<T,U,        V   >& B );
 
 } // namespace axpy
 
@@ -223,11 +237,25 @@ void RowAllToAllPromote
         DistMatrix<T,PartialUnionCol<U,V>(),Partial<V>()>& B );
 
 template<typename T,Dist U,Dist V>
+void SumScatter
+( const DistMatrix<T,Collect<U>(),Collect<V>()>& A, 
+        DistMatrix<T,        U,           V   >& B );
+template<typename T,Dist U,Dist V>
 void ColSumScatter
-( const DistMatrix<T,Collect<U>(),V>& A, DistMatrix<T,U,V>& B );
+( const DistMatrix<T,Collect<U>(),V>& A, 
+        DistMatrix<T,        U,   V>& B );
 template<typename T,Dist U,Dist V>
 void RowSumScatter
-( const DistMatrix<T,U,Collect<V>()>& A, DistMatrix<T,U,V>& B );
+( const DistMatrix<T,U,Collect<V>()>& A, 
+        DistMatrix<T,U,        V   >& B );
+template<typename T,Dist U,Dist V>
+void PartialColSumScatter
+( const DistMatrix<T,Partial<U>(),V>& A, 
+        DistMatrix<T,        U,   V>& B );
+template<typename T,Dist U,Dist V>
+void PartialRowSumScatter
+( const DistMatrix<T,U,Partial<V>()>& A, 
+        DistMatrix<T,U,        V   >& B );
 
 } // namespace copy
 

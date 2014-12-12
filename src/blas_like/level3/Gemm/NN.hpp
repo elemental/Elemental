@@ -305,7 +305,7 @@ SUMMA_NNDot
                 ( NORMAL, NORMAL, 
                   alpha, A1_STAR_VC, B1_VC_STAR, C11_STAR_STAR );
 
-                C11.SumScatterUpdate( T(1), C11_STAR_STAR );
+                axpy::SumScatter( T(1), C11_STAR_STAR, C11 );
             }
         }
     }
@@ -338,7 +338,7 @@ SUMMA_NNDot
                 LocalGemm
                 ( NORMAL, NORMAL, 
                   alpha, A1_STAR_VR, B1_VR_STAR, C11_STAR_STAR );
-                C11.SumScatterUpdate( T(1), C11_STAR_STAR );
+                axpy::SumScatter( T(1), C11_STAR_STAR, C11 );
             }
         }
     }

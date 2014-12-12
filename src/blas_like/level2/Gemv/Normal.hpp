@@ -124,7 +124,7 @@ inline void Normal
     z_MC_STAR.AlignWith( A );
     Zeros( z_MC_STAR, A.Height(), 1 );
     LocalGemv( NORMAL, alpha, A, x_MR_STAR, T(0), z_MC_STAR );
-    y.PartialColSumScatterUpdate( T(1), z_MC_STAR );
+    axpy::ColSumScatter( T(1), z_MC_STAR, y );
 }
 
 } // namespace gemv

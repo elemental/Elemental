@@ -334,7 +334,7 @@ inline void FrontLowerMultiplyTranspose
 
         Z1_STAR_STAR.Resize( X1.Height(), X1.Width() );
         LocalGemm( orientation, NORMAL, T(1), L21, X2, T(0), Z1_STAR_STAR );
-        X1.SumScatterUpdate( T(1), Z1_STAR_STAR );
+        axpy::ColSumScatter( T(1), Z1_STAR_STAR, X1 );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionDownDiagonal

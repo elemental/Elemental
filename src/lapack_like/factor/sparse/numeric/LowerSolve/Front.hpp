@@ -566,8 +566,7 @@ inline void FrontFastLowerForwardSolve
         XT_MR_STAR = XT;
         LocalGemm( NORMAL, NORMAL, F(1), LT, XT_MR_STAR, ZT_MC_STAR );
 
-        // XT[VC,* ].SumScatterFrom( ZT[MC,* ] )
-        XT.SumScatterFrom( ZT_MC_STAR );
+        copy::PartialColSumScatter( ZT_MC_STAR, XT );
     }
 
     if( LB.Height() != 0 )
@@ -581,7 +580,7 @@ inline void FrontFastLowerForwardSolve
         LocalGemm( NORMAL, NORMAL, F(-1), LB, XT_MR_STAR, ZB_MC_STAR );
 
         // XB[VC,* ] += ZB[MC,* ]
-        XB.SumScatterUpdate( F(1), ZB_MC_STAR );
+        axpy::PartialColSumScatter( F(1), ZB_MC_STAR, XB );
     }
 }
 
@@ -714,7 +713,7 @@ inline void FrontLowerBackwardSolve
         DistMatrix<F,STAR,STAR> Z(g);
         const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
         LocalGemm( orientation, NORMAL, F(-1), LB, XB, Z );
-        XT.SumScatterUpdate( F(1), Z );
+        axpy::ColSumScatter( F(1), Z, XT );
     }
 
     if( singleL11AllGather )
@@ -818,12 +817,12 @@ inline void FrontFastLowerBackwardSolve
     if( XB.Height() != 0 )
     {
         LocalGemm( orientation, NORMAL, F(-1), LB, XB, Z );
-        XT.SumScatterUpdate( F(1), Z );
+        axpy::ColSumScatter( F(1), Z, XT );
     }
 
     // XT := LT^{T/H} XT
     LocalGemm( orientation, NORMAL, F(1), LT, XT, Z );
-    XT.SumScatterFrom( Z );
+    copy::ColSumScatter( Z, XT );
 }
 
 template<typename F>
@@ -880,8 +879,7 @@ inline void FrontFastLowerBackwardSolve
         XB_MC_STAR = XB;
         LocalGemm( orientation, NORMAL, F(-1), LB, XB_MC_STAR, ZT_MR_STAR );
 
-        // ZT[VR,* ].SumScatterFrom( ZT[MR,* ] )
-        ZT_VR_STAR.SumScatterFrom( ZT_MR_STAR );
+        copy::PartialColSumScatter( ZT_MR_STAR, ZT_VR_STAR );
 
         // ZT[VC,* ] := ZT[VR,* ]
         DistMatrix<F,VC,STAR> ZT_VC_STAR( g );
@@ -899,8 +897,7 @@ inline void FrontFastLowerBackwardSolve
         XT_MC_STAR = XT;
         LocalGemm( orientation, NORMAL, F(1), LT, XT_MC_STAR, ZT_MR_STAR );
 
-        // ZT[VR,* ].SumScatterFrom( ZT[MR,* ] )
-        ZT_VR_STAR.SumScatterFrom( ZT_MR_STAR );
+        copy::PartialColSumScatter( ZT_MR_STAR, ZT_VR_STAR );
 
         // XT[VC,* ] := ZT[VR,* ]
         XT = ZT_VR_STAR;
