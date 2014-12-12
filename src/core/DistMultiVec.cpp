@@ -136,8 +136,29 @@ template<typename T>
 Int DistMultiVec<T>::RowOwner( Int i ) const 
 { return RowToProcess( i, blocksize_, mpi::Size(comm_) ); }
 
+template<typename T>
+Int DistMultiVec<T>::GlobalRow( Int iLoc ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("DistMultiVec::GlobalRow"))
+    if( iLoc < 0 || iLoc > LocalHeight() )
+        LogicError("Invalid local row index");
+    return iLoc + FirstLocalRow();
+}
+
 // Detailed local information
 // --------------------------
+template<typename T>
+T DistMultiVec<T>::Get( Int row, Int col ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("DistMultiVec::Get"))
+    int rowOwner = RowOwner(row);
+    T value;
+    if( rowOwner == mpi::Rank(comm_) )
+        value = GetLocal( row-FirstLocalRow(), col );
+    mpi::Broadcast( value, rowOwner, comm_ );
+    return value;
+}
+
 template<typename T>
 T DistMultiVec<T>::GetLocal( Int localRow, Int col ) const
 { 

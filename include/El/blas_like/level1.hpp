@@ -149,6 +149,27 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, Int root=0 );
 namespace copy {
 
 template<typename T,Dist U,Dist V>
+void Filter
+( const DistMatrix<T,Collect<U>(),Collect<V>()>& A,
+        DistMatrix<T,        U,           V   >& B );
+template<typename T,Dist U,Dist V>
+void ColFilter
+( const DistMatrix<T,Collect<U>(),V>& A,
+        DistMatrix<T,        U,   V>& B );
+template<typename T,Dist U,Dist V>
+void RowFilter
+( const DistMatrix<T,U,Collect<V>()>& A,
+        DistMatrix<T,U,        V   >& B );
+template<typename T,Dist U,Dist V>
+void PartialColFilter
+( const DistMatrix<T,Partial<U>(),V>& A,
+        DistMatrix<T,        U,   V>& B );
+template<typename T,Dist U,Dist V>
+void PartialRowFilter
+( const DistMatrix<T,U,Partial<V>()>& A,
+        DistMatrix<T,U,        V   >& B );
+
+template<typename T,Dist U,Dist V>
 void AllGather
 ( const DistMatrix<T,        U,           V      >& A, 
         DistMatrix<T,Collect<U>(),Collect<V>()>& B );

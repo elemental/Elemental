@@ -61,9 +61,11 @@ public:
     mpi::Comm Comm() const;
     Int Blocksize() const;
     Int RowOwner( Int i ) const;
+    Int GlobalRow( Int iLoc ) const;
 
     // Entrywise manipulation
     // ======================
+    T Get( Int row, Int col ) const;
     T GetLocal( Int localRow, Int col ) const;
     void SetLocal( Int localRow, Int col, T value );
     void UpdateLocal( Int localRow, Int col, T value );

@@ -745,7 +745,6 @@ Base<F> LogDetDiv
 
 // Number of non-positive entries
 // ------------------------------
-// TODO: Add more general cone membership checks
 template<typename Real>
 Int NumNonPositive( const Matrix<Real>& A );
 template<typename Real>
@@ -756,6 +755,24 @@ template<typename Real>
 Int NumNonPositive( const DistSparseMatrix<Real>& A );
 template<typename Real>
 Int NumNonPositive( const DistMultiVec<Real>& A );
+
+// Number of non-SOC members
+// -------------------------
+template<typename Real>
+Int NumNonSecondOrder
+( const Matrix<Real>& x, 
+  const Matrix<Int>& orders, 
+  const Matrix<Int>& firstInds );
+template<typename Real>
+Int NumNonSecondOrder
+( const AbstractDistMatrix<Real>& x, 
+  const AbstractDistMatrix<Int>& orders, 
+  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+template<typename Real>
+Int NumNonSecondOrder
+( const DistMultiVec<Real>& x, 
+  const DistMultiVec<Int>& orders, 
+  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
 
 // Regularized LDL
 // ---------------

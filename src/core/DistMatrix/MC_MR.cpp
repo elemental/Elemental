@@ -59,7 +59,7 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [MC,STAR]"))
-    this->RowFilterFrom( A );
+    copy::RowFilter( A, *this );
     return *this;
 }
 
@@ -67,7 +67,7 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [STAR,MR]"))
-    this->ColFilterFrom( A );
+    copy::ColFilter( A, *this );
     return *this;
 }
 
@@ -360,7 +360,7 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [STAR,STAR]"))
-    this->FilterFrom( A );
+    copy::Filter( A, *this );
     return *this;
 }
 

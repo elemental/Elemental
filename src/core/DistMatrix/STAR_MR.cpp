@@ -185,7 +185,7 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[STAR,MR] = [STAR,STAR]"))
-    this->RowFilterFrom( A );
+    copy::RowFilter( A, *this );
     return *this;
 }
 

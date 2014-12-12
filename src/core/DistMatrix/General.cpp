@@ -82,305 +82,6 @@ GeneralDistMatrix<T,U,V>::AlignRowsWith
 
 template<typename T,Dist U,Dist V>
 void
-GeneralDistMatrix<T,U,V>::FilterFrom( const DistMatrix<T,UGath,VGath>& A )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GDM::FilterFrom");
-        AssertSameGrids( *this, A );
-    )
-    this->Resize( A.Height(), A.Width() );
-    if( !this->Participating() )
-        return;
-
-    const Int colStride = this->ColStride();
-    const Int rowStride = this->RowStride();
-    const Int colShift = this->ColShift();
-    const Int rowShift = this->RowShift();
-
-    InterleaveMatrix
-    ( this->LocalHeight(), this->LocalWidth(),
-      A.LockedBuffer(colShift,rowShift), colStride, rowStride*A.LDim(),
-      this->Buffer(),                    1,         this->LDim() );
-}
-
-template<typename T,Dist U,Dist V>
-void
-GeneralDistMatrix<T,U,V>::ColFilterFrom( const DistMatrix<T,UGath,V>& A )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GDM::ColFilterFrom");
-        AssertSameGrids( *this, A );
-    )
-    this->AlignRowsAndResize
-    ( A.RowAlign(), A.Height(), A.Width(), false, false );
-    if( !this->Participating() )
-        return;
-
-    const Int colStride = this->ColStride();
-    const Int colShift = this->ColShift();
-    const Int rowDiff = this->RowAlign() - A.RowAlign();
-
-    const Int localHeight = this->LocalHeight();
-    const Int localWidth = this->LocalWidth();
-    
-    if( rowDiff == 0 )
-    {
-        InterleaveMatrix
-        ( localHeight, localWidth,
-          A.LockedBuffer(colShift,0), colStride, A.LDim(),
-          this->Buffer(),             1,         this->LDim() );
-    }
-    else
-    {
-#ifdef EL_UNALIGNED_WARNINGS
-        if( this->Grid().Rank() == 0 )
-            std::cerr << "Unaligned ColFilterFrom" << std::endl;
-#endif
-        const Int rowStride = this->RowStride();
-        const Int sendRowRank = Mod( this->RowRank()+rowDiff, rowStride );
-        const Int recvRowRank = Mod( this->RowRank()-rowDiff, rowStride );
-        const Int localWidthA = A.LocalWidth();
-        const Int sendSize = localHeight*localWidthA;
-        const Int recvSize = localHeight*localWidth;
-        T* buffer = this->auxMemory_.Require( sendSize+recvSize );
-        T* sendBuf = &buffer[0];
-        T* recvBuf = &buffer[sendSize];
-        
-        // Pack
-        InterleaveMatrix
-        ( localHeight, localWidthA,
-          A.LockedBuffer(colShift,0), colStride, A.LDim(),
-          sendBuf,                    1,         localHeight );
-
-        // Realign
-        mpi::SendRecv
-        ( sendBuf, sendSize, sendRowRank,
-          recvBuf, recvSize, recvRowRank, this->RowComm() );
-
-        // Unpack
-        InterleaveMatrix
-        ( localHeight, localWidth,
-          recvBuf,        1, localHeight,
-          this->Buffer(), 1, this->LDim() );
-        this->auxMemory_.Release();
-    }
-}
-
-template<typename T,Dist U,Dist V>
-void
-GeneralDistMatrix<T,U,V>::RowFilterFrom( const DistMatrix<T,U,VGath>& A )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GDM::RowFilterFrom");
-        AssertSameGrids( *this, A );
-    )
-    this->AlignColsAndResize
-    ( A.ColAlign(), A.Height(), A.Width(), false, false );
-    if( !this->Participating() )
-        return;
-
-    const Int colDiff = this->ColAlign() - A.ColAlign();
-    const Int rowStride = this->RowStride();
-    const Int rowShift = this->RowShift();
-
-    const Int localHeight = this->LocalHeight();
-    const Int localWidth = this->LocalWidth();
-    
-    if( colDiff == 0 )
-    {
-        InterleaveMatrix
-        ( localHeight, localWidth,
-          A.LockedBuffer(0,rowShift), 1, rowStride*A.LDim(),
-          this->Buffer(),             1, this->LDim() );
-    }
-    else
-    {
-#ifdef EL_UNALIGNED_WARNINGS
-        if( this->Grid().Rank() == 0 )
-            std::cerr << "Unaligned RowFilterFrom" << std::endl;
-#endif
-        const Int colRank = this->ColRank();
-        const Int colStride = this->ColStride();
-        const Int sendColRank = Mod( this->ColRank()+colDiff, colStride );
-        const Int recvColRank = Mod( this->ColRank()-colDiff, colStride );
-        const Int localHeightA = A.LocalHeight();
-        const Int sendSize = localHeightA*localWidth;
-        const Int recvSize = localHeight *localWidth;
-
-        T* buffer = this->auxMemory_.Require( sendSize+recvSize );
-        T* sendBuf = &buffer[0];
-        T* recvBuf = &buffer[sendSize];
-
-        // Pack
-        InterleaveMatrix
-        ( localHeightA, localWidth,
-          A.LockedBuffer(0,rowShift), 1, rowStride*A.LDim(),
-          sendBuf,                    1, localHeightA );
-
-        // Realign
-        mpi::SendRecv
-        ( sendBuf, sendSize, sendColRank, 
-          recvBuf, recvSize, recvColRank, this->ColComm() );
-
-        // Unpack
-        InterleaveMatrix
-        ( localHeight, localWidth,
-          recvBuf,        1, localHeight,
-          this->Buffer(), 1, this->LDim() );
-        this->auxMemory_.Release();
-    }
-}
-
-template<typename T,Dist U,Dist V>
-void
-GeneralDistMatrix<T,U,V>::PartialColFilterFrom( const DistMatrix<T,UPart,V>& A )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GDM::PartialColFilterFrom");
-        AssertSameGrids( *this, A );
-    )
-    const Int height = A.Height();
-    const Int width = A.Width();
-    this->AlignColsAndResize( A.ColAlign(), height, width, false, false );
-    if( !this->Participating() )
-        return;
-
-    const Int colAlign = this->ColAlign();
-    const Int colStride = this->ColStride();
-    const Int colStridePart = this->PartialColStride();
-    const Int colStrideUnion = this->PartialUnionColStride();
-    const Int colShiftA = A.ColShift();
-    const Int colDiff = (colAlign%colStridePart)-A.ColAlign();
-
-    const Int localHeight = this->LocalHeight();
-
-    if( colDiff == 0 )
-    {
-        const Int colShift = this->ColShift();
-        const Int colOffset = (colShift-colShiftA) / colStridePart;
-        InterleaveMatrix
-        ( localHeight, width,
-          A.LockedBuffer(colOffset,0), colStrideUnion, A.LDim(),
-          this->Buffer(),              1,              this->LDim() );
-    }
-    else
-    {
-#ifdef EL_UNALIGNED_WARNINGS
-        if( this->Grid().Rank() == 0 )
-            std::cerr << "Unaligned PartialColFilterFrom" << std::endl;
-#endif
-        const Int colRankPart = this->PartialColRank();
-        const Int colRankUnion = this->PartialUnionColRank();
-
-        // Realign
-        // -------
-        const Int sendColRankPart = Mod( colRankPart+colDiff, colStridePart );
-        const Int recvColRankPart = Mod( colRankPart-colDiff, colStridePart );
-        const Int sendColRank = sendColRankPart + colStridePart*colRankUnion;
-        const Int sendColShift = Shift( sendColRank, colAlign, colStride );
-        const Int sendColOffset = (sendColShift-colShiftA) / colStridePart;
-        const Int localHeightSend = Length( height, sendColShift, colStride );
-        const Int sendSize = localHeightSend*width;
-        const Int recvSize = localHeight    *width;
-        T* buffer = this->auxMemory_.Require( sendSize+recvSize );
-        T* sendBuf = &buffer[0];
-        T* recvBuf = &buffer[sendSize];
-        // Pack
-        InterleaveMatrix
-        ( localHeightSend, width,
-          A.LockedBuffer(sendColOffset,0), colStrideUnion, A.LDim(),
-          sendBuf,                         1,              localHeightSend );
-        // Change the column alignment
-        mpi::SendRecv
-        ( sendBuf, sendSize, sendColRankPart,
-          recvBuf, recvSize, recvColRankPart, this->PartialColComm() );
-
-        // Unpack
-        // ------
-        InterleaveMatrix
-        ( localHeight, width,
-          recvBuf,        1, localHeight,
-          this->Buffer(), 1, this->LDim() );
-        this->auxMemory_.Release();
-    }
-}
-
-template<typename T,Dist U,Dist V>
-void
-GeneralDistMatrix<T,U,V>::PartialRowFilterFrom( const DistMatrix<T,U,VPart>& A )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GDM::PartialRowFilterFrom");
-        AssertSameGrids( *this, A );
-    )
-    const Int height = A.Height();
-    const Int width = A.Width();
-    this->AlignRowsAndResize( A.RowAlign(), height, width, false, false );
-    if( !this->Participating() )
-        return;
-
-    const Int rowAlign = this->RowAlign();
-    const Int rowStride = this->RowStride();
-    const Int rowStridePart = this->PartialRowStride();
-    const Int rowStrideUnion = this->PartialUnionRowStride();
-    const Int rowShiftA = A.RowShift();
-    const Int rowDiff = (rowAlign%rowStridePart) - A.RowAlign();
-
-    const Int localWidth = this->LocalWidth();
-
-    if( rowDiff == 0 )
-    {
-        const Int rowShift = this->RowShift();
-        const Int rowOffset = (rowShift-rowShiftA) / rowStridePart;
-        InterleaveMatrix
-        ( height, localWidth,
-          A.LockedBuffer(0,rowOffset), 1, rowStrideUnion*A.LDim(),
-          this->Buffer(),              1, this->LDim() );
-    }
-    else
-    {
-#ifdef EL_UNALIGNED_WARNINGS
-        if( this->Grid().Rank() == 0 )
-            std::cerr << "Unaligned PartialRowFilterFrom" << std::endl;
-#endif
-        const Int rowRankPart = this->PartialRowRank();
-        const Int rowRankUnion = this->PartialUnionRowRank();
-
-        // Realign
-        // -------
-        const Int sendRowRankPart = Mod( rowRankPart+rowDiff, rowStridePart );
-        const Int recvRowRankPart = Mod( rowRankPart-rowDiff, rowStridePart );
-        const Int sendRowRank = sendRowRankPart + rowStridePart*rowRankUnion;
-        const Int sendRowShift = Shift( sendRowRank, rowAlign, rowStride );
-        const Int sendRowOffset = (sendRowShift-rowShiftA) / rowStridePart;
-        const Int localWidthSend = Length( width, sendRowShift, rowStride );
-        const Int sendSize = height*localWidthSend;
-        const Int recvSize = height*localWidth;
-        T* buffer = this->auxMemory_.Require( sendSize+recvSize );
-        T* sendBuf = &buffer[0];
-        T* recvBuf = &buffer[sendSize];
-        // Pack
-        InterleaveMatrix
-        ( height, localWidthSend,
-          A.LockedBuffer(0,sendRowOffset), 1, rowStrideUnion*A.LDim(),
-          sendBuf,                         1, height );
-        // Change the column alignment
-        mpi::SendRecv
-        ( sendBuf, sendSize, sendRowRankPart,
-          recvBuf, recvSize, recvRowRankPart, this->PartialRowComm() );
-
-        // Unpack
-        // ------
-        InterleaveMatrix
-        ( height, localWidth,
-          recvBuf,        1, height,
-          this->Buffer(), 1, this->LDim() );
-        this->auxMemory_.Release();
-    }
-}
-
-template<typename T,Dist U,Dist V>
-void
 GeneralDistMatrix<T,U,V>::PartialColAllToAllFrom
 ( const DistMatrix<T,UPart,VScat>& A )
 {
@@ -1473,7 +1174,7 @@ GeneralDistMatrix<T,U,V>::TransposeColFilterFrom
         AFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
         AFilt.AlignColsWith( *this, false );
-    AFilt.RowFilterFrom( A );
+    copy::RowFilter( A, AFilt );
     if( !this->ColConstrained() )
         this->AlignColsWith( AFilt, false );
     if( !this->RowConstrained() )
@@ -1493,7 +1194,7 @@ GeneralDistMatrix<T,U,V>::TransposeRowFilterFrom
         AFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
         AFilt.AlignColsWith( *this, false );
-    AFilt.ColFilterFrom( A );
+    copy::ColFilter( A, AFilt );
     if( !this->ColConstrained() )
         this->AlignColsWith( AFilt, false );
     if( !this->RowConstrained() )
@@ -1513,7 +1214,7 @@ GeneralDistMatrix<T,U,V>::TransposePartialColFilterFrom
         AFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
         AFilt.AlignColsWith( *this, false );
-    AFilt.PartialRowFilterFrom( A );
+    copy::PartialRowFilter( A, AFilt );
     if( !this->ColConstrained() )
         this->AlignColsWith( AFilt, false );
     if( !this->RowConstrained() )
@@ -1533,7 +1234,7 @@ GeneralDistMatrix<T,U,V>::TransposePartialRowFilterFrom
         AFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
         AFilt.AlignColsWith( *this, false );
-    AFilt.PartialColFilterFrom( A );
+    copy::PartialColFilter( A, AFilt );
     if( !this->ColConstrained() )
         this->AlignColsWith( AFilt, false );
     if( !this->RowConstrained() )

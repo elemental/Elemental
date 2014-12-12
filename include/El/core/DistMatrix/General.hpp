@@ -47,12 +47,6 @@ public:
     ( const El::DistData& data, bool constrain=true, bool allowMismatch=false )
     override;
 
-    void FilterFrom( const DistMatrix<T,UGath,VGath>& A );
-    void ColFilterFrom( const DistMatrix<T,UGath,V>& A );
-    void RowFilterFrom( const DistMatrix<T,U,VGath>& A );
-    void PartialColFilterFrom( const DistMatrix<T,UPart,V>& A );
-    void PartialRowFilterFrom( const DistMatrix<T,U,VPart>& A );
-
     void PartialColAllToAllFrom( const DistMatrix<T,UPart,VScat>& A );
     void PartialRowAllToAllFrom( const DistMatrix<T,UScat,VPart>& A );
     void PartialColAllToAll( DistMatrix<T,UPart,VScat>& A ) const;

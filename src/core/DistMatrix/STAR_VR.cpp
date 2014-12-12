@@ -71,7 +71,7 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[STAR,VR] = [STAR,MR]"))
-    this->PartialRowFilterFrom( A );
+    copy::PartialRowFilter( A, *this );
     return *this;
 }
 
@@ -218,7 +218,7 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[STAR,VR] = [STAR,STAR]"))
-    this->RowFilterFrom( A );
+    copy::RowFilter( A, *this );
     return *this;
 }
 

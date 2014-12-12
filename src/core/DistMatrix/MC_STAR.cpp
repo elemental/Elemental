@@ -180,7 +180,7 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MC,STAR] = [STAR,STAR]"))
-    this->ColFilterFrom( A );
+    copy::ColFilter( A, *this );
     return *this;
 }
 
