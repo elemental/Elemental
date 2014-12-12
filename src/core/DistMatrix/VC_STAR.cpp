@@ -54,7 +54,7 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [MC,MR]"))
-    this->PartialColAllToAllFrom( A );
+    copy::ColAllToAllDemote( A, *this );
     return *this;
 }
 

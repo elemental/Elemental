@@ -149,6 +149,9 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, Int root=0 );
 namespace copy {
 
 template<typename T,Dist U,Dist V>
+void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B );
+
+template<typename T,Dist U,Dist V>
 void Filter
 ( const DistMatrix<T,Collect<U>(),Collect<V>()>& A,
         DistMatrix<T,        U,           V   >& B );
@@ -191,7 +194,22 @@ void PartialRowAllGather
         DistMatrix<T,U,Partial<V>()>& B );
 
 template<typename T,Dist U,Dist V>
-void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B );
+void ColAllToAllDemote
+( const DistMatrix<T,Partial<U>(),PartialUnionRow<U,V>()>& A,
+        DistMatrix<T,        U,                     V   >& B );
+template<typename T,Dist U,Dist V>
+void RowAllToAllDemote
+( const DistMatrix<T,PartialUnionCol<U,V>(),Partial<V>()>& A,
+        DistMatrix<T,                U,             V   >& B );
+
+template<typename T,Dist U,Dist V>
+void ColAllToAllPromote
+( const DistMatrix<T,        U,                     V   >& A,
+        DistMatrix<T,Partial<U>(),PartialUnionRow<U,V>()>& B );
+template<typename T,Dist U,Dist V>
+void RowAllToAllPromote
+( const DistMatrix<T,                U,             V   >& A,
+        DistMatrix<T,PartialUnionCol<U,V>(),Partial<V>()>& B );
 
 } // namespace copy
 

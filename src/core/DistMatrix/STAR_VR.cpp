@@ -54,7 +54,7 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[STAR,VR] = [MC,MR]"))
-    this->PartialRowAllToAllFrom( A );
+    copy::RowAllToAllDemote( A, *this );
     return *this;
 }
 

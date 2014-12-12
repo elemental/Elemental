@@ -47,11 +47,6 @@ public:
     ( const El::DistData& data, bool constrain=true, bool allowMismatch=false )
     override;
 
-    void PartialColAllToAllFrom( const DistMatrix<T,UPart,VScat>& A );
-    void PartialRowAllToAllFrom( const DistMatrix<T,UScat,VPart>& A );
-    void PartialColAllToAll( DistMatrix<T,UPart,VScat>& A ) const;
-    void PartialRowAllToAll( DistMatrix<T,UScat,VPart>& A ) const;
-
     void SumScatterFrom( const DistMatrix<T,UGath,VGath>& A );
     void RowSumScatterFrom( const DistMatrix<T,U,VGath>& A );
     void ColSumScatterFrom( const DistMatrix<T,UGath,V>& A );

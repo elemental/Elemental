@@ -330,7 +330,7 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MR,MC] = [STAR,VC]"))
-    A.PartialRowAllToAll( *this );
+    copy::RowAllToAllPromote( A, *this );
     return *this;
 }
 
@@ -338,7 +338,7 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MR,MC] = [VR,STAR]"))
-    A.PartialColAllToAll( *this );
+    copy::ColAllToAllPromote( A, *this );
     return *this;
 }
 
