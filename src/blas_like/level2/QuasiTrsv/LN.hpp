@@ -208,7 +208,7 @@ LN
             View( z2_MC_STAR, z_MC_STAR, k+nb, 0, m,    1 ); 
 
             if( k != 0 )
-                x1.RowSumScatterUpdate( F(1), z1_MC_STAR );
+                axpy::RowSumScatter( F(1), z1_MC_STAR, x1 );
 
             x1_STAR_STAR = x1;
             L11_STAR_STAR = L11;
@@ -259,7 +259,7 @@ LN
 
             if( k != 0 )
             {
-                z1_MR_MC.ColSumScatterFrom( z1_STAR_MC );
+                copy::ColSumScatter( z1_STAR_MC, z1_MR_MC );
                 Axpy( F(1), z1_MR_MC, x1 );
             }
 

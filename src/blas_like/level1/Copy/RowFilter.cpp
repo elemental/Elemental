@@ -44,7 +44,6 @@ void RowFilter
         if( B.Grid().Rank() == 0 )
             std::cerr << "Unaligned RowFilter" << std::endl;
 #endif
-        const Int colRank = B.ColRank();
         const Int colStride = B.ColStride();
         const Int sendColRank = Mod( B.ColRank()+colDiff, colStride );
         const Int recvColRank = Mod( B.ColRank()-colDiff, colStride );

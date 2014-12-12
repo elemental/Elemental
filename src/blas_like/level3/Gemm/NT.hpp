@@ -60,7 +60,7 @@ SUMMA_NTA
         LocalGemm( NORMAL, NORMAL, alpha, A, B1Trans_MR_STAR, D1_MC_STAR );
 
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
-        C1.RowSumScatterUpdate( T(1), D1_MC_STAR );
+        axpy::RowSumScatter( T(1), D1_MC_STAR, C1 );
     }
 }
 
@@ -117,7 +117,7 @@ SUMMA_NTB
         ( TRANSPOSE, orientationOfB, alpha, A1Trans_MR_STAR, B, D1_STAR_MC );
 
         // C1[MC,MR] += scattered & transposed D1[*,MC] summed over grid rows
-        D1_MR_MC.ColSumScatterFrom( D1_STAR_MC );
+        copy::ColSumScatter( D1_STAR_MC, D1_MR_MC );
         Axpy( T(1), D1_MR_MC, C1 );
     }
 }

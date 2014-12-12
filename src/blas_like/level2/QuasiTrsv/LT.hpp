@@ -234,7 +234,7 @@ LT
             View( z1_MC_STAR, z_MC_STAR, ind1, outerInd );
 
             if( kOld != m )
-                x1.RowSumScatterUpdate( F(1), z1_MC_STAR );
+                axpy::RowSumScatter( F(1), z1_MC_STAR, x1 );
 
             x1_STAR_STAR = x1;
             L11_STAR_STAR = L11;
@@ -285,7 +285,10 @@ LT
             View( z1_STAR_MC, z_STAR_MC, outerInd, ind1 );
 
             if( kOld != m )
-                x1.RowSumScatterUpdate( F(1), z1_STAR_MC );
+            {
+                copy::ColSumScatter( z1_STAR_MC, z1_MR_MC );
+                Axpy( F(1), z1_MR_MC, x1 );
+            }
 
             x1_STAR_STAR = x1;
             L11_STAR_STAR = L11;

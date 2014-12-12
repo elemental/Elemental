@@ -72,7 +72,7 @@ LT
 
             if( k+nb != m )
             {
-                z1_MR_MC.RowSumScatterFrom( z1_MR_STAR );
+                copy::RowSumScatter( z1_MR_STAR, z1_MR_MC );
                 Axpy( F(1), z1_MR_MC, x1 );
             }
 
@@ -112,7 +112,7 @@ LT
             View( z1_STAR_MR, z_STAR_MR, IR(0,1), IR(k,k+nb) );
 
             if( k+nb != m )
-                x1.ColSumScatterUpdate( F(1), z1_STAR_MR );
+                axpy::ColSumScatter( F(1), z1_STAR_MR, x1 );
 
             x1_STAR_STAR = x1;
             L11_STAR_STAR = L11;

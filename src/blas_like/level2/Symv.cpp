@@ -109,12 +109,12 @@ void Symv
         }
 
         DistMatrix<T,MR,MC> z_MR_MC(g);
-        z_MR_MC.RowSumScatterFrom( z_MR_STAR );
+        copy::RowSumScatter( z_MR_STAR, z_MR_MC );
 
         DistMatrix<T> z(g);
         z.AlignWith( y );
         z = z_MR_MC;
-        z.RowSumScatterUpdate( T(1), z_MC_STAR );
+        axpy::RowSumScatter( T(1), z_MC_STAR, z );
         Axpy( T(1), z, y );
     }
     else if( x.Width() == 1 )
@@ -146,12 +146,12 @@ void Symv
 
         DistMatrix<T> z(g);
         z.AlignWith( y );
-        z.RowSumScatterFrom( z_MC_STAR );
+        copy::RowSumScatter( z_MC_STAR, z );
 
         DistMatrix<T,MR,MC> z_MR_MC(g);
         z_MR_MC.AlignWith( y );
         z_MR_MC = z;
-        z_MR_MC.RowSumScatterUpdate( T(1), z_MR_STAR );
+        axpy::RowSumScatter( T(1), z_MR_STAR, z_MR_MC );
 
         DistMatrix<T> zTrans(g);
         Transpose( z_MR_MC, zTrans );
@@ -186,12 +186,12 @@ void Symv
 
         DistMatrix<T> z(g);
         z.AlignWith( y );
-        z.ColSumScatterFrom( z_STAR_MR );
+        copy::ColSumScatter( z_STAR_MR, z );
 
         DistMatrix<T,MR,MC> z_MR_MC(g);
         z_MR_MC.AlignWith( y );
         z_MR_MC = z;
-        z_MR_MC.ColSumScatterUpdate( T(1), z_STAR_MC );
+        axpy::ColSumScatter( T(1), z_STAR_MC, z_MR_MC );
 
         DistMatrix<T> zTrans(g);
         Transpose( z_MR_MC, zTrans );
@@ -226,12 +226,12 @@ void Symv
 
         DistMatrix<T,MR,MC> z_MR_MC(g);
         z_MR_MC.AlignWith( y );
-        z_MR_MC.ColSumScatterFrom( z_STAR_MC );
+        copy::ColSumScatter( z_STAR_MC, z_MR_MC );
 
         DistMatrix<T> z(g);
         z.AlignWith( y );
         z = z_MR_MC;
-        z.ColSumScatterUpdate( T(1), z_STAR_MR );
+        axpy::ColSumScatter( T(1), z_STAR_MR, z );
         Axpy( T(1), z, y );
     }
 }

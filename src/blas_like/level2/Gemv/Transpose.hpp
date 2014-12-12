@@ -51,7 +51,7 @@ Transpose
 
         DistMatrix<T,MR,MC> z_MR_MC(g);
         z_MR_MC.AlignWith( y );
-        z_MR_MC.RowSumScatterFrom( z_MR_STAR );
+        copy::RowSumScatter( z_MR_STAR, z_MR_MC );
         Axpy( T(1), z_MR_MC, y );
     }
     else if( x.Width() == 1 )
@@ -67,7 +67,7 @@ Transpose
 
         DistMatrix<T,MR,MC> z_MR_MC(g);
         z_MR_MC.AlignWith( y );
-        z_MR_MC.RowSumScatterFrom( z_MR_STAR );
+        copy::RowSumScatter( z_MR_STAR, z_MR_MC );
 
         DistMatrix<T> zTrans(g);
         zTrans.AlignWith( y );
@@ -87,7 +87,7 @@ Transpose
 
         DistMatrix<T,MR,MC> z_MR_MC(g);
         z_MR_MC.AlignWith( y );
-        z_MR_MC.RowSumScatterFrom( z_MR_STAR );
+        copy::RowSumScatter( z_MR_STAR, z_MR_MC );
         Axpy( T(1), z_MR_MC, y );
     }
     else
@@ -103,7 +103,7 @@ Transpose
 
         DistMatrix<T,MR,MC> z_MR_MC(g);
         z_MR_MC.AlignWith( y );
-        z_MR_MC.RowSumScatterFrom( z_MR_STAR );
+        copy::RowSumScatter( z_MR_STAR, z_MR_MC );
 
         DistMatrix<T> zTrans(g);
         zTrans.AlignWith( y );

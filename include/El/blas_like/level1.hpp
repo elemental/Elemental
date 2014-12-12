@@ -39,6 +39,17 @@ void Axpy( S alpha, const SparseMatrix<T>& X, SparseMatrix<T>& Y );
 template<typename T,typename S>
 void Axpy( S alpha, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y );
 
+namespace axpy {
+
+template<typename T,Dist U,Dist V>
+void ColSumScatter
+( T alpha, const DistMatrix<T,Collect<U>(),V>& A, DistMatrix<T,U,V>& B );
+template<typename T,Dist U,Dist V>
+void RowSumScatter
+( T alpha, const DistMatrix<T,U,Collect<V>()>& A, DistMatrix<T,U,V>& B );
+
+} // namespace axpy
+
 // AxpyTrapezoid
 // =============
 template<typename T,typename S>
@@ -210,6 +221,13 @@ template<typename T,Dist U,Dist V>
 void RowAllToAllPromote
 ( const DistMatrix<T,                U,             V   >& A,
         DistMatrix<T,PartialUnionCol<U,V>(),Partial<V>()>& B );
+
+template<typename T,Dist U,Dist V>
+void ColSumScatter
+( const DistMatrix<T,Collect<U>(),V>& A, DistMatrix<T,U,V>& B );
+template<typename T,Dist U,Dist V>
+void RowSumScatter
+( const DistMatrix<T,U,Collect<V>()>& A, DistMatrix<T,U,V>& B );
 
 } // namespace copy
 

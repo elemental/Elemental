@@ -34,7 +34,6 @@ main( int argc, char* argv[] )
         Int gridHeight = Input("--gridHeight","grid height",0);
         Int lowerGridHeight = Input("--lowerGridHeight","lower grid height",0);
         Int upperGridHeight = Input("--upperGridHeight","upper grid height",0);
-        const bool details = Input("--details","print norm details?",false);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();

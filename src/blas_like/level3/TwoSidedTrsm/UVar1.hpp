@@ -134,10 +134,10 @@ UVar1
         ( ADJOINT, 
           F(1), A00, U01_MC_STAR, U01Adj_STAR_MR, Z01_MC_STAR, Z01_MR_STAR );
         Z01_MR_MC.AlignWith( A01 );
-        Z01_MR_MC.RowSumScatterFrom( Z01_MR_STAR );
+        copy::RowSumScatter( Z01_MR_STAR, Z01_MR_MC );
         Y01.AlignWith( A01 );
         Y01 = Z01_MR_MC;
-        Y01.RowSumScatterUpdate( F(1), Z01_MC_STAR );
+        axpy::RowSumScatter( F(1), Z01_MC_STAR, Y01 );
 
         // A01 := inv(U00)' A01
         //

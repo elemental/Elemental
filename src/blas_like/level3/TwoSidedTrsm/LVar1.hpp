@@ -135,10 +135,10 @@ LVar1
           F(1), A00, L10_STAR_MC, L10Adj_MR_STAR, 
           Z10Adj_MC_STAR, Z10Adj_MR_STAR );
         Z10Adj.AlignWith( A10 );
-        Z10Adj.RowSumScatterFrom( Z10Adj_MC_STAR );
+        copy::RowSumScatter( Z10Adj_MC_STAR, Z10Adj );
         Z10Adj_MR_MC.AlignWith( A10 );
         Z10Adj_MR_MC = Z10Adj;
-        Z10Adj_MR_MC.RowSumScatterUpdate( F(1), Z10Adj_MR_STAR );
+        axpy::RowSumScatter( F(1), Z10Adj_MR_STAR, Z10Adj_MR_MC );
         Y10.AlignWith( A10 );
         Adjoint( Z10Adj_MR_MC, Y10 );
 

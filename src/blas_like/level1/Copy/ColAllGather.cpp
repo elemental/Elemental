@@ -144,9 +144,7 @@ void ColAllGather
             }
             else
             {
-                const Int localWidthA = A.LocalWidth();
                 const Int localWidthB = B.LocalWidth();
-                const Int localHeightA = A.LocalHeight();
                 const Int colStride = A.ColStride();
                 const Int maxLocalHeight = MaxLength(height,colStride);
                 const Int maxLocalWidth = MaxLength(width,A.RowStride());

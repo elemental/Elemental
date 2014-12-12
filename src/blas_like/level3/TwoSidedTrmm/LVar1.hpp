@@ -137,10 +137,10 @@ LVar1
         ( ADJOINT, 
           F(1), A22, L21_MC_STAR, L21Adj_STAR_MR, Z21_MC_STAR, Z21_MR_STAR );
         Z21_MR_MC.AlignWith( A21 );
-        Z21_MR_MC.RowSumScatterFrom( Z21_MR_STAR );
+        copy::RowSumScatter( Z21_MR_STAR, Z21_MR_MC );
         Y21.AlignWith( A21 ); 
         Y21 = Z21_MR_MC;
-        Y21.RowSumScatterUpdate( F(1), Z21_MC_STAR ); 
+        axpy::RowSumScatter( F(1), Z21_MC_STAR, Y21 );
 
         // A21 := A21 L11
         A21_VC_STAR.AlignWith( A21 );

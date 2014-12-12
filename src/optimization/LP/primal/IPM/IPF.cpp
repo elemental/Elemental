@@ -548,8 +548,6 @@ void IPF
             }
             JFrontTree.Initialize( J, map, sepTree, info );
             LDL( info, JFrontTree, LDL_INTRAPIV_1D ); 
-            const Real minReductionFactor = 2;
-            const Int maxRefineIts = 10;
             SolveWithIterativeRefinement
             ( J, invMap, info, JFrontTree, dy, 
               minReductionFactor, maxRefineIts );

@@ -137,10 +137,10 @@ UVar1
           F(1), A22, U12_STAR_MC, U12Adj_MR_STAR, 
           Z12Adj_MC_STAR, Z12Adj_MR_STAR );
         Z12Adj.AlignWith( A12 );
-        Z12Adj.RowSumScatterFrom( Z12Adj_MC_STAR );
+        copy::RowSumScatter( Z12Adj_MC_STAR, Z12Adj );
         Z12Adj_MR_MC.AlignWith( A12 );
         Z12Adj_MR_MC = Z12Adj;
-        Z12Adj_MR_MC.RowSumScatterUpdate( F(1), Z12Adj_MR_STAR );
+        axpy::RowSumScatter( F(1), Z12Adj_MR_STAR, Z12Adj_MR_MC );
         Y12.AlignWith( A12 );
         Y12.Resize( nb, A12.Width() );
         Adjoint( Z12Adj_MR_MC.LockedMatrix(), Y12.Matrix() );

@@ -139,7 +139,7 @@ void AfterLUPartialPiv
         Z1.AlignWith( A1 );
         Zeros( Z1, n, nb );
         LocalGemm( NORMAL, TRANSPOSE, F(-1), A2, L21Trans_STAR_MR, F(0), Z1 );
-        A1.RowSumScatterUpdate( F(1), Z1 );
+        axpy::RowSumScatter( F(1), Z1, A1 );
 
         // Solve against this diagonal block of L11
         A1_VC_STAR = A1;

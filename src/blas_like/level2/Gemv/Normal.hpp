@@ -46,7 +46,7 @@ inline void Normal
         z_MC_STAR.AlignWith( A );
         Zeros( z_MC_STAR, A.Height(), 1 );
         LocalGemv( NORMAL, alpha, A, x_MR_STAR, T(0), z_MC_STAR );
-        y.RowSumScatterUpdate( T(1), z_MC_STAR );
+        axpy::RowSumScatter( T(1), z_MC_STAR, y );
     }
     else if( x.Width() == 1 )
     {
@@ -62,7 +62,7 @@ inline void Normal
         DistMatrix<T> z(g), zTrans(g);
         z.AlignWith( y );
         zTrans.AlignWith( y );
-        z.RowSumScatterFrom( z_MC_STAR );
+        copy::RowSumScatter( z_MC_STAR, z );
         Transpose( z, zTrans );
         Axpy( T(1), zTrans, y );
     }
@@ -75,7 +75,7 @@ inline void Normal
         z_MC_STAR.AlignWith( A );
         Zeros( z_MC_STAR, A.Height(), 1 );
         LocalGemv( NORMAL, alpha, A, x_STAR_MR, T(0), z_MC_STAR );
-        y.RowSumScatterUpdate( T(1), z_MC_STAR );
+        axpy::RowSumScatter( T(1), z_MC_STAR, y );
     }
     else
     {
@@ -91,7 +91,7 @@ inline void Normal
         DistMatrix<T> z(g), zTrans(g);
         z.AlignWith( y );
         zTrans.AlignWith( y );
-        z.RowSumScatterFrom( z_MC_STAR );
+        copy::RowSumScatter( z_MC_STAR, z );
         Transpose( z, zTrans );
         Axpy( T(1), zTrans, y );
     }

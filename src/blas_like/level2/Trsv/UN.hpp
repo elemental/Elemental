@@ -66,7 +66,7 @@ UN
             View( z1_MC_STAR, z_MC_STAR, IR(k,k+nb), IR(0,1) );
 
             if( k+nb != m )
-                x1.RowSumScatterUpdate( F(1), z1_MC_STAR );
+                axpy::RowSumScatter( F(1), z1_MC_STAR, x1 );
 
             x1_STAR_STAR = x1;
             U11_STAR_STAR = U11;
@@ -106,7 +106,7 @@ UN
 
             if( k+nb != m )
             {
-                z1_MR_MC.ColSumScatterFrom( z1_STAR_MC );
+                copy::ColSumScatter( z1_STAR_MC, z1_MR_MC );
                 Axpy( F(1), z1_MR_MC, x1 );
             }
 

@@ -70,7 +70,6 @@ void RowAllToAllPromote
         EL_OUTER_PARALLEL_FOR
         for( Int k=0; k<rowStrideUnion; ++k )
         {
-            const T* data = &secondBuf[k*portionSize];
             const Int rowRank = rowRankPart + k*rowStridePart;
             const Int rowShift = Shift_( rowRank, rowAlign, rowStride );
             const Int rowOffset = (rowShift-rowShiftB) / rowStridePart;

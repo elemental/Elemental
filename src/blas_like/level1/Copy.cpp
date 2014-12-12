@@ -240,7 +240,7 @@ void CopyFromNonRoot( const DistGraph& distGraph, Int root )
     std::vector<int> edgeSizes(commSize);
     mpi::AllGather( &numLocalEdges, 1, edgeSizes.data(), 1, comm );
     std::vector<int> edgeOffsets;
-    const int numEdges = Scan( edgeSizes, edgeOffsets );
+    Scan( edgeSizes, edgeOffsets );
 
     mpi::Gather
     ( distGraph.LockedSourceBuffer(), numLocalEdges,
@@ -398,7 +398,7 @@ void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, Int root )
     std::vector<int> entrySizes(commSize);
     mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
     std::vector<int> entryOffsets;
-    const int numEntries = Scan( entrySizes, entryOffsets );
+    Scan( entrySizes, entryOffsets );
 
     mpi::Gather
     ( ADist.LockedSourceBuffer(), numLocalEntries,
@@ -436,7 +436,7 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
     std::vector<int> entryOffsets;
     const int numEntries = Scan( entrySizes, entryOffsets );
 
-    std::vector<T> recvBuf( m*n );
+    std::vector<T> recvBuf( numEntries );
     X.Resize( m, n, m );
     const auto& XDistLoc = XDist.LockedMatrix();
     if( XDistLoc.Height() == XDistLoc.LDim() )
@@ -480,7 +480,7 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, Int root )
     std::vector<int> entrySizes(commSize);
     mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
     std::vector<int> entryOffsets;
-    const int numEntries = Scan( entrySizes, entryOffsets );
+    Scan( entrySizes, entryOffsets );
 
     const auto& XDistLoc = XDist.LockedMatrix();
     if( XDistLoc.Height() == XDistLoc.LDim() )

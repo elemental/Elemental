@@ -274,7 +274,7 @@ UPan
             Conjugate( a01_MR_STAR );
             LocalGemv( NORMAL, F(1), XB0, a01_MR_STAR, F(1), zB1_MC_STAR );
             // Sum the partial contributions and subtract from aB1
-            aB1.RowSumScatterUpdate( F(-1), zB1_MC_STAR );
+            axpy::RowSumScatter( F(-1), zB1_MC_STAR, aB1 );
         }
 
         // Find tauQ and u such that
@@ -405,7 +405,7 @@ UPan
         z01_MR_STAR = z01_MC_STAR;
         LocalGemv( NORMAL, F(-1), X20, z01_MR_STAR, F(1), z21_MC_STAR );
         // Sum the various contributions within process rows
-        x21.RowSumScatterFrom( z21_MC_STAR );
+        copy::RowSumScatter( z21_MC_STAR, x21 );
         Scale( tauP, x21 );
     }
 

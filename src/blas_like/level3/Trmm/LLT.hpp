@@ -106,7 +106,7 @@ LLTA
         LocalAccumulateLLT
         ( orientation, diag, T(1), L, X1_MC_STAR, Z1_MR_STAR );
 
-        Z1_MR_MC.RowSumScatterFrom( Z1_MR_STAR );
+        copy::RowSumScatter( Z1_MR_STAR, Z1_MR_MC );
         X1 = Z1_MR_MC;
     }
 }
@@ -164,7 +164,7 @@ LLTCOld
         LocalGemm
         ( orientation, NORMAL, T(1), X2, L21_MC_STAR, D1Trans_MR_STAR );
         D1Trans_MR_MC.AlignWith( X1 );
-        D1Trans_MR_MC.RowSumScatterFrom( D1Trans_MR_STAR );
+        copy::RowSumScatter( D1Trans_MR_STAR, D1Trans_MR_MC );
         D1.AlignWith( X1 );
         Zeros( D1, nb, n );
         Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix(), conjugate );

@@ -141,10 +141,10 @@ LLA
         ( orientation, 
           alpha, A, B1_MC_STAR, B1Trans_STAR_MR, Z1_MC_STAR, Z1_MR_STAR );
 
-        Z1_MR_MC.RowSumScatterFrom( Z1_MR_STAR );
+        copy::RowSumScatter( Z1_MR_STAR, Z1_MR_MC );
         Z1.AlignWith( C1 );
         Z1 = Z1_MR_MC;
-        Z1.RowSumScatterUpdate( T(1), Z1_MC_STAR );
+        axpy::RowSumScatter( T(1), Z1_MC_STAR, Z1 );
         Axpy( T(1), Z1, C1 );
     }
 }
