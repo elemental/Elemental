@@ -58,13 +58,14 @@ void ColSumScatter
         const Int sendSize = colStride*recvSize;
 
         // Pack 
+        // TODO: ColStridedPack
         std::vector<T> buffer( sendSize );
         EL_OUTER_PARALLEL_FOR
         for( Int k=0; k<colStride; ++k )
         {
             const Int thisColShift = Shift_( k, colAlign, colStride );
             const Int thisLocalHeight = Length_(height,thisColShift,colStride);
-            InterleaveMatrix
+            copy::util::InterleaveMatrix
             ( thisLocalHeight, localWidth,
               A.LockedBuffer(thisColShift,0), colStride, A.LDim(),
               &buffer[k*recvSize],            1,         thisLocalHeight );
@@ -74,7 +75,7 @@ void ColSumScatter
         mpi::ReduceScatter( buffer.data(), recvSize, B.ColComm() );
 
         // Update with our received data
-        InterleaveMatrixUpdate
+        util::InterleaveMatrixUpdate
         ( alpha, localHeight, localWidth,
           buffer.data(), 1, localHeight,
           B.Buffer(),    1, B.LDim() );
@@ -97,12 +98,13 @@ void ColSumScatter
         T* secondBuf = &buffer[recvSize_RS];
 
         // Pack
+        // TODO: ColStridedPack
         EL_OUTER_PARALLEL_FOR
         for( Int k=0; k<colStride; ++k )
         {
             const Int thisColShift = Shift_( k, colAlign, colStride );
             const Int thisLocalHeight = Length_(height,thisColShift,colStride);
-            InterleaveMatrix
+            copy::util::InterleaveMatrix
             ( thisLocalHeight, localWidthA,
               A.LockedBuffer(thisColShift,0), colStride, A.LDim(),
               &secondBuf[k*recvSize_RS],      1,         thisLocalHeight );
@@ -119,7 +121,7 @@ void ColSumScatter
           secondBuf, localHeight*localWidth,  recvCol, B.RowComm() );
 
         // Update with our received data
-        InterleaveMatrixUpdate
+        util::InterleaveMatrixUpdate
         ( alpha, localHeight, localWidth,
           secondBuf,  1, localHeight,
           B.Buffer(), 1, B.LDim() );

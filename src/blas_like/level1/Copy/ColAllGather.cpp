@@ -72,7 +72,7 @@ void ColAllGather
                 T* recvBuf = &buffer[portionSize];
 
                 // Pack
-                InterleaveMatrix
+                util::InterleaveMatrix
                 ( A.LocalHeight(), localWidth,
                   A.LockedBuffer(), 1, A.LDim(),
                   sendBuf,          1, A.LocalHeight() );
@@ -82,19 +82,10 @@ void ColAllGather
                 ( sendBuf, portionSize, recvBuf, portionSize, A.ColComm() );
 
                 // Unpack
-                const Int colAlign = A.ColAlign();
-                EL_OUTER_PARALLEL_FOR
-                for( Int k=0; k<colStride; ++k )
-                {
-                    const T* data = &recvBuf[k*portionSize];
-                    const Int colShift = Shift_( k, colAlign, colStride );
-                    const Int localHeight =
-                        Length_( height, colShift, colStride );
-                    InterleaveMatrix
-                    ( localHeight, localWidth,
-                      data,                 1,         localHeight,
-                      B.Buffer(colShift,0), colStride, B.LDim() );
-                }
+                util::ColStridedUnpack
+                ( height, localWidth, A.ColAlign(), colStride,
+                  recvBuf,    portionSize,
+                  B.Buffer(), B.LDim() );
             }
         }
         else
@@ -144,7 +135,6 @@ void ColAllGather
             }
             else
             {
-                const Int localWidthB = B.LocalWidth();
                 const Int colStride = A.ColStride();
                 const Int maxLocalHeight = MaxLength(height,colStride);
                 const Int maxLocalWidth = MaxLength(width,A.RowStride());
@@ -156,7 +146,7 @@ void ColAllGather
                 T* secondBuf = &buffer[portionSize];
 
                 // Pack
-                InterleaveMatrix
+                util::InterleaveMatrix
                 ( A.LocalHeight(), A.LocalWidth(),
                   A.LockedBuffer(), 1, A.LDim(),
                   secondBuf,        1, A.LocalHeight() );
@@ -172,19 +162,10 @@ void ColAllGather
                   secondBuf, portionSize, A.ColComm() );
 
                 // Unpack the contents of each member of the column team
-                const Int colAlign = A.ColAlign();
-                EL_OUTER_PARALLEL_FOR
-                for( Int k=0; k<colStride; ++k )
-                {
-                    const T* data = &secondBuf[k*portionSize];
-                    const Int colShift = Shift_( k, colAlign, colStride );
-                    const Int localHeight =
-                        Length_( height, colShift, colStride );
-                    InterleaveMatrix
-                    ( localHeight, localWidthB,
-                      data,                 1,         localHeight,
-                      B.Buffer(colShift,0), colStride, B.LDim() );
-                }
+                util::ColStridedUnpack
+                ( height, B.LocalWidth(), A.ColAlign(), colStride,
+                  secondBuf,  portionSize, 
+                  B.Buffer(), B.LDim() );
             }
         }
     }
@@ -195,7 +176,7 @@ void ColAllGather
         const Int localWidth = B.LocalWidth();
         std::vector<T> buf( localHeight*localWidth );
         if( A.CrossRank() == A.Root() )
-            InterleaveMatrix
+            util::InterleaveMatrix
             ( localHeight, localWidth,
               B.LockedBuffer(), 1, B.LDim(),
               buf.data(),       1, localHeight );
@@ -206,7 +187,7 @@ void ColAllGather
 
         // Unpack if not the root
         if( A.CrossRank() != A.Root() )
-            InterleaveMatrix
+            util::InterleaveMatrix
             ( localHeight, localWidth,
               buf.data(), 1, localHeight,
               B.Buffer(), 1, B.LDim() );

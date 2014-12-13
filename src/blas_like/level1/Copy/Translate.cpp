@@ -67,7 +67,7 @@ void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B )
         if( crossRank == root )
         {
             // Pack the local data
-            InterleaveMatrix
+            util::InterleaveMatrix
             ( A.LocalHeight(), A.LocalWidth(),
               A.LockedBuffer(), 1, A.LDim(),
               buffer.data(),    1, A.LocalHeight() );
@@ -100,7 +100,7 @@ void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B )
         }
         // Unpack
         if( crossRank == B.Root() )
-            InterleaveMatrix
+            util::InterleaveMatrix
             ( localHeightB, localWidthB,
               buffer.data(), 1, localHeightB,
               B.Buffer(),    1, B.LDim() );

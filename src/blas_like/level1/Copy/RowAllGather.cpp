@@ -46,7 +46,7 @@ void RowAllGather
                 T* recvBuf = &buffer[portionSize];
 
                 // Pack
-                InterleaveMatrix
+                util::InterleaveMatrix
                 ( localHeight, A.LocalWidth(),
                   A.LockedBuffer(), 1, A.LDim(),
                   sendBuf,          1, localHeight );
@@ -56,18 +56,10 @@ void RowAllGather
                 ( sendBuf, portionSize, recvBuf, portionSize, A.RowComm() );
 
                 // Unpack
-                const Int rowAlign = A.RowAlign();
-                EL_OUTER_PARALLEL_FOR
-                for( Int k=0; k<rowStride; ++k )
-                {
-                    const Int rowShift = Shift_( k, rowAlign, rowStride );
-                    const Int localWidth =
-                        Length_( width, rowShift, rowStride );
-                    InterleaveMatrix
-                    ( localHeight, localWidth,
-                      &recvBuf[k*portionSize], 1, localHeight,
-                      B.Buffer(0,rowShift),    1, rowStride*B.LDim() );
-                }
+                util::RowStridedUnpack
+                ( localHeight, width, A.RowAlign(), rowStride,
+                  recvBuf, portionSize,
+                  B.Buffer(), B.LDim() );
             }
         }
         else
@@ -106,7 +98,7 @@ void RowAllGather
                 T* secondBuf = &buffer[portionSize];
 
                 // Pack
-                InterleaveMatrix
+                util::InterleaveMatrix
                 ( localHeight, localWidthA,
                   A.LockedBuffer(), 1, A.LDim(),
                   secondBuf,        1, localHeight );
@@ -122,18 +114,10 @@ void RowAllGather
                   secondBuf, portionSize, A.RowComm() );
 
                 // Unpack
-                const Int rowAlign = A.RowAlign();
-                EL_OUTER_PARALLEL_FOR
-                for( Int k=0; k<rowStride; ++k )
-                {
-                    const Int rowShift = Shift_( k, rowAlign, rowStride );
-                    const Int localWidth =
-                        Length_( width, rowShift, rowStride );
-                    InterleaveMatrix
-                    ( localHeightB, localWidth,
-                      &secondBuf[k*portionSize], 1, localHeightB,
-                      B.Buffer(0,rowShift),      1, rowStride*B.LDim() );
-                }
+                util::RowStridedUnpack
+                ( localHeightB, width, A.RowAlign(), rowStride,
+                  secondBuf, portionSize,
+                  B.Buffer(), B.LDim() );
             }
         }
     }
@@ -144,7 +128,7 @@ void RowAllGather
         const Int localWidth = B.LocalWidth();
         std::vector<T> buf( localHeight*localWidth );
         if( A.CrossRank() == A.Root() )
-            InterleaveMatrix
+            util::InterleaveMatrix
             ( localHeight, localWidth,
               B.LockedBuffer(), 1, B.LDim(),
               buf.data(),       1, localHeight );
@@ -155,7 +139,7 @@ void RowAllGather
 
         // Unpack if not the root
         if( A.CrossRank() != A.Root() )
-            InterleaveMatrix
+            util::InterleaveMatrix
             ( localHeight, localWidth,
               buf.data(), 1, localHeight,
               B.Buffer(), 1, B.LDim() );

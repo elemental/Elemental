@@ -62,6 +62,16 @@ void PartialRowSumScatter
 ( T alpha, const DistMatrix<T,U,Partial<V>()>& A, 
                  DistMatrix<T,U,        V   >& B );
 
+namespace util {
+
+template<typename T>
+void InterleaveMatrixUpdate
+( T alpha, Int localHeight, Int localWidth,
+  const T* A, Int colStrideA, Int rowStrideA,
+        T* B, Int colStrideB, Int rowStrideB );
+
+} // namespace util
+
 } // namespace axpy
 
 // AxpyTrapezoid
@@ -256,6 +266,60 @@ template<typename T,Dist U,Dist V>
 void PartialRowSumScatter
 ( const DistMatrix<T,U,Partial<V>()>& A, 
         DistMatrix<T,U,        V   >& B );
+
+namespace util {
+
+template<typename T>
+void InterleaveMatrix
+( Int height, Int width,
+  const T* A, Int colStrideA, Int rowStrideA,
+        T* B, Int colStrideB, Int rowStrideB );
+
+template<typename T>
+void ColStridedUnpack
+( Int height, Int width,
+  Int colAlign, Int colStride,
+  const T* APortions, Int portionSize,
+        T* B,         Int BLDim );
+template<typename T>
+void PartialColStridedUnpack
+( Int height, Int width,
+  Int colAlign, Int colStride,
+  Int colStrideUnion, Int colStridePart, Int colRankPart,
+  Int colShiftB,
+  const T* APortions, Int portionSize,
+        T* B,         Int BLDim );
+
+template<typename T>
+void RowStridedPack
+( Int height, Int width,
+  Int rowAlign, Int rowStride,
+  const T* A,         Int ALDim,
+        T* BPortions, Int portionSize );
+template<typename T>
+void RowStridedUnpack
+( Int height, Int width,
+  Int rowAlign, Int rowStride,
+  const T* APortions, Int portionSize,
+        T* B,         Int BLDim );
+template<typename T>
+void PartialRowStridedUnpack
+( Int height, Int width,
+  Int rowAlign, Int rowStride,
+  Int rowStrideUnion, Int rowStridePart, Int rowRankPart,
+  Int rowShiftB,
+  const T* APortions, Int portionSize,
+        T* B,         Int BLDim );
+
+template<typename T>
+void StridedUnpack
+( Int height, Int width,
+  Int colAlign, Int colStride,
+  Int rowAlign, Int rowStride,
+  const T* APortions, Int portionSize,
+        T* B,         Int BLDim );
+
+} // namespace util
 
 } // namespace copy
 

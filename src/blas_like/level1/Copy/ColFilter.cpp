@@ -33,7 +33,7 @@ void ColFilter
 
     if( rowDiff == 0 )
     {
-        InterleaveMatrix
+        util::InterleaveMatrix
         ( localHeight, localWidth,
           A.LockedBuffer(colShift,0), colStride, A.LDim(),
           B.Buffer(),                 1,         B.LDim() );
@@ -55,7 +55,7 @@ void ColFilter
         T* recvBuf = &buffer[sendSize];
 
         // Pack
-        InterleaveMatrix
+        util::InterleaveMatrix
         ( localHeight, localWidthA,
           A.LockedBuffer(colShift,0), colStride, A.LDim(),
           sendBuf,                    1,         localHeight );
@@ -66,7 +66,7 @@ void ColFilter
           recvBuf, recvSize, recvRowRank, B.RowComm() );
 
         // Unpack
-        InterleaveMatrix
+        util::InterleaveMatrix
         ( localHeight, localWidth,
           recvBuf,    1, localHeight,
           B.Buffer(), 1, B.LDim() );

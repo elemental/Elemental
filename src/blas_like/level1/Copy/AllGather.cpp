@@ -37,7 +37,7 @@ void AllGather
         T* recvBuf = &buf[portionSize];
 
         // Pack
-        InterleaveMatrix
+        util::InterleaveMatrix
         ( A.LocalHeight(), A.LocalWidth(),
           A.LockedBuffer(), 1, A.LDim(),
           sendBuf,          1, A.LocalHeight() );
@@ -47,22 +47,12 @@ void AllGather
         ( sendBuf, portionSize, recvBuf, portionSize, A.DistComm() );
 
         // Unpack
-        EL_OUTER_PARALLEL_FOR
-        for( Int l=0; l<rowStride; ++l )
-        {
-            const Int rowShift = Shift_( l, A.RowAlign(), rowStride );
-            const Int localWidth = Length_( width, rowShift, rowStride );
-            for( Int k=0; k<colStride; ++k )
-            {
-                const T* data = &recvBuf[(k+l*colStride)*portionSize];
-                const Int colShift = Shift_( k, A.ColAlign(), colStride );
-                const Int localHeight = Length_( height, colShift, colStride );
-                InterleaveMatrix
-                ( localHeight, localWidth,
-                  data,                        1,         localHeight,
-                  B.Buffer(colShift,rowShift), colStride, rowStride*B.LDim() );
-            }
-        }
+        util::StridedUnpack
+        ( height, width,
+          A.ColAlign(), colStride,
+          A.RowAlign(), rowStride,
+          recvBuf, portionSize,
+          B.Buffer(), B.LDim() );
     }
     if( A.Grid().InGrid() && A.CrossComm() != mpi::COMM_SELF )
     {
@@ -71,7 +61,7 @@ void AllGather
         const Int BLocalWidth = B.LocalWidth();
         std::vector<T> buf(BLocalHeight*BLocalWidth);
         if( A.CrossRank() == A.Root() )
-            InterleaveMatrix
+            util::InterleaveMatrix
             ( BLocalHeight, BLocalWidth,
               B.LockedBuffer(), 1, B.LDim(),
               buf.data(),       1, BLocalHeight ); 
@@ -82,7 +72,7 @@ void AllGather
 
         // Unpack if not the root
         if( A.CrossRank() != A.Root() )
-            InterleaveMatrix
+            util::InterleaveMatrix
             ( BLocalHeight, BLocalWidth,
               buf.data(), 1, BLocalHeight,
               B.Buffer(), 1, B.LDim() );

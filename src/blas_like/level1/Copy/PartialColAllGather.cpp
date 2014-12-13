@@ -62,7 +62,7 @@ void PartialColAllGather
     if( colDiff == 0 )
     {
         // Pack
-        InterleaveMatrix
+        util::InterleaveMatrix
         ( A.LocalHeight(), width,
           A.LockedBuffer(), 1, A.LDim(),
           firstBuf,         1, A.LocalHeight() );
@@ -73,19 +73,13 @@ void PartialColAllGather
           A.PartialUnionColComm() );
 
         // Unpack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<colStrideUnion; ++k )
-        {
-            const Int colShift =
-                Shift_( A.PartialColRank()+k*colStridePart,
-                        A.ColAlign(), A.ColStride() );
-            const Int colOffset = (colShift-B.ColShift()) / colStridePart;
-            const Int localHeight = Length_( height, colShift, A.ColStride() );
-            InterleaveMatrix
-            ( localHeight, width,
-              &secondBuf[k*portionSize], 1,              localHeight,
-              B.Buffer(colOffset,0),     colStrideUnion, B.LDim() );
-        }
+        util::PartialColStridedUnpack
+        ( height, width,
+          A.ColAlign(), A.ColStride(),
+          colStrideUnion, colStridePart, A.PartialColRank(),
+          B.ColShift(), 
+          secondBuf, portionSize,
+          B.Buffer(), B.LDim() );
     }
     else
     {
@@ -94,7 +88,7 @@ void PartialColAllGather
             std::cerr << "Unaligned PartialColAllGather" << std::endl;
 #endif
         // Perform a SendRecv to match the row alignments
-        InterleaveMatrix
+        util::InterleaveMatrix
         ( A.LocalHeight(), width,
           A.LockedBuffer(), 1, A.LDim(),
           secondBuf,        1, A.LocalHeight() );
@@ -110,19 +104,13 @@ void PartialColAllGather
           secondBuf, portionSize, A.PartialUnionColComm() );
 
         // Unpack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<colStrideUnion; ++k )
-        {
-            const Int colShift =
-                Shift_( A.PartialColRank()+colStridePart*k,
-                        B.ColAlign(), A.ColStride() );
-            const Int colOffset = (colShift-B.ColShift()) / colStridePart;
-            const Int localHeight = Length_( height, colShift, A.ColStride() );
-            InterleaveMatrix
-            ( localHeight, width,
-              &secondBuf[k*portionSize], 1,              localHeight,
-              B.Buffer(colOffset,0),     colStrideUnion, B.LDim() );
-        }
+        util::PartialColStridedUnpack
+        ( height, width,
+          B.ColAlign(), A.ColStride(),
+          colStrideUnion, colStridePart, A.PartialColRank(),
+          B.ColShift(), 
+          secondBuf, portionSize,
+          B.Buffer(), B.LDim() );
     }
 }
 

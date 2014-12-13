@@ -45,7 +45,7 @@ void PartialRowAllGather
     if( rowDiff == 0 )
     {
         // Pack
-        InterleaveMatrix
+        util::InterleaveMatrix
         ( height, A.LocalWidth(),
           A.LockedBuffer(), 1, A.LDim(),
           firstBuf,         1, height );
@@ -56,18 +56,13 @@ void PartialRowAllGather
           A.PartialUnionRowComm() );
 
         // Unpack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<rowStrideUnion; ++k )
-        {
-            const Int rowShift =
-                Shift_( rowRankPart+k*rowStridePart, A.RowAlign(), rowStride );
-            const Int rowOffset = (rowShift-B.RowShift()) / rowStridePart;
-            const Int localWidth = Length_( width, rowShift, rowStride );
-            InterleaveMatrix
-            ( height, localWidth,
-              &secondBuf[k*portionSize], 1, height,
-              B.Buffer(0,rowOffset),     1, rowStrideUnion*B.LDim() );
-        }
+        util::PartialRowStridedUnpack
+        ( height, width,
+          A.RowAlign(), rowStride,
+          rowStrideUnion, rowStridePart, rowRankPart,
+          B.RowShift(),
+          secondBuf, portionSize,
+          B.Buffer(), B.LDim() );
     }
     else
     {
@@ -76,7 +71,7 @@ void PartialRowAllGather
             std::cerr << "Unaligned PartialRowAllGather" << std::endl;
 #endif
         // Perform a SendRecv to match the row alignments
-        InterleaveMatrix
+        util::InterleaveMatrix
         ( height, A.LocalWidth(),
           A.LockedBuffer(), 1, A.LDim(),
           secondBuf,        1, height );
@@ -92,19 +87,13 @@ void PartialRowAllGather
           secondBuf, portionSize, A.PartialUnionRowComm() );
 
         // Unpack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<rowStrideUnion; ++k )
-        {
-            const T* data = &secondBuf[k*portionSize];
-            const Int rowShift =
-                Shift_( rowRankPart+rowStridePart*k, B.RowAlign(), rowStride );
-            const Int rowOffset = (rowShift-B.RowShift()) / rowStridePart;
-            const Int localWidth = Length_( width, rowShift, rowStride );
-            InterleaveMatrix
-            ( height, localWidth,
-              data,                  1, height,
-              B.Buffer(0,rowOffset), 1, rowStrideUnion*B.LDim() );
-        }
+        util::PartialRowStridedUnpack
+        ( height, width,
+          B.RowAlign(), rowStride,
+          rowStrideUnion, rowStridePart, rowRankPart,
+          B.RowShift(),
+          secondBuf, portionSize,
+          B.Buffer(), B.LDim() );
     }
 }
 

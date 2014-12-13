@@ -40,6 +40,7 @@ void SumScatter
     const Int sendSize = colStride*rowStride*recvSize;
 
     // Pack 
+    // TODO: StridedPack
     std::vector<T> buffer( sendSize );
     EL_OUTER_PARALLEL_FOR
     for( Int l=0; l<rowStride; ++l )
@@ -50,7 +51,7 @@ void SumScatter
         {
             const Int thisColShift = Shift_( k, colAlign, colStride );
             const Int thisLocalHeight = Length_(height,thisColShift,colStride);
-            InterleaveMatrix
+            copy::util::InterleaveMatrix
             ( thisLocalHeight, thisLocalWidth,
               A.LockedBuffer(thisColShift,thisRowShift), colStride, A.LDim(),
               &buffer[(k+l*colStride)*recvSize], 1, thisLocalHeight );
@@ -61,7 +62,7 @@ void SumScatter
     mpi::ReduceScatter( buffer.data(), recvSize, B.DistComm() );
 
     // Unpack our received data
-    InterleaveMatrixUpdate
+    util::InterleaveMatrixUpdate
     ( alpha, localHeight, localWidth,
       buffer.data(), 1, localHeight,
       B.Buffer(),    1, B.LDim() );

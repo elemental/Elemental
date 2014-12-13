@@ -25,7 +25,7 @@ void Filter
 
     const Int colShift = B.ColShift();
     const Int rowShift = B.RowShift();
-    InterleaveMatrix
+    util::InterleaveMatrix
     ( B.LocalHeight(), B.LocalWidth(),
       A.LockedBuffer(colShift,rowShift), B.ColStride(), B.RowStride()*A.LDim(),
       B.Buffer(),                        1,             B.LDim() );

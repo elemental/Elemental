@@ -51,6 +51,7 @@ void PartialColSumScatter
         std::vector<T> buffer( sendSize );
 
         // Pack
+        // TODO: PartialColStridedPack
         EL_OUTER_PARALLEL_FOR
         for( Int k=0; k<colStrideUnion; ++k )
         {
@@ -60,7 +61,7 @@ void PartialColSumScatter
                 (thisColShift-colShiftOfA) / colStridePart;
             const Int thisLocalHeight =
                 Length_( height, thisColShift, colStride );
-            InterleaveMatrix
+            copy::util::InterleaveMatrix
             ( thisLocalHeight, width,
               A.LockedBuffer(thisColOffset,0), colStrideUnion, A.LDim(),
               &buffer[k*recvSize], 1, thisLocalHeight );
@@ -70,7 +71,7 @@ void PartialColSumScatter
         mpi::ReduceScatter( buffer.data(), recvSize, B.PartialUnionColComm() );
 
         // Unpack our received data
-        InterleaveMatrixUpdate
+        util::InterleaveMatrixUpdate
         ( alpha, localHeight, width,
           buffer.data(), 1, localHeight,
           B.Buffer(),    1, B.LDim() );

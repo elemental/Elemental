@@ -49,6 +49,7 @@ void ColAllToAllDemote
     if( colDiff == 0 )
     {
         // Pack            
+        // TODO: PartialColStridedPack
         EL_OUTER_PARALLEL_FOR
         for( Int k=0; k<colStrideUnion; ++k )
         {
@@ -56,7 +57,7 @@ void ColAllToAllDemote
             const Int colShift = Shift_( colRank, colAlign, colStride );
             const Int colOffset = (colShift-colShiftA) / colStridePart;
             const Int localHeight = Length_( height, colShift, colStride );
-            InterleaveMatrix
+            util::InterleaveMatrix
             ( localHeight, localWidthA,
               A.LockedBuffer(colOffset,0), colStrideUnion, A.LDim(),
               &firstBuf[k*portionSize],    1,              localHeight );
@@ -68,17 +69,11 @@ void ColAllToAllDemote
           secondBuf, portionSize, B.PartialUnionColComm() );
 
         // Unpack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<colStrideUnion; ++k )
-        {
-            const T* data = &secondBuf[k*portionSize];
-            const Int rowShift = Shift_( k, rowAlignA, colStrideUnion );
-            const Int localWidth = Length_( width, rowShift, colStrideUnion );
-            InterleaveMatrix
-            ( localHeightB, localWidth,
-              data,                 1, localHeightB,
-              B.Buffer(0,rowShift), 1, colStrideUnion*B.LDim() );
-        }
+        util::RowStridedUnpack
+        ( localHeightB, width,
+          rowAlignA, colStrideUnion,
+          secondBuf, portionSize,
+          B.Buffer(), B.LDim() );
     }
     else
     {
@@ -90,6 +85,7 @@ void ColAllToAllDemote
         const Int recvColRankPart = Mod( colRankPart-colDiff, colStridePart );
 
         // Pack
+        // TODO: PartialColStridedPack
         EL_OUTER_PARALLEL_FOR
         for( Int k=0; k<colStrideUnion; ++k )
         {
@@ -98,7 +94,7 @@ void ColAllToAllDemote
             const Int colShift = Shift_( colRank, colAlign, colStride );
             const Int colOffset = (colShift-colShiftA) / colStridePart;
             const Int localHeight = Length_( height, colShift, colStride );
-            InterleaveMatrix
+            util::InterleaveMatrix
             ( localHeight, localWidthA,
               A.LockedBuffer(colOffset,0), colStrideUnion, A.LDim(),
               data,                        1,              localHeight );
@@ -116,16 +112,11 @@ void ColAllToAllDemote
           B.PartialColComm() );
 
         // Unpack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<colStrideUnion; ++k )
-        {
-            const Int rowShift = Shift_( k, rowAlignA, colStrideUnion );
-            const Int localWidth = Length_( width, rowShift, colStrideUnion );
-            InterleaveMatrix
-            ( localHeightB, localWidth,
-              &secondBuf[k*portionSize], 1, localHeightB,
-              B.Buffer(0,rowShift),      1, colStrideUnion*B.LDim() );
-        }
+        util::RowStridedUnpack
+        ( localHeightB, width,
+          rowAlignA, colStrideUnion,
+          secondBuf, portionSize,
+          B.Buffer(), B.LDim() );
     }
 }
 

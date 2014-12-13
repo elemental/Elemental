@@ -125,43 +125,6 @@ StridedMemCopy
 }
 
 template<typename T>
-inline void
-InterleaveMatrix
-( Int localHeight, Int localWidth,
-  const T* A, Int colStrideA, Int rowStrideA,
-        T* B, Int colStrideB, Int rowStrideB )
-{
-    // TODO: Add OpenMP parallelization and/or optimize
-    if( colStrideA == 1 && colStrideB == 1 )
-    {
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy( &B[jLoc*rowStrideB], &A[jLoc*rowStrideA], localHeight );
-    }
-    else
-    {
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            StridedMemCopy
-            ( &B[jLoc*rowStrideB], colStrideB,
-              &A[jLoc*rowStrideA], colStrideA, localHeight );
-    }
-}
-
-template<typename T>
-inline void
-InterleaveMatrixUpdate
-( T alpha, Int localHeight, Int localWidth,
-  const T* A, Int colStrideA, Int rowStrideA,
-        T* B, Int colStrideB, Int rowStrideB )
-{
-    // TODO: Add OpenMP parallelization and/or optimize
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        blas::Axpy
-        ( localHeight, alpha, 
-          &A[rowStrideA*jLoc], colStrideA,
-          &B[rowStrideB*jLoc], colStrideB );
-}
-
-template<typename T>
 inline void 
 MemZero( T* buffer, std::size_t numEntries )
 {

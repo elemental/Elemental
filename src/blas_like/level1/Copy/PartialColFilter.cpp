@@ -38,7 +38,7 @@ void PartialColFilter
     {
         const Int colShift = B.ColShift();
         const Int colOffset = (colShift-colShiftA) / colStridePart;
-        InterleaveMatrix
+        util::InterleaveMatrix
         ( localHeight, width,
           A.LockedBuffer(colOffset,0), colStrideUnion, A.LDim(),
           B.Buffer(),                  1,              B.LDim() );
@@ -66,7 +66,7 @@ void PartialColFilter
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[sendSize];
         // Pack
-        InterleaveMatrix
+        util::InterleaveMatrix
         ( localHeightSend, width,
           A.LockedBuffer(sendColOffset,0), colStrideUnion, A.LDim(),
           sendBuf,                         1,              localHeightSend );
@@ -77,7 +77,7 @@ void PartialColFilter
 
         // Unpack
         // ------
-        InterleaveMatrix
+        util::InterleaveMatrix
         ( localHeight, width,
           recvBuf,    1, localHeight,
           B.Buffer(), 1, B.LDim() );

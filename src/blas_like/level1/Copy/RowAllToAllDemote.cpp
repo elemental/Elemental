@@ -26,7 +26,6 @@ void RowAllToAllDemote
         return;
 
     const Int rowAlign = B.RowAlign();
-    const Int colAlignA = A.ColAlign();
 
     const Int rowStride = B.RowStride();
     const Int rowStridePart = B.PartialRowStride();
@@ -36,7 +35,6 @@ void RowAllToAllDemote
 
     const Int rowShiftA = A.RowShift();
 
-    const Int localWidthB = B.LocalWidth();
     const Int localHeightA = A.LocalHeight();
     const Int maxLocalHeight = MaxLength(height,rowStrideUnion);
     const Int maxLocalWidth = MaxLength(width,rowStride);
@@ -49,6 +47,7 @@ void RowAllToAllDemote
     if( rowDiff == 0 )
     {
         // Pack            
+        // TODO: PartialRowStridedPack
         EL_OUTER_PARALLEL_FOR
         for( Int k=0; k<rowStrideUnion; ++k )
         {
@@ -56,7 +55,7 @@ void RowAllToAllDemote
             const Int rowShift = Shift_( rowRank, rowAlign, rowStride );
             const Int rowOffset = (rowShift-rowShiftA) / rowStridePart;
             const Int localWidth = Length_( width, rowShift, rowStride );
-            InterleaveMatrix
+            util::InterleaveMatrix
             ( localHeightA, localWidth,
               A.LockedBuffer(0,rowOffset), 1, rowStrideUnion*A.LDim(),
               &firstBuf[k*portionSize],    1, localHeightA );
@@ -68,16 +67,11 @@ void RowAllToAllDemote
           secondBuf, portionSize, B.PartialUnionRowComm() );
 
         // Unpack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<rowStrideUnion; ++k )
-        {
-            const Int colShift = Shift_( k, colAlignA, rowStrideUnion );
-            const Int localHeight = Length_( height, colShift, rowStrideUnion );
-            InterleaveMatrix
-            ( localHeight, localWidthB,
-              &secondBuf[k*portionSize],  1,          localHeight,
-              B.Buffer(colShift,0),   rowStrideUnion, B.LDim() );
-        }
+        util::ColStridedUnpack
+        ( height, B.LocalWidth(), 
+          A.ColAlign(), rowStrideUnion,
+          secondBuf, portionSize,
+          B.Buffer(), B.LDim() );
     }
     else
     {
@@ -89,6 +83,7 @@ void RowAllToAllDemote
         const Int recvRowRankPart = Mod( rowRankPart-rowDiff, rowStridePart );
 
         // Pack
+        // TODO: PartialRowStridedPack
         EL_OUTER_PARALLEL_FOR
         for( Int k=0; k<rowStrideUnion; ++k )
         {
@@ -96,7 +91,7 @@ void RowAllToAllDemote
             const Int rowShift = Shift_( rowRank, rowAlign, rowStride );
             const Int rowOffset = (rowShift-rowShiftA) / rowStridePart;
             const Int localWidth = Length_( width, rowShift, rowStride );
-            InterleaveMatrix
+            util::InterleaveMatrix
             ( localHeightA, localWidth,
               A.LockedBuffer(0,rowOffset), 1, rowStrideUnion*A.LDim(),
               &secondBuf[k*portionSize],   1, localHeightA );
@@ -114,16 +109,11 @@ void RowAllToAllDemote
           B.PartialRowComm() );
 
         // Unpack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<rowStrideUnion; ++k )
-        {
-            const Int colShift = Shift_( k, colAlignA, rowStrideUnion );
-            const Int localHeight = Length_( height, colShift, rowStrideUnion );
-            InterleaveMatrix
-            ( localHeight, localWidthB,
-              &secondBuf[k*portionSize], 1,          localHeight,
-              B.Buffer(colShift,0),  rowStrideUnion, B.LDim() );
-        }
+        util::ColStridedUnpack
+        ( height, B.LocalWidth(), 
+          A.ColAlign(), rowStrideUnion,
+          secondBuf, portionSize,
+          B.Buffer(), B.LDim() );
     }
 }
 

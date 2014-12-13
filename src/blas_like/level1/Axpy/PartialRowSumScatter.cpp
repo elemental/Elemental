@@ -41,6 +41,7 @@ void PartialRowSumScatter
         const Int sendSize = rowStrideUnion*recvSize;
 
         // Pack
+        // TODO: PartialRowStridedPack
         std::vector<T> buffer( sendSize );
         EL_OUTER_PARALLEL_FOR
         for( Int k=0; k<rowStrideUnion; ++k )
@@ -51,7 +52,7 @@ void PartialRowSumScatter
                 (thisRowShift-rowShiftOfA) / rowStridePart;
             const Int thisLocalWidth =
                 Length_( width, thisRowShift, rowStride );
-            InterleaveMatrix
+            copy::util::InterleaveMatrix
             ( height, thisLocalWidth,
               A.LockedBuffer(0,thisRowOffset), 1, rowStrideUnion*A.LDim(),
               &buffer[k*recvSize],             1, height );
@@ -61,7 +62,7 @@ void PartialRowSumScatter
         mpi::ReduceScatter( buffer.data(), recvSize, B.PartialUnionRowComm() );
 
         // Unpack our received data
-        InterleaveMatrixUpdate
+        util::InterleaveMatrixUpdate
         ( alpha, height, B.LocalWidth(),
           buffer.data(), 1, height,
           B.Buffer(),    1, B.LDim() );

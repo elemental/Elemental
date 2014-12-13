@@ -35,10 +35,7 @@ void RowAllToAllPromote
     const Int rowRankPart = A.PartialRowRank();
     const Int rowDiff = B.RowAlign() - (rowAlign%rowStridePart);
 
-    const Int rowShiftB = B.RowShift();
-
     const Int localWidthA = A.LocalWidth();
-    const Int localHeightB = B.LocalHeight();
     const Int maxLocalWidth = MaxLength(width,rowStride);
     const Int maxLocalHeight = MaxLength(height,rowStrideUnion);
     const Int portionSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
@@ -50,12 +47,13 @@ void RowAllToAllPromote
     if( rowDiff == 0 )
     {
         // Pack            
+        // TODO: ColStridedPack
         EL_OUTER_PARALLEL_FOR
         for( Int k=0; k<rowStrideUnion; ++k )
         {
             const Int colShift = Shift_( k, colAlignB, rowStrideUnion );
             const Int localHeight = Length_( height, colShift, rowStrideUnion );
-            InterleaveMatrix
+            util::InterleaveMatrix
             ( localHeight, localWidthA,
               A.LockedBuffer(colShift,0), rowStrideUnion, A.LDim(),
               &firstBuf[k*portionSize],   1,              localHeight );
@@ -67,18 +65,13 @@ void RowAllToAllPromote
           secondBuf, portionSize, A.PartialUnionRowComm() );
 
         // Unpack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<rowStrideUnion; ++k )
-        {
-            const Int rowRank = rowRankPart + k*rowStridePart;
-            const Int rowShift = Shift_( rowRank, rowAlign, rowStride );
-            const Int rowOffset = (rowShift-rowShiftB) / rowStridePart;
-            const Int localWidth = Length_( width, rowShift, rowStride );
-            InterleaveMatrix
-            ( localHeightB, localWidth,
-              &secondBuf[k*portionSize], 1, localHeightB,
-              B.Buffer(0,rowOffset),     1, rowStrideUnion*B.LDim() );
-        }
+        util::PartialRowStridedUnpack
+        ( B.LocalHeight(), width,
+          rowAlign, rowStride,
+          rowStrideUnion, rowStridePart, rowRankPart,
+          B.RowShift(),
+          secondBuf, portionSize,
+          B.Buffer(), B.LDim() );
     }
     else
     {
@@ -90,12 +83,13 @@ void RowAllToAllPromote
         const Int recvRowRankPart = Mod( rowRankPart-rowDiff, rowStridePart );
 
         // Pack
+        // TODO: ColStridedPack
         EL_OUTER_PARALLEL_FOR
         for( Int k=0; k<rowStrideUnion; ++k )
         {
             const Int colShift = Shift_( k, colAlignB, rowStrideUnion );
             const Int localHeight = Length_( height, colShift, rowStrideUnion );
-            InterleaveMatrix
+            util::InterleaveMatrix
             ( localHeight, localWidthA,
               A.LockedBuffer(colShift,0), rowStrideUnion, A.LDim(),
               &secondBuf[k*portionSize],  1,              localHeight );
@@ -113,18 +107,13 @@ void RowAllToAllPromote
           secondBuf, portionSize, A.PartialUnionRowComm() );
 
         // Unpack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<rowStrideUnion; ++k )
-        {
-            const Int rowRank = recvRowRankPart + k*rowStridePart;
-            const Int rowShift = Shift_( rowRank, rowAlign, rowStride );
-            const Int rowOffset = (rowShift-rowShiftB) / rowStridePart;
-            const Int localWidth = Length_( width, rowShift, rowStride );
-            InterleaveMatrix
-            ( localHeightB, localWidth,
-              &secondBuf[k*portionSize], 1, localHeightB,
-              B.Buffer(0,rowOffset),     1, rowStrideUnion*B.LDim() );
-        }
+        util::PartialRowStridedUnpack
+        ( B.LocalHeight(), width,
+          rowAlign, rowStride,
+          rowStrideUnion, rowStridePart, rowRankPart,
+          B.RowShift(),
+          secondBuf, portionSize,
+          B.Buffer(), B.LDim() );
     }
 }
 

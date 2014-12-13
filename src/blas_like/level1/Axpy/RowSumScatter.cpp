@@ -41,7 +41,7 @@ void RowSumScatter
               rowAlign, B.RowComm() );
 
             if( B.RowRank() == rowAlign )
-                InterleaveMatrixUpdate
+                util::InterleaveMatrixUpdate
                 ( alpha, localHeight, 1,
                   buffer.data(), 1, localHeight,
                   B.Buffer(),    1, B.LDim() );
@@ -60,22 +60,17 @@ void RowSumScatter
 
             // Pack 
             std::vector<T> buffer( sendSize );
-            EL_OUTER_PARALLEL_FOR
-            for( Int k=0; k<rowStride; ++k )
-            {
-                const Int thisRowShift = Shift_( k, rowAlign, rowStride );
-                const Int thisLocalWidth =
-                    Length_(width,thisRowShift,rowStride);
-                InterleaveMatrix
-                ( localHeight, thisLocalWidth,
-                  A.LockedBuffer(0,thisRowShift), 1, rowStride*A.LDim(),
-                  &buffer[k*portionSize],         1, localHeight );
-            }
+            copy::util::RowStridedPack
+            ( localHeight, width,
+              rowAlign, rowStride,
+              A.LockedBuffer(), A.LDim(),
+              buffer.data(), portionSize );
+
             // Communicate
             mpi::ReduceScatter( buffer.data(), portionSize, B.RowComm() );
 
             // Update with our received data
-            InterleaveMatrixUpdate
+            util::InterleaveMatrixUpdate
             ( alpha, localHeight, localWidth,
               buffer.data(), 1, localHeight,
               B.Buffer(),    1, B.LDim() );
@@ -114,7 +109,7 @@ void RowSumScatter
                 ( sendBuf, localHeightA, sendRow,
                   recvBuf, localHeight,  recvRow, B.ColComm() );
 
-                InterleaveMatrixUpdate
+                util::InterleaveMatrixUpdate
                 ( alpha, localHeight, 1,
                   recvBuf,    1, localHeight,
                   B.Buffer(), 1, B.LDim() );
@@ -137,17 +132,11 @@ void RowSumScatter
             T* secondBuf = &buffer[recvSize_RS];
 
             // Pack 
-            EL_OUTER_PARALLEL_FOR
-            for( Int k=0; k<rowStride; ++k )
-            {
-                const Int thisRowShift = Shift_( k, rowAlign, rowStride );
-                const Int thisLocalWidth =
-                    Length_(width,thisRowShift,rowStride);
-                InterleaveMatrix
-                ( localHeightA, thisLocalWidth,
-                  A.LockedBuffer(0,thisRowShift), 1, rowStride*A.LDim(),
-                  &secondBuf[k*recvSize_RS],      1, localHeightA );
-            }
+            copy::util::RowStridedPack
+            ( localHeightA, width,
+              rowAlign, rowStride,
+              A.LockedBuffer(), A.LDim(),
+              secondBuf,        recvSize_RS );
 
             // Reduce-scatter over each process row
             mpi::ReduceScatter( secondBuf, firstBuf, recvSize_RS, B.RowComm() );
@@ -158,7 +147,7 @@ void RowSumScatter
               secondBuf, localHeight*localWidth,  recvRow, B.ColComm() );
 
             // Update with our received data
-            InterleaveMatrixUpdate
+            util::InterleaveMatrixUpdate
             ( alpha, localHeight, localWidth,
               secondBuf,  1, localHeight,
               B.Buffer(), 1, B.LDim() );

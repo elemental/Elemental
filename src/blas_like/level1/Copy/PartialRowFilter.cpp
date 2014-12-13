@@ -38,7 +38,7 @@ void PartialRowFilter
     {
         const Int rowShift = B.RowShift();
         const Int rowOffset = (rowShift-rowShiftA) / rowStridePart;
-        InterleaveMatrix
+        util::InterleaveMatrix
         ( height, localWidth,
           A.LockedBuffer(0,rowOffset), 1, rowStrideUnion*A.LDim(),
           B.Buffer(),                  1, B.LDim() );
@@ -66,7 +66,7 @@ void PartialRowFilter
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[sendSize];
         // Pack
-        InterleaveMatrix
+        util::InterleaveMatrix
         ( height, localWidthSend,
           A.LockedBuffer(0,sendRowOffset), 1, rowStrideUnion*A.LDim(),
           sendBuf,                         1, height );
@@ -77,7 +77,7 @@ void PartialRowFilter
 
         // Unpack
         // ------
-        InterleaveMatrix
+        util::InterleaveMatrix
         ( height, localWidth,
           recvBuf,    1, height,
           B.Buffer(), 1, B.LDim() );
