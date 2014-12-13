@@ -56,20 +56,14 @@ void ColSumScatter
 
         const Int recvSize = mpi::Pad( maxLocalHeight*localWidth );
         const Int sendSize = colStride*recvSize;
+        std::vector<T> buffer( sendSize );
 
         // Pack 
-        // TODO: ColStridedPack
-        std::vector<T> buffer( sendSize );
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<colStride; ++k )
-        {
-            const Int thisColShift = Shift_( k, colAlign, colStride );
-            const Int thisLocalHeight = Length_(height,thisColShift,colStride);
-            copy::util::InterleaveMatrix
-            ( thisLocalHeight, localWidth,
-              A.LockedBuffer(thisColShift,0), colStride, A.LDim(),
-              &buffer[k*recvSize],            1,         thisLocalHeight );
-        }
+        copy::util::ColStridedPack
+        ( height, localWidth,
+          colAlign, colStride,
+          A.LockedBuffer(), A.LDim(),
+          buffer.data(),    recvSize );
     
         // Communicate
         mpi::ReduceScatter( buffer.data(), recvSize, B.ColComm() );
@@ -98,17 +92,11 @@ void ColSumScatter
         T* secondBuf = &buffer[recvSize_RS];
 
         // Pack
-        // TODO: ColStridedPack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<colStride; ++k )
-        {
-            const Int thisColShift = Shift_( k, colAlign, colStride );
-            const Int thisLocalHeight = Length_(height,thisColShift,colStride);
-            copy::util::InterleaveMatrix
-            ( thisLocalHeight, localWidthA,
-              A.LockedBuffer(thisColShift,0), colStride, A.LDim(),
-              &secondBuf[k*recvSize_RS],      1,         thisLocalHeight );
-        }
+        copy::util::ColStridedPack
+        ( height, localWidth,
+          colAlign, colStride,
+          A.LockedBuffer(), A.LDim(),
+          secondBuf,        recvSize_RS );
 
         // Reduce-scatter over each col
         mpi::ReduceScatter( secondBuf, firstBuf, recvSize_RS, B.ColComm() );

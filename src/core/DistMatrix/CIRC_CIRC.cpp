@@ -378,8 +378,6 @@ DM::CollectFrom( const DistMatrix<T,U,V>& A )
 
     const Int colStride = A.ColStride();
     const Int rowStride = A.RowStride();
-    const Int mLocalA = A.LocalHeight();
-    const Int nLocalA = A.LocalWidth();
     const Int mLocalMax = MaxLength(m,colStride);
     const Int nLocalMax = MaxLength(n,rowStride);
     const Int pkgSize = mpi::Pad( mLocalMax*nLocalMax );
@@ -399,44 +397,22 @@ DM::CollectFrom( const DistMatrix<T,U,V>& A )
     }
 
     // Pack
-    const Int ALDim = A.LDim();
-    const T* ABuf = A.LockedBuffer();
-    EL_PARALLEL_FOR
-    for( Int jLoc=0; jLoc<nLocalA; ++jLoc )
-        MemCopy( &sendBuf[jLoc*mLocalA], &ABuf[jLoc*ALDim], mLocalA );
+    copy::util::InterleaveMatrix
+    ( A.LocalHeight(), A.LocalWidth(),
+      A.LockedBuffer(), 1, A.LDim(),
+      sendBuf,          1, A.LocalHeight() );
 
     // Communicate
     mpi::Gather( sendBuf, pkgSize, recvBuf, pkgSize, target, A.DistComm() );
 
+    // Unpack
     if( this->CrossRank() == root )
-    {
-        // Unpack
-        T* buffer = this->Buffer();
-        const Int ldim = this->LDim();
-        const Int colAlignA = A.ColAlign();
-        const Int rowAlignA = A.RowAlign();
-        EL_OUTER_PARALLEL_FOR
-        for( Int l=0; l<rowStride; ++l )
-        {
-            const Int rowShift = Shift_( l, rowAlignA, rowStride );
-            const Int nLocal = Length_( n, rowShift, rowStride );
-            for( Int k=0; k<colStride; ++k )
-            {
-                const T* data = &recvBuf[(k+l*colStride)*pkgSize];
-                const Int colShift = Shift_( k, colAlignA, colStride );
-                const Int mLocal = Length_( m, colShift, colStride );
-                EL_INNER_PARALLEL_FOR
-                for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-                {
-                    T* destCol =
-                      &buffer[colShift+(rowShift+jLoc*rowStride)*ldim];
-                    const T* sourceCol = &data[jLoc*mLocal];
-                    for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-                        destCol[iLoc*colStride] = sourceCol[iLoc];
-                }
-            }
-        }
-    }
+        copy::util::StridedUnpack
+        ( m, n,
+          A.ColAlign(), colStride,
+          A.RowAlign(), rowStride,
+          recvBuf, pkgSize,
+          this->Buffer(), this->LDim() );
     this->auxMemory_.Release();
 }
 

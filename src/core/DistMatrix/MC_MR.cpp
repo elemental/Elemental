@@ -126,8 +126,9 @@ DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
 
         const Int colShiftVC = Shift(rankCM,colAlign,p);
         const Int colShiftVRA = Shift(rankRM,colAlignA,p);
-        const Int sendRankCM = (rankCM+(p+colShiftVRA-colShiftVC)) % p;
-        const Int recvRankRM = (rankRM+(p+colShiftVC-colShiftVRA)) % p;
+        const Int colDiff = colShiftVRA - colShiftVC;
+        const Int sendRankCM = Mod( rankCM+colDiff, p );
+        const Int recvRankRM = Mod( rankRM-colDiff, p );
         const Int recvRankCM = (recvRankRM/c)+r*(recvRankRM%c);
 
         T* buffer = this->auxMemory_.Require( (r+c)*portionSize );
@@ -206,8 +207,9 @@ DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
 
         const Int rowShiftVR = Shift(rankRM,rowAlign,p);
         const Int rowShiftVCA = Shift(rankCM,rowAlignA,p);
-        const Int sendRankRM = (rankRM+(p+rowShiftVCA-rowShiftVR)) % p;
-        const Int recvRankCM = (rankCM+(p+rowShiftVR-rowShiftVCA)) % p;
+        const Int rowDiff = rowShiftVCA - rowShiftVR;
+        const Int sendRankRM = Mod( rankRM+rowDiff, p );
+        const Int recvRankCM = Mod( rankCM-rowDiff, p );
         const Int recvRankRM = (recvRankCM/r)+c*(recvRankCM%r);
 
         T* buffer = this->auxMemory_.Require( (r+c)*portionSize );
@@ -564,14 +566,12 @@ void DM::CopyFromDifferentGrid( const DM& A )
 
     Int recvRow = 0; // avoid compiler warnings...
     if( inAGrid )
-        recvRow = (((colRankA+colStrideA-colAlignA)%colStrideA)+colAlign) %
-                  colStride;
+        recvRow = Mod(Mod(colRankA-colAlignA,colStrideA)+colAlign,colStride);
     for( Int colSend=0; colSend<numColSends; ++colSend )
     {
         Int recvCol = 0; // avoid compiler warnings...
         if( inAGrid )
-            recvCol = (((rowRankA+rowStrideA-rowAlignA)%rowStrideA)+rowAlign) %
-                      rowStride;
+            recvCol=Mod(Mod(rowRankA-rowAlignA,rowStrideA)+rowAlign,rowStride);
         for( Int rowSend=0; rowSend<numRowSends; ++rowSend )
         {
             mpi::Request sendRequest;
@@ -604,16 +604,22 @@ void DM::CopyFromDifferentGrid( const DM& A )
             // Perform this round of recv's
             if( inThisGrid )
             {
-                const Int sendColOffset = (colSend*colStrideA+colAlignA) % colStrideA;
-                const Int recvColOffset = (colSend*colStrideA+colAlign) % colStride;
-                const Int sendRowOffset = (rowSend*rowStrideA+rowAlignA) % rowStrideA;
-                const Int recvRowOffset = (rowSend*rowStrideA+rowAlign) % rowStride;
+                const Int sendColOffset = colAlignA;
+                const Int recvColOffset = 
+                    (colSend*colStrideA+colAlign) % colStride;
+                const Int sendRowOffset = rowAlignA;
+                const Int recvRowOffset = 
+                    (rowSend*rowStrideA+rowAlign) % rowStride;
 
-                const Int firstSendRow = (((colRank+colStride-recvColOffset)%colStride)+sendColOffset)%colStrideA;
-                const Int firstSendCol = (((rowRank+rowStride-recvRowOffset)%rowStride)+sendRowOffset)%rowStrideA;
+                const Int firstSendRow = 
+                    Mod( Mod(colRank-recvColOffset,colStride)+sendColOffset, 
+                         colStrideA );
+                const Int firstSendCol =
+                    Mod( Mod(rowRank-recvRowOffset,rowStride)+sendRowOffset,
+                         rowStrideA );
 
-                const Int colShift = (colRank+colStride-recvColOffset)%colStride;
-                const Int rowShift = (rowRank+rowStride-recvRowOffset)%rowStride;
+                const Int colShift = Mod( colRank-recvColOffset, colStride );
+                const Int rowShift = Mod( rowRank-recvRowOffset, rowStride );
                 const Int numColRecvs = Length( colStrideA, colShift, colStride );
                 const Int numRowRecvs = Length( rowStrideA, rowShift, rowStride );
 

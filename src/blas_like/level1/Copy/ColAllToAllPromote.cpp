@@ -94,7 +94,7 @@ void ColAllToAllPromote
         util::PartialColStridedUnpack 
         ( height, B.LocalWidth(),
           A.ColAlign(), colStride,
-          colStrideUnion, colStridePart, colRankPart,
+          colStrideUnion, colStridePart, recvColRankPart,
           B.ColShift(),
           secondBuf,  portionSize,
           B.Buffer(), B.LDim() );

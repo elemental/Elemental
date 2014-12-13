@@ -33,9 +33,6 @@ void RowAllToAllDemote
     const Int rowRankPart = B.PartialRowRank();
     const Int rowDiff = (rowAlign%rowStridePart) - A.RowAlign();
 
-    const Int rowShiftA = A.RowShift();
-
-    const Int localHeightA = A.LocalHeight();
     const Int maxLocalHeight = MaxLength(height,rowStrideUnion);
     const Int maxLocalWidth = MaxLength(width,rowStride);
     const Int portionSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
@@ -47,19 +44,13 @@ void RowAllToAllDemote
     if( rowDiff == 0 )
     {
         // Pack            
-        // TODO: PartialRowStridedPack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<rowStrideUnion; ++k )
-        {
-            const Int rowRank = rowRankPart + k*rowStridePart;
-            const Int rowShift = Shift_( rowRank, rowAlign, rowStride );
-            const Int rowOffset = (rowShift-rowShiftA) / rowStridePart;
-            const Int localWidth = Length_( width, rowShift, rowStride );
-            util::InterleaveMatrix
-            ( localHeightA, localWidth,
-              A.LockedBuffer(0,rowOffset), 1, rowStrideUnion*A.LDim(),
-              &firstBuf[k*portionSize],    1, localHeightA );
-        }
+        util::PartialRowStridedPack
+        ( A.LocalHeight(), width,
+          rowAlign, rowStride,
+          rowStrideUnion, rowStridePart, rowRankPart,
+          A.RowShift(),
+          A.LockedBuffer(), A.LDim(),
+          firstBuf,         portionSize );
 
         // Simultaneously Scatter in rows and Gather in columns
         mpi::AllToAll
@@ -83,19 +74,13 @@ void RowAllToAllDemote
         const Int recvRowRankPart = Mod( rowRankPart-rowDiff, rowStridePart );
 
         // Pack
-        // TODO: PartialRowStridedPack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<rowStrideUnion; ++k )
-        {
-            const Int rowRank = sendRowRankPart + k*rowStridePart;
-            const Int rowShift = Shift_( rowRank, rowAlign, rowStride );
-            const Int rowOffset = (rowShift-rowShiftA) / rowStridePart;
-            const Int localWidth = Length_( width, rowShift, rowStride );
-            util::InterleaveMatrix
-            ( localHeightA, localWidth,
-              A.LockedBuffer(0,rowOffset), 1, rowStrideUnion*A.LDim(),
-              &secondBuf[k*portionSize],   1, localHeightA );
-        }
+        util::PartialRowStridedPack
+        ( A.LocalHeight(), width,
+          rowAlign, rowStride,
+          rowStrideUnion, rowStridePart, sendRowRankPart,
+          A.RowShift(),
+          A.LockedBuffer(), A.LDim(),
+          secondBuf,        portionSize );
 
         // Simultaneously Scatter in rows and Gather in columns
         mpi::AllToAll

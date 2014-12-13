@@ -276,11 +276,25 @@ void InterleaveMatrix
         T* B, Int colStrideB, Int rowStrideB );
 
 template<typename T>
+void ColStridedPack
+( Int height, Int width,
+  Int colAlign, Int colStride,
+  const T* A,         Int ALDim,
+        T* BPortions, Int portionSize );
+template<typename T>
 void ColStridedUnpack
 ( Int height, Int width,
   Int colAlign, Int colStride,
   const T* APortions, Int portionSize,
         T* B,         Int BLDim );
+template<typename T>
+void PartialColStridedPack
+( Int height, Int width,
+  Int colAlign, Int colStride,
+  Int colStrideUnion, Int colStridePart, Int colRankPart,
+  Int colShiftA,
+  const T* A,         Int ALDim,
+        T* BPortions, Int portionSize );
 template<typename T>
 void PartialColStridedUnpack
 ( Int height, Int width,
@@ -303,6 +317,14 @@ void RowStridedUnpack
   const T* APortions, Int portionSize,
         T* B,         Int BLDim );
 template<typename T>
+void PartialRowStridedPack
+( Int height, Int width,
+  Int rowAlign, Int rowStride,
+  Int rowStrideUnion, Int rowStridePart, Int rowRankPart,
+  Int rowShiftA,
+  const T* A,         Int ALDim,
+        T* BPortions, Int portionSize );
+template<typename T>
 void PartialRowStridedUnpack
 ( Int height, Int width,
   Int rowAlign, Int rowStride,
@@ -311,6 +333,13 @@ void PartialRowStridedUnpack
   const T* APortions, Int portionSize,
         T* B,         Int BLDim );
 
+template<typename T>
+void StridedPack
+( Int height, Int width,
+  Int colAlign, Int colStride,
+  Int rowAlign, Int rowStride,
+  const T* A,         Int ALDim,
+        T* BPortions, Int portionSize );
 template<typename T>
 void StridedUnpack
 ( Int height, Int width,

@@ -30,8 +30,6 @@ void PartialRowSumScatter
         const Int rowStridePart = B.PartialRowStride();
         const Int rowStrideUnion = B.PartialUnionRowStride();
         const Int rowRankPart = B.PartialRowRank();
-        const Int rowAlign = B.RowAlign();
-        const Int rowShiftOfA = A.RowShift();
 
         const Int height = B.Height();
         const Int width = B.Width();
@@ -40,23 +38,16 @@ void PartialRowSumScatter
         const Int recvSize = mpi::Pad( height*maxLocalWidth );
         const Int sendSize = rowStrideUnion*recvSize;
 
-        // Pack
-        // TODO: PartialRowStridedPack
         std::vector<T> buffer( sendSize );
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<rowStrideUnion; ++k )
-        {
-            const Int thisRank = rowRankPart+k*rowStridePart;
-            const Int thisRowShift = Shift_( thisRank, rowAlign, rowStride );
-            const Int thisRowOffset =
-                (thisRowShift-rowShiftOfA) / rowStridePart;
-            const Int thisLocalWidth =
-                Length_( width, thisRowShift, rowStride );
-            copy::util::InterleaveMatrix
-            ( height, thisLocalWidth,
-              A.LockedBuffer(0,thisRowOffset), 1, rowStrideUnion*A.LDim(),
-              &buffer[k*recvSize],             1, height );
-        }
+
+        // Pack
+        copy::util::PartialRowStridedPack
+        ( height, width,
+          B.RowAlign(), rowStride, 
+          rowStrideUnion, rowStridePart, rowRankPart,
+          A.RowShift(),
+          A.LockedBuffer(), A.LDim(),
+          buffer.data(),    recvSize );
 
         // Communicate
         mpi::ReduceScatter( buffer.data(), recvSize, B.PartialUnionRowComm() );

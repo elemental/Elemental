@@ -39,7 +39,6 @@ void PartialColSumScatter
         const Int colStrideUnion = B.PartialUnionColStride();
         const Int colRankPart = B.PartialColRank();
         const Int colAlign = B.ColAlign();
-        const Int colShiftOfA = A.ColShift();
 
         const Int height = B.Height();
         const Int width = B.Width();
@@ -51,21 +50,13 @@ void PartialColSumScatter
         std::vector<T> buffer( sendSize );
 
         // Pack
-        // TODO: PartialColStridedPack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<colStrideUnion; ++k )
-        {
-            const Int thisRank = colRankPart+k*colStridePart;
-            const Int thisColShift = Shift_( thisRank, colAlign, colStride );
-            const Int thisColOffset =
-                (thisColShift-colShiftOfA) / colStridePart;
-            const Int thisLocalHeight =
-                Length_( height, thisColShift, colStride );
-            copy::util::InterleaveMatrix
-            ( thisLocalHeight, width,
-              A.LockedBuffer(thisColOffset,0), colStrideUnion, A.LDim(),
-              &buffer[k*recvSize], 1, thisLocalHeight );
-        }
+        copy::util::PartialColStridedPack
+        ( height, width,
+          colAlign, colStride,
+          colStrideUnion, colStridePart, colRankPart,
+          A.ColShift(),
+          A.LockedBuffer(), A.LDim(),
+          buffer.data(),    recvSize );
 
         // Communicate
         mpi::ReduceScatter( buffer.data(), recvSize, B.PartialUnionColComm() );

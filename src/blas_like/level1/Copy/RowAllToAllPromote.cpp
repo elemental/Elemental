@@ -26,7 +26,6 @@ void RowAllToAllPromote
     if( !B.Participating() )
         return;
 
-    const Int colAlignB = B.ColAlign();
     const Int rowAlign = A.RowAlign();
 
     const Int rowStride = A.RowStride();
@@ -35,7 +34,6 @@ void RowAllToAllPromote
     const Int rowRankPart = A.PartialRowRank();
     const Int rowDiff = B.RowAlign() - (rowAlign%rowStridePart);
 
-    const Int localWidthA = A.LocalWidth();
     const Int maxLocalWidth = MaxLength(width,rowStride);
     const Int maxLocalHeight = MaxLength(height,rowStrideUnion);
     const Int portionSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
@@ -47,17 +45,11 @@ void RowAllToAllPromote
     if( rowDiff == 0 )
     {
         // Pack            
-        // TODO: ColStridedPack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<rowStrideUnion; ++k )
-        {
-            const Int colShift = Shift_( k, colAlignB, rowStrideUnion );
-            const Int localHeight = Length_( height, colShift, rowStrideUnion );
-            util::InterleaveMatrix
-            ( localHeight, localWidthA,
-              A.LockedBuffer(colShift,0), rowStrideUnion, A.LDim(),
-              &firstBuf[k*portionSize],   1,              localHeight );
-        }
+        util::ColStridedPack
+        ( height, A.LocalWidth(),
+          B.ColAlign(), rowStrideUnion,
+          A.LockedBuffer(), A.LDim(),
+          firstBuf,         portionSize );
 
         // Simultaneously Gather in rows and Scatter in columns
         mpi::AllToAll
@@ -83,17 +75,11 @@ void RowAllToAllPromote
         const Int recvRowRankPart = Mod( rowRankPart-rowDiff, rowStridePart );
 
         // Pack
-        // TODO: ColStridedPack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<rowStrideUnion; ++k )
-        {
-            const Int colShift = Shift_( k, colAlignB, rowStrideUnion );
-            const Int localHeight = Length_( height, colShift, rowStrideUnion );
-            util::InterleaveMatrix
-            ( localHeight, localWidthA,
-              A.LockedBuffer(colShift,0), rowStrideUnion, A.LDim(),
-              &secondBuf[k*portionSize],  1,              localHeight );
-        }
+        util::ColStridedPack
+        ( height, A.LocalWidth(),
+          B.ColAlign(), rowStrideUnion,
+          A.LockedBuffer(), A.LDim(),
+          secondBuf,        portionSize );
 
         // Realign the input
         mpi::SendRecv
@@ -110,7 +96,7 @@ void RowAllToAllPromote
         util::PartialRowStridedUnpack
         ( B.LocalHeight(), width,
           rowAlign, rowStride,
-          rowStrideUnion, rowStridePart, rowRankPart,
+          rowStrideUnion, rowStridePart, recvRowRankPart,
           B.RowShift(),
           secondBuf, portionSize,
           B.Buffer(), B.LDim() );

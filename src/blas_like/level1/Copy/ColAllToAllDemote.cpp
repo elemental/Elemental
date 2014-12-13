@@ -49,19 +49,13 @@ void ColAllToAllDemote
     if( colDiff == 0 )
     {
         // Pack            
-        // TODO: PartialColStridedPack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<colStrideUnion; ++k )
-        {
-            const Int colRank = colRankPart + k*colStridePart;
-            const Int colShift = Shift_( colRank, colAlign, colStride );
-            const Int colOffset = (colShift-colShiftA) / colStridePart;
-            const Int localHeight = Length_( height, colShift, colStride );
-            util::InterleaveMatrix
-            ( localHeight, localWidthA,
-              A.LockedBuffer(colOffset,0), colStrideUnion, A.LDim(),
-              &firstBuf[k*portionSize],    1,              localHeight );
-        }
+        util::PartialColStridedPack
+        ( height, localWidthA,
+          colAlign, colStride, 
+          colStrideUnion, colStridePart, colRankPart,
+          colShiftA,
+          A.LockedBuffer(), A.LDim(),
+          firstBuf,         portionSize );
 
         // Simultaneously Scatter in columns and Gather in rows
         mpi::AllToAll
@@ -85,20 +79,13 @@ void ColAllToAllDemote
         const Int recvColRankPart = Mod( colRankPart-colDiff, colStridePart );
 
         // Pack
-        // TODO: PartialColStridedPack
-        EL_OUTER_PARALLEL_FOR
-        for( Int k=0; k<colStrideUnion; ++k )
-        {
-            T* data = &secondBuf[k*portionSize];
-            const Int colRank = sendColRankPart + k*colStridePart;
-            const Int colShift = Shift_( colRank, colAlign, colStride );
-            const Int colOffset = (colShift-colShiftA) / colStridePart;
-            const Int localHeight = Length_( height, colShift, colStride );
-            util::InterleaveMatrix
-            ( localHeight, localWidthA,
-              A.LockedBuffer(colOffset,0), colStrideUnion, A.LDim(),
-              data,                        1,              localHeight );
-        }
+        util::PartialColStridedPack
+        ( height, localWidthA,
+          colAlign, colStride, 
+          colStrideUnion, colStridePart, sendColRankPart,
+          colShiftA,
+          A.LockedBuffer(), A.LDim(),
+          secondBuf,        portionSize );
 
         // Simultaneously Scatter in columns and Gather in rows
         mpi::AllToAll

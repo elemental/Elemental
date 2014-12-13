@@ -39,24 +39,15 @@ void SumScatter
     const Int recvSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
     const Int sendSize = colStride*rowStride*recvSize;
 
-    // Pack 
-    // TODO: StridedPack
     std::vector<T> buffer( sendSize );
-    EL_OUTER_PARALLEL_FOR
-    for( Int l=0; l<rowStride; ++l )
-    {
-        const Int thisRowShift = Shift_( l, rowAlign, rowStride );
-        const Int thisLocalWidth = Length_( width, thisRowShift, rowStride );
-        for( Int k=0; k<colStride; ++k )
-        {
-            const Int thisColShift = Shift_( k, colAlign, colStride );
-            const Int thisLocalHeight = Length_(height,thisColShift,colStride);
-            copy::util::InterleaveMatrix
-            ( thisLocalHeight, thisLocalWidth,
-              A.LockedBuffer(thisColShift,thisRowShift), colStride, A.LDim(),
-              &buffer[(k+l*colStride)*recvSize], 1, thisLocalHeight );
-        }
-    }
+
+    // Pack 
+    copy::util::StridedPack
+    ( height, width,
+      colAlign, colStride,
+      rowAlign, rowStride,
+      A.LockedBuffer(), A.LDim(),
+      buffer.data(),    recvSize );
 
     // Communicate
     mpi::ReduceScatter( buffer.data(), recvSize, B.DistComm() );
