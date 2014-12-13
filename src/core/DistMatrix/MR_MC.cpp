@@ -359,89 +359,11 @@ DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
     return *this;
 }
 
-// NOTE: This is almost an exact duplicate of [MC,MR] <- [o, o ]
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("[MR,MC] = [CIRC,CIRC]");
-        AssertSameGrids( *this, A );
-        this->AssertNotLocked();
-    )
-    const Grid& g = A.Grid();
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Int colStride = this->ColStride();
-    const Int rowStride = this->RowStride();
-    const Int p = g.Size();
-    this->Resize( m, n );
-
-    const Int colAlign = this->ColAlign();
-    const Int rowAlign = this->RowAlign();
-    const Int mLocal = this->LocalHeight();
-    const Int nLocal = this->LocalWidth();
-    const Int pkgSize = mpi::Pad(MaxLength(m,colStride)*MaxLength(n,rowStride));
-    const Int recvSize = pkgSize;
-    const Int sendSize = p*pkgSize;
-    T* recvBuf=0; // some compilers (falsely) warn otherwise
-    if( A.Participating() )
-    {
-        T* buffer = this->auxMemory_.Require( sendSize + recvSize );
-        T* sendBuf = &buffer[0];
-        recvBuf = &buffer[sendSize];
-
-        // Pack the send buffer
-        const Int ALDim = A.LDim();
-        const T* ABuf = A.LockedBuffer();
-        for( Int t=0; t<rowStride; ++t )
-        {
-            const Int tLocalWidth = Length( n, t, rowStride );
-            // NOTE: switched vs. [MC,MR] variant of [o, o] redist
-            const Int row = (rowAlign+t) % rowStride;
-            for( Int s=0; s<colStride; ++s )
-            {
-                const Int sLocalHeight = Length( m, s, colStride );
-                // NOTE: switched vs. [MC,MR] variant of [o, o] redist
-                const Int col = (colAlign+s) % colStride;
-                const Int q = row + col*colStride;
-                for( Int jLoc=0; jLoc<tLocalWidth; ++jLoc )
-                {
-                    const Int j = t + jLoc*rowStride;
-                    for( Int iLoc=0; iLoc<sLocalHeight; ++iLoc )
-                    {
-                        const Int i = s + iLoc*colStride;
-                        sendBuf[q*pkgSize+iLoc+jLoc*sLocalHeight] =
-                            ABuf[i+j*ALDim];
-                    }
-                }
-            }
-        }
-
-        // Scatter from the root
-        mpi::Scatter
-        ( sendBuf, pkgSize, recvBuf, pkgSize, A.Root(), g.VCComm() );
-    }
-    else if( this->Participating() )
-    {
-        recvBuf = this->auxMemory_.Require( recvSize );
-
-        // Perform the receiving portion of the scatter from the non-root
-        mpi::Scatter
-        ( static_cast<T*>(0), pkgSize, 
-          recvBuf,            pkgSize, A.Root(), g.VCComm() );
-    }
-
-    if( this->Participating() )
-    {
-        // Unpack
-        const Int ldim = this->LDim();
-        T* buffer = this->Buffer();
-        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-            for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-                buffer[iLoc+jLoc*ldim] = recvBuf[iLoc+jLoc*mLocal];
-        this->auxMemory_.Release();
-    }
-
+    DEBUG_ONLY(CallStackEntry cse("[MR,MC] = [CIRC,CIRC]"))
+    copy::Scatter( A, *this );
     return *this;
 }
 

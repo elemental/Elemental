@@ -369,83 +369,8 @@ DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("[MC,MR] = [CIRC,CIRC]");
-        AssertSameGrids( *this, A );
-        this->AssertNotLocked();
-    )
-    const Grid& g = A.Grid();
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Int colStride = this->ColStride();
-    const Int rowStride = this->RowStride();
-    const Int p = g.Size();
-    this->Resize( m, n );
-
-    const Int colAlign = this->ColAlign();
-    const Int rowAlign = this->RowAlign();
-    const Int mLocal = this->LocalHeight();
-    const Int nLocal = this->LocalWidth();
-    const Int pkgSize = mpi::Pad(MaxLength(m,colStride)*MaxLength(n,rowStride));
-    const Int recvSize = pkgSize;
-    const Int sendSize = p*pkgSize;
-    T* recvBuf=0; // some compilers (falsely) warn otherwise
-    if( A.Participating() )
-    {
-        T* buffer = this->auxMemory_.Require( sendSize + recvSize );
-        T* sendBuf = &buffer[0];
-        recvBuf = &buffer[sendSize];
-
-        // Pack the send buffer
-        const Int ALDim = A.LDim();
-        const T* ABuffer = A.LockedBuffer();
-        for( Int t=0; t<rowStride; ++t )
-        {
-            const Int tLocalWidth = Length( n, t, rowStride );
-            const Int col = (rowAlign+t) % rowStride;
-            for( Int s=0; s<colStride; ++s )
-            {
-                const Int sLocalHeight = Length( m, s, colStride );
-                const Int row = (colAlign+s) % colStride;
-                const Int q = row + col*colStride;
-                for( Int jLoc=0; jLoc<tLocalWidth; ++jLoc ) 
-                {
-                    const Int j = t + jLoc*rowStride;
-                    for( Int iLoc=0; iLoc<sLocalHeight; ++iLoc )
-                    {
-                        const Int i = s + iLoc*colStride;
-                        sendBuf[q*pkgSize+iLoc+jLoc*sLocalHeight] = 
-                            ABuffer[i+j*ALDim];
-                    }
-                }
-            }
-        }
-
-        // Scatter from the root
-        mpi::Scatter
-        ( sendBuf, pkgSize, recvBuf, pkgSize, A.Root(), g.VCComm() );
-    }
-    else if( this->Participating() )
-    {
-        recvBuf = this->auxMemory_.Require( recvSize );
-
-        // Perform the receiving portion of the scatter from the non-root
-        mpi::Scatter
-        ( static_cast<T*>(0), pkgSize, 
-          recvBuf,            pkgSize, A.Root(), g.VCComm() );
-    }
-
-    if( this->Participating() )
-    {
-        // Unpack
-        const Int ldim = this->LDim();
-        T* buffer = this->Buffer();
-        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-            for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-                buffer[iLoc+jLoc*ldim] = recvBuf[iLoc+jLoc*mLocal];     
-        this->auxMemory_.Release();
-    }
-
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [CIRC,CIRC]"))
+    copy::Scatter( A, *this );
     return *this;
 }
 
@@ -506,18 +431,12 @@ void DM::CopyFromDifferentGrid( const DM& A )
     const Int rowRank = this->RowRank();
     const Int colStrideA = A.ColStride();
     const Int rowStrideA = A.RowStride();
-    const Int colRankA = A.ColRank();
-    const Int rowRankA = A.RowRank();
     const Int colGCD = GCD( colStride, colStrideA );
     const Int rowGCD = GCD( rowStride, rowStrideA );
     const Int colLCM = colStride*colStrideA / colGCD;
     const Int rowLCM = rowStride*rowStrideA / rowGCD;
     const Int numColSends = colStride / colGCD;
     const Int numRowSends = rowStride / rowGCD;
-    const Int localColStride = colLCM / colStride;
-    const Int localRowStride = rowLCM / rowStride;
-    const Int localColStrideA = numColSends;
-    const Int localRowStrideA = numRowSends;
 
     const Int colAlign = this->ColAlign();
     const Int rowAlign = this->RowAlign();
@@ -530,8 +449,8 @@ void DM::CopyFromDifferentGrid( const DM& A )
         return;
 
     const Int maxSendSize =
-        (A.Height()/(colStrideA*localColStrideA)+1) *
-        (A.Width()/(rowStrideA*localRowStrideA)+1);
+        (A.Height()/(colStrideA*numColSends)+1) *
+        (A.Width()/(rowStrideA*numRowSends)+1);
 
     // Translate the ranks from A's VC communicator to this's viewing so that
     // we can match send/recv communicators. Since A's VC communicator is not
@@ -579,12 +498,13 @@ void DM::CopyFromDifferentGrid( const DM& A )
 
     Int recvRow = 0; // avoid compiler warnings...
     if( inAGrid )
-        recvRow = Mod(Mod(colRankA-colAlignA,colStrideA)+colAlign,colStride);
+        recvRow = Mod(Mod(A.ColRank()-colAlignA,colStrideA)+colAlign,colStride);
     for( Int colSend=0; colSend<numColSends; ++colSend )
     {
         Int recvCol = 0; // avoid compiler warnings...
         if( inAGrid )
-            recvCol=Mod(Mod(rowRankA-rowAlignA,rowStrideA)+rowAlign,rowStride);
+            recvCol=Mod(Mod(A.RowRank()-rowAlignA,rowStrideA)+rowAlign,
+                        rowStride);
         for( Int rowSend=0; rowSend<numRowSends; ++rowSend )
         {
             mpi::Request sendRequest;
@@ -594,18 +514,11 @@ void DM::CopyFromDifferentGrid( const DM& A )
                 // Pack the data
                 Int sendHeight = Length(A.LocalHeight(),colSend,numColSends);
                 Int sendWidth = Length(A.LocalWidth(),rowSend,numRowSends);
-                const T* ABuffer = A.LockedBuffer();
-                const Int ALDim = A.LDim();
-                EL_PARALLEL_FOR
-                for( Int jLoc=0; jLoc<sendWidth; ++jLoc )
-                {
-                    const Int j = rowSend+jLoc*localRowStrideA;
-                    for( Int iLoc=0; iLoc<sendHeight; ++iLoc )
-                    {
-                        const Int i = colSend+iLoc*localColStrideA;
-                        sendBuf[iLoc+jLoc*sendHeight] = ABuffer[i+j*ALDim];
-                    }
-                }
+                copy::util::InterleaveMatrix
+                ( sendHeight, sendWidth,
+                  A.LockedBuffer(colSend,rowSend), 
+                  numColSends, numRowSends*A.LDim(),
+                  sendBuf, 1, sendHeight );
                 // Send data
                 const Int recvVCRank = recvRow + recvCol*colStride;
                 const Int recvViewingRank =
@@ -660,18 +573,12 @@ void DM::CopyFromDifferentGrid( const DM& A )
                           this->Grid().ViewingComm() );
                         
                         // Unpack the data
-                        T* buffer = this->Buffer();
-                        const Int ldim = this->LDim();
-                        EL_PARALLEL_FOR
-                        for( Int jLoc=0; jLoc<sendWidth; ++jLoc )
-                        {
-                            const Int j = localRowOffset+jLoc*localRowStride;
-                            for( Int iLoc=0; iLoc<sendHeight; ++iLoc )
-                            {
-                                const Int i = localColOffset+iLoc*localColStride;
-                                buffer[i+j*ldim] = recvBuf[iLoc+jLoc*sendHeight];
-                            }
-                        }
+                        copy::util::InterleaveMatrix
+                        ( sendHeight, sendWidth,
+                          recvBuf, 1, sendHeight,
+                          this->Buffer(localColOffset,localRowOffset), 
+                          colLCM/colStride, (rowLCM/rowStride)*this->LDim() );
+
                         // Set up the next send col
                         sendCol = (sendCol + rowStride) % rowStrideA;
                     }

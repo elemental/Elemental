@@ -23,12 +23,12 @@ void Gather
     const Int n = A.Width();
     B.Resize( m, n );
     if( A.CrossSize() != 1 )
-        LogicError("This routine does not yet support non-trivial cross-teams");
+        LogicError("Non-trivial cross teams not yet supported");
     if( !A.Grid().InGrid() )
         return;
 
-    const Int root = B.Root();
     // Translate the root into our DistComm (if possible)
+    const Int root = B.Root();
     const Int target = mpi::Translate( B.CrossComm(), root, A.DistComm() );
     if( target == mpi::UNDEFINED )
         return;
