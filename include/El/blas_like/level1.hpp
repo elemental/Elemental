@@ -267,6 +267,11 @@ void PartialRowSumScatter
 ( const DistMatrix<T,U,Partial<V>()>& A, 
         DistMatrix<T,U,        V   >& B );
 
+template<typename T>
+void Gather
+( const AbstractDistMatrix<T>& A,
+        DistMatrix<T,CIRC,CIRC>& B );
+
 namespace util {
 
 template<typename T>

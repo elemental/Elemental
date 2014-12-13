@@ -63,19 +63,6 @@ public:
 
     // Make a copy
     // -----------
-    type& operator=( const DistMatrix<T,MC,  MR  >& A );
-    type& operator=( const DistMatrix<T,MC,  STAR>& A );
-    type& operator=( const DistMatrix<T,STAR,MR  >& A );
-    type& operator=( const DistMatrix<T,MD,  STAR>& A );
-    type& operator=( const DistMatrix<T,STAR,MD  >& A );
-    type& operator=( const DistMatrix<T,MR,  MC  >& A );
-    type& operator=( const DistMatrix<T,MR,  STAR>& A );
-    type& operator=( const DistMatrix<T,STAR,MC  >& A );
-    type& operator=( const DistMatrix<T,VC,  STAR>& A );
-    type& operator=( const DistMatrix<T,STAR,VC  >& A );
-    type& operator=( const DistMatrix<T,VR,  STAR>& A );
-    type& operator=( const DistMatrix<T,STAR,VR  >& A );
-    type& operator=( const DistMatrix<T,STAR,STAR>& A );
     type& operator=( const DistMatrix<T,CIRC,CIRC>& A );
     type& operator=( const AbstractDistMatrix<T>& A );
     void CopyFromRoot( const Matrix<T>& A, bool includingViewers=false );
@@ -101,11 +88,6 @@ public:
     Int RedundantSize() const override;
 
 private:
-    template<Dist U,Dist V>
-    void CollectFrom( const DistMatrix<T,U,V>& A );
-    template<Dist U,Dist V>
-    void Scatter( DistMatrix<T,U,V>& A ) const;
-
     // Friend declarations
     // ===================
     template<typename S,Dist U,Dist V> friend class DistMatrix;
