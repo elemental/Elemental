@@ -24,11 +24,11 @@ void Scatter
     const Int colStride = B.ColStride();
     const Int rowStride = B.RowStride();
     B.Resize( m, n );
-    if( A.CrossSize() != 1 )
+    if( B.CrossSize() != 1 )
         LogicError("Non-trivial cross teams not yet supported");
     // TODO: Broadcast over the redundant communicator and use mpi::Translate
     //       rank to determine whether a process is the root of the broadcast
-    if( A.RedundantSize() != 1 )
+    if( B.RedundantSize() != 1 )
         LogicError("Non-trivial redundant teams not yet supported");
 
     const Int pkgSize = mpi::Pad(MaxLength(m,colStride)*MaxLength(n,rowStride));
