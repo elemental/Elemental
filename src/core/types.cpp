@@ -22,12 +22,13 @@ std::string DistToString( Dist dist )
     std::string distString;
     switch( dist )
     {
-        case MC: distString = "MC"; break;
-        case MD: distString = "MD"; break;
-        case MR: distString = "MR"; break;
-        case VC: distString = "VC"; break;
-        case VR: distString = "VR"; break;
-        default: distString = "* "; break;
+        case CIRC: distString = "o "; break;
+        case MC:   distString = "MC";   break;
+        case MD:   distString = "MD";   break;
+        case MR:   distString = "MR";   break;
+        case VC:   distString = "VC";   break;
+        case VR:   distString = "VR";   break;
+        default:   distString = "* ";   break;
     }
     return distString;
 }
@@ -49,6 +50,8 @@ Dist StringToDist( std::string s )
         dist = VR;
     else if( s == "* " || s == " *" || s == "*" )
         dist = STAR;
+    else if( s == "o " || s == " o" || s == "o" )
+        dist = CIRC;
     else
         LogicError
         ("StringToDist expects string in "

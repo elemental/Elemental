@@ -223,81 +223,11 @@ DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
     return *this;
 }
 
-// NOTE: This is a small modification of [MC,MR] <- [CIRC,CIRC]
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("[VR,STAR] = [CIRC,CIRC]");
-        AssertSameGrids( *this, A );
-        this->AssertNotLocked();
-    )
-    const Grid& g = A.Grid();
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Int p = g.Size();
-    this->Resize( m, n );
-
-    // Convert A's root from its VC communicator to VR
-    const Int rootRow = A.Root() % g.Height();
-    const Int rootCol = A.Root() / g.Height();
-    const Int rootVR = rootCol + rootRow*g.Width();
-
-    const Int colAlign = this->ColAlign();
-    const Int mLocal = this->LocalHeight();
-    const Int pkgSize = mpi::Pad(MaxLength(m,p)*n);
-    const Int recvSize = pkgSize;
-    const Int sendSize = p*pkgSize;
-    T* recvBuf=0; // some compilers (falsely) warn otherwise
-    if( A.Participating() )
-    {
-        T* buffer = this->auxMemory_.Require( sendSize + recvSize );
-        T* sendBuf = &buffer[0];
-        recvBuf = &buffer[sendSize];
-
-        // Pack the send buffer
-        const Int ALDim = A.LDim();
-        const T* ABuf = A.LockedBuffer();
-        for( Int s=0; s<p; ++s )
-        {
-            const Int sLocalHeight = Length( m, s, p );
-            const Int q = (colAlign+s) % p;
-            for( Int j=0; j<n; ++j )
-            {
-                for( Int iLoc=0; iLoc<sLocalHeight; ++iLoc )
-                {
-                    const Int i = s + iLoc*p;
-                    sendBuf[q*pkgSize+iLoc+j*sLocalHeight] =
-                        ABuf[i+j*ALDim];
-                }
-            }
-        }
-
-        // Scatter from the root
-        mpi::Scatter
-        ( sendBuf, pkgSize, recvBuf, pkgSize, rootVR, g.VRComm() );
-    }
-    else if( this->Participating() )
-    {
-        recvBuf = this->auxMemory_.Require( recvSize );
-
-        // Perform the receiving portion of the scatter from the non-root
-        mpi::Scatter
-        ( static_cast<T*>(0), pkgSize, 
-          recvBuf,            pkgSize, rootVR, g.VRComm() );
-    }
-
-    if( this->Participating() )
-    {
-        // Unpack
-        const Int ldim = this->LDim();
-        T* buffer = this->Buffer();
-        for( Int j=0; j<n; ++j )
-            for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-                buffer[iLoc+j*ldim] = recvBuf[iLoc+j*mLocal];
-        this->auxMemory_.Release();
-    }
-
+    DEBUG_ONLY(CallStackEntry cse("[VR,STAR] = [CIRC,CIRC]"))
+    copy::Scatter( A, *this );
     return *this;
 }
 

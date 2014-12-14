@@ -222,78 +222,11 @@ DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
     return *this;
 }
 
-// NOTE: This is a small modification of [MC,MR] <- [CIRC,CIRC]
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("[VR,STAR] = [CIRC,CIRC]");
-        AssertSameGrids( *this, A );
-        this->AssertNotLocked();
-    )
-    const Grid& g = A.Grid();
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Int p = g.Size();
-    this->Resize( m, n );
-
-    // Convert A's root from its VC communicator to VR
-    const Int rootRow = A.Root() % g.Height();
-    const Int rootCol = A.Root() / g.Height();
-    const Int rootVR = rootCol + rootRow*g.Width();
-
-    const Int rowAlign = this->RowAlign();
-    const Int nLocal = this->LocalWidth();
-    const Int pkgSize = mpi::Pad(m*MaxLength(n,p));
-    const Int recvSize = pkgSize;
-    const Int sendSize = p*pkgSize;
-    T* recvBuf=0; // some compilers (falsely) warn otherwise
-    if( A.Participating() )
-    {
-        T* buffer = this->auxMemory_.Require( sendSize + recvSize );
-        T* sendBuf = &buffer[0];
-        recvBuf = &buffer[sendSize];
-
-        // Pack the send buffer
-        const Int ALDim = A.LDim();
-        const T* ABuf = A.LockedBuffer();
-        for( Int t=0; t<p; ++t )
-        {
-            const Int tLocalWidth = Length( n, t, p );
-            const Int q = (rowAlign+t) % p;
-            for( Int jLoc=0; jLoc<tLocalWidth; ++jLoc )
-            {
-                const Int j = t + jLoc*p;
-                for( Int i=0; i<m; ++i )
-                    sendBuf[q*pkgSize+i+jLoc*m] = ABuf[i+j*ALDim];
-            }
-        }
-
-        // Scatter from the root
-        mpi::Scatter
-        ( sendBuf, pkgSize, recvBuf, pkgSize, rootVR, g.VRComm() );
-    }
-    else if( this->Participating() )
-    {
-        recvBuf = this->auxMemory_.Require( recvSize );
-
-        // Perform the receiving portion of the scatter from the non-root
-        mpi::Scatter
-        ( static_cast<T*>(0), pkgSize, 
-          recvBuf,            pkgSize, rootVR, g.VRComm() );
-    }
-
-    if( this->Participating() )
-    {
-        // Unpack
-        const Int ldim = this->LDim();
-        T* buffer = this->Buffer();
-        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-            for( Int i=0; i<m; ++i )
-                buffer[i+jLoc*ldim] = recvBuf[i+jLoc*m];
-        this->auxMemory_.Release();
-    }
-
+    DEBUG_ONLY(CallStackEntry cse("[VR,STAR] = [CIRC,CIRC]"))
+    copy::Scatter( A, *this );
     return *this;
 }
 

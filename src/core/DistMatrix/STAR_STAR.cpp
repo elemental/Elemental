@@ -60,6 +60,9 @@ DM& DM::operator=( const DM& A )
             ("Redistributing between nonmatching grids currently requires"
              " the viewing communicators to match.");
 
+        // TODO: Use mpi::Translate to simplify the logic and remove move this
+        //       routine into the 'copy' namespace
+
         // Compute and allocate the amount of required memory
         Int requiredMemory = 0;
         if( A.Grid().VCRank() == 0 )
