@@ -186,6 +186,10 @@ namespace copy {
 template<typename T,Dist U,Dist V>
 void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B );
 
+// NOTE: Only instantiated for (U,V)=(MC,MR) and (U,V)=(MR,MC)
+template<typename T,Dist U,Dist V>
+void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B );
+
 template<typename T,Dist U,Dist V>
 void Filter
 ( const DistMatrix<T,Collect<U>(),Collect<V>()>& A,
@@ -291,6 +295,12 @@ void ColStridedPack
   const T* A,         Int ALDim,
         T* BPortions, Int portionSize );
 template<typename T>
+void ColStridedColumPack
+( Int height, 
+  Int colAlign, Int colStride,
+  const T* A, 
+        T* BPortions, Int portionSize );
+template<typename T>
 void ColStridedUnpack
 ( Int height, Int width,
   Int colAlign, Int colStride,
@@ -305,6 +315,14 @@ void PartialColStridedPack
   const T* A,         Int ALDim,
         T* BPortions, Int portionSize );
 template<typename T>
+void PartialColStridedColumnPack
+( Int height, 
+  Int colAlign, Int colStride,
+  Int colStrideUnion, Int colStridePart, Int colRankPart,
+  Int colShiftA,
+  const T* A,
+        T* BPortions, Int portionSize );
+template<typename T>
 void PartialColStridedUnpack
 ( Int height, Int width,
   Int colAlign, Int colStride,
@@ -312,6 +330,14 @@ void PartialColStridedUnpack
   Int colShiftB,
   const T* APortions, Int portionSize,
         T* B,         Int BLDim );
+template<typename T>
+void PartialColStridedColumnUnpack
+( Int height,
+  Int colAlign, Int colStride,
+  Int colStrideUnion, Int colStridePart, Int colRankPart,
+  Int colShiftB,
+  const T* APortions, Int portionSize,
+        T* B );
 
 template<typename T>
 void RowStridedPack

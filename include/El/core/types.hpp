@@ -181,6 +181,11 @@ Dist StringToDist( std::string s );
 using namespace DistNS;
 typedef Dist Distribution;
 
+// Return either the row or column piece of the implied diagonal distribution
+// ==========================================================================
+
+// Compile-time
+// ------------
 template<Dist U,Dist V> constexpr Dist DiagCol() { return ( U==STAR ? V : U ); }
 template<Dist U,Dist V> constexpr Dist DiagRow() { return ( U==STAR ? U : V ); }
 template<> constexpr Dist DiagCol<MC,MR>() { return MD; }
@@ -188,6 +193,8 @@ template<> constexpr Dist DiagRow<MC,MR>() { return STAR; }
 template<> constexpr Dist DiagCol<MR,MC>() { return MD; }
 template<> constexpr Dist DiagRow<MR,MC>() { return STAR; }
 
+// Runtime
+// -------
 inline Dist DiagCol( Dist U, Dist V )
 { 
     if( U == MC && V == MR )
@@ -199,7 +206,6 @@ inline Dist DiagCol( Dist U, Dist V )
     else
         return U;
 }
-
 inline Dist DiagRow( Dist U, Dist V )
 {
     if( U == MC && V == MR )
@@ -212,27 +218,41 @@ inline Dist DiagRow( Dist U, Dist V )
         return V;
 }
 
+// Return a piece of a distribution which induces the given diagonal dist
+// ======================================================================
+
+// Compile-time
+// ------------
 template<Dist U,Dist V>
 constexpr Dist DiagInvCol() { return ( U==STAR ? V : U ); }
 template<Dist U,Dist V>
 constexpr Dist DiagInvRow() { return ( U==STAR ? U : V ); }
-
 template<> constexpr Dist DiagInvCol<MD,STAR>() { return MC; }
 template<> constexpr Dist DiagInvRow<MD,STAR>() { return MR; }
 template<> constexpr Dist DiagInvCol<STAR,MD>() { return MC; }
 template<> constexpr Dist DiagInvRow<STAR,MD>() { return MR; }
 
+// TODO: Runtime version?
+
+// Union the distribution over its corresponding communicator
+// ==========================================================
 // Compile-time
+// ------------
 template<Dist U> constexpr Dist Collect()       { return STAR; }
 template<>       constexpr Dist Collect<CIRC>() { return CIRC; }
 // Run-time
+// --------
 inline Dist Collect( Dist U ) { return ( U==CIRC ? CIRC : STAR ); }
 
+// Union the distribution over its corresponding partial communicator
+// ==================================================================
 // Compile-time
+// ------------
 template<Dist U> constexpr Dist Partial() { return U; }
 template<>       constexpr Dist Partial<VC>() { return MC; }
 template<>       constexpr Dist Partial<VR>() { return MR; }
 // Run-time
+// --------
 inline Dist Partial( Dist U ) 
 { 
     if( U == VC ) 
@@ -243,11 +263,16 @@ inline Dist Partial( Dist U )
         return U;
 }
 
+// Return the partial distribution that would be used for a partial union
+// ======================================================================
 // Compile-time
+// ------------
 template<Dist U,Dist V> constexpr Dist PartialUnionRow()          { return V;  }
 template<>              constexpr Dist PartialUnionRow<VC,STAR>() { return MR; }
-template<>              constexpr Dist PartialUnionRow<VR,STAR>() { return MC; }
+template<>              constexpr Dist PartialUnionRow<VR,STAR>() { return MC; }template<Dist U,Dist V> constexpr Dist PartialUnionCol() 
+{ return PartialUnionRow<V,U>(); }
 // Run-time
+// --------
 inline Dist PartialUnionRow( Dist U, Dist V )
 { 
     if( U == VC )
@@ -257,13 +282,47 @@ inline Dist PartialUnionRow( Dist U, Dist V )
     else
         return V;
 }
-
-// Compile-time
-template<Dist U,Dist V> constexpr Dist PartialUnionCol() 
-{ return PartialUnionRow<V,U>(); }
-// Run-time
 inline Dist PartialUnionCol( Dist U, Dist V )
 { return PartialUnionRow( V, U ); }
+
+// Return the product of two distributions
+// =======================================
+// Compile-time
+// ------------
+template<Dist U,Dist V> constexpr Dist ProductDist() { return CIRC; }
+template<>              constexpr Dist ProductDist<MC,  MR  >() { return VC;   }
+template<>              constexpr Dist ProductDist<MC,  STAR>() { return MC;   }
+template<>              constexpr Dist ProductDist<MD,  STAR>() { return MD;   }
+template<>              constexpr Dist ProductDist<MR,  MC  >() { return VR;   }
+template<>              constexpr Dist ProductDist<MR,  STAR>() { return MR;   }
+template<>              constexpr Dist ProductDist<STAR,MC  >() { return MC;   }
+template<>              constexpr Dist ProductDist<STAR,MD  >() { return MD;   }
+template<>              constexpr Dist ProductDist<STAR,MR  >() { return MR;   }
+template<>              constexpr Dist ProductDist<STAR,STAR>() { return STAR; }
+template<>              constexpr Dist ProductDist<STAR,VC  >() { return VC;   }
+template<>              constexpr Dist ProductDist<STAR,VR  >() { return VR;   }
+template<>              constexpr Dist ProductDist<VC,  STAR>() { return VC;   }
+template<>              constexpr Dist ProductDist<VR,  STAR>() { return VR;   }
+template<Dist U,Dist V> 
+constexpr Dist ProductDistPartner() { return STAR; }
+template<> 
+constexpr Dist ProductDistPartner<CIRC,CIRC>() { return CIRC; }
+// Runtime
+// -------
+inline Dist ProductDist( Dist U, Dist V )
+{
+    if(      U == STAR ) return V;
+    else if( V == STAR ) return U;
+    else if( U == MC   && V == MR   ) return VC;
+    else if( U == MR   && V == MC   ) return VR;
+    else if( U == CIRC && V == CIRC ) return CIRC;
+    else { return STAR; } // NOTE: This branch should not be possible
+}
+inline Dist ProductDistPartner( Dist U, Dist V )
+{
+    if( U == CIRC && V == CIRC ) return CIRC;
+    else                         return STAR;
+}
 
 namespace ViewTypeNS {
 enum ViewType

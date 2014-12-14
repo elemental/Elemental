@@ -106,7 +106,7 @@ void PartialColAllGather
         // Unpack
         util::PartialColStridedUnpack
         ( height, width,
-          B.ColAlign(), A.ColStride(),
+          A.ColAlign()+colDiff, A.ColStride(),
           colStrideUnion, colStridePart, A.PartialColRank(),
           B.ColShift(), 
           secondBuf, portionSize,

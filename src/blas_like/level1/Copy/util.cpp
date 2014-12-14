@@ -51,6 +51,24 @@ void ColStridedPack
     }
 }
 
+// TODO: Use this routine
+template<typename T>
+void ColStridedColumnPack
+( Int height, 
+  Int colAlign, Int colStride,
+  const T* A,
+        T* BPortions, Int portionSize )
+{
+    for( Int k=0; k<colStride; ++k )
+    {
+        const Int colShift = Shift_( k, colAlign, colStride );
+        const Int localHeight = Length_( height, colShift, colStride );
+        StridedMemCopy
+        ( &BPortions[k*portionSize], 1, 
+          &A[colShift],              colStride, localHeight );
+    }
+}
+
 template<typename T>
 void ColStridedUnpack
 ( Int height, Int width,
@@ -92,6 +110,27 @@ void PartialColStridedPack
 }
 
 template<typename T>
+void PartialColStridedColumnPack
+( Int height, 
+  Int colAlign, Int colStride,
+  Int colStrideUnion, Int colStridePart, Int colRankPart,
+  Int colShiftA,
+  const T* A, 
+        T* BPortions, Int portionSize )
+{
+    for( Int k=0; k<colStrideUnion; ++k )
+    {
+        const Int colShift =
+            Shift_( colRankPart+k*colStridePart, colAlign, colStride );
+        const Int colOffset = (colShift-colShiftA) / colStridePart;
+        const Int localHeight = Length_( height, colShift, colStride );
+        StridedMemCopy
+        ( &BPortions[k*portionSize], 1,
+          &A[colOffset],             colStrideUnion, localHeight );
+    }
+}
+
+template<typename T>
 void PartialColStridedUnpack
 ( Int height, Int width,
   Int colAlign, Int colStride,
@@ -110,6 +149,27 @@ void PartialColStridedUnpack
         ( localHeight, width,
           &APortions[k*portionSize], 1,              localHeight,
           &B[colOffset],             colStrideUnion, BLDim );
+    }
+}
+
+template<typename T>
+void PartialColStridedColumnUnpack
+( Int height, 
+  Int colAlign, Int colStride,
+  Int colStrideUnion, Int colStridePart, Int colRankPart,
+  Int colShiftB,
+  const T* APortions, Int portionSize,
+        T* B )
+{
+    for( Int k=0; k<colStrideUnion; ++k )
+    {
+        const Int colShift =
+            Shift_( colRankPart+k*colStridePart, colAlign, colStride );
+        const Int colOffset = (colShift-colShiftB) / colStridePart;
+        const Int localHeight = Length_( height, colShift, colStride );
+        StridedMemCopy
+        ( &B[colOffset],             colStrideUnion,
+          &APortions[k*portionSize], 1,              localHeight );
     }
 }
 
@@ -252,6 +312,11 @@ void StridedUnpack
     Int colAlign, Int colStride, \
     const T* A,         Int ALDim, \
           T* BPortions, Int portionSize ); \
+  template void ColStridedColumnPack \
+  ( Int height, \
+    Int colAlign, Int colStride, \
+    const T* A, \
+          T* BPortions, Int portionSize ); \
   template void ColStridedUnpack \
   ( Int height, Int width, \
     Int colAlign, Int colStride, \
@@ -264,6 +329,13 @@ void StridedUnpack
     Int colShiftA, \
     const T* A,         Int ALDim, \
           T* BPortions, Int portionSize ); \
+  template void PartialColStridedColumnPack \
+  ( Int height, \
+    Int colAlign, Int colStride, \
+    Int colStrideUnion, Int colStridePart, Int colRankPart, \
+    Int colShiftA, \
+    const T* A, \
+          T* BPortions, Int portionSize ); \
   template void PartialColStridedUnpack \
   ( Int height, Int width, \
     Int colAlign, Int colStride, \
@@ -271,6 +343,13 @@ void StridedUnpack
     Int colShiftB, \
     const T* APortions, Int portionSize, \
           T* B,         Int BLDim ); \
+  template void PartialColStridedColumnUnpack \
+  ( Int height, \
+    Int colAlign, Int colStride, \
+    Int colStrideUnion, Int colStridePart, Int colRankPart, \
+    Int colShiftB, \
+    const T* APortions, Int portionSize, \
+          T* B ); \
   template void RowStridedPack \
   ( Int height, Int width, \
     Int rowAlign, Int rowStride, \

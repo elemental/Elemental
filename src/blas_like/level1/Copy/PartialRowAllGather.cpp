@@ -89,7 +89,7 @@ void PartialRowAllGather
         // Unpack
         util::PartialRowStridedUnpack
         ( height, width,
-          B.RowAlign(), rowStride,
+          A.RowAlign()+rowDiff, rowStride,
           rowStrideUnion, rowStridePart, rowRankPart,
           B.RowShift(),
           secondBuf, portionSize,
