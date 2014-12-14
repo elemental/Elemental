@@ -7,6 +7,6 @@
 [submodule "external/metis"]
 	path = external/metis
 	url = git://github.com/poulson/metis.git
-[submodule "external/KISS-FFT"]
+[submodule "external/kiss_fft"]
 	path = external/kiss_fft
 	url = git://github.com/poulson/kiss_fft.git
