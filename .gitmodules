@@ -6,7 +6,7 @@
 	url = https://github.com/xianyi/OpenBLAS.git
 [submodule "external/metis"]
 	path = external/metis
-	url = git://github.com/poulson/metis.git
-[submodule "external/KISS-FFT"]
+	url = https://github.com/poulson/metis.git
+[submodule "external/kiss_fft"]
 	path = external/kiss_fft
-	url = git://github.com/poulson/KISS-FFT.git
+	url = https://github.com/poulson/kiss_fft.git
