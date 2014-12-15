@@ -188,9 +188,13 @@ void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B );
 
 // NOTE: Only instantiated for (U,V)=(MC,MR) and (U,V)=(MR,MC)
 template<typename T,Dist U,Dist V>
-void ColumnwiseVectorExchange
+void ColwiseVectorExchange
 ( const DistMatrix<T,ProductDist<U,V>(),STAR>& A,
         DistMatrix<T,ProductDist<V,U>(),STAR>& B );
+template<typename T,Dist U,Dist V>
+void RowwiseVectorExchange
+( const DistMatrix<T,STAR,ProductDist<U,V>()>& A,
+        DistMatrix<T,STAR,ProductDist<V,U>()>& B );
 
 // NOTE: Only instantiated for (U,V)=(MC,MR) and (U,V)=(MR,MC)
 template<typename T,Dist U,Dist V>

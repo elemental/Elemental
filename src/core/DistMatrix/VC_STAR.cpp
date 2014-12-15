@@ -139,7 +139,7 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [VR,STAR]"))
-    copy::ColumnwiseVectorExchange<T,MR,MC>( A, *this );
+    copy::ColwiseVectorExchange<T,MR,MC>( A, *this );
     return *this;
 }
 

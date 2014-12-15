@@ -12,39 +12,26 @@ namespace El {
 namespace copy {
 
 template<typename T,Dist U,Dist V>
-void ColumnwiseVectorExchange
+void ColwiseVectorExchange
 ( const DistMatrix<T,ProductDist<U,V>(),STAR>& A,
         DistMatrix<T,ProductDist<V,U>(),STAR>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::ColumnwiseVectorExchange"))
+    DEBUG_ONLY(CallStackEntry cse("copy::ColwiseVectorExchange"))
     AssertSameGrids( A, B );
 
     B.Resize( A.Height(), A.Width() );
     if( !B.Participating() )
         return;
 
-    const Int distSize = A.DistSize();
-
     const Int width = B.Width();
     const Int localHeightA = A.LocalHeight();
     const Int localHeightB = B.LocalHeight();
-    const Int maxLocalHeight = MaxLength(B.Height(),distSize);
 
-    const Int portionSize = maxLocalHeight * width;
-
-    // Compute which rowmajor rank has the colShift equal to our colShiftA
-    const Int colDiff = A.ColShift() - B.ColShift();
-    const Int sendRankB = Mod( B.DistRank()+colDiff, distSize );
-
-    // Compute which rowmajor rank has the A colShift that we need
-    const Int recvRankA = Mod( A.DistRank()-colDiff, distSize );
-    const Int recvRankB =
-      (recvRankA/A.PartialColStride())+
-      (recvRankA%A.PartialColStride())*A.PartialUnionColStride();
-
-    std::vector<T> buffer( 2*portionSize );
+    const Int sendSize = localHeightA*width;
+    const Int recvSize = localHeightB*width;
+    std::vector<T> buffer( sendSize+recvSize );
     T* sendBuf = &buffer[0];
-    T* recvBuf = &buffer[portionSize];
+    T* recvBuf = &buffer[sendSize];
 
     // Pack
     copy::util::InterleaveMatrix
@@ -53,9 +40,16 @@ void ColumnwiseVectorExchange
       sendBuf,          1, localHeightA );
 
     // Communicate
+    const Int distSize = A.DistSize();
+    const Int colDiff = A.ColShift() - B.ColShift();
+    const Int sendRankB = Mod( B.DistRank()+colDiff, distSize );
+    const Int recvRankA = Mod( A.DistRank()-colDiff, distSize );
+    const Int recvRankB =
+      (recvRankA/A.PartialColStride())+
+      (recvRankA%A.PartialColStride())*A.PartialUnionColStride();
     mpi::SendRecv
-    ( sendBuf, portionSize, sendRankB,
-      recvBuf, portionSize, recvRankB, B.DistComm() );
+    ( sendBuf, sendSize, sendRankB,
+      recvBuf, recvSize, recvRankB, B.DistComm() );
 
     // Unpack
     copy::util::InterleaveMatrix
@@ -65,7 +59,7 @@ void ColumnwiseVectorExchange
 }
 
 #define PROTO_DIST(T,U,V) \
-  template void ColumnwiseVectorExchange<T,U,V> \
+  template void ColwiseVectorExchange<T,U,V> \
   ( const DistMatrix<T,ProductDist<U,V>(),STAR>& A, \
           DistMatrix<T,ProductDist<V,U>(),STAR>& B );
 
