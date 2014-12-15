@@ -158,7 +158,7 @@ Int NumNonSecondOrder
     // Allgather the list of cones with sufficiently large order
     // ---------------------------------------------------------
     std::vector<Real> sendCaps;
-    std::vector<Int> sendCones;
+    std::vector<Int> sendCones, sendOrders;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
@@ -168,23 +168,34 @@ Int NumNonSecondOrder
         {
             sendCaps.push_back(x.GetLocal(iLoc,0));
             sendCones.push_back(i);
+            sendOrders.push_back(order);
         }
     }
     int numSendCones = sendCones.size();
     std::vector<int> numRecvCones(commSize);
-    mpi::AllToAll( &numSendCones, 1, numRecvCones.data(), 1, comm );
+    mpi::AllGather( &numSendCones, 1, numRecvCones.data(), 1, comm );
     totalRecv = Scan( numRecvCones, recvOffsets );
     std::vector<Real> recvCaps(totalRecv);
-    std::vector<Int> recvCones(totalRecv);
+    std::vector<Int> recvCones(totalRecv), recvOrders(totalRecv);
     mpi::AllGather
     ( sendCaps.data(), numSendCones,
       recvCaps.data(), numRecvCones.data(), recvOffsets.data(), comm );
     mpi::AllGather
     ( sendCones.data(), numSendCones,
       recvCones.data(), numRecvCones.data(), recvOffsets.data(), comm );
-    // TODO: Perform a sequence of mpi::AllReduce calls to simultaneously
-    //       safely compute the bottom vector norms
-    LogicError("This routine is not yet finished");
+    mpi::AllGather
+    ( sendOrders.data(), numSendCones,
+      recvOrders.data(), numRecvCones.data(), recvOffsets.data(), comm );
+    for( Int largeCone=0; largeCone<totalRecv; ++largeCone )
+    {
+        const Int i = recvCones[largeCone];
+        const Real t = recvCaps[largeCone];
+        const Int order = recvOrders[largeCone];
+        auto xBot = x( IR(i+1,i+order), IR(0,1) );
+        const Real xBotNrm = Nrm2( xBot );
+        if( t < xBotNrm )
+            ++numNonSO;
+    }
 
     return numNonSO;
 }
@@ -290,7 +301,7 @@ Int NumNonSecondOrder
     // Allgather the list of cones with sufficiently large order
     // ---------------------------------------------------------
     std::vector<Real> sendCaps;
-    std::vector<Int> sendCones;
+    std::vector<Int> sendCones, sendOrders;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
@@ -300,23 +311,40 @@ Int NumNonSecondOrder
         {
             sendCaps.push_back(x.GetLocal(iLoc,0));
             sendCones.push_back(i);
+            sendOrders.push_back(order);
         }
     }
     int numSendCones = sendCones.size();
     std::vector<int> numRecvCones(commSize);
-    mpi::AllToAll( &numSendCones, 1, numRecvCones.data(), 1, comm );
+    mpi::AllGather( &numSendCones, 1, numRecvCones.data(), 1, comm );
     totalRecv = Scan( numRecvCones, recvOffsets ); 
     std::vector<Real> recvCaps(totalRecv);
-    std::vector<Int> recvCones(totalRecv);
+    std::vector<Int> recvCones(totalRecv), recvOrders(totalRecv);
     mpi::AllGather
     ( sendCaps.data(), numSendCones,
       recvCaps.data(), numRecvCones.data(), recvOffsets.data(), comm );
     mpi::AllGather
     ( sendCones.data(), numSendCones,
       recvCones.data(), numRecvCones.data(), recvOffsets.data(), comm );
-    // TODO: Perform a sequence of mpi::AllReduce calls to simultaneously
-    //       safely compute the bottom vector norms
-    LogicError("This routine is not yet finished");
+    mpi::AllGather
+    ( sendOrders.data(), numSendCones,
+      recvOrders.data(), numRecvCones.data(), recvOffsets.data(), comm );
+    for( Int largeCone=0; largeCone<totalRecv; ++largeCone )
+    {
+        const Int i = recvCones[largeCone];
+        const Real t = recvCaps[largeCone];
+        const Int order = recvOrders[largeCone];
+
+        // Compute the two-norm of x( i+1:i+order, 0 )
+        Real xBotSqLoc = 0;
+        const Int iFirst = x.FirstLocalRow();
+        const Int iLast = iFirst + x.LocalHeight();
+        for( Int j=Max(iFirst,i+1); j<Min(iLast,i+order); ++j )
+            xBotSqLoc += Pow(x.GetLocal(j-iFirst,0),Real(2));
+        const Real xBotNrm = mpi::AllReduce( xBotSqLoc, x.Comm() );
+        if( t < xBotNrm )
+            ++numNonSO;
+    }
 
     return numNonSO;
 }
