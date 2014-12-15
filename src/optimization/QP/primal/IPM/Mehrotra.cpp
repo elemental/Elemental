@@ -13,6 +13,9 @@ namespace El {
 namespace qp {
 namespace primal {
 
+// TODO: Experiment with running a few iterations of IPF until the residuals
+//       are sufficiently low before switching to Mehrotra's scheme
+
 // The following solves a quadratic program in "primal" conic form:
 //
 //   min 1/2 x^T Q x + c^T x

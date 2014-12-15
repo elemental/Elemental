@@ -185,9 +185,17 @@ namespace copy {
 
 template<typename T,Dist U,Dist V>
 void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B );
+
 template<typename T>
 void TranslateBetweenGrids
 ( const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B );
+template<typename T>
+void TranslateBetweenGrids
+( const DistMatrix<T,STAR,STAR>& A, DistMatrix<T,STAR,STAR>& B );
+// The fallback case that simply throws an exception
+template<typename T,Dist U,Dist V>
+void TranslateBetweenGrids
+( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B );
 
 // NOTE: Only instantiated for (U,V)=(MC,MR) and (U,V)=(MR,MC)
 template<typename T,Dist U,Dist V>
@@ -292,6 +300,10 @@ template<typename T>
 void Scatter
 ( const DistMatrix<T,CIRC,CIRC>& A,
         AbstractDistMatrix<T>& B );
+template<typename T>
+void Scatter
+( const DistMatrix<T,CIRC,CIRC>& A,
+        DistMatrix<T,STAR,STAR>& B );
 
 namespace util {
 

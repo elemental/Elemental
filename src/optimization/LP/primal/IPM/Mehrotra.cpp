@@ -13,6 +13,9 @@ namespace El {
 namespace lp {
 namespace primal {
 
+// TODO: Experiment with running a few iterations of IPF until the residuals
+//       are sufficiently low before switching to Mehrotra's scheme
+
 // The following solves a linear program in "primal" conic form:
 //
 //   min c^T x

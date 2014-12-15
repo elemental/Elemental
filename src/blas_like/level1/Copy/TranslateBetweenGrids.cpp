@@ -12,11 +12,19 @@ namespace El {
 namespace copy {
 
 // TODO: Generalize to more distributions
+template<typename T,Dist U,Dist V>
+void TranslateBetweenGrids
+( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B ) 
+{
+    DEBUG_ONLY(CallStackEntry cse("copy::TranslateBetweenGrids"))
+    LogicError("General TranslateBetweenGrids not yet supported");
+}
+
 template<typename T>
 void TranslateBetweenGrids
 ( const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::TranslateBetweenGrids"))
+    DEBUG_ONLY(CallStackEntry cse("copy::TranslateBetweenGrids [MC,MR]"))
 
     B.Resize( A.Height(), A.Width() );
     // Just need to ensure that each viewing comm contains the other team's
@@ -197,9 +205,98 @@ void TranslateBetweenGrids
     }
 }
 
-#define PROTO(T) \
+template<typename T>
+void TranslateBetweenGrids
+( const DistMatrix<T,STAR,STAR>& A, DistMatrix<T,STAR,STAR>& B ) 
+{
+    DEBUG_ONLY(CallStackEntry cse("copy::TranslateBetweenGrids [STAR,STAR]"))
+    const Int height = A.Height();
+    const Int width = A.Width();
+    B.Resize( height, width );
+
+    // TODO:Decide whether this condition can be lifted or simplified.
+    mpi::Comm viewingCommA = A.Grid().ViewingComm();
+    mpi::Comm viewingCommB = B.Grid().ViewingComm();
+    if( !mpi::Congruent( viewingCommA, viewingCommB ) )
+        LogicError
+        ("Redistributing between nonmatching grids currently requires"
+         " the viewing communicators to match.");
+
+    const Int rankA = A.RedundantRank();
+    const Int rankB = B.RedundantRank();
+
+    // Compute and allocate the amount of required memory
+    Int requiredMemory = 0;
+    if( rankA == 0 ) 
+        requiredMemory += height*width;
+    if( B.Participating() )
+        requiredMemory += height*width;
+    std::vector<T> buffer( requiredMemory );
+    Int offset = 0;
+    T* sendBuf = &buffer[offset];
+    if( rankA == 0 ) 
+        offset += height*width;
+    T* bcastBuffer = &buffer[offset];
+
+    // Send from the root of A to the root of B's matrix's grid
+    mpi::Request sendRequest;
+    if( rankA == 0 ) 
+    {
+        util::InterleaveMatrix
+        ( height, width,
+          A.LockedBuffer(), 1, A.LDim(),
+          sendBuf,          1, height );
+        // TODO: Use mpi::Translate instead?
+        const Int recvViewingRank = B.Grid().VCToViewingMap(0);
+        mpi::ISend
+        ( sendBuf, height*width, recvViewingRank,
+          viewingCommB, sendRequest );
+    }
+
+    // Receive on the root of B's matrix's grid and then broadcast
+    // over the owning communicator
+    if( B.Participating() )
+    {
+        if( rankB == 0 ) 
+        {
+            // TODO: Use mpi::Translate instead?
+            const Int sendViewingRank = A.Grid().VCToViewingMap(0);
+            mpi::Recv
+            ( bcastBuffer, height*width, sendViewingRank,
+              viewingCommB );
+        }
+
+        mpi::Broadcast( bcastBuffer, height*width, 0, B.RedundantComm() );
+
+        util::InterleaveMatrix
+        ( height, width,
+          bcastBuffer, 1, height,
+          B.Buffer(),  1, B.LDim() );
+    }
+
+    if( rankA == 0 )
+        mpi::Wait( sendRequest );
+}
+
+#define PROTO_DIST(T,U,V) \
   template void TranslateBetweenGrids \
-  ( const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B );
+  ( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B );
+
+#define PROTO(T) \
+  PROTO_DIST(T,CIRC,CIRC) \
+  PROTO_DIST(T,MC,MR) \
+  PROTO_DIST(T,MC,STAR) \
+  PROTO_DIST(T,MD,STAR) \
+  PROTO_DIST(T,MR,MC) \
+  PROTO_DIST(T,MR,STAR) \
+  PROTO_DIST(T,STAR,MC) \
+  PROTO_DIST(T,STAR,MD) \
+  PROTO_DIST(T,STAR,MR) \
+  PROTO_DIST(T,STAR,STAR) \
+  PROTO_DIST(T,STAR,VC) \
+  PROTO_DIST(T,STAR,VR) \
+  PROTO_DIST(T,VC,STAR) \
+  PROTO_DIST(T,VR,STAR) 
 
 #include "El/macros/Instantiate.h"
 

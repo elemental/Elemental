@@ -48,10 +48,7 @@ template<typename T>
 DM& DM::operator=( const DM& A )
 {
     DEBUG_ONLY(CallStackEntry cse("DM[MC,MR] = DM[MC,MR]"))
-    if( this->Grid() == A.Grid() )
-        copy::Translate( A, *this );
-    else
-        this->CopyFromDifferentGrid( A );
+    copy::Translate( A, *this );
     return *this;
 }
 
@@ -216,16 +213,6 @@ template<typename T>
 Int DM::CrossSize() const { return 1; }
 template<typename T>
 Int DM::RedundantSize() const { return 1; }
-
-// Private section
-// ###############
-
-template<typename T>
-void DM::CopyFromDifferentGrid( const DM& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("[MC,MR]::CopyFromDifferentGrid"))
-    copy::TranslateBetweenGrids( A, *this );
-}
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################

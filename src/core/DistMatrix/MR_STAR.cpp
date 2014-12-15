@@ -79,6 +79,7 @@ DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
         return *this;
     }
 
+    // TODO: See if this special case can be automatically handled
     if( A.Width() == 1 )
     {
         this->Resize( A.Height(), 1 );

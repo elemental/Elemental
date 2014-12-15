@@ -103,7 +103,6 @@ public:
     Int RedundantSize() const override;
 
 private:
-    void CopyFromDifferentGrid( const type& );
     // Friend declarations
     // ===================
     template<typename S,Dist U,Dist V> friend class DistMatrix;

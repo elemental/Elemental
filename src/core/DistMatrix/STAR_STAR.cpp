@@ -46,73 +46,7 @@ template<typename T>
 DM& DM::operator=( const DM& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [STAR,STAR]"))
-    this->Resize( A.Height(), A.Width() );
-    if( this->Grid() == A.Grid() )
-    {
-        this->matrix_ = A.LockedMatrix();
-    }
-    else
-    {
-        // TODO: Remember why I wrote this...
-        if( !mpi::Congruent
-             ( A.Grid().ViewingComm(), this->Grid().ViewingComm() ) )
-            LogicError
-            ("Redistributing between nonmatching grids currently requires"
-             " the viewing communicators to match.");
-
-        // TODO: Use mpi::Translate to simplify the logic and remove move this
-        //       routine into the 'copy' namespace
-
-        // Compute and allocate the amount of required memory
-        Int requiredMemory = 0;
-        if( A.Grid().VCRank() == 0 )
-            requiredMemory += A.Height()*A.Width();
-        if( this->Participating() )
-            requiredMemory += A.Height()*A.Width();
-        T* buffer = this->auxMemory_.Require( requiredMemory );
-        Int offset = 0;
-        T* sendBuf = &buffer[offset];
-        if( A.Grid().VCRank() == 0 )
-            offset += A.Height()*A.Width();
-        T* bcastBuffer = &buffer[offset];
-
-        // Send from the root of A to the root of this matrix's grid
-        mpi::Request sendRequest;
-        if( A.Grid().VCRank() == 0 )
-        {
-            for( Int j=0; j<A.Width(); ++j )
-                for( Int i=0; i<A.Height(); ++i )
-                    sendBuf[i+j*A.Height()] = A.GetLocal(i,j);
-            const Int recvViewingRank = this->Grid().VCToViewingMap(0);
-            mpi::ISend
-            ( sendBuf, A.Height()*A.Width(), recvViewingRank,
-              this->Grid().ViewingComm(), sendRequest );
-        }
-
-        // Receive on the root of this matrix's grid and then broadcast
-        // over this matrix's owning communicator
-        if( this->Participating() )
-        {
-            if( this->Grid().VCRank() == 0 )
-            {
-                const Int sendViewingRank = A.Grid().VCToViewingMap(0);
-                mpi::Recv
-                ( bcastBuffer, A.Height()*A.Width(), sendViewingRank,
-                  this->Grid().ViewingComm() );
-            }
-
-            mpi::Broadcast
-            ( bcastBuffer, A.Height()*A.Width(), 0, this->Grid().VCComm() );
-
-            for( Int j=0; j<A.Width(); ++j )
-                for( Int i=0; i<A.Height(); ++i )
-                    this->SetLocal(i,j,bcastBuffer[i+j*A.Height()]);
-        }
-
-        if( A.Grid().VCRank() == 0 )
-            mpi::Wait( sendRequest );
-        this->auxMemory_.Release();
-    }
+    copy::Translate( A, *this );
     return *this;
 }
 
@@ -216,37 +150,7 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [CIRC,CIRC]"))
-    const Grid& g = A.Grid();
-    const Int m = A.Height(); 
-    const Int n = A.Width();
-    this->Resize( A.Height(), A.Width() );
-
-    if( this->Participating() )
-    {
-        const Int pkgSize = mpi::Pad( m*n );
-        T* commBuffer = this->auxMemory_.Require( pkgSize );
-
-        if( A.Participating() )
-        {
-            // Pack            
-            const Int ALDim = A.LDim();
-            const T* ABuf = A.LockedBuffer();
-            for( Int j=0; j<n; ++j )
-                for( Int i=0; i<m; ++i )
-                    commBuffer[i+j*m] = ABuf[i+j*ALDim];
-        }
-
-        // Broadcast from the process that packed
-        mpi::Broadcast( commBuffer, pkgSize, A.Root(), g.VCComm() );
-
-        // Unpack
-        T* buffer = this->Buffer();
-        const Int ldim = this->LDim();
-        for( Int j=0; j<n; ++j )
-            for( Int i=0; i<m; ++i )
-                buffer[i+j*ldim] = commBuffer[i+j*m];        
-    }
-
+    copy::Scatter( A, *this );
     return *this;
 }
 

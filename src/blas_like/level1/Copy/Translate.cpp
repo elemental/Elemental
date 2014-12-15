@@ -15,7 +15,11 @@ template<typename T,Dist U,Dist V>
 void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B ) 
 {
     DEBUG_ONLY(CallStackEntry cse("copy::Translate"))
-    AssertSameGrids( A, B );
+    if( A.Grid() != B.Grid() )
+    {
+        copy::TranslateBetweenGrids( A, B );
+        return;
+    }
 
     const Grid& g = A.Grid();
     const Int height = A.Height();

@@ -79,10 +79,49 @@ void Scatter
       B.Buffer(), 1, B.LDim() );
 }
 
+// TODO: Find a way to combine this with the above
+template<typename T>
+void Scatter
+( const DistMatrix<T,CIRC,CIRC>& A,
+        DistMatrix<T,STAR,STAR>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("copy::Scatter"))
+    AssertSameGrids( A, B );
+
+    const Int height = A.Height();
+    const Int width = A.Width();
+    B.Resize( height, width );
+
+    if( B.Participating() )
+    {
+        const Int pkgSize = mpi::Pad( height*width );
+        std::vector<T> buffer( pkgSize );
+
+        // Pack            
+        if( A.Participating() )
+            util::InterleaveMatrix
+            ( height, width,
+              A.LockedBuffer(), 1, A.LDim(),
+              buffer.data(),    1, height );
+
+        // Broadcast from the process that packed
+        mpi::Broadcast( buffer.data(), pkgSize, A.Root(), A.CrossComm() );
+
+        // Unpack
+        util::InterleaveMatrix
+        ( height, width,
+          buffer.data(), 1, height,
+          B.Buffer(),    1, B.LDim() );
+    }
+}
+
 #define PROTO(T) \
   template void Scatter \
   ( const DistMatrix<T,CIRC,CIRC>& A, \
-          AbstractDistMatrix<T>& B );
+          AbstractDistMatrix<T>& B ); \
+  template void Scatter \
+  ( const DistMatrix<T,CIRC,CIRC>& A, \
+          DistMatrix<T,STAR,STAR>& B );
 
 #include "El/macros/Instantiate.h"
 
