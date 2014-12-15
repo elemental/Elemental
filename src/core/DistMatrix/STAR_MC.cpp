@@ -84,90 +84,13 @@ DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 { 
-    DEBUG_ONLY(
-        CallStackEntry cse("[STAR,MC] = [STAR,MR]");
-        AssertSameGrids( *this, A );
-        this->AssertNotLocked();
-    )
-    const El::Grid& g = this->Grid();
-    if( A.Height() == 1 )
-    {
-        this->Resize( 1, A.Width() );
-        if( !this->Participating() )
-            return *this;
-
-        const Int r = g.Height();
-        const Int c = g.Width();
-        const Int p = g.Size();
-        const Int myRow = g.Row();
-        const Int rankCM = g.VCRank();
-        const Int rankRM = g.VRRank();
-        const Int rowAlign = this->RowAlign();
-        const Int rowShift = this->RowShift();
-        const Int rowAlignOfA = A.RowAlign();
-        const Int rowShiftOfA = A.RowShift();
-
-        const Int width = this->Width();
-        const Int maxLocalVectorWidth = MaxLength(width,p);
-        const Int portionSize = mpi::Pad( maxLocalVectorWidth );
-
-        const Int rowShiftVC = Shift(rankCM,rowAlign,p);
-        const Int rowShiftVROfA = Shift(rankRM,rowAlignOfA,p);
-        const Int sendRankCM = (rankCM+(p+rowShiftVROfA-rowShiftVC)) % p;
-        const Int recvRankRM = (rankRM+(p+rowShiftVC-rowShiftVROfA)) % p;
-        const Int recvRankCM = (recvRankRM/c)+r*(recvRankRM%c);
-
-        T* buffer = this->auxMemory_.Require( (c+1)*portionSize );
-        T* sendBuf = &buffer[0];
-        T* recvBuf = &buffer[c*portionSize];
-
-        // A[STAR,VR] <- A[STAR,MR]
-        {
-            const Int shift = Shift(rankRM,rowAlignOfA,p);
-            const Int offset = (shift-rowShiftOfA) / c;
-            const Int thisLocalWidth = Length(width,shift,p);
-
-            const T* ABuf = A.LockedBuffer();
-            const Int ALDim = A.LDim();
-            EL_PARALLEL_FOR
-            for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
-                sendBuf[jLoc] = ABuf[(offset+jLoc*r)*ALDim];
-        }
-
-        // A[STAR,VC] <- A[STAR,VR]
-        mpi::SendRecv
-        ( sendBuf, portionSize, sendRankCM,
-          recvBuf, portionSize, recvRankCM, g.VCComm() );
-
-        // A[STAR,MC] <- A[STAR,VC]
-        mpi::AllGather
-        ( recvBuf, portionSize,
-          sendBuf, portionSize, g.RowComm() );
-
-        // Unpack
-        T* thisBuf = this->Buffer();
-        const Int thisLDim = this->LDim();
-        EL_PARALLEL_FOR
-        for( Int k=0; k<c; ++k )
-        {
-            const T* data = &sendBuf[k*portionSize];
-            const Int shift = Shift_(myRow+r*k,rowAlign,p);
-            const Int offset = (shift-rowShift) / r;
-            const Int thisLocalWidth = Length_(width,shift,p);
-            for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
-                thisBuf[(offset+jLoc*c)*thisLDim] = data[jLoc];
-        }
-        this->auxMemory_.Release();
-    }
-    else
-    {
-        auto A_STAR_VR = MakeUnique<DistMatrix<T,STAR,VR>>( A );
-        auto A_STAR_VC = MakeUnique<DistMatrix<T,STAR,VC>>( g );
-        A_STAR_VC->AlignRowsWith(*this);
-        *A_STAR_VC = *A_STAR_VR;
-        A_STAR_VR.reset();
-        *this = *A_STAR_VC;
-    }
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MC] = [STAR,MR]"))
+    auto A_STAR_VR = MakeUnique<DistMatrix<T,STAR,VR>>( A );
+    auto A_STAR_VC = MakeUnique<DistMatrix<T,STAR,VC>>( this->Grid() );
+    A_STAR_VC->AlignRowsWith(*this);
+    *A_STAR_VC = *A_STAR_VR;
+    A_STAR_VR.reset();
+    *this = *A_STAR_VC;
     return *this;
 }
 

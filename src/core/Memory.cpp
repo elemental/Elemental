@@ -80,11 +80,7 @@ G* Memory<G>::Require( std::size_t size )
 
 template<typename G>
 void Memory<G>::Release()
-{
-#ifndef EL_POOL_MEMORY
-    this->Empty();
-#endif
-}
+{  this->Empty(); }
 
 template<typename G>
 void Memory<G>::Empty()

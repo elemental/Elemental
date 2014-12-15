@@ -33,7 +33,6 @@ void PartialRowSumScatter
 
         const Int height = B.Height();
         const Int width = B.Width();
-        const Int localWidth = B.LocalWidth();
         const Int maxLocalWidth = MaxLength( width, rowStride );
         const Int recvSize = mpi::Pad( height*maxLocalWidth );
         const Int sendSize = rowStrideUnion*recvSize;

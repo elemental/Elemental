@@ -350,7 +350,6 @@ protected:
     // -----------------------------------
     ViewType viewType_;
     Int height_, width_;
-    Memory<T> auxMemory_;
     El::Matrix<T> matrix_;
     
     // Process grid and distribution metadata

@@ -475,7 +475,7 @@ void IPF
 
         // Compute the search direction
         // ============================
-        const Real minReductionFactor = 2;
+        //const Real minReductionFactor = 2;
         //const Int maxRefineIts = 10;
         // ctrl.system == AUGMENTED_KKT
         {

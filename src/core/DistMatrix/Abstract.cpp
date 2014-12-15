@@ -20,7 +20,6 @@ template<typename T>
 AbstractDistMatrix<T>::AbstractDistMatrix( const El::Grid& grid, Int root )
 : viewType_(OWNER),
   height_(0), width_(0),
-  auxMemory_(),
   matrix_(0,0,true),
   colConstrained_(false), rowConstrained_(false), rootConstrained_(false),
   colAlign_(0), rowAlign_(0),
@@ -38,10 +37,7 @@ EL_NOEXCEPT
   colShift_(A.colShift_), rowShift_(A.rowShift_), 
   root_(A.root_),
   grid_(A.grid_)
-{ 
-    matrix_.ShallowSwap( A.matrix_ );
-    auxMemory_.ShallowSwap( A.auxMemory_ );
-}
+{ matrix_.ShallowSwap( A.matrix_ ); }
 
 // Optional to override
 // --------------------
@@ -62,7 +58,6 @@ AbstractDistMatrix<T>::operator=( AbstractDistMatrix<T>&& A )
     }
     else
     {
-        auxMemory_.ShallowSwap( A.auxMemory_ );
         matrix_.ShallowSwap( A.matrix_ );
         viewType_ = A.viewType_;
         height_ = A.height_;
@@ -1714,30 +1709,29 @@ void AbstractDistMatrix<T>::BroadcastOver( mpi::Comm comm, Int rank )
     const Int localHeight = LocalHeight();
     const Int localWidth = LocalWidth();
     const Int localSize = localHeight*localWidth;
-    const Int ldim = LDim();
-    if( localHeight == ldim )
+    if( localHeight == LDim() )
     {
         mpi::Broadcast( Buffer(), localSize, rank, comm );
     }
     else
     {
-        T* buf = auxMemory_.Require( localSize );   
+        std::vector<T> buf( localSize );
 
         // Pack
-        EL_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy
-            ( &buf[jLoc*localHeight], LockedBuffer(0,jLoc), localHeight );
+        if( mpi::Rank(comm) == rank )
+            copy::util::InterleaveMatrix
+            ( localHeight, localWidth,
+              LockedBuffer(), 1, LDim(),
+              buf.data(),     1, localHeight );
 
-        mpi::Broadcast( buf, localSize, rank, comm );
+        mpi::Broadcast( buf.data(), localSize, rank, comm );
 
         // Unpack
-        EL_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy
-            ( Buffer(0,jLoc), &buf[jLoc*localHeight], localHeight );
-
-        auxMemory_.Release();
+        if( mpi::Rank(comm) != rank )
+            copy::util::InterleaveMatrix
+            ( localHeight, localWidth,
+              buf.data(), 1, localHeight,
+              Buffer(),   1, LDim() );
     }
 }
 
@@ -1755,30 +1749,27 @@ void AbstractDistMatrix<T>::SumOver( mpi::Comm comm )
     const Int localHeight = LocalHeight();
     const Int localWidth = LocalWidth();
     const Int localSize = localHeight*localWidth;
-    const Int ldim = LDim();
-    if( localHeight == ldim )
+    if( localHeight == LDim() )
     {
         mpi::AllReduce( Buffer(), localSize, comm );
     }
     else
     {
-        T* buf = auxMemory_.Require( localSize );   
+        std::vector<T> buf( localSize );
     
         // Pack
-        EL_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy
-            ( &buf[jLoc*localHeight], LockedBuffer(0,jLoc), localHeight );
+        copy::util::InterleaveMatrix
+        ( localHeight, localWidth,
+          LockedBuffer(), 1, LDim(),
+          buf.data(),     1, localHeight );
     
-        mpi::AllReduce( buf, localSize, comm );
+        mpi::AllReduce( buf.data(), localSize, comm );
     
         // Unpack
-        EL_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy
-            ( Buffer(0,jLoc), &buf[jLoc*localHeight], localHeight );
-
-        auxMemory_.Release();
+        copy::util::InterleaveMatrix
+        ( localHeight, localWidth,
+          buf.data(), 1, localHeight,
+          Buffer(),   1, LDim() );
     }
 }
 
@@ -1853,7 +1844,6 @@ void
 AbstractDistMatrix<T>::ShallowSwap( AbstractDistMatrix<T>& A )
 {
     matrix_.ShallowSwap( A.matrix_ );
-    auxMemory_.ShallowSwap( A.auxMemory_ );
     std::swap( viewType_, A.viewType_ );
     std::swap( height_ , A.height_ );
     std::swap( width_, A.width_ );

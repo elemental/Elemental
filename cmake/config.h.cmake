@@ -77,7 +77,6 @@
 #cmakedefine EL_CACHE_WARNINGS
 #cmakedefine EL_UNALIGNED_WARNINGS
 #cmakedefine EL_VECTOR_WARNINGS
-#cmakedefine EL_POOL_MEMORY
 #cmakedefine EL_AVOID_OMP_FMA
 
 #cmakedefine EL_DECLSPEC
