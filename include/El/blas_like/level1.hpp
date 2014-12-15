@@ -185,6 +185,9 @@ namespace copy {
 
 template<typename T,Dist U,Dist V>
 void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B );
+template<typename T>
+void TranslateBetweenGrids
+( const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B );
 
 // NOTE: Only instantiated for (U,V)=(MC,MR) and (U,V)=(MR,MC)
 template<typename T,Dist U,Dist V>
