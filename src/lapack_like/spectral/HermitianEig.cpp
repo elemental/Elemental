@@ -264,7 +264,8 @@ void HermitianEig
     if( ctrl.timeStages )
     {
         mpi::Barrier( A.DistComm() );
-        timer.Start();
+        if( A.Grid().Rank() == 0 )
+            timer.Start();
     }
    
     // Tridiagonalize A
@@ -274,9 +275,11 @@ void HermitianEig
     {
         mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
+        {
             std::cout << "  Condense time: " << timer.Stop() 
                       << std::endl;
-        timer.Start();
+            timer.Start();
+        }
     }
 
     // Solve the symmetric tridiagonal EVP
@@ -459,7 +462,8 @@ void HermitianEig
     if( ctrl.timeStages )
     {
         mpi::Barrier( A.DistComm() );
-        timer.Start();
+        if( A.Grid().Rank() == 0 )
+            timer.Start();
     }
 
     // Tridiagonalize A
@@ -471,9 +475,11 @@ void HermitianEig
     {
         mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
+        {
             std::cout << "  Condense time: " << timer.Stop() 
                       << std::endl;
-        timer.Start();
+            timer.Start();
+        }
     }
 
     Int kEst;
@@ -535,8 +541,11 @@ void HermitianEig
     {
         mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
+        {
             std::cout << "  TridiagEig time: " << timer.Stop() << " secs" 
                       << std::endl;
+            timer.Start();
+        }
     }
 
     const Int k = w.Height();
@@ -574,8 +583,11 @@ void HermitianEig
     {
         mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
+        {
             std::cout << "  Redist time: " << timer.Stop() << " secs"
                       << std::endl;
+            timer.Start();
+        }
     }
 
     // Backtransform the tridiagonal eigenvectors, Z
@@ -585,8 +597,11 @@ void HermitianEig
     {
         mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
+        {
             std::cout << "  Backtransform time: " << timer.Stop() << " secs"
                       << std::endl;
+            timer.Start();
+        }
     }
 
     // Rescale the eigenvalues if necessary
