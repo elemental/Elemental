@@ -50,6 +50,7 @@ struct HermitianEigCtrl
     HermitianTridiagCtrl tridiagCtrl;
     HermitianSDCCtrl<Real> sdcCtrl;
     bool useSDC;
+    bool timeStages;
 
     HermitianEigCtrl()
     : tridiagCtrl(), sdcCtrl(), useSDC(false)

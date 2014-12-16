@@ -47,6 +47,7 @@ main( int argc, char* argv[] )
         admmCtrl.absTol = absTol;
         admmCtrl.relTol = relTol;
         admmCtrl.inv = inv;
+        admmCtrl.maxIter = maxIter; 
         admmCtrl.print = progress;
 
         DistMatrix<Real> A, b, c, xTrue;

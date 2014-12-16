@@ -20,11 +20,11 @@ The [documentation for the development version of Elemental](http://libelemental
 
 Implementations (in alphabetical order):
 
+* [ELPA](http://elpa.rzg.mpg.de)
 * [NuLAB](https://github.com/solomonik/NuLAB)
 * [PaRSEC/DPLASMA](http://icl.eecs.utk.edu/projectsdev/parsec/index.html)
 * [PLAPACK](http://www.cs.utexas.edu/~plapack)
 * [ScaLAPACK](http://www.netlib.org/scalapack) 
-  (and the extension, [ELPA](http://elpa.rzg.mpg.de/))
 
 Wrappers:
 

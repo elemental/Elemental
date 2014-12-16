@@ -260,14 +260,38 @@ void HermitianEig
     if( needRescaling )
         ScaleTrapezoid( F(scale), uplo, A );
 
+    Timer timer;
+    if( ctrl.timeStages )
+    {
+        mpi::Barrier( A.Comm() );
+        timer.Start();
+    }
+   
     // Tridiagonalize A
     herm_tridiag::ExplicitCondensed( uplo, A, ctrl.tridiagCtrl );
+
+    if( ctrl.timeStages )
+    {
+        mpi::Barrier( A.Comm() );
+        if( A.Grid().Rank() == 0 )
+            std::cout << "  Condense time: " << timer.Stop() 
+                      << std::endl;
+        timer.Start();
+    }
 
     // Solve the symmetric tridiagonal EVP
     const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
     auto d = A.GetRealPartOfDiagonal();
     auto e = A.GetRealPartOfDiagonal( subdiagonal );
     HermitianTridiagEig( d, e, w, sort, subset );
+
+    if( ctrl.timeStages )
+    {
+        mpi::Barrier( A.Comm() );
+        if( A.Grid().Rank() == 0 )
+            std::cout << "  TridiagEig time: " << timer.Stop() << " secs" 
+                      << std::endl;
+    }
 
     // Rescale the eigenvalues if necessary
     if( needRescaling ) 
@@ -431,10 +455,26 @@ void HermitianEig
     if( needRescaling )
         ScaleTrapezoid( F(scale), uplo, A );
 
+    Timer timer;
+    if( ctrl.timeStages )
+    {
+        mpi::Barrier( A.Comm() );
+        timer.Start();
+    }
+
     // Tridiagonalize A
     const Grid& g = A.Grid();
     DistMatrix<F,STAR,STAR> t(g);
     HermitianTridiag( uplo, A, t, ctrl.tridiagCtrl );
+
+    if( ctrl.timeStages )
+    {
+        mpi::Barrier( A.Comm() );
+        if( A.Grid().Rank() == 0 )
+            std::cout << "  Condense time: " << timer.Stop() 
+                      << std::endl;
+        timer.Start();
+    }
 
     Int kEst;
     const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
@@ -491,6 +531,14 @@ void HermitianEig
         HermitianTridiagEig
         ( d_STAR_STAR, e_STAR_STAR, w, Z_STAR_VR, UNSORTED, subset );
 
+    if( ctrl.timeStages )
+    {
+        mpi::Barrier( A.Comm() );
+        if( A.Grid().Rank() == 0 )
+            std::cout << "  TridiagEig time: " << timer.Stop() << " secs" 
+                      << std::endl;
+    }
+
     const Int k = w.Height();
     {
         // Redistribute Z piece-by-piece in place. This is to keep the 
@@ -522,14 +570,38 @@ void HermitianEig
     }
     Z.Resize( n, k ); // We can simply shrink matrices
 
+    if( ctrl.timeStages )
+    {
+        mpi::Barrier( A.Comm() );
+        if( A.Grid().Rank() == 0 )
+            std::cout << "  Redist time: " << timer.Stop() << " secs"
+                      << std::endl;
+    }
+
     // Backtransform the tridiagonal eigenvectors, Z
     herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, Z );
+
+    if( ctrl.timeStages )
+    {
+        mpi::Barrier( A.Comm() );
+        if( A.Grid().Rank() == 0 )
+            std::cout << "  Backtransform time: " << timer.Stop() << " secs"
+                      << std::endl;
+    }
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w );
 
     herm_eig::Sort( w, Z, sort );
+
+    if( ctrl.timeStages )
+    {
+        mpi::Barrier( A.Comm() );
+        if( A.Grid().Rank() == 0 )
+            std::cout << "  Scale+sort time: " << timer.Stop() << " secs"
+                      << std::endl;
+    }
 }
 
 #define EIGVAL_PROTO(F) \

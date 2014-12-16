@@ -158,6 +158,7 @@ main( int argc, char* argv[] )
         const bool print = Input("--print","print matrices?",false);
         const bool testReal = Input("--testReal","test real matrices?",true);
         const bool testCpx = Input("--testCpx","test complex matrices?",true);
+        const bool timeStages = Input("--timeStages","time stages?",true);
         ProcessInput();
         PrintInputReport();
 
@@ -192,6 +193,7 @@ main( int argc, char* argv[] )
             subset.upperBound = vu;
         }
         HermitianEigCtrl<double> ctrl;
+        ctrl.timeStages = timeStages;
 
         if( commRank == 0 )
             cout << "Normal tridiag algorithms:" << endl;
