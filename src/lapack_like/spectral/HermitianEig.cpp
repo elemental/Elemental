@@ -276,7 +276,7 @@ void HermitianEig
         mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
         {
-            std::cout << "  Condense time: " << timer.Stop() 
+            std::cout << "  Condense time:      " << timer.Stop() << " secs"
                       << std::endl;
             timer.Start();
         }
@@ -292,7 +292,7 @@ void HermitianEig
     {
         mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
-            std::cout << "  TridiagEig time: " << timer.Stop() << " secs" 
+            std::cout << "  TridiagEig time:    " << timer.Stop() << " secs" 
                       << std::endl;
     }
 
@@ -476,7 +476,7 @@ void HermitianEig
         mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
         {
-            std::cout << "  Condense time: " << timer.Stop() 
+            std::cout << "  Condense time:      " << timer.Stop() << " secs"
                       << std::endl;
             timer.Start();
         }
@@ -542,7 +542,7 @@ void HermitianEig
         mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
         {
-            std::cout << "  TridiagEig time: " << timer.Stop() << " secs" 
+            std::cout << "  TridiagEig time:    " << timer.Stop() << " secs" 
                       << std::endl;
             timer.Start();
         }
@@ -584,7 +584,7 @@ void HermitianEig
         mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
         {
-            std::cout << "  Redist time: " << timer.Stop() << " secs"
+            std::cout << "  Redist time:        " << timer.Stop() << " secs"
                       << std::endl;
             timer.Start();
         }
@@ -614,7 +614,7 @@ void HermitianEig
     {
         mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
-            std::cout << "  Scale+sort time: " << timer.Stop() << " secs"
+            std::cout << "  Scale+sort time:    " << timer.Stop() << " secs"
                       << std::endl;
     }
 }

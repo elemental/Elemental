@@ -263,10 +263,8 @@ void TestHermitianGenDefEig
     }
 
     if( g.Rank() == 0 )
-    {
-        cout << "  Starting Hermitian Generalized-Definite Eigensolver...";
-        cout.flush();
-    }
+        cout << "  Starting Hermitian Generalized-Definite Eigensolver..."
+             << std::endl;
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     if( onlyEigvals )

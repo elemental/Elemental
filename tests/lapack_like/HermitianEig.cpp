@@ -97,10 +97,7 @@ void TestHermitianEig
         Print( A, "A" );
 
     if( g.Rank() == 0 )
-    {
-        cout << "  Starting Hermitian eigensolver...";
-        cout.flush();
-    }
+        cout << "  Starting Hermitian eigensolver..." << std::endl;
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     if( onlyEigvals )
