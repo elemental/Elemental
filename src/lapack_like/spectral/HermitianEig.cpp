@@ -263,7 +263,7 @@ void HermitianEig
     Timer timer;
     if( ctrl.timeStages )
     {
-        mpi::Barrier( A.Comm() );
+        mpi::Barrier( A.DistComm() );
         timer.Start();
     }
    
@@ -272,7 +272,7 @@ void HermitianEig
 
     if( ctrl.timeStages )
     {
-        mpi::Barrier( A.Comm() );
+        mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
             std::cout << "  Condense time: " << timer.Stop() 
                       << std::endl;
@@ -287,7 +287,7 @@ void HermitianEig
 
     if( ctrl.timeStages )
     {
-        mpi::Barrier( A.Comm() );
+        mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
             std::cout << "  TridiagEig time: " << timer.Stop() << " secs" 
                       << std::endl;
@@ -458,7 +458,7 @@ void HermitianEig
     Timer timer;
     if( ctrl.timeStages )
     {
-        mpi::Barrier( A.Comm() );
+        mpi::Barrier( A.DistComm() );
         timer.Start();
     }
 
@@ -469,7 +469,7 @@ void HermitianEig
 
     if( ctrl.timeStages )
     {
-        mpi::Barrier( A.Comm() );
+        mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
             std::cout << "  Condense time: " << timer.Stop() 
                       << std::endl;
@@ -533,7 +533,7 @@ void HermitianEig
 
     if( ctrl.timeStages )
     {
-        mpi::Barrier( A.Comm() );
+        mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
             std::cout << "  TridiagEig time: " << timer.Stop() << " secs" 
                       << std::endl;
@@ -572,7 +572,7 @@ void HermitianEig
 
     if( ctrl.timeStages )
     {
-        mpi::Barrier( A.Comm() );
+        mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
             std::cout << "  Redist time: " << timer.Stop() << " secs"
                       << std::endl;
@@ -583,7 +583,7 @@ void HermitianEig
 
     if( ctrl.timeStages )
     {
-        mpi::Barrier( A.Comm() );
+        mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
             std::cout << "  Backtransform time: " << timer.Stop() << " secs"
                       << std::endl;
@@ -597,7 +597,7 @@ void HermitianEig
 
     if( ctrl.timeStages )
     {
-        mpi::Barrier( A.Comm() );
+        mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
             std::cout << "  Scale+sort time: " << timer.Stop() << " secs"
                       << std::endl;
