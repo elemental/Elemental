@@ -17,8 +17,8 @@ void UPanSquare
 ( DistMatrix<F>& A,
   DistMatrix<F>& W,
   DistMatrix<F,MD,STAR>& t,
-  DistMatrix<F,MC,STAR>& APan_MC_STAR, 
-  DistMatrix<F,MR,STAR>& APan_MR_STAR,
+  DistMatrix<F,MC,STAR>& B_MC_STAR, 
+  DistMatrix<F,MR,STAR>& B_MR_STAR,
   DistMatrix<F,MC,STAR>& W_MC_STAR,
   DistMatrix<F,MR,STAR>& W_MR_STAR )
 {
@@ -107,8 +107,8 @@ void UPanSquare
         q01_MR_STAR.AlignWith( A00 );
         a01_MC_STAR.Resize( kA, 1 );
         a01_MR_STAR.Resize( kA, 1 );
-        p01_MC_STAR.Resize( kA, 1 );
-        q01_MR_STAR.Resize( kA, 1 );
+        Zeros( p01_MC_STAR, kA, 1 );
+        Zeros( q01_MR_STAR, kA, 1 );
 
         // View the portions of A02 and W0T outside of this panel's square
         auto a01T_MC_STAR = a01_MC_STAR( IR(0,off), IR(0,1) );
@@ -116,9 +116,9 @@ void UPanSquare
 
         if( !firstIteration )
         {
-            a01Last_MC_STAR = APan_MC_STAR( indT, IR(k+1,k+2) );
-            a01Last_MR_STAR = APan_MR_STAR( indT, IR(k+1,k+2) );
-            w01Last         = W(            indT, IR(k+1,k+2) );
+            a01Last_MC_STAR = B_MC_STAR( indT, IR(k+1,k+2) );
+            a01Last_MR_STAR = B_MR_STAR( indT, IR(k+1,k+2) );
+            w01Last         = W(         indT, IR(k+1,k+2) );
         }
 
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlign() );
@@ -168,9 +168,9 @@ void UPanSquare
             // for the next iteration
             MemCopy
             ( a01_MC_STAR.Buffer(), rowBroadcastBuffer.data(), a01LocalHeight );
-            // Store a01[MC,* ] into APan[MC,* ]
+            // Store a01[MC,* ] into B[MC,* ]
             MemCopy
-            ( APan_MC_STAR.Buffer(0,k), 
+            ( B_MC_STAR.Buffer(0,k), 
               rowBroadcastBuffer.data(), a01LocalHeight );
             // Store tau
             tau = rowBroadcastBuffer[a01LocalHeight];
@@ -194,7 +194,7 @@ void UPanSquare
             }
             // Store a01[MR,* ]
             MemCopy
-            ( APan_MR_STAR.Buffer(0,k),
+            ( B_MR_STAR.Buffer(0,k),
               a01_MR_STAR.Buffer(), a01_MR_STAR.LocalHeight() );
         }
         else
@@ -221,9 +221,9 @@ void UPanSquare
             // Store a01[MC,* ] into its DistMatrix class 
             MemCopy
             ( a01_MC_STAR.Buffer(), rowBroadcastBuffer.data(), a01LocalHeight );
-            // Store a01[MC,* ] into APan[MC,* ]
+            // Store a01[MC,* ] into B[MC,* ]
             MemCopy
-            ( APan_MC_STAR.Buffer(0,k), 
+            ( B_MC_STAR.Buffer(0,k), 
               rowBroadcastBuffer.data(), a01LocalHeight );
             // Store w01Last[MC,* ] into its DistMatrix class
             w01Last_MC_STAR.AlignWith( A00 );
@@ -292,7 +292,7 @@ void UPanSquare
               w01Last_MR_STAR.LocalHeight() );
             // Store a01[MR,* ]
             MemCopy
-            ( APan_MR_STAR.Buffer(0,k),
+            ( B_MR_STAR.Buffer(0,k),
               a01_MR_STAR.Buffer(), a01_MR_STAR.LocalHeight() );
 
             // Update the portion of A00 that is in our current panel with 
@@ -314,110 +314,23 @@ void UPanSquare
             const Int localHeight = A00Pan.LocalHeight();
             const Int localWidth = A00Pan.LocalWidth();
             const Int lDim = A00Pan.LDim();
-            for( Int jLocal=0; jLocal<localWidth; ++jLocal )
-                for( Int iLocal=0; iLocal<localHeight; ++iLocal )
-                    A00PanBuffer[iLocal+jLocal*lDim] -=
-                        w01_MC_STAR_Buffer[iLocal]*
-                        Conj(a01_MR_STAR_Buffer[jLocal]) +
-                        a01_MC_STAR_Buffer[iLocal]*
-                        Conj(w01_MR_STAR_Buffer[jLocal]);
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            {
+                const F delta = Conj(a01_MR_STAR_Buffer[jLoc]);
+                const F gamma = Conj(w01_MR_STAR_Buffer[jLoc]);
+                for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+                    A00PanBuffer[iLoc+jLoc*lDim] -=
+                        w01_MC_STAR_Buffer[iLoc]*delta +
+                        a01_MC_STAR_Buffer[iLoc]*gamma;
+            }
         }
 
         // Form the local portions of (A00 a01) into p01[MC,* ] and q01[MR,* ]:
         //   p01[MC,* ] := triu(A00)[MC,MR] a01[MR,* ]
         //   q01[MR,* ] := triu(A00,+1)'[MR,MC] a01[MC,* ]
-        if( A00.ColShift() < A00.RowShift() )
-        {
-            // We are above the diagonal, so we can multiply without an 
-            // offset for triu(A00)[MC,MR] and triu(A00,1)'[MR,MC]
-            if( A00.LocalHeight() != 0 )
-            {
-                // Our local portion of p01[MC,* ] might be one entry longer
-                // than A00.LocalWidth(), so go ahead and set the last entry
-                // to 0.
-                F* p01_MC_STAR_Buffer = p01_MC_STAR.Buffer();
-                p01_MC_STAR_Buffer[A00.LocalHeight()-1] = 0;
-                MemCopy
-                ( p01_MC_STAR.Buffer(), 
-                  a01_MR_STAR.Buffer(), A00.LocalWidth() );
-                blas::Trmv
-                ( 'U', 'N', 'N', A00.LocalWidth(), A00.Buffer(), A00.LDim(),
-                  p01_MC_STAR.Buffer(), 1 );
-            }
-            if( A00.LocalWidth() != 0 )
-            {
-                MemCopy
-                ( q01_MR_STAR.Buffer(),
-                  a01_MC_STAR.Buffer(), A00.LocalWidth() );
-                blas::Trmv
-                ( 'U', 'C', 'N', A00.LocalWidth(), A00.Buffer(), A00.LDim(),
-                  q01_MR_STAR.Buffer(), 1 );
-            }
-        }
-        else if( A00.ColShift() > A00.RowShift() )
-        {
-            // We are below the diagonal, so we need to use an offset 
-            // for both triu(A00)[MC,MR] and triu(A00,+1)'[MR,MC]
-            const F* a01_MC_STAR_Buffer = a01_MC_STAR.Buffer();
-            const F* a01_MR_STAR_Buffer = a01_MR_STAR.Buffer();
-            const F* A00Buffer = A00.Buffer();
-            if( A00.LocalHeight() != 0 )
-            {
-                // The last entry of p01[MC,* ] will be zero due to the forced
-                // offset
-                F* p01_MC_STAR_Buffer = p01_MC_STAR.Buffer();
-                p01_MC_STAR_Buffer[A00.LocalHeight()-1] = 0;
-                MemCopy
-                ( p01_MC_STAR_Buffer,
-                  &a01_MR_STAR_Buffer[1], A00.LocalWidth()-1 );
-                blas::Trmv
-                ( 'U', 'N', 'N', A00.LocalWidth()-1,
-                  &A00Buffer[A00.LDim()], A00.LDim(),
-                  p01_MC_STAR_Buffer, 1 );
-            }
-            if( A00.LocalWidth() != 0 )
-            {
-                // The first entry of q01[MR,* ] will be zero due to the forced
-                // offset
-                F* q01_MR_STAR_Buffer = q01_MR_STAR.Buffer();
-                q01_MR_STAR_Buffer[0] = 0;
-                MemCopy
-                ( &q01_MR_STAR_Buffer[1],
-                  a01_MC_STAR_Buffer, A00.LocalWidth()-1 );
-                blas::Trmv
-                ( 'U', 'C', 'N', A00.LocalWidth()-1,
-                  &A00Buffer[A00.LDim()], A00.LDim(),
-                  &q01_MR_STAR_Buffer[1], 1 );
-            }
-        }
-        else
-        {
-            // We are on the diagonal, so we only need an offset for
-            // triu(A00,+1)'[MR,MC]
-            if( A00.LocalWidth() != 0 )
-            {
-                MemCopy
-                ( p01_MC_STAR.Buffer(),
-                  a01_MR_STAR.Buffer(), A00.LocalHeight() );
-                blas::Trmv
-                ( 'U', 'N', 'N', A00.LocalHeight(), A00.Buffer(), A00.LDim(),
-                  p01_MC_STAR.Buffer(), 1 );
-
-                // The first entry of q01[MR,* ] must be zero due to the forced
-                // offset
-                const F* a01_MC_STAR_Buffer = a01_MC_STAR.Buffer();
-                const F* A00Buffer = A00.Buffer();
-                F* q01_MR_STAR_Buffer = q01_MR_STAR.Buffer();
-                q01_MR_STAR_Buffer[0] = 0;
-                MemCopy
-                ( &q01_MR_STAR_Buffer[1],
-                  a01_MC_STAR_Buffer, A00.LocalWidth()-1 );
-                blas::Trmv
-                ( 'U', 'C', 'N', A00.LocalWidth()-1,
-                  &A00Buffer[A00.LDim()], A00.LDim(),
-                  &q01_MR_STAR_Buffer[1], 1 );
-            }
-        }
+        symv::LocalColAccumulate
+        ( UPPER, F(1),
+          A00, a01_MC_STAR, a01_MR_STAR, p01_MC_STAR, q01_MR_STAR, true );
 
         x21_MR_STAR.AlignWith( A02T );
         y21_MR_STAR.AlignWith( A02T );

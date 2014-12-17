@@ -11,7 +11,7 @@ namespace El {
 namespace symv {
 
 template<typename T>
-inline void LocalColAccumulateL
+inline void LocalColAccumulateLGeneral
 ( T alpha, 
   const DistMatrix<T>& A,
   const DistMatrix<T,MC,STAR>& x_MC_STAR,
@@ -21,7 +21,7 @@ inline void LocalColAccumulateL
   bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("symv::LocalColAccumulateL");
+        CallStackEntry cse("symv::LocalColAccumulateLGeneral");
         AssertSameGrids( A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR );
         if( x_MC_STAR.Width() != 1 || x_MR_STAR.Width() != 1 ||
             z_MC_STAR.Width() != 1 || z_MR_STAR.Width() != 1 )
@@ -51,8 +51,8 @@ inline void LocalColAccumulateL
 
     // We want our local gemvs to be of width blocksize, so we will 
     // temporarily change to max(r,c) times the current blocksize
-    const Int bsize = Max(g.Height(),g.Width())*LocalSymvBlocksize<T>();
     const Int n = A.Height();
+    const Int bsize = Max(g.Height(),g.Width())*LocalSymvBlocksize<T>();
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
@@ -78,6 +78,165 @@ inline void LocalColAccumulateL
         LocalGemv( NORMAL,      alpha, A21, x1_MR_STAR, T(1), z2_MC_STAR );
         LocalGemv( orientation, alpha, A21, x2_MC_STAR, T(1), z1_MR_STAR );
     }
+}
+
+template<typename T>
+inline void LocalColAccumulateLSquareTwoTrmv
+( T alpha, 
+  const DistMatrix<T>& A,
+  const DistMatrix<T,MC,STAR>& x_MC_STAR,
+  const DistMatrix<T,MR,STAR>& x_MR_STAR,
+        DistMatrix<T,MC,STAR>& z_MC_STAR,
+        DistMatrix<T,MR,STAR>& z_MR_STAR,
+  bool conjugate=false )
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("symv::LocalColAccumulateLSquareTwoTrmv");
+        AssertSameGrids( A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR );
+        if( x_MC_STAR.Width() != 1 || x_MR_STAR.Width() != 1 ||
+            z_MC_STAR.Width() != 1 || z_MR_STAR.Width() != 1 )
+            LogicError("Expected x and z to be column vectors");
+        if( A.Height() != A.Width() || 
+            A.Height() != x_MC_STAR.Height() ||
+            A.Height() != x_MR_STAR.Height() ||
+            A.Height() != z_MC_STAR.Height() ||
+            A.Height() != z_MR_STAR.Height() )
+            LogicError
+            ("Nonconformal: \n",
+             "  A ~ ",A.Height()," x ",A.Width(),"\n",
+             "  x[MC,* ] ~ ",x_MC_STAR.Height()," x ",x_MC_STAR.Width(),"\n", 
+             "  x[MR,* ] ~ ",x_MR_STAR.Height()," x ",x_MR_STAR.Width(),"\n", 
+             "  z[MC,* ] ~ ",z_MC_STAR.Height()," x ",z_MC_STAR.Width(),"\n", 
+             "  z[MR,* ] ~ ",z_MR_STAR.Height()," x ",z_MR_STAR.Width(),"\n"); 
+        if( x_MC_STAR.ColAlign() != A.ColAlign() ||
+            x_MR_STAR.ColAlign() != A.RowAlign() ||
+            z_MC_STAR.ColAlign() != A.ColAlign() ||
+            z_MR_STAR.ColAlign() != A.RowAlign() )
+            LogicError("Partial matrix distributions are misaligned");
+        if( A.Grid().Height() != A.Grid().Width() )
+            LogicError("Process grid must be square");
+    )
+
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    if( A.ColShift() > A.RowShift() )
+    {
+        // We are below the diagonal, so we can multiply without an 
+        // offset for tril(A)[MC,MR] and tril(A,-1)'[MR,MC]
+        MemCopy
+        ( z_MC_STAR.Buffer(), x_MR_STAR.LockedBuffer(), localHeight );
+        if( localWidth != 0 )
+        {
+            // Our local portion of z[MR,* ] might be one entry longer 
+            // than A.LocalHeight(), so go ahead and set the last entry 
+            // to 0.
+            z_MR_STAR.SetLocal(localWidth-1,0,T(0));
+        }
+        MemCopy
+        ( z_MR_STAR.Buffer(), x_MC_STAR.LockedBuffer(), localHeight );
+
+        blas::Trmv
+        ( 'L', 'N', 'N', localHeight,
+          A.LockedBuffer(),   A.LDim(),
+          z_MC_STAR.Buffer(), 1 );
+        blas::Trmv
+        ( 'L', 'C', 'N', localHeight,
+          A.LockedBuffer(),   A.LDim(),
+          z_MR_STAR.Buffer(), 1 );
+    }
+    else if( A.ColShift() < A.RowShift() )
+    {
+        // We are above the diagonal, so we need to use an offset of +1
+        // for both tril(A)[MC,MR] and tril(A,-1)'[MR,MC]
+        if( localWidth != 0 )
+        {
+            // The last entry of z[MR,* ] will be zero if the local
+            // height and width are equal.
+            z_MR_STAR.SetLocal(localWidth-1,0,T(0));
+        }
+        if( localHeight != 0 )
+        {
+            // The first entry of z[MC,* ] will always be zero due to 
+            // the forced offset.
+            z_MC_STAR.SetLocal(0,0,T(0));
+            MemCopy
+            ( z_MC_STAR.Buffer(1,0), 
+              x_MR_STAR.LockedBuffer(), localHeight-1 );
+            MemCopy
+            ( z_MR_STAR.Buffer(),
+              x_MC_STAR.LockedBuffer(1,0), localHeight-1 );
+
+            blas::Trmv
+            ( 'L', 'N', 'N', localHeight-1,
+              A.LockedBuffer(1,0),   A.LDim(),
+              z_MC_STAR.Buffer(1,0), 1 );
+            blas::Trmv
+            ( 'L', 'C', 'N', localHeight-1,
+              A.LockedBuffer(1,0), A.LDim(),
+              z_MR_STAR.Buffer(),  1 );
+        }
+    }
+    else
+    {
+        // We are on the diagonal, so we only need an offset of +1 for
+        // tril(A,-1)'[MR,MC]
+        if( localHeight != 0 )
+        {
+            MemCopy
+            ( z_MC_STAR.Buffer(), x_MR_STAR.LockedBuffer(), localHeight );
+            // The last entry of z[MR,* ] will be zero if the local 
+            // height and width are equal.
+            z_MR_STAR.SetLocal(localWidth-1,0,T(0));
+            MemCopy
+            ( z_MR_STAR.Buffer(), x_MC_STAR.LockedBuffer(1,0), localHeight-1 );
+
+            blas::Trmv
+            ( 'L', 'N', 'N', localHeight,
+              A.LockedBuffer(),   A.LDim(),
+              z_MC_STAR.Buffer(), 1 );
+            blas::Trmv
+            ( 'L', 'C', 'N', localHeight-1,
+              A.LockedBuffer(1,0), A.LDim(),
+              z_MR_STAR.Buffer(),  1 );
+        }
+    }
+    Scale( alpha, z_MC_STAR );
+    Scale( alpha, z_MR_STAR );
+}
+
+template<typename T>
+inline void LocalColAccumulateLSquare
+( T alpha, 
+  const DistMatrix<T>& A,
+  const DistMatrix<T,MC,STAR>& x_MC_STAR,
+  const DistMatrix<T,MR,STAR>& x_MR_STAR,
+        DistMatrix<T,MC,STAR>& z_MC_STAR,
+        DistMatrix<T,MR,STAR>& z_MR_STAR,
+  bool conjugate=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("symv::LocalColAccumulateLSquare"))
+    // TODO: Provide the ability to select between multiple techniques
+    LocalColAccumulateLSquareTwoTrmv
+    ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate );
+}
+
+template<typename T>
+inline void LocalColAccumulateL
+( T alpha, 
+  const DistMatrix<T>& A,
+  const DistMatrix<T,MC,STAR>& x_MC_STAR,
+  const DistMatrix<T,MR,STAR>& x_MR_STAR,
+        DistMatrix<T,MC,STAR>& z_MC_STAR,
+        DistMatrix<T,MR,STAR>& z_MR_STAR,
+  bool conjugate=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("symv::LocalColAccumulateL"))
+    if( A.Grid().Height() == A.Grid().Width() )
+        LocalColAccumulateLSquare
+        ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate );
+    else
+        LocalColAccumulateLGeneral
+        ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate );
 }
 
 template<typename T>
@@ -121,8 +280,8 @@ inline void LocalRowAccumulateL
 
     // We want our local gemvs to be of width blocksize, so we will 
     // temporarily change to max(r,c) times the current blocksize
-    const Int bsize = Max(g.Height(),g.Width())*LocalSymvBlocksize<T>();
     const Int n = A.Height();
+    const Int bsize = Max(g.Height(),g.Width())*LocalSymvBlocksize<T>();
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);

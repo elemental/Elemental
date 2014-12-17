@@ -168,14 +168,9 @@ void TestHermitianGenDefEig
     if( testCorrectness && !onlyEigvals )
     {
         if( g.Rank() == 0 )
-        {
-            cout << "  Making copies of original matrices...";
-            cout.flush();
-        }
+            cout << "  Making copies of original matrices..." << endl;
         AOrig = A;
         BOrig = B;
-        if( g.Rank() == 0 )
-            cout << "DONE" << endl;
     }
     if( print )
     {
@@ -195,10 +190,7 @@ void TestHermitianGenDefEig
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     if( g.Rank() == 0 )
-    {
-        cout << "DONE. " << endl
-             << "  Time = " << runTime << " seconds." << endl;
-    }
+        cout << "  Time = " << runTime << " seconds." << endl;
     if( print )
     {
         Print( w, "eigenvalues:" );
