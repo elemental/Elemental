@@ -57,6 +57,19 @@ template<typename R> R MachineOverflowThreshold();
 template<> float MachineOverflowThreshold<float>();
 template<> double MachineOverflowThreshold<double>();
 
+// For copying column-major matrices
+// =================================
+void Copy
+( char uplo, int m, int n, const Int* A, int lda, Int* B, int ldb );
+void Copy
+( char uplo, int m, int n, const float* A, int lda, float* B, int ldb );
+void Copy
+( char uplo, int m, int n, const double* A, int lda, double* B, int ldb );
+void Copy
+( char uplo, int m, int n, const scomplex* A, int lda, scomplex* B, int ldb );
+void Copy
+( char uplo, int m, int n, const dcomplex* A, int lda, dcomplex* B, int ldb );
+
 // For safely computing norms without overflow/underflow
 // =====================================================
 
@@ -65,10 +78,10 @@ double SafeNorm( double alpha, double beta );
 float SafeNorm( float alpha, float beta, float gamma );
 double SafeNorm( double alpha, double beta, double gamma );
 
-float SafeNorm( Complex<float> alpha, float beta );
-double SafeNorm( Complex<double> alpha, double beta );
-float SafeNorm( float alpha, Complex<float> beta );
-double SafeNorm( double alpha, Complex<double> beta );
+float SafeNorm( scomplex alpha, float beta );
+double SafeNorm( dcomplex alpha, double beta );
+float SafeNorm( float alpha, scomplex beta );
+double SafeNorm( double alpha, dcomplex beta );
 
 // Givens rotations
 // ================

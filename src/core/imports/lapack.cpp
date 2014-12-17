@@ -25,6 +25,20 @@ float EL_LAPACK(slapy3)
 double EL_LAPACK(dlapy3)
 ( const double* alpha, const double* beta, const double* gamma );
 
+// Copy matrices
+void EL_LAPACK(slacpy)
+( const char* uplo, const int* m, const int* n, 
+  const float* A, const int* lda, float* B, const int* ldb );
+void EL_LAPACK(dlacpy)
+( const char* uplo, const int* m, const int* n, 
+  const double* A, const int* lda, double* B, const int* ldb );
+void EL_LAPACK(clacpy)
+( const char* uplo, const int* m, const int* n, 
+  const scomplex* A, const int* lda, scomplex* B, const int* ldb );
+void EL_LAPACK(zlacpy)
+( const char* uplo, const int* m, const int* n, 
+  const dcomplex* A, const int* lda, dcomplex* B, const int* ldb );
+
 // Safely compute a Givens rotation
 void EL_LAPACK(slartg)
 ( const float* phi, const float* gamma,
@@ -375,6 +389,40 @@ float SafeNorm( float alpha, Complex<float> beta )
 
 double SafeNorm( double alpha, Complex<double> beta )
 { return SafeNorm( beta, alpha ); }
+
+// Copy a matrix
+// =============
+void Copy
+( char uplo, int m, int n, const Int* A, int lda, Int* B, int ldb )
+{
+    if( uplo == 'L' || uplo == 'l' )
+    {
+        // TODO: Handle trapezoids?
+        for( int j=0; j<n; ++j )
+            MemCopy( &B[j+j*ldb], &A[j+j*lda], m-j );
+    }
+    else if( uplo == 'U' || uplo == 'u' )
+    {
+        // TODO: Handle trapezoids?
+        for( int j=0; j<n; ++j )
+            MemCopy( &B[j*ldb], &A[j*lda], j+1 );
+    }
+    else
+        for( int j=0; j<n; ++j )
+            MemCopy( &B[j*ldb], &A[j*lda], m );
+}
+void Copy
+( char uplo, int m, int n, const float* A, int lda, float* B, int ldb )
+{ EL_LAPACK(slacpy)( &uplo, &m, &n, A, &lda, B, &ldb ); }
+void Copy
+( char uplo, int m, int n, const double* A, int lda, double* B, int ldb )
+{ EL_LAPACK(dlacpy)( &uplo, &m, &n, A, &lda, B, &ldb ); }
+void Copy
+( char uplo, int m, int n, const scomplex* A, int lda, scomplex* B, int ldb )
+{ EL_LAPACK(clacpy)( &uplo, &m, &n, A, &lda, B, &ldb ); }
+void Copy
+( char uplo, int m, int n, const dcomplex* A, int lda, dcomplex* B, int ldb )
+{ EL_LAPACK(zlacpy)( &uplo, &m, &n, A, &lda, B, &ldb ); }
 
 // Safely compute Givens rotations (using Demmel and Kahan's algorithm)
 // ====================================================================

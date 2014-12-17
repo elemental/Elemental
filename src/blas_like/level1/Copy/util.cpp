@@ -21,8 +21,7 @@ void InterleaveMatrix
     // TODO: Add OpenMP parallelization and/or optimize
     if( colStrideA == 1 && colStrideB == 1 )
     {
-        for( Int j=0; j<width; ++j )
-            MemCopy( &B[j*rowStrideB], &A[j*rowStrideA], height );
+        lapack::Copy( 'F', height, width, A, rowStrideA, B, rowStrideB );
     }
     else
     {
@@ -184,10 +183,10 @@ void RowStridedPack
     {
         const Int rowShift = Shift_( k, rowAlign, rowStride );
         const Int localWidth = Length_( width, rowShift, rowStride );
-        InterleaveMatrix
-        ( height, localWidth,
-          &A[rowShift*ALDim],        1, rowStride*ALDim,
-          &BPortions[k*portionSize], 1, height );
+        lapack::Copy
+        ( 'F', height, localWidth, 
+          &A[rowShift*ALDim],        rowStride*ALDim,
+          &BPortions[k*portionSize], height );
     }
 }
 
@@ -202,10 +201,10 @@ void RowStridedUnpack
     {
         const Int rowShift = Shift_( k, rowAlign, rowStride );
         const Int localWidth = Length_( width, rowShift, rowStride );
-        InterleaveMatrix
-        ( height, localWidth,
-          &APortions[k*portionSize], 1, height,
-          &B[rowShift*BLDim],        1, rowStride*BLDim );
+        lapack::Copy
+        ( 'F', height, localWidth,
+          &APortions[k*portionSize], height,
+          &B[rowShift*BLDim],        rowStride*BLDim );
     }
 }
 
@@ -224,10 +223,10 @@ void PartialRowStridedPack
             Shift_( rowRankPart+k*rowStridePart, rowAlign, rowStride );
         const Int rowOffset = (rowShift-rowShiftA) / rowStridePart;
         const Int localWidth = Length_( width, rowShift, rowStride );
-        InterleaveMatrix
-        ( height, localWidth,
-          &A[rowOffset*ALDim],       1, rowStrideUnion*ALDim,
-          &BPortions[k*portionSize], 1, height );
+        lapack::Copy
+        ( 'F', height, localWidth,
+          &A[rowOffset*ALDim],       rowStrideUnion*ALDim,
+          &BPortions[k*portionSize], height );
     }
 }
 template<typename T>
@@ -245,10 +244,10 @@ void PartialRowStridedUnpack
             Shift_( rowRankPart+k*rowStridePart, rowAlign, rowStride );
         const Int rowOffset = (rowShift-rowShiftB) / rowStridePart;
         const Int localWidth = Length_( width, rowShift, rowStride );
-        InterleaveMatrix
-        ( height, localWidth,
-          &APortions[k*portionSize], 1, height,
-          &B[rowOffset*BLDim],       1, rowStrideUnion*BLDim );
+        lapack::Copy
+        ( 'F', height, localWidth,
+          &APortions[k*portionSize], height,
+          &B[rowOffset*BLDim],       rowStrideUnion*BLDim );
     }
 }
 
