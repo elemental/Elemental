@@ -21,21 +21,12 @@ void TestCorrectness
     const Int n = Z.Height();
     const Int k = Z.Width();
 
-    if( g.Rank() == 0 )
-        cout << "  Testing orthogonality of eigenvectors..." << endl;
     DistMatrix<F> X(g);
     Identity( X, k, k );
     Herk( uplo, ADJOINT, Real(-1), Z, Real(1), X );
-    Real oneNormOfError = OneNorm( X );
-    Real infNormOfError = InfinityNorm( X );
-    Real frobNormOfError = FrobeniusNorm( X );
+    Real frobNormE = FrobeniusNorm( X );
     if( g.Rank() == 0 )
-    {
-        cout << "    ||Z^H Z - I||_1  = " << oneNormOfError << "\n"
-             << "    ||Z^H Z - I||_oo = " << infNormOfError << "\n"
-             << "    ||Z^H Z - I||_F  = " << frobNormOfError << "\n\n"
-             << "  Testing for deviation of AZ from ZW..." << endl;
-    }
+        cout << "    ||Z^H Z - I||_F  = " << frobNormE << std::endl;
     // X := AZ
     X.AlignWith( Z );
     Zeros( X, n, k );
@@ -45,25 +36,11 @@ void TestCorrectness
     DiagonalScale( RIGHT, NORMAL, w, ZW );
     Axpy( F(-1), ZW, X );
     // Find the infinity norms of A, Z, and AZ-ZW
-    Real infNormOfA = HermitianInfinityNorm( uplo, AOrig );
-    Real frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
-    Real oneNormOfZ = OneNorm( Z );
-    Real infNormOfZ = InfinityNorm( Z );
-    Real frobNormOfZ = FrobeniusNorm( Z );
-    oneNormOfError = OneNorm( X );
-    infNormOfError = InfinityNorm( X );
-    frobNormOfError = FrobeniusNorm( X );
+    Real frobNormA = HermitianFrobeniusNorm( uplo, AOrig );
+    frobNormE = FrobeniusNorm( X );
     if( g.Rank() == 0 )
-    {
-        cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
-             << "    ||A||_F            = " << frobNormOfA << "\n"
-             << "    ||Z||_1            = " << oneNormOfZ << "\n"
-             << "    ||Z||_oo           = " << infNormOfZ << "\n"
-             << "    ||Z||_F            = " << frobNormOfZ << "\n"
-             << "    ||A Z - Z W||_1    = " << oneNormOfError << "\n"
-             << "    ||A Z - Z W||_oo   = " << infNormOfError << "\n"
-             << "    ||A Z - Z W||_F    = " << frobNormOfError << endl;
-    }
+        cout << "    ||A Z - Z W||_F / ||A||_F = " << frobNormE/frobNormA
+             << std::endl;
 }
 
 template<typename F,Dist U=MC,Dist V=MR,Dist S=MC>

@@ -393,25 +393,6 @@ double SafeNorm( double alpha, Complex<double> beta )
 // Copy a matrix
 // =============
 void Copy
-( char uplo, int m, int n, const Int* A, int lda, Int* B, int ldb )
-{
-    if( uplo == 'L' || uplo == 'l' )
-    {
-        // TODO: Handle trapezoids?
-        for( int j=0; j<n; ++j )
-            MemCopy( &B[j+j*ldb], &A[j+j*lda], m-j );
-    }
-    else if( uplo == 'U' || uplo == 'u' )
-    {
-        // TODO: Handle trapezoids?
-        for( int j=0; j<n; ++j )
-            MemCopy( &B[j*ldb], &A[j*lda], j+1 );
-    }
-    else
-        for( int j=0; j<n; ++j )
-            MemCopy( &B[j*ldb], &A[j*lda], m );
-}
-void Copy
 ( char uplo, int m, int n, const float* A, int lda, float* B, int ldb )
 { EL_LAPACK(slacpy)( &uplo, &m, &n, A, &lda, B, &ldb ); }
 void Copy

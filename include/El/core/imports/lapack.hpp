@@ -60,8 +60,6 @@ template<> double MachineOverflowThreshold<double>();
 // For copying column-major matrices
 // =================================
 void Copy
-( char uplo, int m, int n, const Int* A, int lda, Int* B, int ldb );
-void Copy
 ( char uplo, int m, int n, const float* A, int lda, float* B, int ldb );
 void Copy
 ( char uplo, int m, int n, const double* A, int lda, double* B, int ldb );
@@ -69,6 +67,8 @@ void Copy
 ( char uplo, int m, int n, const scomplex* A, int lda, scomplex* B, int ldb );
 void Copy
 ( char uplo, int m, int n, const dcomplex* A, int lda, dcomplex* B, int ldb );
+template<typename T>
+void Copy( char uplo, int m, int n, const T* A, int lda, T* B, int ldb );
 
 // For safely computing norms without overflow/underflow
 // =====================================================
@@ -390,6 +390,29 @@ void Eig( int n, double* A, int ldA, dcomplex* w, dcomplex* X, int ldX );
 void Eig( int n, double* A, int ldA, dcomplex* w, double* XPacked, int ldX );
 void Eig( int n, scomplex* A, int ldA, scomplex* w, scomplex* X, int ldX );
 void Eig( int n, dcomplex* A, int ldA, dcomplex* w, dcomplex* X, int ldX );
+
+// Templated wrappers
+// ==================
+template<typename T>
+inline void 
+Copy( char uplo, int m, int n, const T* A, int lda, T* B, int ldb )
+{
+    if( uplo == 'L' || uplo == 'l' )
+    {
+        // TODO: Handle trapezoids?
+        for( int j=0; j<n; ++j )
+            MemCopy( &B[j+j*ldb], &A[j+j*lda], m-j );
+    }
+    else if( uplo == 'U' || uplo == 'u' )
+    {
+        // TODO: Handle trapezoids?
+        for( int j=0; j<n; ++j )
+            MemCopy( &B[j*ldb], &A[j*lda], j+1 );
+    }
+    else
+        for( int j=0; j<n; ++j )
+            MemCopy( &B[j*ldb], &A[j*lda], m );
+}
 
 } // namespace lapack
 } // namespace El

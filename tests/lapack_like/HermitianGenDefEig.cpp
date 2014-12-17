@@ -23,20 +23,11 @@ void TestCorrectness
     const Int n = X.Height();
     const Int k = X.Width();
 
-    if( g.Rank() == 0 )
-    {
-        cout << "  Gathering computed eigenvalues...";
-        cout.flush();
-    }
     DistMatrix<Real,MR,STAR> w_MR_STAR(true,X.RowAlign(),g); 
     w_MR_STAR = w;
-    if( g.Rank() == 0 )
-        cout << "DONE" << endl;
 
     if( pencil == AXBX )
     {
-        if( g.Rank() == 0 )
-            cout << "  Testing for deviation of AX from BXW..." << endl;
         // Set Y := BXW, where W is the diagonal eigenvalue matrix
         DistMatrix<F> Y( g );
         Y.AlignWith( X );
@@ -45,32 +36,13 @@ void TestCorrectness
         DiagonalScale( RIGHT, NORMAL, w_MR_STAR, Y );
         // Y := Y - AX = BXW - AX
         Hemm( LEFT, uplo, F(-1), AOrig, X, F(1), Y );
-        // Find the infinity norms of A, B, X, and AX-BXW
-        Real infNormOfA = HermitianInfinityNorm( uplo, AOrig );
-        Real frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
-        Real infNormOfB = HermitianInfinityNorm( uplo, BOrig );
-        Real frobNormOfB = HermitianFrobeniusNorm( uplo, BOrig );
-        Real oneNormOfX = OneNorm( X );
-        Real infNormOfX = InfinityNorm( X );
-        Real frobNormOfX = FrobeniusNorm( X );
-        Real oneNormOfError = OneNorm( Y );
-        Real infNormOfError = InfinityNorm( Y );
-        Real frobNormOfError = FrobeniusNorm( Y );
+
+        const Real frobNormA = HermitianFrobeniusNorm( uplo, AOrig );
+        const Real frobNormB = HermitianFrobeniusNorm( uplo, BOrig );
+        Real frobNormE = FrobeniusNorm( Y );
         if( g.Rank() == 0 )
-        {
-            cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
-                 << "    ||A||_F            = " << frobNormOfA << "\n"
-                 << "    ||B||_1 = ||B||_oo = " << infNormOfB << "\n"
-                 << "    ||B||_F            = " << frobNormOfB << "\n"
-                 << "    ||X||_1            = " << oneNormOfX << "\n"
-                 << "    ||X||_oo           = " << infNormOfX << "\n"
-                 << "    ||X||_F            = " << frobNormOfX << "\n"
-                 << "    ||A X - B X W||_1  = " << oneNormOfError << "\n"
-                 << "    ||A X - B X W||_oo = " << infNormOfError << "\n"
-                 << "    ||A X - B X W||_F  = " << frobNormOfError << "\n\n"
-                 << "  Testing orthonormality of eigenvectors w.r.t. B..."
-                 << endl;
-        }
+            cout << "    ||A X - B X W||_F / max(||A||_F,||B||_F) = " 
+                 << frobNormE/Max(frobNormA,frobNormB) << std::endl;
         DistMatrix<F> Z(g);
         Z = X;
         if( uplo == LOWER )
@@ -79,18 +51,13 @@ void TestCorrectness
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), B, Z );
         Identity( Y, k, k );
         Herk( uplo, ADJOINT, Real(-1), Z, Real(1), Y );
-        oneNormOfError = OneNorm( Y );
-        infNormOfError = InfinityNorm( Y );
-        frobNormOfError = FrobeniusNorm( Y );
+        frobNormE = FrobeniusNorm( Y );
         if( g.Rank() == 0 )
-            cout << "    ||X^H B X - I||_1  = " << oneNormOfError << "\n"
-                 << "    ||X^H B X - I||_oo = " << infNormOfError << "\n"
-                 << "    ||X^H B X - I||_F  = " << frobNormOfError << endl;
+            cout << "    ||X^H B X - I||_F  / max(||A||_F,||B||_F) = " 
+                 << frobNormE/Max(frobNormA,frobNormB) << endl;
     }
     else if( pencil == ABX )
     {
-        if( g.Rank() == 0 )
-            cout << "  Testing for deviation of ABX from XW..." << endl;
         // Set Y := BX
         DistMatrix<F> Y( g );
         Y.AlignWith( X );
@@ -111,31 +78,12 @@ void TestCorrectness
             }
         }
         // Find the infinity norms of A, B, X, and ABX-XW
-        Real infNormOfA = HermitianInfinityNorm( uplo, AOrig );
-        Real frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
-        Real infNormOfB = HermitianInfinityNorm( uplo, BOrig );
-        Real frobNormOfB = HermitianFrobeniusNorm( uplo, BOrig );
-        Real oneNormOfX = OneNorm( X );
-        Real infNormOfX = InfinityNorm( X );
-        Real frobNormOfX = FrobeniusNorm( X );
-        Real oneNormOfError = OneNorm( Z );
-        Real infNormOfError = InfinityNorm( Z );
-        Real frobNormOfError = FrobeniusNorm( Z );
+        const Real frobNormA = HermitianFrobeniusNorm( uplo, AOrig );
+        const Real frobNormB = HermitianFrobeniusNorm( uplo, BOrig );
+        Real frobNormE = FrobeniusNorm( Z );
         if( g.Rank() == 0 )
-        {
-            cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
-                 << "    ||A||_F            = " << frobNormOfA << "\n"
-                 << "    ||B||_1 = ||B||_oo = " << infNormOfB << "\n"
-                 << "    ||B||_F            = " << frobNormOfB << "\n"
-                 << "    ||X||_1            = " << oneNormOfX << "\n"
-                 << "    ||X||_oo           = " << infNormOfX << "\n"
-                 << "    ||X||_F            = " << frobNormOfX << "\n"
-                 << "    ||A B X - X W||_1  = " << oneNormOfError << "\n"
-                 << "    ||A B X - X W||_oo = " << infNormOfError << "\n"
-                 << "    ||A B X - X W||_F  = " << frobNormOfError << "\n\n"
-                 << "  Testing orthonormality of eigenvectors w.r.t. B..."
-                 << endl;
-        }
+            cout << "    ||A B X - X W||_F  / max(||A||_F,||B||_F) = " 
+                 << frobNormE/Max(frobNormA,frobNormB) << std::endl;
         Z = X;
         if( uplo == LOWER )
             Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), B, Z );
@@ -143,18 +91,13 @@ void TestCorrectness
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), B, Z );
         Identity( Y, k, k );
         Herk( uplo, ADJOINT, Real(-1), Z, Real(1), Y );
-        oneNormOfError = OneNorm( Y );
-        infNormOfError = InfinityNorm( Y );
-        frobNormOfError = FrobeniusNorm( Y );
+        frobNormE = FrobeniusNorm( Y );
         if( g.Rank() == 0 )
-            cout << "    ||X^H B X - I||_1  = " << oneNormOfError << "\n"
-                 << "    ||X^H B X - I||_oo = " << infNormOfError << "\n"
-                 << "    ||X^H B X - I||_F  = " << frobNormOfError << endl;
+            cout << "    ||X^H B X - I||_F / Max(||A||_F,||B||_F) = " 
+                 << frobNormE/Max(frobNormA,frobNormB) << endl;
     }
     else /* pencil == BAX */
     {
-        if( g.Rank() == 0 )
-            cout << "  Testing for deviation of BAX from XW..." << endl;
         // Set Y := AX
         DistMatrix<F> Y( g );
         Y.AlignWith( X );
@@ -175,31 +118,12 @@ void TestCorrectness
             }
         }
         // Find the infinity norms of A, B, X, and BAX-XW
-        Real infNormOfA = HermitianInfinityNorm( uplo, AOrig );
-        Real frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
-        Real infNormOfB = HermitianInfinityNorm( uplo, BOrig );
-        Real frobNormOfB = HermitianFrobeniusNorm( uplo, BOrig );
-        Real oneNormOfX = OneNorm( X );
-        Real infNormOfX = InfinityNorm( X );
-        Real frobNormOfX = FrobeniusNorm( X );
-        Real oneNormOfError = OneNorm( Z );
-        Real infNormOfError = InfinityNorm( Z );
-        Real frobNormOfError = FrobeniusNorm( Z );
+        const Real frobNormA = HermitianFrobeniusNorm( uplo, AOrig );
+        const Real frobNormB = HermitianFrobeniusNorm( uplo, BOrig );
+        Real frobNormE = FrobeniusNorm( Z );
         if( g.Rank() == 0 )
-        {
-            cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
-                 << "    ||A||_F            = " << frobNormOfA << "\n"
-                 << "    ||B||_1 = ||B||_oo = " << infNormOfB << "\n"
-                 << "    ||B||_F            = " << frobNormOfB << "\n"
-                 << "    ||X||_1            = " << oneNormOfX << "\n"
-                 << "    ||X||_oo           = " << infNormOfX << "\n"
-                 << "    ||X||_F            = " << frobNormOfX << "\n"
-                 << "    ||B A X - X W||_1  = " << oneNormOfError << "\n"
-                 << "    ||B A X - X W||_oo = " << infNormOfError << "\n"
-                 << "    ||B A X - X W||_F  = " << frobNormOfError << "\n\n"
-                 << "  Testing orthonormality of eigenvectors w.r.t. B^-1..."
-                 << endl;
-        }
+            cout << "    ||B A X - X W||_F / Max(||A||_F,||B||_F) = " 
+                 << frobNormE/Max(frobNormA,frobNormB) << std::endl;
         Z = X;
         if( uplo == LOWER )
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), B, Z );
@@ -207,13 +131,10 @@ void TestCorrectness
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), B, Z );
         Identity( Y, k, k );
         Herk( uplo, ADJOINT, Real(-1), Z, Real(1), Y );
-        oneNormOfError = OneNorm( Y );
-        infNormOfError = InfinityNorm( Y );
-        frobNormOfError = FrobeniusNorm( Y );
+        frobNormE = FrobeniusNorm( Y );
         if( g.Rank() == 0 )
-            cout << "    ||X^H B^-1 X - I||_1  = " << oneNormOfError << "\n"
-                 << "    ||X^H B^-1 X - I||_oo = " << infNormOfError << "\n"
-                 << "    ||X^H B^-1 X - I||_F  = " << frobNormOfError << endl;
+            cout << "    ||X^H B^-1 X - I||_F  / Max(||A||_F,||B||_F) = " 
+                 << frobNormE/Max(frobNormA,frobNormB) << endl;
     }
 }
 

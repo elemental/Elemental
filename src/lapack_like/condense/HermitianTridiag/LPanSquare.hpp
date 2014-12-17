@@ -12,13 +12,17 @@
 namespace El {
 namespace herm_tridiag {
 
+// TODO: Fuse Trmvs
+// TODO: Custom kernel for W22 update
+// TODO: Reuse a small number of preallocated vectors
+
 template<typename F>
 void LPanSquare
 ( DistMatrix<F>& A,
   DistMatrix<F>& W,
   DistMatrix<F,MD,STAR>& t,
-  DistMatrix<F,MC,STAR>& APan_MC_STAR, 
-  DistMatrix<F,MR,STAR>& APan_MR_STAR,
+  DistMatrix<F,MC,STAR>& B_MC_STAR, 
+  DistMatrix<F,MR,STAR>& B_MR_STAR,
   DistMatrix<F,MC,STAR>& W_MC_STAR,
   DistMatrix<F,MR,STAR>& W_MR_STAR )
 {
@@ -33,8 +37,7 @@ void LPanSquare
             LogicError("A and W must be the same height");
         if( n <= nW )
             LogicError("W must be a column panel");
-        if( W.ColAlign() != A.ColAlign() || 
-            W.RowAlign() != A.RowAlign() )
+        if( W.ColAlign() != A.ColAlign() || W.RowAlign() != A.RowAlign() )
             LogicError("W and A must be aligned");
         if( t.Height() != nW || t.Width() != 1 )
             LogicError
@@ -46,17 +49,9 @@ void LPanSquare
     // Find the process holding our transposed data
     const Grid& g = A.Grid();
     const Int r = g.Height();
-    Int transposeRank;
-    {
-        const Int colAlign = A.ColAlign();
-        const Int rowAlign = A.RowAlign();
-        const Int colShift = A.ColShift();
-        const Int rowShift = A.RowShift();
-
-        const Int transposeRow = (colAlign+rowShift) % r;
-        const Int transposeCol = (rowAlign+colShift) % r;
-        transposeRank = transposeRow + r*transposeCol;
-    }
+    const Int transposeRow = Mod( A.ColAlign()+A.RowShift(), r );
+    const Int transposeCol = Mod( A.RowAlign()+A.ColShift(), r );
+    const Int transposeRank = transposeRow + r*transposeCol;
     const bool onDiagonal = ( transposeRank == g.VCRank() );
 
     // Create a distributed matrix for storing the subdiagonal
@@ -118,9 +113,9 @@ void LPanSquare
 
         if( k > 0 )
         {
-            a21Last_MC_STAR = APan_MC_STAR( indB, ind1-1 ); 
-            a21Last_MR_STAR = APan_MR_STAR( indB, ind1-1 );
-            w21Last         = W(            indB, ind1-1 );
+            a21Last_MC_STAR = B_MC_STAR( indB, ind1-1 ); 
+            a21Last_MR_STAR = B_MR_STAR( indB, ind1-1 );
+            w21Last         = W(         indB, ind1-1 );
         }
  
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlign() );
@@ -139,8 +134,7 @@ void LPanSquare
             }
             // Compute the Householder reflector
             tau = reflector::Col( alpha21T, a21B );
-            if( g.Row() == alpha21T.ColAlign() )
-                tau1.SetLocal(0,0,tau);
+            tau1.Set( 0, 0, tau );
         }
 
         // Store the subdiagonal value and turn a21 into a proper scaled 
@@ -170,13 +164,12 @@ void LPanSquare
             // for the next iteration
             MemCopy
             ( a21_MC_STAR.Buffer(), rowBroadcastBuffer.data(), a21LocalHeight );
-            // Store a21[MC,* ] into APan[MC,* ]
-            const Int APan_MC_STAR_Offset = 
-                APan_MC_STAR.LocalHeight()-a21LocalHeight;
+            // Store a21[MC,* ] into B[MC,* ]
+            const Int B_MC_STAR_Off = B_MC_STAR.LocalHeight()-a21LocalHeight;
             MemCopy
-            ( APan_MC_STAR.Buffer(APan_MC_STAR_Offset,0), 
+            ( B_MC_STAR.Buffer(B_MC_STAR_Off,0), 
               rowBroadcastBuffer.data(),
-              APan_MC_STAR.LocalHeight()-APan_MC_STAR_Offset );
+              B_MC_STAR.LocalHeight()-B_MC_STAR_Off );
             // Store tau
             tau = rowBroadcastBuffer[a21LocalHeight];
             
@@ -190,19 +183,18 @@ void LPanSquare
             else
             {
                 // Pairwise exchange
-                const Int sendSize = A22.LocalHeight();
-                const Int recvSize = A22.LocalWidth();
                 mpi::SendRecv
-                ( a21_MC_STAR.Buffer(), sendSize, transposeRank,
-                  a21_MR_STAR.Buffer(), recvSize, transposeRank, g.VCComm() );
+                ( a21_MC_STAR.Buffer(), A22.LocalHeight(), transposeRank,
+                  a21_MR_STAR.Buffer(), A22.LocalWidth(),  transposeRank, 
+                  g.VCComm() );
             }
             // Store a21[MR,* ]
-            const Int APan_MR_STAR_Offset = 
-                APan_MR_STAR.LocalHeight()-a21_MR_STAR.LocalHeight();
+            const Int B_MR_STAR_Off = 
+                B_MR_STAR.LocalHeight()-a21_MR_STAR.LocalHeight();
             MemCopy
-            ( APan_MR_STAR.Buffer(APan_MR_STAR_Offset,A00.Width()),
+            ( B_MR_STAR.Buffer(B_MR_STAR_Off,A00.Width()),
               a21_MR_STAR.Buffer(),
-              APan_MR_STAR.LocalHeight()-APan_MR_STAR_Offset );
+              B_MR_STAR.LocalHeight()-B_MR_STAR_Off );
         }
         else
         {
@@ -228,13 +220,12 @@ void LPanSquare
             // Store a21[MC,* ] into its DistMatrix class 
             MemCopy
             ( a21_MC_STAR.Buffer(), rowBroadcastBuffer.data(), a21LocalHeight );
-            // Store a21[MC,* ] into APan[MC,* ]
-            const Int APan_MC_STAR_Offset = 
-                APan_MC_STAR.LocalHeight()-a21LocalHeight;
+            // Store a21[MC,* ] into B[MC,* ]
+            const Int B_MC_STAR_Off = B_MC_STAR.LocalHeight()-a21LocalHeight;
             MemCopy
-            ( APan_MC_STAR.Buffer(APan_MC_STAR_Offset,A00.Width()), 
+            ( B_MC_STAR.Buffer(B_MC_STAR_Off,A00.Width()), 
               rowBroadcastBuffer.data(),
-              APan_MC_STAR.LocalHeight()-APan_MC_STAR_Offset );
+              B_MC_STAR.LocalHeight()-B_MC_STAR_Off );
             // Store w21Last[MC,* ] into its DistMatrix class
             w21Last_MC_STAR.AlignWith( alpha11 );
             w21Last_MC_STAR.Resize( a21.Height()+1, 1 );
@@ -243,12 +234,12 @@ void LPanSquare
               &rowBroadcastBuffer[a21LocalHeight], w21LastLocalHeight );
             // Store the bottom part of w21Last[MC,* ] into WB[MC,* ] and, 
             // if necessary, w21.
-            const Int W_MC_STAR_Offset = 
+            const Int W_MC_STAR_Off = 
                 W_MC_STAR.LocalHeight()-w21LastLocalHeight;
             MemCopy
-            ( W_MC_STAR.Buffer(W_MC_STAR_Offset,A00.Width()-1),
+            ( W_MC_STAR.Buffer(W_MC_STAR_Off,A00.Width()-1),
               &rowBroadcastBuffer[a21LocalHeight],
-              W_MC_STAR.LocalHeight()-W_MC_STAR_Offset );
+              W_MC_STAR.LocalHeight()-W_MC_STAR_Off );
             if( g.Col() == w21Last.RowAlign() )
             {
                 MemCopy
@@ -298,25 +289,26 @@ void LPanSquare
             }
 
             // Store w21Last[MR,* ]
-            const Int W_MR_STAR_Offset = 
+            const Int W_MR_STAR_Off = 
                 W_MR_STAR.LocalHeight()-w21Last_MR_STAR.LocalHeight();
             MemCopy
-            ( W_MR_STAR.Buffer(W_MR_STAR_Offset,A00.Width()-1),
+            ( W_MR_STAR.Buffer(W_MR_STAR_Off,A00.Width()-1),
               w21Last_MR_STAR.Buffer(),
-              W_MR_STAR.LocalHeight()-W_MR_STAR_Offset );
+              W_MR_STAR.LocalHeight()-W_MR_STAR_Off );
             // Store a21[MR,* ]
-            const Int APan_MR_STAR_Offset = 
-                APan_MR_STAR.LocalHeight()-a21_MR_STAR.LocalHeight();
+            const Int B_MR_STAR_Off = 
+                B_MR_STAR.LocalHeight()-a21_MR_STAR.LocalHeight();
             MemCopy
-            ( APan_MR_STAR.Buffer(APan_MR_STAR_Offset,A00.Width()),
+            ( B_MR_STAR.Buffer(B_MR_STAR_Off,A00.Width()),
               a21_MR_STAR.Buffer(),
-              APan_MR_STAR.LocalHeight()-APan_MR_STAR_Offset );
+              B_MR_STAR.LocalHeight()-B_MR_STAR_Off );
 
             // Update the portion of A22 that is in our current panel with 
             // w21Last and a21Last using two gers. We do not need their top 
             // entries. We trash the upper triangle of our panel of A since we 
             // are only doing slightly more work and we can replace it
             // afterwards.
+            // TODO: Create a custom kernel for this operation
             auto a21Last_MC_STAR_Bottom = a21Last_MC_STAR( IR(1,n-k), IR(0,1) );
             auto w21Last_MC_STAR_Bottom = w21Last_MC_STAR( IR(1,n-k), IR(0,1) );
             auto a21Last_MR_STAR_Bottom = a21Last_MR_STAR( IR(1,n-k), IR(0,1) );
@@ -329,77 +321,77 @@ void LPanSquare
             const Int localHeight = W22.LocalHeight();
             const Int localWidth = W22.LocalWidth();
             const Int lDim = A22.LDim();
-            for( Int jLocal=0; jLocal<localWidth; ++jLocal )
-                for( Int iLocal=0; iLocal<localHeight; ++iLocal )
-                    A22Buffer[iLocal+jLocal*lDim] -=
-                        w21_MC_STAR_Buffer[iLocal]*
-                        Conj(a21_MR_STAR_Buffer[jLocal]) +
-                        a21_MC_STAR_Buffer[iLocal]*
-                        Conj(w21_MR_STAR_Buffer[jLocal]);
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            {
+                const F delta = Conj(a21_MR_STAR_Buffer[jLoc]);
+                const F gamma = Conj(w21_MR_STAR_Buffer[jLoc]);
+                for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+                    A22Buffer[iLoc+jLoc*lDim] -=
+                        w21_MC_STAR_Buffer[iLoc]*delta +
+                        a21_MC_STAR_Buffer[iLoc]*gamma;
+            }
         }
 
         // Form the local portions of (A22 a21) into p21[MC,* ] and q21[MR,* ]:
         //   p21[MC,* ] := tril(A22)[MC,MR] a21[MR,* ]
         //   q21[MR,* ] := tril(A22,-1)'[MR,MC] a21[MC,* ]
+        // TODO: Extract into symv::LocalColAccumulate
         if( A22.ColShift() > A22.RowShift() )
         {
             // We are below the diagonal, so we can multiply without an 
             // offset for tril(A22)[MC,MR] and tril(A22,-1)'[MR,MC]
-            if( A22.LocalHeight() != 0 )
-            {
-                MemCopy
-                ( p21_MC_STAR.Buffer(),
-                  a21_MR_STAR.Buffer(), A22.LocalHeight() );
-                blas::Trmv
-                ( 'L', 'N', 'N', A22.LocalHeight(), A22.Buffer(), A22.LDim(), 
-                  p21_MC_STAR.Buffer(), 1 );
-            }
+            MemCopy
+            ( p21_MC_STAR.Buffer(),
+              a21_MR_STAR.LockedBuffer(), A22.LocalHeight() );
             if( A22.LocalWidth() != 0 )
             {
                 // Our local portion of q21[MR,* ] might be one entry longer 
                 // than A22.LocalHeight(), so go ahead and set the last entry 
                 // to 0.
-                F* q21_MR_STAR_Buffer = q21_MR_STAR.Buffer();
-                q21_MR_STAR_Buffer[A22.LocalWidth()-1] = 0;
-                MemCopy
-                ( q21_MR_STAR_Buffer, a21_MC_STAR.Buffer(), A22.LocalHeight() );
-                blas::Trmv
-                ( 'L', 'C', 'N', A22.LocalHeight(), A22.Buffer(), A22.LDim(),
-                  q21_MR_STAR_Buffer, 1 );
+                q21_MR_STAR.SetLocal(A22.LocalWidth()-1,0,F(0));
             }
+            MemCopy
+            ( q21_MR_STAR.Buffer(), 
+              a21_MC_STAR.LockedBuffer(), A22.LocalHeight() );
+
+            blas::Trmv
+            ( 'L', 'N', 'N', A22.LocalHeight(), 
+              A22.LockedBuffer(),   A22.LDim(), 
+              p21_MC_STAR.Buffer(), 1 );
+            blas::Trmv
+            ( 'L', 'C', 'N', A22.LocalHeight(), 
+              A22.LockedBuffer(),   A22.LDim(),
+              q21_MR_STAR.Buffer(), 1 );
         }
         else if( A22.ColShift() < A22.RowShift() )
         {
             // We are above the diagonal, so we need to use an offset of +1
             // for both tril(A22)[MC,MR] and tril(A22,-1)'[MR,MC]
-            const F* a21_MC_STAR_Buffer = a21_MC_STAR.Buffer();
-            const F* a21_MR_STAR_Buffer = a21_MR_STAR.Buffer();
-            const F* A22Buffer = A22.Buffer();
             if( A22.LocalHeight() != 0 )
             {
                 // The first entry of p21[MC,* ] will always be zero due to 
                 // the forced offset.
-                F* p21_MC_STAR_Buffer = p21_MC_STAR.Buffer();
-                p21_MC_STAR_Buffer[0] = 0;
+                p21_MC_STAR.SetLocal(0,0,F(0));
                 MemCopy
-                ( &p21_MC_STAR_Buffer[1],
-                  a21_MR_STAR_Buffer, A22.LocalHeight()-1 );
+                ( p21_MC_STAR.Buffer(1,0),
+                  a21_MR_STAR.LockedBuffer(), A22.LocalHeight()-1 );
                 blas::Trmv
-                ( 'L', 'N', 'N', A22.LocalHeight()-1, &A22Buffer[1], A22.LDim(),
-                  &p21_MC_STAR_Buffer[1], 1 );
+                ( 'L', 'N', 'N', A22.LocalHeight()-1, 
+                  A22.LockedBuffer(1,0),   A22.LDim(),
+                  p21_MC_STAR.Buffer(1,0), 1 );
             }
             if( A22.LocalWidth() != 0 )
             {
                 // The last entry of q21[MR,* ] will be zero if the local
                 // height and width are equal.
-                F* q21_MR_STAR_Buffer = q21_MR_STAR.Buffer();
-                q21_MR_STAR_Buffer[A22.LocalWidth()-1] = 0;
+                q21_MR_STAR.SetLocal(A22.LocalWidth()-1,0,F(0));
                 MemCopy
-                ( q21_MR_STAR_Buffer,
-                  &a21_MC_STAR_Buffer[1], A22.LocalHeight()-1 );
+                ( q21_MR_STAR.Buffer(),
+                  a21_MC_STAR.LockedBuffer(1,0), A22.LocalHeight()-1 );
                 blas::Trmv
-                ( 'L', 'C', 'N', A22.LocalHeight()-1, &A22Buffer[1], A22.LDim(),
-                  q21_MR_STAR_Buffer, 1 );
+                ( 'L', 'C', 'N', A22.LocalHeight()-1, 
+                  A22.LockedBuffer(1,0), A22.LDim(),
+                  q21_MR_STAR.Buffer(),  1 );
             }
         }
         else
@@ -411,22 +403,21 @@ void LPanSquare
                 MemCopy
                 ( p21_MC_STAR.Buffer(),
                   a21_MR_STAR.Buffer(), A22.LocalHeight() );
-                blas::Trmv
-                ( 'L', 'N', 'N', A22.LocalHeight(), A22.Buffer(), A22.LDim(), 
-                  p21_MC_STAR.Buffer(), 1 );
-
                 // The last entry of q21[MR,* ] will be zero if the local 
                 // height and width are equal.
-                const F* a21_MC_STAR_Buffer = a21_MC_STAR.Buffer();
-                const F* A22Buffer = A22.Buffer();
-                F* q21_MR_STAR_Buffer = q21_MR_STAR.Buffer();
-                q21_MR_STAR_Buffer[A22.LocalWidth()-1] = 0;
+                q21_MR_STAR.SetLocal(A22.LocalWidth()-1,0,F(0));
                 MemCopy
-                ( q21_MR_STAR_Buffer,
-                  &a21_MC_STAR_Buffer[1], A22.LocalHeight()-1 );
+                ( q21_MR_STAR.Buffer(),
+                  a21_MC_STAR.LockedBuffer(1,0), A22.LocalHeight()-1 );
+
                 blas::Trmv
-                ( 'L', 'C', 'N', A22.LocalHeight()-1, &A22Buffer[1], A22.LDim(),
-                  q21_MR_STAR_Buffer, 1 );
+                ( 'L', 'N', 'N', A22.LocalHeight(), 
+                  A22.LockedBuffer(),   A22.LDim(), 
+                  p21_MC_STAR.Buffer(), 1 );
+                blas::Trmv
+                ( 'L', 'C', 'N', A22.LocalHeight()-1, 
+                  A22.LockedBuffer(1,0), A22.LDim(),
+                  q21_MR_STAR.Buffer(),  1 );
             }
         }
 
@@ -469,11 +460,10 @@ void LPanSquare
         // to be summed within process rows.
         if( onDiagonal )
         {
-            const Int a21LocalHeight = a21.LocalHeight();
-            F* p21_MC_STAR_Buffer = p21_MC_STAR.Buffer();
-            const F* q21_MR_STAR_Buffer = q21_MR_STAR.Buffer();
-            for( Int i=0; i<a21LocalHeight; ++i )
-                p21_MC_STAR_Buffer[i] += q21_MR_STAR_Buffer[i];
+            blas::Axpy
+            ( a21.LocalHeight(), F(1),
+              q21_MR_STAR.LockedBuffer(), 1,
+              p21_MC_STAR.Buffer(),       1 );
         }
         else
         {
@@ -483,12 +473,12 @@ void LPanSquare
             std::vector<F> recvBuffer(recvSize);
             mpi::SendRecv
             ( q21_MR_STAR.Buffer(), sendSize, transposeRank, 
-              recvBuffer.data(),    recvSize, transposeRank, g.VCComm() );
+              recvBuffer.data(),    recvSize, transposeRank, 
+              g.VCComm() );
 
             // Unpack the recv buffer directly onto p21[MC,* ]
-            F* p21_MC_STAR_Buffer = p21_MC_STAR.Buffer();
-            for( Int i=0; i<recvSize; ++i )
-                p21_MC_STAR_Buffer[i] += recvBuffer[i];
+            blas::Axpy
+            ( recvSize, F(1), recvBuffer.data(), 1, p21_MC_STAR.Buffer(), 1 );
         }
 
         if( W22.Width() > 0 )
@@ -571,11 +561,10 @@ void LPanSquare
             else
             {
                 // Pairwise exchange with the transpose process
-                const Int sendSize = A22.LocalHeight();
-                const Int recvSize = A22.LocalWidth();
                 mpi::SendRecv
-                ( w21_MC_STAR.Buffer(), sendSize, transposeRank, 
-                  w21_MR_STAR.Buffer(), recvSize, transposeRank, g.VCComm() );
+                ( w21_MC_STAR.Buffer(), A22.LocalHeight(), transposeRank, 
+                  w21_MR_STAR.Buffer(), A22.LocalWidth(),  transposeRank, 
+                  g.VCComm() );
             }
         }
     }

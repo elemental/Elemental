@@ -47,63 +47,37 @@ inline void LocalColAccumulateL
     const Grid& g = A.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    // Matrix views
-    DistMatrix<T> A11(g),
-                  A21(g);
     DistMatrix<T> D11(g);
-
-    DistMatrix<T,MC,STAR> 
-        xT_MC_STAR(g),  x0_MC_STAR(g),
-        xB_MC_STAR(g),  x1_MC_STAR(g),
-                        x2_MC_STAR(g);
-    DistMatrix<T,MR,STAR>  x1_MR_STAR(g);
-    DistMatrix<T,MC,STAR> z1_MC_STAR(g),
-                          z2_MC_STAR(g);
-    DistMatrix<T,MR,STAR> z1_MR_STAR(g);
 
     // We want our local gemvs to be of width blocksize, so we will 
     // temporarily change to max(r,c) times the current blocksize
-    const Int ratio = Max( g.Height(), g.Width() );
-    PushBlocksizeStack( ratio*LocalSymvBlocksize<T>() );
-    LockedPartitionDown
-    ( x_MC_STAR, xT_MC_STAR,
-                 xB_MC_STAR, 0 );
-    while( xT_MC_STAR.Height() < x_MC_STAR.Height() )
+    const Int bsize = Max(g.Height(),g.Width())*LocalSymvBlocksize<T>();
+    const Int n = A.Height();
+    for( Int k=0; k<n; k+=bsize )
     {
-        LockedRepartitionDown
-        ( xT_MC_STAR,  x0_MC_STAR,
-         /**********/ /**********/
-                       x1_MC_STAR,
-          xB_MC_STAR,  x2_MC_STAR );
+        const Int nb = Min(bsize,n-k);
+        const Range<Int> ind1( k, k+nb ), ind2( k+nb, n );
 
-        const Int n0 = x0_MC_STAR.Height();
-        const Int n1 = x1_MC_STAR.Height();
-        const Int n2 = x2_MC_STAR.Height();
-        LockedView( A11, A, n0,    n0, n1, n1 );
-        LockedView( A21, A, n0+n1, n0, n2, n1 );
-        LockedView( x1_MR_STAR, x_MR_STAR, n0, 0, n1, 1 );
-        View( z1_MC_STAR, z_MC_STAR, n0,    0, n1, 1 );
-        View( z2_MC_STAR, z_MC_STAR, n0+n1, 0, n2, 1 );
-        View( z1_MR_STAR, z_MR_STAR, n0,    0, n1, 1 );
+        auto A11 = A( ind1, ind1 );
+        auto A21 = A( ind2, ind1 );
+        auto x1_MC_STAR = x_MC_STAR( ind1, IR(0,1) );
+        auto x2_MC_STAR = x_MC_STAR( ind2, IR(0,1) );
+        auto x1_MR_STAR = x_MR_STAR( ind1, IR(0,1) );
+        auto z1_MC_STAR = z_MC_STAR( ind1, IR(0,1) );
+        auto z2_MC_STAR = z_MC_STAR( ind2, IR(0,1) );
+        auto z1_MR_STAR = z_MR_STAR( ind1, IR(0,1) );
  
         D11.AlignWith( A11 );
         // TODO: These diagonal block updates can be greatly improved
         D11 = A11;
         MakeTrapezoidal( LOWER, D11 );
-        LocalGemv( NORMAL, alpha, D11, x1_MR_STAR, T(1), z1_MC_STAR );
+        LocalGemv( NORMAL,      alpha, D11, x1_MR_STAR, T(1), z1_MC_STAR );
         SetDiagonal( D11, T(0) );
         LocalGemv( orientation, alpha, D11, x1_MC_STAR, T(1), z1_MR_STAR );
 
-        LocalGemv( NORMAL, alpha, A21, x1_MR_STAR, T(1), z2_MC_STAR );
+        LocalGemv( NORMAL,      alpha, A21, x1_MR_STAR, T(1), z2_MC_STAR );
         LocalGemv( orientation, alpha, A21, x2_MC_STAR, T(1), z1_MR_STAR );
-
-        SlideLockedPartitionDown
-        ( xT_MC_STAR,  x0_MC_STAR,
-                       x1_MC_STAR,
-         /**********/ /**********/
-          xB_MC_STAR,  x2_MC_STAR );
     }
-    PopBlocksizeStack();
 }
 
 template<typename T>
@@ -143,56 +117,37 @@ inline void LocalRowAccumulateL
     const Grid& g = A.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    // Matrix views
-    DistMatrix<T> A11(g),
-                  A21(g);
     DistMatrix<T> D11(g);
-
-    DistMatrix<T,STAR,MC> 
-        xL_STAR_MC(g), xR_STAR_MC(g),
-        x0_STAR_MC(g), x1_STAR_MC(g), x2_STAR_MC(g);
-    DistMatrix<T,STAR,MR> x1_STAR_MR(g);
-    DistMatrix<T,STAR,MC> z1_STAR_MC(g), z2_STAR_MC(g);
-    DistMatrix<T,STAR,MR> z1_STAR_MR(g);
 
     // We want our local gemvs to be of width blocksize, so we will 
     // temporarily change to max(r,c) times the current blocksize
-    const Int ratio = Max( g.Height(), g.Width() );
-    PushBlocksizeStack( ratio*LocalSymvBlocksize<T>() );
-                 
-    LockedPartitionRight( x_STAR_MC,  xL_STAR_MC, xR_STAR_MC, 0 );
-    while( xL_STAR_MC.Width() < x_STAR_MC.Width() )
+    const Int bsize = Max(g.Height(),g.Width())*LocalSymvBlocksize<T>();
+    const Int n = A.Height();
+    for( Int k=0; k<n; k+=bsize )
     {
-        LockedRepartitionRight
-        ( xL_STAR_MC, /**/ xR_STAR_MC, 
-          x0_STAR_MC, /**/ x1_STAR_MC, x2_STAR_MC );
+        const Int nb = Min(bsize,n-k);
+        const Range<Int> ind1( k, k+nb ), ind2( k+nb, n );
 
-        const Int n0 = x0_STAR_MC.Width();
-        const Int n1 = x1_STAR_MC.Width();
-        const Int n2 = x2_STAR_MC.Width();
-        LockedView( A11, A, n0,    n0, n1, n1 );
-        LockedView( A21, A, n0+n1, n0, n2, n1 );
-        LockedView( x1_STAR_MR, x_STAR_MR, 0, n0, 1, n1 );
-        View( z1_STAR_MC, z_STAR_MC, 0, n0,    1, n1 );
-        View( z2_STAR_MC, z_STAR_MC, 0, n0+n1, 1, n2 );
-        View( z1_STAR_MR, z_STAR_MR, 0, n0,    1, n1 );
+        auto A11 = A( ind1, ind1 );
+        auto A21 = A( ind2, ind1 );
+        auto x1_STAR_MC = x_STAR_MC( IR(0,1), ind1 );
+        auto x2_STAR_MC = x_STAR_MC( IR(0,1), ind2 );
+        auto x1_STAR_MR = x_STAR_MR( IR(0,1), ind1 );
+        auto z1_STAR_MC = z_STAR_MC( IR(0,1), ind1 );
+        auto z2_STAR_MC = z_STAR_MC( IR(0,1), ind2 );
+        auto z1_STAR_MR = z_STAR_MR( IR(0,1), ind1 );
 
         D11.AlignWith( A11 );
         // TODO: These diagonal block updates can be greatly improved
         D11 = A11;
         MakeTrapezoidal( LOWER, D11 );
-        LocalGemv( NORMAL, alpha, D11, x1_STAR_MR, T(1), z1_STAR_MC );
+        LocalGemv( NORMAL,      alpha, D11, x1_STAR_MR, T(1), z1_STAR_MC );
         SetDiagonal( D11, T(0) );
         LocalGemv( orientation, alpha, D11, x1_STAR_MC, T(1), z1_STAR_MR );
 
-        LocalGemv( NORMAL, alpha, A21, x1_STAR_MR, T(1), z2_STAR_MC );
+        LocalGemv( NORMAL,      alpha, A21, x1_STAR_MR, T(1), z2_STAR_MC );
         LocalGemv( orientation, alpha, A21, x2_STAR_MC, T(1), z1_STAR_MR );
-
-        SlideLockedPartitionRight
-        ( xL_STAR_MC,             /**/ xR_STAR_MC,
-          x0_STAR_MC, x1_STAR_MC, /**/ x2_STAR_MC );
     }
-    PopBlocksizeStack();
 }
 
 } // namespace symv
