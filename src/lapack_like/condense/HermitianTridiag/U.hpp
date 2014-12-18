@@ -57,7 +57,9 @@ void U( Matrix<F>& A, Matrix<F>& t )
 }
 
 template<typename F>
-void U( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
+void U
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre,
+  const SymvCtrl<F>& ctrl )
 {
     DEBUG_ONLY(
         CallStackEntry cse("herm_tridiag::U");
@@ -118,7 +120,7 @@ void U( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
             UPan
             ( ATL, WPan, t1,
               APan_MC_STAR, APan_MR_STAR, 
-              WPan_MC_STAR, WPan_MR_STAR );
+              WPan_MC_STAR, WPan_MR_STAR, ctrl );
 
             auto A01_MC_STAR = APan_MC_STAR( ind0, ind1-k );
             auto A01_MR_STAR = APan_MR_STAR( ind0, ind1-k );

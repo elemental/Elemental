@@ -30,7 +30,7 @@ void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t )
 template<typename F> 
 void HermitianTridiag
 ( UpperOrLower uplo, AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre,
-  const HermitianTridiagCtrl ctrl )
+  const HermitianTridiagCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiag"))
 
@@ -42,9 +42,9 @@ void HermitianTridiag
     {
         // Use the pipelined algorithm for nonsquare meshes
         if( uplo == LOWER )
-            herm_tridiag::L( A, t );
+            herm_tridiag::L( A, t, ctrl.symvCtrl );
         else
-            herm_tridiag::U( A, t );
+            herm_tridiag::U( A, t, ctrl.symvCtrl );
     }
     else if( ctrl.approach == HERMITIAN_TRIDIAG_SQUARE )
     {
@@ -81,9 +81,9 @@ void HermitianTridiag
         if( ASquare.Participating() )
         {
             if( uplo == LOWER )
-                herm_tridiag::LSquare( ASquare, tSquare );
+                herm_tridiag::LSquare( ASquare, tSquare, ctrl.symvCtrl );
             else
-                herm_tridiag::USquare( ASquare, tSquare ); 
+                herm_tridiag::USquare( ASquare, tSquare, ctrl.symvCtrl ); 
         }
         tSquare.MakeConsistent( true );
         A = ASquare;
@@ -98,16 +98,16 @@ void HermitianTridiag
         if( g.Height() == g.Width() )
         {
             if( uplo == LOWER )
-                herm_tridiag::LSquare( A, t );
+                herm_tridiag::LSquare( A, t, ctrl.symvCtrl );
             else
-                herm_tridiag::USquare( A, t ); 
+                herm_tridiag::USquare( A, t, ctrl.symvCtrl ); 
         }
         else
         {
             if( uplo == LOWER )
-                herm_tridiag::L( A, t );
+                herm_tridiag::L( A, t, ctrl.symvCtrl );
             else
-                herm_tridiag::U( A, t );
+                herm_tridiag::U( A, t, ctrl.symvCtrl );
         }
     }
 }
@@ -129,7 +129,8 @@ void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A )
 
 template<typename F>
 void ExplicitCondensed
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, const HermitianTridiagCtrl ctrl )
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, 
+  const HermitianTridiagCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_tridiag::ExplicitCondensed"))
     DistMatrix<F,STAR,STAR> t(A.Grid());
@@ -147,12 +148,12 @@ void ExplicitCondensed
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t ); \
   template void HermitianTridiag \
   ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, \
-    const HermitianTridiagCtrl ctrl ); \
+    const HermitianTridiagCtrl<F>& ctrl ); \
   template void herm_tridiag::ExplicitCondensed \
   ( UpperOrLower uplo, Matrix<F>& A ); \
   template void herm_tridiag::ExplicitCondensed \
   ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
-    const HermitianTridiagCtrl ctrl ); \
+    const HermitianTridiagCtrl<F>& ctrl ); \
   template void herm_tridiag::ApplyQ \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B ); \

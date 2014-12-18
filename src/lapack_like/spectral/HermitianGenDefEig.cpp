@@ -18,7 +18,7 @@ void HermitianGenDefEig
 ( Pencil pencil, UpperOrLower uplo, 
   Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, SortType sort,
   const HermitianEigSubset<Base<F>> subset,
-  const HermitianEigCtrl<Base<F>> ctrl )
+  const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(
         CallStackEntry cse("HermitianGenDefEig");
@@ -40,7 +40,7 @@ void HermitianGenDefEig
   AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre,
   AbstractDistMatrix<Base<F>>& w, SortType sort,
   const HermitianEigSubset<Base<F>> subset,
-  const HermitianEigCtrl<Base<F>> ctrl )
+  const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(
         CallStackEntry cse("HermitianGenDefEig");
@@ -68,7 +68,7 @@ void HermitianGenDefEig
 ( Pencil pencil, UpperOrLower uplo, 
   Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, Matrix<F>& X,
   SortType sort, const HermitianEigSubset<Base<F>> subset,
-  const HermitianEigCtrl<Base<F>> ctrl )
+  const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(
         CallStackEntry cse("HermitianGenDefEig");
@@ -100,7 +100,7 @@ void HermitianGenDefEig
   AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre,
   AbstractDistMatrix<Base<F>>& w, AbstractDistMatrix<F>& XPre,
   SortType sort, const HermitianEigSubset<Base<F>> subset,
-  const HermitianEigCtrl<Base<F>> ctrl )
+  const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(
         CallStackEntry cse("HermitianGenDefEig");
@@ -136,24 +136,25 @@ void HermitianGenDefEig
   ( Pencil pencil, UpperOrLower uplo, \
     Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, \
     SortType sort, const HermitianEigSubset<Base<F>> subset, \
-    const HermitianEigCtrl<Base<F>> ctrl ); \
+    const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianGenDefEig \
   ( Pencil pencil, UpperOrLower uplo, \
-    AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, AbstractDistMatrix<Base<F>>& w, \
+    AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
+    AbstractDistMatrix<Base<F>>& w, \
     SortType sort, const HermitianEigSubset<Base<F>> subset, \
-    const HermitianEigCtrl<Base<F>> ctrl ); \
+    const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianGenDefEig \
   ( Pencil pencil, UpperOrLower uplo, \
     Matrix<F>& A, Matrix<F>& B, \
     Matrix<Base<F>>& w, Matrix<F>& X, \
     SortType sort, const HermitianEigSubset<Base<F>> subset, \
-    const HermitianEigCtrl<Base<F>> ctrl ); \
+    const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianGenDefEig \
   ( Pencil pencil, UpperOrLower uplo, \
     AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
     AbstractDistMatrix<Base<F>>& w, AbstractDistMatrix<F>& X, \
     SortType sort, const HermitianEigSubset<Base<F>> subset, \
-    const HermitianEigCtrl<Base<F>> ctrl );
+    const HermitianEigCtrl<F>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

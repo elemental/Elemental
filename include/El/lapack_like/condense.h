@@ -114,8 +114,16 @@ typedef enum {
 typedef struct {
   ElHermitianTridiagApproach approach;
   ElGridOrderType order;
+  ElSymvCtrl symvCtrl;
 } ElHermitianTridiagCtrl;
-EL_EXPORT ElError ElHermitianTridiagCtrlDefault( ElHermitianTridiagCtrl* ctrl );
+EL_EXPORT ElError 
+ElHermitianTridiagCtrlDefault_s( ElHermitianTridiagCtrl* ctrl );
+EL_EXPORT ElError 
+ElHermitianTridiagCtrlDefault_d( ElHermitianTridiagCtrl* ctrl );
+EL_EXPORT ElError 
+ElHermitianTridiagCtrlDefault_c( ElHermitianTridiagCtrl* ctrl );
+EL_EXPORT ElError 
+ElHermitianTridiagCtrlDefault_z( ElHermitianTridiagCtrl* ctrl );
 
 /* Return packed reduction to real symmetric tridiagonal form, T := Q^H A Q 
    ------------------------------------------------------------------------ */

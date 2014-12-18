@@ -765,6 +765,26 @@ inline ElGemmAlgorithm CReflect( GemmAlgorithm alg )
 inline GemmAlgorithm CReflect( ElGemmAlgorithm alg )
 { return static_cast<GemmAlgorithm>(alg); }
 
+template<typename T>
+inline ElSymvCtrl
+CReflect( const SymvCtrl<T>& ctrl )
+{ 
+    ElSymvCtrl ctrlC;
+    ctrlC.bsize = ctrl.bsize;
+    ctrlC.avoidTrmvBasedLocalSymv = ctrl.avoidTrmvBasedLocalSymv;
+    return ctrlC;
+}
+
+template<typename T>
+inline SymvCtrl<T>
+CReflect( const ElSymvCtrl& ctrlC )
+{ 
+    SymvCtrl<T> ctrl;
+    ctrl.bsize = ctrlC.bsize;
+    ctrl.avoidTrmvBasedLocalSymv = ctrlC.avoidTrmvBasedLocalSymv;
+    return ctrl;
+}
+
 // LAPACK-like
 // -----------
 
@@ -848,21 +868,25 @@ inline HermitianTridiagApproach
 CReflect( ElHermitianTridiagApproach approach )
 { return static_cast<HermitianTridiagApproach>( approach ); }
 
+template<typename F>
 inline ElHermitianTridiagCtrl
-CReflect( const HermitianTridiagCtrl& ctrl )
+CReflect( const HermitianTridiagCtrl<F>& ctrl )
 { 
     ElHermitianTridiagCtrl ctrlC;
     ctrlC.approach = CReflect(ctrl.approach);
     ctrlC.order = CReflect(ctrl.order);
+    ctrlC.symvCtrl = CReflect(ctrl.symvCtrl);
     return ctrlC;
 }
 
-inline HermitianTridiagCtrl
+template<typename F>
+inline HermitianTridiagCtrl<F>
 CReflect( const ElHermitianTridiagCtrl& ctrlC )
 { 
-    HermitianTridiagCtrl ctrl;
+    HermitianTridiagCtrl<F> ctrl;
     ctrl.approach = CReflect(ctrlC.approach);
     ctrl.order = CReflect(ctrlC.order);
+    ctrl.symvCtrl = CReflect<F>(ctrlC.symvCtrl);
     return ctrl;
 }
 
@@ -983,9 +1007,28 @@ inline ElHermitianEigCtrl_s CReflect( const HermitianEigCtrl<float>& ctrl )
     ctrlC.useSDC = ctrl.useSDC;
     return ctrlC;
 }
+
 inline ElHermitianEigCtrl_d CReflect( const HermitianEigCtrl<double>& ctrl )
 {
     ElHermitianEigCtrl_d ctrlC;
+    ctrlC.tridiagCtrl = CReflect( ctrl.tridiagCtrl );
+    ctrlC.sdcCtrl = CReflect( ctrl.sdcCtrl );
+    ctrlC.useSDC = ctrl.useSDC;
+    return ctrlC;
+}
+inline ElHermitianEigCtrl_c 
+CReflect( const HermitianEigCtrl<Complex<float>>& ctrl )
+{
+    ElHermitianEigCtrl_c ctrlC;
+    ctrlC.tridiagCtrl = CReflect( ctrl.tridiagCtrl );
+    ctrlC.sdcCtrl = CReflect( ctrl.sdcCtrl );
+    ctrlC.useSDC = ctrl.useSDC;
+    return ctrlC;
+}
+inline ElHermitianEigCtrl_z
+CReflect( const HermitianEigCtrl<Complex<double>>& ctrl )
+{
+    ElHermitianEigCtrl_z ctrlC;
     ctrlC.tridiagCtrl = CReflect( ctrl.tridiagCtrl );
     ctrlC.sdcCtrl = CReflect( ctrl.sdcCtrl );
     ctrlC.useSDC = ctrl.useSDC;
@@ -995,7 +1038,7 @@ inline ElHermitianEigCtrl_d CReflect( const HermitianEigCtrl<double>& ctrl )
 inline HermitianEigCtrl<float> CReflect( const ElHermitianEigCtrl_s& ctrlC )
 {
     HermitianEigCtrl<float> ctrl;
-    ctrl.tridiagCtrl = CReflect( ctrlC.tridiagCtrl );
+    ctrl.tridiagCtrl = CReflect<float>( ctrlC.tridiagCtrl );
     ctrl.sdcCtrl = CReflect( ctrlC.sdcCtrl );
     ctrl.useSDC = ctrlC.useSDC;
     return ctrl;
@@ -1003,7 +1046,25 @@ inline HermitianEigCtrl<float> CReflect( const ElHermitianEigCtrl_s& ctrlC )
 inline HermitianEigCtrl<double> CReflect( const ElHermitianEigCtrl_d& ctrlC )
 {
     HermitianEigCtrl<double> ctrl;
-    ctrl.tridiagCtrl = CReflect( ctrlC.tridiagCtrl );
+    ctrl.tridiagCtrl = CReflect<double>( ctrlC.tridiagCtrl );
+    ctrl.sdcCtrl = CReflect( ctrlC.sdcCtrl );
+    ctrl.useSDC = ctrlC.useSDC;
+    return ctrl;
+}
+inline HermitianEigCtrl<Complex<float>> 
+CReflect( const ElHermitianEigCtrl_c& ctrlC )
+{
+    HermitianEigCtrl<Complex<float>> ctrl;
+    ctrl.tridiagCtrl = CReflect<Complex<float>>( ctrlC.tridiagCtrl );
+    ctrl.sdcCtrl = CReflect( ctrlC.sdcCtrl );
+    ctrl.useSDC = ctrlC.useSDC;
+    return ctrl;
+}
+inline HermitianEigCtrl<Complex<double>> 
+CReflect( const ElHermitianEigCtrl_z& ctrlC )
+{
+    HermitianEigCtrl<Complex<double>> ctrl;
+    ctrl.tridiagCtrl = CReflect<Complex<double>>( ctrlC.tridiagCtrl );
     ctrl.sdcCtrl = CReflect( ctrlC.sdcCtrl );
     ctrl.useSDC = ctrlC.useSDC;
     return ctrl;

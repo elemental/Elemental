@@ -161,20 +161,20 @@ void Sign
 template<typename F>
 void HermitianSign
 ( UpperOrLower uplo, Matrix<F>& A, 
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
+  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
 void HermitianSign
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, 
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
+  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 
 template<typename F>
 void HermitianSign
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& N, 
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
+  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
 void HermitianSign
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& N, 
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
+  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 
 // SquareRoot
 // ==========
@@ -190,11 +190,11 @@ void SquareRoot
 template<typename F>
 void HPSDSquareRoot
 ( UpperOrLower uplo, Matrix<F>& A,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
+  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
 void HPSDSquareRoot
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
+  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 
 } // namespace El
 

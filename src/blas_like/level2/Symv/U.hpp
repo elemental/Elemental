@@ -18,7 +18,7 @@ inline void LocalColAccumulateUGeneral
   const DistMatrix<T,MR,STAR>& x_MR_STAR,
         DistMatrix<T,MC,STAR>& z_MC_STAR,
         DistMatrix<T,MR,STAR>& z_MR_STAR,
-  bool conjugate=false )
+  bool conjugate, const SymvCtrl<T>& ctrl )
 {
     DEBUG_ONLY(
         CallStackEntry cse("symv::LocalColAccumulateUGeneral");
@@ -52,7 +52,7 @@ inline void LocalColAccumulateUGeneral
     // We want our local gemvs to be of width blocksize, so we will 
     // temporarily change to max(r,c) times the current blocksize
     const Int n = A.Height();
-    const Int bsize = Max(g.Height(),g.Width())*LocalSymvBlocksize<T>();
+    const Int bsize = Max(g.Height(),g.Width())*ctrl.bsize;
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k); 
@@ -88,7 +88,7 @@ inline void LocalColAccumulateUSquareTwoTrmv
   const DistMatrix<T,MR,STAR>& x_MR_STAR,
         DistMatrix<T,MC,STAR>& z_MC_STAR,
         DistMatrix<T,MR,STAR>& z_MR_STAR,
-  bool conjugate=false )
+  bool conjugate )
 {
     DEBUG_ONLY(
         CallStackEntry cse("symv::LocalColAccumulateUTwoTrmv");
@@ -210,21 +210,6 @@ inline void LocalColAccumulateUSquareTwoTrmv
 }
 
 template<typename T>
-inline void LocalColAccumulateUSquare
-( T alpha, 
-  const DistMatrix<T>& A,
-  const DistMatrix<T,MC,STAR>& x_MC_STAR,
-  const DistMatrix<T,MR,STAR>& x_MR_STAR,
-        DistMatrix<T,MC,STAR>& z_MC_STAR,
-        DistMatrix<T,MR,STAR>& z_MR_STAR,
-  bool conjugate=false )
-{
-    DEBUG_ONLY(CallStackEntry cse("symv::LocalColAccumulateUSquare"))
-    LocalColAccumulateUSquareTwoTrmv
-    ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate );
-}
-
-template<typename T>
 inline void LocalColAccumulateU
 ( T alpha, 
   const DistMatrix<T>& A,
@@ -232,14 +217,15 @@ inline void LocalColAccumulateU
   const DistMatrix<T,MR,STAR>& x_MR_STAR,
         DistMatrix<T,MC,STAR>& z_MC_STAR,
         DistMatrix<T,MR,STAR>& z_MR_STAR,
-  bool conjugate=false )
+  bool conjugate, const SymvCtrl<T>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("symv::LocalColAccumulateU"))
-    if( A.Grid().Height() == A.Grid().Width() )
-        LocalColAccumulateUSquare
-        ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate );
-    else
+    if( ctrl.avoidTrmvBasedLocalSymv || A.Grid().Height() != A.Grid().Width() )
         LocalColAccumulateUGeneral
+        ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate,
+          ctrl );
+    else
+        LocalColAccumulateUSquareTwoTrmv
         ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate );
 }
 
@@ -251,7 +237,7 @@ inline void LocalRowAccumulateU
   const DistMatrix<T,STAR,MR>& x_STAR_MR,
         DistMatrix<T,STAR,MC>& z_STAR_MC,
         DistMatrix<T,STAR,MR>& z_STAR_MR,
-  bool conjugate=false )
+  bool conjugate, const SymvCtrl<T>& ctrl )
 {
     DEBUG_ONLY(
         CallStackEntry cse("symv::LocalRowAccumulateU");
@@ -285,7 +271,7 @@ inline void LocalRowAccumulateU
     // We want our local gemvs to be of width blocksize, so we will 
     // temporarily change to max(r,c) times the current blocksize
     const Int n = A.Height();
-    const Int bsize = Max(g.Height(),g.Width())*LocalSymvBlocksize<T>();
+    const Int bsize = Max(g.Height(),g.Width())*ctrl.bsize;
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);

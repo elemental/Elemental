@@ -24,10 +24,11 @@ void Hemv
 ( UpperOrLower uplo,
   T alpha, const AbstractDistMatrix<T>& A,
            const AbstractDistMatrix<T>& x,
-  T beta,        AbstractDistMatrix<T>& y )
+  T beta,        AbstractDistMatrix<T>& y,
+  const SymvCtrl<T>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Hemv"))
-    Symv( uplo, alpha, A, x, beta, y, true );
+    Symv( uplo, alpha, A, x, beta, y, true, ctrl );
 }
 
 #define PROTO(T) \
@@ -37,7 +38,8 @@ void Hemv
   template void Hemv \
   ( UpperOrLower uplo, T alpha, \
     const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x, \
-    T beta, AbstractDistMatrix<T>& y );
+    T beta, AbstractDistMatrix<T>& y, \
+    const SymvCtrl<T>& ctrl );
 
 // blas::Hemv not yet supported
 #define EL_NO_INT_PROTO

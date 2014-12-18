@@ -189,6 +189,20 @@ typedef struct {
 } ElHermitianEigCtrl_d;
 EL_EXPORT ElError ElHermitianEigCtrlDefault_d( ElHermitianEigCtrl_d* ctrl );
 
+typedef struct {
+  ElHermitianTridiagCtrl tridiagCtrl;
+  ElHermitianSDCCtrl_s sdcCtrl;
+  bool useSDC;
+} ElHermitianEigCtrl_c;
+EL_EXPORT ElError ElHermitianEigCtrlDefault_c( ElHermitianEigCtrl_c* ctrl );
+
+typedef struct {
+  ElHermitianTridiagCtrl tridiagCtrl;
+  ElHermitianSDCCtrl_d sdcCtrl;
+  bool useSDC;
+} ElHermitianEigCtrl_z;
+EL_EXPORT ElError ElHermitianEigCtrlDefault_z( ElHermitianEigCtrl_z* ctrl );
+
 /* Compute all eigenvalues
    ----------------------- */
 EL_EXPORT ElError ElHermitianEig_s

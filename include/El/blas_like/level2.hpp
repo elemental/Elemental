@@ -99,7 +99,8 @@ template<typename T>
 void Hemv
 ( UpperOrLower uplo,
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x,
-  T beta,        AbstractDistMatrix<T>& y );
+  T beta,        AbstractDistMatrix<T>& y,
+  const SymvCtrl<T>& ctrl=SymvCtrl<T>() );
 
 // Her
 // ===
@@ -149,7 +150,8 @@ template<typename T>
 void Symv
 ( UpperOrLower uplo,
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x,
-  T beta,        AbstractDistMatrix<T>& y, bool conjugate=false );
+  T beta,        AbstractDistMatrix<T>& y, bool conjugate=false, 
+  const SymvCtrl<T>& ctrl=SymvCtrl<T>() );
 
 // namespace symv
 // --------------
@@ -163,7 +165,7 @@ void LocalColAccumulate
   const DistMatrix<T,MR,STAR>& x_MR_STAR,
         DistMatrix<T,MC,STAR>& z_MC_STAR,
         DistMatrix<T,MR,STAR>& z_MR_STAR,
-  bool conjugate=false );
+  bool conjugate=false, const SymvCtrl<T>& ctrl=SymvCtrl<T>() );
 
 template<typename T>
 void LocalRowAccumulate
@@ -173,7 +175,7 @@ void LocalRowAccumulate
   const DistMatrix<T,STAR,MR>& x_STAR_MR,
         DistMatrix<T,STAR,MC>& z_STAR_MC,
         DistMatrix<T,STAR,MR>& z_STAR_MR,
-  bool conjugate=false );
+  bool conjugate=false, const SymvCtrl<T>& ctrl=SymvCtrl<T>() );
 
 } // namespace symv
 

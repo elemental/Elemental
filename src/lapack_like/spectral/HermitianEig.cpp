@@ -134,7 +134,7 @@ void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, 
   Matrix<Base<F>>& w, SortType sort,
   const HermitianEigSubset<Base<F>> subset,
-  const HermitianEigCtrl<Base<F>> ctrl )
+  const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     if( A.Height() != A.Width() )
@@ -181,7 +181,7 @@ void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, 
   DistMatrix<Base<F>,STAR,STAR>& w, SortType sort,
   const HermitianEigSubset<Base<F>> subset,
-  const HermitianEigCtrl<Base<F>> ctrl )
+  const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     const Int n = A.Height();
@@ -230,7 +230,7 @@ void HermitianEig
 ( UpperOrLower uplo, AbstractDistMatrix<F>& APre,
   AbstractDistMatrix<Base<F>>& w, SortType sort, 
   const HermitianEigSubset<Base<F>> subset,
-  const HermitianEigCtrl<Base<F>> ctrl )
+  const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     if( APre.Height() != APre.Width() )
@@ -308,7 +308,7 @@ template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z, 
   SortType sort, const HermitianEigSubset<Base<F>> subset,
-  const HermitianEigCtrl<Base<F>> ctrl )
+  const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     if( A.Height() != A.Width() )
@@ -365,7 +365,7 @@ void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, 
   DistMatrix<Base<F>,STAR,STAR>& w, DistMatrix<F,STAR,STAR>& Z, 
   SortType sort, const HermitianEigSubset<Base<F>> subset,
-  const HermitianEigCtrl<Base<F>> ctrl )
+  const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     const Int n = A.Height();
@@ -424,7 +424,7 @@ void HermitianEig
 ( UpperOrLower uplo, AbstractDistMatrix<F>& APre,
   AbstractDistMatrix<Base<F>>& w, AbstractDistMatrix<F>& ZPre,
   SortType sort, const HermitianEigSubset<Base<F>> subset,
-  const HermitianEigCtrl<Base<F>> ctrl )
+  const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
@@ -623,32 +623,32 @@ void HermitianEig
   template void HermitianEig\
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, SortType sort, \
     const HermitianEigSubset<Base<F>> subset, \
-    const HermitianEigCtrl<Base<F>> sdcCtrl ); \
+    const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianEig\
   ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A,\
     DistMatrix<Base<F>,STAR,STAR>& w, SortType sort, \
     const HermitianEigSubset<Base<F>> subset, \
-    const HermitianEigCtrl<Base<F>> sdcCtrl ); \
+    const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianEig\
   ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
     AbstractDistMatrix<Base<F>>& w, SortType sort, \
     const HermitianEigSubset<Base<F>> subset, \
-    const HermitianEigCtrl<Base<F>> sdcCtrl );
+    const HermitianEigCtrl<F>& ctrl );
 #define EIGPAIR_PROTO(F) \
   template void HermitianEig\
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z,\
     SortType sort, const HermitianEigSubset<Base<F>> subset, \
-    const HermitianEigCtrl<Base<F>> sdcCtrl ); \
+    const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianEig\
   ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A,\
     DistMatrix<Base<F>,STAR,STAR>& w, DistMatrix<F,STAR,STAR>& Z,\
     SortType sort, const HermitianEigSubset<Base<F>> subset, \
-    const HermitianEigCtrl<Base<F>> sdcCtrl ); \
+    const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianEig\
   ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
     AbstractDistMatrix<Base<F>>& w, AbstractDistMatrix<F>& Z, SortType sort, \
     const HermitianEigSubset<Base<F>> subset, \
-    const HermitianEigCtrl<Base<F>> sdcCtrl );
+    const HermitianEigCtrl<F>& ctrl );
 
 // Spectral Divide and Conquer
 #define SDC_PROTO(F) \

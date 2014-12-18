@@ -97,7 +97,7 @@ template<typename F>
 void TestHermitianTridiag
 ( UpperOrLower uplo, Int m, const Grid& g, 
   bool testCorrectness, bool print, bool display, 
-  const HermitianTridiagCtrl& ctrl )
+  const HermitianTridiagCtrl<F>& ctrl )
 {
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<F,STAR,STAR> t(g);
@@ -168,6 +168,8 @@ main( int argc, char* argv[] )
         const Int m = Input("--height","height of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const Int nbLocal = Input("--nbLocal","local blocksize",32);
+        const bool avoidTrmv = 
+            Input("--avoidTrmv","avoid Trmv local Symv",true);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
@@ -183,45 +185,48 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
-        SetLocalSymvBlocksize<double>( nbLocal );
-        SetLocalSymvBlocksize<Complex<double>>( nbLocal );
+
         ComplainIfDebug();
         if( commRank == 0 )
             cout << "Will test HermitianTridiag" << uploChar << endl;
 
-        HermitianTridiagCtrl ctrl;
+        HermitianTridiagCtrl<double> ctrl_d;
+        HermitianTridiagCtrl<Complex<double>> ctrl_z;
+        ctrl_d.symvCtrl.bsize = ctrl_z.symvCtrl.bsize = nbLocal;
+        ctrl_d.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
+        ctrl_z.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
 
         if( commRank == 0 )
             cout << "Normal algorithms:" << endl;
-        ctrl.approach = HERMITIAN_TRIDIAG_NORMAL;
+        ctrl_d.approach = ctrl_z.approach = HERMITIAN_TRIDIAG_NORMAL;
         if( testReal )
             TestHermitianTridiag<double>
-            ( uplo, m, g, testCorrectness, print, display, ctrl );
+            ( uplo, m, g, testCorrectness, print, display, ctrl_d );
         if( testCpx )
             TestHermitianTridiag<Complex<double>>
-            ( uplo, m, g, testCorrectness, print, display, ctrl );
+            ( uplo, m, g, testCorrectness, print, display, ctrl_z );
 
         if( commRank == 0 )
             cout << "Square row-major algorithm:" << endl;
-        ctrl.approach = HERMITIAN_TRIDIAG_SQUARE;
-        ctrl.order = ROW_MAJOR;
+        ctrl_d.approach = ctrl_z.approach = HERMITIAN_TRIDIAG_SQUARE;
+        ctrl_d.order = ctrl_z.order = ROW_MAJOR;
         if( testReal )
             TestHermitianTridiag<double>
-            ( uplo, m, g, testCorrectness, print, display, ctrl );
+            ( uplo, m, g, testCorrectness, print, display, ctrl_d );
         if( testCpx )
             TestHermitianTridiag<Complex<double>>
-            ( uplo, m, g, testCorrectness, print, display, ctrl );
+            ( uplo, m, g, testCorrectness, print, display, ctrl_z );
 
         if( commRank == 0 )
             cout << "Square column-major algorithm:" << endl;
-        ctrl.approach = HERMITIAN_TRIDIAG_SQUARE;
-        ctrl.order = COLUMN_MAJOR;
+        ctrl_d.approach = ctrl_z.approach = HERMITIAN_TRIDIAG_SQUARE;
+        ctrl_d.order = ctrl_z.order = COLUMN_MAJOR;
         if( testReal )
             TestHermitianTridiag<double>
-            ( uplo, m, g, testCorrectness, print, display, ctrl );
+            ( uplo, m, g, testCorrectness, print, display, ctrl_d );
         if( testCpx )
             TestHermitianTridiag<Complex<double>>
-            ( uplo, m, g, testCorrectness, print, display, ctrl );
+            ( uplo, m, g, testCorrectness, print, display, ctrl_z );
     }
     catch( exception& e ) { ReportException(e); }
 

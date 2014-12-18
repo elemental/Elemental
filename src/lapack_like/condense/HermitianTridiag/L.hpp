@@ -58,7 +58,9 @@ void L( Matrix<F>& A, Matrix<F>& t )
 }
 
 template<typename F> 
-void L( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
+void L
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre, 
+  const SymvCtrl<F>& ctrl )
 {
     DEBUG_ONLY(
         CallStackEntry cse("herm_tridiag::L");
@@ -120,7 +122,7 @@ void L( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
             LPan
             ( ABR, WPan, t1,
               APan_MC_STAR, APan_MR_STAR, 
-              WPan_MC_STAR, WPan_MR_STAR );
+              WPan_MC_STAR, WPan_MR_STAR, ctrl );
 
             auto A21_MC_STAR = APan_MC_STAR( ind2-k, ind1-k );
             auto A21_MR_STAR = APan_MR_STAR( ind2-k, ind1-k );

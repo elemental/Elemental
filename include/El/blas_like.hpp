@@ -10,10 +10,6 @@
 #ifndef EL_BLAS_HPP
 #define EL_BLAS_HPP
 
-#include "./blas_like/level1.hpp"
-#include "./blas_like/level2.hpp"
-#include "./blas_like/level3.hpp"
-
 // Tuning parameters
 // =================
 
@@ -57,6 +53,20 @@ template<> Int LocalTrr2kBlocksize<double>();
 template<> Int LocalTrr2kBlocksize<Complex<float>>();
 template<> Int LocalTrr2kBlocksize<Complex<double>>();
 
+template<typename T>
+struct SymvCtrl {
+    Int bsize;
+    bool avoidTrmvBasedLocalSymv;
+
+    SymvCtrl()
+    : bsize(LocalSymvBlocksize<T>()), avoidTrmvBasedLocalSymv(true)
+    { }
+};
+
 } // namespace El
+
+#include "./blas_like/level1.hpp"
+#include "./blas_like/level2.hpp"
+#include "./blas_like/level3.hpp"
 
 #endif // ifndef EL_BLAS_HPP

@@ -59,14 +59,28 @@ ElError ElHermitianEigSubsetDefault_d( ElHermitianEigSubset_d* subset )
 /* HermitianEigCtrl */
 ElError ElHermitianEigCtrlDefault_s( ElHermitianEigCtrl_s* ctrl )
 {
-    ElHermitianTridiagCtrlDefault( &ctrl->tridiagCtrl );
+    ElHermitianTridiagCtrlDefault_s( &ctrl->tridiagCtrl );
     ElHermitianSDCCtrlDefault_s( &ctrl->sdcCtrl );
     ctrl->useSDC = false;
     return EL_SUCCESS;
 }
 ElError ElHermitianEigCtrlDefault_d( ElHermitianEigCtrl_d* ctrl )
 {
-    ElHermitianTridiagCtrlDefault( &ctrl->tridiagCtrl );
+    ElHermitianTridiagCtrlDefault_d( &ctrl->tridiagCtrl );
+    ElHermitianSDCCtrlDefault_d( &ctrl->sdcCtrl );
+    ctrl->useSDC = false;
+    return EL_SUCCESS;
+}
+ElError ElHermitianEigCtrlDefault_c( ElHermitianEigCtrl_c* ctrl )
+{
+    ElHermitianTridiagCtrlDefault_c( &ctrl->tridiagCtrl );
+    ElHermitianSDCCtrlDefault_s( &ctrl->sdcCtrl );
+    ctrl->useSDC = false;
+    return EL_SUCCESS;
+}
+ElError ElHermitianEigCtrlDefault_z( ElHermitianEigCtrl_z* ctrl )
+{
+    ElHermitianTridiagCtrlDefault_z( &ctrl->tridiagCtrl );
     ElHermitianSDCCtrlDefault_d( &ctrl->sdcCtrl );
     ctrl->useSDC = false;
     return EL_SUCCESS;

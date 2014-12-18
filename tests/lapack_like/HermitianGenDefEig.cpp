@@ -145,7 +145,7 @@ void TestHermitianGenDefEig
   bool onlyEigvals, UpperOrLower uplo, 
   Int m, SortType sort, const Grid& g, 
   const HermitianEigSubset<Base<F>> subset, 
-  const HermitianEigCtrl<Base<F>> ctrl )
+  const HermitianEigCtrl<F>& ctrl )
 {
     typedef Base<F> Real;
     DistMatrix<F,U,V> A(g), B(g), AOrig(g), BOrig(g);
@@ -232,6 +232,8 @@ main( int argc, char* argv[] )
         const Int m = Input("--height","height of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const Int nbLocal = Input("--nbLocal","local blocksize",32);
+        const bool avoidTrmv = 
+            Input("--avoidTrmv","avoid Trmv based Symv",true);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
@@ -247,8 +249,6 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
-        SetLocalSymvBlocksize<double>( nbLocal );
-        SetLocalSymvBlocksize<Complex<double>>( nbLocal );
         if( range != 'A' && range != 'I' && range != 'V' )
             throw runtime_error("'range' must be 'A', 'I', or 'V'");
         const SortType sort = static_cast<SortType>(sortInt);
@@ -292,46 +292,58 @@ main( int argc, char* argv[] )
             subset.lowerBound = vl;
             subset.upperBound = vu;
         }
-        HermitianEigCtrl<double> ctrl;
-        ctrl.timeStages = timeStages;
+
+        HermitianEigCtrl<double> ctrl_d;
+        HermitianEigCtrl<Complex<double>> ctrl_z;
+        ctrl_d.timeStages = timeStages;
+        ctrl_z.timeStages = timeStages;
+        ctrl_d.tridiagCtrl.symvCtrl.bsize = nbLocal;
+        ctrl_z.tridiagCtrl.symvCtrl.bsize = nbLocal;
+        ctrl_d.tridiagCtrl.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
+        ctrl_z.tridiagCtrl.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
 
         if( commRank == 0 )
             cout << "Normal tridiag algorithms:" << endl;
-        ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_NORMAL;
+        ctrl_d.tridiagCtrl.approach = HERMITIAN_TRIDIAG_NORMAL;
+        ctrl_z.tridiagCtrl.approach = HERMITIAN_TRIDIAG_NORMAL;
         if( testReal )
             TestHermitianGenDefEig<double>
             ( testCorrectness, print, 
-              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl );
+              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl_d );
         if( testCpx )
             TestHermitianGenDefEig<Complex<double>>
             ( testCorrectness, print, 
-              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl );
+              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl_z );
 
         if( commRank == 0 )
             cout << "Square row-major algorithms:" << endl;
-        ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
-        ctrl.tridiagCtrl.order = ROW_MAJOR;
+        ctrl_d.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
+        ctrl_z.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
+        ctrl_d.tridiagCtrl.order = ROW_MAJOR;
+        ctrl_z.tridiagCtrl.order = ROW_MAJOR;
         if( testReal )
             TestHermitianGenDefEig<double>
             ( testCorrectness, print, 
-              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl );
+              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl_d );
         if( testCpx )
             TestHermitianGenDefEig<Complex<double>>
             ( testCorrectness, print, 
-              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl );
+              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl_z );
 
         if( commRank == 0 )
             cout << "Square column-major algorithms:" << endl;
-        ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
-        ctrl.tridiagCtrl.order = COLUMN_MAJOR;
+        ctrl_d.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
+        ctrl_z.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
+        ctrl_d.tridiagCtrl.order = COLUMN_MAJOR;
+        ctrl_z.tridiagCtrl.order = COLUMN_MAJOR;
         if( testReal )
             TestHermitianGenDefEig<double>
             ( testCorrectness, print, 
-              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl );
+              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl_d );
         if( testCpx )
             TestHermitianGenDefEig<Complex<double>>
             ( testCorrectness, print, 
-              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl );
+              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl_z );
 
         // Also test with non-standard distributions
         if( commRank == 0 )
@@ -339,11 +351,11 @@ main( int argc, char* argv[] )
         if( testReal )
             TestHermitianGenDefEig<double,MR,MC,MC>
             ( testCorrectness, print, 
-              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl );
+              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl_d );
         if( testCpx )
             TestHermitianGenDefEig<Complex<double>,MR,MC,MC>
             ( testCorrectness, print, 
-              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl );
+              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl_z );
     }
     catch( exception& e ) { ReportException(e); }
 

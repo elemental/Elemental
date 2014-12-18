@@ -17,7 +17,7 @@ template<typename F>
 void SkewHermitianEig
 ( UpperOrLower uplo, const Matrix<F>& G, Matrix<Base<F>>& wImag, SortType sort, 
   const HermitianEigSubset<Base<F>>& subset,
-  const HermitianEigCtrl<Base<F>>& ctrl )
+  const HermitianEigCtrl<Complex<Base<F>>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     Matrix<Complex<Base<F>>> A;
@@ -31,7 +31,7 @@ void SkewHermitianEig
 ( UpperOrLower uplo, const AbstractDistMatrix<F>& G,
   AbstractDistMatrix<Base<F>>& wImag, SortType sort,
   const HermitianEigSubset<Base<F>>& subset,
-  const HermitianEigCtrl<Base<F>>& ctrl )
+  const HermitianEigCtrl<Complex<Base<F>>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     DistMatrix<Complex<Base<F>>> A(G.Grid());
@@ -47,7 +47,7 @@ void SkewHermitianEig
 ( UpperOrLower uplo, const Matrix<F>& G, Matrix<Base<F>>& wImag, 
   Matrix<Complex<Base<F>>>& Z, SortType sort, 
   const HermitianEigSubset<Base<F>>& subset,
-  const HermitianEigCtrl<Base<F>>& ctrl )
+  const HermitianEigCtrl<Complex<Base<F>>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     Matrix<Complex<Base<F>>> A;
@@ -62,7 +62,7 @@ void SkewHermitianEig
   AbstractDistMatrix<Base<F>>& wImag, AbstractDistMatrix<Complex<Base<F>>>& Z,
   SortType sort,
   const HermitianEigSubset<Base<F>>& subset,
-  const HermitianEigCtrl<Base<F>>& ctrl )
+  const HermitianEigCtrl<Complex<Base<F>>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     DistMatrix<Complex<Base<F>>> A(G.Grid());
@@ -76,22 +76,23 @@ void SkewHermitianEig
   ( UpperOrLower uplo, const Matrix<F>& G, \
     Matrix<Base<F>>& wImag, SortType sort, \
     const HermitianEigSubset<Base<F>>& subset, \
-    const HermitianEigCtrl<Base<F>>& ctrl ); \
+    const HermitianEigCtrl<Complex<Base<F>>>& ctrl ); \
   template void SkewHermitianEig \
   ( UpperOrLower uplo, const AbstractDistMatrix<F>& G, \
     AbstractDistMatrix<Base<F>>& wImag, SortType sort, \
     const HermitianEigSubset<Base<F>>& subset, \
-    const HermitianEigCtrl<Base<F>>& ctrl ); \
+    const HermitianEigCtrl<Complex<Base<F>>>& ctrl ); \
   template void SkewHermitianEig \
   ( UpperOrLower uplo, const Matrix<F>& G, \
     Matrix<Base<F>>& wImag, Matrix<Complex<Base<F>>>& Z, SortType sort, \
     const HermitianEigSubset<Base<F>>& subset, \
-    const HermitianEigCtrl<Base<F>>& ctrl ); \
+    const HermitianEigCtrl<Complex<Base<F>>>& ctrl ); \
   template void SkewHermitianEig \
   ( UpperOrLower uplo, const AbstractDistMatrix<F>& G, \
-    AbstractDistMatrix<Base<F>>& wImag, AbstractDistMatrix<Complex<Base<F>>>& Z, \
+    AbstractDistMatrix<Base<F>>& wImag, \
+    AbstractDistMatrix<Complex<Base<F>>>& Z, \
     SortType sort, const HermitianEigSubset<Base<F>>& subset, \
-    const HermitianEigCtrl<Base<F>>& ctrl );
+    const HermitianEigCtrl<Complex<Base<F>>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

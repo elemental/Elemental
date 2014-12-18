@@ -56,7 +56,8 @@ void Symv
 ( UpperOrLower uplo,
   T alpha, const AbstractDistMatrix<T>& APre,
            const AbstractDistMatrix<T>& xPre,
-  T beta,        AbstractDistMatrix<T>& yPre, bool conjugate )
+  T beta,        AbstractDistMatrix<T>& yPre, bool conjugate,
+  const SymvCtrl<T>& ctrl )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Symv");
@@ -100,12 +101,14 @@ void Symv
         if( uplo == LOWER )
         {
             symv::LocalColAccumulateL
-            ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate );
+            ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate,
+              ctrl );
         }
         else
         {
             symv::LocalColAccumulateU
-            ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate );
+            ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate,
+              ctrl );
         }
 
         DistMatrix<T,MR,MC> z_MR_MC(g);
@@ -136,12 +139,14 @@ void Symv
         if( uplo == LOWER )
         {
             symv::LocalColAccumulateL
-            ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate );
+            ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate,
+              ctrl );
         }
         else
         {
             symv::LocalColAccumulateU
-            ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate );
+            ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate,
+              ctrl );
         }
 
         DistMatrix<T> z(g);
@@ -176,12 +181,14 @@ void Symv
         if( uplo == LOWER )
         {
             symv::LocalRowAccumulateL
-            ( alpha, A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR, conjugate );
+            ( alpha, A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR, conjugate,
+              ctrl );
         }
         else
         {
             symv::LocalRowAccumulateU
-            ( alpha, A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR, conjugate );
+            ( alpha, A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR, conjugate,
+              ctrl );
         }
 
         DistMatrix<T> z(g);
@@ -216,12 +223,14 @@ void Symv
         if( uplo == LOWER )
         {
             symv::LocalRowAccumulateL
-            ( alpha, A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR, conjugate );
+            ( alpha, A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR, conjugate,
+              ctrl );
         }
         else
         {
             symv::LocalRowAccumulateU
-            ( alpha, A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR, conjugate );
+            ( alpha, A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR, conjugate,
+              ctrl );
         }
 
         DistMatrix<T,MR,MC> z_MR_MC(g);
@@ -245,14 +254,17 @@ void LocalColAccumulate
   const DistMatrix<T,MC,STAR>& x_MC_STAR,
   const DistMatrix<T,MR,STAR>& x_MR_STAR,
         DistMatrix<T,MC,STAR>& z_MC_STAR,
-        DistMatrix<T,MR,STAR>& z_MR_STAR, bool conjugate )
+        DistMatrix<T,MR,STAR>& z_MR_STAR, bool conjugate,
+  const SymvCtrl<T>& ctrl )
 {
     if( uplo == LOWER )
         LocalColAccumulateL
-        ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate );
+        ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate,
+          ctrl );
     else
         LocalColAccumulateU
-        ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate );
+        ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate,
+          ctrl );
 }
 
 template<typename T>
@@ -262,14 +274,17 @@ void LocalRowAccumulate
   const DistMatrix<T,STAR,MC>& x_STAR_MC,
   const DistMatrix<T,STAR,MR>& x_STAR_MR,
         DistMatrix<T,STAR,MC>& z_STAR_MC,
-        DistMatrix<T,STAR,MR>& z_STAR_MR, bool conjugate )
+        DistMatrix<T,STAR,MR>& z_STAR_MR, bool conjugate,
+  const SymvCtrl<T>& ctrl )
 {
     if( uplo == LOWER )
         LocalRowAccumulateL
-        ( alpha, A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR, conjugate );
+        ( alpha, A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR, conjugate,
+          ctrl );
     else
         LocalRowAccumulateU
-        ( alpha, A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR, conjugate );
+        ( alpha, A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR, conjugate,
+          ctrl );
 }
 
 } // namespace symv
@@ -282,21 +297,24 @@ void LocalRowAccumulate
   template void Symv \
   ( UpperOrLower uplo, T alpha, \
     const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x, \
-    T beta, AbstractDistMatrix<T>& y, bool conjugate ); \
+    T beta, AbstractDistMatrix<T>& y, bool conjugate, \
+    const SymvCtrl<T>& ctrl ); \
   template void symv::LocalColAccumulate \
   ( UpperOrLower uplo, T alpha, \
     const DistMatrix<T>& A, \
     const DistMatrix<T,MC,STAR>& x_MC_STAR, \
     const DistMatrix<T,MR,STAR>& x_MR_STAR, \
           DistMatrix<T,MC,STAR>& z_MC_STAR, \
-          DistMatrix<T,MR,STAR>& z_MR_STAR, bool conjugate ); \
+          DistMatrix<T,MR,STAR>& z_MR_STAR, bool conjugate, \
+    const SymvCtrl<T>& ctrl ); \
   template void symv::LocalRowAccumulate \
   ( UpperOrLower uplo, T alpha, \
     const DistMatrix<T>& A, \
     const DistMatrix<T,STAR,MC>& x_STAR_MC, \
     const DistMatrix<T,STAR,MR>& x_STAR_MR, \
           DistMatrix<T,STAR,MC>& z_STAR_MC, \
-          DistMatrix<T,STAR,MR>& z_STAR_MR, bool conjugate );
+          DistMatrix<T,STAR,MR>& z_STAR_MR, bool conjugate, \
+    const SymvCtrl<T>& ctrl );
 
 // blas::Symv not yet supported
 #define EL_NO_INT_PROTO

@@ -78,11 +78,13 @@ enum HermitianTridiagApproach
 }
 using namespace HermitianTridiagApproachNS;
 
+template<typename F>
 struct HermitianTridiagCtrl {
     HermitianTridiagApproach approach;
     GridOrder order;
+    SymvCtrl<F> symvCtrl;
 
-    HermitianTridiagCtrl()
+    HermitianTridiagCtrl<F>()
     : approach(HERMITIAN_TRIDIAG_SQUARE), order(ROW_MAJOR)
     { }
 };
@@ -92,7 +94,7 @@ void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t );
 template<typename F>
 void HermitianTridiag
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t,
-  const HermitianTridiagCtrl ctrl=HermitianTridiagCtrl() );
+  const HermitianTridiagCtrl<F>& ctrl=HermitianTridiagCtrl<F>() );
 
 namespace herm_tridiag {
 
@@ -101,7 +103,7 @@ void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
 void ExplicitCondensed
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A,
-  const HermitianTridiagCtrl ctrl=HermitianTridiagCtrl() );
+  const HermitianTridiagCtrl<F>& ctrl=HermitianTridiagCtrl<F>() );
 
 template<typename F>
 void ApplyQ

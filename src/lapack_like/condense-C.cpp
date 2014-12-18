@@ -12,10 +12,32 @@ using namespace El;
 
 extern "C" {
 
-ElError ElHermitianTridiagCtrlDefault( ElHermitianTridiagCtrl* ctrl )
+ElError ElHermitianTridiagCtrlDefault_s( ElHermitianTridiagCtrl* ctrl )
 {
     ctrl->approach = EL_HERMITIAN_TRIDIAG_DEFAULT;
     ctrl->order = EL_ROW_MAJOR;
+    ElSymvCtrlDefault_s( &ctrl->symvCtrl );
+    return EL_SUCCESS;
+}
+ElError ElHermitianTridiagCtrlDefault_d( ElHermitianTridiagCtrl* ctrl )
+{
+    ctrl->approach = EL_HERMITIAN_TRIDIAG_DEFAULT;
+    ctrl->order = EL_ROW_MAJOR;
+    ElSymvCtrlDefault_d( &ctrl->symvCtrl );
+    return EL_SUCCESS;
+}
+ElError ElHermitianTridiagCtrlDefault_c( ElHermitianTridiagCtrl* ctrl )
+{
+    ctrl->approach = EL_HERMITIAN_TRIDIAG_DEFAULT;
+    ctrl->order = EL_ROW_MAJOR;
+    ElSymvCtrlDefault_c( &ctrl->symvCtrl );
+    return EL_SUCCESS;
+}
+ElError ElHermitianTridiagCtrlDefault_z( ElHermitianTridiagCtrl* ctrl )
+{
+    ctrl->approach = EL_HERMITIAN_TRIDIAG_DEFAULT;
+    ctrl->order = EL_ROW_MAJOR;
+    ElSymvCtrlDefault_z( &ctrl->symvCtrl );
     return EL_SUCCESS;
 }
 
@@ -80,11 +102,6 @@ ElError ElHermitianTridiagCtrlDefault( ElHermitianTridiagCtrl* ctrl )
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG t ) \
   { EL_TRY( HermitianTridiag( \
       CReflect(uplo), *CReflect(A), *CReflect(t) ) ) } \
-  ElError ElHermitianTridiagXDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG t, \
-    ElHermitianTridiagCtrl ctrl ) \
-  { EL_TRY( HermitianTridiag( \
-      CReflect(uplo), *CReflect(A), *CReflect(t), CReflect(ctrl) ) ) } \
   /* Return only the condensed form */ \
   ElError ElHermitianTridiagOnly_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
@@ -94,10 +111,6 @@ ElError ElHermitianTridiagCtrlDefault( ElHermitianTridiagCtrl* ctrl )
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
   { EL_TRY( herm_tridiag::ExplicitCondensed \
       ( CReflect(uplo), *CReflect(A) ) ) } \
-  ElError ElHermitianTridiagOnlyXDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElHermitianTridiagCtrl ctrl ) \
-  { EL_TRY( herm_tridiag::ExplicitCondensed \
-      ( CReflect(uplo), *CReflect(A), CReflect(ctrl) ) ) } \
   /* ApplyQ after HermitianTridiag */ \
   ElError ElApplyQAfterHermitianTridiag_ ## SIG \
   ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, \

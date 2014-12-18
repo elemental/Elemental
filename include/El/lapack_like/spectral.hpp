@@ -44,16 +44,16 @@ struct HermitianSDCCtrl {
     { }
 };
 
-template<typename Real>
+template<typename F>
 struct HermitianEigCtrl
 {
-    HermitianTridiagCtrl tridiagCtrl;
-    HermitianSDCCtrl<Real> sdcCtrl;
+    HermitianTridiagCtrl<F> tridiagCtrl;
+    HermitianSDCCtrl<Base<F>> sdcCtrl;
     bool useSDC;
     bool timeStages;
 
     HermitianEigCtrl()
-    : tridiagCtrl(), sdcCtrl(), useSDC(false)
+    : useSDC(false), timeStages(false)
     { }
 };
 
@@ -63,18 +63,18 @@ template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
+  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A,
   DistMatrix<Base<F>,STAR,STAR>& w, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
+  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& w,
   SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
+  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 
 // Compute eigenpairs
 // ------------------
@@ -83,20 +83,20 @@ void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z,
   SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
+  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A,
   DistMatrix<Base<F>,STAR,STAR>& w, DistMatrix<F,STAR,STAR>& Z,
   SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
+  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& w, 
   AbstractDistMatrix<F>& Z, SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
+  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 
 // Hermitian generalized definite eigenvalue solvers
 // =================================================
@@ -117,14 +117,14 @@ void HermitianGenDefEig
 ( Pencil pencil, UpperOrLower uplo, 
   Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
+  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
 void HermitianGenDefEig
 ( Pencil pencil, UpperOrLower uplo,
   AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
   AbstractDistMatrix<Base<F>>& w, SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
+  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 // Compute eigenpairs
 // ------------------
 template<typename F>
@@ -133,7 +133,7 @@ void HermitianGenDefEig
   Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, Matrix<F>& X,
   SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
+  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
 void HermitianGenDefEig
 ( Pencil pencil, UpperOrLower uplo,
@@ -141,7 +141,7 @@ void HermitianGenDefEig
   AbstractDistMatrix<Base<F>>& w, AbstractDistMatrix<F>& X,
   SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
+  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 
 // Hermitian tridiagonal eigenvalue solvers
 // ========================================
@@ -354,13 +354,15 @@ void SkewHermitianEig
 ( UpperOrLower uplo, const Matrix<F>& G, Matrix<Base<F>>& wImag,
   SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<Base<F>>& ctrl=HermitianEigCtrl<Base<F>>() );
+  const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
+        HermitianEigCtrl<Complex<Base<F>>>() );
 template<typename F>
 void SkewHermitianEig
 ( UpperOrLower uplo, const AbstractDistMatrix<F>& G,
   AbstractDistMatrix<Base<F>>& wImag, SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<Base<F>>& ctrl=HermitianEigCtrl<Base<F>>() );
+  const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
+        HermitianEigCtrl<Complex<Base<F>>>() );
 
 // Compute eigenpairs
 // ------------------
@@ -370,14 +372,16 @@ void SkewHermitianEig
   Matrix<Base<F>>& wImag, Matrix<Complex<Base<F>>>& Z,
   SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<Base<F>>& ctrl=HermitianEigCtrl<Base<F>>() );
+  const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
+        HermitianEigCtrl<Complex<Base<F>>>() );
 template<typename F>
 void SkewHermitianEig
 ( UpperOrLower uplo, const AbstractDistMatrix<F>& G,
   AbstractDistMatrix<Base<F>>& wImag, AbstractDistMatrix<Complex<Base<F>>>& Z,
   SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<Base<F>>& ctrl=HermitianEigCtrl<Base<F>>() );
+  const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
+        HermitianEigCtrl<Complex<Base<F>>>() );
 
 // Singular Value Decomposition
 // ============================

@@ -15,7 +15,9 @@ namespace El {
 namespace herm_tridiag {
 
 template<typename F> 
-void USquare( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
+void USquare
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre,
+  const SymvCtrl<F>& ctrl )
 {
     DEBUG_ONLY(
         CallStackEntry cse("herm_tridiag::USquare");
@@ -80,7 +82,7 @@ void USquare( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
             UPanSquare
             ( ATL, WPan, t1,
               APan_MC_STAR, APan_MR_STAR, 
-              WPan_MC_STAR, WPan_MR_STAR );
+              WPan_MC_STAR, WPan_MR_STAR, ctrl );
 
             auto A01_MC_STAR = APan_MC_STAR( ind0, ind1-k );
             auto A01_MR_STAR = APan_MR_STAR( ind0, ind1-k );

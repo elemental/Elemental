@@ -162,7 +162,7 @@ void SquareRoot( AbstractDistMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl )
 
 template<typename F>
 void HPSDSquareRoot
-( UpperOrLower uplo, Matrix<F>& A, const HermitianEigCtrl<Base<F>> ctrl )
+( UpperOrLower uplo, Matrix<F>& A, const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HPSDSquareRoot"))
     typedef Base<F> Real;
@@ -210,7 +210,7 @@ void HPSDSquareRoot
 template<typename F>
 void HPSDSquareRoot
 ( UpperOrLower uplo, AbstractDistMatrix<F>& APre, 
-  const HermitianEigCtrl<Base<F>> ctrl )
+  const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HPSDSquareRoot"))
 
@@ -267,10 +267,10 @@ void HPSDSquareRoot
   template void SquareRoot \
   ( AbstractDistMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl ); \
   template void HPSDSquareRoot \
-  ( UpperOrLower uplo, Matrix<F>& A, const HermitianEigCtrl<Base<F>> ctrl ); \
+  ( UpperOrLower uplo, Matrix<F>& A, const HermitianEigCtrl<F>& ctrl ); \
   template void HPSDSquareRoot \
   ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
-    const HermitianEigCtrl<Base<F>> ctrl );
+    const HermitianEigCtrl<F>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

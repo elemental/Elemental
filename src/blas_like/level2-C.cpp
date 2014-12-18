@@ -12,6 +12,31 @@ using namespace El;
 
 extern "C" {
 
+ElError ElSymvCtrlDefault_s( ElSymvCtrl* ctrl )
+{
+    ctrl->bsize = LocalSymvBlocksize<float>();
+    ctrl->avoidTrmvBasedLocalSymv = true;
+    return EL_SUCCESS;
+}
+ElError ElSymvCtrlDefault_d( ElSymvCtrl* ctrl )
+{
+    ctrl->bsize = LocalSymvBlocksize<double>();
+    ctrl->avoidTrmvBasedLocalSymv = true;
+    return EL_SUCCESS;
+}
+ElError ElSymvCtrlDefault_c( ElSymvCtrl* ctrl )
+{
+    ctrl->bsize = LocalSymvBlocksize<Complex<float>>();
+    ctrl->avoidTrmvBasedLocalSymv = true;
+    return EL_SUCCESS;
+}
+ElError ElSymvCtrlDefault_z( ElSymvCtrl* ctrl )
+{
+    ctrl->bsize = LocalSymvBlocksize<Complex<double>>();
+    ctrl->avoidTrmvBasedLocalSymv = true;
+    return EL_SUCCESS;
+}
+
 #define C_PROTO_BASE(SIG,SIGBASE,T) \
   /* Gemv */ \
   ElError ElGemv_ ## SIG \

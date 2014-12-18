@@ -34,7 +34,7 @@ main( int argc, char* argv[] )
         const Real frobA = FrobeniusNorm( A );
 
         HermitianEigSubset<Real> subset;
-        HermitianEigCtrl<Real> ctrl;
+        HermitianEigCtrl<C> ctrl;
         ctrl.useSDC = true;
         ctrl.sdcCtrl.cutoff = cutoff;
         ctrl.sdcCtrl.maxInnerIts = maxInnerIts;

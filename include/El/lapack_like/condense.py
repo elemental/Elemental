@@ -169,11 +169,7 @@ def ApplyPAfterBidiag(side,orient,A,t,B):
 (HERMITIAN_TRIDIAG_NORMAL,HERMITIAN_TRIDIAG_SQUARE,HERMITIAN_TRIDIAG_DEFAULT)= \
 (0,1,2)
 
-lib.ElHermitianTridiagCtrlDefault.argtypes = [c_void_p]
-class HermitianTridiagCtrl(ctypes.Structure):
-  _fields_ = [("approach",c_uint),("order",c_uint)]
-  def __init__(self):
-    lib.ElHermitianTridiagCtrlDefault(pointer(self))
+# TODO: Reenable TridiagCtrl
 
 lib.ElHermitianTridiag_s.argtypes = [c_uint,c_void_p,c_void_p]
 lib.ElHermitianTridiag_s.restype = c_uint
@@ -191,18 +187,6 @@ lib.ElHermitianTridiagDist_c.argtypes = [c_uint,c_void_p,c_void_p]
 lib.ElHermitianTridiagDist_c.restype = c_uint
 lib.ElHermitianTridiagDist_z.argtypes = [c_uint,c_void_p,c_void_p]
 lib.ElHermitianTridiagDist_z.restype = c_uint
-lib.ElHermitianTridiagXDist_s.argtypes = \
-  [c_uint,c_void_p,c_void_p,HermitianTridiagCtrl]
-lib.ElHermitianTridiagXDist_s.restype = c_uint
-lib.ElHermitianTridiagXDist_d.argtypes = \
-  [c_uint,c_void_p,c_void_p,HermitianTridiagCtrl]
-lib.ElHermitianTridiagXDist_d.restype = c_uint
-lib.ElHermitianTridiagXDist_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,HermitianTridiagCtrl]
-lib.ElHermitianTridiagXDist_c.restype = c_uint
-lib.ElHermitianTridiagXDist_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,HermitianTridiagCtrl]
-lib.ElHermitianTridiagXDist_z.restype = c_uint
 lib.ElHermitianTridiagOnly_s.argtypes = [c_uint,c_void_p]
 lib.ElHermitianTridiagOnly_s.restype = c_uint
 lib.ElHermitianTridiagOnly_d.argtypes = [c_uint,c_void_p]
@@ -219,18 +203,6 @@ lib.ElHermitianTridiagOnlyDist_c.argtypes = [c_uint,c_void_p]
 lib.ElHermitianTridiagOnlyDist_c.restype = c_uint
 lib.ElHermitianTridiagOnlyDist_z.argtypes = [c_uint,c_void_p]
 lib.ElHermitianTridiagOnlyDist_z.restype = c_uint
-lib.ElHermitianTridiagOnlyXDist_s.argtypes = \
-  [c_uint,c_void_p,HermitianTridiagCtrl]
-lib.ElHermitianTridiagOnlyXDist_s.restype = c_uint
-lib.ElHermitianTridiagOnlyXDist_d.argtypes = \
-  [c_uint,c_void_p,HermitianTridiagCtrl]
-lib.ElHermitianTridiagOnlyXDist_d.restype = c_uint
-lib.ElHermitianTridiagOnlyXDist_c.argtypes = \
-  [c_uint,c_void_p,HermitianTridiagCtrl]
-lib.ElHermitianTridiagOnlyXDist_c.restype = c_uint
-lib.ElHermitianTridiagOnlyXDist_z.argtypes = \
-  [c_uint,c_void_p,HermitianTridiagCtrl]
-lib.ElHermitianTridiagOnlyXDist_z.restype = c_uint
 def HermitianTridiag(uplo,A,onlyTridiag=False,ctrl=None):
   if type(A) is Matrix:
     if onlyTridiag: 
@@ -259,12 +231,7 @@ def HermitianTridiag(uplo,A,onlyTridiag=False,ctrl=None):
         elif A.tag == zTag: lib.ElHermitianTridiagOnlyDist_z(*args)
         else: DataExcept()
       else: 
-        args = [uplo,A.obj,ctrl]
-        if   A.tag == sTag: lib.ElHermitianTridiagOnlyXDist_s(*args)
-        elif A.tag == dTag: lib.ElHermitianTridiagOnlyXDist_d(*args)
-        elif A.tag == cTag: lib.ElHermitianTridiagOnlyXDist_c(*args)
-        elif A.tag == zTag: lib.ElHermitianTridiagOnlyXDist_z(*args)
-        else: DataExcept()
+        raise Exception('Support for HermitianTridiagCtrl temp. disabled')
     else:
       t = Matrix(A.tag)
       if ctrl == None:
@@ -275,12 +242,7 @@ def HermitianTridiag(uplo,A,onlyTridiag=False,ctrl=None):
         elif A.tag == zTag: lib.ElHermitianTridiagDist_z(*args)
         else: DataExcept()
       else:
-        args = [uplo,A.obj,t.obj,ctrl]
-        if   A.tag == sTag: lib.ElHermitianTridiagXDist_s(*args)
-        elif A.tag == dTag: lib.ElHermitianTridiagXDist_d(*args)
-        elif A.tag == cTag: lib.ElHermitianTridiagXDist_c(*args)
-        elif A.tag == zTag: lib.ElHermitianTridiagXDist_z(*args)
-        else: DataExcept()
+        raise Exception('Support for HermitianTridiagCtrl temp. disabled')
       return t
   else: TypeExcept()
 

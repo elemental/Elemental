@@ -186,6 +186,15 @@ EL_EXPORT ElError ElQuasiTrsvDist_z
 
 /* Symv
    ==== */
+typedef struct {
+  ElInt bsize;
+  bool avoidTrmvBasedLocalSymv;
+} ElSymvCtrl;
+EL_EXPORT ElError ElSymvCtrlDefault_s( ElSymvCtrl* ctrl );
+EL_EXPORT ElError ElSymvCtrlDefault_d( ElSymvCtrl* ctrl );
+EL_EXPORT ElError ElSymvCtrlDefault_c( ElSymvCtrl* ctrl );
+EL_EXPORT ElError ElSymvCtrlDefault_z( ElSymvCtrl* ctrl );
+
 EL_EXPORT ElError ElSymv_i
 ( ElUpperOrLower uplo, 
   ElInt alpha, ElConstMatrix_i A, ElConstMatrix_i x, 

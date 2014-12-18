@@ -243,10 +243,9 @@ void Sign
 // from the right so that the sign decomposition of a singular Hermitian matrix
 // is a polar decomposition (which always exists).
 
-// TODO: Add HermitianEigCtrl structure
 template<typename F>
 void HermitianSign
-( UpperOrLower uplo, Matrix<F>& A, const HermitianEigCtrl<Base<F>> ctrl )
+( UpperOrLower uplo, Matrix<F>& A, const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
     typedef Base<F> Real;
@@ -274,7 +273,7 @@ void HermitianSign
 template<typename F>
 void HermitianSign
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& N, 
-  const HermitianEigCtrl<Base<F>> ctrl )
+  const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
     typedef Base<F> Real;
@@ -310,7 +309,7 @@ void HermitianSign
 template<typename F>
 void HermitianSign
 ( UpperOrLower uplo, AbstractDistMatrix<F>& APre, 
-  const HermitianEigCtrl<Base<F>> ctrl )
+  const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
 
@@ -342,7 +341,7 @@ void HermitianSign
 template<typename F>
 void HermitianSign
 ( UpperOrLower uplo, AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& NPre,
-  const HermitianEigCtrl<Base<F>> ctrl )
+  const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
 
@@ -396,16 +395,16 @@ void HermitianSign
     const SignCtrl<Base<F>> ctrl ); \
   template void HermitianSign \
   ( UpperOrLower uplo, Matrix<F>& A, \
-    const HermitianEigCtrl<Base<F>> ctrl ); \
+    const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianSign \
   ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
-    const HermitianEigCtrl<Base<F>> ctrl ); \
+    const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianSign \
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& N, \
-    const HermitianEigCtrl<Base<F>> ctrl ); \
+    const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianSign \
   ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& N, \
-    const HermitianEigCtrl<Base<F>> ctrl );
+    const HermitianEigCtrl<F>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

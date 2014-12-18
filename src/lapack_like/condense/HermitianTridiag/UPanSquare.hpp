@@ -20,7 +20,8 @@ void UPanSquare
   DistMatrix<F,MC,STAR>& B_MC_STAR, 
   DistMatrix<F,MR,STAR>& B_MR_STAR,
   DistMatrix<F,MC,STAR>& W_MC_STAR,
-  DistMatrix<F,MR,STAR>& W_MR_STAR )
+  DistMatrix<F,MR,STAR>& W_MR_STAR,
+  const SymvCtrl<F>& ctrl )
 {
     const Int n = A.Height();
     const Int nW = W.Width();
@@ -330,7 +331,8 @@ void UPanSquare
         //   q01[MR,* ] := triu(A00,+1)'[MR,MC] a01[MC,* ]
         symv::LocalColAccumulate
         ( UPPER, F(1),
-          A00, a01_MC_STAR, a01_MR_STAR, p01_MC_STAR, q01_MR_STAR, true );
+          A00, a01_MC_STAR, a01_MR_STAR, p01_MC_STAR, q01_MR_STAR, true,
+          ctrl );
 
         x21_MR_STAR.AlignWith( A02T );
         y21_MR_STAR.AlignWith( A02T );
