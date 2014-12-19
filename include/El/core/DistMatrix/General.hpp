@@ -52,7 +52,6 @@ public:
     // -------------------------------------------------------------
     void TransposePartialColAllGather
     ( DistMatrix<T,V,UPart>& A, bool conjugate=false ) const;
-    void AdjointColAllGather( DistMatrix<T,V,UGath>& A ) const;
     void AdjointPartialColAllGather( DistMatrix<T,V,UPart>& A ) const;
 
     void TransposeColFilterFrom

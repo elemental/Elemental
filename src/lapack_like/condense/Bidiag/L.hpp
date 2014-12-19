@@ -158,7 +158,7 @@ L
             X21_MC_STAR.AlignWith( A22 );
             Y12Adj_MR_STAR.AlignWith( A22 );
             X21_MC_STAR = X21;
-            Y12.AdjointColAllGather( Y12Adj_MR_STAR );
+            adjoint::ColAllGather( Y12, Y12Adj_MR_STAR );
 
             auto A21_MC_STAR = AB1_MC_STAR( IR(nb,m-k), IR(0,nb)   );
             auto A12_STAR_MR = A1R_STAR_MR( IR(0,nb),   IR(nb,n-k) );

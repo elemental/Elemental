@@ -13,7 +13,8 @@ namespace adjoint {
 
 template<typename T,Dist U,Dist V>
 void ColAllGather
-( const DistMatrix<T,U,V>& A, DistMatrix<T,V,UGath>& B, bool conjugate )
+( const DistMatrix<T,U,V>& A, 
+        DistMatrix<T,V,Collect<U>()>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("adjoint::ColAllGather"))
     transpose::ColAllGather( A, B, true );
@@ -21,7 +22,8 @@ void ColAllGather
 
 #define PROTO_DIST(T,U,V) \
   template void ColAllGather \
-  ( const DistMatrix<T,U,V>& A, DistMatrix<T,V,UGath>& B );
+  ( const DistMatrix<T,U,V           >& A, \
+          DistMatrix<T,V,Collect<U>()>& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \
