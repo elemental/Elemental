@@ -212,7 +212,7 @@ LUNC
         U01_MC_STAR.AlignWith( X0 );
         U01_MC_STAR = U01;
         X1Trans_MR_STAR.AlignWith( X0 );
-        X1.TransposeColAllGather( X1Trans_MR_STAR );
+        transpose::ColAllGather( X1, X1Trans_MR_STAR );
         LocalGemm
         ( NORMAL, TRANSPOSE, T(1), U01_MC_STAR, X1Trans_MR_STAR, T(1), X0 );
 

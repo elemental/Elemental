@@ -216,7 +216,7 @@ LUTC
         U12_STAR_MC.AlignWith( X2 );
         U12_STAR_MC = U12;
         X1Trans_MR_STAR.AlignWith( X2 ); 
-        X1.TransposeColAllGather( X1Trans_MR_STAR );
+        transpose::ColAllGather( X1, X1Trans_MR_STAR );
         LocalGemm
         ( orientation, TRANSPOSE, 
           T(1), U12_STAR_MC, X1Trans_MR_STAR, T(1), X2 );

@@ -171,7 +171,7 @@ UVar4
 
         // A02 := A02 + U01 A12
         A12Adj_MR_STAR.AlignWith( A02 );
-        A12.AdjointColAllGather( A12Adj_MR_STAR );
+        adjoint::ColAllGather( A12, A12Adj_MR_STAR );
         LocalGemm
         ( ADJOINT, ADJOINT, F(1), U01Adj_STAR_MC, A12Adj_MR_STAR, F(1), A02 );
 

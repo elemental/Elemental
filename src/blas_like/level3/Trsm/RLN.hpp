@@ -65,7 +65,7 @@ RLN
         X1_VC_STAR.TransposePartialColAllGather( X1Trans_STAR_MC );
         X1.TransposeRowFilterFrom( X1Trans_STAR_MC );
         L10Trans_MR_STAR.AlignWith( X0 );
-        L10.TransposeColAllGather( L10Trans_MR_STAR );
+        transpose::ColAllGather( L10, L10Trans_MR_STAR );
         LocalGemm
         ( TRANSPOSE, TRANSPOSE, 
           F(-1), X1Trans_STAR_MC, L10Trans_MR_STAR, F(1), X0 );

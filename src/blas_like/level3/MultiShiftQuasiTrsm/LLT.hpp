@@ -270,7 +270,7 @@ LLTMedium
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         // X1[* ,MR] <- X1[MC,MR]
         X1Trans_MR_STAR.AlignWith( X0 );
-        X1.TransposeColAllGather( X1Trans_MR_STAR, (orientation==ADJOINT) );
+        transpose::ColAllGather( X1, X1Trans_MR_STAR, (orientation==ADJOINT) );
 
         // X1[* ,MR] := L11^-[T/H][* ,* ] X1[* ,MR]
         // X1^[T/H][MR,* ] := X1^[T/H][MR,* ] L11^-1[* ,* ]

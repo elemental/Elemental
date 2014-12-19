@@ -50,8 +50,6 @@ public:
     // Transposed variants of some of the above routines which avoid 
     // large amounts of non-uniform data access
     // -------------------------------------------------------------
-    void TransposeColAllGather
-    ( DistMatrix<T,V,UGath>& A, bool conjugate=false ) const;
     void TransposePartialColAllGather
     ( DistMatrix<T,V,UPart>& A, bool conjugate=false ) const;
     void AdjointColAllGather( DistMatrix<T,V,UGath>& A ) const;

@@ -82,19 +82,6 @@ GeneralDistMatrix<T,U,V>::AlignRowsWith
 
 template<typename T,Dist U,Dist V>
 void
-GeneralDistMatrix<T,U,V>::TransposeColAllGather
-( DistMatrix<T,V,UGath>& A, bool conjugate ) const
-{
-    DEBUG_ONLY(CallStackEntry cse("GDM::TransposeColAllGather"))
-    DistMatrix<T,V,U> ATrans( this->Grid() );
-    ATrans.AlignWith( *this );
-    ATrans.Resize( this->Width(), this->Height() );
-    Transpose( this->LockedMatrix(), ATrans.Matrix(), conjugate );
-    copy::RowAllGather( ATrans, A );
-}
-
-template<typename T,Dist U,Dist V>
-void
 GeneralDistMatrix<T,U,V>::TransposePartialColAllGather
 ( DistMatrix<T,V,UPart>& A, bool conjugate ) const
 {
@@ -104,14 +91,6 @@ GeneralDistMatrix<T,U,V>::TransposePartialColAllGather
     ATrans.Resize( this->Width(), this->Height() );
     Transpose( this->LockedMatrix(), ATrans.Matrix(), conjugate );
     copy::PartialRowAllGather( ATrans, A );
-}
-
-template<typename T,Dist U,Dist V>
-void
-GeneralDistMatrix<T,U,V>::AdjointColAllGather( DistMatrix<T,V,UGath>& A ) const
-{
-    DEBUG_ONLY(CallStackEntry cse("GDM::AdjointRowAllGather"))
-    this->TransposeColAllGather( A, true );
 }
 
 template<typename T,Dist U,Dist V>

@@ -200,7 +200,7 @@ LUC
         MakeTrapezoidal( UPPER, AT1_MC_STAR, -k );
         MakeTrapezoidal( UPPER, A1R_STAR_MC, 1 );
 
-        B1.TransposeColAllGather( B1Trans_MR_STAR );
+        transpose::ColAllGather( B1, B1Trans_MR_STAR );
 
         LocalGemm
         ( NORMAL, TRANSPOSE, 

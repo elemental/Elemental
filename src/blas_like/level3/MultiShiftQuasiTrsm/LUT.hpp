@@ -499,7 +499,7 @@ LUTMedium
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         // X1[* ,VR] <- X1[MC,MR]
         X1Trans_MR_STAR.AlignWith( X2 );
-        X1.TransposeColAllGather( X1Trans_MR_STAR, (orientation==ADJOINT) );
+        transpose::ColAllGather( X1, X1Trans_MR_STAR, (orientation==ADJOINT) );
         
         // X1[* ,MR] := U11^-[T/H][*,*] X1[* ,MR]
         // X1^[T/H][MR,* ] := X1^[T/H][MR,* ] U11^-1[* ,* ]
@@ -581,10 +581,10 @@ LUTMedium
         U11_STAR_STAR = U11; 
         X1RealTrans_MR_STAR.AlignWith( X2Real );
         X1ImagTrans_MR_STAR.AlignWith( X2Imag );
-        X1Real.TransposeColAllGather
-        ( X1RealTrans_MR_STAR, (orientation==ADJOINT) );
-        X1Imag.TransposeColAllGather
-        ( X1ImagTrans_MR_STAR, (orientation==ADJOINT) );
+        transpose::ColAllGather
+        ( X1Real, X1RealTrans_MR_STAR, (orientation==ADJOINT) );
+        transpose::ColAllGather
+        ( X1Imag, X1ImagTrans_MR_STAR, (orientation==ADJOINT) );
         
         // X1[* ,MR] := U11^-[T/H][*,*] X1[* ,MR]
         // X1^[T/H][MR,* ] := X1^[T/H][MR,* ] U11^-1[* ,* ]

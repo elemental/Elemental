@@ -26,6 +26,15 @@ void Adjoint( const SparseMatrix<T>& A, SparseMatrix<T>& B );
 template<typename T>
 void Adjoint( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B );
 
+namespace adjoint {
+
+template<typename T,Dist U,Dist V>
+void ColAllGather
+( const DistMatrix<T,U,V           >& A, 
+        DistMatrix<T,V,Collect<U>()>& B );
+
+} // namespace adjoint
+
 // Axpy
 // ====
 template<typename T,typename S>
@@ -1026,6 +1035,15 @@ void Transpose
 template<typename T>
 void Transpose
 ( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B, bool conjugate=false );
+
+namespace transpose {
+
+template<typename T,Dist U,Dist V>
+void ColAllGather
+( const DistMatrix<T,U,V           >& A, 
+        DistMatrix<T,V,Collect<U>()>& B, bool conjugate=false );
+
+} // namespace transpose
 
 // UpdateDiagonal
 // ==============

@@ -132,7 +132,7 @@ LVar4
         // Y10 := A11 L10
         A11_STAR_STAR = A11;
         L10Adj_MR_STAR.AlignWith( A00 );
-        L10.AdjointColAllGather( L10Adj_MR_STAR );
+        adjoint::ColAllGather( L10, L10Adj_MR_STAR );
         L10_STAR_VR.AlignWith( A00 );
         L10_STAR_VR.AdjointPartialRowFilterFrom( L10Adj_MR_STAR );
         Y10_STAR_VR.AlignWith( A10 );

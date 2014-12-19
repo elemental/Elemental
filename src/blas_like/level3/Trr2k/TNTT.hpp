@@ -66,7 +66,7 @@ void Trr2kTNTT
 
         A1_STAR_MC = A1;
         C1_STAR_MC = C1;
-        B1.TransposeColAllGather( B1Trans_MR_STAR );
+        transpose::ColAllGather( B1, B1Trans_MR_STAR );
         D1_VR_STAR = D1;
         D1_VR_STAR.TransposePartialColAllGather
         ( D1Trans_STAR_MR, (orientD==ADJOINT) );

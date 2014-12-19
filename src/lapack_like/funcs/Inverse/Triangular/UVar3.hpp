@@ -122,7 +122,7 @@ UVar3( UnitOrNonUnit diag, AbstractDistMatrix<F>& UPre )
         // in the unpacking stage.
         U12Trans_MR_STAR.AlignWith( U02 );
         U01Trans_STAR_MC.AlignWith( U02 );
-        U12.TransposeColAllGather( U12Trans_MR_STAR );
+        transpose::ColAllGather( U12, U12Trans_MR_STAR );
         U01_VC_STAR.TransposePartialColAllGather( U01Trans_STAR_MC );
 
         LocalGemm

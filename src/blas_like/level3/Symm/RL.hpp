@@ -135,7 +135,7 @@ RLA
         auto C1 = C( IR(k,k+nb), IR(0,n) );
 
         Z1Trans_MR_MC.AlignWith( C1 );
-        B1.TransposeColAllGather( B1Trans_MR_STAR, conjugate );
+        transpose::ColAllGather( B1, B1Trans_MR_STAR, conjugate );
         B1Trans_VC_STAR = B1Trans_MR_STAR;
         B1Trans_VC_STAR.TransposePartialColAllGather( B1_STAR_MC, conjugate );
         Zeros( Z1Trans_MC_STAR, n, nb );
@@ -197,7 +197,7 @@ RLC
         auto CR = C( IR(0,m), indR );
 
         A1LTrans_MR_STAR.AlignWith( CL );
-        A1L.TransposeColAllGather( A1LTrans_MR_STAR );
+        transpose::ColAllGather( A1L, A1LTrans_MR_STAR );
         AB1_VR_STAR.AlignWith( CR );
         AB1_VR_STAR = AB1;
         AB1Trans_STAR_MR.AlignWith( CR );

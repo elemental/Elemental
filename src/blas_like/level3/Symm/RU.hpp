@@ -135,7 +135,7 @@ RUA
         auto B1 = B( IR(k,k+nb), IR(0,n) );
         auto C1 = C( IR(k,k+nb), IR(0,n) );
 
-        B1.TransposeColAllGather( B1Trans_MR_STAR, conjugate );
+        transpose::ColAllGather( B1, B1Trans_MR_STAR, conjugate );
         B1Trans_VC_STAR = B1Trans_MR_STAR;
         B1Trans_VC_STAR.TransposePartialColAllGather( B1_STAR_MC, conjugate );
         Zeros( Z1Trans_MC_STAR, n, nb );
@@ -203,7 +203,7 @@ RUC
         AT1Trans_STAR_MR.AlignWith( CL );
         AT1_VR_STAR.TransposePartialColAllGather( AT1Trans_STAR_MR, conjugate );
         A1RTrans_MR_STAR.AlignWith( CR );
-        A1R.TransposeColAllGather( A1RTrans_MR_STAR, conjugate );
+        transpose::ColAllGather( A1R, A1RTrans_MR_STAR, conjugate );
         MakeTrapezoidal( LOWER, A1RTrans_MR_STAR );
         MakeTrapezoidal( LOWER, AT1Trans_STAR_MR, k-1 );
 

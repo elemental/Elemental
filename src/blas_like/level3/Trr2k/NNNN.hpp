@@ -61,8 +61,8 @@ void Trr2kNNNN
 
         A1_MC_STAR = A1;
         C1_MC_STAR = C1;
-        B1.TransposeColAllGather( B1Trans_MR_STAR );
-        D1.TransposeColAllGather( D1Trans_MR_STAR );
+        transpose::ColAllGather( B1, B1Trans_MR_STAR );
+        transpose::ColAllGather( D1, D1Trans_MR_STAR );
         LocalTrr2k
         ( uplo, NORMAL, TRANSPOSE, NORMAL, TRANSPOSE, 
           alpha, A1_MC_STAR, B1Trans_MR_STAR, 

@@ -241,7 +241,7 @@ SUMMA_NNC
         // C[MC,MR] += alpha A1[MC,*] (B1^T[MR,*])^T
         //           = alpha A1[MC,*] B1[*,MR]
         A1_MC_STAR = A1; 
-        B1.TransposeColAllGather( B1Trans_MR_STAR );
+        transpose::ColAllGather( B1, B1Trans_MR_STAR );
         LocalGemm
         ( NORMAL, TRANSPOSE, alpha, A1_MC_STAR, B1Trans_MR_STAR, T(1), C );
     }

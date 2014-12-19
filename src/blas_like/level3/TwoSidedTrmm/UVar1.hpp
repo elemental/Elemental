@@ -123,7 +123,7 @@ UVar1
 
         // Y12 := U12 A22
         U12Adj_MR_STAR.AlignWith( A22 );
-        U12.AdjointColAllGather( U12Adj_MR_STAR );
+        adjoint::ColAllGather( U12, U12Adj_MR_STAR );
         U12Adj_VC_STAR.AlignWith( A22 );
         U12Adj_VC_STAR = U12Adj_MR_STAR;
         U12_STAR_MC.AlignWith( A22 );

@@ -485,7 +485,7 @@ LUNMedium
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1Trans_MR_STAR.AlignWith( X0 );
-        X1.TransposeColAllGather( X1Trans_MR_STAR ); // X1[* ,MR] <- X1[MC,MR]
+        transpose::ColAllGather( X1, X1Trans_MR_STAR );
         
         // X1^T[MR,* ] := X1^T[MR,* ] U11^-T[* ,* ]
         //              = (U11^-1[* ,* ] X1[* ,MR])^T
@@ -569,8 +569,8 @@ LUNMedium
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1RealTrans_MR_STAR.AlignWith( X0Real );
         X1ImagTrans_MR_STAR.AlignWith( X0Imag );
-        X1Real.TransposeColAllGather( X1RealTrans_MR_STAR );
-        X1Imag.TransposeColAllGather( X1RealTrans_MR_STAR ); 
+        transpose::ColAllGather( X1Real, X1RealTrans_MR_STAR );
+        transpose::ColAllGather( X1Imag, X1ImagTrans_MR_STAR );
         
         // X1^T[MR,* ] := X1^T[MR,* ] U11^-T[* ,* ]
         //              = (U11^-1[* ,* ] X1[* ,MR])^T

@@ -103,7 +103,7 @@ RLTA
 
         auto X1 = X( IR(k,k+nb), IR(0,n) );
 
-        X1.TransposeColAllGather( X1Trans_MR_STAR, conjugate );
+        transpose::ColAllGather( X1, X1Trans_MR_STAR, conjugate );
         Zeros( Z1Trans_MC_STAR, X1.Width(), X1.Height() );
         LocalAccumulateRLT
         ( diag, T(1), L, X1Trans_MR_STAR, Z1Trans_MC_STAR );
@@ -162,7 +162,7 @@ RLTC
         X1 = X1_VC_STAR;
  
         L10Trans_MR_STAR.AlignWith( X0 );
-        L10.TransposeColAllGather( L10Trans_MR_STAR, conjugate );
+        transpose::ColAllGather( L10, L10Trans_MR_STAR, conjugate );
         D1_MC_STAR.AlignWith( X1 );
         LocalGemm( NORMAL, NORMAL, T(1), X0, L10Trans_MR_STAR, D1_MC_STAR );
         axpy::RowSumScatter( T(1), D1_MC_STAR, X1 );

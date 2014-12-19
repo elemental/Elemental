@@ -201,7 +201,7 @@ LLC
         MakeTrapezoidal( LOWER, AB1_MC_STAR );
         MakeTrapezoidal( LOWER, A1L_STAR_MC, k-1 );
 
-        B1.TransposeColAllGather( B1Trans_MR_STAR );
+        transpose::ColAllGather( B1, B1Trans_MR_STAR );
 
         LocalGemm
         ( NORMAL, TRANSPOSE, 

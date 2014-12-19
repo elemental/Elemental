@@ -56,7 +56,7 @@ SUMMA_NTA
         auto C1 = C( IR(0,m),    IR(k,k+nb)   );
 
         // C1[MC,*] := alpha A[MC,MR] (B1^[T/H])[MR,*]
-        B1.TransposeColAllGather( B1Trans_MR_STAR, conjugate );
+        transpose::ColAllGather( B1, B1Trans_MR_STAR, conjugate );
         LocalGemm( NORMAL, NORMAL, alpha, A, B1Trans_MR_STAR, D1_MC_STAR );
 
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
@@ -112,7 +112,7 @@ SUMMA_NTB
 
         // D1[*,MC] := alpha A1[*,MR] (B[MC,MR])^T
         //           = alpha (A1^T)[MR,*] (B^T)[MR,MC]
-        A1.TransposeColAllGather( A1Trans_MR_STAR );
+        transpose::ColAllGather( A1, A1Trans_MR_STAR );
         LocalGemm
         ( TRANSPOSE, orientationOfB, alpha, A1Trans_MR_STAR, B, D1_STAR_MC );
 

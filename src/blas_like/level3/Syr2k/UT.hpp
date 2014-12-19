@@ -56,11 +56,11 @@ UT
         auto A1 = A( IR(k,k+nb), IR(0,n) );
         auto B1 = B( IR(k,k+nb), IR(0,n) );
 
-        A1.TransposeColAllGather( A1Trans_MR_STAR );
+        transpose::ColAllGather( A1, A1Trans_MR_STAR );
         A1_STAR_VR.TransposePartialRowFilterFrom( A1Trans_MR_STAR );
         A1_STAR_MC = A1_STAR_VR;
 
-        B1.TransposeColAllGather( B1Trans_MR_STAR );
+        transpose::ColAllGather( B1, B1Trans_MR_STAR );
         B1_STAR_VR.TransposePartialRowFilterFrom( B1Trans_MR_STAR );
         B1_STAR_MC = B1_STAR_VR;
 
