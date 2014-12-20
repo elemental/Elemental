@@ -35,6 +35,10 @@ void ColAllGather
 
 } // namespace adjoint
 
+// AdjointAxpy
+// ===========
+// TODO
+
 // Axpy
 // ====
 template<typename T,typename S>
@@ -1044,6 +1048,10 @@ void ColAllGather
         DistMatrix<T,V,Collect<U>()>& B, bool conjugate=false );
 
 } // namespace transpose
+
+// TransposeAxpy
+// =============
+// TODO
 
 // UpdateDiagonal
 // ==============

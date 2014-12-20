@@ -50,6 +50,7 @@ public:
     // Transposed variants of some of the above routines which avoid 
     // large amounts of non-uniform data access
     // -------------------------------------------------------------
+    // TODO: Finish extracting these routines into the level 1 BLAS
     void TransposePartialColAllGather
     ( DistMatrix<T,V,UPart>& A, bool conjugate=false ) const;
     void AdjointPartialColAllGather( DistMatrix<T,V,UPart>& A ) const;

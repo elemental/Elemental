@@ -10,6 +10,36 @@
 namespace El {
 namespace symv {
 
+// s += alpha A  q
+// t += alpha A' r
+template<typename T>
+inline void FusedColPanelGemvs
+( bool conjugate, T alpha,
+  const Matrix<T>& A, const Matrix<T>& q, const Matrix<T>& r, 
+                            Matrix<T>& s,       Matrix<T>& t, 
+  Int bsize )
+{
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const char transChar = ( conjugate ? 'C' : 'T' );
+    const T* ABuf = A.LockedBuffer();
+    const T* qBuf = q.LockedBuffer();
+    const T* rBuf = r.LockedBuffer();
+          T* sBuf = s.Buffer();
+          T* tBuf = t.Buffer();
+    const Int ALDim = A.LDim();
+    for( Int k=0; k<m; k+=bsize )
+    {
+        const Int mb = Min(m-k,bsize);
+        blas::Gemv
+        ( 'N', mb, n, alpha, 
+          &ABuf[k], ALDim, qBuf,     1, T(1), &sBuf[k], 1 );
+        blas::Gemv
+        ( transChar, mb, n, alpha,
+          &ABuf[k], ALDim, &rBuf[k], 1, T(1), tBuf,     1 );
+    }
+}
+
 template<typename T>
 inline void LocalColAccumulateLGeneral
 ( T alpha, 
@@ -75,8 +105,15 @@ inline void LocalColAccumulateLGeneral
         SetDiagonal( D11, T(0) );
         LocalGemv( orientation, alpha, D11, x1_MC_STAR, T(1), z1_MR_STAR );
 
-        LocalGemv( NORMAL,      alpha, A21, x1_MR_STAR, T(1), z2_MC_STAR );
-        LocalGemv( orientation, alpha, A21, x2_MC_STAR, T(1), z1_MR_STAR );
+        // TODO: Expose the fusion blocksize as another parameter 
+        FusedColPanelGemvs
+        ( conjugate, alpha, A21.LockedMatrix(), 
+          x1_MR_STAR.LockedMatrix(), x2_MC_STAR.LockedMatrix(), 
+          z2_MC_STAR.Matrix(),       z1_MR_STAR.Matrix(), ctrl.bsize );
+        // NOTE: The following are mathematically equivalent but should
+        //       be slower in practice for cache reasons
+        //LocalGemv( NORMAL,      alpha, A21, x1_MR_STAR, T(1), z2_MC_STAR );
+        //LocalGemv( orientation, alpha, A21, x2_MC_STAR, T(1), z1_MR_STAR );
     }
 }
 

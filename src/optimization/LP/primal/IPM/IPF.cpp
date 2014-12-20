@@ -29,7 +29,7 @@ namespace primal {
 template<typename Real>
 void IPF
 ( const Matrix<Real>& A, 
-  const Matrix<Real>& b,  const Matrix<Real>& c,
+  const Matrix<Real>& b, const Matrix<Real>& c,
   Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
