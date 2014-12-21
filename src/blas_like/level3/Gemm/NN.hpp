@@ -139,7 +139,7 @@ SUMMA_NNA
 
         // D1[MC,*] := alpha A[MC,MR] B1[MR,*]
         B1_VR_STAR = B1;
-        B1_VR_STAR.TransposePartialColAllGather( B1Trans_STAR_MR );
+        transpose::PartialColAllGather( B1_VR_STAR, B1Trans_STAR_MR );
         LocalGemm( NORMAL, TRANSPOSE, alpha, A, B1Trans_STAR_MR, D1_MC_STAR );
 
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
@@ -193,7 +193,7 @@ SUMMA_NNB
         LocalGemm
         ( TRANSPOSE, TRANSPOSE, alpha, B, A1_STAR_MC, D1Trans_MR_STAR );
 
-        C1.TransposeColSumScatterUpdate( T(1), D1Trans_MR_STAR );
+        trans_axpy::ColSumScatter( T(1), D1Trans_MR_STAR, C1 );
     }
 }
 

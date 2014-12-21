@@ -115,7 +115,7 @@ LUNMedium
         LocalTrsm
         ( RIGHT, UPPER, TRANSPOSE, diag, 
           F(1), U11_STAR_STAR, X1Trans_MR_STAR, checkIfSingular );
-        X1.TransposeColFilterFrom( X1Trans_MR_STAR );
+        transpose::ColFilter( X1Trans_MR_STAR, X1 );
 
         U01_MC_STAR.AlignWith( X0 );
         U01_MC_STAR = U01;  // U01[MC,* ] <- U01[MC,MR]

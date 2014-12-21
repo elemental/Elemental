@@ -137,7 +137,8 @@ RUA
 
         transpose::ColAllGather( B1, B1Trans_MR_STAR, conjugate );
         B1Trans_VC_STAR = B1Trans_MR_STAR;
-        B1Trans_VC_STAR.TransposePartialColAllGather( B1_STAR_MC, conjugate );
+        transpose::PartialColAllGather
+        ( B1Trans_VC_STAR, B1_STAR_MC, conjugate );
         Zeros( Z1Trans_MC_STAR, n, nb );
         Zeros( Z1Trans_MR_STAR, n, nb );
         LocalAccumulateRU
@@ -201,7 +202,8 @@ RUC
         AT1_VR_STAR.AlignWith( CL );
         AT1_VR_STAR = AT1;
         AT1Trans_STAR_MR.AlignWith( CL );
-        AT1_VR_STAR.TransposePartialColAllGather( AT1Trans_STAR_MR, conjugate );
+        transpose::PartialColAllGather
+        ( AT1_VR_STAR, AT1Trans_STAR_MR, conjugate );
         A1RTrans_MR_STAR.AlignWith( CR );
         transpose::ColAllGather( A1R, A1RTrans_MR_STAR, conjugate );
         MakeTrapezoidal( LOWER, A1RTrans_MR_STAR );

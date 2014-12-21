@@ -277,7 +277,7 @@ LLTMedium
         ( RIGHT, LOWER, NORMAL,
           F(1), L11_STAR_STAR, X1Trans_MR_STAR, checkIfSingular );
 
-        X1.TransposeColFilterFrom( X1Trans_MR_STAR, (orientation==ADJOINT) );
+        transpose::ColFilter( X1Trans_MR_STAR, X1, (orientation==ADJOINT) );
         L10_STAR_MC.AlignWith( X0 );
         L10_STAR_MC = L10; // L10[* ,MC] <- L10[MC,MR]
 

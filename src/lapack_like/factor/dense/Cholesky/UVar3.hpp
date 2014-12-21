@@ -226,12 +226,12 @@ ReverseUVar3( AbstractDistMatrix<F>& APre )
         A01_VR_STAR = A01_VC_STAR; 
         A01Trans_STAR_MC.AlignWith( A00 );
         A01Adj_STAR_MR.AlignWith( A00 );
-        A01_VC_STAR.TransposePartialColAllGather( A01Trans_STAR_MC );
-        A01_VR_STAR.AdjointPartialColAllGather( A01Adj_STAR_MR );
+        transpose::PartialColAllGather( A01_VC_STAR, A01Trans_STAR_MC );
+        adjoint::PartialColAllGather( A01_VR_STAR, A01Adj_STAR_MR );
         LocalTrrk
         ( UPPER, TRANSPOSE, 
           F(-1), A01Trans_STAR_MC, A01Adj_STAR_MR, F(1), A00 );
-        A01.TransposeRowFilterFrom( A01Trans_STAR_MC );
+        transpose::RowFilter( A01Trans_STAR_MC, A01 );
     }
 }
 

@@ -48,15 +48,11 @@ UVar1( AbstractDistMatrix<T>& UPre, bool conjugate=false )
         if( UPre.Height() != UPre.Width() )
             LogicError("U must be square");
     )
-    const Int n = UPre.Height();
-    const Int bsize = Blocksize();
-    const Grid& g = UPre.Grid();
-    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
     auto UPtr = ReadWriteProxy<T,MC,MR>( &UPre ); 
     auto& U = *UPtr;
 
-    // Temporary distributions
+    const Grid& g = UPre.Grid();
     DistMatrix<T,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<T,VC,  STAR> U01_VC_STAR(g);
     DistMatrix<T,VR,  STAR> U01_VR_STAR(g);
@@ -68,6 +64,9 @@ UVar1( AbstractDistMatrix<T>& UPre, bool conjugate=false )
     U01_VR_STAR.AlignWith( U );
     U01Trans_STAR_MR.AlignWith( U );
 
+    const Int n = UPre.Height();
+    const Int bsize = Blocksize();
+    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
@@ -82,7 +81,8 @@ UVar1( AbstractDistMatrix<T>& UPre, bool conjugate=false )
         U01_MC_STAR = U01;
         U01_VC_STAR = U01_MC_STAR;
         U01_VR_STAR = U01_VC_STAR;
-        U01_VR_STAR.TransposePartialColAllGather( U01Trans_STAR_MR, conjugate );
+        transpose::PartialColAllGather
+        ( U01_VR_STAR, U01Trans_STAR_MR, conjugate );
         LocalTrrk( UPPER, T(1), U01_MC_STAR, U01Trans_STAR_MR, T(1), U00 );
 
         U11_STAR_STAR = U11;

@@ -134,7 +134,7 @@ LVar4
         L10Adj_MR_STAR.AlignWith( A00 );
         adjoint::ColAllGather( L10, L10Adj_MR_STAR );
         L10_STAR_VR.AlignWith( A00 );
-        L10_STAR_VR.AdjointPartialRowFilterFrom( L10Adj_MR_STAR );
+        adjoint::PartialRowFilter( L10Adj_MR_STAR, L10_STAR_VR );
         Y10_STAR_VR.AlignWith( A10 );
         Zeros( Y10_STAR_VR, nb, k );
         Hemm

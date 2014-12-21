@@ -58,10 +58,12 @@ LN
         auto B1 = B( IR(0,n), IR(k,k+nb) );
 
         A1_VR_STAR = A1_MC_STAR = A1;
-        A1_VR_STAR.TransposePartialColAllGather( A1Trans_STAR_MR, conjugate );
+        transpose::PartialColAllGather
+        ( A1_VR_STAR, A1Trans_STAR_MR, conjugate );
 
         B1_VR_STAR = B1_MC_STAR = B1;
-        B1_VR_STAR.TransposePartialColAllGather( B1Trans_STAR_MR, conjugate );
+        transpose::PartialColAllGather
+        ( B1_VR_STAR, B1Trans_STAR_MR, conjugate );
 
         LocalTrr2k
         ( LOWER, NORMAL, NORMAL, NORMAL, NORMAL,

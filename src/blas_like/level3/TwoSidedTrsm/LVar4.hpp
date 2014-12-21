@@ -166,15 +166,15 @@ LVar4
 
         // A22 := A22 - (L21 A21' + A21 L21')
         A21Trans_STAR_MC.AlignWith( A22 );
-        A21_VC_STAR.TransposePartialColAllGather( A21Trans_STAR_MC );
+        transpose::PartialColAllGather( A21_VC_STAR, A21Trans_STAR_MC );
         A21_VR_STAR.AlignWith( A22 );
         A21_VR_STAR = A21_VC_STAR;
         L21_VR_STAR.AlignWith( A22 );
         L21_VR_STAR = L21_VC_STAR;
         A21Adj_STAR_MR.AlignWith( A22 );
         L21Adj_STAR_MR.AlignWith( A22 );
-        A21_VR_STAR.AdjointPartialColAllGather( A21Adj_STAR_MR );
-        L21_VR_STAR.AdjointPartialColAllGather( L21Adj_STAR_MR );
+        adjoint::PartialColAllGather( A21_VR_STAR, A21Adj_STAR_MR );
+        adjoint::PartialColAllGather( L21_VR_STAR, L21Adj_STAR_MR );
         LocalTrr2k
         ( LOWER, NORMAL, NORMAL, TRANSPOSE, NORMAL,
           F(-1), L21_MC_STAR,      A21Adj_STAR_MR, 

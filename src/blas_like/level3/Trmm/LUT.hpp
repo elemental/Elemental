@@ -223,7 +223,7 @@ LUTC
 
         U11_STAR_STAR = U11;
         X1_STAR_VR.AlignWith( X1 );
-        X1_STAR_VR.TransposePartialRowFilterFrom( X1Trans_MR_STAR );
+        transpose::PartialRowFilter( X1Trans_MR_STAR, X1_STAR_VR );
         LocalTrmm
         ( LEFT, UPPER, orientation, diag, T(1), U11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;

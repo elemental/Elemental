@@ -15,44 +15,40 @@ void Axpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y )
 {
     DEBUG_ONLY(CallStackEntry cse("Axpy"))
     const T alpha = T(alphaS);
+    const Int mX = X.Height();
+    const Int nX = X.Width();
+    const Int mY = Y.Height();
+    const Int nY = Y.Width();
+    const Int ldX = X.LDim();
+    const Int ldY = Y.LDim();
+    const T* XBuf = X.LockedBuffer();
+          T* YBuf = Y.Buffer();
     // If X and Y are vectors, we can allow one to be a column and the other
     // to be a row. Otherwise we force X and Y to be the same dimension.
-    if( X.Height()==1 || X.Width()==1 )
+    if( mX == 1 || nX == 1 )
     {
-        const Int XLength = ( X.Width()==1 ? X.Height() : X.Width() );
-        const Int XStride = ( X.Width()==1 ? 1          : X.LDim() );
-        const Int YStride = ( Y.Width()==1 ? 1          : Y.LDim() );
+        const Int XLength = ( nX==1 ? mX : nX );
+        const Int XStride = ( nX==1 ? 1  : ldX );
+        const Int YStride = ( nY==1 ? 1  : ldY );
         DEBUG_ONLY(
-            const Int YLength = ( Y.Width()==1 ? Y.Height() : Y.Width() );
+            const Int YLength = ( nY==1 ? mY : nY );
             if( XLength != YLength )
                 LogicError("Nonconformal Axpy");
         )
-        blas::Axpy
-        ( XLength, alpha, X.LockedBuffer(), XStride, Y.Buffer(), YStride );
+        blas::Axpy( XLength, alpha, XBuf, XStride, YBuf, YStride );
     }
     else
     {
         DEBUG_ONLY(
-            if( X.Height() != Y.Height() || X.Width() != Y.Width() )
+            if( mX != mY || nX != nY )
                 LogicError("Nonconformal Axpy");
         )
-        if( X.Width() <= X.Height() )
-        {
-            for( Int j=0; j<X.Width(); ++j )
-            {
-                blas::Axpy
-                ( X.Height(), alpha, X.LockedBuffer(0,j), 1, Y.Buffer(0,j), 1 );
-            }
-        }
+        if( nX <= mX )
+            for( Int j=0; j<nX; ++j )
+                blas::Axpy( mX, alpha, &XBuf[j*ldX], 1, &YBuf[j*ldY], 1 );
         else
-        {
-            for( Int i=0; i<X.Height(); ++i )
-            {
-                blas::Axpy
-                ( X.Width(), alpha, X.LockedBuffer(i,0), X.LDim(),
-                                    Y.Buffer(i,0),       Y.LDim() );
-            }
-        }
+            for( Int i=0; i<mX; ++i )
+                blas::Axpy( nX, alpha, &XBuf[i], ldX, &YBuf[i], ldY );
     }
 }
 
@@ -126,11 +122,7 @@ void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y )
         if( X.Width() != Y.Width() )
             LogicError("X and Y must be the same width");
     )
-    const int localHeight = X.LocalHeight();
-    const int width = X.Width();
-    for( int j=0; j<width; ++j )
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
-            Y.UpdateLocal( iLocal, j, T(alpha)*X.GetLocal(iLocal,j) );
+    Axpy( alpha, X.LockedMatrix(), Y.Matrix() );
 }
 
 #define PROTO_TYPES(T,S) \

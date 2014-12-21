@@ -103,7 +103,7 @@ LLNA
         auto X1 = X( IR(0,m), IR(k,k+nb) );
 
         X1_VR_STAR = X1;
-        X1_VR_STAR.TransposePartialColAllGather( X1Trans_STAR_MR );
+        transpose::PartialColAllGather( X1_VR_STAR, X1Trans_STAR_MR );
         Zeros( Z1_MC_STAR, m, nb );
         LocalAccumulateLLN
         ( TRANSPOSE, diag, T(1), L, X1Trans_STAR_MR, Z1_MC_STAR );
@@ -215,7 +215,7 @@ LLNC
 
         L11_STAR_STAR = L11;
         X1_STAR_VR.AlignWith( X1 );
-        X1_STAR_VR.TransposePartialRowFilterFrom( X1Trans_MR_STAR );
+        transpose::PartialRowFilter( X1Trans_MR_STAR, X1_STAR_VR );
         LocalTrmm( LEFT, LOWER, NORMAL, diag, T(1), L11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
     }

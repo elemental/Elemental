@@ -140,7 +140,7 @@ UVar4
 
         // A02 := A02 - A01 U12
         A01Trans_STAR_MC.AlignWith( A02 );
-        A01_VC_STAR.TransposePartialColAllGather( A01Trans_STAR_MC );
+        transpose::PartialColAllGather( A01_VC_STAR, A01Trans_STAR_MC );
         U12Trans_MR_STAR.AlignWith( A02 );
         transpose::ColAllGather( U12, U12Trans_MR_STAR );
         LocalGemm

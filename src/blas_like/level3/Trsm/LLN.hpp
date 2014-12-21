@@ -116,7 +116,7 @@ LLNMedium
         ( RIGHT, LOWER, TRANSPOSE, diag, 
           F(1), L11_STAR_STAR, X1Trans_MR_STAR, checkIfSingular );
 
-        X1.TransposeColFilterFrom( X1Trans_MR_STAR ); // X1[MC,MR] <- X1[* ,MR]
+        transpose::ColFilter( X1Trans_MR_STAR, X1 );
         L21_MC_STAR.AlignWith( X2 );
         L21_MC_STAR = L21;                   // L21[MC,* ] <- L21[MC,MR]
         

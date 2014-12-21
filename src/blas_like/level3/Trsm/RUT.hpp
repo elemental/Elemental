@@ -66,13 +66,13 @@ RUT
           F(1), U11_STAR_STAR, X1_VC_STAR, checkIfSingular );
 
         X1Trans_STAR_MC.AlignWith( X0 );
-        X1_VC_STAR.TransposePartialColAllGather( X1Trans_STAR_MC );
-        X1.TransposeRowFilterFrom( X1Trans_STAR_MC );
+        transpose::PartialColAllGather( X1_VC_STAR, X1Trans_STAR_MC );
+        transpose::RowFilter( X1Trans_STAR_MC, X1 );
         U01_VR_STAR.AlignWith( X0 );
         U01_VR_STAR = U01;
         U01Trans_STAR_MR.AlignWith( X0 );
-        U01_VR_STAR.TransposePartialColAllGather
-        ( U01Trans_STAR_MR, (orientation==ADJOINT) );
+        transpose::PartialColAllGather
+        ( U01_VR_STAR, U01Trans_STAR_MR, (orientation==ADJOINT) );
 
         // X0[MC,MR] -= X1[MC,* ] (U01[MR,* ])^(T/H)
         //            = X1^T[* ,MC] (U01^(T/H))[* ,MR]

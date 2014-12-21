@@ -133,7 +133,8 @@ LUA
 
         B1_MC_STAR = B1;
         B1_VR_STAR = B1_MC_STAR;
-        B1_VR_STAR.TransposePartialColAllGather( B1Trans_STAR_MR, conjugate );
+        transpose::PartialColAllGather
+        ( B1_VR_STAR, B1Trans_STAR_MR, conjugate );
         Zeros( Z1_MC_STAR, m, nb );
         Zeros( Z1_MR_STAR, m, nb );
         LocalAccumulateLU

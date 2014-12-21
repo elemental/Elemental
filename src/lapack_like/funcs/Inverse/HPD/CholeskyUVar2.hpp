@@ -26,25 +26,21 @@ CholeskyUVar2( Matrix<F>& A )
         if( A.Height() != A.Width() )
             LogicError("Nonsquare matrices cannot be triangular");
     )
-    // Matrix views
-    Matrix<F> 
-        ATL, ATR,  A00, A01, A02,
-        ABL, ABR,  A10, A11, A12,
-                   A20, A21, A22;
 
-    // Start the algorithm
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    while( ATL.Height() < A.Height() )
+    const Int n = A.Height();
+    const Int bsize = Blocksize();
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = Min(n-k,bsize);
+        const Range<Int> ind0( 0, k ), ind1( k, k+nb ), ind2( k+nb, n );
 
-        //--------------------------------------------------------------------//
+        auto A00 = A( ind0, ind0 );
+        auto A01 = A( ind0, ind1 );
+        auto A02 = A( ind0, ind2 );
+        auto A11 = A( ind1, ind1 );
+        auto A12 = A( ind1, ind2 );
+        auto A22 = A( ind2, ind2 );
+
         Cholesky( UPPER, A11 );
         Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), A11, A01 );
         Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A11, A12 );
@@ -55,13 +51,6 @@ CholeskyUVar2( Matrix<F>& A )
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(-1), A11, A12 );
         TriangularInverse( UPPER, NON_UNIT, A11 );
         Trtrmm( UPPER, A11, true );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
 }
 
@@ -78,14 +67,7 @@ CholeskyUVar2( AbstractDistMatrix<F>& APre )
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
-    // Matrix views
     const Grid& g = A.Grid();
-    DistMatrix<F> 
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g),
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
-
-    // Temporary distributions
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,VC,  STAR> A01_VC_STAR(g);
     DistMatrix<F,VR,  STAR> A01_VR_STAR(g);
@@ -96,48 +78,49 @@ CholeskyUVar2( AbstractDistMatrix<F>& APre )
     DistMatrix<F,STAR,MR  > A12_STAR_MR(g);
     DistMatrix<F,STAR,MC  > A12_STAR_MC(g);
 
-    // Start the algorithm
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    while( ATL.Height() < A.Height() )
+    const Int n = A.Height();
+    const Int bsize = Blocksize();
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = Min(n-k,bsize);
+        const Range<Int> ind0( 0, k ), ind1( k, k+nb ), ind2( k+nb, n );
 
-        A01_VC_STAR.AlignWith( A00 );
-        A12_STAR_VR.AlignWith( A02 );
-        A01Trans_STAR_MC.AlignWith( A00 );
-        A01_VR_STAR.AlignWith( A00 );
-        A01Adj_STAR_MR.AlignWith( A00 );
-        A12_STAR_MR.AlignWith( A02 );
-        A12_STAR_MC.AlignWith( A22 );
-        //--------------------------------------------------------------------//
+        auto A00 = A( ind0, ind0 );
+        auto A01 = A( ind0, ind1 );
+        auto A02 = A( ind0, ind2 );
+        auto A11 = A( ind1, ind1 );
+        auto A12 = A( ind1, ind2 );
+        auto A22 = A( ind2, ind2 );
+
         A11_STAR_STAR = A11;
         LocalCholesky( UPPER, A11_STAR_STAR );
 
+        A01_VC_STAR.AlignWith( A00 );
         A01_VC_STAR = A01;
         LocalTrsm
         ( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), A11_STAR_STAR, A01_VC_STAR );
 
+        A12_STAR_VR.AlignWith( A02 );
         A12_STAR_VR = A12;
         LocalTrsm
         ( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A12_STAR_VR );
 
-        A01_VC_STAR.TransposePartialColAllGather( A01Trans_STAR_MC );
+        A01Trans_STAR_MC.AlignWith( A00 );
+        transpose::PartialColAllGather( A01_VC_STAR, A01Trans_STAR_MC );
+        A01_VR_STAR.AlignWith( A00 );
         A01_VR_STAR = A01_VC_STAR;
-        A01_VR_STAR.AdjointPartialColAllGather( A01Adj_STAR_MR );
+        A01Adj_STAR_MR.AlignWith( A00 );
+        adjoint::PartialColAllGather( A01_VR_STAR, A01Adj_STAR_MR );
         LocalTrrk
         ( UPPER, TRANSPOSE,
           F(1), A01Trans_STAR_MC, A01Adj_STAR_MR, F(1), A00 );
 
+        A12_STAR_MR.AlignWith( A02 );
         A12_STAR_MR = A12_STAR_VR;
         LocalGemm
         ( TRANSPOSE, NORMAL, F(-1), A01Trans_STAR_MC, A12_STAR_MR, F(1), A02 );
 
+        A12_STAR_MC.AlignWith( A22 );
         A12_STAR_MC = A12_STAR_VR;
         LocalTrrk
         ( UPPER, ADJOINT,
@@ -145,24 +128,16 @@ CholeskyUVar2( AbstractDistMatrix<F>& APre )
 
         LocalTrsm
         ( RIGHT, UPPER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A01_VC_STAR );
+        A01 = A01_VC_STAR;
 
         LocalTrsm
         ( LEFT, UPPER, NORMAL, NON_UNIT, F(-1), A11_STAR_STAR, A12_STAR_VR );
+        A12 = A12_STAR_VR;
 
         LocalTriangularInverse( UPPER, NON_UNIT, A11_STAR_STAR );
 
         LocalTrtrmm( UPPER, A11_STAR_STAR, true );
-
         A11 = A11_STAR_STAR;
-        A01 = A01_VC_STAR;
-        A12 = A12_STAR_VR;
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
 }
 

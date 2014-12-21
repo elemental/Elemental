@@ -172,7 +172,8 @@ SUMMA_NTC
 
         A1_MC_STAR = A1;
         B1_VR_STAR = B1;
-        B1_VR_STAR.TransposePartialColAllGather( B1Trans_STAR_MR, conjugate );
+        transpose::PartialColAllGather
+        ( B1_VR_STAR, B1Trans_STAR_MR, conjugate );
 
         // C[MC,MR] += alpha A1[MC,*] (B1[MR,*])^T
         LocalGemm

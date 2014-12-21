@@ -220,7 +220,7 @@ LLTC
 
         L11_STAR_STAR = L11;
         X1_STAR_VR.AlignWith( X1 );
-        X1_STAR_VR.TransposePartialRowFilterFrom( X1Trans_MR_STAR );
+        transpose::PartialRowFilter( X1Trans_MR_STAR, X1_STAR_VR );
         LocalTrmm
         ( LEFT, LOWER, orientation, diag, T(1), L11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;

@@ -29,15 +29,71 @@ void Adjoint( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B );
 namespace adjoint {
 
 template<typename T,Dist U,Dist V>
+void ColFilter
+( const DistMatrix<T,V,Collect<U>()>& A, 
+        DistMatrix<T,U,V           >& B );
+template<typename T,Dist U,Dist V>
+void RowFilter
+( const DistMatrix<T,Collect<V>(),U>& A,           
+        DistMatrix<T,        U,   V>& B );
+
+template<typename T,Dist U,Dist V>
+void PartialColFilter
+( const DistMatrix<T,V,Partial<U>()>& A, 
+        DistMatrix<T,U,        V   >& B );
+template<typename T,Dist U,Dist V>
+void PartialRowFilter
+( const DistMatrix<T,Partial<V>(),U>& A, 
+        DistMatrix<T,U,           V>& B );
+
+template<typename T,Dist U,Dist V>
+void ColSumScatter
+( const DistMatrix<T,V,Collect<U>()>& A, 
+        DistMatrix<T,U,V           >& B );
+template<typename T,Dist U,Dist V>
+void PartialColSumScatter
+( const DistMatrix<T,V,Partial<U>()>& A,
+        DistMatrix<T,U,V           >& B );
+
+template<typename T,Dist U,Dist V>
 void ColAllGather
-( const DistMatrix<T,U,V           >& A, 
+( const DistMatrix<T,U,        V   >& A, 
         DistMatrix<T,V,Collect<U>()>& B );
+template<typename T,Dist U,Dist V>
+void PartialColAllGather
+( const DistMatrix<T,U,        V   >& A, 
+        DistMatrix<T,V,Partial<U>()>& B );
 
 } // namespace adjoint
 
 // AdjointAxpy
-// ===========
-// TODO
+// =============
+template<typename T,typename S>
+void AdjointAxpy
+( S alpha, const Matrix<T>& X, Matrix<T>& Y );
+template<typename T,typename S>
+void AdjointAxpy
+( S alpha, const SparseMatrix<T>& X, SparseMatrix<T>& Y );
+template<typename T,typename S>
+void AdjointAxpy
+( S alpha, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y );
+template<typename T,typename S>
+void AdjointAxpy
+( S alpha, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y );
+
+namespace adjoint_axpy {
+
+template<typename T,Dist U,Dist V>
+void ColSumScatter
+( T alpha, const DistMatrix<T,V,Collect<U>()>& A,
+                 DistMatrix<T,U,        V   >& B );
+
+template<typename T,Dist U,Dist V>
+void PartialColSumScatter
+( T alpha, const DistMatrix<T,V,Partial<U>()>& A,
+                 DistMatrix<T,U,        V   >& B );
+
+} // namespace adjoint_axpy
 
 // Axpy
 // ====
@@ -1043,15 +1099,73 @@ void Transpose
 namespace transpose {
 
 template<typename T,Dist U,Dist V>
+void ColFilter
+( const DistMatrix<T,V,Collect<U>()>& A, 
+        DistMatrix<T,U,V           >& B, bool conjugate=false );
+template<typename T,Dist U,Dist V>
+void RowFilter
+( const DistMatrix<T,Collect<V>(),U>& A, 
+        DistMatrix<T,        U,   V>& B, bool conjugate=false );
+
+template<typename T,Dist U,Dist V>
+void PartialColFilter
+( const DistMatrix<T,V,Partial<U>()>& A, 
+        DistMatrix<T,U,        V   >& B, bool conjugate=false );
+template<typename T,Dist U,Dist V>
+void PartialRowFilter
+( const DistMatrix<T,Partial<V>(),U>& A, 
+        DistMatrix<T,U,           V>& B, bool conjugate=false );
+
+template<typename T,Dist U,Dist V>
+void ColSumScatter
+( const DistMatrix<T,V,Collect<U>()>& A, 
+        DistMatrix<T,U,V           >& B, bool conjugate=false );
+template<typename T,Dist U,Dist V>
+void PartialColSumScatter
+( const DistMatrix<T,V,Partial<U>()>& A, 
+        DistMatrix<T,U,V           >& B, bool conjugate=false );
+
+template<typename T,Dist U,Dist V>
 void ColAllGather
-( const DistMatrix<T,U,V           >& A, 
+( const DistMatrix<T,U,        V   >& A, 
         DistMatrix<T,V,Collect<U>()>& B, bool conjugate=false );
+template<typename T,Dist U,Dist V>
+void PartialColAllGather
+( const DistMatrix<T,U,        V   >& A, 
+        DistMatrix<T,V,Partial<U>()>& B, bool conjugate=false );
 
 } // namespace transpose
 
 // TransposeAxpy
 // =============
-// TODO
+template<typename T,typename S>
+void TransposeAxpy
+( S alpha, const Matrix<T>& X, Matrix<T>& Y, bool conjugate=false );
+template<typename T,typename S>
+void TransposeAxpy
+( S alpha, const SparseMatrix<T>& X, SparseMatrix<T>& Y, bool conjugate=false );
+template<typename T,typename S>
+void TransposeAxpy
+( S alpha, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y, 
+  bool conjugate=false );
+template<typename T,typename S>
+void TransposeAxpy
+( S alpha, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y, 
+  bool conjugate=false );
+
+namespace trans_axpy {
+
+template<typename T,Dist U,Dist V>
+void ColSumScatter
+( T alpha, const DistMatrix<T,V,Collect<U>()>& A, 
+                 DistMatrix<T,U,        V   >& B, bool conjugate=false );
+
+template<typename T,Dist U,Dist V>
+void PartialColSumScatter
+( T alpha, const DistMatrix<T,V,Partial<U>()>& A, 
+                 DistMatrix<T,U,        V   >& B, bool conjugate=false );
+
+} // namespace trans_axpy
 
 // UpdateDiagonal
 // ==============

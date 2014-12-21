@@ -129,7 +129,7 @@ LUTMedium
         ( RIGHT, UPPER, NORMAL, diag, 
           F(1), U11_STAR_STAR, X1Trans_MR_STAR, checkIfSingular );
 
-        X1.TransposeColFilterFrom( X1Trans_MR_STAR, (orientation==ADJOINT) );
+        transpose::ColFilter( X1Trans_MR_STAR, X1, (orientation==ADJOINT) );
         U12_STAR_MC.AlignWith( X2 );
         U12_STAR_MC = U12; // U12[* ,MC] <- U12[MC,MR]
 

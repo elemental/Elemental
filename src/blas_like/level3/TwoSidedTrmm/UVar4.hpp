@@ -145,16 +145,16 @@ UVar4
         // A00 := A00 + (U01 A01' + A01 U01')
         A01Adj_STAR_MC.AlignWith( A00 );
         U01Adj_STAR_MC.AlignWith( A00 );
-        A01_VC_STAR.AdjointPartialColAllGather( A01Adj_STAR_MC );
-        U01_VC_STAR.AdjointPartialColAllGather( U01Adj_STAR_MC );
+        adjoint::PartialColAllGather( A01_VC_STAR, A01Adj_STAR_MC );
+        adjoint::PartialColAllGather( U01_VC_STAR, U01Adj_STAR_MC );
         A01_VR_STAR.AlignWith( A00 );
         A01_VR_STAR = A01_VC_STAR;
         U01_VR_STAR.AlignWith( A00 );
         U01_VR_STAR = U01_VC_STAR;
         A01Adj_STAR_MR.AlignWith( A00 );
         U01Adj_STAR_MR.AlignWith( A00 );
-        A01_VR_STAR.AdjointPartialColAllGather( A01Adj_STAR_MR );
-        U01_VR_STAR.AdjointPartialColAllGather( U01Adj_STAR_MR );
+        adjoint::PartialColAllGather( A01_VR_STAR, A01Adj_STAR_MR );
+        adjoint::PartialColAllGather( U01_VR_STAR, U01Adj_STAR_MR );
         LocalTrr2k
         ( UPPER, ADJOINT, NORMAL, ADJOINT, NORMAL,
           F(1), U01Adj_STAR_MC, A01Adj_STAR_MR, 
@@ -180,7 +180,7 @@ UVar4
         A11 = A11_STAR_STAR;
 
         // A12 := U11 A12
-        A12_STAR_VR.AdjointPartialRowFilterFrom( A12Adj_MR_STAR );
+        adjoint::PartialRowFilter( A12Adj_MR_STAR, A12_STAR_VR );
         LocalTrmm
         ( LEFT, UPPER, NORMAL, diag, F(1), U11_STAR_STAR, A12_STAR_VR );
         A12 = A12_STAR_VR;

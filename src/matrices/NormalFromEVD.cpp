@@ -76,7 +76,7 @@ void NormalFromEVD
         DiagonalScale( RIGHT, ADJOINT, w1_STAR_STAR, Z1_VR_STAR );
 
         Z1Adj_STAR_MR.AlignWith( A );
-        Z1_VR_STAR.AdjointPartialColAllGather( Z1Adj_STAR_MR );
+        adjoint::PartialColAllGather( Z1_VR_STAR, Z1Adj_STAR_MR );
         LocalGemm( NORMAL, NORMAL, C(1), Z1_MC_STAR, Z1Adj_STAR_MR, C(1), A );
     }
 }

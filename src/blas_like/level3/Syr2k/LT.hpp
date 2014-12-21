@@ -57,11 +57,11 @@ LT
         auto B1 = B( IR(k,k+nb), IR(0,n) );
 
         transpose::ColAllGather( A1, A1Trans_MR_STAR );
-        A1_STAR_VR.TransposePartialRowFilterFrom( A1Trans_MR_STAR );
+        transpose::PartialRowFilter( A1Trans_MR_STAR, A1_STAR_VR );
         A1_STAR_MC = A1_STAR_VR;
 
         transpose::ColAllGather( B1, B1Trans_MR_STAR );
-        B1_STAR_VR.TransposePartialRowFilterFrom( B1Trans_MR_STAR );
+        transpose::PartialRowFilter( B1Trans_MR_STAR, B1_STAR_VR );
         B1_STAR_MC = B1_STAR_VR;
 
         LocalTrr2k

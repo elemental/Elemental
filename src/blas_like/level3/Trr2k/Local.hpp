@@ -13,6 +13,8 @@ namespace El {
 
 namespace trr2k {
 
+// TODO: Fuse pairs of Gemms
+
 // E := alpha op(A) op(B) + beta op(C) op(D) + beta E
 template<typename T>
 inline void

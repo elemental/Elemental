@@ -68,10 +68,10 @@ void Trr2kTTTT
         C1_STAR_MC = C1;
         B1_VR_STAR = B1;
         D1_VR_STAR = D1;
-        B1_VR_STAR.TransposePartialColAllGather
-        ( B1Trans_STAR_MR, (orientB==ADJOINT) );
-        D1_VR_STAR.TransposePartialColAllGather
-        ( D1Trans_STAR_MR, (orientD==ADJOINT) );
+        transpose::PartialColAllGather
+        ( B1_VR_STAR, B1Trans_STAR_MR, (orientB==ADJOINT) );
+        transpose::PartialColAllGather
+        ( D1_VR_STAR, D1Trans_STAR_MR, (orientD==ADJOINT) );
         LocalTrr2k
         ( uplo, orientA, NORMAL, orientC, NORMAL,
           alpha, A1_STAR_MC, B1Trans_STAR_MR,

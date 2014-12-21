@@ -65,13 +65,13 @@ RLT
           F(1), L11_STAR_STAR, X1_VC_STAR, checkIfSingular );
 
         X1Trans_STAR_MC.AlignWith( X2 );
-        X1_VC_STAR.TransposePartialColAllGather( X1Trans_STAR_MC );
-        X1.TransposeRowFilterFrom( X1Trans_STAR_MC );
+        transpose::PartialColAllGather( X1_VC_STAR, X1Trans_STAR_MC );
+        transpose::RowFilter( X1Trans_STAR_MC, X1 );
         L21_VR_STAR.AlignWith( X2 );
         L21_VR_STAR = L21;
         L21Trans_STAR_MR.AlignWith( X2 );
-        L21_VR_STAR.TransposePartialColAllGather
-        ( L21Trans_STAR_MR, (orientation==ADJOINT) ); 
+        transpose::PartialColAllGather
+        ( L21_VR_STAR, L21Trans_STAR_MR, (orientation==ADJOINT) );
 
         // X2[MC,MR] -= X1[MC,*] (L21[MR,*])^(T/H)
         //            = X1^T[* ,MC] (L21^(T/H))[*,MR]

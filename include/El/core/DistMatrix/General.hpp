@@ -47,43 +47,6 @@ public:
     ( const El::DistData& data, bool constrain=true, bool allowMismatch=false )
     override;
 
-    // Transposed variants of some of the above routines which avoid 
-    // large amounts of non-uniform data access
-    // -------------------------------------------------------------
-    // TODO: Finish extracting these routines into the level 1 BLAS
-    void TransposePartialColAllGather
-    ( DistMatrix<T,V,UPart>& A, bool conjugate=false ) const;
-    void AdjointPartialColAllGather( DistMatrix<T,V,UPart>& A ) const;
-
-    void TransposeColFilterFrom
-    ( const DistMatrix<T,V,UGath>& A, bool conjugate=false );
-    void TransposeRowFilterFrom
-    ( const DistMatrix<T,VGath,U>& A, bool conjugate=false );
-    void TransposePartialColFilterFrom
-    ( const DistMatrix<T,V,UPart>& A, bool conjugate=false );
-    void TransposePartialRowFilterFrom
-    ( const DistMatrix<T,VPart,U>& A, bool conjugate=false );
-    void AdjointColFilterFrom( const DistMatrix<T,V,UGath>& A );
-    void AdjointRowFilterFrom( const DistMatrix<T,VGath,U>& A );
-    void AdjointPartialColFilterFrom( const DistMatrix<T,V,UPart>& A );
-    void AdjointPartialRowFilterFrom( const DistMatrix<T,VPart,U>& A );
-
-    void TransposeColSumScatterFrom
-    ( const DistMatrix<T,V,UGath>& A, bool conjugate=false );
-    void TransposePartialColSumScatterFrom
-    ( const DistMatrix<T,V,UPart>& A, bool conjugate=false );
-    void AdjointColSumScatterFrom( const DistMatrix<T,V,UGath>& A );
-    void AdjointPartialColSumScatterFrom( const DistMatrix<T,V,UPart>& A );
-
-    void TransposeColSumScatterUpdate
-    ( T alpha, const DistMatrix<T,V,UGath>& A, bool conjugate=false );
-    void TransposePartialColSumScatterUpdate
-    ( T alpha, const DistMatrix<T,V,UPart>& A, bool conjugate=false );
-    void AdjointColSumScatterUpdate
-    ( T alpha, const DistMatrix<T,V,UGath>& A );
-    void AdjointPartialColSumScatterUpdate
-    ( T alpha, const DistMatrix<T,V,UPart>& A );
-
     // Basic queries
     // =============
     // Distribution information

@@ -117,7 +117,7 @@ SUMMA_TNB
         LocalGemm
         ( orientationOfA, NORMAL, 
           T(1), B, A1_MC_STAR, D1Trans_MR_STAR );
-        C1.TransposeColSumScatterUpdate( alpha, D1Trans_MR_STAR, conjugate );
+        trans_axpy::ColSumScatter( alpha, D1Trans_MR_STAR, C1, conjugate );
     }
 }
 

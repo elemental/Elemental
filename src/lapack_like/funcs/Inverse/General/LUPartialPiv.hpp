@@ -129,7 +129,7 @@ void AfterLUPartialPiv
         L21_VR_STAR.AlignWith( A2 );
         L21_VR_STAR = A21;
         L21Trans_STAR_MR.AlignWith( A2 );
-        L21_VR_STAR.TransposePartialColAllGather( L21Trans_STAR_MR );
+        transpose::PartialColAllGather( L21_VR_STAR, L21Trans_STAR_MR );
 
         // Zero the strictly lower triangular portion of A1
         MakeTrapezoidal( UPPER, A11 );

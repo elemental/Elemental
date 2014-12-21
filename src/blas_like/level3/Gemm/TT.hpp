@@ -119,7 +119,8 @@ SUMMA_TTB
         // D1[*,MC] := alpha (A1[MR,*])^[T/H] (B[MC,MR])^[T/H]
         //           = alpha (A1^[T/H])[*,MR] (B^[T/H])[MR,MC]
         A1_VR_STAR = A1;
-        A1_VR_STAR.TransposePartialColAllGather( A1Trans_STAR_MR, conjugateA );
+        transpose::PartialColAllGather
+        ( A1_VR_STAR, A1Trans_STAR_MR, conjugateA );
         LocalGemm
         ( NORMAL, orientationOfB, alpha, A1Trans_STAR_MR, B, D1_STAR_MC );
 
@@ -178,7 +179,8 @@ SUMMA_TTC
 
         A1_STAR_MC = A1; 
         B1_VR_STAR = B1;
-        B1_VR_STAR.TransposePartialColAllGather( B1Trans_STAR_MR, conjugateB );
+        transpose::PartialColAllGather
+        ( B1_VR_STAR, B1Trans_STAR_MR, conjugateB );
 
         // C[MC,MR] += alpha (A1[*,MC])^[T/H] (B1[MR,*])^[T/H]
         //           = alpha (A1^[T/H])[MC,*] (B1^[T/H])[*,MR]

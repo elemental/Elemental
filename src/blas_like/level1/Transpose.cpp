@@ -17,17 +17,23 @@ void Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate )
     const Int m = A.Height();
     const Int n = A.Width();
     B.Resize( n, m );
+    // TODO: Optimize this routine
+    const T* ABuf = A.LockedBuffer();
+          T* BBuf = B.Buffer();
+    const Int ldA = A.LDim();
+    const Int ldB = B.LDim();
     if( conjugate )
     {
         for( Int j=0; j<n; ++j )
             for( Int i=0; i<m; ++i )
-                B.Set(j,i,Conj(A.Get(i,j)));
+                BBuf[j+i*ldB] = Conj(ABuf[i+j*ldA]);
     }
     else
     {
-        for( Int j=0; j<n; ++j )
-            for( Int i=0; i<m; ++i )
-                B.Set(j,i,A.Get(i,j));
+        copy::util::InterleaveMatrix
+        ( m, n, 
+          ABuf, 1,   ldA,
+          BBuf, ldB, 1 );
     }
 }
 
@@ -99,22 +105,8 @@ void Transpose
 ( const SparseMatrix<T>& A, SparseMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Transpose"))
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Int numEntries = A.NumEntries();
-    Zeros( B, n, m );
-    B.Reserve( numEntries );
-    for( Int k=0; k<numEntries; ++k )
-    {
-        const Int i = A.Row(k);
-        const Int j = A.Col(k);
-        const T alpha = A.Value(k);
-        if( conjugate )
-            B.QueueUpdate( j, i, Conj(alpha) );
-        else
-            B.QueueUpdate( j, i, alpha );
-    }
-    B.MakeConsistent();
+    Zeros( B, A.Width(), A.Height() );
+    TransposeAxpy( T(1), A, B, conjugate );
 }
 
 template<typename T>
@@ -122,67 +114,9 @@ void Transpose
 ( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Transpose"))
-    const Int m = A.Height();
-    const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    const Int commSize = mpi::Size( comm );
-
-    B.SetComm( comm );
-    Zeros( B, n, m );
-
-    // Compute the number of entries of A to send to each process
-    // ==========================================================
-    std::vector<int> sendCounts(commSize,0);
-    for( Int k=0; k<A.NumLocalEntries(); ++k )
-        ++sendCounts[ B.RowOwner(A.Col(k)) ];
-    std::vector<int> recvCounts(commSize);
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-
-    // Convert the send/recv counts into offsets and total sizes
-    // =========================================================
-    std::vector<int> sendOffsets, recvOffsets;
-    const int totalSend = Scan( sendCounts, sendOffsets );
-    const int totalRecv = Scan( recvCounts, recvOffsets );
-
-    // Pack the triplets
-    // =================
-    std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
-    std::vector<T> vSendBuf(totalSend);
-    auto offsets = sendOffsets;
-    for( Int k=0; k<A.NumLocalEntries(); ++k )
-    {
-        const Int j = A.Col(k);
-        const Int owner = B.RowOwner(j);
-        const Int s = offsets[owner];
-        sSendBuf[s] = j;
-        tSendBuf[s] = A.Row(k);
-        if( conjugate )
-            vSendBuf[s] = Conj(A.Value(k));
-        else
-            vSendBuf[s] = A.Value(k);
-        ++offsets[owner];
-    }
-
-    // Exchange and unpack the triplets
-    // ================================
-    // TODO: Switch to a mechanism which directly unpacks into the 
-    //       class's local storage?
-    std::vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
-    std::vector<T> vRecvBuf(totalRecv);
-    mpi::AllToAll
-    ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-    mpi::AllToAll
-    ( tSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      tRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-    mpi::AllToAll
-    ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-    B.Reserve( totalRecv );
-    for( Int k=0; k<totalRecv; ++k )
-        B.QueueLocalUpdate
-        ( sRecvBuf[k]-B.FirstLocalRow(), tRecvBuf[k], vRecvBuf[k] );
-    B.MakeConsistent();
+    B.SetComm( A.Comm() );
+    Zeros( B, A.Width(), A.Height() );
+    TransposeAxpy( T(1), A, B, conjugate );
 }
 
 #define PROTO(T) \
