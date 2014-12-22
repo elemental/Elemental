@@ -29,18 +29,18 @@ LeftUnb
     case TRANSPOSE: orientChar = 'T'; break;
     default:        orientChar = 'C';
     }
-    auto diag = T.GetDiagonal();
+    auto diag = GetDiagonal(T);
     const Int n = T.Height();
     const Int ldim = T.LDim();
     const Int numShifts = shifts.Height();
     Scale( alpha, X );
     for( Int j=0; j<numShifts; ++j )
     {
-        UpdateDiagonal( T, -shifts.Get(j,0) );
+        ShiftDiagonal( T, -shifts.Get(j,0) );
         blas::Trsv
         ( uploChar, orientChar, 'N', n, 
           T.LockedBuffer(), ldim, X.Buffer(0,j), 1 );
-        T.SetDiagonal( diag );
+        SetDiagonal( T, diag );
     }
 }
 

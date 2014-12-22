@@ -20,7 +20,7 @@ inline LDLPivot
 Full( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("cholesky::pivot::Full"))
-    const auto diagMax = VectorMaxAbs( A.GetDiagonal() );
+    const auto diagMax = VectorMaxAbs( GetDiagonal(A) );
     LDLPivot pivot;
     pivot.nb = 1;
     pivot.from[0] = diagMax.index;
@@ -32,7 +32,7 @@ inline LDLPivot
 Full( const DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("cholesky::pivot::Full"))
-    const auto diagMax = VectorMaxAbs( A.GetDiagonal() );
+    const auto diagMax = VectorMaxAbs( GetDiagonal(A) );
     LDLPivot pivot;
     pivot.nb = 1;
     pivot.from[0] = diagMax.index;
@@ -45,7 +45,7 @@ PanelFull( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y )
 {
     DEBUG_ONLY(CallStackEntry cse("cholesky::pivot::PanelFull"))
     // Form updated diagonal
-    auto d = A.GetDiagonal();
+    auto d = GetDiagonal(A);
     const Int height = d.Height();
     const Int k = X.Width();
     for( Int i=0; i<height; ++i )
@@ -72,7 +72,7 @@ PanelFull
             LogicError("A, X, and Y are not properly aligned");
     )
     // Form updated diagonal
-    auto d = A.GetDiagonal();
+    auto d = GetDiagonal(A);
     if( d.Participating() )
     {
         const Int dLocalHeight = d.LocalHeight();

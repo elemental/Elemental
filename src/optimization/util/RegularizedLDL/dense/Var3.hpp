@@ -96,7 +96,7 @@ Var3
         auto reg1 = reg( ind1, IR(0,1) );
 
         Var3Unb( A11, pivTol,regCand1, reg1 );
-        A11.GetDiagonal( d1 );
+        GetDiagonal( A11, d1 );
         Trsm( RIGHT, LOWER, ADJOINT, UNIT, F(1), A11, A21 );
         S21 = A21;
         DiagonalSolve( RIGHT, NORMAL, d1, A21 );
@@ -161,7 +161,7 @@ Var3
         RegularizedLDL
         ( A11_STAR_STAR.Matrix(), pivTol, 
           regCand1_STAR_STAR.LockedMatrix(), reg1_STAR_STAR.Matrix() );
-        A11_STAR_STAR.GetDiagonal( d1_STAR_STAR );
+        GetDiagonal( A11_STAR_STAR, d1_STAR_STAR );
         A11 = A11_STAR_STAR;
         reg1 = reg1_STAR_STAR;
 

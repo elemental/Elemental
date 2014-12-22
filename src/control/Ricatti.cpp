@@ -32,7 +32,7 @@ void Ricatti( Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl )
          WBL, WBR, n );
 
     // (ML, MR) = sgn(W) - I
-    UpdateDiagonal( W, F(-1) );
+    ShiftDiagonal( W, F(-1) );
 
     // Solve for X in ML X = -MR
     Matrix<F> ML, MR;
@@ -61,7 +61,7 @@ void Ricatti
          WBL, WBR, n );
 
     // (ML, MR) = sgn(W) - I
-    UpdateDiagonal( W, F(-1) );
+    ShiftDiagonal( W, F(-1) );
 
     // Solve for X in ML X = -MR
     DistMatrix<F> ML(g), MR(g);

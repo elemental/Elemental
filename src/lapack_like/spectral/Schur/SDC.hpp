@@ -141,7 +141,7 @@ SignDivide
     // G := sgn(G)
     // G := 1/2 ( G + I )
     Sign( G, ctrl.signCtrl );
-    UpdateDiagonal( G, F(1) );
+    ShiftDiagonal( G, F(1) );
     Scale( F(1)/F(2), G );
 
     // Compute the pivoted QR decomposition of the spectral projection 
@@ -184,7 +184,7 @@ SignDivide
     // G := sgn(G)
     // G := 1/2 ( G + I )
     Sign( G, ctrl.signCtrl );
-    UpdateDiagonal( G, F(1) );
+    ShiftDiagonal( G, F(1) );
     Scale( F(1)/F(2), G );
 
     // Compute the pivoted QR decomposition of the spectral projection 
@@ -232,7 +232,7 @@ RandomizedSignDivide
     // S := 1/2 ( S + I )
     auto S( G );
     Sign( S, ctrl.signCtrl );
-    UpdateDiagonal( S, F(1) );
+    ShiftDiagonal( S, F(1) );
     Scale( F(1)/F(2), S );
 
     ValueInt<Real> part;
@@ -295,7 +295,7 @@ RandomizedSignDivide
     // S := 1/2 ( S + I )
     auto S( G );
     Sign( S, ctrl.signCtrl );
-    UpdateDiagonal( S, F(1) );
+    ShiftDiagonal( S, F(1) );
     Scale( F(1)/F(2), S );
 
     ValueInt<Real> part;
@@ -346,7 +346,7 @@ SpectralDivide( Matrix<Real>& A, const SDCCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
-    const ValueInt<Real> median = Median(A.GetDiagonal());
+    const ValueInt<Real> median = Median(GetDiagonal(A));
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
     Real tol = ctrl.tol;
@@ -366,7 +366,7 @@ SpectralDivide( Matrix<Real>& A, const SDCCtrl<Real>& ctrl )
         const Real shift = SampleBall<Real>(-median.value,spread);
 
         G = A;
-        UpdateDiagonal( G, shift );
+        ShiftDiagonal( G, shift );
 
         if( ctrl.progress )
             std::cout << "chose shift=" << shift << " using -median.value="
@@ -437,9 +437,9 @@ SpectralDivide
         G = A;
         Scale( gamma, G );
 
-        const auto median = Median(G.GetRealPartOfDiagonal());
+        const auto median = Median(GetRealPartOfDiagonal(G));
         const F shift = SampleBall<F>(-median.value,spread);
-        UpdateDiagonal( G, shift );
+        ShiftDiagonal( G, shift );
 
         if( ctrl.progress )
             std::cout << "chose gamma=" << gamma << " and shift=" << shift 
@@ -489,7 +489,7 @@ SpectralDivide
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
-    const auto median = Median(A.GetDiagonal());
+    const auto median = Median(GetDiagonal(A));
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
     Real tol = ctrl.tol;
@@ -509,7 +509,7 @@ SpectralDivide
         const Real shift = SampleBall<Real>(-median.value,spread);
 
         Q = A;
-        UpdateDiagonal( Q, shift );
+        ShiftDiagonal( Q, shift );
 
         if( ctrl.progress )
             std::cout << "chose shift=" << shift << " using -median.value="
@@ -581,9 +581,9 @@ SpectralDivide
         Q = A;
         Scale( gamma, Q );
 
-        const auto median = Median(Q.GetRealPartOfDiagonal());
+        const auto median = Median(GetRealPartOfDiagonal(Q));
         const F shift = SampleBall<F>(-median.value,spread);
-        UpdateDiagonal( Q, shift );
+        ShiftDiagonal( Q, shift );
 
         if( ctrl.progress )
             std::cout << "chose gamma=" << gamma << " and shift=" << shift 
@@ -632,7 +632,7 @@ SpectralDivide( DistMatrix<Real>& A, const SDCCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
-    const auto median = Median(A.GetDiagonal());
+    const auto median = Median(GetDiagonal(A));
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
     Real tol = ctrl.tol;
@@ -654,7 +654,7 @@ SpectralDivide( DistMatrix<Real>& A, const SDCCtrl<Real>& ctrl )
         mpi::Broadcast( shift, 0, g.VCComm() );
 
         G = A;
-        UpdateDiagonal( G, shift );
+        ShiftDiagonal( G, shift );
 
         if( ctrl.progress && g.Rank() == 0 )
             std::cout << "chose shift=" << shift << " using -median.value="
@@ -727,10 +727,10 @@ SpectralDivide
         G = A;
         Scale( gamma, G );
 
-        const auto median = Median(G.GetRealPartOfDiagonal());
+        const auto median = Median(GetRealPartOfDiagonal(G));
         F shift = SampleBall<F>(-median.value,spread);
         mpi::Broadcast( shift, 0, g.VCComm() );
-        UpdateDiagonal( G, shift );
+        ShiftDiagonal( G, shift );
 
         if( ctrl.progress && g.Rank() == 0 )
             std::cout << "chose gamma=" << gamma << " and shift=" << shift 
@@ -781,7 +781,7 @@ SpectralDivide
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
-    const auto median = Median(A.GetDiagonal());
+    const auto median = Median(GetDiagonal(A));
     const Real eps = lapack::MachineEpsilon<Real>();
     Real tol = ctrl.tol;
     if( tol == Real(0) )
@@ -802,7 +802,7 @@ SpectralDivide
         mpi::Broadcast( shift, 0, g.VCComm() );
 
         Q = A;
-        UpdateDiagonal( Q, shift );
+        ShiftDiagonal( Q, shift );
 
         if( ctrl.progress && g.Rank() == 0 )
             std::cout << "chose shift=" << shift << " using -median.value=" 
@@ -877,10 +877,10 @@ SpectralDivide
         Q = A;
         Scale( gamma, Q );
 
-        const auto median = Median(Q.GetRealPartOfDiagonal());
+        const auto median = Median(GetRealPartOfDiagonal(Q));
         F shift = SampleBall<F>(-median.value,spread);
         mpi::Broadcast( shift, 0, g.VCComm() );
-        UpdateDiagonal( Q, shift );
+        ShiftDiagonal( Q, shift );
 
         if( ctrl.progress && g.Rank() == 0 )
             std::cout << "chose gamma=" << gamma << " and shift=" << shift 

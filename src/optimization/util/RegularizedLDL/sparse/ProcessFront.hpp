@@ -50,7 +50,7 @@ inline void ProcessFront
         auto reg1 = reg( ind1, IR(0,1) );
 
         RegularizedLDL( AL11, pivTol, regCand1, reg1 );
-        AL11.GetDiagonal( d1 );
+        GetDiagonal( AL11, d1 );
 
         Trsm( RIGHT, LOWER, ADJOINT, UNIT, F(1), AL11, AL21 );
 
@@ -122,7 +122,7 @@ inline void ProcessFrontGeneral
         RegularizedLDL
         ( AL11_STAR_STAR.Matrix(), pivTol, 
           regCand1_STAR_STAR.LockedMatrix(), reg1_STAR_STAR.Matrix() );
-        AL11_STAR_STAR.GetDiagonal( d1_STAR_STAR );
+        GetDiagonal( AL11_STAR_STAR, d1_STAR_STAR );
         AL11 = AL11_STAR_STAR;
         reg1 = reg1_STAR_STAR;
 
@@ -227,7 +227,7 @@ inline void ProcessFrontSquare
         RegularizedLDL
         ( AL11_STAR_STAR.Matrix(), pivTol, 
           regCand1_STAR_STAR.LockedMatrix(), reg1_STAR_STAR.Matrix() );
-        AL11_STAR_STAR.GetDiagonal( d1_STAR_STAR );
+        GetDiagonal( AL11_STAR_STAR, d1_STAR_STAR );
         AL11 = AL11_STAR_STAR;
         reg1 = reg1_STAR_STAR;
 

@@ -66,7 +66,7 @@ RUHF
 
         Conjugate( HPan, HPanConj );
         MakeTrapezoidal( UPPER, HPanConj );
-        SetDiagonal( HPanConj, F(1) );
+        FillDiagonal( HPanConj, F(1) );
 
         Herk( UPPER, NORMAL, Base<F>(1), HPanConj, SInv );
         FixDiagonal( conjugation, t1, SInv );
@@ -127,7 +127,7 @@ RUHF
 
         Conjugate( HPan, HPanConj );
         MakeTrapezoidal( UPPER, HPanConj );
-        SetDiagonal( HPanConj, F(1) );
+        FillDiagonal( HPanConj, F(1) );
 
         HPan_STAR_VR = HPanConj;
         Zeros( SInv_STAR_STAR, nb, nb );

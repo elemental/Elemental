@@ -102,7 +102,7 @@ inline void LocalColAccumulateLGeneral
         D11 = A11;
         MakeTrapezoidal( LOWER, D11 );
         LocalGemv( NORMAL,      alpha, D11, x1_MR_STAR, T(1), z1_MC_STAR );
-        SetDiagonal( D11, T(0) );
+        FillDiagonal( D11, T(0) );
         LocalGemv( orientation, alpha, D11, x1_MC_STAR, T(1), z1_MR_STAR );
 
         // TODO: Expose the fusion blocksize as another parameter 
@@ -323,7 +323,7 @@ inline void LocalRowAccumulateL
         D11 = A11;
         MakeTrapezoidal( LOWER, D11 );
         LocalGemv( NORMAL,      alpha, D11, x1_STAR_MR, T(1), z1_STAR_MC );
-        SetDiagonal( D11, T(0) );
+        FillDiagonal( D11, T(0) );
         LocalGemv( orientation, alpha, D11, x1_STAR_MC, T(1), z1_STAR_MR );
 
         LocalGemv( NORMAL,      alpha, A21, x1_STAR_MR, T(1), z2_STAR_MC );

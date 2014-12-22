@@ -54,7 +54,7 @@ void TestCorrectness
     MakeHermitian( uplo, Z );
     
     // Form X := -I + Q^H Q or Q Q^H
-    UpdateDiagonal( Z, F(-1) );
+    ShiftDiagonal( Z, F(-1) );
     if( printMatrices )
     {
         if( order == FORWARD )

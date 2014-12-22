@@ -92,23 +92,7 @@ public:
 
     // Diagonal manipulation
     // =====================
-    void GetDiagonal( Matrix<T>& d, Int offset=0 ) const;
-    void GetRealPartOfDiagonal( Matrix<Base<T>>& d, Int offset=0 ) const;
-    void GetImagPartOfDiagonal( Matrix<Base<T>>& d, Int offset=0 ) const;
-    Matrix<T> GetDiagonal( Int offset=0 ) const;
-    Matrix<Base<T>> GetRealPartOfDiagonal( Int offset=0 ) const;
-    Matrix<Base<T>> GetImagPartOfDiagonal( Int offset=0 ) const;
-
-    void SetDiagonal( const Matrix<T>& d, Int offset=0 );
-    void SetRealPartOfDiagonal( const Matrix<Base<T>>& d, Int offset=0 );
-    void SetImagPartOfDiagonal( const Matrix<Base<T>>& d, Int offset=0 );
-
-    void UpdateDiagonal( T alpha, const Matrix<T>& d, Int offset=0 );
-    void UpdateRealPartOfDiagonal
-    ( Base<T> alpha, const Matrix<Base<T>>& d, Int offset=0 );
-    void UpdateImagPartOfDiagonal
-    ( Base<T> alpha, const Matrix<Base<T>>& d, Int offset=0 );
-
+    // TODO: Remove these from Matrix
     void MakeDiagonalReal( Int offset=0 );
     void ConjugateDiagonal( Int offset=0 );
 

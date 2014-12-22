@@ -39,7 +39,7 @@ Int ADMM
 
     // Cache the factorization of Q + rho*I
     Matrix<Real> LMod( Q );
-    UpdateDiagonal( LMod, ctrl.rho );
+    ShiftDiagonal( LMod, ctrl.rho );
     if( ctrl.inv )
     {
         HPDInverse( LOWER, LMod );
@@ -153,7 +153,7 @@ Int ADMM
 
     // Cache the factorization of Q + rho*I
     DistMatrix<Real> LMod( Q );
-    UpdateDiagonal( LMod, ctrl.rho );
+    ShiftDiagonal( LMod, ctrl.rho );
     if( ctrl.inv )
     {
         HPDInverse( LOWER, LMod );

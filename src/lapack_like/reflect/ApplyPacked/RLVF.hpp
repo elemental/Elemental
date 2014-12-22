@@ -66,7 +66,7 @@ RLVF
 
         HPanCopy = HPan;
         MakeTrapezoidal( LOWER, HPanCopy );
-        SetDiagonal( HPanCopy, F(1) );
+        FillDiagonal( HPanCopy, F(1) );
 
         Herk( UPPER, ADJOINT, Base<F>(1), HPanCopy, SInv );
         FixDiagonal( conjugation, t1, SInv );
@@ -127,7 +127,7 @@ RLVF
 
         HPanCopy = HPan;
         MakeTrapezoidal( LOWER, HPanCopy );
-        SetDiagonal( HPanCopy, F(1) );
+        FillDiagonal( HPanCopy, F(1) );
 
         HPan_VC_STAR = HPanCopy;
         Zeros( SInv_STAR_STAR, nb, nb );

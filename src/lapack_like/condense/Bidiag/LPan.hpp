@@ -156,8 +156,8 @@ LPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
     // Put back d and e
     auto ATL = A( IR(0,nX), IR(0,nX) );
     auto ATLExpanded = A( IR(0,nX+1), IR(0,nX) );
-    ATL.SetRealPartOfDiagonal( d, 0 );
-    ATLExpanded.SetRealPartOfDiagonal( e, -1 );
+    SetRealPartOfDiagonal( ATL, d, 0 );
+    SetRealPartOfDiagonal( ATLExpanded, e, -1 );
 }
 
 template<typename F>
@@ -415,8 +415,8 @@ LPan
     // Put back d and e
     auto ATL = A( IR(0,nX), IR(0,nX) );
     auto ATLExpanded = A( IR(0,nX+1), IR(0,nX) );
-    ATL.SetRealPartOfDiagonal( d, 0 );
-    ATLExpanded.SetRealPartOfDiagonal( e, -1 );
+    SetRealPartOfDiagonal( ATL, d, 0 );
+    SetRealPartOfDiagonal( ATLExpanded, e, -1 );
 }
 
 } // namespace bidiag

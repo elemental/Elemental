@@ -23,7 +23,7 @@ BunchParlett( const Matrix<F>& A, Base<F> gamma )
     if( gamma == Real(0) )
         gamma = LDLPivotConstant<Real>( BUNCH_PARLETT );
 
-    const ValueInt<Real> diagMax = VectorMaxAbs( A.GetDiagonal() );
+    const ValueInt<Real> diagMax = VectorMaxAbs( GetDiagonal(A) );
     const ValueIntPair<Real> offDiagMax = SymmetricMaxAbs( LOWER, A );
 
     LDLPivot pivot;
@@ -51,7 +51,7 @@ BunchParlett( const DistMatrix<F>& A, Base<F> gamma )
     if( gamma == Real(0) )
         gamma = LDLPivotConstant<Real>( BUNCH_PARLETT );
 
-    const ValueInt<Real> diagMax = VectorMaxAbs( A.GetDiagonal() );
+    const ValueInt<Real> diagMax = VectorMaxAbs( GetDiagonal(A) );
     const ValueIntPair<Real> offDiagMax = SymmetricMaxAbs( LOWER, A );
 
     LDLPivot pivot;

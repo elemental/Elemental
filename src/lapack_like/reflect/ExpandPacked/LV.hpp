@@ -51,7 +51,7 @@ LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
     const Int bsize = Blocksize();
     H.Resize( m, n );
     MakeTrapezoidal( LOWER, H, offset );
-    SetDiagonal( H, F(1), offset );
+    FillDiagonal( H, F(1), offset );
 
     Matrix<F> HPanT, HPanB,
               HEffectedNew, HEffectedOld,
@@ -139,7 +139,7 @@ LV
     const Int bsize = Blocksize();
     H.Resize( m, n );
     MakeTrapezoidal( LOWER, H, offset );
-    SetDiagonal( H, F(1), offset );
+    FillDiagonal( H, F(1), offset );
 
     const Grid& g = H.Grid();
     DistMatrix<F> HPanT(g), HPanB(g),

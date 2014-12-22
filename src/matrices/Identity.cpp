@@ -15,7 +15,7 @@ void MakeIdentity( Matrix<T>& I )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeIdentity"))
     Zero( I );
-    SetDiagonal( I, T(1) );
+    FillDiagonal( I, T(1) );
 }
 
 template<typename T>
@@ -23,7 +23,7 @@ void MakeIdentity( AbstractDistMatrix<T>& I )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeIdentity"))
     Zero( I );
-    SetDiagonal( I, T(1) );
+    FillDiagonal( I, T(1) );
 }
 
 template<typename T>
@@ -31,7 +31,7 @@ void MakeIdentity( AbstractBlockDistMatrix<T>& I )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeIdentity"))
     Zero( I );
-    SetDiagonal( I, T(1) );
+    FillDiagonal( I, T(1) );
 }
 
 template<typename T>

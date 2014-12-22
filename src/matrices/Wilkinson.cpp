@@ -16,8 +16,8 @@ void Wilkinson( Matrix<T>& A, Int k )
     DEBUG_ONLY(CallStackEntry cse("Wilkinson"))
     const Int n = 2*k+1;
     Zeros( A, n, n );
-    SetDiagonal( A, T(1), -1 );
-    SetDiagonal( A, T(1),  1 );
+    FillDiagonal( A, T(1), -1 );
+    FillDiagonal( A, T(1),  1 );
     
     for( Int j=0; j<=k; ++j )
         A.Set( j, j, T(k-j) );
@@ -31,8 +31,8 @@ void Wilkinson( AbstractDistMatrix<T>& A, Int k )
     DEBUG_ONLY(CallStackEntry cse("Wilkinson"))
     const Int n = 2*k+1;
     Zeros( A, n, n );
-    SetDiagonal( A, T(1), -1 );
-    SetDiagonal( A, T(1),  1 );
+    FillDiagonal( A, T(1), -1 );
+    FillDiagonal( A, T(1),  1 );
     
     for( Int j=0; j<=k; ++j )
         A.Set( j, j, T(k-j) );

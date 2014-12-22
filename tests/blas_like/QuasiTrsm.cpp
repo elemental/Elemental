@@ -18,7 +18,7 @@ void MakeQuasiTriangular( UpperOrLower uplo, DistMatrix<F>& A )
     if( uplo == LOWER )
     {
         MakeTrapezoidal( LOWER, A, 1 );
-        auto dSup = A.GetDiagonal(+1);
+        auto dSup = GetDiagonal(A,+1);
         DistMatrix<F,STAR,STAR> dSup_STAR_STAR( dSup );
         for( Int j=0; j<n-2; ++j )
         {
@@ -34,7 +34,7 @@ void MakeQuasiTriangular( UpperOrLower uplo, DistMatrix<F>& A )
     else
     {
         MakeTrapezoidal( UPPER, A, -1 );
-        auto dSub = A.GetDiagonal(-1);
+        auto dSub = GetDiagonal(A,-1);
         DistMatrix<F,STAR,STAR> dSub_STAR_STAR( dSub );
         for( Int j=0; j<n-2; ++j )
         {

@@ -110,7 +110,7 @@ void TestCholesky
             Print( p, "p" );
     }
     if( printDiag )
-        Print( A.GetRealPartOfDiagonal(), "diag(A)" );
+        Print( GetRealPartOfDiagonal(A), "diag(A)" );
     if( testCorrectness )
         TestCorrectness( pivot, uplo, A, p, AOrig );
 }

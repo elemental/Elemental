@@ -15,9 +15,9 @@ void OneTwoOne( Matrix<T>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("OneTwoOne"))
     Zeros( A, n, n );
-    SetDiagonal( A, T(1), -1 );
-    SetDiagonal( A, T(2),  0 );
-    SetDiagonal( A, T(1),  1 );
+    FillDiagonal( A, T(1), -1 );
+    FillDiagonal( A, T(2),  0 );
+    FillDiagonal( A, T(1),  1 );
 }
 
 template<typename T>
@@ -25,9 +25,9 @@ void OneTwoOne( AbstractDistMatrix<T>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("OneTwoOne"))
     Zeros( A, n, n );
-    SetDiagonal( A, T(1), -1 );
-    SetDiagonal( A, T(2),  0 );
-    SetDiagonal( A, T(1),  1 );
+    FillDiagonal( A, T(1), -1 );
+    FillDiagonal( A, T(2),  0 );
+    FillDiagonal( A, T(1),  1 );
 }
 
 template<typename T>
@@ -35,9 +35,9 @@ void OneTwoOne( AbstractBlockDistMatrix<T>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("OneTwoOne"))
     Zeros( A, n, n );
-    SetDiagonal( A, T(1), -1 );
-    SetDiagonal( A, T(2),  0 );
-    SetDiagonal( A, T(1),  1 );
+    FillDiagonal( A, T(1), -1 );
+    FillDiagonal( A, T(2),  0 );
+    FillDiagonal( A, T(1),  1 );
 }
 
 #define PROTO(T) \

@@ -19,8 +19,8 @@ void Gear( Matrix<T>& G, Int n, Int s, Int t )
     if( t == 0 || t > n || t < -n )
         LogicError("Invalid t value");
     Zeros( G, n, n );
-    SetDiagonal( G, T(1), -1 );
-    SetDiagonal( G, T(1),  1 );
+    FillDiagonal( G, T(1), -1 );
+    FillDiagonal( G, T(1),  1 );
     G.Set( 0,   Abs(s)-1, Sgn(s) );
     G.Set( n-1, n-Abs(t), Sgn(t) );
 }
@@ -34,8 +34,8 @@ void Gear( AbstractDistMatrix<T>& G, Int n, Int s, Int t )
     if( t == 0 || t > n || t < -n )
         LogicError("Invalid t value");
     Zeros( G, n, n );
-    SetDiagonal( G, T(1), -1 );
-    SetDiagonal( G, T(1),  1 );
+    FillDiagonal( G, T(1), -1 );
+    FillDiagonal( G, T(1),  1 );
     G.Set( 0,   Abs(s)-1, Sgn(s) );
     G.Set( n-1, n-Abs(t), Sgn(t) );
 }
@@ -49,8 +49,8 @@ void Gear( AbstractBlockDistMatrix<T>& G, Int n, Int s, Int t )
     if( t == 0 || t > n || t < -n )
         LogicError("Invalid t value");
     Zeros( G, n, n );
-    SetDiagonal( G, T(1), -1 );
-    SetDiagonal( G, T(1),  1 );
+    FillDiagonal( G, T(1), -1 );
+    FillDiagonal( G, T(1),  1 );
     G.Set( 0,   Abs(s)-1, Sgn(s) );
     G.Set( n-1, n-Abs(t), Sgn(t) );
 }

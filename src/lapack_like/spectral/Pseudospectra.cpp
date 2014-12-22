@@ -44,7 +44,7 @@ Matrix<Int> TriangularSpectralCloud
         Matrix<Int> itCounts;
         if( psCtrl.progress )
             std::cout << "Matrix was numerically normal" << std::endl;
-        auto w = U.GetDiagonal();
+        auto w = GetDiagonal(U);
         if( psCtrl.norm == PS_TWO_NORM )
             pspec::Analytic( w, shifts, invNorms, psCtrl.snapCtrl );
         else
@@ -95,7 +95,7 @@ Matrix<Int> TriangularSpectralCloud
         Matrix<Int> itCounts;
         if( psCtrl.progress )
             std::cout << "Matrix was numerically normal" << std::endl;
-        auto w = U.GetDiagonal();
+        auto w = GetDiagonal(U);
         if( psCtrl.norm == PS_TWO_NORM )
             pspec::Analytic( w, shifts, invNorms, psCtrl.snapCtrl );
         else
@@ -290,7 +290,7 @@ DistMatrix<Int,VR,STAR> TriangularSpectralCloud
         DistMatrix<Int,VR,STAR> itCounts(g);
         if( psCtrl.progress && g.Rank() == 0 )
             std::cout << "Matrix was numerically normal" << std::endl;
-        auto w = U.GetDiagonal();
+        auto w = GetDiagonal(U);
         if( psCtrl.norm == PS_TWO_NORM )
             pspec::Analytic( w, shifts, invNorms, psCtrl.snapCtrl );
         else
@@ -346,7 +346,7 @@ DistMatrix<Int,VR,STAR> TriangularSpectralCloud
         DistMatrix<Int,VR,STAR> itCounts(g);
         if( psCtrl.progress && g.Rank() == 0 )
             std::cout << "Matrix was numerically normal" << std::endl;
-        auto w = U.GetDiagonal();
+        auto w = GetDiagonal(U);
         if( psCtrl.norm == PS_TWO_NORM )
             pspec::Analytic( w, shifts, invNorms, psCtrl.snapCtrl );
         else
@@ -1287,8 +1287,7 @@ Matrix<Int> TriangularSpectralPortrait
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularSpectralPortrait"))
     typedef Base<F> Real;
-    auto diag = U.GetDiagonal();
-    const Real radius = MaxNorm( diag );
+    const Real radius = MaxNorm( GetDiagonal(U) );
     const Real oneNorm = OneNorm( U );
 
     // Essentially three cases are handled here:
@@ -1331,8 +1330,7 @@ Matrix<Int> TriangularSpectralPortrait
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularSpectralPortrait"))
     typedef Base<F> Real;
-    auto diag = U.GetDiagonal();
-    const Real radius = MaxNorm( diag );
+    const Real radius = MaxNorm( GetDiagonal(U) );
     const Real oneNorm = OneNorm( U );
 
     // Essentially three cases are handled here:
@@ -1534,9 +1532,8 @@ DistMatrix<Int> TriangularSpectralPortrait
     // Force 'U' to be in a [MC,MR] distribution so that we can get its diagonal
     auto UPtr = ReadProxy<F,MC,MR>( &UPre ); 
     auto& U = *UPtr;
-    auto diag = U.GetDiagonal();
 
-    const Real radius = MaxNorm( diag );
+    const Real radius = MaxNorm( GetDiagonal(U) );
     const Real oneNorm = OneNorm( U );
 
     // Essentially three cases are handled here:
@@ -1585,9 +1582,8 @@ DistMatrix<Int> TriangularSpectralPortrait
     // Force 'U' to be in a [MC,MR] distribution so that we can get its diagonal
     auto UPtr = ReadProxy<F,MC,MR>( &UPre ); 
     auto& U = *UPtr;
-    auto diag = U.GetDiagonal();
 
-    const Real radius = MaxNorm( diag );
+    const Real radius = MaxNorm( GetDiagonal(U) );
     const Real oneNorm = OneNorm( U );
 
     // Essentially three cases are handled here:

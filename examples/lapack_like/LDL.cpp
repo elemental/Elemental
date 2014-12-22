@@ -46,11 +46,11 @@ main( int argc, char* argv[] )
         // WARNING: There is no pivoting here!
         DistMatrix<C> factA( A );
         LDL( factA, conjugate );
-        auto d = factA.GetDiagonal();
+        auto d = GetDiagonal(factA);
 
         DistMatrix<C> L( factA );
         MakeTrapezoidal( LOWER, L );
-        SetDiagonal( L, C(1) );
+        FillDiagonal( L, C(1) );
 
         DistMatrix<C> LD( L );
         DiagonalScale( RIGHT, NORMAL, d, LD );

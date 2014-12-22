@@ -284,8 +284,8 @@ void HermitianEig
 
     // Solve the symmetric tridiagonal EVP
     const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
-    auto d = A.GetRealPartOfDiagonal();
-    auto e = A.GetRealPartOfDiagonal( subdiagonal );
+    auto d = GetRealPartOfDiagonal(A);
+    auto e = GetRealPartOfDiagonal(A,subdiagonal);
     HermitianTridiagEig( d, e, w, sort, subset );
 
     if( ctrl.timeStages )
@@ -484,8 +484,8 @@ void HermitianEig
 
     Int kEst;
     const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
-    auto d = A.GetRealPartOfDiagonal();
-    auto e = A.GetRealPartOfDiagonal( subdiagonal );
+    auto d = GetRealPartOfDiagonal(A);
+    auto e = GetRealPartOfDiagonal(A,subdiagonal);
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
     DistMatrix<Real,STAR,STAR> e_STAR_STAR( g );
     e_STAR_STAR.Resize( n-1, 1, n );

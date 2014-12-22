@@ -80,9 +80,9 @@ main( int argc, char* argv[] )
         DistMatrix<double,VR,  STAR> wEven, wOdd;
         DistMatrix<double,STAR,VR> XEven, XOdd;
         HermitianTridiagEig
-        ( AEven.GetDiagonal(), AEven.GetDiagonal(-1), wEven, XEven, ASCENDING );
+        ( GetDiagonal(AEven), GetDiagonal(AEven,-1), wEven, XEven, ASCENDING );
         HermitianTridiagEig
-        ( AOdd.GetDiagonal(), AOdd.GetDiagonal(-1), wOdd, XOdd, ASCENDING );
+        ( GetDiagonal(AOdd), GetDiagonal(AOdd,-1), wOdd, XOdd, ASCENDING );
         if( display )
         {
             Display( XEven, "Even eigenvectors" );

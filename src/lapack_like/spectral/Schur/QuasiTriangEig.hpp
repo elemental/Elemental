@@ -47,9 +47,9 @@ template<typename F>
 void QuasiTriangEig( const Matrix<F>& U, Matrix<Complex<Base<F>>>& w )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::QuasiTriangEig"))
-    auto dMain = U.GetDiagonal();
-    auto dSub = U.GetDiagonal(-1);
-    auto dSup = U.GetDiagonal(+1);
+    auto dMain = GetDiagonal(U);
+    auto dSub = GetDiagonal(U,-1);
+    auto dSup = GetDiagonal(U,+1);
     QuasiTriangEig( dMain, dSub, dSup, w );
 }
 
@@ -74,9 +74,9 @@ void QuasiTriangEig
     const Grid& g = U.Grid();
     DistMatrix<F,STAR,STAR> dMain(g), dSub(g), dSup(g);
     DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR(g);
-    dMain = U.GetDiagonal();
-    dSub = U.GetDiagonal(-1);
-    dSup = U.GetDiagonal(+1);
+    dMain = GetDiagonal(U);
+    dSub = GetDiagonal(U,-1);
+    dSup = GetDiagonal(U,+1);
     w_STAR_STAR.Resize( U.Height(), 1 );
     QuasiTriangEig
     ( dMain.Matrix(), dSub.Matrix(), dSup.Matrix(), w_STAR_STAR.Matrix() );

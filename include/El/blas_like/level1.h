@@ -623,6 +623,34 @@ EL_EXPORT ElError ElFillDist_d( ElDistMatrix_d A, double alpha );
 EL_EXPORT ElError ElFillDist_c( ElDistMatrix_c A, complex_float alpha );
 EL_EXPORT ElError ElFillDist_z( ElDistMatrix_z A, complex_double alpha );
 
+/* FillDiagonal
+   =========== */
+EL_EXPORT ElError ElFillDiagonal_i
+( ElMatrix_i A, ElInt alpha, ElInt offset );
+EL_EXPORT ElError ElFillDiagonal_s
+( ElMatrix_s A, float alpha, ElInt offset );
+EL_EXPORT ElError ElFillDiagonal_d
+( ElMatrix_d A, double alpha, ElInt offset );
+EL_EXPORT ElError ElFillDiagonal_c
+( ElMatrix_c A, complex_float alpha, ElInt offset );
+EL_EXPORT ElError ElFillDiagonal_z
+( ElMatrix_z A, complex_double alpha, ElInt offset );
+
+EL_EXPORT ElError ElFillDiagonalDist_i
+( ElDistMatrix_i A, ElInt alpha, ElInt offset );
+EL_EXPORT ElError ElFillDiagonalDist_s
+( ElDistMatrix_s A, float alpha, ElInt offset );
+EL_EXPORT ElError ElFillDiagonalDist_d
+( ElDistMatrix_d A, double alpha, ElInt offset );
+EL_EXPORT ElError ElFillDiagonalDist_c
+( ElDistMatrix_c A, complex_float alpha, ElInt offset );
+EL_EXPORT ElError ElFillDiagonalDist_z
+( ElDistMatrix_z A, complex_double alpha, ElInt offset );
+
+/* GetDiagonal
+   =========== */
+/* TODO */
+
 /* Hadamard
    ======== */
 EL_EXPORT ElError ElHadamard_i
@@ -1179,27 +1207,53 @@ EL_EXPORT ElError ElScaleTrapezoidSparseDist_z
 
 /* SetDiagonal
    =========== */
-EL_EXPORT ElError ElSetDiagonal_i
+/* TODO */
+
+/* ShiftDiagonal
+   ============= */
+EL_EXPORT ElError ElShiftDiagonal_i
 ( ElMatrix_i A, ElInt alpha, ElInt offset );
-EL_EXPORT ElError ElSetDiagonal_s
+EL_EXPORT ElError ElShiftDiagonal_s
 ( ElMatrix_s A, float alpha, ElInt offset );
-EL_EXPORT ElError ElSetDiagonal_d
+EL_EXPORT ElError ElShiftDiagonal_d
 ( ElMatrix_d A, double alpha, ElInt offset );
-EL_EXPORT ElError ElSetDiagonal_c
+EL_EXPORT ElError ElShiftDiagonal_c
 ( ElMatrix_c A, complex_float alpha, ElInt offset );
-EL_EXPORT ElError ElSetDiagonal_z
+EL_EXPORT ElError ElShiftDiagonal_z
 ( ElMatrix_z A, complex_double alpha, ElInt offset );
 
-EL_EXPORT ElError ElSetDiagonalDist_i
+EL_EXPORT ElError ElShiftDiagonalDist_i
 ( ElDistMatrix_i A, ElInt alpha, ElInt offset );
-EL_EXPORT ElError ElSetDiagonalDist_s
+EL_EXPORT ElError ElShiftDiagonalDist_s
 ( ElDistMatrix_s A, float alpha, ElInt offset );
-EL_EXPORT ElError ElSetDiagonalDist_d
+EL_EXPORT ElError ElShiftDiagonalDist_d
 ( ElDistMatrix_d A, double alpha, ElInt offset );
-EL_EXPORT ElError ElSetDiagonalDist_c
+EL_EXPORT ElError ElShiftDiagonalDist_c
 ( ElDistMatrix_c A, complex_float alpha, ElInt offset );
-EL_EXPORT ElError ElSetDiagonalDist_z
+EL_EXPORT ElError ElShiftDiagonalDist_z
 ( ElDistMatrix_z A, complex_double alpha, ElInt offset );
+
+EL_EXPORT ElError ElShiftDiagonalSparse_i
+( ElSparseMatrix_i A, ElInt alpha, ElInt offset );
+EL_EXPORT ElError ElShiftDiagonalSparse_s
+( ElSparseMatrix_s A, float alpha, ElInt offset );
+EL_EXPORT ElError ElShiftDiagonalSparse_d
+( ElSparseMatrix_d A, double alpha, ElInt offset );
+EL_EXPORT ElError ElShiftDiagonalSparse_c
+( ElSparseMatrix_c A, complex_float alpha, ElInt offset );
+EL_EXPORT ElError ElShiftDiagonalSparse_z
+( ElSparseMatrix_z A, complex_double alpha, ElInt offset );
+
+EL_EXPORT ElError ElShiftDiagonalDistSparse_i
+( ElDistSparseMatrix_i A, ElInt alpha, ElInt offset );
+EL_EXPORT ElError ElShiftDiagonalDistSparse_s
+( ElDistSparseMatrix_s A, float alpha, ElInt offset );
+EL_EXPORT ElError ElShiftDiagonalDistSparse_d
+( ElDistSparseMatrix_d A, double alpha, ElInt offset );
+EL_EXPORT ElError ElShiftDiagonalDistSparse_c
+( ElDistSparseMatrix_c A, complex_float alpha, ElInt offset );
+EL_EXPORT ElError ElShiftDiagonalDistSparse_z
+( ElDistSparseMatrix_z A, complex_double alpha, ElInt offset );
 
 /* Swap
    ==== */
@@ -1319,49 +1373,7 @@ EL_EXPORT ElError ElTransposeDistSparse_z
 
 /* UpdateDiagonal
    ============== */
-EL_EXPORT ElError ElUpdateDiagonal_i
-( ElMatrix_i A, ElInt alpha, ElInt offset );
-EL_EXPORT ElError ElUpdateDiagonal_s
-( ElMatrix_s A, float alpha, ElInt offset );
-EL_EXPORT ElError ElUpdateDiagonal_d
-( ElMatrix_d A, double alpha, ElInt offset );
-EL_EXPORT ElError ElUpdateDiagonal_c
-( ElMatrix_c A, complex_float alpha, ElInt offset );
-EL_EXPORT ElError ElUpdateDiagonal_z
-( ElMatrix_z A, complex_double alpha, ElInt offset );
-
-EL_EXPORT ElError ElUpdateDiagonalDist_i
-( ElDistMatrix_i A, ElInt alpha, ElInt offset );
-EL_EXPORT ElError ElUpdateDiagonalDist_s
-( ElDistMatrix_s A, float alpha, ElInt offset );
-EL_EXPORT ElError ElUpdateDiagonalDist_d
-( ElDistMatrix_d A, double alpha, ElInt offset );
-EL_EXPORT ElError ElUpdateDiagonalDist_c
-( ElDistMatrix_c A, complex_float alpha, ElInt offset );
-EL_EXPORT ElError ElUpdateDiagonalDist_z
-( ElDistMatrix_z A, complex_double alpha, ElInt offset );
-
-EL_EXPORT ElError ElUpdateDiagonalSparse_i
-( ElSparseMatrix_i A, ElInt alpha, ElInt offset );
-EL_EXPORT ElError ElUpdateDiagonalSparse_s
-( ElSparseMatrix_s A, float alpha, ElInt offset );
-EL_EXPORT ElError ElUpdateDiagonalSparse_d
-( ElSparseMatrix_d A, double alpha, ElInt offset );
-EL_EXPORT ElError ElUpdateDiagonalSparse_c
-( ElSparseMatrix_c A, complex_float alpha, ElInt offset );
-EL_EXPORT ElError ElUpdateDiagonalSparse_z
-( ElSparseMatrix_z A, complex_double alpha, ElInt offset );
-
-EL_EXPORT ElError ElUpdateDiagonalDistSparse_i
-( ElDistSparseMatrix_i A, ElInt alpha, ElInt offset );
-EL_EXPORT ElError ElUpdateDiagonalDistSparse_s
-( ElDistSparseMatrix_s A, float alpha, ElInt offset );
-EL_EXPORT ElError ElUpdateDiagonalDistSparse_d
-( ElDistSparseMatrix_d A, double alpha, ElInt offset );
-EL_EXPORT ElError ElUpdateDiagonalDistSparse_c
-( ElDistSparseMatrix_c A, complex_float alpha, ElInt offset );
-EL_EXPORT ElError ElUpdateDiagonalDistSparse_z
-( ElDistSparseMatrix_z A, complex_double alpha, ElInt offset );
+/* TODO */
 
 /* Zero
    ==== */

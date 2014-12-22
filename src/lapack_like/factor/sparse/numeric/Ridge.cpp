@@ -30,7 +30,7 @@ void Ridge
     if( m >= n )
     {
         Herk( LOWER, ADJOINT, Base<F>(1), A, C );
-        UpdateDiagonal( C, F(alpha*alpha) );
+        ShiftDiagonal( C, F(alpha*alpha) );
         MakeHermitian( LOWER, C );
 
         Multiply( ADJOINT, F(1), A, Y, F(0), X );
@@ -39,7 +39,7 @@ void Ridge
     else
     {
         Herk( LOWER, NORMAL, Base<F>(1), A, C );
-        UpdateDiagonal( C, F(alpha*alpha) );
+        ShiftDiagonal( C, F(alpha*alpha) );
         MakeHermitian( LOWER, C );
 
         DistMultiVec<F> YCopy(Y.Comm());

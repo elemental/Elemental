@@ -34,9 +34,9 @@ main( int argc, char* argv[] )
         if( !binary )
         {
             LDL( W, true );
-            auto d = W.GetDiagonal();
+            auto d = GetDiagonal(W);
             MakeTrapezoidal( LOWER, W );
-            SetDiagonal( W, 1. );
+            FillDiagonal( W, 1. );
 
             if( display )
             {

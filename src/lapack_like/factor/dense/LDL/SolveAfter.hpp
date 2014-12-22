@@ -25,7 +25,7 @@ void SolveAfter( const Matrix<F>& A, Matrix<F>& B, bool conjugated )
     )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
     const bool checkIfSingular = false;
-    const auto d = A.GetDiagonal();
+    const auto d = GetDiagonal(A);
     Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
     DiagonalSolve( LEFT, NORMAL, d, B, checkIfSingular );
     Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
@@ -48,7 +48,7 @@ void SolveAfter
 
     auto APtr = ReadProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
-    const auto d = A.GetDiagonal();
+    const auto d = GetDiagonal(A);
 
     Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
     DiagonalSolve( LEFT, NORMAL, d, B, checkIfSingular );
@@ -71,7 +71,7 @@ void SolveAfter
         // TODO: Check for dSub
     )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
-    const auto d = A.GetDiagonal();
+    const auto d = GetDiagonal(A);
 
     Matrix<Int> pInv;
     InvertPermutation( p, pInv );
@@ -108,7 +108,7 @@ void SolveAfter
     auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre );
     auto& B = *BPtr;
 
-    const auto d = A.GetDiagonal();
+    const auto d = GetDiagonal(A);
 
     DistMatrix<Int,VC,STAR> pInv(p.Grid());
     InvertPermutation( p, pInv );

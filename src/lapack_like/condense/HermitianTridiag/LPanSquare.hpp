@@ -139,7 +139,7 @@ void LPanSquare
 
         // Store the subdiagonal value and turn a21 into a proper scaled 
         // reflector by explicitly placing the implicit one in its first entry.
-        alpha21T.GetRealPartOfDiagonal( epsilon1 );
+        GetRealPartOfDiagonal( alpha21T, epsilon1 );
         alpha21T.Set( 0, 0, F(1) );
 
         // If this is the first iteration, have each member of the owning 
@@ -485,7 +485,7 @@ void LPanSquare
 
     // View the portion of A that e is the subdiagonal of, then place e into it
     auto expandedATL = A( IR(0,nW+1), IR(0,nW+1) );
-    expandedATL.SetRealPartOfDiagonal( e, -1 );
+    SetRealPartOfDiagonal( expandedATL, e, -1 );
 }
 
 } // namespace herm_tridiag

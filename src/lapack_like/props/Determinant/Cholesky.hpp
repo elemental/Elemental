@@ -22,7 +22,7 @@ SafeProduct<Base<F>> AfterCholesky
     const Int n = A.Height();
 
     Matrix<F> d;
-    A.GetDiagonal( d );
+    GetDiagonal( A, d );
     SafeProduct<Real> det( n );
     det.rho = Real(1);
 
@@ -69,7 +69,7 @@ SafeProduct<Base<F>> AfterCholesky
     const Grid& g = A.Grid();
 
     DistMatrix<F,MD,STAR> d(g);
-    A.GetDiagonal( d );
+    GetDiagonal( A, d );
     Real localKappa = 0; 
     if( d.Participating() )
     {

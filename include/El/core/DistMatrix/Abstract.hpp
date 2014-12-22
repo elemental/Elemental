@@ -57,12 +57,10 @@ public:
     void SetRoot( Int root, bool constrain=true );
     void AlignWith
     ( const El::DistData& data, bool constrain=true, bool allowMismatch=false );
-    virtual void AlignColsWith
-    ( const El::DistData& data, bool constrain=true, bool allowMismatch=false )
-    = 0;
-    virtual void AlignRowsWith
-    ( const El::DistData& data, bool constrain=true, bool allowMismatch=false )
-     = 0;
+    void AlignColsWith
+    ( const El::DistData& data, bool constrain=true, bool allowMismatch=false );
+    void AlignRowsWith
+    ( const El::DistData& data, bool constrain=true, bool allowMismatch=false );
     void AlignAndResize
     ( Int colAlign, Int rowAlign, Int height, Int width, 
       bool force=false, bool constrain=true );
@@ -138,6 +136,8 @@ public:
                   bool         IsLocal( Int i, Int j ) const;
     virtual       Dist         ColDist()               const = 0;
     virtual       Dist         RowDist()               const = 0;
+    virtual       Dist         CollectedColDist()      const = 0;
+    virtual       Dist         CollectedRowDist()      const = 0;
     virtual       Dist         PartialColDist()        const = 0;
     virtual       Dist         PartialRowDist()        const = 0;
     virtual       Dist         PartialUnionColDist()   const = 0;
@@ -212,27 +212,6 @@ public:
     Int DiagonalAlign( Int offset=0 ) const;
     void MakeDiagonalReal( Int offset=0 );
     void ConjugateDiagonal( Int offset=0 );
-
-    virtual void GetDiagonal
-    ( AbstractDistMatrix<T>& d, Int offset=0 ) const = 0;
-    virtual void GetRealPartOfDiagonal
-    ( AbstractDistMatrix<Base<T>>& d, Int offset=0 ) const = 0;
-    virtual void GetImagPartOfDiagonal
-    ( AbstractDistMatrix<Base<T>>& d, Int offset=0 ) const = 0;
-
-    virtual void SetDiagonal
-    ( const AbstractDistMatrix<T>& d, Int offset=0 ) = 0;
-    virtual void SetRealPartOfDiagonal
-    ( const AbstractDistMatrix<Base<T>>& d, Int offset=0 ) = 0;
-    virtual void SetImagPartOfDiagonal
-    ( const AbstractDistMatrix<Base<T>>& d, Int offset=0 ) = 0;
-
-    virtual void UpdateDiagonal
-    ( T alpha, const AbstractDistMatrix<T>& d, Int offset=0 ) = 0;
-    virtual void UpdateRealPartOfDiagonal
-    ( Base<T> alpha, const AbstractDistMatrix<Base<T>>& d, Int offset=0 ) = 0;
-    virtual void UpdateImagPartOfDiagonal
-    ( Base<T> alpha, const AbstractDistMatrix<Base<T>>& d, Int offset=0 ) = 0;
 
     // Arbitrary-submatrix manipulation
     // ================================

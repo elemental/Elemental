@@ -21,15 +21,15 @@ void HatanoNelson
         LogicError("Hatano Nelson requires at least a 3x3 matrix");
     Zeros( A, n, n );
 
-    auto d = A.GetDiagonal();
-    MakeUniform( d, center, radius );
-    A.SetDiagonal( d );
+    Matrix<F> d;
+    Uniform( d, n, 1, center, radius );
+    SetDiagonal( A, d );
 
-    SetDiagonal( A, Exp(g), 1 );
+    FillDiagonal( A, Exp(g), 1 );
     if( periodic )
         A.Set( n-1, 0, Exp(g) );
 
-    SetDiagonal( A, Exp(-g), -1 );
+    FillDiagonal( A, Exp(-g), -1 );
     if( periodic )
         A.Set( 0, n-1, Exp(-g) );
 }
@@ -46,15 +46,14 @@ void HatanoNelson
     Zeros( A, n, n );
 
     DistMatrix<F,MC,STAR> d(A.Grid());
-    A.GetDiagonal( d );
-    MakeUniform( d, center, radius );
-    A.SetDiagonal( d );
+    Uniform( d, n, 1, center, radius );
+    SetDiagonal( A, d );
 
-    SetDiagonal( A, Exp(g), 1 );
+    FillDiagonal( A, Exp(g), 1 );
     if( periodic )
         A.Set( n-1, 0, Exp(g) );
 
-    SetDiagonal( A, Exp(-g), -1 );
+    FillDiagonal( A, Exp(-g), -1 );
     if( periodic )
         A.Set( 0, n-1, Exp(-g) );
 }

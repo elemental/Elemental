@@ -24,14 +24,14 @@ void Whale( Matrix<Complex<Real>>& A, Int n )
         LogicError("Must be at least 5x5 to have a fourth-order symbol");
     typedef Complex<Real> C;
     Zeros( A, n, n );
-    SetDiagonal( A, -1,        4 );
-    SetDiagonal( A, C(-3,-2),  3 );
-    SetDiagonal( A, C( 0, 1),  2 );
-    SetDiagonal( A,  1,        1 );
-    SetDiagonal( A, 10,       -1 );
-    SetDiagonal( A, C( 3, 1), -2 );
-    SetDiagonal( A,  4,       -3 );
-    SetDiagonal( A, C( 0, 1), -4 );
+    FillDiagonal( A, -1,        4 );
+    FillDiagonal( A, C(-3,-2),  3 );
+    FillDiagonal( A, C( 0, 1),  2 );
+    FillDiagonal( A,  1,        1 );
+    FillDiagonal( A, 10,       -1 );
+    FillDiagonal( A, C( 3, 1), -2 );
+    FillDiagonal( A,  4,       -3 );
+    FillDiagonal( A, C( 0, 1), -4 );
 }
 
 template<typename Real>
@@ -42,14 +42,14 @@ void Whale( AbstractDistMatrix<Complex<Real>>& A, Int n )
         LogicError("Must be at least 5x5 to have a fourth-order symbol");
     typedef Complex<Real> C;
     Zeros( A, n, n );
-    SetDiagonal( A, -1,        4 );
-    SetDiagonal( A, C(-3,-2),  3 );
-    SetDiagonal( A, C( 0, 1),  2 );
-    SetDiagonal( A,  1,        1 );
-    SetDiagonal( A, 10,       -1 );
-    SetDiagonal( A, C( 3, 1), -2 );
-    SetDiagonal( A,  4,       -3 );
-    SetDiagonal( A, C( 0, 1), -4 );
+    FillDiagonal( A, -1,        4 );
+    FillDiagonal( A, C(-3,-2),  3 );
+    FillDiagonal( A, C( 0, 1),  2 );
+    FillDiagonal( A,  1,        1 );
+    FillDiagonal( A, 10,       -1 );
+    FillDiagonal( A, C( 3, 1), -2 );
+    FillDiagonal( A,  4,       -3 );
+    FillDiagonal( A, C( 0, 1), -4 );
 }
 
 template<typename Real>
@@ -60,14 +60,14 @@ void Whale( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
         LogicError("Must be at least 5x5 to have a fourth-order symbol");
     typedef Complex<Real> C;
     Zeros( A, n, n );
-    SetDiagonal( A, -1,        4 );
-    SetDiagonal( A, C(-3,-2),  3 );
-    SetDiagonal( A, C( 0, 1),  2 );
-    SetDiagonal( A,  1,        1 );
-    SetDiagonal( A, 10,       -1 );
-    SetDiagonal( A, C( 3, 1), -2 );
-    SetDiagonal( A,  4,       -3 );
-    SetDiagonal( A, C( 0, 1), -4 );
+    FillDiagonal( A, -1,        4 );
+    FillDiagonal( A, C(-3,-2),  3 );
+    FillDiagonal( A, C( 0, 1),  2 );
+    FillDiagonal( A,  1,        1 );
+    FillDiagonal( A, 10,       -1 );
+    FillDiagonal( A, C( 3, 1), -2 );
+    FillDiagonal( A,  4,       -3 );
+    FillDiagonal( A, C( 0, 1), -4 );
 }
 
 #define PROTO(Real) \

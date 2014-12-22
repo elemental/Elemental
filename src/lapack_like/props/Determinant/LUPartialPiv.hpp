@@ -27,7 +27,7 @@ SafeProduct<F> AfterLUPartialPiv
     const Int n = A.Height();
 
     Matrix<F> d;
-    A.GetDiagonal( d );
+    GetDiagonal( A, d );
     const R scale(n);
     SafeProduct<F> det( n );
     for( Int i=0; i<n; ++i )
@@ -83,7 +83,7 @@ SafeProduct<F> AfterLUPartialPiv
     const Int n = A.Height();
     const Grid& g = A.Grid();
 
-    auto d = A.GetDiagonal();
+    auto d = GetDiagonal(A);
     F localRho = 1;
     R localKappa = 0; 
     if( d.Participating() )

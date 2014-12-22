@@ -19,11 +19,11 @@ void CheckRealSchur( const Matrix<Real>& U, bool standardForm )
     DEBUG_ONLY(CallStackEntry cse("CheckRealSchur")) 
     const Int n = U.Height();
 
-    auto uMain = U.GetDiagonal();
-    auto uSub = U.GetDiagonal( -1 );
+    auto uMain = GetDiagonal(U);
+    auto uSub = GetDiagonal(U,-1);
     if( standardForm )
     {
-        auto uSup = U.GetDiagonal( +1 );
+        auto uSup = GetDiagonal(U,+1);
         for( Int j=0; j<n-1; ++j )
         {
             const Real thisDiag = uMain.Get(j,  0);
@@ -67,15 +67,15 @@ void CheckRealSchur( const AbstractDistMatrix<Real>& UPre, bool standardForm )
     auto UPtr = ReadProxy<Real,MC,MR>( &UPre );
     auto& U = *UPtr;
 
-    auto uMain = U.GetDiagonal();
-    auto uSub = U.GetDiagonal( -1 );
+    auto uMain = GetDiagonal(U);
+    auto uSub = GetDiagonal(U,-1);
     DistMatrix<Real,STAR,STAR> uMain_STAR_STAR( uMain ),
                                uSub_STAR_STAR( uSub );
 
     const Int n = U.Height();
     if( standardForm )
     {
-        auto uSup = U.GetDiagonal( +1 );
+        auto uSup = GetDiagonal(U,+1);
         DistMatrix<Real,STAR,STAR> uSup_STAR_STAR( uSup );
         for( Int j=0; j<n-1; ++j )
         {

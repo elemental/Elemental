@@ -15,8 +15,8 @@ void Jordan( Matrix<T>& J, Int n, T lambda )
 {
     DEBUG_ONLY(CallStackEntry cse("Jordan"))
     Zeros( J, n, n );
-    SetDiagonal( J, lambda );
-    SetDiagonal( J, T(1), 1 );
+    FillDiagonal( J, lambda );
+    FillDiagonal( J, T(1), 1 );
 }
 
 template<typename T>
@@ -24,8 +24,8 @@ void Jordan( AbstractDistMatrix<T>& J, Int n, T lambda )
 {
     DEBUG_ONLY(CallStackEntry cse("Jordan"))
     Zeros( J, n, n );
-    SetDiagonal( J, lambda );
-    SetDiagonal( J, T(1), 1 );
+    FillDiagonal( J, lambda );
+    FillDiagonal( J, T(1), 1 );
 }
 
 template<typename T>
@@ -33,8 +33,8 @@ void Jordan( AbstractBlockDistMatrix<T>& J, Int n, T lambda )
 {
     DEBUG_ONLY(CallStackEntry cse("Jordan"))
     Zeros( J, n, n );
-    SetDiagonal( J, lambda );
-    SetDiagonal( J, T(1), 1 );
+    FillDiagonal( J, lambda );
+    FillDiagonal( J, T(1), 1 );
 }
 
 #define PROTO(T) \

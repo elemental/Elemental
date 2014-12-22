@@ -144,7 +144,7 @@ void UPanSquare
 
         // Store the subdiagonal value and turn a01 into a proper scaled 
         // reflector by explicitly placing the implicit one in its first entry.
-        alpha01B.GetRealPartOfDiagonal( epsilon1 );
+        GetRealPartOfDiagonal( alpha01B, epsilon1 );
         alpha01B.Set( 0, 0, F(1) );
 
         // If this is the first iteration, have each member of the owning 
@@ -485,7 +485,7 @@ void UPanSquare
         }
     }
 
-    expandedABR.SetRealPartOfDiagonal( e, 1 );
+    SetRealPartOfDiagonal( expandedABR, e, 1 );
 }
 
 } // namespace herm_tridiag

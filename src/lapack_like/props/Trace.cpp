@@ -18,7 +18,7 @@ T Trace( const Matrix<T>& A )
         LogicError("Cannot compute trace of nonsquare matrix");
 
     Matrix<T> d;
-    A.GetDiagonal( d );
+    GetDiagonal( A, d );
     T trace = 0;
     const Int n = A.Height();
     for( Int i=0; i<n; ++i )

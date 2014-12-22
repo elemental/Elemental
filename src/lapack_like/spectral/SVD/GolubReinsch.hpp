@@ -39,8 +39,8 @@ GolubReinsch
     Bidiag( A, tP, tQ );
 
     // Grab copies of the diagonal and sub/super-diagonal of A
-    auto d_MD_STAR = A.GetRealPartOfDiagonal();
-    auto e_MD_STAR = A.GetRealPartOfDiagonal( offdiagonal );
+    auto d_MD_STAR = GetRealPartOfDiagonal(A);
+    auto e_MD_STAR = GetRealPartOfDiagonal(A,offdiagonal);
 
     // NOTE: lapack::BidiagQRAlg expects e to be of length k
     typedef Base<F> Real;
@@ -120,8 +120,8 @@ GolubReinschFlame
     Bidiag( A, tP, tQ );
 
     // Grab copies of the diagonal and sub/super-diagonal of A
-    auto d_MD_STAR = A.GetRealPartOfDiagonal();
-    auto e_MD_STAR = A.GetRealPartOfDiagonal( offdiagonal );
+    auto d_MD_STAR = GetRealPartOfDiagonal(A);
+    auto e_MD_STAR = GetRealPartOfDiagonal(A,offdiagonal);
 
     // In order to use serial QR kernels, we need the full bidiagonal matrix
     // on each process
@@ -226,8 +226,8 @@ GolubReinsch( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s )
     Bidiag( A, tP, tQ );
 
     // Grab copies of the diagonal and sub/super-diagonal of A
-    auto d_MD_STAR = A.GetRealPartOfDiagonal();
-    auto e_MD_STAR = A.GetRealPartOfDiagonal( offdiagonal );
+    auto d_MD_STAR = GetRealPartOfDiagonal(A);
+    auto e_MD_STAR = GetRealPartOfDiagonal(A,offdiagonal);
 
     // In order to use serial DQDS kernels, we need the full bidiagonal matrix
     // on each process

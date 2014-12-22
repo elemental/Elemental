@@ -25,7 +25,7 @@ void Ridge
         if( alg == RIDGE_CHOLESKY )
         {
             Herk( LOWER, ADJOINT, Base<F>(1), A, Z );
-            UpdateDiagonal( Z, F(alpha*alpha) );
+            ShiftDiagonal( Z, F(alpha*alpha) );
             Cholesky( LOWER, Z );
             Gemm( ADJOINT, NORMAL, F(1), A, B, X );
             cholesky::SolveAfter( LOWER, NORMAL, Z, X );
@@ -36,7 +36,7 @@ void Ridge
             auto ZT = Z( IR(0,m),   IR(0,n) );
             auto ZB = Z( IR(m,m+n), IR(0,n) );
             ZT = A;
-            SetDiagonal( ZB, F(alpha*alpha) );
+            FillDiagonal( ZB, F(alpha*alpha) );
             // NOTE: This QR factorization could exploit the upper-triangular
             //       structure of the diagonal matrix ZB
             qr::ExplicitTriang( Z );
@@ -85,7 +85,7 @@ void Ridge
         if( alg == RIDGE_CHOLESKY )
         {
             Herk( LOWER, ADJOINT, Base<F>(1), A, Z );
-            UpdateDiagonal( Z, F(alpha*alpha) );
+            ShiftDiagonal( Z, F(alpha*alpha) );
             Cholesky( LOWER, Z );
             Gemm( ADJOINT, NORMAL, F(1), A, B, X );
             cholesky::SolveAfter( LOWER, NORMAL, Z, X );
@@ -96,7 +96,7 @@ void Ridge
             auto ZT = Z( IR(0,m),   IR(0,n) ); 
             auto ZB = Z( IR(m,m+n), IR(0,n) );
             ZT = A;
-            SetDiagonal( ZB, F(alpha*alpha) );
+            FillDiagonal( ZB, F(alpha*alpha) );
             // NOTE: This QR factorization could exploit the upper-triangular
             //       structure of the diagonal matrix ZB
             qr::ExplicitTriang( Z );

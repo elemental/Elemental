@@ -34,7 +34,7 @@ LVar1( Matrix<F>& L, bool conjugate=false )
         auto L00 = L( ind0, ind0 );
         auto L10 = L( ind1, ind0 );
         auto L11 = L( ind1, ind1 );
-        auto d1 = L11.GetDiagonal();
+        auto d1 = GetDiagonal(L11);
        
         S10 = L10;
         DiagonalSolve( LEFT, NORMAL, d1, L10, true );
@@ -72,7 +72,7 @@ LVar1( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
         auto L00 = L( ind0, ind0 );
         auto L10 = L( ind1, ind0 );
         auto L11 = L( ind1, ind1 );
-        auto d1 = L11.GetDiagonal();
+        auto d1 = GetDiagonal(L11);
 
         S10 = L10;
         QuasiDiagonalSolve( LEFT, LOWER, d1, dSub1, L10, conjugate );
@@ -122,7 +122,7 @@ LVar1( AbstractDistMatrix<F>& LPre, bool conjugate=false )
         auto L00 = L( ind0, ind0 );
         auto L10 = L( ind1, ind0 );
         auto L11 = L( ind1, ind1 );
-        auto d1 = L11.GetDiagonal();
+        auto d1 = GetDiagonal(L11);
 
         L10_STAR_VR = L10;
         S10_STAR_VC = L10_STAR_VR;
@@ -186,7 +186,7 @@ LVar1
         auto L00 = L( ind0, ind0 );
         auto L10 = L( ind1, ind0 );
         auto L11 = L( ind1, ind1 );
-        auto d1 = L11.GetDiagonal();
+        auto d1 = GetDiagonal(L11);
 
         auto dSub1 = dSub( IR(k,k+nb-1), IR(0,1) );
 

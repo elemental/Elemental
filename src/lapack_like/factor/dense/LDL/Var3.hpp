@@ -92,7 +92,7 @@ Var3( Matrix<F>& A, bool conjugate=false )
         auto A22 = A( ind2, ind2 );
 
         ldl::Var3Unb( A11, conjugate );
-        A11.GetDiagonal( d1 );
+        GetDiagonal( A11, d1 );
         Trsm( RIGHT, LOWER, orientation, UNIT, F(1), A11, A21 );
         S21 = A21;
         DiagonalSolve( RIGHT, NORMAL, d1, A21 );
@@ -137,7 +137,7 @@ Var3( AbstractDistMatrix<F>& APre, bool conjugate=false )
 
         A11_STAR_STAR = A11;
         LocalLDL( A11_STAR_STAR, conjugate );
-        A11_STAR_STAR.GetDiagonal( d1_STAR_STAR );
+        GetDiagonal( A11_STAR_STAR, d1_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         A21_VC_STAR.AlignWith( A22 );

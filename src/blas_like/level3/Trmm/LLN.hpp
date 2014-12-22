@@ -61,7 +61,7 @@ LocalAccumulateLLN
         D11 = L11;
         MakeTrapezoidal( LOWER, D11 );
         if( diag == UNIT )
-            SetDiagonal( D11, T(1) );
+            FillDiagonal( D11, T(1) );
         LocalGemm( NORMAL, orientation, alpha, D11, X1Trans, T(1), Z1 );
         LocalGemm( NORMAL, orientation, alpha, L21, X1Trans, T(1), Z2 );
     }

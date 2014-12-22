@@ -78,7 +78,7 @@ void LocalAccumulateRL
         LocalGemm
         ( orientation, orientation,
           alpha, D11, B1_STAR_MC, T(1), Z1Trans_MR_STAR );
-        SetDiagonal( D11, T(0) );
+        FillDiagonal( D11, T(0) );
         LocalGemm
         ( NORMAL, NORMAL, alpha, D11, B1Trans_MR_STAR, T(1), Z1Trans_MC_STAR );
 

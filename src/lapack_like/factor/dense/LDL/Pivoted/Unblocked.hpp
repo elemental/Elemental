@@ -79,15 +79,14 @@ Unblocked
     Int k=0;
     while( k < n )
     {
-        const Range<Int> indB( k,   n   ),
-                         indR( k,   n   );
+        const Range<Int> indB( k, n ), indR( k, n );
 
         // Determine the pivot (block)
         auto ABR = A( indB, indR );
         if( pivotType == BUNCH_KAUFMAN_C )
         {
             LogicError("Have not yet generalized pivot storage");
-            const auto diagMax = VectorMaxAbs( ABR.GetDiagonal() );
+            const auto diagMax = VectorMaxAbs( GetDiagonal(ABR) );
             SymmetricSwap( LOWER, A, k, k+diagMax.index, conjugate );
         }
         const LDLPivot pivot = Select( ABR, pivotType, gamma );
@@ -103,7 +102,7 @@ Unblocked
             RowSwap( p, k, from );
 
             // Rank-one update: A22 -= a21 inv(delta11) a21'
-            const F delta11Inv =F(1)/ABR.Get(0,0);
+            const F delta11Inv = F(1)/ABR.Get(0,0);
             auto a21 = A( ind2, ind1 );
             auto A22 = A( ind2, ind2 );
             Syr( LOWER, -delta11Inv, a21, A22, conjugate );
@@ -172,15 +171,14 @@ Unblocked
     Int k=0;
     while( k < n )
     {
-        const Range<Int> indB( k, n ),
-                         indR( k, n );
+        const Range<Int> indB( k, n ), indR( k, n );
 
         // Determine the pivot (block)
         auto ABR = A( indB, indR );
         if( pivotType == BUNCH_KAUFMAN_C )
         {
             LogicError("Have not yet generalized pivot storage");
-            const auto diagMax = VectorMaxAbs( ABR.GetDiagonal() );
+            const auto diagMax = VectorMaxAbs( GetDiagonal(ABR) );
             SymmetricSwap( LOWER, A, k, k+diagMax.index, conjugate );
         }
         const LDLPivot pivot = Select( ABR, pivotType, gamma );

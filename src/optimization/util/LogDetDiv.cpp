@@ -39,7 +39,7 @@ Base<F> LogDetDiv( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
     const Real frobNorm = FrobeniusNorm( ACopy );
 
     Matrix<F> d;
-    ACopy.GetDiagonal( d );
+    GetDiagonal( ACopy, d );
     Real logDet(0);
     for( Int i=0; i<n; ++i )
         logDet += 2*Log( RealPart(d.Get(i,0)) );
@@ -81,7 +81,7 @@ Base<F> LogDetDiv
 
     Real localLogDet(0);
     DistMatrix<F,MD,STAR> d(g);
-    ACopy.GetDiagonal( d );
+    GetDiagonal( ACopy, d );
     if( d.Participating() )
     {
         const Int nLocalDiag = d.LocalHeight();

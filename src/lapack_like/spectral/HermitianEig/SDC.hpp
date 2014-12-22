@@ -38,7 +38,7 @@ QDWHDivide( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
     PolarCtrl ctrl;
     ctrl.qdwh = true;
     HermitianPolar( uplo, G, ctrl );
-    UpdateDiagonal( G, F(1) );
+    ShiftDiagonal( G, F(1) );
     Scale( F(1)/F(2), G );
 
     // Compute the pivoted QR decomposition of the spectral projection 
@@ -82,7 +82,7 @@ QDWHDivide
     PolarCtrl ctrl;
     ctrl.qdwh = true;
     HermitianPolar( uplo, G, ctrl );
-    UpdateDiagonal( G, F(1) );
+    ShiftDiagonal( G, F(1) );
     Scale( F(1)/F(2), G );
 
     // Compute the pivoted QR decomposition of the spectral projection 
@@ -137,7 +137,7 @@ RandomizedSignDivide
     PolarCtrl polarCtrl;
     polarCtrl.qdwh = true;
     HermitianPolar( uplo, S, polarCtrl );
-    UpdateDiagonal( S, F(1) );
+    ShiftDiagonal( S, F(1) );
     Scale( F(1)/F(2), S );
 
     ValueInt<Real> part;
@@ -204,7 +204,7 @@ RandomizedSignDivide
     PolarCtrl polarCtrl;
     polarCtrl.qdwh = true;
     HermitianPolar( uplo, G, polarCtrl );
-    UpdateDiagonal( S, F(1) );
+    ShiftDiagonal( S, F(1) );
     Scale( F(1)/F(2), S );
 
     ValueInt<Real> part;
@@ -259,7 +259,7 @@ SpectralDivide
     typedef Base<F> Real;
     const Int n = A.Height();
     MakeHermitian( uplo, A );
-    const auto median = Median(A.GetRealPartOfDiagonal());
+    const auto median = Median(GetRealPartOfDiagonal(A));
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
     Real tol = ctrl.tol;
@@ -277,7 +277,7 @@ SpectralDivide
         const Real shift = SampleBall<Real>(-median.value,spread);
 
         G = A;
-        UpdateDiagonal( G, F(shift) );
+        ShiftDiagonal( G, F(shift) );
 
         part = RandomizedSignDivide( uplo, A, G, false, ctrl );
 
@@ -306,7 +306,7 @@ SpectralDivide
     typedef Base<F> Real;
     const Int n = A.Height();
     MakeHermitian( uplo, A );
-    const auto median = Median(A.GetRealPartOfDiagonal());
+    const auto median = Median(GetRealPartOfDiagonal(A));
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
     Real tol = ctrl.tol;
@@ -324,7 +324,7 @@ SpectralDivide
         const Real shift = SampleBall<Real>(-median.value,spread);
 
         Q = A;
-        UpdateDiagonal( Q, F(shift) );
+        ShiftDiagonal( Q, F(shift) );
 
         part = RandomizedSignDivide( uplo, A, Q, true, ctrl );
 
@@ -353,7 +353,7 @@ SpectralDivide
     typedef Base<F> Real;
     const Int n = A.Height();
     MakeHermitian( uplo, A );
-    const auto median = Median(A.GetRealPartOfDiagonal());
+    const auto median = Median(GetRealPartOfDiagonal(A));
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
     Real tol = ctrl.tol;
@@ -372,7 +372,7 @@ SpectralDivide
         mpi::Broadcast( shift, 0, A.Grid().VCComm() );
 
         G = A;
-        UpdateDiagonal( G, F(shift) );
+        ShiftDiagonal( G, F(shift) );
 
         part = RandomizedSignDivide( uplo, A, G, false, ctrl );
 
@@ -402,7 +402,7 @@ SpectralDivide
     const Int n = A.Height();
     MakeHermitian( uplo, A );
     const Real infNorm = InfinityNorm(A);
-    const auto median = Median(A.GetRealPartOfDiagonal());
+    const auto median = Median(GetRealPartOfDiagonal(A));
     const Real eps = lapack::MachineEpsilon<Real>();
     Real tol = ctrl.tol;
     if( tol == Real(0) )
@@ -420,7 +420,7 @@ SpectralDivide
         mpi::Broadcast( shift, 0, A.Grid().VCComm() );
 
         Q = A;
-        UpdateDiagonal( Q, F(shift) );
+        ShiftDiagonal( Q, F(shift) );
 
         part = RandomizedSignDivide( uplo, A, Q, true, ctrl );
 

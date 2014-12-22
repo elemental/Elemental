@@ -185,10 +185,10 @@ main( int argc, char* argv[] )
                 if( quasi )
                     radius = MaxNorm( schur::QuasiTriangEig( AReal ) );
                 else
-                    radius = MaxNorm( AReal.GetDiagonal() );
+                    radius = MaxNorm( GetDiagonal(AReal) );
             }
             else
-                radius = MaxNorm( ACpx.GetDiagonal() );
+                radius = MaxNorm( GetDiagonal(ACpx) );
         
             const Real oneNorm = ( isReal ? OneNorm(AReal) : OneNorm(ACpx) );
             Real width;

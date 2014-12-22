@@ -143,62 +143,7 @@ extern "C" {
   ( ElMatrix_ ## SIG A, ElInt i, ElInt j ) \
   { EL_TRY( CReflect(A)->Conjugate(i,j) ) }
 
-#define MATRIX_DIAGONAL(SIG,SIGBASE,T) \
-  /* void Matrix<T>::GetDiagonal( Matrix<T>& d, Int offset ) const */ \
-  ElError ElMatrixGetDiagonal_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG d, ElInt offset ) \
-  { EL_TRY( CReflect(A)->GetDiagonal(*CReflect(d),offset) ) } \
-  /* void Matrix<T>::GetImagPartOfDiagonal \
-     ( Matrix<Base<T>>& d, Int offset ) const */ \
-  ElError ElMatrixGetImagPartOfDiagonal_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIGBASE d, ElInt offset ) \
-  { EL_TRY( CReflect(A)->GetImagPartOfDiagonal(*CReflect(d),offset) ) } \
-  /* void Matrix<T>::SetDiagonal( const Matrix<T>& d, Int offset ) */ \
-  ElError ElMatrixSetDiagonal_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElConstMatrix_ ## SIG d, ElInt offset ) \
-  { EL_TRY \
-    ( CReflect(A)->SetDiagonal( *CReflect(d), offset ) ) } \
-  /* void Matrix<T>::UpdateDiagonal \
-    ( T alpha, const Matrix<T>& d, Int offset ) */ \
-  ElError ElMatrixUpdateDiagonal_ ## SIG \
-  ( ElMatrix_ ## SIG A, \
-    CREFLECT(T) alpha, ElConstMatrix_ ## SIG d, ElInt offset ) \
-  { EL_TRY \
-    ( CReflect(A)->UpdateDiagonal( CReflect(alpha), *CReflect(d), offset ) ) }
-
 #define MATRIX_DIAGONAL_COMPLEX(SIG,SIGBASE,T) \
-  /* Matrix<Base<T>> Matrix<T>::GetRealPartOfDiagonal( Int offset ) const */ \
-  ElError ElMatrixGetRealPartOfDiagonal_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIGBASE d, ElInt offset ) \
-  { EL_TRY( CReflect(A)->GetRealPartOfDiagonal( *CReflect(d), offset ) ) } \
-  /* void Matrix<T>::SetRealPartOfDiagonal \
-     ( const Matrix<Base<T>>& d, Int offset ) */ \
-  ElError ElMatrixSetRealPartOfDiagonal_ ## SIG \
-  ( ElMatrix_ ## SIG A, \
-    ElConstMatrix_ ## SIGBASE d, ElInt offset ) \
-  { EL_TRY( CReflect(A)->SetRealPartOfDiagonal \
-            (*CReflect(d),offset) ) } \
-  /* void Matrix<T>::SetImagPartOfDiagonal \
-     ( const Matrix<Base<T>>& d, Int offset ) */ \
-  ElError ElMatrixSetImagPartOfDiagonal_ ## SIG \
-  ( ElMatrix_ ## SIG A, \
-    ElConstMatrix_ ## SIGBASE d, ElInt offset ) \
-  { EL_TRY( CReflect(A)->SetImagPartOfDiagonal \
-            (*CReflect(d),offset) ) } \
-  /* void Matrix<T>::UpdateRealPartOfDiagonal \
-     ( const Matrix<Base<T>>& d, Int offset ) */ \
-  ElError ElMatrixUpdateRealPartOfDiagonal_ ## SIG \
-  ( ElMatrix_ ## SIG A, \
-    Base<T> alpha, ElConstMatrix_ ## SIGBASE d, ElInt offset ) \
-  { EL_TRY( CReflect(A)->UpdateRealPartOfDiagonal \
-            (alpha,*CReflect(d),offset) ) } \
-  /* void Matrix<T>::UpdateImagPartOfDiagonal \
-     ( const Matrix<Base<T>>& d, Int offset ) */ \
-  ElError ElMatrixUpdateImagPartOfDiagonal_ ## SIG \
-  ( ElMatrix_ ## SIG A, \
-    Base<T> alpha, ElConstMatrix_ ## SIGBASE d, ElInt offset ) \
-  { EL_TRY( CReflect(A)->UpdateImagPartOfDiagonal \
-            (alpha,*CReflect(d),offset) ) } \
   /* void Matrix<T>::MakeDiagonalReal( Int offset ) */ \
   ElError ElMatrixMakeDiagonalReal_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt offset ) \
@@ -334,7 +279,6 @@ extern "C" {
   MATRIX_RECONFIG(SIG,SIGBASE,T) \
   MATRIX_BASIC(SIG,SIGBASE,T) \
   MATRIX_SINGLEENTRY(SIG,SIGBASE,T) \
-  MATRIX_DIAGONAL(SIG,SIGBASE,T) \
   MATRIX_SUBMATRIX(SIG,SIGBASE,T)
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \

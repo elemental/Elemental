@@ -17,8 +17,7 @@ template<typename F>
 inline bool
 TriangIsNormal( const Matrix<F>& U, Base<F> tol )
 {
-    auto w = U.GetDiagonal();
-    const Base<F> diagFrob = FrobeniusNorm( w );
+    const Base<F> diagFrob = FrobeniusNorm(GetDiagonal(U));
     const Base<F> upperFrob = FrobeniusNorm( U );
     const Base<F> offDiagFrob = Sqrt(upperFrob*upperFrob-diagFrob*diagFrob);
     return offDiagFrob <= tol*diagFrob;
@@ -31,8 +30,7 @@ TriangIsNormal( const AbstractDistMatrix<F>& UPre, Base<F> tol )
     auto UPtr = ReadProxy<F,MC,MR>( &UPre );
     auto& U = *UPtr;
 
-    auto w = U.GetDiagonal();
-    const Base<F> diagFrob = FrobeniusNorm( w );
+    const Base<F> diagFrob = FrobeniusNorm(GetDiagonal(U));
     const Base<F> upperFrob = FrobeniusNorm( U );
     const Base<F> offDiagFrob = Sqrt(upperFrob*upperFrob-diagFrob*diagFrob);
     return offDiagFrob <= tol*diagFrob;

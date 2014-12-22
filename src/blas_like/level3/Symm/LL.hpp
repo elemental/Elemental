@@ -76,7 +76,7 @@ void LocalAccumulateLL
         MakeTrapezoidal( LOWER, D11 );
         LocalGemm
         ( NORMAL, orientation, alpha, D11, B1Trans_STAR_MR, T(1), Z1_MC_STAR );
-        SetDiagonal( D11, T(0) );
+        FillDiagonal( D11, T(0) );
 
         LocalGemm
         ( orientation, NORMAL, alpha, D11, B1_MC_STAR, T(1), Z1_MR_STAR );

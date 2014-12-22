@@ -62,7 +62,7 @@ LocalAccumulateRUT
         D11 = U11;
         MakeTrapezoidal( UPPER, D11 );
         if( diag == UNIT )
-            SetDiagonal( D11, T(1) );
+            FillDiagonal( D11, T(1) );
         LocalGemm( NORMAL, NORMAL, alpha, D11, X1Trans, T(1), Z1Trans );
         LocalGemm( NORMAL, NORMAL, alpha, U01, X1Trans, T(1), Z0Trans );
     }

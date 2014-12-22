@@ -28,8 +28,8 @@ void TestCorrectness
 
     // Grab the diagonal and subdiagonal of the symmetric tridiagonal matrix
     Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
-    auto d = A.GetRealPartOfDiagonal();
-    auto e = A.GetRealPartOfDiagonal( subdiagonal );
+    auto d = GetRealPartOfDiagonal(A);
+    auto e = GetRealPartOfDiagonal(A,subdiagonal);
      
     // Grab a full copy of e so that we may fill the opposite subdiagonal 
     DistMatrix<Real,STAR,STAR> e_STAR_STAR( e );
@@ -42,9 +42,9 @@ void TestCorrectness
     DistMatrix<F> B(g);
     B.AlignWith( A );
     Zeros( B, m, m );
-    B.SetRealPartOfDiagonal( d );
-    B.SetRealPartOfDiagonal( e, subdiagonal );
-    B.SetRealPartOfDiagonal( eOpposite, -subdiagonal );
+    SetRealPartOfDiagonal( B, d );
+    SetRealPartOfDiagonal( B, e, subdiagonal );
+    SetRealPartOfDiagonal( B, eOpposite, -subdiagonal );
     if( print )
         Print( B, "Tridiagonal" );
     if( display )
@@ -78,7 +78,7 @@ void TestCorrectness
     herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, B );
     Axpy( F(-1), B, QHAdj );
     herm_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, t, B );
-    UpdateDiagonal( B, F(-1) );
+    ShiftDiagonal( B, F(-1) );
     const Real infNormQError = InfinityNorm( B );
     const Real frobNormQError = FrobeniusNorm( B ); 
 

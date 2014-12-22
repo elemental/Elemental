@@ -24,7 +24,7 @@ void GEPPGrowth( Matrix<T>& A, Int n )
 
     // Set the subdiagonals to -1
     for( Int j=1; j<n; ++j )
-        SetDiagonal( A, T(-1), -j );
+        FillDiagonal( A, T(-1), -j );
 }
 
 template<typename T>
@@ -43,7 +43,7 @@ void GEPPGrowth( AbstractDistMatrix<T>& A, Int n )
 
     // Set the subdiagonals to -1
     for( Int j=1; j<n; ++j )
-        SetDiagonal( A, T(-1), -j );
+        FillDiagonal( A, T(-1), -j );
 }
 
 #define PROTO(T) \

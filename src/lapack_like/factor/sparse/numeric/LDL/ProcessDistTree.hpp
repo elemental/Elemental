@@ -210,22 +210,22 @@ ProcessDistTree( DistSymmInfo& info, DistSymmFrontTree<F>& L )
             ( front.front2dL, subdiag, front.piv, front.work2d, L.isHermitian );
 
             // Store the main and subdiagonals in [VC,* ] distributions
-            auto diag = front.front2dL.GetDiagonal();
+            auto diag = GetDiagonal(front.front2dL);
             front.diag1d.SetGrid( grid );
             front.subdiag1d.SetGrid( grid );
             front.diag1d = diag;
             front.subdiag1d = subdiag;
-            SetDiagonal( front.front2dL, F(1) );
+            FillDiagonal( front.front2dL, F(1) );
         }
         else
         {
             ProcessFront( front.front2dL, front.work2d, L.isHermitian );
 
             // Store the diagonal in a [VC,* ] distribution
-            auto diag = front.front2dL.GetDiagonal();
+            auto diag = GetDiagonal(front.front2dL);
             front.diag1d.SetGrid( grid );
             front.diag1d = diag;
-            SetDiagonal( front.front2dL, F(1) );
+            FillDiagonal( front.front2dL, F(1) );
         }
     }
     L.localFronts.back().work.Empty();

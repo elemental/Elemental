@@ -335,6 +335,49 @@ AbstractDistMatrix<T>::AlignWith
 
 template<typename T>
 void
+AbstractDistMatrix<T>::AlignColsWith
+( const El::DistData& data, bool constrain, bool allowMismatch )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::AlignColsWith"))
+    SetGrid( *data.grid );
+    SetRoot( data.root );
+    if(      data.colDist == ColDist() || data.colDist == PartialColDist() )
+        AlignCols( data.colAlign, constrain );
+    else if( data.rowDist == ColDist() || data.rowDist == PartialColDist() )
+        AlignCols( data.rowAlign, constrain );
+    else if( data.colDist == PartialUnionColDist() )
+        AlignCols( data.colAlign % ColStride(), constrain );
+    else if( data.rowDist == PartialUnionColDist() )
+        AlignCols( data.rowAlign % ColStride(), constrain );
+    else if( ColDist()    != CollectedColDist() && 
+             data.colDist != CollectedColDist() && 
+             data.rowDist != CollectedColDist() && !allowMismatch )
+        LogicError("Nonsensical alignment");
+}
+
+template<typename T>
+void AbstractDistMatrix<T>::AlignRowsWith
+( const El::DistData& data, bool constrain, bool allowMismatch )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::AlignRowsWith"))
+    SetGrid( *data.grid );
+    SetRoot( data.root );
+    if(      data.colDist == RowDist() || data.colDist == PartialRowDist() )
+        AlignRows( data.colAlign, constrain );
+    else if( data.rowDist == RowDist() || data.rowDist == PartialRowDist() )
+        AlignRows( data.rowAlign, constrain );
+    else if( data.colDist == PartialUnionRowDist() )
+        AlignRows( data.colAlign % RowStride(), constrain );
+    else if( data.rowDist == PartialUnionRowDist() )
+        AlignRows( data.rowAlign % RowStride(), constrain );
+    else if( RowDist()    != CollectedRowDist() && 
+             data.colDist != CollectedRowDist() && 
+             data.rowDist != CollectedRowDist() && !allowMismatch )
+        LogicError("Nonsensical alignment");
+}
+
+template<typename T>
+void
 AbstractDistMatrix<T>::AlignAndResize
 ( Int colAlign, Int rowAlign, Int height, Int width, 
   bool force, bool constrain )
@@ -965,16 +1008,16 @@ bool AbstractDistMatrix<T>::DiagonalAlignedWith
 ( const El::DistData& d, Int offset ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::DiagonalAlignedWith"))
-    if( this->Grid() != *d.grid )
+    if( Grid() != *d.grid )
         return false;
 
-    const Int diagRoot = this->DiagonalRoot(offset);
+    const Int diagRoot = DiagonalRoot(offset);
     if( diagRoot != d.root )
         return false;
 
-    const Int diagAlign = this->DiagonalAlign(offset);
-    const Dist UDiag = DiagCol( this->ColDist(), this->RowDist() ); 
-    const Dist VDiag = DiagRow( this->ColDist(), this->RowDist() );
+    const Int diagAlign = DiagonalAlign(offset);
+    const Dist UDiag = DiagCol( ColDist(), RowDist() ); 
+    const Dist VDiag = DiagRow( ColDist(), RowDist() );
     if( d.colDist == UDiag && d.rowDist == VDiag )
         return d.colAlign == diagAlign;
     else if( d.colDist == VDiag && d.rowDist == UDiag )
@@ -987,105 +1030,105 @@ template<typename T>
 Int AbstractDistMatrix<T>::DiagonalRoot( Int offset ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::DiagonalRoot"))
-    const El::Grid& grid = this->Grid();
+    const El::Grid& grid = Grid();
 
-    if( this->ColDist() == MC && this->RowDist() == MR )
+    if( ColDist() == MC && RowDist() == MR )
     {
         // Result is an [MD,* ] or [* ,MD]
         Int owner;
         if( offset >= 0 )
         {
-            const Int procRow = this->ColAlign();
-            const Int procCol = (this->RowAlign()+offset) % this->RowStride();
-            owner = procRow + this->ColStride()*procCol;
+            const Int procRow = ColAlign();
+            const Int procCol = (RowAlign()+offset) % RowStride();
+            owner = procRow + ColStride()*procCol;
         }
         else
         {
-            const Int procRow = (this->ColAlign()-offset) % this->ColStride();
-            const Int procCol = this->RowAlign();
-            owner = procRow + this->ColStride()*procCol;
+            const Int procRow = (ColAlign()-offset) % ColStride();
+            const Int procCol = RowAlign();
+            owner = procRow + ColStride()*procCol;
         }
         return grid.DiagPath(owner);
     }
-    else if( this->ColDist() == MR && this->RowDist() == MC )
+    else if( ColDist() == MR && RowDist() == MC )
     {
         // Result is an [MD,* ] or [* ,MD]
         Int owner;
         if( offset >= 0 )
         {
-            const Int procCol = this->ColAlign();
-            const Int procRow = (this->RowAlign()+offset) % this->RowStride();
-            owner = procRow + this->ColStride()*procCol;
+            const Int procCol = ColAlign();
+            const Int procRow = (RowAlign()+offset) % RowStride();
+            owner = procRow + ColStride()*procCol;
         }
         else
         {
-            const Int procCol = (this->ColAlign()-offset) % this->ColStride();
-            const Int procRow = this->RowAlign();
-            owner = procRow + this->ColStride()*procCol;
+            const Int procCol = (ColAlign()-offset) % ColStride();
+            const Int procRow = RowAlign();
+            owner = procRow + ColStride()*procCol;
         }
         return grid.DiagPath(owner);
     }
     else
-        return this->Root();
+        return Root();
 }
 
 template<typename T>
 Int AbstractDistMatrix<T>::DiagonalAlign( Int offset ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::DiagonalAlign"))
-    const El::Grid& grid = this->Grid();
+    const El::Grid& grid = Grid();
 
-    if( this->ColDist() == MC && this->RowDist() == MR )
+    if( ColDist() == MC && RowDist() == MR )
     {
         // Result is an [MD,* ] or [* ,MD]
         Int owner;
         if( offset >= 0 )
         {
-            const Int procRow = this->ColAlign();
-            const Int procCol = (this->RowAlign()+offset) % this->RowStride();
-            owner = procRow + this->ColStride()*procCol;
+            const Int procRow = ColAlign();
+            const Int procCol = (RowAlign()+offset) % RowStride();
+            owner = procRow + ColStride()*procCol;
         }
         else
         {
-            const Int procRow = (this->ColAlign()-offset) % this->ColStride();
-            const Int procCol = this->RowAlign();
-            owner = procRow + this->ColStride()*procCol;
+            const Int procRow = (ColAlign()-offset) % ColStride();
+            const Int procCol = RowAlign();
+            owner = procRow + ColStride()*procCol;
         }
         return grid.DiagPathRank(owner);
     }
-    else if( this->ColDist() == MR && this->RowDist() == MC )
+    else if( ColDist() == MR && RowDist() == MC )
     {
         // Result is an [MD,* ] or [* ,MD]
         Int owner;
         if( offset >= 0 )
         {
-            const Int procCol = this->ColAlign();
-            const Int procRow = (this->RowAlign()+offset) % this->RowStride();
-            owner = procRow + this->ColStride()*procCol;
+            const Int procCol = ColAlign();
+            const Int procRow = (RowAlign()+offset) % RowStride();
+            owner = procRow + ColStride()*procCol;
         }
         else
         {
-            const Int procCol = (this->ColAlign()-offset) % this->ColStride();
-            const Int procRow = this->RowAlign();
-            owner = procRow + this->ColStride()*procCol;
+            const Int procCol = (ColAlign()-offset) % ColStride();
+            const Int procRow = RowAlign();
+            owner = procRow + ColStride()*procCol;
         }
         return grid.DiagPathRank(owner);
     }
-    else if( this->ColDist() == STAR )
+    else if( ColDist() == STAR )
     {
         // Result is a [V,* ] or [* ,V]
         if( offset >= 0 )
-            return (this->RowAlign()+offset) % this->RowStride();
+            return (RowAlign()+offset) % RowStride();
         else
-            return this->RowAlign();
+            return RowAlign();
     }
     else
     {
         // Result is [U,V] or [V,U], where V is either STAR or CIRC
         if( offset >= 0 )
-            return this->ColAlign();
+            return ColAlign();
         else
-            return (this->ColAlign()-offset) % this->ColStride();
+            return (ColAlign()-offset) % ColStride();
     }
 }
 
@@ -1146,7 +1189,7 @@ AbstractDistMatrix<T>::GetSubmatrix
 
     // TODO: Make the following more efficient for non [STAR,STAR]
 
-    ASub.SetGrid( this->Grid() );
+    ASub.SetGrid( Grid() );
     ASub.Resize( m, n, m );
     Zeros( ASub, m, n );
     if( Participating() )
@@ -1191,7 +1234,7 @@ AbstractDistMatrix<T>::GetRealPartOfSubmatrix
 
     // TODO: Make the following more efficient for non [STAR,STAR]
 
-    ASub.SetGrid( this->Grid() );
+    ASub.SetGrid( Grid() );
     ASub.Resize( m, n, m );
     Zeros( ASub, m, n );
     if( Participating() )
@@ -1237,7 +1280,7 @@ AbstractDistMatrix<T>::GetImagPartOfSubmatrix
 
     // TODO: Make the following more efficient for non [STAR,STAR]
 
-    ASub.SetGrid( this->Grid() );
+    ASub.SetGrid( Grid() );
     ASub.Resize( m, n, m );
     Zeros( ASub, m, n );
     if( Participating() )
@@ -1274,7 +1317,7 @@ AbstractDistMatrix<T>::GetSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetSubmatrix"))
-    DistMatrix<T,STAR,STAR> ASub( this->Grid() );
+    DistMatrix<T,STAR,STAR> ASub( Grid() );
     GetSubmatrix( I, J, ASub );
     return ASub;
 }
@@ -1285,7 +1328,7 @@ AbstractDistMatrix<T>::GetRealPartOfSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetRealPartOfSubmatrix"))
-    DistMatrix<Base<T>,STAR,STAR> ASub( this->Grid() );
+    DistMatrix<Base<T>,STAR,STAR> ASub( Grid() );
     GetRealPartOfSubmatrix( I, J, ASub );
     return ASub;
 }
@@ -1296,7 +1339,7 @@ AbstractDistMatrix<T>::GetImagPartOfSubmatrix
 ( const std::vector<Int>& I, const std::vector<Int>& J ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetImagPartOfSubmatrix"))
-    DistMatrix<Base<T>,STAR,STAR> ASub( this->Grid() );
+    DistMatrix<Base<T>,STAR,STAR> ASub( Grid() );
     GetImagPartOfSubmatrix( I, J, ASub );
     return ASub;
 }

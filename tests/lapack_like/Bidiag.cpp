@@ -28,15 +28,15 @@ void TestCorrectness
         cout << "Testing error..." << endl;
 
     // Grab the diagonal and superdiagonal of the bidiagonal matrix
-    auto d = A.GetDiagonal( 0 );
-    auto e = A.GetDiagonal( (m>=n ? 1 : -1) );
+    auto d = GetDiagonal( A, 0 );
+    auto e = GetDiagonal( A, (m>=n ? 1 : -1) );
 
     // Zero B and then fill its bidiagonal
     DistMatrix<F> B(g);
     B.AlignWith( A );
     Zeros( B, m, n );
-    B.SetDiagonal( d, 0  );
-    B.SetDiagonal( e, (m>=n ? 1 : -1) );
+    SetDiagonal( B, d, 0  );
+    SetDiagonal( B, e, (m>=n ? 1 : -1) );
     if( print )
         Print( B, "Bidiagonal" );
     if( display )

@@ -61,7 +61,7 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
     }
     // Form d and rescale L
     auto L = A( IR(0,m), IR(0,minDim) );
-    d = L.GetRealPartOfDiagonal();
+    GetRealPartOfDiagonal(L,d);
     auto sgn = []( Real delta ) 
                { return delta >= Real(0) ? Real(1) : Real(-1); };
     EntrywiseMap( d, std::function<Real(Real)>(sgn) );
@@ -132,7 +132,7 @@ PanelHouseholder
     }
     // Form d and rescale L
     auto L = A( IR(0,m), IR(0,minDim) );
-    Copy( L.GetRealPartOfDiagonal(), d );
+    GetRealPartOfDiagonal(L,d);
     auto sgn = []( Real delta ) 
                { return delta >= Real(0) ? Real(1) : Real(-1); };
     EntrywiseMap( d, std::function<Real(Real)>(sgn) );

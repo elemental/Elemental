@@ -643,6 +643,82 @@ void Fill( AbstractDistMatrix<T>& A, T alpha );
 template<typename T>
 void Fill( AbstractBlockDistMatrix<T>& A, T alpha );
 
+// FillDiagonal
+// ============
+template<typename T,typename S>
+void FillDiagonal( Matrix<T>& A, S alpha, Int offset=0 );
+template<typename T,typename S>
+void FillDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset=0 );
+template<typename T,typename S>
+void FillDiagonal( AbstractBlockDistMatrix<T>& A, S alpha, Int offset=0 );
+
+// GetDiagonal
+// ===========
+template<typename T>
+void GetDiagonal
+( const Matrix<T>& A, Matrix<T>& d, Int offset=0 );
+template<typename T>
+void GetRealPartOfDiagonal
+( const Matrix<T>& A, Matrix<Base<T>>& d, Int offset=0 );
+template<typename T>
+void GetImagPartOfDiagonal
+( const Matrix<T>& A, Matrix<Base<T>>& d, Int offset=0 );
+
+template<typename T>
+Matrix<T> GetDiagonal( const Matrix<T>& A, Int offset=0 );
+template<typename T>
+Matrix<Base<T>> GetRealPartOfDiagonal( const Matrix<T>& A, Int offset=0 );
+template<typename T>
+Matrix<Base<T>> GetImagPartOfDiagonal( const Matrix<T>& A, Int offset=0 );
+
+template<typename T,Dist U,Dist V>
+void GetDiagonal
+( const DistMatrix<T,U,V>& A, 
+  AbstractDistMatrix<T>& d, Int offset=0 );
+template<typename T,Dist U,Dist V>
+void GetRealPartOfDiagonal
+( const DistMatrix<T,U,V>& A, 
+  AbstractDistMatrix<Base<T>>& d, Int offset=0 );
+template<typename T,Dist U,Dist V>
+void GetImagPartOfDiagonal
+( const DistMatrix<T,U,V>& A, 
+  AbstractDistMatrix<Base<T>>& d, Int offset=0 );
+// Versions which will work for AbstractDistMatrix but which make use of a
+// manual dynamic dispatch
+template<typename T>
+void GetDiagonal
+( const AbstractDistMatrix<T>& A, 
+  AbstractDistMatrix<T>& d, Int offset=0 );
+template<typename T>
+void GetRealPartOfDiagonal
+( const AbstractDistMatrix<T>& A, 
+  AbstractDistMatrix<Base<T>>& d, Int offset=0 );
+template<typename T>
+void GetImagPartOfDiagonal
+( const AbstractDistMatrix<T>& A, 
+  AbstractDistMatrix<Base<T>>& d, Int offset=0 );
+
+template<typename T,Dist U,Dist V>
+DistMatrix<T,DiagCol<U,V>(),DiagRow<U,V>()>
+GetDiagonal( const DistMatrix<T,U,V>& A, Int offset=0 );
+template<typename T,Dist U,Dist V>
+DistMatrix<Base<T>,DiagCol<U,V>(),DiagRow<U,V>()>
+GetRealPartOfDiagonal( const DistMatrix<T,U,V>& A, Int offset=0 );
+template<typename T,Dist U,Dist V>
+DistMatrix<Base<T>,DiagCol<U,V>(),DiagRow<U,V>()>
+GetImagPartOfDiagonal( const DistMatrix<T,U,V>& A, Int offset=0 );
+
+// GetMappedDiagonal
+// =================
+template<typename T,typename S>
+void GetMappedDiagonal
+( const Matrix<T>& A, Matrix<S>& d, 
+  std::function<S(T)> func, Int offset=0 );
+template<typename T,typename S,Dist U,Dist V>
+void GetMappedDiagonal
+( const DistMatrix<T,U,V>& A, AbstractDistMatrix<S>& d, 
+  std::function<S(T)> func, Int offset=0 );
+
 // Hadamard
 // ========
 template<typename T>
@@ -977,12 +1053,38 @@ void ScaleTrapezoid
 
 // SetDiagonal
 // ===========
-template<typename T,typename S>
-void SetDiagonal( Matrix<T>& A, S alpha, Int offset=0 );
-template<typename T,typename S>
-void SetDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset=0 );
-template<typename T,typename S>
-void SetDiagonal( AbstractBlockDistMatrix<T>& A, S alpha, Int offset=0 );
+template<typename T>
+void SetDiagonal
+( Matrix<T>& A, const Matrix<T>& d, Int offset=0 );
+template<typename T>
+void SetRealPartOfDiagonal
+( Matrix<T>& A, const Matrix<Base<T>>& d, Int offset=0 );
+template<typename T>
+void SetImagPartOfDiagonal
+( Matrix<T>& A, const Matrix<Base<T>>& d, Int offset=0 );
+
+template<typename T,Dist U,Dist V>
+void SetDiagonal
+( DistMatrix<T,U,V>& A, const AbstractDistMatrix<T>& d, Int offset=0 );
+template<typename T,Dist U,Dist V>
+void SetRealPartOfDiagonal
+( DistMatrix<T,U,V>& A, const AbstractDistMatrix<Base<T>>& d, Int offset=0 );
+template<typename T,Dist U,Dist V>
+void SetImagPartOfDiagonal
+( DistMatrix<T,U,V>& A, const AbstractDistMatrix<Base<T>>& d, Int offset=0 );
+// Versions which will work for AbstractDistMatrix but which make use of a
+// manual dynamic dispatch
+template<typename T>
+void SetDiagonal
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& d, Int offset=0 );
+template<typename T>
+void SetRealPartOfDiagonal
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Base<T>>& d, 
+  Int offset=0 );
+template<typename T>
+void SetImagPartOfDiagonal
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Base<T>>& d, 
+  Int offset=0 );
 
 // Swap
 // ====
@@ -1077,6 +1179,19 @@ SecondHalfOfSymmetric2x2Solve
   const Matrix<F>& D, const Matrix<F>& a1, Matrix<F>& a2,
   bool conjugate=false );
 
+// ShiftDiagonal
+// =============
+template<typename T,typename S>
+void ShiftDiagonal( Matrix<T>& A, S alpha, Int offset=0 );
+template<typename T,typename S>
+void ShiftDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset=0 );
+template<typename T,typename S>
+void ShiftDiagonal( AbstractBlockDistMatrix<T>& A, S alpha, Int offset=0 );
+template<typename T,typename S>
+void ShiftDiagonal( SparseMatrix<T>& A, S alpha, Int offset=0 );
+template<typename T,typename S>
+void ShiftDiagonal( DistSparseMatrix<T>& A, S alpha, Int offset=0 );
+
 // Transpose
 // =========
 template<typename T>
@@ -1169,16 +1284,39 @@ void PartialColSumScatter
 
 // UpdateDiagonal
 // ==============
+template<typename T>
+void UpdateDiagonal
+( Matrix<T>& A, T alpha, const Matrix<T>& d, Int offset=0 );
+template<typename T>
+void UpdateRealPartOfDiagonal
+( Matrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset=0 );
+template<typename T>
+void UpdateImagPartOfDiagonal
+( Matrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset=0 );
+
+template<typename T,Dist U,Dist V>
+void UpdateDiagonal
+( DistMatrix<T,U,V>& A, T alpha, const AbstractDistMatrix<T>& d, 
+  Int offset=0 );
+template<typename T,Dist U,Dist V>
+void UpdateRealPartOfDiagonal
+( DistMatrix<T,U,V>& A, Base<T> alpha, const AbstractDistMatrix<Base<T>>& d, 
+  Int offset=0 );
+template<typename T,Dist U,Dist V>
+void UpdateImagPartOfDiagonal
+( DistMatrix<T,U,V>& A, Base<T> alpha, const AbstractDistMatrix<Base<T>>& d, 
+  Int offset=0 );
+
+// UpdateMappedDiagonal
+// ====================
 template<typename T,typename S>
-void UpdateDiagonal( Matrix<T>& A, S alpha, Int offset=0 );
-template<typename T,typename S>
-void UpdateDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset=0 );
-template<typename T,typename S>
-void UpdateDiagonal( AbstractBlockDistMatrix<T>& A, S alpha, Int offset=0 );
-template<typename T,typename S>
-void UpdateDiagonal( SparseMatrix<T>& A, S alpha, Int offset=0 );
-template<typename T,typename S>
-void UpdateDiagonal( DistSparseMatrix<T>& A, S alpha, Int offset=0 );
+void UpdateMappedDiagonal
+( Matrix<T>& A, const Matrix<S>& d, 
+  std::function<void(T&,S)> func, Int offset=0 );
+template<typename T,typename S,Dist U,Dist V>
+void UpdateMappedDiagonal
+( DistMatrix<T,U,V>& A, const AbstractDistMatrix<S>& d, 
+  std::function<void(T&,S)> func, Int offset=0 );
 
 // Zero
 // ====

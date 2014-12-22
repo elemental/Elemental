@@ -36,7 +36,7 @@ UVar1( Matrix<F>& U, bool conjugate=false )
         auto U00 = U( ind0, ind0 );
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
-        auto d1 = U11.GetDiagonal();
+        auto d1 = GetDiagonal(U11);
 
         S01 = U01;
         DiagonalSolve( LEFT, NORMAL, d1, U01, true );
@@ -85,7 +85,7 @@ UVar1( AbstractDistMatrix<F>& UPre, bool conjugate=false )
         auto U00 = U( ind0, ind0 );
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
-        auto d1 = U11.GetDiagonal();
+        auto d1 = GetDiagonal(U11);
 
         S01_MC_STAR = U01;
         S01_VC_STAR = S01_MC_STAR;

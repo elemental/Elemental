@@ -97,8 +97,8 @@ inline void ProcessLocalTree
         ProcessFront
         ( frontL, frontBR, pivTol, 
           regCand.localNodes[s], reg.localNodes[s] );
-        frontL.GetDiagonal( front.diag );
-        SetDiagonal( frontL, F(1) );
+        GetDiagonal( frontL, front.diag );
+        FillDiagonal( frontL, F(1) );
     }
 }
 

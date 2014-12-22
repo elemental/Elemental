@@ -46,7 +46,7 @@ inline void ProcessFront( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate )
         auto AL22 = AL( ind2Vert, ind2Horz );
 
         LDL( AL11, conjugate );
-        AL11.GetDiagonal( d1 );
+        GetDiagonal( AL11, d1 );
 
         Trsm( RIGHT, LOWER, orientation, UNIT, F(1), AL11, AL21 );
 
@@ -74,7 +74,7 @@ void ProcessFrontIntraPiv
     PartitionDown( AL, ATL, ABL, n );
 
     LDL( ATL, subdiag, piv, conjugate );
-    auto diag = ATL.GetDiagonal();
+    auto diag = GetDiagonal(ATL);
 
     PermuteCols( ABL, piv );
     Trsm( RIGHT, LOWER, orientation, UNIT, F(1), ATL, ABL );
@@ -131,7 +131,7 @@ inline void ProcessFrontGeneral
 
         AL11_STAR_STAR = AL11; 
         LocalLDL( AL11_STAR_STAR, conjugate );
-        AL11_STAR_STAR.GetDiagonal( d1_STAR_STAR );
+        GetDiagonal( AL11_STAR_STAR, d1_STAR_STAR );
         AL11 = AL11_STAR_STAR;
 
         AL21_VC_STAR.AlignWith( AL22 );
@@ -227,7 +227,7 @@ inline void ProcessFrontSquare
 
         AL11_STAR_STAR = AL11; 
         LocalLDL( AL11_STAR_STAR, conjugate );
-        AL11_STAR_STAR.GetDiagonal( d1_STAR_STAR );
+        GetDiagonal( AL11_STAR_STAR, d1_STAR_STAR );
         AL11 = AL11_STAR_STAR;
 
         AL21_VC_STAR.AlignWith( AL22 );
@@ -305,7 +305,7 @@ void ProcessFrontIntraPiv
     PartitionDown( AL, ATL, ABL, n );
 
     LDL( ATL, subdiag, p, conjugate );
-    auto diag = ATL.GetDiagonal();
+    auto diag = GetDiagonal(ATL);
 
     PermuteCols( ABL, p );
     Trsm( RIGHT, LOWER, orientation, UNIT, F(1), ATL, ABL );

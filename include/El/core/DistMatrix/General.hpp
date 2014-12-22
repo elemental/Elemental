@@ -12,6 +12,7 @@
 
 namespace El {
 
+// TODO: Completely remove GeneralDistMatrix
 template<typename T,Dist U,Dist V> 
 class GeneralDistMatrix : public AbstractDistMatrix<T>
 {
@@ -40,13 +41,6 @@ public:
     // Move assignment
     type& operator=( type&& A );
 
-    virtual void AlignColsWith
-    ( const El::DistData& data, bool constrain=true, bool allowMismatch=false )
-     override;
-    virtual void AlignRowsWith
-    ( const El::DistData& data, bool constrain=true, bool allowMismatch=false )
-    override;
-
     // Basic queries
     // =============
     // Distribution information
@@ -57,36 +51,8 @@ public:
     Dist PartialRowDist() const override;
     Dist PartialUnionColDist() const override;
     Dist PartialUnionRowDist() const override;
-
-    // Diagonal manipulation
-    // =====================
-    void GetDiagonal
-    ( AbstractDistMatrix<T>& d, Int offset=0 ) const override;
-    void GetRealPartOfDiagonal
-    ( AbstractDistMatrix<Base<T>>& d, Int offset=0 ) const override;
-    void GetImagPartOfDiagonal
-    ( AbstractDistMatrix<Base<T>>& d, Int offset=0 ) const override;
-
-    DistMatrix<T,UDiag,VDiag> GetDiagonal( Int offset=0 ) const;
-    DistMatrix<Base<T>,UDiag,VDiag> GetRealPartOfDiagonal( Int offset=0 ) const;
-    DistMatrix<Base<T>,UDiag,VDiag> GetImagPartOfDiagonal( Int offset=0 ) const;
-
-    void SetDiagonal
-    ( const AbstractDistMatrix<T>& d, Int offset=0 ) override;
-    void SetRealPartOfDiagonal
-    ( const AbstractDistMatrix<Base<T>>& d, Int offset=0 ) override;
-    void SetImagPartOfDiagonal
-    ( const AbstractDistMatrix<Base<T>>& d, Int offset=0 ) override;
-
-    void UpdateDiagonal
-    ( T alpha, const AbstractDistMatrix<T>& d, Int offset=0 ) 
-    override;
-    void UpdateRealPartOfDiagonal
-    ( Base<T> alpha, const AbstractDistMatrix<Base<T>>& d, Int offset=0 ) 
-    override;
-    void UpdateImagPartOfDiagonal
-    ( Base<T> alpha, const AbstractDistMatrix<Base<T>>& d, Int offset=0 ) 
-     override;
+    Dist CollectedColDist() const override;
+    Dist CollectedRowDist() const override;
 
 protected:
 
@@ -98,15 +64,6 @@ protected:
 
     // Create a 0 x 0 distributed matrix
     GeneralDistMatrix( const El::Grid& g=DefaultGrid(), Int root=0 );
-
-    // Diagonal helper routines
-    // ========================
-    template<typename S,class Function>
-    void GetDiagonalHelper
-    ( AbstractDistMatrix<S>& d, Int offset, Function func ) const;
-    template<typename S,class Function>
-    void SetDiagonalHelper
-    ( const AbstractDistMatrix<S>& d, Int offset, Function func );
 
     // Friend declarations
     // ===================

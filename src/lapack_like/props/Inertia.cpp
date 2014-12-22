@@ -20,7 +20,7 @@ InertiaType Inertia
     Matrix<Int> p;
     Matrix<F> dSub;
     LDL( A, dSub, p, true, ctrl );
-    return ldl::Inertia( A.GetRealPartOfDiagonal(), dSub );
+    return ldl::Inertia( GetRealPartOfDiagonal(A), dSub );
 }
 
 template<typename F>
@@ -38,7 +38,7 @@ InertiaType Inertia
     DistMatrix<Int,VC,STAR> p( A.Grid() );
     DistMatrix<F,MD,STAR> dSub( A.Grid() );
     LDL( A, dSub, p, true, ctrl );
-    return ldl::Inertia( A.GetRealPartOfDiagonal(), dSub );
+    return ldl::Inertia( GetRealPartOfDiagonal(A), dSub );
 }
 
 #define PROTO(F) \

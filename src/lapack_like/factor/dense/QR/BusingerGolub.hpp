@@ -146,7 +146,7 @@ inline void BusingerGolub
 
     // Form d and rescale R
     auto R = A( IR(0,k), IR(0,n) );
-    d = R.GetRealPartOfDiagonal();
+    GetRealPartOfDiagonal(R,d);
     auto sgn = []( Real delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };
     EntrywiseMap( d, std::function<Real(Real)>(sgn) );
@@ -443,7 +443,7 @@ inline void BusingerGolub
 
     // Form d and rescale R
     auto R = A( IR(0,k), IR(0,n) );
-    Copy( R.GetRealPartOfDiagonal(), d );
+    GetRealPartOfDiagonal(R,d);
     auto sgn = []( Real delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };
     EntrywiseMap( d, std::function<Real(Real)>(sgn) );

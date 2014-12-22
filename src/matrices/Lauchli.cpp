@@ -21,7 +21,7 @@ void Lauchli( Matrix<T>& A, Int n, T mu )
     Fill( a0, T(1) );
 
     // Set the subdiagonal to mu
-    SetDiagonal( A, mu, -1 );
+    FillDiagonal( A, mu, -1 );
 }
 
 template<typename T>
@@ -36,7 +36,7 @@ void Lauchli( AbstractDistMatrix<T>& A, Int n, T mu )
     Fill( *a0, T(1) );
 
     // Set the subdiagonal to mu
-    SetDiagonal( A, mu, -1 );
+    FillDiagonal( A, mu, -1 );
 }
 
 #define PROTO(T) \

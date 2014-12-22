@@ -103,14 +103,14 @@ ProcessLocalTree( DistSymmInfo& info, DistSymmFrontTree<F>& L )
         {
             ProcessFrontIntraPiv
             ( frontL, front.subdiag, front.piv, frontBR, L.isHermitian );
-            frontL.GetDiagonal( front.diag );
-            SetDiagonal( frontL, F(1) );
+            GetDiagonal( frontL, front.diag );
+            FillDiagonal( frontL, F(1) );
         }
         else
         {
             ProcessFront( frontL, frontBR, L.isHermitian );
-            frontL.GetDiagonal( front.diag );
-            SetDiagonal( frontL, F(1) );
+            GetDiagonal( frontL, front.diag );
+            FillDiagonal( frontL, F(1) );
         }
     }
 }

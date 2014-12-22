@@ -188,10 +188,10 @@ inline void ProcessDistTree
           regCand.distNodes[s-1], reg.distNodes[s-1] );
 
         // Store the diagonal in a [VC,* ] distribution
-        auto diag = front.front2dL.GetDiagonal();
+        auto diag = GetDiagonal(front.front2dL);
         front.diag1d.SetGrid( grid );
         front.diag1d = diag;
-        SetDiagonal( front.front2dL, F(1) );
+        FillDiagonal( front.front2dL, F(1) );
     }
     L.localFronts.back().work.Empty();
     L.distFronts.back().work2d.Empty();

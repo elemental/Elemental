@@ -15,7 +15,7 @@ void Pei( Matrix<T>& P, Int n, T alpha )
 {
     DEBUG_ONLY(CallStackEntry cse("Pei"))
     Ones( P, n, n );
-    UpdateDiagonal( P, alpha );
+    ShiftDiagonal( P, alpha );
 }
 
 template<typename T>
@@ -23,7 +23,7 @@ void Pei( AbstractDistMatrix<T>& P, Int n, T alpha )
 {
     DEBUG_ONLY(CallStackEntry cse("Pei"))
     Ones( P, n, n );
-    UpdateDiagonal( P, alpha );
+    ShiftDiagonal( P, alpha );
 }
 
 template<typename T>
@@ -31,7 +31,7 @@ void Pei( AbstractBlockDistMatrix<T>& P, Int n, T alpha )
 {
     DEBUG_ONLY(CallStackEntry cse("Pei"))
     Ones( P, n, n );
-    UpdateDiagonal( P, alpha );
+    ShiftDiagonal( P, alpha );
 }
 
 #define PROTO(T) \

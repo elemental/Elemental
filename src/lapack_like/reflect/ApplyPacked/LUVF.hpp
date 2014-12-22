@@ -65,7 +65,7 @@ LUVF
 
         HPanCopy = HPan;
         MakeTrapezoidal( UPPER, HPanCopy, HPanCopy.Width()-HPanCopy.Height() );
-        SetDiagonal( HPanCopy, F(1), HPanCopy.Width()-HPanCopy.Height() );
+        FillDiagonal( HPanCopy, F(1), HPanCopy.Width()-HPanCopy.Height() );
         Herk( LOWER, ADJOINT, Base<F>(1), HPanCopy, SInv );
         FixDiagonal( conjugation, t1, SInv );
 
@@ -124,7 +124,7 @@ LUVF
 
         HPanCopy = HPan;
         MakeTrapezoidal( UPPER, HPanCopy, HPanCopy.Width()-HPanCopy.Height() );
-        SetDiagonal( HPanCopy, F(1), HPanCopy.Width()-HPanCopy.Height() );
+        FillDiagonal( HPanCopy, F(1), HPanCopy.Width()-HPanCopy.Height() );
         HPan_VC_STAR = HPanCopy;
         Zeros( SInv_STAR_STAR, nb, nb );
         Herk

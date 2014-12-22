@@ -106,7 +106,7 @@ main( int argc, char* argv[] )
         qr::ApplyQ( LEFT, ADJOINT, QRPiv, tPiv, dPiv, E );
         const Int k = std::min(m,n);
         auto EUpper = View( E, 0, 0, k, k );
-        UpdateDiagonal( EUpper, C(-1) );
+        ShiftDiagonal( EUpper, C(-1) );
         const Real frobOrthogPiv = FrobeniusNorm( EUpper ); 
         if( display )
             Display( E, "pivoted I - Q^H Q" );
@@ -118,7 +118,7 @@ main( int argc, char* argv[] )
         qr::ApplyQ( LEFT, NORMAL, QRPiv, tPiv, dPiv, E );
         qr::ApplyQ( LEFT, ADJOINT, QRPiv, tPiv, dPiv, E );
         EUpper = View( E, 0, 0, k, k );
-        UpdateDiagonal( EUpper, C(-1) );
+        ShiftDiagonal( EUpper, C(-1) );
         const Real frobOrthogNoPiv = FrobeniusNorm( EUpper ); 
         if( display )
             Display( E, "unpivoted I - Q^H Q" );

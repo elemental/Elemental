@@ -17,9 +17,9 @@ void TriW( Matrix<T>& A, Int n, T alpha, Int k )
     if( k < 0 )
         LogicError("Number of superdiagonals must be non-negative");
     Zeros( A, n, n );
-    SetDiagonal( A, 1 );
+    FillDiagonal( A, 1 );
     for( Int j=0; j<Min(n-1,k); ++j ) 
-        SetDiagonal( A, alpha, j+1 );
+        FillDiagonal( A, alpha, j+1 );
 }
 
 template<typename T>
@@ -29,9 +29,9 @@ void TriW( AbstractDistMatrix<T>& A, Int n, T alpha, Int k )
     if( k < 0 )
         LogicError("Number of superdiagonals must be non-negative");
     Zeros( A, n, n );
-    SetDiagonal( A, 1 );
+    FillDiagonal( A, 1 );
     for( Int j=0; j<Min(n-1,k); ++j )
-        SetDiagonal( A, alpha, j+1 );
+        FillDiagonal( A, alpha, j+1 );
 }
 
 template<typename T>
@@ -41,9 +41,9 @@ void TriW( AbstractBlockDistMatrix<T>& A, Int n, T alpha, Int k )
     if( k < 0 )
         LogicError("Number of superdiagonals must be non-negative");
     Zeros( A, n, n );
-    SetDiagonal( A, 1 );
+    FillDiagonal( A, 1 );
     for( Int j=0; j<Min(n-1,k); ++j )
-        SetDiagonal( A, alpha, j+1 );
+        FillDiagonal( A, alpha, j+1 );
 }
 
 #define PROTO(T) \

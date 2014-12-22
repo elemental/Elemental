@@ -76,7 +76,7 @@ main( int argc, char* argv[] )
         HermitianEig( LOWER, G, w );
         Real minEig = Min(w).value;
         if( minEig <= Real(0) )
-            UpdateDiagonal( SInv, shift-shiftScale*minEig );
+            ShiftDiagonal( SInv, shift-shiftScale*minEig );
 
         // Inverse SInv
         DistMatrix<F> S( SInv );
@@ -93,13 +93,13 @@ main( int argc, char* argv[] )
         HermitianEig( LOWER, G, w );
         minEig = Min(w).value;
         if( minEig <= Real(0) )
-            UpdateDiagonal( SNoisy, shift-shiftScale*minEig );
+            ShiftDiagonal( SNoisy, shift-shiftScale*minEig );
 
         // Sample from the noisy covariance matrix
         DistMatrix<F> D;
         Gaussian( D, N, n );
         Covariance( D, G );
-        UpdateDiagonal( G, F(-1) );
+        ShiftDiagonal( G, F(-1) );
         const Real unitCovErrNorm = FrobeniusNorm( G );
         G = SNoisy;
         Cholesky( LOWER, G );

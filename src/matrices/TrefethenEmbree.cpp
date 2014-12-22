@@ -24,11 +24,11 @@ void TrefethenEmbree( Matrix<Complex<Real>>& A, Int n )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;
     Zeros( A, n, n );
-    SetDiagonal( A,  2,       3 );
-    SetDiagonal( A, -1,       2 );
-    SetDiagonal( A, C(0,2),   1 );
-    SetDiagonal( A, -4,      -2 );
-    SetDiagonal( A, C(0,-2), -3 );
+    FillDiagonal( A,  2,       3 );
+    FillDiagonal( A, -1,       2 );
+    FillDiagonal( A, C(0,2),   1 );
+    FillDiagonal( A, -4,      -2 );
+    FillDiagonal( A, C(0,-2), -3 );
 }
 
 template<typename Real>
@@ -39,11 +39,11 @@ void TrefethenEmbree( AbstractDistMatrix<Complex<Real>>& A, Int n )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;
     Zeros( A, n, n );
-    SetDiagonal( A,  2,       3 );
-    SetDiagonal( A, -1,       2 );
-    SetDiagonal( A, C(0,2),   1 );
-    SetDiagonal( A, -4,      -2 );
-    SetDiagonal( A, C(0,-2), -3 );
+    FillDiagonal( A,  2,       3 );
+    FillDiagonal( A, -1,       2 );
+    FillDiagonal( A, C(0,2),   1 );
+    FillDiagonal( A, -4,      -2 );
+    FillDiagonal( A, C(0,-2), -3 );
 }
 
 template<typename Real>
@@ -54,11 +54,11 @@ void TrefethenEmbree( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;
     Zeros( A, n, n );
-    SetDiagonal( A,  2,       3 );
-    SetDiagonal( A, -1,       2 );
-    SetDiagonal( A, C(0,2),   1 );
-    SetDiagonal( A, -4,      -2 );
-    SetDiagonal( A, C(0,-2), -3 );
+    FillDiagonal( A,  2,       3 );
+    FillDiagonal( A, -1,       2 );
+    FillDiagonal( A, C(0,2),   1 );
+    FillDiagonal( A, -4,      -2 );
+    FillDiagonal( A, C(0,-2), -3 );
 }
 
 #define PROTO(Real) \

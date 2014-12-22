@@ -527,29 +527,7 @@ extern "C" {
   /* Int AbstractDistMatrix<T>::DiagonalAlign( Int offset ) const */ \
   ElError ElDistMatrixDiagonalAlign_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElInt offset, ElInt* align ) \
-  { EL_TRY( *align = CReflect(A)->DiagonalAlign(offset) ) } \
-  /* void AbstractDistMatrix<T>::GetDiagonal
-     ( AbstractDistMatrix<T>& d, Int offset ) const */ \
-  ElError ElDistMatrixGetDiagonal_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG d, ElInt offset ) \
-  { EL_TRY( CReflect(A)->GetDiagonal(*CReflect(d),offset) ) } \
-  /* void AbstractDistMatrix<T>::GetImagPartOfDiagonal
-     ( AbstractDistMatrix<Base<T>>& d, Int offset ) const */ \
-  ElError ElDistMatrixGetImagPartOfDiagonal_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE d, ElInt offset ) \
-  { EL_TRY( CReflect(A)->GetImagPartOfDiagonal(*CReflect(d),offset) ) } \
-  /* void AbstractDistMatrix<T>::SetDiagonal
-     ( const AbstractDistMatrix<T>& d, Int offset ) */ \
-  ElError ElDistMatrixSetDiagonal_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG d, ElInt offset ) \
-  { EL_TRY( CReflect(A)->SetDiagonal(*CReflect(d),offset) ) } \
-  /* void AbstractDistMatrix<T>::UpdateDiagonal
-     ( T alpha, const AbstractDistMatrix<T>& d, Int offset ) */ \
-  ElError ElDistMatrixUpdateDiagonal_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, CREFLECT(T) alpha, \
-    ElConstDistMatrix_ ## SIG d, ElInt offset ) \
-  { EL_TRY( CReflect(A)->UpdateDiagonal\
-            (CReflect(alpha),*CReflect(d),offset) ) }
+  { EL_TRY( *align = CReflect(A)->DiagonalAlign(offset) ) }
 
 #define DISTMATRIX_DIAGONAL_COMPLEX(SIG,SIGBASE,T) \
   /* void AbstractDistMatrix<T>::MakeDiagonalReal( Int offset ) */ \
@@ -559,36 +537,7 @@ extern "C" {
   /* void AbstractDistMatrix<T>::ConjugateDiagonal( Int offset ) */ \
   ElError ElDistMatrixConjugateDiagonal_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElInt offset ) \
-  { EL_TRY( CReflect(A)->ConjugateDiagonal(offset) ) } \
-  /* void AbstractDistMatrix<T>::GetRealPartOfDiagonal
-     ( AbstractDistMatrix<Base<T>>& d, Int offset ) const */ \
-  ElError ElDistMatrixGetRealPartOfDiagonal_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE d, ElInt offset ) \
-  { EL_TRY( CReflect(A)->GetRealPartOfDiagonal(*CReflect(d),offset) ) } \
-  /* void AbstractDistMatrix<T>::SetRealPartOfDiagonal
-     ( const AbstractDistMatrix<Base<T>>& d, Int offset ) */ \
-  ElError ElDistMatrixSetRealPartOfDiagonal_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIGBASE d, ElInt offset ) \
-  { EL_TRY( CReflect(A)->SetRealPartOfDiagonal(*CReflect(d),offset) ) } \
-  /* void AbstractDistMatrix<T>::SetImagPartOfDiagonal
-     ( const AbstractDistMatrix<Base<T>>& d, Int offset ) */ \
-  ElError ElDistMatrixSetImagPartOfDiagonal_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIGBASE d, ElInt offset ) \
-  { EL_TRY( CReflect(A)->SetImagPartOfDiagonal(*CReflect(d),offset) ) } \
-  /* void AbstractDistMatrix<T>::UpdateRealPartOfDiagonal
-     ( Base<T> alpha, const AbstractDistMatrix<Base<T>>& d, Int offset ) */ \
-  ElError ElDistMatrixUpdateRealPartOfDiagonal_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, Base<T> alpha, \
-    ElConstDistMatrix_ ## SIGBASE d, ElInt offset ) \
-  { EL_TRY( CReflect(A)->UpdateRealPartOfDiagonal \
-            (alpha,*CReflect(d),offset) ) } \
-  /* void AbstractDistMatrix<T>::UpdateImagPartOfDiagonal
-     ( Base<T> alpha, const AbstractDistMatrix<Base<T>>& d, Int offset ) */ \
-  ElError ElDistMatrixUpdateImagPartOfDiagonal_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, Base<T> alpha, \
-    ElConstDistMatrix_ ## SIGBASE d, ElInt offset ) \
-  { EL_TRY( CReflect(A)->UpdateImagPartOfDiagonal \
-            (alpha,*CReflect(d),offset) ) }
+  { EL_TRY( CReflect(A)->ConjugateDiagonal(offset) ) }
 
 #define DISTMATRIX_SUBMATRIX(SIG,SIGBASE,T) \
   /* void AbstractDistMatrix<T>::GetSubmatrix

@@ -24,7 +24,7 @@ void MultiplyAfter( const Matrix<F>& A, Matrix<F>& B, bool conjugated )
             LogicError("A and B must be the same height");
     )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
-    const auto d = A.GetDiagonal();
+    const auto d = GetDiagonal(A);
     Trmm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
     DiagonalScale( LEFT, NORMAL, d, B );
     Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
@@ -46,7 +46,7 @@ void MultiplyAfter
 
     auto APtr = ReadProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
-    const auto d = A.GetDiagonal();
+    const auto d = GetDiagonal(A);
 
     Trmm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
     DiagonalScale( LEFT, NORMAL, d, B );
@@ -69,7 +69,7 @@ void MultiplyAfter
         // TODO: Check for dSub
     )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
-    const auto d = A.GetDiagonal();
+    const auto d = GetDiagonal(A);
 
     Matrix<Int> pInv;
     InvertPermutation( p, pInv );
@@ -104,7 +104,7 @@ void MultiplyAfter
     auto APtr = ReadProxy<F,MC,MR>( &APre );      auto& A = *APtr; 
     auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
 
-    const auto d = A.GetDiagonal();
+    const auto d = GetDiagonal(A);
 
     DistMatrix<Int,VC,STAR> pInv(g);
     InvertPermutation( p, pInv );

@@ -985,6 +985,51 @@ def Fill(A,alphaPre):
     else: DataExcept()
   else: TypeExcept()
 
+# Fill diagonal
+# ------------
+lib.ElFillDiagonal_i.argtypes = [c_void_p,iType,iType]
+lib.ElFillDiagonal_i.restype = c_uint
+lib.ElFillDiagonal_s.argtypes = [c_void_p,sType,iType]
+lib.ElFillDiagonal_s.restype = c_uint
+lib.ElFillDiagonal_d.argtypes = [c_void_p,dType,iType]
+lib.ElFillDiagonal_d.restype = c_uint
+lib.ElFillDiagonal_c.argtypes = [c_void_p,cType,iType]
+lib.ElFillDiagonal_c.restype = c_uint
+lib.ElFillDiagonal_z.argtypes = [c_void_p,zType,iType]
+lib.ElFillDiagonal_z.restype = c_uint
+lib.ElFillDiagonalDist_i.argtypes = [c_void_p,iType,iType]
+lib.ElFillDiagonalDist_i.restype = c_uint
+lib.ElFillDiagonalDist_s.argtypes = [c_void_p,sType,iType]
+lib.ElFillDiagonalDist_s.restype = c_uint
+lib.ElFillDiagonalDist_d.argtypes = [c_void_p,dType,iType]
+lib.ElFillDiagonalDist_d.restype = c_uint
+lib.ElFillDiagonalDist_c.argtypes = [c_void_p,cType,iType]
+lib.ElFillDiagonalDist_c.restype = c_uint
+lib.ElFillDiagonalDist_z.argtypes = [c_void_p,zType,iType]
+lib.ElFillDiagonalDist_z.restype = c_uint
+def FillDiagonal(A,alphaPre,offset=0):
+  alpha = TagToType(A.tag)(alphaPre)
+  args = [A.obj,alpha,offset]
+  if type(A) is Matrix:
+    if   A.tag == iTag: lib.ElFillDiagonal_i(*args)
+    elif A.tag == sTag: lib.ElFillDiagonal_s(*args)
+    elif A.tag == dTag: lib.ElFillDiagonal_d(*args)
+    elif A.tag == cTag: lib.ElFillDiagonal_c(*args)
+    elif A.tag == zTag: lib.ElFillDiagonal_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMatrix:
+    if   A.tag == iTag: lib.ElFillDiagonalDist_i(*args)
+    elif A.tag == sTag: lib.ElFillDiagonalDist_s(*args)
+    elif A.tag == dTag: lib.ElFillDiagonalDist_d(*args)
+    elif A.tag == cTag: lib.ElFillDiagonalDist_c(*args)
+    elif A.tag == zTag: lib.ElFillDiagonalDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
+
+# Get diagonal
+# ------------
+# TODO
+
 # Hadamard
 # --------
 lib.ElHadamard_i.argtypes = [c_void_p,c_void_p,c_void_p]
@@ -2054,42 +2099,80 @@ def ScaleTrapezoid(alphaPre,uplo,A,offset=0):
 
 # Set diagonal
 # ------------
-lib.ElSetDiagonal_i.argtypes = [c_void_p,iType,iType]
-lib.ElSetDiagonal_i.restype = c_uint
-lib.ElSetDiagonal_s.argtypes = [c_void_p,sType,iType]
-lib.ElSetDiagonal_s.restype = c_uint
-lib.ElSetDiagonal_d.argtypes = [c_void_p,dType,iType]
-lib.ElSetDiagonal_d.restype = c_uint
-lib.ElSetDiagonal_c.argtypes = [c_void_p,cType,iType]
-lib.ElSetDiagonal_c.restype = c_uint
-lib.ElSetDiagonal_z.argtypes = [c_void_p,zType,iType]
-lib.ElSetDiagonal_z.restype = c_uint
-lib.ElSetDiagonalDist_i.argtypes = [c_void_p,iType,iType]
-lib.ElSetDiagonalDist_i.restype = c_uint
-lib.ElSetDiagonalDist_s.argtypes = [c_void_p,sType,iType]
-lib.ElSetDiagonalDist_s.restype = c_uint
-lib.ElSetDiagonalDist_d.argtypes = [c_void_p,dType,iType]
-lib.ElSetDiagonalDist_d.restype = c_uint
-lib.ElSetDiagonalDist_c.argtypes = [c_void_p,cType,iType]
-lib.ElSetDiagonalDist_c.restype = c_uint
-lib.ElSetDiagonalDist_z.argtypes = [c_void_p,zType,iType]
-lib.ElSetDiagonalDist_z.restype = c_uint
-def SetDiagonal(A,alphaPre,offset=0):
+# TODO
+
+# Shift diagonal
+# --------------
+lib.ElShiftDiagonal_i.argtypes = [c_void_p,iType,iType]
+lib.ElShiftDiagonal_i.restype = c_uint
+lib.ElShiftDiagonal_s.argtypes = [c_void_p,sType,iType]
+lib.ElShiftDiagonal_s.restype = c_uint
+lib.ElShiftDiagonal_d.argtypes = [c_void_p,dType,iType]
+lib.ElShiftDiagonal_d.restype = c_uint
+lib.ElShiftDiagonal_c.argtypes = [c_void_p,cType,iType]
+lib.ElShiftDiagonal_c.restype = c_uint
+lib.ElShiftDiagonal_z.argtypes = [c_void_p,zType,iType]
+lib.ElShiftDiagonal_z.restype = c_uint
+lib.ElShiftDiagonalDist_i.argtypes = [c_void_p,iType,iType]
+lib.ElShiftDiagonalDist_i.restype = c_uint
+lib.ElShiftDiagonalDist_s.argtypes = [c_void_p,sType,iType]
+lib.ElShiftDiagonalDist_s.restype = c_uint
+lib.ElShiftDiagonalDist_d.argtypes = [c_void_p,dType,iType]
+lib.ElShiftDiagonalDist_d.restype = c_uint
+lib.ElShiftDiagonalDist_c.argtypes = [c_void_p,cType,iType]
+lib.ElShiftDiagonalDist_c.restype = c_uint
+lib.ElShiftDiagonalDist_z.argtypes = [c_void_p,zType,iType]
+lib.ElShiftDiagonalDist_z.restype = c_uint
+lib.ElShiftDiagonalSparse_i.argtypes = [c_void_p,iType,iType]
+lib.ElShiftDiagonalSparse_i.restype = c_uint
+lib.ElShiftDiagonalSparse_s.argtypes = [c_void_p,sType,iType]
+lib.ElShiftDiagonalSparse_s.restype = c_uint
+lib.ElShiftDiagonalSparse_d.argtypes = [c_void_p,dType,iType]
+lib.ElShiftDiagonalSparse_d.restype = c_uint
+lib.ElShiftDiagonalSparse_c.argtypes = [c_void_p,cType,iType]
+lib.ElShiftDiagonalSparse_c.restype = c_uint
+lib.ElShiftDiagonalSparse_z.argtypes = [c_void_p,zType,iType]
+lib.ElShiftDiagonalSparse_z.restype = c_uint
+lib.ElShiftDiagonalDistSparse_i.argtypes = [c_void_p,iType,iType]
+lib.ElShiftDiagonalDistSparse_i.restype = c_uint
+lib.ElShiftDiagonalDistSparse_s.argtypes = [c_void_p,sType,iType]
+lib.ElShiftDiagonalDistSparse_s.restype = c_uint
+lib.ElShiftDiagonalDistSparse_d.argtypes = [c_void_p,dType,iType]
+lib.ElShiftDiagonalDistSparse_d.restype = c_uint
+lib.ElShiftDiagonalDistSparse_c.argtypes = [c_void_p,cType,iType]
+lib.ElShiftDiagonalDistSparse_c.restype = c_uint
+lib.ElShiftDiagonalDistSparse_z.argtypes = [c_void_p,zType,iType]
+lib.ElShiftDiagonalDistSparse_z.restype = c_uint
+def ShiftDiagonal(A,alphaPre,offset=0):
   alpha = TagToType(A.tag)(alphaPre)
   args = [A.obj,alpha,offset]
   if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElSetDiagonal_i(*args)
-    elif A.tag == sTag: lib.ElSetDiagonal_s(*args)
-    elif A.tag == dTag: lib.ElSetDiagonal_d(*args)
-    elif A.tag == cTag: lib.ElSetDiagonal_c(*args)
-    elif A.tag == zTag: lib.ElSetDiagonal_z(*args)
+    if   A.tag == iTag: lib.ElShiftDiagonal_i(*args)
+    elif A.tag == sTag: lib.ElShiftDiagonal_s(*args)
+    elif A.tag == dTag: lib.ElShiftDiagonal_d(*args)
+    elif A.tag == cTag: lib.ElShiftDiagonal_c(*args)
+    elif A.tag == zTag: lib.ElShiftDiagonal_z(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElSetDiagonalDist_i(*args)
-    elif A.tag == sTag: lib.ElSetDiagonalDist_s(*args)
-    elif A.tag == dTag: lib.ElSetDiagonalDist_d(*args)
-    elif A.tag == cTag: lib.ElSetDiagonalDist_c(*args)
-    elif A.tag == zTag: lib.ElSetDiagonalDist_z(*args)
+    if   A.tag == iTag: lib.ElShiftDiagonalDist_i(*args)
+    elif A.tag == sTag: lib.ElShiftDiagonalDist_s(*args)
+    elif A.tag == dTag: lib.ElShiftDiagonalDist_d(*args)
+    elif A.tag == cTag: lib.ElShiftDiagonalDist_c(*args)
+    elif A.tag == zTag: lib.ElShiftDiagonalDist_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == iTag: lib.ElShiftDiagonalSparse_i(*args)
+    elif A.tag == sTag: lib.ElShiftDiagonalSparse_s(*args)
+    elif A.tag == dTag: lib.ElShiftDiagonalSparse_d(*args)
+    elif A.tag == cTag: lib.ElShiftDiagonalSparse_c(*args)
+    elif A.tag == zTag: lib.ElShiftDiagonalSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == iTag: lib.ElShiftDiagonalDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElShiftDiagonalDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElShiftDiagonalDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElShiftDiagonalDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElShiftDiagonalDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 
@@ -2451,80 +2534,9 @@ def ImagPart(A,AImag):
     else: DataExcept()
   else: TypeExcept()
 
-# Update diagonal
-# ---------------
-lib.ElUpdateDiagonal_i.argtypes = [c_void_p,iType,iType]
-lib.ElUpdateDiagonal_i.restype = c_uint
-lib.ElUpdateDiagonal_s.argtypes = [c_void_p,sType,iType]
-lib.ElUpdateDiagonal_s.restype = c_uint
-lib.ElUpdateDiagonal_d.argtypes = [c_void_p,dType,iType]
-lib.ElUpdateDiagonal_d.restype = c_uint
-lib.ElUpdateDiagonal_c.argtypes = [c_void_p,cType,iType]
-lib.ElUpdateDiagonal_c.restype = c_uint
-lib.ElUpdateDiagonal_z.argtypes = [c_void_p,zType,iType]
-lib.ElUpdateDiagonal_z.restype = c_uint
-lib.ElUpdateDiagonalDist_i.argtypes = [c_void_p,iType,iType]
-lib.ElUpdateDiagonalDist_i.restype = c_uint
-lib.ElUpdateDiagonalDist_s.argtypes = [c_void_p,sType,iType]
-lib.ElUpdateDiagonalDist_s.restype = c_uint
-lib.ElUpdateDiagonalDist_d.argtypes = [c_void_p,dType,iType]
-lib.ElUpdateDiagonalDist_d.restype = c_uint
-lib.ElUpdateDiagonalDist_c.argtypes = [c_void_p,cType,iType]
-lib.ElUpdateDiagonalDist_c.restype = c_uint
-lib.ElUpdateDiagonalDist_z.argtypes = [c_void_p,zType,iType]
-lib.ElUpdateDiagonalDist_z.restype = c_uint
-lib.ElUpdateDiagonalSparse_i.argtypes = [c_void_p,iType,iType]
-lib.ElUpdateDiagonalSparse_i.restype = c_uint
-lib.ElUpdateDiagonalSparse_s.argtypes = [c_void_p,sType,iType]
-lib.ElUpdateDiagonalSparse_s.restype = c_uint
-lib.ElUpdateDiagonalSparse_d.argtypes = [c_void_p,dType,iType]
-lib.ElUpdateDiagonalSparse_d.restype = c_uint
-lib.ElUpdateDiagonalSparse_c.argtypes = [c_void_p,cType,iType]
-lib.ElUpdateDiagonalSparse_c.restype = c_uint
-lib.ElUpdateDiagonalSparse_z.argtypes = [c_void_p,zType,iType]
-lib.ElUpdateDiagonalSparse_z.restype = c_uint
-lib.ElUpdateDiagonalDistSparse_i.argtypes = [c_void_p,iType,iType]
-lib.ElUpdateDiagonalDistSparse_i.restype = c_uint
-lib.ElUpdateDiagonalDistSparse_s.argtypes = [c_void_p,sType,iType]
-lib.ElUpdateDiagonalDistSparse_s.restype = c_uint
-lib.ElUpdateDiagonalDistSparse_d.argtypes = [c_void_p,dType,iType]
-lib.ElUpdateDiagonalDistSparse_d.restype = c_uint
-lib.ElUpdateDiagonalDistSparse_c.argtypes = [c_void_p,cType,iType]
-lib.ElUpdateDiagonalDistSparse_c.restype = c_uint
-lib.ElUpdateDiagonalDistSparse_z.argtypes = [c_void_p,zType,iType]
-lib.ElUpdateDiagonalDistSparse_z.restype = c_uint
-def UpdateDiagonal(A,alphaPre,offset=0):
-  alpha = TagToType(A.tag)(alphaPre)
-  args = [A.obj,alpha,offset]
-  if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElUpdateDiagonal_i(*args)
-    elif A.tag == sTag: lib.ElUpdateDiagonal_s(*args)
-    elif A.tag == dTag: lib.ElUpdateDiagonal_d(*args)
-    elif A.tag == cTag: lib.ElUpdateDiagonal_c(*args)
-    elif A.tag == zTag: lib.ElUpdateDiagonal_z(*args)
-    else: DataExcept()
-  elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElUpdateDiagonalDist_i(*args)
-    elif A.tag == sTag: lib.ElUpdateDiagonalDist_s(*args)
-    elif A.tag == dTag: lib.ElUpdateDiagonalDist_d(*args)
-    elif A.tag == cTag: lib.ElUpdateDiagonalDist_c(*args)
-    elif A.tag == zTag: lib.ElUpdateDiagonalDist_z(*args)
-    else: DataExcept()
-  elif type(A) is SparseMatrix:
-    if   A.tag == iTag: lib.ElUpdateDiagonalSparse_i(*args)
-    elif A.tag == sTag: lib.ElUpdateDiagonalSparse_s(*args)
-    elif A.tag == dTag: lib.ElUpdateDiagonalSparse_d(*args)
-    elif A.tag == cTag: lib.ElUpdateDiagonalSparse_c(*args)
-    elif A.tag == zTag: lib.ElUpdateDiagonalSparse_z(*args)
-    else: DataExcept()
-  elif type(A) is DistSparseMatrix:
-    if   A.tag == iTag: lib.ElUpdateDiagonalDistSparse_i(*args)
-    elif A.tag == sTag: lib.ElUpdateDiagonalDistSparse_s(*args)
-    elif A.tag == dTag: lib.ElUpdateDiagonalDistSparse_d(*args)
-    elif A.tag == cTag: lib.ElUpdateDiagonalDistSparse_c(*args)
-    elif A.tag == zTag: lib.ElUpdateDiagonalDistSparse_z(*args)
-    else: DataExcept()
-  else: TypeExcept()
+# UpdateDiagonal
+# --------------
+# TODO
 
 # Zero
 # ----

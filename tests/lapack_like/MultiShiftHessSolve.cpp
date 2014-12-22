@@ -83,7 +83,7 @@ void TestHessenberg
     DistMatrix<F,VR,STAR> shifts(g);
 
     Uniform( H, m, m );
-    UpdateDiagonal( H, F(5) ); // ensure that H-mu is far from zero
+    ShiftDiagonal( H, F(5) ); // ensure that H-mu is far from zero
     if( uplo == LOWER )
         MakeTrapezoidal( LOWER, H, 1 );
     else

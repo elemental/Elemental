@@ -40,7 +40,7 @@ main( int argc, char* argv[] )
         DistMatrix<double,VR,  STAR> points;
         DistMatrix<double,STAR,VR  > X;
         HermitianTridiagEig
-        ( J.GetDiagonal(), J.GetDiagonal(-1), points, X, ASCENDING );
+        ( GetDiagonal(J), GetDiagonal(J,-1), points, X, ASCENDING );
         if( display )
             Display( points, "Quadrature points" );
         if( print )
