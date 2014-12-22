@@ -12,6 +12,9 @@ import numpy as np
 buffer_from_memory = pythonapi.PyBuffer_FromMemory
 buffer_from_memory.restype = ctypes.py_object
 
+buffer_from_memory_RW = pythonapi.PyBuffer_FromReadWriteMemory
+buffer_from_memory_RW.restype = ctypes.py_object
+
 # Matrix
 # ======
 
@@ -871,35 +874,41 @@ class Matrix(object):
     m = self.Height()
     n = self.Width()
     ldim = self.LDim()
+    locked = self.Locked()
     if   self.tag == iTag:
       # TODO: Switch to 64-bit based upon Elemental's configuration
       entrySize = 4
       bufSize = entrySize*ldim*n
-      buf = buffer_from_memory(self.Buffer(),bufSize)
+      if locked: buf = buffer_from_memory(self.LockedBuffer(),bufSize)
+      else:      buf = buffer_from_memory_RW(self.Buffer(),bufSize)
       return np.ndarray(shape=(m,n),strides=(entrySize,ldim*entrySize),
                         buffer=buf,dtype=np.int32)
     elif self.tag == sTag:
       entrySize = 4
       bufSize = entrySize*ldim*n
-      buf = buffer_from_memory(self.Buffer(),bufSize)
+      if locked: buf = buffer_from_memory(self.LockedBuffer(),bufSize)
+      else:      buf = buffer_from_memory_RW(self.Buffer(),bufSize)
       return np.ndarray(shape=(m,n),strides=(entrySize,ldim*entrySize),
                         buffer=buf,dtype=np.float32)
     elif self.tag == dTag:
       entrySize = 8
       bufSize = entrySize*ldim*n
-      buf = buffer_from_memory(self.Buffer(),bufSize)
+      if locked: buf = buffer_from_memory(self.LockedBuffer(),bufSize)
+      else:      buf = buffer_from_memory_RW(self.Buffer(),bufSize)
       return np.ndarray(shape=(m,n),strides=(entrySize,ldim*entrySize),
                         buffer=buf,dtype=np.float64)
     elif self.tag == cTag: 
       entrySize = 8
       bufSize = entrySize*ldim*n
-      buf = buffer_from_memory(self.Buffer(),bufSize)
+      if locked: buf = buffer_from_memory(self.LockedBuffer(),bufSize)
+      else:      buf = buffer_from_memory_RW(self.Buffer(),bufSize)
       return np.ndarray(shape=(m,n),strides=(entrySize,ldim*entrySize),
                         buffer=buf,dtype=np.complex64)
     elif self.tag == zTag:
       entrySize = 16
       bufSize = entrySize*ldim*n
-      buf = buffer_from_memory(self.Buffer(),bufSize)
+      if locked: buf = buffer_from_memory(self.LockedBuffer(),bufSize)
+      else:      buf = buffer_from_memory_RW(self.Buffer(),bufSize)
       return np.ndarray(shape=(m,n),strides=(entrySize,ldim*entrySize),
                         buffer=buf,dtype=np.complex128)
   def __getitem__(self,indTup):
