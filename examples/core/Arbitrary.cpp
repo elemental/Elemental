@@ -57,7 +57,7 @@ main( int argc, char* argv[] )
             std::cout << std::endl;
         }
         
-        auto ASub = A.GetSubmatrix( rowInds, colInds );
+        auto ASub = GetSubmatrix( A, rowInds, colInds );
         if( display )
             Display( ASub, "ASub" );
         if( print )

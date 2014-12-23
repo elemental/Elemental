@@ -220,23 +220,6 @@ public:
 
     // Global submatrix manipulation
     // -----------------------------
-    void GetSubmatrix
-    ( const std::vector<Int>& I, const std::vector<Int>& J,
-      AbstractDistMatrix<T>& ASub ) const;
-    void GetRealPartOfSubmatrix
-    ( const std::vector<Int>& I, const std::vector<Int>& J,
-      AbstractDistMatrix<Base<T>>& ASub ) const;
-    void GetImagPartOfSubmatrix
-    ( const std::vector<Int>& I, const std::vector<Int>& J,
-      AbstractDistMatrix<Base<T>>& ASub ) const;
-
-    DistMatrix<T,STAR,STAR> GetSubmatrix
-    ( const std::vector<Int>& I, const std::vector<Int>& J ) const;
-    DistMatrix<Base<T>,STAR,STAR> GetRealPartOfSubmatrix
-    ( const std::vector<Int>& I, const std::vector<Int>& J ) const;
-    DistMatrix<Base<T>,STAR,STAR> GetImagPartOfSubmatrix
-    ( const std::vector<Int>& I, const std::vector<Int>& J ) const;
-
     void SetSubmatrix
     ( const std::vector<Int>& I, const std::vector<Int>& J,
       const AbstractDistMatrix<T>& ASub );
@@ -264,26 +247,6 @@ public:
 
     // Local submatrix manipulation
     // ----------------------------
-    void GetLocalSubmatrix
-    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
-      El::Matrix<T>& ASub ) const;
-    void GetRealPartOfLocalSubmatrix
-    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
-      El::Matrix<Base<T>>& ASub ) const;
-    void GetImagPartOfLocalSubmatrix
-    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
-      El::Matrix<Base<T>>& ASub ) const;
-
-    El::Matrix<T> GetLocalSubmatrix
-    ( const std::vector<Int>& ILoc, 
-      const std::vector<Int>& JLoc ) const;
-    El::Matrix<Base<T>> GetRealPartOfLocalSubmatrix
-    ( const std::vector<Int>& ILoc, 
-      const std::vector<Int>& JLoc ) const;
-    El::Matrix<Base<T>> GetImagPartOfLocalSubmatrix
-    ( const std::vector<Int>& ILoc, 
-      const std::vector<Int>& JLoc ) const;
-
     void SetLocalSubmatrix
     ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
       const El::Matrix<T>& ASub );

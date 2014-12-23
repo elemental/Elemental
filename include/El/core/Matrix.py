@@ -294,45 +294,6 @@ lib.ElMatrixConjugate_c.restype = c_uint
 lib.ElMatrixConjugate_z.argtypes = [c_void_p,iType,iType]
 lib.ElMatrixConjugate_z.restype = c_uint
 
-lib.ElMatrixGetSubmatrix_i.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElMatrixGetSubmatrix_i.restype = c_uint
-lib.ElMatrixGetSubmatrix_s.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElMatrixGetSubmatrix_s.restype = c_uint
-lib.ElMatrixGetSubmatrix_d.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElMatrixGetSubmatrix_d.restype = c_uint
-lib.ElMatrixGetSubmatrix_c.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElMatrixGetSubmatrix_c.restype = c_uint
-lib.ElMatrixGetSubmatrix_z.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElMatrixGetSubmatrix_z.restype = c_uint
-
-lib.ElMatrixGetRealPartOfSubmatrix_c.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElMatrixGetRealPartOfSubmatrix_c.restype = c_uint
-lib.ElMatrixGetRealPartOfSubmatrix_z.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElMatrixGetRealPartOfSubmatrix_z.restype = c_uint
-
-lib.ElMatrixGetImagPartOfSubmatrix_i.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElMatrixGetImagPartOfSubmatrix_i.restype = c_uint
-lib.ElMatrixGetImagPartOfSubmatrix_s.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElMatrixGetImagPartOfSubmatrix_s.restype = c_uint
-lib.ElMatrixGetImagPartOfSubmatrix_d.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElMatrixGetImagPartOfSubmatrix_d.restype = c_uint
-lib.ElMatrixGetImagPartOfSubmatrix_c.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElMatrixGetImagPartOfSubmatrix_c.restype = c_uint
-lib.ElMatrixGetImagPartOfSubmatrix_z.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElMatrixGetImagPartOfSubmatrix_z.restype = c_uint
-
 lib.ElMatrixSetSubmatrix_i.argtypes = \
   [c_void_p,POINTER(iType),POINTER(iType),c_void_p]
 lib.ElMatrixSetSubmatrix_i.restype = c_uint
@@ -667,49 +628,6 @@ class Matrix(object):
   def Conjugate(self,i,j):
     if   self.tag == cTag: lib.ElMatrixConjugate_c(self.obj,i,j)
     elif self.tag == zTag: lib.ElMatrixConjugate_z(self.obj,i,j)
-  def GetSubmatrix(self,I,J):
-    numRowInds = len(I)
-    numColInds = len(J)
-    rowInd = (iType*numRowInds)(*I)
-    colInd = (iType*numColInds)(*J)
-    ASub = Matrix(self.tag)
-    args = [self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj]
-    if   self.tag == iTag: lib.ElMatrixGetSubmatrix_i(*args)
-    elif self.tag == sTag: lib.ElMatrixGetSubmatrix_s(*args)
-    elif self.tag == dTag: lib.ElMatrixGetSubmatrix_d(*args)
-    elif self.tag == cTag: lib.ElMatrixGetSubmatrix_c(*args)
-    elif self.tag == zTag: lib.ElMatrixGetSubmatrix_z(*args)
-    return ASub
-  def GetRealPartOfSubmatrix(self,I,J):
-    numRowInds = len(I)
-    numColInds = len(J)
-    rowInd = (iType*numRowInds)(*I)
-    colInd = (iType*numColInds)(*J)
-    if self.tag == cTag:
-      ASub = Matrix(sTag)
-      lib.ElMatrixGetRealPartOfSubmatrix_c \
-      (self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj)
-      return ASub
-    elif self.tag == zTag:
-      ASub = Matrix(dTag)
-      lib.ElMatrixGetRealPartOfSubmatrix_z \
-      (self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj)
-      return ASub
-    else:
-      return self.GetSubmatrix(I,J)
-  def GetImagPartOfSubmatrix(self,I,J):
-    numRowInds = len(I)
-    numColInds = len(J)
-    rowInd = (iType*numRowInds)(*I)
-    colInd = (iType*numColInds)(*J)
-    ASub = Matrix(TypeToTag(Base(self.tag)))
-    args = [self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj]
-    if   self.tag == iTag: lib.ElMatrixGetImagPartOfSubmatrix_i(*args)
-    elif self.tag == sTag: lib.ElMatrixGetImagPartOfSubmatrix_s(*args)
-    elif self.tag == dTag: lib.ElMatrixGetImagPartOfSubmatrix_d(*args)
-    elif self.tag == cTag: lib.ElMatrixGetImagPartOfSubmatrix_c(*args)
-    elif self.tag == zTag: lib.ElMatrixGetImagPartOfSubmatrix_z(*args)
-    return ASub
   def SetSubmatrix(self,I,J,ASub):
     numRowInds = len(I)
     numColInds = len(J)

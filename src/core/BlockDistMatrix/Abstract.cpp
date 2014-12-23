@@ -1605,7 +1605,7 @@ void AbstractBlockDistMatrix<T>::GetLocalSubmatrix
   El::Matrix<T>& ASub ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::GetLocalSubmatrix"))
-    LockedMatrix().GetSubmatrix( ILoc, JLoc, ASub );
+    El::GetSubmatrix( LockedMatrix(), ILoc, JLoc, ASub );
 }
 
 template<typename T>
@@ -1614,7 +1614,7 @@ void AbstractBlockDistMatrix<T>::GetRealPartOfLocalSubmatrix
   El::Matrix<Base<T>>& ASub ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::GetRealPartOfLocalSubmatrix"))
-    LockedMatrix().GetRealPartOfSubmatrix( ILoc, JLoc, ASub );
+    El::GetRealPartOfSubmatrix( LockedMatrix(), ILoc, JLoc, ASub );
 }
 
 template<typename T>
@@ -1623,7 +1623,7 @@ void AbstractBlockDistMatrix<T>::GetImagPartOfLocalSubmatrix
   El::Matrix<Base<T>>& ASub ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::GetImagPartOfLocalSubmatrix"))
-    LockedMatrix().GetImagPartOfSubmatrix( ILoc, JLoc, ASub );
+    El::GetImagPartOfSubmatrix( LockedMatrix(), ILoc, JLoc, ASub );
 }
 
 template<typename T>

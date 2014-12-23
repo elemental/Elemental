@@ -1357,69 +1357,6 @@ EL_EXPORT ElError ElDistMatrixDiagonalRoot_c
 EL_EXPORT ElError ElDistMatrixDiagonalRoot_z
 ( ElConstDistMatrix_z A, ElInt offset, ElInt* align );
 
-/* void AbstractDistMatrix<T>::GetSubmatrix
-   ( const std::vector<Int>& I, const std::vector<Int>& J,
-     AbstractDistMatrix<T>& ASub ) const
-   ------------------------------------------------------- */
-EL_EXPORT ElError ElDistMatrixGetSubmatrix_i
-( ElConstDistMatrix_i A,
-  ElInt numRowInds, const ElInt* rowInd,
-  ElInt numColInds, const ElInt* colInd, ElDistMatrix_i ASub );
-EL_EXPORT ElError ElDistMatrixGetSubmatrix_s
-( ElConstDistMatrix_s A,
-  ElInt numRowInds, const ElInt* rowInd,
-  ElInt numColInds, const ElInt* colInd, ElDistMatrix_s ASub );
-EL_EXPORT ElError ElDistMatrixGetSubmatrix_d
-( ElConstDistMatrix_d A,
-  ElInt numRowInds, const ElInt* rowInd,
-  ElInt numColInds, const ElInt* colInd, ElDistMatrix_d ASub );
-EL_EXPORT ElError ElDistMatrixGetSubmatrix_c
-( ElConstDistMatrix_c A,
-  ElInt numRowInds, const ElInt* rowInd,
-  ElInt numColInds, const ElInt* colInd, ElDistMatrix_c ASub );
-EL_EXPORT ElError ElDistMatrixGetSubmatrix_z
-( ElConstDistMatrix_z A,
-  ElInt numRowInds, const ElInt* rowInd,
-  ElInt numColInds, const ElInt* colInd, ElDistMatrix_z ASub );
-
-/* void AbstractDistMatrix<T>::GetRealPartOfSubmatrix
-   ( const std::vector<Int>& I, const std::vector<Int>& J,
-     AbstractDistMatrix<Base<T>>& ASub ) const
-   ------------------------------------------------------- */
-EL_EXPORT ElError ElDistMatrixGetRealPartOfSubmatrix_c
-( ElConstDistMatrix_c A,
-  ElInt numRowInds, const ElInt* rowInd,
-  ElInt numColInds, const ElInt* colInd, ElDistMatrix_s ASub );
-EL_EXPORT ElError ElDistMatrixGetRealPartOfSubmatrix_z
-( ElConstDistMatrix_z A,
-  ElInt numRowInds, const ElInt* rowInd,
-  ElInt numColInds, const ElInt* colInd, ElDistMatrix_d ASub );
-
-/* void AbstractDistMatrix<T>::GetImagPartOfSubmatrix
-   ( const std::vector<Int>& I, const std::vector<Int>& J,
-     AbstractDistMatrix<Base<T>>& ASub ) const
-   ----------------------------------------------------------------------- */
-EL_EXPORT ElError ElDistMatrixGetImagPartOfSubmatrix_i
-( ElConstDistMatrix_i A,
-  ElInt numRowInds, const ElInt* rowInd,
-  ElInt numColInds, const ElInt* colInd, ElDistMatrix_i ASub );
-EL_EXPORT ElError ElDistMatrixGetImagPartOfSubmatrix_s
-( ElConstDistMatrix_s A,
-  ElInt numRowInds, const ElInt* rowInd,
-  ElInt numColInds, const ElInt* colInd, ElDistMatrix_s ASub );
-EL_EXPORT ElError ElDistMatrixGetImagPartOfSubmatrix_d
-( ElConstDistMatrix_d A,
-  ElInt numRowInds, const ElInt* rowInd,
-  ElInt numColInds, const ElInt* colInd, ElDistMatrix_d ASub );
-EL_EXPORT ElError ElDistMatrixGetImagPartOfSubmatrix_c
-( ElConstDistMatrix_c A,
-  ElInt numRowInds, const ElInt* rowInd,
-  ElInt numColInds, const ElInt* colInd, ElDistMatrix_s ASub );
-EL_EXPORT ElError ElDistMatrixGetImagPartOfSubmatrix_z
-( ElConstDistMatrix_z A,
-  ElInt numRowInds, const ElInt* rowInd,
-  ElInt numColInds, const ElInt* colInd, ElDistMatrix_d ASub );
-
 /* void AbstractDistMatrix<T>::SetSubmatrix
    ( const std::vector<Int>& I, const std::vector<Int>& J, 
      const AbstractDistMatrix<T>& ASub )
@@ -1523,69 +1460,6 @@ EL_EXPORT ElError ElDistMatrixConjugateSubmatrix_c
 EL_EXPORT ElError ElDistMatrixConjugateSubmatrix_z
 ( ElDistMatrix_z A, ElInt numRowInds, const ElInt* rowInd, 
                     ElInt numColInds, const ElInt* colInd );
-
-/* void AbstractDistMatrix<T>::GetLocalSubmatrix
-   ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
-     Matrix<T>& ASubLoc ) const
-   ------------------------------------------------------------- */
-EL_EXPORT ElError ElDistMatrixGetLocalSubmatrix_i
-( ElConstDistMatrix_i A,
-  ElInt numRowInds, const ElInt* rowIndLoc,
-  ElInt numColInds, const ElInt* colIndLoc, ElMatrix_i ASub );
-EL_EXPORT ElError ElDistMatrixGetLocalSubmatrix_s
-( ElConstDistMatrix_s A,
-  ElInt numRowInds, const ElInt* rowIndLoc,
-  ElInt numColInds, const ElInt* colIndLoc, ElMatrix_s ASub );
-EL_EXPORT ElError ElDistMatrixGetLocalSubmatrix_d
-( ElConstDistMatrix_d A,
-  ElInt numRowInds, const ElInt* rowIndLoc,
-  ElInt numColInds, const ElInt* colIndLoc, ElMatrix_d ASub );
-EL_EXPORT ElError ElDistMatrixGetLocalSubmatrix_c
-( ElConstDistMatrix_c A,
-  ElInt numRowInds, const ElInt* rowIndLoc,
-  ElInt numColInds, const ElInt* colIndLoc, ElMatrix_c ASub );
-EL_EXPORT ElError ElDistMatrixGetLocalSubmatrix_z
-( ElConstDistMatrix_z A,
-  ElInt numRowInds, const ElInt* rowIndLoc,
-  ElInt numColInds, const ElInt* colIndLoc, ElMatrix_z ASub );
-
-/* void AbstractDistMatrix<T>::GetRealPartOfLocalSubmatrix
-   ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
-     Matrix<Base<T>>& ASubLoc ) const
-   ------------------------------------------------------------- */
-EL_EXPORT ElError ElDistMatrixGetRealPartOfLocalSubmatrix_c
-( ElConstDistMatrix_c A,
-  ElInt numRowInds, const ElInt* rowIndLoc,
-  ElInt numColInds, const ElInt* colIndLoc, ElMatrix_s ASub );
-EL_EXPORT ElError ElDistMatrixGetRealPartOfLocalSubmatrix_z
-( ElConstDistMatrix_z A,
-  ElInt numRowInds, const ElInt* rowIndLoc,
-  ElInt numColInds, const ElInt* colIndLoc, ElMatrix_d ASub );
-
-/* void AbstractDistMatrix<T>::GetImagPartOfLocalSubmatrix
-   ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
-     Matrix<Base<T>>& ASubLoc ) const
-   ------------------------------------------------------------- */
-EL_EXPORT ElError ElDistMatrixGetImagPartOfLocalSubmatrix_i
-( ElConstDistMatrix_i A,
-  ElInt numRowInds, const ElInt* rowIndLoc,
-  ElInt numColInds, const ElInt* colIndLoc, ElMatrix_i ASub );
-EL_EXPORT ElError ElDistMatrixGetImagPartOfLocalSubmatrix_s
-( ElConstDistMatrix_s A,
-  ElInt numRowInds, const ElInt* rowIndLoc,
-  ElInt numColInds, const ElInt* colIndLoc, ElMatrix_s ASub );
-EL_EXPORT ElError ElDistMatrixGetImagPartOfLocalSubmatrix_d
-( ElConstDistMatrix_d A,
-  ElInt numRowInds, const ElInt* rowIndLoc,
-  ElInt numColInds, const ElInt* colIndLoc, ElMatrix_d ASub );
-EL_EXPORT ElError ElDistMatrixGetImagPartOfLocalSubmatrix_c
-( ElConstDistMatrix_c A,
-  ElInt numRowInds, const ElInt* rowIndLoc,
-  ElInt numColInds, const ElInt* colIndLoc, ElMatrix_s ASub );
-EL_EXPORT ElError ElDistMatrixGetImagPartOfLocalSubmatrix_z
-( ElConstDistMatrix_z A,
-  ElInt numRowInds, const ElInt* rowIndLoc,
-  ElInt numColInds, const ElInt* colIndLoc, ElMatrix_d ASub );
 
 /* void AbstractDistMatrix<T>::SetLocalSubmatrix
    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc, 

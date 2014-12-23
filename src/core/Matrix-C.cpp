@@ -144,26 +144,6 @@ extern "C" {
   { EL_TRY( CReflect(A)->Conjugate(i,j) ) }
 
 #define MATRIX_SUBMATRIX(SIG,SIGBASE,T) \
-  /* void Matrix<T>::GetSubmatrix
-     ( const std::vector<Int>& I, const std::vector<Int>& J,
-       Matrix<T>& ASub ) const */ \
-  ElError ElMatrixGetSubmatrix_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, \
-    ElInt numRowInds, const ElInt* I, \
-    ElInt numColInds, const ElInt* J, ElMatrix_ ## SIG ASub ) \
-  { EL_TRY( std::vector<Int> IVec( I, I+numRowInds ); \
-            std::vector<Int> JVec( J, J+numColInds ); \
-            CReflect(A)->GetSubmatrix( IVec, JVec, *CReflect(ASub) ); ) } \
-  /* void Matrix<T>::GetImagPartOfSubmatrix
-     ( const std::vector<Int>& I, const std::vector<Int>& J,
-       Matrix<Base<T>>& ASub ) const */ \
-  ElError ElMatrixGetImagPartOfSubmatrix_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, \
-    ElInt numRowInds, const ElInt* I, \
-    ElInt numColInds, const ElInt* J, ElMatrix_ ## SIGBASE ASub ) \
-  { EL_TRY( std::vector<Int> IVec( I, I+numRowInds ); \
-            std::vector<Int> JVec( J, J+numColInds ); \
-            CReflect(A)->GetImagPartOfSubmatrix(IVec,JVec,*CReflect(ASub)) ) } \
   /* void Matrix<T>::SetSubmatrix \
      ( const std::vector<Int>& I, const std::vector<Int>& J, \
        const Matrix<T>& ASub ) */ \
@@ -189,16 +169,6 @@ extern "C" {
             ( IVec, JVec, CReflect(alpha), *CReflect(ASub) ) ) }
 
 #define MATRIX_SUBMATRIX_COMPLEX(SIG,SIGBASE,F) \
-  /* void Matrix<F>::GetRealPartOfSubmatrix
-     ( const std::vector<Int>& I, const std::vector<Int>& J,
-       Matrix<Base<T>>& ASub ) const */ \
-  ElError ElMatrixGetRealPartOfSubmatrix_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, \
-    ElInt numRowInds, const ElInt* I, \
-    ElInt numColInds, const ElInt* J, ElMatrix_ ## SIGBASE ASub ) \
-  { EL_TRY( std::vector<Int> IVec( I, I+numRowInds ); \
-            std::vector<Int> JVec( J, J+numColInds ); \
-            CReflect(A)->GetRealPartOfSubmatrix(IVec,JVec,*CReflect(ASub)) ) } \
   /* void Matrix<F>::SetRealPartOfSubmatrix \
      ( const std::vector<Int>& I, const std::vector<Int>& J, \
        const Matrix<Base<F>>& ASub ) */ \

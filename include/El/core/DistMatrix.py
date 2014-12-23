@@ -1100,45 +1100,6 @@ lib.ElDistMatrixDiagonalAlign_c.restype = c_uint
 lib.ElDistMatrixDiagonalAlign_z.argtypes = [c_void_p,iType,POINTER(iType)]
 lib.ElDistMatrixDiagonalAlign_z.restype = c_uint
 
-lib.ElDistMatrixGetSubmatrix_i.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetSubmatrix_i.restype = c_uint
-lib.ElDistMatrixGetSubmatrix_s.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetSubmatrix_s.restype = c_uint
-lib.ElDistMatrixGetSubmatrix_d.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetSubmatrix_d.restype = c_uint
-lib.ElDistMatrixGetSubmatrix_c.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetSubmatrix_c.restype = c_uint
-lib.ElDistMatrixGetSubmatrix_z.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetSubmatrix_z.restype = c_uint
-
-lib.ElDistMatrixGetRealPartOfSubmatrix_c.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetSubmatrix_c.restype = c_uint
-lib.ElDistMatrixGetRealPartOfSubmatrix_z.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetSubmatrix_z.restype = c_uint
-
-lib.ElDistMatrixGetImagPartOfSubmatrix_i.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetImagPartOfSubmatrix_i.restype = c_uint
-lib.ElDistMatrixGetImagPartOfSubmatrix_s.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetImagPartOfSubmatrix_s.restype = c_uint
-lib.ElDistMatrixGetImagPartOfSubmatrix_d.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetImagPartOfSubmatrix_d.restype = c_uint
-lib.ElDistMatrixGetImagPartOfSubmatrix_c.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetImagPartOfSubmatrix_c.restype = c_uint
-lib.ElDistMatrixGetImagPartOfSubmatrix_z.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetImagPartOfSubmatrix_z.restype = c_uint
-
 lib.ElDistMatrixSetSubmatrix_i.argtypes = \
   [c_void_p,POINTER(iType),POINTER(iType),c_void_p]
 lib.ElDistMatrixSetSubmatrix_i.restype = c_uint
@@ -1212,46 +1173,6 @@ lib.ElDistMatrixConjugateSubmatrix_c.restype = c_uint
 lib.ElDistMatrixConjugateSubmatrix_z.argtypes = \
   [c_void_p,iType,POINTER(iType),iType,POINTER(iType)]
 lib.ElDistMatrixConjugateSubmatrix_z.restype = c_uint
-
-# TODO: Remove local versions?
-lib.ElDistMatrixGetLocalSubmatrix_i.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetLocalSubmatrix_i.restype = c_uint
-lib.ElDistMatrixGetLocalSubmatrix_s.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetLocalSubmatrix_s.restype = c_uint
-lib.ElDistMatrixGetLocalSubmatrix_d.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetLocalSubmatrix_d.restype = c_uint
-lib.ElDistMatrixGetLocalSubmatrix_c.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetLocalSubmatrix_c.restype = c_uint
-lib.ElDistMatrixGetLocalSubmatrix_z.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetLocalSubmatrix_z.restype = c_uint
-
-lib.ElDistMatrixGetRealPartOfLocalSubmatrix_c.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetLocalSubmatrix_c.restype = c_uint
-lib.ElDistMatrixGetRealPartOfLocalSubmatrix_z.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetLocalSubmatrix_z.restype = c_uint
-
-lib.ElDistMatrixGetImagPartOfLocalSubmatrix_i.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetImagPartOfLocalSubmatrix_i.restype = c_uint
-lib.ElDistMatrixGetImagPartOfLocalSubmatrix_s.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetImagPartOfLocalSubmatrix_s.restype = c_uint
-lib.ElDistMatrixGetImagPartOfLocalSubmatrix_d.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetImagPartOfLocalSubmatrix_d.restype = c_uint
-lib.ElDistMatrixGetImagPartOfLocalSubmatrix_c.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetImagPartOfLocalSubmatrix_c.restype = c_uint
-lib.ElDistMatrixGetImagPartOfLocalSubmatrix_z.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
-lib.ElDistMatrixGetImagPartOfLocalSubmatrix_z.restype = c_uint
 
 lib.ElDistMatrixSetLocalSubmatrix_i.argtypes = \
   [c_void_p,POINTER(iType),POINTER(iType),c_void_p]
@@ -2291,48 +2212,6 @@ class DistMatrix(object):
     elif self.tag == zTag: lib.ElDistMatrixDiagonalAlign_z(*args)
     else: DataExcept()
     return align.value
-  def GetSubmatrix(self,I,J):
-    numRowInds = len(I)
-    numColInds = len(J)
-    rowInd = (iType*numRowInds)(*I)
-    colInd = (iType*numColInds)(*J)
-    ASub = DistMatrix(self.tag,STAR,STAR,self.Grid())
-    args = [self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj]
-    if   self.tag == iTag: lib.ElDistMatrixGetSubmatrix_i(*args)
-    elif self.tag == sTag: lib.ElDistMatrixGetSubmatrix_s(*args)
-    elif self.tag == dTag: lib.ElDistMatrixGetSubmatrix_d(*args)
-    elif self.tag == cTag: lib.ElDistMatrixGetSubmatrix_c(*args)
-    elif self.tag == zTag: lib.ElDistMatrixGetSubmatrix_z(*args)
-    else: DataExcept()
-    return ASub
-  def GetRealPartOfSubmatrix(self,I,J):
-    numRowInds = len(I)
-    numColInds = len(J)
-    rowInd = (iType*numRowInds)(*I)
-    colInd = (iType*numColInds)(*J)
-    ASub = DistMatrix(Base(self.tag),STAR,STAR,self.Grid())
-    args = [self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj]
-    if   self.tag == iTag: lib.ElDistMatrixGetSubmatrix_i(*args)
-    elif self.tag == sTag: lib.ElDistMatrixGetSubmatrix_s(*args)
-    elif self.tag == dTag: lib.ElDistMatrixGetSubmatrix_d(*args)
-    elif self.tag == cTag: lib.ElDistMatrixGetRealPartOfSubmatrix_c(*args)
-    elif self.tag == zTag: lib.ElDistMatrixGetRealPartOfSubmatrix_z(*args)
-    else: DataExcept()
-    return ASub
-  def GetImagPartOfSubmatrix(self,I,J):
-    numRowInds = len(I)
-    numColInds = len(J)
-    rowInd = (iType*numRowInds)(*I)
-    colInd = (iType*numColInds)(*J)
-    ASub = DistMatrix(Base(self.tag),STAR,STAR,self.Grid())
-    args = [self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj]
-    if   self.tag == iTag: lib.ElDistMatrixGetImagPartOfSubmatrix_i(*args)
-    elif self.tag == sTag: lib.ElDistMatrixGetImagPartOfSubmatrix_s(*args)
-    elif self.tag == dTag: lib.ElDistMatrixGetImagPartOfSubmatrix_d(*args)
-    elif self.tag == cTag: lib.ElDistMatrixGetImagPartOfSubmatrix_c(*args)
-    elif self.tag == zTag: lib.ElDistMatrixGetImagPartOfSubmatrix_z(*args)
-    else: DataExcept()
-    return ASub
   def SetSubmatrix(self,I,J,ASub):
     if type(ASub) is not DistMatrix: 
       raise Exception('ASub must be a DistMatrix')
@@ -2435,48 +2314,6 @@ class DistMatrix(object):
     if   self.tag == cTag: lib.ElDistMatrixConjugateSubmatrix_c(*args)
     elif self.tag == zTag: lib.ElDistMatrixConjugateSubmatrix_z(*args)
   #     Get rid of 'Local' member functions?!?
-  def GetLocalSubmatrix(self,I,J):
-    numRowInds = len(I)
-    numColInds = len(J)
-    rowInd = (iType*numRowInds)(*I)
-    colInd = (iType*numColInds)(*J)
-    ASub = Matrix(self.tag)
-    args = [self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj]
-    if   self.tag == iTag: lib.ElDistMatrixGetLocalSubmatrix_i(*args)
-    elif self.tag == sTag: lib.ElDistMatrixGetLocalSubmatrix_s(*args)
-    elif self.tag == dTag: lib.ElDistMatrixGetLocalSubmatrix_d(*args)
-    elif self.tag == cTag: lib.ElDistMatrixGetLocalSubmatrix_c(*args)
-    elif self.tag == zTag: lib.ElDistMatrixGetLocalSubmatrix_z(*args)
-    else: DataExcept()
-    return ASub
-  def GetRealPartOfLocalSubmatrix(self,I,J):
-    numRowInds = len(I)
-    numColInds = len(J)
-    rowInd = (iType*numRowInds)(*I)
-    colInd = (iType*numColInds)(*J)
-    ASub = Matrix(Base(self.tag))
-    args = [self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj]
-    if   self.tag == iTag: lib.ElDistMatrixGetLocalSubmatrix_i(*args)
-    elif self.tag == sTag: lib.ElDistMatrixGetLocalSubmatrix_s(*args)
-    elif self.tag == dTag: lib.ElDistMatrixGetLocalSubmatrix_d(*args)
-    elif self.tag == cTag: lib.ElDistMatrixGetRealPartOfLocalSubmatrix_c(*args)
-    elif self.tag == zTag: lib.ElDistMatrixGetRealPartOfLocalSubmatrix_z(*args)
-    else: DataExcept()
-    return ASub
-  def GetImagPartOfLocalSubmatrix(self,I,J):
-    numRowInds = len(I)
-    numColInds = len(J)
-    rowInd = (iType*numRowInds)(*I)
-    colInd = (iType*numColInds)(*J)
-    ASub = Matrix(Base(self.tag))
-    args = [self.obj,numRowInds,rowInd,numColInds,colInd,ASub.obj]
-    if   self.tag == iTag: lib.ElDistMatrixGetImagPartOfLocalSubmatrix_i(*args)
-    elif self.tag == sTag: lib.ElDistMatrixGetImagPartOfLocalSubmatrix_s(*args)
-    elif self.tag == dTag: lib.ElDistMatrixGetImagPartOfLocalSubmatrix_d(*args)
-    elif self.tag == cTag: lib.ElDistMatrixGetImagPartOfLocalSubmatrix_c(*args)
-    elif self.tag == zTag: lib.ElDistMatrixGetImagPartOfLocalSubmatrix_z(*args)
-    else: DataExcept()
-    return ASub
   def SetLocalSubmatrix(self,I,J,ASub):
     if type(ASub) is not Matrix: raise Exception('ASub must be a Matrix')
     if ASub.tag != self.tag: raise Exception('Datatypes must conform')

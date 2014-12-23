@@ -726,6 +726,66 @@ void GetMappedDiagonal
 ( const DistMatrix<T,U,V>& A, AbstractDistMatrix<S>& d, 
   std::function<S(T)> func, Int offset=0 );
 
+// GetSubmatrix
+// ============
+template<typename T>
+void GetSubmatrix
+( const Matrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J, 
+        Matrix<T>& ASub );
+template<typename T>
+void GetRealPartOfSubmatrix
+( const Matrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J, 
+        Matrix<Base<T>>& ASub );
+template<typename T>
+void GetImagPartOfSubmatrix
+( const Matrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J, 
+        Matrix<Base<T>>& ASub );
+
+template<typename T>
+Matrix<T> GetSubmatrix
+( const Matrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J );
+template<typename T>
+Matrix<Base<T>> GetRealPartOfSubmatrix
+( const Matrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J );
+template<typename T>
+Matrix<Base<T>> GetImagPartOfSubmatrix
+( const Matrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J );
+
+template<typename T>
+void GetSubmatrix
+( const AbstractDistMatrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J, 
+        AbstractDistMatrix<T>& ASub );
+template<typename T>
+void GetRealPartOfSubmatrix
+( const AbstractDistMatrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J, 
+        AbstractDistMatrix<Base<T>>& ASub );
+template<typename T>
+void GetImagPartOfSubmatrix
+( const AbstractDistMatrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J, 
+        AbstractDistMatrix<Base<T>>& ASub );
+
+template<typename T>
+DistMatrix<T,STAR,STAR> GetSubmatrix
+( const AbstractDistMatrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J );
+template<typename T>
+DistMatrix<Base<T>,STAR,STAR> GetRealPartOfSubmatrix
+( const AbstractDistMatrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J );
+template<typename T>
+DistMatrix<Base<T>,STAR,STAR> GetImagPartOfSubmatrix
+( const AbstractDistMatrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J );
+
 // Hadamard
 // ========
 template<typename T>
