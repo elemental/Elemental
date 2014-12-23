@@ -143,24 +143,6 @@ extern "C" {
   ( ElMatrix_ ## SIG A, ElInt i, ElInt j ) \
   { EL_TRY( CReflect(A)->Conjugate(i,j) ) }
 
-#define MATRIX_SUBMATRIX_COMPLEX(SIG,SIGBASE,F) \
-  /* void Matrix<F>::MakeSubmatrixReal 
-     ( const std::vector<Int>& I, const std::vector<Int>& J ) */ \
-  ElError ElMatrixMakeSubmatrixReal_ ## SIG \
-  ( ElMatrix_ ## SIG A, \
-    ElInt numRowInds, const ElInt* I, ElInt numColInds, const ElInt* J ) \
-  { EL_TRY( std::vector<Int> IVec( I, I+numRowInds ); \
-            std::vector<Int> JVec( J, J+numColInds ); \
-            CReflect(A)->MakeSubmatrixReal( IVec, JVec ) ) } \
-  /* void Matrix<F>::ConjugateSubmatrix
-     ( const std::vector<Int>& I, const std::vector<Int>& J ) */ \
-  ElError ElMatrixConjugateSubmatrix_ ## SIG \
-  ( ElMatrix_ ## SIG A, \
-    ElInt numRowInds, const ElInt* I, ElInt numColInds, const ElInt* J ) \
-  { EL_TRY( std::vector<Int> IVec( I, I+numRowInds ); \
-            std::vector<Int> JVec( J, J+numColInds ); \
-            CReflect(A)->ConjugateSubmatrix( IVec, JVec ) ) }
-
 #define C_PROTO(SIG,SIGBASE,T) \
   MATRIX_CONSTRUCT(SIG,SIGBASE,T) \
   MATRIX_RECONFIG(SIG,SIGBASE,T) \
@@ -169,8 +151,7 @@ extern "C" {
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
   C_PROTO(SIG,SIGBASE,F) \
-  MATRIX_SINGLEENTRY_COMPLEX(SIG,SIGBASE,F) \
-  MATRIX_SUBMATRIX_COMPLEX(SIG,SIGBASE,F)
+  MATRIX_SINGLEENTRY_COMPLEX(SIG,SIGBASE,F)
 
 #include "El/macros/CInstantiate.h"
 

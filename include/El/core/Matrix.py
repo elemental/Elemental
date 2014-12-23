@@ -294,20 +294,6 @@ lib.ElMatrixConjugate_c.restype = c_uint
 lib.ElMatrixConjugate_z.argtypes = [c_void_p,iType,iType]
 lib.ElMatrixConjugate_z.restype = c_uint
 
-lib.ElMatrixMakeSubmatrixReal_c.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType)]
-lib.ElMatrixMakeSubmatrixReal_c.restype = c_uint
-lib.ElMatrixMakeSubmatrixReal_z.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType)]
-lib.ElMatrixMakeSubmatrixReal_z.restype = c_uint
-
-lib.ElMatrixConjugateSubmatrix_c.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType)]
-lib.ElMatrixConjugateSubmatrix_c.restype = c_uint
-lib.ElMatrixConjugateSubmatrix_z.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType)]
-lib.ElMatrixConjugateSubmatrix_z.restype = c_uint
-
 lib.ElView_i.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
 lib.ElView_i.restype = c_uint
 lib.ElView_s.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
@@ -568,28 +554,6 @@ class Matrix(object):
   def Conjugate(self,i,j):
     if   self.tag == cTag: lib.ElMatrixConjugate_c(self.obj,i,j)
     elif self.tag == zTag: lib.ElMatrixConjugate_z(self.obj,i,j)
-  def MakeSubmatrixReal(self,I,J):
-    numRowInds = len(I)
-    numColInds = len(J)
-    rowInd = (iType*numRowInds)(*I)
-    colInd = (iType*numColInds)(*J)
-    args = [self.obj,numRowInds,rowInd,numColInds,colInd]
-    if   self.tag == iTag: lib.ElMatrixMakeSubmatrixReal_i(*args)
-    elif self.tag == sTag: lib.ElMatrixMakeSubmatrixReal_s(*args)
-    elif self.tag == dTag: lib.ElMatrixMakeSubmatrixReal_d(*args)
-    elif self.tag == cTag: lib.ElMatrixMakeSubmatrixReal_c(*args)
-    elif self.tag == zTag: lib.ElMatrixMakeSubmatrixReal_z(*args)
-  def ConjugateSubmatrix(self,I,J):
-    numRowInds = len(I)
-    numColInds = len(J)
-    rowInd = (iType*numRowInds)(*I)
-    colInd = (iType*numColInds)(*J)
-    args = [self.obj,numRowInds,rowInd,numColInds,colInd]
-    if   self.tag == iTag: lib.ElMatrixConjugateSubmatrix_i(*args)
-    elif self.tag == sTag: lib.ElMatrixConjugateSubmatrix_s(*args)
-    elif self.tag == dTag: lib.ElMatrixConjugateSubmatrix_d(*args)
-    elif self.tag == cTag: lib.ElMatrixConjugateSubmatrix_c(*args)
-    elif self.tag == zTag: lib.ElMatrixConjugateSubmatrix_z(*args)
   def ToNumPy(self):
     m = self.Height()
     n = self.Width()

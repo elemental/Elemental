@@ -529,50 +529,6 @@ extern "C" {
   ( ElConstDistMatrix_ ## SIG A, ElInt offset, ElInt* align ) \
   { EL_TRY( *align = CReflect(A)->DiagonalAlign(offset) ) }
 
-#define DISTMATRIX_SUBMATRIX_COMPLEX(SIG,SIGBASE,T) \
-  /* void AbstractDistMatrix<T>::MakeSubmatrixReal
-     ( const std::vector<Int>& I, const std::vector<Int>& J ) */ \
-  ElError ElDistMatrixMakeSubmatrixReal_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElInt numRowInds, const ElInt* I, \
-                                  ElInt numColInds, const ElInt* J ) \
-  { try { \
-      std::vector<Int> IVec(I,I+numRowInds), \
-                       JVec(J,J+numColInds); \
-          CReflect(A)->MakeSubmatrixReal( IVec, JVec ); \
-    } EL_CATCH; return EL_SUCCESS; } \
-  /* void AbstractDistMatrix<T>::ConjugateSubmatrix
-     ( const std::vector<Int>& I, const std::vector<Int>& J ) */ \
-  ElError ElDistMatrixConjugateSubmatrix_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElInt numRowInds, const ElInt* I, \
-                                  ElInt numColInds, const ElInt* J ) \
-  { try { \
-      std::vector<Int> IVec(I,I+numRowInds), \
-                       JVec(J,J+numColInds); \
-      CReflect(A)->ConjugateSubmatrix( IVec, JVec ); \
-    } EL_CATCH; return EL_SUCCESS; } \
-  /* void AbstractDistMatrix<T>::MakeLocalSubmatrixReal
-     ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc ) */ \
-  ElError ElDistMatrixMakeLocalSubmatrixReal_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, \
-    ElInt numRowInds, const ElInt* ILoc, \
-    ElInt numColInds, const ElInt* JLoc ) \
-  { try { \
-        std::vector<Int> IVec(ILoc,ILoc+numRowInds), \
-                         JVec(JLoc,JLoc+numColInds); \
-        CReflect(A)->MakeLocalSubmatrixReal( IVec, JVec ); \
-    } EL_CATCH; return EL_SUCCESS; } \
-  /* void AbstractDistMatrix<T>::ConjugateLocalSubmatrix
-     ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc ) */ \
-  ElError ElDistMatrixConjugateLocalSubmatrix_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, \
-    ElInt numRowInds, const ElInt* ILoc, \
-    ElInt numColInds, const ElInt* JLoc ) \
-  { try { \
-        std::vector<Int> IVec(ILoc,ILoc+numRowInds), \
-                         JVec(JLoc,JLoc+numColInds); \
-        CReflect(A)->ConjugateLocalSubmatrix( IVec, JVec ); \
-    } EL_CATCH; return EL_SUCCESS; }
-
 #define DISTMATRIX_SUM(SIG,SIGBASE,T) \
   ElError ElDistMatrixSumOver_ ## SIG \
   ( ElDistMatrix_ ## SIG A, MPI_Comm comm ) \
@@ -588,8 +544,7 @@ extern "C" {
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,T) \
   C_PROTO(SIG,SIGBASE,T) \
-  DISTMATRIX_SINGLEENTRY_COMPLEX(SIG,SIGBASE,T) \
-  DISTMATRIX_SUBMATRIX_COMPLEX(SIG,SIGBASE,T)
+  DISTMATRIX_SINGLEENTRY_COMPLEX(SIG,SIGBASE,T)
 
 #include "El/macros/CInstantiate.h"
 

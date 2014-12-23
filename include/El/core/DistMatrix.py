@@ -1100,34 +1100,6 @@ lib.ElDistMatrixDiagonalAlign_c.restype = c_uint
 lib.ElDistMatrixDiagonalAlign_z.argtypes = [c_void_p,iType,POINTER(iType)]
 lib.ElDistMatrixDiagonalAlign_z.restype = c_uint
 
-lib.ElDistMatrixMakeSubmatrixReal_c.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType)]
-lib.ElDistMatrixMakeSubmatrixReal_c.restype = c_uint
-lib.ElDistMatrixMakeSubmatrixReal_z.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType)]
-lib.ElDistMatrixMakeSubmatrixReal_z.restype = c_uint
-
-lib.ElDistMatrixConjugateSubmatrix_c.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType)]
-lib.ElDistMatrixConjugateSubmatrix_c.restype = c_uint
-lib.ElDistMatrixConjugateSubmatrix_z.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType)]
-lib.ElDistMatrixConjugateSubmatrix_z.restype = c_uint
-
-lib.ElDistMatrixMakeLocalSubmatrixReal_c.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType)]
-lib.ElDistMatrixMakeLocalSubmatrixReal_c.restype = c_uint
-lib.ElDistMatrixMakeLocalSubmatrixReal_z.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType)]
-lib.ElDistMatrixMakeLocalSubmatrixReal_z.restype = c_uint
-
-lib.ElDistMatrixConjugateLocalSubmatrix_c.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType)]
-lib.ElDistMatrixConjugateLocalSubmatrix_c.restype = c_uint
-lib.ElDistMatrixConjugateLocalSubmatrix_z.argtypes = \
-  [c_void_p,iType,POINTER(iType),iType,POINTER(iType)]
-lib.ElDistMatrixConjugateLocalSubmatrix_z.restype = c_uint
-
 lib.ElDistMatrixSumOver_i.argtypes = [c_void_p,mpi.Comm]
 lib.ElDistMatrixSumOver_i.restype = c_uint
 lib.ElDistMatrixSumOver_s.argtypes = [c_void_p,mpi.Comm]
@@ -2092,39 +2064,6 @@ class DistMatrix(object):
     elif self.tag == zTag: lib.ElDistMatrixDiagonalAlign_z(*args)
     else: DataExcept()
     return align.value
-  def MakeSubmatrixReal(self,I,J):
-    numRowInds = len(I)
-    numColInds = len(J)
-    rowInd = (iType*numRowInds)(*I)
-    colInd = (iType*numColInds)(*J)
-    args = [self.obj,numRowInds,rowInd,numColInds,colInd]
-    if   self.tag == cTag: lib.ElDistMatrixMakeSubmatrixReal_c(*args)
-    elif self.tag == zTag: lib.ElDistMatrixMakeSubmatrixReal_z(*args)
-  def ConjugateSubmatrix(self,I,J):
-    numRowInds = len(I)
-    numColInds = len(J)
-    rowInd = (iType*numRowInds)(*I)
-    colInd = (iType*numColInds)(*J)
-    args = [self.obj,numRowInds,rowInd,numColInds,colInd]
-    if   self.tag == cTag: lib.ElDistMatrixConjugateSubmatrix_c(*args)
-    elif self.tag == zTag: lib.ElDistMatrixConjugateSubmatrix_z(*args)
-  #     Get rid of 'Local' member functions?!?
-  def MakeLocalSubmatrixReal(self,I,J):
-    numRowInds = len(I)
-    numColInds = len(J)
-    rowInd = (iType*numRowInds)(*I)
-    colInd = (iType*numColInds)(*J)
-    args = [self.obj,numRowInds,rowInd,numColInds,colInd]
-    if   self.tag == cTag: lib.ElDistMatrixMakeLocalSubmatrixReal_c(*args)
-    elif self.tag == zTag: lib.ElDistMatrixMakeLocalSubmatrixReal_z(*args)
-  def ConjugateLocalSubmatrix(self,I,J):
-    numRowInds = len(I)
-    numColInds = len(J)
-    rowInd = (iType*numRowInds)(*I)
-    colInd = (iType*numColInds)(*J)
-    args = [self.obj,numRowInds,rowInd,numColInds,colInd]
-    if   self.tag == cTag: lib.ElDistMatrixConjugateLocalSubmatrix_c(*args)
-    elif self.tag == zTag: lib.ElDistMatrixConjugateLocalSubmatrix_z(*args)
   def SumOver(self,comm):
     args = [self.obj,comm]
     if   self.tag == iTag: lib.ElDistMatrixSumOver_i(*args)

@@ -422,49 +422,6 @@ void Matrix<T>::Conjugate( Int i, Int j )
     Set( i, j, El::Conj(Get(i,j)) );
 }
 
-// Arbitrary submatrix manipulation
-// ================================
-
-template<typename T>
-void Matrix<T>::MakeSubmatrixReal
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
-{
-    DEBUG_ONLY(CallStackEntry cse("Matrix::MakeSubmatrixReal"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
-    T* buf = Buffer();
-    const Int ld = LDim();
-    for( Int j=0; j<n; ++j )
-    {
-        const Int jSub = colInd[j];
-        for( Int i=0; i<m; ++i )
-        {
-            DEBUG_ONLY(AssertValidEntry(rowInd[i],colInd[j]))
-            buf[rowInd[i]+jSub*ld] = RealPart(buf[rowInd[i]+jSub*ld]);
-        }
-    }
-}
-
-template<typename T>
-void Matrix<T>::ConjugateSubmatrix
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
-{
-    DEBUG_ONLY(CallStackEntry cse("Matrix::ConjugateSubmatrix"))
-    const Int m = rowInd.size();
-    const Int n = colInd.size();
-    T* buf = Buffer();
-    const Int ld = LDim();
-    for( Int j=0; j<n; ++j )
-    {
-        const Int jSub = colInd[j];
-        for( Int i=0; i<m; ++i )
-        {
-            DEBUG_ONLY(AssertValidEntry(rowInd[i],colInd[j]))
-            buf[rowInd[i]+jSub*ld] = Conj( buf[rowInd[i]+jSub*ld] );
-        }
-    }
-}
-
 // Private routines
 // ################
 

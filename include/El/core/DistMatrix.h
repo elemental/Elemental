@@ -1303,20 +1303,6 @@ EL_EXPORT ElError ElDistMatrixUpdateLocalImagPart_c
 EL_EXPORT ElError ElDistMatrixUpdateLocalImagPart_z
 ( ElDistMatrix_z A, ElInt iLoc, ElInt jLoc, double val );
 
-/* void AbstractDistMatrix<T>::MakeDiagonalReal( Int offset )
-   ---------------------------------------------------------- */
-EL_EXPORT ElError ElDistMatrixMakeDiagonalReal_c
-( ElDistMatrix_c A, ElInt offset );
-EL_EXPORT ElError ElDistMatrixMakeDiagonalReal_z
-( ElDistMatrix_z A, ElInt offset );
-
-/* void AbstractDistMatrix<T>::ConjugateDiagonal( Int offset )
-   ----------------------------------------------------------- */
-EL_EXPORT ElError ElDistMatrixConjugateDiagonal_c
-( ElDistMatrix_c A, ElInt offset );
-EL_EXPORT ElError ElDistMatrixConjugateDiagonal_z
-( ElDistMatrix_z A, ElInt offset );
-
 /* bool AbstractDistMatrix<T>::DiagonalAlignedWith
    ( const DistData& data, Int offset ) const
    ----------------------------------------------- */
@@ -1356,46 +1342,6 @@ EL_EXPORT ElError ElDistMatrixDiagonalRoot_c
 ( ElConstDistMatrix_c A, ElInt offset, ElInt* align );
 EL_EXPORT ElError ElDistMatrixDiagonalRoot_z
 ( ElConstDistMatrix_z A, ElInt offset, ElInt* align );
-
-/* void AbstractDistMatrix<T>::MakeSubmatrixReal
-   ( const std::vector<Int>& I, const std::vector<Int>& J )
-   -------------------------------------------------------- */
-EL_EXPORT ElError ElDistMatrixMakeSubmatrixReal_c
-( ElDistMatrix_c A, ElInt numRowInds, const ElInt* rowInd, 
-                    ElInt numColInds, const ElInt* colInd );
-EL_EXPORT ElError ElDistMatrixMakeSubmatrixReal_z
-( ElDistMatrix_z A, ElInt numRowInds, const ElInt* rowInd, 
-                    ElInt numColInds, const ElInt* colInd );
-
-/* void AbstractDistMatrix<T>::ConjugateSubmatrix
-   ( const std::vector<Int>& I, const std::vector<Int>& J )
-   -------------------------------------------------------- */
-EL_EXPORT ElError ElDistMatrixConjugateSubmatrix_c
-( ElDistMatrix_c A, ElInt numRowInds, const ElInt* rowInd, 
-                    ElInt numColInds, const ElInt* colInd );
-EL_EXPORT ElError ElDistMatrixConjugateSubmatrix_z
-( ElDistMatrix_z A, ElInt numRowInds, const ElInt* rowInd, 
-                    ElInt numColInds, const ElInt* colInd );
-
-/* void AbstractDistMatrix<T>::MakeLocalSubmatrixReal
-   ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc )
-   -------------------------------------------------------------- */
-EL_EXPORT ElError ElDistMatrixMakeLocalSubmatrixReal_c
-( ElDistMatrix_c A, ElInt numRowInds, const ElInt* rowIndLoc, 
-                    ElInt numColInds, const ElInt* colIndLoc );
-EL_EXPORT ElError ElDistMatrixMakeLocalSubmatrixReal_z
-( ElDistMatrix_z A, ElInt numRowInds, const ElInt* rowIndLoc, 
-                    ElInt numColInds, const ElInt* colIndLoc );
-
-/* void AbstractDistMatrix<T>::ConjugateLocalSubmatrix
-   ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc )
-   -------------------------------------------------------------- */
-EL_EXPORT ElError ElDistMatrixConjugateLocalSubmatrix_c
-( ElDistMatrix_c A, ElInt numRowInds, const ElInt* rowIndLoc, 
-                    ElInt numColInds, const ElInt* colIndLoc );
-EL_EXPORT ElError ElDistMatrixConjugateLocalSubmatrix_z
-( ElDistMatrix_z A, ElInt numRowInds, const ElInt* rowIndLoc, 
-                    ElInt numColInds, const ElInt* colIndLoc );
 
 /* void AbstractDistMatrix<T>::SumOver( mpi::Comm comm )
    ------------------------------------------------- */

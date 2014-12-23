@@ -215,23 +215,6 @@ public:
     Int DiagonalRoot( Int offset=0 ) const;
     Int DiagonalAlign( Int offset=0 ) const;
 
-    // Arbitrary-submatrix manipulation
-    // ================================
-
-    // Global submatrix manipulation
-    // -----------------------------
-    void MakeSubmatrixReal
-    ( const std::vector<Int>& I, const std::vector<Int>& J );
-    void ConjugateSubmatrix
-    ( const std::vector<Int>& I, const std::vector<Int>& J );
-
-    // Local submatrix manipulation
-    // ----------------------------
-    void MakeLocalSubmatrixReal
-    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc );
-    void ConjugateLocalSubmatrix
-    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc );
-
     // Interact over a specified communicator
     // ======================================
     void BroadcastOver( mpi::Comm comm, Int rank=0 );

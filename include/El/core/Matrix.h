@@ -304,40 +304,6 @@ EL_EXPORT ElError ElMatrixMakeReal_z( ElMatrix_z A, ElInt i, ElInt j );
 EL_EXPORT ElError ElMatrixConjugate_c( ElMatrix_c A, ElInt i, ElInt j );
 EL_EXPORT ElError ElMatrixConjugate_z( ElMatrix_z A, ElInt i, ElInt j );
 
-/* void Matrix<T>::MakeDiaogonalReal( Int offset )
-   ----------------------------------------------- */
-EL_EXPORT ElError ElMatrixMakeDiagonalReal_c( ElMatrix_c A, ElInt offset );
-EL_EXPORT ElError ElMatrixMakeDiagonalReal_z( ElMatrix_z A, ElInt offset );
-
-/* void Matrix<T>::ConjugateDiagonal Int offset )
-   ---------------------------------------------- */
-EL_EXPORT ElError ElMatrixConjugateDiagonal_c( ElMatrix_c A, ElInt offset );
-EL_EXPORT ElError ElMatrixConjugateDiagonal_z( ElMatrix_z A, ElInt offset );
-
-/* void Matrix<T>::MakeSubmatrixReal
-   ( const std::vector<Int>& I, const std::vector<Int>& J )
-   -------------------------------------------------------- */
-EL_EXPORT ElError ElMatrixMakeSubmatrixReal_c
-( ElMatrix_c A, 
-  ElInt numRowInds, const ElInt* rowInd, 
-  ElInt numColInds, const ElInt* colInd );
-EL_EXPORT ElError ElMatrixMakeSubmatrixReal_z
-( ElMatrix_z A, 
-  ElInt numRowInds, const ElInt* rowInd, 
-  ElInt numColInds, const ElInt* colInd );
-
-/* void Matrix<T>::ConjugateSubmatrix
-   ( const std::vector<Int>& I, const std::vector<Int>& J )
-   -------------------------------------------------------- */
-EL_EXPORT ElError ElMatrixConjugateSubmatrix_c
-( ElMatrix_c A, 
-  ElInt numRowInds, const ElInt* rowInd, 
-  ElInt numColInds, const ElInt* colInd );
-EL_EXPORT ElError ElMatrixConjugateSubmatrix_z
-( ElMatrix_z A, 
-  ElInt numRowInds, const ElInt* rowInd, 
-  ElInt numColInds, const ElInt* colInd );
-
 #ifdef __cplusplus
 } // extern "C"
 #endif

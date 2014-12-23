@@ -215,6 +215,17 @@ void ConjugateDiagonal( Matrix<T>& A, Int offset=0 );
 template<typename T>
 void ConjugateDiagonal( AbstractDistMatrix<T>& A, Int offset=0 );
 
+// ConjugateSubmatrix
+// ==================
+template<typename T>
+void ConjugateSubmatrix
+( Matrix<T>& A, 
+  const std::vector<Int>& rowInd, const std::vector<Int>& colInd );
+template<typename T>
+void ConjugateSubmatrix
+( AbstractDistMatrix<T>& A, 
+  const std::vector<Int>& rowInd, const std::vector<Int>& colInd );
+
 // Copy
 // ====
 template<typename T>
@@ -876,6 +887,17 @@ template<typename Real>
 void MakeReal( Matrix<Complex<Real>>& A );
 template<typename T>
 void MakeReal( AbstractDistMatrix<T>& A );
+
+// MakeSubmatrixReal
+// ================
+template<typename T>
+void MakeSubmatrixReal
+( Matrix<T>& A, 
+  const std::vector<Int>& rowInd, const std::vector<Int>& colInd );
+template<typename T>
+void MakeSubmatrixReal
+( AbstractDistMatrix<T>& A, 
+  const std::vector<Int>& rowInd, const std::vector<Int>& colInd );
 
 // MakeSymmetric
 // =============

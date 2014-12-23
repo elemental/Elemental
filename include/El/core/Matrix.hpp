@@ -90,13 +90,6 @@ public:
     void MakeReal( Int i, Int j );
     void Conjugate( Int i, Int j );
 
-    // Arbitrary submatrix manipulation
-    // ================================
-    void MakeSubmatrixReal
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd );
-    void ConjugateSubmatrix
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd );
-
 private:
     // Member variables
     // ================
