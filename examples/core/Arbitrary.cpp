@@ -68,7 +68,7 @@ main( int argc, char* argv[] )
             Display( ASub, "Scrambled ASub" );
         if( print )
             Print( ASub, "Scrambled ASub" );
-        A.SetSubmatrix( rowInds, colInds, ASub );
+        SetSubmatrix( A, rowInds, colInds, ASub );
        
         if( display )
             Display( A, "Modified Fourier matrix" );

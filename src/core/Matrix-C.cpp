@@ -143,80 +143,7 @@ extern "C" {
   ( ElMatrix_ ## SIG A, ElInt i, ElInt j ) \
   { EL_TRY( CReflect(A)->Conjugate(i,j) ) }
 
-#define MATRIX_SUBMATRIX(SIG,SIGBASE,T) \
-  /* void Matrix<T>::SetSubmatrix \
-     ( const std::vector<Int>& I, const std::vector<Int>& J, \
-       const Matrix<T>& ASub ) */ \
-  ElError ElMatrixSetSubmatrix_ ## SIG \
-  ( ElMatrix_ ## SIG A, const ElInt* I, const ElInt* J, \
-    ElConstMatrix_ ## SIG ASub ) \
-  { EL_TRY( const Int numRowInds = CReflect(ASub)->Height(); \
-            const Int numColInds = CReflect(ASub)->Width(); \
-            std::vector<Int> IVec( I, I+numRowInds ); \
-            std::vector<Int> JVec( J, J+numColInds ); \
-            CReflect(A)->SetSubmatrix( IVec, JVec, *CReflect(ASub) ) ) } \
-  /* void Matrix<T>::UpdateSubmatrix \
-     ( const std::vector<Int>& I, const std::vector<Int>& J, \
-       T alpha, const Matrix<T>& ASub ) */ \
-  ElError ElMatrixUpdateSubmatrix_ ## SIG \
-  ( ElMatrix_ ## SIG A, const ElInt* I, const ElInt* J, \
-    CREFLECT(T) alpha, ElConstMatrix_ ## SIG ASub ) \
-  { EL_TRY( const Int numRowInds = CReflect(ASub)->Height(); \
-            const Int numColInds = CReflect(ASub)->Width(); \
-            std::vector<Int> IVec( I, I+numRowInds ); \
-            std::vector<Int> JVec( J, J+numColInds ); \
-            CReflect(A)->UpdateSubmatrix \
-            ( IVec, JVec, CReflect(alpha), *CReflect(ASub) ) ) }
-
 #define MATRIX_SUBMATRIX_COMPLEX(SIG,SIGBASE,F) \
-  /* void Matrix<F>::SetRealPartOfSubmatrix \
-     ( const std::vector<Int>& I, const std::vector<Int>& J, \
-       const Matrix<Base<F>>& ASub ) */ \
-  ElError ElMatrixSetRealPartOfSubmatrix_ ## SIG \
-  ( ElMatrix_ ## SIG A, const ElInt* I, const ElInt* J, \
-    ElConstMatrix_ ## SIGBASE ASub ) \
-  { EL_TRY( const Int numRowInds = CReflect(ASub)->Height(); \
-            const Int numColInds = CReflect(ASub)->Width(); \
-            std::vector<Int> IVec( I, I+numRowInds ); \
-            std::vector<Int> JVec( J, J+numColInds ); \
-            CReflect(A)->SetRealPartOfSubmatrix \
-            ( IVec, JVec, *CReflect(ASub) ) ) } \
-  /* void Matrix<F>::SetImagPartOfSubmatrix \
-     ( const std::vector<Int>& I, const std::vector<Int>& J, \
-       const Matrix<Base<F>>& ASub ) */ \
-  ElError ElMatrixSetImagPartOfSubmatrix_ ## SIG \
-  ( ElMatrix_ ## SIG A, const ElInt* I, const ElInt* J, \
-    ElConstMatrix_ ## SIGBASE ASub ) \
-  { EL_TRY( const Int numRowInds = CReflect(ASub)->Height(); \
-            const Int numColInds = CReflect(ASub)->Width(); \
-            std::vector<Int> IVec( I, I+numRowInds ); \
-            std::vector<Int> JVec( J, J+numColInds ); \
-            CReflect(A)->SetImagPartOfSubmatrix \
-            ( IVec, JVec, *CReflect(ASub) ) ) } \
-  /* void Matrix<F>::UpdateRealPartOfSubmatrix \
-     ( const std::vector<Int>& I, const std::vector<Int>& J, \
-       Base<F> alpha, const Matrix<Base<F>>& ASub ) */ \
-  ElError ElMatrixUpdateRealPartOfSubmatrix_ ## SIG \
-  ( ElMatrix_ ## SIG A, const ElInt* I, const ElInt* J, \
-    CREFLECT(Base<F>) alpha, ElConstMatrix_ ## SIGBASE ASub ) \
-  { EL_TRY( const Int numRowInds = CReflect(ASub)->Height(); \
-            const Int numColInds = CReflect(ASub)->Width(); \
-            std::vector<Int> IVec( I, I+numRowInds ); \
-            std::vector<Int> JVec( J, J+numColInds ); \
-            CReflect(A)->UpdateRealPartOfSubmatrix \
-            ( IVec, JVec, CReflect(alpha), *CReflect(ASub) ) ) } \
-  /* void Matrix<F>::UpdateImagPartOfSubmatrix \
-     ( const std::vector<Int>& I, const std::vector<Int>& J, \
-       Base<F> alpha, const Matrix<Base<F>>& ASub ) */ \
-  ElError ElMatrixUpdateImagPartOfSubmatrix_ ## SIG \
-  ( ElMatrix_ ## SIG A, const ElInt* I, const ElInt* J, \
-    CREFLECT(Base<F>) alpha, ElConstMatrix_ ## SIGBASE ASub ) \
-  { EL_TRY( const Int numRowInds = CReflect(ASub)->Height(); \
-            const Int numColInds = CReflect(ASub)->Width(); \
-            std::vector<Int> IVec( I, I+numRowInds ); \
-            std::vector<Int> JVec( J, J+numColInds ); \
-            CReflect(A)->UpdateImagPartOfSubmatrix \
-            ( IVec, JVec, CReflect(alpha), *CReflect(ASub) ) ) } \
   /* void Matrix<F>::MakeSubmatrixReal 
      ( const std::vector<Int>& I, const std::vector<Int>& J ) */ \
   ElError ElMatrixMakeSubmatrixReal_ ## SIG \
@@ -238,8 +165,7 @@ extern "C" {
   MATRIX_CONSTRUCT(SIG,SIGBASE,T) \
   MATRIX_RECONFIG(SIG,SIGBASE,T) \
   MATRIX_BASIC(SIG,SIGBASE,T) \
-  MATRIX_SINGLEENTRY(SIG,SIGBASE,T) \
-  MATRIX_SUBMATRIX(SIG,SIGBASE,T)
+  MATRIX_SINGLEENTRY(SIG,SIGBASE,T)
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
   C_PROTO(SIG,SIGBASE,F) \

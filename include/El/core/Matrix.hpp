@@ -92,26 +92,6 @@ public:
 
     // Arbitrary submatrix manipulation
     // ================================
-    void SetSubmatrix
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-      const Matrix<T>& ASub );
-    void SetRealPartOfSubmatrix
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-      const Matrix<Base<T>>& ASub );
-    void SetImagPartOfSubmatrix
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-      const Matrix<Base<T>>& ASub );
-
-    void UpdateSubmatrix
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-      T alpha, const Matrix<T>& ASub );
-    void UpdateRealPartOfSubmatrix
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-      Base<T> alpha, const Matrix<Base<T>>& ASub );
-    void UpdateImagPartOfSubmatrix
-    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-      Base<T> alpha, const Matrix<Base<T>>& ASub );
-
     void MakeSubmatrixReal
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd );
     void ConjugateSubmatrix

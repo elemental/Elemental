@@ -1160,6 +1160,40 @@ void SetImagPartOfDiagonal
 ( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Base<T>>& d, 
   Int offset=0 );
 
+// SetSubmatrix
+// ============
+template<typename T>
+void SetSubmatrix
+(       Matrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const Matrix<T>& ASub );
+template<typename T>
+void SetRealPartOfSubmatrix
+(       Matrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const Matrix<Base<T>>& ASub );
+template<typename T>
+void SetImagPartOfSubmatrix
+(       Matrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const Matrix<Base<T>>& ASub );
+
+template<typename T>
+void SetSubmatrix
+(       AbstractDistMatrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const AbstractDistMatrix<T>& ASub );
+template<typename T>
+void SetRealPartOfSubmatrix
+(       AbstractDistMatrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const AbstractDistMatrix<Base<T>>& ASub );
+template<typename T>
+void SetImagPartOfSubmatrix
+(       AbstractDistMatrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const AbstractDistMatrix<Base<T>>& ASub );
+
 // Swap
 // ====
 template<typename T>
@@ -1391,6 +1425,40 @@ template<typename T,typename S,Dist U,Dist V>
 void UpdateMappedDiagonal
 ( DistMatrix<T,U,V>& A, const AbstractDistMatrix<S>& d, 
   std::function<void(T&,S)> func, Int offset=0 );
+
+// UpdateSubmatrix
+// ===============
+template<typename T>
+void UpdateSubmatrix
+(       Matrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J, 
+  T alpha, const Matrix<T>& ASub );
+template<typename T>
+void UpdateRealPartOfSubmatrix
+(       Matrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J, 
+  Base<T> alpha, const Matrix<Base<T>>& ASub );
+template<typename T>
+void UpdateImagPartOfSubmatrix
+(       Matrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J, 
+  Base<T> alpha, const Matrix<Base<T>>& ASub );
+
+template<typename T>
+void UpdateSubmatrix
+(       AbstractDistMatrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J, 
+  T alpha, const AbstractDistMatrix<T>& ASub );
+template<typename T>
+void UpdateRealPartOfSubmatrix
+(       AbstractDistMatrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J, 
+  Base<T> alpha, const AbstractDistMatrix<Base<T>>& ASub );
+template<typename T>
+void UpdateImagPartOfSubmatrix
+(       AbstractDistMatrix<T>& A, 
+  const std::vector<Int>& I, const std::vector<Int>& J, 
+  Base<T> alpha, const AbstractDistMatrix<Base<T>>& ASub );
 
 // Zero
 // ====

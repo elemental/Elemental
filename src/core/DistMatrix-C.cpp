@@ -529,115 +529,7 @@ extern "C" {
   ( ElConstDistMatrix_ ## SIG A, ElInt offset, ElInt* align ) \
   { EL_TRY( *align = CReflect(A)->DiagonalAlign(offset) ) }
 
-#define DISTMATRIX_SUBMATRIX(SIG,SIGBASE,T) \
-  /* void AbstractDistMatrix<T>::SetSubmatrix
-    ( const std::vector<Int>& I, const std::vector<Int>& J,
-      const AbstractDistMatrix<T>& ASub ); */ \
-  ElError ElDistMatrixSetSubmatrix_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, const ElInt* I, const ElInt* J, \
-    ElConstDistMatrix_ ## SIG ASub ) \
-  { try { \
-      const Int numRowInds = CReflect(ASub)->Height(); \
-      const Int numColInds = CReflect(ASub)->Width(); \
-      std::vector<Int> IVec(I,I+numRowInds), \
-                       JVec(J,J+numColInds); \
-      CReflect(A)->SetSubmatrix(IVec,JVec,*CReflect(ASub)); \
-    } EL_CATCH; return EL_SUCCESS; } \
-  /* void AbstractDistMatrix<T>::UpdateSubmatrix
-    ( const std::vector<Int>& I, const std::vector<Int>& J,
-      T alpha, const AbstractDistMatrix<T>& ASub ); */ \
-  ElError ElDistMatrixUpdateSubmatrix_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, const ElInt* I, const ElInt* J, \
-    CREFLECT(T) alpha, ElConstDistMatrix_ ## SIG ASub ) \
-  { try { \
-      const Int numRowInds = CReflect(ASub)->Height(); \
-      const Int numColInds = CReflect(ASub)->Width(); \
-      std::vector<Int> IVec(I,I+numRowInds), \
-                       JVec(J,J+numColInds); \
-      CReflect(A)->UpdateSubmatrix(IVec,JVec,CReflect(alpha),*CReflect(ASub)); \
-    } EL_CATCH; return EL_SUCCESS; } \
-  /* void AbstractDistMatrix<T>::SetLocalSubmatrix
-     ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
-       const Matrix<T>& ASub ); */ \
-  ElError ElDistMatrixSetLocalSubmatrix_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, \
-    const ElInt* ILoc, const ElInt* JLoc, ElConstMatrix_ ## SIG ASub ) \
-  { try { \
-        const Int numRowInds = CReflect(ASub)->Height(); \
-        const Int numColInds = CReflect(ASub)->Width(); \
-        std::vector<Int> IVec(ILoc,ILoc+numRowInds), \
-                         JVec(JLoc,JLoc+numColInds); \
-        CReflect(A)->SetLocalSubmatrix(IVec,JVec,*CReflect(ASub)); \
-    } EL_CATCH; return EL_SUCCESS; } \
-  /* void AbstractDistMatrix<T>::UpdateLocalSubmatrix
-     ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
-       T alpha, const Matrix<T>& ASub ); */ \
-  ElError ElDistMatrixUpdateLocalSubmatrix_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, \
-    const ElInt* ILoc, const ElInt* JLoc, \
-    CREFLECT(T) alpha, ElConstMatrix_ ## SIG ASub ) \
-  { try { \
-        const Int numRowInds = CReflect(ASub)->Height(); \
-        const Int numColInds = CReflect(ASub)->Width(); \
-        std::vector<Int> IVec(ILoc,ILoc+numRowInds), \
-                         JVec(JLoc,JLoc+numColInds); \
-        CReflect(A)->UpdateLocalSubmatrix \
-        (IVec,JVec,CReflect(alpha),*CReflect(ASub)); \
-    } EL_CATCH; return EL_SUCCESS; }
-
 #define DISTMATRIX_SUBMATRIX_COMPLEX(SIG,SIGBASE,T) \
-  /* void AbstractDistMatrix<T>::SetRealPartOfSubmatrix
-    ( const std::vector<Int>& I, const std::vector<Int>& J,
-      const AbstractDistMatrix<Base<T>>& ASub ); */ \
-  ElError ElDistMatrixSetRealPartOfSubmatrix_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, const ElInt* I, const ElInt* J, \
-    ElConstDistMatrix_ ## SIGBASE ASub ) \
-  { try { \
-      const Int numRowInds = CReflect(ASub)->Height(); \
-      const Int numColInds = CReflect(ASub)->Width(); \
-      std::vector<Int> IVec(I,I+numRowInds), \
-                       JVec(J,J+numColInds); \
-      CReflect(A)->SetRealPartOfSubmatrix(IVec,JVec,*CReflect(ASub)); \
-    } EL_CATCH; return EL_SUCCESS; } \
-  /* void AbstractDistMatrix<T>::SetImagPartOfSubmatrix
-    ( const std::vector<Int>& I, const std::vector<Int>& J,
-      const AbstractDistMatrix<Base<T>>& ASub ); */ \
-  ElError ElDistMatrixSetImagPartOfSubmatrix_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, const ElInt* I, const ElInt* J, \
-    ElConstDistMatrix_ ## SIGBASE ASub ) \
-  { try { \
-      const Int numRowInds = CReflect(ASub)->Height(); \
-      const Int numColInds = CReflect(ASub)->Width(); \
-      std::vector<Int> IVec(I,I+numRowInds), \
-                       JVec(J,J+numColInds); \
-      CReflect(A)->SetImagPartOfSubmatrix(IVec,JVec,*CReflect(ASub)); \
-    } EL_CATCH; return EL_SUCCESS; } \
-  /* void AbstractDistMatrix<T>::UpdateRealPartOfSubmatrix
-    ( const std::vector<Int>& I, const std::vector<Int>& J,
-      Base<T> alpha, const AbstractDistMatrix<Base<T>>& ASub ); */ \
-  ElError ElDistMatrixUpdateRealPartOfSubmatrix_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, const ElInt* I, const ElInt* J, \
-    Base<T> alpha, ElConstDistMatrix_ ## SIGBASE ASub ) \
-  { try { \
-      const Int numRowInds = CReflect(ASub)->Height(); \
-      const Int numColInds = CReflect(ASub)->Width(); \
-      std::vector<Int> IVec(I,I+numRowInds), \
-                       JVec(J,J+numColInds); \
-      CReflect(A)->UpdateRealPartOfSubmatrix(IVec,JVec,alpha,*CReflect(ASub)); \
-    } EL_CATCH; return EL_SUCCESS; } \
-  /* void AbstractDistMatrix<T>::UpdateImagPartOfSubmatrix
-    ( const std::vector<Int>& I, const std::vector<Int>& J,
-      Base<T> alpha, const AbstractDistMatrix<Base<T>>& ASub ); */ \
-  ElError ElDistMatrixUpdateImagPartOfSubmatrix_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, const ElInt* I, const ElInt* J, \
-    Base<T> alpha, ElConstDistMatrix_ ## SIGBASE ASub ) \
-  { try { \
-      const Int numRowInds = CReflect(ASub)->Height(); \
-      const Int numColInds = CReflect(ASub)->Width(); \
-      std::vector<Int> IVec(I,I+numRowInds), \
-                       JVec(J,J+numColInds); \
-      CReflect(A)->UpdateImagPartOfSubmatrix(IVec,JVec,alpha,*CReflect(ASub)); \
-    } EL_CATCH; return EL_SUCCESS; } \
   /* void AbstractDistMatrix<T>::MakeSubmatrixReal
      ( const std::vector<Int>& I, const std::vector<Int>& J ) */ \
   ElError ElDistMatrixMakeSubmatrixReal_ ## SIG \
@@ -657,64 +549,6 @@ extern "C" {
       std::vector<Int> IVec(I,I+numRowInds), \
                        JVec(J,J+numColInds); \
       CReflect(A)->ConjugateSubmatrix( IVec, JVec ); \
-    } EL_CATCH; return EL_SUCCESS; } \
-  /* void AbstractDistMatrix<T>::SetRealPartOfLocalSubmatrix
-     ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
-       const Matrix<Base<T>>& ASub ); */ \
-  ElError ElDistMatrixSetRealPartOfLocalSubmatrix_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, \
-    const ElInt* ILoc, const ElInt* JLoc, \
-    ElConstMatrix_ ## SIGBASE ASub ) \
-  { try { \
-        const Int numRowInds = CReflect(ASub)->Height(); \
-        const Int numColInds = CReflect(ASub)->Width(); \
-        std::vector<Int> IVec(ILoc,ILoc+numRowInds), \
-                         JVec(JLoc,JLoc+numColInds); \
-        CReflect(A)->SetRealPartOfLocalSubmatrix(IVec,JVec,*CReflect(ASub)); \
-    } EL_CATCH; return EL_SUCCESS; } \
-  /* void AbstractDistMatrix<T>::SetImagPartOfLocalSubmatrix
-     ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
-       const Matrix<Base<T>>& ASub ); */ \
-  ElError ElDistMatrixSetImagPartOfLocalSubmatrix_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, \
-    const ElInt* ILoc, const ElInt* JLoc, \
-    ElConstMatrix_ ## SIGBASE ASub ) \
-  { try { \
-        const Int numRowInds = CReflect(ASub)->Height(); \
-        const Int numColInds = CReflect(ASub)->Width(); \
-        std::vector<Int> IVec(ILoc,ILoc+numRowInds), \
-                         JVec(JLoc,JLoc+numColInds); \
-        CReflect(A)->SetImagPartOfLocalSubmatrix(IVec,JVec,*CReflect(ASub)); \
-    } EL_CATCH; return EL_SUCCESS; } \
-  /* void AbstractDistMatrix<T>::UpdateRealPartOfLocalSubmatrix
-     ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
-       Base<T> alpha, const Matrix<Base<T>>& ASub ); */ \
-  ElError ElDistMatrixUpdateRealPartOfLocalSubmatrix_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, \
-    const ElInt* ILoc, const ElInt* JLoc, \
-    Base<T> alpha, ElConstMatrix_ ## SIGBASE ASub ) \
-  { try { \
-        const Int numRowInds = CReflect(ASub)->Height(); \
-        const Int numColInds = CReflect(ASub)->Width(); \
-        std::vector<Int> IVec(ILoc,ILoc+numRowInds), \
-                         JVec(JLoc,JLoc+numColInds); \
-        CReflect(A)->UpdateRealPartOfLocalSubmatrix \
-        (IVec,JVec,alpha,*CReflect(ASub)); \
-    } EL_CATCH; return EL_SUCCESS; } \
-  /* void AbstractDistMatrix<T>::UpdateImagPartOfLocalSubmatrix
-     ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
-       Base<T> alpha, const Matrix<Base<T>>& ASub ); */ \
-  ElError ElDistMatrixUpdateImagPartOfLocalSubmatrix_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, \
-    const ElInt* ILoc, const ElInt* JLoc, \
-    Base<T> alpha, ElConstMatrix_ ## SIGBASE ASub ) \
-  { try { \
-        const Int numRowInds = CReflect(ASub)->Height(); \
-        const Int numColInds = CReflect(ASub)->Width(); \
-        std::vector<Int> IVec(ILoc,ILoc+numRowInds), \
-                         JVec(JLoc,JLoc+numColInds); \
-        CReflect(A)->UpdateImagPartOfLocalSubmatrix \
-        (IVec,JVec,alpha,*CReflect(ASub)); \
     } EL_CATCH; return EL_SUCCESS; } \
   /* void AbstractDistMatrix<T>::MakeLocalSubmatrixReal
      ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc ) */ \
@@ -750,7 +584,6 @@ extern "C" {
   DISTMATRIX_BASIC(SIG,SIGBASE,T) \
   DISTMATRIX_SINGLEENTRY(SIG,SIGBASE,T) \
   DISTMATRIX_DIAGONAL(SIG,SIGBASE,T) \
-  DISTMATRIX_SUBMATRIX(SIG,SIGBASE,T) \
   DISTMATRIX_SUM(SIG,SIGBASE,T)
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,T) \

@@ -1633,7 +1633,7 @@ AbstractBlockDistMatrix<T>::SetLocalSubmatrix
   const El::Matrix<T>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::SetLocalSubmatrix"))
-    Matrix().SetSubmatrix( ILoc, JLoc, ASub );
+    El::SetSubmatrix( Matrix(), ILoc, JLoc, ASub );
 }
 
 template<typename T>
@@ -1643,7 +1643,7 @@ AbstractBlockDistMatrix<T>::SetRealPartOfLocalSubmatrix
   const El::Matrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::SetRealPartOfLocalSubmatrix"))
-    Matrix().SetRealPartOfSubmatrix( ILoc, JLoc, ASub );
+    El::SetRealPartOfSubmatrix( Matrix(), ILoc, JLoc, ASub );
 }
 
 template<typename T>
@@ -1653,7 +1653,7 @@ AbstractBlockDistMatrix<T>::SetImagPartOfLocalSubmatrix
   const El::Matrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::SetImagPartOfLocalSubmatrix"))
-    Matrix().SetImagPartOfSubmatrix( ILoc, JLoc, ASub );
+    El::SetImagPartOfSubmatrix( Matrix(), ILoc, JLoc, ASub );
 }
 
 template<typename T>
@@ -1663,7 +1663,7 @@ AbstractBlockDistMatrix<T>::UpdateLocalSubmatrix
   T alpha, const El::Matrix<T>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::UpdateLocalSubmatrix"))
-    Matrix().UpdateSubmatrix( ILoc, JLoc, alpha, ASub );
+    El::UpdateSubmatrix( Matrix(), ILoc, JLoc, alpha, ASub );
 }
 
 template<typename T>
@@ -1673,7 +1673,7 @@ AbstractBlockDistMatrix<T>::UpdateRealPartOfLocalSubmatrix
   Base<T> alpha, const El::Matrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::UpdateRealPartOfLocalSubmatrix"))
-    Matrix().UpdateRealPartOfSubmatrix( ILoc, JLoc, alpha, ASub );
+    El::UpdateRealPartOfSubmatrix( Matrix(), ILoc, JLoc, alpha, ASub );
 }
 
 template<typename T>
@@ -1683,7 +1683,7 @@ AbstractBlockDistMatrix<T>::UpdateImagPartOfLocalSubmatrix
   Base<T> alpha, const El::Matrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::UpdateImagPartOfLocalSubmatrix"))
-    Matrix().UpdateImagPartOfSubmatrix( ILoc, JLoc, alpha, ASub );
+    El::UpdateImagPartOfSubmatrix( Matrix(), ILoc, JLoc, alpha, ASub );
 }
 
 template<typename T>

@@ -220,26 +220,6 @@ public:
 
     // Global submatrix manipulation
     // -----------------------------
-    void SetSubmatrix
-    ( const std::vector<Int>& I, const std::vector<Int>& J,
-      const AbstractDistMatrix<T>& ASub );
-    void SetRealPartOfSubmatrix
-    ( const std::vector<Int>& I, const std::vector<Int>& J,
-      const AbstractDistMatrix<Base<T>>& ASub );
-    void SetImagPartOfSubmatrix
-    ( const std::vector<Int>& I, const std::vector<Int>& J,
-      const AbstractDistMatrix<Base<T>>& ASub );
-
-    void UpdateSubmatrix
-    ( const std::vector<Int>& I, const std::vector<Int>& J,
-      T alpha, const AbstractDistMatrix<T>& ASub );
-    void UpdateRealPartOfSubmatrix
-    ( const std::vector<Int>& I, const std::vector<Int>& J,
-      Base<T> alpha, const AbstractDistMatrix<Base<T>>& ASub );
-    void UpdateImagPartOfSubmatrix
-    ( const std::vector<Int>& I, const std::vector<Int>& J,
-      Base<T> alpha, const AbstractDistMatrix<Base<T>>& ASub );
-
     void MakeSubmatrixReal
     ( const std::vector<Int>& I, const std::vector<Int>& J );
     void ConjugateSubmatrix
@@ -247,26 +227,6 @@ public:
 
     // Local submatrix manipulation
     // ----------------------------
-    void SetLocalSubmatrix
-    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
-      const El::Matrix<T>& ASub );
-    void SetRealPartOfLocalSubmatrix
-    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
-      const El::Matrix<Base<T>>& ASub );
-    void SetImagPartOfLocalSubmatrix
-    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
-      const El::Matrix<Base<T>>& ASub );
-
-    void UpdateLocalSubmatrix
-    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
-      T alpha, const El::Matrix<T>& ASub );
-    void UpdateRealPartOfLocalSubmatrix
-    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
-      Base<T> alpha, const El::Matrix<Base<T>>& ASub );
-    void UpdateImagPartOfLocalSubmatrix
-    ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc,
-      Base<T> alpha, const El::Matrix<Base<T>>& ASub );
-
     void MakeLocalSubmatrixReal
     ( const std::vector<Int>& ILoc, const std::vector<Int>& JLoc );
     void ConjugateLocalSubmatrix
