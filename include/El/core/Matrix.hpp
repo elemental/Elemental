@@ -90,12 +90,6 @@ public:
     void MakeReal( Int i, Int j );
     void Conjugate( Int i, Int j );
 
-    // Diagonal manipulation
-    // =====================
-    // TODO: Remove these from Matrix
-    void MakeDiagonalReal( Int offset=0 );
-    void ConjugateDiagonal( Int offset=0 );
-
     // Arbitrary submatrix manipulation
     // ================================
     void GetSubmatrix

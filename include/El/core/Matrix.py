@@ -294,16 +294,6 @@ lib.ElMatrixConjugate_c.restype = c_uint
 lib.ElMatrixConjugate_z.argtypes = [c_void_p,iType,iType]
 lib.ElMatrixConjugate_z.restype = c_uint
 
-lib.ElMatrixMakeDiagonalReal_c.argtypes = [c_void_p,iType]
-lib.ElMatrixMakeDiagonalReal_c.restype = c_uint
-lib.ElMatrixMakeDiagonalReal_z.argtypes = [c_void_p,iType]
-lib.ElMatrixMakeDiagonalReal_z.restype = c_uint
-
-lib.ElMatrixConjugateDiagonal_c.argtypes = [c_void_p,iType]
-lib.ElMatrixConjugateDiagonal_c.restype = c_uint
-lib.ElMatrixConjugateDiagonal_z.argtypes = [c_void_p,iType]
-lib.ElMatrixConjugateDiagonal_z.restype = c_uint
-
 lib.ElMatrixGetSubmatrix_i.argtypes = \
   [c_void_p,iType,POINTER(iType),iType,POINTER(iType),c_void_p]
 lib.ElMatrixGetSubmatrix_i.restype = c_uint
@@ -673,12 +663,6 @@ class Matrix(object):
   def Conjugate(self,i,j):
     if   self.tag == cTag: lib.ElMatrixConjugate_c(self.obj,i,j)
     elif self.tag == zTag: lib.ElMatrixConjugate_z(self.obj,i,j)
-  def MakeDiagonalReal(self,offset=0):
-    if   self.tag == cTag: lib.ElMatrixMakeDiagonalReal_c(self.obj,offset)
-    elif self.tag == zTag: lib.ElMatrixMakeDiagonalReal_z(self.obj,offset)
-  def ConjugateDiagonal(self,offset=0):
-    if   self.tag == cTag: lib.ElMatrixConjugateDiagonal_c(self.obj,offset)
-    elif self.tag == zTag: lib.ElMatrixConjugateDiagonal_z(self.obj,offset)
   def GetSubmatrix(self,I,J):
     numRowInds = len(I)
     numColInds = len(J)

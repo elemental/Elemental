@@ -193,6 +193,10 @@ public:
 
     // Local entry manipulation
     // ------------------------
+    // NOTE: Clearly each of the following routines could instead be performed
+    //       via composing [Locked]Matrix() with the corresponding local
+    //       routine, but a large amount of code might need to change if 
+    //       these were removed.
     T       GetLocal( Int iLoc, Int jLoc )                            const;
     Base<T> GetLocalRealPart( Int iLoc, Int jLoc )                    const;
     Base<T> GetLocalImagPart( Int iLoc, Int jLoc )                    const;
@@ -210,8 +214,6 @@ public:
     bool DiagonalAlignedWith( const El::DistData& d, Int offset=0 ) const;
     Int DiagonalRoot( Int offset=0 ) const;
     Int DiagonalAlign( Int offset=0 ) const;
-    void MakeDiagonalReal( Int offset=0 );
-    void ConjugateDiagonal( Int offset=0 );
 
     // Arbitrary-submatrix manipulation
     // ================================

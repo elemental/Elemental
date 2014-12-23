@@ -1132,42 +1132,6 @@ Int AbstractDistMatrix<T>::DiagonalAlign( Int offset ) const
     }
 }
 
-template<typename T>
-void
-AbstractDistMatrix<T>::MakeDiagonalReal( Int offset )
-{
-    DEBUG_ONLY(CallStackEntry cse("ADM::MakeDiagonalReal"))
-    const Int height = Height();
-    const Int localWidth = LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = GlobalCol(jLoc);
-        if( j < height && IsLocal(j,j) )
-        {
-            const Int iLoc = LocalRow(j);
-            MakeLocalReal( iLoc, jLoc );
-        }
-    }
-}
-
-template<typename T>
-void
-AbstractDistMatrix<T>::ConjugateDiagonal( Int offset )
-{
-    DEBUG_ONLY(CallStackEntry cse("ADM::ConjugateDiagonal"))
-    const Int height = Height();
-    const Int localWidth = LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = GlobalCol(jLoc);
-        if( j < height && IsLocal(j,j) )
-        {
-            const Int iLoc = LocalRow(j);
-            ConjugateLocal( iLoc, jLoc );
-        }
-    }
-}
-
 // Arbitrary submatrix manipulation
 // ================================
 

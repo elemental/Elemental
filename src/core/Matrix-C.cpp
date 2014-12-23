@@ -143,16 +143,6 @@ extern "C" {
   ( ElMatrix_ ## SIG A, ElInt i, ElInt j ) \
   { EL_TRY( CReflect(A)->Conjugate(i,j) ) }
 
-#define MATRIX_DIAGONAL_COMPLEX(SIG,SIGBASE,T) \
-  /* void Matrix<T>::MakeDiagonalReal( Int offset ) */ \
-  ElError ElMatrixMakeDiagonalReal_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElInt offset ) \
-  { EL_TRY( CReflect(A)->MakeDiagonalReal(offset) ) } \
-  /* void Matrix<T>::ConjugateDiagonal( Int offset ) */ \
-  ElError ElMatrixConjugateDiagonal_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElInt offset ) \
-  { EL_TRY( CReflect(A)->ConjugateDiagonal(offset) ) }
-
 #define MATRIX_SUBMATRIX(SIG,SIGBASE,T) \
   /* void Matrix<T>::GetSubmatrix
      ( const std::vector<Int>& I, const std::vector<Int>& J,
@@ -284,7 +274,6 @@ extern "C" {
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
   C_PROTO(SIG,SIGBASE,F) \
   MATRIX_SINGLEENTRY_COMPLEX(SIG,SIGBASE,F) \
-  MATRIX_DIAGONAL_COMPLEX(SIG,SIGBASE,F) \
   MATRIX_SUBMATRIX_COMPLEX(SIG,SIGBASE,F)
 
 #include "El/macros/CInstantiate.h"

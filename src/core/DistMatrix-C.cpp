@@ -529,16 +529,6 @@ extern "C" {
   ( ElConstDistMatrix_ ## SIG A, ElInt offset, ElInt* align ) \
   { EL_TRY( *align = CReflect(A)->DiagonalAlign(offset) ) }
 
-#define DISTMATRIX_DIAGONAL_COMPLEX(SIG,SIGBASE,T) \
-  /* void AbstractDistMatrix<T>::MakeDiagonalReal( Int offset ) */ \
-  ElError ElDistMatrixMakeDiagonalReal_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElInt offset ) \
-  { EL_TRY( CReflect(A)->MakeDiagonalReal(offset) ) } \
-  /* void AbstractDistMatrix<T>::ConjugateDiagonal( Int offset ) */ \
-  ElError ElDistMatrixConjugateDiagonal_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElInt offset ) \
-  { EL_TRY( CReflect(A)->ConjugateDiagonal(offset) ) }
-
 #define DISTMATRIX_SUBMATRIX(SIG,SIGBASE,T) \
   /* void AbstractDistMatrix<T>::GetSubmatrix
      ( const std::vector<Int>& I, const std::vector<Int>& J,
@@ -834,7 +824,6 @@ extern "C" {
 #define C_PROTO_COMPLEX(SIG,SIGBASE,T) \
   C_PROTO(SIG,SIGBASE,T) \
   DISTMATRIX_SINGLEENTRY_COMPLEX(SIG,SIGBASE,T) \
-  DISTMATRIX_DIAGONAL_COMPLEX(SIG,SIGBASE,T) \
   DISTMATRIX_SUBMATRIX_COMPLEX(SIG,SIGBASE,T)
 
 #include "El/macros/CInstantiate.h"

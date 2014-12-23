@@ -208,6 +208,13 @@ void Conjugate( AbstractDistMatrix<T>& A );
 template<typename T>
 void Conjugate( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
 
+// ConjugateDiagonal
+// =================
+template<typename T>
+void ConjugateDiagonal( Matrix<T>& A, Int offset=0 );
+template<typename T>
+void ConjugateDiagonal( AbstractDistMatrix<T>& A, Int offset=0 );
+
 // Copy
 // ====
 template<typename T>
@@ -793,6 +800,13 @@ template<typename T>
 void MakeHermitian( UpperOrLower uplo, SparseMatrix<T>& A );
 template<typename T>
 void MakeHermitian( UpperOrLower uplo, DistSparseMatrix<T>& A );
+
+// MakeDiagonalReal
+// ================
+template<typename T>
+void MakeDiagonalReal( Matrix<T>& A, Int offset=0 );
+template<typename T>
+void MakeDiagonalReal( AbstractDistMatrix<T>& A, Int offset=0 );
 
 // MakeReal
 // ========

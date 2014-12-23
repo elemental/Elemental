@@ -34,7 +34,7 @@ void HermitianUniformSpectrum
     qr::ApplyQ( LEFT, NORMAL, Q, t, s, A );
     qr::ApplyQ( RIGHT, ADJOINT, Q, t, s, A );
 
-    A.MakeDiagonalReal();
+    MakeDiagonalReal(A);
 }
 
 template<typename F>
@@ -69,7 +69,7 @@ void HermitianUniformSpectrum
     qr::ApplyQ( RIGHT, ADJOINT, Q, t, s, A );
 
     // Force the diagonal to be real-valued
-    A.MakeDiagonalReal();
+    MakeDiagonalReal(A);
 }
 
 #define PROTO(F) \

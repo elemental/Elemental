@@ -19,7 +19,7 @@ void MakeSymmetric( UpperOrLower uplo, Matrix<T>& A, bool conjugate )
         LogicError("Cannot make non-square matrix symmetric");
 
     if( conjugate )
-        A.MakeDiagonalReal();
+        MakeDiagonalReal(A);
 
     T* ABuf = A.Buffer();
     const Int ldim = A.LDim();
@@ -61,7 +61,7 @@ void MakeSymmetric
 
     MakeTrapezoidal( uplo, A );
     if( conjugate )
-        A.MakeDiagonalReal();
+        MakeDiagonalReal(A);
 
     std::unique_ptr<AbstractDistMatrix<T>> 
       ATrans( A.Construct(A.Grid(),A.Root()) );

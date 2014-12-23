@@ -422,31 +422,6 @@ void Matrix<T>::Conjugate( Int i, Int j )
     Set( i, j, El::Conj(Get(i,j)) );
 }
 
-// Diagonal manipulation
-// =====================
-
-template<typename T>
-void Matrix<T>::MakeDiagonalReal( Int offset )
-{
-    DEBUG_ONLY(CallStackEntry cse("Matrix::MakeDiagonalReal"))
-    const Int diagLength = DiagonalLength(offset);
-    const Int iOff = ( offset>=0 ? 0      : -offset );
-    const Int jOff = ( offset>=0 ? offset : 0       );
-    for( Int k=0; k<diagLength; ++k )
-        Set( k+iOff, k+jOff, RealPart(Get(k+iOff,k+jOff)) );
-}
-
-template<typename T>
-void Matrix<T>::ConjugateDiagonal( Int offset )
-{
-    DEBUG_ONLY(CallStackEntry cse("Matrix::ConjugateDiagonal"))
-    const Int diagLength = DiagonalLength(offset);
-    const Int iOff = ( offset>=0 ? 0      : -offset );
-    const Int jOff = ( offset>=0 ? offset : 0       );
-    for( Int k=0; k<diagLength; ++k )
-        Set( k+iOff, k+jOff, Conj(Get(k+iOff,k+jOff)) );
-}
-
 // Arbitrary submatrix manipulation
 // ================================
 

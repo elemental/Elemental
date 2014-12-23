@@ -1062,26 +1062,6 @@ lib.ElDistMatrixConjugate_c.restype = c_uint
 lib.ElDistMatrixConjugate_z.argtypes = [c_void_p,iType,iType]
 lib.ElDistMatrixConjugate_z.restype = c_uint
 
-lib.ElDistMatrixMakeDiagonalReal_c.argtypes = [c_void_p,iType]
-lib.ElDistMatrixMakeDiagonalReal_c.restype = c_uint
-lib.ElDistMatrixMakeDiagonalReal_z.argtypes = [c_void_p,iType]
-lib.ElDistMatrixMakeDiagonalReal_z.restype = c_uint
-
-lib.ElDistMatrixConjugateDiagonal_c.argtypes = [c_void_p,iType]
-lib.ElDistMatrixConjugateDiagonal_c.restype = c_uint
-lib.ElDistMatrixConjugateDiagonal_z.argtypes = [c_void_p,iType]
-lib.ElDistMatrixConjugateDiagonal_z.restype = c_uint
-
-lib.ElDistMatrixMakeDiagonalReal_c.argtypes = [c_void_p,iType]
-lib.ElDistMatrixMakeDiagonalReal_c.restype = c_uint
-lib.ElDistMatrixMakeDiagonalReal_z.argtypes = [c_void_p,iType]
-lib.ElDistMatrixMakeDiagonalReal_z.restype = c_uint
-
-lib.ElDistMatrixConjugateDiagonal_c.argtypes = [c_void_p,iType]
-lib.ElDistMatrixConjugateDiagonal_c.restype = c_uint
-lib.ElDistMatrixConjugateDiagonal_z.argtypes = [c_void_p,iType]
-lib.ElDistMatrixConjugateDiagonal_z.restype = c_uint
-
 lib.ElDistMatrixDiagonalAlignedWith_i.argtypes = \
   [c_void_p,DistData,iType,POINTER(bType)]
 lib.ElDistMatrixDiagonalAlignedWith_i.restype = c_uint
@@ -2338,14 +2318,6 @@ class DistMatrix(object):
     self.Matrix().UpdateRealPart(iLoc,jLoc,value)
   def UpdateLocalImagPart(self,iLoc,jLoc,value):
     self.Matrix().UpdateImagPart(iLoc,jLoc,value)
-  def MakeDiagonalReal(self,offset=0):
-    args = [self.obj,offset]
-    if   self.tag == cTag: lib.ElDistMatrixMakeDiagonalReal_c(*args)
-    elif self.tag == zTag: lib.ElDistMatrixMakeDiagonalReal_z(*args)
-  def ConjugateDiagonal(self,offset=0):
-    args = [self.obj,offset]
-    if   self.tag == cTag: lib.ElDistMatrixConjugateDiagonal_c(*args)
-    elif self.tag == zTag: lib.ElDistMatrixConjugateDiagonal_z(*args)
   def DiagonalAlignedWith(distData,offset=0):
     aligned = bType()
     args = [self.obj,distData,offset,pointer(aligned)]
