@@ -1976,7 +1976,7 @@ class DistMatrix(object):
     elif self.tag == cTag: lib.ElDistMatrixGet_c(*args)
     elif self.tag == zTag: lib.ElDistMatrixGet_z(*args)
     else: DataExcept()
-    return value
+    return value.value
   def GetRealPart(self,i,j):
     value = TagToType(Base(self.tag))()
     args = [self.obj,i,j,pointer(value)]
@@ -1986,19 +1986,19 @@ class DistMatrix(object):
     elif self.tag == cTag: lib.ElDistMatrixGetRealPart_c(*args)
     elif self.tag == zTag: lib.ElDistMatrixGetRealPart_z(*args)
     else: DataExcept()
-    return value
+    return value.value
   def GetImagPart(self,i,j):
-    if   self.tag == iTag: return iType(0)
-    elif self.tag == sTag: return sType(0)
-    elif self.tag == dTag: return dType(0)
+    if   self.tag == iTag: return iType(0).value
+    elif self.tag == sTag: return sType(0).value
+    elif self.tag == dTag: return dType(0).value
     elif self.tag == cTag:
       value = sType()
       lib.ElDistMatrixGetRealPart_c(self.obj,i,j,pointer(value))
-      return value
+      return value.value
     elif self.tag == zTag:
       value = dType()
       lib.ElDistMatrixGetRealPart_z(self.obj,i,j,pointer(value))
-      return value
+      return value.value
     else: DataExcept()
   def Set(self,i,j,value):
     args = [self.obj,i,j,value]

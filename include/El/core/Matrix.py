@@ -499,29 +499,29 @@ class Matrix(object):
     elif self.tag == dTag: lib.ElMatrixGet_d(*args)
     elif self.tag == cTag: lib.ElMatrixGet_c(*args)
     elif self.tag == zTag: lib.ElMatrixGet_z(*args)
-    return value
+    return value.value
   def GetRealPart(self,i,j):
     if self.tag == cTag:
       value = sType()
       lib.ElMatrixGetRealPart_c(self.obj,i,j,pointer(value))
-      return value
+      return value.value
     elif self.tag == zTag:
       value = dType()
       lib.ElMatrixGetRealPart_z(self.obj,i,j,pointer(value))
-      return value
+      return value.value
     else: return Get(i,j)
   def GetImagPart(self,i,j):
-    if   self.tag == iTag: return iType(0)
-    elif self.tag == sTag: return sType(0)
-    elif self.tag == dTag: return dType(0)
+    if   self.tag == iTag: return iType(0).value
+    elif self.tag == sTag: return sType(0).value
+    elif self.tag == dTag: return dType(0).value
     elif self.tag == cTag:
       value = c_float()
       lib.ElMatrixGetImagPart_c(self.obj,i,j,pointer(value))
-      return value
+      return value.value
     elif self.tag == zTag:
       value = c_double()
       lib.ElMatrixGetImagPart_z(self.obj,i,j,pointer(value))
-      return value
+      return value.value
   def Set(self,i,j,valuePre):
     value = TagToType(self.tag)(valuePre)
     args = [self.obj,i,j,value]
