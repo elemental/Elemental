@@ -123,7 +123,7 @@ inline void LUnb( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
         z1_MR_STAR.AlignWith( A2 );
         Zeros( z1_MR_STAR, n, 1 ); 
         LocalGemv( ADJOINT, F(1), A2, a12_STAR_MC, F(0), z1_MR_STAR );
-        z1_MR_STAR.SumOver( A2.ColComm() );
+        El::AllReduce( z1_MR_STAR, A2.ColComm() );
         // A2 := A2 - conj(tau) a12^T z1^H
         LocalGer( -Conj(tau), a12_STAR_MC, z1_MR_STAR, A2 );
 
@@ -137,7 +137,7 @@ inline void LUnb( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
         z21_MC_STAR.AlignWith( A22 );
         Zeros( z21_MC_STAR, A22.Height(), 1 );
         LocalGemv( NORMAL, F(1), A22, a12_STAR_MR, F(0), z21_MC_STAR );
-        z21_MC_STAR.SumOver( A22.RowComm() );
+        El::AllReduce( z21_MC_STAR, A22.RowComm() );
         // A22 := A22 - tau z21 conj(a12)
         LocalGer( -tau, z21_MC_STAR, a12_STAR_MR, A22 );
 

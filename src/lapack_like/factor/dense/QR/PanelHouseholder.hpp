@@ -127,7 +127,7 @@ PanelHouseholder
         z21_MR_STAR.AlignWith( AB2 );
         Zeros( z21_MR_STAR, AB2.Width(), 1 );
         LocalGemv( ADJOINT, F(1), AB2, aB1_MC_STAR, F(0), z21_MR_STAR );
-        z21_MR_STAR.SumOver( AB2.ColComm() );
+        El::AllReduce( z21_MR_STAR, AB2.ColComm() );
         Ger
         ( -tau, aB1_MC_STAR.LockedMatrix(), z21_MR_STAR.LockedMatrix(),
           AB2.Matrix() );

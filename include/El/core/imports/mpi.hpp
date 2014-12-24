@@ -12,6 +12,7 @@
 #define EL_IMPORTS_MPI_HPP
 
 namespace El {
+
 namespace mpi {
 
 #if defined(EL_HAVE_MPI3_NONBLOCKING_COLLECTIVES) || \

@@ -32,7 +32,7 @@ void ThreeValued( AbstractDistMatrix<T>& A, Int m, Int n, double p )
     A.Resize( m, n );
     if( A.RedundantRank() == 0 )
         ThreeValued( A.Matrix(), A.LocalHeight(), A.LocalWidth(), p );
-    A.BroadcastOver( A.RedundantComm(), 0 );
+    Broadcast( A, A.RedundantComm(), 0 );
 }
 
 template<typename T>
@@ -42,7 +42,7 @@ void ThreeValued( AbstractBlockDistMatrix<T>& A, Int m, Int n, double p )
     A.Resize( m, n );
     if( A.RedundantRank() == 0 )
         ThreeValued( A.Matrix(), A.LocalHeight(), A.LocalWidth(), p );
-    A.BroadcastOver( A.RedundantComm(), 0 );
+    Broadcast( A, A.RedundantComm(), 0 );
 }
 
 

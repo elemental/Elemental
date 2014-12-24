@@ -46,7 +46,6 @@ inline void AssertSameDist( const DistTypeA& distA, const DistTypeB& distB )
 } // namespace El
 
 #include "./DistMatrix/Abstract.hpp"
-#include "./DistMatrix/General.hpp"
 #include "./DistMatrix/CIRC_CIRC.hpp"
 #include "./DistMatrix/MC_MR.hpp"
 #include "./DistMatrix/MC_STAR.hpp"

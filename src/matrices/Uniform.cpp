@@ -34,7 +34,7 @@ void MakeUniform( AbstractDistMatrix<T>& A, T center, Base<T> radius )
     DEBUG_ONLY(CallStackEntry cse("MakeUniform"))
     if( A.RedundantRank() == 0 )
         MakeUniform( A.Matrix(), center, radius );
-    A.BroadcastOver( A.RedundantComm(), 0 );
+    Broadcast( A, A.RedundantComm(), 0 );
 }
 
 template<typename T>
@@ -43,7 +43,7 @@ void MakeUniform( AbstractBlockDistMatrix<T>& A, T center, Base<T> radius )
     DEBUG_ONLY(CallStackEntry cse("MakeUniform"))
     if( A.RedundantRank() == 0 )
         MakeUniform( A.Matrix(), center, radius );
-    A.BroadcastOver( A.RedundantComm(), 0 );
+    Broadcast( A, A.RedundantComm(), 0 );
 }
 
 template<typename T>

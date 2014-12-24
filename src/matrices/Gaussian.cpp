@@ -25,7 +25,7 @@ void MakeGaussian( AbstractDistMatrix<F>& A, F mean, Base<F> stddev )
     DEBUG_ONLY(CallStackEntry cse("MakeGaussian"))
     if( A.RedundantRank() == 0 )
         MakeGaussian( A.Matrix(), mean, stddev );
-    A.BroadcastOver( A.RedundantComm(), 0 );
+    Broadcast( A, A.RedundantComm(), 0 );
 }
 
 template<typename F>
@@ -34,7 +34,7 @@ void MakeGaussian( AbstractBlockDistMatrix<F>& A, F mean, Base<F> stddev )
     DEBUG_ONLY(CallStackEntry cse("MakeGaussian"))
     if( A.RedundantRank() == 0 )
         MakeGaussian( A.Matrix(), mean, stddev );
-    A.BroadcastOver( A.RedundantComm(), 0 );
+    Broadcast( A, A.RedundantComm(), 0 );
 }
 
 template<typename F>

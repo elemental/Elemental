@@ -18,20 +18,16 @@ namespace El {
 // process grid in a row-major fashion, while the rows are not 
 // distributed.
 template<typename T>
-class DistMatrix<T,VR,STAR> : public GeneralDistMatrix<T,VR,STAR>
+class DistMatrix<T,VR,STAR> : public AbstractDistMatrix<T>
 {
 public:
     // Typedefs
     // ========
     typedef AbstractDistMatrix<T> absType;
-    typedef GeneralDistMatrix<T,VR,STAR> genType;
     typedef DistMatrix<T,VR,STAR> type;
 
     // Constructors and destructors
     // ============================
-
-    // Inherited constructors are part of C++11 but not yet widely supported.
-    //using GeneralDistMatrix<T,VR,STAR>::GeneralDistMatrix;
 
     // Create a 0 x 0 distributed matrix
     DistMatrix( const El::Grid& g=DefaultGrid(), Int root=0 );
@@ -88,6 +84,16 @@ public:
     // Basic queries
     // =============
     El::DistData DistData() const override;
+
+    Dist ColDist() const override;
+    Dist RowDist() const override;
+    Dist PartialColDist() const override;
+    Dist PartialRowDist() const override;
+    Dist PartialUnionColDist() const override;
+    Dist PartialUnionRowDist() const override;
+    Dist CollectedColDist() const override;
+    Dist CollectedRowDist() const override;
+
     mpi::Comm DistComm() const override;
     mpi::Comm CrossComm() const override;
     mpi::Comm RedundantComm() const override;

@@ -8,8 +8,8 @@
 */
 #include "El.hpp"
 
-#define ColDist MR
-#define RowDist MC
+#define COLDIST MR
+#define ROWDIST MC
 
 #include "./setup.hpp"
 
@@ -213,19 +213,19 @@ Int DM::RedundantSize() const { return 1; }
 // ####################################################################
 
 #define SELF(T,U,V) \
-  template DistMatrix<T,ColDist,RowDist>::DistMatrix \
+  template DistMatrix<T,COLDIST,ROWDIST>::DistMatrix \
   ( const DistMatrix<T,U,V>& A );
 #define OTHER(T,U,V) \
-  template DistMatrix<T,ColDist,RowDist>::DistMatrix \
+  template DistMatrix<T,COLDIST,ROWDIST>::DistMatrix \
   ( const BlockDistMatrix<T,U,V>& A ); \
-  template DistMatrix<T,ColDist,RowDist>& \
-           DistMatrix<T,ColDist,RowDist>::operator= \
+  template DistMatrix<T,COLDIST,ROWDIST>& \
+           DistMatrix<T,COLDIST,ROWDIST>::operator= \
            ( const BlockDistMatrix<T,U,V>& A )
 #define BOTH(T,U,V) \
   SELF(T,U,V); \
   OTHER(T,U,V)
 #define PROTO(T) \
-  template class DistMatrix<T,ColDist,RowDist>; \
+  template class DistMatrix<T,COLDIST,ROWDIST>; \
   BOTH( T,CIRC,CIRC); \
   BOTH( T,MC,  MR  ); \
   BOTH( T,MC,  STAR); \

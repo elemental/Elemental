@@ -137,7 +137,7 @@ RUHB
         ( LOWER, NORMAL,
           Base<F>(1), HPan_STAR_VR.LockedMatrix(),
           Base<F>(0), SInv_STAR_STAR.Matrix() );
-        SInv_STAR_STAR.SumOver( HPan_STAR_VR.RowComm() );
+        El::AllReduce( SInv_STAR_STAR, HPan_STAR_VR.RowComm() );
         t1_STAR_STAR = t1;
         FixDiagonal( conjugation, t1_STAR_STAR, SInv_STAR_STAR );
 

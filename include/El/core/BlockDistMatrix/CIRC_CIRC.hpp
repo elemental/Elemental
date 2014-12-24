@@ -28,9 +28,6 @@ public:
     // Constructors and destructors
     // ============================
 
-    // Inherited constructors are part of C++11 but not yet widely supported.
-    //using GeneralDistMatrix<T,CIRC,CIRC>::GeneralDistMatrix;
-
     // Create a 0 x 0 distributed matrix with default (and unpinned) block size
     BlockDistMatrix( const El::Grid& g=DefaultGrid(), Int root=0 );
     // Create a 0 x 0 distributed matrix with fixed block size

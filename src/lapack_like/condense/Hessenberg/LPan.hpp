@@ -199,7 +199,7 @@ inline void LPan
         //     = conj(a1 - (U0 (inv(G00)^H (U0^H a1^T)))^T)
         LocalGemv
         ( ADJOINT, F(1), U0_MR_STAR, a1Conj_STAR_MR, F(0), y10_STAR_STAR );
-        y10_STAR_STAR.SumOver( U0_MR_STAR.ColComm() );
+        El::AllReduce( y10_STAR_STAR, U0_MR_STAR.ColComm() );
         Trsv
         ( UPPER, ADJOINT, NON_UNIT, 
           G00_STAR_STAR.LockedMatrix(), y10_STAR_STAR.Matrix() );
@@ -222,12 +222,12 @@ inline void LPan
 
         // v1 := A2^H u21
         LocalGemv( ADJOINT, F(1), A2, u21_MC_STAR, F(0), v1_MR_STAR );
-        v1_MR_STAR.SumOver( A2.ColComm() );
+        El::AllReduce( v1_MR_STAR, A2.ColComm() );
 
         // g01 := U20^H u21
         LocalGemv
         ( ADJOINT, F(1), U20_MC_STAR, u21_MC_STAR, F(0), g01_STAR_STAR );
-        g01_STAR_STAR.SumOver( U20_MC_STAR.ColComm() );
+        El::AllReduce( g01_STAR_STAR, U20_MC_STAR.ColComm() );
 
         // gamma11 := 1/tau
         gamma11_STAR_STAR.Set(0,0,F(1)/tau);

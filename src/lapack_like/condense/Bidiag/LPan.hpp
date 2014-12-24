@@ -309,7 +309,7 @@ LPan
         z01_MC_STAR.AlignWith( Y0R );
         Zeros( z01_MC_STAR, Y0R.Height(), 1 );
         LocalGemv( NORMAL, F(1), Y0R, a1R_STAR_MR, F(0), z01_MC_STAR );
-        z01_MC_STAR.SumOver( Y0R.RowComm() );
+        El::AllReduce( z01_MC_STAR, Y0R.RowComm() );
         z01_MR_STAR.AlignWith( A20 );
         z01_MR_STAR = z01_MC_STAR;
         // z21[MC,* ] -= A20[MC,MR] z01[MR,* ]
@@ -321,7 +321,7 @@ LPan
         Zeros( z01_MC_STAR, A0R.Height(), 1 );
         Conjugate( a1R_STAR_MR );
         LocalGemv( NORMAL, F(1), A0R, a1R_STAR_MR, F(0), z01_MC_STAR );
-        z01_MC_STAR.SumOver( A0R.RowComm() );
+        El::AllReduce( z01_MC_STAR, A0R.RowComm() );
         Conjugate( a1R_STAR_MR );
         Conjugate( z01_MC_STAR );
         z01_MR_STAR.AlignWith( X20 );
@@ -391,7 +391,7 @@ LPan
         z01_MR_STAR.AlignWith( A20 );
         Zeros( z01_MR_STAR, A20.Width(), 1 );
         LocalGemv( ADJOINT, F(1), A20, a21_MC_STAR, F(0), z01_MR_STAR );
-        z01_MR_STAR.SumOver( A20.ColComm() );
+        El::AllReduce( z01_MR_STAR, A20.ColComm() );
         z01_MC_STAR.AlignWith( Y02 );
         z01_MC_STAR = z01_MR_STAR;
         // z21[MR,* ] -= Y02^H[MR,MC] z01[MC,* ]
@@ -401,7 +401,7 @@ LPan
         zT1_MR_STAR.AlignWith( X2L );
         Zeros( zT1_MR_STAR, X2L.Width(), 1 );
         LocalGemv( ADJOINT, F(1), X2L, a21_MC_STAR, F(0), zT1_MR_STAR );
-        zT1_MR_STAR.SumOver( X2L.ColComm() );
+        El::AllReduce( zT1_MR_STAR, X2L.ColComm() );
         zT1_MC_STAR.AlignWith( AT2 );
         zT1_MC_STAR = zT1_MR_STAR; 
         // z21[MR,* ] -= AT2^T[MR,MC] (X2L^H a21)[MC,* ]

@@ -45,7 +45,7 @@ void Cholesky( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& RPre )
 
     Zeros( R, n, n );
     Herk( UPPER, ADJOINT, Base<F>(1), A.Matrix(), Base<F>(0), R.Matrix() );
-    R.SumOver( A.ColComm() );
+    El::AllReduce( R, A.ColComm() );
     El::Cholesky( UPPER, R.Matrix() );
     Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), R.Matrix(), A.Matrix() );
 }

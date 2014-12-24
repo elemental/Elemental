@@ -188,7 +188,7 @@ LLTSmall
         // X1 -= L21' X2
         LocalGemm( orientation, NORMAL, F(-1), L21, X2, Z1_STAR_STAR );
         AddInLocalData( X1, Z1_STAR_STAR );
-        Z1_STAR_STAR.SumOver( X1.DistComm() );
+        El::AllReduce( Z1_STAR_STAR, X1.DistComm() );
 
         // X1 := L11^-1 X1
         L11_STAR_STAR = L11;

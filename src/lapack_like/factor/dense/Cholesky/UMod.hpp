@@ -141,7 +141,7 @@ UUpdate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
         v1_STAR_MR = v1;
         Zeros( b12_STAR_MC, 1, V2.Height() );
         LocalGemv( NORMAL, F(1), V2, v1_STAR_MR, F(0), b12_STAR_MC );
-        b12_STAR_MC.SumOver( V2.RowComm() );
+        El::AllReduce( b12_STAR_MC, V2.RowComm() );
         Axpy( F(1), b12_STAR_MC, z12_STAR_MC );
         Scale( F(-1), V2 );
         LocalGer( Conj(tau), z12_STAR_MC, v1_STAR_MR, V2 );
@@ -275,7 +275,7 @@ UDowndate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
         v1_STAR_MR = v1;
         Zeros( b12_STAR_MC, 1, V2.Height() );
         LocalGemv( NORMAL, F(-1), V2, v1_STAR_MR, F(0), b12_STAR_MC );
-        b12_STAR_MC.SumOver( V2.RowComm() );
+        El::AllReduce( b12_STAR_MC, V2.RowComm() );
         Axpy( F(1), b12_STAR_MC, z12_STAR_MC );
         Scale( F(-1), u12 );
         Scale( F(-1), V2 );

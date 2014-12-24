@@ -124,7 +124,6 @@ template<typename T> class Matrix;
 template<typename T> class AbstractDistMatrix;
 template<typename T> class AbstractBlockDistMatrix;
 
-template<typename T,Dist U=MC,Dist V=MR> class GeneralDistMatrix;
 template<typename T,Dist U=MC,Dist V=MR> class GeneralBlockDistMatrix;
 
 template<typename T,Dist U=MC,Dist V=MR> class DistMatrix;

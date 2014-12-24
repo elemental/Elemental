@@ -121,7 +121,7 @@ LUpdate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
         v1_STAR_MR = v1;
         Zeros( b21_MC_STAR, V2.Height(), 1 );
         LocalGemv( NORMAL, F(1), V2, v1_STAR_MR, F(0), b21_MC_STAR );
-        b21_MC_STAR.SumOver( V2.RowComm() );
+        El::AllReduce( b21_MC_STAR, V2.RowComm() );
         Axpy( F(1), b21_MC_STAR, z21_MC_STAR );
         Scale( F(-1), l21 );
         Axpy( tau, z21_MC_STAR, l21 );
@@ -240,7 +240,7 @@ LDowndate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
         v1_STAR_MR = v1;
         Zeros( b21_MC_STAR, V2.Height(), 1 );
         LocalGemv( NORMAL, F(-1), V2, v1_STAR_MR, F(0), b21_MC_STAR );
-        b21_MC_STAR.SumOver( V2.RowComm() );
+        El::AllReduce( b21_MC_STAR, V2.RowComm() );
         Axpy( F(1), b21_MC_STAR, z21_MC_STAR );
         Scale( F(-1), l21 );
         Scale( F(-1), V2  );

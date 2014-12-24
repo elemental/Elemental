@@ -128,7 +128,7 @@ inline void L( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
         V01_MR_STAR.AlignWith( AB0 );
         Zeros( V01_MR_STAR, k, nb );
         LocalGemm( ADJOINT, NORMAL, F(1), AB0, UB1_MC_STAR, F(0), V01_MR_STAR );
-        V01_MR_STAR.SumOver( AB0.ColComm() );
+        El::AllReduce( V01_MR_STAR, AB0.ColComm() );
         LocalTrsm
         ( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), G11_STAR_STAR, V01_MR_STAR );
         LocalGemm
@@ -146,7 +146,7 @@ inline void L( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
         V21_MC_STAR.AlignWith( A2R );
         Zeros( V21_MC_STAR, A2R.Height(), nb );
         LocalGemm( NORMAL, NORMAL, F(1), A2R, UB1_MR_STAR, F(0), V21_MC_STAR );
-        V21_MC_STAR.SumOver( A2R.RowComm() );
+        El::AllReduce( V21_MC_STAR, A2R.RowComm() );
         LocalTrsm
         ( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), G11_STAR_STAR, V21_MC_STAR );
         LocalGemm

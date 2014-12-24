@@ -95,6 +95,14 @@ void PartialColSumScatter
 
 } // namespace adjoint_axpy
 
+// AllReduce
+// =========
+// TODO: Matrix<T> version?
+template<typename T>
+void AllReduce( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op=mpi::SUM );
+template<typename T>
+void AllReduce( AbstractBlockDistMatrix<T>& A, mpi::Comm comm, mpi::Op op=mpi::SUM );
+
 // Axpy
 // ====
 template<typename T,typename S>
@@ -160,6 +168,14 @@ template<typename T,typename S>
 void AxpyTrapezoid
 ( UpperOrLower uplo, S alpha, 
   const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y, Int offset=0 );
+
+// Broadcast
+// =========
+// TODO: Matrix<T> version?
+template<typename T>
+void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, Int rank=0 );
+template<typename T>
+void Broadcast( AbstractBlockDistMatrix<T>& A, mpi::Comm comm, Int rank=0 );
 
 // Column norms
 // ============

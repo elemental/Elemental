@@ -350,7 +350,7 @@ TallAbsoluteThresholded
     DistMatrix<F,STAR,STAR> C(g);
     Zeros( C, n, n );
     Herk( LOWER, ADJOINT, Real(1), A.LockedMatrix(), Real(0), C.Matrix() );
-    C.SumOver( A.ColComm() );
+    El::AllReduce( C, A.ColComm() );
 
     // [V,Sigma^2] := eig(C), where each sigma > tol
     HermitianEigSubset<Real> subset;
@@ -416,7 +416,7 @@ TallRelativeThresholded
     DistMatrix<F,STAR,STAR> C(g);
     Zeros( C, n, n );
     Herk( LOWER, ADJOINT, Real(1), A.LockedMatrix(), Real(0), C.Matrix() );
-    C.SumOver( A.ColComm() );
+    El::AllReduce( C, A.ColComm() );
 
     // [V,Sigma^2] := eig(C)
     HermitianEig( LOWER, C, s, V, DESCENDING );

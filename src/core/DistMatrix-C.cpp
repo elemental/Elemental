@@ -529,18 +529,12 @@ extern "C" {
   ( ElConstDistMatrix_ ## SIG A, ElInt offset, ElInt* align ) \
   { EL_TRY( *align = CReflect(A)->DiagonalAlign(offset) ) }
 
-#define DISTMATRIX_SUM(SIG,SIGBASE,T) \
-  ElError ElDistMatrixSumOver_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, MPI_Comm comm ) \
-  { EL_TRY( CReflect(A)->SumOver( comm ) ) }
-
 #define C_PROTO(SIG,SIGBASE,T) \
   DISTMATRIX_CREATE(SIG,SIGBASE,T) \
   DISTMATRIX_RECONFIG(SIG,SIGBASE,T) \
   DISTMATRIX_BASIC(SIG,SIGBASE,T) \
   DISTMATRIX_SINGLEENTRY(SIG,SIGBASE,T) \
-  DISTMATRIX_DIAGONAL(SIG,SIGBASE,T) \
-  DISTMATRIX_SUM(SIG,SIGBASE,T)
+  DISTMATRIX_DIAGONAL(SIG,SIGBASE,T)
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,T) \
   C_PROTO(SIG,SIGBASE,T) \

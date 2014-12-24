@@ -20,20 +20,16 @@ namespace El {
 // entire process grid if and only if the dimensions of the process grid
 // are coprime.
 template<typename T>
-class DistMatrix<T,STAR,MD> : public GeneralDistMatrix<T,STAR,MD>
+class DistMatrix<T,STAR,MD> : public AbstractDistMatrix<T>
 {
 public:
     // Typedefs
     // ========
     typedef AbstractDistMatrix<T> absType;
-    typedef GeneralDistMatrix<T,STAR,MD> genType;
     typedef DistMatrix<T,STAR,MD> type;
 
     // Constructors and destructors
     // ============================
-
-    // Inherited constructors are part of C++11 but not yet widely supported.
-    //using GeneralDistMatrix<T,STAR,MD>::GeneralDistMatrix;
 
     // Create a 0 x 0 distributed matrix
     DistMatrix( const El::Grid& g=DefaultGrid(), Int root=0 );
@@ -90,6 +86,16 @@ public:
     // Basic queries
     // =============
     El::DistData DistData() const override;
+
+    Dist ColDist() const override;
+    Dist RowDist() const override;
+    Dist PartialColDist() const override;
+    Dist PartialRowDist() const override;
+    Dist PartialUnionColDist() const override;
+    Dist PartialUnionRowDist() const override;
+    Dist CollectedColDist() const override;
+    Dist CollectedRowDist() const override;
+
     mpi::Comm DistComm() const override;
     mpi::Comm CrossComm() const override;
     mpi::Comm RedundantComm() const override;
