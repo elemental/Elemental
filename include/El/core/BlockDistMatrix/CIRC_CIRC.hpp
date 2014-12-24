@@ -59,21 +59,8 @@ public:
     // Assignment and reconfiguration
     // ==============================
     template<Dist U,Dist V> type& operator=( const DistMatrix<T,U,V>& A );
+    type& operator=( const type& A );
     type& operator=( const absType& A );
-    type& operator=( const BlockDistMatrix<T,MC,  MR  >& A );
-    type& operator=( const BlockDistMatrix<T,MC,  STAR>& A );
-    type& operator=( const BlockDistMatrix<T,STAR,MR  >& A );
-    type& operator=( const BlockDistMatrix<T,MD,  STAR>& A );
-    type& operator=( const BlockDistMatrix<T,STAR,MD  >& A );
-    type& operator=( const BlockDistMatrix<T,MR,  MC  >& A );
-    type& operator=( const BlockDistMatrix<T,MR,  STAR>& A );
-    type& operator=( const BlockDistMatrix<T,STAR,MC  >& A );
-    type& operator=( const BlockDistMatrix<T,VC,  STAR>& A );
-    type& operator=( const BlockDistMatrix<T,STAR,VC  >& A );
-    type& operator=( const BlockDistMatrix<T,VR,  STAR>& A );
-    type& operator=( const BlockDistMatrix<T,STAR,VR  >& A );
-    type& operator=( const BlockDistMatrix<T,STAR,STAR>& A );
-    type& operator=( const BlockDistMatrix<T,CIRC,CIRC>& A );
     void CopyFromRoot( const Matrix<T>& A, bool includingViewers=false );
     void CopyFromNonRoot( bool includingViewers=false );
     // Move assignment

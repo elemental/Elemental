@@ -161,19 +161,6 @@ BDM& BDM::operator=( const DistMatrix<T,U,V>& A )
 }
 
 template<typename T>
-BDM& BDM::operator=( const AbstractBlockDistMatrix<T>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("BDM = ABDM"))
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = dynamic_cast<const BlockDistMatrix<T,CDIST,RDIST>&>(A); \
-      *this = ACast;
-    #include "El/macros/GuardAndPayload.h"
-    return *this;
-}
-
-template<typename T>
 BDM& BDM::operator=( BDM&& A )
 {
     if( this->Viewing() && !A.Viewing() )

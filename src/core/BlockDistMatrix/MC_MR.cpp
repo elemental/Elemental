@@ -25,10 +25,7 @@ template<typename T>
 BDM& BDM::operator=( const BDM& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [MC,MR]"))
-    if( this->Grid() == A.Grid() )
-        copy::Translate( A, *this );
-    else
-        this->CopyFromDifferentGrid( A );
+    copy::Translate( A, *this );
     return *this;
 }
 
@@ -156,6 +153,19 @@ BDM& BDM::operator=( const BlockDistMatrix<T,CIRC,CIRC>& A )
     return *this;
 }
 
+template<typename T>
+BDM& BDM::operator=( const AbstractBlockDistMatrix<T>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("BDM = ABDM"))
+    #define GUARD(CDIST,RDIST) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
+    #define PAYLOAD(CDIST,RDIST) \
+      auto& ACast = dynamic_cast<const BlockDistMatrix<T,CDIST,RDIST>&>(A); \
+      *this = ACast;
+    #include "El/macros/GuardAndPayload.h"
+    return *this;
+}
+
 // Basic queries
 // =============
 
@@ -180,19 +190,6 @@ template<typename T>
 Int BDM::CrossSize() const { return 1; }
 template<typename T>
 Int BDM::RedundantSize() const { return 1; }
-
-// Private section
-// ###############
-
-// Redistribute from a different process grid
-// ==========================================
-
-template<typename T>
-void BDM::CopyFromDifferentGrid( const BDM& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("[MC,MR]::CopyFromDifferentGrid"))
-    LogicError("This routine is not yet written");
-}
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################
