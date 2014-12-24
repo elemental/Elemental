@@ -19,20 +19,16 @@ namespace El {
 // grid.
 
 template<typename T>
-class BlockDistMatrix<T,MC,MR> : public GeneralBlockDistMatrix<T,MC,MR>
+class BlockDistMatrix<T,MC,MR> : public AbstractBlockDistMatrix<T>
 {
 public:
     // Typedefs
     // ========
     typedef AbstractBlockDistMatrix<T> absType;
-    typedef GeneralBlockDistMatrix<T,MC,MR> genType;
     typedef BlockDistMatrix<T,MC,MR> type;
 
     // Constructors and destructors
     // ============================
-
-    // Inherited constructors are part of C++11 but not yet widely supported.
-    //using GeneralBlockDistMatrix<T,MC,MR>::GeneralBlockDistMatrix;
 
     // Create a 0 x 0 distributed matrix with default (and unpinned) block size
     BlockDistMatrix( const El::Grid& g=DefaultGrid(), Int root=0 );
@@ -110,10 +106,6 @@ public:
     Int RedundantSize() const override;
 
 private:
-    // Redistribute from a different process grid
-    // ==========================================
-    void CopyFromDifferentGrid( const type& A );
-
     // Friend declarations
     // ===================
     template<typename S,Dist U,Dist V> friend class DistMatrix;

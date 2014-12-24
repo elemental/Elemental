@@ -18,13 +18,12 @@ namespace El {
 // processes (*), and the rows will be distributed like "Matrix Rows" (MR).
 // Thus the rows will be distributed among rows of the process grid.
 template<typename T>
-class BlockDistMatrix<T,STAR,MR> : public GeneralBlockDistMatrix<T,STAR,MR>
+class BlockDistMatrix<T,STAR,MR> : public AbstractBlockDistMatrix<T>
 {
 public:
     // Typedefs
     // ========
     typedef AbstractBlockDistMatrix<T> absType;
-    typedef GeneralBlockDistMatrix<T,STAR,MR> genType;
     typedef BlockDistMatrix<T,STAR,MR> type;
 
     // Constructors and destructors

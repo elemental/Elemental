@@ -231,33 +231,6 @@ public:
     bool DiagonalAlignedWith( const El::BlockDistData& d, Int offset=0 ) const;
     Int DiagonalRoot( Int offset=0 ) const;
     Int DiagonalAlign( Int offset=0 ) const;
-    void MakeDiagonalReal( Int offset=0 );
-    void ConjugateDiagonal( Int offset=0 );
-
-    // TODO: Move these into Level 1 BLAS
-    virtual void GetDiagonal
-    ( AbstractBlockDistMatrix<T>& d, Int offset=0 ) const = 0;
-    virtual void GetRealPartOfDiagonal
-    ( AbstractBlockDistMatrix<Base<T>>& d, Int offset=0 ) const = 0;
-    virtual void GetImagPartOfDiagonal
-    ( AbstractBlockDistMatrix<Base<T>>& d, Int offset=0 ) const = 0;
-
-    virtual void SetDiagonal
-    ( const AbstractBlockDistMatrix<T>& d, Int offset=0 ) = 0;
-    virtual void SetRealPartOfDiagonal
-    ( const AbstractBlockDistMatrix<Base<T>>& d, Int offset=0 ) = 0;
-    virtual void SetImagPartOfDiagonal
-    ( const AbstractBlockDistMatrix<Base<T>>& d, Int offset=0 ) = 0;
-
-    virtual void UpdateDiagonal
-    ( T alpha, const AbstractBlockDistMatrix<T>& d, 
-      Int offset=0 ) = 0; 
-    virtual void UpdateRealPartOfDiagonal
-    ( Base<T> alpha, const AbstractBlockDistMatrix<Base<T>>& d, 
-      Int offset=0 ) = 0;
-    virtual void UpdateImagPartOfDiagonal
-    ( Base<T> alpha, const AbstractBlockDistMatrix<Base<T>>& d, 
-      Int offset=0 ) = 0;
 
     // Assertions
     // ==========
@@ -309,7 +282,6 @@ protected:
     // Friend declarations
     // ===================
     template<typename S,Dist J,Dist K> friend class DistMatrix;
-    template<typename S,Dist J,Dist K> friend class GeneralBlockDistMatrix;
     template<typename S,Dist J,Dist K> friend class BlockDistMatrix;
 };
 

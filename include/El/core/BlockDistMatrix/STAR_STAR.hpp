@@ -16,13 +16,12 @@ namespace El {
 //
 // The entire matrix is replicated across all processes.
 template<typename T>
-class BlockDistMatrix<T,STAR,STAR> : public GeneralBlockDistMatrix<T,STAR,STAR>
+class BlockDistMatrix<T,STAR,STAR> : public AbstractBlockDistMatrix<T>
 {
 public:
     // Typedefs
     // ========
     typedef AbstractBlockDistMatrix<T> absType;
-    typedef GeneralBlockDistMatrix<T,STAR,STAR> genType;
     typedef BlockDistMatrix<T,STAR,STAR> type;
 
     // Constructors and destructors

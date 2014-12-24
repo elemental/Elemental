@@ -18,13 +18,12 @@ namespace El {
 // process grid in a row-major fashion, while the rows are not 
 // distributed.
 template<typename T>
-class BlockDistMatrix<T,VR,STAR> : public GeneralBlockDistMatrix<T,VR,STAR>
+class BlockDistMatrix<T,VR,STAR> : public AbstractBlockDistMatrix<T>
 {
 public:
     // Typedefs
     // ========
     typedef AbstractBlockDistMatrix<T> absType;
-    typedef GeneralBlockDistMatrix<T,VR,STAR> genType;
     typedef BlockDistMatrix<T,VR,STAR> type;
 
     // Constructors and destructors

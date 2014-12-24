@@ -79,6 +79,16 @@ void Scatter
       B.Buffer(), 1, B.LDim() );
 }
 
+template<typename T>
+void Scatter
+( const BlockDistMatrix<T,CIRC,CIRC>& A,
+        AbstractBlockDistMatrix<T>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("copy::Scatter"))
+    AssertSameGrids( A, B );
+    LogicError("This routine is not yet written");
+}
+
 // TODO: Find a way to combine this with the above
 template<typename T>
 void Scatter
@@ -115,13 +125,29 @@ void Scatter
     }
 }
 
+template<typename T>
+void Scatter
+( const BlockDistMatrix<T,CIRC,CIRC>& A,
+        BlockDistMatrix<T,STAR,STAR>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("copy::Scatter"))
+    AssertSameGrids( A, B );
+    LogicError("This routine is not yet written");
+}
+
 #define PROTO(T) \
   template void Scatter \
   ( const DistMatrix<T,CIRC,CIRC>& A, \
           AbstractDistMatrix<T>& B ); \
   template void Scatter \
+  ( const BlockDistMatrix<T,CIRC,CIRC>& A, \
+          AbstractBlockDistMatrix<T>& B ); \
+  template void Scatter \
   ( const DistMatrix<T,CIRC,CIRC>& A, \
-          DistMatrix<T,STAR,STAR>& B );
+          DistMatrix<T,STAR,STAR>& B ); \
+  template void Scatter \
+  ( const BlockDistMatrix<T,CIRC,CIRC>& A, \
+          BlockDistMatrix<T,STAR,STAR>& B );
 
 #include "El/macros/Instantiate.h"
 

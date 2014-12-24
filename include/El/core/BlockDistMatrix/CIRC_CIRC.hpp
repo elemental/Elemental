@@ -16,13 +16,12 @@ namespace El {
 //
 // The entire matrix is only stored on a single process.
 template<typename T>
-class BlockDistMatrix<T,CIRC,CIRC> : public GeneralBlockDistMatrix<T,CIRC,CIRC>
+class BlockDistMatrix<T,CIRC,CIRC> : public AbstractBlockDistMatrix<T>
 {
 public:
     // Typedefs
     // ========
     typedef AbstractBlockDistMatrix<T> absType;
-    typedef GeneralBlockDistMatrix<T,CIRC,CIRC> genType;
     typedef BlockDistMatrix<T,CIRC,CIRC> type;
 
     // Constructors and destructors
@@ -106,11 +105,6 @@ public:
     Int RedundantSize() const override;
 
 private:
-    template<Dist U,Dist V>
-    void CollectFrom( const BlockDistMatrix<T,U,V>& A );
-    template<Dist U,Dist V>
-    void Scatter( BlockDistMatrix<T,U,V>& A ) const;
-
     // Friend declarations
     // ===================
     template<typename S,Dist U,Dist V> friend class DistMatrix;

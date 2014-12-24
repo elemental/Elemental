@@ -560,13 +560,27 @@ void Gather
 ( const AbstractDistMatrix<T>& A,
         DistMatrix<T,CIRC,CIRC>& B );
 template<typename T>
+void Gather
+( const AbstractBlockDistMatrix<T>& A,
+        BlockDistMatrix<T,CIRC,CIRC>& B );
+
+template<typename T>
 void Scatter
 ( const DistMatrix<T,CIRC,CIRC>& A,
         AbstractDistMatrix<T>& B );
 template<typename T>
 void Scatter
+( const BlockDistMatrix<T,CIRC,CIRC>& A,
+        AbstractBlockDistMatrix<T>& B );
+
+template<typename T>
+void Scatter
 ( const DistMatrix<T,CIRC,CIRC>& A,
         DistMatrix<T,STAR,STAR>& B );
+template<typename T>
+void Scatter
+( const BlockDistMatrix<T,CIRC,CIRC>& A,
+        BlockDistMatrix<T,STAR,STAR>& B );
 
 namespace util {
 

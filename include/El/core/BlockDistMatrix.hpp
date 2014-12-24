@@ -46,7 +46,6 @@ inline bool operator==( const BlockDistData& A, const BlockDistData& B )
 } // namespace El
 
 #include "./BlockDistMatrix/Abstract.hpp"
-#include "./BlockDistMatrix/General.hpp"
 #include "./BlockDistMatrix/CIRC_CIRC.hpp"
 #include "./BlockDistMatrix/MC_MR.hpp"
 #include "./BlockDistMatrix/MC_STAR.hpp"

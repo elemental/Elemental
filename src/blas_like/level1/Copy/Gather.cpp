@@ -77,10 +77,23 @@ void Gather
     }
 }
 
+template<typename T>
+void Gather
+( const AbstractBlockDistMatrix<T>& A,
+        BlockDistMatrix<T,CIRC,CIRC>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("copy::Gather"))
+    AssertSameGrids( A, B );
+    LogicError("This routine is not yet written");
+}
+
 #define PROTO(T) \
   template void Gather \
   ( const AbstractDistMatrix<T>& A, \
-          DistMatrix<T,CIRC,CIRC>& B );
+          DistMatrix<T,CIRC,CIRC>& B ); \
+  template void Gather \
+  ( const AbstractBlockDistMatrix<T>& A, \
+          BlockDistMatrix<T,CIRC,CIRC>& B );
 
 #include "El/macros/Instantiate.h"
 

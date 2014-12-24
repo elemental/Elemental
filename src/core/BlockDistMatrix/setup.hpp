@@ -15,7 +15,7 @@ namespace El {
 
 #define DM DistMatrix<T,COLDIST,ROWDIST>
 #define BDM BlockDistMatrix<T,COLDIST,ROWDIST>
-#define GBDM GeneralBlockDistMatrix<T,COLDIST,ROWDIST>
+#define ABDM AbstractBlockDistMatrix<T>
 
 // Public section
 // ##############
@@ -25,7 +25,7 @@ namespace El {
 
 template<typename T>
 BDM::BlockDistMatrix( const El::Grid& g, Int root )
-: GBDM(g,root)
+: ABDM(g,root)
 { 
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.viewType_ = OWNER;
@@ -35,7 +35,7 @@ BDM::BlockDistMatrix( const El::Grid& g, Int root )
 template<typename T>
 BDM::BlockDistMatrix
 ( const El::Grid& g, Int blockHeight, Int blockWidth, Int root )
-: GBDM(g,blockHeight,blockWidth,root)
+: ABDM(g,blockHeight,blockWidth,root)
 { 
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.viewType_ = OWNER;
@@ -45,7 +45,7 @@ BDM::BlockDistMatrix
 template<typename T>
 BDM::BlockDistMatrix
 ( Int height, Int width, const El::Grid& g, Int root )
-: GBDM(g,root)
+: ABDM(g,root)
 { 
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.viewType_ = OWNER;
@@ -56,7 +56,7 @@ template<typename T>
 BDM::BlockDistMatrix
 ( Int height, Int width, const El::Grid& g,
   Int blockHeight, Int blockWidth, Int root )
-: GBDM(g,blockHeight,blockWidth,root)
+: ABDM(g,blockHeight,blockWidth,root)
 { 
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.viewType_ = OWNER;
@@ -66,7 +66,7 @@ BDM::BlockDistMatrix
 
 template<typename T>
 BDM::BlockDistMatrix( const BDM& A )
-: GBDM(A.Grid())
+: ABDM(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("BlockDistMatrix::BlockDistMatrix"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
@@ -81,7 +81,7 @@ BDM::BlockDistMatrix( const BDM& A )
 template<typename T>
 template<Dist U,Dist V>
 BDM::BlockDistMatrix( const BlockDistMatrix<T,U,V>& A )
-: GBDM(A.Grid())
+: ABDM(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("BlockDistMatrix::BlockDistMatrix"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
@@ -96,7 +96,7 @@ BDM::BlockDistMatrix( const BlockDistMatrix<T,U,V>& A )
 
 template<typename T>
 BDM::BlockDistMatrix( const AbstractBlockDistMatrix<T>& A )
-: GBDM(A.Grid())
+: ABDM(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("BDM(ABDM)"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
@@ -117,7 +117,7 @@ BDM::BlockDistMatrix( const AbstractBlockDistMatrix<T>& A )
 template<typename T>
 template<Dist U,Dist V>
 BDM::BlockDistMatrix( const DistMatrix<T,U,V>& A )
-: GBDM(A.Grid())
+: ABDM(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("BlockDistMatrix::BlockDistMatrix"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
@@ -127,7 +127,7 @@ BDM::BlockDistMatrix( const DistMatrix<T,U,V>& A )
 }
 
 template<typename T>
-BDM::BlockDistMatrix( BDM&& A ) EL_NOEXCEPT : GBDM(std::move(A)) { } 
+BDM::BlockDistMatrix( BDM&& A ) EL_NOEXCEPT : ABDM(std::move(A)) { } 
 
 template<typename T> BDM::~BlockDistMatrix() { }
 
@@ -179,7 +179,7 @@ BDM& BDM::operator=( BDM&& A )
     if( this->Viewing() && !A.Viewing() )
         this->operator=( (const BDM&)A );
     else
-        GBDM::operator=( std::move(A) );
+        ABDM::operator=( std::move(A) );
     return *this;
 }
 

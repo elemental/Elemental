@@ -20,13 +20,12 @@ namespace El {
 // entire process grid if and only if the dimensions of the process grid
 // are coprime.
 template<typename T>
-class BlockDistMatrix<T,STAR,MD> : public GeneralBlockDistMatrix<T,STAR,MD>
+class BlockDistMatrix<T,STAR,MD> : public AbstractBlockDistMatrix<T>
 {
 public:
     // Typedefs
     // ========
     typedef AbstractBlockDistMatrix<T> absType;
-    typedef GeneralBlockDistMatrix<T,STAR,MD> genType;
     typedef BlockDistMatrix<T,STAR,MD> type;
 
     // Constructors and destructors
