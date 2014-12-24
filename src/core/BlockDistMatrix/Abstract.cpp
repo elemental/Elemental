@@ -1089,40 +1089,6 @@ Int AbstractBlockDistMatrix<T>::DiagonalAlign( Int offset ) const
 }
 
 template<typename T>
-void AbstractBlockDistMatrix<T>::MakeDiagonalReal( Int offset )
-{
-    DEBUG_ONLY(CallStackEntry cse("ABDM::MakeDiagonalReal"))
-    const Int height = Height();
-    const Int localWidth = LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = GlobalCol(jLoc);
-        if( j < height && IsLocal(j,j) )
-        {
-            const Int iLoc = LocalRow(j);
-            MakeLocalReal( iLoc, jLoc );
-        }
-    }
-}
-
-template<typename T>
-void AbstractBlockDistMatrix<T>::ConjugateDiagonal( Int offset )
-{
-    DEBUG_ONLY(CallStackEntry cse("ABDM::ConjugateDiagonal"))
-    const Int height = Height();
-    const Int localWidth = LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = GlobalCol(jLoc);
-        if( j < height && IsLocal(j,j) )
-        {
-            const Int iLoc = LocalRow(j);
-            ConjugateLocal( iLoc, jLoc );
-        }
-    }
-}
-
-template<typename T>
 void AbstractBlockDistMatrix<T>::AlignColsWith
 ( const El::BlockDistData& data, bool constrain )
 {

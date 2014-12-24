@@ -1068,6 +1068,8 @@ template<typename T>
 void MakeDiagonalReal( Matrix<T>& A, Int offset=0 );
 template<typename T>
 void MakeDiagonalReal( AbstractDistMatrix<T>& A, Int offset=0 );
+template<typename T>
+void MakeDiagonalReal( AbstractBlockDistMatrix<T>& A, Int offset=0 );
 
 // MakeReal
 // ========

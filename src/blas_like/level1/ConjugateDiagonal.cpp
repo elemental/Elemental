@@ -44,8 +44,28 @@ void ConjugateDiagonal( AbstractDistMatrix<T>& A, Int offset )
     }
 }
 
+template<typename T>
+void ConjugateDiagonal( AbstractBlockDistMatrix<T>& A, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("ConjugateDiagonal"))
+    const Int height = A.Height();
+    const Int localWidth = A.LocalWidth();
+    Matrix<T>& ALoc = A.Matrix();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = A.GlobalCol(jLoc);
+        const Int i = j - offset;
+        if( i < height && A.IsLocal(i,j) )
+        {
+            const Int iLoc = A.LocalRow(i);
+            ALoc.Conjugate( iLoc, jLoc );
+        }
+    }
+}
+
 #define PROTO(T) \
   template void ConjugateDiagonal( Matrix<T>& A, Int offset ); \
+  template void ConjugateDiagonal( AbstractDistMatrix<T>& A, Int offset ); \
   template void ConjugateDiagonal( AbstractDistMatrix<T>& A, Int offset ); 
 
 #include "El/macros/Instantiate.h"
