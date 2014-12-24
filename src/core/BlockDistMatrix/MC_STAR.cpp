@@ -25,7 +25,7 @@ template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,MC,MR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MC,STAR] = [MC,MR]"))
-    A.RowAllGather( *this );
+    copy::RowAllGather( A, *this );
     return *this;
 }
 
@@ -115,7 +115,7 @@ template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,VC,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MC,STAR] = [VC,STAR]"))
-    A.PartialColAllGather( *this );
+    copy::PartialColAllGather( A, *this );
     return *this;
 }
 
@@ -158,7 +158,7 @@ template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,STAR,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MC,STAR] = [STAR,STAR]"))
-    this->ColFilterFrom( A );
+    copy::ColFilter( A, *this );
     return *this;
 }
 

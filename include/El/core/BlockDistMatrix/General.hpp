@@ -40,25 +40,6 @@ public:
     // Move assignment
     type& operator=( type&& A );
 
-    void Translate( BlockDistMatrix<T,U,V>& A ) const;
-
-    void AllGather( BlockDistMatrix<T,UGath,VGath>& A ) const;
-    void ColAllGather( BlockDistMatrix<T,UGath,V>& A ) const;
-    void RowAllGather( BlockDistMatrix<T,U,VGath>& A ) const;
-    void PartialColAllGather( BlockDistMatrix<T,UPart,V>& A ) const;
-    void PartialRowAllGather( BlockDistMatrix<T,U,VPart>& A ) const;
-
-    void FilterFrom( const BlockDistMatrix<T,UGath,VGath>& A );
-    void ColFilterFrom( const BlockDistMatrix<T,UGath,V>& A );
-    void RowFilterFrom( const BlockDistMatrix<T,U,VGath>& A );
-    void PartialColFilterFrom( const BlockDistMatrix<T,UPart,V>& A );
-    void PartialRowFilterFrom( const BlockDistMatrix<T,U,VPart>& A );
-
-    void PartialColAllToAllFrom( const BlockDistMatrix<T,UPart,VScat>& A );
-    void PartialRowAllToAllFrom( const BlockDistMatrix<T,UScat,VPart>& A );
-    void PartialColAllToAll( BlockDistMatrix<T,UPart,VScat>& A ) const;
-    void PartialRowAllToAll( BlockDistMatrix<T,UScat,VPart>& A ) const;
-
     void SumScatterFrom( const BlockDistMatrix<T,UGath,VGath>& A );
     void RowSumScatterFrom( const BlockDistMatrix<T,U,VGath>& A );
     void ColSumScatterFrom( const BlockDistMatrix<T,UGath,V>& A );
@@ -114,15 +95,6 @@ public:
 
     // Basic queries
     // =============
-    // Distribution information
-    // ------------------------
-    Dist ColDist() const override;
-    Dist RowDist() const override;
-    Dist PartialColDist() const override;
-    Dist PartialRowDist() const override;
-    Dist PartialUnionColDist() const override;
-    Dist PartialUnionRowDist() const override;
-
     // Diagonal manipulation
     // =====================
     void GetDiagonal

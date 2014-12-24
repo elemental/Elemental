@@ -36,7 +36,7 @@ template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,MC,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [MC,STAR]"))
-    this->RowFilterFrom( A );
+    copy::RowFilter( A, *this );
     return *this;
 }
 
@@ -44,7 +44,7 @@ template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,STAR,MR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [STAR,MR]"))
-    this->ColFilterFrom( A );
+    copy::ColFilter( A, *this );
     return *this;
 }
 
@@ -106,7 +106,7 @@ template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,VC,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [VC,STAR]"))
-    A.PartialColAllToAll( *this );
+    copy::ColAllToAllPromote( A, *this );
     return *this;
 }
 
@@ -136,7 +136,7 @@ template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,STAR,VR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [STAR,VR]"))
-    A.PartialRowAllToAll( *this );
+    copy::RowAllToAllPromote( A, *this );
     return *this;
 }
 
@@ -144,7 +144,7 @@ template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,STAR,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [STAR,STAR]"))
-    this->FilterFrom( A );
+    copy::Filter( A, *this );
     return *this;
 }
 

@@ -47,174 +47,6 @@ GeneralBlockDistMatrix<T,U,V>::operator=( GeneralBlockDistMatrix<T,U,V>&& A )
 
 template<typename T,Dist U,Dist V>
 void
-GeneralBlockDistMatrix<T,U,V>::AllGather
-( BlockDistMatrix<T,UGath,VGath>& A ) const
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GBDM::AllGather");
-        AssertSameGrids( *this, A );
-    )
-    LogicError("This routine is not yet written");
-}
-
-template<typename T,Dist U,Dist V>
-void
-GeneralBlockDistMatrix<T,U,V>::ColAllGather
-( BlockDistMatrix<T,UGath,V>& A ) const
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GBDM::ColAllGather");
-        AssertSameGrids( *this, A );
-    )
-    LogicError("This routine is not yet written");
-}
-
-template<typename T,Dist U,Dist V>
-void
-GeneralBlockDistMatrix<T,U,V>::RowAllGather
-( BlockDistMatrix<T,U,VGath>& A ) const
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GBDM::RowAllGather");
-        AssertSameGrids( *this, A );
-    )
-    LogicError("This routine is not yet written");
-}
-
-template<typename T,Dist U,Dist V>
-void
-GeneralBlockDistMatrix<T,U,V>::PartialColAllGather
-( BlockDistMatrix<T,UPart,V>& A ) const
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GBDM::PartialColAllGather");
-        AssertSameGrids( *this, A );
-    )
-    LogicError("This routine is not yet written");
-}
-
-template<typename T,Dist U,Dist V>
-void
-GeneralBlockDistMatrix<T,U,V>::PartialRowAllGather
-( BlockDistMatrix<T,U,VPart>& A ) const
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GBDM::PartialRowAllGather");
-        AssertSameGrids( *this, A );
-    )
-    LogicError("This routine is not yet written");
-}
-
-template<typename T,Dist U,Dist V>
-void
-GeneralBlockDistMatrix<T,U,V>::FilterFrom
-( const BlockDistMatrix<T,UGath,VGath>& A )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GBDM::FilterFrom");
-        AssertSameGrids( *this, A );
-    )
-    LogicError("This routine is not yet written");
-}
-
-template<typename T,Dist U,Dist V>
-void
-GeneralBlockDistMatrix<T,U,V>::ColFilterFrom
-( const BlockDistMatrix<T,UGath,V>& A )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GBDM::ColFilterFrom");
-        AssertSameGrids( *this, A );
-    )
-    LogicError("This routine is not yet written");
-}
-
-template<typename T,Dist U,Dist V>
-void
-GeneralBlockDistMatrix<T,U,V>::RowFilterFrom
-( const BlockDistMatrix<T,U,VGath>& A )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GBDM::RowFilterFrom");
-        AssertSameGrids( *this, A );
-    )
-    LogicError("This routine is not yet written");
-}
-
-template<typename T,Dist U,Dist V>
-void
-GeneralBlockDistMatrix<T,U,V>::PartialColFilterFrom
-( const BlockDistMatrix<T,UPart,V>& A )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GBDM::PartialColFilterFrom");
-        AssertSameGrids( *this, A );
-    )
-    LogicError("This routine is not yet written");
-}
-
-template<typename T,Dist U,Dist V>
-void
-GeneralBlockDistMatrix<T,U,V>::PartialRowFilterFrom
-( const BlockDistMatrix<T,U,VPart>& A )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GBDM::PartialRowFilterFrom");
-        AssertSameGrids( *this, A );
-    )
-    LogicError("This routine is not yet written");
-}
-
-template<typename T,Dist U,Dist V>
-void
-GeneralBlockDistMatrix<T,U,V>::PartialColAllToAllFrom
-( const BlockDistMatrix<T,UPart,VScat>& A )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GBDM::PartialColAllToAllFrom");
-        AssertSameGrids( *this, A );
-    )
-    LogicError("This routine is not yet written");
-}
-
-template<typename T,Dist U,Dist V>
-void
-GeneralBlockDistMatrix<T,U,V>::PartialRowAllToAllFrom
-( const BlockDistMatrix<T,UScat,VPart>& A )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GBDM::PartialRowAllToAllFrom");
-        AssertSameGrids( *this, A );
-    )
-    LogicError("This routine is not yet written");
-}
-
-template<typename T,Dist U,Dist V>
-void
-GeneralBlockDistMatrix<T,U,V>::PartialColAllToAll
-( BlockDistMatrix<T,UPart,VScat>& A ) const
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GBDM::PartialColAllToAll");
-        AssertSameGrids( *this, A );
-    )
-    LogicError("This routine is not yet written");
-}
-
-template<typename T,Dist U,Dist V>
-void
-GeneralBlockDistMatrix<T,U,V>::PartialRowAllToAll
-( BlockDistMatrix<T,UScat,VPart>& A ) const
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("GBDM::PartialRowAllToAll");
-        AssertSameGrids( *this, A );
-    )
-    LogicError("This routine is not yet written");
-}
-
-template<typename T,Dist U,Dist V>
-void
 GeneralBlockDistMatrix<T,U,V>::RowSumScatterFrom
 ( const BlockDistMatrix<T,U,VGath>& A )
 {
@@ -394,7 +226,7 @@ GeneralBlockDistMatrix<T,U,V>::TransposeColAllGather
     ATrans.AlignWith( *this );
     ATrans.Resize( this->Width(), this->Height() );
     Transpose( this->LockedMatrix(), ATrans.Matrix(), conjugate );
-    ATrans.RowAllGather( A );
+    copy::RowAllGather( ATrans, A );
 }
 
 template<typename T,Dist U,Dist V>
@@ -407,7 +239,7 @@ GeneralBlockDistMatrix<T,U,V>::TransposePartialColAllGather
     ATrans.AlignWith( *this );
     ATrans.Resize( this->Width(), this->Height() );
     Transpose( this->LockedMatrix(), ATrans.Matrix(), conjugate );
-    ATrans.PartialRowAllGather( A );
+    copy::PartialRowAllGather( ATrans, A );
 }
 
 template<typename T,Dist U,Dist V>
@@ -439,7 +271,7 @@ GeneralBlockDistMatrix<T,U,V>::TransposeColFilterFrom
         AFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
         AFilt.AlignColsWith( *this, false );
-    AFilt.RowFilterFrom( A );
+    copy::RowFilter( A, AFilt );
     if( !this->ColConstrained() )
         this->AlignColsWith( AFilt, false );
     if( !this->RowConstrained() )
@@ -459,7 +291,7 @@ GeneralBlockDistMatrix<T,U,V>::TransposeRowFilterFrom
         AFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
         AFilt.AlignColsWith( *this, false );
-    AFilt.ColFilterFrom( A );
+    copy::ColFilter( A, AFilt );
     if( !this->ColConstrained() )
         this->AlignColsWith( AFilt, false );
     if( !this->RowConstrained() )
@@ -479,7 +311,7 @@ GeneralBlockDistMatrix<T,U,V>::TransposePartialColFilterFrom
         AFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
         AFilt.AlignColsWith( *this, false );
-    AFilt.PartialRowFilterFrom( A );
+    copy::PartialRowFilter( A, AFilt );
     if( !this->ColConstrained() )
         this->AlignColsWith( AFilt, false );
     if( !this->RowConstrained() )
@@ -499,7 +331,7 @@ GeneralBlockDistMatrix<T,U,V>::TransposePartialRowFilterFrom
         AFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
         AFilt.AlignColsWith( *this, false );
-    AFilt.PartialColFilterFrom( A );
+    copy::PartialColFilter( A, AFilt );
     if( !this->ColConstrained() )
         this->AlignColsWith( AFilt, false );
     if( !this->RowConstrained() )
@@ -692,24 +524,6 @@ GeneralBlockDistMatrix<T,U,V>::AdjointPartialColSumScatterUpdate
 
 // Basic queries
 // =============
-// Distribution information
-// ------------------------
-template<typename T,Dist U,Dist V>
-Dist GeneralBlockDistMatrix<T,U,V>::ColDist() const { return U; }
-template<typename T,Dist U,Dist V>
-Dist GeneralBlockDistMatrix<T,U,V>::RowDist() const { return V; }
-template<typename T,Dist U,Dist V>
-Dist GeneralBlockDistMatrix<T,U,V>::PartialColDist() const 
-{ return Partial<U>(); }
-template<typename T,Dist U,Dist V>
-Dist GeneralBlockDistMatrix<T,U,V>::PartialRowDist() const 
-{ return Partial<V>(); }
-template<typename T,Dist U,Dist V>
-Dist GeneralBlockDistMatrix<T,U,V>::PartialUnionColDist() const
-{ return PartialUnionCol<U,V>(); }
-template<typename T,Dist U,Dist V>
-Dist GeneralBlockDistMatrix<T,U,V>::PartialUnionRowDist() const
-{ return PartialUnionRow<U,V>(); }
 
 // Diagonal manipulation
 // =====================

@@ -101,10 +101,23 @@ void ColAllToAllPromote
     }
 }
 
+template<typename T,Dist U,Dist V>
+void ColAllToAllPromote
+( const BlockDistMatrix<T,        U,                     V   >& A,
+        BlockDistMatrix<T,Partial<U>(),PartialUnionRow<U,V>()>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("copy::ColAllToAllPromote"))
+    AssertSameGrids( A, B );
+    LogicError("This routine is not yet written");
+}
+
 #define PROTO_DIST(T,U,V) \
   template void ColAllToAllPromote \
   ( const DistMatrix<T,        U,                     V   >& A, \
-          DistMatrix<T,Partial<U>(),PartialUnionRow<U,V>()>& B );
+          DistMatrix<T,Partial<U>(),PartialUnionRow<U,V>()>& B ); \
+  template void ColAllToAllPromote \
+  ( const BlockDistMatrix<T,        U,                     V   >& A, \
+          BlockDistMatrix<T,Partial<U>(),PartialUnionRow<U,V>()>& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

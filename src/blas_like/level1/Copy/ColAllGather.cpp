@@ -194,10 +194,23 @@ void ColAllGather
     }
 }
 
+template<typename T,Dist U,Dist V>
+void ColAllGather
+( const BlockDistMatrix<T,        U,   V>& A, 
+        BlockDistMatrix<T,Collect<U>(),V>& B ) 
+{
+    DEBUG_ONLY(CallStackEntry cse("copy::ColAllGather"))
+    AssertSameGrids( A, B );
+    LogicError("This routine is not yet written");
+}
+
 #define PROTO_DIST(T,U,V) \
   template void ColAllGather \
   ( const DistMatrix<T,        U,   V>& A, \
-          DistMatrix<T,Collect<U>(),V>& B );
+          DistMatrix<T,Collect<U>(),V>& B ); \
+  template void ColAllGather \
+  ( const BlockDistMatrix<T,        U,   V>& A, \
+          BlockDistMatrix<T,Collect<U>(),V>& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

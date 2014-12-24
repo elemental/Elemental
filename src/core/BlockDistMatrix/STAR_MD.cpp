@@ -141,7 +141,7 @@ template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,STAR,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [STAR,STAR]"))
-    this->ColFilterFrom( A );
+    copy::RowFilter( A, *this );
     return *this;
 }
 

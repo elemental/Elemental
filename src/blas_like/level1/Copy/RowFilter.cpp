@@ -74,10 +74,23 @@ void RowFilter
     }
 }
 
+template<typename T,Dist U,Dist V>
+void RowFilter
+( const BlockDistMatrix<T,U,Collect<V>()>& A,
+        BlockDistMatrix<T,U,        V   >& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("copy::RowFilter"))
+    AssertSameGrids( A, B );
+    LogicError("This routine is not yet written");
+}
+
 #define PROTO_DIST(T,U,V) \
   template void RowFilter \
   ( const DistMatrix<T,U,Collect<V>()>& A, \
-          DistMatrix<T,U,        V   >& B );
+          DistMatrix<T,U,        V   >& B ); \
+  template void RowFilter \
+  ( const BlockDistMatrix<T,U,Collect<V>()>& A, \
+          BlockDistMatrix<T,U,        V   >& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

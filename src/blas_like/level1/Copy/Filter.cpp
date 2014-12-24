@@ -31,10 +31,22 @@ void Filter
       B.Buffer(),                        1,             B.LDim() );
 }
 
+template<typename T,Dist U,Dist V>
+void Filter
+( const BlockDistMatrix<T,Collect<U>(),Collect<V>()>& A,
+        BlockDistMatrix<T,        U,           V   >& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("copy::Filter"))
+    LogicError("This routine is not yet written");
+}
+
 #define PROTO_DIST(T,U,V) \
   template void Filter \
   ( const DistMatrix<T,Collect<U>(),Collect<V>()>& A, \
-          DistMatrix<T,        U,           V   >& B );
+          DistMatrix<T,        U,           V   >& B ); \
+  template void Filter \
+  ( const BlockDistMatrix<T,Collect<U>(),Collect<V>()>& A, \
+          BlockDistMatrix<T,        U,           V   >& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \
