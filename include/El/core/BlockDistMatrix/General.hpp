@@ -40,61 +40,6 @@ public:
     // Move assignment
     type& operator=( type&& A );
 
-    void SumScatterFrom( const BlockDistMatrix<T,UGath,VGath>& A );
-    void RowSumScatterFrom( const BlockDistMatrix<T,U,VGath>& A );
-    void ColSumScatterFrom( const BlockDistMatrix<T,UGath,V>& A );
-    void PartialRowSumScatterFrom( const BlockDistMatrix<T,U,VPart>& A );
-    void PartialColSumScatterFrom( const BlockDistMatrix<T,UPart,V>& A );
-
-    void SumScatterUpdate( T alpha, const BlockDistMatrix<T,UGath,VGath>& A );
-    void RowSumScatterUpdate( T alpha, const BlockDistMatrix<T,U,VGath>& A );
-    void ColSumScatterUpdate( T alpha, const BlockDistMatrix<T,UGath,V>& A );
-    void PartialRowSumScatterUpdate
-    ( T alpha, const BlockDistMatrix<T,U,VPart>& A );
-    void PartialColSumScatterUpdate
-    ( T alpha, const BlockDistMatrix<T,UPart,V>& A );
-
-    // Transposed variants of some of the above routines which avoid 
-    // large amounts of non-uniform data access
-    // -------------------------------------------------------------
-    void TransposeColAllGather
-    ( BlockDistMatrix<T,V,UGath>& A, bool conjugate=false ) const;
-    void TransposePartialColAllGather
-    ( BlockDistMatrix<T,V,UPart>& A, bool conjugate=false ) const;
-    void AdjointColAllGather( BlockDistMatrix<T,V,UGath>& A ) const;
-    void AdjointPartialColAllGather( BlockDistMatrix<T,V,UPart>& A ) const;
-
-    void TransposeColFilterFrom
-    ( const BlockDistMatrix<T,V,UGath>& A, bool conjugate=false );
-    void TransposeRowFilterFrom
-    ( const BlockDistMatrix<T,VGath,U>& A, bool conjugate=false );
-    void TransposePartialColFilterFrom
-    ( const BlockDistMatrix<T,V,UPart>& A, bool conjugate=false );
-    void TransposePartialRowFilterFrom
-    ( const BlockDistMatrix<T,VPart,U>& A, bool conjugate=false );
-    void AdjointColFilterFrom( const BlockDistMatrix<T,V,UGath>& A );
-    void AdjointRowFilterFrom( const BlockDistMatrix<T,VGath,U>& A );
-    void AdjointPartialColFilterFrom( const BlockDistMatrix<T,V,UPart>& A );
-    void AdjointPartialRowFilterFrom( const BlockDistMatrix<T,VPart,U>& A );
-
-    void TransposeColSumScatterFrom
-    ( const BlockDistMatrix<T,V,UGath>& A, bool conjugate=false );
-    void TransposePartialColSumScatterFrom
-    ( const BlockDistMatrix<T,V,UPart>& A, bool conjugate=false );
-    void AdjointColSumScatterFrom( const BlockDistMatrix<T,V,UGath>& A );
-    void AdjointPartialColSumScatterFrom( const BlockDistMatrix<T,V,UPart>& A );
-
-    void TransposeColSumScatterUpdate
-    ( T alpha, const BlockDistMatrix<T,V,UGath>& A, bool conjugate=false );
-    void TransposePartialColSumScatterUpdate
-    ( T alpha, const BlockDistMatrix<T,V,UPart>& A, bool conjugate=false );
-    void AdjointColSumScatterUpdate
-    ( T alpha, const BlockDistMatrix<T,V,UGath>& A );
-    void AdjointPartialColSumScatterUpdate
-    ( T alpha, const BlockDistMatrix<T,V,UPart>& A );
-
-    // Basic queries
-    // =============
     // Diagonal manipulation
     // =====================
     void GetDiagonal

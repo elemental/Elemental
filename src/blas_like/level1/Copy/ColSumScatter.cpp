@@ -25,10 +25,29 @@ void ColSumScatter
     axpy::ColSumScatter( T(1), A, B );
 }
 
+template<typename T,Dist U,Dist V>
+void ColSumScatter
+( const BlockDistMatrix<T,Collect<U>(),V>& A,
+        BlockDistMatrix<T,        U,   V>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("copy::ColSumScatter"))
+    AssertSameGrids( A, B );
+
+    B.AlignRowsAndResize
+    ( A.BlockWidth(), A.RowAlign(), A.RowCut(), A.Height(), A.Width(), 
+      false, false );
+    Zeros( B.Matrix(), B.LocalHeight(), B.LocalWidth() );
+    axpy::ColSumScatter( T(1), A, B );
+}
+
 #define PROTO_DIST(T,U,V) \
   template void ColSumScatter \
   ( const DistMatrix<T,Collect<U>(),V>& A, \
           DistMatrix<T,        U,   V>& B );
+#define PROTO_DIST(T,U,V) \
+  template void ColSumScatter \
+  ( const BlockDistMatrix<T,Collect<U>(),V>& A, \
+          BlockDistMatrix<T,        U,   V>& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

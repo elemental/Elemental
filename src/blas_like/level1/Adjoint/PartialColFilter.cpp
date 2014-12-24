@@ -20,10 +20,22 @@ void PartialColFilter
     transpose::PartialColFilter( A, B, true );
 }
 
+template<typename T,Dist U,Dist V>
+void PartialColFilter
+( const BlockDistMatrix<T,V,Partial<U>()>& A, 
+        BlockDistMatrix<T,U,        V   >& B, bool conjugate )
+{
+    DEBUG_ONLY(CallStackEntry cse("adjoint::PartialColFilter"))
+    transpose::PartialColFilter( A, B, true );
+}
+
 #define PROTO_DIST(T,U,V) \
   template void PartialColFilter \
   ( const DistMatrix<T,V,Partial<U>()>& A, \
-          DistMatrix<T,U,        V   >& B, bool conjugate );
+          DistMatrix<T,U,        V   >& B, bool conjugate ); \
+  template void PartialColFilter \
+  ( const BlockDistMatrix<T,V,Partial<U>()>& A, \
+          BlockDistMatrix<T,U,        V   >& B, bool conjugate );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

@@ -61,11 +61,26 @@ void PartialRowSumScatter
         LogicError("Unaligned axpy::PartialRowSumScatter not implemented");
 }
 
+template<typename T,Dist U,Dist V>
+void PartialRowSumScatter
+( T alpha,
+  const BlockDistMatrix<T,U,Partial<V>()>& A,
+        BlockDistMatrix<T,U,        V   >& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("axpy::PartialRowSumScatter"))
+    AssertSameGrids( A, B );
+    LogicError("This routine is not yet written");
+}
+
 #define PROTO_DIST(T,U,V) \
   template void PartialRowSumScatter \
   ( T alpha, \
     const DistMatrix<T,U,Partial<V>()>& A, \
-          DistMatrix<T,U,        V   >& B );
+          DistMatrix<T,U,        V   >& B ); \
+  template void PartialRowSumScatter \
+  ( T alpha, \
+    const BlockDistMatrix<T,U,Partial<V>()>& A, \
+          BlockDistMatrix<T,U,        V   >& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

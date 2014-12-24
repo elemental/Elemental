@@ -24,10 +24,26 @@ void PartialColAllGather
     copy::PartialRowAllGather( ATrans, B );
 }
 
+template<typename T,Dist U,Dist V>
+void PartialColAllGather
+( const BlockDistMatrix<T,U,V           >& A, 
+        BlockDistMatrix<T,V,Partial<U>()>& B, bool conjugate )
+{
+    DEBUG_ONLY(CallStackEntry cse("transpose::PartialColAllGather"))
+    BlockDistMatrix<T,V,U> ATrans( A.Grid() );
+    ATrans.AlignWith( A );
+    ATrans.Resize( A.Width(), A.Height() );
+    Transpose( A.LockedMatrix(), ATrans.Matrix(), conjugate );
+    copy::PartialRowAllGather( ATrans, B );
+}
+
 #define PROTO_DIST(T,U,V) \
   template void PartialColAllGather \
   ( const DistMatrix<T,U,V           >& A, \
-          DistMatrix<T,V,Partial<U>()>& B, bool conjugate );
+          DistMatrix<T,V,Partial<U>()>& B, bool conjugate ); \
+  template void PartialColAllGather \
+  ( const BlockDistMatrix<T,U,V           >& A, \
+          BlockDistMatrix<T,V,Partial<U>()>& B, bool conjugate );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

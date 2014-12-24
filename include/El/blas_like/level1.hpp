@@ -33,36 +33,72 @@ void ColFilter
 ( const DistMatrix<T,V,Collect<U>()>& A, 
         DistMatrix<T,U,V           >& B );
 template<typename T,Dist U,Dist V>
+void ColFilter
+( const BlockDistMatrix<T,V,Collect<U>()>& A, 
+        BlockDistMatrix<T,U,V           >& B );
+
+template<typename T,Dist U,Dist V>
 void RowFilter
 ( const DistMatrix<T,Collect<V>(),U>& A,           
         DistMatrix<T,        U,   V>& B );
+template<typename T,Dist U,Dist V>
+void RowFilter
+( const BlockDistMatrix<T,Collect<V>(),U>& A,           
+        BlockDistMatrix<T,        U,   V>& B );
 
 template<typename T,Dist U,Dist V>
 void PartialColFilter
 ( const DistMatrix<T,V,Partial<U>()>& A, 
         DistMatrix<T,U,        V   >& B );
 template<typename T,Dist U,Dist V>
+void PartialColFilter
+( const BlockDistMatrix<T,V,Partial<U>()>& A, 
+        BlockDistMatrix<T,U,        V   >& B );
+
+template<typename T,Dist U,Dist V>
 void PartialRowFilter
 ( const DistMatrix<T,Partial<V>(),U>& A, 
         DistMatrix<T,U,           V>& B );
+template<typename T,Dist U,Dist V>
+void PartialRowFilter
+( const BlockDistMatrix<T,Partial<V>(),U>& A, 
+        BlockDistMatrix<T,U,           V>& B );
 
 template<typename T,Dist U,Dist V>
 void ColSumScatter
 ( const DistMatrix<T,V,Collect<U>()>& A, 
         DistMatrix<T,U,V           >& B );
 template<typename T,Dist U,Dist V>
+void ColSumScatter
+( const BlockDistMatrix<T,V,Collect<U>()>& A, 
+        BlockDistMatrix<T,U,V           >& B );
+
+template<typename T,Dist U,Dist V>
 void PartialColSumScatter
 ( const DistMatrix<T,V,Partial<U>()>& A,
         DistMatrix<T,U,V           >& B );
+template<typename T,Dist U,Dist V>
+void PartialColSumScatter
+( const BlockDistMatrix<T,V,Partial<U>()>& A,
+        BlockDistMatrix<T,U,V           >& B );
 
 template<typename T,Dist U,Dist V>
 void ColAllGather
 ( const DistMatrix<T,U,        V   >& A, 
         DistMatrix<T,V,Collect<U>()>& B );
 template<typename T,Dist U,Dist V>
+void ColAllGather
+( const BlockDistMatrix<T,U,        V   >& A, 
+        BlockDistMatrix<T,V,Collect<U>()>& B );
+
+template<typename T,Dist U,Dist V>
 void PartialColAllGather
 ( const DistMatrix<T,U,        V   >& A, 
         DistMatrix<T,V,Partial<U>()>& B );
+template<typename T,Dist U,Dist V>
+void PartialColAllGather
+( const BlockDistMatrix<T,U,        V   >& A, 
+        BlockDistMatrix<T,V,Partial<U>()>& B );
 
 } // namespace adjoint
 
@@ -87,11 +123,19 @@ template<typename T,Dist U,Dist V>
 void ColSumScatter
 ( T alpha, const DistMatrix<T,V,Collect<U>()>& A,
                  DistMatrix<T,U,        V   >& B );
+template<typename T,Dist U,Dist V>
+void ColSumScatter
+( T alpha, const BlockDistMatrix<T,V,Collect<U>()>& A,
+                 BlockDistMatrix<T,U,        V   >& B );
 
 template<typename T,Dist U,Dist V>
 void PartialColSumScatter
 ( T alpha, const DistMatrix<T,V,Partial<U>()>& A,
                  DistMatrix<T,U,        V   >& B );
+template<typename T,Dist U,Dist V>
+void PartialColSumScatter
+( T alpha, const BlockDistMatrix<T,V,Partial<U>()>& A,
+                 BlockDistMatrix<T,U,        V   >& B );
 
 } // namespace adjoint_axpy
 
@@ -123,21 +167,45 @@ void SumScatter
 ( T alpha, const DistMatrix<T,Collect<U>(),Collect<V>()>& A, 
                  DistMatrix<T,        U,           V   >& B );
 template<typename T,Dist U,Dist V>
+void SumScatter
+( T alpha, const BlockDistMatrix<T,Collect<U>(),Collect<V>()>& A, 
+                 BlockDistMatrix<T,        U,           V   >& B );
+
+template<typename T,Dist U,Dist V>
 void ColSumScatter
 ( T alpha, const DistMatrix<T,Collect<U>(),V>& A, 
                  DistMatrix<T,        U,   V>& B );
+template<typename T,Dist U,Dist V>
+void ColSumScatter
+( T alpha, const BlockDistMatrix<T,Collect<U>(),V>& A, 
+                 BlockDistMatrix<T,        U,   V>& B );
+
 template<typename T,Dist U,Dist V>
 void RowSumScatter
 ( T alpha, const DistMatrix<T,U,Collect<V>()>& A, 
                  DistMatrix<T,U,        V   >& B );
 template<typename T,Dist U,Dist V>
+void RowSumScatter
+( T alpha, const BlockDistMatrix<T,U,Collect<V>()>& A, 
+                 BlockDistMatrix<T,U,        V   >& B );
+
+template<typename T,Dist U,Dist V>
 void PartialColSumScatter
 ( T alpha, const DistMatrix<T,Partial<U>(),V>& A, 
                  DistMatrix<T,        U,   V>& B );
 template<typename T,Dist U,Dist V>
+void PartialColSumScatter
+( T alpha, const BlockDistMatrix<T,Partial<U>(),V>& A, 
+                 BlockDistMatrix<T,        U,   V>& B );
+
+template<typename T,Dist U,Dist V>
 void PartialRowSumScatter
 ( T alpha, const DistMatrix<T,U,Partial<V>()>& A, 
                  DistMatrix<T,U,        V   >& B );
+template<typename T,Dist U,Dist V>
+void PartialRowSumScatter
+( T alpha, const BlockDistMatrix<T,U,Partial<V>()>& A, 
+                 BlockDistMatrix<T,U,        V   >& B );
 
 namespace util {
 
@@ -447,21 +515,45 @@ void SumScatter
 ( const DistMatrix<T,Collect<U>(),Collect<V>()>& A, 
         DistMatrix<T,        U,           V   >& B );
 template<typename T,Dist U,Dist V>
+void SumScatter
+( const BlockDistMatrix<T,Collect<U>(),Collect<V>()>& A, 
+        BlockDistMatrix<T,        U,           V   >& B );
+
+template<typename T,Dist U,Dist V>
 void ColSumScatter
 ( const DistMatrix<T,Collect<U>(),V>& A, 
         DistMatrix<T,        U,   V>& B );
+template<typename T,Dist U,Dist V>
+void ColSumScatter
+( const BlockDistMatrix<T,Collect<U>(),V>& A, 
+        BlockDistMatrix<T,        U,   V>& B );
+
 template<typename T,Dist U,Dist V>
 void RowSumScatter
 ( const DistMatrix<T,U,Collect<V>()>& A, 
         DistMatrix<T,U,        V   >& B );
 template<typename T,Dist U,Dist V>
+void RowSumScatter
+( const BlockDistMatrix<T,U,Collect<V>()>& A, 
+        BlockDistMatrix<T,U,        V   >& B );
+
+template<typename T,Dist U,Dist V>
 void PartialColSumScatter
 ( const DistMatrix<T,Partial<U>(),V>& A, 
         DistMatrix<T,        U,   V>& B );
 template<typename T,Dist U,Dist V>
+void PartialColSumScatter
+( const BlockDistMatrix<T,Partial<U>(),V>& A, 
+        BlockDistMatrix<T,        U,   V>& B );
+
+template<typename T,Dist U,Dist V>
 void PartialRowSumScatter
 ( const DistMatrix<T,U,Partial<V>()>& A, 
         DistMatrix<T,U,        V   >& B );
+template<typename T,Dist U,Dist V>
+void PartialRowSumScatter
+( const BlockDistMatrix<T,U,Partial<V>()>& A, 
+        BlockDistMatrix<T,U,        V   >& B );
 
 template<typename T>
 void Gather
@@ -1432,36 +1524,72 @@ void ColFilter
 ( const DistMatrix<T,V,Collect<U>()>& A, 
         DistMatrix<T,U,V           >& B, bool conjugate=false );
 template<typename T,Dist U,Dist V>
+void ColFilter
+( const BlockDistMatrix<T,V,Collect<U>()>& A, 
+        BlockDistMatrix<T,U,V           >& B, bool conjugate=false );
+
+template<typename T,Dist U,Dist V>
 void RowFilter
 ( const DistMatrix<T,Collect<V>(),U>& A, 
         DistMatrix<T,        U,   V>& B, bool conjugate=false );
+template<typename T,Dist U,Dist V>
+void RowFilter
+( const BlockDistMatrix<T,Collect<V>(),U>& A, 
+        BlockDistMatrix<T,        U,   V>& B, bool conjugate=false );
 
 template<typename T,Dist U,Dist V>
 void PartialColFilter
 ( const DistMatrix<T,V,Partial<U>()>& A, 
         DistMatrix<T,U,        V   >& B, bool conjugate=false );
 template<typename T,Dist U,Dist V>
+void PartialColFilter
+( const BlockDistMatrix<T,V,Partial<U>()>& A, 
+        BlockDistMatrix<T,U,        V   >& B, bool conjugate=false );
+
+template<typename T,Dist U,Dist V>
 void PartialRowFilter
 ( const DistMatrix<T,Partial<V>(),U>& A, 
         DistMatrix<T,U,           V>& B, bool conjugate=false );
+template<typename T,Dist U,Dist V>
+void PartialRowFilter
+( const BlockDistMatrix<T,Partial<V>(),U>& A, 
+        BlockDistMatrix<T,U,           V>& B, bool conjugate=false );
 
 template<typename T,Dist U,Dist V>
 void ColSumScatter
 ( const DistMatrix<T,V,Collect<U>()>& A, 
         DistMatrix<T,U,V           >& B, bool conjugate=false );
 template<typename T,Dist U,Dist V>
+void ColSumScatter
+( const BlockDistMatrix<T,V,Collect<U>()>& A, 
+        BlockDistMatrix<T,U,V           >& B, bool conjugate=false );
+
+template<typename T,Dist U,Dist V>
 void PartialColSumScatter
 ( const DistMatrix<T,V,Partial<U>()>& A, 
         DistMatrix<T,U,V           >& B, bool conjugate=false );
+template<typename T,Dist U,Dist V>
+void PartialColSumScatter
+( const BlockDistMatrix<T,V,Partial<U>()>& A, 
+        BlockDistMatrix<T,U,V           >& B, bool conjugate=false );
 
 template<typename T,Dist U,Dist V>
 void ColAllGather
 ( const DistMatrix<T,U,        V   >& A, 
         DistMatrix<T,V,Collect<U>()>& B, bool conjugate=false );
 template<typename T,Dist U,Dist V>
+void ColAllGather
+( const BlockDistMatrix<T,U,        V   >& A, 
+        BlockDistMatrix<T,V,Collect<U>()>& B, bool conjugate=false );
+
+template<typename T,Dist U,Dist V>
 void PartialColAllGather
 ( const DistMatrix<T,U,        V   >& A, 
         DistMatrix<T,V,Partial<U>()>& B, bool conjugate=false );
+template<typename T,Dist U,Dist V>
+void PartialColAllGather
+( const BlockDistMatrix<T,U,        V   >& A, 
+        BlockDistMatrix<T,V,Partial<U>()>& B, bool conjugate=false );
 
 } // namespace transpose
 
@@ -1488,11 +1616,19 @@ template<typename T,Dist U,Dist V>
 void ColSumScatter
 ( T alpha, const DistMatrix<T,V,Collect<U>()>& A, 
                  DistMatrix<T,U,        V   >& B, bool conjugate=false );
+template<typename T,Dist U,Dist V>
+void ColSumScatter
+( T alpha, const BlockDistMatrix<T,V,Collect<U>()>& A, 
+                 BlockDistMatrix<T,U,        V   >& B, bool conjugate=false );
 
 template<typename T,Dist U,Dist V>
 void PartialColSumScatter
 ( T alpha, const DistMatrix<T,V,Partial<U>()>& A, 
                  DistMatrix<T,U,        V   >& B, bool conjugate=false );
+template<typename T,Dist U,Dist V>
+void PartialColSumScatter
+( T alpha, const BlockDistMatrix<T,V,Partial<U>()>& A, 
+                 BlockDistMatrix<T,U,        V   >& B, bool conjugate=false );
 
 } // namespace trans_axpy
 

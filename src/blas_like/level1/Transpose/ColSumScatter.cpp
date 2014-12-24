@@ -31,10 +31,33 @@ void ColSumScatter
     Transpose( ASumFilt.LockedMatrix(), B.Matrix(), conjugate );
 }
 
+template<typename T,Dist U,Dist V>
+void ColSumScatter
+( const BlockDistMatrix<T,V,Collect<U>()>& A, 
+        BlockDistMatrix<T,U,        V   >& B, bool conjugate )
+{
+    DEBUG_ONLY(CallStackEntry cse("transpose::ColSumScatter"))
+    BlockDistMatrix<T,V,U> ASumFilt( A.Grid() );
+    if( B.ColConstrained() )
+        ASumFilt.AlignRowsWith( B, false );
+    if( B.RowConstrained() )
+        ASumFilt.AlignColsWith( B, false );
+    copy::RowSumScatter( A, ASumFilt );
+    if( !B.ColConstrained() )
+        B.AlignColsWith( ASumFilt, false );
+    if( !B.RowConstrained() )
+        B.AlignRowsWith( ASumFilt, false );
+    B.Resize( A.Width(), A.Height() );
+    Transpose( ASumFilt.LockedMatrix(), B.Matrix(), conjugate );
+}
+
 #define PROTO_DIST(T,U,V) \
   template void ColSumScatter \
   ( const DistMatrix<T,V,Collect<U>()>& A, \
-          DistMatrix<T,U,        V   >& B, bool conjugate );
+          DistMatrix<T,U,        V   >& B, bool conjugate ); \
+  template void ColSumScatter \
+  ( const BlockDistMatrix<T,V,Collect<U>()>& A, \
+          BlockDistMatrix<T,U,        V   >& B, bool conjugate );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

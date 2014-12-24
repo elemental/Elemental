@@ -20,10 +20,22 @@ void PartialRowFilter
     transpose::PartialRowFilter( A, B, true );
 }
 
+template<typename T,Dist U,Dist V>
+void PartialRowFilter
+( const BlockDistMatrix<T,Partial<V>(),U>& A, 
+        BlockDistMatrix<T,U,           V>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("adjoint::PartialRowFilter"))
+    transpose::PartialRowFilter( A, B, true );
+}
+
 #define PROTO_DIST(T,U,V) \
   template void PartialRowFilter \
   ( const DistMatrix<T,Partial<V>(),U>& A, \
-          DistMatrix<T,U,           V>& B );
+          DistMatrix<T,U,           V>& B ); \
+  template void PartialRowFilter \
+  ( const BlockDistMatrix<T,Partial<V>(),U>& A, \
+          BlockDistMatrix<T,U,           V>& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

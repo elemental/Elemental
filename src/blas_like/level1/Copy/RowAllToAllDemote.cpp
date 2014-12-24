@@ -97,7 +97,7 @@ void RowAllToAllDemote
         util::ColStridedUnpack
         ( height, B.LocalWidth(), 
           A.ColAlign(), rowStrideUnion,
-          secondBuf, portionSize,
+          secondBuf,  portionSize,
           B.Buffer(), B.LDim() );
     }
 }

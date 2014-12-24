@@ -25,10 +25,29 @@ void PartialRowSumScatter
     axpy::PartialRowSumScatter( T(1), A, B );
 }
 
+template<typename T,Dist U,Dist V>
+void PartialRowSumScatter
+( const BlockDistMatrix<T,U,Partial<V>()>& A,
+        BlockDistMatrix<T,U,        V   >& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("copy::PartialRowSumScatter"))
+    AssertSameGrids( A, B );
+
+    B.AlignAndResize
+    ( A.BlockHeight(), A.BlockWidth(), 
+      A.ColAlign(), A.RowAlign(), A.ColCut(), A.RowCut(), 
+      A.Height(), A.Width(), false, false );
+    Zeros( B.Matrix(), B.LocalHeight(), B.LocalWidth() );
+    axpy::PartialRowSumScatter( T(1), A, B );
+}
+
 #define PROTO_DIST(T,U,V) \
   template void PartialRowSumScatter \
   ( const DistMatrix<T,U,Partial<V>()>& A, \
-          DistMatrix<T,U,        V   >& B );
+          DistMatrix<T,U,        V   >& B ); \
+  template void PartialRowSumScatter \
+  ( const BlockDistMatrix<T,U,Partial<V>()>& A, \
+          BlockDistMatrix<T,U,        V   >& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

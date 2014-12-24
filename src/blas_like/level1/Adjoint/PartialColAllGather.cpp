@@ -20,10 +20,22 @@ void PartialColAllGather
     transpose::PartialColAllGather( A, B, true );
 }
 
+template<typename T,Dist U,Dist V>
+void PartialColAllGather
+( const BlockDistMatrix<T,U,V           >& A, 
+        BlockDistMatrix<T,V,Partial<U>()>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("adjoint::PartialColAllGather"))
+    transpose::PartialColAllGather( A, B, true );
+}
+
 #define PROTO_DIST(T,U,V) \
   template void PartialColAllGather \
   ( const DistMatrix<T,U,V           >& A, \
-          DistMatrix<T,V,Partial<U>()>& B );
+          DistMatrix<T,V,Partial<U>()>& B ); \
+  template void PartialColAllGather \
+  ( const BlockDistMatrix<T,U,V           >& A, \
+          BlockDistMatrix<T,V,Partial<U>()>& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

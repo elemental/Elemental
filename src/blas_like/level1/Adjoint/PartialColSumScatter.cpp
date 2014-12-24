@@ -20,10 +20,22 @@ void PartialColSumScatter
     transpose::PartialColSumScatter( A, B, true );
 }
 
+template<typename T,Dist U,Dist V>
+void PartialColSumScatter
+( const BlockDistMatrix<T,V,Partial<U>()>& A, 
+        BlockDistMatrix<T,U,        V   >& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("adjoint::PartialColSumScatter"))
+    transpose::PartialColSumScatter( A, B, true );
+}
+
 #define PROTO_DIST(T,U,V) \
   template void PartialColSumScatter \
   ( const DistMatrix<T,V,Partial<U>()>& A, \
-          DistMatrix<T,U,        V   >& B );
+          DistMatrix<T,U,        V   >& B ); \
+  template void PartialColSumScatter \
+  ( const BlockDistMatrix<T,V,Partial<U>()>& A, \
+          BlockDistMatrix<T,U,        V   >& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

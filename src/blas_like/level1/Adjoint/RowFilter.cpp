@@ -20,10 +20,22 @@ void RowFilter
     transpose::RowFilter( A, B, true );
 }
 
+template<typename T,Dist U,Dist V>
+void RowFilter
+( const BlockDistMatrix<T,Collect<V>(),U>& A, 
+        BlockDistMatrix<T,U,           V>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("adjoint::RowFilter"))
+    transpose::RowFilter( A, B, true );
+}
+
 #define PROTO_DIST(T,U,V) \
   template void RowFilter \
   ( const DistMatrix<T,Collect<V>(),U>& A, \
-          DistMatrix<T,U,           V>& B );
+          DistMatrix<T,U,           V>& B ); \
+  template void RowFilter \
+  ( const BlockDistMatrix<T,Collect<V>(),U>& A, \
+          BlockDistMatrix<T,U,           V>& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \
