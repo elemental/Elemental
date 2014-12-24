@@ -1390,7 +1390,6 @@ SDC
     // Perform this level's split
     if( ctrl.progress && g.Rank() == 0 )
         std::cout << "Splitting " << n << " x " << n << " matrix" << std::endl;
-    const Real infNorm = InfinityNorm( A );
     const auto part = SpectralDivide( A, Q, ctrl );
     DistMatrix<F> ATL(g), ATR(g),
                   ABL(g), ABR(g);
