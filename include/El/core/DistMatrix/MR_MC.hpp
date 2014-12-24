@@ -58,8 +58,8 @@ public:
 
     // Return a view
     // -------------
-          type operator()( Range<Int> indVert, Range<Int> indHorz );
-    const type operator()( Range<Int> indVert, Range<Int> indHorz ) const;
+          type operator()( Range<Int> I, Range<Int> J );
+    const type operator()( Range<Int> I, Range<Int> J ) const;
 
     // Make a copy
     // -----------
@@ -88,24 +88,25 @@ public:
     // =============
     El::DistData DistData() const override;
 
-    Dist ColDist() const override;
-    Dist RowDist() const override;
-    Dist PartialColDist() const override;
-    Dist PartialRowDist() const override;
+    Dist ColDist()             const override;
+    Dist RowDist()             const override;
+    Dist PartialColDist()      const override;
+    Dist PartialRowDist()      const override;
     Dist PartialUnionColDist() const override;
     Dist PartialUnionRowDist() const override;
-    Dist CollectedColDist() const override;
-    Dist CollectedRowDist() const override;
+    Dist CollectedColDist()    const override;
+    Dist CollectedRowDist()    const override;
 
-    mpi::Comm DistComm() const override;
-    mpi::Comm CrossComm() const override;
+    mpi::Comm DistComm()      const override;
+    mpi::Comm CrossComm()     const override;
     mpi::Comm RedundantComm() const override;
-    mpi::Comm ColComm() const override;
-    mpi::Comm RowComm() const override;
-    Int RowStride() const override;
-    Int ColStride() const override;
-    Int DistSize() const override;
-    Int CrossSize() const override;
+    mpi::Comm ColComm()       const override;
+    mpi::Comm RowComm()       const override;
+
+    Int RowStride()     const override;
+    Int ColStride()     const override;
+    Int DistSize()      const override;
+    Int CrossSize()     const override;
     Int RedundantSize() const override;
 
 private:

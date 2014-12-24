@@ -111,8 +111,119 @@ void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B )
     }
 }
 
+template<typename T,Dist U,Dist V>
+void Translate( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,U,V>& B ) 
+{
+    DEBUG_ONLY(CallStackEntry cse("copy::Translate"))
+    const Int height = A.Height();
+    const Int width = A.Width();
+    const Int blockHeight = A.BlockHeight();
+    const Int blockWidth = A.BlockWidth();
+    const Int colAlign = A.ColAlign();
+    const Int rowAlign = A.RowAlign();
+    const Int colCut = A.ColCut();
+    const Int rowCut = A.RowCut();
+    const Int root = A.Root();
+    B.SetGrid( A.Grid() );
+    if( !B.RootConstrained() )
+        B.SetRoot( root, false );
+    if( !B.ColConstrained() )
+        B.AlignCols( blockHeight, colAlign, colCut, false );
+    if( !B.RowConstrained() )
+        B.AlignRows( blockWidth, rowAlign, rowCut, false );
+    B.Resize( height, width );
+    const bool aligned =
+        blockHeight == B.BlockHeight() && blockWidth == B.BlockWidth() &&
+        colAlign    == B.ColAlign()    && rowAlign   == B.RowAlign() &&
+        colCut      == B.ColCut()      && rowCut     == B.RowCut();
+    if( aligned && root == B.Root() )
+    {
+        B.Matrix() = A.LockedMatrix();
+    }
+    else
+    {
+        // TODO: Implement this in a more efficient manner, perhaps through
+        //       many rounds of point-to-point communication
+        // TODO: Turn this into a general routine for redistributing
+        //       between any matrix distributions supported by Elemental.
+        //       The key addition is mpi::Translate.
+        const Int distSize = B.DistSize();
+        const Int mLocal = A.LocalHeight();
+        const Int nLocal = A.LocalWidth();
+        const Int mLocalB = B.LocalHeight();
+        const Int nLocalB = B.LocalWidth();
+
+        // Determine how much data our process sends and recvs from every 
+        // other process
+        std::vector<int> sendCounts(distSize,0), recvCounts(distSize,0);
+        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+        {
+            const Int j = A.GlobalCol(jLoc);
+            for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+            {
+                const Int i = A.GlobalRow(iLoc);
+                const Int owner = B.Owner(i,j);
+                ++sendCounts[owner];
+            }
+        }
+        for( Int jLoc=0; jLoc<nLocalB; ++jLoc )
+        {
+            const Int j = B.GlobalCol(jLoc);
+            for( Int iLoc=0; iLoc<mLocalB; ++iLoc )
+            {
+                const Int i = B.GlobalRow(iLoc);
+                const Int owner = A.Owner(i,j);
+                ++recvCounts[owner];
+            }
+        }
+
+        // Translate the send/recv counts into displacements and allocate
+        // the send and recv buffers
+        std::vector<int> sendDispls, recvDispls;
+        const Int totalSend = Scan( sendCounts, sendDispls );
+        const Int totalRecv = Scan( recvCounts, recvDispls );
+        std::vector<T> sendBuf(totalSend), recvBuf(totalRecv);
+
+        // Pack the send data
+        std::vector<int> offsets = sendDispls;
+        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+        {
+            const Int j = A.GlobalCol(jLoc);
+            for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+            {
+                const Int i = A.GlobalRow(iLoc);
+                const Int owner = B.Owner(i,j);
+                sendBuf[offsets[owner]++] = A.GetLocal(iLoc,jLoc);
+            }
+        }
+
+        // Perform the all-to-all communication
+        mpi::AllToAll
+        ( sendBuf.data(), sendCounts.data(), sendDispls.data(),
+          recvBuf.data(), recvCounts.data(), recvDispls.data(),
+          A.DistComm() );
+        SwapClear( sendBuf );
+
+        // Unpack the received data
+        offsets = recvDispls;
+        for( Int jLoc=0; jLoc<nLocalB; ++jLoc )
+        {
+            const Int j = B.GlobalCol(jLoc);
+            for( Int iLoc=0; iLoc<mLocalB; ++iLoc )
+            {
+                const Int i = B.GlobalRow(iLoc);
+                const Int owner = A.Owner(i,j);
+                B.SetLocal( iLoc, jLoc, recvBuf[offsets[owner]++] );
+            }
+        }
+    }
+}
+
 #define PROTO_DIST(T,U,V) \
-  template void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B );
+  template void Translate \
+  ( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B ); \
+  template void Translate \
+  ( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,U,V>& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

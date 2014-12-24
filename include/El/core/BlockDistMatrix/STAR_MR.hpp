@@ -83,15 +83,26 @@ public:
     // Basic queries
     // =============
     El::BlockDistData DistData() const override;
-    mpi::Comm DistComm() const override;
-    mpi::Comm CrossComm() const override;
+
+    Dist ColDist()             const override;
+    Dist RowDist()             const override;
+    Dist PartialColDist()      const override;
+    Dist PartialRowDist()      const override;
+    Dist PartialUnionColDist() const override;
+    Dist PartialUnionRowDist() const override;
+    Dist CollectedColDist()    const override;
+    Dist CollectedRowDist()    const override;
+
+    mpi::Comm DistComm()      const override;
+    mpi::Comm CrossComm()     const override;
     mpi::Comm RedundantComm() const override;
-    mpi::Comm ColComm() const override;
-    mpi::Comm RowComm() const override;
-    Int ColStride() const override;
-    Int RowStride() const override;
-    Int DistSize() const override;
-    Int CrossSize() const override;
+    mpi::Comm ColComm()       const override;
+    mpi::Comm RowComm()       const override;
+
+    Int ColStride()     const override;
+    Int RowStride()     const override;
+    Int DistSize()      const override;
+    Int CrossSize()     const override;
     Int RedundantSize() const override;
 
 private:

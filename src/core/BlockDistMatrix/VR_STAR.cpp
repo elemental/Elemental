@@ -8,8 +8,8 @@
 */
 #include "El.hpp"
 
-#define ColDist VR
-#define RowDist STAR
+#define COLDIST VR
+#define ROWDIST STAR
 
 #include "./setup.hpp"
 
@@ -116,7 +116,7 @@ template<typename T>
 BDM& BDM::operator=( const BDM& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[VR,STAR] = [VR,STAR]"))
-    A.Translate( *this );
+    copy::Translate( A, *this );
     return *this;
 }
 
@@ -184,19 +184,19 @@ Int BDM::RedundantSize() const { return 1; }
 // ####################################################################
 
 #define SELF(T,U,V) \
-  template BlockDistMatrix<T,ColDist,RowDist>::BlockDistMatrix \
+  template BlockDistMatrix<T,COLDIST,ROWDIST>::BlockDistMatrix \
   ( const BlockDistMatrix<T,U,V>& A );
 #define OTHER(T,U,V) \
-  template BlockDistMatrix<T,ColDist,RowDist>::BlockDistMatrix \
+  template BlockDistMatrix<T,COLDIST,ROWDIST>::BlockDistMatrix \
   ( const DistMatrix<T,U,V>& A ); \
-  template BlockDistMatrix<T,ColDist,RowDist>& \
-           BlockDistMatrix<T,ColDist,RowDist>::operator= \
+  template BlockDistMatrix<T,COLDIST,ROWDIST>& \
+           BlockDistMatrix<T,COLDIST,ROWDIST>::operator= \
            ( const DistMatrix<T,U,V>& A )
 #define BOTH(T,U,V) \
   SELF(T,U,V); \
   OTHER(T,U,V)
 #define PROTO(T) \
-  template class BlockDistMatrix<T,ColDist,RowDist>; \
+  template class BlockDistMatrix<T,COLDIST,ROWDIST>; \
   BOTH( T,CIRC,CIRC); \
   BOTH( T,MC,  MR  ); \
   BOTH( T,MC,  STAR); \

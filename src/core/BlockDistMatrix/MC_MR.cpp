@@ -8,8 +8,8 @@
 */
 #include "El.hpp"
 
-#define ColDist MC
-#define RowDist MR
+#define COLDIST MC
+#define ROWDIST MR
 
 #include "./setup.hpp"
 
@@ -26,7 +26,7 @@ BDM& BDM::operator=( const BDM& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [MC,MR]"))
     if( this->Grid() == A.Grid() )
-        A.Translate( *this );
+        copy::Translate( A, *this );
     else
         this->CopyFromDifferentGrid( A );
     return *this;
@@ -198,19 +198,19 @@ void BDM::CopyFromDifferentGrid( const BDM& A )
 // ####################################################################
 
 #define SELF(T,U,V) \
-  template BlockDistMatrix<T,ColDist,RowDist>::BlockDistMatrix \
+  template BlockDistMatrix<T,COLDIST,ROWDIST>::BlockDistMatrix \
   ( const BlockDistMatrix<T,U,V>& A );
 #define OTHER(T,U,V) \
-  template BlockDistMatrix<T,ColDist,RowDist>::BlockDistMatrix \
+  template BlockDistMatrix<T,COLDIST,ROWDIST>::BlockDistMatrix \
   ( const DistMatrix<T,U,V>& A ); \
-  template BlockDistMatrix<T,ColDist,RowDist>& \
-           BlockDistMatrix<T,ColDist,RowDist>::operator= \
+  template BlockDistMatrix<T,COLDIST,ROWDIST>& \
+           BlockDistMatrix<T,COLDIST,ROWDIST>::operator= \
            ( const DistMatrix<T,U,V>& A )
 #define BOTH(T,U,V) \
   SELF(T,U,V); \
   OTHER(T,U,V)
 #define PROTO(T) \
-  template class BlockDistMatrix<T,ColDist,RowDist>; \
+  template class BlockDistMatrix<T,COLDIST,ROWDIST>; \
   BOTH( T,CIRC,CIRC); \
   OTHER(T,MC,  MR  ); \
   BOTH( T,MC,  STAR); \

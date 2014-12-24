@@ -60,10 +60,8 @@ public:
     void FreeAlignments();
     void SetRoot( Int root, bool constrain=true );
     void AlignWith( const El::BlockDistData& data, bool constrain=true );
-    virtual void AlignColsWith
-    ( const El::BlockDistData& data, bool constrain=true );
-    virtual void AlignRowsWith
-    ( const El::BlockDistData& data, bool constrain=true );
+    void AlignColsWith( const El::BlockDistData& data, bool constrain=true );
+    void AlignRowsWith( const El::BlockDistData& data, bool constrain=true );
     // TODO: The interface for these routines could be improved
     void AlignAndResize
     ( Int blockHeight, Int blockWidth, 
@@ -139,6 +137,7 @@ public:
                   bool              RowConstrained()        const;
                   bool              RootConstrained()       const;
                   bool              Participating()         const;
+
                   Int               RowOwner( Int i )       const;     
                   Int               ColOwner( Int j )       const;     
                   Int               Owner( Int i, Int j )   const; 
@@ -151,12 +150,16 @@ public:
                   bool              IsLocalRow( Int i )     const; 
                   bool              IsLocalCol( Int j )     const;
                   bool              IsLocal( Int i, Int j ) const;
+
     virtual       Dist              ColDist()               const = 0;
     virtual       Dist              RowDist()               const = 0;
+    virtual       Dist              CollectedColDist()      const = 0;
+    virtual       Dist              CollectedRowDist()      const = 0;
     virtual       Dist              PartialColDist()        const = 0;
     virtual       Dist              PartialRowDist()        const = 0;
     virtual       Dist              PartialUnionColDist()   const = 0;
     virtual       Dist              PartialUnionRowDist()   const = 0;
+
     virtual       mpi::Comm         ColComm()               const = 0;
     virtual       mpi::Comm         RowComm()               const = 0;
     virtual       mpi::Comm         PartialColComm()        const;
@@ -166,6 +169,7 @@ public:
     virtual       mpi::Comm         DistComm()              const = 0;
     virtual       mpi::Comm         CrossComm()             const = 0;
     virtual       mpi::Comm         RedundantComm()         const = 0;
+
     virtual       Int               ColStride()             const = 0;
     virtual       Int               RowStride()             const = 0;
     virtual       Int               PartialColStride()      const;
@@ -175,6 +179,7 @@ public:
     virtual       Int               DistSize()              const = 0;
     virtual       Int               CrossSize()             const = 0;
     virtual       Int               RedundantSize()         const = 0;
+
                   Int               ColRank()               const;
                   Int               RowRank()               const;
                   Int               PartialColRank()        const;
@@ -184,6 +189,7 @@ public:
                   Int               DistRank()              const;
                   Int               CrossRank()             const;
                   Int               RedundantRank()         const;
+
                   Int               Root()                  const;
     virtual       El::BlockDistData DistData()              const = 0;
 

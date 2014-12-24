@@ -288,6 +288,8 @@ namespace copy {
 
 template<typename T,Dist U,Dist V>
 void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B );
+template<typename T,Dist U,Dist V>
+void Translate( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,U,V>& B );
 
 template<typename T>
 void TranslateBetweenGrids

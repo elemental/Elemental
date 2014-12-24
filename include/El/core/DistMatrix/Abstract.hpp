@@ -155,6 +155,10 @@ public:
     virtual       mpi::Comm    CrossComm()             const = 0;
     virtual       mpi::Comm    RedundantComm()         const = 0;
 
+    // NOTE: While these would be equivalent to composing mpi::Size
+    //       with ColComm(), RowComm(), etc., for processes *within*
+    //       the communicator, this composition is incorrect for 
+    //       processes *outside* of the communicator
     virtual       Int          ColStride()             const = 0;
     virtual       Int          RowStride()             const = 0;
     virtual       Int          PartialColStride()      const;
@@ -165,6 +169,9 @@ public:
     virtual       Int          CrossSize()             const = 0;
     virtual       Int          RedundantSize()         const = 0;
 
+    // NOTE: These are all clearly equivalent to composing mpi::Rank
+    //       with ColComm(), RowComm(), etc., but it is not clear that
+    //       they should be removed just yet.
                   Int          ColRank()               const;
                   Int          RowRank()               const;
                   Int          PartialColRank()        const;

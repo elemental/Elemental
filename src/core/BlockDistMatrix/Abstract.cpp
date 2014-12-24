@@ -388,30 +388,6 @@ void AbstractBlockDistMatrix<T>::AlignWith
 }
 
 template<typename T>
-void AbstractBlockDistMatrix<T>::AlignColsWith
-( const El::BlockDistData& data, bool constrain )
-{ 
-    DEBUG_ONLY(
-        CallStackEntry cse("ABDM::AlignColsWith");
-        if( colAlign_ != 0 )
-            LogicError("Alignment should have been zero");
-    )
-    SetGrid( *data.grid );
-}
-
-template<typename T>
-void AbstractBlockDistMatrix<T>::AlignRowsWith
-( const El::BlockDistData& data, bool constrain )
-{ 
-    DEBUG_ONLY(
-        CallStackEntry cse("ABDM::AlignRowsWith");
-        if( rowAlign_ != 0 )
-            LogicError("Alignment should have been zero");
-    )
-    SetGrid( *data.grid );
-}
-
-template<typename T>
 void AbstractBlockDistMatrix<T>::AlignAndResize
 ( Int blockHeight, Int blockWidth, 
   Int colAlign, Int rowAlign, Int colCut, Int rowCut,
@@ -1144,6 +1120,60 @@ void AbstractBlockDistMatrix<T>::ConjugateDiagonal( Int offset )
             ConjugateLocal( iLoc, jLoc );
         }
     }
+}
+
+template<typename T>
+void AbstractBlockDistMatrix<T>::AlignColsWith
+( const El::BlockDistData& data, bool constrain )
+{
+    DEBUG_ONLY(CallStackEntry cse("ABDM::AlignColsWith"))
+    SetGrid( *data.grid );
+    SetRoot( data.root );
+    if( data.colDist == ColDist() || data.colDist == PartialColDist() )
+        AlignCols( data.blockHeight, data.colAlign, data.colCut, constrain );
+    else if( data.rowDist == ColDist() || data.rowDist == PartialColDist() )
+        AlignCols( data.blockWidth, data.rowAlign, data.rowCut, constrain );
+    else if( data.colDist == PartialUnionColDist() )
+        AlignCols
+        ( data.blockHeight, data.colAlign % ColStride(), data.colCut,
+          constrain );
+    else if( data.rowDist == PartialUnionColDist() )
+        AlignCols
+        ( data.blockWidth, data.rowAlign % ColStride(), data.rowCut,
+          constrain );
+    DEBUG_ONLY(
+        else if( ColDist()    != CollectedColDist() && 
+                 data.colDist != CollectedColDist() && 
+                 data.rowDist != CollectedColDist() )
+            LogicError("Nonsensical alignment");
+    )
+}
+
+template<typename T>
+void AbstractBlockDistMatrix<T>::AlignRowsWith
+( const El::BlockDistData& data, bool constrain )
+{
+    DEBUG_ONLY(CallStackEntry cse("ABDM::AlignRowsWith"))
+    SetGrid( *data.grid );
+    SetRoot( data.root );
+    if( data.colDist == RowDist() || data.colDist == PartialRowDist() )
+        AlignRows( data.blockHeight, data.colAlign, data.colCut, constrain );
+    else if( data.rowDist == RowDist() || data.rowDist == PartialRowDist() )
+        AlignRows( data.blockWidth, data.rowAlign, data.rowCut, constrain );
+    else if( data.colDist == PartialUnionRowDist() )
+        AlignRows
+        ( data.blockHeight, data.colAlign % RowStride(), data.colCut,
+          constrain );
+    else if( data.rowDist == PartialUnionRowDist() )
+        AlignRows
+        ( data.blockWidth, data.rowAlign % RowStride(), data.rowCut,
+          constrain );
+    DEBUG_ONLY(
+        else if( RowDist()    != CollectedRowDist() && 
+                 data.colDist != CollectedRowDist() && 
+                 data.rowDist != CollectedRowDist() )
+            LogicError("Nonsensical alignment");
+    )
 }
 
 // Assertions
