@@ -31,10 +31,33 @@ void RowFilter
     Transpose( AFilt.LockedMatrix(), B.Matrix(), conjugate );
 }
 
+template<typename T,Dist U,Dist V>
+void RowFilter
+( const BlockDistMatrix<T,Collect<V>(),U>& A, 
+        BlockDistMatrix<T,U,           V>& B, bool conjugate )
+{
+    DEBUG_ONLY(CallStackEntry cse("transpose::RowFilter"))
+    BlockDistMatrix<T,V,U> AFilt( A.Grid() );
+    if( B.ColConstrained() )
+        AFilt.AlignRowsWith( B, false );
+    if( B.RowConstrained() )
+        AFilt.AlignColsWith( B, false );
+    copy::ColFilter( A, AFilt );
+    if( !B.ColConstrained() )
+        B.AlignColsWith( AFilt, false );
+    if( !B.RowConstrained() )
+        B.AlignRowsWith( AFilt, false );
+    B.Resize( A.Width(), A.Height() );
+    Transpose( AFilt.LockedMatrix(), B.Matrix(), conjugate );
+}
+
 #define PROTO_DIST(T,U,V) \
   template void RowFilter \
   ( const DistMatrix<T,Collect<V>(),U>& A, \
-          DistMatrix<T,U,           V>& B, bool conjugate );
+          DistMatrix<T,U,           V>& B, bool conjugate ); \
+  template void RowFilter \
+  ( const BlockDistMatrix<T,Collect<V>(),U>& A, \
+          BlockDistMatrix<T,U,           V>& B, bool conjugate );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

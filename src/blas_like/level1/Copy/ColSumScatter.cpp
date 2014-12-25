@@ -43,8 +43,7 @@ void ColSumScatter
 #define PROTO_DIST(T,U,V) \
   template void ColSumScatter \
   ( const DistMatrix<T,Collect<U>(),V>& A, \
-          DistMatrix<T,        U,   V>& B );
-#define PROTO_DIST(T,U,V) \
+          DistMatrix<T,        U,   V>& B ); \
   template void ColSumScatter \
   ( const BlockDistMatrix<T,Collect<U>(),V>& A, \
           BlockDistMatrix<T,        U,   V>& B );
