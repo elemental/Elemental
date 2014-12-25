@@ -66,7 +66,7 @@ void ConjugateDiagonal( AbstractBlockDistMatrix<T>& A, Int offset )
 #define PROTO(T) \
   template void ConjugateDiagonal( Matrix<T>& A, Int offset ); \
   template void ConjugateDiagonal( AbstractDistMatrix<T>& A, Int offset ); \
-  template void ConjugateDiagonal( AbstractDistMatrix<T>& A, Int offset ); 
+  template void ConjugateDiagonal( AbstractBlockDistMatrix<T>& A, Int offset ); 
 
 #include "El/macros/Instantiate.h"
 
