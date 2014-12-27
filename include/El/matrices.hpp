@@ -85,6 +85,8 @@ void Diagonal( AbstractDistMatrix<S>& D, const std::vector<T>& d );
 template<typename S,typename T>
 void Diagonal( AbstractDistMatrix<S>& D, const Matrix<T>& d );
 template<typename S,typename T>
+void Diagonal( AbstractDistMatrix<S>& D, const AbstractDistMatrix<T>& d );
+template<typename S,typename T>
 void Diagonal( AbstractBlockDistMatrix<S>& D, const std::vector<T>& d );
 template<typename S,typename T>
 void Diagonal( AbstractBlockDistMatrix<S>& D, const Matrix<T>& d );

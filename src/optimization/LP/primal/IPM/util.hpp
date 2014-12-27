@@ -212,13 +212,10 @@ Real IPFLineSearch
 template<typename Real>
 Real IPFLineSearch
 ( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& b,
-  const DistMultiVec<Real>& c,
-  const DistMultiVec<Real>& x,
-  const DistMultiVec<Real>& y,
+  const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c,
+  const DistMultiVec<Real>& x,  const DistMultiVec<Real>& y,
   const DistMultiVec<Real>& z,
-  const DistMultiVec<Real>& dx,
-  const DistMultiVec<Real>& dy,
+  const DistMultiVec<Real>& dx, const DistMultiVec<Real>& dy,
   const DistMultiVec<Real>& dz,
   Real bTol, Real cTol,
   const IPFLineSearchCtrl<Real>& ctrl );

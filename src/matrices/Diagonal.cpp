@@ -67,6 +67,26 @@ void Diagonal( AbstractDistMatrix<S>& D, const Matrix<T>& d )
 }
 
 template<typename S,typename T>
+void Diagonal( AbstractDistMatrix<S>& D, const AbstractDistMatrix<T>& dPre )
+{
+    DEBUG_ONLY(CallStackEntry cse("Diagonal"))
+    auto dPtr = ReadProxy<T,STAR,STAR>(&dPre);
+    auto& d = *dPtr;
+
+    if( d.Width() != 1 )
+        LogicError("d must be a column vector");
+    const Int n = d.Height();
+    Zeros( D, n, n );
+
+    const Int localWidth = D.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = D.GlobalCol(jLoc);
+        D.Set( j, j, d.Get(j,0) );
+    }
+}
+
+template<typename S,typename T>
 void Diagonal( AbstractBlockDistMatrix<S>& D, const std::vector<T>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("Diagonal"))
@@ -103,6 +123,8 @@ void Diagonal( AbstractBlockDistMatrix<S>& D, const Matrix<T>& d )
   template void Diagonal( Matrix<S>& D, const Matrix<T>& d ); \
   template void Diagonal( AbstractDistMatrix<S>& D, const std::vector<T>& d ); \
   template void Diagonal( AbstractDistMatrix<S>& D, const Matrix<T>& d ); \
+  template void Diagonal \
+  ( AbstractDistMatrix<S>& D, const AbstractDistMatrix<T>& d ); \
   template void Diagonal \
   ( AbstractBlockDistMatrix<S>& D, const std::vector<T>& d ); \
   template void Diagonal \

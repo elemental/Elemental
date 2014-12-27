@@ -293,26 +293,33 @@ template<typename Real>
 void IPF
 ( const Matrix<Real>& A, const Matrix<Real>& G,
   const Matrix<Real>& b, const Matrix<Real>& c,
-  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
+  const Matrix<Real>& h,
+  Matrix<Real>& x, Matrix<Real>& y, 
+  Matrix<Real>& z, Matrix<Real>& s,
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>(false) );
 template<typename Real>
 void IPF
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G,
   const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
+  const AbstractDistMatrix<Real>& h,
   AbstractDistMatrix<Real>& x, AbstractDistMatrix<Real>& y, 
-  AbstractDistMatrix<Real>& z, 
+  AbstractDistMatrix<Real>& z, AbstractDistMatrix<Real>& s,
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>(false) );
 template<typename Real>
 void IPF
 ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
   const Matrix<Real>& b,  const Matrix<Real>& c,
-  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
+  const Matrix<Real>& h,
+  Matrix<Real>& x, Matrix<Real>& y, 
+  Matrix<Real>& z, Matrix<Real>& s,
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>(true) );
 template<typename Real>
 void IPF
 ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
   const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c,
-  DistMultiVec<Real>& x, DistMultiVec<Real>& y, DistMultiVec<Real>& z,
+  const DistMultiVec<Real>& h,
+  DistMultiVec<Real>& x, DistMultiVec<Real>& y, 
+  DistMultiVec<Real>& z, DistMultiVec<Real>& s,
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>(true) );
 
 // Mehrotra's Predictor-Corrector Infeasible Interior Point Method
@@ -339,26 +346,33 @@ template<typename Real>
 void Mehrotra
 ( const Matrix<Real>& A, const Matrix<Real>& G,
   const Matrix<Real>& b, const Matrix<Real>& c,
-  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
+  const Matrix<Real>& h,
+  Matrix<Real>& x, Matrix<Real>& y, 
+  Matrix<Real>& z, Matrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>(false) );
 template<typename Real>
 void Mehrotra
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G,
   const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
+  const AbstractDistMatrix<Real>& h,
   AbstractDistMatrix<Real>& x, AbstractDistMatrix<Real>& y,
-  AbstractDistMatrix<Real>& z,
+  AbstractDistMatrix<Real>& z, AbstractDistMatrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>(false) );
 template<typename Real>
 void Mehrotra
 ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
   const Matrix<Real>& b, const Matrix<Real>& c,
-  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
+  const Matrix<Real>& h,
+  Matrix<Real>& x, Matrix<Real>& y, 
+  Matrix<Real>& z, Matrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>(true) );
 template<typename Real>
 void Mehrotra
 ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
   const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
-  DistMultiVec<Real>& x, DistMultiVec<Real>& y, DistMultiVec<Real>& z,
+  const DistMultiVec<Real>& h,
+  DistMultiVec<Real>& x, DistMultiVec<Real>& y, 
+  DistMultiVec<Real>& z, DistMultiVec<Real>& s,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>(true) );
 
 // Control structure for the high-level "primal" conic-form LP solver
@@ -408,24 +422,28 @@ template<typename Real>
 void LP
 ( const Matrix<Real>& A, const Matrix<Real>& G,
   const Matrix<Real>& b, const Matrix<Real>& c,
+  const Matrix<Real>& h,
         Matrix<Real>& x, 
   const lp::dual::Ctrl<Real>& ctrl=lp::dual::Ctrl<Real>(false) );
 template<typename Real>
 void LP
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G,
   const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
+  const AbstractDistMatrix<Real>& h,
         AbstractDistMatrix<Real>& x,
   const lp::dual::Ctrl<Real>& ctrl=lp::dual::Ctrl<Real>(false) );
 template<typename Real>
 void LP
 ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
   const Matrix<Real>& b, const Matrix<Real>& c,
+  const Matrix<Real>& h,
         Matrix<Real>& x, 
   const lp::dual::Ctrl<Real>& ctrl=lp::dual::Ctrl<Real>(true) );
 template<typename Real>
 void LP
 ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
   const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
+  const DistMultiVec<Real>& h,
   DistMultiVec<Real>& x, 
   const lp::dual::Ctrl<Real>& ctrl=lp::dual::Ctrl<Real>(true) );
 

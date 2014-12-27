@@ -21,11 +21,15 @@ namespace primal {
 // as opposed to the more general "dual" conic form:
 //
 //   min 1/2 x^T Q x + c^T x
-//   s.t. A x = b, h - G x >= 0,
+//   s.t. A x = b, G x + s = h, s >= 0,
 //
 // using a simple Infeasible Path Following (IPF) scheme. This routine
 // should only be used for academic purposes, as the Mehrotra alternative
 // typically requires an order of magnitude fewer iterations.
+
+// TODO: Flip the sign of y for consistency with the dual conic form
+// TODO: Set the regularization candidate values outside of the loop
+
 template<typename Real>
 void IPF
 ( const Matrix<Real>& Q, const Matrix<Real>& A, 
@@ -34,17 +38,19 @@ void IPF
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::primal::IPF"))    
-
     const Int m = A.Height();
     const Int n = A.Width();
-    Matrix<Real> J, rhs, rmu, rb, rc, dx, dy, dz;
+
+    const Real bNrm2 = Nrm2( b );
+
+    Matrix<Real> J, d, rmu, rb, rc, dx, dy, dz;
 #ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError;
 #endif
     for( Int numIts=0; ; ++numIts )
     {
-        // Check that no entries of x or z are non-positive
-        // ================================================
+        // Ensure that x and z are in the cone
+        // ===================================
         const Int xNumNonPos = NumNonPositive( x );
         const Int zNumNonPos = NumNonPositive( z );
         if( xNumNonPos > 0 || zNumNonPos > 0 )
@@ -56,26 +62,27 @@ void IPF
         // =====================
         // |c^T x + x^T Q x - b^T y| / (1 + |c^T x + 1/2 x^T Q x|) <= tol ?
         // ----------------------------------------------------------------
-        Zeros( rhs, n, 1 );
-        Hemv( LOWER, Real(1), Q, x, Real(0), rhs );
-        const Real xTQx = Dot(x,rhs);
+        Zeros( d, n, 1 );
+        Hemv( LOWER, Real(1), Q, x, Real(0), d );
+        const Real xTQx = Dot(x,d);
         const Real primObj = Dot(c,x) + xTQx/2;
         const Real dualObj = Dot(b,y) - xTQx/2; 
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
-        const Real bNrm2 = Nrm2( b );
         rb = b;
-        Gemv( NORMAL, Real(1), A, x, Real(-1), rb );
+        Scale( Real(-1), rb );
+        Gemv( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
         // || r_c ||_2 / (1 + || c + Q x ||_2) <= tol ?
         // --------------------------------------------
-        // NOTE: rhs currently contains Q x
-        Axpy( Real(1), c, rhs );
-        const Real objGradNrm2 = Nrm2( rhs );
-        rc = rhs;
-        Gemv( TRANSPOSE, Real(1), A, y, Real(-1), rc );
+        // NOTE: d currently contains Q x
+        Axpy( Real(1), c, d );
+        const Real objGradNrm2 = Nrm2( d );
+        rc = d;
+        Scale( Real(-1), rc );
+        Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Axpy( Real(1), z, rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (Real(1)+objGradNrm2);
@@ -110,24 +117,24 @@ void IPF
             // Construct the full KKT system
             // =============================
             KKT( Q, A, x, z, J );
-            KKTRHS( rmu, rc, rb, rhs );
+            KKTRHS( rmu, rc, rb, d );
 
             // Compute the proposed step from the KKT system
             // =============================================
-            GaussianElimination( J, rhs );
-            ExpandKKTSolution( m, n, rhs, dx, dy, dz );
+            GaussianElimination( J, d );
+            ExpandKKTSolution( m, n, d, dx, dy, dz );
         }
         else // ctrl.system == AUGMENTED_KKT
         {
             // Construct the reduced KKT system
             // ================================
             AugmentedKKT( Q, A, x, z, J );
-            AugmentedKKTRHS( x, rmu, rc, rb, rhs );
+            AugmentedKKTRHS( x, rmu, rc, rb, d );
 
             // Compute the proposed step from the KKT system
             // =============================================
-            SymmetricSolve( LOWER, NORMAL, J, rhs );
-            ExpandAugmentedSolution( x, z, rmu, rhs, dx, dy, dz );
+            SymmetricSolve( LOWER, NORMAL, J, d );
+            ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
 
 #ifndef EL_RELEASE
@@ -164,17 +171,14 @@ void IPF
                       << dzErrorNrm2/(1+rmuNrm2) << std::endl;
 #endif
 
-        // Decide on the step length
-        // =========================
+        // Take a step in the computed direction
+        // =====================================
         const Real alpha =
           IPFLineSearch
           ( Q, A, b, c, x, y, z, dx, dy, dz, 
             ctrl.tol*(1+bNrm2), ctrl.tol*(1+objGradNrm2), ctrl.lineSearchCtrl );
         if( ctrl.print )
             std::cout << "  alpha = " << alpha << std::endl;
-
-        // Update the state by stepping a distance of alpha
-        // ================================================
         Axpy( alpha, dx, x );
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );
@@ -205,7 +209,9 @@ void IPF
     const Grid& grid = A.Grid();
     const Int commRank = A.Grid().Rank();
 
-    DistMatrix<Real> J(grid), rhs(grid), 
+    const Real bNrm2 = Nrm2( b );
+
+    DistMatrix<Real> J(grid), d(grid), 
                      rmu(grid), rb(grid), rc(grid), 
                      dx(grid),  dy(grid), dz(grid);
     dx.AlignWith( x );
@@ -216,8 +222,8 @@ void IPF
 #endif
     for( Int numIts=0; ; ++numIts )
     {
-        // Check that no entries of x or z are non-positive
-        // ================================================
+        // Ensure that x and z are in the cone
+        // ===================================
         const Int xNumNonPos = NumNonPositive( x );
         const Int zNumNonPos = NumNonPositive( z );
         if( xNumNonPos > 0 || zNumNonPos > 0 )
@@ -229,26 +235,27 @@ void IPF
         // =====================
         // |c^T x + x^T Q x - b^T y| / (1 + |c^T x + 1/2 x^T Q x|) <= tol ?
         // ----------------------------------------------------------------
-        Zeros( rhs, n, 1 );
-        Hemv( LOWER, Real(1), Q, x, Real(0), rhs );
-        const Real xTQx = Dot(x,rhs);
+        Zeros( d, n, 1 );
+        Hemv( LOWER, Real(1), Q, x, Real(0), d );
+        const Real xTQx = Dot(x,d);
         const Real primObj = Dot(c,x) + xTQx/2;
         const Real dualObj = Dot(b,y) - xTQx/2;
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
-        const Real bNrm2 = Nrm2( b );
         rb = b;
-        Gemv( NORMAL, Real(1), A, x, Real(-1), rb );
+        Scale( Real(-1), rb );
+        Gemv( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
         // || r_c ||_2 / (1 + || c + Q x ||_2) <= tol ?
         // --------------------------------------------
-        // NOTE: rhs currently contains Q x
-        Axpy( Real(1), c, rhs );
-        const Real objGradNrm2 = Nrm2( rhs );
-        rc = rhs;
-        Gemv( TRANSPOSE, Real(1), A, y, Real(-1), rc );
+        // NOTE: d currently contains Q x
+        Axpy( Real(1), c, d );
+        const Real objGradNrm2 = Nrm2( d );
+        rc = d;
+        Scale( Real(-1), rc );
+        Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Axpy( Real(1), z, rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (Real(1)+objGradNrm2);
@@ -286,24 +293,24 @@ void IPF
             // Construct the full KKT system
             // =============================
             KKT( Q, A, x, z, J );
-            KKTRHS( rmu, rc, rb, rhs );
+            KKTRHS( rmu, rc, rb, d );
 
             // Compute the proposed step from the KKT system
             // =============================================
-            GaussianElimination( J, rhs );
-            ExpandKKTSolution( m, n, rhs, dx, dy, dz );
+            GaussianElimination( J, d );
+            ExpandKKTSolution( m, n, d, dx, dy, dz );
         }
         else // ctrl.system == AUGMENTED_KKT
         {
             // Construct the reduced KKT system
             // ================================
             AugmentedKKT( Q, A, x, z, J );
-            AugmentedKKTRHS( x, rmu, rc, rb, rhs );
+            AugmentedKKTRHS( x, rmu, rc, rb, d );
 
             // Compute the proposed step from the KKT system
             // =============================================
-            SymmetricSolve( LOWER, NORMAL, J, rhs );
-            ExpandAugmentedSolution( x, z, rmu, rhs, dx, dy, dz );
+            SymmetricSolve( LOWER, NORMAL, J, d );
+            ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
 
 #ifndef EL_RELEASE
@@ -344,17 +351,14 @@ void IPF
                       << dzErrorNrm2/(1+rmuNrm2) << std::endl;
 #endif
 
-        // Decide on the step length
-        // =========================
+        // Take a step in the computed direction
+        // =====================================
         const Real alpha =
           IPFLineSearch
           ( Q, A, b, c, x, y, z, dx, dy, dz, 
             ctrl.tol*(1+bNrm2), ctrl.tol*(1+objGradNrm2), ctrl.lineSearchCtrl );
         if( ctrl.print && commRank == 0 )
             std::cout << "  alpha = " << alpha << std::endl;
-
-        // Update the state by stepping a distance of alpha
-        // ================================================
         Axpy( alpha, dx, x );
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );
@@ -387,16 +391,18 @@ void IPF
     const Int commRank = mpi::Rank(comm);
     const Real epsilon = lapack::MachineEpsilon<Real>();
 
+    const Real bNrm2 = Nrm2( b );
+
     DistSymmInfo info;
     DistSeparatorTree sepTree;
     DistMap map, invMap;
     DistSparseMatrix<Real> J(comm);
     DistSymmFrontTree<Real> JFrontTree;
 
-    DistMultiVec<Real> rhs(comm),
+    DistMultiVec<Real> d(comm),
                        rmu(comm), rb(comm), rc(comm), 
                        dx(comm),  dy(comm), dz(comm);
-    DistNodalMultiVec<Real> rhsNodal;
+    DistNodalMultiVec<Real> dNodal;
 
     DistMultiVec<Real> regCand(comm), reg(comm);
     DistNodalMultiVec<Real> regCandNodal, regNodal;
@@ -406,8 +412,8 @@ void IPF
 #endif
     for( Int numIts=0; ; ++numIts )
     {
-        // Check that no entries of x or z are non-positive
-        // ================================================
+        // Ensure that x and z are in the cone
+        // ===================================
         const Int xNumNonPos = NumNonPositive( x );
         const Int zNumNonPos = NumNonPositive( z );
         if( xNumNonPos > 0 || zNumNonPos > 0 )
@@ -419,27 +425,28 @@ void IPF
         // =====================
         // |c^T x + x^T Q x - b^T y| / (1 + |c^T x + 1/2 x^T Q x|) <= tol ?
         // ----------------------------------------------------------------
-        Zeros( rhs, n, 1 );
+        Zeros( d, n, 1 );
         // NOTE: This assumes that Q is explicitly Hermitian
-        Multiply( NORMAL, Real(1), Q, x, Real(0), rhs );
-        const Real xTQx = Dot(x,rhs);
+        Multiply( NORMAL, Real(1), Q, x, Real(0), d );
+        const Real xTQx = Dot(x,d);
         const Real primObj = Dot(c,x) + xTQx/2;
         const Real dualObj = Dot(b,y) - xTQx/2;
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
-        const Real bNrm2 = Nrm2( b );
         rb = b;
-        Multiply( NORMAL, Real(1), A, x, Real(-1), rb );
+        Scale( Real(-1), rb );
+        Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
         // || r_c ||_2 / (1 + || c + Q x ||_2) <= tol ?
         // --------------------------------------------
-        // NOTE: rhs currently contains Q x
-        Axpy( Real(1), c, rhs );
-        const Real objGradNrm2 = Nrm2( rhs );
-        rc = rhs;
-        Multiply( TRANSPOSE, Real(1), A, y, Real(-1), rc );
+        // NOTE: d currently contains Q x
+        Axpy( Real(1), c, d );
+        const Real objGradNrm2 = Nrm2( d );
+        rc = d;
+        Scale( Real(-1), rc );
+        Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Axpy( Real(1), z, rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (Real(1)+objGradNrm2);
@@ -483,7 +490,7 @@ void IPF
             // ---------------------------------
             // TODO: Add default regularization
             AugmentedKKT( Q, A, x, z, J, false );
-            AugmentedKKTRHS( x, rmu, rc, rb, rhs );
+            AugmentedKKTRHS( x, rmu, rc, rb, d );
             const Real pivTol = MaxNorm(J)*epsilon;
             const Real regMagPrimal = Pow(epsilon,Real(0.75));
             const Real regMagLagrange = Pow(epsilon,Real(0.5));
@@ -515,13 +522,13 @@ void IPF
             // TODO: Iterative refinement
             /*
             SolveWithIterativeRefinement
-            ( J, invMap, info, JFrontTree, rhs, 
+            ( J, invMap, info, JFrontTree, d, 
               minReductionFactor, maxRefineIts );
             */
-            rhsNodal.Pull( invMap, info, rhs );
-            Solve( info, JFrontTree, rhsNodal );
-            rhsNodal.Push( invMap, info, rhs );
-            ExpandAugmentedSolution( x, z, rmu, rhs, dx, dy, dz );
+            dNodal.Pull( invMap, info, d );
+            Solve( info, JFrontTree, dNodal );
+            dNodal.Push( invMap, info, d );
+            ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
 
 #ifndef EL_RELEASE
@@ -558,17 +565,14 @@ void IPF
                       << dzErrorNrm2/(1+rmuNrm2) << std::endl;
 #endif
 
-        // Decide on the step length
-        // =========================
+        // Take a step in the computed direction
+        // =====================================
         const Real alpha = 
           IPFLineSearch
           ( Q, A, b, c, x, y, z, dx, dy, dz, 
             ctrl.tol*(1+bNrm2), ctrl.tol*(1+objGradNrm2), ctrl.lineSearchCtrl );
         if( ctrl.print && commRank == 0 )
             std::cout << "  alpha = " << alpha << std::endl;
-
-        // Update the state by stepping a distance of alpha
-        // ================================================
         Axpy( alpha, dx, x );
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );

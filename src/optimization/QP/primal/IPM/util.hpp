@@ -28,19 +28,19 @@ void KKT
 template<typename Real>
 void KKTRHS
 ( const Matrix<Real>& rmu, const Matrix<Real>& rc,
-  const Matrix<Real>& rb, Matrix<Real>& rhs );
+  const Matrix<Real>& rb, Matrix<Real>& d );
 template<typename Real>
 void KKTRHS
 ( const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& rc,
-  const AbstractDistMatrix<Real>& rb, AbstractDistMatrix<Real>& rhs );
+  const AbstractDistMatrix<Real>& rb, AbstractDistMatrix<Real>& d );
 
 template<typename Real>
 void ExpandKKTSolution
-( Int m, Int n, const Matrix<Real>& rhs,
+( Int m, Int n, const Matrix<Real>& d,
   Matrix<Real>& dx, Matrix<Real>& dy, Matrix<Real>& dz );
 template<typename Real>
 void ExpandKKTSolution
-( Int m, Int n, const AbstractDistMatrix<Real>& rhs,
+( Int m, Int n, const AbstractDistMatrix<Real>& d,
   AbstractDistMatrix<Real>& dx, AbstractDistMatrix<Real>& dy, 
   AbstractDistMatrix<Real>& dz );
 
@@ -71,33 +71,33 @@ template<typename Real>
 void AugmentedKKTRHS
 ( const Matrix<Real>& x,
   const Matrix<Real>& rmu, const Matrix<Real>& rc, const Matrix<Real>& rb,
-  Matrix<Real>& rhs );
+  Matrix<Real>& d );
 template<typename Real>
 void AugmentedKKTRHS
 ( const AbstractDistMatrix<Real>& x,
   const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& rc, 
-  const AbstractDistMatrix<Real>& rb, AbstractDistMatrix<Real>& rhs );
+  const AbstractDistMatrix<Real>& rb, AbstractDistMatrix<Real>& d );
 template<typename Real>
 void AugmentedKKTRHS
 ( const DistMultiVec<Real>& x,
   const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rc, 
-  const DistMultiVec<Real>& rb, DistMultiVec<Real>& rhs );
+  const DistMultiVec<Real>& rb, DistMultiVec<Real>& d );
 
 template<typename Real>
 void ExpandAugmentedSolution
 ( const Matrix<Real>& x, const Matrix<Real>& z,
-  const Matrix<Real>& rmu, const Matrix<Real>& rhs,
+  const Matrix<Real>& rmu, const Matrix<Real>& d,
   Matrix<Real>& dx, Matrix<Real>& dy, Matrix<Real>& dz );
 template<typename Real>
 void ExpandAugmentedSolution
 ( const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z,
-  const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& rhs,
+  const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& d,
   AbstractDistMatrix<Real>& dx, AbstractDistMatrix<Real>& dy, 
   AbstractDistMatrix<Real>& dz );
 template<typename Real>
 void ExpandAugmentedSolution
 ( const DistMultiVec<Real>& x, const DistMultiVec<Real>& z,
-  const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rhs,
+  const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& d,
   DistMultiVec<Real>& dx, DistMultiVec<Real>& dy, DistMultiVec<Real>& dz );
 
 // Line search
@@ -130,15 +130,11 @@ Real IPFLineSearch
   const IPFLineSearchCtrl<Real>& ctrl );
 template<typename Real>
 Real IPFLineSearch
-( const DistSparseMatrix<Real>& Q, 
-  const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& b,
-  const DistMultiVec<Real>& c,
-  const DistMultiVec<Real>& x,
-  const DistMultiVec<Real>& y,
+( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c,
+  const DistMultiVec<Real>& x,     const DistMultiVec<Real>& y,
   const DistMultiVec<Real>& z,
-  const DistMultiVec<Real>& dx,
-  const DistMultiVec<Real>& dy,
+  const DistMultiVec<Real>& dx,    const DistMultiVec<Real>& dy,
   const DistMultiVec<Real>& dz,
   Real bTol, Real cTol,
   const IPFLineSearchCtrl<Real>& ctrl );

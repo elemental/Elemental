@@ -18,7 +18,7 @@ namespace dual {
 // The following solves a linear program in "dual" conic form:
 //
 //   min c^T x
-//   s.t. A x = b, G x <= h,
+//   s.t. A x = b, G x + s = h, s >= 0,
 //
 // as opposed to the more specific "primal" conic form:
 //
@@ -31,7 +31,9 @@ template<typename Real>
 void Mehrotra
 ( const Matrix<Real>& A, const Matrix<Real>& G,
   const Matrix<Real>& b, const Matrix<Real>& c,
-  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
+  const Matrix<Real>& h,
+  Matrix<Real>& x, Matrix<Real>& y, 
+  Matrix<Real>& z, Matrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::Mehrotra"))    
@@ -43,12 +45,14 @@ void Mehrotra
 ( const AbstractDistMatrix<Real>& APre, 
   const AbstractDistMatrix<Real>& GPre,
   const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c,
+  const AbstractDistMatrix<Real>& h,
   AbstractDistMatrix<Real>& xPre, AbstractDistMatrix<Real>& y,
-  AbstractDistMatrix<Real>& zPre,
+  AbstractDistMatrix<Real>& zPre, AbstractDistMatrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::Mehrotra"))    
 
+    /*
     ProxyCtrl control;
     control.colConstrain = true;
     control.rowConstrain = true;
@@ -58,6 +62,7 @@ void Mehrotra
     auto GPtr = ReadProxy<Real,MC,MR>(&GPre,control);      auto& G = *GPtr;
     auto xPtr = ReadWriteProxy<Real,MC,MR>(&xPre,control); auto& x = *xPtr;
     auto zPtr = ReadWriteProxy<Real,MC,MR>(&zPre,control); auto& z = *zPtr;
+    */
 
     LogicError("This routine is not yet written");
 }
@@ -66,7 +71,9 @@ template<typename Real>
 void Mehrotra
 ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
   const Matrix<Real>& b, const Matrix<Real>& c,
-  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
+  const Matrix<Real>& h,
+  Matrix<Real>& x, Matrix<Real>& y, 
+  Matrix<Real>& z, Matrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::Mehrotra"))    
@@ -78,7 +85,9 @@ void Mehrotra
 ( const DistSparseMatrix<Real>& A, 
   const DistSparseMatrix<Real>& G,
   const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
-  DistMultiVec<Real>& x, DistMultiVec<Real>& y, DistMultiVec<Real>& z,
+  const DistMultiVec<Real>& h,
+  DistMultiVec<Real>& x, DistMultiVec<Real>& y, 
+  DistMultiVec<Real>& z, DistMultiVec<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::Mehrotra"))    
@@ -89,23 +98,30 @@ void Mehrotra
   template void Mehrotra \
   ( const Matrix<Real>& A, const Matrix<Real>& G, \
     const Matrix<Real>& b, const Matrix<Real>& c, \
-    Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z, \
+    const Matrix<Real>& h, \
+    Matrix<Real>& x, Matrix<Real>& y, \
+    Matrix<Real>& z, Matrix<Real>& s, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G, \
     const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
+    const AbstractDistMatrix<Real>& h, \
     AbstractDistMatrix<Real>& x, AbstractDistMatrix<Real>& y, \
-    AbstractDistMatrix<Real>& z, \
+    AbstractDistMatrix<Real>& z, AbstractDistMatrix<Real>& s, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G, \
     const Matrix<Real>& b, const Matrix<Real>& c, \
-    Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z, \
+    const Matrix<Real>& h, \
+    Matrix<Real>& x, Matrix<Real>& y, \
+    Matrix<Real>& z, Matrix<Real>& s, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G, \
     const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, \
-    DistMultiVec<Real>& x, DistMultiVec<Real>& y, DistMultiVec<Real>& z, \
+    const DistMultiVec<Real>& h, \
+    DistMultiVec<Real>& x, DistMultiVec<Real>& y, \
+    DistMultiVec<Real>& z, DistMultiVec<Real>& s, \
     const MehrotraCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO

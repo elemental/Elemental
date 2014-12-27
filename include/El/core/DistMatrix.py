@@ -1100,17 +1100,6 @@ lib.ElDistMatrixDiagonalAlign_c.restype = c_uint
 lib.ElDistMatrixDiagonalAlign_z.argtypes = [c_void_p,iType,POINTER(iType)]
 lib.ElDistMatrixDiagonalAlign_z.restype = c_uint
 
-lib.ElDistMatrixSumOver_i.argtypes = [c_void_p,mpi.Comm]
-lib.ElDistMatrixSumOver_i.restype = c_uint
-lib.ElDistMatrixSumOver_s.argtypes = [c_void_p,mpi.Comm]
-lib.ElDistMatrixSumOver_s.restype = c_uint
-lib.ElDistMatrixSumOver_d.argtypes = [c_void_p,mpi.Comm]
-lib.ElDistMatrixSumOver_d.restype = c_uint
-lib.ElDistMatrixSumOver_c.argtypes = [c_void_p,mpi.Comm]
-lib.ElDistMatrixSumOver_c.restype = c_uint
-lib.ElDistMatrixSumOver_z.argtypes = [c_void_p,mpi.Comm]
-lib.ElDistMatrixSumOver_z.restype = c_uint
-
 lib.ElViewDist_i.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]
 lib.ElViewDist_i.restype = c_uint
 lib.ElViewDist_s.argtypes = [c_void_p,c_void_p,IndexRange,IndexRange]

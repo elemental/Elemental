@@ -24,10 +24,13 @@ namespace primal {
 // as opposed to the more general "dual" conic form:
 //
 //   min c^T x
-//   s.t. A x = b, h - G x >= 0,
+//   s.t. A x = b, G x + s = h, s >= 0,
 //
 // using a Mehrotra Predictor-Corrector scheme.
 //
+
+// TODO: Flip the sign of y for consistency with the dual conic form
+
 template<typename Real>
 void Mehrotra
 ( const Matrix<Real>& A, 
@@ -36,10 +39,13 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::Mehrotra"))    
-
     const Int m = A.Height();
     const Int n = A.Width();
-    Matrix<Real> J, rhs, 
+
+    const Real bNrm2 = Nrm2( b );
+    const Real cNrm2 = Nrm2( c );
+
+    Matrix<Real> J, d, 
                  rmu,   rb,    rc, 
                  dxAff, dyAff, dzAff,
                  dx,    dy,    dz;
@@ -50,8 +56,8 @@ void Mehrotra
 #endif
     for( Int numIts=0; ; ++numIts )
     {
-        // Check that no entries of x or z are non-positive
-        // ================================================
+        // Ensure that x and z are in the cone
+        // ===================================
         const Int xNumNonPos = NumNonPositive( x );
         const Int zNumNonPos = NumNonPositive( z );
         if( xNumNonPos > 0 || zNumNonPos > 0 )
@@ -68,16 +74,16 @@ void Mehrotra
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
-        const Real bNrm2 = Nrm2( b );
         rb = b;
-        Gemv( NORMAL, Real(1), A, x, Real(-1), rb );
+        Scale( Real(-1), rb );
+        Gemv( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
-        const Real cNrm2 = Nrm2( c );
         rc = c;
-        Gemv( TRANSPOSE, Real(1), A, y, Real(-1), rc );
+        Scale( Real(-1), rc );
+        Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Axpy( Real(1), z, rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
@@ -113,26 +119,26 @@ void Mehrotra
             // Construct the full KKT system
             // -----------------------------
             KKT( A, x, z, J );
-            KKTRHS( rmu, rc, rb, rhs );
+            KKTRHS( rmu, rc, rb, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             LU( J, p );
-            lu::SolveAfter( NORMAL, J, p, rhs );
-            ExpandKKTSolution( m, n, rhs, dxAff, dyAff, dzAff );
+            lu::SolveAfter( NORMAL, J, p, d );
+            ExpandKKTSolution( m, n, d, dxAff, dyAff, dzAff );
         }
         else if( ctrl.system == AUGMENTED_KKT )
         {
             // Construct the "augmented" KKT system
             // ------------------------------------
             AugmentedKKT( A, x, z, J );
-            AugmentedKKTRHS( x, rmu, rc, rb, rhs );
+            AugmentedKKTRHS( x, rmu, rc, rb, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             LDL( J, dSub, p, false );
-            ldl::SolveAfter( J, dSub, p, rhs, false );
-            ExpandAugmentedSolution( x, z, rmu, rhs, dxAff, dyAff, dzAff );
+            ldl::SolveAfter( J, dSub, p, d, false );
+            ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
         }
         else if( ctrl.system == NORMAL_KKT )
         {
@@ -232,23 +238,23 @@ void Mehrotra
         {
             // Construct the new full KKT RHS
             // ------------------------------
-            KKTRHS( rmu, rc, rb, rhs );
+            KKTRHS( rmu, rc, rb, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            lu::SolveAfter( NORMAL, J, p, rhs );
-            ExpandKKTSolution( m, n, rhs, dx, dy, dz );
+            lu::SolveAfter( NORMAL, J, p, d );
+            ExpandKKTSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
         {
             // Construct the new "augmented" KKT RHS
             // -------------------------------------
-            AugmentedKKTRHS( x, rmu, rc, rb, rhs );
+            AugmentedKKTRHS( x, rmu, rc, rb, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            ldl::SolveAfter( J, dSub, p, rhs, false );
-            ExpandAugmentedSolution( x, z, rmu, rhs, dx, dy, dz );
+            ldl::SolveAfter( J, dSub, p, d, false );
+            ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else if( ctrl.system == NORMAL_KKT )
         {
@@ -326,8 +332,11 @@ void Mehrotra
     const Grid& grid = A.Grid();
     const Int commRank = A.Grid().Rank();
 
+    const Real bNrm2 = Nrm2( b );
+    const Real cNrm2 = Nrm2( c );
+
     DistMatrix<Real> 
-        J(grid), rhs(grid), 
+        J(grid), d(grid), 
         rmu(grid), rb(grid), rc(grid), 
         dxAff(grid), dyAff(grid), dzAff(grid),
         dx(grid),    dy(grid),    dz(grid);
@@ -344,8 +353,8 @@ void Mehrotra
 #endif
     for( Int numIts=0; ; ++numIts )
     {
-        // Check that no entries of x or z are non-positive
-        // ================================================
+        // Ensure that x and z are in the cone
+        // ===================================
         const Int xNumNonPos = NumNonPositive( x );
         const Int zNumNonPos = NumNonPositive( z );
         if( xNumNonPos > 0 || zNumNonPos > 0 )
@@ -362,16 +371,16 @@ void Mehrotra
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
-        const Real bNrm2 = Nrm2( b );
         rb = b;
-        Gemv( NORMAL, Real(1), A, x, Real(-1), rb );
+        Scale( Real(-1), rb );
+        Gemv( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
-        const Real cNrm2 = Nrm2( c );
         rc = c;
-        Gemv( TRANSPOSE, Real(1), A, y, Real(-1), rc );
+        Scale( Real(-1), rc );
+        Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Axpy( Real(1), z, rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
@@ -409,26 +418,26 @@ void Mehrotra
             // Construct the full KKT system
             // -----------------------------
             KKT( A, x, z, J );
-            KKTRHS( rmu, rc, rb, rhs );
+            KKTRHS( rmu, rc, rb, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             LU( J, p );
-            lu::SolveAfter( NORMAL, J, p, rhs );
-            ExpandKKTSolution( m, n, rhs, dxAff, dyAff, dzAff );
+            lu::SolveAfter( NORMAL, J, p, d );
+            ExpandKKTSolution( m, n, d, dxAff, dyAff, dzAff );
         }
         else if( ctrl.system == AUGMENTED_KKT )
         {
             // Construct the "augmented" KKT system
             // ------------------------------------
             AugmentedKKT( A, x, z, J );
-            AugmentedKKTRHS( x, rmu, rc, rb, rhs );
+            AugmentedKKTRHS( x, rmu, rc, rb, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             LDL( J, dSub, p, false );
-            ldl::SolveAfter( J, dSub, p, rhs, false );
-            ExpandAugmentedSolution( x, z, rmu, rhs, dxAff, dyAff, dzAff );
+            ldl::SolveAfter( J, dSub, p, d, false );
+            ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
         }
         else if( ctrl.system == NORMAL_KKT )
         {
@@ -546,23 +555,23 @@ void Mehrotra
         {
             // Construct the new full KKT RHS
             // ------------------------------
-            KKTRHS( rmu, rc, rb, rhs );
+            KKTRHS( rmu, rc, rb, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            lu::SolveAfter( NORMAL, J, p, rhs );
-            ExpandKKTSolution( m, n, rhs, dx, dy, dz );
+            lu::SolveAfter( NORMAL, J, p, d );
+            ExpandKKTSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
         {
             // Construct the new "augmented" KKT RHS
             // -------------------------------------
-            AugmentedKKTRHS( x, rmu, rc, rb, rhs );
+            AugmentedKKTRHS( x, rmu, rc, rb, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            ldl::SolveAfter( J, dSub, p, rhs, false );
-            ExpandAugmentedSolution( x, z, rmu, rhs, dx, dy, dz );
+            ldl::SolveAfter( J, dSub, p, d, false );
+            ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else if( ctrl.system == NORMAL_KKT )
         {
@@ -652,17 +661,20 @@ void Mehrotra
     const Int commRank = mpi::Rank(comm);
     const Real epsilon = lapack::MachineEpsilon<Real>();
 
+    const Real bNrm2 = Nrm2( b );
+    const Real cNrm2 = Nrm2( c );
+
     DistSymmInfo info;
     DistSeparatorTree sepTree;
     DistMap map, invMap;
     DistSparseMatrix<Real> J(comm);
     DistSymmFrontTree<Real> JFrontTree;
 
-    DistMultiVec<Real> rhs(comm), 
+    DistMultiVec<Real> d(comm), 
                        rmu(comm),   rb(comm),    rc(comm), 
                        dxAff(comm), dyAff(comm), dzAff(comm),
                        dx(comm),    dy(comm),    dz(comm);
-    DistNodalMultiVec<Real> rhsNodal;
+    DistNodalMultiVec<Real> dNodal;
 
     DistMultiVec<Real> regCand(comm), reg(comm);
     DistNodalMultiVec<Real> regCandNodal, regNodal;
@@ -672,8 +684,8 @@ void Mehrotra
 #endif
     for( Int numIts=0; ; ++numIts )
     {
-        // Check that no entries of x or z are non-positive
-        // ================================================
+        // Ensure that x and z are in the cone
+        // ===================================
         const Int xNumNonPos = NumNonPositive( x );
         const Int zNumNonPos = NumNonPositive( z );
         if( xNumNonPos > 0 || zNumNonPos > 0 )
@@ -690,16 +702,16 @@ void Mehrotra
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
-        const Real bNrm2 = Nrm2( b );
         rb = b;
-        Multiply( NORMAL, Real(1), A, x, Real(-1), rb );
+        Scale( Real(-1), rb );
+        Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
-        const Real cNrm2 = Nrm2( c );
         rc = c;
-        Multiply( TRANSPOSE, Real(1), A, y, Real(-1), rc );
+        Scale( Real(-1), rc );
+        Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Axpy( Real(1), z, rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
@@ -738,7 +750,7 @@ void Mehrotra
             // ---------------------------------
             // TODO: Add default regularization
             AugmentedKKT( A, x, z, J, false );
-            AugmentedKKTRHS( x, rmu, rc, rb, rhs );
+            AugmentedKKTRHS( x, rmu, rc, rb, d );
             const Real pivTol = MaxNorm(J)*epsilon;
             const Real regMagPrimal = Pow(epsilon,Real(0.75));
             const Real regMagLagrange = Pow(epsilon,Real(0.5));
@@ -770,13 +782,13 @@ void Mehrotra
             // NOTE: Need to modify iterative refinement procedure
             /*
             SolveWithIterativeRefinement
-            ( J, invMap, info, JFrontTree, rhs, 
+            ( J, invMap, info, JFrontTree, d, 
               minReductionFactor, maxRefineIts );
             */
-            rhsNodal.Pull( invMap, info, rhs );
-            Solve( info, JFrontTree, rhsNodal );
-            rhsNodal.Push( invMap, info, rhs );
-            ExpandAugmentedSolution( x, z, rmu, rhs, dxAff, dyAff, dzAff );
+            dNodal.Pull( invMap, info, d );
+            Solve( info, JFrontTree, dNodal );
+            dNodal.Push( invMap, info, d );
+            ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
         }
         else // ctrl.system == NORMAL_KKT
         {
@@ -888,15 +900,15 @@ void Mehrotra
         {
             // Construct the new "normal" KKT RHS
             // ----------------------------------
-            AugmentedKKTRHS( x, rmu, rc, rb, rhs );
+            AugmentedKKTRHS( x, rmu, rc, rb, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             // TODO: Iterative refinement
-            rhsNodal.Pull( invMap, info, rhs );
-            Solve( info, JFrontTree, rhsNodal );
-            rhsNodal.Push( invMap, info, rhs );
-            ExpandAugmentedSolution( x, z, rmu, rhs, dx, dy, dz );
+            dNodal.Pull( invMap, info, d );
+            Solve( info, JFrontTree, dNodal );
+            dNodal.Push( invMap, info, d );
+            ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else
         {
