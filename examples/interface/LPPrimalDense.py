@@ -39,7 +39,7 @@ yGen = El.DistMatrix()
 El.Gaussian(yGen,m,1)
 c = El.DistMatrix()
 El.Uniform(c,n,1,0.5,0.5)
-El.Gemv( El.TRANSPOSE, 1., A, yGen, 1., c )
+El.Gemv( El.TRANSPOSE, -1., A, yGen, 1., c )
 
 if display:
   El.Display( A, "A" )

@@ -67,10 +67,10 @@ void Mehrotra
 
         // Check for convergence
         // =====================
-        // |c^T x - b^T y| / (1 + |c^T x|) <= tol ?
-        // ----------------------------------------
+        // |primal - dual| / (1 + |primal|) <= tol ?
+        // -----------------------------------------
         const Real primObj = Dot(c,x);
-        const Real dualObj = Dot(b,y); 
+        const Real dualObj = -Dot(b,y); 
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -82,9 +82,8 @@ void Mehrotra
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
-        Scale( Real(-1), rc );
         Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
-        Axpy( Real(1), z, rc );
+        Axpy( Real(-1), z, rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
@@ -93,7 +92,7 @@ void Mehrotra
             break;
         else if( ctrl.print )
             std::cout << " iter " << numIts << ":\n"
-                      << "  |c^T x - b^T y| / (1 + |c^T x|) = "
+                      << "  |primal - dual| / (1 + |primal|) = "
                       << objConv << "\n"
                       << "  || r_b ||_2 / (1 + || b ||_2)   = "
                       << rbConv << "\n"
@@ -169,9 +168,9 @@ void Mehrotra
         }
         Real dzErrorNrm2 = Nrm2( dzError );
 
-        dyError = dzAff;
+        dyError = rc;
         Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-        Axpy( Real(1), rc, dyError );
+        Axpy( Real(-1), dzAff, dyError );
         Real dyErrorNrm2 = Nrm2( dyError );
 
         dxError = rb;
@@ -364,10 +363,10 @@ void Mehrotra
 
         // Check for convergence
         // =====================
-        // |c^T x - b^T y| / (1 + |c^T x|) <= tol ?
-        // ----------------------------------------
+        // |primal - dual| / (1 + |primal|) <= tol ?
+        // -----------------------------------------
         const Real primObj = Dot(c,x);
-        const Real dualObj = Dot(b,y); 
+        const Real dualObj = -Dot(b,y); 
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -379,9 +378,8 @@ void Mehrotra
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
-        Scale( Real(-1), rc );
         Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
-        Axpy( Real(1), z, rc );
+        Axpy( Real(-1), z, rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
@@ -390,7 +388,7 @@ void Mehrotra
             break;
         else if( ctrl.print && commRank == 0 )
             std::cout << " iter " << numIts << ":\n"
-                      << "  |c^T x - b^T y| / (1 + |c^T x|) = "
+                      << "  |primal - dual| / (1 + |primal|) = "
                       << objConv << "\n"
                       << "  || r_b ||_2 / (1 + || b ||_2)   = "
                       << rbConv << "\n"
@@ -472,9 +470,9 @@ void Mehrotra
         }
         Real dzErrorNrm2 = Nrm2( dzError );
 
-        dyError = dzAff;
+        dyError = rc;
         Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-        Axpy( Real(1), rc, dyError );
+        Axpy( Real(-1), dzAff, dyError );
         Real dyErrorNrm2 = Nrm2( dyError );
 
         dxError = rb;
@@ -695,10 +693,10 @@ void Mehrotra
 
         // Check for convergence
         // =====================
-        // |c^T x - b^T y| / (1 + |c^T x|) <= tol ?
-        // ----------------------------------------
+        // |primal - dual| / (1 + |primal|) <= tol ?
+        // -----------------------------------------
         const Real primObj = Dot(c,x);
-        const Real dualObj = Dot(b,y); 
+        const Real dualObj = -Dot(b,y); 
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -710,9 +708,8 @@ void Mehrotra
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
-        Scale( Real(-1), rc );
         Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
-        Axpy( Real(1), z, rc );
+        Axpy( Real(-1), z, rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
@@ -721,7 +718,7 @@ void Mehrotra
             break;
         else if( ctrl.print && commRank == 0 )
             std::cout << " iter " << numIts << ":\n"
-                      << "  |c^T x - b^T y| / (1 + |c^T x|) = "
+                      << "  |primal - dual| / (1 + |primal|) = "
                       << objConv << "\n"
                       << "  || r_b ||_2 / (1 + || b ||_2)   = "
                       << rbConv << "\n"
@@ -827,9 +824,9 @@ void Mehrotra
         }
         Real dzErrorNrm2 = Nrm2( dzError );
 
-        dyError = dzAff;
+        dyError = rc;
         Multiply( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-        Axpy( Real(1), rc, dyError );
+        Axpy( Real(-1), dzAff, dyError );
         Real dyErrorNrm2 = Nrm2( dyError );
 
         dxError = rb;

@@ -45,7 +45,7 @@ Real IPFLineSearch
     //    y(alpha) = y + alpha dy,
     //    z(alpha) = z + alpha dz,
     //    r_b(alpha) = A x(alpha) - b, and
-    //    r_c(alpha) = A^T y(alpha) + z(alpha) - c,
+    //    r_c(alpha) = A^T y(alpha) - z(alpha) + c,
     // and the Armijo condition,
     //   mu(alpha) <= (1 - alpha/\psi) mu,
     // is also satisfied.
@@ -64,8 +64,8 @@ Real IPFLineSearch
     rb = A_x; 
     Axpy( Real(-1), b, rb );
     rc = AT_y;
-    Axpy( Real(1),  z, rc );
-    Axpy( Real(-1), c, rc );
+    Axpy( Real(-1), z, rc );
+    Axpy( Real( 1), c, rc );
     const Real rbNrm2 = Nrm2( rb );
     const Real rcNrm2 = Nrm2( rc );
     const Real mu = Dot(x,z) / n;
@@ -131,8 +131,8 @@ Real IPFLineSearch
         // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha) / mu)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
-        Axpy( alpha, AT_dy, rc_alpha );
-        Axpy( alpha, dz,    rc_alpha );
+        Axpy(  alpha, AT_dy, rc_alpha );
+        Axpy( -alpha, dz,    rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
         if( rc_alphaNrm2 > Max(cTol,rcNrm2*ctrl.beta*mu_alpha/mu) )
         {
@@ -188,7 +188,7 @@ Real IPFLineSearch
     //    y(alpha) = y + alpha dy,
     //    z(alpha) = z + alpha dz,
     //    r_b(alpha) = A x(alpha) - b, and
-    //    r_c(alpha) = A^T y(alpha) + z(alpha) - c,
+    //    r_c(alpha) = A^T y(alpha) - z(alpha) + c,
     // and the Armijo condition,
     //   mu(alpha) <= (1 - alpha/\psi) mu,
     // is also satisfied.
@@ -208,8 +208,8 @@ Real IPFLineSearch
     rb = A_x; 
     Axpy( Real(-1), b, rb );
     rc = AT_y;
-    Axpy( Real(1),  z, rc );
-    Axpy( Real(-1), c, rc );
+    Axpy( Real(-1), z, rc );
+    Axpy( Real( 1), c, rc );
     const Real rbNrm2 = Nrm2( rb );
     const Real rcNrm2 = Nrm2( rc );
     const Real mu = Dot(x,z) / n;
@@ -283,8 +283,8 @@ Real IPFLineSearch
         // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha)/mu)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
-        Axpy( alpha, AT_dy, rc_alpha );
-        Axpy( alpha, dz,    rc_alpha );
+        Axpy(  alpha, AT_dy, rc_alpha );
+        Axpy( -alpha, dz,    rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
         if( rc_alphaNrm2 > Max(cTol,rcNrm2*ctrl.beta*mu_alpha/mu) )
         {
@@ -332,7 +332,7 @@ Real IPFLineSearch
     //    y(alpha) = y + alpha dy,
     //    z(alpha) = z + alpha dz,
     //    r_b(alpha) = A x(alpha) - b, and
-    //    r_c(alpha) = A^T y(alpha) + z(alpha) - c,
+    //    r_c(alpha) = A^T y(alpha) - z(alpha) + c,
     // and the Armijo condition,
     //   mu(alpha) <= (1 - alpha/\psi) mu,
     // is also satisfied.
@@ -351,8 +351,8 @@ Real IPFLineSearch
     rb = A_x; 
     Axpy( Real(-1), b, rb );
     rc = AT_y;
-    Axpy( Real(1),  z, rc );
-    Axpy( Real(-1), c, rc );
+    Axpy( Real(-1), z, rc );
+    Axpy( Real( 1), c, rc );
     const Real rbNrm2 = Nrm2( rb );
     const Real rcNrm2 = Nrm2( rc );
     const Real mu = Dot(x,z) / n;
@@ -418,8 +418,8 @@ Real IPFLineSearch
         // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha)/mu)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
-        Axpy( alpha, AT_dy, rc_alpha );
-        Axpy( alpha, dz,    rc_alpha );
+        Axpy(  alpha, AT_dy, rc_alpha );
+        Axpy( -alpha, dz,    rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
         if( rc_alphaNrm2 > Max(cTol,rcNrm2*ctrl.beta*mu_alpha/mu) )
         {
@@ -476,7 +476,7 @@ Real IPFLineSearch
     //    y(alpha) = y + alpha dy,
     //    z(alpha) = z + alpha dz,
     //    r_b(alpha) = A x(alpha) - b, and
-    //    r_c(alpha) = A^T y(alpha) + z(alpha) - c,
+    //    r_c(alpha) = A^T y(alpha) - z(alpha) + c,
     // and the Armijo condition,
     //   mu(alpha) <= (1 - alpha/\psi) mu,
     // is also satisfied.
@@ -496,8 +496,8 @@ Real IPFLineSearch
     rb = A_x; 
     Axpy( Real(-1), b, rb );
     rc = AT_y;
-    Axpy( Real(1),  z, rc );
-    Axpy( Real(-1), c, rc );
+    Axpy( Real(-1), z, rc );
+    Axpy( Real( 1), c, rc );
     const Real rbNrm2 = Nrm2( rb );
     const Real rcNrm2 = Nrm2( rc );
     const Real mu = Dot(x,z) / n;
@@ -566,8 +566,8 @@ Real IPFLineSearch
         // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha)/mu)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
-        Axpy( alpha, AT_dy, rc_alpha );
-        Axpy( alpha, dz,    rc_alpha );
+        Axpy(  alpha, AT_dy, rc_alpha );
+        Axpy( -alpha, dz,    rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
         if( rc_alphaNrm2 > Max(cTol,rcNrm2*ctrl.beta*mu_alpha/mu) )
         {

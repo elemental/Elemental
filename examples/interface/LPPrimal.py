@@ -52,7 +52,7 @@ yGen = El.DistMultiVec()
 El.Gaussian(yGen,m,1)
 c = El.DistMultiVec()
 El.Uniform(c,n,1,0.5,0.5)
-El.SparseMultiply( El.TRANSPOSE, 1., A, yGen, 1., c )
+El.SparseMultiply( El.TRANSPOSE, -1., A, yGen, 1., c )
 
 if display:
   El.Display( A, "A" )

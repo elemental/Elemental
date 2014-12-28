@@ -14,21 +14,21 @@ namespace primal {
 
 // Form 
 //    J = | A X inv(Z) A^T |, and 
-//    y = [ -r_b + A inv(Z) (r_mu - X r_c) ]
+//    y = [ r_b - A inv(Z) (X r_c + r_mu) ]
 // where 
 //    X   = diag(x),
 //    Z   = diag(z),
 //    e   = ones(n,1),
 //    r_b = A x - b, 
-//    r_c = A^T y + z - c, and
+//    r_c = A^T y - z + c, and
 //    r_mu = X Z e - tau e.
 //
 // The implied system is of the form
 //
 //   J | dy | = rhs,
 // 
-//  dz = -r_c - A^T dy, and
-//  dx = -(r_mu - X dz) / Z
+//  dz = r_c + A^T dy, and
+//  dx = -(r_mu + X dz) / Z
 //
 
 template<typename Real>
@@ -155,13 +155,13 @@ void NormalKKTRHS
     // =============================================================
     Matrix<Real> g( rc );
     DiagonalScale( LEFT, NORMAL, x, g );
-    Axpy( Real(-1), rmu, g );
+    Axpy( Real(1), rmu, g );
     DiagonalSolve( LEFT, NORMAL, z, g );
 
     // Form the right-hand side, rhs
     // =============================
     rhs = rb;
-    Gemv( NORMAL, Real(-1), A, g, Real(-1), rhs );
+    Gemv( NORMAL, Real(-1), A, g, Real(1), rhs );
 }
 
 template<typename Real>
@@ -177,13 +177,13 @@ void NormalKKTRHS
     // =============================================================
     DistMatrix<Real,MC,MR> g( rc );
     DiagonalScale( LEFT, NORMAL, x, g );
-    Axpy( Real(-1), rmu, g );
+    Axpy( Real(1), rmu, g );
     DiagonalSolve( LEFT, NORMAL, z, g );
 
     // Form the right-hand side, rhs
     // =============================
     Copy( rb, rhs );
-    Gemv( NORMAL, Real(-1), A, g, Real(-1), rhs );
+    Gemv( NORMAL, Real(-1), A, g, Real(1), rhs );
 }
 
 template<typename Real>
@@ -199,13 +199,13 @@ void NormalKKTRHS
     // =============================================================
     Matrix<Real> g( rc );
     DiagonalScale( LEFT, NORMAL, x, g );
-    Axpy( Real(-1), rmu, g );
+    Axpy( Real(1), rmu, g );
     DiagonalSolve( LEFT, NORMAL, z, g );
 
     // Form the right-hand side, rhs
     // =============================
     rhs = rb;
-    Multiply( NORMAL, Real(-1), A, g, Real(-1), rhs );
+    Multiply( NORMAL, Real(-1), A, g, Real(1), rhs );
 }
 
 template<typename Real>
@@ -240,13 +240,13 @@ void NormalKKTRHS
         const Real rc_i = rc.GetLocal(iLoc,0);
         const Real x_i = x.GetLocal(iLoc,0);
         const Real z_i = z.GetLocal(iLoc,0);
-        g.SetLocal( iLoc, 0, (rmu_i-x_i*rc_i)/z_i );
+        g.SetLocal( iLoc, 0, (x_i*rc_i+rmu_i)/z_i );
     }
 
     // Form the right-hand side, rhs
     // =============================
     rhs = rb;
-    Multiply( NORMAL, Real(1), A, g, Real(-1), rhs );
+    Multiply( NORMAL, Real(-1), A, g, Real(1), rhs );
 }
 
 template<typename Real>
@@ -258,13 +258,13 @@ void ExpandNormalSolution
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandNormalSolution"))
 
-    // dz := -r_c - A^T dy
-    // ===================
+    // dz := r_c + A^T dy
+    // ==================
     dz = rc;
-    Gemv( TRANSPOSE, Real(-1), A, dy, Real(-1), dz );
+    Gemv( TRANSPOSE, Real(1), A, dy, Real(1), dz );
 
     // dx := -(r_mu + X dz) / Z
-    // ========================
+    // =======================
     dx = dz;
     DiagonalScale( LEFT, NORMAL, x, dx );
     Axpy( Real(1), rmu, dx );
@@ -283,13 +283,13 @@ void ExpandNormalSolution
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandNormalSolution"))
 
-    // dz := -r_c - A^T dy
-    // ===================
+    // dz := r_c + A^T dy
+    // ==================
     Copy( rc, dz );
-    Gemv( TRANSPOSE, Real(-1), A, dy, Real(-1), dz );
+    Gemv( TRANSPOSE, Real(1), A, dy, Real(1), dz );
 
     // dx := -(r_mu + X dz) / Z
-    // ========================
+    // =======================
     Copy( dz, dx );
     DiagonalScale( LEFT, NORMAL, x, dx );
     Axpy( Real(1), rmu, dx );
@@ -306,13 +306,13 @@ void ExpandNormalSolution
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandNormalSolution"))
 
-    // dz := -r_c - A^T dy
-    // ===================
+    // dz := r_c + A^T dy
+    // ==================
     dz = rc;
-    Multiply( TRANSPOSE, Real(-1), A, dy, Real(-1), dz );
+    Multiply( TRANSPOSE, Real(1), A, dy, Real(1), dz );
 
     // dx := -(r_mu + X dz) / Z
-    // ========================
+    // =======================
     dx = dz;
     DiagonalScale( LEFT, NORMAL, x, dx );
     Axpy( Real(1), rmu, dx );
@@ -331,13 +331,13 @@ void ExpandNormalSolution
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandNormalSolution"))
 
-    // dz := -r_c - A^T dy
-    // ===================
+    // dz := r_c + A^T dy
+    // ==================
     dz = rc;
-    Multiply( TRANSPOSE, Real(-1), A, dy, Real(-1), dz );
+    Multiply( TRANSPOSE, Real(1), A, dy, Real(1), dz );
 
     // dx := -(r_mu + X dz) / Z
-    // ========================
+    // =======================
     Zeros( dx, x.Height(), 1 );
     for( Int iLoc=0; iLoc<dx.LocalHeight(); ++iLoc )
     {

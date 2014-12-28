@@ -12,9 +12,22 @@ namespace El {
 namespace lp {
 namespace primal {
 
-//     | X Z 0   |
-// J = | I 0 A^T |, with the variable ordering (z,x,y)
-//     | 0 A 0   |
+// The full KKT system is of the form
+// |  X  Z 0   | | z | = | X Z e + tau e |
+// | -I  0 A^T | | x |   |      -c       |
+// |  0  A 0   | | y |   |       b       |
+
+// TODO
+// (Pivot first row to the end)
+// | -I  0 A^T | | z |   |      -c       |
+// |  0  A 0   | | x |   |       b       |
+// |  X  Z 0   | | y | = | X Z e + tau e |
+
+// TODO
+// (Negate the third equation, divide by Z, and swap x and z)
+//   |  0 A^T    -I     | | x |   |        -c           |
+//   |  A 0       0     | | y | = |         b           |
+//   | -I 0   -inv(Z) X | | z |   | (X Z e + tau e) / Z |
 
 template<typename Real>
 void KKT
@@ -30,10 +43,26 @@ void KKT
     auto Jzz = J(zInd,zInd); auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd);
     auto Jxz = J(xInd,zInd); auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd);
     auto Jyz = J(yInd,zInd); auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd);
+
+    // Jxz := X
+    // ========
     Diagonal( Jzz, x );
+
+    // Jzx := Z
+    // ========
     Diagonal( Jzx, z );
+
+    // Jxz := -I
+    // =========
     Identity( Jxz, n, n );
+    Scale( Real(-1), Jxz );
+
+    // Jxy := A^T
+    // ==========
     Transpose( A, Jxy ); 
+
+    // Jyx := A
+    // ========
     Jyx = A;
 }
 
@@ -52,14 +81,30 @@ void KKT
     auto JPtr = WriteProxy<Real,MC,MR>(&JPre); auto& J = *JPtr;
 
     Zeros( J, 2*n+m, 2*n+m );
-    IR zInd(0,n), xInd(n,2*n), yInd(2*n,2*n+m);
+    const IR zInd(0,n), xInd(n,2*n), yInd(2*n,2*n+m);
     auto Jzz = J(zInd,zInd); auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd);
     auto Jxz = J(xInd,zInd); auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd);
     auto Jyz = J(yInd,zInd); auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd);
+
+    // Jxz := X
+    // ========
     Diagonal( Jzz, x.LockedMatrix() );
+
+    // Jzx := Z
+    // ========
     Diagonal( Jzx, z.LockedMatrix() );
+
+    // Jxz := -I
+    // =========
     Identity( Jxz, n, n );
+    Scale( Real(-1), Jxz );
+
+    // Jxy := A^T
+    // ==========
     Transpose( A, Jxy );
+
+    // Jyx := A
+    // ========
     Jyx = A;
 }
 
