@@ -257,7 +257,7 @@ void KKT
     {
         const Int i = m + n + e + x.FirstLocalRow();
         const Int j = i;
-        const Real value = -z.GetLocal(e,0)/x.GetLocal(e,0);
+        const Real value = -x.GetLocal(e,0)/z.GetLocal(e,0);
         const Int owner = J.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         tSendBuf[offsets[owner]] = j;
@@ -289,7 +289,7 @@ void KKT
         const Int i = iLoc + J.FirstLocalRow();
         if( i < n && !onlyLower )
             ++negIdentUpdates;
-        else if( i >= n && i < n+m )
+        else if( i >= n+m )
             ++negIdentUpdates;
     }
     // Reserve the total number of local updates
@@ -301,9 +301,9 @@ void KKT
     {
         const Int i = iLoc + J.FirstLocalRow();
         if( i < n && !onlyLower )
-            J.QueueLocalUpdate( iLoc, i, Real(-1) );
-        else if( i >= n && i < n+m )
-            J.QueueLocalUpdate( iLoc, i, Real(-1) );
+            J.QueueLocalUpdate( iLoc, i+(n+m), Real(-1) );
+        else if( i >= n+m )
+            J.QueueLocalUpdate( iLoc, i-(n+m), Real(-1) );
     }
     // Append the received local updates
     // ---------------------------------
@@ -443,12 +443,12 @@ void KKTRHS
 }
 
 template<typename Real>
-void ExpandKKTSolution
+void ExpandSolution
 ( Int m, Int n, const Matrix<Real>& d, 
   Matrix<Real>& dx, Matrix<Real>& dy, 
   Matrix<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandKKTSolution"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandSolution"))
     if( d.Height() != 2*n+m || d.Width() != 1 )
         LogicError("Right-hand side was the wrong size");
 
@@ -459,12 +459,12 @@ void ExpandKKTSolution
 }
 
 template<typename Real>
-void ExpandKKTSolution
+void ExpandSolution
 ( Int m, Int n, const AbstractDistMatrix<Real>& dPre, 
   AbstractDistMatrix<Real>& dx, AbstractDistMatrix<Real>& dy, 
   AbstractDistMatrix<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandKKTSolution"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandSolution"))
     
     auto dPtr = ReadProxy<Real,MC,MR>(&dPre);    
     auto& d = *dPtr;
@@ -479,12 +479,12 @@ void ExpandKKTSolution
 }
 
 template<typename Real>
-void ExpandKKTSolution
+void ExpandSolution
 ( Int m, Int n, const DistMultiVec<Real>& d, 
   DistMultiVec<Real>& dx, DistMultiVec<Real>& dy, 
   DistMultiVec<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandKKTSolution"))
+    DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandSolution"))
     if( d.Height() != 2*n+m || d.Width() != 1 )
         LogicError("Right-hand side was the wrong size");
     mpi::Comm comm = d.Comm(); 
@@ -503,9 +503,9 @@ void ExpandKKTSolution
         if( i < n )
             ++sendCounts[ dx.RowOwner(i) ];
         else if( i < n+m )
-            ++sendCounts[ dx.RowOwner(i-n) ];
+            ++sendCounts[ dy.RowOwner(i-n) ];
         else
-            ++sendCounts[ dx.RowOwner(i-(n+m)) ];
+            ++sendCounts[ dz.RowOwner(i-(n+m)) ];
     }
     std::vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
@@ -525,21 +525,21 @@ void ExpandKKTSolution
         {
             const Int owner = dx.RowOwner(i);
             sSendBuf[offsets[owner]] = i;
-            vSendBuf[offsets[owner]] = d.GetLocal(i,0);
+            vSendBuf[offsets[owner]] = d.GetLocal(iLoc,0);
             ++offsets[owner];
         }
         else if( i < n+m )
         {
             const Int owner = dy.RowOwner(i-n);
             sSendBuf[offsets[owner]] = i;
-            vSendBuf[offsets[owner]] = d.GetLocal(i,0);
+            vSendBuf[offsets[owner]] = d.GetLocal(iLoc,0);
             ++offsets[owner];
         }
         else
         {
             const Int owner = dz.RowOwner(i-(n+m));
             sSendBuf[offsets[owner]] = i;
-            vSendBuf[offsets[owner]] = d.GetLocal(i,0);
+            vSendBuf[offsets[owner]] = d.GetLocal(iLoc,0);
             ++offsets[owner];
         }
     }
@@ -598,15 +598,15 @@ void ExpandKKTSolution
   ( const DistMultiVec<Real>& rc,  const DistMultiVec<Real>& rb, \
     const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& z, \
           DistMultiVec<Real>& d ); \
-  template void ExpandKKTSolution \
+  template void ExpandSolution \
   ( Int m, Int n, const Matrix<Real>& d, \
     Matrix<Real>& dx, Matrix<Real>& dy, \
     Matrix<Real>& dz ); \
-  template void ExpandKKTSolution \
+  template void ExpandSolution \
   ( Int m, Int n, const AbstractDistMatrix<Real>& d, \
     AbstractDistMatrix<Real>& dx, AbstractDistMatrix<Real>& dy, \
     AbstractDistMatrix<Real>& dz ); \
-  template void ExpandKKTSolution \
+  template void ExpandSolution \
   ( Int m, Int n, const DistMultiVec<Real>& d, \
     DistMultiVec<Real>& dx, DistMultiVec<Real>& dy, \
     DistMultiVec<Real>& dz );

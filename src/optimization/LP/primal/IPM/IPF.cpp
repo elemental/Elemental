@@ -115,7 +115,7 @@ void IPF
             // Compute the proposed step from the KKT system
             // =============================================
             SymmetricSolve( LOWER, NORMAL, J, d );
-            ExpandKKTSolution( m, n, d, dx, dy, dz );
+            ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
         {
@@ -295,7 +295,7 @@ void IPF
             // Compute the proposed step from the KKT system
             // =============================================
             SymmetricSolve( LOWER, NORMAL, J, d );
-            ExpandKKTSolution( m, n, d, dx, dy, dz );
+            ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
         {
@@ -485,7 +485,56 @@ void IPF
         // ============================
         const Real minReductionFactor = 2;
         const Int maxRefineIts = 10;
-        if( ctrl.system == AUGMENTED_KKT )
+        if( ctrl.system == FULL_KKT )
+        {
+            // Construct the full KKT system
+            // -----------------------------
+            // TODO: Add default regularization
+            KKT( A, x, z, J, false );
+            KKTRHS( rc, rb, rmu, z, d );
+            const Real pivTol = MaxNorm(J)*epsilon;
+            const Real regMagPrimal = Pow(epsilon,Real(0.75));
+            const Real regMagLagrange = Pow(epsilon,Real(0.5));
+            const Real regMagDual = Pow(epsilon,Real(0.5));
+            regCand.Resize( m+2*n, 1 );
+            for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
+            {
+                const Int i = regCand.FirstLocalRow() + iLoc;
+                if( i < n )
+                    regCand.SetLocal( iLoc, 0, regMagPrimal );
+                else if( i < n+m )
+                    regCand.SetLocal( iLoc, 0, -regMagLagrange );
+                else 
+                    regCand.SetLocal( iLoc, 0, -regMagDual );
+            }
+            // Do not use any a priori regularization
+            Zeros( reg, m+2*n, 1 );
+
+            // Compute the proposed step from the KKT system
+            // ---------------------------------------------
+            if( numIts == 0 )
+            {
+                NestedDissection( J.LockedDistGraph(), map, sepTree, info );
+                map.FormInverse( invMap );
+            }
+            JFrontTree.Initialize( J, map, sepTree, info );
+            regCandNodal.Pull( invMap, info, regCand );
+            regNodal.Pull( invMap, info, reg );
+            RegularizedLDL
+            ( info, JFrontTree, pivTol, regCandNodal, regNodal, LDL_1D );
+            regNodal.Push( invMap, info, reg );
+            // TODO: Iterative refinement
+            /*
+            SolveWithIterativeRefinement
+            ( J, invMap, info, JFrontTree, d, 
+              minReductionFactor, maxRefineIts );
+            */
+            dNodal.Pull( invMap, info, d );
+            Solve( info, JFrontTree, dNodal );
+            dNodal.Push( invMap, info, d );
+            ExpandSolution( m, n, d, dx, dy, dz );
+        }
+        else if( ctrl.system == AUGMENTED_KKT )
         {
             // Construct the "augmented" KKT system
             // ------------------------------------
