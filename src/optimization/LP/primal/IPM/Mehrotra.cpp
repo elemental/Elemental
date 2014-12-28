@@ -44,7 +44,7 @@ void Mehrotra
     const Real cNrm2 = Nrm2( c );
 
     Matrix<Real> J, d, 
-                 rmu,   rb,    rc, 
+                 rb,    rc,    rmu,
                  dxAff, dyAff, dzAff,
                  dx,    dy,    dz;
     Matrix<Real> dSub;
@@ -116,7 +116,7 @@ void Mehrotra
             // Construct the full KKT system
             // -----------------------------
             KKT( A, x, z, J );
-            KKTRHS( rmu, rc, rb, z, d );
+            KKTRHS( rc, rb, rmu, z, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
@@ -129,7 +129,7 @@ void Mehrotra
             // Construct the "augmented" KKT system
             // ------------------------------------
             AugmentedKKT( A, x, z, J );
-            AugmentedKKTRHS( x, rmu, rc, rb, d );
+            AugmentedKKTRHS( x, rc, rb, rmu, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
@@ -142,13 +142,13 @@ void Mehrotra
             // Construct the "normal" KKT system
             // ---------------------------------
             NormalKKT( A, x, z, J );
-            NormalKKTRHS( A, x, z, rmu, rc, rb, dyAff );
+            NormalKKTRHS( A, x, z, rc, rb, rmu, dyAff );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             LDL( J, dSub, p, false );
             ldl::SolveAfter( J, dSub, p, dyAff, false );
-            ExpandNormalSolution( A, c, x, z, rmu, rc, dxAff, dyAff, dzAff );
+            ExpandNormalSolution( A, c, x, z, rc, rmu, dxAff, dyAff, dzAff );
         }
 
 #ifndef EL_RELEASE
@@ -235,7 +235,7 @@ void Mehrotra
         {
             // Construct the new full KKT RHS
             // ------------------------------
-            KKTRHS( rmu, rc, rb, z, d );
+            KKTRHS( rc, rb, rmu, z, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
@@ -246,7 +246,7 @@ void Mehrotra
         {
             // Construct the new "augmented" KKT RHS
             // -------------------------------------
-            AugmentedKKTRHS( x, rmu, rc, rb, d );
+            AugmentedKKTRHS( x, rc, rb, rmu, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
@@ -257,12 +257,12 @@ void Mehrotra
         {
             // Construct the new "normal" KKT RHS
             // ----------------------------------
-            NormalKKTRHS( A, x, z, rmu, rc, rb, dy );
+            NormalKKTRHS( A, x, z, rc, rb, rmu, dy );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             ldl::SolveAfter( J, dSub, p, dy, false );
-            ExpandNormalSolution( A, c, x, z, rmu, rc, dx, dy, dz );
+            ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
 
         // TODO: Residual checks for center-corrector
@@ -334,7 +334,7 @@ void Mehrotra
 
     DistMatrix<Real> 
         J(grid), d(grid), 
-        rmu(grid), rb(grid), rc(grid), 
+        rc(grid),    rb(grid),    rmu(grid), 
         dxAff(grid), dyAff(grid), dzAff(grid),
         dx(grid),    dy(grid),    dz(grid);
     dx.AlignWith( x );
@@ -414,7 +414,7 @@ void Mehrotra
             // Construct the full KKT system
             // -----------------------------
             KKT( A, x, z, J );
-            KKTRHS( rmu, rc, rb, z, d );
+            KKTRHS( rc, rb, rmu, z, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
@@ -427,7 +427,7 @@ void Mehrotra
             // Construct the "augmented" KKT system
             // ------------------------------------
             AugmentedKKT( A, x, z, J );
-            AugmentedKKTRHS( x, rmu, rc, rb, d );
+            AugmentedKKTRHS( x, rc, rb, rmu, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
@@ -440,13 +440,13 @@ void Mehrotra
             // Construct the "normal" KKT system
             // ---------------------------------
             NormalKKT( A, x, z, J );
-            NormalKKTRHS( A, x, z, rmu, rc, rb, dyAff );
+            NormalKKTRHS( A, x, z, rc, rb, rmu, dyAff );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             LDL( J, dSub, p, false );
             ldl::SolveAfter( J, dSub, p, dyAff, false );
-            ExpandNormalSolution( A, c, x, z, rmu, rc, dxAff, dyAff, dzAff );
+            ExpandNormalSolution( A, c, x, z, rc, rmu, dxAff, dyAff, dzAff );
         }
 
 #ifndef EL_RELEASE
@@ -551,7 +551,7 @@ void Mehrotra
         {
             // Construct the new full KKT RHS
             // ------------------------------
-            KKTRHS( rmu, rc, rb, z, d );
+            KKTRHS( rc, rb, rmu, z, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
@@ -562,7 +562,7 @@ void Mehrotra
         {
             // Construct the new "augmented" KKT RHS
             // -------------------------------------
-            AugmentedKKTRHS( x, rmu, rc, rb, d );
+            AugmentedKKTRHS( x, rc, rb, rmu, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
@@ -573,12 +573,12 @@ void Mehrotra
         {
             // Construct the new "normal" KKT RHS
             // ----------------------------------
-            NormalKKTRHS( A, x, z, rmu, rc, rb, dy );
+            NormalKKTRHS( A, x, z, rc, rb, rmu, dy );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             ldl::SolveAfter( J, dSub, p, dy, false );
-            ExpandNormalSolution( A, c, x, z, rmu, rc, dx, dy, dz );
+            ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
 
         // TODO: Residual checks for center-corrector
@@ -667,7 +667,7 @@ void Mehrotra
     DistSymmFrontTree<Real> JFrontTree;
 
     DistMultiVec<Real> d(comm), 
-                       rmu(comm),   rb(comm),    rc(comm), 
+                       rc(comm),    rb(comm),    rmu(comm), 
                        dxAff(comm), dyAff(comm), dzAff(comm),
                        dx(comm),    dy(comm),    dz(comm);
     DistNodalMultiVec<Real> dNodal;
@@ -745,7 +745,7 @@ void Mehrotra
             // ------------------------------------
             // TODO: Add default regularization
             AugmentedKKT( A, x, z, J, false );
-            AugmentedKKTRHS( x, rmu, rc, rb, d );
+            AugmentedKKTRHS( x, rc, rb, rmu, d );
             const Real pivTol = MaxNorm(J)*epsilon;
             const Real regMagPrimal = Pow(epsilon,Real(0.75));
             const Real regMagLagrange = Pow(epsilon,Real(0.5));
@@ -790,7 +790,7 @@ void Mehrotra
             // Construct the "normal" KKT system
             // ---------------------------------
             NormalKKT( A, x, z, J, false );
-            NormalKKTRHS( A, x, z, rmu, rc, rb, dyAff );
+            NormalKKTRHS( A, x, z, rc, rb, rmu, dyAff );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
@@ -804,7 +804,7 @@ void Mehrotra
             SolveWithIterativeRefinement
             ( J, invMap, info, JFrontTree, dyAff, 
               minReductionFactor, maxRefineIts );
-            ExpandNormalSolution( A, c, x, z, rmu, rc, dxAff, dyAff, dzAff );
+            ExpandNormalSolution( A, c, x, z, rc, rmu, dxAff, dyAff, dzAff );
         }
 
 #ifndef EL_RELEASE
@@ -895,7 +895,7 @@ void Mehrotra
         {
             // Construct the new "normal" KKT RHS
             // ----------------------------------
-            AugmentedKKTRHS( x, rmu, rc, rb, d );
+            AugmentedKKTRHS( x, rc, rb, rmu, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
@@ -909,14 +909,14 @@ void Mehrotra
         {
             // Construct the new "normal" KKT RHS
             // ----------------------------------
-            NormalKKTRHS( A, x, z, rmu, rc, rb, dy );
+            NormalKKTRHS( A, x, z, rc, rb, rmu, dy );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             SolveWithIterativeRefinement
             ( J, invMap, info, JFrontTree, dy, 
               minReductionFactor, maxRefineIts );
-            ExpandNormalSolution( A, c, x, z, rmu, rc, dx, dy, dz );
+            ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
 
         // TODO: Residual checks for center-corrector

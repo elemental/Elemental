@@ -145,9 +145,6 @@ void AugmentedKKT
     // ----------------------------------------------------------------
     std::vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-
-    // Convert the send/recv counts into offsets and total sizes
-    // =========================================================
     std::vector<int> sendOffsets, recvOffsets;
     int totalSend = Scan( sendCounts, sendOffsets );
     int totalRecv = Scan( recvCounts, recvOffsets );
@@ -223,8 +220,9 @@ void AugmentedKKT
 template<typename Real>
 void AugmentedKKTRHS
 ( const Matrix<Real>& x, 
-  const Matrix<Real>& rmu, const Matrix<Real>& rc, const Matrix<Real>& rb,
-  Matrix<Real>& d )
+  const Matrix<Real>& rc, const Matrix<Real>& rb, 
+  const Matrix<Real>& rmu,
+        Matrix<Real>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::AugmentedKKTRHS"))
     const Int m = rb.Height();
@@ -246,9 +244,9 @@ void AugmentedKKTRHS
 template<typename Real>
 void AugmentedKKTRHS
 ( const AbstractDistMatrix<Real>& xPre, 
-  const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& rc, 
-  const AbstractDistMatrix<Real>& rb,
-  AbstractDistMatrix<Real>& dPre )
+  const AbstractDistMatrix<Real>& rc, const AbstractDistMatrix<Real>& rb, 
+  const AbstractDistMatrix<Real>& rmu,
+        AbstractDistMatrix<Real>& dPre )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::AugmentedKKTRHS"))
 
@@ -280,69 +278,55 @@ void AugmentedKKTRHS
 template<typename Real>
 void AugmentedKKTRHS
 ( const DistMultiVec<Real>& x,
-  const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rc, 
-  const DistMultiVec<Real>& rb, DistMultiVec<Real>& d )
+  const DistMultiVec<Real>& rc, const DistMultiVec<Real>& rb, 
+  const DistMultiVec<Real>& rmu, 
+        DistMultiVec<Real>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::FormAugmentedSystem"))
     const Int m = rb.Height();
     const Int n = x.Height();
-
+    Zeros( d, m+n, 1 );
     mpi::Comm comm = x.Comm();
     const Int commSize = mpi::Size( comm );
 
-    Zeros( d, m+n, 1 );
-    DistMultiVec<Real> dx(comm), dy(comm);
-
-    dx = rc;
-    Scale( Real(-1), dx );
-    for( Int k=0; k<x.LocalHeight(); ++k )
-        dx.UpdateLocal( k, 0, -rmu.GetLocal(k,0)/x.GetLocal(k,0) );    
-
-    dy = rb;
-    Scale( Real(-1), dy );
-
-    // Compute the number of entries to send to each process
-    // =====================================================
-    std::vector<int> sendCounts(commSize), recvCounts(commSize);
-    for( Int q=0; q<commSize; ++q )
-        sendCounts[q] = 0;
-    for( Int e=0; e<dx.LocalHeight(); ++e )
-        ++sendCounts[ d.RowOwner( e+dx.FirstLocalRow() ) ];
-    for( Int e=0; e<dy.LocalHeight(); ++e )
-        ++sendCounts[ d.RowOwner( e+dy.FirstLocalRow()+n ) ];
+    // Compute the number of entries to send/recv from each process
+    // ============================================================
+    std::vector<int> sendCounts(commSize,0);
+    for( Int e=0; e<rc.LocalHeight(); ++e )
+        ++sendCounts[ d.RowOwner( e+rc.FirstLocalRow() ) ];
+    for( Int e=0; e<rb.LocalHeight(); ++e )
+        ++sendCounts[ d.RowOwner( e+rb.FirstLocalRow()+n ) ];
+    std::vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    
-    // Convert the send/recv counts into offsets and total sizes
-    // =========================================================
     std::vector<int> sendOffsets, recvOffsets;
     const int totalSend = Scan( sendCounts, sendOffsets );
     const int totalRecv = Scan( recvCounts, recvOffsets );
 
-    // Pack the triplets
+    // Pack the doublets
     // =================
     std::vector<int> sSendBuf(totalSend);
     std::vector<Real> vSendBuf(totalSend);
     auto offsets = sendOffsets;
-    for( Int e=0; e<dx.LocalHeight(); ++e )
+    for( Int e=0; e<rc.LocalHeight(); ++e )
     {
-        const Int i = e + dx.FirstLocalRow();
-        const Real value = dx.GetLocal(e,0);
+        const Int i = e + rc.FirstLocalRow();
+        const Real value = -rc.GetLocal(e,0)-rmu.GetLocal(e,0)/x.GetLocal(e,0);
         const Int owner = d.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         vSendBuf[offsets[owner]] = value;
         ++offsets[owner];
     }
-    for( Int e=0; e<dy.LocalHeight(); ++e )
+    for( Int e=0; e<rb.LocalHeight(); ++e )
     {
-        const Int i = e + dy.FirstLocalRow() + n;
-        const Real value = dy.GetLocal(e,0);
+        const Int i = e + rb.FirstLocalRow() + n;
+        const Real value = -rb.GetLocal(e,0);
         const Int owner = d.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         vSendBuf[offsets[owner]] = value;
         ++offsets[owner];
     }
 
-    // Exchange and unpack the triplets
+    // Exchange and unpack the doublets
     // ================================
     std::vector<int> sRecvBuf(totalRecv);
     std::vector<Real> vRecvBuf(totalRecv);
@@ -352,7 +336,6 @@ void AugmentedKKTRHS
     mpi::AllToAll
     ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
       vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-    Zeros( d, m+n, 1 );
     for( Int e=0; e<totalRecv; ++e )
         d.UpdateLocal( sRecvBuf[e]-d.FirstLocalRow(), 0, vRecvBuf[e] );
 }
@@ -549,16 +532,19 @@ void ExpandAugmentedSolution
     DistSparseMatrix<Real>& J, bool onlyLower ); \
   template void AugmentedKKTRHS \
   ( const Matrix<Real>& x, \
-    const Matrix<Real>& rmu, const Matrix<Real>& rc, const Matrix<Real>& rb, \
-    Matrix<Real>& d ); \
+    const Matrix<Real>& rc, const Matrix<Real>& rb, \
+    const Matrix<Real>& rmu, \
+          Matrix<Real>& d ); \
   template void AugmentedKKTRHS \
   ( const AbstractDistMatrix<Real>& x, \
-    const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& rc, \
-    const AbstractDistMatrix<Real>& rb, AbstractDistMatrix<Real>& d ); \
+    const AbstractDistMatrix<Real>& rc, const AbstractDistMatrix<Real>& rb, \
+    const AbstractDistMatrix<Real>& rmu, \
+          AbstractDistMatrix<Real>& d ); \
   template void AugmentedKKTRHS \
   ( const DistMultiVec<Real>& x, \
-    const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rc, \
-    const DistMultiVec<Real>& rb, DistMultiVec<Real>& d ); \
+    const DistMultiVec<Real>& rc, const DistMultiVec<Real>& rb, \
+    const DistMultiVec<Real>& rmu, \
+          DistMultiVec<Real>& d ); \
   template void ExpandAugmentedSolution \
   ( const Matrix<Real>& x, const Matrix<Real>& z, \
     const Matrix<Real>& rmu, const Matrix<Real>& d, \

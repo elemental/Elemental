@@ -42,7 +42,7 @@ void IPF
     const Real cNrm2 = Nrm2( c );
 
     Matrix<Real> J, d, 
-                 rmu, rb, rc, 
+                 rc, rb, rmu, 
                  dx, dy, dz;
 #ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError;
@@ -110,7 +110,7 @@ void IPF
             // Construct the full KKT system
             // =============================
             KKT( A, x, z, J );
-            KKTRHS( rmu, rc, rb, z, d );
+            KKTRHS( rc, rb, rmu, z, d );
 
             // Compute the proposed step from the KKT system
             // =============================================
@@ -122,7 +122,7 @@ void IPF
             // Construct the reduced KKT system
             // ================================
             AugmentedKKT( A, x, z, J );
-            AugmentedKKTRHS( x, rmu, rc, rb, d );
+            AugmentedKKTRHS( x, rc, rb, rmu, d );
 
             // Compute the proposed step from the KKT system
             // =============================================
@@ -134,12 +134,12 @@ void IPF
             // Construct the reduced KKT system
             // ================================
             NormalKKT( A, x, z, J );
-            NormalKKTRHS( A, x, z, rmu, rc, rb, dy );
+            NormalKKTRHS( A, x, z, rc, rb, rmu, dy );
 
             // Compute the proposed step from the KKT system
             // =============================================
             SymmetricSolve( LOWER, NORMAL, J, dy );
-            ExpandNormalSolution( A, c, x, z, rmu, rc, dx, dy, dz );
+            ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
 
 #ifndef EL_RELEASE
@@ -216,7 +216,7 @@ void IPF
     const Real cNrm2 = Nrm2( c );
 
     DistMatrix<Real> J(grid), d(grid), 
-                     rmu(grid), rb(grid), rc(grid), 
+                     rc(grid), rb(grid), rmu(grid),
                      dx(grid), dy(grid), dz(grid);
     dx.AlignWith( x );
     dz.AlignWith( x );
@@ -290,7 +290,7 @@ void IPF
             // Construct the full KKT system
             // =============================
             KKT( A, x, z, J );
-            KKTRHS( rmu, rc, rb, z, d );
+            KKTRHS( rc, rb, rmu, z, d );
 
             // Compute the proposed step from the KKT system
             // =============================================
@@ -302,7 +302,7 @@ void IPF
             // Construct the reduced KKT system
             // ================================
             AugmentedKKT( A, x, z, J );
-            AugmentedKKTRHS( x, rmu, rc, rb, d );
+            AugmentedKKTRHS( x, rc, rb, rmu, d );
 
             // Compute the proposed step from the KKT system
             // =============================================
@@ -314,12 +314,12 @@ void IPF
             // Construct the reduced KKT system
             // ================================
             NormalKKT( A, x, z, J );
-            NormalKKTRHS( A, x, z, rmu, rc, rb, dy );
+            NormalKKTRHS( A, x, z, rc, rb, rmu, dy );
 
             // Compute the proposed step from the KKT system
             // =============================================
             SymmetricSolve( LOWER, NORMAL, J, dy );
-            ExpandNormalSolution( A, c, x, z, rmu, rc, dx, dy, dz );
+            ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
 
 #ifndef EL_RELEASE
@@ -409,7 +409,7 @@ void IPF
     DistSymmFrontTree<Real> JFrontTree;
 
     DistMultiVec<Real> d(comm),
-                       rmu(comm), rb(comm), rc(comm), 
+                       rc(comm), rb(comm), rmu(comm), 
                        dx(comm),  dy(comm), dz(comm);
     DistNodalMultiVec<Real> dNodal;
 
@@ -491,7 +491,7 @@ void IPF
             // ------------------------------------
             // TODO: Add default regularization
             AugmentedKKT( A, x, z, J, false );
-            AugmentedKKTRHS( x, rmu, rc, rb, d );
+            AugmentedKKTRHS( x, rc, rb, rmu, d );
             const Real pivTol = MaxNorm(J)*epsilon;
             const Real regMagPrimal = Pow(epsilon,Real(0.75));
             const Real regMagLagrange = Pow(epsilon,Real(0.5));
@@ -538,7 +538,7 @@ void IPF
             // NOTE: Explicit symmetry is currently required for both METIS and
             //       for the frontal tree initialization
             NormalKKT( A, x, z, J, false );
-            NormalKKTRHS( A, x, z, rmu, rc, rb, dy );
+            NormalKKTRHS( A, x, z, rc, rb, rmu, dy );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
@@ -552,7 +552,7 @@ void IPF
             SolveWithIterativeRefinement
             ( J, invMap, info, JFrontTree, dy, 
               minReductionFactor, maxRefineIts );
-            ExpandNormalSolution( A, c, x, z, rmu, rc, dx, dy, dz );
+            ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
 
 #ifndef EL_RELEASE

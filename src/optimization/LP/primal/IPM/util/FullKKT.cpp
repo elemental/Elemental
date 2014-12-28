@@ -213,9 +213,6 @@ void KKT
     // ----------------------------------------------------------------
     std::vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-
-    // Convert the send/recv counts into offsets and total sizes
-    // =========================================================
     std::vector<int> sendOffsets, recvOffsets;
     int totalSend = Scan( sendCounts, sendOffsets );
     int totalRecv = Scan( recvCounts, recvOffsets );
@@ -318,8 +315,8 @@ void KKT
 
 template<typename Real>
 void KKTRHS
-( const Matrix<Real>& rmu, const Matrix<Real>& rc, 
-  const Matrix<Real>& rb, const Matrix<Real>& z, 
+( const Matrix<Real>& rc,  const Matrix<Real>& rb, 
+  const Matrix<Real>& rmu, const Matrix<Real>& z, 
         Matrix<Real>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::KKTRHS"))
@@ -343,8 +340,8 @@ void KKTRHS
 
 template<typename Real>
 void KKTRHS
-( const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& rc, 
-  const AbstractDistMatrix<Real>& rb, const AbstractDistMatrix<Real>& z, 
+( const AbstractDistMatrix<Real>& rc,  const AbstractDistMatrix<Real>& rb, 
+  const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& z, 
         AbstractDistMatrix<Real>& dPre )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::KKTRHS"))
@@ -372,12 +369,77 @@ void KKTRHS
 
 template<typename Real>
 void KKTRHS
-( const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rc, 
-  const DistMultiVec<Real>& rb, const DistMultiVec<Real>& z, 
+( const DistMultiVec<Real>& rc,  const DistMultiVec<Real>& rb, 
+  const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& z, 
         DistMultiVec<Real>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::KKTRHS"))
-    LogicError("This routine is not yet written");
+    const Int m = rb.Height();
+    const Int n = rc.Height();
+    Zeros( d, m+2*n, 1 );
+    mpi::Comm comm = rmu.Comm();
+    const Int commSize = mpi::Size( comm ); 
+
+    // Compute the number of entries to send/recv from each process
+    // ============================================================
+    std::vector<int> sendCounts(commSize,0);
+    for( Int e=0; e<rc.LocalHeight(); ++e )
+        ++sendCounts[ d.RowOwner( e+rc.FirstLocalRow() ) ];
+    for( Int e=0; e<rb.LocalHeight(); ++e )
+        ++sendCounts[ d.RowOwner( n+e+rb.FirstLocalRow() ) ];
+    for( Int e=0; e<rmu.LocalHeight(); ++e )
+        ++sendCounts[ d.RowOwner( n+m+e+rmu.FirstLocalRow() ) ];
+    std::vector<int> recvCounts(commSize);
+    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
+    std::vector<int> sendOffsets, recvOffsets;
+    const int totalSend = Scan( sendCounts, sendOffsets );
+    const int totalRecv = Scan( recvCounts, recvOffsets );
+
+    // Pack the doublets
+    // =================
+    std::vector<int> sSendBuf(totalSend);
+    std::vector<Real> vSendBuf(totalSend);
+    auto offsets = sendOffsets;
+    for( Int e=0; e<rc.LocalHeight(); ++e )
+    {
+        const Int i = e + rc.FirstLocalRow();
+        const Real value = -rc.GetLocal(e,0);
+        const Int owner = d.RowOwner(i);
+        sSendBuf[offsets[owner]] = i;
+        vSendBuf[offsets[owner]] = value;
+        ++offsets[owner];
+    }
+    for( Int e=0; e<rb.LocalHeight(); ++e )
+    {
+        const Int i = n + e + rb.FirstLocalRow();
+        const Real value = -rb.GetLocal(e,0);
+        const Int owner = d.RowOwner(i);
+        sSendBuf[offsets[owner]] = i;
+        vSendBuf[offsets[owner]] = value;
+        ++offsets[owner];
+    }
+    for( Int e=0; e<rmu.LocalHeight(); ++e )
+    {
+        const Int i = n + m + e + rmu.FirstLocalRow();
+        const Real value = rmu.GetLocal(e,0)/z.GetLocal(e,0);
+        const Int owner = d.RowOwner(i);
+        sSendBuf[offsets[owner]] = i;
+        vSendBuf[offsets[owner]] = value;
+        ++offsets[owner];
+    }
+
+    // Exchange and unpack the doublets
+    // ================================
+    std::vector<int> sRecvBuf(totalRecv);
+    std::vector<Real> vRecvBuf(totalRecv);
+    mpi::AllToAll
+    ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    mpi::AllToAll
+    ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    for( Int e=0; e<totalRecv; ++e )
+        d.UpdateLocal( sRecvBuf[e]-d.FirstLocalRow(), 0, vRecvBuf[e] );
 }
 
 template<typename Real>
@@ -425,7 +487,86 @@ void ExpandKKTSolution
     DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandKKTSolution"))
     if( d.Height() != 2*n+m || d.Width() != 1 )
         LogicError("Right-hand side was the wrong size");
-    LogicError("This routine is not yet written");
+    mpi::Comm comm = d.Comm(); 
+    const Int commSize = mpi::Size(comm);
+
+    dx.Resize( n, 1 );
+    dy.Resize( m, 1 );
+    dz.Resize( n, 1 );
+
+    // Compute the metadata for the AllToAll
+    // =====================================
+    std::vector<int> sendCounts(commSize,0);
+    for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
+    {
+        const Int i = d.FirstLocalRow() + iLoc;
+        if( i < n )
+            ++sendCounts[ dx.RowOwner(i) ];
+        else if( i < n+m )
+            ++sendCounts[ dx.RowOwner(i-n) ];
+        else
+            ++sendCounts[ dx.RowOwner(i-(n+m)) ];
+    }
+    std::vector<int> recvCounts(commSize);
+    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
+    std::vector<int> sendOffsets, recvOffsets;
+    const int totalSend = Scan( sendCounts, sendOffsets );
+    const int totalRecv = Scan( recvCounts, recvOffsets );
+
+    // Pack the doublets
+    // =================
+    std::vector<Int> sSendBuf(totalSend);
+    std::vector<Real> vSendBuf(totalSend);
+    auto offsets = sendOffsets;
+    for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
+    {
+        const Int i = d.FirstLocalRow() + iLoc;
+        if( i < n )
+        {
+            const Int owner = dx.RowOwner(i);
+            sSendBuf[offsets[owner]] = i;
+            vSendBuf[offsets[owner]] = d.GetLocal(i,0);
+            ++offsets[owner];
+        }
+        else if( i < n+m )
+        {
+            const Int owner = dy.RowOwner(i-n);
+            sSendBuf[offsets[owner]] = i;
+            vSendBuf[offsets[owner]] = d.GetLocal(i,0);
+            ++offsets[owner];
+        }
+        else
+        {
+            const Int owner = dz.RowOwner(i-(n+m));
+            sSendBuf[offsets[owner]] = i;
+            vSendBuf[offsets[owner]] = d.GetLocal(i,0);
+            ++offsets[owner];
+        }
+    }
+
+    // Exchange the doublets
+    // =====================
+    std::vector<Int> sRecvBuf(totalRecv);
+    std::vector<Real> vRecvBuf(totalRecv);
+    mpi::AllToAll
+    ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    mpi::AllToAll
+    ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+
+    // Unpack the doublets
+    // ===================
+    for( Int e=0; e<totalRecv; ++e )
+    {
+        const Int i = sRecvBuf[e];
+        if( i < n )
+            dx.SetLocal( i-dx.FirstLocalRow(), 0, vRecvBuf[e] );
+        else if( i < n+m )
+            dy.SetLocal( i-n-dy.FirstLocalRow(), 0, vRecvBuf[e] );
+        else
+            dz.SetLocal( i-(n+m)-dz.FirstLocalRow(), 0, vRecvBuf[e] );
+    }
 }
 
 #define PROTO(Real) \
@@ -446,16 +587,16 @@ void ExpandKKTSolution
     const DistMultiVec<Real>& x, const DistMultiVec<Real>& z, \
           DistSparseMatrix<Real>& J, bool onlyLower ); \
   template void KKTRHS \
-  ( const Matrix<Real>& rmu, const Matrix<Real>& rc, \
-    const Matrix<Real>& rb, const Matrix<Real>& z, \
+  ( const Matrix<Real>& rc,  const Matrix<Real>& rb, \
+    const Matrix<Real>& rmu, const Matrix<Real>& z, \
           Matrix<Real>& d ); \
   template void KKTRHS \
-  ( const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& rc, \
-    const AbstractDistMatrix<Real>& rb, const AbstractDistMatrix<Real>& z, \
+  ( const AbstractDistMatrix<Real>& rc,  const AbstractDistMatrix<Real>& rb, \
+    const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& z, \
           AbstractDistMatrix<Real>& d ); \
   template void KKTRHS \
-  ( const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rc, \
-    const DistMultiVec<Real>& rb, const DistMultiVec<Real>& z, \
+  ( const DistMultiVec<Real>& rc,  const DistMultiVec<Real>& rb, \
+    const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& z, \
           DistMultiVec<Real>& d ); \
   template void ExpandKKTSolution \
   ( Int m, Int n, const Matrix<Real>& d, \
