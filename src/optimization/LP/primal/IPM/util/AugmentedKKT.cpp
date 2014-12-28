@@ -96,11 +96,11 @@ void AugmentedKKT
     for( Int j=0; j<n; ++j )
         J.Update( j, j, z.Get(j,0)/x.Get(j,0) );
     // A and A^T updates
-    for( Int k=0; k<numEntries; ++k )
+    for( Int e=0; e<numEntries; ++e )
     {
-        J.Update( A.Row(k)+n, A.Col(k), A.Value(k) );
+        J.Update( A.Row(e)+n, A.Col(e), A.Value(e) );
         if( !onlyLower )
-            J.Update( A.Col(k), A.Row(k)+n, A.Value(k) );
+            J.Update( A.Col(e), A.Row(e)+n, A.Value(e) );
     }
     J.MakeConsistent();
 }
@@ -118,9 +118,6 @@ void AugmentedKKT
     mpi::Comm comm = A.Comm();
     const Int commSize = mpi::Size( comm );
 
-    DistSparseMatrix<Real> ATrans(comm);
-    Transpose( A, ATrans );
-
     J.SetComm( comm );
     Zeros( J, m+n, m+n );
 
@@ -129,17 +126,21 @@ void AugmentedKKT
     std::vector<int> sendCounts(commSize,0);
     // For placing A into the bottom-left corner
     // -----------------------------------------
-    for( Int k=0; k<A.NumLocalEntries(); ++k )
-        ++sendCounts[ J.RowOwner(A.Row(k)+n) ];
+    for( Int e=0; e<A.NumLocalEntries(); ++e )
+        ++sendCounts[ J.RowOwner(A.Row(e)+n) ];
     // For placing A^T into the top-right corner
     // -----------------------------------------
+    DistSparseMatrix<Real> ATrans(comm);
     if( !onlyLower )
-        for( Int k=0; k<ATrans.NumLocalEntries(); ++k )
-            ++sendCounts[ J.RowOwner(ATrans.Row(k)) ];
+    {
+        Transpose( A, ATrans );
+        for( Int e=0; e<ATrans.NumLocalEntries(); ++e )
+            ++sendCounts[ J.RowOwner(ATrans.Row(e)) ];
+    }
     // For placing Z*inv(X) into the top-left corner
     // ---------------------------------------------
-    for( Int k=0; k<x.LocalHeight(); ++k )
-        ++sendCounts[ J.RowOwner( k+x.FirstLocalRow() ) ];
+    for( Int e=0; e<x.LocalHeight(); ++e )
+        ++sendCounts[ J.RowOwner( e+x.FirstLocalRow() ) ];
     // Communicate to determine the number we receive from each process
     // ----------------------------------------------------------------
     std::vector<int> recvCounts(commSize);
@@ -158,11 +159,11 @@ void AugmentedKKT
     auto offsets = sendOffsets;
     // Pack A
     // ------
-    for( Int k=0; k<A.NumLocalEntries(); ++k )
+    for( Int e=0; e<A.NumLocalEntries(); ++e )
     {
-        const Int i = A.Row(k) + n;
-        const Int j = A.Col(k);
-        const Real value = A.Value(k);
+        const Int i = A.Row(e) + n;
+        const Int j = A.Col(e);
+        const Real value = A.Value(e);
         const Int owner = J.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         tSendBuf[offsets[owner]] = j;
@@ -173,11 +174,11 @@ void AugmentedKKT
     // --------
     if( !onlyLower )
     {
-        for( Int k=0; k<ATrans.NumLocalEntries(); ++k )
+        for( Int e=0; e<ATrans.NumLocalEntries(); ++e )
         {
-            const Int i = ATrans.Row(k);
-            const Int j = ATrans.Col(k) + n;
-            const Real value = ATrans.Value(k);
+            const Int i = ATrans.Row(e);
+            const Int j = ATrans.Col(e) + n;
+            const Real value = ATrans.Value(e);
             const Int owner = J.RowOwner(i);
             sSendBuf[offsets[owner]] = i;
             tSendBuf[offsets[owner]] = j;
@@ -187,11 +188,11 @@ void AugmentedKKT
     }
     // Pack Z inv(X)
     // -------------
-    for( Int k=0; k<x.LocalHeight(); ++k )
+    for( Int e=0; e<x.LocalHeight(); ++e )
     {
-        const Int i = k + x.FirstLocalRow();
+        const Int i = e + x.FirstLocalRow();
         const Int j = i;
-        const Real value = z.GetLocal(k,0)/x.GetLocal(k,0);
+        const Real value = z.GetLocal(e,0)/x.GetLocal(e,0);
         const Int owner = J.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         tSendBuf[offsets[owner]] = j;
@@ -213,9 +214,9 @@ void AugmentedKKT
     ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
       vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
     J.Reserve( totalRecv );
-    for( Int k=0; k<totalRecv; ++k )
+    for( Int e=0; e<totalRecv; ++e )
         J.QueueLocalUpdate
-        ( sRecvBuf[k]-J.FirstLocalRow(), tRecvBuf[k], vRecvBuf[k] );
+        ( sRecvBuf[e]-J.FirstLocalRow(), tRecvBuf[e], vRecvBuf[e] );
     J.MakeConsistent();
 }
 
@@ -305,10 +306,10 @@ void AugmentedKKTRHS
     std::vector<int> sendCounts(commSize), recvCounts(commSize);
     for( Int q=0; q<commSize; ++q )
         sendCounts[q] = 0;
-    for( Int k=0; k<dx.LocalHeight(); ++k )
-        ++sendCounts[ d.RowOwner( k+dx.FirstLocalRow() ) ];
-    for( Int k=0; k<dy.LocalHeight(); ++k )
-        ++sendCounts[ d.RowOwner( k+dy.FirstLocalRow()+n ) ];
+    for( Int e=0; e<dx.LocalHeight(); ++e )
+        ++sendCounts[ d.RowOwner( e+dx.FirstLocalRow() ) ];
+    for( Int e=0; e<dy.LocalHeight(); ++e )
+        ++sendCounts[ d.RowOwner( e+dy.FirstLocalRow()+n ) ];
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
     
     // Convert the send/recv counts into offsets and total sizes
@@ -322,19 +323,19 @@ void AugmentedKKTRHS
     std::vector<int> sSendBuf(totalSend);
     std::vector<Real> vSendBuf(totalSend);
     auto offsets = sendOffsets;
-    for( Int k=0; k<dx.LocalHeight(); ++k )
+    for( Int e=0; e<dx.LocalHeight(); ++e )
     {
-        const Int i = k + dx.FirstLocalRow();
-        const Real value = dx.GetLocal(k,0);
+        const Int i = e + dx.FirstLocalRow();
+        const Real value = dx.GetLocal(e,0);
         const Int owner = d.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         vSendBuf[offsets[owner]] = value;
         ++offsets[owner];
     }
-    for( Int k=0; k<dy.LocalHeight(); ++k )
+    for( Int e=0; e<dy.LocalHeight(); ++e )
     {
-        const Int i = k + dy.FirstLocalRow() + n;
-        const Real value = dy.GetLocal(k,0);
+        const Int i = e + dy.FirstLocalRow() + n;
+        const Real value = dy.GetLocal(e,0);
         const Int owner = d.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         vSendBuf[offsets[owner]] = value;
@@ -352,8 +353,8 @@ void AugmentedKKTRHS
     ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
       vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
     Zeros( d, m+n, 1 );
-    for( Int k=0; k<totalRecv; ++k )
-        d.UpdateLocal( sRecvBuf[k]-d.FirstLocalRow(), 0, vRecvBuf[k] );
+    for( Int e=0; e<totalRecv; ++e )
+        d.UpdateLocal( sRecvBuf[e]-d.FirstLocalRow(), 0, vRecvBuf[e] );
 }
 
 template<typename Real>
@@ -507,13 +508,13 @@ void ExpandAugmentedSolution
     mpi::AllToAll
     ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
       vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-    for( Int k=0; k<totalRecv; ++k )
+    for( Int e=0; e<totalRecv; ++e )
     {
-        const Int i = sRecvBuf[k];
+        const Int i = sRecvBuf[e];
         if( i < n )
-            dx.SetLocal( i-dx.FirstLocalRow(), 0, vRecvBuf[k] );
+            dx.SetLocal( i-dx.FirstLocalRow(), 0, vRecvBuf[e] );
         else
-            dy.SetLocal( i-n-dy.FirstLocalRow(), 0, vRecvBuf[k] );
+            dy.SetLocal( i-n-dy.FirstLocalRow(), 0, vRecvBuf[e] );
     }
 
     // dz := -(r_mu + Z dx) / X

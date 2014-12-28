@@ -29,8 +29,6 @@ namespace primal {
 // using a Mehrotra Predictor-Corrector scheme.
 //
 
-// TODO: Flip the sign of y for consistency with the dual conic form
-
 template<typename Real>
 void Mehrotra
 ( const Matrix<Real>& A, 
@@ -118,12 +116,12 @@ void Mehrotra
             // Construct the full KKT system
             // -----------------------------
             KKT( A, x, z, J );
-            KKTRHS( rmu, rc, rb, d );
+            KKTRHS( rmu, rc, rb, z, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            LU( J, p );
-            lu::SolveAfter( NORMAL, J, p, d );
+            LDL( J, dSub, p, false );
+            ldl::SolveAfter( J, dSub, p, d, false );
             ExpandKKTSolution( m, n, d, dxAff, dyAff, dzAff );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -237,11 +235,11 @@ void Mehrotra
         {
             // Construct the new full KKT RHS
             // ------------------------------
-            KKTRHS( rmu, rc, rb, d );
+            KKTRHS( rmu, rc, rb, z, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            lu::SolveAfter( NORMAL, J, p, d );
+            ldl::SolveAfter( J, dSub, p, d, false );
             ExpandKKTSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -416,12 +414,12 @@ void Mehrotra
             // Construct the full KKT system
             // -----------------------------
             KKT( A, x, z, J );
-            KKTRHS( rmu, rc, rb, d );
+            KKTRHS( rmu, rc, rb, z, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            LU( J, p );
-            lu::SolveAfter( NORMAL, J, p, d );
+            LDL( J, dSub, p, false );
+            ldl::SolveAfter( J, dSub, p, d, false );
             ExpandKKTSolution( m, n, d, dxAff, dyAff, dzAff );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -553,11 +551,11 @@ void Mehrotra
         {
             // Construct the new full KKT RHS
             // ------------------------------
-            KKTRHS( rmu, rc, rb, d );
+            KKTRHS( rmu, rc, rb, z, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            lu::SolveAfter( NORMAL, J, p, d );
+            ldl::SolveAfter( J, dSub, p, d, false );
             ExpandKKTSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -743,8 +741,8 @@ void Mehrotra
         const Int maxRefineIts = 10;
         if( ctrl.system == AUGMENTED_KKT )
         {
-            // Construct the "normal" KKT system
-            // ---------------------------------
+            // Construct the "augmented" KKT system
+            // ------------------------------------
             // TODO: Add default regularization
             AugmentedKKT( A, x, z, J, false );
             AugmentedKKTRHS( x, rmu, rc, rb, d );
@@ -756,9 +754,9 @@ void Mehrotra
             {
                 const Int i = regCand.FirstLocalRow() + iLoc;
                 if( i < n )
-                    regCand.SetLocal( iLoc, 0, -regMagPrimal );
+                    regCand.SetLocal( iLoc, 0, regMagPrimal );
                 else
-                    regCand.SetLocal( iLoc, 0, regMagLagrange );
+                    regCand.SetLocal( iLoc, 0, -regMagLagrange );
             }
             // Do not use any a priori regularization
             Zeros( reg, m+n, 1 );

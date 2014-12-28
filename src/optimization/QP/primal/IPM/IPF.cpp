@@ -27,8 +27,7 @@ namespace primal {
 // should only be used for academic purposes, as the Mehrotra alternative
 // typically requires an order of magnitude fewer iterations.
 
-// TODO: Flip the sign of y for consistency with the dual conic form
-// TODO: Set the regularization candidate values outside of the loop
+// TODO: Incorporate/extend recent modifications to lp::primal
 
 template<typename Real>
 void IPF

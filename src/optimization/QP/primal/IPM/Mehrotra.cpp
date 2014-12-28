@@ -29,8 +29,7 @@ namespace primal {
 // using a Mehrotra Predictor-Corrector scheme.
 //
 
-// TODO: Flip the sign of y for consistency with the dual conic form
-// TODO: Set the regularization candidates outside of the loop
+// TODO: Incorporate/extend recent lp::primal modifications
 
 template<typename Real>
 void Mehrotra

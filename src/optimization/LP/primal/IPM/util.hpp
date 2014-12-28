@@ -16,32 +16,55 @@ namespace primal {
 // -----------
 template<typename Real>
 void KKT
-( const Matrix<Real>& A, const Matrix<Real>& x, const Matrix<Real>& z,
-  Matrix<Real>& J );
+( const Matrix<Real>& A, 
+  const Matrix<Real>& x, const Matrix<Real>& z,
+        Matrix<Real>& J, bool onlyLower=true );
 template<typename Real>
 void KKT
 ( const AbstractDistMatrix<Real>& A, 
   const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z,
-  AbstractDistMatrix<Real>& J );
+  AbstractDistMatrix<Real>& J, bool onlyLower=true );
+template<typename Real>
+void KKT
+( const SparseMatrix<Real>& A, 
+  const Matrix<Real>& x, const Matrix<Real>& z,
+        SparseMatrix<Real>& J, bool onlyLower=true );
+template<typename Real>
+void KKT
+( const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& x, const DistMultiVec<Real>& z,
+        DistSparseMatrix<Real>& J, bool onlyLower=true );
 
 template<typename Real>
 void KKTRHS
 ( const Matrix<Real>& rmu, const Matrix<Real>& rc,
-  const Matrix<Real>& rb, Matrix<Real>& rhs );
+  const Matrix<Real>& rb, const Matrix<Real>& z,
+        Matrix<Real>& d );
 template<typename Real>
 void KKTRHS
 ( const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& rc,
-  const AbstractDistMatrix<Real>& rb, AbstractDistMatrix<Real>& rhs );
+  const AbstractDistMatrix<Real>& rb, const AbstractDistMatrix<Real>& z,
+        AbstractDistMatrix<Real>& d );
+template<typename Real>
+void KKTRHS
+( const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rc,
+  const DistMultiVec<Real>& rb, const DistMultiVec<Real>& z,
+        DistMultiVec<Real>& d );
 
 template<typename Real>
 void ExpandKKTSolution
-( Int m, Int n, const Matrix<Real>& rhs,
+( Int m, Int n, const Matrix<Real>& d,
   Matrix<Real>& dx, Matrix<Real>& dy, Matrix<Real>& dz );
 template<typename Real>
 void ExpandKKTSolution
-( Int m, Int n, const AbstractDistMatrix<Real>& rhs,
+( Int m, Int n, const AbstractDistMatrix<Real>& d,
   AbstractDistMatrix<Real>& dx, AbstractDistMatrix<Real>& dy, 
   AbstractDistMatrix<Real>& dz );
+template<typename Real>
+void ExpandKKTSolution
+( Int m, Int n, const DistMultiVec<Real>& d,
+  DistMultiVec<Real>& dx, DistMultiVec<Real>& dy, 
+  DistMultiVec<Real>& dz );
 
 // Augmented system
 // ----------------
@@ -70,33 +93,33 @@ template<typename Real>
 void AugmentedKKTRHS
 ( const Matrix<Real>& x,
   const Matrix<Real>& rmu, const Matrix<Real>& rc, const Matrix<Real>& rb,
-  Matrix<Real>& rhs );
+  Matrix<Real>& d );
 template<typename Real>
 void AugmentedKKTRHS
 ( const AbstractDistMatrix<Real>& x,
   const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& rc, 
-  const AbstractDistMatrix<Real>& rb, AbstractDistMatrix<Real>& rhs );
+  const AbstractDistMatrix<Real>& rb, AbstractDistMatrix<Real>& d );
 template<typename Real>
 void AugmentedKKTRHS
 ( const DistMultiVec<Real>& x,
   const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rc, 
-  const DistMultiVec<Real>& rb, DistMultiVec<Real>& rhs );
+  const DistMultiVec<Real>& rb, DistMultiVec<Real>& d );
 
 template<typename Real>
 void ExpandAugmentedSolution
 ( const Matrix<Real>& x, const Matrix<Real>& z,
-  const Matrix<Real>& rmu, const Matrix<Real>& rhs,
+  const Matrix<Real>& rmu, const Matrix<Real>& d,
   Matrix<Real>& dx, Matrix<Real>& dy, Matrix<Real>& dz );
 template<typename Real>
 void ExpandAugmentedSolution
 ( const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z,
-  const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& rhs,
+  const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& d,
   AbstractDistMatrix<Real>& dx, AbstractDistMatrix<Real>& dy, 
   AbstractDistMatrix<Real>& dz );
 template<typename Real>
 void ExpandAugmentedSolution
 ( const DistMultiVec<Real>& x, const DistMultiVec<Real>& z,
-  const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rhs,
+  const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& d,
   DistMultiVec<Real>& dx, DistMultiVec<Real>& dy, DistMultiVec<Real>& dz );
 
 // Normal system
@@ -127,26 +150,26 @@ void NormalKKTRHS
 ( const Matrix<Real>& A,
   const Matrix<Real>& x, const Matrix<Real>& z,
   const Matrix<Real>& rmu, const Matrix<Real>& rc, const Matrix<Real>& rb,
-        Matrix<Real>& rhs );
+        Matrix<Real>& d );
 template<typename Real>
 void NormalKKTRHS
 ( const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z,
   const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& rc, 
-  const AbstractDistMatrix<Real>& rb, AbstractDistMatrix<Real>& rhs );
+  const AbstractDistMatrix<Real>& rb, AbstractDistMatrix<Real>& d );
 template<typename Real>
 void NormalKKTRHS
 ( const SparseMatrix<Real>& A,
   const Matrix<Real>& x, const Matrix<Real>& z,
   const Matrix<Real>& rmu, const Matrix<Real>& rc, const Matrix<Real>& rb,
-        Matrix<Real>& rhs );
+        Matrix<Real>& d );
 template<typename Real>
 void NormalKKTRHS
 ( const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& x, const DistMultiVec<Real>& z,
   const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rc,
   const DistMultiVec<Real>& rb,
-        DistMultiVec<Real>& rhs );
+        DistMultiVec<Real>& d );
 
 template<typename Real>
 void ExpandNormalSolution

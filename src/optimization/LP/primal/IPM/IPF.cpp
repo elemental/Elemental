@@ -27,8 +27,6 @@ namespace primal {
 // should only be used for academic purposes, as the Mehrotra alternative
 // typically requires an order of magnitude fewer iterations.
 
-// TODO: Flip the sign of y for consistency with the dual conic form
-
 template<typename Real>
 void IPF
 ( const Matrix<Real>& A, 
@@ -112,11 +110,11 @@ void IPF
             // Construct the full KKT system
             // =============================
             KKT( A, x, z, J );
-            KKTRHS( rmu, rc, rb, d );
+            KKTRHS( rmu, rc, rb, z, d );
 
             // Compute the proposed step from the KKT system
             // =============================================
-            GaussianElimination( J, d );
+            SymmetricSolve( LOWER, NORMAL, J, d );
             ExpandKKTSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -292,11 +290,11 @@ void IPF
             // Construct the full KKT system
             // =============================
             KKT( A, x, z, J );
-            KKTRHS( rmu, rc, rb, d );
+            KKTRHS( rmu, rc, rb, z, d );
 
             // Compute the proposed step from the KKT system
             // =============================================
-            GaussianElimination( J, d );
+            SymmetricSolve( LOWER, NORMAL, J, d );
             ExpandKKTSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -489,8 +487,8 @@ void IPF
         const Int maxRefineIts = 10;
         if( ctrl.system == AUGMENTED_KKT )
         {
-            // Construct the "normal" KKT system
-            // ---------------------------------
+            // Construct the "augmented" KKT system
+            // ------------------------------------
             // TODO: Add default regularization
             AugmentedKKT( A, x, z, J, false );
             AugmentedKKTRHS( x, rmu, rc, rb, d );
@@ -502,9 +500,9 @@ void IPF
             {
                 const Int i = regCand.FirstLocalRow() + iLoc;
                 if( i < n )
-                    regCand.SetLocal( iLoc, 0, -regMagPrimal );
+                    regCand.SetLocal( iLoc, 0, regMagPrimal );
                 else
-                    regCand.SetLocal( iLoc, 0, regMagLagrange );
+                    regCand.SetLocal( iLoc, 0, -regMagLagrange );
             }
             // Do not use any a priori regularization
             Zeros( reg, m+n, 1 );

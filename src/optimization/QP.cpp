@@ -17,22 +17,16 @@ void QP
         Matrix<Real>& x, const qp::primal::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QP"))
+
+    // TODO: Use the initialization suggested by Vandenberghe
+    Matrix<Real> y, z; 
+    Zeros( y, A.Height(), 1 );
+    Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
+
     if( ctrl.approach == QP_MEHROTRA )
-    {
-        // TODO: Use better initializations
-        Matrix<Real> y, z; 
-        Zeros( y, A.Height(), 1 );
-        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
         qp::primal::Mehrotra( Q, A, b, c, x, y, z, ctrl.mehrotraCtrl );
-    }
     else if( ctrl.approach == QP_IPF )
-    {
-        // TODO: Use better initializations
-        Matrix<Real> y, z; 
-        Zeros( y, A.Height(), 1 );
-        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
         qp::primal::IPF( Q, A, b, c, x, y, z, ctrl.ipfCtrl );
-    }
     else
         LogicError("ADMM is not yet supported for conic form QPs");
 }
@@ -44,22 +38,16 @@ void QP
         AbstractDistMatrix<Real>& x, const qp::primal::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QP"))
+
+    // TODO: Use the initialization suggested by Vandenberghe
+    DistMatrix<Real> y(A.Grid()), z(A.Grid());
+    Zeros( y, A.Height(), 1 );
+    Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
+
     if( ctrl.approach == QP_MEHROTRA )
-    {
-        // TODO: Use better initializations
-        DistMatrix<Real> y(A.Grid()), z(A.Grid());
-        Zeros( y, A.Height(), 1 );
-        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
         qp::primal::Mehrotra( Q, A, b, c, x, y, z, ctrl.mehrotraCtrl );
-    }
     else if( ctrl.approach == QP_IPF )
-    {
-        // TODO: Use better initializations
-        DistMatrix<Real> y(A.Grid()), z(A.Grid());
-        Zeros( y, A.Height(), 1 );
-        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
         qp::primal::IPF( Q, A, b, c, x, y, z, ctrl.ipfCtrl );
-    }
     else
         LogicError("ADMM is not yet supported for conic form QPs");
 }
@@ -71,22 +59,16 @@ void QP
         Matrix<Real>& x, const qp::primal::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QP"))
+
+    // TODO: Use the initialization suggested by Vandenberghe
+    Matrix<Real> y, z; 
+    Zeros( y, A.Height(), 1 );
+    Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
+
     if( ctrl.approach == QP_MEHROTRA )
-    {
-        // TODO: Use better initializations
-        Matrix<Real> y, z; 
-        Zeros( y, A.Height(), 1 );
-        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
         qp::primal::Mehrotra( Q, A, b, c, x, y, z, ctrl.mehrotraCtrl );
-    }
     else if( ctrl.approach == QP_IPF )
-    {
-        // TODO: Use better initializations
-        Matrix<Real> y, z; 
-        Zeros( y, A.Height(), 1 );
-        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
         qp::primal::IPF( Q, A, b, c, x, y, z, ctrl.ipfCtrl );
-    }
     else
         LogicError("ADMM is not yet supported for conic form QPs");
 }
@@ -98,22 +80,16 @@ void QP
         DistMultiVec<Real>& x, const qp::primal::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QP"))
+
+    // TODO: Use the initialization suggested by Vandenberghe
+    DistMultiVec<Real> y(A.Comm()), z(A.Comm()); 
+    Zeros( y, A.Height(), 1 );
+    Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
+
     if( ctrl.approach == QP_MEHROTRA )
-    {
-        // TODO: Use better initializations
-        DistMultiVec<Real> y(A.Comm()), z(A.Comm()); 
-        Zeros( y, A.Height(), 1 );
-        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
         qp::primal::Mehrotra( Q, A, b, c, x, y, z, ctrl.mehrotraCtrl );
-    }
     else if( ctrl.approach == QP_IPF )
-    {
-        // TODO: Use better initializations
-        DistMultiVec<Real> y(A.Comm()), z(A.Comm()); 
-        Zeros( y, A.Height(), 1 );
-        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
         qp::primal::IPF( Q, A, b, c, x, y, z, ctrl.ipfCtrl );
-    }
     else
         LogicError("ADMM is not yet supported for conic form QPs");
 }
