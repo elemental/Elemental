@@ -716,6 +716,11 @@ void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
   const DistMultiVec<TDiag>& d, DistSparseMatrix<T>& A );
 
+template<typename TDiag,typename T>
+void DiagonalScale
+( Orientation orientation,
+  const DistMultiVec<TDiag>& d, DistMultiVec<T>& X );
+
 // DiagonalScaleTrapezoid
 // ======================
 template<typename TDiag,typename T>
@@ -772,6 +777,12 @@ template<typename FDiag,typename F>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
   const DistMultiVec<FDiag>& d, DistSparseMatrix<F>& A, 
+  bool checkIfSingular=true );
+
+template<typename FDiag,typename F>
+void DiagonalSolve
+( Orientation orientation,
+  const DistMultiVec<FDiag>& d, DistMultiVec<F>& X, 
   bool checkIfSingular=true );
 
 // Dot

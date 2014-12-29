@@ -26,6 +26,7 @@ namespace dual {
 // using a simple Infeasible Path Following (IPF) scheme. This routine
 // should only be used for academic purposes, as the Mehrotra alternative
 // typically requires an order of magnitude fewer iterations.
+
 template<typename Real>
 void IPF
 ( const Matrix<Real>& A, const Matrix<Real>& G,
@@ -38,13 +39,12 @@ void IPF
     DEBUG_ONLY(CallStackEntry cse("lp::dual::IPF"))    
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int k = G.Height();
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
 
-    Matrix<Real> J, d, w, l,
+    Matrix<Real> J, d,
                  rmu, rc, rb, rh,
                  dx, dy, dz, ds;
 #ifndef EL_RELEASE
@@ -63,10 +63,10 @@ void IPF
 
         // Check for convergence
         // =====================
-        // |c^T x - (b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
-        // --------------------------------------------------
+        // |c^T x - (-b^T y + h^T z)| / (1 + |c^T x|) <= tol ?
+        // ---------------------------------------------------
         const Real primObj = Dot(c,x);
-        const Real dualObj = Dot(b,y) - Dot(h,z);
+        const Real dualObj = -Dot(b,y) + Dot(h,z);
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -111,35 +111,24 @@ void IPF
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // Form the Nesterov-Todd scaling matrix, W = S^{1/2} Z^{-1/2}
+        // Form the residual for the scaled equation, S Z - sigma mu e
         // ===========================================================
-        w.Resize( n, 1 );
-        for( Int i=0; i<n; ++i )
-            w.Set( i, 0, Sqrt(s.Get(i,0))/Sqrt(z.Get(i,0)) );
-
-        // Form the Nesterov-Todd scaled variable, l = W^{-T} s = W z
-        // ==========================================================
-        l = z;
-        DiagonalScale( LEFT, NORMAL, w, l );
-
-        // Form the residual for the scaled equation, l^2 - sigma mu e
-        // ===========================================================
-        const Real mu = Dot(l,l) / n;
+        const Real mu = Dot(s,z) / n;
         rmu.Resize( n, 1 );
         for( Int i=0; i<n; ++i )
-            rmu.Set( i, 0, Pow(l.Get(i,0),Real(2)) - ctrl.centering*mu );
+            rmu.Set( i, 0, s.Get(i,0)*z.Get(i,0) - ctrl.centering*mu );
 
         if( ctrl.system == FULL_KKT )
         {
             // Construct the full KKT system
             // =============================
-            KKT( A, G, w, J );
-            KKTRHS( rc, rb, rh, rmu, w, l, d );
+            KKT( A, G, s, z, J );
+            KKTRHS( rc, rb, rh, rmu, z, d );
 
             // Compute the proposed step from the KKT system
             // =============================================
             SymmetricSolve( LOWER, NORMAL, J, d );
-            ExpandKKTSolution( m, n, k, d, rmu, w, l, dx, dy, dz, ds );
+            ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
         }
         else
             LogicError("Invalid KKT system choice");
@@ -176,7 +165,8 @@ void IPF
         const Real alpha =
           IPFLineSearch
           ( A, G, b, c, h, x, y, z, s, dx, dy, dz, ds,
-            ctrl.tol*(1+bNrm2), ctrl.tol*(1+cNrm2), ctrl.lineSearchCtrl );
+            ctrl.tol*(1+bNrm2), ctrl.tol*(1+cNrm2), ctrl.tol*(1+hNrm2),
+            ctrl.lineSearchCtrl );
         if( ctrl.print )
             std::cout << "  alpha = " << alpha << std::endl;
         Axpy( alpha, dx, x );
@@ -188,9 +178,8 @@ void IPF
 
 template<typename Real>
 void IPF
-( const AbstractDistMatrix<Real>& APre, 
-  const AbstractDistMatrix<Real>& GPre,
-  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
+( const AbstractDistMatrix<Real>& APre, const AbstractDistMatrix<Real>& GPre,
+  const AbstractDistMatrix<Real>& b,    const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Real>& h,
   AbstractDistMatrix<Real>& xPre, AbstractDistMatrix<Real>& y, 
   AbstractDistMatrix<Real>& zPre, AbstractDistMatrix<Real>& s,
@@ -216,7 +205,7 @@ void IPF
 template<typename Real>
 void IPF
 ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
-  const Matrix<Real>& b, const Matrix<Real>& c,
+  const Matrix<Real>& b,       const Matrix<Real>& c,
   const Matrix<Real>& h,
   Matrix<Real>& x, Matrix<Real>& y, 
   Matrix<Real>& z, Matrix<Real>& s,
@@ -229,7 +218,7 @@ void IPF
 template<typename Real>
 void IPF
 ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
+  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
   DistMultiVec<Real>& x, DistMultiVec<Real>& y, 
   DistMultiVec<Real>& z, DistMultiVec<Real>& s,

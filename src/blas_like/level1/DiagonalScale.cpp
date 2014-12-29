@@ -165,6 +165,29 @@ void DiagonalScale
     }
 }
 
+template<typename TDiag,typename T>
+void DiagonalScale
+( Orientation orientation,
+  const DistMultiVec<TDiag>& d, DistMultiVec<T>& X )
+{
+    DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
+    if( d.Width() != 1 )
+        LogicError("d must be a column vector");
+    if( !mpi::Congruent( d.Comm(), X.Comm() ) )
+        LogicError("Communicators must be congruent");
+    if( d.Height() != X.Height() )
+        LogicError("d and X must be the same size");
+    const bool conjugate = ( orientation == ADJOINT );
+    const Int width = X.Width();
+    for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc ) 
+    {
+        const T delta = 
+            ( conjugate ? Conj(d.GetLocal(iLoc,0)) : d.GetLocal(iLoc,0) );
+        for( Int j=0; j<width; ++j )
+            X.SetLocal( iLoc, j, delta*X.GetLocal(iLoc,j) ); 
+    }
+}
+
 #define DIST_PROTO(T,U,V) \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
@@ -188,6 +211,9 @@ void DiagonalScale
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
     const DistMultiVec<T>& d, DistSparseMatrix<T>& A ); \
+  template void DiagonalScale \
+  ( Orientation orientation, \
+    const DistMultiVec<T>& d, DistMultiVec<T>& X ); \
   DIST_PROTO(T,CIRC,CIRC); \
   DIST_PROTO(T,MC,  MR  ); \
   DIST_PROTO(T,MC,  STAR); \
@@ -217,6 +243,9 @@ void DiagonalScale
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
     const DistMultiVec<T>& d, DistSparseMatrix<Complex<T>>& A ); \
+  template void DiagonalScale \
+  ( Orientation orientation, \
+    const DistMultiVec<T>& d, DistMultiVec<Complex<T>>& X ); \
   DIST_PROTO_REAL(T,CIRC,CIRC); \
   DIST_PROTO_REAL(T,MC,  MR  ); \
   DIST_PROTO_REAL(T,MC,  STAR); \

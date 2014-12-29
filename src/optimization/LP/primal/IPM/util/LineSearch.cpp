@@ -12,6 +12,9 @@ namespace El {
 namespace lp {
 namespace primal {
 
+// TODO: Expose step-length ratio and maximum number of trial step lengths
+//       as parameters of IPFLineSearchCtrl
+
 template<typename Real>
 Real IPFLineSearch
 ( const Matrix<Real>& A, 
@@ -128,8 +131,8 @@ Real IPFLineSearch
                           << std::endl;
             continue;
         }
-        // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha) / mu)
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha)/mu)
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
         Axpy(  alpha, AT_dy, rc_alpha );
         Axpy( -alpha, dz,    rc_alpha );

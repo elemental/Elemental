@@ -182,6 +182,32 @@ void DiagonalSolve
     }
 }
 
+template<typename FDiag,typename F>
+void DiagonalSolve
+( Orientation orientation,
+  const DistMultiVec<FDiag>& d, DistMultiVec<F>& X,
+  bool checkIfSingular )
+{
+    DEBUG_ONLY(CallStackEntry cse("DiagonalSolve"))
+    if( d.Width() != 1 )
+        LogicError("d must be a column vector");
+    if( !mpi::Congruent( d.Comm(), X.Comm() ) )
+        LogicError("Communicators must be congruent");
+    if( d.Height() != X.Height() )
+        LogicError("d and X must be the same size");
+    const bool conjugate = ( orientation == ADJOINT );
+    const Int width = X.Width();
+    for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
+    {
+        const F delta = 
+            ( conjugate ? Conj(d.GetLocal(iLoc,0)) : d.GetLocal(iLoc,0) );
+        if( checkIfSingular && delta == F(0) )
+            throw SingularMatrixException(); 
+        for( Int j=0; j<width; ++j )
+            X.SetLocal( iLoc, j, X.GetLocal(iLoc,j)/delta );
+    }
+}
+
 #define DIST_PROTO(T,U,V) \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
@@ -208,6 +234,9 @@ void DiagonalSolve
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
     const DistMultiVec<T>& d, DistSparseMatrix<T>& A, bool checkIfSingular ); \
+  template void DiagonalSolve \
+  ( Orientation orientation, \
+    const DistMultiVec<T>& d, DistMultiVec<T>& X, bool checkIfSingular ); \
   DIST_PROTO(T,CIRC,CIRC); \
   DIST_PROTO(T,MC,  MR  ); \
   DIST_PROTO(T,MC,  STAR); \
@@ -239,6 +268,10 @@ void DiagonalSolve
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
     const DistMultiVec<T>& d, DistSparseMatrix<Complex<T>>& A, \
+    bool checkIfSingular ); \
+  template void DiagonalSolve \
+  ( Orientation orientation, \
+    const DistMultiVec<T>& d, DistMultiVec<Complex<T>>& X, \
     bool checkIfSingular ); \
   DIST_PROTO_REAL(T,CIRC,CIRC); \
   DIST_PROTO_REAL(T,MC,  MR  ); \

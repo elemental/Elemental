@@ -12,6 +12,9 @@ namespace El {
 namespace lp {
 namespace dual {
 
+// TODO: Expose step-length ratio and maximum number of trial step lengths
+//       as parameters of IPFLineSearchCtrl
+
 template<typename Real>
 Real IPFLineSearch
 ( const Matrix<Real>& A,  const Matrix<Real>& G,
@@ -21,7 +24,7 @@ Real IPFLineSearch
   const Matrix<Real>& z,  const Matrix<Real>& s,
   const Matrix<Real>& dx, const Matrix<Real>& dy, 
   const Matrix<Real>& dz, const Matrix<Real>& ds,
-  Real bTol, Real cTol,
+  Real bTol, Real cTol, Real hTol,
   const IPFLineSearchCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::IPFLineSearch"))
@@ -30,67 +33,87 @@ Real IPFLineSearch
     if( ctrl.beta < Real(1) )
         LogicError("beta must be at least one");
     // TODO: Ensure the dimensions match
-    if( b.Width() != 1 || c.Width() != 1 ||
-        x.Width() != 1 || y.Width() != 1 || z.Width() != 1 ||
-        dx.Width() != 1 || dy.Width() != 1 || dz.Width() != 1 )
-        LogicError("{b,c,x,y,z,dx,dy,dz} must be column vectors");
+    if( b.Width() != 1 || c.Width() != 1 || h.Width() != 1 ||
+        x.Width() != 1 || y.Width() != 1 || 
+        z.Width() != 1 || s.Width() != 1 ||
+        dx.Width() != 1 || dy.Width() != 1 || 
+        dz.Width() != 1 || ds.Width() != 1 )
+        LogicError("{b,c,h,x,y,z,s,dx,dy,dz,ds} must be column vectors");
     const Int m = A.Height();
     const Int n = A.Width();
+    const Int k = G.Height();
 
     // Continually halve the step size until it is small enough so that the new
     // state lies within the "-infinity" neighborhood of the central path, i.e.,
     //  (a) || r_b(alpha) ||_2 <= || r_b ||_2 beta mu(alpha) / mu,
     //  (b) || r_c(alpha) ||_2 <= || r_c ||_2 beta mu(alpha) / mu,
-    //  (c) x(alpha), z(alpha) > 0, and, for all i,
-    //  (d) x_i(alpha) z_i(alpha) >= gamma mu(alpha),
+    //  (c) || r_h(alpha) ||_2 <= || r_h ||_2 beta mu(alpha) / mu,
+    //  (d) s(alpha), z(alpha) > 0, and, for all i,
+    //  (e) s_i(alpha) z_i(alpha) >= gamma mu(alpha),
     // where 
     //    x(alpha) = x + alpha dx,
     //    y(alpha) = y + alpha dy,
     //    z(alpha) = z + alpha dz,
+    //    s(alpha) = s + alpha ds,
     //    r_b(alpha) = A x(alpha) - b, and
-    //    r_c(alpha) = A^T y(alpha) + z(alpha) - c,
+    //    r_c(alpha) = A^T y(alpha) + G^T z(alpha) + c,
+    //    r_h(alpha) = G x(alpha) + s(alpha) - h,
     // and the Armijo condition,
     //   mu(alpha) <= (1 - alpha/\psi) mu,
     // is also satisfied.
     // ===============================================
     // Setup
     // -----
-    Matrix<Real> A_x, A_dx, AT_y, AT_dy, rb, rc;
+    Matrix<Real> A_x, A_dx, AT_y, AT_dy, 
+                 G_x, G_dx, GT_z, GT_dz,
+                 rb, rc, rh;
     Zeros( A_x,   m, 1 );
     Zeros( A_dx,  m, 1 );
     Zeros( AT_y,  n, 1 );
     Zeros( AT_dy, n, 1 );
+    Zeros( G_x,   k, 1 );
+    Zeros( G_dx,  k, 1 );
+    Zeros( GT_z,  n, 1 );
+    Zeros( GT_dz, n, 1 );
     Gemv( NORMAL,    Real(1), A, x,  Real(0), A_x   );
     Gemv( NORMAL,    Real(1), A, dx, Real(0), A_dx  );
     Gemv( TRANSPOSE, Real(1), A, y,  Real(0), AT_y  );
     Gemv( TRANSPOSE, Real(1), A, dy, Real(0), AT_dy );
+    Gemv( NORMAL,    Real(1), G, x,  Real(0), G_x   );
+    Gemv( NORMAL,    Real(1), G, dx, Real(0), G_dx  );
+    Gemv( TRANSPOSE, Real(1), G, z,  Real(0), GT_z  );
+    Gemv( TRANSPOSE, Real(1), G, dz, Real(0), GT_dz );
     rb = A_x; 
     Axpy( Real(-1), b, rb );
     rc = AT_y;
-    Axpy( Real(1),  z, rc );
-    Axpy( Real(-1), c, rc );
+    Axpy( Real(1), GT_z, rc );
+    Axpy( Real(1), c,    rc );
+    rh = G_x;
+    Axpy( Real( 1), s, rh );
+    Axpy( Real(-1), h, rh );
     const Real rbNrm2 = Nrm2( rb );
     const Real rcNrm2 = Nrm2( rc );
-    const Real mu = Dot(x,z) / n;
+    const Real rhNrm2 = Nrm2( rh );
+    const Real mu = Dot(s,z) / n;
     // Perform the line search using the cached data
     // ---------------------------------------------
     Real alpha = 1;
-    Matrix<Real> x_alpha, z_alpha, rb_alpha, rc_alpha;
-    for( Int k=0; k<100; ++k, alpha=alpha/2 )
+    Matrix<Real> s_alpha, z_alpha, rb_alpha, rc_alpha, rh_alpha;
+    for( Int iter=0; iter<100; ++iter, alpha=alpha/2 )
     {
-        // x(alpha) = x + alpha dx
+        // s(alpha) = s + alpha ds
         // ^^^^^^^^^^^^^^^^^^^^^^^
-        x_alpha = x;
-        Axpy( alpha, dx, x_alpha );
+        s_alpha = s;
+        Axpy( alpha, ds, s_alpha );
 
         // z(alpha) = z + alpha dz
         // ^^^^^^^^^^^^^^^^^^^^^^^ 
         z_alpha = z;
         Axpy( alpha, dz, z_alpha );
 
-        // mu(alpha) = x(alpha)^T z / n
+        // mu(alpha) = s(alpha)^T z / n
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        const Real mu_alpha = Dot(x_alpha,z_alpha) / n;
+        const Real mu_alpha = Dot(s_alpha,z_alpha) / n;
         if( mu_alpha > (1-alpha/ctrl.psi)*mu )
         {
             if( ctrl.print )
@@ -99,17 +122,17 @@ Real IPFLineSearch
         }
 
         // Check 
-        //    x(alpha), z(alpha) > 0, and 
-        //    x_i(alpha) z_i(alpha) >= gamma mu(alpha)
+        //    s(alpha), z(alpha) > 0, and 
+        //    s_i(alpha) z_i(alpha) >= gamma mu(alpha)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         bool balanced = true;
         for( Int i=0; i<n; ++i )
         {
-            const Real xi_alpha = x_alpha.Get(i,0);
+            const Real si_alpha = s_alpha.Get(i,0);
             const Real zi_alpha = z_alpha.Get(i,0);
-            if( xi_alpha <= Real(0) || zi_alpha <= Real(0) )
+            if( si_alpha <= Real(0) || zi_alpha <= Real(0) )
                 balanced = false;
-            if( xi_alpha*zi_alpha < ctrl.gamma*mu_alpha )
+            if( si_alpha*zi_alpha < ctrl.gamma*mu_alpha )
                 balanced = false;
         }
         if( !balanced )
@@ -131,11 +154,11 @@ Real IPFLineSearch
                           << std::endl;
             continue;
         }
-        // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha) / mu)
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha)/mu)
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
         Axpy( alpha, AT_dy, rc_alpha );
-        Axpy( alpha, dz,    rc_alpha );
+        Axpy( alpha, GT_dz, rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
         if( rc_alphaNrm2 > Max(cTol,rcNrm2*ctrl.beta*mu_alpha/mu) )
         {
@@ -143,9 +166,24 @@ Real IPFLineSearch
                 std::cout << "  r_c failure: " << rc_alphaNrm2 << " > Max("
                           << cTol << "," << rcNrm2*ctrl.beta*mu_alpha/mu << ")"
                           << std::endl;
+            continue;
+        }
+        // Check ||r_h(alpha)||_2 <= Max(hTol,||r_h||_2 beta mu(alpha)/mu)
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        rh_alpha = rh;
+        Axpy( alpha, G_dx, rh_alpha );
+        Axpy( alpha, ds,   rh_alpha );
+        const Real rh_alphaNrm2 = Nrm2( rh_alpha );
+        if( rh_alphaNrm2 > Max(hTol,rhNrm2*ctrl.beta*mu_alpha/mu) )
+        {
+            if( ctrl.print )
+                std::cout << "  r_h failure: " << rh_alphaNrm2 << " > Max("
+                          << hTol << "," << rhNrm2*ctrl.beta*mu_alpha/mu << ")"
+                          << std::endl;
         }
         else
             break;
+
     }
     return alpha;
 }
@@ -155,11 +193,11 @@ Real IPFLineSearch
 ( const AbstractDistMatrix<Real>& APre, const AbstractDistMatrix<Real>& GPre,
   const AbstractDistMatrix<Real>& b,    const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Real>& h,
-  const AbstractDistMatrix<Real>& x,  const AbstractDistMatrix<Real>& y,
-  const AbstractDistMatrix<Real>& z,  const AbstractDistMatrix<Real>& s,
-  const AbstractDistMatrix<Real>& dx, const AbstractDistMatrix<Real>& dy, 
-  const AbstractDistMatrix<Real>& dz, const AbstractDistMatrix<Real>& ds,
-  Real bTol, Real cTol,
+  const AbstractDistMatrix<Real>& x,    const AbstractDistMatrix<Real>& y,
+  const AbstractDistMatrix<Real>& z,    const AbstractDistMatrix<Real>& s,
+  const AbstractDistMatrix<Real>& dx,   const AbstractDistMatrix<Real>& dy, 
+  const AbstractDistMatrix<Real>& dz,   const AbstractDistMatrix<Real>& ds,
+  Real bTol, Real cTol, Real hTol,
   const IPFLineSearchCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::IPFLineSearch"))
@@ -168,16 +206,19 @@ Real IPFLineSearch
     if( ctrl.beta < Real(1) )
         LogicError("beta must be at least one");
 
-    auto APtr = ReadProxy<Real,MC,MR>(&APre);
-    auto& A = *APtr;
+    auto APtr = ReadProxy<Real,MC,MR>(&APre); auto& A = *APtr;
+    auto GPtr = ReadProxy<Real,MC,MR>(&GPre); auto& G = *GPtr;
 
     // TODO: Ensure the dimensions match
-    if( b.Width() != 1 || c.Width() != 1 ||
-        x.Width() != 1 || y.Width() != 1 || z.Width() != 1 ||
-        dx.Width() != 1 || dy.Width() != 1 || dz.Width() != 1 )
-        LogicError("{b,c,x,y,z,dx,dy,dz} must be column vectors");
+    if( b.Width() != 1 || c.Width() != 1 || h.Width() != 1 ||
+        x.Width() != 1 || y.Width() != 1 || 
+        z.Width() != 1 || s.Width() != 1 ||
+        dx.Width() != 1 || dy.Width() != 1 || 
+        dz.Width() != 1 || ds.Width() != 1 )
+        LogicError("{b,c,h,x,y,z,s,dx,dy,dz,ds} must be column vectors");
     const Int m = A.Height();
     const Int n = A.Width();
+    const Int k = G.Height();
     const Grid& grid = A.Grid();
     const Int commRank = grid.Rank();
 
@@ -185,14 +226,17 @@ Real IPFLineSearch
     // state lies within the "-infinity" neighborhood of the central path, i.e.,
     //  (a) || r_b(alpha) ||_2 <= || r_b ||_2 beta mu(alpha) / mu,
     //  (b) || r_c(alpha) ||_2 <= || r_c ||_2 beta mu(alpha) / mu,
-    //  (c) x(alpha), z(alpha) > 0, and, for all i,
-    //  (d) x_i(alpha) z_i(alpha) >= gamma mu(alpha),
+    //  (c) || r_h(alpha) ||_2 <= || r_h ||_2 beta mu(alpha) / mu,
+    //  (d) s(alpha), z(alpha) > 0, and, for all i,
+    //  (e) s_i(alpha) z_i(alpha) >= gamma mu(alpha),
     // where 
     //    x(alpha) = x + alpha dx,
     //    y(alpha) = y + alpha dy,
     //    z(alpha) = z + alpha dz,
+    //    s(alpha) = s + alpha ds,
     //    r_b(alpha) = A x(alpha) - b, and
-    //    r_c(alpha) = A^T y(alpha) + z(alpha) - c,
+    //    r_c(alpha) = A^T y(alpha) + G^T z(alpha) + c,
+    //    r_h(alpha) = G x(alpha) + s(alpha) - h
     // and the Armijo condition,
     //   mu(alpha) <= (1 - alpha/\psi) mu,
     // is also satisfied.
@@ -200,45 +244,58 @@ Real IPFLineSearch
     // Setup
     // -----
     DistMatrix<Real> A_x(grid), A_dx(grid), AT_y(grid), AT_dy(grid), 
-                     rb(grid), rc(grid);
+                     G_x(grid), G_dx(grid), GT_z(grid), GT_dz(grid),
+                     rb(grid), rc(grid), rh(grid);
     Zeros( A_x,   m, 1 );
     Zeros( A_dx,  m, 1 );
     Zeros( AT_y,  n, 1 );
     Zeros( AT_dy, n, 1 );
+    Zeros( G_x,   k, 1 );
+    Zeros( G_dx,  k, 1 );
+    Zeros( GT_z,  n, 1 );
+    Zeros( GT_dz, n, 1 );
     Gemv( NORMAL,    Real(1), A, x,  Real(0), A_x   );
     Gemv( NORMAL,    Real(1), A, dx, Real(0), A_dx  );
     Gemv( TRANSPOSE, Real(1), A, y,  Real(0), AT_y  );
     Gemv( TRANSPOSE, Real(1), A, dy, Real(0), AT_dy );
+    Gemv( NORMAL,    Real(1), G, x,  Real(0), G_x   );
+    Gemv( NORMAL,    Real(1), G, dx, Real(0), G_dx  );
+    Gemv( TRANSPOSE, Real(1), G, z,  Real(0), GT_z  );
+    Gemv( TRANSPOSE, Real(1), G, dz, Real(0), GT_dz );
     rb = A_x; 
     Axpy( Real(-1), b, rb );
     rc = AT_y;
-    Axpy( Real(1),  z, rc );
-    Axpy( Real(-1), c, rc );
+    Axpy( Real(1), GT_z, rc );
+    Axpy( Real( 1), c, rc );
+    rh = G_x;
+    Axpy( Real( 1), s, rh );
+    Axpy( Real(-1), h, rh );
     const Real rbNrm2 = Nrm2( rb );
     const Real rcNrm2 = Nrm2( rc );
-    const Real mu = Dot(x,z) / n;
+    const Real rhNrm2 = Nrm2( rh );
+    const Real mu = Dot(s,z) / n;
     // Perform the line search using the cached data
     // ---------------------------------------------
     Real alpha = 1;
-    DistMatrix<Real> x_alpha(grid), z_alpha(grid), 
-                     rb_alpha(grid), rc_alpha(grid);
-    x_alpha.Align(0,0);
+    DistMatrix<Real> s_alpha(grid), z_alpha(grid), 
+                     rb_alpha(grid), rc_alpha(grid), rh_alpha(grid);
+    s_alpha.Align(0,0);
     z_alpha.Align(0,0);
-    for( Int k=0; k<100; ++k, alpha=alpha/2 )
+    for( Int iter=0; iter<100; ++iter, alpha=alpha/2 )
     {
-        // x(alpha) = x + alpha dx
+        // s(alpha) = s + alpha ds
         // ^^^^^^^^^^^^^^^^^^^^^^^
-        x_alpha = x;
-        Axpy( alpha, dx, x_alpha );
+        s_alpha = s;
+        Axpy( alpha, ds, s_alpha );
 
         // z(alpha) = z + alpha dz
         // ^^^^^^^^^^^^^^^^^^^^^^^ 
         z_alpha = z;
         Axpy( alpha, dz, z_alpha );
 
-        // mu(alpha) = x(alpha)^T z / n
+        // mu(alpha) = s(alpha)^T z / n
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        const Real mu_alpha = Dot(x_alpha,z_alpha) / n;
+        const Real mu_alpha = Dot(s_alpha,z_alpha) / n;
         if( mu_alpha > (1-alpha/ctrl.psi)*mu )
         {
             if( ctrl.print && commRank == 0 )
@@ -247,19 +304,19 @@ Real IPFLineSearch
         }
 
         // Check 
-        //    x(alpha), z(alpha) > 0, and 
-        //    x_i(alpha) z_i(alpha) >= gamma mu(alpha)
+        //    s(alpha), z(alpha) > 0, and 
+        //    s_i(alpha) z_i(alpha) >= gamma mu(alpha)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         byte locallyBalanced = true;
-        if( x_alpha.IsLocalCol(0) )
+        if( s_alpha.IsLocalCol(0) )
         {
-            for( Int iLoc=0; iLoc<x_alpha.LocalHeight(); ++iLoc )
+            for( Int iLoc=0; iLoc<s_alpha.LocalHeight(); ++iLoc )
             {
-                const Real xi_alpha = x_alpha.GetLocal(iLoc,0);
+                const Real si_alpha = s_alpha.GetLocal(iLoc,0);
                 const Real zi_alpha = z_alpha.GetLocal(iLoc,0);
-                if( xi_alpha <= Real(0) || zi_alpha <= Real(0) )
+                if( si_alpha <= Real(0) || zi_alpha <= Real(0) )
                     locallyBalanced = false;
-                if( xi_alpha*zi_alpha < ctrl.gamma*mu_alpha )
+                if( si_alpha*zi_alpha < ctrl.gamma*mu_alpha )
                     locallyBalanced = false;
             }
         }
@@ -288,7 +345,7 @@ Real IPFLineSearch
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
         Axpy( alpha, AT_dy, rc_alpha );
-        Axpy( alpha, dz,    rc_alpha );
+        Axpy( alpha, GT_dz, rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
         if( rc_alphaNrm2 > Max(cTol,rcNrm2*ctrl.beta*mu_alpha/mu) )
         {
@@ -296,9 +353,24 @@ Real IPFLineSearch
                 std::cout << "  r_c failure: " << rc_alphaNrm2 << " > Max("
                           << cTol << "," << rcNrm2*ctrl.beta*mu_alpha/mu << ")"
                           << std::endl;
+            continue;
+        }
+        // Check ||r_h(alpha)||_2 <= Max(hTol,||r_h||_2 beta mu(alpha)/mu)
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        rh_alpha = rh;
+        Axpy( alpha, G_dx, rh_alpha );
+        Axpy( alpha, ds,   rh_alpha );
+        const Real rh_alphaNrm2 = Nrm2( rh_alpha );
+        if( rh_alphaNrm2 > Max(hTol,rhNrm2*ctrl.beta*mu_alpha/mu) )
+        {
+            if( ctrl.print && commRank == 0 )
+                std::cout << "  r_h failure: " << rh_alphaNrm2 << " > Max("
+                          << hTol << "," << rhNrm2*ctrl.beta*mu_alpha/mu << ")"
+                          << std::endl;
         }
         else
             break;
+
     }
     return alpha;
 }
@@ -312,7 +384,7 @@ Real IPFLineSearch
   const Matrix<Real>& z,  const Matrix<Real>& s,
   const Matrix<Real>& dx, const Matrix<Real>& dy, 
   const Matrix<Real>& dz, const Matrix<Real>& ds,
-  Real bTol, Real cTol,
+  Real bTol, Real cTol, Real hTol,
   const IPFLineSearchCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::IPFLineSearch"))
@@ -321,67 +393,87 @@ Real IPFLineSearch
     if( ctrl.beta < Real(1) )
         LogicError("beta must be at least one");
     // TODO: Ensure the dimensions match
-    if( b.Width() != 1 || c.Width() != 1 ||
-        x.Width() != 1 || y.Width() != 1 || z.Width() != 1 ||
-        dx.Width() != 1 || dy.Width() != 1 || dz.Width() != 1 )
-        LogicError("{b,c,x,y,z,dx,dy,dz} must be column vectors");
+    if( b.Width() != 1 || c.Width() != 1 || h.Width() != 1 ||
+        x.Width() != 1 || y.Width() != 1 || 
+        z.Width() != 1 || s.Width() != 1 ||
+        dx.Width() != 1 || dy.Width() != 1 || 
+        dz.Width() != 1 || ds.Width() != 1 )
+        LogicError("{b,c,h,x,y,z,s,dx,dy,dz,ds} must be column vectors");
     const Int m = A.Height();
     const Int n = A.Width();
+    const Int k = G.Height();
 
     // Continually halve the step size until it is small enough so that the new
     // state lies within the "-infinity" neighborhood of the central path, i.e.,
     //  (a) || r_b(alpha) ||_2 <= || r_b ||_2 beta mu(alpha) / mu,
     //  (b) || r_c(alpha) ||_2 <= || r_c ||_2 beta mu(alpha) / mu,
-    //  (c) x(alpha), z(alpha) > 0, and, for all i,
-    //  (d) x_i(alpha) z_i(alpha) >= gamma mu(alpha),
+    //  (c) || r_h(alpha) ||_2 <= || r_h ||_2 beta mu(alpha) / mu,
+    //  (d) s(alpha), z(alpha) > 0, and, for all i,
+    //  (e) s_i(alpha) z_i(alpha) >= gamma mu(alpha),
     // where 
     //    x(alpha) = x + alpha dx,
     //    y(alpha) = y + alpha dy,
     //    z(alpha) = z + alpha dz,
+    //    s(alpha) = s + alpha ds,
     //    r_b(alpha) = A x(alpha) - b, and
-    //    r_c(alpha) = A^T y(alpha) + z(alpha) - c,
+    //    r_c(alpha) = A^T y(alpha) + G^T z(alpha) + c,
+    //    r_h(alpha) = G x(alpha) + s(alpha) - h
     // and the Armijo condition,
     //   mu(alpha) <= (1 - alpha/\psi) mu,
     // is also satisfied.
     // ===============================================
     // Setup
     // -----
-    Matrix<Real> A_x, A_dx, AT_y, AT_dy, rb, rc;
+    Matrix<Real> A_x, A_dx, AT_y, AT_dy, 
+                 G_x, G_dx, GT_z, GT_dz,
+                 rb, rc, rh;
     Zeros( A_x,   m, 1 );
     Zeros( A_dx,  m, 1 );
     Zeros( AT_y,  n, 1 );
     Zeros( AT_dy, n, 1 );
+    Zeros( G_x,   k, 1 );
+    Zeros( G_dx,  k, 1 );
+    Zeros( GT_z,  n, 1 );
+    Zeros( GT_dz, n, 1 );
     Multiply( NORMAL,    Real(1), A, x,  Real(0), A_x   );
     Multiply( NORMAL,    Real(1), A, dx, Real(0), A_dx  );
     Multiply( TRANSPOSE, Real(1), A, y,  Real(0), AT_y  );
     Multiply( TRANSPOSE, Real(1), A, dy, Real(0), AT_dy );
+    Multiply( NORMAL,    Real(1), G, x,  Real(0), G_x   );
+    Multiply( NORMAL,    Real(1), G, dx, Real(0), G_dx  );
+    Multiply( TRANSPOSE, Real(1), G, z,  Real(0), GT_z  );
+    Multiply( TRANSPOSE, Real(1), G, dz, Real(0), GT_dz );
     rb = A_x; 
     Axpy( Real(-1), b, rb );
     rc = AT_y;
-    Axpy( Real(1),  z, rc );
-    Axpy( Real(-1), c, rc );
+    Axpy( Real(1), GT_z, rc );
+    Axpy( Real(1), c,    rc );
+    rh = G_x;
+    Axpy( Real( 1), s, rh );
+    Axpy( Real(-1), h, rh );
     const Real rbNrm2 = Nrm2( rb );
     const Real rcNrm2 = Nrm2( rc );
-    const Real mu = Dot(x,z) / n;
+    const Real rhNrm2 = Nrm2( rh );
+    const Real mu = Dot(s,z) / n;
     // Perform the line search using the cached data
     // ---------------------------------------------
     Real alpha = 1;
-    Matrix<Real> x_alpha, z_alpha, rb_alpha, rc_alpha;
-    for( Int k=0; k<100; ++k, alpha=alpha/2 )
+    Matrix<Real> s_alpha, z_alpha, rb_alpha, rc_alpha, rh_alpha;
+    for( Int iter=0; iter<100; ++iter, alpha=alpha/2 )
     {
-        // x(alpha) = x + alpha dx
+        // s(alpha) = s + alpha ds
         // ^^^^^^^^^^^^^^^^^^^^^^^
-        x_alpha = x;
-        Axpy( alpha, dx, x_alpha );
+        s_alpha = s;
+        Axpy( alpha, ds, s_alpha );
 
         // z(alpha) = z + alpha dz
         // ^^^^^^^^^^^^^^^^^^^^^^^ 
         z_alpha = z;
         Axpy( alpha, dz, z_alpha );
 
-        // mu(alpha) = x(alpha)^T z / n
+        // mu(alpha) = s(alpha)^T z / n
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        const Real mu_alpha = Dot(x_alpha,z_alpha) / n;
+        const Real mu_alpha = Dot(s_alpha,z_alpha) / n;
         if( mu_alpha > (1-alpha/ctrl.psi)*mu )
         {
             if( ctrl.print )
@@ -390,17 +482,17 @@ Real IPFLineSearch
         }
 
         // Check 
-        //    x(alpha), z(alpha) > 0, and 
-        //    x_i(alpha) z_i(alpha) >= gamma mu(alpha)
+        //    s(alpha), z(alpha) > 0, and 
+        //    s_i(alpha) z_i(alpha) >= gamma mu(alpha)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         bool balanced = true;
         for( Int i=0; i<n; ++i )
         {
-            const Real xi_alpha = x_alpha.Get(i,0);
+            const Real si_alpha = s_alpha.Get(i,0);
             const Real zi_alpha = z_alpha.Get(i,0);
-            if( xi_alpha <= Real(0) || zi_alpha <= Real(0) )
+            if( si_alpha <= Real(0) || zi_alpha <= Real(0) )
                 balanced = false;
-            if( xi_alpha*zi_alpha < ctrl.gamma*mu_alpha )
+            if( si_alpha*zi_alpha < ctrl.gamma*mu_alpha )
                 balanced = false;
         }
         if( !balanced )
@@ -426,13 +518,27 @@ Real IPFLineSearch
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
         Axpy( alpha, AT_dy, rc_alpha );
-        Axpy( alpha, dz,    rc_alpha );
+        Axpy( alpha, GT_dz, rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
         if( rc_alphaNrm2 > Max(cTol,rcNrm2*ctrl.beta*mu_alpha/mu) )
         {
             if( ctrl.print )
                 std::cout << "  r_c failure: " << rc_alphaNrm2 << " > Max("
                           << cTol << "," << rcNrm2*ctrl.beta*mu_alpha/mu << ")"
+                          << std::endl;
+            continue;
+        }
+        // Check ||r_h(alpha)||_2 <= Max(hTol,||r_h||_2 beta mu(alpha)/mu)
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        rh_alpha = rh;
+        Axpy( alpha, G_dx, rh_alpha );
+        Axpy( alpha, ds,   rh_alpha );
+        const Real rh_alphaNrm2 = Nrm2( rh_alpha );
+        if( rh_alphaNrm2 > Max(hTol,rhNrm2*ctrl.beta*mu_alpha/mu) )
+        {
+            if( ctrl.print )
+                std::cout << "  r_h failure: " << rh_alphaNrm2 << " > Max("
+                          << hTol << "," << rhNrm2*ctrl.beta*mu_alpha/mu << ")"
                           << std::endl;
         }
         else
@@ -450,7 +556,7 @@ Real IPFLineSearch
   const DistMultiVec<Real>& z,     const DistMultiVec<Real>& s,
   const DistMultiVec<Real>& dx,    const DistMultiVec<Real>& dy, 
   const DistMultiVec<Real>& dz,    const DistMultiVec<Real>& ds,
-  Real bTol, Real cTol,
+  Real bTol, Real cTol, Real hTol,
   const IPFLineSearchCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::IPFLineSearch"))
@@ -460,12 +566,15 @@ Real IPFLineSearch
         LogicError("beta must be at least one");
     // TODO: Ensure communicators are congruent
     // TODO: Ensure the dimensions match
-    if( b.Width() != 1 || c.Width() != 1 ||
-        x.Width() != 1 || y.Width() != 1 || z.Width() != 1 ||
-        dx.Width() != 1 || dy.Width() != 1 || dz.Width() != 1 )
-        LogicError("{b,c,x,y,z,dx,dy,dz} must be column vectors");
+    if( b.Width() != 1 || c.Width() != 1 || h.Width() != 1 ||
+        x.Width() != 1 || y.Width() != 1 || 
+        z.Width() != 1 || s.Width() != 1 ||
+        dx.Width() != 1 || dy.Width() != 1 || 
+        dz.Width() != 1 || ds.Width() != 1 )
+        LogicError("{b,c,h,x,y,z,s,dx,dy,dz,ds} must be column vectors");
     const Int m = A.Height();
     const Int n = A.Width();
+    const Int k = G.Height();
     const Int nLocal = x.LocalHeight();
     mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
@@ -474,14 +583,17 @@ Real IPFLineSearch
     // state lies within the "-infinity" neighborhood of the central path, i.e.,
     //  (a) || r_b(alpha) ||_2 <= || r_b ||_2 beta mu(alpha) / mu,
     //  (b) || r_c(alpha) ||_2 <= || r_c ||_2 beta mu(alpha) / mu,
-    //  (c) x(alpha), z(alpha) > 0, and, for all i,
-    //  (d) x_i(alpha) z_i(alpha) >= gamma mu(alpha),
+    //  (c) || r_h(alpha) ||_2 <= || r_h ||_2 beta mu(alpha) / mu,
+    //  (d) s(alpha), z(alpha) > 0, and, for all i,
+    //  (e) s_i(alpha) z_i(alpha) >= gamma mu(alpha),
     // where 
     //    x(alpha) = x + alpha dx,
     //    y(alpha) = y + alpha dy,
     //    z(alpha) = z + alpha dz,
+    //    s(alpha) = s + alpha ds,
     //    r_b(alpha) = A x(alpha) - b, and
-    //    r_c(alpha) = A^T y(alpha) + z(alpha) - c,
+    //    r_c(alpha) = A^T y(alpha) + G^T z(alpha) + c,
+    //    r_h(alpha) = G x(alpha) + s(alpha) - h
     // and the Armijo condition,
     //   mu(alpha) <= (1 - alpha/\psi) mu,
     // is also satisfied.
@@ -489,43 +601,56 @@ Real IPFLineSearch
     // Setup
     // -----
     DistMultiVec<Real> A_x(comm), A_dx(comm), AT_y(comm), AT_dy(comm), 
-                       rb(comm), rc(comm);
+                       G_x(comm), G_dx(comm), GT_z(comm), GT_dz(comm),
+                       rb(comm), rc(comm), rh(comm);
     Zeros( A_x,   m, 1 );
     Zeros( A_dx,  m, 1 );
     Zeros( AT_y,  n, 1 );
     Zeros( AT_dy, n, 1 );
+    Zeros( G_x,   k, 1 );
+    Zeros( G_dx,  k, 1 );
+    Zeros( GT_z,  n, 1 );
+    Zeros( GT_dz, n, 1 );
     Multiply( NORMAL,    Real(1), A, x,  Real(0), A_x   );
     Multiply( NORMAL,    Real(1), A, dx, Real(0), A_dx  );
     Multiply( TRANSPOSE, Real(1), A, y,  Real(0), AT_y  );
     Multiply( TRANSPOSE, Real(1), A, dy, Real(0), AT_dy );
+    Multiply( NORMAL,    Real(1), G, x,  Real(0), G_x   );
+    Multiply( NORMAL,    Real(1), G, dx, Real(0), G_dx  );
+    Multiply( TRANSPOSE, Real(1), G, z,  Real(0), GT_z  );
+    Multiply( TRANSPOSE, Real(1), G, dz, Real(0), GT_dz );
     rb = A_x; 
     Axpy( Real(-1), b, rb );
     rc = AT_y;
-    Axpy( Real(1),  z, rc );
-    Axpy( Real(-1), c, rc );
+    Axpy( Real(1), GT_z, rc );
+    Axpy( Real(1), c,    rc );
+    rh = G_x;
+    Axpy( Real( 1), s, rh );
+    Axpy( Real(-1), h, rh );
     const Real rbNrm2 = Nrm2( rb );
     const Real rcNrm2 = Nrm2( rc );
-    const Real mu = Dot(x,z) / n;
+    const Real rhNrm2 = Nrm2( rh );
+    const Real mu = Dot(s,z) / n;
     // Perform the line search using the cached data
     // ---------------------------------------------
     Real alpha = 1;
-    DistMultiVec<Real> x_alpha(comm), z_alpha(comm), 
-                       rb_alpha(comm), rc_alpha(comm);
-    for( Int k=0; k<100; ++k, alpha=alpha/2 )
+    DistMultiVec<Real> s_alpha(comm), z_alpha(comm), 
+                       rb_alpha(comm), rc_alpha(comm), rh_alpha(comm);
+    for( Int iter=0; iter<100; ++iter, alpha=alpha/2 )
     {
-        // x(alpha) = x + alpha dx
+        // s(alpha) = s + alpha ds
         // ^^^^^^^^^^^^^^^^^^^^^^^
-        x_alpha = x;
-        Axpy( alpha, dx, x_alpha );
+        s_alpha = s;
+        Axpy( alpha, ds, s_alpha );
 
         // z(alpha) = z + alpha dz
         // ^^^^^^^^^^^^^^^^^^^^^^^ 
         z_alpha = z;
         Axpy( alpha, dz, z_alpha );
 
-        // mu(alpha) = x(alpha)^T z / n
+        // mu(alpha) = s(alpha)^T z / n
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        const Real mu_alpha = Dot(x_alpha,z_alpha) / n;
+        const Real mu_alpha = Dot(s_alpha,z_alpha) / n;
         if( mu_alpha > (1-alpha/ctrl.psi)*mu )
         {
             if( ctrl.print && commRank == 0 )
@@ -534,17 +659,17 @@ Real IPFLineSearch
         }
 
         // Check 
-        //    x(alpha), z(alpha) > 0, and 
-        //    x_i(alpha) z_i(alpha) >= gamma mu(alpha)
+        //    s(alpha), z(alpha) > 0, and 
+        //    s_i(alpha) z_i(alpha) >= gamma mu(alpha)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         byte locallyBalanced = true;
         for( Int iLoc=0; iLoc<nLocal; ++iLoc )
         {
-            const Real xi_alpha = x_alpha.GetLocal(iLoc,0);
+            const Real si_alpha = s_alpha.GetLocal(iLoc,0);
             const Real zi_alpha = z_alpha.GetLocal(iLoc,0);
-            if( xi_alpha <= Real(0) || zi_alpha <= Real(0) )
+            if( si_alpha <= Real(0) || zi_alpha <= Real(0) )
                 locallyBalanced = false;
-            if( xi_alpha*zi_alpha < ctrl.gamma*mu_alpha )
+            if( si_alpha*zi_alpha < ctrl.gamma*mu_alpha )
                 locallyBalanced = false;
         }
         const byte balanced = 
@@ -572,13 +697,27 @@ Real IPFLineSearch
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
         Axpy( alpha, AT_dy, rc_alpha );
-        Axpy( alpha, dz,    rc_alpha );
+        Axpy( alpha, GT_dz, rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
         if( rc_alphaNrm2 > Max(cTol,rcNrm2*ctrl.beta*mu_alpha/mu) )
         {
             if( ctrl.print && commRank == 0 )
                 std::cout << "  r_c failure: " << rc_alphaNrm2 << " > Max("
                           << cTol << "," << rcNrm2*ctrl.beta*mu_alpha/mu << ")"
+                          << std::endl;
+            continue;
+        }
+        // Check ||r_h(alpha)||_2 <= Max(hTol,||r_h||_2 beta mu(alpha)/mu)
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        rh_alpha = rh;
+        Axpy( alpha, G_dx, rh_alpha );
+        Axpy( alpha, ds,   rh_alpha );
+        const Real rh_alphaNrm2 = Nrm2( rh_alpha );
+        if( rh_alphaNrm2 > Max(hTol,rhNrm2*ctrl.beta*mu_alpha/mu) )
+        {
+            if( ctrl.print && commRank == 0 )
+                std::cout << "  r_h failure: " << rh_alphaNrm2 << " > Max("
+                          << hTol << "," << rhNrm2*ctrl.beta*mu_alpha/mu << ")"
                           << std::endl;
         }
         else
@@ -592,11 +731,11 @@ Real IPFLineSearch
   ( const Matrix<Real>& A,  const Matrix<Real>& G, \
     const Matrix<Real>& b,  const Matrix<Real>& c, \
     const Matrix<Real>& h, \
-    const Matrix<Real>& x,  const Matrix<Real>& y, \
+    const Matrix<Real>& x,  const Matrix<Real>& y,  \
     const Matrix<Real>& z,  const Matrix<Real>& s, \
     const Matrix<Real>& dx, const Matrix<Real>& dy, \
     const Matrix<Real>& dz, const Matrix<Real>& ds, \
-    Real bTol, Real cTol, \
+    Real bTol, Real cTol, Real hTol, \
     const IPFLineSearchCtrl<Real>& ctrl ); \
   template Real IPFLineSearch \
   ( const AbstractDistMatrix<Real>& A,  const AbstractDistMatrix<Real>& G, \
@@ -606,17 +745,17 @@ Real IPFLineSearch
     const AbstractDistMatrix<Real>& z,  const AbstractDistMatrix<Real>& s, \
     const AbstractDistMatrix<Real>& dx, const AbstractDistMatrix<Real>& dy, \
     const AbstractDistMatrix<Real>& dz, const AbstractDistMatrix<Real>& ds, \
-    Real bTol, Real cTol, \
+    Real bTol, Real cTol, Real hTol, \
     const IPFLineSearchCtrl<Real>& ctrl ); \
   template Real IPFLineSearch \
   ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G, \
     const Matrix<Real>& b,  const Matrix<Real>& c, \
     const Matrix<Real>& h, \
-    const Matrix<Real>& x,  const Matrix<Real>& y, \
+    const Matrix<Real>& x,  const Matrix<Real>& y,  \
     const Matrix<Real>& z,  const Matrix<Real>& s, \
     const Matrix<Real>& dx, const Matrix<Real>& dy, \
     const Matrix<Real>& dz, const Matrix<Real>& ds, \
-    Real bTol, Real cTol, \
+    Real bTol, Real cTol, Real hTol, \
     const IPFLineSearchCtrl<Real>& ctrl ); \
   template Real IPFLineSearch \
   ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G, \
@@ -626,7 +765,7 @@ Real IPFLineSearch
     const DistMultiVec<Real>& z,  const DistMultiVec<Real>& s, \
     const DistMultiVec<Real>& dx, const DistMultiVec<Real>& dy, \
     const DistMultiVec<Real>& dz, const DistMultiVec<Real>& ds, \
-    Real bTol, Real cTol, \
+    Real bTol, Real cTol, Real hTol, \
     const IPFLineSearchCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
