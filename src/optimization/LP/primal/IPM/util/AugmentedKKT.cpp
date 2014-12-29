@@ -13,26 +13,26 @@ namespace lp {
 namespace primal {
 
 // Form 
-//    J = | Z*inv(X) A^T | and d = | -r_c - r_mu / X |,
-//        |  A       0   |         | -r_b            |
-// where 
-//    Z   = diag(z),
-//    X   = diag(x),
-//    e   = ones(n,1),
-//    r_b = A x - b,
-//    r_c = A^T y - z + c, and
-//    r_mu = X Z e - tau e.
 //
-// The implied system is of the form
-//   J | dx | = d,     dz = -(r_mu + Z dx) / X.
-//     | dy |
+//    | (x <> z)  A^T | | dx | = | -r_c - x <> r_mu |,
+//    |    A       0  | | dy |   | -r_b             |
+//
+// where 
+//
+//    r_b  = A x - b,
+//    r_c  = A^T y - z + c,
+//    r_mu = x o z - tau e,
+//
+// and dz can be computed using
+//
+//   dz = - x <> (r_mu + z o dx)
 //
 
 template<typename Real>
 void AugmentedKKT
 ( const Matrix<Real>& A, 
   const Matrix<Real>& x, const Matrix<Real>& z,
-  Matrix<Real>& J, bool onlyLower )
+        Matrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::AugmentedKKT"))
     const Int m = A.Height();
@@ -53,8 +53,8 @@ void AugmentedKKT
 template<typename Real>
 void AugmentedKKT
 ( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z,
-  AbstractDistMatrix<Real>& JPre, bool onlyLower )
+  const AbstractDistMatrix<Real>& x,    const AbstractDistMatrix<Real>& z,
+        AbstractDistMatrix<Real>& JPre, bool onlyLower )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::AugmentedKKT"))
     const Int m = A.Height();
@@ -78,8 +78,8 @@ void AugmentedKKT
 template<typename Real>
 void AugmentedKKT
 ( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& x, const Matrix<Real>& z,
-  SparseMatrix<Real>& J, bool onlyLower )
+  const Matrix<Real>& x,       const Matrix<Real>& z,
+        SparseMatrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::AugmentedKKT"))
     const Int m = A.Height();
@@ -92,7 +92,7 @@ void AugmentedKKT
     else
         J.Reserve( 2*numEntries + n ); 
 
-    // S*inv(X) updates
+    // x <> z updates
     for( Int j=0; j<n; ++j )
         J.Update( j, j, z.Get(j,0)/x.Get(j,0) );
     // A and A^T updates
@@ -108,8 +108,8 @@ void AugmentedKKT
 template<typename Real>
 void AugmentedKKT
 ( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& x, const DistMultiVec<Real>& z,
-  DistSparseMatrix<Real>& J, bool onlyLower )
+  const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z,
+        DistSparseMatrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::AugmentedKKT"))
     const Int m = A.Height();
@@ -137,8 +137,8 @@ void AugmentedKKT
         for( Int e=0; e<ATrans.NumLocalEntries(); ++e )
             ++sendCounts[ J.RowOwner(ATrans.Row(e)) ];
     }
-    // For placing Z*inv(X) into the top-left corner
-    // ---------------------------------------------
+    // For placing x <> z into the top-left corner
+    // -------------------------------------------
     for( Int e=0; e<x.LocalHeight(); ++e )
         ++sendCounts[ J.RowOwner( e+x.FirstLocalRow() ) ];
     // Communicate to determine the number we receive from each process
@@ -183,8 +183,8 @@ void AugmentedKKT
             ++offsets[owner];
         }
     }
-    // Pack Z inv(X)
-    // -------------
+    // Pack x <> z
+    // -----------
     for( Int e=0; e<x.LocalHeight(); ++e )
     {
         const Int i = e + x.FirstLocalRow();
@@ -220,7 +220,7 @@ void AugmentedKKT
 template<typename Real>
 void AugmentedKKTRHS
 ( const Matrix<Real>& x, 
-  const Matrix<Real>& rc, const Matrix<Real>& rb, 
+  const Matrix<Real>& rc,  const Matrix<Real>& rb, 
   const Matrix<Real>& rmu,
         Matrix<Real>& d )
 {
@@ -230,12 +230,16 @@ void AugmentedKKTRHS
     const IR xInd(0,n), yInd(n,n+m);
     Zeros( d, m+n, 1 );
 
+    // dx := - (r_c + x <> r_mu)
+    // =========================
     auto dx = d(xInd,IR(0,1));
     dx = rmu;
-    for( Int i=0; i<n; ++i )
-        dx.Set( i, 0, -dx.Get(i,0)/x.Get(i,0) );
-    Axpy( Real(-1), rc, dx );
+    DiagonalSolve( LEFT, NORMAL, x, dx );
+    Axpy( Real(1), rc, dx );
+    Scale( Real(-1), dx );
 
+    // dy := -r_b
+    // ==========
     auto dy = d(yInd,IR(0,1));
     dy = rb;
     Scale( Real(-1), dy );
@@ -244,7 +248,7 @@ void AugmentedKKTRHS
 template<typename Real>
 void AugmentedKKTRHS
 ( const AbstractDistMatrix<Real>& xPre, 
-  const AbstractDistMatrix<Real>& rc, const AbstractDistMatrix<Real>& rb, 
+  const AbstractDistMatrix<Real>& rc,   const AbstractDistMatrix<Real>& rb, 
   const AbstractDistMatrix<Real>& rmu,
         AbstractDistMatrix<Real>& dPre )
 {
@@ -264,12 +268,16 @@ void AugmentedKKTRHS
     const IR xInd(0,n), yInd(n,n+m);
     Zeros( d, m+n, 1 );
 
+    // dx := - (r_c + x <> r_mu)
+    // =========================
     auto dx = d(xInd,IR(0,1));
     dx = rmu;
-    for( Int iLoc=0; iLoc<dx.LocalHeight(); ++iLoc )
-        dx.SetLocal( iLoc, 0, -dx.GetLocal(iLoc,0)/x.GetLocal(iLoc,0) );
-    Axpy( Real(-1), rc, dx );
+    DiagonalSolve( LEFT, NORMAL, x, dx );
+    Axpy( Real(1), rc, dx );
+    Scale( Real(-1), dx );
 
+    // dy := -r_b
+    // ==========
     auto dy = d(yInd,IR(0,1));
     dy = rb;
     Scale( Real(-1), dy );
@@ -278,7 +286,7 @@ void AugmentedKKTRHS
 template<typename Real>
 void AugmentedKKTRHS
 ( const DistMultiVec<Real>& x,
-  const DistMultiVec<Real>& rc, const DistMultiVec<Real>& rb, 
+  const DistMultiVec<Real>& rc,  const DistMultiVec<Real>& rb, 
   const DistMultiVec<Real>& rmu, 
         DistMultiVec<Real>& d )
 {
@@ -342,44 +350,40 @@ void AugmentedKKTRHS
 
 template<typename Real>
 void ExpandAugmentedSolution
-( const Matrix<Real>& x, const Matrix<Real>& z,
-  const Matrix<Real>& rmu, const Matrix<Real>& rhs,
-  Matrix<Real>& dx, Matrix<Real>& dy, Matrix<Real>& dz )
+( const Matrix<Real>& x,   const Matrix<Real>& z,
+  const Matrix<Real>& rmu, const Matrix<Real>& d,
+        Matrix<Real>& dx,        Matrix<Real>& dy, 
+        Matrix<Real>& dz )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandAugmentedSolution"))
     const Int n = rmu.Height();
-    const Int m = rhs.Height() - n;
+    const Int m = d.Height() - n;
 
     // Extract dx and dy from [dx; dy]
     // ===============================
     dx.Resize( n, 1 );
     dy.Resize( m, 1 );
     const IR xInd(0,n), yInd(n,n+m);
-    auto rhs_x = rhs(xInd,IR(0,1));
-    auto rhs_y = rhs(yInd,IR(0,1));
-    dx = rhs_x;
-    dy = rhs_y;
+    auto d_x = d(xInd,IR(0,1));
+    auto d_y = d(yInd,IR(0,1));
+    dx = d_x;
+    dy = d_y;
 
-    // dz := -(r_mu + Z dx) / X
-    // ========================
-    dz.Resize( n, 1 );
-    for( Int i=0; i<n; ++i )
-    {
-        const Real x_i = x.Get(i,0);
-        const Real z_i = z.Get(i,0);
-        const Real dx_i = dx.Get(i,0);
-        const Real rmu_i = rmu.Get(i,0);
-        dz.Set( i, 0, -(rmu_i + z_i*dx_i)/x_i );
-    }
+    // dz := - x <> (r_mu + z o dx)
+    // ============================
+    dz = dx;
+    DiagonalScale( LEFT, NORMAL, z, dz );
+    Axpy( Real(1), rmu, dz );
+    DiagonalSolve( LEFT, NORMAL, x, dz );
+    Scale( Real(-1), dz );
 }
 
 template<typename Real>
 void ExpandAugmentedSolution
-( const AbstractDistMatrix<Real>& xPre, const AbstractDistMatrix<Real>& zPre,
-  const AbstractDistMatrix<Real>& rmuPre, 
-  const AbstractDistMatrix<Real>& rhsPre,
-  AbstractDistMatrix<Real>& dxPre, AbstractDistMatrix<Real>& dy, 
-  AbstractDistMatrix<Real>& dzPre )
+( const AbstractDistMatrix<Real>& xPre,   const AbstractDistMatrix<Real>& zPre,
+  const AbstractDistMatrix<Real>& rmuPre, const AbstractDistMatrix<Real>& dPre,
+        AbstractDistMatrix<Real>& dxPre,        AbstractDistMatrix<Real>& dy, 
+        AbstractDistMatrix<Real>& dzPre )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandAugmentedSolution"))
 
@@ -393,46 +397,43 @@ void ExpandAugmentedSolution
     auto zPtr = ReadProxy<Real,MC,MR>(&zPre,ctrl); auto& z = *zPtr;
 
     auto rmuPtr = ReadProxy<Real,MC,MR>(&rmuPre); auto& rmu = *rmuPtr;
-    auto rhsPtr = ReadProxy<Real,MC,MR>(&rhsPre); auto& rhs = *rhsPtr;
+    auto dPtr   = ReadProxy<Real,MC,MR>(&dPre);   auto& d   = *dPtr;
 
     auto dxPtr = WriteProxy<Real,MC,MR>(&dxPre,ctrl); auto& dx = *dxPtr;
     auto dzPtr = WriteProxy<Real,MC,MR>(&dzPre,ctrl); auto& dz = *dzPtr;
 
     const Int n = rmu.Height();
-    const Int m = rhs.Height() - n;
+    const Int m = d.Height() - n;
 
     // Extract dx and dy from [dx; dy]
     // ===============================
     dx.Resize( n, 1 );
     dy.Resize( m, 1 );
     const IR xInd(0,n), yInd(n,n+m);
-    auto rhs_x = rhs(xInd,IR(0,1));
-    auto rhs_y = rhs(yInd,IR(0,1));
-    dx = rhs_x;
-    Copy( rhs_y, dy );
+    auto d_x = d(xInd,IR(0,1));
+    auto d_y = d(yInd,IR(0,1));
+    dx = d_x;
+    Copy( d_y, dy );
 
-    // dz := -(r_mu + Z dx) / X
-    // ========================
-    dz.Resize( n, 1 );
-    for( Int iLoc=0; iLoc<dz.LocalHeight(); ++iLoc )
-    {
-        const Real x_i = x.GetLocal(iLoc,0);
-        const Real z_i = z.GetLocal(iLoc,0);
-        const Real dx_i = dx.GetLocal(iLoc,0);
-        const Real rmu_i = rmu.GetLocal(iLoc,0);
-        dz.SetLocal( iLoc, 0, -(rmu_i + z_i*dx_i)/x_i );
-    }
+    // dz := - x <> (r_mu + z o dx)
+    // ============================
+    dz = dx;
+    DiagonalScale( LEFT, NORMAL, z, dz );
+    Axpy( Real(1), rmu, dz );
+    DiagonalSolve( LEFT, NORMAL, x, dz );
+    Scale( Real(-1), dz );
 }
 
 template<typename Real>
 void ExpandAugmentedSolution
-( const DistMultiVec<Real>& x, const DistMultiVec<Real>& z,
-  const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rhs,
-  DistMultiVec<Real>& dx, DistMultiVec<Real>& dy, DistMultiVec<Real>& dz )
+( const DistMultiVec<Real>& x,   const DistMultiVec<Real>& z,
+  const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& d,
+        DistMultiVec<Real>& dx,        DistMultiVec<Real>& dy, 
+        DistMultiVec<Real>& dz )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandAugmentedSolution"))
     const Int n = rmu.Height();
-    const Int m = rhs.Height() - n;
+    const Int m = d.Height() - n;
     mpi::Comm comm = z.Comm();
     const Int commSize = mpi::Size(comm);
 
@@ -443,9 +444,9 @@ void ExpandAugmentedSolution
     // Compute the number of entries to send to each process
     // -----------------------------------------------------
     std::vector<int> sendCounts(commSize,0);
-    for( Int iLoc=0; iLoc<rhs.LocalHeight(); ++iLoc )
+    for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
     {
-        const Int i = rhs.FirstLocalRow() + iLoc;
+        const Int i = d.FirstLocalRow() + iLoc;
         if( i < n )
             ++sendCounts[ dx.RowOwner(i) ];
         else
@@ -463,21 +464,21 @@ void ExpandAugmentedSolution
     std::vector<Int> sSendBuf(totalSend);
     std::vector<Real> vSendBuf(totalSend);
     auto offsets = sendOffsets;
-    for( Int iLoc=0; iLoc<rhs.LocalHeight(); ++iLoc )
+    for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
     {
-        const Int i = rhs.FirstLocalRow() + iLoc;
+        const Int i = d.FirstLocalRow() + iLoc;
         if( i < n )
         {
             const Int owner = dx.RowOwner(i); 
             sSendBuf[offsets[owner]] = i; 
-            vSendBuf[offsets[owner]] = rhs.GetLocal(iLoc,0);
+            vSendBuf[offsets[owner]] = d.GetLocal(iLoc,0);
             ++offsets[owner]; 
         }
         else
         {
             const Int owner = dy.RowOwner(i-n);
             sSendBuf[offsets[owner]] = i;
-            vSendBuf[offsets[owner]] = rhs.GetLocal(iLoc,0);
+            vSendBuf[offsets[owner]] = d.GetLocal(iLoc,0);
             ++offsets[owner];
         }
     }
@@ -500,17 +501,13 @@ void ExpandAugmentedSolution
             dy.SetLocal( i-n-dy.FirstLocalRow(), 0, vRecvBuf[e] );
     }
 
-    // dz := -(r_mu + Z dx) / X
-    // ========================
-    dz.Resize( n, 1 );
-    for( Int iLoc=0; iLoc<dz.LocalHeight(); ++iLoc )
-    {
-        const Real x_i = x.GetLocal(iLoc,0);
-        const Real z_i = z.GetLocal(iLoc,0);
-        const Real dx_i = dx.GetLocal(iLoc,0);
-        const Real rmu_i = rmu.GetLocal(iLoc,0);
-        dz.SetLocal( iLoc, 0, -(rmu_i + z_i*dx_i)/x_i );
-    }
+    // dz := - x <> (r_mu + z o dx)
+    // ============================
+    dz = dx;
+    DiagonalScale( NORMAL, z, dz );
+    Axpy( Real(1), rmu, dz );
+    DiagonalSolve( NORMAL, x, dz );
+    Scale( Real(-1), dz );
 }
 
 #define PROTO(Real) \

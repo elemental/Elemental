@@ -31,7 +31,8 @@ template<typename Real>
 void IPF
 ( const Matrix<Real>& A, 
   const Matrix<Real>& b, const Matrix<Real>& c,
-  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
+        Matrix<Real>& x,       Matrix<Real>& y, 
+        Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::IPF"))    
@@ -193,8 +194,9 @@ template<typename Real>
 void IPF
 ( const AbstractDistMatrix<Real>& APre, 
   const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c,
-  AbstractDistMatrix<Real>& xPre, AbstractDistMatrix<Real>& y, 
-  AbstractDistMatrix<Real>& zPre, const IPFCtrl<Real>& ctrl )
+        AbstractDistMatrix<Real>& xPre,     AbstractDistMatrix<Real>& y, 
+        AbstractDistMatrix<Real>& zPre, 
+  const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::IPF"))    
 
@@ -374,7 +376,8 @@ template<typename Real>
 void IPF
 ( const SparseMatrix<Real>& A, 
   const Matrix<Real>& b,  const Matrix<Real>& c,
-  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
+        Matrix<Real>& x,        Matrix<Real>& y, 
+        Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::IPF"))    
@@ -385,7 +388,8 @@ template<typename Real>
 void IPF
 ( const DistSparseMatrix<Real>& A, 
   const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c,
-  DistMultiVec<Real>& x, DistMultiVec<Real>& y, DistMultiVec<Real>& z,
+        DistMultiVec<Real>& x,        DistMultiVec<Real>& y, 
+        DistMultiVec<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::IPF"))    
@@ -648,23 +652,26 @@ void IPF
   template void IPF \
   ( const Matrix<Real>& A, \
     const Matrix<Real>& b, const Matrix<Real>& c, \
-    Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z, \
+          Matrix<Real>& x,       Matrix<Real>& y, \
+          Matrix<Real>& z, \
     const IPFCtrl<Real>& ctrl ); \
   template void IPF \
   ( const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
-    AbstractDistMatrix<Real>& x, AbstractDistMatrix<Real>& y, \
-    AbstractDistMatrix<Real>& z, \
+          AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y, \
+          AbstractDistMatrix<Real>& z, \
     const IPFCtrl<Real>& ctrl ); \
   template void IPF \
   ( const SparseMatrix<Real>& A, \
     const Matrix<Real>& b, const Matrix<Real>& c, \
-    Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z, \
+          Matrix<Real>& x,       Matrix<Real>& y, \
+          Matrix<Real>& z, \
     const IPFCtrl<Real>& ctrl ); \
   template void IPF \
   ( const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, \
-    DistMultiVec<Real>& x, DistMultiVec<Real>& y, DistMultiVec<Real>& z, \
+          DistMultiVec<Real>& x,       DistMultiVec<Real>& y, \
+          DistMultiVec<Real>& z, \
     const IPFCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO

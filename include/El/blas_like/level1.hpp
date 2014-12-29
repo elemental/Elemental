@@ -861,6 +861,8 @@ template<typename T>
 void Fill( AbstractDistMatrix<T>& A, T alpha );
 template<typename T>
 void Fill( AbstractBlockDistMatrix<T>& A, T alpha );
+template<typename T>
+void Fill( DistMultiVec<T>& A, T alpha );
 
 // FillDiagonal
 // ============
@@ -1150,6 +1152,8 @@ template<typename Real>
 ValueInt<Real> VectorMax( const Matrix<Real>& x );
 template<typename Real>
 ValueInt<Real> VectorMax( const AbstractDistMatrix<Real>& x );
+template<typename Real>
+ValueInt<Real> VectorMax( const DistMultiVec<Real>& x );
 
 // MaxAbs
 // ======
@@ -1175,6 +1179,8 @@ template<typename Real>
 ValueInt<Real> VectorMin( const Matrix<Real>& x );
 template<typename Real>
 ValueInt<Real> VectorMin( const AbstractDistMatrix<Real>& x );
+template<typename Real>
+ValueInt<Real> VectorMin( const DistMultiVec<Real>& x );
 
 template<typename Real>
 ValueIntPair<Real> Min( const Matrix<Real>& A );

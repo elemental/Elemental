@@ -16,22 +16,22 @@ namespace dual {
 
 // The full KKT system is of the form
 //
-//   | 0 A^T      G    | | x |   |        -c            |
-//   | A 0        0    | | y |   |         b            |,
-//   | G 0   -inv(Z) S | | z | = | -(X Z e + tau e) / Z |
+//   | 0 A^T      G     | | x |   |        -c             |
+//   | A 0        0     | | y |   |         b             |,
+//   | G 0    -(z <> s) | | z | = | -z <> (s o z + tau e) |
 //
 // and the particular system solved is of the form
 //
-//   | 0 A^T      G    | | dx |   |     -rc       |
-//   | A 0        0    | | dy |   |     -rb       |,
-//   | G 0   -inv(Z) S | | dz | = | -rh + rmu / Z |
+//   | 0 A^T      G     | | dx |   |     -rc        |
+//   | A 0        0     | | dy |   |     -rb        |,
+//   | G 0    -(z <> s) | | dz | = | -rh + z <> rmu |
 //
 // where 
 //
 //   rc  = A^T y + G^T z + c,
 //   rb  = A x - b,
 //   rh  = G x + s - h,
-//   rmu = X Z e - tau e
+//   rmu = s o z - tau e
 
 template<typename Real>
 void KKT
@@ -79,7 +79,7 @@ void KKT
 
 template<typename Real>
 void KKT
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G,
+( const AbstractDistMatrix<Real>& A,    const AbstractDistMatrix<Real>& G,
   const AbstractDistMatrix<Real>& sPre, const AbstractDistMatrix<Real>& zPre,
         AbstractDistMatrix<Real>& JPre, bool onlyLower )
 {
@@ -128,7 +128,7 @@ void KKT
 template<typename Real>
 void KKT
 ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
-  const Matrix<Real>& s, const Matrix<Real>& z,
+  const Matrix<Real>& s,       const Matrix<Real>& z,
         SparseMatrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::KKT"))
@@ -153,8 +153,8 @@ void KKT
     for( Int e=0; e<numEntriesG; ++e )
         J.Update( n+m+G.Row(e), G.Col(e), G.Value(e) );
 
-    // Jzz = -inv(Z) S
-    // ===============
+    // Jzz = -z <> s
+    // =============
     for( Int e=0; e<n; ++e )
         J.Update( n+m+e, n+m+e, -s.Get(e,0)/z.Get(e,0) );
 
@@ -176,7 +176,7 @@ void KKT
 template<typename Real>
 void KKT
 ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& s, const DistMultiVec<Real>& z,
+  const DistMultiVec<Real>& s,     const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::KKT"))
@@ -218,8 +218,8 @@ void KKT
         for( Int e=0; e<GTrans.NumLocalEntries(); ++e )
             ++sendCounts[ J.RowOwner(GTrans.Row(e)) ];
     }
-    // Jzz := -inv(Z) S
-    // ----------------
+    // Jzz := -z <> s
+    // --------------
     for( Int e=0; e<s.LocalHeight(); ++e )
         ++sendCounts[ J.RowOwner( m+n+e+s.FirstLocalRow() ) ];
     // Communicate to determine the number we receive from each process
@@ -293,8 +293,8 @@ void KKT
             ++offsets[owner];
         }
     }
-    // Pack -Z inv(S)
-    // --------------
+    // Pack -z <> s
+    // ------------
     for( Int e=0; e<s.LocalHeight(); ++e )
     {
         const Int i = m + n + e + s.FirstLocalRow();
@@ -332,8 +332,8 @@ void KKT
 
 template<typename Real>
 void KKTRHS
-( const Matrix<Real>& rc,  const Matrix<Real>& rb, 
-  const Matrix<Real>& rh,  const Matrix<Real>& rmu, 
+( const Matrix<Real>& rc, const Matrix<Real>& rb, 
+  const Matrix<Real>& rh, const Matrix<Real>& rmu, 
   const Matrix<Real>& z, 
         Matrix<Real>& d )
 {
@@ -390,8 +390,8 @@ void KKTRHS
 
 template<typename Real>
 void KKTRHS
-( const DistMultiVec<Real>& rc,  const DistMultiVec<Real>& rb, 
-  const DistMultiVec<Real>& rh,  const DistMultiVec<Real>& rmu, 
+( const DistMultiVec<Real>& rc, const DistMultiVec<Real>& rb, 
+  const DistMultiVec<Real>& rh, const DistMultiVec<Real>& rmu, 
   const DistMultiVec<Real>& z, 
         DistMultiVec<Real>& d )
 {
@@ -475,6 +475,7 @@ void ExpandSolution
     DEBUG_ONLY(CallStackEntry cse("lp::dual::ExpandSolution"))
     lp::primal::ExpandSolution( m, n, d, dx, dy, dz );
     // ds := - z <> ( rmu + s o dz )
+    // =============================
     ds = dz;
     DiagonalScale( LEFT, NORMAL, s, ds );
     Axpy( Real(1), rmu, ds );
@@ -493,6 +494,7 @@ void ExpandSolution
     DEBUG_ONLY(CallStackEntry cse("lp::dual::ExpandSolution"))
     lp::primal::ExpandSolution( m, n, d, dx, dy, dz );
     // ds := - z <> ( rmu + s o dz )
+    // =============================
     Copy( dz, ds );
     DiagonalScale( LEFT, NORMAL, s, ds );
     Axpy( Real(1), rmu, ds );
@@ -511,6 +513,7 @@ void ExpandSolution
     DEBUG_ONLY(CallStackEntry cse("lp::dual::ExpandSolution"))
     lp::primal::ExpandSolution( m, n, d, dx, dy, dz );
     // ds := - z <> ( rmu + s o dz )
+    // =============================
     ds = dz;
     DiagonalScale( NORMAL, s, ds );
     Axpy( Real(1), rmu, ds );
@@ -529,11 +532,11 @@ void ExpandSolution
           AbstractDistMatrix<Real>& J, bool onlyLower ); \
   template void KKT \
   ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G, \
-    const Matrix<Real>& s, const Matrix<Real>& z, \
+    const Matrix<Real>& s,       const Matrix<Real>& z, \
           SparseMatrix<Real>& J, bool onlyLower ); \
   template void KKT \
   ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G, \
-    const DistMultiVec<Real>& s, const DistMultiVec<Real>& z, \
+    const DistMultiVec<Real>& s,     const DistMultiVec<Real>& z, \
           DistSparseMatrix<Real>& J, bool onlyLower ); \
   template void KKTRHS \
   ( const Matrix<Real>& rc, const Matrix<Real>& rb, \
@@ -552,10 +555,10 @@ void ExpandSolution
           DistMultiVec<Real>& d ); \
   template void ExpandSolution \
   ( Int m, Int n, \
-    const Matrix<Real>& d, const Matrix<Real>& rmu, \
-    const Matrix<Real>& s, const Matrix<Real>& z, \
-          Matrix<Real>& dx,      Matrix<Real>& dy, \
-          Matrix<Real>& dz,      Matrix<Real>& ds ); \
+    const Matrix<Real>& d,  const Matrix<Real>& rmu, \
+    const Matrix<Real>& s,  const Matrix<Real>& z, \
+          Matrix<Real>& dx,       Matrix<Real>& dy, \
+          Matrix<Real>& dz,       Matrix<Real>& ds ); \
   template void ExpandSolution \
   ( Int m, Int n, \
     const AbstractDistMatrix<Real>& d,  const AbstractDistMatrix<Real>& rmu, \

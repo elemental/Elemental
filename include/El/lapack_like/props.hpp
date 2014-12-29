@@ -295,6 +295,8 @@ template<typename T>
 Base<T> MaxNorm( const SparseMatrix<T>& A );
 template<typename T>
 Base<T> MaxNorm( const DistSparseMatrix<T>& A );
+template<typename T>
+Base<T> MaxNorm( const DistMultiVec<T>& A );
 
 template<typename T>
 Base<T> HermitianMaxNorm( UpperOrLower uplo, const Matrix<T>& A );

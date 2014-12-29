@@ -13,7 +13,9 @@ m = 2000
 n = 4000
 testMehrotra = True
 testIPF = True
+manualInit = False
 display = False
+progress = True
 worldRank = El.mpi.WorldRank()
 
 # Make a sparse matrix with the last column dense
@@ -59,24 +61,29 @@ if display:
   El.Display( b, "b" )
   El.Display( c, "c" )
 
-# Generate random initial guesses
-# ===============================
+# Set up the control structure (and possibly initial guesses)
+# ===========================================================
+ctrl = El.LPPrimalCtrl_d(isSparse=True)
+ctrl.initialized = manualInit
 xOrig = El.DistMultiVec()
 yOrig = El.DistMultiVec()
 zOrig = El.DistMultiVec()
-El.Uniform(xOrig,n,1,0.5,0.4999)
-El.Uniform(yOrig,m,1,0.5,0.4999)
-El.Uniform(zOrig,n,1,0.5,0.4999)
+if manualInit:
+  El.Uniform(xOrig,n,1,0.5,0.4999)
+  El.Uniform(yOrig,m,1,0.5,0.4999)
+  El.Uniform(zOrig,n,1,0.5,0.4999)
 x = El.DistMultiVec()
 y = El.DistMultiVec()
 z = El.DistMultiVec()
 
 if testMehrotra:
+  ctrl.approach = El.LP_MEHROTRA
+  ctrl.mehrotraCtrl.progress = progress
   El.Copy( xOrig, x )
   El.Copy( yOrig, y )
   El.Copy( zOrig, z )
   startMehrotra = time.clock()
-  El.LPPrimalMehrotra(A,b,c,x,y,z)
+  El.LPPrimal(A,b,c,x,y,z,ctrl)
   endMehrotra = time.clock()
   if worldRank == 0:
     print "Mehrotra time:", endMehrotra-startMehrotra
@@ -91,11 +98,13 @@ if testMehrotra:
     print "Mehrotra c^T x =", obj
 
 if testIPF:
+  ctrl.approach = El.LP_IPF
+  ctrl.ipfCtrl.progress = progress
   El.Copy( xOrig, x )
   El.Copy( yOrig, y )
   El.Copy( zOrig, z )
   startIPF = time.clock()
-  El.LPPrimalIPF(A,b,c,x,y,z)
+  El.LPPrimal(A,b,c,x,y,z,ctrl)
   endIPF = time.clock()
   if worldRank == 0:
     print "IPF time:", endIPF-startIPF

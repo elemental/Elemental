@@ -23,7 +23,7 @@ template<typename Real>
 void KKT
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G,
   const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& z,
-  AbstractDistMatrix<Real>& J, bool onlyLower=true );
+        AbstractDistMatrix<Real>& J, bool onlyLower=true );
 template<typename Real>
 void KKT
 ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
@@ -103,23 +103,23 @@ Real IPFLineSearch
 template<typename Real>
 Real IPFLineSearch
 ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
-  const Matrix<Real>& b,  const Matrix<Real>& c,
+  const Matrix<Real>& b,       const Matrix<Real>& c,
   const Matrix<Real>& h,
-  const Matrix<Real>& x,  const Matrix<Real>& y,  
-  const Matrix<Real>& z,  const Matrix<Real>& s,
-  const Matrix<Real>& dx, const Matrix<Real>& dy, 
-  const Matrix<Real>& dz, const Matrix<Real>& ds,
+  const Matrix<Real>& x,       const Matrix<Real>& y,  
+  const Matrix<Real>& z,       const Matrix<Real>& s,
+  const Matrix<Real>& dx,      const Matrix<Real>& dy, 
+  const Matrix<Real>& dz,      const Matrix<Real>& ds,
   Real bTol, Real cTol, Real hTol,
   const IPFLineSearchCtrl<Real>& ctrl );
 template<typename Real>
 Real IPFLineSearch
 ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
+  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
-  const DistMultiVec<Real>& x,  const DistMultiVec<Real>& y,
-  const DistMultiVec<Real>& z,  const DistMultiVec<Real>& s,
-  const DistMultiVec<Real>& dx, const DistMultiVec<Real>& dy,
-  const DistMultiVec<Real>& dz, const DistMultiVec<Real>& ds,
+  const DistMultiVec<Real>& x,     const DistMultiVec<Real>& y,
+  const DistMultiVec<Real>& z,     const DistMultiVec<Real>& s,
+  const DistMultiVec<Real>& dx,    const DistMultiVec<Real>& dy,
+  const DistMultiVec<Real>& dz,    const DistMultiVec<Real>& ds,
   Real bTol, Real cTol, Real hTol,
   const IPFLineSearchCtrl<Real>& ctrl );
 

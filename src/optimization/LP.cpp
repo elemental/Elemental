@@ -7,6 +7,9 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "./LP/primal/IPM.hpp"
+#include "./LP/primal/IPM/util.hpp"
+#include "./LP/dual/IPM.hpp"
 
 namespace El {
 
@@ -14,7 +17,9 @@ template<typename Real>
 void LP
 ( const Matrix<Real>& A, 
   const Matrix<Real>& b, const Matrix<Real>& c, 
-        Matrix<Real>& x, const lp::primal::Ctrl<Real>& ctrl )
+        Matrix<Real>& x,       Matrix<Real>& y,
+        Matrix<Real>& z,
+  const lp::primal::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LP"))
     if( ctrl.approach == LP_ADMM )
@@ -23,10 +28,8 @@ void LP
         return;
     }
 
-    // TODO: Use the initialization suggested by Vandenberghe
-    Matrix<Real> y, z;
-    Zeros( y, A.Height(), 1 );
-    Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
+    if( !ctrl.initialized )
+        lp::primal::Initialize( A, b, c, x, y, z );
 
     if( ctrl.approach == LP_IPF )
         lp::primal::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
@@ -41,16 +44,20 @@ void LP
 ( const Matrix<Real>& A, const Matrix<Real>& G,
   const Matrix<Real>& b, const Matrix<Real>& c, 
   const Matrix<Real>& h,
-        Matrix<Real>& x, const lp::dual::Ctrl<Real>& ctrl )
+        Matrix<Real>& x,       Matrix<Real>& y,
+        Matrix<Real>& z,       Matrix<Real>& s,
+  const lp::dual::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LP"))
 
     // Use the initialization procedure suggested by Vandenberghe
-    Matrix<Real> y, z, s;
-    Zeros( y, A.Height(), 1 );
-    Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
-    s = h;
-    Gemv( NORMAL, Real(-1), G, x, Real(1), s );
+    if( !ctrl.initialized )
+    {
+        Zeros( y, A.Height(), 1 );
+        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
+        s = h;
+        Gemv( NORMAL, Real(-1), G, x, Real(1), s );
+    }
 
     if( ctrl.approach == LP_IPF )
         lp::dual::IPF( A, G, b, c, h, x, y, z, s, ctrl.ipfCtrl );
@@ -64,7 +71,9 @@ template<typename Real>
 void LP
 ( const AbstractDistMatrix<Real>& A, 
   const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
-        AbstractDistMatrix<Real>& x, const lp::primal::Ctrl<Real>& ctrl )
+        AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
+        AbstractDistMatrix<Real>& z, 
+  const lp::primal::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LP"))
     if( ctrl.approach == LP_ADMM )
@@ -73,10 +82,8 @@ void LP
         return;
     }
 
-    // TODO: Use the initialization suggested by Vandenberghe
-    DistMatrix<Real> y(A.Grid()), z(A.Grid());
-    Zeros( y, A.Height(), 1 );
-    Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
+    if( !ctrl.initialized )
+        lp::primal::Initialize( A, b, c, x, y, z );
 
     if( ctrl.approach == LP_IPF )
         lp::primal::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
@@ -91,16 +98,20 @@ void LP
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G,
   const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Real>& h,
-        AbstractDistMatrix<Real>& x, const lp::dual::Ctrl<Real>& ctrl )
+        AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
+        AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s,
+  const lp::dual::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LP"))
 
     // TODO: Use the initialization suggested by Vandenberghe
-    DistMatrix<Real> y(A.Grid()), z(A.Grid()), s(A.Grid());
-    Zeros( y, A.Height(), 1 );
-    Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
-    s = h;
-    Gemv( NORMAL, Real(-1), G, x, Real(1), s );
+    if( !ctrl.initialized )
+    {
+        Zeros( y, A.Height(), 1 );
+        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
+        Copy( h, s );
+        Gemv( NORMAL, Real(-1), G, x, Real(1), s );
+    }
 
     if( ctrl.approach == LP_IPF )
         lp::dual::IPF( A, G, b, c, h, x, y, z, s, ctrl.ipfCtrl );
@@ -113,15 +124,15 @@ void LP
 template<typename Real>
 void LP
 ( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& b, const Matrix<Real>& c, 
-        Matrix<Real>& x, const lp::primal::Ctrl<Real>& ctrl )
+  const Matrix<Real>& b,       const Matrix<Real>& c, 
+        Matrix<Real>& x,             Matrix<Real>& y,
+        Matrix<Real>& z,
+  const lp::primal::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LP"))
 
-    // TODO: Use the initialization suggested by Vandenberghe
-    Matrix<Real> y, z;
-    Zeros( y, A.Height(), 1 );
-    Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
+    if( !ctrl.initialized )
+        lp::primal::Initialize( A, b, c, x, y, z );
 
     if( ctrl.approach == LP_IPF )
         lp::primal::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
@@ -134,18 +145,22 @@ void LP
 template<typename Real>
 void LP
 ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
-  const Matrix<Real>& b, const Matrix<Real>& c, 
+  const Matrix<Real>& b,       const Matrix<Real>& c, 
   const Matrix<Real>& h,
-        Matrix<Real>& x, const lp::dual::Ctrl<Real>& ctrl )
+        Matrix<Real>& x,             Matrix<Real>& y,
+        Matrix<Real>& z,             Matrix<Real>& s,
+  const lp::dual::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LP"))
 
     // TODO: Use the initialization suggested by Vandenberghe
-    Matrix<Real> y, z, s;
-    Zeros( y, A.Height(), 1 );
-    Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
-    s = h;
-    Multiply( NORMAL, Real(-1), G, x, Real(1), s );
+    if( !ctrl.initialized )
+    {
+        Zeros( y, A.Height(), 1 );
+        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
+        s = h;
+        Multiply( NORMAL, Real(-1), G, x, Real(1), s );
+    }
 
     if( ctrl.approach == LP_IPF )
         lp::dual::IPF( A, G, b, c, h, x, y, z, s, ctrl.ipfCtrl );
@@ -158,15 +173,15 @@ void LP
 template<typename Real>
 void LP
 ( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, 
-        DistMultiVec<Real>& x, const lp::primal::Ctrl<Real>& ctrl )
+  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, 
+        DistMultiVec<Real>& x,           DistMultiVec<Real>& y,
+        DistMultiVec<Real>& z, 
+  const lp::primal::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LP"))
 
-    // TODO: Use the initialization suggested by Vandenberghe
-    DistMultiVec<Real> y(A.Comm()), z(A.Comm());
-    Zeros( y, A.Height(), 1 );
-    Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
+    if( !ctrl.initialized )
+        lp::primal::Initialize( A, b, c, x, y, z );
 
     if( ctrl.approach == LP_IPF )
         lp::primal::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
@@ -179,18 +194,22 @@ void LP
 template<typename Real>
 void LP
 ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, 
+  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, 
   const DistMultiVec<Real>& h,
-        DistMultiVec<Real>& x, const lp::dual::Ctrl<Real>& ctrl )
+        DistMultiVec<Real>& x,           DistMultiVec<Real>& y,
+        DistMultiVec<Real>& z,           DistMultiVec<Real>& s,
+  const lp::dual::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LP"))
 
     // TODO: Use the initialization suggested by Vandenberghe
-    DistMultiVec<Real> y(A.Comm()), z(A.Comm()), s(A.Comm());
-    Zeros( y, A.Height(), 1 );
-    Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
-    s = h;
-    Multiply( NORMAL, Real(-1), G, x, Real(1), s );
+    if( !ctrl.initialized )
+    {
+        Zeros( y, A.Height(), 1 );
+        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
+        s = h;
+        Multiply( NORMAL, Real(-1), G, x, Real(1), s );
+    }
 
     if( ctrl.approach == LP_IPF )
         lp::dual::IPF( A, G, b, c, h, x, y, z, s, ctrl.ipfCtrl );
@@ -204,39 +223,55 @@ void LP
   template void LP \
   ( const Matrix<Real>& A, \
     const Matrix<Real>& b, const Matrix<Real>& c, \
-          Matrix<Real>& x, const lp::primal::Ctrl<Real>& ctrl ); \
+          Matrix<Real>& x,       Matrix<Real>& y, \
+          Matrix<Real>& z, \
+    const lp::primal::Ctrl<Real>& ctrl ); \
   template void LP \
   ( const Matrix<Real>& A, const Matrix<Real>& G, \
     const Matrix<Real>& b, const Matrix<Real>& c, \
     const Matrix<Real>& h, \
-          Matrix<Real>& x, const lp::dual::Ctrl<Real>& ctrl ); \
+          Matrix<Real>& x,       Matrix<Real>& y, \
+          Matrix<Real>& z,       Matrix<Real>& s, \
+    const lp::dual::Ctrl<Real>& ctrl ); \
   template void LP \
   ( const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
-          AbstractDistMatrix<Real>& x, const lp::primal::Ctrl<Real>& ctrl ); \
+          AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y, \
+          AbstractDistMatrix<Real>& z, \
+    const lp::primal::Ctrl<Real>& ctrl ); \
   template void LP \
   ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G, \
     const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
     const AbstractDistMatrix<Real>& h, \
-          AbstractDistMatrix<Real>& x, const lp::dual::Ctrl<Real>& ctrl ); \
+          AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y, \
+          AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s, \
+    const lp::dual::Ctrl<Real>& ctrl ); \
   template void LP \
   ( const SparseMatrix<Real>& A, \
-    const Matrix<Real>& b, const Matrix<Real>& c, \
-          Matrix<Real>& x, const lp::primal::Ctrl<Real>& ctrl ); \
+    const Matrix<Real>& b,       const Matrix<Real>& c, \
+          Matrix<Real>& x,             Matrix<Real>& y, \
+          Matrix<Real>& z, \
+    const lp::primal::Ctrl<Real>& ctrl ); \
   template void LP \
   ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G, \
-    const Matrix<Real>& b, const Matrix<Real>& c, \
+    const Matrix<Real>& b,       const Matrix<Real>& c, \
     const Matrix<Real>& h, \
-          Matrix<Real>& x, const lp::dual::Ctrl<Real>& ctrl ); \
+          Matrix<Real>& x,             Matrix<Real>& y, \
+          Matrix<Real>& z,             Matrix<Real>& s, \
+    const lp::dual::Ctrl<Real>& ctrl ); \
   template void LP \
   ( const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, \
-          DistMultiVec<Real>& x, const lp::primal::Ctrl<Real>& ctrl ); \
+    const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, \
+          DistMultiVec<Real>& x,           DistMultiVec<Real>& y, \
+          DistMultiVec<Real>& z, \
+    const lp::primal::Ctrl<Real>& ctrl ); \
   template void LP \
   ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G, \
-    const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, \
+    const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& h, \
-          DistMultiVec<Real>& x, const lp::dual::Ctrl<Real>& ctrl );
+          DistMultiVec<Real>& x,           DistMultiVec<Real>& y, \
+          DistMultiVec<Real>& z,           DistMultiVec<Real>& s, \
+    const lp::dual::Ctrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

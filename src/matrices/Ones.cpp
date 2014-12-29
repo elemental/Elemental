@@ -34,10 +34,19 @@ void Ones( AbstractBlockDistMatrix<T>& A, Int m, Int n )
     Fill( A, T(1) );
 }
 
+template<typename T>
+void Ones( DistMultiVec<T>& A, Int m, Int n )
+{
+    DEBUG_ONLY(CallStackEntry cse("Ones"))
+    A.Resize( m, n );
+    Fill( A, T(1) );
+}
+
 #define PROTO(T) \
   template void Ones( Matrix<T>& A, Int m, Int n ); \
   template void Ones( AbstractDistMatrix<T>& A, Int m, Int n ); \
-  template void Ones( AbstractBlockDistMatrix<T>& A, Int m, Int n );
+  template void Ones( AbstractBlockDistMatrix<T>& A, Int m, Int n ); \
+  template void Ones( DistMultiVec<T>& A, Int m, Int n );
 
 #include "El/macros/Instantiate.h"
 

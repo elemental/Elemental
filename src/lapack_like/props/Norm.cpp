@@ -320,6 +320,7 @@ Base<F> HermitianNorm
   template Base<F> MaxNorm ( const AbstractDistMatrix<F>& A ); \
   template Base<F> MaxNorm( const SparseMatrix<F>& A ); \
   template Base<F> MaxNorm( const DistSparseMatrix<F>& A ); \
+  template Base<F> MaxNorm( const DistMultiVec<F>& A ); \
   template Base<F> HermitianMaxNorm \
   ( UpperOrLower uplo, const Matrix<F>& A ); \
   template Base<F> HermitianMaxNorm \
@@ -402,6 +403,7 @@ Base<F> HermitianNorm
   template T MaxNorm ( const AbstractDistMatrix<T>& A ); \
   template T MaxNorm( const SparseMatrix<T>& A ); \
   template T MaxNorm( const DistSparseMatrix<T>& A ); \
+  template T MaxNorm( const DistMultiVec<T>& A ); \
   template T HermitianMaxNorm \
   ( UpperOrLower uplo, const Matrix<T>& A ); \
   template T HermitianMaxNorm \

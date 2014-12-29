@@ -35,10 +35,18 @@ void Fill( AbstractBlockDistMatrix<T>& A, T alpha )
     Fill( A.Matrix(), alpha );
 }
 
+template<typename T>
+void Fill( DistMultiVec<T>& A, T alpha )
+{
+    DEBUG_ONLY(CallStackEntry cse("Fill"))
+    Fill( A.Matrix(), alpha );
+}
+
 #define PROTO(T) \
   template void Fill( Matrix<T>& A, T alpha ); \
   template void Fill( AbstractDistMatrix<T>& A, T alpha ); \
-  template void Fill( AbstractBlockDistMatrix<T>& A, T alpha );
+  template void Fill( AbstractBlockDistMatrix<T>& A, T alpha ); \
+  template void Fill( DistMultiVec<T>& A, T alpha ); \
 
 #include "El/macros/Instantiate.h"
 

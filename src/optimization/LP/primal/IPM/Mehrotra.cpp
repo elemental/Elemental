@@ -33,7 +33,8 @@ template<typename Real>
 void Mehrotra
 ( const Matrix<Real>& A, 
   const Matrix<Real>& b,  const Matrix<Real>& c,
-  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
+        Matrix<Real>& x,        Matrix<Real>& y, 
+        Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::Mehrotra"))    
@@ -311,8 +312,8 @@ template<typename Real>
 void Mehrotra
 ( const AbstractDistMatrix<Real>& APre, 
   const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c,
-  AbstractDistMatrix<Real>& xPre, AbstractDistMatrix<Real>& y,
-  AbstractDistMatrix<Real>& zPre,
+        AbstractDistMatrix<Real>& xPre,     AbstractDistMatrix<Real>& y,
+        AbstractDistMatrix<Real>& zPre,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::Mehrotra"))    
@@ -633,7 +634,8 @@ template<typename Real>
 void Mehrotra
 ( const SparseMatrix<Real>& A, 
   const Matrix<Real>& b,  const Matrix<Real>& c,
-  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
+        Matrix<Real>& x,        Matrix<Real>& y, 
+        Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::Mehrotra"))    
@@ -644,7 +646,8 @@ template<typename Real>
 void Mehrotra
 ( const DistSparseMatrix<Real>& A, 
   const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c,
-  DistMultiVec<Real>& x, DistMultiVec<Real>& y, DistMultiVec<Real>& z,
+        DistMultiVec<Real>& x,        DistMultiVec<Real>& y, 
+        DistMultiVec<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::Mehrotra"))    
@@ -1026,23 +1029,26 @@ void Mehrotra
   template void Mehrotra \
   ( const Matrix<Real>& A, \
     const Matrix<Real>& b,  const Matrix<Real>& c, \
-    Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z, \
+          Matrix<Real>& x,        Matrix<Real>& y, \
+          Matrix<Real>& z, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c, \
-    AbstractDistMatrix<Real>& x, AbstractDistMatrix<Real>& y, \
-    AbstractDistMatrix<Real>& z, \
+          AbstractDistMatrix<Real>& x,        AbstractDistMatrix<Real>& y, \
+          AbstractDistMatrix<Real>& z, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const SparseMatrix<Real>& A, \
     const Matrix<Real>& b,  const Matrix<Real>& c, \
-    Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z, \
+          Matrix<Real>& x,        Matrix<Real>& y, \
+          Matrix<Real>& z, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c, \
-    DistMultiVec<Real>& x, DistMultiVec<Real>& y, DistMultiVec<Real>& z, \
+          DistMultiVec<Real>& x,        DistMultiVec<Real>& y, \
+          DistMultiVec<Real>& z, \
     const MehrotraCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO

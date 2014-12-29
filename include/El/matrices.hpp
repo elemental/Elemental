@@ -463,6 +463,8 @@ template<typename T>
 void Ones( AbstractDistMatrix<T>& A, Int m, Int n );
 template<typename T>
 void Ones( AbstractBlockDistMatrix<T>& A, Int m, Int n );
+template<typename T>
+void Ones( DistMultiVec<T>& A, Int m, Int n );
 
 // 1-2-1 matrix
 // ============

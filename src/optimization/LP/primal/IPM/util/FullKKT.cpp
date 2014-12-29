@@ -14,21 +14,21 @@ namespace primal {
 
 // The full KKT system is of the form
 //
-//   |  0 A^T     -I    | | x |   |        -c            |
-//   |  A 0        0    | | y |   |         b            |,
-//   | -I 0   -inv(Z) X | | z | = | -(X Z e + tau e) / Z |
+//   |  0 A^T     -I    | | x |   |          -c            |
+//   |  A 0        0    | | y |   |           b            |,
+//   | -I 0   (-z <> x) | | z | = | - z <> (x o z + tau e) |
 //
 // and the particular system solved is of the form
 //
-//   |  0 A^T     -I    | | dx |   |   -rc   |
-//   |  A 0        0    | | dy |   |   -rb   |,
-//   | -I 0   -inv(Z) X | | dz | = | rmu / Z |
+//   |  0 A^T     -I    | | dx |   |   -rc    |
+//   |  A 0        0    | | dy |   |   -rb    |,
+//   | -I 0   (-z <> x) | | dz | = | z <> rmu |
 //
 // where 
 //
 //   rc = A^T y - z + c,
 //   rb = A x - b,
-//   rmu = X Z e - tau e
+//   rmu = x o z - tau e
 
 template<typename Real>
 void KKT
@@ -129,7 +129,7 @@ void KKT
 template<typename Real>
 void KKT
 ( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& x, const Matrix<Real>& z,
+  const Matrix<Real>& x,       const Matrix<Real>& z,
         SparseMatrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::KKT"))
@@ -153,8 +153,8 @@ void KKT
     for( Int e=0; e<n; ++e )
         J.Update( n+m+e, e, Real(-1) );
 
-    // Jzz = -inv(Z) X
-    // ===============
+    // Jzz = - z <> x
+    // ==============
     for( Int e=0; e<n; ++e )
         J.Update( n+m+e, n+m+e, -x.Get(e,0)/z.Get(e,0) );
 
@@ -176,7 +176,7 @@ void KKT
 template<typename Real>
 void KKT
 ( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& x, const DistMultiVec<Real>& z,
+  const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::KKT"))
@@ -205,8 +205,8 @@ void KKT
         for( Int e=0; e<ATrans.NumLocalEntries(); ++e )
             ++sendCounts[ J.RowOwner(ATrans.Row(e)) ];
     }
-    // Jzz := -inv(Z) X
-    // ----------------
+    // Jzz := -z <> x
+    // --------------
     for( Int e=0; e<x.LocalHeight(); ++e )
         ++sendCounts[ J.RowOwner( m+n+e+x.FirstLocalRow() ) ];
     // Communicate to determine the number we receive from each process
@@ -251,8 +251,8 @@ void KKT
             ++offsets[owner];
         }
     }
-    // Pack -Z inv(X)
-    // --------------
+    // Pack -z <> x
+    // ------------
     for( Int e=0; e<x.LocalHeight(); ++e )
     {
         const Int i = m + n + e + x.FirstLocalRow();
@@ -444,9 +444,10 @@ void KKTRHS
 
 template<typename Real>
 void ExpandSolution
-( Int m, Int n, const Matrix<Real>& d, 
-  Matrix<Real>& dx, Matrix<Real>& dy, 
-  Matrix<Real>& dz )
+( Int m, Int n, 
+  const Matrix<Real>& d, 
+        Matrix<Real>& dx, Matrix<Real>& dy, 
+        Matrix<Real>& dz )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandSolution"))
     if( d.Height() != 2*n+m || d.Width() != 1 )
@@ -460,9 +461,10 @@ void ExpandSolution
 
 template<typename Real>
 void ExpandSolution
-( Int m, Int n, const AbstractDistMatrix<Real>& dPre, 
-  AbstractDistMatrix<Real>& dx, AbstractDistMatrix<Real>& dy, 
-  AbstractDistMatrix<Real>& dz )
+( Int m, Int n, 
+  const AbstractDistMatrix<Real>& dPre, 
+        AbstractDistMatrix<Real>& dx, AbstractDistMatrix<Real>& dy, 
+        AbstractDistMatrix<Real>& dz )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandSolution"))
     
@@ -480,9 +482,10 @@ void ExpandSolution
 
 template<typename Real>
 void ExpandSolution
-( Int m, Int n, const DistMultiVec<Real>& d, 
-  DistMultiVec<Real>& dx, DistMultiVec<Real>& dy, 
-  DistMultiVec<Real>& dz )
+( Int m, Int n, 
+  const DistMultiVec<Real>& d, 
+        DistMultiVec<Real>& dx, DistMultiVec<Real>& dy, 
+        DistMultiVec<Real>& dz )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandSolution"))
     if( d.Height() != 2*n+m || d.Width() != 1 )
@@ -599,17 +602,20 @@ void ExpandSolution
     const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& z, \
           DistMultiVec<Real>& d ); \
   template void ExpandSolution \
-  ( Int m, Int n, const Matrix<Real>& d, \
-    Matrix<Real>& dx, Matrix<Real>& dy, \
-    Matrix<Real>& dz ); \
+  ( Int m, Int n, \
+    const Matrix<Real>& d, \
+          Matrix<Real>& dx, Matrix<Real>& dy, \
+          Matrix<Real>& dz ); \
   template void ExpandSolution \
-  ( Int m, Int n, const AbstractDistMatrix<Real>& d, \
-    AbstractDistMatrix<Real>& dx, AbstractDistMatrix<Real>& dy, \
-    AbstractDistMatrix<Real>& dz ); \
+  ( Int m, Int n, \
+    const AbstractDistMatrix<Real>& d, \
+          AbstractDistMatrix<Real>& dx, AbstractDistMatrix<Real>& dy, \
+          AbstractDistMatrix<Real>& dz ); \
   template void ExpandSolution \
-  ( Int m, Int n, const DistMultiVec<Real>& d, \
-    DistMultiVec<Real>& dx, DistMultiVec<Real>& dy, \
-    DistMultiVec<Real>& dz );
+  ( Int m, Int n, \
+    const DistMultiVec<Real>& d, \
+          DistMultiVec<Real>& dx, DistMultiVec<Real>& dy, \
+          DistMultiVec<Real>& dz );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

@@ -126,6 +126,21 @@ Base<T> MaxNorm( const DistSparseMatrix<T>& A )
 }
 
 template<typename T>
+Base<T> MaxNorm( const DistMultiVec<T>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("MaxNorm"))
+    
+    Base<T> localNorm = 0;
+    const Int localHeight = A.LocalHeight();
+    const Int width = A.Width();
+    for( Int j=0; j<width; ++j )
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+            localNorm = Max(localNorm,Abs(A.GetLocal(iLoc,j)));
+    
+    mpi::AllReduce( localNorm, mpi::MAX, A.Comm() );
+}
+
+template<typename T>
 Base<T> HermitianMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianMaxNorm"))

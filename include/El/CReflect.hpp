@@ -1511,6 +1511,237 @@ inline ElRegularization CReflect( Regularization penalty )
 inline Regularization CReflect( ElRegularization penalty )
 { return static_cast<Regularization>(penalty); }
 
+inline ElLPPrimalKKTSystem CReflect( lp::primal::KKTSystem system )
+{ return static_cast<ElLPPrimalKKTSystem>(system); }
+inline lp::primal::KKTSystem CReflect( ElLPPrimalKKTSystem system )
+{ return static_cast<lp::primal::KKTSystem>(system); }
+
+inline ElLPPrimalADMMCtrl_s CReflect( const lp::primal::ADMMCtrl<float>& ctrl )
+{
+    ElLPPrimalADMMCtrl_s ctrlC;
+    ctrlC.rho     = ctrl.rho;
+    ctrlC.alpha   = ctrl.alpha;
+    ctrlC.maxIter = ctrl.maxIter;
+    ctrlC.absTol  = ctrl.absTol;
+    ctrlC.relTol  = ctrl.relTol;
+    ctrlC.inv     = ctrl.inv;
+    ctrlC.print   = ctrl.print;
+    return ctrlC;
+}
+inline ElLPPrimalADMMCtrl_d CReflect( const lp::primal::ADMMCtrl<double>& ctrl )
+{
+    ElLPPrimalADMMCtrl_d ctrlC;
+    ctrlC.rho     = ctrl.rho;
+    ctrlC.alpha   = ctrl.alpha;
+    ctrlC.maxIter = ctrl.maxIter;
+    ctrlC.absTol  = ctrl.absTol;
+    ctrlC.relTol  = ctrl.relTol;
+    ctrlC.inv     = ctrl.inv;
+    ctrlC.print   = ctrl.print;
+    return ctrlC;
+}
+inline lp::primal::ADMMCtrl<float> CReflect( ElLPPrimalADMMCtrl_s ctrlC )
+{
+    lp::primal::ADMMCtrl<float> ctrl;
+    ctrl.rho     = ctrlC.rho;
+    ctrl.alpha   = ctrlC.alpha;
+    ctrl.maxIter = ctrlC.maxIter;
+    ctrl.absTol  = ctrlC.absTol;
+    ctrl.relTol  = ctrlC.relTol;
+    ctrl.inv     = ctrlC.inv;
+    ctrl.print   = ctrlC.print;
+    return ctrl;
+}
+inline lp::primal::ADMMCtrl<double> CReflect( ElLPPrimalADMMCtrl_d ctrlC )
+{
+    lp::primal::ADMMCtrl<double> ctrl;
+    ctrl.rho     = ctrlC.rho;
+    ctrl.alpha   = ctrlC.alpha;
+    ctrl.maxIter = ctrlC.maxIter;
+    ctrl.absTol  = ctrlC.absTol;
+    ctrl.relTol  = ctrlC.relTol;
+    ctrl.inv     = ctrlC.inv;
+    ctrl.print   = ctrlC.print;
+    return ctrl;
+}
+
+inline ElLPPrimalIPFLineSearchCtrl_s CReflect
+( const lp::primal::IPFLineSearchCtrl<float>& ctrl )
+{
+    ElLPPrimalIPFLineSearchCtrl_s ctrlC;
+    ctrlC.gamma = ctrl.gamma;
+    ctrlC.beta  = ctrl.beta;
+    ctrlC.psi   = ctrl.psi;
+    ctrlC.print = ctrl.print;
+    return ctrlC;
+}
+inline ElLPPrimalIPFLineSearchCtrl_d CReflect
+( const lp::primal::IPFLineSearchCtrl<double>& ctrl )
+{
+    ElLPPrimalIPFLineSearchCtrl_d ctrlC;
+    ctrlC.gamma = ctrl.gamma;
+    ctrlC.beta  = ctrl.beta;
+    ctrlC.psi   = ctrl.psi;
+    ctrlC.print = ctrl.print;
+    return ctrlC;
+}
+inline lp::primal::IPFLineSearchCtrl<float> CReflect
+( ElLPPrimalIPFLineSearchCtrl_s ctrlC )
+{
+    lp::primal::IPFLineSearchCtrl<float> ctrl;
+    ctrl.gamma = ctrlC.gamma;
+    ctrl.beta  = ctrlC.beta;
+    ctrl.psi   = ctrlC.psi;
+    ctrl.print = ctrlC.print;
+    return ctrl;
+}
+inline lp::primal::IPFLineSearchCtrl<double> CReflect
+( ElLPPrimalIPFLineSearchCtrl_d ctrlC )
+{
+    lp::primal::IPFLineSearchCtrl<double> ctrl;
+    ctrl.gamma = ctrlC.gamma;
+    ctrl.beta  = ctrlC.beta;
+    ctrl.psi   = ctrlC.psi;
+    ctrl.print = ctrlC.print;
+    return ctrl;
+}
+
+inline ElLPPrimalIPFCtrl_s CReflect( const lp::primal::IPFCtrl<float>& ctrl )
+{
+    ElLPPrimalIPFCtrl_s ctrlC;
+    ctrlC.tol            = ctrl.tol;
+    ctrlC.maxIts         = ctrl.maxIts;
+    ctrlC.centering      = ctrl.centering;
+    ctrlC.system         = CReflect(ctrl.system);
+    ctrlC.lineSearchCtrl = CReflect(ctrl.lineSearchCtrl);
+    ctrlC.print          = ctrl.print;
+    return ctrlC;
+}
+inline ElLPPrimalIPFCtrl_d CReflect( const lp::primal::IPFCtrl<double>& ctrl )
+{
+    ElLPPrimalIPFCtrl_d ctrlC;
+    ctrlC.tol            = ctrl.tol;
+    ctrlC.maxIts         = ctrl.maxIts;
+    ctrlC.centering      = ctrl.centering;
+    ctrlC.system         = CReflect(ctrl.system);
+    ctrlC.lineSearchCtrl = CReflect(ctrl.lineSearchCtrl);
+    ctrlC.print          = ctrl.print;
+    return ctrlC;
+}
+inline lp::primal::IPFCtrl<float> CReflect( ElLPPrimalIPFCtrl_s ctrlC )
+{
+    lp::primal::IPFCtrl<float> ctrl(false);
+    ctrl.tol            = ctrlC.tol;
+    ctrl.maxIts         = ctrlC.maxIts;
+    ctrl.centering      = ctrlC.centering;
+    ctrl.system         = CReflect(ctrlC.system);
+    ctrl.lineSearchCtrl = CReflect(ctrlC.lineSearchCtrl);
+    ctrl.print          = ctrlC.print;
+    return ctrl;
+}
+inline lp::primal::IPFCtrl<double> CReflect( ElLPPrimalIPFCtrl_d ctrlC )
+{
+    lp::primal::IPFCtrl<double> ctrl(false);
+    ctrl.tol            = ctrlC.tol;
+    ctrl.maxIts         = ctrlC.maxIts;
+    ctrl.centering      = ctrlC.centering;
+    ctrl.system         = CReflect(ctrlC.system);
+    ctrl.lineSearchCtrl = CReflect(ctrlC.lineSearchCtrl);
+    ctrl.print          = ctrlC.print;
+    return ctrl;
+}
+
+inline ElLPPrimalMehrotraCtrl_s CReflect
+( const lp::primal::MehrotraCtrl<float>& ctrl )
+{
+    ElLPPrimalMehrotraCtrl_s ctrlC;
+    ctrlC.tol          = ctrl.tol;
+    ctrlC.maxIts       = ctrl.maxIts;
+    ctrlC.maxStepRatio = ctrl.maxStepRatio;
+    ctrlC.system       = CReflect(ctrl.system);
+    ctrlC.print        = ctrl.print;
+    return ctrlC;
+}
+inline ElLPPrimalMehrotraCtrl_d CReflect
+( const lp::primal::MehrotraCtrl<double>& ctrl )
+{
+    ElLPPrimalMehrotraCtrl_d ctrlC;
+    ctrlC.tol          = ctrl.tol;
+    ctrlC.maxIts       = ctrl.maxIts;
+    ctrlC.maxStepRatio = ctrl.maxStepRatio;
+    ctrlC.system       = CReflect(ctrl.system);
+    ctrlC.print        = ctrl.print;
+    return ctrlC;
+}
+inline lp::primal::MehrotraCtrl<float> CReflect
+( ElLPPrimalMehrotraCtrl_s ctrlC )
+{
+    lp::primal::MehrotraCtrl<float> ctrl(false);
+    ctrl.tol          = ctrlC.tol;
+    ctrl.maxIts       = ctrlC.maxIts;
+    ctrl.maxStepRatio = ctrlC.maxStepRatio;
+    ctrl.system       = CReflect(ctrlC.system);
+    ctrl.print        = ctrlC.print;
+    return ctrl;
+}
+inline lp::primal::MehrotraCtrl<double> CReflect
+( ElLPPrimalMehrotraCtrl_d ctrlC )
+{
+    lp::primal::MehrotraCtrl<double> ctrl(false);
+    ctrl.tol          = ctrlC.tol;
+    ctrl.maxIts       = ctrlC.maxIts;
+    ctrl.maxStepRatio = ctrlC.maxStepRatio;
+    ctrl.system       = CReflect(ctrlC.system);
+    ctrl.print        = ctrlC.print;
+    return ctrl;
+}
+
+inline ElLPApproach CReflect( LPApproach approach )
+{ return static_cast<ElLPApproach>(approach); }
+inline LPApproach CReflect( ElLPApproach approach )
+{ return static_cast<LPApproach>(approach); }
+
+inline ElLPPrimalCtrl_s CReflect( const lp::primal::Ctrl<float>& ctrl )
+{
+    ElLPPrimalCtrl_s ctrlC;
+    ctrlC.approach     = CReflect(ctrl.approach);
+    ctrlC.admmCtrl     = CReflect(ctrl.admmCtrl);
+    ctrlC.ipfCtrl      = CReflect(ctrl.ipfCtrl);
+    ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
+    ctrlC.initialized  = ctrl.initialized;
+    return ctrlC;
+}
+inline ElLPPrimalCtrl_d CReflect( const lp::primal::Ctrl<double>& ctrl )
+{
+    ElLPPrimalCtrl_d ctrlC;
+    ctrlC.approach     = CReflect(ctrl.approach);
+    ctrlC.admmCtrl     = CReflect(ctrl.admmCtrl);
+    ctrlC.ipfCtrl      = CReflect(ctrl.ipfCtrl);
+    ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
+    ctrlC.initialized  = ctrl.initialized;
+    return ctrlC;
+}
+inline lp::primal::Ctrl<float> CReflect( ElLPPrimalCtrl_s ctrlC )
+{
+    lp::primal::Ctrl<float> ctrl(false);
+    ctrl.approach     = CReflect(ctrlC.approach);
+    ctrl.admmCtrl     = CReflect(ctrlC.admmCtrl);
+    ctrl.ipfCtrl      = CReflect(ctrlC.ipfCtrl);
+    ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
+    ctrl.initialized  = ctrlC.initialized;
+    return ctrl;
+}
+inline lp::primal::Ctrl<double> CReflect( ElLPPrimalCtrl_d ctrlC )
+{
+    lp::primal::Ctrl<double> ctrl(false);
+    ctrl.approach     = CReflect(ctrlC.approach);
+    ctrl.admmCtrl     = CReflect(ctrlC.admmCtrl);
+    ctrl.ipfCtrl      = CReflect(ctrlC.ipfCtrl);
+    ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
+    ctrl.initialized  = ctrlC.initialized;
+    return ctrl;
+}
+
 } // namespace El
 
 #endif // ifndef EL_CREFLECT_C_HPP

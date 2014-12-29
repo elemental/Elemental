@@ -125,6 +125,45 @@ VectorMax( const AbstractDistMatrix<Real>& x )
 }
 
 template<typename Real>
+ValueInt<Real> VectorMax( const DistMultiVec<Real>& x )
+{
+    DEBUG_ONLY(CallStackEntry cse("VectorMax"))
+    const Int height = x.Height();
+    DEBUG_ONLY(
+        if( x.Width() != 1 )
+            LogicError("Input should have been a vector");
+    )
+    mpi::Comm comm = x.Comm();
+    ValueInt<Real> pivot;
+    if( height == 0 )
+    {
+        pivot.value = 0;
+        pivot.index = -1;
+        return pivot;
+    }
+
+    // Get a lower-bound for the maximum entry of the matrix to avoid cases
+    // where a process does not own any data
+    // =====================================================================
+    const Real maxNorm = MaxNorm( x );
+    ValueInt<Real> localPivot;
+    localPivot.value = -maxNorm;
+    localPivot.index = 0;
+    const Int mLocal = x.LocalHeight();
+    for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+    {
+        const Real value = x.GetLocal(iLoc,0);
+        if( value > localPivot.value )
+        {
+            localPivot.value = value;
+            localPivot.index = x.GlobalRow(iLoc);
+        }
+    }
+    pivot = mpi::AllReduce( localPivot, mpi::MaxLocOp<Real>(), comm );
+    return pivot;
+}
+
+template<typename Real>
 ValueIntPair<Real> Max( const Matrix<Real>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Max"))
@@ -346,6 +385,7 @@ SymmetricMax( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 #define PROTO(Real) \
   template ValueInt<Real> VectorMax( const Matrix<Real>& x ); \
   template ValueInt<Real> VectorMax( const AbstractDistMatrix<Real>& x ); \
+  template ValueInt<Real> VectorMax( const DistMultiVec<Real>& x ); \
   template ValueIntPair<Real> Max( const Matrix<Real>& x ); \
   template ValueIntPair<Real> Max( const AbstractDistMatrix<Real>& x ); \
   template ValueIntPair<Real> SymmetricMax \

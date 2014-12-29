@@ -13,34 +13,31 @@ namespace lp {
 namespace primal {
 
 // Form 
-//    J = | A X inv(Z) A^T |, and 
-//    y = [ r_b - A inv(Z) (X r_c + r_mu) ]
+//    J = | A (z <> x) A^T |, and 
+//    y = [ r_b - A (z <> (x o r_c + r_mu)) ]
 // where 
-//    X   = diag(x),
-//    Z   = diag(z),
-//    e   = ones(n,1),
-//    r_b = A x - b, 
-//    r_c = A^T y - z + c, and
-//    r_mu = X Z e - tau e.
+//    r_b  = A x - b, 
+//    r_c  = A^T y - z + c, and
+//    r_mu = x o z - tau e.
 //
 // The implied system is of the form
 //
 //   J | dy | = d,
 // 
 //  dz = r_c + A^T dy, and
-//  dx = -(r_mu + X dz) / Z
+//  dx = -z <> (r_mu + x o dz)
 //
 
 template<typename Real>
 void NormalKKT
 ( const Matrix<Real>& A,
   const Matrix<Real>& x, const Matrix<Real>& z,
-  Matrix<Real>& J, bool onlyLower )
+        Matrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::NormalKKT"))
 
-    // Form D := X^{1/2} / Z^{1/2}
-    // ===========================
+    // d := sqrt(z) <> sqrt(x)
+    // =======================
     const Int n = A.Width();
     Matrix<Real> d;
     d.Resize( n, 1 );
@@ -60,11 +57,11 @@ template<typename Real>
 void NormalKKT
 ( const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z,
-  AbstractDistMatrix<Real>& J, bool onlyLower )
+        AbstractDistMatrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::NormalKKT"))
 
-    // Form X^{1/2} and Z^{1/2}
+    // From sqrt(x) and sqrt(z)
     // ========================
     DistMatrix<Real,MR,STAR> xSqrt(A.Grid()), zSqrt(A.Grid());
     xSqrt.Align(0,0);
@@ -87,8 +84,8 @@ void NormalKKT
 template<typename Real>
 void NormalKKT
 ( const SparseMatrix<Real>& A,
-  const Matrix<Real>& x, const Matrix<Real>& z,
-  SparseMatrix<Real>& J, bool onlyLower )
+  const Matrix<Real>& x,       const Matrix<Real>& z,
+        SparseMatrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::NormalKKT"))
 
@@ -113,8 +110,8 @@ void NormalKKT
 template<typename Real>
 void NormalKKT
 ( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& x, const DistMultiVec<Real>& z, 
-  DistSparseMatrix<Real>& J, bool onlyLower )
+  const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z, 
+        DistSparseMatrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::NormalKKT"))
     const Int n = A.Width();
@@ -191,8 +188,8 @@ void NormalKKTRHS
 template<typename Real>
 void NormalKKTRHS
 ( const SparseMatrix<Real>& A,
-  const Matrix<Real>& x,  const Matrix<Real>& z, 
-  const Matrix<Real>& rc, const Matrix<Real>& rb, 
+  const Matrix<Real>& x,       const Matrix<Real>& z, 
+  const Matrix<Real>& rc,      const Matrix<Real>& rb, 
   const Matrix<Real>& rmu,
         Matrix<Real>& d )
 {
@@ -214,8 +211,8 @@ void NormalKKTRHS
 template<typename Real>
 void NormalKKTRHS
 ( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& x,  const DistMultiVec<Real>& z, 
-  const DistMultiVec<Real>& rc, const DistMultiVec<Real>& rb, 
+  const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z, 
+  const DistMultiVec<Real>& rc,    const DistMultiVec<Real>& rb, 
   const DistMultiVec<Real>& rmu,
         DistMultiVec<Real>& d )
 {
@@ -257,7 +254,8 @@ void ExpandNormalSolution
 ( const Matrix<Real>& A,  const Matrix<Real>& c,
   const Matrix<Real>& x,  const Matrix<Real>& z,
   const Matrix<Real>& rc, const Matrix<Real>& rmu,
-  Matrix<Real>& dx, const Matrix<Real>& dy, Matrix<Real>& dz )
+        Matrix<Real>& dx, const Matrix<Real>& dy, 
+        Matrix<Real>& dz )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandNormalSolution"))
 
@@ -266,8 +264,8 @@ void ExpandNormalSolution
     dz = rc;
     Gemv( TRANSPOSE, Real(1), A, dy, Real(1), dz );
 
-    // dx := -(r_mu + X dz) / Z
-    // =======================
+    // dx := -z <> (r_mu + x o dz)
+    // ===========================
     dx = dz;
     DiagonalScale( LEFT, NORMAL, x, dx );
     Axpy( Real(1), rmu, dx );
@@ -280,8 +278,7 @@ void ExpandNormalSolution
 ( const AbstractDistMatrix<Real>& A,  const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Real>& x,  const AbstractDistMatrix<Real>& z,
   const AbstractDistMatrix<Real>& rc, const AbstractDistMatrix<Real>& rmu,
-        AbstractDistMatrix<Real>& dx, 
-  const AbstractDistMatrix<Real>& dy, 
+        AbstractDistMatrix<Real>& dx, const AbstractDistMatrix<Real>& dy, 
         AbstractDistMatrix<Real>& dz )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandNormalSolution"))
@@ -291,8 +288,8 @@ void ExpandNormalSolution
     Copy( rc, dz );
     Gemv( TRANSPOSE, Real(1), A, dy, Real(1), dz );
 
-    // dx := -(r_mu + X dz) / Z
-    // =======================
+    // dx := -z <> (r_mu + x o dz)
+    // ===========================
     Copy( dz, dx );
     DiagonalScale( LEFT, NORMAL, x, dx );
     Axpy( Real(1), rmu, dx );
@@ -305,7 +302,8 @@ void ExpandNormalSolution
 ( const SparseMatrix<Real>& A, const Matrix<Real>& c,
   const Matrix<Real>& x,       const Matrix<Real>& z,
   const Matrix<Real>& rc,      const Matrix<Real>& rmu,
-  Matrix<Real>& dx, const Matrix<Real>& dy, Matrix<Real>& dz )
+        Matrix<Real>& dx,      const Matrix<Real>& dy, 
+        Matrix<Real>& dz )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandNormalSolution"))
 
@@ -314,8 +312,8 @@ void ExpandNormalSolution
     dz = rc;
     Multiply( TRANSPOSE, Real(1), A, dy, Real(1), dz );
 
-    // dx := -(r_mu + X dz) / Z
-    // =======================
+    // dx := -z <> (r_mu + x o dz)
+    // ===========================
     dx = dz;
     DiagonalScale( LEFT, NORMAL, x, dx );
     Axpy( Real(1), rmu, dx );
@@ -328,8 +326,7 @@ void ExpandNormalSolution
 ( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z,
   const DistMultiVec<Real>& rc,    const DistMultiVec<Real>& rmu,
-        DistMultiVec<Real>& dx,
-  const DistMultiVec<Real>& dy, 
+        DistMultiVec<Real>& dx,    const DistMultiVec<Real>& dy, 
         DistMultiVec<Real>& dz )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandNormalSolution"))
@@ -339,87 +336,79 @@ void ExpandNormalSolution
     dz = rc;
     Multiply( TRANSPOSE, Real(1), A, dy, Real(1), dz );
 
-    // dx := -(r_mu + X dz) / Z
-    // =======================
-    Zeros( dx, x.Height(), 1 );
-    for( Int iLoc=0; iLoc<dx.LocalHeight(); ++iLoc )
-    {
-        const Real z_i = z.GetLocal(iLoc,0);
-        const Real x_i = x.GetLocal(iLoc,0);
-        const Real rmu_i = rmu.GetLocal(iLoc,0);
-        const Real dz_i = dz.GetLocal(iLoc,0);
-        dx.SetLocal( iLoc, 0, -(rmu_i+x_i*dz_i)/z_i );
-    }
+    // dx := -z <> (r_mu + x o dz)
+    // ===========================
+    dx = dz;
+    DiagonalScale( NORMAL, x, dx );
+    Axpy( Real(1), rmu, dx );
+    DiagonalSolve( NORMAL, z, dx );
+    Scale( Real(-1), dx );
 }
 
 #define PROTO(Real) \
   template void NormalKKT \
   ( const Matrix<Real>& A, \
     const Matrix<Real>& x, const Matrix<Real>& z, \
-    Matrix<Real>& J, bool onlyLower ); \
+          Matrix<Real>& J, bool onlyLower ); \
   template void NormalKKT \
   ( const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z, \
-    AbstractDistMatrix<Real>& J, bool onlyLower ); \
+          AbstractDistMatrix<Real>& J, bool onlyLower ); \
   template void NormalKKT \
   ( const SparseMatrix<Real>& A, \
-    const Matrix<Real>& x, const Matrix<Real>& z, \
-    SparseMatrix<Real>& J, bool onlyLower ); \
+    const Matrix<Real>& x,       const Matrix<Real>& z, \
+          SparseMatrix<Real>& J, bool onlyLower ); \
   template void NormalKKT \
   ( const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& x, const DistMultiVec<Real>& z, \
-    DistSparseMatrix<Real>& J, bool onlyLower ); \
+    const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z, \
+          DistSparseMatrix<Real>& J, bool onlyLower ); \
   template void NormalKKTRHS \
   ( const Matrix<Real>& A, \
-    const Matrix<Real>& x, const Matrix<Real>& z, \
+    const Matrix<Real>& x,  const Matrix<Real>& z, \
     const Matrix<Real>& rc, const Matrix<Real>& rb, \
     const Matrix<Real>& rmu, \
           Matrix<Real>& d ); \
   template void NormalKKTRHS \
   ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z, \
+    const AbstractDistMatrix<Real>& x,  const AbstractDistMatrix<Real>& z, \
     const AbstractDistMatrix<Real>& rc, const AbstractDistMatrix<Real>& rb, \
     const AbstractDistMatrix<Real>& rmu, \
           AbstractDistMatrix<Real>& d ); \
   template void NormalKKTRHS \
   ( const SparseMatrix<Real>& A, \
-    const Matrix<Real>& x, const Matrix<Real>& z, \
-    const Matrix<Real>& rc, const Matrix<Real>& rb, \
+    const Matrix<Real>& x,       const Matrix<Real>& z, \
+    const Matrix<Real>& rc,      const Matrix<Real>& rb, \
     const Matrix<Real>& rmu, \
           Matrix<Real>& d ); \
   template void NormalKKTRHS \
   ( const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& x, const DistMultiVec<Real>& z, \
-    const DistMultiVec<Real>& rc, const DistMultiVec<Real>& rb, \
+    const DistMultiVec<Real>& x,   const DistMultiVec<Real>& z, \
+    const DistMultiVec<Real>& rc,  const DistMultiVec<Real>& rb, \
     const DistMultiVec<Real>& rmu, \
           DistMultiVec<Real>& d ); \
   template void ExpandNormalSolution \
   ( const Matrix<Real>& A,  const Matrix<Real>& c, \
     const Matrix<Real>& x,  const Matrix<Real>& z, \
     const Matrix<Real>& rc, const Matrix<Real>& rmu, \
-          Matrix<Real>& dx, \
-    const Matrix<Real>& dy, \
+          Matrix<Real>& dx, const Matrix<Real>& dy, \
           Matrix<Real>& dz ); \
   template void ExpandNormalSolution \
   ( const AbstractDistMatrix<Real>& A,  const AbstractDistMatrix<Real>& c, \
     const AbstractDistMatrix<Real>& x,  const AbstractDistMatrix<Real>& z, \
     const AbstractDistMatrix<Real>& rc, const AbstractDistMatrix<Real>& rmu, \
-          AbstractDistMatrix<Real>& dx, \
-    const AbstractDistMatrix<Real>& dy, \
+          AbstractDistMatrix<Real>& dx, const AbstractDistMatrix<Real>& dy, \
           AbstractDistMatrix<Real>& dz ); \
   template void ExpandNormalSolution \
   ( const SparseMatrix<Real>& A, const Matrix<Real>& c, \
     const Matrix<Real>& x,       const Matrix<Real>& z, \
     const Matrix<Real>& rc,      const Matrix<Real>& rmu, \
-          Matrix<Real>& dx, \
-    const Matrix<Real>& dy, \
+          Matrix<Real>& dx,      const Matrix<Real>& dy, \
           Matrix<Real>& dz ); \
   template void ExpandNormalSolution \
   ( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z, \
     const DistMultiVec<Real>& rc,    const DistMultiVec<Real>& rmu, \
-          DistMultiVec<Real>& dx, \
-    const DistMultiVec<Real>& dy, \
+          DistMultiVec<Real>& dx,    const DistMultiVec<Real>& dy, \
           DistMultiVec<Real>& dz );
 
 #define EL_NO_INT_PROTO
