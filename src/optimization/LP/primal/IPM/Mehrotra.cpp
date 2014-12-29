@@ -103,11 +103,10 @@ void Mehrotra
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // r_mu := X Z e
+        // r_mu := x o z
         // =============
-        rmu.Resize( n, 1 );
-        for( Int i=0; i<n; ++i )
-            rmu.Set( i, 0, x.Get(i,0)*z.Get(i,0) );
+        rmu = z;
+        DiagonalScale( LEFT, NORMAL, x, rmu );
 
         // Compute the affine search direction
         // ===================================
@@ -229,8 +228,11 @@ void Mehrotra
         // =================================
         Zeros( rc, n, 1 );
         Zeros( rb, m, 1 );
-        for( Int i=0; i<n; ++i )
-            rmu.Set( i, 0, dxAff.Get(i,0)*dzAff.Get(i,0) - sigma*mu );
+        // r_mu := dxAff o dzAff - sigma*mu
+        // --------------------------------
+        rmu = dzAff;
+        DiagonalScale( LEFT, NORMAL, dxAff, rmu );
+        Shift( rmu, -sigma*mu );
         if( ctrl.system == FULL_KKT )
         {
             // Construct the new full KKT RHS
@@ -399,13 +401,10 @@ void Mehrotra
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // r_mu := X Z e
+        // r_mu := x o z
         // =============
-        // TODO: Find a more convenient syntax for expressing this operation
-        rmu.Resize( n, 1 );
-        if( rmu.IsLocalCol(0) )
-            for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
-                rmu.SetLocal( iLoc, 0, x.GetLocal(iLoc,0)*z.GetLocal(iLoc,0) );
+        rmu = z;
+        DiagonalScale( LEFT, NORMAL, x, rmu );
 
         // Compute the affine search direction
         // ===================================
@@ -541,12 +540,11 @@ void Mehrotra
         // =================================
         Zeros( rc, n, 1 );
         Zeros( rb, m, 1 );
-        // TODO: Find a more convenient means of expressing this operation
-        if( dxAff.IsLocalCol(0) )
-            for( Int iLoc=0; iLoc<dxAff.LocalHeight(); ++iLoc )
-                rmu.SetLocal
-                ( iLoc, 0, 
-                  dxAff.GetLocal(iLoc,0)*dzAff.GetLocal(iLoc,0) - sigma*mu );
+        // r_mu := dxAff o dzAff - sigma*mu
+        // --------------------------------
+        rmu = dxAff;
+        DiagonalScale( LEFT, NORMAL, dzAff, rmu );
+        Shift( rmu, -sigma*mu );
         if( ctrl.system == FULL_KKT )
         {
             // Construct the new full KKT RHS
@@ -729,11 +727,10 @@ void Mehrotra
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // r_mu := X Z e
+        // r_mu := x o z
         // =============
-        rmu.Resize( n, 1 );
-        for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
-            rmu.SetLocal( iLoc, 0, x.GetLocal(iLoc,0)*z.GetLocal(iLoc,0) );
+        rmu = z; 
+        DiagonalScale( NORMAL, x, rmu );
 
         // Compute the affine search direction
         // ===================================
@@ -936,10 +933,11 @@ void Mehrotra
         // =================================
         Zeros( rc, n, 1 );
         Zeros( rb, m, 1 );
-        for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
-            rmu.SetLocal
-            ( iLoc, 0, 
-              dxAff.GetLocal(iLoc,0)*dzAff.GetLocal(iLoc,0) - sigma*mu );
+        // r_mu := dxAff o dzAff - sigma*mu
+        // --------------------------------
+        rmu = dzAff;
+        DiagonalScale( NORMAL, dxAff, rmu );
+        Shift( rmu, -sigma*mu );
         if( ctrl.system == FULL_KKT )
         {
             // Construct the new full KKT RHS

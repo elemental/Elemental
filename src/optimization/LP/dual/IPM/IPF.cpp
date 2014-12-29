@@ -111,12 +111,12 @@ void IPF
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // Form the residual for the scaled equation, S Z - sigma mu e
-        // ===========================================================
+        // Form the residual for the scaled equation, s o z - sigma mu e
+        // =============================================================
         const Real mu = Dot(s,z) / n;
-        rmu.Resize( n, 1 );
-        for( Int i=0; i<n; ++i )
-            rmu.Set( i, 0, s.Get(i,0)*z.Get(i,0) - ctrl.centering*mu );
+        rmu = z;
+        DiagonalScale( LEFT, NORMAL, s, rmu );
+        Shift( rmu, -ctrl.centering*mu );
 
         if( ctrl.system == FULL_KKT )
         {

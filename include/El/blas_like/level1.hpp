@@ -1512,6 +1512,17 @@ SecondHalfOfSymmetric2x2Solve
   const Matrix<F>& D, const Matrix<F>& a1, Matrix<F>& a2,
   bool conjugate=false );
 
+// Shift
+// =====
+template<typename T,typename S>
+void Shift( Matrix<T>& A, S alpha );
+template<typename T,typename S>
+void Shift( AbstractDistMatrix<T>& A, S alpha );
+template<typename T,typename S>
+void Shift( AbstractBlockDistMatrix<T>& A, S alpha );
+template<typename T,typename S>
+void Shift( DistMultiVec<T>& A, S alpha );
+
 // ShiftDiagonal
 // =============
 template<typename T,typename S>

@@ -57,8 +57,8 @@ void KKT
     // ========
     Jzx = G;
 
-    // Jzz := - inv(Z) S
-    // =================
+    // Jzz := - z <> s
+    // ===============
     Matrix<Real> t;
     t = s;
     DiagonalSolve( LEFT, NORMAL, z, t );
@@ -105,8 +105,8 @@ void KKT
     // ========
     Jzx = G;
 
-    // Jzz := - inv(Z) S
-    // =================
+    // Jzz := - z <> s
+    // ===============
     DistMatrix<Real,MC,STAR> t(s.Grid());
     t = s;
     DiagonalSolve( LEFT, NORMAL, z, t );
@@ -474,7 +474,7 @@ void ExpandSolution
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::ExpandSolution"))
     lp::primal::ExpandSolution( m, n, d, dx, dy, dz );
-    // ds := -inv(Z) * ( rmu + S dz )
+    // ds := - z <> ( rmu + s o dz )
     ds = dz;
     DiagonalScale( LEFT, NORMAL, s, ds );
     Axpy( Real(1), rmu, ds );
@@ -492,7 +492,7 @@ void ExpandSolution
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::ExpandSolution"))
     lp::primal::ExpandSolution( m, n, d, dx, dy, dz );
-    // ds := -inv(Z) * ( rmu + S dz )
+    // ds := - z <> ( rmu + s o dz )
     Copy( dz, ds );
     DiagonalScale( LEFT, NORMAL, s, ds );
     Axpy( Real(1), rmu, ds );
@@ -510,7 +510,7 @@ void ExpandSolution
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::ExpandSolution"))
     lp::primal::ExpandSolution( m, n, d, dx, dy, dz );
-    // ds := -inv(Z) * ( rmu + S dz )
+    // ds := - z <> ( rmu + s o dz )
     ds = dz;
     DiagonalScale( NORMAL, s, ds );
     Axpy( Real(1), rmu, ds );

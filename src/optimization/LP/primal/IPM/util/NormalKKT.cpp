@@ -47,7 +47,7 @@ void NormalKKT
     for( Int i=0; i<n; ++i )
         d.Set( i, 0, Sqrt(x.Get(i,0))/Sqrt(z.Get(i,0)) );
 
-    // Form the Jacobian, J := A D^T A^T
+    // Form the Jacobian, J := A D^2 A^T
     // =================================
     auto AD( A );
     DiagonalScale( RIGHT, NORMAL, d, AD );
@@ -92,8 +92,8 @@ void NormalKKT
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::NormalKKT"))
 
-    // Form D := X^{1/2} / Z^{1/2}
-    // ===========================
+    // d := sqrt(z) <> sqrt(x)
+    // =======================
     const Int n = A.Width();
     Matrix<Real> d;
     d.Resize( n, 1 );
@@ -124,8 +124,8 @@ void NormalKKT
     if( !mpi::Congruent( comm, z.Comm() ) )
         LogicError("Communicators of A and z must match");
 
-    // Form D := X^{1/2} / Z^{1/2}
-    // ===========================
+    // d := sqrt(z) <> sqrt(x)
+    // =======================
     DistMultiVec<Real> d(comm);
     d.Resize( n, 1 );
     for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )

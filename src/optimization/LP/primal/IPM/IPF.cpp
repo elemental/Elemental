@@ -98,12 +98,12 @@ void IPF
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // Compute the duality measure and r_mu = X Z e - tau e
+        // Compute the duality measure and r_mu = x o z - tau e
         // ====================================================
         const Real mu = Dot(x,z) / n;
-        rmu.Resize( n, 1 );
-        for( Int i=0; i<n; ++i )
-            rmu.Set( i, 0, x.Get(i,0)*z.Get(i,0) - ctrl.centering*mu );
+        rmu = z;
+        DiagonalScale( LEFT, NORMAL, x, rmu );
+        Shift( rmu, -ctrl.centering*mu );
 
         if( ctrl.system == FULL_KKT )
         {
@@ -275,15 +275,12 @@ void IPF
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // Compute the duality measure and r_mu = X Z e - tau e
+        // Compute the duality measure and r_mu = x o z - tau e
         // ====================================================
         const Real mu = Dot(x,z) / n;
-        rmu.Resize( n, 1 );
-        if( rmu.IsLocalCol(0) )
-            for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
-                rmu.SetLocal
-                ( iLoc, 0, 
-                  x.GetLocal(iLoc,0)*z.GetLocal(iLoc,0) - ctrl.centering*mu );
+        rmu = z;
+        DiagonalScale( LEFT, NORMAL, x, rmu );
+        Shift( rmu, -ctrl.centering*mu );
 
         if( ctrl.system == FULL_KKT )
         {
@@ -470,16 +467,12 @@ void IPF
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // Compute the duality measure and r_mu = X Z e - tau e
+        // Compute the duality measure and r_mu = x o z - tau e
         // ====================================================
         const Real mu = Dot(x,z) / n;
-        rmu.Resize( n, 1 );
-        for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
-        {
-            const Real xi = x.GetLocal(iLoc,0);
-            const Real zi = z.GetLocal(iLoc,0);
-            rmu.SetLocal( iLoc, 0, xi*zi - ctrl.centering*mu );
-        }
+        rmu = z;
+        DiagonalScale( NORMAL, x, rmu );
+        Shift( rmu, -ctrl.centering*mu );
 
         // Compute the search direction
         // ============================

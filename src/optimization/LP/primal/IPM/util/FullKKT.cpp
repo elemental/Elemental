@@ -55,8 +55,8 @@ void KKT
     Identity( Jzx, n, n );
     Scale( Real(-1), Jzx );
 
-    // Jzz := - inv(Z) X
-    // =================
+    // Jzz := - z <> x
+    // ===============
     Matrix<Real> t;
     t = x;
     DiagonalSolve( LEFT, NORMAL, z, t );
@@ -105,8 +105,8 @@ void KKT
     Identity( Jzx, n, n );
     Scale( Real(-1), Jzx );
 
-    // Jzz := - inv(Z) X
-    // =================
+    // Jzz := - z <> x
+    // ===============
     DistMatrix<Real,MC,STAR> t(x.Grid());
     t = x;
     DiagonalSolve( LEFT, NORMAL, z, t );
