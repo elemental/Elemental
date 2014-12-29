@@ -108,6 +108,7 @@ struct IPFLineSearchCtrl {
 
 template<typename Real>
 struct IPFCtrl {
+    bool initialized;
     Real tol;
     Int maxIts;
     Real centering; 
@@ -118,16 +119,16 @@ struct IPFCtrl {
     bool print;
 
     IPFCtrl( bool isSparse ) 
-    : tol(1e-8), maxIts(1000), centering(0.9), print(false)
-    {
-        system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT );
-    }
+    : initialized(false), tol(1e-8), maxIts(1000), centering(0.9), 
+      print(false)
+    { system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); }
 };
 
 // Mehrotra's Predictor-Corrector Infeasible Interior Point Method
 // ---------------------------------------------------------------
 template<typename Real>
 struct MehrotraCtrl {
+    bool initialized;
     Real tol;
     Int maxIts;
     Real maxStepRatio;
@@ -138,10 +139,9 @@ struct MehrotraCtrl {
     //       the default, (muAff/mu)^3 
 
     MehrotraCtrl( bool isSparse )
-    : tol(1e-8), maxIts(1000), maxStepRatio(0.99), print(false)
-    { 
-        system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT );
-    }
+    : initialized(false), tol(1e-8), maxIts(1000), maxStepRatio(0.99), 
+      print(false)
+    { system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); }
 };
 
 // Alternating Direction Method of Multipliers (ADMM)
@@ -172,11 +172,9 @@ struct Ctrl
     ADMMCtrl<Real> admmCtrl;
     IPFCtrl<Real> ipfCtrl;
     MehrotraCtrl<Real> mehrotraCtrl;
-    bool initialized;
 
     Ctrl( bool isSparse ) 
-    : approach(LP_MEHROTRA), ipfCtrl(isSparse), mehrotraCtrl(isSparse),
-      initialized(false)
+    : approach(LP_MEHROTRA), ipfCtrl(isSparse), mehrotraCtrl(isSparse)
     { }
 };
 
@@ -212,6 +210,7 @@ struct IPFLineSearchCtrl {
 
 template<typename Real>
 struct IPFCtrl {
+    bool initialized;
     Real tol;
     Int maxIts;
     Real centering; 
@@ -222,7 +221,8 @@ struct IPFCtrl {
     bool print;
 
     IPFCtrl( bool isSparse ) 
-    : tol(1e-8), maxIts(1000), centering(0.9), print(false)
+    : initialized(false), tol(1e-8), maxIts(1000), centering(0.9), 
+      print(false)
     { system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); }
 };
 
@@ -230,6 +230,7 @@ struct IPFCtrl {
 // ---------------------------------------------------------------
 template<typename Real>
 struct MehrotraCtrl {
+    bool initialized;
     Real tol;
     Int maxIts;
     Real maxStepRatio;
@@ -240,7 +241,8 @@ struct MehrotraCtrl {
     //       the default, (muAff/mu)^3 
 
     MehrotraCtrl( bool isSparse )
-    : tol(1e-8), maxIts(1000), maxStepRatio(0.99), print(false)
+    : initialized(false), tol(1e-8), maxIts(1000), maxStepRatio(0.99), 
+      print(false)
     { system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); }
 };
 
@@ -252,7 +254,6 @@ struct Ctrl
     LPApproach approach;
     IPFCtrl<Real> ipfCtrl;
     MehrotraCtrl<Real> mehrotraCtrl;
-    bool initialized;
 
     Ctrl( bool isSparse ) 
     : approach(LP_MEHROTRA), ipfCtrl(isSparse), mehrotraCtrl(isSparse)

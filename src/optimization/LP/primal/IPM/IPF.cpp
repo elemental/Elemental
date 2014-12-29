@@ -42,6 +42,9 @@ void IPF
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
 
+    if( !ctrl.initialized )
+        lp::primal::Initialize( A, b, c, x, y, z );
+
     Matrix<Real> J, d, 
                  rc, rb, rmu, 
                  dx, dy, dz;
@@ -193,8 +196,8 @@ void IPF
 template<typename Real>
 void IPF
 ( const AbstractDistMatrix<Real>& APre, 
-  const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c,
-        AbstractDistMatrix<Real>& xPre,     AbstractDistMatrix<Real>& y, 
+  const AbstractDistMatrix<Real>& b,    const AbstractDistMatrix<Real>& c,
+        AbstractDistMatrix<Real>& xPre,       AbstractDistMatrix<Real>& y, 
         AbstractDistMatrix<Real>& zPre, 
   const IPFCtrl<Real>& ctrl )
 {
@@ -216,6 +219,9 @@ void IPF
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
+
+    if( !ctrl.initialized )
+        lp::primal::Initialize( A, b, c, x, y, z );
 
     DistMatrix<Real> J(grid), d(grid), 
                      rc(grid), rb(grid), rmu(grid),
@@ -375,8 +381,8 @@ void IPF
 template<typename Real>
 void IPF
 ( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& b,  const Matrix<Real>& c,
-        Matrix<Real>& x,        Matrix<Real>& y, 
+  const Matrix<Real>& b,       const Matrix<Real>& c,
+        Matrix<Real>& x,             Matrix<Real>& y, 
         Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
@@ -387,8 +393,8 @@ void IPF
 template<typename Real>
 void IPF
 ( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c,
-        DistMultiVec<Real>& x,        DistMultiVec<Real>& y, 
+  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c,
+        DistMultiVec<Real>& x,           DistMultiVec<Real>& y, 
         DistMultiVec<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
@@ -406,9 +412,29 @@ void IPF
     DistSymmInfo info;
     DistSeparatorTree sepTree;
     DistMap map, invMap;
+
+    if( !ctrl.initialized )
+    {
+        // The initialization involves an augmented KKT system, and so we can
+        // only reuse the factorization metadata if the this IPM is using the
+        // augmented formulation
+        if( ctrl.system == AUGMENTED_KKT )
+        {
+            lp::primal::Initialize
+            ( A, b, c, x, y, z, map, invMap, sepTree, info );
+        }
+        else
+        {
+            DistMap augMap, augInvMap;
+            DistSymmInfo augInfo;
+            DistSeparatorTree augSepTree;
+            lp::primal::Initialize
+            ( A, b, c, x, y, z, augMap, augInvMap, augSepTree, augInfo );
+        }
+    }
+
     DistSparseMatrix<Real> J(comm);
     DistSymmFrontTree<Real> JFrontTree;
-
     DistMultiVec<Real> d(comm),
                        rc(comm), rb(comm), rmu(comm), 
                        dx(comm),  dy(comm), dz(comm);
@@ -555,7 +581,7 @@ void IPF
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            if( numIts == 0 )
+            if( ctrl.initialized && numIts == 0 )
             {
                 NestedDissection( J.LockedDistGraph(), map, sepTree, info );
                 map.FormInverse( invMap );

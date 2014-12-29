@@ -57,6 +57,7 @@ ElError ElLPPrimalIPFLineSearchCtrlDefault_d
 ElError ElLPPrimalIPFCtrlDefault_s
 ( ElLPPrimalIPFCtrl_s* ctrl, bool isSparse )
 {
+    ctrl->initialized = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
@@ -70,6 +71,7 @@ ElError ElLPPrimalIPFCtrlDefault_s
 ElError ElLPPrimalIPFCtrlDefault_d
 ( ElLPPrimalIPFCtrl_d* ctrl, bool isSparse )
 {
+    ctrl->initialized = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
@@ -83,6 +85,7 @@ ElError ElLPPrimalIPFCtrlDefault_d
 ElError ElLPPrimalMehrotraCtrlDefault_s
 ( ElLPPrimalMehrotraCtrl_s* ctrl, bool isSparse )
 {
+    ctrl->initialized = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
@@ -95,6 +98,7 @@ ElError ElLPPrimalMehrotraCtrlDefault_s
 ElError ElLPPrimalMehrotraCtrlDefault_d
 ( ElLPPrimalMehrotraCtrl_d* ctrl, bool isSparse )
 {
+    ctrl->initialized = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
@@ -110,7 +114,6 @@ ElError ElLPPrimalCtrlDefault_s( ElLPPrimalCtrl_s* ctrl, bool isSparse )
     ElLPPrimalADMMCtrlDefault_s( &ctrl->admmCtrl );
     ElLPPrimalIPFCtrlDefault_s( &ctrl->ipfCtrl, isSparse );
     ElLPPrimalMehrotraCtrlDefault_s( &ctrl->mehrotraCtrl, isSparse );
-    ctrl->initialized = false;
     return EL_SUCCESS;
 }
 
@@ -121,7 +124,6 @@ ElError ElLPPrimalCtrlDefault_d
     ElLPPrimalADMMCtrlDefault_d( &ctrl->admmCtrl );
     ElLPPrimalIPFCtrlDefault_d( &ctrl->ipfCtrl, isSparse );
     ElLPPrimalMehrotraCtrlDefault_d( &ctrl->mehrotraCtrl, isSparse );
-    ctrl->initialized = false;
     return EL_SUCCESS;
 }
 

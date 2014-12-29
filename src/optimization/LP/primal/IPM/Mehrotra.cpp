@@ -13,9 +13,6 @@ namespace El {
 namespace lp {
 namespace primal {
 
-// TODO: Experiment with running a few iterations of IPF until the residuals
-//       are sufficiently low before switching to Mehrotra's scheme
-
 // The following solves a linear program in "primal" conic form:
 //
 //   min c^T x
@@ -32,8 +29,8 @@ namespace primal {
 template<typename Real>
 void Mehrotra
 ( const Matrix<Real>& A, 
-  const Matrix<Real>& b,  const Matrix<Real>& c,
-        Matrix<Real>& x,        Matrix<Real>& y, 
+  const Matrix<Real>& b, const Matrix<Real>& c,
+        Matrix<Real>& x,       Matrix<Real>& y, 
         Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
@@ -43,6 +40,9 @@ void Mehrotra
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
+
+    if( !ctrl.initialized )
+        lp::primal::Initialize( A, b, c, x, y, z ); 
 
     Matrix<Real> J, d, 
                  rb,    rc,    rmu,
@@ -311,8 +311,8 @@ void Mehrotra
 template<typename Real>
 void Mehrotra
 ( const AbstractDistMatrix<Real>& APre, 
-  const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c,
-        AbstractDistMatrix<Real>& xPre,     AbstractDistMatrix<Real>& y,
+  const AbstractDistMatrix<Real>& b,    const AbstractDistMatrix<Real>& c,
+        AbstractDistMatrix<Real>& xPre,       AbstractDistMatrix<Real>& y,
         AbstractDistMatrix<Real>& zPre,
   const MehrotraCtrl<Real>& ctrl )
 {
@@ -334,6 +334,9 @@ void Mehrotra
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
+
+    if( !ctrl.initialized )
+        lp::primal::Initialize( A, b, c, x, y, z ); 
 
     DistMatrix<Real> 
         J(grid), d(grid), 
@@ -633,8 +636,8 @@ void Mehrotra
 template<typename Real>
 void Mehrotra
 ( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& b,  const Matrix<Real>& c,
-        Matrix<Real>& x,        Matrix<Real>& y, 
+  const Matrix<Real>& b,       const Matrix<Real>& c,
+        Matrix<Real>& x,             Matrix<Real>& y, 
         Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
@@ -645,8 +648,8 @@ void Mehrotra
 template<typename Real>
 void Mehrotra
 ( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c,
-        DistMultiVec<Real>& x,        DistMultiVec<Real>& y, 
+  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c,
+        DistMultiVec<Real>& x,           DistMultiVec<Real>& y, 
         DistMultiVec<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
@@ -661,12 +664,32 @@ void Mehrotra
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
 
+    DistMap map, invMap;
     DistSymmInfo info;
     DistSeparatorTree sepTree;
-    DistMap map, invMap;
+
+    if( !ctrl.initialized )
+    {
+        // The initialization involves an augmented KKT system, and so we can
+        // only reuse the factorization metadata if the this IPM is using the
+        // augmented formulation
+        if( ctrl.system == AUGMENTED_KKT )
+        {
+            lp::primal::Initialize
+            ( A, b, c, x, y, z, map, invMap, sepTree, info ); 
+        }  
+        else
+        {
+            DistMap augMap, augInvMap;
+            DistSymmInfo augInfo;
+            DistSeparatorTree augSepTree;
+            lp::primal::Initialize
+            ( A, b, c, x, y, z, augMap, augInvMap, augSepTree, augInfo );
+        }
+    }
+
     DistSparseMatrix<Real> J(comm);
     DistSymmFrontTree<Real> JFrontTree;
-
     DistMultiVec<Real> d(comm), 
                        rc(comm),    rb(comm),    rmu(comm), 
                        dxAff(comm), dyAff(comm), dzAff(comm),
@@ -812,7 +835,7 @@ void Mehrotra
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            if( numIts == 0 )
+            if( ctrl.initialized && numIts == 0 )
             {
                 NestedDissection( J.LockedDistGraph(), map, sepTree, info );
                 map.FormInverse( invMap );
@@ -1028,26 +1051,26 @@ void Mehrotra
 #define PROTO(Real) \
   template void Mehrotra \
   ( const Matrix<Real>& A, \
-    const Matrix<Real>& b,  const Matrix<Real>& c, \
-          Matrix<Real>& x,        Matrix<Real>& y, \
+    const Matrix<Real>& b, const Matrix<Real>& c, \
+          Matrix<Real>& x,       Matrix<Real>& y, \
           Matrix<Real>& z, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c, \
-          AbstractDistMatrix<Real>& x,        AbstractDistMatrix<Real>& y, \
+    const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
+          AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y, \
           AbstractDistMatrix<Real>& z, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const SparseMatrix<Real>& A, \
-    const Matrix<Real>& b,  const Matrix<Real>& c, \
-          Matrix<Real>& x,        Matrix<Real>& y, \
+    const Matrix<Real>& b,       const Matrix<Real>& c, \
+          Matrix<Real>& x,             Matrix<Real>& y, \
           Matrix<Real>& z, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& b,  const DistMultiVec<Real>& c, \
-          DistMultiVec<Real>& x,        DistMultiVec<Real>& y, \
+    const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, \
+          DistMultiVec<Real>& x,           DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
     const MehrotraCtrl<Real>& ctrl );
 

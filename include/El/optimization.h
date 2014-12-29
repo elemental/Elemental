@@ -155,6 +155,7 @@ ElError ElLPPrimalIPFLineSearchCtrlDefault_d
 ( ElLPPrimalIPFLineSearchCtrl_d* ctrl );
 
 typedef struct {
+  bool initialized;
   float tol;
   ElInt maxIts;
   float centering;
@@ -165,6 +166,7 @@ typedef struct {
 } ElLPPrimalIPFCtrl_s;
 
 typedef struct {
+  bool initialized;
   double tol;
   ElInt maxIts;
   double centering;
@@ -178,6 +180,7 @@ ElError ElLPPrimalIPFCtrlDefault_s( ElLPPrimalIPFCtrl_s* ctrl, bool isSparse );
 ElError ElLPPrimalIPFCtrlDefault_d( ElLPPrimalIPFCtrl_d* ctrl, bool isSparse );
 
 typedef struct {
+  bool initialized;
   float tol;
   ElInt maxIts;
   float maxStepRatio;
@@ -186,6 +189,7 @@ typedef struct {
 } ElLPPrimalMehrotraCtrl_s;
 
 typedef struct {
+  bool initialized;
   double tol;
   ElInt maxIts;
   double maxStepRatio;
@@ -211,14 +215,12 @@ typedef struct {
   ElLPPrimalADMMCtrl_s admmCtrl;
   ElLPPrimalIPFCtrl_s ipfCtrl;
   ElLPPrimalMehrotraCtrl_s mehrotraCtrl;
-  bool initialized;
 } ElLPPrimalCtrl_s;
 typedef struct {
   ElLPApproach approach;  
   ElLPPrimalADMMCtrl_d admmCtrl;
   ElLPPrimalIPFCtrl_d ipfCtrl;
   ElLPPrimalMehrotraCtrl_d mehrotraCtrl;
-  bool initialized;
 } ElLPPrimalCtrl_d;
 
 ElError ElLPPrimalCtrlDefault_s( ElLPPrimalCtrl_s* ctrl, bool isSparse );

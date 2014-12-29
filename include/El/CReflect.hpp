@@ -1609,6 +1609,7 @@ inline lp::primal::IPFLineSearchCtrl<double> CReflect
 inline ElLPPrimalIPFCtrl_s CReflect( const lp::primal::IPFCtrl<float>& ctrl )
 {
     ElLPPrimalIPFCtrl_s ctrlC;
+    ctrlC.initialized    = ctrl.initialized;
     ctrlC.tol            = ctrl.tol;
     ctrlC.maxIts         = ctrl.maxIts;
     ctrlC.centering      = ctrl.centering;
@@ -1620,6 +1621,7 @@ inline ElLPPrimalIPFCtrl_s CReflect( const lp::primal::IPFCtrl<float>& ctrl )
 inline ElLPPrimalIPFCtrl_d CReflect( const lp::primal::IPFCtrl<double>& ctrl )
 {
     ElLPPrimalIPFCtrl_d ctrlC;
+    ctrlC.initialized    = ctrl.initialized;
     ctrlC.tol            = ctrl.tol;
     ctrlC.maxIts         = ctrl.maxIts;
     ctrlC.centering      = ctrl.centering;
@@ -1631,6 +1633,7 @@ inline ElLPPrimalIPFCtrl_d CReflect( const lp::primal::IPFCtrl<double>& ctrl )
 inline lp::primal::IPFCtrl<float> CReflect( ElLPPrimalIPFCtrl_s ctrlC )
 {
     lp::primal::IPFCtrl<float> ctrl(false);
+    ctrl.initialized    = ctrlC.initialized;
     ctrl.tol            = ctrlC.tol;
     ctrl.maxIts         = ctrlC.maxIts;
     ctrl.centering      = ctrlC.centering;
@@ -1642,6 +1645,7 @@ inline lp::primal::IPFCtrl<float> CReflect( ElLPPrimalIPFCtrl_s ctrlC )
 inline lp::primal::IPFCtrl<double> CReflect( ElLPPrimalIPFCtrl_d ctrlC )
 {
     lp::primal::IPFCtrl<double> ctrl(false);
+    ctrl.initialized    = ctrlC.initialized;
     ctrl.tol            = ctrlC.tol;
     ctrl.maxIts         = ctrlC.maxIts;
     ctrl.centering      = ctrlC.centering;
@@ -1655,6 +1659,7 @@ inline ElLPPrimalMehrotraCtrl_s CReflect
 ( const lp::primal::MehrotraCtrl<float>& ctrl )
 {
     ElLPPrimalMehrotraCtrl_s ctrlC;
+    ctrlC.initialized  = ctrl.initialized;
     ctrlC.tol          = ctrl.tol;
     ctrlC.maxIts       = ctrl.maxIts;
     ctrlC.maxStepRatio = ctrl.maxStepRatio;
@@ -1666,6 +1671,7 @@ inline ElLPPrimalMehrotraCtrl_d CReflect
 ( const lp::primal::MehrotraCtrl<double>& ctrl )
 {
     ElLPPrimalMehrotraCtrl_d ctrlC;
+    ctrlC.initialized  = ctrl.initialized;
     ctrlC.tol          = ctrl.tol;
     ctrlC.maxIts       = ctrl.maxIts;
     ctrlC.maxStepRatio = ctrl.maxStepRatio;
@@ -1677,6 +1683,7 @@ inline lp::primal::MehrotraCtrl<float> CReflect
 ( ElLPPrimalMehrotraCtrl_s ctrlC )
 {
     lp::primal::MehrotraCtrl<float> ctrl(false);
+    ctrl.initialized  = ctrlC.initialized;
     ctrl.tol          = ctrlC.tol;
     ctrl.maxIts       = ctrlC.maxIts;
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
@@ -1688,6 +1695,7 @@ inline lp::primal::MehrotraCtrl<double> CReflect
 ( ElLPPrimalMehrotraCtrl_d ctrlC )
 {
     lp::primal::MehrotraCtrl<double> ctrl(false);
+    ctrl.initialized  = ctrlC.initialized;
     ctrl.tol          = ctrlC.tol;
     ctrl.maxIts       = ctrlC.maxIts;
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
@@ -1708,7 +1716,6 @@ inline ElLPPrimalCtrl_s CReflect( const lp::primal::Ctrl<float>& ctrl )
     ctrlC.admmCtrl     = CReflect(ctrl.admmCtrl);
     ctrlC.ipfCtrl      = CReflect(ctrl.ipfCtrl);
     ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
-    ctrlC.initialized  = ctrl.initialized;
     return ctrlC;
 }
 inline ElLPPrimalCtrl_d CReflect( const lp::primal::Ctrl<double>& ctrl )
@@ -1718,7 +1725,6 @@ inline ElLPPrimalCtrl_d CReflect( const lp::primal::Ctrl<double>& ctrl )
     ctrlC.admmCtrl     = CReflect(ctrl.admmCtrl);
     ctrlC.ipfCtrl      = CReflect(ctrl.ipfCtrl);
     ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
-    ctrlC.initialized  = ctrl.initialized;
     return ctrlC;
 }
 inline lp::primal::Ctrl<float> CReflect( ElLPPrimalCtrl_s ctrlC )
@@ -1728,7 +1734,6 @@ inline lp::primal::Ctrl<float> CReflect( ElLPPrimalCtrl_s ctrlC )
     ctrl.admmCtrl     = CReflect(ctrlC.admmCtrl);
     ctrl.ipfCtrl      = CReflect(ctrlC.ipfCtrl);
     ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
-    ctrl.initialized  = ctrlC.initialized;
     return ctrl;
 }
 inline lp::primal::Ctrl<double> CReflect( ElLPPrimalCtrl_d ctrlC )
@@ -1738,7 +1743,6 @@ inline lp::primal::Ctrl<double> CReflect( ElLPPrimalCtrl_d ctrlC )
     ctrl.admmCtrl     = CReflect(ctrlC.admmCtrl);
     ctrl.ipfCtrl      = CReflect(ctrlC.ipfCtrl);
     ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
-    ctrl.initialized  = ctrlC.initialized;
     return ctrl;
 }
 

@@ -32,8 +32,8 @@ void IPF
 ( const Matrix<Real>& A, const Matrix<Real>& G,
   const Matrix<Real>& b, const Matrix<Real>& c,
   const Matrix<Real>& h,
-  Matrix<Real>& x, Matrix<Real>& y, 
-  Matrix<Real>& z, Matrix<Real>& s,
+        Matrix<Real>& x,       Matrix<Real>& y, 
+        Matrix<Real>& z,       Matrix<Real>& s,
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::IPF"))    
@@ -43,6 +43,15 @@ void IPF
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
+
+    // TODO: Use the initialization suggested by Vandenberghe
+    if( !ctrl.initialized )
+    {
+        Zeros( y, A.Height(), 1 );
+        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
+        s = h;
+        Gemv( NORMAL, Real(-1), G, x, Real(1), s );
+    }
 
     Matrix<Real> J, d,
                  rmu, rc, rb, rh,
@@ -181,8 +190,8 @@ void IPF
 ( const AbstractDistMatrix<Real>& APre, const AbstractDistMatrix<Real>& GPre,
   const AbstractDistMatrix<Real>& b,    const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Real>& h,
-  AbstractDistMatrix<Real>& xPre, AbstractDistMatrix<Real>& y, 
-  AbstractDistMatrix<Real>& zPre, AbstractDistMatrix<Real>& s,
+        AbstractDistMatrix<Real>& xPre,       AbstractDistMatrix<Real>& y, 
+        AbstractDistMatrix<Real>& zPre,       AbstractDistMatrix<Real>& s,
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::IPF"))    
@@ -207,8 +216,8 @@ void IPF
 ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
   const Matrix<Real>& b,       const Matrix<Real>& c,
   const Matrix<Real>& h,
-  Matrix<Real>& x, Matrix<Real>& y, 
-  Matrix<Real>& z, Matrix<Real>& s,
+        Matrix<Real>& x,             Matrix<Real>& y, 
+        Matrix<Real>& z,             Matrix<Real>& s,
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::IPF"))    
@@ -220,8 +229,8 @@ void IPF
 ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
   const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
-  DistMultiVec<Real>& x, DistMultiVec<Real>& y, 
-  DistMultiVec<Real>& z, DistMultiVec<Real>& s,
+        DistMultiVec<Real>& x,           DistMultiVec<Real>& y, 
+        DistMultiVec<Real>& z,           DistMultiVec<Real>& s,
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::IPF"))    
@@ -233,29 +242,29 @@ void IPF
   ( const Matrix<Real>& A, const Matrix<Real>& G, \
     const Matrix<Real>& b, const Matrix<Real>& c, \
     const Matrix<Real>& h, \
-    Matrix<Real>& x, Matrix<Real>& y, \
-    Matrix<Real>& z, Matrix<Real>& s, \
+          Matrix<Real>& x,       Matrix<Real>& y, \
+          Matrix<Real>& z,       Matrix<Real>& s, \
     const IPFCtrl<Real>& ctrl ); \
   template void IPF \
   ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G, \
     const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
     const AbstractDistMatrix<Real>& h, \
-    AbstractDistMatrix<Real>& x, AbstractDistMatrix<Real>& y, \
-    AbstractDistMatrix<Real>& z, AbstractDistMatrix<Real>& s, \
+          AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y, \
+          AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s, \
     const IPFCtrl<Real>& ctrl ); \
   template void IPF \
   ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G, \
-    const Matrix<Real>& b, const Matrix<Real>& c, \
+    const Matrix<Real>& b,       const Matrix<Real>& c, \
     const Matrix<Real>& h, \
-    Matrix<Real>& x, Matrix<Real>& y, \
-    Matrix<Real>& z, Matrix<Real>& s, \
+          Matrix<Real>& x,             Matrix<Real>& y, \
+          Matrix<Real>& z,             Matrix<Real>& s, \
     const IPFCtrl<Real>& ctrl ); \
   template void IPF \
   ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G, \
-    const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, \
+    const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& h, \
-    DistMultiVec<Real>& x, DistMultiVec<Real>& y, \
-    DistMultiVec<Real>& z, DistMultiVec<Real>& s, \
+          DistMultiVec<Real>& x,           DistMultiVec<Real>& y, \
+          DistMultiVec<Real>& z,           DistMultiVec<Real>& s, \
     const IPFCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO

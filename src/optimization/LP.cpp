@@ -23,15 +23,8 @@ void LP
 {
     DEBUG_ONLY(CallStackEntry cse("LP"))
     if( ctrl.approach == LP_ADMM )
-    {
         lp::primal::ADMM( A, b, c, x, ctrl.admmCtrl );
-        return;
-    }
-
-    if( !ctrl.initialized )
-        lp::primal::Initialize( A, b, c, x, y, z );
-
-    if( ctrl.approach == LP_IPF )
+    else if( ctrl.approach == LP_IPF )
         lp::primal::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
     else if( ctrl.approach == LP_MEHROTRA )
         lp::primal::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
@@ -49,16 +42,6 @@ void LP
   const lp::dual::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LP"))
-
-    // Use the initialization procedure suggested by Vandenberghe
-    if( !ctrl.initialized )
-    {
-        Zeros( y, A.Height(), 1 );
-        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
-        s = h;
-        Gemv( NORMAL, Real(-1), G, x, Real(1), s );
-    }
-
     if( ctrl.approach == LP_IPF )
         lp::dual::IPF( A, G, b, c, h, x, y, z, s, ctrl.ipfCtrl );
     else if( ctrl.approach == LP_MEHROTRA )
@@ -77,15 +60,8 @@ void LP
 {
     DEBUG_ONLY(CallStackEntry cse("LP"))
     if( ctrl.approach == LP_ADMM )
-    {
         lp::primal::ADMM( A, b, c, x, ctrl.admmCtrl );
-        return;
-    }
-
-    if( !ctrl.initialized )
-        lp::primal::Initialize( A, b, c, x, y, z );
-
-    if( ctrl.approach == LP_IPF )
+    else if( ctrl.approach == LP_IPF )
         lp::primal::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
     else if( ctrl.approach == LP_MEHROTRA )
         lp::primal::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
@@ -103,16 +79,6 @@ void LP
   const lp::dual::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LP"))
-
-    // TODO: Use the initialization suggested by Vandenberghe
-    if( !ctrl.initialized )
-    {
-        Zeros( y, A.Height(), 1 );
-        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
-        Copy( h, s );
-        Gemv( NORMAL, Real(-1), G, x, Real(1), s );
-    }
-
     if( ctrl.approach == LP_IPF )
         lp::dual::IPF( A, G, b, c, h, x, y, z, s, ctrl.ipfCtrl );
     else if( ctrl.approach == LP_MEHROTRA )
@@ -130,10 +96,6 @@ void LP
   const lp::primal::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LP"))
-
-    if( !ctrl.initialized )
-        lp::primal::Initialize( A, b, c, x, y, z );
-
     if( ctrl.approach == LP_IPF )
         lp::primal::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
     else if( ctrl.approach == LP_MEHROTRA )
@@ -152,16 +114,6 @@ void LP
   const lp::dual::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LP"))
-
-    // TODO: Use the initialization suggested by Vandenberghe
-    if( !ctrl.initialized )
-    {
-        Zeros( y, A.Height(), 1 );
-        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
-        s = h;
-        Multiply( NORMAL, Real(-1), G, x, Real(1), s );
-    }
-
     if( ctrl.approach == LP_IPF )
         lp::dual::IPF( A, G, b, c, h, x, y, z, s, ctrl.ipfCtrl );
     else if( ctrl.approach == LP_MEHROTRA )
@@ -179,10 +131,6 @@ void LP
   const lp::primal::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LP"))
-
-    if( !ctrl.initialized )
-        lp::primal::Initialize( A, b, c, x, y, z );
-
     if( ctrl.approach == LP_IPF )
         lp::primal::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
     else if( ctrl.approach == LP_MEHROTRA )
@@ -201,16 +149,6 @@ void LP
   const lp::dual::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LP"))
-
-    // TODO: Use the initialization suggested by Vandenberghe
-    if( !ctrl.initialized )
-    {
-        Zeros( y, A.Height(), 1 );
-        Uniform( z, A.Width(), 1, Real(0.5), Real(0.49) );
-        s = h;
-        Multiply( NORMAL, Real(-1), G, x, Real(1), s );
-    }
-
     if( ctrl.approach == LP_IPF )
         lp::dual::IPF( A, G, b, c, h, x, y, z, s, ctrl.ipfCtrl );
     else if( ctrl.approach == LP_MEHROTRA )

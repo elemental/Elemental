@@ -155,9 +155,11 @@ void Initialize
 template<typename Real>
 void Initialize
 ( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c,
-        DistMultiVec<Real>& x,           DistMultiVec<Real>& y,
-        DistMultiVec<Real>& z )
+  const DistMultiVec<Real>& b,      const DistMultiVec<Real>& c,
+        DistMultiVec<Real>& x,            DistMultiVec<Real>& y,
+        DistMultiVec<Real>& z,
+        DistMap& map,                     DistMap& invMap, 
+        DistSeparatorTree& sepTree,       DistSymmInfo& info )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::Initialize"))
     const Int m = A.Height();
@@ -197,10 +199,6 @@ void Initialize
     Zeros( reg, m+n, 1 );
     // Compute the proposed step from the KKT system
     // ---------------------------------------------
-    // TODO: Think about reusing the partition information
-    DistMap map, invMap;
-    DistSymmInfo info;
-    DistSeparatorTree sepTree;
     NestedDissection( J.LockedDistGraph(), map, sepTree, info );
     map.FormInverse( invMap );
 
@@ -254,9 +252,11 @@ void Initialize
           Matrix<Real>& z ); \
   template void Initialize \
   ( const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, \
-          DistMultiVec<Real>& x,           DistMultiVec<Real>& y, \
-          DistMultiVec<Real>& z );
+    const DistMultiVec<Real>& b,      const DistMultiVec<Real>& c, \
+          DistMultiVec<Real>& x,            DistMultiVec<Real>& y, \
+          DistMultiVec<Real>& z, \
+          DistMap& map,                     DistMap& invMap, \
+          DistSeparatorTree& sepTree,       DistSymmInfo& info );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

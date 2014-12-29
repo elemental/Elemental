@@ -35,9 +35,11 @@ void Initialize
 template<typename Real>
 void Initialize
 ( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c,
-        DistMultiVec<Real>& x,           DistMultiVec<Real>& y, 
-        DistMultiVec<Real>& z );
+  const DistMultiVec<Real>& b,      const DistMultiVec<Real>& c,
+        DistMultiVec<Real>& x,            DistMultiVec<Real>& y, 
+        DistMultiVec<Real>& z, 
+        DistMap& map,                     DistMap& invMap,
+        DistSeparatorTree& sepTree,       DistSymmInfo& info );
 
 // Full system
 // ===========

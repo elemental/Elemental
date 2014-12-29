@@ -141,13 +141,15 @@ lib.ElLPPrimalIPFCtrlDefault_s.restype = c_uint
 lib.ElLPPrimalIPFCtrlDefault_d.argtypes = [c_void_p,bType]
 lib.ElLPPrimalIPFCtrlDefault_d.restype = c_uint
 class LPPrimalIPFCtrl_s(ctypes.Structure):
-  _fields_ = [("tol",sType),("maxIts",iType),("centering",sType),
+  _fields_ = [("initialized",bType),
+              ("tol",sType),("maxIts",iType),("centering",sType),
               ("system",c_uint),("lineSearchCtrl",LPPrimalIPFLineSearchCtrl_s),
               ("progress",bType)]
   def __init__(self,isSparse=True):
     lib.ElLPPrimalIPFCtrlDefault_s(pointer(self),isSparse)
 class LPPrimalIPFCtrl_d(ctypes.Structure):
-  _fields_ = [("tol",dType),("maxIts",iType),("centering",dType),
+  _fields_ = [("initialized",bType),
+              ("tol",dType),("maxIts",iType),("centering",dType),
               ("system",c_uint),("lineSearchCtrl",LPPrimalIPFLineSearchCtrl_d),
               ("progress",bType)]
   def __init__(self,isSparse=True):
@@ -158,12 +160,14 @@ lib.ElLPPrimalMehrotraCtrlDefault_s.restype = c_uint
 lib.ElLPPrimalMehrotraCtrlDefault_d.argtypes = [c_void_p,bType]
 lib.ElLPPrimalMehrotraCtrlDefault_d.restype = c_uint
 class LPPrimalMehrotraCtrl_s(ctypes.Structure):
-  _fields_ = [("tol",sType),("maxIts",iType),("maxStepRatio",sType),
+  _fields_ = [("initialized",bType),
+              ("tol",sType),("maxIts",iType),("maxStepRatio",sType),
               ("system",c_uint),("progress",bType)]
   def __init__(self,isSparse=True):
     lib.ElLPPrimalMehrotraCtrlDefault_s(pointer(self),isSparse)
 class LPPrimalMehrotraCtrl_d(ctypes.Structure):
-  _fields_ = [("tol",dType),("maxIts",iType),("maxStepRatio",dType),
+  _fields_ = [("initialized",bType),
+              ("tol",dType),("maxIts",iType),("maxStepRatio",dType),
               ("system",c_uint),("progress",bType)]
   def __init__(self,isSparse=True):
     lib.ElLPPrimalMehrotraCtrlDefault_d(pointer(self),isSparse)
@@ -177,13 +181,13 @@ lib.ElLPPrimalCtrlDefault_d.restype = c_uint
 class LPPrimalCtrl_s(ctypes.Structure):
   _fields_ = [("approach",c_uint),("admmCtrl",LPPrimalADMMCtrl_s),
               ("ipfCtrl",LPPrimalIPFCtrl_s),
-              ("mehrotraCtrl",LPPrimalMehrotraCtrl_s),("initialized",bType)]
+              ("mehrotraCtrl",LPPrimalMehrotraCtrl_s)]
   def __init__(self,isSparse=True):
     lib.ElLPPrimalCtrlDefault_s(pointer(self),isSparse)
 class LPPrimalCtrl_d(ctypes.Structure):
   _fields_ = [("approach",c_uint),("admmCtrl",LPPrimalADMMCtrl_d),
               ("ipfCtrl",LPPrimalIPFCtrl_d),
-              ("mehrotraCtrl",LPPrimalMehrotraCtrl_d),("initialized",bType)]
+              ("mehrotraCtrl",LPPrimalMehrotraCtrl_d)]
   def __init__(self,isSparse=True):
     lib.ElLPPrimalCtrlDefault_d(pointer(self),isSparse)
 

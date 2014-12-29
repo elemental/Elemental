@@ -51,7 +51,6 @@ if display:
 # Set up the control structure (and possibly initial guesses)
 # ===========================================================
 ctrl = El.LPPrimalCtrl_d(isSparse=False)
-ctrl.initialized = manualInit
 xOrig = El.DistMatrix()
 yOrig = El.DistMatrix()
 zOrig = El.DistMatrix()
@@ -65,6 +64,7 @@ z = El.DistMatrix()
 
 if testMehrotra:
   ctrl.approach = El.LP_MEHROTRA
+  ctrl.mehrotraCtrl.initialized = manualInit
   ctrl.mehrotraCtrl.progress = progress
   El.Copy( xOrig, x )
   El.Copy( yOrig, y )
@@ -86,6 +86,7 @@ if testMehrotra:
 
 if testIPF:
   ctrl.approach = El.LP_IPF
+  ctrl.ipfCtrl.initialized = manualInit
   ctrl.ipfCtrl.progress = progress
   El.Copy( xOrig, x )
   El.Copy( yOrig, y )
