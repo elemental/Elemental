@@ -49,7 +49,7 @@ void IPF
                  rc, rb, rmu, 
                  dx, dy, dz;
 #ifndef EL_RELEASE
-    Matrix<Real> dxError, dyError, dzError;
+    Matrix<Real> dxError, dyError, dzError, prod;
 #endif
     for( Int numIts=0; ; ++numIts )
     {
@@ -149,26 +149,24 @@ void IPF
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
-        const Real rmuNrm2 = Nrm2( rmu );
-        dzError = rmu;
-        for( Int i=0; i<n; ++i )
-        {
-            const Real xi = x.Get(i,0);
-            const Real zi = z.Get(i,0);
-            const Real dxi = dx.Get(i,0);
-            const Real dzi = dz.Get(i,0);
-            dzError.Update( i, 0, xi*dzi + zi*dxi );
-        }
-        const Real dzErrorNrm2 = Nrm2( dzError );
+        dxError = rb;
+        Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
+        const Real dxErrorNrm2 = Nrm2( dxError );
 
         dyError = rc;
         Gemv( TRANSPOSE, Real(1), A, dy, Real(1), dyError );
         Axpy( Real(-1), dz, dyError );
         const Real dyErrorNrm2 = Nrm2( dyError );
 
-        dxError = rb;
-        Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
-        const Real dxErrorNrm2 = Nrm2( dxError );
+        const Real rmuNrm2 = Nrm2( rmu );
+        dzError = rmu;
+        prod = dz;
+        DiagonalScale( LEFT, NORMAL, x, prod );
+        Axpy( Real(1), prod, dzError );
+        prod = dx;
+        DiagonalScale( LEFT, NORMAL, z, prod ); 
+        Axpy( Real(1), prod, dzError );
+        const Real dzErrorNrm2 = Nrm2( dzError );
 
         if( ctrl.print )
             std::cout << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
@@ -232,7 +230,7 @@ void IPF
     dz.AlignWith( x );
     rmu.AlignWith( x );
 #ifndef EL_RELEASE
-    DistMatrix<Real> dxError(grid), dyError(grid), dzError(grid);
+    DistMatrix<Real> dxError(grid), dyError(grid), dzError(grid), prod(grid);
     dzError.AlignWith( dz );
 #endif
     for( Int numIts=0; ; ++numIts )
@@ -333,30 +331,24 @@ void IPF
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
-        const Real rmuNrm2 = Nrm2( rmu );
-        // TODO: Find a more convenient syntax for expressing this operation
-        dzError = rmu;
-        if( dzError.IsLocalCol(0) )
-        {
-            for( Int iLoc=0; iLoc<dzError.LocalHeight(); ++iLoc )
-            {
-                const Real xi = x.GetLocal(iLoc,0);
-                const Real zi = z.GetLocal(iLoc,0);
-                const Real dxi = dx.GetLocal(iLoc,0);
-                const Real dzi = dz.GetLocal(iLoc,0);
-                dzError.UpdateLocal( iLoc, 0, xi*dzi + zi*dxi );
-            }
-        }
-        const Real dzErrorNrm2 = Nrm2( dzError );
+        dxError = rb;
+        Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
+        const Real dxErrorNrm2 = Nrm2( dxError );
 
         dyError = rc;
         Gemv( TRANSPOSE, Real(1), A, dy, Real(1), dyError );
         Axpy( Real(-1), dz, dyError );
         const Real dyErrorNrm2 = Nrm2( dyError );
 
-        dxError = rb;
-        Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
-        const Real dxErrorNrm2 = Nrm2( dxError );
+        const Real rmuNrm2 = Nrm2( rmu );
+        dzError = rmu;
+        prod = dz;
+        DiagonalScale( LEFT, NORMAL, x, prod );
+        Axpy( Real(1), prod, dzError );
+        prod = dx;
+        DiagonalScale( LEFT, NORMAL, z, prod );
+        Axpy( Real(1), prod, dzError );
+        const Real dzErrorNrm2 = Nrm2( dzError );
 
         if( ctrl.print && commRank == 0 )
             std::cout << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
@@ -447,7 +439,7 @@ void IPF
     DistNodalMultiVec<Real> regCandNodal, regNodal;
 
 #ifndef EL_RELEASE
-    DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm);
+    DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm), prod(comm);
 #endif
     for( Int numIts=0; ; ++numIts )
     {
@@ -633,26 +625,24 @@ void IPF
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
-        const Real rmuNrm2 = Nrm2( rmu );
-        dzError = rmu;
-        for( Int iLoc=0; iLoc<dzError.LocalHeight(); ++iLoc )
-        {
-            const Real xi = x.GetLocal(iLoc,0);
-            const Real zi = z.GetLocal(iLoc,0);
-            const Real dxi = dx.GetLocal(iLoc,0);
-            const Real dzi = dz.GetLocal(iLoc,0);
-            dzError.UpdateLocal( iLoc, 0, xi*dzi + zi*dxi );
-        }
-        const Real dzErrorNrm2 = Nrm2( dzError );
+        dxError = rb;
+        Multiply( NORMAL, Real(1), A, dx, Real(1), dxError );
+        const Real dxErrorNrm2 = Nrm2( dxError );
 
         dyError = rc;
         Multiply( TRANSPOSE, Real(1), A, dy, Real(1), dyError );
         Axpy( Real(-1), dz, dyError );
         const Real dyErrorNrm2 = Nrm2( dyError );
 
-        dxError = rb;
-        Multiply( NORMAL, Real(1), A, dx, Real(1), dxError );
-        const Real dxErrorNrm2 = Nrm2( dxError );
+        const Real rmuNrm2 = Nrm2( rmu );
+        dzError = rmu;
+        prod = dz;
+        DiagonalScale( NORMAL, x, prod );
+        Axpy( Real(1), prod, dzError );
+        prod = dx;
+        DiagonalScale( NORMAL, z, prod );
+        Axpy( Real(1), prod, dzError );
+        const Real dzErrorNrm2 = Nrm2( dzError );
 
         if( ctrl.print && commRank == 0 )
             std::cout << "  || dxError ||_2 / (1 + || r_b ||_2) = " 

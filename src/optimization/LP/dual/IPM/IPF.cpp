@@ -143,14 +143,14 @@ void IPF
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
+        dxError = rb;
+        Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
+        const Real dxErrorNrm2 = Nrm2( dxError );
+
         dyError = rc;
         Gemv( TRANSPOSE, Real(1), A, dy, Real(1), dyError );
         Gemv( TRANSPOSE, Real(1), G, dz, Real(1), dyError );
         const Real dyErrorNrm2 = Nrm2( dyError );
-
-        dxError = rb;
-        Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
-        const Real dxErrorNrm2 = Nrm2( dxError );
 
         dzError = rh;
         Gemv( NORMAL, Real(1), G, dx, Real(1), dzError );
@@ -320,14 +320,14 @@ void IPF
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
+        dxError = rb;
+        Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
+        const Real dxErrorNrm2 = Nrm2( dxError );
+
         dyError = rc;
         Gemv( TRANSPOSE, Real(1), A, dy, Real(1), dyError );
         Gemv( TRANSPOSE, Real(1), G, dz, Real(1), dyError );
         const Real dyErrorNrm2 = Nrm2( dyError );
-
-        dxError = rb;
-        Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
-        const Real dxErrorNrm2 = Nrm2( dxError );
 
         dzError = rh;
         Gemv( NORMAL, Real(1), G, dx, Real(1), dzError );
@@ -543,14 +543,14 @@ void IPF
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
+        dxError = rb;
+        Multiply( NORMAL, Real(1), A, dx, Real(1), dxError );
+        const Real dxErrorNrm2 = Nrm2( dxError );
+
         dyError = rc;
         Multiply( TRANSPOSE, Real(1), A, dy, Real(1), dyError );
         Multiply( TRANSPOSE, Real(1), G, dz, Real(1), dyError );
         const Real dyErrorNrm2 = Nrm2( dyError );
-
-        dxError = rb;
-        Multiply( NORMAL, Real(1), A, dx, Real(1), dxError );
-        const Real dxErrorNrm2 = Nrm2( dxError );
 
         dzError = rh;
         Multiply( NORMAL, Real(1), G, dx, Real(1), dzError );

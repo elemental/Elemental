@@ -19,7 +19,7 @@ void IPF
   const Matrix<Real>& h,
         Matrix<Real>& x,       Matrix<Real>& y,
         Matrix<Real>& z,       Matrix<Real>& s,
-  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>(false) );
+  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 template<typename Real>
 void IPF
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G,
@@ -27,7 +27,7 @@ void IPF
   const AbstractDistMatrix<Real>& h,
         AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
         AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s,
-  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>(false) );
+  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 template<typename Real>
 void IPF
 ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
@@ -35,7 +35,7 @@ void IPF
   const Matrix<Real>& h,
         Matrix<Real>& x,             Matrix<Real>& y,
         Matrix<Real>& z,             Matrix<Real>& s,
-  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>(true) );
+  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 template<typename Real>
 void IPF
 ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
@@ -43,7 +43,7 @@ void IPF
   const DistMultiVec<Real>& h,
         DistMultiVec<Real>& x,           DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,           DistMultiVec<Real>& s,
-  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>(true) );
+  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 
 template<typename Real>
 void Mehrotra
@@ -52,7 +52,7 @@ void Mehrotra
   const Matrix<Real>& h,
         Matrix<Real>& x,       Matrix<Real>& y,
         Matrix<Real>& z,       Matrix<Real>& s,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>(false) );
+  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G,
@@ -60,7 +60,7 @@ void Mehrotra
   const AbstractDistMatrix<Real>& h,
         AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
         AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>(false) );
+  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra
 ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
@@ -68,7 +68,7 @@ void Mehrotra
   const Matrix<Real>& h,
         Matrix<Real>& x,             Matrix<Real>& y,
         Matrix<Real>& z,             Matrix<Real>& s,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>(true) );
+  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra
 ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
@@ -76,7 +76,7 @@ void Mehrotra
   const DistMultiVec<Real>& h,
         DistMultiVec<Real>& x,           DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,           DistMultiVec<Real>& s,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>(true) );
+  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 
 } // namespace dual
 } // namespace lp

@@ -144,14 +144,14 @@ void Mehrotra
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
+        dxError = rb;
+        Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
+        const Real dxErrorNrm2 = Nrm2( dxError );
+
         dyError = rc;
         Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
         Gemv( TRANSPOSE, Real(1), G, dzAff, Real(1), dyError );
         const Real dyErrorNrm2 = Nrm2( dyError );
-
-        dxError = rb;
-        Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
-        const Real dxErrorNrm2 = Nrm2( dxError );
 
         dzError = rh;
         Gemv( NORMAL, Real(1), G, dxAff, Real(1), dzError );
@@ -381,14 +381,14 @@ void Mehrotra
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
+        dxError = rb;
+        Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
+        const Real dxErrorNrm2 = Nrm2( dxError );
+
         dyError = rc;
         Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
         Gemv( TRANSPOSE, Real(1), G, dzAff, Real(1), dyError );
         const Real dyErrorNrm2 = Nrm2( dyError );
-
-        dxError = rb;
-        Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
-        const Real dxErrorNrm2 = Nrm2( dxError );
 
         dzError = rh;
         Gemv( NORMAL, Real(1), G, dxAff, Real(1), dzError );
@@ -501,7 +501,264 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::Mehrotra"))    
-    LogicError("This routine is not yet written");
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int k = G.Height();
+    mpi::Comm comm = A.Comm();
+    const Int commRank = mpi::Rank(comm);
+    const Real epsilon = lapack::MachineEpsilon<Real>();
+
+    const Real bNrm2 = Nrm2( b );
+    const Real cNrm2 = Nrm2( c );
+    const Real hNrm2 = Nrm2( h );
+
+    DistSymmInfo info;
+    DistSeparatorTree sepTree;
+    DistMap map, invMap;
+
+    // TODO: Use the initialization suggested by Vandenberghe
+    if( !ctrl.initialized )
+    {
+        Gaussian( x, n, 1 );
+        Zeros( y, m, 1 );
+        Uniform( z, k, 1, Real(0.5), Real(0.49) );
+        s = h;
+        Multiply( NORMAL, Real(-1), G, x, Real(1), s );
+        LowerClip( s, Real(1) );
+    }
+
+    DistSparseMatrix<Real> J(comm);
+    DistSymmFrontTree<Real> JFrontTree;
+    DistMultiVec<Real> d(comm),
+                       rc(comm),    rb(comm),    rh(comm),    rmu(comm),
+                       dxAff(comm), dyAff(comm), dzAff(comm), dsAff(comm),
+                       dx(comm),    dy(comm),    dz(comm),    ds(comm);
+    DistNodalMultiVec<Real> dNodal;
+
+    DistMultiVec<Real> regCand(comm), reg(comm);
+    DistNodalMultiVec<Real> regCandNodal, regNodal;
+
+#ifndef EL_RELEASE
+    DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm);
+#endif
+    for( Int numIts=0; ; ++numIts )
+    {
+        // Ensure that s and z are in the cone
+        // ===================================
+        const Int sNumNonPos = NumNonPositive( s );
+        const Int zNumNonPos = NumNonPositive( z );
+        if( sNumNonPos > 0 || zNumNonPos > 0 )
+            LogicError
+            (sNumNonPos," entries of s were nonpositive and ",
+             zNumNonPos," entries of z were nonpositive");
+
+        // Check for convergence
+        // =====================
+        // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
+        // ---------------------------------------------------
+        const Real primObj = Dot(c,x);
+        const Real dualObj = -Dot(b,y) - Dot(h,z);
+        const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
+        // || r_b ||_2 / (1 + || b ||_2) <= tol ?
+        // --------------------------------------
+        rb = b;
+        Scale( Real(-1), rb );
+        Multiply( NORMAL, Real(1), A, x, Real(1), rb );
+        const Real rbNrm2 = Nrm2( rb );
+        const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
+        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
+        // --------------------------------------
+        rc = c;
+        Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
+        Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
+        const Real rcNrm2 = Nrm2( rc );
+        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
+        // || r_h ||_2 / (1 + || h ||_2) <= tol
+        // ------------------------------------
+        rh = h;
+        Scale( Real(-1), rh );
+        Multiply( NORMAL, Real(1), G, x, Real(1), rh );
+        Axpy( Real(1), s, rh );
+        const Real rhNrm2 = Nrm2( rh );
+        const Real rhConv = rhNrm2 / (Real(1)+hNrm2);
+        // Now check the pieces
+        // --------------------
+        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
+            break;
+        else if( ctrl.print && commRank == 0 )
+            std::cout << " iter " << numIts << ":\n"
+                      << "  |primal - dual| / (1 + |primal|) = "
+                      << objConv << "\n"
+                      << "  || r_b ||_2 / (1 + || b ||_2)   = "
+                      << rbConv << "\n"
+                      << "  || r_c ||_2 / (1 + || c ||_2)   = "
+                      << rcConv << "\n"
+                      << "  || r_h ||_2 / (1 + || h ||_2)   = "
+                      << rhConv << std::endl;
+
+        // Raise an exception after an unacceptable number of iterations
+        // =============================================================
+        if( numIts == ctrl.maxIts )
+            RuntimeError
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
+
+        // r_mu := s o z
+        // =============
+        rmu = z;
+        DiagonalScale( NORMAL, s, rmu );
+
+        // Compute the affine search direction
+        // ===================================
+        //const Real minReductionFactor = 2;
+        //const Int maxRefineIts = 10;
+        {
+            // Construct the full KKT system
+            // -----------------------------
+            // TODO: Add default regularization
+            KKT( A, G, s, z, J, false );
+            KKTRHS( rc, rb, rh, rmu, z, d );
+            const Real pivTol = MaxNorm(J)*epsilon;
+            const Real regMagPrimal = Pow(epsilon,Real(0.75));
+            const Real regMagLagrange = Pow(epsilon,Real(0.5));
+            const Real regMagDual = Pow(epsilon,Real(0.5));
+            regCand.Resize( m+n+k, 1 );
+            for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
+            {
+                const Int i = regCand.FirstLocalRow() + iLoc;
+                if( i < n )
+                    regCand.SetLocal( iLoc, 0, regMagPrimal );
+                else if( i < n+m )
+                    regCand.SetLocal( iLoc, 0, -regMagLagrange );
+                else
+                    regCand.SetLocal( iLoc, 0, -regMagDual );
+            }
+            // Do not use any a priori regularization
+            Zeros( reg, m+n+k, 1 );
+
+            // Compute the proposed step from the KKT system
+            // ---------------------------------------------
+            if( numIts == 0 )
+            {
+                NestedDissection( J.LockedDistGraph(), map, sepTree, info );
+                map.FormInverse( invMap );
+            }
+            JFrontTree.Initialize( J, map, sepTree, info );
+            regCandNodal.Pull( invMap, info, regCand );
+            regNodal.Pull( invMap, info, reg );
+            RegularizedLDL
+            ( info, JFrontTree, pivTol, regCandNodal, regNodal, LDL_1D );
+            regNodal.Push( invMap, info, reg );
+            // TODO: Iterative refinement
+            /*
+            SolveWithIterativeRefinement
+            ( J, invMap, info, JFrontTree, d, 
+              minReductionFactor, maxRefineIts );
+            */
+            dNodal.Pull( invMap, info, d );
+            Solve( info, JFrontTree, dNodal );
+            dNodal.Push( invMap, info, d );
+            ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
+        }
+#ifndef EL_RELEASE
+        // Sanity checks
+        // =============
+        dxError = rb;
+        Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
+        const Real dxErrorNrm2 = Nrm2( dxError );
+
+        dyError = rc;
+        Multiply( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
+        Multiply( TRANSPOSE, Real(1), G, dzAff, Real(1), dyError );
+        const Real dyErrorNrm2 = Nrm2( dyError );
+
+        dzError = rh;
+        Multiply( NORMAL, Real(1), G, dxAff, Real(1), dzError );
+        Axpy( Real(1), dsAff, dzError );
+        const Real dzErrorNrm2 = Nrm2( dzError );
+
+        // TODO: dmuError
+
+        if( ctrl.print && commRank == 0 )
+            std::cout << "  || dxError ||_2 / (1 + || r_b ||_2) = "
+                      << dxErrorNrm2/(1+rbNrm2) << "\n"
+                      << "  || dyError ||_2 / (1 + || r_c ||_2) = "
+                      << dyErrorNrm2/(1+rcNrm2) << "\n"
+                      << "  || dzError ||_2 / (1 + || r_mu ||_2) = "
+                      << dzErrorNrm2/(1+rhNrm2) << std::endl;
+#endif
+
+        // Compute the max affine [0,1]-step which keeps s and z in the cone
+        // =================================================================
+        const Real alphaAffPri = MaxStepInPositiveCone( s, dsAff, Real(1) );
+        const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        if( ctrl.print && commRank == 0 )
+            std::cout << "  alphaAffPri = " << alphaAffPri
+                      << ", alphaAffDual = " << alphaAffDual << std::endl;
+
+        // Compute what the new duality measure would become
+        // =================================================
+        const Real mu = Dot(s,z) / k;
+        // NOTE: dz and ds are used as temporaries
+        ds = s;
+        dz = z;
+        Axpy( alphaAffPri,  dsAff, ds );
+        Axpy( alphaAffDual, dzAff, dz );
+        const Real muAff = Dot(ds,dz) / k;
+
+        // Compute a centrality parameter using Mehrotra's formula
+        // =======================================================
+        // TODO: Allow the user to override this function
+        const Real sigma = Pow(muAff/mu,Real(3));
+        if( ctrl.print && commRank == 0 )
+            std::cout << "  muAff = " << muAff
+                      << ", mu = " << mu
+                      << ", sigma = " << sigma << std::endl;
+
+        // Solve for the centering-corrector
+        // =================================
+        Zeros( rc, n, 1 );
+        Zeros( rb, m, 1 );
+        Zeros( rh, k, 1 );
+        // r_mu := dsAff o dzAff - sigma*mu
+        // --------------------------------
+        rmu = dzAff;
+        DiagonalScale( NORMAL, dsAff, rmu );
+        Shift( rmu, -sigma*mu );
+        // Construct the new full KKT RHS
+        // ------------------------------
+        KKTRHS( rc, rb, rh, rmu, z, d );
+        // Compute the proposed step from the KKT system
+        // ---------------------------------------------
+        // TODO: Iterative refinement
+        dNodal.Pull( invMap, info, d );
+        Solve( info, JFrontTree, dNodal );
+        dNodal.Push( invMap, info, d );
+        ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
+
+        // Add in the affine search direction
+        // ==================================
+        Axpy( Real(1), dxAff, dx );
+        Axpy( Real(1), dyAff, dy );
+        Axpy( Real(1), dzAff, dz );
+        Axpy( Real(1), dsAff, ds );
+
+        // Compute max [0,1/maxStepRatio] step which keeps s and z in the cone
+        // ===================================================================
+        Real alphaPri = MaxStepInPositiveCone( s, ds, 1/ctrl.maxStepRatio );
+        Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
+        alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
+        alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        if( ctrl.print && commRank == 0 )
+            std::cout << "  alphaPri = " << alphaPri
+                      << ", alphaDual = " << alphaDual << std::endl;
+
+        // Update the current estimates
+        // ============================
+        Axpy( alphaPri,  dx, x );
+        Axpy( alphaPri,  ds, s );
+        Axpy( alphaDual, dy, y );
+        Axpy( alphaDual, dz, z );
+    }
 }
 
 #define PROTO(Real) \

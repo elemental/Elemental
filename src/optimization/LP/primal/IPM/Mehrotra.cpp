@@ -51,7 +51,7 @@ void Mehrotra
     Matrix<Real> dSub;
     Matrix<Int> p;
 #ifndef EL_RELEASE
-    Matrix<Real> dxError, dyError, dzError;
+    Matrix<Real> dxError, dyError, dzError, prod;
 #endif
     for( Int numIts=0; ; ++numIts )
     {
@@ -150,30 +150,27 @@ void Mehrotra
             ldl::SolveAfter( J, dSub, p, dyAff, false );
             ExpandNormalSolution( A, c, x, z, rc, rmu, dxAff, dyAff, dzAff );
         }
-
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
-        Real rmuNrm2 = Nrm2( rmu ); 
-        dzError = rmu;
-        for( Int i=0; i<n; ++i )
-        {
-            const Real xi = x.Get(i,0);
-            const Real zi = z.Get(i,0);
-            const Real dxi = dxAff.Get(i,0);
-            const Real dzi = dzAff.Get(i,0);
-            dzError.Update( i, 0, xi*dzi + zi*dxi );
-        }
-        Real dzErrorNrm2 = Nrm2( dzError );
+        dxError = rb;
+        Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
+        Real dxErrorNrm2 = Nrm2( dxError );
 
         dyError = rc;
         Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
         Axpy( Real(-1), dzAff, dyError );
         Real dyErrorNrm2 = Nrm2( dyError );
 
-        dxError = rb;
-        Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
-        Real dxErrorNrm2 = Nrm2( dxError );
+        Real rmuNrm2 = Nrm2( rmu );
+        dzError = rmu;
+        prod = dzAff;
+        DiagonalScale( LEFT, NORMAL, x, prod );
+        Axpy( Real(1), prod, dzError );
+        prod = dxAff;
+        DiagonalScale( LEFT, NORMAL, z, prod );
+        Axpy( Real(1), prod, dzError );
+        Real dzErrorNrm2 = Nrm2( dzError );
 
         if( ctrl.print )
             std::cout << "  || dxAffError ||_2 / (1 + || r_b ||_2) = " 
@@ -324,7 +321,7 @@ void Mehrotra
     DistMatrix<Real> dSub(grid);
     DistMatrix<Int> p(grid);
 #ifndef EL_RELEASE
-    DistMatrix<Real> dxError(grid), dyError(grid), dzError(grid);
+    DistMatrix<Real> dxError(grid), dyError(grid), dzError(grid), prod(grid);
     dzError.AlignWith( dz );
 #endif
     for( Int numIts=0; ; ++numIts )
@@ -424,34 +421,27 @@ void Mehrotra
             ldl::SolveAfter( J, dSub, p, dyAff, false );
             ExpandNormalSolution( A, c, x, z, rc, rmu, dxAff, dyAff, dzAff );
         }
-
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
-        Real rmuNrm2 = Nrm2( rmu ); 
-        // TODO: Find a more convenient syntax for expressing this operation
-        dzError = rmu;
-        if( dzError.IsLocalCol(0) )
-        {
-            for( Int iLoc=0; iLoc<dzError.LocalHeight(); ++iLoc )
-            {
-                const Real xi = x.GetLocal(iLoc,0);
-                const Real zi = z.GetLocal(iLoc,0);
-                const Real dxi = dxAff.GetLocal(iLoc,0);
-                const Real dzi = dzAff.GetLocal(iLoc,0);
-                dzError.UpdateLocal( iLoc, 0, xi*dzi + zi*dxi );
-            }
-        }
-        Real dzErrorNrm2 = Nrm2( dzError );
+        dxError = rb;
+        Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
+        Real dxErrorNrm2 = Nrm2( dxError );
 
         dyError = rc;
         Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
         Axpy( Real(-1), dzAff, dyError );
         Real dyErrorNrm2 = Nrm2( dyError );
 
-        dxError = rb;
-        Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
-        Real dxErrorNrm2 = Nrm2( dxError );
+        Real rmuNrm2 = Nrm2( rmu );
+        dzError = rmu;
+        prod = dzAff;
+        DiagonalScale( LEFT, NORMAL, x, prod );
+        Axpy( Real(1), prod, dzError );
+        prod = dxAff;
+        DiagonalScale( LEFT, NORMAL, z, prod );
+        Axpy( Real(1), prod, dzError );
+        Real dzErrorNrm2 = Nrm2( dzError );
 
         if( ctrl.print && commRank == 0 )
             std::cout << "  || dxAffError ||_2 / (1 + || r_b ||_2) = " 
@@ -624,7 +614,7 @@ void Mehrotra
     DistNodalMultiVec<Real> regCandNodal, regNodal;
 
 #ifndef EL_RELEASE
-    DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm);
+    DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm), prod(comm);
 #endif
     for( Int numIts=0; ; ++numIts )
     {
@@ -802,30 +792,27 @@ void Mehrotra
               minReductionFactor, maxRefineIts );
             ExpandNormalSolution( A, c, x, z, rc, rmu, dxAff, dyAff, dzAff );
         }
-
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
-        Real rmuNrm2 = Nrm2( rmu ); 
-        dzError = rmu;
-        for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
-        {
-            const Real xi = x.GetLocal(iLoc,0);
-            const Real zi = z.GetLocal(iLoc,0);
-            const Real dxi = dxAff.GetLocal(iLoc,0);
-            const Real dzi = dzAff.GetLocal(iLoc,0);
-            dzError.UpdateLocal( iLoc, 0, xi*dzi + zi*dxi );
-        }
-        Real dzErrorNrm2 = Nrm2( dzError );
+        dxError = rb;
+        Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
+        Real dxErrorNrm2 = Nrm2( dxError );
 
         dyError = rc;
         Multiply( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
         Axpy( Real(-1), dzAff, dyError );
         Real dyErrorNrm2 = Nrm2( dyError );
 
-        dxError = rb;
-        Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
-        Real dxErrorNrm2 = Nrm2( dxError );
+        Real rmuNrm2 = Nrm2( rmu );
+        dzError = rmu;
+        prod = dzAff;
+        DiagonalScale( NORMAL, x, prod );
+        Axpy( Real(1), prod, dzError );
+        prod = dxAff;
+        DiagonalScale( NORMAL, z, prod );
+        Axpy( Real(1), prod, dzError );
+        Real dzErrorNrm2 = Nrm2( dzError );
 
         if( ctrl.print && commRank == 0 )
             std::cout << "  || dxAffError ||_2 / (1 + || r_b ||_2) = " 
@@ -913,7 +900,6 @@ void Mehrotra
               minReductionFactor, maxRefineIts );
             ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
-
         // TODO: Residual checks for center-corrector
 
         // Add in the affine search direction
