@@ -94,7 +94,7 @@ Real IPFLineSearch
     const Real rbNrm2 = Nrm2( rb );
     const Real rcNrm2 = Nrm2( rc );
     const Real rhNrm2 = Nrm2( rh );
-    const Real mu = Dot(s,z) / n;
+    const Real mu = Dot(s,z) / k;
     // Perform the line search using the cached data
     // ---------------------------------------------
     Real alpha = 1;
@@ -111,9 +111,9 @@ Real IPFLineSearch
         z_alpha = z;
         Axpy( alpha, dz, z_alpha );
 
-        // mu(alpha) = s(alpha)^T z / n
+        // mu(alpha) = s(alpha)^T z / k
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        const Real mu_alpha = Dot(s_alpha,z_alpha) / n;
+        const Real mu_alpha = Dot(s_alpha,z_alpha) / k;
         if( mu_alpha > (1-alpha/ctrl.psi)*mu )
         {
             if( ctrl.print )
@@ -126,7 +126,7 @@ Real IPFLineSearch
         //    s_i(alpha) z_i(alpha) >= gamma mu(alpha)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         bool balanced = true;
-        for( Int i=0; i<n; ++i )
+        for( Int i=0; i<k; ++i )
         {
             const Real si_alpha = s_alpha.Get(i,0);
             const Real zi_alpha = z_alpha.Get(i,0);
@@ -273,7 +273,7 @@ Real IPFLineSearch
     const Real rbNrm2 = Nrm2( rb );
     const Real rcNrm2 = Nrm2( rc );
     const Real rhNrm2 = Nrm2( rh );
-    const Real mu = Dot(s,z) / n;
+    const Real mu = Dot(s,z) / k;
     // Perform the line search using the cached data
     // ---------------------------------------------
     Real alpha = 1;
@@ -293,9 +293,9 @@ Real IPFLineSearch
         z_alpha = z;
         Axpy( alpha, dz, z_alpha );
 
-        // mu(alpha) = s(alpha)^T z / n
+        // mu(alpha) = s(alpha)^T z / k
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        const Real mu_alpha = Dot(s_alpha,z_alpha) / n;
+        const Real mu_alpha = Dot(s_alpha,z_alpha) / k;
         if( mu_alpha > (1-alpha/ctrl.psi)*mu )
         {
             if( ctrl.print && commRank == 0 )
@@ -454,7 +454,7 @@ Real IPFLineSearch
     const Real rbNrm2 = Nrm2( rb );
     const Real rcNrm2 = Nrm2( rc );
     const Real rhNrm2 = Nrm2( rh );
-    const Real mu = Dot(s,z) / n;
+    const Real mu = Dot(s,z) / k;
     // Perform the line search using the cached data
     // ---------------------------------------------
     Real alpha = 1;
@@ -471,9 +471,9 @@ Real IPFLineSearch
         z_alpha = z;
         Axpy( alpha, dz, z_alpha );
 
-        // mu(alpha) = s(alpha)^T z / n
+        // mu(alpha) = s(alpha)^T z / k
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        const Real mu_alpha = Dot(s_alpha,z_alpha) / n;
+        const Real mu_alpha = Dot(s_alpha,z_alpha) / k;
         if( mu_alpha > (1-alpha/ctrl.psi)*mu )
         {
             if( ctrl.print )
@@ -486,7 +486,7 @@ Real IPFLineSearch
         //    s_i(alpha) z_i(alpha) >= gamma mu(alpha)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         bool balanced = true;
-        for( Int i=0; i<n; ++i )
+        for( Int i=0; i<k; ++i )
         {
             const Real si_alpha = s_alpha.Get(i,0);
             const Real zi_alpha = z_alpha.Get(i,0);
@@ -575,7 +575,7 @@ Real IPFLineSearch
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
-    const Int nLocal = x.LocalHeight();
+    const Int kLocal = s.LocalHeight();
     mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
 
@@ -630,7 +630,7 @@ Real IPFLineSearch
     const Real rbNrm2 = Nrm2( rb );
     const Real rcNrm2 = Nrm2( rc );
     const Real rhNrm2 = Nrm2( rh );
-    const Real mu = Dot(s,z) / n;
+    const Real mu = Dot(s,z) / k;
     // Perform the line search using the cached data
     // ---------------------------------------------
     Real alpha = 1;
@@ -648,9 +648,9 @@ Real IPFLineSearch
         z_alpha = z;
         Axpy( alpha, dz, z_alpha );
 
-        // mu(alpha) = s(alpha)^T z / n
+        // mu(alpha) = s(alpha)^T z / k
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        const Real mu_alpha = Dot(s_alpha,z_alpha) / n;
+        const Real mu_alpha = Dot(s_alpha,z_alpha) / k;
         if( mu_alpha > (1-alpha/ctrl.psi)*mu )
         {
             if( ctrl.print && commRank == 0 )
@@ -663,7 +663,7 @@ Real IPFLineSearch
         //    s_i(alpha) z_i(alpha) >= gamma mu(alpha)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         byte locallyBalanced = true;
-        for( Int iLoc=0; iLoc<nLocal; ++iLoc )
+        for( Int iLoc=0; iLoc<kLocal; ++iLoc )
         {
             const Real si_alpha = s_alpha.GetLocal(iLoc,0);
             const Real zi_alpha = z_alpha.GetLocal(iLoc,0);

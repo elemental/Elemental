@@ -71,14 +71,43 @@ template<typename Real>
 void Clip( AbstractBlockDistMatrix<Real>& X, Real lowerBound, Real upperBound )
 { Clip( X.Matrix(), lowerBound, upperBound ); }
 
+template<typename Real>
+void LowerClip( DistMultiVec<Real>& X, Real lowerBound )
+{ LowerClip( X.Matrix(), lowerBound ); }
+
+template<typename Real>
+void UpperClip( DistMultiVec<Real>& X, Real upperBound )
+{ UpperClip( X.Matrix(), upperBound ); }
+
+template<typename Real>
+void Clip( DistMultiVec<Real>& X, Real lowerBound, Real upperBound )
+{ Clip( X.Matrix(), lowerBound, upperBound ); }
+
 #define PROTO(Real) \
-  template void LowerClip( Matrix<Real>& X, Real lowerBound ); \
-  template void LowerClip( AbstractDistMatrix<Real>& X, Real lowerBound ); \
-  template void UpperClip( Matrix<Real>& X, Real upperBound ); \
-  template void UpperClip( AbstractDistMatrix<Real>& X, Real upperBound ); \
-  template void Clip( Matrix<Real>& X, Real lowerBound, Real upperBound ); \
+  template void LowerClip \
+  ( Matrix<Real>& X, Real lowerBound ); \
+  template void LowerClip \
+  ( AbstractDistMatrix<Real>& X, Real lowerBound ); \
+  template void LowerClip \
+  ( AbstractBlockDistMatrix<Real>& X, Real lowerBound ); \
+  template void LowerClip \
+  ( DistMultiVec<Real>& X, Real lowerBound ); \
+  template void UpperClip \
+  ( Matrix<Real>& X, Real upperBound ); \
+  template void UpperClip \
+  ( AbstractDistMatrix<Real>& X, Real upperBound ); \
+  template void UpperClip \
+  ( AbstractBlockDistMatrix<Real>& X, Real upperBound ); \
+  template void UpperClip \
+  ( DistMultiVec<Real>& X, Real upperBound ); \
   template void Clip \
-  ( AbstractDistMatrix<Real>& X, Real lowerBound, Real upperBound );
+  ( Matrix<Real>& X, Real lowerBound, Real upperBound ); \
+  template void Clip \
+  ( AbstractDistMatrix<Real>& X, Real lowerBound, Real upperBound ); \
+  template void Clip \
+  ( AbstractBlockDistMatrix<Real>& X, Real lowerBound, Real upperBound ); \
+  template void Clip \
+  ( DistMultiVec<Real>& X, Real lowerBound, Real upperBound );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

@@ -11,7 +11,8 @@ import time
 
 m = 2000
 n = 4000
-testMehrotra = True
+k = 3000
+testMehrotra = False
 testIPF = True
 manualInit = False
 display = False
@@ -39,41 +40,58 @@ def Rectang(m,n):
   return A
 
 A = Rectang(m,n)
+G = Rectang(k,n)
 
-# Generate a b which implies a primal feasible x
-# ==============================================
+# Generate a (b,h) which implies a primal feasible (x,s)
+# ======================================================
+# b := A xGen
 xGen = El.DistMultiVec()
-El.Uniform(xGen,n,1,0.5,0.5)
+El.Gaussian(xGen,n,1)
 b = El.DistMultiVec()
 El.Zeros( b, m, 1 )
 El.SparseMultiply( El.NORMAL, 1., A, xGen, 0., b )
+# h := G xGen + sGen
+# ------------------
+sGen = El.DistMultiVec()
+El.Uniform(sGen,k,1,0.5,0.5)
+h = El.DistMultiVec()
+El.Copy( sGen, h )
+El.SparseMultiply( El.NORMAL, 1., G, xGen, 1., h )
 
 # Generate a c which implies a dual feasible (y,z)
 # ================================================
 yGen = El.DistMultiVec()
 El.Gaussian(yGen,m,1)
+zGen = El.DistMultiVec()
+El.Uniform(zGen,k,1,0.5,0.5)
 c = El.DistMultiVec()
-El.Uniform(c,n,1,0.5,0.5)
-El.SparseMultiply( El.TRANSPOSE, -1., A, yGen, 1., c )
+El.Zeros(c,n,1)
+El.SparseMultiply( El.TRANSPOSE, 1., A, yGen, 1., c )
+El.SparseMultiply( El.TRANSPOSE, 1., G, zGen, 1., c )
 
 if display:
   El.Display( A, "A" )
+  El.Display( G, "G" )
   El.Display( b, "b" )
   El.Display( c, "c" )
+  El.Display( h, "h" )
 
 # Set up the control structure (and possibly initial guesses)
 # ===========================================================
-ctrl = El.LPPrimalCtrl_d(isSparse=True)
+ctrl = El.LPDualCtrl_d()
 xOrig = El.DistMultiVec()
 yOrig = El.DistMultiVec()
 zOrig = El.DistMultiVec()
+sOrig = El.DistMultiVec()
 if manualInit:
   El.Uniform(xOrig,n,1,0.5,0.4999)
   El.Uniform(yOrig,m,1,0.5,0.4999)
-  El.Uniform(zOrig,n,1,0.5,0.4999)
+  El.Uniform(zOrig,k,1,0.5,0.4999)
+  El.Uniform(sOrig,k,1,0.5,0.4999)
 x = El.DistMultiVec()
 y = El.DistMultiVec()
 z = El.DistMultiVec()
+s = El.DistMultiVec()
 
 if testMehrotra:
   ctrl.approach = El.LP_MEHROTRA
@@ -82,8 +100,9 @@ if testMehrotra:
   El.Copy( xOrig, x )
   El.Copy( yOrig, y )
   El.Copy( zOrig, z )
+  El.Copy( sOrig, s )
   startMehrotra = time.clock()
-  El.LPPrimal(A,b,c,x,y,z,ctrl)
+  El.LPDual(A,G,b,c,h,x,y,z,s,ctrl)
   endMehrotra = time.clock()
   if worldRank == 0:
     print "Mehrotra time:", endMehrotra-startMehrotra
@@ -92,6 +111,7 @@ if testMehrotra:
     El.Display( x, "x Mehrotra" )
     El.Display( y, "y Mehrotra" )
     El.Display( z, "z Mehrotra" )
+    El.Display( s, "s Mehrotra" )
 
   obj = El.Dot(c,x)
   if worldRank == 0:
@@ -104,8 +124,9 @@ if testIPF:
   El.Copy( xOrig, x )
   El.Copy( yOrig, y )
   El.Copy( zOrig, z )
+  El.Copy( sOrig, s )
   startIPF = time.clock()
-  El.LPPrimal(A,b,c,x,y,z,ctrl)
+  El.LPDual(A,G,b,c,h,x,y,z,s,ctrl)
   endIPF = time.clock()
   if worldRank == 0:
     print "IPF time:", endIPF-startIPF
@@ -114,6 +135,7 @@ if testIPF:
     El.Display( x, "x IPF" )
     El.Display( y, "y IPF" )
     El.Display( z, "z IPF" )
+    El.Display( s, "s IPF" )
 
   obj = El.Dot(c,x)
   if worldRank == 0:

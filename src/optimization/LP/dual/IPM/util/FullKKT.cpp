@@ -42,9 +42,10 @@ void KKT
     DEBUG_ONLY(CallStackEntry cse("lp::dual::KKT"))
     const Int m = A.Height();
     const Int n = A.Width();
+    const Int k = G.Height();
 
-    Zeros( J, 2*n+m, 2*n+m );
-    const IR xInd(0,n), yInd(n,n+m), zInd(n+m,2*n+m);
+    Zeros( J, n+m+k, n+m+k );
+    const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
     auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd); auto Jxz = J(xInd,zInd); 
     auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd); 
     auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd); 
@@ -86,13 +87,14 @@ void KKT
     DEBUG_ONLY(CallStackEntry cse("lp::dual::KKT"))
     const Int m = A.Height();
     const Int n = A.Width();
+    const Int k = G.Height();
 
     auto sPtr = ReadProxy<Real,STAR,STAR>(&sPre); auto& s = *sPtr;
     auto zPtr = ReadProxy<Real,STAR,STAR>(&zPre); auto& z = *zPtr;
     auto JPtr = WriteProxy<Real,MC,MR>(&JPre);    auto& J = *JPtr;
 
-    Zeros( J, 2*n+m, 2*n+m );
-    const IR xInd(0,n), yInd(n,n+m), zInd(n+m,2*n+m);
+    Zeros( J, n+m+k, n+m+k );
+    const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
     auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd); auto Jxz = J(xInd,zInd);
     auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd);
     auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd);
@@ -134,14 +136,15 @@ void KKT
     DEBUG_ONLY(CallStackEntry cse("lp::dual::KKT"))
     const Int m = A.Height();
     const Int n = A.Width();
+    const Int k = G.Height();
 
-    Zeros( J, 2*n+m, 2*n+m );
+    Zeros( J, n+m+k, n+m+k );
     const Int numEntriesA = A.NumEntries();
     const Int numEntriesG = G.NumEntries();
     if( onlyLower )
-        J.Reserve( numEntriesA + numEntriesG + n );
+        J.Reserve( numEntriesA + numEntriesG + k );
     else
-        J.Reserve( 2*numEntriesA + 2*numEntriesG + n );
+        J.Reserve( 2*numEntriesA + 2*numEntriesG + k );
 
     // Jyx = A
     // =======
@@ -155,7 +158,7 @@ void KKT
 
     // Jzz = -z <> s
     // =============
-    for( Int e=0; e<n; ++e )
+    for( Int e=0; e<k; ++e )
         J.Update( n+m+e, n+m+e, -s.Get(e,0)/z.Get(e,0) );
 
     if( !onlyLower )
@@ -182,12 +185,13 @@ void KKT
     DEBUG_ONLY(CallStackEntry cse("lp::dual::KKT"))
     const Int m = A.Height();
     const Int n = A.Width();
+    const Int k = G.Height();
 
     mpi::Comm comm = A.Comm();
     const Int commSize = mpi::Size( comm );
 
     J.SetComm( comm );
-    Zeros( J, m+2*n, m+2*n );
+    Zeros( J, n+m+k, n+m+k );
 
     // Compute the number of entries to send to each process
     // =====================================================
@@ -338,10 +342,11 @@ void KKTRHS
         Matrix<Real>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::KKTRHS"))
-    const Int m = rb.Height();
     const Int n = rc.Height();
-    const IR xInd(0,n), yInd(n,n+m), zInd(n+m,2*n+m);
-    Zeros( d, 2*n+m, 1 );
+    const Int m = rb.Height();
+    const Int k = rh.Height();
+    const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
+    Zeros( d, n+m+k, 1 );
 
     auto dx = d(xInd,IR(0,1));
     dx = rc;
@@ -369,10 +374,11 @@ void KKTRHS
     auto dPtr = WriteProxy<Real,MC,MR>(&dPre);
     auto& d = *dPtr;
 
-    const Int m = rb.Height();
     const Int n = rc.Height();
-    const IR xInd(0,n), yInd(n,n+m), zInd(n+m,2*n+m);
-    Zeros( d, 2*n+m, 1 );
+    const Int m = rb.Height();
+    const Int k = rh.Height();
+    const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
+    Zeros( d, n+m+k, 1 );
 
     auto dx = d(xInd,IR(0,1));
     Copy( rc, dx );
@@ -396,9 +402,10 @@ void KKTRHS
         DistMultiVec<Real>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::KKTRHS"))
-    const Int m = rb.Height();
     const Int n = rc.Height();
-    Zeros( d, m+2*n, 1 );
+    const Int m = rb.Height();
+    const int k = rh.Height();
+    Zeros( d, n+m+k, 1 );
     mpi::Comm comm = rmu.Comm();
     const Int commSize = mpi::Size( comm );
 
@@ -465,6 +472,136 @@ void KKTRHS
 }
 
 template<typename Real>
+void ExpandCoreSolution
+( Int m, Int n, Int k,
+  const Matrix<Real>& d,
+        Matrix<Real>& dx, Matrix<Real>& dy,
+        Matrix<Real>& dz )
+{
+    DEBUG_ONLY(CallStackEntry cse("lp::dual::ExpandCoreSolution"))
+    if( d.Height() != n+m+k || d.Width() != 1 )
+        LogicError("Right-hand side was the wrong size");
+
+    const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
+    dx = d(xInd,IR(0,1));
+    dy = d(yInd,IR(0,1));
+    dz = d(zInd,IR(0,1));
+}
+
+template<typename Real>
+void ExpandCoreSolution
+( Int m, Int n, Int k,
+  const AbstractDistMatrix<Real>& dPre,
+        AbstractDistMatrix<Real>& dx, AbstractDistMatrix<Real>& dy,
+        AbstractDistMatrix<Real>& dz )
+{
+    DEBUG_ONLY(CallStackEntry cse("lp::dual::ExpandCoreSolution"))
+
+    auto dPtr = ReadProxy<Real,MC,MR>(&dPre);
+    auto& d = *dPtr;
+
+    if( d.Height() != n+m+k || d.Width() != 1 )
+        LogicError("Right-hand side was the wrong size");
+
+    const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
+    Copy( d(xInd,IR(0,1)), dx );
+    Copy( d(yInd,IR(0,1)), dy );
+    Copy( d(zInd,IR(0,1)), dz );
+}
+
+template<typename Real>
+void ExpandCoreSolution
+( Int m, Int n, Int k,
+  const DistMultiVec<Real>& d,
+        DistMultiVec<Real>& dx, DistMultiVec<Real>& dy,
+        DistMultiVec<Real>& dz )
+{
+    DEBUG_ONLY(CallStackEntry cse("lp::dual::ExpandCoreSolution"))
+    if( d.Height() != n+m+k || d.Width() != 1 )
+        LogicError("Right-hand side was the wrong size");
+    mpi::Comm comm = d.Comm();
+    const Int commSize = mpi::Size(comm);
+
+    dx.Resize( n, 1 );
+    dy.Resize( m, 1 );
+    dz.Resize( k, 1 );
+
+    // Compute the metadata for the AllToAll
+    // =====================================
+    std::vector<int> sendCounts(commSize,0);
+    for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
+    {
+        const Int i = d.FirstLocalRow() + iLoc;
+        if( i < n )
+            ++sendCounts[ dx.RowOwner(i) ];
+        else if( i < n+m )
+            ++sendCounts[ dy.RowOwner(i-n) ];
+        else
+            ++sendCounts[ dz.RowOwner(i-(n+m)) ];
+    }
+    std::vector<int> recvCounts(commSize);
+    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
+    std::vector<int> sendOffsets, recvOffsets;
+    const int totalSend = Scan( sendCounts, sendOffsets );
+    const int totalRecv = Scan( recvCounts, recvOffsets );
+
+    // Pack the doublets
+    // =================
+    std::vector<Int> sSendBuf(totalSend);
+    std::vector<Real> vSendBuf(totalSend);
+    auto offsets = sendOffsets;
+    for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
+    {
+        const Int i = d.FirstLocalRow() + iLoc;
+        if( i < n )
+        {
+            const Int owner = dx.RowOwner(i);
+            sSendBuf[offsets[owner]] = i;
+            vSendBuf[offsets[owner]] = d.GetLocal(iLoc,0);
+            ++offsets[owner];
+        }
+        else if( i < n+m )
+        {
+            const Int owner = dy.RowOwner(i-n);
+            sSendBuf[offsets[owner]] = i;
+            vSendBuf[offsets[owner]] = d.GetLocal(iLoc,0);
+            ++offsets[owner];
+        }
+        else
+        {
+            const Int owner = dz.RowOwner(i-(n+m));
+            sSendBuf[offsets[owner]] = i;
+            vSendBuf[offsets[owner]] = d.GetLocal(iLoc,0);
+            ++offsets[owner];
+        }
+    }
+
+    // Exchange the doublets
+    // =====================
+    std::vector<Int> sRecvBuf(totalRecv);
+    std::vector<Real> vRecvBuf(totalRecv);
+    mpi::AllToAll
+    ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    mpi::AllToAll
+    ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+
+    // Unpack the doublets
+    // ===================
+    for( Int e=0; e<totalRecv; ++e )
+    {
+        const Int i = sRecvBuf[e];
+        if( i < n )
+            dx.SetLocal( i-dx.FirstLocalRow(), 0, vRecvBuf[e] );
+        else if( i < n+m )
+            dy.SetLocal( i-n-dy.FirstLocalRow(), 0, vRecvBuf[e] );
+        else
+            dz.SetLocal( i-(n+m)-dz.FirstLocalRow(), 0, vRecvBuf[e] );
+    }
+}
+
+template<typename Real>
 void ExpandSolution
 ( Int m, Int n, 
   const Matrix<Real>& d,  const Matrix<Real>& rmu,
@@ -473,7 +610,8 @@ void ExpandSolution
         Matrix<Real>& dz,       Matrix<Real>& ds )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::ExpandSolution"))
-    lp::primal::ExpandSolution( m, n, d, dx, dy, dz );
+    const Int k = s.Height();
+    ExpandCoreSolution( m, n, k, d, dx, dy, dz );
     // ds := - z <> ( rmu + s o dz )
     // =============================
     ds = dz;
@@ -492,7 +630,8 @@ void ExpandSolution
         AbstractDistMatrix<Real>& dz,       AbstractDistMatrix<Real>& ds )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::ExpandSolution"))
-    lp::primal::ExpandSolution( m, n, d, dx, dy, dz );
+    const int k = s.Height();
+    ExpandCoreSolution( m, n, k, d, dx, dy, dz );
     // ds := - z <> ( rmu + s o dz )
     // =============================
     Copy( dz, ds );
@@ -504,14 +643,15 @@ void ExpandSolution
 
 template<typename Real>
 void ExpandSolution
-( Int m, Int n, 
+( Int m, Int n,
   const DistMultiVec<Real>& d, const DistMultiVec<Real>& rmu,
   const DistMultiVec<Real>& s, const DistMultiVec<Real>& z,
         DistMultiVec<Real>& dx,      DistMultiVec<Real>& dy, 
         DistMultiVec<Real>& dz,      DistMultiVec<Real>& ds )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::ExpandSolution"))
-    lp::primal::ExpandSolution( m, n, d, dx, dy, dz );
+    const Int k = s.Height();
+    ExpandCoreSolution( m, n, k, d, dx, dy, dz );
     // ds := - z <> ( rmu + s o dz )
     // =============================
     ds = dz;

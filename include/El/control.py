@@ -8,22 +8,26 @@
 #
 from El.core import *
 
-lib.ElLyapunov_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLyapunov_s.restype = c_uint
-lib.ElLyapunov_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLyapunov_d.restype = c_uint
-lib.ElLyapunov_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLyapunov_c.restype = c_uint
-lib.ElLyapunov_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLyapunov_z.restype = c_uint
-lib.ElLyapunovDist_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLyapunovDist_s.restype = c_uint
-lib.ElLyapunovDist_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLyapunovDist_d.restype = c_uint
-lib.ElLyapunovDist_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLyapunovDist_c.restype = c_uint
-lib.ElLyapunovDist_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLyapunovDist_z.restype = c_uint
+lib.ElLyapunov_s.argtypes = \
+lib.ElLyapunov_d.argtypes = \
+lib.ElLyapunov_c.argtypes = \
+lib.ElLyapunov_z.argtypes = \
+lib.ElLyapunovDist_s.argtypes = \
+lib.ElLyapunovDist_d.argtypes = \
+lib.ElLyapunovDist_c.argtypes = \
+lib.ElLyapunovDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+
+lib.ElLyapunov_s.restype = \
+lib.ElLyapunov_d.restype = \
+lib.ElLyapunov_c.restype = \
+lib.ElLyapunov_z.restype = \
+lib.ElLyapunovDist_s.restype = \
+lib.ElLyapunovDist_d.restype = \
+lib.ElLyapunovDist_c.restype = \
+lib.ElLyapunovDist_z.restype = \
+  c_uint
+
 def Lyapunov(A,C):
   if type(A) is not type(C):
     raise Exception('Matrix types must match')
@@ -49,22 +53,26 @@ def Lyapunov(A,C):
     return X
   else: TypeExcept()
 
-lib.ElRicatti_s.argtypes = [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElRicatti_s.restype = c_uint
-lib.ElRicatti_d.argtypes = [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElRicatti_d.restype = c_uint
-lib.ElRicatti_c.argtypes = [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElRicatti_c.restype = c_uint
-lib.ElRicatti_z.argtypes = [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElRicatti_z.restype = c_uint
-lib.ElRicattiDist_s.argtypes = [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElRicattiDist_s.restype = c_uint
-lib.ElRicattiDist_d.argtypes = [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElRicattiDist_d.restype = c_uint
-lib.ElRicattiDist_c.argtypes = [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElRicattiDist_c.restype = c_uint
-lib.ElRicattiDist_z.argtypes = [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElRicattiDist_z.restype = c_uint
+lib.ElRicatti_s.argtypes = \
+lib.ElRicatti_d.argtypes = \
+lib.ElRicatti_c.argtypes = \
+lib.ElRicatti_z.argtypes = \
+lib.ElRicattiDist_s.argtypes = \
+lib.ElRicattiDist_d.argtypes = \
+lib.ElRicattiDist_c.argtypes = \
+lib.ElRicattiDist_z.argtypes = \
+  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
+
+lib.ElRicatti_s.restype = \
+lib.ElRicatti_d.restype = \
+lib.ElRicatti_c.restype = \
+lib.ElRicatti_z.restype = \
+lib.ElRicattiDist_s.restype = \
+lib.ElRicattiDist_d.restype = \
+lib.ElRicattiDist_c.restype = \
+lib.ElRicattiDist_z.restype = \
+  c_uint
+
 def Ricatti(uplo,A,K,L):
   if type(A) is Matrix:
     X = Matrix(A.tag)
@@ -86,22 +94,26 @@ def Ricatti(uplo,A,K,L):
     return X
   else: TypeExcept()
 
-lib.ElRicattiPreformed_s.argtypes = [c_void_p,c_void_p]
-lib.ElRicattiPreformed_s.restype = c_uint
-lib.ElRicattiPreformed_d.argtypes = [c_void_p,c_void_p]
-lib.ElRicattiPreformed_d.restype = c_uint
-lib.ElRicattiPreformed_c.argtypes = [c_void_p,c_void_p]
-lib.ElRicattiPreformed_c.restype = c_uint
-lib.ElRicattiPreformed_z.argtypes = [c_void_p,c_void_p]
-lib.ElRicattiPreformed_z.restype = c_uint
-lib.ElRicattiPreformedDist_s.argtypes = [c_void_p,c_void_p]
-lib.ElRicattiPreformedDist_s.restype = c_uint
-lib.ElRicattiPreformedDist_d.argtypes = [c_void_p,c_void_p]
-lib.ElRicattiPreformedDist_d.restype = c_uint
-lib.ElRicattiPreformedDist_c.argtypes = [c_void_p,c_void_p]
-lib.ElRicattiPreformedDist_c.restype = c_uint
-lib.ElRicattiPreformedDist_z.argtypes = [c_void_p,c_void_p]
-lib.ElRicattiPreformedDist_z.restype = c_uint
+lib.ElRicattiPreformed_s.argtypes = \
+lib.ElRicattiPreformed_d.argtypes = \
+lib.ElRicattiPreformed_c.argtypes = \
+lib.ElRicattiPreformed_z.argtypes = \
+lib.ElRicattiPreformedDist_s.argtypes = \
+lib.ElRicattiPreformedDist_d.argtypes = \
+lib.ElRicattiPreformedDist_c.argtypes = \
+lib.ElRicattiPreformedDist_z.argtypes = \
+  [c_void_p,c_void_p]
+
+lib.ElRicattiPreformed_s.restype = \
+lib.ElRicattiPreformed_d.restype = \
+lib.ElRicattiPreformed_c.restype = \
+lib.ElRicattiPreformed_z.restype = \
+lib.ElRicattiPreformedDist_s.restype = \
+lib.ElRicattiPreformedDist_d.restype = \
+lib.ElRicattiPreformedDist_c.restype = \
+lib.ElRicattiPreformedDist_z.restype = \
+  c_uint
+
 def RicattiPreformed(W):
   if type(W) is Matrix:
     X = Matrix(W.tag)
@@ -123,22 +135,26 @@ def RicattiPreformed(W):
     return X
   else: TypeExcept()
 
-lib.ElSylvester_s.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSylvester_s.restype = c_uint
-lib.ElSylvester_d.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSylvester_d.restype = c_uint
-lib.ElSylvester_c.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSylvester_c.restype = c_uint
-lib.ElSylvester_z.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSylvester_z.restype = c_uint
-lib.ElSylvesterDist_s.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSylvesterDist_s.restype = c_uint
-lib.ElSylvesterDist_d.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSylvesterDist_d.restype = c_uint
-lib.ElSylvesterDist_c.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSylvesterDist_c.restype = c_uint
-lib.ElSylvesterDist_z.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSylvesterDist_z.restype = c_uint
+lib.ElSylvester_s.argtypes = \
+lib.ElSylvester_d.argtypes = \
+lib.ElSylvester_c.argtypes = \
+lib.ElSylvester_z.argtypes = \
+lib.ElSylvesterDist_s.argtypes = \
+lib.ElSylvesterDist_d.argtypes = \
+lib.ElSylvesterDist_c.argtypes = \
+lib.ElSylvesterDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p]
+
+lib.ElSylvester_s.restype = \
+lib.ElSylvester_d.restype = \
+lib.ElSylvester_c.restype = \
+lib.ElSylvester_z.restype = \
+lib.ElSylvesterDist_s.restype = \
+lib.ElSylvesterDist_d.restype = \
+lib.ElSylvesterDist_c.restype = \
+lib.ElSylvesterDist_z.restype = \
+  c_uint
+
 def Sylvester(A,B,C):
   if type(A) is not type(B) or type(B) is not type(C):
     raise Exception('Matrix types of {A,B,C} must match')
@@ -164,22 +180,26 @@ def Sylvester(A,B,C):
     return X
   else: TypeExcept()
 
-lib.ElSylvesterPreformed_s.argtypes = [iType,c_void_p,c_void_p]
-lib.ElSylvesterPreformed_s.restype = c_uint
-lib.ElSylvesterPreformed_d.argtypes = [iType,c_void_p,c_void_p]
-lib.ElSylvesterPreformed_d.restype = c_uint
-lib.ElSylvesterPreformed_c.argtypes = [iType,c_void_p,c_void_p]
-lib.ElSylvesterPreformed_c.restype = c_uint
-lib.ElSylvesterPreformed_z.argtypes = [iType,c_void_p,c_void_p]
-lib.ElSylvesterPreformed_z.restype = c_uint
-lib.ElSylvesterPreformedDist_s.argtypes = [iType,c_void_p,c_void_p]
-lib.ElSylvesterPreformedDist_s.restype = c_uint
-lib.ElSylvesterPreformedDist_d.argtypes = [iType,c_void_p,c_void_p]
-lib.ElSylvesterPreformedDist_d.restype = c_uint
-lib.ElSylvesterPreformedDist_c.argtypes = [iType,c_void_p,c_void_p]
-lib.ElSylvesterPreformedDist_c.restype = c_uint
-lib.ElSylvesterPreformedDist_z.argtypes = [iType,c_void_p,c_void_p]
-lib.ElSylvesterPreformedDist_z.restype = c_uint
+lib.ElSylvesterPreformed_s.argtypes = \
+lib.ElSylvesterPreformed_d.argtypes = \
+lib.ElSylvesterPreformed_c.argtypes = \
+lib.ElSylvesterPreformed_z.argtypes = \
+lib.ElSylvesterPreformedDist_s.argtypes = \
+lib.ElSylvesterPreformedDist_d.argtypes = \
+lib.ElSylvesterPreformedDist_c.argtypes = \
+lib.ElSylvesterPreformedDist_z.argtypes = \
+  [iType,c_void_p,c_void_p]
+
+lib.ElSylvesterPreformed_s.restype = \
+lib.ElSylvesterPreformed_d.restype = \
+lib.ElSylvesterPreformed_c.restype = \
+lib.ElSylvesterPreformed_z.restype = \
+lib.ElSylvesterPreformedDist_s.restype = \
+lib.ElSylvesterPreformedDist_d.restype = \
+lib.ElSylvesterPreformedDist_c.restype = \
+lib.ElSylvesterPreformedDist_z.restype = \
+  c_uint
+
 def SylvesterPreformed(m,W):
   if type(W) is Matrix:
     X = Matrix(W.tag)

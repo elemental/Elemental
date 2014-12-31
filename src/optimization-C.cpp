@@ -12,6 +12,11 @@ using namespace El;
 
 extern "C" {
 
+/* Linear programs
+   =============== */
+
+/* Primal conic form
+   ----------------- */
 ElError ElLPPrimalADMMCtrlDefault_s( ElLPPrimalADMMCtrl_s* ctrl )
 {
     ctrl->rho = 1;
@@ -127,6 +132,84 @@ ElError ElLPPrimalCtrlDefault_d
     return EL_SUCCESS;
 }
 
+/* Dual conic form
+   --------------- */
+ElError ElLPDualIPFLineSearchCtrlDefault_s
+( ElLPDualIPFLineSearchCtrl_s* ctrl )
+{
+    ctrl->gamma = 1e-3;
+    ctrl->beta = 2;
+    ctrl->psi = 100;
+    ctrl->print = false;
+}
+
+ElError ElLPDualIPFLineSearchCtrlDefault_d
+( ElLPDualIPFLineSearchCtrl_d* ctrl )
+{
+    ctrl->gamma = 1e-3;
+    ctrl->beta = 2;
+    ctrl->psi = 100;
+    ctrl->print = false;
+}
+
+ElError ElLPDualIPFCtrlDefault_s( ElLPDualIPFCtrl_s* ctrl )
+{
+    ctrl->initialized = false;
+    ctrl->tol = 1e-8;
+    ctrl->maxIts = 1000;
+    ctrl->centering = 0.9;
+    ElLPDualIPFLineSearchCtrlDefault_s( &ctrl->lineSearchCtrl );
+    ctrl->print = false;
+    return EL_SUCCESS;
+}
+
+ElError ElLPDualIPFCtrlDefault_d( ElLPDualIPFCtrl_d* ctrl )
+{
+    ctrl->initialized = false;
+    ctrl->tol = 1e-8;
+    ctrl->maxIts = 1000;
+    ctrl->centering = 0.9;
+    ElLPDualIPFLineSearchCtrlDefault_d( &ctrl->lineSearchCtrl );
+    ctrl->print = false;
+    return EL_SUCCESS;
+}
+
+ElError ElLPDualMehrotraCtrlDefault_s( ElLPDualMehrotraCtrl_s* ctrl )
+{
+    ctrl->initialized = false;
+    ctrl->tol = 1e-8;
+    ctrl->maxIts = 100;
+    ctrl->maxStepRatio = 0.99;
+    ctrl->print = false;
+    return EL_SUCCESS;
+}
+
+ElError ElLPDualMehrotraCtrlDefault_d( ElLPDualMehrotraCtrl_d* ctrl )
+{
+    ctrl->initialized = false;
+    ctrl->tol = 1e-8;
+    ctrl->maxIts = 100;
+    ctrl->maxStepRatio = 0.99;
+    ctrl->print = false;
+    return EL_SUCCESS;
+}
+
+ElError ElLPDualCtrlDefault_s( ElLPDualCtrl_s* ctrl )
+{
+    ctrl->approach = EL_LP_MEHROTRA;
+    ElLPDualIPFCtrlDefault_s( &ctrl->ipfCtrl );
+    ElLPDualMehrotraCtrlDefault_s( &ctrl->mehrotraCtrl );
+    return EL_SUCCESS;
+}
+
+ElError ElLPDualCtrlDefault_d( ElLPDualCtrl_d* ctrl )
+{
+    ctrl->approach = EL_LP_MEHROTRA;
+    ElLPDualIPFCtrlDefault_d( &ctrl->ipfCtrl );
+    ElLPDualMehrotraCtrlDefault_d( &ctrl->mehrotraCtrl );
+    return EL_SUCCESS;
+}
+
 #define C_PROTO_FIELD(SIG,SIGBASE,F) \
   /* Basis pursuit
      ============= */ \
@@ -228,7 +311,7 @@ ElError ElLPPrimalCtrlDefault_d
   { EL_TRY( SoftThreshold( *CReflect(A), rho, relative ) ) } \
   ElError ElSoftThresholdDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, Base<F> rho, bool relative ) \
-  { EL_TRY( SoftThreshold( *CReflect(A), rho, relative ) ) } \
+  { EL_TRY( SoftThreshold( *CReflect(A), rho, relative ) ) }
 
 #define C_PROTO_REAL(SIG,Real) \
   C_PROTO_FIELD(SIG,SIG,Real) \
@@ -237,70 +320,163 @@ ElError ElLPPrimalCtrlDefault_d
   /* Primal conic form
      ----------------- */ \
   ElError ElLPPrimal_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
-    ElConstMatrix_ ## SIG c, \
+  ( ElConstMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
     ElMatrix_ ## SIG x,      ElMatrix_ ## SIG y, \
     ElMatrix_ ## SIG z ) \
-  { EL_TRY( LP( *CReflect(A), *CReflect(b), *CReflect(c), \
+  { EL_TRY( LP( *CReflect(A), \
+      *CReflect(b), *CReflect(c), \
       *CReflect(x), *CReflect(y), *CReflect(z) ) ) } \
   ElError ElLPPrimalDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
-    ElConstDistMatrix_ ## SIG c, \
+  ( ElConstDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
     ElDistMatrix_ ## SIG x,      ElDistMatrix_ ## SIG y, \
     ElDistMatrix_ ## SIG z ) \
-  { EL_TRY( LP( *CReflect(A), *CReflect(b), *CReflect(c), \
+  { EL_TRY( LP( *CReflect(A), \
+      *CReflect(b), *CReflect(c), \
       *CReflect(x), *CReflect(y), *CReflect(z) ) ) } \
   ElError ElLPPrimalSparse_ ## SIG \
-  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
-    ElConstMatrix_ ## SIG c, \
+  ( ElConstSparseMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG b,       ElConstMatrix_ ## SIG c, \
     ElMatrix_ ## SIG x,            ElMatrix_ ## SIG y, \
     ElMatrix_ ## SIG z ) \
-  { EL_TRY( LP( *CReflect(A), *CReflect(b), *CReflect(c), \
+  { EL_TRY( LP( *CReflect(A), \
+      *CReflect(b), *CReflect(c), \
       *CReflect(x), *CReflect(y), *CReflect(z) ) ) } \
   ElError ElLPPrimalDistSparse_ ## SIG \
-  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
-    ElConstDistMultiVec_ ## SIG c, \
+  ( ElConstDistSparseMatrix_ ## SIG A, \
+    ElConstDistMultiVec_ ## SIG b,     ElConstDistMultiVec_ ## SIG c, \
     ElDistMultiVec_ ## SIG x,          ElDistMultiVec_ ## SIG y, \
     ElDistMultiVec_ ## SIG z ) \
-  { EL_TRY( LP( *CReflect(A), *CReflect(b), *CReflect(c), \
+  { EL_TRY( LP( *CReflect(A), \
+      *CReflect(b), *CReflect(c), \
       *CReflect(x), *CReflect(y), *CReflect(z) ) ) } \
   /* Expert version
      ^^^^^^^^^^^^^^ */ \
   ElError ElLPPrimalX_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
-    ElConstMatrix_ ## SIG c, \
+  ( ElConstMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
     ElMatrix_ ## SIG x,      ElMatrix_ ## SIG y, \
     ElMatrix_ ## SIG z, \
     ElLPPrimalCtrl_ ## SIG ctrl ) \
-  { EL_TRY( LP( *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(x), *CReflect(y), *CReflect(z), CReflect(ctrl) ) ) } \
+  { EL_TRY( LP( *CReflect(A), \
+      *CReflect(b), *CReflect(c), \
+      *CReflect(x), *CReflect(y), *CReflect(z), \
+       CReflect(ctrl) ) ) } \
   ElError ElLPPrimalXDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
-    ElConstDistMatrix_ ## SIG c, \
+  ( ElConstDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
     ElDistMatrix_ ## SIG x,      ElDistMatrix_ ## SIG y, \
     ElDistMatrix_ ## SIG z, \
     ElLPPrimalCtrl_ ## SIG ctrl ) \
-  { EL_TRY( LP( *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(x), *CReflect(y), *CReflect(z), CReflect(ctrl) ) ) } \
+  { EL_TRY( LP( *CReflect(A), \
+      *CReflect(b), *CReflect(c), \
+      *CReflect(x), *CReflect(y), *CReflect(z), \
+       CReflect(ctrl) ) ) } \
   ElError ElLPPrimalXSparse_ ## SIG \
-  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
-    ElConstMatrix_ ## SIG c, \
+  ( ElConstSparseMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG b,       ElConstMatrix_ ## SIG c, \
     ElMatrix_ ## SIG x,            ElMatrix_ ## SIG y, \
     ElMatrix_ ## SIG z, \
     ElLPPrimalCtrl_ ## SIG ctrl ) \
-  { EL_TRY( LP( *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(x), *CReflect(y), *CReflect(z), CReflect(ctrl) ) ) } \
+  { EL_TRY( LP( *CReflect(A), \
+      *CReflect(b), *CReflect(c), \
+      *CReflect(x), *CReflect(y), *CReflect(z), \
+       CReflect(ctrl) ) ) } \
   ElError ElLPPrimalXDistSparse_ ## SIG \
-  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
-    ElConstDistMultiVec_ ## SIG c, \
+  ( ElConstDistSparseMatrix_ ## SIG A, \
+    ElConstDistMultiVec_ ## SIG b,     ElConstDistMultiVec_ ## SIG c, \
     ElDistMultiVec_ ## SIG x,          ElDistMultiVec_ ## SIG y, \
     ElDistMultiVec_ ## SIG z, \
     ElLPPrimalCtrl_ ## SIG ctrl ) \
-  { EL_TRY( LP( *CReflect(A), *CReflect(b), *CReflect(c), \
-      *CReflect(x), *CReflect(y), *CReflect(z), CReflect(ctrl) ) ) } \
+  { EL_TRY( LP( *CReflect(A), \
+      *CReflect(b), *CReflect(c), \
+      *CReflect(x), *CReflect(y), *CReflect(z), \
+       CReflect(ctrl) ) ) } \
   /* Dual conic form
      --------------- */ \
-  /* TODO */ \
+  ElError ElLPDual_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG G, \
+    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
+    ElConstMatrix_ ## SIG h, \
+    ElMatrix_ ## SIG x,      ElMatrix_ ## SIG y, \
+    ElMatrix_ ## SIG z,      ElMatrix_ ## SIG s ) \
+  { EL_TRY( LP( *CReflect(A), *CReflect(G), \
+      *CReflect(b), *CReflect(c), *CReflect(h), \
+      *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s) ) ) } \
+  ElError ElLPDualDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG G, \
+    ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
+    ElConstDistMatrix_ ## SIG h, \
+    ElDistMatrix_ ## SIG x,      ElDistMatrix_ ## SIG y, \
+    ElDistMatrix_ ## SIG z,      ElDistMatrix_ ## SIG s ) \
+  { EL_TRY( LP( *CReflect(A), *CReflect(G), \
+      *CReflect(b), *CReflect(c), *CReflect(h), \
+      *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s) ) ) } \
+  ElError ElLPDualSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstSparseMatrix_ ## SIG G, \
+    ElConstMatrix_ ## SIG b,       ElConstMatrix_ ## SIG c, \
+    ElConstMatrix_ ## SIG h, \
+    ElMatrix_ ## SIG x,            ElMatrix_ ## SIG y, \
+    ElMatrix_ ## SIG z,            ElMatrix_ ## SIG s ) \
+  { EL_TRY( LP( *CReflect(A), *CReflect(G), \
+      *CReflect(b), *CReflect(c), *CReflect(h), \
+      *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s) ) ) } \
+  ElError ElLPDualDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistSparseMatrix_ ## SIG G, \
+    ElConstDistMultiVec_ ## SIG b,     ElConstDistMultiVec_ ## SIG c, \
+    ElConstDistMultiVec_ ## SIG h, \
+    ElDistMultiVec_ ## SIG x,          ElDistMultiVec_ ## SIG y, \
+    ElDistMultiVec_ ## SIG z,          ElDistMultiVec_ ## SIG s ) \
+  { EL_TRY( LP( *CReflect(A), *CReflect(G), \
+      *CReflect(b), *CReflect(c), *CReflect(h), \
+      *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s) ) ) } \
+  /* Expert version
+     ^^^^^^^^^^^^^^ */ \
+  ElError ElLPDualX_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG G, \
+    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
+    ElConstMatrix_ ## SIG h, \
+    ElMatrix_ ## SIG x,      ElMatrix_ ## SIG y, \
+    ElMatrix_ ## SIG z,      ElMatrix_ ## SIG s, \
+    ElLPDualCtrl_ ## SIG ctrl ) \
+  { EL_TRY( LP( *CReflect(A), *CReflect(G), \
+      *CReflect(b), *CReflect(c), *CReflect(h), \
+      *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s), \
+       CReflect(ctrl) ) ) } \
+  ElError ElLPDualXDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG G, \
+    ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
+    ElConstDistMatrix_ ## SIG h, \
+    ElDistMatrix_ ## SIG x,      ElDistMatrix_ ## SIG y, \
+    ElDistMatrix_ ## SIG z,      ElDistMatrix_ ## SIG s, \
+    ElLPDualCtrl_ ## SIG ctrl ) \
+  { EL_TRY( LP( *CReflect(A), *CReflect(G), \
+      *CReflect(b), *CReflect(c), *CReflect(h), \
+      *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s), \
+       CReflect(ctrl) ) ) } \
+  ElError ElLPDualXSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstSparseMatrix_ ## SIG G, \
+    ElConstMatrix_ ## SIG b,       ElConstMatrix_ ## SIG c, \
+    ElConstMatrix_ ## SIG h, \
+    ElMatrix_ ## SIG x,            ElMatrix_ ## SIG y, \
+    ElMatrix_ ## SIG z,            ElMatrix_ ## SIG s, \
+    ElLPDualCtrl_ ## SIG ctrl ) \
+  { EL_TRY( LP( *CReflect(A), *CReflect(G), \
+      *CReflect(b), *CReflect(c), *CReflect(h), \
+      *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s), \
+       CReflect(ctrl) ) ) } \
+  ElError ElLPDualXDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistSparseMatrix_ ## SIG G, \
+    ElConstDistMultiVec_ ## SIG b,     ElConstDistMultiVec_ ## SIG c, \
+    ElConstDistMultiVec_ ## SIG h, \
+    ElDistMultiVec_ ## SIG x,          ElDistMultiVec_ ## SIG y, \
+    ElDistMultiVec_ ## SIG z,          ElDistMultiVec_ ## SIG s, \
+    ElLPDualCtrl_ ## SIG ctrl ) \
+  { EL_TRY( LP( *CReflect(A), *CReflect(G), \
+      *CReflect(b), *CReflect(c), *CReflect(h), \
+      *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s), \
+       CReflect(ctrl) ) ) } \
   /* Self-dual conic form
      -------------------- */ \
   /* TODO */ \

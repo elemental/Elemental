@@ -185,15 +185,6 @@ namespace dual {
 //   min c^T x, subject to A x = b and G x <= h
 //    x
 
-namespace KKTSystemNS {
-enum KKTSystem {
-  FULL_KKT,
-  AUGMENTED_KKT,
-  NORMAL_KKT
-};
-}
-using namespace KKTSystemNS;
-
 // Infeasible Path-Following Interior Point Method (IPF)
 // -----------------------------------------------------
 template<typename Real>
@@ -214,16 +205,15 @@ struct IPFCtrl {
     Real tol;
     Int maxIts;
     Real centering; 
-    KKTSystem system;
 
     IPFLineSearchCtrl<Real> lineSearchCtrl;
 
     bool print;
 
-    IPFCtrl( bool isSparse ) 
+    IPFCtrl() 
     : initialized(false), tol(1e-8), maxIts(1000), centering(0.9), 
       print(false)
-    { system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); }
+    { }
 };
 
 // Mehrotra's Predictor-Corrector Infeasible Interior Point Method
@@ -234,16 +224,15 @@ struct MehrotraCtrl {
     Real tol;
     Int maxIts;
     Real maxStepRatio;
-    KKTSystem system;
     bool print;
 
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
     //       the default, (muAff/mu)^3 
 
-    MehrotraCtrl( bool isSparse )
+    MehrotraCtrl()
     : initialized(false), tol(1e-8), maxIts(1000), maxStepRatio(0.99), 
       print(false)
-    { system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); }
+    { }
 };
 
 // Control structure for the high-level "dual" conic-form LP solver
@@ -255,15 +244,15 @@ struct Ctrl
     IPFCtrl<Real> ipfCtrl;
     MehrotraCtrl<Real> mehrotraCtrl;
 
-    Ctrl( bool isSparse ) 
-    : approach(LP_MEHROTRA), ipfCtrl(isSparse), mehrotraCtrl(isSparse)
-    { }
+    Ctrl() : approach(LP_MEHROTRA) { }
 };
 
 } // namespace dual
 
 } // namespace lp
 
+// Primal conic form
+// -----------------
 template<typename Real>
 void LP
 ( const Matrix<Real>& A, 
@@ -293,6 +282,8 @@ void LP
         DistMultiVec<Real>& z,
   const lp::primal::Ctrl<Real>& ctrl=lp::primal::Ctrl<Real>(true) );
 
+// Dual conic form
+// ---------------
 template<typename Real>
 void LP
 ( const Matrix<Real>& A, const Matrix<Real>& G,
@@ -300,7 +291,7 @@ void LP
   const Matrix<Real>& h,
         Matrix<Real>& x,       Matrix<Real>& y,
         Matrix<Real>& z,       Matrix<Real>& s,
-  const lp::dual::Ctrl<Real>& ctrl=lp::dual::Ctrl<Real>(false) );
+  const lp::dual::Ctrl<Real>& ctrl=lp::dual::Ctrl<Real>() );
 template<typename Real>
 void LP
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G,
@@ -308,7 +299,7 @@ void LP
   const AbstractDistMatrix<Real>& h,
         AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
         AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s,
-  const lp::dual::Ctrl<Real>& ctrl=lp::dual::Ctrl<Real>(false) );
+  const lp::dual::Ctrl<Real>& ctrl=lp::dual::Ctrl<Real>() );
 template<typename Real>
 void LP
 ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
@@ -316,7 +307,7 @@ void LP
   const Matrix<Real>& h,
         Matrix<Real>& x,             Matrix<Real>& y,
         Matrix<Real>& z,             Matrix<Real>& s,
-  const lp::dual::Ctrl<Real>& ctrl=lp::dual::Ctrl<Real>(true) );
+  const lp::dual::Ctrl<Real>& ctrl=lp::dual::Ctrl<Real>() );
 template<typename Real>
 void LP
 ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
@@ -324,7 +315,7 @@ void LP
   const DistMultiVec<Real>& h,
         DistMultiVec<Real>& x,           DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,           DistMultiVec<Real>& s,
-  const lp::dual::Ctrl<Real>& ctrl=lp::dual::Ctrl<Real>(true) );
+  const lp::dual::Ctrl<Real>& ctrl=lp::dual::Ctrl<Real>() );
 
 // Logistic Regression
 // ===================
@@ -668,16 +659,32 @@ template<typename Real>
 void LowerClip( Matrix<Real>& X, Real lowerBound=0 );
 template<typename Real>
 void LowerClip( AbstractDistMatrix<Real>& X, Real lowerBound=0 );
+template<typename Real>
+void LowerClip( AbstractBlockDistMatrix<Real>& X, Real lowerBound=0 );
+template<typename Real>
+void LowerClip( DistMultiVec<Real>& X, Real lowerBound=0 );
 
 template<typename Real>
 void UpperClip( Matrix<Real>& X, Real upperBound=0 );
 template<typename Real>
 void UpperClip( AbstractDistMatrix<Real>& X, Real upperBound=0 );
+template<typename Real>
+void UpperClip( AbstractBlockDistMatrix<Real>& X, Real upperBound=0 );
+template<typename Real>
+void UpperClip( DistMultiVec<Real>& X, Real upperBound=0 );
 
 template<typename Real>
-void Clip( Matrix<Real>& X, Real lowerBound=0, Real upperBound=1 );
+void Clip
+( Matrix<Real>& X, Real lowerBound=0, Real upperBound=1 );
 template<typename Real>
-void Clip( AbstractDistMatrix<Real>& X, Real lowerBound=0, Real upperBound=1 );
+void Clip
+( AbstractDistMatrix<Real>& X, Real lowerBound=0, Real upperBound=1 );
+template<typename Real>
+void Clip
+( AbstractBlockDistMatrix<Real>& X, Real lowerBound=0, Real upperBound=1 );
+template<typename Real>
+void Clip
+( DistMultiVec<Real>& X, Real lowerBound=0, Real upperBound=1 );
 
 // Frobenius-norm proximal map
 // ---------------------------

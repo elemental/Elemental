@@ -1511,6 +1511,15 @@ inline ElRegularization CReflect( Regularization penalty )
 inline Regularization CReflect( ElRegularization penalty )
 { return static_cast<Regularization>(penalty); }
 
+/* Linear programs
+   ^^^^^^^^^^^^^^^ */
+inline ElLPApproach CReflect( LPApproach approach )
+{ return static_cast<ElLPApproach>(approach); }
+inline LPApproach CReflect( ElLPApproach approach )
+{ return static_cast<LPApproach>(approach); }
+
+/* Primal conic form
+   """"""""""""""""" */
 inline ElLPPrimalKKTSystem CReflect( lp::primal::KKTSystem system )
 { return static_cast<ElLPPrimalKKTSystem>(system); }
 inline lp::primal::KKTSystem CReflect( ElLPPrimalKKTSystem system )
@@ -1704,11 +1713,6 @@ inline lp::primal::MehrotraCtrl<double> CReflect
     return ctrl;
 }
 
-inline ElLPApproach CReflect( LPApproach approach )
-{ return static_cast<ElLPApproach>(approach); }
-inline LPApproach CReflect( ElLPApproach approach )
-{ return static_cast<LPApproach>(approach); }
-
 inline ElLPPrimalCtrl_s CReflect( const lp::primal::Ctrl<float>& ctrl )
 {
     ElLPPrimalCtrl_s ctrlC;
@@ -1741,6 +1745,172 @@ inline lp::primal::Ctrl<double> CReflect( ElLPPrimalCtrl_d ctrlC )
     lp::primal::Ctrl<double> ctrl(false);
     ctrl.approach     = CReflect(ctrlC.approach);
     ctrl.admmCtrl     = CReflect(ctrlC.admmCtrl);
+    ctrl.ipfCtrl      = CReflect(ctrlC.ipfCtrl);
+    ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
+    return ctrl;
+}
+
+/* Dual conic form
+   """"""""""""""" */
+inline ElLPDualIPFLineSearchCtrl_s CReflect
+( const lp::dual::IPFLineSearchCtrl<float>& ctrl )
+{
+    ElLPDualIPFLineSearchCtrl_s ctrlC;
+    ctrlC.gamma = ctrl.gamma;
+    ctrlC.beta  = ctrl.beta;
+    ctrlC.psi   = ctrl.psi;
+    ctrlC.print = ctrl.print;
+    return ctrlC;
+}
+inline ElLPDualIPFLineSearchCtrl_d CReflect
+( const lp::dual::IPFLineSearchCtrl<double>& ctrl )
+{
+    ElLPDualIPFLineSearchCtrl_d ctrlC;
+    ctrlC.gamma = ctrl.gamma;
+    ctrlC.beta  = ctrl.beta;
+    ctrlC.psi   = ctrl.psi;
+    ctrlC.print = ctrl.print;
+    return ctrlC;
+}
+inline lp::dual::IPFLineSearchCtrl<float> CReflect
+( ElLPDualIPFLineSearchCtrl_s ctrlC )
+{
+    lp::dual::IPFLineSearchCtrl<float> ctrl;
+    ctrl.gamma = ctrlC.gamma;
+    ctrl.beta  = ctrlC.beta;
+    ctrl.psi   = ctrlC.psi;
+    ctrl.print = ctrlC.print;
+    return ctrl;
+}
+inline lp::dual::IPFLineSearchCtrl<double> CReflect
+( ElLPDualIPFLineSearchCtrl_d ctrlC )
+{
+    lp::dual::IPFLineSearchCtrl<double> ctrl;
+    ctrl.gamma = ctrlC.gamma;
+    ctrl.beta  = ctrlC.beta;
+    ctrl.psi   = ctrlC.psi;
+    ctrl.print = ctrlC.print;
+    return ctrl;
+}
+
+inline ElLPDualIPFCtrl_s CReflect( const lp::dual::IPFCtrl<float>& ctrl )
+{
+    ElLPDualIPFCtrl_s ctrlC;
+    ctrlC.initialized    = ctrl.initialized;
+    ctrlC.tol            = ctrl.tol;
+    ctrlC.maxIts         = ctrl.maxIts;
+    ctrlC.centering      = ctrl.centering;
+    ctrlC.lineSearchCtrl = CReflect(ctrl.lineSearchCtrl);
+    ctrlC.print          = ctrl.print;
+    return ctrlC;
+}
+inline ElLPDualIPFCtrl_d CReflect( const lp::dual::IPFCtrl<double>& ctrl )
+{
+    ElLPDualIPFCtrl_d ctrlC;
+    ctrlC.initialized    = ctrl.initialized;
+    ctrlC.tol            = ctrl.tol;
+    ctrlC.maxIts         = ctrl.maxIts;
+    ctrlC.centering      = ctrl.centering;
+    ctrlC.lineSearchCtrl = CReflect(ctrl.lineSearchCtrl);
+    ctrlC.print          = ctrl.print;
+    return ctrlC;
+}
+inline lp::dual::IPFCtrl<float> CReflect( ElLPDualIPFCtrl_s ctrlC )
+{
+    lp::dual::IPFCtrl<float> ctrl;
+    ctrl.initialized    = ctrlC.initialized;
+    ctrl.tol            = ctrlC.tol;
+    ctrl.maxIts         = ctrlC.maxIts;
+    ctrl.centering      = ctrlC.centering;
+    ctrl.lineSearchCtrl = CReflect(ctrlC.lineSearchCtrl);
+    ctrl.print          = ctrlC.print;
+    return ctrl;
+}
+inline lp::dual::IPFCtrl<double> CReflect( ElLPDualIPFCtrl_d ctrlC )
+{
+    lp::dual::IPFCtrl<double> ctrl;
+    ctrl.initialized    = ctrlC.initialized;
+    ctrl.tol            = ctrlC.tol;
+    ctrl.maxIts         = ctrlC.maxIts;
+    ctrl.centering      = ctrlC.centering;
+    ctrl.lineSearchCtrl = CReflect(ctrlC.lineSearchCtrl);
+    ctrl.print          = ctrlC.print;
+    return ctrl;
+}
+
+inline ElLPDualMehrotraCtrl_s CReflect
+( const lp::dual::MehrotraCtrl<float>& ctrl )
+{
+    ElLPDualMehrotraCtrl_s ctrlC;
+    ctrlC.initialized  = ctrl.initialized;
+    ctrlC.tol          = ctrl.tol;
+    ctrlC.maxIts       = ctrl.maxIts;
+    ctrlC.maxStepRatio = ctrl.maxStepRatio;
+    ctrlC.print        = ctrl.print;
+    return ctrlC;
+}
+inline ElLPDualMehrotraCtrl_d CReflect
+( const lp::dual::MehrotraCtrl<double>& ctrl )
+{
+    ElLPDualMehrotraCtrl_d ctrlC;
+    ctrlC.initialized  = ctrl.initialized;
+    ctrlC.tol          = ctrl.tol;
+    ctrlC.maxIts       = ctrl.maxIts;
+    ctrlC.maxStepRatio = ctrl.maxStepRatio;
+    ctrlC.print        = ctrl.print;
+    return ctrlC;
+}
+inline lp::dual::MehrotraCtrl<float> CReflect
+( ElLPDualMehrotraCtrl_s ctrlC )
+{
+    lp::dual::MehrotraCtrl<float> ctrl;
+    ctrl.initialized  = ctrlC.initialized;
+    ctrl.tol          = ctrlC.tol;
+    ctrl.maxIts       = ctrlC.maxIts;
+    ctrl.maxStepRatio = ctrlC.maxStepRatio;
+    ctrl.print        = ctrlC.print;
+    return ctrl;
+}
+inline lp::dual::MehrotraCtrl<double> CReflect
+( ElLPDualMehrotraCtrl_d ctrlC )
+{
+    lp::dual::MehrotraCtrl<double> ctrl;
+    ctrl.initialized  = ctrlC.initialized;
+    ctrl.tol          = ctrlC.tol;
+    ctrl.maxIts       = ctrlC.maxIts;
+    ctrl.maxStepRatio = ctrlC.maxStepRatio;
+    ctrl.print        = ctrlC.print;
+    return ctrl;
+}
+
+inline ElLPDualCtrl_s CReflect( const lp::dual::Ctrl<float>& ctrl )
+{
+    ElLPDualCtrl_s ctrlC;
+    ctrlC.approach     = CReflect(ctrl.approach);
+    ctrlC.ipfCtrl      = CReflect(ctrl.ipfCtrl);
+    ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
+    return ctrlC;
+}
+inline ElLPDualCtrl_d CReflect( const lp::dual::Ctrl<double>& ctrl )
+{
+    ElLPDualCtrl_d ctrlC;
+    ctrlC.approach     = CReflect(ctrl.approach);
+    ctrlC.ipfCtrl      = CReflect(ctrl.ipfCtrl);
+    ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
+    return ctrlC;
+}
+inline lp::dual::Ctrl<float> CReflect( ElLPDualCtrl_s ctrlC )
+{
+    lp::dual::Ctrl<float> ctrl;
+    ctrl.approach     = CReflect(ctrlC.approach);
+    ctrl.ipfCtrl      = CReflect(ctrlC.ipfCtrl);
+    ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
+    return ctrl;
+}
+inline lp::dual::Ctrl<double> CReflect( ElLPDualCtrl_d ctrlC )
+{
+    lp::dual::Ctrl<double> ctrl;
+    ctrl.approach     = CReflect(ctrlC.approach);
     ctrl.ipfCtrl      = CReflect(ctrlC.ipfCtrl);
     ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
     return ctrl;

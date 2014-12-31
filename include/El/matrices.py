@@ -18,14 +18,18 @@ from ctypes import CFUNCTYPE
 
 # Bull's head
 # -----------
-lib.ElBullsHead_c.argtypes = [c_void_p,iType]
-lib.ElBullsHead_c.restype = c_uint
-lib.ElBullsHead_z.argtypes = [c_void_p,iType]
-lib.ElBullsHead_z.restype = c_uint
-lib.ElBullsHeadDist_c.argtypes = [c_void_p,iType]
-lib.ElBullsHeadDist_c.restype = c_uint
-lib.ElBullsHeadDist_z.argtypes = [c_void_p,iType]
-lib.ElBullsHeadDist_z.restype = c_uint
+lib.ElBullsHead_c.argtypes = \
+lib.ElBullsHead_z.argtypes = \
+lib.ElBullsHeadDist_c.argtypes = \
+lib.ElBullsHeadDist_z.argtypes = \
+  [c_void_p,iType]
+
+lib.ElBullsHead_c.restype = \
+lib.ElBullsHead_z.restype = \
+lib.ElBullsHeadDist_c.restype = \
+lib.ElBullsHeadDist_z.restype = \
+  c_uint
+
 def BullsHead(A,n):
   args = [A.obj,n]
   if type(A) is Matrix:
@@ -40,26 +44,29 @@ def BullsHead(A,n):
 
 # Cauchy
 # ------
-lib.ElCauchy_s.argtypes = [c_void_p,iType,POINTER(sType),iType,POINTER(sType)]
-lib.ElCauchy_s.restype = c_uint
-lib.ElCauchy_d.argtypes = [c_void_p,iType,POINTER(dType),iType,POINTER(dType)]
-lib.ElCauchy_d.restype = c_uint
-lib.ElCauchy_c.argtypes = [c_void_p,iType,POINTER(cType),iType,POINTER(cType)]
-lib.ElCauchy_c.restype = c_uint
-lib.ElCauchy_z.argtypes = [c_void_p,iType,POINTER(zType),iType,POINTER(zType)]
-lib.ElCauchy_z.restype = c_uint
+lib.ElCauchy_s.argtypes = \
 lib.ElCauchyDist_s.argtypes = \
   [c_void_p,iType,POINTER(sType),iType,POINTER(sType)]
-lib.ElCauchyDist_s.restype = c_uint
+lib.ElCauchy_d.argtypes = \
 lib.ElCauchyDist_d.argtypes = \
   [c_void_p,iType,POINTER(dType),iType,POINTER(dType)]
-lib.ElCauchyDist_d.restype = c_uint
+lib.ElCauchy_c.argtypes = \
 lib.ElCauchyDist_c.argtypes = \
   [c_void_p,iType,POINTER(cType),iType,POINTER(cType)]
-lib.ElCauchyDist_c.restype = c_uint
+lib.ElCauchy_z.argtypes = \
 lib.ElCauchyDist_z.argtypes = \
   [c_void_p,iType,POINTER(zType),iType,POINTER(zType)]
-lib.ElCauchyDist_z.restype = c_uint
+
+lib.ElCauchy_s.restype = \
+lib.ElCauchy_d.restype = \
+lib.ElCauchy_c.restype = \
+lib.ElCauchy_z.restype = \
+lib.ElCauchyDist_s.restype = \
+lib.ElCauchyDist_d.restype = \
+lib.ElCauchyDist_c.restype = \
+lib.ElCauchyDist_z.restype = \
+  c_uint
+
 def Cauchy(A,x,y):
   xLen = len(x)
   yLen = len(y)
@@ -83,37 +90,32 @@ def Cauchy(A,x,y):
 # Cauchy-like
 # -----------
 lib.ElCauchyLike_s.argtypes = \
-  [c_void_p,iType,POINTER(sType),iType,POINTER(sType),
-            iType,POINTER(sType),iType,POINTER(sType)]
-lib.ElCauchyLike_s.restype = c_uint
-lib.ElCauchyLike_d.argtypes = \
-  [c_void_p,iType,POINTER(dType),iType,POINTER(dType),
-            iType,POINTER(dType),iType,POINTER(dType)]
-lib.ElCauchyLike_d.restype = c_uint
-lib.ElCauchyLike_c.argtypes = \
-  [c_void_p,iType,POINTER(cType),iType,POINTER(cType),
-            iType,POINTER(cType),iType,POINTER(cType)]
-lib.ElCauchyLike_c.restype = c_uint
-lib.ElCauchyLike_z.argtypes = \
-  [c_void_p,iType,POINTER(zType),iType,POINTER(zType),
-            iType,POINTER(zType),iType,POINTER(zType)]
-lib.ElCauchyLike_z.restype = c_uint
 lib.ElCauchyLikeDist_s.argtypes = \
   [c_void_p,iType,POINTER(sType),iType,POINTER(sType),
             iType,POINTER(sType),iType,POINTER(sType)]
-lib.ElCauchyLikeDist_s.restype = c_uint
+lib.ElCauchyLike_d.argtypes = \
 lib.ElCauchyLikeDist_d.argtypes = \
   [c_void_p,iType,POINTER(dType),iType,POINTER(dType),
             iType,POINTER(dType),iType,POINTER(dType)]
-lib.ElCauchyLikeDist_d.restype = c_uint
+lib.ElCauchyLike_c.argtypes = \
 lib.ElCauchyLikeDist_c.argtypes = \
   [c_void_p,iType,POINTER(cType),iType,POINTER(cType),
             iType,POINTER(cType),iType,POINTER(cType)]
-lib.ElCauchyLikeDist_c.restype = c_uint
+lib.ElCauchyLike_z.argtypes = \
 lib.ElCauchyLikeDist_z.argtypes = \
   [c_void_p,iType,POINTER(zType),iType,POINTER(zType),
             iType,POINTER(zType),iType,POINTER(zType)]
-lib.ElCauchyLikeDist_z.restype = c_uint
+
+lib.ElCauchyLike_s.restype = \
+lib.ElCauchyLike_d.restype = \
+lib.ElCauchyLike_c.restype = \
+lib.ElCauchyLike_z.restype = \
+lib.ElCauchyLikeDist_s.restype = \
+lib.ElCauchyLikeDist_d.restype = \
+lib.ElCauchyLikeDist_c.restype = \
+lib.ElCauchyLikeDist_z.restype = \
+  c_uint
+
 def CauchyLike(A,r,s,x,y):
   rLen = len(r)
   sLen = len(s)

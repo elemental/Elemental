@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "../../../dual/IPM/util.hpp"
 
 namespace El {
 namespace lp {
@@ -450,34 +451,18 @@ void ExpandSolution
         Matrix<Real>& dz )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandSolution"))
-    if( d.Height() != 2*n+m || d.Width() != 1 )
-        LogicError("Right-hand side was the wrong size");
-
-    const IR xInd(0,n), yInd(n,n+m), zInd(n+m,2*n+m);
-    dx = d(xInd,IR(0,1));
-    dy = d(yInd,IR(0,1));
-    dz = d(zInd,IR(0,1));
+    lp::dual::ExpandCoreSolution( m, n, n, d, dx, dy, dz );
 }
 
 template<typename Real>
 void ExpandSolution
 ( Int m, Int n, 
-  const AbstractDistMatrix<Real>& dPre, 
+  const AbstractDistMatrix<Real>& d, 
         AbstractDistMatrix<Real>& dx, AbstractDistMatrix<Real>& dy, 
         AbstractDistMatrix<Real>& dz )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandSolution"))
-    
-    auto dPtr = ReadProxy<Real,MC,MR>(&dPre);    
-    auto& d = *dPtr;
-
-    if( d.Height() != 2*n+m || d.Width() != 1 )
-        LogicError("Right-hand side was the wrong size");
-
-    const IR xInd(0,n), yInd(n,n+m), zInd(n+m,2*n+m);
-    Copy( d(xInd,IR(0,1)), dx );
-    Copy( d(yInd,IR(0,1)), dy );
-    Copy( d(zInd,IR(0,1)), dz );
+    lp::dual::ExpandCoreSolution( m, n, n, d, dx, dy, dz );
 }
 
 template<typename Real>
@@ -488,88 +473,7 @@ void ExpandSolution
         DistMultiVec<Real>& dz )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::primal::ExpandSolution"))
-    if( d.Height() != 2*n+m || d.Width() != 1 )
-        LogicError("Right-hand side was the wrong size");
-    mpi::Comm comm = d.Comm(); 
-    const Int commSize = mpi::Size(comm);
-
-    dx.Resize( n, 1 );
-    dy.Resize( m, 1 );
-    dz.Resize( n, 1 );
-
-    // Compute the metadata for the AllToAll
-    // =====================================
-    std::vector<int> sendCounts(commSize,0);
-    for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
-    {
-        const Int i = d.FirstLocalRow() + iLoc;
-        if( i < n )
-            ++sendCounts[ dx.RowOwner(i) ];
-        else if( i < n+m )
-            ++sendCounts[ dy.RowOwner(i-n) ];
-        else
-            ++sendCounts[ dz.RowOwner(i-(n+m)) ];
-    }
-    std::vector<int> recvCounts(commSize);
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    std::vector<int> sendOffsets, recvOffsets;
-    const int totalSend = Scan( sendCounts, sendOffsets );
-    const int totalRecv = Scan( recvCounts, recvOffsets );
-
-    // Pack the doublets
-    // =================
-    std::vector<Int> sSendBuf(totalSend);
-    std::vector<Real> vSendBuf(totalSend);
-    auto offsets = sendOffsets;
-    for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
-    {
-        const Int i = d.FirstLocalRow() + iLoc;
-        if( i < n )
-        {
-            const Int owner = dx.RowOwner(i);
-            sSendBuf[offsets[owner]] = i;
-            vSendBuf[offsets[owner]] = d.GetLocal(iLoc,0);
-            ++offsets[owner];
-        }
-        else if( i < n+m )
-        {
-            const Int owner = dy.RowOwner(i-n);
-            sSendBuf[offsets[owner]] = i;
-            vSendBuf[offsets[owner]] = d.GetLocal(iLoc,0);
-            ++offsets[owner];
-        }
-        else
-        {
-            const Int owner = dz.RowOwner(i-(n+m));
-            sSendBuf[offsets[owner]] = i;
-            vSendBuf[offsets[owner]] = d.GetLocal(iLoc,0);
-            ++offsets[owner];
-        }
-    }
-
-    // Exchange the doublets
-    // =====================
-    std::vector<Int> sRecvBuf(totalRecv);
-    std::vector<Real> vRecvBuf(totalRecv);
-    mpi::AllToAll
-    ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-    mpi::AllToAll
-    ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-
-    // Unpack the doublets
-    // ===================
-    for( Int e=0; e<totalRecv; ++e )
-    {
-        const Int i = sRecvBuf[e];
-        if( i < n )
-            dx.SetLocal( i-dx.FirstLocalRow(), 0, vRecvBuf[e] );
-        else if( i < n+m )
-            dy.SetLocal( i-n-dy.FirstLocalRow(), 0, vRecvBuf[e] );
-        else
-            dz.SetLocal( i-(n+m)-dz.FirstLocalRow(), 0, vRecvBuf[e] );
-    }
+    lp::dual::ExpandCoreSolution( m, n, n, d, dx, dy, dz );
 }
 
 #define PROTO(Real) \

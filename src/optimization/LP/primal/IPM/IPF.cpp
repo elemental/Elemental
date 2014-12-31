@@ -437,7 +437,7 @@ void IPF
     DistSymmFrontTree<Real> JFrontTree;
     DistMultiVec<Real> d(comm),
                        rc(comm), rb(comm), rmu(comm), 
-                       dx(comm),  dy(comm), dz(comm);
+                       dx(comm), dy(comm), dz(comm);
     DistNodalMultiVec<Real> dNodal;
 
     DistMultiVec<Real> regCand(comm), reg(comm);

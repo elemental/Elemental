@@ -72,40 +72,62 @@ EL_EXPORT ElError ElLassoDist_z
 
 /* Linear program
    ============== */
+typedef enum {
+  EL_LP_ADMM,
+  EL_LP_IPF,
+  EL_LP_IPF_SELFDUAL,
+  EL_LP_MEHROTRA,
+  EL_LP_MEHROTRA_SELFDUAL
+} ElLPApproach;
+
 /* Primal conic form
    ----------------- */ 
 EL_EXPORT ElError ElLPPrimal_s
-( ElConstMatrix_s A, ElConstMatrix_s b, ElConstMatrix_s c, 
-  ElMatrix_s x, ElMatrix_s y, ElMatrix_s z );
+( ElConstMatrix_s A, 
+  ElConstMatrix_s b, ElConstMatrix_s c, 
+  ElMatrix_s x,      ElMatrix_s y, 
+  ElMatrix_s z );
 EL_EXPORT ElError ElLPPrimal_d
-( ElConstMatrix_d A, ElConstMatrix_d b, ElConstMatrix_d c, 
-  ElMatrix_d x, ElMatrix_d y, ElMatrix_d z );
+( ElConstMatrix_d A, 
+  ElConstMatrix_d b, ElConstMatrix_d c, 
+  ElMatrix_d x,      ElMatrix_d y, 
+  ElMatrix_d z );
 
 EL_EXPORT ElError ElLPPrimalDist_s
-( ElConstDistMatrix_s A, ElConstDistMatrix_s b, ElConstDistMatrix_s c, 
-  ElDistMatrix_s x, ElDistMatrix_s y, ElDistMatrix_s z );
+( ElConstDistMatrix_s A, 
+  ElConstDistMatrix_s b, ElConstDistMatrix_s c, 
+  ElDistMatrix_s x,      ElDistMatrix_s y, 
+  ElDistMatrix_s z );
 EL_EXPORT ElError ElLPPrimalDist_d
-( ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElConstDistMatrix_d c, 
-  ElDistMatrix_d x, ElDistMatrix_d y, ElDistMatrix_d z );
+( ElConstDistMatrix_d A, 
+  ElConstDistMatrix_d b, ElConstDistMatrix_d c, 
+  ElDistMatrix_d x,      ElDistMatrix_d y, 
+  ElDistMatrix_d z );
 
 EL_EXPORT ElError ElLPPrimalSparse_s
-( ElConstSparseMatrix_s A, ElConstMatrix_s b, ElConstMatrix_s c, 
-  ElMatrix_s x, ElMatrix_s y, ElMatrix_s z );
+( ElConstSparseMatrix_s A, 
+  ElConstMatrix_s b,       ElConstMatrix_s c, 
+  ElMatrix_s x,            ElMatrix_s y, 
+  ElMatrix_s z );
 EL_EXPORT ElError ElLPPrimalSparse_d
-( ElConstSparseMatrix_d A, ElConstMatrix_d b, ElConstMatrix_d c, 
-  ElMatrix_d x, ElMatrix_d y, ElMatrix_d z );
+( ElConstSparseMatrix_d A, 
+  ElConstMatrix_d b,       ElConstMatrix_d c, 
+  ElMatrix_d x,            ElMatrix_d y, 
+  ElMatrix_d z );
 
 EL_EXPORT ElError ElLPPrimalDistSparse_s
 ( ElConstDistSparseMatrix_s A, 
-  ElConstDistMultiVec_s b, ElConstDistMultiVec_s c, 
-  ElDistMultiVec_s x, ElDistMultiVec_s y, ElDistMultiVec_s z );
+  ElConstDistMultiVec_s b,     ElConstDistMultiVec_s c, 
+  ElDistMultiVec_s x,          ElDistMultiVec_s y, 
+  ElDistMultiVec_s z );
 EL_EXPORT ElError ElLPPrimalDistSparse_d
 ( ElConstDistSparseMatrix_d A, 
-  ElConstDistMultiVec_d b, ElConstDistMultiVec_d c, 
-  ElDistMultiVec_d x, ElDistMultiVec_d y, ElDistMultiVec_d z );
+  ElConstDistMultiVec_d b,     ElConstDistMultiVec_d c, 
+  ElDistMultiVec_d x,          ElDistMultiVec_d y, 
+  ElDistMultiVec_d z );
 
 /* Expert versions
-   --------------- */
+   ^^^^^^^^^^^^^^^ */
 typedef enum {
   EL_LP_PRIMAL_FULL_KKT,
   EL_LP_PRIMAL_AUGMENTED_KKT,
@@ -202,14 +224,6 @@ ElError ElLPPrimalMehrotraCtrlDefault_s
 ElError ElLPPrimalMehrotraCtrlDefault_d
 ( ElLPPrimalMehrotraCtrl_d* ctrl, bool isSparse );
 
-typedef enum {
-  EL_LP_ADMM,
-  EL_LP_IPF,
-  EL_LP_IPF_SELFDUAL,
-  EL_LP_MEHROTRA,
-  EL_LP_MEHROTRA_SELFDUAL
-} ElLPApproach;
-
 typedef struct {
   ElLPApproach approach;  
   ElLPPrimalADMMCtrl_s admmCtrl;
@@ -227,42 +241,245 @@ ElError ElLPPrimalCtrlDefault_s( ElLPPrimalCtrl_s* ctrl, bool isSparse );
 ElError ElLPPrimalCtrlDefault_d( ElLPPrimalCtrl_d* ctrl, bool isSparse );
 
 EL_EXPORT ElError ElLPPrimalX_s
-( ElConstMatrix_s A, ElConstMatrix_s b, ElConstMatrix_s c, 
-  ElMatrix_s x, ElMatrix_s y, ElMatrix_s z, 
+( ElConstMatrix_s A, 
+  ElConstMatrix_s b, ElConstMatrix_s c, 
+  ElMatrix_s x,      ElMatrix_s y, 
+  ElMatrix_s z, 
   ElLPPrimalCtrl_s ctrl );
 EL_EXPORT ElError ElLPPrimalX_d
-( ElConstMatrix_d A, ElConstMatrix_d b, ElConstMatrix_d c, 
-  ElMatrix_d x, ElMatrix_d y, ElMatrix_d z, 
+( ElConstMatrix_d A, 
+  ElConstMatrix_d b, ElConstMatrix_d c, 
+  ElMatrix_d x,      ElMatrix_d y, 
+  ElMatrix_d z, 
   ElLPPrimalCtrl_d ctrl );
 
 EL_EXPORT ElError ElLPPrimalXDist_s
-( ElConstDistMatrix_s A, ElConstDistMatrix_s b, ElConstDistMatrix_s c, 
-  ElDistMatrix_s x, ElDistMatrix_s y, ElDistMatrix_s z, 
+( ElConstDistMatrix_s A, 
+  ElConstDistMatrix_s b, ElConstDistMatrix_s c, 
+  ElDistMatrix_s x,      ElDistMatrix_s y, 
+  ElDistMatrix_s z, 
   ElLPPrimalCtrl_s ctrl );
 EL_EXPORT ElError ElLPPrimalXDist_d
-( ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElConstDistMatrix_d c, 
-  ElDistMatrix_d x, ElDistMatrix_d y, ElDistMatrix_d z, 
+( ElConstDistMatrix_d A, 
+  ElConstDistMatrix_d b, ElConstDistMatrix_d c, 
+  ElDistMatrix_d x,      ElDistMatrix_d y, 
+  ElDistMatrix_d z, 
   ElLPPrimalCtrl_d ctrl );
 
 EL_EXPORT ElError ElLPPrimalXSparse_s
-( ElConstSparseMatrix_s A, ElConstMatrix_s b, ElConstMatrix_s c, 
-  ElMatrix_s x, ElMatrix_s y, ElMatrix_s z, 
+( ElConstSparseMatrix_s A, 
+  ElConstMatrix_s b,       ElConstMatrix_s c, 
+  ElMatrix_s x,            ElMatrix_s y, 
+  ElMatrix_s z, 
   ElLPPrimalCtrl_s ctrl );
 EL_EXPORT ElError ElLPPrimalXSparse_d
-( ElConstSparseMatrix_d A, ElConstMatrix_d b, ElConstMatrix_d c, 
-  ElMatrix_d x, ElMatrix_d y, ElMatrix_d z, 
+( ElConstSparseMatrix_d A, 
+  ElConstMatrix_d b,       ElConstMatrix_d c, 
+  ElMatrix_d x,            ElMatrix_d y, 
+  ElMatrix_d z, 
   ElLPPrimalCtrl_d ctrl );
 
 EL_EXPORT ElError ElLPPrimalXDistSparse_s
 ( ElConstDistSparseMatrix_s A, 
-  ElConstDistMultiVec_s b, ElConstDistMultiVec_s c, 
-  ElDistMultiVec_s x, ElDistMultiVec_s y, ElDistMultiVec_s z, 
+  ElConstDistMultiVec_s b,     ElConstDistMultiVec_s c, 
+  ElDistMultiVec_s x,          ElDistMultiVec_s y, 
+  ElDistMultiVec_s z, 
   ElLPPrimalCtrl_s ctrl );
 EL_EXPORT ElError ElLPPrimalXDistSparse_d
 ( ElConstDistSparseMatrix_d A, 
-  ElConstDistMultiVec_d b, ElConstDistMultiVec_d c, 
-  ElDistMultiVec_d x, ElDistMultiVec_d y, ElDistMultiVec_d z,
+  ElConstDistMultiVec_d b,     ElConstDistMultiVec_d c, 
+  ElDistMultiVec_d x,          ElDistMultiVec_d y, 
+  ElDistMultiVec_d z,
   ElLPPrimalCtrl_d ctrl );
+
+/* Dual conic form
+   --------------- */
+EL_EXPORT ElError ElLPDual_s
+( ElConstMatrix_s A, ElConstMatrix_s G,
+  ElConstMatrix_s b, ElConstMatrix_s c, 
+  ElConstMatrix_s h,
+  ElMatrix_s x,      ElMatrix_s y, 
+  ElMatrix_s z,      ElMatrix_s s );
+EL_EXPORT ElError ElLPDual_d
+( ElConstMatrix_d A, ElConstMatrix_d G,
+  ElConstMatrix_d b, ElConstMatrix_d c, 
+  ElConstMatrix_d h,
+  ElMatrix_d x,      ElMatrix_d y, 
+  ElMatrix_d z,      ElMatrix_d s );
+
+EL_EXPORT ElError ElLPDualDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_s G,
+  ElConstDistMatrix_s b, ElConstDistMatrix_s c, 
+  ElConstDistMatrix_s h,
+  ElDistMatrix_s x,      ElDistMatrix_s y, 
+  ElDistMatrix_s z,      ElDistMatrix_s s );
+EL_EXPORT ElError ElLPDualDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_d G,
+  ElConstDistMatrix_d b, ElConstDistMatrix_d c, 
+  ElConstDistMatrix_d h,
+  ElDistMatrix_d x,      ElDistMatrix_d y, 
+  ElDistMatrix_d z,      ElDistMatrix_d s );
+
+EL_EXPORT ElError ElLPDualSparse_s
+( ElConstSparseMatrix_s A, ElConstSparseMatrix_s G,
+  ElConstMatrix_s b,       ElConstMatrix_s c, 
+  ElConstMatrix_s h,
+  ElMatrix_s x,            ElMatrix_s y, 
+  ElMatrix_s z,            ElMatrix_s s );
+EL_EXPORT ElError ElLPDualSparse_d
+( ElConstSparseMatrix_d A, ElConstSparseMatrix_d G,
+  ElConstMatrix_d b,       ElConstMatrix_d c, 
+  ElConstMatrix_d h,
+  ElMatrix_d x,            ElMatrix_d y, 
+  ElMatrix_d z,            ElMatrix_d s );
+
+EL_EXPORT ElError ElLPDualDistSparse_s
+( ElConstDistSparseMatrix_s A, ElConstDistSparseMatrix_s G,
+  ElConstDistMultiVec_s b,     ElConstDistMultiVec_s c, 
+  ElConstDistMultiVec_s h,
+  ElDistMultiVec_s x,          ElDistMultiVec_s y, 
+  ElDistMultiVec_s z,          ElDistMultiVec_s s );
+EL_EXPORT ElError ElLPDualDistSparse_d
+( ElConstDistSparseMatrix_d A, ElConstDistSparseMatrix_d G,
+  ElConstDistMultiVec_d b,     ElConstDistMultiVec_d c, 
+  ElConstDistMultiVec_d h,
+  ElDistMultiVec_d x,          ElDistMultiVec_d y, 
+  ElDistMultiVec_d z,          ElDistMultiVec_d s );
+
+/* Expert versions
+   ^^^^^^^^^^^^^^^ */
+typedef struct {
+  float gamma;
+  float beta;
+  float psi;
+  bool print;
+} ElLPDualIPFLineSearchCtrl_s;
+
+typedef struct {
+  double gamma;
+  double beta;
+  double psi;
+  bool print;
+} ElLPDualIPFLineSearchCtrl_d;
+
+ElError ElLPDualIPFLineSearchCtrlDefault_s( ElLPDualIPFLineSearchCtrl_s* ctrl );
+ElError ElLPDualIPFLineSearchCtrlDefault_d( ElLPDualIPFLineSearchCtrl_d* ctrl );
+
+typedef struct {
+  bool initialized;
+  float tol;
+  ElInt maxIts;
+  float centering;
+
+  ElLPDualIPFLineSearchCtrl_s lineSearchCtrl;
+  bool print;
+} ElLPDualIPFCtrl_s;
+
+typedef struct {
+  bool initialized;
+  double tol;
+  ElInt maxIts;
+  double centering;
+
+  ElLPDualIPFLineSearchCtrl_d lineSearchCtrl;
+  bool print;
+} ElLPDualIPFCtrl_d;
+
+ElError ElLPDualIPFCtrlDefault_s( ElLPDualIPFCtrl_s* ctrl );
+ElError ElLPDualIPFCtrlDefault_d( ElLPDualIPFCtrl_d* ctrl );
+
+typedef struct {
+  bool initialized;
+  float tol;
+  ElInt maxIts;
+  float maxStepRatio;
+  bool print;
+} ElLPDualMehrotraCtrl_s;
+
+typedef struct {
+  bool initialized;
+  double tol;
+  ElInt maxIts;
+  double maxStepRatio;
+  bool print;
+} ElLPDualMehrotraCtrl_d;
+
+ElError ElLPDualMehrotraCtrlDefault_s( ElLPDualMehrotraCtrl_s* ctrl );
+ElError ElLPDualMehrotraCtrlDefault_d( ElLPDualMehrotraCtrl_d* ctrl );
+
+typedef struct {
+  ElLPApproach approach;  
+  ElLPDualIPFCtrl_s ipfCtrl;
+  ElLPDualMehrotraCtrl_s mehrotraCtrl;
+} ElLPDualCtrl_s;
+typedef struct {
+  ElLPApproach approach;  
+  ElLPDualIPFCtrl_d ipfCtrl;
+  ElLPDualMehrotraCtrl_d mehrotraCtrl;
+} ElLPDualCtrl_d;
+
+ElError ElLPDualCtrlDefault_s( ElLPDualCtrl_s* ctrl );
+ElError ElLPDualCtrlDefault_d( ElLPDualCtrl_d* ctrl );
+
+EL_EXPORT ElError ElLPDualX_s
+( ElConstMatrix_s A, ElConstMatrix_s G,
+  ElConstMatrix_s b, ElConstMatrix_s c, 
+  ElConstMatrix_s h,
+  ElMatrix_s x,      ElMatrix_s y, 
+  ElMatrix_s z,      ElMatrix_s s,
+  ElLPDualCtrl_s ctrl );
+EL_EXPORT ElError ElLPDualX_d
+( ElConstMatrix_d A, ElConstMatrix_d G,
+  ElConstMatrix_d b, ElConstMatrix_d c, 
+  ElConstMatrix_d h,
+  ElMatrix_d x,      ElMatrix_d y, 
+  ElMatrix_d z,      ElMatrix_d s,
+  ElLPDualCtrl_d ctrl );
+
+EL_EXPORT ElError ElLPDualXDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_s G,
+  ElConstDistMatrix_s b, ElConstDistMatrix_s c, 
+  ElConstDistMatrix_s h,
+  ElDistMatrix_s x,      ElDistMatrix_s y, 
+  ElDistMatrix_s z,      ElDistMatrix_s s,
+  ElLPDualCtrl_s ctrl );
+EL_EXPORT ElError ElLPDualXDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_d G,
+  ElConstDistMatrix_d b, ElConstDistMatrix_d c, 
+  ElConstDistMatrix_d h,
+  ElDistMatrix_d x,      ElDistMatrix_d y, 
+  ElDistMatrix_d z,      ElDistMatrix_d s,
+  ElLPDualCtrl_d ctrl );
+
+EL_EXPORT ElError ElLPDualXSparse_s
+( ElConstSparseMatrix_s A, ElConstSparseMatrix_s G,
+  ElConstMatrix_s b,       ElConstMatrix_s c, 
+  ElConstMatrix_s h,
+  ElMatrix_s x,            ElMatrix_s y, 
+  ElMatrix_s z,            ElMatrix_s s,
+  ElLPDualCtrl_s ctrl );
+EL_EXPORT ElError ElLPDualXSparse_d
+( ElConstSparseMatrix_d A, ElConstSparseMatrix_d G,
+  ElConstMatrix_d b,       ElConstMatrix_d c, 
+  ElConstMatrix_d h,
+  ElMatrix_d x,            ElMatrix_d y, 
+  ElMatrix_d z,            ElMatrix_d s,
+  ElLPDualCtrl_d ctrl );
+
+EL_EXPORT ElError ElLPDualXDistSparse_s
+( ElConstDistSparseMatrix_s A, ElConstDistSparseMatrix_s G,
+  ElConstDistMultiVec_s b,     ElConstDistMultiVec_s c, 
+  ElConstDistMultiVec_s h,
+  ElDistMultiVec_s x,          ElDistMultiVec_s y, 
+  ElDistMultiVec_s z,          ElDistMultiVec_s s,
+  ElLPDualCtrl_s ctrl );
+EL_EXPORT ElError ElLPDualXDistSparse_d
+( ElConstDistSparseMatrix_d A, ElConstDistSparseMatrix_d G,
+  ElConstDistMultiVec_d b,     ElConstDistMultiVec_d c, 
+  ElConstDistMultiVec_d h,
+  ElDistMultiVec_d x,          ElDistMultiVec_d y, 
+  ElDistMultiVec_d z,          ElDistMultiVec_d s,
+  ElLPDualCtrl_d ctrl );
 
 /* Logistic regression
    =================== */

@@ -96,9 +96,9 @@ if testMehrotra:
     print "Mehrotra time:", endMehrotra-startMehrotra
 
   if display:
-    El.Display( x, "x Mehotra" )
-    El.Display( y, "y Mehotra" )
-    El.Display( z, "z Mehotra" )
+    El.Display( x, "x Mehrotra" )
+    El.Display( y, "y Mehrotra" )
+    El.Display( z, "z Mehrotra" )
 
   Q_x = El.DistMultiVec()
   El.Zeros( Q_x, n, 1 )

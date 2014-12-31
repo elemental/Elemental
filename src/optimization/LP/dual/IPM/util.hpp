@@ -55,6 +55,25 @@ void KKTRHS
         DistMultiVec<Real>& d );
 
 template<typename Real>
+void ExpandCoreSolution
+( Int m, Int n, Int k,
+  const Matrix<Real>& d, 
+        Matrix<Real>& dx, Matrix<Real>& dy, 
+        Matrix<Real>& dz );
+template<typename Real>
+void ExpandCoreSolution
+( Int m, Int n, Int k,
+  const AbstractDistMatrix<Real>& d,
+        AbstractDistMatrix<Real>& dx, AbstractDistMatrix<Real>& dy,
+        AbstractDistMatrix<Real>& dz );
+template<typename Real>
+void ExpandCoreSolution
+( Int m, Int n, Int k,
+  const DistMultiVec<Real>& d, 
+        DistMultiVec<Real>& dx, DistMultiVec<Real>& dy,
+        DistMultiVec<Real>& dz );
+
+template<typename Real>
 void ExpandSolution
 ( Int m, Int n, 
   const Matrix<Real>& d,  const Matrix<Real>& rmu, 
