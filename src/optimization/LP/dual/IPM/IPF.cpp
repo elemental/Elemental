@@ -189,8 +189,8 @@ void IPF
 ( const AbstractDistMatrix<Real>& APre, const AbstractDistMatrix<Real>& GPre,
   const AbstractDistMatrix<Real>& b,    const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Real>& h,
-        AbstractDistMatrix<Real>& xPre,       AbstractDistMatrix<Real>& y, 
-        AbstractDistMatrix<Real>& zPre,       AbstractDistMatrix<Real>& s,
+        AbstractDistMatrix<Real>& xPre,       AbstractDistMatrix<Real>& yPre, 
+        AbstractDistMatrix<Real>& zPre,       AbstractDistMatrix<Real>& sPre,
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::dual::IPF"))    
@@ -202,8 +202,11 @@ void IPF
     proxCtrl.rowAlign = 0;
     auto APtr = ReadProxy<Real,MC,MR>(&APre,proxCtrl);      auto& A = *APtr;
     auto GPtr = ReadProxy<Real,MC,MR>(&GPre,proxCtrl);      auto& G = *GPtr;
+    // NOTE: The following do not need to be read proxies when !ctrl.initialized
     auto xPtr = ReadWriteProxy<Real,MC,MR>(&xPre,proxCtrl); auto& x = *xPtr;
+    auto yPtr = ReadWriteProxy<Real,MC,MR>(&yPre,proxCtrl); auto& y = *yPtr;
     auto zPtr = ReadWriteProxy<Real,MC,MR>(&zPre,proxCtrl); auto& z = *zPtr;
+    auto sPtr = ReadWriteProxy<Real,MC,MR>(&sPre,proxCtrl); auto& s = *sPtr;
 
     const Int m = A.Height();
     const Int n = A.Width();

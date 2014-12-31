@@ -197,7 +197,7 @@ template<typename Real>
 void IPF
 ( const AbstractDistMatrix<Real>& APre, 
   const AbstractDistMatrix<Real>& b,    const AbstractDistMatrix<Real>& c,
-        AbstractDistMatrix<Real>& xPre,       AbstractDistMatrix<Real>& y, 
+        AbstractDistMatrix<Real>& xPre,       AbstractDistMatrix<Real>& yPre, 
         AbstractDistMatrix<Real>& zPre, 
   const IPFCtrl<Real>& ctrl )
 {
@@ -209,7 +209,9 @@ void IPF
     proxCtrl.colAlign = 0;
     proxCtrl.rowAlign = 0;
     auto APtr = ReadProxy<Real,MC,MR>(&APre,proxCtrl);      auto& A = *APtr;
+    // NOTE: The following do not need to be read proxies when !ctrl.initialized
     auto xPtr = ReadWriteProxy<Real,MC,MR>(&xPre,proxCtrl); auto& x = *xPtr;
+    auto yPtr = ReadWriteProxy<Real,MC,MR>(&yPre,proxCtrl); auto& y = *yPtr;
     auto zPtr = ReadWriteProxy<Real,MC,MR>(&zPre,proxCtrl); auto& z = *zPtr;
 
     const Int m = A.Height();

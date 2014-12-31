@@ -9,9 +9,9 @@
 import El
 import time
 
-m = 2000
-n = 4000
-k = 3000
+m = 500
+n = 1000
+k = 750
 testMehrotra = False
 testIPF = True
 manualInit = False
@@ -19,55 +19,42 @@ display = False
 progress = True
 worldRank = El.mpi.WorldRank()
 
-# Make a sparse matrix with the last column dense
-def Rectang(m,n):
-  A = El.DistSparseMatrix()
-  A.Resize(m,n)
-  firstLocalRow = A.FirstLocalRow()
-  localHeight = A.LocalHeight()
-  A.Reserve(5*localHeight)
-  for sLoc in xrange(localHeight):
-    s = firstLocalRow + sLoc
-    A.QueueLocalUpdate( sLoc, s, 11 )
-    if s != 0:   A.QueueLocalUpdate( sLoc, s-1, -1 )
-    if s != n-1: A.QueueLocalUpdate( sLoc, s+1,  2 )
-    if s >= m:   A.QueueLocalUpdate( sLoc, s-m, -3 )
-    if s <  n-m: A.QueueLocalUpdate( sLoc, s+m,  4 )
-    # The dense last column
-    A.QueueLocalUpdate( sLoc, n-1, -5/m );
-
-  A.MakeConsistent()
+# Make a dense matrix
+def RectangDense(m,n):
+  A = El.DistMatrix()
+  El.Gaussian( A, m, n )
   return A
 
-A = Rectang(m,n)
-G = Rectang(k,n)
+A = RectangDense(m,n)
+G = RectangDense(k,n)
 
 # Generate a (b,h) which implies a primal feasible (x,s)
 # ======================================================
+xGen = El.DistMatrix()
 # b := A xGen
-xGen = El.DistMultiVec()
+# -----------
 El.Gaussian(xGen,n,1)
-b = El.DistMultiVec()
+b = El.DistMatrix()
 El.Zeros( b, m, 1 )
-El.SparseMultiply( El.NORMAL, 1., A, xGen, 0., b )
+El.Gemv( El.NORMAL, 1., A, xGen, 0., b )
 # h := G xGen + sGen
 # ------------------
-sGen = El.DistMultiVec()
+sGen = El.DistMatrix()
 El.Uniform(sGen,k,1,0.5,0.5)
-h = El.DistMultiVec()
+h = El.DistMatrix()
 El.Copy( sGen, h )
-El.SparseMultiply( El.NORMAL, 1., G, xGen, 1., h )
+El.Gemv( El.NORMAL, 1., G, xGen, 1., h )
 
 # Generate a c which implies a dual feasible (y,z)
 # ================================================
-yGen = El.DistMultiVec()
+yGen = El.DistMatrix()
 El.Gaussian(yGen,m,1)
-zGen = El.DistMultiVec()
+zGen = El.DistMatrix()
 El.Uniform(zGen,k,1,0.5,0.5)
-c = El.DistMultiVec()
-El.Zeros(c,n,1)
-El.SparseMultiply( El.TRANSPOSE, -1., A, yGen, 1., c )
-El.SparseMultiply( El.TRANSPOSE, -1., G, zGen, 1., c )
+c = El.DistMatrix()
+El.Zeros( c, n, 1 )
+El.Gemv( El.TRANSPOSE, -1., A, yGen, 1., c )
+El.Gemv( El.TRANSPOSE, -1., G, zGen, 1., c )
 
 if display:
   El.Display( A, "A" )
@@ -79,19 +66,19 @@ if display:
 # Set up the control structure (and possibly initial guesses)
 # ===========================================================
 ctrl = El.LPDualCtrl_d()
-xOrig = El.DistMultiVec()
-yOrig = El.DistMultiVec()
-zOrig = El.DistMultiVec()
-sOrig = El.DistMultiVec()
+xOrig = El.DistMatrix()
+yOrig = El.DistMatrix()
+zOrig = El.DistMatrix()
+sOrig = El.DistMatrix()
 if manualInit:
   El.Uniform(xOrig,n,1,0.5,0.4999)
   El.Uniform(yOrig,m,1,0.5,0.4999)
   El.Uniform(zOrig,k,1,0.5,0.4999)
   El.Uniform(sOrig,k,1,0.5,0.4999)
-x = El.DistMultiVec()
-y = El.DistMultiVec()
-z = El.DistMultiVec()
-s = El.DistMultiVec()
+x = El.DistMatrix()
+y = El.DistMatrix()
+z = El.DistMatrix()
+s = El.DistMatrix()
 
 if testMehrotra:
   ctrl.approach = El.LP_MEHROTRA
