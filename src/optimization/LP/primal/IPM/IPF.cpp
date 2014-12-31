@@ -230,6 +230,7 @@ void IPF
                      dx(grid), dy(grid), dz(grid);
     dx.AlignWith( x );
     dz.AlignWith( x );
+    rmu.AlignWith( x );
 #ifndef EL_RELEASE
     DistMatrix<Real> dxError(grid), dyError(grid), dzError(grid);
     dzError.AlignWith( dz );

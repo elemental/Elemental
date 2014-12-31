@@ -808,6 +808,21 @@ Base<F> LogDetDiv
 ( UpperOrLower uplo, 
   const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B );
 
+// Maximum step within the positive cone
+// -------------------------------------
+template<typename Real>
+Real MaxStepInPositiveCone
+( const Matrix<Real>& s, 
+  const Matrix<Real>& ds, Real upperBound );
+template<typename Real>
+Real MaxStepInPositiveCone
+( const AbstractDistMatrix<Real>& s, 
+  const AbstractDistMatrix<Real>& ds, Real upperBound );
+template<typename Real>
+Real MaxStepInPositiveCone
+( const DistMultiVec<Real>& s, 
+  const DistMultiVec<Real>& ds, Real upperBound );
+
 // Number of non-positive entries
 // ------------------------------
 template<typename Real>

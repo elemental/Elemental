@@ -234,9 +234,9 @@ void IPF
                      dx(grid), dy(grid), dz(grid), ds(grid);
     ds.AlignWith( s );
     dz.AlignWith( s );
+    rmu.AlignWith( s );
 #ifndef EL_RELEASE
-    DistMatrix<Real> dxError(grid), dyError(grid), dzError(grid), dsError(grid);
-    dsError.AlignWith( s );
+    DistMatrix<Real> dxError(grid), dyError(grid), dzError(grid);
     dzError.AlignWith( s );
 #endif
     for( Int numIts=0; ; ++numIts )
@@ -422,8 +422,7 @@ void IPF
     DistNodalMultiVec<Real> regCandNodal, regNodal;
 
 #ifndef EL_RELEASE
-    DistMultiVec<Real> dxError(comm), dyError(comm), 
-                       dzError(comm), dsError(comm);
+    DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm);
 #endif
     for( Int numIts=0; ; ++numIts )
     {

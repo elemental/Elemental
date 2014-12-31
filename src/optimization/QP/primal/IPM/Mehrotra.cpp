@@ -181,22 +181,8 @@ void Mehrotra
 
         // Compute the maximum affine [0,1]-step which preserves positivity
         // ================================================================
-        Real alphaAffPri = 1; 
-        for( Int i=0; i<n; ++i )
-        {
-            const Real xi = x.Get(i,0);
-            const Real dxAffi = dxAff.Get(i,0);
-            if( dxAffi < Real(0) )
-                alphaAffPri = Min(alphaAffPri,-xi/dxAffi);
-        }
-        Real alphaAffDual = 1; 
-        for( Int i=0; i<n; ++i )
-        {
-            const Real zi = z.Get(i,0);
-            const Real dzAffi = dzAff.Get(i,0);
-            if( dzAffi < Real(0) )
-                alphaAffDual = Min(alphaAffDual,-zi/dzAffi);
-        }
+        const Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
+        const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
         if( ctrl.print )
             std::cout << "  alphaAffPri = " << alphaAffPri 
                       << ", alphaAffDual = " << alphaAffDual << std::endl;
@@ -211,8 +197,8 @@ void Mehrotra
         Axpy( alphaAffDual, dzAff, dz );
         const Real muAff = Dot(dx,dz) / n;
 
-        // Compute a centrality parameter using Mehotra's formula
-        // ======================================================
+        // Compute a centrality parameter using Mehrotra's formula
+        // =======================================================
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3)); 
         if( ctrl.print )
@@ -259,22 +245,8 @@ void Mehrotra
 
         // Compute the max positive [0,1/maxStepRatio] step length
         // =======================================================
-        Real alphaPri = 1/ctrl.maxStepRatio;
-        for( Int i=0; i<n; ++i )
-        {
-            const Real xi = x.Get(i,0);
-            const Real dxi = dx.Get(i,0);
-            if( dxi < Real(0) )
-                alphaPri = Min(alphaPri,-xi/dxi);
-        }
-        Real alphaDual = 1/ctrl.maxStepRatio;
-        for( Int i=0; i<n; ++i )
-        {
-            const Real zi = z.Get(i,0);
-            const Real dzi = dz.Get(i,0);
-            if( dzi < Real(0) )
-                alphaDual = Min(alphaDual,-zi/dzi);
-        }
+        Real alphaPri = MaxStepInPositiveCone( x, dx, 1/ctrl.maxStepRatio );
+        Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.print )
@@ -467,32 +439,8 @@ void Mehrotra
 
         // Compute the maximum affine [0,1]-step which preserves positivity
         // ================================================================
-        Real alphaAffPri = 1; 
-        // TODO: Find a more convenient way to represent this operation
-        if( x.IsLocalCol(0) )
-        {
-            for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
-            {
-                const Real xi = x.GetLocal(iLoc,0);
-                const Real dxAffi = dxAff.GetLocal(iLoc,0);
-                if( dxAffi < Real(0) )
-                    alphaAffPri = Min(alphaAffPri,-xi/dxAffi);
-            }
-        }
-        alphaAffPri = mpi::AllReduce( alphaAffPri, mpi::MIN, x.DistComm() );
-        Real alphaAffDual = 1; 
-        // TODO: Find a more convenient way to represent this operation
-        if( z.IsLocalCol(0) )
-        {
-            for( Int iLoc=0; iLoc<z.LocalHeight(); ++iLoc )
-            {
-                const Real zi = z.GetLocal(iLoc,0);
-                const Real dzAffi = dzAff.GetLocal(iLoc,0);
-                if( dzAffi < Real(0) )
-                    alphaAffDual = Min(alphaAffDual,-zi/dzAffi);
-            }
-        }
-        alphaAffDual = mpi::AllReduce( alphaAffDual, mpi::MIN, z.DistComm() );
+        const Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
+        const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
         if( ctrl.print && commRank == 0 )
             std::cout << "  alphaAffPri = " << alphaAffPri 
                       << ", alphaAffDual = " << alphaAffDual << std::endl;
@@ -507,8 +455,8 @@ void Mehrotra
         Axpy( alphaAffDual, dzAff, dz );
         const Real muAff = Dot(dx,dz) / n;
 
-        // Compute a centrality parameter using Mehotra's formula
-        // ======================================================
+        // Compute a centrality parameter using Mehrotra's formula
+        // =======================================================
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3)); 
         if( ctrl.print && commRank == 0 )
@@ -559,32 +507,8 @@ void Mehrotra
 
         // Compute the max positive [0,1/maxStepRatio] step length
         // =======================================================
-        Real alphaPri = 1/ctrl.maxStepRatio;
-        // TODO: Find a more convenient means of expressing this operation
-        if( x.IsLocalCol(0) )
-        {
-            for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
-            {
-                const Real xi = x.GetLocal(iLoc,0);
-                const Real dxi = dx.GetLocal(iLoc,0);
-                if( dxi < Real(0) )
-                    alphaPri = Min(alphaPri,-xi/dxi);
-            }
-        }
-        alphaPri = mpi::AllReduce( alphaPri, mpi::MIN, x.DistComm() );
-        Real alphaDual = 1/ctrl.maxStepRatio;
-        // TODO: Find a more convenient means of expressing this operation
-        if( z.IsLocalCol(0) )
-        {
-            for( Int iLoc=0; iLoc<z.LocalHeight(); ++iLoc )
-            {
-                const Real zi = z.GetLocal(iLoc,0);
-                const Real dzi = dz.GetLocal(iLoc,0);
-                if( dzi < Real(0) )
-                    alphaDual = Min(alphaDual,-zi/dzi);
-            }
-        }
-        alphaDual = mpi::AllReduce( alphaDual, mpi::MIN, z.DistComm() );
+        Real alphaPri = MaxStepInPositiveCone( x, dx, 1/ctrl.maxStepRatio );
+        Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.print && commRank == 0 )
@@ -797,24 +721,8 @@ void Mehrotra
 
         // Compute the maximum affine [0,1]-step which preserves positivity
         // ================================================================
-        Real alphaAffPri = 1; 
-        for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
-        {
-            const Real xi = x.GetLocal(iLoc,0);
-            const Real dxAffi = dxAff.GetLocal(iLoc,0);
-            if( dxAffi < Real(0) )
-                alphaAffPri = Min(alphaAffPri,-xi/dxAffi);
-        }
-        alphaAffPri = mpi::AllReduce( alphaAffPri, mpi::MIN, comm );
-        Real alphaAffDual = 1; 
-        for( Int iLoc=0; iLoc<z.LocalHeight(); ++iLoc )
-        {
-            const Real zi = z.GetLocal(iLoc,0);
-            const Real dzAffi = dzAff.GetLocal(iLoc,0);
-            if( dzAffi < Real(0) )
-                alphaAffDual = Min(alphaAffDual,-zi/dzAffi);
-        }
-        alphaAffDual = mpi::AllReduce( alphaAffDual, mpi::MIN, comm );
+        const Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
+        const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
         if( ctrl.print && commRank == 0 )
             std::cout << "  alphaAffPri = " << alphaAffPri 
                       << ", alphaAffDual = " << alphaAffDual << std::endl;
@@ -829,8 +737,8 @@ void Mehrotra
         Axpy( alphaAffDual, dzAff, dz );
         const Real muAff = Dot(dx,dz) / n;
 
-        // Compute a centrality parameter using Mehotra's formula
-        // ======================================================
+        // Compute a centrality parameter using Mehrotra's formula
+        // =======================================================
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3)); 
         if( ctrl.print && commRank == 0 )
@@ -871,24 +779,8 @@ void Mehrotra
 
         // Compute the max positive [0,1/maxStepRatio] step length
         // =======================================================
-        Real alphaPri = 1/ctrl.maxStepRatio;
-        for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
-        {
-            const Real xi = x.GetLocal(iLoc,0);
-            const Real dxi = dx.GetLocal(iLoc,0);
-            if( dxi < Real(0) )
-                alphaPri = Min(alphaPri,-xi/dxi);
-        }
-        alphaPri = mpi::AllReduce( alphaPri, mpi::MIN, comm );
-        Real alphaDual = 1/ctrl.maxStepRatio;
-        for( Int iLoc=0; iLoc<z.LocalHeight(); ++iLoc )
-        {
-            const Real zi = z.GetLocal(iLoc,0);
-            const Real dzi = dz.GetLocal(iLoc,0);
-            if( dzi < Real(0) )
-                alphaDual = Min(alphaDual,-zi/dzi);
-        }
-        alphaDual = mpi::AllReduce( alphaDual, mpi::MIN, comm );
+        Real alphaPri = MaxStepInPositiveCone( x, dx, 1/ctrl.maxStepRatio );
+        Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.print && commRank == 0 )

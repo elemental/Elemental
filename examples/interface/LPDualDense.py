@@ -12,7 +12,7 @@ import time
 m = 500
 n = 1000
 k = 750
-testMehrotra = False
+testMehrotra = True
 testIPF = True
 manualInit = False
 display = False
