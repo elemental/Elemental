@@ -78,10 +78,31 @@ using namespace LPApproachNS;
 
 namespace lp {
 
-namespace primal {
-// Solve a Linear Program in "primal" conic form:
-//   min c^T x, subject to A x = b and x >= 0
-//    x
+// Infeasible Path-Following Interior Point Method (IPF)
+// -----------------------------------------------------
+template<typename Real>
+struct IPFLineSearchCtrl {
+    Real gamma;
+    Real beta;
+    Real psi;
+    Real stepRatio;
+    bool print;
+
+    IPFLineSearchCtrl()
+    : gamma(1e-3), beta(2), psi(100), stepRatio(1.5), print(false)
+    { }
+};
+
+namespace direct {
+
+// Attempt to solve a pair of Linear Programs in "direct" conic form:
+//
+//   min c^T x, 
+//   s.t. A x = b, x >= 0
+//
+//   max -b^T y
+//   s.t. A^T y -z + c = 0, z >= 0
+//
 
 namespace KKTSystemNS {
 enum KKTSystem {
@@ -92,35 +113,22 @@ enum KKTSystem {
 }
 using namespace KKTSystemNS;
 
-// Infeasible Path-Following Interior Point Method (IPF)
-// -----------------------------------------------------
-template<typename Real>
-struct IPFLineSearchCtrl {
-    Real gamma;
-    Real beta;
-    Real psi;
-    bool print;
-
-    IPFLineSearchCtrl()
-    : gamma(1e-3), beta(2), psi(100), print(false)
-    { }
-};
-
 template<typename Real>
 struct IPFCtrl {
-    bool initialized;
+    bool primalInitialized;
+    bool dualInitialized;
     Real tol;
     Int maxIts;
     Real centering; 
     KKTSystem system;
 
-    IPFLineSearchCtrl<Real> lineSearchCtrl;
+    lp::IPFLineSearchCtrl<Real> lineSearchCtrl;
 
     bool print;
 
     IPFCtrl( bool isSparse ) 
-    : initialized(false), tol(1e-8), maxIts(1000), centering(0.9), 
-      print(false)
+    : primalInitialized(false), dualInitialized(false),
+      tol(1e-8), maxIts(1000), centering(0.9), print(false)
     { system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); }
 };
 
@@ -128,7 +136,8 @@ struct IPFCtrl {
 // ---------------------------------------------------------------
 template<typename Real>
 struct MehrotraCtrl {
-    bool initialized;
+    bool primalInitialized;
+    bool dualInitialized;
     Real tol;
     Int maxIts;
     Real maxStepRatio;
@@ -139,8 +148,8 @@ struct MehrotraCtrl {
     //       the default, (muAff/mu)^3 
 
     MehrotraCtrl( bool isSparse )
-    : initialized(false), tol(1e-8), maxIts(1000), maxStepRatio(0.99), 
-      print(false)
+    : primalInitialized(false), dualInitialized(false), 
+      tol(1e-8), maxIts(1000), maxStepRatio(0.99), print(false)
     { system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); }
 };
 
@@ -178,41 +187,36 @@ struct Ctrl
     { }
 };
 
-} // namespace primal
+} // namespace direct
 
-namespace dual {
-// Solve a Linear Program in "dual" conic form:
-//   min c^T x, subject to A x = b and G x <= h
-//    x
+namespace affine {
+
+// Attempt to solve a pair of Linear Programs in "affine" conic form:
+//
+//   min c^T x, 
+//   s.t. A x = b, G x + s = h, s >= 0
+//
+//   max -b^T y - h^T z
+//   s.t. A^T y + G^T z + c = 0, z >= 0
+//
 
 // Infeasible Path-Following Interior Point Method (IPF)
 // -----------------------------------------------------
 template<typename Real>
-struct IPFLineSearchCtrl {
-    Real gamma;
-    Real beta;
-    Real psi;
-    bool print;
-
-    IPFLineSearchCtrl()
-    : gamma(1e-3), beta(2), psi(100), print(false)
-    { }
-};
-
-template<typename Real>
 struct IPFCtrl {
-    bool initialized;
+    bool primalInitialized;
+    bool dualInitialized;
     Real tol;
     Int maxIts;
     Real centering; 
 
-    IPFLineSearchCtrl<Real> lineSearchCtrl;
+    lp::IPFLineSearchCtrl<Real> lineSearchCtrl;
 
     bool print;
 
     IPFCtrl() 
-    : initialized(false), tol(1e-8), maxIts(1000), centering(0.9), 
-      print(false)
+    : primalInitialized(false), dualInitialized(false),
+      tol(1e-8), maxIts(1000), centering(0.9), print(false)
     { }
 };
 
@@ -220,7 +224,8 @@ struct IPFCtrl {
 // ---------------------------------------------------------------
 template<typename Real>
 struct MehrotraCtrl {
-    bool initialized;
+    bool primalInitialized;
+    bool dualInitialized;
     Real tol;
     Int maxIts;
     Real maxStepRatio;
@@ -230,8 +235,8 @@ struct MehrotraCtrl {
     //       the default, (muAff/mu)^3 
 
     MehrotraCtrl()
-    : initialized(false), tol(1e-8), maxIts(1000), maxStepRatio(0.99), 
-      print(false)
+    : primalInitialized(false), dualInitialized(false),
+      tol(1e-8), maxIts(1000), maxStepRatio(0.99), print(false)
     { }
 };
 
@@ -247,11 +252,11 @@ struct Ctrl
     Ctrl() : approach(LP_MEHROTRA) { }
 };
 
-} // namespace dual
+} // namespace affine
 
 } // namespace lp
 
-// Primal conic form
+// Direct conic form
 // -----------------
 template<typename Real>
 void LP
@@ -259,31 +264,31 @@ void LP
   const Matrix<Real>& b, const Matrix<Real>& c,
         Matrix<Real>& x,       Matrix<Real>& y,
         Matrix<Real>& z,
-  const lp::primal::Ctrl<Real>& ctrl=lp::primal::Ctrl<Real>(false) );
+  const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(false) );
 template<typename Real>
 void LP
 ( const AbstractDistMatrix<Real>& A, 
   const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
         AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
         AbstractDistMatrix<Real>& z,
-  const lp::primal::Ctrl<Real>& ctrl=lp::primal::Ctrl<Real>(false) );
+  const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(false) );
 template<typename Real>
 void LP
 ( const SparseMatrix<Real>& A, 
   const Matrix<Real>& b, const Matrix<Real>& c,
         Matrix<Real>& x,       Matrix<Real>& y,
         Matrix<Real>& z,
-  const lp::primal::Ctrl<Real>& ctrl=lp::primal::Ctrl<Real>(true) );
+  const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(true) );
 template<typename Real>
 void LP
 ( const DistSparseMatrix<Real>& A, 
   const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
         DistMultiVec<Real>& x,       DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
-  const lp::primal::Ctrl<Real>& ctrl=lp::primal::Ctrl<Real>(true) );
+  const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(true) );
 
-// Dual conic form
-// ---------------
+// Affine conic form
+// -----------------
 template<typename Real>
 void LP
 ( const Matrix<Real>& A, const Matrix<Real>& G,
@@ -291,7 +296,7 @@ void LP
   const Matrix<Real>& h,
         Matrix<Real>& x,       Matrix<Real>& y,
         Matrix<Real>& z,       Matrix<Real>& s,
-  const lp::dual::Ctrl<Real>& ctrl=lp::dual::Ctrl<Real>() );
+  const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void LP
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G,
@@ -299,7 +304,7 @@ void LP
   const AbstractDistMatrix<Real>& h,
         AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
         AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s,
-  const lp::dual::Ctrl<Real>& ctrl=lp::dual::Ctrl<Real>() );
+  const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void LP
 ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
@@ -307,7 +312,7 @@ void LP
   const Matrix<Real>& h,
         Matrix<Real>& x,             Matrix<Real>& y,
         Matrix<Real>& z,             Matrix<Real>& s,
-  const lp::dual::Ctrl<Real>& ctrl=lp::dual::Ctrl<Real>() );
+  const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void LP
 ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
@@ -315,7 +320,7 @@ void LP
   const DistMultiVec<Real>& h,
         DistMultiVec<Real>& x,           DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,           DistMultiVec<Real>& s,
-  const lp::dual::Ctrl<Real>& ctrl=lp::dual::Ctrl<Real>() );
+  const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 
 // Logistic Regression
 // ===================
@@ -388,10 +393,30 @@ enum QPApproach {
 using namespace QPApproachNS;
 
 namespace qp {
-namespace primal {
-// Solves a Quadratic Program in "primal" conic form:
-//   min 1/2 x^T Q x + c^T x, subject to A x = b and x >= 0
-//    x
+
+template<typename Real>
+struct IPFLineSearchCtrl {
+    Real gamma;
+    Real beta;
+    Real psi;
+    Real stepRatio;
+    bool print;
+
+    IPFLineSearchCtrl()
+    : gamma(1e-3), beta(2), psi(100), stepRatio(1.5), print(false)
+    { }
+};
+
+namespace direct {
+
+// Attempt to solve a pair of Quadratic Programs in "direct" conic form:
+//
+//   min (1/2) x^T Q x + c^T x, 
+//   s.t. A x = b, x >= 0
+//
+//   max -(1/2)(A^T y - z + c)^T pinv(Q) (A^T y - z + c)
+//   s.t. A^T y - z + c in range(Q), z >= 0.
+//  
 
 namespace KKTSystemNS {
 enum KKTSystem {
@@ -405,25 +430,13 @@ using namespace KKTSystemNS;
 // Infeasible Path-Following Interior Point Method (IPF)
 // -----------------------------------------------------
 template<typename Real>
-struct IPFLineSearchCtrl {
-    Real gamma;
-    Real beta;
-    Real psi;
-    bool print;
-
-    IPFLineSearchCtrl()
-    : gamma(1e-3), beta(2), psi(100), print(false)
-    { }
-};
-
-template<typename Real>
 struct IPFCtrl {
     Real tol;
     Int maxIts;
     Real centering;
     KKTSystem system;
 
-    IPFLineSearchCtrl<Real> lineSearchCtrl;
+    qp::IPFLineSearchCtrl<Real> lineSearchCtrl;
 
     bool print;
 
@@ -437,26 +450,29 @@ template<typename Real>
 void IPF
 ( const Matrix<Real>& Q, const Matrix<Real>& A,
   const Matrix<Real>& b, const Matrix<Real>& c,
-  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
+        Matrix<Real>& x,       Matrix<Real>& y, 
+        Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 template<typename Real>
 void IPF
 ( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
-  AbstractDistMatrix<Real>& x, AbstractDistMatrix<Real>& y,
-  AbstractDistMatrix<Real>& z, 
+        AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
+        AbstractDistMatrix<Real>& z, 
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 template<typename Real>
 void IPF
 ( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A,
-  const Matrix<Real>& b, const Matrix<Real>& c,
-  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
+  const Matrix<Real>& b,       const Matrix<Real>& c,
+        Matrix<Real>& x,             Matrix<Real>& y, 
+        Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 template<typename Real>
 void IPF
 ( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
-  DistMultiVec<Real>& x, DistMultiVec<Real>& y, DistMultiVec<Real>& z,
+  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c,
+        DistMultiVec<Real>& x,           DistMultiVec<Real>& y, 
+        DistMultiVec<Real>& z,
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 
 // Mehrotra's Predictor-Corrector Infeasible Interior Point Method
@@ -482,26 +498,29 @@ template<typename Real>
 void Mehrotra
 ( const Matrix<Real>& Q, const Matrix<Real>& A,
   const Matrix<Real>& b, const Matrix<Real>& c,
-  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
+        Matrix<Real>& x,       Matrix<Real>& y, 
+        Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra
 ( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
-  AbstractDistMatrix<Real>& x, AbstractDistMatrix<Real>& y, 
-  AbstractDistMatrix<Real>& z,
+        AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y, 
+        AbstractDistMatrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra
 ( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A,
-  const Matrix<Real>& b, const Matrix<Real>& c,
-  Matrix<Real>& x, Matrix<Real>& y, Matrix<Real>& z,
+  const Matrix<Real>& b,       const Matrix<Real>& c,
+        Matrix<Real>& x,             Matrix<Real>& y, 
+        Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra
 ( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
-  DistMultiVec<Real>& x, DistMultiVec<Real>& y, DistMultiVec<Real>& z,
+  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c,
+        DistMultiVec<Real>& x,           DistMultiVec<Real>& y, 
+        DistMultiVec<Real>& z,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 
 // High-level control structure for primal QPs
@@ -514,17 +533,15 @@ struct Ctrl
     IPFCtrl<Real> ipfCtrl;
     MehrotraCtrl<Real> mehrotraCtrl;
 
-    Ctrl() 
-    : approach(QP_MEHROTRA)
-    { }
+    Ctrl() : approach(QP_MEHROTRA) { }
 };
 
-} // namespace primal
+} // namespace direct
 
 namespace box {
 
 // Solve (a set of) quadratic programs of the form 
-//   min 1/2 x' Q x + c' x, subject to l_b <= x <= u_b
+//   min (1/2) x' Q x + c' x, subject to l_b <= x <= u_b
 //    x
 
 // Alternating Direction Method of Multipliers
@@ -561,33 +578,32 @@ Int ADMM
 
 } // namespace qp
 
-// Solves a Quadratic Program in "primal" conic form:
-//   min 1/2 x^T Q x + c^T x, subject to A x = b and x >= 0
-//    x
+// Direct conic form
+// -----------------
 template<typename Real>
 void QP
 ( const Matrix<Real>& Q, const Matrix<Real>& A, 
   const Matrix<Real>& b, const Matrix<Real>& c,
         Matrix<Real>& x,
-  const qp::primal::Ctrl<Real>& ctrl=qp::primal::Ctrl<Real>() );
+  const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
 template<typename Real>
 void QP
 ( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A, 
   const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
         AbstractDistMatrix<Real>& x,
-  const qp::primal::Ctrl<Real>& ctrl=qp::primal::Ctrl<Real>() );
+  const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
 template<typename Real>
 void QP
 ( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A, 
   const Matrix<Real>& b, const Matrix<Real>& c,
         Matrix<Real>& x,
-  const qp::primal::Ctrl<Real>& ctrl=qp::primal::Ctrl<Real>() );
+  const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
 template<typename Real>
 void QP
 ( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A, 
   const DistMultiVec<Real>& b, const DistMultiVec<Real>& c,
         DistMultiVec<Real>& x,
-  const qp::primal::Ctrl<Real>& ctrl=qp::primal::Ctrl<Real>() );
+  const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
 
 // Robust Principal Component Analysis (RPCA)
 // ==========================================
