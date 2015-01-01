@@ -893,6 +893,18 @@ void RegularizedLDL
         DistNodalMultiVec<Base<F>>& reg,
   SymmFrontType newFrontType=LDL_1D );
 
+namespace reg_ldl {
+
+template<typename F>
+Int SolveAfter
+( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap,             const DistSymmInfo& info,
+  const DistSymmFrontTree<F>& AFact,       DistMultiVec<F>& y,
+  Base<F> minReductionFactor,              Int maxRefineIts,
+  bool progress );
+
+} // namespace reg_ldl
+
 } // namespace El
 
 #endif // ifndef EL_OPTIMIZATION_HPP

@@ -19,21 +19,21 @@ progress = True
 worldRank = El.mpi.WorldRank()
 
 # Make a sparse matrix with the last column dense
-def Rectang(m,n):
+def Rectang(height,width):
   A = El.DistSparseMatrix()
-  A.Resize(m,n)
+  A.Resize(height,width)
   firstLocalRow = A.FirstLocalRow()
   localHeight = A.LocalHeight()
   A.Reserve(5*localHeight)
   for sLoc in xrange(localHeight):
     s = firstLocalRow + sLoc
     A.QueueLocalUpdate( sLoc, s, 11 )
-    if s != 0:   A.QueueLocalUpdate( sLoc, s-1, -1 )
-    if s != n-1: A.QueueLocalUpdate( sLoc, s+1,  2 )
-    if s >= m:   A.QueueLocalUpdate( sLoc, s-m, -3 )
-    if s <  n-m: A.QueueLocalUpdate( sLoc, s+m,  4 )
+    if s != 0:            A.QueueLocalUpdate( sLoc, s-1,      -1 )
+    if s != width-1:      A.QueueLocalUpdate( sLoc, s+1,       2 )
+    if s >= height:       A.QueueLocalUpdate( sLoc, s-height, -3 )
+    if s <  width-height: A.QueueLocalUpdate( sLoc, s+height,  4 )
     # The dense last column
-    A.QueueLocalUpdate( sLoc, n-1, -5/m );
+    A.QueueLocalUpdate( sLoc, width-1, -5/height );
 
   A.MakeConsistent()
   return A

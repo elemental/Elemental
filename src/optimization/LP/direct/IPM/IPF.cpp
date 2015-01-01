@@ -439,7 +439,8 @@ void IPF
     {
         Initialize
         ( A, b, c, x, y, z, map, invMap, sepTree, info,
-          ctrl.primalInitialized, ctrl.dualInitialized, standardShift );
+          ctrl.primalInitialized, ctrl.dualInitialized, standardShift,
+          ctrl.print );
     }
     else
     {
@@ -448,7 +449,8 @@ void IPF
         DistSeparatorTree augSepTree;
         Initialize
         ( A, b, c, x, y, z, augMap, augInvMap, augSepTree, augInfo, 
-          ctrl.primalInitialized, ctrl.dualInitialized, standardShift );
+          ctrl.primalInitialized, ctrl.dualInitialized, standardShift,
+          ctrl.print );
     }
 
     DistSparseMatrix<Real> J(comm);
@@ -456,9 +458,42 @@ void IPF
     DistMultiVec<Real> d(comm),
                        rc(comm), rb(comm), rmu(comm), 
                        dx(comm), dy(comm), dz(comm);
-    DistNodalMultiVec<Real> dNodal;
 
     DistMultiVec<Real> regCand(comm), reg(comm);
+    // TODO: Dynamically modify these values in the manner suggested by 
+    //       Altman and Gondzio based upon the number of performed steps of
+    //       iterative refinement
+    if( ctrl.system == FULL_KKT )
+    {
+        const Real regMagPrimal = Pow(epsilon,Real(0.75));
+        const Real regMagLagrange = Pow(epsilon,Real(0.5));
+        const Real regMagDual = Pow(epsilon,Real(0.5));
+        regCand.Resize( m+2*n, 1 );
+        for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
+        {
+            const Int i = regCand.FirstLocalRow() + iLoc;
+            if( i < n )
+                regCand.SetLocal( iLoc, 0, regMagPrimal );
+            else if( i < n+m )
+                regCand.SetLocal( iLoc, 0, -regMagLagrange );
+            else
+                regCand.SetLocal( iLoc, 0, -regMagDual );
+        }
+    }
+    else if( ctrl.system == AUGMENTED_KKT )
+    {
+        const Real regMagPrimal = Pow(epsilon,Real(0.75));
+        const Real regMagLagrange = Pow(epsilon,Real(0.5));
+        regCand.Resize( n+m, 1 );
+        for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
+        {
+            const Int i = regCand.FirstLocalRow() + iLoc;
+            if( i < n )
+                regCand.SetLocal( iLoc, 0, regMagPrimal );
+            else
+                regCand.SetLocal( iLoc, 0, -regMagLagrange );
+        }
+    }
     DistNodalMultiVec<Real> regCandNodal, regNodal;
 
 #ifndef EL_RELEASE
@@ -524,8 +559,9 @@ void IPF
 
         // Compute the search direction
         // ============================
+        // TODO: Expose these as control parameters
         const Real minReductionFactor = 2;
-        const Int maxRefineIts = 10;
+        const Int maxRefineIts = 50;
         if( ctrl.system == FULL_KKT )
         {
             // Construct the full KKT system
@@ -534,25 +570,11 @@ void IPF
             KKT( A, x, z, J, false );
             KKTRHS( rc, rb, rmu, z, d );
             const Real pivTol = MaxNorm(J)*epsilon;
-            const Real regMagPrimal = Pow(epsilon,Real(0.75));
-            const Real regMagLagrange = Pow(epsilon,Real(0.5));
-            const Real regMagDual = Pow(epsilon,Real(0.5));
-            regCand.Resize( m+2*n, 1 );
-            for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
-            {
-                const Int i = regCand.FirstLocalRow() + iLoc;
-                if( i < n )
-                    regCand.SetLocal( iLoc, 0, regMagPrimal );
-                else if( i < n+m )
-                    regCand.SetLocal( iLoc, 0, -regMagLagrange );
-                else 
-                    regCand.SetLocal( iLoc, 0, -regMagDual );
-            }
             // Do not use any a priori regularization
             Zeros( reg, m+2*n, 1 );
 
-            // Compute the proposed step from the KKT system
-            // ---------------------------------------------
+            // Factor the KKT system using dynamic regularization
+            // --------------------------------------------------
             if( numIts == 0 )
             {
                 NestedDissection( J.LockedDistGraph(), map, sepTree, info );
@@ -564,15 +586,14 @@ void IPF
             RegularizedLDL
             ( info, JFrontTree, pivTol, regCandNodal, regNodal, LDL_1D );
             regNodal.Push( invMap, info, reg );
-            // TODO: Iterative refinement
-            /*
-            SolveWithIterativeRefinement
-            ( J, invMap, info, JFrontTree, d, 
-              minReductionFactor, maxRefineIts );
-            */
-            dNodal.Pull( invMap, info, d );
-            Solve( info, JFrontTree, dNodal );
-            dNodal.Push( invMap, info, d );
+
+            // Compute the proposed step from the regularized KKT system
+            // ---------------------------------------------------------
+            const Int numLargeRefines = reg_ldl::SolveAfter
+            ( J, reg, invMap, info, JFrontTree, d, 
+              minReductionFactor, maxRefineIts, ctrl.print );
+            if( numLargeRefines > 1 )
+                Scale( Real(10), regCand );
             ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -583,17 +604,6 @@ void IPF
             AugmentedKKT( A, x, z, J, false );
             AugmentedKKTRHS( x, rc, rb, rmu, d );
             const Real pivTol = MaxNorm(J)*epsilon;
-            const Real regMagPrimal = Pow(epsilon,Real(0.75));
-            const Real regMagLagrange = Pow(epsilon,Real(0.5));
-            regCand.Resize( n+m, 1 );
-            for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
-            {
-                const Int i = regCand.FirstLocalRow() + iLoc;
-                if( i < n )
-                    regCand.SetLocal( iLoc, 0, regMagPrimal );
-                else
-                    regCand.SetLocal( iLoc, 0, -regMagLagrange );
-            }
             // Do not use any a priori regularization
             Zeros( reg, m+n, 1 );
 
@@ -610,15 +620,14 @@ void IPF
             RegularizedLDL
             ( info, JFrontTree, pivTol, regCandNodal, regNodal, LDL_1D );
             regNodal.Push( invMap, info, reg );
-            // TODO: Iterative refinement
-            /*
-            SolveWithIterativeRefinement
-            ( J, invMap, info, JFrontTree, d, 
-              minReductionFactor, maxRefineIts );
-            */
-            dNodal.Pull( invMap, info, d );
-            Solve( info, JFrontTree, dNodal );
-            dNodal.Push( invMap, info, d );
+
+            // Compute the proposed step from the regularized KKT system
+            // ---------------------------------------------------------
+            const Int numLargeRefines = reg_ldl::SolveAfter
+            ( J, reg, invMap, info, JFrontTree, d, 
+              minReductionFactor, maxRefineIts, ctrl.print );
+            if( numLargeRefines > 1 )
+                Scale( Real(10), regCand );
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else // ctrl.system == NORMAL_KKT
@@ -630,8 +639,8 @@ void IPF
             NormalKKT( A, x, z, J, false );
             NormalKKTRHS( A, x, z, rc, rb, rmu, dy );
 
-            // Compute the proposed step from the KKT system
-            // ---------------------------------------------
+            // Factor the KKT system
+            // ---------------------
             if( numIts == 0 )
             {
                 NestedDissection( J.LockedDistGraph(), map, sepTree, info );
@@ -639,6 +648,9 @@ void IPF
             }
             JFrontTree.Initialize( J, map, sepTree, info );
             LDL( info, JFrontTree, LDL_INTRAPIV_1D ); 
+
+            // Compute the proposed step
+            // -------------------------
             SolveWithIterativeRefinement
             ( J, invMap, info, JFrontTree, dy, 
               minReductionFactor, maxRefineIts );
@@ -665,6 +677,8 @@ void IPF
         DiagonalScale( NORMAL, z, prod );
         Axpy( Real(1), prod, dzError );
         const Real dzErrorNrm2 = Nrm2( dzError );
+
+        // TODO: Also compute and print the residuals with regularization
 
         if( ctrl.print && commRank == 0 )
             std::cout << "  || dxError ||_2 / (1 + || r_b ||_2) = " 

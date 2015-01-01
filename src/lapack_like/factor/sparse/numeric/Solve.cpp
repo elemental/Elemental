@@ -68,7 +68,7 @@ void Solve
 } 
 
 template<typename F>
-void SolveWithIterativeRefinement
+Int SolveWithIterativeRefinement
 ( const DistSparseMatrix<F>& A,
   const DistMap& invMap, const DistSymmInfo& info,
   const DistSymmFrontTree<F>& AFact, DistMultiVec<F>& y,
@@ -88,12 +88,13 @@ void SolveWithIterativeRefinement
     Solve( info, AFact, xNodal );
     xNodal.Push( invMap, info, x );
 
+    Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
         DistMultiVec<F> dx(comm), xCand(comm); 
         Multiply( NORMAL, F(-1), A, x, F(1), y );
         Base<F> errorNorm = Nrm2( y );
-        for( Int refineIt=0; refineIt<maxRefineIts; ++refineIt )
+        for( ; refineIt<maxRefineIts; ++refineIt )
         {
             // Compute the proposed update to the solution
             // -------------------------------------------
@@ -113,7 +114,7 @@ void SolveWithIterativeRefinement
                 x = xCand;
                 errorNorm = newErrorNorm;
             }
-            if( newErrorNorm < errorNorm )
+            else if( newErrorNorm < errorNorm )
             {
                 x = xCand;
                 errorNorm = newErrorNorm;
@@ -126,6 +127,7 @@ void SolveWithIterativeRefinement
     // Store the final result
     // ======================
     y = x;
+    return refineIt;
 }
 
 // TODO: Add iterative refinement parameter
@@ -166,7 +168,7 @@ void HermitianSolve
   template void Solve \
   ( const DistSymmInfo& info, \
     const DistSymmFrontTree<F>& L, DistNodalMatrix<F>& X ); \
-  template void SolveWithIterativeRefinement \
+  template Int SolveWithIterativeRefinement \
   ( const DistSparseMatrix<F>& A, \
     const DistMap& invMap, const DistSymmInfo& info, \
     const DistSymmFrontTree<F>& AFact, DistMultiVec<F>& y, \

@@ -51,7 +51,7 @@ void Initialize
         DistMap& map,                     DistMap& invMap,
         DistSeparatorTree& sepTree,       DistSymmInfo& info,
   bool primalInitialized, bool dualInitialized,
-  bool standardShift );
+  bool standardShift,     bool progress );
 
 // Full system
 // ===========

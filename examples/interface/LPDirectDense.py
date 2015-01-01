@@ -20,9 +20,9 @@ progress = True
 worldRank = El.mpi.WorldRank()
 
 # Make a dense matrix
-def RectangDense(m,n):
+def RectangDense(height,width):
   A = El.DistMatrix()
-  El.Gaussian( A, m, n )
+  El.Gaussian( A, height, width )
   return A
 
 A = RectangDense(m,n)

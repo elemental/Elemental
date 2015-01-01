@@ -18,23 +18,23 @@ display = False
 worldRank = El.mpi.WorldRank()
 
 # Make a sparse semidefinite matrix
-def Semidefinite(n):
+def Semidefinite(height):
   Q = El.DistMatrix()
-  El.Identity( Q, n, n )
+  El.Identity( Q, height, height )
   return Q
 
 # Make a sparse matrix with the last column dense
-def RectangDense(m,n):
+def RectangDense(height,width):
   A = El.DistMatrix()
-  El.Zeros( A, m, n )
-  for s in xrange(m):
+  El.Zeros( A, height, width )
+  for s in xrange(height):
     A.Update( s, s, 11 )
-    if s != 0:   A.Update( s, s-1,   1 )
-    if s != n-1: A.Update( s, s+1,   2 )
-    if s >= m:   A.Update( s, s-m,   3 )
-    if s <  n-m: A.Update( s, s+m,   4 )
+    if s != 0:            A.Update( s, s-1,      1 )
+    if s != width-1:      A.Update( s, s+1,      2 )
+    if s >= height:       A.Update( s, s-height, 3 )
+    if s <  width-height: A.Update( s, s+height, 4 )
     # The dense last column
-    A.Update( s, n-1, 5./m );
+    A.Update( s, width-1, 5./height );
 
   return A
 

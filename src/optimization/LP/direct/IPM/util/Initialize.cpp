@@ -284,7 +284,7 @@ void Initialize
         DistMap& map,                     DistMap& invMap, 
         DistSeparatorTree& sepTree,       DistSymmInfo& info,
   bool primalInitialized, bool dualInitialized,
-  bool standardShift )
+  bool standardShift,     bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::direct::Initialize"))
     const Int m = A.Height();
@@ -337,6 +337,9 @@ void Initialize
 
     DistMultiVec<Real> rc(comm), rb(comm), rmu(comm), d(comm), u(comm), v(comm);
     Zeros( rmu, n, 1 );
+    // TODO: Expose these as control parameters
+    const Real minReductionFactor = 2;
+    const Int maxRefineIts = 10;
     if( !primalInitialized )
     {
         // Minimize || x ||^2, s.t. A x = b  by solving
@@ -351,17 +354,9 @@ void Initialize
         Zeros( rmu, n, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
-        // TODO: Iterative refinement
-        /*
-        SolveWithIterativeRefinement
-        ( J, invMap, info, JFrontTree, d, 
-          minReductionFactor, maxRefineIts );
-        */
-        DistNodalMultiVec<Real> dNodal;
-        dNodal.Pull( invMap, info, d );
-        Solve( info, JFrontTree, dNodal );
-        dNodal.Push( invMap, info, d );
-
+        reg_ldl::SolveAfter
+        ( J, reg, invMap, info, JFrontTree, d,
+          minReductionFactor, maxRefineIts, progress );
         ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
     }
     if( !dualInitialized ) 
@@ -374,17 +369,9 @@ void Initialize
         Zeros( rb, m, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
-        // TODO: Iterative refinement
-        /*
-        SolveWithIterativeRefinement
-        ( J, invMap, info, JFrontTree, d, 
-          minReductionFactor, maxRefineIts );
-        */
-        DistNodalMultiVec<Real> dNodal;
-        dNodal.Pull( invMap, info, d );
-        Solve( info, JFrontTree, dNodal );
-        dNodal.Push( invMap, info, d );
-
+        reg_ldl::SolveAfter
+        ( J, reg, invMap, info, JFrontTree, d,
+          minReductionFactor, maxRefineIts, progress );
         ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );
         Scale( Real(-1), z );
     }
@@ -451,7 +438,7 @@ void Initialize
           DistMap& map,                     DistMap& invMap, \
           DistSeparatorTree& sepTree,       DistSymmInfo& info, \
     bool primalInitialized, bool dualInitialized, \
-    bool standardShift );
+    bool standardShift,     bool progress );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

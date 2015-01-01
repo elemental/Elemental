@@ -517,7 +517,7 @@ void Mehrotra
     const bool standardShift = true;
     Initialize
     ( A, G, b, c, h, x, y, z, s, map, invMap, sepTree, info, 
-      ctrl.primalInitialized, ctrl.dualInitialized, standardShift );
+      ctrl.primalInitialized, ctrl.dualInitialized, standardShift, ctrl.print );
 
     DistSparseMatrix<Real> J(comm);
     DistSymmFrontTree<Real> JFrontTree;
@@ -525,9 +525,25 @@ void Mehrotra
                        rc(comm),    rb(comm),    rh(comm),    rmu(comm),
                        dxAff(comm), dyAff(comm), dzAff(comm), dsAff(comm),
                        dx(comm),    dy(comm),    dz(comm),    ds(comm);
-    DistNodalMultiVec<Real> dNodal;
 
     DistMultiVec<Real> regCand(comm), reg(comm);
+    // TODO: Dynamically modify these values in the manner suggested by 
+    //       Altman and Gondzio based upon the number of performed steps of
+    //       iterative refinement
+    const Real regMagPrimal = Pow(epsilon,Real(0.75));
+    const Real regMagLagrange = Pow(epsilon,Real(0.5));
+    const Real regMagDual = Pow(epsilon,Real(0.5));
+    regCand.Resize( m+2*n, 1 );
+    for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
+    {
+        const Int i = regCand.FirstLocalRow() + iLoc;
+        if( i < n )
+            regCand.SetLocal( iLoc, 0, regMagPrimal );
+        else if( i < n+m )
+            regCand.SetLocal( iLoc, 0, -regMagLagrange );
+        else
+            regCand.SetLocal( iLoc, 0, -regMagDual );
+    }
     DistNodalMultiVec<Real> regCandNodal, regNodal;
 
 #ifndef EL_RELEASE
@@ -601,8 +617,9 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        //const Real minReductionFactor = 2;
-        //const Int maxRefineIts = 10;
+        const Real minReductionFactor = 2;
+        const Int maxRefineIts = 50;
+        Int numLargeAffineRefines = 0;
         {
             // Construct the full KKT system
             // -----------------------------
@@ -610,20 +627,6 @@ void Mehrotra
             KKT( A, G, s, z, J, false );
             KKTRHS( rc, rb, rh, rmu, z, d );
             const Real pivTol = MaxNorm(J)*epsilon;
-            const Real regMagPrimal = Pow(epsilon,Real(0.75));
-            const Real regMagLagrange = Pow(epsilon,Real(0.5));
-            const Real regMagDual = Pow(epsilon,Real(0.5));
-            regCand.Resize( m+n+k, 1 );
-            for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
-            {
-                const Int i = regCand.FirstLocalRow() + iLoc;
-                if( i < n )
-                    regCand.SetLocal( iLoc, 0, regMagPrimal );
-                else if( i < n+m )
-                    regCand.SetLocal( iLoc, 0, -regMagLagrange );
-                else
-                    regCand.SetLocal( iLoc, 0, -regMagDual );
-            }
             // Do not use any a priori regularization
             Zeros( reg, m+n+k, 1 );
 
@@ -640,15 +643,10 @@ void Mehrotra
             RegularizedLDL
             ( info, JFrontTree, pivTol, regCandNodal, regNodal, LDL_1D );
             regNodal.Push( invMap, info, reg );
-            // TODO: Iterative refinement
-            /*
-            SolveWithIterativeRefinement
-            ( J, invMap, info, JFrontTree, d, 
-              minReductionFactor, maxRefineIts );
-            */
-            dNodal.Pull( invMap, info, d );
-            Solve( info, JFrontTree, dNodal );
-            dNodal.Push( invMap, info, d );
+
+            numLargeAffineRefines = reg_ldl::SolveAfter
+            ( J, reg, invMap, info, JFrontTree, d,
+              minReductionFactor, maxRefineIts, ctrl.print );
             ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
         }
 #ifndef EL_RELEASE
@@ -669,6 +667,7 @@ void Mehrotra
         const Real dzErrorNrm2 = Nrm2( dzError );
 
         // TODO: dmuError
+        // TODO: Also compute and print the residuals with regularization
 
         if( ctrl.print && commRank == 0 )
             std::cout << "  || dxError ||_2 / (1 + || r_b ||_2) = "
@@ -721,11 +720,12 @@ void Mehrotra
         KKTRHS( rc, rb, rh, rmu, z, d );
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
-        // TODO: Iterative refinement
-        dNodal.Pull( invMap, info, d );
-        Solve( info, JFrontTree, dNodal );
-        dNodal.Push( invMap, info, d );
+        const Int numLargeCorrectorRefines = reg_ldl::SolveAfter
+        ( J, reg, invMap, info, JFrontTree, d,
+          minReductionFactor, maxRefineIts, ctrl.print );
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
+        if( Max(numLargeAffineRefines,numLargeCorrectorRefines) > 1 )
+            Scale( Real(10), regCand );
 
         // Add in the affine search direction
         // ==================================

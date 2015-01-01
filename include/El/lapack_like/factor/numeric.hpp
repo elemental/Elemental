@@ -361,7 +361,7 @@ void Solve
   const DistSymmFrontTree<F>& AFact, DistNodalMatrix<F>& X );
 
 template<typename F>
-void SolveWithIterativeRefinement
+Int SolveWithIterativeRefinement
 ( const DistSparseMatrix<F>& A,
   const DistMap& invMap, const DistSymmInfo& info,
   const DistSymmFrontTree<F>& AFact, DistMultiVec<F>& y,
