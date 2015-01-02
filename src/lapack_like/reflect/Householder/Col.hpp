@@ -2,7 +2,7 @@
    Copyright (c) 1992-2008 The University of Tennessee.
    All rights reserved.
 
-   Copyright (c) 2009-2014, Jack Poulson
+   Copyright (c) 2009-2015, Jack Poulson
    All rights reserved.
 
    This file is loosely based upon the LAPACK routines dlarfg.f and zlarfg.f.
