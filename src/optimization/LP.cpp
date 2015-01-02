@@ -8,7 +8,6 @@
 */
 #include "El.hpp"
 #include "./LP/direct/IPM.hpp"
-#include "./LP/direct/IPM/util.hpp"
 #include "./LP/affine/IPM.hpp"
 
 namespace El {

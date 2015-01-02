@@ -914,7 +914,7 @@ void Mehrotra
               minReductionFactor, maxRefineIts );
             ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
-        if( Max(numLargeAffineRefines,numLargeCorrectorRefines) > 1 )
+        if( Max(numLargeAffineRefines,numLargeCorrectorRefines) > 3 )
             Scale( Real(10), regCand );
         // TODO: Residual checks for center-corrector
 

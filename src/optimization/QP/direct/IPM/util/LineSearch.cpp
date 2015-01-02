@@ -12,12 +12,16 @@ namespace El {
 namespace qp {
 namespace direct {
 
+// TODO: Expose maximum number of trials as parameter of IPFLineSearchCtrl
+
 template<typename Real>
 Real IPFLineSearch
 ( const Matrix<Real>& Q,  const Matrix<Real>& A, 
   const Matrix<Real>& b,  const Matrix<Real>& c,
-  const Matrix<Real>& x,  const Matrix<Real>& y,  const Matrix<Real>& z,
-  const Matrix<Real>& dx, const Matrix<Real>& dy, const Matrix<Real>& dz,
+  const Matrix<Real>& x,  const Matrix<Real>& y,  
+  const Matrix<Real>& z,
+  const Matrix<Real>& dx, const Matrix<Real>& dy, 
+  const Matrix<Real>& dz,
   Real upperBound,
   Real bTol, Real cTol,
   const qp::IPFLineSearchCtrl<Real>& ctrl )
@@ -46,7 +50,7 @@ Real IPFLineSearch
     //    y(alpha) = y + alpha dy,
     //    z(alpha) = z + alpha dz,
     //    r_b(alpha) = A x(alpha) - b, and
-    //    r_c(alpha) = A^T y(alpha) + z(alpha) - Q x(alpha) - c,
+    //    r_c(alpha) = Q x(alpha) + A^T y(alpha) - z(alpha) + c,
     // and the Armijo condition,
     //   mu(alpha) <= (1 - alpha/\psi) mu,
     // is also satisfied.
@@ -68,10 +72,10 @@ Real IPFLineSearch
     Gemv( TRANSPOSE, Real(1), A, dy, Real(0), AT_dy );
     rb = A_x; 
     Axpy( Real(-1), b, rb );
-    rc = AT_y;
-    Axpy( Real(1),  z,   rc );
-    Axpy( Real(-1), Q_x, rc );
-    Axpy( Real(-1), c,   rc );
+    rc = Q_x;
+    Axpy( Real( 1), AT_y, rc );
+    Axpy( Real(-1), z,    rc );
+    Axpy( Real( 1), c,    rc );
     const Real rbNrm2 = Nrm2( rb );
     const Real rcNrm2 = Nrm2( rc );
     const Real mu = Dot(x,z) / n;
@@ -137,9 +141,9 @@ Real IPFLineSearch
         // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha)/mu)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
-        Axpy( -alpha, Q_dx,  rc_alpha );
+        Axpy(  alpha, Q_dx,  rc_alpha );
         Axpy(  alpha, AT_dy, rc_alpha );
-        Axpy(  alpha, dz,    rc_alpha );
+        Axpy( -alpha, dz,    rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
         if( rc_alphaNrm2 > Max(cTol,rcNrm2*ctrl.beta*mu_alpha/mu) )
         {
@@ -156,9 +160,9 @@ Real IPFLineSearch
 
 template<typename Real>
 Real IPFLineSearch
-( const AbstractDistMatrix<Real>& QPre, const AbstractDistMatrix<Real>& APre, 
+( const AbstractDistMatrix<Real>& Q,    const AbstractDistMatrix<Real>& APre, 
   const AbstractDistMatrix<Real>& b,    const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& x,    const AbstractDistMatrix<Real>& y,  
+  const AbstractDistMatrix<Real>& x,    const AbstractDistMatrix<Real>& y,
   const AbstractDistMatrix<Real>& z,
   const AbstractDistMatrix<Real>& dx,   const AbstractDistMatrix<Real>& dy, 
   const AbstractDistMatrix<Real>& dz,
@@ -172,8 +176,8 @@ Real IPFLineSearch
     if( ctrl.beta < Real(1) )
         LogicError("beta must be at least one");
 
-    auto QPtr = ReadProxy<Real,MC,MR>(&QPre); auto& Q = *QPtr;
-    auto APtr = ReadProxy<Real,MC,MR>(&APre); auto& A = *APtr;
+    auto APtr = ReadProxy<Real,MC,MR>(&APre);
+    auto& A = *APtr;
 
     // TODO: Ensure the dimensions match
     if( b.Width() != 1 || c.Width() != 1 ||
@@ -196,7 +200,7 @@ Real IPFLineSearch
     //    y(alpha) = y + alpha dy,
     //    z(alpha) = z + alpha dz,
     //    r_b(alpha) = A x(alpha) - b, and
-    //    r_c(alpha) = A^T y(alpha) + z(alpha) - c,
+    //    r_c(alpha) = Q x(alpha) + A^T y(alpha) - z(alpha) + c,
     // and the Armijo condition,
     //   mu(alpha) <= (1 - alpha/\psi) mu,
     // is also satisfied.
@@ -204,7 +208,8 @@ Real IPFLineSearch
     // Setup
     // -----
     DistMatrix<Real> Q_x(grid), Q_dx(grid), A_x(grid), A_dx(grid), 
-                     AT_y(grid), AT_dy(grid), rb(grid), rc(grid);
+                     AT_y(grid), AT_dy(grid), 
+                     rb(grid), rc(grid);
     Zeros( Q_x,   n, 1 );
     Zeros( Q_dx,  n, 1 );
     Zeros( A_x,   m, 1 );
@@ -219,10 +224,10 @@ Real IPFLineSearch
     Gemv( TRANSPOSE, Real(1), A, dy, Real(0), AT_dy );
     rb = A_x; 
     Axpy( Real(-1), b, rb );
-    rc = AT_y;
-    Axpy( Real(1),  z,   rc );
-    Axpy( Real(-1), Q_x, rc );
-    Axpy( Real(-1), c,   rc );
+    rc = Q_x;
+    Axpy( Real( 1), AT_y, rc );
+    Axpy( Real(-1), z,    rc );
+    Axpy( Real( 1), c,    rc );
     const Real rbNrm2 = Nrm2( rb );
     const Real rcNrm2 = Nrm2( rc );
     const Real mu = Dot(x,z) / n;
@@ -296,9 +301,9 @@ Real IPFLineSearch
         // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha)/mu)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
-        Axpy( -alpha, Q_dx,  rc_alpha );
+        Axpy(  alpha, Q_dx,  rc_alpha );
         Axpy(  alpha, AT_dy, rc_alpha );
-        Axpy(  alpha, dz,    rc_alpha );
+        Axpy( -alpha, dz,    rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
         if( rc_alphaNrm2 > Max(cTol,rcNrm2*ctrl.beta*mu_alpha/mu) )
         {
@@ -316,9 +321,11 @@ Real IPFLineSearch
 template<typename Real>
 Real IPFLineSearch
 ( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A, 
-  const Matrix<Real>& b,  const Matrix<Real>& c,
-  const Matrix<Real>& x,  const Matrix<Real>& y,  const Matrix<Real>& z,
-  const Matrix<Real>& dx, const Matrix<Real>& dy, const Matrix<Real>& dz,
+  const Matrix<Real>& b,       const Matrix<Real>& c,
+  const Matrix<Real>& x,       const Matrix<Real>& y,  
+  const Matrix<Real>& z,
+  const Matrix<Real>& dx,      const Matrix<Real>& dy, 
+  const Matrix<Real>& dz,
   Real upperBound,
   Real bTol, Real cTol,
   const qp::IPFLineSearchCtrl<Real>& ctrl )
@@ -340,14 +347,14 @@ Real IPFLineSearch
     // state lies within the "-infinity" neighborhood of the central path, i.e.,
     //  (a) || r_b(alpha) ||_2 <= || r_b ||_2 beta mu(alpha) / mu,
     //  (b) || r_c(alpha) ||_2 <= || r_c ||_2 beta mu(alpha) / mu,
-    //  (c) x(alpha), s(alpha) > 0, and, for all i,
-    //  (d) x_i(alpha) s_i(alpha) >= gamma mu(alpha),
+    //  (c) x(alpha), z(alpha) > 0, and, for all i,
+    //  (d) x_i(alpha) z_i(alpha) >= gamma mu(alpha),
     // where 
     //    x(alpha) = x + alpha dx,
     //    y(alpha) = y + alpha dy,
     //    z(alpha) = z + alpha dz,
     //    r_b(alpha) = A x(alpha) - b, and
-    //    r_c(alpha) = A^T y(alpha) + z(alpha) - c,
+    //    r_c(alpha) = Q x(alpha) + A^T y(alpha) - z(alpha) + c,
     // and the Armijo condition,
     //   mu(alpha) <= (1 - alpha/\psi) mu,
     // is also satisfied.
@@ -361,7 +368,7 @@ Real IPFLineSearch
     Zeros( A_dx,  m, 1 );
     Zeros( AT_y,  n, 1 );
     Zeros( AT_dy, n, 1 );
-    // NOTE: Q must be explicitly Hermitian
+    // NOTE: This requires Q to be explicitly symmetric
     Multiply( NORMAL,    Real(1), Q, x,  Real(0), Q_x   );
     Multiply( NORMAL,    Real(1), Q, dx, Real(0), Q_dx  );
     Multiply( NORMAL,    Real(1), A, x,  Real(0), A_x   );
@@ -370,10 +377,10 @@ Real IPFLineSearch
     Multiply( TRANSPOSE, Real(1), A, dy, Real(0), AT_dy );
     rb = A_x; 
     Axpy( Real(-1), b, rb );
-    rc = AT_y;
-    Axpy( Real(1),  z,   rc );
-    Axpy( Real(-1), Q_x, rc );
-    Axpy( Real(-1), c,   rc );
+    rc = Q_x;
+    Axpy( Real( 1), AT_y, rc );
+    Axpy( Real(-1), z,    rc );
+    Axpy( Real( 1), c,    rc );
     const Real rbNrm2 = Nrm2( rb );
     const Real rcNrm2 = Nrm2( rc );
     const Real mu = Dot(x,z) / n;
@@ -439,9 +446,9 @@ Real IPFLineSearch
         // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha)/mu)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
-        Axpy( -alpha, Q_dx,  rc_alpha );
+        Axpy(  alpha, Q_dx,  rc_alpha );
         Axpy(  alpha, AT_dy, rc_alpha );
-        Axpy(  alpha, dz,    rc_alpha );
+        Axpy( -alpha, dz,    rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
         if( rc_alphaNrm2 > Max(cTol,rcNrm2*ctrl.beta*mu_alpha/mu) )
         {
@@ -489,14 +496,14 @@ Real IPFLineSearch
     // state lies within the "-infinity" neighborhood of the central path, i.e.,
     //  (a) || r_b(alpha) ||_2 <= || r_b ||_2 beta mu(alpha) / mu,
     //  (b) || r_c(alpha) ||_2 <= || r_c ||_2 beta mu(alpha) / mu,
-    //  (c) x(alpha), s(alpha) > 0, and, for all i,
-    //  (d) x_i(alpha) s_i(alpha) >= gamma mu(alpha),
+    //  (c) x(alpha), z(alpha) > 0, and, for all i,
+    //  (d) x_i(alpha) z_i(alpha) >= gamma mu(alpha),
     // where 
     //    x(alpha) = x + alpha dx,
     //    y(alpha) = y + alpha dy,
     //    z(alpha) = z + alpha dz,
     //    r_b(alpha) = A x(alpha) - b, and
-    //    r_c(alpha) = A^T y(alpha) + z(alpha) - c,
+    //    r_c(alpha) = Q x(alpha) + A^T y(alpha) - z(alpha) + c,
     // and the Armijo condition,
     //   mu(alpha) <= (1 - alpha/\psi) mu,
     // is also satisfied.
@@ -504,14 +511,15 @@ Real IPFLineSearch
     // Setup
     // -----
     DistMultiVec<Real> Q_x(comm), Q_dx(comm), A_x(comm), A_dx(comm), 
-                       AT_y(comm), AT_dy(comm), rb(comm), rc(comm);
+                       AT_y(comm), AT_dy(comm), 
+                       rb(comm), rc(comm);
     Zeros( Q_x,   n, 1 );
     Zeros( Q_dx,  n, 1 );
     Zeros( A_x,   m, 1 );
     Zeros( A_dx,  m, 1 );
     Zeros( AT_y,  n, 1 );
     Zeros( AT_dy, n, 1 );
-    // NOTE: Q must be explicitly Hermitian
+    // NOTE: The following require Q to be explicitly symmetric
     Multiply( NORMAL,    Real(1), Q, x,  Real(0), Q_x   );
     Multiply( NORMAL,    Real(1), Q, dx, Real(0), Q_dx  );
     Multiply( NORMAL,    Real(1), A, x,  Real(0), A_x   );
@@ -520,10 +528,10 @@ Real IPFLineSearch
     Multiply( TRANSPOSE, Real(1), A, dy, Real(0), AT_dy );
     rb = A_x; 
     Axpy( Real(-1), b, rb );
-    rc = AT_y;
-    Axpy( Real(1),  z,   rc );
-    Axpy( Real(-1), Q_x, rc );
-    Axpy( Real(-1), c,   rc );
+    rc = Q_x;
+    Axpy( Real( 1), AT_y, rc );
+    Axpy( Real(-1), z,    rc );
+    Axpy( Real( 1), c,    rc );
     const Real rbNrm2 = Nrm2( rb );
     const Real rcNrm2 = Nrm2( rc );
     const Real mu = Dot(x,z) / n;
@@ -592,9 +600,9 @@ Real IPFLineSearch
         // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha)/mu)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
-        Axpy( -alpha, Q_dx,  rc_alpha );
+        Axpy(  alpha, Q_dx,  rc_alpha );
         Axpy(  alpha, AT_dy, rc_alpha );
-        Axpy(  alpha, dz,    rc_alpha );
+        Axpy( -alpha, dz,    rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
         if( rc_alphaNrm2 > Max(cTol,rcNrm2*ctrl.beta*mu_alpha/mu) )
         {
@@ -633,9 +641,9 @@ Real IPFLineSearch
   template Real IPFLineSearch \
   ( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A, \
     const Matrix<Real>& b,       const Matrix<Real>& c, \
-    const Matrix<Real>& x,       const Matrix<Real>& y, \
+    const Matrix<Real>& x,       const Matrix<Real>& y,  \
     const Matrix<Real>& z, \
-    const Matrix<Real>& dx, const Matrix<Real>& dy, \
+    const Matrix<Real>& dx,      const Matrix<Real>& dy, \
     const Matrix<Real>& dz, \
     Real upperBound, \
     Real bTol, Real cTol, \

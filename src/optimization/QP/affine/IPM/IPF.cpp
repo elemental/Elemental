@@ -10,39 +10,43 @@
 #include "./util.hpp"
 
 namespace El {
-namespace lp {
+namespace qp {
 namespace affine {
 
-// The following solves a pair of linear programs in "affine" conic form:
+// The following solves a pair of quadratic programs in "affine" conic form:
 //
-//   min c^T x
+//   min (1/2) x^T Q x + c^T x
 //   s.t. A x = b, G x + s = h, s >= 0,
 //
-//   max -b^T y - h^T z
-//   s.t. A^T y + G^T z + c = 0, z >= 0,
+//   max (1/2) (A^T y + G^T z + c)^T pinv(Q) (A^T y + G^T z + c) - b^T y - h^T z
+//   s.t. A^T y + G^T z + c in range(Q), z >= 0,
 //
 // as opposed to the more specific "direct" conic form:
 //
-//   min c^T x
+//   min (1/2) x^T Q x + c^T x
 //   s.t. A x = b, x >= 0,
 //
-//   max -b^T y
-//   s.t. A^T y - z + c = 0, z >= 0,
+//   max (1/2) (A^T y - z + c)^T pinv(Q) (A^T y - z + c) - b^T y
+//   s.t. A^T y - z + c in range(Q), z >= 0,  
 //
-// which corresponds to G = -I and h = 0, using a Mehrotra Predictor-Corrector 
-// scheme.
+// which corresponds to G = -I and h = 0, using a simple Infeasible Path 
+// Following (IPF) scheme. 
 //
+// NOTE: This routine should only be used for academic purposes, as the 
+//       Mehrotra alternative typically requires an order of magnitude fewer 
+//       iterations.
 
 template<typename Real>
-void Mehrotra
-( const Matrix<Real>& A, const Matrix<Real>& G,
+void IPF
+( const Matrix<Real>& Q,
+  const Matrix<Real>& A, const Matrix<Real>& G,
   const Matrix<Real>& b, const Matrix<Real>& c,
   const Matrix<Real>& h,
         Matrix<Real>& x,       Matrix<Real>& y, 
         Matrix<Real>& z,       Matrix<Real>& s,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::affine::Mehrotra"))    
+    DEBUG_ONLY(CallStackEntry cse("qp::affine::IPF"))    
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -51,18 +55,15 @@ void Mehrotra
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
 
-    // TODO: Expose this as a parameter to MehrotraCtrl
+    // TODO: Expose this as a parameter of IPFCtrl
     const bool standardShift = true;
     Initialize
-    ( A, G, b, c, h, x, y, z, s, 
+    ( Q, A, G, b, c, h, x, y, z, s, 
       ctrl.primalInitialized, ctrl.dualInitialized, standardShift );
 
     Matrix<Real> J, d,
-                 rmu,   rc,    rb,    rh,
-                 dxAff, dyAff, dzAff, dsAff,
-                 dx,    dy,    dz,    ds;
-    Matrix<Real> dSub;
-    Matrix<Int> p;
+                 rmu, rc, rb, rh,
+                 dx, dy, dz, ds;
 #ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError;
 #endif
@@ -79,10 +80,13 @@ void Mehrotra
 
         // Check for convergence
         // =====================
-        // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
-        // ---------------------------------------------------
-        const Real primObj = Dot(c,x);
-        const Real dualObj = -Dot(b,y) - Dot(h,z);
+        // |primal - dual| / (1 + |primal|) <= tol ?
+        // -----------------------------------------
+        Zeros( d, n, 1 );
+        Hemv( LOWER, Real(1), Q, x, Real(0), d );
+        const Real xTQx = Dot(x,d);
+        const Real primObj =  xTQx/2 + Dot(c,x);
+        const Real dualObj = -xTQx/2 - Dot(b,y) - Dot(h,z);
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -94,6 +98,7 @@ void Mehrotra
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
+        Hemv( LOWER,     Real(1), Q, x, Real(1), rc );
         Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Gemv( TRANSPOSE, Real(1), G, z, Real(1), rc );
         const Real rcNrm2 = Nrm2( rc );
@@ -127,37 +132,39 @@ void Mehrotra
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // r_mu := s o z
-        // =============
+        // Form the residual for the scaled equation, s o z - sigma mu e
+        // =============================================================
+        const Real mu = Dot(s,z) / k;
         rmu = z;
         DiagonalScale( LEFT, NORMAL, s, rmu );
+        Shift( rmu, -ctrl.centering*mu );
 
-        // Compute the affine search direction
-        // ===================================
         // Construct the full KKT system
-        // -----------------------------
-        KKT( A, G, s, z, J );
+        // =============================
+        KKT( Q, A, G, s, z, J );
         KKTRHS( rc, rb, rh, rmu, z, d );
+
         // Compute the proposed step from the KKT system
-        // ---------------------------------------------
-        LDL( J, dSub, p, false );
-        ldl::SolveAfter( J, dSub, p, d, false );
-        ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
+        // =============================================
+        SymmetricSolve( LOWER, NORMAL, J, d );
+        ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
+
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
         dxError = rb;
-        Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
+        Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
         const Real dxErrorNrm2 = Nrm2( dxError );
 
         dyError = rc;
-        Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-        Gemv( TRANSPOSE, Real(1), G, dzAff, Real(1), dyError );
+        Hemv( LOWER,     Real(1), Q, dx, Real(1), dyError );
+        Gemv( TRANSPOSE, Real(1), A, dy, Real(1), dyError );
+        Gemv( TRANSPOSE, Real(1), G, dz, Real(1), dyError );
         const Real dyErrorNrm2 = Nrm2( dyError );
 
         dzError = rh;
-        Gemv( NORMAL, Real(1), G, dxAff, Real(1), dzError );
-        Axpy( Real(1), dsAff, dzError );
+        Gemv( NORMAL, Real(1), G, dx, Real(1), dzError );
+        Axpy( Real(1), ds, dzError );
         const Real dzErrorNrm2 = Nrm2( dzError );
 
         // TODO: dmuError
@@ -171,94 +178,46 @@ void Mehrotra
                       << dzErrorNrm2/(1+rhNrm2) << std::endl;
 #endif
 
-        // Compute the max affine [0,1]-step which keeps s and z in the cone
-        // =================================================================
-        const Real alphaAffPri = MaxStepInPositiveCone( s, dsAff, Real(1) );
-        const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        // Take a step in the computed direction
+        // =====================================
+        const Real alphaPrimal = MaxStepInPositiveCone( s, ds, Real(1) );
+        const Real alphaDual = MaxStepInPositiveCone( z, dz, Real(1) );
+        const Real alphaMax = Min(alphaPrimal,alphaDual);
         if( ctrl.print )
-            std::cout << "  alphaAffPri = " << alphaAffPri
-                      << ", alphaAffDual = " << alphaAffDual << std::endl;
-
-        // Compute what the new duality measure would become
-        // =================================================
-        const Real mu = Dot(s,z) / k;
-        // NOTE: dz and ds are used as temporaries
-        ds = s;
-        dz = z;
-        Axpy( alphaAffPri,  dsAff, ds );
-        Axpy( alphaAffDual, dzAff, dz );
-        const Real muAff = Dot(ds,dz) / k;
-
-        // Compute a centrality parameter using Mehrotra's formula
-        // =======================================================
-        // TODO: Allow the user to override this function
-        const Real sigma = Pow(muAff/mu,Real(3));
+            std::cout << "alphaMax = " << alphaMax << std::endl;
+        const Real alpha =
+          IPFLineSearch
+          ( Q, A, G, b, c, h, x, y, z, s, dx, dy, dz, ds,
+            Real(0.99)*alphaMax,
+            ctrl.tol*(1+bNrm2), ctrl.tol*(1+cNrm2), ctrl.tol*(1+hNrm2),
+            ctrl.lineSearchCtrl );
         if( ctrl.print )
-            std::cout << "  muAff = " << muAff
-                      << ", mu = " << mu
-                      << ", sigma = " << sigma << std::endl;
-
-        // Solve for the centering-corrector
-        // =================================
-        Zeros( rc, n, 1 ); 
-        Zeros( rb, m, 1 );
-        Zeros( rh, k, 1 );
-        // r_mu := dsAff o dzAff - sigma*mu
-        // --------------------------------
-        rmu = dzAff;
-        DiagonalScale( LEFT, NORMAL, dsAff, rmu );
-        Shift( rmu, -sigma*mu );
-        // Construct the new full KKT RHS
-        // ------------------------------
-        KKTRHS( rc, rb, rh, rmu, z, d );
-        // Compute the proposed step from the KKT system
-        // ---------------------------------------------
-        ldl::SolveAfter( J, dSub, p, d, false );
-        ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
-        // TODO: Residual checks for center-corrector
-
-        // Add in the affine search direction
-        // ==================================
-        Axpy( Real(1), dxAff, dx );
-        Axpy( Real(1), dyAff, dy );
-        Axpy( Real(1), dzAff, dz );
-        Axpy( Real(1), dsAff, ds );
-
-        // Compute max [0,1/maxStepRatio] step which keeps s and z in the cone
-        // ===================================================================
-        Real alphaPri = MaxStepInPositiveCone( s, ds, 1/ctrl.maxStepRatio );
-        Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
-        alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
-        alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
-        if( ctrl.print )
-            std::cout << "  alphaPri = " << alphaPri
-                      << ", alphaDual = " << alphaDual << std::endl;
-
-        // Update the current estimates
-        // ============================
-        Axpy( alphaPri,  dx, x );
-        Axpy( alphaPri,  ds, s );
-        Axpy( alphaDual, dy, y );
-        Axpy( alphaDual, dz, z );
+            std::cout << "  alpha = " << alpha << std::endl;
+        Axpy( alpha, dx, x );
+        Axpy( alpha, dy, y );
+        Axpy( alpha, dz, z );
+        Axpy( alpha, ds, s );
     }
 }
 
 template<typename Real>
-void Mehrotra
-( const AbstractDistMatrix<Real>& APre, const AbstractDistMatrix<Real>& GPre,
+void IPF
+( const AbstractDistMatrix<Real>& QPre,
+  const AbstractDistMatrix<Real>& APre, const AbstractDistMatrix<Real>& GPre,
   const AbstractDistMatrix<Real>& b,    const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Real>& h,
         AbstractDistMatrix<Real>& xPre,       AbstractDistMatrix<Real>& yPre, 
         AbstractDistMatrix<Real>& zPre,       AbstractDistMatrix<Real>& sPre,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::affine::Mehrotra"))    
+    DEBUG_ONLY(CallStackEntry cse("qp::affine::IPF"))    
 
     ProxyCtrl proxCtrl;
     proxCtrl.colConstrain = true;
     proxCtrl.rowConstrain = true;
     proxCtrl.colAlign = 0;
     proxCtrl.rowAlign = 0;
+    auto QPtr = ReadProxy<Real,MC,MR>(&QPre,proxCtrl);      auto& Q = *QPtr;
     auto APtr = ReadProxy<Real,MC,MR>(&APre,proxCtrl);      auto& A = *APtr;
     auto GPtr = ReadProxy<Real,MC,MR>(&GPre,proxCtrl);      auto& G = *GPtr;
     // NOTE: {x,s} do not need to be read proxies when !ctrl.primalInitialized
@@ -278,23 +237,18 @@ void Mehrotra
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
 
-    // TODO: Expose this as a parameter to MehrotraCtrl
+    // TODO: Expose this as a parameter of IPFCtrl
     const bool standardShift = true;
     Initialize
-    ( A, G, b, c, h, x, y, z, s, 
+    ( Q, A, G, b, c, h, x, y, z, s, 
       ctrl.primalInitialized, ctrl.dualInitialized, standardShift );
 
-    DistMatrix<Real> J(grid),     d(grid), 
-                     rc(grid),    rb(grid),    rh(grid),    rmu(grid),
-                     dxAff(grid), dyAff(grid), dzAff(grid), dsAff(grid),
-                     dx(grid),    dy(grid),    dz(grid),    ds(grid);
-    dsAff.AlignWith( s );
-    dzAff.AlignWith( s );
+    DistMatrix<Real> J(grid), d(grid), 
+                     rc(grid), rb(grid), rh(grid), rmu(grid),
+                     dx(grid), dy(grid), dz(grid), ds(grid);
     ds.AlignWith( s );
     dz.AlignWith( s );
     rmu.AlignWith( s );
-    DistMatrix<Real> dSub(grid);
-    DistMatrix<Int> p(grid);
 #ifndef EL_RELEASE
     DistMatrix<Real> dxError(grid), dyError(grid), dzError(grid);
     dzError.AlignWith( s );
@@ -312,10 +266,13 @@ void Mehrotra
 
         // Check for convergence
         // =====================
-        // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
-        // ---------------------------------------------------
-        const Real primObj = Dot(c,x);
-        const Real dualObj = -Dot(b,y) - Dot(h,z);
+        // |primal - dual| / (1 + |primal|) <= tol ?
+        // -----------------------------------------
+        Zeros( d, n, 1 );
+        Hemv( LOWER, Real(1), Q, x, Real(0), d );
+        const Real xTQx = Dot(x,d);
+        const Real primObj =  xTQx/2 + Dot(c,x);
+        const Real dualObj = -xTQx/2 - Dot(b,y) - Dot(h,z);
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -327,6 +284,7 @@ void Mehrotra
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
+        Hemv( LOWER,     Real(1), Q, x, Real(1), rc );
         Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Gemv( TRANSPOSE, Real(1), G, z, Real(1), rc );
         const Real rcNrm2 = Nrm2( rc );
@@ -360,37 +318,39 @@ void Mehrotra
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // r_mu := s o z
-        // =============
+        // Form the residual for the scaled equation, s o z - sigma mu e
+        // =============================================================
+        const Real mu = Dot(s,z) / k;
         rmu = z;
         DiagonalScale( LEFT, NORMAL, s, rmu );
+        Shift( rmu, -ctrl.centering*mu );
 
-        // Compute the affine search direction
-        // ===================================
         // Construct the full KKT system
-        // -----------------------------
-        KKT( A, G, s, z, J );
+        // =============================
+        KKT( Q, A, G, s, z, J );
         KKTRHS( rc, rb, rh, rmu, z, d );
+
         // Compute the proposed step from the KKT system
-        // ---------------------------------------------
-        LDL( J, dSub, p, false );
-        ldl::SolveAfter( J, dSub, p, d, false );
-        ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
+        // =============================================
+        SymmetricSolve( LOWER, NORMAL, J, d );
+        ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
+
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
         dxError = rb;
-        Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
+        Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
         const Real dxErrorNrm2 = Nrm2( dxError );
 
         dyError = rc;
-        Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-        Gemv( TRANSPOSE, Real(1), G, dzAff, Real(1), dyError );
+        Hemv( LOWER,     Real(1), Q, dx, Real(1), dyError );
+        Gemv( TRANSPOSE, Real(1), A, dy, Real(1), dyError );
+        Gemv( TRANSPOSE, Real(1), G, dz, Real(1), dyError );
         const Real dyErrorNrm2 = Nrm2( dyError );
 
         dzError = rh;
-        Gemv( NORMAL, Real(1), G, dxAff, Real(1), dzError );
-        Axpy( Real(1), dsAff, dzError );
+        Gemv( NORMAL, Real(1), G, dx, Real(1), dzError );
+        Axpy( Real(1), ds, dzError );
         const Real dzErrorNrm2 = Nrm2( dzError );
 
         // TODO: dmuError
@@ -403,102 +363,55 @@ void Mehrotra
                       << "  || dzError ||_2 / (1 + || r_mu ||_2) = "
                       << dzErrorNrm2/(1+rhNrm2) << std::endl;
 #endif
- 
-        // Compute the max affine [0,1]-step which keeps s and z in the cone
-        // =================================================================
-        const Real alphaAffPri = MaxStepInPositiveCone( s, dsAff, Real(1) );
-        const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+
+        // Take a step in the computed direction
+        // =====================================
+        const Real alphaPrimal = MaxStepInPositiveCone( s, ds, Real(1) );
+        const Real alphaDual = MaxStepInPositiveCone( z, dz, Real(1) );
+        const Real alphaMax = Min(alphaPrimal,alphaDual);
         if( ctrl.print && commRank == 0 )
-            std::cout << "  alphaAffPri = " << alphaAffPri
-                      << ", alphaAffDual = " << alphaAffDual << std::endl;
-
-        // Compute what the new duality measure would become
-        // =================================================
-        const Real mu = Dot(s,z) / k;
-        // NOTE: dz and ds are used as temporaries
-        ds = s;
-        dz = z;
-        Axpy( alphaAffPri,  dsAff, ds );
-        Axpy( alphaAffDual, dzAff, dz );
-        const Real muAff = Dot(ds,dz) / k;
-
-        // Compute a centrality parameter using Mehrotra's formula
-        // =======================================================
-        // TODO: Allow the user to override this function
-        const Real sigma = Pow(muAff/mu,Real(3));
+            std::cout << "alphaMax = " << alphaMax << std::endl;
+        const Real alpha =
+          IPFLineSearch
+          ( Q, A, G, b, c, h, x, y, z, s, dx, dy, dz, ds,
+            Real(0.99)*alphaMax,
+            ctrl.tol*(1+bNrm2), ctrl.tol*(1+cNrm2), ctrl.tol*(1+hNrm2),
+            ctrl.lineSearchCtrl );
         if( ctrl.print && commRank == 0 )
-            std::cout << "  muAff = " << muAff
-                      << ", mu = " << mu
-                      << ", sigma = " << sigma << std::endl;
-
-        // Solve for the centering-corrector
-        // =================================
-        Zeros( rc, n, 1 );
-        Zeros( rb, m, 1 );
-        Zeros( rh, k, 1 );
-        // r_mu := dsAff o dzAff - sigma*mu
-        // --------------------------------
-        rmu = dzAff;
-        DiagonalScale( LEFT, NORMAL, dsAff, rmu ); 
-        Shift( rmu, -sigma*mu );
-        // Construct the new full KKT RHS
-        // ------------------------------
-        KKTRHS( rc, rb, rh, rmu, z, d );
-        // Compute the proposed step from the KKT system
-        // ---------------------------------------------
-        ldl::SolveAfter( J, dSub, p, d, false );
-        ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
-        // TODO: Residual checks for center-corrector
-
-        // Add in the affine search direction
-        // ==================================
-        Axpy( Real(1), dxAff, dx );
-        Axpy( Real(1), dyAff, dy );
-        Axpy( Real(1), dzAff, dz );
-        Axpy( Real(1), dsAff, ds );
-
-        // Compute max [0,1/maxStepRatio] step which keeps s and z in the cone
-        // ===================================================================
-        Real alphaPri = MaxStepInPositiveCone( s, ds, 1/ctrl.maxStepRatio );
-        Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
-        alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
-        alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
-        if( ctrl.print && commRank == 0 )
-            std::cout << "  alphaPri = " << alphaPri
-                      << ", alphaDual = " << alphaDual << std::endl;
-
-        // Update the current estimates
-        // ============================
-        Axpy( alphaPri,  dx, x );
-        Axpy( alphaPri,  ds, s );
-        Axpy( alphaDual, dy, y );
-        Axpy( alphaDual, dz, z );
+            std::cout << "  alpha = " << alpha << std::endl;
+        Axpy( alpha, dx, x );
+        Axpy( alpha, dy, y );
+        Axpy( alpha, dz, z );
+        Axpy( alpha, ds, s );
     }
 }
 
 template<typename Real>
-void Mehrotra
-( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
+void IPF
+( const SparseMatrix<Real>& Q,
+  const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
   const Matrix<Real>& b,       const Matrix<Real>& c,
   const Matrix<Real>& h,
         Matrix<Real>& x,             Matrix<Real>& y, 
         Matrix<Real>& z,             Matrix<Real>& s,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::affine::Mehrotra"))    
+    DEBUG_ONLY(CallStackEntry cse("qp::affine::IPF"))    
     LogicError("Sequential sparse-direct solvers not yet supported");
 }
 
 template<typename Real>
-void Mehrotra
-( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
+void IPF
+( const DistSparseMatrix<Real>& Q,
+  const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
   const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
         DistMultiVec<Real>& x,           DistMultiVec<Real>& y, 
         DistMultiVec<Real>& z,           DistMultiVec<Real>& s,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::affine::Mehrotra"))    
+    DEBUG_ONLY(CallStackEntry cse("qp::affine::IPF"))    
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -513,18 +426,17 @@ void Mehrotra
     DistMap map, invMap;
     DistSymmInfo info;
     DistSeparatorTree sepTree;
-    // TODO: Expose this as a parameter to MehrotraCtrl
+    // TODO: Expose this as a parameter of IPFCtrl
     const bool standardShift = true;
     Initialize
-    ( A, G, b, c, h, x, y, z, s, map, invMap, sepTree, info, 
+    ( Q, A, G, b, c, h, x, y, z, s, map, invMap, sepTree, info, 
       ctrl.primalInitialized, ctrl.dualInitialized, standardShift, ctrl.print );
 
     DistSparseMatrix<Real> J(comm);
     DistSymmFrontTree<Real> JFrontTree;
     DistMultiVec<Real> d(comm),
-                       rc(comm),    rb(comm),    rh(comm),    rmu(comm),
-                       dxAff(comm), dyAff(comm), dzAff(comm), dsAff(comm),
-                       dx(comm),    dy(comm),    dz(comm),    ds(comm);
+                       rc(comm), rb(comm), rh(comm), rmu(comm),
+                       dx(comm), dy(comm), dz(comm), ds(comm);
 
     DistMultiVec<Real> regCand(comm), reg(comm);
     // TODO: Dynamically modify these values in the manner suggested by 
@@ -562,10 +474,14 @@ void Mehrotra
 
         // Check for convergence
         // =====================
-        // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
-        // ---------------------------------------------------
-        const Real primObj = Dot(c,x);
-        const Real dualObj = -Dot(b,y) - Dot(h,z);
+        // |primal - dual| / (1 + |primal|) <= tol ?
+        // -----------------------------------------
+        Zeros( d, n, 1 );
+        // NOTE: The following assumes that Q is explicitly symmetric
+        Multiply( NORMAL, Real(1), Q, x, Real(0), d );
+        const Real xTQx = Dot(x,d);
+        const Real primObj =  xTQx/2 + Dot(c,x);
+        const Real dualObj = -xTQx/2 - Dot(b,y) - Dot(h,z);
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -577,6 +493,7 @@ void Mehrotra
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
+        Multiply( NORMAL,    Real(1), Q, x, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
         const Real rcNrm2 = Nrm2( rc );
@@ -586,7 +503,7 @@ void Mehrotra
         rh = h;
         Scale( Real(-1), rh );
         Multiply( NORMAL, Real(1), G, x, Real(1), rh );
-        Axpy( Real(1), s, rh );
+        Axpy( Real(1), s, rh ); 
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (Real(1)+hNrm2);
         // Now check the pieces
@@ -610,21 +527,18 @@ void Mehrotra
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // r_mu := s o z
-        // =============
+        // Form the residual for the scaled equation, s o z - sigma mu e
+        // =============================================================
+        const Real mu = Dot(s,z) / k;
         rmu = z;
         DiagonalScale( NORMAL, s, rmu );
+        Shift( rmu, -ctrl.centering*mu );
 
-        // Compute the affine search direction
-        // ===================================
         const Real minReductionFactor = 2;
         const Int maxRefineIts = 50;
-        Int numLargeAffineRefines = 0;
         {
-            // Construct the full KKT system
-            // -----------------------------
             // TODO: Add default regularization
-            KKT( A, G, s, z, J, false );
+            KKT( Q, A, G, s, z, J, false );
             KKTRHS( rc, rb, rh, rmu, z, d );
             const Real pivTol = MaxNorm(J)*epsilon;
             // Do not use any a priori regularization
@@ -644,26 +558,29 @@ void Mehrotra
             ( info, JFrontTree, pivTol, regCandNodal, regNodal, LDL_1D );
             regNodal.Push( invMap, info, reg );
 
-            numLargeAffineRefines = reg_ldl::SolveAfter
-            ( J, reg, invMap, info, JFrontTree, d,
+            const Int numLargeRefines = reg_ldl::SolveAfter
+            ( J, reg, invMap, info, JFrontTree, d, 
               minReductionFactor, maxRefineIts, ctrl.print );
-            ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
+            if( numLargeRefines > 3 )
+                Scale( Real(10), regCand );
+            ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
         }
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
         dxError = rb;
-        Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
+        Multiply( NORMAL, Real(1), A, dx, Real(1), dxError );
         const Real dxErrorNrm2 = Nrm2( dxError );
 
         dyError = rc;
-        Multiply( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-        Multiply( TRANSPOSE, Real(1), G, dzAff, Real(1), dyError );
+        Multiply( NORMAL,    Real(1), Q, dx, Real(1), dyError );
+        Multiply( TRANSPOSE, Real(1), A, dy, Real(1), dyError );
+        Multiply( TRANSPOSE, Real(1), G, dz, Real(1), dyError );
         const Real dyErrorNrm2 = Nrm2( dyError );
 
         dzError = rh;
-        Multiply( NORMAL, Real(1), G, dxAff, Real(1), dzError );
-        Axpy( Real(1), dsAff, dzError );
+        Multiply( NORMAL, Real(1), G, dx, Real(1), dzError );
+        Axpy( Real(1), ds, dzError );
         const Real dzErrorNrm2 = Nrm2( dzError );
 
         // TODO: dmuError
@@ -678,115 +595,66 @@ void Mehrotra
                       << dzErrorNrm2/(1+rhNrm2) << std::endl;
 #endif
 
-        // Compute the max affine [0,1]-step which keeps s and z in the cone
-        // =================================================================
-        const Real alphaAffPri = MaxStepInPositiveCone( s, dsAff, Real(1) );
-        const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        // Take a step in the computed direction
+        // =====================================
+        const Real alphaPrimal = MaxStepInPositiveCone( s, ds, Real(1) );
+        const Real alphaDual = MaxStepInPositiveCone( z, dz, Real(1) );
+        const Real alphaMax = Min(alphaPrimal,alphaDual);
         if( ctrl.print && commRank == 0 )
-            std::cout << "  alphaAffPri = " << alphaAffPri
-                      << ", alphaAffDual = " << alphaAffDual << std::endl;
-
-        // Compute what the new duality measure would become
-        // =================================================
-        const Real mu = Dot(s,z) / k;
-        // NOTE: dz and ds are used as temporaries
-        ds = s;
-        dz = z;
-        Axpy( alphaAffPri,  dsAff, ds );
-        Axpy( alphaAffDual, dzAff, dz );
-        const Real muAff = Dot(ds,dz) / k;
-
-        // Compute a centrality parameter using Mehrotra's formula
-        // =======================================================
-        // TODO: Allow the user to override this function
-        const Real sigma = Pow(muAff/mu,Real(3));
+            std::cout << "alphaMax = " << alphaMax << std::endl;
+        const Real alpha =
+          IPFLineSearch
+          ( Q, A, G, b, c, h, x, y, z, s, dx, dy, dz, ds,
+            Real(0.99)*alphaMax,
+            ctrl.tol*(1+bNrm2), ctrl.tol*(1+cNrm2), ctrl.tol*(1+hNrm2),
+            ctrl.lineSearchCtrl );
         if( ctrl.print && commRank == 0 )
-            std::cout << "  muAff = " << muAff
-                      << ", mu = " << mu
-                      << ", sigma = " << sigma << std::endl;
-
-        // Solve for the centering-corrector
-        // =================================
-        Zeros( rc, n, 1 );
-        Zeros( rb, m, 1 );
-        Zeros( rh, k, 1 );
-        // r_mu := dsAff o dzAff - sigma*mu
-        // --------------------------------
-        rmu = dzAff;
-        DiagonalScale( NORMAL, dsAff, rmu );
-        Shift( rmu, -sigma*mu );
-        // Construct the new full KKT RHS
-        // ------------------------------
-        KKTRHS( rc, rb, rh, rmu, z, d );
-        // Compute the proposed step from the KKT system
-        // ---------------------------------------------
-        const Int numLargeCorrectorRefines = reg_ldl::SolveAfter
-        ( J, reg, invMap, info, JFrontTree, d,
-          minReductionFactor, maxRefineIts, ctrl.print );
-        ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
-        if( Max(numLargeAffineRefines,numLargeCorrectorRefines) > 3 )
-            Scale( Real(10), regCand );
-
-        // Add in the affine search direction
-        // ==================================
-        Axpy( Real(1), dxAff, dx );
-        Axpy( Real(1), dyAff, dy );
-        Axpy( Real(1), dzAff, dz );
-        Axpy( Real(1), dsAff, ds );
-
-        // Compute max [0,1/maxStepRatio] step which keeps s and z in the cone
-        // ===================================================================
-        Real alphaPri = MaxStepInPositiveCone( s, ds, 1/ctrl.maxStepRatio );
-        Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
-        alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
-        alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
-        if( ctrl.print && commRank == 0 )
-            std::cout << "  alphaPri = " << alphaPri
-                      << ", alphaDual = " << alphaDual << std::endl;
-
-        // Update the current estimates
-        // ============================
-        Axpy( alphaPri,  dx, x );
-        Axpy( alphaPri,  ds, s );
-        Axpy( alphaDual, dy, y );
-        Axpy( alphaDual, dz, z );
+            std::cout << "  alpha = " << alpha << std::endl;
+        Axpy( alpha, dx, x );
+        Axpy( alpha, dy, y );
+        Axpy( alpha, dz, z );
+        Axpy( alpha, ds, s );
     }
 }
 
 #define PROTO(Real) \
-  template void Mehrotra \
-  ( const Matrix<Real>& A, const Matrix<Real>& G, \
+  template void IPF \
+  ( const Matrix<Real>& Q, \
+    const Matrix<Real>& A, const Matrix<Real>& G, \
     const Matrix<Real>& b, const Matrix<Real>& c, \
     const Matrix<Real>& h, \
           Matrix<Real>& x,       Matrix<Real>& y, \
           Matrix<Real>& z,       Matrix<Real>& s, \
-    const MehrotraCtrl<Real>& ctrl ); \
-  template void Mehrotra \
-  ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G, \
+    const IPFCtrl<Real>& ctrl ); \
+  template void IPF \
+  ( const AbstractDistMatrix<Real>& Q, \
+    const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G, \
     const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
     const AbstractDistMatrix<Real>& h, \
           AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y, \
           AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s, \
-    const MehrotraCtrl<Real>& ctrl ); \
-  template void Mehrotra \
-  ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G, \
+    const IPFCtrl<Real>& ctrl ); \
+  template void IPF \
+  ( const SparseMatrix<Real>& Q, \
+    const SparseMatrix<Real>& A, const SparseMatrix<Real>& G, \
     const Matrix<Real>& b,       const Matrix<Real>& c, \
     const Matrix<Real>& h, \
           Matrix<Real>& x,             Matrix<Real>& y, \
           Matrix<Real>& z,             Matrix<Real>& s, \
-    const MehrotraCtrl<Real>& ctrl ); \
-  template void Mehrotra \
-  ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G, \
+    const IPFCtrl<Real>& ctrl ); \
+  template void IPF \
+  ( const DistSparseMatrix<Real>& Q, \
+    const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G, \
     const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& h, \
           DistMultiVec<Real>& x,           DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z,           DistMultiVec<Real>& s, \
-    const MehrotraCtrl<Real>& ctrl );
+    const IPFCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
-} // namespace dual
-} // namespace lp
+} // namespace affine
+} // namespace qp
 } // namespace El

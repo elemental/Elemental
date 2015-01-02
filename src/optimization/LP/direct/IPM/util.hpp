@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "../../../QP/direct/IPM/util.hpp"
 
 namespace El {
 namespace lp {
@@ -72,40 +73,8 @@ void KKT
   const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J, bool onlyLower=true );
 
-template<typename Real>
-void KKTRHS
-( const Matrix<Real>& rc,  const Matrix<Real>& rb, 
-  const Matrix<Real>& rmu, const Matrix<Real>& z,
-        Matrix<Real>& d );
-template<typename Real>
-void KKTRHS
-( const AbstractDistMatrix<Real>& rc,  const AbstractDistMatrix<Real>& rb, 
-  const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& d );
-template<typename Real>
-void KKTRHS
-( const DistMultiVec<Real>& rc,  const DistMultiVec<Real>& rb, 
-  const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& z,
-        DistMultiVec<Real>& d );
-
-template<typename Real>
-void ExpandSolution
-( Int m, Int n, 
-  const Matrix<Real>& d,
-        Matrix<Real>& dx, Matrix<Real>& dy, 
-        Matrix<Real>& dz );
-template<typename Real>
-void ExpandSolution
-( Int m, Int n, 
-  const AbstractDistMatrix<Real>& d,
-        AbstractDistMatrix<Real>& dx, AbstractDistMatrix<Real>& dy, 
-        AbstractDistMatrix<Real>& dz );
-template<typename Real>
-void ExpandSolution
-( Int m, Int n, 
-  const DistMultiVec<Real>& d,
-        DistMultiVec<Real>& dx, DistMultiVec<Real>& dy, 
-        DistMultiVec<Real>& dz );
+using qp::direct::KKTRHS;
+using qp::direct::ExpandSolution;
 
 // Augmented system
 // ================
@@ -130,43 +99,8 @@ void AugmentedKKT
   const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J, bool onlyLower=true );
 
-template<typename Real>
-void AugmentedKKTRHS
-( const Matrix<Real>& x,
-  const Matrix<Real>& rc,  const Matrix<Real>& rb, 
-  const Matrix<Real>& rmu,
-        Matrix<Real>& d );
-template<typename Real>
-void AugmentedKKTRHS
-( const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& rc,  const AbstractDistMatrix<Real>& rb, 
-  const AbstractDistMatrix<Real>& rmu,
-        AbstractDistMatrix<Real>& d );
-template<typename Real>
-void AugmentedKKTRHS
-( const DistMultiVec<Real>& x,
-  const DistMultiVec<Real>& rc,  const DistMultiVec<Real>& rb, 
-  const DistMultiVec<Real>& rmu,
-        DistMultiVec<Real>& d );
-
-template<typename Real>
-void ExpandAugmentedSolution
-( const Matrix<Real>& x,   const Matrix<Real>& z,
-  const Matrix<Real>& rmu, const Matrix<Real>& d,
-        Matrix<Real>& dx,        Matrix<Real>& dy, 
-        Matrix<Real>& dz );
-template<typename Real>
-void ExpandAugmentedSolution
-( const AbstractDistMatrix<Real>& x,   const AbstractDistMatrix<Real>& z,
-  const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& d,
-        AbstractDistMatrix<Real>& dx,        AbstractDistMatrix<Real>& dy, 
-        AbstractDistMatrix<Real>& dz );
-template<typename Real>
-void ExpandAugmentedSolution
-( const DistMultiVec<Real>& x,   const DistMultiVec<Real>& z,
-  const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& d,
-        DistMultiVec<Real>& dx,        DistMultiVec<Real>& dy, 
-        DistMultiVec<Real>& dz );
+using qp::direct::AugmentedKKTRHS;
+using qp::direct::ExpandAugmentedSolution;
 
 // Normal system
 // =============

@@ -11,7 +11,7 @@
 #include "../util.hpp"
 
 namespace El {
-namespace lp {
+namespace qp {
 namespace direct {
 
 //
@@ -21,27 +21,27 @@ namespace direct {
 //
 // 1) Minimize || x ||^2, s.t. A x = b  by solving
 //
-//    | 0 A^T -I | |  x |   | 0 |
+//    | Q A^T -I | |  x |   | 0 |
 //    | A  0   0 | |  u | = | b |,
 //    |-I  0  -I | | -s |   | 0 |
 //
 //   where 'u' is an unused dummy variable. A Schur-complement manipulation
 //   yields
 //
-//    | I A^T | | x |   | 0 |
-//    | A  0  | | u | = | b |.
+//    | Q+I A^T | | x |   | 0 |
+//    | A    0  | | u | = | b |.
 //
-// 2) Minimize || z ||^2, s.t. A^T y - z + c = 0 by solving
+// 2) Minimize || z ||^2, s.t. A^T y - z + c in range(Q) by solving
 //
-//    | 0 A^T -I | | u |   | -c |
+//    | Q A^T -I | | u |   | -c |
 //    | A  0   0 | | y | = |  0 |,
 //    |-I  0  -I | | z |   |  0 |
 //
 //    where 'u = -z' is an unused dummy variable. A Schur-complement 
 //    manipulation yields
 //
-//    | I A^T | | -z |   | -c |
-//    | A  0  | |  y | = |  0 |.
+//    | Q+I A^T | | -z |   | -c |
+//    | A    0  | |  y | = |  0 |.
 //
 // 3) Set 
 //
@@ -73,14 +73,14 @@ namespace direct {
 
 template<typename Real>
 void Initialize
-( const Matrix<Real>& A, 
+( const Matrix<Real>& Q, const Matrix<Real>& A, 
   const Matrix<Real>& b, const Matrix<Real>& c,
         Matrix<Real>& x,       Matrix<Real>& y,
         Matrix<Real>& z,
   bool primalInitialized, bool dualInitialized,
   bool standardShift )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::Initialize"))
+    DEBUG_ONLY(CallStackEntry cse("qp::direct::Initialize"))
     const Int m = A.Height();
     const Int n = A.Width();
     if( primalInitialized && dualInitialized )
@@ -93,7 +93,7 @@ void Initialize
     // ===================
     Matrix<Real> J, ones;
     Ones( ones, n, 1 );
-    AugmentedKKT( A, ones, ones, J );
+    AugmentedKKT( Q, A, ones, ones, J );
 
     // Factor the KKT matrix
     // =====================
@@ -107,8 +107,8 @@ void Initialize
     {
         // Minimize || x ||^2, s.t. A x = b  by solving
         //
-        //    | I A^T | | x |   | 0 |
-        //    | A  0  | | u | = | b |,
+        //    | Q+I A^T | | x |   | 0 |
+        //    | A    0  | | u | = | b |,
         //
         // where 'u' is an unused dummy variable.
         Zeros( rc, n, 1 );
@@ -121,10 +121,10 @@ void Initialize
     }
     if( !dualInitialized ) 
     {
-        // Minimize || z ||^2, s.t. A^T y - z + c = 0 by solving
+        // Minimize || z ||^2, s.t. A^T y - z + c in range(Q) by solving
         //
-        //    | I A^T | | -z |   | -c |
-        //    | A  0  | |  y | = |  0 |.
+        //    | Q+I A^T | | -z |   | -c |
+        //    | A    0  | |  y | = |  0 |.
         rc = c;
         Zeros( rb, m, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
@@ -168,14 +168,14 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const AbstractDistMatrix<Real>& A, 
+( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A, 
   const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
         AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
         AbstractDistMatrix<Real>& z,
   bool primalInitialized, bool dualInitialized,
   bool standardShift )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::Initialize"))
+    DEBUG_ONLY(CallStackEntry cse("qp::direct::Initialize"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -189,7 +189,7 @@ void Initialize
     // ===================
     DistMatrix<Real> J(g), ones(g);
     Ones( ones, n, 1 );
-    AugmentedKKT( A, ones, ones, J );
+    AugmentedKKT( Q, A, ones, ones, J );
 
     // Factor the KKT matrix
     // =====================
@@ -203,8 +203,8 @@ void Initialize
     {
         // Minimize || x ||^2, s.t. A x = b  by solving
         //
-        //    | I A^T | | x |   | 0 |
-        //    | A  0  | | u | = | b |,
+        //    | Q+I A^T | | x |   | 0 |
+        //    | A    0  | | u | = | b |,
         //
         // where 'u' is an unused dummy variable.
         Zeros( rc, n, 1 );
@@ -217,10 +217,10 @@ void Initialize
     }
     if( !dualInitialized ) 
     {
-        // Minimize || z ||^2, s.t. A^T y - z + c = 0 by solving
+        // Minimize || z ||^2, s.t. A^T y - z + c in range(Q) by solving
         //
-        //    | I A^T | | -z |   | -c |
-        //    | A  0  | |  y | = |  0 |.
+        //    | Q+I A^T | | -z |   | -c |
+        //    | A    0  | |  y | = |  0 |.
         rc = c;
         Zeros( rb, m, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
@@ -264,7 +264,7 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const SparseMatrix<Real>& A, 
+( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A, 
   const Matrix<Real>& b,       const Matrix<Real>& c,
         Matrix<Real>& x,             Matrix<Real>& y,
         Matrix<Real>& z,
@@ -272,16 +272,12 @@ void Initialize
   bool standardShift )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::direct::Initialize"))
-    const Int n = A.Width();
-    SparseMatrix<Real> Q;
-    Q.Resize( n, n );
-    qp::direct::Initialize
-    ( Q, A, b, c, x, y, z, primalInitialized, dualInitialized, standardShift );
+    LogicError("Sequential sparse-direct solves not yet supported");
 }
 
 template<typename Real>
 void Initialize
-( const DistSparseMatrix<Real>& A, 
+( const DistSparseMatrix<Real>& Q,  const DistSparseMatrix<Real>& A, 
   const DistMultiVec<Real>& b,      const DistMultiVec<Real>& c,
         DistMultiVec<Real>& x,            DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
@@ -291,39 +287,151 @@ void Initialize
   bool standardShift,     bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::direct::Initialize"))
+    const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
-    DistSparseMatrix<Real> Q(comm);
-    Q.Resize( n, n );
-    qp::direct::Initialize
-    ( Q, A, b, c, x, y, z, map, invMap, sepTree, info, 
-      primalInitialized, dualInitialized, standardShift, progress );
+    if( primalInitialized && dualInitialized )
+    {
+        // TODO: Perform a consistency check
+        return;
+    }
+
+    // Form the KKT matrix
+    // ===================
+    DistSparseMatrix<Real> J(comm);
+    DistMultiVec<Real> ones(comm);
+    Ones( ones, n, 1 );
+    AugmentedKKT( Q, A, ones, ones, J, false );
+
+    // (Approximately) factor the KKT matrix
+    // =====================================
+    DistMultiVec<Real> regCand(comm), reg(comm);
+    DistNodalMultiVec<Real> regCandNodal, regNodal;
+    const Real epsilon = lapack::MachineEpsilon<Real>();
+    const Real pivTol = MaxNorm(J)*epsilon;
+    const Real regMagPrimal = Pow(epsilon,Real(0.75));
+    const Real regMagLagrange = Pow(epsilon,Real(0.5));
+    regCand.Resize( n+m, 1 );
+    for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
+    {
+        const Int i = regCand.FirstLocalRow() + iLoc;
+        if( i < n )
+            regCand.SetLocal( iLoc, 0, regMagPrimal );
+        else
+            regCand.SetLocal( iLoc, 0, -regMagLagrange );
+    }
+    // Do not use any a priori regularization
+    Zeros( reg, m+n, 1 );
+    // Compute the proposed step from the KKT system
+    // ---------------------------------------------
+    NestedDissection( J.LockedDistGraph(), map, sepTree, info );
+    map.FormInverse( invMap );
+
+    DistSymmFrontTree<Real> JFrontTree;
+    JFrontTree.Initialize( J, map, sepTree, info );
+    regCandNodal.Pull( invMap, info, regCand );
+    regNodal.Pull( invMap, info, reg );
+    RegularizedLDL
+    ( info, JFrontTree, pivTol, regCandNodal, regNodal, LDL_1D );
+    regNodal.Push( invMap, info, reg );
+
+    DistMultiVec<Real> rc(comm), rb(comm), rmu(comm), d(comm), u(comm), v(comm);
+    Zeros( rmu, n, 1 );
+    // TODO: Expose these as control parameters
+    const Real minReductionFactor = 2;
+    const Int maxRefineIts = 10;
+    if( !primalInitialized )
+    {
+        // Minimize || x ||^2, s.t. A x = b  by solving
+        //
+        //    | Q+I A^T | | x |   | 0 |
+        //    | A    0  | | u | = | b |,
+        //
+        // where 'u' is an unused dummy variable.
+        Zeros( rc, n, 1 );
+        rb = b;
+        Scale( Real(-1), rb );
+        Zeros( rmu, n, 1 );
+        AugmentedKKTRHS( ones, rc, rb, rmu, d );
+
+        reg_ldl::SolveAfter
+        ( J, reg, invMap, info, JFrontTree, d,
+          minReductionFactor, maxRefineIts, progress );
+        ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
+    }
+    if( !dualInitialized ) 
+    {
+        // Minimize || z ||^2, s.t. A^T y - z + c in range(Q) by solving
+        //
+        //    | Q+I A^T | | -z |   | -c |
+        //    | A    0  | |  y | = |  0 |.
+        rc = c;
+        Zeros( rb, m, 1 );
+        AugmentedKKTRHS( ones, rc, rb, rmu, d );
+
+        reg_ldl::SolveAfter
+        ( J, reg, invMap, info, JFrontTree, d,
+          minReductionFactor, maxRefineIts, progress );
+        ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );
+        Scale( Real(-1), z );
+    }
+
+    // alpha_p := min { alpha : x + alpha*e >= 0 }
+    // ===========================================
+    const auto xMinPair = VectorMin( x );
+    const Real alphaPrimal = -xMinPair.value;
+    if( alphaPrimal >= Real(0) && primalInitialized )
+        RuntimeError("initialized x was non-positive");
+
+    // alpha_d := min { alpha : z + alpha*e >= 0 }
+    // ===========================================
+    const auto zMinPair = VectorMin( z );
+    const Real alphaDual = -zMinPair.value;
+    if( alphaDual >= Real(0) && dualInitialized )
+        RuntimeError("initialized z was non-positive");
+
+    const Real xNorm = Nrm2( x );
+    const Real zNorm = Nrm2( z );
+    const Real gammaPrimal = Sqrt(epsilon)*Max(xNorm,Real(1));
+    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    if( standardShift )
+    {
+        if( alphaPrimal >= -gammaPrimal )
+            Shift( x, alphaPrimal+1 );
+        if( alphaDual >= -gammaDual )
+            Shift( z, alphaDual+1 );
+    }
+    else
+    {
+        LowerClip( x, gammaPrimal );
+        LowerClip( z, gammaDual   );
+    }
 }
 
 #define PROTO(Real) \
   template void Initialize \
-  ( const Matrix<Real>& A, \
+  ( const Matrix<Real>& Q, const Matrix<Real>& A, \
     const Matrix<Real>& b, const Matrix<Real>& c, \
           Matrix<Real>& x,       Matrix<Real>& y, \
           Matrix<Real>& z, \
     bool primalInitialized, bool dualInitialized, \
     bool standardShift ); \
   template void Initialize \
-  ( const AbstractDistMatrix<Real>& A, \
+  ( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
           AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y, \
           AbstractDistMatrix<Real>& z, \
     bool primalInitialized, bool dualInitialized, \
     bool standardShift ); \
   template void Initialize \
-  ( const SparseMatrix<Real>& A, \
+  ( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A, \
     const Matrix<Real>& b,       const Matrix<Real>& c, \
           Matrix<Real>& x,             Matrix<Real>& y, \
           Matrix<Real>& z, \
     bool primalInitialized, bool dualInitialized, \
     bool standardShift ); \
   template void Initialize \
-  ( const DistSparseMatrix<Real>& A, \
+  ( const DistSparseMatrix<Real>& Q,  const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b,      const DistMultiVec<Real>& c, \
           DistMultiVec<Real>& x,            DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
@@ -337,5 +445,5 @@ void Initialize
 #include "El/macros/Instantiate.h"
 
 } // namespace direct
-} // namespace lp
+} // namespace qp
 } // namespace El

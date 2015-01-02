@@ -45,6 +45,7 @@ G = Rectang(k,n)
 # Generate a (b,h) which implies a primal feasible (x,s)
 # ======================================================
 # b := A xGen
+# -----------
 xGen = El.DistMultiVec()
 El.Gaussian(xGen,n,1)
 b = El.DistMultiVec()

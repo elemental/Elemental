@@ -18,21 +18,19 @@ namespace direct {
 //   min (1/2) x^T Q x + c^T x
 //   s.t. A x = b, x >= 0,
 //
-//   max -(1/2)(A^T y -z + c)^T pinv(Q) (A^T y -z + c) - b^T y 
+//   max (1/2) (A^T y - z + c)^T pinv(Q) (A^T y - z + c) - b^T y
 //   s.t. A^T y - z + c in range(Q), z >= 0,
 //
-// as opposed to the more general "dual" conic form:
+// as opposed to the more general "affine" conic form:
 //
-//   min 1/2 x^T Q x + c^T x
+//   min (1/2) x^T Q x + c^T x
 //   s.t. A x = b, G x + s = h, s >= 0,
 //
-//   max -(1/2)(A^T y + G^T z + c)^T pinv(Q) (A^T y + G^T z + c) - b^T y - h^T z
-//   s.t. A^T y + G^T z + c in range(Q), z >= 0,
+//   max (1/2) (A^T y + G^T z + c)^T pinv(Q) (A^T y + G^T z + c) - b^T y - h^T z
+//   s.t. A^T y + G^T z + c in range(Q), z >= 0
 //
 // using a Mehrotra Predictor-Corrector scheme.
 //
-
-// TODO: Incorporate/extend recent lp::direct modifications
 
 template<typename Real>
 void Mehrotra
@@ -47,15 +45,22 @@ void Mehrotra
     const Int n = A.Width();
 
     const Real bNrm2 = Nrm2( b );
+    const Real cNrm2 = Nrm2( c );
+
+    // TODO: Expose this as a parameter of MehrotraCtrl
+    const bool standardShift = true;
+    Initialize
+    ( Q, A, b, c, x, y, z, ctrl.primalInitialized, ctrl.dualInitialized,
+      standardShift ); 
 
     Matrix<Real> J, d, 
-                 rmu,   rb,    rc, 
+                 rb,    rc,    rmu,
                  dxAff, dyAff, dzAff,
                  dx,    dy,    dz;
     Matrix<Real> dSub;
     Matrix<Int> p;
 #ifndef EL_RELEASE
-    Matrix<Real> dxError, dyError, dzError;
+    Matrix<Real> dxError, dyError, dzError, prod;
 #endif
     for( Int numIts=0; ; ++numIts )
     {
@@ -70,12 +75,13 @@ void Mehrotra
 
         // Check for convergence
         // =====================
-        // |c^T x + x^T Q x - b^T y| / (1 + |c^T x + 1/2 x^T Q x|) <= tol ?
-        // ----------------------------------------------------------------
+        // |primal - dual| / (1 + |primal|) <= tol ?
+        // -----------------------------------------
+        Zeros( d, n, 1 );
         Hemv( LOWER, Real(1), Q, x, Real(0), d );
         const Real xTQx = Dot(x,d);
-        const Real primObj = Dot(c,x) + xTQx/2;
-        const Real dualObj = Dot(b,y) - xTQx/2; 
+        const Real primObj =  xTQx/2 + Dot(c,x);
+        const Real dualObj = -xTQx/2 - Dot(b,y); 
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -84,28 +90,25 @@ void Mehrotra
         Gemv( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
-        // || r_c ||_2 / (1 + || c + Q x ||_2) <= tol ?
-        // --------------------------------------------
-        // NOTE: d currently contains Q x
-        Axpy( Real(1), c, d );
-        const Real objGradNrm2 = Nrm2( d );
-        rc = d;
-        Scale( Real(-1), rc );
+        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
+        // --------------------------------------
+        rc = c;
+        Hemv( LOWER,     Real(1), Q, x, Real(1), rc );
         Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
-        Axpy( Real(1), z, rc );
+        Axpy( Real(-1), z, rc );
         const Real rcNrm2 = Nrm2( rc );
-        const Real rcConv = rcNrm2 / (Real(1)+objGradNrm2);
+        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
         if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
             break;
         else if( ctrl.print )
             std::cout << " iter " << numIts << ":\n"
-                      << "  |primObj - dualObj| / (1 + |primObj|) = "
+                      << "  |primal - dual| / (1 + |primal|) = "
                       << objConv << "\n"
-                      << "  || r_b ||_2 / (1 + || b ||_2)         = "
+                      << "  || r_b ||_2 / (1 + || b ||_2)   = "
                       << rbConv << "\n"
-                      << "  || r_c ||_2 / (1 + || c + Q x ||_2)   = "
+                      << "  || r_c ||_2 / (1 + || c ||_2)   = "
                       << rcConv << std::endl;
 
         // Raise an exception after an unacceptable number of iterations
@@ -114,11 +117,10 @@ void Mehrotra
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // r_mu := X Z e
+        // r_mu := x o z
         // =============
-        rmu.Resize( n, 1 );
-        for( Int i=0; i<n; ++i )
-            rmu.Set( i, 0, x.Get(i,0)*z.Get(i,0) );
+        rmu = z;
+        DiagonalScale( LEFT, NORMAL, x, rmu );
 
         // Compute the affine search direction
         // ===================================
@@ -127,20 +129,20 @@ void Mehrotra
             // Construct the full KKT system
             // -----------------------------
             KKT( Q, A, x, z, J );
-            KKTRHS( rmu, rc, rb, d );
+            KKTRHS( rc, rb, rmu, z, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            LU( J, p );
-            lu::SolveAfter( NORMAL, J, p, d );
-            ExpandKKTSolution( m, n, d, dxAff, dyAff, dzAff );
+            LDL( J, dSub, p, false );
+            ldl::SolveAfter( J, dSub, p, d, false );
+            ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
         }
-        else // ctrl.system == AUGMENTED_KKT
+        else if( ctrl.system == AUGMENTED_KKT )
         {
             // Construct the "augmented" KKT system
             // ------------------------------------
             AugmentedKKT( Q, A, x, z, J );
-            AugmentedKKTRHS( x, rmu, rc, rb, d );
+            AugmentedKKTRHS( x, rc, rb, rmu, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
@@ -148,43 +150,42 @@ void Mehrotra
             ldl::SolveAfter( J, dSub, p, d, false );
             ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
         }
-
+        else
+            LogicError("Invalid KKT system choice");
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
-        Real rmuNrm2 = Nrm2( rmu ); 
-        dzError = rmu;
-        for( Int i=0; i<n; ++i )
-        {
-            const Real xi = x.Get(i,0);
-            const Real zi = z.Get(i,0);
-            const Real dxi = dxAff.Get(i,0);
-            const Real dzi = dzAff.Get(i,0);
-            dzError.Update( i, 0, xi*dzi + zi*dxi );
-        }
-        Real dzErrorNrm2 = Nrm2( dzError );
-
-        dyError = dzAff;
-        Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-        Hemv( LOWER, Real(-1), Q, dx, Real(1), dyError );
-        Axpy( Real(1), rc, dyError );
-        Real dyErrorNrm2 = Nrm2( dyError );
-
         dxError = rb;
         Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
         Real dxErrorNrm2 = Nrm2( dxError );
 
+        dyError = rc;
+        Hemv( LOWER,     Real(1), Q, dxAff, Real(1), dyError );
+        Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
+        Axpy( Real(-1), dzAff, dyError );
+        Real dyErrorNrm2 = Nrm2( dyError );
+
+        Real rmuNrm2 = Nrm2( rmu );
+        dzError = rmu;
+        prod = dzAff;
+        DiagonalScale( LEFT, NORMAL, x, prod );
+        Axpy( Real(1), prod, dzError );
+        prod = dxAff;
+        DiagonalScale( LEFT, NORMAL, z, prod );
+        Axpy( Real(1), prod, dzError );
+        Real dzErrorNrm2 = Nrm2( dzError );
+
         if( ctrl.print )
-            std::cout << "  || dxAffError ||_2 / (1 + || r_b ||_2)  = " 
+            std::cout << "  || dxAffError ||_2 / (1 + || r_b ||_2) = " 
                       << dxErrorNrm2/(1+rbNrm2) << "\n"
-                      << "  || dyAffError ||_2 / (1 + || r_c ||_2)  = " 
+                      << "  || dyAffError ||_2 / (1 + || r_c ||_2) = " 
                       << dyErrorNrm2/(1+rcNrm2) << "\n"
                       << "  || dzAffError ||_2 / (1 + || r_mu ||_2) = " 
                       << dzErrorNrm2/(1+rmuNrm2) << std::endl;
 #endif
 
-        // Compute the maximum affine [0,1]-step which preserves positivity
-        // ================================================================
+        // Compute the max affine [0,1]-step which keeps x and z in the cone
+        // =================================================================
         const Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
         const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
         if( ctrl.print )
@@ -214,31 +215,35 @@ void Mehrotra
         // =================================
         Zeros( rc, n, 1 );
         Zeros( rb, m, 1 );
-        for( Int i=0; i<n; ++i )
-            rmu.Set( i, 0, dxAff.Get(i,0)*dzAff.Get(i,0) - sigma*mu );
+        // r_mu := dxAff o dzAff - sigma*mu
+        // --------------------------------
+        rmu = dzAff;
+        DiagonalScale( LEFT, NORMAL, dxAff, rmu );
+        Shift( rmu, -sigma*mu );
         if( ctrl.system == FULL_KKT )
         {
             // Construct the new full KKT RHS
             // ------------------------------
-            KKTRHS( rmu, rc, rb, d );
+            KKTRHS( rc, rb, rmu, z, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            lu::SolveAfter( NORMAL, J, p, d );
-            ExpandKKTSolution( m, n, d, dx, dy, dz );
+            ldl::SolveAfter( J, dSub, p, d, false );
+            ExpandSolution( m, n, d, dx, dy, dz );
         }
-        else // ctrl.system == AUGMENTED_KKT
+        else if( ctrl.system == AUGMENTED_KKT )
         {
             // Construct the new "augmented" KKT RHS
             // -------------------------------------
-            AugmentedKKTRHS( x, rmu, rc, rb, d );
+            AugmentedKKTRHS( x, rc, rb, rmu, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             ldl::SolveAfter( J, dSub, p, d, false );
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
-
+        else
+            LogicError("Invalid KKT system choice");
         // TODO: Residual checks for center-corrector
 
         // Add in the affine search direction
@@ -247,8 +252,8 @@ void Mehrotra
         Axpy( Real(1), dyAff, dy );
         Axpy( Real(1), dzAff, dz );
 
-        // Compute the max positive [0,1/maxStepRatio] step length
-        // =======================================================
+        // Compute max [0,1/maxStepRatio] step which keeps x and z in the cone
+        // ===================================================================
         Real alphaPri = MaxStepInPositiveCone( x, dx, 1/ctrl.maxStepRatio );
         Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
@@ -269,11 +274,11 @@ template<typename Real>
 void Mehrotra
 ( const AbstractDistMatrix<Real>& QPre, const AbstractDistMatrix<Real>& APre, 
   const AbstractDistMatrix<Real>& b,    const AbstractDistMatrix<Real>& c,
-        AbstractDistMatrix<Real>& xPre,       AbstractDistMatrix<Real>& y, 
+        AbstractDistMatrix<Real>& xPre,       AbstractDistMatrix<Real>& yPre,
         AbstractDistMatrix<Real>& zPre,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::Mehrotra"))
+    DEBUG_ONLY(CallStackEntry cse("qp::direct::Mehrotra"))    
 
     ProxyCtrl control;
     control.colConstrain = true;
@@ -282,7 +287,10 @@ void Mehrotra
     control.rowAlign = 0;
     auto QPtr = ReadProxy<Real,MC,MR>(&QPre,control);      auto& Q = *QPtr;
     auto APtr = ReadProxy<Real,MC,MR>(&APre,control);      auto& A = *APtr;
+    // NOTE: x does not need to be a read proxy when !ctrl.primalInitialized
     auto xPtr = ReadWriteProxy<Real,MC,MR>(&xPre,control); auto& x = *xPtr;
+    // NOTE: {y,z} do not need to be read proxies when !ctrl.dualInitialized
+    auto yPtr = ReadWriteProxy<Real,MC,MR>(&yPre,control); auto& y = *yPtr;
     auto zPtr = ReadWriteProxy<Real,MC,MR>(&zPre,control); auto& z = *zPtr;
 
     const Int m = A.Height();
@@ -291,10 +299,17 @@ void Mehrotra
     const Int commRank = A.Grid().Rank();
 
     const Real bNrm2 = Nrm2( b );
+    const Real cNrm2 = Nrm2( c );
+
+    // TODO: Expose this as a parameter of MehrotraCtrl
+    const bool standardShift = true;
+    Initialize
+    ( Q, A, b, c, x, y, z, ctrl.primalInitialized, ctrl.dualInitialized,
+      standardShift ); 
 
     DistMatrix<Real> 
         J(grid), d(grid), 
-        rmu(grid),   rb(grid),    rc(grid), 
+        rc(grid),    rb(grid),    rmu(grid), 
         dxAff(grid), dyAff(grid), dzAff(grid),
         dx(grid),    dy(grid),    dz(grid);
     dx.AlignWith( x );
@@ -305,7 +320,7 @@ void Mehrotra
     DistMatrix<Real> dSub(grid);
     DistMatrix<Int> p(grid);
 #ifndef EL_RELEASE
-    DistMatrix<Real> dxError(grid), dyError(grid), dzError(grid);
+    DistMatrix<Real> dxError(grid), dyError(grid), dzError(grid), prod(grid);
     dzError.AlignWith( dz );
 #endif
     for( Int numIts=0; ; ++numIts )
@@ -321,13 +336,13 @@ void Mehrotra
 
         // Check for convergence
         // =====================
-        // |c^T x + x^T Q x - b^T y| / (1 + |c^T x + 1/2 x^T Q x|) <= tol ?
-        // ----------------------------------------------------------------
+        // |primal - dual| / (1 + |primal|) <= tol ?
+        // -----------------------------------------
         Zeros( d, n, 1 );
         Hemv( LOWER, Real(1), Q, x, Real(0), d );
         const Real xTQx = Dot(x,d);
-        const Real primObj = Dot(c,x) + xTQx/2;
-        const Real dualObj = Dot(b,y) - xTQx/2; 
+        const Real primObj =  xTQx/2 + Dot(c,x);
+        const Real dualObj = -xTQx/2 - Dot(b,y); 
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -336,28 +351,25 @@ void Mehrotra
         Gemv( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
-        // || r_c ||_2 / (1 + || c + Q x ||_2) <= tol ?
-        // --------------------------------------------
-        // NOTE: d currently contains Q x
-        Axpy( Real(1), c, d );
-        const Real objGradNrm2 = Nrm2( d );
-        rc = d;
-        Scale( Real(-1), rc );
+        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
+        // --------------------------------------
+        rc = c;
+        Hemv( LOWER,     Real(1), Q, x, Real(1), rc );
         Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
-        Axpy( Real(1), z, rc );
+        Axpy( Real(-1), z, rc );
         const Real rcNrm2 = Nrm2( rc );
-        const Real rcConv = rcNrm2 / (Real(1)+objGradNrm2);
+        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
         if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
             break;
         else if( ctrl.print && commRank == 0 )
             std::cout << " iter " << numIts << ":\n"
-                      << "  |primObj - dualObj| / (1 + |primObj|) = "
+                      << "  |primal - dual| / (1 + |primal|) = "
                       << objConv << "\n"
-                      << "  || r_b ||_2 / (1 + || b ||_2)         = "
+                      << "  || r_b ||_2 / (1 + || b ||_2)   = "
                       << rbConv << "\n"
-                      << "  || r_c ||_2 / (1 + || c + Q x ||_2)   = "
+                      << "  || r_c ||_2 / (1 + || c ||_2)   = "
                       << rcConv << std::endl;
 
         // Raise an exception after an unacceptable number of iterations
@@ -366,13 +378,10 @@ void Mehrotra
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // r_mu := X Z e
+        // r_mu := x o z
         // =============
-        // TODO: Find a more convenient syntax for expressing this operation
-        rmu.Resize( n, 1 );
-        if( rmu.IsLocalCol(0) )
-            for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
-                rmu.SetLocal( iLoc, 0, x.GetLocal(iLoc,0)*z.GetLocal(iLoc,0) );
+        rmu = z;
+        DiagonalScale( LEFT, NORMAL, x, rmu );
 
         // Compute the affine search direction
         // ===================================
@@ -381,20 +390,20 @@ void Mehrotra
             // Construct the full KKT system
             // -----------------------------
             KKT( Q, A, x, z, J );
-            KKTRHS( rmu, rc, rb, d );
+            KKTRHS( rc, rb, rmu, z, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            LU( J, p );
-            lu::SolveAfter( NORMAL, J, p, d );
-            ExpandKKTSolution( m, n, d, dxAff, dyAff, dzAff );
+            LDL( J, dSub, p, false );
+            ldl::SolveAfter( J, dSub, p, d, false );
+            ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
         }
-        else // ctrl.system == AUGMENTED_KKT
+        else if( ctrl.system == AUGMENTED_KKT )
         {
             // Construct the "augmented" KKT system
             // ------------------------------------
             AugmentedKKT( Q, A, x, z, J );
-            AugmentedKKTRHS( x, rmu, rc, rb, d );
+            AugmentedKKTRHS( x, rc, rb, rmu, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
@@ -402,46 +411,42 @@ void Mehrotra
             ldl::SolveAfter( J, dSub, p, d, false );
             ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
         }
+        else
+            LogicError("Invalid KKT system choice");
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
-        Real rmuNrm2 = Nrm2( rmu ); 
-        // TODO: Find a more convenient syntax for expressing this operation
-        dzError = rmu;
-        if( dzError.IsLocalCol(0) )
-        {
-            for( Int iLoc=0; iLoc<dzError.LocalHeight(); ++iLoc )
-            {
-                const Real xi = x.GetLocal(iLoc,0);
-                const Real zi = z.GetLocal(iLoc,0);
-                const Real dxi = dxAff.GetLocal(iLoc,0);
-                const Real dzi = dzAff.GetLocal(iLoc,0);
-                dzError.UpdateLocal( iLoc, 0, xi*dzi + zi*dxi );
-            }
-        }
-        Real dzErrorNrm2 = Nrm2( dzError );
-
-        dyError = dzAff;
-        Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-        Hemv( LOWER, Real(-1), Q, dxAff, Real(1), dyError );
-        Axpy( Real(1), rc, dyError );
-        Real dyErrorNrm2 = Nrm2( dyError );
-
         dxError = rb;
         Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
         Real dxErrorNrm2 = Nrm2( dxError );
 
+        dyError = rc;
+        Hemv( LOWER,     Real(1), Q, dxAff, Real(1), dyError );
+        Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
+        Axpy( Real(-1), dzAff, dyError );
+        Real dyErrorNrm2 = Nrm2( dyError );
+
+        Real rmuNrm2 = Nrm2( rmu );
+        dzError = rmu;
+        prod = dzAff;
+        DiagonalScale( LEFT, NORMAL, x, prod );
+        Axpy( Real(1), prod, dzError );
+        prod = dxAff;
+        DiagonalScale( LEFT, NORMAL, z, prod );
+        Axpy( Real(1), prod, dzError );
+        Real dzErrorNrm2 = Nrm2( dzError );
+
         if( ctrl.print && commRank == 0 )
-            std::cout << "  || dxAffError ||_2 / (1 + || r_b ||_2)  = " 
+            std::cout << "  || dxAffError ||_2 / (1 + || r_b ||_2) = " 
                       << dxErrorNrm2/(1+rbNrm2) << "\n"
-                      << "  || dyAffError ||_2 / (1 + || r_c ||_2)  = " 
+                      << "  || dyAffError ||_2 / (1 + || r_c ||_2) = " 
                       << dyErrorNrm2/(1+rcNrm2) << "\n"
                       << "  || dzAffError ||_2 / (1 + || r_mu ||_2) = " 
                       << dzErrorNrm2/(1+rmuNrm2) << std::endl;
 #endif
 
-        // Compute the maximum affine [0,1]-step which preserves positivity
-        // ================================================================
+        // Compute the max affine [0,1]-step which keeps x and z in the cone
+        // =================================================================
         const Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
         const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
         if( ctrl.print && commRank == 0 )
@@ -471,34 +476,35 @@ void Mehrotra
         // =================================
         Zeros( rc, n, 1 );
         Zeros( rb, m, 1 );
-        // TODO: Find a more convenient means of expressing this operation
-        if( dxAff.IsLocalCol(0) )
-            for( Int iLoc=0; iLoc<dxAff.LocalHeight(); ++iLoc )
-                rmu.SetLocal
-                ( iLoc, 0, 
-                  dxAff.GetLocal(iLoc,0)*dzAff.GetLocal(iLoc,0) - sigma*mu );
+        // r_mu := dxAff o dzAff - sigma*mu
+        // --------------------------------
+        rmu = dzAff;
+        DiagonalScale( LEFT, NORMAL, dxAff, rmu );
+        Shift( rmu, -sigma*mu );
         if( ctrl.system == FULL_KKT )
         {
             // Construct the new full KKT RHS
             // ------------------------------
-            KKTRHS( rmu, rc, rb, d );
+            KKTRHS( rc, rb, rmu, z, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            lu::SolveAfter( NORMAL, J, p, d );
-            ExpandKKTSolution( m, n, d, dx, dy, dz );
+            ldl::SolveAfter( J, dSub, p, d, false );
+            ExpandSolution( m, n, d, dx, dy, dz );
         }
-        else // ctrl.system == AUGMENTED_KKT
+        else if( ctrl.system == AUGMENTED_KKT )
         {
             // Construct the new "augmented" KKT RHS
             // -------------------------------------
-            AugmentedKKTRHS( x, rmu, rc, rb, d );
+            AugmentedKKTRHS( x, rc, rb, rmu, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             ldl::SolveAfter( J, dSub, p, d, false );
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
+        else
+            LogicError("Invalid KKT system choice");
         // TODO: Residual checks for center-corrector
 
         // Add in the affine search direction
@@ -507,21 +513,21 @@ void Mehrotra
         Axpy( Real(1), dyAff, dy );
         Axpy( Real(1), dzAff, dz );
 
-        // Compute the max positive [0,1/maxStepRatio] step length
-        // =======================================================
+        // Compute max [0,1/maxStepRatio] step which keeps x and z in the cone
+        // ===================================================================
         Real alphaPri = MaxStepInPositiveCone( x, dx, 1/ctrl.maxStepRatio );
         Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.print && commRank == 0 )
-            std::cout << "  alphaPri = " << alphaAffPri 
-                      << ", alphaDual = " << alphaAffDual << std::endl;
+            std::cout << "  alphaPri = " << alphaPri 
+                      << ", alphaDual = " << alphaDual << std::endl;
 
         // Update the current estimates
         // ============================
         Axpy( alphaPri,  dx, x );
-        Axpy( alphaDual, dy, y ); 
-        Axpy( alphaDual, dz, z );
+        Axpy( alphaDual, dy, y );
+        Axpy( alphaDual, dz, z ); 
     }
 }
 
@@ -554,24 +560,80 @@ void Mehrotra
     const Real epsilon = lapack::MachineEpsilon<Real>();
 
     const Real bNrm2 = Nrm2( b );
+    const Real cNrm2 = Nrm2( c );
 
+    DistMap map, invMap;
     DistSymmInfo info;
     DistSeparatorTree sepTree;
-    DistMap map, invMap;
+    // The initialization involves an augmented KKT system, and so we can
+    // only reuse the factorization metadata if the this IPM is using the
+    // augmented formulation
+    // TODO: Expose this as a parameter of MehrotraCtrl
+    const bool standardShift = true;
+    if( ctrl.system == AUGMENTED_KKT )
+    {
+        Initialize
+        ( Q, A, b, c, x, y, z, map, invMap, sepTree, info,
+          ctrl.primalInitialized, ctrl.dualInitialized, standardShift,
+          ctrl.print ); 
+    }  
+    else
+    {
+        DistMap augMap, augInvMap;
+        DistSymmInfo augInfo;
+        DistSeparatorTree augSepTree;
+        Initialize
+        ( Q, A, b, c, x, y, z, augMap, augInvMap, augSepTree, augInfo,
+          ctrl.primalInitialized, ctrl.dualInitialized, standardShift,
+          ctrl.print );
+    }
+
     DistSparseMatrix<Real> J(comm);
     DistSymmFrontTree<Real> JFrontTree;
-
     DistMultiVec<Real> d(comm), 
-                       rmu(comm),   rb(comm),    rc(comm), 
+                       rc(comm),    rb(comm),    rmu(comm), 
                        dxAff(comm), dyAff(comm), dzAff(comm),
                        dx(comm),    dy(comm),    dz(comm);
-    DistNodalMultiVec<Real> dNodal;
 
     DistMultiVec<Real> regCand(comm), reg(comm);
+    // TODO: Dynamically modify these values in the manner suggested by 
+    //       Altman and Gondzio based upon the number of performed steps of
+    //       iterative refinement
+    if( ctrl.system == FULL_KKT )
+    {
+        const Real regMagPrimal = Pow(epsilon,Real(0.75));
+        const Real regMagLagrange = Pow(epsilon,Real(0.5));
+        const Real regMagDual = Pow(epsilon,Real(0.5));
+        regCand.Resize( m+2*n, 1 );
+        for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
+        {
+            const Int i = regCand.FirstLocalRow() + iLoc;
+            if( i < n )
+                regCand.SetLocal( iLoc, 0, regMagPrimal );
+            else if( i < n+m )
+                regCand.SetLocal( iLoc, 0, -regMagLagrange );
+            else
+                regCand.SetLocal( iLoc, 0, -regMagDual );
+        }
+    }
+    else if( ctrl.system == AUGMENTED_KKT )
+    {
+        const Real regMagPrimal = Pow(epsilon,Real(0.75));
+        const Real regMagLagrange = Pow(epsilon,Real(0.5));
+        regCand.Resize( n+m, 1 );
+        for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
+        {
+            const Int i = regCand.FirstLocalRow() + iLoc;
+            if( i < n )
+                regCand.SetLocal( iLoc, 0, regMagPrimal );
+            else
+                regCand.SetLocal( iLoc, 0, -regMagLagrange );
+        }
+    }
     DistNodalMultiVec<Real> regCandNodal, regNodal;
 
 #ifndef EL_RELEASE
-    DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm);
+    DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm), prod(comm);
 #endif
     for( Int numIts=0; ; ++numIts )
     {
@@ -586,14 +648,14 @@ void Mehrotra
 
         // Check for convergence
         // =====================
-        // |c^T x + x^T Q x - b^T y| / (1 + |c^T x + 1/2 x^T Q x|) <= tol ?
-        // ----------------------------------------------------------------
+        // |primal - dual| / (1 + |primal|) <= tol ?
+        // -----------------------------------------
         Zeros( d, n, 1 );
-        // NOTE: This assumes that Q is explicitly Hermitian
+        // NOTE: The following assumes that Q is explicitly symmetric
         Multiply( NORMAL, Real(1), Q, x, Real(0), d );
         const Real xTQx = Dot(x,d);
-        const Real primObj = Dot(c,x) + xTQx/2;
-        const Real dualObj = Dot(b,y) - xTQx/2; 
+        const Real primObj =  xTQx/2 + Dot(c,x);
+        const Real dualObj = -xTQx/2 - Dot(b,y); 
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -602,28 +664,25 @@ void Mehrotra
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
-        // || r_c ||_2 / (1 + || c + Q x ||_2) <= tol ?
-        // --------------------------------------------
-        // NOTE: d currently contains Q x
-        Axpy( Real(1), c, d );
-        const Real objGradNrm2 = Nrm2( d );
-        rc = d;
-        Scale( Real(-1), rc );
+        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
+        // --------------------------------------
+        rc = c;
+        Multiply( NORMAL,    Real(1), Q, x, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
-        Axpy( Real(1), z, rc );
+        Axpy( Real(-1), z, rc );
         const Real rcNrm2 = Nrm2( rc );
-        const Real rcConv = rcNrm2 / (Real(1)+objGradNrm2);
+        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
         if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
             break;
         else if( ctrl.print && commRank == 0 )
             std::cout << " iter " << numIts << ":\n"
-                      << "  |primObj - dualObj| / (1 + |primObj|) = "
+                      << "  |primal - dual| / (1 + |primal|) = "
                       << objConv << "\n"
-                      << "  || r_b ||_2 / (1 + || b ||_2)         = "
+                      << "  || r_b ||_2 / (1 + || b ||_2)   = "
                       << rbConv << "\n"
-                      << "  || r_c ||_2 / (1 + || c + Q x ||_2)   = "
+                      << "  || r_c ||_2 / (1 + || c ||_2)   = "
                       << rcConv << std::endl;
 
         // Raise an exception after an unacceptable number of iterations
@@ -632,40 +691,29 @@ void Mehrotra
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // r_mu := X Z e
+        // r_mu := x o z
         // =============
-        rmu.Resize( n, 1 );
-        for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
-            rmu.SetLocal( iLoc, 0, x.GetLocal(iLoc,0)*z.GetLocal(iLoc,0) );
+        rmu = z; 
+        DiagonalScale( NORMAL, x, rmu );
 
         // Compute the affine search direction
         // ===================================
-        //const Real minReductionFactor = 2;
-        //const Int maxRefineIts = 10;
-        // ctrl.system == AUGMENTED_KKT
+        const Real minReductionFactor = 2;
+        const Int maxRefineIts = 50;
+        Int numLargeAffineRefines=0, numLargeCorrectorRefines=0;
+        if( ctrl.system == FULL_KKT )
         {
-            // Construct the "normal" KKT system
-            // ---------------------------------
+            // Construct the full KKT system
+            // -----------------------------
             // TODO: Add default regularization
-            AugmentedKKT( Q, A, x, z, J, false );
-            AugmentedKKTRHS( x, rmu, rc, rb, d );
+            KKT( Q, A, x, z, J, false );
+            KKTRHS( rc, rb, rmu, z, d );
             const Real pivTol = MaxNorm(J)*epsilon;
-            const Real regMagPrimal = Pow(epsilon,Real(0.75));
-            const Real regMagLagrange = Pow(epsilon,Real(0.5));
-            regCand.Resize( n+m, 1 );
-            for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
-            {
-                const Int i = regCand.FirstLocalRow() + iLoc;
-                if( i < n )
-                    regCand.SetLocal( iLoc, 0, -regMagPrimal );
-                else
-                    regCand.SetLocal( iLoc, 0, regMagLagrange );
-            }
             // Do not use any a priori regularization
-            Zeros( reg, m+n, 1 );
+            Zeros( reg, m+2*n, 1 );
 
-            // Compute the proposed step from the KKT system
-            // ---------------------------------------------
+            // Factor the KKT system using dynamic regularization
+            // --------------------------------------------------
             if( numIts == 0 )
             {
                 NestedDissection( J.LockedDistGraph(), map, sepTree, info );
@@ -677,53 +725,80 @@ void Mehrotra
             RegularizedLDL
             ( info, JFrontTree, pivTol, regCandNodal, regNodal, LDL_1D );
             regNodal.Push( invMap, info, reg );
-            // NOTE: Need to modify iterative refinement procedure
-            /*
-            SolveWithIterativeRefinement
-            ( J, invMap, info, JFrontTree, d, 
-              minReductionFactor, maxRefineIts );
-            */
-            dNodal.Pull( invMap, info, d );
-            Solve( info, JFrontTree, dNodal );
-            dNodal.Push( invMap, info, d );
+
+            // Compute the proposed step from the regularized KKT system
+            // ---------------------------------------------------------
+            numLargeAffineRefines = reg_ldl::SolveAfter
+            ( J, reg, invMap, info, JFrontTree, d,
+              minReductionFactor, maxRefineIts, ctrl.print );
+            ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
+        }
+        else if( ctrl.system == AUGMENTED_KKT )
+        {
+            // Construct the "augmented" KKT system
+            // ------------------------------------
+            // TODO: Add default regularization
+            AugmentedKKT( Q, A, x, z, J, false );
+            AugmentedKKTRHS( x, rc, rb, rmu, d );
+            const Real pivTol = MaxNorm(J)*epsilon;
+            // Do not use any a priori regularization
+            Zeros( reg, m+n, 1 );
+
+            // Compute the proposed step from the KKT system
+            // ---------------------------------------------
+            if( ctrl.primalInitialized && ctrl.dualInitialized && numIts == 0 )
+            {
+                NestedDissection( J.LockedDistGraph(), map, sepTree, info );
+                map.FormInverse( invMap );
+            }
+            JFrontTree.Initialize( J, map, sepTree, info );
+            regCandNodal.Pull( invMap, info, regCand );
+            regNodal.Pull( invMap, info, reg );
+            RegularizedLDL
+            ( info, JFrontTree, pivTol, regCandNodal, regNodal, LDL_1D );
+            regNodal.Push( invMap, info, reg );
+
+            numLargeAffineRefines = reg_ldl::SolveAfter
+            ( J, reg, invMap, info, JFrontTree, d,
+              minReductionFactor, maxRefineIts, ctrl.print );
             ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
         }
+        else
+            LogicError("Invalid KKT system choice");
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
-        Real rmuNrm2 = Nrm2( rmu ); 
-        dzError = rmu;
-        for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
-        {
-            const Real xi = x.GetLocal(iLoc,0);
-            const Real zi = z.GetLocal(iLoc,0);
-            const Real dxi = dxAff.GetLocal(iLoc,0);
-            const Real dzi = dzAff.GetLocal(iLoc,0);
-            dzError.UpdateLocal( iLoc, 0, xi*dzi + zi*dxi );
-        }
-        Real dzErrorNrm2 = Nrm2( dzError );
-
-        dyError = dzAff;
-        Multiply( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-        Multiply( NORMAL, Real(-1), Q, dxAff, Real(1), dyError );
-        Axpy( Real(1), rc, dyError );
-        Real dyErrorNrm2 = Nrm2( dyError );
-
         dxError = rb;
         Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
         Real dxErrorNrm2 = Nrm2( dxError );
 
+        dyError = rc;
+        Multiply( NORMAL,    Real(1), Q, dxAff, Real(1), dyError );
+        Multiply( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
+        Axpy( Real(-1), dzAff, dyError );
+        Real dyErrorNrm2 = Nrm2( dyError );
+
+        Real rmuNrm2 = Nrm2( rmu );
+        dzError = rmu;
+        prod = dzAff;
+        DiagonalScale( NORMAL, x, prod );
+        Axpy( Real(1), prod, dzError );
+        prod = dxAff;
+        DiagonalScale( NORMAL, z, prod );
+        Axpy( Real(1), prod, dzError );
+        Real dzErrorNrm2 = Nrm2( dzError );
+
         if( ctrl.print && commRank == 0 )
-            std::cout << "  || dxAffError ||_2 / (1 + || r_b ||_2)  = " 
+            std::cout << "  || dxAffError ||_2 / (1 + || r_b ||_2) = " 
                       << dxErrorNrm2/(1+rbNrm2) << "\n"
-                      << "  || dyAffError ||_2 / (1 + || r_c ||_2)  = " 
+                      << "  || dyAffError ||_2 / (1 + || r_c ||_2) = " 
                       << dyErrorNrm2/(1+rcNrm2) << "\n"
                       << "  || dzAffError ||_2 / (1 + || r_mu ||_2) = " 
                       << dzErrorNrm2/(1+rmuNrm2) << std::endl;
 #endif
 
-        // Compute the maximum affine [0,1]-step which preserves positivity
-        // ================================================================
+        // Compute the max affine [0,1]-step which keeps x and z in the cone
+        // =================================================================
         const Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
         const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
         if( ctrl.print && commRank == 0 )
@@ -753,25 +828,41 @@ void Mehrotra
         // =================================
         Zeros( rc, n, 1 );
         Zeros( rb, m, 1 );
-        for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
-            rmu.SetLocal
-            ( iLoc, 0, 
-              dxAff.GetLocal(iLoc,0)*dzAff.GetLocal(iLoc,0) - sigma*mu );
-        // ctrl.system == AUGMENTED_KKT
+        // r_mu := dxAff o dzAff - sigma*mu
+        // --------------------------------
+        rmu = dzAff;
+        DiagonalScale( NORMAL, dxAff, rmu );
+        Shift( rmu, -sigma*mu );
+        if( ctrl.system == FULL_KKT )
         {
-            // Construct the new "normal" KKT RHS
-            // ----------------------------------
-            AugmentedKKTRHS( x, rmu, rc, rb, d );
+            // Construct the new full KKT RHS
+            // ------------------------------
+            KKTRHS( rc, rb, rmu, z, d );
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            // TODO: Iterative refinement
-            dNodal.Pull( invMap, info, d );
-            Solve( info, JFrontTree, dNodal );
-            dNodal.Push( invMap, info, d );
+            numLargeCorrectorRefines = reg_ldl::SolveAfter
+            ( J, reg, invMap, info, JFrontTree, d,
+              minReductionFactor, maxRefineIts, ctrl.print );
+            ExpandSolution( m, n, d, dx, dy, dz );
+        }
+        else if( ctrl.system == AUGMENTED_KKT )
+        {
+            // Construct the new "augmented" KKT RHS
+            // -------------------------------------
+            AugmentedKKTRHS( x, rc, rb, rmu, d );
+
+            // Compute the proposed step from the KKT system
+            // ---------------------------------------------
+            numLargeCorrectorRefines = reg_ldl::SolveAfter
+            ( J, reg, invMap, info, JFrontTree, d,
+              minReductionFactor, maxRefineIts, ctrl.print );
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
-
+        else
+            LogicError("Invalid KKT system choice");
+        if( Max(numLargeAffineRefines,numLargeCorrectorRefines) > 3 )
+            Scale( Real(10), regCand );
         // TODO: Residual checks for center-corrector
 
         // Add in the affine search direction
@@ -780,8 +871,8 @@ void Mehrotra
         Axpy( Real(1), dyAff, dy );
         Axpy( Real(1), dzAff, dz );
 
-        // Compute the max positive [0,1/maxStepRatio] step length
-        // =======================================================
+        // Compute max [0,1/maxStepRatio] step which keeps x and z in the cone
+        // ===================================================================
         Real alphaPri = MaxStepInPositiveCone( x, dx, 1/ctrl.maxStepRatio );
         Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
@@ -793,8 +884,8 @@ void Mehrotra
         // Update the current estimates
         // ============================
         Axpy( alphaPri,  dx, x );
-        Axpy( alphaDual, dy, y ); 
-        Axpy( alphaDual, dz, z );
+        Axpy( alphaDual, dy, y );
+        Axpy( alphaDual, dz, z ); 
     }
 }
 

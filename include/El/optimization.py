@@ -144,7 +144,7 @@ class LPDirectADMMCtrl_d(ctypes.Structure):
   def __init__(self):
     lib.ElLPDirectADMMCtrlDefault_d(pointer(self))
 
-(LP_PRIMAL_FULL_KKT,LP_PRIMAL_AUGMENTED_KKT,LP_PRIMAL_NORMAL_KKT) = (0,1,2)
+(LP_DIRECT_FULL_KKT,LP_DIRECT_AUGMENTED_KKT,LP_DIRECT_NORMAL_KKT) = (0,1,2)
 
 lib.ElLPDirectIPFCtrlDefault_s.argtypes = \
 lib.ElLPDirectIPFCtrlDefault_d.argtypes = [c_void_p,bType]
@@ -585,17 +585,90 @@ def NonNegativeLeastSquares(A,Y):
 
 # Quadratic program
 # =================
-# TODO: Initialize x for the user?
+(QP_ADMM,QP_IPF,QP_IPF_SELFDUAL,QP_MEHROTRA,QP_MEHROTRA_SELFDUAL)=(0,1,2,3,4)
+
+lib.ElQPIPFLineSearchCtrlDefault_s.argtypes = \
+lib.ElQPIPFLineSearchCtrlDefault_d.argtypes = [c_void_p]
+lib.ElQPIPFLineSearchCtrlDefault_s.restype = \
+lib.ElQPIPFLineSearchCtrlDefault_d.restype = c_uint
+class QPIPFLineSearchCtrl_s(ctypes.Structure):
+  _fields_ = [("gamma",sType),("beta",sType),("psi",sType),
+              ("stepRatio",sType),("progress",bType)]
+  def __init__(self):
+    lib.ElQPIPFLineSearchCtrlDefault_s(pointer(self))
+class QPIPFLineSearchCtrl_d(ctypes.Structure):
+  _fields_ = [("gamma",dType),("beta",dType),("psi",dType),
+              ("stepRatio",dType),("progress",bType)]
+  def __init__(self):
+    lib.ElQPIPFLineSearchCtrlDefault_d(pointer(self))
+
+# Direct conic form
+# -----------------
+(QP_DIRECT_FULL_KKT,QP_DIRECT_AUGMENTED_KKT) = (0,1)
+
+lib.ElQPDirectIPFCtrlDefault_s.argtypes = \
+lib.ElQPDirectIPFCtrlDefault_d.argtypes = [c_void_p]
+lib.ElQPDirectIPFCtrlDefault_s.restype = \
+lib.ElQPDirectIPFCtrlDefault_d.restype = c_uint
+class QPDirectIPFCtrl_s(ctypes.Structure):
+  _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
+              ("tol",sType),("maxIts",iType),("centering",sType),
+              ("system",c_uint),("lineSearchCtrl",QPIPFLineSearchCtrl_s),
+              ("progress",bType)]
+  def __init__(self):
+    lib.ElQPDirectIPFCtrlDefault_s(pointer(self))
+class QPDirectIPFCtrl_d(ctypes.Structure):
+  _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
+              ("tol",dType),("maxIts",iType),("centering",dType),
+              ("system",c_uint),("lineSearchCtrl",QPIPFLineSearchCtrl_d),
+              ("progress",bType)]
+  def __init__(self):
+    lib.ElQPDirectIPFCtrlDefault_d(pointer(self))
+
+lib.ElQPDirectMehrotraCtrlDefault_s.argtypes = \
+lib.ElQPDirectMehrotraCtrlDefault_d.argtypes = [c_void_p]
+lib.ElQPDirectMehrotraCtrlDefault_s.restype = \
+lib.ElQPDirectMehrotraCtrlDefault_d.restype = c_uint
+class QPDirectMehrotraCtrl_s(ctypes.Structure):
+  _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
+              ("tol",sType),("maxIts",iType),("maxStepRatio",sType),
+              ("system",c_uint),("progress",bType)]
+  def __init__(self):
+    lib.ElQPDirectMehrotraCtrlDefault_s(pointer(self))
+class QPDirectMehrotraCtrl_d(ctypes.Structure):
+  _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
+              ("tol",dType),("maxIts",iType),("maxStepRatio",dType),
+              ("system",c_uint),("progress",bType)]
+  def __init__(self):
+    lib.ElQPDirectMehrotraCtrlDefault_d(pointer(self))
+
+lib.ElQPDirectCtrlDefault_s.argtypes = \
+lib.ElQPDirectCtrlDefault_d.argtypes = [c_void_p]
+lib.ElQPDirectCtrlDefault_s.restype = \
+lib.ElQPDirectCtrlDefault_d.restype = c_uint
+class QPDirectCtrl_s(ctypes.Structure):
+  _fields_ = [("approach",c_uint),
+              ("ipfCtrl",QPDirectIPFCtrl_s),
+              ("mehrotraCtrl",QPDirectMehrotraCtrl_s)]
+  def __init__(self):
+    lib.ElQPDirectCtrlDefault_s(pointer(self))
+class QPDirectCtrl_d(ctypes.Structure):
+  _fields_ = [("approach",c_uint),
+              ("ipfCtrl",QPDirectIPFCtrl_d),
+              ("mehrotraCtrl",QPDirectMehrotraCtrl_d)]
+  def __init__(self):
+    lib.ElQPDirectCtrlDefault_d(pointer(self))
+
 lib.ElQPDirect_s.argtypes = \
 lib.ElQPDirect_d.argtypes = \
 lib.ElQPDirectDist_s.argtypes = \
-lib.ElQPDirectDist_d.argtypes = \
 lib.ElQPDirectDist_d.argtypes = \
 lib.ElQPDirectSparse_s.argtypes = \
 lib.ElQPDirectSparse_d.argtypes = \
 lib.ElQPDirectDistSparse_s.argtypes = \
 lib.ElQPDirectDistSparse_d.argtypes = \
   [c_void_p,c_void_p,
+   c_void_p,c_void_p,
    c_void_p,c_void_p,c_void_p]
 lib.ElQPDirect_s.restype = \
 lib.ElQPDirect_d.restype = \
@@ -607,162 +680,234 @@ lib.ElQPDirectDistSparse_s.restype = \
 lib.ElQPDirectDistSparse_d.restype = \
   c_uint
 
-def QPDirect(Q,A,b,c,x):
-  if type(A) is not type(Q):
-    raise Exception("Expected A and Q to have the same type")
-  if type(b) is not type(c) or type(b) is not type(x):
-    raise Exception("{b,c,x} must have the same type")
-  args = [Q.obj,A.obj,b.obj,c.obj,x.obj]
+lib.ElQPDirectX_s.argtypes = \
+lib.ElQPDirectXSparse_s.argtypes = \
+lib.ElQPDirectXDist_s.argtypes = \
+lib.ElQPDirectXDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,
+   c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,
+   QPDirectCtrl_s]
+lib.ElQPDirectX_d.argtypes = \
+lib.ElQPDirectXSparse_d.argtypes = \
+lib.ElQPDirectXDist_d.argtypes = \
+lib.ElQPDirectXDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,
+   c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,
+   QPDirectCtrl_d]
+lib.ElQPDirectX_s.restype = \
+lib.ElQPDirectX_d.restype = \
+lib.ElQPDirectXSparse_s.restype = \
+lib.ElQPDirectXSparse_d.restype = \
+lib.ElQPDirectXDist_s.restype = \
+lib.ElQPDirectXDist_d.restype = \
+lib.ElQPDirectXDistSparse_s.restype = \
+lib.ElQPDirectXDistSparse_d.restype = \
+  c_uint
+
+def QPDirect(Q,A,b,c,x,y,z,ctrl=None):
+  if type(Q) is not type(A):
+    raise Exception('A and Q must be of the same type')
+  if type(b) is not type(c) or type(b) is not type(x) or \
+     type(b) is not type(y) or type(b) is not type(z):
+    raise Exception('{b,c,x,y,z} must be of the same type')
+  args = [Q.obj,A.obj,b.obj,c.obj,x.obj,y.obj,z.obj]
+  argsCtrl = [Q.obj,A.obj,b.obj,c.obj,x.obj,y.obj,z.obj,ctrl]
   if type(A) is Matrix:
     if type(b) is not Matrix: raise Exception('b must be a Matrix')
-    if   A.tag == sTag: lib.ElQPDirect_s(*args)
-    elif A.tag == dTag: lib.ElQPDirect_d(*args)
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElQPDirect_s(*args)
+      else:            lib.ElQPDirectX_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElQPDirect_d(*args)
+      else:            lib.ElQPDirectX_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is DistMatrix:
     if type(b) is not DistMatrix: raise Exception('b must be a DistMatrix')
-    if   A.tag == sTag: lib.ElQPDirectDist_s(*args)
-    elif A.tag == dTag: lib.ElQPDirectDist_d(*args)
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElQPDirectDist_s(*args)
+      else:            lib.ElQPDirectXDist_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElQPDirectDist_d(*args)
+      else:            lib.ElQPDirectXDist_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is SparseMatrix:
     if type(b) is not Matrix: raise Exception('b must be a Matrix')
-    if   A.tag == sTag: lib.ElQPDirectSparse_s(*args)
-    elif A.tag == dTag: lib.ElQPDirectSparse_d(*args)
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElQPDirectSparse_s(*args)
+      else:            lib.ElQPDirectXSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElQPDirectSparse_d(*args)
+      else:            lib.ElQPDirectXSparse_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is DistSparseMatrix:
-    if type(b) is not Matrix: raise Exception('b must be a DistMultiVec')
-    if   A.tag == sTag: lib.ElQPDirectDistSparse_s(*args)
-    elif A.tag == dTag: lib.ElQPDirectDistSparse_d(*args)
+    if type(b) is not DistMultiVec: raise Exception('b must be a DistMultiVec')
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElQPDirectDistSparse_s(*args)
+      else:            lib.ElQPDirectXDistSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElQPDirectDistSparse_d(*args)
+      else:            lib.ElQPDirectXDistSparse_d(*argsCtrl)
     else: DataExcept()
   else: TypeExcept()
 
-# TODO: Obsolete the following routines through a similar control structure
-#       as currently exists for LPs
-# TODO: Initialize s, x, and l for the user?
-lib.ElQPDirectIPF_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQPDirectIPF_s.restype = c_uint
-lib.ElQPDirectIPF_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQPDirectIPF_d.restype = c_uint
-lib.ElQPDirectIPFDist_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQPDirectIPFDist_s.restype = c_uint
-lib.ElQPDirectIPFDist_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQPDirectIPFDist_d.restype = c_uint
-lib.ElQPDirectIPFSparse_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQPDirectIPFSparse_s.restype = c_uint
-lib.ElQPDirectIPFSparse_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQPDirectIPFSparse_d.restype = c_uint
-lib.ElQPDirectIPFDistSparse_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQPDirectIPFDistSparse_s.restype = c_uint
-lib.ElQPDirectIPFDistSparse_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQPDirectIPFDistSparse_d.restype = c_uint
-def QPDirectIPF(Q,A,b,c,x,y,z):
-  if type(A) is not type(Q):
-    raise Exception("Expected A and Q to have the same type")
-  args = [Q.obj,A.obj,b.obj,c.obj,x.obj,y.obj,z.obj]
+# Affine conic form
+# -----------------
+lib.ElQPAffineIPFCtrlDefault_s.argtypes = \
+lib.ElQPAffineIPFCtrlDefault_d.argtypes = [c_void_p]
+lib.ElQPAffineIPFCtrlDefault_s.restype = \
+lib.ElQPAffineIPFCtrlDefault_d.restype = c_uint
+class QPAffineIPFCtrl_s(ctypes.Structure):
+  _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
+              ("tol",sType),("maxIts",iType),("centering",sType),
+              ("lineSearchCtrl",QPIPFLineSearchCtrl_s),
+              ("progress",bType)]
+  def __init__(self):
+    lib.ElQPAffineIPFCtrlDefault_s(pointer(self))
+class QPAffineIPFCtrl_d(ctypes.Structure):
+  _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
+              ("tol",dType),("maxIts",iType),("centering",dType),
+              ("lineSearchCtrl",QPIPFLineSearchCtrl_d),
+              ("progress",bType)]
+  def __init__(self):
+    lib.ElQPAffineIPFCtrlDefault_d(pointer(self))
+
+lib.ElQPAffineMehrotraCtrlDefault_s.argtypes = \
+lib.ElQPAffineMehrotraCtrlDefault_d.argtypes = [c_void_p]
+lib.ElQPAffineMehrotraCtrlDefault_s.restype = \
+lib.ElQPAffineMehrotraCtrlDefault_d.restype = c_uint
+class QPAffineMehrotraCtrl_s(ctypes.Structure):
+  _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
+              ("tol",sType),("maxIts",iType),("maxStepRatio",sType),
+              ("progress",bType)]
+  def __init__(self):
+    lib.ElQPAffineMehrotraCtrlDefault_s(pointer(self))
+class QPAffineMehrotraCtrl_d(ctypes.Structure):
+  _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
+              ("tol",dType),("maxIts",iType),("maxStepRatio",dType),
+              ("progress",bType)]
+  def __init__(self):
+    lib.ElQPAffineMehrotraCtrlDefault_d(pointer(self))
+
+lib.ElQPAffineCtrlDefault_s.argtypes = \
+lib.ElQPAffineCtrlDefault_d.argtypes = [c_void_p]
+lib.ElQPAffineCtrlDefault_s.restype = \
+lib.ElQPAffineCtrlDefault_d.restype = c_uint
+class QPAffineCtrl_s(ctypes.Structure):
+  _fields_ = [("approach",c_uint),
+              ("ipfCtrl",QPAffineIPFCtrl_s),
+              ("mehrotraCtrl",QPAffineMehrotraCtrl_s)]
+  def __init__(self):
+    lib.ElQPAffineCtrlDefault_s(pointer(self))
+class QPAffineCtrl_d(ctypes.Structure):
+  _fields_ = [("approach",c_uint),
+              ("ipfCtrl",QPAffineIPFCtrl_d),
+              ("mehrotraCtrl",QPAffineMehrotraCtrl_d)]
+  def __init__(self):
+    lib.ElQPAffineCtrlDefault_d(pointer(self))
+
+lib.ElQPAffine_s.argtypes = \
+lib.ElQPAffine_d.argtypes = \
+lib.ElQPAffineDist_s.argtypes = \
+lib.ElQPAffineDist_d.argtypes = \
+lib.ElQPAffineSparse_s.argtypes = \
+lib.ElQPAffineSparse_d.argtypes = \
+lib.ElQPAffineDistSparse_s.argtypes = \
+lib.ElQPAffineDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElQPAffine_s.restype = \
+lib.ElQPAffine_d.restype = \
+lib.ElQPAffineDist_s.restype = \
+lib.ElQPAffineDist_d.restype = \
+lib.ElQPAffineSparse_s.restype = \
+lib.ElQPAffineSparse_d.restype = \
+lib.ElQPAffineDistSparse_s.restype = \
+lib.ElQPAffineDistSparse_d.restype = \
+  c_uint
+
+lib.ElQPAffineX_s.argtypes = \
+lib.ElQPAffineXDist_s.argtypes = \
+lib.ElQPAffineXSparse_s.argtypes = \
+lib.ElQPAffineXDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,c_void_p,
+   QPAffineCtrl_s]
+lib.ElQPAffineX_d.argtypes = \
+lib.ElQPAffineXDist_d.argtypes = \
+lib.ElQPAffineXSparse_d.argtypes = \
+lib.ElQPAffineXDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,c_void_p,
+   QPAffineCtrl_d]
+lib.ElQPAffineX_s.restype = \
+lib.ElQPAffineX_d.restype = \
+lib.ElQPAffineXDist_s.restype = \
+lib.ElQPAffineXDist_d.restype = \
+lib.ElQPAffineXSparse_s.restype = \
+lib.ElQPAffineXSparse_d.restype = \
+lib.ElQPAffineXDistSparse_s.restype = \
+lib.ElQPAffineXDistSparse_d.restype = \
+  c_uint
+
+def QPAffine(Q,A,G,b,c,h,x,y,z,s,ctrl=None):
+  if type(Q) is not type(A) or type(A) is not type(G):
+    raise Exception('{Q,A,G} must be of the same type')
+  if type(b) is not type(c) or type(b) is not type(c) or \
+     type(b) is not type(h) or type(b) is not type(x) or \
+     type(b) is not type(y) or type(b) is not type(z) or \
+     type(b) is not type(s):
+    raise Exception('{b,c,h,x,y,z,s} must be of the same type')
+  args = [Q.obj,A.obj,G.obj,b.obj,c.obj,h.obj,x.obj,y.obj,z.obj,s.obj]
+  argsCtrl = [Q.obj,A.obj,G.obj,b.obj,c.obj,h.obj,x.obj,y.obj,z.obj,s.obj,ctrl]
   if type(A) is Matrix:
-    if type(b) is not Matrix or type(c) is not Matrix or \
-       type(x) is not Matrix or type(y) is not Matrix or \
-       type(z) is not Matrix:
-      raise Exception('Expected {b,c,x,y,z} to be of type Matrix')
-    if   A.tag == sTag: lib.ElQPDirectIPF_s(*args)
-    elif A.tag == dTag: lib.ElQPDirectIPF_d(*args)
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElQPAffine_s(*args)
+      else:            lib.ElQPAffineX_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElQPAffine_d(*args)
+      else:            lib.ElQPAffineX_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is DistMatrix:
-    if type(b) is not DistMatrix or type(c) is not DistMatrix or \
-       type(x) is not DistMatrix or type(y) is not DistMatrix or \
-       type(z) is not DistMatrix:
-      raise Exception('Expected {b,c,x,y,z} to be of type Matrix')
-    if   A.tag == sTag: lib.ElQPDirectIPFDist_s(*args)
-    elif A.tag == dTag: lib.ElQPDirectIPFDist_d(*args)
+    if type(b) is not DistMatrix:
+      raise Exception('b must be a DistMatrix')
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElQPAffineDist_s(*args)
+      else:            lib.ElQPAffineXDist_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElQPAffineDist_d(*args)
+      else:            lib.ElQPAffineXDist_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is SparseMatrix:
-    if type(b) is not Matrix or type(c) is not Matrix or \
-       type(x) is not Matrix or type(y) is not Matrix or \
-       type(z) is not Matrix:
-      raise Exception('Expected {b,c,x,y,z} to be of type Matrix')
-    if   A.tag == sTag: lib.ElQPDirectIPFSparse_s(*args)
-    elif A.tag == dTag: lib.ElQPDirectIPFSparse_d(*args)
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElQPAffineSparse_s(*args)
+      else:            lib.ElQPAffineXSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElQPAffineSparse_d(*args)
+      else:            lib.ElQPAffineXSparse_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is DistSparseMatrix:
-    if type(b) is not DistMultiVec or type(c) is not DistMultiVec or \
-       type(x) is not DistMultiVec or type(y) is not DistMultiVec or \
-       type(z) is not DistMultiVec:
-      raise Exception('Expected {b,c,x,y,z} to be of type DistMultiVec')
-    if   A.tag == sTag: lib.ElQPDirectIPFDistSparse_s(*args)
-    elif A.tag == dTag: lib.ElQPDirectIPFDistSparse_d(*args)
+    if type(b) is not DistMultiVec:
+      raise Exception('b must be a DistMultiVec')
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElQPAffineDistSparse_s(*args)
+      else:            lib.ElQPAffineXDistSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElQPAffineDistSparse_d(*args)
+      else:            lib.ElQPAffineXDistSparse_d(*argsCtrl)
     else: DataExcept()
   else: TypeExcept()
 
-# TODO: Initialize s, x, and l for the user?
-lib.ElQPDirectMehrotra_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQPDirectMehrotra_s.restype = c_uint
-lib.ElQPDirectMehrotra_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQPDirectMehrotra_d.restype = c_uint
-lib.ElQPDirectMehrotraDist_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQPDirectMehrotraDist_s.restype = c_uint
-lib.ElQPDirectMehrotraDist_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQPDirectMehrotraDist_d.restype = c_uint
-lib.ElQPDirectMehrotraSparse_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQPDirectMehrotraSparse_s.restype = c_uint
-lib.ElQPDirectMehrotraSparse_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQPDirectMehrotraSparse_d.restype = c_uint
-lib.ElQPDirectMehrotraDistSparse_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQPDirectMehrotraDistSparse_s.restype = c_uint
-lib.ElQPDirectMehrotraDistSparse_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQPDirectMehrotraDistSparse_d.restype = c_uint
-def QPDirectMehrotra(Q,A,b,c,x,y,z):
-  if type(A) is not type(Q):
-    raise Exception("Expected A and Q to have the same type")
-  args = [Q.obj,A.obj,b.obj,c.obj,x.obj,y.obj,z.obj]
-  if type(A) is Matrix:
-    if type(b) is not Matrix or type(c) is not Matrix or \
-       type(x) is not Matrix or type(y) is not Matrix or \
-       type(z) is not Matrix:
-      raise Exception('Expected {b,c,x,y,z} to be of type Matrix')
-    if   A.tag == sTag: lib.ElQPDirectMehrotra_s(*args)
-    elif A.tag == dTag: lib.ElQPDirectMehrotra_d(*args)
-    else: DataExcept()
-  elif type(A) is DistMatrix:
-    if type(b) is not DistMatrix or type(c) is not DistMatrix or \
-       type(x) is not DistMatrix or type(y) is not DistMatrix or \
-       type(z) is not DistMatrix:
-      raise Exception('Expected {b,c,x,y,z} to be of type Matrix')
-    if   A.tag == sTag: lib.ElQPDirectMehrotraDist_s(*args)
-    elif A.tag == dTag: lib.ElQPDirectMehrotraDist_d(*args)
-    else: DataExcept()
-  elif type(A) is SparseMatrix:
-    if type(b) is not Matrix or type(c) is not Matrix or \
-       type(x) is not Matrix or type(y) is not Matrix or \
-       type(z) is not Matrix:
-      raise Exception('Expected {b,c,x,y,z} to be of type Matrix')
-    if   A.tag == sTag: lib.ElQPDirectMehrotraSparse_s(*args)
-    elif A.tag == dTag: lib.ElQPDirectMehrotraSparse_d(*args)
-    else: DataExcept()
-  elif type(A) is DistSparseMatrix:
-    if type(b) is not DistMultiVec or type(c) is not DistMultiVec or \
-       type(x) is not DistMultiVec or type(y) is not DistMultiVec or \
-       type(z) is not DistMultiVec:
-      raise Exception('Expected {b,c,x,y,z} to be of type DistMultiVec')
-    if   A.tag == sTag: lib.ElQPDirectMehrotraDistSparse_s(*args)
-    elif A.tag == dTag: lib.ElQPDirectMehrotraDistSparse_d(*args)
-    else: DataExcept()
-  else: TypeExcept()
-
+# Box form
+# --------
 lib.ElQPBoxADMM_s.argtypes = \
 lib.ElQPBoxADMMDist_s.argtypes = \
   [c_void_p,c_void_p,sType,sType,c_void_p,POINTER(iType)]

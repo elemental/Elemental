@@ -7,44 +7,85 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "../../../affine/IPM/util.hpp"
 
 namespace El {
 namespace qp {
 namespace direct {
 
-//     | X  Z 0   |
-// J = | I -Q A^T |, with the variable ordering (z,x,y)
-//     | 0  A 0   |
+// The full KKT system is of the form
+//
+//   |  Q A^T     -I    | | x |   |          -c            |
+//   |  A 0        0    | | y |   |           b            |,
+//   | -I 0   (-z <> x) | | z | = | - z <> (x o z + tau e) |
+//
+// and the particular system solved is of the form
+//
+//   |  Q A^T     -I    | | dx |   |   -rc    |
+//   |  A 0        0    | | dy |   |   -rb    |,
+//   | -I 0   (-z <> x) | | dz | = | z <> rmu |
+//
+// where 
+//
+//   rc = Q x + A^T y - z + c,
+//   rb = A x - b,
+//   rmu = x o z - tau e
 
 template<typename Real>
 void KKT
 ( const Matrix<Real>& Q, const Matrix<Real>& A, 
   const Matrix<Real>& x, const Matrix<Real>& z,
-        Matrix<Real>& J )
+        Matrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::direct::KKT"))
     const Int m = A.Height();
     const Int n = A.Width();
 
     Zeros( J, 2*n+m, 2*n+m );
-    const IR zInd(0,n), xInd(n,2*n), yInd(2*n,2*n+m);
-    auto Jzz = J(zInd,zInd); auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd);
-    auto Jxz = J(xInd,zInd); auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd);
-    auto Jyz = J(yInd,zInd); auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd);
-    Diagonal( Jzz, x );
-    Diagonal( Jzx, z );
-    Identity( Jxz, n, n );
+    const IR xInd(0,n), yInd(n,n+m), zInd(n+m,2*n+m);
+    auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd); auto Jxz = J(xInd,zInd); 
+    auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd); 
+    auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd); 
+
+    // Jxx := Q
+    // ========
     Jxx = Q;
-    Scale( Real(-1), Jxx );
-    Transpose( A, Jxy ); 
+
+    // Jyx := A
+    // ========
     Jyx = A;
+
+    // Jzx := -I
+    // =========
+    Identity( Jzx, n, n );
+    Scale( Real(-1), Jzx );
+
+    // Jzz := - z <> x
+    // ===============
+    Matrix<Real> t;
+    t = x;
+    DiagonalSolve( LEFT, NORMAL, z, t );
+    Scale( Real(-1), t );
+    Diagonal( Jzz, t );
+
+    if( !onlyLower )
+    {
+        // Jxy := A^T
+        // ==========
+        Transpose( A, Jxy ); 
+
+        // Jxz := -I
+        // =========
+        Identity( Jxz, n, n );
+        Scale( Real(-1), Jxz );
+    }
 }
 
 template<typename Real>
 void KKT
 ( const AbstractDistMatrix<Real>& Q,    const AbstractDistMatrix<Real>& A, 
   const AbstractDistMatrix<Real>& xPre, const AbstractDistMatrix<Real>& zPre,
-  AbstractDistMatrix<Real>& JPre )
+        AbstractDistMatrix<Real>& JPre, bool onlyLower )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::direct::KKT"))
     const Int m = A.Height();
@@ -52,134 +93,489 @@ void KKT
 
     auto xPtr = ReadProxy<Real,STAR,STAR>(&xPre); auto& x = *xPtr;
     auto zPtr = ReadProxy<Real,STAR,STAR>(&zPre); auto& z = *zPtr;
-    auto JPtr = WriteProxy<Real,MC,MR>(&JPre); auto& J = *JPtr;
+    auto JPtr = WriteProxy<Real,MC,MR>(&JPre);    auto& J = *JPtr;
 
     Zeros( J, 2*n+m, 2*n+m );
-    IR zInd(0,n), xInd(n,2*n), yInd(2*n,2*n+m);
-    auto Jzz = J(zInd,zInd); auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd);
-    auto Jxz = J(xInd,zInd); auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd);
-    auto Jyz = J(yInd,zInd); auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd);
-    Diagonal( Jzz, x.LockedMatrix() );
-    Diagonal( Jzx, z.LockedMatrix() );
-    Identity( Jxz, n, n );
+    const IR xInd(0,n), yInd(n,n+m), zInd(n+m,2*n+m);
+    auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd); auto Jxz = J(xInd,zInd);
+    auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd);
+    auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd);
+
+    // Jxx := Q
+    // ========
     Jxx = Q;
-    Scale( Real(-1), Jxx );
-    Transpose( A, Jxy );
+
+    // Jyx := A
+    // ========
     Jyx = A;
+
+    // Jzx := -I
+    // =========
+    Identity( Jzx, n, n );
+    Scale( Real(-1), Jzx );
+
+    // Jzz := - z <> x
+    // ===============
+    DistMatrix<Real,MC,STAR> t(x.Grid());
+    t = x;
+    DiagonalSolve( LEFT, NORMAL, z, t );
+    Scale( Real(-1), t );
+    Diagonal( Jzz, t );
+
+    if( !onlyLower )
+    {
+        // Jxy := A^T
+        // ==========
+        Transpose( A, Jxy );
+
+        // Jxz := -I
+        // =========
+        Identity( Jxz, n, n );
+        Scale( Real(-1), Jxz );
+    }
+}
+
+template<typename Real>
+void KKT
+( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A, 
+  const Matrix<Real>& x,       const Matrix<Real>& z,
+        SparseMatrix<Real>& J, bool onlyLower )
+{
+    DEBUG_ONLY(CallStackEntry cse("qp::direct::KKT"))
+    const Int m = A.Height();
+    const Int n = A.Width();
+
+    Zeros( J, 2*n+m, 2*n+m );
+    const Int numEntriesQ = Q.NumEntries();
+    const Int numEntriesA = A.NumEntries();
+    // Count the number of used entries of Q
+    Int numUsedEntriesQ;
+    if( onlyLower )
+    {
+        numUsedEntriesQ = 0;
+        for( Int e=0; e<numEntriesQ; ++e )
+            if( Q.Row(e) >= Q.Col(e) )
+                ++numUsedEntriesQ;
+    }
+    else
+        numUsedEntriesQ = numEntriesQ;
+
+    if( onlyLower )
+        J.Reserve( numUsedEntriesQ + numEntriesA + 2*n );
+    else
+        J.Reserve( numUsedEntriesQ + 2*numEntriesA + 3*n );
+
+    // Jxx = Q
+    // =======
+    for( Int e=0; e<numEntriesQ; ++e )
+    {
+        const Int i = Q.Row(e);
+        const Int j = Q.Col(e);
+        if( i >= j || !onlyLower )
+            J.Update( Q.Row(e), Q.Col(e), Q.Value(e) );
+    }
+
+    // Jyx = A
+    // =======
+    for( Int e=0; e<numEntriesA; ++e )
+        J.Update( n+A.Row(e), A.Col(e), A.Value(e) );
+
+    // Jzx = -I
+    // ========
+    for( Int e=0; e<n; ++e )
+        J.Update( n+m+e, e, Real(-1) );
+
+    // Jzz = - z <> x
+    // ==============
+    for( Int e=0; e<n; ++e )
+        J.Update( n+m+e, n+m+e, -x.Get(e,0)/z.Get(e,0) );
+
+    if( !onlyLower )
+    {
+        // Jxy := A^T
+        // ==========
+        for( Int e=0; e<numEntriesA; ++e )
+            J.Update( A.Col(e), n+A.Row(e), A.Value(e) );
+
+        // Jxz := -I
+        // =========
+        for( Int e=0; e<n; ++e )
+            J.Update( e, n+m+e, Real(-1) );
+    }
+    J.MakeConsistent();
+}
+
+template<typename Real>
+void KKT
+( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z,
+        DistSparseMatrix<Real>& J, bool onlyLower )
+{
+    DEBUG_ONLY(CallStackEntry cse("qp::direct::KKT"))
+    const Int m = A.Height();
+    const Int n = A.Width();
+
+    mpi::Comm comm = A.Comm();
+    const Int commSize = mpi::Size( comm );
+
+    J.SetComm( comm );
+    Zeros( J, m+2*n, m+2*n );
+
+    // Compute the number of entries to send to each process
+    // =====================================================
+    std::vector<int> sendCounts(commSize,0);
+    // Jxx := Q
+    // --------
+    for( Int e=0; e<Q.NumLocalEntries(); ++e )
+    {
+        const Int i = Q.Row(e);
+        const Int j = Q.Col(e);
+        if( i >= j || !onlyLower )
+            ++sendCounts[ J.RowOwner(Q.Row(e)) ];
+    }
+    // Jyx := A
+    // --------
+    for( Int e=0; e<A.NumLocalEntries(); ++e )
+        ++sendCounts[ J.RowOwner(A.Row(e)+n) ];
+    // Jxy := A^T
+    // ----------
+    DistSparseMatrix<Real> ATrans(comm);
+    if( !onlyLower )
+    {
+        Transpose( A, ATrans );
+        for( Int e=0; e<ATrans.NumLocalEntries(); ++e )
+            ++sendCounts[ J.RowOwner(ATrans.Row(e)) ];
+    }
+    // Jzz := -z <> x
+    // --------------
+    for( Int e=0; e<x.LocalHeight(); ++e )
+        ++sendCounts[ J.RowOwner( m+n+e+x.FirstLocalRow() ) ];
+    // Communicate to determine the number we receive from each process
+    // ----------------------------------------------------------------
+    std::vector<int> recvCounts(commSize);
+    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
+    std::vector<int> sendOffsets, recvOffsets;
+    int totalSend = Scan( sendCounts, sendOffsets );
+    int totalRecv = Scan( recvCounts, recvOffsets );
+
+    // Pack the triplets
+    // =================
+    std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
+    std::vector<Real> vSendBuf(totalSend);
+    auto offsets = sendOffsets;
+    // Pack Q
+    // ------
+    for( Int e=0; e<Q.NumLocalEntries(); ++e )
+    {
+        const Int i = Q.Row(e);
+        const Int j = Q.Col(e);
+        if( i >= j || !onlyLower ) 
+        {
+            const Real value = Q.Value(e);
+            const Int owner = J.RowOwner(i);
+            sSendBuf[offsets[owner]] = i; 
+            tSendBuf[offsets[owner]] = j;
+            vSendBuf[offsets[owner]] = value;
+            ++offsets[owner];
+        }
+    }
+    // Pack A
+    // ------
+    for( Int e=0; e<A.NumLocalEntries(); ++e )
+    {
+        const Int i = A.Row(e) + n;
+        const Int j = A.Col(e);
+        const Real value = A.Value(e);
+        const Int owner = J.RowOwner(i);
+        sSendBuf[offsets[owner]] = i;
+        tSendBuf[offsets[owner]] = j;
+        vSendBuf[offsets[owner]] = value;
+        ++offsets[owner];
+    }
+    // Pack A^T
+    // --------
+    if( !onlyLower )
+    {
+        for( Int e=0; e<ATrans.NumLocalEntries(); ++e )
+        {
+            const Int i = ATrans.Row(e);
+            const Int j = ATrans.Col(e) + n;
+            const Real value = ATrans.Value(e);
+            const Int owner = J.RowOwner(i);
+            sSendBuf[offsets[owner]] = i;
+            tSendBuf[offsets[owner]] = j;
+            vSendBuf[offsets[owner]] = value;
+            ++offsets[owner];
+        }
+    }
+    // Pack -z <> x
+    // ------------
+    for( Int e=0; e<x.LocalHeight(); ++e )
+    {
+        const Int i = m + n + e + x.FirstLocalRow();
+        const Int j = i;
+        const Real value = -x.GetLocal(e,0)/z.GetLocal(e,0);
+        const Int owner = J.RowOwner(i);
+        sSendBuf[offsets[owner]] = i;
+        tSendBuf[offsets[owner]] = j;
+        vSendBuf[offsets[owner]] = value;
+        ++offsets[owner];
+    }
+
+    // Exchange the triplets
+    // =====================
+    std::vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
+    std::vector<Real> vRecvBuf(totalRecv);
+    mpi::AllToAll
+    ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    mpi::AllToAll
+    ( tSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      tRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    mpi::AllToAll
+    ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+
+    // Unpack the triplets
+    // ===================
+    // Count the total number of entries for the negative identities
+    // -------------------------------------------------------------
+    Int negIdentUpdates = 0;
+    for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
+    {
+        const Int i = iLoc + J.FirstLocalRow();
+        if( i < n && !onlyLower )
+            ++negIdentUpdates;
+        else if( i >= n+m )
+            ++negIdentUpdates;
+    }
+    // Reserve the total number of local updates
+    // -----------------------------------------
+    J.Reserve( totalRecv+negIdentUpdates );
+    // Append the local negative identity updates
+    // ------------------------------------------
+    for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
+    {
+        const Int i = iLoc + J.FirstLocalRow();
+        if( i < n && !onlyLower )
+            J.QueueLocalUpdate( iLoc, i+(n+m), Real(-1) );
+        else if( i >= n+m )
+            J.QueueLocalUpdate( iLoc, i-(n+m), Real(-1) );
+    }
+    // Append the received local updates
+    // ---------------------------------
+    for( Int e=0; e<totalRecv; ++e )
+        J.QueueLocalUpdate
+        ( sRecvBuf[e]-J.FirstLocalRow(), tRecvBuf[e], vRecvBuf[e] );
+    J.MakeConsistent();
 }
 
 template<typename Real>
 void KKTRHS
-( const Matrix<Real>& rmu, const Matrix<Real>& rc, const Matrix<Real>& rb,
-  Matrix<Real>& rhs )
+( const Matrix<Real>& rc,  const Matrix<Real>& rb, 
+  const Matrix<Real>& rmu, const Matrix<Real>& z, 
+        Matrix<Real>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::direct::KKTRHS"))
     const Int m = rb.Height();
     const Int n = rc.Height();
-    const IR zInd(0,n), xInd(n,2*n), yInd(2*n,2*n+m);
-    Zeros( rhs, 2*n+m, 1 );
+    const IR xInd(0,n), yInd(n,n+m), zInd(n+m,2*n+m);
+    Zeros( d, 2*n+m, 1 );
 
-    auto rhs_z = rhs(zInd,IR(0,1));
-    rhs_z = rmu;
-    Scale( Real(-1), rhs_z );
+    auto dx = d(xInd,IR(0,1));
+    dx = rc;
+    Scale( Real(-1), dx );
 
-    auto rhs_x = rhs(xInd,IR(0,1));
-    rhs_x = rc;
-    Scale( Real(-1), rhs_x );
+    auto dy = d(yInd,IR(0,1));
+    dy = rb;
+    Scale( Real(-1), dy );
 
-    auto rhs_y = rhs(yInd,IR(0,1));
-    rhs_y = rb;
-    Scale( Real(-1), rhs_y );
+    auto dz = d(zInd,IR(0,1));
+    dz = rmu;
+    DiagonalSolve( LEFT, NORMAL, z, dz );
 }
 
 template<typename Real>
 void KKTRHS
-( const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& rc, 
-  const AbstractDistMatrix<Real>& rb, AbstractDistMatrix<Real>& rhsPre )
+( const AbstractDistMatrix<Real>& rc,  const AbstractDistMatrix<Real>& rb, 
+  const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& z, 
+        AbstractDistMatrix<Real>& dPre )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::direct::KKTRHS"))
 
-    auto rhsPtr = WriteProxy<Real,MC,MR>(&rhsPre); 
-    auto& rhs = *rhsPtr;
+    auto dPtr = WriteProxy<Real,MC,MR>(&dPre); 
+    auto& d = *dPtr;
 
     const Int m = rb.Height();
     const Int n = rc.Height();
-    const IR zInd(0,n), xInd(n,2*n), yInd(2*n,2*n+m);
-    Zeros( rhs, 2*n+m, 1 );
+    const IR xInd(0,n), yInd(n,n+m), zInd(n+m,2*n+m);
+    Zeros( d, 2*n+m, 1 );
 
-    auto rhs_z = rhs(zInd,IR(0,1));
-    Copy( rmu, rhs_z );
-    Scale( Real(-1), rhs_z );
+    auto dx = d(xInd,IR(0,1));
+    Copy( rc, dx );
+    Scale( Real(-1), dx );
 
-    auto rhs_x = rhs(xInd,IR(0,1));
-    Copy( rc, rhs_x );
-    Scale( Real(-1), rhs_x );
+    auto dy = d(yInd,IR(0,1));
+    Copy( rb, dy );
+    Scale( Real(-1), dy );
 
-    auto rhs_y = rhs(yInd,IR(0,1));
-    Copy( rb, rhs_y );
-    Scale( Real(-1), rhs_y );
+    auto dz = d(zInd,IR(0,1));
+    Copy( rmu, dz );
+    DiagonalSolve( LEFT, NORMAL, z, dz );
 }
 
 template<typename Real>
-void ExpandKKTSolution
-( Int m, Int n, const Matrix<Real>& rhs, 
-  Matrix<Real>& dx, Matrix<Real>& dy, Matrix<Real>& dz )
+void KKTRHS
+( const DistMultiVec<Real>& rc,  const DistMultiVec<Real>& rb, 
+  const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& z, 
+        DistMultiVec<Real>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::ExpandKKTSolution"))
-    if( rhs.Height() != 2*n+m || rhs.Width() != 1 )
-        LogicError("Right-hand side was the wrong size");
+    DEBUG_ONLY(CallStackEntry cse("qp::direct::KKTRHS"))
+    const Int m = rb.Height();
+    const Int n = rc.Height();
+    Zeros( d, m+2*n, 1 );
+    mpi::Comm comm = rmu.Comm();
+    const Int commSize = mpi::Size( comm ); 
 
-    const IR zInd(0,n), xInd(n,2*n), yInd(2*n,2*n+m);    
-    dz = rhs(zInd,IR(0,1));
-    dx = rhs(xInd,IR(0,1));
-    dy = rhs(yInd,IR(0,1));
+    // Compute the number of entries to send/recv from each process
+    // ============================================================
+    std::vector<int> sendCounts(commSize,0);
+    for( Int e=0; e<rc.LocalHeight(); ++e )
+        ++sendCounts[ d.RowOwner( e+rc.FirstLocalRow() ) ];
+    for( Int e=0; e<rb.LocalHeight(); ++e )
+        ++sendCounts[ d.RowOwner( n+e+rb.FirstLocalRow() ) ];
+    for( Int e=0; e<rmu.LocalHeight(); ++e )
+        ++sendCounts[ d.RowOwner( n+m+e+rmu.FirstLocalRow() ) ];
+    std::vector<int> recvCounts(commSize);
+    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
+    std::vector<int> sendOffsets, recvOffsets;
+    const int totalSend = Scan( sendCounts, sendOffsets );
+    const int totalRecv = Scan( recvCounts, recvOffsets );
+
+    // Pack the doublets
+    // =================
+    std::vector<int> sSendBuf(totalSend);
+    std::vector<Real> vSendBuf(totalSend);
+    auto offsets = sendOffsets;
+    for( Int e=0; e<rc.LocalHeight(); ++e )
+    {
+        const Int i = e + rc.FirstLocalRow();
+        const Real value = -rc.GetLocal(e,0);
+        const Int owner = d.RowOwner(i);
+        sSendBuf[offsets[owner]] = i;
+        vSendBuf[offsets[owner]] = value;
+        ++offsets[owner];
+    }
+    for( Int e=0; e<rb.LocalHeight(); ++e )
+    {
+        const Int i = n + e + rb.FirstLocalRow();
+        const Real value = -rb.GetLocal(e,0);
+        const Int owner = d.RowOwner(i);
+        sSendBuf[offsets[owner]] = i;
+        vSendBuf[offsets[owner]] = value;
+        ++offsets[owner];
+    }
+    for( Int e=0; e<rmu.LocalHeight(); ++e )
+    {
+        const Int i = n + m + e + rmu.FirstLocalRow();
+        const Real value = rmu.GetLocal(e,0)/z.GetLocal(e,0);
+        const Int owner = d.RowOwner(i);
+        sSendBuf[offsets[owner]] = i;
+        vSendBuf[offsets[owner]] = value;
+        ++offsets[owner];
+    }
+
+    // Exchange and unpack the doublets
+    // ================================
+    std::vector<int> sRecvBuf(totalRecv);
+    std::vector<Real> vRecvBuf(totalRecv);
+    mpi::AllToAll
+    ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    mpi::AllToAll
+    ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    for( Int e=0; e<totalRecv; ++e )
+        d.UpdateLocal( sRecvBuf[e]-d.FirstLocalRow(), 0, vRecvBuf[e] );
 }
 
 template<typename Real>
-void ExpandKKTSolution
-( Int m, Int n, const AbstractDistMatrix<Real>& rhsPre, 
-  AbstractDistMatrix<Real>& dx, AbstractDistMatrix<Real>& dy, 
-  AbstractDistMatrix<Real>& dz )
+void ExpandSolution
+( Int m, Int n, 
+  const Matrix<Real>& d, 
+        Matrix<Real>& dx, Matrix<Real>& dy, 
+        Matrix<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::ExpandKKTSolution"))
-    
-    auto rhsPtr = ReadProxy<Real,MC,MR>(&rhsPre);    
-    auto& rhs = *rhsPtr;
+    DEBUG_ONLY(CallStackEntry cse("qp::direct::ExpandSolution"))
+    qp::affine::ExpandCoreSolution( m, n, n, d, dx, dy, dz );
+}
 
-    if( rhs.Height() != 2*n+m || rhs.Width() != 1 )
-        LogicError("Right-hand side was the wrong size");
+template<typename Real>
+void ExpandSolution
+( Int m, Int n, 
+  const AbstractDistMatrix<Real>& d, 
+        AbstractDistMatrix<Real>& dx, AbstractDistMatrix<Real>& dy, 
+        AbstractDistMatrix<Real>& dz )
+{
+    DEBUG_ONLY(CallStackEntry cse("qp::direct::ExpandSolution"))
+    qp::affine::ExpandCoreSolution( m, n, n, d, dx, dy, dz );
+}
 
-    const IR zInd(0,n), xInd(n,2*n), yInd(2*n,2*n+m);    
-    Copy( rhs(zInd,IR(0,1)), dz );
-    Copy( rhs(xInd,IR(0,1)), dx );
-    Copy( rhs(yInd,IR(0,1)), dy );
+template<typename Real>
+void ExpandSolution
+( Int m, Int n, 
+  const DistMultiVec<Real>& d, 
+        DistMultiVec<Real>& dx, DistMultiVec<Real>& dy, 
+        DistMultiVec<Real>& dz )
+{
+    DEBUG_ONLY(CallStackEntry cse("qp::direct::ExpandSolution"))
+    qp::affine::ExpandCoreSolution( m, n, n, d, dx, dy, dz );
 }
 
 #define PROTO(Real) \
   template void KKT \
   ( const Matrix<Real>& Q, const Matrix<Real>& A, \
     const Matrix<Real>& x, const Matrix<Real>& z, \
-          Matrix<Real>& J ); \
+          Matrix<Real>& J, bool onlyLower ); \
   template void KKT \
   ( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& J ); \
+          AbstractDistMatrix<Real>& J, bool onlyLower ); \
+  template void KKT \
+  ( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A, \
+    const Matrix<Real>& x,       const Matrix<Real>& z, \
+          SparseMatrix<Real>& J, bool onlyLower ); \
+  template void KKT \
+  ( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A, \
+    const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z, \
+          DistSparseMatrix<Real>& J, bool onlyLower ); \
   template void KKTRHS \
-  ( const Matrix<Real>& rmu, const Matrix<Real>& rc, \
-    const Matrix<Real>& rb,        Matrix<Real>& d ); \
+  ( const Matrix<Real>& rc,  const Matrix<Real>& rb, \
+    const Matrix<Real>& rmu, const Matrix<Real>& z, \
+          Matrix<Real>& d ); \
   template void KKTRHS \
-  ( const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& rc, \
-    const AbstractDistMatrix<Real>& rb,        AbstractDistMatrix<Real>& d ); \
-  template void ExpandKKTSolution \
+  ( const AbstractDistMatrix<Real>& rc,  const AbstractDistMatrix<Real>& rb, \
+    const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& z, \
+          AbstractDistMatrix<Real>& d ); \
+  template void KKTRHS \
+  ( const DistMultiVec<Real>& rc,  const DistMultiVec<Real>& rb, \
+    const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& z, \
+          DistMultiVec<Real>& d ); \
+  template void ExpandSolution \
   ( Int m, Int n, \
     const Matrix<Real>& d, \
           Matrix<Real>& dx, Matrix<Real>& dy, \
           Matrix<Real>& dz ); \
-  template void ExpandKKTSolution \
+  template void ExpandSolution \
   ( Int m, Int n, \
     const AbstractDistMatrix<Real>& d, \
           AbstractDistMatrix<Real>& dx, AbstractDistMatrix<Real>& dy, \
-          AbstractDistMatrix<Real>& dz );
+          AbstractDistMatrix<Real>& dz ); \
+  template void ExpandSolution \
+  ( Int m, Int n, \
+    const DistMultiVec<Real>& d, \
+          DistMultiVec<Real>& dx, DistMultiVec<Real>& dy, \
+          DistMultiVec<Real>& dz );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

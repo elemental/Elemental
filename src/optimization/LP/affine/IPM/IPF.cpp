@@ -541,7 +541,7 @@ void IPF
             const Int numLargeRefines = reg_ldl::SolveAfter
             ( J, reg, invMap, info, JFrontTree, d, 
               minReductionFactor, maxRefineIts, ctrl.print );
-            if( numLargeRefines > 1 )
+            if( numLargeRefines > 3 )
                 Scale( Real(10), regCand );
             ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
         }

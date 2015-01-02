@@ -9,14 +9,15 @@
 #include "El.hpp"
 
 namespace El {
-namespace lp {
+namespace qp {
 namespace affine {
 
 // TODO: Expose maximum number of trials as parameter of IPFLineSearchCtrl
 
 template<typename Real>
 Real IPFLineSearch
-( const Matrix<Real>& A,  const Matrix<Real>& G,
+( const Matrix<Real>& Q,
+  const Matrix<Real>& A,  const Matrix<Real>& G,
   const Matrix<Real>& b,  const Matrix<Real>& c,
   const Matrix<Real>& h,
   const Matrix<Real>& x,  const Matrix<Real>& y,  
@@ -25,9 +26,9 @@ Real IPFLineSearch
   const Matrix<Real>& dz, const Matrix<Real>& ds,
   Real upperBound,
   Real bTol, Real cTol, Real hTol,
-  const lp::IPFLineSearchCtrl<Real>& ctrl )
+  const qp::IPFLineSearchCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::affine::IPFLineSearch"))
+    DEBUG_ONLY(CallStackEntry cse("qp::affine::IPFLineSearch"))
     if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
         LogicError("gamma must be in (0,1)");
     if( ctrl.beta < Real(1) )
@@ -56,7 +57,7 @@ Real IPFLineSearch
     //    z(alpha) = z + alpha dz,
     //    s(alpha) = s + alpha ds,
     //    r_b(alpha) = A x(alpha) - b, and
-    //    r_c(alpha) = A^T y(alpha) + G^T z(alpha) + c,
+    //    r_c(alpha) = Q x(alpha) + A^T y(alpha) + G^T z(alpha) + c,
     //    r_h(alpha) = G x(alpha) + s(alpha) - h,
     // and the Armijo condition,
     //   mu(alpha) <= (1 - alpha/\psi) mu,
@@ -64,9 +65,11 @@ Real IPFLineSearch
     // ===============================================
     // Setup
     // -----
-    Matrix<Real> A_x, A_dx, AT_y, AT_dy, 
+    Matrix<Real> Q_x, Q_dx, A_x, A_dx, AT_y, AT_dy, 
                  G_x, G_dx, GT_z, GT_dz,
                  rb, rc, rh;
+    Zeros( Q_x,   n, 1 );
+    Zeros( Q_dx,  n, 1 );
     Zeros( A_x,   m, 1 );
     Zeros( A_dx,  m, 1 );
     Zeros( AT_y,  n, 1 );
@@ -75,6 +78,8 @@ Real IPFLineSearch
     Zeros( G_dx,  k, 1 );
     Zeros( GT_z,  n, 1 );
     Zeros( GT_dz, n, 1 );
+    Hemv( LOWER,     Real(1), Q, x,  Real(0), Q_x   );
+    Hemv( LOWER,     Real(1), Q, dx, Real(0), Q_dx  );
     Gemv( NORMAL,    Real(1), A, x,  Real(0), A_x   );
     Gemv( NORMAL,    Real(1), A, dx, Real(0), A_dx  );
     Gemv( TRANSPOSE, Real(1), A, y,  Real(0), AT_y  );
@@ -85,7 +90,8 @@ Real IPFLineSearch
     Gemv( TRANSPOSE, Real(1), G, dz, Real(0), GT_dz );
     rb = A_x; 
     Axpy( Real(-1), b, rb );
-    rc = AT_y;
+    rc = Q_x;
+    Axpy( Real(1), AT_y, rc );
     Axpy( Real(1), GT_z, rc );
     Axpy( Real(1), c,    rc );
     rh = G_x;
@@ -157,6 +163,7 @@ Real IPFLineSearch
         // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha)/mu)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
+        Axpy( alpha, Q_dx,  rc_alpha );
         Axpy( alpha, AT_dy, rc_alpha );
         Axpy( alpha, GT_dz, rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
@@ -190,7 +197,8 @@ Real IPFLineSearch
 
 template<typename Real>
 Real IPFLineSearch
-( const AbstractDistMatrix<Real>& APre, const AbstractDistMatrix<Real>& GPre,
+( const AbstractDistMatrix<Real>& QPre, 
+  const AbstractDistMatrix<Real>& APre, const AbstractDistMatrix<Real>& GPre,
   const AbstractDistMatrix<Real>& b,    const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Real>& h,
   const AbstractDistMatrix<Real>& x,    const AbstractDistMatrix<Real>& y,
@@ -199,14 +207,15 @@ Real IPFLineSearch
   const AbstractDistMatrix<Real>& dz,   const AbstractDistMatrix<Real>& ds,
   Real upperBound,
   Real bTol, Real cTol, Real hTol,
-  const lp::IPFLineSearchCtrl<Real>& ctrl )
+  const qp::IPFLineSearchCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::affine::IPFLineSearch"))
+    DEBUG_ONLY(CallStackEntry cse("qp::affine::IPFLineSearch"))
     if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
         LogicError("gamma must be in (0,1)");
     if( ctrl.beta < Real(1) )
         LogicError("beta must be at least one");
 
+    auto QPtr = ReadProxy<Real,MC,MR>(&QPre); auto& Q = *QPtr;
     auto APtr = ReadProxy<Real,MC,MR>(&APre); auto& A = *APtr;
     auto GPtr = ReadProxy<Real,MC,MR>(&GPre); auto& G = *GPtr;
 
@@ -236,7 +245,7 @@ Real IPFLineSearch
     //    z(alpha) = z + alpha dz,
     //    s(alpha) = s + alpha ds,
     //    r_b(alpha) = A x(alpha) - b, and
-    //    r_c(alpha) = A^T y(alpha) + G^T z(alpha) + c,
+    //    r_c(alpha) = Q x(alpha) + A^T y(alpha) + G^T z(alpha) + c,
     //    r_h(alpha) = G x(alpha) + s(alpha) - h
     // and the Armijo condition,
     //   mu(alpha) <= (1 - alpha/\psi) mu,
@@ -244,9 +253,12 @@ Real IPFLineSearch
     // ===============================================
     // Setup
     // -----
-    DistMatrix<Real> A_x(grid), A_dx(grid), AT_y(grid), AT_dy(grid), 
+    DistMatrix<Real> Q_x(grid), Q_dx(grid), A_x(grid), A_dx(grid), 
+                     AT_y(grid), AT_dy(grid), 
                      G_x(grid), G_dx(grid), GT_z(grid), GT_dz(grid),
                      rb(grid), rc(grid), rh(grid);
+    Zeros( Q_x,   n, 1 );
+    Zeros( Q_dx,  n, 1 );
     Zeros( A_x,   m, 1 );
     Zeros( A_dx,  m, 1 );
     Zeros( AT_y,  n, 1 );
@@ -255,6 +267,8 @@ Real IPFLineSearch
     Zeros( G_dx,  k, 1 );
     Zeros( GT_z,  n, 1 );
     Zeros( GT_dz, n, 1 );
+    Hemv( LOWER,     Real(1), Q, x,  Real(0), Q_x   );
+    Hemv( LOWER,     Real(1), Q, dx, Real(0), Q_dx  );
     Gemv( NORMAL,    Real(1), A, x,  Real(0), A_x   );
     Gemv( NORMAL,    Real(1), A, dx, Real(0), A_dx  );
     Gemv( TRANSPOSE, Real(1), A, y,  Real(0), AT_y  );
@@ -265,7 +279,8 @@ Real IPFLineSearch
     Gemv( TRANSPOSE, Real(1), G, dz, Real(0), GT_dz );
     rb = A_x; 
     Axpy( Real(-1), b, rb );
-    rc = AT_y;
+    rc = Q_x;
+    Axpy( Real(1), AT_y, rc );
     Axpy( Real(1), GT_z, rc );
     Axpy( Real(1), c,    rc );
     rh = G_x;
@@ -345,6 +360,7 @@ Real IPFLineSearch
         // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha)/mu)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
+        Axpy( alpha, Q_dx,  rc_alpha );
         Axpy( alpha, AT_dy, rc_alpha );
         Axpy( alpha, GT_dz, rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
@@ -378,7 +394,8 @@ Real IPFLineSearch
 
 template<typename Real>
 Real IPFLineSearch
-( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
+( const SparseMatrix<Real>& Q,
+  const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
   const Matrix<Real>& b,  const Matrix<Real>& c,
   const Matrix<Real>& h,
   const Matrix<Real>& x,  const Matrix<Real>& y,  
@@ -387,9 +404,9 @@ Real IPFLineSearch
   const Matrix<Real>& dz, const Matrix<Real>& ds,
   Real upperBound,
   Real bTol, Real cTol, Real hTol,
-  const lp::IPFLineSearchCtrl<Real>& ctrl )
+  const qp::IPFLineSearchCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::affine::IPFLineSearch"))
+    DEBUG_ONLY(CallStackEntry cse("qp::affine::IPFLineSearch"))
     if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
         LogicError("gamma must be in (0,1)");
     if( ctrl.beta < Real(1) )
@@ -418,7 +435,7 @@ Real IPFLineSearch
     //    z(alpha) = z + alpha dz,
     //    s(alpha) = s + alpha ds,
     //    r_b(alpha) = A x(alpha) - b, and
-    //    r_c(alpha) = A^T y(alpha) + G^T z(alpha) + c,
+    //    r_c(alpha) = Q x(alpha) + A^T y(alpha) + G^T z(alpha) + c,
     //    r_h(alpha) = G x(alpha) + s(alpha) - h
     // and the Armijo condition,
     //   mu(alpha) <= (1 - alpha/\psi) mu,
@@ -426,9 +443,11 @@ Real IPFLineSearch
     // ===============================================
     // Setup
     // -----
-    Matrix<Real> A_x, A_dx, AT_y, AT_dy, 
+    Matrix<Real> Q_x, Q_dx, A_x, A_dx, AT_y, AT_dy, 
                  G_x, G_dx, GT_z, GT_dz,
                  rb, rc, rh;
+    Zeros( Q_x,   n, 1 );
+    Zeros( Q_dx,  n, 1 );
     Zeros( A_x,   m, 1 );
     Zeros( A_dx,  m, 1 );
     Zeros( AT_y,  n, 1 );
@@ -437,6 +456,9 @@ Real IPFLineSearch
     Zeros( G_dx,  k, 1 );
     Zeros( GT_z,  n, 1 );
     Zeros( GT_dz, n, 1 );
+    // NOTE: The following assumes that Q is explicitly symmetric
+    Multiply( NORMAL,    Real(1), Q, x,  Real(0), Q_x   );
+    Multiply( NORMAL,    Real(1), Q, dx, Real(0), Q_dx  );
     Multiply( NORMAL,    Real(1), A, x,  Real(0), A_x   );
     Multiply( NORMAL,    Real(1), A, dx, Real(0), A_dx  );
     Multiply( TRANSPOSE, Real(1), A, y,  Real(0), AT_y  );
@@ -447,7 +469,8 @@ Real IPFLineSearch
     Multiply( TRANSPOSE, Real(1), G, dz, Real(0), GT_dz );
     rb = A_x; 
     Axpy( Real(-1), b, rb );
-    rc = AT_y;
+    rc = Q_x;
+    Axpy( Real(1), AT_y, rc );
     Axpy( Real(1), GT_z, rc );
     Axpy( Real(1), c,    rc );
     rh = G_x;
@@ -519,6 +542,7 @@ Real IPFLineSearch
         // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha)/mu)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
+        Axpy( alpha, Q_dx,  rc_alpha );
         Axpy( alpha, AT_dy, rc_alpha );
         Axpy( alpha, GT_dz, rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
@@ -551,7 +575,8 @@ Real IPFLineSearch
 
 template<typename Real>
 Real IPFLineSearch
-( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
+( const DistSparseMatrix<Real>& Q,
+  const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
   const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
   const DistMultiVec<Real>& x,     const DistMultiVec<Real>& y, 
@@ -560,9 +585,9 @@ Real IPFLineSearch
   const DistMultiVec<Real>& dz,    const DistMultiVec<Real>& ds,
   Real upperBound,
   Real bTol, Real cTol, Real hTol,
-  const lp::IPFLineSearchCtrl<Real>& ctrl )
+  const qp::IPFLineSearchCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::affine::IPFLineSearch"))
+    DEBUG_ONLY(CallStackEntry cse("qp::affine::IPFLineSearch"))
     if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
         LogicError("gamma must be in (0,1)");
     if( ctrl.beta < Real(1) )
@@ -595,7 +620,7 @@ Real IPFLineSearch
     //    z(alpha) = z + alpha dz,
     //    s(alpha) = s + alpha ds,
     //    r_b(alpha) = A x(alpha) - b, and
-    //    r_c(alpha) = A^T y(alpha) + G^T z(alpha) + c,
+    //    r_c(alpha) = Q x(alpha) + A^T y(alpha) + G^T z(alpha) + c,
     //    r_h(alpha) = G x(alpha) + s(alpha) - h
     // and the Armijo condition,
     //   mu(alpha) <= (1 - alpha/\psi) mu,
@@ -603,9 +628,12 @@ Real IPFLineSearch
     // ===============================================
     // Setup
     // -----
-    DistMultiVec<Real> A_x(comm), A_dx(comm), AT_y(comm), AT_dy(comm), 
+    DistMultiVec<Real> Q_x(comm), Q_dx(comm), A_x(comm), A_dx(comm), 
+                       AT_y(comm), AT_dy(comm), 
                        G_x(comm), G_dx(comm), GT_z(comm), GT_dz(comm),
                        rb(comm), rc(comm), rh(comm);
+    Zeros( Q_x,   n, 1 );
+    Zeros( Q_dx,  n, 1 );
     Zeros( A_x,   m, 1 );
     Zeros( A_dx,  m, 1 );
     Zeros( AT_y,  n, 1 );
@@ -614,6 +642,9 @@ Real IPFLineSearch
     Zeros( G_dx,  k, 1 );
     Zeros( GT_z,  n, 1 );
     Zeros( GT_dz, n, 1 );
+    // NOTE: The following assumes that Q is explicitly symmetric
+    Multiply( NORMAL,    Real(1), Q, x,  Real(0), Q_x   );
+    Multiply( NORMAL,    Real(1), Q, dx, Real(0), Q_dx  );
     Multiply( NORMAL,    Real(1), A, x,  Real(0), A_x   );
     Multiply( NORMAL,    Real(1), A, dx, Real(0), A_dx  );
     Multiply( TRANSPOSE, Real(1), A, y,  Real(0), AT_y  );
@@ -624,7 +655,8 @@ Real IPFLineSearch
     Multiply( TRANSPOSE, Real(1), G, dz, Real(0), GT_dz );
     rb = A_x; 
     Axpy( Real(-1), b, rb );
-    rc = AT_y;
+    rc = Q_x;
+    Axpy( Real(1), AT_y, rc );
     Axpy( Real(1), GT_z, rc );
     Axpy( Real(1), c,    rc );
     rh = G_x;
@@ -699,6 +731,7 @@ Real IPFLineSearch
         // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha)/mu)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         rc_alpha = rc;
+        Axpy( alpha, Q_dx,  rc_alpha );
         Axpy( alpha, AT_dy, rc_alpha );
         Axpy( alpha, GT_dz, rc_alpha );
         const Real rc_alphaNrm2 = Nrm2( rc_alpha );
@@ -731,7 +764,8 @@ Real IPFLineSearch
 
 #define PROTO(Real) \
   template Real IPFLineSearch \
-  ( const Matrix<Real>& A,  const Matrix<Real>& G, \
+  ( const Matrix<Real>& Q, \
+    const Matrix<Real>& A,  const Matrix<Real>& G, \
     const Matrix<Real>& b,  const Matrix<Real>& c, \
     const Matrix<Real>& h, \
     const Matrix<Real>& x,  const Matrix<Real>& y,  \
@@ -740,9 +774,10 @@ Real IPFLineSearch
     const Matrix<Real>& dz, const Matrix<Real>& ds, \
     Real upperBound, \
     Real bTol, Real cTol, Real hTol, \
-    const lp::IPFLineSearchCtrl<Real>& ctrl ); \
+    const qp::IPFLineSearchCtrl<Real>& ctrl ); \
   template Real IPFLineSearch \
-  ( const AbstractDistMatrix<Real>& A,  const AbstractDistMatrix<Real>& G, \
+  ( const AbstractDistMatrix<Real>& Q, \
+    const AbstractDistMatrix<Real>& A,  const AbstractDistMatrix<Real>& G, \
     const AbstractDistMatrix<Real>& b,  const AbstractDistMatrix<Real>& c, \
     const AbstractDistMatrix<Real>& h, \
     const AbstractDistMatrix<Real>& x,  const AbstractDistMatrix<Real>& y, \
@@ -751,9 +786,10 @@ Real IPFLineSearch
     const AbstractDistMatrix<Real>& dz, const AbstractDistMatrix<Real>& ds, \
     Real upperBound, \
     Real bTol, Real cTol, Real hTol, \
-    const lp::IPFLineSearchCtrl<Real>& ctrl ); \
+    const qp::IPFLineSearchCtrl<Real>& ctrl ); \
   template Real IPFLineSearch \
-  ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G, \
+  ( const SparseMatrix<Real>& Q, \
+    const SparseMatrix<Real>& A, const SparseMatrix<Real>& G, \
     const Matrix<Real>& b,       const Matrix<Real>& c, \
     const Matrix<Real>& h, \
     const Matrix<Real>& x,       const Matrix<Real>& y,  \
@@ -762,9 +798,10 @@ Real IPFLineSearch
     const Matrix<Real>& dz,      const Matrix<Real>& ds, \
     Real upperBound, \
     Real bTol, Real cTol, Real hTol, \
-    const lp::IPFLineSearchCtrl<Real>& ctrl ); \
+    const qp::IPFLineSearchCtrl<Real>& ctrl ); \
   template Real IPFLineSearch \
-  ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G, \
+  ( const DistSparseMatrix<Real>& Q, \
+    const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G, \
     const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& h, \
     const DistMultiVec<Real>& x,     const DistMultiVec<Real>& y, \
@@ -773,12 +810,12 @@ Real IPFLineSearch
     const DistMultiVec<Real>& dz,    const DistMultiVec<Real>& ds, \
     Real upperBound, \
     Real bTol, Real cTol, Real hTol, \
-    const lp::IPFLineSearchCtrl<Real>& ctrl );
+    const qp::IPFLineSearchCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
 } // namespace affine
-} // namespace lp
+} // namespace qp
 } // namespace El

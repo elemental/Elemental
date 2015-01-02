@@ -13,7 +13,7 @@ namespace El {
 namespace lp {
 namespace direct {
 
-// The following solves a pair of linear program in "direct" conic form:
+// The following solves a pair of linear programs in "direct" conic form:
 //
 //   min c^T x
 //   s.t. A x = b, x >= 0,
@@ -52,7 +52,7 @@ void IPF
     const bool standardShift = true;
     Initialize
     ( A, b, c, x, y, z, ctrl.primalInitialized, ctrl.dualInitialized,
-     standardShift );
+      standardShift );
 
     Matrix<Real> J, d, 
                  rc, rb, rmu, 
@@ -154,6 +154,8 @@ void IPF
             SymmetricSolve( LOWER, NORMAL, J, dy );
             ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
+        else
+            LogicError("Invalid KKT system choice");
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
@@ -345,6 +347,8 @@ void IPF
             SymmetricSolve( LOWER, NORMAL, J, dy );
             ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
+        else
+            LogicError("Invalid KKT system choice");
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
@@ -592,7 +596,7 @@ void IPF
             const Int numLargeRefines = reg_ldl::SolveAfter
             ( J, reg, invMap, info, JFrontTree, d, 
               minReductionFactor, maxRefineIts, ctrl.print );
-            if( numLargeRefines > 1 )
+            if( numLargeRefines > 3 )
                 Scale( Real(10), regCand );
             ExpandSolution( m, n, d, dx, dy, dz );
         }
@@ -626,11 +630,11 @@ void IPF
             const Int numLargeRefines = reg_ldl::SolveAfter
             ( J, reg, invMap, info, JFrontTree, d, 
               minReductionFactor, maxRefineIts, ctrl.print );
-            if( numLargeRefines > 1 )
+            if( numLargeRefines > 3 )
                 Scale( Real(10), regCand );
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
-        else // ctrl.system == NORMAL_KKT
+        else if( ctrl.system == NORMAL_KKT )
         {
             // Construct the reduced KKT system, J dy = d
             // ------------------------------------------
@@ -656,6 +660,8 @@ void IPF
               minReductionFactor, maxRefineIts );
             ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
+        else
+            LogicError("Invalid KKT system choice");
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
@@ -724,14 +730,14 @@ void IPF
     const IPFCtrl<Real>& ctrl ); \
   template void IPF \
   ( const SparseMatrix<Real>& A, \
-    const Matrix<Real>& b, const Matrix<Real>& c, \
-          Matrix<Real>& x,       Matrix<Real>& y, \
+    const Matrix<Real>& b,       const Matrix<Real>& c, \
+          Matrix<Real>& x,             Matrix<Real>& y, \
           Matrix<Real>& z, \
     const IPFCtrl<Real>& ctrl ); \
   template void IPF \
   ( const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& b, const DistMultiVec<Real>& c, \
-          DistMultiVec<Real>& x,       DistMultiVec<Real>& y, \
+    const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, \
+          DistMultiVec<Real>& x,           DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
     const IPFCtrl<Real>& ctrl );
 

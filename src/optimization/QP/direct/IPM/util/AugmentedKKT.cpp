@@ -13,19 +13,19 @@ namespace qp {
 namespace direct {
 
 // Form 
-//    J = | -Q-Z*inv(X) A^T | and y = | -r_c + r_mu / X |,
-//        |  A          0   |         | -r_b            |
-// where 
-//    Z   = diag(z),
-//    X   = diag(x),
-//    e   = ones(n,1),
-//    r_b = A x - b,
-//    r_c = A^T y + z - Q x - c, and
-//    r_mu = X Z e - tau e.
 //
-// The implied system is of the form
-//   J | dx | = rhs,   dz = -(r_mu + Z dx) / X.
-//     | dy |
+//    | Q + (x <> z)  A^T | | dx | = | -r_c - x <> r_mu |,
+//    |      A         0  | | dy |   | -r_b             |
+//
+// where 
+//
+//    r_b  = A x - b,
+//    r_c  = Q x + A^T y - z + c,
+//    r_mu = x o z - tau e,
+//
+// and dz can be computed using
+//
+//   dz = - x <> (r_mu + z o dx)
 //
 
 template<typename Real>
@@ -43,10 +43,9 @@ void AugmentedKKT
     auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd);
     auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd);
     Matrix<Real> d( z );
-    Scale( Real(-1), d );
     DiagonalSolve( LEFT, NORMAL, x, d );
     Diagonal( Jxx, d );
-    Axpy( Real(-1), Q, Jxx );
+    Axpy( Real(1), Q, Jxx );
     Jyx = A;
     if( !onlyLower )
         Transpose( A, Jxy );
@@ -54,9 +53,9 @@ void AugmentedKKT
 
 template<typename Real>
 void AugmentedKKT
-( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z,
-  AbstractDistMatrix<Real>& JPre, bool onlyLower )
+( const AbstractDistMatrix<Real>& Q,    const AbstractDistMatrix<Real>& A, 
+  const AbstractDistMatrix<Real>& x,    const AbstractDistMatrix<Real>& z,
+        AbstractDistMatrix<Real>& JPre, bool onlyLower )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::direct::AugmentedKKT"))
     const Int m = A.Height();
@@ -70,10 +69,9 @@ void AugmentedKKT
     auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd);
     auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd);
     DistMatrix<Real,STAR,STAR> d( z );
-    Scale( Real(-1), d );
     DiagonalSolve( LEFT, NORMAL, x, d );
     Diagonal( Jxx, d.Matrix() );
-    Axpy( Real(-1), Q, Jxx );
+    Axpy( Real(1), Q, Jxx );
     Jyx = A;
     if( !onlyLower )
         Transpose( A, Jxy );
@@ -82,31 +80,51 @@ void AugmentedKKT
 template<typename Real>
 void AugmentedKKT
 ( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A, 
-  const Matrix<Real>& x, const Matrix<Real>& z,
-  SparseMatrix<Real>& J, bool onlyLower )
+  const Matrix<Real>& x,       const Matrix<Real>& z,
+        SparseMatrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::direct::AugmentedKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
+    const Int numEntriesQ = Q.NumEntries();
+    const Int numEntriesA = A.NumEntries();
+    // Count the number of used entries of Q
+    Int numUsedEntriesQ;
+    if( onlyLower )
+    {
+        numUsedEntriesQ = 0;
+        for( Int e=0; e<numEntriesQ; ++e )
+            if( Q.Row(e) >= Q.Col(e) )
+                ++numUsedEntriesQ;
+    }
+    else
+        numUsedEntriesQ = numEntriesQ;
 
     Zeros( J, m+n, m+n );
     if( onlyLower )
-        J.Reserve( A.NumEntries() + Q.NumEntries() + n );
+        J.Reserve( numEntriesA + numUsedEntriesQ + n );
     else
-        J.Reserve( 2*A.NumEntries() + Q.NumEntries() + n ); 
+        J.Reserve( 2*numEntriesA + numUsedEntriesQ + n ); 
 
-    // -Z*inv(X) updates
+    // x <> z updates
     for( Int j=0; j<n; ++j )
-        J.Update( j, j, -z.Get(j,0)/x.Get(j,0) );
-    // -Q update
-    for( Int k=0; k<Q.NumEntries(); ++k )
-        J.Update( Q.Row(k), Q.Col(k), -Q.Value(k) );
-    // A and A^T updates
-    for( Int k=0; k<A.NumEntries(); ++k )
+        J.Update( j, j, z.Get(j,0)/x.Get(j,0) );
+    // Q update
+    for( Int e=0; e<numEntriesQ; ++e )
     {
-        J.Update( A.Row(k)+n, A.Col(k), A.Value(k) );
+        const Int i = Q.Row(e);
+        const Int j = Q.Col(e);
+        if( i >= j )
+            J.Update( i, j, Q.Value(e) );
+        else if( !onlyLower )
+            J.Update( i, j, Q.Value(e) );
+    }
+    // A and A^T updates
+    for( Int e=0; e<numEntriesA; ++e )
+    {
+        J.Update( A.Row(e)+n, A.Col(e), A.Value(e) );
         if( !onlyLower )
-            J.Update( A.Col(k), A.Row(k)+n, A.Value(k) );
+            J.Update( A.Col(e), A.Row(e)+n, A.Value(e) );
     }
     J.MakeConsistent();
 }
@@ -114,8 +132,8 @@ void AugmentedKKT
 template<typename Real>
 void AugmentedKKT
 ( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& x, const DistMultiVec<Real>& z,
-  DistSparseMatrix<Real>& J, bool onlyLower )
+  const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z,
+        DistSparseMatrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::direct::AugmentedKKT"))
     const Int m = A.Height();
@@ -123,9 +141,6 @@ void AugmentedKKT
 
     mpi::Comm comm = A.Comm();
     const Int commSize = mpi::Size( comm );
-
-    DistSparseMatrix<Real> ATrans(comm);
-    Transpose( A, ATrans );
 
     J.SetComm( comm );
     Zeros( J, m+n, m+n );
@@ -135,28 +150,33 @@ void AugmentedKKT
     std::vector<int> sendCounts(commSize,0);
     // For placing A into the bottom-left corner
     // -----------------------------------------
-    for( Int k=0; k<A.NumLocalEntries(); ++k )
-        ++sendCounts[ J.RowOwner(A.Row(k)+n) ];
+    for( Int e=0; e<A.NumLocalEntries(); ++e )
+        ++sendCounts[ J.RowOwner(A.Row(e)+n) ];
     // For placing A^T into the top-right corner
     // -----------------------------------------
+    DistSparseMatrix<Real> ATrans(comm);
     if( !onlyLower )
-        for( Int k=0; k<ATrans.NumLocalEntries(); ++k )
-            ++sendCounts[ J.RowOwner(ATrans.Row(k)) ];
-    // For placing -S*inv(X) into the top-left corner
-    // ----------------------------------------------
-    for( Int k=0; k<x.LocalHeight(); ++k )
-        ++sendCounts[ J.RowOwner( k+x.FirstLocalRow() ) ];
-    // For placing -Q into the top-left corner
-    // ---------------------------------------
-    for( Int k=0; k<Q.NumLocalEntries(); ++k )
-        ++sendCounts[ J.RowOwner(Q.Row(k)) ];
+    {
+        Transpose( A, ATrans );
+        for( Int e=0; e<ATrans.NumLocalEntries(); ++e )
+            ++sendCounts[ J.RowOwner(ATrans.Row(e)) ];
+    }
+    // For placing x <> z into the top-left corner
+    // -------------------------------------------
+    for( Int e=0; e<x.LocalHeight(); ++e )
+        ++sendCounts[ J.RowOwner( e+x.FirstLocalRow() ) ];
+    // For placing Q into the top-left corner
+    for( Int e=0; e<Q.NumLocalEntries(); ++e )
+    {
+        const Int i = Q.Row(e);
+        const Int j = Q.Col(e);
+        if( i >= j || !onlyLower )
+            ++sendCounts[ J.RowOwner(i) ]; 
+    }
     // Communicate to determine the number we receive from each process
     // ----------------------------------------------------------------
     std::vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-
-    // Convert the send/recv counts into offsets and total sizes
-    // =========================================================
     std::vector<int> sendOffsets, recvOffsets;
     int totalSend = Scan( sendCounts, sendOffsets );
     int totalRecv = Scan( recvCounts, recvOffsets );
@@ -168,11 +188,11 @@ void AugmentedKKT
     auto offsets = sendOffsets;
     // Pack A
     // ------
-    for( Int k=0; k<A.NumLocalEntries(); ++k )
+    for( Int e=0; e<A.NumLocalEntries(); ++e )
     {
-        const Int i = A.Row(k) + n;
-        const Int j = A.Col(k);
-        const Real value = A.Value(k);
+        const Int i = A.Row(e) + n;
+        const Int j = A.Col(e);
+        const Real value = A.Value(e);
         const Int owner = J.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         tSendBuf[offsets[owner]] = j;
@@ -183,11 +203,11 @@ void AugmentedKKT
     // --------
     if( !onlyLower )
     {
-        for( Int k=0; k<ATrans.NumLocalEntries(); ++k )
+        for( Int e=0; e<ATrans.NumLocalEntries(); ++e )
         {
-            const Int i = ATrans.Row(k);
-            const Int j = ATrans.Col(k) + n;
-            const Real value = ATrans.Value(k);
+            const Int i = ATrans.Row(e);
+            const Int j = ATrans.Col(e) + n;
+            const Real value = ATrans.Value(e);
             const Int owner = J.RowOwner(i);
             sSendBuf[offsets[owner]] = i;
             tSendBuf[offsets[owner]] = j;
@@ -195,31 +215,33 @@ void AugmentedKKT
             ++offsets[owner];
         }
     }
-    // Pack -Z inv(X)
-    // --------------
-    for( Int k=0; k<x.LocalHeight(); ++k )
+    // Pack x <> z
+    // -----------
+    for( Int e=0; e<x.LocalHeight(); ++e )
     {
-        const Int i = k + x.FirstLocalRow();
+        const Int i = e + x.FirstLocalRow();
         const Int j = i;
-        const Real value = -z.GetLocal(k,0)/x.GetLocal(k,0);
+        const Real value = z.GetLocal(e,0)/x.GetLocal(e,0);
         const Int owner = J.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         tSendBuf[offsets[owner]] = j;
         vSendBuf[offsets[owner]] = value;
         ++offsets[owner];
     }
-    // Pack -Q
-    // -------
-    for( Int k=0; k<Q.NumLocalEntries(); ++k )
+    // Pack Q
+    // ------
+    for( Int e=0; e<Q.NumLocalEntries(); ++e )
     {
-        const Int i = Q.Row(k);
-        const Int j = Q.Col(k);
-        const Real value = -Q.Value(k);
-        const Int owner = J.RowOwner(i);
-        sSendBuf[offsets[owner]] = i; 
-        tSendBuf[offsets[owner]] = j;
-        vSendBuf[offsets[owner]] = value;
-        ++offsets[owner];
+        const Int i = Q.Row(e);
+        const Int j = Q.Col(e);
+        if( i >= j || !onlyLower )
+        {
+            const Int owner = J.RowOwner(i);
+            sSendBuf[offsets[owner]] = i;
+            tSendBuf[offsets[owner]] = j;
+            vSendBuf[offsets[owner]] = Q.Value(e);
+            ++offsets[owner];
+        }
     }
 
     // Exchange and unpack the triplets
@@ -236,41 +258,46 @@ void AugmentedKKT
     ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
       vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
     J.Reserve( totalRecv );
-    for( Int k=0; k<totalRecv; ++k )
+    for( Int e=0; e<totalRecv; ++e )
         J.QueueLocalUpdate
-        ( sRecvBuf[k]-J.FirstLocalRow(), tRecvBuf[k], vRecvBuf[k] );
+        ( sRecvBuf[e]-J.FirstLocalRow(), tRecvBuf[e], vRecvBuf[e] );
     J.MakeConsistent();
 }
 
 template<typename Real>
 void AugmentedKKTRHS
 ( const Matrix<Real>& x, 
-  const Matrix<Real>& rmu, const Matrix<Real>& rc, const Matrix<Real>& rb,
-  Matrix<Real>& rhs )
+  const Matrix<Real>& rc,  const Matrix<Real>& rb, 
+  const Matrix<Real>& rmu,
+        Matrix<Real>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::direct::AugmentedKKTRHS"))
     const Int m = rb.Height();
     const Int n = rmu.Height();
     const IR xInd(0,n), yInd(n,n+m);
-    Zeros( rhs, m+n, 1 );
+    Zeros( d, m+n, 1 );
 
-    auto rhs_x = rhs(xInd,IR(0,1));
-    rhs_x = rmu;
-    for( Int i=0; i<n; ++i )
-        rhs_x.Set( i, 0, rhs_x.Get(i,0)/x.Get(i,0) );
-    Axpy( Real(-1), rc, rhs_x );
+    // dx := - (r_c + x <> r_mu)
+    // =========================
+    auto dx = d(xInd,IR(0,1));
+    dx = rmu;
+    DiagonalSolve( LEFT, NORMAL, x, dx );
+    Axpy( Real(1), rc, dx );
+    Scale( Real(-1), dx );
 
-    auto rhs_y = rhs(yInd,IR(0,1));
-    rhs_y = rb;
-    Scale( Real(-1), rhs_y );
+    // dy := -r_b
+    // ==========
+    auto dy = d(yInd,IR(0,1));
+    dy = rb;
+    Scale( Real(-1), dy );
 }
 
 template<typename Real>
 void AugmentedKKTRHS
 ( const AbstractDistMatrix<Real>& xPre, 
-  const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& rc, 
-  const AbstractDistMatrix<Real>& rb,
-  AbstractDistMatrix<Real>& rhsPre )
+  const AbstractDistMatrix<Real>& rc,   const AbstractDistMatrix<Real>& rb, 
+  const AbstractDistMatrix<Real>& rmu,
+        AbstractDistMatrix<Real>& dPre )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::direct::AugmentedKKTRHS"))
 
@@ -280,91 +307,81 @@ void AugmentedKKTRHS
     ctrl.colAlign = 0;
     ctrl.rowAlign = 0;
     
-    auto xPtr   = ReadProxy<Real,MC,MR>(&xPre,ctrl);    auto& x   = *xPtr;
-    auto rhsPtr = WriteProxy<Real,MC,MR>(&rhsPre,ctrl); auto& rhs = *rhsPtr;
+    auto xPtr = ReadProxy<Real,MC,MR>(&xPre,ctrl);  auto& x = *xPtr;
+    auto dPtr = WriteProxy<Real,MC,MR>(&dPre,ctrl); auto& d = *dPtr;
 
     const Int m = rb.Height();
     const Int n = rmu.Height();
     const IR xInd(0,n), yInd(n,n+m);
-    Zeros( rhs, m+n, 1 );
+    Zeros( d, m+n, 1 );
 
-    auto rhs_x = rhs(xInd,IR(0,1));
-    rhs_x = rmu;
-    for( Int iLoc=0; iLoc<rhs_x.LocalHeight(); ++iLoc )
-        rhs_x.SetLocal( iLoc, 0, rhs_x.GetLocal(iLoc,0)/x.GetLocal(iLoc,0) );
-    Axpy( Real(-1), rc, rhs_x );
+    // dx := - (r_c + x <> r_mu)
+    // =========================
+    auto dx = d(xInd,IR(0,1));
+    dx = rmu;
+    DiagonalSolve( LEFT, NORMAL, x, dx );
+    Axpy( Real(1), rc, dx );
+    Scale( Real(-1), dx );
 
-    auto rhs_y = rhs(yInd,IR(0,1));
-    rhs_y = rb;
-    Scale( Real(-1), rhs_y );
+    // dy := -r_b
+    // ==========
+    auto dy = d(yInd,IR(0,1));
+    dy = rb;
+    Scale( Real(-1), dy );
 }
 
 template<typename Real>
 void AugmentedKKTRHS
 ( const DistMultiVec<Real>& x,
-  const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rc, 
-  const DistMultiVec<Real>& rb, DistMultiVec<Real>& rhs )
+  const DistMultiVec<Real>& rc,  const DistMultiVec<Real>& rb, 
+  const DistMultiVec<Real>& rmu, 
+        DistMultiVec<Real>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::direct::FormAugmentedSystem"))
     const Int m = rb.Height();
     const Int n = x.Height();
-
+    Zeros( d, m+n, 1 );
     mpi::Comm comm = x.Comm();
     const Int commSize = mpi::Size( comm );
 
-    Zeros( rhs, m+n, 1 );
-    DistMultiVec<Real> rhs_x(comm), rhs_y(comm);
-
-    rhs_x = rc;
-    Scale( Real(-1), rhs_x );
-    for( Int k=0; k<x.LocalHeight(); ++k )
-        rhs_x.UpdateLocal( k, 0, rmu.GetLocal(k,0)/x.GetLocal(k,0) );    
-
-    rhs_y = rb;
-    Scale( Real(-1), rhs_y );
-
-    // Compute the number of entries to send to each process
-    // =====================================================
-    std::vector<int> sendCounts(commSize), recvCounts(commSize);
-    for( Int q=0; q<commSize; ++q )
-        sendCounts[q] = 0;
-    for( Int k=0; k<rhs_x.LocalHeight(); ++k )
-        ++sendCounts[ rhs.RowOwner( k+rhs_x.FirstLocalRow() ) ];
-    for( Int k=0; k<rhs_y.LocalHeight(); ++k )
-        ++sendCounts[ rhs.RowOwner( k+rhs_y.FirstLocalRow()+n ) ];
+    // Compute the number of entries to send/recv from each process
+    // ============================================================
+    std::vector<int> sendCounts(commSize,0);
+    for( Int e=0; e<rc.LocalHeight(); ++e )
+        ++sendCounts[ d.RowOwner( e+rc.FirstLocalRow() ) ];
+    for( Int e=0; e<rb.LocalHeight(); ++e )
+        ++sendCounts[ d.RowOwner( e+rb.FirstLocalRow()+n ) ];
+    std::vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    
-    // Convert the send/recv counts into offsets and total sizes
-    // =========================================================
     std::vector<int> sendOffsets, recvOffsets;
     const int totalSend = Scan( sendCounts, sendOffsets );
     const int totalRecv = Scan( recvCounts, recvOffsets );
 
-    // Pack the triplets
+    // Pack the doublets
     // =================
     std::vector<int> sSendBuf(totalSend);
     std::vector<Real> vSendBuf(totalSend);
     auto offsets = sendOffsets;
-    for( Int k=0; k<rhs_x.LocalHeight(); ++k )
+    for( Int e=0; e<rc.LocalHeight(); ++e )
     {
-        const Int i = k + rhs_x.FirstLocalRow();
-        const Real value = rhs_x.GetLocal(k,0);
-        const Int owner = rhs.RowOwner(i);
+        const Int i = e + rc.FirstLocalRow();
+        const Real value = -rc.GetLocal(e,0)-rmu.GetLocal(e,0)/x.GetLocal(e,0);
+        const Int owner = d.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         vSendBuf[offsets[owner]] = value;
         ++offsets[owner];
     }
-    for( Int k=0; k<rhs_y.LocalHeight(); ++k )
+    for( Int e=0; e<rb.LocalHeight(); ++e )
     {
-        const Int i = k + rhs_y.FirstLocalRow() + n;
-        const Real value = rhs_y.GetLocal(k,0);
-        const Int owner = rhs.RowOwner(i);
+        const Int i = e + rb.FirstLocalRow() + n;
+        const Real value = -rb.GetLocal(e,0);
+        const Int owner = d.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         vSendBuf[offsets[owner]] = value;
         ++offsets[owner];
     }
 
-    // Exchange and unpack the triplets
+    // Exchange and unpack the doublets
     // ================================
     std::vector<int> sRecvBuf(totalRecv);
     std::vector<Real> vRecvBuf(totalRecv);
@@ -374,51 +391,45 @@ void AugmentedKKTRHS
     mpi::AllToAll
     ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
       vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-    Zeros( rhs, m+n, 1 );
-    for( Int k=0; k<totalRecv; ++k )
-        rhs.UpdateLocal( sRecvBuf[k]-rhs.FirstLocalRow(), 0, vRecvBuf[k] );
+    for( Int e=0; e<totalRecv; ++e )
+        d.UpdateLocal( sRecvBuf[e]-d.FirstLocalRow(), 0, vRecvBuf[e] );
 }
 
 template<typename Real>
 void ExpandAugmentedSolution
-( const Matrix<Real>& x, const Matrix<Real>& z,
-  const Matrix<Real>& rmu, const Matrix<Real>& rhs,
-  Matrix<Real>& dx, Matrix<Real>& dy, Matrix<Real>& dz )
+( const Matrix<Real>& x,   const Matrix<Real>& z,
+  const Matrix<Real>& rmu, const Matrix<Real>& d,
+        Matrix<Real>& dx,        Matrix<Real>& dy, 
+        Matrix<Real>& dz )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::direct::ExpandAugmentedSolution"))
     const Int n = rmu.Height();
-    const Int m = rhs.Height() - n;
+    const Int m = d.Height() - n;
 
     // Extract dx and dy from [dx; dy]
     // ===============================
     dx.Resize( n, 1 );
     dy.Resize( m, 1 );
     const IR xInd(0,n), yInd(n,n+m);
-    auto rhs_x = rhs(xInd,IR(0,1));
-    auto rhs_y = rhs(yInd,IR(0,1));
-    dx = rhs_x;
-    dy = rhs_y;
+    auto d_x = d(xInd,IR(0,1));
+    auto d_y = d(yInd,IR(0,1));
+    dx = d_x;
+    dy = d_y;
 
-    // dz := -(r_mu + Z dx) / X
-    // ========================
-    dz.Resize( n, 1 );
-    for( Int i=0; i<n; ++i )
-    {
-        const Real x_i = x.Get(i,0);
-        const Real z_i = z.Get(i,0);
-        const Real dx_i = dx.Get(i,0);
-        const Real rmu_i = rmu.Get(i,0);
-        dz.Set( i, 0, -(rmu_i + z_i*dx_i)/x_i );
-    }
+    // dz := - x <> (r_mu + z o dx)
+    // ============================
+    dz = dx;
+    DiagonalScale( LEFT, NORMAL, z, dz );
+    Axpy( Real(1), rmu, dz );
+    DiagonalSolve( LEFT, NORMAL, x, dz );
+    Scale( Real(-1), dz );
 }
 
 template<typename Real>
 void ExpandAugmentedSolution
-( const AbstractDistMatrix<Real>& xPre, const AbstractDistMatrix<Real>& zPre,
-  const AbstractDistMatrix<Real>& rmuPre, 
-  const AbstractDistMatrix<Real>& rhsPre,
-        AbstractDistMatrix<Real>& dxPre, 
-        AbstractDistMatrix<Real>& dy, 
+( const AbstractDistMatrix<Real>& xPre,   const AbstractDistMatrix<Real>& zPre,
+  const AbstractDistMatrix<Real>& rmuPre, const AbstractDistMatrix<Real>& dPre,
+        AbstractDistMatrix<Real>& dxPre,        AbstractDistMatrix<Real>& dy, 
         AbstractDistMatrix<Real>& dzPre )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::direct::ExpandAugmentedSolution"))
@@ -433,46 +444,43 @@ void ExpandAugmentedSolution
     auto zPtr = ReadProxy<Real,MC,MR>(&zPre,ctrl); auto& z = *zPtr;
 
     auto rmuPtr = ReadProxy<Real,MC,MR>(&rmuPre); auto& rmu = *rmuPtr;
-    auto rhsPtr = ReadProxy<Real,MC,MR>(&rhsPre); auto& rhs = *rhsPtr;
+    auto dPtr   = ReadProxy<Real,MC,MR>(&dPre);   auto& d   = *dPtr;
 
     auto dxPtr = WriteProxy<Real,MC,MR>(&dxPre,ctrl); auto& dx = *dxPtr;
     auto dzPtr = WriteProxy<Real,MC,MR>(&dzPre,ctrl); auto& dz = *dzPtr;
 
     const Int n = rmu.Height();
-    const Int m = rhs.Height() - n;
+    const Int m = d.Height() - n;
 
     // Extract dx and dy from [dx; dy]
     // ===============================
     dx.Resize( n, 1 );
     dy.Resize( m, 1 );
     const IR xInd(0,n), yInd(n,n+m);
-    auto rhs_x = rhs(xInd,IR(0,1));
-    auto rhs_y = rhs(yInd,IR(0,1));
-    dx = rhs_x;
-    Copy( rhs_y, dy );
+    auto d_x = d(xInd,IR(0,1));
+    auto d_y = d(yInd,IR(0,1));
+    dx = d_x;
+    Copy( d_y, dy );
 
-    // dz := -(r_mu + Z dx) / X
-    // ========================
-    dz.Resize( n, 1 );
-    for( Int iLoc=0; iLoc<dz.LocalHeight(); ++iLoc )
-    {
-        const Real x_i = x.GetLocal(iLoc,0);
-        const Real z_i = z.GetLocal(iLoc,0);
-        const Real dx_i = dx.GetLocal(iLoc,0);
-        const Real rmu_i = rmu.GetLocal(iLoc,0);
-        dz.SetLocal( iLoc, 0, -(rmu_i + z_i*dx_i)/x_i );
-    }
+    // dz := - x <> (r_mu + z o dx)
+    // ============================
+    dz = dx;
+    DiagonalScale( LEFT, NORMAL, z, dz );
+    Axpy( Real(1), rmu, dz );
+    DiagonalSolve( LEFT, NORMAL, x, dz );
+    Scale( Real(-1), dz );
 }
 
 template<typename Real>
 void ExpandAugmentedSolution
-( const DistMultiVec<Real>& x, const DistMultiVec<Real>& z,
-  const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rhs,
-  DistMultiVec<Real>& dx, DistMultiVec<Real>& dy, DistMultiVec<Real>& dz )
+( const DistMultiVec<Real>& x,   const DistMultiVec<Real>& z,
+  const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& d,
+        DistMultiVec<Real>& dx,        DistMultiVec<Real>& dy, 
+        DistMultiVec<Real>& dz )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::direct::ExpandAugmentedSolution"))
     const Int n = rmu.Height();
-    const Int m = rhs.Height() - n;
+    const Int m = d.Height() - n;
     mpi::Comm comm = z.Comm();
     const Int commSize = mpi::Size(comm);
 
@@ -483,9 +491,9 @@ void ExpandAugmentedSolution
     // Compute the number of entries to send to each process
     // -----------------------------------------------------
     std::vector<int> sendCounts(commSize,0);
-    for( Int iLoc=0; iLoc<rhs.LocalHeight(); ++iLoc )
+    for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
     {
-        const Int i = rhs.FirstLocalRow() + iLoc;
+        const Int i = d.FirstLocalRow() + iLoc;
         if( i < n )
             ++sendCounts[ dx.RowOwner(i) ];
         else
@@ -503,21 +511,21 @@ void ExpandAugmentedSolution
     std::vector<Int> sSendBuf(totalSend);
     std::vector<Real> vSendBuf(totalSend);
     auto offsets = sendOffsets;
-    for( Int iLoc=0; iLoc<rhs.LocalHeight(); ++iLoc )
+    for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
     {
-        const Int i = rhs.FirstLocalRow() + iLoc;
+        const Int i = d.FirstLocalRow() + iLoc;
         if( i < n )
         {
             const Int owner = dx.RowOwner(i); 
             sSendBuf[offsets[owner]] = i; 
-            vSendBuf[offsets[owner]] = rhs.GetLocal(iLoc,0);
+            vSendBuf[offsets[owner]] = d.GetLocal(iLoc,0);
             ++offsets[owner]; 
         }
         else
         {
             const Int owner = dy.RowOwner(i-n);
             sSendBuf[offsets[owner]] = i;
-            vSendBuf[offsets[owner]] = rhs.GetLocal(iLoc,0);
+            vSendBuf[offsets[owner]] = d.GetLocal(iLoc,0);
             ++offsets[owner];
         }
     }
@@ -531,59 +539,55 @@ void ExpandAugmentedSolution
     mpi::AllToAll
     ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
       vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-    for( Int k=0; k<totalRecv; ++k )
+    for( Int e=0; e<totalRecv; ++e )
     {
-        const Int i = sRecvBuf[k];
+        const Int i = sRecvBuf[e];
         if( i < n )
-            dx.SetLocal( i-dx.FirstLocalRow(), 0, vRecvBuf[k] );
+            dx.SetLocal( i-dx.FirstLocalRow(), 0, vRecvBuf[e] );
         else
-            dy.SetLocal( i-n-dy.FirstLocalRow(), 0, vRecvBuf[k] );
+            dy.SetLocal( i-n-dy.FirstLocalRow(), 0, vRecvBuf[e] );
     }
 
-    // dz := -(r_mu + Z dx) / X
-    // ========================
-    dz.Resize( n, 1 );
-    for( Int iLoc=0; iLoc<dz.LocalHeight(); ++iLoc )
-    {
-        const Real x_i = x.GetLocal(iLoc,0);
-        const Real z_i = z.GetLocal(iLoc,0);
-        const Real dx_i = dx.GetLocal(iLoc,0);
-        const Real rmu_i = rmu.GetLocal(iLoc,0);
-        dz.SetLocal( iLoc, 0, -(rmu_i + z_i*dx_i)/x_i );
-    }
+    // dz := - x <> (r_mu + z o dx)
+    // ============================
+    dz = dx;
+    DiagonalScale( NORMAL, z, dz );
+    Axpy( Real(1), rmu, dz );
+    DiagonalSolve( NORMAL, x, dz );
+    Scale( Real(-1), dz );
 }
 
 #define PROTO(Real) \
   template void AugmentedKKT \
   ( const Matrix<Real>& Q, const Matrix<Real>& A, \
     const Matrix<Real>& x, const Matrix<Real>& z, \
-          Matrix<Real>& J, bool onlyLower ); \
+    Matrix<Real>& J, bool onlyLower ); \
   template void AugmentedKKT \
   ( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& J, bool onlyLower ); \
+    AbstractDistMatrix<Real>& J, bool onlyLower ); \
   template void AugmentedKKT \
   ( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A, \
     const Matrix<Real>& x,       const Matrix<Real>& z, \
-          SparseMatrix<Real>& J, bool onlyLower ); \
+    SparseMatrix<Real>& J,       bool onlyLower ); \
   template void AugmentedKKT \
   ( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z, \
-          DistSparseMatrix<Real>& J, bool onlyLower ); \
+    DistSparseMatrix<Real>& J,       bool onlyLower ); \
   template void AugmentedKKTRHS \
   ( const Matrix<Real>& x, \
-    const Matrix<Real>& rmu, const Matrix<Real>& rc, \
-    const Matrix<Real>& rb, \
+    const Matrix<Real>& rc, const Matrix<Real>& rb, \
+    const Matrix<Real>& rmu, \
           Matrix<Real>& d ); \
   template void AugmentedKKTRHS \
   ( const AbstractDistMatrix<Real>& x, \
-    const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& rc, \
-    const AbstractDistMatrix<Real>& rb, \
+    const AbstractDistMatrix<Real>& rc,  const AbstractDistMatrix<Real>& rb, \
+    const AbstractDistMatrix<Real>& rmu, \
           AbstractDistMatrix<Real>& d ); \
   template void AugmentedKKTRHS \
   ( const DistMultiVec<Real>& x, \
-    const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& rc, \
-    const DistMultiVec<Real>& rb, \
+    const DistMultiVec<Real>& rc,  const DistMultiVec<Real>& rb, \
+    const DistMultiVec<Real>& rmu, \
           DistMultiVec<Real>& d ); \
   template void ExpandAugmentedSolution \
   ( const Matrix<Real>& x,   const Matrix<Real>& z, \

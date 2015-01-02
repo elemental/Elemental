@@ -11,8 +11,9 @@ import time
 
 m = 1000
 n = 2000
+k = 1500
 testMehrotra = True
-testIPF = True
+testIPF = False
 testADMM = False
 manualInit = False
 display = False
@@ -33,43 +34,61 @@ def RectangDense(height,width):
 
 Q = Semidefinite(n)
 A = RectangDense(m,n)
+G = RectangDense(k,n)
 
-# Generate a b which implies a primal feasible x
-# ==============================================
+# Generate a (b,h) which implies a primal feasible (x,s)
+# =====================================================
+# b := A xGen
+# -----------
 xGen = El.DistMatrix()
 El.Uniform(xGen,n,1,0.5,0.4999)
 b = El.DistMatrix()
 El.Zeros( b, m, 1 )
 El.Gemv( El.NORMAL, 1., A, xGen, 0., b )
+# h := G xGen + sGen
+# ------------------
+sGen = El.DistMatrix()
+El.Uniform(sGen,k,1,0.5,0.5)
+h = El.DistMatrix()
+El.Copy( sGen, h )
+El.Gemv( El.NORMAL, 1., G, xGen, 1., h )
 
 # Generate a c which implies a dual feasible (y,z)
 # ================================================
 yGen = El.DistMatrix()
 El.Gaussian(yGen,m,1)
+zGen = El.DistMatrix()
+El.Uniform(zGen,k,1,0.5,0.5)
 c = El.DistMatrix()
-El.Uniform(c,n,1,0.5,0.5)
+El.Zeros(c,n,1)
 El.Hemv( El.LOWER,     -1,  Q, xGen, 1., c )
 El.Gemv( El.TRANSPOSE, -1., A, yGen, 1., c )
+El.Gemv( El.TRANSPOSE, -1., G, zGen, 1., c )
 
 if display:
   El.Display( Q, "Q" )
   El.Display( A, "A" )
+  El.Display( G, "G" )
   El.Display( b, "b" )
   El.Display( c, "c" )
+  El.Display( h, "h" )
 
 # Set up the control structure (and possibly initial guesses)
 # ===========================================================
-ctrl = El.QPDirectCtrl_d()
+ctrl = El.QPAffineCtrl_d()
 xOrig = El.DistMatrix()
 yOrig = El.DistMatrix()
 zOrig = El.DistMatrix()
+sOrig = El.DistMatrix()
 if manualInit:
   El.Uniform(xOrig,n,1,0.5,0.4999)
   El.Uniform(yOrig,m,1,0.5,0.4999)
-  El.Uniform(zOrig,n,1,0.5,0.4999)
+  El.Uniform(zOrig,k,1,0.5,0.4999)
+  El.Uniform(sOrig,k,1,0.5,0.4999)
 x = El.DistMatrix()
 y = El.DistMatrix()
 z = El.DistMatrix()
+s = El.DistMatrix()
 
 if testMehrotra:
   ctrl.approach = El.QP_MEHROTRA
@@ -79,8 +98,9 @@ if testMehrotra:
   El.Copy( xOrig, x )
   El.Copy( yOrig, y )
   El.Copy( zOrig, z )
+  El.Copy( sOrig, s )
   startMehrotra = time.clock()
-  El.QPDirect(Q,A,b,c,x,y,z,ctrl)
+  El.QPAffine(Q,A,G,b,c,h,x,y,z,s,ctrl)
   endMehrotra = time.clock()
   if worldRank == 0:
     print "Mehrotra time:", endMehrotra-startMehrotra
@@ -89,6 +109,7 @@ if testMehrotra:
     El.Display( x, "x Mehrotra" )
     El.Display( y, "y Mehrotra" )
     El.Display( z, "z Mehrotra" )
+    El.Display( s, "s Mehrotra" )
 
   d = El.DistMatrix()
   El.Zeros( d, n, 1 )
@@ -106,8 +127,9 @@ if testIPF:
   El.Copy( xOrig, x )
   El.Copy( yOrig, y )
   El.Copy( zOrig, z )
+  El.Copy( sOrig, s )
   startIPF = time.clock()
-  El.QPDirect(Q,A,b,c,x,y,z,ctrl)
+  El.QPAffine(Q,A,G,b,c,h,x,y,z,s,ctrl)
   endIPF = time.clock()
   if worldRank == 0:
     print "IPF time:", endIPF-startIPF
@@ -116,6 +138,7 @@ if testIPF:
     El.Display( x, "x IPF" )
     El.Display( y, "y IPF" )
     El.Display( z, "z IPF" )
+    El.Display( s, "s IPF" )
 
   d = El.DistMatrix()
   El.Zeros( d, n, 1 )
