@@ -256,6 +256,7 @@ EL_EXPORT ElError ElEntrywiseNorm_c
 ( ElConstMatrix_c A, float p, float* norm );
 EL_EXPORT ElError ElEntrywiseNorm_z
 ( ElConstMatrix_z A, double p, double* norm );
+
 EL_EXPORT ElError ElEntrywiseNormDist_s
 ( ElConstDistMatrix_s A, float p, float* norm );
 EL_EXPORT ElError ElEntrywiseNormDist_d
@@ -264,6 +265,7 @@ EL_EXPORT ElError ElEntrywiseNormDist_c
 ( ElConstDistMatrix_c A, float p, float* norm );
 EL_EXPORT ElError ElEntrywiseNormDist_z
 ( ElConstDistMatrix_z A, double p, double* norm );
+
 EL_EXPORT ElError ElEntrywiseNormSparse_s
 ( ElConstSparseMatrix_s A, float p, float* norm );
 EL_EXPORT ElError ElEntrywiseNormSparse_d
@@ -272,6 +274,7 @@ EL_EXPORT ElError ElEntrywiseNormSparse_c
 ( ElConstSparseMatrix_c A, float p, float* norm );
 EL_EXPORT ElError ElEntrywiseNormSparse_z
 ( ElConstSparseMatrix_z A, double p, double* norm );
+
 EL_EXPORT ElError ElEntrywiseNormDistSparse_s
 ( ElConstDistSparseMatrix_s A, float p, float* norm );
 EL_EXPORT ElError ElEntrywiseNormDistSparse_d
@@ -281,18 +284,30 @@ EL_EXPORT ElError ElEntrywiseNormDistSparse_c
 EL_EXPORT ElError ElEntrywiseNormDistSparse_z
 ( ElConstDistSparseMatrix_z A, double p, double* norm );
 
+EL_EXPORT ElError ElEntrywiseNormDistMultiVec_s
+( ElConstDistMultiVec_s A, float p, float* norm );
+EL_EXPORT ElError ElEntrywiseNormDistMultiVec_d
+( ElConstDistMultiVec_d A, double p, double* norm );
+EL_EXPORT ElError ElEntrywiseNormDistMultiVec_c
+( ElConstDistMultiVec_c A, float p, float* norm );
+EL_EXPORT ElError ElEntrywiseNormDistMultiVec_z
+( ElConstDistMultiVec_z A, double p, double* norm );
+
 EL_EXPORT ElError ElHermitianEntrywiseNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float p, float* norm );
 EL_EXPORT ElError ElHermitianEntrywiseNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double p, double* norm );
+
 EL_EXPORT ElError ElHermitianEntrywiseNormDist_c
 ( ElUpperOrLower uplo, ElConstDistMatrix_c A, float p, float* norm );
 EL_EXPORT ElError ElHermitianEntrywiseNormDist_z
 ( ElUpperOrLower uplo, ElConstDistMatrix_z A, double p, double* norm );
+
 EL_EXPORT ElError ElHermitianEntrywiseNormSparse_c
 ( ElUpperOrLower uplo, ElConstSparseMatrix_c A, float p, float* norm );
 EL_EXPORT ElError ElHermitianEntrywiseNormSparse_z
 ( ElUpperOrLower uplo, ElConstSparseMatrix_z A, double p, double* norm );
+
 EL_EXPORT ElError ElHermitianEntrywiseNormDistSparse_c
 ( ElUpperOrLower uplo, ElConstDistSparseMatrix_c A, float p, float* norm );
 EL_EXPORT ElError ElHermitianEntrywiseNormDistSparse_z
@@ -306,6 +321,7 @@ EL_EXPORT ElError ElSymmetricEntrywiseNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float p, float* norm );
 EL_EXPORT ElError ElSymmetricEntrywiseNorm_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double p, double* norm );
+
 EL_EXPORT ElError ElSymmetricEntrywiseNormDist_s
 ( ElUpperOrLower uplo, ElConstDistMatrix_s A, float p, float* norm );
 EL_EXPORT ElError ElSymmetricEntrywiseNormDist_d
@@ -314,6 +330,7 @@ EL_EXPORT ElError ElSymmetricEntrywiseNormDist_c
 ( ElUpperOrLower uplo, ElConstDistMatrix_c A, float p, float* norm );
 EL_EXPORT ElError ElSymmetricEntrywiseNormDist_z
 ( ElUpperOrLower uplo, ElConstDistMatrix_z A, double p, double* norm );
+
 EL_EXPORT ElError ElSymmetricEntrywiseNormSparse_s
 ( ElUpperOrLower uplo, ElConstSparseMatrix_s A, float p, float* norm );
 EL_EXPORT ElError ElSymmetricEntrywiseNormSparse_d
@@ -322,6 +339,7 @@ EL_EXPORT ElError ElSymmetricEntrywiseNormSparse_c
 ( ElUpperOrLower uplo, ElConstSparseMatrix_c A, float p, float* norm );
 EL_EXPORT ElError ElSymmetricEntrywiseNormSparse_z
 ( ElUpperOrLower uplo, ElConstSparseMatrix_z A, double p, double* norm );
+
 EL_EXPORT ElError ElSymmetricEntrywiseNormDistSparse_s
 ( ElUpperOrLower uplo, ElConstDistSparseMatrix_s A, float p, float* norm );
 EL_EXPORT ElError ElSymmetricEntrywiseNormDistSparse_d

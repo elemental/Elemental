@@ -187,6 +187,9 @@ extern "C" {
   ElError ElEntrywiseNormDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, Base<F> p, Base<F>* norm ) \
   { EL_TRY( *norm = EntrywiseNorm( *CReflect(A), p ) ) } \
+  ElError ElEntrywiseNormDistMultiVec_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG A, Base<F> p, Base<F>* norm ) \
+  { EL_TRY( *norm = EntrywiseNorm( *CReflect(A), p ) ) } \
   ElError ElSymmetricEntrywiseNorm_ ## SIG \
   ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, Base<F> p, Base<F>* norm ) \
   { EL_TRY( *norm = SymmetricEntrywiseNorm( \

@@ -157,6 +157,21 @@ Base<F> EntrywiseNorm( const DistSparseMatrix<F>& A, Base<F> p )
     return Pow( sum, Real(1)/p );
 }
 
+template<typename F> 
+Base<F> EntrywiseNorm( const DistMultiVec<F>& A, Base<F> p )
+{
+    DEBUG_ONLY(CallStackEntry cse("EntrywiseNorm"))
+    typedef Base<F> Real;
+
+    Real localSum = 0;
+    for( Int j=0; j<A.Width(); ++j )
+        for( Int iLoc=0; iLoc<A.LocalHeight(); ++iLoc )
+            localSum += Pow( Abs(A.GetLocal(iLoc,j)), p ); 
+
+    const Real sum = mpi::AllReduce( localSum, A.Comm() );
+    return Pow( sum, Real(1)/p );
+}
+
 template<typename F>
 Base<F> HermitianEntrywiseNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p )

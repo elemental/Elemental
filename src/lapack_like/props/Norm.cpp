@@ -247,6 +247,7 @@ Base<F> HermitianNorm
   template Base<F> EntrywiseNorm( const AbstractDistMatrix<F>& A, Base<F> p ); \
   template Base<F> EntrywiseNorm( const SparseMatrix<F>& A, Base<F> p ); \
   template Base<F> EntrywiseNorm( const DistSparseMatrix<F>& A, Base<F> p ); \
+  template Base<F> EntrywiseNorm( const DistMultiVec<F>& A, Base<F> p ); \
   template Base<F> HermitianEntrywiseNorm \
   ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p ); \
   template Base<F> HermitianEntrywiseNorm \

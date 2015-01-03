@@ -10,99 +10,6 @@ from El.core import *
 
 from ctypes import CFUNCTYPE
 
-# Basis pursuit
-# =============
-lib.ElBasisPursuit_s.argtypes = \
-lib.ElBasisPursuit_d.argtypes = \
-lib.ElBasisPursuitDist_s.argtypes = \
-lib.ElBasisPursuitDist_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p]
-lib.ElBasisPursuit_s.restype = \
-lib.ElBasisPursuit_d.restype = \
-lib.ElBasisPursuitDist_s.restype = \
-lib.ElBasisPursuitDist_d.restype = \
-  c_uint
-def BasisPursuit(A,b):
-  if type(A) is not type(b):
-    raise Exception('Types of A and b must match')
-  if A.tag != b.tag:
-    raise Exception('Datatypes of A and b must match')
-  if type(A) is Matrix:
-    x = Matrix(A.tag)
-    args = [A.obj,b.obj,x.obj]
-    if   A.tag == sTag: lib.ElBasisPursuit_s(*args)
-    elif A.tag == dTag: lib.ElBasisPursuit_d(*args)
-    else: DataExcept()
-    return x
-  elif type(A) is DistMatrix:
-    x = DistMatrix(A.tag,MC,MR,A.Grid())
-    args = [A.obj,b.obj,x.obj]
-    if   A.tag == sTag: lib.ElBasisPursuitDist_s(*args)
-    elif A.tag == dTag: lib.ElBasisPursuitDist_d(*args)
-    else: DataExcept()
-    return x
-  elif type(A) is SparseMatrix:
-    x = Matrix(A.tag)
-    args = [A.obj,b.obj,x.obj]
-    if   A.tag == sTag: lib.ElBasisPursuitSparse_s(*args)
-    elif A.tag == dTag: lib.ElBasisPursuitSparse_d(*args)
-    else: DataExcept()
-    return x
-  elif type(A) is DistSparseMatrix:
-    x = DistMultiVec(A.tag,A.Comm())
-    args = [A.obj,b.obj,x.obj]
-    if   A.tag == sTag: lib.ElBasisPursuitDistSparse_s(*args)
-    elif A.tag == dTag: lib.ElBasisPursuitDistSparse_d(*args)
-    else: DataExcept()
-    return x
-  else: TypeExcept()
-
-# ADMM
-# ----
-lib.ElBasisPursuitADMM_s.argtypes = \
-lib.ElBasisPursuitADMM_d.argtypes = \
-lib.ElBasisPursuitADMM_c.argtypes = \
-lib.ElBasisPursuitADMM_z.argtypes = \
-lib.ElBasisPursuitADMMDist_s.argtypes = \
-lib.ElBasisPursuitADMMDist_d.argtypes = \
-lib.ElBasisPursuitADMMDist_c.argtypes = \
-lib.ElBasisPursuitADMMDist_z.argtypes = \
-  [c_void_p,c_void_p,c_void_p,POINTER(iType)]
-lib.ElBasisPursuitADMM_s.restype = \
-lib.ElBasisPursuitADMM_d.restype = \
-lib.ElBasisPursuitADMM_c.restype = \
-lib.ElBasisPursuitADMM_z.restype = \
-lib.ElBasisPursuitADMMDist_s.restype = \
-lib.ElBasisPursuitADMMDist_d.restype = \
-lib.ElBasisPursuitADMMDist_c.restype = \
-lib.ElBasisPursuitADMMDist_z.restype = \
-  c_uint
-def BasisPursuitADMM(A,b):
-  if type(A) is not type(b):
-    raise Exception('Types of A and b must match')
-  if A.tag != b.tag:
-    raise Exception('Datatypes of A and b must match')
-  numIts = iType()
-  if type(A) is Matrix:
-    z = Matrix(A.tag)
-    args = [A.obj,b.obj,z.obj,pointer(numIts)]
-    if   A.tag == sTag: lib.ElBasisPursuitADMM_s(*args)
-    elif A.tag == dTag: lib.ElBasisPursuitADMM_d(*args)
-    elif A.tag == cTag: lib.ElBasisPursuitADMM_c(*args)
-    elif A.tag == zTag: lib.ElBasisPursuitADMM_z(*args)
-    else: DataExcept()
-    return z, numIts
-  elif type(A) is DistMatrix:
-    z = DistMatrix(A.tag,MC,MR,A.Grid())
-    args = [A.obj,b.obj,z.obj,pointer(numIts)]
-    if   A.tag == sTag: lib.ElBasisPursuitADMMDist_s(*args)
-    elif A.tag == dTag: lib.ElBasisPursuitADMMDist_d(*args)
-    elif A.tag == cTag: lib.ElBasisPursuitADMMDist_c(*args)
-    elif A.tag == zTag: lib.ElBasisPursuitADMMDist_z(*args)
-    else: DataExcept()
-    return z, numIts
-  else: TypeExcept()
-
 # Least Absolute Shrinkage and Selection Operator
 # ===============================================
 lib.ElLasso_s.argtypes = \
@@ -294,6 +201,9 @@ lib.ElLPDirectXDistSparse_d.restype = \
   c_uint
 
 def LPDirect(A,b,c,x,y,z,ctrl=None):
+  if A.tag != b.tag or b.tag != c.tag or c.tag != x.tag or \
+     x.tag != y.tag or y.tag != z.tag:
+    raise Exception('Datatypes of {A,b,c,x,y,z} must match')
   if type(b) is not type(c) or type(b) is not type(x) or \
      type(b) is not type(y) or type(b) is not type(z):
     raise Exception('{b,c,x,y,z} must be of the same type')
@@ -490,6 +400,157 @@ def LPAffine(A,G,b,c,h,x,y,z,s,ctrl=None):
       else:            lib.ElLPAffineXDistSparse_d(*argsCtrl)
     else: DataExcept()
   else: TypeExcept()
+
+# Basis pursuit
+# =============
+lib.ElBP_s.argtypes = \
+lib.ElBP_d.argtypes = \
+lib.ElBPDist_s.argtypes = \
+lib.ElBPDist_d.argtypes = \
+lib.ElBPSparse_s.argtypes = \
+lib.ElBPSparse_d.argtypes = \
+lib.ElBPDistSparse_s.argtypes = \
+lib.ElBPDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+lib.ElBP_s.restype = \
+lib.ElBP_d.restype = \
+lib.ElBPDist_s.restype = \
+lib.ElBPDist_d.restype = \
+lib.ElBPSparse_s.restype = \
+lib.ElBPSparse_d.restype = \
+lib.ElBPDistSparse_s.restype = \
+lib.ElBPDistSparse_d.restype = \
+  c_uint
+
+lib.ElBPX_s.argtypes = \
+lib.ElBPXDist_s.argtypes = \
+lib.ElBPXSparse_s.argtypes = \
+lib.ElBPXDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,
+   LPDirectCtrl_s]
+lib.ElBPX_d.argtypes = \
+lib.ElBPXDist_d.argtypes = \
+lib.ElBPXSparse_d.argtypes = \
+lib.ElBPXDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,
+   LPDirectCtrl_d]
+lib.ElBPX_s.restype = \
+lib.ElBPX_d.restype = \
+lib.ElBPXDist_s.restype = \
+lib.ElBPXDist_d.restype = \
+lib.ElBPXSparse_s.restype = \
+lib.ElBPXSparse_d.restype = \
+lib.ElBPXDistSparse_s.restype = \
+lib.ElBPXDistSparse_d.restype = \
+  c_uint
+
+def BP(A,b,ctrl=None):
+  if A.tag != b.tag:
+    raise Exception('Datatypes of A and b must match')
+  if type(A) is Matrix:
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
+    x = Matrix(A.tag)
+    args = [A.obj,b.obj,x.obj]
+    argsCtrl = [A.obj,b.obj,x.obj,ctrl] 
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElBP_s(*args)
+      else:            lib.ElBPX_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElBP_d(*args)
+      else:            lib.ElBPX_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is DistMatrix:
+    if type(b) is not DistMatrix:
+      raise Exception('b must be a DistMatrix')
+    x = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,b.obj,x.obj]
+    argsCtrl = [A.obj,b.obj,x.obj,ctrl] 
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElBPDist_s(*args)
+      else:            lib.ElBPXDist_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElBPDist_d(*args)
+      else:            lib.ElBPXDist_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is SparseMatrix:
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
+    x = Matrix(A.tag)
+    args = [A.obj,b.obj,x.obj]
+    argsCtrl = [A.obj,b.obj,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElBPSparse_s(*args)
+      else:            lib.ElBPXSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElBPSparse_d(*args)
+      else:            lib.ElBPXSparse_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is DistSparseMatrix:
+    if type(b) is not DistMultiVec:
+      raise Exception('b must be a DistMultiVec')
+    x = DistMultiVec(A.tag,A.Comm())
+    args = [A.obj,b.obj,x.obj]
+    argsCtrl = [A.obj,b.obj,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElBPDistSparse_s(*args)
+      else:            lib.ElBPXDistSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElBPDistSparse_d(*args)
+      else:            lib.ElBPXDistSparse_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  else: TypeExcept()
+
+# ADMM
+# ----
+lib.ElBPADMM_s.argtypes = \
+lib.ElBPADMM_d.argtypes = \
+lib.ElBPADMM_c.argtypes = \
+lib.ElBPADMM_z.argtypes = \
+lib.ElBPADMMDist_s.argtypes = \
+lib.ElBPADMMDist_d.argtypes = \
+lib.ElBPADMMDist_c.argtypes = \
+lib.ElBPADMMDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,POINTER(iType)]
+lib.ElBPADMM_s.restype = \
+lib.ElBPADMM_d.restype = \
+lib.ElBPADMM_c.restype = \
+lib.ElBPADMM_z.restype = \
+lib.ElBPADMMDist_s.restype = \
+lib.ElBPADMMDist_d.restype = \
+lib.ElBPADMMDist_c.restype = \
+lib.ElBPADMMDist_z.restype = \
+  c_uint
+def BPADMM(A,b):
+  if type(A) is not type(b):
+    raise Exception('Types of A and b must match')
+  if A.tag != b.tag:
+    raise Exception('Datatypes of A and b must match')
+  numIts = iType()
+  if type(A) is Matrix:
+    z = Matrix(A.tag)
+    args = [A.obj,b.obj,z.obj,pointer(numIts)]
+    if   A.tag == sTag: lib.ElBPADMM_s(*args)
+    elif A.tag == dTag: lib.ElBPADMM_d(*args)
+    elif A.tag == cTag: lib.ElBPADMM_c(*args)
+    elif A.tag == zTag: lib.ElBPADMM_z(*args)
+    else: DataExcept()
+    return z, numIts
+  elif type(A) is DistMatrix:
+    z = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,b.obj,z.obj,pointer(numIts)]
+    if   A.tag == sTag: lib.ElBPADMMDist_s(*args)
+    elif A.tag == dTag: lib.ElBPADMMDist_d(*args)
+    elif A.tag == cTag: lib.ElBPADMMDist_c(*args)
+    elif A.tag == zTag: lib.ElBPADMMDist_z(*args)
+    else: DataExcept()
+    return z, numIts
+  else: TypeExcept()
+
 
 # Logistic regression
 # ===================

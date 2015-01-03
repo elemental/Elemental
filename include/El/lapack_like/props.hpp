@@ -156,6 +156,8 @@ template<typename F>
 Base<F> EntrywiseNorm( const SparseMatrix<F>& A, Base<F> p=1 );
 template<typename F>
 Base<F> EntrywiseNorm( const DistSparseMatrix<F>& A, Base<F> p=1 );
+template<typename F>
+Base<F> EntrywiseNorm( const DistMultiVec<F>& A, Base<F> p=1 );
 
 template<typename F>
 Base<F> HermitianEntrywiseNorm

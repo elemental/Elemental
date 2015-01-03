@@ -354,12 +354,12 @@ ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
      ============= */ \
   /* ADMM
      ---- */ \
-  ElError ElBasisPursuitADMM_ ## SIG \
+  ElError ElBPADMM_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
     ElMatrix_ ## SIG z, ElInt* numIts ) \
   { EL_TRY( *numIts = bp::ADMM \
       ( *CReflect(A), *CReflect(b), *CReflect(z) ) ) } \
-  ElError ElBasisPursuitADMMDist_ ## SIG \
+  ElError ElBPADMMDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
     ElDistMatrix_ ## SIG z, ElInt* numIts ) \
   { EL_TRY( *numIts = bp::ADMM \
@@ -458,26 +458,44 @@ ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
   C_PROTO_FIELD(SIG,SIG,Real) \
   /* Basis Pursuit
      ============= */ \
-  ElError ElBasisPursuit_ ## SIG \
+  ElError ElBP_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
     ElMatrix_ ## SIG x ) \
-  { EL_TRY( BasisPursuit \
-      ( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
-  ElError ElBasisPursuitDist_ ## SIG \
+  { EL_TRY( BP( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ElError ElBPDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
     ElDistMatrix_ ## SIG x ) \
-  { EL_TRY( BasisPursuit \
-      ( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
-  ElError ElBasisPursuitSparse_ ## SIG \
+  { EL_TRY( BP( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ElError ElBPSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
     ElMatrix_ ## SIG x ) \
-  { EL_TRY( BasisPursuit \
-      ( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
-  ElError ElBasisPursuitDistSparse_ ## SIG \
+  { EL_TRY( BP( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ElError ElBPDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
     ElDistMultiVec_ ## SIG x ) \
-  { EL_TRY( BasisPursuit \
-      ( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  { EL_TRY( BP( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  /* Expert versions
+     --------------- */ \
+  ElError ElBPX_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    ElMatrix_ ## SIG x, ElLPDirectCtrl_ ## SIG ctrl ) \
+  { EL_TRY( BP \
+      ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElBPXDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
+    ElDistMatrix_ ## SIG x, ElLPDirectCtrl_ ## SIG ctrl ) \
+  { EL_TRY( BP \
+      ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElBPXSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    ElMatrix_ ## SIG x, ElLPDirectCtrl_ ## SIG ctrl ) \
+  { EL_TRY( BP \
+      ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElBPXDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
+    ElDistMultiVec_ ## SIG x, ElLPDirectCtrl_ ## SIG ctrl ) \
+  { EL_TRY( BP \
+      ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
   /* Linear program
      ============== */ \
   /* Direct conic form
