@@ -1050,6 +1050,113 @@ def QPBoxADMM(Q,C,lb,ub):
     return Z, numIts
   else: TypeExcept()
 
+# Basis pursuit denoising
+# =======================
+lib.ElBPDN_s.argtypes = \
+lib.ElBPDNDist_s.argtypes = \
+lib.ElBPDNSparse_s.argtypes = \
+lib.ElBPDNDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,sType,c_void_p]
+lib.ElBPDN_d.argtypes = \
+lib.ElBPDNDist_d.argtypes = \
+lib.ElBPDNSparse_d.argtypes = \
+lib.ElBPDNDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,dType,c_void_p]
+
+lib.ElBPDN_s.restype = \
+lib.ElBPDN_d.restype = \
+lib.ElBPDNDist_s.restype = \
+lib.ElBPDNDist_d.restype = \
+lib.ElBPDNSparse_s.restype = \
+lib.ElBPDNSparse_d.restype = \
+lib.ElBPDNDistSparse_s.restype = \
+lib.ElBPDNDistSparse_d.restype = \
+  c_uint
+
+lib.ElBPDNX_s.argtypes = \
+lib.ElBPDNXDist_s.argtypes = \
+lib.ElBPDNXSparse_s.argtypes = \
+lib.ElBPDNXDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,sType,c_void_p,
+   QPAffineCtrl_s]
+lib.ElBPDNX_d.argtypes = \
+lib.ElBPDNXDist_d.argtypes = \
+lib.ElBPDNXSparse_d.argtypes = \
+lib.ElBPDNXDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,dType,c_void_p,
+   QPAffineCtrl_d]
+lib.ElBPDNX_s.restype = \
+lib.ElBPDNX_d.restype = \
+lib.ElBPDNXDist_s.restype = \
+lib.ElBPDNXDist_d.restype = \
+lib.ElBPDNXSparse_s.restype = \
+lib.ElBPDNXSparse_d.restype = \
+lib.ElBPDNXDistSparse_s.restype = \
+lib.ElBPDNXDistSparse_d.restype = \
+  c_uint
+
+def BPDN(A,b,lambdPre,ctrl=None):
+  if A.tag != b.tag:
+    raise Exception('Datatypes of A and b must match')
+  lambd = TagToType(A.tag)(lambdPre)
+  if type(A) is Matrix:
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
+    x = Matrix(A.tag)
+    args = [A.obj,b.obj,lambd,x.obj]
+    argsCtrl = [A.obj,b.obj,lambd,x.obj,ctrl] 
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElBPDN_s(*args)
+      else:            lib.ElBPDNX_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElBPDN_d(*args)
+      else:            lib.ElBPDNX_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is DistMatrix:
+    if type(b) is not DistMatrix:
+      raise Exception('b must be a DistMatrix')
+    x = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,b.obj,lambd,x.obj]
+    argsCtrl = [A.obj,b.obj,lambd,x.obj,ctrl] 
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElBPDNDist_s(*args)
+      else:            lib.ElBPDNXDist_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElBPDNDist_d(*args)
+      else:            lib.ElBPDNXDist_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is SparseMatrix:
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
+    x = Matrix(A.tag)
+    args = [A.obj,b.obj,lambd,x.obj]
+    argsCtrl = [A.obj,b.obj,lambd,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElBPDNSparse_s(*args)
+      else:            lib.ElBPDNXSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElBPDNSparse_d(*args)
+      else:            lib.ElBPDNXSparse_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is DistSparseMatrix:
+    if type(b) is not DistMultiVec:
+      raise Exception('b must be a DistMultiVec')
+    x = DistMultiVec(A.tag,A.Comm())
+    args = [A.obj,b.obj,lambd,x.obj]
+    argsCtrl = [A.obj,b.obj,lambd,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElBPDNDistSparse_s(*args)
+      else:            lib.ElBPDNXDistSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElBPDNDistSparse_d(*args)
+      else:            lib.ElBPDNXDistSparse_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  else: TypeExcept()
+
 # Robust Principal Component Analysis
 # ===================================
 lib.ElRPCA_s.argtypes = \

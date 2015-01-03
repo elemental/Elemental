@@ -328,7 +328,6 @@ Int ADMM
 
 } // namespace bp
 
-// TODO: Add a control structure which extends that of the LP IPM
 template<typename Real>
 void BP
 ( const Matrix<Real>& A, const Matrix<Real>& b,
@@ -685,6 +684,35 @@ void QP
   const DistMultiVec<Real>& h,
         DistMultiVec<Real>& x,           DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,           DistMultiVec<Real>& s,
+  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
+
+// Basis pursuit denoising (BPDN): 
+//   min (1/2) || b - A x ||_2^2 + lambda || x ||_1
+// ================================================
+
+template<typename Real>
+void BPDN
+( const Matrix<Real>& A, const Matrix<Real>& b, 
+        Real lambda,
+        Matrix<Real>& x,
+  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
+template<typename Real>
+void BPDN
+( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
+        Real lambda,
+        AbstractDistMatrix<Real>& x,
+  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
+template<typename Real>
+void BPDN
+( const SparseMatrix<Real>& A, const Matrix<Real>& b,
+        Real lambda,
+        Matrix<Real>& x,
+  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
+template<typename Real>
+void BPDN
+( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b,
+        Real lambda,
+        DistMultiVec<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 
 // Robust Principal Component Analysis (RPCA)

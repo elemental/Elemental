@@ -496,6 +496,46 @@ ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
     ElDistMultiVec_ ## SIG x, ElLPDirectCtrl_ ## SIG ctrl ) \
   { EL_TRY( BP \
       ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
+  /* Basis Pursuit Denoising
+     ======================= */ \
+  ElError ElBPDN_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    Real lambda, ElMatrix_ ## SIG x ) \
+  { EL_TRY( BPDN( *CReflect(A), *CReflect(b), lambda, *CReflect(x) ) ) } \
+  ElError ElBPDNDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
+    Real lambda, ElDistMatrix_ ## SIG x ) \
+  { EL_TRY( BPDN( *CReflect(A), *CReflect(b), lambda, *CReflect(x) ) ) } \
+  ElError ElBPDNSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    Real lambda, ElMatrix_ ## SIG x ) \
+  { EL_TRY( BPDN( *CReflect(A), *CReflect(b), lambda, *CReflect(x) ) ) } \
+  ElError ElBPDNDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
+    Real lambda, ElDistMultiVec_ ## SIG x ) \
+  { EL_TRY( BPDN( *CReflect(A), *CReflect(b), lambda, *CReflect(x) ) ) } \
+  /* Expert versions
+     --------------- */ \
+  ElError ElBPDNX_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    Real lambda, ElMatrix_ ## SIG x, ElQPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( BPDN \
+      ( *CReflect(A), *CReflect(b), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElBPDNXDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
+    Real lambda, ElDistMatrix_ ## SIG x, ElQPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( BPDN \
+      ( *CReflect(A), *CReflect(b), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElBPDNXSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    Real lambda, ElMatrix_ ## SIG x, ElQPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( BPDN \
+      ( *CReflect(A), *CReflect(b), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElBPDNXDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
+    Real lambda, ElDistMultiVec_ ## SIG x, ElQPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( BPDN \
+      ( *CReflect(A), *CReflect(b), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
   /* Linear program
      ============== */ \
   /* Direct conic form

@@ -1013,6 +1013,66 @@ EL_EXPORT ElError ElQPBoxADMMDist_d
 
 /* TODO: Expert versions */
 
+/* Basis pursuit denoising
+   ======================= */
+EL_EXPORT ElError ElBPDN_s
+( ElConstMatrix_s A, ElConstMatrix_s b, float lambda, 
+  ElMatrix_s x );
+EL_EXPORT ElError ElBPDN_d
+( ElConstMatrix_d A, ElConstMatrix_d b, double lambda, 
+  ElMatrix_d x );
+
+EL_EXPORT ElError ElBPDNDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_s b, float lambda, 
+  ElDistMatrix_s x );
+EL_EXPORT ElError ElBPDNDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_d b, double lambda, 
+  ElDistMatrix_d x );
+
+EL_EXPORT ElError ElBPDNSparse_s
+( ElConstSparseMatrix_s A, ElConstMatrix_s b, float lambda,
+  ElMatrix_s x );
+EL_EXPORT ElError ElBPDNSparse_d
+( ElConstSparseMatrix_d A, ElConstMatrix_d b, double lambda,
+  ElMatrix_d x );
+
+EL_EXPORT ElError ElBPDNDistSparse_s
+( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b, float lambda,
+  ElDistMultiVec_s x );
+EL_EXPORT ElError ElBPDNDistSparse_d
+( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b, double lambda,
+  ElDistMultiVec_d x );
+
+/* Expert verions
+   -------------- */
+EL_EXPORT ElError ElBPDNX_s
+( ElConstMatrix_s A, ElConstMatrix_s b, float lambda,
+  ElMatrix_s x, ElQPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElBPDNX_d
+( ElConstMatrix_d A, ElConstMatrix_d b, double lambda,
+  ElMatrix_d x, ElQPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElBPDNXDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_s b, float lambda,
+  ElDistMatrix_s x, ElQPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElBPDNXDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_d b, double lambda,
+  ElDistMatrix_d x, ElQPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElBPDNXSparse_s
+( ElConstSparseMatrix_s A, ElConstMatrix_s b, float lambda,
+  ElMatrix_s x, ElQPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElBPDNXSparse_d
+( ElConstSparseMatrix_d A, ElConstMatrix_d b, double lambda,
+  ElMatrix_d x, ElQPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElBPDNXDistSparse_s
+( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b, float lambda,
+  ElDistMultiVec_s x, ElQPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElBPDNXDistSparse_d
+( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b, double lambda,
+  ElDistMultiVec_d x, ElQPAffineCtrl_d ctrl );
+
 /* Robust Principal Component Analysis
    =================================== */
 EL_EXPORT ElError ElRPCA_s( ElConstMatrix_s M, ElMatrix_s L, ElMatrix_s S );

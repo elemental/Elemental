@@ -15,13 +15,18 @@
 //   s.t. A x = b.
 //
 // Real instances of the problem are expressable as a Linear Program [1] via 
-// the transformation
+// decomposing x into its positive and negative parts, say (u,v), and posing
 //
-// min 1^T [u;v]
-// s.t. [A, -A] [u; v] = b, [u; v] >= 0.
+//   min 1^T [u;v]
+//   s.t. [A, -A] [u; v] = b, [u; v] >= 0.
+//
+// After solving this LP, the solution is set to x := u - v.
 //
 // Complex instances of Basis Pursuit require Second-Order Cone Programming.
 //
+// [1] Scott S. Chen, David L. Donoho, and Michael A. Saunders,
+//     "Atomic Decomposition by Basis Pursuit",
+//     SIAM Review, Vol. 43, No. 1, pp. 129--159, 2001
 
 // TODO: Extend the existing LP control parameters
 // TODO: Extend the (upcoming) SOCP control parameters
@@ -37,6 +42,7 @@ void BP
     DEBUG_ONLY(CallStackEntry cse("BP"))
     const Int m = A.Height();
     const Int n = A.Width();
+    const Range<Int> uInd(0,n), vInd(n,2*n);
     Matrix<Real> c, xHat, AHat;
 
     // c := ones(2*n,1)
@@ -46,11 +52,11 @@ void BP
     // \hat A := [A, -A]
     // =================
     Zeros( AHat, m, 2*n );
-    auto AHatL = AHat( IR(0,m), IR(0,n) );
-    auto AHatR = AHat( IR(0,m), IR(n,2*n) );
-    AHatL = A;
-    AHatR = A;
-    Scale( Real(-1), AHatR );
+    auto AHat_u = AHat( IR(0,m), uInd );
+    auto AHat_v = AHat( IR(0,m), vInd );
+    AHat_u = A;
+    AHat_v = A;
+    Scale( Real(-1), AHat_v );
 
     // Solve the direct LP
     // ===================
@@ -59,8 +65,8 @@ void BP
 
     // x := u - v
     // ==========
-    x = xHat( IR(0,n), IR(0,1) );
-    Axpy( Real(-1), xHat(IR(n,2*n),IR(0,1)), x );
+    x = xHat( uInd, IR(0,1) );
+    Axpy( Real(-1), xHat(vInd,IR(0,1)), x );
 }
 
 template<typename Real>
@@ -73,6 +79,7 @@ void BP
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
+    const Range<Int> uInd(0,n), vInd(n,2*n);
     DistMatrix<Real> c(g), xHat(g), AHat(g);
 
     // c := ones(2*n,1)
@@ -82,11 +89,11 @@ void BP
     // \hat A := [A, -A]
     // =================
     Zeros( AHat, m, 2*n );
-    auto AHatL = AHat( IR(0,m), IR(0,n) );
-    auto AHatR = AHat( IR(0,m), IR(n,2*n) );
-    AHatL = A;
-    AHatR = A;
-    Scale( Real(-1), AHatR );
+    auto AHat_u = AHat( IR(0,m), uInd );
+    auto AHat_v = AHat( IR(0,m), vInd );
+    AHat_u = A;
+    AHat_v = A;
+    Scale( Real(-1), AHat_v );
 
     // Solve the direct LP
     // ===================
@@ -95,8 +102,8 @@ void BP
 
     // x := u - v
     // ==========
-    Copy( xHat( IR(0,n), IR(0,1) ), x );
-    Axpy( Real(-1), xHat(IR(n,2*n),IR(0,1)), x );
+    Copy( xHat( uInd, IR(0,1) ), x );
+    Axpy( Real(-1), xHat(vInd,IR(0,1)), x );
 }
 
 template<typename Real>

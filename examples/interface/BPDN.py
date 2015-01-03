@@ -11,6 +11,9 @@ import time
 
 m = 2000
 n = 4000
+numLambdas = 7
+startLambda = 0
+endLambda = 1
 display = True
 worldRank = El.mpi.WorldRank()
 
@@ -41,27 +44,33 @@ if display:
   El.Display( A, "A" )
   El.Display( b, "b" )
 
-ctrl = El.LPDirectCtrl_d()
+ctrl = El.QPAffineCtrl_d()
 ctrl.mehrotraCtrl.progress = True
-startBP = time.clock()
-x = El.BP( A, b, ctrl )
-endBP = time.clock()
-if worldRank == 0:
-  print "BP time: ", endBP-startBP
 
-if display:
-  El.Display( x, "x" )
+for j in xrange(0,numLambdas):
+  lambd = startLambda + j*(endLambda-startLambda)/(numLambdas-1.)
+  if worldRank == 0:
+    print "lambda =", lambd
 
-xOneNorm = El.EntrywiseNorm( x, 1 )
-e = El.DistMultiVec()
-El.Copy( b, e )
-El.SparseMultiply( El.NORMAL, -1., A, x, 1., e )
-if display:
-  El.Display( e, "e" )
-eTwoNorm = El.Nrm2( e )
-if worldRank == 0:
-  print "|| x ||_1       =", xOneNorm
-  print "|| A x - b ||_2 =", eTwoNorm
+  startBPDN = time.clock()
+  x = El.BPDN( A, b, lambd, ctrl )
+  endBPDN = time.clock()
+  if worldRank == 0:
+    print "BPDN time: ", endBPDN-startBPDN
+
+  if display:
+    El.Display( x, "x" )
+
+  xOneNorm = El.EntrywiseNorm( x, 1 )
+  e = El.DistMultiVec()
+  El.Copy( b, e )
+  El.SparseMultiply( El.NORMAL, -1., A, x, 1., e )
+  if display:
+    El.Display( e, "e" )
+  eTwoNorm = El.Nrm2( e )
+  if worldRank == 0:
+    print "|| x ||_1       =", xOneNorm
+    print "|| A x - b ||_2 =", eTwoNorm
 
 # Require the user to press a button before the figures are closed
 commSize = El.mpi.Size( El.mpi.COMM_WORLD() )
