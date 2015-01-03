@@ -269,6 +269,15 @@ template<typename T>
 Int DistSparseMatrix<T>::RowOwner( Int i ) const 
 { return RowToProcess( i, Blocksize(), mpi::Size(Comm()) ); }
 
+template<typename T>
+Int DistSparseMatrix<T>::GlobalRow( Int iLoc ) const
+{ 
+    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::GlobalRow"))
+    if( iLoc < 0 || iLoc > LocalHeight() )
+        LogicError("Invalid local row index");
+    return iLoc + FirstLocalRow(); 
+}
+
 // Detailed local information
 // --------------------------
 template<typename T>

@@ -14,23 +14,70 @@ from ctypes import CFUNCTYPE
 # =============
 lib.ElBasisPursuit_s.argtypes = \
 lib.ElBasisPursuit_d.argtypes = \
-lib.ElBasisPursuit_c.argtypes = \
-lib.ElBasisPursuit_z.argtypes = \
 lib.ElBasisPursuitDist_s.argtypes = \
 lib.ElBasisPursuitDist_d.argtypes = \
-lib.ElBasisPursuitDist_c.argtypes = \
-lib.ElBasisPursuitDist_z.argtypes = \
-  [c_void_p,c_void_p,c_void_p,POINTER(iType)]
+  [c_void_p,c_void_p,c_void_p]
 lib.ElBasisPursuit_s.restype = \
 lib.ElBasisPursuit_d.restype = \
-lib.ElBasisPursuit_c.restype = \
-lib.ElBasisPursuit_z.restype = \
 lib.ElBasisPursuitDist_s.restype = \
 lib.ElBasisPursuitDist_d.restype = \
-lib.ElBasisPursuitDist_c.restype = \
-lib.ElBasisPursuitDist_z.restype = \
   c_uint
 def BasisPursuit(A,b):
+  if type(A) is not type(b):
+    raise Exception('Types of A and b must match')
+  if A.tag != b.tag:
+    raise Exception('Datatypes of A and b must match')
+  if type(A) is Matrix:
+    x = Matrix(A.tag)
+    args = [A.obj,b.obj,x.obj]
+    if   A.tag == sTag: lib.ElBasisPursuit_s(*args)
+    elif A.tag == dTag: lib.ElBasisPursuit_d(*args)
+    else: DataExcept()
+    return x
+  elif type(A) is DistMatrix:
+    x = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,b.obj,x.obj]
+    if   A.tag == sTag: lib.ElBasisPursuitDist_s(*args)
+    elif A.tag == dTag: lib.ElBasisPursuitDist_d(*args)
+    else: DataExcept()
+    return x
+  elif type(A) is SparseMatrix:
+    x = Matrix(A.tag)
+    args = [A.obj,b.obj,x.obj]
+    if   A.tag == sTag: lib.ElBasisPursuitSparse_s(*args)
+    elif A.tag == dTag: lib.ElBasisPursuitSparse_d(*args)
+    else: DataExcept()
+    return x
+  elif type(A) is DistSparseMatrix:
+    x = DistMultiVec(A.tag,A.Comm())
+    args = [A.obj,b.obj,x.obj]
+    if   A.tag == sTag: lib.ElBasisPursuitDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElBasisPursuitDistSparse_d(*args)
+    else: DataExcept()
+    return x
+  else: TypeExcept()
+
+# ADMM
+# ----
+lib.ElBasisPursuitADMM_s.argtypes = \
+lib.ElBasisPursuitADMM_d.argtypes = \
+lib.ElBasisPursuitADMM_c.argtypes = \
+lib.ElBasisPursuitADMM_z.argtypes = \
+lib.ElBasisPursuitADMMDist_s.argtypes = \
+lib.ElBasisPursuitADMMDist_d.argtypes = \
+lib.ElBasisPursuitADMMDist_c.argtypes = \
+lib.ElBasisPursuitADMMDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,POINTER(iType)]
+lib.ElBasisPursuitADMM_s.restype = \
+lib.ElBasisPursuitADMM_d.restype = \
+lib.ElBasisPursuitADMM_c.restype = \
+lib.ElBasisPursuitADMM_z.restype = \
+lib.ElBasisPursuitADMMDist_s.restype = \
+lib.ElBasisPursuitADMMDist_d.restype = \
+lib.ElBasisPursuitADMMDist_c.restype = \
+lib.ElBasisPursuitADMMDist_z.restype = \
+  c_uint
+def BasisPursuitADMM(A,b):
   if type(A) is not type(b):
     raise Exception('Types of A and b must match')
   if A.tag != b.tag:
@@ -39,19 +86,19 @@ def BasisPursuit(A,b):
   if type(A) is Matrix:
     z = Matrix(A.tag)
     args = [A.obj,b.obj,z.obj,pointer(numIts)]
-    if   A.tag == sTag: lib.ElBasisPursuit_s(*args)
-    elif A.tag == dTag: lib.ElBasisPursuit_d(*args)
-    elif A.tag == cTag: lib.ElBasisPursuit_c(*args)
-    elif A.tag == zTag: lib.ElBasisPursuit_z(*args)
+    if   A.tag == sTag: lib.ElBasisPursuitADMM_s(*args)
+    elif A.tag == dTag: lib.ElBasisPursuitADMM_d(*args)
+    elif A.tag == cTag: lib.ElBasisPursuitADMM_c(*args)
+    elif A.tag == zTag: lib.ElBasisPursuitADMM_z(*args)
     else: DataExcept()
     return z, numIts
   elif type(A) is DistMatrix:
     z = DistMatrix(A.tag,MC,MR,A.Grid())
     args = [A.obj,b.obj,z.obj,pointer(numIts)]
-    if   A.tag == sTag: lib.ElBasisPursuitDist_s(*args)
-    elif A.tag == dTag: lib.ElBasisPursuitDist_d(*args)
-    elif A.tag == cTag: lib.ElBasisPursuitDist_c(*args)
-    elif A.tag == zTag: lib.ElBasisPursuitDist_z(*args)
+    if   A.tag == sTag: lib.ElBasisPursuitADMMDist_s(*args)
+    elif A.tag == dTag: lib.ElBasisPursuitADMMDist_d(*args)
+    elif A.tag == cTag: lib.ElBasisPursuitADMMDist_c(*args)
+    elif A.tag == zTag: lib.ElBasisPursuitADMMDist_z(*args)
     else: DataExcept()
     return z, numIts
   else: TypeExcept()

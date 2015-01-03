@@ -883,10 +883,10 @@ void BuildChildFromPerm
   bool& onLeft, DistGraph& child )
 {
     DEBUG_ONLY(CallStackEntry cse("BuildChildFromPerm"))
-    const Int numSources = graph.NumSources();
     const Int numTargets = graph.NumTargets();
     const int numLocalSources = graph.NumLocalSources();
     DEBUG_ONLY(
+      const Int numSources = graph.NumSources();
       const int sepSize = numSources - leftChildSize - rightChildSize;
     )
 

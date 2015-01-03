@@ -352,15 +352,17 @@ ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
 #define C_PROTO_FIELD(SIG,SIGBASE,F) \
   /* Basis pursuit
      ============= */ \
-  ElError ElBasisPursuit_ ## SIG \
+  /* ADMM
+     ---- */ \
+  ElError ElBasisPursuitADMM_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
     ElMatrix_ ## SIG z, ElInt* numIts ) \
-  { EL_TRY( *numIts = BasisPursuit \
+  { EL_TRY( *numIts = bp::ADMM \
       ( *CReflect(A), *CReflect(b), *CReflect(z) ) ) } \
-  ElError ElBasisPursuitDist_ ## SIG \
+  ElError ElBasisPursuitADMMDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
     ElDistMatrix_ ## SIG z, ElInt* numIts ) \
-  { EL_TRY( *numIts = BasisPursuit \
+  { EL_TRY( *numIts = bp::ADMM \
       ( *CReflect(A), *CReflect(b), *CReflect(z) ) ) } \
   /* Least Absolute Shrinkage and Selection Operator (LASSO)
      ======================================================= */ \
@@ -454,6 +456,28 @@ ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
 
 #define C_PROTO_REAL(SIG,Real) \
   C_PROTO_FIELD(SIG,SIG,Real) \
+  /* Basis Pursuit
+     ============= */ \
+  ElError ElBasisPursuit_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    ElMatrix_ ## SIG x ) \
+  { EL_TRY( BasisPursuit \
+      ( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ElError ElBasisPursuitDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
+    ElDistMatrix_ ## SIG x ) \
+  { EL_TRY( BasisPursuit \
+      ( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ElError ElBasisPursuitSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    ElMatrix_ ## SIG x ) \
+  { EL_TRY( BasisPursuit \
+      ( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ElError ElBasisPursuitDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
+    ElDistMultiVec_ ## SIG x ) \
+  { EL_TRY( BasisPursuit \
+      ( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
   /* Linear program
      ============== */ \
   /* Direct conic form

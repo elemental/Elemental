@@ -17,7 +17,6 @@ void TransposeAxpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y, bool conjugate )
     const T alpha = T(alphaS);
     const Int mX = X.Height();
     const Int nX = X.Width();
-    const Int mY = Y.Height();
     const Int nY = Y.Width();
     const Int ldX = X.LDim();
     const Int ldY = Y.LDim();
@@ -31,6 +30,7 @@ void TransposeAxpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y, bool conjugate )
         const Int incX = ( nX==1 ? 1  : ldX );
         const Int incY = ( nY==1 ? 1  : ldY );
         DEBUG_ONLY(
+            const Int mY = Y.Height();
             const Int lengthY = ( nY==1 ? mY : nY );
             if( lengthX != lengthY )
                 LogicError("Nonconformal TransposeAxpy");
@@ -44,6 +44,7 @@ void TransposeAxpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y, bool conjugate )
     else
     {
         DEBUG_ONLY(
+            const Int mY = Y.Height();
             if( mX != nY || nX != mY )
                 LogicError("Nonconformal TransposeAxpy");
         )

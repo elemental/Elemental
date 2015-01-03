@@ -16,27 +16,47 @@ extern "C" {
 
 /* Basis pursuit
    ============= */
-/* min || z ||_1 such that A z = b */
-
 EL_EXPORT ElError ElBasisPursuit_s
-( ElConstMatrix_s A, ElConstMatrix_s b, ElMatrix_s z, ElInt* numIts );
+( ElConstMatrix_s A, ElConstMatrix_s b, ElMatrix_s x );
 EL_EXPORT ElError ElBasisPursuit_d
-( ElConstMatrix_d A, ElConstMatrix_d b, ElMatrix_d z, ElInt* numIts );
-EL_EXPORT ElError ElBasisPursuit_c
-( ElConstMatrix_c A, ElConstMatrix_c b, ElMatrix_c z, ElInt* numIts );
-EL_EXPORT ElError ElBasisPursuit_z
-( ElConstMatrix_z A, ElConstMatrix_z b, ElMatrix_z z, ElInt* numIts );
+( ElConstMatrix_d A, ElConstMatrix_d b, ElMatrix_d x );
 
 EL_EXPORT ElError ElBasisPursuitDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_s b, ElDistMatrix_s x );
+EL_EXPORT ElError ElBasisPursuitDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElDistMatrix_d x );
+
+EL_EXPORT ElError ElBasisPursuitSparse_s
+( ElConstSparseMatrix_s A, ElConstMatrix_s b, ElMatrix_s x );
+EL_EXPORT ElError ElBasisPursuitSparse_d
+( ElConstSparseMatrix_d A, ElConstMatrix_d b, ElMatrix_d x );
+
+EL_EXPORT ElError ElBasisPursuitDistSparse_s
+( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b, ElDistMultiVec_s x );
+EL_EXPORT ElError ElBasisPursuitDistSparse_d
+( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b, ElDistMultiVec_d x );
+
+/* ADMM
+   ---- */
+EL_EXPORT ElError ElBasisPursuitADMM_s
+( ElConstMatrix_s A, ElConstMatrix_s b, ElMatrix_s z, ElInt* numIts );
+EL_EXPORT ElError ElBasisPursuitADMM_d
+( ElConstMatrix_d A, ElConstMatrix_d b, ElMatrix_d z, ElInt* numIts );
+EL_EXPORT ElError ElBasisPursuitADMM_c
+( ElConstMatrix_c A, ElConstMatrix_c b, ElMatrix_c z, ElInt* numIts );
+EL_EXPORT ElError ElBasisPursuitADMM_z
+( ElConstMatrix_z A, ElConstMatrix_z b, ElMatrix_z z, ElInt* numIts );
+
+EL_EXPORT ElError ElBasisPursuitADMMDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_s b, ElDistMatrix_s z, 
   ElInt* numIts );
-EL_EXPORT ElError ElBasisPursuitDist_d
+EL_EXPORT ElError ElBasisPursuitADMMDist_d
 ( ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElDistMatrix_d z, 
   ElInt* numIts );
-EL_EXPORT ElError ElBasisPursuitDist_c
+EL_EXPORT ElError ElBasisPursuitADMMDist_c
 ( ElConstDistMatrix_c A, ElConstDistMatrix_c b, ElDistMatrix_c z, 
   ElInt* numIts );
-EL_EXPORT ElError ElBasisPursuitDist_z
+EL_EXPORT ElError ElBasisPursuitADMMDist_z
 ( ElConstDistMatrix_z A, ElConstDistMatrix_z b, ElDistMatrix_z z, 
   ElInt* numIts );
 

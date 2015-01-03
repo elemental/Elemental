@@ -172,35 +172,35 @@ void KKT
         const Int i = Q.Row(e);
         const Int j = Q.Col(e);
         if( i >= j || !onlyLower )
-            J.Update( Q.Row(e), Q.Col(e), Q.Value(e) );
+            J.QueueUpdate( Q.Row(e), Q.Col(e), Q.Value(e) );
     }
 
     // Jyx = A
     // =======
     for( Int e=0; e<numEntriesA; ++e )
-        J.Update( n+A.Row(e), A.Col(e), A.Value(e) );
+        J.QueueUpdate( n+A.Row(e), A.Col(e), A.Value(e) );
 
     // Jzx = -I
     // ========
     for( Int e=0; e<n; ++e )
-        J.Update( n+m+e, e, Real(-1) );
+        J.QueueUpdate( n+m+e, e, Real(-1) );
 
     // Jzz = - z <> x
     // ==============
     for( Int e=0; e<n; ++e )
-        J.Update( n+m+e, n+m+e, -x.Get(e,0)/z.Get(e,0) );
+        J.QueueUpdate( n+m+e, n+m+e, -x.Get(e,0)/z.Get(e,0) );
 
     if( !onlyLower )
     {
         // Jxy := A^T
         // ==========
         for( Int e=0; e<numEntriesA; ++e )
-            J.Update( A.Col(e), n+A.Row(e), A.Value(e) );
+            J.QueueUpdate( A.Col(e), n+A.Row(e), A.Value(e) );
 
         // Jxz := -I
         // =========
         for( Int e=0; e<n; ++e )
-            J.Update( e, n+m+e, Real(-1) );
+            J.QueueUpdate( e, n+m+e, Real(-1) );
     }
     J.MakeConsistent();
 }
@@ -255,8 +255,8 @@ void KKT
     std::vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
     std::vector<int> sendOffsets, recvOffsets;
-    int totalSend = Scan( sendCounts, sendOffsets );
-    int totalRecv = Scan( recvCounts, recvOffsets );
+    const int totalSend = Scan( sendCounts, sendOffsets );
+    const int totalRecv = Scan( recvCounts, recvOffsets );
 
     // Pack the triplets
     // =================

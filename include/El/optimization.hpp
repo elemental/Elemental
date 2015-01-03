@@ -23,22 +23,46 @@ using namespace RegularizationNS;
 
 // TODO: Modify the following routines to use control structures instead
 
-// Basis pursuit: min || z ||_1 such that A z = b
+// Basis pursuit: min || x ||_1 such that A x = b
 // ==============================================
+
+namespace bp {
+
+// TODO: Hide this interface behind a control structure
 template<typename F>
-Int BasisPursuit
+Int ADMM
 ( const Matrix<F>& A, const Matrix<F>& b,
   Matrix<F>& z,
   Base<F> rho=1., Base<F> alpha=1.2, Int maxIter=500, Base<F> absTol=1e-6, 
   Base<F> relTol=1e-4, bool usePinv=false, Base<F> pinvTol=0, 
   bool progress=true );
 template<typename F>
-Int BasisPursuit
+Int ADMM
 ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& b,
         AbstractDistMatrix<F>& z,
   Base<F> rho=1., Base<F> alpha=1.2, Int maxIter=500, Base<F> absTol=1e-6, 
   Base<F> relTol=1e-4, bool usePinv=false, Base<F> pinvTol=0,
   bool progress=true );
+
+} // namespace bp
+
+// TODO: Add a control structure which extends that of the LP IPM
+template<typename Real>
+void BasisPursuit
+( const Matrix<Real>& A, const Matrix<Real>& b,
+        Matrix<Real>& x );
+template<typename Real>
+void BasisPursuit
+( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
+        AbstractDistMatrix<Real>& x );
+template<typename Real>
+void BasisPursuit
+( const SparseMatrix<Real>& A, const Matrix<Real>& b,
+        Matrix<Real>& x );
+template<typename Real>
+void BasisPursuit
+( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b,
+        DistMultiVec<Real>& x );
 
 // Coherence
 // =========

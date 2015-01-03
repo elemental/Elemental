@@ -17,7 +17,6 @@ void Axpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y )
     const T alpha = T(alphaS);
     const Int mX = X.Height();
     const Int nX = X.Width();
-    const Int mY = Y.Height();
     const Int nY = Y.Width();
     const Int ldX = X.LDim();
     const Int ldY = Y.LDim();
@@ -31,6 +30,7 @@ void Axpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y )
         const Int XStride = ( nX==1 ? 1  : ldX );
         const Int YStride = ( nY==1 ? 1  : ldY );
         DEBUG_ONLY(
+            const Int mY = Y.Height();
             const Int YLength = ( nY==1 ? mY : nY );
             if( XLength != YLength )
                 LogicError("Nonconformal Axpy");
@@ -40,6 +40,7 @@ void Axpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y )
     else
     {
         DEBUG_ONLY(
+            const Int mY = Y.Height();
             if( mX != mY || nX != nY )
                 LogicError("Nonconformal Axpy");
         )

@@ -177,35 +177,35 @@ void KKT
         const Int i = Q.Row(e);
         const Int j = Q.Col(e);
         if( i >= j || !onlyLower )
-            J.Update( i, j, Q.Value(e) );
+            J.QueueUpdate( i, j, Q.Value(e) );
     }
 
     // Jyx = A
     // =======
     for( Int e=0; e<numEntriesA; ++e )
-        J.Update( n+A.Row(e), A.Col(e), A.Value(e) );
+        J.QueueUpdate( n+A.Row(e), A.Col(e), A.Value(e) );
 
     // Jzx = G
     // =======
     for( Int e=0; e<numEntriesG; ++e )
-        J.Update( n+m+G.Row(e), G.Col(e), G.Value(e) );
+        J.QueueUpdate( n+m+G.Row(e), G.Col(e), G.Value(e) );
 
     // Jzz = -z <> s
     // =============
     for( Int e=0; e<k; ++e )
-        J.Update( n+m+e, n+m+e, -s.Get(e,0)/z.Get(e,0) );
+        J.QueueUpdate( n+m+e, n+m+e, -s.Get(e,0)/z.Get(e,0) );
 
     if( !onlyLower )
     {
         // Jxy := A^T
         // ==========
         for( Int e=0; e<numEntriesA; ++e )
-            J.Update( A.Col(e), n+A.Row(e), A.Value(e) );
+            J.QueueUpdate( A.Col(e), n+A.Row(e), A.Value(e) );
 
         // Jxz := G^T
         // ==========
         for( Int e=0; e<numEntriesG; ++e )
-            J.Update( G.Col(e), n+m+G.Row(e), G.Value(e) );
+            J.QueueUpdate( G.Col(e), n+m+G.Row(e), G.Value(e) );
     }
     J.MakeConsistent();
 }

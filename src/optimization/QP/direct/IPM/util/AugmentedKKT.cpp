@@ -108,23 +108,23 @@ void AugmentedKKT
 
     // x <> z updates
     for( Int j=0; j<n; ++j )
-        J.Update( j, j, z.Get(j,0)/x.Get(j,0) );
+        J.QueueUpdate( j, j, z.Get(j,0)/x.Get(j,0) );
     // Q update
     for( Int e=0; e<numEntriesQ; ++e )
     {
         const Int i = Q.Row(e);
         const Int j = Q.Col(e);
         if( i >= j )
-            J.Update( i, j, Q.Value(e) );
+            J.QueueUpdate( i, j, Q.Value(e) );
         else if( !onlyLower )
-            J.Update( i, j, Q.Value(e) );
+            J.QueueUpdate( i, j, Q.Value(e) );
     }
     // A and A^T updates
     for( Int e=0; e<numEntriesA; ++e )
     {
-        J.Update( A.Row(e)+n, A.Col(e), A.Value(e) );
+        J.QueueUpdate( A.Row(e)+n, A.Col(e), A.Value(e) );
         if( !onlyLower )
-            J.Update( A.Col(e), A.Row(e)+n, A.Value(e) );
+            J.QueueUpdate( A.Col(e), A.Row(e)+n, A.Value(e) );
     }
     J.MakeConsistent();
 }

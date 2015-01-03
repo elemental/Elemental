@@ -52,7 +52,7 @@ main( int argc, char* argv[] )
             Display( A, "A" );
 
         DistMatrix<C> z;
-        BasisPursuit
+        bp::ADMM
         ( A, b, z, rho, alpha, maxIter, absTol, relTol, usePinv, pinvTol,
           progress );
         if( print )
