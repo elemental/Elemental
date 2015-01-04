@@ -496,6 +496,46 @@ ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
     ElDistMultiVec_ ## SIG x, ElLPDirectCtrl_ ## SIG ctrl ) \
   { EL_TRY( BP \
       ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
+  /* Dantzig Selector
+     ================ */ \
+  ElError ElDS_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    Real lambda, ElMatrix_ ## SIG x ) \
+  { EL_TRY( DS( *CReflect(A), *CReflect(b), lambda, *CReflect(x) ) ) } \
+  ElError ElDSDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
+    Real lambda, ElDistMatrix_ ## SIG x ) \
+  { EL_TRY( DS( *CReflect(A), *CReflect(b), lambda, *CReflect(x) ) ) } \
+  ElError ElDSSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    Real lambda, ElMatrix_ ## SIG x ) \
+  { EL_TRY( DS( *CReflect(A), *CReflect(b), lambda, *CReflect(x) ) ) } \
+  ElError ElDSDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
+    Real lambda, ElDistMultiVec_ ## SIG x ) \
+  { EL_TRY( DS( *CReflect(A), *CReflect(b), lambda, *CReflect(x) ) ) } \
+  /* Expert versions
+     --------------- */ \
+  ElError ElDSX_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    Real lambda, ElMatrix_ ## SIG x, ElLPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( DS \
+      ( *CReflect(A), *CReflect(b), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElDSXDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
+    Real lambda, ElDistMatrix_ ## SIG x, ElLPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( DS \
+      ( *CReflect(A), *CReflect(b), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElDSXSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    Real lambda, ElMatrix_ ## SIG x, ElLPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( DS \
+      ( *CReflect(A), *CReflect(b), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElDSXDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
+    Real lambda, ElDistMultiVec_ ## SIG x, ElLPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( DS \
+      ( *CReflect(A), *CReflect(b), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
   /* Basis Pursuit Denoising
      ======================= */ \
   ElError ElBPDN_ ## SIG \

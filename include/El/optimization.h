@@ -282,6 +282,66 @@ EL_EXPORT ElError ElBPADMMDist_z
 
 /* TODO: Expert versions */
 
+/* Dantzig selector
+   ================ */
+EL_EXPORT ElError ElDS_s
+( ElConstMatrix_s A, ElConstMatrix_s b, 
+  float lambda, ElMatrix_s x );
+EL_EXPORT ElError ElDS_d
+( ElConstMatrix_d A, ElConstMatrix_d b, 
+  double lambda, ElMatrix_d x );
+
+EL_EXPORT ElError ElDSDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_s b, 
+  float lambda, ElDistMatrix_s x );
+EL_EXPORT ElError ElDSDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_d b, 
+  double lambda, ElDistMatrix_d x );
+
+EL_EXPORT ElError ElDSSparse_s
+( ElConstSparseMatrix_s A, ElConstMatrix_s b, 
+  float lambda, ElMatrix_s x );
+EL_EXPORT ElError ElDSSparse_d
+( ElConstSparseMatrix_d A, ElConstMatrix_d b, 
+  double lambda, ElMatrix_d x );
+
+EL_EXPORT ElError ElDSDistSparse_s
+( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b, 
+  float lambda, ElDistMultiVec_s x );
+EL_EXPORT ElError ElDSDistSparse_d
+( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b, 
+  double lambda, ElDistMultiVec_d x );
+
+/* Expert verions
+   -------------- */
+EL_EXPORT ElError ElDSX_s
+( ElConstMatrix_s A, ElConstMatrix_s b, 
+  float lambda, ElMatrix_s x, ElLPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElDSX_d
+( ElConstMatrix_d A, ElConstMatrix_d b, 
+  double lambda, ElMatrix_d x, ElLPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElDSXDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_s b, 
+  float lambda, ElDistMatrix_s x, ElLPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElDSXDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_d b, 
+  double lambda, ElDistMatrix_d x, ElLPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElDSXSparse_s
+( ElConstSparseMatrix_s A, ElConstMatrix_s b, 
+  float lambda, ElMatrix_s x, ElLPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElDSXSparse_d
+( ElConstSparseMatrix_d A, ElConstMatrix_d b, 
+  double lambda, ElMatrix_d x, ElLPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElDSXDistSparse_s
+( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b, 
+  float lambda, ElDistMultiVec_s x, ElLPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElDSXDistSparse_d
+( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b, 
+  double lambda, ElDistMultiVec_d x, ElLPAffineCtrl_d ctrl );
+
 /* Least Absolute Shrinkage and Selection Operator (LASSO)
    ======================================================= */
 EL_EXPORT ElError ElLasso_s

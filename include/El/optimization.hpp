@@ -349,6 +349,46 @@ void BP
         DistMultiVec<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(true) );
 
+// Dantzig selector: 
+//   min || x ||_1 such that || A^T (b - A x) ||_oo <= lambda
+// ==========================================================
+// TODO: 
+//  Add the ability to switch between the (DS1) and (DS2) affine LP
+//  formulations described in 
+//
+//  Michael Friedlander and Michael Saunders,
+//  "Discussion: The Dantzig Selector: Statistical estimation when p is much
+//   larger than n",
+//  The Annals of Statistics, Vol. 35, No. 6, pp. 2385--2391, 2007.
+//
+// For now, we will default to the (DS2) algorithm since it does not require
+// explicitly forming A^T A.
+
+template<typename Real>
+void DS
+( const Matrix<Real>& A, const Matrix<Real>& b,
+        Real lambda,
+        Matrix<Real>& x,
+  const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
+template<typename Real>
+void DS
+( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
+        Real lambda,
+        AbstractDistMatrix<Real>& x,
+  const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
+template<typename Real>
+void DS
+( const SparseMatrix<Real>& A, const Matrix<Real>& b,
+        Real lambda,
+        Matrix<Real>& x,
+  const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
+template<typename Real>
+void DS
+( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b,
+        Real lambda,
+        DistMultiVec<Real>& x,
+  const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
+
 // Logistic Regression
 // ===================
 template<typename Real>

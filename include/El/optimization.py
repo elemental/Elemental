@@ -551,6 +551,111 @@ def BPADMM(A,b):
     return z, numIts
   else: TypeExcept()
 
+# Dantzig selector
+# ================
+lib.ElDS_s.argtypes = \
+lib.ElDSDist_s.argtypes = \
+lib.ElDSSparse_s.argtypes = \
+lib.ElDSDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,sType,c_void_p]
+lib.ElDS_d.argtypes = \
+lib.ElDSDist_d.argtypes = \
+lib.ElDSSparse_d.argtypes = \
+lib.ElDSDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,dType,c_void_p]
+lib.ElDS_s.restype = \
+lib.ElDS_d.restype = \
+lib.ElDSDist_s.restype = \
+lib.ElDSDist_d.restype = \
+lib.ElDSSparse_s.restype = \
+lib.ElDSSparse_d.restype = \
+lib.ElDSDistSparse_s.restype = \
+lib.ElDSDistSparse_d.restype = \
+  c_uint
+
+lib.ElDSX_s.argtypes = \
+lib.ElDSXDist_s.argtypes = \
+lib.ElDSXSparse_s.argtypes = \
+lib.ElDSXDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,sType,c_void_p,
+   LPDirectCtrl_s]
+lib.ElDSX_d.argtypes = \
+lib.ElDSXDist_d.argtypes = \
+lib.ElDSXSparse_d.argtypes = \
+lib.ElDSXDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,dType,c_void_p,
+   LPDirectCtrl_d]
+lib.ElDSX_s.restype = \
+lib.ElDSX_d.restype = \
+lib.ElDSXDist_s.restype = \
+lib.ElDSXDist_d.restype = \
+lib.ElDSXSparse_s.restype = \
+lib.ElDSXSparse_d.restype = \
+lib.ElDSXDistSparse_s.restype = \
+lib.ElDSXDistSparse_d.restype = \
+  c_uint
+
+def DS(A,b,lambdaPre,ctrl=None):
+  if A.tag != b.tag:
+    raise Exception('Datatypes of A and b must match')
+  lambd = TagToType(A.tag)(lambdaPre)
+  if type(A) is Matrix:
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
+    x = Matrix(A.tag)
+    args = [A.obj,b.obj,lambd,x.obj]
+    argsCtrl = [A.obj,b.obj,lambd,x.obj,ctrl] 
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElDS_s(*args)
+      else:            lib.ElDSX_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElDS_d(*args)
+      else:            lib.ElDSX_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is DistMatrix:
+    if type(b) is not DistMatrix:
+      raise Exception('b must be a DistMatrix')
+    x = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,b.obj,lambd,x.obj]
+    argsCtrl = [A.obj,b.obj,lambd,x.obj,ctrl] 
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElDSDist_s(*args)
+      else:            lib.ElDSXDist_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElDSDist_d(*args)
+      else:            lib.ElDSXDist_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is SparseMatrix:
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
+    x = Matrix(A.tag)
+    args = [A.obj,b.obj,lambd,x.obj]
+    argsCtrl = [A.obj,b.obj,lambd,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElDSSparse_s(*args)
+      else:            lib.ElDSXSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElDSSparse_d(*args)
+      else:            lib.ElDSXSparse_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is DistSparseMatrix:
+    if type(b) is not DistMultiVec:
+      raise Exception('b must be a DistMultiVec')
+    x = DistMultiVec(A.tag,A.Comm())
+    args = [A.obj,b.obj,lambd,x.obj]
+    argsCtrl = [A.obj,b.obj,lambd,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElDSDistSparse_s(*args)
+      else:            lib.ElDSXDistSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElDSDistSparse_d(*args)
+      else:            lib.ElDSXDistSparse_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  else: TypeExcept()
 
 # Logistic regression
 # ===================
