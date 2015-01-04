@@ -43,8 +43,7 @@
 //        |  0  0 0 I | | r |       | lambda e |
 //        |  0  0 0-I | | t |       | lambda e |
 //
-// We begin with support for (DS2), due to its avoidance of explicitly forming
-// A^T A.
+// For dense and sparse matrices we respectively default to (DS1) and (DS2).
 //
 // TODO: 
 //  Add the ability to switch between the (DS1) and (DS2) affine LP
@@ -65,6 +64,151 @@
 namespace El {
 
 namespace ds {
+
+template<typename Real>
+void Var1
+( const Matrix<Real>& A, const Matrix<Real>& b, 
+        Real lambda,
+        Matrix<Real>& x,
+  const lp::affine::Ctrl<Real>& ctrl )
+{
+    DEBUG_ONLY(CallStackEntry cse("ds::Var1"))
+    const Int n = A.Width();
+    const Range<Int> uInd(0,n), vInd(n,2*n), tInd(2*n,3*n);
+    Matrix<Real> c, xHat, AHat, bHat, G, h;
+
+    // c := [1;1;0]
+    // ==============
+    Zeros( c, 3*n, 1 );
+    auto c_u = c( uInd, IR(0,1) );
+    auto c_v = c( vInd, IR(0,1) );
+    Ones( c_u, n, 1 );
+    Ones( c_v, n, 1 );
+
+    // \hat A := [ A^T A, -A^T A,  I ]
+    // ===============================
+    Zeros( AHat, n, 3*n );
+    auto AHat_u = AHat( IR(0,n), uInd );
+    auto AHat_v = AHat( IR(0,n), vInd );
+    auto AHat_t = AHat( IR(0,n), tInd );
+    Herk( LOWER, TRANSPOSE, Real(1), A, Real(0), AHat_u );
+    MakeSymmetric( LOWER, AHat_u );
+    Copy( AHat_u, AHat_v ); Scale( Real(-1), AHat_v );
+    Identity( AHat_t, n, n );
+
+    // \hat b := A^T b
+    // ===============
+    Zeros( bHat, n, 1 );
+    Gemv( TRANSPOSE, Real(1), A, b, Real(0), bHat );
+
+    // G := | -I  0  0 |
+    //      |  0 -I  0 |
+    //      |  0  0  I |
+    //      |  0  0 -I |
+    // =================
+    Zeros( G, 4*n, 3*n );
+    auto G0u = G( IR(0,    n), uInd );
+    auto G1v = G( IR(n,  2*n), vInd );
+    auto G2t = G( IR(2*n,3*n), tInd );
+    auto G3t = G( IR(3*n,4*n), tInd );
+    Identity( G0u, n, n ); Scale( Real(-1), G0u );
+    Identity( G1v, n, n ); Scale( Real(-1), G1v );
+    Identity( G2t, n, n );
+    Identity( G3t, n, n ); Scale( Real(-1), G3t );
+
+    // h := [0;0;lambda e;lambda e]
+    // ============================
+    Zeros( h, 4*n, 1 );
+    auto h2 = h( IR(2*n,3*n), IR(0,1) );
+    auto h3 = h( IR(3*n,4*n), IR(0,1) );
+    Fill( h2, lambda );
+    Fill( h3, lambda );
+
+    // Solve the affine LP
+    // ===================
+    Matrix<Real> y, z, s;
+    LP( AHat, G, bHat, c, h, xHat, y, z, s, ctrl );
+
+    // x := u - v
+    // ==========
+    x = xHat( uInd, IR(0,1) );
+    Axpy( Real(-1), xHat(vInd,IR(0,1)), x );
+}
+
+template<typename Real>
+void Var1
+( const AbstractDistMatrix<Real>& APre, const AbstractDistMatrix<Real>& b, 
+        Real lambda,
+        AbstractDistMatrix<Real>& x,
+  const lp::affine::Ctrl<Real>& ctrl )
+{
+    DEBUG_ONLY(CallStackEntry cse("ds::Var1"))
+
+    auto APtr = ReadProxy<Real,MC,MR>(&APre);
+    auto& A = *APtr;
+
+    const Int n = A.Width();
+    const Grid& g = A.Grid();
+    const Range<Int> uInd(0,n), vInd(n,2*n), tInd(2*n,3*n);
+    DistMatrix<Real> c(g), xHat(g), AHat(g), bHat(g), G(g), h(g);
+
+    // c := [1;1;0]
+    // ==============
+    Zeros( c, 3*n, 1 );
+    auto c_u = c( uInd, IR(0,1) );
+    auto c_v = c( vInd, IR(0,1) );
+    Ones( c_u, n, 1 );
+    Ones( c_v, n, 1 );
+
+    // \hat A := [ A^T A, -A^T A,  I ]
+    // ===============================
+    Zeros( AHat, n, 3*n );
+    auto AHat_u = AHat( IR(0,n), uInd );
+    auto AHat_v = AHat( IR(0,n), vInd );
+    auto AHat_t = AHat( IR(0,n), tInd );
+    Herk( LOWER, TRANSPOSE, Real(1), A, Real(0), AHat_u );
+    MakeSymmetric( LOWER, AHat_u );
+    Copy( AHat_u, AHat_v ); Scale( Real(-1), AHat_v );
+    Identity( AHat_t, n, n );
+
+    // \hat b := A^T b
+    // ===============
+    Zeros( bHat, n, 1 );
+    Gemv( TRANSPOSE, Real(1), A, b, Real(0), bHat );
+
+    // G := | -I  0  0 |
+    //      |  0 -I  0 |
+    //      |  0  0  I |
+    //      |  0  0 -I |
+    // =================
+    Zeros( G, 4*n, 3*n );
+    auto G0u = G( IR(0,    n), uInd );
+    auto G1v = G( IR(n,  2*n), vInd );
+    auto G2t = G( IR(2*n,3*n), tInd );
+    auto G3t = G( IR(3*n,4*n), tInd );
+    Identity( G0u, n, n ); Scale( Real(-1), G0u );
+    Identity( G1v, n, n ); Scale( Real(-1), G1v );
+    Identity( G2t, n, n );
+    Identity( G3t, n, n ); Scale( Real(-1), G3t );
+
+    // h := [0;0;lambda e;lambda e]
+    // ============================
+    Zeros( h, 4*n, 1 );
+    auto h2 = h( IR(2*n,3*n), IR(0,1) );
+    auto h3 = h( IR(3*n,4*n), IR(0,1) );
+    Fill( h2, lambda );
+    Fill( h3, lambda );
+
+    // Solve the affine LP
+    // ===================
+    DistMatrix<Real> y(g), z(g), s(g);
+    LP( AHat, G, bHat, c, h, xHat, y, z, s, ctrl );
+
+    // x := u - v
+    // ==========
+    Copy( xHat( uInd, IR(0,1) ), x );
+    Axpy( Real(-1), xHat(vInd,IR(0,1)), x );
+}
 
 template<typename Real>
 void Var2
@@ -559,7 +703,7 @@ void DS
   const lp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("DS"))
-    ds::Var2( A, b, lambda, x, ctrl );
+    ds::Var1( A, b, lambda, x, ctrl );
 }
 
 template<typename Real>
@@ -570,7 +714,7 @@ void DS
   const lp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("DS"))
-    ds::Var2( A, b, lambda, x, ctrl );
+    ds::Var1( A, b, lambda, x, ctrl );
 }
 
 template<typename Real>
