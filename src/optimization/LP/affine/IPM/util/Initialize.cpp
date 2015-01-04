@@ -77,6 +77,20 @@ void Initialize
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
+    if( primalInitialized )
+    {
+        if( x.Height() != n || x.Width() != 1 )
+            LogicError("x was of the wrong size");
+        if( s.Height() != k || s.Width() != 1 )
+            LogicError("s was of the wrong size");
+    }
+    if( dualInitialized )
+    {
+        if( y.Height() != m || y.Width() != 1 )
+            LogicError("y was of the wrong size");
+        if( z.Height() != k || z.Width() != 1 )
+            LogicError("z was of the wrong size");
+    }
     if( primalInitialized && dualInitialized )
     {
         // TODO: Perform a consistency check
@@ -181,6 +195,20 @@ void Initialize
     const Int n = A.Width();
     const Int k = G.Height();
     const Grid& g = A.Grid();
+    if( primalInitialized ) 
+    {
+        if( x.Height() != n || x.Width() != 1 )
+            LogicError("x was of the wrong size");
+        if( s.Height() != k || s.Width() != 1 )
+            LogicError("s was of the wrong size");
+    }
+    if( dualInitialized )
+    {
+        if( y.Height() != m || y.Width() != 1 )
+            LogicError("y was of the wrong size");
+        if( z.Height() != k || z.Width() != 1 )
+            LogicError("z was of the wrong size");
+    }
     if( primalInitialized && dualInitialized )
     {
         // TODO: Perform a consistency check

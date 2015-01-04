@@ -35,6 +35,9 @@ extern "C" {
   ElError ElMaxNormDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, Base<T>* norm ) \
   { EL_TRY( *norm = MaxNorm( *CReflect(A) ) ) } \
+  ElError ElMaxNormDistMultiVec_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG A, Base<T>* norm ) \
+  { EL_TRY( *norm = MaxNorm( *CReflect(A) ) ) } \
   ElError ElSymmetricMaxNorm_ ## SIG \
   ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, Base<T>* norm ) \
   { EL_TRY( *norm = SymmetricMaxNorm( CReflect(uplo), *CReflect(A) ) ) } \

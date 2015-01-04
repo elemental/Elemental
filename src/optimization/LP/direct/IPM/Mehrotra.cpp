@@ -660,6 +660,7 @@ void Mehrotra
         }
     }
     DistNodalMultiVec<Real> regCandNodal, regNodal;
+    bool increasedReg = false;
 
 #ifndef EL_RELEASE
     DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm), prod(comm);
@@ -914,8 +915,12 @@ void Mehrotra
               minReductionFactor, maxRefineIts );
             ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
-        if( Max(numLargeAffineRefines,numLargeCorrectorRefines) > 3 )
+        if( Max(numLargeAffineRefines,numLargeCorrectorRefines) > 3 &&
+            !increasedReg )
+        {
             Scale( Real(10), regCand );
+            increasedReg = true;
+        }
         // TODO: Residual checks for center-corrector
 
         // Add in the affine search direction

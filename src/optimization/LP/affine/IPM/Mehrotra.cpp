@@ -533,7 +533,7 @@ void Mehrotra
     const Real regMagPrimal = Pow(epsilon,Real(0.75));
     const Real regMagLagrange = Pow(epsilon,Real(0.5));
     const Real regMagDual = Pow(epsilon,Real(0.5));
-    regCand.Resize( m+2*n, 1 );
+    regCand.Resize( n+m+k, 1 );
     for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
     {
         const Int i = regCand.FirstLocalRow() + iLoc;
@@ -545,6 +545,7 @@ void Mehrotra
             regCand.SetLocal( iLoc, 0, -regMagDual );
     }
     DistNodalMultiVec<Real> regCandNodal, regNodal;
+    bool increasedReg = false;
 
 #ifndef EL_RELEASE
     DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm);
@@ -724,8 +725,12 @@ void Mehrotra
         ( J, reg, invMap, info, JFrontTree, d,
           minReductionFactor, maxRefineIts, ctrl.print );
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
-        if( Max(numLargeAffineRefines,numLargeCorrectorRefines) > 3 )
+        if( Max(numLargeAffineRefines,numLargeCorrectorRefines) > 3 &&
+            !increasedReg )
+        {
             Scale( Real(10), regCand );
+            increasedReg = true;
+        }
 
         // Add in the affine search direction
         // ==================================

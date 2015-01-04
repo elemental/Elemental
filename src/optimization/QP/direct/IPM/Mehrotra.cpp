@@ -631,6 +631,7 @@ void Mehrotra
         }
     }
     DistNodalMultiVec<Real> regCandNodal, regNodal;
+    bool increasedReg = false;
 
 #ifndef EL_RELEASE
     DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm), prod(comm);
@@ -861,8 +862,12 @@ void Mehrotra
         }
         else
             LogicError("Invalid KKT system choice");
-        if( Max(numLargeAffineRefines,numLargeCorrectorRefines) > 3 )
+        if( Max(numLargeAffineRefines,numLargeCorrectorRefines) > 3 &&
+            !increasedReg )
+        {
             Scale( Real(10), regCand );
+            increasedReg = true;
+        }
         // TODO: Residual checks for center-corrector
 
         // Add in the affine search direction

@@ -9,21 +9,36 @@
 import El
 import time
 
-m = 200
-n = 400
+m = 2000
+n = 4000
 numLambdas = 5
 startLambda = 0.01
 endLambda = 1
 display = True
 worldRank = El.mpi.WorldRank()
 
+# Make a sparse matrix with the last column dense
 def Rectang(height,width):
-  A = El.DistMatrix()
-  El.Uniform( A, height, width )
+  A = El.DistSparseMatrix()
+  A.Resize(height,width)
+  firstLocalRow = A.FirstLocalRow()
+  localHeight = A.LocalHeight()
+  A.Reserve(5*localHeight)
+  for sLoc in xrange(localHeight):
+    s = firstLocalRow + sLoc
+    A.QueueLocalUpdate( sLoc, s, 11 )
+    if s != 0:            A.QueueLocalUpdate( sLoc, s-1,      -1 )
+    if s != width-1:      A.QueueLocalUpdate( sLoc, s+1,       2 )
+    if s >= height:       A.QueueLocalUpdate( sLoc, s-height, -3 )
+    if s <  width-height: A.QueueLocalUpdate( sLoc, s+height,  4 )
+    # The dense last column
+    A.QueueLocalUpdate( sLoc, width-1, -5/height );
+
+  A.MakeConsistent()
   return A
 
 A = Rectang(m,n)
-b = El.DistMatrix()
+b = El.DistMultiVec()
 El.Gaussian( b, m, 1 )
 if display:
   El.Display( A, "A" )
@@ -47,13 +62,13 @@ for j in xrange(0,numLambdas):
     El.Display( x, "x" )
 
   xOneNorm = El.EntrywiseNorm( x, 1 )
-  r = El.DistMatrix()
+  r = El.DistMultiVec()
   El.Copy( b, r )
-  El.Gemv( El.NORMAL, -1., A, x, 1., r )
+  El.SparseMultiply( El.NORMAL, -1., A, x, 1., r )
   rTwoNorm = El.Nrm2( r )
-  t = El.DistMatrix()
+  t = El.DistMultiVec()
   El.Zeros( t, n, 1 )
-  El.Gemv( El.TRANSPOSE, 1., A, r, 0., t )
+  El.SparseMultiply( El.TRANSPOSE, 1., A, r, 0., t )
   tTwoNorm = El.Nrm2( t )
   tInfNorm = El.MaxNorm( t )
   if display:

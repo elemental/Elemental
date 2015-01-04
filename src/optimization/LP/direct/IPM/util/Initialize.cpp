@@ -83,6 +83,16 @@ void Initialize
     DEBUG_ONLY(CallStackEntry cse("lp::direct::Initialize"))
     const Int m = A.Height();
     const Int n = A.Width();
+    if( primalInitialized ) 
+        if( x.Height() != n || x.Width() != 1 )
+            LogicError("x was of the wrong size");
+    if( dualInitialized )
+    {
+        if( y.Height() != m || y.Width() != 1 )
+            LogicError("y was of the wrong size");
+        if( z.Height() != n || z.Width() != 1 )
+            LogicError("z was of the wrong size");
+    }
     if( primalInitialized && dualInitialized )
     {
         // TODO: Perform a consistency check
@@ -179,6 +189,16 @@ void Initialize
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
+    if( primalInitialized )
+        if( x.Height() != n || x.Width() != 1 )
+            LogicError("x was of the wrong size");
+    if( dualInitialized )
+    {
+        if( y.Height() != m || y.Width() != 1 )
+            LogicError("y was of the wrong size");
+        if( z.Height() != n || z.Width() != 1 )
+            LogicError("z was of the wrong size");
+    }
     if( primalInitialized && dualInitialized )
     {
         // TODO: Perform a consistency check

@@ -457,6 +457,7 @@ void IPF
             regCand.SetLocal( iLoc, 0, -regMagDual );
     }
     DistNodalMultiVec<Real> regCandNodal, regNodal;
+    bool increasedReg = false;
 
 #ifndef EL_RELEASE
     DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm);
@@ -561,8 +562,11 @@ void IPF
             const Int numLargeRefines = reg_ldl::SolveAfter
             ( J, reg, invMap, info, JFrontTree, d, 
               minReductionFactor, maxRefineIts, ctrl.print );
-            if( numLargeRefines > 3 )
+            if( numLargeRefines > 3 && !increasedReg )
+            {
                 Scale( Real(10), regCand );
+                increasedReg = true;
+            }
             ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
         }
 #ifndef EL_RELEASE

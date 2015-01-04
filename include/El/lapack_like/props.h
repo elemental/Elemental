@@ -576,6 +576,16 @@ EL_EXPORT ElError ElMaxNormDistSparse_c
 ( ElConstDistSparseMatrix_c A, float* norm );
 EL_EXPORT ElError ElMaxNormDistSparse_z
 ( ElConstDistSparseMatrix_z A, double* norm );
+EL_EXPORT ElError ElMaxNormDistMultiVec_i
+( ElConstDistMultiVec_i A, ElInt* norm );
+EL_EXPORT ElError ElMaxNormDistMultiVec_s
+( ElConstDistMultiVec_s A, float* norm );
+EL_EXPORT ElError ElMaxNormDistMultiVec_d
+( ElConstDistMultiVec_d A, double* norm );
+EL_EXPORT ElError ElMaxNormDistMultiVec_c
+( ElConstDistMultiVec_c A, float* norm );
+EL_EXPORT ElError ElMaxNormDistMultiVec_z
+( ElConstDistMultiVec_z A, double* norm );
 
 EL_EXPORT ElError ElHermitianMaxNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float* norm );

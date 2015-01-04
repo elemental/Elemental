@@ -489,6 +489,7 @@ void IPF
         }
     }
     DistNodalMultiVec<Real> regCandNodal, regNodal;
+    bool increasedReg = false;
 
 #ifndef EL_RELEASE
     DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm), prod(comm);
@@ -591,8 +592,11 @@ void IPF
             const Int numLargeRefines = reg_ldl::SolveAfter
             ( J, reg, invMap, info, JFrontTree, d, 
               minReductionFactor, maxRefineIts, ctrl.print );
-            if( numLargeRefines > 3 )
+            if( numLargeRefines > 3 && !increasedReg )
+            {
                 Scale( Real(10), regCand );
+                increasedReg = true;
+            }
             ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -625,8 +629,11 @@ void IPF
             const Int numLargeRefines = reg_ldl::SolveAfter
             ( J, reg, invMap, info, JFrontTree, d, 
               minReductionFactor, maxRefineIts, ctrl.print );
-            if( numLargeRefines > 3 )
+            if( numLargeRefines > 3 && !increasedReg )
+            {
                 Scale( Real(10), regCand );
+                increasedReg = true;
+            }
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else
