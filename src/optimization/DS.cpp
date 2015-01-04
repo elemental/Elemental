@@ -97,8 +97,7 @@ void Var2
     auto AHat_1r = AHat( IR(m,m+n), rInd );
     auto AHat_1t = AHat( IR(m,m+n), tInd );
     AHat_0u = A;
-    AHat_0v = A;
-    Scale( Real(-1), AHat_0v );
+    AHat_0v = A; Scale( Real(-1), AHat_0v );
     Identity( AHat_0r, m, m );
     Transpose( A, AHat_1r );
     Identity( AHat_1t, n, n );
@@ -120,6 +119,10 @@ void Var2
     auto G1v = G( IR(n,  2*n), vInd );
     auto G2t = G( IR(2*n,3*n), tInd );
     auto G3t = G( IR(3*n,4*n), tInd );
+    Identity( G0u, n, n ); Scale( Real(-1), G0u );
+    Identity( G1v, n, n ); Scale( Real(-1), G1v );
+    Identity( G2t, n, n );
+    Identity( G3t, n, n ); Scale( Real(-1), G3t );
 
     // h := [0;0;lambda e;lambda e]
     // ============================
@@ -172,8 +175,7 @@ void Var2
     auto AHat_1r = AHat( IR(m,m+n), rInd );
     auto AHat_1t = AHat( IR(m,m+n), tInd );
     AHat_0u = A;
-    AHat_0v = A;
-    Scale( Real(-1), AHat_0v );
+    AHat_0v = A; Scale( Real(-1), AHat_0v );
     Identity( AHat_0r, m, m );
     Transpose( A, AHat_1r );
     Identity( AHat_1t, n, n );
@@ -195,6 +197,10 @@ void Var2
     auto G1v = G( IR(n,  2*n), vInd );
     auto G2t = G( IR(2*n,3*n), tInd );
     auto G3t = G( IR(3*n,4*n), tInd );
+    Identity( G0u, n, n ); Scale( Real(-1), G0u );
+    Identity( G1v, n, n ); Scale( Real(-1), G1v );
+    Identity( G2t, n, n );
+    Identity( G3t, n, n ); Scale( Real(-1), G3t );
 
     // h := [0;0;lambda e;lambda e]
     // ============================

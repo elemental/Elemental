@@ -578,13 +578,13 @@ lib.ElDSXDist_s.argtypes = \
 lib.ElDSXSparse_s.argtypes = \
 lib.ElDSXDistSparse_s.argtypes = \
   [c_void_p,c_void_p,sType,c_void_p,
-   LPDirectCtrl_s]
+   LPAffineCtrl_s]
 lib.ElDSX_d.argtypes = \
 lib.ElDSXDist_d.argtypes = \
 lib.ElDSXSparse_d.argtypes = \
 lib.ElDSXDistSparse_d.argtypes = \
   [c_void_p,c_void_p,dType,c_void_p,
-   LPDirectCtrl_d]
+   LPAffineCtrl_d]
 lib.ElDSX_s.restype = \
 lib.ElDSX_d.restype = \
 lib.ElDSXDist_s.restype = \
