@@ -282,6 +282,58 @@ EL_EXPORT ElError ElBPADMMDist_z
 
 /* TODO: Expert versions */
 
+/* Chebyshev point
+   =============== */
+EL_EXPORT ElError ElCP_s
+( ElConstMatrix_s A, ElConstMatrix_s b, ElMatrix_s x );
+EL_EXPORT ElError ElCP_d
+( ElConstMatrix_d A, ElConstMatrix_d b, ElMatrix_d x );
+
+EL_EXPORT ElError ElCPDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_s b, ElDistMatrix_s x );
+EL_EXPORT ElError ElCPDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElDistMatrix_d x );
+
+EL_EXPORT ElError ElCPSparse_s
+( ElConstSparseMatrix_s A, ElConstMatrix_s b, ElMatrix_s x );
+EL_EXPORT ElError ElCPSparse_d
+( ElConstSparseMatrix_d A, ElConstMatrix_d b, ElMatrix_d x );
+
+EL_EXPORT ElError ElCPDistSparse_s
+( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b, ElDistMultiVec_s x );
+EL_EXPORT ElError ElCPDistSparse_d
+( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b, ElDistMultiVec_d x );
+
+/* Expert verions
+   -------------- */
+EL_EXPORT ElError ElCPX_s
+( ElConstMatrix_s A, ElConstMatrix_s b, ElMatrix_s x,
+  ElLPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElCPX_d
+( ElConstMatrix_d A, ElConstMatrix_d b, ElMatrix_d x,
+  ElLPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElCPXDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_s b, ElDistMatrix_s x,
+  ElLPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElCPXDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElDistMatrix_d x,
+  ElLPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElCPXSparse_s
+( ElConstSparseMatrix_s A, ElConstMatrix_s b, ElMatrix_s x,
+  ElLPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElCPXSparse_d
+( ElConstSparseMatrix_d A, ElConstMatrix_d b, ElMatrix_d x,
+  ElLPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElCPXDistSparse_s
+( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b, ElDistMultiVec_s x,
+  ElLPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElCPXDistSparse_d
+( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b, ElDistMultiVec_d x,
+  ElLPAffineCtrl_d ctrl );
+
 /* Dantzig selector
    ================ */
 EL_EXPORT ElError ElDS_s

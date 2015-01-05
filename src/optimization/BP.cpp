@@ -55,8 +55,7 @@ void BP
     auto AHat_u = AHat( IR(0,m), uInd );
     auto AHat_v = AHat( IR(0,m), vInd );
     AHat_u = A;
-    AHat_v = A;
-    Scale( Real(-1), AHat_v );
+    AHat_v = A; Scale( Real(-1), AHat_v );
 
     // Solve the direct LP
     // ===================
@@ -92,8 +91,7 @@ void BP
     auto AHat_u = AHat( IR(0,m), uInd );
     auto AHat_v = AHat( IR(0,m), vInd );
     AHat_u = A;
-    AHat_v = A;
-    Scale( Real(-1), AHat_v );
+    AHat_v = A; Scale( Real(-1), AHat_v );
 
     // Solve the direct LP
     // ===================

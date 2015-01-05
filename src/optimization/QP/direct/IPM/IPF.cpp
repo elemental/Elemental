@@ -101,9 +101,7 @@ void IPF
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
-        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
-            break;
-        else if( ctrl.print )
+        if( ctrl.print )
             std::cout << " iter " << numIts << ":\n"
                       << "  |primal - dual| / (1 + |primal|) = "
                       << objConv << "\n"
@@ -111,6 +109,8 @@ void IPF
                       << rbConv << "\n"
                       << "  || r_c ||_2 / (1 + || c ||_2)   = "
                       << rcConv << std::endl;
+        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
+            break;
 
         // Raise an exception after an unacceptable number of iterations
         // =============================================================
@@ -288,9 +288,7 @@ void IPF
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
-        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
-            break;
-        else if( ctrl.print && commRank == 0 )
+        if( ctrl.print && commRank == 0 )
             std::cout << " iter " << numIts << ":\n"
                       << "  |primal - dual| / (1 + |primal|) = "
                       << objConv << "\n"
@@ -298,6 +296,8 @@ void IPF
                       << rbConv << "\n"
                       << "  || r_c ||_2 / (1 + || c ||_2)   = "
                       << rcConv << std::endl;
+        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
+            break;
 
         // Raise an exception after an unacceptable number of iterations
         // =============================================================
@@ -533,9 +533,7 @@ void IPF
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
-        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
-            break;
-        else if( ctrl.print && commRank == 0 )
+        if( ctrl.print && commRank == 0 )
             std::cout << " iter " << numIts << ":\n"
                       << "  |primal - dual| / (1 + |primal|) = "
                       << objConv << "\n"
@@ -543,6 +541,8 @@ void IPF
                       << rbConv << "\n"
                       << "  || r_c ||_2 / (1 + || c ||_2)   = "
                       << rcConv << std::endl;
+        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
+            break;
 
         // Raise an exception after an unacceptable number of iterations
         // =============================================================

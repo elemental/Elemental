@@ -113,9 +113,7 @@ void Mehrotra
         const Real rhConv = rhNrm2 / (Real(1)+hNrm2);
         // Now check the pieces
         // --------------------
-        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
-            break;
-        else if( ctrl.print )
+        if( ctrl.print )
             std::cout << " iter " << numIts << ":\n"
                       << "  |primal - dual| / (1 + |primal|) = "
                       << objConv << "\n"
@@ -125,6 +123,9 @@ void Mehrotra
                       << rcConv << "\n"
                       << "  || r_h ||_2 / (1 + || h ||_2)   = "
                       << rhConv << std::endl;
+        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && 
+            rcConv  <= ctrl.tol && rhConv <= ctrl.tol )
+            break;
 
         // Raise an exception after an unacceptable number of iterations
         // =============================================================
@@ -353,9 +354,7 @@ void Mehrotra
         const Real rhConv = rhNrm2 / (Real(1)+hNrm2);
         // Now check the pieces
         // --------------------
-        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
-            break;
-        else if( ctrl.print && commRank == 0 )
+        if( ctrl.print && commRank == 0 )
             std::cout << " iter " << numIts << ":\n"
                       << "  |primal - dual| / (1 + |primal|) = "
                       << objConv << "\n"
@@ -365,6 +364,9 @@ void Mehrotra
                       << rcConv << "\n"
                       << "  || r_h ||_2 / (1 + || h ||_2)   = "
                       << rhConv << std::endl;
+        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && 
+            rcConv  <= ctrl.tol && rhConv <= ctrl.tol )
+            break;
 
         // Raise an exception after an unacceptable number of iterations
         // =============================================================
@@ -612,9 +614,7 @@ void Mehrotra
         const Real rhConv = rhNrm2 / (Real(1)+hNrm2);
         // Now check the pieces
         // --------------------
-        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
-            break;
-        else if( ctrl.print && commRank == 0 )
+        if( ctrl.print && commRank == 0 )
             std::cout << " iter " << numIts << ":\n"
                       << "  |primal - dual| / (1 + |primal|) = "
                       << objConv << "\n"
@@ -624,6 +624,9 @@ void Mehrotra
                       << rcConv << "\n"
                       << "  || r_h ||_2 / (1 + || h ||_2)   = "
                       << rhConv << std::endl;
+        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && 
+            rcConv  <= ctrl.tol && rhConv <= ctrl.tol )
+            break;
 
         // Raise an exception after an unacceptable number of iterations
         // =============================================================

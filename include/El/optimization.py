@@ -551,6 +551,110 @@ def BPADMM(A,b):
     return z, numIts
   else: TypeExcept()
 
+# Chebyshev point
+# ===============
+lib.ElCP_s.argtypes = \
+lib.ElCP_d.argtypes = \
+lib.ElCPDist_s.argtypes = \
+lib.ElCPDist_d.argtypes = \
+lib.ElCPSparse_s.argtypes = \
+lib.ElCPSparse_d.argtypes = \
+lib.ElCPDistSparse_s.argtypes = \
+lib.ElCPDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+lib.ElCP_s.restype = \
+lib.ElCP_d.restype = \
+lib.ElCPDist_s.restype = \
+lib.ElCPDist_d.restype = \
+lib.ElCPSparse_s.restype = \
+lib.ElCPSparse_d.restype = \
+lib.ElCPDistSparse_s.restype = \
+lib.ElCPDistSparse_d.restype = \
+  c_uint
+
+lib.ElCPX_s.argtypes = \
+lib.ElCPXDist_s.argtypes = \
+lib.ElCPXSparse_s.argtypes = \
+lib.ElCPXDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,
+   LPAffineCtrl_s]
+lib.ElCPX_d.argtypes = \
+lib.ElCPXDist_d.argtypes = \
+lib.ElCPXSparse_d.argtypes = \
+lib.ElCPXDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,
+   LPAffineCtrl_d]
+lib.ElCPX_s.restype = \
+lib.ElCPX_d.restype = \
+lib.ElCPXDist_s.restype = \
+lib.ElCPXDist_d.restype = \
+lib.ElCPXSparse_s.restype = \
+lib.ElCPXSparse_d.restype = \
+lib.ElCPXDistSparse_s.restype = \
+lib.ElCPXDistSparse_d.restype = \
+  c_uint
+
+def CP(A,b,ctrl=None):
+  if A.tag != b.tag:
+    raise Exception('Datatypes of A and b must match')
+  if type(A) is Matrix:
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
+    x = Matrix(A.tag)
+    args = [A.obj,b.obj,x.obj]
+    argsCtrl = [A.obj,b.obj,x.obj,ctrl] 
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElCP_s(*args)
+      else:            lib.ElCPX_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElCP_d(*args)
+      else:            lib.ElCPX_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is DistMatrix:
+    if type(b) is not DistMatrix:
+      raise Exception('b must be a DistMatrix')
+    x = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,b.obj,x.obj]
+    argsCtrl = [A.obj,b.obj,x.obj,ctrl] 
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElCPDist_s(*args)
+      else:            lib.ElCPXDist_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElCPDist_d(*args)
+      else:            lib.ElCPXDist_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is SparseMatrix:
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
+    x = Matrix(A.tag)
+    args = [A.obj,b.obj,x.obj]
+    argsCtrl = [A.obj,b.obj,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElCPSparse_s(*args)
+      else:            lib.ElCPXSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElCPSparse_d(*args)
+      else:            lib.ElCPXSparse_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is DistSparseMatrix:
+    if type(b) is not DistMultiVec:
+      raise Exception('b must be a DistMultiVec')
+    x = DistMultiVec(A.tag,A.Comm())
+    args = [A.obj,b.obj,x.obj]
+    argsCtrl = [A.obj,b.obj,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElCPDistSparse_s(*args)
+      else:            lib.ElCPXDistSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElCPDistSparse_d(*args)
+      else:            lib.ElCPXDistSparse_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  else: TypeExcept()
+
 # Dantzig selector
 # ================
 lib.ElDS_s.argtypes = \

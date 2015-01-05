@@ -496,6 +496,46 @@ ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
     ElDistMultiVec_ ## SIG x, ElLPDirectCtrl_ ## SIG ctrl ) \
   { EL_TRY( BP \
       ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
+  /* Chebyshev point
+     =============== */ \
+  ElError ElCP_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    ElMatrix_ ## SIG x ) \
+  { EL_TRY( CP( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ElError ElCPDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
+    ElDistMatrix_ ## SIG x ) \
+  { EL_TRY( CP( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ElError ElCPSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    ElMatrix_ ## SIG x ) \
+  { EL_TRY( CP( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ElError ElCPDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
+    ElDistMultiVec_ ## SIG x ) \
+  { EL_TRY( CP( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  /* Expert versions
+     --------------- */ \
+  ElError ElCPX_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    ElMatrix_ ## SIG x, ElLPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( CP \
+      ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElCPXDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
+    ElDistMatrix_ ## SIG x, ElLPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( CP \
+      ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElCPXSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    ElMatrix_ ## SIG x, ElLPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( CP \
+      ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElCPXDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
+    ElDistMultiVec_ ## SIG x, ElLPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( CP \
+      ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
   /* Dantzig Selector
      ================ */ \
   ElError ElDS_ ## SIG \

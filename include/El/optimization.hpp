@@ -349,9 +349,31 @@ void BP
         DistMultiVec<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(true) );
 
-// Dantzig selector: 
-//   min || x ||_1 such that || A^T (b - A x) ||_oo <= lambda
-// ==========================================================
+// Chebyshev point: min || A x - b||_oo
+// ====================================
+template<typename Real>
+void CP
+( const Matrix<Real>& A, const Matrix<Real>& b,
+        Matrix<Real>& x,
+  const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
+template<typename Real>
+void CP
+( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
+        AbstractDistMatrix<Real>& x,
+  const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
+template<typename Real>
+void CP
+( const SparseMatrix<Real>& A, const Matrix<Real>& b,
+        Matrix<Real>& x,
+  const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
+template<typename Real>
+void CP
+( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b,
+        DistMultiVec<Real>& x,
+  const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
+
+// Dantzig selector: min || x ||_1 s.t. || A^T (b - A x) ||_oo <= lambda
+// =====================================================================
 // TODO: 
 //  Add the ability to switch between the (DS1) and (DS2) affine LP
 //  formulations described in 
