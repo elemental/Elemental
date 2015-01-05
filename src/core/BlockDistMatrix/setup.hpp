@@ -163,7 +163,7 @@ BDM& BDM::operator=( const DistMatrix<T,U,V>& A )
 template<typename T>
 BDM& BDM::operator=( BDM&& A )
 {
-    if( this->Viewing() && !A.Viewing() )
+    if( this->Viewing() || A.Viewing() )
         this->operator=( (const BDM&)A );
     else
         ABDM::operator=( std::move(A) );

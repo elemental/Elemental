@@ -108,7 +108,7 @@ Matrix<T>::~Matrix() { }
 template<typename T>
 Matrix<T> Matrix<T>::operator()( Range<Int> indVert, Range<Int> indHorz )
 {
-    DEBUG_ONLY(CallStackEntry cse("Matrix ind, ind )"))
+    DEBUG_ONLY(CallStackEntry cse("Matrix( ind, ind )"))
     if( this->Locked() )
         return LockedView( *this, indVert, indHorz );
     else
@@ -138,7 +138,7 @@ template<typename T>
 Matrix<T>& Matrix<T>::operator=( Matrix<T>&& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Matrix::operator=( Matrix&& )"))
-    if( Viewing() && !A.Viewing() )
+    if( Viewing() || A.Viewing() )
     {
         operator=( (const Matrix<T>&)A );
     }

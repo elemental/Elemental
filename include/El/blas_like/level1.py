@@ -348,6 +348,8 @@ def Copy(A,B):
     else:
       raise Exception('Expected B to be a Dist(Sparse)Matrix')
   elif type(A) is DistMultiVec:
+    if type(B) is not DistMultiVec:
+      raise Exception('Expected B to be a DistMultiVec')
     if   A.tag == iTag: lib.ElCopyDistMultiVec_i(*args)
     elif A.tag == sTag: lib.ElCopyDistMultiVec_s(*args)
     elif A.tag == dTag: lib.ElCopyDistMultiVec_d(*args)

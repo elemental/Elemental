@@ -117,9 +117,10 @@ void UPanSquare
 
         if( !firstIteration )
         {
-            a01Last_MC_STAR = B_MC_STAR( indT, IR(k+1,k+2) );
-            a01Last_MR_STAR = B_MR_STAR( indT, IR(k+1,k+2) );
-            w01Last         = W(         indT, IR(k+1,k+2) );
+            // TODO: Move these and make them auto
+            View( a01Last_MC_STAR, B_MC_STAR, indT, IR(k+1,k+2) );
+            View( a01Last_MR_STAR, B_MR_STAR, indT, IR(k+1,k+2) );
+            View( w01Last,         W,         indT, IR(k+1,k+2) );
         }
 
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlign() );

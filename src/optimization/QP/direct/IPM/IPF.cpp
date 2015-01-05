@@ -206,7 +206,7 @@ void IPF
 template<typename Real>
 void IPF
 ( const AbstractDistMatrix<Real>& QPre, const AbstractDistMatrix<Real>& APre, 
-  const AbstractDistMatrix<Real>& b,    const AbstractDistMatrix<Real>& c,
+  const AbstractDistMatrix<Real>& bPre, const AbstractDistMatrix<Real>& cPre,
         AbstractDistMatrix<Real>& xPre,       AbstractDistMatrix<Real>& yPre, 
         AbstractDistMatrix<Real>& zPre, 
   const IPFCtrl<Real>& ctrl )
@@ -220,6 +220,8 @@ void IPF
     proxCtrl.rowAlign = 0;
     auto QPtr = ReadProxy<Real,MC,MR>(&QPre,proxCtrl);      auto& Q = *QPtr;
     auto APtr = ReadProxy<Real,MC,MR>(&APre,proxCtrl);      auto& A = *APtr;
+    auto bPtr = ReadProxy<Real,MC,MR>(&bPre,proxCtrl);      auto& b = *bPtr;
+    auto cPtr = ReadProxy<Real,MC,MR>(&cPre,proxCtrl);      auto& c = *cPtr;
     // NOTE: x does not need to be a read proxy when !ctrl.primalInitialized
     auto xPtr = ReadWriteProxy<Real,MC,MR>(&xPre,proxCtrl); auto& x = *xPtr;
     // NOTE: (y,z) do not need to be read proxies when !ctrl.dualInitialized

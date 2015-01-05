@@ -103,7 +103,18 @@ ReadProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
             (!ctrl.rootConstrain || A->Root() == ctrl.root);
 
         if( haveColAlign && haveRowAlign && haveRoot )
+        {
+            // Constrain the proxy to have the forced alignemnts.
+            // This is somewhat tricky since a subsequent write could otherwise
+            // change the alignment.
+            if( ctrl.colConstrain )
+                A->AlignCols( ctrl.colAlign );
+            if( ctrl.rowConstrain )
+                A->AlignRows( ctrl.rowAlign );
+            if( ctrl.rootConstrain )
+                A->SetRoot( ctrl.root );
             return std::shared_ptr<DM>( ACast, []( const DM* B ) { } );
+        }
     }
 
     auto AShared = std::make_shared<DM>( A->Grid() );
@@ -163,7 +174,18 @@ ReadWriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
             (!ctrl.rootConstrain || A->Root() == ctrl.root);
 
         if( haveColAlign && haveRowAlign && haveRoot )
+        {
+            // Constrain the proxy to have the forced alignemnts.
+            // This is somewhat tricky since a subsequent write could otherwise
+            // change the alignment.
+            if( ctrl.colConstrain )
+                A->AlignCols( ctrl.colAlign );
+            if( ctrl.rowConstrain )
+                A->AlignRows( ctrl.rowAlign );
+            if( ctrl.rootConstrain )
+                A->SetRoot( ctrl.root );
             return std::shared_ptr<DM>( ACast, []( const DM* B ) { } );
+        }
     }
 
     DM* ARaw = new DM( A->Grid() );
@@ -230,7 +252,18 @@ WriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
             (!ctrl.rootConstrain || A->Root() == ctrl.root);
 
         if( haveColAlign && haveRowAlign && haveRoot )
+        {
+            // Constrain the proxy to have the forced alignemnts.
+            // This is somewhat tricky since a subsequent write could otherwise
+            // change the alignment.
+            if( ctrl.colConstrain )
+                A->AlignCols( ctrl.colAlign );
+            if( ctrl.rowConstrain )
+                A->AlignRows( ctrl.rowAlign );
+            if( ctrl.rootConstrain )
+                A->SetRoot( ctrl.root );
             return std::shared_ptr<DM>( ACast, []( const DM* B ) { } );
+        }
     }
 
     DM* ARaw = new DM( A->Grid() );

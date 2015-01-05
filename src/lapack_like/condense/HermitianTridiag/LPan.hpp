@@ -105,9 +105,10 @@ void LPan
 
         if( k > 0 )
         {
-            a21Last_MC_STAR = B_MC_STAR( indB, ind1-1 );
-            a21Last_MR_STAR = B_MR_STAR( indB, ind1-1 );
-            w21Last         = W        ( indB, ind1-1 );
+            // TODO: Move these and make them auto
+            View( a21Last_MC_STAR, B_MC_STAR, indB, ind1-1 );
+            View( a21Last_MR_STAR, B_MR_STAR, indB, ind1-1 );
+            View( w21Last,         W,         indB, ind1-1 );
         }
 
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlign() );

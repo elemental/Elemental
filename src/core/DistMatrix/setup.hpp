@@ -142,7 +142,7 @@ DM& DM::operator=( const BlockDistMatrix<T,U,V>& A )
 template<typename T>
 DM& DM::operator=( DM&& A )
 {
-    if( this->Viewing() && !A.Viewing() )
+    if( this->Viewing() || A.Viewing() )
         this->operator=( (const DM&)A );
     else
         ADM::operator=( std::move(A) );

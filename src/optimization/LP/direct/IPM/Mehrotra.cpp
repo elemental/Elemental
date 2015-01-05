@@ -288,7 +288,7 @@ void Mehrotra
 template<typename Real>
 void Mehrotra
 ( const AbstractDistMatrix<Real>& APre, 
-  const AbstractDistMatrix<Real>& b,    const AbstractDistMatrix<Real>& c,
+  const AbstractDistMatrix<Real>& bPre, const AbstractDistMatrix<Real>& cPre,
         AbstractDistMatrix<Real>& xPre,       AbstractDistMatrix<Real>& yPre,
         AbstractDistMatrix<Real>& zPre,
   const MehrotraCtrl<Real>& ctrl )
@@ -301,6 +301,8 @@ void Mehrotra
     control.colAlign = 0;
     control.rowAlign = 0;
     auto APtr = ReadProxy<Real,MC,MR>(&APre,control);      auto& A = *APtr;
+    auto bPtr = ReadProxy<Real,MC,MR>(&bPre,control);      auto& b = *bPtr;
+    auto cPtr = ReadProxy<Real,MC,MR>(&cPre,control);      auto& c = *cPtr;
     // NOTE: x does not need to be a read proxy when !ctrl.primalInitialized
     auto xPtr = ReadWriteProxy<Real,MC,MR>(&xPre,control); auto& x = *xPtr;
     // NOTE: {y,z} do not need to be read proxies when !ctrl.dualInitialized

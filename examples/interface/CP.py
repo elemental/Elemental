@@ -9,11 +9,8 @@
 import El
 import time
 
-m = 2000
-n = 4000
-numLambdas = 5
-startLambda = 0.01
-endLambda = 1
+m = 4000
+n = 2000
 display = True
 worldRank = El.mpi.WorldRank()
 
@@ -28,7 +25,7 @@ def Rectang(height,width):
     s = firstLocalRow + sLoc
     if s < width: 
       A.QueueLocalUpdate( sLoc, s,        11 )
-    if s >= 1 and s-1 < width:
+    if s >= 1 and s-1 < width: 
       A.QueueLocalUpdate( sLoc, s-1,      -1 )
     if s+1 < width:
       A.QueueLocalUpdate( sLoc, s+1,       2 )
@@ -51,39 +48,43 @@ if display:
 
 ctrl = El.LPAffineCtrl_d()
 ctrl.mehrotraCtrl.progress = True
+startCP = time.clock()
+x = El.CP( A, b, ctrl )
+endCP = time.clock()
+if worldRank == 0:
+  print "CP time: ", endCP-startCP
 
-for j in xrange(0,numLambdas):
-  lambd = startLambda + j*(endLambda-startLambda)/(numLambdas-1.)
-  if worldRank == 0:
-    print "lambda =", lambd
+if display:
+  El.Display( x, "x" )
 
-  startDS = time.clock()
-  x = El.DS( A, b, lambd, ctrl )
-  endDS = time.clock()
-  if worldRank == 0:
-    print "DS time: ", endDS-startDS
+bTwoNorm = El.Nrm2( b )
+bInfNorm = El.MaxNorm( b )
+r = El.DistMultiVec()
+El.Copy( b, r )
+El.SparseMultiply( El.NORMAL, -1., A, x, 1., r )
+if display:
+  El.Display( r, "r" )
+rTwoNorm = El.Nrm2( r )
+rInfNorm = El.MaxNorm( r )
+if worldRank == 0:
+  print "|| b ||_2        =", bTwoNorm
+  print "|| b ||_oo       =", bInfNorm
+  print "|| A x - b ||_2  =", rTwoNorm
+  print "|| A x - b ||_oo =", rInfNorm
 
-  if display:
-    El.Display( x, "x" )
-
-  xOneNorm = El.EntrywiseNorm( x, 1 )
-  r = El.DistMultiVec()
-  El.Copy( b, r )
-  El.SparseMultiply( El.NORMAL, -1., A, x, 1., r )
-  rTwoNorm = El.Nrm2( r )
-  t = El.DistMultiVec()
-  El.Zeros( t, n, 1 )
-  El.SparseMultiply( El.TRANSPOSE, 1., A, r, 0., t )
-  tTwoNorm = El.Nrm2( t )
-  tInfNorm = El.MaxNorm( t )
-  if display:
-    El.Display( r, "r" )
-    El.Display( t, "t" )
-  if worldRank == 0:
-    print "|| x ||_1       =", xOneNorm
-    print "|| b - A x ||_2 =", rTwoNorm
-    print "|| A^T (b - A x) ||_2 =", tTwoNorm
-    print "|| A^T (b - A x) ||_oo =", tInfNorm
+xLS = El.LeastSquares(A,b)
+xLSNrm = El.Nrm2(x)
+if display:
+  El.Display( xLS, "x_{LS}" )
+rLS = El.DistMultiVec()
+El.Copy( b, rLS )
+El.SparseMultiply( El.NORMAL, -1., A, xLS, 1., rLS )
+El.Display( rLS, "A x_{LS} - b" )
+rLSTwoNorm = El.Nrm2(rLS)
+rLSInfNorm = El.MaxNorm(rLS)
+if worldRank == 0:
+  print "|| A x_{LS} - b ||_2  =", rLSTwoNorm
+  print "|| A x_{LS} - b ||_oo =", rLSInfNorm
 
 # Require the user to press a button before the figures are closed
 commSize = El.mpi.Size( El.mpi.COMM_WORLD() )

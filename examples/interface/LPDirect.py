@@ -27,11 +27,16 @@ def Rectang(height,width):
   A.Reserve(5*localHeight)
   for sLoc in xrange(localHeight):
     s = firstLocalRow + sLoc
-    A.QueueLocalUpdate( sLoc, s, 11 )
-    if s != 0:            A.QueueLocalUpdate( sLoc, s-1,      -1 )
-    if s != width-1:      A.QueueLocalUpdate( sLoc, s+1,       2 )
-    if s >= height:       A.QueueLocalUpdate( sLoc, s-height, -3 )
-    if s <  width-height: A.QueueLocalUpdate( sLoc, s+height,  4 )
+    if s < width: 
+      A.QueueLocalUpdate( sLoc, s,        11 )
+    if s >= 1 and s-1 < width:
+      A.QueueLocalUpdate( sLoc, s-1,      -1 )
+    if s+1 < width:
+      A.QueueLocalUpdate( sLoc, s+1,       2 )
+    if s >= height and s-height < width:
+      A.QueueLocalUpdate( sLoc, s-height, -3 )
+    if s+height < width: 
+      A.QueueLocalUpdate( sLoc, s+height,  4 )
     # The dense last column
     A.QueueLocalUpdate( sLoc, width-1, -5/height );
 

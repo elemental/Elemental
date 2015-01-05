@@ -35,6 +35,7 @@ T HilbertSchmidt
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");
     AssertSameGrids( A, B );
+    // TODO: Add a general implementation
     if( A.DistData().colDist != B.DistData().colDist ||
         A.DistData().rowDist != B.DistData().rowDist )
         LogicError("A and B must have the same distribution");

@@ -137,7 +137,7 @@ Base<T> MaxNorm( const DistMultiVec<T>& A )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             localNorm = Max(localNorm,Abs(A.GetLocal(iLoc,j)));
     
-    mpi::AllReduce( localNorm, mpi::MAX, A.Comm() );
+    return mpi::AllReduce( localNorm, mpi::MAX, A.Comm() );
 }
 
 template<typename T>

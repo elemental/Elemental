@@ -75,10 +75,9 @@ template<typename T>
 AbstractBlockDistMatrix<T>& 
 AbstractBlockDistMatrix<T>::operator=( AbstractBlockDistMatrix<T>&& A )
 {
-    if( Viewing() && !A.Viewing() )
+    if( Viewing() || A.Viewing() )
     {
-        LogicError
-        ("Cannot move a non-view into a viewing AbstractBlockDistMatrix");
+        Copy( A, *this );
     }
     else
     {
