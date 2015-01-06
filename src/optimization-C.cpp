@@ -576,6 +576,46 @@ ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
     Real lambda, ElDistMultiVec_ ## SIG x, ElLPAffineCtrl_ ## SIG ctrl ) \
   { EL_TRY( DS \
       ( *CReflect(A), *CReflect(b), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
+  /* Least Absolute Value regression
+     =============================== */ \
+  ElError ElLAV_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    ElMatrix_ ## SIG x ) \
+  { EL_TRY( LAV( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ElError ElLAVDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
+    ElDistMatrix_ ## SIG x ) \
+  { EL_TRY( LAV( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ElError ElLAVSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    ElMatrix_ ## SIG x ) \
+  { EL_TRY( LAV( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ElError ElLAVDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
+    ElDistMultiVec_ ## SIG x ) \
+  { EL_TRY( LAV( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  /* Expert versions
+     --------------- */ \
+  ElError ElLAVX_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    ElMatrix_ ## SIG x, ElLPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( LAV \
+      ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElLAVXDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
+    ElDistMatrix_ ## SIG x, ElLPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( LAV \
+      ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElLAVXSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    ElMatrix_ ## SIG x, ElLPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( LAV \
+      ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElLAVXDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
+    ElDistMultiVec_ ## SIG x, ElLPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( LAV \
+      ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
   /* Basis Pursuit Denoising
      ======================= */ \
   ElError ElBPDN_ ## SIG \

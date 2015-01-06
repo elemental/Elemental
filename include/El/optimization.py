@@ -761,6 +761,110 @@ def DS(A,b,lambdaPre,ctrl=None):
     return x
   else: TypeExcept()
 
+# Least Absolute Value regression
+# ===============================
+lib.ElLAV_s.argtypes = \
+lib.ElLAV_d.argtypes = \
+lib.ElLAVDist_s.argtypes = \
+lib.ElLAVDist_d.argtypes = \
+lib.ElLAVSparse_s.argtypes = \
+lib.ElLAVSparse_d.argtypes = \
+lib.ElLAVDistSparse_s.argtypes = \
+lib.ElLAVDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+lib.ElLAV_s.restype = \
+lib.ElLAV_d.restype = \
+lib.ElLAVDist_s.restype = \
+lib.ElLAVDist_d.restype = \
+lib.ElLAVSparse_s.restype = \
+lib.ElLAVSparse_d.restype = \
+lib.ElLAVDistSparse_s.restype = \
+lib.ElLAVDistSparse_d.restype = \
+  c_uint
+
+lib.ElLAVX_s.argtypes = \
+lib.ElLAVXDist_s.argtypes = \
+lib.ElLAVXSparse_s.argtypes = \
+lib.ElLAVXDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,
+   LPAffineCtrl_s]
+lib.ElLAVX_d.argtypes = \
+lib.ElLAVXDist_d.argtypes = \
+lib.ElLAVXSparse_d.argtypes = \
+lib.ElLAVXDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,
+   LPAffineCtrl_d]
+lib.ElLAVX_s.restype = \
+lib.ElLAVX_d.restype = \
+lib.ElLAVXDist_s.restype = \
+lib.ElLAVXDist_d.restype = \
+lib.ElLAVXSparse_s.restype = \
+lib.ElLAVXSparse_d.restype = \
+lib.ElLAVXDistSparse_s.restype = \
+lib.ElLAVXDistSparse_d.restype = \
+  c_uint
+
+def LAV(A,b,ctrl=None):
+  if A.tag != b.tag:
+    raise Exception('Datatypes of A and b must match')
+  if type(A) is Matrix:
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
+    x = Matrix(A.tag)
+    args = [A.obj,b.obj,x.obj]
+    argsCtrl = [A.obj,b.obj,x.obj,ctrl] 
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElLAV_s(*args)
+      else:            lib.ElLAVX_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElLAV_d(*args)
+      else:            lib.ElLAVX_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is DistMatrix:
+    if type(b) is not DistMatrix:
+      raise Exception('b must be a DistMatrix')
+    x = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,b.obj,x.obj]
+    argsCtrl = [A.obj,b.obj,x.obj,ctrl] 
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElLAVDist_s(*args)
+      else:            lib.ElLAVXDist_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElLAVDist_d(*args)
+      else:            lib.ElLAVXDist_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is SparseMatrix:
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
+    x = Matrix(A.tag)
+    args = [A.obj,b.obj,x.obj]
+    argsCtrl = [A.obj,b.obj,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElLAVSparse_s(*args)
+      else:            lib.ElLAVXSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElLAVSparse_d(*args)
+      else:            lib.ElLAVXSparse_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is DistSparseMatrix:
+    if type(b) is not DistMultiVec:
+      raise Exception('b must be a DistMultiVec')
+    x = DistMultiVec(A.tag,A.Comm())
+    args = [A.obj,b.obj,x.obj]
+    argsCtrl = [A.obj,b.obj,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElLAVDistSparse_s(*args)
+      else:            lib.ElLAVXDistSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElLAVDistSparse_d(*args)
+      else:            lib.ElLAVXDistSparse_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  else: TypeExcept()
+
 # Logistic regression
 # ===================
 (NO_PENALTY,L1_PENALTY,L2_PENALTY)=(0,1,2)

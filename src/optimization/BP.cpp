@@ -43,7 +43,7 @@ void BP
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n);
-    Matrix<Real> c, xHat, AHat;
+    Matrix<Real> c, AHat;
 
     // c := ones(2*n,1)
     // ================
@@ -52,14 +52,14 @@ void BP
     // \hat A := [A, -A]
     // =================
     Zeros( AHat, m, 2*n );
-    auto AHat_u = AHat( IR(0,m), uInd );
-    auto AHat_v = AHat( IR(0,m), vInd );
-    AHat_u = A;
-    AHat_v = A; Scale( Real(-1), AHat_v );
+    auto AHatu = AHat( IR(0,m), uInd );
+    auto AHatv = AHat( IR(0,m), vInd );
+    AHatu = A;
+    Axpy( Real(-1), A, AHatv );
 
     // Solve the direct LP
     // ===================
-    Matrix<Real> y, z;
+    Matrix<Real> xHat, y, z;
     LP( AHat, b, c, xHat, y, z, ctrl );
 
     // x := u - v
@@ -79,7 +79,7 @@ void BP
     const Int n = A.Width();
     const Grid& g = A.Grid();
     const Range<Int> uInd(0,n), vInd(n,2*n);
-    DistMatrix<Real> c(g), xHat(g), AHat(g);
+    DistMatrix<Real> c(g), AHat(g);
 
     // c := ones(2*n,1)
     // ================
@@ -88,14 +88,14 @@ void BP
     // \hat A := [A, -A]
     // =================
     Zeros( AHat, m, 2*n );
-    auto AHat_u = AHat( IR(0,m), uInd );
-    auto AHat_v = AHat( IR(0,m), vInd );
-    AHat_u = A;
-    AHat_v = A; Scale( Real(-1), AHat_v );
+    auto AHatu = AHat( IR(0,m), uInd );
+    auto AHatv = AHat( IR(0,m), vInd );
+    AHatu = A;
+    Axpy( Real(-1), A, AHatv );
 
     // Solve the direct LP
     // ===================
-    DistMatrix<Real> y(g), z(g);
+    DistMatrix<Real> xHat(g), y(g), z(g);
     LP( AHat, b, c, xHat, y, z, ctrl );
 
     // x := u - v
@@ -113,8 +113,9 @@ void BP
     DEBUG_ONLY(CallStackEntry cse("BP"))
     const Int m = A.Height();
     const Int n = A.Width();
+    const Range<Int> uInd(0,n), vInd(n,2*n);
     SparseMatrix<Real> AHat;
-    Matrix<Real> c, xHat;
+    Matrix<Real> c;
 
     // c := ones(2*n,1)
     // ================
@@ -134,14 +135,13 @@ void BP
 
     // Solve the direct LP
     // ===================
-    Matrix<Real> y, z;
+    Matrix<Real> xHat, y, z;
     LP( AHat, b, c, xHat, y, z, ctrl );
 
     // x := u - v
     // ==========
-    Zeros( x, n, 1 );
-    for( Int i=0; i<n; ++i )
-        x.Set( i, 0, xHat.Get(i,0)-xHat.Get(i+n,0) );
+    x = xHat( uInd, IR(0,1) );
+    Axpy( Real(-1), xHat(vInd,IR(0,1)), x );
 }
 
 template<typename Real>
@@ -155,7 +155,7 @@ void BP
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
     DistSparseMatrix<Real> AHat(comm);
-    DistMultiVec<Real> c(comm), xHat(comm);
+    DistMultiVec<Real> c(comm);
 
     // c := ones(2*n,1)
     // ================
@@ -179,7 +179,7 @@ void BP
 
     // Solve the direct LP
     // ===================
-    DistMultiVec<Real> y(comm), z(comm);
+    DistMultiVec<Real> xHat(comm), y(comm), z(comm);
     LP( AHat, b, c, xHat, y, z, ctrl );
 
     // x := u - v

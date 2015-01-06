@@ -394,6 +394,58 @@ EL_EXPORT ElError ElDSXDistSparse_d
 ( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b, 
   double lambda, ElDistMultiVec_d x, ElLPAffineCtrl_d ctrl );
 
+/* Least Absolute Value regression
+   =============================== */
+EL_EXPORT ElError ElLAV_s
+( ElConstMatrix_s A, ElConstMatrix_s b, ElMatrix_s x );
+EL_EXPORT ElError ElLAV_d
+( ElConstMatrix_d A, ElConstMatrix_d b, ElMatrix_d x );
+
+EL_EXPORT ElError ElLAVDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_s b, ElDistMatrix_s x );
+EL_EXPORT ElError ElLAVDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElDistMatrix_d x );
+
+EL_EXPORT ElError ElLAVSparse_s
+( ElConstSparseMatrix_s A, ElConstMatrix_s b, ElMatrix_s x );
+EL_EXPORT ElError ElLAVSparse_d
+( ElConstSparseMatrix_d A, ElConstMatrix_d b, ElMatrix_d x );
+
+EL_EXPORT ElError ElLAVDistSparse_s
+( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b, ElDistMultiVec_s x );
+EL_EXPORT ElError ElLAVDistSparse_d
+( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b, ElDistMultiVec_d x );
+
+/* Expert verions
+   -------------- */
+EL_EXPORT ElError ElLAVX_s
+( ElConstMatrix_s A, ElConstMatrix_s b, ElMatrix_s x,
+  ElLPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElLAVX_d
+( ElConstMatrix_d A, ElConstMatrix_d b, ElMatrix_d x,
+  ElLPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElLAVXDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_s b, ElDistMatrix_s x,
+  ElLPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElLAVXDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElDistMatrix_d x,
+  ElLPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElLAVXSparse_s
+( ElConstSparseMatrix_s A, ElConstMatrix_s b, ElMatrix_s x,
+  ElLPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElLAVXSparse_d
+( ElConstSparseMatrix_d A, ElConstMatrix_d b, ElMatrix_d x,
+  ElLPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElLAVXDistSparse_s
+( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b, ElDistMultiVec_s x,
+  ElLPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElLAVXDistSparse_d
+( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b, ElDistMultiVec_d x,
+  ElLPAffineCtrl_d ctrl );
+
 /* Least Absolute Shrinkage and Selection Operator (LASSO)
    ======================================================= */
 EL_EXPORT ElError ElLasso_s

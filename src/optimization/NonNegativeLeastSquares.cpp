@@ -10,6 +10,19 @@
 
 namespace El {
 
+// Transform the problem 
+//
+//   min || A x - y ||_2 
+//   s.t. x >= 0
+//
+// into the explicit QP
+//
+//   min (1/2) x^T (A^T A) x + (-A^T y)^T x
+//   s.t. x >= 0
+//
+
+// TODO: Switch to an Interior Point Method
+
 template<typename Real>
 Int NonNegativeLeastSquares
 ( const Matrix<Real>& A, const Matrix<Real>& Y, Matrix<Real>& Z, 

@@ -75,26 +75,24 @@ void Var1
     DEBUG_ONLY(CallStackEntry cse("ds::Var1"))
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), tInd(2*n,3*n);
-    Matrix<Real> c, xHat, AHat, bHat, G, h;
+    Matrix<Real> c, AHat, bHat, G, h;
 
     // c := [1;1;0]
     // ==============
     Zeros( c, 3*n, 1 );
-    auto c_u = c( uInd, IR(0,1) );
-    auto c_v = c( vInd, IR(0,1) );
-    Ones( c_u, n, 1 );
-    Ones( c_v, n, 1 );
+    auto cuv = c( IR(0,2*n), IR(0,1) );
+    Fill( cuv, Real(1) );
 
     // \hat A := [ A^T A, -A^T A,  I ]
     // ===============================
     Zeros( AHat, n, 3*n );
-    auto AHat_u = AHat( IR(0,n), uInd );
-    auto AHat_v = AHat( IR(0,n), vInd );
-    auto AHat_t = AHat( IR(0,n), tInd );
-    Herk( LOWER, TRANSPOSE, Real(1), A, Real(0), AHat_u );
-    MakeSymmetric( LOWER, AHat_u );
-    Copy( AHat_u, AHat_v ); Scale( Real(-1), AHat_v );
-    Identity( AHat_t, n, n );
+    auto AHatu = AHat( IR(0,n), uInd );
+    auto AHatv = AHat( IR(0,n), vInd );
+    auto AHatt = AHat( IR(0,n), tInd );
+    Herk( LOWER, TRANSPOSE, Real(1), A, Real(0), AHatu );
+    MakeSymmetric( LOWER, AHatu );
+    Axpy( Real(-1), AHatu, AHatv );
+    FillDiagonal( AHatt, Real(1) );
 
     // \hat b := A^T b
     // ===============
@@ -107,26 +105,22 @@ void Var1
     //      |  0  0 -I |
     // =================
     Zeros( G, 4*n, 3*n );
-    auto G0u = G( IR(0,    n), uInd );
-    auto G1v = G( IR(n,  2*n), vInd );
+    auto Guv = G( IR(0,2*n), IR(0,2*n) );
+    FillDiagonal( Guv, Real(-1) );
     auto G2t = G( IR(2*n,3*n), tInd );
     auto G3t = G( IR(3*n,4*n), tInd );
-    Identity( G0u, n, n ); Scale( Real(-1), G0u );
-    Identity( G1v, n, n ); Scale( Real(-1), G1v );
-    Identity( G2t, n, n );
-    Identity( G3t, n, n ); Scale( Real(-1), G3t );
+    FillDiagonal( G2t, Real( 1) );
+    FillDiagonal( G3t, Real(-1) );
 
     // h := [0;0;lambda e;lambda e]
     // ============================
     Zeros( h, 4*n, 1 );
-    auto h2 = h( IR(2*n,3*n), IR(0,1) );
-    auto h3 = h( IR(3*n,4*n), IR(0,1) );
-    Fill( h2, lambda );
-    Fill( h3, lambda );
+    auto ht = h( IR(2*n,4*n), IR(0,1) );
+    Fill( ht, lambda );
 
     // Solve the affine LP
     // ===================
-    Matrix<Real> y, z, s;
+    Matrix<Real> xHat, y, z, s;
     LP( AHat, G, bHat, c, h, xHat, y, z, s, ctrl );
 
     // x := u - v
@@ -150,26 +144,24 @@ void Var1
     const Int n = A.Width();
     const Grid& g = A.Grid();
     const Range<Int> uInd(0,n), vInd(n,2*n), tInd(2*n,3*n);
-    DistMatrix<Real> c(g), xHat(g), AHat(g), bHat(g), G(g), h(g);
+    DistMatrix<Real> c(g), AHat(g), bHat(g), G(g), h(g);
 
     // c := [1;1;0]
     // ==============
     Zeros( c, 3*n, 1 );
-    auto c_u = c( uInd, IR(0,1) );
-    auto c_v = c( vInd, IR(0,1) );
-    Ones( c_u, n, 1 );
-    Ones( c_v, n, 1 );
+    auto cuv = c( IR(0,2*n), IR(0,1) );
+    Fill( cuv, Real(1) );
 
     // \hat A := [ A^T A, -A^T A,  I ]
     // ===============================
     Zeros( AHat, n, 3*n );
-    auto AHat_u = AHat( IR(0,n), uInd );
-    auto AHat_v = AHat( IR(0,n), vInd );
-    auto AHat_t = AHat( IR(0,n), tInd );
-    Herk( LOWER, TRANSPOSE, Real(1), A, Real(0), AHat_u );
-    MakeSymmetric( LOWER, AHat_u );
-    Copy( AHat_u, AHat_v ); Scale( Real(-1), AHat_v );
-    Identity( AHat_t, n, n );
+    auto AHatu = AHat( IR(0,n), uInd );
+    auto AHatv = AHat( IR(0,n), vInd );
+    auto AHatt = AHat( IR(0,n), tInd );
+    Herk( LOWER, TRANSPOSE, Real(1), A, Real(0), AHatu );
+    MakeSymmetric( LOWER, AHatu );
+    Axpy( Real(-1), AHatu, AHatv );
+    FillDiagonal( AHatt, Real(1) );
 
     // \hat b := A^T b
     // ===============
@@ -182,26 +174,22 @@ void Var1
     //      |  0  0 -I |
     // =================
     Zeros( G, 4*n, 3*n );
-    auto G0u = G( IR(0,    n), uInd );
-    auto G1v = G( IR(n,  2*n), vInd );
+    auto Guv = G( IR(0,2*n), IR(0,2*n) );
+    FillDiagonal( Guv, Real(-1) );
     auto G2t = G( IR(2*n,3*n), tInd );
     auto G3t = G( IR(3*n,4*n), tInd );
-    Identity( G0u, n, n ); Scale( Real(-1), G0u );
-    Identity( G1v, n, n ); Scale( Real(-1), G1v );
-    Identity( G2t, n, n );
-    Identity( G3t, n, n ); Scale( Real(-1), G3t );
+    FillDiagonal( G2t, Real( 1) );
+    FillDiagonal( G3t, Real(-1) );
 
     // h := [0;0;lambda e;lambda e]
     // ============================
     Zeros( h, 4*n, 1 );
-    auto h2 = h( IR(2*n,3*n), IR(0,1) );
-    auto h3 = h( IR(3*n,4*n), IR(0,1) );
-    Fill( h2, lambda );
-    Fill( h3, lambda );
+    auto ht = h( IR(2*n,4*n), IR(0,1) );
+    Fill( ht, lambda );
 
     // Solve the affine LP
     // ===================
-    DistMatrix<Real> y(g), z(g), s(g);
+    DistMatrix<Real> xHat(g), y(g), z(g), s(g);
     LP( AHat, G, bHat, c, h, xHat, y, z, s, ctrl );
 
     // x := u - v
@@ -221,7 +209,7 @@ void Var2
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m), tInd(2*n+m,3*n+m);
-    Matrix<Real> c, xHat, AHat, bHat, G, h;
+    Matrix<Real> c, AHat, bHat, G, h;
 
     // c := [1;1;0;0]
     // ==============
@@ -278,7 +266,7 @@ void Var2
 
     // Solve the affine LP
     // ===================
-    Matrix<Real> y, z, s;
+    Matrix<Real> xHat, y, z, s;
     LP( AHat, G, bHat, c, h, xHat, y, z, s, ctrl );
 
     // x := u - v
@@ -299,7 +287,7 @@ void Var2
     const Int n = A.Width();
     const Grid& g = A.Grid();
     const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m), tInd(2*n+m,3*n+m);
-    DistMatrix<Real> c(g), xHat(g), AHat(g), bHat(g), G(g), h(g);
+    DistMatrix<Real> c(g), AHat(g), bHat(g), G(g), h(g);
 
     // c := [1;1;0;0]
     // ==============
@@ -356,7 +344,7 @@ void Var2
 
     // Solve the affine LP
     // ===================
-    DistMatrix<Real> y(g), z(g), s(g);
+    DistMatrix<Real> xHat(g), y(g), z(g), s(g);
     LP( AHat, G, bHat, c, h, xHat, y, z, s, ctrl );
 
     // x := u - v
@@ -378,15 +366,13 @@ void Var2
     const Int numEntriesA = A.NumEntries();
     const Range<Int> uInd(0,n), vInd(n,2*n);
     SparseMatrix<Real> AHat, G;
-    Matrix<Real> c, xHat, bHat, h;
+    Matrix<Real> c, bHat, h;
 
     // c := [1;1;0;0]
     // ==============
-    Zeros( c, 3*n+m, 1 );
-    auto c_u = c( uInd, IR(0,1) );
-    auto c_v = c( vInd, IR(0,1) );
-    Ones( c_u, n, 1 );
-    Ones( c_v, n, 1 );
+    Zeros( c, 3*n, 1 );
+    auto cuv = c( IR(0,2*n), IR(0,1) );
+    Fill( cuv, Real(1) );
 
     // \hat A := | A, -A,  I,  0 |
     //           | 0,  0, A^T, I |
@@ -434,14 +420,12 @@ void Var2
     // h := [0;0;lambda e;lambda e]
     // ============================
     Zeros( h, 4*n, 1 );
-    auto h2 = h( IR(2*n,3*n), IR(0,1) );
-    auto h3 = h( IR(3*n,4*n), IR(0,1) );
-    Fill( h2, lambda );
-    Fill( h3, lambda );
+    auto ht = h( IR(2*n,4*n), IR(0,1) );
+    Fill( ht, lambda );
 
     // Solve the affine LP
     // ===================
-    Matrix<Real> y, z, s;
+    Matrix<Real> xHat, y, z, s;
     LP( AHat, G, bHat, c, h, xHat, y, z, s, ctrl );
 
     // x := u - v
@@ -464,7 +448,7 @@ void Var2
     mpi::Comm comm = A.Comm();
     const int commSize = mpi::Size(comm);
     DistSparseMatrix<Real> AHat(comm), G(comm);
-    DistMultiVec<Real> c(comm), xHat(comm), bHat(comm), h(comm);
+    DistMultiVec<Real> c(comm), bHat(comm), h(comm);
 
     // c := [1;1;0;0]
     // ==============
@@ -626,7 +610,7 @@ void Var2
 
     // Solve the affine LP
     // ===================
-    DistMultiVec<Real> y(comm), z(comm), s(comm);
+    DistMultiVec<Real> xHat(comm), y(comm), z(comm), s(comm);
     LP( AHat, G, bHat, c, h, xHat, y, z, s, ctrl );
 
     // x := u - v

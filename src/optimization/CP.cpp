@@ -12,7 +12,7 @@
 //
 //   min || A x - b ||_oo.
 //
-// Real instances of the problem are expressable as a Linear Program [1] via 
+// Real instances of the problem are expressable as a Linear Program via 
 //
 //   min t
 //   s.t. -t <= A x - b <= t,
@@ -37,7 +37,7 @@ void CP
     DEBUG_ONLY(CallStackEntry cse("CP"))
     const Int m = A.Height();
     const Int n = A.Width();
-    Matrix<Real> c, xHat, AHat, bHat, G, h;
+    Matrix<Real> c, AHat, bHat, G, h;
 
     // c := [zeros(n,1);1]
     // ===================
@@ -58,12 +58,10 @@ void CP
     Zeros( G, 2*m, n+1 );
     auto GTL = G( IR(0,m),   IR(0,n)   );
     auto GBL = G( IR(m,2*m), IR(0,n)   );
-    auto gTR = G( IR(0,m),   IR(n,n+1) );
-    auto gBR = G( IR(m,2*m), IR(n,n+1) );
+    auto gR =  G( IR(0,2*m), IR(n,n+1) );
     GTL = A;
     Axpy( Real(-1), GTL, GBL );
-    Fill( gTR, Real(-1) );
-    Fill( gBR, Real(-1) );
+    Fill( gR, Real(-1) );
 
     // h := |  b |
     //      | -b |
@@ -72,11 +70,11 @@ void CP
     auto hT = h( IR(0,m),   IR(0,1) );
     auto hB = h( IR(m,2*m), IR(0,1) );
     hT = b;
-    hB = b; Scale( Real(-1), hB );
+    Axpy( Real(-1), hT, hB );
 
     // Solve the affine LP
     // ===================
-    Matrix<Real> y, z, s;
+    Matrix<Real> xHat, y, z, s;
     LP( AHat, G, bHat, c, h, xHat, y, z, s, ctrl );
 
     // Extract x from [x;t]
@@ -94,7 +92,7 @@ void CP
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
-    DistMatrix<Real> c(g), xHat(g), AHat(g), bHat(g), G(g), h(g);
+    DistMatrix<Real> c(g), AHat(g), bHat(g), G(g), h(g);
 
     // c := [zeros(n,1);1]
     // ===================
@@ -115,12 +113,10 @@ void CP
     Zeros( G, 2*m, n+1 );
     auto GTL = G( IR(0,m),   IR(0,n)   );
     auto GBL = G( IR(m,2*m), IR(0,n)   );
-    auto gTR = G( IR(0,m),   IR(n,n+1) );
-    auto gBR = G( IR(m,2*m), IR(n,n+1) );
+    auto gR =  G( IR(0,2*m), IR(n,n+1) );
     GTL = A;
     Axpy( Real(-1), GTL, GBL );
-    Fill( gTR, Real(-1) );
-    Fill( gBR, Real(-1) );
+    Fill( gR, Real(-1) );
 
     // h := |  b |
     //      | -b |
@@ -129,11 +125,11 @@ void CP
     auto hT = h( IR(0,m),   IR(0,1) );
     auto hB = h( IR(m,2*m), IR(0,1) );
     hT = b;
-    hB = b; Scale( Real(-1), hB );
+    Axpy( Real(-1), hT, hB );
 
     // Solve the affine LP
     // ===================
-    DistMatrix<Real> y(g), z(g), s(g);
+    DistMatrix<Real> xHat(g), y(g), z(g), s(g);
     LP( AHat, G, bHat, c, h, xHat, y, z, s, ctrl );
 
     // Extract x from [x;t]
@@ -151,7 +147,7 @@ void CP
     const Int m = A.Height();
     const Int n = A.Width();
     SparseMatrix<Real> AHat, G;
-    Matrix<Real> c, xHat, bHat, h;
+    Matrix<Real> c, bHat, h;
 
     // c := [zeros(n,1);1]
     // ===================
@@ -191,11 +187,11 @@ void CP
     auto hT = h( IR(0,m),   IR(0,1) );
     auto hB = h( IR(m,2*m), IR(0,1) );
     hT = b;
-    hB = b; Scale( Real(-1), hB );
+    Axpy( Real(-1), hT, hB );
 
     // Solve the affine LP
     // ===================
-    Matrix<Real> y, z, s;
+    Matrix<Real> xHat, y, z, s;
     LP( AHat, G, bHat, c, h, xHat, y, z, s, ctrl );
 
     // Extract x from [x;t]
@@ -215,7 +211,7 @@ void CP
     mpi::Comm comm = A.Comm();
     const Int commSize = mpi::Size(comm);
     DistSparseMatrix<Real> AHat(comm), G(comm);
-    DistMultiVec<Real> c(comm), xHat(comm), bHat(comm), h(comm);
+    DistMultiVec<Real> c(comm), bHat(comm), h(comm);
 
     // c := [zeros(n,1);1]
     // ===================
@@ -351,7 +347,7 @@ void CP
 
     // Solve the affine LP
     // ===================
-    DistMultiVec<Real> y(comm), z(comm), s(comm);
+    DistMultiVec<Real> xHat(comm), y(comm), z(comm), s(comm);
     LP( AHat, G, bHat, c, h, xHat, y, z, s, ctrl );
 
     // Extract x from [x;t]

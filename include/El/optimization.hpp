@@ -372,6 +372,29 @@ void CP
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 
+// Least Absolute Value: min || A x - b||_1
+// ========================================
+template<typename Real>
+void LAV
+( const Matrix<Real>& A, const Matrix<Real>& b,
+        Matrix<Real>& x,
+  const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
+template<typename Real>
+void LAV
+( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
+        AbstractDistMatrix<Real>& x,
+  const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
+template<typename Real>
+void LAV
+( const SparseMatrix<Real>& A, const Matrix<Real>& b,
+        Matrix<Real>& x,
+  const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
+template<typename Real>
+void LAV
+( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b,
+        DistMultiVec<Real>& x,
+  const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
+
 // Dantzig selector: min || x ||_1 s.t. || A^T (b - A x) ||_oo <= lambda
 // =====================================================================
 // TODO: 

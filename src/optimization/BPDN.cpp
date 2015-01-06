@@ -61,7 +61,7 @@ void BPDN
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m);
 
-    Matrix<Real> Q, c, xHat, AHat, G, h;
+    Matrix<Real> Q, c, AHat, G, h;
 
     // Q := | 0 0 0 |
     //      | 0 0 0 |
@@ -69,35 +69,29 @@ void BPDN
     // ==============
     Zeros( Q, 2*n+m, 2*n+m );
     auto Qrr = Q( rInd, rInd );
-    Identity( Qrr, m, m );
+    FillDiagonal( Qrr, Real(1) );
 
     // c := lambda*[1;1;0]
     // ===================
     Zeros( c, 2*n+m, 1 );
-    auto c_uv = c( IR(0,2*n), IR(0,1) );
-    Fill( c_uv, lambda );
+    auto cuv = c( IR(0,2*n), IR(0,1) );
+    Fill( cuv, lambda );
 
     // \hat A := [A, -A, I]
     // ====================
     Zeros( AHat, m, 2*n+m );
-    auto AHat_u = AHat( IR(0,m), uInd );
-    auto AHat_v = AHat( IR(0,m), vInd );
-    auto AHat_r = AHat( IR(0,m), rInd );
-    AHat_u = A;
-    AHat_v = A;
-    Scale( Real(-1), AHat_v );
-    Identity( AHat_r, m, m ); 
+    auto AHatu = AHat( IR(0,m), uInd );
+    auto AHatv = AHat( IR(0,m), vInd );
+    auto AHatr = AHat( IR(0,m), rInd );
+    AHatu = A;
+    Axpy( Real(-1), A, AHatv );
+    FillDiagonal( AHatr, Real(1) );
 
     // G := | -I  0 0 |
     //      |  0 -I 0 |
     // ================
     Zeros( G, 2*n, 2*n+m );
-    auto G_uu = G( uInd, uInd );
-    auto G_vv = G( vInd, vInd );
-    Identity( G_uu, n, n );
-    Scale( Real(-1), G_uu );
-    Identity( G_vv, n, n );
-    Scale( Real(-1), G_vv );
+    FillDiagonal( G, Real(-1) );
 
     // h := 0
     // ======
@@ -105,7 +99,7 @@ void BPDN
 
     // Solve the affine QP
     // ===================
-    Matrix<Real> y, z, s;
+    Matrix<Real> xHat, y, z, s;
     QP( Q, AHat, G, b, c, h, xHat, y, z, s, ctrl );
 
     // x := u - v
@@ -126,7 +120,7 @@ void BPDN
     const Int n = A.Width();
     const Grid& g = A.Grid();
     const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m);
-    DistMatrix<Real> Q(g), c(g), xHat(g), AHat(g), G(g), h(g);
+    DistMatrix<Real> Q(g), c(g), AHat(g), G(g), h(g);
 
     // Q := | 0 0 0 |
     //      | 0 0 0 |
@@ -134,35 +128,29 @@ void BPDN
     // ==============
     Zeros( Q, 2*n+m, 2*n+m );
     auto Qrr = Q( rInd, rInd );
-    Identity( Qrr, m, m );
+    FillDiagonal( Qrr, Real(1) );
 
     // c := lambda*[1;1;0]
     // ===================
     Zeros( c, 2*n+m, 1 );
-    auto c_uv = c( IR(0,2*n), IR(0,1) );
-    Fill( c_uv, lambda );
+    auto cuv = c( IR(0,2*n), IR(0,1) );
+    Fill( cuv, lambda );
 
     // \hat A := [A, -A, I]
     // ====================
     Zeros( AHat, m, 2*n+m );
-    auto AHat_u = AHat( IR(0,m), uInd );
-    auto AHat_v = AHat( IR(0,m), vInd );
-    auto AHat_r = AHat( IR(0,m), rInd );
-    AHat_u = A;
-    AHat_v = A;
-    Scale( Real(-1), AHat_v );
-    Identity( AHat_r, m, m ); 
+    auto AHatu = AHat( IR(0,m), uInd );
+    auto AHatv = AHat( IR(0,m), vInd );
+    auto AHatr = AHat( IR(0,m), rInd );
+    AHatu = A;
+    Axpy( Real(-1), A, AHatv );
+    FillDiagonal( AHatr, Real(1) );
 
     // G := | -I  0 0 |
     //      |  0 -I 0 |
     // ================
     Zeros( G, 2*n, 2*n+m );
-    auto G_uu = G( uInd, uInd );
-    auto G_vv = G( vInd, vInd );
-    Identity( G_uu, n, n );
-    Scale( Real(-1), G_uu );
-    Identity( G_vv, n, n );
-    Scale( Real(-1), G_vv );
+    FillDiagonal( G, Real(-1) );
 
     // h := 0
     // ======
@@ -170,7 +158,7 @@ void BPDN
 
     // Solve the affine QP
     // ===================
-    DistMatrix<Real> y(g), z(g), s(g);
+    DistMatrix<Real> xHat(g), y(g), z(g), s(g);
     QP( Q, AHat, G, b, c, h, xHat, y, z, s, ctrl );
 
     // x := u - v
@@ -189,8 +177,9 @@ void BPDN
     DEBUG_ONLY(CallStackEntry cse("BPDN"))
     const Int m = A.Height();
     const Int n = A.Width();
+    const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m);
     SparseMatrix<Real> Q, AHat, G;
-    Matrix<Real> c, xHat, h;
+    Matrix<Real> c, h;
 
     // Q := | 0 0 0 |
     //      | 0 0 0 |
@@ -205,8 +194,8 @@ void BPDN
     // c := lambda*[1;1;0]
     // ===================
     Zeros( c, 2*n+m, 1 );
-    auto c_uv = c( IR(0,2*n), IR(0,1) );
-    Fill( c_uv, lambda );
+    auto cuv = c( IR(0,2*n), IR(0,1) );
+    Fill( cuv, lambda );
 
     // \hat A := [A, -A, I]
     // ====================
@@ -237,14 +226,13 @@ void BPDN
 
     // Solve the affine QP
     // ===================
-    Matrix<Real> y, z, s;
+    Matrix<Real> xHat, y, z, s;
     QP( Q, AHat, G, b, c, h, xHat, y, z, s, ctrl );
 
     // x := u - v
     // ==========
-    Zeros( x, n, 1 );
-    for( Int i=0; i<n; ++i )
-        x.Set( i, 0, xHat.Get(i,0)-xHat.Get(i+n,0) );
+    x = xHat( uInd, IR(0,1) );
+    Axpy( Real(-1), xHat(vInd,IR(0,1)), x );
 }
 
 template<typename Real>
@@ -259,7 +247,7 @@ void BPDN
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
     DistSparseMatrix<Real> Q(comm), AHat(comm), G(comm);
-    DistMultiVec<Real> c(comm), xHat(comm), h(comm);
+    DistMultiVec<Real> c(comm), h(comm);
 
     // Q := | 0 0 0 |
     //      | 0 0 0 |
@@ -324,7 +312,7 @@ void BPDN
 
     // Solve the affine QP
     // ===================
-    DistMultiVec<Real> y(comm), z(comm), s(comm);
+    DistMultiVec<Real> xHat(comm), y(comm), z(comm), s(comm);
     QP( Q, AHat, G, b, c, h, xHat, y, z, s, ctrl );
 
     // x := u - v
