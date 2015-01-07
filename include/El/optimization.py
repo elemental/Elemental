@@ -1559,19 +1559,22 @@ def SparseInvCov(D,lamb):
 
 # Support Vector Machine
 # ======================
-lib.ElSVM_s.argtypes = \
-lib.ElSVMDist_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,sType,POINTER(iType)]
-lib.ElSVM_d.argtypes = \
-lib.ElSVMDist_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,dType,POINTER(iType)]
-lib.ElSVM_s.restype = \
-lib.ElSVM_d.restype = \
-lib.ElSVMDist_s.restype = \
-lib.ElSVMDist_d.restype = \
+
+# ADMM
+# ----
+lib.ElSVMADMM_s.argtypes = \
+lib.ElSVMADMMDist_s.argtypes = \
+  [c_void_p,c_void_p,sType,c_void_p,POINTER(iType)]
+lib.ElSVMADMM_d.argtypes = \
+lib.ElSVMADMMDist_d.argtypes = \
+  [c_void_p,c_void_p,dType,c_void_p,POINTER(iType)]
+lib.ElSVMADMM_s.restype = \
+lib.ElSVMADMM_d.restype = \
+lib.ElSVMADMMDist_s.restype = \
+lib.ElSVMADMMDist_d.restype = \
   c_uint
 
-def SVM(G,q,gamma):
+def SVMADMM(G,q,gamma):
   if type(G) is not type(q):
     raise Exception('Types of G and q must match')
   if G.tag != q.tag:
@@ -1579,16 +1582,16 @@ def SVM(G,q,gamma):
   numIts = iType()
   if type(G) is Matrix:
     z = Matrix(G.tag)
-    args = [G.obj,q.obj,z.obj,gamma,pointer(numIts)]
-    if   G.tag == sTag: lib.ElSVM_s(*args)
-    elif G.tag == dTag: lib.ElSVM_d(*args)
+    args = [G.obj,q.obj,gamma,z.obj,pointer(numIts)]
+    if   G.tag == sTag: lib.ElSVMADMM_s(*args)
+    elif G.tag == dTag: lib.ElSVMADMM_d(*args)
     else: DataExcept()
     return z, numIts
   elif type(G) is DistMatrix:
     z = DistMatrix(G.tag,MC,MR,G.Grid())
-    args = [G.obj,q.obj,z.obj,gamma,pointer(numIts)]
-    if   G.tag == sTag: lib.ElSVMDist_s(*args)
-    elif G.tag == dTag: lib.ElSVMDist_d(*args)
+    args = [G.obj,q.obj,gamma,z.obj,pointer(numIts)]
+    if   G.tag == sTag: lib.ElSVMADMMDist_s(*args)
+    elif G.tag == dTag: lib.ElSVMADMMDist_d(*args)
     else: DataExcept()
     return z, numIts
   else: TypeExcept()

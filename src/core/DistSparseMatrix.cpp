@@ -56,7 +56,7 @@ void DistSparseMatrix<T>::Empty()
 }
 
 template<typename T>
-void DistSparseMatrix<T>::Resize( int height, int width )
+void DistSparseMatrix<T>::Resize( Int height, Int width )
 {
     distGraph_.Resize( height, width );
     SwapClear( vals_ );
@@ -204,7 +204,7 @@ void DistSparseMatrix<T>::MakeConsistent()
         distGraph_.sources_.resize( numUnique );
         distGraph_.targets_.resize( numUnique );
         vals_.resize( numUnique );
-        for( int s=0; s<numUnique; ++s )
+        for( Int s=0; s<numUnique; ++s )
         {
             distGraph_.sources_[s] = entries[s].indices[0];
             distGraph_.targets_[s] = entries[s].indices[1];

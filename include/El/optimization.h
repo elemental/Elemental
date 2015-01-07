@@ -1277,18 +1277,26 @@ EL_EXPORT ElError ElSparseInvCovDist_z
 
 /* Support Vector Machine
    ====================== */
-EL_EXPORT ElError ElSVM_s
-( ElConstMatrix_s G, ElConstMatrix_s q, ElMatrix_s z, float gamma, 
+/* TODO */
+
+/* ADMM
+   ---- */
+EL_EXPORT ElError ElSVMADMM_s
+( ElConstMatrix_s G, ElConstMatrix_s q, 
+  float gamma,       ElMatrix_s z, 
   ElInt* numIts );
-EL_EXPORT ElError ElSVM_d
-( ElConstMatrix_d G, ElConstMatrix_d q, ElMatrix_d z, double gamma, 
+EL_EXPORT ElError ElSVMADMM_d
+( ElConstMatrix_d G, ElConstMatrix_d q, 
+  double gamma,      ElMatrix_d z, 
   ElInt* numIts );
 
-EL_EXPORT ElError ElSVMDist_s
-( ElConstDistMatrix_s G, ElConstDistMatrix_s q, ElDistMatrix_s z, float gamma, 
+EL_EXPORT ElError ElSVMADMMDist_s
+( ElConstDistMatrix_s G, ElConstDistMatrix_s q, 
+  float gamma,           ElDistMatrix_s z, 
   ElInt* numIts );
-EL_EXPORT ElError ElSVMDist_d
-( ElConstDistMatrix_d G, ElConstDistMatrix_d q, ElDistMatrix_d z, double gamma, 
+EL_EXPORT ElError ElSVMADMMDist_d
+( ElConstDistMatrix_d G, ElConstDistMatrix_d q, 
+  double gamma,          ElDistMatrix_d z,
   ElInt* numIts );
 
 /* TODO: Expert versions */

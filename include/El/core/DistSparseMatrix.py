@@ -300,15 +300,15 @@ lib.ElDistSparseMatrixBlocksize_c.restype = c_uint
 lib.ElDistSparseMatrixBlocksize_z.argtypes = [c_void_p,POINTER(iType)]
 lib.ElDistSparseMatrixBlocksize_z.restype = c_uint
 
-lib.ElDistSparseMatrixRowOwner_i.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElDistSparseMatrixRowOwner_i.argtypes = [c_void_p,iType,POINTER(c_int)]
 lib.ElDistSparseMatrixRowOwner_i.restype = c_uint
-lib.ElDistSparseMatrixRowOwner_s.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElDistSparseMatrixRowOwner_s.argtypes = [c_void_p,iType,POINTER(c_int)]
 lib.ElDistSparseMatrixRowOwner_s.restype = c_uint
-lib.ElDistSparseMatrixRowOwner_d.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElDistSparseMatrixRowOwner_d.argtypes = [c_void_p,iType,POINTER(c_int)]
 lib.ElDistSparseMatrixRowOwner_d.restype = c_uint
-lib.ElDistSparseMatrixRowOwner_c.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElDistSparseMatrixRowOwner_c.argtypes = [c_void_p,iType,POINTER(c_int)]
 lib.ElDistSparseMatrixRowOwner_c.restype = c_uint
-lib.ElDistSparseMatrixRowOwner_z.argtypes = [c_void_p,iType,POINTER(iType)]
+lib.ElDistSparseMatrixRowOwner_z.argtypes = [c_void_p,iType,POINTER(c_int)]
 lib.ElDistSparseMatrixRowOwner_z.restype = c_uint
 
 lib.ElDistSparseMatrixRow_i.argtypes = [c_void_p,iType,POINTER(iType)]
@@ -714,7 +714,7 @@ class DistSparseMatrix(object):
     else: DataExcept()
     return blocksize.value
   def RowOwner(self,i):
-    owner = iType()
+    owner = c_int()
     args = [self.obj,i,pointer(owner)]
     if   self.tag == iTag: lib.ElDistSparseMatrixRowOwner_i(*args)
     elif self.tag == sTag: lib.ElDistSparseMatrixRowOwner_s(*args)

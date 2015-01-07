@@ -200,19 +200,19 @@ template<typename T>
 mpi::Comm DM::PartialUnionRowComm() const { return this->grid_->MRComm(); }
 
 template<typename T>
-Int DM::ColStride() const { return 1; }
+int DM::ColStride() const { return 1; }
 template<typename T>
-Int DM::RowStride() const { return this->grid_->VCSize(); }
+int DM::RowStride() const { return this->grid_->VCSize(); }
 template<typename T>
-Int DM::PartialRowStride() const { return this->grid_->MCSize(); }
+int DM::PartialRowStride() const { return this->grid_->MCSize(); }
 template<typename T>
-Int DM::PartialUnionRowStride() const { return this->grid_->MRSize(); }
+int DM::PartialUnionRowStride() const { return this->grid_->MRSize(); }
 template<typename T>
-Int DM::DistSize() const { return this->grid_->VCSize(); }
+int DM::DistSize() const { return this->grid_->VCSize(); }
 template<typename T>
-Int DM::CrossSize() const { return 1; }
+int DM::CrossSize() const { return 1; }
 template<typename T>
-Int DM::RedundantSize() const { return 1; }
+int DM::RedundantSize() const { return 1; }
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################

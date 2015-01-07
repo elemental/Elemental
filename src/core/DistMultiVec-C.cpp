@@ -54,7 +54,7 @@ extern "C" {
   ( ElConstDistMultiVec_ ## SIG A, ElInt* blocksize ) \
   { EL_TRY( *blocksize = CReflect(A)->Blocksize() ) } \
   ElError ElDistMultiVecRowOwner_ ## SIG \
-  ( ElConstDistMultiVec_ ## SIG A, ElInt i, ElInt* owner ) \
+  ( ElConstDistMultiVec_ ## SIG A, ElInt i, int* owner ) \
   { EL_TRY( *owner = CReflect(A)->RowOwner(i) ) } \
   /* Entrywise manipulation */ \
   ElError ElDistMultiVecGetLocal_ ## SIG \

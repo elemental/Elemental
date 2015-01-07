@@ -15,8 +15,8 @@ namespace El {
 struct DistData
 {
     Dist colDist, rowDist;
-    Int colAlign, rowAlign; 
-    Int root;  // relevant for [o ,o ]/[MD,* ]/[* ,MD]
+    int colAlign, rowAlign; 
+    int root;  // relevant for [o ,o ]/[MD,* ]/[* ,MD]
     const Grid* grid;
 
     DistData() { }

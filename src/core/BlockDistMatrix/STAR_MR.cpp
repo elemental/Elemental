@@ -207,15 +207,15 @@ template<typename T>
 mpi::Comm BDM::RowComm() const { return this->grid_->MRComm(); }
 
 template<typename T>
-Int BDM::ColStride() const { return 1; }
+int BDM::ColStride() const { return 1; }
 template<typename T>
-Int BDM::RowStride() const { return this->grid_->MRSize(); }
+int BDM::RowStride() const { return this->grid_->MRSize(); }
 template<typename T>
-Int BDM::DistSize() const { return this->grid_->MRSize(); }
+int BDM::DistSize() const { return this->grid_->MRSize(); }
 template<typename T>
-Int BDM::CrossSize() const { return 1; }
+int BDM::CrossSize() const { return 1; }
 template<typename T>
-Int BDM::RedundantSize() const { return this->grid_->MCSize(); }
+int BDM::RedundantSize() const { return this->grid_->MCSize(); }
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################

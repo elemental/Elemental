@@ -1082,16 +1082,19 @@ ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
   /* TODO */ \
   /* Support Vector Machine
      ====================== */ \
-  ElError ElSVM_ ## SIG \
+  /* TODO */ \
+  /* ADMM
+     ---- */ \
+  ElError ElSVMADMM_ ## SIG \
   ( ElConstMatrix_ ## SIG G, ElConstMatrix_ ## SIG q, \
-    ElMatrix_ ## SIG z, Real gamma, ElInt* numIts ) \
+    Real gamma, ElMatrix_ ## SIG z, ElInt* numIts ) \
   { EL_TRY( *numIts = \
-      SVM( *CReflect(G), *CReflect(q), *CReflect(z), gamma ) ) } \
-  ElError ElSVMDist_ ## SIG \
+      svm::ADMM( *CReflect(G), *CReflect(q), gamma, *CReflect(z) ) ) } \
+  ElError ElSVMADMMDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG G, ElConstDistMatrix_ ## SIG q, \
-    ElDistMatrix_ ## SIG z, Real gamma, ElInt* numIts ) \
+    Real gamma, ElDistMatrix_ ## SIG z, ElInt* numIts ) \
   { EL_TRY( *numIts = \
-      SVM( *CReflect(G), *CReflect(q), *CReflect(z), gamma ) ) } \
+      svm::ADMM( *CReflect(G), *CReflect(q), gamma, *CReflect(z) ) ) } \
   /* Utilities
      ========= */ \
   /* Clip

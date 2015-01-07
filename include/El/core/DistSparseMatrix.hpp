@@ -20,7 +20,7 @@ struct SparseMultMeta
     bool ready;
     // NOTE: The 'send' and 'recv' roles reverse for adjoint multiplication
     Int numRecvInds;
-    std::vector<Int> sendSizes, sendOffs,
+    std::vector<int> sendSizes, sendOffs,
                      recvSizes, recvOffs;
     std::vector<Int> sendInds, colOffs;
 
@@ -109,7 +109,7 @@ public:
     // ------------------------
     mpi::Comm Comm() const;
     Int Blocksize() const;
-    Int RowOwner( Int i ) const;
+    int RowOwner( Int i ) const;
     Int GlobalRow( Int iLoc ) const;
 
     // Detailed local information

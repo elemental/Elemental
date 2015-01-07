@@ -294,17 +294,17 @@ extern "C" {
   ElError ElDistMatrixParticipating_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, bool* participating ) \
   { EL_TRY( *participating = CReflect(A)->Participating() ) } \
-  /* Int DistMatrix<T,U,V>::RowOwner( Int i ) const */ \
+  /* int DistMatrix<T,U,V>::RowOwner( Int i ) const */ \
   ElError ElDistMatrixRowOwner_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt i, ElInt* rowOwner ) \
+  ( ElConstDistMatrix_ ## SIG A, ElInt i, int* rowOwner ) \
   { EL_TRY( *rowOwner = CReflect(A)->RowOwner(i) ) } \
-  /* Int DistMatrix<T,U,V>::ColOwner( Int i ) const */ \
+  /* int DistMatrix<T,U,V>::ColOwner( Int i ) const */ \
   ElError ElDistMatrixColOwner_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt j, ElInt* colOwner ) \
+  ( ElConstDistMatrix_ ## SIG A, ElInt j, int* colOwner ) \
   { EL_TRY( *colOwner = CReflect(A)->ColOwner(j) ) } \
-  /* Int DistMatrix<T,U,V>::Owner( Int i, Int j ) const */ \
+  /* int DistMatrix<T,U,V>::Owner( Int i, Int j ) const */ \
   ElError ElDistMatrixOwner_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt i, ElInt j, ElInt* owner ) \
+  ( ElConstDistMatrix_ ## SIG A, ElInt i, ElInt j, int* owner ) \
   { EL_TRY( *owner = CReflect(A)->Owner(i,j) ) } \
   /* Int DistMatrix<T,U,V>::LocalRow( Int i ) const */ \
   ElError ElDistMatrixLocalRow_ ## SIG \

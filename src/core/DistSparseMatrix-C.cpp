@@ -93,7 +93,7 @@ extern "C" {
   ( ElConstDistSparseMatrix_ ## SIG A, ElInt* blocksize ) \
   { EL_TRY( *blocksize = CReflect(A)->Blocksize() ) } \
   ElError ElDistSparseMatrixRowOwner_ ## SIG \
-  ( ElConstDistSparseMatrix_ ## SIG A, ElInt i, ElInt* owner ) \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElInt i, int* owner ) \
   { EL_TRY( *owner = CReflect(A)->RowOwner(i) ) } \
   ElError ElDistSparseMatrixRow_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElInt localInd, ElInt* row ) \

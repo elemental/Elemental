@@ -71,7 +71,7 @@ main( int argc, char* argv[] )
             Display( G, "G" );
 
         DistMatrix<Real> wHatSVM;
-        SVM( G, q, wHatSVM, gamma, rho, maxIter, inv, progress );
+        svm::ADMM( G, q, gamma, wHatSVM, rho, maxIter, inv, progress );
         auto wSVM = View( wHatSVM, 0, 0, n, 1 );
         const Real offsetSVM = -wHatSVM.Get(n,0);
         const Real wSVMNorm = FrobeniusNorm( wSVM );

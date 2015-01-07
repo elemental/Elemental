@@ -25,12 +25,12 @@ DistGraph::DistGraph( mpi::Comm comm )
 : numSources_(0), numTargets_(0), comm_(mpi::COMM_WORLD), consistent_(true)
 { SetComm( comm ); }
 
-DistGraph::DistGraph( int numVertices, mpi::Comm comm )
+DistGraph::DistGraph( Int numVertices, mpi::Comm comm )
 : numSources_(numVertices), numTargets_(numVertices), comm_(mpi::COMM_WORLD),
   consistent_(true)
 { SetComm( comm ); }
 
-DistGraph::DistGraph( int numSources, int numTargets, mpi::Comm comm )
+DistGraph::DistGraph( Int numSources, Int numTargets, mpi::Comm comm )
 : numSources_(numSources), numTargets_(numTargets), comm_(mpi::COMM_WORLD),
   consistent_(true)
 { SetComm( comm ); }

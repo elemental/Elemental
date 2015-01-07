@@ -24,7 +24,7 @@ namespace El {
 // ============================
 
 template<typename T>
-BDM::BlockDistMatrix( const El::Grid& g, Int root )
+BDM::BlockDistMatrix( const El::Grid& g, int root )
 : ABDM(g,root)
 { 
     if( COLDIST == CIRC && ROWDIST == CIRC )
@@ -34,7 +34,7 @@ BDM::BlockDistMatrix( const El::Grid& g, Int root )
 
 template<typename T>
 BDM::BlockDistMatrix
-( const El::Grid& g, Int blockHeight, Int blockWidth, Int root )
+( const El::Grid& g, Int blockHeight, Int blockWidth, int root )
 : ABDM(g,blockHeight,blockWidth,root)
 { 
     if( COLDIST == CIRC && ROWDIST == CIRC )
@@ -44,7 +44,7 @@ BDM::BlockDistMatrix
 
 template<typename T>
 BDM::BlockDistMatrix
-( Int height, Int width, const El::Grid& g, Int root )
+( Int height, Int width, const El::Grid& g, int root )
 : ABDM(g,root)
 { 
     if( COLDIST == CIRC && ROWDIST == CIRC )
@@ -55,7 +55,7 @@ BDM::BlockDistMatrix
 template<typename T>
 BDM::BlockDistMatrix
 ( Int height, Int width, const El::Grid& g,
-  Int blockHeight, Int blockWidth, Int root )
+  Int blockHeight, Int blockWidth, int root )
 : ABDM(g,blockHeight,blockWidth,root)
 { 
     if( COLDIST == CIRC && ROWDIST == CIRC )
@@ -133,19 +133,19 @@ template<typename T> BDM::~BlockDistMatrix() { }
 
 template<typename T> 
 BlockDistMatrix<T,COLDIST,ROWDIST>* BDM::Construct
-( const El::Grid& g, Int root ) const
+( const El::Grid& g, int root ) const
 { return new BlockDistMatrix<T,COLDIST,ROWDIST>(g,root); }
 
 template<typename T> 
 BlockDistMatrix<T,ROWDIST,COLDIST>* BDM::ConstructTranspose
-( const El::Grid& g, Int root ) const
+( const El::Grid& g, int root ) const
 { return new BlockDistMatrix<T,ROWDIST,COLDIST>(g,root); }
 
 template<typename T> 
 BlockDistMatrix<T,DiagCol<COLDIST,ROWDIST>(),
                   DiagRow<COLDIST,ROWDIST>()>* 
 BDM::ConstructDiagonal
-( const El::Grid& g, Int root ) const
+( const El::Grid& g, int root ) const
 { return new BlockDistMatrix<T,DiagCol<COLDIST,ROWDIST>(),
                                DiagRow<COLDIST,ROWDIST>()>(g,root); }
 

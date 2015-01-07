@@ -34,103 +34,66 @@ void DistSymmFrontTree<T>::Initialize
     
     mpi::Comm comm = A.Comm();
     const DistGraph& graph = A.LockedDistGraph();
-    const int commSize = mpi::Size( comm );
-    const int numLocal = sepTree.localSepsAndLeaves.size();
-    const int numDist = sepTree.distSeps.size();
-    DEBUG_ONLY(const int numSources = graph.NumSources())
+    const Int commSize = mpi::Size( comm );
+    const Int numLocal = sepTree.localSepsAndLeaves.size();
+    const Int numDist = sepTree.distSeps.size();
 
     // Get the reordered indices of the targets of our portion of the 
     // distributed sparse matrix
-    std::set<int> targetSet( graph.targets_.begin(), graph.targets_.end() );
-    std::vector<int> targets( targetSet.size() );
+    std::set<Int> targetSet( graph.targets_.begin(), graph.targets_.end() );
+    std::vector<Int> targets( targetSet.size() );
     std::copy( targetSet.begin(), targetSet.end(), targets.begin() );
-    std::vector<int> mappedTargets = targets;
+    std::vector<Int> mappedTargets = targets;
     reordering.Translate( mappedTargets );
 
     // Set up the indices for the rows we need from each process
     std::vector<int> recvRowSizes( commSize, 0 );
-    for( int s=0; s<numLocal; ++s )
+    for( Int s=0; s<numLocal; ++s )
     {
         const SepOrLeaf& sepOrLeaf = *sepTree.localSepsAndLeaves[s];
-        const int numInds = sepOrLeaf.inds.size();
-        for( int t=0; t<numInds; ++t )
-        {
-            const int i = sepOrLeaf.inds[t];
-            DEBUG_ONLY(
-                if( i < 0 || i >= numSources )
-                    LogicError("separator index was out of bounds");
-            )
-            const int q = A.RowOwner(i);
-            ++recvRowSizes[q];
-        }
+        const Int numInds = sepOrLeaf.inds.size();
+        for( Int t=0; t<numInds; ++t )
+            ++recvRowSizes[ A.RowOwner(sepOrLeaf.inds[t]) ];
     }
-    for( int s=0; s<numDist; ++s )
+    for( Int s=0; s<numDist; ++s )
     {
         const DistSeparator& sep = sepTree.distSeps[s];
         const DistSymmNodeInfo& node = info.distNodes[s+1];
         const Grid& grid = *node.grid;
-        const int rowShift = grid.Col();
-        const int rowStride = grid.Width();
-        const int numInds = sep.inds.size();
-        for( int t=rowShift; t<numInds; t+=rowStride )
-        {
-            const int i = sep.inds[t];
-            DEBUG_ONLY(
-                if( i < 0 || i >= numSources )
-                    LogicError("separator index was out of bounds");
-            )
-            const int q = A.RowOwner(i);
-            ++recvRowSizes[q];
-        }
+        const Int rowShift = grid.Col();
+        const Int rowStride = grid.Width();
+        const Int numInds = sep.inds.size();
+        for( Int t=rowShift; t<numInds; t+=rowStride )
+            ++recvRowSizes[ A.RowOwner(sep.inds[t]) ];
     }
-    int numRecvRows=0;
-    std::vector<int> recvRowOffs( commSize );
-    for( int q=0; q<commSize; ++q )
-    {
-        recvRowOffs[q] = numRecvRows;
-        numRecvRows += recvRowSizes[q];
-    }
-    std::vector<int> recvRows( numRecvRows );
-    std::vector<int> offs = recvRowOffs;
-    for( int s=0; s<numLocal; ++s )
+    std::vector<int> recvRowOffs;
+    const Int numRecvRows = Scan( recvRowSizes, recvRowOffs );
+
+    std::vector<Int> recvRows( numRecvRows );
+    auto offs = recvRowOffs;
+    for( Int s=0; s<numLocal; ++s )
     {
         const SepOrLeaf& sepOrLeaf = *sepTree.localSepsAndLeaves[s];
-        const int numInds = sepOrLeaf.inds.size();
-        for( int t=0; t<numInds; ++t )
+        const Int numInds = sepOrLeaf.inds.size();
+        for( Int t=0; t<numInds; ++t )
         {
-            const int i = sepOrLeaf.inds[t];
-            DEBUG_ONLY(
-                if( i < 0 || i >= numSources )
-                    LogicError("separator index was out of bounds");
-            )
-            const int q = A.RowOwner(i);
-            DEBUG_ONLY(
-                if( offs[q] >= numRecvRows )
-                    LogicError("offset got too large");
-            )
+            const Int i = sepOrLeaf.inds[t];
+            const Int q = A.RowOwner(i);
             recvRows[offs[q]++] = i;
         }
     }
-    for( int s=0; s<numDist; ++s )
+    for( Int s=0; s<numDist; ++s )
     {
         const DistSeparator& sep = sepTree.distSeps[s];
         const DistSymmNodeInfo& node = info.distNodes[s+1];
         const Grid& grid = *node.grid;
-        const int rowShift = grid.Col();
-        const int rowStride = grid.Width();
-        const int numInds = sep.inds.size();
-        for( int t=rowShift; t<numInds; t+=rowStride )
+        const Int rowShift = grid.Col();
+        const Int rowStride = grid.Width();
+        const Int numInds = sep.inds.size();
+        for( Int t=rowShift; t<numInds; t+=rowStride )
         {
-            const int i = sep.inds[t];
-            DEBUG_ONLY(
-                if( i < 0 || i >= numSources )
-                    LogicError("separator index was out of bounds");
-            )
-            const int q = A.RowOwner(i);
-            DEBUG_ONLY(
-                if( offs[q] >= numRecvRows )
-                    LogicError("offset got too large");
-            )
+            const Int i = sep.inds[t];
+            const Int q = A.RowOwner(i);
             recvRows[offs[q]++] = i;
         }
     }
@@ -138,63 +101,54 @@ void DistSymmFrontTree<T>::Initialize
     // Retreive the list of rows that we must send to each process
     std::vector<int> sendRowSizes( commSize );
     mpi::AllToAll( &recvRowSizes[0], 1, &sendRowSizes[0], 1, comm );
-    int numSendRows=0;
-    std::vector<int> sendRowOffs( commSize );
-    for( int q=0; q<commSize; ++q )
-    {
-        sendRowOffs[q] = numSendRows;
-        numSendRows += sendRowSizes[q];
-    }
-    std::vector<int> sendRows( numSendRows );
+    std::vector<int> sendRowOffs;
+    const Int numSendRows = Scan( sendRowSizes, sendRowOffs );
+    std::vector<Int> sendRows( numSendRows );
     mpi::AllToAll
     ( &recvRows[0], &recvRowSizes[0], &recvRowOffs[0],
       &sendRows[0], &sendRowSizes[0], &sendRowOffs[0], comm );
 
     // Pack the number of nonzeros per row (and the nonzeros themselves)
     // TODO: Avoid sending upper-triangular data
-    int numSendEntries=0;
-    const int firstLocalRow = A.FirstLocalRow();
-    std::vector<int> sendRowLengths( numSendRows ),
-                     sendEntriesSizes( commSize, 0 ),
+    Int numSendEntries=0;
+    const Int firstLocalRow = A.FirstLocalRow();
+    std::vector<Int> sendRowLengths( numSendRows );
+    std::vector<int> sendEntriesSizes( commSize, 0 ), 
                      sendEntriesOffs( commSize );
-    for( int q=0; q<commSize; ++q )
+    for( Int q=0; q<commSize; ++q )
     {
-        const int size = sendRowSizes[q];
-        const int off = sendRowOffs[q];
+        const Int size = sendRowSizes[q];
+        const Int off = sendRowOffs[q];
         sendEntriesOffs[q] = numSendEntries;
-        for( int s=0; s<size; ++s )
+        for( Int s=0; s<size; ++s )
         {
-            const int i = sendRows[s+off];
-            const int iLocal = i - firstLocalRow;
-            const int numConnections = A.NumConnections( iLocal );
+            const Int i = sendRows[s+off];
+            const Int iLocal = i - firstLocalRow;
+            const Int numConnections = A.NumConnections( iLocal );
             numSendEntries += numConnections;
             sendEntriesSizes[q] += numConnections;
             sendRowLengths[s+off] = numConnections;
         }
     }
     std::vector<T> sendEntries( numSendEntries );
-    std::vector<int> sendTargets( numSendEntries );
-    for( int q=0; q<commSize; ++q )
+    std::vector<Int> sendTargets( numSendEntries );
+    for( Int q=0; q<commSize; ++q )
     {
-        int index = sendEntriesOffs[q];
-        const int size = sendRowSizes[q];
-        const int off = sendRowOffs[q];
-        for( int s=0; s<size; ++s )
+        Int index = sendEntriesOffs[q];
+        const Int size = sendRowSizes[q];
+        const Int off = sendRowOffs[q];
+        for( Int s=0; s<size; ++s )
         {
-            const int i = sendRows[s+off];
-            const int iLocal = i - firstLocalRow;
-            const int numConnections = sendRowLengths[s+off];
-            const int localEntryOff = A.EntryOffset( iLocal );
-            for( int t=0; t<numConnections; ++t )
+            const Int i = sendRows[s+off];
+            const Int iLocal = i - firstLocalRow;
+            const Int numConnections = sendRowLengths[s+off];
+            const Int localEntryOff = A.EntryOffset( iLocal );
+            for( Int t=0; t<numConnections; ++t )
             {
                 const T value = A.Value( localEntryOff+t );
-                const int col = A.Col( localEntryOff+t );
-                const int targetOff = Find( targets, col );
-                const int mappedTarget = mappedTargets[targetOff];
-                DEBUG_ONLY(
-                    if( index >= numSendEntries )
-                        LogicError("send entry index got too big");
-                )
+                const Int col = A.Col( localEntryOff+t );
+                const Int targetOff = Find( targets, col );
+                const Int mappedTarget = mappedTargets[targetOff];
                 sendEntries[index] = (conjugate ? Conj(value) : value);
                 sendTargets[index] = mappedTarget;
                 ++index;
@@ -207,64 +161,66 @@ void DistSymmFrontTree<T>::Initialize
     }
 
     // Send back the number of nonzeros per row and the nonzeros themselves
-    std::vector<int> recvRowLengths( numRecvRows );
+    std::vector<Int> recvRowLengths( numRecvRows );
     mpi::AllToAll
-    ( &sendRowLengths[0], &sendRowSizes[0], &sendRowOffs[0],
-      &recvRowLengths[0], &recvRowSizes[0], &recvRowOffs[0], comm );
-    int numRecvEntries=0;
+    ( sendRowLengths.data(), sendRowSizes.data(), sendRowOffs.data(),
+      recvRowLengths.data(), recvRowSizes.data(), recvRowOffs.data(), comm );
+    Int numRecvEntries=0;
     std::vector<int> recvEntriesSizes( commSize, 0 ),
                      recvEntriesOffs( commSize );
-    for( int q=0; q<commSize; ++q )
+    for( Int q=0; q<commSize; ++q )
     {
-        const int size = recvRowSizes[q];
-        const int off = recvRowOffs[q];
-        for( int s=0; s<size; ++s )
+        const Int size = recvRowSizes[q];
+        const Int off = recvRowOffs[q];
+        for( Int s=0; s<size; ++s )
             recvEntriesSizes[q] += recvRowLengths[off+s];
 
         recvEntriesOffs[q] = numRecvEntries; 
         numRecvEntries += recvEntriesSizes[q];
     }
     std::vector<T> recvEntries( numRecvEntries );
-    std::vector<int> recvTargets( numRecvEntries );
+    std::vector<Int> recvTargets( numRecvEntries );
     mpi::AllToAll
-    ( &sendEntries[0], &sendEntriesSizes[0], &sendEntriesOffs[0],
-      &recvEntries[0], &recvEntriesSizes[0], &recvEntriesOffs[0], comm );
+    ( sendEntries.data(), sendEntriesSizes.data(), sendEntriesOffs.data(),
+      recvEntries.data(), recvEntriesSizes.data(), recvEntriesOffs.data(), 
+      comm );
     mpi::AllToAll
-    ( &sendTargets[0], &sendEntriesSizes[0], &sendEntriesOffs[0],
-      &recvTargets[0], &recvEntriesSizes[0], &recvEntriesOffs[0], comm );
+    ( sendTargets.data(), sendEntriesSizes.data(), sendEntriesOffs.data(),
+      recvTargets.data(), recvEntriesSizes.data(), recvEntriesOffs.data(), 
+      comm );
 
     // Unpack the received entries
     offs = recvRowOffs;
-    std::vector<int> entryOffs = recvEntriesOffs;
+    auto entryOffs = recvEntriesOffs;
     localFronts.resize( numLocal );
-    for( int s=0; s<numLocal; ++s )
+    for( Int s=0; s<numLocal; ++s )
     {
         SymmFront<T>& front = localFronts[s];
         const SepOrLeaf& sepOrLeaf = *sepTree.localSepsAndLeaves[s];
         const SymmNodeInfo& node = info.localNodes[s];
-        const std::vector<int>& origLowerStruct = node.origLowerStruct;
+        const std::vector<Int>& origLowerStruct = node.origLowerStruct;
 
-        const int size = node.size;
-        const int off = node.off;
-        const int lowerSize = node.lowerStruct.size();
+        const Int size = node.size;
+        const Int off = node.off;
+        const Int lowerSize = node.lowerStruct.size();
         Zeros( front.frontL, size+lowerSize, size );
         DEBUG_ONLY(
             if( size != (int)sepOrLeaf.inds.size() )
                 LogicError("Mismatch between separator and node size");
         )
 
-        for( int t=0; t<size; ++t )
+        for( Int t=0; t<size; ++t )
         {
-            const int i = sepOrLeaf.inds[t];
-            const int q = A.RowOwner(i);
+            const Int i = sepOrLeaf.inds[t];
+            const Int q = A.RowOwner(i);
 
             int& entryOff = entryOffs[q];
-            const int numEntries = recvRowLengths[offs[q]++];
+            const Int numEntries = recvRowLengths[offs[q]++];
 
-            for( int k=0; k<numEntries; ++k )
+            for( Int k=0; k<numEntries; ++k )
             {
                 const T value = recvEntries[entryOff];
-                const int target = recvTargets[entryOff];
+                const Int target = recvTargets[entryOff];
                 ++entryOff;
 
                 if( target < off+t )
@@ -275,12 +231,8 @@ void DistSymmFrontTree<T>::Initialize
                 }
                 else
                 {
-                    const int origOff = Find( origLowerStruct, target );
-                    DEBUG_ONLY(
-                        if( origOff >= (int)node.origLowerRelInds.size() )
-                            LogicError("origLowerRelInds too small");
-                    )
-                    const int row = node.origLowerRelInds[origOff];
+                    const Int origOff = Find( origLowerStruct, target );
+                    const Int row = node.origLowerRelInds[origOff];
                     DEBUG_ONLY(
                         if( row < t )
                             LogicError("Tried to touch upper triangle");
@@ -292,22 +244,22 @@ void DistSymmFrontTree<T>::Initialize
     }
 
     distFronts.resize( numDist+1 );
-    for( int s=0; s<numDist; ++s )
+    for( Int s=0; s<numDist; ++s )
     {
         DistSymmFront<T>& front = distFronts[s+1];
         const DistSeparator& sep = sepTree.distSeps[s];
         const DistSymmNodeInfo& node = info.distNodes[s+1];
-        const std::vector<int>& origLowerStruct = node.origLowerStruct;
+        const std::vector<Int>& origLowerStruct = node.origLowerStruct;
 
         const Grid& grid = *node.grid;
-        const int colShift = grid.Row();
-        const int rowShift = grid.Col();
-        const int colStride = grid.Height();
-        const int rowStride = grid.Width();
+        const Int colShift = grid.Row();
+        const Int rowShift = grid.Col();
+        const Int colStride = grid.Height();
+        const Int rowStride = grid.Width();
 
-        const int size = node.size;
-        const int off = node.off;
-        const int lowerSize = node.lowerStruct.size();
+        const Int size = node.size;
+        const Int off = node.off;
+        const Int lowerSize = node.lowerStruct.size();
         front.front2dL.SetGrid( grid );
         Zeros( front.front2dL, size+lowerSize, size );
         DEBUG_ONLY(
@@ -315,19 +267,19 @@ void DistSymmFrontTree<T>::Initialize
                 LogicError("Mismatch in separator and node sizes");
         )
 
-        for( int t=rowShift; t<size; t+=rowStride )
+        for( Int t=rowShift; t<size; t+=rowStride )
         {
-            const int i = sep.inds[t];
-            const int q = A.RowOwner(i);
-            const int localCol = (t-rowShift) / rowStride;
+            const Int i = sep.inds[t];
+            const Int q = A.RowOwner(i);
+            const Int localCol = (t-rowShift) / rowStride;
 
-            int& entryOff = entryOffs[q];
-            const int numEntries = recvRowLengths[offs[q]++];
+            Int& entryOff = entryOffs[q];
+            const Int numEntries = recvRowLengths[offs[q]++];
 
-            for( int k=0; k<numEntries; ++k )
+            for( Int k=0; k<numEntries; ++k )
             {
                 const T value = recvEntries[entryOff];
-                const int target = recvTargets[entryOff];
+                const Int target = recvTargets[entryOff];
                 ++entryOff;
 
                 if( target < off+t )
@@ -336,26 +288,22 @@ void DistSymmFrontTree<T>::Initialize
                 {
                     if( (target-off) % colStride == colShift )
                     {
-                        const int row = target-off;
-                        const int localRow = (row-colShift) / colStride;
+                        const Int row = target-off;
+                        const Int localRow = (row-colShift) / colStride;
                         front.front2dL.SetLocal( localRow, localCol, value );
                     }
                 }
                 else 
                 {
-                    const int origOff = Find( origLowerStruct, target );
-                    DEBUG_ONLY(
-                        if( origOff >= (int)node.origLowerRelInds.size() )
-                            LogicError("origLowerRelInds too small");
-                    )
-                    const int row = node.origLowerRelInds[origOff];
+                    const Int origOff = Find( origLowerStruct, target );
+                    const Int row = node.origLowerRelInds[origOff];
                     DEBUG_ONLY(
                         if( row < t )
                             LogicError("Tried to touch upper triangle");
                     )
                     if( row % colStride == colShift )
                     {
-                        const int localRow = (row-colShift) / colStride;
+                        const Int localRow = (row-colShift) / colStride;
                         front.front2dL.SetLocal( localRow, localCol, value );
                     }
                 }
@@ -363,7 +311,7 @@ void DistSymmFrontTree<T>::Initialize
         }
     }
     DEBUG_ONLY(
-        for( int q=0; q<commSize; ++q )
+        for( Int q=0; q<commSize; ++q )
             if( entryOffs[q] != recvEntriesOffs[q]+recvEntriesSizes[q] )
                 LogicError("entryOffs were incorrect");
     )
@@ -397,14 +345,14 @@ void DistSymmFrontTree<T>::MemoryInfo
 {
     DEBUG_ONLY(CallStackEntry cse("DistSymmFrontTree::MemoryInfo"))
     numLocalEntries = numGlobalEntries = 0;
-    const int numLocalFronts = localFronts.size();
-    const int numDistFronts = distFronts.size();
+    const Int numLocalFronts = localFronts.size();
+    const Int numDistFronts = distFronts.size();
     const bool frontsAre1d = FrontsAre1d( frontType );
     const Grid& grid = ( frontsAre1d ? distFronts.back().front1dL.Grid() 
                                      : distFronts.back().front2dL.Grid() );
     mpi::Comm comm = grid.Comm();
 
-    for( int s=0; s<numLocalFronts; ++s )
+    for( Int s=0; s<numLocalFronts; ++s )
     {
         const SymmFront<T>& front = localFronts[s];
         numLocalEntries += front.frontL.MemorySize();
@@ -413,7 +361,7 @@ void DistSymmFrontTree<T>::MemoryInfo
         numLocalEntries += front.piv.MemorySize();
         numLocalEntries += front.work.MemorySize();
     }
-    for( int s=1; s<numDistFronts; ++s )
+    for( Int s=1; s<numDistFronts; ++s )
     {
         const DistSymmFront<T>& front = distFronts[s];
         numLocalEntries += front.front1dL.AllocatedMemory();
@@ -437,14 +385,14 @@ void DistSymmFrontTree<T>::TopLeftMemoryInfo
 {
     DEBUG_ONLY(CallStackEntry cse("DistSymmFrontTree::TopLeftMemInfo"))
     numLocalEntries = numGlobalEntries = 0;
-    const int numLocalFronts = localFronts.size();
-    const int numDistFronts = distFronts.size();
+    const Int numLocalFronts = localFronts.size();
+    const Int numDistFronts = distFronts.size();
     const bool frontsAre1d = FrontsAre1d( frontType );
     const Grid& grid = ( frontsAre1d ? distFronts.back().front1dL.Grid() 
                                      : distFronts.back().front2dL.Grid() );
     mpi::Comm comm = grid.Comm();
 
-    for( int s=0; s<numLocalFronts; ++s )
+    for( Int s=0; s<numLocalFronts; ++s )
     {
         const SymmFront<T>& front = localFronts[s];
         Matrix<T> FTL, FBL;
@@ -454,7 +402,7 @@ void DistSymmFrontTree<T>::TopLeftMemoryInfo
         numLocalEntries += front.subdiag.MemorySize();
         numLocalEntries += front.piv.MemorySize();
     }
-    for( int s=1; s<numDistFronts; ++s )
+    for( Int s=1; s<numDistFronts; ++s )
     {
         const DistSymmFront<T>& front = distFronts[s];
         if( frontsAre1d )
@@ -488,21 +436,21 @@ void DistSymmFrontTree<T>::BottomLeftMemoryInfo
 {
     DEBUG_ONLY(CallStackEntry cse("DistSymmFrontTree::BottomLeftMemInfo"))
     numLocalEntries = numGlobalEntries = 0;
-    const int numLocalFronts = localFronts.size();
-    const int numDistFronts = distFronts.size();
+    const Int numLocalFronts = localFronts.size();
+    const Int numDistFronts = distFronts.size();
     const bool frontsAre1d = FrontsAre1d( frontType );
     const Grid& grid = ( frontsAre1d ? distFronts.back().front1dL.Grid() 
                                      : distFronts.back().front2dL.Grid() );
     mpi::Comm comm = grid.Comm();
 
-    for( int s=0; s<numLocalFronts; ++s )
+    for( Int s=0; s<numLocalFronts; ++s )
     {
         const SymmFront<T>& front = localFronts[s];
         Matrix<T> FTL, FBL;
         LockedPartitionDown( front.frontL, FTL, FBL, front.frontL.Width() );
         numLocalEntries += FBL.Height()*FBL.Width();
     }
-    for( int s=1; s<numDistFronts; ++s )
+    for( Int s=1; s<numDistFronts; ++s )
     {
         const DistSymmFront<T>& front = distFronts[s];
         if( frontsAre1d )
@@ -533,14 +481,14 @@ void DistSymmFrontTree<T>::FactorizationWork
 {
     DEBUG_ONLY(CallStackEntry cse("DistSymmFrontTree::FactorizationWork"))
     numLocalFlops = numGlobalFlops = 0;
-    const int numLocalFronts = localFronts.size();
-    const int numDistFronts = distFronts.size();
+    const Int numLocalFronts = localFronts.size();
+    const Int numDistFronts = distFronts.size();
     const bool frontsAre1d = FrontsAre1d( frontType );
     const Grid& grid = ( frontsAre1d ? distFronts.back().front1dL.Grid() 
                                      : distFronts.back().front2dL.Grid() );
     mpi::Comm comm = grid.Comm();
 
-    for( int s=0; s<numLocalFronts; ++s )
+    for( Int s=0; s<numLocalFronts; ++s )
     {
         const SymmFront<T>& front = localFronts[s];
         const double m = front.frontL.Height();
@@ -549,7 +497,7 @@ void DistSymmFrontTree<T>::FactorizationWork
         numLocalFlops += (m-n)*n*n; // n x n trsv, m-n r.h.s.
         numLocalFlops += (m-n)*(m-n)*n; // (m-n) x (m-n), rank-n
     }
-    for( int s=1; s<numDistFronts; ++s )
+    for( Int s=1; s<numDistFronts; ++s )
     {
         const DistSymmFront<T>& front = distFronts[s];
         const double m = 
@@ -580,18 +528,18 @@ void DistSymmFrontTree<T>::FactorizationWork
 template<typename T>
 void DistSymmFrontTree<T>::SolveWork
 ( double& numLocalFlops, double& minLocalFlops, double& maxLocalFlops, 
-  double& numGlobalFlops, int numRhs ) const
+  double& numGlobalFlops, Int numRhs ) const
 {
     DEBUG_ONLY(CallStackEntry cse("DistSymmFrontTree::SolveWork"))
     numLocalFlops = numGlobalFlops = 0;
-    const int numLocalFronts = localFronts.size();
-    const int numDistFronts = distFronts.size();
+    const Int numLocalFronts = localFronts.size();
+    const Int numDistFronts = distFronts.size();
     const bool frontsAre1d = FrontsAre1d( frontType );
     const Grid& grid = ( frontsAre1d ? distFronts.back().front1dL.Grid() 
                                      : distFronts.back().front2dL.Grid() );
     mpi::Comm comm = grid.Comm();
 
-    for( int s=0; s<numLocalFronts; ++s )
+    for( Int s=0; s<numLocalFronts; ++s )
     {
         const SymmFront<T>& front = localFronts[s];
         const double m = front.frontL.Height();
@@ -599,7 +547,7 @@ void DistSymmFrontTree<T>::SolveWork
         numLocalFlops += n*n;
         numLocalFlops += 2*(m-n)*n;
     }
-    for( int s=1; s<numDistFronts; ++s )
+    for( Int s=1; s<numDistFronts; ++s )
     {
         const DistSymmFront<T>& front = distFronts[s];
         const double m = 

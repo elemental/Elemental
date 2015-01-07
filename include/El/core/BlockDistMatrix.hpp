@@ -16,9 +16,9 @@ struct BlockDistData
 {
     Dist colDist, rowDist;
     Int blockHeight, blockWidth;
-    Int colAlign, rowAlign; 
+    int colAlign, rowAlign; 
     Int colCut, rowCut;
-    Int root;  // relevant for [o ,o ]/[MD,* ]/[* ,MD]
+    int root;  // relevant for [o ,o ]/[MD,* ]/[* ,MD]
     const Grid* grid;
 
     BlockDistData() { }

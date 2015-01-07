@@ -310,7 +310,7 @@ void LP
 
 namespace bp {
 
-// TODO: Hide this interface behind a control structure
+// Put this into BP as an optional backend
 template<typename F>
 Int ADMM
 ( const Matrix<F>& A, const Matrix<F>& b,
@@ -851,255 +851,49 @@ Int SparseInvCov
 
 // Support Vector Machine
 // ======================
+// NOTE: Currently only soft-margin SVM is supported.
+
+namespace svm {
+
+// TODO: Put this into SVM as an optional backend
 template<typename Real>
-Int SVM
-( const Matrix<Real>& G, const Matrix<Real>& q, Matrix<Real>& z,
-  Real gamma, Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
+Int ADMM
+( const Matrix<Real>& G, const Matrix<Real>& q, 
+        Real gamma,            Matrix<Real>& z,
+  Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
 template<typename Real>
-Int SVM
+Int ADMM
 ( const AbstractDistMatrix<Real>& G, const AbstractDistMatrix<Real>& q, 
-        AbstractDistMatrix<Real>& z,
-  Real gamma, Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
+        Real gamma,                        AbstractDistMatrix<Real>& z,
+  Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
 
-// Proximal maps
-// =============
+} // namespace svm
 
-// Clipping
-// --------
+// NOTE: These routines are currently stubs
 template<typename Real>
-void LowerClip( Matrix<Real>& X, Real lowerBound=0 );
+void SVM
+( const Matrix<Real>& G, const Matrix<Real>& q, 
+        Real gamma,            Matrix<Real>& x,
+  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 template<typename Real>
-void LowerClip( AbstractDistMatrix<Real>& X, Real lowerBound=0 );
+void SVM
+( const AbstractDistMatrix<Real>& G, const AbstractDistMatrix<Real>& q, 
+        Real gamma,                        AbstractDistMatrix<Real>& x,
+  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 template<typename Real>
-void LowerClip( AbstractBlockDistMatrix<Real>& X, Real lowerBound=0 );
+void SVM
+( const SparseMatrix<Real>& G, const Matrix<Real>& q, 
+        Real gamma,                  Matrix<Real>& x,
+  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 template<typename Real>
-void LowerClip( DistMultiVec<Real>& X, Real lowerBound=0 );
-
-template<typename Real>
-void UpperClip( Matrix<Real>& X, Real upperBound=0 );
-template<typename Real>
-void UpperClip( AbstractDistMatrix<Real>& X, Real upperBound=0 );
-template<typename Real>
-void UpperClip( AbstractBlockDistMatrix<Real>& X, Real upperBound=0 );
-template<typename Real>
-void UpperClip( DistMultiVec<Real>& X, Real upperBound=0 );
-
-template<typename Real>
-void Clip
-( Matrix<Real>& X, Real lowerBound=0, Real upperBound=1 );
-template<typename Real>
-void Clip
-( AbstractDistMatrix<Real>& X, Real lowerBound=0, Real upperBound=1 );
-template<typename Real>
-void Clip
-( AbstractBlockDistMatrix<Real>& X, Real lowerBound=0, Real upperBound=1 );
-template<typename Real>
-void Clip
-( DistMultiVec<Real>& X, Real lowerBound=0, Real upperBound=1 );
-
-// Frobenius-norm proximal map
-// ---------------------------
-// The Frobenius norm prox returns the solution to
-//     arg min || A ||_F + rho/2 || A - A0 ||_F^2
-//        A
-// where A0 in the input matrix.
-template<typename F>
-void FrobeniusProx( Matrix<F>& A, Base<F> rho );
-template<typename F>
-void FrobeniusProx( AbstractDistMatrix<F>& A, Base<F> rho );
-
-// Hinge-loss proximal map
-// -----------------------
-// TODO: Description
-template<typename Real>
-void HingeLossProx( Matrix<Real>& A, Real rho );
-template<typename Real>
-void HingeLossProx( AbstractDistMatrix<Real>& A, Real rho );
-
-// Logistic proximal map
-// ---------------------
-// The logistic proximal map returns the solution to
-//    arg min sum_{i,j}[ log(1+exp(-A_{i,j})) ] + rho/2 || A - A0 ||_F^2
-//       A
-// where A0 is the input matrix.
-template<typename Real>
-void LogisticProx( Matrix<Real>& A, Real rho, Int numIts=5 );
-template<typename Real>
-void LogisticProx( AbstractDistMatrix<Real>& A, Real rho, Int numIts=5 );
-
-// Singular-value soft thresholding
-// --------------------------------
-template<typename F>
-Int SVT( Matrix<F>& A, Base<F> rho, bool relative=false );
-template<typename F>
-Int SVT( AbstractDistMatrix<F>& A, Base<F> rho, bool relative=false );
-template<typename F>
-Int SVT( Matrix<F>& A, Base<F> rho, Int relaxedRank, bool relative=false );
-template<typename F>
-Int SVT
-( AbstractDistMatrix<F>& A, Base<F> rho, Int relaxedRank, bool relative=false );
-template<typename F,Dist U>
-Int SVT( DistMatrix<F,U,STAR>& A, Base<F> rho, bool relative=false );
-
-namespace svt {
-
-// TODO: Add SVT control structure
-
-template<typename F>
-Int Cross( Matrix<F>& A, Base<F> rho, bool relative=false );
-template<typename F>
-Int Cross( AbstractDistMatrix<F>& A, Base<F> rho, bool relative=false );
-template<typename F>
-Int Cross( DistMatrix<F,VC,STAR>& A, Base<F> rho, bool relative=false );
-
-template<typename F>
-Int Normal( Matrix<F>& A, Base<F> rho, bool relative=false );
-template<typename F>
-Int Normal( AbstractDistMatrix<F>& A, Base<F> rho, bool relative=false );
-
-template<typename F>
-Int PivotedQR
-( Matrix<F>& A, Base<F> rho, Int numSteps, bool relative=false );
-template<typename F>
-Int PivotedQR
-( AbstractDistMatrix<F>& A, Base<F> rho, Int numSteps, bool relative=false );
-
-template<typename F>
-Int TSQR( AbstractDistMatrix<F>& A, Base<F> rho, bool relative=false );
-
-} // namespace svt
-
-// Soft-thresholding
-// -----------------
-// Returns the solution to
-//     arg min || vec(A) ||_1 + rho/2 || A - A0 ||_F^2
-//        A 
-// where A0 is the input matrix.
-template<typename F>
-F SoftThreshold( F alpha, Base<F> rho );
-
-template<typename F>
-void SoftThreshold
-( Matrix<F>& A, Base<F> rho, bool relative=false );
-template<typename F>
-void SoftThreshold
-( AbstractDistMatrix<F>& A, Base<F> rho, bool relative=false );
-
-// Utilities
-// =========
-
-// Covariance
-// ----------
-template<typename F>
-void Covariance( const Matrix<F>& D, Matrix<F>& S );
-template<typename F>
-void Covariance( const AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& S );
-
-// Log barrier
-// -----------
-template<typename F>
-Base<F> LogBarrier( UpperOrLower uplo, const Matrix<F>& A );
-template<typename F>
-Base<F> LogBarrier( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
-
-template<typename F>
-Base<F> LogBarrier
-( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false );
-template<typename F>
-Base<F> LogBarrier
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool canOverwrite=false );
-
-// Log-det divergence
-// ------------------
-template<typename F>
-Base<F> LogDetDiv
-( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B );
-template<typename F>
-Base<F> LogDetDiv
-( UpperOrLower uplo, 
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B );
-
-// Maximum step within the positive cone
-// -------------------------------------
-template<typename Real>
-Real MaxStepInPositiveCone
-( const Matrix<Real>& s, 
-  const Matrix<Real>& ds, Real upperBound );
-template<typename Real>
-Real MaxStepInPositiveCone
-( const AbstractDistMatrix<Real>& s, 
-  const AbstractDistMatrix<Real>& ds, Real upperBound );
-template<typename Real>
-Real MaxStepInPositiveCone
-( const DistMultiVec<Real>& s, 
-  const DistMultiVec<Real>& ds, Real upperBound );
-
-// Number of non-positive entries
-// ------------------------------
-template<typename Real>
-Int NumNonPositive( const Matrix<Real>& A );
-template<typename Real>
-Int NumNonPositive( const SparseMatrix<Real>& A );
-template<typename Real>
-Int NumNonPositive( const AbstractDistMatrix<Real>& A );
-template<typename Real>
-Int NumNonPositive( const DistSparseMatrix<Real>& A );
-template<typename Real>
-Int NumNonPositive( const DistMultiVec<Real>& A );
-
-// Number of non-SOC members
-// -------------------------
-template<typename Real>
-Int NumNonSecondOrder
-( const Matrix<Real>& x, 
-  const Matrix<Int>& orders, 
-  const Matrix<Int>& firstInds );
-template<typename Real>
-Int NumNonSecondOrder
-( const AbstractDistMatrix<Real>& x, 
-  const AbstractDistMatrix<Int>& orders, 
-  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
-template<typename Real>
-Int NumNonSecondOrder
-( const DistMultiVec<Real>& x, 
-  const DistMultiVec<Int>& orders, 
-  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
-
-// Regularized LDL
-// ---------------
-// NOTE: If the pivot candidate is not at least as large as the pivot tolerance
-//       and with the implied sign, then it is increased by the specified value.
-template<typename F>
-void RegularizedLDL
-( Matrix<F>& A, Base<F> pivTol,
-  const Matrix<Base<F>>& regCand, 
-        Matrix<Base<F>>& reg );
-template<typename F>
-void RegularizedLDL
-( AbstractDistMatrix<F>& A, Base<F> pivTol,
-  const AbstractDistMatrix<Base<F>>& regCand, 
-        AbstractDistMatrix<Base<F>>& reg );
-
-template<typename F>
-void RegularizedLDL
-( DistSymmInfo& info, DistSymmFrontTree<F>& L,
-  Base<F> pivTol,
-  const DistNodalMultiVec<Base<F>>& regCand, 
-        DistNodalMultiVec<Base<F>>& reg,
-  SymmFrontType newFrontType=LDL_1D );
-
-namespace reg_ldl {
-
-template<typename F>
-Int SolveAfter
-( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,             const DistSymmInfo& info,
-  const DistSymmFrontTree<F>& AFact,       DistMultiVec<F>& y,
-  Base<F> minReductionFactor,              Int maxRefineIts,
-  bool progress );
-
-} // namespace reg_ldl
+void SVM
+( const DistSparseMatrix<Real>& G, const DistMultiVec<Real>& q, 
+        Real gamma,                      DistMultiVec<Real>& x,
+  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 
 } // namespace El
+
+#include "./optimization/prox.hpp"
+#include "./optimization/util.hpp"
 
 #endif // ifndef EL_OPTIMIZATION_HPP

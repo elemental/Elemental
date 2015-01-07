@@ -23,7 +23,7 @@ namespace El {
 // ============================
 
 template<typename T>
-DM::DistMatrix( const El::Grid& grid, Int root )
+DM::DistMatrix( const El::Grid& grid, int root )
 : ADM(grid,root)
 { 
     if( COLDIST == CIRC && ROWDIST == CIRC )
@@ -32,7 +32,7 @@ DM::DistMatrix( const El::Grid& grid, Int root )
 }
 
 template<typename T>
-DM::DistMatrix( Int height, Int width, const El::Grid& grid, Int root )
+DM::DistMatrix( Int height, Int width, const El::Grid& grid, int root )
 : ADM(grid,root)
 { 
     if( COLDIST == CIRC && ROWDIST == CIRC )
@@ -110,19 +110,19 @@ template<typename T> DM::~DistMatrix() { }
 
 template<typename T> 
 DistMatrix<T,COLDIST,ROWDIST>* DM::Construct
-( const El::Grid& g, Int root ) const
+( const El::Grid& g, int root ) const
 { return new DistMatrix<T,COLDIST,ROWDIST>(g,root); }
 
 template<typename T> 
 DistMatrix<T,ROWDIST,COLDIST>* DM::ConstructTranspose
-( const El::Grid& g, Int root ) const
+( const El::Grid& g, int root ) const
 { return new DistMatrix<T,ROWDIST,COLDIST>(g,root); }
 
 template<typename T>
 DistMatrix<T,DiagCol<COLDIST,ROWDIST>(),
              DiagRow<COLDIST,ROWDIST>()>* 
 DM::ConstructDiagonal
-( const El::Grid& g, Int root ) const
+( const El::Grid& g, int root ) const
 { return new DistMatrix<T,DiagCol<COLDIST,ROWDIST>(),
                           DiagRow<COLDIST,ROWDIST>()>(g,root); }
 

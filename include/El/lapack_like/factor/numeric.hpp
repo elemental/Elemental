@@ -41,13 +41,13 @@ public:
     ( const DistMap& inverseMap, const DistSymmInfo& info,
             DistMultiVec<T>& X ) const;
 
-    int Height() const;
-    int Width() const;
+    Int Height() const;
+    Int Width() const;
 
     mutable std::vector<MatrixCommMeta> commMetas;
     void ComputeCommMetas( const DistSymmInfo& info ) const;
 private:
-    int height_, width_;
+    Int height_, width_;
 };
 
 // For handling a set of vectors distributed in a [VC,* ] manner over each node
@@ -74,16 +74,16 @@ public:
     ( const DistMap& inverseMap, const DistSymmInfo& info,
             DistMultiVec<T>& X ) const;
 
-    int Height() const;
-    int Width() const;
+    Int Height() const;
+    Int Width() const;
 
-    int LocalHeight() const;
+    Int LocalHeight() const;
 
     void UpdateHeight();
     void UpdateWidth();
 
 private:
-    int height_, width_;
+    Int height_, width_;
 };
 
 enum SymmFrontType
@@ -307,7 +307,7 @@ struct DistSymmFrontTree
 
     void SolveWork
     ( double& numLocalFlops, double& minLocalFlops, double& maxLocalFlops,
-      double& numGlobalFlops, int numRhs=1 ) const;
+      double& numGlobalFlops, Int numRhs=1 ) const;
 };
 
 template<typename F>
@@ -336,7 +336,7 @@ void InitializeDistLeaf( const DistSymmInfo& info, DistSymmFrontTree<T>& L );
 // TODO: Reformat and rename to Trmm
 template<typename T>
 void LowerMultiply
-( Orientation orientation, int diagOffset,
+( Orientation orientation, Int diagOffset,
   const DistSymmInfo& info, const DistSymmFrontTree<T>& L,
   DistNodalMultiVec<T>& X );
 

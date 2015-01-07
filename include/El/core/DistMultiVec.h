@@ -186,18 +186,18 @@ EL_EXPORT ElError ElDistMultiVecBlocksize_c
 EL_EXPORT ElError ElDistMultiVecBlocksize_z
 ( ElConstDistMultiVec_z A, ElInt* blocksize );
 
-/* Int DistMultiVec<T>::RowOwner( Int i ) const
+/* int DistMultiVec<T>::RowOwner( Int i ) const
    -------------------------------------------- */
 EL_EXPORT ElError ElDistMultiVecRowOwner_i
-( ElConstDistMultiVec_i A, ElInt i, ElInt* owner );
+( ElConstDistMultiVec_i A, ElInt i, int* owner );
 EL_EXPORT ElError ElDistMultiVecRowOwner_s
-( ElConstDistMultiVec_s A, ElInt i, ElInt* owner );
+( ElConstDistMultiVec_s A, ElInt i, int* owner );
 EL_EXPORT ElError ElDistMultiVecRowOwner_d
-( ElConstDistMultiVec_d A, ElInt i, ElInt* owner );
+( ElConstDistMultiVec_d A, ElInt i, int* owner );
 EL_EXPORT ElError ElDistMultiVecRowOwner_c
-( ElConstDistMultiVec_c A, ElInt i, ElInt* owner );
+( ElConstDistMultiVec_c A, ElInt i, int* owner );
 EL_EXPORT ElError ElDistMultiVecRowOwner_z
-( ElConstDistMultiVec_z A, ElInt i, ElInt* owner );
+( ElConstDistMultiVec_z A, ElInt i, int* owner );
 
 /* Entrywise manipulation
    ====================== */

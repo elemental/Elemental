@@ -28,10 +28,10 @@ public:
     // ============================
 
     // Create a 0 x 0 distributed matrix
-    DistMatrix( const El::Grid& g=DefaultGrid(), Int root=0 );
+    DistMatrix( const El::Grid& g=DefaultGrid(), int root=0 );
     // Create a height x width distributed matrix
     DistMatrix
-    ( Int height, Int width, const El::Grid& g=DefaultGrid(), Int root=0 );
+    ( Int height, Int width, const El::Grid& g=DefaultGrid(), int root=0 );
     // Create a direct copy (redistributing if necessary)
     DistMatrix( const type& A );
     DistMatrix( const AbstractDistMatrix<T>& A );
@@ -43,11 +43,11 @@ public:
     ~DistMatrix();
 
     DistMatrix<T,CIRC,CIRC>* Construct
-    ( const El::Grid& g, Int root ) const override;
+    ( const El::Grid& g, int root ) const override;
     DistMatrix<T,CIRC,CIRC>* ConstructTranspose
-    ( const El::Grid& g, Int root ) const override;
+    ( const El::Grid& g, int root ) const override;
     DistMatrix<T,CIRC,CIRC>* ConstructDiagonal
-    ( const El::Grid& g, Int root ) const override;
+    ( const El::Grid& g, int root ) const override;
 
     // Assignment and reconfiguration
     // ==============================
@@ -88,11 +88,11 @@ public:
     mpi::Comm ColComm()       const override;
     mpi::Comm RowComm()       const override;
 
-    Int ColStride()     const override;
-    Int RowStride()     const override;
-    Int DistSize()      const override;
-    Int CrossSize()     const override;
-    Int RedundantSize() const override;
+    int ColStride()     const override;
+    int RowStride()     const override;
+    int DistSize()      const override;
+    int CrossSize()     const override;
+    int RedundantSize() const override;
 
 private:
     // Friend declarations

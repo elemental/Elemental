@@ -28,11 +28,11 @@ public:
     virtual ~AbstractBlockDistMatrix();
 
     virtual AbstractBlockDistMatrix<T>* Construct
-    ( const El::Grid& g, Int root ) const = 0;
+    ( const El::Grid& g, int root ) const = 0;
     virtual AbstractBlockDistMatrix<T>* ConstructTranspose
-    ( const El::Grid& g, Int root ) const = 0;
+    ( const El::Grid& g, int root ) const = 0;
     virtual AbstractBlockDistMatrix<T>* ConstructDiagonal
-    ( const El::Grid& g, Int root ) const = 0;
+    ( const El::Grid& g, int root ) const = 0;
 
     // Assignment and reconfiguration
     // ==============================
@@ -51,27 +51,27 @@ public:
     // -----------
     void Align
     ( Int blockHeight, Int blockWidth, 
-      Int colAlign, Int rowAlign, Int colCut=0, Int rowCut=0, 
+      int colAlign, int rowAlign, Int colCut=0, Int rowCut=0, 
       bool constrain=true );
     void AlignCols
-    ( Int blockHeight, Int colAlign, Int colCut=0, bool constrain=true );
+    ( Int blockHeight, int colAlign, Int colCut=0, bool constrain=true );
     void AlignRows
-    ( Int blockWidth, Int rowAlign, Int rowCut=0, bool constrain=true );
+    ( Int blockWidth, int rowAlign, Int rowCut=0, bool constrain=true );
     void FreeAlignments();
-    void SetRoot( Int root, bool constrain=true );
+    void SetRoot( int root, bool constrain=true );
     void AlignWith( const El::BlockDistData& data, bool constrain=true );
     void AlignColsWith( const El::BlockDistData& data, bool constrain=true );
     void AlignRowsWith( const El::BlockDistData& data, bool constrain=true );
     // TODO: The interface for these routines could be improved
     void AlignAndResize
     ( Int blockHeight, Int blockWidth, 
-      Int colAlign, Int rowAlign, Int colCut, Int rowCut, 
+      int colAlign, int rowAlign, Int colCut, Int rowCut, 
       Int height, Int width, bool force=false, bool constrain=true );
     void AlignColsAndResize
-    ( Int blockHeight, Int colAlign, Int colCut, Int height, Int width, 
+    ( Int blockHeight, int colAlign, Int colCut, Int height, Int width, 
       bool force=false, bool constrain=true );
     void AlignRowsAndResize
-    ( Int blockWidth, Int rowAlign, Int rowCut, Int height, Int width, 
+    ( Int blockWidth, int rowAlign, Int rowCut, Int height, Int width, 
       bool force=false, bool constrain=true );
 
     // Buffer attachment
@@ -80,23 +80,23 @@ public:
     void Attach
     ( Int height, Int width, const El::Grid& g, 
       Int blockHeight, Int blockWidth,
-      Int colAlign, Int rowAlign, Int colCut, Int rowCut,
-      T* buffer, Int ldim, Int root=0 );
+      int colAlign, int rowAlign, Int colCut, Int rowCut,
+      T* buffer, Int ldim, int root=0 );
     void LockedAttach
     ( Int height, Int width, const El::Grid& g,
       Int blockHeight, Int blockWidth,
-      Int colAlign, Int rowAlign, Int colCut, Int rowCut,
-      const T* buffer, Int ldim, Int root=0 );
+      int colAlign, int rowAlign, Int colCut, Int rowCut,
+      const T* buffer, Int ldim, int root=0 );
     void Attach
     ( Int height, Int width, const El::Grid& g,
       Int blockHeight, Int blockWidth,
-      Int colAlign, Int rowAlign, Int colCut, Int rowCut,
-      El::Matrix<T>& A, Int root=0 );
+      int colAlign, int rowAlign, Int colCut, Int rowCut,
+      El::Matrix<T>& A, int root=0 );
     void LockedAttach
     ( Int height, Int width, const El::Grid& g,
       Int blockHeight, Int blockWidth,
-      Int colAlign, Int rowAlign, Int colCut, Int rowCut,
-      const El::Matrix<T>& A, Int root=0 );
+      int colAlign, int rowAlign, Int colCut, Int rowCut,
+      const El::Matrix<T>& A, int root=0 );
 
     // Basic queries
     // =============
@@ -127,20 +127,20 @@ public:
             const El::Grid&         Grid()                  const;
                   Int               BlockHeight()           const;
                   Int               BlockWidth()            const;
-                  Int               ColAlign()              const;
-                  Int               RowAlign()              const;
+                  int               ColAlign()              const;
+                  int               RowAlign()              const;
                   Int               ColCut()                const;
                   Int               RowCut()                const;
-                  Int               ColShift()              const;
-                  Int               RowShift()              const;
+                  int               ColShift()              const;
+                  int               RowShift()              const;
                   bool              ColConstrained()        const;
                   bool              RowConstrained()        const;
                   bool              RootConstrained()       const;
                   bool              Participating()         const;
 
-                  Int               RowOwner( Int i )       const;     
-                  Int               ColOwner( Int j )       const;     
-                  Int               Owner( Int i, Int j )   const; 
+                  int               RowOwner( Int i )       const;     
+                  int               ColOwner( Int j )       const;     
+                  int               Owner( Int i, Int j )   const; 
                   Int               LocalRow( Int i )       const; 
                   Int               LocalCol( Int j )       const; 
                   Int               LocalRowOffset( Int i ) const; 
@@ -170,27 +170,27 @@ public:
     virtual       mpi::Comm         CrossComm()             const = 0;
     virtual       mpi::Comm         RedundantComm()         const = 0;
 
-    virtual       Int               ColStride()             const = 0;
-    virtual       Int               RowStride()             const = 0;
-    virtual       Int               PartialColStride()      const;
-    virtual       Int               PartialRowStride()      const;
-    virtual       Int               PartialUnionColStride() const;
-    virtual       Int               PartialUnionRowStride() const;
-    virtual       Int               DistSize()              const = 0;
-    virtual       Int               CrossSize()             const = 0;
-    virtual       Int               RedundantSize()         const = 0;
+    virtual       int               ColStride()             const = 0;
+    virtual       int               RowStride()             const = 0;
+    virtual       int               PartialColStride()      const;
+    virtual       int               PartialRowStride()      const;
+    virtual       int               PartialUnionColStride() const;
+    virtual       int               PartialUnionRowStride() const;
+    virtual       int               DistSize()              const = 0;
+    virtual       int               CrossSize()             const = 0;
+    virtual       int               RedundantSize()         const = 0;
 
-                  Int               ColRank()               const;
-                  Int               RowRank()               const;
-                  Int               PartialColRank()        const;
-                  Int               PartialRowRank()        const;
-                  Int               PartialUnionColRank()   const;
-                  Int               PartialUnionRowRank()   const; 
-                  Int               DistRank()              const;
-                  Int               CrossRank()             const;
-                  Int               RedundantRank()         const;
+                  int               ColRank()               const;
+                  int               RowRank()               const;
+                  int               PartialColRank()        const;
+                  int               PartialRowRank()        const;
+                  int               PartialUnionColRank()   const;
+                  int               PartialUnionRowRank()   const; 
+                  int               DistRank()              const;
+                  int               CrossRank()             const;
+                  int               RedundantRank()         const;
 
-                  Int               Root()                  const;
+                  int               Root()                  const;
     virtual       El::BlockDistData DistData()              const = 0;
 
     // Single-entry manipulation
@@ -229,8 +229,8 @@ public:
     // Diagonal manipulation
     // =====================
     bool DiagonalAlignedWith( const El::BlockDistData& d, Int offset=0 ) const;
-    Int DiagonalRoot( Int offset=0 ) const;
-    Int DiagonalAlign( Int offset=0 ) const;
+    int DiagonalRoot( Int offset=0 ) const;
+    int DiagonalAlign( Int offset=0 ) const;
 
     // Assertions
     // ==========
@@ -256,17 +256,17 @@ protected:
     // --------------------------------------
     bool colConstrained_, rowConstrained_, rootConstrained_;
     Int blockHeight_, blockWidth_;
-    Int colAlign_, rowAlign_,
-        colCut_,   rowCut_,
-        colShift_, rowShift_;
-    Int root_;
+    int colAlign_, rowAlign_;
+    Int colCut_,   rowCut_;
+    int colShift_, rowShift_;
+    int root_;
     const El::Grid* grid_;
 
     // Private constructors
     // ====================
-    AbstractBlockDistMatrix( const El::Grid& g=DefaultGrid(),  Int root=0 );
+    AbstractBlockDistMatrix( const El::Grid& g=DefaultGrid(),  int root=0 );
     AbstractBlockDistMatrix
-    ( const El::Grid& g, Int blockHeight, Int blockWidth, Int root=0 );
+    ( const El::Grid& g, Int blockHeight, Int blockWidth, int root=0 );
 
     // Exchange metadata with another matrix
     // =====================================

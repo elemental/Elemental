@@ -50,11 +50,11 @@ public:
 
     // Realignment
     // -----------
-    void Align( Int colAlign, Int rowAlign, bool constrain=true );
-    void AlignCols( Int colAlign, bool constrain=true );
-    void AlignRows( Int rowAlign, bool constrain=true );
+    void Align( int colAlign, int rowAlign, bool constrain=true );
+    void AlignCols( int colAlign, bool constrain=true );
+    void AlignRows( int rowAlign, bool constrain=true );
     void FreeAlignments();
-    void SetRoot( Int root, bool constrain=true );
+    void SetRoot( int root, bool constrain=true );
     void AlignWith
     ( const El::DistData& data, bool constrain=true, bool allowMismatch=false );
     void AlignColsWith
@@ -62,13 +62,13 @@ public:
     void AlignRowsWith
     ( const El::DistData& data, bool constrain=true, bool allowMismatch=false );
     void AlignAndResize
-    ( Int colAlign, Int rowAlign, Int height, Int width, 
+    ( int colAlign, int rowAlign, Int height, Int width, 
       bool force=false, bool constrain=true );
     void AlignColsAndResize
-    ( Int colAlign, Int height, Int width, 
+    ( int colAlign, Int height, Int width, 
       bool force=false, bool constrain=true );
     void AlignRowsAndResize
-    ( Int rowAlign, Int height, Int width, 
+    ( int rowAlign, Int height, Int width, 
       bool force=false, bool constrain=true );
 
     // Buffer attachment
@@ -76,16 +76,16 @@ public:
     // (Immutable) view of a distributed matrix's buffer
     void Attach
     ( Int height, Int width, const El::Grid& grid, 
-      Int colAlign, Int rowAlign, T* buffer, Int ldim, Int root=0 );
+      int colAlign, int rowAlign, T* buffer, Int ldim, int root=0 );
     void LockedAttach
     ( Int height, Int width, const El::Grid& grid,
-      Int colAlign, Int rowAlign, const T* buffer, Int ldim, Int root=0 );
+      int colAlign, int rowAlign, const T* buffer, Int ldim, int root=0 );
     void Attach
     ( Int height, Int width, const El::Grid& grid,
-      Int colAlign, Int rowAlign, El::Matrix<T>& A, Int root=0 );
+      int colAlign, int rowAlign, El::Matrix<T>& A, int root=0 );
     void LockedAttach
     ( Int height, Int width, const El::Grid& grid,
-      Int colAlign, Int rowAlign, const El::Matrix<T>& A, Int root=0 );
+      int colAlign, int rowAlign, const El::Matrix<T>& A, int root=0 );
 
     // Basic queries
     // =============
@@ -114,18 +114,18 @@ public:
     // Distribution information
     // ------------------------
             const El::Grid&    Grid()                  const;
-                  Int          ColAlign()              const;
-                  Int          RowAlign()              const;
-                  Int          ColShift()              const;
-                  Int          RowShift()              const;
+                  int          ColAlign()              const;
+                  int          RowAlign()              const;
+                  int          ColShift()              const;
+                  int          RowShift()              const;
                   bool         ColConstrained()        const;
                   bool         RowConstrained()        const;
                   bool         RootConstrained()       const;
                   bool         Participating()         const;
 
-                  Int          RowOwner( Int i )       const;     
-                  Int          ColOwner( Int j )       const;     
-                  Int          Owner( Int i, Int j )   const; 
+                  int          RowOwner( Int i )       const;     
+                  int          ColOwner( Int j )       const;     
+                  int          Owner( Int i, Int j )   const; 
                   Int          LocalRow( Int i )       const;     
                   Int          LocalCol( Int j )       const; 
                   Int          LocalRowOffset( Int i ) const; 
@@ -159,30 +159,30 @@ public:
     //       with ColComm(), RowComm(), etc., for processes *within*
     //       the communicator, this composition is incorrect for 
     //       processes *outside* of the communicator
-    virtual       Int          ColStride()             const = 0;
-    virtual       Int          RowStride()             const = 0;
-    virtual       Int          PartialColStride()      const;
-    virtual       Int          PartialRowStride()      const;
-    virtual       Int          PartialUnionColStride() const;
-    virtual       Int          PartialUnionRowStride() const;
-    virtual       Int          DistSize()              const = 0;
-    virtual       Int          CrossSize()             const = 0;
-    virtual       Int          RedundantSize()         const = 0;
+    virtual       int          ColStride()             const = 0;
+    virtual       int          RowStride()             const = 0;
+    virtual       int          PartialColStride()      const;
+    virtual       int          PartialRowStride()      const;
+    virtual       int          PartialUnionColStride() const;
+    virtual       int          PartialUnionRowStride() const;
+    virtual       int          DistSize()              const = 0;
+    virtual       int          CrossSize()             const = 0;
+    virtual       int          RedundantSize()         const = 0;
 
     // NOTE: These are all clearly equivalent to composing mpi::Rank
     //       with ColComm(), RowComm(), etc., but it is not clear that
     //       they should be removed just yet.
-                  Int          ColRank()               const;
-                  Int          RowRank()               const;
-                  Int          PartialColRank()        const;
-                  Int          PartialRowRank()        const;
-                  Int          PartialUnionColRank()   const;
-                  Int          PartialUnionRowRank()   const; 
-                  Int          DistRank()              const;
-                  Int          CrossRank()             const;
-                  Int          RedundantRank()         const;
+                  int          ColRank()               const;
+                  int          RowRank()               const;
+                  int          PartialColRank()        const;
+                  int          PartialRowRank()        const;
+                  int          PartialUnionColRank()   const;
+                  int          PartialUnionRowRank()   const; 
+                  int          DistRank()              const;
+                  int          CrossRank()             const;
+                  int          RedundantRank()         const;
 
-                  Int          Root()                  const;
+                  int          Root()                  const;
     virtual       El::DistData DistData()              const = 0;
 
     // Single-entry manipulation
@@ -225,8 +225,8 @@ public:
     // Diagonal manipulation
     // =====================
     bool DiagonalAlignedWith( const El::DistData& d, Int offset=0 ) const;
-    Int DiagonalRoot( Int offset=0 ) const;
-    Int DiagonalAlign( Int offset=0 ) const;
+    int DiagonalRoot( Int offset=0 ) const;
+    int DiagonalAlign( Int offset=0 ) const;
 
     // Assertions
     // ==========
@@ -250,9 +250,9 @@ protected:
     // Process grid and distribution metadata
     // --------------------------------------
     bool colConstrained_, rowConstrained_, rootConstrained_;
-    Int colAlign_, rowAlign_,
+    int colAlign_, rowAlign_,
         colShift_, rowShift_;
-    Int root_;
+    int root_;
     const El::Grid* grid_;
 
     // Private constructors

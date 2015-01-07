@@ -179,15 +179,15 @@ template<typename T>
 mpi::Comm BDM::RowComm() const { return this->grid_->MCComm(); }
 
 template<typename T>
-Int BDM::ColStride() const { return this->grid_->MRSize(); }
+int BDM::ColStride() const { return this->grid_->MRSize(); }
 template<typename T>
-Int BDM::RowStride() const { return this->grid_->MCSize(); }
+int BDM::RowStride() const { return this->grid_->MCSize(); }
 template<typename T>
-Int BDM::DistSize() const { return this->grid_->VRSize(); }
+int BDM::DistSize() const { return this->grid_->VRSize(); }
 template<typename T>
-Int BDM::CrossSize() const { return 1; }
+int BDM::CrossSize() const { return 1; }
 template<typename T>
-Int BDM::RedundantSize() const { return 1; }
+int BDM::RedundantSize() const { return 1; }
 
 // Private section
 // ###############

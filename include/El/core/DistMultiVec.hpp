@@ -60,7 +60,7 @@ public:
     // ------------------------
     mpi::Comm Comm() const;
     Int Blocksize() const;
-    Int RowOwner( Int i ) const;
+    int RowOwner( Int i ) const;
     Int GlobalRow( Int iLoc ) const;
 
     // Entrywise manipulation
