@@ -27,11 +27,21 @@ from ctypes import c_size_t, c_ubyte, c_uint, c_int, c_float, c_double
 from ctypes import c_longlong, c_void_p, c_char_p
 from ctypes import pointer, POINTER
 
+
+
 # TODO: Switch to a different boolean type if appropriate
 bType = c_ubyte
-# TODO: Switch from c_int to c_longlong if Elemental uses 64-bit integers
-iType = c_int
-#iType = c_longlong
+
+# Determine whether we have 64-bit integers or not
+lib.ElUsing64BitInt.argtypes = [POINTER(bType)]
+lib.ElUsing64BitInt.restype = c_uint
+using64 = bType()
+lib.ElUsing64BitInt(pointer(using64))
+if using64:
+  iType = c_longlong
+else:
+  iType = c_int
+
 sType = c_float
 dType = c_double
 

@@ -156,6 +156,9 @@ ElError ElPrintCxxCompilerInfo( FILE* stream )
     return EL_SUCCESS;
 }
 
+ElError ElUsing64BitInt( bool* using64 )
+{ EL_TRY( *using64 = El::Using64BitInt() ) }
+
 ElError ElInitialize( int* argc, char*** argv )
 { EL_TRY( El::Initialize( *argc, *argv ) ) }
 

@@ -20,6 +20,7 @@ EL_EXPORT ElError ElPrintVersion( FILE* stream );
 EL_EXPORT ElError ElPrintConfig( FILE* stream );
 EL_EXPORT ElError ElPrintCCompilerInfo( FILE* stream );
 EL_EXPORT ElError ElPrintCxxCompilerInfo( FILE* stream );
+EL_EXPORT ElError ElUsing64BitInt( bool* using64 );
 
 EL_EXPORT ElError ElInitialize( int* argc, char*** argv );
 EL_EXPORT ElError ElFinalize();

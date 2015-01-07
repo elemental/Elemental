@@ -16,6 +16,7 @@ void PrintVersion( std::ostream& os=std::cout );
 void PrintConfig( std::ostream& os=std::cout );
 void PrintCCompilerInfo( std::ostream& os=std::cout );
 void PrintCxxCompilerInfo( std::ostream& os=std::cout );
+bool Using64BitInt();
 
 // For initializing and finalizing Elemental
 void Initialize( int& argc, char**& argv );

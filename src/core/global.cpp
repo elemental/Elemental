@@ -153,6 +153,15 @@ void PrintCxxCompilerInfo( std::ostream& os )
        << std::endl;
 }
 
+bool Using64BitInt()
+{
+#ifdef EL_USE_64BIT_INTS
+    return true;
+#else
+    return false;
+#endif
+}
+
 void SetColorMap( ColorMap map )
 { ::colorMap = map; }
 
