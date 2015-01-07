@@ -8,6 +8,9 @@
 */
 #include "El.hpp"
 
+// NOTE: While this routine was originally implemented under the name Lasso,
+//       it has been moved into BPDN.
+
 // These implementations are adaptations of the solver described at
 //    http://www.stanford.edu/~boyd/papers/admm/lasso/lasso.html
 // which is derived from the distributed ADMM article of Boyd et al.
@@ -26,14 +29,15 @@
 //   (I - A' inv(A A' + rho) A) / rho.
 
 namespace El {
+namespace bpdn {
 
 template<typename F>
-Int Lasso
+Int ADMM
 ( const Matrix<F>& A, const Matrix<F>& b, Base<F> lambda, Matrix<F>& z, 
   Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, 
   bool inv, bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("Lasso"))
+    DEBUG_ONLY(CallStackEntry cse("bpdn::ADMM"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -154,13 +158,13 @@ Int Lasso
 }
 
 template<typename F>
-Int Lasso
+Int ADMM
 ( const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& bPre, 
   Base<F> lambda, AbstractDistMatrix<F>& zPre, 
   Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, 
   bool inv, bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("Lasso"))
+    DEBUG_ONLY(CallStackEntry cse("bpdn::ADMM"))
 
     auto APtr = ReadProxy<F,MC,MR>( &APre );  auto& A = *APtr;
     auto bPtr = ReadProxy<F,MC,MR>( &bPre );  auto& b = *bPtr;
@@ -290,12 +294,12 @@ Int Lasso
 }
 
 #define PROTO(F) \
-  template Int Lasso \
+  template Int ADMM \
   ( const Matrix<F>& A, const Matrix<F>& b, Base<F> lambda, \
     Matrix<F>& z, \
     Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
     bool inv, bool progress ); \
-  template Int Lasso \
+  template Int ADMM \
   ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& b, \
     Base<F> lambda, AbstractDistMatrix<F>& z, \
     Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
@@ -304,4 +308,5 @@ Int Lasso
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
 
+} // namespace bpdn
 } // namepace elem

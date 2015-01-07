@@ -10,53 +10,6 @@ from El.core import *
 
 from ctypes import CFUNCTYPE
 
-# Least Absolute Shrinkage and Selection Operator
-# ===============================================
-lib.ElLasso_s.argtypes = \
-lib.ElLasso_c.argtypes = \
-lib.ElLassoDist_s.argtypes = \
-lib.ElLassoDist_c.argtypes = \
-  [c_void_p,c_void_p,sType,c_void_p,POINTER(iType)]
-lib.ElLasso_d.argtypes = \
-lib.ElLasso_z.argtypes = \
-lib.ElLassoDist_d.argtypes = \
-lib.ElLassoDist_z.argtypes = \
-  [c_void_p,c_void_p,dType,c_void_p,POINTER(iType)]
-
-lib.ElLasso_s.restype = \
-lib.ElLasso_d.restype = \
-lib.ElLasso_c.restype = \
-lib.ElLasso_z.restype = \
-lib.ElLassoDist_s.restype = \
-lib.ElLassoDist_d.restype = \
-lib.ElLassoDist_c.restype = \
-lib.ElLassoDist_z.restype = \
-  c_uint
-
-def Lasso(A,b,lamb):
-  if type(A) is not type(b): raise Exception('Types of A and b must match')
-  if A.tag != b.tag: raise Exception('Datatypes of A and b must match')
-  numIts = iType()
-  if type(A) is Matrix:
-    z = Matrix(A.tag)
-    args = [A.obj,b.obj,lamb,z.obj,pointer(numIts)]
-    if   A.tag == sTag: lib.ElLasso_s(*args)
-    elif A.tag == dTag: lib.ElLasso_d(*args)
-    elif A.tag == cTag: lib.ElLasso_c(*args)
-    elif A.tag == zTag: lib.ElLasso_z(*args)
-    else: DataExcept()
-    return z, numIts
-  elif type(A) is DistMatrix:
-    z = DistMatrix(A.tag,MC,MR,A.Grid())
-    args = [A.obj,b.obj,lamb,z.obj,pointer(numIts)]
-    if   A.tag == sTag: lib.ElLassoDist_s(*args)
-    elif A.tag == dTag: lib.ElLassoDist_d(*args)
-    elif A.tag == cTag: lib.ElLassoDist_c(*args)
-    elif A.tag == zTag: lib.ElLassoDist_z(*args)
-    else: DataExcept()
-    return z, numIts
-  else: TypeExcept()
-
 # Linear program
 # ==============
 
@@ -1468,6 +1421,53 @@ def BPDN(A,b,lambdPre,ctrl=None):
       else:            lib.ElBPDNXDistSparse_d(*argsCtrl)
     else: DataExcept()
     return x
+  else: TypeExcept()
+
+# ADMM
+# ----
+lib.ElBPDNADMM_s.argtypes = \
+lib.ElBPDNADMM_c.argtypes = \
+lib.ElBPDNADMMDist_s.argtypes = \
+lib.ElBPDNADMMDist_c.argtypes = \
+  [c_void_p,c_void_p,sType,c_void_p,POINTER(iType)]
+lib.ElBPDNADMM_d.argtypes = \
+lib.ElBPDNADMM_z.argtypes = \
+lib.ElBPDNADMMDist_d.argtypes = \
+lib.ElBPDNADMMDist_z.argtypes = \
+  [c_void_p,c_void_p,dType,c_void_p,POINTER(iType)]
+
+lib.ElBPDNADMM_s.restype = \
+lib.ElBPDNADMM_d.restype = \
+lib.ElBPDNADMM_c.restype = \
+lib.ElBPDNADMM_z.restype = \
+lib.ElBPDNADMMDist_s.restype = \
+lib.ElBPDNADMMDist_d.restype = \
+lib.ElBPDNADMMDist_c.restype = \
+lib.ElBPDNADMMDist_z.restype = \
+  c_uint
+
+def BPDNADMM(A,b,lamb):
+  if type(A) is not type(b): raise Exception('Types of A and b must match')
+  if A.tag != b.tag: raise Exception('Datatypes of A and b must match')
+  numIts = iType()
+  if type(A) is Matrix:
+    z = Matrix(A.tag)
+    args = [A.obj,b.obj,lamb,z.obj,pointer(numIts)]
+    if   A.tag == sTag: lib.ElBPDNADMM_s(*args)
+    elif A.tag == dTag: lib.ElBPDNADMM_d(*args)
+    elif A.tag == cTag: lib.ElBPDNADMM_c(*args)
+    elif A.tag == zTag: lib.ElBPDNADMM_z(*args)
+    else: DataExcept()
+    return z, numIts
+  elif type(A) is DistMatrix:
+    z = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,b.obj,lamb,z.obj,pointer(numIts)]
+    if   A.tag == sTag: lib.ElBPDNADMMDist_s(*args)
+    elif A.tag == dTag: lib.ElBPDNADMMDist_d(*args)
+    elif A.tag == cTag: lib.ElBPDNADMMDist_c(*args)
+    elif A.tag == zTag: lib.ElBPDNADMMDist_z(*args)
+    else: DataExcept()
+    return z, numIts
   else: TypeExcept()
 
 # Robust Principal Component Analysis

@@ -364,17 +364,19 @@ ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
     ElDistMatrix_ ## SIG z, ElInt* numIts ) \
   { EL_TRY( *numIts = bp::ADMM \
       ( *CReflect(A), *CReflect(b), *CReflect(z) ) ) } \
-  /* Least Absolute Shrinkage and Selection Operator (LASSO)
-     ======================================================= */ \
-  ElError ElLasso_ ## SIG \
+  /* BPDN
+     ==== */ \
+  /* ADMM
+     ---- */ \
+  ElError ElBPDNADMM_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, Base<F> lambda, \
     ElMatrix_ ## SIG z, ElInt* numIts ) \
-  { EL_TRY( *numIts = Lasso( *CReflect(A), *CReflect(b), lambda, \
+  { EL_TRY( *numIts = bpdn::ADMM( *CReflect(A), *CReflect(b), lambda, \
       *CReflect(z) ) ) } \
-  ElError ElLassoDist_ ## SIG \
+  ElError ElBPDNADMMDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, Base<F> lambda, \
     ElDistMatrix_ ## SIG z, ElInt* numIts ) \
-  { EL_TRY( *numIts = Lasso( *CReflect(A), *CReflect(b), lambda, \
+  { EL_TRY( *numIts = bpdn::ADMM( *CReflect(A), *CReflect(b), lambda, \
       *CReflect(z) ) ) } \
   /* Robust Principal Component Analysis
      =================================== */ \

@@ -32,18 +32,10 @@ Base<F> Coherence( const AbstractDistMatrix<F>& A );
 
 // Least Absolute Shrinkage and Selection Operator (LASSO)
 // =======================================================
-template<typename F>
-Int Lasso
-( const Matrix<F>& A, const Matrix<F>& b, Base<F> lambda,
-  Matrix<F>& z,
-  Base<F> rho=1, Base<F> alpha=1.2, Int maxIter=500, Base<F> absTol=1e-6, 
-  Base<F> relTol=1e-4, bool inv=true, bool progress=true );
-template<typename F>
-Int Lasso
-( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& b, 
-  Base<F> lambda, AbstractDistMatrix<F>& z,
-  Base<F> rho=1, Base<F> alpha=1.2, Int maxIter=500, Base<F> absTol=1e-6, 
-  Base<F> relTol=1e-4, bool inv=true, bool progress=true );
+// NOTE: While the lasso was introduced before basis pursuit denoising (BPDN),
+//       BPDN was implemented first. Also, while the formulation of LASSO 
+//       might often be the final goal, it is often solved as a sequence of
+//       BPDN problems (with different regularization parameters)
 
 // Linear program
 // ==============
@@ -774,6 +766,23 @@ void QP
 // Basis pursuit denoising (BPDN): 
 //   min (1/2) || b - A x ||_2^2 + lambda || x ||_1
 // ================================================
+
+namespace bpdn {
+
+template<typename F>
+Int ADMM
+( const Matrix<F>& A, const Matrix<F>& b, Base<F> lambda,
+  Matrix<F>& z,
+  Base<F> rho=1, Base<F> alpha=1.2, Int maxIter=500, Base<F> absTol=1e-6, 
+  Base<F> relTol=1e-4, bool inv=true, bool progress=true );
+template<typename F>
+Int ADMM
+( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& b, 
+  Base<F> lambda, AbstractDistMatrix<F>& z,
+  Base<F> rho=1, Base<F> alpha=1.2, Int maxIter=500, Base<F> absTol=1e-6, 
+  Base<F> relTol=1e-4, bool inv=true, bool progress=true );
+
+} // namespace bpdn
 
 template<typename Real>
 void BPDN

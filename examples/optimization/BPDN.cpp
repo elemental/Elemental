@@ -54,7 +54,7 @@ main( int argc, char* argv[] )
             Display( A, "A" );
 
         DistMatrix<C> z;
-        Lasso
+        bpdn::ADMM
         ( A, b, lambda, z, rho, alpha, maxIter, absTol, relTol, inv, progress );
         if( print )
             Print( z, "z" );
