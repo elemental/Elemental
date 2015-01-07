@@ -273,7 +273,7 @@ void DistSymmFrontTree<T>::Initialize
             const Int q = A.RowOwner(i);
             const Int localCol = (t-rowShift) / rowStride;
 
-            Int& entryOff = entryOffs[q];
+            int& entryOff = entryOffs[q];
             const Int numEntries = recvRowLengths[offs[q]++];
 
             for( Int k=0; k<numEntries; ++k )

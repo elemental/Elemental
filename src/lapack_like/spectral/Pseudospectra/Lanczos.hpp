@@ -29,7 +29,7 @@ ComputeNewEstimates
     const Int numShifts = activeEsts.Height();
     if( numShifts == 0 )
         return;
-    const Int krylovSize = HDiagList[0].Height();
+    const int krylovSize = int(HDiagList[0].Height());
     Matrix<Real> HDiag, HSubdiag;
     std::vector<Real> w(krylovSize);
     for( Int j=0; j<numShifts; ++j )

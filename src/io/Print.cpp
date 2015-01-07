@@ -89,10 +89,10 @@ void Print( const Graph& graph, std::string msg, std::ostream& os )
     DEBUG_ONLY(CallStackEntry cse("Print [Graph]"))
     if( msg != "" )
         os << msg << std::endl;
-    const int numEdges = graph.NumEdges();
-    const int* srcBuf = graph.LockedSourceBuffer();
-    const int* tgtBuf = graph.LockedTargetBuffer();
-    for( int e=0; e<numEdges; ++e )
+    const Int numEdges = graph.NumEdges();
+    const Int* srcBuf = graph.LockedSourceBuffer();
+    const Int* tgtBuf = graph.LockedTargetBuffer();
+    for( Int e=0; e<numEdges; ++e )
         os << srcBuf[e] << " " << tgtBuf[e] << "\n";
     os << std::endl;
 }
@@ -120,11 +120,11 @@ void Print( const SparseMatrix<T>& A, std::string msg, std::ostream& os )
     DEBUG_ONLY(CallStackEntry cse("Print [SparseMatrix]"))
     if( msg != "" )
         os << msg << std::endl;
-    const int numEntries = A.NumEntries();
-    const int* srcBuf = A.LockedSourceBuffer();
-    const int* tgtBuf = A.LockedTargetBuffer();
+    const Int numEntries = A.NumEntries();
+    const Int* srcBuf = A.LockedSourceBuffer();
+    const Int* tgtBuf = A.LockedTargetBuffer();
     const T* valBuf = A.LockedValueBuffer();
-    for( int s=0; s<numEntries; ++s )
+    for( Int s=0; s<numEntries; ++s )
         os << srcBuf[s] << " " << tgtBuf[s] << " " << valBuf[s] << "\n";
     os << std::endl;
 }
@@ -155,16 +155,16 @@ void PrintLocal( const DistSymmInfo& info, std::string msg, std::ostream& os )
 {
     DEBUG_ONLY(CallStackEntry cse("PrintLocal [DistSymmInfo]"))
     os << "Local nodes:" << std::endl;
-    const int numLocal = info.localNodes.size();
-    for( int s=0; s<numLocal; ++s )
+    const Int numLocal = info.localNodes.size();
+    for( Int s=0; s<numLocal; ++s )
     {
         const SymmNodeInfo& node = info.localNodes[s];
         os << " size=" << node.size << ", offset=" << node.off << "\n";
     }
 
     os << "Distributed nodes:" << std::endl;
-    const int numDist = info.distNodes.size();
-    for( int s=0; s<numDist; ++s )
+    const Int numDist = info.distNodes.size();
+    for( Int s=0; s<numDist; ++s )
     {
         const DistSymmNodeInfo& node = info.distNodes[s];
         os << " size=" << node.size << ", offset=" << node.off << "\n";

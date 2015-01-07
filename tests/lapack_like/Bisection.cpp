@@ -21,13 +21,13 @@ main( int argc, char* argv[] )
 
     try
     {
-        const int n = Input("--n","size of n x n x n grid",30);
+        const Int n = Input("--n","size of n x n x n grid",30);
         const bool sequential = Input
             ("--sequential","sequential partitions?",true);
-        const int numDistSeps = Input
+        const Int numDistSeps = Input
             ("--numDistSeps",
              "number of separators to try per distributed partition",1);
-        const int numSeqSeps = Input
+        const Int numSeqSeps = Input
             ("--numSeqSeps",
              "number of separators to try per sequential partition",1);
         const bool print = Input("--print","print graph?",false);
@@ -39,20 +39,20 @@ main( int argc, char* argv[] )
         ctrl.numSeqSeps = numSeqSeps;
         ctrl.numDistSeps = numDistSeps;
 
-        const int numVertices = n*n*n;
+        const Int numVertices = n*n*n;
         DistGraph graph( numVertices, comm );
 
         // Fill our portion of the graph of a 3D n x n x n 7-point stencil
         // in natural ordering: (x,y,z) at x + y*n + z*n*n
-        const int firstLocalSource = graph.FirstLocalSource();
-        const int numLocalSources = graph.NumLocalSources();
+        const Int firstLocalSource = graph.FirstLocalSource();
+        const Int numLocalSources = graph.NumLocalSources();
         graph.Reserve( 7*numLocalSources );
-        for( int iLocal=0; iLocal<numLocalSources; ++iLocal )
+        for( Int iLocal=0; iLocal<numLocalSources; ++iLocal )
         {
-            const int i = firstLocalSource + iLocal;
-            const int x = i % n;
-            const int y = (i/n) % n;
-            const int z = i/(n*n);
+            const Int i = firstLocalSource + iLocal;
+            const Int x = i % n;
+            const Int y = (i/n) % n;
+            const Int z = i/(n*n);
 
             graph.QueueLocalConnection( iLocal, i );
             if( x != 0 )
@@ -79,7 +79,7 @@ main( int argc, char* argv[] )
             DistGraph child;
             DistMap map;
             bool haveLeftChild;
-            const int sepSize = 
+            const Int sepSize = 
                 Bisect( graph, child, map, haveLeftChild, ctrl );
 
             int leftChildSize, rightChildSize;
@@ -111,12 +111,12 @@ main( int argc, char* argv[] )
             Graph seqGraph( graph );
 
             Graph leftChild, rightChild;
-            std::vector<int> map;
-            const int sepSize = 
+            std::vector<Int> map;
+            const Int sepSize = 
                 Bisect( seqGraph, leftChild, rightChild, map, ctrl );
 
-            const int leftChildSize = leftChild.NumSources();
-            const int rightChildSize = rightChild.NumSources();
+            const Int leftChildSize = leftChild.NumSources();
+            const Int rightChildSize = rightChild.NumSources();
             std::cout << "Partition sizes were: "
                       << leftChildSize << ", " << rightChildSize << ", "
                       << sepSize << std::endl;

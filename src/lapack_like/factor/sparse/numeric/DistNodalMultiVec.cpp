@@ -42,18 +42,18 @@ DistNodalMultiVec<T>::operator=( const DistNodalMatrix<T>& X )
     width_ = X.Width();
 
     // Copy over the nontrivial distributed nodes
-    const int numDist = X.distNodes.size();
+    const Int numDist = X.distNodes.size();
     distNodes.resize( numDist );
-    for( int s=0; s<numDist; ++s )
+    for( Int s=0; s<numDist; ++s )
     {
         distNodes[s].SetGrid( X.distNodes[s].Grid() );
         distNodes[s] = X.distNodes[s];
     }
 
     // Copy over the local nodes
-    const int numLocal = X.localNodes.size();
+    const Int numLocal = X.localNodes.size();
     localNodes.resize( numLocal );
-    for( int s=0; s<numLocal; ++s )
+    for( Int s=0; s<numLocal; ++s )
         localNodes[s] = X.localNodes[s];
 
     return *this;
@@ -69,24 +69,24 @@ void DistNodalMultiVec<T>::Pull
     width_ = X.Width();
 
     // Traverse our part of the elimination tree to see how many indices we need
-    int numRecvInds=0;
-    const int numLocal = info.localNodes.size();
-    for( int s=0; s<numLocal; ++s )
+    Int numRecvInds=0;
+    const Int numLocal = info.localNodes.size();
+    for( Int s=0; s<numLocal; ++s )
         numRecvInds += info.localNodes[s].size;
-    const int numDist = info.distNodes.size();
-    for( int s=1; s<numDist; ++s )
+    const Int numDist = info.distNodes.size();
+    for( Int s=1; s<numDist; ++s )
         numRecvInds += info.distNodes[s].multiVecMeta.localSize;
     
     // Fill the set of indices that we need to map to the original ordering
-    int off=0;
-    std::vector<int> mappedInds( numRecvInds );
-    for( int s=0; s<numLocal; ++s )
+    Int off=0;
+    std::vector<Int> mappedInds( numRecvInds );
+    for( Int s=0; s<numLocal; ++s )
     {
         const SymmNodeInfo& nodeInfo = info.localNodes[s];
-        for( int t=0; t<nodeInfo.size; ++t )
+        for( Int t=0; t<nodeInfo.size; ++t )
             mappedInds[off++] = nodeInfo.off+t;
     }
-    for( int s=1; s<numDist; ++s )
+    for( Int s=1; s<numDist; ++s )
     {
         const DistSymmNodeInfo& nodeInfo = info.distNodes[s];
         const Grid& grid = *nodeInfo.grid;
@@ -94,7 +94,7 @@ void DistNodalMultiVec<T>::Pull
         const int gridRank = grid.VCRank();
         const int alignment = 0;
         const int shift = Shift( gridRank, alignment, gridSize );
-        for( int t=shift; t<nodeInfo.size; t+=gridSize )
+        for( Int t=shift; t<nodeInfo.size; t+=gridSize )
             mappedInds[off++] = nodeInfo.off+t;
     }
     DEBUG_ONLY(
@@ -111,44 +111,33 @@ void DistNodalMultiVec<T>::Pull
     std::vector<int> recvSizes( commSize, 0 );
     for( int s=0; s<numRecvInds; ++s )
         ++recvSizes[ X.RowOwner( mappedInds[s] ) ];
-    std::vector<int> recvOffs(commSize);
-    off=0;
-    for( int q=0; q<commSize; ++q )
-    {
-        recvOffs[q] = off;
-        off += recvSizes[q];
-    }
-    std::vector<int> recvInds( numRecvInds );
-    std::vector<int> offs = recvOffs;
+    std::vector<int> recvOffs;
+    off = Scan( recvSizes, recvOffs );
+    std::vector<Int> recvInds( numRecvInds );
+    auto offs = recvOffs;
     for( int s=0; s<numRecvInds; ++s )
     {
         const int i = mappedInds[s];
-        const int q = X.RowOwner(i);
-        recvInds[offs[q]++] = i;
+        recvInds[ offs[X.RowOwner(i)]++ ] = i;
     }
 
     // Coordinate for the coming AllToAll to exchange the indices of X
     std::vector<int> sendSizes(commSize);
-    mpi::AllToAll( &recvSizes[0], 1, &sendSizes[0], 1, comm );
-    int numSendInds=0;
-    std::vector<int> sendOffs(commSize);
-    for( int q=0; q<commSize; ++q )
-    {
-        sendOffs[q] = numSendInds;
-        numSendInds += sendSizes[q];
-    }
+    mpi::AllToAll( recvSizes.data(), 1, sendSizes.data(), 1, comm );
+    std::vector<int> sendOffs;
+    const int numSendInds = Scan( sendSizes, sendOffs );
 
     // Request the indices
-    std::vector<int> sendInds( numSendInds );
+    std::vector<Int> sendInds( numSendInds );
     mpi::AllToAll
-    ( &recvInds[0], &recvSizes[0], &recvOffs[0],
-      &sendInds[0], &sendSizes[0], &sendOffs[0], comm );
+    ( recvInds.data(), recvSizes.data(), recvOffs.data(),
+      sendInds.data(), sendSizes.data(), sendOffs.data(), comm );
 
     // Fulfill the requests
     std::vector<T> sendVals( numSendInds*width_ );
-    const int firstLocalRow = X.FirstLocalRow();
-    for( int s=0; s<numSendInds; ++s )
-        for( int j=0; j<width_; ++j )
+    const Int firstLocalRow = X.FirstLocalRow();
+    for( Int s=0; s<numSendInds; ++s )
+        for( Int j=0; j<width_; ++j )
             sendVals[s*width_+j] = X.GetLocal( sendInds[s]-firstLocalRow, j );
 
     // Reply with the values
@@ -161,8 +150,8 @@ void DistNodalMultiVec<T>::Pull
         recvOffs[q] *= width_;
     }
     mpi::AllToAll
-    ( &sendVals[0], &sendSizes[0], &sendOffs[0],
-      &recvVals[0], &recvSizes[0], &recvOffs[0], comm );
+    ( sendVals.data(), sendSizes.data(), sendOffs.data(),
+      recvVals.data(), recvSizes.data(), recvOffs.data(), comm );
     SwapClear( sendVals );
     SwapClear( sendSizes );
     SwapClear( sendOffs );
@@ -171,29 +160,29 @@ void DistNodalMultiVec<T>::Pull
     off = 0;
     offs = recvOffs;
     localNodes.resize( numLocal );
-    for( int s=0; s<numLocal; ++s )
+    for( Int s=0; s<numLocal; ++s )
     {
         const SymmNodeInfo& nodeInfo = info.localNodes[s];
         localNodes[s].Resize( nodeInfo.size, width_ );
-        for( int t=0; t<nodeInfo.size; ++t )
+        for( Int t=0; t<nodeInfo.size; ++t )
         {
-            const int i = mappedInds[off++];
+            const Int i = mappedInds[off++];
             const int q = X.RowOwner(i);
-            for( int j=0; j<width_; ++j )
+            for( Int j=0; j<width_; ++j )
                 localNodes[s].Set( t, j, recvVals[offs[q]++] );
         }
     }
     distNodes.resize( numDist-1 );
-    for( int s=1; s<numDist; ++s )
+    for( Int s=1; s<numDist; ++s )
     {
         const DistSymmNodeInfo& nodeInfo = info.distNodes[s];
         DistMatrix<T,VC,STAR>& XNode = distNodes[s-1];
         XNode.SetGrid( *nodeInfo.grid );
         XNode.Resize( nodeInfo.size, width_ );
-        const int localHeight = XNode.LocalHeight();
-        for( int tLoc=0; tLoc<localHeight; ++tLoc )
+        const Int localHeight = XNode.LocalHeight();
+        for( Int tLoc=0; tLoc<localHeight; ++tLoc )
         {
-            const int i = mappedInds[off++];
+            const Int i = mappedInds[off++];
             const int q = X.RowOwner(i);
             for( int j=0; j<width_; ++j )
                 XNode.SetLocal( tLoc, j, recvVals[offs[q]++] );
@@ -213,31 +202,31 @@ void DistNodalMultiVec<T>::Push
     DEBUG_ONLY(CallStackEntry cse("DistNodalMultiVec::Push"))
     const DistSymmNodeInfo& rootNode = info.distNodes.back();
     mpi::Comm comm = rootNode.comm;
-    const int height = rootNode.size + rootNode.off;
-    const int width = Width();
+    const Int height = rootNode.size + rootNode.off;
+    const Int width = Width();
     X.SetComm( comm );
     X.Resize( height, width );
 
     const int commSize = mpi::Size( comm );
-    const int firstLocalRow = X.FirstLocalRow();
-    const int numDist = info.distNodes.size();
-    const int numLocal = info.localNodes.size();
+    const Int firstLocalRow = X.FirstLocalRow();
+    const Int numDist = info.distNodes.size();
+    const Int numLocal = info.localNodes.size();
 
     // Fill the set of indices that we need to map to the original ordering
     const int numSendInds = LocalHeight();
-    int off=0;
-    std::vector<int> mappedInds( numSendInds );
-    for( int s=0; s<numLocal; ++s )
+    Int off=0;
+    std::vector<Int> mappedInds( numSendInds );
+    for( Int s=0; s<numLocal; ++s )
     {
         const SymmNodeInfo& nodeInfo = info.localNodes[s];
-        for( int t=0; t<nodeInfo.size; ++t )
+        for( Int t=0; t<nodeInfo.size; ++t )
             mappedInds[off++] = nodeInfo.off+t;
     }
-    for( int s=1; s<numDist; ++s )
+    for( Int s=1; s<numDist; ++s )
     {
         const DistSymmNodeInfo& nodeInfo = info.distNodes[s];
         const DistMatrix<T,VC,STAR>& XNode = distNodes[s-1];
-        for( int t=XNode.ColShift(); t<XNode.Height(); t+=XNode.ColStride() )
+        for( Int t=XNode.ColShift(); t<XNode.Height(); t+=XNode.ColStride() )
             mappedInds[off++] = nodeInfo.off+t;
     }
 
@@ -246,42 +235,37 @@ void DistNodalMultiVec<T>::Push
 
     // Figure out how many indices each process owns that we need to send
     std::vector<int> sendSizes(commSize,0);
-    for( int s=0; s<numSendInds; ++s )
+    for( Int s=0; s<numSendInds; ++s )
         ++sendSizes[ X.RowOwner(mappedInds[s]) ];
-    std::vector<int> sendOffs(commSize);
-    off=0;
-    for( int q=0; q<commSize; ++q )
-    {
-        sendOffs[q] = off;
-        off += sendSizes[q];
-    }
+    std::vector<int> sendOffs;
+    off = Scan( sendSizes, sendOffs );
 
     // Pack the send indices and values
     off=0;
     std::vector<T> sendVals( numSendInds*width );
-    std::vector<int> sendInds( numSendInds );
-    std::vector<int> offs = sendOffs;
-    for( int s=0; s<numLocal; ++s )
+    std::vector<Int> sendInds( numSendInds );
+    auto offs = sendOffs;
+    for( Int s=0; s<numLocal; ++s )
     {
         const SymmNodeInfo& nodeInfo = info.localNodes[s];
-        for( int t=0; t<nodeInfo.size; ++t )
+        for( Int t=0; t<nodeInfo.size; ++t )
         {
-            const int i = mappedInds[off++];
+            const Int i = mappedInds[off++];
             const int q = X.RowOwner(i);
-            for( int j=0; j<width; ++j )
+            for( Int j=0; j<width; ++j )
                 sendVals[offs[q]*width+j] = localNodes[s].Get(t,j);    
             sendInds[offs[q]++] = i;
         }
     }
-    for( int s=1; s<numDist; ++s )
+    for( Int s=1; s<numDist; ++s )
     {
         const DistMatrix<T,VC,STAR>& XNode = distNodes[s-1];
-        const int localHeight = XNode.LocalHeight();
-        for( int tLoc=0; tLoc<localHeight; ++tLoc )
+        const Int localHeight = XNode.LocalHeight();
+        for( Int tLoc=0; tLoc<localHeight; ++tLoc )
         {
-            const int i = mappedInds[off++];
+            const Int i = mappedInds[off++];
             const int q = X.RowOwner(i);
-            for( int j=0; j<width; ++j )
+            for( Int j=0; j<width; ++j )
                 sendVals[offs[q]*width+j] = XNode.GetLocal(tLoc,j);
             sendInds[offs[q]++] = i;
         }
@@ -289,24 +273,19 @@ void DistNodalMultiVec<T>::Push
 
     // Coordinate for the coming AllToAll to exchange the indices of x
     std::vector<int> recvSizes(commSize);
-    mpi::AllToAll( &sendSizes[0], 1, &recvSizes[0], 1, comm );
-    int numRecvInds=0;
-    std::vector<int> recvOffs(commSize);
-    for( int q=0; q<commSize; ++q )
-    {
-        recvOffs[q] = numRecvInds;
-        numRecvInds += recvSizes[q];
-    }
+    mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, comm );
+    std::vector<int> recvOffs;
+    const int numRecvInds = Scan( recvSizes, recvOffs );
     DEBUG_ONLY(
         if( numRecvInds != X.LocalHeight() )
             LogicError("numRecvInds was not equal to local height");
     )
 
     // Send the indices
-    std::vector<int> recvInds( numRecvInds );
+    std::vector<Int> recvInds( numRecvInds );
     mpi::AllToAll
-    ( &sendInds[0], &sendSizes[0], &sendOffs[0],
-      &recvInds[0], &recvSizes[0], &recvOffs[0], comm );
+    ( sendInds.data(), sendSizes.data(), sendOffs.data(),
+      recvInds.data(), recvSizes.data(), recvOffs.data(), comm );
 
     // Send the values
     std::vector<T> recvVals( numRecvInds*width );
@@ -318,40 +297,36 @@ void DistNodalMultiVec<T>::Push
         recvOffs[q] *= width;
     }
     mpi::AllToAll
-    ( &sendVals[0], &sendSizes[0], &sendOffs[0],
-      &recvVals[0], &recvSizes[0], &recvOffs[0], comm );
+    ( sendVals.data(), sendSizes.data(), sendOffs.data(),
+      recvVals.data(), recvSizes.data(), recvOffs.data(), comm );
     SwapClear( sendVals );
     SwapClear( sendSizes );
     SwapClear( sendOffs );
 
     // Unpack the values
-    for( int s=0; s<numRecvInds; ++s )
+    for( Int s=0; s<numRecvInds; ++s )
     {
-        const int i = recvInds[s];
-        const int iLocal = i - firstLocalRow;
-        DEBUG_ONLY(
-            if( iLocal < 0 || iLocal >= X.LocalHeight() )
-                LogicError("iLocal was out of bounds");
-        )
-        for( int j=0; j<width; ++j )
+        const Int i = recvInds[s];
+        const Int iLocal = i - firstLocalRow;
+        for( Int j=0; j<width; ++j )
             X.SetLocal( iLocal, j, recvVals[s*width+j] );
     }
 }
 
 template<typename T>
-int DistNodalMultiVec<T>::Height() const { return height_; }
+Int DistNodalMultiVec<T>::Height() const { return height_; }
 template<typename T>
-int DistNodalMultiVec<T>::Width() const { return width_; }
+Int DistNodalMultiVec<T>::Width() const { return width_; }
 
 template<typename T>
-int DistNodalMultiVec<T>::LocalHeight() const
+Int DistNodalMultiVec<T>::LocalHeight() const
 {
-    int localHeight = 0;
-    const int numLocal = localNodes.size();
-    const int numDist = distNodes.size();
-    for( int s=0; s<numLocal; ++s )
+    Int localHeight = 0;
+    const Int numLocal = localNodes.size();
+    const Int numDist = distNodes.size();
+    for( Int s=0; s<numLocal; ++s )
         localHeight += localNodes[s].Height();
-    for( int s=0; s<numDist; ++s )
+    for( Int s=0; s<numDist; ++s )
         localHeight += distNodes[s].LocalHeight();
     return localHeight;
 }

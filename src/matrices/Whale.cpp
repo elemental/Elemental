@@ -24,13 +24,13 @@ void Whale( Matrix<Complex<Real>>& A, Int n )
         LogicError("Must be at least 5x5 to have a fourth-order symbol");
     typedef Complex<Real> C;
     Zeros( A, n, n );
-    FillDiagonal( A, -1,        4 );
+    FillDiagonal( A, C(-1),     4 );
     FillDiagonal( A, C(-3,-2),  3 );
     FillDiagonal( A, C( 0, 1),  2 );
-    FillDiagonal( A,  1,        1 );
-    FillDiagonal( A, 10,       -1 );
+    FillDiagonal( A, C(1),      1 );
+    FillDiagonal( A, C(10),    -1 );
     FillDiagonal( A, C( 3, 1), -2 );
-    FillDiagonal( A,  4,       -3 );
+    FillDiagonal( A, C(4),     -3 );
     FillDiagonal( A, C( 0, 1), -4 );
 }
 
@@ -42,13 +42,13 @@ void Whale( AbstractDistMatrix<Complex<Real>>& A, Int n )
         LogicError("Must be at least 5x5 to have a fourth-order symbol");
     typedef Complex<Real> C;
     Zeros( A, n, n );
-    FillDiagonal( A, -1,        4 );
+    FillDiagonal( A, C(-1),     4 );
     FillDiagonal( A, C(-3,-2),  3 );
     FillDiagonal( A, C( 0, 1),  2 );
-    FillDiagonal( A,  1,        1 );
-    FillDiagonal( A, 10,       -1 );
+    FillDiagonal( A, C(1),      1 );
+    FillDiagonal( A, C(10),    -1 );
     FillDiagonal( A, C( 3, 1), -2 );
-    FillDiagonal( A,  4,       -3 );
+    FillDiagonal( A, C(4),     -3 );
     FillDiagonal( A, C( 0, 1), -4 );
 }
 
@@ -60,13 +60,13 @@ void Whale( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
         LogicError("Must be at least 5x5 to have a fourth-order symbol");
     typedef Complex<Real> C;
     Zeros( A, n, n );
-    FillDiagonal( A, -1,        4 );
+    FillDiagonal( A, C(-1),     4 );
     FillDiagonal( A, C(-3,-2),  3 );
     FillDiagonal( A, C( 0, 1),  2 );
-    FillDiagonal( A,  1,        1 );
-    FillDiagonal( A, 10,       -1 );
+    FillDiagonal( A, C(1),      1 );
+    FillDiagonal( A, C(10),    -1 );
     FillDiagonal( A, C( 3, 1), -2 );
-    FillDiagonal( A,  4,       -3 );
+    FillDiagonal( A, C(4),     -3 );
     FillDiagonal( A, C( 0, 1), -4 );
 }
 

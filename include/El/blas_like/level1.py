@@ -358,18 +358,22 @@ def Copy(A,B):
     else: DataExcept()
   else: TypeExcept()
 
-lib.ElCopyGraphFromRoot.argtypes = [c_void_p,c_void_p]
-lib.ElCopyGraphFromRoot.restype = c_uint
-lib.ElCopyMultiVecFromRoot_i.argtypes = [c_void_p,c_void_p]
-lib.ElCopyMultiVecFromRoot_i.restype = c_uint
-lib.ElCopyMultiVecFromRoot_s.argtypes = [c_void_p,c_void_p]
-lib.ElCopyMultiVecFromRoot_s.restype = c_uint
-lib.ElCopyMultiVecFromRoot_d.argtypes = [c_void_p,c_void_p]
-lib.ElCopyMultiVecFromRoot_d.restype = c_uint
-lib.ElCopyMultiVecFromRoot_c.argtypes = [c_void_p,c_void_p]
-lib.ElCopyMultiVecFromRoot_c.restype = c_uint
-lib.ElCopyMultiVecFromRoot_z.argtypes = [c_void_p,c_void_p]
-lib.ElCopyMultiVecFromRoot_z.restype = c_uint
+lib.ElCopyGraphFromRoot.argtypes = \
+lib.ElCopyMultiVecFromRoot_i.argtypes = \
+lib.ElCopyMultiVecFromRoot_s.argtypes = \
+lib.ElCopyMultiVecFromRoot_d.argtypes = \
+lib.ElCopyMultiVecFromRoot_c.argtypes = \
+lib.ElCopyMultiVecFromRoot_z.argtypes = \
+  [c_void_p,c_void_p]
+
+lib.ElCopyGraphFromRoot.restype = \
+lib.ElCopyMultiVecFromRoot_i.restype = \
+lib.ElCopyMultiVecFromRoot_s.restype = \
+lib.ElCopyMultiVecFromRoot_d.restype = \
+lib.ElCopyMultiVecFromRoot_c.restype = \
+lib.ElCopyMultiVecFromRoot_z.restype = \
+  c_uint
+
 def CopyFromRoot(ADist,ASeq):
   args = [ADist.obj,ASeq.obj]
   if type(ADist) is DistGraph:
@@ -400,18 +404,21 @@ def CopyFromRoot(ADist,ASeq):
     else: DataExcept()
   else: TypeExcept()
 
-lib.ElCopyMultiVecFromNonRoot_i.argtypes = [c_void_p,iType]
-lib.ElCopyMultiVecFromNonRoot_i.restype = c_uint
-lib.ElCopyMultiVecFromNonRoot_s.argtypes = [c_void_p,iType]
-lib.ElCopyMultiVecFromNonRoot_s.restype = c_uint
-lib.ElCopyMultiVecFromNonRoot_d.argtypes = [c_void_p,iType]
-lib.ElCopyMultiVecFromNonRoot_d.restype = c_uint
-lib.ElCopyMultiVecFromNonRoot_c.argtypes = [c_void_p,iType]
-lib.ElCopyMultiVecFromNonRoot_c.restype = c_uint
-lib.ElCopyMultiVecFromNonRoot_z.argtypes = [c_void_p,iType]
-lib.ElCopyMultiVecFromNonRoot_z.restype = c_uint
-lib.ElCopyGraphFromNonRoot.argtypes = [c_void_p,iType]
-lib.ElCopyGraphFromNonRoot.restype = c_uint
+lib.ElCopyMultiVecFromNonRoot_i.argtypes = \
+lib.ElCopyMultiVecFromNonRoot_s.argtypes = \
+lib.ElCopyMultiVecFromNonRoot_d.argtypes = \
+lib.ElCopyMultiVecFromNonRoot_c.argtypes = \
+lib.ElCopyMultiVecFromNonRoot_z.argtypes = \
+lib.ElCopyGraphFromNonRoot.argtypes = \
+  [c_void_p,c_int]
+lib.ElCopyMultiVecFromNonRoot_i.restype = \
+lib.ElCopyMultiVecFromNonRoot_s.restype = \
+lib.ElCopyMultiVecFromNonRoot_d.restype = \
+lib.ElCopyMultiVecFromNonRoot_c.restype = \
+lib.ElCopyMultiVecFromNonRoot_z.restype = \
+lib.ElCopyGraphFromNonRoot.restype = \
+  c_uint
+
 def CopyFromNonRoot(ADist,root=0):
   args = [ADist.obj,root]
   if type(ADist) is DistGraph:
@@ -434,46 +441,52 @@ def CopyFromNonRoot(ADist,root=0):
 
 # Diagonal scale
 # --------------
-lib.ElDiagonalScale_i.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElDiagonalScale_i.restype = c_uint
-lib.ElDiagonalScale_s.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElDiagonalScale_s.restype = c_uint
-lib.ElDiagonalScale_d.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElDiagonalScale_d.restype = c_uint
-lib.ElDiagonalScale_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElDiagonalScale_c.restype = c_uint
-lib.ElDiagonalScale_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElDiagonalScale_z.restype = c_uint
-lib.ElDiagonalScaleDist_i.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElDiagonalScaleDist_i.restype = c_uint
-lib.ElDiagonalScaleDist_s.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElDiagonalScaleDist_s.restype = c_uint
-lib.ElDiagonalScaleDist_d.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElDiagonalScaleDist_d.restype = c_uint
-lib.ElDiagonalScaleDist_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElDiagonalScaleDist_c.restype = c_uint
-lib.ElDiagonalScaleDist_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElDiagonalScaleDist_z.restype = c_uint
-lib.ElDiagonalScaleSparse_i.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElDiagonalScaleSparse_i.restype = c_uint
-lib.ElDiagonalScaleSparse_s.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElDiagonalScaleSparse_s.restype = c_uint
-lib.ElDiagonalScaleSparse_d.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElDiagonalScaleSparse_d.restype = c_uint
-lib.ElDiagonalScaleSparse_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElDiagonalScaleSparse_c.restype = c_uint
-lib.ElDiagonalScaleSparse_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElDiagonalScaleSparse_z.restype = c_uint
-lib.ElDiagonalScaleDistSparse_i.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElDiagonalScaleDistSparse_i.restype = c_uint
-lib.ElDiagonalScaleDistSparse_s.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElDiagonalScaleDistSparse_s.restype = c_uint
-lib.ElDiagonalScaleDistSparse_d.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElDiagonalScaleDistSparse_d.restype = c_uint
-lib.ElDiagonalScaleDistSparse_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElDiagonalScaleDistSparse_c.restype = c_uint
-lib.ElDiagonalScaleDistSparse_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElDiagonalScaleDistSparse_z.restype = c_uint
+lib.ElDiagonalScale_i.argtypes = \
+lib.ElDiagonalScale_s.argtypes = \
+lib.ElDiagonalScale_d.argtypes = \
+lib.ElDiagonalScaleDist_i.argtypes = \
+lib.ElDiagonalScaleDist_s.argtypes = \
+lib.ElDiagonalScaleDist_d.argtypes = \
+lib.ElDiagonalScaleSparse_i.argtypes = \
+lib.ElDiagonalScaleSparse_s.argtypes = \
+lib.ElDiagonalScaleSparse_d.argtypes = \
+lib.ElDiagonalScaleDistSparse_i.argtypes = \
+lib.ElDiagonalScaleDistSparse_s.argtypes = \
+lib.ElDiagonalScaleDistSparse_d.argtypes = \
+  [c_uint,c_void_p,c_void_p]
+
+lib.ElDiagonalScale_c.argtypes = \
+lib.ElDiagonalScale_z.argtypes = \
+lib.ElDiagonalScaleDist_c.argtypes = \
+lib.ElDiagonalScaleDist_z.argtypes = \
+lib.ElDiagonalScaleSparse_c.argtypes = \
+lib.ElDiagonalScaleSparse_z.argtypes = \
+lib.ElDiagonalScaleDistSparse_c.argtypes = \
+lib.ElDiagonalScaleDistSparse_z.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p]
+
+lib.ElDiagonalScale_i.restype = \
+lib.ElDiagonalScale_s.restype = \
+lib.ElDiagonalScale_d.restype = \
+lib.ElDiagonalScale_c.restype = \
+lib.ElDiagonalScale_z.restype = \
+lib.ElDiagonalScaleDist_i.restype = \
+lib.ElDiagonalScaleDist_s.restype = \
+lib.ElDiagonalScaleDist_d.restype = \
+lib.ElDiagonalScaleDist_c.restype = \
+lib.ElDiagonalScaleDist_z.restype = \
+lib.ElDiagonalScaleSparse_i.restype = \
+lib.ElDiagonalScaleSparse_s.restype = \
+lib.ElDiagonalScaleSparse_d.restype = \
+lib.ElDiagonalScaleSparse_c.restype = \
+lib.ElDiagonalScaleSparse_z.restype = \
+lib.ElDiagonalScaleDistSparse_i.restype = \
+lib.ElDiagonalScaleDistSparse_s.restype = \
+lib.ElDiagonalScaleDistSparse_d.restype = \
+lib.ElDiagonalScaleDistSparse_c.restype = \
+lib.ElDiagonalScaleDistSparse_z.restype = \
+  c_uint
+
 def DiagonalScale(side,orient,d,A):
   if d.tag != A.tag: raise Exception('Matrix datatypes must match')
   args = [side,d.obj,A.obj]

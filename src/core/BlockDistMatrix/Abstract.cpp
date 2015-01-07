@@ -634,9 +634,9 @@ template<typename T>
 const El::Grid& AbstractBlockDistMatrix<T>::Grid() const { return *grid_; }
 
 template<typename T>
-int AbstractBlockDistMatrix<T>::BlockHeight() const { return blockHeight_; }
+Int AbstractBlockDistMatrix<T>::BlockHeight() const { return blockHeight_; }
 template<typename T>
-int AbstractBlockDistMatrix<T>::BlockWidth() const { return blockWidth_; }
+Int AbstractBlockDistMatrix<T>::BlockWidth() const { return blockWidth_; }
 
 template<typename T>
 int AbstractBlockDistMatrix<T>::ColAlign() const { return colAlign_; }
@@ -644,9 +644,9 @@ template<typename T>
 int AbstractBlockDistMatrix<T>::RowAlign() const { return rowAlign_; }
 
 template<typename T>
-int AbstractBlockDistMatrix<T>::ColCut() const { return colCut_; }
+Int AbstractBlockDistMatrix<T>::ColCut() const { return colCut_; }
 template<typename T>
-int AbstractBlockDistMatrix<T>::RowCut() const { return rowCut_; }
+Int AbstractBlockDistMatrix<T>::RowCut() const { return rowCut_; }
 
 template<typename T>
 int AbstractBlockDistMatrix<T>::ColShift() const { return colShift_; }

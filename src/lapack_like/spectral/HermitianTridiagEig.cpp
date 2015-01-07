@@ -29,7 +29,7 @@ inline void Helper
     if( subset.rangeSubset )
     {
          const Int k = lapack::SymmetricTridiagEig
-          ( n, d.Buffer(), dSub.Buffer(), w.Buffer(), 
+          ( int(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
             subset.lowerBound, subset.upperBound );
          w.Resize( k, 1 );
     }
@@ -37,12 +37,13 @@ inline void Helper
     {
         const Int numEig = subset.upperIndex-subset.lowerIndex+1;
         lapack::SymmetricTridiagEig
-        ( n, d.Buffer(), dSub.Buffer(), w.Buffer(), 
-          subset.lowerIndex, subset.upperIndex );
+        ( int(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
+          int(subset.lowerIndex), int(subset.upperIndex) );
         w.Resize( numEig, 1 );
     }
     else
-        lapack::SymmetricTridiagEig( n, d.Buffer(), dSub.Buffer(), w.Buffer() );
+        lapack::SymmetricTridiagEig
+        ( int(n), d.Buffer(), dSub.Buffer(), w.Buffer() );
     Sort( w, sort );
 }
 
@@ -221,7 +222,8 @@ inline void Helper
     {
          Z.Resize( n, n );
          const Int k = lapack::SymmetricTridiagEig
-          ( n, d.Buffer(), dSub.Buffer(), w.Buffer(), Z.Buffer(), Z.LDim(),
+          ( int(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
+            Z.Buffer(), int(Z.LDim()),
             subset.lowerBound, subset.upperBound );
          w.Resize( k, 1 );
          Z.Resize( n, k );
@@ -231,15 +233,17 @@ inline void Helper
         const Int numEig = subset.upperIndex-subset.lowerIndex+1;
         Z.Resize( n, numEig );
         lapack::SymmetricTridiagEig
-        ( n, d.Buffer(), dSub.Buffer(), w.Buffer(), Z.Buffer(), Z.LDim(),
-          subset.lowerIndex, subset.upperIndex );
+        ( int(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
+          Z.Buffer(), int(Z.LDim()),
+          int(subset.lowerIndex), int(subset.upperIndex) );
         w.Resize( numEig, 1 );
     }
     else
     {
         Z.Resize( n, n );
         lapack::SymmetricTridiagEig
-        ( n, d.Buffer(), dSub.Buffer(), w.Buffer(), Z.Buffer(), Z.LDim() );
+        ( int(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
+          Z.Buffer(), int(Z.LDim()) );
     }
     herm_eig::Sort( w, Z, sort );
 }

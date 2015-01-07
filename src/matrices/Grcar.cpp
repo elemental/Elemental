@@ -18,9 +18,9 @@ void Grcar( Matrix<T>& A, Int n, Int k )
         LogicError("Number of superdiagonals of ones must be non-negative");
     Zeros( A, n, n );
     if( n > 1 )
-        FillDiagonal( A, -1, -1 );
+        FillDiagonal( A, T(-1), -1 );
     for( Int j=0; j<Min(n,k+1); ++j )
-        FillDiagonal( A, 1, j );
+        FillDiagonal( A, T(1), j );
 }
 
 template<typename T>
@@ -31,9 +31,9 @@ void Grcar( AbstractDistMatrix<T>& A, Int n, Int k )
         LogicError("Number of superdiagonals of ones must be non-negative");
     Zeros( A, n, n );
     if( n > 1 )
-        FillDiagonal( A, -1, -1 );
+        FillDiagonal( A, T(-1), -1 );
     for( Int j=0; j<Min(n,k+1); ++j )
-        FillDiagonal( A, 1, j );
+        FillDiagonal( A, T(1), j );
 }
 
 template<typename T>
@@ -44,9 +44,9 @@ void Grcar( AbstractBlockDistMatrix<T>& A, Int n, Int k )
         LogicError("Number of superdiagonals of ones must be non-negative");
     Zeros( A, n, n );
     if( n > 1 )
-        FillDiagonal( A, -1, -1 );
+        FillDiagonal( A, T(-1), -1 );
     for( Int j=0; j<Min(n,k+1); ++j )
-        FillDiagonal( A, 1, j );
+        FillDiagonal( A, T(1), j );
 }
 
 #define PROTO(T) \

@@ -24,7 +24,7 @@ public:
     // Constructors and destructors
     DistMap();
     DistMap( mpi::Comm comm );
-    DistMap( int numSources, mpi::Comm comm );
+    DistMap( Int numSources, mpi::Comm comm );
     // TODO: Constructor for building from a DistMap
     ~DistMap();
 
@@ -32,11 +32,11 @@ public:
     // calling this routine will have the DistMap map the indices to the 
     // owning process
     void StoreOwners
-    ( int numSource, std::vector<int>& localInds, mpi::Comm comm );
+    ( Int numSource, std::vector<Int>& localInds, mpi::Comm comm );
 
     // Map manipulation
     // Collectively map each process's local set of indices
-    void Translate( std::vector<int>& localInds ) const;
+    void Translate( std::vector<Int>& localInds ) const;
     // Form the inverse map
     void FormInverse( DistMap& inverseMap ) const;
     // composite(i) := second(first(i))
@@ -44,42 +44,42 @@ public:
     void Extend( const DistMap& firstMap, DistMap& compositeMap ) const;
 
     // High-level information
-    int NumSources() const;
+    Int NumSources() const;
 
     // Communicator management
     void SetComm( mpi::Comm comm );
     mpi::Comm Comm() const;
 
     // Distribution information
-    int Blocksize() const;
-    int FirstLocalSource() const;
-    int NumLocalSources() const;
-    int RowOwner( int i ) const;
+    Int Blocksize() const;
+    Int FirstLocalSource() const;
+    Int NumLocalSources() const;
+    int RowOwner( Int i ) const;
 
     // Local data
-    int GetLocal( int localSource ) const;
-    void SetLocal( int localSource, int target );
-    int* Buffer();
-    const int* Buffer() const;
-    std::vector<int>& Map();
-    const std::vector<int>& Map() const;
+    Int GetLocal( Int localSource ) const;
+    void SetLocal( Int localSource, Int target );
+    Int* Buffer();
+    const Int* Buffer() const;
+    std::vector<Int>& Map();
+    const std::vector<Int>& Map() const;
 
     // For modifying the size of the map
     void Empty();
-    void Resize( int numSources );
+    void Resize( Int numSources );
 
     // Assignment
     const DistMap& operator=( const DistMap& map );
 
 private:
-    int numSources_;
+    Int numSources_;
 
     mpi::Comm comm_;
 
-    int blocksize_;
-    int firstLocalSource_;
+    Int blocksize_;
+    Int firstLocalSource_;
 
-    std::vector<int> map_;
+    std::vector<Int> map_;
 };
 
 } // namespace El

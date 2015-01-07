@@ -206,7 +206,7 @@ void CopyFromRoot( const DistGraph& distGraph, Graph& graph )
     const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm );
 
-    const Int numLocalEdges = distGraph.NumLocalEdges();
+    const int numLocalEdges = distGraph.NumLocalEdges();
     std::vector<int> edgeSizes(commSize);
     mpi::AllGather( &numLocalEdges, 1, edgeSizes.data(), 1, comm );
     std::vector<int> edgeOffsets;
@@ -227,7 +227,7 @@ void CopyFromRoot( const DistGraph& distGraph, Graph& graph )
     graph.MakeConsistent();
 }
 
-void CopyFromNonRoot( const DistGraph& distGraph, Int root )
+void CopyFromNonRoot( const DistGraph& distGraph, int root )
 {
     DEBUG_ONLY(CallStackEntry cse("CopyFromRoot"))
     const mpi::Comm comm = distGraph.Comm();
@@ -236,7 +236,7 @@ void CopyFromNonRoot( const DistGraph& distGraph, Int root )
     if( commRank == root )
         LogicError("Root called CopyFromNonRoot");
 
-    const Int numLocalEdges = distGraph.NumLocalEdges();
+    const int numLocalEdges = distGraph.NumLocalEdges();
     std::vector<int> edgeSizes(commSize);
     mpi::AllGather( &numLocalEdges, 1, edgeSizes.data(), 1, comm );
     std::vector<int> edgeOffsets;
@@ -306,7 +306,7 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
         const Int owner = B.Owner(i,j);
         ++sendCounts[owner];
     }
-    std::vector<Int> recvCounts(commSize);
+    std::vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
 
     // Convert the send/recv counts into offsets and total sizes
@@ -385,7 +385,7 @@ void CopyFromRoot( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A )
 }
 
 template<typename T>
-void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, Int root )
+void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, int root )
 {
     DEBUG_ONLY(CallStackEntry cse("CopyFromRoot"))
     const mpi::Comm comm = ADist.Comm();
@@ -467,7 +467,7 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
 }
 
 template<typename T>
-void CopyFromNonRoot( const DistMultiVec<T>& XDist, Int root )
+void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
 {
     DEBUG_ONLY(CallStackEntry cse("CopyFromNonRoot"))
     const mpi::Comm comm = XDist.Comm();
@@ -518,10 +518,10 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, Int root )
   template void Copy( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B ); \
   template void CopyFromRoot \
   ( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A ); \
-  template void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, Int root ); \
+  template void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, int root ); \
   template void Copy( const DistMultiVec<T>& A, DistMultiVec<T>& B ); \
   template void CopyFromRoot( const DistMultiVec<T>& ADist, Matrix<T>& A ); \
-  template void CopyFromNonRoot( const DistMultiVec<T>& ADist, Int root );
+  template void CopyFromNonRoot( const DistMultiVec<T>& ADist, int root );
 
 #define PROTO_INT(T) SAME(T) 
 

@@ -28,11 +28,11 @@ public:
     virtual ~AbstractDistMatrix();
 
     virtual AbstractDistMatrix<T>* Construct
-    ( const El::Grid& g, Int root ) const = 0;
+    ( const El::Grid& g, int root ) const = 0;
     virtual AbstractDistMatrix<T>* ConstructTranspose
-    ( const El::Grid& g, Int root ) const = 0;
+    ( const El::Grid& g, int root ) const = 0;
     virtual AbstractDistMatrix<T>* ConstructDiagonal
-    ( const El::Grid& g, Int root ) const = 0;
+    ( const El::Grid& g, int root ) const = 0;
     // TODO: ConstructPartialCol and friends?
 
     // Assignment and reconfiguration
@@ -258,7 +258,7 @@ protected:
     // Private constructors
     // ====================
     // Create a 0 x 0 distributed matrix
-    AbstractDistMatrix( const El::Grid& g=DefaultGrid(), Int root=0 );
+    AbstractDistMatrix( const El::Grid& g=DefaultGrid(), int root=0 );
 
     // Exchange metadata with another matrix
     // =====================================

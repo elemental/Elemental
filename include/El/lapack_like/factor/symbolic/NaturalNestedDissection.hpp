@@ -15,40 +15,40 @@
 namespace El {
 
 void NaturalNestedDissection
-(       int nx, 
-        int ny, 
-        int nz,
+(       Int nx, 
+        Int ny, 
+        Int nz,
   const DistGraph& graph, 
         DistMap& map,
         DistSeparatorTree& sepTree, 
         DistSymmInfo& info,
-        int cutoff=128,
+        Int cutoff=128,
         bool storeFactRecvInds=false );
 
-int NaturalBisect
-(       int nx, 
-        int ny, 
-        int nz, 
+Int NaturalBisect
+(       Int nx, 
+        Int ny, 
+        Int nz, 
   const Graph& graph, 
-        int& nxLeft, 
-        int& nyLeft, 
-        int& nzLeft,
+        Int& nxLeft, 
+        Int& nyLeft, 
+        Int& nzLeft,
         Graph& leftChild, 
-        int& nxRight, 
-        int& nyRight, 
-        int& nzRight,
+        Int& nxRight, 
+        Int& nyRight, 
+        Int& nzRight,
         Graph& rightChild, 
-        std::vector<int>& perm );
+        std::vector<Int>& perm );
 
 // NOTE: for two or more processes
-int NaturalBisect
-(       int nx, 
-        int ny, 
-        int nz,
+Int NaturalBisect
+(       Int nx, 
+        Int ny, 
+        Int nz,
   const DistGraph& graph, 
-        int& nxChild, 
-        int& nyChild, 
-        int& nzChild,
+        Int& nxChild, 
+        Int& nyChild, 
+        Int& nzChild,
         DistGraph& child, 
         DistMap& perm,
         bool& onLeft );

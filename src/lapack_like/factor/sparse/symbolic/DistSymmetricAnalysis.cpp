@@ -156,7 +156,7 @@ inline void ComputeStructAndRelInds
 
     // Now the node indices
     std::vector<Int> nodeInds( node.size );
-    for( int i=0; i<node.size; ++i )
+    for( Int i=0; i<node.size; ++i )
         nodeInds[i] = node.off + i;
     auto fullStruct = Union( nodeInds, partialStruct );
 
@@ -180,13 +180,13 @@ inline void ComputeStructAndRelInds
     }
 
     // Form lower structure of this node by removing the node indices
-    const int lowerStructSize = fullStruct.size() - node.size;
+    const Int lowerStructSize = fullStruct.size() - node.size;
     nodeInfo.lowerStruct.resize( lowerStructSize );
-    for( int i=0; i<lowerStructSize; ++i )
+    for( Int i=0; i<lowerStructSize; ++i )
         nodeInfo.lowerStruct[i] = fullStruct[node.size+i];
     DEBUG_ONLY(
         // Ensure that the root process computed a lowerStruct of the same size
-        int rootLowerStructSize;
+        Int rootLowerStructSize;
         if( mpi::Rank(node.comm) == 0 )
             rootLowerStructSize = lowerStructSize;
         mpi::Broadcast( &rootLowerStructSize, 1, 0, node.comm );

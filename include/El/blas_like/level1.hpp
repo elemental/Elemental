@@ -328,7 +328,7 @@ void Copy( const DistGraph& A, Graph& B );
 void Copy( const DistGraph& A, DistGraph& B );
 
 void CopyFromRoot( const DistGraph& distGraph, Graph& graph );
-void CopyFromNonRoot( const DistGraph& distGraph, Int root=0 );
+void CopyFromNonRoot( const DistGraph& distGraph, int root=0 );
 
 template<typename T>
 void Copy( const SparseMatrix<T>& A, SparseMatrix<T>& B );
@@ -343,14 +343,14 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B );
 template<typename T>
 void CopyFromRoot( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A );
 template<typename T>
-void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, Int root=0 );
+void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, int root=0 );
 
 template<typename T>
 void Copy( const DistMultiVec<T>& A, DistMultiVec<T>& B );
 template<typename T>
 void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X );
 template<typename T>
-void CopyFromNonRoot( const DistMultiVec<T>& XDist, Int root=0 );
+void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root=0 );
 
 namespace copy {
 
@@ -866,12 +866,12 @@ void Fill( DistMultiVec<T>& A, T alpha );
 
 // FillDiagonal
 // ============
-template<typename T,typename S>
-void FillDiagonal( Matrix<T>& A, S alpha, Int offset=0 );
-template<typename T,typename S>
-void FillDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset=0 );
-template<typename T,typename S>
-void FillDiagonal( AbstractBlockDistMatrix<T>& A, S alpha, Int offset=0 );
+template<typename T>
+void FillDiagonal( Matrix<T>& A, T alpha, Int offset=0 );
+template<typename T>
+void FillDiagonal( AbstractDistMatrix<T>& A, T alpha, Int offset=0 );
+template<typename T>
+void FillDiagonal( AbstractBlockDistMatrix<T>& A, T alpha, Int offset=0 );
 
 // GetDiagonal
 // ===========
@@ -1319,6 +1319,7 @@ void RealPart
 
 // Scale
 // =====
+// TODO: Force S=T?
 template<typename T,typename S>
 void Scale( S alpha, Matrix<T>& A );
 template<typename T,typename S>

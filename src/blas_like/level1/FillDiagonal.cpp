@@ -10,8 +10,8 @@
 
 namespace El {
 
-template<typename T,typename S>
-void FillDiagonal( Matrix<T>& A, S alpha, Int offset )
+template<typename T>
+void FillDiagonal( Matrix<T>& A, T alpha, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("FillDiagonal"))
     const Int height = A.Height();
@@ -20,12 +20,12 @@ void FillDiagonal( Matrix<T>& A, S alpha, Int offset )
     {
         const Int i = j-offset;
         if( i >= 0 && i < height )
-            A.Set(i,j,alpha);
+            A.Set( i, j, alpha );
     }
 }
 
-template<typename T,typename S>
-void FillDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset )
+template<typename T>
+void FillDiagonal( AbstractDistMatrix<T>& A, T alpha, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("FillDiagonal"))
     const Int height = A.Height();
@@ -34,16 +34,13 @@ void FillDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset )
     {
         const Int j = A.GlobalCol(jLoc);
         const Int i = j-offset;
-        if( i >= 0 && i < height && A.IsLocalRow(i) )
-        {
-            const Int iLoc = A.LocalRow(i);
-            A.SetLocal( iLoc, jLoc, alpha );
-        }
+        if( i >= 0 && i < height )
+            A.Set( i, j, alpha );
     }
 }
 
-template<typename T,typename S>
-void FillDiagonal( AbstractBlockDistMatrix<T>& A, S alpha, Int offset )
+template<typename T>
+void FillDiagonal( AbstractBlockDistMatrix<T>& A, T alpha, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("FillDiagonal"))
     const Int height = A.Height();
@@ -52,33 +49,17 @@ void FillDiagonal( AbstractBlockDistMatrix<T>& A, S alpha, Int offset )
     {
         const Int j = A.GlobalCol(jLoc);
         const Int i = j-offset;
-        if( i >= 0 && i < height && A.IsLocalRow(i) )
-        {
-            const Int iLoc = A.LocalRow(i);
-            A.SetLocal( iLoc, jLoc, alpha );
-        }
+        if( i >= 0 && i < height )
+            A.Set( i, j, alpha );
     }
 }
 
-#define PROTO_TYPES(T,S) \
-  template void FillDiagonal( Matrix<T>& A, S alpha, Int offset ); \
+#define PROTO(T) \
+  template void FillDiagonal( Matrix<T>& A, T alpha, Int offset ); \
   template void FillDiagonal \
-  ( AbstractDistMatrix<T>& A, S alpha, Int offset ); \
+  ( AbstractDistMatrix<T>& A, T alpha, Int offset ); \
   template void FillDiagonal \
-  ( AbstractBlockDistMatrix<T>& A, S alpha, Int offset );
-
-#define PROTO_SAME(T) PROTO_TYPES(T,T)
-
-#define PROTO_INT(T) PROTO_SAME(T)
-
-#define PROTO_REAL(T) \
-  PROTO_TYPES(T,Int) \
-  PROTO_SAME(T) 
-
-#define PROTO_COMPLEX(T) \
-  PROTO_TYPES(T,Int) \
-  PROTO_TYPES(T,Base<T>) \
-  PROTO_SAME(T)
+  ( AbstractBlockDistMatrix<T>& A, T alpha, Int offset );
 
 #include "El/macros/Instantiate.h"
 

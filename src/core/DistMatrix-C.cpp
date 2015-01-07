@@ -83,84 +83,80 @@ extern "C" {
   ( ElDistMatrix_ ## SIG A, bool includeViewers ) \
   { EL_TRY( CReflect(A)->MakeSizeConsistent(includeViewers) ) } \
   /* void DistMatrix<T,U,V>::Align \
-     ( Int colAlign, Int rowAlign, bool constrain ) */ \
+     ( int colAlign, int rowAlign, bool constrain ) */ \
   ElError ElDistMatrixAlign_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElInt colAlign, ElInt rowAlign, \
-    bool constrain ) \
+  ( ElDistMatrix_ ## SIG A, int colAlign, int rowAlign, bool constrain ) \
   { EL_TRY( CReflect(A)->Align(colAlign,rowAlign,constrain) ) } \
-  /* void DistMatrix<T,U,V>::AlignCols( Int colAlign, bool constrain ) */ \
+  /* void DistMatrix<T,U,V>::AlignCols( int colAlign, bool constrain ) */ \
   ElError ElDistMatrixAlignCols_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElInt colAlign, bool constrain ) \
+  ( ElDistMatrix_ ## SIG A, int colAlign, bool constrain ) \
   { EL_TRY( CReflect(A)->AlignCols(colAlign,constrain) ) } \
-   /* void DistMatrix<T,U,V>::AlignRows( Int rowAlign, bool constrain ) */ \
+   /* void DistMatrix<T,U,V>::AlignRows( int rowAlign, bool constrain ) */ \
   ElError ElDistMatrixAlignRows_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElInt rowAlign, bool constrain ) \
+  ( ElDistMatrix_ ## SIG A, int rowAlign, bool constrain ) \
   { EL_TRY( CReflect(A)->AlignRows(rowAlign,constrain) ) } \
   /* void DistMatrix<T,U,V>::FreeAlignments() */ \
   ElError ElDistMatrixFreeAlignments_ ## SIG ( ElDistMatrix_ ## SIG A ) \
   { EL_TRY( CReflect(A)->FreeAlignments() ) } \
-  /* void DistMatrix<T,U,V>::SetRoot( Int root, bool constrain ) */ \
+  /* void DistMatrix<T,U,V>::SetRoot( int root, bool constrain ) */ \
   ElError ElDistMatrixSetRoot_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElInt root, bool constrain ) \
+  ( ElDistMatrix_ ## SIG A, int root, bool constrain ) \
   { EL_TRY( CReflect(A)->SetRoot(root,constrain) ) } \
   /* void DistMatrix<T,U,V>::AlignWith \
      ( const DistData& data, bool constrain ) */ \
   ElError ElDistMatrixAlignWith_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistData distData, bool constrain ) \
-  { EL_TRY( CReflect(A)->AlignWith \
-            ( CReflect(distData), constrain ) ) } \
+  { EL_TRY( CReflect(A)->AlignWith( CReflect(distData), constrain ) ) } \
   /* void DistMatrix<T,U,V>::AlignColsWith \
      ( const DistData& data, bool constrain ) */ \
   ElError ElDistMatrixAlignColsWith_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistData distData, bool constrain ) \
-  { EL_TRY( CReflect(A)->AlignColsWith \
-            ( CReflect(distData), constrain ) ) } \
+  { EL_TRY( CReflect(A)->AlignColsWith( CReflect(distData), constrain ) ) } \
   /* void DistMatrix<T,U,V>::AlignRowsWith \
      ( const DistData& data, bool constrain ) */ \
   ElError ElDistMatrixAlignRowsWith_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistData distData, bool constrain ) \
-  { EL_TRY( CReflect(A)->AlignRowsWith \
-            ( CReflect(distData), constrain ) ) } \
+  { EL_TRY( CReflect(A)->AlignRowsWith( CReflect(distData), constrain ) ) } \
   /* void DistMatrix<T,U,V>::AlignAndResize \
-     ( Int colAlign, Int rowAlign, Int height, Int width, \
+     ( int colAlign, int rowAlign, Int height, Int width, \
        bool force, bool constrain ) */ \
   ElError ElDistMatrixAlignAndResize_ ## SIG \
   ( ElDistMatrix_ ## SIG A, \
-    ElInt colAlign, ElInt rowAlign, ElInt height, ElInt width, \
+    int colAlign, int rowAlign, ElInt height, ElInt width, \
     bool force, bool constrain ) \
   { EL_TRY( CReflect(A)->AlignAndResize \
             (colAlign,rowAlign,height,width,force,constrain) ) } \
   /* void DistMatrix<T,U,V>::AlignColsAndResize
-     ( Int colAlign, Int height, Int width, bool force, bool constrain ) */ \
+     ( int colAlign, Int height, Int width, bool force, bool constrain ) */ \
   ElError ElDistMatrixAlignColsAndResize_ ## SIG \
   ( ElDistMatrix_ ## SIG A, \
-    ElInt colAlign, ElInt height, ElInt width, bool force, bool constrain ) \
+    int colAlign, ElInt height, ElInt width, bool force, bool constrain ) \
   { EL_TRY( CReflect(A)->AlignColsAndResize \
             (colAlign,height,width,force,constrain) ) } \
   /* void DistMatrix<T,U,V>::AlignRowsAndResize
-     ( Int rowAlign, Int height, Int width, bool force, bool constrain ) */ \
+     ( int rowAlign, Int height, Int width, bool force, bool constrain ) */ \
   ElError ElDistMatrixAlignRowsAndResize_ ## SIG \
   ( ElDistMatrix_ ## SIG A, \
-    ElInt rowAlign, ElInt height, ElInt width, bool force, bool constrain ) \
+    int rowAlign, ElInt height, ElInt width, bool force, bool constrain ) \
   { EL_TRY( CReflect(A)->AlignRowsAndResize \
             (rowAlign,height,width,force,constrain) ) } \
   /* void DistMatrix<T,U,V>::Attach
-     ( Int height, Int width, const Grid& grid, Int colAlign, Int rowAlign, 
-       T* buffer, Int ldim, Int root ) */ \
+     ( Int height, Int width, const Grid& grid, int colAlign, int rowAlign, 
+       T* buffer, Int ldim, int root ) */ \
   ElError ElDistMatrixAttach_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElInt height, ElInt width, \
-    ElConstGrid grid, ElInt colAlign, ElInt rowAlign, \
-    CREFLECT(T)* buffer, ElInt ldim, ElInt root ) \
+    ElConstGrid grid, int colAlign, int rowAlign, \
+    CREFLECT(T)* buffer, ElInt ldim, int root ) \
   { EL_TRY( CReflect(A)->Attach \
             (height,width,*CReflect(grid),colAlign,rowAlign, \
              CReflect(buffer),ldim,root) ) } \
   /* void DistMatrix<T,U,V>::LockedAttach
-     ( Int height, Int width, const Grid& grid, Int colAlign, Int rowAlign, 
-       const T* buffer, Int ldim, Int root ) */ \
+     ( Int height, Int width, const Grid& grid, int colAlign, int rowAlign, 
+       const T* buffer, Int ldim, int root ) */ \
   ElError ElDistMatrixLockedAttach_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElInt height, ElInt width, \
-    ElConstGrid grid, ElInt colAlign, ElInt rowAlign, \
-    const CREFLECT(T)* buffer, ElInt ldim, ElInt root ) \
+    ElConstGrid grid, int colAlign, int rowAlign, \
+    const CREFLECT(T)* buffer, ElInt ldim, int root ) \
   { EL_TRY( CReflect(A)->LockedAttach \
             (height,width,*CReflect(grid),colAlign,rowAlign, \
              CReflect(buffer),ldim,root) ) }
@@ -234,61 +230,61 @@ extern "C" {
   ElError ElDistMatrixRootConstrained_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, bool* rootConst ) \
   { EL_TRY( *rootConst = CReflect(A)->RootConstrained() ) } \
-  /* Int DistMatrix<T,U,V>::ColAlign() const */ \
+  /* int DistMatrix<T,U,V>::ColAlign() const */ \
   ElError ElDistMatrixColAlign_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* colAlign ) \
+  ( ElConstDistMatrix_ ## SIG A, int* colAlign ) \
   { EL_TRY( *colAlign = CReflect(A)->ColAlign() ) } \
-  /* Int DistMatrix<T,U,V>::RowAlign() const */ \
+  /* int DistMatrix<T,U,V>::RowAlign() const */ \
   ElError ElDistMatrixRowAlign_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* rowAlign ) \
+  ( ElConstDistMatrix_ ## SIG A, int* rowAlign ) \
   { EL_TRY( *rowAlign = CReflect(A)->RowAlign() ) } \
-  /* Int DistMatrix<T,U,V>::ColShift() const */ \
+  /* int DistMatrix<T,U,V>::ColShift() const */ \
   ElError ElDistMatrixColShift_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* colShift ) \
+  ( ElConstDistMatrix_ ## SIG A, int* colShift ) \
   { EL_TRY( *colShift = CReflect(A)->ColShift() ) } \
-  /* Int DistMatrix<T,U,V>::RowShift() const */ \
+  /* int DistMatrix<T,U,V>::RowShift() const */ \
   ElError ElDistMatrixRowShift_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* rowShift ) \
+  ( ElConstDistMatrix_ ## SIG A, int* rowShift ) \
   { EL_TRY( *rowShift = CReflect(A)->RowShift() ) } \
-  /* Int DistMatrix<T,U,V>::ColRank() const */ \
+  /* int DistMatrix<T,U,V>::ColRank() const */ \
   ElError ElDistMatrixColRank_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* colRank ) \
+  ( ElConstDistMatrix_ ## SIG A, int* colRank ) \
   { EL_TRY( *colRank = CReflect(A)->ColRank() ) } \
-  /* Int DistMatrix<T,U,V>::RowRank() const */ \
+  /* int DistMatrix<T,U,V>::RowRank() const */ \
   ElError ElDistMatrixRowRank_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* rowRank ) \
+  ( ElConstDistMatrix_ ## SIG A, int* rowRank ) \
   { EL_TRY( *rowRank = CReflect(A)->RowRank() ) } \
-  /* Int DistMatrix<T,U,V>::PartialColRank() const */ \
+  /* int DistMatrix<T,U,V>::PartialColRank() const */ \
   ElError ElDistMatrixPartialColRank_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* rank ) \
+  ( ElConstDistMatrix_ ## SIG A, int* rank ) \
   { EL_TRY( *rank = CReflect(A)->PartialColRank() ) } \
-  /* Int DistMatrix<T,U,V>::PartialRowRank() const */ \
+  /* int DistMatrix<T,U,V>::PartialRowRank() const */ \
   ElError ElDistMatrixPartialRowRank_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* rank ) \
+  ( ElConstDistMatrix_ ## SIG A, int* rank ) \
   { EL_TRY( *rank = CReflect(A)->PartialRowRank() ) } \
-  /* Int DistMatrix<T,U,V>::PartialUnionColRank() const */ \
+  /* int DistMatrix<T,U,V>::PartialUnionColRank() const */ \
   ElError ElDistMatrixPartialUnionColRank_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* rank ) \
+  ( ElConstDistMatrix_ ## SIG A, int* rank ) \
   { EL_TRY( *rank = CReflect(A)->PartialUnionColRank() ) } \
-  /* Int DistMatrix<T,U,V>::PartialUnionRowRank() const */ \
+  /* int DistMatrix<T,U,V>::PartialUnionRowRank() const */ \
   ElError ElDistMatrixPartialUnionRowRank_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* rank ) \
+  ( ElConstDistMatrix_ ## SIG A, int* rank ) \
   { EL_TRY( *rank = CReflect(A)->PartialUnionRowRank() ) } \
-  /* Int DistMatrix<T,U,V>::DistRank() const */ \
+  /* int DistMatrix<T,U,V>::DistRank() const */ \
   ElError ElDistMatrixDistRank_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* rank ) \
+  ( ElConstDistMatrix_ ## SIG A, int* rank ) \
   { EL_TRY( *rank = CReflect(A)->DistRank() ) } \
-  /* Int DistMatrix<T,U,V>::CrossRank() const */ \
+  /* int DistMatrix<T,U,V>::CrossRank() const */ \
   ElError ElDistMatrixCrossRank_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* rank ) \
+  ( ElConstDistMatrix_ ## SIG A, int* rank ) \
   { EL_TRY( *rank = CReflect(A)->CrossRank() ) } \
-  /* Int DistMatrix<T,U,V>::RedundantRank() const */ \
+  /* int DistMatrix<T,U,V>::RedundantRank() const */ \
   ElError ElDistMatrixRedundantRank_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* rank ) \
+  ( ElConstDistMatrix_ ## SIG A, int* rank ) \
   { EL_TRY( *rank = CReflect(A)->RedundantRank() ) } \
-  /* Int DistMatrix<T,U,V>::Root() const */ \
+  /* int DistMatrix<T,U,V>::Root() const */ \
   ElError ElDistMatrixRoot_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* root ) \
+  ( ElConstDistMatrix_ ## SIG A, int* root ) \
   { EL_TRY( *root = CReflect(A)->Root() ) } \
   /* bool DistMatrix<T,U,V>::Participating() const */ \
   ElError ElDistMatrixParticipating_ ## SIG \
@@ -383,41 +379,41 @@ extern "C" {
   ElError ElDistMatrixPartialUnionRowComm_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, MPI_Comm* comm ) \
   { EL_TRY( *comm = CReflect(A)->PartialUnionRowComm().comm ) } \
-  /* Int DistMatrix<T,U,V>::ColStride() const */ \
+  /* int DistMatrix<T,U,V>::ColStride() const */ \
   ElError ElDistMatrixColStride_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* stride ) \
+  ( ElConstDistMatrix_ ## SIG A, int* stride ) \
   { EL_TRY( *stride = CReflect(A)->ColStride() ) } \
-  /* Int DistMatrix<T,U,V>::RowStride() const */ \
+  /* int DistMatrix<T,U,V>::RowStride() const */ \
   ElError ElDistMatrixRowStride_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* stride ) \
+  ( ElConstDistMatrix_ ## SIG A, int* stride ) \
   { EL_TRY( *stride = CReflect(A)->RowStride() ) } \
-  /* Int DistMatrix<T,U,V>::PartialColStride() const */ \
+  /* int DistMatrix<T,U,V>::PartialColStride() const */ \
   ElError ElDistMatrixPartialColStride_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* stride ) \
+  ( ElConstDistMatrix_ ## SIG A, int* stride ) \
   { EL_TRY( *stride = CReflect(A)->PartialColStride() ) } \
-  /* Int DistMatrix<T,U,V>::PartialRowStride() const */ \
+  /* int DistMatrix<T,U,V>::PartialRowStride() const */ \
   ElError ElDistMatrixPartialRowStride_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* stride ) \
+  ( ElConstDistMatrix_ ## SIG A, int* stride ) \
   { EL_TRY( *stride = CReflect(A)->PartialRowStride() ) } \
-  /* Int DistMatrix<T,U,V>::PartialUnionColStride() const */ \
+  /* int DistMatrix<T,U,V>::PartialUnionColStride() const */ \
   ElError ElDistMatrixPartialUnionColStride_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* stride ) \
+  ( ElConstDistMatrix_ ## SIG A, int* stride ) \
   { EL_TRY( *stride = CReflect(A)->PartialUnionColStride() ) } \
-  /* Int DistMatrix<T,U,V>::PartialUnionRowStride() const */ \
+  /* int DistMatrix<T,U,V>::PartialUnionRowStride() const */ \
   ElError ElDistMatrixPartialUnionRowStride_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* stride ) \
+  ( ElConstDistMatrix_ ## SIG A, int* stride ) \
   { EL_TRY( *stride = CReflect(A)->PartialUnionRowStride() ) } \
-  /* Int DistMatrix<T,U,V>::DistSize() const */ \
+  /* int DistMatrix<T,U,V>::DistSize() const */ \
   ElError ElDistMatrixDistSize_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* commSize ) \
+  ( ElConstDistMatrix_ ## SIG A, int* commSize ) \
   { EL_TRY( *commSize = CReflect(A)->DistSize() ) } \
-  /* Int DistMatrix<T,U,V>::CrossSize() const */ \
+  /* int DistMatrix<T,U,V>::CrossSize() const */ \
   ElError ElDistMatrixCrossSize_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* commSize ) \
+  ( ElConstDistMatrix_ ## SIG A, int* commSize ) \
   { EL_TRY( *commSize = CReflect(A)->CrossSize() ) } \
-  /* Int DistMatrix<T,U,V>::RedundantSize() const */ \
+  /* int DistMatrix<T,U,V>::RedundantSize() const */ \
   ElError ElDistMatrixRedundantSize_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt* commSize ) \
+  ( ElConstDistMatrix_ ## SIG A, int* commSize ) \
   { EL_TRY( *commSize = CReflect(A)->RedundantSize() ) }
 
 #define DISTMATRIX_SINGLEENTRY(SIG,SIGBASE,T) \
@@ -520,13 +516,13 @@ extern "C" {
     bool* aligned ) \
   { EL_TRY( *aligned = CReflect(A)->DiagonalAlignedWith \
                        (CReflect(distData),offset) ) } \
-  /* Int AbstractDistMatrix<T>::DiagonalRoot( Int offset ) const */ \
+  /* int AbstractDistMatrix<T>::DiagonalRoot( Int offset ) const */ \
   ElError ElDistMatrixDiagonalRoot_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt offset, ElInt* root ) \
+  ( ElConstDistMatrix_ ## SIG A, ElInt offset, int* root ) \
   { EL_TRY( *root = CReflect(A)->DiagonalRoot(offset) ) } \
-  /* Int AbstractDistMatrix<T>::DiagonalAlign( Int offset ) const */ \
+  /* int AbstractDistMatrix<T>::DiagonalAlign( Int offset ) const */ \
   ElError ElDistMatrixDiagonalAlign_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElInt offset, ElInt* align ) \
+  ( ElConstDistMatrix_ ## SIG A, ElInt offset, int* align ) \
   { EL_TRY( *align = CReflect(A)->DiagonalAlign(offset) ) }
 
 #define C_PROTO(SIG,SIGBASE,T) \
@@ -541,8 +537,5 @@ extern "C" {
   DISTMATRIX_SINGLEENTRY_COMPLEX(SIG,SIGBASE,T)
 
 #include "El/macros/CInstantiate.h"
-
-// TODO: More diagonal manipulation
-// ================================
 
 } // extern "C"

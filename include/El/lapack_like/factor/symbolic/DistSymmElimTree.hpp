@@ -19,18 +19,18 @@ namespace El {
 
 struct SymmNode
 {
-    int size, off; 
-    int parent; // -1 if root separator
-    std::vector<int> children;
-    std::vector<int> lowerStruct;
+    Int size, off; 
+    Int parent; // -1 if root separator
+    std::vector<Int> children;
+    std::vector<Int> lowerStruct;
 };
 
 struct DistSymmNode
 {
     bool onLeft; // irrelevant if root node
     mpi::Comm comm;
-    int size, off;
-    std::vector<int> lowerStruct;
+    Int size, off;
+    std::vector<Int> lowerStruct;
 };
 
 struct DistSymmElimTree
@@ -49,12 +49,12 @@ struct DistSymmElimTree
             return;
         }
 
-        const int numLocal = localNodes.size();
-        for( int i=0; i<numLocal; ++i )
+        const Int numLocal = localNodes.size();
+        for( Int i=0; i<numLocal; ++i )
             delete localNodes[i];
 
-        const int numDist = distNodes.size();
-        for( int i=0; i<numDist; ++i )
+        const Int numDist = distNodes.size();
+        for( Int i=0; i<numDist; ++i )
             mpi::Free( distNodes[i].comm );
     }
 };

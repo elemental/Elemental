@@ -133,7 +133,7 @@ mpi::Comm DistMultiVec<T>::Comm() const { return comm_; }
 template<typename T>
 Int DistMultiVec<T>::Blocksize() const { return blocksize_; }
 template<typename T>
-Int DistMultiVec<T>::RowOwner( Int i ) const 
+int DistMultiVec<T>::RowOwner( Int i ) const 
 { return RowToProcess( i, blocksize_, mpi::Size(comm_) ); }
 
 template<typename T>

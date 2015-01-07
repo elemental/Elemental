@@ -16,12 +16,12 @@ namespace El {
 
 template<typename T> 
 inline void DistLowerMultiplyNormal
-( int diagOff, const DistSymmInfo& info, 
+( Int diagOff, const DistSymmInfo& info, 
   const DistSymmFrontTree<T>& L, DistNodalMultiVec<T>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("DistLowerMultiplyNormal"))
-    const int numDistNodes = info.distNodes.size();
-    const int width = X.Width();
+    const Int numDistNodes = info.distNodes.size();
+    const Int width = X.Width();
     if( L.frontType != SYMM_1D && L.frontType != LDL_1D )
         LogicError("This multiply mode is not yet implemented");
 
@@ -34,7 +34,7 @@ inline void DistLowerMultiplyNormal
       localRootFront.work.LockedBuffer(), localRootFront.work.LDim() );
     
     // Perform the distributed portion of the forward multiply
-    for( int s=1; s<numDistNodes; ++s )
+    for( Int s=1; s<numDistNodes; ++s )
     {
         const DistSymmNodeInfo& childNode = info.distNodes[s-1];
         const DistSymmNodeInfo& node = info.distNodes[s];
@@ -62,7 +62,7 @@ inline void DistLowerMultiplyNormal
         // Pack our child's update
         const MultiVecCommMeta& commMeta = node.multiVecMeta;
         DistMatrix<T,VC,STAR>& childW = childFront.work1d;
-        const int updateSize = childW.Height()-childNode.size;
+        const Int updateSize = childW.Height()-childNode.size;
         auto childUpdate = 
             LockedView( childW, childNode.size, 0, updateSize, width );
         int sendBufferSize = 0;
@@ -76,16 +76,16 @@ inline void DistLowerMultiplyNormal
         }
         std::vector<T> sendBuffer( sendBufferSize );
 
-        const std::vector<int>& myChildRelInds = 
+        const std::vector<Int>& myChildRelInds = 
             ( childNode.onLeft ? node.leftRelInds : node.rightRelInds );
         const int colShift = childUpdate.ColShift();
-        const int localHeight = childUpdate.LocalHeight();
-        std::vector<int> packOffs = sendDispls;
-        for( int iChildLoc=0; iChildLoc<localHeight; ++iChildLoc )
+        const Int localHeight = childUpdate.LocalHeight();
+        auto packOffs = sendDispls;
+        for( Int iChildLoc=0; iChildLoc<localHeight; ++iChildLoc )
         {
-            const int iChild = colShift + iChildLoc*childCommSize;
+            const Int iChild = colShift + iChildLoc*childCommSize;
             const int destRank = myChildRelInds[iChild] % commSize;
-            for( int jChild=0; jChild<width; ++jChild )
+            for( Int jChild=0; jChild<width; ++jChild )
                 sendBuffer[packOffs[destRank]++] = 
                     childUpdate.GetLocal(iChildLoc,jChild);
         }
@@ -119,15 +119,15 @@ inline void DistLowerMultiplyNormal
         for( int proc=0; proc<commSize; ++proc )
         {
             const T* recvVals = &recvBuffer[recvDispls[proc]];
-            const std::vector<int>& recvInds = commMeta.childRecvInds[proc];
-            const int numRecvInds = recvInds.size();
-            for( int k=0; k<numRecvInds; ++k )
+            const std::vector<Int>& recvInds = commMeta.childRecvInds[proc];
+            const Int numRecvInds = recvInds.size();
+            for( Int k=0; k<numRecvInds; ++k )
             {
-                const int iFrontLoc = recvInds[k];
+                const Int iFrontLoc = recvInds[k];
                 const T* recvRow = &recvVals[k*width];
                 T* WRow = W.Buffer( iFrontLoc, 0 );
-                const int WLDim = W.LDim();
-                for( int jFront=0; jFront<width; ++jFront )
+                const Int WLDim = W.LDim();
+                for( Int jFront=0; jFront<width; ++jFront )
                     WRow[jFront*WLDim] += recvRow[jFront];
             }
         }
@@ -144,13 +144,13 @@ inline void DistLowerMultiplyNormal
 
 template<typename T> 
 inline void DistLowerMultiplyTranspose
-( int diagOff, const DistSymmInfo& info, 
+( Int diagOff, const DistSymmInfo& info, 
   const DistSymmFrontTree<T>& L, DistNodalMultiVec<T>& X, 
   bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("DistLowerMultiplyTranspose"))
-    const int numDistNodes = info.distNodes.size();
-    const int width = X.Width();
+    const Int numDistNodes = info.distNodes.size();
+    const Int width = X.Width();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     if( L.frontType != SYMM_1D && L.frontType != LDL_1D )
         LogicError("This multiply mode is not yet implemented");
@@ -172,7 +172,7 @@ inline void DistLowerMultiplyTranspose
         FrontLowerMultiply( orientation, diagOff, rootFront.front1dL, XRoot );
     }
 
-    for( int s=numDistNodes-2; s>=0; --s )
+    for( Int s=numDistNodes-2; s>=0; --s )
     {
         const DistSymmNodeInfo& parentNode = info.distNodes[s+1];
         const DistSymmNodeInfo& node = info.distNodes[s];
@@ -217,15 +217,15 @@ inline void DistLowerMultiplyTranspose
         for( int proc=0; proc<parentCommSize; ++proc )
         {
             T* sendVals = &sendBuffer[sendDispls[proc]];
-            const std::vector<int>& recvInds = commMeta.childRecvInds[proc];
-            const int numRecvInds = recvInds.size();
-            for( int k=0; k<numRecvInds; ++k )
+            const std::vector<Int>& recvInds = commMeta.childRecvInds[proc];
+            const Int numRecvInds = recvInds.size();
+            for( Int k=0; k<numRecvInds; ++k )
             {
-                const int iFrontLoc = recvInds[k];
+                const Int iFrontLoc = recvInds[k];
                 T* packedRow = &sendVals[k*width];
                 const T* workRow = parentWork.LockedBuffer( iFrontLoc, 0 );
-                const int workLDim = parentWork.LDim();
-                for( int jFront=0; jFront<width; ++jFront )
+                const Int workLDim = parentWork.LDim();
+                for( Int jFront=0; jFront<width; ++jFront )
                     packedRow[jFront] = workRow[jFront*workLDim];
             }
         }
@@ -253,16 +253,16 @@ inline void DistLowerMultiplyTranspose
         SwapClear( sendDispls );
 
         // Unpack the updates using the send approach from the forward solve
-        const std::vector<int>& myRelInds = 
+        const std::vector<Int>& myRelInds = 
             ( node.onLeft ? parentNode.leftRelInds : parentNode.rightRelInds );
         const int colShift = WB.ColShift();
-        const int localHeight = WB.LocalHeight();
-        for( int iUpdateLoc=0; iUpdateLoc<localHeight; ++iUpdateLoc )
+        const Int localHeight = WB.LocalHeight();
+        for( Int iUpdateLoc=0; iUpdateLoc<localHeight; ++iUpdateLoc )
         {
-            const int iUpdate = colShift + iUpdateLoc*commSize;
+            const Int iUpdate = colShift + iUpdateLoc*commSize;
             const int startRank = myRelInds[iUpdate] % parentCommSize;
             const T* recvBuf = &recvBuffer[recvDispls[startRank]];
-            for( int jUpdate=0; jUpdate<width; ++jUpdate )
+            for( Int jUpdate=0; jUpdate<width; ++jUpdate )
                 WB.SetLocal(iUpdateLoc,jUpdate,recvBuf[jUpdate]);
             recvDispls[startRank] += width;
         }

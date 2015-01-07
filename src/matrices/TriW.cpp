@@ -17,7 +17,7 @@ void TriW( Matrix<T>& A, Int n, T alpha, Int k )
     if( k < 0 )
         LogicError("Number of superdiagonals must be non-negative");
     Zeros( A, n, n );
-    FillDiagonal( A, 1 );
+    FillDiagonal( A, T(1) );
     for( Int j=0; j<Min(n-1,k); ++j ) 
         FillDiagonal( A, alpha, j+1 );
 }
@@ -29,7 +29,7 @@ void TriW( AbstractDistMatrix<T>& A, Int n, T alpha, Int k )
     if( k < 0 )
         LogicError("Number of superdiagonals must be non-negative");
     Zeros( A, n, n );
-    FillDiagonal( A, 1 );
+    FillDiagonal( A, T(1) );
     for( Int j=0; j<Min(n-1,k); ++j )
         FillDiagonal( A, alpha, j+1 );
 }
@@ -41,7 +41,7 @@ void TriW( AbstractBlockDistMatrix<T>& A, Int n, T alpha, Int k )
     if( k < 0 )
         LogicError("Number of superdiagonals must be non-negative");
     Zeros( A, n, n );
-    FillDiagonal( A, 1 );
+    FillDiagonal( A, T(1) );
     for( Int j=0; j<Min(n-1,k); ++j )
         FillDiagonal( A, alpha, j+1 );
 }

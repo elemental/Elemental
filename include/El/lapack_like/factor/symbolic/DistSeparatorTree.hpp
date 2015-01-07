@@ -17,16 +17,16 @@ namespace El {
 // TODO: Rename to SeparatorOrLeaf?
 struct SepOrLeaf
 {
-    int parent; // -1 if local root
-    int off;
-    std::vector<int> inds;
+    Int parent; // -1 if local root
+    Int off;
+    std::vector<Int> inds;
 };
 
 struct DistSeparator
 {
     mpi::Comm comm;
-    int off;
-    std::vector<int> inds;
+    Int off;
+    std::vector<Int> inds;
 };
 
 struct DistSeparatorTree
@@ -51,12 +51,12 @@ struct DistSeparatorTree
             return;
         }
 
-        const int numLocal = localSepsAndLeaves.size();
-        for( int i=0; i<numLocal; ++i )
+        const Int numLocal = localSepsAndLeaves.size();
+        for( Int i=0; i<numLocal; ++i )
             delete localSepsAndLeaves[i];
 
-        const int numDist = distSeps.size();
-        for( int i=0; i<numDist; ++i )
+        const Int numDist = distSeps.size();
+        for( Int i=0; i<numDist; ++i )
             mpi::Free( distSeps[i].comm );
     }
 };

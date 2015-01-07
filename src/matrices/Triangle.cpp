@@ -23,7 +23,7 @@ void Triangle( Matrix<F>& A, Int n )
     if( n < 3 )
         LogicError("Must be at least 3x3 to have a second-order symbol");
     Zeros( A, n, n );
-    FillDiagonal( A, 1,          1 );
+    FillDiagonal( A, F(1),       1 );
     FillDiagonal( A, F(1)/F(4), -2 );
 }
 
@@ -34,7 +34,7 @@ void Triangle( AbstractDistMatrix<F>& A, Int n )
     if( n < 3 )
         LogicError("Must be at least 3x3 to have a second-order symbol");
     Zeros( A, n, n );
-    FillDiagonal( A, 1,          1 );
+    FillDiagonal( A, F(1),       1 );
     FillDiagonal( A, F(1)/F(4), -2 );
 }
 
@@ -45,7 +45,7 @@ void Triangle( AbstractBlockDistMatrix<F>& A, Int n )
     if( n < 3 )
         LogicError("Must be at least 3x3 to have a second-order symbol");
     Zeros( A, n, n );
-    FillDiagonal( A, 1,          1 );
+    FillDiagonal( A, F(1),       1 );
     FillDiagonal( A, F(1)/F(4), -2 );
 }
 

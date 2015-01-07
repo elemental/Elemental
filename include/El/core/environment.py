@@ -24,13 +24,14 @@ lib = ctypes.cdll.LoadLibrary(libPath)
 # -----------
 
 from ctypes import c_size_t, c_ubyte, c_uint, c_int, c_float, c_double
-from ctypes import c_void_p, c_char_p
+from ctypes import c_longlong, c_void_p, c_char_p
 from ctypes import pointer, POINTER
 
 # TODO: Switch to a different boolean type if appropriate
 bType = c_ubyte
-# TODO: Switch from c_int if Elemental was configured for 64-bit integers
+# TODO: Switch from c_int to c_longlong if Elemental uses 64-bit integers
 iType = c_int
+#iType = c_longlong
 sType = c_float
 dType = c_double
 

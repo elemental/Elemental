@@ -616,7 +616,7 @@ template<typename T>
 int AbstractDistMatrix<T>::ColOwner( Int j ) const
 { return int((j+RowAlign()) % RowStride()); }
 template<typename T>
-Int AbstractDistMatrix<T>::Owner( Int i, Int j ) const
+int AbstractDistMatrix<T>::Owner( Int i, Int j ) const
 { return RowOwner(i)+ColOwner(j)*ColStride(); }
 
 template<typename T>

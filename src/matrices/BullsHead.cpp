@@ -24,9 +24,9 @@ void BullsHead( Matrix<Complex<Real>>& A, Int n )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;
     Zeros( A, n, n );
-    FillDiagonal( A, C(0,2),            1 );
-    FillDiagonal( A, 1,                -2 );
-    FillDiagonal( A, Real(7)/Real(10), -3 );
+    FillDiagonal( A, C(0,2),      1 );
+    FillDiagonal( A, C(1),       -2 );
+    FillDiagonal( A, C(7)/C(10), -3 );
 }
 
 template<typename Real>
@@ -37,9 +37,9 @@ void BullsHead( AbstractDistMatrix<Complex<Real>>& A, Int n )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;
     Zeros( A, n, n );
-    FillDiagonal( A, C(0,2),            1 );
-    FillDiagonal( A, 1,                -2 );
-    FillDiagonal( A, Real(7)/Real(10), -3 );
+    FillDiagonal( A, C(0,2),      1 );
+    FillDiagonal( A, C(1),       -2 );
+    FillDiagonal( A, C(7)/C(10), -3 );
 }
 
 template<typename Real>
@@ -50,9 +50,9 @@ void BullsHead( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;
     Zeros( A, n, n );
-    FillDiagonal( A, C(0,2),            1 );
-    FillDiagonal( A, 1,                -2 );
-    FillDiagonal( A, Real(7)/Real(10), -3 );
+    FillDiagonal( A, C(0,2),      1 );
+    FillDiagonal( A, C(1),       -2 );
+    FillDiagonal( A, C(7)/C(10), -3 );
 }
 
 #define PROTO(Real) \

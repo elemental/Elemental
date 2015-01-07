@@ -19,20 +19,20 @@ struct SymmNodeInfo
     //
     // This is known before analysis
     //
-    int size, off; 
-    int parent; // -1 if root separator
-    std::vector<int> children;
-    std::vector<int> origLowerStruct;
+    Int size, off; 
+    Int parent; // -1 if root separator
+    std::vector<Int> children;
+    std::vector<Int> origLowerStruct;
 
     //
     // The following is computed during analysis
     //
     bool onLeft;
-    int myOff;
-    std::vector<int> lowerStruct;
-    std::vector<int> origLowerRelInds;
+    Int myOff;
+    std::vector<Int> lowerStruct;
+    std::vector<Int> origLowerRelInds;
     // (maps from the child update indices to our frontal indices).
-    std::vector<int> leftRelInds, rightRelInds;
+    std::vector<Int> leftRelInds, rightRelInds;
 };
 
 struct FactorCommMeta
@@ -40,7 +40,7 @@ struct FactorCommMeta
     std::vector<int> numChildSendInds;
     // This information does not necessarily have to be kept and can be
     // computed from the above information (albeit somewhat expensively).
-    mutable std::vector<std::vector<int>> childRecvInds;
+    mutable std::vector<std::vector<Int>> childRecvInds;
 
     void EmptyChildRecvIndices() const
     { SwapClear(childRecvInds); }
@@ -54,9 +54,9 @@ struct FactorCommMeta
 
 struct MultiVecCommMeta
 {
-    int localOff, localSize;
+    Int localOff, localSize;
     std::vector<int> numChildSendInds;
-    std::vector<std::vector<int>> childRecvInds;
+    std::vector<std::vector<Int>> childRecvInds;
 
     void Empty()
     {
@@ -68,7 +68,7 @@ struct MultiVecCommMeta
 struct MatrixCommMeta
 {
     std::vector<int> numChildSendInds;
-    std::vector<std::vector<int>> childRecvInds;
+    std::vector<std::vector<Int>> childRecvInds;
 
     void Empty()
     {
@@ -82,8 +82,8 @@ struct DistSymmNodeInfo
     //
     // This is known before analysis
     //
-    int size, off;
-    std::vector<int> origLowerStruct;
+    Int size, off;
+    std::vector<Int> origLowerStruct;
     bool onLeft;
     mpi::Comm comm;
 
@@ -91,15 +91,15 @@ struct DistSymmNodeInfo
     // The following is computed during analysis
     //
     Grid* grid;
-    int myOff, leftSize, rightSize;
-    std::vector<int> lowerStruct;
-    std::vector<int> origLowerRelInds;
+    Int myOff, leftSize, rightSize;
+    std::vector<Int> lowerStruct;
+    std::vector<Int> origLowerRelInds;
 
     // The relative indices of our child
     // (maps from the child update indices to our frontal indices).
     // These could be replaced with just the relative indices of our local 
     // submatrices of the child updates.
-    std::vector<int> leftRelInds, rightRelInds;
+    std::vector<Int> leftRelInds, rightRelInds;
 
     FactorCommMeta factorMeta;
     MultiVecCommMeta multiVecMeta;
