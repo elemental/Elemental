@@ -362,6 +362,16 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, int root )
       ( CReflect(alpha), CReflect(uplo), *CReflect(A), offset ) ) } \
   /* SetDiagonal */ \
   /* TODO */ \
+  /* Shift */ \
+  ElError ElShift_ ## SIG \
+  ( ElMatrix_ ## SIG A, CREFLECT(T) alpha ) \
+  { EL_TRY( Shift( *CReflect(A), CReflect(alpha) ) ) } \
+  ElError ElShiftDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, CREFLECT(T) alpha ) \
+  { EL_TRY( Shift( *CReflect(A), CReflect(alpha) ) ) } \
+  ElError ElShiftDistMultiVec_ ## SIG \
+  ( ElDistMultiVec_ ## SIG A, CREFLECT(T) alpha ) \
+  { EL_TRY( Shift( *CReflect(A), CReflect(alpha) ) ) } \
   /* ShiftDiagonal */ \
   ElError ElShiftDiagonal_ ## SIG \
   ( ElMatrix_ ## SIG A, CREFLECT(T) alpha, ElInt offset ) \

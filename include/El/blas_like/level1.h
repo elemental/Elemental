@@ -1209,6 +1209,31 @@ EL_EXPORT ElError ElScaleTrapezoidSparseDist_z
    =========== */
 /* TODO */
 
+/* Shift
+   ===== */
+EL_EXPORT ElError ElShift_i( ElMatrix_i A, ElInt alpha );
+EL_EXPORT ElError ElShift_s( ElMatrix_s A, float alpha );
+EL_EXPORT ElError ElShift_d( ElMatrix_d A, double alpha );
+EL_EXPORT ElError ElShift_c( ElMatrix_c A, complex_float alpha );
+EL_EXPORT ElError ElShift_z( ElMatrix_z A, complex_double alpha );
+
+EL_EXPORT ElError ElShiftDist_i( ElDistMatrix_i A, ElInt alpha );
+EL_EXPORT ElError ElShiftDist_s( ElDistMatrix_s A, float alpha );
+EL_EXPORT ElError ElShiftDist_d( ElDistMatrix_d A, double alpha );
+EL_EXPORT ElError ElShiftDist_c( ElDistMatrix_c A, complex_float alpha );
+EL_EXPORT ElError ElShiftDist_z( ElDistMatrix_z A, complex_double alpha );
+
+EL_EXPORT ElError ElShiftDistMultiVec_i
+( ElDistMultiVec_i A, ElInt alpha );
+EL_EXPORT ElError ElShiftDistMultiVec_s
+( ElDistMultiVec_s A, float alpha );
+EL_EXPORT ElError ElShiftDistMultiVec_d
+( ElDistMultiVec_d A, double alpha );
+EL_EXPORT ElError ElShiftDistMultiVec_c
+( ElDistMultiVec_c A, complex_float alpha );
+EL_EXPORT ElError ElShiftDistMultiVec_z
+( ElDistMultiVec_z A, complex_double alpha );
+
 /* ShiftDiagonal
    ============= */
 EL_EXPORT ElError ElShiftDiagonal_i

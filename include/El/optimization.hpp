@@ -858,46 +858,53 @@ Int SparseInvCov
   Base<F> rho=1., Base<F> alpha=1.2, Int maxIter=500,
   Base<F> absTol=1e-6, Base<F> relTol=1e-4, bool progress=true );
 
-// Support Vector Machine
-// ======================
-// NOTE: Currently only soft-margin SVM is supported.
+// Support Vector Machine (soft-margin)
+// ====================================
+// TODO: Use the formulation described in 
+//       <http://abel.ee.ucla.edu/cvxopt/applications/svm/>
+//
+// min_{w,beta,z} (1/2) || w ||_2^2 + lambda 1^T z
+// s.t. [-diag(d) A, -d, -I] [w; beta; z] <= -1
+//
+// The output, x, is set to the concatenation of w and beta, x := [w; beta].
+//
 
 namespace svm {
 
 // TODO: Put this into SVM as an optional backend
 template<typename Real>
 Int ADMM
-( const Matrix<Real>& G, const Matrix<Real>& q, 
-        Real gamma,            Matrix<Real>& z,
+( const Matrix<Real>& A, const Matrix<Real>& d, 
+        Real lambda,           Matrix<Real>& x,
   Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
 template<typename Real>
 Int ADMM
-( const AbstractDistMatrix<Real>& G, const AbstractDistMatrix<Real>& q, 
-        Real gamma,                        AbstractDistMatrix<Real>& z,
+( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& d, 
+        Real lambda,                       AbstractDistMatrix<Real>& x,
   Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
 
 } // namespace svm
 
+template<typename Real>
+void SVM
+( const Matrix<Real>& A, const Matrix<Real>& d, 
+        Real lambda,           Matrix<Real>& x,
+  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
+template<typename Real>
+void SVM
+( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& d, 
+        Real lambda,                       AbstractDistMatrix<Real>& x,
+  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 // NOTE: These routines are currently stubs
 template<typename Real>
 void SVM
-( const Matrix<Real>& G, const Matrix<Real>& q, 
-        Real gamma,            Matrix<Real>& x,
+( const SparseMatrix<Real>& A, const Matrix<Real>& d, 
+        Real lambda,                 Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 template<typename Real>
 void SVM
-( const AbstractDistMatrix<Real>& G, const AbstractDistMatrix<Real>& q, 
-        Real gamma,                        AbstractDistMatrix<Real>& x,
-  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
-template<typename Real>
-void SVM
-( const SparseMatrix<Real>& G, const Matrix<Real>& q, 
-        Real gamma,                  Matrix<Real>& x,
-  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
-template<typename Real>
-void SVM
-( const DistSparseMatrix<Real>& G, const DistMultiVec<Real>& q, 
-        Real gamma,                      DistMultiVec<Real>& x,
+( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& d, 
+        Real lambda,                     DistMultiVec<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 
 } // namespace El

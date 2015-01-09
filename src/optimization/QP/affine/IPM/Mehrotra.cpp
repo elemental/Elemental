@@ -290,6 +290,10 @@ void Mehrotra
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
 
+    // TODO: Expose this as a parameter to MehrotraCtrl and extend to other
+    //       QP and LP IPMs
+    bool forceSameStep = false;
+
     // TODO: Expose this as a parameter to MehrotraCtrl
     const bool standardShift = true;
     Initialize
@@ -436,8 +440,17 @@ void Mehrotra
         // NOTE: dz and ds are used as temporaries
         ds = s;
         dz = z;
-        Axpy( alphaAffPri,  dsAff, ds );
-        Axpy( alphaAffDual, dzAff, dz );
+        if( forceSameStep )
+        {
+            const Real alphaAff = Min(alphaAffPri,alphaAffDual);
+            Axpy( alphaAff, dsAff, ds );
+            Axpy( alphaAff, dzAff, dz );
+        }
+        else
+        {
+            Axpy( alphaAffPri,  dsAff, ds );
+            Axpy( alphaAffDual, dzAff, dz );
+        }
         const Real muAff = Dot(ds,dz) / k;
 
         // Compute a centrality parameter using Mehrotra's formula
@@ -487,10 +500,21 @@ void Mehrotra
 
         // Update the current estimates
         // ============================
-        Axpy( alphaPri,  dx, x );
-        Axpy( alphaPri,  ds, s );
-        Axpy( alphaDual, dy, y );
-        Axpy( alphaDual, dz, z );
+        if( forceSameStep )
+        {
+            Real alpha = Min(alphaPri,alphaDual);
+            Axpy( alpha, dx, x );
+            Axpy( alpha, ds, s );
+            Axpy( alpha, dy, y );
+            Axpy( alpha, dz, z );
+        }
+        else
+        {
+            Axpy( alphaPri,  dx, x );
+            Axpy( alphaPri,  ds, s );
+            Axpy( alphaDual, dy, y );
+            Axpy( alphaDual, dz, z );
+        }
     }
 }
 

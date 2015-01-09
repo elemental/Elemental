@@ -1559,6 +1559,110 @@ def SparseInvCov(D,lamb):
 
 # Support Vector Machine
 # ======================
+lib.ElSVM_s.argtypes = \
+lib.ElSVMDist_s.argtypes = \
+lib.ElSVMSparse_s.argtypes = \
+lib.ElSVMDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,sType,c_void_p]
+lib.ElSVM_d.argtypes = \
+lib.ElSVMDist_d.argtypes = \
+lib.ElSVMSparse_d.argtypes = \
+lib.ElSVMDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,dType,c_void_p]
+
+lib.ElSVM_s.restype = \
+lib.ElSVM_d.restype = \
+lib.ElSVMDist_s.restype = \
+lib.ElSVMDist_d.restype = \
+lib.ElSVMSparse_s.restype = \
+lib.ElSVMSparse_d.restype = \
+lib.ElSVMDistSparse_s.restype = \
+lib.ElSVMDistSparse_d.restype = \
+  c_uint
+
+lib.ElSVMX_s.argtypes = \
+lib.ElSVMXDist_s.argtypes = \
+lib.ElSVMXSparse_s.argtypes = \
+lib.ElSVMXDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,sType,c_void_p,
+   QPAffineCtrl_s]
+lib.ElSVMX_d.argtypes = \
+lib.ElSVMXDist_d.argtypes = \
+lib.ElSVMXSparse_d.argtypes = \
+lib.ElSVMXDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,dType,c_void_p,
+   QPAffineCtrl_d]
+lib.ElSVMX_s.restype = \
+lib.ElSVMX_d.restype = \
+lib.ElSVMXDist_s.restype = \
+lib.ElSVMXDist_d.restype = \
+lib.ElSVMXSparse_s.restype = \
+lib.ElSVMXSparse_d.restype = \
+lib.ElSVMXDistSparse_s.restype = \
+lib.ElSVMXDistSparse_d.restype = \
+  c_uint
+
+def SVM(A,d,lambdPre,ctrl=None):
+  if A.tag != d.tag:
+    raise Exception('Datatypes of A and d must match')
+  lambd = TagToType(A.tag)(lambdPre)
+  if type(A) is Matrix:
+    if type(d) is not Matrix:
+      raise Exception('d must be a Matrix')
+    x = Matrix(A.tag)
+    args = [A.obj,d.obj,lambd,x.obj]
+    argsCtrl = [A.obj,d.obj,lambd,x.obj,ctrl] 
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElSVM_s(*args)
+      else:            lib.ElSVMX_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElSVM_d(*args)
+      else:            lib.ElSVMX_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is DistMatrix:
+    if type(d) is not DistMatrix:
+      raise Exception('d must be a DistMatrix')
+    x = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,d.obj,lambd,x.obj]
+    argsCtrl = [A.obj,d.obj,lambd,x.obj,ctrl] 
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElSVMDist_s(*args)
+      else:            lib.ElSVMXDist_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElSVMDist_d(*args)
+      else:            lib.ElSVMXDist_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is SparseMatrix:
+    if type(d) is not Matrix:
+      raise Exception('d must be a Matrix')
+    x = Matrix(A.tag)
+    args = [A.obj,d.obj,lambd,x.obj]
+    argsCtrl = [A.obj,d.obj,lambd,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElSVMSparse_s(*args)
+      else:            lib.ElSVMXSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElSVMSparse_d(*args)
+      else:            lib.ElSVMXSparse_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is DistSparseMatrix:
+    if type(d) is not DistMultiVec:
+      raise Exception('d must be a DistMultiVec')
+    x = DistMultiVec(A.tag,A.Comm())
+    args = [A.obj,d.obj,lambd,x.obj]
+    argsCtrl = [A.obj,d.obj,lambd,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElSVMDistSparse_s(*args)
+      else:            lib.ElSVMXDistSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElSVMDistSparse_d(*args)
+      else:            lib.ElSVMXDistSparse_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  else: TypeExcept()
 
 # ADMM
 # ----

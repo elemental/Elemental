@@ -2116,48 +2116,120 @@ def ScaleTrapezoid(alphaPre,uplo,A,offset=0):
 # ------------
 # TODO
 
+# Shift
+# -----
+lib.ElShift_i.argtypes = \
+lib.ElShiftDist_i.argtypes = \
+lib.ElShiftDistMultiVec_i.argtypes = \
+  [c_void_p,iType]
+lib.ElShift_s.argtypes = \
+lib.ElShiftDist_s.argtypes = \
+lib.ElShiftDistMultiVec_s.argtypes = \
+  [c_void_p,sType]
+lib.ElShift_d.argtypes = \
+lib.ElShiftDist_d.argtypes = \
+lib.ElShiftDistMultiVec_d.argtypes = \
+  [c_void_p,dType]
+lib.ElShift_c.argtypes = \
+lib.ElShiftDist_c.argtypes = \
+lib.ElShiftDistMultiVec_c.argtypes = \
+  [c_void_p,cType]
+lib.ElShift_z.argtypes = \
+lib.ElShiftDist_z.argtypes = \
+lib.ElShiftDistMultiVec_z.argtypes = \
+  [c_void_p,zType]
+lib.ElShift_i.restype = \
+lib.ElShift_s.restype = \
+lib.ElShift_d.restype = \
+lib.ElShift_c.restype = \
+lib.ElShift_z.restype = \
+lib.ElShiftDist_i.restype = \
+lib.ElShiftDist_s.restype = \
+lib.ElShiftDist_d.restype = \
+lib.ElShiftDist_c.restype = \
+lib.ElShiftDist_z.restype = \
+lib.ElShiftDistMultiVec_i.restype = \
+lib.ElShiftDistMultiVec_s.restype = \
+lib.ElShiftDistMultiVec_d.restype = \
+lib.ElShiftDistMultiVec_c.restype = \
+lib.ElShiftDistMultiVec_z.restype = \
+  c_uint
+def Shift(A,alphaPre):
+  alpha = TagToType(A.tag)(alphaPre)
+  args = [A.obj,alpha]
+  if type(A) is Matrix:
+    if   A.tag == iTag: lib.ElShift_i(*args)
+    elif A.tag == sTag: lib.ElShift_s(*args)
+    elif A.tag == dTag: lib.ElShift_d(*args)
+    elif A.tag == cTag: lib.ElShift_c(*args)
+    elif A.tag == zTag: lib.ElShift_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMatrix:
+    if   A.tag == iTag: lib.ElShiftDist_i(*args)
+    elif A.tag == sTag: lib.ElShiftDist_s(*args)
+    elif A.tag == dTag: lib.ElShiftDist_d(*args)
+    elif A.tag == cTag: lib.ElShiftDist_c(*args)
+    elif A.tag == zTag: lib.ElShiftDist_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMultiVec:
+    if   A.tag == iTag: lib.ElShiftDistMultiVec_i(*args)
+    elif A.tag == sTag: lib.ElShiftDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElShiftDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElShiftDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElShiftDistMultiVec_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
+
 # Shift diagonal
 # --------------
-lib.ElShiftDiagonal_i.argtypes = [c_void_p,iType,iType]
-lib.ElShiftDiagonal_i.restype = c_uint
-lib.ElShiftDiagonal_s.argtypes = [c_void_p,sType,iType]
-lib.ElShiftDiagonal_s.restype = c_uint
-lib.ElShiftDiagonal_d.argtypes = [c_void_p,dType,iType]
-lib.ElShiftDiagonal_d.restype = c_uint
-lib.ElShiftDiagonal_c.argtypes = [c_void_p,cType,iType]
-lib.ElShiftDiagonal_c.restype = c_uint
-lib.ElShiftDiagonal_z.argtypes = [c_void_p,zType,iType]
-lib.ElShiftDiagonal_z.restype = c_uint
-lib.ElShiftDiagonalDist_i.argtypes = [c_void_p,iType,iType]
-lib.ElShiftDiagonalDist_i.restype = c_uint
-lib.ElShiftDiagonalDist_s.argtypes = [c_void_p,sType,iType]
-lib.ElShiftDiagonalDist_s.restype = c_uint
-lib.ElShiftDiagonalDist_d.argtypes = [c_void_p,dType,iType]
-lib.ElShiftDiagonalDist_d.restype = c_uint
-lib.ElShiftDiagonalDist_c.argtypes = [c_void_p,cType,iType]
-lib.ElShiftDiagonalDist_c.restype = c_uint
-lib.ElShiftDiagonalDist_z.argtypes = [c_void_p,zType,iType]
-lib.ElShiftDiagonalDist_z.restype = c_uint
-lib.ElShiftDiagonalSparse_i.argtypes = [c_void_p,iType,iType]
-lib.ElShiftDiagonalSparse_i.restype = c_uint
-lib.ElShiftDiagonalSparse_s.argtypes = [c_void_p,sType,iType]
-lib.ElShiftDiagonalSparse_s.restype = c_uint
-lib.ElShiftDiagonalSparse_d.argtypes = [c_void_p,dType,iType]
-lib.ElShiftDiagonalSparse_d.restype = c_uint
-lib.ElShiftDiagonalSparse_c.argtypes = [c_void_p,cType,iType]
-lib.ElShiftDiagonalSparse_c.restype = c_uint
-lib.ElShiftDiagonalSparse_z.argtypes = [c_void_p,zType,iType]
-lib.ElShiftDiagonalSparse_z.restype = c_uint
-lib.ElShiftDiagonalDistSparse_i.argtypes = [c_void_p,iType,iType]
-lib.ElShiftDiagonalDistSparse_i.restype = c_uint
-lib.ElShiftDiagonalDistSparse_s.argtypes = [c_void_p,sType,iType]
-lib.ElShiftDiagonalDistSparse_s.restype = c_uint
-lib.ElShiftDiagonalDistSparse_d.argtypes = [c_void_p,dType,iType]
-lib.ElShiftDiagonalDistSparse_d.restype = c_uint
-lib.ElShiftDiagonalDistSparse_c.argtypes = [c_void_p,cType,iType]
-lib.ElShiftDiagonalDistSparse_c.restype = c_uint
-lib.ElShiftDiagonalDistSparse_z.argtypes = [c_void_p,zType,iType]
-lib.ElShiftDiagonalDistSparse_z.restype = c_uint
+lib.ElShiftDiagonal_i.argtypes = \
+lib.ElShiftDiagonalDist_i.argtypes = \
+lib.ElShiftDiagonalSparse_i.argtypes = \
+lib.ElShiftDiagonalDistSparse_i.argtypes = \
+  [c_void_p,iType,iType]
+lib.ElShiftDiagonal_s.argtypes = \
+lib.ElShiftDiagonalDist_s.argtypes = \
+lib.ElShiftDiagonalSparse_s.argtypes = \
+lib.ElShiftDiagonalDistSparse_s.argtypes = \
+  [c_void_p,sType,iType]
+lib.ElShiftDiagonal_d.argtypes = \
+lib.ElShiftDiagonalDist_d.argtypes = \
+lib.ElShiftDiagonalSparse_d.argtypes = \
+lib.ElShiftDiagonalDistSparse_d.argtypes = \
+  [c_void_p,dType,iType]
+lib.ElShiftDiagonal_c.argtypes = \
+lib.ElShiftDiagonalDist_c.argtypes = \
+lib.ElShiftDiagonalSparse_c.argtypes = \
+lib.ElShiftDiagonalDistSparse_c.argtypes = \
+  [c_void_p,cType,iType]
+lib.ElShiftDiagonal_z.argtypes = \
+lib.ElShiftDiagonalDist_z.argtypes = \
+lib.ElShiftDiagonalSparse_z.argtypes = \
+lib.ElShiftDiagonalDistSparse_z.argtypes = \
+  [c_void_p,zType,iType]
+
+lib.ElShiftDiagonal_i.restype = \
+lib.ElShiftDiagonal_s.restype = \
+lib.ElShiftDiagonal_d.restype = \
+lib.ElShiftDiagonal_c.restype = \
+lib.ElShiftDiagonal_z.restype = \
+lib.ElShiftDiagonalDist_i.restype = \
+lib.ElShiftDiagonalDist_s.restype = \
+lib.ElShiftDiagonalDist_d.restype = \
+lib.ElShiftDiagonalDist_c.restype = \
+lib.ElShiftDiagonalDist_z.restype = \
+lib.ElShiftDiagonalSparse_i.restype = \
+lib.ElShiftDiagonalSparse_s.restype = \
+lib.ElShiftDiagonalSparse_d.restype = \
+lib.ElShiftDiagonalSparse_c.restype = \
+lib.ElShiftDiagonalSparse_z.restype = \
+lib.ElShiftDiagonalDistSparse_i.restype = \
+lib.ElShiftDiagonalDistSparse_s.restype = \
+lib.ElShiftDiagonalDistSparse_d.restype = \
+lib.ElShiftDiagonalDistSparse_c.restype = \
+lib.ElShiftDiagonalDistSparse_z.restype = \
+  c_uint
+
 def ShiftDiagonal(A,alphaPre,offset=0):
   alpha = TagToType(A.tag)(alphaPre)
   args = [A.obj,alpha,offset]

@@ -658,6 +658,46 @@ ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
     Real lambda, ElDistMultiVec_ ## SIG x, ElQPAffineCtrl_ ## SIG ctrl ) \
   { EL_TRY( BPDN \
       ( *CReflect(A), *CReflect(b), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
+  /* Support Vector Machine (soft-margin) 
+     ==================================== */ \
+  ElError ElSVM_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG d, \
+    Real lambda, ElMatrix_ ## SIG x ) \
+  { EL_TRY( SVM( *CReflect(A), *CReflect(d), lambda, *CReflect(x) ) ) } \
+  ElError ElSVMDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG d, \
+    Real lambda, ElDistMatrix_ ## SIG x ) \
+  { EL_TRY( SVM( *CReflect(A), *CReflect(d), lambda, *CReflect(x) ) ) } \
+  ElError ElSVMSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG d, \
+    Real lambda, ElMatrix_ ## SIG x ) \
+  { EL_TRY( SVM( *CReflect(A), *CReflect(d), lambda, *CReflect(x) ) ) } \
+  ElError ElSVMDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG d, \
+    Real lambda, ElDistMultiVec_ ## SIG x ) \
+  { EL_TRY( SVM( *CReflect(A), *CReflect(d), lambda, *CReflect(x) ) ) } \
+  /* Expert versions
+     --------------- */ \
+  ElError ElSVMX_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG d, \
+    Real lambda, ElMatrix_ ## SIG x, ElQPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( SVM \
+      ( *CReflect(A), *CReflect(d), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElSVMXDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG d, \
+    Real lambda, ElDistMatrix_ ## SIG x, ElQPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( SVM \
+      ( *CReflect(A), *CReflect(d), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElSVMXSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG d, \
+    Real lambda, ElMatrix_ ## SIG x, ElQPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( SVM \
+      ( *CReflect(A), *CReflect(d), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElSVMXDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG d, \
+    Real lambda, ElDistMultiVec_ ## SIG x, ElQPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( SVM \
+      ( *CReflect(A), *CReflect(d), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
   /* Linear program
      ============== */ \
   /* Direct conic form
