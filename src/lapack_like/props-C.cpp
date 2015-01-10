@@ -226,6 +226,9 @@ extern "C" {
   ElError ElFrobeniusNormDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, Base<F>* norm ) \
   { EL_TRY( *norm = FrobeniusNorm( *CReflect(A) ) ) } \
+  ElError ElFrobeniusNormDistMultiVec_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG A, Base<F>* norm ) \
+  { EL_TRY( *norm = FrobeniusNorm( *CReflect(A) ) ) } \
   ElError ElSymmetricFrobeniusNorm_ ## SIG \
   ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, Base<F>* norm ) \
   { EL_TRY( *norm = SymmetricFrobeniusNorm( CReflect(uplo), *CReflect(A) ) ) } \

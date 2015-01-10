@@ -738,6 +738,12 @@ EL_EXPORT ElError ElOnesDist_d( ElDistMatrix_d A, ElInt m, ElInt n );
 EL_EXPORT ElError ElOnesDist_c( ElDistMatrix_c A, ElInt m, ElInt n );
 EL_EXPORT ElError ElOnesDist_z( ElDistMatrix_z A, ElInt m, ElInt n );
 
+EL_EXPORT ElError ElOnesDistMultiVec_i( ElDistMultiVec_i A, ElInt m, ElInt n );
+EL_EXPORT ElError ElOnesDistMultiVec_s( ElDistMultiVec_s A, ElInt m, ElInt n );
+EL_EXPORT ElError ElOnesDistMultiVec_d( ElDistMultiVec_d A, ElInt m, ElInt n );
+EL_EXPORT ElError ElOnesDistMultiVec_c( ElDistMultiVec_c A, ElInt m, ElInt n );
+EL_EXPORT ElError ElOnesDistMultiVec_z( ElDistMultiVec_z A, ElInt m, ElInt n );
+
 /* 1-2-1
    ===== */
 EL_EXPORT ElError ElOneTwoOne_i( ElMatrix_i A, ElInt n );

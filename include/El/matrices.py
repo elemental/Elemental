@@ -1677,14 +1677,17 @@ def MinIJ(A,n):
 
 # Normal from EVD
 # ---------------
-lib.ElNormalFromEVD_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElNormalFromEVD_c.restype = c_uint
-lib.ElNormalFromEVD_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElNormalFromEVD_z.restype = c_uint
-lib.ElNormalFromEVDDist_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElNormalFromEVDDist_c.restype = c_uint
-lib.ElNormalFromEVDDist_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElNormalFromEVDDist_z.restype = c_uint
+lib.ElNormalFromEVD_c.argtypes = \
+lib.ElNormalFromEVD_z.argtypes = \
+lib.ElNormalFromEVDDist_c.argtypes = \
+lib.ElNormalFromEVDDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+lib.ElNormalFromEVD_c.restype = \
+lib.ElNormalFromEVD_z.restype = \
+lib.ElNormalFromEVDDist_c.restype = \
+lib.ElNormalFromEVDDist_z.restype = \
+  c_uint
+
 def NormalFromEVD(A,w,Z):
   if type(A) is not type(w): raise Exception('Types of A and w must match')
   if type(A) is not type(Z): raise Exception('Types of A and Z must match')
@@ -1703,14 +1706,40 @@ def NormalFromEVD(A,w,Z):
 
 # Ones
 # ----
-lib.ElOnes_c.argtypes = [c_void_p,iType,iType]
-lib.ElOnes_c.restype = c_uint
-lib.ElOnes_z.argtypes = [c_void_p,iType,iType]
-lib.ElOnes_z.restype = c_uint
-lib.ElOnesDist_c.argtypes = [c_void_p,iType,iType]
-lib.ElOnesDist_c.restype = c_uint
-lib.ElOnesDist_z.argtypes = [c_void_p,iType,iType]
-lib.ElOnesDist_z.restype = c_uint
+lib.ElOnes_i.argtypes = \
+lib.ElOnes_s.argtypes = \
+lib.ElOnes_d.argtypes = \
+lib.ElOnes_c.argtypes = \
+lib.ElOnes_z.argtypes = \
+lib.ElOnesDist_i.argtypes = \
+lib.ElOnesDist_s.argtypes = \
+lib.ElOnesDist_d.argtypes = \
+lib.ElOnesDist_c.argtypes = \
+lib.ElOnesDist_z.argtypes = \
+lib.ElOnesDistMultiVec_i.argtypes = \
+lib.ElOnesDistMultiVec_s.argtypes = \
+lib.ElOnesDistMultiVec_d.argtypes = \
+lib.ElOnesDistMultiVec_c.argtypes = \
+lib.ElOnesDistMultiVec_z.argtypes = \
+  [c_void_p,iType,iType]
+
+lib.ElOnes_i.restype = \
+lib.ElOnes_s.restype = \
+lib.ElOnes_d.restype = \
+lib.ElOnes_c.restype = \
+lib.ElOnes_z.restype = \
+lib.ElOnesDist_i.restype = \
+lib.ElOnesDist_s.restype = \
+lib.ElOnesDist_d.restype = \
+lib.ElOnesDist_c.restype = \
+lib.ElOnesDist_z.restype = \
+lib.ElOnesDistMultiVec_i.restype = \
+lib.ElOnesDistMultiVec_s.restype = \
+lib.ElOnesDistMultiVec_d.restype = \
+lib.ElOnesDistMultiVec_c.restype = \
+lib.ElOnesDistMultiVec_z.restype = \
+  c_uint
+
 def Ones(A,m,n):
   args = [A.obj,m,n]
   if type(A) is Matrix:
@@ -1726,6 +1755,13 @@ def Ones(A,m,n):
     elif A.tag == dTag: lib.ElOnesDist_d(*args)
     elif A.tag == cTag: lib.ElOnesDist_c(*args)
     elif A.tag == zTag: lib.ElOnesDist_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMultiVec:
+    if   A.tag == iTag: lib.ElOnesDistMultiVec_i(*args)
+    elif A.tag == sTag: lib.ElOnesDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElOnesDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElOnesDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElOnesDistMultiVec_z(*args)
     else: DataExcept()
   else: TypeExcept()
 

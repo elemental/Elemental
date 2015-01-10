@@ -726,6 +726,8 @@ lib.ElFrobeniusNormSparse_s.argtypes = \
 lib.ElFrobeniusNormSparse_c.argtypes = \
 lib.ElFrobeniusNormDistSparse_s.argtypes = \
 lib.ElFrobeniusNormDistSparse_c.argtypes = \
+lib.ElFrobeniusNormDistMultiVec_s.argtypes = \
+lib.ElFrobeniusNormDistMultiVec_c.argtypes = \
   [c_void_p,POINTER(sType)]
 
 lib.ElFrobeniusNorm_d.argtypes = \
@@ -736,6 +738,8 @@ lib.ElFrobeniusNormSparse_d.argtypes = \
 lib.ElFrobeniusNormSparse_z.argtypes = \
 lib.ElFrobeniusNormDistSparse_d.argtypes = \
 lib.ElFrobeniusNormDistSparse_z.argtypes = \
+lib.ElFrobeniusNormDistMultiVec_d.argtypes = \
+lib.ElFrobeniusNormDistMultiVec_z.argtypes = \
   [c_void_p,POINTER(dType)]
 
 lib.ElFrobeniusNorm_s.restype = \
@@ -754,6 +758,10 @@ lib.ElFrobeniusNormDistSparse_s.restype = \
 lib.ElFrobeniusNormDistSparse_d.restype = \
 lib.ElFrobeniusNormDistSparse_c.restype = \
 lib.ElFrobeniusNormDistSparse_z.restype = \
+lib.ElFrobeniusNormDistMultiVec_s.restype = \
+lib.ElFrobeniusNormDistMultiVec_d.restype = \
+lib.ElFrobeniusNormDistMultiVec_c.restype = \
+lib.ElFrobeniusNormDistMultiVec_z.restype = \
   c_uint
 
 def FrobeniusNorm(A):
@@ -782,6 +790,12 @@ def FrobeniusNorm(A):
     elif A.tag == dTag: lib.ElFrobeniusNormDistSparse_d(*args)
     elif A.tag == cTag: lib.ElFrobeniusNormDistSparse_c(*args)
     elif A.tag == zTag: lib.ElFrobeniusNormDistSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMultiVec:
+    if   A.tag == sTag: lib.ElFrobeniusNormDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElFrobeniusNormDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElFrobeniusNormDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElFrobeniusNormDistMultiVec_z(*args)
     else: DataExcept()
   else: TypeExcept()
   return norm.value

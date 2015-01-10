@@ -375,6 +375,14 @@ EL_EXPORT ElError ElFrobeniusNormDistSparse_c
 ( ElConstDistSparseMatrix_c A, float* norm );
 EL_EXPORT ElError ElFrobeniusNormDistSparse_z
 ( ElConstDistSparseMatrix_z A, double* norm );
+EL_EXPORT ElError ElFrobeniusNormDistMultiVec_s
+( ElConstDistMultiVec_s A, float* norm );
+EL_EXPORT ElError ElFrobeniusNormDistMultiVec_d
+( ElConstDistMultiVec_d A, double* norm );
+EL_EXPORT ElError ElFrobeniusNormDistMultiVec_c
+( ElConstDistMultiVec_c A, float* norm );
+EL_EXPORT ElError ElFrobeniusNormDistMultiVec_z
+( ElConstDistMultiVec_z A, double* norm );
 
 EL_EXPORT ElError ElHermitianFrobeniusNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float* norm );

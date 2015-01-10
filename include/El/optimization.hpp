@@ -864,7 +864,10 @@ Int SparseInvCov
 //       <http://abel.ee.ucla.edu/cvxopt/applications/svm/>
 //
 // min_{w,beta,z} (1/2) || w ||_2^2 + lambda 1^T z
-// s.t. [-diag(d) A, -d, -I] [w; beta; z] <= -1
+//
+// s.t. | -diag(d) A, -d, -I | | w    | <= | -1 |
+//      |       0,     0, -I | | beta |    |  0 |
+//                             | z    |
 //
 // The output, x, is set to the concatenation of w and beta, x := [w; beta].
 //
@@ -885,6 +888,8 @@ Int ADMM
 
 } // namespace svm
 
+// TODO: Switch to explicitly returning w, beta, and z, as it is difficult
+//       for users to unpack a DistMultiVec
 template<typename Real>
 void SVM
 ( const Matrix<Real>& A, const Matrix<Real>& d, 
@@ -895,7 +900,6 @@ void SVM
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& d, 
         Real lambda,                       AbstractDistMatrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
-// NOTE: These routines are currently stubs
 template<typename Real>
 void SVM
 ( const SparseMatrix<Real>& A, const Matrix<Real>& d, 

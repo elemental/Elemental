@@ -133,6 +133,9 @@ extern "C" {
   { EL_TRY( Ones( *CReflect(A), m, n ) ) } \
   ElError ElOnesDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n ) \
   { EL_TRY( Ones( *CReflect(A), m, n ) ) } \
+  ElError ElOnesDistMultiVec_ ## SIG \
+  ( ElDistMultiVec_ ## SIG A, ElInt m, ElInt n ) \
+  { EL_TRY( Ones( *CReflect(A), m, n ) ) } \
   /* 1-2-1 */ \
   ElError ElOneTwoOne_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( OneTwoOne( *CReflect(A), n ) ) } \
