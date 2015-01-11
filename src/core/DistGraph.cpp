@@ -386,13 +386,11 @@ void DistGraph::ComputeEdgeOffsets()
           if( source < prevSource )
               RuntimeError("sources were not properly sorted");
         )
-        while( source != prevSource )
-        {
+        for( ; prevSource<source; ++prevSource )
             localEdgeOffsets_[sourceOffset++] = localEdge;
-            ++prevSource;
-        }
     }
-    localEdgeOffsets_[numLocalSources_] = numLocalEdges;
+    for( ; sourceOffset<=numLocalSources_; ++sourceOffset )
+        localEdgeOffsets_[sourceOffset] = numLocalEdges;
 }
 
 void DistGraph::AssertConsistent() const

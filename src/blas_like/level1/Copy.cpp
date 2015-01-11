@@ -437,7 +437,7 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
     const int numEntries = Scan( entrySizes, entryOffsets );
 
     std::vector<T> recvBuf( numEntries );
-    X.Resize( m, n, m );
+    X.Resize( m, n, Max(m,1) );
     const auto& XDistLoc = XDist.LockedMatrix();
     if( XDistLoc.Height() == XDistLoc.LDim() )
     {

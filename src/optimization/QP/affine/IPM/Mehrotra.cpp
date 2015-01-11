@@ -90,8 +90,7 @@ void Mehrotra
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
-        rb = b;
-        Scale( Real(-1), rb );
+        rb = b; Scale( Real(-1), rb );
         Gemv( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
@@ -105,8 +104,7 @@ void Mehrotra
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
-        rh = h;
-        Scale( Real(-1), rh );
+        rh = h; Scale( Real(-1), rh );
         Gemv( NORMAL, Real(1), G, x, Real(1), rh );
         Axpy( Real(1), s, rh ); 
         const Real rhNrm2 = Nrm2( rh );
@@ -338,8 +336,7 @@ void Mehrotra
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
-        rb = b;
-        Scale( Real(-1), rb );
+        rb = b; Scale( Real(-1), rb );
         Gemv( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
@@ -353,8 +350,7 @@ void Mehrotra
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
-        rh = h;
-        Scale( Real(-1), rh );
+        rh = h; Scale( Real(-1), rh );
         Gemv( NORMAL, Real(1), G, x, Real(1), rh );
         Axpy( Real(1), s, rh ); 
         const Real rhNrm2 = Nrm2( rh );
@@ -618,8 +614,7 @@ void Mehrotra
         const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
-        rb = b;
-        Scale( Real(-1), rb );
+        rb = b; Scale( Real(-1), rb );
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
@@ -633,8 +628,7 @@ void Mehrotra
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
-        rh = h;
-        Scale( Real(-1), rh );
+        rh = h; Scale( Real(-1), rh );
         Multiply( NORMAL, Real(1), G, x, Real(1), rh );
         Axpy( Real(1), s, rh );
         const Real rhNrm2 = Nrm2( rh );

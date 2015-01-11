@@ -158,7 +158,7 @@ void Multiply
         }
         meta.sendInds.resize( numSendInds );
         mpi::AllToAll
-        ( recvInds.data(), meta.recvSizes.data(), meta.recvOffs.data(),
+        ( recvInds.data(),      meta.recvSizes.data(), meta.recvOffs.data(),
           meta.sendInds.data(), meta.sendSizes.data(), meta.sendOffs.data(), 
           comm );
 
@@ -197,14 +197,9 @@ void Multiply
         for( Int s=0; s<numSendInds; ++s )
         {
             const Int i = meta.sendInds[s];
-            const Int iLocal = i - firstLocalRow;
-            DEBUG_ONLY(
-                if( iLocal < 0 || iLocal >= X.LocalHeight() )
-                    LogicError("iLocal was out of bounds: ",iLocal,
-                                " not in [0,",X.LocalHeight(),")");
-            )
+            const Int iLoc = i - firstLocalRow;
             for( Int t=0; t<b; ++t )
-                sendVals[s*b+t] = X.GetLocal( iLocal, t );
+                sendVals[s*b+t] = X.GetLocal( iLoc, t );
         }
 
         // Now send them
@@ -215,10 +210,10 @@ void Multiply
      
         // Perform the local multiply-accumulate, y := alpha A x + y
         const Int ALocalHeight = A.LocalHeight();
-        for( Int iLocal=0; iLocal<ALocalHeight; ++iLocal )
+        for( Int iLoc=0; iLoc<ALocalHeight; ++iLoc )
         {
-            const Int off = A.EntryOffset( iLocal );
-            const Int rowSize = A.NumConnections( iLocal );
+            const Int off = A.EntryOffset( iLoc );
+            const Int rowSize = A.NumConnections( iLoc );
             for( Int k=0; k<rowSize; ++k )
             {
                 const Int colOff = meta.colOffs[k+off];
@@ -226,7 +221,7 @@ void Multiply
                 for( Int t=0; t<b; ++t )
                 {
                     const T XVal = recvVals[colOff*b+t];
-                    Y.UpdateLocal( iLocal, t, alpha*AVal*XVal );
+                    Y.UpdateLocal( iLoc, t, alpha*AVal*XVal );
                 }
             }
         }
@@ -242,17 +237,17 @@ void Multiply
         const bool conjugate = ( orientation == ADJOINT );
         std::vector<T> sendVals( meta.numRecvInds*b, 0 );
         const Int ALocalHeight = A.LocalHeight();
-        for( Int iLocal=0; iLocal<ALocalHeight; ++iLocal )
+        for( Int iLoc=0; iLoc<ALocalHeight; ++iLoc )
         {
-            const Int off = A.EntryOffset( iLocal );
-            const Int rowSize = A.NumConnections( iLocal );
+            const Int off = A.EntryOffset( iLoc );
+            const Int rowSize = A.NumConnections( iLoc );
             for( Int k=0; k<rowSize; ++k )
             {
                 const Int colOff = meta.colOffs[k+off];
                 const T AVal = A.Value(k+off);
                 for( Int t=0; t<b; ++t )
                 {
-                    const T XVal = X.GetLocal(iLocal,t);
+                    const T XVal = X.GetLocal(iLoc,t);
                     if( conjugate )
                         sendVals[colOff*b+t] += alpha*Conj(AVal)*XVal;
                     else
@@ -273,14 +268,9 @@ void Multiply
         for( Int s=0; s<numRecvInds; ++s )
         {
             const Int i = meta.sendInds[s];
-            const Int iLocal = i - firstLocalRow;
-            DEBUG_ONLY(
-                if( iLocal < 0 || iLocal >= Y.LocalHeight() )
-                    LogicError("iLocal was out of bounds: ",iLocal,
-                                " not in [0,",Y.LocalHeight(),")");
-            )
+            const Int iLoc = i - firstLocalRow;
             for( Int t=0; t<b; ++t )
-                Y.UpdateLocal( iLocal, t, recvVals[s*b+t] );
+                Y.UpdateLocal( iLoc, t, recvVals[s*b+t] );
         }
     }
 }

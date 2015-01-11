@@ -12,8 +12,8 @@ import El, time
 #       Perhaps a weighted coin should be flipped based upon the distance to the
 #       hyperplane.
 
-m = 400
-n = 200
+m = 4000
+n = 2000
 numLambdas = 4
 startLambda = 1
 endLambda = 10
@@ -47,13 +47,6 @@ def Rectang(height,width):
 # Define a random (affine) hyperplane
 wGen = El.DistMultiVec()
 El.Gaussian( wGen, n, 1 )
-#El.Zeros( wGen, n, 1 )
-#for iLoc in xrange(wGen.LocalHeight()):
-#  i = wGen.GlobalRow(iLoc)
-#  if i % 2 == 0:
-#    wGen.SetLocal( iLoc, 0,  1 );
-#  else:
-#    wGen.SetLocal( iLoc, 0, -1 );
 wGenNorm = El.FrobeniusNorm( wGen )
 El.Scale( 1./wGenNorm, wGen )
 El.Print( wGen, "wGen" )
