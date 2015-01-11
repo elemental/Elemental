@@ -157,16 +157,35 @@ lib.ElDistMultiVecBlocksize_c.restype = c_uint
 lib.ElDistMultiVecBlocksize_z.argtypes = [c_void_p,POINTER(iType)]
 lib.ElDistMultiVecBlocksize_z.restype = c_uint
 
-lib.ElDistMultiVecRowOwner_i.argtypes = [c_void_p,iType,POINTER(c_int)]
-lib.ElDistMultiVecRowOwner_i.restype = c_uint
-lib.ElDistMultiVecRowOwner_s.argtypes = [c_void_p,iType,POINTER(c_int)]
-lib.ElDistMultiVecRowOwner_s.restype = c_uint
-lib.ElDistMultiVecRowOwner_d.argtypes = [c_void_p,iType,POINTER(c_int)]
-lib.ElDistMultiVecRowOwner_d.restype = c_uint
-lib.ElDistMultiVecRowOwner_c.argtypes = [c_void_p,iType,POINTER(c_int)]
-lib.ElDistMultiVecRowOwner_c.restype = c_uint
-lib.ElDistMultiVecRowOwner_z.argtypes = [c_void_p,iType,POINTER(c_int)]
-lib.ElDistMultiVecRowOwner_z.restype = c_uint
+# TODO: Finish sweeping up
+
+lib.ElDistMultiVecRowOwner_i.argtypes = \
+lib.ElDistMultiVecRowOwner_s.argtypes = \
+lib.ElDistMultiVecRowOwner_d.argtypes = \
+lib.ElDistMultiVecRowOwner_c.argtypes = \
+lib.ElDistMultiVecRowOwner_z.argtypes = \
+  [c_void_p,iType,POINTER(c_int)]
+lib.ElDistMultiVecRowOwner_i.restype = \
+lib.ElDistMultiVecRowOwner_s.restype = \
+lib.ElDistMultiVecRowOwner_d.restype = \
+lib.ElDistMultiVecRowOwner_c.restype = \
+lib.ElDistMultiVecRowOwner_z.restype = \
+  c_uint
+
+lib.ElDistMultiVecGlobalRow_i.argtypes = \
+lib.ElDistMultiVecGlobalRow_s.argtypes = \
+lib.ElDistMultiVecGlobalRow_d.argtypes = \
+lib.ElDistMultiVecGlobalRow_c.argtypes = \
+lib.ElDistMultiVecGlobalRow_z.argtypes = \
+  [c_void_p,iType,POINTER(iType)]
+lib.ElDistMultiVecGlobalRow_i.restype = \
+lib.ElDistMultiVecGlobalRow_s.restype = \
+lib.ElDistMultiVecGlobalRow_d.restype = \
+lib.ElDistMultiVecGlobalRow_c.restype = \
+lib.ElDistMultiVecGlobalRow_z.restype = \
+  c_uint
+
+# TODO: Finish sweeping down
 
 lib.ElDistMultiVecGetLocal_i.argtypes = [c_void_p,iType,iType,POINTER(iType)]
 lib.ElDistMultiVecGetLocal_i.restype = c_uint
@@ -342,6 +361,16 @@ class DistMultiVec(object):
     elif self.tag == zTag: lib.ElDistMultiVecRowOwner_z(*args)
     else: DataExcept()
     return owner.value
+  def GlobalRow(self,iLoc):
+    i = iType()
+    args = [self.obj,iLoc,pointer(i)]
+    if   self.tag == iTag: lib.ElDistMultiVecGlobalRow_i(*args)
+    elif self.tag == sTag: lib.ElDistMultiVecGlobalRow_s(*args)
+    elif self.tag == dTag: lib.ElDistMultiVecGlobalRow_d(*args)
+    elif self.tag == cTag: lib.ElDistMultiVecGlobalRow_c(*args)
+    elif self.tag == zTag: lib.ElDistMultiVecGlobalRow_z(*args)
+    else: DataExcept()
+    return i.value
   # Entrywise manipulation
   # ======================
   def GetLocal(self,iLocal,j):

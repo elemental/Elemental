@@ -12,8 +12,8 @@ import El, time
 #       Perhaps a weighted coin should be flipped based upon the distance to the
 #       hyperplane.
 
-m = 4000
-n = 2000
+m = 400
+n = 200
 numLambdas = 4
 startLambda = 1
 endLambda = 10
@@ -47,8 +47,16 @@ def Rectang(height,width):
 # Define a random (affine) hyperplane
 wGen = El.DistMultiVec()
 El.Gaussian( wGen, n, 1 )
+#El.Zeros( wGen, n, 1 )
+#for iLoc in xrange(wGen.LocalHeight()):
+#  i = wGen.GlobalRow(iLoc)
+#  if i % 2 == 0:
+#    wGen.SetLocal( iLoc, 0,  1 );
+#  else:
+#    wGen.SetLocal( iLoc, 0, -1 );
 wGenNorm = El.FrobeniusNorm( wGen )
 El.Scale( 1./wGenNorm, wGen )
+El.Print( wGen, "wGen" )
 # TODO: Add support for mpi::Broadcast and randomly generate this
 offset = 0.3147
 
@@ -60,6 +68,9 @@ d = El.DistMultiVec()
 El.Ones( d, m, 1 )
 El.SparseMultiply( El.NORMAL, 1., A, wGen, -offset, d )
 El.EntrywiseMap( d, lambda alpha : 1. if alpha > 0 else -1. )
+
+El.Print( A, "A" )
+El.Print( d, "d" )
 
 if display:
   El.Display( wGen, "wGen" )

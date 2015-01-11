@@ -12,8 +12,8 @@ import El, time
 #       Perhaps a weighted coin should be flipped based upon the distance to the
 #       hyperplane.
 
-m = 200
-n = 150
+m = 400
+n = 200
 numLambdas = 4
 startLambda = 1
 endLambda = 10
@@ -25,22 +25,40 @@ def Rectang(height,width):
   El.Uniform( A, height, width )
   return A
 
+def RectangSparse(height,width):
+  A = El.DistMatrix()
+  El.Zeros( A, height, width )
+  for s in xrange(height):
+    if s < width:                        A.Update( s, s,        11 )
+    if s >= 1 and s-1 < width:           A.Update( s, s-1,      -1 )
+    if s+1 < width:                      A.Update( s, s+1,       2 )
+    if s >= height and s-height < width: A.Update( s, s-height, -3 )
+    if s+height < width:                 A.Update( s, s+height,  4 )
+    # The dense last column
+    A.Update( s, width-1, -5/height );    
+
+  return A
+
 # Define a random (affine) hyperplane
 wGen = El.DistMatrix()
 El.Gaussian( wGen, n, 1 )
 wGenNorm = El.FrobeniusNorm( wGen )
 El.Scale( 1./wGenNorm, wGen )
+El.Print( wGen, "wGen" )
 # TODO: Add support for mpi::Broadcast and randomly generate this
 offset = 0.3147
 
 # Define a random set of points
-A = Rectang(m,n)
+A = RectangSparse(m,n)
 
 # Label the points based upon their location relative to the hyperplane
 d = El.DistMatrix()
 El.Ones( d, m, 1 )
 El.Gemv( El.NORMAL, 1., A, wGen, -offset, d )
 El.EntrywiseMap( d, lambda alpha : 1. if alpha > 0 else -1. )
+
+El.Print( A, "A" )
+El.Print( d, "d" )
 
 if display:
   El.Display( wGen, "wGen" )

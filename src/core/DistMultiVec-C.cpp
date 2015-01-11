@@ -56,6 +56,9 @@ extern "C" {
   ElError ElDistMultiVecRowOwner_ ## SIG \
   ( ElConstDistMultiVec_ ## SIG A, ElInt i, int* owner ) \
   { EL_TRY( *owner = CReflect(A)->RowOwner(i) ) } \
+  ElError ElDistMultiVecGlobalRow_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG A, ElInt iLoc, ElInt* i ) \
+  { EL_TRY( *i = CReflect(A)->GlobalRow(iLoc) ) } \
   /* Entrywise manipulation */ \
   ElError ElDistMultiVecGetLocal_ ## SIG \
   ( ElConstDistMultiVec_ ## SIG A, ElInt iLocal, ElInt j, CREFLECT(T)* value ) \

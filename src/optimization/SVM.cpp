@@ -138,7 +138,7 @@ void SVM
     Zeros( h, 2*m, 1 );
     auto h0 = h( IR(0,m), IR(0,1) );
     Fill( h0, Real(-1) );
-    
+
     // Solve the affine QP
     // ===================
     DistMatrix<Real> y(g), z(g), s(g);
@@ -342,7 +342,7 @@ void SVM
             h.SetLocal( iLoc, 0, Real(-1) );
         else
             break;
-    
+
     // Solve the affine QP
     // ===================
     DistMultiVec<Real> y(comm), z(comm), s(comm);

@@ -199,6 +199,19 @@ EL_EXPORT ElError ElDistMultiVecRowOwner_c
 EL_EXPORT ElError ElDistMultiVecRowOwner_z
 ( ElConstDistMultiVec_z A, ElInt i, int* owner );
 
+/* Int DistMultiVec<T>::GlobalRow( Int iLoc ) const
+   ------------------------------------------------ */
+EL_EXPORT ElError ElDistMultiVecGlobalRow_i
+( ElConstDistMultiVec_i A, ElInt iLoc, ElInt* i );
+EL_EXPORT ElError ElDistMultiVecGlobalRow_s
+( ElConstDistMultiVec_s A, ElInt iLoc, ElInt* i );
+EL_EXPORT ElError ElDistMultiVecGlobalRow_d
+( ElConstDistMultiVec_d A, ElInt iLoc, ElInt* i );
+EL_EXPORT ElError ElDistMultiVecGlobalRow_c
+( ElConstDistMultiVec_c A, ElInt iLoc, ElInt* i );
+EL_EXPORT ElError ElDistMultiVecGlobalRow_z
+( ElConstDistMultiVec_z A, ElInt iLoc, ElInt* i );
+
 /* Entrywise manipulation
    ====================== */
 
