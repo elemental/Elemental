@@ -660,6 +660,58 @@ ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
     Real lambda, ElDistMultiVec_ ## SIG x, ElQPAffineCtrl_ ## SIG ctrl ) \
   { EL_TRY( BPDN \
       ( *CReflect(A), *CReflect(b), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
+  /* Elastic net
+     =========== */ \
+  ElError ElEN_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    Real lambda1, Real lambda2, ElMatrix_ ## SIG x ) \
+  { EL_TRY( EN( *CReflect(A), *CReflect(b), \
+      lambda1, lambda2, *CReflect(x) ) ) } \
+  ElError ElENDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
+    Real lambda1, Real lambda2, ElDistMatrix_ ## SIG x ) \
+  { EL_TRY( EN( *CReflect(A), *CReflect(b), \
+      lambda1, lambda2, *CReflect(x) ) ) } \
+  ElError ElENSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    Real lambda1, Real lambda2, ElMatrix_ ## SIG x ) \
+  { EL_TRY( EN( *CReflect(A), *CReflect(b), \
+      lambda1, lambda2, *CReflect(x) ) ) } \
+  ElError ElENDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
+    Real lambda1, Real lambda2, ElDistMultiVec_ ## SIG x ) \
+  { EL_TRY( EN( *CReflect(A), *CReflect(b), \
+      lambda1, lambda2, *CReflect(x) ) ) } \
+  /* Expert versions
+     --------------- */ \
+  ElError ElENX_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    Real lambda1, Real lambda2, ElMatrix_ ## SIG x, \
+    ElQPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( EN \
+      ( *CReflect(A), *CReflect(b), lambda1, lambda2, \
+        *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElENXDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
+    Real lambda1, Real lambda2, ElDistMatrix_ ## SIG x, \
+    ElQPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( EN \
+      ( *CReflect(A), *CReflect(b), lambda1, lambda2, \
+        *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElENXSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    Real lambda1, Real lambda2, ElMatrix_ ## SIG x, \
+    ElQPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( EN \
+      ( *CReflect(A), *CReflect(b), lambda1, lambda2, \
+        *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElENXDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
+    Real lambda1, Real lambda2, ElDistMultiVec_ ## SIG x, \
+    ElQPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( EN \
+      ( *CReflect(A), *CReflect(b), lambda1, lambda2, \
+        *CReflect(x), CReflect(ctrl) ) ) } \
   /* Support Vector Machine (soft-margin) 
      ==================================== */ \
   ElError ElSVM_ ## SIG \

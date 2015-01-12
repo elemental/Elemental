@@ -1532,6 +1532,114 @@ def BPDNADMM(A,b,lamb):
     return z, numIts
   else: TypeExcept()
 
+# Elastic net
+# ===========
+lib.ElEN_s.argtypes = \
+lib.ElENDist_s.argtypes = \
+lib.ElENSparse_s.argtypes = \
+lib.ElENDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,sType,sType,c_void_p]
+lib.ElEN_d.argtypes = \
+lib.ElENDist_d.argtypes = \
+lib.ElENSparse_d.argtypes = \
+lib.ElENDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,dType,dType,c_void_p]
+
+lib.ElEN_s.restype = \
+lib.ElEN_d.restype = \
+lib.ElENDist_s.restype = \
+lib.ElENDist_d.restype = \
+lib.ElENSparse_s.restype = \
+lib.ElENSparse_d.restype = \
+lib.ElENDistSparse_s.restype = \
+lib.ElENDistSparse_d.restype = \
+  c_uint
+
+lib.ElENX_s.argtypes = \
+lib.ElENXDist_s.argtypes = \
+lib.ElENXSparse_s.argtypes = \
+lib.ElENXDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,sType,sType,c_void_p,
+   QPAffineCtrl_s]
+lib.ElENX_d.argtypes = \
+lib.ElENXDist_d.argtypes = \
+lib.ElENXSparse_d.argtypes = \
+lib.ElENXDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,dType,dType,c_void_p,
+   QPAffineCtrl_d]
+lib.ElENX_s.restype = \
+lib.ElENX_d.restype = \
+lib.ElENXDist_s.restype = \
+lib.ElENXDist_d.restype = \
+lib.ElENXSparse_s.restype = \
+lib.ElENXSparse_d.restype = \
+lib.ElENXDistSparse_s.restype = \
+lib.ElENXDistSparse_d.restype = \
+  c_uint
+
+def EN(A,b,lambda1Pre,lambda2Pre,ctrl=None):
+  if A.tag != b.tag:
+    raise Exception('Datatypes of A and b must match')
+  lambda1 = TagToType(A.tag)(lambda1Pre)
+  lambda2 = TagToType(A.tag)(lambda2Pre)
+  if type(A) is Matrix:
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
+    x = Matrix(A.tag)
+    args = [A.obj,b.obj,lambda1,lambda2,x.obj]
+    argsCtrl = [A.obj,b.obj,lambda1,lambda2,x.obj,ctrl] 
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElEN_s(*args)
+      else:            lib.ElENX_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElEN_d(*args)
+      else:            lib.ElENX_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is DistMatrix:
+    if type(b) is not DistMatrix:
+      raise Exception('b must be a DistMatrix')
+    x = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,b.obj,lambda1,lambda2,x.obj]
+    argsCtrl = [A.obj,b.obj,lambda1,lambda2,x.obj,ctrl] 
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElENDist_s(*args)
+      else:            lib.ElENXDist_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElENDist_d(*args)
+      else:            lib.ElENXDist_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is SparseMatrix:
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
+    x = Matrix(A.tag)
+    args = [A.obj,b.obj,lambda1,lambda2,x.obj]
+    argsCtrl = [A.obj,b.obj,lambda1,lambda2,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElENSparse_s(*args)
+      else:            lib.ElENXSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElENSparse_d(*args)
+      else:            lib.ElENXSparse_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is DistSparseMatrix:
+    if type(b) is not DistMultiVec:
+      raise Exception('b must be a DistMultiVec')
+    x = DistMultiVec(A.tag,A.Comm())
+    args = [A.obj,b.obj,lambda1,lambda2,x.obj]
+    argsCtrl = [A.obj,b.obj,lambda1,lambda2,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElENDistSparse_s(*args)
+      else:            lib.ElENXDistSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElENDistSparse_d(*args)
+      else:            lib.ElENXDistSparse_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  else: TypeExcept()
+
 # Robust Principal Component Analysis
 # ===================================
 lib.ElRPCA_s.argtypes = \

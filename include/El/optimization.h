@@ -1261,6 +1261,83 @@ EL_EXPORT ElError ElBPDNADMMDist_z
 ( ElConstDistMatrix_z A, ElConstDistMatrix_z b, double lambda, 
   ElDistMatrix_z z, ElInt* numIts );
 
+// Elastic net (EN): 
+//   min || b - A x ||_2^2 + lambda_1 || x ||_1 + lambda_2 || x ||_2^2
+// ===================================================================
+EL_EXPORT ElError ElEN_s
+( ElConstMatrix_s A, ElConstMatrix_s b, 
+  float lambda1, float lambda2,
+  ElMatrix_s x );
+EL_EXPORT ElError ElEN_d
+( ElConstMatrix_d A, ElConstMatrix_d b, 
+  double lambda1, double lambda2,
+  ElMatrix_d x );
+
+EL_EXPORT ElError ElENDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_s b, 
+  float lambda1, float lambda2,
+  ElDistMatrix_s x );
+EL_EXPORT ElError ElENDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_d b, 
+  double lambda1, double lambda2,
+  ElDistMatrix_d x );
+
+EL_EXPORT ElError ElENSparse_s
+( ElConstSparseMatrix_s A, ElConstMatrix_s b, 
+  float lambda1, float lambda2,
+  ElMatrix_s x );
+EL_EXPORT ElError ElENSparse_d
+( ElConstSparseMatrix_d A, ElConstMatrix_d b, 
+  double lambda1, double lambda2,
+  ElMatrix_d x );
+
+EL_EXPORT ElError ElENDistSparse_s
+( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b, 
+  float lambda1, float lambda2,
+  ElDistMultiVec_s x );
+EL_EXPORT ElError ElENDistSparse_d
+( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b, 
+  double lambda1, double lambda2,
+  ElDistMultiVec_d x );
+
+/* Expert verions
+   -------------- */
+EL_EXPORT ElError ElENX_s
+( ElConstMatrix_s A, ElConstMatrix_s b, 
+  float lambda1, float lambda2,
+  ElMatrix_s x, ElQPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElENX_d
+( ElConstMatrix_d A, ElConstMatrix_d b, 
+  double lambda1, double lambda2,
+  ElMatrix_d x, ElQPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElENXDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_s b, 
+  float lambda1, float lambda2,
+  ElDistMatrix_s x, ElQPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElENXDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_d b, 
+  double lambda1, double lambda2,
+  ElDistMatrix_d x, ElQPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElENXSparse_s
+( ElConstSparseMatrix_s A, ElConstMatrix_s b, 
+  float lambda1, float lambda2,
+  ElMatrix_s x, ElQPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElENXSparse_d
+( ElConstSparseMatrix_d A, ElConstMatrix_d b, 
+  double lambda1, double lambda2,
+  ElMatrix_d x, ElQPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElENXDistSparse_s
+( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b, 
+  float lambda1, float lambda2,
+  ElDistMultiVec_s x, ElQPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElENXDistSparse_d
+( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b, 
+  double lambda1, double lambda2,
+  ElDistMultiVec_d x, ElQPAffineCtrl_d ctrl );
+
 /* Robust Principal Component Analysis
    =================================== */
 EL_EXPORT ElError ElRPCA_s( ElConstMatrix_s M, ElMatrix_s L, ElMatrix_s S );
