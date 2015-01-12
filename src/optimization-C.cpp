@@ -931,6 +931,14 @@ ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
     ElDistMatrix_ ## SIG x ) \
   { EL_TRY( NNLS( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ElError ElNNLSSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    ElMatrix_ ## SIG x ) \
+  { EL_TRY( NNLS( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ElError ElNNLSDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
+    ElDistMultiVec_ ## SIG x ) \
+  { EL_TRY( NNLS( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
   /* ADMM
      ---- */ \
   ElError ElNNLSADMM_ ## SIG \

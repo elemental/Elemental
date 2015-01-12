@@ -125,13 +125,54 @@ void Ridge
     }
 }
 
+template<typename F>
+void Ridge
+( const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, Base<F> alpha,
+        DistMultiVec<F>& X, const BisectCtrl& ctrl )
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("Ridge");
+        if( A.Height() != B.Height() )
+            LogicError("Heights of A and B must match");
+    )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    DistSparseMatrix<F> C(A.Comm());
+
+    X.SetComm( B.Comm() );
+    Zeros( X, n, B.Width() );
+    if( m >= n )
+    {
+        Herk( LOWER, ADJOINT, Base<F>(1), A, C );
+        ShiftDiagonal( C, F(alpha*alpha) );
+        MakeHermitian( LOWER, C );
+
+        Multiply( ADJOINT, F(1), A, B, F(0), X );
+        HermitianSolve( C, X, ctrl );
+    }
+    else
+    {
+        Herk( LOWER, NORMAL, Base<F>(1), A, C );
+        ShiftDiagonal( C, F(alpha*alpha) );
+        MakeHermitian( LOWER, C );
+
+        DistMultiVec<F> BCopy(B.Comm());
+        BCopy = B;
+        HermitianSolve( C, BCopy, ctrl );
+        Multiply( ADJOINT, F(1), A, BCopy, F(0), X );
+    }
+}
+
 #define PROTO(F) \
   template void Ridge \
   ( const Matrix<F>& A, const Matrix<F>& B, \
     Base<F> alpha, Matrix<F>& X, RidgeAlg alg ); \
   template void Ridge \
   ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, \
-    Base<F> alpha, AbstractDistMatrix<F>& X, RidgeAlg alg );
+    Base<F> alpha, AbstractDistMatrix<F>& X, RidgeAlg alg ); \
+  template void Ridge \
+  ( const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, Base<F> alpha, \
+    DistMultiVec<F>& X, const BisectCtrl& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

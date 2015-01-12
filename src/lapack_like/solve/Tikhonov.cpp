@@ -94,6 +94,44 @@ void Tikhonov
     }
 }
 
+template<typename F>
+void Tikhonov
+( const DistSparseMatrix<F>& A, const DistMultiVec<F>& B,
+  const DistSparseMatrix<F>& Gamma, DistMultiVec<F>& X, const BisectCtrl& ctrl )
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("Tikhonov");
+        if( A.Height() != B.Height() )
+            LogicError("Heights of A and B must match");
+    )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    DistSparseMatrix<F> C(A.Comm());
+
+    X.SetComm( B.Comm() );
+    Zeros( X, n, B.Width() );
+    if( m >= n )
+    {
+        Herk( LOWER, ADJOINT, Base<F>(1), A, C );
+        Herk( LOWER, ADJOINT, Base<F>(1), Gamma, Base<F>(1), C );
+        MakeHermitian( LOWER, C );
+
+        Multiply( ADJOINT, F(1), A, B, F(0), X );
+        HermitianSolve( C, X, ctrl );
+    }
+    else
+    {
+        Herk( LOWER, NORMAL, Base<F>(1), A, C );
+        Herk( LOWER, NORMAL, Base<F>(1), Gamma, Base<F>(1), C );
+        MakeHermitian( LOWER, C );
+
+        DistMultiVec<F> BCopy(B.Comm());
+        BCopy = B;
+        HermitianSolve( C, BCopy, ctrl );
+        Multiply( ADJOINT, F(1), A, BCopy, F(0), X );
+    }
+}
+
 #define PROTO(F) \
   template void Tikhonov \
   ( const Matrix<F>& A, const Matrix<F>& B, \
@@ -101,7 +139,11 @@ void Tikhonov
   template void Tikhonov \
   ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, \
     const AbstractDistMatrix<F>& Gamma, AbstractDistMatrix<F>& X, \
-    TikhonovAlg alg );
+    TikhonovAlg alg ); \
+  template void Tikhonov \
+  ( const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, \
+    const DistSparseMatrix<F>& Gamma, DistMultiVec<F>& X, \
+    const BisectCtrl& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

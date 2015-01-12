@@ -237,6 +237,16 @@ void NNLS
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, 
         AbstractDistMatrix<Real>& x, 
   const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
+template<typename Real>
+void NNLS
+( const SparseMatrix<Real>& A, const Matrix<Real>& b, 
+        Matrix<Real>& x,
+  const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
+template<typename Real>
+void NNLS
+( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b, 
+        DistMultiVec<Real>& x,
+  const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
 
 // Basis pursuit denoising (BPDN): 
 //   min (1/2) || b - A x ||_2^2 + lambda || x ||_1

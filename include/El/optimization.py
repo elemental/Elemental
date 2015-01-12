@@ -928,19 +928,27 @@ lib.ElNNLS_s.argtypes = \
 lib.ElNNLS_d.argtypes = \
 lib.ElNNLSDist_s.argtypes = \
 lib.ElNNLSDist_d.argtypes = \
+lib.ElNNLSSparse_s.argtypes = \
+lib.ElNNLSSparse_d.argtypes = \
+lib.ElNNLSDistSparse_s.argtypes = \
+lib.ElNNLSDistSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p]
 lib.ElNNLS_s.restype = \
 lib.ElNNLS_d.restype = \
 lib.ElNNLSDist_s.restype = \
 lib.ElNNLSDist_d.restype = \
+lib.ElNNLSSparse_s.restype = \
+lib.ElNNLSSparse_d.restype = \
+lib.ElNNLSDistSparse_s.restype = \
+lib.ElNNLSDistSparse_d.restype = \
   c_uint
 
 def NNLS(A,b):
-  if type(A) is not type(b):
-    raise Exception('Types of A and b must match')
   if A.tag != b.tag:
     raise Exception('Datatypes of A and b must match')
   if type(A) is Matrix:
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
     x = Matrix(A.tag)
     args = [A.obj,b.obj,x.obj]
     if   A.tag == sTag: lib.ElNNLS_s(*args)
@@ -948,10 +956,30 @@ def NNLS(A,b):
     else: DataExcept()
     return x
   elif type(A) is DistMatrix:
+    if type(b) is not DistMatrix:
+      raise Exception('b must be a DistMatrix')
     x = DistMatrix(A.tag,MC,MR,A.Grid())
     args = [A.obj,b.obj,x.obj]
     if   A.tag == sTag: lib.ElNNLSDist_s(*args)
     elif A.tag == dTag: lib.ElNNLSDist_d(*args)
+    else: DataExcept()
+    return x
+  elif type(A) is SparseMatrix:
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
+    x = SparseMatrix(A.tag)
+    args = [A.obj,b.obj,x.obj]
+    if   A.tag == sTag: lib.ElNNLSSparse_s(*args)
+    elif A.tag == dTag: lib.ElNNLSSparse_d(*args)
+    else: DataExcept()
+    return x
+  elif type(A) is DistSparseMatrix:
+    if type(b) is not DistMultiVec:
+      raise Exception('b must be a DistMultiVec')
+    x = DistMultiVec(A.tag,A.Comm())
+    args = [A.obj,b.obj,x.obj]
+    if   A.tag == sTag: lib.ElNNLSDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElNNLSDistSparse_d(*args)
     else: DataExcept()
     return x
   else: TypeExcept()

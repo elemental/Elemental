@@ -736,6 +736,16 @@ EL_EXPORT ElError ElNNLSDist_s
 EL_EXPORT ElError ElNNLSDist_d
 ( ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElDistMatrix_d x );
 
+EL_EXPORT ElError ElNNLSDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_s b, ElDistMatrix_s x );
+EL_EXPORT ElError ElNNLSDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElDistMatrix_d x );
+
+EL_EXPORT ElError ElNNLSDistSparse_s
+( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b, ElDistMultiVec_s x );
+EL_EXPORT ElError ElNNLSDistSparse_d
+( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b, ElDistMultiVec_d x );
+
 /* ADMM
    ---- */
 EL_EXPORT ElError ElNNLSADMM_s
