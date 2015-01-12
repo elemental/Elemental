@@ -14,6 +14,8 @@
 extern "C" {
 #endif
 
+/* TODO: Split into 'solvers', 'models', 'prox', and 'util' */
+
 /* Linear Program control structures
    ================================= */
 typedef enum {
@@ -724,16 +726,28 @@ EL_EXPORT ElError ElNMFDist_d
 
 /* Non-negative least squares
    ========================== */
-EL_EXPORT ElError ElNonNegativeLeastSquares_s
-( ElConstMatrix_s A, ElConstMatrix_s Y, ElMatrix_s Z, ElInt* numIts );
-EL_EXPORT ElError ElNonNegativeLeastSquares_d
-( ElConstMatrix_d A, ElConstMatrix_d Y, ElMatrix_d Z, ElInt* numIts );
+EL_EXPORT ElError ElNNLS_s
+( ElConstMatrix_s A, ElConstMatrix_s b, ElMatrix_s x );
+EL_EXPORT ElError ElNNLS_d
+( ElConstMatrix_d A, ElConstMatrix_d b, ElMatrix_d x );
 
-EL_EXPORT ElError ElNonNegativeLeastSquaresDist_s
-( ElConstDistMatrix_s A, ElConstDistMatrix_s Y, ElDistMatrix_s Z, 
+EL_EXPORT ElError ElNNLSDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_s b, ElDistMatrix_s x );
+EL_EXPORT ElError ElNNLSDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElDistMatrix_d x );
+
+/* ADMM
+   ---- */
+EL_EXPORT ElError ElNNLSADMM_s
+( ElConstMatrix_s A, ElConstMatrix_s B, ElMatrix_s X, ElInt* numIts );
+EL_EXPORT ElError ElNNLSADMM_d
+( ElConstMatrix_d A, ElConstMatrix_d B, ElMatrix_d X, ElInt* numIts );
+
+EL_EXPORT ElError ElNNLSADMMDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_s B, ElDistMatrix_s X, 
   ElInt* numIts );
-EL_EXPORT ElError ElNonNegativeLeastSquaresDist_d
-( ElConstDistMatrix_d A, ElConstDistMatrix_d Y, ElDistMatrix_d Z, 
+EL_EXPORT ElError ElNNLSADMMDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_d B, ElDistMatrix_d X, 
   ElInt* numIts );
 
 /* TODO: Expert versions */

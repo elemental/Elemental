@@ -924,37 +924,71 @@ def NMF(A):
 
 # Non-negative least squares
 # ==========================
-lib.ElNonNegativeLeastSquares_s.argtypes = \
-lib.ElNonNegativeLeastSquares_d.argtypes = \
-lib.ElNonNegativeLeastSquaresDist_s.argtypes = \
-lib.ElNonNegativeLeastSquaresDist_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,POINTER(iType)]
-lib.ElNonNegativeLeastSquares_s.restype = \
-lib.ElNonNegativeLeastSquares_d.restype = \
-lib.ElNonNegativeLeastSquaresDist_s.restype = \
-lib.ElNonNegativeLeastSquaresDist_d.restype = \
+lib.ElNNLS_s.argtypes = \
+lib.ElNNLS_d.argtypes = \
+lib.ElNNLSDist_s.argtypes = \
+lib.ElNNLSDist_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+lib.ElNNLS_s.restype = \
+lib.ElNNLS_d.restype = \
+lib.ElNNLSDist_s.restype = \
+lib.ElNNLSDist_d.restype = \
   c_uint
 
-def NonNegativeLeastSquares(A,Y):
-  if type(A) is not type(Y):
-    raise Exception('Types of A and Y must match')
-  if A.tag != Y.tag:
-    raise Exception('Datatypes of A and Y must match')
+def NNLS(A,b):
+  if type(A) is not type(b):
+    raise Exception('Types of A and b must match')
+  if A.tag != b.tag:
+    raise Exception('Datatypes of A and b must match')
+  if type(A) is Matrix:
+    x = Matrix(A.tag)
+    args = [A.obj,b.obj,x.obj]
+    if   A.tag == sTag: lib.ElNNLS_s(*args)
+    elif A.tag == dTag: lib.ElNNLS_d(*args)
+    else: DataExcept()
+    return x
+  elif type(A) is DistMatrix:
+    x = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,b.obj,x.obj]
+    if   A.tag == sTag: lib.ElNNLSDist_s(*args)
+    elif A.tag == dTag: lib.ElNNLSDist_d(*args)
+    else: DataExcept()
+    return x
+  else: TypeExcept()
+
+# ADMM
+# ----
+lib.ElNNLSADMM_s.argtypes = \
+lib.ElNNLSADMM_d.argtypes = \
+lib.ElNNLSADMMDist_s.argtypes = \
+lib.ElNNLSADMMDist_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,POINTER(iType)]
+lib.ElNNLSADMM_s.restype = \
+lib.ElNNLSADMM_d.restype = \
+lib.ElNNLSADMMDist_s.restype = \
+lib.ElNNLSADMMDist_d.restype = \
+  c_uint
+
+def NNLSADMM(A,B):
+  if type(A) is not type(B):
+    raise Exception('Types of A and B must match')
+  if A.tag != B.tag:
+    raise Exception('Datatypes of A and B must match')
   numIts = iType()
   if type(A) is Matrix:
-    Z = Matrix(A.tag)
-    args = [A.obj,Y.obj,Z.obj,pointer(numIts)]
-    if   A.tag == sTag: lib.ElNonNegativeLeastSquares_s(*args)
-    elif A.tag == dTag: lib.ElNonNegativeLeastSquares_d(*args)
+    X = Matrix(A.tag)
+    args = [A.obj,B.obj,X.obj,pointer(numIts)]
+    if   A.tag == sTag: lib.ElNNLSADMM_s(*args)
+    elif A.tag == dTag: lib.ElNNLSADMM_d(*args)
     else: DataExcept()
-    return Z, numIts
+    return X, numIts
   elif type(A) is DistMatrix:
-    Z = DistMatrix(A.tag,MC,MR,A.Grid())
-    args = [A.obj,Y.obj,Z.obj,pointer(numIts)]
-    if   A.tag == sTag: lib.ElNonNegativeLeastSquaresDist_s(*args)
-    elif A.tag == dTag: lib.ElNonNegativeLeastSquaresDist_d(*args)
+    X = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,B.obj,X.obj,pointer(numIts)]
+    if   A.tag == sTag: lib.ElNNLSADMMDist_s(*args)
+    elif A.tag == dTag: lib.ElNNLSADMMDist_d(*args)
     else: DataExcept()
-    return Z, numIts
+    return X, numIts
   else: TypeExcept()
 
 # Quadratic program

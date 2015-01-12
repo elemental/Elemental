@@ -23,9 +23,9 @@ void NMF( const Matrix<Real>& A, Matrix<Real>& X, Matrix<Real>& Y )
     const Int maxIter = 20;
     for( Int iter=0; iter<maxIter; ++iter )
     {
-        NonNegativeLeastSquares( X, A, YAdj );
+        nnls::ADMM( X, A, YAdj );
         Adjoint( YAdj, Y );
-        NonNegativeLeastSquares( Y, AAdj, XAdj );
+        nnls::ADMM( Y, AAdj, XAdj );
         Adjoint( XAdj, X );
     }
 }
@@ -35,7 +35,7 @@ void NMF
 ( const AbstractDistMatrix<Real>& APre, AbstractDistMatrix<Real>& XPre, 
         AbstractDistMatrix<Real>& YPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("NonNegativeLeastSquares"))
+    DEBUG_ONLY(CallStackEntry cse("NMF"))
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
 
@@ -49,19 +49,20 @@ void NMF
     const Int maxIter = 20;
     for( Int iter=0; iter<maxIter; ++iter )
     {
-        NonNegativeLeastSquares( X, A, YAdj );
+        nnls::ADMM( X, A, YAdj );
         Adjoint( YAdj, Y );
-        NonNegativeLeastSquares( Y, AAdj, XAdj );
+        nnls::ADMM( Y, AAdj, XAdj );
         Adjoint( XAdj, X );
     }
 }
 
 #define PROTO(Real) \
   template void NMF \
-  ( const Matrix<Real>& A, Matrix<Real>& X, Matrix<Real>& Y ); \
+  ( const Matrix<Real>& A, \
+          Matrix<Real>& X, Matrix<Real>& Y ); \
   template void NMF \
-  ( const AbstractDistMatrix<Real>& A, AbstractDistMatrix<Real>& X, \
-          AbstractDistMatrix<Real>& Y );
+  ( const AbstractDistMatrix<Real>& A, \
+          AbstractDistMatrix<Real>& X, AbstractDistMatrix<Real>& Y );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

@@ -12,6 +12,8 @@ using namespace El;
 
 extern "C" {
 
+/* TODO: Split into 'solvers', 'models', 'prox', and 'util' */
+
 /* Linear programs
    =============== */
 ElError ElLPIPFLineSearchCtrlDefault_s( ElLPIPFLineSearchCtrl_s* ctrl )
@@ -921,16 +923,26 @@ ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
   { EL_TRY( NMF( *CReflect(A), *CReflect(X), *CReflect(Y) ) ) } \
   /* Non-negative least squares
      ========================== */ \
-  ElError ElNonNegativeLeastSquares_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG Y, \
-    ElMatrix_ ## SIG Z, ElInt* numIts ) \
-  { EL_TRY( *numIts = NonNegativeLeastSquares( *CReflect(A), *CReflect(Y), \
-      *CReflect(Z) ) ) } \
-  ElError ElNonNegativeLeastSquaresDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG Y, \
-    ElDistMatrix_ ## SIG Z, ElInt* numIts ) \
-  { EL_TRY( *numIts = NonNegativeLeastSquares( *CReflect(A), *CReflect(Y), \
-      *CReflect(Z) ) ) } \
+  ElError ElNNLS_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    ElMatrix_ ## SIG x ) \
+  { EL_TRY( NNLS( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ElError ElNNLSDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
+    ElDistMatrix_ ## SIG x ) \
+  { EL_TRY( NNLS( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  /* ADMM
+     ---- */ \
+  ElError ElNNLSADMM_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
+    ElMatrix_ ## SIG X, ElInt* numIts ) \
+  { EL_TRY( *numIts = nnls::ADMM( *CReflect(A), *CReflect(B), \
+      *CReflect(X) ) ) } \
+  ElError ElNNLSADMMDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
+    ElDistMatrix_ ## SIG X, ElInt* numIts ) \
+  { EL_TRY( *numIts = nnls::ADMM( *CReflect(A), *CReflect(B), \
+      *CReflect(X) ) ) } \
   /* Quadratic program
      ================= */ \
   /* Direct conic form

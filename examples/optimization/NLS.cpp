@@ -46,29 +46,36 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<Real> A, Y;
+        DistMatrix<Real> A, B;
         Uniform( A, m, n );
-        Uniform( Y, m, k );
+        Uniform( B, m, k );
         if( print )
         {
             Print( A, "A" );
-            Print( Y, "Y" );
+            Print( B, "B" );
         }
         if( display )
             Display( A, "A" );
 
-        DistMatrix<Real> Z;
-        NonNegativeLeastSquares
-        ( A, Y, Z, rho, alpha, maxIter, absTol, relTol, inv, progress );
+        qp::box::ADMMCtrl<Real> ctrl;
+        ctrl.rho = rho;
+        ctrl.alpha = alpha;
+        ctrl.maxIter = maxIter;
+        ctrl.absTol = absTol;
+        ctrl.relTol = relTol;
+        ctrl.inv = inv;
+        ctrl.print = progress;
 
+        DistMatrix<Real> X;
+        nnls::ADMM( A, B, X, ctrl );
         if( print )
-            Print( Z, "Z" );
+            Print( X, "X" );
 
-        const double YNorm = FrobeniusNorm( Y );
-        Gemm( NORMAL, NORMAL, Real(-1), A, Z, Real(1), Y );
-        const double ENorm = FrobeniusNorm( Y );
+        const double BNorm = FrobeniusNorm( B );
+        Gemm( NORMAL, NORMAL, Real(-1), A, X, Real(1), B );
+        const double ENorm = FrobeniusNorm( B );
         if( mpi::WorldRank() == 0 )
-            std::cout << "|| Y - A Z ||_2 / || Y ||_2 = " << ENorm/YNorm
+            std::cout << "|| B - A X ||_2 / || B ||_2 = " << ENorm/BNorm
                       << std::endl;
     }
     catch( std::exception& e ) { ReportException(e); }
