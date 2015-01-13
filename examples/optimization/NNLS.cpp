@@ -34,12 +34,15 @@ main( int argc, char* argv[] )
         const Int m = Input("--m","matrix height",200);
         const Int n = Input("--n","matrix width",100);
         const Int k = Input("--k","number of right-hand sides",10);
+        // TODO: Test both the ADMM and IPM versions
+        /*
         const Int maxIter = Input("--maxIter","maximum # of iter's",500);
         const Real rho = Input("--rho","augmented Lagrangian param.",1.);
         const Real alpha = Input("--alpha","over-relaxation",1.2);
         const Real absTol = Input("--absTol","absolute tolerance",1e-6);
         const Real relTol = Input("--relTol","relative tolerance",1e-4);
         const bool inv = Input("--inv","form inv(LU) to avoid trsv?",true);
+        */
         const bool progress = Input("--progress","print progress?",true);
         const bool display = Input("--display","display matrices?",false);
         const bool print = Input("--print","print matrices",false);
@@ -57,6 +60,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "A" );
 
+        /*
         qp::box::ADMMCtrl<Real> ctrl;
         ctrl.rho = rho;
         ctrl.alpha = alpha;
@@ -68,6 +72,12 @@ main( int argc, char* argv[] )
 
         DistMatrix<Real> X;
         nnls::ADMM( A, B, X, ctrl );
+        if( print )
+            Print( X, "X" );
+        */
+
+        DistMatrix<Real> X;
+        NNLS( A, B, X );
         if( print )
             Print( X, "X" );
 

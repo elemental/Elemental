@@ -973,24 +973,58 @@ ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
   ( ElConstDistMatrix_ ## SIG A, \
     ElDistMatrix_ ## SIG X, ElDistMatrix_ ## SIG Y ) \
   { EL_TRY( NMF( *CReflect(A), *CReflect(X), *CReflect(Y) ) ) } \
+  /* Expert versions */ \
+  ElError ElNMFX_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, \
+    ElMatrix_ ## SIG X, ElMatrix_ ## SIG Y, \
+    ElQPDirectCtrl_ ## SIG ctrl ) \
+  { EL_TRY( NMF( *CReflect(A), *CReflect(X), *CReflect(Y), \
+      CReflect(ctrl) ) ) } \
+  ElError ElNMFXDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, \
+    ElDistMatrix_ ## SIG X, ElDistMatrix_ ## SIG Y, \
+    ElQPDirectCtrl_ ## SIG ctrl ) \
+  { EL_TRY( NMF( *CReflect(A), *CReflect(X), *CReflect(Y), \
+      CReflect(ctrl) ) ) } \
   /* Non-negative least squares
      ========================== */ \
   ElError ElNNLS_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
-    ElMatrix_ ## SIG x ) \
-  { EL_TRY( NNLS( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
+    ElMatrix_ ## SIG X ) \
+  { EL_TRY( NNLS( *CReflect(A), *CReflect(B), *CReflect(X) ) ) } \
   ElError ElNNLSDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
-    ElDistMatrix_ ## SIG x ) \
-  { EL_TRY( NNLS( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
+    ElDistMatrix_ ## SIG X ) \
+  { EL_TRY( NNLS( *CReflect(A), *CReflect(B), *CReflect(X) ) ) } \
   ElError ElNNLSSparse_ ## SIG \
-  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
-    ElMatrix_ ## SIG x ) \
-  { EL_TRY( NNLS( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
+    ElMatrix_ ## SIG X ) \
+  { EL_TRY( NNLS( *CReflect(A), *CReflect(B), *CReflect(X) ) ) } \
   ElError ElNNLSDistSparse_ ## SIG \
-  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
-    ElDistMultiVec_ ## SIG x ) \
-  { EL_TRY( NNLS( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG B, \
+    ElDistMultiVec_ ## SIG X ) \
+  { EL_TRY( NNLS( *CReflect(A), *CReflect(B), *CReflect(X) ) ) } \
+  /* Expert version */ \
+  ElError ElNNLSX_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
+    ElMatrix_ ## SIG X, ElQPDirectCtrl_ ## SIG ctrl ) \
+  { EL_TRY( NNLS( *CReflect(A), *CReflect(B), *CReflect(X), \
+      CReflect(ctrl) ) ) } \
+  ElError ElNNLSXDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
+    ElDistMatrix_ ## SIG X, ElQPDirectCtrl_ ## SIG ctrl ) \
+  { EL_TRY( NNLS( *CReflect(A), *CReflect(B), *CReflect(X), \
+      CReflect(ctrl) ) ) } \
+  ElError ElNNLSXSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
+    ElMatrix_ ## SIG X, ElQPDirectCtrl_ ## SIG ctrl ) \
+  { EL_TRY( NNLS( *CReflect(A), *CReflect(B), *CReflect(X), \
+      CReflect(ctrl) ) ) } \
+  ElError ElNNLSXDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG B, \
+    ElDistMultiVec_ ## SIG X, ElQPDirectCtrl_ ## SIG ctrl ) \
+  { EL_TRY( NNLS( *CReflect(A), *CReflect(B), *CReflect(X), \
+      CReflect(ctrl) ) ) } \
   /* ADMM
      ---- */ \
   ElError ElNNLSADMM_ ## SIG \

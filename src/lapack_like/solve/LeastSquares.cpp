@@ -79,6 +79,12 @@ void LeastSquares
     const Int k = B.Width();
     DistSparseMatrix<F> C(A.Comm());
     X.SetComm( B.Comm() );
+    // TODO: 
+    // Given that the computational complexity of forming A^T A versus
+    // forming A A^T depends upon the sparsity structure of A, rather than
+    // just the matrix dimensions, the following branches should be exposed
+    // as an option for the user until the time where the decision can be
+    // automatically made in both an efficient and reliable manner.
     if( orientation == NORMAL )
     {
         Zeros( X, n, k );

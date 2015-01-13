@@ -10,8 +10,14 @@
 
 namespace El {
 
+// TODO: Better convergence criterions. E.g., accept a relative tolerance
+//       in addition to the maximum number of iterations.
+
 template<typename Real>
-void NMF( const Matrix<Real>& A, Matrix<Real>& X, Matrix<Real>& Y )
+void NMF
+( const Matrix<Real>& A, 
+        Matrix<Real>& X, Matrix<Real>& Y,
+  const qp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("NMF"))
     if( IsComplex<Real>::val ) 
@@ -23,17 +29,18 @@ void NMF( const Matrix<Real>& A, Matrix<Real>& X, Matrix<Real>& Y )
     const Int maxIter = 20;
     for( Int iter=0; iter<maxIter; ++iter )
     {
-        nnls::ADMM( X, A, YAdj );
+        NNLS( X, A, YAdj, ctrl );
         Adjoint( YAdj, Y );
-        nnls::ADMM( Y, AAdj, XAdj );
+        NNLS( Y, AAdj, XAdj, ctrl );
         Adjoint( XAdj, X );
     }
 }
 
 template<typename Real>
 void NMF
-( const AbstractDistMatrix<Real>& APre, AbstractDistMatrix<Real>& XPre, 
-        AbstractDistMatrix<Real>& YPre )
+( const AbstractDistMatrix<Real>& APre, 
+        AbstractDistMatrix<Real>& XPre, AbstractDistMatrix<Real>& YPre,
+  const qp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("NMF"))
     if( IsComplex<Real>::val ) 
@@ -49,9 +56,9 @@ void NMF
     const Int maxIter = 20;
     for( Int iter=0; iter<maxIter; ++iter )
     {
-        nnls::ADMM( X, A, YAdj );
+        NNLS( X, A, YAdj, ctrl );
         Adjoint( YAdj, Y );
-        nnls::ADMM( Y, AAdj, XAdj );
+        NNLS( Y, AAdj, XAdj, ctrl );
         Adjoint( XAdj, X );
     }
 }
@@ -59,10 +66,12 @@ void NMF
 #define PROTO(Real) \
   template void NMF \
   ( const Matrix<Real>& A, \
-          Matrix<Real>& X, Matrix<Real>& Y ); \
+          Matrix<Real>& X, Matrix<Real>& Y, \
+    const qp::direct::Ctrl<Real>& ctrl ); \
   template void NMF \
   ( const AbstractDistMatrix<Real>& A, \
-          AbstractDistMatrix<Real>& X, AbstractDistMatrix<Real>& Y );
+          AbstractDistMatrix<Real>& X, AbstractDistMatrix<Real>& Y, \
+    const qp::direct::Ctrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

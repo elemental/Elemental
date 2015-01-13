@@ -12,18 +12,22 @@
 
 namespace El {
 
-// Utilities
+// Coherence
 // =========
+template<typename F>
+Base<F> Coherence( const Matrix<F>& A );
+template<typename F>
+Base<F> Coherence( const AbstractDistMatrix<F>& A );
 
 // Covariance
-// ----------
+// ==========
 template<typename F>
 void Covariance( const Matrix<F>& D, Matrix<F>& S );
 template<typename F>
 void Covariance( const AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& S );
 
 // Log barrier
-// -----------
+// ===========
 template<typename F>
 Base<F> LogBarrier( UpperOrLower uplo, const Matrix<F>& A );
 template<typename F>
@@ -37,7 +41,7 @@ Base<F> LogBarrier
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool canOverwrite=false );
 
 // Log-det divergence
-// ------------------
+// ==================
 template<typename F>
 Base<F> LogDetDiv
 ( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B );
@@ -47,7 +51,7 @@ Base<F> LogDetDiv
   const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B );
 
 // Maximum step within the positive cone
-// -------------------------------------
+// =====================================
 template<typename Real>
 Real MaxStepInPositiveCone
 ( const Matrix<Real>& s, 
@@ -62,7 +66,7 @@ Real MaxStepInPositiveCone
   const DistMultiVec<Real>& ds, Real upperBound );
 
 // Number of non-positive entries
-// ------------------------------
+// ==============================
 template<typename Real>
 Int NumNonPositive( const Matrix<Real>& A );
 template<typename Real>
@@ -75,7 +79,7 @@ template<typename Real>
 Int NumNonPositive( const DistMultiVec<Real>& A );
 
 // Number of non-SOC members
-// -------------------------
+// =========================
 template<typename Real>
 Int NumNonSecondOrder
 ( const Matrix<Real>& x, 
@@ -93,7 +97,7 @@ Int NumNonSecondOrder
   const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
 
 // Regularized LDL
-// ---------------
+// ===============
 // NOTE: If the pivot candidate is not at least as large as the pivot tolerance
 //       and with the implied sign, then it is increased by the specified value.
 template<typename F>

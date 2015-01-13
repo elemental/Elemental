@@ -9,8 +9,8 @@
 import El
 import time
 
-m = 250
-n = 500
+m = 500
+n = 250
 display = True
 worldRank = El.mpi.WorldRank()
 
@@ -44,8 +44,12 @@ eTwoNorm = El.Nrm2( e )
 if worldRank == 0:
   print "|| A x - b ||_2 =", eTwoNorm
 
+# Note that El.LeastSquares overwrites A by default if A is dense
+# (perhaps this should be changed)
+ALS = El.DistMatrix()
+El.Copy( A, ALS )
 startLS = time.clock()
-xLS = El.LeastSquares( A, b )
+xLS = El.LeastSquares( ALS, b )
 endLS = time.clock()
 if worldRank == 0:
   print "LS time: ", endLS-startLS

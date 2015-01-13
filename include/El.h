@@ -54,7 +54,10 @@
 #include "El/matrices.h"
 
 #include "El/control.h"
-#include "El/optimization.h"
+#include "El/optimization/solvers.h"
+#include "El/optimization/models.h"
+#include "El/optimization/prox.h"
+#include "El/optimization/util.h"
 
 #ifdef __cplusplus
 #include "El/CReflect.hpp"

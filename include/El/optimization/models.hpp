@@ -23,13 +23,6 @@ using namespace RegularizationNS;
 
 // TODO: Modify the following routines to use control structures instead
 
-// Coherence
-// =========
-template<typename F>
-Base<F> Coherence( const Matrix<F>& A );
-template<typename F>
-Base<F> Coherence( const AbstractDistMatrix<F>& A );
-
 // Least Absolute Shrinkage and Selection Operator (LASSO)
 // =======================================================
 // NOTE: While the lasso was introduced before basis pursuit denoising (BPDN),
@@ -201,19 +194,24 @@ Int ModelFit
 // =================================
 // TODO: Generalize to complex
 template<typename Real>
-void NMF( const Matrix<Real>& A, Matrix<Real>& X, Matrix<Real>& Y );
+void NMF
+( const Matrix<Real>& A, 
+        Matrix<Real>& X, Matrix<Real>& Y,
+  const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
 template<typename Real>
 void NMF
 ( const AbstractDistMatrix<Real>& A, 
-        AbstractDistMatrix<Real>& X, AbstractDistMatrix<Real>& Y );
+        AbstractDistMatrix<Real>& X, AbstractDistMatrix<Real>& Y,
+  const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
+// TODO: Sparse versions
 
 // Non-negative least squares
 // ==========================
 // TODO: Generalize to complex
+// NOTE: The following can solve a *sequence* of NNLS problems
 
 namespace nnls {
 
-// NOTE: The following can solve a *sequence* of NNLS problems
 template<typename Real>
 Int ADMM
 ( const Matrix<Real>& A, const Matrix<Real>& B, 
@@ -229,23 +227,23 @@ Int ADMM
 
 template<typename Real>
 void NNLS
-( const Matrix<Real>& A, const Matrix<Real>& b, 
-        Matrix<Real>& x,
+( const Matrix<Real>& A, const Matrix<Real>& B, 
+        Matrix<Real>& X,
   const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
 template<typename Real>
 void NNLS
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, 
-        AbstractDistMatrix<Real>& x, 
+( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& B, 
+        AbstractDistMatrix<Real>& X, 
   const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
 template<typename Real>
 void NNLS
-( const SparseMatrix<Real>& A, const Matrix<Real>& b, 
-        Matrix<Real>& x,
+( const SparseMatrix<Real>& A, const Matrix<Real>& B, 
+        Matrix<Real>& X,
   const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
 template<typename Real>
 void NNLS
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b, 
-        DistMultiVec<Real>& x,
+( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& B, 
+        DistMultiVec<Real>& X,
   const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
 
 // Basis pursuit denoising (BPDN): 

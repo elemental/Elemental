@@ -9,8 +9,8 @@
 import El
 import time
 
-m = 2000
-n = 4000
+m = 4000
+n = 2000
 display = True
 worldRank = El.mpi.WorldRank()
 

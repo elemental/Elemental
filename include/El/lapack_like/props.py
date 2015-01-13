@@ -1247,48 +1247,51 @@ def MaxNorm(A):
   else: TypeExcept()
   return norm.value
 
-# LEFT OFF HERE
+lib.ElSymmetricMaxNorm_i.argtypes = \
+lib.ElSymmetricMaxNormDist_i.argtypes = \
+lib.ElSymmetricMaxNormSparse_i.argtypes = \
+lib.ElSymmetricMaxNormDistSparse_i.argtypes = \
+  [c_uint,c_void_p,POINTER(iType)]
+lib.ElSymmetricMaxNorm_s.argtypes = \
+lib.ElSymmetricMaxNorm_c.argtypes = \
+lib.ElSymmetricMaxNormDist_s.argtypes = \
+lib.ElSymmetricMaxNormDist_c.argtypes = \
+lib.ElSymmetricMaxNormSparse_s.argtypes = \
+lib.ElSymmetricMaxNormSparse_c.argtypes = \
+lib.ElSymmetricMaxNormDistSparse_s.argtypes = \
+lib.ElSymmetricMaxNormDistSparse_c.argtypes = \
+  [c_uint,c_void_p,POINTER(sType)]
+lib.ElSymmetricMaxNorm_d.argtypes = \
+lib.ElSymmetricMaxNorm_z.argtypes = \
+lib.ElSymmetricMaxNormDist_d.argtypes = \
+lib.ElSymmetricMaxNormDist_z.argtypes = \
+lib.ElSymmetricMaxNormSparse_d.argtypes = \
+lib.ElSymmetricMaxNormSparse_z.argtypes = \
+lib.ElSymmetricMaxNormDistSparse_d.argtypes = \
+lib.ElSymmetricMaxNormDistSparse_z.argtypes = \
+  [c_uint,c_void_p,POINTER(dType)]
 
-lib.ElSymmetricMaxNorm_i.argtypes = [c_uint,c_void_p,POINTER(iType)]
-lib.ElSymmetricMaxNorm_i.restype = c_uint
-lib.ElSymmetricMaxNorm_s.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElSymmetricMaxNorm_s.restype = c_uint
-lib.ElSymmetricMaxNorm_d.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElSymmetricMaxNorm_d.restype = c_uint
-lib.ElSymmetricMaxNorm_c.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElSymmetricMaxNorm_c.restype = c_uint
-lib.ElSymmetricMaxNorm_z.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElSymmetricMaxNorm_z.restype = c_uint
-lib.ElSymmetricMaxNormDist_i.argtypes = [c_uint,c_void_p,POINTER(iType)]
-lib.ElSymmetricMaxNormDist_i.restype = c_uint
-lib.ElSymmetricMaxNormDist_s.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElSymmetricMaxNormDist_s.restype = c_uint
-lib.ElSymmetricMaxNormDist_d.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElSymmetricMaxNormDist_d.restype = c_uint
-lib.ElSymmetricMaxNormDist_c.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElSymmetricMaxNormDist_c.restype = c_uint
-lib.ElSymmetricMaxNormDist_z.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElSymmetricMaxNormDist_z.restype = c_uint
-lib.ElSymmetricMaxNormSparse_i.argtypes = [c_uint,c_void_p,POINTER(iType)]
-lib.ElSymmetricMaxNormSparse_i.restype = c_uint
-lib.ElSymmetricMaxNormSparse_s.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElSymmetricMaxNormSparse_s.restype = c_uint
-lib.ElSymmetricMaxNormSparse_d.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElSymmetricMaxNormSparse_d.restype = c_uint
-lib.ElSymmetricMaxNormSparse_c.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElSymmetricMaxNormSparse_c.restype = c_uint
-lib.ElSymmetricMaxNormSparse_z.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElSymmetricMaxNormSparse_z.restype = c_uint
-lib.ElSymmetricMaxNormDistSparse_i.argtypes = [c_uint,c_void_p,POINTER(iType)]
-lib.ElSymmetricMaxNormDistSparse_i.restype = c_uint
-lib.ElSymmetricMaxNormDistSparse_s.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElSymmetricMaxNormDistSparse_s.restype = c_uint
-lib.ElSymmetricMaxNormDistSparse_d.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElSymmetricMaxNormDistSparse_d.restype = c_uint
-lib.ElSymmetricMaxNormDistSparse_c.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElSymmetricMaxNormDistSparse_c.restype = c_uint
-lib.ElSymmetricMaxNormDistSparse_z.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElSymmetricMaxNormDistSparse_z.restype = c_uint
+lib.ElSymmetricMaxNorm_i.restype = \
+lib.ElSymmetricMaxNorm_s.restype = \
+lib.ElSymmetricMaxNorm_d.restype = \
+lib.ElSymmetricMaxNorm_c.restype = \
+lib.ElSymmetricMaxNorm_z.restype = \
+lib.ElSymmetricMaxNormDist_i.restype = \
+lib.ElSymmetricMaxNormDist_s.restype = \
+lib.ElSymmetricMaxNormDist_d.restype = \
+lib.ElSymmetricMaxNormDist_c.restype = \
+lib.ElSymmetricMaxNormDist_z.restype = \
+lib.ElSymmetricMaxNormSparse_i.restype = \
+lib.ElSymmetricMaxNormSparse_s.restype = \
+lib.ElSymmetricMaxNormSparse_d.restype = \
+lib.ElSymmetricMaxNormSparse_c.restype = \
+lib.ElSymmetricMaxNormSparse_z.restype = \
+lib.ElSymmetricMaxNormDistSparse_i.restype = \
+lib.ElSymmetricMaxNormDistSparse_s.restype = \
+lib.ElSymmetricMaxNormDistSparse_d.restype = \
+lib.ElSymmetricMaxNormDistSparse_c.restype = \
+lib.ElSymmetricMaxNormDistSparse_z.restype = \
+  c_uint
 
 def SymmetricMaxNorm(uplo,A):
   norm = TagToType(Base(A.tag))()
@@ -1326,22 +1329,26 @@ def SymmetricMaxNorm(uplo,A):
 def HermitianMaxNorm(uplo,A):
   return SymmetricMaxNorm(uplo,A)
 
-lib.ElNuclearNorm_s.argtypes = [c_void_p,POINTER(sType)]
-lib.ElNuclearNorm_s.restype = c_uint
-lib.ElNuclearNorm_d.argtypes = [c_void_p,POINTER(dType)]
-lib.ElNuclearNorm_d.restype = c_uint
-lib.ElNuclearNorm_c.argtypes = [c_void_p,POINTER(sType)]
-lib.ElNuclearNorm_c.restype = c_uint
-lib.ElNuclearNorm_z.argtypes = [c_void_p,POINTER(dType)]
-lib.ElNuclearNorm_z.restype = c_uint
-lib.ElNuclearNormDist_s.argtypes = [c_void_p,POINTER(sType)]
-lib.ElNuclearNormDist_s.restype = c_uint
-lib.ElNuclearNormDist_d.argtypes = [c_void_p,POINTER(dType)]
-lib.ElNuclearNormDist_d.restype = c_uint
-lib.ElNuclearNormDist_c.argtypes = [c_void_p,POINTER(sType)]
-lib.ElNuclearNormDist_c.restype = c_uint
-lib.ElNuclearNormDist_z.argtypes = [c_void_p,POINTER(dType)]
-lib.ElNuclearNormDist_z.restype = c_uint
+lib.ElNuclearNorm_s.argtypes = \
+lib.ElNuclearNorm_c.argtypes = \
+lib.ElNuclearNormDist_s.argtypes = \
+lib.ElNuclearNormDist_c.argtypes = \
+  [c_void_p,POINTER(sType)]
+lib.ElNuclearNorm_d.argtypes = \
+lib.ElNuclearNorm_z.argtypes = \
+lib.ElNuclearNormDist_d.argtypes = \
+lib.ElNuclearNormDist_z.argtypes = \
+  [c_void_p,POINTER(dType)]
+lib.ElNuclearNorm_s.restype = \
+lib.ElNuclearNorm_d.restype = \
+lib.ElNuclearNorm_c.restype = \
+lib.ElNuclearNorm_z.restype = \
+lib.ElNuclearNormDist_s.restype = \
+lib.ElNuclearNormDist_d.restype = \
+lib.ElNuclearNormDist_c.restype = \
+lib.ElNuclearNormDist_z.restype = \
+  c_uint
+
 def NuclearNorm(A):
   norm = TagToType(Base(A.tag))()
   args = [A.obj,pointer(norm)]
@@ -1360,30 +1367,34 @@ def NuclearNorm(A):
   else: TypeExcept()
   return norm.value
 
-lib.ElSymmetricNuclearNorm_s.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElSymmetricNuclearNorm_s.restype = c_uint
-lib.ElSymmetricNuclearNorm_d.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElSymmetricNuclearNorm_d.restype = c_uint
-lib.ElSymmetricNuclearNorm_c.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElSymmetricNuclearNorm_c.restype = c_uint
-lib.ElSymmetricNuclearNorm_z.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElSymmetricNuclearNorm_z.restype = c_uint
-lib.ElSymmetricNuclearNormDist_s.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElSymmetricNuclearNormDist_s.restype = c_uint
-lib.ElSymmetricNuclearNormDist_d.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElSymmetricNuclearNormDist_d.restype = c_uint
-lib.ElSymmetricNuclearNormDist_c.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElSymmetricNuclearNormDist_c.restype = c_uint
-lib.ElSymmetricNuclearNormDist_z.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElSymmetricNuclearNormDist_z.restype = c_uint
-lib.ElHermitianNuclearNorm_c.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElHermitianNuclearNorm_c.restype = c_uint
-lib.ElHermitianNuclearNorm_z.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElHermitianNuclearNorm_z.restype = c_uint
-lib.ElHermitianNuclearNormDist_c.argtypes = [c_uint,c_void_p,POINTER(sType)]
-lib.ElHermitianNuclearNormDist_c.restype = c_uint
-lib.ElHermitianNuclearNormDist_z.argtypes = [c_uint,c_void_p,POINTER(dType)]
-lib.ElHermitianNuclearNormDist_z.restype = c_uint
+lib.ElSymmetricNuclearNorm_s.argtypes = \
+lib.ElSymmetricNuclearNorm_c.argtypes = \
+lib.ElSymmetricNuclearNormDist_s.argtypes = \
+lib.ElSymmetricNuclearNormDist_c.argtypes = \
+lib.ElHermitianNuclearNorm_c.argtypes = \
+lib.ElHermitianNuclearNormDist_c.argtypes = \
+  [c_uint,c_void_p,POINTER(sType)]
+lib.ElSymmetricNuclearNorm_d.argtypes = \
+lib.ElSymmetricNuclearNorm_z.argtypes = \
+lib.ElSymmetricNuclearNormDist_d.argtypes = \
+lib.ElSymmetricNuclearNormDist_z.argtypes = \
+lib.ElHermitianNuclearNorm_z.argtypes = \
+lib.ElHermitianNuclearNormDist_z.argtypes = \
+  [c_uint,c_void_p,POINTER(dType)]
+lib.ElSymmetricNuclearNorm_s.restype = \
+lib.ElSymmetricNuclearNorm_d.restype = \
+lib.ElSymmetricNuclearNorm_c.restype = \
+lib.ElSymmetricNuclearNorm_z.restype = \
+lib.ElSymmetricNuclearNormDist_s.restype = \
+lib.ElSymmetricNuclearNormDist_d.restype = \
+lib.ElSymmetricNuclearNormDist_c.restype = \
+lib.ElSymmetricNuclearNormDist_z.restype = \
+lib.ElHermitianNuclearNorm_c.restype = \
+lib.ElHermitianNuclearNorm_z.restype = \
+lib.ElHermitianNuclearNormDist_c.restype = \
+lib.ElHermitianNuclearNormDist_z.restype = \
+  c_uint
+
 def SymmetricNuclearNorm(uplo,A,conjugate=False):
   norm = TagToType(Base(A.tag))()
   args = [uplo,A.obj,pointer(norm)]
@@ -1411,6 +1422,8 @@ def SymmetricNuclearNorm(uplo,A,conjugate=False):
   return norm.value
 def HermitianNuclearNorm(uplo,A):
   return SymmetricNuclearNorm(uplo,A,True)
+
+# HERE
 
 lib.ElOneNorm_s.argtypes = [c_void_p,POINTER(sType)]
 lib.ElOneNorm_s.restype = c_uint
