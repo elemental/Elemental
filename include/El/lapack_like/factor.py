@@ -11,38 +11,43 @@ import ctypes
 
 # Cholesky factorization
 # ======================
-lib.ElCholesky_s.argtypes = [c_uint,c_void_p]
-lib.ElCholesky_s.restype = c_uint
-lib.ElCholesky_d.argtypes = [c_uint,c_void_p]
-lib.ElCholesky_d.restype = c_uint
-lib.ElCholesky_c.argtypes = [c_uint,c_void_p]
-lib.ElCholesky_c.restype = c_uint
-lib.ElCholesky_z.argtypes = [c_uint,c_void_p]
-lib.ElCholesky_z.restype = c_uint
-lib.ElCholeskyDist_s.argtypes = [c_uint,c_void_p]
-lib.ElCholeskyDist_s.restype = c_uint
-lib.ElCholeskyDist_d.argtypes = [c_uint,c_void_p]
-lib.ElCholeskyDist_d.restype = c_uint
-lib.ElCholeskyDist_c.argtypes = [c_uint,c_void_p]
-lib.ElCholeskyDist_c.restype = c_uint
-lib.ElCholeskyDist_z.argtypes = [c_uint,c_void_p]
-lib.ElCholeskyDist_z.restype = c_uint
-lib.ElCholeskyPiv_s.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElCholeskyPiv_s.restype = c_uint
-lib.ElCholeskyPiv_d.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElCholeskyPiv_d.restype = c_uint
-lib.ElCholeskyPiv_c.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElCholeskyPiv_c.restype = c_uint
-lib.ElCholeskyPiv_z.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElCholeskyPiv_z.restype = c_uint
-lib.ElCholeskyPivDist_s.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElCholeskyPivDist_s.restype = c_uint
-lib.ElCholeskyPivDist_d.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElCholeskyPivDist_d.restype = c_uint
-lib.ElCholeskyPivDist_c.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElCholeskyPivDist_c.restype = c_uint
-lib.ElCholeskyPivDist_z.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElCholeskyPivDist_z.restype = c_uint
+lib.ElCholesky_s.argtypes = \
+lib.ElCholesky_d.argtypes = \
+lib.ElCholesky_c.argtypes = \
+lib.ElCholesky_z.argtypes = \
+lib.ElCholeskyDist_s.argtypes = \
+lib.ElCholeskyDist_d.argtypes = \
+lib.ElCholeskyDist_c.argtypes = \
+lib.ElCholeskyDist_z.argtypes = \
+  [c_uint,c_void_p]
+
+lib.ElCholeskyPiv_s.argtypes = \
+lib.ElCholeskyPiv_d.argtypes = \
+lib.ElCholeskyPiv_c.argtypes = \
+lib.ElCholeskyPiv_z.argtypes = \
+lib.ElCholeskyPivDist_s.argtypes = \
+lib.ElCholeskyPivDist_d.argtypes = \
+lib.ElCholeskyPivDist_c.argtypes = \
+lib.ElCholeskyPivDist_z.argtypes = \
+  [c_uint,c_void_p,c_void_p]
+
+lib.ElCholesky_s.restype = \
+lib.ElCholesky_d.restype = \
+lib.ElCholesky_c.restype = \
+lib.ElCholesky_z.restype = \
+lib.ElCholeskyDist_s.restype = \
+lib.ElCholeskyDist_d.restype = \
+lib.ElCholeskyDist_c.restype = \
+lib.ElCholeskyDist_z.restype = \
+lib.ElCholeskyPiv_s.restype = \
+lib.ElCholeskyPiv_d.restype = \
+lib.ElCholeskyPiv_c.restype = \
+lib.ElCholeskyPiv_z.restype = \
+lib.ElCholeskyPivDist_s.restype = \
+lib.ElCholeskyPivDist_d.restype = \
+lib.ElCholeskyPivDist_c.restype = \
+lib.ElCholeskyPivDist_z.restype = \
+  c_uint
 
 def Cholesky(uplo,A,piv=False):
   if type(A) is Matrix:
@@ -81,22 +86,28 @@ def Cholesky(uplo,A,piv=False):
       else: DataExcept()
   else: TypeExcept()
 
-lib.ElCholeskyMod_s.argtypes = [c_uint,c_void_p,sType,c_void_p]
-lib.ElCholeskyMod_s.restype = c_uint
-lib.ElCholeskyMod_d.argtypes = [c_uint,c_void_p,dType,c_void_p]
-lib.ElCholeskyMod_d.restype = c_uint
-lib.ElCholeskyMod_c.argtypes = [c_uint,c_void_p,sType,c_void_p]
-lib.ElCholeskyMod_c.restype = c_uint
-lib.ElCholeskyMod_z.argtypes = [c_uint,c_void_p,dType,c_void_p]
-lib.ElCholeskyMod_z.restype = c_uint
-lib.ElCholeskyModDist_s.argtypes = [c_uint,c_void_p,sType,c_void_p]
-lib.ElCholeskyModDist_s.restype = c_uint
-lib.ElCholeskyModDist_d.argtypes = [c_uint,c_void_p,dType,c_void_p]
-lib.ElCholeskyModDist_d.restype = c_uint
-lib.ElCholeskyModDist_c.argtypes = [c_uint,c_void_p,sType,c_void_p]
-lib.ElCholeskyModDist_c.restype = c_uint
-lib.ElCholeskyModDist_z.argtypes = [c_uint,c_void_p,dType,c_void_p]
-lib.ElCholeskyModDist_z.restype = c_uint
+lib.ElCholeskyMod_s.argtypes = \
+lib.ElCholeskyMod_c.argtypes = \
+lib.ElCholeskyModDist_s.argtypes = \
+lib.ElCholeskyModDist_c.argtypes = \
+  [c_uint,c_void_p,sType,c_void_p]
+
+lib.ElCholeskyMod_d.argtypes = \
+lib.ElCholeskyMod_z.argtypes = \
+lib.ElCholeskyModDist_d.argtypes = \
+lib.ElCholeskyModDist_z.argtypes = \
+  [c_uint,c_void_p,dType,c_void_p]
+
+lib.ElCholeskyMod_s.restype = \
+lib.ElCholeskyMod_d.restype = \
+lib.ElCholeskyMod_c.restype = \
+lib.ElCholeskyMod_z.restype = \
+lib.ElCholeskyModDist_s.restype = \
+lib.ElCholeskyModDist_d.restype = \
+lib.ElCholeskyModDist_c.restype = \
+lib.ElCholeskyModDist_z.restype = \
+  c_uint
+
 def CholeskyMod(uplo,T,alpha,V):
   if type(T) is not type(V):
     raise Exception('Types of T and V must match')
@@ -117,22 +128,26 @@ def CholeskyMod(uplo,T,alpha,V):
     else: DataExcept()
   else: TypeExcept()
 
-lib.ElHPSDCholesky_s.argtypes = [c_uint,c_void_p]
-lib.ElHPSDCholesky_s.restype = c_uint
-lib.ElHPSDCholesky_d.argtypes = [c_uint,c_void_p]
-lib.ElHPSDCholesky_d.restype = c_uint
-lib.ElHPSDCholesky_c.argtypes = [c_uint,c_void_p]
-lib.ElHPSDCholesky_c.restype = c_uint
-lib.ElHPSDCholesky_z.argtypes = [c_uint,c_void_p]
-lib.ElHPSDCholesky_z.restype = c_uint
-lib.ElHPSDCholeskyDist_s.argtypes = [c_uint,c_void_p]
-lib.ElHPSDCholeskyDist_s.restype = c_uint
-lib.ElHPSDCholeskyDist_d.argtypes = [c_uint,c_void_p]
-lib.ElHPSDCholeskyDist_d.restype = c_uint
-lib.ElHPSDCholeskyDist_c.argtypes = [c_uint,c_void_p]
-lib.ElHPSDCholeskyDist_c.restype = c_uint
-lib.ElHPSDCholeskyDist_z.argtypes = [c_uint,c_void_p]
-lib.ElHPSDCholeskyDist_z.restype = c_uint
+lib.ElHPSDCholesky_s.argtypes = \
+lib.ElHPSDCholesky_d.argtypes = \
+lib.ElHPSDCholesky_c.argtypes = \
+lib.ElHPSDCholesky_z.argtypes = \
+lib.ElHPSDCholeskyDist_s.argtypes = \
+lib.ElHPSDCholeskyDist_d.argtypes = \
+lib.ElHPSDCholeskyDist_c.argtypes = \
+lib.ElHPSDCholeskyDist_z.argtypes = \
+  [c_uint,c_void_p]
+
+lib.ElHPSDCholesky_s.restype = \
+lib.ElHPSDCholesky_d.restype = \
+lib.ElHPSDCholesky_c.restype = \
+lib.ElHPSDCholesky_z.restype = \
+lib.ElHPSDCholeskyDist_s.restype = \
+lib.ElHPSDCholeskyDist_d.restype = \
+lib.ElHPSDCholeskyDist_c.restype = \
+lib.ElHPSDCholeskyDist_z.restype = \
+  c_uint
+
 def HPSDCholesky(uplo,A):
   args = [uplo,A.obj]
   if type(A) is Matrix:
@@ -149,46 +164,43 @@ def HPSDCholesky(uplo,A):
     else: DataExcept()
   else: TypeExcept()
 
-lib.ElSolveAfterCholesky_s.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElSolveAfterCholesky_s.restype = c_uint
-lib.ElSolveAfterCholesky_d.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElSolveAfterCholesky_d.restype = c_uint
-lib.ElSolveAfterCholesky_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElSolveAfterCholesky_c.restype = c_uint
-lib.ElSolveAfterCholesky_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElSolveAfterCholesky_z.restype = c_uint
-lib.ElSolveAfterCholeskyDist_s.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElSolveAfterCholeskyDist_s.restype = c_uint
-lib.ElSolveAfterCholeskyDist_d.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElSolveAfterCholeskyDist_d.restype = c_uint
-lib.ElSolveAfterCholeskyDist_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElSolveAfterCholeskyDist_c.restype = c_uint
-lib.ElSolveAfterCholeskyDist_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElSolveAfterCholeskyDist_z.restype = c_uint
+lib.ElSolveAfterCholesky_s.argtypes = \
+lib.ElSolveAfterCholesky_d.argtypes = \
+lib.ElSolveAfterCholesky_c.argtypes = \
+lib.ElSolveAfterCholesky_z.argtypes = \
+lib.ElSolveAfterCholeskyDist_s.argtypes = \
+lib.ElSolveAfterCholeskyDist_d.argtypes = \
+lib.ElSolveAfterCholeskyDist_c.argtypes = \
+lib.ElSolveAfterCholeskyDist_z.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p]
+
 lib.ElSolveAfterCholeskyPiv_s.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterCholeskyPiv_s.restype = c_uint
 lib.ElSolveAfterCholeskyPiv_d.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterCholeskyPiv_d.restype = c_uint
 lib.ElSolveAfterCholeskyPiv_c.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterCholeskyPiv_c.restype = c_uint
 lib.ElSolveAfterCholeskyPiv_z.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterCholeskyPiv_z.restype = c_uint
 lib.ElSolveAfterCholeskyPivDist_s.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterCholeskyPivDist_s.restype = c_uint
 lib.ElSolveAfterCholeskyPivDist_d.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterCholeskyPivDist_d.restype = c_uint
 lib.ElSolveAfterCholeskyPivDist_c.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterCholeskyPivDist_c.restype = c_uint
 lib.ElSolveAfterCholeskyPivDist_z.argtypes = \
   [c_uint,c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterCholeskyPivDist_z.restype = c_uint
+
+lib.ElSolveAfterCholesky_s.restype = \
+lib.ElSolveAfterCholesky_d.restype = \
+lib.ElSolveAfterCholesky_c.restype = \
+lib.ElSolveAfterCholesky_z.restype = \
+lib.ElSolveAfterCholeskyDist_s.restype = \
+lib.ElSolveAfterCholeskyDist_d.restype = \
+lib.ElSolveAfterCholeskyDist_c.restype = \
+lib.ElSolveAfterCholeskyDist_z.restype = \
+lib.ElSolveAfterCholeskyPiv_s.restype = \
+lib.ElSolveAfterCholeskyPiv_d.restype = \
+lib.ElSolveAfterCholeskyPiv_c.restype = \
+lib.ElSolveAfterCholeskyPiv_z.restype = \
+lib.ElSolveAfterCholeskyPivDist_s.restype = \
+lib.ElSolveAfterCholeskyPivDist_d.restype = \
+lib.ElSolveAfterCholeskyPivDist_c.restype = \
+lib.ElSolveAfterCholeskyPivDist_z.restype = \
+  c_uint
 
 def SolveAfterCholesky(uplo,orient,A,B):
   if type(A) is not type(B):
@@ -243,9 +255,10 @@ class LDLPivot(ctypes.Structure):
   _fields_ = [("nb",iType),("from",(iType*2))]
 
 lib.ElLDLPivotConstant_s.argtypes = [c_uint,POINTER(sType)]
-lib.ElLDLPivotConstant_s.restype = c_uint
 lib.ElLDLPivotConstant_d.argtypes = [c_uint,POINTER(dType)]
-lib.ElLDLPivotConstant_d.restype = c_uint
+lib.ElLDLPivotConstant_s.restype = \
+lib.ElLDLPivotConstant_d.restype = \
+  c_uint
 def LDLPivotConstant_s(pivotType):
   gamma = sType()
   lib.ElLDLPivotConstant_s(pivotType,pointer(gamma))
@@ -273,37 +286,49 @@ def TagToPivotCtrl(tag,pivType=BUNCH_KAUFMAN_A):
   elif tag == zTag: return LDLPivotCtrl_d(pivType)
   else: DataExcept()
 
-lib.ElLDL_s.argtypes = [c_void_p]
+lib.ElLDL_s.argtypes = \
+lib.ElLDL_d.argtypes = \
+lib.ElLDLDist_s.argtypes = \
+lib.ElLDLDist_d.argtypes = \
+  [c_void_p]
+
+lib.ElLDL_c.argtypes = \
+lib.ElLDL_z.argtypes = \
+lib.ElLDLDist_c.argtypes = \
+lib.ElLDLDist_z.argtypes = \
+  [c_void_p,bType]
+
+lib.ElLDLPiv_s.argtypes = \
+lib.ElLDLPivDist_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,LDLPivotCtrl_s]
+
+lib.ElLDLPiv_d.argtypes = \
+lib.ElLDLPivDist_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,LDLPivotCtrl_d]
+
+lib.ElLDLPiv_c.argtypes = \
+lib.ElLDLPivDist_c.argtypes = \
+  [c_void_p,c_void_p,c_void_p,bType,LDLPivotCtrl_s]
+
+lib.ElLDLPiv_z.argtypes = \
+lib.ElLDLPivDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,bType,LDLPivotCtrl_d]
+
 lib.ElLDL_s.restype = c_uint
-lib.ElLDL_d.argtypes = [c_void_p]
 lib.ElLDL_d.restype = c_uint
-lib.ElLDL_c.argtypes = [c_void_p,bType]
 lib.ElLDL_c.restype = c_uint
-lib.ElLDL_z.argtypes = [c_void_p,bType]
 lib.ElLDL_z.restype = c_uint
-lib.ElLDLDist_s.argtypes = [c_void_p]
 lib.ElLDLDist_s.restype = c_uint
-lib.ElLDLDist_d.argtypes = [c_void_p]
 lib.ElLDLDist_d.restype = c_uint
-lib.ElLDLDist_c.argtypes = [c_void_p,bType]
 lib.ElLDLDist_c.restype = c_uint
-lib.ElLDLDist_z.argtypes = [c_void_p,bType]
 lib.ElLDLDist_z.restype = c_uint
-lib.ElLDLPiv_s.argtypes = [c_void_p,c_void_p,c_void_p,LDLPivotCtrl_s]
 lib.ElLDLPiv_s.restype = c_uint
-lib.ElLDLPiv_d.argtypes = [c_void_p,c_void_p,c_void_p,LDLPivotCtrl_d]
 lib.ElLDLPiv_d.restype = c_uint
-lib.ElLDLPiv_c.argtypes = [c_void_p,c_void_p,c_void_p,bType,LDLPivotCtrl_s]
 lib.ElLDLPiv_c.restype = c_uint
-lib.ElLDLPiv_z.argtypes = [c_void_p,c_void_p,c_void_p,bType,LDLPivotCtrl_d]
 lib.ElLDLPiv_z.restype = c_uint
-lib.ElLDLPivDist_s.argtypes = [c_void_p,c_void_p,c_void_p,LDLPivotCtrl_s]
 lib.ElLDLPivDist_s.restype = c_uint
-lib.ElLDLPivDist_d.argtypes = [c_void_p,c_void_p,c_void_p,LDLPivotCtrl_d]
 lib.ElLDLPivDist_d.restype = c_uint
-lib.ElLDLPivDist_c.argtypes = [c_void_p,c_void_p,c_void_p,bType,LDLPivotCtrl_s]
 lib.ElLDLPivDist_c.restype = c_uint
-lib.ElLDLPivDist_z.argtypes = [c_void_p,c_void_p,c_void_p,bType,LDLPivotCtrl_d]
 lib.ElLDLPivDist_z.restype = c_uint
 
 def LDL(A,conjugate=True,pivType=BUNCH_KAUFMAN_A):
@@ -351,22 +376,26 @@ def LDL(A,conjugate=True,pivType=BUNCH_KAUFMAN_A):
       return dSub, p
   else: TypeExcept()
 
-lib.ElInertiaAfterLDL_s.argtypes = [c_void_p,c_void_p,POINTER(InertiaType)]
-lib.ElInertiaAfterLDL_s.restype = c_uint
-lib.ElInertiaAfterLDL_d.argtypes = [c_void_p,c_void_p,POINTER(InertiaType)]
-lib.ElInertiaAfterLDL_d.restype = c_uint
-lib.ElInertiaAfterLDL_c.argtypes = [c_void_p,c_void_p,POINTER(InertiaType)]
-lib.ElInertiaAfterLDL_c.restype = c_uint
-lib.ElInertiaAfterLDL_z.argtypes = [c_void_p,c_void_p,POINTER(InertiaType)]
-lib.ElInertiaAfterLDL_z.restype = c_uint
-lib.ElInertiaAfterLDLDist_s.argtypes = [c_void_p,c_void_p,POINTER(InertiaType)]
-lib.ElInertiaAfterLDLDist_s.restype = c_uint
-lib.ElInertiaAfterLDLDist_d.argtypes = [c_void_p,c_void_p,POINTER(InertiaType)]
-lib.ElInertiaAfterLDLDist_d.restype = c_uint
-lib.ElInertiaAfterLDLDist_c.argtypes = [c_void_p,c_void_p,POINTER(InertiaType)]
-lib.ElInertiaAfterLDLDist_c.restype = c_uint
-lib.ElInertiaAfterLDLDist_z.argtypes = [c_void_p,c_void_p,POINTER(InertiaType)]
-lib.ElInertiaAfterLDLDist_z.restype = c_uint
+lib.ElInertiaAfterLDL_s.argtypes = \
+lib.ElInertiaAfterLDL_d.argtypes = \
+lib.ElInertiaAfterLDL_c.argtypes = \
+lib.ElInertiaAfterLDL_z.argtypes = \
+lib.ElInertiaAfterLDLDist_s.argtypes = \
+lib.ElInertiaAfterLDLDist_d.argtypes = \
+lib.ElInertiaAfterLDLDist_c.argtypes = \
+lib.ElInertiaAfterLDLDist_z.argtypes = \
+  [c_void_p,c_void_p,POINTER(InertiaType)]
+
+lib.ElInertiaAfterLDL_s.restype = \
+lib.ElInertiaAfterLDL_d.restype = \
+lib.ElInertiaAfterLDL_c.restype = \
+lib.ElInertiaAfterLDL_z.restype = \
+lib.ElInertiaAfterLDLDist_s.restype = \
+lib.ElInertiaAfterLDLDist_d.restype = \
+lib.ElInertiaAfterLDLDist_c.restype = \
+lib.ElInertiaAfterLDLDist_z.restype = \
+  c_uint
+
 def InertiaAfterLDL(d,dSub):
   inertia = InertiaType()
   if type(d) is not type(dSub):
@@ -389,22 +418,28 @@ def InertiaAfterLDL(d,dSub):
   else: TypeExcept()
   return inertia
 
-lib.ElSolveAfterLDL_s.argtypes = [c_void_p,c_void_p]
-lib.ElSolveAfterLDL_s.restype = c_uint
-lib.ElSolveAfterLDL_d.argtypes = [c_void_p,c_void_p]
-lib.ElSolveAfterLDL_d.restype = c_uint
-lib.ElSolveAfterLDL_c.argtypes = [c_void_p,c_void_p,bType]
-lib.ElSolveAfterLDL_c.restype = c_uint
-lib.ElSolveAfterLDL_z.argtypes = [c_void_p,c_void_p,bType]
-lib.ElSolveAfterLDL_z.restype = c_uint
-lib.ElSolveAfterLDLDist_s.argtypes = [c_void_p,c_void_p]
-lib.ElSolveAfterLDLDist_s.restype = c_uint
-lib.ElSolveAfterLDLDist_d.argtypes = [c_void_p,c_void_p]
-lib.ElSolveAfterLDLDist_d.restype = c_uint
-lib.ElSolveAfterLDLDist_c.argtypes = [c_void_p,c_void_p,bType]
-lib.ElSolveAfterLDLDist_c.restype = c_uint
-lib.ElSolveAfterLDLDist_z.argtypes = [c_void_p,c_void_p,bType]
-lib.ElSolveAfterLDLDist_z.restype = c_uint
+lib.ElSolveAfterLDL_s.argtypes = \
+lib.ElSolveAfterLDL_d.argtypes = \
+lib.ElSolveAfterLDLDist_s.argtypes = \
+lib.ElSolveAfterLDLDist_d.argtypes = \
+  [c_void_p,c_void_p]
+
+lib.ElSolveAfterLDL_c.argtypes = \
+lib.ElSolveAfterLDL_z.argtypes = \
+lib.ElSolveAfterLDLDist_c.argtypes = \
+lib.ElSolveAfterLDLDist_z.argtypes = \
+  [c_void_p,c_void_p,bType]
+
+lib.ElSolveAfterLDL_s.restype = \
+lib.ElSolveAfterLDL_d.restype = \
+lib.ElSolveAfterLDL_c.restype = \
+lib.ElSolveAfterLDL_z.restype = \
+lib.ElSolveAfterLDLDist_s.restype = \
+lib.ElSolveAfterLDLDist_d.restype = \
+lib.ElSolveAfterLDLDist_c.restype = \
+lib.ElSolveAfterLDLDist_z.restype = \
+  c_uint
+
 def SolveAfterLDL(A,B,conjugate=True):
   if type(A) is not type(B):
     raise Exception('Types of A and B must match')
@@ -450,22 +485,28 @@ def SolveAfterLDLPiv(A,dSub,p,B,conjugate=True):
     else: DataExcept()
   else: TypeExcept()
 
-lib.ElMultiplyAfterLDL_s.argtypes = [c_void_p,c_void_p]
-lib.ElMultiplyAfterLDL_s.restype = c_uint
-lib.ElMultiplyAfterLDL_d.argtypes = [c_void_p,c_void_p]
-lib.ElMultiplyAfterLDL_d.restype = c_uint
-lib.ElMultiplyAfterLDL_c.argtypes = [c_void_p,c_void_p,bType]
-lib.ElMultiplyAfterLDL_c.restype = c_uint
-lib.ElMultiplyAfterLDL_z.argtypes = [c_void_p,c_void_p,bType]
-lib.ElMultiplyAfterLDL_z.restype = c_uint
-lib.ElMultiplyAfterLDLDist_s.argtypes = [c_void_p,c_void_p]
-lib.ElMultiplyAfterLDLDist_s.restype = c_uint
-lib.ElMultiplyAfterLDLDist_d.argtypes = [c_void_p,c_void_p]
-lib.ElMultiplyAfterLDLDist_d.restype = c_uint
-lib.ElMultiplyAfterLDLDist_c.argtypes = [c_void_p,c_void_p,bType]
-lib.ElMultiplyAfterLDLDist_c.restype = c_uint
-lib.ElMultiplyAfterLDLDist_z.argtypes = [c_void_p,c_void_p,bType]
-lib.ElMultiplyAfterLDLDist_z.restype = c_uint
+lib.ElMultiplyAfterLDL_s.argtypes = \
+lib.ElMultiplyAfterLDL_d.argtypes = \
+lib.ElMultiplyAfterLDLDist_s.argtypes = \
+lib.ElMultiplyAfterLDLDist_d.argtypes = \
+  [c_void_p,c_void_p]
+
+lib.ElMultiplyAfterLDL_c.argtypes = \
+lib.ElMultiplyAfterLDL_z.argtypes = \
+lib.ElMultiplyAfterLDLDist_c.argtypes = \
+lib.ElMultiplyAfterLDLDist_z.argtypes = \
+  [c_void_p,c_void_p,bType]
+
+lib.ElMultiplyAfterLDL_s.restype = \
+lib.ElMultiplyAfterLDL_d.restype = \
+lib.ElMultiplyAfterLDL_c.restype = \
+lib.ElMultiplyAfterLDL_z.restype = \
+lib.ElMultiplyAfterLDLDist_s.restype = \
+lib.ElMultiplyAfterLDLDist_d.restype = \
+lib.ElMultiplyAfterLDLDist_c.restype = \
+lib.ElMultiplyAfterLDLDist_z.restype = \
+  c_uint
+
 def MultiplyAfterLDL(A,B,conjugate=True):
   if type(A) is not type(B):
     raise Exception('Types of A and B must match')
@@ -487,26 +528,28 @@ def MultiplyAfterLDL(A,B,conjugate=True):
     else: DataExcept()
   else: TypeExcept()
 
-lib.ElMultiplyAfterLDLPiv_s.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElMultiplyAfterLDLPiv_s.restype = c_uint
-lib.ElMultiplyAfterLDLPiv_d.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElMultiplyAfterLDLPiv_d.restype = c_uint
+lib.ElMultiplyAfterLDLPiv_s.argtypes = \
+lib.ElMultiplyAfterLDLPiv_d.argtypes = \
+lib.ElMultiplyAfterLDLPivDist_s.argtypes = \
+lib.ElMultiplyAfterLDLPivDist_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p]
+
 lib.ElMultiplyAfterLDLPiv_c.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,bType]
-lib.ElMultiplyAfterLDLPiv_c.restype = c_uint
 lib.ElMultiplyAfterLDLPiv_z.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,bType]
-lib.ElMultiplyAfterLDLPiv_z.restype = c_uint
-lib.ElMultiplyAfterLDLPivDist_s.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElMultiplyAfterLDLPivDist_s.restype = c_uint
-lib.ElMultiplyAfterLDLPivDist_d.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElMultiplyAfterLDLPivDist_d.restype = c_uint
 lib.ElMultiplyAfterLDLPivDist_c.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,bType]
-lib.ElMultiplyAfterLDLPivDist_c.restype = c_uint
 lib.ElMultiplyAfterLDLPivDist_z.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,bType]
-lib.ElMultiplyAfterLDLPivDist_z.restype = c_uint
+
+lib.ElMultiplyAfterLDLPiv_s.restype = \
+lib.ElMultiplyAfterLDLPiv_d.restype = \
+lib.ElMultiplyAfterLDLPiv_c.restype = \
+lib.ElMultiplyAfterLDLPiv_z.restype = \
+lib.ElMultiplyAfterLDLPivDist_s.restype = \
+lib.ElMultiplyAfterLDLPivDist_d.restype = \
+lib.ElMultiplyAfterLDLPivDist_c.restype = \
+lib.ElMultiplyAfterLDLPivDist_z.restype = \
+  c_uint
+
 def MultiplyAfterLDLPiv(A,dSub,p,B,conjugate=True):
   if type(A) is not type(dSub) or type(dSub) is not type(p) or \
      type(p) is not type(B):
@@ -537,54 +580,61 @@ def MultiplyAfterLDLPiv(A,dSub,p,B,conjugate=True):
 # Emulate an enum for the pivot type for LU factorization
 (LU_PARTIAL,LU_FULL,LU_ROOK,LU_WITHOUT_PIVOTING)=(0,1,2,3)
 
-lib.ElLU_s.argtypes = [c_void_p]
-lib.ElLU_s.restype = c_uint
-lib.ElLU_d.argtypes = [c_void_p]
-lib.ElLU_d.restype = c_uint
-lib.ElLU_c.argtypes = [c_void_p]
-lib.ElLU_c.restype = c_uint
-lib.ElLU_z.argtypes = [c_void_p]
-lib.ElLU_z.restype = c_uint
-lib.ElLUDist_s.argtypes = [c_void_p]
-lib.ElLUDist_s.restype = c_uint
-lib.ElLUDist_d.argtypes = [c_void_p]
-lib.ElLUDist_d.restype = c_uint
-lib.ElLUDist_c.argtypes = [c_void_p]
-lib.ElLUDist_c.restype = c_uint
-lib.ElLUDist_z.argtypes = [c_void_p]
-lib.ElLUDist_z.restype = c_uint
-lib.ElLUPartialPiv_s.argtypes = [c_void_p,c_void_p]
-lib.ElLUPartialPiv_s.restype = c_uint
-lib.ElLUPartialPiv_d.argtypes = [c_void_p,c_void_p]
-lib.ElLUPartialPiv_d.restype = c_uint
-lib.ElLUPartialPiv_c.argtypes = [c_void_p,c_void_p]
-lib.ElLUPartialPiv_c.restype = c_uint
-lib.ElLUPartialPiv_z.argtypes = [c_void_p,c_void_p]
-lib.ElLUPartialPiv_z.restype = c_uint
-lib.ElLUPartialPivDist_s.argtypes = [c_void_p,c_void_p]
-lib.ElLUPartialPivDist_s.restype = c_uint
-lib.ElLUPartialPivDist_d.argtypes = [c_void_p,c_void_p]
-lib.ElLUPartialPivDist_d.restype = c_uint
-lib.ElLUPartialPivDist_c.argtypes = [c_void_p,c_void_p]
-lib.ElLUPartialPivDist_c.restype = c_uint
-lib.ElLUPartialPivDist_z.argtypes = [c_void_p,c_void_p]
-lib.ElLUPartialPivDist_z.restype = c_uint
-lib.ElLUFullPiv_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLUFullPiv_s.restype = c_uint
-lib.ElLUFullPiv_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLUFullPiv_d.restype = c_uint
-lib.ElLUFullPiv_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLUFullPiv_c.restype = c_uint
-lib.ElLUFullPiv_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLUFullPiv_z.restype = c_uint
-lib.ElLUFullPivDist_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLUFullPivDist_s.restype = c_uint
-lib.ElLUFullPivDist_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLUFullPivDist_d.restype = c_uint
-lib.ElLUFullPivDist_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLUFullPivDist_c.restype = c_uint
-lib.ElLUFullPivDist_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLUFullPivDist_z.restype = c_uint
+lib.ElLU_s.argtypes = \
+lib.ElLU_d.argtypes = \
+lib.ElLU_c.argtypes = \
+lib.ElLU_z.argtypes = \
+lib.ElLUDist_s.argtypes = \
+lib.ElLUDist_d.argtypes = \
+lib.ElLUDist_c.argtypes = \
+lib.ElLUDist_z.argtypes = \
+  [c_void_p]
+
+lib.ElLUPartialPiv_s.argtypes = \
+lib.ElLUPartialPiv_d.argtypes = \
+lib.ElLUPartialPiv_c.argtypes = \
+lib.ElLUPartialPiv_z.argtypes = \
+lib.ElLUPartialPivDist_s.argtypes = \
+lib.ElLUPartialPivDist_d.argtypes = \
+lib.ElLUPartialPivDist_c.argtypes = \
+lib.ElLUPartialPivDist_z.argtypes = \
+  [c_void_p,c_void_p]
+
+lib.ElLUFullPiv_s.argtypes = \
+lib.ElLUFullPiv_d.argtypes = \
+lib.ElLUFullPiv_c.argtypes = \
+lib.ElLUFullPiv_z.argtypes = \
+lib.ElLUFullPivDist_s.argtypes = \
+lib.ElLUFullPivDist_d.argtypes = \
+lib.ElLUFullPivDist_c.argtypes = \
+lib.ElLUFullPivDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+
+lib.ElLU_s.restype = \
+lib.ElLU_d.restype = \
+lib.ElLU_c.restype = \
+lib.ElLU_z.restype = \
+lib.ElLUDist_s.restype = \
+lib.ElLUDist_d.restype = \
+lib.ElLUDist_c.restype = \
+lib.ElLUDist_z.restype = \
+lib.ElLUPartialPiv_s.restype = \
+lib.ElLUPartialPiv_d.restype = \
+lib.ElLUPartialPiv_c.restype = \
+lib.ElLUPartialPiv_z.restype = \
+lib.ElLUPartialPivDist_s.restype = \
+lib.ElLUPartialPivDist_d.restype = \
+lib.ElLUPartialPivDist_c.restype = \
+lib.ElLUPartialPivDist_z.restype = \
+lib.ElLUFullPiv_s.restype = \
+lib.ElLUFullPiv_d.restype = \
+lib.ElLUFullPiv_c.restype = \
+lib.ElLUFullPiv_z.restype = \
+lib.ElLUFullPivDist_s.restype = \
+lib.ElLUFullPivDist_d.restype = \
+lib.ElLUFullPivDist_c.restype = \
+lib.ElLUFullPivDist_z.restype = \
+  c_uint
 
 def LU(A,pivType=LU_PARTIAL):
   if type(A) is Matrix: 
@@ -645,22 +695,30 @@ def LU(A,pivType=LU_PARTIAL):
     else: raise Exception('Unsupported pivot type')
   else: TypeExcept()
 
-lib.ElLUMod_s.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,sType]
-lib.ElLUMod_s.restype = c_uint
-lib.ElLUMod_d.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,dType]
-lib.ElLUMod_d.restype = c_uint
-lib.ElLUMod_c.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,sType]
-lib.ElLUMod_c.restype = c_uint
-lib.ElLUMod_z.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,dType]
-lib.ElLUMod_z.restype = c_uint
-lib.ElLUModDist_s.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,sType]
-lib.ElLUModDist_s.restype = c_uint
-lib.ElLUModDist_d.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,dType]
-lib.ElLUModDist_d.restype = c_uint
-lib.ElLUModDist_c.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,sType]
-lib.ElLUModDist_c.restype = c_uint
-lib.ElLUModDist_z.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,dType]
-lib.ElLUModDist_z.restype = c_uint
+# LEFT OFF HERE
+
+lib.ElLUMod_s.argtypes = \
+lib.ElLUMod_c.argtypes = \
+lib.ElLUModDist_s.argtypes = \
+lib.ElLUModDist_c.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,sType]
+
+lib.ElLUMod_d.argtypes = \
+lib.ElLUMod_z.argtypes = \
+lib.ElLUModDist_d.argtypes = \
+lib.ElLUModDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,dType]
+
+lib.ElLUMod_s.restype = \
+lib.ElLUMod_d.restype = \
+lib.ElLUMod_c.restype = \
+lib.ElLUMod_z.restype = \
+lib.ElLUModDist_s.restype = \
+lib.ElLUModDist_d.restype = \
+lib.ElLUModDist_c.restype = \
+lib.ElLUModDist_z.restype = \
+  c_uint
+
 def LUMod(A,p,u,v,conjugate=True,tau=0.1):
   if type(A) is not type(p) or type(p) is not type(u) or type(u) is not type(v):
     raise Exception('Types of {A,p,u,v} must be equal')
@@ -684,22 +742,26 @@ def LUMod(A,p,u,v,conjugate=True,tau=0.1):
     else: DataExcept()
   else: TypeExcept()
 
-lib.ElSolveAfterLU_s.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElSolveAfterLU_s.restype = c_uint
-lib.ElSolveAfterLU_d.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElSolveAfterLU_d.restype = c_uint
-lib.ElSolveAfterLU_c.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElSolveAfterLU_c.restype = c_uint
-lib.ElSolveAfterLU_z.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElSolveAfterLU_z.restype = c_uint
-lib.ElSolveAfterLUDist_s.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElSolveAfterLUDist_s.restype = c_uint
-lib.ElSolveAfterLUDist_d.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElSolveAfterLUDist_d.restype = c_uint
-lib.ElSolveAfterLUDist_c.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElSolveAfterLUDist_c.restype = c_uint
-lib.ElSolveAfterLUDist_z.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElSolveAfterLUDist_z.restype = c_uint
+lib.ElSolveAfterLU_s.argtypes = \
+lib.ElSolveAfterLU_d.argtypes = \
+lib.ElSolveAfterLU_c.argtypes = \
+lib.ElSolveAfterLU_z.argtypes = \
+lib.ElSolveAfterLUDist_s.argtypes = \
+lib.ElSolveAfterLUDist_d.argtypes = \
+lib.ElSolveAfterLUDist_c.argtypes = \
+lib.ElSolveAfterLUDist_z.argtypes = \
+  [c_uint,c_void_p,c_void_p]
+
+lib.ElSolveAfterLU_s.restype = \
+lib.ElSolveAfterLU_d.restype = \
+lib.ElSolveAfterLU_c.restype = \
+lib.ElSolveAfterLU_z.restype = \
+lib.ElSolveAfterLUDist_s.restype = \
+lib.ElSolveAfterLUDist_d.restype = \
+lib.ElSolveAfterLUDist_c.restype = \
+lib.ElSolveAfterLUDist_z.restype = \
+  c_uint
+
 def SolveAfterLU(orient,A,B):
   if type(A) is not type(B):
     raise Exception('Types of A and B must match')
@@ -720,24 +782,25 @@ def SolveAfterLU(orient,A,B):
     else: DataExcept()
   else: TypeExcept()
 
-lib.ElSolveAfterLUPartialPiv_s.argtypes = [c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLUPartialPiv_s.restype = c_uint
-lib.ElSolveAfterLUPartialPiv_d.argtypes = [c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLUPartialPiv_d.restype = c_uint
-lib.ElSolveAfterLUPartialPiv_c.argtypes = [c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLUPartialPiv_c.restype = c_uint
-lib.ElSolveAfterLUPartialPiv_z.argtypes = [c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLUPartialPiv_z.restype = c_uint
-lib.ElSolveAfterLUPartialPivDist_s.restype = c_uint
+lib.ElSolveAfterLUPartialPiv_s.argtypes = \
+lib.ElSolveAfterLUPartialPiv_d.argtypes = \
+lib.ElSolveAfterLUPartialPiv_c.argtypes = \
+lib.ElSolveAfterLUPartialPiv_z.argtypes = \
 lib.ElSolveAfterLUPartialPivDist_d.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLUPartialPivDist_d.restype = c_uint
 lib.ElSolveAfterLUPartialPivDist_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLUPartialPivDist_c.restype = c_uint
 lib.ElSolveAfterLUPartialPivDist_z.argtypes = \
   [c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLUPartialPivDist_z.restype = c_uint
+
+lib.ElSolveAfterLUPartialPiv_s.restype = \
+lib.ElSolveAfterLUPartialPiv_d.restype = \
+lib.ElSolveAfterLUPartialPiv_c.restype = \
+lib.ElSolveAfterLUPartialPiv_z.restype = \
+lib.ElSolveAfterLUPartialPivDist_s.restype = \
+lib.ElSolveAfterLUPartialPivDist_d.restype = \
+lib.ElSolveAfterLUPartialPivDist_c.restype = \
+lib.ElSolveAfterLUPartialPivDist_z.restype = \
+  c_uint
+
 def SolveAfterLUPartialPiv(orient,A,p,B):
   if type(A) is not type(p) or type(p) is not type(B):
     raise Exception('Types of {A,p,B} must match')
@@ -761,27 +824,24 @@ def SolveAfterLUPartialPiv(orient,A,p,B):
   else: TypeExcept()
 
 lib.ElSolveAfterLUFullPiv_s.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLUFullPiv_s.restype = c_uint
 lib.ElSolveAfterLUFullPiv_d.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLUFullPiv_d.restype = c_uint
 lib.ElSolveAfterLUFullPiv_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLUFullPiv_c.restype = c_uint
 lib.ElSolveAfterLUFullPiv_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLUFullPiv_z.restype = c_uint
-lib.ElSolveAfterLUFullPivDist_s.restype = c_uint
 lib.ElSolveAfterLUFullPivDist_d.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLUFullPivDist_d.restype = c_uint
 lib.ElSolveAfterLUFullPivDist_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLUFullPivDist_c.restype = c_uint
 lib.ElSolveAfterLUFullPivDist_z.argtypes = \
   [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLUFullPivDist_z.restype = c_uint
+
+lib.ElSolveAfterLUFullPiv_s.restype = \
+lib.ElSolveAfterLUFullPiv_d.restype = \
+lib.ElSolveAfterLUFullPiv_c.restype = \
+lib.ElSolveAfterLUFullPiv_z.restype = \
+lib.ElSolveAfterLUFullPivDist_s.restype = \
+lib.ElSolveAfterLUFullPivDist_d.restype = \
+lib.ElSolveAfterLUFullPivDist_c.restype = \
+lib.ElSolveAfterLUFullPivDist_z.restype = \
+  c_uint
+
 def SolveAfterLUFullPiv(orient,A,p,q,B):
   if type(A) is not type(p) or type(p) is not type(q) or type(q) is not type(B):
     raise Exception('Types of {A,p,q,B} must match')
@@ -808,70 +868,78 @@ def SolveAfterLUFullPiv(orient,A,p,q,B):
 # ================
 (LQ_IMPLICIT,LQ_EXPLICIT,LQ_EXPLICIT_TRIANG,LQ_EXPLICIT_UNITARY)=(0,1,2,3)
 
-lib.ElLQ_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLQ_s.restype = c_uint
-lib.ElLQ_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLQ_d.restype = c_uint
-lib.ElLQ_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLQ_c.restype = c_uint
-lib.ElLQ_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLQ_z.restype = c_uint
-lib.ElLQDist_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLQDist_s.restype = c_uint
-lib.ElLQDist_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLQDist_d.restype = c_uint
-lib.ElLQDist_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLQDist_c.restype = c_uint
-lib.ElLQDist_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElLQDist_z.restype = c_uint
-lib.ElLQExplicit_s.argtypes = [c_void_p,c_void_p]
-lib.ElLQExplicit_s.restype = c_uint
-lib.ElLQExplicit_d.argtypes = [c_void_p,c_void_p]
-lib.ElLQExplicit_d.restype = c_uint
-lib.ElLQExplicit_c.argtypes = [c_void_p,c_void_p]
-lib.ElLQExplicit_c.restype = c_uint
-lib.ElLQExplicit_z.argtypes = [c_void_p,c_void_p]
-lib.ElLQExplicit_z.restype = c_uint
-lib.ElLQExplicitDist_s.argtypes = [c_void_p,c_void_p]
-lib.ElLQExplicitDist_s.restype = c_uint
-lib.ElLQExplicitDist_d.argtypes = [c_void_p,c_void_p]
-lib.ElLQExplicitDist_d.restype = c_uint
-lib.ElLQExplicitDist_c.argtypes = [c_void_p,c_void_p]
-lib.ElLQExplicitDist_c.restype = c_uint
-lib.ElLQExplicitDist_z.argtypes = [c_void_p,c_void_p]
-lib.ElLQExplicitDist_z.restype = c_uint
-lib.ElLQExplicitUnitary_s.argtypes = [c_void_p]
-lib.ElLQExplicitUnitary_s.restype = c_uint
-lib.ElLQExplicitUnitary_d.argtypes = [c_void_p]
-lib.ElLQExplicitUnitary_d.restype = c_uint
-lib.ElLQExplicitUnitary_c.argtypes = [c_void_p]
-lib.ElLQExplicitUnitary_c.restype = c_uint
-lib.ElLQExplicitUnitary_z.argtypes = [c_void_p]
-lib.ElLQExplicitUnitary_z.restype = c_uint
-lib.ElLQExplicitUnitaryDist_s.argtypes = [c_void_p]
-lib.ElLQExplicitUnitaryDist_s.restype = c_uint
-lib.ElLQExplicitUnitaryDist_d.argtypes = [c_void_p]
-lib.ElLQExplicitUnitaryDist_d.restype = c_uint
-lib.ElLQExplicitUnitaryDist_c.argtypes = [c_void_p]
-lib.ElLQExplicitUnitaryDist_c.restype = c_uint
-lib.ElLQExplicitUnitaryDist_z.argtypes = [c_void_p]
-lib.ElLQExplicitUnitaryDist_z.restype = c_uint
-lib.ElLQExplicitTriang_s.argtypes = [c_void_p]
-lib.ElLQExplicitTriang_s.restype = c_uint
-lib.ElLQExplicitTriang_d.argtypes = [c_void_p]
-lib.ElLQExplicitTriang_d.restype = c_uint
-lib.ElLQExplicitTriang_c.argtypes = [c_void_p]
-lib.ElLQExplicitTriang_c.restype = c_uint
-lib.ElLQExplicitTriang_z.argtypes = [c_void_p]
-lib.ElLQExplicitTriang_z.restype = c_uint
-lib.ElLQExplicitTriangDist_s.argtypes = [c_void_p]
-lib.ElLQExplicitTriangDist_s.restype = c_uint
-lib.ElLQExplicitTriangDist_d.argtypes = [c_void_p]
-lib.ElLQExplicitTriangDist_d.restype = c_uint
-lib.ElLQExplicitTriangDist_c.argtypes = [c_void_p]
-lib.ElLQExplicitTriangDist_c.restype = c_uint
-lib.ElLQExplicitTriangDist_z.argtypes = [c_void_p]
-lib.ElLQExplicitTriangDist_z.restype = c_uint
+lib.ElLQ_s.argtypes = \
+lib.ElLQ_d.argtypes = \
+lib.ElLQ_c.argtypes = \
+lib.ElLQ_z.argtypes = \
+lib.ElLQDist_s.argtypes = \
+lib.ElLQDist_d.argtypes = \
+lib.ElLQDist_c.argtypes = \
+lib.ElLQDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+
+lib.ElLQExplicit_s.argtypes = \
+lib.ElLQExplicit_d.argtypes = \
+lib.ElLQExplicit_c.argtypes = \
+lib.ElLQExplicit_z.argtypes = \
+lib.ElLQExplicitDist_s.argtypes = \
+lib.ElLQExplicitDist_d.argtypes = \
+lib.ElLQExplicitDist_c.argtypes = \
+lib.ElLQExplicitDist_z.argtypes = \
+  [c_void_p,c_void_p]
+
+lib.ElLQExplicitUnitary_s.argtypes = \
+lib.ElLQExplicitUnitary_d.argtypes = \
+lib.ElLQExplicitUnitary_c.argtypes = \
+lib.ElLQExplicitUnitary_z.argtypes = \
+lib.ElLQExplicitUnitaryDist_s.argtypes = \
+lib.ElLQExplicitUnitaryDist_d.argtypes = \
+lib.ElLQExplicitUnitaryDist_c.argtypes = \
+lib.ElLQExplicitUnitaryDist_z.argtypes = \
+lib.ElLQExplicitTriang_s.argtypes = \
+lib.ElLQExplicitTriang_d.argtypes = \
+lib.ElLQExplicitTriang_c.argtypes = \
+lib.ElLQExplicitTriang_z.argtypes = \
+lib.ElLQExplicitTriangDist_s.argtypes = \
+lib.ElLQExplicitTriangDist_d.argtypes = \
+lib.ElLQExplicitTriangDist_c.argtypes = \
+lib.ElLQExplicitTriangDist_z.argtypes = \
+  [c_void_p]
+
+lib.ElLQ_s.restype = \
+lib.ElLQ_d.restype = \
+lib.ElLQ_c.restype = \
+lib.ElLQ_z.restype = \
+lib.ElLQDist_s.restype = \
+lib.ElLQDist_d.restype = \
+lib.ElLQDist_c.restype = \
+lib.ElLQDist_z.restype = \
+lib.ElLQExplicit_s.restype = \
+lib.ElLQExplicit_d.restype = \
+lib.ElLQExplicit_c.restype = \
+lib.ElLQExplicit_z.restype = \
+lib.ElLQExplicitDist_s.restype = \
+lib.ElLQExplicitDist_d.restype = \
+lib.ElLQExplicitDist_c.restype = \
+lib.ElLQExplicitDist_z.restype = \
+lib.ElLQExplicitUnitary_s.restype = \
+lib.ElLQExplicitUnitary_d.restype = \
+lib.ElLQExplicitUnitary_c.restype = \
+lib.ElLQExplicitUnitary_z.restype = \
+lib.ElLQExplicitUnitaryDist_s.restype = \
+lib.ElLQExplicitUnitaryDist_d.restype = \
+lib.ElLQExplicitUnitaryDist_c.restype = \
+lib.ElLQExplicitUnitaryDist_z.restype = \
+lib.ElLQExplicitTriang_s.restype = \
+lib.ElLQExplicitTriang_d.restype = \
+lib.ElLQExplicitTriang_c.restype = \
+lib.ElLQExplicitTriang_z.restype = \
+lib.ElLQExplicitTriangDist_s.restype = \
+lib.ElLQExplicitTriangDist_d.restype = \
+lib.ElLQExplicitTriangDist_c.restype = \
+lib.ElLQExplicitTriangDist_z.restype = \
+  c_uint
+
 def LQ(A,factType=LQ_IMPLICIT):
   if type(A) is Matrix:
     if factType == LQ_IMPLICIT:
@@ -946,29 +1014,25 @@ def LQ(A,factType=LQ_IMPLICIT):
   else: TypeExcept()
 
 lib.ElApplyQAfterLQ_s.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterLQ_s.restype = c_uint
 lib.ElApplyQAfterLQ_d.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterLQ_d.restype = c_uint
 lib.ElApplyQAfterLQ_c.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterLQ_c.restype = c_uint
 lib.ElApplyQAfterLQ_z.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterLQ_z.restype = c_uint
 lib.ElApplyQAfterLQDist_s.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterLQDist_s.restype = c_uint
 lib.ElApplyQAfterLQDist_d.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterLQDist_d.restype = c_uint
 lib.ElApplyQAfterLQDist_c.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterLQDist_c.restype = c_uint
 lib.ElApplyQAfterLQDist_z.argtypes = \
   [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterLQDist_z.restype = c_uint
+
+lib.ElApplyQAfterLQ_s.restype = \
+lib.ElApplyQAfterLQ_d.restype = \
+lib.ElApplyQAfterLQ_c.restype = \
+lib.ElApplyQAfterLQ_z.restype = \
+lib.ElApplyQAfterLQDist_s.restype = \
+lib.ElApplyQAfterLQDist_d.restype = \
+lib.ElApplyQAfterLQDist_c.restype = \
+lib.ElApplyQAfterLQDist_z.restype = \
+  c_uint
+
 def ApplyQAfterLQ(side,orient,A,t,d,B):
   if type(A) is not type(t) or type(t) is not type(d) or type(d) is not type(B):
     raise Exception('Matrix types of {A,t,d,B} must match')
@@ -990,29 +1054,25 @@ def ApplyQAfterLQ(side,orient,A,t,d,B):
   else: TypeExcept()
 
 lib.ElSolveAfterLQ_s.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLQ_s.restype = c_uint
 lib.ElSolveAfterLQ_d.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLQ_d.restype = c_uint
 lib.ElSolveAfterLQ_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLQ_c.restype = c_uint
 lib.ElSolveAfterLQ_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLQ_z.restype = c_uint
 lib.ElSolveAfterLQDist_s.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLQDist_s.restype = c_uint
 lib.ElSolveAfterLQDist_d.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLQDist_d.restype = c_uint
 lib.ElSolveAfterLQDist_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLQDist_c.restype = c_uint
 lib.ElSolveAfterLQDist_z.argtypes = \
   [c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterLQDist_z.restype = c_uint
+
+lib.ElSolveAfterLQ_s.restype = \
+lib.ElSolveAfterLQ_d.restype = \
+lib.ElSolveAfterLQ_c.restype = \
+lib.ElSolveAfterLQ_z.restype = \
+lib.ElSolveAfterLQDist_s.restype = \
+lib.ElSolveAfterLQDist_d.restype = \
+lib.ElSolveAfterLQDist_c.restype = \
+lib.ElSolveAfterLQDist_z.restype = \
+  c_uint
+
 def SolveAfterLQ(orient,A,t,d,B):
   if type(A) is Matrix:
     X = Matrix(A.tag)
@@ -1036,10 +1096,12 @@ def SolveAfterLQ(orient,A,t,d,B):
 
 # QR factorization
 # ================
-lib.ElQRCtrlFillDefault_s.argtypes = [c_void_p]
-lib.ElQRCtrlFillDefault_s.restype = c_uint
-lib.ElQRCtrlFillDefault_d.argtypes = [c_void_p]
-lib.ElQRCtrlFillDefault_d.restype = c_uint
+lib.ElQRCtrlFillDefault_s.argtypes = \
+lib.ElQRCtrlFillDefault_d.argtypes = \
+  [c_void_p]
+lib.ElQRCtrlFillDefault_s.restype = \
+lib.ElQRCtrlFillDefault_d.restype = \
+  c_uint
 class QRCtrl_s(ctypes.Structure):
   _fields_ = [("colPiv",bType),("boundRank",bType),("maxRank",iType),
               ("adaptive",bType),("tol",sType),("alwaysRecomputeNorms",bType)]
@@ -1053,124 +1115,147 @@ class QRCtrl_d(ctypes.Structure):
 
 (QR_IMPLICIT,QR_EXPLICIT,QR_EXPLICIT_TRIANG,QR_EXPLICIT_UNITARY)=(0,1,2,3)
 
-lib.ElQR_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElQR_s.restype = c_uint
-lib.ElQR_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElQR_d.restype = c_uint
-lib.ElQR_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElQR_c.restype = c_uint
-lib.ElQR_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElQR_z.restype = c_uint
-lib.ElQRDist_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElQRDist_s.restype = c_uint
-lib.ElQRDist_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElQRDist_d.restype = c_uint
-lib.ElQRDist_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElQRDist_c.restype = c_uint
-lib.ElQRDist_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElQRDist_z.restype = c_uint
+lib.ElQR_s.argtypes = \
+lib.ElQR_d.argtypes = \
+lib.ElQR_c.argtypes = \
+lib.ElQR_z.argtypes = \
+lib.ElQRDist_s.argtypes = \
+lib.ElQRDist_d.argtypes = \
+lib.ElQRDist_c.argtypes = \
+lib.ElQRDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
 
-lib.ElQRExplicit_s.argtypes = [c_void_p,c_void_p]
-lib.ElQRExplicit_s.restype = c_uint
-lib.ElQRExplicit_d.argtypes = [c_void_p,c_void_p]
-lib.ElQRExplicit_d.restype = c_uint
-lib.ElQRExplicit_c.argtypes = [c_void_p,c_void_p]
-lib.ElQRExplicit_c.restype = c_uint
-lib.ElQRExplicit_z.argtypes = [c_void_p,c_void_p]
-lib.ElQRExplicit_z.restype = c_uint
-lib.ElQRExplicitDist_s.argtypes = [c_void_p,c_void_p]
-lib.ElQRExplicitDist_s.restype = c_uint
-lib.ElQRExplicitDist_d.argtypes = [c_void_p,c_void_p]
-lib.ElQRExplicitDist_d.restype = c_uint
-lib.ElQRExplicitDist_c.argtypes = [c_void_p,c_void_p]
-lib.ElQRExplicitDist_c.restype = c_uint
-lib.ElQRExplicitDist_z.argtypes = [c_void_p,c_void_p]
-lib.ElQRExplicitDist_z.restype = c_uint
+lib.ElQR_s.restype = \
+lib.ElQR_d.restype = \
+lib.ElQR_c.restype = \
+lib.ElQR_z.restype = \
+lib.ElQRDist_s.restype = \
+lib.ElQRDist_d.restype = \
+lib.ElQRDist_c.restype = \
+lib.ElQRDist_z.restype = \
+  c_uint
 
-lib.ElQRExplicitTriang_s.argtypes = [c_void_p]
-lib.ElQRExplicitTriang_s.restype = c_uint
-lib.ElQRExplicitTriang_d.argtypes = [c_void_p]
-lib.ElQRExplicitTriang_d.restype = c_uint
-lib.ElQRExplicitTriang_c.argtypes = [c_void_p]
-lib.ElQRExplicitTriang_c.restype = c_uint
-lib.ElQRExplicitTriang_z.argtypes = [c_void_p]
-lib.ElQRExplicitTriang_z.restype = c_uint
-lib.ElQRExplicitTriangDist_s.argtypes = [c_void_p]
-lib.ElQRExplicitTriangDist_s.restype = c_uint
-lib.ElQRExplicitTriangDist_d.argtypes = [c_void_p]
-lib.ElQRExplicitTriangDist_d.restype = c_uint
-lib.ElQRExplicitTriangDist_c.argtypes = [c_void_p]
-lib.ElQRExplicitTriangDist_c.restype = c_uint
-lib.ElQRExplicitTriangDist_z.argtypes = [c_void_p]
-lib.ElQRExplicitTriangDist_z.restype = c_uint
+lib.ElQRExplicit_s.argtypes = \
+lib.ElQRExplicit_d.argtypes = \
+lib.ElQRExplicit_c.argtypes = \
+lib.ElQRExplicit_z.argtypes = \
+lib.ElQRExplicitDist_s.argtypes = \
+lib.ElQRExplicitDist_d.argtypes = \
+lib.ElQRExplicitDist_c.argtypes = \
+lib.ElQRExplicitDist_z.argtypes = \
+  [c_void_p,c_void_p]
 
-lib.ElQRExplicitUnitary_s.argtypes = [c_void_p]
-lib.ElQRExplicitUnitary_s.restype = c_uint
-lib.ElQRExplicitUnitary_d.argtypes = [c_void_p]
-lib.ElQRExplicitUnitary_d.restype = c_uint
-lib.ElQRExplicitUnitary_c.argtypes = [c_void_p]
-lib.ElQRExplicitUnitary_c.restype = c_uint
-lib.ElQRExplicitUnitary_z.argtypes = [c_void_p]
-lib.ElQRExplicitUnitary_z.restype = c_uint
-lib.ElQRExplicitUnitaryDist_s.argtypes = [c_void_p]
-lib.ElQRExplicitUnitaryDist_s.restype = c_uint
-lib.ElQRExplicitUnitaryDist_d.argtypes = [c_void_p]
-lib.ElQRExplicitUnitaryDist_d.restype = c_uint
-lib.ElQRExplicitUnitaryDist_c.argtypes = [c_void_p]
-lib.ElQRExplicitUnitaryDist_c.restype = c_uint
-lib.ElQRExplicitUnitaryDist_z.argtypes = [c_void_p]
-lib.ElQRExplicitUnitaryDist_z.restype = c_uint
+lib.ElQRExplicit_s.restype = \
+lib.ElQRExplicit_d.restype = \
+lib.ElQRExplicit_c.restype = \
+lib.ElQRExplicit_z.restype = \
+lib.ElQRExplicitDist_s.restype = \
+lib.ElQRExplicitDist_d.restype = \
+lib.ElQRExplicitDist_c.restype = \
+lib.ElQRExplicitDist_z.restype = \
+  c_uint
 
-lib.ElQRColPiv_s.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQRColPiv_s.restype = c_uint
-lib.ElQRColPiv_d.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQRColPiv_d.restype = c_uint
-lib.ElQRColPiv_c.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQRColPiv_c.restype = c_uint
-lib.ElQRColPiv_z.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQRColPiv_z.restype = c_uint
-lib.ElQRColPivDist_s.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQRColPivDist_s.restype = c_uint
-lib.ElQRColPivDist_d.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQRColPivDist_d.restype = c_uint
-lib.ElQRColPivDist_c.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQRColPivDist_c.restype = c_uint
-lib.ElQRColPivDist_z.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElQRColPivDist_z.restype = c_uint
+lib.ElQRExplicitTriang_s.argtypes = \
+lib.ElQRExplicitTriang_d.argtypes = \
+lib.ElQRExplicitTriang_c.argtypes = \
+lib.ElQRExplicitTriang_z.argtypes = \
+lib.ElQRExplicitTriangDist_s.argtypes = \
+lib.ElQRExplicitTriangDist_d.argtypes = \
+lib.ElQRExplicitTriangDist_c.argtypes = \
+lib.ElQRExplicitTriangDist_z.argtypes = \
+  [c_void_p]
 
-lib.ElQRColPivX_s.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,QRCtrl_s]
-lib.ElQRColPivX_s.restype = c_uint
-lib.ElQRColPivX_d.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,QRCtrl_d]
-lib.ElQRColPivX_d.restype = c_uint
-lib.ElQRColPivX_c.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,QRCtrl_s]
-lib.ElQRColPivX_c.restype = c_uint
-lib.ElQRColPivX_z.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,QRCtrl_d]
-lib.ElQRColPivX_z.restype = c_uint
-lib.ElQRColPivXDist_s.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,QRCtrl_s]
-lib.ElQRColPivXDist_s.restype = c_uint
-lib.ElQRColPivXDist_d.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,QRCtrl_d]
-lib.ElQRColPivXDist_d.restype = c_uint
-lib.ElQRColPivXDist_c.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,QRCtrl_s]
-lib.ElQRColPivXDist_c.restype = c_uint
-lib.ElQRColPivXDist_z.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,QRCtrl_d]
-lib.ElQRColPivXDist_z.restype = c_uint
+lib.ElQRExplicitTriang_s.restype = \
+lib.ElQRExplicitTriang_d.restype = \
+lib.ElQRExplicitTriang_c.restype = \
+lib.ElQRExplicitTriang_z.restype = \
+lib.ElQRExplicitTriangDist_s.restype = \
+lib.ElQRExplicitTriangDist_d.restype = \
+lib.ElQRExplicitTriangDist_c.restype = \
+lib.ElQRExplicitTriangDist_z.restype = \
+  c_uint
 
-lib.ElQRColPivExplicit_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElQRColPivExplicit_s.restype = c_uint
-lib.ElQRColPivExplicit_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElQRColPivExplicit_d.restype = c_uint
-lib.ElQRColPivExplicit_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElQRColPivExplicit_c.restype = c_uint
-lib.ElQRColPivExplicit_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElQRColPivExplicit_z.restype = c_uint
-lib.ElQRColPivExplicitDist_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElQRColPivExplicitDist_s.restype = c_uint
-lib.ElQRColPivExplicitDist_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElQRColPivExplicitDist_d.restype = c_uint
-lib.ElQRColPivExplicitDist_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElQRColPivExplicitDist_c.restype = c_uint
-lib.ElQRColPivExplicitDist_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElQRColPivExplicitDist_z.restype = c_uint
+lib.ElQRExplicitUnitary_s.argtypes = \
+lib.ElQRExplicitUnitary_d.argtypes = \
+lib.ElQRExplicitUnitary_c.argtypes = \
+lib.ElQRExplicitUnitary_z.argtypes = \
+lib.ElQRExplicitUnitaryDist_s.argtypes = \
+lib.ElQRExplicitUnitaryDist_d.argtypes = \
+lib.ElQRExplicitUnitaryDist_c.argtypes = \
+lib.ElQRExplicitUnitaryDist_z.argtypes = \
+  [c_void_p]
+
+lib.ElQRExplicitUnitary_s.restype = \
+lib.ElQRExplicitUnitary_d.restype = \
+lib.ElQRExplicitUnitary_c.restype = \
+lib.ElQRExplicitUnitary_z.restype = \
+lib.ElQRExplicitUnitaryDist_s.restype = \
+lib.ElQRExplicitUnitaryDist_d.restype = \
+lib.ElQRExplicitUnitaryDist_c.restype = \
+lib.ElQRExplicitUnitaryDist_z.restype = \
+  c_uint
+
+lib.ElQRColPiv_s.argtypes = \
+lib.ElQRColPiv_d.argtypes = \
+lib.ElQRColPiv_c.argtypes = \
+lib.ElQRColPiv_z.argtypes = \
+lib.ElQRColPivDist_s.argtypes = \
+lib.ElQRColPivDist_d.argtypes = \
+lib.ElQRColPivDist_c.argtypes = \
+lib.ElQRColPivDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p]
+
+lib.ElQRColPiv_s.restype = \
+lib.ElQRColPiv_d.restype = \
+lib.ElQRColPiv_c.restype = \
+lib.ElQRColPiv_z.restype = \
+lib.ElQRColPivDist_s.restype = \
+lib.ElQRColPivDist_d.restype = \
+lib.ElQRColPivDist_c.restype = \
+lib.ElQRColPivDist_z.restype = \
+  c_uint
+
+lib.ElQRColPivX_s.argtypes = \
+lib.ElQRColPivX_c.argtypes = \
+lib.ElQRColPivXDist_s.argtypes = \
+lib.ElQRColPivXDist_c.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,QRCtrl_s]
+
+lib.ElQRColPivX_d.argtypes = \
+lib.ElQRColPivX_z.argtypes = \
+lib.ElQRColPivXDist_d.argtypes = \
+lib.ElQRColPivXDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,QRCtrl_d]
+
+lib.ElQRColPivX_s.restype = \
+lib.ElQRColPivX_d.restype = \
+lib.ElQRColPivX_c.restype = \
+lib.ElQRColPivX_z.restype = \
+lib.ElQRColPivXDist_s.restype = \
+lib.ElQRColPivXDist_d.restype = \
+lib.ElQRColPivXDist_c.restype = \
+lib.ElQRColPivXDist_z.restype = \
+  c_uint
+
+lib.ElQRColPivExplicit_s.argtypes = \
+lib.ElQRColPivExplicit_d.argtypes = \
+lib.ElQRColPivExplicit_c.argtypes = \
+lib.ElQRColPivExplicit_z.argtypes = \
+lib.ElQRColPivExplicitDist_s.argtypes = \
+lib.ElQRColPivExplicitDist_d.argtypes = \
+lib.ElQRColPivExplicitDist_c.argtypes = \
+lib.ElQRColPivExplicitDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+
+lib.ElQRColPivExplicit_s.restype = \
+lib.ElQRColPivExplicit_d.restype = \
+lib.ElQRColPivExplicit_c.restype = \
+lib.ElQRColPivExplicit_z.restype = \
+lib.ElQRColPivExplicitDist_s.restype = \
+lib.ElQRColPivExplicitDist_d.restype = \
+lib.ElQRColPivExplicitDist_c.restype = \
+lib.ElQRColPivExplicitDist_z.restype = \
+  c_uint
 
 def QR(A,piv=False,factType=QR_IMPLICIT,ctrl=None):
   if type(A) is Matrix:
@@ -1317,22 +1402,26 @@ def QR(A,piv=False,factType=QR_IMPLICIT,ctrl=None):
       else: raise Exception('Unsupported QR factorization type')
   else: TypeExcept()
 
-lib.ElCholeskyQR_s.argtypes = [c_void_p,c_void_p]
-lib.ElCholeskyQR_s.restype = c_uint
-lib.ElCholeskyQR_d.argtypes = [c_void_p,c_void_p]
-lib.ElCholeskyQR_d.restype = c_uint
-lib.ElCholeskyQR_c.argtypes = [c_void_p,c_void_p]
-lib.ElCholeskyQR_c.restype = c_uint
-lib.ElCholeskyQR_z.argtypes = [c_void_p,c_void_p]
-lib.ElCholeskyQR_z.restype = c_uint
-lib.ElCholeskyQRDist_s.argtypes = [c_void_p,c_void_p]
-lib.ElCholeskyQRDist_s.restype = c_uint
-lib.ElCholeskyQRDist_d.argtypes = [c_void_p,c_void_p]
-lib.ElCholeskyQRDist_d.restype = c_uint
-lib.ElCholeskyQRDist_c.argtypes = [c_void_p,c_void_p]
-lib.ElCholeskyQRDist_c.restype = c_uint
-lib.ElCholeskyQRDist_z.argtypes = [c_void_p,c_void_p]
-lib.ElCholeskyQRDist_z.restype = c_uint
+lib.ElCholeskyQR_s.argtypes = \
+lib.ElCholeskyQR_d.argtypes = \
+lib.ElCholeskyQR_c.argtypes = \
+lib.ElCholeskyQR_z.argtypes = \
+lib.ElCholeskyQRDist_s.argtypes = \
+lib.ElCholeskyQRDist_d.argtypes = \
+lib.ElCholeskyQRDist_c.argtypes = \
+lib.ElCholeskyQRDist_z.argtypes = \
+  [c_void_p,c_void_p]
+
+lib.ElCholeskyQR_s.restype = \
+lib.ElCholeskyQR_d.restype = \
+lib.ElCholeskyQR_c.restype = \
+lib.ElCholeskyQR_z.restype = \
+lib.ElCholeskyQRDist_s.restype = \
+lib.ElCholeskyQRDist_d.restype = \
+lib.ElCholeskyQRDist_c.restype = \
+lib.ElCholeskyQRDist_z.restype = \
+  c_uint
+
 def CholeskyQR(A):
   if type(A) is Matrix:
     R = Matrix(A.tag)
@@ -1355,29 +1444,25 @@ def CholeskyQR(A):
   else: TypeExcept()
 
 lib.ElApplyQAfterQR_s.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterQR_s.restype = c_uint
 lib.ElApplyQAfterQR_d.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterQR_d.restype = c_uint
 lib.ElApplyQAfterQR_c.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterQR_c.restype = c_uint
 lib.ElApplyQAfterQR_z.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterQR_z.restype = c_uint
 lib.ElApplyQAfterQRDist_s.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterQRDist_s.restype = c_uint
 lib.ElApplyQAfterQRDist_d.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterQRDist_d.restype = c_uint
 lib.ElApplyQAfterQRDist_c.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterQRDist_c.restype = c_uint
 lib.ElApplyQAfterQRDist_z.argtypes = \
   [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterQRDist_z.restype = c_uint
+
+lib.ElApplyQAfterQR_s.restype = \
+lib.ElApplyQAfterQR_d.restype = \
+lib.ElApplyQAfterQR_c.restype = \
+lib.ElApplyQAfterQR_z.restype = \
+lib.ElApplyQAfterQRDist_s.restype = \
+lib.ElApplyQAfterQRDist_d.restype = \
+lib.ElApplyQAfterQRDist_c.restype = \
+lib.ElApplyQAfterQRDist_z.restype = \
+  c_uint
+
 def ApplyQAfterQR(side,orient,A,t,d,B):
   if type(A) is not type(t) or type(t) is not type(d) or type(d) is not type(B):
     raise Exception('Matrix types of {A,t,d,B} must match')
@@ -1407,70 +1492,84 @@ def ApplyQAfterQR(side,orient,A,t,d,B):
 # ================
 (RQ_IMPLICIT,RQ_EXPLICIT,RQ_EXPLICIT_TRIANG,RQ_EXPLICIT_UNITARY)=(0,1,2,3)
 
-lib.ElRQ_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElRQ_s.restype = c_uint
-lib.ElRQ_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElRQ_d.restype = c_uint
-lib.ElRQ_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElRQ_c.restype = c_uint
-lib.ElRQ_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElRQ_z.restype = c_uint
-lib.ElRQDist_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElRQDist_s.restype = c_uint
-lib.ElRQDist_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElRQDist_d.restype = c_uint
-lib.ElRQDist_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElRQDist_c.restype = c_uint
-lib.ElRQDist_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElRQDist_z.restype = c_uint
-#lib.ElRQExplicit_s.argtypes = [c_void_p,c_void_p]
-#lib.ElRQExplicit_s.restype = c_uint
-#lib.ElRQExplicit_d.argtypes = [c_void_p,c_void_p]
-#lib.ElRQExplicit_d.restype = c_uint
-#lib.ElRQExplicit_c.argtypes = [c_void_p,c_void_p]
-#lib.ElRQExplicit_c.restype = c_uint
-#lib.ElRQExplicit_z.argtypes = [c_void_p,c_void_p]
-#lib.ElRQExplicit_z.restype = c_uint
-#lib.ElRQExplicitDist_s.argtypes = [c_void_p,c_void_p]
-#lib.ElRQExplicitDist_s.restype = c_uint
-#lib.ElRQExplicitDist_d.argtypes = [c_void_p,c_void_p]
-#lib.ElRQExplicitDist_d.restype = c_uint
-#lib.ElRQExplicitDist_c.argtypes = [c_void_p,c_void_p]
-#lib.ElRQExplicitDist_c.restype = c_uint
-#lib.ElRQExplicitDist_z.argtypes = [c_void_p,c_void_p]
-#lib.ElRQExplicitDist_z.restype = c_uint
-#lib.ElRQExplicitUnitary_s.argtypes = [c_void_p]
-#lib.ElRQExplicitUnitary_s.restype = c_uint
-#lib.ElRQExplicitUnitary_d.argtypes = [c_void_p]
-#lib.ElRQExplicitUnitary_d.restype = c_uint
-#lib.ElRQExplicitUnitary_c.argtypes = [c_void_p]
-#lib.ElRQExplicitUnitary_c.restype = c_uint
-#lib.ElRQExplicitUnitary_z.argtypes = [c_void_p]
-#lib.ElRQExplicitUnitary_z.restype = c_uint
-#lib.ElRQExplicitUnitaryDist_s.argtypes = [c_void_p]
-#lib.ElRQExplicitUnitaryDist_s.restype = c_uint
-#lib.ElRQExplicitUnitaryDist_d.argtypes = [c_void_p]
-#lib.ElRQExplicitUnitaryDist_d.restype = c_uint
-#lib.ElRQExplicitUnitaryDist_c.argtypes = [c_void_p]
-#lib.ElRQExplicitUnitaryDist_c.restype = c_uint
-#lib.ElRQExplicitUnitaryDist_z.argtypes = [c_void_p]
-#lib.ElRQExplicitUnitaryDist_z.restype = c_uint
-lib.ElRQExplicitTriang_s.argtypes = [c_void_p]
-lib.ElRQExplicitTriang_s.restype = c_uint
-lib.ElRQExplicitTriang_d.argtypes = [c_void_p]
-lib.ElRQExplicitTriang_d.restype = c_uint
-lib.ElRQExplicitTriang_c.argtypes = [c_void_p]
-lib.ElRQExplicitTriang_c.restype = c_uint
-lib.ElRQExplicitTriang_z.argtypes = [c_void_p]
-lib.ElRQExplicitTriang_z.restype = c_uint
-lib.ElRQExplicitTriangDist_s.argtypes = [c_void_p]
-lib.ElRQExplicitTriangDist_s.restype = c_uint
-lib.ElRQExplicitTriangDist_d.argtypes = [c_void_p]
-lib.ElRQExplicitTriangDist_d.restype = c_uint
-lib.ElRQExplicitTriangDist_c.argtypes = [c_void_p]
-lib.ElRQExplicitTriangDist_c.restype = c_uint
-lib.ElRQExplicitTriangDist_z.argtypes = [c_void_p]
-lib.ElRQExplicitTriangDist_z.restype = c_uint
+lib.ElRQ_s.argtypes = \
+lib.ElRQ_d.argtypes = \
+lib.ElRQ_c.argtypes = \
+lib.ElRQ_z.argtypes = \
+lib.ElRQDist_s.argtypes = \
+lib.ElRQDist_d.argtypes = \
+lib.ElRQDist_c.argtypes = \
+lib.ElRQDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+
+lib.ElRQ_s.restype = \
+lib.ElRQ_d.restype = \
+lib.ElRQ_c.restype = \
+lib.ElRQ_z.restype = \
+lib.ElRQDist_s.restype = \
+lib.ElRQDist_d.restype = \
+lib.ElRQDist_c.restype = \
+lib.ElRQDist_z.restype = \
+  c_uint
+
+#lib.ElRQExplicit_s.argtypes = \
+#lib.ElRQExplicit_d.argtypes = \
+#lib.ElRQExplicit_c.argtypes = \
+#lib.ElRQExplicit_z.argtypes = \
+#lib.ElRQExplicitDist_s.argtypes = \
+#lib.ElRQExplicitDist_d.argtypes = \
+#lib.ElRQExplicitDist_c.argtypes = \
+#lib.ElRQExplicitDist_z.argtypes = \
+#  [c_void_p,c_void_p]
+#lib.ElRQExplicit_s.restype = \
+#lib.ElRQExplicit_d.restype = \
+#lib.ElRQExplicit_c.restype = \
+#lib.ElRQExplicit_z.restype = \
+#lib.ElRQExplicitDist_s.restype = \
+#lib.ElRQExplicitDist_d.restype = \
+#lib.ElRQExplicitDist_c.restype = \
+#lib.ElRQExplicitDist_z.restype = \
+#  c_uint
+
+#lib.ElRQExplicitUnitary_s.argtypes = \
+#lib.ElRQExplicitUnitary_d.argtypes = \
+#lib.ElRQExplicitUnitary_c.argtypes = \
+#lib.ElRQExplicitUnitary_z.argtypes = \
+#lib.ElRQExplicitUnitaryDist_s.argtypes = \
+#lib.ElRQExplicitUnitaryDist_d.argtypes = \
+#lib.ElRQExplicitUnitaryDist_c.argtypes = \
+#lib.ElRQExplicitUnitaryDist_z.argtypes = \
+#  [c_void_p]
+#lib.ElRQExplicitUnitary_s.restype = \
+#lib.ElRQExplicitUnitary_d.restype = \
+#lib.ElRQExplicitUnitary_c.restype = \
+#lib.ElRQExplicitUnitary_z.restype = \
+#lib.ElRQExplicitUnitaryDist_s.restype = \
+#lib.ElRQExplicitUnitaryDist_d.restype = \
+#lib.ElRQExplicitUnitaryDist_c.restype = \
+#lib.ElRQExplicitUnitaryDist_z.restype = \
+#  c_uint
+
+lib.ElRQExplicitTriang_s.argtypes = \
+lib.ElRQExplicitTriang_d.argtypes = \
+lib.ElRQExplicitTriang_c.argtypes = \
+lib.ElRQExplicitTriang_z.argtypes = \
+lib.ElRQExplicitTriangDist_s.argtypes = \
+lib.ElRQExplicitTriangDist_d.argtypes = \
+lib.ElRQExplicitTriangDist_c.argtypes = \
+lib.ElRQExplicitTriangDist_z.argtypes = \
+  [c_void_p]
+
+lib.ElRQExplicitTriang_s.restype = \
+lib.ElRQExplicitTriang_d.restype = \
+lib.ElRQExplicitTriang_c.restype = \
+lib.ElRQExplicitTriang_z.restype = \
+lib.ElRQExplicitTriangDist_s.restype = \
+lib.ElRQExplicitTriangDist_d.restype = \
+lib.ElRQExplicitTriangDist_c.restype = \
+lib.ElRQExplicitTriangDist_z.restype = \
+  c_uint
+
 def RQ(A,factType=RQ_IMPLICIT):
   if type(A) is Matrix:
     if factType == RQ_IMPLICIT:
@@ -1545,29 +1644,25 @@ def RQ(A,factType=RQ_IMPLICIT):
   else: TypeExcept()
 
 lib.ElApplyQAfterRQ_s.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterRQ_s.restype = c_uint
 lib.ElApplyQAfterRQ_d.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterRQ_d.restype = c_uint
 lib.ElApplyQAfterRQ_c.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterRQ_c.restype = c_uint
 lib.ElApplyQAfterRQ_z.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterRQ_z.restype = c_uint
 lib.ElApplyQAfterRQDist_s.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterRQDist_s.restype = c_uint
 lib.ElApplyQAfterRQDist_d.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterRQDist_d.restype = c_uint
 lib.ElApplyQAfterRQDist_c.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterRQDist_c.restype = c_uint
 lib.ElApplyQAfterRQDist_z.argtypes = \
   [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElApplyQAfterRQDist_z.restype = c_uint
+
+lib.ElApplyQAfterRQ_s.restype = \
+lib.ElApplyQAfterRQ_d.restype = \
+lib.ElApplyQAfterRQ_c.restype = \
+lib.ElApplyQAfterRQ_z.restype = \
+lib.ElApplyQAfterRQDist_s.restype = \
+lib.ElApplyQAfterRQDist_d.restype = \
+lib.ElApplyQAfterRQDist_c.restype = \
+lib.ElApplyQAfterRQDist_z.restype = \
+  c_uint
+
 def ApplyQAfterRQ(side,orient,A,t,d,B):
   if type(A) is not type(t) or type(t) is not type(d) or type(d) is not type(B):
     raise Exception('Matrix types of {A,t,d,B} must match')
@@ -1589,29 +1684,25 @@ def ApplyQAfterRQ(side,orient,A,t,d,B):
   else: TypeExcept()
 
 lib.ElSolveAfterRQ_s.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterRQ_s.restype = c_uint
 lib.ElSolveAfterRQ_d.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterRQ_d.restype = c_uint
 lib.ElSolveAfterRQ_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterRQ_c.restype = c_uint
 lib.ElSolveAfterRQ_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterRQ_z.restype = c_uint
 lib.ElSolveAfterRQDist_s.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterRQDist_s.restype = c_uint
 lib.ElSolveAfterRQDist_d.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterRQDist_d.restype = c_uint
 lib.ElSolveAfterRQDist_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterRQDist_c.restype = c_uint
 lib.ElSolveAfterRQDist_z.argtypes = \
   [c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElSolveAfterRQDist_z.restype = c_uint
+
+lib.ElSolveAfterRQ_s.restype = \
+lib.ElSolveAfterRQ_d.restype = \
+lib.ElSolveAfterRQ_c.restype = \
+lib.ElSolveAfterRQ_z.restype = \
+lib.ElSolveAfterRQDist_s.restype = \
+lib.ElSolveAfterRQDist_d.restype = \
+lib.ElSolveAfterRQDist_c.restype = \
+lib.ElSolveAfterRQDist_z.restype = \
+  c_uint
+
 def SolveAfterRQ(orient,A,t,d,B):
   if type(A) is Matrix:
     X = Matrix(A.tag)
@@ -1637,39 +1728,45 @@ def SolveAfterRQ(orient,A,t,d,B):
 # ============================
 (GQR_IMPLICIT,GQR_EXPLICIT,GQR_EXPLICIT_TRIANG,GQR_EXPLICIT_UNITARY)=(0,1,2,3)
 
-lib.ElGQR_s.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElGQR_s.restype = c_uint
-lib.ElGQR_d.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElGQR_d.restype = c_uint
-lib.ElGQR_c.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElGQR_c.restype = c_uint
-lib.ElGQR_z.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElGQR_z.restype = c_uint
-lib.ElGQRDist_s.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElGQRDist_s.restype = c_uint
-lib.ElGQRDist_d.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElGQRDist_d.restype = c_uint
-lib.ElGQRDist_c.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElGQRDist_c.restype = c_uint
-lib.ElGQRDist_z.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElGQRDist_z.restype = c_uint
+lib.ElGQR_s.argtypes = \
+lib.ElGQR_d.argtypes = \
+lib.ElGQR_c.argtypes = \
+lib.ElGQR_z.argtypes = \
+lib.ElGQRDist_s.argtypes = \
+lib.ElGQRDist_d.argtypes = \
+lib.ElGQRDist_c.argtypes = \
+lib.ElGQRDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
 
-lib.ElGQRExplicitTriang_s.argtypes = [c_void_p,c_void_p]
-lib.ElGQRExplicitTriang_s.restype = c_uint
-lib.ElGQRExplicitTriang_d.argtypes = [c_void_p,c_void_p]
-lib.ElGQRExplicitTriang_d.restype = c_uint
-lib.ElGQRExplicitTriang_c.argtypes = [c_void_p,c_void_p]
-lib.ElGQRExplicitTriang_c.restype = c_uint
-lib.ElGQRExplicitTriang_z.argtypes = [c_void_p,c_void_p]
-lib.ElGQRExplicitTriang_z.restype = c_uint
-lib.ElGQRExplicitTriangDist_s.argtypes = [c_void_p,c_void_p]
-lib.ElGQRExplicitTriangDist_s.restype = c_uint
-lib.ElGQRExplicitTriangDist_d.argtypes = [c_void_p,c_void_p]
-lib.ElGQRExplicitTriangDist_d.restype = c_uint
-lib.ElGQRExplicitTriangDist_c.argtypes = [c_void_p,c_void_p]
-lib.ElGQRExplicitTriangDist_c.restype = c_uint
-lib.ElGQRExplicitTriangDist_z.argtypes = [c_void_p,c_void_p]
-lib.ElGQRExplicitTriangDist_z.restype = c_uint
+lib.ElGQR_s.restype = \
+lib.ElGQR_d.restype = \
+lib.ElGQR_c.restype = \
+lib.ElGQR_z.restype = \
+lib.ElGQRDist_s.restype = \
+lib.ElGQRDist_d.restype = \
+lib.ElGQRDist_c.restype = \
+lib.ElGQRDist_z.restype = \
+  c_uint
+
+lib.ElGQRExplicitTriang_s.argtypes = \
+lib.ElGQRExplicitTriang_d.argtypes = \
+lib.ElGQRExplicitTriang_c.argtypes = \
+lib.ElGQRExplicitTriang_z.argtypes = \
+lib.ElGQRExplicitTriangDist_s.argtypes = \
+lib.ElGQRExplicitTriangDist_d.argtypes = \
+lib.ElGQRExplicitTriangDist_c.argtypes = \
+lib.ElGQRExplicitTriangDist_z.argtypes = \
+  [c_void_p,c_void_p]
+
+lib.ElGQRExplicitTriang_s.restype = \
+lib.ElGQRExplicitTriang_d.restype = \
+lib.ElGQRExplicitTriang_c.restype = \
+lib.ElGQRExplicitTriang_z.restype = \
+lib.ElGQRExplicitTriangDist_s.restype = \
+lib.ElGQRExplicitTriangDist_d.restype = \
+lib.ElGQRExplicitTriangDist_c.restype = \
+lib.ElGQRExplicitTriangDist_z.restype = \
+  c_uint
 
 def GQR(A,B,factType=GQR_IMPLICIT):
   if type(A) is Matrix:
@@ -1732,39 +1829,45 @@ def GQR(A,B,factType=GQR_IMPLICIT):
 # ============================
 (GRQ_IMPLICIT,GRQ_EXPLICIT,GRQ_EXPLICIT_TRIANG,GRQ_EXPLICIT_UNITARY)=(0,1,2,3)
 
-lib.ElGRQ_s.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElGRQ_s.restype = c_uint
-lib.ElGRQ_d.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElGRQ_d.restype = c_uint
-lib.ElGRQ_c.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElGRQ_c.restype = c_uint
-lib.ElGRQ_z.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElGRQ_z.restype = c_uint
-lib.ElGRQDist_s.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElGRQDist_s.restype = c_uint
-lib.ElGRQDist_d.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElGRQDist_d.restype = c_uint
-lib.ElGRQDist_c.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElGRQDist_c.restype = c_uint
-lib.ElGRQDist_z.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElGRQDist_z.restype = c_uint
+lib.ElGRQ_s.argtypes = \
+lib.ElGRQ_d.argtypes = \
+lib.ElGRQ_c.argtypes = \
+lib.ElGRQ_z.argtypes = \
+lib.ElGRQDist_s.argtypes = \
+lib.ElGRQDist_d.argtypes = \
+lib.ElGRQDist_c.argtypes = \
+lib.ElGRQDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
 
-lib.ElGRQExplicitTriang_s.argtypes = [c_void_p,c_void_p]
-lib.ElGRQExplicitTriang_s.restype = c_uint
-lib.ElGRQExplicitTriang_d.argtypes = [c_void_p,c_void_p]
-lib.ElGRQExplicitTriang_d.restype = c_uint
-lib.ElGRQExplicitTriang_c.argtypes = [c_void_p,c_void_p]
-lib.ElGRQExplicitTriang_c.restype = c_uint
-lib.ElGRQExplicitTriang_z.argtypes = [c_void_p,c_void_p]
-lib.ElGRQExplicitTriang_z.restype = c_uint
-lib.ElGRQExplicitTriangDist_s.argtypes = [c_void_p,c_void_p]
-lib.ElGRQExplicitTriangDist_s.restype = c_uint
-lib.ElGRQExplicitTriangDist_d.argtypes = [c_void_p,c_void_p]
-lib.ElGRQExplicitTriangDist_d.restype = c_uint
-lib.ElGRQExplicitTriangDist_c.argtypes = [c_void_p,c_void_p]
-lib.ElGRQExplicitTriangDist_c.restype = c_uint
-lib.ElGRQExplicitTriangDist_z.argtypes = [c_void_p,c_void_p]
-lib.ElGRQExplicitTriangDist_z.restype = c_uint
+lib.ElGRQ_s.restype = \
+lib.ElGRQ_d.restype = \
+lib.ElGRQ_c.restype = \
+lib.ElGRQ_z.restype = \
+lib.ElGRQDist_s.restype = \
+lib.ElGRQDist_d.restype = \
+lib.ElGRQDist_c.restype = \
+lib.ElGRQDist_z.restype = \
+  c_uint
+
+lib.ElGRQExplicitTriang_s.argtypes = \
+lib.ElGRQExplicitTriang_d.argtypes = \
+lib.ElGRQExplicitTriang_c.argtypes = \
+lib.ElGRQExplicitTriang_z.argtypes = \
+lib.ElGRQExplicitTriangDist_s.argtypes = \
+lib.ElGRQExplicitTriangDist_d.argtypes = \
+lib.ElGRQExplicitTriangDist_c.argtypes = \
+lib.ElGRQExplicitTriangDist_z.argtypes = \
+  [c_void_p,c_void_p]
+
+lib.ElGRQExplicitTriang_s.restype = \
+lib.ElGRQExplicitTriang_d.restype = \
+lib.ElGRQExplicitTriang_c.restype = \
+lib.ElGRQExplicitTriang_z.restype = \
+lib.ElGRQExplicitTriangDist_s.restype = \
+lib.ElGRQExplicitTriangDist_d.restype = \
+lib.ElGRQExplicitTriangDist_c.restype = \
+lib.ElGRQExplicitTriangDist_z.restype = \
+  c_uint
 
 def GRQ(A,B,factType=GRQ_IMPLICIT):
   if type(A) is Matrix:
@@ -1825,22 +1928,28 @@ def GRQ(A,B,factType=GRQ_IMPLICIT):
 
 # Interpolative decomposition
 # ===========================
-lib.ElID_s.argtypes = [c_void_p,c_void_p,c_void_p,QRCtrl_s,bType]
-lib.ElID_s.restype = c_uint
-lib.ElID_d.argtypes = [c_void_p,c_void_p,c_void_p,QRCtrl_d,bType]
-lib.ElID_d.restype = c_uint
-lib.ElID_c.argtypes = [c_void_p,c_void_p,c_void_p,QRCtrl_s,bType]
-lib.ElID_c.restype = c_uint
-lib.ElID_z.argtypes = [c_void_p,c_void_p,c_void_p,QRCtrl_d,bType]
-lib.ElID_z.restype = c_uint
-lib.ElIDDist_s.argtypes = [c_void_p,c_void_p,c_void_p,QRCtrl_s,bType]
-lib.ElIDDist_s.restype = c_uint
-lib.ElIDDist_d.argtypes = [c_void_p,c_void_p,c_void_p,QRCtrl_d,bType]
-lib.ElIDDist_d.restype = c_uint
-lib.ElIDDist_c.argtypes = [c_void_p,c_void_p,c_void_p,QRCtrl_s,bType]
-lib.ElIDDist_c.restype = c_uint
-lib.ElIDDist_z.argtypes = [c_void_p,c_void_p,c_void_p,QRCtrl_d,bType]
-lib.ElIDDist_z.restype = c_uint
+lib.ElID_s.argtypes = \
+lib.ElID_c.argtypes = \
+lib.ElIDDist_s.argtypes = \
+lib.ElIDDist_c.argtypes = \
+  [c_void_p,c_void_p,c_void_p,QRCtrl_s,bType]
+
+lib.ElID_d.argtypes = \
+lib.ElID_z.argtypes = \
+lib.ElIDDist_d.argtypes = \
+lib.ElIDDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,QRCtrl_d,bType]
+
+lib.ElID_s.restype = \
+lib.ElID_d.restype = \
+lib.ElID_c.restype = \
+lib.ElID_z.restype = \
+lib.ElIDDist_s.restype = \
+lib.ElIDDist_d.restype = \
+lib.ElIDDist_c.restype = \
+lib.ElIDDist_z.restype = \
+  c_uint
+
 def ID(A,ctrl,canOverwrite=False):
   if type(A) is Matrix: 
     p = Matrix(iTag)
@@ -1866,22 +1975,28 @@ def ID(A,ctrl,canOverwrite=False):
 
 # Skeleton decomposition
 # ======================
-lib.ElSkeleton_s.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,QRCtrl_s]
-lib.ElSkeleton_s.restype = c_uint
-lib.ElSkeleton_d.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,QRCtrl_d]
-lib.ElSkeleton_d.restype = c_uint
-lib.ElSkeleton_c.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,QRCtrl_s]
-lib.ElSkeleton_c.restype = c_uint
-lib.ElSkeleton_z.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,QRCtrl_d]
-lib.ElSkeleton_z.restype = c_uint
-lib.ElSkeletonDist_s.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,QRCtrl_s]
-lib.ElSkeletonDist_s.restype = c_uint
-lib.ElSkeletonDist_d.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,QRCtrl_d]
-lib.ElSkeletonDist_d.restype = c_uint
-lib.ElSkeletonDist_c.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,QRCtrl_s]
-lib.ElSkeletonDist_c.restype = c_uint
-lib.ElSkeletonDist_z.argtypes = [c_void_p,c_void_p,c_void_p,c_void_p,QRCtrl_d]
-lib.ElSkeletonDist_z.restype = c_uint
+lib.ElSkeleton_s.argtypes = \
+lib.ElSkeleton_c.argtypes = \
+lib.ElSkeletonDist_s.argtypes = \
+lib.ElSkeletonDist_c.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,QRCtrl_s]
+
+lib.ElSkeleton_d.argtypes = \
+lib.ElSkeleton_z.argtypes = \
+lib.ElSkeletonDist_d.argtypes = \
+lib.ElSkeletonDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,QRCtrl_d]
+
+lib.ElSkeleton_s.restype = \
+lib.ElSkeleton_d.restype = \
+lib.ElSkeleton_c.restype = \
+lib.ElSkeleton_z.restype = \
+lib.ElSkeletonDist_s.restype = \
+lib.ElSkeletonDist_d.restype = \
+lib.ElSkeletonDist_c.restype = \
+lib.ElSkeletonDist_z.restype = \
+  c_uint
+
 def Skeleton(A,ctrl):
   if type(A) is Matrix:
     pR = Matrix(iTag)
