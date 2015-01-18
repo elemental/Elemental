@@ -348,6 +348,10 @@ void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, int root=0 );
 template<typename T>
 void Copy( const DistMultiVec<T>& A, DistMultiVec<T>& B );
 template<typename T>
+void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B );
+template<typename T>
+void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B );
+template<typename T>
 void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X );
 template<typename T>
 void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root=0 );

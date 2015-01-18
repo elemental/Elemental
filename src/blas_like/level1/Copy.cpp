@@ -421,6 +421,134 @@ void Copy( const DistMultiVec<T>& A, DistMultiVec<T>& B )
 }
 
 template<typename T>
+void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Copy [DistMultiVec -> ADM]"))
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int mLoc = A.LocalHeight();
+    mpi::Comm comm = B.DistComm();
+    const int commSize = mpi::Size(comm);
+    if( B.CrossSize() != 1 || B.RedundantSize() != 1 )
+        LogicError
+        ("DistMultiVec -> ADM only supported with trivial cross and "
+         "redundant sizes");
+
+    B.Resize( m, n );
+   
+    // Compute the metadata
+    // ====================
+    std::vector<int> sendCounts(commSize,0);
+    for( Int j=0; j<n; ++j )
+        for( Int iLoc=0; iLoc<mLoc; ++iLoc )
+            ++sendCounts[ B.Owner(A.GlobalRow(iLoc),j) ]; 
+    std::vector<int> recvCounts(commSize);
+    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
+    std::vector<int> sendOffsets, recvOffsets;
+    const int totalSend = Scan( sendCounts, sendOffsets );
+    const int totalRecv = Scan( recvCounts, recvOffsets );
+    // Pack
+    // ====
+    std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
+    std::vector<T> vSendBuf(totalSend);
+    auto offsets = sendOffsets;
+    for( Int j=0; j<n; ++j )
+    {
+        for( Int iLoc=0; iLoc<mLoc; ++iLoc )
+        {
+            const Int i = A.GlobalRow(iLoc);
+            const int owner = B.Owner(i,j);
+            sSendBuf[offsets[owner]] = i;
+            tSendBuf[offsets[owner]] = j;
+            vSendBuf[offsets[owner]] = A.GetLocal(iLoc,j);
+            ++offsets[owner];
+        }
+    }
+    // Exchange
+    // ========
+    std::vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
+    std::vector<T> vRecvBuf(totalRecv);
+    mpi::AllToAll
+    ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    mpi::AllToAll
+    ( tSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      tRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    mpi::AllToAll
+    ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    // Unpack
+    // ======
+    for( Int e=0; e<totalRecv; ++e )    
+        B.Set( sRecvBuf[e], tRecvBuf[e], vRecvBuf[e] );
+}
+
+template<typename T>
+void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Copy [ADM -> DistMultiVec]"))
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int mLoc = A.LocalHeight();
+    const Int nLoc = A.LocalWidth();
+    mpi::Comm comm = B.Comm();
+    const int commSize = mpi::Size(comm);
+    if( A.CrossSize() != 1 || A.RedundantSize() != 1 )
+        LogicError
+        ("ADM -> DistMultiVec only supported with trivial cross and "
+         "redundant sizes");
+
+    B.Resize( m, n );
+   
+    // Compute the metadata
+    // ====================
+    std::vector<int> sendCounts(commSize,0);
+    for( Int jLoc=0; jLoc<nLoc; ++jLoc )
+        for( Int iLoc=0; iLoc<mLoc; ++iLoc )
+            ++sendCounts[ B.RowOwner(A.GlobalRow(iLoc)) ]; 
+    std::vector<int> recvCounts(commSize);
+    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
+    std::vector<int> sendOffsets, recvOffsets;
+    const int totalSend = Scan( sendCounts, sendOffsets );
+    const int totalRecv = Scan( recvCounts, recvOffsets );
+    // Pack
+    // ====
+    std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
+    std::vector<T> vSendBuf(totalSend);
+    auto offsets = sendOffsets;
+    for( Int jLoc=0; jLoc<nLoc; ++jLoc )
+    {
+        const Int j = A.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<mLoc; ++iLoc )
+        {
+            const Int i = A.GlobalRow(iLoc);
+            const int owner = B.RowOwner(i);
+            sSendBuf[offsets[owner]] = i;
+            tSendBuf[offsets[owner]] = j;
+            vSendBuf[offsets[owner]] = A.GetLocal(iLoc,jLoc);
+            ++offsets[owner];
+        }
+    }
+    // Exchange
+    // ========
+    std::vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
+    std::vector<T> vRecvBuf(totalRecv);
+    mpi::AllToAll
+    ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    mpi::AllToAll
+    ( tSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      tRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    mpi::AllToAll
+    ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
+      vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    // Unpack
+    // ======
+    for( Int e=0; e<totalRecv; ++e )    
+        B.SetLocal( sRecvBuf[e]-B.FirstLocalRow(), tRecvBuf[e], vRecvBuf[e] );
+}
+
+template<typename T>
 void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("CopyFromRoot"))
@@ -520,6 +648,8 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
   ( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A ); \
   template void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, int root ); \
   template void Copy( const DistMultiVec<T>& A, DistMultiVec<T>& B ); \
+  template void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B ); \
+  template void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B ); \
   template void CopyFromRoot( const DistMultiVec<T>& ADist, Matrix<T>& A ); \
   template void CopyFromNonRoot( const DistMultiVec<T>& ADist, int root );
 

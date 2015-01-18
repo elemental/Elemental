@@ -289,10 +289,10 @@ IRA
         auto activeEsts = estimates( IR(0,numActive), IR(0,1) );
         auto activeItCounts = itCounts( IR(0,numActive), IR(0,1) );
         for( Int j=0; j<basisSize+1; ++j )
-            activeVList[j] = VList[j]( IR(0,n), IR(0,numActive) ); 
+            View( activeVList[j], VList[j], IR(0,n), IR(0,numActive) ); 
         if( deflate )
         {
-            activePreimage = preimage( IR(0,numActive), IR(0,1) );
+            View( activePreimage, preimage, IR(0,numActive), IR(0,1) );
             Zeros( activeConverged, numActive, 1 );
         }
         HList.resize( numActive );
@@ -751,10 +751,10 @@ IRA
         auto activeEsts = estimates( IR(0,numActive), IR(0,1) );
         auto activeItCounts = itCounts( IR(0,numActive), IR(0,1) );
         for( Int j=0; j<basisSize+1; ++j )
-            activeVList[j] = VList[j]( IR(0,n), IR(0,numActive) ); 
+            View( activeVList[j], VList[j], IR(0,n), IR(0,numActive) );
         if( deflate )
         {
-            activePreimage = preimage( IR(0,numActive), IR(0,1) );
+            View( activePreimage, preimage, IR(0,numActive), IR(0,1) );
             Zeros( activeConverged, numActive, 1 );
         }
         HList.resize( activeEsts.LocalHeight() );
@@ -1034,12 +1034,12 @@ IRA
         auto activeItCounts = itCounts( IR(0,numActive), IR(0,1) );
         for( Int j=0; j<basisSize+1; ++j )
         {
-            activeVRealList[j] = VRealList[j]( IR(0,n), IR(0,numActive) ); 
-            activeVImagList[j] = VImagList[j]( IR(0,n), IR(0,numActive) ); 
+            View( activeVRealList[j], VRealList[j], IR(0,n), IR(0,numActive) ); 
+            View( activeVImagList[j], VImagList[j], IR(0,n), IR(0,numActive) ); 
         }
         if( deflate )
         {
-            activePreimage = preimage( IR(0,numActive), IR(0,1) );
+            View( activePreimage, preimage, IR(0,numActive), IR(0,1) );
             Zeros( activeConverged, numActive, 1 );
         }
         HList.resize( activeEsts.LocalHeight() );

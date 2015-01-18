@@ -509,7 +509,7 @@ void Var2
         const int totalRecv = Scan( recvCounts, recvOffsets );
         // Pack
         // ----
-        std::vector<int> sSendBuf(totalSend), tSendBuf(totalSend);
+        std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
         std::vector<Real> vSendBuf(totalSend);
         auto offsets = sendOffsets;
         for( Int e=0; e<numLocalEntriesA; ++e )
@@ -537,7 +537,7 @@ void Var2
         }
         // Exchange
         // --------
-        std::vector<int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
+        std::vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
         std::vector<Real> vRecvBuf(totalRecv);
         mpi::AllToAll
         ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
@@ -581,7 +581,7 @@ void Var2
         const int totalRecv = Scan( recvCounts, recvOffsets );
         // Pack
         // ----
-        std::vector<int> sSendBuf(totalSend);
+        std::vector<Int> sSendBuf(totalSend);
         std::vector<Real> vSendBuf(totalSend);
         auto offsets = sendOffsets;
         for( Int iLoc=0; iLoc<b.LocalHeight(); ++iLoc )
@@ -594,7 +594,7 @@ void Var2
         }
         // Exchange
         // --------
-        std::vector<int> sRecvBuf(totalRecv);
+        std::vector<Int> sRecvBuf(totalRecv);
         std::vector<Real> vRecvBuf(totalRecv);
         mpi::AllToAll
         ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
@@ -637,7 +637,7 @@ void Var2
         const int totalRecv = Scan( recvCounts, recvOffsets );
         // Pack
         // ----
-        std::vector<int> sSendBuf(totalSend);
+        std::vector<Int> sSendBuf(totalSend);
         std::vector<Real> vSendBuf(totalSend);
         auto offsets = sendOffsets;
         for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
@@ -662,7 +662,7 @@ void Var2
         }
         // Exchange
         // --------
-        std::vector<int> sRecvBuf(totalRecv);
+        std::vector<Int> sRecvBuf(totalRecv);
         std::vector<Real> vRecvBuf(totalRecv);
         mpi::AllToAll
         ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),

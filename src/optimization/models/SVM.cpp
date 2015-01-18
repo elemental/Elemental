@@ -282,7 +282,7 @@ void SVM
         const int totalRecv = Scan( recvCounts, recvOffsets );
         // Pack
         // ----
-        std::vector<int> sSendBuf(totalSend), tSendBuf(totalSend);
+        std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
         std::vector<Real> vSendBuf(totalSend);
         auto offsets = sendOffsets;
         for( Int e=0; e<A.NumLocalEntries(); ++e )
@@ -306,7 +306,7 @@ void SVM
         }
         // Exchange
         // --------
-        std::vector<int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
+        std::vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
         std::vector<Real> vRecvBuf(totalRecv);
         mpi::AllToAll
         ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),

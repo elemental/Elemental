@@ -22,95 +22,90 @@ class HermitianEigSubset_d(ctypes.Structure):
               ("rangeSubset",bType),
               ("lowerBound",dType),("upperBound",dType)]
 
-lib.ElHermitianTridiagEig_s.argtypes = [c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianTridiagEig_s.restype = c_uint
-lib.ElHermitianTridiagEig_d.argtypes = [c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianTridiagEig_d.restype = c_uint
-lib.ElHermitianTridiagEig_c.argtypes = [c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianTridiagEig_c.restype = c_uint
-lib.ElHermitianTridiagEig_z.argtypes = [c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianTridiagEig_z.restype = c_uint
-lib.ElHermitianTridiagEigDist_s.argtypes = [c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianTridiagEigDist_s.restype = c_uint
-lib.ElHermitianTridiagEigDist_d.argtypes = [c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianTridiagEigDist_d.restype = c_uint
-lib.ElHermitianTridiagEigDist_c.argtypes = [c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianTridiagEigDist_c.restype = c_uint
-lib.ElHermitianTridiagEigDist_z.argtypes = [c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianTridiagEigDist_z.restype = c_uint
+lib.ElHermitianTridiagEig_s.argtypes = \
+lib.ElHermitianTridiagEig_d.argtypes = \
+lib.ElHermitianTridiagEig_c.argtypes = \
+lib.ElHermitianTridiagEig_z.argtypes = \
+lib.ElHermitianTridiagEigDist_s.argtypes = \
+lib.ElHermitianTridiagEigDist_d.argtypes = \
+lib.ElHermitianTridiagEigDist_c.argtypes = \
+lib.ElHermitianTridiagEigDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_uint]
+
+lib.ElHermitianTridiagEig_s.restype = \
+lib.ElHermitianTridiagEig_d.restype = \
+lib.ElHermitianTridiagEig_c.restype = \
+lib.ElHermitianTridiagEig_z.restype = \
+lib.ElHermitianTridiagEigDist_s.restype = \
+lib.ElHermitianTridiagEigDist_d.restype = \
+lib.ElHermitianTridiagEigDist_c.restype = \
+lib.ElHermitianTridiagEigDist_z.restype = \
+  c_uint
+
 lib.ElHermitianTridiagEigPair_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianTridiagEigPair_s.restype = c_uint
 lib.ElHermitianTridiagEigPair_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianTridiagEigPair_d.restype = c_uint
 lib.ElHermitianTridiagEigPair_c.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianTridiagEigPair_c.restype = c_uint
 lib.ElHermitianTridiagEigPair_z.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianTridiagEigPair_z.restype = c_uint
 lib.ElHermitianTridiagEigPairDist_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianTridiagEigPairDist_s.restype = c_uint
 lib.ElHermitianTridiagEigPairDist_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianTridiagEigPairDist_d.restype = c_uint
 lib.ElHermitianTridiagEigPairDist_c.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianTridiagEigPairDist_c.restype = c_uint
 lib.ElHermitianTridiagEigPairDist_z.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianTridiagEigPairDist_z.restype = c_uint
+
+lib.ElHermitianTridiagEigPair_s.restype = \
+lib.ElHermitianTridiagEigPair_d.restype = \
+lib.ElHermitianTridiagEigPair_c.restype = \
+lib.ElHermitianTridiagEigPair_z.restype = \
+lib.ElHermitianTridiagEigPairDist_s.restype = \
+lib.ElHermitianTridiagEigPairDist_d.restype = \
+lib.ElHermitianTridiagEigPairDist_c.restype = \
+lib.ElHermitianTridiagEigPairDist_z.restype = \
+  c_uint
 
 lib.ElHermitianTridiagEigPartial_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElHermitianTridiagEigPartial_s.restype = c_uint
-lib.ElHermitianTridiagEigPartial_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElHermitianTridiagEigPartial_d.restype = c_uint
 lib.ElHermitianTridiagEigPartial_c.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElHermitianTridiagEigPartial_c.restype = c_uint
-lib.ElHermitianTridiagEigPartial_z.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElHermitianTridiagEigPartial_z.restype = c_uint
 lib.ElHermitianTridiagEigPartialDist_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElHermitianTridiagEigPartialDist_s.restype = c_uint
-lib.ElHermitianTridiagEigPartialDist_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElHermitianTridiagEigPartialDist_d.restype = c_uint
 lib.ElHermitianTridiagEigPartialDist_c.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElHermitianTridiagEigPartialDist_c.restype = c_uint
+
+lib.ElHermitianTridiagEigPartial_d.argtypes = \
+lib.ElHermitianTridiagEigPartial_z.argtypes = \
+lib.ElHermitianTridiagEigPartialDist_d.argtypes = \
 lib.ElHermitianTridiagEigPartialDist_z.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElHermitianTridiagEigPartialDist_z.restype = c_uint
+
+lib.ElHermitianTridiagEigPartial_s.restype = \
+lib.ElHermitianTridiagEigPartial_d.restype = \
+lib.ElHermitianTridiagEigPartial_c.restype = \
+lib.ElHermitianTridiagEigPartial_z.restype = \
+lib.ElHermitianTridiagEigPartialDist_s.restype = \
+lib.ElHermitianTridiagEigPartialDist_d.restype = \
+lib.ElHermitianTridiagEigPartialDist_c.restype = \
+lib.ElHermitianTridiagEigPartialDist_z.restype = \
+  c_uint
+
 lib.ElHermitianTridiagEigPairPartial_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElHermitianTridiagEigPairPartial_s.restype = c_uint
-lib.ElHermitianTridiagEigPairPartial_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElHermitianTridiagEigPairPartial_d.restype = c_uint
 lib.ElHermitianTridiagEigPairPartial_c.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElHermitianTridiagEigPairPartial_c.restype = c_uint
-lib.ElHermitianTridiagEigPairPartial_z.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElHermitianTridiagEigPairPartial_z.restype = c_uint
 lib.ElHermitianTridiagEigPairPartialDist_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElHermitianTridiagEigPairPartialDist_s.restype = c_uint
-lib.ElHermitianTridiagEigPairPartialDist_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElHermitianTridiagEigPairPartialDist_d.restype = c_uint
 lib.ElHermitianTridiagEigPairPartialDist_c.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElHermitianTridiagEigPairPartialDist_c.restype = c_uint
+
+lib.ElHermitianTridiagEigPairPartial_d.argtypes = \
+lib.ElHermitianTridiagEigPairPartial_z.argtypes = \
+lib.ElHermitianTridiagEigPairPartialDist_d.argtypes = \
 lib.ElHermitianTridiagEigPairPartialDist_z.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElHermitianTridiagEigPairPartialDist_z.restype = c_uint
+
+lib.ElHermitianTridiagEigPairPartial_s.restype = \
+lib.ElHermitianTridiagEigPairPartial_d.restype = \
+lib.ElHermitianTridiagEigPairPartial_c.restype = \
+lib.ElHermitianTridiagEigPairPartial_z.restype = \
+lib.ElHermitianTridiagEigPairPartialDist_s.restype = \
+lib.ElHermitianTridiagEigPairPartialDist_d.restype = \
+lib.ElHermitianTridiagEigPairPartialDist_c.restype = \
+lib.ElHermitianTridiagEigPairPartialDist_z.restype = \
+  c_uint
+
 def HermitianTridiagEig(d,dSub,vectors=False,sort=ASCENDING,subset=None):
   if type(d) is Matrix:
     w = Matrix(d.tag)
@@ -186,91 +181,90 @@ def HermitianTridiagEig(d,dSub,vectors=False,sort=ASCENDING,subset=None):
 
 # Hermitian eigensolvers
 # ======================
-lib.ElHermitianEig_s.argtypes = [c_uint,c_void_p,c_void_p,c_uint]
-lib.ElHermitianEig_s.restype = c_uint
-lib.ElHermitianEig_d.argtypes = [c_uint,c_void_p,c_void_p,c_uint]
-lib.ElHermitianEig_d.restype = c_uint
-lib.ElHermitianEig_c.argtypes = [c_uint,c_void_p,c_void_p,c_uint]
-lib.ElHermitianEig_c.restype = c_uint
-lib.ElHermitianEig_z.argtypes = [c_uint,c_void_p,c_void_p,c_uint]
-lib.ElHermitianEig_z.restype = c_uint
-lib.ElHermitianEigDist_s.argtypes = [c_uint,c_void_p,c_void_p,c_uint]
-lib.ElHermitianEigDist_s.restype = c_uint
-lib.ElHermitianEigDist_d.argtypes = [c_uint,c_void_p,c_void_p,c_uint]
-lib.ElHermitianEigDist_d.restype = c_uint
-lib.ElHermitianEigDist_c.argtypes = [c_uint,c_void_p,c_void_p,c_uint]
-lib.ElHermitianEigDist_c.restype = c_uint
-lib.ElHermitianEigDist_z.argtypes = [c_uint,c_void_p,c_void_p,c_uint]
-lib.ElHermitianEigDist_z.restype = c_uint
-lib.ElHermitianEigPair_s.argtypes = [c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianEigPair_s.restype = c_uint
-lib.ElHermitianEigPair_d.argtypes = [c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianEigPair_d.restype = c_uint
-lib.ElHermitianEigPair_c.argtypes = [c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianEigPair_c.restype = c_uint
-lib.ElHermitianEigPair_z.argtypes = [c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianEigPair_z.restype = c_uint
+lib.ElHermitianEig_s.argtypes = \
+lib.ElHermitianEig_d.argtypes = \
+lib.ElHermitianEig_c.argtypes = \
+lib.ElHermitianEig_z.argtypes = \
+lib.ElHermitianEigDist_s.argtypes = \
+lib.ElHermitianEigDist_d.argtypes = \
+lib.ElHermitianEigDist_c.argtypes = \
+lib.ElHermitianEigDist_z.argtypes = \
+  [c_uint,c_void_p,c_void_p,c_uint]
+
+lib.ElHermitianEig_s.restype = \
+lib.ElHermitianEig_d.restype = \
+lib.ElHermitianEig_c.restype = \
+lib.ElHermitianEig_z.restype = \
+lib.ElHermitianEigDist_s.restype = \
+lib.ElHermitianEigDist_d.restype = \
+lib.ElHermitianEigDist_c.restype = \
+lib.ElHermitianEigDist_z.restype = \
+  c_uint
+
+lib.ElHermitianEigPair_s.argtypes = \
+lib.ElHermitianEigPair_d.argtypes = \
+lib.ElHermitianEigPair_c.argtypes = \
+lib.ElHermitianEigPair_z.argtypes = \
 lib.ElHermitianEigPairDist_s.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianEigPairDist_s.restype = c_uint
 lib.ElHermitianEigPairDist_d.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianEigPairDist_d.restype = c_uint
 lib.ElHermitianEigPairDist_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianEigPairDist_c.restype = c_uint
 lib.ElHermitianEigPairDist_z.argtypes = \
   [c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianEigPairDist_z.restype = c_uint
+
+lib.ElHermitianEigPair_s.restype = \
+lib.ElHermitianEigPair_d.restype = \
+lib.ElHermitianEigPair_c.restype = \
+lib.ElHermitianEigPair_z.restype = \
+lib.ElHermitianEigPairDist_s.restype = \
+lib.ElHermitianEigPairDist_d.restype = \
+lib.ElHermitianEigPairDist_c.restype = \
+lib.ElHermitianEigPairDist_z.restype = \
+  c_uint
 
 lib.ElHermitianEigPartial_s.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElHermitianEigPartial_s.restype = c_uint
-lib.ElHermitianEigPartial_d.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElHermitianEigPartial_d.restype = c_uint
 lib.ElHermitianEigPartial_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElHermitianEigPartial_c.restype = c_uint
-lib.ElHermitianEigPartial_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElHermitianEigPartial_z.restype = c_uint
 lib.ElHermitianEigPartialDist_s.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElHermitianEigPartialDist_s.restype = c_uint
-lib.ElHermitianEigPartialDist_d.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElHermitianEigPartialDist_d.restype = c_uint
 lib.ElHermitianEigPartialDist_c.argtypes = \
   [c_uint,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElHermitianEigPartialDist_c.restype = c_uint
+
+lib.ElHermitianEigPartial_d.argtypes = \
+lib.ElHermitianEigPartial_z.argtypes = \
+lib.ElHermitianEigPartialDist_d.argtypes = \
 lib.ElHermitianEigPartialDist_z.argtypes = \
   [c_uint,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElHermitianEigPartialDist_z.restype = c_uint
+
+lib.ElHermitianEigPartial_s.restype = \
+lib.ElHermitianEigPartial_d.restype = \
+lib.ElHermitianEigPartial_c.restype = \
+lib.ElHermitianEigPartial_z.restype = \
+lib.ElHermitianEigPartialDist_s.restype = \
+lib.ElHermitianEigPartialDist_d.restype = \
+lib.ElHermitianEigPartialDist_c.restype = \
+lib.ElHermitianEigPartialDist_z.restype = \
+  c_uint
+
 lib.ElHermitianEigPairPartial_s.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElHermitianEigPairPartial_s.restype = c_uint
-lib.ElHermitianEigPairPartial_d.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElHermitianEigPairPartial_d.restype = c_uint
 lib.ElHermitianEigPairPartial_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElHermitianEigPairPartial_c.restype = c_uint
-lib.ElHermitianEigPairPartial_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElHermitianEigPairPartial_z.restype = c_uint
 lib.ElHermitianEigPairPartialDist_s.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElHermitianEigPairPartialDist_s.restype = c_uint
-lib.ElHermitianEigPairPartialDist_d.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElHermitianEigPairPartialDist_d.restype = c_uint
 lib.ElHermitianEigPairPartialDist_c.argtypes = \
   [c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElHermitianEigPairPartialDist_c.restype = c_uint
+
+lib.ElHermitianEigPairPartial_d.argtypes = \
+lib.ElHermitianEigPairPartial_z.argtypes = \
+lib.ElHermitianEigPairPartialDist_d.argtypes = \
 lib.ElHermitianEigPairPartialDist_z.argtypes = \
   [c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElHermitianEigPairPartialDist_z.restype = c_uint
+
+lib.ElHermitianEigPairPartial_s.restype = \
+lib.ElHermitianEigPairPartial_d.restype = \
+lib.ElHermitianEigPairPartial_c.restype = \
+lib.ElHermitianEigPairPartial_z.restype = \
+lib.ElHermitianEigPairPartialDist_s.restype = \
+lib.ElHermitianEigPairPartialDist_d.restype = \
+lib.ElHermitianEigPairPartialDist_c.restype = \
+lib.ElHermitianEigPairPartialDist_z.restype = \
+  c_uint
+
 def HermitianEig(uplo,A,vectors=False,sort=ASCENDING,subset=None):
   if type(A) is Matrix:
     w = Matrix(A.tag)
@@ -346,95 +340,91 @@ def HermitianEig(uplo,A,vectors=False,sort=ASCENDING,subset=None):
 
 # Skew-Hermitian eigensolvers
 # ===========================
-lib.ElSkewHermitianEig_s.argtypes = [c_uint,c_void_p,c_void_p,c_uint]
-lib.ElSkewHermitianEig_s.restype = c_uint
-lib.ElSkewHermitianEig_d.argtypes = [c_uint,c_void_p,c_void_p,c_uint]
-lib.ElSkewHermitianEig_d.restype = c_uint
-lib.ElSkewHermitianEig_c.argtypes = [c_uint,c_void_p,c_void_p,c_uint]
-lib.ElSkewHermitianEig_c.restype = c_uint
-lib.ElSkewHermitianEig_z.argtypes = [c_uint,c_void_p,c_void_p,c_uint]
-lib.ElSkewHermitianEig_z.restype = c_uint
-lib.ElSkewHermitianEigDist_s.argtypes = [c_uint,c_void_p,c_void_p,c_uint]
-lib.ElSkewHermitianEigDist_s.restype = c_uint
-lib.ElSkewHermitianEigDist_d.argtypes = [c_uint,c_void_p,c_void_p,c_uint]
-lib.ElSkewHermitianEigDist_d.restype = c_uint
-lib.ElSkewHermitianEigDist_c.argtypes = [c_uint,c_void_p,c_void_p,c_uint]
-lib.ElSkewHermitianEigDist_c.restype = c_uint
-lib.ElSkewHermitianEigDist_z.argtypes = [c_uint,c_void_p,c_void_p,c_uint]
-lib.ElSkewHermitianEigDist_z.restype = c_uint
+
+lib.ElSkewHermitianEig_s.argtypes = \
+lib.ElSkewHermitianEig_d.argtypes = \
+lib.ElSkewHermitianEig_c.argtypes = \
+lib.ElSkewHermitianEig_z.argtypes = \
+lib.ElSkewHermitianEigDist_s.argtypes = \
+lib.ElSkewHermitianEigDist_d.argtypes = \
+lib.ElSkewHermitianEigDist_c.argtypes = \
+lib.ElSkewHermitianEigDist_z.argtypes = \
+  [c_uint,c_void_p,c_void_p,c_uint]
+
+lib.ElSkewHermitianEig_s.restype = \
+lib.ElSkewHermitianEig_d.restype = \
+lib.ElSkewHermitianEig_c.restype = \
+lib.ElSkewHermitianEig_z.restype = \
+lib.ElSkewHermitianEigDist_s.restype = \
+lib.ElSkewHermitianEigDist_d.restype = \
+lib.ElSkewHermitianEigDist_c.restype = \
+lib.ElSkewHermitianEigDist_z.restype = \
+  c_uint
+
 lib.ElSkewHermitianEigPair_s.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElSkewHermitianEigPair_s.restype = c_uint
 lib.ElSkewHermitianEigPair_d.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElSkewHermitianEigPair_d.restype = c_uint
 lib.ElSkewHermitianEigPair_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElSkewHermitianEigPair_c.restype = c_uint
 lib.ElSkewHermitianEigPair_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElSkewHermitianEigPair_z.restype = c_uint
 lib.ElSkewHermitianEigPairDist_s.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElSkewHermitianEigPairDist_s.restype = c_uint
 lib.ElSkewHermitianEigPairDist_d.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElSkewHermitianEigPairDist_d.restype = c_uint
 lib.ElSkewHermitianEigPairDist_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElSkewHermitianEigPairDist_c.restype = c_uint
 lib.ElSkewHermitianEigPairDist_z.argtypes = \
   [c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElSkewHermitianEigPairDist_z.restype = c_uint
+
+lib.ElSkewHermitianEigPair_s.restype = \
+lib.ElSkewHermitianEigPair_d.restype = \
+lib.ElSkewHermitianEigPair_c.restype = \
+lib.ElSkewHermitianEigPair_z.restype = \
+lib.ElSkewHermitianEigPairDist_s.restype = \
+lib.ElSkewHermitianEigPairDist_d.restype = \
+lib.ElSkewHermitianEigPairDist_c.restype = \
+lib.ElSkewHermitianEigPairDist_z.restype = \
+  c_uint
 
 lib.ElSkewHermitianEigPartial_s.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElSkewHermitianEigPartial_s.restype = c_uint
-lib.ElSkewHermitianEigPartial_d.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElSkewHermitianEigPartial_d.restype = c_uint
 lib.ElSkewHermitianEigPartial_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElSkewHermitianEigPartial_c.restype = c_uint
-lib.ElSkewHermitianEigPartial_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElSkewHermitianEigPartial_z.restype = c_uint
 lib.ElSkewHermitianEigPartialDist_s.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElSkewHermitianEigPartialDist_s.restype = c_uint
-lib.ElSkewHermitianEigPartialDist_d.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElSkewHermitianEigPartialDist_d.restype = c_uint
 lib.ElSkewHermitianEigPartialDist_c.argtypes = \
   [c_uint,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElSkewHermitianEigPartialDist_c.restype = c_uint
+
+lib.ElSkewHermitianEigPartial_d.argtypes = \
+lib.ElSkewHermitianEigPartial_z.argtypes = \
+lib.ElSkewHermitianEigPartialDist_d.argtypes = \
 lib.ElSkewHermitianEigPartialDist_z.argtypes = \
   [c_uint,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElSkewHermitianEigPartialDist_z.restype = c_uint
+
+lib.ElSkewHermitianEigPartial_s.restype = \
+lib.ElSkewHermitianEigPartial_d.restype = \
+lib.ElSkewHermitianEigPartial_c.restype = \
+lib.ElSkewHermitianEigPartial_z.restype = \
+lib.ElSkewHermitianEigPartialDist_s.restype = \
+lib.ElSkewHermitianEigPartialDist_d.restype = \
+lib.ElSkewHermitianEigPartialDist_c.restype = \
+lib.ElSkewHermitianEigPartialDist_z.restype = \
+  c_uint
+
 lib.ElSkewHermitianEigPairPartial_s.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElSkewHermitianEigPairPartial_s.restype = c_uint
-lib.ElSkewHermitianEigPairPartial_d.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElSkewHermitianEigPairPartial_d.restype = c_uint
 lib.ElSkewHermitianEigPairPartial_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElSkewHermitianEigPairPartial_c.restype = c_uint
-lib.ElSkewHermitianEigPairPartial_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElSkewHermitianEigPairPartial_z.restype = c_uint
 lib.ElSkewHermitianEigPairPartialDist_s.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElSkewHermitianEigPairPartialDist_s.restype = c_uint
-lib.ElSkewHermitianEigPairPartialDist_d.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElSkewHermitianEigPairPartialDist_d.restype = c_uint
 lib.ElSkewHermitianEigPairPartialDist_c.argtypes = \
   [c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElSkewHermitianEigPairPartialDist_c.restype = c_uint
+
+lib.ElSkewHermitianEigPairPartial_d.argtypes = \
+lib.ElSkewHermitianEigPairPartial_z.argtypes = \
+lib.ElSkewHermitianEigPairPartialDist_d.argtypes = \
 lib.ElSkewHermitianEigPairPartialDist_z.argtypes = \
   [c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElSkewHermitianEigPairPartialDist_z.restype = c_uint
+
+lib.ElSkewHermitianEigPairPartial_s.restype = \
+lib.ElSkewHermitianEigPairPartial_d.restype = \
+lib.ElSkewHermitianEigPairPartial_c.restype = \
+lib.ElSkewHermitianEigPairPartial_z.restype = \
+lib.ElSkewHermitianEigPairPartialDist_s.restype = \
+lib.ElSkewHermitianEigPairPartialDist_d.restype = \
+lib.ElSkewHermitianEigPairPartialDist_c.restype = \
+lib.ElSkewHermitianEigPairPartialDist_z.restype = \
+  c_uint
+
 def SkewHermitianEig(uplo,A,vectors=False,sort=ASCENDING,subset=None):
   if type(A) is Matrix:
     w = Matrix(A.tag)
@@ -511,110 +501,91 @@ def SkewHermitianEig(uplo,A,vectors=False,sort=ASCENDING,subset=None):
 # Hermitian generalized-definite eigensolvers
 # ===========================================
 lib.ElHermitianGenDefEig_s.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianGenDefEig_s.restype = c_uint
 lib.ElHermitianGenDefEig_d.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianGenDefEig_d.restype = c_uint
 lib.ElHermitianGenDefEig_c.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianGenDefEig_c.restype = c_uint
 lib.ElHermitianGenDefEig_z.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianGenDefEig_z.restype = c_uint
 lib.ElHermitianGenDefEigDist_s.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianGenDefEigDist_s.restype = c_uint
 lib.ElHermitianGenDefEigDist_d.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianGenDefEigDist_d.restype = c_uint
 lib.ElHermitianGenDefEigDist_c.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianGenDefEigDist_c.restype = c_uint
 lib.ElHermitianGenDefEigDist_z.argtypes = \
   [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianGenDefEigDist_z.restype = c_uint
+
+lib.ElHermitianGenDefEig_s.restype = \
+lib.ElHermitianGenDefEig_d.restype = \
+lib.ElHermitianGenDefEig_c.restype = \
+lib.ElHermitianGenDefEig_z.restype = \
+lib.ElHermitianGenDefEigDist_s.restype = \
+lib.ElHermitianGenDefEigDist_d.restype = \
+lib.ElHermitianGenDefEigDist_c.restype = \
+lib.ElHermitianGenDefEigDist_z.restype = \
+  c_uint
+
 lib.ElHermitianGenDefEigPair_s.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianGenDefEigPair_s.restype = c_uint
 lib.ElHermitianGenDefEigPair_d.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianGenDefEigPair_d.restype = c_uint
 lib.ElHermitianGenDefEigPair_c.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianGenDefEigPair_c.restype = c_uint
 lib.ElHermitianGenDefEigPair_z.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianGenDefEigPair_z.restype = c_uint
 lib.ElHermitianGenDefEigPairDist_s.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianGenDefEigPairDist_s.restype = c_uint
 lib.ElHermitianGenDefEigPairDist_d.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianGenDefEigPairDist_d.restype = c_uint
 lib.ElHermitianGenDefEigPairDist_c.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianGenDefEigPairDist_c.restype = c_uint
 lib.ElHermitianGenDefEigPairDist_z.argtypes = \
   [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElHermitianGenDefEigPairDist_z.restype = c_uint
+
+lib.ElHermitianGenDefEigPair_s.restype = \
+lib.ElHermitianGenDefEigPair_d.restype = \
+lib.ElHermitianGenDefEigPair_c.restype = \
+lib.ElHermitianGenDefEigPair_z.restype = \
+lib.ElHermitianGenDefEigPairDist_s.restype = \
+lib.ElHermitianGenDefEigPairDist_d.restype = \
+lib.ElHermitianGenDefEigPairDist_c.restype = \
+lib.ElHermitianGenDefEigPairDist_z.restype = \
+  c_uint
 
 lib.ElHermitianGenDefEigPartial_s.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElHermitianGenDefEigPartial_s.restype = c_uint
-lib.ElHermitianGenDefEigPartial_d.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElHermitianGenDefEigPartial_d.restype = c_uint
 lib.ElHermitianGenDefEigPartial_c.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElHermitianGenDefEigPartial_c.restype = c_uint
-lib.ElHermitianGenDefEigPartial_z.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElHermitianGenDefEigPartial_z.restype = c_uint
 lib.ElHermitianGenDefEigPartialDist_s.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElHermitianGenDefEigPartialDist_s.restype = c_uint
-lib.ElHermitianGenDefEigPartialDist_d.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElHermitianGenDefEigPartialDist_d.restype = c_uint
 lib.ElHermitianGenDefEigPartialDist_c.argtypes = \
   [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-lib.ElHermitianGenDefEigPartialDist_c.restype = c_uint
+
+lib.ElHermitianGenDefEigPartial_d.argtypes = \
+lib.ElHermitianGenDefEigPartial_z.argtypes = \
+lib.ElHermitianGenDefEigPartialDist_d.argtypes = \
 lib.ElHermitianGenDefEigPartialDist_z.argtypes = \
   [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-lib.ElHermitianGenDefEigPartialDist_z.restype = c_uint
+
+lib.ElHermitianGenDefEigPartial_s.restype = \
+lib.ElHermitianGenDefEigPartial_d.restype = \
+lib.ElHermitianGenDefEigPartial_c.restype = \
+lib.ElHermitianGenDefEigPartial_z.restype = \
+lib.ElHermitianGenDefEigPartialDist_s.restype = \
+lib.ElHermitianGenDefEigPartialDist_d.restype = \
+lib.ElHermitianGenDefEigPartialDist_c.restype = \
+lib.ElHermitianGenDefEigPartialDist_z.restype = \
+  c_uint
+
 lib.ElHermitianGenDefEigPairPartial_s.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_uint,
-   HermitianEigSubset_s]
-lib.ElHermitianGenDefEigPairPartial_s.restype = c_uint
-lib.ElHermitianGenDefEigPairPartial_d.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_uint,
-   HermitianEigSubset_d]
-lib.ElHermitianGenDefEigPairPartial_d.restype = c_uint
 lib.ElHermitianGenDefEigPairPartial_c.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_uint,
-   HermitianEigSubset_s]
-lib.ElHermitianGenDefEigPairPartial_c.restype = c_uint
-lib.ElHermitianGenDefEigPairPartial_z.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_uint,
-   HermitianEigSubset_d]
-lib.ElHermitianGenDefEigPairPartial_z.restype = c_uint
 lib.ElHermitianGenDefEigPairPartialDist_s.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_uint,
-   HermitianEigSubset_s]
-lib.ElHermitianGenDefEigPairPartialDist_s.restype = c_uint
-lib.ElHermitianGenDefEigPairPartialDist_d.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_uint,
-   HermitianEigSubset_d]
-lib.ElHermitianGenDefEigPairPartialDist_d.restype = c_uint
 lib.ElHermitianGenDefEigPairPartialDist_c.argtypes = \
   [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_uint,
    HermitianEigSubset_s]
-lib.ElHermitianGenDefEigPairPartialDist_c.restype = c_uint
+
+lib.ElHermitianGenDefEigPairPartial_d.argtypes = \
+lib.ElHermitianGenDefEigPairPartial_z.argtypes = \
+lib.ElHermitianGenDefEigPairPartialDist_d.argtypes = \
 lib.ElHermitianGenDefEigPairPartialDist_z.argtypes = \
   [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_uint,
    HermitianEigSubset_d]
-lib.ElHermitianGenDefEigPairPartialDist_z.restype = c_uint
+
+lib.ElHermitianGenDefEigPairPartial_s.restype = \
+lib.ElHermitianGenDefEigPairPartial_d.restype = \
+lib.ElHermitianGenDefEigPairPartial_c.restype = \
+lib.ElHermitianGenDefEigPairPartial_z.restype = \
+lib.ElHermitianGenDefEigPairPartialDist_s.restype = \
+lib.ElHermitianGenDefEigPairPartialDist_d.restype = \
+lib.ElHermitianGenDefEigPairPartialDist_c.restype = \
+lib.ElHermitianGenDefEigPairPartialDist_z.restype = \
+  c_uint
+
 def HermitianGenDefEig(uplo,A,vectors=False,sort=ASCENDING,subset=None):
   if type(A) is Matrix:
     w = Matrix(A.tag)
@@ -690,38 +661,46 @@ def HermitianGenDefEig(uplo,A,vectors=False,sort=ASCENDING,subset=None):
 
 # Hermitian SVD
 # =============
-lib.ElHermitianSingularValues_s.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianSingularValues_s.restype = c_uint
-lib.ElHermitianSingularValues_d.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianSingularValues_d.restype = c_uint
-lib.ElHermitianSingularValues_c.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianSingularValues_c.restype = c_uint
-lib.ElHermitianSingularValues_z.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianSingularValues_z.restype = c_uint
-lib.ElHermitianSingularValuesDist_s.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianSingularValuesDist_s.restype = c_uint
-lib.ElHermitianSingularValuesDist_d.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianSingularValuesDist_d.restype = c_uint
-lib.ElHermitianSingularValuesDist_c.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianSingularValuesDist_c.restype = c_uint
-lib.ElHermitianSingularValuesDist_z.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianSingularValuesDist_z.restype = c_uint
-lib.ElHermitianSVD_s.argtypes = [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElHermitianSVD_s.restype = c_uint
-lib.ElHermitianSVD_d.argtypes = [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElHermitianSVD_d.restype = c_uint
-lib.ElHermitianSVD_c.argtypes = [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElHermitianSVD_c.restype = c_uint
-lib.ElHermitianSVD_z.argtypes = [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElHermitianSVD_z.restype = c_uint
-lib.ElHermitianSVDDist_s.argtypes = [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElHermitianSVDDist_s.restype = c_uint
-lib.ElHermitianSVDDist_d.argtypes = [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElHermitianSVDDist_d.restype = c_uint
-lib.ElHermitianSVDDist_c.argtypes = [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElHermitianSVDDist_c.restype = c_uint
-lib.ElHermitianSVDDist_z.argtypes = [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-lib.ElHermitianSVDDist_z.restype = c_uint
+lib.ElHermitianSingularValues_s.argtypes = \
+lib.ElHermitianSingularValues_d.argtypes = \
+lib.ElHermitianSingularValues_c.argtypes = \
+lib.ElHermitianSingularValues_z.argtypes = \
+lib.ElHermitianSingularValuesDist_s.argtypes = \
+lib.ElHermitianSingularValuesDist_d.argtypes = \
+lib.ElHermitianSingularValuesDist_c.argtypes = \
+lib.ElHermitianSingularValuesDist_z.argtypes = \
+  [c_uint,c_void_p,c_void_p]
+
+lib.ElHermitianSingularValues_s.restype = \
+lib.ElHermitianSingularValues_d.restype = \
+lib.ElHermitianSingularValues_c.restype = \
+lib.ElHermitianSingularValues_z.restype = \
+lib.ElHermitianSingularValuesDist_s.restype = \
+lib.ElHermitianSingularValuesDist_d.restype = \
+lib.ElHermitianSingularValuesDist_c.restype = \
+lib.ElHermitianSingularValuesDist_z.restype = \
+  c_uint
+
+lib.ElHermitianSVD_s.argtypes = \
+lib.ElHermitianSVD_d.argtypes = \
+lib.ElHermitianSVD_c.argtypes = \
+lib.ElHermitianSVD_z.argtypes = \
+lib.ElHermitianSVDDist_s.argtypes = \
+lib.ElHermitianSVDDist_d.argtypes = \
+lib.ElHermitianSVDDist_c.argtypes = \
+lib.ElHermitianSVDDist_z.argtypes = \
+  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
+
+lib.ElHermitianSVD_s.restype = \
+lib.ElHermitianSVD_d.restype = \
+lib.ElHermitianSVD_c.restype = \
+lib.ElHermitianSVD_z.restype = \
+lib.ElHermitianSVDDist_s.restype = \
+lib.ElHermitianSVDDist_d.restype = \
+lib.ElHermitianSVDDist_c.restype = \
+lib.ElHermitianSVDDist_z.restype = \
+  c_uint
+
 def HermitianSVD(uplo,A,vectors=True):
   if type(A) is Matrix:
     s = Matrix(Base(A.tag))
@@ -767,38 +746,47 @@ def HermitianSVD(uplo,A,vectors=True):
 
 # Polar decomposition
 # ===================
-lib.ElPolar_s.argtypes = [c_void_p]
-lib.ElPolar_s.restype = c_uint
-lib.ElPolar_d.argtypes = [c_void_p]
-lib.ElPolar_d.restype = c_uint
-lib.ElPolar_c.argtypes = [c_void_p]
-lib.ElPolar_c.restype = c_uint
-lib.ElPolar_z.argtypes = [c_void_p]
-lib.ElPolar_z.restype = c_uint
-lib.ElPolarDist_s.argtypes = [c_void_p]
-lib.ElPolarDist_s.restype = c_uint
-lib.ElPolarDist_d.argtypes = [c_void_p]
-lib.ElPolarDist_d.restype = c_uint
-lib.ElPolarDist_c.argtypes = [c_void_p]
-lib.ElPolarDist_c.restype = c_uint
-lib.ElPolarDist_z.argtypes = [c_void_p]
-lib.ElPolarDist_z.restype = c_uint
-lib.ElPolarDecomp_s.argtypes = [c_void_p,c_void_p]
-lib.ElPolarDecomp_s.restype = c_uint
-lib.ElPolarDecomp_d.argtypes = [c_void_p,c_void_p]
-lib.ElPolarDecomp_d.restype = c_uint
-lib.ElPolarDecomp_c.argtypes = [c_void_p,c_void_p]
-lib.ElPolarDecomp_c.restype = c_uint
-lib.ElPolarDecomp_z.argtypes = [c_void_p,c_void_p]
-lib.ElPolarDecomp_z.restype = c_uint
-lib.ElPolarDecompDist_s.argtypes = [c_void_p,c_void_p]
-lib.ElPolarDecompDist_s.restype = c_uint
-lib.ElPolarDecompDist_d.argtypes = [c_void_p,c_void_p]
-lib.ElPolarDecompDist_d.restype = c_uint
-lib.ElPolarDecompDist_c.argtypes = [c_void_p,c_void_p]
-lib.ElPolarDecompDist_c.restype = c_uint
-lib.ElPolarDecompDist_z.argtypes = [c_void_p,c_void_p]
-lib.ElPolarDecompDist_z.restype = c_uint
+
+lib.ElPolar_s.argtypes = \
+lib.ElPolar_d.argtypes = \
+lib.ElPolar_c.argtypes = \
+lib.ElPolar_z.argtypes = \
+lib.ElPolarDist_s.argtypes = \
+lib.ElPolarDist_d.argtypes = \
+lib.ElPolarDist_c.argtypes = \
+lib.ElPolarDist_z.argtypes = \
+  [c_void_p]
+
+lib.ElPolar_s.restype = \
+lib.ElPolar_d.restype = \
+lib.ElPolar_c.restype = \
+lib.ElPolar_z.restype = \
+lib.ElPolarDist_s.restype = \
+lib.ElPolarDist_d.restype = \
+lib.ElPolarDist_c.restype = \
+lib.ElPolarDist_z.restype = \
+  c_uint
+
+lib.ElPolarDecomp_s.argtypes = \
+lib.ElPolarDecomp_d.argtypes = \
+lib.ElPolarDecomp_c.argtypes = \
+lib.ElPolarDecomp_z.argtypes = \
+lib.ElPolarDecompDist_s.argtypes = \
+lib.ElPolarDecompDist_d.argtypes = \
+lib.ElPolarDecompDist_c.argtypes = \
+lib.ElPolarDecompDist_z.argtypes = \
+  [c_void_p,c_void_p]
+
+lib.ElPolarDecomp_s.restype = \
+lib.ElPolarDecomp_d.restype = \
+lib.ElPolarDecomp_c.restype = \
+lib.ElPolarDecomp_z.restype = \
+lib.ElPolarDecompDist_s.restype = \
+lib.ElPolarDecompDist_d.restype = \
+lib.ElPolarDecompDist_c.restype = \
+lib.ElPolarDecompDist_z.restype = \
+  c_uint
+
 def Polar(A,fullDecomp=False):
   if type(A) is Matrix:
     if fullDecomp:
@@ -836,38 +824,46 @@ def Polar(A,fullDecomp=False):
       else: DataExcept()
   else: TypeExcept()
 
-lib.ElHermitianPolar_s.argtypes = [c_uint,c_void_p]
-lib.ElHermitianPolar_s.restype = c_uint
-lib.ElHermitianPolar_d.argtypes = [c_uint,c_void_p]
-lib.ElHermitianPolar_d.restype = c_uint
-lib.ElHermitianPolar_c.argtypes = [c_uint,c_void_p]
-lib.ElHermitianPolar_c.restype = c_uint
-lib.ElHermitianPolar_z.argtypes = [c_uint,c_void_p]
-lib.ElHermitianPolar_z.restype = c_uint
-lib.ElHermitianPolarDist_s.argtypes = [c_uint,c_void_p]
-lib.ElHermitianPolarDist_s.restype = c_uint
-lib.ElHermitianPolarDist_d.argtypes = [c_uint,c_void_p]
-lib.ElHermitianPolarDist_d.restype = c_uint
-lib.ElHermitianPolarDist_c.argtypes = [c_uint,c_void_p]
-lib.ElHermitianPolarDist_c.restype = c_uint
-lib.ElHermitianPolarDist_z.argtypes = [c_uint,c_void_p]
-lib.ElHermitianPolarDist_z.restype = c_uint
-lib.ElHermitianPolarDecomp_s.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianPolarDecomp_s.restype = c_uint
-lib.ElHermitianPolarDecomp_d.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianPolarDecomp_d.restype = c_uint
-lib.ElHermitianPolarDecomp_c.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianPolarDecomp_c.restype = c_uint
-lib.ElHermitianPolarDecomp_z.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianPolarDecomp_z.restype = c_uint
-lib.ElHermitianPolarDecompDist_s.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianPolarDecompDist_s.restype = c_uint
-lib.ElHermitianPolarDecompDist_d.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianPolarDecompDist_d.restype = c_uint
-lib.ElHermitianPolarDecompDist_c.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianPolarDecompDist_c.restype = c_uint
-lib.ElHermitianPolarDecompDist_z.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianPolarDecompDist_z.restype = c_uint
+lib.ElHermitianPolar_s.argtypes = \
+lib.ElHermitianPolar_d.argtypes = \
+lib.ElHermitianPolar_c.argtypes = \
+lib.ElHermitianPolar_z.argtypes = \
+lib.ElHermitianPolarDist_s.argtypes = \
+lib.ElHermitianPolarDist_d.argtypes = \
+lib.ElHermitianPolarDist_c.argtypes = \
+lib.ElHermitianPolarDist_z.argtypes = \
+  [c_uint,c_void_p]
+
+lib.ElHermitianPolar_s.restype = \
+lib.ElHermitianPolar_d.restype = \
+lib.ElHermitianPolar_c.restype = \
+lib.ElHermitianPolar_z.restype = \
+lib.ElHermitianPolarDist_s.restype = \
+lib.ElHermitianPolarDist_d.restype = \
+lib.ElHermitianPolarDist_c.restype = \
+lib.ElHermitianPolarDist_z.restype = \
+  c_uint
+
+lib.ElHermitianPolarDecomp_s.argtypes = \
+lib.ElHermitianPolarDecomp_d.argtypes = \
+lib.ElHermitianPolarDecomp_c.argtypes = \
+lib.ElHermitianPolarDecomp_z.argtypes = \
+lib.ElHermitianPolarDecompDist_s.argtypes = \
+lib.ElHermitianPolarDecompDist_d.argtypes = \
+lib.ElHermitianPolarDecompDist_c.argtypes = \
+lib.ElHermitianPolarDecompDist_z.argtypes = \
+  [c_uint,c_void_p,c_void_p]
+
+lib.ElHermitianPolarDecomp_s.restype = \
+lib.ElHermitianPolarDecomp_d.restype = \
+lib.ElHermitianPolarDecomp_c.restype = \
+lib.ElHermitianPolarDecomp_z.restype = \
+lib.ElHermitianPolarDecompDist_s.restype = \
+lib.ElHermitianPolarDecompDist_d.restype = \
+lib.ElHermitianPolarDecompDist_c.restype = \
+lib.ElHermitianPolarDecompDist_z.restype = \
+  c_uint
+
 def HermitianPolar(uplo,A,fullDecomp=False):
   if type(A) is Matrix:
     if fullDecomp:
@@ -982,38 +978,46 @@ class SchurCtrl_d(ctypes.Structure):
   def __init__(self):
     lib.ElSchurCtrlDefault_d(pointer(self))
 
-lib.ElSchur_s.argtypes = [c_void_p,c_void_p,bType]
-lib.ElSchur_s.restype = c_uint
-lib.ElSchur_d.argtypes = [c_void_p,c_void_p,bType]
-lib.ElSchur_d.restype = c_uint
-lib.ElSchur_c.argtypes = [c_void_p,c_void_p,bType]
-lib.ElSchur_c.restype = c_uint
-lib.ElSchur_z.argtypes = [c_void_p,c_void_p,bType]
-lib.ElSchur_z.restype = c_uint
-lib.ElSchurDist_s.argtypes = [c_void_p,c_void_p,bType]
-lib.ElSchurDist_s.restype = c_uint
-lib.ElSchurDist_d.argtypes = [c_void_p,c_void_p,bType]
-lib.ElSchurDist_d.restype = c_uint
-lib.ElSchurDist_c.argtypes = [c_void_p,c_void_p,bType]
-lib.ElSchurDist_c.restype = c_uint
-lib.ElSchurDist_z.argtypes = [c_void_p,c_void_p,bType]
-lib.ElSchurDist_z.restype = c_uint
-lib.ElSchurDecomp_s.argtypes = [c_void_p,c_void_p,c_void_p,bType]
-lib.ElSchurDecomp_s.restype = c_uint
-lib.ElSchurDecomp_d.argtypes = [c_void_p,c_void_p,c_void_p,bType]
-lib.ElSchurDecomp_d.restype = c_uint
-lib.ElSchurDecomp_c.argtypes = [c_void_p,c_void_p,c_void_p,bType]
-lib.ElSchurDecomp_c.restype = c_uint
-lib.ElSchurDecomp_z.argtypes = [c_void_p,c_void_p,c_void_p,bType]
-lib.ElSchurDecomp_z.restype = c_uint
-lib.ElSchurDecompDist_s.argtypes = [c_void_p,c_void_p,c_void_p,bType]
-lib.ElSchurDecompDist_s.restype = c_uint
-lib.ElSchurDecompDist_d.argtypes = [c_void_p,c_void_p,c_void_p,bType]
-lib.ElSchurDecompDist_d.restype = c_uint
-lib.ElSchurDecompDist_c.argtypes = [c_void_p,c_void_p,c_void_p,bType]
-lib.ElSchurDecompDist_c.restype = c_uint
-lib.ElSchurDecompDist_z.argtypes = [c_void_p,c_void_p,c_void_p,bType]
-lib.ElSchurDecompDist_z.restype = c_uint
+lib.ElSchur_s.argtypes = \
+lib.ElSchur_d.argtypes = \
+lib.ElSchur_c.argtypes = \
+lib.ElSchur_z.argtypes = \
+lib.ElSchurDist_s.argtypes = \
+lib.ElSchurDist_d.argtypes = \
+lib.ElSchurDist_c.argtypes = \
+lib.ElSchurDist_z.argtypes = \
+  [c_void_p,c_void_p,bType]
+
+lib.ElSchur_s.restype = \
+lib.ElSchur_d.restype = \
+lib.ElSchur_c.restype = \
+lib.ElSchur_z.restype = \
+lib.ElSchurDist_s.restype = \
+lib.ElSchurDist_d.restype = \
+lib.ElSchurDist_c.restype = \
+lib.ElSchurDist_z.restype = \
+  c_uint
+
+lib.ElSchurDecomp_s.argtypes = \
+lib.ElSchurDecomp_d.argtypes = \
+lib.ElSchurDecomp_c.argtypes = \
+lib.ElSchurDecomp_z.argtypes = \
+lib.ElSchurDecompDist_s.argtypes = \
+lib.ElSchurDecompDist_d.argtypes = \
+lib.ElSchurDecompDist_c.argtypes = \
+lib.ElSchurDecompDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,bType]
+
+lib.ElSchurDecomp_s.restype = \
+lib.ElSchurDecomp_d.restype = \
+lib.ElSchurDecomp_c.restype = \
+lib.ElSchurDecomp_z.restype = \
+lib.ElSchurDecompDist_s.restype = \
+lib.ElSchurDecompDist_d.restype = \
+lib.ElSchurDecompDist_c.restype = \
+lib.ElSchurDecompDist_z.restype = \
+  c_uint
+
 def Schur(A,fullTriangle=True,vectors=False):
   if type(A) is Matrix:
     w = Matrix(Complexify(A.tag))
@@ -1057,38 +1061,47 @@ def Schur(A,fullTriangle=True,vectors=False):
 
 # Singular value decomposition
 # ============================
-lib.ElSVD_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElSVD_s.restype = c_uint
-lib.ElSVD_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElSVD_d.restype = c_uint
-lib.ElSVD_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElSVD_c.restype = c_uint
-lib.ElSVD_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElSVD_z.restype = c_uint
-lib.ElSVDDist_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElSVDDist_s.restype = c_uint
-lib.ElSVDDist_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElSVDDist_d.restype = c_uint
-lib.ElSVDDist_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElSVDDist_c.restype = c_uint
-lib.ElSVDDist_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElSVDDist_z.restype = c_uint
-lib.ElSingularValues_s.argtypes = [c_void_p,c_void_p]
-lib.ElSingularValues_s.restype = c_uint
-lib.ElSingularValues_d.argtypes = [c_void_p,c_void_p]
-lib.ElSingularValues_d.restype = c_uint
-lib.ElSingularValues_c.argtypes = [c_void_p,c_void_p]
-lib.ElSingularValues_c.restype = c_uint
-lib.ElSingularValues_z.argtypes = [c_void_p,c_void_p]
-lib.ElSingularValues_z.restype = c_uint
-lib.ElSingularValuesDist_s.argtypes = [c_void_p,c_void_p]
-lib.ElSingularValuesDist_s.restype = c_uint
-lib.ElSingularValuesDist_d.argtypes = [c_void_p,c_void_p]
-lib.ElSingularValuesDist_d.restype = c_uint
-lib.ElSingularValuesDist_c.argtypes = [c_void_p,c_void_p]
-lib.ElSingularValuesDist_c.restype = c_uint
-lib.ElSingularValuesDist_z.argtypes = [c_void_p,c_void_p]
-lib.ElSingularValuesDist_z.restype = c_uint
+
+lib.ElSVD_s.argtypes = \
+lib.ElSVD_d.argtypes = \
+lib.ElSVD_c.argtypes = \
+lib.ElSVD_z.argtypes = \
+lib.ElSVDDist_s.argtypes = \
+lib.ElSVDDist_d.argtypes = \
+lib.ElSVDDist_c.argtypes = \
+lib.ElSVDDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+
+lib.ElSVD_s.restype = \
+lib.ElSVD_d.restype = \
+lib.ElSVD_c.restype = \
+lib.ElSVD_z.restype = \
+lib.ElSVDDist_s.restype = \
+lib.ElSVDDist_d.restype = \
+lib.ElSVDDist_c.restype = \
+lib.ElSVDDist_z.restype = \
+  c_uint
+
+lib.ElSingularValues_s.argtypes = \
+lib.ElSingularValues_d.argtypes = \
+lib.ElSingularValues_c.argtypes = \
+lib.ElSingularValues_z.argtypes = \
+lib.ElSingularValuesDist_s.argtypes = \
+lib.ElSingularValuesDist_d.argtypes = \
+lib.ElSingularValuesDist_c.argtypes = \
+lib.ElSingularValuesDist_z.argtypes = \
+  [c_void_p,c_void_p]
+
+lib.ElSingularValues_s.restype = \
+lib.ElSingularValues_d.restype = \
+lib.ElSingularValues_c.restype = \
+lib.ElSingularValues_z.restype = \
+lib.ElSingularValuesDist_s.restype = \
+lib.ElSingularValuesDist_d.restype = \
+lib.ElSingularValuesDist_c.restype = \
+lib.ElSingularValuesDist_z.restype = \
+  c_uint
+
 def SVD(A,vectors=False):
   if type(A) is Matrix:
     s = Matrix(Base(A.tag))
@@ -1206,46 +1219,49 @@ class PseudospecCtrl_d(ctypes.Structure):
 # The choice is based upon a few different norms of the Schur factor, as simply
 # using the spectral radius would be insufficient for highly non-normal 
 # matrices, e.g., a Jordan block with eigenvalue zero
-lib.ElSpectralPortrait_s.argtypes = [c_void_p,c_void_p,iType,iType]
-lib.ElSpectralPortrait_s.restype = c_uint
-lib.ElSpectralPortrait_d.argtypes = [c_void_p,c_void_p,iType,iType]
-lib.ElSpectralPortrait_d.restype = c_uint
-lib.ElSpectralPortrait_c.argtypes = [c_void_p,c_void_p,iType,iType]
-lib.ElSpectralPortrait_c.restype = c_uint
-lib.ElSpectralPortrait_z.argtypes = [c_void_p,c_void_p,iType,iType]
-lib.ElSpectralPortrait_z.restype = c_uint
-lib.ElSpectralPortraitDist_s.argtypes = [c_void_p,c_void_p,iType,iType]
-lib.ElSpectralPortraitDist_s.restype = c_uint
-lib.ElSpectralPortraitDist_d.argtypes = [c_void_p,c_void_p,iType,iType]
-lib.ElSpectralPortraitDist_d.restype = c_uint
-lib.ElSpectralPortraitDist_c.argtypes = [c_void_p,c_void_p,iType,iType]
-lib.ElSpectralPortraitDist_c.restype = c_uint
-lib.ElSpectralPortraitDist_z.argtypes = [c_void_p,c_void_p,iType,iType]
-lib.ElSpectralPortraitDist_z.restype = c_uint
+
+lib.ElSpectralPortrait_s.argtypes = \
+lib.ElSpectralPortrait_d.argtypes = \
+lib.ElSpectralPortrait_c.argtypes = \
+lib.ElSpectralPortrait_z.argtypes = \
+lib.ElSpectralPortraitDist_s.argtypes = \
+lib.ElSpectralPortraitDist_d.argtypes = \
+lib.ElSpectralPortraitDist_c.argtypes = \
+lib.ElSpectralPortraitDist_z.argtypes = \
+  [c_void_p,c_void_p,iType,iType]
+
+lib.ElSpectralPortrait_s.restype = \
+lib.ElSpectralPortrait_d.restype = \
+lib.ElSpectralPortrait_c.restype = \
+lib.ElSpectralPortrait_z.restype = \
+lib.ElSpectralPortraitDist_s.restype = \
+lib.ElSpectralPortraitDist_d.restype = \
+lib.ElSpectralPortraitDist_c.restype = \
+lib.ElSpectralPortraitDist_z.restype = \
+  c_uint
+
 lib.ElSpectralPortraitX_s.argtypes = \
-  [c_void_p,c_void_p,iType,iType,PseudospecCtrl_s]
-lib.ElSpectralPortraitX_s.restype = c_uint
-lib.ElSpectralPortraitX_d.argtypes = \
-  [c_void_p,c_void_p,iType,iType,PseudospecCtrl_d]
-lib.ElSpectralPortraitX_d.restype = c_uint
 lib.ElSpectralPortraitX_c.argtypes = \
-  [c_void_p,c_void_p,iType,iType,PseudospecCtrl_s]
-lib.ElSpectralPortraitX_c.restype = c_uint
-lib.ElSpectralPortraitX_z.argtypes = \
-  [c_void_p,c_void_p,iType,iType,PseudospecCtrl_d]
-lib.ElSpectralPortraitX_z.restype = c_uint
 lib.ElSpectralPortraitXDist_s.argtypes = \
-  [c_void_p,c_void_p,iType,iType,PseudospecCtrl_s]
-lib.ElSpectralPortraitXDist_s.restype = c_uint
-lib.ElSpectralPortraitXDist_d.argtypes = \
-  [c_void_p,c_void_p,iType,iType,PseudospecCtrl_d]
-lib.ElSpectralPortraitXDist_d.restype = c_uint
 lib.ElSpectralPortraitXDist_c.argtypes = \
   [c_void_p,c_void_p,iType,iType,PseudospecCtrl_s]
-lib.ElSpectralPortraitXDist_c.restype = c_uint
+
+lib.ElSpectralPortraitX_d.argtypes = \
+lib.ElSpectralPortraitX_z.argtypes = \
+lib.ElSpectralPortraitXDist_d.argtypes = \
 lib.ElSpectralPortraitXDist_z.argtypes = \
   [c_void_p,c_void_p,iType,iType,PseudospecCtrl_d]
-lib.ElSpectralPortraitXDist_z.restype = c_uint
+
+lib.ElSpectralPortraitX_s.restype = \
+lib.ElSpectralPortraitX_d.restype = \
+lib.ElSpectralPortraitX_c.restype = \
+lib.ElSpectralPortraitX_z.restype = \
+lib.ElSpectralPortraitXDist_s.restype = \
+lib.ElSpectralPortraitXDist_d.restype = \
+lib.ElSpectralPortraitXDist_c.restype = \
+lib.ElSpectralPortraitXDist_z.restype = \
+  c_uint
+
 def SpectralPortrait(A,realSize=200,imagSize=200,ctrl=None):
   if type(A) is Matrix:
     invNormMap = Matrix(Base(A.tag))
@@ -1287,54 +1303,59 @@ def SpectralPortrait(A,realSize=200,imagSize=200,ctrl=None):
 
 # (Pseudo-)Spectral window
 # ------------------------
+
 lib.ElSpectralWindow_s.argtypes = \
-  [c_void_p,c_void_p,sType,sType,sType,iType,iType]
-lib.ElSpectralWindow_s.restype = c_uint
-lib.ElSpectralWindow_d.argtypes = \
-  [c_void_p,c_void_p,dType,dType,dType,iType,iType]
-lib.ElSpectralWindow_d.restype = c_uint
-lib.ElSpectralWindow_c.argtypes = \
-  [c_void_p,c_void_p,cType,sType,sType,iType,iType]
-lib.ElSpectralWindow_c.restype = c_uint
-lib.ElSpectralWindow_z.argtypes = \
-  [c_void_p,c_void_p,zType,dType,dType,iType,iType]
-lib.ElSpectralWindow_z.restype = c_uint
 lib.ElSpectralWindowDist_s.argtypes = \
   [c_void_p,c_void_p,sType,sType,sType,iType,iType]
-lib.ElSpectralWindowDist_s.restype = c_uint
+
+lib.ElSpectralWindow_d.argtypes = \
 lib.ElSpectralWindowDist_d.argtypes = \
   [c_void_p,c_void_p,dType,dType,dType,iType,iType]
-lib.ElSpectralWindowDist_d.restype = c_uint
+
+lib.ElSpectralWindow_c.argtypes = \
 lib.ElSpectralWindowDist_c.argtypes = \
   [c_void_p,c_void_p,cType,sType,sType,iType,iType]
-lib.ElSpectralWindowDist_c.restype = c_uint
+
+lib.ElSpectralWindow_z.argtypes = \
 lib.ElSpectralWindowDist_z.argtypes = \
   [c_void_p,c_void_p,zType,dType,dType,iType,iType]
-lib.ElSpectralWindowDist_z.restype = c_uint
+
+lib.ElSpectralWindow_s.restype = \
+lib.ElSpectralWindow_d.restype = \
+lib.ElSpectralWindow_c.restype = \
+lib.ElSpectralWindow_z.restype = \
+lib.ElSpectralWindowDist_s.restype = \
+lib.ElSpectralWindowDist_d.restype = \
+lib.ElSpectralWindowDist_c.restype = \
+lib.ElSpectralWindowDist_z.restype = \
+  c_uint
+
 lib.ElSpectralWindowX_s.argtypes = \
-  [c_void_p,c_void_p,sType,sType,sType,iType,iType,PseudospecCtrl_s]
-lib.ElSpectralWindowX_s.restype = c_uint
-lib.ElSpectralWindowX_d.argtypes = \
-  [c_void_p,c_void_p,dType,dType,dType,iType,iType,PseudospecCtrl_d]
-lib.ElSpectralWindowX_d.restype = c_uint
-lib.ElSpectralWindowX_c.argtypes = \
-  [c_void_p,c_void_p,cType,sType,sType,iType,iType,PseudospecCtrl_s]
-lib.ElSpectralWindowX_c.restype = c_uint
-lib.ElSpectralWindowX_z.argtypes = \
-  [c_void_p,c_void_p,zType,dType,dType,iType,iType,PseudospecCtrl_d]
-lib.ElSpectralWindowX_z.restype = c_uint
 lib.ElSpectralWindowXDist_s.argtypes = \
   [c_void_p,c_void_p,sType,sType,sType,iType,iType,PseudospecCtrl_s]
-lib.ElSpectralWindowXDist_s.restype = c_uint
+
+lib.ElSpectralWindowX_d.argtypes = \
 lib.ElSpectralWindowXDist_d.argtypes = \
   [c_void_p,c_void_p,dType,dType,dType,iType,iType,PseudospecCtrl_d]
-lib.ElSpectralWindowXDist_d.restype = c_uint
+
+lib.ElSpectralWindowX_c.argtypes = \
 lib.ElSpectralWindowXDist_c.argtypes = \
   [c_void_p,c_void_p,cType,sType,sType,iType,iType,PseudospecCtrl_s]
-lib.ElSpectralWindowXDist_c.restype = c_uint
+
+lib.ElSpectralWindowX_z.argtypes = \
 lib.ElSpectralWindowXDist_z.argtypes = \
   [c_void_p,c_void_p,zType,dType,dType,iType,iType,PseudospecCtrl_d]
-lib.ElSpectralWindowXDist_z.restype = c_uint
+
+lib.ElSpectralWindowX_s.restype = \
+lib.ElSpectralWindowX_d.restype = \
+lib.ElSpectralWindowX_c.restype = \
+lib.ElSpectralWindowX_z.restype = \
+lib.ElSpectralWindowXDist_s.restype = \
+lib.ElSpectralWindowXDist_d.restype = \
+lib.ElSpectralWindowXDist_c.restype = \
+lib.ElSpectralWindowXDist_z.restype = \
+  c_uint
+
 def SpectralWindow \
     (A,centerPre,realWidth,imagWidth,realSize=200,imagSize=200,ctrl=None):
   center = TagToType(A.tag)(centerPre)
@@ -1380,46 +1401,49 @@ def SpectralWindow \
 
 # (Pseudo-)Spectral cloud
 # -----------------------
-lib.ElSpectralCloud_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElSpectralCloud_s.restype = c_uint
-lib.ElSpectralCloud_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElSpectralCloud_d.restype = c_uint
-lib.ElSpectralCloud_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElSpectralCloud_c.restype = c_uint
-lib.ElSpectralCloud_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElSpectralCloud_z.restype = c_uint
-lib.ElSpectralCloudDist_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElSpectralCloudDist_s.restype = c_uint
-lib.ElSpectralCloudDist_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElSpectralCloudDist_d.restype = c_uint
-lib.ElSpectralCloudDist_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElSpectralCloudDist_c.restype = c_uint
-lib.ElSpectralCloudDist_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElSpectralCloudDist_z.restype = c_uint
+
+lib.ElSpectralCloud_s.argtypes = \
+lib.ElSpectralCloud_d.argtypes = \
+lib.ElSpectralCloud_c.argtypes = \
+lib.ElSpectralCloud_z.argtypes = \
+lib.ElSpectralCloudDist_s.argtypes = \
+lib.ElSpectralCloudDist_d.argtypes = \
+lib.ElSpectralCloudDist_c.argtypes = \
+lib.ElSpectralCloudDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+
+lib.ElSpectralCloud_s.restype = \
+lib.ElSpectralCloud_d.restype = \
+lib.ElSpectralCloud_c.restype = \
+lib.ElSpectralCloud_z.restype = \
+lib.ElSpectralCloudDist_s.restype = \
+lib.ElSpectralCloudDist_d.restype = \
+lib.ElSpectralCloudDist_c.restype = \
+lib.ElSpectralCloudDist_z.restype = \
+  c_uint
+
 lib.ElSpectralCloudX_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,PseudospecCtrl_s]
-lib.ElSpectralCloudX_s.restype = c_uint
-lib.ElSpectralCloudX_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,PseudospecCtrl_d]
-lib.ElSpectralCloudX_d.restype = c_uint
 lib.ElSpectralCloudX_c.argtypes = \
-  [c_void_p,c_void_p,c_void_p,PseudospecCtrl_s]
-lib.ElSpectralCloudX_c.restype = c_uint
-lib.ElSpectralCloudX_z.argtypes = \
-  [c_void_p,c_void_p,c_void_p,PseudospecCtrl_d]
-lib.ElSpectralCloudX_z.restype = c_uint
 lib.ElSpectralCloudXDist_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,PseudospecCtrl_s]
-lib.ElSpectralCloudXDist_s.restype = c_uint
-lib.ElSpectralCloudXDist_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,PseudospecCtrl_d]
-lib.ElSpectralCloudXDist_d.restype = c_uint
 lib.ElSpectralCloudXDist_c.argtypes = \
   [c_void_p,c_void_p,c_void_p,PseudospecCtrl_s]
-lib.ElSpectralCloudXDist_c.restype = c_uint
+
+lib.ElSpectralCloudX_d.argtypes = \
+lib.ElSpectralCloudX_z.argtypes = \
+lib.ElSpectralCloudXDist_d.argtypes = \
 lib.ElSpectralCloudXDist_z.argtypes = \
   [c_void_p,c_void_p,c_void_p,PseudospecCtrl_d]
-lib.ElSpectralCloudXDist_z.restype = c_uint
+
+lib.ElSpectralCloudX_s.restype = \
+lib.ElSpectralCloudX_d.restype = \
+lib.ElSpectralCloudX_c.restype = \
+lib.ElSpectralCloudX_z.restype = \
+lib.ElSpectralCloudXDist_s.restype = \
+lib.ElSpectralCloudXDist_d.restype = \
+lib.ElSpectralCloudXDist_c.restype = \
+lib.ElSpectralCloudXDist_z.restype = \
+  c_uint
+
 def SpectralCloud(A,shifts,ctrl=None):
   if type(A) is Matrix:
     invNorms = Matrix(Base(A.tag))

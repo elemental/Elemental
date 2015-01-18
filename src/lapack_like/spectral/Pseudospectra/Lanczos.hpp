@@ -290,7 +290,7 @@ Lanczos
         auto activeX    = X(    IR(0,n), IR(0,numActive) );
         auto activeXNew = XNew( IR(0,n), IR(0,numActive) );
         if( deflate )
-            activePreimage = preimage( IR(0,numActive), IR(0,1) );
+            View( activePreimage, preimage, IR(0,numActive), IR(0,1) );
         HDiagList.resize( numActive );
         HSubdiagList.resize( numActive );
 
@@ -497,7 +497,7 @@ Lanczos
         auto activeX    = X(    IR(0,n), IR(0,numActive) );
         auto activeXNew = XNew( IR(0,n), IR(0,numActive) );
         if( deflate )
-            activePreimage = preimage( IR(0,numActive), IR(0,1) );
+            View( activePreimage, preimage, IR(0,numActive), IR(0,1) );
         HDiagList.resize( activeX.LocalWidth() );
         HSubdiagList.resize( activeX.LocalWidth() );
 

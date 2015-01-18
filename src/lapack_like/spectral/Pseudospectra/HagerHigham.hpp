@@ -246,7 +246,7 @@ HagerHigham
         auto activeItCounts = itCounts( IR(0,numActive), IR(0,1) );
         auto activeX = X( IR(0,n), IR(0,numActive) );
         if( deflate )
-            activePreimage = preimage( IR(0,numActive), IR(0,1) );
+            View( activePreimage, preimage, IR(0,numActive), IR(0,1) );
 
         if( progress )
             timer.Start(); 
@@ -401,7 +401,7 @@ HagerHigham
         auto activeItCounts = itCounts( IR(0,numActive), IR(0,1) );
         auto activeX = X( IR(0,n), IR(0,numActive) );
         if( deflate )
-            activePreimage = preimage( IR(0,numActive), IR(0,1) );
+            View( activePreimage, preimage, IR(0,numActive), IR(0,1) );
 
         if( progress )
             timer.Start(); 
@@ -593,7 +593,7 @@ HagerHigham
         auto activeItCounts = itCounts( IR(0,numActive), IR(0,1) );
         auto activeX = X( IR(0,n), IR(0,numActive) );
         if( deflate )
-            activePreimage = preimage( IR(0,numActive), IR(0,1) );
+            View( activePreimage, preimage, IR(0,numActive), IR(0,1) );
 
         if( progress && g.Rank() == 0 )
             timer.Start();
@@ -796,7 +796,7 @@ HagerHigham
         auto activeItCounts = itCounts( IR(0,numActive), IR(0,1) );
         auto activeX = X( IR(0,n), IR(0,numActive) );
         if( deflate )
-            activePreimage = preimage( IR(0,numActive), IR(0,1) );
+            View( activePreimage, preimage, IR(0,numActive), IR(0,1) );
 
         if( progress && g.Rank() == 0 )
             timer.Start();
