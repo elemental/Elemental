@@ -34,6 +34,7 @@ public:
     // Assignment
     // ----------
     const DistMultiVec<T>& operator=( const DistMultiVec<T>& X );
+    const DistMultiVec<T>& operator=( const AbstractDistMatrix<T>& X );
 
     // Change the matrix size
     // ----------------------

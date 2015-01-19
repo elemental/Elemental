@@ -43,6 +43,9 @@ inline void AssertSameDist( const DistTypeA& distA, const DistTypeB& distB )
         RuntimeError("Matrices must have the same distribution");
 }
 
+template<typename T>
+class DistMultiVec;
+
 } // namespace El
 
 #include "./DistMatrix/Abstract.hpp"

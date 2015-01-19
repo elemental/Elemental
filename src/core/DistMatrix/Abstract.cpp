@@ -76,6 +76,15 @@ AbstractDistMatrix<T>::operator=( AbstractDistMatrix<T>&& A )
 }
 
 template<typename T>
+const AbstractDistMatrix<T>&
+AbstractDistMatrix<T>::operator=( const DistMultiVec<T>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::operator="))
+    Copy( A, *this );
+    return *this;
+}
+
+template<typename T>
 void
 AbstractDistMatrix<T>::Empty()
 {

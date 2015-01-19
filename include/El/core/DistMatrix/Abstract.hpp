@@ -37,6 +37,7 @@ public:
 
     // Assignment and reconfiguration
     // ==============================
+    const type& operator=( const DistMultiVec<T>& A );
     // Move assignment
     type& operator=( type&& A );
 
