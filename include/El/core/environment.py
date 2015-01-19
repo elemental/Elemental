@@ -9,13 +9,22 @@
 import sys, ctypes
 from ctypes import pythonapi
 
-# TODO: Greatly improve this search functionality. At the moment, it is likely
-#       necessary to manually specify the path
+# TODO: Greatly improve this search functionality.
 from ctypes.util import find_library
 libPath = find_library('El')
 if libPath == None:
-  raise Exception("Could not find Elemental library")
-lib = ctypes.cdll.LoadLibrary(libPath)
+  try:
+    lib = ctypes.cdll.LoadLibrary("libEl.so")
+  except:
+    try:
+      lib = ctypes.cdll.LoadLibrary("El.dll")
+    except:
+      try:
+        lib = ctypes.cdll.LoadLibrary("libEl.dylib")
+      except:
+        raise Exception("Could not find Elemental library")
+else:
+  lib = ctypes.cdll.LoadLibrary(libPath)
 
 # Environment
 # ===========
