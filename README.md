@@ -16,9 +16,9 @@ download instructions, but note that 0.85 wil be the first release containing sp
 
 The [documentation for the development version of Elemental](http://libelemental.org/documentation) is built using [Sphinx](http://sphinx.pocoo.org).
 
-### Related open-source packages
+### Related open-source projects
 
-Implementations (in alphabetical order):
+**Distributed dense linear algebra**:
 
 * [ELPA](http://elpa.rzg.mpg.de)
 * [NuLAB](https://github.com/solomonik/NuLAB)
@@ -26,13 +26,36 @@ Implementations (in alphabetical order):
 * [PLAPACK](http://www.cs.utexas.edu/~plapack)
 * [ScaLAPACK](http://www.netlib.org/scalapack) 
 
-Wrappers:
+**Distributed linear algebra Frameworks**
 
 * [PETSc](https://www.mcs.anl.gov/petsc/)
 * [Trilinos](http://trilinos.sandia.gov)
 
 Note that [PETSc](https://www.mcs.anl.gov/petsc/) contains an interface for
-some of Elemental's functionality.
+some of Elemental's linear solvers.
+
+**Convex optimization**
+
+* [CVXOPT](http://cvxopt.org/)
+* [ECOS](https://github.com/embotech/ecos)
+* [L1-MAGIC](http://users.ece.gatech.edu/~justin/l1magic/)
+
+### Dependencies
+
+**Intranodal linear algebra**
+
+* [BLAS](http://netlib.org/blas)
+* [LAPACK](http://netlib.org/lapack)
+* [libflame](http://www.cs.utexas.edu/~flame/web/libFLAME.html) (optional for faster bidiagonal SVDs)
+
+**Internodal linear algebra**
+
+* [Parallel MRRR](https://code.google.com/p/pmrrr/) (packaged with Elemental)
+* [ScaLAPACK](http://netlib.org/scalapack) (optional for Hessenberg QR algorithm)
+
+**Internodal communication**
+
+* MPI2 (typically [MPICH](http://www.mpich.org/), [MVAPICH](http://mvapich.cse.ohio-state.edu/), or [OpenMPI](http://www.open-mpi.org/))
 
 ### Elemental's root directory
 

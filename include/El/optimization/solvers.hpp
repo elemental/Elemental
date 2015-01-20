@@ -471,12 +471,12 @@ struct ADMMCtrl
 template<typename Real>
 Int ADMM
 ( const Matrix<Real>& Q, const Matrix<Real>& C, 
-  Real lb, Real ub, Matrix<Real>& Z, 
+  Real lb, Real ub, Matrix<Real>& X, 
   const ADMMCtrl<Real>& ctrl=ADMMCtrl<Real>() );
 template<typename Real>
 Int ADMM
 ( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& C, 
-  Real lb, Real ub, AbstractDistMatrix<Real>& Z,
+  Real lb, Real ub, AbstractDistMatrix<Real>& X,
   const ADMMCtrl<Real>& ctrl=ADMMCtrl<Real>() );
 
 } // namespace box

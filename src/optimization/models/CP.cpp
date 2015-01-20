@@ -19,7 +19,7 @@
 //
 // which, in affine standard form, becomes
 //
-//   min [1; 0]^T [t; x]
+//   min [0; 1]^T [x; t]
 //   s.t. |  A  -1 | | x | <= |  b |
 //        | -A  -1 | | t |    | -b |
 //

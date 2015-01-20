@@ -813,17 +813,17 @@ EL_EXPORT ElError ElQPAffineXDistSparse_d
    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
 EL_EXPORT ElError ElQPBoxADMM_s
 ( ElConstMatrix_s Q, ElConstMatrix_s C, float lb, float ub, 
-  ElMatrix_s Z, ElInt* numIts );
+  ElMatrix_s X, ElInt* numIts );
 EL_EXPORT ElError ElQPBoxADMM_d
 ( ElConstMatrix_d Q, ElConstMatrix_d C, double lb, double ub, 
-  ElMatrix_d Z, ElInt* numIts );
+  ElMatrix_d X, ElInt* numIts );
 
 EL_EXPORT ElError ElQPBoxADMMDist_s
 ( ElConstDistMatrix_s Q, ElConstDistMatrix_s C, float lb, float ub, 
-  ElDistMatrix_s Z, ElInt* numIts );
+  ElDistMatrix_s X, ElInt* numIts );
 EL_EXPORT ElError ElQPBoxADMMDist_d
 ( ElConstDistMatrix_d Q, ElConstDistMatrix_d C, double lb, double ub, 
-  ElDistMatrix_d Z, ElInt* numIts );
+  ElDistMatrix_d X, ElInt* numIts );
 
 /* TODO: Expert versions */
 

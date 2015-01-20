@@ -131,8 +131,9 @@ void LAV
 //   larger than n",
 //  The Annals of Statistics, Vol. 35, No. 6, pp. 2385--2391, 2007.
 //
-// For now, we will default to the (DS2) algorithm since it does not require
-// explicitly forming A^T A.
+// Elemental currently defaults to (DS1) for dense matrices and (DS2) for
+// sparse matrices.
+//
 
 template<typename Real>
 void DS
