@@ -35,6 +35,15 @@ including:
 * Hermitian matrix functions
 * Sign-based Lyapunov/Ricatti/Sylvester solvers
 
+### License
+
+All of Elemental is distributed under the terms of the 
+[New BSD License](http://www.opensource.org/licenses/bsd-license.php), 
+with the exception of 
+[METIS 5.1.0](http://glaros.dtc.umn.edu/gkhome/metis/metis/overview), 
+which is distributed under the (equally permissive) 
+[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html).
+
 ### Related open-source projects
 
 **Distributed dense linear algebra**:
@@ -45,19 +54,23 @@ including:
 * [PLAPACK](http://www.cs.utexas.edu/~plapack)
 * [ScaLAPACK](http://www.netlib.org/scalapack) 
 
+**Distributed sparse-direct linear algebra**:
+
+* [DSCPACK](http://www.cse.psu.edu/~raghavan/Dscpack/)
+* [MUMPS](http://mumps.enseeiht.fr/)
+* [SuperLU](http://crd-legacy.lbl.gov/~xiaoye/SuperLU/)
+
 **Distributed linear algebra Frameworks**
 
 * [PETSc](https://www.mcs.anl.gov/petsc/)
 * [Trilinos](http://trilinos.sandia.gov)
-
-Note that [PETSc](https://www.mcs.anl.gov/petsc/) contains an interface for
-some of Elemental's linear solvers.
 
 **Convex optimization**
 
 * [CVXOPT](http://cvxopt.org/)
 * [ECOS](https://github.com/embotech/ecos)
 * [L1-MAGIC](http://users.ece.gatech.edu/~justin/l1magic/)
+* [SDPA](http://sdpa.sourceforge.net/index.html)
 
 ### Dependencies
 
@@ -66,6 +79,10 @@ some of Elemental's linear solvers.
 * [BLAS](http://netlib.org/blas)
 * [LAPACK](http://netlib.org/lapack)
 * [libflame](http://www.cs.utexas.edu/~flame/web/libFLAME.html) (optional for faster bidiagonal SVDs)
+
+**Intranodal graph partitioning**
+
+* [METIS](http://glaros.dtc.umn.edu/gkhome/metis/metis/overview)
 
 **Internodal linear algebra**
 
