@@ -14,7 +14,26 @@ download instructions, but note that 0.85 wil be the first release containing sp
 
 ### Documentation
 
-The [documentation for the development version of Elemental](http://libelemental.org/documentation) is built using [Sphinx](http://sphinx.pocoo.org).
+The [documentation for Elemental](http://libelemental.org/documentation) is built using [Sphinx](http://sphinx.pocoo.org) and the [Read the Docs Theme](http://docs.readthedocs.org/en/latest/theme.html)
+
+### Unique features
+
+Elemental supports a wide collection of distributed-memory functionality, 
+including:
+
+* Dense and sparse Interior Point Methods for linear and quadratic programs
+* Support for dense and sparse basis pursuit, Lasso, SVM, etc.
+* High-performance pseudospectral computation and visualization
+* Quadratic-time low-rank Cholesky and LU modifications
+* Bunch-Kaufman and Bunch-Parlett for accurate symmetric factorization
+* LU and Cholesky with full pivoting
+* Column-pivoted QR and interpolative/skeleton decompositions
+* Quadratically Weighted Dynamic Halley iteration for the polar decomposition
+* Spectral Divide and Conquer Schur decomposition and Hermitian EVD
+* Many algorithms for Singular-Value soft-Thresholding (SVT)
+* Tall-skinny QR decompositions
+* Hermitian matrix functions
+* Sign-based Lyapunov/Ricatti/Sylvester solvers
 
 ### Related open-source projects
 
