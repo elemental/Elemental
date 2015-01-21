@@ -6,12 +6,10 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_REGLDL_VAR3_HPP
-#define EL_REGLDL_VAR3_HPP
+#include "El.hpp"
 
 namespace El {
-namespace reg_ldl {
+namespace reg_qsd_ldl {
 
 template<typename F> 
 inline void
@@ -21,7 +19,7 @@ Var3Unb
         Matrix<Base<F>>& reg )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("reg_ldl::Var3Unb");
+        CallStackEntry cse("reg_qsd_ldl::Var3Unb");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( regCand.Height() != A.Height() || regCand.Width() != 1 )
@@ -73,7 +71,7 @@ Var3
         Matrix<Base<F>>& reg )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("reg_ldl::Var3");
+        CallStackEntry cse("reg_qsd_ldl::Var3");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )
@@ -112,7 +110,7 @@ Var3
         AbstractDistMatrix<Base<F>>& regPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("reg_ldl::Var3");
+        CallStackEntry cse("reg_qsd_ldl::Var3");
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");
         // TODO: regCand and reg checks
@@ -158,7 +156,7 @@ Var3
         A11_STAR_STAR = A11;
         regCand1_STAR_STAR = regCand1;
         reg1_STAR_STAR = reg1;
-        RegularizedLDL
+        RegularizedQSDLDL
         ( A11_STAR_STAR.Matrix(), pivTol, 
           regCand1_STAR_STAR.LockedMatrix(), reg1_STAR_STAR.Matrix() );
         GetDiagonal( A11_STAR_STAR, d1_STAR_STAR );
@@ -186,7 +184,39 @@ Var3
     }
 }
 
-} // namespace reg_ldl
-} // namespace El
+} // namespace reg_qsd_ldl
 
-#endif // ifndef EL_REGLDL_VAR3_HPP
+template<typename F>
+void RegularizedQSDLDL
+( Matrix<F>& A, Base<F> pivTol,
+  const Matrix<Base<F>>& regCand, 
+        Matrix<Base<F>>& reg )
+{
+    DEBUG_ONLY(CallStackEntry cse("RegularizedQSDLDL"))
+    reg_qsd_ldl::Var3( A, pivTol, regCand, reg );
+}
+
+template<typename F>
+void RegularizedQSDLDL
+( AbstractDistMatrix<F>& A, Base<F> pivTol,
+  const AbstractDistMatrix<Base<F>>& regCand, 
+        AbstractDistMatrix<Base<F>>& reg )
+{
+    DEBUG_ONLY(CallStackEntry cse("RegularizedQSDLDL"))
+    reg_qsd_ldl::Var3( A, pivTol, regCand, reg );
+}
+
+#define PROTO(F) \
+  template void RegularizedQSDLDL \
+  ( Matrix<F>& A, Base<F> pivTol, \
+    const Matrix<Base<F>>& regCand, \
+          Matrix<Base<F>>& reg ); \
+  template void RegularizedQSDLDL \
+  ( AbstractDistMatrix<F>& A, Base<F> pivTol, \
+    const AbstractDistMatrix<Base<F>>& regCand, \
+          AbstractDistMatrix<Base<F>>& reg );
+
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
+
+} // namespace El

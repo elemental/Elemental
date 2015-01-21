@@ -17,9 +17,10 @@ namespace El {
 // B := inv(A) B for a general square A
 // ====================================
 template<typename F>
-void GaussianElimination( Matrix<F>& A, Matrix<F>& B );
+void LinearSolve( Matrix<F>& A, Matrix<F>& B );
 template<typename F>
-void GaussianElimination( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
+void LinearSolve( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
+// TODO: Sparse extension
 
 // min_{X,Y} || Y ||_F subject to D = A X + B Y
 // ============================================

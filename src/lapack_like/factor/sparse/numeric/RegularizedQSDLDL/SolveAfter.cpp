@@ -9,7 +9,7 @@
 #include "El.hpp"
 
 namespace El {
-namespace reg_ldl {
+namespace reg_qsd_ldl {
 
 // TODO: Switch to returning the relative residual of the refined solution
 
@@ -21,7 +21,7 @@ Int RegularizedSolveAfter
   Base<F> minReductionFactor,              Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_ldl::RegularizedSolveAfter"))
+    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfter"))
     mpi::Comm comm = b.Comm();
     const Int commRank = mpi::Rank(comm);
 
@@ -97,7 +97,7 @@ Int IRSolveAfter
   Base<F> minReductionFactor,              Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_ldl::IRSolveAfter"))
+    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::IRSolveAfter"))
     mpi::Comm comm = b.Comm();
     const Int commRank = mpi::Rank(comm);
 
@@ -167,7 +167,7 @@ Int LGMRESSolveAfter
   Base<F> minReductionFactor,              Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_ldl::LGMRESSolveAfter"))
+    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::LGMRESSolveAfter"))
     typedef Base<F> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
@@ -381,7 +381,7 @@ Int FGMRESSolveAfter
   Base<F> minReductionFactor,              Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_ldl::FGMRESSolveAfter"))
+    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::FGMRESSolveAfter"))
     typedef Base<F> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
@@ -593,7 +593,7 @@ Int SolveAfter
   Base<F> minReductionFactor,              Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_ldl::SolveAfter"))
+    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::SolveAfter"))
     // TODO: Allow for switching between Gondzio's approach (no GMRES),
     //       Boyd's approach (direct iterative refinement from regularized
     //       all the way to the solution of the unregularized system), my
@@ -605,6 +605,12 @@ Int SolveAfter
 }
 
 #define PROTO(F) \
+  template Int RegularizedSolveAfter \
+  ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg, \
+    const DistMap& invMap,             const DistSymmInfo& info, \
+    const DistSymmFrontTree<F>& AFact,       DistMultiVec<F>& b, \
+    Base<F> minReductionFactor,              Int maxRefineIts, \
+    bool progress ); \
   template Int SolveAfter \
   ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg, \
     const DistMap& invMap,             const DistSymmInfo& info, \
@@ -615,5 +621,5 @@ Int SolveAfter
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
 
-} // namespace reg_ldl
+} // namespace reg_qsd_ldl
 } // namespace El

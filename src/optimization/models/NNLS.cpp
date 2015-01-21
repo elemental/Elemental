@@ -143,7 +143,6 @@ void NNLS
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = B.Width();
-    const Int mLoc = B.LocalHeight();
     mpi::Comm comm = A.Comm();
     DistSparseMatrix<Real> Q(comm), AHat(comm);
     DistMultiVec<Real> bHat(comm), c(comm);

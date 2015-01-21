@@ -15,7 +15,7 @@
 // Real instances of the problem are expressable as a Quadratic Program [1] via 
 // the transformation
 //
-//   min lambda_1 1^T [u;v] + r^T r + lambda_2 (u^T u + v^T v)
+//   min r^T r + lambda_1 1^T [u;v] + lambda_2 (u^T u + v^T v)
 //   s.t. [A, -A] [u; v] + r = b, [u; v] >= 0.
 //
 // When expressed in affine conic form, the above expression becomes

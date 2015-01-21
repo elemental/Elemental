@@ -10,6 +10,9 @@
 #ifndef EL_FACTOR_HPP
 #define EL_FACTOR_HPP
 
+#include "El/lapack_like/factor/symbolic.hpp"
+#include "El/lapack_like/factor/numeric.hpp"
+
 namespace El {
 
 // Cholesky
@@ -184,6 +187,49 @@ void SolveAfter
 
 } // namespace ldl
 
+// Regularized Quasi-semidefinite LDL^H factorization
+// ==================================================
+// NOTE: If the pivot candidate is not at least as large as the pivot tolerance
+//       and with the implied sign, then it is increased by the specified value.
+template<typename F>
+void RegularizedQSDLDL
+( Matrix<F>& A, Base<F> pivTol,
+  const Matrix<Base<F>>& regCand,
+        Matrix<Base<F>>& reg );
+template<typename F>
+void RegularizedQSDLDL
+( AbstractDistMatrix<F>& A, Base<F> pivTol,
+  const AbstractDistMatrix<Base<F>>& regCand,
+        AbstractDistMatrix<Base<F>>& reg );
+
+template<typename F>
+void RegularizedQSDLDL
+( DistSymmInfo& info, DistSymmFrontTree<F>& L,
+  Base<F> pivTol,
+  const DistNodalMultiVec<Base<F>>& regCand,
+        DistNodalMultiVec<Base<F>>& reg,
+  SymmFrontType newFrontType=LDL_1D );
+
+namespace reg_qsd_ldl {
+
+template<typename F>
+Int RegularizedSolveAfter
+( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap,             const DistSymmInfo& info,
+  const DistSymmFrontTree<F>& AFact,       DistMultiVec<F>& y,
+  Base<F> minReductionFactor,              Int maxRefineIts,
+  bool progress );
+
+template<typename F>
+Int SolveAfter
+( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap,             const DistSymmInfo& info,
+  const DistSymmFrontTree<F>& AFact,       DistMultiVec<F>& y,
+  Base<F> minReductionFactor,              Int maxRefineIts,
+  bool progress );
+
+} // namespace reg_qsd_ldl
+
 // LU
 // ==
 
@@ -238,18 +284,6 @@ void LUMod
   bool conjugate=true, Base<F> tau=0.1 );
 
 namespace lu {
-
-// Perform a panel factorization
-// -----------------------------
-// NOTE: This is currently only needed within GaussianElimination and
-//       could ideally be removed
-template<typename F>
-void Panel( Matrix<F>& APan, Matrix<Int>& p1 );
-template<typename F>
-void Panel
-( DistMatrix<F,  STAR,STAR>& A11, 
-  DistMatrix<F,  MC,  STAR>& A21, 
-  DistMatrix<Int,STAR,STAR>& p1 );
 
 // Solve linear systems using an implicit unpivoted LU factorization
 // -----------------------------------------------------------------
@@ -710,8 +744,5 @@ LocalLU( DistMatrix<F,STAR,STAR>& A )
 }
 
 } // namespace El
-
-#include "El/lapack_like/factor/symbolic.hpp"
-#include "El/lapack_like/factor/numeric.hpp"
 
 #endif // ifndef EL_FACTOR_HPP

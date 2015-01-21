@@ -725,13 +725,13 @@ void Mehrotra
             JFrontTree.Initialize( J, map, sepTree, info );
             regCandNodal.Pull( invMap, info, regCand );
             regNodal.Pull( invMap, info, reg );
-            RegularizedLDL
+            RegularizedQSDLDL
             ( info, JFrontTree, pivTol, regCandNodal, regNodal, LDL_1D );
             regNodal.Push( invMap, info, reg );
 
             // Compute the proposed step from the regularized KKT system
             // ---------------------------------------------------------
-            numLargeAffineRefines = reg_ldl::SolveAfter
+            numLargeAffineRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFrontTree, d,
               minReductionFactor, maxRefineIts, ctrl.print );
             ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
@@ -757,11 +757,11 @@ void Mehrotra
             JFrontTree.Initialize( J, map, sepTree, info );
             regCandNodal.Pull( invMap, info, regCand );
             regNodal.Pull( invMap, info, reg );
-            RegularizedLDL
+            RegularizedQSDLDL
             ( info, JFrontTree, pivTol, regCandNodal, regNodal, LDL_1D );
             regNodal.Push( invMap, info, reg );
 
-            numLargeAffineRefines = reg_ldl::SolveAfter
+            numLargeAffineRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFrontTree, d,
               minReductionFactor, maxRefineIts, ctrl.print );
             ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
@@ -844,7 +844,7 @@ void Mehrotra
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            numLargeCorrectorRefines = reg_ldl::SolveAfter
+            numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFrontTree, d,
               minReductionFactor, maxRefineIts, ctrl.print );
             ExpandSolution( m, n, d, dx, dy, dz );
@@ -857,7 +857,7 @@ void Mehrotra
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            numLargeCorrectorRefines = reg_ldl::SolveAfter
+            numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFrontTree, d,
               minReductionFactor, maxRefineIts, ctrl.print );
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );

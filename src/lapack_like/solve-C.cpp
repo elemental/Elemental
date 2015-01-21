@@ -13,14 +13,14 @@ using namespace El;
 extern "C" {
 
 #define C_PROTO_FIELD(SIG,SIGBASE,F) \
-  /* Gaussian Elimination 
-     -------------------- */ \
-  ElError ElGaussianElimination_ ## SIG \
+  /* Linear solve
+     ------------ */ \
+  ElError ElLinearSolve_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
-  { EL_TRY( GaussianElimination( *CReflect(A), *CReflect(B) ) ) } \
-  ElError ElGaussianEliminationDist_ ## SIG \
+  { EL_TRY( LinearSolve( *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElLinearSolveDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
-  { EL_TRY( GaussianElimination( *CReflect(A), *CReflect(B) ) ) } \
+  { EL_TRY( LinearSolve( *CReflect(A), *CReflect(B) ) ) } \
   /* General Linear Model
      -------------------- */ \
   ElError ElGLM_ ## SIG \

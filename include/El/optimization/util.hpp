@@ -96,41 +96,6 @@ Int NumNonSecondOrder
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
 
-// Regularized LDL
-// ===============
-// NOTE: If the pivot candidate is not at least as large as the pivot tolerance
-//       and with the implied sign, then it is increased by the specified value.
-template<typename F>
-void RegularizedLDL
-( Matrix<F>& A, Base<F> pivTol,
-  const Matrix<Base<F>>& regCand, 
-        Matrix<Base<F>>& reg );
-template<typename F>
-void RegularizedLDL
-( AbstractDistMatrix<F>& A, Base<F> pivTol,
-  const AbstractDistMatrix<Base<F>>& regCand, 
-        AbstractDistMatrix<Base<F>>& reg );
-
-template<typename F>
-void RegularizedLDL
-( DistSymmInfo& info, DistSymmFrontTree<F>& L,
-  Base<F> pivTol,
-  const DistNodalMultiVec<Base<F>>& regCand, 
-        DistNodalMultiVec<Base<F>>& reg,
-  SymmFrontType newFrontType=LDL_1D );
-
-namespace reg_ldl {
-
-template<typename F>
-Int SolveAfter
-( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,             const DistSymmInfo& info,
-  const DistSymmFrontTree<F>& AFact,       DistMultiVec<F>& y,
-  Base<F> minReductionFactor,              Int maxRefineIts,
-  bool progress );
-
-} // namespace reg_ldl
-
 } // namespace El
 
 #endif // ifndef EL_OPTIMIZATION_UTIL_HPP

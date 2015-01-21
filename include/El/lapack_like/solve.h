@@ -16,21 +16,19 @@
 extern "C" {
 #endif
 
-/* Gaussian Elimination
-   ==================== */
-EL_EXPORT ElError ElGaussianElimination_s( ElMatrix_s A, ElMatrix_s B );
-EL_EXPORT ElError ElGaussianElimination_d( ElMatrix_d A, ElMatrix_d B );
-EL_EXPORT ElError ElGaussianElimination_c( ElMatrix_c A, ElMatrix_c B );
-EL_EXPORT ElError ElGaussianElimination_z( ElMatrix_z A, ElMatrix_z B );
+/* Linear solve
+   ============ */
+EL_EXPORT ElError ElLinearSolve_s( ElMatrix_s A, ElMatrix_s B );
+EL_EXPORT ElError ElLinearSolve_d( ElMatrix_d A, ElMatrix_d B );
+EL_EXPORT ElError ElLinearSolve_c( ElMatrix_c A, ElMatrix_c B );
+EL_EXPORT ElError ElLinearSolve_z( ElMatrix_z A, ElMatrix_z B );
 
-EL_EXPORT ElError ElGaussianEliminationDist_s
-( ElDistMatrix_s A, ElDistMatrix_s B );
-EL_EXPORT ElError ElGaussianEliminationDist_d
-( ElDistMatrix_d A, ElDistMatrix_d B );
-EL_EXPORT ElError ElGaussianEliminationDist_c
-( ElDistMatrix_c A, ElDistMatrix_c B );
-EL_EXPORT ElError ElGaussianEliminationDist_z
-( ElDistMatrix_z A, ElDistMatrix_z B );
+EL_EXPORT ElError ElLinearSolveDist_s( ElDistMatrix_s A, ElDistMatrix_s B );
+EL_EXPORT ElError ElLinearSolveDist_d( ElDistMatrix_d A, ElDistMatrix_d B );
+EL_EXPORT ElError ElLinearSolveDist_c( ElDistMatrix_c A, ElDistMatrix_c B );
+EL_EXPORT ElError ElLinearSolveDist_z( ElDistMatrix_z A, ElDistMatrix_z B );
+
+/* TODO: Sparse equivalents */
 
 /* General Linear Model
    ==================== */

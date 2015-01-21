@@ -361,7 +361,7 @@ void Initialize
     JFrontTree.Initialize( J, map, sepTree, info );
     regCandNodal.Pull( invMap, info, regCand );
     regNodal.Pull( invMap, info, reg );
-    RegularizedLDL
+    RegularizedQSDLDL
     ( info, JFrontTree, pivTol, regCandNodal, regNodal, LDL_1D );
     regNodal.Push( invMap, info, reg );
 
@@ -384,7 +384,7 @@ void Initialize
         Zeros( rmu, n, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
-        reg_ldl::SolveAfter
+        reg_qsd_ldl::SolveAfter
         ( J, reg, invMap, info, JFrontTree, d,
           minReductionFactor, maxRefineIts, progress );
         ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
@@ -399,7 +399,7 @@ void Initialize
         Zeros( rb, m, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
-        reg_ldl::SolveAfter
+        reg_qsd_ldl::SolveAfter
         ( J, reg, invMap, info, JFrontTree, d,
           minReductionFactor, maxRefineIts, progress );
         ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );

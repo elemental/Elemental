@@ -10,6 +10,19 @@
 
 namespace El {
 
+namespace lu {
+
+template<typename F>
+void Panel( Matrix<F>& APan, Matrix<Int>& p1 );
+
+template<typename F>
+void Panel
+( DistMatrix<F,  STAR,STAR>& A11,
+  DistMatrix<F,  MC,  STAR>& A21,
+  DistMatrix<Int,STAR,STAR>& p1 );
+
+} // namespace lu
+
 // Short-circuited form of LU factorization with partial pivoting
 template<typename F> 
 inline void
@@ -143,18 +156,20 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
 }
 
 template<typename F> 
-void GaussianElimination( Matrix<F>& A, Matrix<F>& B )
+void LinearSolve( Matrix<F>& A, Matrix<F>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("GaussianElimination"))
+    DEBUG_ONLY(CallStackEntry cse("LinearSolve"))
+    // Perform Gaussian elimination
     RowEchelon( A, B );
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
 }
 
 template<typename F> 
-void GaussianElimination
+void LinearSolve
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("GaussianElimination"))
+    DEBUG_ONLY(CallStackEntry cse("LinearSolve"))
+    // Perform Gaussian elimination
 
     // NOTE: Since only the upper triangle of the factorization is formed,
     //       we could usually get away with A only being a Write proxy.
@@ -166,8 +181,8 @@ void GaussianElimination
 }
 
 #define PROTO(F) \
-  template void GaussianElimination( Matrix<F>& A, Matrix<F>& B ); \
-  template void GaussianElimination \
+  template void LinearSolve( Matrix<F>& A, Matrix<F>& B ); \
+  template void LinearSolve \
   ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
 
 #define EL_NO_INT_PROTO

@@ -1,7 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson, Lexing Ying,
-   The University of Texas at Austin, Stanford University, and the
-   Georgia Insitute of Technology.
+   Copyright (c) 2009-2015, Jack Poulson.
    All rights reserved.
  
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -9,18 +7,18 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_OPTIMIZATION_REGLDL_PROCESSLOCALTREE_HPP
-#define EL_OPTIMIZATION_REGLDL_PROCESSLOCALTREE_HPP
+#ifndef EL_OPTIMIZATION_REGQSDLDL_PROCESSLOCALTREE_HPP
+#define EL_OPTIMIZATION_REGQSDLDL_PROCESSLOCALTREE_HPP
 
 namespace El {
-namespace reg_ldl {
+namespace reg_qsd_ldl {
 
 template<typename F> 
 inline void ProcessLocalTree
 ( DistSymmInfo& info, DistSymmFrontTree<F>& L, Base<F> pivTol,
   const DistNodalMultiVec<Base<F>>& regCand, DistNodalMultiVec<Base<F>>& reg )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_ldl::ProcessLocalTree"))
+    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::ProcessLocalTree"))
 
     const int numLocalNodes = info.localNodes.size();
     for( int s=0; s<numLocalNodes; ++s )
@@ -102,7 +100,7 @@ inline void ProcessLocalTree
     }
 }
 
-} // namespace reg_ldl
+} // namespace reg_qsd_ldl
 } // namespace El
 
-#endif // ifndef EL_OPTIMIZATION_REGLDL_PROCESSLOCALTREE_HPP
+#endif // ifndef EL_OPTIMIZATION_REGQSDLDL_PROCESSLOCALTREE_HPP

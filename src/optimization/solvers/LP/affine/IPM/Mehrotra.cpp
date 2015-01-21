@@ -647,11 +647,11 @@ void Mehrotra
             JFrontTree.Initialize( J, map, sepTree, info );
             regCandNodal.Pull( invMap, info, regCand );
             regNodal.Pull( invMap, info, reg );
-            RegularizedLDL
+            RegularizedQSDLDL
             ( info, JFrontTree, pivTol, regCandNodal, regNodal, LDL_1D );
             regNodal.Push( invMap, info, reg );
 
-            numLargeAffineRefines = reg_ldl::SolveAfter
+            numLargeAffineRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFrontTree, d,
               minReductionFactor, maxRefineIts, ctrl.print );
             ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
@@ -727,7 +727,7 @@ void Mehrotra
         KKTRHS( rc, rb, rh, rmu, z, d );
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
-        const Int numLargeCorrectorRefines = reg_ldl::SolveAfter
+        const Int numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
         ( J, reg, invMap, info, JFrontTree, d,
           minReductionFactor, maxRefineIts, ctrl.print );
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );

@@ -255,8 +255,8 @@ if(NOT WIN32) # I forget why we need this guard
   foreach(LANG ${LANGUAGES})
     if(NOT ${LANG}_FLAGS)
       if(EL_DEBUG)
-        #set(${LANG}_FLAGS "-O2 -g -Wunused-variable -Wunused-but-set-variable -Wunused-local-typedefs" CACHE STRING
-        set(${LANG}_FLAGS "-O2 -g" CACHE STRING
+        set(${LANG}_FLAGS "-O2 -g -Wunused-variable -Wunused-but-set-variable -Wunused-local-typedefs" CACHE STRING
+        #set(${LANG}_FLAGS "-O2 -g" CACHE STRING
           "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
       else()
         set(${LANG}_FLAGS "-O3" CACHE STRING
@@ -397,28 +397,30 @@ endforeach()
 add_custom_target(prepare_El_headers DEPENDS ${PREPARED_HEADERS})
 add_dependencies(El prepare_El_headers)
 
-# Install the python interface
-option(INSTALL_PYTHON_PACKAGE "Install python wrappers as package" TRUE)
-if(INSTALL_PYTHON_PACKAGE)
-  if(NOT PYTHON_SITE_PACKAGES)
-    execute_process( 
-      COMMAND python -c 
-      "from distutils.sysconfig import get_python_lib; print get_python_lib()" 
-      OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE
+if(BUILD_SHARED_LIBS)
+  # Install the python interface
+  option(INSTALL_PYTHON_PACKAGE "Install python wrappers as package" TRUE)
+  if(INSTALL_PYTHON_PACKAGE)
+    if(NOT PYTHON_SITE_PACKAGES)
+      execute_process( 
+        COMMAND python -c 
+        "from distutils.sysconfig import get_python_lib; print get_python_lib()" 
+        OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE
+      )
+    endif()
+    message(STATUS "PYTHON_SITE_PACKAGES=${PYTHON_SITE_PACKAGES}")
+    install(
+      DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+      DESTINATION ${PYTHON_SITE_PACKAGES}
+      FILES_MATCHING PATTERN "*.py"
+    )
+  else()
+    install(
+      DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+      DESTINATION ${CMAKE_INSTALL_PREFIX}/include/
+      FILES_MATCHING PATTERN "*.py"
     )
   endif()
-  message(STATUS "PYTHON_SITE_PACKAGES=${PYTHON_SITE_PACKAGES}")
-  install(
-    DIRECTORY ${PROJECT_SOURCE_DIR}/include/
-    DESTINATION ${PYTHON_SITE_PACKAGES}
-    FILES_MATCHING PATTERN "*.py"
-  )
-else()
-  install(
-    DIRECTORY ${PROJECT_SOURCE_DIR}/include/
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/
-    FILES_MATCHING PATTERN "*.py"
-  )
 endif()
 
 # TODO: Ensure that source files depend on header files

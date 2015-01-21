@@ -9,41 +9,41 @@
 from ..core import *
 import ctypes
 
-# Gaussian elimination
-# ====================
-lib.ElGaussianElimination_s.argtypes = \
-lib.ElGaussianElimination_d.argtypes = \
-lib.ElGaussianElimination_c.argtypes = \
-lib.ElGaussianElimination_z.argtypes = \
-lib.ElGaussianEliminationDist_s.argtypes = \
-lib.ElGaussianEliminationDist_d.argtypes = \
-lib.ElGaussianEliminationDist_c.argtypes = \
-lib.ElGaussianEliminationDist_z.argtypes = \
+# Linear solve
+# ============
+lib.ElLinearSolve_s.argtypes = \
+lib.ElLinearSolve_d.argtypes = \
+lib.ElLinearSolve_c.argtypes = \
+lib.ElLinearSolve_z.argtypes = \
+lib.ElLinearSolveDist_s.argtypes = \
+lib.ElLinearSolveDist_d.argtypes = \
+lib.ElLinearSolveDist_c.argtypes = \
+lib.ElLinearSolveDist_z.argtypes = \
   [c_void_p,c_void_p]
 
-lib.ElGaussianElimination_s.restype = \
-lib.ElGaussianElimination_d.restype = \
-lib.ElGaussianElimination_c.restype = \
-lib.ElGaussianElimination_z.restype = \
-lib.ElGaussianEliminationDist_s.restype = \
-lib.ElGaussianEliminationDist_d.restype = \
-lib.ElGaussianEliminationDist_c.restype = \
-lib.ElGaussianEliminationDist_z.restype = \
+lib.ElLinearSolve_s.restype = \
+lib.ElLinearSolve_d.restype = \
+lib.ElLinearSolve_c.restype = \
+lib.ElLinearSolve_z.restype = \
+lib.ElLinearSolveDist_s.restype = \
+lib.ElLinearSolveDist_d.restype = \
+lib.ElLinearSolveDist_c.restype = \
+lib.ElLinearSolveDist_z.restype = \
   c_uint
 
-def GaussianElimination(A,B):
+def LinearSolve(A,B):
   args = [A.obj,B.obj]
   if type(A) is Matrix:
-    if   A.tag == sTag: lib.ElGaussianElimination_s(*args)
-    elif A.tag == dTag: lib.ElGaussianElimination_d(*args)
-    elif A.tag == cTag: lib.ElGaussianElimination_c(*args)
-    elif A.tag == zTag: lib.ElGaussianElimination_z(*args)
+    if   A.tag == sTag: lib.ElLinearSolve_s(*args)
+    elif A.tag == dTag: lib.ElLinearSolve_d(*args)
+    elif A.tag == cTag: lib.ElLinearSolve_c(*args)
+    elif A.tag == zTag: lib.ElLinearSolve_z(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == sTag: lib.ElGaussianEliminationDist_s(*args)
-    elif A.tag == dTag: lib.ElGaussianEliminationDist_d(*args)
-    elif A.tag == cTag: lib.ElGaussianEliminationDist_c(*args)
-    elif A.tag == zTag: lib.ElGaussianEliminationDist_z(*args)
+    if   A.tag == sTag: lib.ElLinearSolveDist_s(*args)
+    elif A.tag == dTag: lib.ElLinearSolveDist_d(*args)
+    elif A.tag == cTag: lib.ElLinearSolveDist_c(*args)
+    elif A.tag == zTag: lib.ElLinearSolveDist_z(*args)
     else: DataExcept()
   else: TypeExcept()
 

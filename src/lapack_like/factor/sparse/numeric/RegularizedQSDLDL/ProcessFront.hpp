@@ -1,7 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson, Lexing Ying,
-   The University of Texas at Austin, Stanford University, and the
-   Georgia Insitute of Technology.
+   Copyright (c) 2009-2015, Jack Poulson.
    All rights reserved.
  
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -9,11 +7,11 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_OPTIMIZATION_REGLDL_PROCESSFRONT_HPP
-#define EL_OPTIMIZATION_REGLDL_PROCESSFRONT_HPP
+#ifndef EL_OPTIMIZATION_REGQSDLDL_PROCESSFRONT_HPP
+#define EL_OPTIMIZATION_REGQSDLDL_PROCESSFRONT_HPP
 
 namespace El {
-namespace reg_ldl {
+namespace reg_qsd_ldl {
 
 template<typename F>
 inline void ProcessFront
@@ -21,7 +19,7 @@ inline void ProcessFront
   const Matrix<Base<F>>& regCand, Matrix<Base<F>>& reg )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("reg_ldl::ProcessFront");
+        CallStackEntry cse("reg_qsd_ldl::ProcessFront");
         if( ABR.Height() != ABR.Width() )
             LogicError("ABR must be square");
         if( AL.Height() != AL.Width() + ABR.Width() )
@@ -49,7 +47,7 @@ inline void ProcessFront
         auto regCand1 = regCand( ind1, IR(0,1) );
         auto reg1 = reg( ind1, IR(0,1) );
 
-        RegularizedLDL( AL11, pivTol, regCand1, reg1 );
+        RegularizedQSDLDL( AL11, pivTol, regCand1, reg1 );
         GetDiagonal( AL11, d1 );
 
         Trsm( RIGHT, LOWER, ADJOINT, UNIT, F(1), AL11, AL21 );
@@ -72,7 +70,7 @@ inline void ProcessFrontGeneral
         DistMatrix<Base<F>,VC,STAR>& reg )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("reg_ldl::ProcessFrontGeneral");
+        CallStackEntry cse("reg_qsd_ldl::ProcessFrontGeneral");
         if( ABR.Height() != ABR.Width() )
             LogicError("ABR must be square");
         if( AL.Height() != AL.Width()+ABR.Height() )
@@ -119,7 +117,7 @@ inline void ProcessFrontGeneral
         AL11_STAR_STAR = AL11; 
         regCand1_STAR_STAR = regCand1;
         reg1_STAR_STAR = reg1;
-        RegularizedLDL
+        RegularizedQSDLDL
         ( AL11_STAR_STAR.Matrix(), pivTol, 
           regCand1_STAR_STAR.LockedMatrix(), reg1_STAR_STAR.Matrix() );
         GetDiagonal( AL11_STAR_STAR, d1_STAR_STAR );
@@ -159,7 +157,7 @@ inline void ProcessFrontSquare
         DistMatrix<Base<F>,VC,STAR>& reg )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("reg_ldl::ProcessFrontSquare");
+        CallStackEntry cse("reg_qsd_ldl::ProcessFrontSquare");
         if( ABR.Height() != ABR.Width() )
             LogicError("ABR must be square");
         if( AL.Height() != AL.Width()+ABR.Height() )
@@ -224,7 +222,7 @@ inline void ProcessFrontSquare
         AL11_STAR_STAR = AL11; 
         regCand1_STAR_STAR = regCand1;
         reg1_STAR_STAR = reg1;
-        RegularizedLDL
+        RegularizedQSDLDL
         ( AL11_STAR_STAR.Matrix(), pivTol, 
           regCand1_STAR_STAR.LockedMatrix(), reg1_STAR_STAR.Matrix() );
         GetDiagonal( AL11_STAR_STAR, d1_STAR_STAR );
@@ -285,7 +283,7 @@ inline void ProcessFront
   const DistMatrix<Base<F>,VC,STAR>& regCand, 
         DistMatrix<Base<F>,VC,STAR>& reg )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_ldl::ProcessFront"))
+    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::ProcessFront"))
     const Grid& grid = AL.Grid();
     if( grid.Height() == grid.Width() )
         ProcessFrontSquare( AL, ABR, pivTol, regCand, reg );
@@ -293,7 +291,7 @@ inline void ProcessFront
         ProcessFrontGeneral( AL, ABR, pivTol, regCand, reg );
 }
 
-} // namespace reg_ldl
+} // namespace reg_qsd_ldl
 } // namespace El
 
-#endif // ifndef EL_OPTIMIZATION_REGLDL_PROCESSFRONT_HPP
+#endif // ifndef EL_OPTIMIZATION_REGQSDLDL_PROCESSFRONT_HPP

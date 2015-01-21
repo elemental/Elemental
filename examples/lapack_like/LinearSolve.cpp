@@ -54,12 +54,12 @@ main( int argc, char* argv[] )
             // Perform the LU factorization and simultaneous solve
             if( commRank == 0 )
             {
-                std::cout << "Starting GaussianElimination...";
+                std::cout << "Starting linear solve...";
                 std::cout.flush();
             }
             mpi::Barrier( comm );
             double startTime = mpi::Time();
-            GaussianElimination( A, X );
+            LinearSolve( A, X );
             mpi::Barrier( comm );
             double stopTime = mpi::Time();
             if( commRank == 0 )
