@@ -20,7 +20,10 @@ template<typename F>
 void LinearSolve( Matrix<F>& A, Matrix<F>& B );
 template<typename F>
 void LinearSolve( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
-// TODO: Sparse extension
+template<typename F>
+void LinearSolve( const SparseMatrix<F>& A, Matrix<F>& B );
+template<typename F>
+void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B );
 
 // min_{X,Y} || Y ||_F subject to D = A X + B Y
 // ============================================

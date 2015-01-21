@@ -72,7 +72,7 @@ void InvertPermutation
     for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
     {
         const Int iDest = p.GetLocal(iLoc,0);
-        const Int owner = pInv.RowOwner(iDest);
+        const int owner = pInv.RowOwner(iDest);
         sendCounts[owner] += 2; // we'll send the global index and the value
     }
     // Perform a small AllToAll to get the receive counts
@@ -95,7 +95,7 @@ void InvertPermutation
     {
         const Int i     = p.GlobalRow(iLoc);
         const Int iDest = p.GetLocal(iLoc,0);
-        const Int owner = pInv.RowOwner(iDest);
+        const int owner = pInv.RowOwner(iDest);
         sendBuf[offsets[owner]++] = iDest;
         sendBuf[offsets[owner]++] = i;
     }

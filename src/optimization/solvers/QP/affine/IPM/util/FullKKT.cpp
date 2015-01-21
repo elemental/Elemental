@@ -292,7 +292,7 @@ void KKT
         if( i >= j || !onlyLower )
         {
             const Real value = Q.Value(e);
-            const Int owner = J.RowOwner(i);
+            const int owner = J.RowOwner(i);
             sSendBuf[offsets[owner]] = i;
             tSendBuf[offsets[owner]] = j;
             vSendBuf[offsets[owner]] = value;
@@ -306,7 +306,7 @@ void KKT
         const Int i = A.Row(e) + n;
         const Int j = A.Col(e);
         const Real value = A.Value(e);
-        const Int owner = J.RowOwner(i);
+        const int owner = J.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         tSendBuf[offsets[owner]] = j;
         vSendBuf[offsets[owner]] = value;
@@ -319,7 +319,7 @@ void KKT
         const Int i = G.Row(e) + n + m;
         const Int j = G.Col(e);
         const Real value = G.Value(e);
-        const Int owner = J.RowOwner(i);
+        const int owner = J.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         tSendBuf[offsets[owner]] = j;
         vSendBuf[offsets[owner]] = value;
@@ -334,7 +334,7 @@ void KKT
             const Int i = ATrans.Row(e);
             const Int j = ATrans.Col(e) + n;
             const Real value = ATrans.Value(e);
-            const Int owner = J.RowOwner(i);
+            const int owner = J.RowOwner(i);
             sSendBuf[offsets[owner]] = i;
             tSendBuf[offsets[owner]] = j;
             vSendBuf[offsets[owner]] = value;
@@ -350,7 +350,7 @@ void KKT
             const Int i = GTrans.Row(e);
             const Int j = GTrans.Col(e) + n + m;
             const Real value = GTrans.Value(e);
-            const Int owner = J.RowOwner(i);
+            const int owner = J.RowOwner(i);
             sSendBuf[offsets[owner]] = i;
             tSendBuf[offsets[owner]] = j;
             vSendBuf[offsets[owner]] = value;
@@ -364,7 +364,7 @@ void KKT
         const Int i = m + n + e + s.FirstLocalRow();
         const Int j = i;
         const Real value = -s.GetLocal(e,0)/z.GetLocal(e,0);
-        const Int owner = J.RowOwner(i);
+        const int owner = J.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         tSendBuf[offsets[owner]] = j;
         vSendBuf[offsets[owner]] = value;
@@ -493,7 +493,7 @@ void KKTRHS
     {
         const Int i = e + rc.FirstLocalRow();
         const Real value = -rc.GetLocal(e,0);
-        const Int owner = d.RowOwner(i);
+        const int owner = d.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         vSendBuf[offsets[owner]] = value;
         ++offsets[owner];
@@ -502,7 +502,7 @@ void KKTRHS
     {
         const Int i = n + e + rb.FirstLocalRow();
         const Real value = -rb.GetLocal(e,0);
-        const Int owner = d.RowOwner(i);
+        const int owner = d.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         vSendBuf[offsets[owner]] = value;
         ++offsets[owner];
@@ -511,7 +511,7 @@ void KKTRHS
     {
         const Int i = n + m + e + rmu.FirstLocalRow();
         const Real value = rmu.GetLocal(e,0)/z.GetLocal(e,0) - rh.GetLocal(e,0);
-        const Int owner = d.RowOwner(i);
+        const int owner = d.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         vSendBuf[offsets[owner]] = value;
         ++offsets[owner];
@@ -616,7 +616,7 @@ void ExpandCoreSolution
     for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
     {
         const Int i = d.FirstLocalRow() + iLoc;
-        Int owner;
+        int owner;
         if( i < n )
             owner = dx.RowOwner(i);
         else if( i < n+m )

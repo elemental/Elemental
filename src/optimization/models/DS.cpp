@@ -517,8 +517,9 @@ void Var2
             const Int i = A.Row(e); 
             const Int j = A.Col(e);
             const Real value = A.Value(e);
+
             // Sending A
-            Int owner = AHat.RowOwner(i);
+            int owner = AHat.RowOwner(i);
             sSendBuf[offsets[owner]] = i;
             tSendBuf[offsets[owner]] = j;
             vSendBuf[offsets[owner]] = value;
@@ -533,6 +534,7 @@ void Var2
             sSendBuf[offsets[owner]] = j+m;
             tSendBuf[offsets[owner]] = i+2*n;
             vSendBuf[offsets[owner]] = value;
+
             ++offsets[owner];
         }
         // Exchange
@@ -587,7 +589,7 @@ void Var2
         for( Int iLoc=0; iLoc<b.LocalHeight(); ++iLoc )
         {
             const Int i = b.GlobalRow(iLoc);
-            const Int owner = bHat.RowOwner(i);
+            const int owner = bHat.RowOwner(i);
             sSendBuf[offsets[owner]] = i;
             vSendBuf[offsets[owner]] = b.GetLocal(iLoc,0);
             ++offsets[owner];
@@ -645,14 +647,14 @@ void Var2
             const Int i = xHat.GlobalRow(iLoc);
             if( i < n )
             {
-                const Int owner = x.RowOwner(i);
+                const int owner = x.RowOwner(i);
                 sSendBuf[offsets[owner]] = i;
                 vSendBuf[offsets[owner]] = xHat.GetLocal(iLoc,0);
                 ++offsets[owner];
             }
             else if( i < 2*n )
             {
-                const Int owner = x.RowOwner(i-n);
+                const int owner = x.RowOwner(i-n);
                 sSendBuf[offsets[owner]] = i-n;
                 vSendBuf[offsets[owner]] = -xHat.GetLocal(iLoc,0);
                 ++offsets[owner];

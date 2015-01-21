@@ -303,8 +303,7 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
     {
         const Int i = A.Row(k);
         const Int j = A.Col(k);
-        const Int owner = B.Owner(i,j);
-        ++sendCounts[owner];
+        ++sendCounts[ B.Owner(i,j) ];
     }
     std::vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
@@ -325,7 +324,7 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
         const Int i = A.Row(k);
         const Int j = A.Col(k);
         const T value = T(A.Value(k));
-        const Int owner = B.Owner(i,j);
+        const int owner = B.Owner(i,j);
         sSendBuf[offsets[owner]] = i;
         tSendBuf[offsets[owner]] = j;
         vSendBuf[offsets[owner]] = value;

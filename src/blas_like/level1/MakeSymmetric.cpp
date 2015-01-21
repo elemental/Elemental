@@ -172,7 +172,7 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
         const Int j = tBuf[k];
         if( (uplo == LOWER && i > j) || (uplo == UPPER && i < j) )
         {
-            const Int owner = A.RowOwner(j);
+            const int owner = A.RowOwner(j);
             const Int s = offsets[owner];
             sSendBuf[s] = j;
             tSendBuf[s] = i;

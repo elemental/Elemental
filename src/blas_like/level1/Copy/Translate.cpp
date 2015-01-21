@@ -162,8 +162,7 @@ void Translate( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,U,V>& B )
             for( Int iLoc=0; iLoc<mLocal; ++iLoc )
             {
                 const Int i = A.GlobalRow(iLoc);
-                const Int owner = B.Owner(i,j);
-                ++sendCounts[owner];
+                ++sendCounts[ B.Owner(i,j) ];
             }
         }
         for( Int jLoc=0; jLoc<nLocalB; ++jLoc )
@@ -172,8 +171,7 @@ void Translate( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,U,V>& B )
             for( Int iLoc=0; iLoc<mLocalB; ++iLoc )
             {
                 const Int i = B.GlobalRow(iLoc);
-                const Int owner = A.Owner(i,j);
-                ++recvCounts[owner];
+                ++recvCounts[ A.Owner(i,j) ];
             }
         }
 
@@ -192,7 +190,7 @@ void Translate( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,U,V>& B )
             for( Int iLoc=0; iLoc<mLocal; ++iLoc )
             {
                 const Int i = A.GlobalRow(iLoc);
-                const Int owner = B.Owner(i,j);
+                const int owner = B.Owner(i,j);
                 sendBuf[offsets[owner]++] = A.GetLocal(iLoc,jLoc);
             }
         }
@@ -212,7 +210,7 @@ void Translate( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,U,V>& B )
             for( Int iLoc=0; iLoc<mLocalB; ++iLoc )
             {
                 const Int i = B.GlobalRow(iLoc);
-                const Int owner = A.Owner(i,j);
+                const int owner = A.Owner(i,j);
                 B.SetLocal( iLoc, jLoc, recvBuf[offsets[owner]++] );
             }
         }

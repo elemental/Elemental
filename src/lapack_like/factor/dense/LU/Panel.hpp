@@ -143,7 +143,7 @@ void Panel
             // The owning row of the pivot row packs it into the row buffer
             // and then overwrites with the current row
             const Int relIndex = iPiv - n;
-            const Int ownerRow = B.RowOwner(relIndex);
+            const int ownerRow = B.RowOwner(relIndex);
             if( B.IsLocalRow(relIndex) )
             {
                 const Int iLoc = B.LocalRow(relIndex);

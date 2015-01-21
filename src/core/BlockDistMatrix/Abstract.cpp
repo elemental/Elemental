@@ -804,7 +804,7 @@ AbstractBlockDistMatrix<T>::Get( Int i, Int j ) const
     T value;
     if( CrossRank() == Root() )
     {
-        const Int owner = Owner( i, j );
+        const int owner = Owner( i, j );
         if( owner == DistRank() )
             value = GetLocal( LocalRow(i), LocalCol(j) );
         mpi::Broadcast( value, owner, DistComm() );
@@ -825,7 +825,7 @@ AbstractBlockDistMatrix<T>::GetRealPart( Int i, Int j ) const
     Base<T> value;
     if( CrossRank() == Root() )
     {
-        const Int owner = Owner( i, j );
+        const int owner = Owner( i, j );
         if( owner == DistRank() )
             value = GetLocalRealPart( LocalRow(i), LocalCol(j) );
         mpi::Broadcast( value, owner, DistComm() );
@@ -848,7 +848,7 @@ AbstractBlockDistMatrix<T>::GetImagPart( Int i, Int j ) const
     {
         if( CrossRank() == Root() )
         {
-            const Int owner = Owner( i, j );
+            const int owner = Owner( i, j );
             if( owner == DistRank() )
                 value = GetLocalRealPart( LocalRow(i), LocalCol(j) );
             mpi::Broadcast( value, owner, DistComm() );

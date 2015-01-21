@@ -193,7 +193,7 @@ void AugmentedKKT
         const Int i = A.Row(e) + n;
         const Int j = A.Col(e);
         const Real value = A.Value(e);
-        const Int owner = J.RowOwner(i);
+        const int owner = J.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         tSendBuf[offsets[owner]] = j;
         vSendBuf[offsets[owner]] = value;
@@ -208,7 +208,7 @@ void AugmentedKKT
             const Int i = ATrans.Row(e);
             const Int j = ATrans.Col(e) + n;
             const Real value = ATrans.Value(e);
-            const Int owner = J.RowOwner(i);
+            const int owner = J.RowOwner(i);
             sSendBuf[offsets[owner]] = i;
             tSendBuf[offsets[owner]] = j;
             vSendBuf[offsets[owner]] = value;
@@ -222,7 +222,7 @@ void AugmentedKKT
         const Int i = e + x.FirstLocalRow();
         const Int j = i;
         const Real value = z.GetLocal(e,0)/x.GetLocal(e,0);
-        const Int owner = J.RowOwner(i);
+        const int owner = J.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         tSendBuf[offsets[owner]] = j;
         vSendBuf[offsets[owner]] = value;
@@ -236,7 +236,7 @@ void AugmentedKKT
         const Int j = Q.Col(e);
         if( i >= j || !onlyLower )
         {
-            const Int owner = J.RowOwner(i);
+            const int owner = J.RowOwner(i);
             sSendBuf[offsets[owner]] = i;
             tSendBuf[offsets[owner]] = j;
             vSendBuf[offsets[owner]] = Q.Value(e);
@@ -366,7 +366,7 @@ void AugmentedKKTRHS
     {
         const Int i = e + rc.FirstLocalRow();
         const Real value = -rc.GetLocal(e,0)-rmu.GetLocal(e,0)/x.GetLocal(e,0);
-        const Int owner = d.RowOwner(i);
+        const int owner = d.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         vSendBuf[offsets[owner]] = value;
         ++offsets[owner];
@@ -375,7 +375,7 @@ void AugmentedKKTRHS
     {
         const Int i = e + rb.FirstLocalRow() + n;
         const Real value = -rb.GetLocal(e,0);
-        const Int owner = d.RowOwner(i);
+        const int owner = d.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         vSendBuf[offsets[owner]] = value;
         ++offsets[owner];
@@ -516,14 +516,14 @@ void ExpandAugmentedSolution
         const Int i = d.FirstLocalRow() + iLoc;
         if( i < n )
         {
-            const Int owner = dx.RowOwner(i); 
+            const int owner = dx.RowOwner(i); 
             sSendBuf[offsets[owner]] = i; 
             vSendBuf[offsets[owner]] = d.GetLocal(iLoc,0);
             ++offsets[owner]; 
         }
         else
         {
-            const Int owner = dy.RowOwner(i-n);
+            const int owner = dy.RowOwner(i-n);
             sSendBuf[offsets[owner]] = i;
             vSendBuf[offsets[owner]] = d.GetLocal(iLoc,0);
             ++offsets[owner];

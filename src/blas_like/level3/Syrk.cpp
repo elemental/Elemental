@@ -211,7 +211,7 @@ void Syrk
         for( Int iConn=0; iConn<numConn; ++iConn )
         {
             const Int i = A.Col(offset+iConn);
-            const Int owner = C.RowOwner(i);
+            const int owner = C.RowOwner(i);
             for( Int jConn=0; jConn<numConn; ++jConn )
             {
                 const Int j = A.Col(offset+jConn);
@@ -242,7 +242,7 @@ void Syrk
         {
             const Int i = A.Col(offset+iConn);
             const T A_ki = A.Value(offset+iConn);
-            const Int owner = C.RowOwner(i);
+            const int owner = C.RowOwner(i);
             for( Int jConn=0; jConn<numConn; ++jConn )
             {
                 const Int j = A.Col(offset+jConn);

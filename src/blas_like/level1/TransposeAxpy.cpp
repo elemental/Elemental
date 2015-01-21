@@ -158,7 +158,7 @@ void TransposeAxpy
     for( Int k=0; k<A.NumLocalEntries(); ++k )
     {
         const Int j = A.Col(k);
-        const Int owner = B.RowOwner(j);
+        const int owner = B.RowOwner(j);
         const Int s = offsets[owner];
         sSendBuf[s] = j;
         tSendBuf[s] = A.Row(k);
