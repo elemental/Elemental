@@ -345,7 +345,7 @@ main( int argc, char* argv[] )
         const double solveStart = mpi::Time();
         DistNodalMatrix<C> yNodal;
         yNodal.Pull( inverseMap, info, y );
-        Solve( info, frontTree, yNodal );
+        ldl::SolveAfter( info, frontTree, yNodal );
         yNodal.Push( inverseMap, info, y );
         mpi::Barrier( comm );
         const double solveStop = mpi::Time();

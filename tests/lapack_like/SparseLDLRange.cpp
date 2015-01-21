@@ -291,7 +291,7 @@ main( int argc, char* argv[] )
                     YNodal.Pull( inverseMap, info, Y );
                     mpi::Barrier( comm );
                     solveStart = mpi::Time();
-                    Solve( info, frontTree, YNodal );
+                    ldl::SolveAfter( info, frontTree, YNodal );
                     mpi::Barrier( comm );
                     solveStop = mpi::Time();
                     YNodal.Push( inverseMap, info, Y );
@@ -302,7 +302,7 @@ main( int argc, char* argv[] )
                     YNodal.Pull( inverseMap, info, Y );
                     mpi::Barrier( comm );
                     solveStart = mpi::Time();
-                    Solve( info, frontTree, YNodal );
+                    ldl::SolveAfter( info, frontTree, YNodal );
                     mpi::Barrier( comm );
                     solveStop = mpi::Time();
                     YNodal.Push( inverseMap, info, Y );

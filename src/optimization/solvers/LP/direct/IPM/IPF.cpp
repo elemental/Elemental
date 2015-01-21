@@ -664,7 +664,7 @@ void IPF
 
             // Compute the proposed step
             // -------------------------
-            SolveWithIterativeRefinement
+            ldl::SolveWithIterativeRefinement
             ( J, invMap, info, JFrontTree, dy, 
               minReductionFactor, maxRefineIts );
             ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );

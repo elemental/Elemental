@@ -33,7 +33,7 @@ Int RegularizedSolveAfter
     DistMultiVec<F> x(comm);
     DistNodalMultiVec<F> xNodal;
     xNodal.Pull( invMap, info, b );
-    Solve( info, AFact, xNodal );
+    ldl::SolveAfter( info, AFact, xNodal );
     xNodal.Push( invMap, info, x );
 
     Int refineIt = 0;
@@ -52,7 +52,7 @@ Int RegularizedSolveAfter
             // Compute the proposed update to the solution
             // -------------------------------------------
             xNodal.Pull( invMap, info, b );
-            Solve( info, AFact, xNodal );
+            ldl::SolveAfter( info, AFact, xNodal );
             xNodal.Push( invMap, info, dx );
             xCand = x;
             Axpy( F(1), dx, xCand );

@@ -136,6 +136,13 @@ void LDL
   AbstractDistMatrix<Int>& p, bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
+// All fronts of L are required to be initialized to the expansions of the 
+// original sparse matrix before calling LDL.
+template<typename F>
+void LDL
+( DistSymmInfo& info, DistSymmFrontTree<F>& L,
+  SymmFrontType newFrontType=LDL_2D );
+
 namespace ldl {
 
 // Compute the inertia triplet of a Hermitian matrix's LDL^H factorization
@@ -174,6 +181,22 @@ template<typename F>
 void SolveAfter
 ( const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, bool conjugated );
 
+template<typename F>
+void SolveAfter
+( const DistSymmInfo& info,
+  const DistSymmFrontTree<F>& AFact, DistNodalMultiVec<F>& X );
+template<typename F>
+void SolveAfter
+( const DistSymmInfo& info,
+  const DistSymmFrontTree<F>& AFact, DistNodalMatrix<F>& X );
+
+template<typename F>
+Int SolveWithIterativeRefinement
+( const DistSparseMatrix<F>& A,
+  const DistMap& invMap, const DistSymmInfo& info,
+  const DistSymmFrontTree<F>& AFact, DistMultiVec<F>& y,
+  Base<F> minReductionFactor=2, Int maxRefineIts=10 );
+
 // Solve linear system with the implicit representations of L, D, and P
 // --------------------------------------------------------------------
 template<typename F>
@@ -183,7 +206,8 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& dSub,
-  const AbstractDistMatrix<Int>& p, AbstractDistMatrix<F>& B, bool conjugated );
+  const AbstractDistMatrix<Int>& p, AbstractDistMatrix<F>& B, 
+  bool conjugated );
 
 } // namespace ldl
 

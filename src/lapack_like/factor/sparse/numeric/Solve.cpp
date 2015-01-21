@@ -13,12 +13,14 @@ using namespace El;
 
 namespace El {
 
+namespace ldl {
+
 template<typename F>
-void Solve
+void SolveAfter
 ( const DistSymmInfo& info, 
   const DistSymmFrontTree<F>& L, DistNodalMultiVec<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("Solve"))
+    DEBUG_ONLY(CallStackEntry cse("ldl::SolveAfter"))
     if( !FrontsAre1d(L.frontType) )
         LogicError("Invalid front type for 1D solve");
     const Orientation orientation = ( L.isHermitian ? ADJOINT : TRANSPOSE );
@@ -41,11 +43,11 @@ void Solve
 }
 
 template<typename F>
-void Solve
+void SolveAfter
 ( const DistSymmInfo& info, 
   const DistSymmFrontTree<F>& L, DistNodalMatrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("Solve"))
+    DEBUG_ONLY(CallStackEntry cse("ldl::SolveAfter"))
     if( FrontsAre1d(L.frontType) )
         LogicError("Invalid front type for 2D solve");
     const Orientation orientation = ( L.isHermitian ? ADJOINT : TRANSPOSE );
@@ -74,7 +76,7 @@ Int SolveWithIterativeRefinement
   const DistSymmFrontTree<F>& AFact, DistMultiVec<F>& y,
   Base<F> minReductionFactor, Int maxRefineIts )
 {
-    DEBUG_ONLY(CallStackEntry cse("IterativeRefinement"))
+    DEBUG_ONLY(CallStackEntry cse("ldl::SolveWithIterativeRefinement"))
     mpi::Comm comm = y.Comm();
 
     DistMultiVec<F> yOrig(comm);
@@ -85,7 +87,7 @@ Int SolveWithIterativeRefinement
     DistMultiVec<F> x(comm);
     DistNodalMultiVec<F> xNodal;
     xNodal.Pull( invMap, info, y );
-    Solve( info, AFact, xNodal );
+    SolveAfter( info, AFact, xNodal );
     xNodal.Push( invMap, info, x );
 
     Int refineIt = 0;
@@ -99,7 +101,7 @@ Int SolveWithIterativeRefinement
             // Compute the proposed update to the solution
             // -------------------------------------------
             xNodal.Pull( invMap, info, y );
-            Solve( info, AFact, xNodal );
+            SolveAfter( info, AFact, xNodal );
             xNodal.Push( invMap, info, dx );
             xCand = x;
             Axpy( F(1), dx, xCand );
@@ -130,6 +132,8 @@ Int SolveWithIterativeRefinement
     return refineIt;
 }
 
+} // namespace ldl
+
 // TODO: Add iterative refinement parameter
 template<typename F>
 void SymmetricSolve
@@ -146,9 +150,15 @@ void SymmetricSolve
     DistSymmFrontTree<F> frontTree( A, map, sepTree, info, conjugate );
     LDL( info, frontTree, LDL_INTRAPIV_1D );
 
+    // TODO: Extend ldl::SolveWithIterativeRefinement to support multiple
+    //       right-hand sides
+    /*
+    ldl::SolveWithIterativeRefinement
+    ( A, inverseMap, info, frontTree, X, minReductionFactor, maxRefineIts );
+    */
     DistNodalMultiVec<F> XNodal;
     XNodal.Pull( inverseMap, info, X );
-    Solve( info, frontTree, XNodal );
+    ldl::SolveAfter( info, frontTree, XNodal );
     XNodal.Push( inverseMap, info, X );
 }
 
@@ -162,23 +172,23 @@ void HermitianSolve
 }
 
 #define PROTO(F) \
-  template void Solve \
-  ( const DistSymmInfo& info, \
-    const DistSymmFrontTree<F>& L, DistNodalMultiVec<F>& X ); \
-  template void Solve \
-  ( const DistSymmInfo& info, \
-    const DistSymmFrontTree<F>& L, DistNodalMatrix<F>& X ); \
-  template Int SolveWithIterativeRefinement \
-  ( const DistSparseMatrix<F>& A, \
-    const DistMap& invMap, const DistSymmInfo& info, \
-    const DistSymmFrontTree<F>& AFact, DistMultiVec<F>& y, \
-    Base<F> minReductionFactor, Int maxRefineIts ); \
   template void SymmetricSolve \
   ( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, bool conjugate, \
     const BisectCtrl& ctrl ); \
   template void HermitianSolve \
   ( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, \
-    const BisectCtrl& ctrl );
+    const BisectCtrl& ctrl ); \
+  template void ldl::SolveAfter \
+  ( const DistSymmInfo& info, \
+    const DistSymmFrontTree<F>& L, DistNodalMultiVec<F>& X ); \
+  template void ldl::SolveAfter \
+  ( const DistSymmInfo& info, \
+    const DistSymmFrontTree<F>& L, DistNodalMatrix<F>& X ); \
+  template Int ldl::SolveWithIterativeRefinement \
+  ( const DistSparseMatrix<F>& A, \
+    const DistMap& invMap, const DistSymmInfo& info, \
+    const DistSymmFrontTree<F>& AFact, DistMultiVec<F>& y, \
+    Base<F> minReductionFactor, Int maxRefineIts );
  
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

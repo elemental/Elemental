@@ -28,23 +28,23 @@ using namespace GemmAlgorithmNS;
 
 template<typename T>
 void Gemm
-( Orientation orientationOfA, Orientation orientationOfB,
+( Orientation orientA, Orientation orientB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C );
 
 template<typename T>
 void Gemm
-( Orientation orientationOfA, Orientation orientationOfB,
+( Orientation orientA, Orientation orientB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C );
 
 template<typename T>
 void Gemm
-( Orientation orientationOfA, Orientation orientationOfB,
+( Orientation orientA, Orientation orientB,
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   T beta,        AbstractDistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT );
 
 template<typename T>
 void Gemm
-( Orientation orientationOfA, Orientation orientationOfB,
+( Orientation orientA, Orientation orientB,
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
                  AbstractDistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT );
 
@@ -444,22 +444,20 @@ void TwoSidedTrsm
 
 // Gemm
 // ====
-template<typename T,Dist AColDist,Dist ARowDist,
-                    Dist BColDist,Dist BRowDist,
-                    Dist CColDist,Dist CRowDist>
+template<typename T>
 inline void LocalGemm
-( Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const DistMatrix<T,AColDist,ARowDist>& A,
-           const DistMatrix<T,BColDist,BRowDist>& B,
-  T beta,        DistMatrix<T,CColDist,CRowDist>& C )
+( Orientation orientA, Orientation orientB,
+  T alpha, const AbstractDistMatrix<T>& A,
+           const AbstractDistMatrix<T>& B,
+  T beta,        AbstractDistMatrix<T>& C )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LocalGemm");
-        if( orientationOfA == NORMAL && orientationOfB == NORMAL )
+        if( orientA == NORMAL && orientB == NORMAL )
         {
-            if( AColDist != CColDist ||
-                ARowDist != BColDist ||
-                BRowDist != CRowDist )
+            if( A.ColDist() != C.ColDist() ||
+                A.RowDist() != B.ColDist() ||
+                B.RowDist() != C.RowDist() )
                 LogicError("C[X,Y] = A[X,Z] B[Z,Y]");
             if( A.ColAlign() != C.ColAlign() )
                 LogicError("A's cols must align with C's rows");
@@ -472,15 +470,15 @@ inline void LocalGemm
                 B.Width() != C.Width() )
                 LogicError
                 ("Nonconformal LocalGemmNN:\n",
-                 "  A ~ ",A.Height()," x ",A.Width(),"\n",
-                 "  B ~ ",B.Height()," x ",B.Width(),"\n",
-                 "  C ~ ",C.Height()," x ",C.Width());
+                 DimsString(A,"A"),"\n",
+                 DimsString(B,"B"),"\n",
+                 DimsString(C,"C"));
         }
-        else if( orientationOfA == NORMAL )
+        else if( orientA == NORMAL )
         {
-            if( AColDist != CColDist ||
-                ARowDist != BRowDist ||
-                BColDist != CRowDist )
+            if( A.ColDist() != C.ColDist() ||
+                A.RowDist() != B.RowDist() ||
+                B.ColDist() != C.RowDist() )
                 LogicError("C[X,Y] = A[X,Z] (B[Y,Z])^(T/H)");
             if( A.ColAlign() != C.ColAlign() )
                 LogicError("A's cols must align with C's rows");
@@ -493,15 +491,15 @@ inline void LocalGemm
                 B.Height() != C.Width() )
                 LogicError
                 ("Nonconformal LocalGemmNT:\n",
-                 "  A ~ ",A.Height()," x ",A.Width(),"\n",
-                 "  B ~ ",B.Height()," x ",B.Width(),"\n",
-                 "  C ~ ",C.Height()," x ",C.Width());
+                 DimsString(A,"A"),"\n",
+                 DimsString(B,"B"),"\n",
+                 DimsString(C,"C"));
         }
-        else if( orientationOfB == NORMAL )
+        else if( orientB == NORMAL )
         {
-            if( ARowDist != CColDist ||
-                AColDist != BColDist ||
-                BRowDist != CRowDist )
+            if( A.RowDist() != C.ColDist() ||
+                A.ColDist() != B.ColDist() ||
+                B.RowDist() != C.RowDist() )
                 LogicError("C[X,Y] = (A[Z,X])^(T/H) B[Z,Y]");
             if( A.RowAlign() != C.ColAlign() )
                 LogicError("A's rows must align with C's cols");
@@ -514,15 +512,15 @@ inline void LocalGemm
                 B.Width() != C.Width() )
                 LogicError
                 ("Nonconformal LocalGemmTN:\n",
-                 "  A ~ ",A.Height()," x ",A.Width(),"\n",
-                 "  B ~ ",B.Height()," x ",B.Width(),"\n",
-                 "  C ~ ",C.Height()," x ",C.Width());
+                 DimsString(A,"A"),"\n",
+                 DimsString(B,"B"),"\n",
+                 DimsString(C,"C"));
         }
         else
         {
-            if( ARowDist != CColDist ||
-                AColDist != BRowDist ||
-                BColDist != CRowDist )
+            if( A.RowDist() != C.ColDist() ||
+                A.ColDist() != B.RowDist() ||
+                B.ColDist() != C.RowDist() )
                 LogicError("C[X,Y] = (A[Z,X])^(T/H) (B[Y,Z])^(T/H)");
             if( A.RowAlign() != C.ColAlign() )
                 LogicError("A's rows must align with C's cols");
@@ -535,49 +533,48 @@ inline void LocalGemm
                 B.Height() != C.Width() )
                 LogicError
                 ("Nonconformal LocalGemmTT:\n",
-                 "  A ~ ",A.Height()," x ",A.Width(),"\n",
-                 "  B ~ ",B.Height()," x ",B.Width(),"\n",
-                 "  C ~ ",C.Height()," x ",C.Width());
+                 DimsString(A,"A"),"\n",
+                 DimsString(B,"B"),"\n",
+                 DimsString(C,"C"));
         }
     )
     Gemm
-    ( orientationOfA , orientationOfB,
+    ( orientA , orientB,
       alpha, A.LockedMatrix(), B.LockedMatrix(), beta, C.Matrix() );
 }
 
-template<typename T,Dist AColDist,Dist ARowDist,
-                    Dist BColDist,Dist BRowDist,
-                    Dist CColDist,Dist CRowDist>
+template<typename T>
 inline void LocalGemm
-( Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const DistMatrix<T,AColDist,ARowDist>& A,
-           const DistMatrix<T,BColDist,BRowDist>& B,
-                 DistMatrix<T,CColDist,CRowDist>& C )
+( Orientation orientA, Orientation orientB,
+  T alpha, const AbstractDistMatrix<T>& A,
+           const AbstractDistMatrix<T>& B,
+                 AbstractDistMatrix<T>& C )
 {
     DEBUG_ONLY(CallStackEntry cse("LocalGemm"))
-    const Int m = ( orientationOfA==NORMAL ? A.Height() : A.Width() );
-    const Int n = ( orientationOfB==NORMAL ? B.Width() : B.Height() );
+    const Int m = ( orientA==NORMAL ? A.Height() : A.Width() );
+    const Int n = ( orientB==NORMAL ? B.Width() : B.Height() );
     Zeros( C, m, n );
-    LocalGemm( orientationOfA, orientationOfB, alpha, A, B, T(0), C );
+    LocalGemm( orientA, orientB, alpha, A, B, T(0), C );
 }
 
 // MultiShiftQuasiTrsm
 // ===================
-template<typename F,Dist shiftColDist,
-                    Dist     XColDist,Dist XRowDist>
+template<typename F>
 inline void
 LocalMultiShiftQuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
   F alpha, const DistMatrix<F,STAR,STAR>& A,
-           const DistMatrix<F,shiftColDist,STAR    >& shifts,
-                 DistMatrix<F,    XColDist,XRowDist>& X )
+           const AbstractDistMatrix<F>& shifts,
+                 AbstractDistMatrix<F>& X )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LocalMultiShiftQuasiTrsm");
-        if( (side == LEFT &&  (     XColDist != STAR ||
-                                shiftColDist != XRowDist) ) ||
-            (side == RIGHT && (     XRowDist != STAR ||
-                                shiftColDist != XColDist) ) )
+        if( shifts.RowDist() != STAR )
+            LogicError("shifts must only be distributed within columns");
+        if( (side == LEFT &&  ( X.ColDist() != STAR ||
+                                shifts.ColDist() != X.RowDist()) ) ||
+            (side == RIGHT && ( X.RowDist() != STAR ||
+                                shifts.ColDist() != X.ColDist()) ) )
             LogicError
             ("Dist of RHS and shifts must conform with that of triangle");
     )
@@ -586,23 +583,27 @@ LocalMultiShiftQuasiTrsm
       alpha, A.LockedMatrix(), shifts.LockedMatrix(), X.Matrix() );
 }
 
-template<typename Real,Dist shiftColDist,
-                       Dist     XColDist,Dist XRowDist>
+template<typename Real>
 inline void
 LocalMultiShiftQuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
   Complex<Real> alpha,
-  const DistMatrix<Real,         STAR,        STAR    >& A,
-  const DistMatrix<Complex<Real>,shiftColDist,STAR    >& shifts,
-        DistMatrix<Real,             XColDist,XRowDist>& XReal,
-        DistMatrix<Real,             XColDist,XRowDist>& XImag )
+  const DistMatrix<Real,STAR,STAR>& A,
+  const AbstractDistMatrix<Complex<Real>>& shifts,
+        AbstractDistMatrix<Real>& XReal,
+        AbstractDistMatrix<Real>& XImag )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LocalMultiShiftQuasiTrsm");
-        if( (side == LEFT &&  (     XColDist != STAR ||
-                                shiftColDist != XRowDist) ) ||
-            (side == RIGHT && (     XRowDist != STAR ||
-                                shiftColDist != XColDist) ) )
+        if( shifts.RowDist() != STAR )
+            LogicError("shifts must only be distributed within columns");
+        if( XReal.ColDist() != XImag.ColDist() ||
+            XReal.RowDist() != XImag.RowDist() )
+            LogicError("XReal and XImag must have the same distribution");
+        if( (side == LEFT &&  ( XReal.ColDist() != STAR ||
+                                shifts.ColDist() != XReal.RowDist()) ) ||
+            (side == RIGHT && ( XReal.RowDist() != STAR ||
+                                shifts.ColDist() != XReal.ColDist()) ) )
             LogicError
             ("Dist of RHS and shifts must conform with that of triangle");
     )
@@ -614,19 +615,19 @@ LocalMultiShiftQuasiTrsm
 
 // QuasiTrsm
 // =========
-template<typename F,Dist XColDist,Dist XRowDist>
+template<typename F>
 inline void
 LocalQuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation,
   F alpha, const DistMatrix<F,STAR,STAR>& A,
-                 DistMatrix<F,XColDist,XRowDist>& X,
+                 AbstractDistMatrix<F>& X,
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LocalQuasiTrsm");
-        if( (side == LEFT && XColDist != STAR) ||
-            (side == RIGHT && XRowDist != STAR) )
+        if( (side == LEFT && X.ColDist() != STAR) ||
+            (side == RIGHT && X.RowDist() != STAR) )
             LogicError
             ("Dist of RHS must conform with that of triangle");
     )
@@ -658,17 +659,17 @@ LocalTrdtrmm
 
 // Trmm
 // ====
-template<typename T,Dist BColDist,Dist BRowDist>
+template<typename T>
 inline void LocalTrmm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
   T alpha, const DistMatrix<T,STAR,STAR>& A,
-                 DistMatrix<T,BColDist,BRowDist>& B )
+                 AbstractDistMatrix<T>& B )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrmm");
-        if( (side == LEFT && BColDist != STAR) ||
-            (side == RIGHT && BRowDist != STAR) )
+        if( (side == LEFT && B.ColDist() != STAR) ||
+            (side == RIGHT && B.RowDist() != STAR) )
             LogicError
             ("Dist of RHS must conform with that of triangle");
     )
@@ -681,13 +682,13 @@ inline void LocalTrmm
 template<typename T>
 void Trrk
 ( UpperOrLower uplo, 
-  Orientation orientationOfA, Orientation orientationOfB,
+  Orientation orientA, Orientation orientB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
   T beta,        Matrix<T>& C );
 template<typename T>
 void Trrk
 ( UpperOrLower uplo, 
-  Orientation orientationOfA, Orientation orientationOfB,
+  Orientation orientA, Orientation orientB,
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   T beta,        AbstractDistMatrix<T>& C );
 template<typename T>
@@ -699,21 +700,21 @@ void LocalTrrk
 template<typename T>
 void LocalTrrk
 ( UpperOrLower uplo,
-  Orientation orientationOfB,
+  Orientation orientB,
   T alpha, const DistMatrix<T,MC,STAR>& A,
            const DistMatrix<T,MR,STAR>& B,
   T beta,        DistMatrix<T>& C );
 template<typename T>
 void LocalTrrk
 ( UpperOrLower uplo,
-  Orientation orientationOfA,
+  Orientation orientA,
   T alpha, const DistMatrix<T,STAR,MC>& A,
            const DistMatrix<T,STAR,MR>& B,
   T beta,        DistMatrix<T,MC,  MR>& C );
 template<typename T>
 void LocalTrrk
 ( UpperOrLower uplo,
-  Orientation orientationOfA, Orientation orientationOfB,
+  Orientation orientA, Orientation orientB,
   T alpha, const DistMatrix<T,STAR,MC  >& A,
            const DistMatrix<T,MR,  STAR>& B,
   T beta,        DistMatrix<T,MC,  MR  >& C );
@@ -724,8 +725,8 @@ void LocalTrrk
 template<typename T>
 void Trr2k
 ( UpperOrLower uplo, 
-  Orientation orientationOfA, Orientation orientationOfB,
-  Orientation orientationOfC, Orientation orientationOfD,
+  Orientation orientA, Orientation orientB,
+  Orientation orientC, Orientation orientD,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
   T beta,  const Matrix<T>& C, const Matrix<T>& D,
   Tgamma,        Matrix<T>& E );
@@ -733,8 +734,8 @@ void Trr2k
 template<typename T>
 void Trr2k
 ( UpperOrLower uplo,
-  Orientation orientationOfA, Orientation orientationOfB,
-  Orientation orientationOfC, Orientation orientationOfD,
+  Orientation orientA, Orientation orientB,
+  Orientation orientC, Orientation orientD,
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
   T gamma,       AbstractDistMatrix<T>& E );
@@ -743,27 +744,27 @@ void Trr2k
 template<typename T>
 void LocalTrr2k
 ( UpperOrLower uplo,
-  Orientation orientationOfA, Orientation orientationOfB,
-  Orientation orientationOfC, Orientation orientationOfD,
+  Orientation orientA, Orientation orientB,
+  Orientation orientC, Orientation orientD,
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
   T gamma,       AbstractDistMatrix<T>& E );
 
 // Trsm
 // ====
-template<typename F,Dist XColDist,Dist XRowDist>
+template<typename F>
 inline void
 LocalTrsm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
   F alpha, const DistMatrix<F,STAR,STAR>& A,
-                 DistMatrix<F,XColDist,XRowDist>& X,
+                 AbstractDistMatrix<F>& X,
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrsm");
-        if( (side == LEFT && XColDist != STAR) ||
-            (side == RIGHT && XRowDist != STAR) )
+        if( (side == LEFT && X.ColDist() != STAR) ||
+            (side == RIGHT && X.RowDist() != STAR) )
             LogicError
             ("Dist of RHS must conform with that of triangle");
     )
@@ -774,21 +775,23 @@ LocalTrsm
 }
 
 // TODO: Find a better name and/or home for this utility function
-template<typename F,Dist colDist>
+template<typename F>
 inline void AddInLocalData
-( const DistMatrix<F,colDist,STAR>& X1, DistMatrix<F,STAR,STAR>& Z )
+( const AbstractDistMatrix<F>& X, DistMatrix<F,STAR,STAR>& Z )
 {
     DEBUG_ONLY(CallStackEntry cse("AddInLocalData"))
-    const Int width = X1.Width();
-    const Int localHeight = X1.LocalHeight();
-    const Int stride = X1.ColStride();
-    const Int offset = X1.ColShift();
+    if( X.RowDist() != STAR )
+        LogicError("X can only be distributed within columns");
+    const Int width = X.Width();
+    const Int localHeight = X.LocalHeight();
+    const Int stride = X.ColStride();
+    const Int offset = X.ColShift();
     for( Int j=0; j<width; ++j )
     {
         F* ZColBuffer = Z.Buffer(0,j);
-        const F* X1ColBuffer = X1.LockedBuffer(0,j);
+        const F* XColBuffer = X.LockedBuffer(0,j);
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            ZColBuffer[offset+stride*iLoc] += X1ColBuffer[iLoc];
+            ZColBuffer[offset+stride*iLoc] += XColBuffer[iLoc];
     }
 }
 

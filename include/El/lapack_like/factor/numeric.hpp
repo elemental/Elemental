@@ -313,6 +313,11 @@ struct DistSymmFrontTree
 template<typename F>
 void ChangeFrontType( DistSymmFrontTree<F>& L, SymmFrontType frontType );
 
+// TODO: Decide if this interface needs to be exposed
+template<typename T>
+void InitializeDistLeaf( const DistSymmInfo& info, DistSymmFrontTree<T>& L );
+
+// TODO: Move into BLAS3?
 template<typename F>
 void DiagonalSolve
 ( const DistSymmInfo& info, const DistSymmFrontTree<F>& L,
@@ -322,25 +327,7 @@ void DiagonalSolve
 ( const DistSymmInfo& info, const DistSymmFrontTree<F>& L,
   DistNodalMatrix<F>& X );
 
-// All fronts of L are required to be initialized to the expansions of the 
-// original sparse matrix before calling LDL.
-template<typename F>
-void LDL
-( DistSymmInfo& info, DistSymmFrontTree<F>& L,
-  SymmFrontType newFrontType=LDL_2D );
-
-// TODO: Decide if this interface needs to be exposed
-template<typename T>
-void InitializeDistLeaf( const DistSymmInfo& info, DistSymmFrontTree<T>& L );
-
-// TODO: Reformat and rename to Trmm
-template<typename T>
-void LowerMultiply
-( Orientation orientation, Int diagOffset,
-  const DistSymmInfo& info, const DistSymmFrontTree<T>& L,
-  DistNodalMultiVec<T>& X );
-
-// TODO: Reformat and rename to Trsm
+// TODO: Rename to Trsm and move to BLAS3?
 template<typename F>
 void LowerSolve
 ( Orientation orientation, const DistSymmInfo& info,
@@ -349,23 +336,6 @@ template<typename F>
 void LowerSolve
 ( Orientation orientation, const DistSymmInfo& info,
   const DistSymmFrontTree<F>& L, DistNodalMatrix<F>& X );
-
-// TODO: Reformat and rename to ldl::SolveAfter
-template<typename F>
-void Solve
-( const DistSymmInfo& info,
-  const DistSymmFrontTree<F>& AFact, DistNodalMultiVec<F>& X );
-template<typename F>
-void Solve
-( const DistSymmInfo& info,
-  const DistSymmFrontTree<F>& AFact, DistNodalMatrix<F>& X );
-
-template<typename F>
-Int SolveWithIterativeRefinement
-( const DistSparseMatrix<F>& A,
-  const DistMap& invMap, const DistSymmInfo& info,
-  const DistSymmFrontTree<F>& AFact, DistMultiVec<F>& y,
-  Base<F> minReductionFactor=2, Int maxRefineIts=10 );
 
 } // namespace El
 

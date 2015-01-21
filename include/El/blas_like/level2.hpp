@@ -38,14 +38,12 @@ void Gemv
            const AbstractDistMatrix<T>& x,
                  AbstractDistMatrix<T>& y );
 
-template<typename T,Dist AColDist,Dist ARowDist,
-                    Dist xColDist,Dist xRowDist,
-                    Dist yColDist,Dist yRowDist>
+template<typename T>
 inline void LocalGemv
 ( Orientation orientation,
-  T alpha, const DistMatrix<T,AColDist,ARowDist>& A,
-           const DistMatrix<T,xColDist,xRowDist>& x,
-  T beta,        DistMatrix<T,yColDist,yRowDist>& y )
+  T alpha, const AbstractDistMatrix<T>& A,
+           const AbstractDistMatrix<T>& x,
+  T beta,        AbstractDistMatrix<T>& y )
 {
     DEBUG_ONLY(CallStackEntry cse("LocalGemv"))
     // TODO: Add error checking here
@@ -65,13 +63,11 @@ void Ger
 ( T alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y, 
                  AbstractDistMatrix<T>& A );
 
-template<typename T,Dist xColDist,Dist xRowDist,
-                    Dist yColDist,Dist yRowDist,
-                    Dist AColDist,Dist ARowDist>
+template<typename T>
 inline void LocalGer
-( T alpha, const DistMatrix<T,xColDist,xRowDist>& x,
-           const DistMatrix<T,yColDist,yRowDist>& y,
-                 DistMatrix<T,AColDist,ARowDist>& A )
+( T alpha, const AbstractDistMatrix<T>& x,
+           const AbstractDistMatrix<T>& y,
+                 AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("LocalGer"))
     // TODO: Add error checking here

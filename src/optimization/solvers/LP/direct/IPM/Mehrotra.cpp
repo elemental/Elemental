@@ -806,7 +806,7 @@ void Mehrotra
             }
             JFrontTree.Initialize( J, map, sepTree, info );
             LDL( info, JFrontTree, LDL_1D );
-            SolveWithIterativeRefinement
+            ldl::SolveWithIterativeRefinement
             ( J, invMap, info, JFrontTree, dyAff, 
               minReductionFactor, maxRefineIts );
             ExpandNormalSolution( A, c, x, z, rc, rmu, dxAff, dyAff, dzAff );
@@ -912,7 +912,7 @@ void Mehrotra
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
-            SolveWithIterativeRefinement
+            ldl::SolveWithIterativeRefinement
             ( J, invMap, info, JFrontTree, dy, 
               minReductionFactor, maxRefineIts );
             ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
