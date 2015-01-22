@@ -517,7 +517,6 @@ void Var2
             const Int i = A.Row(e); 
             const Int j = A.Col(e);
             const Real value = A.Value(e);
-
             // Sending A
             int owner = AHat.RowOwner(i);
             sSendBuf[offsets[owner]] = i;
@@ -534,7 +533,6 @@ void Var2
             sSendBuf[offsets[owner]] = j+m;
             tSendBuf[offsets[owner]] = i+2*n;
             vSendBuf[offsets[owner]] = value;
-
             ++offsets[owner];
         }
         // Exchange

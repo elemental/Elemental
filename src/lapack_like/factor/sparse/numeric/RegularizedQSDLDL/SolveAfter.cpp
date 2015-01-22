@@ -124,6 +124,7 @@ Int IRSolveAfter
         {
             // Compute the proposed update to the solution
             // -------------------------------------------
+            dx = b;
             RegularizedSolveAfter
             ( A, reg, invMap, info, AFact, dx, 
               minReductionFactor, maxRefineIts, progress );
@@ -401,6 +402,8 @@ Int FGMRESSolveAfter
     DistMultiVec<F> w(comm); 
     w = b;
     const Real origResidNorm = Nrm2( w );
+    if( progress && commRank == 0 )
+        std::cout << "origResidNorm: " << origResidNorm << std::endl;
     if( origResidNorm == Real(0) )
         return 0;
 
@@ -590,18 +593,32 @@ Int SolveAfter
 ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
   const DistMap& invMap,             const DistSymmInfo& info,
   const DistSymmFrontTree<F>& AFact,       DistMultiVec<F>& b,
+  RegQSDRefineAlg refineAlg,
   Base<F> minReductionFactor,              Int maxRefineIts,
   bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::SolveAfter"))
-    // TODO: Allow for switching between Gondzio's approach (no GMRES),
-    //       Boyd's approach (direct iterative refinement from regularized
-    //       all the way to the solution of the unregularized system), my
-    //       original idea (iterative refinement + GMRES), and a (better)
-    //       second idea, (iterative refinement + FGMRES)
-    return FGMRESSolveAfter
-    ( A, reg, invMap, info, AFact, b, 
-      minReductionFactor, maxRefineIts, progress );
+    switch( refineAlg )
+    {
+    case REG_REFINE_FGMRES:
+        return FGMRESSolveAfter
+        ( A, reg, invMap, info, AFact, b, 
+          minReductionFactor, maxRefineIts, progress );
+    case REG_REFINE_LGMRES:
+        return LGMRESSolveAfter
+        ( A, reg, invMap, info, AFact, b, 
+          minReductionFactor, maxRefineIts, progress );
+    case REG_REFINE_IR:
+        return IRSolveAfter
+        ( A, reg, invMap, info, AFact, b, 
+          minReductionFactor, maxRefineIts, progress );
+    case REG_REFINE_IR_MOD:    
+        return RegularizedSolveAfter
+        ( A, reg, invMap, info, AFact, b, 
+          minReductionFactor, maxRefineIts, progress );
+    default:
+        LogicError("Invalid refinement algorithm");
+    }
 }
 
 #define PROTO(F) \
@@ -615,6 +632,7 @@ Int SolveAfter
   ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg, \
     const DistMap& invMap,             const DistSymmInfo& info, \
     const DistSymmFrontTree<F>& AFact,       DistMultiVec<F>& b, \
+    RegQSDRefineAlg refineAlg, \
     Base<F> minReductionFactor,              Int maxRefineIts, \
     bool progress );
 

@@ -16,7 +16,9 @@ namespace reg_qsd_ldl {
 template<typename F> 
 inline void ProcessLocalTree
 ( DistSymmInfo& info, DistSymmFrontTree<F>& L, Base<F> pivTol,
-  const DistNodalMultiVec<Base<F>>& regCand, DistNodalMultiVec<Base<F>>& reg )
+  const DistNodalMultiVec<Base<F>>& regCand, 
+        DistNodalMultiVec<Base<F>>& reg,
+  bool aPriori )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::ProcessLocalTree"))
 
@@ -94,7 +96,8 @@ inline void ProcessLocalTree
         // Call the custom partial LDL
         ProcessFront
         ( frontL, frontBR, pivTol, 
-          regCand.localNodes[s], reg.localNodes[s] );
+          regCand.localNodes[s], reg.localNodes[s],
+          aPriori );
         GetDiagonal( frontL, front.diag );
         FillDiagonal( frontL, F(1) );
     }

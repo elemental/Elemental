@@ -19,6 +19,7 @@ void RegularizedQSDLDL
 ( DistSymmInfo& info, DistSymmFrontTree<F>& L, Base<F> pivTol, 
   const DistNodalMultiVec<Base<F>>& regCand, 
         DistNodalMultiVec<Base<F>>& reg,
+  bool aPriori,
   SymmFrontType newFrontType )
 {
     DEBUG_ONLY(CallStackEntry cse("RegularizedQSDLDL"))
@@ -30,8 +31,8 @@ void RegularizedQSDLDL
 
     // Perform the initial factorization
     L.frontType = InitialFactorType(newFrontType);
-    reg_qsd_ldl::ProcessLocalTree( info, L, pivTol, regCand, reg );
-    reg_qsd_ldl::ProcessDistTree( info, L, pivTol, regCand, reg );
+    reg_qsd_ldl::ProcessLocalTree( info, L, pivTol, regCand, reg, aPriori );
+    reg_qsd_ldl::ProcessDistTree( info, L, pivTol, regCand, reg, aPriori );
 
     // Convert the fronts from the initial factorization to the requested form
     ChangeFrontType( L, newFrontType );
@@ -43,6 +44,7 @@ void RegularizedQSDLDL
     Base<F> pivTol, \
     const DistNodalMultiVec<Base<F>>& regCand, \
           DistNodalMultiVec<Base<F>>& reg, \
+    bool aPriori, \
     SymmFrontType newFrontType );
 
 #define EL_NO_INT_PROTO

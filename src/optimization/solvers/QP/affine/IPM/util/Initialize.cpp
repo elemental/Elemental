@@ -364,6 +364,7 @@ void Initialize
     // =====================================
     DistMultiVec<Real> regCand(comm), reg(comm);
     DistNodalMultiVec<Real> regCandNodal, regNodal;
+    bool aPriori = true;
     const Real epsilon = lapack::MachineEpsilon<Real>();
     const Real pivTol = MaxNorm(J)*epsilon;
     const Real regMagPrimal = Pow(epsilon,Real(0.75));
@@ -392,7 +393,7 @@ void Initialize
     regCandNodal.Pull( invMap, info, regCand );
     regNodal.Pull( invMap, info, reg );
     RegularizedQSDLDL
-    ( info, JFrontTree, pivTol, regCandNodal, regNodal, LDL_1D );
+    ( info, JFrontTree, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
     regNodal.Push( invMap, info, reg );
 
     DistMultiVec<Real> rc(comm), rb(comm), rh(comm), rmu(comm), u(comm),
@@ -419,6 +420,7 @@ void Initialize
 
         reg_qsd_ldl::SolveAfter
         ( J, reg, invMap, info, JFrontTree, d,
+          REG_REFINE_FGMRES,
           minReductionFactor, maxRefineIts, progress );
         ExpandCoreSolution( m, n, k, d, x, u, s );
         Scale( Real(-1), s );
@@ -439,6 +441,7 @@ void Initialize
 
         reg_qsd_ldl::SolveAfter
         ( J, reg, invMap, info, JFrontTree, d,
+          REG_REFINE_FGMRES,
           minReductionFactor, maxRefineIts, progress );
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }

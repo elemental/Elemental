@@ -16,7 +16,8 @@ namespace reg_qsd_ldl {
 template<typename F>
 inline void ProcessFront
 ( Matrix<F>& AL, Matrix<F>& ABR, Base<F> pivTol, 
-  const Matrix<Base<F>>& regCand, Matrix<Base<F>>& reg )
+  const Matrix<Base<F>>& regCand, Matrix<Base<F>>& reg,
+  bool aPriori )
 {
     DEBUG_ONLY(
         CallStackEntry cse("reg_qsd_ldl::ProcessFront");
@@ -47,7 +48,7 @@ inline void ProcessFront
         auto regCand1 = regCand( ind1, IR(0,1) );
         auto reg1 = reg( ind1, IR(0,1) );
 
-        RegularizedQSDLDL( AL11, pivTol, regCand1, reg1 );
+        RegularizedQSDLDL( AL11, pivTol, regCand1, reg1, aPriori );
         GetDiagonal( AL11, d1 );
 
         Trsm( RIGHT, LOWER, ADJOINT, UNIT, F(1), AL11, AL21 );
@@ -67,7 +68,8 @@ template<typename F>
 inline void ProcessFrontGeneral
 ( DistMatrix<F>& AL, DistMatrix<F>& ABR, Base<F> pivTol,
   const DistMatrix<Base<F>,VC,STAR>& regCand, 
-        DistMatrix<Base<F>,VC,STAR>& reg )
+        DistMatrix<Base<F>,VC,STAR>& reg,
+  bool aPriori )
 {
     DEBUG_ONLY(
         CallStackEntry cse("reg_qsd_ldl::ProcessFrontGeneral");
@@ -119,7 +121,8 @@ inline void ProcessFrontGeneral
         reg1_STAR_STAR = reg1;
         RegularizedQSDLDL
         ( AL11_STAR_STAR.Matrix(), pivTol, 
-          regCand1_STAR_STAR.LockedMatrix(), reg1_STAR_STAR.Matrix() );
+          regCand1_STAR_STAR.LockedMatrix(), reg1_STAR_STAR.Matrix(),
+          aPriori );
         GetDiagonal( AL11_STAR_STAR, d1_STAR_STAR );
         AL11 = AL11_STAR_STAR;
         reg1 = reg1_STAR_STAR;
@@ -154,7 +157,8 @@ template<typename F>
 inline void ProcessFrontSquare
 ( DistMatrix<F>& AL, DistMatrix<F>& ABR, Base<F> pivTol, 
   const DistMatrix<Base<F>,VC,STAR>& regCand, 
-        DistMatrix<Base<F>,VC,STAR>& reg )
+        DistMatrix<Base<F>,VC,STAR>& reg,
+  bool aPriori )
 {
     DEBUG_ONLY(
         CallStackEntry cse("reg_qsd_ldl::ProcessFrontSquare");
@@ -224,7 +228,8 @@ inline void ProcessFrontSquare
         reg1_STAR_STAR = reg1;
         RegularizedQSDLDL
         ( AL11_STAR_STAR.Matrix(), pivTol, 
-          regCand1_STAR_STAR.LockedMatrix(), reg1_STAR_STAR.Matrix() );
+          regCand1_STAR_STAR.LockedMatrix(), reg1_STAR_STAR.Matrix(),
+          aPriori );
         GetDiagonal( AL11_STAR_STAR, d1_STAR_STAR );
         AL11 = AL11_STAR_STAR;
         reg1 = reg1_STAR_STAR;
@@ -281,14 +286,15 @@ template<typename F>
 inline void ProcessFront
 ( DistMatrix<F>& AL, DistMatrix<F>& ABR, Base<F> pivTol, 
   const DistMatrix<Base<F>,VC,STAR>& regCand, 
-        DistMatrix<Base<F>,VC,STAR>& reg )
+        DistMatrix<Base<F>,VC,STAR>& reg,
+  bool aPriori )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::ProcessFront"))
     const Grid& grid = AL.Grid();
     if( grid.Height() == grid.Width() )
-        ProcessFrontSquare( AL, ABR, pivTol, regCand, reg );
+        ProcessFrontSquare( AL, ABR, pivTol, regCand, reg, aPriori );
     else
-        ProcessFrontGeneral( AL, ABR, pivTol, regCand, reg );
+        ProcessFrontGeneral( AL, ABR, pivTol, regCand, reg, aPriori );
 }
 
 } // namespace reg_qsd_ldl

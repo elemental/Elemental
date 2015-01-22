@@ -453,7 +453,7 @@ void IPF
     regCand.Resize( m+2*n, 1 );
     for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
     {
-        const Int i = regCand.FirstLocalRow() + iLoc;
+        const Int i = regCand.GlobalRow(iLoc);
         if( i < n )
             regCand.SetLocal( iLoc, 0, regMagPrimal );
         else if( i < n+m )
@@ -543,6 +543,7 @@ void IPF
 
         const Real minReductionFactor = 2;
         const Int maxRefineIts = 50;
+        bool aPriori = true;
         {
             // TODO: Add default regularization
             KKT( Q, A, G, s, z, J, false );
@@ -562,11 +563,13 @@ void IPF
             regCandNodal.Pull( invMap, info, regCand );
             regNodal.Pull( invMap, info, reg );
             RegularizedQSDLDL
-            ( info, JFrontTree, pivTol, regCandNodal, regNodal, LDL_1D );
+            ( info, JFrontTree, pivTol, regCandNodal, regNodal, 
+              aPriori, LDL_1D );
             regNodal.Push( invMap, info, reg );
 
             const Int numLargeRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFrontTree, d, 
+              REG_REFINE_FGMRES,
               minReductionFactor, maxRefineIts, ctrl.print );
             if( numLargeRefines > 3 && !increasedReg )
             {

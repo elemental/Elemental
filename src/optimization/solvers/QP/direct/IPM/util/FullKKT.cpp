@@ -248,8 +248,8 @@ void KKT
     }
     // Jzz := -z <> x
     // --------------
-    for( Int e=0; e<x.LocalHeight(); ++e )
-        ++sendCounts[ J.RowOwner( m+n+e+x.FirstLocalRow() ) ];
+    for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
+        ++sendCounts[ J.RowOwner( m+n + x.GlobalRow(iLoc) ) ];
     // Communicate to determine the number we receive from each process
     // ----------------------------------------------------------------
     std::vector<int> recvCounts(commSize);
@@ -310,11 +310,11 @@ void KKT
     }
     // Pack -z <> x
     // ------------
-    for( Int e=0; e<x.LocalHeight(); ++e )
+    for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
     {
-        const Int i = m + n + e + x.FirstLocalRow();
+        const Int i = m+n + x.GlobalRow(iLoc);
         const Int j = i;
-        const Real value = -x.GetLocal(e,0)/z.GetLocal(e,0);
+        const Real value = -x.GetLocal(iLoc,0)/z.GetLocal(iLoc,0);
         const int owner = J.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         tSendBuf[offsets[owner]] = j;
@@ -343,7 +343,7 @@ void KKT
     Int negIdentUpdates = 0;
     for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
     {
-        const Int i = iLoc + J.FirstLocalRow();
+        const Int i = J.GlobalRow(iLoc);
         if( i < n && !onlyLower )
             ++negIdentUpdates;
         else if( i >= n+m )
@@ -356,7 +356,7 @@ void KKT
     // ------------------------------------------
     for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
     {
-        const Int i = iLoc + J.FirstLocalRow();
+        const Int i = J.GlobalRow(iLoc);
         if( i < n && !onlyLower )
             J.QueueLocalUpdate( iLoc, i+(n+m), Real(-1) );
         else if( i >= n+m )
@@ -440,12 +440,12 @@ void KKTRHS
     // Compute the number of entries to send/recv from each process
     // ============================================================
     std::vector<int> sendCounts(commSize,0);
-    for( Int e=0; e<rc.LocalHeight(); ++e )
-        ++sendCounts[ d.RowOwner( e+rc.FirstLocalRow() ) ];
-    for( Int e=0; e<rb.LocalHeight(); ++e )
-        ++sendCounts[ d.RowOwner( n+e+rb.FirstLocalRow() ) ];
-    for( Int e=0; e<rmu.LocalHeight(); ++e )
-        ++sendCounts[ d.RowOwner( n+m+e+rmu.FirstLocalRow() ) ];
+    for( Int iLoc=0; iLoc<rc.LocalHeight(); ++iLoc )
+        ++sendCounts[ d.RowOwner( rc.GlobalRow(iLoc) ) ];
+    for( Int iLoc=0; iLoc<rb.LocalHeight(); ++iLoc )
+        ++sendCounts[ d.RowOwner( n + rb.GlobalRow(iLoc) ) ];
+    for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
+        ++sendCounts[ d.RowOwner( n+m + rmu.GlobalRow(iLoc) ) ];
     std::vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
     std::vector<int> sendOffsets, recvOffsets;
@@ -454,31 +454,31 @@ void KKTRHS
 
     // Pack the doublets
     // =================
-    std::vector<int> sSendBuf(totalSend);
+    std::vector<Int> sSendBuf(totalSend);
     std::vector<Real> vSendBuf(totalSend);
     auto offsets = sendOffsets;
-    for( Int e=0; e<rc.LocalHeight(); ++e )
+    for( Int iLoc=0; iLoc<rc.LocalHeight(); ++iLoc )
     {
-        const Int i = e + rc.FirstLocalRow();
-        const Real value = -rc.GetLocal(e,0);
+        const Int i = rc.GlobalRow(iLoc);
+        const Real value = -rc.GetLocal(iLoc,0);
         const int owner = d.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         vSendBuf[offsets[owner]] = value;
         ++offsets[owner];
     }
-    for( Int e=0; e<rb.LocalHeight(); ++e )
+    for( Int iLoc=0; iLoc<rb.LocalHeight(); ++iLoc )
     {
-        const Int i = n + e + rb.FirstLocalRow();
-        const Real value = -rb.GetLocal(e,0);
+        const Int i = n + rb.GlobalRow(iLoc);
+        const Real value = -rb.GetLocal(iLoc,0);
         const int owner = d.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         vSendBuf[offsets[owner]] = value;
         ++offsets[owner];
     }
-    for( Int e=0; e<rmu.LocalHeight(); ++e )
+    for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
     {
-        const Int i = n + m + e + rmu.FirstLocalRow();
-        const Real value = rmu.GetLocal(e,0)/z.GetLocal(e,0);
+        const Int i = n+m + rmu.GlobalRow(iLoc);
+        const Real value = rmu.GetLocal(iLoc,0)/z.GetLocal(iLoc,0);
         const int owner = d.RowOwner(i);
         sSendBuf[offsets[owner]] = i;
         vSendBuf[offsets[owner]] = value;
@@ -487,7 +487,7 @@ void KKTRHS
 
     // Exchange and unpack the doublets
     // ================================
-    std::vector<int> sRecvBuf(totalRecv);
+    std::vector<Int> sRecvBuf(totalRecv);
     std::vector<Real> vRecvBuf(totalRecv);
     mpi::AllToAll
     ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),

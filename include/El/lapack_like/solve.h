@@ -28,7 +28,19 @@ EL_EXPORT ElError ElLinearSolveDist_d( ElDistMatrix_d A, ElDistMatrix_d B );
 EL_EXPORT ElError ElLinearSolveDist_c( ElDistMatrix_c A, ElDistMatrix_c B );
 EL_EXPORT ElError ElLinearSolveDist_z( ElDistMatrix_z A, ElDistMatrix_z B );
 
-/* TODO: Sparse equivalents */
+EL_EXPORT ElError ElLinearSolveSparse_s( ElSparseMatrix_s A, ElMatrix_s B );
+EL_EXPORT ElError ElLinearSolveSparse_d( ElSparseMatrix_d A, ElMatrix_d B );
+EL_EXPORT ElError ElLinearSolveSparse_c( ElSparseMatrix_c A, ElMatrix_c B );
+EL_EXPORT ElError ElLinearSolveSparse_z( ElSparseMatrix_z A, ElMatrix_z B );
+
+EL_EXPORT ElError ElLinearSolveDistSparse_s
+( ElDistSparseMatrix_s A, ElDistMultiVec_s B );
+EL_EXPORT ElError ElLinearSolveDistSparse_d
+( ElDistSparseMatrix_d A, ElDistMultiVec_d B );
+EL_EXPORT ElError ElLinearSolveDistSparse_c
+( ElDistSparseMatrix_c A, ElDistMultiVec_c B );
+EL_EXPORT ElError ElLinearSolveDistSparse_z
+( ElDistSparseMatrix_z A, ElDistMultiVec_z B );
 
 /* General Linear Model
    ==================== */

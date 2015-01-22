@@ -16,7 +16,8 @@ inline void
 Var3Unb
 ( Matrix<F>& A, Base<F> pivTol, 
   const Matrix<Base<F>>& regCand, 
-        Matrix<Base<F>>& reg )
+        Matrix<Base<F>>& reg,
+  bool aPriori )
 {
     DEBUG_ONLY(
         CallStackEntry cse("reg_qsd_ldl::Var3Unb");
@@ -39,7 +40,7 @@ Var3Unb
         alpha11 += reg.Get(j,0);
         const Real rho = regCand.Get(j,0);
         const Real sign = rho/Abs(rho);
-        if( sign*alpha11 <= pivTol )
+        if( aPriori || sign*alpha11 <= pivTol )
         {
             reg.Update( j, 0, rho );
             alpha11 += rho;
@@ -68,7 +69,8 @@ inline void
 Var3
 ( Matrix<F>& A, Base<F> pivTol, 
   const Matrix<Base<F>>& regCand, 
-        Matrix<Base<F>>& reg )
+        Matrix<Base<F>>& reg,
+  bool aPriori )
 {
     DEBUG_ONLY(
         CallStackEntry cse("reg_qsd_ldl::Var3");
@@ -93,7 +95,7 @@ Var3
         auto regCand1 = regCand( ind1, IR(0,1) );
         auto reg1 = reg( ind1, IR(0,1) );
 
-        Var3Unb( A11, pivTol,regCand1, reg1 );
+        Var3Unb( A11, pivTol,regCand1, reg1, aPriori );
         GetDiagonal( A11, d1 );
         Trsm( RIGHT, LOWER, ADJOINT, UNIT, F(1), A11, A21 );
         S21 = A21;
@@ -107,7 +109,8 @@ inline void
 Var3
 ( AbstractDistMatrix<F>& APre, Base<F> pivTol,
   const AbstractDistMatrix<Base<F>>& regCandPre, 
-        AbstractDistMatrix<Base<F>>& regPre )
+        AbstractDistMatrix<Base<F>>& regPre,
+  bool aPriori )
 {
     DEBUG_ONLY(
         CallStackEntry cse("reg_qsd_ldl::Var3");
@@ -158,7 +161,8 @@ Var3
         reg1_STAR_STAR = reg1;
         RegularizedQSDLDL
         ( A11_STAR_STAR.Matrix(), pivTol, 
-          regCand1_STAR_STAR.LockedMatrix(), reg1_STAR_STAR.Matrix() );
+          regCand1_STAR_STAR.LockedMatrix(), reg1_STAR_STAR.Matrix(),
+          aPriori );
         GetDiagonal( A11_STAR_STAR, d1_STAR_STAR );
         A11 = A11_STAR_STAR;
         reg1 = reg1_STAR_STAR;
@@ -190,31 +194,35 @@ template<typename F>
 void RegularizedQSDLDL
 ( Matrix<F>& A, Base<F> pivTol,
   const Matrix<Base<F>>& regCand, 
-        Matrix<Base<F>>& reg )
+        Matrix<Base<F>>& reg,
+  bool aPriori )
 {
     DEBUG_ONLY(CallStackEntry cse("RegularizedQSDLDL"))
-    reg_qsd_ldl::Var3( A, pivTol, regCand, reg );
+    reg_qsd_ldl::Var3( A, pivTol, regCand, reg, aPriori );
 }
 
 template<typename F>
 void RegularizedQSDLDL
 ( AbstractDistMatrix<F>& A, Base<F> pivTol,
   const AbstractDistMatrix<Base<F>>& regCand, 
-        AbstractDistMatrix<Base<F>>& reg )
+        AbstractDistMatrix<Base<F>>& reg,
+  bool aPriori )
 {
     DEBUG_ONLY(CallStackEntry cse("RegularizedQSDLDL"))
-    reg_qsd_ldl::Var3( A, pivTol, regCand, reg );
+    reg_qsd_ldl::Var3( A, pivTol, regCand, reg, aPriori );
 }
 
 #define PROTO(F) \
   template void RegularizedQSDLDL \
   ( Matrix<F>& A, Base<F> pivTol, \
     const Matrix<Base<F>>& regCand, \
-          Matrix<Base<F>>& reg ); \
+          Matrix<Base<F>>& reg, \
+    bool aPriori ); \
   template void RegularizedQSDLDL \
   ( AbstractDistMatrix<F>& A, Base<F> pivTol, \
     const AbstractDistMatrix<Base<F>>& regCand, \
-          AbstractDistMatrix<Base<F>>& reg );
+          AbstractDistMatrix<Base<F>>& reg, \
+    bool aPriori );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

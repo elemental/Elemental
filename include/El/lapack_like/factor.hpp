@@ -215,16 +215,20 @@ void SolveAfter
 // ==================================================
 // NOTE: If the pivot candidate is not at least as large as the pivot tolerance
 //       and with the implied sign, then it is increased by the specified value.
+//       If aPriori is set to true, then this regularization is *always* 
+//       applied.
 template<typename F>
 void RegularizedQSDLDL
 ( Matrix<F>& A, Base<F> pivTol,
   const Matrix<Base<F>>& regCand,
-        Matrix<Base<F>>& reg );
+        Matrix<Base<F>>& reg, 
+  bool aPriori=false );
 template<typename F>
 void RegularizedQSDLDL
 ( AbstractDistMatrix<F>& A, Base<F> pivTol,
   const AbstractDistMatrix<Base<F>>& regCand,
-        AbstractDistMatrix<Base<F>>& reg );
+        AbstractDistMatrix<Base<F>>& reg,
+  bool aPriori=false );
 
 template<typename F>
 void RegularizedQSDLDL
@@ -232,7 +236,16 @@ void RegularizedQSDLDL
   Base<F> pivTol,
   const DistNodalMultiVec<Base<F>>& regCand,
         DistNodalMultiVec<Base<F>>& reg,
+  bool aPriori=false,
   SymmFrontType newFrontType=LDL_1D );
+
+enum RegQSDRefineAlg
+{
+  REG_REFINE_FGMRES,
+  REG_REFINE_LGMRES,
+  REG_REFINE_IR,
+  REG_REFINE_IR_MOD
+};
 
 namespace reg_qsd_ldl {
 
@@ -249,6 +262,7 @@ Int SolveAfter
 ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
   const DistMap& invMap,             const DistSymmInfo& info,
   const DistSymmFrontTree<F>& AFact,       DistMultiVec<F>& y,
+  RegQSDRefineAlg refineAlg,
   Base<F> minReductionFactor,              Int maxRefineIts,
   bool progress );
 

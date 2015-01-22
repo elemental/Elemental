@@ -638,7 +638,7 @@ void Mehrotra
         regCand.Resize( m+2*n, 1 );
         for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
         {
-            const Int i = regCand.FirstLocalRow() + iLoc;
+            const Int i = regCand.GlobalRow(iLoc);
             if( i < n )
                 regCand.SetLocal( iLoc, 0, regMagPrimal );
             else if( i < n+m )
@@ -654,7 +654,7 @@ void Mehrotra
         regCand.Resize( n+m, 1 );
         for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
         {
-            const Int i = regCand.FirstLocalRow() + iLoc;
+            const Int i = regCand.GlobalRow(iLoc);
             if( i < n )
                 regCand.SetLocal( iLoc, 0, regMagPrimal );
             else
@@ -727,6 +727,7 @@ void Mehrotra
         // ===================================
         const Real minReductionFactor = 2;
         const Int maxRefineIts = 50;
+        bool aPriori = true;
         Int numLargeAffineRefines=0, numLargeCorrectorRefines=0;
         if( ctrl.system == FULL_KKT )
         {
@@ -750,13 +751,15 @@ void Mehrotra
             regCandNodal.Pull( invMap, info, regCand );
             regNodal.Pull( invMap, info, reg );
             RegularizedQSDLDL
-            ( info, JFrontTree, pivTol, regCandNodal, regNodal, LDL_1D );
+            ( info, JFrontTree, pivTol, regCandNodal, regNodal, 
+              aPriori, LDL_1D );
             regNodal.Push( invMap, info, reg );
 
             // Compute the proposed step from the regularized KKT system
             // ---------------------------------------------------------
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFrontTree, d,
+              REG_REFINE_FGMRES,
               minReductionFactor, maxRefineIts, ctrl.print );
             ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
         }
@@ -782,11 +785,13 @@ void Mehrotra
             regCandNodal.Pull( invMap, info, regCand );
             regNodal.Pull( invMap, info, reg );
             RegularizedQSDLDL
-            ( info, JFrontTree, pivTol, regCandNodal, regNodal, LDL_1D );
+            ( info, JFrontTree, pivTol, regCandNodal, regNodal, 
+              aPriori, LDL_1D );
             regNodal.Push( invMap, info, reg );
 
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFrontTree, d,
+              REG_REFINE_FGMRES,
               minReductionFactor, maxRefineIts, ctrl.print );
             ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
         }
@@ -888,6 +893,7 @@ void Mehrotra
             // ---------------------------------------------
             numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFrontTree, d,
+              REG_REFINE_FGMRES,
               minReductionFactor, maxRefineIts, ctrl.print );
             ExpandSolution( m, n, d, dx, dy, dz );
         }
@@ -901,6 +907,7 @@ void Mehrotra
             // ---------------------------------------------
             numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFrontTree, d,
+              REG_REFINE_FGMRES,
               minReductionFactor, maxRefineIts, ctrl.print );
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }

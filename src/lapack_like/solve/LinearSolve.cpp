@@ -203,15 +203,19 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
 
     // Form the Hermitian quasi-semidefinite system
     // 
-    //     | 0 A^H | | X | = | 0 |,
+    //     | I A^H | | X | = | 0 |,
     //     | A 0   | | Y |   | B |
     //
-    // where the top-left corner is chosen as positive-semidefinite and the
-    // bottom-right corner is chosen as negative semi-definite.
+    // where the top-left corner is positive-definite and the
+    // bottom-right corner is negative semi-definite.
     //
-    // NOTE: If A is nonsingular, then Y must be zero up to rounding error.
+    // See Michael Saunders, 
+    //   "Chapter 8, Cholesky-based Methods for Sparse Least Squares:
+    //    The Benefits of Regularization",
+    //    in L. Adams and J.L. Nazareth (eds.), Linear and Nonlinear Conjugate
+    //    Gradient-Related Methods, SIAM, Philadelphia, 92--100 (1996).
 
-    // Form J = [0, A^H; A, 0]
+    // Form J = [I, A^H; A, 0]
     // =======================
     DistSparseMatrix<F> J(comm);
     Zeros( J, 2*n, 2*n );
@@ -249,12 +253,13 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
             sSendBuf[offsets[owner]] = i+n;
             tSendBuf[offsets[owner]] = j;
             vSendBuf[offsets[owner]] = value;
+            ++offsets[owner];
+
             // Sending A^H
             owner = J.RowOwner(j);
             sSendBuf[offsets[owner]] = j;
             tSendBuf[offsets[owner]] = i+n;
             vSendBuf[offsets[owner]] = Conj(value);
-
             ++offsets[owner];
         }
         // Exchange
@@ -270,9 +275,21 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
         mpi::AllToAll
         ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
           vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+        // Add in the identity portion
+        // ---------------------------
+        int numIdentUpdates = 0;
+        for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
+            if( J.GlobalRow(iLoc) < n )
+                ++numIdentUpdates;
+        J.Reserve( totalRecv+numIdentUpdates );
+        for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
+        {
+            const Int i = J.GlobalRow(iLoc);
+            if( i < n )
+                J.QueueLocalUpdate( iLoc, i, F(1) );
+        } 
         // Unpack
         // ------
-        J.Reserve( totalRecv );
         for( Int e=0; e<totalRecv; ++e )
             J.QueueLocalUpdate
             ( sRecvBuf[e]-J.FirstLocalRow(), tRecvBuf[e], vRecvBuf[e] );
@@ -348,24 +365,27 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
     const Int maxRefineIts = 50; 
     bool print = true;
     const Real epsilon = lapack::MachineEpsilon<Real>();
-    const Real regMag = Pow(epsilon,Real(0.5));
+    bool aPriori = true;
+    const Real regMagPrimal = Pow(epsilon,Real(0.75));
+    const Real regMagDual = Pow(epsilon,Real(0.5));
     const Real pivTol = MaxNorm(J)*epsilon;
     regCand.Resize( 2*n, 1 );
     for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
     {
         const Int i = regCand.GlobalRow(iLoc);
         if( i < n )
-            regCand.SetLocal( iLoc, 0, regMag );
+            regCand.SetLocal( iLoc, 0, regMagPrimal );
         else
-            regCand.SetLocal( iLoc, 0, -regMag );
+            regCand.SetLocal( iLoc, 0, -regMagDual );
     }
+    Zeros( reg, 2*n, 1 );
     NestedDissection( J.LockedDistGraph(), map, sepTree, info );
     map.FormInverse( invMap );
     JFrontTree.Initialize( J, map, sepTree, info );
     regCandNodal.Pull( invMap, info, regCand );
     regNodal.Pull( invMap, info, reg );
     RegularizedQSDLDL
-    ( info, JFrontTree, pivTol, regCandNodal, regNodal, LDL_1D );
+    ( info, JFrontTree, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
     regNodal.Push( invMap, info, reg );
 
     // Successively solve each of the k linear systems
@@ -381,6 +401,7 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
         Copy( dLoc, uLoc );
         reg_qsd_ldl::SolveAfter
         ( J, reg, invMap, info, JFrontTree, u,
+          REG_REFINE_FGMRES,
           minReductionFactor, maxRefineIts, print );
         Copy( uLoc, dLoc );
     }
@@ -443,7 +464,7 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
         // Unpack
         // ------
         for( Int e=0; e<totalRecv; ++e )
-            B.UpdateLocal
+            B.SetLocal
             ( sRecvBuf[e]-B.FirstLocalRow(), tRecvBuf[e], vRecvBuf[e] );
     }
 }

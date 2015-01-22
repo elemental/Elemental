@@ -16,7 +16,8 @@ namespace reg_qsd_ldl {
 template<typename F> 
 inline void ProcessDistTree
 ( DistSymmInfo& info, DistSymmFrontTree<F>& L, Base<F> pivTol, 
-  const DistNodalMultiVec<Base<F>>& regCand, DistNodalMultiVec<Base<F>>& reg )
+  const DistNodalMultiVec<Base<F>>& regCand, DistNodalMultiVec<Base<F>>& reg,
+  bool aPriori )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::ProcessDistTree"))
 
@@ -183,7 +184,8 @@ inline void ProcessDistTree
         // Now that the frontal matrix is set up, perform the factorization
         ProcessFront
         ( front.front2dL, front.work2d, pivTol, 
-          regCand.distNodes[s-1], reg.distNodes[s-1] );
+          regCand.distNodes[s-1], reg.distNodes[s-1],
+          aPriori );
 
         // Store the diagonal in a [VC,* ] distribution
         auto diag = GetDiagonal(front.front2dL);

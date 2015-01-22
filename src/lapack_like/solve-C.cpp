@@ -21,6 +21,12 @@ extern "C" {
   ElError ElLinearSolveDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( LinearSolve( *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElLinearSolveSparse_ ## SIG \
+  ( ElSparseMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
+  { EL_TRY( LinearSolve( *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElLinearSolveDistSparse_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG B ) \
+  { EL_TRY( LinearSolve( *CReflect(A), *CReflect(B) ) ) } \
   /* General Linear Model
      -------------------- */ \
   ElError ElGLM_ ## SIG \

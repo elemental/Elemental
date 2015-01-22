@@ -337,6 +337,7 @@ void Initialize
     // =====================================
     DistMultiVec<Real> regCand(comm), reg(comm);
     DistNodalMultiVec<Real> regCandNodal, regNodal;
+    bool aPriori = true;
     const Real epsilon = lapack::MachineEpsilon<Real>();
     const Real pivTol = MaxNorm(J)*epsilon;
     const Real regMagPrimal = Pow(epsilon,Real(0.75));
@@ -344,7 +345,7 @@ void Initialize
     regCand.Resize( n+m, 1 );
     for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
     {
-        const Int i = regCand.FirstLocalRow() + iLoc;
+        const Int i = regCand.GlobalRow(iLoc);
         if( i < n )
             regCand.SetLocal( iLoc, 0, regMagPrimal );
         else
@@ -362,7 +363,7 @@ void Initialize
     regCandNodal.Pull( invMap, info, regCand );
     regNodal.Pull( invMap, info, reg );
     RegularizedQSDLDL
-    ( info, JFrontTree, pivTol, regCandNodal, regNodal, LDL_1D );
+    ( info, JFrontTree, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
     regNodal.Push( invMap, info, reg );
 
     DistMultiVec<Real> rc(comm), rb(comm), rmu(comm), d(comm), u(comm), v(comm);
@@ -386,6 +387,7 @@ void Initialize
 
         reg_qsd_ldl::SolveAfter
         ( J, reg, invMap, info, JFrontTree, d,
+          REG_REFINE_FGMRES,
           minReductionFactor, maxRefineIts, progress );
         ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
     }
@@ -401,6 +403,7 @@ void Initialize
 
         reg_qsd_ldl::SolveAfter
         ( J, reg, invMap, info, JFrontTree, d,
+          REG_REFINE_FGMRES,
           minReductionFactor, maxRefineIts, progress );
         ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );
         Scale( Real(-1), z );
