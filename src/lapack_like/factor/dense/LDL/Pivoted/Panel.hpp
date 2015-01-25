@@ -120,11 +120,10 @@ Panel
         RowSwap( Y0, to, from );
 
         // Update the active columns and then store the new update factors
+        const Range<Int> ind1( k,          k+pivot.nb ),
+                         ind2( k+pivot.nb, n   );
         if( pivot.nb == 1 ) 
         {
-            const Range<Int> ind1( k,   k+1 ),
-                             ind2( k+1, n   );
-
             // Update A(k:end,k) -= X(k:n-1,0:k-1) Y(k,0:k-1)^T
             auto XB0 = X( indB, ind0 ); 
             auto y10 = Y( ind1, ind0 ); 
@@ -144,14 +143,9 @@ Panel
                 y21 = a21;
             Scale( delta11Inv, a21 );
             x21 = a21;
-
-            k += 1;
         }
         else
         {
-            const Range<Int> ind1( k,   k+2 ),
-                             ind2( k+2, n   );
-
             // Update A(k:end,k:k+1) -= X(k:n-1,0:k-1) Y(k:k+1,0:k-1)^T
             // NOTE: top-right entry of AB1 is above-diagonal
             auto XB0 = X( indB, ind0 );
@@ -182,8 +176,8 @@ Panel
             // Trsm can still be used. Thus, return the subdiagonal.
             dSub.Set( k, 0, D11.Get(1,0) );
             D11.Set( 1, 0, F(0) );
-            k += 2;
         }
+        k += pivot.nb;
     }
 }
 
@@ -260,11 +254,10 @@ Panel
         RowSwap( Y0, to, from );
 
         // Update the active columns and then store the new update factors
+        const Range<Int> ind1( k,          k+pivot.nb ),
+                         ind2( k+pivot.nb, n   );
         if( pivot.nb == 1 ) 
         {
-            const Range<Int> ind1( k,   k+1 ),
-                             ind2( k+1, n   );
-
             // Update A(k:end,k) -= X(k:n-1,0:k-1) Y(k,0:k-1)^T
             auto aB1 = A( indB, ind1 );
             if( aB1.RowAlign() == aB1.RowRank() )
@@ -287,14 +280,9 @@ Panel
                 y21 = a21;
             Scale( delta11Inv, a21 );
             x21 = a21;
-
-            k += 1;
         }
         else
         {
-            const Range<Int> ind1( k,   k+2 ),
-                             ind2( k+2, n   );
-
             // Update A(k:end,k:k+1) -= X(k:end,0:k-1) Y(k:k+1,0:k-1)^T
             // NOTE: top-right entry of AB1 is above-diagonal
             auto XB0 = X( indB, ind0 ); 
@@ -327,8 +315,8 @@ Panel
             // Trsm can still be used. Thus, return the subdiagonal.
             dSub.Set( k, 0, D11_STAR_STAR.GetLocal(1,0) );
             D11.Set( 1, 0, 0 );
-            k += 2;
         }
+        k += pivot.nb;
     }
 }
 

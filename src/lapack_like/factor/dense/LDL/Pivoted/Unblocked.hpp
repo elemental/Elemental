@@ -91,37 +91,27 @@ Unblocked
         }
         const LDLPivot pivot = Select( ABR, pivotType, gamma );
 
+        for( Int l=0; l<pivot.nb; ++l )
+        {
+            const Int from = k + pivot.from[l];
+            SymmetricSwap( LOWER, A, k+l, from, conjugate );
+            RowSwap( p, k+l, from );
+        }
+
         // Update trailing submatrix and store pivots
+        const Range<Int> ind1( k,          k+pivot.nb ),
+                         ind2( k+pivot.nb, n          );
         if( pivot.nb == 1 )
         {
-            const Range<Int> ind1( k,   k+1 ),
-                             ind2( k+1, n   );
-
-            const Int from = k + pivot.from[0];
-            SymmetricSwap( LOWER, A, k, from, conjugate );
-            RowSwap( p, k, from );
-
             // Rank-one update: A22 -= a21 inv(delta11) a21'
             const F delta11Inv = F(1)/ABR.Get(0,0);
             auto a21 = A( ind2, ind1 );
             auto A22 = A( ind2, ind2 );
             Syr( LOWER, -delta11Inv, a21, A22, conjugate );
             Scale( delta11Inv, a21 );
-
-            k += 1;
         }
         else
         {
-            const Range<Int> ind1( k,   k+2 ),
-                             ind2( k+2, n   );
-
-            const Int from0 = k + pivot.from[0];
-            const Int from1 = k + pivot.from[1];
-            SymmetricSwap( LOWER, A, k,   from0, conjugate );
-            SymmetricSwap( LOWER, A, k+1, from1, conjugate );
-            RowSwap( p, k+0, from0 );
-            RowSwap( p, k+1, from1 );
-
             // Rank-two update: A22 -= A21 inv(D11) A21'
             auto D11 = A( ind1, ind1 );
             auto A21 = A( ind2, ind1 );
@@ -134,8 +124,8 @@ Unblocked
             // Trsm can still be used. Thus, return the subdiagonal.
             dSub.Set( k, 0, D11.Get(1,0) );
             D11.Set( 1, 0, 0 );
-            k += 2;
         }
+        k += pivot.nb;
     }
 }
 
@@ -183,37 +173,28 @@ Unblocked
         }
         const LDLPivot pivot = Select( ABR, pivotType, gamma );
 
+        for( Int l=0; l<pivot.nb; ++l )
+        {
+            const Int from = k + pivot.from[l];
+            SymmetricSwap( LOWER, A, k+l, from, conjugate );
+            RowSwap( p, k+l, from );
+        }
+
+
         // Update trailing submatrix and store pivots
+        const Range<Int> ind1( k,          k+pivot.nb ),
+                         ind2( k+pivot.nb, n          );
         if( pivot.nb == 1 )
         {
-            const Range<Int> ind1( k,   k+1 ),
-                             ind2( k+1, n   );
-
-            const Int from = k + pivot.from[0];
-            SymmetricSwap( LOWER, A, k, from, conjugate );
-            RowSwap( p, k, from ); 
-
             // Rank-one update: A22 -= a21 inv(delta11) a21'
             const F delta11Inv = F(1)/ABR.Get(0,0);
             auto a21 = A( ind2, ind1 );
             auto A22 = A( ind2, ind2 );
             Syr( LOWER, -delta11Inv, a21, A22, conjugate );
             Scale( delta11Inv, a21 );
-
-            k += 1;
         }
         else
         {
-            const Range<Int> ind1( k,   k+2 ),
-                             ind2( k+2, n   );
-
-            const Int from0 = k + pivot.from[0];
-            const Int from1 = k + pivot.from[1];
-            SymmetricSwap( LOWER, A, k,   from0, conjugate );
-            SymmetricSwap( LOWER, A, k+1, from1, conjugate );
-            RowSwap( p, k+0, from0 );
-            RowSwap( p, k+1, from1 );
-
             // Rank-two update: A22 -= A21 inv(D11) A21'
             auto D11 = A( ind1, ind1 );
             auto A21 = A( ind2, ind1 );
@@ -227,8 +208,8 @@ Unblocked
             // Trsm can still be used. Thus, return the subdiagonal.
             dSub.Set( k, 0, D11_STAR_STAR.GetLocal(1,0) );
             D11.Set( 1, 0, 0 );
-            k += 2;
         }
+        k += pivot.nb;
     }
 }
 

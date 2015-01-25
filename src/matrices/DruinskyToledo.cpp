@@ -48,8 +48,8 @@ void DruinskyToledo( Matrix<F>& A, Int k )
     auto GTR = A(IR(0,k),IR(k-2,k));
     Ones( GTR, GTR.Height(), GTR.Width() );
 
-    auto GBR = A(IR(0,k-2),IR(0,k-2));
-    Diagonal( GBR, d );
+    auto GTL = A(IR(0,k-2),IR(0,k-2));
+    Diagonal( GTL, d );
 
     auto ABL = A(IR(k,n),IR(0,k));
     Identity( ABL, k, k );
