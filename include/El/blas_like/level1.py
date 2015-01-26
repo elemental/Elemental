@@ -15,46 +15,68 @@ from ctypes import CFUNCTYPE
 
 # Axpy
 # ----
-lib.ElAxpy_i.argtypes = [iType,c_void_p,c_void_p]
-lib.ElAxpy_i.restype = c_uint
-lib.ElAxpy_s.argtypes = [sType,c_void_p,c_void_p]
-lib.ElAxpy_s.restype = c_uint
-lib.ElAxpy_d.argtypes = [dType,c_void_p,c_void_p]
-lib.ElAxpy_d.restype = c_uint
-lib.ElAxpy_c.argtypes = [cType,c_void_p,c_void_p]
-lib.ElAxpy_c.restype = c_uint
-lib.ElAxpy_z.argtypes = [zType,c_void_p,c_void_p]
-lib.ElAxpy_z.restype = c_uint
-lib.ElAxpyDist_i.argtypes = [iType,c_void_p,c_void_p]
-lib.ElAxpyDist_i.restype = c_uint
-lib.ElAxpyDist_s.argtypes = [sType,c_void_p,c_void_p]
-lib.ElAxpyDist_s.restype = c_uint
-lib.ElAxpyDist_d.argtypes = [dType,c_void_p,c_void_p]
-lib.ElAxpyDist_d.restype = c_uint
-lib.ElAxpyDist_c.argtypes = [cType,c_void_p,c_void_p]
-lib.ElAxpyDist_c.restype = c_uint
-lib.ElAxpyDist_z.argtypes = [zType,c_void_p,c_void_p]
-lib.ElAxpyDist_z.restype = c_uint
-lib.ElAxpySparse_i.argtypes = [iType,c_void_p,c_void_p]
-lib.ElAxpySparse_i.restype = c_uint
-lib.ElAxpySparse_s.argtypes = [sType,c_void_p,c_void_p]
-lib.ElAxpySparse_s.restype = c_uint
-lib.ElAxpySparse_d.argtypes = [dType,c_void_p,c_void_p]
-lib.ElAxpySparse_d.restype = c_uint
-lib.ElAxpySparse_c.argtypes = [cType,c_void_p,c_void_p]
-lib.ElAxpySparse_c.restype = c_uint
-lib.ElAxpySparse_z.argtypes = [zType,c_void_p,c_void_p]
-lib.ElAxpySparse_z.restype = c_uint
-lib.ElAxpyDistSparse_i.argtypes = [iType,c_void_p,c_void_p]
-lib.ElAxpyDistSparse_i.restype = c_uint
-lib.ElAxpyDistSparse_s.argtypes = [sType,c_void_p,c_void_p]
-lib.ElAxpyDistSparse_s.restype = c_uint
-lib.ElAxpyDistSparse_d.argtypes = [dType,c_void_p,c_void_p]
-lib.ElAxpyDistSparse_d.restype = c_uint
-lib.ElAxpyDistSparse_c.argtypes = [cType,c_void_p,c_void_p]
-lib.ElAxpyDistSparse_c.restype = c_uint
-lib.ElAxpyDistSparse_z.argtypes = [zType,c_void_p,c_void_p]
-lib.ElAxpyDistSparse_z.restype = c_uint
+lib.ElAxpy_i.argtypes = \
+lib.ElAxpyDist_i.argtypes = \
+lib.ElAxpySparse_i.argtypes = \
+lib.ElAxpyDistSparse_i.argtypes = \
+lib.ElAxpyDistMultiVec_i.argtypes = \
+  [iType,c_void_p,c_void_p]
+
+lib.ElAxpy_s.argtypes = \
+lib.ElAxpyDist_s.argtypes = \
+lib.ElAxpySparse_s.argtypes = \
+lib.ElAxpyDistSparse_s.argtypes = \
+lib.ElAxpyDistMultiVec_s.argtypes = \
+  [sType,c_void_p,c_void_p]
+
+lib.ElAxpy_d.argtypes = \
+lib.ElAxpyDist_d.argtypes = \
+lib.ElAxpySparse_d.argtypes = \
+lib.ElAxpyDistSparse_d.argtypes = \
+lib.ElAxpyDistMultiVec_d.argtypes = \
+  [dType,c_void_p,c_void_p]
+
+lib.ElAxpy_c.argtypes = \
+lib.ElAxpyDist_c.argtypes = \
+lib.ElAxpySparse_c.argtypes = \
+lib.ElAxpyDistSparse_c.argtypes = \
+lib.ElAxpyDistMultiVec_c.argtypes = \
+  [cType,c_void_p,c_void_p]
+
+lib.ElAxpy_z.argtypes = \
+lib.ElAxpyDist_z.argtypes = \
+lib.ElAxpySparse_z.argtypes = \
+lib.ElAxpyDistSparse_z.argtypes = \
+lib.ElAxpyDistMultiVec_z.argtypes = \
+  [zType,c_void_p,c_void_p]
+
+lib.ElAxpy_i.restype = \
+lib.ElAxpy_s.restype = \
+lib.ElAxpy_d.restype = \
+lib.ElAxpy_c.restype = \
+lib.ElAxpy_z.restype = \
+lib.ElAxpyDist_i.restype = \
+lib.ElAxpyDist_s.restype = \
+lib.ElAxpyDist_d.restype = \
+lib.ElAxpyDist_c.restype = \
+lib.ElAxpyDist_z.restype = \
+lib.ElAxpySparse_i.restype = \
+lib.ElAxpySparse_s.restype = \
+lib.ElAxpySparse_d.restype = \
+lib.ElAxpySparse_c.restype = \
+lib.ElAxpySparse_z.restype = \
+lib.ElAxpyDistSparse_i.restype = \
+lib.ElAxpyDistSparse_s.restype = \
+lib.ElAxpyDistSparse_d.restype = \
+lib.ElAxpyDistSparse_c.restype = \
+lib.ElAxpyDistSparse_z.restype = \
+lib.ElAxpyDistMultiVec_i.restype = \
+lib.ElAxpyDistMultiVec_s.restype = \
+lib.ElAxpyDistMultiVec_d.restype = \
+lib.ElAxpyDistMultiVec_c.restype = \
+lib.ElAxpyDistMultiVec_z.restype = \
+  c_uint
+
 def Axpy(alphaPre,X,Y):
   if type(X) is not type(Y): raise Exception('Types of X and Y must match')
   if X.tag != Y.tag: raise Exception('Datatypes of X and Y must match')
@@ -88,50 +110,69 @@ def Axpy(alphaPre,X,Y):
     elif X.tag == cTag: lib.ElAxpyDistSparse_c(*args)
     elif X.tag == zTag: lib.ElAxpyDistSparse_z(*args)
     else: DataExcept()
+  elif type(X) is DistMultiVec:
+    if   X.tag == iTag: lib.ElAxpyDistMultiVec_i(*args)
+    elif X.tag == sTag: lib.ElAxpyDistMultiVec_s(*args)
+    elif X.tag == dTag: lib.ElAxpyDistMultiVec_d(*args)
+    elif X.tag == cTag: lib.ElAxpyDistMultiVec_c(*args)
+    elif X.tag == zTag: lib.ElAxpyDistMultiVec_z(*args)
+    else: DataExcept()
   else: TypeExcept()
 
 # AxpyTrapezoid
 # -------------
-lib.ElAxpyTrapezoid_i.argtypes = [c_uint,iType,c_void_p,c_void_p,iType]
-lib.ElAxpyTrapezoid_i.restype = c_uint
-lib.ElAxpyTrapezoid_s.argtypes = [c_uint,sType,c_void_p,c_void_p,iType]
-lib.ElAxpyTrapezoid_s.restype = c_uint
-lib.ElAxpyTrapezoid_d.argtypes = [c_uint,dType,c_void_p,c_void_p,iType]
-lib.ElAxpyTrapezoid_d.restype = c_uint
-lib.ElAxpyTrapezoid_c.argtypes = [c_uint,cType,c_void_p,c_void_p,iType]
-lib.ElAxpyTrapezoid_c.restype = c_uint
-lib.ElAxpyTrapezoid_z.argtypes = [c_uint,zType,c_void_p,c_void_p,iType]
-lib.ElAxpyTrapezoid_z.restype = c_uint
-lib.ElAxpyTrapezoidDist_i.argtypes = [c_uint,iType,c_void_p,c_void_p,iType]
-lib.ElAxpyTrapezoidDist_i.restype = c_uint
-lib.ElAxpyTrapezoidDist_s.argtypes = [c_uint,sType,c_void_p,c_void_p,iType]
-lib.ElAxpyTrapezoidDist_s.restype = c_uint
-lib.ElAxpyTrapezoidDist_d.argtypes = [c_uint,dType,c_void_p,c_void_p,iType]
-lib.ElAxpyTrapezoidDist_d.restype = c_uint
-lib.ElAxpyTrapezoidDist_c.argtypes = [c_uint,cType,c_void_p,c_void_p,iType]
-lib.ElAxpyTrapezoidDist_c.restype = c_uint
-lib.ElAxpyTrapezoidDist_z.argtypes = [c_uint,zType,c_void_p,c_void_p,iType]
-lib.ElAxpyTrapezoidDist_z.restype = c_uint
-lib.ElAxpyTrapezoidSparse_i.argtypes = [c_uint,iType,c_void_p,c_void_p,iType]
-lib.ElAxpyTrapezoidSparse_i.restype = c_uint
-lib.ElAxpyTrapezoidSparse_s.argtypes = [c_uint,sType,c_void_p,c_void_p,iType]
-lib.ElAxpyTrapezoidSparse_s.restype = c_uint
-lib.ElAxpyTrapezoidSparse_d.argtypes = [c_uint,dType,c_void_p,c_void_p,iType]
-lib.ElAxpyTrapezoidSparse_d.restype = c_uint
-lib.ElAxpyTrapezoidSparse_c.argtypes = [c_uint,cType,c_void_p,c_void_p,iType]
-lib.ElAxpyTrapezoidSparse_c.restype = c_uint
-lib.ElAxpyTrapezoidSparse_z.argtypes = [c_uint,zType,c_void_p,c_void_p,iType]
-lib.ElAxpyTrapezoidSparse_z.restype = c_uint
-lib.ElAxpyTrapezoidDistSparse_i.argtypes = [c_uint,iType,c_void_p,c_void_p,iType]
-lib.ElAxpyTrapezoidDistSparse_i.restype = c_uint
-lib.ElAxpyTrapezoidDistSparse_s.argtypes = [c_uint,sType,c_void_p,c_void_p,iType]
-lib.ElAxpyTrapezoidDistSparse_s.restype = c_uint
-lib.ElAxpyTrapezoidDistSparse_d.argtypes = [c_uint,dType,c_void_p,c_void_p,iType]
-lib.ElAxpyTrapezoidDistSparse_d.restype = c_uint
-lib.ElAxpyTrapezoidDistSparse_c.argtypes = [c_uint,cType,c_void_p,c_void_p,iType]
-lib.ElAxpyTrapezoidDistSparse_c.restype = c_uint
-lib.ElAxpyTrapezoidDistSparse_z.argtypes = [c_uint,zType,c_void_p,c_void_p,iType]
-lib.ElAxpyTrapezoidDistSparse_z.restype = c_uint
+lib.ElAxpyTrapezoid_i.argtypes = \
+lib.ElAxpyTrapezoidDist_i.argtypes = \
+lib.ElAxpyTrapezoidSparse_i.argtypes = \
+lib.ElAxpyTrapezoidDistSparse_i.argtypes = \
+  [c_uint,iType,c_void_p,c_void_p,iType]
+
+lib.ElAxpyTrapezoid_s.argtypes = \
+lib.ElAxpyTrapezoidDist_s.argtypes = \
+lib.ElAxpyTrapezoidSparse_s.argtypes = \
+lib.ElAxpyTrapezoidDistSparse_s.argtypes = \
+  [c_uint,sType,c_void_p,c_void_p,iType]
+
+lib.ElAxpyTrapezoid_d.argtypes = \
+lib.ElAxpyTrapezoidDist_d.argtypes = \
+lib.ElAxpyTrapezoidSparse_d.argtypes = \
+lib.ElAxpyTrapezoidDistSparse_d.argtypes = \
+  [c_uint,dType,c_void_p,c_void_p,iType]
+
+lib.ElAxpyTrapezoid_c.argtypes = \
+lib.ElAxpyTrapezoidDist_c.argtypes = \
+lib.ElAxpyTrapezoidSparse_c.argtypes = \
+lib.ElAxpyTrapezoidDistSparse_c.argtypes = \
+  [c_uint,cType,c_void_p,c_void_p,iType]
+
+lib.ElAxpyTrapezoid_z.argtypes = \
+lib.ElAxpyTrapezoidDist_z.argtypes = \
+lib.ElAxpyTrapezoidSparse_z.argtypes = \
+lib.ElAxpyTrapezoidDistSparse_z.argtypes = \
+  [c_uint,zType,c_void_p,c_void_p,iType]
+
+lib.ElAxpyTrapezoid_i.restype = \
+lib.ElAxpyTrapezoid_s.restype = \
+lib.ElAxpyTrapezoid_d.restype = \
+lib.ElAxpyTrapezoid_c.restype = \
+lib.ElAxpyTrapezoid_z.restype = \
+lib.ElAxpyTrapezoidDist_i.restype = \
+lib.ElAxpyTrapezoidDist_s.restype = \
+lib.ElAxpyTrapezoidDist_d.restype = \
+lib.ElAxpyTrapezoidDist_c.restype = \
+lib.ElAxpyTrapezoidDist_z.restype = \
+lib.ElAxpyTrapezoidSparse_i.restype = \
+lib.ElAxpyTrapezoidSparse_s.restype = \
+lib.ElAxpyTrapezoidSparse_d.restype = \
+lib.ElAxpyTrapezoidSparse_c.restype = \
+lib.ElAxpyTrapezoidSparse_z.restype = \
+lib.ElAxpyTrapezoidDistSparse_i.restype = \
+lib.ElAxpyTrapezoidDistSparse_s.restype = \
+lib.ElAxpyTrapezoidDistSparse_d.restype = \
+lib.ElAxpyTrapezoidDistSparse_c.restype = \
+lib.ElAxpyTrapezoidDistSparse_z.restype = \
+  c_uint
+
 def AxpyTriangle(uplo,alphaPre,X,Y,offset=0):
   if type(X) is not type(Y): raise Exception('Types of X and Y must match')
   if X.tag != Y.tag: raise Exception('Datatypes of X and Y must match')
@@ -169,14 +210,18 @@ def AxpyTriangle(uplo,alphaPre,X,Y,offset=0):
 
 # Column norms
 # ------------
-lib.ElColumnNormsDistMultiVec_s.argtypes = [c_void_p,c_void_p]
-lib.ElColumnNormsDistMultiVec_s.restype = c_uint
-lib.ElColumnNormsDistMultiVec_d.argtypes = [c_void_p,c_void_p]
-lib.ElColumnNormsDistMultiVec_d.restype = c_uint
-lib.ElColumnNormsDistMultiVec_c.argtypes = [c_void_p,c_void_p]
-lib.ElColumnNormsDistMultiVec_c.restype = c_uint
-lib.ElColumnNormsDistMultiVec_z.argtypes = [c_void_p,c_void_p]
-lib.ElColumnNormsDistMultiVec_z.restype = c_uint
+lib.ElColumnNormsDistMultiVec_s.argtypes = \
+lib.ElColumnNormsDistMultiVec_d.argtypes = \
+lib.ElColumnNormsDistMultiVec_c.argtypes = \
+lib.ElColumnNormsDistMultiVec_z.argtypes = \
+  [c_void_p,c_void_p]
+
+lib.ElColumnNormsDistMultiVec_s.restype = \
+lib.ElColumnNormsDistMultiVec_d.restype = \
+lib.ElColumnNormsDistMultiVec_c.restype = \
+lib.ElColumnNormsDistMultiVec_z.restype = \
+  c_uint
+
 def ColumnNorms(A):
   if type(A) is DistMultiVec:
     norms = Matrix(TagToType(Base(A.tag)))
@@ -191,14 +236,18 @@ def ColumnNorms(A):
 
 # Conjugate
 # ---------
-lib.ElConjugate_c.argtypes = [c_void_p]
-lib.ElConjugate_c.restype = c_uint
-lib.ElConjugate_z.argtypes = [c_void_p]
-lib.ElConjugate_z.restype = c_uint
-lib.ElConjugateDist_c.argtypes = [c_void_p]
-lib.ElConjugateDist_c.restype = c_uint
-lib.ElConjugateDist_z.argtypes = [c_void_p]
-lib.ElConjugateDist_z.restype = c_uint
+lib.ElConjugate_c.argtypes = \
+lib.ElConjugate_z.argtypes = \
+lib.ElConjugateDist_c.argtypes = \
+lib.ElConjugateDist_z.argtypes = \
+  [c_void_p]
+
+lib.ElConjugate_c.restype = \
+lib.ElConjugate_z.restype = \
+lib.ElConjugateDist_c.restype = \
+lib.ElConjugateDist_z.restype = \
+  c_uint
+
 def Conjugate(A):
   args = [A.obj]
   if type(A) is Matrix:
@@ -213,76 +262,80 @@ def Conjugate(A):
 
 # Copy
 # ----
-lib.ElCopy_s.argtypes = [c_void_p,c_void_p]
-lib.ElCopy_s.restype = c_uint
-lib.ElCopy_d.argtypes = [c_void_p,c_void_p]
-lib.ElCopy_d.restype = c_uint
-lib.ElCopy_c.argtypes = [c_void_p,c_void_p]
-lib.ElCopy_c.restype = c_uint
-lib.ElCopy_z.argtypes = [c_void_p,c_void_p]
-lib.ElCopy_z.restype = c_uint
-lib.ElCopyDist_s.argtypes = [c_void_p,c_void_p]
-lib.ElCopyDist_s.restype = c_uint
-lib.ElCopyDist_d.argtypes = [c_void_p,c_void_p]
-lib.ElCopyDist_d.restype = c_uint
-lib.ElCopyDist_c.argtypes = [c_void_p,c_void_p]
-lib.ElCopyDist_c.restype = c_uint
-lib.ElCopyDist_z.argtypes = [c_void_p,c_void_p]
-lib.ElCopyDist_z.restype = c_uint
-lib.ElCopyGraph.argtypes = [c_void_p,c_void_p]
-lib.ElCopyGraph.restype = c_uint
-lib.ElCopyDistGraph.argtypes = [c_void_p,c_void_p]
-lib.ElCopyDistGraph.restype = c_uint
-lib.ElCopySparse_i.argtypes = [c_void_p,c_void_p]
-lib.ElCopySparse_i.restype = c_uint
-lib.ElCopySparse_s.argtypes = [c_void_p,c_void_p]
-lib.ElCopySparse_s.restype = c_uint
-lib.ElCopySparse_d.argtypes = [c_void_p,c_void_p]
-lib.ElCopySparse_d.restype = c_uint
-lib.ElCopySparse_c.argtypes = [c_void_p,c_void_p]
-lib.ElCopySparse_c.restype = c_uint
-lib.ElCopySparse_z.argtypes = [c_void_p,c_void_p]
-lib.ElCopySparse_z.restype = c_uint
-lib.ElCopySparseToDense_i.argtypes = [c_void_p,c_void_p]
-lib.ElCopySparseToDense_i.restype = c_uint
-lib.ElCopySparseToDense_s.argtypes = [c_void_p,c_void_p]
-lib.ElCopySparseToDense_s.restype = c_uint
-lib.ElCopySparseToDense_d.argtypes = [c_void_p,c_void_p]
-lib.ElCopySparseToDense_d.restype = c_uint
-lib.ElCopySparseToDense_c.argtypes = [c_void_p,c_void_p]
-lib.ElCopySparseToDense_c.restype = c_uint
-lib.ElCopySparseToDense_z.argtypes = [c_void_p,c_void_p]
-lib.ElCopySparseToDense_z.restype = c_uint
-lib.ElCopyDistSparse_i.argtypes = [c_void_p,c_void_p]
-lib.ElCopyDistSparse_i.restype = c_uint
-lib.ElCopyDistSparse_s.argtypes = [c_void_p,c_void_p]
-lib.ElCopyDistSparse_s.restype = c_uint
-lib.ElCopyDistSparse_d.argtypes = [c_void_p,c_void_p]
-lib.ElCopyDistSparse_d.restype = c_uint
-lib.ElCopyDistSparse_c.argtypes = [c_void_p,c_void_p]
-lib.ElCopyDistSparse_c.restype = c_uint
-lib.ElCopyDistSparse_z.argtypes = [c_void_p,c_void_p]
-lib.ElCopyDistSparse_z.restype = c_uint
-lib.ElCopyDistSparseToDense_i.argtypes = [c_void_p,c_void_p]
-lib.ElCopyDistSparseToDense_i.restype = c_uint
-lib.ElCopyDistSparseToDense_s.argtypes = [c_void_p,c_void_p]
-lib.ElCopyDistSparseToDense_s.restype = c_uint
-lib.ElCopyDistSparseToDense_d.argtypes = [c_void_p,c_void_p]
-lib.ElCopyDistSparseToDense_d.restype = c_uint
-lib.ElCopyDistSparseToDense_c.argtypes = [c_void_p,c_void_p]
-lib.ElCopyDistSparseToDense_c.restype = c_uint
-lib.ElCopyDistSparseToDense_z.argtypes = [c_void_p,c_void_p]
-lib.ElCopyDistSparseToDense_z.restype = c_uint
-lib.ElCopyDistMultiVec_i.argtypes = [c_void_p,c_void_p]
-lib.ElCopyDistMultiVec_i.restype = c_uint
-lib.ElCopyDistMultiVec_s.argtypes = [c_void_p,c_void_p]
-lib.ElCopyDistMultiVec_s.restype = c_uint
-lib.ElCopyDistMultiVec_d.argtypes = [c_void_p,c_void_p]
-lib.ElCopyDistMultiVec_d.restype = c_uint
-lib.ElCopyDistMultiVec_c.argtypes = [c_void_p,c_void_p]
-lib.ElCopyDistMultiVec_c.restype = c_uint
-lib.ElCopyDistMultiVec_z.argtypes = [c_void_p,c_void_p]
-lib.ElCopyDistMultiVec_z.restype = c_uint
+lib.ElCopy_s.argtypes = \
+lib.ElCopy_d.argtypes = \
+lib.ElCopy_c.argtypes = \
+lib.ElCopy_z.argtypes = \
+lib.ElCopyDist_s.argtypes = \
+lib.ElCopyDist_d.argtypes = \
+lib.ElCopyDist_c.argtypes = \
+lib.ElCopyDist_z.argtypes = \
+lib.ElCopyGraph.argtypes = \
+lib.ElCopyDistGraph.argtypes = \
+lib.ElCopySparse_i.argtypes = \
+lib.ElCopySparse_s.argtypes = \
+lib.ElCopySparse_d.argtypes = \
+lib.ElCopySparse_c.argtypes = \
+lib.ElCopySparse_z.argtypes = \
+lib.ElCopySparseToDense_i.argtypes = \
+lib.ElCopySparseToDense_s.argtypes = \
+lib.ElCopySparseToDense_d.argtypes = \
+lib.ElCopySparseToDense_c.argtypes = \
+lib.ElCopySparseToDense_z.argtypes = \
+lib.ElCopyDistSparse_i.argtypes = \
+lib.ElCopyDistSparse_s.argtypes = \
+lib.ElCopyDistSparse_d.argtypes = \
+lib.ElCopyDistSparse_c.argtypes = \
+lib.ElCopyDistSparse_z.argtypes = \
+lib.ElCopyDistSparseToDense_i.argtypes = \
+lib.ElCopyDistSparseToDense_s.argtypes = \
+lib.ElCopyDistSparseToDense_d.argtypes = \
+lib.ElCopyDistSparseToDense_c.argtypes = \
+lib.ElCopyDistSparseToDense_z.argtypes = \
+lib.ElCopyDistMultiVec_i.argtypes = \
+lib.ElCopyDistMultiVec_s.argtypes = \
+lib.ElCopyDistMultiVec_d.argtypes = \
+lib.ElCopyDistMultiVec_c.argtypes = \
+lib.ElCopyDistMultiVec_z.argtypes = \
+  [c_void_p,c_void_p]
+
+lib.ElCopy_s.restype = \
+lib.ElCopy_d.restype = \
+lib.ElCopy_c.restype = \
+lib.ElCopy_z.restype = \
+lib.ElCopyDist_s.restype = \
+lib.ElCopyDist_d.restype = \
+lib.ElCopyDist_c.restype = \
+lib.ElCopyDist_z.restype = \
+lib.ElCopyGraph.restype = \
+lib.ElCopyDistGraph.restype = \
+lib.ElCopySparse_i.restype = \
+lib.ElCopySparse_s.restype = \
+lib.ElCopySparse_d.restype = \
+lib.ElCopySparse_c.restype = \
+lib.ElCopySparse_z.restype = \
+lib.ElCopySparseToDense_i.restype = \
+lib.ElCopySparseToDense_s.restype = \
+lib.ElCopySparseToDense_d.restype = \
+lib.ElCopySparseToDense_c.restype = \
+lib.ElCopySparseToDense_z.restype = \
+lib.ElCopyDistSparse_i.restype = \
+lib.ElCopyDistSparse_s.restype = \
+lib.ElCopyDistSparse_d.restype = \
+lib.ElCopyDistSparse_c.restype = \
+lib.ElCopyDistSparse_z.restype = \
+lib.ElCopyDistSparseToDense_i.restype = \
+lib.ElCopyDistSparseToDense_s.restype = \
+lib.ElCopyDistSparseToDense_d.restype = \
+lib.ElCopyDistSparseToDense_c.restype = \
+lib.ElCopyDistSparseToDense_z.restype = \
+lib.ElCopyDistMultiVec_i.restype = \
+lib.ElCopyDistMultiVec_s.restype = \
+lib.ElCopyDistMultiVec_d.restype = \
+lib.ElCopyDistMultiVec_c.restype = \
+lib.ElCopyDistMultiVec_z.restype = \
+  c_uint
+
 def Copy(A,B):
   if A.tag != B.tag:
     raise Exception('Copying between datatypes is not yet supported in Python')
@@ -532,65 +585,51 @@ def DiagonalScale(side,orient,d,A):
 # Diagonal scale trapezoid
 # ------------------------
 lib.ElDiagonalScaleTrapezoid_i.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,iType]
-lib.ElDiagonalScaleTrapezoid_i.restype = c_uint
 lib.ElDiagonalScaleTrapezoid_s.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,iType]
-lib.ElDiagonalScaleTrapezoid_s.restype = c_uint
 lib.ElDiagonalScaleTrapezoid_d.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,iType]
-lib.ElDiagonalScaleTrapezoid_d.restype = c_uint
-lib.ElDiagonalScaleTrapezoid_c.argtypes = \
-  [c_uint,c_uint,c_uint,c_void_p,c_void_p,iType]
-lib.ElDiagonalScaleTrapezoid_c.restype = c_uint
-lib.ElDiagonalScaleTrapezoid_z.argtypes = \
-  [c_uint,c_uint,c_uint,c_void_p,c_void_p,iType]
-lib.ElDiagonalScaleTrapezoid_z.restype = c_uint
 lib.ElDiagonalScaleTrapezoidDist_i.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,iType]
-lib.ElDiagonalScaleTrapezoidDist_i.restype = c_uint
 lib.ElDiagonalScaleTrapezoidDist_s.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,iType]
-lib.ElDiagonalScaleTrapezoidDist_s.restype = c_uint
 lib.ElDiagonalScaleTrapezoidDist_d.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,iType]
-lib.ElDiagonalScaleTrapezoidDist_d.restype = c_uint
-lib.ElDiagonalScaleTrapezoidDist_c.argtypes = \
-  [c_uint,c_uint,c_uint,c_void_p,c_void_p,iType]
-lib.ElDiagonalScaleTrapezoidDist_c.restype = c_uint
-lib.ElDiagonalScaleTrapezoidDist_z.argtypes = \
-  [c_uint,c_uint,c_uint,c_void_p,c_void_p,iType]
-lib.ElDiagonalScaleTrapezoidDist_z.restype = c_uint
 lib.ElDiagonalScaleTrapezoidSparse_i.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,iType]
-lib.ElDiagonalScaleTrapezoidSparse_i.restype = c_uint
 lib.ElDiagonalScaleTrapezoidSparse_s.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,iType]
-lib.ElDiagonalScaleTrapezoidSparse_s.restype = c_uint
 lib.ElDiagonalScaleTrapezoidSparse_d.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,iType]
-lib.ElDiagonalScaleTrapezoidSparse_d.restype = c_uint
-lib.ElDiagonalScaleTrapezoidSparse_c.argtypes = \
-  [c_uint,c_uint,c_uint,c_void_p,c_void_p,iType]
-lib.ElDiagonalScaleTrapezoidSparse_c.restype = c_uint
-lib.ElDiagonalScaleTrapezoidSparse_z.argtypes = \
-  [c_uint,c_uint,c_uint,c_void_p,c_void_p,iType]
-lib.ElDiagonalScaleTrapezoidSparse_z.restype = c_uint
 lib.ElDiagonalScaleTrapezoidDistSparse_i.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,iType]
-lib.ElDiagonalScaleTrapezoidDistSparse_i.restype = c_uint
 lib.ElDiagonalScaleTrapezoidDistSparse_s.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,iType]
-lib.ElDiagonalScaleTrapezoidDistSparse_s.restype = c_uint
 lib.ElDiagonalScaleTrapezoidDistSparse_d.argtypes = \
   [c_uint,c_uint,c_void_p,c_void_p,iType]
-lib.ElDiagonalScaleTrapezoidDistSparse_d.restype = c_uint
+
+lib.ElDiagonalScaleTrapezoid_c.argtypes = \
+lib.ElDiagonalScaleTrapezoid_z.argtypes = \
+lib.ElDiagonalScaleTrapezoidDist_c.argtypes = \
+lib.ElDiagonalScaleTrapezoidDist_z.argtypes = \
+lib.ElDiagonalScaleTrapezoidSparse_c.argtypes = \
+lib.ElDiagonalScaleTrapezoidSparse_z.argtypes = \
 lib.ElDiagonalScaleTrapezoidDistSparse_c.argtypes = \
-  [c_uint,c_uint,c_uint,c_void_p,c_void_p,iType]
-lib.ElDiagonalScaleTrapezoidDistSparse_c.restype = c_uint
 lib.ElDiagonalScaleTrapezoidDistSparse_z.argtypes = \
   [c_uint,c_uint,c_uint,c_void_p,c_void_p,iType]
-lib.ElDiagonalScaleTrapezoidDistSparse_z.restype = c_uint
+
+lib.ElDiagonalScaleTrapezoid_i.restype = \
+lib.ElDiagonalScaleTrapezoid_s.restype = \
+lib.ElDiagonalScaleTrapezoid_d.restype = \
+lib.ElDiagonalScaleTrapezoid_c.restype = \
+lib.ElDiagonalScaleTrapezoid_z.restype = \
+lib.ElDiagonalScaleTrapezoidDist_i.restype = \
+lib.ElDiagonalScaleTrapezoidDist_s.restype = \
+lib.ElDiagonalScaleTrapezoidDist_d.restype = \
+lib.ElDiagonalScaleTrapezoidDist_c.restype = \
+lib.ElDiagonalScaleTrapezoidDist_z.restype = \
+lib.ElDiagonalScaleTrapezoidSparse_i.restype = \
+lib.ElDiagonalScaleTrapezoidSparse_s.restype = \
+lib.ElDiagonalScaleTrapezoidSparse_d.restype = \
+lib.ElDiagonalScaleTrapezoidSparse_c.restype = \
+lib.ElDiagonalScaleTrapezoidSparse_z.restype = \
+lib.ElDiagonalScaleTrapezoidDistSparse_i.restype = \
+lib.ElDiagonalScaleTrapezoidDistSparse_s.restype = \
+lib.ElDiagonalScaleTrapezoidDistSparse_d.restype = \
+lib.ElDiagonalScaleTrapezoidDistSparse_c.restype = \
+lib.ElDiagonalScaleTrapezoidDistSparse_z.restype = \
+  c_uint
+
 def DiagonalScaleTrapezoid(side,uplo,orient,d,A,offset=0):
   if d.tag != A.tag: raise Exception('Matrix datatypes must match')
   args = [side,uplo,d.obj,A.obj,offset]
@@ -635,38 +674,44 @@ def DiagonalScaleTrapezoid(side,uplo,orient,d,A,offset=0):
 
 # Diagonal solve
 # --------------
-lib.ElDiagonalSolve_s.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElDiagonalSolve_s.restype = c_uint
-lib.ElDiagonalSolve_d.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElDiagonalSolve_d.restype = c_uint
-lib.ElDiagonalSolve_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElDiagonalSolve_c.restype = c_uint
-lib.ElDiagonalSolve_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElDiagonalSolve_z.restype = c_uint
-lib.ElDiagonalSolveDist_s.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElDiagonalSolveDist_s.restype = c_uint
-lib.ElDiagonalSolveDist_d.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElDiagonalSolveDist_d.restype = c_uint
-lib.ElDiagonalSolveDist_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElDiagonalSolveDist_c.restype = c_uint
-lib.ElDiagonalSolveDist_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElDiagonalSolveDist_z.restype = c_uint
-lib.ElDiagonalSolveSparse_s.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElDiagonalSolveSparse_s.restype = c_uint
-lib.ElDiagonalSolveSparse_d.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElDiagonalSolveSparse_d.restype = c_uint
-lib.ElDiagonalSolveSparse_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElDiagonalSolveSparse_c.restype = c_uint
-lib.ElDiagonalSolveSparse_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElDiagonalSolveSparse_z.restype = c_uint
-lib.ElDiagonalSolveDistSparse_s.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElDiagonalSolveDistSparse_s.restype = c_uint
-lib.ElDiagonalSolveDistSparse_d.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElDiagonalSolveDistSparse_d.restype = c_uint
-lib.ElDiagonalSolveDistSparse_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElDiagonalSolveDistSparse_c.restype = c_uint
-lib.ElDiagonalSolveDistSparse_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElDiagonalSolveDistSparse_z.restype = c_uint
+lib.ElDiagonalSolve_s.argtypes = \
+lib.ElDiagonalSolve_d.argtypes = \
+lib.ElDiagonalSolveDist_s.argtypes = \
+lib.ElDiagonalSolveDist_d.argtypes = \
+lib.ElDiagonalSolveSparse_s.argtypes = \
+lib.ElDiagonalSolveSparse_d.argtypes = \
+lib.ElDiagonalSolveDistSparse_s.argtypes = \
+lib.ElDiagonalSolveDistSparse_d.argtypes = \
+  [c_uint,c_void_p,c_void_p]
+
+lib.ElDiagonalSolve_c.argtypes = \
+lib.ElDiagonalSolve_z.argtypes = \
+lib.ElDiagonalSolveDist_c.argtypes = \
+lib.ElDiagonalSolveDist_z.argtypes = \
+lib.ElDiagonalSolveSparse_c.argtypes = \
+lib.ElDiagonalSolveSparse_z.argtypes = \
+lib.ElDiagonalSolveDistSparse_c.argtypes = \
+lib.ElDiagonalSolveDistSparse_z.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p]
+
+lib.ElDiagonalSolve_s.restype = \
+lib.ElDiagonalSolve_d.restype = \
+lib.ElDiagonalSolve_c.restype = \
+lib.ElDiagonalSolve_z.restype = \
+lib.ElDiagonalSolveDist_s.restype = \
+lib.ElDiagonalSolveDist_d.restype = \
+lib.ElDiagonalSolveDist_c.restype = \
+lib.ElDiagonalSolveDist_z.restype = \
+lib.ElDiagonalSolveSparse_s.restype = \
+lib.ElDiagonalSolveSparse_d.restype = \
+lib.ElDiagonalSolveSparse_c.restype = \
+lib.ElDiagonalSolveSparse_z.restype = \
+lib.ElDiagonalSolveDistSparse_s.restype = \
+lib.ElDiagonalSolveDistSparse_d.restype = \
+lib.ElDiagonalSolveDistSparse_c.restype = \
+lib.ElDiagonalSolveDistSparse_z.restype = \
+  c_uint
+
 def DiagonalSolve(side,orient,d,A):
   if d.tag != A.tag: raise Exception('Matrix datatypes must match')
   args = [side,d.obj,A.obj]
@@ -707,36 +752,48 @@ def DiagonalSolve(side,orient,d,A):
 
 # Dot
 # ---
-lib.ElDot_i.argtypes = [c_void_p,c_void_p,POINTER(iType)]
-lib.ElDot_i.restype = c_uint
-lib.ElDot_s.argtypes = [c_void_p,c_void_p,POINTER(sType)]
-lib.ElDot_s.restype = c_uint
-lib.ElDot_d.argtypes = [c_void_p,c_void_p,POINTER(dType)]
-lib.ElDot_d.restype = c_uint
-lib.ElDot_c.argtypes = [c_void_p,c_void_p,POINTER(cType)]
-lib.ElDot_c.restype = c_uint
-lib.ElDot_z.argtypes = [c_void_p,c_void_p,POINTER(zType)]
-lib.ElDot_z.restype = c_uint
-lib.ElDotDist_i.argtypes = [c_void_p,c_void_p,POINTER(iType)]
-lib.ElDotDist_i.restype = c_uint
-lib.ElDotDist_s.argtypes = [c_void_p,c_void_p,POINTER(sType)]
-lib.ElDotDist_s.restype = c_uint
-lib.ElDotDist_d.argtypes = [c_void_p,c_void_p,POINTER(dType)]
-lib.ElDotDist_d.restype = c_uint
-lib.ElDotDist_c.argtypes = [c_void_p,c_void_p,POINTER(cType)]
-lib.ElDotDist_c.restype = c_uint
-lib.ElDotDist_z.argtypes = [c_void_p,c_void_p,POINTER(zType)]
-lib.ElDotDist_z.restype = c_uint
-lib.ElDotDistMultiVec_i.argtypes = [c_void_p,c_void_p,POINTER(iType)]
-lib.ElDotDistMultiVec_i.restype = c_uint
-lib.ElDotDistMultiVec_s.argtypes = [c_void_p,c_void_p,POINTER(sType)]
-lib.ElDotDistMultiVec_s.restype = c_uint
-lib.ElDotDistMultiVec_d.argtypes = [c_void_p,c_void_p,POINTER(dType)]
-lib.ElDotDistMultiVec_d.restype = c_uint
-lib.ElDotDistMultiVec_c.argtypes = [c_void_p,c_void_p,POINTER(cType)]
-lib.ElDotDistMultiVec_c.restype = c_uint
-lib.ElDotDistMultiVec_z.argtypes = [c_void_p,c_void_p,POINTER(zType)]
-lib.ElDotDistMultiVec_z.restype = c_uint
+lib.ElDot_i.argtypes = \
+lib.ElDotDist_i.argtypes = \
+lib.ElDotDistMultiVec_i.argtypes = \
+  [c_void_p,c_void_p,POINTER(iType)]
+
+lib.ElDot_s.argtypes = \
+lib.ElDotDist_s.argtypes = \
+lib.ElDotDistMultiVec_s.argtypes = \
+  [c_void_p,c_void_p,POINTER(sType)]
+
+lib.ElDot_d.argtypes = \
+lib.ElDotDist_d.argtypes = \
+lib.ElDotDistMultiVec_d.argtypes = \
+  [c_void_p,c_void_p,POINTER(dType)]
+
+lib.ElDot_c.argtypes = \
+lib.ElDotDist_c.argtypes = \
+lib.ElDotDistMultiVec_c.argtypes = \
+  [c_void_p,c_void_p,POINTER(cType)]
+
+lib.ElDot_z.argtypes = \
+lib.ElDotDist_z.argtypes = \
+lib.ElDotDistMultiVec_z.argtypes = \
+  [c_void_p,c_void_p,POINTER(zType)]
+
+lib.ElDot_i.restype = \
+lib.ElDot_s.restype = \
+lib.ElDot_d.restype = \
+lib.ElDot_c.restype = \
+lib.ElDot_z.restype = \
+lib.ElDotDist_i.restype = \
+lib.ElDotDist_s.restype = \
+lib.ElDotDist_d.restype = \
+lib.ElDotDist_c.restype = \
+lib.ElDotDist_z.restype = \
+lib.ElDotDistMultiVec_i.restype = \
+lib.ElDotDistMultiVec_s.restype = \
+lib.ElDotDistMultiVec_d.restype = \
+lib.ElDotDistMultiVec_c.restype = \
+lib.ElDotDistMultiVec_z.restype = \
+  c_uint
+
 def Dot(A,B):
   if type(A) is not type(B): raise Exception('Types of A and B must match')
   if A.tag != B.tag: raise Exception('Datatypes of A and B must match')
@@ -768,18 +825,24 @@ def Dot(A,B):
 
 # Dotu
 # ----
-lib.ElDot_c.argtypes = [c_void_p,c_void_p,POINTER(cType)]
-lib.ElDot_c.restype = c_uint
-lib.ElDot_z.argtypes = [c_void_p,c_void_p,POINTER(zType)]
-lib.ElDot_z.restype = c_uint
-lib.ElDotDist_c.argtypes = [c_void_p,c_void_p,POINTER(cType)]
-lib.ElDotDist_c.restype = c_uint
-lib.ElDotDist_z.argtypes = [c_void_p,c_void_p,POINTER(zType)]
-lib.ElDotDist_z.restype = c_uint
-lib.ElDotDistMultiVec_c.argtypes = [c_void_p,c_void_p,POINTER(cType)]
-lib.ElDotDistMultiVec_c.restype = c_uint
-lib.ElDotDistMultiVec_z.argtypes = [c_void_p,c_void_p,POINTER(zType)]
-lib.ElDotDistMultiVec_z.restype = c_uint
+lib.ElDot_c.argtypes = \
+lib.ElDotDist_c.argtypes = \
+lib.ElDotDistMultiVec_c.argtypes = \
+  [c_void_p,c_void_p,POINTER(cType)]
+
+lib.ElDot_z.argtypes = \
+lib.ElDotDist_z.argtypes = \
+lib.ElDotDistMultiVec_z.argtypes = \
+  [c_void_p,c_void_p,POINTER(zType)]
+
+lib.ElDot_c.restype = \
+lib.ElDot_z.restype = \
+lib.ElDotDist_c.restype = \
+lib.ElDotDist_z.restype = \
+lib.ElDotDistMultiVec_c.restype = \
+lib.ElDotDistMultiVec_z.restype = \
+  c_uint
+
 def Dotu(A,B):
   if type(A) is not type(B): raise Exception('Types of A and B must match')
   if A.tag != B.tag: raise Exception('Datatypes of A and B must match')
@@ -811,36 +874,48 @@ def Dotu(A,B):
 
 # Entrywise fill
 # --------------
-lib.ElEntrywiseFill_i.argtypes = [c_void_p,CFUNCTYPE(iType)]
-lib.ElEntrywiseFill_i.restype = c_uint
-lib.ElEntrywiseFill_s.argtypes = [c_void_p,CFUNCTYPE(sType)]
-lib.ElEntrywiseFill_s.restype = c_uint
-lib.ElEntrywiseFill_d.argtypes = [c_void_p,CFUNCTYPE(dType)]
-lib.ElEntrywiseFill_d.restype = c_uint
-lib.ElEntrywiseFill_c.argtypes = [c_void_p,CFUNCTYPE(cType)]
-lib.ElEntrywiseFill_c.restype = c_uint
-lib.ElEntrywiseFill_z.argtypes = [c_void_p,CFUNCTYPE(zType)]
-lib.ElEntrywiseFill_z.restype = c_uint
-lib.ElEntrywiseFillDist_i.argtypes = [c_void_p,CFUNCTYPE(iType)]
-lib.ElEntrywiseFillDist_i.restype = c_uint
-lib.ElEntrywiseFillDist_s.argtypes = [c_void_p,CFUNCTYPE(sType)]
-lib.ElEntrywiseFillDist_s.restype = c_uint
-lib.ElEntrywiseFillDist_d.argtypes = [c_void_p,CFUNCTYPE(dType)]
-lib.ElEntrywiseFillDist_d.restype = c_uint
-lib.ElEntrywiseFillDist_c.argtypes = [c_void_p,CFUNCTYPE(cType)]
-lib.ElEntrywiseFillDist_c.restype = c_uint
-lib.ElEntrywiseFillDist_z.argtypes = [c_void_p,CFUNCTYPE(zType)]
-lib.ElEntrywiseFillDist_z.restype = c_uint
-lib.ElEntrywiseFillDistMultiVec_i.argtypes = [c_void_p,CFUNCTYPE(iType)]
-lib.ElEntrywiseFillDistMultiVec_i.restype = c_uint
-lib.ElEntrywiseFillDistMultiVec_s.argtypes = [c_void_p,CFUNCTYPE(sType)]
-lib.ElEntrywiseFillDistMultiVec_s.restype = c_uint
-lib.ElEntrywiseFillDistMultiVec_d.argtypes = [c_void_p,CFUNCTYPE(dType)]
-lib.ElEntrywiseFillDistMultiVec_d.restype = c_uint
-lib.ElEntrywiseFillDistMultiVec_c.argtypes = [c_void_p,CFUNCTYPE(cType)]
-lib.ElEntrywiseFillDistMultiVec_c.restype = c_uint
-lib.ElEntrywiseFillDistMultiVec_z.argtypes = [c_void_p,CFUNCTYPE(zType)]
-lib.ElEntrywiseFillDistMultiVec_z.restype = c_uint
+lib.ElEntrywiseFill_i.argtypes = \
+lib.ElEntrywiseFillDist_i.argtypes = \
+lib.ElEntrywiseFillDistMultiVec_i.argtypes = \
+  [c_void_p,CFUNCTYPE(iType)]
+
+lib.ElEntrywiseFill_s.argtypes = \
+lib.ElEntrywiseFillDist_s.argtypes = \
+lib.ElEntrywiseFillDistMultiVec_s.argtypes = \
+  [c_void_p,CFUNCTYPE(sType)]
+
+lib.ElEntrywiseFill_d.argtypes = \
+lib.ElEntrywiseFillDist_d.argtypes = \
+lib.ElEntrywiseFillDistMultiVec_d.argtypes = \
+  [c_void_p,CFUNCTYPE(dType)]
+
+lib.ElEntrywiseFill_c.argtypes = \
+lib.ElEntrywiseFillDist_c.argtypes = \
+lib.ElEntrywiseFillDistMultiVec_c.argtypes = \
+  [c_void_p,CFUNCTYPE(cType)]
+
+lib.ElEntrywiseFill_z.argtypes = \
+lib.ElEntrywiseFillDist_z.argtypes = \
+lib.ElEntrywiseFillDistMultiVec_z.argtypes = \
+  [c_void_p,CFUNCTYPE(zType)]
+
+lib.ElEntrywiseFill_i.restype = \
+lib.ElEntrywiseFill_s.restype = \
+lib.ElEntrywiseFill_d.restype = \
+lib.ElEntrywiseFill_c.restype = \
+lib.ElEntrywiseFill_z.restype = \
+lib.ElEntrywiseFillDist_i.restype = \
+lib.ElEntrywiseFillDist_s.restype = \
+lib.ElEntrywiseFillDist_d.restype = \
+lib.ElEntrywiseFillDist_c.restype = \
+lib.ElEntrywiseFillDist_z.restype = \
+lib.ElEntrywiseFillDistMultiVec_i.restype = \
+lib.ElEntrywiseFillDistMultiVec_s.restype = \
+lib.ElEntrywiseFillDistMultiVec_d.restype = \
+lib.ElEntrywiseFillDistMultiVec_c.restype = \
+lib.ElEntrywiseFillDistMultiVec_z.restype = \
+  c_uint
+
 def EntrywiseFill(A,fill):
   cFill = CFUNCTYPE(TagToType(A.tag))(fill)
   args = [A.obj,cFill]
@@ -869,56 +944,68 @@ def EntrywiseFill(A,fill):
 
 # Entrywise map
 # -------------
-lib.ElEntrywiseMap_i.argtypes = [c_void_p,CFUNCTYPE(iType,iType)]
-lib.ElEntrywiseMap_i.restype = c_uint
-lib.ElEntrywiseMap_s.argtypes = [c_void_p,CFUNCTYPE(sType,sType)]
-lib.ElEntrywiseMap_s.restype = c_uint
-lib.ElEntrywiseMap_d.argtypes = [c_void_p,CFUNCTYPE(dType,dType)]
-lib.ElEntrywiseMap_d.restype = c_uint
-lib.ElEntrywiseMap_c.argtypes = [c_void_p,CFUNCTYPE(cType,cType)]
-lib.ElEntrywiseMap_c.restype = c_uint
-lib.ElEntrywiseMap_z.argtypes = [c_void_p,CFUNCTYPE(zType,zType)]
-lib.ElEntrywiseMap_z.restype = c_uint
-lib.ElEntrywiseMapDist_i.argtypes = [c_void_p,CFUNCTYPE(iType,iType)]
-lib.ElEntrywiseMapDist_i.restype = c_uint
-lib.ElEntrywiseMapDist_s.argtypes = [c_void_p,CFUNCTYPE(sType,sType)]
-lib.ElEntrywiseMapDist_s.restype = c_uint
-lib.ElEntrywiseMapDist_d.argtypes = [c_void_p,CFUNCTYPE(dType,dType)]
-lib.ElEntrywiseMapDist_d.restype = c_uint
-lib.ElEntrywiseMapDist_c.argtypes = [c_void_p,CFUNCTYPE(cType,cType)]
-lib.ElEntrywiseMapDist_c.restype = c_uint
-lib.ElEntrywiseMapDist_z.argtypes = [c_void_p,CFUNCTYPE(zType,zType)]
-lib.ElEntrywiseMapDist_z.restype = c_uint
-lib.ElEntrywiseMapSparse_i.argtypes = [c_void_p,CFUNCTYPE(iType,iType)]
-lib.ElEntrywiseMapSparse_i.restype = c_uint
-lib.ElEntrywiseMapSparse_s.argtypes = [c_void_p,CFUNCTYPE(sType,sType)]
-lib.ElEntrywiseMapSparse_s.restype = c_uint
-lib.ElEntrywiseMapSparse_d.argtypes = [c_void_p,CFUNCTYPE(dType,dType)]
-lib.ElEntrywiseMapSparse_d.restype = c_uint
-lib.ElEntrywiseMapSparse_c.argtypes = [c_void_p,CFUNCTYPE(cType,cType)]
-lib.ElEntrywiseMapSparse_c.restype = c_uint
-lib.ElEntrywiseMapSparse_z.argtypes = [c_void_p,CFUNCTYPE(zType,zType)]
-lib.ElEntrywiseMapSparse_z.restype = c_uint
-lib.ElEntrywiseMapDistSparse_i.argtypes = [c_void_p,CFUNCTYPE(iType,iType)]
-lib.ElEntrywiseMapDistSparse_i.restype = c_uint
-lib.ElEntrywiseMapDistSparse_s.argtypes = [c_void_p,CFUNCTYPE(sType,sType)]
-lib.ElEntrywiseMapDistSparse_s.restype = c_uint
-lib.ElEntrywiseMapDistSparse_d.argtypes = [c_void_p,CFUNCTYPE(dType,dType)]
-lib.ElEntrywiseMapDistSparse_d.restype = c_uint
-lib.ElEntrywiseMapDistSparse_c.argtypes = [c_void_p,CFUNCTYPE(cType,cType)]
-lib.ElEntrywiseMapDistSparse_c.restype = c_uint
-lib.ElEntrywiseMapDistSparse_z.argtypes = [c_void_p,CFUNCTYPE(zType,zType)]
-lib.ElEntrywiseMapDistSparse_z.restype = c_uint
-lib.ElEntrywiseMapDistMultiVec_i.argtypes = [c_void_p,CFUNCTYPE(iType,iType)]
-lib.ElEntrywiseMapDistMultiVec_i.restype = c_uint
-lib.ElEntrywiseMapDistMultiVec_s.argtypes = [c_void_p,CFUNCTYPE(sType,sType)]
-lib.ElEntrywiseMapDistMultiVec_s.restype = c_uint
-lib.ElEntrywiseMapDistMultiVec_d.argtypes = [c_void_p,CFUNCTYPE(dType,dType)]
-lib.ElEntrywiseMapDistMultiVec_d.restype = c_uint
-lib.ElEntrywiseMapDistMultiVec_c.argtypes = [c_void_p,CFUNCTYPE(cType,cType)]
-lib.ElEntrywiseMapDistMultiVec_c.restype = c_uint
-lib.ElEntrywiseMapDistMultiVec_z.argtypes = [c_void_p,CFUNCTYPE(zType,zType)]
-lib.ElEntrywiseMapDistMultiVec_z.restype = c_uint
+lib.ElEntrywiseMap_i.argtypes = \
+lib.ElEntrywiseMapDist_i.argtypes = \
+lib.ElEntrywiseMapSparse_i.argtypes = \
+lib.ElEntrywiseMapDistSparse_i.argtypes = \
+lib.ElEntrywiseMapDistMultiVec_i.argtypes = \
+  [c_void_p,CFUNCTYPE(iType,iType)]
+
+lib.ElEntrywiseMap_s.argtypes = \
+lib.ElEntrywiseMapDist_s.argtypes = \
+lib.ElEntrywiseMapSparse_s.argtypes = \
+lib.ElEntrywiseMapDistSparse_s.argtypes = \
+lib.ElEntrywiseMapDistMultiVec_s.argtypes = \
+  [c_void_p,CFUNCTYPE(sType,sType)]
+
+lib.ElEntrywiseMap_d.argtypes = \
+lib.ElEntrywiseMapDist_d.argtypes = \
+lib.ElEntrywiseMapSparse_d.argtypes = \
+lib.ElEntrywiseMapDistSparse_d.argtypes = \
+lib.ElEntrywiseMapDistMultiVec_d.argtypes = \
+  [c_void_p,CFUNCTYPE(dType,dType)]
+
+lib.ElEntrywiseMap_c.argtypes = \
+lib.ElEntrywiseMapDist_c.argtypes = \
+lib.ElEntrywiseMapSparse_c.argtypes = \
+lib.ElEntrywiseMapDistSparse_c.argtypes = \
+lib.ElEntrywiseMapDistMultiVec_c.argtypes = \
+  [c_void_p,CFUNCTYPE(cType,cType)]
+
+lib.ElEntrywiseMap_z.argtypes = \
+lib.ElEntrywiseMapDist_z.argtypes = \
+lib.ElEntrywiseMapSparse_z.argtypes = \
+lib.ElEntrywiseMapDistSparse_z.argtypes = \
+lib.ElEntrywiseMapDistMultiVec_z.argtypes = \
+  [c_void_p,CFUNCTYPE(zType,zType)]
+
+lib.ElEntrywiseMap_i.restype = \
+lib.ElEntrywiseMap_s.restype = \
+lib.ElEntrywiseMap_d.restype = \
+lib.ElEntrywiseMap_c.restype = \
+lib.ElEntrywiseMap_z.restype = \
+lib.ElEntrywiseMapDist_i.restype = \
+lib.ElEntrywiseMapDist_s.restype = \
+lib.ElEntrywiseMapDist_d.restype = \
+lib.ElEntrywiseMapDist_c.restype = \
+lib.ElEntrywiseMapDist_z.restype = \
+lib.ElEntrywiseMapSparse_i.restype = \
+lib.ElEntrywiseMapSparse_s.restype = \
+lib.ElEntrywiseMapSparse_d.restype = \
+lib.ElEntrywiseMapSparse_c.restype = \
+lib.ElEntrywiseMapSparse_z.restype = \
+lib.ElEntrywiseMapDistSparse_i.restype = \
+lib.ElEntrywiseMapDistSparse_s.restype = \
+lib.ElEntrywiseMapDistSparse_d.restype = \
+lib.ElEntrywiseMapDistSparse_c.restype = \
+lib.ElEntrywiseMapDistSparse_z.restype = \
+lib.ElEntrywiseMapDistMultiVec_i.restype = \
+lib.ElEntrywiseMapDistMultiVec_s.restype = \
+lib.ElEntrywiseMapDistMultiVec_d.restype = \
+lib.ElEntrywiseMapDistMultiVec_c.restype = \
+lib.ElEntrywiseMapDistMultiVec_z.restype = \
+  c_uint
+
 def EntrywiseMap(A,mapFunc):
   cMap = CFUNCTYPE(TagToType(A.tag),TagToType(A.tag))(mapFunc)
   args = [A.obj,cMap]
@@ -961,26 +1048,38 @@ def EntrywiseMap(A,mapFunc):
 
 # Fill
 # ----
-lib.ElFill_i.argtypes = [c_void_p,iType]
-lib.ElFill_i.restype = c_uint
-lib.ElFill_s.argtypes = [c_void_p,sType]
-lib.ElFill_s.restype = c_uint
-lib.ElFill_d.argtypes = [c_void_p,dType]
-lib.ElFill_d.restype = c_uint
-lib.ElFill_c.argtypes = [c_void_p,cType]
-lib.ElFill_c.restype = c_uint
-lib.ElFill_z.argtypes = [c_void_p,zType]
-lib.ElFill_z.restype = c_uint
-lib.ElFillDist_i.argtypes = [c_void_p,iType]
-lib.ElFillDist_i.restype = c_uint
-lib.ElFillDist_s.argtypes = [c_void_p,sType]
-lib.ElFillDist_s.restype = c_uint
-lib.ElFillDist_d.argtypes = [c_void_p,dType]
-lib.ElFillDist_d.restype = c_uint
-lib.ElFillDist_c.argtypes = [c_void_p,cType]
-lib.ElFillDist_c.restype = c_uint
-lib.ElFillDist_z.argtypes = [c_void_p,zType]
-lib.ElFillDist_z.restype = c_uint
+lib.ElFill_i.argtypes = \
+lib.ElFillDist_i.argtypes = \
+  [c_void_p,iType]
+
+lib.ElFill_s.argtypes = \
+lib.ElFillDist_s.argtypes = \
+  [c_void_p,sType]
+
+lib.ElFill_d.argtypes = \
+lib.ElFillDist_d.argtypes = \
+  [c_void_p,dType]
+
+lib.ElFill_c.argtypes = \
+lib.ElFillDist_c.argtypes = \
+  [c_void_p,cType]
+
+lib.ElFill_z.argtypes = \
+lib.ElFillDist_z.argtypes = \
+  [c_void_p,zType]
+
+lib.ElFill_i.restype = \
+lib.ElFill_s.restype = \
+lib.ElFill_d.restype = \
+lib.ElFill_c.restype = \
+lib.ElFill_z.restype = \
+lib.ElFillDist_i.restype = \
+lib.ElFillDist_s.restype = \
+lib.ElFillDist_d.restype = \
+lib.ElFillDist_c.restype = \
+lib.ElFillDist_z.restype = \
+  c_uint
+
 def Fill(A,alphaPre):
   alpha = TagToType(A.tag)(alphaPre)
   args = [A.obj,alpha]
@@ -1002,26 +1101,38 @@ def Fill(A,alphaPre):
 
 # Fill diagonal
 # ------------
-lib.ElFillDiagonal_i.argtypes = [c_void_p,iType,iType]
-lib.ElFillDiagonal_i.restype = c_uint
-lib.ElFillDiagonal_s.argtypes = [c_void_p,sType,iType]
-lib.ElFillDiagonal_s.restype = c_uint
-lib.ElFillDiagonal_d.argtypes = [c_void_p,dType,iType]
-lib.ElFillDiagonal_d.restype = c_uint
-lib.ElFillDiagonal_c.argtypes = [c_void_p,cType,iType]
-lib.ElFillDiagonal_c.restype = c_uint
-lib.ElFillDiagonal_z.argtypes = [c_void_p,zType,iType]
-lib.ElFillDiagonal_z.restype = c_uint
-lib.ElFillDiagonalDist_i.argtypes = [c_void_p,iType,iType]
-lib.ElFillDiagonalDist_i.restype = c_uint
-lib.ElFillDiagonalDist_s.argtypes = [c_void_p,sType,iType]
-lib.ElFillDiagonalDist_s.restype = c_uint
-lib.ElFillDiagonalDist_d.argtypes = [c_void_p,dType,iType]
-lib.ElFillDiagonalDist_d.restype = c_uint
-lib.ElFillDiagonalDist_c.argtypes = [c_void_p,cType,iType]
-lib.ElFillDiagonalDist_c.restype = c_uint
-lib.ElFillDiagonalDist_z.argtypes = [c_void_p,zType,iType]
-lib.ElFillDiagonalDist_z.restype = c_uint
+lib.ElFillDiagonal_i.argtypes = \
+lib.ElFillDiagonalDist_i.argtypes = \
+  [c_void_p,iType,iType]
+
+lib.ElFillDiagonal_s.argtypes = \
+lib.ElFillDiagonalDist_s.argtypes = \
+  [c_void_p,sType,iType]
+
+lib.ElFillDiagonal_d.argtypes = \
+lib.ElFillDiagonalDist_d.argtypes = \
+  [c_void_p,dType,iType]
+
+lib.ElFillDiagonal_c.argtypes = \
+lib.ElFillDiagonalDist_c.argtypes = \
+  [c_void_p,cType,iType]
+
+lib.ElFillDiagonal_z.argtypes = \
+lib.ElFillDiagonalDist_z.argtypes = \
+  [c_void_p,zType,iType]
+
+lib.ElFillDiagonal_i.restype = \
+lib.ElFillDiagonal_s.restype = \
+lib.ElFillDiagonal_d.restype = \
+lib.ElFillDiagonal_c.restype = \
+lib.ElFillDiagonal_z.restype = \
+lib.ElFillDiagonalDist_i.restype = \
+lib.ElFillDiagonalDist_s.restype = \
+lib.ElFillDiagonalDist_d.restype = \
+lib.ElFillDiagonalDist_c.restype = \
+lib.ElFillDiagonalDist_z.restype = \
+  c_uint
+
 def FillDiagonal(A,alphaPre,offset=0):
   alpha = TagToType(A.tag)(alphaPre)
   args = [A.obj,alpha,offset]
@@ -1047,26 +1158,30 @@ def FillDiagonal(A,alphaPre,offset=0):
 
 # Hadamard
 # --------
-lib.ElHadamard_i.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElHadamard_i.restype = c_uint
-lib.ElHadamard_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElHadamard_s.restype = c_uint
-lib.ElHadamard_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElHadamard_d.restype = c_uint
-lib.ElHadamard_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElHadamard_c.restype = c_uint
-lib.ElHadamard_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElHadamard_z.restype = c_uint
-lib.ElHadamardDist_i.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElHadamardDist_i.restype = c_uint
-lib.ElHadamardDist_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElHadamardDist_s.restype = c_uint
-lib.ElHadamardDist_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElHadamardDist_d.restype = c_uint
-lib.ElHadamardDist_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElHadamardDist_c.restype = c_uint
-lib.ElHadamardDist_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElHadamardDist_z.restype = c_uint
+lib.ElHadamard_i.argtypes = \
+lib.ElHadamard_s.argtypes = \
+lib.ElHadamard_d.argtypes = \
+lib.ElHadamard_c.argtypes = \
+lib.ElHadamard_z.argtypes = \
+lib.ElHadamardDist_i.argtypes = \
+lib.ElHadamardDist_s.argtypes = \
+lib.ElHadamardDist_d.argtypes = \
+lib.ElHadamardDist_c.argtypes = \
+lib.ElHadamardDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+
+lib.ElHadamard_i.restype = \
+lib.ElHadamard_s.restype = \
+lib.ElHadamard_d.restype = \
+lib.ElHadamard_c.restype = \
+lib.ElHadamard_z.restype = \
+lib.ElHadamardDist_i.restype = \
+lib.ElHadamardDist_s.restype = \
+lib.ElHadamardDist_d.restype = \
+lib.ElHadamardDist_c.restype = \
+lib.ElHadamardDist_z.restype = \
+  c_uint
+
 def Hadamard(A,B,C):
   if type(A) is not type(B) or type(B) is not type(C):
     raise Exception('Matrix types must match')
@@ -1091,36 +1206,48 @@ def Hadamard(A,B,C):
 
 # Hilbert-Schmidt
 # ---------------
-lib.ElHilbertSchmidt_i.argtypes = [c_void_p,c_void_p,POINTER(iType)]
-lib.ElHilbertSchmidt_i.restype = c_uint
-lib.ElHilbertSchmidt_s.argtypes = [c_void_p,c_void_p,POINTER(sType)]
-lib.ElHilbertSchmidt_s.restype = c_uint
-lib.ElHilbertSchmidt_d.argtypes = [c_void_p,c_void_p,POINTER(dType)]
-lib.ElHilbertSchmidt_d.restype = c_uint
-lib.ElHilbertSchmidt_c.argtypes = [c_void_p,c_void_p,POINTER(cType)]
-lib.ElHilbertSchmidt_c.restype = c_uint
-lib.ElHilbertSchmidt_z.argtypes = [c_void_p,c_void_p,POINTER(zType)]
-lib.ElHilbertSchmidt_z.restype = c_uint
-lib.ElHilbertSchmidtDist_i.argtypes = [c_void_p,c_void_p,POINTER(iType)]
-lib.ElHilbertSchmidtDist_i.restype = c_uint
-lib.ElHilbertSchmidtDist_s.argtypes = [c_void_p,c_void_p,POINTER(sType)]
-lib.ElHilbertSchmidtDist_s.restype = c_uint
-lib.ElHilbertSchmidtDist_d.argtypes = [c_void_p,c_void_p,POINTER(dType)]
-lib.ElHilbertSchmidtDist_d.restype = c_uint
-lib.ElHilbertSchmidtDist_c.argtypes = [c_void_p,c_void_p,POINTER(cType)]
-lib.ElHilbertSchmidtDist_c.restype = c_uint
-lib.ElHilbertSchmidtDist_z.argtypes = [c_void_p,c_void_p,POINTER(zType)]
-lib.ElHilbertSchmidtDist_z.restype = c_uint
-lib.ElHilbertSchmidtDistMultiVec_i.argtypes = [c_void_p,c_void_p,POINTER(iType)]
-lib.ElHilbertSchmidtDistMultiVec_i.restype = c_uint
-lib.ElHilbertSchmidtDistMultiVec_s.argtypes = [c_void_p,c_void_p,POINTER(sType)]
-lib.ElHilbertSchmidtDistMultiVec_s.restype = c_uint
-lib.ElHilbertSchmidtDistMultiVec_d.argtypes = [c_void_p,c_void_p,POINTER(dType)]
-lib.ElHilbertSchmidtDistMultiVec_d.restype = c_uint
-lib.ElHilbertSchmidtDistMultiVec_c.argtypes = [c_void_p,c_void_p,POINTER(cType)]
-lib.ElHilbertSchmidtDistMultiVec_c.restype = c_uint
-lib.ElHilbertSchmidtDistMultiVec_z.argtypes = [c_void_p,c_void_p,POINTER(zType)]
-lib.ElHilbertSchmidtDistMultiVec_z.restype = c_uint
+lib.ElHilbertSchmidt_i.argtypes = \
+lib.ElHilbertSchmidtDist_i.argtypes = \
+lib.ElHilbertSchmidtDistMultiVec_i.argtypes = \
+  [c_void_p,c_void_p,POINTER(iType)]
+
+lib.ElHilbertSchmidt_s.argtypes = \
+lib.ElHilbertSchmidtDist_s.argtypes = \
+lib.ElHilbertSchmidtDistMultiVec_s.argtypes = \
+  [c_void_p,c_void_p,POINTER(sType)]
+
+lib.ElHilbertSchmidt_d.argtypes = \
+lib.ElHilbertSchmidtDist_d.argtypes = \
+lib.ElHilbertSchmidtDistMultiVec_d.argtypes = \
+  [c_void_p,c_void_p,POINTER(dType)]
+
+lib.ElHilbertSchmidt_c.argtypes = \
+lib.ElHilbertSchmidtDist_c.argtypes = \
+lib.ElHilbertSchmidtDistMultiVec_c.argtypes = \
+  [c_void_p,c_void_p,POINTER(cType)]
+
+lib.ElHilbertSchmidt_z.argtypes = \
+lib.ElHilbertSchmidtDist_z.argtypes = \
+lib.ElHilbertSchmidtDistMultiVec_z.argtypes = \
+  [c_void_p,c_void_p,POINTER(zType)]
+
+lib.ElHilbertSchmidt_i.restype = \
+lib.ElHilbertSchmidt_s.restype = \
+lib.ElHilbertSchmidt_d.restype = \
+lib.ElHilbertSchmidt_c.restype = \
+lib.ElHilbertSchmidt_z.restype = \
+lib.ElHilbertSchmidtDist_i.restype = \
+lib.ElHilbertSchmidtDist_s.restype = \
+lib.ElHilbertSchmidtDist_d.restype = \
+lib.ElHilbertSchmidtDist_c.restype = \
+lib.ElHilbertSchmidtDist_z.restype = \
+lib.ElHilbertSchmidtDistMultiVec_i.restype = \
+lib.ElHilbertSchmidtDistMultiVec_s.restype = \
+lib.ElHilbertSchmidtDistMultiVec_d.restype = \
+lib.ElHilbertSchmidtDistMultiVec_c.restype = \
+lib.ElHilbertSchmidtDistMultiVec_z.restype = \
+  c_uint
+
 def HilbertSchmidt(A,B):
   if type(A) is type(B): raise Exception('Matrix types must match')
   if A.tag != B.tag: raise Exception('Datatypes must match')
@@ -1152,31 +1279,38 @@ def HilbertSchmidt(A,B):
 
 # Index dependent fill
 # --------------------
-lib.ElIndexDependentFill_i.argtypes = [c_void_p,CFUNCTYPE(iType,iType,iType)]
-lib.ElIndexDependentFill_i.restype = c_uint
-lib.ElIndexDependentFill_s.argtypes = [c_void_p,CFUNCTYPE(sType,iType,iType)]
-lib.ElIndexDependentFill_s.restype = c_uint
-lib.ElIndexDependentFill_d.argtypes = [c_void_p,CFUNCTYPE(dType,iType,iType)]
-lib.ElIndexDependentFill_d.restype = c_uint
-lib.ElIndexDependentFill_c.argtypes = [c_void_p,CFUNCTYPE(cType,iType,iType)]
-lib.ElIndexDependentFill_c.restype = c_uint
-lib.ElIndexDependentFill_z.argtypes = [c_void_p,CFUNCTYPE(zType,iType,iType)]
-lib.ElIndexDependentFill_z.restype = c_uint
+lib.ElIndexDependentFill_i.argtypes = \
 lib.ElIndexDependentFillDist_i.argtypes = \
   [c_void_p,CFUNCTYPE(iType,iType,iType)]
-lib.ElIndexDependentFillDist_i.restype = c_uint
+
+lib.ElIndexDependentFill_s.argtypes = \
 lib.ElIndexDependentFillDist_s.argtypes = \
   [c_void_p,CFUNCTYPE(sType,iType,iType)]
-lib.ElIndexDependentFillDist_s.restype = c_uint
+
+lib.ElIndexDependentFill_d.argtypes = \
 lib.ElIndexDependentFillDist_d.argtypes = \
   [c_void_p,CFUNCTYPE(dType,iType,iType)]
-lib.ElIndexDependentFillDist_d.restype = c_uint
+
+lib.ElIndexDependentFill_c.argtypes = \
 lib.ElIndexDependentFillDist_c.argtypes = \
   [c_void_p,CFUNCTYPE(cType,iType,iType)]
-lib.ElIndexDependentFillDist_c.restype = c_uint
+
+lib.ElIndexDependentFill_z.argtypes = \
 lib.ElIndexDependentFillDist_z.argtypes = \
   [c_void_p,CFUNCTYPE(zType,iType,iType)]
-lib.ElIndexDependentFillDist_z.restype = c_uint
+
+lib.ElIndexDependentFill_i.restype = \
+lib.ElIndexDependentFill_s.restype = \
+lib.ElIndexDependentFill_d.restype = \
+lib.ElIndexDependentFill_c.restype = \
+lib.ElIndexDependentFill_z.restype = \
+lib.ElIndexDependentFillDist_i.restype = \
+lib.ElIndexDependentFillDist_s.restype = \
+lib.ElIndexDependentFillDist_d.restype = \
+lib.ElIndexDependentFillDist_c.restype = \
+lib.ElIndexDependentFillDist_z.restype = \
+  c_uint
+
 def IndexDependentFill(A,fill):
   cFill = CFUNCTYPE(TagToType(A.tag),iType,iType)(fill)
   args = [A.obj,cFill]
@@ -1199,35 +1333,37 @@ def IndexDependentFill(A,fill):
 # Index dependent map
 # -------------------
 lib.ElIndexDependentMap_i.argtypes = \
-  [c_void_p,CFUNCTYPE(iType,iType,iType,iType)]
-lib.ElIndexDependentMap_i.restype = c_uint
-lib.ElIndexDependentMap_s.argtypes = \
-  [c_void_p,CFUNCTYPE(sType,iType,iType,sType)]
-lib.ElIndexDependentMap_s.restype = c_uint
-lib.ElIndexDependentMap_d.argtypes = \
-  [c_void_p,CFUNCTYPE(dType,iType,iType,dType)]
-lib.ElIndexDependentMap_d.restype = c_uint
-lib.ElIndexDependentMap_c.argtypes = \
-  [c_void_p,CFUNCTYPE(cType,iType,iType,cType)]
-lib.ElIndexDependentMap_c.restype = c_uint
-lib.ElIndexDependentMap_z.argtypes = \
-  [c_void_p,CFUNCTYPE(zType,iType,iType,zType)]
-lib.ElIndexDependentMap_z.restype = c_uint
 lib.ElIndexDependentMapDist_i.argtypes = \
   [c_void_p,CFUNCTYPE(iType,iType,iType,iType)]
-lib.ElIndexDependentMapDist_i.restype = c_uint
+
+lib.ElIndexDependentMap_s.argtypes = \
 lib.ElIndexDependentMapDist_s.argtypes = \
   [c_void_p,CFUNCTYPE(sType,iType,iType,sType)]
-lib.ElIndexDependentMapDist_s.restype = c_uint
+
+lib.ElIndexDependentMap_d.argtypes = \
 lib.ElIndexDependentMapDist_d.argtypes = \
   [c_void_p,CFUNCTYPE(dType,iType,iType,dType)]
-lib.ElIndexDependentMapDist_d.restype = c_uint
+
+lib.ElIndexDependentMap_c.argtypes = \
 lib.ElIndexDependentMapDist_c.argtypes = \
   [c_void_p,CFUNCTYPE(cType,iType,iType,cType)]
-lib.ElIndexDependentMapDist_c.restype = c_uint
+
+lib.ElIndexDependentMap_z.argtypes = \
 lib.ElIndexDependentMapDist_z.argtypes = \
   [c_void_p,CFUNCTYPE(zType,iType,iType,zType)]
-lib.ElIndexDependentMapDist_z.restype = c_uint
+
+lib.ElIndexDependentMap_i.restype = \
+lib.ElIndexDependentMap_s.restype = \
+lib.ElIndexDependentMap_d.restype = \
+lib.ElIndexDependentMap_c.restype = \
+lib.ElIndexDependentMap_z.restype = \
+lib.ElIndexDependentMapDist_i.restype = \
+lib.ElIndexDependentMapDist_s.restype = \
+lib.ElIndexDependentMapDist_d.restype = \
+lib.ElIndexDependentMapDist_c.restype = \
+lib.ElIndexDependentMapDist_z.restype = \
+  c_uint
+
 def IndexDependentMap(A,mapFunc):
   typeA = TagToType(A)
   cMap = CFUNCTYPE(typeA,iType,iType,typeA)(mapFunc)
@@ -1250,63 +1386,69 @@ def IndexDependentMap(A,mapFunc):
 
 # Make symmetric/Hermitian
 # ------------------------
-lib.ElMakeSymmetric_i.argtypes = [c_uint,c_void_p]
-lib.ElMakeSymmetric_i.restype = c_uint
-lib.ElMakeSymmetric_s.argtypes = [c_uint,c_void_p]
-lib.ElMakeSymmetric_s.restype = c_uint
-lib.ElMakeSymmetric_d.argtypes = [c_uint,c_void_p]
-lib.ElMakeSymmetric_d.restype = c_uint
-lib.ElMakeSymmetric_c.argtypes = [c_uint,c_void_p]
-lib.ElMakeSymmetric_c.restype = c_uint
-lib.ElMakeSymmetric_z.argtypes = [c_uint,c_void_p]
-lib.ElMakeSymmetric_z.restype = c_uint
-lib.ElMakeSymmetricDist_i.argtypes = [c_uint,c_void_p]
-lib.ElMakeSymmetricDist_i.restype = c_uint
-lib.ElMakeSymmetricDist_s.argtypes = [c_uint,c_void_p]
-lib.ElMakeSymmetricDist_s.restype = c_uint
-lib.ElMakeSymmetricDist_d.argtypes = [c_uint,c_void_p]
-lib.ElMakeSymmetricDist_d.restype = c_uint
-lib.ElMakeSymmetricDist_c.argtypes = [c_uint,c_void_p]
-lib.ElMakeSymmetricDist_c.restype = c_uint
-lib.ElMakeSymmetricDist_z.argtypes = [c_uint,c_void_p]
-lib.ElMakeSymmetricDist_z.restype = c_uint
-lib.ElMakeSymmetricSparse_i.argtypes = [c_uint,c_void_p]
-lib.ElMakeSymmetricSparse_i.restype = c_uint
-lib.ElMakeSymmetricSparse_s.argtypes = [c_uint,c_void_p]
-lib.ElMakeSymmetricSparse_s.restype = c_uint
-lib.ElMakeSymmetricSparse_d.argtypes = [c_uint,c_void_p]
-lib.ElMakeSymmetricSparse_d.restype = c_uint
-lib.ElMakeSymmetricSparse_c.argtypes = [c_uint,c_void_p]
-lib.ElMakeSymmetricSparse_c.restype = c_uint
-lib.ElMakeSymmetricSparse_z.argtypes = [c_uint,c_void_p]
-lib.ElMakeSymmetricSparse_z.restype = c_uint
-lib.ElMakeSymmetricDistSparse_i.argtypes = [c_uint,c_void_p]
-lib.ElMakeSymmetricDistSparse_i.restype = c_uint
-lib.ElMakeSymmetricDistSparse_s.argtypes = [c_uint,c_void_p]
-lib.ElMakeSymmetricDistSparse_s.restype = c_uint
-lib.ElMakeSymmetricDistSparse_d.argtypes = [c_uint,c_void_p]
-lib.ElMakeSymmetricDistSparse_d.restype = c_uint
-lib.ElMakeSymmetricDistSparse_c.argtypes = [c_uint,c_void_p]
-lib.ElMakeSymmetricDistSparse_c.restype = c_uint
-lib.ElMakeSymmetricDistSparse_z.argtypes = [c_uint,c_void_p]
-lib.ElMakeSymmetricDistSparse_z.restype = c_uint
+lib.ElMakeSymmetric_i.argtypes = \
+lib.ElMakeSymmetric_s.argtypes = \
+lib.ElMakeSymmetric_d.argtypes = \
+lib.ElMakeSymmetric_c.argtypes = \
+lib.ElMakeSymmetric_z.argtypes = \
+lib.ElMakeSymmetricDist_i.argtypes = \
+lib.ElMakeSymmetricDist_s.argtypes = \
+lib.ElMakeSymmetricDist_d.argtypes = \
+lib.ElMakeSymmetricDist_c.argtypes = \
+lib.ElMakeSymmetricDist_z.argtypes = \
+lib.ElMakeSymmetricSparse_i.argtypes = \
+lib.ElMakeSymmetricSparse_s.argtypes = \
+lib.ElMakeSymmetricSparse_d.argtypes = \
+lib.ElMakeSymmetricSparse_c.argtypes = \
+lib.ElMakeSymmetricSparse_z.argtypes = \
+lib.ElMakeSymmetricDistSparse_i.argtypes = \
+lib.ElMakeSymmetricDistSparse_s.argtypes = \
+lib.ElMakeSymmetricDistSparse_d.argtypes = \
+lib.ElMakeSymmetricDistSparse_c.argtypes = \
+lib.ElMakeSymmetricDistSparse_z.argtypes = \
+  [c_uint,c_void_p]
 
-lib.ElMakeHermitian_c.argtypes = [c_uint,c_void_p]
-lib.ElMakeHermitian_c.restype = c_uint
-lib.ElMakeHermitian_z.argtypes = [c_uint,c_void_p]
-lib.ElMakeHermitian_z.restype = c_uint
-lib.ElMakeHermitianDist_c.argtypes = [c_uint,c_void_p]
-lib.ElMakeHermitianDist_c.restype = c_uint
-lib.ElMakeHermitianDist_z.argtypes = [c_uint,c_void_p]
-lib.ElMakeHermitianDist_z.restype = c_uint
-lib.ElMakeHermitianSparse_c.argtypes = [c_uint,c_void_p]
-lib.ElMakeHermitianSparse_c.restype = c_uint
-lib.ElMakeHermitianSparse_z.argtypes = [c_uint,c_void_p]
-lib.ElMakeHermitianSparse_z.restype = c_uint
-lib.ElMakeHermitianDistSparse_c.argtypes = [c_uint,c_void_p]
-lib.ElMakeHermitianDistSparse_c.restype = c_uint
-lib.ElMakeHermitianDistSparse_z.argtypes = [c_uint,c_void_p]
-lib.ElMakeHermitianDistSparse_z.restype = c_uint
+lib.ElMakeSymmetric_i.restype = \
+lib.ElMakeSymmetric_s.restype = \
+lib.ElMakeSymmetric_d.restype = \
+lib.ElMakeSymmetric_c.restype = \
+lib.ElMakeSymmetric_z.restype = \
+lib.ElMakeSymmetricDist_i.restype = \
+lib.ElMakeSymmetricDist_s.restype = \
+lib.ElMakeSymmetricDist_d.restype = \
+lib.ElMakeSymmetricDist_c.restype = \
+lib.ElMakeSymmetricDist_z.restype = \
+lib.ElMakeSymmetricSparse_i.restype = \
+lib.ElMakeSymmetricSparse_s.restype = \
+lib.ElMakeSymmetricSparse_d.restype = \
+lib.ElMakeSymmetricSparse_c.restype = \
+lib.ElMakeSymmetricSparse_z.restype = \
+lib.ElMakeSymmetricDistSparse_i.restype = \
+lib.ElMakeSymmetricDistSparse_s.restype = \
+lib.ElMakeSymmetricDistSparse_d.restype = \
+lib.ElMakeSymmetricDistSparse_c.restype = \
+lib.ElMakeSymmetricDistSparse_z.restype = \
+  c_uint
+
+lib.ElMakeHermitian_c.argtypes = \
+lib.ElMakeHermitian_z.argtypes = \
+lib.ElMakeHermitianDist_c.argtypes = \
+lib.ElMakeHermitianDist_z.argtypes = \
+lib.ElMakeHermitianSparse_c.argtypes = \
+lib.ElMakeHermitianSparse_z.argtypes = \
+lib.ElMakeHermitianDistSparse_c.argtypes = \
+lib.ElMakeHermitianDistSparse_z.argtypes = \
+  [c_uint,c_void_p]
+
+lib.ElMakeHermitian_c.restype = \
+lib.ElMakeHermitian_z.restype = \
+lib.ElMakeHermitianDist_c.restype = \
+lib.ElMakeHermitianDist_z.restype = \
+lib.ElMakeHermitianSparse_c.restype = \
+lib.ElMakeHermitianSparse_z.restype = \
+lib.ElMakeHermitianDistSparse_c.restype = \
+lib.ElMakeHermitianDistSparse_z.restype = \
+  c_uint
 
 def MakeSymmetric(uplo,A,conj=False):
   args = [uplo,A.obj]
@@ -1361,14 +1503,18 @@ def MakeHermitian(uplo,A):
 
 # Make real
 # ---------
-lib.ElMakeReal_c.argtypes = [c_uint,c_void_p]
-lib.ElMakeReal_c.restype = c_uint
-lib.ElMakeReal_z.argtypes = [c_uint,c_void_p]
-lib.ElMakeReal_z.restype = c_uint
-lib.ElMakeRealDist_c.argtypes = [c_uint,c_void_p]
-lib.ElMakeRealDist_c.restype = c_uint
-lib.ElMakeRealDist_z.argtypes = [c_uint,c_void_p]
-lib.ElMakeRealDist_z.restype = c_uint
+lib.ElMakeReal_c.argtypes = \
+lib.ElMakeReal_z.argtypes = \
+lib.ElMakeRealDist_c.argtypes = \
+lib.ElMakeRealDist_z.argtypes = \
+  [c_uint,c_void_p]
+
+lib.ElMakeReal_c.restype = \
+lib.ElMakeReal_z.restype = \
+lib.ElMakeRealDist_c.restype = \
+lib.ElMakeRealDist_z.restype = \
+  c_uint
+
 def MakeReal(uplo,A):
   args = [uplo,A.obj]
   if type(A) is Matrix:
@@ -1381,36 +1527,40 @@ def MakeReal(uplo,A):
 
 # Make trapezoidal
 # ----------------
-lib.ElMakeTrapezoidal_i.argtypes = [c_uint,c_void_p,iType]
-lib.ElMakeTrapezoidal_i.restype = c_uint
-lib.ElMakeTrapezoidal_s.argtypes = [c_uint,c_void_p,iType]
-lib.ElMakeTrapezoidal_s.restype = c_uint
-lib.ElMakeTrapezoidal_d.argtypes = [c_uint,c_void_p,iType]
-lib.ElMakeTrapezoidal_d.restype = c_uint
-lib.ElMakeTrapezoidal_c.argtypes = [c_uint,c_void_p,iType]
-lib.ElMakeTrapezoidal_c.restype = c_uint
-lib.ElMakeTrapezoidal_z.argtypes = [c_uint,c_void_p,iType]
-lib.ElMakeTrapezoidal_z.restype = c_uint
-lib.ElMakeTrapezoidalDist_i.argtypes = [c_uint,c_void_p,iType]
-lib.ElMakeTrapezoidalDist_i.restype = c_uint
-lib.ElMakeTrapezoidalDist_s.argtypes = [c_uint,c_void_p,iType]
-lib.ElMakeTrapezoidalDist_s.restype = c_uint
-lib.ElMakeTrapezoidalDist_d.argtypes = [c_uint,c_void_p,iType]
-lib.ElMakeTrapezoidalDist_d.restype = c_uint
-lib.ElMakeTrapezoidalDist_c.argtypes = [c_uint,c_void_p,iType]
-lib.ElMakeTrapezoidalDist_c.restype = c_uint
-lib.ElMakeTrapezoidalDist_z.argtypes = [c_uint,c_void_p,iType]
-lib.ElMakeTrapezoidalDist_z.restype = c_uint
-lib.ElMakeTrapezoidalSparse_i.argtypes = [c_uint,c_void_p,iType]
-lib.ElMakeTrapezoidalSparse_i.restype = c_uint
-lib.ElMakeTrapezoidalSparse_s.argtypes = [c_uint,c_void_p,iType]
-lib.ElMakeTrapezoidalSparse_s.restype = c_uint
-lib.ElMakeTrapezoidalSparse_d.argtypes = [c_uint,c_void_p,iType]
-lib.ElMakeTrapezoidalSparse_d.restype = c_uint
-lib.ElMakeTrapezoidalSparse_c.argtypes = [c_uint,c_void_p,iType]
-lib.ElMakeTrapezoidalSparse_c.restype = c_uint
-lib.ElMakeTrapezoidalSparse_z.argtypes = [c_uint,c_void_p,iType]
-lib.ElMakeTrapezoidalSparse_z.restype = c_uint
+lib.ElMakeTrapezoidal_i.argtypes = \
+lib.ElMakeTrapezoidal_s.argtypes = \
+lib.ElMakeTrapezoidal_d.argtypes = \
+lib.ElMakeTrapezoidal_c.argtypes = \
+lib.ElMakeTrapezoidal_z.argtypes = \
+lib.ElMakeTrapezoidalDist_i.argtypes = \
+lib.ElMakeTrapezoidalDist_s.argtypes = \
+lib.ElMakeTrapezoidalDist_d.argtypes = \
+lib.ElMakeTrapezoidalDist_c.argtypes = \
+lib.ElMakeTrapezoidalDist_z.argtypes = \
+lib.ElMakeTrapezoidalSparse_i.argtypes = \
+lib.ElMakeTrapezoidalSparse_s.argtypes = \
+lib.ElMakeTrapezoidalSparse_d.argtypes = \
+lib.ElMakeTrapezoidalSparse_c.argtypes = \
+lib.ElMakeTrapezoidalSparse_z.argtypes = \
+  [c_uint,c_void_p,iType]
+
+lib.ElMakeTrapezoidal_i.restype = \
+lib.ElMakeTrapezoidal_s.restype = \
+lib.ElMakeTrapezoidal_d.restype = \
+lib.ElMakeTrapezoidal_c.restype = \
+lib.ElMakeTrapezoidal_z.restype = \
+lib.ElMakeTrapezoidalDist_i.restype = \
+lib.ElMakeTrapezoidalDist_s.restype = \
+lib.ElMakeTrapezoidalDist_d.restype = \
+lib.ElMakeTrapezoidalDist_c.restype = \
+lib.ElMakeTrapezoidalDist_z.restype = \
+lib.ElMakeTrapezoidalSparse_i.restype = \
+lib.ElMakeTrapezoidalSparse_s.restype = \
+lib.ElMakeTrapezoidalSparse_d.restype = \
+lib.ElMakeTrapezoidalSparse_c.restype = \
+lib.ElMakeTrapezoidalSparse_z.restype = \
+  c_uint
+
 def MakeTrapezoidal(uplo,A,offset=0):
   args = [uplo,A.obj,offset]
   if type(A) is Matrix:
@@ -1481,18 +1631,26 @@ def TagToValueIntPair(tag):
   elif tag == zTag: return ValueIntPair_z()
   else: DataExcept()
 
-lib.ElMax_i.argtypes = [c_void_p,POINTER(ValueIntPair_i)]
-lib.ElMax_i.restype = c_uint
-lib.ElMax_s.argtypes = [c_void_p,POINTER(ValueIntPair_s)]
-lib.ElMax_s.restype = c_uint
-lib.ElMax_d.argtypes = [c_void_p,POINTER(ValueIntPair_d)]
-lib.ElMax_d.restype = c_uint
-lib.ElMaxDist_i.argtypes = [c_void_p,POINTER(ValueIntPair_i)]
-lib.ElMaxDist_i.restype = c_uint
-lib.ElMaxDist_s.argtypes = [c_void_p,POINTER(ValueIntPair_s)]
-lib.ElMaxDist_s.restype = c_uint
-lib.ElMaxDist_d.argtypes = [c_void_p,POINTER(ValueIntPair_d)]
-lib.ElMaxDist_d.restype = c_uint
+lib.ElMax_i.argtypes = \
+lib.ElMaxDist_i.argtypes = \
+  [c_void_p,POINTER(ValueIntPair_i)]
+
+lib.ElMax_s.argtypes = \
+lib.ElMaxDist_s.argtypes = \
+  [c_void_p,POINTER(ValueIntPair_s)]
+
+lib.ElMax_d.argtypes = \
+lib.ElMaxDist_d.argtypes = \
+  [c_void_p,POINTER(ValueIntPair_d)]
+
+lib.ElMax_i.restype = \
+lib.ElMax_s.restype = \
+lib.ElMax_d.restype = \
+lib.ElMaxDist_i.restype = \
+lib.ElMaxDist_s.restype = \
+lib.ElMaxDist_d.restype = \
+  c_uint
+
 def Max(A):
   pair = TagToValueIntPair(A.tag)
   args = [A.obj,pointer(pair)]
@@ -1509,18 +1667,26 @@ def Max(A):
   else: TypeExcept()
   return pair.value, pair.indices[0], pair.indices[1]
 
-lib.ElSymmetricMax_i.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_i)]
-lib.ElSymmetricMax_i.restype = c_uint
-lib.ElSymmetricMax_s.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_s)]
-lib.ElSymmetricMax_s.restype = c_uint
-lib.ElSymmetricMax_d.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_d)]
-lib.ElSymmetricMax_d.restype = c_uint
-lib.ElSymmetricMaxDist_i.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_i)]
-lib.ElSymmetricMaxDist_i.restype = c_uint
-lib.ElSymmetricMaxDist_s.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_s)]
-lib.ElSymmetricMaxDist_s.restype = c_uint
-lib.ElSymmetricMaxDist_d.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_d)]
-lib.ElSymmetricMaxDist_d.restype = c_uint
+lib.ElSymmetricMax_i.argtypes = \
+lib.ElSymmetricMaxDist_i.argtypes = \
+  [c_uint,c_void_p,POINTER(ValueIntPair_i)]
+
+lib.ElSymmetricMax_s.argtypes = \
+lib.ElSymmetricMaxDist_s.argtypes = \
+  [c_uint,c_void_p,POINTER(ValueIntPair_s)]
+
+lib.ElSymmetricMax_d.argtypes = \
+lib.ElSymmetricMaxDist_d.argtypes = \
+  [c_uint,c_void_p,POINTER(ValueIntPair_d)]
+
+lib.ElSymmetricMax_i.restype = \
+lib.ElSymmetricMax_s.restype = \
+lib.ElSymmetricMax_d.restype = \
+lib.ElSymmetricMaxDist_i.restype = \
+lib.ElSymmetricMaxDist_s.restype = \
+lib.ElSymmetricMaxDist_d.restype = \
+  c_uint
+
 def SymmetricMax(uplo,A):
   pair = TagToValueIntPair(A.tag)
   args = [uplo,A.obj,pointer(pair)]
@@ -1537,18 +1703,26 @@ def SymmetricMax(uplo,A):
   else: TypeExcept()
   return pair.value, pair.indices[0], pair.indices[1]
 
-lib.ElVectorMax_i.argtypes = [c_void_p,POINTER(ValueInt_i)]
-lib.ElVectorMax_i.restype = c_uint
-lib.ElVectorMax_s.argtypes = [c_void_p,POINTER(ValueInt_s)]
-lib.ElVectorMax_s.restype = c_uint
-lib.ElVectorMax_d.argtypes = [c_void_p,POINTER(ValueInt_d)]
-lib.ElVectorMax_d.restype = c_uint
-lib.ElVectorMaxDist_i.argtypes = [c_void_p,POINTER(ValueInt_i)]
-lib.ElVectorMaxDist_i.restype = c_uint
-lib.ElVectorMaxDist_s.argtypes = [c_void_p,POINTER(ValueInt_s)]
-lib.ElVectorMaxDist_s.restype = c_uint
-lib.ElVectorMaxDist_d.argtypes = [c_void_p,POINTER(ValueInt_d)]
-lib.ElVectorMaxDist_d.restype = c_uint
+lib.ElVectorMax_i.argtypes = \
+lib.ElVectorMaxDist_i.argtypes = \
+  [c_void_p,POINTER(ValueInt_i)]
+
+lib.ElVectorMax_s.argtypes = \
+lib.ElVectorMaxDist_s.argtypes = \
+  [c_void_p,POINTER(ValueInt_s)]
+
+lib.ElVectorMax_d.argtypes = \
+lib.ElVectorMaxDist_d.argtypes = \
+  [c_void_p,POINTER(ValueInt_d)]
+
+lib.ElVectorMax_i.restype = \
+lib.ElVectorMax_s.restype = \
+lib.ElVectorMax_d.restype = \
+lib.ElVectorMaxDist_i.restype = \
+lib.ElVectorMaxDist_s.restype = \
+lib.ElVectorMaxDist_d.restype = \
+  c_uint
+
 def VectorMax(A):
   pair = TagToValueInt(A.tag)
   args = [A.obj,pointer(pair)]
@@ -1567,26 +1741,34 @@ def VectorMax(A):
 
 # MaxAbs
 # ------
-lib.ElMaxAbs_i.argtypes = [c_void_p,POINTER(ValueIntPair_i)]
-lib.ElMaxAbs_i.restype = c_uint
-lib.ElMaxAbs_s.argtypes = [c_void_p,POINTER(ValueIntPair_s)]
-lib.ElMaxAbs_s.restype = c_uint
-lib.ElMaxAbs_d.argtypes = [c_void_p,POINTER(ValueIntPair_d)]
-lib.ElMaxAbs_d.restype = c_uint
-lib.ElMaxAbs_c.argtypes = [c_void_p,POINTER(ValueIntPair_s)]
-lib.ElMaxAbs_c.restype = c_uint
-lib.ElMaxAbs_z.argtypes = [c_void_p,POINTER(ValueIntPair_d)]
-lib.ElMaxAbs_z.restype = c_uint
-lib.ElMaxAbsDist_i.argtypes = [c_void_p,POINTER(ValueIntPair_i)]
-lib.ElMaxAbsDist_i.restype = c_uint
-lib.ElMaxAbsDist_s.argtypes = [c_void_p,POINTER(ValueIntPair_s)]
-lib.ElMaxAbsDist_s.restype = c_uint
-lib.ElMaxAbsDist_d.argtypes = [c_void_p,POINTER(ValueIntPair_d)]
-lib.ElMaxAbsDist_d.restype = c_uint
-lib.ElMaxAbsDist_c.argtypes = [c_void_p,POINTER(ValueIntPair_s)]
-lib.ElMaxAbsDist_c.restype = c_uint
-lib.ElMaxAbsDist_z.argtypes = [c_void_p,POINTER(ValueIntPair_d)]
-lib.ElMaxAbsDist_z.restype = c_uint
+lib.ElMaxAbs_i.argtypes = \
+lib.ElMaxAbsDist_i.argtypes = \
+  [c_void_p,POINTER(ValueIntPair_i)]
+
+lib.ElMaxAbs_s.argtypes = \
+lib.ElMaxAbs_c.argtypes = \
+lib.ElMaxAbsDist_s.argtypes = \
+lib.ElMaxAbsDist_c.argtypes = \
+  [c_void_p,POINTER(ValueIntPair_s)]
+
+lib.ElMaxAbs_d.argtypes = \
+lib.ElMaxAbs_z.argtypes = \
+lib.ElMaxAbsDist_d.argtypes = \
+lib.ElMaxAbsDist_z.argtypes = \
+  [c_void_p,POINTER(ValueIntPair_d)]
+
+lib.ElMaxAbs_i.restype = \
+lib.ElMaxAbs_s.restype = \
+lib.ElMaxAbs_d.restype = \
+lib.ElMaxAbs_c.restype = \
+lib.ElMaxAbs_z.restype = \
+lib.ElMaxAbsDist_i.restype = \
+lib.ElMaxAbsDist_s.restype = \
+lib.ElMaxAbsDist_d.restype = \
+lib.ElMaxAbsDist_c.restype = \
+lib.ElMaxAbsDist_z.restype = \
+  c_uint
+
 def MaxAbs(A):
   pair = TagToValueIntPair(Base(A.tag))
   args = [A.obj,pointer(pair)]
@@ -1607,26 +1789,34 @@ def MaxAbs(A):
   else: TypeExcept()
   return pair.value, pair.indices[0], pair.indices[1]
 
-lib.ElSymmetricMaxAbs_i.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_i)]
-lib.ElSymmetricMaxAbs_i.restype = c_uint
-lib.ElSymmetricMaxAbs_s.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_s)]
-lib.ElSymmetricMaxAbs_s.restype = c_uint
-lib.ElSymmetricMaxAbs_d.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_d)]
-lib.ElSymmetricMaxAbs_d.restype = c_uint
-lib.ElSymmetricMaxAbs_c.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_s)]
-lib.ElSymmetricMaxAbs_c.restype = c_uint
-lib.ElSymmetricMaxAbs_z.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_d)]
-lib.ElSymmetricMaxAbs_z.restype = c_uint
-lib.ElSymmetricMaxAbsDist_i.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_i)]
-lib.ElSymmetricMaxAbsDist_i.restype = c_uint
-lib.ElSymmetricMaxAbsDist_s.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_s)]
-lib.ElSymmetricMaxAbsDist_s.restype = c_uint
-lib.ElSymmetricMaxAbsDist_d.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_d)]
-lib.ElSymmetricMaxAbsDist_d.restype = c_uint
-lib.ElSymmetricMaxAbsDist_c.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_s)]
-lib.ElSymmetricMaxAbsDist_c.restype = c_uint
-lib.ElSymmetricMaxAbsDist_z.argtypes = [c_uint,c_void_p,POINTER(ValueIntPair_d)]
-lib.ElSymmetricMaxAbsDist_z.restype = c_uint
+lib.ElSymmetricMaxAbs_i.argtypes = \
+lib.ElSymmetricMaxAbsDist_i.argtypes = \
+  [c_uint,c_void_p,POINTER(ValueIntPair_i)]
+
+lib.ElSymmetricMaxAbs_s.argtypes = \
+lib.ElSymmetricMaxAbs_c.argtypes = \
+lib.ElSymmetricMaxAbsDist_s.argtypes = \
+lib.ElSymmetricMaxAbsDist_c.argtypes = \
+  [c_uint,c_void_p,POINTER(ValueIntPair_s)]
+
+lib.ElSymmetricMaxAbs_d.argtypes = \
+lib.ElSymmetricMaxAbs_z.argtypes = \
+lib.ElSymmetricMaxAbsDist_d.argtypes = \
+lib.ElSymmetricMaxAbsDist_z.argtypes = \
+  [c_uint,c_void_p,POINTER(ValueIntPair_d)]
+
+lib.ElSymmetricMaxAbs_i.restype = \
+lib.ElSymmetricMaxAbs_s.restype = \
+lib.ElSymmetricMaxAbs_d.restype = \
+lib.ElSymmetricMaxAbs_c.restype = \
+lib.ElSymmetricMaxAbs_z.restype = \
+lib.ElSymmetricMaxAbsDist_i.restype = \
+lib.ElSymmetricMaxAbsDist_s.restype = \
+lib.ElSymmetricMaxAbsDist_d.restype = \
+lib.ElSymmetricMaxAbsDist_c.restype = \
+lib.ElSymmetricMaxAbsDist_z.restype = \
+  c_uint
+
 def SymmetricMaxAbs(uplo,A):
   pair = TagToValueIntPair(Base(A.tag))
   args = [uplo,A.obj,pointer(pair)]
@@ -1646,6 +1836,8 @@ def SymmetricMaxAbs(uplo,A):
     else: DataExcept()
   else: TypeExcept()
   return pair.value, pair.indices[0], pair.indices[1]
+
+# LEFT OFF HERE
 
 lib.ElVectorMaxAbs_i.argtypes = [c_void_p,POINTER(ValueInt_i)]
 lib.ElVectorMaxAbs_i.restype = c_uint

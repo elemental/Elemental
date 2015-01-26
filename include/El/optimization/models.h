@@ -681,6 +681,59 @@ EL_EXPORT ElError ElSVMADMMDist_d
 
 /* TODO: Expert versions */
 
+/* Total variation denoising
+   ========================= */
+EL_EXPORT ElError ElTV_s
+( ElConstMatrix_s b, float lambda, ElMatrix_s x );
+EL_EXPORT ElError ElTV_d
+( ElConstMatrix_d b, double lambda, 
+  ElMatrix_d x );
+
+EL_EXPORT ElError ElTVDist_s
+( ElConstDistMatrix_s b, float lambda, ElDistMatrix_s x );
+EL_EXPORT ElError ElTVDist_d
+( ElConstDistMatrix_d b, double lambda, ElDistMatrix_d x );
+
+EL_EXPORT ElError ElTVSparse_s
+( ElConstMatrix_s b, float lambda, ElMatrix_s x );
+EL_EXPORT ElError ElTVSparse_d
+( ElConstMatrix_d b, double lambda, ElMatrix_d x );
+
+EL_EXPORT ElError ElTVDistSparse_s
+( ElConstDistMultiVec_s b, float lambda, ElDistMultiVec_s x );
+EL_EXPORT ElError ElTVDistSparse_d
+( ElConstDistMultiVec_d b, double lambda, ElDistMultiVec_d x );
+
+/* Expert verions
+   -------------- */
+EL_EXPORT ElError ElTVX_s
+( ElConstMatrix_s b, float lambda, ElMatrix_s x, 
+  ElQPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElTVX_d
+( ElConstMatrix_d b, double lambda, ElMatrix_d x, 
+  ElQPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElTVXDist_s
+( ElConstDistMatrix_s b, float lambda, ElDistMatrix_s x, 
+  ElQPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElTVXDist_d
+( ElConstDistMatrix_d b, double lambda, ElDistMatrix_d x, 
+  ElQPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElTVXSparse_s
+( ElConstMatrix_s b, float lambda, ElMatrix_s x, 
+  ElQPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElTVXSparse_d
+( ElConstMatrix_d b, double lambda, ElMatrix_d x, 
+  ElQPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElTVXDistSparse_s
+( ElConstDistMultiVec_s b, float lambda, ElDistMultiVec_s x, 
+  ElQPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElTVXDistSparse_d
+( ElConstDistMultiVec_d b, double lambda, ElDistMultiVec_d x, 
+  ElQPAffineCtrl_d ctrl );
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

@@ -752,6 +752,34 @@ ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
     Real lambda, ElDistMultiVec_ ## SIG x, ElQPAffineCtrl_ ## SIG ctrl ) \
   { EL_TRY( SVM \
       ( *CReflect(A), *CReflect(d), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
+  /* Total variation denoising 
+     ========================= */ \
+  ElError ElTV_ ## SIG \
+  ( ElConstMatrix_ ## SIG b, Real lambda, ElMatrix_ ## SIG x ) \
+  { EL_TRY( TV( *CReflect(b), lambda, *CReflect(x) ) ) } \
+  ElError ElTVDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG b, Real lambda, ElDistMatrix_ ## SIG x ) \
+  { EL_TRY( TV( *CReflect(b), lambda, *CReflect(x) ) ) } \
+  ElError ElTVDistSparse_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG b, Real lambda, ElDistMultiVec_ ## SIG x ) \
+  { EL_TRY( TV( *CReflect(b), lambda, *CReflect(x) ) ) } \
+  /* Expert versions
+     --------------- */ \
+  ElError ElTVX_ ## SIG \
+  ( ElConstMatrix_ ## SIG b, Real lambda, ElMatrix_ ## SIG x, \
+    ElQPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( TV \
+      ( *CReflect(b), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElTVXDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG b, Real lambda, ElDistMatrix_ ## SIG x, \
+    ElQPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( TV \
+      ( *CReflect(b), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElTVXDistSparse_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG b, Real lambda, ElDistMultiVec_ ## SIG x, \
+    ElQPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( TV \
+      ( *CReflect(b), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
   /* Linear program
      ============== */ \
   /* Direct conic form

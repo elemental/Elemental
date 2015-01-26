@@ -8,44 +8,32 @@
 #
 import El, time
 
-m = 2000
 n = 4000
-numLambdas = 7
-startLambda = 0
-endLambda = 1
+numLambdas = 5
+startLambda = 1.
+endLambda = 50.
 display = True
 worldRank = El.mpi.WorldRank()
 
-# Make a sparse matrix with the last column dense
-def Rectang(height,width):
+def Deriv(height):
   A = El.DistSparseMatrix()
-  A.Resize(height,width)
+  A.Resize(height-1,height)
   firstLocalRow = A.FirstLocalRow()
   localHeight = A.LocalHeight()
-  A.Reserve(5*localHeight)
-  for sLoc in xrange(localHeight):
-    s = firstLocalRow + sLoc
-    if s < width: 
-      A.QueueLocalUpdate( sLoc, s,        11 )
-    if s >= 1 and s-1 < width:
-      A.QueueLocalUpdate( sLoc, s-1,      -1 )
-    if s+1 < width:
-      A.QueueLocalUpdate( sLoc, s+1,       2 )
-    if s >= height and s-height < width:
-      A.QueueLocalUpdate( sLoc, s-height, -3 )
-    if s+height < width: 
-      A.QueueLocalUpdate( sLoc, s+height,  4 )
-    # The dense last column
-    A.QueueLocalUpdate( sLoc, width-1, -5/height );
+  A.Reserve(2*localHeight)
+  for iLoc in xrange(localHeight):
+    i = firstLocalRow + iLoc
+    A.QueueLocalUpdate( iLoc, i, 1. )
+    A.QueueLocalUpdate( iLoc, i+1, -1. )
 
   A.MakeConsistent()
   return A
 
-A = Rectang(m,n)
+D = Deriv(n)
+
 b = El.DistMultiVec()
-El.Gaussian( b, m, 1 )
+El.Gaussian( b, n, 1 )
 if display:
-  El.Display( A, "A" )
   El.Display( b, "b" )
 
 ctrl = El.QPAffineCtrl_d()
@@ -56,25 +44,29 @@ for j in xrange(0,numLambdas):
   if worldRank == 0:
     print "lambda =", lambd
 
-  startBPDN = time.clock()
-  x = El.BPDN( A, b, lambd, ctrl )
-  endBPDN = time.clock()
+  startTV = time.clock()
+  x = El.TV( b, lambd, ctrl )
+  endTV = time.clock()
   if worldRank == 0:
-    print "BPDN time: ", endBPDN-startBPDN
+    print "TV time: ", endTV-startTV
 
+  Dx = El.DistMultiVec() 
+  El.Zeros( Dx, n-1, 1 )
+  El.SparseMultiply( El.NORMAL, 1., D, x, 0., Dx )
   if display:
     El.Display( x, "x" )
+    El.Display( Dx, "Dx" )
 
-  xOneNorm = El.EntrywiseNorm( x, 1 )
+  DxOneNorm = El.EntrywiseNorm( Dx, 1 )
   e = El.DistMultiVec()
   El.Copy( b, e )
-  El.SparseMultiply( El.NORMAL, -1., A, x, 1., e )
+  El.Axpy( -1., x, e )
   if display:
     El.Display( e, "e" )
   eTwoNorm = El.Nrm2( e )
   if worldRank == 0:
-    print "|| x ||_1       =", xOneNorm
-    print "|| A x - b ||_2 =", eTwoNorm
+    print "|| D x ||_1   =", DxOneNorm
+    print "|| x - b ||_2 =", eTwoNorm
 
 # Require the user to press a button before the figures are closed
 commSize = El.mpi.Size( El.mpi.COMM_WORLD() )

@@ -80,6 +80,17 @@ EL_EXPORT ElError ElAxpyDistSparse_c
 EL_EXPORT ElError ElAxpyDistSparse_z
 ( complex_double alpha, ElConstDistSparseMatrix_z X, ElDistSparseMatrix_z Y );
 
+EL_EXPORT ElError ElAxpyDistMultiVec_i
+( ElInt alpha, ElConstDistMultiVec_i X, ElDistMultiVec_i Y );
+EL_EXPORT ElError ElAxpyDistMultiVec_s
+( float alpha, ElConstDistMultiVec_s X, ElDistMultiVec_s Y );
+EL_EXPORT ElError ElAxpyDistMultiVec_d
+( double alpha, ElConstDistMultiVec_d X, ElDistMultiVec_d Y );
+EL_EXPORT ElError ElAxpyDistMultiVec_c
+( complex_float alpha, ElConstDistMultiVec_c X, ElDistMultiVec_c Y );
+EL_EXPORT ElError ElAxpyDistMultiVec_z
+( complex_double alpha, ElConstDistMultiVec_z X, ElDistMultiVec_z Y );
+
 /* tri(Y) := tri(alpha A X + Y)
    ============================ */
 EL_EXPORT ElError ElAxpyTrapezoid_i

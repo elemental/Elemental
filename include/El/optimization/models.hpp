@@ -23,13 +23,6 @@ using namespace RegularizationNS;
 
 // TODO: Modify the following routines to use control structures instead
 
-// Least Absolute Shrinkage and Selection Operator (LASSO)
-// =======================================================
-// NOTE: While the lasso was introduced before basis pursuit denoising (BPDN),
-//       BPDN was implemented first. Also, while the formulation of LASSO 
-//       might often be the final goal, it is often solved as a sequence of
-//       BPDN problems (with different regularization parameters)
-
 // Basis pursuit: min || x ||_1 such that A x = b
 // ==============================================
 
@@ -247,7 +240,8 @@ void NNLS
         DistMultiVec<Real>& X,
   const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
 
-// Basis pursuit denoising (BPDN): 
+// Basis pursuit denoising (BPDN), a.k.a.,
+// Least absolute selection and shrinkage operator (Lasso):
 //   min (1/2) || b - A x ||_2^2 + lambda || x ||_1
 // ================================================
 
@@ -422,6 +416,39 @@ template<typename Real>
 void SVM
 ( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& d, 
         Real lambda,                     DistMultiVec<Real>& x,
+  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
+
+// 1D total variation denoising (TV):
+//
+//   min (1/2) || b - x ||_2^2 + lambda || D x ||_1,
+//
+// where D is the 1D finite-difference operator.
+// =================================================
+// We follow the formulation used within CVXOPT:
+//
+//   min (1/2) || b - x ||_2^2 + lambda 1^T y
+//   s.t. -y <= D x <= y,
+//
+// where x is in R^n and y is in R^(n-1).
+//
+
+template<typename Real>
+void TV
+( const AbstractDistMatrix<Real>& b,
+        Real lambda,
+        AbstractDistMatrix<Real>& x,
+  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
+template<typename Real>
+void TV
+( const Matrix<Real>& b,
+        Real lambda,
+        Matrix<Real>& x,
+  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
+template<typename Real>
+void TV
+( const DistMultiVec<Real>& b,
+        Real lambda,
+        DistMultiVec<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 
 } // namespace El

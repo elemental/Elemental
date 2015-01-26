@@ -38,6 +38,10 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, int root )
   ( CREFLECT(T) alpha, \
     ElConstDistSparseMatrix_ ## SIG X, ElDistSparseMatrix_ ## SIG Y ) \
   { EL_TRY( Axpy( CReflect(alpha), *CReflect(X), *CReflect(Y) ) ) } \
+  ElError ElAxpyDistMultiVec_ ## SIG \
+  ( CREFLECT(T) alpha, \
+    ElConstDistMultiVec_ ## SIG X, ElDistMultiVec_ ## SIG Y ) \
+  { EL_TRY( Axpy( CReflect(alpha), *CReflect(X), *CReflect(Y) ) ) } \
   /* tri(Y) := tri(alpha X + Y) */ \
   ElError ElAxpyTrapezoid_ ## SIG \
   ( ElUpperOrLower uplo, CREFLECT(T) alpha, \

@@ -1225,3 +1225,78 @@ def SVMADMM(G,q,gamma):
     return z, numIts
   else: TypeExcept()
 
+# Total variation denoising
+# =========================
+lib.ElTV_s.argtypes = \
+lib.ElTVDist_s.argtypes = \
+lib.ElTVDistSparse_s.argtypes = \
+  [c_void_p,sType,c_void_p]
+lib.ElTV_d.argtypes = \
+lib.ElTVDist_d.argtypes = \
+lib.ElTVDistSparse_d.argtypes = \
+  [c_void_p,dType,c_void_p]
+
+lib.ElTV_s.restype = \
+lib.ElTV_d.restype = \
+lib.ElTVDist_s.restype = \
+lib.ElTVDist_d.restype = \
+lib.ElTVDistSparse_s.restype = \
+lib.ElTVDistSparse_d.restype = \
+  c_uint
+
+lib.ElTVX_s.argtypes = \
+lib.ElTVXDist_s.argtypes = \
+lib.ElTVXDistSparse_s.argtypes = \
+  [c_void_p,sType,c_void_p,QPAffineCtrl_s]
+lib.ElTVX_d.argtypes = \
+lib.ElTVXDist_d.argtypes = \
+lib.ElTVXDistSparse_d.argtypes = \
+  [c_void_p,dType,c_void_p,QPAffineCtrl_d]
+lib.ElTVX_s.restype = \
+lib.ElTVX_d.restype = \
+lib.ElTVXDist_s.restype = \
+lib.ElTVXDist_d.restype = \
+lib.ElTVXDistSparse_s.restype = \
+lib.ElTVXDistSparse_d.restype = \
+  c_uint
+
+def TV(b,lambdPre,ctrl=None):
+  lambd = TagToType(b.tag)(lambdPre)
+  if type(b) is Matrix:
+    x = Matrix(b.tag)
+    args = [b.obj,lambd,x.obj]
+    argsCtrl = [b.obj,lambd,x.obj,ctrl] 
+    if   b.tag == sTag: 
+      if ctrl == None: lib.ElTV_s(*args)
+      else:            lib.ElTVX_s(*argsCtrl)
+    elif b.tag == dTag: 
+      if ctrl == None: lib.ElTV_d(*args)
+      else:            lib.ElTVX_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(b) is DistMatrix:
+    x = DistMatrix(b.tag,MC,MR,b.Grid())
+    args = [b.obj,lambd,x.obj]
+    argsCtrl = [b.obj,lambd,x.obj,ctrl] 
+    if   b.tag == sTag: 
+      if ctrl == None: lib.ElTVDist_s(*args)
+      else:            lib.ElTVXDist_s(*argsCtrl)
+    elif b.tag == dTag: 
+      if ctrl == None: lib.ElTVDist_d(*args)
+      else:            lib.ElTVXDist_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(b) is DistMultiVec:
+    x = DistMultiVec(b.tag,b.Comm())
+    args = [b.obj,lambd,x.obj]
+    argsCtrl = [b.obj,lambd,x.obj,ctrl]
+    if   b.tag == sTag: 
+      if ctrl == None: lib.ElTVDistSparse_s(*args)
+      else:            lib.ElTVXDistSparse_s(*argsCtrl)
+    elif b.tag == dTag: 
+      if ctrl == None: lib.ElTVDistSparse_d(*args)
+      else:            lib.ElTVXDistSparse_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  else: TypeExcept()
+
