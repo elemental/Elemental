@@ -167,8 +167,8 @@ def SymmetricSolve(A,B,conjugate=False,uplo=LOWER,orient=NORMAL):
     else: DataExcept()
   else: TypeExcept()
 
-def HermitianSolve(uplo,orient,A,B):
-  SymmetricSolve(uplo,orient,A,B,True)
+def HermitianSolve(A,B,uplo,orient):
+  SymmetricSolve(A,B,True,uplo,orient)
 
 # Hermitian positive-definite solve
 # ---------------------------------
@@ -192,7 +192,7 @@ lib.ElHPDSolveDist_c.restype = \
 lib.ElHPDSolveDist_z.restype = \
   c_uint
 
-def HPDSolve(uplo,orient,A,B):
+def HPDSolve(A,B,uplo=LOWER,orient=NORMAL):
   if type(A) is not type(B):
     raise Exception('Matrix types of A and B must match')
   if A.tag != B.tag:
@@ -234,7 +234,7 @@ lib.ElMultiShiftHessSolveDist_c.restype = \
 lib.ElMultiShiftHessSolveDist_z.restype = \
   c_uint
 
-def MultiShiftHessSolve(uplo,orient,alphaPre,H,shifts,X):
+def MultiShiftHessSolve(H,shifts,X,alphaPre=1,uplo=LOWER,orient=NORMAL):
   if type(H) is not type(shifts) or type(shifts) is not type(X):
     raise Exception('Matrix types of {H,shifts,X} must match')
   if H.tag != shifts.tag or shifts.tag != X.tag:

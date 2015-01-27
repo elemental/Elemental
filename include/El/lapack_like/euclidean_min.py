@@ -34,24 +34,30 @@ lib.ElGLMDist_c.restype = \
 lib.ElGLMDist_z.restype = \
   c_uint
 
-def GLM(A,B,D,Y):
-  if type(A) is not type(B) or type(B) is not type(D) or type(D) is not type(Y):
-    raise Exception('Matrix types of {A,B,D,Y} must match')
-  if A.tag != B.tag or B.tag != D.tag or D.tag != Y.tag:
-    raise Exception('Datatypes of {A,B,D,Y} must match')
-  args = [A.obj,B.obj,D.obj,Y.obj]
+def GLM(A,B,D):
+  if type(A) is not type(B) or type(B) is not type(D):
+    raise Exception('Matrix types of {A,B,D} must match')
+  if A.tag != B.tag or B.tag != D.tag:
+    raise Exception('Datatypes of {A,B,D} must match')
+
   if type(A) is Matrix:
+    Y = Matrix(A.tag)
+    args = [A.obj,B.obj,D.obj,Y.obj]
     if   A.tag == sTag: lib.ElGLM_s(*args)
     elif A.tag == dTag: lib.ElGLM_d(*args)
     elif A.tag == cTag: lib.ElGLM_c(*args)
     elif A.tag == zTag: lib.ElGLM_z(*args)
     else: DataExcept()
+    return Y
   elif type(A) is DistMatrix:
+    Y = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,B.obj,D.obj,Y.obj]
     if   A.tag == sTag: lib.ElGLMDist_s(*args)
     elif A.tag == dTag: lib.ElGLMDist_d(*args)
     elif A.tag == cTag: lib.ElGLMDist_c(*args)
     elif A.tag == zTag: lib.ElGLMDist_z(*args)
     else: DataExcept()
+    return Y
   else: TypeExcept()
 
 # Least squares
