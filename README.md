@@ -83,6 +83,7 @@ which is distributed under the (equally permissive)
 **Intranodal graph partitioning**
 
 * [METIS](http://glaros.dtc.umn.edu/gkhome/metis/metis/overview)
+* [ParMETIS](http://glaros.dtc.umn.edu/gkhome/metis/parmetis/overview) (**Note:** support is currently **not** enabled due to the restrictive license)
 
 **Internodal linear algebra**
 
