@@ -21,6 +21,7 @@
 #include "./lapack_like/funcs.hpp"
 
 #include "./lapack_like/solve.hpp"
+#include "./lapack_like/euclidean_min.hpp"
 
 #include "./lapack_like/props.hpp"
 

@@ -6,12 +6,13 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-from util     import *
-from reflect  import *
-from perm     import *
-from factor   import *
-from condense import *
-from spectral import *
-from funcs    import *
-from solve    import *
-from props    import *
+from util          import *
+from reflect       import *
+from perm          import *
+from factor        import *
+from condense      import *
+from spectral      import *
+from funcs         import *
+from solve         import *
+from euclidean_min import *
+from props         import *

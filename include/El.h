@@ -48,6 +48,7 @@
 #include "El/lapack_like/funcs.h"
 
 #include "El/lapack_like/solve.h"
+#include "El/lapack_like/euclidean_min.h"
 
 #include "El/lapack_like/props.h"
 
