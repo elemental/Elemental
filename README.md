@@ -93,6 +93,16 @@ which is distributed under the (equally permissive)
 
 * MPI2 (typically [MPICH](http://www.mpich.org/), [MVAPICH](http://mvapich.cse.ohio-state.edu/), or [OpenMPI](http://www.open-mpi.org/))
 
+**Python interface**
+
+* [matplotlib](http://matplotlib.org/) (optional for python matrix visualization)
+* [NetworkX](https://networkx.github.io/) (optional for python graph visualization)
+* [NumPy](http://www.numpy.org/)
+
+**C++ visualization**
+
+* [Qt5](http://qt-project.org/qt5) (optional for visualization from C++)
+
 **Build system**
 
 * [CMake >= 2.8.8](http://www.cmake.org/)
