@@ -93,24 +93,6 @@ which is distributed under the (equally permissive)
 
 * MPI2 (typically [MPICH](http://www.mpich.org/), [MVAPICH](http://mvapich.cse.ohio-state.edu/), or [OpenMPI](http://www.open-mpi.org/))
 
-### Elemental's root directory
+**Build system**
 
-This is the root directory of the entire project, and it contains:
-
--  `AUTHORS`: the list of source code contributors
--  `cmake/`: auxiliary files for CMake configuration
--  `CMakeLists.txt`: the CMake configuration file
--  `examples/`: various concise examples of Elemental's functionality
--  `experimental/`: experimental code which is not yet library quality
--  `external/`: external code which Elemental (optionally) builds on top of
--  `include/`: Elemental's C++ and C header files, as well as a python interface
--  `LICENSE`: the New BSD License file
--  `octave/`: pedagogical versions of algorithms used in Elemental (at the moment, just a rank-one modification of an LU factorization)
--  `PUBLICATIONS`: publications directly related to this source code
--  `README.md`: this file
--  `REFERENCES`: some publications referenced in the creation of this software
--  `sanbox/`: A makefile and test driver meant to be modified for testing an installation of the library
--  `src/`: Elemental's source files
--  `tests/`: programs meant to test the accuracy/correctness of Elemental
--  `TODO`: an incomplete list of near/long-term goals of the project
--  `vagrant/`: lightweight preconfigured virtual-machines for Elemental
+* [CMake >= 2.8.8](http://www.cmake.org/)
