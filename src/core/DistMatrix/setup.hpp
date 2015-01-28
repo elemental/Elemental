@@ -11,6 +11,8 @@
 // as a workaround for the fact that C++11 constructor inheritance is not 
 // yet widely supported.
 
+#include "El/blas_like/level1/copy_internal.hpp"
+
 namespace El {
 
 #define DM DistMatrix<T,COLDIST,ROWDIST>

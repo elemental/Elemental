@@ -29,7 +29,7 @@ void PartialRowFilter
         AFilt->AlignRowsWith( B, false );
     if( B.RowConstrained() )
         AFilt->AlignColsWith( B, false );
-    copy::PartialColFilter( A, *AFilt );
+    Copy( A, *AFilt );
     if( !B.ColConstrained() )
         B.AlignColsWith( *AFilt, false );
     if( !B.RowConstrained() )
@@ -55,7 +55,7 @@ void PartialRowFilter
         AFilt->AlignRowsWith( B, false );
     if( B.RowConstrained() )
         AFilt->AlignColsWith( B, false );
-    copy::PartialColFilter( A, *AFilt );
+    Copy( A, *AFilt );
     if( !B.ColConstrained() )
         B.AlignColsWith( *AFilt, false );
     if( !B.RowConstrained() )

@@ -8,6 +8,8 @@
 */
 #include "El.hpp"
 
+#include "El/blas_like/level1/copy_internal.hpp"
+
 namespace El {
 namespace copy {
 

@@ -28,7 +28,7 @@ void ColAllGather
     ATrans->AlignWith( A );
     ATrans->Resize( A.Width(), A.Height() );
     Transpose( A.LockedMatrix(), ATrans->Matrix(), conjugate );
-    copy::RowAllGather( *ATrans, B );
+    Copy( *ATrans, B );
 }
 
 template<typename T>
@@ -47,7 +47,7 @@ void ColAllGather
     ATrans->AlignWith( A );
     ATrans->Resize( A.Width(), A.Height() );
     Transpose( A.LockedMatrix(), ATrans->Matrix(), conjugate );
-    copy::RowAllGather( *ATrans, B );
+    Copy( *ATrans, B );
 }
 
 #define PROTO(T) \
