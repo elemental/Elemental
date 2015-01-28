@@ -169,7 +169,7 @@ LVar2
 
         // A10 := inv(L11) A10
         L11_STAR_STAR = L11;
-        A10_STAR_VR.AdjointPartialRowFilterFrom( A10Adj_MR_STAR );
+        Adjoint( A10Adj_MR_STAR, A10_STAR_VR );
         LocalTrsm
         ( LEFT, LOWER, NORMAL, diag, F(1), L11_STAR_STAR, A10_STAR_VR );
         A10 = A10_STAR_VR;

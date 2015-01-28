@@ -229,7 +229,7 @@ LLNMedium
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         X1Trans_MR_STAR.AlignWith( X2 );
-        transpose::ColAllGather( X1, X1Trans_MR_STAR );
+        Transpose( X1, X1Trans_MR_STAR );
 
         // X1^T[MR,* ] := X1^T[MR,* ] L11^-T[* ,* ]
         //              = (L11^-1[* ,* ] X1[* ,MR])^T
@@ -239,7 +239,7 @@ LLNMedium
         ( RIGHT, LOWER, TRANSPOSE,
           F(1), L11_STAR_STAR, shifts_MR_STAR_Align, X1Trans_MR_STAR );
 
-        X1.TransposeColFilterFrom( X1Trans_MR_STAR ); // X1[MC,MR] <- X1[* ,MR]
+        Transpose( X1Trans_MR_STAR, X1 );
         L21_MC_STAR.AlignWith( X2 );
         L21_MC_STAR = L21;                   // L21[MC,* ] <- L21[MC,MR]
         

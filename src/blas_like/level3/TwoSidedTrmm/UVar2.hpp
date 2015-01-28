@@ -137,7 +137,7 @@ UVar2
 
         // A01 := A01 + A02 U12'
         U12Adj_MR_STAR.AlignWith( A22 );
-        adjoint::ColAllGather( U12, U12Adj_MR_STAR );
+        Adjoint( U12, U12Adj_MR_STAR );
         X01_MC_STAR.AlignWith( A01 );
         LocalGemm( NORMAL, NORMAL, F(1), A02, U12Adj_MR_STAR, X01_MC_STAR );
         axpy::RowSumScatter( F(1), X01_MC_STAR, A01 );

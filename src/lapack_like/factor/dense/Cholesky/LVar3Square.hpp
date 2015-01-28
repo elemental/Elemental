@@ -64,7 +64,7 @@ LVar3Square( AbstractDistMatrix<F>& APre )
         ( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A21_VC_STAR );
 
         A21Trans_STAR_MC.AlignWith( A22 );
-        transpose::PartialColAllGather( A21_VC_STAR, A21Trans_STAR_MC );
+        Transpose( A21_VC_STAR, A21Trans_STAR_MC );
         // SendRecv to form A21^T[* ,MR] from A21^T[* ,MC], then conjugate
         // the buffer to form A21^H[* ,MR]
         A21Adj_STAR_MR.AlignWith( A22 );
@@ -97,7 +97,7 @@ LVar3Square( AbstractDistMatrix<F>& APre )
         ( LOWER, TRANSPOSE, 
           F(-1), A21Trans_STAR_MC, A21Adj_STAR_MR, F(1), A22 );
 
-        transpose::RowFilter( A21Trans_STAR_MC, A21 );
+        Transpose( A21Trans_STAR_MC, A21 );
     }
 }
 

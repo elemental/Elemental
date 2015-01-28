@@ -58,8 +58,8 @@ RUN
           checkIfSingular );
 
         X1Trans_STAR_MC.AlignWith( X2 );
-        transpose::PartialColAllGather( X1_VC_STAR, X1Trans_STAR_MC );
-        transpose::RowFilter( X1Trans_STAR_MC, X1 );
+        Transpose( X1_VC_STAR, X1Trans_STAR_MC );
+        Transpose( X1Trans_STAR_MC, X1 );
         U12_STAR_MR.AlignWith( X2 );
         U12_STAR_MR = U12; 
 

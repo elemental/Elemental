@@ -11,55 +11,52 @@
 namespace El {
 namespace transpose {
 
-template<typename T,Dist U,Dist V>
+// (U,V) |-> (V,Collect(U))
+template<typename T>
 void ColAllGather
-( const DistMatrix<T,U,V           >& A, 
-        DistMatrix<T,V,Collect<U>()>& B, bool conjugate )
+( const AbstractDistMatrix<T>& A, 
+        AbstractDistMatrix<T>& B, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("transpose::ColAllGather"))
-    DistMatrix<T,V,U> ATrans( A.Grid() );
-    ATrans.AlignWith( A );
-    ATrans.Resize( A.Width(), A.Height() );
-    Transpose( A.LockedMatrix(), ATrans.Matrix(), conjugate );
-    copy::RowAllGather( ATrans, B );
+    DEBUG_ONLY(
+        CallStackEntry cse("transpose::ColAllGather");
+        if( B.ColDist() != A.RowDist() ||
+            B.RowDist() != Collect(A.ColDist()) )
+            LogicError("Incompatible distributions");
+    )
+    std::unique_ptr<AbstractDistMatrix<T>> ATrans
+    ( A.ConstructTranspose(A.Grid(),A.Root()) );
+    ATrans->AlignWith( A );
+    ATrans->Resize( A.Width(), A.Height() );
+    Transpose( A.LockedMatrix(), ATrans->Matrix(), conjugate );
+    copy::RowAllGather( *ATrans, B );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 void ColAllGather
-( const BlockDistMatrix<T,U,V           >& A, 
-        BlockDistMatrix<T,V,Collect<U>()>& B, bool conjugate )
+( const AbstractBlockDistMatrix<T>& A, 
+        AbstractBlockDistMatrix<T>& B, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("transpose::ColAllGather"))
-    BlockDistMatrix<T,V,U> ATrans( A.Grid() );
-    ATrans.AlignWith( A );
-    ATrans.Resize( A.Width(), A.Height() );
-    Transpose( A.LockedMatrix(), ATrans.Matrix(), conjugate );
-    copy::RowAllGather( ATrans, B );
+    DEBUG_ONLY(
+        CallStackEntry cse("transpose::ColAllGather");
+        if( B.ColDist() != A.RowDist() ||
+            B.RowDist() != Collect(A.ColDist()) )
+            LogicError("Incompatible distributions");
+    )
+    std::unique_ptr<AbstractBlockDistMatrix<T>> ATrans
+    ( A.ConstructTranspose(A.Grid(),A.Root()) );
+    ATrans->AlignWith( A );
+    ATrans->Resize( A.Width(), A.Height() );
+    Transpose( A.LockedMatrix(), ATrans->Matrix(), conjugate );
+    copy::RowAllGather( *ATrans, B );
 }
-
-#define PROTO_DIST(T,U,V) \
-  template void ColAllGather \
-  ( const DistMatrix<T,U,V           >& A, \
-          DistMatrix<T,V,Collect<U>()>& B, bool conjugate ); \
-  template void ColAllGather \
-  ( const BlockDistMatrix<T,U,V           >& A, \
-          BlockDistMatrix<T,V,Collect<U>()>& B, bool conjugate );
 
 #define PROTO(T) \
-  PROTO_DIST(T,CIRC,CIRC) \
-  PROTO_DIST(T,MC,  MR  ) \
-  PROTO_DIST(T,MC,  STAR) \
-  PROTO_DIST(T,MD,  STAR) \
-  PROTO_DIST(T,MR,  MC  ) \
-  PROTO_DIST(T,MR,  STAR) \
-  PROTO_DIST(T,STAR,MC  ) \
-  PROTO_DIST(T,STAR,MD  ) \
-  PROTO_DIST(T,STAR,MR  ) \
-  PROTO_DIST(T,STAR,STAR) \
-  PROTO_DIST(T,STAR,VC  ) \
-  PROTO_DIST(T,STAR,VR  ) \
-  PROTO_DIST(T,VC,  STAR) \
-  PROTO_DIST(T,VR,  STAR)
+  template void ColAllGather \
+  ( const AbstractDistMatrix<T>& A, \
+          AbstractDistMatrix<T>& B, bool conjugate ); \
+  template void ColAllGather \
+  ( const AbstractBlockDistMatrix<T>& A, \
+          AbstractBlockDistMatrix<T>& B, bool conjugate );
 
 #include "El/macros/Instantiate.h"
 

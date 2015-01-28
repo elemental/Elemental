@@ -47,8 +47,7 @@ UN
         auto A1 = A( IR(0,n), IR(k,k+nb) );
 
         A1_VR_STAR = A1_MC_STAR = A1;
-        transpose::PartialColAllGather
-        ( A1_VR_STAR, A1Trans_STAR_MR, conjugate );
+        Transpose( A1_VR_STAR, A1Trans_STAR_MR, conjugate );
         LocalTrrk( UPPER, alpha, A1_MC_STAR, A1Trans_STAR_MR, T(1), C ); 
     }
 }

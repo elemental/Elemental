@@ -81,7 +81,7 @@ void HermitianFromEVD
         DiagonalScale( RIGHT, NORMAL, w1_STAR_STAR, Z1_VR_STAR );
 
         Z1Adj_STAR_MR.AlignWith( A );
-        adjoint::PartialColAllGather( Z1_VR_STAR, Z1Adj_STAR_MR );
+        Adjoint( Z1_VR_STAR, Z1Adj_STAR_MR );
         LocalTrrk( uplo, F(1), Z1_MC_STAR, Z1Adj_STAR_MR, F(1), A );
     }
 }

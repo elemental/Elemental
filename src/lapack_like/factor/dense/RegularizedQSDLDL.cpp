@@ -174,12 +174,12 @@ Var3
           F(1), A11_STAR_STAR, A21_VC_STAR );
 
         S21Trans_STAR_MC.AlignWith( A22 );
-        transpose::PartialColAllGather( A21_VC_STAR, S21Trans_STAR_MC );
+        Transpose( A21_VC_STAR, S21Trans_STAR_MC );
         DiagonalSolve( RIGHT, NORMAL, d1_STAR_STAR, A21_VC_STAR );
         A21_VR_STAR.AlignWith( A22 );
         A21_VR_STAR = A21_VC_STAR;
         A21Trans_STAR_MR.AlignWith( A22 );
-        adjoint::PartialColAllGather( A21_VR_STAR, A21Trans_STAR_MR );
+        Adjoint( A21_VR_STAR, A21Trans_STAR_MR );
         LocalTrrk
         ( LOWER, TRANSPOSE,
           F(-1), S21Trans_STAR_MC, A21Trans_STAR_MR, F(1), A22 );

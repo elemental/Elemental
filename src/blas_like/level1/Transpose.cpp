@@ -10,6 +10,64 @@
 
 namespace El {
 
+namespace transpose {
+
+template<typename T>
+void ColFilter
+( const AbstractDistMatrix<T>& A,
+        AbstractDistMatrix<T>& B, bool conjugate );
+template<typename T>
+void ColFilter
+( const AbstractBlockDistMatrix<T>& A,
+        AbstractBlockDistMatrix<T>& B, bool conjugate );
+
+template<typename T>
+void RowFilter
+( const AbstractDistMatrix<T>& A,
+        AbstractDistMatrix<T>& B, bool conjugate );
+template<typename T>
+void RowFilter
+( const AbstractBlockDistMatrix<T>& A,
+        AbstractBlockDistMatrix<T>& B, bool conjugate );
+
+template<typename T>
+void PartialColFilter
+( const AbstractDistMatrix<T>& A,
+        AbstractDistMatrix<T>& B, bool conjugate );
+template<typename T>
+void PartialColFilter
+( const AbstractBlockDistMatrix<T>& A,
+        AbstractBlockDistMatrix<T>& B, bool conjugate );
+
+template<typename T>
+void PartialRowFilter
+( const AbstractDistMatrix<T>& A,
+        AbstractDistMatrix<T>& B, bool conjugate );
+template<typename T>
+void PartialRowFilter
+( const AbstractBlockDistMatrix<T>& A,
+        AbstractBlockDistMatrix<T>& B, bool conjugate );
+
+template<typename T>
+void ColAllGather
+( const AbstractDistMatrix<T>& A,
+        AbstractDistMatrix<T>& B, bool conjugate );
+template<typename T>
+void ColAllGather
+( const AbstractBlockDistMatrix<T>& A,
+        AbstractBlockDistMatrix<T>& B, bool conjugate );
+
+template<typename T>
+void PartialColAllGather
+( const AbstractDistMatrix<T>& A,
+        AbstractDistMatrix<T>& B, bool conjugate );
+template<typename T>
+void PartialColAllGather
+( const AbstractBlockDistMatrix<T>& A,
+        AbstractBlockDistMatrix<T>& B, bool conjugate );
+
+} // namespace transpose
+
 template<typename T>
 void Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate )
 {
@@ -42,23 +100,54 @@ void Transpose
 ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Transpose"))
-    const DistData ADistData = A.DistData();
-    const DistData BDistData = B.DistData();
-    if( ADistData.colDist == BDistData.rowDist &&
-        ADistData.rowDist == BDistData.colDist &&
-        ((ADistData.colAlign==BDistData.rowAlign) || !B.RowConstrained()) &&
-        ((ADistData.rowAlign==BDistData.colAlign) || !B.ColConstrained()) )
+    const DistData AData = A.DistData();
+    const DistData BData = B.DistData();
+    // NOTE: The following are ordered in terms of increasing cost
+    if( AData.colDist == BData.rowDist &&
+        AData.rowDist == BData.colDist &&
+        ((AData.colAlign==BData.rowAlign) || !B.RowConstrained()) &&
+        ((AData.rowAlign==BData.colAlign) || !B.ColConstrained()) )
     {
         B.Align( A.RowAlign(), A.ColAlign() );
         B.Resize( A.Width(), A.Height() );
         Transpose( A.LockedMatrix(), B.Matrix(), conjugate );
     }
+    else if( AData.colDist == BData.rowDist &&
+             AData.rowDist == Collect(BData.colDist) )
+    {
+        transpose::ColFilter( A, B, conjugate );
+    }
+    else if( AData.colDist == Collect(BData.rowDist) &&
+             AData.rowDist == BData.colDist )
+    {
+        transpose::RowFilter( A, B, conjugate );
+    }
+    else if( AData.colDist == BData.rowDist &&
+             AData.rowDist == Partial(BData.colDist) )
+    {
+        transpose::PartialColFilter( A, B, conjugate );
+    }
+    else if( AData.colDist == Partial(BData.rowDist) &&
+             AData.rowDist == BData.colDist )
+    {
+        transpose::PartialRowFilter( A, B, conjugate );
+    }
+    else if( Partial(AData.colDist) == BData.rowDist &&
+             AData.rowDist          == BData.colDist )
+    {
+        transpose::PartialColAllGather( A, B, conjugate );
+    }
+    else if( Collect(AData.colDist) == BData.rowDist &&
+             AData.rowDist          == BData.colDist )
+    {
+        transpose::ColAllGather( A, B, conjugate );
+    }
     else
     {
         std::unique_ptr<AbstractDistMatrix<T>> 
             C( B.ConstructTranspose(A.Grid(),A.Root()) );
-        C->AlignRowsWith( B.DistData() );
-        C->AlignColsWith( B.DistData() );
+        C->AlignRowsWith( BData );
+        C->AlignColsWith( BData );
         Copy( A, *C );
         B.Resize( A.Width(), A.Height() );
         Transpose( C->LockedMatrix(), B.Matrix(), conjugate );
@@ -71,16 +160,16 @@ void Transpose
   bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Transpose"))
-    const BlockDistData ADistData = A.DistData();
-    const BlockDistData BDistData = B.DistData();
-    if( ADistData.colDist == BDistData.rowDist &&
-        ADistData.rowDist == BDistData.colDist &&
-        ((ADistData.colAlign    == BDistData.rowAlign && 
-          ADistData.blockHeight == BDistData.blockWidth &&
-          ADistData.colCut      == BDistData.rowCut) || !B.RowConstrained()) &&
-        ((ADistData.rowAlign   == BDistData.colAlign && 
-          ADistData.blockWidth == BDistData.blockHeight &&
-          ADistData.rowCut     == BDistData.colCut) || !B.ColConstrained()))
+    const BlockDistData AData = A.DistData();
+    const BlockDistData BData = B.DistData();
+    if( AData.colDist == BData.rowDist &&
+        AData.rowDist == BData.colDist &&
+        ((AData.colAlign    == BData.rowAlign && 
+          AData.blockHeight == BData.blockWidth &&
+          AData.colCut      == BData.rowCut) || !B.RowConstrained()) &&
+        ((AData.rowAlign   == BData.colAlign && 
+          AData.blockWidth == BData.blockHeight &&
+          AData.rowCut     == BData.colCut) || !B.ColConstrained()))
     {
         B.Align
         ( A.BlockWidth(), A.BlockHeight(), 
@@ -88,12 +177,42 @@ void Transpose
         B.Resize( A.Width(), A.Height() );
         Transpose( A.LockedMatrix(), B.Matrix(), conjugate );
     }
+    else if( AData.colDist == BData.rowDist &&
+             AData.rowDist == Collect(BData.colDist) )
+    {
+        transpose::ColFilter( A, B, conjugate );
+    }
+    else if( AData.colDist == Collect(BData.rowDist) &&
+             AData.rowDist == BData.colDist )
+    {
+        transpose::RowFilter( A, B, conjugate );
+    }
+    else if( AData.colDist == BData.rowDist &&
+             AData.rowDist == Partial(BData.colDist) )
+    {
+        transpose::PartialColFilter( A, B, conjugate );
+    }
+    else if( AData.colDist == Partial(BData.rowDist) &&
+             AData.rowDist == BData.colDist )
+    {
+        transpose::PartialRowFilter( A, B, conjugate );
+    }
+    else if( Partial(AData.colDist) == BData.rowDist &&
+             AData.rowDist          == BData.colDist )
+    {
+        transpose::PartialColAllGather( A, B, conjugate );
+    }
+    else if( Collect(AData.colDist) == BData.rowDist &&
+             AData.rowDist          == BData.colDist )
+    {
+        transpose::ColAllGather( A, B, conjugate );
+    }
     else
     {
         std::unique_ptr<AbstractBlockDistMatrix<T>> 
             C( B.ConstructTranspose(A.Grid(),A.Root()) );
-        C->AlignRowsWith( B.DistData() );
-        C->AlignColsWith( B.DistData() );
+        C->AlignRowsWith( BData );
+        C->AlignColsWith( BData );
         Copy( A, *C );
         B.Resize( A.Width(), A.Height() );
         Transpose( C->LockedMatrix(), B.Matrix(), conjugate );

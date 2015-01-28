@@ -133,12 +133,12 @@ inline void ProcessFrontGeneral
         ( RIGHT, LOWER, ADJOINT, UNIT, F(1), AL11_STAR_STAR, AL21_VC_STAR );
 
         S21Trans_STAR_MC.AlignWith( AL22 );
-        transpose::PartialColAllGather( AL21_VC_STAR, S21Trans_STAR_MC );
+        Transpose( AL21_VC_STAR, S21Trans_STAR_MC );
         DiagonalSolve( RIGHT, NORMAL, d1_STAR_STAR, AL21_VC_STAR );
         AL21_VR_STAR.AlignWith( AL22 );
         AL21_VR_STAR = AL21_VC_STAR;
         AL21Trans_STAR_MR.AlignWith( AL22 );
-        adjoint::PartialColAllGather( AL21_VR_STAR, AL21Trans_STAR_MR );
+        Adjoint( AL21_VR_STAR, AL21Trans_STAR_MR );
 
         // Partition the update of the bottom-right corner into three pieces
         PartitionRight( S21Trans_STAR_MC, leftL, leftR, AL22.Width() );
@@ -149,7 +149,7 @@ inline void ProcessFrontGeneral
         LocalTrrk( LOWER, ADJOINT, F(-1), leftR, rightR, F(1), ABR );
 
         DiagonalSolve( LEFT, NORMAL, d1_STAR_STAR, S21Trans_STAR_MC );
-        transpose::RowFilter( S21Trans_STAR_MC, AL21 );
+        Transpose( S21Trans_STAR_MC, AL21 );
     }
 }
 
@@ -240,7 +240,7 @@ inline void ProcessFrontSquare
         ( RIGHT, LOWER, ADJOINT, UNIT, F(1), AL11_STAR_STAR, AL21_VC_STAR );
 
         S21Trans_STAR_MC.AlignWith( AL22 );
-        transpose::PartialColAllGather( AL21_VC_STAR, S21Trans_STAR_MC );
+        Transpose( AL21_VC_STAR, S21Trans_STAR_MC );
         // SendRecv to form AL21^T[* ,MR] from S21^T[* ,MC], then conjugate
         // if necessary.
         AL21Trans_STAR_MR.AlignWith( AL22 );
@@ -278,7 +278,7 @@ inline void ProcessFrontSquare
         LocalTrrk( LOWER, ADJOINT, F(-1), leftR, rightR, F(1), ABR );
 
         DiagonalSolve( LEFT, NORMAL, d1_STAR_STAR, S21Trans_STAR_MC );
-        transpose::RowFilter( S21Trans_STAR_MC, AL21 );
+        Transpose( S21Trans_STAR_MC, AL21 );
     }
 }
 

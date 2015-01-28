@@ -46,8 +46,8 @@ UT
         const Int nb = Min(bsize,r-k);
         auto A1 = A( IR(k,k+nb), IR(0,n) );
 
-        transpose::ColAllGather( A1, A1Trans_MR_STAR );
-        transpose::PartialRowFilter( A1Trans_MR_STAR, A1_STAR_VR );
+        Transpose( A1, A1Trans_MR_STAR );
+        Transpose( A1Trans_MR_STAR, A1_STAR_VR );
         A1_STAR_MC = A1_STAR_VR;
 
         LocalTrrk

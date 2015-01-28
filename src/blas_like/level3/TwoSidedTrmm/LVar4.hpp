@@ -132,9 +132,9 @@ LVar4
         // Y10 := A11 L10
         A11_STAR_STAR = A11;
         L10Adj_MR_STAR.AlignWith( A00 );
-        adjoint::ColAllGather( L10, L10Adj_MR_STAR );
+        Adjoint( L10, L10Adj_MR_STAR );
         L10_STAR_VR.AlignWith( A00 );
-        adjoint::PartialRowFilter( L10Adj_MR_STAR, L10_STAR_VR );
+        Adjoint( L10Adj_MR_STAR, L10_STAR_VR );
         Y10_STAR_VR.AlignWith( A10 );
         Zeros( Y10_STAR_VR, nb, k );
         Hemm

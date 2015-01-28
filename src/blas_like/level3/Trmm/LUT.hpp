@@ -216,14 +216,14 @@ LUTC
         U12_STAR_MC.AlignWith( X2 );
         U12_STAR_MC = U12;
         X1Trans_MR_STAR.AlignWith( X2 ); 
-        transpose::ColAllGather( X1, X1Trans_MR_STAR );
+        Transpose( X1, X1Trans_MR_STAR );
         LocalGemm
         ( orientation, TRANSPOSE, 
           T(1), U12_STAR_MC, X1Trans_MR_STAR, T(1), X2 );
 
         U11_STAR_STAR = U11;
         X1_STAR_VR.AlignWith( X1 );
-        transpose::PartialRowFilter( X1Trans_MR_STAR, X1_STAR_VR );
+        Transpose( X1Trans_MR_STAR, X1_STAR_VR );
         LocalTrmm
         ( LEFT, UPPER, orientation, diag, T(1), U11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;

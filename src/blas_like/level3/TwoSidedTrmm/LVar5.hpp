@@ -139,7 +139,7 @@ LVar5
 
         // A00 := A00 + (L10' A10 + A10' L10)
         A10Trans_MR_STAR.AlignWith( A00 );
-        transpose::ColAllGather( A10, A10Trans_MR_STAR );
+        Transpose( A10, A10Trans_MR_STAR );
         L10_STAR_MR.AlignWith( A00 );
         L10_STAR_MR = L10_STAR_VR;
         A10_STAR_VR.AlignWith( A10 );

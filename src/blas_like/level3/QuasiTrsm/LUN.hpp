@@ -241,14 +241,14 @@ LUNMedium
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1Trans_MR_STAR.AlignWith( X0 );
-        transpose::ColAllGather( X1, X1Trans_MR_STAR );
+        Transpose( X1, X1Trans_MR_STAR );
         
         // X1^T[MR,* ] := X1^T[MR,* ] U11^-T[* ,* ]
         //              = (U11^-1[* ,* ] X1[* ,MR])^T
         LocalQuasiTrsm
         ( RIGHT, UPPER, TRANSPOSE,
           F(1), U11_STAR_STAR, X1Trans_MR_STAR, checkIfSingular );
-        transpose::ColFilter( X1Trans_MR_STAR, X1 );
+        Transpose( X1Trans_MR_STAR, X1 );
 
         U01_MC_STAR.AlignWith( X0 );
         U01_MC_STAR = U01;  // U01[MC,* ] <- U01[MC,MR]

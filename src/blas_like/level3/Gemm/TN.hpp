@@ -168,7 +168,7 @@ SUMMA_TNC
         // C[MC,MR] += alpha (A1[*,MC])^T B1[*,MR]
         //           = alpha (A1^T)[MC,*] B1[*,MR]
         A1_STAR_MC = A1; 
-        transpose::ColAllGather( B1, B1Trans_MR_STAR );
+        Transpose( B1, B1Trans_MR_STAR );
         LocalGemm
         ( orientationOfA, TRANSPOSE, 
           alpha, A1_STAR_MC, B1Trans_MR_STAR, T(1), C );

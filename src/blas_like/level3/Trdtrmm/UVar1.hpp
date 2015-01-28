@@ -91,8 +91,7 @@ UVar1( AbstractDistMatrix<F>& UPre, bool conjugate=false )
         S01_VC_STAR = S01_MC_STAR;
         U01_VR_STAR = S01_VC_STAR;
         DiagonalSolve( RIGHT, NORMAL, d1, U01_VR_STAR );
-        transpose::PartialColAllGather
-        ( U01_VR_STAR, U01Trans_STAR_MR, conjugate );
+        Transpose( U01_VR_STAR, U01Trans_STAR_MR, conjugate );
         LocalTrrk( UPPER, F(1), S01_MC_STAR, U01Trans_STAR_MR, F(1), U00 );
 
         U11_STAR_STAR = U11;

@@ -102,7 +102,7 @@ RUTA
 
         auto X1 = X( IR(k,k+nb), IR(0,n) );
 
-        transpose::ColAllGather( X1, X1Trans_MR_STAR, conjugate );
+        Transpose( X1, X1Trans_MR_STAR, conjugate );
         Zeros( Z1Trans_MC_STAR, n, nb );
         LocalAccumulateRUT
         ( diag, T(1), U, X1Trans_MR_STAR, Z1Trans_MC_STAR );
@@ -160,7 +160,7 @@ RUTC
         X1 = X1_VC_STAR;
  
         U12Trans_MR_STAR.AlignWith( X2 );
-        transpose::ColAllGather( U12, U12Trans_MR_STAR, conjugate );
+        Transpose( U12, U12Trans_MR_STAR, conjugate );
         D1_MC_STAR.AlignWith( X1 );
         LocalGemm( NORMAL, NORMAL, T(1), X2, U12Trans_MR_STAR, D1_MC_STAR );
         axpy::RowSumScatter( T(1), D1_MC_STAR, X1 );

@@ -11,12 +11,16 @@
 namespace El {
 namespace copy {
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 void PartialColFilter
-( const DistMatrix<T,Partial<U>(),V>& A,
-        DistMatrix<T,        U,   V>& B )
+( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::PartialColFilter"))
+    DEBUG_ONLY(
+        CallStackEntry cse("copy::PartialColFilter");
+        if( A.ColDist() != Partial(B.ColDist()) ||
+            A.RowDist() != B.RowDist() )
+            LogicError("Incompatible distributions");
+    )
     AssertSameGrids( A, B );
 
     const Int height = A.Height();
@@ -84,39 +88,20 @@ void PartialColFilter
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 void PartialColFilter
-( const BlockDistMatrix<T,Partial<U>(),V>& A,
-        BlockDistMatrix<T,        U,   V>& B )
+( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("copy::PartialColFilter"))
     AssertSameGrids( A, B );
     LogicError("This routine is not yet written");
 }
 
-#define PROTO_DIST(T,U,V) \
-  template void PartialColFilter \
-  ( const DistMatrix<T,Partial<U>(),V>& A, \
-          DistMatrix<T,        U,   V>& B ); \
-  template void PartialColFilter \
-  ( const BlockDistMatrix<T,Partial<U>(),V>& A, \
-          BlockDistMatrix<T,        U,   V>& B );
-
 #define PROTO(T) \
-  PROTO_DIST(T,CIRC,CIRC) \
-  PROTO_DIST(T,MC,  MR  ) \
-  PROTO_DIST(T,MC,  STAR) \
-  PROTO_DIST(T,MD,  STAR) \
-  PROTO_DIST(T,MR,  MC  ) \
-  PROTO_DIST(T,MR,  STAR) \
-  PROTO_DIST(T,STAR,MC  ) \
-  PROTO_DIST(T,STAR,MD  ) \
-  PROTO_DIST(T,STAR,MR  ) \
-  PROTO_DIST(T,STAR,STAR) \
-  PROTO_DIST(T,STAR,VC  ) \
-  PROTO_DIST(T,STAR,VR  ) \
-  PROTO_DIST(T,VC,  STAR) \
-  PROTO_DIST(T,VR,  STAR) 
+  template void PartialColFilter \
+  ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+  template void PartialColFilter \
+  ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
 
 #include "El/macros/Instantiate.h"
 

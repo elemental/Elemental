@@ -133,8 +133,7 @@ LUA
 
         B1_MC_STAR = B1;
         B1_VR_STAR = B1_MC_STAR;
-        transpose::PartialColAllGather
-        ( B1_VR_STAR, B1Trans_STAR_MR, conjugate );
+        Transpose( B1_VR_STAR, B1Trans_STAR_MR, conjugate );
         Zeros( Z1_MC_STAR, m, nb );
         Zeros( Z1_MR_STAR, m, nb );
         LocalAccumulateLU
@@ -201,7 +200,7 @@ LUC
         MakeTrapezoidal( UPPER, AT1_MC_STAR, -k );
         MakeTrapezoidal( UPPER, A1R_STAR_MC, 1 );
 
-        transpose::ColAllGather( B1, B1Trans_MR_STAR );
+        Transpose( B1, B1Trans_MR_STAR );
 
         LocalGemm
         ( NORMAL, TRANSPOSE, 

@@ -213,14 +213,14 @@ LLTC
         L10_STAR_MC.AlignWith( X0 );
         L10_STAR_MC = L10;
         X1Trans_MR_STAR.AlignWith( X0 );
-        transpose::ColAllGather( X1, X1Trans_MR_STAR );
+        Transpose( X1, X1Trans_MR_STAR );
         LocalGemm
         ( orientation, TRANSPOSE, 
           T(1), L10_STAR_MC, X1Trans_MR_STAR, T(1), X0 );
 
         L11_STAR_STAR = L11;
         X1_STAR_VR.AlignWith( X1 );
-        transpose::PartialRowFilter( X1Trans_MR_STAR, X1_STAR_VR );
+        Transpose( X1Trans_MR_STAR, X1_STAR_VR );
         LocalTrmm
         ( LEFT, LOWER, orientation, diag, T(1), L11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;

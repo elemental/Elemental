@@ -485,7 +485,7 @@ LUNMedium
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1Trans_MR_STAR.AlignWith( X0 );
-        transpose::ColAllGather( X1, X1Trans_MR_STAR );
+        Transpose( X1, X1Trans_MR_STAR );
         
         // X1^T[MR,* ] := X1^T[MR,* ] U11^-T[* ,* ]
         //              = (U11^-1[* ,* ] X1[* ,MR])^T
@@ -494,7 +494,7 @@ LUNMedium
         LocalMultiShiftQuasiTrsm
         ( RIGHT, UPPER, TRANSPOSE,
           F(1), U11_STAR_STAR, shifts_MR_STAR_Align, X1Trans_MR_STAR );
-        X1.TransposeColFilterFrom( X1Trans_MR_STAR );
+        Transpose( X1Trans_MR_STAR, X1 );
 
         U01_MC_STAR.AlignWith( X0 );
         U01_MC_STAR = U01;  // U01[MC,* ] <- U01[MC,MR]
@@ -569,8 +569,8 @@ LUNMedium
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1RealTrans_MR_STAR.AlignWith( X0Real );
         X1ImagTrans_MR_STAR.AlignWith( X0Imag );
-        transpose::ColAllGather( X1Real, X1RealTrans_MR_STAR );
-        transpose::ColAllGather( X1Imag, X1ImagTrans_MR_STAR );
+        Transpose( X1Real, X1RealTrans_MR_STAR );
+        Transpose( X1Imag, X1ImagTrans_MR_STAR );
         
         // X1^T[MR,* ] := X1^T[MR,* ] U11^-T[* ,* ]
         //              = (U11^-1[* ,* ] X1[* ,MR])^T
@@ -580,8 +580,8 @@ LUNMedium
         ( RIGHT, UPPER, TRANSPOSE,
           C(1), U11_STAR_STAR, shifts_MR_STAR_Align, 
                 X1RealTrans_MR_STAR, X1ImagTrans_MR_STAR );
-        X1Real.TransposeColFilterFrom( X1RealTrans_MR_STAR );
-        X1Imag.TransposeColFilterFrom( X1ImagTrans_MR_STAR );
+        Transpose( X1RealTrans_MR_STAR, X1Real );
+        Transpose( X1ImagTrans_MR_STAR, X1Imag );
 
         U01_MC_STAR.AlignWith( X0Real );
         U01_MC_STAR = U01;  // U01[MC,* ] <- U01[MC,MR]

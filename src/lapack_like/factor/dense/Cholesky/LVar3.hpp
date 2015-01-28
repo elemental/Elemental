@@ -175,8 +175,8 @@ LVar3( AbstractDistMatrix<F>& APre )
         A21_VR_STAR = A21_VC_STAR;
         A21Trans_STAR_MC.AlignWith( A22 );
         A21Adj_STAR_MR.AlignWith( A22 );
-        transpose::PartialColAllGather( A21_VC_STAR, A21Trans_STAR_MC );
-        adjoint::PartialColAllGather( A21_VR_STAR, A21Adj_STAR_MR );
+        Transpose( A21_VC_STAR, A21Trans_STAR_MC );
+        Adjoint( A21_VR_STAR, A21Adj_STAR_MR );
 
         // (A21^T[* ,MC])^T A21^H[* ,MR] = A21[MC,* ] A21^H[* ,MR]
         //                               = (A21 A21^H)[MC,MR]
@@ -184,7 +184,7 @@ LVar3( AbstractDistMatrix<F>& APre )
         ( LOWER, TRANSPOSE, 
           F(-1), A21Trans_STAR_MC, A21Adj_STAR_MR, F(1), A22 );
 
-        transpose::RowFilter( A21Trans_STAR_MC, A21 );
+        Transpose( A21Trans_STAR_MC, A21 );
     }
 } 
 

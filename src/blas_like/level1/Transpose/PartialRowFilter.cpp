@@ -11,69 +11,66 @@
 namespace El {
 namespace transpose {
 
-template<typename T,Dist U,Dist V>
+// (Partial(V),U) |-> (U,V)
+template<typename T>
 void PartialRowFilter
-( const DistMatrix<T,Partial<V>(),U>& A, 
-        DistMatrix<T,U,           V>& B, bool conjugate )
+( const AbstractDistMatrix<T>& A, 
+        AbstractDistMatrix<T>& B, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("transpose::PartialRowFilter"))
-    DistMatrix<T,V,U> AFilt( A.Grid() );
+    DEBUG_ONLY(
+        CallStackEntry cse("transpose::PartialRowFilter");
+        if( A.ColDist() != Partial(B.RowDist()) ||
+            A.RowDist() != B.ColDist() )
+            LogicError("Incompatible distributions");
+    )
+    std::unique_ptr<AbstractDistMatrix<T>>
+        AFilt( B.ConstructTranspose(B.Grid(),B.Root()) );
     if( B.ColConstrained() )
-        AFilt.AlignRowsWith( B, false );
+        AFilt->AlignRowsWith( B, false );
     if( B.RowConstrained() )
-        AFilt.AlignColsWith( B, false );
-    copy::PartialColFilter( A, AFilt );
+        AFilt->AlignColsWith( B, false );
+    copy::PartialColFilter( A, *AFilt );
     if( !B.ColConstrained() )
-        B.AlignColsWith( AFilt, false );
+        B.AlignColsWith( *AFilt, false );
     if( !B.RowConstrained() )
-        B.AlignRowsWith( AFilt, false );
+        B.AlignRowsWith( *AFilt, false );
     B.Resize( A.Width(), A.Height() );
-    Transpose( AFilt.LockedMatrix(), B.Matrix(), conjugate );
+    Transpose( AFilt->LockedMatrix(), B.Matrix(), conjugate );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 void PartialRowFilter
-( const BlockDistMatrix<T,Partial<V>(),U>& A, 
-        BlockDistMatrix<T,U,           V>& B, bool conjugate )
+( const AbstractBlockDistMatrix<T>& A, 
+        AbstractBlockDistMatrix<T>& B, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("transpose::PartialRowFilter"))
-    BlockDistMatrix<T,V,U> AFilt( A.Grid() );
+    DEBUG_ONLY(
+        CallStackEntry cse("transpose::PartialRowFilter");
+        if( A.ColDist() != Partial(B.RowDist()) ||
+            A.RowDist() != B.ColDist() )
+            LogicError("Incompatible distributions");
+    )
+    std::unique_ptr<AbstractBlockDistMatrix<T>>
+        AFilt( B.ConstructTranspose(B.Grid(),B.Root()) );
     if( B.ColConstrained() )
-        AFilt.AlignRowsWith( B, false );
+        AFilt->AlignRowsWith( B, false );
     if( B.RowConstrained() )
-        AFilt.AlignColsWith( B, false );
-    copy::PartialColFilter( A, AFilt );
+        AFilt->AlignColsWith( B, false );
+    copy::PartialColFilter( A, *AFilt );
     if( !B.ColConstrained() )
-        B.AlignColsWith( AFilt, false );
+        B.AlignColsWith( *AFilt, false );
     if( !B.RowConstrained() )
-        B.AlignRowsWith( AFilt, false );
+        B.AlignRowsWith( *AFilt, false );
     B.Resize( A.Width(), A.Height() );
-    Transpose( AFilt.LockedMatrix(), B.Matrix(), conjugate );
+    Transpose( AFilt->LockedMatrix(), B.Matrix(), conjugate );
 }
-
-#define PROTO_DIST(T,U,V) \
-  template void PartialRowFilter \
-  ( const DistMatrix<T,Partial<V>(),U>& A, \
-          DistMatrix<T,U,           V>& B, bool conjugate ); \
-  template void PartialRowFilter \
-  ( const BlockDistMatrix<T,Partial<V>(),U>& A, \
-          BlockDistMatrix<T,U,           V>& B, bool conjugate );
 
 #define PROTO(T) \
-  PROTO_DIST(T,CIRC,CIRC) \
-  PROTO_DIST(T,MC,  MR  ) \
-  PROTO_DIST(T,MC,  STAR) \
-  PROTO_DIST(T,MD,  STAR) \
-  PROTO_DIST(T,MR,  MC  ) \
-  PROTO_DIST(T,MR,  STAR) \
-  PROTO_DIST(T,STAR,MC  ) \
-  PROTO_DIST(T,STAR,MD  ) \
-  PROTO_DIST(T,STAR,MR  ) \
-  PROTO_DIST(T,STAR,STAR) \
-  PROTO_DIST(T,STAR,VC  ) \
-  PROTO_DIST(T,STAR,VR  ) \
-  PROTO_DIST(T,VC,  STAR) \
-  PROTO_DIST(T,VR,  STAR)
+  template void PartialRowFilter \
+  ( const AbstractDistMatrix<T>& A, \
+          AbstractDistMatrix<T>& B, bool conjugate ); \
+  template void PartialRowFilter \
+  ( const AbstractBlockDistMatrix<T>& A, \
+          AbstractBlockDistMatrix<T>& B, bool conjugate );
 
 #include "El/macros/Instantiate.h"
 

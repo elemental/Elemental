@@ -66,10 +66,9 @@ void Trr2kTNTT
 
         A1_STAR_MC = A1;
         C1_STAR_MC = C1;
-        transpose::ColAllGather( B1, B1Trans_MR_STAR );
+        Transpose( B1, B1Trans_MR_STAR );
         D1_VR_STAR = D1;
-        transpose::PartialColAllGather
-        ( D1_VR_STAR, D1Trans_STAR_MR, (orientD==ADJOINT) );
+        Transpose( D1_VR_STAR, D1Trans_STAR_MR, (orientD==ADJOINT) );
         LocalTrr2k
         ( uplo, orientA, TRANSPOSE, orientC, NORMAL,
           alpha, A1_STAR_MC, B1Trans_MR_STAR, 

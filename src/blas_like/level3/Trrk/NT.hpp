@@ -58,8 +58,7 @@ void TrrkNT
 
         A1_MC_STAR = A1;
         B1_VR_STAR = B1;
-        transpose::PartialColAllGather
-        ( B1_VR_STAR, B1Trans_STAR_MR, (orientationOfB==ADJOINT) );
+        Transpose( B1_VR_STAR, B1Trans_STAR_MR, (orientationOfB==ADJOINT) );
         LocalTrrk( uplo, alpha, A1_MC_STAR, B1Trans_STAR_MR, beta, C );
     }
 }

@@ -257,7 +257,7 @@ LUTMedium
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         // X1[* ,VR] <- X1[MC,MR]
         X1Trans_MR_STAR.AlignWith( X2 );
-        transpose::ColAllGather( X1, X1Trans_MR_STAR, (orientation==ADJOINT) );
+        Transpose( X1, X1Trans_MR_STAR, (orientation==ADJOINT) );
         
         // X1[* ,MR] := U11^-[T/H][*,*] X1[* ,MR]
         // X1^[T/H][MR,* ] := X1^[T/H][MR,* ] U11^-1[* ,* ]
@@ -265,7 +265,7 @@ LUTMedium
         ( RIGHT, UPPER, NORMAL, 
           F(1), U11_STAR_STAR, X1Trans_MR_STAR, checkIfSingular );
 
-        transpose::ColFilter( X1Trans_MR_STAR, X1, (orientation==ADJOINT) );
+        Transpose( X1Trans_MR_STAR, X1, (orientation==ADJOINT) );
         U12_STAR_MC.AlignWith( X2 );
         U12_STAR_MC = U12; // U12[* ,MC] <- U12[MC,MR]
 

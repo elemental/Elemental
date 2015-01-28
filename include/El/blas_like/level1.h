@@ -177,6 +177,10 @@ EL_EXPORT ElError ElConjugate_z( ElMatrix_z A );
 EL_EXPORT ElError ElConjugateDist_c( ElDistMatrix_c A );
 EL_EXPORT ElError ElConjugateDist_z( ElDistMatrix_z A );
 
+/* ConjugateDiagonal
+   ================= */
+/* TODO */
+
 /* B = A 
    ===== */
 EL_EXPORT ElError ElCopy_i( ElConstMatrix_i A, ElMatrix_i B );
@@ -660,6 +664,14 @@ EL_EXPORT ElError ElFillDiagonalDist_z
 
 /* GetDiagonal
    =========== */
+/* TODO */
+
+/* GetMappedDiagonal
+   ================= */
+/* TODO */
+
+/* GetSubmatrix
+   ============ */
 /* TODO */
 
 /* Hadamard
@@ -1409,6 +1421,10 @@ EL_EXPORT ElError ElTransposeDistSparse_z
 
 /* UpdateDiagonal
    ============== */
+/* TODO */
+
+/* UpdateSubmatrix
+   =============== */
 /* TODO */
 
 /* Zero

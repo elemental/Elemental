@@ -52,7 +52,7 @@ void TrrkNN
         auto B1 = B( ind1,     outerInd );
 
         A1_MC_STAR = A1;
-        transpose::ColAllGather( B1, B1Trans_MR_STAR );
+        Transpose( B1, B1Trans_MR_STAR );
         LocalTrrk
         ( uplo, TRANSPOSE, alpha, A1_MC_STAR, B1Trans_MR_STAR, beta, C );
     }

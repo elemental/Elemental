@@ -62,10 +62,10 @@ RLN
         // X0[MC,MR] -= X1[MC,* ]   L10[*,MR]
         //            = X1^T[* ,MC] L10^T[MR,* ]
         X1Trans_STAR_MC.AlignWith( X0 );
-        transpose::PartialColAllGather( X1_VC_STAR, X1Trans_STAR_MC );
-        transpose::RowFilter( X1Trans_STAR_MC, X1 );
+        Transpose( X1_VC_STAR, X1Trans_STAR_MC );
+        Transpose( X1Trans_STAR_MC, X1 );
         L10Trans_MR_STAR.AlignWith( X0 );
-        transpose::ColAllGather( L10, L10Trans_MR_STAR );
+        Transpose( L10, L10Trans_MR_STAR );
         LocalGemm
         ( TRANSPOSE, TRANSPOSE, 
           F(-1), X1Trans_STAR_MC, L10Trans_MR_STAR, F(1), X0 );

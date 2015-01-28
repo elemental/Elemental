@@ -106,7 +106,7 @@ LUNA
         auto X1 = X( IR(0,m), IR(k,k+nb) );
 
         X1_VR_STAR = X1;
-        transpose::PartialColAllGather( X1_VR_STAR, X1Trans_STAR_MR );
+        Transpose( X1_VR_STAR, X1Trans_STAR_MR );
         Zeros( Z1_MC_STAR, m, nb );
         LocalAccumulateLUN
         ( TRANSPOSE, diag, T(1), U, X1Trans_STAR_MR, Z1_MC_STAR );
@@ -212,13 +212,13 @@ LUNC
         U01_MC_STAR.AlignWith( X0 );
         U01_MC_STAR = U01;
         X1Trans_MR_STAR.AlignWith( X0 );
-        transpose::ColAllGather( X1, X1Trans_MR_STAR );
+        Transpose( X1, X1Trans_MR_STAR );
         LocalGemm
         ( NORMAL, TRANSPOSE, T(1), U01_MC_STAR, X1Trans_MR_STAR, T(1), X0 );
 
         U11_STAR_STAR = U11;
         X1_STAR_VR.AlignWith( X1 );
-        transpose::PartialRowFilter( X1Trans_MR_STAR, X1_STAR_VR );
+        Transpose( X1Trans_MR_STAR, X1_STAR_VR );
         LocalTrmm( LEFT, UPPER, NORMAL, diag, T(1), U11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
     }

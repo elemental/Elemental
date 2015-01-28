@@ -11,12 +11,17 @@
 namespace El {
 namespace copy {
 
-template<typename T,Dist U,Dist V>
+// (U,Collect(V)) |-> (U,V)
+template<typename T>
 void RowFilter
-( const DistMatrix<T,U,Collect<V>()>& A,
-        DistMatrix<T,U,        V   >& B )
+( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::RowFilter"))
+    DEBUG_ONLY(
+        CallStackEntry cse("copy::RowFilter");
+        if( A.ColDist() != B.ColDist() ||
+            A.RowDist() != Collect(B.RowDist()) )
+            LogicError("Incompatible distributions");
+    )
     AssertSameGrids( A, B );
 
     B.AlignColsAndResize
@@ -74,39 +79,20 @@ void RowFilter
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 void RowFilter
-( const BlockDistMatrix<T,U,Collect<V>()>& A,
-        BlockDistMatrix<T,U,        V   >& B )
+( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("copy::RowFilter"))
     AssertSameGrids( A, B );
     LogicError("This routine is not yet written");
 }
 
-#define PROTO_DIST(T,U,V) \
-  template void RowFilter \
-  ( const DistMatrix<T,U,Collect<V>()>& A, \
-          DistMatrix<T,U,        V   >& B ); \
-  template void RowFilter \
-  ( const BlockDistMatrix<T,U,Collect<V>()>& A, \
-          BlockDistMatrix<T,U,        V   >& B );
-
 #define PROTO(T) \
-  PROTO_DIST(T,CIRC,CIRC) \
-  PROTO_DIST(T,MC,  MR  ) \
-  PROTO_DIST(T,MC,  STAR) \
-  PROTO_DIST(T,MD,  STAR) \
-  PROTO_DIST(T,MR,  MC  ) \
-  PROTO_DIST(T,MR,  STAR) \
-  PROTO_DIST(T,STAR,MC  ) \
-  PROTO_DIST(T,STAR,MD  ) \
-  PROTO_DIST(T,STAR,MR  ) \
-  PROTO_DIST(T,STAR,STAR) \
-  PROTO_DIST(T,STAR,VC  ) \
-  PROTO_DIST(T,STAR,VR  ) \
-  PROTO_DIST(T,VC,  STAR) \
-  PROTO_DIST(T,VR,  STAR) 
+  template void RowFilter \
+  ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+  template void RowFilter \
+  ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
 
 #include "El/macros/Instantiate.h"
 

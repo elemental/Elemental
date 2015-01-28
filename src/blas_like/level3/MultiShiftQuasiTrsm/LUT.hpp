@@ -499,7 +499,7 @@ LUTMedium
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         // X1[* ,VR] <- X1[MC,MR]
         X1Trans_MR_STAR.AlignWith( X2 );
-        transpose::ColAllGather( X1, X1Trans_MR_STAR, (orientation==ADJOINT) );
+        Transpose( X1, X1Trans_MR_STAR, (orientation==ADJOINT) );
         
         // X1[* ,MR] := U11^-[T/H][*,*] X1[* ,MR]
         // X1^[T/H][MR,* ] := X1^[T/H][MR,* ] U11^-1[* ,* ]
@@ -509,7 +509,7 @@ LUTMedium
         ( RIGHT, UPPER, NORMAL, 
           F(1), U11_STAR_STAR, shifts_MR_STAR_Align, X1Trans_MR_STAR );
 
-        X1.TransposeColFilterFrom( X1Trans_MR_STAR, (orientation==ADJOINT) );
+        Transpose( X1Trans_MR_STAR, X1, (orientation==ADJOINT) );
         U12_STAR_MC.AlignWith( X2 );
         U12_STAR_MC = U12; // U12[* ,MC] <- U12[MC,MR]
 
@@ -581,10 +581,8 @@ LUTMedium
         U11_STAR_STAR = U11; 
         X1RealTrans_MR_STAR.AlignWith( X2Real );
         X1ImagTrans_MR_STAR.AlignWith( X2Imag );
-        transpose::ColAllGather
-        ( X1Real, X1RealTrans_MR_STAR, (orientation==ADJOINT) );
-        transpose::ColAllGather
-        ( X1Imag, X1ImagTrans_MR_STAR, (orientation==ADJOINT) );
+        Transpose( X1Real, X1RealTrans_MR_STAR, (orientation==ADJOINT) );
+        Transpose( X1Imag, X1ImagTrans_MR_STAR, (orientation==ADJOINT) );
         
         // X1[* ,MR] := U11^-[T/H][*,*] X1[* ,MR]
         // X1^[T/H][MR,* ] := X1^[T/H][MR,* ] U11^-1[* ,* ]
@@ -595,10 +593,8 @@ LUTMedium
           C(1), U11_STAR_STAR, shifts_MR_STAR_Align, 
                 X1RealTrans_MR_STAR, X1ImagTrans_MR_STAR );
 
-        X1Real.TransposeColFilterFrom
-        ( X1RealTrans_MR_STAR, (orientation==ADJOINT) );
-        X1Imag.TransposeColFilterFrom
-        ( X1ImagTrans_MR_STAR, (orientation==ADJOINT) );
+        Transpose( X1RealTrans_MR_STAR, X1Real, (orientation==ADJOINT) );
+        Transpose( X1ImagTrans_MR_STAR, X1Imag, (orientation==ADJOINT) );
         U12_STAR_MC.AlignWith( X2Real );
         U12_STAR_MC = U12;
 

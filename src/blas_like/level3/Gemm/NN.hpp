@@ -139,7 +139,7 @@ SUMMA_NNA
 
         // D1[MC,*] := alpha A[MC,MR] B1[MR,*]
         B1_VR_STAR = B1;
-        transpose::PartialColAllGather( B1_VR_STAR, B1Trans_STAR_MR );
+        Transpose( B1_VR_STAR, B1Trans_STAR_MR );
         LocalGemm( NORMAL, TRANSPOSE, alpha, A, B1Trans_STAR_MR, D1_MC_STAR );
 
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
@@ -241,7 +241,7 @@ SUMMA_NNC
         // C[MC,MR] += alpha A1[MC,*] (B1^T[MR,*])^T
         //           = alpha A1[MC,*] B1[*,MR]
         A1_MC_STAR = A1; 
-        transpose::ColAllGather( B1, B1Trans_MR_STAR );
+        Transpose( B1, B1Trans_MR_STAR );
         LocalGemm
         ( NORMAL, TRANSPOSE, alpha, A1_MC_STAR, B1Trans_MR_STAR, T(1), C );
     }

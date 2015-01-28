@@ -123,7 +123,7 @@ LLTMedium
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         // X1[* ,MR] <- X1[MC,MR]
         X1Trans_MR_STAR.AlignWith( X0 );
-        transpose::ColAllGather( X1, X1Trans_MR_STAR, (orientation==ADJOINT) );
+        Transpose( X1, X1Trans_MR_STAR, (orientation==ADJOINT) );
 
         // X1[* ,MR] := L11^-[T/H][* ,* ] X1[* ,MR]
         // X1^[T/H][MR,* ] := X1^[T/H][MR,* ] L11^-1[* ,* ]
@@ -131,7 +131,7 @@ LLTMedium
         ( RIGHT, LOWER, NORMAL, diag, 
           F(1), L11_STAR_STAR, X1Trans_MR_STAR, checkIfSingular );
 
-        transpose::ColFilter( X1Trans_MR_STAR, X1, (orientation==ADJOINT) );
+        Transpose( X1Trans_MR_STAR, X1, (orientation==ADJOINT) );
         L10_STAR_MC.AlignWith( X0 );
         L10_STAR_MC = L10; // L10[* ,MC] <- L10[MC,MR]
 
