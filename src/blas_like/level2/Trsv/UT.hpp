@@ -69,7 +69,7 @@ UT
 
             if( k != 0 )
             {
-                copy::RowSumScatter( z1_MR_STAR, z1_MR_MC );
+                Contract( z1_MR_STAR, z1_MR_MC );
                 Axpy( F(1), z1_MR_MC, x1 );
             }
 
@@ -109,7 +109,7 @@ UT
             View( z2_STAR_MR, z_STAR_MR, IR(0,1), IR(k+nb,m) );
 
             if( k != 0 )
-                axpy::ColSumScatter( F(1), z1_STAR_MR, x1 );
+                AxpyContract( F(1), z1_STAR_MR, x1 );
 
             x1_STAR_STAR = x1;
             U11_STAR_STAR = U11;

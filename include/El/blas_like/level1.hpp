@@ -12,6 +12,13 @@
 
 namespace El {
 
+// TODO: More 'Contract' routines, e.g., {Contract,ContractedAxpy},
+//       which sum results over the teams of processes that shared data in the
+//       original distribution but do not in the final distribution. 
+//       For example, a contraction of the form (U,Collect(V)) -> (U,V)
+//       would perform the equivalent of an MPI_Reduce_scatter summation over 
+//       the team of processes defining the 'V' row distribution.
+
 // Adjoint
 // =======
 template<typename T>
@@ -26,30 +33,19 @@ void Adjoint( const SparseMatrix<T>& A, SparseMatrix<T>& B );
 template<typename T>
 void Adjoint( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B );
 
-namespace adjoint {
-
-template<typename T,Dist U,Dist V>
-void ColSumScatter
-( const DistMatrix<T,V,Collect<U>()>& A, 
-        DistMatrix<T,U,V           >& B );
-template<typename T,Dist U,Dist V>
-void ColSumScatter
-( const BlockDistMatrix<T,V,Collect<U>()>& A, 
-        BlockDistMatrix<T,U,V           >& B );
-
-template<typename T,Dist U,Dist V>
-void PartialColSumScatter
-( const DistMatrix<T,V,Partial<U>()>& A,
-        DistMatrix<T,U,V           >& B );
-template<typename T,Dist U,Dist V>
-void PartialColSumScatter
-( const BlockDistMatrix<T,V,Partial<U>()>& A,
-        BlockDistMatrix<T,U,V           >& B );
-
-} // namespace adjoint
+// AdjointContract
+// ===============
+template<typename T>
+void AdjointContract
+( const AbstractDistMatrix<T>& A,
+        AbstractDistMatrix<T>& B );
+template<typename T>
+void AdjointContract
+( const AbstractBlockDistMatrix<T>& A,
+        AbstractBlockDistMatrix<T>& B );
 
 // AdjointAxpy
-// =============
+// ===========
 template<typename T,typename S>
 void AdjointAxpy
 ( S alpha, const Matrix<T>& X, Matrix<T>& Y );
@@ -63,35 +59,26 @@ template<typename T,typename S>
 void AdjointAxpy
 ( S alpha, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y );
 
-namespace adjoint_axpy {
-
-template<typename T,Dist U,Dist V>
-void ColSumScatter
-( T alpha, const DistMatrix<T,V,Collect<U>()>& A,
-                 DistMatrix<T,U,        V   >& B );
-template<typename T,Dist U,Dist V>
-void ColSumScatter
-( T alpha, const BlockDistMatrix<T,V,Collect<U>()>& A,
-                 BlockDistMatrix<T,U,        V   >& B );
-
-template<typename T,Dist U,Dist V>
-void PartialColSumScatter
-( T alpha, const DistMatrix<T,V,Partial<U>()>& A,
-                 DistMatrix<T,U,        V   >& B );
-template<typename T,Dist U,Dist V>
-void PartialColSumScatter
-( T alpha, const BlockDistMatrix<T,V,Partial<U>()>& A,
-                 BlockDistMatrix<T,U,        V   >& B );
-
-} // namespace adjoint_axpy
+// AdjointAxpyContract
+// ===================
+template<typename T>
+void AdjointAxpyContract
+( T alpha, const AbstractDistMatrix<T>& A,
+                 AbstractDistMatrix<T>& B );
+template<typename T>
+void AdjointAxpyContract
+( T alpha, const AbstractBlockDistMatrix<T>& A,
+                 AbstractBlockDistMatrix<T>& B );
 
 // AllReduce
 // =========
 // TODO: Matrix<T> version?
 template<typename T>
-void AllReduce( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op=mpi::SUM );
+void AllReduce
+( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op=mpi::SUM );
 template<typename T>
-void AllReduce( AbstractBlockDistMatrix<T>& A, mpi::Comm comm, mpi::Op op=mpi::SUM );
+void AllReduce
+( AbstractBlockDistMatrix<T>& A, mpi::Comm comm, mpi::Op op=mpi::SUM );
 
 // Axpy
 // ====
@@ -107,52 +94,6 @@ template<typename T,typename S>
 void Axpy( S alpha, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y );
 
 namespace axpy {
-
-template<typename T,Dist U,Dist V>
-void SumScatter
-( T alpha, const DistMatrix<T,Collect<U>(),Collect<V>()>& A, 
-                 DistMatrix<T,        U,           V   >& B );
-template<typename T,Dist U,Dist V>
-void SumScatter
-( T alpha, const BlockDistMatrix<T,Collect<U>(),Collect<V>()>& A, 
-                 BlockDistMatrix<T,        U,           V   >& B );
-
-template<typename T,Dist U,Dist V>
-void ColSumScatter
-( T alpha, const DistMatrix<T,Collect<U>(),V>& A, 
-                 DistMatrix<T,        U,   V>& B );
-template<typename T,Dist U,Dist V>
-void ColSumScatter
-( T alpha, const BlockDistMatrix<T,Collect<U>(),V>& A, 
-                 BlockDistMatrix<T,        U,   V>& B );
-
-template<typename T,Dist U,Dist V>
-void RowSumScatter
-( T alpha, const DistMatrix<T,U,Collect<V>()>& A, 
-                 DistMatrix<T,U,        V   >& B );
-template<typename T,Dist U,Dist V>
-void RowSumScatter
-( T alpha, const BlockDistMatrix<T,U,Collect<V>()>& A, 
-                 BlockDistMatrix<T,U,        V   >& B );
-
-template<typename T,Dist U,Dist V>
-void PartialColSumScatter
-( T alpha, const DistMatrix<T,Partial<U>(),V>& A, 
-                 DistMatrix<T,        U,   V>& B );
-template<typename T,Dist U,Dist V>
-void PartialColSumScatter
-( T alpha, const BlockDistMatrix<T,Partial<U>(),V>& A, 
-                 BlockDistMatrix<T,        U,   V>& B );
-
-template<typename T,Dist U,Dist V>
-void PartialRowSumScatter
-( T alpha, const DistMatrix<T,U,Partial<V>()>& A, 
-                 DistMatrix<T,U,        V   >& B );
-template<typename T,Dist U,Dist V>
-void PartialRowSumScatter
-( T alpha, const BlockDistMatrix<T,U,Partial<V>()>& A, 
-                 BlockDistMatrix<T,U,        V   >& B );
-
 namespace util {
 
 template<typename T>
@@ -162,8 +103,19 @@ void InterleaveMatrixUpdate
         T* B, Int colStrideB, Int rowStrideB );
 
 } // namespace util
-
 } // namespace axpy
+
+// AxpyContract
+// ============
+
+template<typename T>
+void AxpyContract
+( T alpha, const AbstractDistMatrix<T>& A, 
+                 AbstractDistMatrix<T>& B );
+template<typename T>
+void AxpyContract
+( T alpha, const AbstractBlockDistMatrix<T>& A, 
+                 AbstractBlockDistMatrix<T>& B );
 
 // AxpyTrapezoid
 // =============
@@ -256,6 +208,15 @@ void ConjugateSubmatrix
 ( AbstractDistMatrix<T>& A, 
   const std::vector<Int>& I, const std::vector<Int>& J );
 
+// Contract
+// ========
+template<typename T>
+void Contract
+( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
+template<typename T>
+void Contract
+( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
+
 // Copy
 // ====
 template<typename T>
@@ -303,52 +264,6 @@ template<typename T>
 void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root=0 );
 
 namespace copy {
-
-template<typename T,Dist U,Dist V>
-void SumScatter
-( const DistMatrix<T,Collect<U>(),Collect<V>()>& A, 
-        DistMatrix<T,        U,           V   >& B );
-template<typename T,Dist U,Dist V>
-void SumScatter
-( const BlockDistMatrix<T,Collect<U>(),Collect<V>()>& A, 
-        BlockDistMatrix<T,        U,           V   >& B );
-
-template<typename T,Dist U,Dist V>
-void ColSumScatter
-( const DistMatrix<T,Collect<U>(),V>& A, 
-        DistMatrix<T,        U,   V>& B );
-template<typename T,Dist U,Dist V>
-void ColSumScatter
-( const BlockDistMatrix<T,Collect<U>(),V>& A, 
-        BlockDistMatrix<T,        U,   V>& B );
-
-template<typename T,Dist U,Dist V>
-void RowSumScatter
-( const DistMatrix<T,U,Collect<V>()>& A, 
-        DistMatrix<T,U,        V   >& B );
-template<typename T,Dist U,Dist V>
-void RowSumScatter
-( const BlockDistMatrix<T,U,Collect<V>()>& A, 
-        BlockDistMatrix<T,U,        V   >& B );
-
-template<typename T,Dist U,Dist V>
-void PartialColSumScatter
-( const DistMatrix<T,Partial<U>(),V>& A, 
-        DistMatrix<T,        U,   V>& B );
-template<typename T,Dist U,Dist V>
-void PartialColSumScatter
-( const BlockDistMatrix<T,Partial<U>(),V>& A, 
-        BlockDistMatrix<T,        U,   V>& B );
-
-template<typename T,Dist U,Dist V>
-void PartialRowSumScatter
-( const DistMatrix<T,U,Partial<V>()>& A, 
-        DistMatrix<T,U,        V   >& B );
-template<typename T,Dist U,Dist V>
-void PartialRowSumScatter
-( const BlockDistMatrix<T,U,Partial<V>()>& A, 
-        BlockDistMatrix<T,U,        V   >& B );
-
 namespace util {
 
 template<typename T>
@@ -453,7 +368,6 @@ void StridedUnpack
         T* B,         Int BLDim );
 
 } // namespace util
-
 } // namespace copy
 
 // DiagonalScale
@@ -1329,27 +1243,16 @@ template<typename T>
 void Transpose
 ( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B, bool conjugate=false );
 
-namespace transpose {
-
-template<typename T,Dist U,Dist V>
-void ColSumScatter
-( const DistMatrix<T,V,Collect<U>()>& A, 
-        DistMatrix<T,U,V           >& B, bool conjugate=false );
-template<typename T,Dist U,Dist V>
-void ColSumScatter
-( const BlockDistMatrix<T,V,Collect<U>()>& A, 
-        BlockDistMatrix<T,U,V           >& B, bool conjugate=false );
-
-template<typename T,Dist U,Dist V>
-void PartialColSumScatter
-( const DistMatrix<T,V,Partial<U>()>& A, 
-        DistMatrix<T,U,V           >& B, bool conjugate=false );
-template<typename T,Dist U,Dist V>
-void PartialColSumScatter
-( const BlockDistMatrix<T,V,Partial<U>()>& A, 
-        BlockDistMatrix<T,U,V           >& B, bool conjugate=false );
-
-} // namespace transpose
+// TransposeContract
+// =================
+template<typename T>
+void TransposeContract
+( const AbstractDistMatrix<T>& A, 
+        AbstractDistMatrix<T>& B, bool conjugate=false );
+template<typename T>
+void TransposeContract
+( const AbstractBlockDistMatrix<T>& A, 
+        AbstractBlockDistMatrix<T>& B, bool conjugate=false );
 
 // TransposeAxpy
 // =============
@@ -1368,27 +1271,16 @@ void TransposeAxpy
 ( S alpha, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y, 
   bool conjugate=false );
 
-namespace trans_axpy {
-
-template<typename T,Dist U,Dist V>
-void ColSumScatter
-( T alpha, const DistMatrix<T,V,Collect<U>()>& A, 
-                 DistMatrix<T,U,        V   >& B, bool conjugate=false );
-template<typename T,Dist U,Dist V>
-void ColSumScatter
-( T alpha, const BlockDistMatrix<T,V,Collect<U>()>& A, 
-                 BlockDistMatrix<T,U,        V   >& B, bool conjugate=false );
-
-template<typename T,Dist U,Dist V>
-void PartialColSumScatter
-( T alpha, const DistMatrix<T,V,Partial<U>()>& A, 
-                 DistMatrix<T,U,        V   >& B, bool conjugate=false );
-template<typename T,Dist U,Dist V>
-void PartialColSumScatter
-( T alpha, const BlockDistMatrix<T,V,Partial<U>()>& A, 
-                 BlockDistMatrix<T,U,        V   >& B, bool conjugate=false );
-
-} // namespace trans_axpy
+// TransposeAxpyContract
+// =====================
+template<typename T>
+void TransposeAxpyContract
+( T alpha, const AbstractDistMatrix<T>& A, 
+                 AbstractDistMatrix<T>& B, bool conjugate=false );
+template<typename T>
+void TransposeAxpyContract
+( T alpha, const AbstractBlockDistMatrix<T>& A, 
+                 AbstractBlockDistMatrix<T>& B, bool conjugate=false );
 
 // UpdateDiagonal
 // ==============

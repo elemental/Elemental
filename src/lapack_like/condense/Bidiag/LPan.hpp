@@ -278,7 +278,7 @@ LPan
             LocalGemv( TRANSPOSE, F(1), Y0R, a10_STAR_MC, F(0), z1R_STAR_MR );
             LocalGemv( ADJOINT,   F(1), A0R, x10_STAR_MC, F(1), z1R_STAR_MR ); 
             // Sum the partial contributions and subtract from a1R
-            axpy::ColSumScatter( F(-1), z1R_STAR_MR, a1R );
+            AxpyContract( F(-1), z1R_STAR_MR, a1R );
         }
 
         // Find tauP and v such that
@@ -330,7 +330,7 @@ LPan
         LocalGemv( NORMAL, F(-1), X20, z01_MR_STAR, F(1), z21_MC_STAR );
 
         // Finally perform the row summation and then scale by tauP
-        copy::RowSumScatter( z21_MC_STAR, x21 );
+        Contract( z21_MC_STAR, x21 );
         Scale( tauP, x21 );
 
         // Apply all previous reflectors to a21:
@@ -355,7 +355,7 @@ LPan
         LocalGemv( NORMAL, F(1), X20, a01_MR_STAR, F(1), z21_MC_STAR );
         Conjugate( a01_MR_STAR );
         // Sum the partial contributions from the past two updates
-        axpy::RowSumScatter( F(-1), z21_MC_STAR, a21 );
+        AxpyContract( F(-1), z21_MC_STAR, a21 );
 
         // a21 := a21 - x21
         // ^^^^^^^^^^^^^^^^
@@ -408,7 +408,7 @@ LPan
         LocalGemv( TRANSPOSE, F(-1), AT2, zT1_MC_STAR, F(1), z21_MR_STAR );
 
         // Finally perform the column summation and then scale by tauQ
-        adjoint::ColSumScatter( z21_MR_STAR, y12 );
+        AdjointContract( z21_MR_STAR, y12 );
         Scale( tauQ, y12 );
     }
 

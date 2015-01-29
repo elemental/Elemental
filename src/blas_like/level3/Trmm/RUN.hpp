@@ -106,7 +106,7 @@ RUNA
         ( TRANSPOSE, diag, T(1), U, X1_STAR_MC, Z1Trans_MR_STAR );
 
         Z1Trans_MR_MC.AlignWith( X1 );
-        copy::RowSumScatter( Z1Trans_MR_STAR, Z1Trans_MR_MC );
+        Contract( Z1Trans_MR_STAR, Z1Trans_MR_MC );
         Transpose( Z1Trans_MR_MC.Matrix(), X1.Matrix() );
     }
 }
@@ -158,7 +158,7 @@ RUNCOld
         U01_MR_STAR = U01;
         D1_MC_STAR.AlignWith( X1 );
         LocalGemm( NORMAL, NORMAL, T(1), X0, U01_MR_STAR, D1_MC_STAR );
-        axpy::RowSumScatter( T(1), D1_MC_STAR, X1 );
+        AxpyContract( T(1), D1_MC_STAR, X1 );
     }
 }
 

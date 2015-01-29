@@ -211,7 +211,7 @@ UN
             View( z1_MC_STAR, z_MC_STAR, ind1, outerInd );
 
             if( kOld != m )
-                axpy::RowSumScatter( F(1), z1_MC_STAR, x1 );
+                AxpyContract( F(1), z1_MC_STAR, x1 );
 
             x1_STAR_STAR = x1;
             U11_STAR_STAR = U11;
@@ -263,7 +263,7 @@ UN
 
             if( kOld != m )
             {
-                copy::ColSumScatter( z1_STAR_MC, z1_MR_MC );
+                Contract( z1_STAR_MC, z1_MR_MC );
                 Axpy( F(1), z1_MR_MC, x1 );
             }
 

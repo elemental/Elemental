@@ -142,7 +142,7 @@ LUHF
         Z_STAR_MR.AlignWith( ABot );
         LocalGemm( NORMAL, NORMAL, F(1), HPan_STAR_MC, ABot, Z_STAR_MR );
         Z_STAR_VR.AlignWith( ABot );
-        copy::PartialRowSumScatter( Z_STAR_MR, Z_STAR_VR );
+        Contract( Z_STAR_MR, Z_STAR_VR );
 
         LocalTrsm
         ( LEFT, LOWER, NORMAL, NON_UNIT, F(1), SInv_STAR_STAR, Z_STAR_VR );

@@ -144,7 +144,7 @@ RLVB
         ZAdj_STAR_MC.AlignWith( ARight );
         LocalGemm( ADJOINT, ADJOINT, F(1), HPan_MR_STAR, ARight, ZAdj_STAR_MC );
         ZAdj_STAR_VC.AlignWith( ARight );
-        copy::PartialRowSumScatter( ZAdj_STAR_MC, ZAdj_STAR_VC );
+        Contract( ZAdj_STAR_MC, ZAdj_STAR_VC );
  
         LocalTrsm
         ( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), SInv_STAR_STAR, ZAdj_STAR_VC );

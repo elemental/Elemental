@@ -140,7 +140,7 @@ UVar2
         Adjoint( U12, U12Adj_MR_STAR );
         X01_MC_STAR.AlignWith( A01 );
         LocalGemm( NORMAL, NORMAL, F(1), A02, U12Adj_MR_STAR, X01_MC_STAR );
-        axpy::RowSumScatter( F(1), X01_MC_STAR, A01 );
+        AxpyContract( F(1), X01_MC_STAR, A01 );
 
         // Y12 := U12 A22
         U12Adj_VC_STAR.AlignWith( A22 );
@@ -156,10 +156,10 @@ UVar2
           F(1), A22, U12_STAR_MC, U12Adj_MR_STAR, 
           Z12Adj_MC_STAR, Z12Adj_MR_STAR );
         Z12Adj.AlignWith( A12 );
-        copy::RowSumScatter( Z12Adj_MC_STAR, Z12Adj );
+        Contract( Z12Adj_MC_STAR, Z12Adj );
         Z12Adj_MR_MC.AlignWith( A12 );
         Z12Adj_MR_MC = Z12Adj;
-        axpy::RowSumScatter( F(1), Z12Adj_MR_STAR, Z12Adj_MR_MC );
+        AxpyContract( F(1), Z12Adj_MR_STAR, Z12Adj_MR_MC );
         Y12.AlignWith( A12 );
         Y12.Resize( nb, A12.Width() );
         Adjoint( Z12Adj_MR_MC.LockedMatrix(), Y12.Matrix() );

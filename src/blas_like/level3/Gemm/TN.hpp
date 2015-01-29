@@ -61,7 +61,7 @@ SUMMA_TNA
         LocalGemm( orientationOfA, NORMAL, alpha, A, B1_MC_STAR, D1_MR_STAR );
 
         // C1[MC,MR] += scattered & transposed D1[MR,*] summed over grid cols
-        copy::RowSumScatter( D1_MR_STAR, D1_MR_MC );
+        Contract( D1_MR_STAR, D1_MR_MC );
         Axpy( T(1), D1_MR_MC, C1 );
     }
 }
@@ -117,7 +117,7 @@ SUMMA_TNB
         LocalGemm
         ( orientationOfA, NORMAL, 
           T(1), B, A1_MC_STAR, D1Trans_MR_STAR );
-        trans_axpy::ColSumScatter( alpha, D1Trans_MR_STAR, C1, conjugate );
+        TransposeAxpyContract( alpha, D1Trans_MR_STAR, C1, conjugate );
     }
 }
 

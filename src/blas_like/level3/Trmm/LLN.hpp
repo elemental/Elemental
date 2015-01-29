@@ -107,7 +107,7 @@ LLNA
         Zeros( Z1_MC_STAR, m, nb );
         LocalAccumulateLLN
         ( TRANSPOSE, diag, T(1), L, X1Trans_STAR_MR, Z1_MC_STAR );
-        copy::RowSumScatter( Z1_MC_STAR, X1 );
+        Contract( Z1_MC_STAR, X1 );
     }
 }
 
@@ -161,7 +161,7 @@ LLNCOld
         LocalGemm
         ( TRANSPOSE, TRANSPOSE, T(1), X0, L10_STAR_MC, D1Trans_MR_STAR );
         D1Trans_MR_MC.AlignWith( X1 );
-        copy::RowSumScatter( D1Trans_MR_STAR, D1Trans_MR_MC );
+        Contract( D1Trans_MR_STAR, D1Trans_MR_MC );
         D1.AlignWith( X1 );
         Zeros( D1, nb, n );
         Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix() );

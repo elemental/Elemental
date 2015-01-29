@@ -144,10 +144,10 @@ UVar2
         symm::LocalAccumulateLU
         ( ADJOINT, 
           F(1), A00, U01_MC_STAR, U01Adj_STAR_MR, F01_MC_STAR, Y01_MR_STAR );
-        copy::RowSumScatter( Y01_MR_STAR, Y01_MR_MC );
+        Contract( Y01_MR_STAR, Y01_MR_MC );
         Y01.AlignWith( A01 );
         Y01 = Y01_MR_MC;
-        axpy::RowSumScatter( F(1), F01_MC_STAR, Y01 );
+        AxpyContract( F(1), F01_MC_STAR, Y01 );
 
         // X11 := U01' A01
         X11_STAR_MR.AlignWith( U01 );
@@ -161,7 +161,7 @@ UVar2
         // A11 := A11 - triu(X11 + A01' U01) = A11 - (U01 A01 + A01' U01)
         LocalGemm( ADJOINT, NORMAL, F(1), A01_MC_STAR, U01, F(1), X11_STAR_MR );
         X11.AlignWith( A11 );
-        copy::ColSumScatter( X11_STAR_MR, X11 );
+        Contract( X11_STAR_MR, X11 );
         MakeTrapezoidal( UPPER, X11 );
         Axpy( F(-1), X11, A11 );
 
@@ -181,7 +181,7 @@ UVar2
         X12Adj_MR_STAR.AlignWith( A02 );
         LocalGemm( ADJOINT, NORMAL, F(1), A02, U01_MC_STAR, X12Adj_MR_STAR );
         X12Adj_MR_MC.AlignWith( A12 );
-        copy::RowSumScatter( X12Adj_MR_STAR, X12Adj_MR_MC );
+        Contract( X12Adj_MR_STAR, X12Adj_MR_MC );
         Adjoint( X12Adj_MR_MC.LockedMatrix(), X12Local );
         Axpy( F(-1), X12Local, A12.Matrix() );
 

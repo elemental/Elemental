@@ -145,10 +145,10 @@ LVar2
         ( ADJOINT,
           F(1), A00, L10_STAR_MC, L10Adj_MR_STAR, 
           Y10Adj_MC_STAR, F10Adj_MR_STAR );
-        copy::RowSumScatter( Y10Adj_MC_STAR, Y10Adj );
+        Contract( Y10Adj_MC_STAR, Y10Adj );
         Y10Adj_MR_MC.AlignWith( A10 );
         Y10Adj_MR_MC = Y10Adj;
-        axpy::RowSumScatter( F(1), F10Adj_MR_STAR, Y10Adj_MR_MC );
+        AxpyContract( F(1), F10Adj_MR_STAR, Y10Adj_MR_MC );
         Adjoint( Y10Adj_MR_MC.LockedMatrix(), Y10Local );
 
         // X11 := A10 L10'
@@ -164,7 +164,7 @@ LVar2
         LocalGemm
         ( NORMAL, NORMAL, F(1), L10, A10Adj_MR_STAR, F(1), X11_MC_STAR );
         X11.AlignWith( A11 );
-        copy::RowSumScatter( X11_MC_STAR, X11 ); 
+        Contract( X11_MC_STAR, X11 ); 
         AxpyTrapezoid( LOWER, F(-1), X11, A11 );
 
         // A10 := inv(L11) A10
@@ -182,7 +182,7 @@ LVar2
         // A21 := A21 - A20 L10'
         X21_MC_STAR.AlignWith( A20 );
         LocalGemm( NORMAL, NORMAL, F(1), A20, L10Adj_MR_STAR, X21_MC_STAR );
-        axpy::RowSumScatter( F(-1), X21_MC_STAR, A21 );
+        AxpyContract( F(-1), X21_MC_STAR, A21 );
 
         // A21 := A21 inv(L11)'
         A21_VC_STAR =  A21;

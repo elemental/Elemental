@@ -111,7 +111,7 @@ RLNA
         ( TRANSPOSE, diag, T(1), L, X1_STAR_MC, Z1Trans_MR_STAR );
 
         Z1Trans_MR_MC.AlignWith( X1 );
-        copy::RowSumScatter( Z1Trans_MR_STAR, Z1Trans_MR_MC );
+        Contract( Z1Trans_MR_STAR, Z1Trans_MR_MC );
         Transpose( Z1Trans_MR_MC.Matrix(), X1.Matrix() );
     }
 }
@@ -162,7 +162,7 @@ RLNCOld
         L21_MR_STAR = L21;
         D1_MC_STAR.AlignWith( X1 );
         LocalGemm( NORMAL, NORMAL, T(1), X2, L21_MR_STAR, D1_MC_STAR );
-        axpy::RowSumScatter( T(1), D1_MC_STAR, X1 );
+        AxpyContract( T(1), D1_MC_STAR, X1 );
     }
 }
 

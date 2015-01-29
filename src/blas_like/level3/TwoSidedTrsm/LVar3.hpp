@@ -171,7 +171,7 @@ LVar3
         L10_STAR_MR = L10_STAR_VR;
         X21_MC_STAR.AlignWith( A20 );
         LocalGemm( NORMAL, ADJOINT, F(1), A20, L10_STAR_MR, X21_MC_STAR );
-        axpy::RowSumScatter( F(-1), X21_MC_STAR, A21 );
+        AxpyContract( F(-1), X21_MC_STAR, A21 );
 
         // A21 := A21 inv(L11)'
         A21_VC_STAR.AlignWith( A21 );
@@ -205,7 +205,7 @@ LVar3
         // Y21 := Y21 + L20 A10'
         Z21_MC_STAR.AlignWith( L20 );
         LocalGemm( NORMAL, ADJOINT, F(1), L20, A10_STAR_MR, Z21_MC_STAR );
-        axpy::RowSumScatter( F(1), Z21_MC_STAR, Y21 );
+        AxpyContract( F(1), Z21_MC_STAR, Y21 );
     }
 }
 

@@ -108,7 +108,7 @@ RLTA
         LocalAccumulateRLT
         ( diag, T(1), L, X1Trans_MR_STAR, Z1Trans_MC_STAR );
 
-        copy::RowSumScatter( Z1Trans_MC_STAR, Z1Trans );
+        Contract( Z1Trans_MC_STAR, Z1Trans );
         Z1Trans_MR_MC.AlignWith( X1 );
         Z1Trans_MR_MC = Z1Trans;
         Transpose( Z1Trans_MR_MC.Matrix(), X1.Matrix(), conjugate );
@@ -165,7 +165,7 @@ RLTC
         Transpose( L10, L10Trans_MR_STAR, conjugate );
         D1_MC_STAR.AlignWith( X1 );
         LocalGemm( NORMAL, NORMAL, T(1), X0, L10Trans_MR_STAR, D1_MC_STAR );
-        axpy::RowSumScatter( T(1), D1_MC_STAR, X1 );
+        AxpyContract( T(1), D1_MC_STAR, X1 );
     }
 }
 

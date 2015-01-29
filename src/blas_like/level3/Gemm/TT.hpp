@@ -63,7 +63,7 @@ SUMMA_TTA
         ( orientationOfA, orientationOfB, alpha, A, B1_STAR_MC, D1_MR_STAR );
 
         // C1[MC,MR] += scattered & transposed D1[MR,*] summed over grid cols
-        copy::RowSumScatter( D1_MR_STAR, D1_MR_MC );
+        Conjugate( D1_MR_STAR, D1_MR_MC );
         Axpy( T(1), D1_MR_MC, C1 );
     }
 }
@@ -124,7 +124,7 @@ SUMMA_TTB
         ( NORMAL, orientationOfB, alpha, A1Trans_STAR_MR, B, D1_STAR_MC );
 
         // C1[MC,MR] += scattered & transposed D1[*,MC] summed over grid rows
-        copy::ColSumScatter( D1_STAR_MC, D1_MR_MC );
+        Contract( D1_STAR_MC, D1_MR_MC );
         Axpy( T(1), D1_MR_MC, C1 );
     }
 }

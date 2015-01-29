@@ -274,7 +274,7 @@ UPan
             Conjugate( a01_MR_STAR );
             LocalGemv( NORMAL, F(1), XB0, a01_MR_STAR, F(1), zB1_MC_STAR );
             // Sum the partial contributions and subtract from aB1
-            axpy::RowSumScatter( F(-1), zB1_MC_STAR, aB1 );
+            AxpyContract( F(-1), zB1_MC_STAR, aB1 );
         }
 
         // Find tauQ and u such that
@@ -324,7 +324,7 @@ UPan
         LocalGemv( TRANSPOSE, F(-1), A02, z01_MC_STAR, F(1), z21_MR_STAR );
 
         // Finally perform the column summation and then scale by tauQ
-        adjoint::ColSumScatter( z21_MR_STAR, y12 );
+        AdjointContract( z21_MR_STAR, y12 );
         Scale( tauQ, y12 );
 
         // Apply all previous reflectors to a12:
@@ -347,7 +347,7 @@ UPan
         // z21[MR,* ] := A02^H[MR,MC] x10^T[MC,* ]
         LocalGemv( ADJOINT, F(1), A02, x10_STAR_MC, F(1), z21_MR_STAR );
         // Sum the partial contributions from the past two updates
-        trans_axpy::ColSumScatter( F(-1), z21_MR_STAR, a12 );
+        TransposeAxpyContract( F(-1), z21_MR_STAR, a12 );
 
         // a12 := a12 - y12
         // ^^^^^^^^^^^^^^^^
@@ -405,7 +405,7 @@ UPan
         z01_MR_STAR = z01_MC_STAR;
         LocalGemv( NORMAL, F(-1), X20, z01_MR_STAR, F(1), z21_MC_STAR );
         // Sum the various contributions within process rows
-        copy::RowSumScatter( z21_MC_STAR, x21 );
+        Contract( z21_MC_STAR, x21 );
         Scale( tauP, x21 );
     }
 

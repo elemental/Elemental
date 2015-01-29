@@ -137,7 +137,7 @@ LLHF
         Z_STAR_MR.AlignWith( ATop );
         LocalGemm( NORMAL, NORMAL, F(1), HPan_STAR_MC, ATop, Z_STAR_MR );
         Z_STAR_VR.AlignWith( ATop );
-        copy::PartialRowSumScatter( Z_STAR_MR, Z_STAR_VR );
+        Contract( Z_STAR_MR, Z_STAR_VR );
 
         LocalTrsm
         ( LEFT, LOWER, NORMAL, NON_UNIT, F(1), SInv_STAR_STAR, Z_STAR_VR );

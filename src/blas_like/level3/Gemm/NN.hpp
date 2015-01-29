@@ -143,7 +143,7 @@ SUMMA_NNA
         LocalGemm( NORMAL, TRANSPOSE, alpha, A, B1Trans_STAR_MR, D1_MC_STAR );
 
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
-        axpy::RowSumScatter( T(1), D1_MC_STAR, C1 );
+        AxpyContract( T(1), D1_MC_STAR, C1 );
     }
 }
 
@@ -193,7 +193,7 @@ SUMMA_NNB
         LocalGemm
         ( TRANSPOSE, TRANSPOSE, alpha, B, A1_STAR_MC, D1Trans_MR_STAR );
 
-        trans_axpy::ColSumScatter( T(1), D1Trans_MR_STAR, C1 );
+        TransposeAxpyContract( T(1), D1Trans_MR_STAR, C1 );
     }
 }
 
@@ -305,7 +305,7 @@ SUMMA_NNDot
                 ( NORMAL, NORMAL, 
                   alpha, A1_STAR_VC, B1_VC_STAR, C11_STAR_STAR );
 
-                axpy::SumScatter( T(1), C11_STAR_STAR, C11 );
+                AxpyContract( T(1), C11_STAR_STAR, C11 );
             }
         }
     }
@@ -338,7 +338,7 @@ SUMMA_NNDot
                 LocalGemm
                 ( NORMAL, NORMAL, 
                   alpha, A1_STAR_VR, B1_VR_STAR, C11_STAR_STAR );
-                axpy::SumScatter( T(1), C11_STAR_STAR, C11 );
+                AxpyContract( T(1), C11_STAR_STAR, C11 );
             }
         }
     }

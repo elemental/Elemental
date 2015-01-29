@@ -172,7 +172,7 @@ UVar3
         U01_MC_STAR = U01;
         X12_STAR_MR.AlignWith( A02 );
         LocalGemm( ADJOINT, NORMAL, F(1), U01_MC_STAR, A02, X12_STAR_MR );
-        axpy::ColSumScatter( F(-1), X12_STAR_MR, A12 );
+        AxpyContract( F(-1), X12_STAR_MR, A12 );
 
         // A12 := inv(U11)' A12
         A12_STAR_VR.AlignWith( A12 );
@@ -208,7 +208,7 @@ UVar3
         // Y12 := Y12 + A01' U02
         Z12_STAR_MR.AlignWith( U02 );
         LocalGemm( ADJOINT, NORMAL, F(1), A01_MC_STAR, U02, Z12_STAR_MR );
-        axpy::ColSumScatter( F(1), Z12_STAR_MR, Y12 );
+        AxpyContract( F(1), Z12_STAR_MR, Y12 );
     }
 }
 

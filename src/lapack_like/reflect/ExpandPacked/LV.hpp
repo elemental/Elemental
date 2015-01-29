@@ -218,7 +218,7 @@ LV
         LocalGemm
         ( ADJOINT, NORMAL, 
           F(1), HPanB_MC_STAR, HEffectedOldB, F(0), ZOld_STAR_MR );
-        copy::PartialRowSumScatter( ZOld_STAR_MR, ZOld_STAR_VR );
+        Contract( ZOld_STAR_MR, ZOld_STAR_VR );
         LocalTrsm
         ( LEFT, UPPER, NORMAL, NON_UNIT, F(1), SInv_STAR_STAR, Z_STAR_VR );
         Z_STAR_MR = Z_STAR_VR;

@@ -144,7 +144,7 @@ RUHF
         ZAdj_STAR_MC.AlignWith( ARight );
         LocalGemm( NORMAL, ADJOINT, F(1), HPan_STAR_MR, ARight, ZAdj_STAR_MC );
         ZAdj_STAR_VC.AlignWith( ARight );
-        copy::PartialRowSumScatter( ZAdj_STAR_MC, ZAdj_STAR_VC );
+        Contract( ZAdj_STAR_MC, ZAdj_STAR_VC );
 
         LocalTrsm
         ( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), SInv_STAR_STAR, ZAdj_STAR_VC );

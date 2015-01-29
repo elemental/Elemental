@@ -65,7 +65,7 @@ LN
             View( z2_MC_STAR, z_MC_STAR, IR(k+nb,m), IR(0,1) );
 
             if( k != 0 )
-                axpy::RowSumScatter( F(1), z1_MC_STAR, x1 );
+                AxpyContract( F(1), z1_MC_STAR, x1 );
 
             x1_STAR_STAR = x1;
             L11_STAR_STAR = L11;
@@ -105,7 +105,7 @@ LN
 
             if( k != 0 )
             {
-                copy::ColSumScatter( z1_STAR_MC, z1_MR_MC );
+                Contract( z1_STAR_MC, z1_MR_MC );
                 Axpy( F(1), z1_MR_MC, x1 );
             }
 
