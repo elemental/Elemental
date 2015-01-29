@@ -10,7 +10,6 @@
 
 namespace El {
 
-// (Collect(U),Collect(V)) |-> (U,V)
 template<typename T>
 void Contract
 ( const AbstractDistMatrix<T>& A,
@@ -62,7 +61,7 @@ void Contract
         LogicError("Incompatible distributions");
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 void Contract
 ( const AbstractBlockDistMatrix<T>& A,
         AbstractBlockDistMatrix<T>& B )

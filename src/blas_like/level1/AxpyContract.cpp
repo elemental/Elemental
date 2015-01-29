@@ -64,7 +64,7 @@ void PartialColScatter
         mpi::ReduceScatter( buffer.data(), recvSize, B.PartialUnionColComm() );
 
         // Unpack our received data
-        util::InterleaveMatrixUpdate
+        axpy::util::InterleaveMatrixUpdate
         ( alpha, localHeight, width,
           buffer.data(), 1, localHeight,
           B.Buffer(),    1, B.LDim() );
@@ -115,7 +115,7 @@ void PartialRowScatter
         mpi::ReduceScatter( buffer.data(), recvSize, B.PartialUnionRowComm() );
 
         // Unpack our received data
-        util::InterleaveMatrixUpdate
+        axpy::util::InterleaveMatrixUpdate
         ( alpha, height, B.LocalWidth(),
           buffer.data(), 1, height,
           B.Buffer(),    1, B.LDim() );
@@ -184,7 +184,7 @@ void ColScatter
         mpi::ReduceScatter( buffer.data(), recvSize, B.ColComm() );
 
         // Update with our received data
-        util::InterleaveMatrixUpdate
+        axpy::util::InterleaveMatrixUpdate
         ( alpha, localHeight, localWidth,
           buffer.data(), 1, localHeight,
           B.Buffer(),    1, B.LDim() );
@@ -224,7 +224,7 @@ void ColScatter
           secondBuf, localHeight*localWidth,  recvCol, B.RowComm() );
 
         // Update with our received data
-        util::InterleaveMatrixUpdate
+        axpy::util::InterleaveMatrixUpdate
         ( alpha, localHeight, localWidth,
           secondBuf,  1, localHeight,
           B.Buffer(), 1, B.LDim() );
@@ -262,7 +262,7 @@ void RowScatter
               rowAlign, B.RowComm() );
 
             if( B.RowRank() == rowAlign )
-                util::InterleaveMatrixUpdate
+                axpy::util::InterleaveMatrixUpdate
                 ( alpha, localHeight, 1,
                   buffer.data(), 1, localHeight,
                   B.Buffer(),    1, B.LDim() );
@@ -291,7 +291,7 @@ void RowScatter
             mpi::ReduceScatter( buffer.data(), portionSize, B.RowComm() );
 
             // Update with our received data
-            util::InterleaveMatrixUpdate
+            axpy::util::InterleaveMatrixUpdate
             ( alpha, localHeight, localWidth,
               buffer.data(), 1, localHeight,
               B.Buffer(),    1, B.LDim() );
@@ -330,7 +330,7 @@ void RowScatter
                 ( sendBuf, localHeightA, sendRow,
                   recvBuf, localHeight,  recvRow, B.ColComm() );
 
-                util::InterleaveMatrixUpdate
+                axpy::util::InterleaveMatrixUpdate
                 ( alpha, localHeight, 1,
                   recvBuf,    1, localHeight,
                   B.Buffer(), 1, B.LDim() );
@@ -368,7 +368,7 @@ void RowScatter
               secondBuf, localHeight*localWidth,  recvRow, B.ColComm() );
 
             // Update with our received data
-            util::InterleaveMatrixUpdate
+            axpy::util::InterleaveMatrixUpdate
             ( alpha, localHeight, localWidth,
               secondBuf,  1, localHeight,
               B.Buffer(), 1, B.LDim() );
@@ -419,7 +419,7 @@ void Scatter
     mpi::ReduceScatter( buffer.data(), recvSize, B.DistComm() );
 
     // Unpack our received data
-    util::InterleaveMatrixUpdate
+    axpy::util::InterleaveMatrixUpdate
     ( alpha, localHeight, localWidth,
       buffer.data(), 1, localHeight,
       B.Buffer(),    1, B.LDim() );
