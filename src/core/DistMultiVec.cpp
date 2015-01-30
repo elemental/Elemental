@@ -39,8 +39,9 @@ DistMultiVec<T>::DistMultiVec( Int height, Int width, mpi::Comm comm )
 template<typename T>
 DistMultiVec<T>::~DistMultiVec()
 { 
-    if( comm_ != mpi::COMM_WORLD )
-        mpi::Free( comm_ );
+    if( !mpi::Finalized() )
+        if( comm_ != mpi::COMM_WORLD )
+            mpi::Free( comm_ );
 }
 
 // Assignment and reconfiguration

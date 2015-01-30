@@ -53,8 +53,9 @@ DistGraph::DistGraph( const DistGraph& graph )
 
 DistGraph::~DistGraph()
 { 
-    if( comm_ != mpi::COMM_WORLD )
-        mpi::Free( comm_ );
+    if( !mpi::Finalized() )
+        if( comm_ != mpi::COMM_WORLD )
+            mpi::Free( comm_ );
 } 
 
 // Assignment and reconfiguration

@@ -26,8 +26,9 @@ DistMap::DistMap( Int numSources, mpi::Comm comm )
 
 DistMap::~DistMap()
 { 
-    if( comm_ != mpi::COMM_WORLD )
-        mpi::Free( comm_ ); 
+    if( !mpi::Finalized() )
+        if( comm_ != mpi::COMM_WORLD )
+            mpi::Free( comm_ ); 
 }
 
 void DistMap::StoreOwners
