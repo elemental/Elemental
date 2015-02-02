@@ -10,6 +10,10 @@
 */
 #include "El.hpp"
 
+#ifdef EL_HAVE_METIS
+#include "metis.h"
+#endif
+
 namespace El {
 
 inline void
@@ -483,19 +487,28 @@ Int Bisect
     )
     xAdj[numSources] = numValidEdges;
 
-    // Use the custom METIS interface
+    // Call METIS_ComputeVertexSeparator, which is meant to be used by ParMETIS
     idx_t nvtxs = numSources;
-    idx_t nseps = ctrl.numSeqSeps;
-    real_t imbalance = 1.1;
-    std::vector<idx_t> perm_idx_t(numSources), sizes(3);
-    ElBisect
-    ( &nvtxs, xAdj.data(), adjacency.data(), &nseps, &imbalance, 
-      perm_idx_t.data(), sizes.data() );
-
-    // Copy from idx_t to Int
-    perm.resize( numSources );
-    std::copy( perm_idx_t.begin(), perm_idx_t.end(), perm.begin() );
-
+    idx_t options[METIS_NOPTIONS];
+    METIS_SetDefaultOptions( options );
+    options[METIS_OPTION_NSEPS] = ctrl.numSeqSeps;
+    std::vector<idx_t> part(numSources);
+    idx_t sepSize;
+    METIS_ComputeVertexSeparator
+    ( &nvtxs, xAdj.data(), adjacency.data(), NULL, options, 
+      &sepSize, part.data() );
+    
+    Int sizes[3] = { 0, 0, 0 };
+    for( Int s=0; s<numSources; ++s ) 
+        ++sizes[part[s]];
+    Int offsets[3];
+    offsets[0] = 0;
+    offsets[1] = sizes[0];
+    offsets[2] = sizes[1] + offsets[1];
+    perm.resize( numSources ); 
+    for( Int s=0; s<numSources; ++s )
+        perm[s] = offsets[part[s]]++;
+ 
     DEBUG_ONLY(EnsurePermutation( perm ))
     BuildChildrenFromPerm
     ( graph, perm, sizes[0], leftChild, sizes[1], rightChild );
@@ -566,8 +579,6 @@ Int Bisect
     )
     xAdj[numLocalSources] = numLocalValidEdges;
 
-    idx_t nseqseps = ctrl.numSeqSeps;
-    real_t imbalance = 1.1;
     std::vector<idx_t> sizes(3);
     if( ctrl.sequential )
     {
@@ -630,20 +641,32 @@ Int Bisect
             globalXAdj[numSources] = numEdges;
         }
 
-        std::vector<idx_t> seqPerm_idx_t;
+        std::vector<Int> seqPerm;
         if( commRank == 0 )
         {
-            // Use the custom METIS interface
+            // Call METIS_ComputeVertexSeparator, which is meant for ParMETIS
             idx_t nvtxs = numSources;
-            seqPerm_idx_t.resize( nvtxs );
-            ElBisect
-            ( &nvtxs, globalXAdj.data(), globalAdj.data(), &nseqseps,
-              &imbalance, seqPerm_idx_t.data(), sizes.data() );
+            idx_t options[METIS_NOPTIONS];
+            METIS_SetDefaultOptions( options );
+            options[METIS_OPTION_NSEPS] = ctrl.numSeqSeps;
+            std::vector<idx_t> part(numSources);
+            idx_t sepSize;
+            METIS_ComputeVertexSeparator
+            ( &nvtxs, globalXAdj.data(), globalAdj.data(), NULL, options,
+              &sepSize, part.data() );
+
+            for( Int j=0; j<3; ++j )
+                sizes[j] = 0;
+            for( Int s=0; s<numSources; ++s )
+                ++sizes[part[s]];
+            Int offsets[3];
+            offsets[0] = 0;
+            offsets[1] = sizes[0];
+            offsets[2] = sizes[1] + offsets[1];
+            seqPerm.resize( numSources );
+            for( Int s=0; s<numSources; ++s )
+                seqPerm[s] = offsets[part[s]]++;
         }
-        std::vector<Int> seqPerm( seqPerm_idx_t.size() );
-        std::copy
-        ( seqPerm_idx_t.begin(), seqPerm_idx_t.end(), 
-          seqPerm.begin() );
 
         // Set up space for the distributed permutation
         perm.SetComm( comm );
@@ -680,6 +703,7 @@ Int Bisect
         std::vector<idx_t> perm_idx_t( perm.NumLocalSources() );
         // Use the custom ParMETIS interface
         idx_t nparseps = ctrl.numDistSeps;
+        real_t imbalance = 1.1;
         ElParallelBisect
         ( vtxDist.data(), xAdj.data(), adjacency.data(), &nparseps, &nseqseps, 
           &imbalance, NULL, perm.Buffer(), sizes.data(), &comm.comm );

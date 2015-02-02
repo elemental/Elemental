@@ -110,24 +110,12 @@ elseif(BUILD_METIS)
   add_subdirectory(external/metis)
 
   set(METIS_ROOT ${PROJECT_SOURCE_DIR}/external/metis)
-  include_directories(${METIS_ROOT}/GKlib)
   include_directories(${METIS_ROOT}/include)
-  include_directories(${METIS_ROOT}/libmetis)
 
   set(EL_HAVE_METIS TRUE)
   set(EL_HAVE_PARMETIS FALSE)
 elseif(MANUAL_METIS)
-  # The following variables need to be specified:
-  #   METIS_TLS_PATCH: defined iff there is a GKlib configure file
-  #   GKLIB_INCLUDE_DIR: if PARMETIS_TLS_PATCH is defined, this should point
-  #                      to the directory containing gklib_tls.h
-  #   METIS_ROOT: the full path to the root of the MeTiS source tree
-  #   METIS_LIBS: the list of METIS libraries to link
-  if(METIS_TLS_PATCH)
-    include_directories(${GKLIB_INCLUDE_DIR})
-  endif()
   include_directories(${METIS_ROOT}/include)
-  include_directories(${METIS_ROOT}/libmetis)
 
   set(EL_HAVE_METIS TRUE)
   set(EL_HAVE_PARMETIS FALSE)
