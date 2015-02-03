@@ -16,22 +16,10 @@
 
 #include "parmetis.h"
 extern "C" {
-void ElBisect
-( idx_t* nvtxs, idx_t* xAdj, idx_t* adjacency, idx_t* nseps, real_t* imbalance,
-  idx_t* perm, idx_t* sizes );
 void ElParallelBisect
 ( idx_t* vtxDist, idx_t* xAdj, idx_t* adjacency, 
   idx_t* nparseps, idx_t* nseqseps, real_t* imbalance, idx_t* options, 
   idx_t* perm, idx_t* sizes, MPI_Comm* comm );
-} // extern "C"
-
-#elif defined(EL_HAVE_METIS)
-
-#include "metis.h"
-extern "C" {
-void ElBisect
-( idx_t* nvtxs, idx_t* xAdj, idx_t* adjacency, idx_t* nseps, real_t* imbalance,
-  idx_t* perm, idx_t* sizes );
 } // extern "C"
 
 #endif
