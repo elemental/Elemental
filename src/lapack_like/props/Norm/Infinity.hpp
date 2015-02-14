@@ -25,7 +25,7 @@ Base<F> InfinityNorm( const Matrix<F>& A )
         R rowSum = 0;
         for( Int j=0; j<width; ++j )
             rowSum += Abs(A.Get(i,j));
-        maxRowSum = std::max( maxRowSum, rowSum );
+        maxRowSum = Max( maxRowSum, rowSum );
     }
     return maxRowSum;
 }
@@ -55,7 +55,7 @@ Base<F> InfinityNorm( const AbstractDistMatrix<F>& A )
     {
         const Int localHeight = A.LocalHeight();
         const Int localWidth = A.LocalWidth();
-        std::vector<Real> myPartialRowSums( localHeight );
+        vector<Real> myPartialRowSums( localHeight );
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             myPartialRowSums[iLoc] = 0;
@@ -64,14 +64,14 @@ Base<F> InfinityNorm( const AbstractDistMatrix<F>& A )
         }
 
         // Sum our partial row sums to get the row sums over A[U,* ]
-        std::vector<Real> myRowSums( localHeight );
+        vector<Real> myRowSums( localHeight );
         mpi::AllReduce
         ( myPartialRowSums.data(), myRowSums.data(), localHeight, A.RowComm() );
 
         // Find the maximum out of the row sums
         Real myMaxRowSum = 0;
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            myMaxRowSum = std::max( myMaxRowSum, myRowSums[iLoc] );
+            myMaxRowSum = Max( myMaxRowSum, myRowSums[iLoc] );
 
         // Find the global maximum row sum by searching over the U team
         norm = mpi::AllReduce( myMaxRowSum, mpi::MAX, A.ColComm() );

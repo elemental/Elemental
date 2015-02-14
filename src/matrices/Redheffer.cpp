@@ -19,7 +19,7 @@ void Redheffer( Matrix<T>& R, Int n )
       []( Int i, Int j ) -> T
       { if( j == 0 || ((j+1)%(i+1))==0 ) { return T(1); }
         else                             { return T(0); } };
-    IndexDependentFill( R, std::function<T(Int,Int)>(redhefferFill) );
+    IndexDependentFill( R, function<T(Int,Int)>(redhefferFill) );
 }
 
 template<typename T>
@@ -31,7 +31,7 @@ void Redheffer( AbstractDistMatrix<T>& R, Int n )
       []( Int i, Int j ) -> T
       { if( j == 0 || ((j+1)%(i+1))==0 ) { return T(1); }
         else                             { return T(0); } };
-    IndexDependentFill( R, std::function<T(Int,Int)>(redhefferFill) );
+    IndexDependentFill( R, function<T(Int,Int)>(redhefferFill) );
 }
 
 template<typename T>
@@ -43,7 +43,7 @@ void Redheffer( AbstractBlockDistMatrix<T>& R, Int n )
       []( Int i, Int j ) -> T
       { if( j == 0 || ((j+1)%(i+1))==0 ) { return T(1); }
         else                             { return T(0); } };
-    IndexDependentFill( R, std::function<T(Int,Int)>(redhefferFill) );
+    IndexDependentFill( R, function<T(Int,Int)>(redhefferFill) );
 }
 
 #define PROTO(T) \

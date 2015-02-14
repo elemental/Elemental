@@ -42,7 +42,7 @@ void Walsh( Matrix<T>& A, Int k, bool binary )
         }
         return ( on ? onValue : offValue );
       };
-    IndexDependentFill( A, std::function<T(Int,Int)>(walshFill) );
+    IndexDependentFill( A, function<T(Int,Int)>(walshFill) );
 }
 
 template<typename T>
@@ -77,7 +77,7 @@ void Walsh( AbstractDistMatrix<T>& A, Int k, bool binary )
         }
         return ( on ? onValue : offValue );
       };
-    IndexDependentFill( A, std::function<T(Int,Int)>(walshFill) );
+    IndexDependentFill( A, function<T(Int,Int)>(walshFill) );
 }
 
 #define PROTO(T) \

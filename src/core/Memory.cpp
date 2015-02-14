@@ -17,7 +17,7 @@ Memory<G>::Memory()
 { }
 
 template<typename G>
-Memory<G>::Memory( std::size_t size )
+Memory<G>::Memory( size_t size )
 : size_(0), buffer_(nullptr)
 { Require( size ); }
 
@@ -44,10 +44,10 @@ template<typename G>
 G* Memory<G>::Buffer() const { return buffer_; }
 
 template<typename G>
-std::size_t  Memory<G>::Size() const { return size_; }
+size_t  Memory<G>::Size() const { return size_; }
 
 template<typename G>
-G* Memory<G>::Require( std::size_t size )
+G* Memory<G>::Require( size_t size )
 {
     if( size > size_ )
     {
@@ -60,10 +60,10 @@ G* Memory<G>::Require( std::size_t size )
         } 
         catch( std::bad_alloc& e )
         {
-            std::ostringstream os;
+            ostringstream os;
             os << "Failed to allocate " << size*sizeof(G) 
-               << " bytes on process " << mpi::WorldRank() << std::endl;
-            std::cerr << os.str();
+               << " bytes on process " << mpi::WorldRank() << endl;
+            cerr << os.str();
             throw e;
         }
 #endif

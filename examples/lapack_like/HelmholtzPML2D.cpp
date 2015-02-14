@@ -11,31 +11,7 @@
 #include "El.hpp"
 using namespace El;
 
-Complex<double> PML( double x, double w, double p, double sigma, double k )
-{
-    DEBUG_ONLY(
-        if( x < 0 || x > w+1e-10 )
-            LogicError("Evaluation point not in PML interval");
-    )
-    const double realPart = 1.0;
-    const double arg = x/w;
-    const double imagPart = (sigma/w)*std::pow(arg,p)/k;
-    return Complex<double>(realPart,imagPart); 
-}
-
-Complex<double> 
-sInv( int j, int n, int b, double h, double p, double sigma, double k )
-{
-    if( j < b-1 )
-        return PML( (b-1-j)*h, b*h, p, sigma, k );
-    else if( j > n-b )
-        return PML( (j-(n-b))*h, b*h, p, sigma, k );
-    else
-        return Complex<double>(1.0,0.0);
-}
-
-int
-main( int argc, char* argv[] )
+int main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
@@ -45,12 +21,10 @@ main( int argc, char* argv[] )
 
     try
     {
-        const int n1 = Input("--n1","first grid dimension",30);
-        const int n2 = Input("--n2","second grid dimension",30);
+        const Int n1 = Input("--n1","first grid dimension",30);
+        const Int n2 = Input("--n2","second grid dimension",30);
         const double omega = Input("--omega","angular frequency",18.);
-        const double L1 = Input("--L1","length of domain in first dir",1.);
-        const double L2 = Input("--L2","length of domain in second dir",2.);
-        const int b = Input("--pmlWidth","number of grid points of PML",5);
+        const Int b = Input("--pmlWidth","number of grid points of PML",5);
         const double sigma = Input("--sigma","magnitude of PML profile",1.5);
         const double p = Input("--exponent","exponent of PML profile",3.);
         const bool selInv = Input("--selInv","selectively invert?",false);
@@ -64,105 +38,45 @@ main( int argc, char* argv[] )
         const int numSeqSeps = Input
             ("--numSeqSeps",
              "number of separators to try per sequential partition",1);
-        const int cutoff = Input("--cutoff","cutoff for nested dissection",128);
+        const Int cutoff = Input("--cutoff","cutoff for nested dissection",128);
         const bool print = Input("--print","print matrix?",false);
         const bool display = Input("--display","display matrix?",false);
         ProcessInput();
 
-        const double k = omega/(2*M_PI);
-        const int N = n1*n2;
-        DistSparseMatrix<C> A( N, comm );
-        const double h1 = L1/(n1+1);
-        const double h2 = L2/(n2+1);
-        const double h1Squared = h1*h1;
-        const double h2Squared = h2*h2;
-
-        // Fill our portion of the 2D Helmholtz operator 
-        if( commRank == 0 )
-        {
-            std::cout << "Filling local portion of matrix...";
-            std::cout.flush();
-        }
-        const double fillStart = mpi::Time();
-        const int firstLocalRow = A.FirstLocalRow();
-        const int localHeight = A.LocalHeight();
-        A.Reserve( 5*localHeight );
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
-        {
-            const int i = firstLocalRow + iLocal;
-            const int x = i % n1;
-            const int y = i/n1;
-
-            const C s1InvL = sInv( x-1, n1, b, h1, p, sigma, k );
-            const C s1InvM = sInv( x,   n1, b, h1, p, sigma, k );
-            const C s1InvR = sInv( x+1, n1, b, h1, p, sigma, k );
-            const C s2InvL = sInv( y-1, n2, b, h2, p, sigma, k );
-            const C s2InvM = sInv( y,   n2, b, h2, p, sigma, k );
-            const C s2InvR = sInv( y+1, n2, b, h2, p, sigma, k );
-
-            const C xTop = s2InvM;
-            const C xTempL = xTop/s1InvL;
-            const C xTempM = xTop/s1InvM;
-            const C xTempR = xTop/s1InvR;
-            const C xTermL = (xTempL+xTempM) / (2*h1Squared);
-            const C xTermR = (xTempM+xTempR) / (2*h1Squared);
-
-            const C yTop = s1InvM;
-            const C yTempL = yTop/s2InvL;
-            const C yTempM = yTop/s2InvM;
-            const C yTempR = yTop/s2InvR;
-            const C yTermL = (yTempL+yTempM) / (2*h2Squared);
-            const C yTermR = (yTempM+yTempR) / (2*h2Squared);
-
-            const C mainTerm = (xTermL+xTermR+yTermL+yTermR)
-                - omega*omega*s1InvM*s2InvM;
-
-            A.QueueLocalUpdate( iLocal, i, mainTerm );
-            if( x != 0 )
-                A.QueueLocalUpdate( iLocal, i-1, -xTermL );
-            if( x != n1-1 )
-                A.QueueLocalUpdate( iLocal, i+1, -xTermR );
-            if( y != 0 )
-                A.QueueLocalUpdate( iLocal, i-n1, -yTermL );
-            if( y != n2-1 )
-                A.QueueLocalUpdate( iLocal, i+n1, -yTermR );
-        }
-        A.MakeConsistent();
-        mpi::Barrier( comm );
-        const double fillStop =  mpi::Time();
-        if( commRank == 0 )
-            std::cout << "done, " << fillStop-fillStart << " seconds" 
-                      << std::endl;
+        const Int N = n1*n2;
+        DistSparseMatrix<C> A(comm);
+        HelmholtzPML( A, n1, n2, C(omega), b, sigma, p );
         if( display )
             Display( A, "A" );
         if( print )
             Print( A, "A" );
 
         if( commRank == 0 )
-            std::cout << "Generating point-source for y..." << std::endl;
+            cout << "Generating point-source for y..." << endl;
         DistMultiVec<C> y( N, 1, comm ), z( N, 1, comm );
         Zero( z );
-        const int xSource = n1/2;
-        const int ySource = n2/2;
-        const int iSource = xSource + ySource*n1;
+        const Int xSource = n1/2;
+        const Int ySource = n2/2;
+        const Int iSource = xSource + ySource*n1;
+        const Int firstLocalRow = z.FirstLocalRow();
+        const Int localHeight = z.LocalHeight();
         if( iSource >= firstLocalRow && iSource < firstLocalRow+localHeight )
             z.SetLocal( iSource-firstLocalRow, 0, Complex<double>(1.0,0.0) );
         y = z;
 
         if( commRank == 0 )
         {
-            std::cout << "Running nested dissection...";
-            std::cout.flush();
+            cout << "Running nested dissection...";
+            cout.flush();
         }
         const double nestedStart = mpi::Time();
-        const DistGraph& graph = A.DistGraph();
-        DistSymmInfo info;
-        DistSeparatorTree sepTree;
-        DistMap map, inverseMap;
+        const auto& graph = A.DistGraph();
+        DistSymmNodeInfo info;
+        DistSeparator sep;
+        DistMap map, invMap;
         if( natural )
         {
-            NaturalNestedDissection
-            ( n1, n2, 1, graph, map, sepTree, info, cutoff );
+            NaturalNestedDissection( n1, n2, 1, graph, map, sep, info, cutoff );
         }
         else
         { 
@@ -172,80 +86,63 @@ main( int argc, char* argv[] )
             ctrl.numDistSeps = numDistSeps;
             ctrl.cutoff = cutoff;
 
-            NestedDissection( graph, map, sepTree, info, ctrl );
+            NestedDissection( graph, map, sep, info, ctrl );
         }
-        map.FormInverse( inverseMap );
+        map.FormInverse( invMap );
         mpi::Barrier( comm );
         const double nestedStop = mpi::Time();
         if( commRank == 0 )
-            std::cout << "done, " << nestedStop-nestedStart << " seconds"
-                      << std::endl;
+            cout << "done, " << nestedStop-nestedStart << " seconds" << endl;
 
-        const int rootSepSize = info.distNodes.back().size;
+        const int rootSepSize = info.size;
         if( commRank == 0 )
-        {
-            const int numDistNodes = info.distNodes.size();
-            const int numLocalNodes = info.localNodes.size();
-            std::cout << "\n"
-                      << "On the root process:\n"
-                      << "-----------------------------------------\n"
-                      << numLocalNodes << " local nodes\n"
-                      << numDistNodes  << " distributed nodes\n"
-                      << rootSepSize << " vertices in root separator\n"
-                      << std::endl;
-        }
+            cout << rootSepSize << " vertices in root separator\n" << endl;
 
         if( commRank == 0 )
         {
-            std::cout << "Building DistSymmFrontTree...";
-            std::cout.flush();
+            cout << "Building DistSymmFront tree...";
+            cout.flush();
         }
         mpi::Barrier( comm );
         const double buildStart = mpi::Time();
-        DistSymmFrontTree<C> frontTree( A, map, sepTree, info, false );
+        DistSymmFront<C> front( A, map, sep, info, false );
         mpi::Barrier( comm );
         const double buildStop = mpi::Time();
         if( commRank == 0 )
-            std::cout << "done, " << buildStop-buildStart << " seconds"
-                      << std::endl;
+            cout << "done, " << buildStop-buildStart << " seconds" << endl;
 
         if( commRank == 0 )
         {
-            std::cout << "Running block LDL^T...";
-            std::cout.flush();
+            cout << "Running block LDL^T...";
+            cout.flush();
         }
         mpi::Barrier( comm );
         const double ldlStart = mpi::Time();
-        SymmFrontType frontType;
+        SymmFrontType type;
         if( intraPiv )
-            frontType = ( selInv ? LDL_INTRAPIV_SELINV_2D
-                                 : LDL_INTRAPIV_2D );
+            type = ( selInv ? LDL_INTRAPIV_SELINV_2D : LDL_INTRAPIV_2D );
         else
-            frontType = ( selInv ? LDL_SELINV_2D
-                                 : LDL_2D );
-        LDL( info, frontTree, frontType );
+            type = ( selInv ? LDL_SELINV_2D : LDL_2D );
+        LDL( info, front, type );
         mpi::Barrier( comm );
         const double ldlStop = mpi::Time();
         if( commRank == 0 )
-            std::cout << "done, " << ldlStop-ldlStart << " seconds" 
-                      << std::endl;
+            cout << "done, " << ldlStop-ldlStart << " seconds" << endl;
 
         if( commRank == 0 )
         {
-            std::cout << "Computing SVD of connectivity of second separator to "
-                         "the root separator...";
-            std::cout.flush();
+            cout << "Computing SVD of connectivity of second separator to "
+                    "the root separator...";
+            cout.flush();
         }
-        const int numDistFronts = frontTree.distFronts.size();
-        if( numDistFronts >= 2 && info.distNodes[numDistFronts-2].onLeft )
+        if( info.child != nullptr && info.child->onLeft )
         {
             const double svdStart = mpi::Time();
-            const DistMatrix<C>& frontL = 
-                frontTree.distFronts[numDistFronts-2].front2dL;
-            const Grid& grid = frontL.Grid();
-            const int height = frontL.Height();
-            const int width = frontL.Width();
-            auto B = LockedView( frontL, width, 0, height-width, width );
+            const auto& FL = front.child->L2D;
+            const Grid& grid = FL.Grid();
+            const int height = FL.Height();
+            const int width = FL.Width();
+            auto B = FL( IR(width,height), IR(0,width) );
             auto BCopy( B );
             DistMatrix<Real,VR,STAR> singVals_VR_STAR( grid );
             SVD( BCopy, singVals_VR_STAR );
@@ -255,8 +152,8 @@ main( int argc, char* argv[] )
             const Int minDim = singVals_VR_STAR.Height();
             if( grid.Rank() == singVals.Root() )
             {
-                std::cout << "done, " << mpi::Time()-svdStart << " seconds\n"
-                          << "  two norm=" << twoNorm << "\n";
+                cout << "done, " << mpi::Time()-svdStart << " seconds\n"
+                     << "  two norm=" << twoNorm << "\n";
                 for( double tol=1e-1; tol>=1e-10; tol/=10 )
                 {
                     int numRank = minDim;
@@ -268,29 +165,28 @@ main( int argc, char* argv[] )
                             break;
                         }
                     }
-                    std::cout << "  rank (" << tol << ")=" << numRank 
-                              << "/" << minDim << std::endl;
+                    cout << "  rank (" << tol << ")=" << numRank << "/"
+                         << minDim << endl;
                 }
             }
         }
 
         if( commRank == 0 )
         {
-            std::cout << "Computing SVD of the largest off-diagonal block of "
-                         "numerical Green's function on root separator...";
-            std::cout.flush();
+            cout << "Computing SVD of the largest off-diagonal block of "
+                    "numerical Green's function on root separator...";
+            cout.flush();
         }
         {
             const double svdStart = mpi::Time();
-            const DistMatrix<C>& front = frontTree.distFronts.back().front2dL;
-            const Grid& grid = front.Grid();
-            const int lowerHalf = rootSepSize/2;
-            const int upperHalf = rootSepSize - lowerHalf;
+            const auto& FL = front.L2D;
+            const Grid& grid = FL.Grid();
+            const int lHalf = rootSepSize/2;
+            const int uHalf = rootSepSize - lHalf;
             if( commRank == 0 )
-                std::cout << "lowerHalf=" << lowerHalf
-                          << ", upperHalf=" << upperHalf << std::endl;
-            auto offDiagBlock = 
-                LockedView( front, lowerHalf, 0, upperHalf, lowerHalf );
+                cout << "lower half=" << lHalf
+                     << ", upper half=" << uHalf << endl;
+            auto offDiagBlock = FL( IR(lHalf,rootSepSize), IR(0,lHalf) );
             auto offDiagBlockCopy( offDiagBlock );
             DistMatrix<Real,VR,STAR> singVals_VR_STAR( grid );
             SVD( offDiagBlockCopy, singVals_VR_STAR );
@@ -299,11 +195,11 @@ main( int argc, char* argv[] )
             const Real twoNorm = MaxNorm( singVals_VR_STAR );
             if( grid.Rank() == singVals.Root() )
             {
-                std::cout << "done, " << mpi::Time()-svdStart << " seconds\n";
+                cout << "done, " << mpi::Time()-svdStart << " seconds\n";
                 for( double tol=1e-1; tol>=1e-10; tol/=10 )
                 {
-                    int numRank = lowerHalf;
-                    for( int j=0; j<lowerHalf; ++j )
+                    int numRank = lHalf;
+                    for( int j=0; j<lHalf; ++j )
                     {
                         if( singVals.GetLocal(j,0) <= twoNorm*tol )
                         {
@@ -311,42 +207,40 @@ main( int argc, char* argv[] )
                             break;
                         }
                     }
-                    std::cout << "  rank (" << tol << ")=" << numRank
-                              << "/" << lowerHalf << std::endl;
+                    cout << "  rank (" << tol << ")=" << numRank
+                         << "/" << lHalf << endl;
                 }
             }
         }
 
         if( commRank == 0 )
         {
-            std::cout << "Solving against y...";
-            std::cout.flush();
+            cout << "Solving against y...";
+            cout.flush();
         }
         const double solveStart = mpi::Time();
-        DistNodalMatrix<C> yNodal;
-        yNodal.Pull( inverseMap, info, y );
-        ldl::SolveAfter( info, frontTree, yNodal );
-        yNodal.Push( inverseMap, info, y );
+        DistMatrixNode<C> yNodal;
+        yNodal.Pull( invMap, info, y );
+        ldl::SolveAfter( info, front, yNodal );
+        yNodal.Push( invMap, info, y );
         mpi::Barrier( comm );
         const double solveStop = mpi::Time();
         if( commRank == 0 )
-            std::cout << "done, " << solveStop-solveStart << " seconds"
-                      << std::endl;
+            cout << "done, " << solveStop-solveStart << " seconds" << endl;
 
         if( commRank == 0 )
-            std::cout << "Checking residual norm of solution..." << std::endl;
+            cout << "Checking residual norm of solution..." << endl;
         const double bNorm = Nrm2( z );
         Multiply( NORMAL, C(-1), A, y, C(1), z );
         const double errorNorm = Nrm2( z );
         if( commRank == 0 )
         {
-            std::cout << "|| b     ||_2 = " << bNorm << "\n"
-                      << "|| error ||_2 / || b ||_2 = " 
-                      << errorNorm/bNorm << "\n"
-                      << std::endl;
+            cout << "|| b     ||_2 = " << bNorm << "\n"
+                 << "|| error ||_2 / || b ||_2 = " 
+                 << errorNorm/bNorm << "\n" << endl;
         }
     }
-    catch( std::exception& e ) { ReportException(e); }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

@@ -11,8 +11,7 @@
 #include "El.hpp"
 using namespace El;
 
-int
-main( int argc, char* argv[] )
+int main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
@@ -20,7 +19,7 @@ main( int argc, char* argv[] )
 
     try
     {
-        const int n = Input("--n","size of n x n x n grid",30);
+        const Int n = Input("--n","size of n x n x n grid",30);
         const bool sequential = Input
             ("--sequential","sequential partitions?",true);
         const int numDistSeps = Input
@@ -29,7 +28,7 @@ main( int argc, char* argv[] )
         const int numSeqSeps = Input
             ("--numSeqSeps",
              "number of separators to try per sequential partition",1);
-        const int cutoff = Input("--cutoff","cutoff for nested dissection",128);
+        const Int cutoff = Input("--cutoff","cutoff for nested dissection",128);
         const bool print = Input("--print","print graph?",false);
         const bool display = Input("--display","display graph?",false);
         ProcessInput();
@@ -40,18 +39,18 @@ main( int argc, char* argv[] )
         ctrl.numDistSeps = numDistSeps;
         ctrl.cutoff = cutoff;
 
-        const int numVertices = n*n*n;
+        const Int numVertices = n*n*n;
         DistGraph graph( numVertices, comm );
 
-        const int firstLocalSource = graph.FirstLocalSource();
-        const int numLocalSources = graph.NumLocalSources();
+        const Int firstLocalSource = graph.FirstLocalSource();
+        const Int numLocalSources = graph.NumLocalSources();
 
         // Fill our portion of the graph of a 3D n x n x n 7-point stencil
         // in natural ordering: (x,y,z) at x + y*n + z*n*n
         if( commRank == 0 )
         {
-            std::cout << "Filling local portion of graph...";
-            std::cout.flush();
+            cout << "Filling local portion of graph...";
+            cout.flush();
         }
         graph.Reserve( 7*numLocalSources );
         for( int iLocal=0; iLocal<numLocalSources; ++iLocal )
@@ -78,7 +77,7 @@ main( int argc, char* argv[] )
         graph.MakeConsistent();
         mpi::Barrier( comm );
         if( commRank == 0 )
-            std::cout << "done" << std::endl;
+            cout << "done" << endl;
         if( display )
             Display( graph );
         if( print )
@@ -86,45 +85,23 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
         {
-            std::cout << "Running nested dissection...";
-            std::cout.flush();
+            cout << "Running nested dissection...";
+            cout.flush();
         }
-        DistSymmInfo info;
-        DistSeparatorTree sepTree;
+        DistSymmNodeInfo info;
+        DistSeparator sep;
         DistMap map;
-        NestedDissection( graph, map, sepTree, info, ctrl );
+        NestedDissection( graph, map, sep, info, ctrl );
         mpi::Barrier( comm );
         if( commRank == 0 )
-            std::cout << "done" << std::endl;
+            cout << "done" << endl;
 
+        const int rootSepSize = info.size;
+        // TODO: Print more than just the root separator size
         if( commRank == 0 )
-        {
-            const int numDistNodes = info.distNodes.size();
-            const int numLocalNodes = info.localNodes.size(); 
-            const int rootSepSize = info.distNodes.back().size;
-            std::cout << "\n"
-                      << "On the root process:\n"
-                      << "-----------------------------------------\n"
-                      << numLocalNodes << " local nodes\n"
-                      << numDistNodes  << " distributed nodes\n"
-                      << rootSepSize << " vertices in root separator\n"
-                      << "\n";
-            for( int s=0; s<rootSepSize; ++s )
-            {
-                const int i = 
-                    ( numDistNodes > 1 ? 
-                      sepTree.distSeps.back().inds[s] :
-                      sepTree.localSepsAndLeaves.back()->inds[s] );
-                const int x = i % n;
-                const int y = (i/n) % n;
-                const int z = i/(n*n);
-                std::cout << "rootSep[" << s << "]: " << i << ", ("
-                          << x << "," << y << "," << z << ")\n";
-            }
-            std::cout << std::endl;
-        }
+            cout << rootSepSize << " vertices in root separator\n" << endl;
     }
-    catch( std::exception& e ) { ReportException(e); }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

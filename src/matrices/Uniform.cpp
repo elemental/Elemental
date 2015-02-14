@@ -17,7 +17,7 @@ void MakeUniform( Matrix<T>& A, T center, Base<T> radius )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeUniform"))
     auto sampleBall = [=]() { return SampleBall(center,radius); };
-    EntrywiseFill( A, std::function<T()>(sampleBall) );
+    EntrywiseFill( A, function<T()>(sampleBall) );
 }
 
 template<typename T>

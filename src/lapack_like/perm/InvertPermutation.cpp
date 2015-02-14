@@ -13,9 +13,9 @@ namespace El {
 void InvertPermutation( const Matrix<Int>& p, Matrix<Int>& pInv )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("InvertPermutation");
-        if( p.Width() != 1 )
-            LogicError("p must be a column vector");
+      CallStackEntry cse("InvertPermutation");
+      if( p.Width() != 1 )
+          LogicError("p must be a column vector");
     )
     const Int n = p.Height();
     pInv.Resize( n, 1 );
@@ -23,11 +23,11 @@ void InvertPermutation( const Matrix<Int>& p, Matrix<Int>& pInv )
         return;
 
     DEBUG_ONLY(
-        // This is obviously necessary but not sufficient for 'p' to contain
-        // a reordering of (0,1,...,n-1).
-        const Int range = MaxNorm( p ) + 1;
-        if( range != n )
-            LogicError("Invalid putation range");
+      // This is obviously necessary but not sufficient for 'p' to contain
+      // a reordering of (0,1,...,n-1).
+      const Int range = MaxNorm( p ) + 1;
+      if( range != n )
+          LogicError("Invalid putation range");
     )
 
     for( Int i=0; i<n; ++i )
@@ -38,9 +38,9 @@ void InvertPermutation
 ( const AbstractDistMatrix<Int>& pPre, AbstractDistMatrix<Int>& pInvPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("InvertPermutation");
-        if( pPre.Width() != 1 )
-            LogicError("p must be a column vector");
+      CallStackEntry cse("InvertPermutation");
+      if( pPre.Width() != 1 )
+          LogicError("p must be a column vector");
     )
 
     const Int n = pPre.Height();
@@ -56,41 +56,32 @@ void InvertPermutation
     auto& pInv = *pInvPtr;
 
     DEBUG_ONLY(
-        // This is obviously necessary but not sufficient for 'p' to contain
-        // a reordering of (0,1,...,n-1).
-        const Int range = MaxNorm( p ) + 1;
-        if( range != n )
-            LogicError("Invalid putation range");
+      // This is obviously necessary but not sufficient for 'p' to contain
+      // a reordering of (0,1,...,n-1).
+      const Int range = MaxNorm( p ) + 1;
+      if( range != n )
+          LogicError("Invalid putation range");
     )
 
+    // Compute the send counts
     const mpi::Comm colComm = p.ColComm();
     const Int commSize = mpi::Size( colComm );
-    std::vector<int> sendCounts(commSize,0), sendDispls(commSize),
-                     recvCounts(commSize,0), recvDispls(commSize);
-
-    // Compute the send counts
+    vector<int> sendSizes(commSize,0), recvSizes(commSize,0);
     for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
     {
         const Int iDest = p.GetLocal(iLoc,0);
         const int owner = pInv.RowOwner(iDest);
-        sendCounts[owner] += 2; // we'll send the global index and the value
+        sendSizes[owner] += 2; // we'll send the global index and the value
     }
     // Perform a small AllToAll to get the receive counts
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, colComm );
-
-    // Compute the displacements
-    int sendTotal=0, recvTotal=0;
-    for( Int q=0; q<commSize; ++q )
-    {
-        sendDispls[q] = sendTotal;
-        recvDispls[q] = recvTotal;
-        sendTotal += sendCounts[q];
-        recvTotal += recvCounts[q];
-    }
+    mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, colComm );
+    vector<int> sendOffs, recvOffs;
+    const int sendTotal = Scan( sendSizes, sendOffs );
+    const int recvTotal = Scan( recvSizes, recvOffs );
 
     // Pack the send data
-    std::vector<Int> sendBuf(sendTotal);
-    auto offsets = sendDispls;
+    vector<Int> sendBuf(sendTotal);
+    auto offsets = sendOffs;
     for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
     {
         const Int i     = p.GlobalRow(iLoc);
@@ -101,13 +92,13 @@ void InvertPermutation
     }
 
     // Perform the actual exchange
-    std::vector<Int> recvBuf(recvTotal);
+    vector<Int> recvBuf(recvTotal);
     mpi::AllToAll
-    ( sendBuf.data(), sendCounts.data(), sendDispls.data(),
-      recvBuf.data(), recvCounts.data(), recvDispls.data(), colComm );
+    ( sendBuf.data(), sendSizes.data(), sendOffs.data(),
+      recvBuf.data(), recvSizes.data(), recvOffs.data(), colComm );
     SwapClear( sendBuf );
-    SwapClear( sendCounts );
-    SwapClear( sendDispls );
+    SwapClear( sendSizes );
+    SwapClear( sendOffs );
 
     // Unpack the received data
     for( Int k=0; k<recvTotal/2; ++k )

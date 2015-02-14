@@ -10,12 +10,10 @@
 using namespace std;
 using namespace El;
 
-// Typedef our real and complex types to 'Real' and 'C' for convenience
 typedef double Real;
 typedef Complex<Real> C;
 
-int
-main( int argc, char* argv[] )
+int main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
 

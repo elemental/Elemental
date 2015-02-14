@@ -17,7 +17,7 @@ void Parter( Matrix<F>& P, Int n )
     P.Resize( n, n );
     const F oneHalf = F(1)/F(2);
     auto parterFill = [=]( Int i, Int j ) { return F(1)/(F(i)-F(j)+oneHalf); };
-    IndexDependentFill( P, std::function<F(Int,Int)>(parterFill) );
+    IndexDependentFill( P, function<F(Int,Int)>(parterFill) );
 }
 
 template<typename F>
@@ -27,7 +27,7 @@ void Parter( AbstractDistMatrix<F>& P, Int n )
     P.Resize( n, n );
     const F oneHalf = F(1)/F(2);
     auto parterFill = [=]( Int i, Int j ) { return F(1)/(F(i)-F(j)+oneHalf); };
-    IndexDependentFill( P, std::function<F(Int,Int)>(parterFill) );
+    IndexDependentFill( P, function<F(Int,Int)>(parterFill) );
 }
 
 template<typename F>
@@ -37,7 +37,7 @@ void Parter( AbstractBlockDistMatrix<F>& P, Int n )
     P.Resize( n, n );
     const F oneHalf = F(1)/F(2);
     auto parterFill = [=]( Int i, Int j ) { return F(1)/(F(i)-F(j)+oneHalf); };
-    IndexDependentFill( P, std::function<F(Int,Int)>(parterFill) );
+    IndexDependentFill( P, function<F(Int,Int)>(parterFill) );
 }
 
 #define PROTO(F) \

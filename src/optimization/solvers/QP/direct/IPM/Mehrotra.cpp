@@ -101,13 +101,13 @@ void Mehrotra
         // Now check the pieces
         // --------------------
         if( ctrl.print )
-            std::cout << " iter " << numIts << ":\n"
-                      << "  |primal - dual| / (1 + |primal|) = "
-                      << objConv << "\n"
-                      << "  || r_b ||_2 / (1 + || b ||_2)   = "
-                      << rbConv << "\n"
-                      << "  || r_c ||_2 / (1 + || c ||_2)   = "
-                      << rcConv << std::endl;
+            cout << " iter " << numIts << ":\n"
+                 << "  |primal - dual| / (1 + |primal|) = "
+                 << objConv << "\n"
+                 << "  || r_b ||_2 / (1 + || b ||_2)   = "
+                 << rbConv << "\n"
+                 << "  || r_c ||_2 / (1 + || c ||_2)   = "
+                 << rcConv << endl;
         if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
             break;
 
@@ -176,12 +176,12 @@ void Mehrotra
         Real dzErrorNrm2 = Nrm2( dzError );
 
         if( ctrl.print )
-            std::cout << "  || dxAffError ||_2 / (1 + || r_b ||_2) = " 
-                      << dxErrorNrm2/(1+rbNrm2) << "\n"
-                      << "  || dyAffError ||_2 / (1 + || r_c ||_2) = " 
-                      << dyErrorNrm2/(1+rcNrm2) << "\n"
-                      << "  || dzAffError ||_2 / (1 + || r_mu ||_2) = " 
-                      << dzErrorNrm2/(1+rmuNrm2) << std::endl;
+            cout << "  || dxAffError ||_2 / (1 + || r_b ||_2) = " 
+                 << dxErrorNrm2/(1+rbNrm2) << "\n"
+                 << "  || dyAffError ||_2 / (1 + || r_c ||_2) = " 
+                 << dyErrorNrm2/(1+rcNrm2) << "\n"
+                 << "  || dzAffError ||_2 / (1 + || r_mu ||_2) = " 
+                 << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
         // Compute the max affine [0,1]-step which keeps x and z in the cone
@@ -189,8 +189,8 @@ void Mehrotra
         const Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
         const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
         if( ctrl.print )
-            std::cout << "  alphaAffPri = " << alphaAffPri 
-                      << ", alphaAffDual = " << alphaAffDual << std::endl;
+            cout << "  alphaAffPri = " << alphaAffPri 
+                 << ", alphaAffDual = " << alphaAffDual << endl;
 
         // Compute what the new duality measure would become
         // =================================================
@@ -207,9 +207,9 @@ void Mehrotra
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3)); 
         if( ctrl.print )
-            std::cout << "  muAff = " << muAff 
-                      << ", mu = " << mu 
-                      << ", sigma = " << sigma << std::endl;
+            cout << "  muAff = " << muAff 
+                 << ", mu = " << mu 
+                 << ", sigma = " << sigma << endl;
 
         // Solve for the centering-corrector 
         // =================================
@@ -259,8 +259,8 @@ void Mehrotra
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.print )
-            std::cout << "  alphaPri = " << alphaPri 
-                      << ", alphaDual = " << alphaDual << std::endl;
+            cout << "  alphaPri = " << alphaPri 
+                 << ", alphaDual = " << alphaDual << endl;
 
         // Update the current estimates
         // ============================
@@ -364,13 +364,13 @@ void Mehrotra
         // Now check the pieces
         // --------------------
         if( ctrl.print && commRank == 0 )
-            std::cout << " iter " << numIts << ":\n"
-                      << "  |primal - dual| / (1 + |primal|) = "
-                      << objConv << "\n"
-                      << "  || r_b ||_2 / (1 + || b ||_2)   = "
-                      << rbConv << "\n"
-                      << "  || r_c ||_2 / (1 + || c ||_2)   = "
-                      << rcConv << std::endl;
+            cout << " iter " << numIts << ":\n"
+                 << "  |primal - dual| / (1 + |primal|) = "
+                 << objConv << "\n"
+                 << "  || r_b ||_2 / (1 + || b ||_2)   = "
+                 << rbConv << "\n"
+                 << "  || r_c ||_2 / (1 + || c ||_2)   = "
+                 << rcConv << endl;
         if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
             break;
 
@@ -439,12 +439,12 @@ void Mehrotra
         Real dzErrorNrm2 = Nrm2( dzError );
 
         if( ctrl.print && commRank == 0 )
-            std::cout << "  || dxAffError ||_2 / (1 + || r_b ||_2) = " 
-                      << dxErrorNrm2/(1+rbNrm2) << "\n"
-                      << "  || dyAffError ||_2 / (1 + || r_c ||_2) = " 
-                      << dyErrorNrm2/(1+rcNrm2) << "\n"
-                      << "  || dzAffError ||_2 / (1 + || r_mu ||_2) = " 
-                      << dzErrorNrm2/(1+rmuNrm2) << std::endl;
+            cout << "  || dxAffError ||_2 / (1 + || r_b ||_2) = " 
+                 << dxErrorNrm2/(1+rbNrm2) << "\n"
+                 << "  || dyAffError ||_2 / (1 + || r_c ||_2) = " 
+                 << dyErrorNrm2/(1+rcNrm2) << "\n"
+                 << "  || dzAffError ||_2 / (1 + || r_mu ||_2) = " 
+                 << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
         // Compute the max affine [0,1]-step which keeps x and z in the cone
@@ -452,8 +452,8 @@ void Mehrotra
         const Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
         const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
         if( ctrl.print && commRank == 0 )
-            std::cout << "  alphaAffPri = " << alphaAffPri 
-                      << ", alphaAffDual = " << alphaAffDual << std::endl;
+            cout << "  alphaAffPri = " << alphaAffPri 
+                 << ", alphaAffDual = " << alphaAffDual << endl;
 
         // Compute what the new duality measure would become
         // =================================================
@@ -470,9 +470,9 @@ void Mehrotra
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3)); 
         if( ctrl.print && commRank == 0 )
-            std::cout << "  muAff = " << muAff 
-                      << ", mu = " << mu 
-                      << ", sigma = " << sigma << std::endl;
+            cout << "  muAff = " << muAff 
+                 << ", mu = " << mu 
+                 << ", sigma = " << sigma << endl;
 
         // Solve for the centering-corrector 
         // =================================
@@ -522,8 +522,8 @@ void Mehrotra
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.print && commRank == 0 )
-            std::cout << "  alphaPri = " << alphaPri 
-                      << ", alphaDual = " << alphaDual << std::endl;
+            cout << "  alphaPri = " << alphaPri 
+                 << ", alphaDual = " << alphaDual << endl;
 
         // Update the current estimates
         // ============================
@@ -565,8 +565,8 @@ void Mehrotra
     const Real cNrm2 = Nrm2( c );
 
     DistMap map, invMap;
-    DistSymmInfo info;
-    DistSeparatorTree sepTree;
+    DistSymmNodeInfo info;
+    DistSeparator rootSep;
     // The initialization involves an augmented KKT system, and so we can
     // only reuse the factorization metadata if the this IPM is using the
     // augmented formulation
@@ -575,23 +575,23 @@ void Mehrotra
     if( ctrl.system == AUGMENTED_KKT )
     {
         Initialize
-        ( Q, A, b, c, x, y, z, map, invMap, sepTree, info,
+        ( Q, A, b, c, x, y, z, map, invMap, rootSep, info,
           ctrl.primalInitialized, ctrl.dualInitialized, standardShift,
           ctrl.print ); 
     }  
     else
     {
         DistMap augMap, augInvMap;
-        DistSymmInfo augInfo;
-        DistSeparatorTree augSepTree;
+        DistSymmNodeInfo augInfo;
+        DistSeparator augRootSep;
         Initialize
-        ( Q, A, b, c, x, y, z, augMap, augInvMap, augSepTree, augInfo,
+        ( Q, A, b, c, x, y, z, augMap, augInvMap, augRootSep, augInfo,
           ctrl.primalInitialized, ctrl.dualInitialized, standardShift,
           ctrl.print );
     }
 
     DistSparseMatrix<Real> J(comm);
-    DistSymmFrontTree<Real> JFrontTree;
+    DistSymmFront<Real> JFront;
     DistMultiVec<Real> d(comm), 
                        rc(comm),    rb(comm),    rmu(comm), 
                        dxAff(comm), dyAff(comm), dzAff(comm),
@@ -632,7 +632,7 @@ void Mehrotra
                 regCand.SetLocal( iLoc, 0, -regMagLagrange );
         }
     }
-    DistNodalMultiVec<Real> regCandNodal, regNodal;
+    DistMultiVecNode<Real> regCandNodal, regNodal;
     bool increasedReg = false;
 
 #ifndef EL_RELEASE
@@ -678,13 +678,13 @@ void Mehrotra
         // Now check the pieces
         // --------------------
         if( ctrl.print && commRank == 0 )
-            std::cout << " iter " << numIts << ":\n"
-                      << "  |primal - dual| / (1 + |primal|) = "
-                      << objConv << "\n"
-                      << "  || r_b ||_2 / (1 + || b ||_2)   = "
-                      << rbConv << "\n"
-                      << "  || r_c ||_2 / (1 + || c ||_2)   = "
-                      << rcConv << std::endl;
+            cout << " iter " << numIts << ":\n"
+                 << "  |primal - dual| / (1 + |primal|) = "
+                 << objConv << "\n"
+                 << "  || r_b ||_2 / (1 + || b ||_2)   = "
+                 << rbConv << "\n"
+                 << "  || r_c ||_2 / (1 + || c ||_2)   = "
+                 << rcConv << endl;
         if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
             break;
 
@@ -720,23 +720,21 @@ void Mehrotra
             // --------------------------------------------------
             if( numIts == 0 )
             {
-                NestedDissection( J.LockedDistGraph(), map, sepTree, info );
+                NestedDissection( J.LockedDistGraph(), map, rootSep, info );
                 map.FormInverse( invMap );
             }
-            JFrontTree.Initialize( J, map, sepTree, info );
+            JFront.Pull( J, map, rootSep, info );
             regCandNodal.Pull( invMap, info, regCand );
             regNodal.Pull( invMap, info, reg );
             RegularizedQSDLDL
-            ( info, JFrontTree, pivTol, regCandNodal, regNodal, 
-              aPriori, LDL_1D );
+            ( info, JFront, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
             regNodal.Push( invMap, info, reg );
 
             // Compute the proposed step from the regularized KKT system
             // ---------------------------------------------------------
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFrontTree, d,
-              REG_REFINE_FGMRES,
-              minReductionFactor, maxRefineIts, ctrl.print );
+            ( J, reg, invMap, info, JFront, d,
+              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
             ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -754,21 +752,19 @@ void Mehrotra
             // ---------------------------------------------
             if( ctrl.primalInitialized && ctrl.dualInitialized && numIts == 0 )
             {
-                NestedDissection( J.LockedDistGraph(), map, sepTree, info );
+                NestedDissection( J.LockedDistGraph(), map, rootSep, info );
                 map.FormInverse( invMap );
             }
-            JFrontTree.Initialize( J, map, sepTree, info );
+            JFront.Pull( J, map, rootSep, info );
             regCandNodal.Pull( invMap, info, regCand );
             regNodal.Pull( invMap, info, reg );
             RegularizedQSDLDL
-            ( info, JFrontTree, pivTol, regCandNodal, regNodal, 
-              aPriori, LDL_1D );
+            ( info, JFront, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
             regNodal.Push( invMap, info, reg );
 
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFrontTree, d,
-              REG_REFINE_FGMRES,
-              minReductionFactor, maxRefineIts, ctrl.print );
+            ( J, reg, invMap, info, JFront, d,
+              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
             ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
         }
         else
@@ -797,12 +793,12 @@ void Mehrotra
         Real dzErrorNrm2 = Nrm2( dzError );
 
         if( ctrl.print && commRank == 0 )
-            std::cout << "  || dxAffError ||_2 / (1 + || r_b ||_2) = " 
-                      << dxErrorNrm2/(1+rbNrm2) << "\n"
-                      << "  || dyAffError ||_2 / (1 + || r_c ||_2) = " 
-                      << dyErrorNrm2/(1+rcNrm2) << "\n"
-                      << "  || dzAffError ||_2 / (1 + || r_mu ||_2) = " 
-                      << dzErrorNrm2/(1+rmuNrm2) << std::endl;
+            cout << "  || dxAffError ||_2 / (1 + || r_b ||_2) = " 
+                 << dxErrorNrm2/(1+rbNrm2) << "\n"
+                 << "  || dyAffError ||_2 / (1 + || r_c ||_2) = " 
+                 << dyErrorNrm2/(1+rcNrm2) << "\n"
+                 << "  || dzAffError ||_2 / (1 + || r_mu ||_2) = " 
+                 << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
         // Compute the max affine [0,1]-step which keeps x and z in the cone
@@ -810,8 +806,8 @@ void Mehrotra
         const Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
         const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
         if( ctrl.print && commRank == 0 )
-            std::cout << "  alphaAffPri = " << alphaAffPri 
-                      << ", alphaAffDual = " << alphaAffDual << std::endl;
+            cout << "  alphaAffPri = " << alphaAffPri 
+                 << ", alphaAffDual = " << alphaAffDual << endl;
 
         // Compute what the new duality measure would become
         // =================================================
@@ -828,9 +824,9 @@ void Mehrotra
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3)); 
         if( ctrl.print && commRank == 0 )
-            std::cout << "  muAff = " << muAff 
-                      << ", mu = " << mu 
-                      << ", sigma = " << sigma << std::endl;
+            cout << "  muAff = " << muAff 
+                 << ", mu = " << mu 
+                 << ", sigma = " << sigma << endl;
 
         // Solve for the centering-corrector 
         // =================================
@@ -850,9 +846,8 @@ void Mehrotra
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFrontTree, d,
-              REG_REFINE_FGMRES,
-              minReductionFactor, maxRefineIts, ctrl.print );
+            ( J, reg, invMap, info, JFront, d,
+              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
             ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -864,9 +859,8 @@ void Mehrotra
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFrontTree, d,
-              REG_REFINE_FGMRES,
-              minReductionFactor, maxRefineIts, ctrl.print );
+            ( J, reg, invMap, info, JFront, d,
+              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else
@@ -892,8 +886,8 @@ void Mehrotra
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.print && commRank == 0 )
-            std::cout << "  alphaPri = " << alphaPri 
-                      << ", alphaDual = " << alphaDual << std::endl;
+            cout << "  alphaPri = " << alphaPri 
+                 << ", alphaDual = " << alphaDual << endl;
 
         // Update the current estimates
         // ============================

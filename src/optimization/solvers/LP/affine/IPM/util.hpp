@@ -50,7 +50,7 @@ void Initialize
         DistMultiVec<Real>& x,            DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,            DistMultiVec<Real>& s,
         DistMap& map,                     DistMap& invMap,
-        DistSeparatorTree& sepTree,       DistSymmInfo& info,
+        DistSeparator& rootSep,           DistSymmNodeInfo& info,
   bool primalInitialized, bool dualInitialized,
   bool standardShift,     bool progress );
 

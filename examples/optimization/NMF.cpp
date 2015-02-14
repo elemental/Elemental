@@ -52,10 +52,9 @@ main( int argc, char* argv[] )
         Gemm( NORMAL, ADJOINT, Real(-1), X, Y, Real(1), A );
         const double ENorm = FrobeniusNorm( A );
         if( mpi::WorldRank() == 0 )
-            std::cout << "|| A - X Y^H ||_F / || A ||_F = " << ENorm/ANorm
-                      << std::endl;
+            cout << "|| A - X Y^H ||_F / || A ||_F = " << ENorm/ANorm << endl;
     }
-    catch( std::exception& e ) { ReportException(e); }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

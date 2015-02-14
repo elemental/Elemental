@@ -87,6 +87,9 @@ public:
     void LockedAttach
     ( Int height, Int width, const El::Grid& grid,
       int colAlign, int rowAlign, const El::Matrix<T>& A, int root=0 );
+    // (Immutable) view of a local matrix's buffer
+    void Attach( const El::Grid& grid, El::Matrix<T>& A );
+    void LockedAttach( const El::Grid& grid, const El::Matrix<T>& A );
 
     // Basic queries
     // =============

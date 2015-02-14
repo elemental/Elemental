@@ -33,10 +33,9 @@ main( int argc, char* argv[] )
         {
             const Int nSqrt = Sqrt( double(n) );
             if( mpi::WorldRank() == 0 )
-                std::cout << "Viewing " << nSqrt << " x " << nSqrt << " block "
-                          << "starting at (" 
-                          << (n-nSqrt)/2 << "," << (n-nSqrt)/2 << ")"
-                          << std::endl;
+                cout << "Viewing " << nSqrt << " x " << nSqrt << " block "
+                     << "starting at (" 
+                     << (n-nSqrt)/2 << "," << (n-nSqrt)/2 << ")" << endl;
             auto AMid = View( A, (n-nSqrt)/2, (n-nSqrt)/2, nSqrt, nSqrt );
             if( display )
                 Display( AMid, "Middle block" );
@@ -49,7 +48,7 @@ main( int argc, char* argv[] )
             Print( s, "singular values of middle block" );
         }
     }
-    catch( std::exception& e ) { ReportException(e); }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

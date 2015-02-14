@@ -43,7 +43,7 @@ void InPlaceRedist( DistMatrix<F>& Z, Int rowAlign, const Base<F>* readBuffer )
     const Int portionSize = mpi::Pad( maxHeight*maxWidth );
     
     // Allocate our send/recv buffers
-    std::vector<Real> buffer(2*r*portionSize);
+    vector<Real> buffer(2*r*portionSize);
     Real* sendBuffer = &buffer[0];
     Real* recvBuffer = &buffer[r*portionSize];
 
@@ -278,8 +278,7 @@ void HermitianEig
         mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
         {
-            std::cout << "  Condense time:      " << timer.Stop() << " secs"
-                      << std::endl;
+            cout << "  Condense time:      " << timer.Stop() << " secs" << endl;
             timer.Start();
         }
     }
@@ -294,8 +293,7 @@ void HermitianEig
     {
         mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
-            std::cout << "  TridiagEig time:    " << timer.Stop() << " secs" 
-                      << std::endl;
+            cout << "  TridiagEig time:    " << timer.Stop() << " secs" << endl;
     }
 
     // Rescale the eigenvalues if necessary
@@ -484,8 +482,7 @@ void HermitianEig
         mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
         {
-            std::cout << "  Condense time:      " << timer.Stop() << " secs"
-                      << std::endl;
+            cout << "  Condense time:      " << timer.Stop() << " secs" << endl;
             timer.Start();
         }
     }
@@ -550,8 +547,7 @@ void HermitianEig
         mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
         {
-            std::cout << "  TridiagEig time:    " << timer.Stop() << " secs" 
-                      << std::endl;
+            cout << "  TridiagEig time:    " << timer.Stop() << " secs" << endl;
             timer.Start();
         }
     }
@@ -592,8 +588,7 @@ void HermitianEig
         mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
         {
-            std::cout << "  Redist time:        " << timer.Stop() << " secs"
-                      << std::endl;
+            cout << "  Redist time:        " << timer.Stop() << " secs" << endl;
             timer.Start();
         }
     }
@@ -606,8 +601,7 @@ void HermitianEig
         mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
         {
-            std::cout << "  Backtransform time: " << timer.Stop() << " secs"
-                      << std::endl;
+            cout << "  Backtransform time: " << timer.Stop() << " secs" << endl;
             timer.Start();
         }
     }
@@ -622,8 +616,7 @@ void HermitianEig
     {
         mpi::Barrier( A.DistComm() );
         if( A.Grid().Rank() == 0 )
-            std::cout << "  Scale+sort time:    " << timer.Stop() << " secs"
-                      << std::endl;
+            cout << "  Scale+sort time:    " << timer.Stop() << " secs" << endl;
     }
 }
 

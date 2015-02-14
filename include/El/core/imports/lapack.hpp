@@ -17,43 +17,43 @@ namespace lapack {
 // =================
 
 // Relative machine precision
-template<typename R> R MachineEpsilon();
+template<typename R=double> R MachineEpsilon();
 template<> float MachineEpsilon<float>();
 template<> double MachineEpsilon<double>();
 
 // Minimum number which can be inverted without overflow
-template<typename R> R MachineSafeMin();
+template<typename R=double> R MachineSafeMin();
 template<> float MachineSafeMin<float>();
 template<> double MachineSafeMin<double>();
 
 // Base of the machine, where the number is represented as 
 //   (mantissa) x (base)^(exponent)
-template<typename R> R MachineBase();
+template<typename R=double> R MachineBase();
 template<> float MachineBase<float>();
 template<> double MachineBase<double>();
 
 // Return the relative machine precision multiplied by the base
-template<typename R> R MachinePrecision();
+template<typename R=double> R MachinePrecision();
 template<> float MachinePrecision<float>();
 template<> double MachinePrecision<double>();
 
 // Return the minimum exponent before (gradual) underflow occurs
-template<typename R> R MachineUnderflowExponent();
+template<typename R=double> R MachineUnderflowExponent();
 template<> float MachineUnderflowExponent<float>();
 template<> double MachineUnderflowExponent<double>();
 
 // Return the underflow threshold: (base)^((underflow exponent)-1)
-template<typename R> R MachineUnderflowThreshold();
+template<typename R=double> R MachineUnderflowThreshold();
 template<> float MachineUnderflowThreshold<float>();
 template<> double MachineUnderflowThreshold<double>();
 
 // Return the largest exponent before overflow
-template<typename R> R MachineOverflowExponent();
+template<typename R=double> R MachineOverflowExponent();
 template<> float MachineOverflowExponent<float>();
 template<> double MachineOverflowExponent<double>();
 
 // Return the overflow threshold: (1-(rel. prec.)) * (base)^(overflow exponent)
-template<typename R> R MachineOverflowThreshold();
+template<typename R=double> R MachineOverflowThreshold();
 template<> float MachineOverflowThreshold<float>();
 template<> double MachineOverflowThreshold<double>();
 

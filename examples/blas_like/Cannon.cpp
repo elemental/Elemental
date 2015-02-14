@@ -48,8 +48,8 @@ main( int argc, char* argv[] )
         if( g.Rank() == 0 )
         {
             const double gflops = (2.*m*n*k) / (1.e9*gemmTime);
-            std::cout << "Gemm took " << gemmTime << " seconds and achieved "
-                      << gflops << " GFlops" << std::endl;
+            cout << "Gemm took " << gemmTime << " seconds and achieved "
+                 << gflops << " GFlops" << endl;
         }
         if( print )
             Print( C, "C := alpha A B + beta C" );

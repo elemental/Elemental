@@ -147,7 +147,7 @@ void AugmentedKKT
 
     // Compute the number of entries to send to each process
     // =====================================================
-    std::vector<int> sendCounts(commSize,0);
+    vector<int> sendCounts(commSize,0);
     // For placing A into the bottom-left corner
     // -----------------------------------------
     for( Int e=0; e<A.NumLocalEntries(); ++e )
@@ -175,16 +175,16 @@ void AugmentedKKT
     }
     // Communicate to determine the number we receive from each process
     // ----------------------------------------------------------------
-    std::vector<int> recvCounts(commSize);
+    vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    std::vector<int> sendOffsets, recvOffsets;
+    vector<int> sendOffsets, recvOffsets;
     int totalSend = Scan( sendCounts, sendOffsets );
     int totalRecv = Scan( recvCounts, recvOffsets );
 
     // Pack the triplets
     // =================
-    std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
-    std::vector<Real> vSendBuf(totalSend);
+    vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
+    vector<Real> vSendBuf(totalSend);
     auto offsets = sendOffsets;
     // Pack A
     // ------
@@ -246,8 +246,8 @@ void AugmentedKKT
 
     // Exchange and unpack the triplets
     // ================================
-    std::vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
-    std::vector<Real> vRecvBuf(totalRecv);
+    vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
+    vector<Real> vRecvBuf(totalRecv);
     mpi::AllToAll
     ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
       sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
@@ -346,21 +346,21 @@ void AugmentedKKTRHS
 
     // Compute the number of entries to send/recv from each process
     // ============================================================
-    std::vector<int> sendCounts(commSize,0);
+    vector<int> sendCounts(commSize,0);
     for( Int iLoc=0; iLoc<rc.LocalHeight(); ++iLoc )
         ++sendCounts[ d.RowOwner( rc.GlobalRow(iLoc) ) ];
     for( Int iLoc=0; iLoc<rb.LocalHeight(); ++iLoc )
         ++sendCounts[ d.RowOwner( rb.GlobalRow(iLoc)+n ) ];
-    std::vector<int> recvCounts(commSize);
+    vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    std::vector<int> sendOffsets, recvOffsets;
+    vector<int> sendOffsets, recvOffsets;
     const int totalSend = Scan( sendCounts, sendOffsets );
     const int totalRecv = Scan( recvCounts, recvOffsets );
 
     // Pack the doublets
     // =================
-    std::vector<Int> sSendBuf(totalSend);
-    std::vector<Real> vSendBuf(totalSend);
+    vector<Int> sSendBuf(totalSend);
+    vector<Real> vSendBuf(totalSend);
     auto offsets = sendOffsets;
     for( Int iLoc=0; iLoc<rc.LocalHeight(); ++iLoc )
     {
@@ -384,8 +384,8 @@ void AugmentedKKTRHS
 
     // Exchange and unpack the doublets
     // ================================
-    std::vector<Int> sRecvBuf(totalRecv);
-    std::vector<Real> vRecvBuf(totalRecv);
+    vector<Int> sRecvBuf(totalRecv);
+    vector<Real> vRecvBuf(totalRecv);
     mpi::AllToAll
     ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
       sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
@@ -491,7 +491,7 @@ void ExpandAugmentedSolution
     dy.Resize( m, 1 );
     // Compute the number of entries to send to each process
     // -----------------------------------------------------
-    std::vector<int> sendCounts(commSize,0);
+    vector<int> sendCounts(commSize,0);
     for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
     {
         const Int i = d.GlobalRow(iLoc);
@@ -502,15 +502,15 @@ void ExpandAugmentedSolution
     }
     // Communicate to determine the number we receive from each process
     // ----------------------------------------------------------------
-    std::vector<int> recvCounts(commSize);
+    vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    std::vector<int> sendOffsets, recvOffsets;
+    vector<int> sendOffsets, recvOffsets;
     int totalSend = Scan( sendCounts, sendOffsets );
     int totalRecv = Scan( recvCounts, recvOffsets );
     // Pack the entries and row indices of dx and dy
     // ---------------------------------------------
-    std::vector<Int> sSendBuf(totalSend);
-    std::vector<Real> vSendBuf(totalSend);
+    vector<Int> sSendBuf(totalSend);
+    vector<Real> vSendBuf(totalSend);
     auto offsets = sendOffsets;
     for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
     {
@@ -532,8 +532,8 @@ void ExpandAugmentedSolution
     }
     // Exchange and unpack the entries and indices
     // -------------------------------------------
-    std::vector<Int> sRecvBuf(totalRecv);
-    std::vector<Real> vRecvBuf(totalRecv);
+    vector<Int> sRecvBuf(totalRecv);
+    vector<Real> vRecvBuf(totalRecv);
     mpi::AllToAll
     ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
       sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );

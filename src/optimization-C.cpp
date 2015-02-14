@@ -23,6 +23,7 @@ ElError ElLPIPFLineSearchCtrlDefault_s( ElLPIPFLineSearchCtrl_s* ctrl )
     ctrl->psi = 100;
     ctrl->stepRatio = 1.5;
     ctrl->print = false;
+    return EL_SUCCESS;
 }
 
 ElError ElLPIPFLineSearchCtrlDefault_d( ElLPIPFLineSearchCtrl_d* ctrl )
@@ -32,6 +33,7 @@ ElError ElLPIPFLineSearchCtrlDefault_d( ElLPIPFLineSearchCtrl_d* ctrl )
     ctrl->psi = 100;
     ctrl->stepRatio = 1.5;
     ctrl->print = false;
+    return EL_SUCCESS;
 }
 
 /* Direct conic form
@@ -208,6 +210,7 @@ ElError ElQPIPFLineSearchCtrlDefault_s( ElQPIPFLineSearchCtrl_s* ctrl )
     ctrl->psi = 100;
     ctrl->stepRatio = 1.5;
     ctrl->print = false;
+    return EL_SUCCESS;
 }
 
 ElError ElQPIPFLineSearchCtrlDefault_d( ElQPIPFLineSearchCtrl_d* ctrl )
@@ -217,6 +220,7 @@ ElError ElQPIPFLineSearchCtrlDefault_d( ElQPIPFLineSearchCtrl_d* ctrl )
     ctrl->psi = 100;
     ctrl->stepRatio = 1.5;
     ctrl->print = false;
+    return EL_SUCCESS;
 }
 
 /* Direct conic form
@@ -972,8 +976,8 @@ ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
       auto regLambda = \
         [&]( Matrix<Real>& B, Real tau ) { regProx(CReflect(&B),tau); }; \
       *numIts = ModelFit \
-        ( std::function<void(Matrix<Real>&,Real)>(lossLambda), \
-          std::function<void(Matrix<Real>&,Real)>(regLambda), \
+        ( function<void(Matrix<Real>&,Real)>(lossLambda), \
+          function<void(Matrix<Real>&,Real)>(regLambda), \
           *CReflect(A), *CReflect(b), *CReflect(w), rho ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElModelFitDist_ ## SIG \
@@ -987,8 +991,8 @@ ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
       auto regLambda = \
         [&]( DistMatrix<Real>& B, Real tau ) { regProx(CReflect(&B),tau); }; \
       *numIts = ModelFit \
-        ( std::function<void(DistMatrix<Real>&,Real)>(lossLambda), \
-          std::function<void(DistMatrix<Real>&,Real)>(regLambda), \
+        ( function<void(DistMatrix<Real>&,Real)>(lossLambda), \
+          function<void(DistMatrix<Real>&,Real)>(regLambda), \
           *CReflect(A), *CReflect(b), *CReflect(w), rho ); \
     } EL_CATCH; return EL_SUCCESS; } \
   /* Non-negative matrix factorization

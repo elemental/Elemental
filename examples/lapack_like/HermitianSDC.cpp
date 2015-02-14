@@ -62,11 +62,9 @@ main( int argc, char* argv[] )
         const Real frobOrthog = HermitianFrobeniusNorm( LOWER, A );
         if( mpi::WorldRank() == 0 )
         {
-            std::cout << " || A - Q D Q^H ||_F / || A ||_F = " << frobE/frobA 
-                      << "\n"
-                      << " || I - Q^H Q ||_F   / || A ||_F = " 
-                      << frobOrthog/frobA << "\n"
-                      << std::endl;
+            cout << " || A - Q D Q^H ||_F / || A ||_F = " << frobE/frobA << "\n"
+                 << " || I - Q^H Q ||_F   / || A ||_F = " 
+                 << frobOrthog/frobA << "\n" << endl;
         }
     }
     catch( exception& e ) { ReportException(e); }

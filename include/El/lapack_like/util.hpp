@@ -27,10 +27,10 @@ template<typename Real>
 void Sort( AbstractDistMatrix<Real>& X, SortType sort=ASCENDING );
 
 template<typename Real>
-std::vector<ValueInt<Real>> TaggedSort
+vector<ValueInt<Real>> TaggedSort
 ( const Matrix<Real>& x, SortType sort=ASCENDING );
 template<typename Real>
-std::vector<ValueInt<Real>> TaggedSort
+vector<ValueInt<Real>> TaggedSort
 ( const AbstractDistMatrix<Real>& x, SortType sort=ASCENDING );
 
 } // namespace El

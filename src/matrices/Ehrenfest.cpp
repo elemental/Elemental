@@ -77,7 +77,7 @@ void EhrenfestStationary( Matrix<F>& PInf, Int n )
 
     PInf.Resize( n, n );
     auto ehrenfestFill = [&]( Int i, Int j ) { return Exp(logBinom[j]-gamma); };
-    IndexDependentFill( PInf, std::function<F(Int,Int)>(ehrenfestFill) );
+    IndexDependentFill( PInf, function<F(Int,Int)>(ehrenfestFill) );
 }
 
 template<typename F>
@@ -91,7 +91,7 @@ void EhrenfestStationary( AbstractDistMatrix<F>& PInf, Int n )
 
     PInf.Resize( n, n );
     auto ehrenfestFill = [&]( Int i, Int j ) { return Exp(logBinom[j]-gamma); };
-    IndexDependentFill( PInf, std::function<F(Int,Int)>(ehrenfestFill) );
+    IndexDependentFill( PInf, function<F(Int,Int)>(ehrenfestFill) );
 }
 
 template<typename F>
@@ -105,7 +105,7 @@ void EhrenfestStationary( AbstractBlockDistMatrix<F>& PInf, Int n )
 
     PInf.Resize( n, n );
     auto ehrenfestFill = [&]( Int i, Int j ) { return Exp(logBinom[j]-gamma); };
-    IndexDependentFill( PInf, std::function<F(Int,Int)>(ehrenfestFill) );
+    IndexDependentFill( PInf, function<F(Int,Int)>(ehrenfestFill) );
 }
 
 template<typename F>
@@ -152,7 +152,7 @@ void EhrenfestDecay( AbstractDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("EhrenfestDecay"))
     Ehrenfest( A, n );
-    std::unique_ptr<AbstractDistMatrix<F>> 
+    unique_ptr<AbstractDistMatrix<F>> 
       PInf( A.Construct(A.Grid(),A.Root()) );
     PInf->AlignWith( A.DistData() );
     EhrenfestStationary( *PInf, n );

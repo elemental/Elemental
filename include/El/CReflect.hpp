@@ -55,10 +55,9 @@ template<typename T>
 inline void DynamicCastCheck( T* A )
 { if( A == nullptr ) RuntimeError("Dynamic cast failed"); }
 
-inline std::string CReflect( const char* name )
-{ return std::string(name); }
+inline string CReflect( const char* name ) { return string(name); }
 // NOTE: This creates a deep copy and the pointer should be deleted later
-inline char* CReflect( const std::string& name ) 
+inline char* CReflect( const string& name ) 
 {
     const auto size = name.size();
     char* buffer = new char[size+1];
@@ -838,22 +837,22 @@ inline PermutationMeta CReflect( const ElPermutationMeta& metaC )
     int commSize;
     MPI_Comm_size( metaC.comm, &commSize );
     meta.sendCounts = 
-        std::vector<int>( metaC.sendCounts, metaC.sendCounts+commSize );
+        vector<int>( metaC.sendCounts, metaC.sendCounts+commSize );
     meta.sendDispls = 
-        std::vector<int>( metaC.sendDispls, metaC.sendDispls+commSize );
+        vector<int>( metaC.sendDispls, metaC.sendDispls+commSize );
     meta.recvCounts =
-        std::vector<int>( metaC.recvCounts, metaC.recvCounts+commSize );
+        vector<int>( metaC.recvCounts, metaC.recvCounts+commSize );
     meta.recvDispls =
-        std::vector<int>( metaC.recvDispls, metaC.recvDispls+commSize );
+        vector<int>( metaC.recvDispls, metaC.recvDispls+commSize );
 
     meta.sendIdx = 
-        std::vector<int>( metaC.sendIdx, metaC.sendIdx+metaC.numSendIdx );
+        vector<int>( metaC.sendIdx, metaC.sendIdx+metaC.numSendIdx );
     meta.sendRanks =
-        std::vector<int>( metaC.sendRanks, metaC.sendRanks+metaC.numSendIdx );
+        vector<int>( metaC.sendRanks, metaC.sendRanks+metaC.numSendIdx );
     meta.recvIdx =
-        std::vector<int>( metaC.recvIdx, metaC.recvIdx+metaC.numRecvIdx );
+        vector<int>( metaC.recvIdx, metaC.recvIdx+metaC.numRecvIdx );
     meta.recvRanks =
-        std::vector<int>( metaC.recvRanks, metaC.recvRanks+metaC.numRecvIdx );
+        vector<int>( metaC.recvRanks, metaC.recvRanks+metaC.numRecvIdx );
 
     return meta;
 }

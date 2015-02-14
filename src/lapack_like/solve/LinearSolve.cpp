@@ -222,7 +222,7 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
     {
         // Compute metadata
         // ----------------
-        std::vector<int> sendCounts(commSize,0);
+        vector<int> sendCounts(commSize,0);
         for( Int e=0; e<numLocalEntriesA; ++e )
         {
             const Int i = A.Row(e);
@@ -232,15 +232,15 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
             // Sending A^H
             ++sendCounts[ J.RowOwner(j) ];
         }
-        std::vector<int> recvCounts(commSize);
+        vector<int> recvCounts(commSize);
         mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        std::vector<int> sendOffsets(commSize), recvOffsets(commSize);
+        vector<int> sendOffsets(commSize), recvOffsets(commSize);
         const int totalSend = Scan( sendCounts, sendOffsets );
         const int totalRecv = Scan( recvCounts, recvOffsets );
         // Pack
         // ----
-        std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
-        std::vector<F> vSendBuf(totalSend);
+        vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
+        vector<F> vSendBuf(totalSend);
         auto offsets = sendOffsets;
         for( Int e=0; e<numLocalEntriesA; ++e )
         {
@@ -264,8 +264,8 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
         }
         // Exchange
         // --------
-        std::vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
-        std::vector<F> vRecvBuf(totalRecv);
+        vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
+        vector<F> vRecvBuf(totalRecv);
         mpi::AllToAll
         ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
           sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
@@ -303,21 +303,21 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
     {
         // Compute metadata
         // ----------------
-        std::vector<int> sendCounts(commSize,0);
+        vector<int> sendCounts(commSize,0);
         for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
         {
             const Int i = B.GlobalRow(iLoc);
             sendCounts[ D.RowOwner(i+n) ] += k;
         }
-        std::vector<int> recvCounts(commSize);
+        vector<int> recvCounts(commSize);
         mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        std::vector<int> sendOffsets(commSize), recvOffsets(commSize);
+        vector<int> sendOffsets(commSize), recvOffsets(commSize);
         const int totalSend = Scan( sendCounts, sendOffsets );
         const int totalRecv = Scan( recvCounts, recvOffsets );
         // Pack
         // ----
-        std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
-        std::vector<F> vSendBuf(totalSend);
+        vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
+        vector<F> vSendBuf(totalSend);
         auto offsets = sendOffsets;
         for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
         {
@@ -335,8 +335,8 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
         }
         // Exchange
         // --------
-        std::vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
-        std::vector<F> vRecvBuf(totalRecv);
+        vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
+        vector<F> vRecvBuf(totalRecv);
         mpi::AllToAll
         ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
           sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
@@ -355,12 +355,6 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
 
     // Compute the dynamically-regularized quasi-semidefinite fact of J
     // ================================================================
-    DistMap map, invMap;
-    DistSymmInfo info;
-    DistSeparatorTree sepTree;
-    DistSymmFrontTree<F> JFrontTree;
-    DistMultiVec<Real> regCand(comm), reg(comm);
-    DistNodalMultiVec<Real> regCandNodal, regNodal;
     const Real minReductionFactor = 2;
     const Int maxRefineIts = 50; 
     bool print = true;
@@ -369,6 +363,8 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
     const Real regMagPrimal = Pow(epsilon,Real(0.75));
     const Real regMagDual = Pow(epsilon,Real(0.5));
     const Real pivTol = MaxNorm(J)*epsilon;
+
+    DistMultiVec<Real> regCand(comm), reg(comm);
     regCand.Resize( 2*n, 1 );
     for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
     {
@@ -379,13 +375,18 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
             regCand.SetLocal( iLoc, 0, -regMagDual );
     }
     Zeros( reg, 2*n, 1 );
-    NestedDissection( J.LockedDistGraph(), map, sepTree, info );
+
+    DistMap map, invMap;
+    DistSymmNodeInfo info;
+    DistSeparator rootSep;
+    NestedDissection( J.LockedDistGraph(), map, rootSep, info );
     map.FormInverse( invMap );
-    JFrontTree.Initialize( J, map, sepTree, info );
-    regCandNodal.Pull( invMap, info, regCand );
-    regNodal.Pull( invMap, info, reg );
+    DistSymmFront<F> JFront( J, map, rootSep, info );
+
+    DistMultiVecNode<Real> regCandNodal(invMap,info,regCand), 
+                           regNodal(invMap,info,reg);
     RegularizedQSDLDL
-    ( info, JFrontTree, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
+    ( info, JFront, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
     regNodal.Push( invMap, info, reg );
 
     // Successively solve each of the k linear systems
@@ -393,14 +394,14 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
     // TODO: Extend the iterative refinement to handle multiple right-hand sides
     DistMultiVec<F> u(comm);
     Zeros( u, 2*n, 1 );
-    Matrix<F>& DLoc = D.Matrix();
-    Matrix<F>& uLoc = u.Matrix();
+    auto& DLoc = D.Matrix();
+    auto& uLoc = u.Matrix();
     for( Int j=0; j<k; ++j )
     {
         auto dLoc = DLoc( IR(0,2*n), IR(j,j+1) ); 
         Copy( dLoc, uLoc );
         reg_qsd_ldl::SolveAfter
-        ( J, reg, invMap, info, JFrontTree, u,
+        ( J, reg, invMap, info, JFront, u,
           REG_REFINE_FGMRES,
           minReductionFactor, maxRefineIts, print );
         Copy( uLoc, dLoc );
@@ -411,7 +412,7 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
     {
         // Compute metadata
         // ----------------
-        std::vector<int> sendCounts(commSize,0);
+        vector<int> sendCounts(commSize,0);
         for( Int iLoc=0; iLoc<D.LocalHeight(); ++iLoc )
         {
             const Int i = D.GlobalRow(iLoc);
@@ -420,15 +421,15 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
             else
                 break;
         }
-        std::vector<int> recvCounts(commSize);
+        vector<int> recvCounts(commSize);
         mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        std::vector<int> sendOffsets(commSize), recvOffsets(commSize);
+        vector<int> sendOffsets(commSize), recvOffsets(commSize);
         const int totalSend = Scan( sendCounts, sendOffsets );
         const int totalRecv = Scan( recvCounts, recvOffsets );
         // Pack
         // ----
-        std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
-        std::vector<F> vSendBuf(totalSend);
+        vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
+        vector<F> vSendBuf(totalSend);
         auto offsets = sendOffsets;
         for( Int iLoc=0; iLoc<D.LocalHeight(); ++iLoc )
         {
@@ -450,8 +451,8 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
         }
         // Exchange
         // --------
-        std::vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
-        std::vector<F> vRecvBuf(totalRecv);
+        vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
+        vector<F> vRecvBuf(totalRecv);
         mpi::AllToAll
         ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
           sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );

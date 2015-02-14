@@ -57,7 +57,7 @@ main( int argc, char* argv[] )
         if( print )
             Print( weights, "weights" );
     }
-    catch( std::exception& e ) { ReportException(e); }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

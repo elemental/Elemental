@@ -22,7 +22,7 @@ void ThreeValued( Matrix<T>& A, Int m, Int n, double p )
         else if( alpha <= p ) return T(1);
         else return T(0);
     };
-    EntrywiseFill( A, std::function<T()>(tripleCoin) );
+    EntrywiseFill( A, function<T()>(tripleCoin) );
 }
 
 template<typename T>

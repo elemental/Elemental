@@ -26,19 +26,19 @@ typedef std::chrono::high_resolution_clock Clock;
 class Timer
 {
 public:
-    Timer( const std::string& name="[blank]" );
+    Timer( const string& name="[blank]" );
 
-    const std::string& Name() const;
+    const string& Name() const;
 
     void Start();
     double Stop();
     double Partial() const; // time since last start
     double Total() const; // total elapsed time
 
-    void Reset( const std::string& name="[blank]" );
+    void Reset( const string& name="[blank]" );
 private:
     bool running_ = false;
-    std::string name_ = "[blank]";
+    string name_ = "[blank]";
     double totalTime_=0, lastPartialTime_=0;
     Clock::time_point lastTime_;
 };

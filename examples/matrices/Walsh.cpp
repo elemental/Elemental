@@ -50,7 +50,7 @@ main( int argc, char* argv[] )
             }
         }
     }
-    catch( std::exception& e ) { ReportException(e); }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

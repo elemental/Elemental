@@ -59,10 +59,9 @@ main( int argc, char* argv[] )
         const Real frobNormError = FrobeniusNorm( E );
         if( mpi::WorldRank() == 0 )
         {
-            std::cout << "|| A          ||_F = " << frobNormA << "\n"
-                      << "|| invA       ||_F = " << frobNormInvA << "\n"
-                      << "|| I - invA A ||_F = " << frobNormError << "\n"
-                      << std::endl;
+            cout << "|| A          ||_F = " << frobNormA << "\n"
+                 << "|| invA       ||_F = " << frobNormInvA << "\n"
+                 << "|| I - invA A ||_F = " << frobNormError << "\n" << endl;
         }
     }
     catch( exception& e ) { ReportException(e); }

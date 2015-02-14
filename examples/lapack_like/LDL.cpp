@@ -57,8 +57,8 @@ main( int argc, char* argv[] )
         Gemm( NORMAL, orientation, C(-1), LD, L, C(1), A );
         const Real frobNormOfError = FrobeniusNorm( A );
         if( mpi::WorldRank() == 0 )
-            std::cout << "|| A - L D L^[T/H] ||_F = " << frobNormOfError << "\n"
-                      << std::endl;
+            cout << "|| A - L D L^[T/H] ||_F = " << frobNormOfError << "\n"
+                 << endl;
     }
     catch( exception& e ) { ReportException(e); }
 

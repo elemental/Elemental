@@ -26,7 +26,7 @@ void GKS( Matrix<F>& A, Int n )
       { if( i < j )       { return -F(1)/Sqrt(F(j+1)); }
         else if( i == j ) { return  F(1)/Sqrt(F(j+1)); }
         else              { return  F(0);            } };
-    IndexDependentFill( A, std::function<F(Int,Int)>(gksFill) );
+    IndexDependentFill( A, function<F(Int,Int)>(gksFill) );
 }
 
 template<typename F>
@@ -39,7 +39,7 @@ void GKS( AbstractDistMatrix<F>& A, Int n )
       { if( i < j )       { return -F(1)/Sqrt(F(j+1)); }
         else if( i == j ) { return  F(1)/Sqrt(F(j+1)); }
         else              { return  F(0);            } };
-    IndexDependentFill( A, std::function<F(Int,Int)>(gksFill) );
+    IndexDependentFill( A, function<F(Int,Int)>(gksFill) );
 }
 
 template<typename F>
@@ -52,7 +52,7 @@ void GKS( AbstractBlockDistMatrix<F>& A, Int n )
       { if( i < j )       { return -F(1)/Sqrt(F(j+1)); }
         else if( i == j ) { return  F(1)/Sqrt(F(j+1)); }
         else              { return  F(0);            } };
-    IndexDependentFill( A, std::function<F(Int,Int)>(gksFill) );
+    IndexDependentFill( A, function<F(Int,Int)>(gksFill) );
 }
 
 #define PROTO(F) \

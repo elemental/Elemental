@@ -26,7 +26,7 @@ void Kahan( Matrix<F>& A, Int n, F phi )
       { if( i == j )      { return      Pow(zeta,Real(i)); }
         else if(  i < j ) { return -phi*Pow(zeta,Real(i)); }
         else              { return F(0);                   } };
-    IndexDependentFill( A, std::function<F(Int,Int)>(kahanFill) );
+    IndexDependentFill( A, function<F(Int,Int)>(kahanFill) );
 }
 
 template<typename F>
@@ -41,7 +41,7 @@ void Kahan( AbstractDistMatrix<F>& A, Int n, F phi )
       { if( i == j )      { return      Pow(zeta,Real(i)); }
         else if(  i < j ) { return -phi*Pow(zeta,Real(i)); }
         else              { return F(0);                   } };
-    IndexDependentFill( A, std::function<F(Int,Int)>(kahanFill) );
+    IndexDependentFill( A, function<F(Int,Int)>(kahanFill) );
 }
 
 template<typename F>
@@ -56,7 +56,7 @@ void Kahan( AbstractBlockDistMatrix<F>& A, Int n, F phi )
       { if( i == j )      { return      Pow(zeta,Real(i)); }
         else if(  i < j ) { return -phi*Pow(zeta,Real(i)); }
         else              { return F(0);                   } };
-    IndexDependentFill( A, std::function<F(Int,Int)>(kahanFill) );
+    IndexDependentFill( A, function<F(Int,Int)>(kahanFill) );
 }
 
 #define PROTO(F) \

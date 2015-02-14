@@ -30,12 +30,12 @@ main( int argc, char* argv[] )
     Gemm( NORMAL, ADJOINT, C(-1), U, V, C(1), A );
     const R frobNormOfE = FrobeniusNorm( A );
     const R eps = lapack::MachineEpsilon<R>();
-    const R scaledResidual = frobNormOfE / (std::max(m,n)*eps*twoNormOfA);
+    const R scaledResidual = frobNormOfE / (Max(m,n)*eps*twoNormOfA);
     if( mpi::WorldRank() == 0 )
     {
-        std::cout << "||A||_2 = " << twoNormOfA << "\n"
-                  << "||A - U Sigma V^H||_F / (max(m,n) eps ||A||_2) = " 
-                  << scaledResidual << "\n" << std::endl;
+        cout << "||A||_2 = " << twoNormOfA << "\n"
+             << "||A - U Sigma V^H||_F / (max(m,n) eps ||A||_2) = " 
+             << scaledResidual << "\n" << endl;
     }
 
     Finalize();

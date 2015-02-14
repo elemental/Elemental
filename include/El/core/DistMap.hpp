@@ -31,12 +31,11 @@ public:
     // If the total number of sources is partitioned among the processes, 
     // calling this routine will have the DistMap map the indices to the 
     // owning process
-    void StoreOwners
-    ( Int numSource, std::vector<Int>& localInds, mpi::Comm comm );
+    void StoreOwners( Int numSource, vector<Int>& localInds, mpi::Comm comm );
 
     // Map manipulation
     // Collectively map each process's local set of indices
-    void Translate( std::vector<Int>& localInds ) const;
+    void Translate( vector<Int>& localInds ) const;
     // Form the inverse map
     void FormInverse( DistMap& inverseMap ) const;
     // composite(i) := second(first(i))
@@ -61,8 +60,8 @@ public:
     void SetLocal( Int localSource, Int target );
     Int* Buffer();
     const Int* Buffer() const;
-    std::vector<Int>& Map();
-    const std::vector<Int>& Map() const;
+    vector<Int>& Map();
+    const vector<Int>& Map() const;
 
     // For modifying the size of the map
     void Empty();
@@ -79,7 +78,7 @@ private:
     Int blocksize_;
     Int firstLocalSource_;
 
-    std::vector<Int> map_;
+    vector<Int> map_;
 };
 
 } // namespace El

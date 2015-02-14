@@ -14,11 +14,11 @@ namespace El {
 // =====
 
 template<typename T>
-void Print( const Matrix<T>& A, std::string title, std::ostream& os )
+void Print( const Matrix<T>& A, string title, ostream& os )
 {
     DEBUG_ONLY(CallStackEntry cse("Print"))
     if( title != "" )
-        os << title << std::endl;
+        os << title << endl;
     
     const Int height = A.Height();
     const Int width = A.Width();
@@ -26,14 +26,14 @@ void Print( const Matrix<T>& A, std::string title, std::ostream& os )
     {
         for( Int j=0; j<width; ++j )
             os << A.Get(i,j) << " ";
-        os << std::endl;
+        os << endl;
     }
-    os << std::endl;
+    os << endl;
 }
 
 template<typename T>
 void Print
-( const AbstractDistMatrix<T>& A, std::string title, std::ostream& os )
+( const AbstractDistMatrix<T>& A, string title, ostream& os )
 {
     DEBUG_ONLY(CallStackEntry cse("Print"))
     if( A.ColStride() == 1 && A.RowStride() == 1 )
@@ -51,7 +51,7 @@ void Print
 
 template<typename T>
 void Print
-( const AbstractBlockDistMatrix<T>& A, std::string title, std::ostream& os )
+( const AbstractBlockDistMatrix<T>& A, string title, ostream& os )
 {
     DEBUG_ONLY(CallStackEntry cse("Print"))
     if( A.ColStride() == 1 && A.RowStride() == 1 )
@@ -68,7 +68,7 @@ void Print
 }
 
 template<typename T>
-void Print( const DistMultiVec<T>& X, std::string title, std::ostream& os )
+void Print( const DistMultiVec<T>& X, string title, ostream& os )
 {
     DEBUG_ONLY(CallStackEntry cse("Print [DistMultiVec]"))
     const Int commRank = mpi::Rank( X.Comm() );
@@ -84,20 +84,20 @@ void Print( const DistMultiVec<T>& X, std::string title, std::ostream& os )
     }
 }
 
-void Print( const Graph& graph, std::string msg, std::ostream& os )
+void Print( const Graph& graph, string msg, ostream& os )
 {
     DEBUG_ONLY(CallStackEntry cse("Print [Graph]"))
     if( msg != "" )
-        os << msg << std::endl;
+        os << msg << endl;
     const Int numEdges = graph.NumEdges();
     const Int* srcBuf = graph.LockedSourceBuffer();
     const Int* tgtBuf = graph.LockedTargetBuffer();
     for( Int e=0; e<numEdges; ++e )
         os << srcBuf[e] << " " << tgtBuf[e] << "\n";
-    os << std::endl;
+    os << endl;
 }
 
-void Print( const DistGraph& graph, std::string msg, std::ostream& os )
+void Print( const DistGraph& graph, string msg, ostream& os )
 {
     DEBUG_ONLY(CallStackEntry cse("Print [DistGraph]"))
     const mpi::Comm comm = graph.Comm();
@@ -115,22 +115,22 @@ void Print( const DistGraph& graph, std::string msg, std::ostream& os )
 }
 
 template<typename T>
-void Print( const SparseMatrix<T>& A, std::string msg, std::ostream& os )
+void Print( const SparseMatrix<T>& A, string msg, ostream& os )
 {
     DEBUG_ONLY(CallStackEntry cse("Print [SparseMatrix]"))
     if( msg != "" )
-        os << msg << std::endl;
+        os << msg << endl;
     const Int numEntries = A.NumEntries();
     const Int* srcBuf = A.LockedSourceBuffer();
     const Int* tgtBuf = A.LockedTargetBuffer();
     const T* valBuf = A.LockedValueBuffer();
     for( Int s=0; s<numEntries; ++s )
         os << srcBuf[s] << " " << tgtBuf[s] << " " << valBuf[s] << "\n";
-    os << std::endl;
+    os << endl;
 }
 
 template<typename T>
-void Print( const DistSparseMatrix<T>& A, std::string msg, std::ostream& os )
+void Print( const DistSparseMatrix<T>& A, string msg, ostream& os )
 {
     DEBUG_ONLY(CallStackEntry cse("Print [DistSparseMatrix]"))
     const mpi::Comm comm = A.Comm();
@@ -151,59 +151,45 @@ void Print( const DistSparseMatrix<T>& A, std::string msg, std::ostream& os )
 // Multifrontal
 // ============
 
-void PrintLocal( const DistSymmInfo& info, std::string msg, std::ostream& os )
+void PrintLocal
+( const DistSymmNodeInfo& info, string msg, ostream& os )
 {
-    DEBUG_ONLY(CallStackEntry cse("PrintLocal [DistSymmInfo]"))
-    os << "Local nodes:" << std::endl;
-    const Int numLocal = info.localNodes.size();
-    for( Int s=0; s<numLocal; ++s )
-    {
-        const SymmNodeInfo& node = info.localNodes[s];
-        os << " size=" << node.size << ", offset=" << node.off << "\n";
-    }
-
-    os << "Distributed nodes:" << std::endl;
-    const Int numDist = info.distNodes.size();
-    for( Int s=0; s<numDist; ++s )
-    {
-        const DistSymmNodeInfo& node = info.distNodes[s];
-        os << " size=" << node.size << ", offset=" << node.off << "\n";
-    }
+    DEBUG_ONLY(CallStackEntry cse("PrintLocal [DistSymmNodeInfo]"))
+    LogicError("This routine needs to be rewritten");
 }
 
 // Utilities
 // =========
 
 template<typename T>
-void Print( const std::vector<T>& x, std::string title, std::ostream& os )
+void Print( const vector<T>& x, string title, ostream& os )
 {
     DEBUG_ONLY(CallStackEntry cse("Print"))
     if( title != "" )
-        os << title << std::endl;
+        os << title << endl;
     
     const Int length = x.size();
     for( Int i=0; i<length; ++i )
         os << x[i] << " ";
-    os << std::endl;
+    os << endl;
 }
-
 
 #define PROTO(T) \
   template void Print \
-  ( const std::vector<T>& x, std::string title, std::ostream& os ); \
+  ( const vector<T>& x, string title, ostream& os ); \
   template void Print \
-  ( const Matrix<T>& A, std::string title, std::ostream& os ); \
+  ( const Matrix<T>& A, string title, ostream& os ); \
   template void Print \
-  ( const AbstractDistMatrix<T>& A, std::string title, std::ostream& os ); \
+  ( const AbstractDistMatrix<T>& A, string title, ostream& os ); \
   template void Print \
   ( const AbstractBlockDistMatrix<T>& A, \
-    std::string title, std::ostream& os ); \
+    string title, ostream& os ); \
   template void Print \
-  ( const DistMultiVec<T>& X, std::string title, std::ostream& os ); \
+  ( const DistMultiVec<T>& X, string title, ostream& os ); \
   template void Print \
-  ( const SparseMatrix<T>& A, std::string title, std::ostream& os ); \
+  ( const SparseMatrix<T>& A, string title, ostream& os ); \
   template void Print \
-  ( const DistSparseMatrix<T>& A, std::string title, std::ostream& os );
+  ( const DistSparseMatrix<T>& A, string title, ostream& os );
 
 #include "El/macros/Instantiate.h"
 

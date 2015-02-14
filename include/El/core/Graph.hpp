@@ -84,16 +84,15 @@ public:
 
 private:
     Int numSources_, numTargets_;
-    std::vector<Int> sources_, targets_;
-    std::set<std::pair<Int,Int>> markedForRemoval_;
+    vector<Int> sources_, targets_;
+    set<pair<Int,Int>> markedForRemoval_;
 
     // Helpers for local indexing
     bool consistent_;
-    std::vector<Int> edgeOffsets_;
+    vector<Int> edgeOffsets_;
     void ComputeEdgeOffsets();
 
-    static bool ComparePairs
-    ( const std::pair<Int,Int>& a, const std::pair<Int,Int>& b );
+    static bool ComparePairs( const pair<Int,Int>& a, const pair<Int,Int>& b );
 
     void AssertConsistent() const;
 

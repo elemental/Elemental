@@ -324,7 +324,7 @@ void Initialize
         DistMultiVec<Real>& x,            DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,            DistMultiVec<Real>& s,
         DistMap& map,                     DistMap& invMap, 
-        DistSeparatorTree& sepTree,       DistSymmInfo& info,
+        DistSeparator& rootSep,           DistSymmNodeInfo& info,
   bool primalInitialized, bool dualInitialized,
   bool standardShift,     bool progress )
 {
@@ -363,7 +363,7 @@ void Initialize
     // (Approximately) factor the KKT matrix
     // =====================================
     DistMultiVec<Real> regCand(comm), reg(comm);
-    DistNodalMultiVec<Real> regCandNodal, regNodal;
+    DistMultiVecNode<Real> regCandNodal, regNodal;
     bool aPriori = true;
     const Real epsilon = lapack::MachineEpsilon<Real>();
     const Real pivTol = MaxNorm(J)*epsilon;
@@ -385,15 +385,15 @@ void Initialize
     Zeros( reg, n+m+k, 1 );
     // Compute the proposed step from the KKT system
     // ---------------------------------------------
-    NestedDissection( J.LockedDistGraph(), map, sepTree, info );
+    NestedDissection( J.LockedDistGraph(), map, rootSep, info );
     map.FormInverse( invMap );
 
-    DistSymmFrontTree<Real> JFrontTree;
-    JFrontTree.Initialize( J, map, sepTree, info );
+    DistSymmFront<Real> JFront;
+    JFront.Pull( J, map, rootSep, info );
     regCandNodal.Pull( invMap, info, regCand );
     regNodal.Pull( invMap, info, reg );
     RegularizedQSDLDL
-    ( info, JFrontTree, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
+    ( info, JFront, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
     regNodal.Push( invMap, info, reg );
 
     DistMultiVec<Real> rc(comm), rb(comm), rh(comm), rmu(comm), u(comm),
@@ -419,9 +419,8 @@ void Initialize
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_qsd_ldl::SolveAfter
-        ( J, reg, invMap, info, JFrontTree, d,
-          REG_REFINE_FGMRES,
-          minReductionFactor, maxRefineIts, progress );
+        ( J, reg, invMap, info, JFront, d,
+          REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, progress );
         ExpandCoreSolution( m, n, k, d, x, u, s );
         Scale( Real(-1), s );
     }
@@ -440,9 +439,8 @@ void Initialize
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_qsd_ldl::SolveAfter
-        ( J, reg, invMap, info, JFrontTree, d,
-          REG_REFINE_FGMRES,
-          minReductionFactor, maxRefineIts, progress );
+        ( J, reg, invMap, info, JFront, d,
+          REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, progress );
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
@@ -514,7 +512,7 @@ void Initialize
           DistMultiVec<Real>& x,            DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z,            DistMultiVec<Real>& s, \
           DistMap& map,                     DistMap& invMap, \
-          DistSeparatorTree& sepTree,       DistSymmInfo& info, \
+          DistSeparator& rootSep,           DistSymmNodeInfo& info, \
     bool primalInitialized, bool dualInitialized, \
     bool standardShift,     bool progress );
 

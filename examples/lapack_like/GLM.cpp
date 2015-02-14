@@ -71,11 +71,10 @@ main( int argc, char* argv[] )
         if( print )
             Print( DCopy, "D - A X - B Y" );
         if( commRank == 0 )
-            std::cout << "|| D             ||_F = " << DFrob << "\n"
-                      << "|| A X + B Y - D ||_F = " << EFrob << "\n"
-                      << std::endl;
+            cout << "|| D             ||_F = " << DFrob << "\n"
+                 << "|| A X + B Y - D ||_F = " << EFrob << "\n" << endl;
     }
-    catch( std::exception& e ) { ReportException(e); }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

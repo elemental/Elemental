@@ -20,9 +20,9 @@ struct SparseMultMeta
     bool ready;
     // NOTE: The 'send' and 'recv' roles reverse for adjoint multiplication
     Int numRecvInds;
-    std::vector<int> sendSizes, sendOffs,
-                     recvSizes, recvOffs;
-    std::vector<Int> sendInds, colOffs;
+    vector<int> sendSizes, sendOffs,
+                recvSizes, recvOffs;
+    vector<Int> sendInds, colOffs;
 
     SparseMultMeta() : ready(false), numRecvInds(0) { }
 
@@ -130,14 +130,14 @@ public:
 
 private:
     El::DistGraph distGraph_;
-    std::vector<T> vals_;
+    vector<T> vals_;
 
     static bool CompareEntries( const Entry<T>& a, const Entry<T>& b );
 
     void AssertConsistent() const;
 
     template<typename U> friend class SparseMatrix;
-    template<typename U> friend struct DistSymmFrontTree;
+    template<typename U> friend struct DistSymmFront;
 
     template<typename U> friend void Syrk
     ( Orientation orientation, 

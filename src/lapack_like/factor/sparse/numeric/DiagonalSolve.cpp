@@ -1,9 +1,18 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson, Lexing Ying,
-   The University of Texas at Austin, Stanford University, and the
-   Georgia Insitute of Technology.
+   Copyright (c) 2009-2012, Jack Poulson, Lexing Ying, and 
+   The University of Texas at Austin.
    All rights reserved.
- 
+
+   Copyright (c) 2013, Jack Poulson, Lexing Ying, and Stanford University.
+   All rights reserved.
+
+   Copyright (c) 2013-2014, Jack Poulson and 
+   The Georgia Institute of Technology.
+   All rights reserved.
+
+   Copyright (c) 2014-2015, Jack Poulson and Stanford University.
+   All rights reserved.
+   
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
@@ -13,132 +22,76 @@
 namespace El {
 
 template<typename F>
-inline void LocalDiagonalSolve
-( const DistSymmInfo& info, const DistSymmFrontTree<F>& L, 
-  DistNodalMultiVec<F>& X )
+void DiagonalSolve
+( const SymmNodeInfo& info, const SymmFront<F>& front, 
+  MatrixNode<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("LocalDiagonalSolve"))
-    const Int numLocalNodes = info.localNodes.size();
-    if( PivotedFactorization(L.frontType) )
-    {
-        for( Int s=0; s<numLocalNodes; ++s )
-            QuasiDiagonalSolve
-            ( LEFT, LOWER, L.localFronts[s].diag, L.localFronts[s].subdiag, 
-              X.localNodes[s], L.isHermitian );
-    }
+    DEBUG_ONLY(CallStackEntry cse("DiagonalSolve"))
+
+    const Int numChildren = info.children.size();
+    for( Int c=0; c<numChildren; ++c )
+        DiagonalSolve( *info.children[c], *front.children[c], *X.children[c] );
+
+    if( PivotedFactorization(front.type) )
+        QuasiDiagonalSolve
+        ( LEFT, LOWER, front.diag, front.subdiag, 
+          X.matrix, front.isHermitian );
     else
-    {
-        for( Int s=0; s<numLocalNodes; ++s )
-            DiagonalSolve
-            ( LEFT, NORMAL, L.localFronts[s].diag, X.localNodes[s], true );
-    }
-}
-
-template<typename F>
-inline void LocalDiagonalSolve
-( const DistSymmInfo& info, const DistSymmFrontTree<F>& L, 
-  DistNodalMatrix<F>& X )
-{
-    DEBUG_ONLY(CallStackEntry cse("LocalDiagonalSolve"))
-    const Int numLocalNodes = info.localNodes.size();
-    if( PivotedFactorization(L.frontType) )
-    {
-        for( Int s=0; s<numLocalNodes; ++s ) 
-            QuasiDiagonalSolve
-            ( LEFT, LOWER, L.localFronts[s].diag, L.localFronts[s].subdiag, 
-              X.localNodes[s], L.isHermitian );
-    }
-    else
-    {
-        for( Int s=0; s<numLocalNodes; ++s )
-            DiagonalSolve
-            ( LEFT, NORMAL, L.localFronts[s].diag, X.localNodes[s], true );
-    }
-}
-
-template<typename F> 
-inline void DistDiagonalSolve
-( const DistSymmInfo& info, const DistSymmFrontTree<F>& L, 
-  DistNodalMultiVec<F>& X )
-{
-    DEBUG_ONLY(CallStackEntry cse("DistDiagonalSolve"))
-    const Int numDistNodes = info.distNodes.size();
-
-    if( PivotedFactorization(L.frontType) )
-    {
-        for( Int s=1; s<numDistNodes; ++s )
-        {
-            const DistSymmFront<F>& front = L.distFronts[s];
-            QuasiDiagonalSolve
-            ( LEFT, LOWER, front.diag1d, front.subdiag1d, X.distNodes[s-1],
-              L.isHermitian );
-        }
-    }
-    else
-    {
-        for( Int s=1; s<numDistNodes; ++s )
-        {
-            const DistSymmFront<F>& front = L.distFronts[s];
-            DiagonalSolve( LEFT, NORMAL, front.diag1d, X.distNodes[s-1], true );
-        }
-    }
-}
-
-template<typename F> 
-inline void DistDiagonalSolve
-( const DistSymmInfo& info, const DistSymmFrontTree<F>& L, 
-  DistNodalMatrix<F>& X )
-{
-    DEBUG_ONLY(CallStackEntry cse("DistDiagonalSolve"))
-    const Int numDistNodes = info.distNodes.size();
-
-    if( PivotedFactorization(L.frontType) )
-    {
-        for( Int s=1; s<numDistNodes; ++s )
-        {
-            const DistSymmFront<F>& front = L.distFronts[s];
-            QuasiDiagonalSolve
-            ( LEFT, LOWER, front.diag1d, front.subdiag1d, X.distNodes[s-1],
-              L.isHermitian );
-        }
-    }
-    else
-    {
-        for( Int s=1; s<numDistNodes; ++s )
-        {
-            const DistSymmFront<F>& front = L.distFronts[s];
-            DiagonalSolve( LEFT, NORMAL, front.diag1d, X.distNodes[s-1], true );
-        }
-    }
+        DiagonalSolve( LEFT, NORMAL, front.diag, X.matrix, true );
 }
 
 template<typename F>
 void DiagonalSolve
-( const DistSymmInfo& info, const DistSymmFrontTree<F>& L, 
-  DistNodalMultiVec<F>& X )
+( const DistSymmNodeInfo& info, const DistSymmFront<F>& front, 
+  DistMultiVecNode<F>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalSolve"))
-    LocalDiagonalSolve( info, L, X );
-    DistDiagonalSolve( info, L, X );
+
+    if( front.child == nullptr )
+    {
+        DiagonalSolve( *info.duplicate, *front.duplicate, *X.duplicate );
+        return;
+    }
+    DiagonalSolve( *info.child, *front.child, *X.child );
+
+    if( PivotedFactorization(front.type) )
+        QuasiDiagonalSolve
+        ( LEFT, LOWER, front.diag, front.subdiag, X.matrix, front.isHermitian );
+    else
+        DiagonalSolve( LEFT, NORMAL, front.diag, X.matrix, true );
 }
 
 template<typename F>
 void DiagonalSolve
-( const DistSymmInfo& info, const DistSymmFrontTree<F>& L, 
-  DistNodalMatrix<F>& X )
+( const DistSymmNodeInfo& info, const DistSymmFront<F>& front, 
+  DistMatrixNode<F>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalSolve"))
-    LocalDiagonalSolve( info, L, X );
-    DistDiagonalSolve( info, L, X );
+
+    if( front.child == nullptr )
+    {
+        DiagonalSolve( *info.duplicate, *front.duplicate, *X.duplicate );
+        return;
+    }
+    DiagonalSolve( *info.child, *front.child, *X.child );
+
+    if( PivotedFactorization(front.type) )
+        QuasiDiagonalSolve
+        ( LEFT, LOWER, front.diag, front.subdiag, X.matrix, front.isHermitian );
+    else
+        DiagonalSolve( LEFT, NORMAL, front.diag, X.matrix, true );
 }
 
 #define PROTO(F) \
   template void DiagonalSolve \
-  ( const DistSymmInfo& info, const DistSymmFrontTree<F>& L, \
-    DistNodalMultiVec<F>& X ); \
+  ( const SymmNodeInfo& info, const SymmFront<F>& front, \
+    MatrixNode<F>& X ); \
   template void DiagonalSolve \
-  ( const DistSymmInfo& info, const DistSymmFrontTree<F>& L, \
-    DistNodalMatrix<F>& X );
+  ( const DistSymmNodeInfo& info, const DistSymmFront<F>& front, \
+    DistMultiVecNode<F>& X ); \
+  template void DiagonalSolve \
+  ( const DistSymmNodeInfo& info, const DistSymmFront<F>& front, \
+    DistMatrixNode<F>& X );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

@@ -18,7 +18,7 @@ namespace El {
 // Pretty-printing
 // ---------------
 template<typename Real>
-inline std::ostream& operator<<( std::ostream& os, Complex<Real> alpha )
+inline ostream& operator<<( ostream& os, Complex<Real> alpha )
 {
     os << alpha.real() << "+" << alpha.imag() << "i";
     return os;

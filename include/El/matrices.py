@@ -142,26 +142,38 @@ def CauchyLike(A,r,s,x,y):
 
 # Circulant
 # ---------
-lib.ElCirculant_i.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElCirculant_i.restype = c_uint
-lib.ElCirculant_s.argtypes = [c_void_p,iType,POINTER(sType)]
-lib.ElCirculant_s.restype = c_uint
-lib.ElCirculant_d.argtypes = [c_void_p,iType,POINTER(dType)]
-lib.ElCirculant_d.restype = c_uint
-lib.ElCirculant_c.argtypes = [c_void_p,iType,POINTER(cType)]
-lib.ElCirculant_c.restype = c_uint
-lib.ElCirculant_z.argtypes = [c_void_p,iType,POINTER(zType)]
-lib.ElCirculant_z.restype = c_uint
-lib.ElCirculantDist_i.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElCirculantDist_i.restype = c_uint
-lib.ElCirculantDist_s.argtypes = [c_void_p,iType,POINTER(sType)]
-lib.ElCirculantDist_s.restype = c_uint
-lib.ElCirculantDist_d.argtypes = [c_void_p,iType,POINTER(dType)]
-lib.ElCirculantDist_d.restype = c_uint
-lib.ElCirculantDist_c.argtypes = [c_void_p,iType,POINTER(cType)]
-lib.ElCirculantDist_c.restype = c_uint
-lib.ElCirculantDist_z.argtypes = [c_void_p,iType,POINTER(zType)]
-lib.ElCirculantDist_z.restype = c_uint
+lib.ElCirculant_i.argtypes = \
+lib.ElCirculantDist_i.argtypes = \
+  [c_void_p,iType,POINTER(iType)]
+
+lib.ElCirculant_s.argtypes = \
+lib.ElCirculantDist_s.argtypes = \
+  [c_void_p,iType,POINTER(sType)]
+
+lib.ElCirculant_d.argtypes = \
+lib.ElCirculantDist_d.argtypes = \
+  [c_void_p,iType,POINTER(dType)]
+
+lib.ElCirculant_c.argtypes = \
+lib.ElCirculantDist_c.argtypes = \
+  [c_void_p,iType,POINTER(cType)]
+
+lib.ElCirculant_z.argtypes = \
+lib.ElCirculantDist_z.argtypes = \
+  [c_void_p,iType,POINTER(zType)]
+
+lib.ElCirculant_i.restype = \
+lib.ElCirculant_s.restype = \
+lib.ElCirculant_d.restype = \
+lib.ElCirculant_c.restype = \
+lib.ElCirculant_z.restype = \
+lib.ElCirculantDist_i.restype = \
+lib.ElCirculantDist_s.restype = \
+lib.ElCirculantDist_d.restype = \
+lib.ElCirculantDist_c.restype = \
+lib.ElCirculantDist_z.restype = \
+  c_uint
+
 def Circulant(A,a):
   aLen = len(a)
   aBuf = (TagToType(A.tag)*aLen)(*a)
@@ -184,22 +196,26 @@ def Circulant(A,a):
 
 # Demmel
 # ------
-lib.ElDemmel_s.argtypes = [c_void_p,iType]
-lib.ElDemmel_s.restype = c_uint
-lib.ElDemmel_d.argtypes = [c_void_p,iType]
-lib.ElDemmel_d.restype = c_uint
-lib.ElDemmel_c.argtypes = [c_void_p,iType]
-lib.ElDemmel_c.restype = c_uint
-lib.ElDemmel_z.argtypes = [c_void_p,iType]
-lib.ElDemmel_z.restype = c_uint
-lib.ElDemmelDist_s.argtypes = [c_void_p,iType]
-lib.ElDemmelDist_s.restype = c_uint
-lib.ElDemmelDist_d.argtypes = [c_void_p,iType]
-lib.ElDemmelDist_d.restype = c_uint
-lib.ElDemmelDist_c.argtypes = [c_void_p,iType]
-lib.ElDemmelDist_c.restype = c_uint
-lib.ElDemmelDist_z.argtypes = [c_void_p,iType]
-lib.ElDemmelDist_z.restype = c_uint
+lib.ElDemmel_s.argtypes = \
+lib.ElDemmel_d.argtypes = \
+lib.ElDemmel_c.argtypes = \
+lib.ElDemmel_z.argtypes = \
+lib.ElDemmelDist_s.argtypes = \
+lib.ElDemmelDist_d.argtypes = \
+lib.ElDemmelDist_c.argtypes = \
+lib.ElDemmelDist_z.argtypes = \
+  [c_void_p,iType]
+
+lib.ElDemmel_s.restype = \
+lib.ElDemmel_d.restype = \
+lib.ElDemmel_c.restype = \
+lib.ElDemmel_z.restype = \
+lib.ElDemmelDist_s.restype = \
+lib.ElDemmelDist_d.restype = \
+lib.ElDemmelDist_c.restype = \
+lib.ElDemmelDist_z.restype = \
+  c_uint
+
 def Demmel(A,n):
   args = [A.obj,n]
   if type(A) is Matrix:
@@ -218,26 +234,38 @@ def Demmel(A,n):
 
 # Diagonal
 # --------
-lib.ElDiagonal_i.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElDiagonal_i.restype = c_uint
-lib.ElDiagonal_s.argtypes = [c_void_p,iType,POINTER(sType)]
-lib.ElDiagonal_s.restype = c_uint
-lib.ElDiagonal_d.argtypes = [c_void_p,iType,POINTER(dType)]
-lib.ElDiagonal_d.restype = c_uint
-lib.ElDiagonal_c.argtypes = [c_void_p,iType,POINTER(cType)]
-lib.ElDiagonal_c.restype = c_uint
-lib.ElDiagonal_z.argtypes = [c_void_p,iType,POINTER(zType)]
-lib.ElDiagonal_z.restype = c_uint
-lib.ElDiagonalDist_i.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElDiagonalDist_i.restype = c_uint
-lib.ElDiagonalDist_s.argtypes = [c_void_p,iType,POINTER(sType)]
-lib.ElDiagonalDist_s.restype = c_uint
-lib.ElDiagonalDist_d.argtypes = [c_void_p,iType,POINTER(dType)]
-lib.ElDiagonalDist_d.restype = c_uint
-lib.ElDiagonalDist_c.argtypes = [c_void_p,iType,POINTER(cType)]
-lib.ElDiagonalDist_c.restype = c_uint
-lib.ElDiagonalDist_z.argtypes = [c_void_p,iType,POINTER(zType)]
-lib.ElDiagonalDist_z.restype = c_uint
+lib.ElDiagonal_i.argtypes = \
+lib.ElDiagonalDist_i.argtypes = \
+  [c_void_p,iType,POINTER(iType)]
+
+lib.ElDiagonal_s.argtypes = \
+lib.ElDiagonalDist_s.argtypes = \
+  [c_void_p,iType,POINTER(sType)]
+
+lib.ElDiagonal_d.argtypes = \
+lib.ElDiagonalDist_d.argtypes = \
+  [c_void_p,iType,POINTER(dType)]
+
+lib.ElDiagonal_c.argtypes = \
+lib.ElDiagonalDist_c.argtypes = \
+  [c_void_p,iType,POINTER(cType)]
+
+lib.ElDiagonal_z.argtypes = \
+lib.ElDiagonalDist_z.argtypes = \
+  [c_void_p,iType,POINTER(zType)]
+
+lib.ElDiagonal_i.restype = \
+lib.ElDiagonal_s.restype = \
+lib.ElDiagonal_d.restype = \
+lib.ElDiagonal_c.restype = \
+lib.ElDiagonal_z.restype = \
+lib.ElDiagonalDist_i.restype = \
+lib.ElDiagonalDist_s.restype = \
+lib.ElDiagonalDist_d.restype = \
+lib.ElDiagonalDist_c.restype = \
+lib.ElDiagonalDist_z.restype = \
+  c_uint
+
 def Diagonal(A,d):
   dLen = len(d)
   dBuf = (TagToType(A.tag)*dLen)(*d)
@@ -260,22 +288,26 @@ def Diagonal(A,d):
 
 # DruinskyToledo
 # --------------
-lib.ElDruinskyToledo_s.argtypes = [c_void_p,iType]
-lib.ElDruinskyToledo_s.restype = c_uint
-lib.ElDruinskyToledo_d.argtypes = [c_void_p,iType]
-lib.ElDruinskyToledo_d.restype = c_uint
-lib.ElDruinskyToledo_c.argtypes = [c_void_p,iType]
-lib.ElDruinskyToledo_c.restype = c_uint
-lib.ElDruinskyToledo_z.argtypes = [c_void_p,iType]
-lib.ElDruinskyToledo_z.restype = c_uint
-lib.ElDruinskyToledoDist_s.argtypes = [c_void_p,iType]
-lib.ElDruinskyToledoDist_s.restype = c_uint
-lib.ElDruinskyToledoDist_d.argtypes = [c_void_p,iType]
-lib.ElDruinskyToledoDist_d.restype = c_uint
-lib.ElDruinskyToledoDist_c.argtypes = [c_void_p,iType]
-lib.ElDruinskyToledoDist_c.restype = c_uint
-lib.ElDruinskyToledoDist_z.argtypes = [c_void_p,iType]
-lib.ElDruinskyToledoDist_z.restype = c_uint
+lib.ElDruinskyToledo_s.argtypes = \
+lib.ElDruinskyToledo_d.argtypes = \
+lib.ElDruinskyToledo_c.argtypes = \
+lib.ElDruinskyToledo_z.argtypes = \
+lib.ElDruinskyToledoDist_s.argtypes = \
+lib.ElDruinskyToledoDist_d.argtypes = \
+lib.ElDruinskyToledoDist_c.argtypes = \
+lib.ElDruinskyToledoDist_z.argtypes = \
+  [c_void_p,iType]
+
+lib.ElDruinskyToledo_s.restype = \
+lib.ElDruinskyToledo_d.restype = \
+lib.ElDruinskyToledo_c.restype = \
+lib.ElDruinskyToledo_z.restype = \
+lib.ElDruinskyToledoDist_s.restype = \
+lib.ElDruinskyToledoDist_d.restype = \
+lib.ElDruinskyToledoDist_c.restype = \
+lib.ElDruinskyToledoDist_z.restype = \
+  c_uint
+
 def DruinskyToledo(A,k):
   args = [A.obj,k]
   if type(A) is Matrix:
@@ -294,14 +326,20 @@ def DruinskyToledo(A,k):
 
 # Egorov
 # ------
-lib.ElEgorov_c.argtypes = [c_void_p,CFUNCTYPE(sType,iType,iType),iType]
-lib.ElEgorov_c.restype = c_uint
-lib.ElEgorov_z.argtypes = [c_void_p,CFUNCTYPE(dType,iType,iType),iType]
-lib.ElEgorov_z.restype = c_uint
-lib.ElEgorovDist_c.argtypes = [c_void_p,CFUNCTYPE(sType,iType,iType),iType]
-lib.ElEgorovDist_c.restype = c_uint
-lib.ElEgorovDist_z.argtypes = [c_void_p,CFUNCTYPE(dType,iType,iType),iType]
-lib.ElEgorovDist_z.restype = c_uint
+lib.ElEgorov_c.argtypes = \
+lib.ElEgorovDist_c.argtypes = \
+  [c_void_p,CFUNCTYPE(sType,iType,iType),iType]
+
+lib.ElEgorov_z.argtypes = \
+lib.ElEgorovDist_z.argtypes = \
+  [c_void_p,CFUNCTYPE(dType,iType,iType),iType]
+
+lib.ElEgorov_c.restype = \
+lib.ElEgorov_z.restype = \
+lib.ElEgorovDist_c.restype = \
+lib.ElEgorovDist_z.restype = \
+  c_uint
+
 def Egorov(A,phase,n):
   cPhase = CFUNCTYPE(TagToType(Base(A.tag)),iType,iType)(phase)
   args = [A.obj,cPhase,n]
@@ -317,22 +355,26 @@ def Egorov(A,phase,n):
 
 # Ehrenfest
 # ---------
-lib.ElEhrenfest_s.argtypes = [c_void_p,iType]
-lib.ElEhrenfest_s.restype = c_uint
-lib.ElEhrenfest_d.argtypes = [c_void_p,iType]
-lib.ElEhrenfest_d.restype = c_uint
-lib.ElEhrenfest_c.argtypes = [c_void_p,iType]
-lib.ElEhrenfest_c.restype = c_uint
-lib.ElEhrenfest_z.argtypes = [c_void_p,iType]
-lib.ElEhrenfest_z.restype = c_uint
-lib.ElEhrenfestDist_s.argtypes = [c_void_p,iType]
-lib.ElEhrenfestDist_s.restype = c_uint
-lib.ElEhrenfestDist_d.argtypes = [c_void_p,iType]
-lib.ElEhrenfestDist_d.restype = c_uint
-lib.ElEhrenfestDist_c.argtypes = [c_void_p,iType]
-lib.ElEhrenfestDist_c.restype = c_uint
-lib.ElEhrenfestDist_z.argtypes = [c_void_p,iType]
-lib.ElEhrenfestDist_z.restype = c_uint
+lib.ElEhrenfest_s.argtypes = \
+lib.ElEhrenfest_d.argtypes = \
+lib.ElEhrenfest_c.argtypes = \
+lib.ElEhrenfest_z.argtypes = \
+lib.ElEhrenfestDist_s.argtypes = \
+lib.ElEhrenfestDist_d.argtypes = \
+lib.ElEhrenfestDist_c.argtypes = \
+lib.ElEhrenfestDist_z.argtypes = \
+  [c_void_p,iType]
+
+lib.ElEhrenfest_s.restype = \
+lib.ElEhrenfest_d.restype = \
+lib.ElEhrenfest_c.restype = \
+lib.ElEhrenfest_z.restype = \
+lib.ElEhrenfestDist_s.restype = \
+lib.ElEhrenfestDist_d.restype = \
+lib.ElEhrenfestDist_c.restype = \
+lib.ElEhrenfestDist_z.restype = \
+  c_uint
+
 def Ehrenfest(P,n):
   args = [P.obj,n]
   if type(P) is Matrix:
@@ -349,22 +391,26 @@ def Ehrenfest(P,n):
     else: DataExcept()
   else: TypeExcept()
 
-lib.ElEhrenfestStationary_s.argtypes = [c_void_p,iType]
-lib.ElEhrenfestStationary_s.restype = c_uint
-lib.ElEhrenfestStationary_d.argtypes = [c_void_p,iType]
-lib.ElEhrenfestStationary_d.restype = c_uint
-lib.ElEhrenfestStationary_c.argtypes = [c_void_p,iType]
-lib.ElEhrenfestStationary_c.restype = c_uint
-lib.ElEhrenfestStationary_z.argtypes = [c_void_p,iType]
-lib.ElEhrenfestStationary_z.restype = c_uint
-lib.ElEhrenfestStationaryDist_s.argtypes = [c_void_p,iType]
-lib.ElEhrenfestStationaryDist_s.restype = c_uint
-lib.ElEhrenfestStationaryDist_d.argtypes = [c_void_p,iType]
-lib.ElEhrenfestStationaryDist_d.restype = c_uint
-lib.ElEhrenfestStationaryDist_c.argtypes = [c_void_p,iType]
-lib.ElEhrenfestStationaryDist_c.restype = c_uint
-lib.ElEhrenfestStationaryDist_z.argtypes = [c_void_p,iType]
-lib.ElEhrenfestStationaryDist_z.restype = c_uint
+lib.ElEhrenfestStationary_s.argtypes = \
+lib.ElEhrenfestStationary_d.argtypes = \
+lib.ElEhrenfestStationary_c.argtypes = \
+lib.ElEhrenfestStationary_z.argtypes = \
+lib.ElEhrenfestStationaryDist_s.argtypes = \
+lib.ElEhrenfestStationaryDist_d.argtypes = \
+lib.ElEhrenfestStationaryDist_c.argtypes = \
+lib.ElEhrenfestStationaryDist_z.argtypes = \
+  [c_void_p,iType]
+
+lib.ElEhrenfestStationary_s.restype = \
+lib.ElEhrenfestStationary_d.restype = \
+lib.ElEhrenfestStationary_c.restype = \
+lib.ElEhrenfestStationary_z.restype = \
+lib.ElEhrenfestStationaryDist_s.restype = \
+lib.ElEhrenfestStationaryDist_d.restype = \
+lib.ElEhrenfestStationaryDist_c.restype = \
+lib.ElEhrenfestStationaryDist_z.restype = \
+  c_uint
+
 def EhrenfestStationary(PInf,n):
   args = [PInf.obj,n]
   if type(PInf) is Matrix:
@@ -381,22 +427,26 @@ def EhrenfestStationary(PInf,n):
     else: DataExcept()
   else: TypeExcept()
 
-lib.ElEhrenfestDecay_s.argtypes = [c_void_p,iType]
-lib.ElEhrenfestDecay_s.restype = c_uint
-lib.ElEhrenfestDecay_d.argtypes = [c_void_p,iType]
-lib.ElEhrenfestDecay_d.restype = c_uint
-lib.ElEhrenfestDecay_c.argtypes = [c_void_p,iType]
-lib.ElEhrenfestDecay_c.restype = c_uint
-lib.ElEhrenfestDecay_z.argtypes = [c_void_p,iType]
-lib.ElEhrenfestDecay_z.restype = c_uint
-lib.ElEhrenfestDecayDist_s.argtypes = [c_void_p,iType]
-lib.ElEhrenfestDecayDist_s.restype = c_uint
-lib.ElEhrenfestDecayDist_d.argtypes = [c_void_p,iType]
-lib.ElEhrenfestDecayDist_d.restype = c_uint
-lib.ElEhrenfestDecayDist_c.argtypes = [c_void_p,iType]
-lib.ElEhrenfestDecayDist_c.restype = c_uint
-lib.ElEhrenfestDecayDist_z.argtypes = [c_void_p,iType]
-lib.ElEhrenfestDecayDist_z.restype = c_uint
+lib.ElEhrenfestDecay_s.argtypes = \
+lib.ElEhrenfestDecay_d.argtypes = \
+lib.ElEhrenfestDecay_c.argtypes = \
+lib.ElEhrenfestDecay_z.argtypes = \
+lib.ElEhrenfestDecayDist_s.argtypes = \
+lib.ElEhrenfestDecayDist_d.argtypes = \
+lib.ElEhrenfestDecayDist_c.argtypes = \
+lib.ElEhrenfestDecayDist_z.argtypes = \
+  [c_void_p,iType]
+
+lib.ElEhrenfestDecay_s.restype = \
+lib.ElEhrenfestDecay_d.restype = \
+lib.ElEhrenfestDecay_c.restype = \
+lib.ElEhrenfestDecay_z.restype = \
+lib.ElEhrenfestDecayDist_s.restype = \
+lib.ElEhrenfestDecayDist_d.restype = \
+lib.ElEhrenfestDecayDist_c.restype = \
+lib.ElEhrenfestDecayDist_z.restype = \
+  c_uint
+
 def EhrenfestDecay(PInf,n):
   args = [PInf.obj,n]
   if type(PInf) is Matrix:
@@ -415,22 +465,28 @@ def EhrenfestDecay(PInf,n):
 
 # Extended Kahan
 # --------------
-lib.ElExtendedKahan_s.argtypes = [c_void_p,iType,sType,sType]
-lib.ElExtendedKahan_s.restype = c_uint
-lib.ElExtendedKahan_d.argtypes = [c_void_p,iType,dType,dType]
-lib.ElExtendedKahan_d.restype = c_uint
-lib.ElExtendedKahan_c.argtypes = [c_void_p,iType,sType,sType]
-lib.ElExtendedKahan_c.restype = c_uint
-lib.ElExtendedKahan_z.argtypes = [c_void_p,iType,dType,dType]
-lib.ElExtendedKahan_z.restype = c_uint
-lib.ElExtendedKahanDist_s.argtypes = [c_void_p,iType,sType,sType]
-lib.ElExtendedKahanDist_s.restype = c_uint
-lib.ElExtendedKahanDist_d.argtypes = [c_void_p,iType,dType,dType]
-lib.ElExtendedKahanDist_d.restype = c_uint
-lib.ElExtendedKahanDist_c.argtypes = [c_void_p,iType,sType,sType]
-lib.ElExtendedKahanDist_c.restype = c_uint
-lib.ElExtendedKahanDist_z.argtypes = [c_void_p,iType,dType,dType]
-lib.ElExtendedKahanDist_z.restype = c_uint
+lib.ElExtendedKahan_s.argtypes = \
+lib.ElExtendedKahan_c.argtypes = \
+lib.ElExtendedKahanDist_s.argtypes = \
+lib.ElExtendedKahanDist_c.argtypes = \
+  [c_void_p,iType,sType,sType]
+
+lib.ElExtendedKahan_d.argtypes = \
+lib.ElExtendedKahan_z.argtypes = \
+lib.ElExtendedKahanDist_d.argtypes = \
+lib.ElExtendedKahanDist_z.argtypes = \
+  [c_void_p,iType,dType,dType]
+
+lib.ElExtendedKahan_s.restype = \
+lib.ElExtendedKahan_d.restype = \
+lib.ElExtendedKahan_c.restype = \
+lib.ElExtendedKahan_z.restype = \
+lib.ElExtendedKahanDist_s.restype = \
+lib.ElExtendedKahanDist_d.restype = \
+lib.ElExtendedKahanDist_c.restype = \
+lib.ElExtendedKahanDist_z.restype = \
+  c_uint
+
 def ExtendedKahan(A,k,phi,mu):
   args = [A.obj,k,phi,mu]
   if type(A) is Matrix:
@@ -449,22 +505,32 @@ def ExtendedKahan(A,k,phi,mu):
 
 # Fiedler
 # -------
-lib.ElFiedler_s.argtypes = [c_void_p,iType,POINTER(sType)]
-lib.ElFiedler_s.restype = c_uint
-lib.ElFiedler_d.argtypes = [c_void_p,iType,POINTER(dType)]
-lib.ElFiedler_d.restype = c_uint
-lib.ElFiedler_c.argtypes = [c_void_p,iType,POINTER(cType)]
-lib.ElFiedler_c.restype = c_uint
-lib.ElFiedler_z.argtypes = [c_void_p,iType,POINTER(zType)]
-lib.ElFiedler_z.restype = c_uint
-lib.ElFiedlerDist_s.argtypes = [c_void_p,iType,POINTER(sType)]
-lib.ElFiedlerDist_s.restype = c_uint
-lib.ElFiedlerDist_d.argtypes = [c_void_p,iType,POINTER(dType)]
-lib.ElFiedlerDist_d.restype = c_uint
-lib.ElFiedlerDist_c.argtypes = [c_void_p,iType,POINTER(cType)]
-lib.ElFiedlerDist_c.restype = c_uint
-lib.ElFiedlerDist_z.argtypes = [c_void_p,iType,POINTER(zType)]
-lib.ElFiedlerDist_z.restype = c_uint
+lib.ElFiedler_s.argtypes = \
+lib.ElFiedlerDist_s.argtypes = \
+  [c_void_p,iType,POINTER(sType)]
+
+lib.ElFiedler_d.argtypes = \
+lib.ElFiedlerDist_d.argtypes = \
+  [c_void_p,iType,POINTER(dType)]
+
+lib.ElFiedler_c.argtypes = \
+lib.ElFiedlerDist_c.argtypes = \
+  [c_void_p,iType,POINTER(cType)]
+
+lib.ElFiedler_z.argtypes = \
+lib.ElFiedlerDist_z.argtypes = \
+  [c_void_p,iType,POINTER(zType)]
+
+lib.ElFiedler_s.restype = \
+lib.ElFiedler_d.restype = \
+lib.ElFiedler_c.restype = \
+lib.ElFiedler_z.restype = \
+lib.ElFiedlerDist_s.restype = \
+lib.ElFiedlerDist_d.restype = \
+lib.ElFiedlerDist_c.restype = \
+lib.ElFiedlerDist_z.restype = \
+  c_uint
+
 def Fiedler(A,c):
   cLen = len(c)
   cBuf = (TagToType(A.tag)*cLen)(*c)
@@ -485,26 +551,38 @@ def Fiedler(A,c):
 
 # Forsythe
 # --------
-lib.ElForsythe_i.argtypes = [c_void_p,iType,iType,iType]
-lib.ElForsythe_i.restype = c_uint
-lib.ElForsythe_s.argtypes = [c_void_p,iType,sType,sType]
-lib.ElForsythe_s.restype = c_uint
-lib.ElForsythe_d.argtypes = [c_void_p,iType,dType,dType]
-lib.ElForsythe_d.restype = c_uint
-lib.ElForsythe_c.argtypes = [c_void_p,iType,cType,cType]
-lib.ElForsythe_c.restype = c_uint
-lib.ElForsythe_z.argtypes = [c_void_p,iType,zType,zType]
-lib.ElForsythe_z.restype = c_uint
-lib.ElForsytheDist_i.argtypes = [c_void_p,iType,iType,iType]
-lib.ElForsytheDist_i.restype = c_uint
-lib.ElForsytheDist_s.argtypes = [c_void_p,iType,sType,sType]
-lib.ElForsytheDist_s.restype = c_uint
-lib.ElForsytheDist_d.argtypes = [c_void_p,iType,dType,dType]
-lib.ElForsytheDist_d.restype = c_uint
-lib.ElForsytheDist_c.argtypes = [c_void_p,iType,cType,cType]
-lib.ElForsytheDist_c.restype = c_uint
-lib.ElForsytheDist_z.argtypes = [c_void_p,iType,zType,zType]
-lib.ElForsytheDist_z.restype = c_uint
+lib.ElForsythe_i.argtypes = \
+lib.ElForsytheDist_i.argtypes = \
+  [c_void_p,iType,iType,iType]
+
+lib.ElForsythe_s.argtypes = \
+lib.ElForsytheDist_s.argtypes = \
+  [c_void_p,iType,sType,sType]
+
+lib.ElForsythe_d.argtypes = \
+lib.ElForsytheDist_d.argtypes = \
+  [c_void_p,iType,dType,dType]
+
+lib.ElForsythe_c.argtypes = \
+lib.ElForsytheDist_c.argtypes = \
+  [c_void_p,iType,cType,cType]
+
+lib.ElForsythe_z.argtypes = \
+lib.ElForsytheDist_z.argtypes = \
+  [c_void_p,iType,zType,zType]
+
+lib.ElForsythe_i.restype = \
+lib.ElForsythe_s.restype = \
+lib.ElForsythe_d.restype = \
+lib.ElForsythe_c.restype = \
+lib.ElForsythe_z.restype = \
+lib.ElForsytheDist_i.restype = \
+lib.ElForsytheDist_s.restype = \
+lib.ElForsytheDist_d.restype = \
+lib.ElForsytheDist_c.restype = \
+lib.ElForsytheDist_z.restype = \
+  c_uint
+
 def Forsythe(J,n,alpha,lamb):
   args = [A.obj,n,alpha,lamb]
   if type(J) is Matrix:
@@ -525,14 +603,20 @@ def Forsythe(J,n,alpha,lamb):
 
 # Fox-Li
 # ------
-lib.ElFoxLi_c.argtypes = [c_void_p,iType,sType]
-lib.ElFoxLi_c.restype = c_uint
-lib.ElFoxLi_z.argtypes = [c_void_p,iType,dType]
-lib.ElFoxLi_z.restype = c_uint
-lib.ElFoxLiDist_c.argtypes = [c_void_p,iType,sType]
-lib.ElFoxLiDist_c.restype = c_uint
-lib.ElFoxLiDist_z.argtypes = [c_void_p,iType,dType]
-lib.ElFoxLiDist_z.restype = c_uint
+lib.ElFoxLi_c.argtypes = \
+lib.ElFoxLiDist_c.argtypes = \
+  [c_void_p,iType,sType]
+
+lib.ElFoxLi_z.argtypes = \
+lib.ElFoxLiDist_z.argtypes = \
+  [c_void_p,iType,dType]
+
+lib.ElFoxLi_c.restype = \
+lib.ElFoxLi_z.restype = \
+lib.ElFoxLiDist_c.restype = \
+lib.ElFoxLiDist_z.restype = \
+  c_uint
+
 def FoxLi(A,n,omega=48.):
   args = [A.obj,n,omega]
   if type(A) is Matrix:
@@ -547,14 +631,18 @@ def FoxLi(A,n,omega=48.):
 
 # Fourier
 # -------
-lib.ElFourier_c.argtypes = [c_void_p,iType]
-lib.ElFourier_c.restype = c_uint
-lib.ElFourier_z.argtypes = [c_void_p,iType]
-lib.ElFourier_z.restype = c_uint
-lib.ElFourierDist_c.argtypes = [c_void_p,iType]
-lib.ElFourierDist_c.restype = c_uint
-lib.ElFourierDist_z.argtypes = [c_void_p,iType]
-lib.ElFourierDist_z.restype = c_uint
+lib.ElFourier_c.argtypes = \
+lib.ElFourier_z.argtypes = \
+lib.ElFourierDist_c.argtypes = \
+lib.ElFourierDist_z.argtypes = \
+  [c_void_p,iType]
+
+lib.ElFourier_c.restype = \
+lib.ElFourier_z.restype = \
+lib.ElFourierDist_c.restype = \
+lib.ElFourierDist_z.restype = \
+  c_uint
+
 def Fourier(A,n):
   args = [A.obj,n]
   if type(A) is Matrix:
@@ -569,14 +657,18 @@ def Fourier(A,n):
 
 # Fourier-Identity
 # ----------------
-lib.ElFourierIdentity_c.argtypes = [c_void_p,iType]
-lib.ElFourierIdentity_c.restype = c_uint
-lib.ElFourierIdentity_z.argtypes = [c_void_p,iType]
-lib.ElFourierIdentity_z.restype = c_uint
-lib.ElFourierIdentityDist_c.argtypes = [c_void_p,iType]
-lib.ElFourierIdentityDist_c.restype = c_uint
-lib.ElFourierIdentityDist_z.argtypes = [c_void_p,iType]
-lib.ElFourierIdentityDist_z.restype = c_uint
+lib.ElFourierIdentity_c.argtypes = \
+lib.ElFourierIdentity_z.argtypes = \
+lib.ElFourierIdentityDist_c.argtypes = \
+lib.ElFourierIdentityDist_z.argtypes = \
+  [c_void_p,iType]
+
+lib.ElFourierIdentity_c.restype = \
+lib.ElFourierIdentity_z.restype = \
+lib.ElFourierIdentityDist_c.restype = \
+lib.ElFourierIdentityDist_z.restype = \
+  c_uint
+
 def FourierIdentity(A,n):
   args = [A.obj,n]
   if type(A) is Matrix:
@@ -591,26 +683,30 @@ def FourierIdentity(A,n):
 
 # GCD matrix
 # ----------
-lib.ElGCDMatrix_i.argtypes = [c_void_p,iType,iType]
-lib.ElGCDMatrix_i.restype = c_uint
-lib.ElGCDMatrix_s.argtypes = [c_void_p,iType,iType]
-lib.ElGCDMatrix_s.restype = c_uint
-lib.ElGCDMatrix_d.argtypes = [c_void_p,iType,iType]
-lib.ElGCDMatrix_d.restype = c_uint
-lib.ElGCDMatrix_c.argtypes = [c_void_p,iType,iType]
-lib.ElGCDMatrix_c.restype = c_uint
-lib.ElGCDMatrix_z.argtypes = [c_void_p,iType,iType]
-lib.ElGCDMatrix_z.restype = c_uint
-lib.ElGCDMatrixDist_i.argtypes = [c_void_p,iType,iType]
-lib.ElGCDMatrixDist_i.restype = c_uint
-lib.ElGCDMatrixDist_s.argtypes = [c_void_p,iType,iType]
-lib.ElGCDMatrixDist_s.restype = c_uint
-lib.ElGCDMatrixDist_d.argtypes = [c_void_p,iType,iType]
-lib.ElGCDMatrixDist_d.restype = c_uint
-lib.ElGCDMatrixDist_c.argtypes = [c_void_p,iType,iType]
-lib.ElGCDMatrixDist_c.restype = c_uint
-lib.ElGCDMatrixDist_z.argtypes = [c_void_p,iType,iType]
-lib.ElGCDMatrixDist_z.restype = c_uint
+lib.ElGCDMatrix_i.argtypes = \
+lib.ElGCDMatrix_s.argtypes = \
+lib.ElGCDMatrix_d.argtypes = \
+lib.ElGCDMatrix_c.argtypes = \
+lib.ElGCDMatrix_z.argtypes = \
+lib.ElGCDMatrixDist_i.argtypes = \
+lib.ElGCDMatrixDist_s.argtypes = \
+lib.ElGCDMatrixDist_d.argtypes = \
+lib.ElGCDMatrixDist_c.argtypes = \
+lib.ElGCDMatrixDist_z.argtypes = \
+  [c_void_p,iType,iType]
+
+lib.ElGCDMatrix_i.restype = \
+lib.ElGCDMatrix_s.restype = \
+lib.ElGCDMatrix_d.restype = \
+lib.ElGCDMatrix_c.restype = \
+lib.ElGCDMatrix_z.restype = \
+lib.ElGCDMatrixDist_i.restype = \
+lib.ElGCDMatrixDist_s.restype = \
+lib.ElGCDMatrixDist_d.restype = \
+lib.ElGCDMatrixDist_c.restype = \
+lib.ElGCDMatrixDist_z.restype = \
+  c_uint
+
 def GCDMatrix(G,m,n):
   args = [G.obj,m,n]
   if type(G) is Matrix:
@@ -631,26 +727,30 @@ def GCDMatrix(G,m,n):
 
 # Gear matrix
 # -----------
-lib.ElGear_i.argtypes = [c_void_p,iType,iType,iType]
-lib.ElGear_i.restype = c_uint
-lib.ElGear_s.argtypes = [c_void_p,iType,iType,iType]
-lib.ElGear_s.restype = c_uint
-lib.ElGear_d.argtypes = [c_void_p,iType,iType,iType]
-lib.ElGear_d.restype = c_uint
-lib.ElGear_c.argtypes = [c_void_p,iType,iType,iType]
-lib.ElGear_c.restype = c_uint
-lib.ElGear_z.argtypes = [c_void_p,iType,iType,iType]
-lib.ElGear_z.restype = c_uint
-lib.ElGearDist_i.argtypes = [c_void_p,iType,iType,iType]
-lib.ElGearDist_i.restype = c_uint
-lib.ElGearDist_s.argtypes = [c_void_p,iType,iType,iType]
-lib.ElGearDist_s.restype = c_uint
-lib.ElGearDist_d.argtypes = [c_void_p,iType,iType,iType]
-lib.ElGearDist_d.restype = c_uint
-lib.ElGearDist_c.argtypes = [c_void_p,iType,iType,iType]
-lib.ElGearDist_c.restype = c_uint
-lib.ElGearDist_z.argtypes = [c_void_p,iType,iType,iType]
-lib.ElGearDist_z.restype = c_uint
+lib.ElGear_i.argtypes = \
+lib.ElGear_s.argtypes = \
+lib.ElGear_d.argtypes = \
+lib.ElGear_c.argtypes = \
+lib.ElGear_z.argtypes = \
+lib.ElGearDist_i.argtypes = \
+lib.ElGearDist_s.argtypes = \
+lib.ElGearDist_d.argtypes = \
+lib.ElGearDist_c.argtypes = \
+lib.ElGearDist_z.argtypes = \
+  [c_void_p,iType,iType,iType]
+
+lib.ElGear_i.restype = \
+lib.ElGear_s.restype = \
+lib.ElGear_d.restype = \
+lib.ElGear_c.restype = \
+lib.ElGear_z.restype = \
+lib.ElGearDist_i.restype = \
+lib.ElGearDist_s.restype = \
+lib.ElGearDist_d.restype = \
+lib.ElGearDist_c.restype = \
+lib.ElGearDist_z.restype = \
+  c_uint
+
 def Gear(G,n,s,t):
   args = [G.obj,n,s,t]
   if type(G) is Matrix:
@@ -671,22 +771,26 @@ def Gear(G,n,s,t):
 
 # GEPP Growth
 # -----------
-lib.ElGEPPGrowth_s.argtypes = [c_void_p,iType]
-lib.ElGEPPGrowth_s.restype = c_uint
-lib.ElGEPPGrowth_d.argtypes = [c_void_p,iType]
-lib.ElGEPPGrowth_d.restype = c_uint
-lib.ElGEPPGrowth_c.argtypes = [c_void_p,iType]
-lib.ElGEPPGrowth_c.restype = c_uint
-lib.ElGEPPGrowth_z.argtypes = [c_void_p,iType]
-lib.ElGEPPGrowth_z.restype = c_uint
-lib.ElGEPPGrowthDist_s.argtypes = [c_void_p,iType]
-lib.ElGEPPGrowthDist_s.restype = c_uint
-lib.ElGEPPGrowthDist_d.argtypes = [c_void_p,iType]
-lib.ElGEPPGrowthDist_d.restype = c_uint
-lib.ElGEPPGrowthDist_c.argtypes = [c_void_p,iType]
-lib.ElGEPPGrowthDist_c.restype = c_uint
-lib.ElGEPPGrowthDist_z.argtypes = [c_void_p,iType]
-lib.ElGEPPGrowthDist_z.restype = c_uint
+lib.ElGEPPGrowth_s.argtypes = \
+lib.ElGEPPGrowth_d.argtypes = \
+lib.ElGEPPGrowth_c.argtypes = \
+lib.ElGEPPGrowth_z.argtypes = \
+lib.ElGEPPGrowthDist_s.argtypes = \
+lib.ElGEPPGrowthDist_d.argtypes = \
+lib.ElGEPPGrowthDist_c.argtypes = \
+lib.ElGEPPGrowthDist_z.argtypes = \
+  [c_void_p,iType]
+
+lib.ElGEPPGrowth_s.restype = \
+lib.ElGEPPGrowth_d.restype = \
+lib.ElGEPPGrowth_c.restype = \
+lib.ElGEPPGrowth_z.restype = \
+lib.ElGEPPGrowthDist_s.restype = \
+lib.ElGEPPGrowthDist_d.restype = \
+lib.ElGEPPGrowthDist_c.restype = \
+lib.ElGEPPGrowthDist_z.restype = \
+  c_uint
+
 def GEPPGrowth(A,n):
   args = [A.obj,n]
   if type(A) is Matrix:
@@ -705,22 +809,26 @@ def GEPPGrowth(A,n):
 
 # Golub/Klema/Stewart
 # -------------------
-lib.ElGKS_s.argtypes = [c_void_p,iType]
-lib.ElGKS_s.restype = c_uint
-lib.ElGKS_d.argtypes = [c_void_p,iType]
-lib.ElGKS_d.restype = c_uint
-lib.ElGKS_c.argtypes = [c_void_p,iType]
-lib.ElGKS_c.restype = c_uint
-lib.ElGKS_z.argtypes = [c_void_p,iType]
-lib.ElGKS_z.restype = c_uint
-lib.ElGKSDist_s.argtypes = [c_void_p,iType]
-lib.ElGKSDist_s.restype = c_uint
-lib.ElGKSDist_d.argtypes = [c_void_p,iType]
-lib.ElGKSDist_d.restype = c_uint
-lib.ElGKSDist_c.argtypes = [c_void_p,iType]
-lib.ElGKSDist_c.restype = c_uint
-lib.ElGKSDist_z.argtypes = [c_void_p,iType]
-lib.ElGKSDist_z.restype = c_uint
+lib.ElGKS_s.argtypes = \
+lib.ElGKS_d.argtypes = \
+lib.ElGKS_c.argtypes = \
+lib.ElGKS_z.argtypes = \
+lib.ElGKSDist_s.argtypes = \
+lib.ElGKSDist_d.argtypes = \
+lib.ElGKSDist_c.argtypes = \
+lib.ElGKSDist_z.argtypes = \
+  [c_void_p,iType]
+
+lib.ElGKS_s.restype = \
+lib.ElGKS_d.restype = \
+lib.ElGKS_c.restype = \
+lib.ElGKS_z.restype = \
+lib.ElGKSDist_s.restype = \
+lib.ElGKSDist_d.restype = \
+lib.ElGKSDist_c.restype = \
+lib.ElGKSDist_z.restype = \
+  c_uint
+
 def GKS(A,n):
   args = [A.obj,n]
   if type(A) is Matrix:
@@ -739,26 +847,30 @@ def GKS(A,n):
 
 # Grcar
 # -----
-lib.ElGrcar_i.argtypes = [c_void_p,iType,iType]
-lib.ElGrcar_i.restype = c_uint
-lib.ElGrcar_s.argtypes = [c_void_p,iType,iType]
-lib.ElGrcar_s.restype = c_uint
-lib.ElGrcar_d.argtypes = [c_void_p,iType,iType]
-lib.ElGrcar_d.restype = c_uint
-lib.ElGrcar_c.argtypes = [c_void_p,iType,iType]
-lib.ElGrcar_c.restype = c_uint
-lib.ElGrcar_z.argtypes = [c_void_p,iType,iType]
-lib.ElGrcar_z.restype = c_uint
-lib.ElGrcarDist_i.argtypes = [c_void_p,iType,iType]
-lib.ElGrcarDist_i.restype = c_uint
-lib.ElGrcarDist_s.argtypes = [c_void_p,iType,iType]
-lib.ElGrcarDist_s.restype = c_uint
-lib.ElGrcarDist_d.argtypes = [c_void_p,iType,iType]
-lib.ElGrcarDist_d.restype = c_uint
-lib.ElGrcarDist_c.argtypes = [c_void_p,iType,iType]
-lib.ElGrcarDist_c.restype = c_uint
-lib.ElGrcarDist_z.argtypes = [c_void_p,iType,iType]
-lib.ElGrcarDist_z.restype = c_uint
+lib.ElGrcar_i.argtypes = \
+lib.ElGrcar_s.argtypes = \
+lib.ElGrcar_d.argtypes = \
+lib.ElGrcar_c.argtypes = \
+lib.ElGrcar_z.argtypes = \
+lib.ElGrcarDist_i.argtypes = \
+lib.ElGrcarDist_s.argtypes = \
+lib.ElGrcarDist_d.argtypes = \
+lib.ElGrcarDist_c.argtypes = \
+lib.ElGrcarDist_z.argtypes = \
+  [c_void_p,iType,iType]
+
+lib.ElGrcar_i.restype = \
+lib.ElGrcar_s.restype = \
+lib.ElGrcar_d.restype = \
+lib.ElGrcar_c.restype = \
+lib.ElGrcar_z.restype = \
+lib.ElGrcarDist_i.restype = \
+lib.ElGrcarDist_s.restype = \
+lib.ElGrcarDist_d.restype = \
+lib.ElGrcarDist_c.restype = \
+lib.ElGrcarDist_z.restype = \
+  c_uint
+
 def Grcar(A,n,k=3):
   args = [A.obj,n,k]
   if type(A) is Matrix:
@@ -779,22 +891,26 @@ def Grcar(A,n,k=3):
 
 # Haar
 # ----
-lib.ElHaar_s.argtypes = [c_void_p,iType]
-lib.ElHaar_s.restype = c_uint
-lib.ElHaar_d.argtypes = [c_void_p,iType]
-lib.ElHaar_d.restype = c_uint
-lib.ElHaar_c.argtypes = [c_void_p,iType]
-lib.ElHaar_c.restype = c_uint
-lib.ElHaar_z.argtypes = [c_void_p,iType]
-lib.ElHaar_z.restype = c_uint
-lib.ElHaarDist_s.argtypes = [c_void_p,iType]
-lib.ElHaarDist_s.restype = c_uint
-lib.ElHaarDist_d.argtypes = [c_void_p,iType]
-lib.ElHaarDist_d.restype = c_uint
-lib.ElHaarDist_c.argtypes = [c_void_p,iType]
-lib.ElHaarDist_c.restype = c_uint
-lib.ElHaarDist_z.argtypes = [c_void_p,iType]
-lib.ElHaarDist_z.restype = c_uint
+lib.ElHaar_s.argtypes = \
+lib.ElHaar_d.argtypes = \
+lib.ElHaar_c.argtypes = \
+lib.ElHaar_z.argtypes = \
+lib.ElHaarDist_s.argtypes = \
+lib.ElHaarDist_d.argtypes = \
+lib.ElHaarDist_c.argtypes = \
+lib.ElHaarDist_z.argtypes = \
+  [c_void_p,iType]
+
+lib.ElHaar_s.restype = \
+lib.ElHaar_d.restype = \
+lib.ElHaar_c.restype = \
+lib.ElHaar_z.restype = \
+lib.ElHaarDist_s.restype = \
+lib.ElHaarDist_d.restype = \
+lib.ElHaarDist_c.restype = \
+lib.ElHaarDist_z.restype = \
+  c_uint
+
 def Haar(A,n):
   args = [A.obj,n]
   if type(A) is Matrix:
@@ -811,67 +927,83 @@ def Haar(A,n):
     else: DataExcept()
   else: TypeExcept()
 
-lib.ElImplicitHaar_s.argtypes = [c_void_p,c_void_p,c_void_p,iType]
-lib.ElImplicitHaar_s.restype = c_uint
-lib.ElImplicitHaar_d.argtypes = [c_void_p,c_void_p,c_void_p,iType]
-lib.ElImplicitHaar_d.restype = c_uint
-lib.ElImplicitHaar_c.argtypes = [c_void_p,c_void_p,c_void_p,iType]
-lib.ElImplicitHaar_c.restype = c_uint
-lib.ElImplicitHaar_z.argtypes = [c_void_p,c_void_p,c_void_p,iType]
-lib.ElImplicitHaar_z.restype = c_uint
-lib.ElImplicitHaarDist_s.argtypes = [c_void_p,c_void_p,c_void_p,iType]
-lib.ElImplicitHaarDist_s.restype = c_uint
-lib.ElImplicitHaarDist_d.argtypes = [c_void_p,c_void_p,c_void_p,iType]
-lib.ElImplicitHaarDist_d.restype = c_uint
-lib.ElImplicitHaarDist_c.argtypes = [c_void_p,c_void_p,c_void_p,iType]
-lib.ElImplicitHaarDist_c.restype = c_uint
-lib.ElImplicitHaarDist_z.argtypes = [c_void_p,c_void_p,c_void_p,iType]
-lib.ElImplicitHaarDist_z.restype = c_uint
+lib.ElImplicitHaar_s.argtypes = \
+lib.ElImplicitHaar_d.argtypes = \
+lib.ElImplicitHaar_c.argtypes = \
+lib.ElImplicitHaar_z.argtypes = \
+lib.ElImplicitHaarDist_s.argtypes = \
+lib.ElImplicitHaarDist_d.argtypes = \
+lib.ElImplicitHaarDist_c.argtypes = \
+lib.ElImplicitHaarDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,iType]
+
+lib.ElImplicitHaar_s.restype = \
+lib.ElImplicitHaar_d.restype = \
+lib.ElImplicitHaar_c.restype = \
+lib.ElImplicitHaar_z.restype = \
+lib.ElImplicitHaarDist_s.restype = \
+lib.ElImplicitHaarDist_d.restype = \
+lib.ElImplicitHaarDist_c.restype = \
+lib.ElImplicitHaarDist_z.restype = \
+  c_uint
+
 def ImplicitHaar(A,n):
   if type(A) is Matrix:
     t = Matrix(A.tag)
     d = Matrix(Base(A.tag))
     args = [A.obj,t.obj,d.obj,n]
-    if   A.tag == sTag: lib.ElImplicitHaar_s(A.obj,t.obj,d.obj,n)
-    elif A.tag == dTag: lib.ElImplicitHaar_d(A.obj,t.obj,d.obj,n)
-    elif A.tag == cTag: lib.ElImplicitHaar_c(A.obj,t.obj,d.obj,n)
-    elif A.tag == zTag: lib.ElImplicitHaar_z(A.obj,t.obj,d.obj,n)
+    if   A.tag == sTag: lib.ElImplicitHaar_s(*args)
+    elif A.tag == dTag: lib.ElImplicitHaar_d(*args)
+    elif A.tag == cTag: lib.ElImplicitHaar_c(*args)
+    elif A.tag == zTag: lib.ElImplicitHaar_z(*args)
     else: DataExcept()
     return t, d
   elif type(A) is DistMatrix:
     t = DistMatrix(A.tag,MC,STAR,A.Grid())
     d = DistMatrix(Base(A.tag),MC,STAR,A.Grid())
     args = [A.obj,t.obj,d.obj,n]
-    if   A.tag == sTag: lib.ElImplicitHaarDist_s(A.obj,t.obj,d.obj,n)
-    elif A.tag == dTag: lib.ElImplicitHaarDist_d(A.obj,t.obj,d.obj,n)
-    elif A.tag == cTag: lib.ElImplicitHaarDist_c(A.obj,t.obj,d.obj,n)
-    elif A.tag == zTag: lib.ElImplicitHaarDist_z(A.obj,t.obj,d.obj,n)
+    if   A.tag == sTag: lib.ElImplicitHaarDist_s(*args)
+    elif A.tag == dTag: lib.ElImplicitHaarDist_d(*args)
+    elif A.tag == cTag: lib.ElImplicitHaarDist_c(*args)
+    elif A.tag == zTag: lib.ElImplicitHaarDist_z(*args)
     else: DataExcept()
     return t, d
   else: TypeExcept()
 
 # Hankel
 # ------
-lib.ElHankel_i.argtypes = [c_void_p,iType,iType,iType,POINTER(iType)]
-lib.ElHankel_i.restype = c_uint
-lib.ElHankel_s.argtypes = [c_void_p,iType,iType,iType,POINTER(sType)]
-lib.ElHankel_s.restype = c_uint
-lib.ElHankel_d.argtypes = [c_void_p,iType,iType,iType,POINTER(dType)]
-lib.ElHankel_d.restype = c_uint
-lib.ElHankel_c.argtypes = [c_void_p,iType,iType,iType,POINTER(cType)]
-lib.ElHankel_c.restype = c_uint
-lib.ElHankel_z.argtypes = [c_void_p,iType,iType,iType,POINTER(zType)]
-lib.ElHankel_z.restype = c_uint
-lib.ElHankelDist_i.argtypes = [c_void_p,iType,iType,iType,POINTER(iType)]
-lib.ElHankelDist_i.restype = c_uint
-lib.ElHankelDist_s.argtypes = [c_void_p,iType,iType,iType,POINTER(sType)]
-lib.ElHankelDist_s.restype = c_uint
-lib.ElHankelDist_d.argtypes = [c_void_p,iType,iType,iType,POINTER(dType)]
-lib.ElHankelDist_d.restype = c_uint
-lib.ElHankelDist_c.argtypes = [c_void_p,iType,iType,iType,POINTER(cType)]
-lib.ElHankelDist_c.restype = c_uint
-lib.ElHankelDist_z.argtypes = [c_void_p,iType,iType,iType,POINTER(zType)]
-lib.ElHankelDist_z.restype = c_uint
+lib.ElHankel_i.argtypes = \
+lib.ElHankelDist_i.argtypes = \
+  [c_void_p,iType,iType,iType,POINTER(iType)]
+
+lib.ElHankel_s.argtypes = \
+lib.ElHankelDist_s.argtypes = \
+  [c_void_p,iType,iType,iType,POINTER(sType)]
+
+lib.ElHankel_d.argtypes = \
+lib.ElHankelDist_d.argtypes = \
+  [c_void_p,iType,iType,iType,POINTER(dType)]
+
+lib.ElHankel_c.argtypes = \
+lib.ElHankelDist_c.argtypes = \
+  [c_void_p,iType,iType,iType,POINTER(cType)]
+
+lib.ElHankel_z.argtypes = \
+lib.ElHankelDist_z.argtypes = \
+  [c_void_p,iType,iType,iType,POINTER(zType)]
+
+lib.ElHankel_i.restype = \
+lib.ElHankel_s.restype = \
+lib.ElHankel_d.restype = \
+lib.ElHankel_c.restype = \
+lib.ElHankel_z.restype = \
+lib.ElHankelDist_i.restype = \
+lib.ElHankelDist_s.restype = \
+lib.ElHankelDist_d.restype = \
+lib.ElHankelDist_c.restype = \
+lib.ElHankelDist_z.restype = \
+  c_uint
+
 def Hankel(A,m,n,a):
   aLen = len(a)
   aBuf = (TagToType(A.tag)*aLen)(*a)
@@ -894,26 +1026,38 @@ def Hankel(A,m,n,a):
 
 # Hanowa
 # ------
-lib.ElHanowa_i.argtypes = [c_void_p,iType,iType]
-lib.ElHanowa_i.restype = c_uint
-lib.ElHanowa_s.argtypes = [c_void_p,iType,sType]
-lib.ElHanowa_s.restype = c_uint
-lib.ElHanowa_d.argtypes = [c_void_p,iType,dType]
-lib.ElHanowa_d.restype = c_uint
-lib.ElHanowa_c.argtypes = [c_void_p,iType,cType]
-lib.ElHanowa_c.restype = c_uint
-lib.ElHanowa_z.argtypes = [c_void_p,iType,zType]
-lib.ElHanowa_z.restype = c_uint
-lib.ElHanowaDist_i.argtypes = [c_void_p,iType,iType]
-lib.ElHanowaDist_i.restype = c_uint
-lib.ElHanowaDist_s.argtypes = [c_void_p,iType,sType]
-lib.ElHanowaDist_s.restype = c_uint
-lib.ElHanowaDist_d.argtypes = [c_void_p,iType,dType]
-lib.ElHanowaDist_d.restype = c_uint
-lib.ElHanowaDist_c.argtypes = [c_void_p,iType,cType]
-lib.ElHanowaDist_c.restype = c_uint
-lib.ElHanowaDist_z.argtypes = [c_void_p,iType,zType]
-lib.ElHanowaDist_z.restype = c_uint
+lib.ElHanowa_i.argtypes = \
+lib.ElHanowaDist_i.argtypes = \
+  [c_void_p,iType,iType]
+
+lib.ElHanowa_s.argtypes = \
+lib.ElHanowaDist_s.argtypes = \
+  [c_void_p,iType,sType]
+
+lib.ElHanowa_d.argtypes = \
+lib.ElHanowaDist_d.argtypes = \
+  [c_void_p,iType,dType]
+
+lib.ElHanowa_c.argtypes = \
+lib.ElHanowaDist_c.argtypes = \
+  [c_void_p,iType,cType]
+
+lib.ElHanowa_z.argtypes = \
+lib.ElHanowaDist_z.argtypes = \
+  [c_void_p,iType,zType]
+
+lib.ElHanowa_i.restype = \
+lib.ElHanowa_s.restype = \
+lib.ElHanowa_d.restype = \
+lib.ElHanowa_c.restype = \
+lib.ElHanowa_z.restype = \
+lib.ElHanowaDist_i.restype = \
+lib.ElHanowaDist_s.restype = \
+lib.ElHanowaDist_d.restype = \
+lib.ElHanowaDist_c.restype = \
+lib.ElHanowaDist_z.restype = \
+  c_uint
+
 def Hanowa(A,n,mu):
   args = [A.obj,n,mu]
   if type(A) is Matrix:
@@ -934,22 +1078,32 @@ def Hanowa(A,n,mu):
 
 # Hatano-Nelson
 # -------------
-lib.ElHatanoNelson_s.argtypes = [c_void_p,iType,sType,sType,sType,bType]
-lib.ElHatanoNelson_s.restype = c_uint
-lib.ElHatanoNelson_d.argtypes = [c_void_p,iType,dType,dType,dType,bType]
-lib.ElHatanoNelson_d.restype = c_uint
-lib.ElHatanoNelson_c.argtypes = [c_void_p,iType,cType,sType,cType,bType]
-lib.ElHatanoNelson_c.restype = c_uint
-lib.ElHatanoNelson_z.argtypes = [c_void_p,iType,zType,dType,zType,bType]
-lib.ElHatanoNelson_z.restype = c_uint
-lib.ElHatanoNelsonDist_s.argtypes = [c_void_p,iType,sType,sType,sType,bType]
-lib.ElHatanoNelsonDist_s.restype = c_uint
-lib.ElHatanoNelsonDist_d.argtypes = [c_void_p,iType,dType,dType,dType,bType]
-lib.ElHatanoNelsonDist_d.restype = c_uint
-lib.ElHatanoNelsonDist_c.argtypes = [c_void_p,iType,cType,sType,cType,bType]
-lib.ElHatanoNelsonDist_c.restype = c_uint
-lib.ElHatanoNelsonDist_z.argtypes = [c_void_p,iType,zType,dType,zType,bType]
-lib.ElHatanoNelsonDist_z.restype = c_uint
+lib.ElHatanoNelson_s.argtypes = \
+lib.ElHatanoNelsonDist_s.argtypes = \
+  [c_void_p,iType,sType,sType,sType,bType]
+
+lib.ElHatanoNelson_d.argtypes = \
+lib.ElHatanoNelsonDist_d.argtypes = \
+  [c_void_p,iType,dType,dType,dType,bType]
+
+lib.ElHatanoNelson_c.argtypes = \
+lib.ElHatanoNelsonDist_c.argtypes = \
+  [c_void_p,iType,cType,sType,cType,bType]
+
+lib.ElHatanoNelson_z.argtypes = \
+lib.ElHatanoNelsonDist_z.argtypes = \
+  [c_void_p,iType,zType,dType,zType,bType]
+
+lib.ElHatanoNelson_s.restype = \
+lib.ElHatanoNelson_d.restype = \
+lib.ElHatanoNelson_c.restype = \
+lib.ElHatanoNelson_z.restype = \
+lib.ElHatanoNelsonDist_s.restype = \
+lib.ElHatanoNelsonDist_d.restype = \
+lib.ElHatanoNelsonDist_c.restype = \
+lib.ElHatanoNelsonDist_z.restype = \
+  c_uint
+
 def HatanoNelson(A,n,center,radius,g,periodic=True):
   args = [A.obj,n,center,radius,g,periodic]
   if type(A) is Matrix:
@@ -968,22 +1122,48 @@ def HatanoNelson(A,n,center,radius,g,periodic=True):
 
 # Helmholtz
 # ---------
-lib.ElHelmholtz1D_s.argtypes = [c_void_p,iType,sType]
-lib.ElHelmholtz1D_s.restype = c_uint
-lib.ElHelmholtz1D_d.argtypes = [c_void_p,iType,dType]
-lib.ElHelmholtz1D_d.restype = c_uint
-lib.ElHelmholtz1D_c.argtypes = [c_void_p,iType,cType]
-lib.ElHelmholtz1D_c.restype = c_uint
-lib.ElHelmholtz1D_z.argtypes = [c_void_p,iType,zType]
-lib.ElHelmholtz1D_z.restype = c_uint
-lib.ElHelmholtz1DDist_s.argtypes = [c_void_p,iType,sType]
-lib.ElHelmholtz1DDist_s.restype = c_uint
-lib.ElHelmholtz1DDist_d.argtypes = [c_void_p,iType,dType]
-lib.ElHelmholtz1DDist_d.restype = c_uint
-lib.ElHelmholtz1DDist_c.argtypes = [c_void_p,iType,cType]
-lib.ElHelmholtz1DDist_c.restype = c_uint
-lib.ElHelmholtz1DDist_z.argtypes = [c_void_p,iType,zType]
-lib.ElHelmholtz1DDist_z.restype = c_uint
+lib.ElHelmholtz1D_s.argtypes = \
+lib.ElHelmholtz1DDist_s.argtypes = \
+lib.ElHelmholtz1DSparse_s.argtypes = \
+lib.ElHelmholtz1DDistSparse_s.argtypes = \
+  [c_void_p,iType,sType]
+
+lib.ElHelmholtz1D_d.argtypes = \
+lib.ElHelmholtz1DDist_d.argtypes = \
+lib.ElHelmholtz1DSparse_d.argtypes = \
+lib.ElHelmholtz1DDistSparse_d.argtypes = \
+  [c_void_p,iType,dType]
+
+lib.ElHelmholtz1D_c.argtypes = \
+lib.ElHelmholtz1DDist_c.argtypes = \
+lib.ElHelmholtz1DSparse_c.argtypes = \
+lib.ElHelmholtz1DDistSparse_c.argtypes = \
+  [c_void_p,iType,cType]
+
+lib.ElHelmholtz1D_z.argtypes = \
+lib.ElHelmholtz1DDist_z.argtypes = \
+lib.ElHelmholtz1DSparse_z.argtypes = \
+lib.ElHelmholtz1DDistSparse_z.argtypes = \
+  [c_void_p,iType,zType]
+
+lib.ElHelmholtz1D_s.restype = \
+lib.ElHelmholtz1D_d.restype = \
+lib.ElHelmholtz1D_c.restype = \
+lib.ElHelmholtz1D_z.restype = \
+lib.ElHelmholtz1DDist_s.restype = \
+lib.ElHelmholtz1DDist_d.restype = \
+lib.ElHelmholtz1DDist_c.restype = \
+lib.ElHelmholtz1DDist_z.restype = \
+lib.ElHelmholtz1DSparse_s.restype = \
+lib.ElHelmholtz1DSparse_d.restype = \
+lib.ElHelmholtz1DSparse_c.restype = \
+lib.ElHelmholtz1DSparse_z.restype = \
+lib.ElHelmholtz1DDistSparse_s.restype = \
+lib.ElHelmholtz1DDistSparse_d.restype = \
+lib.ElHelmholtz1DDistSparse_c.restype = \
+lib.ElHelmholtz1DDistSparse_z.restype = \
+  c_uint
+
 def Helmholtz1D(H,nx,shift):
   args = [H.obj,nx,shift]
   if type(A) is Matrix:
@@ -998,24 +1178,62 @@ def Helmholtz1D(H,nx,shift):
     elif A.tag == cTag: lib.ElHelmholtz1DDist_c(*args)
     elif A.tag == zTag: lib.ElHelmholtz1DDist_z(*args)
     else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == sTag: lib.ElHelmholtz1DSparse_s(*args)
+    elif A.tag == dTag: lib.ElHelmholtz1DSparse_d(*args)
+    elif A.tag == cTag: lib.ElHelmholtz1DSparse_c(*args)
+    elif A.tag == zTag: lib.ElHelmholtz1DSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == sTag: lib.ElHelmholtz1DDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElHelmholtz1DDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElHelmholtz1DDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElHelmholtz1DDistSparse_z(*args)
+    else: DataExcept()
   else: TypeExcept()
 
-lib.ElHelmholtz2D_s.argtypes = [c_void_p,iType,iType,sType]
-lib.ElHelmholtz2D_s.restype = c_uint
-lib.ElHelmholtz2D_d.argtypes = [c_void_p,iType,iType,dType]
-lib.ElHelmholtz2D_d.restype = c_uint
-lib.ElHelmholtz2D_c.argtypes = [c_void_p,iType,iType,cType]
-lib.ElHelmholtz2D_c.restype = c_uint
-lib.ElHelmholtz2D_z.argtypes = [c_void_p,iType,iType,zType]
-lib.ElHelmholtz2D_z.restype = c_uint
-lib.ElHelmholtz2DDist_s.argtypes = [c_void_p,iType,iType,sType]
-lib.ElHelmholtz2DDist_s.restype = c_uint
-lib.ElHelmholtz2DDist_d.argtypes = [c_void_p,iType,iType,dType]
-lib.ElHelmholtz2DDist_d.restype = c_uint
-lib.ElHelmholtz2DDist_c.argtypes = [c_void_p,iType,iType,cType]
-lib.ElHelmholtz2DDist_c.restype = c_uint
-lib.ElHelmholtz2DDist_z.argtypes = [c_void_p,iType,iType,zType]
-lib.ElHelmholtz2DDist_z.restype = c_uint
+lib.ElHelmholtz2D_s.argtypes = \
+lib.ElHelmholtz2DDist_s.argtypes = \
+lib.ElHelmholtz2DSparse_s.argtypes = \
+lib.ElHelmholtz2DDistSparse_s.argtypes = \
+  [c_void_p,iType,iType,sType]
+
+lib.ElHelmholtz2D_d.argtypes = \
+lib.ElHelmholtz2DDist_d.argtypes = \
+lib.ElHelmholtz2DSparse_d.argtypes = \
+lib.ElHelmholtz2DDistSparse_d.argtypes = \
+  [c_void_p,iType,iType,dType]
+
+lib.ElHelmholtz2D_c.argtypes = \
+lib.ElHelmholtz2DDist_c.argtypes = \
+lib.ElHelmholtz2DSparse_c.argtypes = \
+lib.ElHelmholtz2DDistSparse_c.argtypes = \
+  [c_void_p,iType,iType,cType]
+
+lib.ElHelmholtz2D_z.argtypes = \
+lib.ElHelmholtz2DDist_z.argtypes = \
+lib.ElHelmholtz2DSparse_z.argtypes = \
+lib.ElHelmholtz2DDistSparse_z.argtypes = \
+  [c_void_p,iType,iType,zType]
+
+lib.ElHelmholtz2D_s.restype = \
+lib.ElHelmholtz2D_d.restype = \
+lib.ElHelmholtz2D_c.restype = \
+lib.ElHelmholtz2D_z.restype = \
+lib.ElHelmholtz2DDist_s.restype = \
+lib.ElHelmholtz2DDist_d.restype = \
+lib.ElHelmholtz2DDist_c.restype = \
+lib.ElHelmholtz2DDist_z.restype = \
+lib.ElHelmholtz2DSparse_s.restype = \
+lib.ElHelmholtz2DSparse_d.restype = \
+lib.ElHelmholtz2DSparse_c.restype = \
+lib.ElHelmholtz2DSparse_z.restype = \
+lib.ElHelmholtz2DDistSparse_s.restype = \
+lib.ElHelmholtz2DDistSparse_d.restype = \
+lib.ElHelmholtz2DDistSparse_c.restype = \
+lib.ElHelmholtz2DDistSparse_z.restype = \
+  c_uint
+
 def Helmholtz2D(H,nx,ny,shift):
   args = [H.obj,nx,ny,shift]
   if type(A) is Matrix:
@@ -1030,24 +1248,46 @@ def Helmholtz2D(H,nx,ny,shift):
     elif A.tag == cTag: lib.ElHelmholtz2DDist_c(*args)
     elif A.tag == zTag: lib.ElHelmholtz2DDist_z(*args)
     else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == sTag: lib.ElHelmholtz2DSparse_s(*args)
+    elif A.tag == dTag: lib.ElHelmholtz2DSparse_d(*args)
+    elif A.tag == cTag: lib.ElHelmholtz2DSparse_c(*args)
+    elif A.tag == zTag: lib.ElHelmholtz2DSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == sTag: lib.ElHelmholtz2DSparse_s(*args)
+    elif A.tag == dTag: lib.ElHelmholtz2DSparse_d(*args)
+    elif A.tag == cTag: lib.ElHelmholtz2DSparse_c(*args)
+    elif A.tag == zTag: lib.ElHelmholtz2DSparse_z(*args)
+    else: DataExcept()
   else: TypeExcept()
 
-lib.ElHelmholtz3D_s.argtypes = [c_void_p,iType,iType,iType,sType]
-lib.ElHelmholtz3D_s.restype = c_uint
-lib.ElHelmholtz3D_d.argtypes = [c_void_p,iType,iType,iType,dType]
-lib.ElHelmholtz3D_d.restype = c_uint
-lib.ElHelmholtz3D_c.argtypes = [c_void_p,iType,iType,iType,cType]
-lib.ElHelmholtz3D_c.restype = c_uint
-lib.ElHelmholtz3D_z.argtypes = [c_void_p,iType,iType,iType,zType]
-lib.ElHelmholtz3D_z.restype = c_uint
-lib.ElHelmholtz3DDist_s.argtypes = [c_void_p,iType,iType,iType,sType]
-lib.ElHelmholtz3DDist_s.restype = c_uint
-lib.ElHelmholtz3DDist_d.argtypes = [c_void_p,iType,iType,iType,dType]
-lib.ElHelmholtz3DDist_d.restype = c_uint
-lib.ElHelmholtz3DDist_c.argtypes = [c_void_p,iType,iType,iType,cType]
-lib.ElHelmholtz3DDist_c.restype = c_uint
-lib.ElHelmholtz3DDist_z.argtypes = [c_void_p,iType,iType,iType,zType]
-lib.ElHelmholtz3DDist_z.restype = c_uint
+lib.ElHelmholtz3D_s.argtypes = \
+lib.ElHelmholtz3DDist_s.argtypes = \
+  [c_void_p,iType,iType,iType,sType]
+
+lib.ElHelmholtz3D_d.argtypes = \
+lib.ElHelmholtz3DDist_d.argtypes = \
+  [c_void_p,iType,iType,iType,dType]
+
+lib.ElHelmholtz3D_c.argtypes = \
+lib.ElHelmholtz3DDist_c.argtypes = \
+  [c_void_p,iType,iType,iType,cType]
+
+lib.ElHelmholtz3D_z.argtypes = \
+lib.ElHelmholtz3DDist_z.argtypes = \
+  [c_void_p,iType,iType,iType,zType]
+
+lib.ElHelmholtz3D_s.restype = \
+lib.ElHelmholtz3D_d.restype = \
+lib.ElHelmholtz3D_c.restype = \
+lib.ElHelmholtz3D_z.restype = \
+lib.ElHelmholtz3DDist_s.restype = \
+lib.ElHelmholtz3DDist_d.restype = \
+lib.ElHelmholtz3DDist_c.restype = \
+lib.ElHelmholtz3DDist_z.restype = \
+  c_uint
+
 def Helmholtz3D(H,nx,ny,nz,shift):
   args = [H.obj,nx,ny,nz,shift]
   if type(A) is Matrix:
@@ -1062,18 +1302,44 @@ def Helmholtz3D(H,nx,ny,nz,shift):
     elif A.tag == cTag: lib.ElHelmholtz3DDist_c(*args)
     elif A.tag == zTag: lib.ElHelmholtz3DDist_z(*args)
     else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == sTag: lib.ElHelmholtz3DSparse_s(*args)
+    elif A.tag == dTag: lib.ElHelmholtz3DSparse_d(*args)
+    elif A.tag == cTag: lib.ElHelmholtz3DSparse_c(*args)
+    elif A.tag == zTag: lib.ElHelmholtz3DSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == sTag: lib.ElHelmholtz3DDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElHelmholtz3DDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElHelmholtz3DDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElHelmholtz3DDistSparse_z(*args)
+    else: DataExcept()
   else: TypeExcept()
 
 # Helmholtz with PML
 # ------------------
-lib.ElHelmholtzPML1D_c.argtypes = [c_void_p,iType,cType,iType,sType,sType]
-lib.ElHelmholtzPML1D_c.restype = c_uint
-lib.ElHelmholtzPML1D_z.argtypes = [c_void_p,iType,zType,iType,dType,dType]
-lib.ElHelmholtzPML1D_z.restype = c_uint
-lib.ElHelmholtzPML1DDist_c.argtypes = [c_void_p,iType,cType,iType,sType,sType]
-lib.ElHelmholtzPML1DDist_c.restype = c_uint
-lib.ElHelmholtzPML1DDist_z.argtypes = [c_void_p,iType,zType,iType,dType,dType]
-lib.ElHelmholtzPML1DDist_z.restype = c_uint
+lib.ElHelmholtzPML1D_c.argtypes = \
+lib.ElHelmholtzPML1DDist_c.argtypes = \
+lib.ElHelmholtzPML1DSparse_c.argtypes = \
+lib.ElHelmholtzPML1DDistSparse_c.argtypes = \
+  [c_void_p,iType,cType,iType,sType,sType]
+
+lib.ElHelmholtzPML1D_z.argtypes = \
+lib.ElHelmholtzPML1DDist_z.argtypes = \
+lib.ElHelmholtzPML1DSparse_z.argtypes = \
+lib.ElHelmholtzPML1DDistSparse_z.argtypes = \
+  [c_void_p,iType,zType,iType,dType,dType]
+
+lib.ElHelmholtzPML1D_c.restype = \
+lib.ElHelmholtzPML1D_z.restype = \
+lib.ElHelmholtzPML1DDist_c.restype = \
+lib.ElHelmholtzPML1DDist_z.restype = \
+lib.ElHelmholtzPML1DSparse_c.restype = \
+lib.ElHelmholtzPML1DSparse_z.restype = \
+lib.ElHelmholtzPML1DDistSparse_c.restype = \
+lib.ElHelmholtzPML1DDistSparse_z.restype = \
+  c_uint
+
 def HelmholtzPML1D(H,nx,omega,numPml,sigma,pmlExp):
   args = [H.obj,nx,omega,numPml,sigma,pmlExp]
   if type(A) is Matrix:
@@ -1084,18 +1350,38 @@ def HelmholtzPML1D(H,nx,omega,numPml,sigma,pmlExp):
     if   A.tag == cTag: lib.ElHelmholtzPML1DDist_c(*args)
     elif A.tag == zTag: lib.ElHelmholtzPML1DDist_z(*args)
     else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == cTag: lib.ElHelmholtzPML1DSparse_c(*args)
+    elif A.tag == zTag: lib.ElHelmholtzPML1DSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == cTag: lib.ElHelmholtzPML1DDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElHelmholtzPML1DDistSparse_z(*args)
+    else: DataExcept()
   else: TypeExcept()
 
-lib.ElHelmholtzPML2D_c.argtypes = [c_void_p,iType,iType,cType,iType,sType,sType]
-lib.ElHelmholtzPML2D_c.restype = c_uint
-lib.ElHelmholtzPML2D_z.argtypes = [c_void_p,iType,iType,zType,iType,dType,dType]
-lib.ElHelmholtzPML2D_z.restype = c_uint
+lib.ElHelmholtzPML2D_c.argtypes = \
 lib.ElHelmholtzPML2DDist_c.argtypes = \
+lib.ElHelmholtzPML2DSparse_c.argtypes = \
+lib.ElHelmholtzPML2DDistSparse_c.argtypes = \
   [c_void_p,iType,iType,cType,iType,sType,sType]
-lib.ElHelmholtzPML2DDist_c.restype = c_uint
+
+lib.ElHelmholtzPML2D_z.argtypes = \
 lib.ElHelmholtzPML2DDist_z.argtypes = \
+lib.ElHelmholtzPML2DSparse_z.argtypes = \
+lib.ElHelmholtzPML2DDistSparse_z.argtypes = \
   [c_void_p,iType,iType,zType,iType,dType,dType]
-lib.ElHelmholtzPML2DDist_z.restype = c_uint
+
+lib.ElHelmholtzPML2D_c.restype = \
+lib.ElHelmholtzPML2D_z.restype = \
+lib.ElHelmholtzPML2DDist_c.restype = \
+lib.ElHelmholtzPML2DDist_z.restype = \
+lib.ElHelmholtzPML2DSparse_c.restype = \
+lib.ElHelmholtzPML2DSparse_z.restype = \
+lib.ElHelmholtzPML2DDistSparse_c.restype = \
+lib.ElHelmholtzPML2DDistSparse_z.restype = \
+  c_uint
+
 def HelmholtzPML2D(H,nx,ny,omega,numPml,sigma,pmlExp):
   args = [H.obj,nx,ny,omega,numPml,sigma,pmlExp]
   if type(A) is Matrix:
@@ -1106,20 +1392,38 @@ def HelmholtzPML2D(H,nx,ny,omega,numPml,sigma,pmlExp):
     if   A.tag == cTag: lib.ElHelmholtzPML2DDist_c(*args)
     elif A.tag == zTag: lib.ElHelmholtzPML2DDist_z(*args)
     else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == cTag: lib.ElHelmholtzPML2DSparse_c(*args)
+    elif A.tag == zTag: lib.ElHelmholtzPML2DSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == cTag: lib.ElHelmholtzPML2DDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElHelmholtzPML2DDistSparse_z(*args)
+    else: DataExcept()
   else: TypeExcept()
 
 lib.ElHelmholtzPML3D_c.argtypes = \
-  [c_void_p,iType,iType,iType,cType,iType,sType,sType]
-lib.ElHelmholtzPML3D_c.restype = c_uint
-lib.ElHelmholtzPML3D_z.argtypes = \
-  [c_void_p,iType,iType,iType,zType,iType,dType,dType]
-lib.ElHelmholtzPML3D_z.restype = c_uint
 lib.ElHelmholtzPML3DDist_c.argtypes = \
+lib.ElHelmholtzPML3DSparse_c.argtypes = \
+lib.ElHelmholtzPML3DDistSparse_c.argtypes = \
   [c_void_p,iType,iType,iType,cType,iType,sType,sType]
-lib.ElHelmholtzPML3DDist_c.restype = c_uint
+
+lib.ElHelmholtzPML3D_z.argtypes = \
 lib.ElHelmholtzPML3DDist_z.argtypes = \
+lib.ElHelmholtzPML3DSparse_z.argtypes = \
+lib.ElHelmholtzPML3DDistSparse_z.argtypes = \
   [c_void_p,iType,iType,iType,zType,iType,dType,dType]
-lib.ElHelmholtzPML3DDist_z.restype = c_uint
+
+lib.ElHelmholtzPML3D_c.restype = \
+lib.ElHelmholtzPML3D_z.restype = \
+lib.ElHelmholtzPML3DDist_c.restype = \
+lib.ElHelmholtzPML3DDist_z.restype = \
+lib.ElHelmholtzPML3DSparse_c.restype = \
+lib.ElHelmholtzPML3DSparse_z.restype = \
+lib.ElHelmholtzPML3DDistSparse_c.restype = \
+lib.ElHelmholtzPML3DDistSparse_z.restype = \
+  c_uint
+
 def HelmholtzPML3D(H,nx,ny,nz,omega,numPml,sigma,pmlExp):
   args = [H.obj,nx,ny,nz,omega,numPml,sigma,pmlExp]
   if type(A) is Matrix:
@@ -1130,26 +1434,38 @@ def HelmholtzPML3D(H,nx,ny,nz,omega,numPml,sigma,pmlExp):
     if   A.tag == cTag: lib.ElHelmholtzPML3DDist_c(*args)
     elif A.tag == zTag: lib.ElHelmholtzPML3DDist_z(*args)
     else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == cTag: lib.ElHelmholtzPML3DSparse_c(*args)
+    elif A.tag == zTag: lib.ElHelmholtzPML3DSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == cTag: lib.ElHelmholtzPML3DDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElHelmholtzPML3DDistSparse_z(*args)
+    else: DataExcept()
   else: TypeExcept()
 
 # Hermitian from EVD
 # ------------------
-lib.ElHermitianFromEVD_s.argtypes = [c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElHermitianFromEVD_s.restype = c_uint
-lib.ElHermitianFromEVD_d.argtypes = [c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElHermitianFromEVD_d.restype = c_uint
-lib.ElHermitianFromEVD_c.argtypes = [c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElHermitianFromEVD_c.restype = c_uint
-lib.ElHermitianFromEVD_z.argtypes = [c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElHermitianFromEVD_z.restype = c_uint
-lib.ElHermitianFromEVDDist_s.argtypes = [c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElHermitianFromEVDDist_s.restype = c_uint
-lib.ElHermitianFromEVDDist_d.argtypes = [c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElHermitianFromEVDDist_d.restype = c_uint
-lib.ElHermitianFromEVDDist_c.argtypes = [c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElHermitianFromEVDDist_c.restype = c_uint
-lib.ElHermitianFromEVDDist_z.argtypes = [c_uint,c_void_p,c_void_p,c_void_p]
-lib.ElHermitianFromEVDDist_z.restype = c_uint
+lib.ElHermitianFromEVD_s.argtypes = \
+lib.ElHermitianFromEVD_d.argtypes = \
+lib.ElHermitianFromEVD_c.argtypes = \
+lib.ElHermitianFromEVD_z.argtypes = \
+lib.ElHermitianFromEVDDist_s.argtypes = \
+lib.ElHermitianFromEVDDist_d.argtypes = \
+lib.ElHermitianFromEVDDist_c.argtypes = \
+lib.ElHermitianFromEVDDist_z.argtypes = \
+  [c_uint,c_void_p,c_void_p,c_void_p]
+
+lib.ElHermitianFromEVD_s.restype = \
+lib.ElHermitianFromEVD_d.restype = \
+lib.ElHermitianFromEVD_c.restype = \
+lib.ElHermitianFromEVD_z.restype = \
+lib.ElHermitianFromEVDDist_s.restype = \
+lib.ElHermitianFromEVDDist_d.restype = \
+lib.ElHermitianFromEVDDist_c.restype = \
+lib.ElHermitianFromEVDDist_z.restype = \
+  c_uint
+
 def HermitianFromEVD(uplo,A,w,Z):
   if type(A) is not type(w) or type(w) is not type(Z):
     raise Exception('Types of {A,w,Z} must match')
@@ -1174,22 +1490,28 @@ def HermitianFromEVD(uplo,A,w,Z):
 
 # Hermitian uniform spectrum
 # --------------------------
-lib.ElHermitianUniformSpectrum_s.argtypes = [c_void_p,iType,sType,sType]
-lib.ElHermitianUniformSpectrum_s.restype = c_uint
-lib.ElHermitianUniformSpectrum_d.argtypes = [c_void_p,iType,dType,dType]
-lib.ElHermitianUniformSpectrum_d.restype = c_uint
-lib.ElHermitianUniformSpectrum_c.argtypes = [c_void_p,iType,sType,sType]
-lib.ElHermitianUniformSpectrum_c.restype = c_uint
-lib.ElHermitianUniformSpectrum_z.argtypes = [c_void_p,iType,dType,dType]
-lib.ElHermitianUniformSpectrum_z.restype = c_uint
-lib.ElHermitianUniformSpectrumDist_s.argtypes = [c_void_p,iType,sType,sType]
-lib.ElHermitianUniformSpectrumDist_s.restype = c_uint
-lib.ElHermitianUniformSpectrumDist_d.argtypes = [c_void_p,iType,dType,dType]
-lib.ElHermitianUniformSpectrumDist_d.restype = c_uint
-lib.ElHermitianUniformSpectrumDist_c.argtypes = [c_void_p,iType,sType,sType]
-lib.ElHermitianUniformSpectrumDist_c.restype = c_uint
-lib.ElHermitianUniformSpectrumDist_z.argtypes = [c_void_p,iType,dType,dType]
-lib.ElHermitianUniformSpectrumDist_z.restype = c_uint
+lib.ElHermitianUniformSpectrum_s.argtypes = \
+lib.ElHermitianUniformSpectrum_c.argtypes = \
+lib.ElHermitianUniformSpectrumDist_s.argtypes = \
+lib.ElHermitianUniformSpectrumDist_c.argtypes = \
+  [c_void_p,iType,sType,sType]
+
+lib.ElHermitianUniformSpectrum_d.argtypes = \
+lib.ElHermitianUniformSpectrum_z.argtypes = \
+lib.ElHermitianUniformSpectrumDist_d.argtypes = \
+lib.ElHermitianUniformSpectrumDist_z.argtypes = \
+  [c_void_p,iType,dType,dType]
+
+lib.ElHermitianUniformSpectrum_s.restype = \
+lib.ElHermitianUniformSpectrum_d.restype = \
+lib.ElHermitianUniformSpectrum_c.restype = \
+lib.ElHermitianUniformSpectrum_z.restype = \
+lib.ElHermitianUniformSpectrumDist_s.restype = \
+lib.ElHermitianUniformSpectrumDist_d.restype = \
+lib.ElHermitianUniformSpectrumDist_c.restype = \
+lib.ElHermitianUniformSpectrumDist_z.restype = \
+  c_uint
+
 def HermitianUniformSpectrum(A,n,lower=0,upper=1):
   args = [A.obj,n,lower,upper]
   if type(A) is Matrix:
@@ -1208,22 +1530,26 @@ def HermitianUniformSpectrum(A,n,lower=0,upper=1):
 
 # Hilbert
 # -------
-lib.ElHilbert_s.argtypes = [c_void_p,iType]
-lib.ElHilbert_s.restype = c_uint
-lib.ElHilbert_d.argtypes = [c_void_p,iType]
-lib.ElHilbert_d.restype = c_uint
-lib.ElHilbert_c.argtypes = [c_void_p,iType]
-lib.ElHilbert_c.restype = c_uint
-lib.ElHilbert_z.argtypes = [c_void_p,iType]
-lib.ElHilbert_z.restype = c_uint
-lib.ElHilbertDist_s.argtypes = [c_void_p,iType]
-lib.ElHilbertDist_s.restype = c_uint
-lib.ElHilbertDist_d.argtypes = [c_void_p,iType]
-lib.ElHilbertDist_d.restype = c_uint
-lib.ElHilbertDist_c.argtypes = [c_void_p,iType]
-lib.ElHilbertDist_c.restype = c_uint
-lib.ElHilbertDist_z.argtypes = [c_void_p,iType]
-lib.ElHilbertDist_z.restype = c_uint
+lib.ElHilbert_s.argtypes = \
+lib.ElHilbert_d.argtypes = \
+lib.ElHilbert_c.argtypes = \
+lib.ElHilbert_z.argtypes = \
+lib.ElHilbertDist_s.argtypes = \
+lib.ElHilbertDist_d.argtypes = \
+lib.ElHilbertDist_c.argtypes = \
+lib.ElHilbertDist_z.argtypes = \
+  [c_void_p,iType]
+
+lib.ElHilbert_s.restype = \
+lib.ElHilbert_d.restype = \
+lib.ElHilbert_c.restype = \
+lib.ElHilbert_z.restype = \
+lib.ElHilbertDist_s.restype = \
+lib.ElHilbertDist_d.restype = \
+lib.ElHilbertDist_c.restype = \
+lib.ElHilbertDist_z.restype = \
+  c_uint
+
 def Hilbert(A,n):
   args = [A.obj,n]
   if type(A) is Matrix:
@@ -1242,26 +1568,30 @@ def Hilbert(A,n):
 
 # Identity
 # --------
-lib.ElIdentity_i.argtypes = [c_void_p,iType,iType]
-lib.ElIdentity_i.restype = c_uint
-lib.ElIdentity_s.argtypes = [c_void_p,iType,iType]
-lib.ElIdentity_s.restype = c_uint
-lib.ElIdentity_d.argtypes = [c_void_p,iType,iType]
-lib.ElIdentity_d.restype = c_uint
-lib.ElIdentity_c.argtypes = [c_void_p,iType,iType]
-lib.ElIdentity_c.restype = c_uint
-lib.ElIdentity_z.argtypes = [c_void_p,iType,iType]
-lib.ElIdentity_z.restype = c_uint
-lib.ElIdentityDist_i.argtypes = [c_void_p,iType,iType]
-lib.ElIdentityDist_i.restype = c_uint
-lib.ElIdentityDist_s.argtypes = [c_void_p,iType,iType]
-lib.ElIdentityDist_s.restype = c_uint
-lib.ElIdentityDist_d.argtypes = [c_void_p,iType,iType]
-lib.ElIdentityDist_d.restype = c_uint
-lib.ElIdentityDist_c.argtypes = [c_void_p,iType,iType]
-lib.ElIdentityDist_c.restype = c_uint
-lib.ElIdentityDist_z.argtypes = [c_void_p,iType,iType]
-lib.ElIdentityDist_z.restype = c_uint
+lib.ElIdentity_i.argtypes = \
+lib.ElIdentity_s.argtypes = \
+lib.ElIdentity_d.argtypes = \
+lib.ElIdentity_c.argtypes = \
+lib.ElIdentity_z.argtypes = \
+lib.ElIdentityDist_i.argtypes = \
+lib.ElIdentityDist_s.argtypes = \
+lib.ElIdentityDist_d.argtypes = \
+lib.ElIdentityDist_c.argtypes = \
+lib.ElIdentityDist_z.argtypes = \
+  [c_void_p,iType,iType]
+
+lib.ElIdentity_i.restype = \
+lib.ElIdentity_s.restype = \
+lib.ElIdentity_d.restype = \
+lib.ElIdentity_c.restype = \
+lib.ElIdentity_z.restype = \
+lib.ElIdentityDist_i.restype = \
+lib.ElIdentityDist_s.restype = \
+lib.ElIdentityDist_d.restype = \
+lib.ElIdentityDist_c.restype = \
+lib.ElIdentityDist_z.restype = \
+  c_uint
+
 def Identity(A,m,n):
   args = [A.obj,m,n]
   if type(A) is Matrix:
@@ -1282,26 +1612,38 @@ def Identity(A,m,n):
 
 # Jordan
 # ------
-lib.ElJordan_i.argtypes = [c_void_p,iType,iType]
-lib.ElJordan_i.restype = c_uint
-lib.ElJordan_s.argtypes = [c_void_p,iType,sType]
-lib.ElJordan_s.restype = c_uint
-lib.ElJordan_d.argtypes = [c_void_p,iType,dType]
-lib.ElJordan_d.restype = c_uint
-lib.ElJordan_c.argtypes = [c_void_p,iType,cType]
-lib.ElJordan_c.restype = c_uint
-lib.ElJordan_z.argtypes = [c_void_p,iType,zType]
-lib.ElJordan_z.restype = c_uint
-lib.ElJordanDist_i.argtypes = [c_void_p,iType,iType]
-lib.ElJordanDist_i.restype = c_uint
-lib.ElJordanDist_s.argtypes = [c_void_p,iType,sType]
-lib.ElJordanDist_s.restype = c_uint
-lib.ElJordanDist_d.argtypes = [c_void_p,iType,dType]
-lib.ElJordanDist_d.restype = c_uint
-lib.ElJordanDist_c.argtypes = [c_void_p,iType,cType]
-lib.ElJordanDist_c.restype = c_uint
-lib.ElJordanDist_z.argtypes = [c_void_p,iType,zType]
-lib.ElJordanDist_z.restype = c_uint
+lib.ElJordan_i.argtypes = \
+lib.ElJordanDist_i.argtypes = \
+  [c_void_p,iType,iType]
+
+lib.ElJordan_s.argtypes = \
+lib.ElJordanDist_s.argtypes = \
+  [c_void_p,iType,sType]
+
+lib.ElJordan_d.argtypes = \
+lib.ElJordanDist_d.argtypes = \
+  [c_void_p,iType,dType]
+
+lib.ElJordan_c.argtypes = \
+lib.ElJordanDist_c.argtypes = \
+  [c_void_p,iType,cType]
+
+lib.ElJordan_z.argtypes = \
+lib.ElJordanDist_z.argtypes = \
+  [c_void_p,iType,zType]
+
+lib.ElJordan_i.restype = \
+lib.ElJordan_s.restype = \
+lib.ElJordan_d.restype = \
+lib.ElJordan_c.restype = \
+lib.ElJordan_z.restype = \
+lib.ElJordanDist_i.restype = \
+lib.ElJordanDist_s.restype = \
+lib.ElJordanDist_d.restype = \
+lib.ElJordanDist_c.restype = \
+lib.ElJordanDist_z.restype = \
+  c_uint
+
 def Jordan(J,n,lambPre):
   lamb = TagToType(J.tag)(lambPre)
   args = [J.obj,n,lamb]
@@ -1323,22 +1665,32 @@ def Jordan(J,n,lambPre):
 
 # Kahan
 # -----
-lib.ElKahan_s.argtypes = [c_void_p,iType,sType]
-lib.ElKahan_s.restype = c_uint
-lib.ElKahan_d.argtypes = [c_void_p,iType,dType]
-lib.ElKahan_d.restype = c_uint
-lib.ElKahan_c.argtypes = [c_void_p,iType,cType]
-lib.ElKahan_c.restype = c_uint
-lib.ElKahan_z.argtypes = [c_void_p,iType,zType]
-lib.ElKahan_z.restype = c_uint
-lib.ElKahanDist_s.argtypes = [c_void_p,iType,sType]
-lib.ElKahanDist_s.restype = c_uint
-lib.ElKahanDist_d.argtypes = [c_void_p,iType,dType]
-lib.ElKahanDist_d.restype = c_uint
-lib.ElKahanDist_c.argtypes = [c_void_p,iType,cType]
-lib.ElKahanDist_c.restype = c_uint
-lib.ElKahanDist_z.argtypes = [c_void_p,iType,zType]
-lib.ElKahanDist_z.restype = c_uint
+lib.ElKahan_s.argtypes = \
+lib.ElKahanDist_s.argtypes = \
+  [c_void_p,iType,sType]
+
+lib.ElKahan_d.argtypes = \
+lib.ElKahanDist_d.argtypes = \
+  [c_void_p,iType,dType]
+
+lib.ElKahan_c.argtypes = \
+lib.ElKahanDist_c.argtypes = \
+  [c_void_p,iType,cType]
+
+lib.ElKahan_z.argtypes = \
+lib.ElKahanDist_z.argtypes = \
+  [c_void_p,iType,zType]
+
+lib.ElKahan_s.restype = \
+lib.ElKahan_d.restype = \
+lib.ElKahan_c.restype = \
+lib.ElKahan_z.restype = \
+lib.ElKahanDist_s.restype = \
+lib.ElKahanDist_d.restype = \
+lib.ElKahanDist_c.restype = \
+lib.ElKahanDist_z.restype = \
+  c_uint
+
 def Kahan(A,n,phi):
   args = [A.obj,n,phi]
   if type(A) is Matrix:
@@ -1357,6 +1709,7 @@ def Kahan(A,n,phi):
 
 # KMS
 # ---
+# LEFT OFF HERE
 lib.ElKMS_i.argtypes = [c_void_p,iType,iType]
 lib.ElKMS_i.restype = c_uint
 lib.ElKMS_s.argtypes = [c_void_p,iType,sType]
@@ -1397,22 +1750,42 @@ def KMS(K,n,rho):
 
 # Laplacian
 # ---------
-lib.ElLaplacian1D_s.argtypes = [c_void_p,iType]
-lib.ElLaplacian1D_s.restype = c_uint
-lib.ElLaplacian1D_d.argtypes = [c_void_p,iType]
-lib.ElLaplacian1D_d.restype = c_uint
-lib.ElLaplacian1D_c.argtypes = [c_void_p,iType]
-lib.ElLaplacian1D_c.restype = c_uint
-lib.ElLaplacian1D_z.argtypes = [c_void_p,iType]
-lib.ElLaplacian1D_z.restype = c_uint
-lib.ElLaplacian1DDist_s.argtypes = [c_void_p,iType]
-lib.ElLaplacian1DDist_s.restype = c_uint
-lib.ElLaplacian1DDist_d.argtypes = [c_void_p,iType]
-lib.ElLaplacian1DDist_d.restype = c_uint
-lib.ElLaplacian1DDist_c.argtypes = [c_void_p,iType]
-lib.ElLaplacian1DDist_c.restype = c_uint
-lib.ElLaplacian1DDist_z.argtypes = [c_void_p,iType]
-lib.ElLaplacian1DDist_z.restype = c_uint
+lib.ElLaplacian1D_s.argtypes = \
+lib.ElLaplacian1D_d.argtypes = \
+lib.ElLaplacian1D_c.argtypes = \
+lib.ElLaplacian1D_z.argtypes = \
+lib.ElLaplacian1DDist_s.argtypes = \
+lib.ElLaplacian1DDist_d.argtypes = \
+lib.ElLaplacian1DDist_c.argtypes = \
+lib.ElLaplacian1DDist_z.argtypes = \
+lib.ElLaplacian1DSparse_s.argtypes = \
+lib.ElLaplacian1DSparse_d.argtypes = \
+lib.ElLaplacian1DSparse_c.argtypes = \
+lib.ElLaplacian1DSparse_z.argtypes = \
+lib.ElLaplacian1DDistSparse_s.argtypes = \
+lib.ElLaplacian1DDistSparse_d.argtypes = \
+lib.ElLaplacian1DDistSparse_c.argtypes = \
+lib.ElLaplacian1DDistSparse_z.argtypes = \
+  [c_void_p,iType]
+
+lib.ElLaplacian1D_s.restype = \
+lib.ElLaplacian1D_d.restype = \
+lib.ElLaplacian1D_c.restype = \
+lib.ElLaplacian1D_z.restype = \
+lib.ElLaplacian1DDist_s.restype = \
+lib.ElLaplacian1DDist_d.restype = \
+lib.ElLaplacian1DDist_c.restype = \
+lib.ElLaplacian1DDist_z.restype = \
+lib.ElLaplacian1DSparse_s.restype = \
+lib.ElLaplacian1DSparse_d.restype = \
+lib.ElLaplacian1DSparse_c.restype = \
+lib.ElLaplacian1DSparse_z.restype = \
+lib.ElLaplacian1DDistSparse_s.restype = \
+lib.ElLaplacian1DDistSparse_d.restype = \
+lib.ElLaplacian1DDistSparse_c.restype = \
+lib.ElLaplacian1DDistSparse_z.restype = \
+  c_uint
+
 def Laplacian1D(L,nx):
   args = [L.obj,nx]
   if type(L) is Matrix:
@@ -1427,24 +1800,39 @@ def Laplacian1D(L,nx):
     elif L.tag == cTag: lib.ElLaplacian1DDist_c(*args)
     elif L.tag == zTag: lib.ElLaplacian1DDist_z(*args)
     else: DataExcept()
+  elif type(L) is SparseMatrix:
+    if   L.tag == sTag: lib.ElLaplacian1DSparse_s(*args)
+    elif L.tag == dTag: lib.ElLaplacian1DSparse_d(*args)
+    elif L.tag == cTag: lib.ElLaplacian1DSparse_c(*args)
+    elif L.tag == zTag: lib.ElLaplacian1DSparse_z(*args)
+    else: DataExcept()
+  elif type(L) is DistSparseMatrix:
+    if   L.tag == sTag: lib.ElLaplacian1DDistSparse_s(*args)
+    elif L.tag == dTag: lib.ElLaplacian1DDistSparse_d(*args)
+    elif L.tag == cTag: lib.ElLaplacian1DDistSparse_c(*args)
+    elif L.tag == zTag: lib.ElLaplacian1DDistSparse_z(*args)
+    else: DataExcept()
   else: TypeExcept()
 
+# LEFT OFF HERE
 lib.ElLaplacian2D_s.argtypes = [c_void_p,iType,iType]
-lib.ElLaplacian2D_s.restype = c_uint
 lib.ElLaplacian2D_d.argtypes = [c_void_p,iType,iType]
-lib.ElLaplacian2D_d.restype = c_uint
 lib.ElLaplacian2D_c.argtypes = [c_void_p,iType,iType]
-lib.ElLaplacian2D_c.restype = c_uint
 lib.ElLaplacian2D_z.argtypes = [c_void_p,iType,iType]
-lib.ElLaplacian2D_z.restype = c_uint
 lib.ElLaplacian2DDist_s.argtypes = [c_void_p,iType,iType]
-lib.ElLaplacian2DDist_s.restype = c_uint
 lib.ElLaplacian2DDist_d.argtypes = [c_void_p,iType,iType]
-lib.ElLaplacian2DDist_d.restype = c_uint
 lib.ElLaplacian2DDist_c.argtypes = [c_void_p,iType,iType]
-lib.ElLaplacian2DDist_c.restype = c_uint
 lib.ElLaplacian2DDist_z.argtypes = [c_void_p,iType,iType]
+
+lib.ElLaplacian2D_s.restype = c_uint
+lib.ElLaplacian2D_d.restype = c_uint
+lib.ElLaplacian2D_c.restype = c_uint
+lib.ElLaplacian2D_z.restype = c_uint
+lib.ElLaplacian2DDist_s.restype = c_uint
+lib.ElLaplacian2DDist_d.restype = c_uint
+lib.ElLaplacian2DDist_c.restype = c_uint
 lib.ElLaplacian2DDist_z.restype = c_uint
+
 def Laplacian2D(L,nx,ny):
   args = [L.obj,nx,ny]
   if type(L) is Matrix:

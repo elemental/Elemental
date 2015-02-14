@@ -1,0 +1,177 @@
+/*
+   Copyright (c) 2009-2012, Jack Poulson, Lexing Ying, and 
+   The University of Texas at Austin.
+   All rights reserved.
+
+   Copyright (c) 2013, Jack Poulson, Lexing Ying, and Stanford University.
+   All rights reserved.
+
+   Copyright (c) 2013-2014, Jack Poulson and 
+   The Georgia Institute of Technology.
+   All rights reserved.
+
+   Copyright (c) 2014-2015, Jack Poulson and Stanford University.
+   All rights reserved.
+   
+   This file is part of Elemental and is under the BSD 2-Clause License, 
+   which can be found in the LICENSE file in the root directory, or at 
+   http://opensource.org/licenses/BSD-2-Clause
+*/
+#include "El.hpp"
+using namespace El;
+
+namespace El {
+
+namespace ldl {
+
+template<typename F>
+void SolveAfter
+( const DistSymmNodeInfo& info, 
+  const DistSymmFront<F>& front, DistMultiVecNode<F>& X )
+{
+    DEBUG_ONLY(CallStackEntry cse("ldl::SolveAfter"))
+
+    if( !FrontIs1D(front.type) )
+    {
+        // TODO: Add warning?
+        cout << "Converting RHS from 1D to 2D!" << endl;
+        DistMatrixNode<F> XMat( X );
+        SolveAfter( info, front, XMat );
+        return;
+    }
+
+    const Orientation orientation = ( front.isHermitian ? ADJOINT : TRANSPOSE );
+    if( BlockFactorization(front.type) )
+    {
+        // Solve against block diagonal factor, L D
+        LowerSolve( NORMAL, info, front, X );
+        // Solve against the (conjugate-)transpose of the block unit diagonal L
+        LowerSolve( orientation, info, front, X );
+    }
+    else
+    {
+        // Solve against unit diagonal L
+        LowerSolve( NORMAL, info, front, X );
+        // Solve against diagonal
+        DiagonalSolve( info, front, X );
+        // Solve against the (conjugate-)transpose of the unit diagonal L
+        LowerSolve( orientation, info, front, X );
+    }
+}
+
+template<typename F>
+void SolveAfter
+( const DistSymmNodeInfo& info, 
+  const DistSymmFront<F>& front, DistMatrixNode<F>& X )
+{
+    DEBUG_ONLY(CallStackEntry cse("ldl::SolveAfter"))
+
+    if( FrontIs1D(front.type) )
+    {
+        // TODO: Add warning?
+        cout << "Converting RHS from 2D to 1D!" << endl;
+        DistMultiVecNode<F> XMV( X );
+        SolveAfter( info, front, XMV );
+        return;
+    }
+
+    const Orientation orientation = ( front.isHermitian ? ADJOINT : TRANSPOSE );
+    if( BlockFactorization(front.type) )
+    {
+        // Solve against block diagonal factor, L D
+        LowerSolve( NORMAL, info, front, X );
+        // Solve against the (conjugate-)transpose of the block unit diagonal L
+        LowerSolve( orientation, info, front, X );
+    }
+    else
+    {
+        // Solve against unit diagonal L
+        LowerSolve( NORMAL, info, front, X );
+        // Solve against diagonal
+        DiagonalSolve( info, front, X );
+        // Solve against the (conjugate-)transpose of the unit diagonal L
+        LowerSolve( orientation, info, front, X );
+    }
+} 
+
+template<typename F>
+Int SolveWithIterativeRefinement
+( const DistSparseMatrix<F>& A,
+  const DistMap& invMap, const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front, DistMultiVec<F>& y,
+  Base<F> minReductionFactor, Int maxRefineIts )
+{
+    DEBUG_ONLY(CallStackEntry cse("ldl::SolveWithIterativeRefinement"))
+    mpi::Comm comm = y.Comm();
+
+    DistMultiVec<F> yOrig(comm);
+    yOrig = y;
+
+    // Compute the initial guess
+    // =========================
+    DistMultiVec<F> x(comm);
+    DistMultiVecNode<F> xNodal( invMap, info, y );
+    SolveAfter( info, front, xNodal );
+    xNodal.Push( invMap, info, x );
+
+    Int refineIt = 0;
+    if( maxRefineIts > 0 )
+    {
+        DistMultiVec<F> dx(comm), xCand(comm); 
+        Multiply( NORMAL, F(-1), A, x, F(1), y );
+        Base<F> errorNorm = Nrm2( y );
+        for( ; refineIt<maxRefineIts; ++refineIt )
+        {
+            // Compute the proposed update to the solution
+            // -------------------------------------------
+            xNodal.Pull( invMap, info, y );
+            SolveAfter( info, front, xNodal );
+            xNodal.Push( invMap, info, dx );
+            xCand = x;
+            Axpy( F(1), dx, xCand );
+
+            // If the proposed update lowers the residual, accept it
+            // -----------------------------------------------------
+            y = yOrig;
+            Multiply( NORMAL, F(-1), A, xCand, F(1), y );
+            Base<F> newErrorNorm = Nrm2( y );
+            if( minReductionFactor*newErrorNorm < errorNorm )
+            {
+                x = xCand;
+                errorNorm = newErrorNorm;
+            }
+            else if( newErrorNorm < errorNorm )
+            {
+                x = xCand;
+                errorNorm = newErrorNorm;
+                break;
+            }
+            else
+                break;
+        }
+    }
+    // Store the final result
+    // ======================
+    y = x;
+    return refineIt;
+}
+
+} // namespace ldl
+
+#define PROTO(F) \
+  template void ldl::SolveAfter \
+  ( const DistSymmNodeInfo& info, \
+    const DistSymmFront<F>& front, DistMultiVecNode<F>& X ); \
+  template void ldl::SolveAfter \
+  ( const DistSymmNodeInfo& info, \
+    const DistSymmFront<F>& front, DistMatrixNode<F>& X ); \
+  template Int ldl::SolveWithIterativeRefinement \
+  ( const DistSparseMatrix<F>& A, \
+    const DistMap& invMap, const DistSymmNodeInfo& info, \
+    const DistSymmFront<F>& front, DistMultiVec<F>& y, \
+    Base<F> minReductionFactor, Int maxRefineIts );
+ 
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
+
+} // namespace El

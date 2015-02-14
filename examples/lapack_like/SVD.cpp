@@ -32,8 +32,7 @@ main( int argc, char* argv[] )
 
         Grid g( mpi::COMM_WORLD );
         if( mpi::WorldRank() == 0 )
-            std::cout << "Grid is " 
-                      << g.Height() << " x " << g.Width() << std::endl;
+            cout << "Grid is " << g.Height() << " x " << g.Width() << endl;
         DistMatrix<C> A(g);
         Uniform( A, m, n );
         if( print )
@@ -89,7 +88,7 @@ main( int argc, char* argv[] )
                  << "||A - U Sigma V_H||_F / (max(m,n) eps ||A||_2) = " 
                  << scaledResidual << "\n" 
                  << "\n"
-                 << "|| sError ||_2 = " << singValDiff << std::endl;
+                 << "|| sError ||_2 = " << singValDiff << endl;
         }
     }
     catch( exception& e ) { ReportException(e); }

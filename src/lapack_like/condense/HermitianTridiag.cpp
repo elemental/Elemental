@@ -52,7 +52,7 @@ void HermitianTridiag
         const Int p = g.Size();
         const Int pSqrt = Int(sqrt(double(p)));
 
-        std::vector<int> squareRanks(pSqrt*pSqrt);
+        vector<int> squareRanks(pSqrt*pSqrt);
         if( ctrl.order == g.Order() )
         {
             for( Int j=0; j<pSqrt; ++j )

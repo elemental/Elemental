@@ -658,9 +658,11 @@ template<> inline Datatype TypeMap<ValueIntPair<double>>()
 template<typename T>
 void SparseAllToAll
 ( const std::vector<T>& sendBuffer,
-  const std::vector<int>& sendCounts, const std::vector<int>& sendDispls,
+  const std::vector<int>& sendCounts, 
+  const std::vector<int>& sendOffs,
         std::vector<T>& recvBuffer,
-  const std::vector<int>& recvCounts, const std::vector<int>& recvDispls,
+  const std::vector<int>& recvCounts, 
+  const std::vector<int>& recvOffs,
         mpi::Comm comm );
 
 void VerifySendsAndRecvs

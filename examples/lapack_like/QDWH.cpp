@@ -50,12 +50,10 @@ main( int argc, char* argv[] )
         const Real frobQDWHOrthog = HermitianFrobeniusNorm( LOWER, B );
         if( mpi::WorldRank() == 0 )
         {
-            std::cout << ctrl.numIts << " iterations of QDWH\n"
-                      << "||A - QP||_F / ||A||_F = " 
-                      << frobQDWH/frobA << "\n"
-                      << "||I - QQ^H||_F / ||A||_F = " 
-                      << frobQDWHOrthog/frobA << "\n"
-                      << std::endl;
+            cout << ctrl.numIts << " iterations of QDWH\n"
+                 << "||A - QP||_F / ||A||_F = " << frobQDWH/frobA << "\n"
+                 << "||I - QQ^H||_F / ||A||_F = " 
+                 << frobQDWHOrthog/frobA << "\n" << endl;
         }
     }
     catch( exception& e ) { ReportException(e); }

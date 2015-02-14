@@ -45,8 +45,8 @@ Int ADMM
     Zeros( b, numExamples, 1 );
 
     return ModelFit
-    ( std::function<void(Matrix<Real>&,Real)>(hingeProx),
-      std::function<void(Matrix<Real>&,Real)>(frobProx),
+    ( function<void(Matrix<Real>&,Real)>(hingeProx),
+      function<void(Matrix<Real>&,Real)>(frobProx),
       A, b, w, rho, maxIter, inv, progress );
 }
 
@@ -89,8 +89,8 @@ Int ADMM
     Zeros( b, numExamples, 1 );
 
     return ModelFit
-    ( std::function<void(DistMatrix<Real>&,Real)>(hingeProx),
-      std::function<void(DistMatrix<Real>&,Real)>(frobProx),
+    ( function<void(DistMatrix<Real>&,Real)>(hingeProx),
+      function<void(DistMatrix<Real>&,Real)>(frobProx),
       A, b, w, rho, maxIter, inv, progress );
 }
 

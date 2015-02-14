@@ -81,7 +81,7 @@ main( int argc, char* argv[] )
         // Print its trace
         const C trace = Trace( H );
         if( commRank == 0 )
-            std::cout << "Tr(H) = " << trace << std::endl;
+            cout << "Tr(H) = " << trace << endl;
 
         // Build the singular value decomposition through the Hermitian EVD.
         //

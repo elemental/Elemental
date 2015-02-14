@@ -53,20 +53,20 @@ struct SquareRootCtrl {
 // ==================
 template<typename F>
 void HermitianFunction
-( UpperOrLower uplo, Matrix<F>& A, std::function<Base<F>(Base<F>)> func );
+( UpperOrLower uplo, Matrix<F>& A, function<Base<F>(Base<F>)> func );
 template<typename F>
 void HermitianFunction
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, 
-  std::function<Base<F>(Base<F>)> func );
+  function<Base<F>(Base<F>)> func );
 
 template<typename Real>
 void HermitianFunction
 ( UpperOrLower uplo, Matrix<Complex<Real>>& A,
-  std::function<Complex<Real>(Real)> func );
+  function<Complex<Real>(Real)> func );
 template<typename Real>
 void HermitianFunction
 ( UpperOrLower uplo, AbstractDistMatrix<Complex<Real>>& A,
-  std::function<Complex<Real>(Real)> func );
+  function<Complex<Real>(Real)> func );
 
 // Inverse
 // =======

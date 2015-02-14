@@ -17,7 +17,7 @@ void Ris( Matrix<F>& R, Int n )
     R.Resize( n, n );
     const F oneHalf = F(1)/F(2);
     auto risFill = [=]( Int i, Int j ) { return oneHalf/(F(n-i-j)-oneHalf); };
-    IndexDependentFill( R, std::function<F(Int,Int)>(risFill) );
+    IndexDependentFill( R, function<F(Int,Int)>(risFill) );
 }
 
 template<typename F>
@@ -27,7 +27,7 @@ void Ris( AbstractDistMatrix<F>& R, Int n )
     R.Resize( n, n );
     const F oneHalf = F(1)/F(2);
     auto risFill = [=]( Int i, Int j ) { return oneHalf/(F(n-i-j)-oneHalf); };
-    IndexDependentFill( R, std::function<F(Int,Int)>(risFill) );
+    IndexDependentFill( R, function<F(Int,Int)>(risFill) );
 }
 
 template<typename F>
@@ -37,7 +37,7 @@ void Ris( AbstractBlockDistMatrix<F>& R, Int n )
     R.Resize( n, n );
     const F oneHalf = F(1)/F(2);
     auto risFill = [=]( Int i, Int j ) { return oneHalf/(F(n-i-j)-oneHalf); };
-    IndexDependentFill( R, std::function<F(Int,Int)>(risFill) );
+    IndexDependentFill( R, function<F(Int,Int)>(risFill) );
 }
 
 #define PROTO(F) \

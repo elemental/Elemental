@@ -14,11 +14,11 @@ namespace El {
 
 // Compute log( choose(n,k) ) for k=0,...,n in quadratic time
 template<typename Real>
-inline std::vector<Real>
+inline vector<Real>
 LogBinomial( Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("LogBinomial"))
-    std::vector<Real> binom(n+1,0), binomTmp(n+1,0);
+    vector<Real> binom(n+1,0), binomTmp(n+1,0);
     for( Int j=1; j<=n; ++j )
     {
         for( Int k=1; k<j; ++k )
@@ -31,11 +31,11 @@ LogBinomial( Int n )
 // This is unfortunately quadratic time
 // Compute log( alpha_j ) for j=1,...,n
 template<typename Real>
-inline std::vector<Real>
+inline vector<Real>
 LogEulerian( Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("LogEulerian"))
-    std::vector<Real> euler(n,0), eulerTmp(n,0);
+    vector<Real> euler(n,0), eulerTmp(n,0);
     for( Int j=1; j<n; ++j )
     {
         for( Int k=1; k<j; ++k )

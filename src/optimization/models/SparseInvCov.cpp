@@ -51,7 +51,7 @@ Int SparseInvCov
         // X := f(X), f(gamma) = (gamma+sqrt(gamma+4*rho)) / (2*rho)
         auto eigMap = 
           [rho](Real gamma){return (gamma+Sqrt(gamma*gamma+4*rho))/(2*rho);};
-        HermitianFunction( LOWER, X, std::function<Real(Real)>(eigMap) );
+        HermitianFunction( LOWER, X, function<Real(Real)>(eigMap) );
         // Make X explicitly Hermitian since HermitianHilbertSchmidt is not
         // yet available. This should result in Z and U remaining explicitly
         // Hermitian.
@@ -90,19 +90,19 @@ Int SparseInvCov
             const SafeProduct<Real> safeDet = SafeHPDDeterminant( LOWER, X );
             const Real ZOne = EntrywiseNorm( Z, Real(1) );
             const Real objective = trace-safeDet.kappa*safeDet.n+lambda*ZOne;
-            std::cout << numIter << ": "
+            cout << numIter << ": "
               << "||X-Z||_F=" << rNorm << ", "
               << "epsPri=" << epsPri << ", "
               << "|rho| ||Z-ZOld||_F=" << sNorm << ", "
               << "epsDual=" << epsDual << ", "
-              << "objective=" << objective << std::endl;
+              << "objective=" << objective << endl;
         }
         if( rNorm < epsPri && sNorm < epsDual )
             break;
         ++numIter;
     }
     if( maxIter == numIter )
-        std::cout << "ADMM failed to converge" << std::endl;
+        cout << "ADMM failed to converge" << endl;
     return numIter;
 }
 
@@ -143,7 +143,7 @@ Int SparseInvCov
         // X := f(X), f(gamma) = (gamma+sqrt(gamma+4*rho)) / (2*rho)
         auto eigMap = 
           [rho](Real gamma){return (gamma+Sqrt(gamma*gamma+4*rho))/(2*rho);};
-        HermitianFunction( LOWER, X, std::function<Real(Real)>(eigMap) );
+        HermitianFunction( LOWER, X, function<Real(Real)>(eigMap) );
         // Make X explicitly Hermitian since HermitianHilbertSchmidt is not
         // yet available. This should result in Z and U remaining explicitly
         // Hermitian.
@@ -183,19 +183,19 @@ Int SparseInvCov
             const Real ZOne = EntrywiseNorm( Z, Real(1) );
             const Real objective = trace-safeDet.kappa*safeDet.n+lambda*ZOne;
             if( g.Rank() == 0 )
-                std::cout << numIter << ": "
+                cout << numIter << ": "
                   << "||X-Z||_F=" << rNorm << ", "
                   << "epsPri=" << epsPri << ", "
                   << "|rho| ||Z-ZOld||_F=" << sNorm << ", "
                   << "epsDual=" << epsDual << ", "
-                  << "objective=" << objective << std::endl;
+                  << "objective=" << objective << endl;
         }
         if( rNorm < epsPri && sNorm < epsDual )
             break;
         ++numIter;
     }
     if( maxIter == numIter && g.Rank() == 0 )
-        std::cout << "ADMM failed to converge" << std::endl;
+        cout << "ADMM failed to converge" << endl;
     return numIter;
 }
 

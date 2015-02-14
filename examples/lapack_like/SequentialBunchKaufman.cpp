@@ -88,9 +88,9 @@ main( int argc, char* argv[] )
         }
         if( mpi::WorldRank() == 0 )
         {
-            std::cout << "|| A ||_F = " << AFrob << "\n"
-                      << "|| X ||_F = " << XFrob << "\n"
-                      << "|| X - inv(A) A X ||_F = " << errFrob << std::endl;
+            cout << "|| A ||_F = " << AFrob << "\n"
+                 << "|| X ||_F = " << XFrob << "\n"
+                 << "|| X - inv(A) A X ||_F = " << errFrob << endl;
         }
 
         if( conjugate )
@@ -99,10 +99,9 @@ main( int argc, char* argv[] )
             auto inertia = Inertia( LOWER, A, ctrl );
             if( mpi::WorldRank() == 0 )
             {
-                std::cout << "numPositive=" << inertia.numPositive << "\n"
-                          << "numNegative=" << inertia.numNegative << "\n"
-                          << "numZero    =" << inertia.numZero << "\n"
-                          << std::endl;
+                cout << "numPositive=" << inertia.numPositive << "\n"
+                     << "numNegative=" << inertia.numNegative << "\n"
+                     << "numZero    =" << inertia.numZero << "\n" << endl;
             }
         }
     }

@@ -86,7 +86,7 @@ Int NumNonSecondOrder
     Int numLocalNonSO = 0;
     // Compute the send and recv counts and offsets
     // --------------------------------------------
-    std::vector<int> sendCounts(commSize,0), recvCounts(commSize,0);
+    vector<int> sendCounts(commSize,0), recvCounts(commSize,0);
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
@@ -105,12 +105,12 @@ Int NumNonSecondOrder
             ++sendCounts[x.RowOwner(firstInd)];
         }
     }
-    std::vector<int> sendOffsets, recvOffsets;
+    vector<int> sendOffsets, recvOffsets;
     int totalSend = Scan( sendCounts, sendOffsets );
     int totalRecv = Scan( recvCounts, recvOffsets );
     // Pack the entries 
     // ----------------
-    std::vector<Real> sendBuf(totalSend);
+    vector<Real> sendBuf(totalSend);
     auto offsets = sendOffsets;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
@@ -125,14 +125,14 @@ Int NumNonSecondOrder
     }
     // Exchange entries
     // ----------------
-    std::vector<Real> recvBuf(totalRecv); 
+    vector<Real> recvBuf(totalRecv); 
     mpi::AllToAll 
     ( sendBuf.data(), sendCounts.data(), sendOffsets.data(),
       recvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
     // Check the cone constraints
     // --------------------------
     offsets = recvOffsets;
-    std::vector<Real> socBuf(cutoff-1);
+    vector<Real> socBuf(cutoff-1);
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
@@ -157,8 +157,8 @@ Int NumNonSecondOrder
     // ========================================================
     // Allgather the list of cones with sufficiently large order
     // ---------------------------------------------------------
-    std::vector<Real> sendCaps;
-    std::vector<Int> sendCones, sendOrders;
+    vector<Real> sendCaps;
+    vector<Int> sendCones, sendOrders;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
@@ -172,11 +172,11 @@ Int NumNonSecondOrder
         }
     }
     int numSendCones = sendCones.size();
-    std::vector<int> numRecvCones(commSize);
+    vector<int> numRecvCones(commSize);
     mpi::AllGather( &numSendCones, 1, numRecvCones.data(), 1, comm );
     totalRecv = Scan( numRecvCones, recvOffsets );
-    std::vector<Real> recvCaps(totalRecv);
-    std::vector<Int> recvCones(totalRecv), recvOrders(totalRecv);
+    vector<Real> recvCaps(totalRecv);
+    vector<Int> recvCones(totalRecv), recvOrders(totalRecv);
     mpi::AllGather
     ( sendCaps.data(), numSendCones,
       recvCaps.data(), numRecvCones.data(), recvOffsets.data(), comm );
@@ -229,7 +229,7 @@ Int NumNonSecondOrder
     Int numLocalNonSO = 0;
     // Compute the send and recv counts and offsets
     // --------------------------------------------
-    std::vector<int> sendCounts(commSize,0), recvCounts(commSize,0);
+    vector<int> sendCounts(commSize,0), recvCounts(commSize,0);
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
@@ -248,12 +248,12 @@ Int NumNonSecondOrder
             ++sendCounts[x.RowOwner(firstInd)];
         }
     }
-    std::vector<int> sendOffsets, recvOffsets;
+    vector<int> sendOffsets, recvOffsets;
     int totalSend = Scan( sendCounts, sendOffsets );
     int totalRecv = Scan( recvCounts, recvOffsets );
     // Pack the entries 
     // ----------------
-    std::vector<Real> sendBuf(totalSend);
+    vector<Real> sendBuf(totalSend);
     auto offsets = sendOffsets;
     for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
     {
@@ -268,14 +268,14 @@ Int NumNonSecondOrder
     }
     // Exchange entries
     // ----------------
-    std::vector<Real> recvBuf(totalRecv); 
+    vector<Real> recvBuf(totalRecv); 
     mpi::AllToAll 
     ( sendBuf.data(), sendCounts.data(), sendOffsets.data(),
       recvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
     // Check the cone constraints
     // --------------------------
     offsets = recvOffsets;
-    std::vector<Real> socBuf(cutoff-1);
+    vector<Real> socBuf(cutoff-1);
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
@@ -300,8 +300,8 @@ Int NumNonSecondOrder
     // ========================================================
     // Allgather the list of cones with sufficiently large order
     // ---------------------------------------------------------
-    std::vector<Real> sendCaps;
-    std::vector<Int> sendCones, sendOrders;
+    vector<Real> sendCaps;
+    vector<Int> sendCones, sendOrders;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
@@ -315,11 +315,11 @@ Int NumNonSecondOrder
         }
     }
     int numSendCones = sendCones.size();
-    std::vector<int> numRecvCones(commSize);
+    vector<int> numRecvCones(commSize);
     mpi::AllGather( &numSendCones, 1, numRecvCones.data(), 1, comm );
     totalRecv = Scan( numRecvCones, recvOffsets ); 
-    std::vector<Real> recvCaps(totalRecv);
-    std::vector<Int> recvCones(totalRecv), recvOrders(totalRecv);
+    vector<Real> recvCaps(totalRecv);
+    vector<Int> recvCones(totalRecv), recvOrders(totalRecv);
     mpi::AllGather
     ( sendCaps.data(), numSendCones,
       recvCaps.data(), numRecvCones.data(), recvOffsets.data(), comm );

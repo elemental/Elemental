@@ -104,16 +104,15 @@ private:
     Int blocksize_;
     Int firstLocalSource_, numLocalSources_;
 
-    std::vector<Int> sources_, targets_;
-    std::set<std::pair<Int,Int>> markedForRemoval_;
+    vector<Int> sources_, targets_;
+    set<pair<Int,Int>> markedForRemoval_;
 
     // Helpers for local indexing
     bool consistent_;
-    std::vector<Int> localEdgeOffsets_;
+    vector<Int> localEdgeOffsets_;
     void ComputeEdgeOffsets();
 
-    static bool ComparePairs
-    ( const std::pair<Int,Int>& a, const std::pair<Int,Int>& b );
+    static bool ComparePairs( const pair<Int,Int>& a, const pair<Int,Int>& b );
 
     void AssertConsistent() const;
 
@@ -123,7 +122,7 @@ private:
     friend void Copy( const DistGraph& A, DistGraph& B );
 
     template<typename F> friend class DistSparseMatrix;
-    template<typename F> friend struct DistSymmFrontTree;
+    template<typename F> friend struct DistSymmFront;
 
     template<typename U> friend void Syrk
     ( Orientation orientation,

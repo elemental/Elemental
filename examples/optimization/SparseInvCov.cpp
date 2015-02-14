@@ -125,13 +125,12 @@ main( int argc, char* argv[] )
             Display( D, "D" );
         }
         if( mpi::Rank(mpi::COMM_WORLD) == 0 )
-            std::cout << "|| S            ||_F         = " << SNorm << "\n"
-                      << "|| SNoisy       ||_F         = " << SNoisyNorm << "\n"
-                      << "|| cov(Omega)-I ||_F         = " << unitCovErrNorm 
-                      << "\n"
-                      << "|| cov(D)-SNoisy ||_F / || S ||_F = " 
-                      << covErrNorm/SNorm << "\n"
-                      << std::endl;
+            cout << "|| S            ||_F         = " << SNorm << "\n"
+                 << "|| SNoisy       ||_F         = " << SNoisyNorm << "\n"
+                 << "|| cov(Omega)-I ||_F         = " << unitCovErrNorm 
+                 << "\n"
+                 << "|| cov(D)-SNoisy ||_F / || S ||_F = " 
+                 << covErrNorm/SNorm << "\n" << endl;
 
         DistMatrix<F> Z;
         SparseInvCov
@@ -144,13 +143,12 @@ main( int argc, char* argv[] )
         if( print )
             Print( Z, "Z" );
         if( mpi::Rank(mpi::COMM_WORLD) == 0 )
-            std::cout << "|| SInv     ||_F                = " 
-                      << SInvNorm << "\n"
-                      << "|| Z - SInv ||_F / || SInv ||_F = "
-                      << ZErrNorm/SInvNorm << "\n"
-                      << std::endl;
+            cout << "|| SInv     ||_F                = " 
+                 << SInvNorm << "\n"
+                 << "|| Z - SInv ||_F / || SInv ||_F = "
+                 << ZErrNorm/SInvNorm << "\n" << endl;
     }
-    catch( std::exception& e ) { ReportException(e); }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

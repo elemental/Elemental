@@ -23,7 +23,7 @@ inline void NormalizeEntries( Matrix<F>& A )
 { 
     auto unitMap = []( F alpha ) 
                    { return alpha==F(0) ? F(1) : alpha/Abs(alpha); };
-    EntrywiseMap( A, std::function<F(F)>(unitMap) );
+    EntrywiseMap( A, function<F(F)>(unitMap) );
 }
 
 template<typename F>
@@ -31,7 +31,7 @@ inline void NormalizeEntries( AbstractDistMatrix<F>& A )
 { 
     auto unitMap = []( F alpha ) 
                    { return alpha==F(0) ? F(1) : alpha/Abs(alpha); };
-    EntrywiseMap( A, std::function<F(F)>(unitMap) );
+    EntrywiseMap( A, function<F(F)>(unitMap) );
 }
 
 // NOTE: If 'tau' is passed in as zero, it is set to 1/sqrt(max(m,n))
@@ -47,9 +47,7 @@ inline void ADMM
 
     // If tau is not specified, then set it to 1/sqrt(max(m,n))
     const Base<F> tau = 
-        ( ctrl.tau <= Real(0) ? 
-          Real(1)/sqrt(Real(std::max(m,n))) : 
-          ctrl.tau );
+        ( ctrl.tau <= Real(0) ? Real(1)/sqrt(Real(Max(m,n))) : ctrl.tau );
     if( ctrl.beta <= Real(0) )
         LogicError("beta cannot be non-positive");
     if( ctrl.tol <= Real(0) )
@@ -64,8 +62,8 @@ inline void ADMM
     const Real frobM = FrobeniusNorm( M );
     const Real maxM = MaxNorm( M );
     if( ctrl.progress )
-        std::cout << "|| M ||_F = " << frobM << "\n"
-                  << "|| M ||_max = " << maxM << std::endl;
+        cout << "|| M ||_F = " << frobM << "\n"
+             << "|| M ||_max = " << maxM << endl;
 
     Zeros( L, m, n );
     Zeros( S, m, n );
@@ -101,30 +99,30 @@ inline void ADMM
         if( frobE/frobM <= tol )            
         {
             if( ctrl.progress )
-                std::cout << "Converged after " << numIts << " iterations "
-                          << " with rank=" << rank 
-                          << ", numNonzeros=" << numNonzeros << " and "
-                          << "|| E ||_F / || M ||_F = " << frobE/frobM
-                          << ", and " << mpi::Time()-startTime << " total secs"
-                          << std::endl;
+                cout << "Converged after " << numIts << " iterations "
+                     << " with rank=" << rank 
+                     << ", numNonzeros=" << numNonzeros << " and "
+                     << "|| E ||_F / || M ||_F = " << frobE/frobM
+                     << ", and " << mpi::Time()-startTime << " total secs"
+                     << endl;
             break;
         }
         else if( numIts >= ctrl.maxIts )
         {
             if( ctrl.progress )
-                std::cout << "Aborting after " << numIts << " iterations and "
-                          << mpi::Time()-startTime << " total secs" 
-                          << std::endl;
+                cout << "Aborting after " << numIts << " iterations and "
+                     << mpi::Time()-startTime << " total secs" 
+                     << endl;
             break;
         }
         else
         {
             if( ctrl.progress )
-                std::cout << numIts << ": || E ||_F / || M ||_F = " 
-                          << frobE/frobM << ", rank=" << rank 
-                          << ", numNonzeros=" << numNonzeros 
-                          << ", " << mpi::Time()-startTime << " total secs"
-                          << std::endl;
+                cout << numIts << ": || E ||_F / || M ||_F = " 
+                     << frobE/frobM << ", rank=" << rank 
+                     << ", numNonzeros=" << numNonzeros 
+                     << ", " << mpi::Time()-startTime << " total secs"
+                     << endl;
         }
         
         // Y := Y + beta E
@@ -148,9 +146,7 @@ inline void ADMM
 
     // If tau is not specified, then set it to 1/sqrt(max(m,n))
     const Base<F> tau = 
-        ( ctrl.tau <= Real(0) ? 
-          Real(1)/sqrt(Real(std::max(m,n))) : 
-          ctrl.tau );
+        ( ctrl.tau <= Real(0) ? Real(1)/sqrt(Real(Max(m,n))) : ctrl.tau );
     if( ctrl.beta <= Real(0) )
         LogicError("beta cannot be non-positive");
     if( ctrl.tol <= Real(0) )
@@ -165,8 +161,8 @@ inline void ADMM
     const Real frobM = FrobeniusNorm( M );
     const Real maxM = MaxNorm( M );
     if( ctrl.progress && commRank == 0 )
-        std::cout << "|| M ||_F = " << frobM << "\n"
-                  << "|| M ||_max = " << maxM << std::endl;
+        cout << "|| M ||_F = " << frobM << "\n"
+             << "|| M ||_max = " << maxM << endl;
 
     Zeros( L, m, n );
     Zeros( S, m, n );
@@ -202,30 +198,30 @@ inline void ADMM
         if( frobE/frobM <= tol )            
         {
             if( ctrl.progress && commRank == 0 )
-                std::cout << "Converged after " << numIts << " iterations "
-                          << " with rank=" << rank 
-                          << ", numNonzeros=" << numNonzeros << " and "
-                          << "|| E ||_F / || M ||_F = " << frobE/frobM
-                          << ", and " << mpi::Time()-startTime << " total secs"
-                          << std::endl;
+                cout << "Converged after " << numIts << " iterations "
+                     << " with rank=" << rank 
+                     << ", numNonzeros=" << numNonzeros << " and "
+                     << "|| E ||_F / || M ||_F = " << frobE/frobM
+                     << ", and " << mpi::Time()-startTime << " total secs"
+                     << endl;
             break;
         }
         else if( numIts >= ctrl.maxIts )
         {
             if( ctrl.progress && commRank == 0 )
-                std::cout << "Aborting after " << numIts << " iterations and "
-                          << mpi::Time()-startTime << " total secs" 
-                          << std::endl;
+                cout << "Aborting after " << numIts << " iterations and "
+                     << mpi::Time()-startTime << " total secs" 
+                     << endl;
             break;
         }
         else
         {
             if( ctrl.progress && commRank == 0 )
-                std::cout << numIts << ": || E ||_F / || M ||_F = " 
-                          << frobE/frobM << ", rank=" << rank 
-                          << ", numNonzeros=" << numNonzeros 
-                          << ", " << mpi::Time()-startTime << " total secs"
-                          << std::endl;
+                cout << numIts << ": || E ||_F / || M ||_F = " 
+                     << frobE/frobM << ", rank=" << rank 
+                     << ", numNonzeros=" << numNonzeros 
+                     << ", " << mpi::Time()-startTime << " total secs"
+                     << endl;
         }
         
         // Y := Y + beta E
@@ -246,8 +242,7 @@ inline void ALM
 
     // If tau is unspecified, set it to 1/sqrt(max(m,n))
     const Base<F> tau = 
-      ( ctrl.tau <= Real(0) ?
-        Real(1) / sqrt(Real(std::max(m,n))) :
+      ( ctrl.tau <= Real(0) ? Real(1) / sqrt(Real(Max(m,n))) :
         ctrl.tau );
     if( ctrl.tol <= Real(0) )
         LogicError("tol cannot be non-positive");
@@ -260,7 +255,7 @@ inline void ALM
     const Real twoNorm = TwoNorm( Y );
     const Real maxNorm = MaxNorm( Y );
     const Real infNorm = maxNorm / tau; 
-    const Real dualNorm = std::max( twoNorm, infNorm );
+    const Real dualNorm = Max( twoNorm, infNorm );
     Scale( F(1)/dualNorm, Y );
 
     // If beta is unspecified, set it to 1 / 2 || sign(M) ||_2
@@ -270,8 +265,8 @@ inline void ALM
     const Real frobM = FrobeniusNorm( M );
     const Real maxM = MaxNorm( M );
     if( ctrl.progress )
-        std::cout << "|| M ||_F = " << frobM << "\n"
-                  << "|| M ||_max = " << maxM << std::endl;
+        cout << "|| M ||_F = " << frobM << "\n"
+             << "|| M ||_max = " << maxM << endl;
 
     Zeros( L, m, n );
     Zeros( S, m, n );
@@ -314,24 +309,24 @@ inline void ALM
             if( frobLDiff/frobM < tol && frobSDiff/frobM < tol )
             {
                 if( ctrl.progress )
-                    std::cout << "Primal loop converged: " 
-                              << mpi::Time()-startTime << " total secs"
-                              << std::endl;
+                    cout << "Primal loop converged: " 
+                         << mpi::Time()-startTime << " total secs"
+                         << endl;
                 break;
             }
             else 
             {
                 if( ctrl.progress )
-                    std::cout << "  " << numPrimalIts 
-                              << ": \n"
-                              << "   || Delta L ||_F / || M ||_F = " 
-                              << frobLDiff/frobM << "\n"
-                              << "   || Delta S ||_F / || M ||_F = "
-                              << frobSDiff/frobM << "\n"
-                              << "   rank=" << rank
-                              << ", numNonzeros=" << numNonzeros 
-                              << ", " << mpi::Time()-startTime << " total secs" 
-                              << std::endl;
+                    cout << "  " << numPrimalIts 
+                         << ": \n"
+                         << "   || Delta L ||_F / || M ||_F = " 
+                         << frobLDiff/frobM << "\n"
+                         << "   || Delta S ||_F / || M ||_F = "
+                         << frobSDiff/frobM << "\n"
+                         << "   rank=" << rank
+                         << ", numNonzeros=" << numNonzeros 
+                         << ", " << mpi::Time()-startTime << " total secs" 
+                         << endl;
             } 
         }
 
@@ -344,30 +339,30 @@ inline void ALM
         if( frobE/frobM <= tol )            
         {
             if( ctrl.progress )
-                std::cout << "Converged after " << numIts << " iterations and "
-                          << numPrimalIts << " primal iterations with rank=" 
-                          << rank << ", numNonzeros=" << numNonzeros << " and "
-                          << "|| E ||_F / || M ||_F = " << frobE/frobM
-                          << ", " << mpi::Time()-startTime << " total secs"
-                          << std::endl;
+                cout << "Converged after " << numIts << " iterations and "
+                     << numPrimalIts << " primal iterations with rank=" 
+                     << rank << ", numNonzeros=" << numNonzeros << " and "
+                     << "|| E ||_F / || M ||_F = " << frobE/frobM
+                     << ", " << mpi::Time()-startTime << " total secs"
+                     << endl;
             break;
         }
         else if( numIts >= ctrl.maxIts )
         {
             if( ctrl.progress )
-                std::cout << "Aborting after " << numIts << " iterations and "
-                          << mpi::Time()-startTime << " total secs" 
-                          << std::endl;
+                cout << "Aborting after " << numIts << " iterations and "
+                     << mpi::Time()-startTime << " total secs" 
+                     << endl;
             break;
         }
         else
         {
             if( ctrl.progress )
-                std::cout << numPrimalIts << ": || E ||_F / || M ||_F = " 
-                          << frobE/frobM << ", rank=" << rank 
-                          << ", numNonzeros=" << numNonzeros << ", "
-                          << mpi::Time()-startTime << " total secs" 
-                          << std::endl;
+                cout << numPrimalIts << ": || E ||_F / || M ||_F = " 
+                     << frobE/frobM << ", rank=" << rank 
+                     << ", numNonzeros=" << numNonzeros << ", "
+                     << mpi::Time()-startTime << " total secs" 
+                     << endl;
         }
         
         // Y := Y + beta E
@@ -393,9 +388,7 @@ inline void ALM
 
     // If tau is unspecified, set it to 1/sqrt(max(m,n))
     const Base<F> tau = 
-      ( ctrl.tau <= Real(0) ?
-        Real(1) / sqrt(Real(std::max(m,n))) :
-        ctrl.tau );
+      ( ctrl.tau <= Real(0) ? Real(1) / sqrt(Real(Max(m,n))) : ctrl.tau );
     if( ctrl.tol <= Real(0) )
         LogicError("tol cannot be non-positive");
     const Base<F> tol = ctrl.tol;
@@ -407,7 +400,7 @@ inline void ALM
     const Real twoNorm = TwoNorm( Y );
     const Real maxNorm = MaxNorm( Y );
     const Real infNorm = maxNorm / tau; 
-    const Real dualNorm = std::max( twoNorm, infNorm );
+    const Real dualNorm = Max( twoNorm, infNorm );
     Scale( F(1)/dualNorm, Y );
 
     // If beta is unspecified, set it to 1 / 2 || sign(M) ||_2
@@ -417,8 +410,8 @@ inline void ALM
     const Real frobM = FrobeniusNorm( M );
     const Real maxM = MaxNorm( M );
     if( ctrl.progress && commRank == 0 )
-        std::cout << "|| M ||_F = " << frobM << "\n"
-                  << "|| M ||_max = " << maxM << std::endl;
+        cout << "|| M ||_F = " << frobM << "\n"
+             << "|| M ||_max = " << maxM << endl;
 
     Zeros( L, m, n );
     Zeros( S, m, n );
@@ -461,24 +454,23 @@ inline void ALM
             if( frobLDiff/frobM < tol && frobSDiff/frobM < tol )
             {
                 if( ctrl.progress && commRank == 0 )
-                    std::cout << "Primal loop converged: " 
-                              << mpi::Time()-startTime << " total secs"
-                              << std::endl;
+                    cout << "Primal loop converged: " 
+                         << mpi::Time()-startTime << " total secs" << endl;
                 break;
             }
             else 
             {
                 if( ctrl.progress && commRank == 0 )
-                    std::cout << "  " << numPrimalIts 
-                              << ": \n"
-                              << "   || Delta L ||_F / || M ||_F = " 
-                              << frobLDiff/frobM << "\n"
-                              << "   || Delta S ||_F / || M ||_F = "
-                              << frobSDiff/frobM << "\n"
-                              << "   rank=" << rank
-                              << ", numNonzeros=" << numNonzeros 
-                              << ", " << mpi::Time()-startTime << " total secs" 
-                              << std::endl;
+                    cout << "  " << numPrimalIts 
+                         << ": \n"
+                         << "   || Delta L ||_F / || M ||_F = " 
+                         << frobLDiff/frobM << "\n"
+                         << "   || Delta S ||_F / || M ||_F = "
+                         << frobSDiff/frobM << "\n"
+                         << "   rank=" << rank
+                         << ", numNonzeros=" << numNonzeros 
+                         << ", " << mpi::Time()-startTime << " total secs" 
+                         << endl;
             } 
         }
 
@@ -491,30 +483,29 @@ inline void ALM
         if( frobE/frobM <= tol )            
         {
             if( ctrl.progress && commRank == 0 )
-                std::cout << "Converged after " << numIts << " iterations and "
-                          << numPrimalIts << " primal iterations with rank=" 
-                          << rank << ", numNonzeros=" << numNonzeros << " and "
-                          << "|| E ||_F / || M ||_F = " << frobE/frobM
-                          << ", " << mpi::Time()-startTime << " total secs"
-                          << std::endl;
+                cout << "Converged after " << numIts << " iterations and "
+                     << numPrimalIts << " primal iterations with rank=" 
+                     << rank << ", numNonzeros=" << numNonzeros << " and "
+                     << "|| E ||_F / || M ||_F = " << frobE/frobM
+                     << ", " << mpi::Time()-startTime << " total secs"
+                     << endl;
             break;
         }
         else if( numIts >= ctrl.maxIts )
         {
             if( ctrl.progress && commRank == 0 )
-                std::cout << "Aborting after " << numIts << " iterations and "
-                          << mpi::Time()-startTime << " total secs" 
-                          << std::endl;
+                cout << "Aborting after " << numIts << " iterations and "
+                     << mpi::Time()-startTime << " total secs" << endl;
             break;
         }
         else
         {
             if( ctrl.progress && commRank == 0 )
-                std::cout << numPrimalIts << ": || E ||_F / || M ||_F = " 
-                          << frobE/frobM << ", rank=" << rank 
-                          << ", numNonzeros=" << numNonzeros << ", "
-                          << mpi::Time()-startTime << " total secs" 
-                          << std::endl;
+                cout << numPrimalIts << ": || E ||_F / || M ||_F = " 
+                     << frobE/frobM << ", rank=" << rank 
+                     << ", numNonzeros=" << numNonzeros << ", "
+                     << mpi::Time()-startTime << " total secs" 
+                     << endl;
         }
         
         // Y := Y + beta E

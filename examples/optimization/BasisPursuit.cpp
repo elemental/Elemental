@@ -51,17 +51,17 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "A" );
 
-        DistMatrix<C> z;
+        DistMatrix<C> x;
         bp::ADMM
-        ( A, b, z, rho, alpha, maxIter, absTol, relTol, usePinv, pinvTol,
+        ( A, b, x, rho, alpha, maxIter, absTol, relTol, usePinv, pinvTol,
           progress );
         if( print )
-            Print( z, "z" );
-        const Int zZeroNorm = ZeroNorm( z );
+            Print( x, "x" );
+        const Int xZeroNorm = ZeroNorm( x );
         if( mpi::Rank(mpi::COMM_WORLD) == 0 )
-            std::cout << "|| z     ||_0 = " << zZeroNorm << "\n" << std::endl;
+            cout << "|| x ||_0 = " << xZeroNorm << "\n" << endl;
     }
-    catch( std::exception& e ) { ReportException(e); }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

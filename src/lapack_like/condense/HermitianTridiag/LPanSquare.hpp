@@ -61,7 +61,7 @@ void LPanSquare
     e.AlignCols( A.DiagonalAlign(-1) );
     e.Resize( nW, 1 );
 
-    std::vector<F> w21LastBuffer(A.Height()/r+1);
+    vector<F> w21LastBuffer(A.Height()/r+1);
     DistMatrix<F> w21Last(g);
     DistMatrix<F,MC,STAR> a21_MC_STAR(g), p21_MC_STAR(g), 
                           a21Last_MC_STAR(g), w21Last_MC_STAR(g);
@@ -149,7 +149,7 @@ void LPanSquare
         if( k == 0 )
         {
             const Int a21LocalHeight = a21.LocalHeight();
-            std::vector<F> rowBroadcastBuffer(a21LocalHeight+1);
+            vector<F> rowBroadcastBuffer(a21LocalHeight+1);
             if( thisIsMyCol )
             {
                 // Pack the broadcast buffer with a21 and tau
@@ -197,7 +197,7 @@ void LPanSquare
         {
             const Int a21LocalHeight = a21.LocalHeight();
             const Int w21LastLocalHeight = aB1.LocalHeight();
-            std::vector<F> 
+            vector<F> 
                 rowBroadcastBuffer(a21LocalHeight+w21LastLocalHeight+1);
             if( thisIsMyCol ) 
             {
@@ -263,7 +263,7 @@ void LPanSquare
             {
                 const Int sendSize = A22.LocalHeight()+ABR.LocalHeight();
                 const Int recvSize = A22.LocalWidth()+ABR.LocalWidth();
-                std::vector<F> sendBuffer(sendSize), recvBuffer(recvSize);
+                vector<F> sendBuffer(sendSize), recvBuffer(recvSize);
 
                 // Pack the send buffer
                 MemCopy
@@ -347,8 +347,8 @@ void LPanSquare
         // Combine the AllReduce column summations of x01[MR,* ], y01[MR,* ]
         {
             const Int x01LocalHeight = x01_MR_STAR.LocalHeight();
-            std::vector<F> colSumSendBuffer(2*x01LocalHeight),
-                           colSumRecvBuffer(2*x01LocalHeight);
+            vector<F> colSumSendBuffer(2*x01LocalHeight),
+                      colSumRecvBuffer(2*x01LocalHeight);
             MemCopy
             ( colSumSendBuffer.data(), 
               x01_MR_STAR.Buffer(), x01LocalHeight );
@@ -385,7 +385,7 @@ void LPanSquare
             // Pairwise exchange with the transpose process
             const Int sendSize = A22.LocalWidth();
             const Int recvSize = A22.LocalHeight();
-            std::vector<F> recvBuffer(recvSize);
+            vector<F> recvBuffer(recvSize);
             mpi::SendRecv
             ( q21_MR_STAR.Buffer(), sendSize, transposeRank, 
               recvBuffer.data(),    recvSize, transposeRank, 
@@ -405,7 +405,7 @@ void LPanSquare
             const Int nextProcessRow = (alpha11.ColAlign()+1) % r;
             const Int nextProcessCol = (alpha11.RowAlign()+1) % r;
 
-            std::vector<F> reduceToOneRecvBuffer(a21LocalHeight);
+            vector<F> reduceToOneRecvBuffer(a21LocalHeight);
             mpi::Reduce
             ( p21_MC_STAR.Buffer(), reduceToOneRecvBuffer.data(),
               a21LocalHeight, nextProcessCol, g.RowComm() );
@@ -443,7 +443,7 @@ void LPanSquare
             const Int a21LocalHeight = a21.LocalHeight();
 
             // AllReduce sum p21[MC,* ] over process rows
-            std::vector<F> allReduceRecvBuffer(a21LocalHeight);
+            vector<F> allReduceRecvBuffer(a21LocalHeight);
             mpi::AllReduce
             ( p21_MC_STAR.Buffer(), allReduceRecvBuffer.data(),
               a21LocalHeight, g.RowComm() );

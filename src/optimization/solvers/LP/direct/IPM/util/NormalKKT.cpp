@@ -68,8 +68,8 @@ void NormalKKT
     zSqrt.Align(0,0);
     xSqrt = x;
     zSqrt = z;
-    EntrywiseMap( xSqrt, std::function<Real(Real)>(sqrt) );
-    EntrywiseMap( zSqrt, std::function<Real(Real)>(sqrt) );
+    EntrywiseMap( xSqrt, function<Real(Real)>(sqrt) );
+    EntrywiseMap( zSqrt, function<Real(Real)>(sqrt) );
 
     // Form the Jacobian, J := A D^2 A^T
     // =================================

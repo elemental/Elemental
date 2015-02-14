@@ -1,7 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson, Lexing Ying,
-   The University of Texas at Austin, Stanford University, and the
-   Georgia Insitute of Technology.
+   Copyright (c) 2009-2015, Jack Poulson
    All rights reserved.
  
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -10,59 +8,57 @@
 */
 #include "El.hpp"
 
-#include "./LowerSolve/Front.hpp"
-#include "./LowerSolve/FrontBlock.hpp"
-
-#include "./LowerSolve/Local.hpp"
-#include "./LowerSolve/Dist.hpp"
+#include "./LowerSolve/Forward.hpp"
+#include "./LowerSolve/Backward.hpp"
 
 namespace El {
 
 template<typename F>
 void LowerSolve
-( Orientation orientation, const DistSymmInfo& info, 
-  const DistSymmFrontTree<F>& L, DistNodalMultiVec<F>& X )
+( Orientation orientation, const SymmNodeInfo& info, 
+  const SymmFront<F>& front, MatrixNode<F>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("LowerSolve"))
     if( orientation == NORMAL )
-    {
-        LocalLowerForwardSolve( info, L, X );
-        DistLowerForwardSolve( info, L, X );
-    }
+        LowerForwardSolve( info, front, X );
     else
-    {
-        const bool conjugate = ( orientation==ADJOINT );
-        DistLowerBackwardSolve( info, L, X, conjugate );
-        LocalLowerBackwardSolve( info, L, X, conjugate );
-    }
+        LowerBackwardSolve( info, front, X, orientation==ADJOINT );
 }
 
 template<typename F>
 void LowerSolve
-( Orientation orientation, const DistSymmInfo& info, 
-  const DistSymmFrontTree<F>& L, DistNodalMatrix<F>& X )
+( Orientation orientation, const DistSymmNodeInfo& info, 
+  const DistSymmFront<F>& front, DistMultiVecNode<F>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("LowerSolve"))
     if( orientation == NORMAL )
-    {
-        LocalLowerForwardSolve( info, L, X );
-        DistLowerForwardSolve( info, L, X );
-    }
+        LowerForwardSolve( info, front, X );
     else
-    {
-        const bool conjugate = ( orientation==ADJOINT );
-        DistLowerBackwardSolve( info, L, X, conjugate );
-        LocalLowerBackwardSolve( info, L, X, conjugate );
-    }
+        LowerBackwardSolve( info, front, X, orientation==ADJOINT );
+}
+
+template<typename F>
+void LowerSolve
+( Orientation orientation, const DistSymmNodeInfo& info, 
+  const DistSymmFront<F>& front, DistMatrixNode<F>& X )
+{
+    DEBUG_ONLY(CallStackEntry cse("LowerSolve"))
+    if( orientation == NORMAL )
+        LowerForwardSolve( info, front, X );
+    else
+        LowerBackwardSolve( info, front, X, orientation==ADJOINT );
 }
 
 #define PROTO(F) \
   template void LowerSolve \
-  ( Orientation orientation, const DistSymmInfo& info, \
-    const DistSymmFrontTree<F>& L, DistNodalMultiVec<F>& X ); \
+  ( Orientation orientation, const SymmNodeInfo& info, \
+    const SymmFront<F>& front, MatrixNode<F>& X ); \
   template void LowerSolve \
-  ( Orientation orientation, const DistSymmInfo& info, \
-    const DistSymmFrontTree<F>& L, DistNodalMatrix<F>& X );
+  ( Orientation orientation, const DistSymmNodeInfo& info, \
+    const DistSymmFront<F>& front, DistMultiVecNode<F>& X ); \
+  template void LowerSolve \
+  ( Orientation orientation, const DistSymmNodeInfo& info, \
+    const DistSymmFront<F>& front, DistMatrixNode<F>& X );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

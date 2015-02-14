@@ -64,7 +64,7 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
     GetRealPartOfDiagonal(R,d);
     auto sgn = []( Real delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };
-    EntrywiseMap( d, std::function<Real(Real)>(sgn) );
+    EntrywiseMap( d, function<Real(Real)>(sgn) );
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
 }
 
@@ -141,7 +141,7 @@ PanelHouseholder
     GetRealPartOfDiagonal(R,d);
     auto sgn = []( Real delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };
-    EntrywiseMap( d, std::function<Real(Real)>(sgn) );
+    EntrywiseMap( d, function<Real(Real)>(sgn) );
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
 }
 

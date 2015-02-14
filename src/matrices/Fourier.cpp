@@ -21,7 +21,7 @@ void Fourier( Matrix<Complex<Real>>& A, Int n )
       [=]( Int i, Int j ) -> Complex<Real>
       { const Real theta = -2*pi*i*j/n;
         return Complex<Real>(Cos(theta),Sin(theta))/nSqrt; };
-    IndexDependentFill( A, std::function<Complex<Real>(Int,Int)>(fourierFill) );
+    IndexDependentFill( A, function<Complex<Real>(Int,Int)>(fourierFill) );
 }
 
 template<typename Real>
@@ -35,7 +35,7 @@ void Fourier( AbstractDistMatrix<Complex<Real>>& A, Int n )
       [=]( Int i, Int j ) -> Complex<Real>
       { const Real theta = -2*pi*i*j/n;
         return Complex<Real>(Cos(theta),Sin(theta))/nSqrt; };
-    IndexDependentFill( A, std::function<Complex<Real>(Int,Int)>(fourierFill) );
+    IndexDependentFill( A, function<Complex<Real>(Int,Int)>(fourierFill) );
 }
 
 template<typename Real>
@@ -49,7 +49,7 @@ void Fourier( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
       [=]( Int i, Int j ) -> Complex<Real>
       { const Real theta = -2*pi*i*j/n;
         return Complex<Real>(Cos(theta),Sin(theta))/nSqrt; };
-    IndexDependentFill( A, std::function<Complex<Real>(Int,Int)>(fourierFill) );
+    IndexDependentFill( A, function<Complex<Real>(Int,Int)>(fourierFill) );
 }
 
 #define PROTO(Real) \

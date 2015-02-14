@@ -11,42 +11,39 @@
 namespace El {
 
 template<typename T> 
-void Circulant( Matrix<T>& A, const std::vector<T>& a )
+void Circulant( Matrix<T>& A, const vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Circulant"))
     const Int n = a.size();
     A.Resize( n, n );
     auto circFill = [&]( Int i, Int j ) { return a[Mod(i-j,n)]; };
-    IndexDependentFill( A, std::function<T(Int,Int)>(circFill) );
+    IndexDependentFill( A, function<T(Int,Int)>(circFill) );
 }
 
 template<typename T>
-void Circulant( AbstractDistMatrix<T>& A, const std::vector<T>& a )
+void Circulant( AbstractDistMatrix<T>& A, const vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Circulant"))
     const Int n = a.size();
     A.Resize( n, n );
     auto circFill = [&]( Int i, Int j ) { return a[Mod(i-j,n)]; };
-    IndexDependentFill( A, std::function<T(Int,Int)>(circFill) );
+    IndexDependentFill( A, function<T(Int,Int)>(circFill) );
 }
 
 template<typename T>
-void Circulant( AbstractBlockDistMatrix<T>& A, const std::vector<T>& a )
+void Circulant( AbstractBlockDistMatrix<T>& A, const vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Circulant"))
     const Int n = a.size();
     A.Resize( n, n );
     auto circFill = [&]( Int i, Int j ) { return a[Mod(i-j,n)]; };
-    IndexDependentFill( A, std::function<T(Int,Int)>(circFill) );
+    IndexDependentFill( A, function<T(Int,Int)>(circFill) );
 }
 
 #define PROTO(T) \
-  template void Circulant \
-  ( Matrix<T>& A, const std::vector<T>& a ); \
-  template void Circulant \
-  ( AbstractDistMatrix<T>& A, const std::vector<T>& a ); \
-  template void Circulant \
-  ( AbstractBlockDistMatrix<T>& A, const std::vector<T>& a ); 
+  template void Circulant( Matrix<T>& A, const vector<T>& a ); \
+  template void Circulant( AbstractDistMatrix<T>& A, const vector<T>& a ); \
+  template void Circulant( AbstractBlockDistMatrix<T>& A, const vector<T>& a ); 
 
 #include "El/macros/Instantiate.h"
 

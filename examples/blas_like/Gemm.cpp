@@ -39,7 +39,7 @@ int main( int argc, char *argv[] )
             r = Grid::FindFactor( commSize );
         Grid g( MPI_COMM_WORLD, r );
         if( commRank == 0 )
-            std::cout << "g: " << g.Height() << " x " << g.Width() << std::endl;
+            cout << "g: " << g.Height() << " x " << g.Width() << endl;
 
         Matrix<double> A, B, C;
         Uniform( A, m, k );
@@ -54,8 +54,15 @@ int main( int argc, char *argv[] )
             Gemm( NORMAL, NORMAL, 1., A, B, C );    
             const double gemmTime = timer.Stop();
             const double gflops = (2.*m*n*k)/(gemmTime*1.e9);
-            std::cout << "Sequential: " << gemmTime << " secs and " 
-                      << gflops << " GFLops" << std::endl;
+            cout << "Sequential: " << gemmTime << " secs and " 
+                 << gflops << " GFLops" << endl;
+            timer.Start();
+        }
+        mpi::Barrier( comm );
+        if( commRank == 0 )
+        {
+            const double rootWaitTime = timer.Stop();
+            cout << "Root waited for " << rootWaitTime << " seconds" << endl;
         }
 
         DistMatrix<double,CIRC,CIRC> ARoot(g), BRoot(g); 
@@ -64,8 +71,7 @@ int main( int argc, char *argv[] )
             timer.Start();
             ARoot.CopyFromRoot( A );
             BRoot.CopyFromRoot( B );
-            std::cout << "Populate root node: " << timer.Stop() << " secs"
-                      << std::endl;
+            cout << "Populate root node: " << timer.Stop() << " secs" << endl;
         }
         else
         {
@@ -80,8 +86,7 @@ int main( int argc, char *argv[] )
         Zeros( CDist, m, n );
         mpi::Barrier( comm );
         if( commRank == 0 ) 
-            std::cout << "Spread from root: " << timer.Stop() << " secs"
-                      << std::endl;
+            cout << "Spread from root: " << timer.Stop() << " secs" << endl;
 
         if( commRank == 0 )
             timer.Start();
@@ -91,17 +96,15 @@ int main( int argc, char *argv[] )
             Gemm( NORMAL, NORMAL, 1., ADist, BDist, 0., CDist );    
         mpi::Barrier( comm );
         if( commRank == 0 ) 
-            std::cout << "Distributed Gemm: " << timer.Stop() << " secs"
-                      << std::endl;
+            cout << "Distributed Gemm: " << timer.Stop() << " secs" << endl;
 
         if( commRank == 0 )
             timer.Start();
         DistMatrix<double,CIRC,CIRC> CRoot( CDist );
         mpi::Barrier( comm );
         if( commRank == 0 )
-            std::cout << "Gathered to root: " << timer.Stop() << " secs" 
-                      << std::endl;
-    } catch( std::exception& e ) { ReportException(e); }
+            cout << "Gathered to root: " << timer.Stop() << " secs" << endl;
+    } catch( exception& e ) { ReportException(e); }
     Finalize();
     return 0;
 }
@@ -156,10 +159,9 @@ void TimedGemm
             const Int mLocal = A1_MC_STAR.LocalHeight();
             const Int nLocal = A1_MC_STAR.LocalWidth();
             const double mbps = (1.*mLocal*nLocal*sizeof(T))/(timeMC*1.e6);
-            std::cout << "[MC,* ] AllGather: " << timeMC
-                      << " secs, " << mbps << " MB/s" << " for "
-                      << mLocal << " x " << nLocal << " local matrix"
-                      << std::endl;
+            cout << "[MC,* ] AllGather: " << timeMC
+                 << " secs, " << mbps << " MB/s" << " for "
+                 << mLocal << " x " << nLocal << " local matrix" << endl;
         }
         timerMR.Start();
         Transpose( B1, B1Trans_MR_STAR );
@@ -170,10 +172,9 @@ void TimedGemm
             const Int nLocal = B1Trans_MR_STAR.LocalHeight();
             const Int mLocal = B1Trans_MR_STAR.LocalWidth();
             const double mbps = (1.*mLocal*nLocal*sizeof(T))/(timeMR*1.e6);
-            std::cout << "[* ,MR] AllGather: " << timeMR
-                      << " secs, " << mbps << " MB/s" << " for "
-                      << mLocal << " x " << nLocal << " local matrix"
-                      << std::endl;
+            cout << "[* ,MR] AllGather: " << timeMR
+                 << " secs, " << mbps << " MB/s" << " for "
+                 << mLocal << " x " << nLocal << " local matrix" << endl;
         }
 
         // C[MC,MR] += alpha A1[MC,*] (B1^T[MR,*])^T
@@ -189,9 +190,9 @@ void TimedGemm
             const Int nLocal = C.LocalWidth();
             const Int kLocal = A1_MC_STAR.LocalWidth();
             const double gflops = (2.*mLocal*nLocal*kLocal)/(gemmTime*1.e9);
-            std::cout << "Local gemm: " << gemmTime << " secs and "
-                      << gflops << " GFlops for " << mLocal << " x " << nLocal
-                      << " x " << kLocal << " product" << std::endl;
+            cout << "Local gemm: " << gemmTime << " secs and "
+                 << gflops << " GFlops for " << mLocal << " x " << nLocal
+                 << " x " << kLocal << " product" << endl;
         }
         //--------------------------------------------------------------------//
 

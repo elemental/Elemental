@@ -8,44 +8,40 @@
 */
 #include "El.hpp"
 
-#include "./RegularizedQSDLDL/ProcessFront.hpp"
-#include "./RegularizedQSDLDL/ProcessLocalTree.hpp"
-#include "./RegularizedQSDLDL/ProcessDistTree.hpp"
+#include "./RegularizedQSDLDL/Process.hpp"
 
 namespace El {
 
 template<typename F>
 void RegularizedQSDLDL
-( DistSymmInfo& info, DistSymmFrontTree<F>& L, Base<F> pivTol, 
-  const DistNodalMultiVec<Base<F>>& regCand, 
-        DistNodalMultiVec<Base<F>>& reg,
+( const DistSymmNodeInfo& info, DistSymmFront<F>& front, Base<F> pivTol, 
+  const DistMultiVecNode<Base<F>>& regCand, 
+        DistMultiVecNode<Base<F>>& reg,
   bool aPriori,
-  SymmFrontType newFrontType )
+  SymmFrontType newType )
 {
     DEBUG_ONLY(CallStackEntry cse("RegularizedQSDLDL"))
-    if( !Unfactored(L.frontType) )
+    if( !Unfactored(front.type) )
         LogicError("Matrix is already factored");
 
     // Convert from 1D to 2D if necessary
-    ChangeFrontType( L, SYMM_2D );
+    ChangeFrontType( front, SYMM_2D );
 
     // Perform the initial factorization
-    L.frontType = InitialFactorType(newFrontType);
-    reg_qsd_ldl::ProcessLocalTree( info, L, pivTol, regCand, reg, aPriori );
-    reg_qsd_ldl::ProcessDistTree( info, L, pivTol, regCand, reg, aPriori );
+    reg_qsd_ldl::Process( info, front, pivTol, regCand, reg, aPriori, InitialFactorType(newType) );
 
     // Convert the fronts from the initial factorization to the requested form
-    ChangeFrontType( L, newFrontType );
+    ChangeFrontType( front, newType );
 }
 
 #define PROTO(F) \
   template void RegularizedQSDLDL \
-  ( DistSymmInfo& info, DistSymmFrontTree<F>& L, \
+  ( const DistSymmNodeInfo& info, DistSymmFront<F>& front, \
     Base<F> pivTol, \
-    const DistNodalMultiVec<Base<F>>& regCand, \
-          DistNodalMultiVec<Base<F>>& reg, \
+    const DistMultiVecNode<Base<F>>& regCand, \
+          DistMultiVecNode<Base<F>>& reg, \
     bool aPriori, \
-    SymmFrontType newFrontType );
+    SymmFrontType newType );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

@@ -17,8 +17,8 @@ namespace El {
 
 template<typename Real>
 Int ModelFit
-( std::function<void(Matrix<Real>&,Real)> lossProx,
-  std::function<void(Matrix<Real>&,Real)> regProx,
+( function<void(Matrix<Real>&,Real)> lossProx,
+  function<void(Matrix<Real>&,Real)> regProx,
   const Matrix<Real>& A, const Matrix<Real>& b, Matrix<Real>& w, 
   Real rho, Int maxIter, bool inv, bool progress )
 {
@@ -95,15 +95,15 @@ Int ModelFit
         Axpy( Real(-1), y2, uy );
     }
     if( maxIter == numIter )
-        std::cout << "Model fit failed to converge" << std::endl;
+        cout << "Model fit failed to converge" << endl;
     w = x2;
     return numIter;
 }
 
 template<typename Real>
 Int ModelFit
-( std::function<void(DistMatrix<Real>&,Real)> lossProx,
-  std::function<void(DistMatrix<Real>&,Real)> regProx,
+( function<void(DistMatrix<Real>&,Real)> lossProx,
+  function<void(DistMatrix<Real>&,Real)> regProx,
   const AbstractDistMatrix<Real>& APre, const AbstractDistMatrix<Real>& bPre, 
         AbstractDistMatrix<Real>& wPre, 
   Real rho, Int maxIter, bool inv, bool progress )
@@ -187,20 +187,20 @@ Int ModelFit
         Axpy( Real(-1), y2, uy );
     }
     if( maxIter == numIter )
-        std::cout << "Model fit failed to converge" << std::endl;
+        cout << "Model fit failed to converge" << endl;
     w = x2;
     return numIter;
 }
 
 #define PROTO(Real) \
   template Int ModelFit \
-  ( std::function<void(Matrix<Real>&,Real)> lossProx, \
-    std::function<void(Matrix<Real>&,Real)> regProx, \
+  ( function<void(Matrix<Real>&,Real)> lossProx, \
+    function<void(Matrix<Real>&,Real)> regProx, \
     const Matrix<Real>& A, const Matrix<Real>& b, Matrix<Real>& w, \
     Real rho, Int maxIter, bool inv, bool progress ); \
   template Int ModelFit \
-  ( std::function<void(DistMatrix<Real>&,Real)> lossProx, \
-    std::function<void(DistMatrix<Real>&,Real)> regProx, \
+  ( function<void(DistMatrix<Real>&,Real)> lossProx, \
+    function<void(DistMatrix<Real>&,Real)> regProx, \
     const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, \
           AbstractDistMatrix<Real>& w, \
     Real rho, Int maxIter, bool inv, bool progress );

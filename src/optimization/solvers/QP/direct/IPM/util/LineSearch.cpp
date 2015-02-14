@@ -101,7 +101,7 @@ Real IPFLineSearch
         if( mu_alpha > (1-alpha/ctrl.psi)*mu )
         {
             if( ctrl.print )
-                std::cout << "Armijo condition not satisfied" << std::endl;
+                cout << "Armijo condition not satisfied" << endl;
             continue;
         }
 
@@ -122,7 +122,7 @@ Real IPFLineSearch
         if( !balanced )
         {
             if( ctrl.print )
-                std::cout << "  unbalanced entries" << std::endl;
+                cout << "  unbalanced entries" << endl;
             continue;
         }
         // Check ||r_b(alpha)||_2 <= Max(bTol,||r_b||_2 beta mu(alpha)/mu)
@@ -133,9 +133,9 @@ Real IPFLineSearch
         if( rb_alphaNrm2 > Max(bTol,rbNrm2*ctrl.beta*mu_alpha/mu) )
         {
             if( ctrl.print )
-                std::cout << "  r_b failure: " << rb_alphaNrm2 << " > Max("
-                          << bTol << "," << rbNrm2*ctrl.beta*mu_alpha/mu << ")"
-                          << std::endl;
+                cout << "  r_b failure: " << rb_alphaNrm2 << " > Max("
+                     << bTol << "," << rbNrm2*ctrl.beta*mu_alpha/mu << ")"
+                     << endl;
             continue;
         }
         // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha)/mu)
@@ -148,9 +148,9 @@ Real IPFLineSearch
         if( rc_alphaNrm2 > Max(cTol,rcNrm2*ctrl.beta*mu_alpha/mu) )
         {
             if( ctrl.print )
-                std::cout << "  r_c failure: " << rc_alphaNrm2 << " > Max("
-                          << cTol << "," << rcNrm2*ctrl.beta*mu_alpha/mu << ")"
-                          << std::endl;
+                cout << "  r_c failure: " << rc_alphaNrm2 << " > Max("
+                     << cTol << "," << rcNrm2*ctrl.beta*mu_alpha/mu << ")"
+                     << endl;
         }
         else
             break;
@@ -256,7 +256,7 @@ Real IPFLineSearch
         if( mu_alpha > (1-alpha/ctrl.psi)*mu )
         {
             if( ctrl.print && commRank == 0 )
-                std::cout << "Armijo condition not satisfied" << std::endl;
+                cout << "Armijo condition not satisfied" << endl;
             continue;
         }
 
@@ -282,7 +282,7 @@ Real IPFLineSearch
         if( !balanced )
         {
             if( ctrl.print && commRank == 0 )
-                std::cout << "  unbalanced entries" << std::endl;
+                cout << "  unbalanced entries" << endl;
             continue;
         }
         // Check ||r_b(alpha)||_2 <= Max(bTol,||r_b||_2 beta mu(alpha)/mu)
@@ -293,9 +293,9 @@ Real IPFLineSearch
         if( rb_alphaNrm2 > Max(bTol,rbNrm2*ctrl.beta*mu_alpha/mu) )
         {
             if( ctrl.print && commRank == 0 )
-                std::cout << "  r_b failure: " << rb_alphaNrm2 << " > Max("
-                          << bTol << "," << rbNrm2*ctrl.beta*mu_alpha/mu << ")"
-                          << std::endl;
+                cout << "  r_b failure: " << rb_alphaNrm2 << " > Max("
+                     << bTol << "," << rbNrm2*ctrl.beta*mu_alpha/mu << ")"
+                     << endl;
             continue;
         }
         // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha)/mu)
@@ -308,9 +308,9 @@ Real IPFLineSearch
         if( rc_alphaNrm2 > Max(cTol,rcNrm2*ctrl.beta*mu_alpha/mu) )
         {
             if( ctrl.print && commRank == 0 )
-                std::cout << "  r_c failure: " << rc_alphaNrm2 << " > Max("
-                          << cTol << "," << rcNrm2*ctrl.beta*mu_alpha/mu << ")"
-                          << std::endl;
+                cout << "  r_c failure: " << rc_alphaNrm2 << " > Max("
+                     << cTol << "," << rcNrm2*ctrl.beta*mu_alpha/mu << ")"
+                     << endl;
         }
         else
             break;
@@ -406,7 +406,7 @@ Real IPFLineSearch
         if( mu_alpha > (1-alpha/ctrl.psi)*mu )
         {
             if( ctrl.print )
-                std::cout << "Armijo condition not satisfied" << std::endl;
+                cout << "Armijo condition not satisfied" << endl;
             continue;
         }
 
@@ -427,7 +427,7 @@ Real IPFLineSearch
         if( !balanced )
         {
             if( ctrl.print )
-                std::cout << "  unbalanced entries" << std::endl;
+                cout << "  unbalanced entries" << endl;
             continue;
         }
         // Check ||r_b(alpha)||_2 <= Max(bTol,||r_b||_2 beta mu(alpha)/mu)
@@ -438,9 +438,9 @@ Real IPFLineSearch
         if( rb_alphaNrm2 > Max(bTol,rbNrm2*ctrl.beta*mu_alpha/mu) )
         {
             if( ctrl.print )
-                std::cout << "  r_b failure: " << rb_alphaNrm2 << " > Max("
-                          << bTol << "," << rbNrm2*ctrl.beta*mu_alpha/mu << ")"
-                          << std::endl;
+                cout << "  r_b failure: " << rb_alphaNrm2 << " > Max("
+                     << bTol << "," << rbNrm2*ctrl.beta*mu_alpha/mu << ")"
+                     << endl;
             continue;
         }
         // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha)/mu)
@@ -453,9 +453,9 @@ Real IPFLineSearch
         if( rc_alphaNrm2 > Max(cTol,rcNrm2*ctrl.beta*mu_alpha/mu) )
         {
             if( ctrl.print )
-                std::cout << "  r_c failure: " << rc_alphaNrm2 << " > Max("
-                          << cTol << "," << rcNrm2*ctrl.beta*mu_alpha/mu << ")"
-                          << std::endl;
+                cout << "  r_c failure: " << rc_alphaNrm2 << " > Max("
+                     << cTol << "," << rcNrm2*ctrl.beta*mu_alpha/mu << ")"
+                     << endl;
         }
         else
             break;
@@ -558,7 +558,7 @@ Real IPFLineSearch
         if( mu_alpha > (1-alpha/ctrl.psi)*mu )
         {
             if( ctrl.print && commRank == 0 )
-                std::cout << "Armijo condition not satisfied" << std::endl;
+                cout << "Armijo condition not satisfied" << endl;
             continue;
         }
 
@@ -581,7 +581,7 @@ Real IPFLineSearch
         if( !balanced )
         {
             if( ctrl.print && commRank == 0 )
-                std::cout << "  unbalanced entries" << std::endl;
+                cout << "  unbalanced entries" << endl;
             continue;
         }
         // Check ||r_b(alpha)||_2 <= Max(bTol,||r_b||_2 beta mu(alpha)/mu)
@@ -592,9 +592,9 @@ Real IPFLineSearch
         if( rb_alphaNrm2 > Max(bTol,rbNrm2*ctrl.beta*mu_alpha/mu) )
         {
             if( ctrl.print && commRank == 0 )
-                std::cout << "  r_b failure: " << rb_alphaNrm2 << " > Max("
-                          << bTol << "," << rbNrm2*ctrl.beta*mu_alpha/mu << ")"
-                          << std::endl;
+                cout << "  r_b failure: " << rb_alphaNrm2 << " > Max("
+                     << bTol << "," << rbNrm2*ctrl.beta*mu_alpha/mu << ")"
+                     << endl;
             continue;
         }
         // Check ||r_c(alpha)||_2 <= Max(cTol,||r_c||_2 beta mu(alpha)/mu)
@@ -607,9 +607,9 @@ Real IPFLineSearch
         if( rc_alphaNrm2 > Max(cTol,rcNrm2*ctrl.beta*mu_alpha/mu) )
         {
             if( ctrl.print && commRank == 0 )
-                std::cout << "  r_c failure: " << rc_alphaNrm2 << " > Max("
-                          << cTol << "," << rcNrm2*ctrl.beta*mu_alpha/mu << ")"
-                          << std::endl;
+                cout << "  r_c failure: " << rc_alphaNrm2 << " > Max("
+                     << cTol << "," << rcNrm2*ctrl.beta*mu_alpha/mu << ")"
+                     << endl;
         }
         else
             break;

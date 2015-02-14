@@ -23,7 +23,7 @@ void AssignClusters
     dist.Resize( numPoints, 1 );
 
     const Base<F> maxNorm = MaxNorm( D );
-    std::vector<ValueInt<Real>> choices(numPoints);
+    vector<ValueInt<Real>> choices(numPoints);
     for( Int i=0; i<numPoints; ++i )
     {
         ValueInt<Real> choice;
@@ -62,7 +62,7 @@ void AssignClusters
     const Int numLocalPoints = D.LocalHeight();
     const Int numLocalClusters = D.LocalWidth();
     const Base<F> maxNorm = MaxNorm( D );
-    std::vector<ValueInt<Real>> localChoices(numLocalPoints);
+    vector<ValueInt<Real>> localChoices(numLocalPoints);
     for( Int iLoc=0; iLoc<numLocalPoints; ++iLoc )
     {
         localChoices[iLoc].value = 2*maxNorm;

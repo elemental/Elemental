@@ -18,7 +18,7 @@ void Hanowa( Matrix<T>& A, Int n, T mu )
         LogicError("n must be an even integer");
     A.Resize( n, n );
     const Int m = n/2;
-    std::vector<T> d(m);
+    vector<T> d(m);
 
     for( Int j=0; j<m; ++j )
         d[j] = mu;
@@ -46,11 +46,11 @@ void Hanowa( AbstractDistMatrix<T>& A, Int n, T mu )
         LogicError("n must be an even integer");
     A.Resize( n, n );
     const Int m = n/2;
-    std::vector<T> d(m);
+    vector<T> d(m);
 
     for( Int j=0; j<m; ++j )
         d[j] = mu;
-    std::unique_ptr<AbstractDistMatrix<T>> 
+    unique_ptr<AbstractDistMatrix<T>> 
       ABlock( A.Construct(A.Grid(),A.Root()) );
     View( *ABlock, A, IR(0,m), IR(0,m) );
     Diagonal( *ABlock, d );

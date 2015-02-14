@@ -11,7 +11,7 @@
 namespace El {
 
 template<typename T> 
-void Hankel( Matrix<T>& A, Int m, Int n, const std::vector<T>& a )
+void Hankel( Matrix<T>& A, Int m, Int n, const vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Hankel"))
     const Int length = m+n-1;
@@ -19,11 +19,11 @@ void Hankel( Matrix<T>& A, Int m, Int n, const std::vector<T>& a )
         LogicError("a was the wrong size");
     A.Resize( m, n );
     auto hankelFill = [&]( Int i, Int j ) { return a[i+j]; };
-    IndexDependentFill( A, std::function<T(Int,Int)>(hankelFill) );
+    IndexDependentFill( A, function<T(Int,Int)>(hankelFill) );
 }
 
 template<typename T>
-void Hankel( AbstractDistMatrix<T>& A, Int m, Int n, const std::vector<T>& a )
+void Hankel( AbstractDistMatrix<T>& A, Int m, Int n, const vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Hankel"))
     const Int length = m+n-1;
@@ -31,12 +31,12 @@ void Hankel( AbstractDistMatrix<T>& A, Int m, Int n, const std::vector<T>& a )
         LogicError("a was the wrong size");
     A.Resize( m, n );
     auto hankelFill = [&]( Int i, Int j ) { return a[i+j]; };
-    IndexDependentFill( A, std::function<T(Int,Int)>(hankelFill) );
+    IndexDependentFill( A, function<T(Int,Int)>(hankelFill) );
 }
 
 template<typename T>
 void Hankel
-( AbstractBlockDistMatrix<T>& A, Int m, Int n, const std::vector<T>& a )
+( AbstractBlockDistMatrix<T>& A, Int m, Int n, const vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Hankel"))
     const Int length = m+n-1;
@@ -44,16 +44,16 @@ void Hankel
         LogicError("a was the wrong size");
     A.Resize( m, n );
     auto hankelFill = [&]( Int i, Int j ) { return a[i+j]; };
-    IndexDependentFill( A, std::function<T(Int,Int)>(hankelFill) );
+    IndexDependentFill( A, function<T(Int,Int)>(hankelFill) );
 }
 
 #define PROTO(T) \
   template void Hankel \
-  ( Matrix<T>& A, Int m, Int n, const std::vector<T>& a ); \
+  ( Matrix<T>& A, Int m, Int n, const vector<T>& a ); \
   template void Hankel \
-  ( AbstractDistMatrix<T>& A, Int m, Int n, const std::vector<T>& a ); \
+  ( AbstractDistMatrix<T>& A, Int m, Int n, const vector<T>& a ); \
   template void Hankel \
-  ( AbstractBlockDistMatrix<T>& A, Int m, Int n, const std::vector<T>& a );
+  ( AbstractBlockDistMatrix<T>& A, Int m, Int n, const vector<T>& a );
 
 #include "El/macros/Instantiate.h"
 

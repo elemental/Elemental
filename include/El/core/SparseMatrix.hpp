@@ -90,7 +90,7 @@ public:
 
 private:
     El::Graph graph_;
-    std::vector<T> vals_;
+    vector<T> vals_;
 
     static bool CompareEntries( const Entry<T>& a, const Entry<T>& b );
 

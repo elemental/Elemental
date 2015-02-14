@@ -22,26 +22,26 @@ extern "C" {
   ElError ElCirculant_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt aSize, CREFLECT(T)* aBuf ) \
   { try { \
-      std::vector<T> a( CReflect(aBuf), CReflect(aBuf)+aSize ); \
+      vector<T> a( CReflect(aBuf), CReflect(aBuf)+aSize ); \
       Circulant( *CReflect(A), a ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElCirculantDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElInt aSize, CREFLECT(T)* aBuf ) \
   { try { \
-      std::vector<T> a( CReflect(aBuf), CReflect(aBuf)+aSize ); \
+      vector<T> a( CReflect(aBuf), CReflect(aBuf)+aSize ); \
       Circulant( *CReflect(A), a ); \
     } EL_CATCH; return EL_SUCCESS; } \
   /* Diagonal */ \
   ElError ElDiagonal_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt dSize, CREFLECT(T)* dBuf ) \
   { try { \
-      std::vector<T> d( CReflect(dBuf), CReflect(dBuf)+dSize ); \
+      vector<T> d( CReflect(dBuf), CReflect(dBuf)+dSize ); \
       Diagonal( *CReflect(A), d ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElDiagonalDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElInt dSize, CREFLECT(T)* dBuf ) \
   { try { \
-      std::vector<T> d( CReflect(dBuf), CReflect(dBuf)+dSize ); \
+      vector<T> d( CReflect(dBuf), CReflect(dBuf)+dSize ); \
       Diagonal( *CReflect(A), d ); \
     } EL_CATCH; return EL_SUCCESS; } \
   /* Forsythe */ \
@@ -81,13 +81,13 @@ extern "C" {
   ElError ElHankel_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt m, ElInt n, ElInt aSize, CREFLECT(T)* aBuf ) \
   { try { \
-      std::vector<T> a( CReflect(aBuf), CReflect(aBuf)+aSize ); \
+      vector<T> a( CReflect(aBuf), CReflect(aBuf)+aSize ); \
       Hankel( *CReflect(A), m, n, a ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElHankelDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n, ElInt aSize, CREFLECT(T)* aBuf ) \
   { try { \
-      std::vector<T> a( CReflect(aBuf), CReflect(aBuf)+aSize ); \
+      vector<T> a( CReflect(aBuf), CReflect(aBuf)+aSize ); \
       Hankel( *CReflect(A), m, n, a ); \
     } EL_CATCH; return EL_SUCCESS; } \
   /* Hanowa */ \
@@ -157,13 +157,13 @@ extern "C" {
   ElError ElToeplitz_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt m, ElInt n, ElInt aSize, CREFLECT(T)* aBuf ) \
   { try { \
-      std::vector<T> a( CReflect(aBuf), CReflect(aBuf)+aSize ); \
+      vector<T> a( CReflect(aBuf), CReflect(aBuf)+aSize ); \
       Toeplitz( *CReflect(A), m, n, a ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElToeplitzDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n, ElInt aSize, CREFLECT(T)* aBuf ) \
   { try { \
-      std::vector<T> a( CReflect(aBuf), CReflect(aBuf)+aSize ); \
+      vector<T> a( CReflect(aBuf), CReflect(aBuf)+aSize ); \
       Toeplitz( *CReflect(A), m, n, a ); \
     } EL_CATCH; return EL_SUCCESS; } \
   /* TriW */ \
@@ -223,16 +223,16 @@ extern "C" {
   ( ElMatrix_ ## SIG A, ElInt xSize, CREFLECT(T)* xBuf, \
                         ElInt ySize, CREFLECT(T)* yBuf ) \
   { try { \
-      std::vector<T> x( CReflect(xBuf), CReflect(xBuf)+xSize ); \
-      std::vector<T> y( CReflect(yBuf), CReflect(yBuf)+ySize ); \
+      vector<T> x( CReflect(xBuf), CReflect(xBuf)+xSize ); \
+      vector<T> y( CReflect(yBuf), CReflect(yBuf)+ySize ); \
       Cauchy( *CReflect(A), x, y ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElCauchyDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElInt xSize, CREFLECT(T)* xBuf, \
                             ElInt ySize, CREFLECT(T)* yBuf ) \
   { try { \
-      std::vector<T> x( CReflect(xBuf), CReflect(xBuf)+xSize ); \
-      std::vector<T> y( CReflect(yBuf), CReflect(yBuf)+ySize ); \
+      vector<T> x( CReflect(xBuf), CReflect(xBuf)+xSize ); \
+      vector<T> y( CReflect(yBuf), CReflect(yBuf)+ySize ); \
       Cauchy( *CReflect(A), x, y ); \
     } EL_CATCH; return EL_SUCCESS; } \
   /* Cauchy-like */ \
@@ -242,10 +242,10 @@ extern "C" {
                         ElInt xSize, CREFLECT(T)* xBuf, \
                         ElInt ySize, CREFLECT(T)* yBuf ) \
   { try { \
-      std::vector<T> r( CReflect(rBuf), CReflect(rBuf)+rSize ); \
-      std::vector<T> s( CReflect(sBuf), CReflect(sBuf)+sSize ); \
-      std::vector<T> x( CReflect(xBuf), CReflect(xBuf)+xSize ); \
-      std::vector<T> y( CReflect(yBuf), CReflect(yBuf)+ySize ); \
+      vector<T> r( CReflect(rBuf), CReflect(rBuf)+rSize ); \
+      vector<T> s( CReflect(sBuf), CReflect(sBuf)+sSize ); \
+      vector<T> x( CReflect(xBuf), CReflect(xBuf)+xSize ); \
+      vector<T> y( CReflect(yBuf), CReflect(yBuf)+ySize ); \
       CauchyLike( *CReflect(A), r, s, x, y ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElCauchyLikeDist_ ## SIG \
@@ -254,10 +254,10 @@ extern "C" {
                             ElInt xSize, CREFLECT(T)* xBuf, \
                             ElInt ySize, CREFLECT(T)* yBuf ) \
   { try { \
-      std::vector<T> r( CReflect(rBuf), CReflect(rBuf)+rSize ); \
-      std::vector<T> s( CReflect(sBuf), CReflect(sBuf)+sSize ); \
-      std::vector<T> x( CReflect(xBuf), CReflect(xBuf)+xSize ); \
-      std::vector<T> y( CReflect(yBuf), CReflect(yBuf)+ySize ); \
+      vector<T> r( CReflect(rBuf), CReflect(rBuf)+rSize ); \
+      vector<T> s( CReflect(sBuf), CReflect(sBuf)+sSize ); \
+      vector<T> x( CReflect(xBuf), CReflect(xBuf)+xSize ); \
+      vector<T> y( CReflect(yBuf), CReflect(yBuf)+ySize ); \
       CauchyLike( *CReflect(A), r, s, x, y ); \
     } EL_CATCH; return EL_SUCCESS; } \
   /* Demmel */ \
@@ -296,13 +296,13 @@ extern "C" {
   ElError ElFiedler_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt cSize, CREFLECT(T)* cBuf ) \
   { try { \
-      std::vector<T> c( CReflect(cBuf), CReflect(cBuf)+cSize ); \
+      vector<T> c( CReflect(cBuf), CReflect(cBuf)+cSize ); \
       Fiedler( *CReflect(A), c ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElFiedlerDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElInt cSize, CREFLECT(T)* cBuf ) \
   { try { \
-      std::vector<T> c( CReflect(cBuf), CReflect(cBuf)+cSize ); \
+      vector<T> c( CReflect(cBuf), CReflect(cBuf)+cSize ); \
       Fiedler( *CReflect(A), c ); \
     } EL_CATCH; return EL_SUCCESS; } \
   /* Gaussian */ \
@@ -360,17 +360,37 @@ extern "C" {
   ElError ElHelmholtz1DDist_ ## SIG \
   ( ElDistMatrix_ ## SIG H, ElInt nx, CREFLECT(T) shift ) \
   { EL_TRY( Helmholtz( *CReflect(H), nx, CReflect(shift) ) ) } \
+  ElError ElHelmholtz1DSparse_ ## SIG \
+  ( ElSparseMatrix_ ## SIG H, ElInt nx, CREFLECT(T) shift ) \
+  { EL_TRY( Helmholtz( *CReflect(H), nx, CReflect(shift) ) ) } \
+  ElError ElHelmholtz1DDistSparse_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG H, ElInt nx, CREFLECT(T) shift ) \
+  { EL_TRY( Helmholtz( *CReflect(H), nx, CReflect(shift) ) ) } \
   ElError ElHelmholtz2D_ ## SIG \
   ( ElMatrix_ ## SIG H, ElInt nx, ElInt ny, CREFLECT(T) shift ) \
   { EL_TRY( Helmholtz( *CReflect(H), nx, ny, CReflect(shift) ) ) } \
   ElError ElHelmholtz2DDist_ ## SIG \
   ( ElDistMatrix_ ## SIG H, ElInt nx, ElInt ny, CREFLECT(T) shift ) \
   { EL_TRY( Helmholtz( *CReflect(H), nx, ny, CReflect(shift) ) ) } \
+  ElError ElHelmholtz2DSparse_ ## SIG \
+  ( ElSparseMatrix_ ## SIG H, ElInt nx, ElInt ny, CREFLECT(T) shift ) \
+  { EL_TRY( Helmholtz( *CReflect(H), nx, ny, CReflect(shift) ) ) } \
+  ElError ElHelmholtz2DDistSparse_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG H, ElInt nx, ElInt ny, CREFLECT(T) shift ) \
+  { EL_TRY( Helmholtz( *CReflect(H), nx, ny, CReflect(shift) ) ) } \
   ElError ElHelmholtz3D_ ## SIG \
   ( ElMatrix_ ## SIG H, ElInt nx, ElInt ny, ElInt nz, CREFLECT(T) shift ) \
   { EL_TRY( Helmholtz( *CReflect(H), nx, ny, nz, CReflect(shift) ) ) } \
   ElError ElHelmholtz3DDist_ ## SIG \
   ( ElDistMatrix_ ## SIG H, ElInt nx, ElInt ny, ElInt nz, CREFLECT(T) shift ) \
+  { EL_TRY( Helmholtz( *CReflect(H), nx, ny, nz, CReflect(shift) ) ) } \
+  ElError ElHelmholtz3DSparse_ ## SIG \
+  ( ElSparseMatrix_ ## SIG H, ElInt nx, ElInt ny, ElInt nz, \
+    CREFLECT(T) shift ) \
+  { EL_TRY( Helmholtz( *CReflect(H), nx, ny, nz, CReflect(shift) ) ) } \
+  ElError ElHelmholtz3DDistSparse_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG H, ElInt nx, ElInt ny, ElInt nz, \
+    CREFLECT(T) shift ) \
   { EL_TRY( Helmholtz( *CReflect(H), nx, ny, nz, CReflect(shift) ) ) } \
   /* Hermitian from EVD */ \
   ElError ElHermitianFromEVD_ ## SIG \
@@ -411,17 +431,34 @@ extern "C" {
   { EL_TRY( Laplacian( *CReflect(L), nx ) ) } \
   ElError ElLaplacian1DDist_ ## SIG ( ElDistMatrix_ ## SIG L, ElInt nx ) \
   { EL_TRY( Laplacian( *CReflect(L), nx ) ) } \
+  ElError ElLaplacian1DSparse_ ## SIG ( ElSparseMatrix_ ## SIG L, ElInt nx ) \
+  { EL_TRY( Laplacian( *CReflect(L), nx ) ) } \
+  ElError ElLaplacian1DDistSparse_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG L, ElInt nx ) \
+  { EL_TRY( Laplacian( *CReflect(L), nx ) ) } \
   ElError ElLaplacian2D_ ## SIG \
   ( ElMatrix_ ## SIG L, ElInt nx, ElInt ny ) \
   { EL_TRY( Laplacian( *CReflect(L), nx, ny ) ) } \
   ElError ElLaplacian2DDist_ ## SIG \
   ( ElDistMatrix_ ## SIG L, ElInt nx, ElInt ny ) \
   { EL_TRY( Laplacian( *CReflect(L), nx, ny ) ) } \
+  ElError ElLaplacian2DSparse_ ## SIG \
+  ( ElSparseMatrix_ ## SIG L, ElInt nx, ElInt ny ) \
+  { EL_TRY( Laplacian( *CReflect(L), nx, ny ) ) } \
+  ElError ElLaplacian2DDistSparse_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG L, ElInt nx, ElInt ny ) \
+  { EL_TRY( Laplacian( *CReflect(L), nx, ny ) ) } \
   ElError ElLaplacian3D_ ## SIG \
   ( ElMatrix_ ## SIG L, ElInt nx, ElInt ny, ElInt nz ) \
   { EL_TRY( Laplacian( *CReflect(L), nx, ny, nz ) ) } \
   ElError ElLaplacian3DDist_ ## SIG \
   ( ElDistMatrix_ ## SIG L, ElInt nx, ElInt ny, ElInt nz ) \
+  { EL_TRY( Laplacian( *CReflect(L), nx, ny, nz ) ) } \
+  ElError ElLaplacian3DSparse_ ## SIG \
+  ( ElSparseMatrix_ ## SIG L, ElInt nx, ElInt ny, ElInt nz ) \
+  { EL_TRY( Laplacian( *CReflect(L), nx, ny, nz ) ) } \
+  ElError ElLaplacian3DDistSparse_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG L, ElInt nx, ElInt ny, ElInt nz ) \
   { EL_TRY( Laplacian( *CReflect(L), nx, ny, nz ) ) } \
   /* Legendre */ \
   ElError ElLegendre_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
@@ -502,13 +539,13 @@ extern "C" {
   ElError ElEgorov_ ## SIG \
   ( ElMatrix_ ## SIG A, Base<T> (*phase)(ElInt,ElInt), ElInt n ) \
   { try { \
-      std::function<Base<T>(Int,Int)> phaseFunc(phase); \
+      function<Base<T>(Int,Int)> phaseFunc(phase); \
       Egorov( *CReflect(A), phaseFunc, n ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElEgorovDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, Base<T> (*phase)(ElInt,ElInt), ElInt n ) \
   { try { \
-      std::function<Base<T>(Int,Int)> phaseFunc(phase); \
+      function<Base<T>(Int,Int)> phaseFunc(phase); \
       Egorov( *CReflect(A), phaseFunc, n ); \
     } EL_CATCH; return EL_SUCCESS; } \
   /* Fox-Li */ \
@@ -543,6 +580,20 @@ extern "C" {
       HelmholtzPML( \
         *CReflect(H), nx, CReflect(omega), \
         numPmlPoints, sigma, pmlExp ) ) } \
+  ElError ElHelmholtzPML1DSparse_ ## SIG \
+  ( ElSparseMatrix_ ## SIG H, ElInt nx, CREFLECT(T) omega, \
+    ElInt numPmlPoints, Base<T> sigma, Base<T> pmlExp ) \
+  { EL_TRY( \
+      HelmholtzPML( \
+        *CReflect(H), nx, CReflect(omega), \
+        numPmlPoints, sigma, pmlExp ) ) } \
+  ElError ElHelmholtzPML1DDistSparse_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG H, ElInt nx, CREFLECT(T) omega, \
+    ElInt numPmlPoints, Base<T> sigma, Base<T> pmlExp ) \
+  { EL_TRY( \
+      HelmholtzPML( \
+        *CReflect(H), nx, CReflect(omega), \
+        numPmlPoints, sigma, pmlExp ) ) } \
   ElError ElHelmholtzPML2D_ ## SIG \
   ( ElMatrix_ ## SIG H, ElInt nx, ElInt ny, CREFLECT(T) omega, \
     ElInt numPmlPoints, Base<T> sigma, Base<T> pmlExp ) \
@@ -552,6 +603,20 @@ extern "C" {
         numPmlPoints, sigma, pmlExp ) ) } \
   ElError ElHelmholtzPML2DDist_ ## SIG \
   ( ElDistMatrix_ ## SIG H, ElInt nx, ElInt ny, CREFLECT(T) omega, \
+    ElInt numPmlPoints, Base<T> sigma, Base<T> pmlExp ) \
+  { EL_TRY( \
+      HelmholtzPML( \
+        *CReflect(H), nx, ny, CReflect(omega), \
+        numPmlPoints, sigma, pmlExp ) ) } \
+  ElError ElHelmholtzPML2DSparse_ ## SIG \
+  ( ElSparseMatrix_ ## SIG H, ElInt nx, ElInt ny, CREFLECT(T) omega, \
+    ElInt numPmlPoints, Base<T> sigma, Base<T> pmlExp ) \
+  { EL_TRY( \
+      HelmholtzPML( \
+        *CReflect(H), nx, ny, CReflect(omega), \
+        numPmlPoints, sigma, pmlExp ) ) } \
+  ElError ElHelmholtzPML2DDistSparse_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG H, ElInt nx, ElInt ny, CREFLECT(T) omega, \
     ElInt numPmlPoints, Base<T> sigma, Base<T> pmlExp ) \
   { EL_TRY( \
       HelmholtzPML( \
@@ -567,6 +632,20 @@ extern "C" {
   ElError ElHelmholtzPML3DDist_ ## SIG \
   ( ElDistMatrix_ ## SIG H, ElInt nx, ElInt ny, ElInt nz, CREFLECT(T) omega, \
     ElInt numPmlPoints, Base<T> sigma, Base<T> pmlExp ) \
+  { EL_TRY( \
+      HelmholtzPML( \
+        *CReflect(H), nx, ny, nz, CReflect(omega), \
+        numPmlPoints, sigma, pmlExp ) ) } \
+  ElError ElHelmholtzPML3DSparse_ ## SIG \
+  ( ElSparseMatrix_ ## SIG H, ElInt nx, ElInt ny, ElInt nz, CREFLECT(T) omega, \
+    ElInt numPmlPoints, Base<T> sigma, Base<T> pmlExp ) \
+  { EL_TRY( \
+      HelmholtzPML( \
+        *CReflect(H), nx, ny, nz, CReflect(omega), \
+        numPmlPoints, sigma, pmlExp ) ) } \
+  ElError ElHelmholtzPML3DDistSparse_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG H, ElInt nx, ElInt ny, ElInt nz, \
+    CREFLECT(T) omega, ElInt numPmlPoints, Base<T> sigma, Base<T> pmlExp ) \
   { EL_TRY( \
       HelmholtzPML( \
         *CReflect(H), nx, ny, nz, CReflect(omega), \

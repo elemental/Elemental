@@ -11,8 +11,7 @@
 #include "El.hpp"
 using namespace El;
 
-int
-main( int argc, char* argv[] )
+int main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
@@ -20,10 +19,10 @@ main( int argc, char* argv[] )
 
     try
     {
-        const int n1 = Input("--n1","first grid dimension",30);
-        const int n2 = Input("--n2","second grid dimension",30);
-        const int n3 = Input("--n3","third grid dimension",30);
-        const int numRhs = Input("--numRhs","number of right-hand sides",5);
+        const Int n1 = Input("--n1","first grid dimension",30);
+        const Int n2 = Input("--n2","second grid dimension",30);
+        const Int n3 = Input("--n3","third grid dimension",30);
+        const Int numRhs = Input("--numRhs","number of right-hand sides",5);
         const bool sequential = Input
             ("--sequential","sequential partitions?",true);
         const int numDistSeps = Input
@@ -32,7 +31,7 @@ main( int argc, char* argv[] )
         const int numSeqSeps = Input
             ("--numSeqSeps",
              "number of separators to try per sequential partition",1);
-        const int cutoff = Input("--cutoff","cutoff for nested dissection",128);
+        const Int cutoff = Input("--cutoff","cutoff for nested dissection",128);
         const bool print = Input("--print","print matrix?",false);
         const bool display = Input("--display","display matrix?",false);
         ProcessInput();
@@ -44,46 +43,9 @@ main( int argc, char* argv[] )
         ctrl.cutoff = cutoff;
 
         const int N = n1*n2*n3;
-        DistSparseMatrix<double> A( N, comm );
-
-        // Fill our portion of the 3D negative Laplacian using a n1 x n2 x n3
-        // 7-point stencil in natural ordering: (x,y,z) at x + y*n1 + z*n1*n2
-        if( commRank == 0 )
-        {
-            std::cout << "Filling local portion of matrix...";
-            std::cout.flush();
-        }
-        const double fillStart = mpi::Time();
-        const int firstLocalRow = A.FirstLocalRow();
-        const int localHeight = A.LocalHeight();
-        A.Reserve( 7*localHeight );
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
-        {
-            const int i = firstLocalRow + iLocal;
-            const int x = i % n1;
-            const int y = (i/n1) % n2;
-            const int z = i/(n1*n2);
-
-            A.QueueLocalUpdate( iLocal, i, 6. );
-            if( x != 0 )
-                A.QueueLocalUpdate( iLocal, i-1, -1. );
-            if( x != n1-1 )
-                A.QueueLocalUpdate( iLocal, i+1, -1. );
-            if( y != 0 )
-                A.QueueLocalUpdate( iLocal, i-n1, -1. );
-            if( y != n2-1 )
-                A.QueueLocalUpdate( iLocal, i+n1, -1. );
-            if( z != 0 )
-                A.QueueLocalUpdate( iLocal, i-n1*n2, -1. );
-            if( z != n3-1 )
-                A.QueueLocalUpdate( iLocal, i+n1*n2, -1. );
-        } 
-        A.MakeConsistent();
-        mpi::Barrier( comm );
-        const double fillStop =  mpi::Time();
-        if( commRank == 0 )
-            std::cout << "done, " << fillStop-fillStart << " seconds" 
-                      << std::endl;
+        DistSparseMatrix<double> A(comm);
+        Laplacian( A, n1, n2, n3 );
+        Scale( -1., A );
         if( display )
         {
             Display( A );
@@ -97,8 +59,8 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
         {
-            std::cout << "Generating random vector X and forming Y := A X...";
-            std::cout.flush();
+            cout << "Generating random vector X and forming Y := A X...";
+            cout.flush();
         }
         const double multiplyStart = mpi::Time();
         DistMultiVec<double> X( N, numRhs, comm ), Y( N, numRhs, comm );
@@ -110,23 +72,22 @@ main( int argc, char* argv[] )
         mpi::Barrier( comm );
         const double multiplyStop = mpi::Time();
         if( commRank == 0 )
-            std::cout << "done, " << multiplyStop-multiplyStart << " seconds"
-                      << std::endl;
+            cout << "done, " << multiplyStop-multiplyStart << " seconds"
+                 << endl;
 
         if( commRank == 0 )
         {
-            std::cout << "Solving...";
-            std::cout.flush();
+            cout << "Solving...";
+            cout.flush();
         }
         const double solveStart = mpi::Time();
         SymmetricSolve( A, Y, false, ctrl );
         const double solveStop = mpi::Time();
         if( commRank == 0 )
-            std::cout << "done, " << solveStop-solveStart << " seconds"
-                      << std::endl;
+            cout << "done, " << solveStop-solveStart << " seconds" << endl;
 
         if( commRank == 0 )
-            std::cout << "Checking error in computed solution..." << std::endl;
+            cout << "Checking error in computed solution..." << endl;
         Matrix<double> XNorms, YNorms;
         ColumnNorms( X, XNorms );
         ColumnNorms( Y, YNorms );
@@ -137,17 +98,17 @@ main( int argc, char* argv[] )
         {
             for( int j=0; j<numRhs; ++j )
             {
-                std::cout << "Right-hand side " << j << "\n"
-                          << "------------------------------------------\n"
-                          << "|| x     ||_2 = " << XNorms.Get(j,0) << "\n"
-                          << "|| xComp ||_2 = " << YNorms.Get(j,0) << "\n"
-                          << "|| A x   ||_2 = " << YOrigNorms.Get(j,0) << "\n"
-                          << "|| error ||_2 = " << errorNorms.Get(j,0) << "\n"
-                          << std::endl;
+                cout << "Right-hand side " << j << "\n"
+                     << "------------------------------------------\n"
+                     << "|| x     ||_2 = " << XNorms.Get(j,0) << "\n"
+                     << "|| xComp ||_2 = " << YNorms.Get(j,0) << "\n"
+                     << "|| A x   ||_2 = " << YOrigNorms.Get(j,0) << "\n"
+                     << "|| error ||_2 = " << errorNorms.Get(j,0) << "\n"
+                     << endl;
             }
         }
     }
-    catch( std::exception& e ) { ReportException(e); }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

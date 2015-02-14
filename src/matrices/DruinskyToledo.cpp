@@ -34,7 +34,7 @@ void DruinskyToledo( Matrix<F>& A, Int k )
     typedef Base<F> Real;
     const Real phi = Real(1) + 4*lapack::MachineEpsilon<Real>();
     const Real alphaPhi = LDLPivotConstant<Real>(BUNCH_KAUFMAN_A)*phi;
-    std::vector<Real> d( k-2 );
+    vector<Real> d( k-2 );
     Real sigma(1);
     for( Int i=0; i<k-2; ++i )
     {
@@ -77,7 +77,7 @@ void DruinskyToledo( AbstractDistMatrix<F>& A, Int k )
     typedef Base<F> Real;
     const Real phi = Real(1) + 4*lapack::MachineEpsilon<Real>();
     const Real alphaPhi = LDLPivotConstant<Real>(BUNCH_KAUFMAN_A)*phi;
-    std::vector<Real> d( k-2 );
+    vector<Real> d( k-2 );
     Real sigma(1);
     for( Int i=0; i<k-2; ++i )
     {
@@ -85,7 +85,7 @@ void DruinskyToledo( AbstractDistMatrix<F>& A, Int k )
         sigma -= 1/d[i];
     }
 
-    std::unique_ptr<AbstractDistMatrix<F>> 
+    unique_ptr<AbstractDistMatrix<F>> 
       ASub( A.Construct(A.Grid(),A.Root()) );
 
     View( *ASub, A, IR(k-2,k), IR(0,k) );

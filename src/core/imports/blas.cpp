@@ -977,6 +977,33 @@ void Gemm
   float alpha, const float* A, int lda, const float* B, int ldb,
   float beta,        float* C, int ldc )
 {
+    DEBUG_ONLY(
+      CallStackEntry cse("blas::Gemm");
+      if( transA == 'N' )
+      {
+          if( lda < Max(m,1) )
+              LogicError("lda was too small: lda=",lda,",m=",m);
+      }
+      else
+      {
+          if( lda < Max(k,1) )
+              LogicError("lda was too small: lda=",lda,",k=",k);
+      }
+
+      if( transB == 'N' )
+      {
+          if( ldb < Max(k,1) )
+              LogicError("ldb was too small: ldb=",ldb,",k=",k);
+      }
+      else
+      {
+          if( ldb < Max(n,1) )
+              LogicError("ldb was too small: ldb=",ldb,",n=",n);
+      }
+
+      if( ldc < Max(m,1) )
+          LogicError("ldc was too small: ldc=",ldc,",m=",m);
+    )
     const char fixedTransA = ( transA == 'C' ? 'T' : transA );
     const char fixedTransB = ( transB == 'C' ? 'T' : transB );
     EL_BLAS(sgemm)
@@ -990,6 +1017,34 @@ void Gemm
   double alpha, const double* A, int lda, const double* B, int ldb,
   double beta,        double* C, int ldc )
 {
+    DEBUG_ONLY(
+      CallStackEntry cse("blas::Gemm");
+
+      if( transA == 'N' )
+      {
+          if( lda < Max(m,1) )
+              LogicError("lda was too small: lda=",lda,",m=",m);
+      }
+      else
+      {
+          if( lda < Max(k,1) )
+              LogicError("lda was too small: lda=",lda,",k=",k);
+      }      
+
+      if( transB == 'N' )
+      {
+          if( ldb < Max(k,1) )
+              LogicError("ldb was too small: ldb=",ldb,",k=",k);
+      }
+      else
+      {
+          if( ldb < Max(n,1) )
+              LogicError("ldb was too small: ldb=",ldb,",n=",n);
+      }
+
+      if( ldc < Max(m,1) )
+          LogicError("ldc was too small: ldc=",ldc,",m=",m);
+    )
     const char fixedTransA = ( transA == 'C' ? 'T' : transA );
     const char fixedTransB = ( transB == 'C' ? 'T' : transB );
     EL_BLAS(dgemm)
@@ -1002,6 +1057,34 @@ void Gemm
   scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
   scomplex beta,        scomplex* C, int ldc )
 {
+    DEBUG_ONLY(
+      CallStackEntry cse("blas::Gemm");
+
+      if( transA == 'N' )
+      {
+          if( lda < Max(m,1) )
+              LogicError("lda was too small: lda=",lda,",m=",m);
+      }
+      else
+      {
+          if( lda < Max(k,1) )
+              LogicError("lda was too small: lda=",lda,",k=",k);
+      }      
+
+      if( transB == 'N' )
+      {
+          if( ldb < Max(k,1) )
+              LogicError("ldb was too small: ldb=",ldb,",k=",k);
+      }
+      else
+      {
+          if( ldb < Max(n,1) )
+              LogicError("ldb was too small: ldb=",ldb,",n=",n);
+      }
+
+      if( ldc < Max(m,1) )
+          LogicError("ldc was too small: ldc=",ldc,",m=",m);
+    )
     EL_BLAS(cgemm)
     ( &transA, &transB, &m, &n, &k,
       &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
@@ -1012,6 +1095,34 @@ void Gemm
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc )
 {
+    DEBUG_ONLY(
+      CallStackEntry cse("blas::Gemm");
+
+      if( transA == 'N' )
+      {
+          if( lda < Max(m,1) )
+              LogicError("lda was too small: lda=",lda,",m=",m);
+      }
+      else
+      {
+          if( lda < Max(k,1) )
+              LogicError("lda was too small: lda=",lda,",k=",k);
+      }      
+
+      if( transB == 'N' )
+      {
+          if( ldb < Max(k,1) )
+              LogicError("ldb was too small: ldb=",ldb,",k=",k);
+      }
+      else
+      {
+          if( ldb < Max(n,1) )
+              LogicError("ldb was too small: ldb=",ldb,",n=",n);
+      }
+
+      if( ldc < Max(m,1) )
+          LogicError("ldc was too small: ldc=",ldc,",m=",m);
+    )
     EL_BLAS(zgemm)
     ( &transA, &transB, &m, &n, &k,
       &alpha, A, &lda, B, &ldb, &beta, C, &ldc );

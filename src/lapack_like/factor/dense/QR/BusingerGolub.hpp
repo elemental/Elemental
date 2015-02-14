@@ -15,7 +15,7 @@ namespace qr {
 
 template<typename F>
 inline Base<F>
-ColNorms( const Matrix<F>& A, std::vector<Base<F>>& norms )
+ColNorms( const Matrix<F>& A, vector<Base<F>>& norms )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::ColNorms"))
     typedef Base<F> Real;
@@ -26,14 +26,14 @@ ColNorms( const Matrix<F>& A, std::vector<Base<F>>& norms )
     for( Int j=0; j<n; ++j )
     {
         norms[j] = blas::Nrm2( m, A.LockedBuffer(0,j), 1 );
-        maxNorm = std::max( maxNorm, norms[j] );
+        maxNorm = Max( maxNorm, norms[j] );
     }
     return maxNorm;
 }
 
 template<typename Real>
 inline ValueInt<Real>
-FindPivot( const std::vector<Real>& norms, Int col )
+FindPivot( const vector<Real>& norms, Int col )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::FindPivot"))
     const auto maxNorm = std::max_element( norms.begin()+col, norms.end() );
@@ -62,9 +62,9 @@ inline void BusingerGolub
     // Initialize two copies of the column norms, one will be consistently
     // updated, but the original copy will be kept to determine when the 
     // updated quantities are no longer accurate.
-    std::vector<Real> origNorms;
+    vector<Real> origNorms;
     const Real maxOrigNorm = ColNorms( A, origNorms );
-    std::vector<Real> norms = origNorms;
+    auto norms = origNorms;
     const Real updateTol = Sqrt(lapack::MachineEpsilon<Real>());
 
     // Initialize the inverse permutation to the identity
@@ -128,7 +128,7 @@ inline void BusingerGolub
             if( norms[j] != Real(0) )
             {
                 Real gamma = Abs(A.Get(k,j)) / norms[j];
-                gamma = std::max( Real(0), (Real(1)-gamma)*(Real(1)+gamma) );
+                gamma = Max( Real(0), (Real(1)-gamma)*(Real(1)+gamma) );
 
                 const Real ratio = norms[j] / origNorms[j];
                 const Real phi = gamma*(ratio*ratio);
@@ -149,7 +149,7 @@ inline void BusingerGolub
     GetRealPartOfDiagonal(R,d);
     auto sgn = []( Real delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };
-    EntrywiseMap( d, std::function<Real(Real)>(sgn) );
+    EntrywiseMap( d, function<Real(Real)>(sgn) );
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
 
     // Ensure that t is the correct length
@@ -159,7 +159,7 @@ inline void BusingerGolub
 template<typename F>
 inline ValueInt<Base<F>>
 FindColPivot
-( const DistMatrix<F>& A, const std::vector<Base<F>>& norms, Int col )
+( const DistMatrix<F>& A, const vector<Base<F>>& norms, Int col )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::FindColPivot"))
     typedef Base<F> Real;
@@ -173,7 +173,7 @@ FindColPivot
 
 template<typename F>
 inline Base<F>
-ColNorms( const DistMatrix<F>& A, std::vector<Base<F>>& norms )
+ColNorms( const DistMatrix<F>& A, vector<Base<F>>& norms )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::ColNorms"))
     typedef Base<F> Real;
@@ -183,8 +183,8 @@ ColNorms( const DistMatrix<F>& A, std::vector<Base<F>>& norms )
     mpi::Comm rowComm = A.Grid().RowComm();
 
     // Carefully perform the local portion of the computation
-    std::vector<Real> localScales(localWidth,0), 
-                      localScaledSquares(localWidth,1);
+    vector<Real> localScales(localWidth,0), 
+                 localScaledSquares(localWidth,1);
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             UpdateScaledSquare
@@ -192,7 +192,7 @@ ColNorms( const DistMatrix<F>& A, std::vector<Base<F>>& norms )
               localScales[jLoc], localScaledSquares[jLoc] );
 
     // Find the maximum relative scales 
-    std::vector<Real> scales(localWidth);
+    vector<Real> scales(localWidth);
     mpi::AllReduce
     ( localScales.data(), scales.data(), localWidth, mpi::MAX, colComm );
 
@@ -207,7 +207,7 @@ ColNorms( const DistMatrix<F>& A, std::vector<Base<F>>& norms )
     }
 
     // Now sum the local contributions (can ignore results where scale is 0)
-    std::vector<Real> scaledSquares(localWidth); 
+    vector<Real> scaledSquares(localWidth); 
     mpi::AllReduce
     ( localScaledSquares.data(), scaledSquares.data(), localWidth, colComm );
 
@@ -220,7 +220,7 @@ ColNorms( const DistMatrix<F>& A, std::vector<Base<F>>& norms )
             norms[jLoc] = scales[jLoc]*Sqrt(scaledSquares[jLoc]);
         else
             norms[jLoc] = 0;
-        maxLocalNorm = std::max( maxLocalNorm, norms[jLoc] );
+        maxLocalNorm = Max( maxLocalNorm, norms[jLoc] );
     }
     return mpi::AllReduce( maxLocalNorm, mpi::MAX, rowComm );
 }
@@ -228,8 +228,8 @@ ColNorms( const DistMatrix<F>& A, std::vector<Base<F>>& norms )
 template<typename F>
 inline void
 ReplaceColNorms
-( const DistMatrix<F>& A, std::vector<Int>& inaccurateNorms, 
-  std::vector<Base<F>>& norms, std::vector<Base<F>>& origNorms )
+( const DistMatrix<F>& A, vector<Int>& inaccurateNorms, 
+  vector<Base<F>>& norms, vector<Base<F>>& origNorms )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::ReplaceColNorms"))
     typedef Base<F> Real;
@@ -238,8 +238,8 @@ ReplaceColNorms
     mpi::Comm colComm = A.Grid().ColComm();
 
     // Carefully perform the local portion of the computation
-    std::vector<Real> localScales(numInaccurate,0), 
-                      localScaledSquares(numInaccurate,1);
+    vector<Real> localScales(numInaccurate,0), 
+                 localScaledSquares(numInaccurate,1);
     for( Int s=0; s<numInaccurate; ++s )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             UpdateScaledSquare
@@ -247,7 +247,7 @@ ReplaceColNorms
               localScales[s], localScaledSquares[s] );
 
     // Find the maximum relative scales 
-    std::vector<Real> scales(numInaccurate);
+    vector<Real> scales(numInaccurate);
     mpi::AllReduce
     ( localScales.data(), scales.data(), numInaccurate, mpi::MAX, colComm );
 
@@ -262,7 +262,7 @@ ReplaceColNorms
     }
 
     // Now sum the local contributions (can ignore results where scale is 0)
-    std::vector<Real> scaledSquares(numInaccurate); 
+    vector<Real> scaledSquares(numInaccurate); 
     mpi::AllReduce
     ( localScaledSquares.data(), scaledSquares.data(), numInaccurate, colComm );
 
@@ -304,11 +304,11 @@ inline void BusingerGolub
     // Initialize two copies of the column norms, one will be consistently
     // updated, but the original copy will be kept to determine when the 
     // updated quantities are no longer accurate.
-    std::vector<Real> origNorms( A.LocalWidth() );
+    vector<Real> origNorms( A.LocalWidth() );
     const Real maxOrigNorm = ColNorms( A, origNorms );
-    std::vector<Real> norms = origNorms;
+    auto norms = origNorms;
     const Real updateTol = Sqrt(lapack::MachineEpsilon<Real>());
-    std::vector<Int> inaccurateNorms;
+    vector<Int> inaccurateNorms;
 
     // Initialize the inverse permutation to the identity
     const Grid& g = A.Grid();
@@ -426,7 +426,7 @@ inline void BusingerGolub
             {
                 const Real beta = Abs(a12_STAR_MR.GetLocal(0,jLoc12));
                 Real gamma = beta / norms[jLoc];
-                gamma = std::max( Real(0), (Real(1)-gamma)*(Real(1)+gamma) );
+                gamma = Max( Real(0), (Real(1)-gamma)*(Real(1)+gamma) );
 
                 const Real ratio = norms[jLoc] / origNorms[jLoc];
                 const Real phi = gamma*(ratio*ratio);
@@ -446,7 +446,7 @@ inline void BusingerGolub
     GetRealPartOfDiagonal(R,d);
     auto sgn = []( Real delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };
-    EntrywiseMap( d, std::function<Real(Real)>(sgn) );
+    EntrywiseMap( d, function<Real(Real)>(sgn) );
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
 
     // Ensure that t is the correct length

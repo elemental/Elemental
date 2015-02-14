@@ -25,7 +25,7 @@ void Sort( Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort )
 
     // Initialize the pairs of indices and eigenvalues
     typedef Base<F> Real;
-    std::vector<ValueInt<Real>> pairs = TaggedSort( w, sort );
+    vector<ValueInt<Real>> pairs = TaggedSort( w, sort );
 
     // Reorder the eigenvectors and eigenvalues using the new ordering
     const Int n = Z.Height();
@@ -49,7 +49,7 @@ void Sort
         return;
 
     // Get the sorted eigenvalue information
-    std::vector<ValueInt<Real>> pairs = TaggedSort( w, sort );
+    auto pairs = TaggedSort( w, sort );
 
     // Locally reorder the eigenvectors and eigenvalues using the new ordering
     const Int n = Z.Height();

@@ -16,8 +16,8 @@ namespace reg_qsd_ldl {
 template<typename F>
 Int RegularizedSolveAfter
 ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,             const DistSymmInfo& info,
-  const DistSymmFrontTree<F>& AFact,       DistMultiVec<F>& b,
+  const DistMap& invMap,             const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front,           DistMultiVec<F>& b,
   Base<F> minReductionFactor,              Int maxRefineIts,
   bool progress )
 {
@@ -31,9 +31,8 @@ Int RegularizedSolveAfter
     // Compute the initial guess
     // =========================
     DistMultiVec<F> x(comm);
-    DistNodalMultiVec<F> xNodal;
-    xNodal.Pull( invMap, info, b );
-    ldl::SolveAfter( info, AFact, xNodal );
+    DistMultiVecNode<F> xNodal( invMap, info, b );
+    ldl::SolveAfter( info, front, xNodal );
     xNodal.Push( invMap, info, x );
 
     Int refineIt = 0;
@@ -46,13 +45,13 @@ Int RegularizedSolveAfter
         Multiply( NORMAL, F(-1), A, x, F(1), b );
         Base<F> errorNorm = Nrm2( b );
         if( progress && commRank == 0 )
-            std::cout << "    original error norm: " << errorNorm << std::endl;
+            cout << "    original error norm: " << errorNorm << endl;
         for( ; refineIt<maxRefineIts; ++refineIt )
         {
             // Compute the proposed update to the solution
             // -------------------------------------------
             xNodal.Pull( invMap, info, b );
-            ldl::SolveAfter( info, AFact, xNodal );
+            ldl::SolveAfter( info, front, xNodal );
             xNodal.Push( invMap, info, dx );
             xCand = x;
             Axpy( F(1), dx, xCand );
@@ -66,8 +65,8 @@ Int RegularizedSolveAfter
             Multiply( NORMAL, F(-1), A, xCand, F(1), b );
             Base<F> newErrorNorm = Nrm2( b );
             if( progress && commRank == 0 )
-                std::cout << "    reduced by factor " 
-                          << errorNorm/newErrorNorm << std::endl;
+                cout << "    reduced by factor " 
+                     << errorNorm/newErrorNorm << endl;
             if( minReductionFactor*newErrorNorm < errorNorm )
             {
                 x = xCand;
@@ -92,8 +91,8 @@ Int RegularizedSolveAfter
 template<typename F>
 Int IRSolveAfter
 ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,             const DistSymmInfo& info,
-  const DistSymmFrontTree<F>& AFact,       DistMultiVec<F>& b,
+  const DistMap& invMap,             const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front,           DistMultiVec<F>& b,
   Base<F> minReductionFactor,              Int maxRefineIts,
   bool progress )
 {
@@ -109,7 +108,7 @@ Int IRSolveAfter
     DistMultiVec<F> x(comm);
     x = b;
     RegularizedSolveAfter
-    ( A, reg, invMap, info, AFact, x, 
+    ( A, reg, invMap, info, front, x, 
       minReductionFactor, maxRefineIts, progress );
 
     Int refineIt = 0;
@@ -119,14 +118,14 @@ Int IRSolveAfter
         Multiply( NORMAL, F(-1), A, x, F(1), b );
         Base<F> errorNorm = Nrm2( b );
         if( progress && commRank == 0 )
-            std::cout << "    original error norm: " << errorNorm << std::endl;
+            cout << "    original error norm: " << errorNorm << endl;
         for( ; refineIt<maxRefineIts; ++refineIt )
         {
             // Compute the proposed update to the solution
             // -------------------------------------------
             dx = b;
             RegularizedSolveAfter
-            ( A, reg, invMap, info, AFact, dx, 
+            ( A, reg, invMap, info, front, dx, 
               minReductionFactor, maxRefineIts, progress );
             xCand = x;
             Axpy( F(1), dx, xCand );
@@ -137,8 +136,8 @@ Int IRSolveAfter
             Multiply( NORMAL, F(-1), A, xCand, F(1), b );
             Base<F> newErrorNorm = Nrm2( b );
             if( progress && commRank == 0 )
-                std::cout << "    reduced by factor " 
-                          << errorNorm/newErrorNorm << std::endl;
+                cout << "    reduced by factor " 
+                     << errorNorm/newErrorNorm << endl;
             if( minReductionFactor*newErrorNorm < errorNorm )
             {
                 x = xCand;
@@ -163,8 +162,8 @@ Int IRSolveAfter
 template<typename F>
 Int LGMRESSolveAfter
 ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,             const DistSymmInfo& info,
-  const DistSymmFrontTree<F>& AFact,       DistMultiVec<F>& b,
+  const DistMap& invMap,             const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front,           DistMultiVec<F>& b,
   Base<F> minReductionFactor,              Int maxRefineIts,
   bool progress )
 {
@@ -200,7 +199,7 @@ Int LGMRESSolveAfter
     while( !converged )
     {
         if( progress && commRank == 0 )
-            std::cout << "  Starting GMRES iteration " << iter << std::endl;
+            cout << "  Starting GMRES iteration " << iter << endl;
         Zeros( cs, k, 1 );
         Zeros( sn, k, 1 );
         Zeros( H,  k, k );
@@ -219,7 +218,7 @@ Int LGMRESSolveAfter
         // w := inv(M) w
         // =============
         Int refineIts = RegularizedSolveAfter
-        ( A, reg, invMap, info, AFact, w, 
+        ( A, reg, invMap, info, front, w, 
           minReductionFactor, maxRefineIts, progress );
         maxLargeRefines = Max( refineIts, maxLargeRefines );
 
@@ -250,7 +249,7 @@ Int LGMRESSolveAfter
             // w := inv(M) w
             // -------------
             Int refineIts = RegularizedSolveAfter
-            ( A, reg, invMap, info, AFact, w, 
+            ( A, reg, invMap, info, front, w, 
               minReductionFactor, maxRefineIts, progress );
             maxLargeRefines = Max( refineIts, maxLargeRefines );
 
@@ -350,8 +349,8 @@ Int LGMRESSolveAfter
             if( relResidNorm < relTol )
             {
                 if( progress && commRank == 0 )
-                    std::cout << "  converged with relative tolerance: "
-                              << relResidNorm << std::endl;
+                    cout << "  converged with relative tolerance: "
+                         << relResidNorm << endl;
                 converged = true;
                 ++iter;
                 break;
@@ -359,8 +358,8 @@ Int LGMRESSolveAfter
             else
             {
                 if( progress && commRank == 0 )
-                    std::cout << "  finished iteration " << iter << " with "
-                              << "relResidNorm=" << relResidNorm << std::endl;
+                    cout << "  finished iteration " << iter << " with "
+                         << "relResidNorm=" << relResidNorm << endl;
             }
             ++iter;
         }
@@ -377,8 +376,8 @@ Int LGMRESSolveAfter
 template<typename F>
 Int FGMRESSolveAfter
 ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,             const DistSymmInfo& info,
-  const DistSymmFrontTree<F>& AFact,       DistMultiVec<F>& b,
+  const DistMap& invMap,             const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front,           DistMultiVec<F>& b,
   Base<F> minReductionFactor,              Int maxRefineIts,
   bool progress )
 {
@@ -403,7 +402,7 @@ Int FGMRESSolveAfter
     w = b;
     const Real origResidNorm = Nrm2( w );
     if( progress && commRank == 0 )
-        std::cout << "origResidNorm: " << origResidNorm << std::endl;
+        cout << "origResidNorm: " << origResidNorm << endl;
     if( origResidNorm == Real(0) )
         return 0;
 
@@ -416,7 +415,7 @@ Int FGMRESSolveAfter
     while( !converged )
     {
         if( progress && commRank == 0 )
-            std::cout << "  Starting FGMRES iteration " << iter << std::endl;
+            cout << "  Starting FGMRES iteration " << iter << endl;
         Zeros( cs, k, 1 );
         Zeros( sn, k, 1 );
         Zeros( H,  k, k );
@@ -461,7 +460,7 @@ Int FGMRESSolveAfter
             auto zjLoc = ZLoc( IR(0,nLoc), IR(j,j+1) );
             q.Matrix() = vjLoc;
             Int refineIts = RegularizedSolveAfter
-            ( A, reg, invMap, info, AFact, q, 
+            ( A, reg, invMap, info, front, q, 
               minReductionFactor, maxRefineIts, progress );
             maxLargeRefines = Max( refineIts, maxLargeRefines );
             zjLoc = q.Matrix();
@@ -567,8 +566,8 @@ Int FGMRESSolveAfter
             if( relResidNorm < relTol )
             {
                 if( progress && commRank == 0 )
-                    std::cout << "  converged with relative tolerance: "
-                              << relResidNorm << std::endl;
+                    cout << "  converged with relative tolerance: "
+                         << relResidNorm << endl;
                 converged = true;
                 ++iter;
                 break;
@@ -576,8 +575,8 @@ Int FGMRESSolveAfter
             else
             {
                 if( progress && commRank == 0 )
-                    std::cout << "  finished iteration " << iter << " with "
-                              << "relResidNorm=" << relResidNorm << std::endl;
+                    cout << "  finished iteration " << iter << " with "
+                         << "relResidNorm=" << relResidNorm << endl;
             }
             ++iter;
         }
@@ -591,8 +590,8 @@ Int FGMRESSolveAfter
 template<typename F>
 Int SolveAfter
 ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,             const DistSymmInfo& info,
-  const DistSymmFrontTree<F>& AFact,       DistMultiVec<F>& b,
+  const DistMap& invMap,             const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front,           DistMultiVec<F>& b,
   RegQSDRefineAlg refineAlg,
   Base<F> minReductionFactor,              Int maxRefineIts,
   bool progress )
@@ -602,19 +601,19 @@ Int SolveAfter
     {
     case REG_REFINE_FGMRES:
         return FGMRESSolveAfter
-        ( A, reg, invMap, info, AFact, b, 
+        ( A, reg, invMap, info, front, b, 
           minReductionFactor, maxRefineIts, progress );
     case REG_REFINE_LGMRES:
         return LGMRESSolveAfter
-        ( A, reg, invMap, info, AFact, b, 
+        ( A, reg, invMap, info, front, b, 
           minReductionFactor, maxRefineIts, progress );
     case REG_REFINE_IR:
         return IRSolveAfter
-        ( A, reg, invMap, info, AFact, b, 
+        ( A, reg, invMap, info, front, b, 
           minReductionFactor, maxRefineIts, progress );
     case REG_REFINE_IR_MOD:    
         return RegularizedSolveAfter
-        ( A, reg, invMap, info, AFact, b, 
+        ( A, reg, invMap, info, front, b, 
           minReductionFactor, maxRefineIts, progress );
     default:
         LogicError("Invalid refinement algorithm");
@@ -624,14 +623,14 @@ Int SolveAfter
 #define PROTO(F) \
   template Int RegularizedSolveAfter \
   ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg, \
-    const DistMap& invMap,             const DistSymmInfo& info, \
-    const DistSymmFrontTree<F>& AFact,       DistMultiVec<F>& b, \
+    const DistMap& invMap,             const DistSymmNodeInfo& info, \
+    const DistSymmFront<F>& front,           DistMultiVec<F>& b, \
     Base<F> minReductionFactor,              Int maxRefineIts, \
     bool progress ); \
   template Int SolveAfter \
   ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg, \
-    const DistMap& invMap,             const DistSymmInfo& info, \
-    const DistSymmFrontTree<F>& AFact,       DistMultiVec<F>& b, \
+    const DistMap& invMap,             const DistSymmNodeInfo& info, \
+    const DistSymmFront<F>& front,           DistMultiVec<F>& b, \
     RegQSDRefineAlg refineAlg, \
     Base<F> minReductionFactor,              Int maxRefineIts, \
     bool progress );

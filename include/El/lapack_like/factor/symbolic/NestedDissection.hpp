@@ -41,17 +41,23 @@ struct BisectCtrl
 };
 
 void NestedDissection
+( const Graph& graph, 
+        vector<Int>& map,
+        Separator& rootSep, 
+        SymmNodeInfo& rootInfo,
+  const BisectCtrl& ctrl=BisectCtrl() );
+void NestedDissection
 ( const DistGraph& graph, 
         DistMap& map,
-        DistSeparatorTree& sepTree, 
-        DistSymmInfo& info,
+        DistSeparator& rootSep, 
+        DistSymmNodeInfo& rootInfo,
   const BisectCtrl& ctrl=BisectCtrl() );
 
 Int Bisect
 ( const Graph& graph, 
         Graph& leftChild, 
         Graph& rightChild, 
-        std::vector<Int>& perm, 
+        vector<Int>& perm, 
   const BisectCtrl& ctrl=BisectCtrl() );
 
 // NOTE: for two or more processes
@@ -62,13 +68,11 @@ Int Bisect
         bool& onLeft,
   const BisectCtrl& ctrl=BisectCtrl() );
 
-int DistributedDepth( mpi::Comm comm );
-void EnsurePermutation( const std::vector<Int>& map );
+void EnsurePermutation( const vector<Int>& map );
 void EnsurePermutation( const DistMap& map );
-void ReverseOrder( DistSeparatorTree& sepTree, DistSymmElimTree& eTree );
 
 void BuildChildrenFromPerm
-( const Graph& graph, const std::vector<Int>& perm, 
+( const Graph& graph, const vector<Int>& perm, 
   Int leftChildSize, Graph& leftChild,
   Int rightChildSize, Graph& rightChild );
 void BuildChildFromPerm
@@ -77,8 +81,10 @@ void BuildChildFromPerm
   bool& onLeft, DistGraph& child );
 
 void BuildMap
-( const DistGraph& graph, 
-  const DistSeparatorTree& sepTree, 
+( const Separator& rootSep, 
+        vector<Int>& map );
+void BuildMap
+( const DistSeparator& rootSep, 
         DistMap& map );
 
 } // namespace El

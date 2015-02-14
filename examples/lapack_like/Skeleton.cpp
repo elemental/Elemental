@@ -81,9 +81,9 @@ main( int argc, char* argv[] )
 
         if( mpi::WorldRank() == 0 )
         {
-            std::cout << "|| A ||_F = " << frobA << "\n\n"
-                      << "|| A - AC Z AR ||_F / || A ||_F = " 
-                      << frobError/frobA << "\n" << std::endl;
+            cout << "|| A ||_F = " << frobA << "\n\n"
+                 << "|| A - AC Z AR ||_F / || A ||_F = " 
+                 << frobError/frobA << "\n" << endl;
         }
     }
     catch( exception& e ) { ReportException(e); }

@@ -57,8 +57,8 @@ main( int argc, char* argv[] )
             // Perform the QR/LQ factorization and solve
             if( commRank == 0 )
             {
-                std::cout << "Starting LeastSquares...";
-                std::cout.flush();
+                cout << "Starting LeastSquares...";
+                cout.flush();
             }
             mpi::Barrier( comm );
             double startTime = mpi::Time();
@@ -66,7 +66,7 @@ main( int argc, char* argv[] )
             mpi::Barrier( comm );
             double stopTime = mpi::Time();
             if( commRank == 0 )
-                std::cout << stopTime-startTime << " seconds." << std::endl;
+                cout << stopTime-startTime << " seconds." << endl;
 
             // Form R := op(A) X - B
             DistMatrix<F> R( B );
@@ -81,15 +81,15 @@ main( int argc, char* argv[] )
             const double frobResidual = 
                 RFrobNorm / (AFrobNorm*XFrobNorm*epsilon*n);
             if( commRank == 0 )
-                std::cout << "||A||_F       = " << AFrobNorm << "\n"
-                          << "||B||_F       = " << BFrobNorm << "\n"
-                          << "||X||_F       = " << XFrobNorm << "\n"
-                          << "||A X - B||_F = " << RFrobNorm << "\n"
-                          << "||op(A)X-B||_F / (||A||_F ||X||_F epsilon n) = " 
-                          << frobResidual << "\n" << std::endl;
+                cout << "||A||_F       = " << AFrobNorm << "\n"
+                     << "||B||_F       = " << BFrobNorm << "\n"
+                     << "||X||_F       = " << XFrobNorm << "\n"
+                     << "||A X - B||_F = " << RFrobNorm << "\n"
+                     << "||op(A)X-B||_F / (||A||_F ||X||_F epsilon n) = " 
+                     << frobResidual << "\n" << endl;
         }
     }
-    catch( std::exception& e ) { ReportException(e); }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

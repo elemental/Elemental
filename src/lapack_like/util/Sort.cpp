@@ -60,7 +60,7 @@ void Sort( AbstractDistMatrix<Real>& X, SortType sort )
 // Tagged sort
 
 template<typename Real>
-std::vector<ValueInt<Real>> TaggedSort
+vector<ValueInt<Real>> TaggedSort
 ( const Matrix<Real>& x, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("TaggedSort"))
@@ -75,7 +75,7 @@ std::vector<ValueInt<Real>> TaggedSort
     const Int stride = ( n==1 ? 1 : x.LDim() );
     const Real* xBuffer = x.LockedBuffer();
 
-    std::vector<ValueInt<Real>> pairs( k );
+    vector<ValueInt<Real>> pairs( k );
     for( Int i=0; i<k; ++i )
     {
         pairs[i].value = xBuffer[i*stride];
@@ -91,7 +91,7 @@ std::vector<ValueInt<Real>> TaggedSort
 }
 
 template<typename Real>
-std::vector<ValueInt<Real>> TaggedSort
+vector<ValueInt<Real>> TaggedSort
 ( const AbstractDistMatrix<Real>& x, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("TaggedSort"))
@@ -109,9 +109,9 @@ std::vector<ValueInt<Real>> TaggedSort
 #define PROTO(Real) \
   template void Sort( Matrix<Real>& x, SortType sort ); \
   template void Sort( AbstractDistMatrix<Real>& x, SortType sort ); \
-  template std::vector<ValueInt<Real>> TaggedSort \
+  template vector<ValueInt<Real>> TaggedSort \
   ( const Matrix<Real>& x, SortType sort ); \
-  template std::vector<ValueInt<Real>> TaggedSort \
+  template vector<ValueInt<Real>> TaggedSort \
   ( const AbstractDistMatrix<Real>& x, SortType sort );
 
 #define EL_NO_COMPLEX_PROTO

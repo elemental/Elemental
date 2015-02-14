@@ -102,13 +102,13 @@ void IPF
         // Now check the pieces
         // --------------------
         if( ctrl.print )
-            std::cout << " iter " << numIts << ":\n"
-                      << "  |primal - dual| / (1 + |primal|) = "
-                      << objConv << "\n"
-                      << "  || r_b ||_2 / (1 + || b ||_2)   = "
-                      << rbConv << "\n"
-                      << "  || r_c ||_2 / (1 + || c ||_2)   = "
-                      << rcConv << std::endl;
+            cout << " iter " << numIts << ":\n"
+                 << "  |primal - dual| / (1 + |primal|) = "
+                 << objConv << "\n"
+                 << "  || r_b ||_2 / (1 + || b ||_2)   = "
+                 << rbConv << "\n"
+                 << "  || r_c ||_2 / (1 + || c ||_2)   = "
+                 << rcConv << endl;
         if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
             break;
 
@@ -175,12 +175,12 @@ void IPF
         const Real dzErrorNrm2 = Nrm2( dzError );
 
         if( ctrl.print )
-            std::cout << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
-                      << dxErrorNrm2/(1+rbNrm2) << "\n"
-                      << "  || dyError ||_2 / (1 + || r_c ||_2) = " 
-                      << dyErrorNrm2/(1+rcNrm2) << "\n"
-                      << "  || dzError ||_2 / (1 + || r_mu ||_2) = " 
-                      << dzErrorNrm2/(1+rmuNrm2) << std::endl;
+            cout << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
+                 << dxErrorNrm2/(1+rbNrm2) << "\n"
+                 << "  || dyError ||_2 / (1 + || r_c ||_2) = " 
+                 << dyErrorNrm2/(1+rcNrm2) << "\n"
+                 << "  || dzError ||_2 / (1 + || r_mu ||_2) = " 
+                 << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
         // Take a step in the computed direction
@@ -189,14 +189,14 @@ void IPF
         const Real alphaDual = MaxStepInPositiveCone( z, dz, Real(1) );
         const Real alphaMax = Min(alphaPrimal,alphaDual);
         if( ctrl.print )
-            std::cout << "alphaMax = " << alphaMax << std::endl;
+            cout << "alphaMax = " << alphaMax << endl;
         const Real alpha =
           IPFLineSearch
           ( Q, A, b, c, x, y, z, dx, dy, dz, 
             Real(0.99)*alphaMax,
             ctrl.tol*(1+bNrm2), ctrl.tol*(1+cNrm2), ctrl.lineSearchCtrl );
         if( ctrl.print )
-            std::cout << "  alpha = " << alpha << std::endl;
+            cout << "  alpha = " << alpha << endl;
         Axpy( alpha, dx, x );
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );
@@ -291,13 +291,13 @@ void IPF
         // Now check the pieces
         // --------------------
         if( ctrl.print && commRank == 0 )
-            std::cout << " iter " << numIts << ":\n"
-                      << "  |primal - dual| / (1 + |primal|) = "
-                      << objConv << "\n"
-                      << "  || r_b ||_2 / (1 + || b ||_2)   = "
-                      << rbConv << "\n"
-                      << "  || r_c ||_2 / (1 + || c ||_2)   = "
-                      << rcConv << std::endl;
+            cout << " iter " << numIts << ":\n"
+                 << "  |primal - dual| / (1 + |primal|) = "
+                 << objConv << "\n"
+                 << "  || r_b ||_2 / (1 + || b ||_2)   = "
+                 << rbConv << "\n"
+                 << "  || r_c ||_2 / (1 + || c ||_2)   = "
+                 << rcConv << endl;
         if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
             break;
 
@@ -364,12 +364,12 @@ void IPF
         const Real dzErrorNrm2 = Nrm2( dzError );
 
         if( ctrl.print && commRank == 0 )
-            std::cout << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
-                      << dxErrorNrm2/(1+rbNrm2) << "\n"
-                      << "  || dyError ||_2 / (1 + || r_c ||_2) = " 
-                      << dyErrorNrm2/(1+rcNrm2) << "\n"
-                      << "  || dzError ||_2 / (1 + || r_mu ||_2) = " 
-                      << dzErrorNrm2/(1+rmuNrm2) << std::endl;
+            cout << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
+                 << dxErrorNrm2/(1+rbNrm2) << "\n"
+                 << "  || dyError ||_2 / (1 + || r_c ||_2) = " 
+                 << dyErrorNrm2/(1+rcNrm2) << "\n"
+                 << "  || dzError ||_2 / (1 + || r_mu ||_2) = " 
+                 << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
         // Take a step in the computed direction
@@ -378,14 +378,14 @@ void IPF
         const Real alphaDual = MaxStepInPositiveCone( z, dz, Real(1) );
         const Real alphaMax = Min(alphaPrimal,alphaDual);
         if( ctrl.print && commRank == 0 )
-            std::cout << "alphaMax = " << alphaMax << std::endl;
+            cout << "alphaMax = " << alphaMax << endl;
         const Real alpha =
           IPFLineSearch
           ( Q, A, b, c, x, y, z, dx, dy, dz, 
             Real(0.99)*alphaMax,
             ctrl.tol*(1+bNrm2), ctrl.tol*(1+cNrm2), ctrl.lineSearchCtrl );
         if( ctrl.print && commRank == 0 )
-            std::cout << "  alpha = " << alpha << std::endl;
+            cout << "  alpha = " << alpha << endl;
         Axpy( alpha, dx, x );
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );
@@ -424,8 +424,8 @@ void IPF
     const Real cNrm2 = Nrm2( c );
 
     DistMap map, invMap;
-    DistSymmInfo info;
-    DistSeparatorTree sepTree;
+    DistSymmNodeInfo info;
+    DistSeparator rootSep;
     // The initialization involves an augmented KKT system, and so we can
     // only reuse the factorization metadata if the this IPM is using the
     // augmented formulation
@@ -434,23 +434,23 @@ void IPF
     if( ctrl.system == AUGMENTED_KKT )
     {
         Initialize
-        ( Q, A, b, c, x, y, z, map, invMap, sepTree, info,
+        ( Q, A, b, c, x, y, z, map, invMap, rootSep, info,
           ctrl.primalInitialized, ctrl.dualInitialized, standardShift,
           ctrl.print );
     }
     else
     {
         DistMap augMap, augInvMap;
-        DistSymmInfo augInfo;
-        DistSeparatorTree augSepTree;
+        DistSymmNodeInfo augInfo;
+        DistSeparator augRootSep;
         Initialize
-        ( Q, A, b, c, x, y, z, augMap, augInvMap, augSepTree, augInfo, 
+        ( Q, A, b, c, x, y, z, augMap, augInvMap, augRootSep, augInfo, 
           ctrl.primalInitialized, ctrl.dualInitialized, standardShift,
           ctrl.print );
     }
 
     DistSparseMatrix<Real> J(comm);
-    DistSymmFrontTree<Real> JFrontTree;
+    DistSymmFront<Real> JFront;
     DistMultiVec<Real> d(comm),
                        rc(comm), rb(comm), rmu(comm), 
                        dx(comm), dy(comm), dz(comm);
@@ -490,7 +490,7 @@ void IPF
                 regCand.SetLocal( iLoc, 0, -regMagLagrange );
         }
     }
-    DistNodalMultiVec<Real> regCandNodal, regNodal;
+    DistMultiVecNode<Real> regCandNodal, regNodal;
     bool increasedReg = false;
 
 #ifndef EL_RELEASE
@@ -536,13 +536,13 @@ void IPF
         // Now check the pieces
         // --------------------
         if( ctrl.print && commRank == 0 )
-            std::cout << " iter " << numIts << ":\n"
-                      << "  |primal - dual| / (1 + |primal|) = "
-                      << objConv << "\n"
-                      << "  || r_b ||_2 / (1 + || b ||_2)   = "
-                      << rbConv << "\n"
-                      << "  || r_c ||_2 / (1 + || c ||_2)   = "
-                      << rcConv << std::endl;
+            cout << " iter " << numIts << ":\n"
+                 << "  |primal - dual| / (1 + |primal|) = "
+                 << objConv << "\n"
+                 << "  || r_b ||_2 / (1 + || b ||_2)   = "
+                 << rbConv << "\n"
+                 << "  || r_c ||_2 / (1 + || c ||_2)   = "
+                 << rcConv << endl;
         if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
             break;
 
@@ -580,23 +580,21 @@ void IPF
             // --------------------------------------------------
             if( numIts == 0 )
             {
-                NestedDissection( J.LockedDistGraph(), map, sepTree, info );
+                NestedDissection( J.LockedDistGraph(), map, rootSep, info );
                 map.FormInverse( invMap );
             }
-            JFrontTree.Initialize( J, map, sepTree, info );
+            JFront.Pull( J, map, rootSep, info );
             regCandNodal.Pull( invMap, info, regCand );
             regNodal.Pull( invMap, info, reg );
             RegularizedQSDLDL
-            ( info, JFrontTree, pivTol, regCandNodal, regNodal, 
-              aPriori, LDL_1D );
+            ( info, JFront, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
             regNodal.Push( invMap, info, reg );
 
             // Compute the proposed step from the regularized KKT system
             // ---------------------------------------------------------
             const Int numLargeRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFrontTree, d, 
-              REG_REFINE_FGMRES,
-              minReductionFactor, maxRefineIts, ctrl.print );
+            ( J, reg, invMap, info, JFront, d, 
+              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
             if( numLargeRefines > 3 && !increasedReg )
             {
                 Scale( Real(10), regCand );
@@ -619,23 +617,21 @@ void IPF
             // ---------------------------------------------
             if( ctrl.primalInitialized && ctrl.dualInitialized && numIts == 0 )
             {
-                NestedDissection( J.LockedDistGraph(), map, sepTree, info );
+                NestedDissection( J.LockedDistGraph(), map, rootSep, info );
                 map.FormInverse( invMap );
             }
-            JFrontTree.Initialize( J, map, sepTree, info );
+            JFront.Pull( J, map, rootSep, info );
             regCandNodal.Pull( invMap, info, regCand );
             regNodal.Pull( invMap, info, reg );
             RegularizedQSDLDL
-            ( info, JFrontTree, pivTol, regCandNodal, regNodal, 
-              aPriori, LDL_1D );
+            ( info, JFront, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
             regNodal.Push( invMap, info, reg );
 
             // Compute the proposed step from the regularized KKT system
             // ---------------------------------------------------------
             const Int numLargeRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFrontTree, d, 
-              REG_REFINE_FGMRES,
-              minReductionFactor, maxRefineIts, ctrl.print );
+            ( J, reg, invMap, info, JFront, d, 
+              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
             if( numLargeRefines > 3 && !increasedReg )
             {
                 Scale( Real(10), regCand );
@@ -671,12 +667,12 @@ void IPF
         // TODO: Also compute and print the residuals with regularization
 
         if( ctrl.print && commRank == 0 )
-            std::cout << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
-                      << dxErrorNrm2/(1+rbNrm2) << "\n"
-                      << "  || dyError ||_2 / (1 + || r_c ||_2) = " 
-                      << dyErrorNrm2/(1+rcNrm2) << "\n"
-                      << "  || dzError ||_2 / (1 + || r_mu ||_2) = " 
-                      << dzErrorNrm2/(1+rmuNrm2) << std::endl;
+            cout << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
+                 << dxErrorNrm2/(1+rbNrm2) << "\n"
+                 << "  || dyError ||_2 / (1 + || r_c ||_2) = " 
+                 << dyErrorNrm2/(1+rcNrm2) << "\n"
+                 << "  || dzError ||_2 / (1 + || r_mu ||_2) = " 
+                 << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
         // Take a step in the computed direction
@@ -685,14 +681,14 @@ void IPF
         const Real alphaDual = MaxStepInPositiveCone( z, dz, Real(1) );
         const Real alphaMax = Min(alphaPrimal,alphaDual);
         if( ctrl.print && commRank == 0 )
-            std::cout << "alphaMax = " << alphaMax << std::endl;
+            cout << "alphaMax = " << alphaMax << endl;
         const Real alpha = 
           IPFLineSearch
           ( Q, A, b, c, x, y, z, dx, dy, dz, 
             Real(0.99)*alphaMax,
             ctrl.tol*(1+bNrm2), ctrl.tol*(1+cNrm2), ctrl.lineSearchCtrl );
         if( ctrl.print && commRank == 0 )
-            std::cout << "  alpha = " << alpha << std::endl; 
+            cout << "  alpha = " << alpha << endl; 
         Axpy( alpha, dx, x );
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );

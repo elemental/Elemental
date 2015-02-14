@@ -325,7 +325,7 @@ void Initialize
         DistMultiVec<Real>& x,            DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,            DistMultiVec<Real>& s,
         DistMap& map,                     DistMap& invMap, 
-        DistSeparatorTree& sepTree,       DistSymmInfo& info,
+        DistSeparator& rootSep,           DistSymmNodeInfo& info,
   bool primalInitialized, bool dualInitialized,
   bool standardShift,     bool progress )
 {
@@ -336,7 +336,7 @@ void Initialize
     Q.Resize( n, n );
     qp::affine::Initialize
     ( Q, A, G, b, c, h, x, y, z, s, 
-      map, invMap, sepTree, info, 
+      map, invMap, rootSep, info, 
       primalInitialized, dualInitialized, standardShift, progress );
 }
 
@@ -372,7 +372,7 @@ void Initialize
           DistMultiVec<Real>& x,            DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z,            DistMultiVec<Real>& s, \
           DistMap& map,                     DistMap& invMap, \
-          DistSeparatorTree& sepTree,       DistSymmInfo& info, \
+          DistSeparator& rootSep,           DistSymmNodeInfo& info, \
     bool primalInitialized, bool dualInitialized, \
     bool standardShift,     bool progress );
 

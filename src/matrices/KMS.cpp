@@ -19,7 +19,7 @@ void KMS( Matrix<T>& K, Int n, T rho )
       [=]( Int i, Int j ) -> T
       { if( i < j ) { return Pow(rho,T(j-i));       } 
         else        { return Conj(Pow(rho,T(i-j))); } };
-    IndexDependentFill( K, std::function<T(Int,Int)>(kmsFill) );
+    IndexDependentFill( K, function<T(Int,Int)>(kmsFill) );
 }
 
 template<typename T>
@@ -31,7 +31,7 @@ void KMS( AbstractDistMatrix<T>& K, Int n, T rho )
       [=]( Int i, Int j ) -> T
       { if( i < j ) { return Pow(rho,T(j-i));       } 
         else        { return Conj(Pow(rho,T(i-j))); } };
-    IndexDependentFill( K, std::function<T(Int,Int)>(kmsFill) );
+    IndexDependentFill( K, function<T(Int,Int)>(kmsFill) );
 }
 
 template<typename T>
@@ -43,7 +43,7 @@ void KMS( AbstractBlockDistMatrix<T>& K, Int n, T rho )
       [=]( Int i, Int j ) -> T
       { if( i < j ) { return Pow(rho,T(j-i));       } 
         else        { return Conj(Pow(rho,T(i-j))); } };
-    IndexDependentFill( K, std::function<T(Int,Int)>(kmsFill) );
+    IndexDependentFill( K, function<T(Int,Int)>(kmsFill) );
 }
 
 #define PROTO(T) \

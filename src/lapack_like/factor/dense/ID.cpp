@@ -28,7 +28,7 @@ PseudoTrsm( const Matrix<F>& RL, Matrix<F>& RR, Base<F> tol )
     // Compute the spectral radius of the triangular matrix
     Real maxAbsEig = 0;
     for( Int i=0; i<m; ++i )
-        maxAbsEig = std::max( maxAbsEig, Abs(RL.Get(i,i)) );
+        maxAbsEig = Max( maxAbsEig, Abs(RL.Get(i,i)) );
 
     for( Int i=m-1; i>=0; --i )
     {

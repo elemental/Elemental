@@ -13,9 +13,9 @@
 namespace El {
 
 const char* QtImageFormat( FileFormat format );
-std::string FileExtension( FileFormat format );
-FileFormat FormatFromExtension( const std::string ext );
-FileFormat DetectFormat( const std::string filename );
+string FileExtension( FileFormat format );
+FileFormat FormatFromExtension( const string ext );
+FileFormat DetectFormat( const string filename );
 
 std::ifstream::pos_type FileSize( std::ifstream& file );
 
@@ -78,38 +78,36 @@ void ProcessEvents( int numMsecs );
 // Dense
 // -----
 template<typename Real>
-void Display( const Matrix<Real>& A, std::string title="Matrix" );
+void Display( const Matrix<Real>& A, string title="Matrix" );
 template<typename Real>
-void Display( const Matrix<Complex<Real>>& A, std::string title="Matrix" );
+void Display( const Matrix<Complex<Real>>& A, string title="Matrix" );
+template<typename T>
+void Display( const AbstractDistMatrix<T>& A, string title="DistMatrix" );
 template<typename T>
 void Display
-( const AbstractDistMatrix<T>& A, std::string title="DistMatrix" );
+( const AbstractBlockDistMatrix<T>& A, string title="BlockDistMatrix" );
 template<typename T>
-void Display
-( const AbstractBlockDistMatrix<T>& A, std::string title="BlockDistMatrix" );
-template<typename T>
-void Display( const DistMultiVec<T>& X, std::string title="DistMultiVec" );
+void Display( const DistMultiVec<T>& X, string title="DistMultiVec" );
 
 // Graphs and sparse matrices
 // --------------------------
-void Display( const Graph& graph, std::string title="Graph" );
-void Display( const DistGraph& graph, std::string title="DistGraph" );
+void Display( const Graph& graph, string title="Graph" );
+void Display( const DistGraph& graph, string title="DistGraph" );
 
 template<typename Real>
 void Display
-( const SparseMatrix<Real>& A, std::string title="SparseMatrix" );
+( const SparseMatrix<Real>& A, string title="SparseMatrix" );
 template<typename Real>
 void Display
-( const SparseMatrix<Complex<Real>>& A, std::string title="SparseMatrix" );
+( const SparseMatrix<Complex<Real>>& A, string title="SparseMatrix" );
 template<typename T>
-void Display
-( const DistSparseMatrix<T>& A, std::string title="DistSparseMatrix" );
+void Display( const DistSparseMatrix<T>& A, string title="DistSparseMatrix" );
 
 // Sparse-direct data structures
 // -----------------------------
-struct DistSymmInfo; // forward declaration
+struct DistSymmNodeInfo; // forward declaration
 void DisplayLocal
-( const DistSymmInfo& info, bool beforeFact, std::string title="" );
+( const DistSymmNodeInfo& info, bool beforeFact, string title="" );
 
 // Print
 // =====
@@ -117,91 +115,82 @@ void DisplayLocal
 // Dense
 // -----
 template<typename T>
-void Print
-( const Matrix<T>& A, std::string title="Matrix", std::ostream& os=std::cout );
+void Print( const Matrix<T>& A, string title="Matrix", ostream& os=cout );
 template<typename T>
 void Print
-( const AbstractDistMatrix<T>& A, std::string title="DistMatrix",
-  std::ostream& os=std::cout );
+( const AbstractDistMatrix<T>& A, string title="DistMatrix", ostream& os=cout );
 template<typename T>
 void Print
-( const AbstractBlockDistMatrix<T>& A, std::string title="BlockDistMatrix",
-  std::ostream& os=std::cout );
+( const AbstractBlockDistMatrix<T>& A, string title="BlockDistMatrix",
+  ostream& os=cout );
 template<typename T>
 void Print
-( const DistMultiVec<T>& X, std::string title="DistMultiVec", 
-  std::ostream& os=std::cout );
+( const DistMultiVec<T>& X, string title="DistMultiVec", ostream& os=cout );
 
 // Graphs and sparse matrices
 // --------------------------
+void Print( const Graph& graph, string title="Graph", ostream& os=cout );
 void Print
-( const Graph& graph, std::string title="Graph", std::ostream& os=std::cout );
-void Print
-( const DistGraph& graph, std::string title="DistGraph", 
-  std::ostream& os=std::cout );
+( const DistGraph& graph, string title="DistGraph", ostream& os=cout );
 
 template<typename T>
 void Print
-( const SparseMatrix<T>& A, std::string title="SparseMatrix", 
-  std::ostream& os=std::cout );
+( const SparseMatrix<T>& A, string title="SparseMatrix", ostream& os=cout );
 template<typename T>
 void Print
-( const DistSparseMatrix<T>& A, std::string title="DistSparseMatrix",
-  std::ostream& os=std::cout );
+( const DistSparseMatrix<T>& A, string title="DistSparseMatrix",
+  ostream& os=cout );
 
 // Sparse-direct
 // -------------
 void PrintLocal
-( const DistSymmInfo& info,
-  std::string title="Local DistSymmInfo", std::ostream& os=std::cout );
+( const DistSymmNodeInfo& info,
+  string title="Local DistSymmNodeInfo", ostream& os=cout );
 
 // Utilities
 // ---------
 template<typename T>
-void Print
-( const std::vector<T>& x, std::string title="std::vector", 
-  std::ostream& os=std::cout );
+void Print( const vector<T>& x, string title="vector", ostream& os=cout );
 
 // Read
 // ====
 template<typename T>
-void Read( Matrix<T>& A, const std::string filename, FileFormat format=AUTO );
+void Read( Matrix<T>& A, const string filename, FileFormat format=AUTO );
 template<typename T>
 void Read
 ( AbstractDistMatrix<T>& A, 
-  const std::string filename, FileFormat format=AUTO, bool sequential=false );
+  const string filename, FileFormat format=AUTO, bool sequential=false );
 template<typename T>
 void Read
 ( AbstractBlockDistMatrix<T>& A, 
-  const std::string filename, FileFormat format=AUTO, bool sequential=false );
+  const string filename, FileFormat format=AUTO, bool sequential=false );
 
 // Spy
 // ===
 template<typename T>
-void Spy( const Matrix<T>& A, std::string title="Matrix", Base<T> tol=0 );
+void Spy( const Matrix<T>& A, string title="Matrix", Base<T> tol=0 );
 template<typename T>
 void Spy
-( const AbstractDistMatrix<T>& A, std::string title="DistMatrix", 
-  Base<T> tol=0 );
+( const AbstractDistMatrix<T>& A, string title="DistMatrix", Base<T> tol=0 );
 template<typename T>
 void Spy
 ( const AbstractBlockDistMatrix<T>& A,
-  std::string title="BlockDistMatrix", Base<T> tol=0 );
+  string title="BlockDistMatrix", Base<T> tol=0 );
 
 // Write
 // =====
 template<typename T>
 void Write
-( const Matrix<T>& A, std::string basename="Matrix", FileFormat format=BINARY,
-  std::string title="" );
+( const Matrix<T>& A, string basename="Matrix", FileFormat format=BINARY,
+  string title="" );
 template<typename T>
 void Write
-( const AbstractDistMatrix<T>& A, std::string basename="DistMatrix",
-  FileFormat format=BINARY, std::string title="" );
+( const AbstractDistMatrix<T>& A, string basename="DistMatrix",
+  FileFormat format=BINARY, string title="" );
 template<typename T>
 void Write
-( const AbstractBlockDistMatrix<T>& A, std::string basename="BlockDistMatrix",
-  FileFormat format=BINARY, std::string title="" );
+( const AbstractBlockDistMatrix<T>& A, string basename="BlockDistMatrix",
+  FileFormat format=BINARY, string title="" );
 
 } // namespace El
 

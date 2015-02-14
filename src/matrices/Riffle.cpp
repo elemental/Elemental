@@ -36,7 +36,7 @@ void Riffle( Matrix<F>& P, Int n )
         else
             return Base<F>(0); 
       };
-    IndexDependentFill( P, std::function<F(Int,Int)>(riffleFill) );
+    IndexDependentFill( P, function<F(Int,Int)>(riffleFill) );
 }
 
 template<typename F>
@@ -59,7 +59,7 @@ void Riffle( AbstractDistMatrix<F>& P, Int n )
         else
             return Base<F>(0); 
       };
-    IndexDependentFill( P, std::function<F(Int,Int)>(riffleFill) );
+    IndexDependentFill( P, function<F(Int,Int)>(riffleFill) );
 }
 
 template<typename F>
@@ -82,7 +82,7 @@ void Riffle( AbstractBlockDistMatrix<F>& P, Int n )
         else
             return Base<F>(0); 
       };
-    IndexDependentFill( P, std::function<F(Int,Int)>(riffleFill) );
+    IndexDependentFill( P, function<F(Int,Int)>(riffleFill) );
 }
 
 template<typename F>
@@ -91,7 +91,7 @@ void RiffleStationary( Matrix<F>& PInf, Int n )
     DEBUG_ONLY(CallStackEntry cse("RiffleStationary"))    
     typedef Base<F> Real;
     // NOTE: This currently requires quadratic time
-    std::vector<Real> sigma(n,0), sigmaTmp(n,0);
+    vector<Real> sigma(n,0), sigmaTmp(n,0);
     sigma[0] = sigmaTmp[0] = 1;
     for( Int j=1; j<n; ++j )
     {
@@ -105,7 +105,7 @@ void RiffleStationary( Matrix<F>& PInf, Int n )
     
     PInf.Resize( n, n );
     auto riffleStatFill = [&]( Int i, Int j ) { return sigma[j]; };
-    IndexDependentFill( PInf, std::function<F(Int,Int)>(riffleStatFill) );
+    IndexDependentFill( PInf, function<F(Int,Int)>(riffleStatFill) );
 }
 
 template<typename F>
@@ -114,7 +114,7 @@ void RiffleStationary( AbstractDistMatrix<F>& PInf, Int n )
     DEBUG_ONLY(CallStackEntry cse("RiffleStationary"))    
     typedef Base<F> Real;
     // NOTE: This currently requires quadratic time
-    std::vector<Real> sigma(n,0), sigmaTmp(n,0);
+    vector<Real> sigma(n,0), sigmaTmp(n,0);
     sigma[0] = sigmaTmp[0] = 1;
     for( Int j=1; j<n; ++j )
     {
@@ -128,7 +128,7 @@ void RiffleStationary( AbstractDistMatrix<F>& PInf, Int n )
 
     PInf.Resize( n, n );
     auto riffleStatFill = [&]( Int i, Int j ) { return sigma[j]; };
-    IndexDependentFill( PInf, std::function<F(Int,Int)>(riffleStatFill) );
+    IndexDependentFill( PInf, function<F(Int,Int)>(riffleStatFill) );
 }
 
 template<typename F>
@@ -137,7 +137,7 @@ void RiffleStationary( AbstractBlockDistMatrix<F>& PInf, Int n )
     DEBUG_ONLY(CallStackEntry cse("RiffleStationary"))    
     typedef Base<F> Real;
     // NOTE: This currently requires quadratic time
-    std::vector<Real> sigma(n,0), sigmaTmp(n,0);
+    vector<Real> sigma(n,0), sigmaTmp(n,0);
     sigma[0] = sigmaTmp[0] = 1;
     for( Int j=1; j<n; ++j )
     {
@@ -151,7 +151,7 @@ void RiffleStationary( AbstractBlockDistMatrix<F>& PInf, Int n )
     
     PInf.Resize( n, n );
     auto riffleStatFill = [&]( Int i, Int j ) { return sigma[j]; };
-    IndexDependentFill( PInf, std::function<F(Int,Int)>(riffleStatFill) );
+    IndexDependentFill( PInf, function<F(Int,Int)>(riffleStatFill) );
 }
 
 template<typename F>
@@ -198,7 +198,7 @@ void RiffleDecay( AbstractDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("RiffleDecay"))
     Riffle( A, n );
-    std::unique_ptr<AbstractDistMatrix<F>> 
+    unique_ptr<AbstractDistMatrix<F>> 
       PInf( A.Construct(A.Grid(),A.Root()) );
     PInf->AlignWith( A.DistData() );
     RiffleStationary( *PInf, n );

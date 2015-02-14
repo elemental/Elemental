@@ -101,10 +101,10 @@ main( int argc, char* argv[] )
             Input("--imgSaveFreq","image save frequency",-1);
         const Int imgDispFreq =
             Input("--imgDispFreq","image display frequency",-1);
-        const std::string numBase = 
-            Input("--numBase","numerical save basename",std::string("num"));
-        const std::string imgBase = 
-            Input("--imgBase","image save basename",std::string("img"));
+        const string numBase = 
+            Input("--numBase","numerical save basename",string("num"));
+        const string imgBase = 
+            Input("--imgBase","image save basename",string("img"));
         const Int numFormatInt = Input("--numFormat","numerical format",2);
         const Int imgFormatInt = Input("--imgFormat","image format",8);
         const Int colorMapInt = Input("--colorMap","color map",0);
@@ -135,7 +135,7 @@ main( int argc, char* argv[] )
         const C uniformCenter(uniformRealCenter,uniformImagCenter);
 
         bool isReal = true;
-        std::string matName;
+        string matName;
         DistMatrix<Real> AReal(g);
         DistMatrix<C> ACpx(g);
         switch( matType )
@@ -274,21 +274,21 @@ main( int argc, char* argv[] )
         mpi::Barrier( mpi::COMM_WORLD );
         const double schurTime = timer.Stop();
         if( mpi::WorldRank() == 0 )
-            std::cout << "Schur decomposition took " << schurTime << " seconds" 
-                      << std::endl; 
+            cout << "Schur decomposition took " << schurTime << " seconds" 
+                 << endl; 
 
         if( saveSchur )
         {
             if( mpi::WorldRank() == 0 )
             {
-                std::cout << "Writing Schur decomposition to file...";
-                std::cout.flush();
+                cout << "Writing Schur decomposition to file...";
+                cout.flush();
             }
             timer.Start();
             if( isReal )
             {
                 {
-                    std::ostringstream os;
+                    ostringstream os;
                     os << matName << "-" 
                        << AReal.ColStride() << "x" << AReal.RowStride()
                        << "-" << AReal.DistRank();
@@ -296,7 +296,7 @@ main( int argc, char* argv[] )
                 }
                 if( psNorm == PS_ONE_NORM )
                 {
-                    std::ostringstream os;
+                    ostringstream os;
                     os << matName << "-Q-"
                        << QReal.ColStride() << "x" << QReal.RowStride()
                        << "-" << QReal.DistRank();
@@ -306,7 +306,7 @@ main( int argc, char* argv[] )
             else
             {
                 {
-                    std::ostringstream os;
+                    ostringstream os;
                     os << matName << "-" 
                        << ACpx.ColStride() << "x" << ACpx.RowStride()
                        << "-" << ACpx.DistRank();
@@ -314,7 +314,7 @@ main( int argc, char* argv[] )
                 }
                 if( psNorm == PS_ONE_NORM )
                 {
-                    std::ostringstream os;
+                    ostringstream os;
                     os << matName << "-Q-"
                        << QCpx.ColStride() << "x" << QCpx.RowStride()
                        << "-" << QCpx.DistRank();
@@ -324,8 +324,7 @@ main( int argc, char* argv[] )
             mpi::Barrier( mpi::COMM_WORLD );
             const double saveSchurTime = timer.Stop();
             if( mpi::WorldRank() == 0 )
-                std::cout << "DONE. " << saveSchurTime << " seconds" 
-                          << std::endl;
+                cout << "DONE. " << saveSchurTime << " seconds" << endl;
         }
 
         // Find a window if none is specified
@@ -338,24 +337,21 @@ main( int argc, char* argv[] )
             {
                 width = 1;
                 if( mpi::WorldRank() == 0 )
-                    std::cout << "Setting width to 1 to handle zero matrix"
-                              << std::endl;
+                    cout << "Setting width to 1 to handle zero matrix" << endl;
             }
             else if( radius >= 0.2*oneNorm )
             {
                 width = 2.5*radius;
                 if( mpi::WorldRank() == 0 )
-                    std::cout << "Setting width to " << width
-                              << " based on the spectral radius, " 
-                              << radius << std::endl;
+                    cout << "Setting width to " << width
+                         << " based on the spectral radius, " << radius << endl;
             }
             else
             {
                 width = 0.8*oneNorm;
                 if( mpi::WorldRank() == 0 )
-                    std::cout << "Setting width to " << width
-                              << " based on the one norm, " << oneNorm 
-                              << std::endl;
+                    cout << "Setting width to " << width
+                         << " based on the one norm, " << oneNorm << endl;
             }
             realWidth = width;
             imagWidth = width;
@@ -394,9 +390,9 @@ main( int argc, char* argv[] )
             const Real realChunkWidth = realStep*realChunkSize;
             for( Int imagChunk=0; imagChunk<numImag; ++imagChunk )
             {
-                std::ostringstream chunkStream;
+                ostringstream chunkStream;
                 chunkStream << "_" << realChunk << "_" << imagChunk;
-                const std::string chunkTag = chunkStream.str();
+                const string chunkTag = chunkStream.str();
 
                 const Int imagChunkSize = 
                     ( imagChunk==numImag-1 ? yLeftover : yBlock );
@@ -408,8 +404,8 @@ main( int argc, char* argv[] )
                     0.5*C(realStep*realChunkSize,imagStep*imagChunkSize);
 
                 if( mpi::WorldRank() == 0 )
-                    std::cout << "Starting computation for chunk centered at "
-                              << chunkCenter << std::endl;
+                    cout << "Starting computation for chunk centered at "
+                         << chunkCenter << endl;
                 mpi::Barrier( mpi::COMM_WORLD );
                 timer.Start();
                 psCtrl.snapCtrl.numBase = matName+"-"+numBase+chunkTag;
@@ -433,8 +429,8 @@ main( int argc, char* argv[] )
                 const Int numIts = MaxNorm( itCountMap );
                 if( mpi::WorldRank() == 0 )
                 {
-                    std::cout << "num seconds=" << pseudoTime << "\n"
-                              << "num iterations=" << numIts << std::endl;
+                    cout << "num seconds=" << pseudoTime << "\n"
+                         << "num iterations=" << numIts << endl;
                 }
             }
         }

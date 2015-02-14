@@ -26,7 +26,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         // Create a circulant matrix
-        std::vector<C> a( n );
+        vector<C> a( n );
         for( Int j=0; j<n; ++j )
             a[j] = j;
         DistMatrix<C> A;
@@ -74,7 +74,7 @@ main( int argc, char* argv[] )
         if( print )
             Print( A, "A with values below 1e-13 removed" );
     }
-    catch( std::exception& e ) { ReportException(e); }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

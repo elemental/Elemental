@@ -65,13 +65,13 @@ main( int argc, char* argv[] )
         const Real rTwoNorm = FrobeniusNorm( b );
         if( mpi::Rank(mpi::COMM_WORLD) == 0 )
         {
-            std::cout << "|| A z - b ||_2 = " << rTwoNorm << "\n"
-                      << "|| b ||_2 = " << bTwoNorm << "\n"
-                      << "|| z ||_1 = " << zOneNorm << "\n"
-                      << "|| z ||_0 = " << zZeroNorm << "\n" << std::endl;
+            cout << "|| A z - b ||_2 = " << rTwoNorm << "\n"
+                 << "|| b ||_2 = " << bTwoNorm << "\n"
+                 << "|| z ||_1 = " << zOneNorm << "\n"
+                 << "|| z ||_0 = " << zZeroNorm << "\n" << endl;
         }
     }
-    catch( std::exception& e ) { ReportException(e); }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

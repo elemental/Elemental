@@ -1,9 +1,18 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson, Lexing Ying,
-   The University of Texas at Austin, Stanford University, and the
-   Georgia Insitute of Technology.
+   Copyright (c) 2009-2012, Jack Poulson, Lexing Ying, and 
+   The University of Texas at Austin.
    All rights reserved.
- 
+
+   Copyright (c) 2013, Jack Poulson, Lexing Ying, and Stanford University.
+   All rights reserved.
+
+   Copyright (c) 2013-2014, Jack Poulson and 
+   The Georgia Institute of Technology.
+   All rights reserved.
+
+   Copyright (c) 2014-2015, Jack Poulson and Stanford University.
+   All rights reserved.
+   
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
@@ -16,14 +25,14 @@ namespace El {
 namespace ldl {
 
 template<typename F>
-inline void ProcessFront( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate )
+inline void ProcessFrontVanilla( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ldl::ProcessFront");
-        if( ABR.Height() != ABR.Width() )
-            LogicError("ABR must be square");
-        if( AL.Height() != AL.Width() + ABR.Width() )
-            LogicError("AL and ABR don't have conformal dimensions");
+      CallStackEntry cse("ldl::ProcessFrontVanilla");
+      if( ABR.Height() != ABR.Width() )
+          LogicError("ABR must be square");
+      if( AL.Height() != AL.Width() + ABR.Width() )
+          LogicError("AL and ABR don't have conformal dimensions");
     )
     const Int m = AL.Height();
     const Int n = AL.Width();
@@ -84,24 +93,93 @@ void ProcessFrontIntraPiv
     Trrk( LOWER, NORMAL, orientation, F(-1), SBL, ABL, F(1), ABR );
 }
 
+template<typename F>
+inline void ProcessFrontBlock
+( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate, bool intraPiv )
+{
+    DEBUG_ONLY(CallStackEntry cse("ldl::ProcessFrontBlock"))
+    Matrix<F> ATL, ABL;
+    PartitionDown( AL, ATL, ABL, AL.Width() );
+
+    // Make a copy of the original contents of ABL
+    Matrix<F> BBL( ABL );
+
+    if( intraPiv )
+    {
+        Matrix<Int> p;
+        Matrix<F> dSub;
+        // TODO: Expose the pivot type as an option?
+        LDL( ATL, dSub, p, conjugate );
+
+        // Solve against ABL and update ABR
+        // NOTE: This does not exploit symmetry
+        SolveAfter( ATL, dSub, p, ABL, conjugate );
+        const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+        Gemm( NORMAL, orientation, F(-1), ABL, BBL, F(1), ABR );
+
+        // Copy the original contents of ABL back
+        ABL = BBL;
+
+        // Finish inverting ATL
+        TriangularInverse( LOWER, UNIT, ATL );
+        Trdtrmm( LOWER, ATL, dSub, conjugate );
+        // TODO: SymmetricPermutation
+        MakeSymmetric( LOWER, ATL, conjugate );
+        PermuteRows( ATL, p );
+        PermuteCols( ATL, p );
+    }
+    else
+    {
+        // Call the standard routine
+        ProcessFrontVanilla( AL, ABR, conjugate );
+
+        // Copy the original contents of ABL back
+        ABL = BBL;
+
+        // Finish inverting ATL
+        TriangularInverse( LOWER, UNIT, ATL );
+        Trdtrmm( LOWER, ATL, conjugate );
+        MakeSymmetric( LOWER, ATL, conjugate );
+    }
+}
+
+template<typename F>
+inline void ProcessFront( SymmFront<F>& front, SymmFrontType factorType )
+{
+    DEBUG_ONLY(CallStackEntry cse("ldl::ProcessFront"))
+    front.type = factorType;
+    const bool pivoted = PivotedFactorization( factorType );
+    if( BlockFactorization(factorType) )
+        ProcessFrontBlock( front.L, front.work, front.isHermitian, pivoted );
+    else if( pivoted )
+        ProcessFrontIntraPiv
+        ( front.L, front.subdiag, front.piv, front.work, front.isHermitian );
+    else
+    {
+        ProcessFrontVanilla( front.L, front.work, front.isHermitian );
+        GetDiagonal( front.L, front.diag );
+        FillDiagonal( front.L, F(1) );
+    }
+}
+
 template<typename F> 
 inline void ProcessFrontGeneral
 ( DistMatrix<F>& AL, DistMatrix<F>& ABR, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ldl::ProcessFrontGeneral");
-        if( ABR.Height() != ABR.Width() )
-            LogicError("ABR must be square");
-        if( AL.Height() != AL.Width()+ABR.Height() )
-            LogicError("AL and ABR must have compatible dimensions");
-        if( AL.Grid() != ABR.Grid() )
-            LogicError("AL and ABR must use the same grid");
-        if( ABR.ColAlign() !=
-            (AL.ColAlign()+AL.Width()) % AL.Grid().Height() )
-            LogicError("AL and ABR must have compatible col alignments");
-        if( ABR.RowAlign() != 
-            (AL.RowAlign()+AL.Width()) % AL.Grid().Width() )
-            LogicError("AL and ABR must have compatible row alignments");
+      CallStackEntry cse("ldl::ProcessFrontGeneral");
+      if( ABR.Height() != ABR.Width() )
+          LogicError("ABR must be square");
+      if( AL.Height() != AL.Width()+ABR.Height() )
+          LogicError("AL and ABR must have compatible dimensions");
+      if( AL.Grid() != ABR.Grid() )
+          LogicError("AL and ABR must use the same grid");
+      if( ABR.ColAlign() !=
+          (AL.ColAlign()+AL.Width()) % AL.Grid().Height() )
+          LogicError("AL and ABR must have compatible col alignments");
+      if( ABR.RowAlign() != 
+          (AL.RowAlign()+AL.Width()) % AL.Grid().Width() )
+          LogicError("AL and ABR must have compatible row alignments");
     )
     const Grid& g = AL.Grid();
     const Int m = AL.Height();
@@ -166,27 +244,27 @@ inline void ProcessFrontSquare
 ( DistMatrix<F>& AL, DistMatrix<F>& ABR, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ldl::ProcessFrontSquare");
-        if( ABR.Height() != ABR.Width() )
-            LogicError("ABR must be square");
-        if( AL.Height() != AL.Width()+ABR.Height() )
-            LogicError("AL & ABR must have compatible dimensions");
-        if( AL.Grid() != ABR.Grid() )
-            LogicError("AL & ABR must use the same grid");
-        if( ABR.ColAlign() !=
-            (AL.ColAlign()+AL.Width()) % AL.Grid().Height() )
-            LogicError("AL & ABR must have compatible col alignments");
-        if( ABR.RowAlign() != 
-            (AL.RowAlign()+AL.Width()) % AL.Grid().Width() )
-            LogicError("AL & ABR must have compatible row alignments");
+      CallStackEntry cse("ldl::ProcessFrontSquare");
+      if( ABR.Height() != ABR.Width() )
+          LogicError("ABR must be square");
+      if( AL.Height() != AL.Width()+ABR.Height() )
+          LogicError("AL & ABR must have compatible dimensions");
+      if( AL.Grid() != ABR.Grid() )
+          LogicError("AL & ABR must use the same grid");
+      if( ABR.ColAlign() !=
+          (AL.ColAlign()+AL.Width()) % AL.Grid().Height() )
+          LogicError("AL & ABR must have compatible col alignments");
+      if( ABR.RowAlign() != 
+          (AL.RowAlign()+AL.Width()) % AL.Grid().Width() )
+          LogicError("AL & ABR must have compatible row alignments");
     )
     const Grid& g = AL.Grid();
     const Int m = AL.Height();
     const Int n = AL.Width();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     DEBUG_ONLY(
-        if( g.Height() != g.Width() )
-            LogicError("This routine assumes a square process grid");
+      if( g.Height() != g.Width() )
+          LogicError("This routine assumes a square process grid");
     )
 
     // Find the process holding our transposed data
@@ -279,10 +357,10 @@ inline void ProcessFrontSquare
 }
 
 template<typename F> 
-inline void ProcessFront
+inline void ProcessFrontVanilla
 ( DistMatrix<F>& AL, DistMatrix<F>& ABR, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("ldl::ProcessFront"))
+    DEBUG_ONLY(CallStackEntry cse("ldl::ProcessFrontVanilla"))
     const Grid& grid = AL.Grid();
     if( grid.Height() == grid.Width() )
         ProcessFrontSquare( AL, ABR, conjugate );
@@ -320,6 +398,96 @@ void ProcessFrontIntraPiv
     ABL_VR_STAR = ABL;
     Transpose( ABL_VR_STAR, ABLTrans_STAR_MR, conjugate );
     LocalTrrk( LOWER, F(-1), SBL_MC_STAR, ABLTrans_STAR_MR, F(1), ABR );
+}
+
+template<typename F>
+inline void ProcessFrontBlock
+( DistMatrix<F>& AL, DistMatrix<F>& ABR, bool conjugate, bool intraPiv )
+{
+    DEBUG_ONLY(CallStackEntry cse("ldl::ProcessFrontBlock"))
+    const Grid& g = AL.Grid();
+    DistMatrix<F> ATL(g), ABL(g);
+    PartitionDown( AL, ATL, ABL, AL.Width() );
+
+    // Make a copy of the original contents of ABL
+    DistMatrix<F> BBL( ABL );
+
+    if( intraPiv )
+    {
+        DistMatrix<Int,VC,STAR> p( ATL.Grid() );
+        DistMatrix<F,MD,STAR> dSub( ATL.Grid() );
+        // TODO: Expose the pivot type as an option?
+        LDL( ATL, dSub, p, conjugate );
+
+        // Solve against ABL and update ABR
+        // NOTE: This update does not exploit symmetry
+        SolveAfter( ATL, dSub, p, ABL, conjugate );
+        const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+        Gemm( NORMAL, orientation, F(-1), ABL, BBL, F(1), ABR );
+
+        // Copy the original contents of ABL back
+        ABL = BBL;
+
+        // Finish inverting ATL
+        TriangularInverse( LOWER, UNIT, ATL );
+        Trdtrmm( LOWER, ATL, dSub, conjugate );
+        ApplyInverseSymmetricPivots( LOWER, ATL, p, conjugate );
+    }
+    else
+    {
+        // Call the standard routine
+        ProcessFrontVanilla( AL, ABR, conjugate );
+
+        // Copy the original contents of ABL back
+        ABL = BBL;
+
+        // Finish inverting ATL
+        TriangularInverse( LOWER, UNIT, ATL );
+        Trdtrmm( LOWER, ATL, conjugate );
+    }
+    MakeSymmetric( LOWER, ATL, conjugate );
+}
+
+template<typename F>
+inline void ProcessFront( DistSymmFront<F>& front, SymmFrontType factorType )
+{
+    DEBUG_ONLY(
+      CallStackEntry cse("ldl::ProcessFront");
+      if( FrontIs1D(front.type) )
+          LogicError("Expected front to be in a 2D distribution");
+    )
+    front.type = factorType;
+    const bool pivoted = PivotedFactorization( factorType );
+    const Grid& grid = front.L2D.Grid();
+
+    if( BlockFactorization(factorType) )
+    {
+        ProcessFrontBlock
+        ( front.L2D, front.work2D, front.isHermitian, pivoted );
+    }
+    else if( pivoted )
+    {
+        DistMatrix<F,MD,STAR> subdiag(grid);
+        front.piv.SetGrid( grid );
+        ProcessFrontIntraPiv
+        ( front.L2D, subdiag, front.piv, front.work2D, front.isHermitian );
+
+        auto diag = GetDiagonal( front.L2D );
+        front.diag.SetGrid( grid );
+        front.subdiag.SetGrid( grid ); 
+        front.diag = diag;
+        front.subdiag = subdiag;
+        FillDiagonal( front.L2D, F(1) );
+    }
+    else
+    {
+        ProcessFrontVanilla( front.L2D, front.work2D, front.isHermitian );
+
+        auto diag = GetDiagonal( front.L2D );
+        front.diag.SetGrid( grid );
+        front.diag = diag;
+        FillDiagonal( front.L2D, F(1) );
+    }
 }
 
 } // namespace ldl

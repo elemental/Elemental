@@ -1,89 +1,122 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson, Lexing Ying,
-   The University of Texas at Austin, Stanford University, and the
-   Georgia Insitute of Technology.
+   Copyright 2009-2011, Jack Poulson.
    All rights reserved.
- 
+
+   Copyright 2011-2012, Jack Poulson, Lexing Ying, and 
+   The University of Texas at Austin.
+   All rights reserved.
+
+   Copyright 2013, Jack Poulson, Lexing Ying, and Stanford University.
+   All rights reserved.
+
+   Copyright 2013-2014, Jack Poulson and The Georgia Institute of Technology.
+   All rights reserved.
+
+   Copyright 2014-2015, Jack Poulson and Stanford University.
+   All rights reserved.
+   
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_SPARSEDIRECT_NUMERIC_HPP
-#define EL_SPARSEDIRECT_NUMERIC_HPP
+#ifndef EL_FACTOR_NUMERIC_HPP
+#define EL_FACTOR_NUMERIC_HPP
 
 namespace El {
 
-// Forward declaration
-template<typename T> class DistNodalMultiVec;
-
-// For handling a matrix distributed in a [MC,MR] manner over each node
-// of the elimination tree
 template<typename T>
-class DistNodalMatrix
+struct DistMatrixNode;
+template<typename T>
+struct DistMultiVecNode;
+
+template<typename T>
+struct MatrixNode
 {
-public:
-    std::vector<Matrix<T>> localNodes;
-    std::vector<DistMatrix<T>> distNodes;
+    Matrix<T> matrix;
 
-    DistNodalMatrix();
-    DistNodalMatrix
-    ( const DistMap& inverseMap, const DistSymmInfo& info,
-      const DistMultiVec<T>& X );
-    DistNodalMatrix( const DistNodalMultiVec<T>& X );
+    MatrixNode<T>* parent;
+    vector<MatrixNode<T>*> children;
+    DistMatrixNode<T>* duplicateMat;
+    DistMultiVecNode<T>* duplicateMV;
 
-    const DistNodalMatrix<T>& operator=( const DistNodalMultiVec<T>& X );
+    MatrixNode( MatrixNode<T>* parentNode=nullptr );
+    MatrixNode( DistMatrixNode<T>* dupNode );
+    MatrixNode( DistMultiVecNode<T>* dupNode );
+
+    MatrixNode
+    ( const vector<Int>& invMap, const SymmNodeInfo& info, const Matrix<T>& X );
 
     void Pull
-    ( const DistMap& inverseMap, const DistSymmInfo& info,
-      const DistMultiVec<T>& X );
+    ( const vector<Int>& invMap, const SymmNodeInfo& info, const Matrix<T>& X );
     void Push
-    ( const DistMap& inverseMap, const DistSymmInfo& info,
-            DistMultiVec<T>& X ) const;
+    ( const vector<Int>& invMap, const SymmNodeInfo& info, Matrix<T>& X ) const;
 
     Int Height() const;
-    Int Width() const;
-
-    mutable std::vector<MatrixCommMeta> commMetas;
-    void ComputeCommMetas( const DistSymmInfo& info ) const;
-private:
-    Int height_, width_;
 };
 
 // For handling a set of vectors distributed in a [VC,* ] manner over each node
 // of the elimination tree
 template<typename T>
-class DistNodalMultiVec
-{
-public:
-    std::vector<Matrix<T>> localNodes;
-    std::vector<DistMatrix<T,VC,STAR>> distNodes;
+struct DistMultiVecNode
+{   
+    DistMatrix<T,VC,STAR> matrix;
 
-    DistNodalMultiVec();
-    DistNodalMultiVec
-    ( const DistMap& inverseMap, const DistSymmInfo& info,
+    DistMultiVecNode<T>* parent;
+    DistMultiVecNode<T>* child;
+    MatrixNode<T>* duplicate;
+
+    DistMultiVecNode( DistMultiVecNode<T>* parentNode=nullptr );
+
+    DistMultiVecNode
+    ( const DistMap& invMap, const DistSymmNodeInfo& info,
       const DistMultiVec<T>& X );
-    DistNodalMultiVec( const DistNodalMatrix<T>& X );
 
-    const DistNodalMultiVec<T>& operator=( const DistNodalMatrix<T>& X );
+    DistMultiVecNode( const DistMatrixNode<T>& X );
 
-    void Pull
-    ( const DistMap& inverseMap, const DistSymmInfo& info,
-      const DistMultiVec<T>& X );
-    void Push
-    ( const DistMap& inverseMap, const DistSymmInfo& info,
-            DistMultiVec<T>& X ) const;
-
-    Int Height() const;
-    Int Width() const;
+    const DistMultiVecNode<T>& operator=( const DistMatrixNode<T>& X );
 
     Int LocalHeight() const;
 
-    void UpdateHeight();
-    void UpdateWidth();
+    void Pull
+    ( const DistMap& invMap, const DistSymmNodeInfo& info,
+      const DistMultiVec<T>& X );
+    void Push
+    ( const DistMap& invMap, const DistSymmNodeInfo& info,
+            DistMultiVec<T>& X ) const;
+};
 
-private:
-    Int height_, width_;
+// For handling a matrix distributed in a [MC,MR] manner over each node
+// of the elimination tree
+template<typename T>
+struct DistMatrixNode
+{
+    DistMatrix<T> matrix;
+
+    DistMatrixNode<T>* parent;
+    DistMatrixNode<T>* child;
+    MatrixNode<T>* duplicate;
+
+    mutable MatrixCommMeta commMeta; 
+
+    DistMatrixNode( DistMatrixNode<T>* parentNode=nullptr );
+
+    DistMatrixNode
+    ( const DistMap& invMap, const DistSymmNodeInfo& info,
+      const DistMultiVec<T>& X );
+
+    DistMatrixNode( const DistMultiVecNode<T>& X );
+
+    const DistMatrixNode<T>& operator=( const DistMultiVecNode<T>& X );
+
+    void Pull
+    ( const DistMap& invMap, const DistSymmNodeInfo& info,
+      const DistMultiVec<T>& X );
+    void Push
+    ( const DistMap& invMap, const DistSymmNodeInfo& info,
+            DistMultiVec<T>& X ) const;
+
+    void ComputeCommMeta( const DistSymmNodeInfo& info ) const;
 };
 
 enum SymmFrontType
@@ -100,7 +133,7 @@ enum SymmFrontType
 inline bool Unfactored( SymmFrontType type )
 { return type == SYMM_1D || type == SYMM_2D; }
 
-inline bool FrontsAre1d( SymmFrontType type )
+inline bool FrontIs1D( SymmFrontType type )
 {
     return type == SYMM_1D                ||
            type == LDL_1D                 ||
@@ -137,9 +170,9 @@ inline bool PivotedFactorization( SymmFrontType type )
            type == BLOCK_LDL_INTRAPIV_2D;
 }
 
-inline SymmFrontType ConvertTo2d( SymmFrontType type )
+inline SymmFrontType ConvertTo2D( SymmFrontType type )
 {
-    DEBUG_ONLY(CallStackEntry cse("ConvertTo2d"))
+    DEBUG_ONLY(CallStackEntry cse("ConvertTo2D"))
     SymmFrontType newType;
     switch( type )
     {
@@ -162,9 +195,9 @@ inline SymmFrontType ConvertTo2d( SymmFrontType type )
     return newType;
 }
 
-inline SymmFrontType ConvertTo1d( SymmFrontType type )
+inline SymmFrontType ConvertTo1D( SymmFrontType type )
 {
-    DEBUG_ONLY(CallStackEntry cse("ConvertTo1d"))
+    DEBUG_ONLY(CallStackEntry cse("ConvertTo1D"))
     SymmFrontType newType;
     switch( type )
     {
@@ -222,7 +255,7 @@ inline SymmFrontType InitialFactorType( SymmFrontType type )
     if( Unfactored(type) )
         LogicError("Front type does not require factorization");
     if( BlockFactorization(type) )
-        return ConvertTo2d(type);
+        return ConvertTo2D(type);
     else if( PivotedFactorization(type) )
         return LDL_INTRAPIV_2D;
     else
@@ -233,110 +266,153 @@ inline SymmFrontType InitialFactorType( SymmFrontType type )
 // (with the bottom-right piece stored in workspace) since only the left side
 // needs to be kept after the factorization is complete.
 
-template<typename T>
+template<typename F>
+struct DistSymmFront;
+
+template<typename F>
 struct SymmFront
 {
-    Matrix<T> frontL;
+    bool isHermitian;
+    SymmFrontType type;
 
-    Matrix<T> diag;
-    Matrix<T> subdiag;
+    Matrix<F> L;
+
+    Matrix<F> diag;
+    Matrix<F> subdiag;
     Matrix<Int> piv;
 
-    mutable Matrix<T> work;
-};
+    SymmFront<F>* parent;
+    vector<SymmFront<F>*> children;
+    DistSymmFront<F>* duplicate;
 
-template<typename T>
-struct DistSymmFront
-{
-    // The 'frontType' member variable of the parent 'DistSymmFrontTree' 
-    // determines which of the following fronts is active.
-    //
-    // Split each front into a left and right piece such that the right piece
-    // is not needed after the factorization (and can be freed).
+    mutable Matrix<F> work;
 
-    DistMatrix<T,VC,STAR> front1dL;
-    DistMatrix<T> front2dL;
+    SymmFront( SymmFront<F>* parentNode=nullptr );
+    SymmFront( DistSymmFront<F>* dupNode );
+    SymmFront
+    ( const SparseMatrix<F>& A, const vector<Int>& reordering,
+      const SymmNodeInfo& rootInfo, bool conjugate=true );
 
-    DistMatrix<T,VC,STAR> diag1d;
-    DistMatrix<T,VC,STAR> subdiag1d;
-    DistMatrix<Int,VC,STAR> piv;
+    void Pull
+    ( const SparseMatrix<F>& A, const vector<Int>& reordering, 
+      const SymmNodeInfo& rootInfo, bool conjugate=true );
+    void Push
+    ( SparseMatrix<F>& A, const vector<Int>& reordering, 
+      const SymmNodeInfo& rootInfo ) const;
 
-    mutable DistMatrix<T,VC,STAR> work1d;
-    mutable DistMatrix<T> work2d;
-};
+    void Unpack( SparseMatrix<F>& A, const SymmNodeInfo& rootInfo ) const;
 
-template<typename T>
-struct DistSymmFrontTree
-{
-    bool isHermitian;
-    SymmFrontType frontType;
-    std::vector<SymmFront<T>> localFronts;
-    std::vector<DistSymmFront<T>> distFronts;
-
-    DistSymmFrontTree();
-
-    DistSymmFrontTree
-    ( const DistSparseMatrix<T>& A,
-      const DistMap& reordering,
-      const DistSeparatorTree& sepTree,
-      const DistSymmInfo& info,
-      bool conjugate=false );
-
-    void Initialize
-    ( const DistSparseMatrix<T>& A,
-      const DistMap& reordering,
-      const DistSeparatorTree& sepTree,
-      const DistSymmInfo& info,
-      bool conjugate=false );
-
-    void TopLeftMemoryInfo
-    ( double& numLocalEntries, double& minLocalEntries, double& maxLocalEntries,
-      double& numGlobalEntries ) const;
-
-    void BottomLeftMemoryInfo
-    ( double& numLocalEntries, double& minLocalEntries, double& maxLocalEntries,
-      double& numGlobalEntries ) const;
-
-    void MemoryInfo
-    ( double& numLocalEntries, double& minLocalEntries, double& maxLocalEntries,
-      double& numGlobalEntries ) const;
-
-    void FactorizationWork
-    ( double& numLocalFlops, double& minLocalFlops, double& maxLocalFlops,
-      double& numGlobalFlops, bool selInv=false ) const;
-
-    void SolveWork
-    ( double& numLocalFlops, double& minLocalFlops, double& maxLocalFlops,
-      double& numGlobalFlops, Int numRhs=1 ) const;
+    // NOTE: These are temporarily not functioning
+    double NumEntries() const;
+    double NumTopLeftEntries() const;
+    double NumBottomLeftEntries() const;
+    double FactorGFlops( bool selInv=false ) const;
+    double SolveGFlops( Int numRHS=1 ) const;
 };
 
 template<typename F>
-void ChangeFrontType( DistSymmFrontTree<F>& L, SymmFrontType frontType );
+struct DistSymmFront
+{
+    bool isHermitian;
+    SymmFrontType type;
 
-// TODO: Decide if this interface needs to be exposed
-template<typename T>
-void InitializeDistLeaf( const DistSymmInfo& info, DistSymmFrontTree<T>& L );
+    // Split each front into a left and right piece such that the right piece
+    // is not needed after the factorization (and can be freed).
+
+    // When this node is a duplicate of a sequential node, L1D or L2D will be 
+    // attached to the sequential L matrix of the duplicate
+
+    DistMatrix<F,VC,STAR> L1D;
+    DistMatrix<F> L2D;
+
+    DistMatrix<F,VC,STAR> diag;
+    DistMatrix<F,VC,STAR> subdiag;
+    DistMatrix<Int,VC,STAR> piv;
+
+    DistSymmFront<F>* parent;
+    DistSymmFront<F>* child;
+    SymmFront<F>* duplicate;
+
+    mutable DistMatrix<F,VC,STAR> work1D;
+    mutable DistMatrix<F> work2D;
+
+    DistSymmFront( DistSymmFront<F>* parentNode=nullptr );
+
+    DistSymmFront
+    ( const DistSparseMatrix<F>& A,
+      const DistMap& reordering,
+      const DistSeparator& rootSep,
+      const DistSymmNodeInfo& info,
+      bool conjugate=false );
+
+    void Pull
+    ( const DistSparseMatrix<F>& A,
+      const DistMap& reordering,
+      const DistSeparator& rootSep,
+      const DistSymmNodeInfo& info,
+      bool conjugate=false );
+    void Push
+    ( DistSparseMatrix<F>& A, const DistMap& reordering, 
+      const DistSeparator& rootSep, const DistSymmNodeInfo& rootInfo ) const;
+
+    void Unpack
+    ( DistSparseMatrix<F>& A, 
+      const DistSeparator& rootSep, const DistSymmNodeInfo& rootInfo ) const;
+
+    // NOTE: These are temporarily not functioning
+    double NumLocalEntries() const;
+    double NumTopLeftLocalEntries() const;
+    double NumBottomLeftLocalEntries() const;
+    double LocalFactorGFlops( bool selInv=false ) const;
+    double LocalSolveGFlops( Int numRHS=1 ) const;
+};
+
+template<typename F>
+void ChangeFrontType
+( DistSymmFront<F>& front, SymmFrontType type, bool recurse=true );
 
 // TODO: Move into BLAS3?
 template<typename F>
 void DiagonalSolve
-( const DistSymmInfo& info, const DistSymmFrontTree<F>& L,
-  DistNodalMultiVec<F>& X );
+( const SymmNodeInfo& info, const SymmFront<F>& front,
+  MatrixNode<F>& X );
 template<typename F>
 void DiagonalSolve
-( const DistSymmInfo& info, const DistSymmFrontTree<F>& L,
-  DistNodalMatrix<F>& X );
+( const DistSymmNodeInfo& info, const DistSymmFront<F>& front,
+  DistMultiVecNode<F>& X );
+template<typename F>
+void DiagonalSolve
+( const DistSymmNodeInfo& info, const DistSymmFront<F>& L,
+  DistMatrixNode<F>& X );
 
 // TODO: Rename to Trsm and move to BLAS3?
 template<typename F>
 void LowerSolve
-( Orientation orientation, const DistSymmInfo& info,
-  const DistSymmFrontTree<F>& L, DistNodalMultiVec<F>& X );
+( Orientation orientation, const SymmNodeInfo& info,
+  const SymmFront<F>& L, MatrixNode<F>& X );
 template<typename F>
 void LowerSolve
-( Orientation orientation, const DistSymmInfo& info,
-  const DistSymmFrontTree<F>& L, DistNodalMatrix<F>& X );
+( Orientation orientation, const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& L, DistMultiVecNode<F>& X );
+template<typename F>
+void LowerSolve
+( Orientation orientation, const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& L, DistMatrixNode<F>& X );
+
+// TODO: Rename to Trmm and move to BLAS3?
+template<typename F>
+void LowerMultiply
+( Orientation orientation, const SymmNodeInfo& info,
+  const SymmFront<F>& L, MatrixNode<F>& X );
+template<typename F>
+void LowerMultiply
+( Orientation orientation, const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& L, DistMultiVecNode<F>& X );
+template<typename F>
+void LowerMultiply
+( Orientation orientation, const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& L, DistMatrixNode<F>& X );
 
 } // namespace El
 
-#endif // ifndef EL_SPARSEDIRECT_NUMERIC_HPP
+#endif // ifndef EL_FACTOR_NUMERIC_HPP

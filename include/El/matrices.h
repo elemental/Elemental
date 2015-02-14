@@ -424,6 +424,24 @@ EL_EXPORT ElError ElHelmholtz1DDist_c
 EL_EXPORT ElError ElHelmholtz1DDist_z
 ( ElDistMatrix_z H, ElInt nx, complex_double shift );
 
+EL_EXPORT ElError ElHelmholtz1DSparse_s
+( ElSparseMatrix_s H, ElInt nx, float shift );
+EL_EXPORT ElError ElHelmholtz1DSparse_d
+( ElSparseMatrix_d H, ElInt nx, double shift );
+EL_EXPORT ElError ElHelmholtz1DSparse_c
+( ElSparseMatrix_c H, ElInt nx, complex_float shift );
+EL_EXPORT ElError ElHelmholtz1DSparse_z
+( ElSparseMatrix_z H, ElInt nx, complex_double shift );
+
+EL_EXPORT ElError ElHelmholtz1DDistSparse_s
+( ElDistSparseMatrix_s H, ElInt nx, float shift );
+EL_EXPORT ElError ElHelmholtz1DDistSparse_d
+( ElDistSparseMatrix_d H, ElInt nx, double shift );
+EL_EXPORT ElError ElHelmholtz1DDistSparse_c
+( ElDistSparseMatrix_c H, ElInt nx, complex_float shift );
+EL_EXPORT ElError ElHelmholtz1DDistSparse_z
+( ElDistSparseMatrix_z H, ElInt nx, complex_double shift );
+
 EL_EXPORT ElError ElHelmholtz2D_s
 ( ElMatrix_s H, ElInt nx, ElInt ny, float shift );
 EL_EXPORT ElError ElHelmholtz2D_d
@@ -441,6 +459,24 @@ EL_EXPORT ElError ElHelmholtz2DDist_c
 ( ElDistMatrix_c H, ElInt nx, ElInt ny, complex_float shift );
 EL_EXPORT ElError ElHelmholtz2DDist_z
 ( ElDistMatrix_z H, ElInt nx, ElInt ny, complex_double shift );
+
+EL_EXPORT ElError ElHelmholtz2DSparse_s
+( ElSparseMatrix_s H, ElInt nx, ElInt ny, float shift );
+EL_EXPORT ElError ElHelmholtz2DSparse_d
+( ElSparseMatrix_d H, ElInt nx, ElInt ny, double shift );
+EL_EXPORT ElError ElHelmholtz2DSparse_c
+( ElSparseMatrix_c H, ElInt nx, ElInt ny, complex_float shift );
+EL_EXPORT ElError ElHelmholtz2DSparse_z
+( ElSparseMatrix_z H, ElInt nx, ElInt ny, complex_double shift );
+
+EL_EXPORT ElError ElHelmholtz2DDistSparse_s
+( ElDistSparseMatrix_s H, ElInt nx, ElInt ny, float shift );
+EL_EXPORT ElError ElHelmholtz2DDistSparse_d
+( ElDistSparseMatrix_d H, ElInt nx, ElInt ny, double shift );
+EL_EXPORT ElError ElHelmholtz2DDistSparse_c
+( ElDistSparseMatrix_c H, ElInt nx, ElInt ny, complex_float shift );
+EL_EXPORT ElError ElHelmholtz2DDistSparse_z
+( ElDistSparseMatrix_z H, ElInt nx, ElInt ny, complex_double shift );
 
 EL_EXPORT ElError ElHelmholtz3D_s
 ( ElMatrix_s H, ElInt nx, ElInt ny, ElInt nz, float shift );
@@ -460,6 +496,24 @@ EL_EXPORT ElError ElHelmholtz3DDist_c
 EL_EXPORT ElError ElHelmholtz3DDist_z
 ( ElDistMatrix_z H, ElInt nx, ElInt ny, ElInt nz, complex_double shift );
 
+EL_EXPORT ElError ElHelmholtz3DSparse_s
+( ElSparseMatrix_s H, ElInt nx, ElInt ny, ElInt nz, float shift );
+EL_EXPORT ElError ElHelmholtz3DSparse_d
+( ElSparseMatrix_d H, ElInt nx, ElInt ny, ElInt nz, double shift );
+EL_EXPORT ElError ElHelmholtz3DSparse_c
+( ElSparseMatrix_c H, ElInt nx, ElInt ny, ElInt nz, complex_float shift );
+EL_EXPORT ElError ElHelmholtz3DSparse_z
+( ElSparseMatrix_z H, ElInt nx, ElInt ny, ElInt nz, complex_double shift );
+
+EL_EXPORT ElError ElHelmholtz3DDistSparse_s
+( ElDistSparseMatrix_s H, ElInt nx, ElInt ny, ElInt nz, float shift );
+EL_EXPORT ElError ElHelmholtz3DDistSparse_d
+( ElDistSparseMatrix_d H, ElInt nx, ElInt ny, ElInt nz, double shift );
+EL_EXPORT ElError ElHelmholtz3DDistSparse_c
+( ElDistSparseMatrix_c H, ElInt nx, ElInt ny, ElInt nz, complex_float shift );
+EL_EXPORT ElError ElHelmholtz3DDistSparse_z
+( ElDistSparseMatrix_z H, ElInt nx, ElInt ny, ElInt nz, complex_double shift );
+
 /* Helmholtz with PML
    ================== */
 EL_EXPORT ElError ElHelmholtzPML1D_c
@@ -476,6 +530,20 @@ EL_EXPORT ElError ElHelmholtzPML1DDist_z
 ( ElDistMatrix_z H, ElInt nx, complex_double omega, 
   ElInt numPmlPoints, double sigma, double pmlExp );
 
+EL_EXPORT ElError ElHelmholtzPML1DSparse_c
+( ElSparseMatrix_c H, ElInt nx, complex_float omega, 
+  ElInt numPmlPoints, float sigma, float pmlExp );
+EL_EXPORT ElError ElHelmholtzPML1DSparse_z
+( ElSparseMatrix_z H, ElInt nx, complex_double omega, 
+  ElInt numPmlPoints, double sigma, double pmlExp );
+
+EL_EXPORT ElError ElHelmholtzPML1DDistSparse_c
+( ElDistSparseMatrix_c H, ElInt nx, complex_float omega, 
+  ElInt numPmlPoints, float sigma, float pmlExp );
+EL_EXPORT ElError ElHelmholtzPML1DDistSparse_z
+( ElDistSparseMatrix_z H, ElInt nx, complex_double omega, 
+  ElInt numPmlPoints, double sigma, double pmlExp );
+
 EL_EXPORT ElError ElHelmholtzPML2D_c
 ( ElMatrix_c H, ElInt nx, ElInt ny, complex_float omega, 
   ElInt numPmlPoints, float sigma, float pmlExp );
@@ -490,6 +558,20 @@ EL_EXPORT ElError ElHelmholtzPML2DDist_z
 ( ElDistMatrix_z H, ElInt nx, ElInt ny, complex_double omega, 
   ElInt numPmlPoints, double sigma, double pmlExp );
 
+EL_EXPORT ElError ElHelmholtzPML2DSparse_c
+( ElSparseMatrix_c H, ElInt nx, ElInt ny, complex_float omega, 
+  ElInt numPmlPoints, float sigma, float pmlExp );
+EL_EXPORT ElError ElHelmholtzPML2DSparse_z
+( ElSparseMatrix_z H, ElInt nx, ElInt ny, complex_double omega, 
+  ElInt numPmlPoints, double sigma, double pmlExp );
+
+EL_EXPORT ElError ElHelmholtzPML2DDistSparse_c
+( ElDistSparseMatrix_c H, ElInt nx, ElInt ny, complex_float omega, 
+  ElInt numPmlPoints, float sigma, float pmlExp );
+EL_EXPORT ElError ElHelmholtzPML2DDistSparse_z
+( ElDistSparseMatrix_z H, ElInt nx, ElInt ny, complex_double omega, 
+  ElInt numPmlPoints, double sigma, double pmlExp );
+
 EL_EXPORT ElError ElHelmholtzPML3D_c
 ( ElMatrix_c H, ElInt nx, ElInt ny, ElInt nz, complex_float omega, 
   ElInt numPmlPoints, float sigma, float pmlExp );
@@ -502,6 +584,20 @@ EL_EXPORT ElError ElHelmholtzPML3DDist_c
   ElInt numPmlPoints, float sigma, float pmlExp );
 EL_EXPORT ElError ElHelmholtzPML3DDist_z
 ( ElDistMatrix_z H, ElInt nx, ElInt ny, ElInt nz, complex_double omega, 
+  ElInt numPmlPoints, double sigma, double pmlExp );
+
+EL_EXPORT ElError ElHelmholtzPML3DSparse_c
+( ElSparseMatrix_c H, ElInt nx, ElInt ny, ElInt nz, complex_float omega, 
+  ElInt numPmlPoints, float sigma, float pmlExp );
+EL_EXPORT ElError ElHelmholtzPML3DSparse_z
+( ElSparseMatrix_z H, ElInt nx, ElInt ny, ElInt nz, complex_double omega, 
+  ElInt numPmlPoints, double sigma, double pmlExp );
+
+EL_EXPORT ElError ElHelmholtzPML3DDistSparse_c
+( ElDistSparseMatrix_c H, ElInt nx, ElInt ny, ElInt nz, complex_float omega, 
+  ElInt numPmlPoints, float sigma, float pmlExp );
+EL_EXPORT ElError ElHelmholtzPML3DDistSparse_z
+( ElDistSparseMatrix_z H, ElInt nx, ElInt ny, ElInt nz, complex_double omega, 
   ElInt numPmlPoints, double sigma, double pmlExp );
 
 /* Hermitian from EVD
@@ -619,6 +715,16 @@ EL_EXPORT ElError ElLaplacian1DDist_d( ElDistMatrix_d L, ElInt nx );
 EL_EXPORT ElError ElLaplacian1DDist_c( ElDistMatrix_c L, ElInt nx );
 EL_EXPORT ElError ElLaplacian1DDist_z( ElDistMatrix_z L, ElInt nx );
 
+EL_EXPORT ElError ElLaplacian1DSparse_s( ElSparseMatrix_s L, ElInt nx );
+EL_EXPORT ElError ElLaplacian1DSparse_d( ElSparseMatrix_d L, ElInt nx );
+EL_EXPORT ElError ElLaplacian1DSparse_c( ElSparseMatrix_c L, ElInt nx );
+EL_EXPORT ElError ElLaplacian1DSparse_z( ElSparseMatrix_z L, ElInt nx );
+
+EL_EXPORT ElError ElLaplacian1DDistSparse_s( ElDistSparseMatrix_s L, ElInt nx );
+EL_EXPORT ElError ElLaplacian1DDistSparse_d( ElDistSparseMatrix_d L, ElInt nx );
+EL_EXPORT ElError ElLaplacian1DDistSparse_c( ElDistSparseMatrix_c L, ElInt nx );
+EL_EXPORT ElError ElLaplacian1DDistSparse_z( ElDistSparseMatrix_z L, ElInt nx );
+
 EL_EXPORT ElError ElLaplacian2D_s( ElMatrix_s L, ElInt nx, ElInt ny );
 EL_EXPORT ElError ElLaplacian2D_d( ElMatrix_d L, ElInt nx, ElInt ny );
 EL_EXPORT ElError ElLaplacian2D_c( ElMatrix_c L, ElInt nx, ElInt ny );
@@ -628,6 +734,24 @@ EL_EXPORT ElError ElLaplacian2DDist_s( ElDistMatrix_s L, ElInt nx, ElInt ny );
 EL_EXPORT ElError ElLaplacian2DDist_d( ElDistMatrix_d L, ElInt nx, ElInt ny );
 EL_EXPORT ElError ElLaplacian2DDist_c( ElDistMatrix_c L, ElInt nx, ElInt ny );
 EL_EXPORT ElError ElLaplacian2DDist_z( ElDistMatrix_z L, ElInt nx, ElInt ny );
+
+EL_EXPORT ElError ElLaplacian2DSparse_s
+( ElSparseMatrix_s L, ElInt nx, ElInt ny );
+EL_EXPORT ElError ElLaplacian2DSparse_d
+( ElSparseMatrix_d L, ElInt nx, ElInt ny );
+EL_EXPORT ElError ElLaplacian2DSparse_c
+( ElSparseMatrix_c L, ElInt nx, ElInt ny );
+EL_EXPORT ElError ElLaplacian2DSparse_z
+( ElSparseMatrix_z L, ElInt nx, ElInt ny );
+
+EL_EXPORT ElError ElLaplacian2DDistSparse_s
+( ElDistSparseMatrix_s L, ElInt nx, ElInt ny );
+EL_EXPORT ElError ElLaplacian2DDistSparse_d
+( ElDistSparseMatrix_d L, ElInt nx, ElInt ny );
+EL_EXPORT ElError ElLaplacian2DDistSparse_c
+( ElDistSparseMatrix_c L, ElInt nx, ElInt ny );
+EL_EXPORT ElError ElLaplacian2DDistSparse_z
+( ElDistSparseMatrix_z L, ElInt nx, ElInt ny );
 
 EL_EXPORT ElError ElLaplacian3D_s( ElMatrix_s L, ElInt nx, ElInt ny, ElInt nz );
 EL_EXPORT ElError ElLaplacian3D_d( ElMatrix_d L, ElInt nx, ElInt ny, ElInt nz );
@@ -642,6 +766,24 @@ EL_EXPORT ElError ElLaplacian3DDist_c
 ( ElDistMatrix_c L, ElInt nx, ElInt ny, ElInt nz );
 EL_EXPORT ElError ElLaplacian3DDist_z
 ( ElDistMatrix_z L, ElInt nx, ElInt ny, ElInt nz );
+
+EL_EXPORT ElError ElLaplacian3DDistSparse_s
+( ElDistSparseMatrix_s L, ElInt nx, ElInt ny, ElInt nz );
+EL_EXPORT ElError ElLaplacian3DDistSparse_d
+( ElDistSparseMatrix_d L, ElInt nx, ElInt ny, ElInt nz );
+EL_EXPORT ElError ElLaplacian3DDistSparse_c
+( ElDistSparseMatrix_c L, ElInt nx, ElInt ny, ElInt nz );
+EL_EXPORT ElError ElLaplacian3DDistSparse_z
+( ElDistSparseMatrix_z L, ElInt nx, ElInt ny, ElInt nz );
+
+EL_EXPORT ElError ElLaplacian3DDistSparse_s
+( ElDistSparseMatrix_s L, ElInt nx, ElInt ny, ElInt nz );
+EL_EXPORT ElError ElLaplacian3DDistSparse_d
+( ElDistSparseMatrix_d L, ElInt nx, ElInt ny, ElInt nz );
+EL_EXPORT ElError ElLaplacian3DDistSparse_c
+( ElDistSparseMatrix_c L, ElInt nx, ElInt ny, ElInt nz );
+EL_EXPORT ElError ElLaplacian3DDistSparse_z
+( ElDistSparseMatrix_z L, ElInt nx, ElInt ny, ElInt nz );
 
 /* Lauchli
    ======= */

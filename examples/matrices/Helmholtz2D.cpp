@@ -42,7 +42,7 @@ main( int argc, char* argv[] )
 
         // TODO: Extend to allow for computing SVD of submatrix
     }
-    catch( std::exception& e ) { ReportException(e); }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

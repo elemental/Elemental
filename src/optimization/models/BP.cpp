@@ -188,25 +188,25 @@ void BP
     // Determine the send and recv counts/offsets
     // ------------------------------------------
     const Int commSize = mpi::Size(comm);
-    std::vector<int> sendCounts(commSize,0);
+    vector<int> sendSizes(commSize,0);
     for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
     {
         const Int i = xHat.GlobalRow(iLoc);
         if( i < n )
-            ++sendCounts[ x.RowOwner(i) ];
+            ++sendSizes[ x.RowOwner(i) ];
         else
-            ++sendCounts[ x.RowOwner(i-n) ];
+            ++sendSizes[ x.RowOwner(i-n) ];
     }
-    std::vector<int> recvCounts(commSize);
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    std::vector<int> sendOffsets, recvOffsets;
-    const int totalSend = Scan( sendCounts, sendOffsets );
-    const int totalRecv = Scan( recvCounts, recvOffsets );
+    vector<int> recvSizes(commSize);
+    mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, comm );
+    vector<int> sendOffs, recvOffs;
+    const int totalSend = Scan( sendSizes, sendOffs );
+    const int totalRecv = Scan( recvSizes, recvOffs );
     // Pack the data 
     // -------------
-    std::vector<Int> sSendBuf(totalSend);
-    std::vector<Real> vSendBuf(totalSend);
-    auto offsets = sendOffsets;
+    vector<Int> sSendBuf(totalSend);
+    vector<Real> vSendBuf(totalSend);
+    auto offsets = sendOffs;
     for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
     {
         const Int i = xHat.GlobalRow(iLoc);
@@ -227,14 +227,14 @@ void BP
     }
     // Exchange the data
     // -----------------
-    std::vector<Int> sRecvBuf(totalRecv);
-    std::vector<Real> vRecvBuf(totalRecv);
+    vector<Int> sRecvBuf(totalRecv);
+    vector<Real> vRecvBuf(totalRecv);
     mpi::AllToAll
-    ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    ( sSendBuf.data(), sendSizes.data(), sendOffs.data(),
+      sRecvBuf.data(), recvSizes.data(), recvOffs.data(), comm );
     mpi::AllToAll
-    ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    ( vSendBuf.data(), sendSizes.data(), sendOffs.data(),
+      vRecvBuf.data(), recvSizes.data(), recvOffs.data(), comm );
     // Unpack the data
     // ---------------
     for( Int e=0; e<totalRecv; ++e )

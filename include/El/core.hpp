@@ -102,7 +102,6 @@
 // TODO: Think of how to better decouple the following components
 
 // Declare the intertwined core parts of our library
-#include "El/core/Timer.hpp"
 #include "El/core/Memory.hpp"
 #include "El/core/Element/decl.hpp"
 #include "El/core/types.hpp"
@@ -110,6 +109,8 @@
 #include "El/core/imports/choice.hpp"
 #include "El/core/imports/mpi_choice.hpp"
 #include "El/core/environment/decl.hpp"
+
+#include "El/core/Timer.hpp"
 #include "El/core/indexing/decl.hpp"
 #include "El/core/imports/blas.hpp"
 #include "El/core/imports/lapack.hpp"
@@ -119,15 +120,13 @@
 
 namespace El {
 
-template<typename T> class Matrix;
+template<typename T=double> class Matrix;
 
-template<typename T> class AbstractDistMatrix;
-template<typename T> class AbstractBlockDistMatrix;
+template<typename T=double> class AbstractDistMatrix;
+template<typename T=double> class AbstractBlockDistMatrix;
 
-template<typename T,Dist U=MC,Dist V=MR> class GeneralBlockDistMatrix;
-
-template<typename T,Dist U=MC,Dist V=MR> class DistMatrix;
-template<typename T,Dist U=MC,Dist V=MR> class BlockDistMatrix;
+template<typename T=double,Dist U=MC,Dist V=MR> class DistMatrix;
+template<typename T=double,Dist U=MC,Dist V=MR> class BlockDistMatrix;
 
 } // namespace El
 

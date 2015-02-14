@@ -105,10 +105,10 @@ main( int argc, char* argv[] )
             Input("--imgSaveFreq","image save frequency",-1);
         const Int imgDispFreq =
             Input("--imgDispFreq","image display frequency",-1);
-        const std::string numBase =
-            Input("--numBase","numerical save basename",std::string("num"));
-        const std::string imgBase =
-            Input("--imgBase","image save basename",std::string("img"));
+        const string numBase =
+            Input("--numBase","numerical save basename",string("num"));
+        const string imgBase =
+            Input("--imgBase","image save basename",string("img"));
         const Int numFormatInt = Input("--numFormat","numerical format",2);
         const Int imgFormatInt = Input("--imgFormat","image format",8);
         const Int colorMapInt = Input("--colorMap","color map",0);
@@ -139,7 +139,7 @@ main( int argc, char* argv[] )
         const C uniformCenter(uniformRealCenter,uniformImagCenter);
 
         bool isReal = true;
-        std::string matName;
+        string matName;
         DistMatrix<Real> AReal(g);
         DistMatrix<C> ACpx(g);
         switch( matType )
@@ -297,7 +297,7 @@ main( int argc, char* argv[] )
         }
         const Int numIts = MaxNorm( itCountMap );
         if( mpi::WorldRank() == 0 )
-            std::cout << "num iterations=" << numIts << std::endl;
+            cout << "num iterations=" << numIts << endl;
     }
     catch( exception& e ) { ReportException(e); }
 

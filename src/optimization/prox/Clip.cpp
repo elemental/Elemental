@@ -19,7 +19,7 @@ void LowerClip( Matrix<Real>& X, Real lowerBound )
             LogicError("Lower clip does not apply to complex data");
     )
     auto lowerClip = [&]( Real alpha ) { return Max(lowerBound,alpha); };
-    EntrywiseMap( X, std::function<Real(Real)>(lowerClip) );
+    EntrywiseMap( X, function<Real(Real)>(lowerClip) );
 }
 
 template<typename Real>
@@ -31,7 +31,7 @@ void UpperClip( Matrix<Real>& X, Real upperBound )
             LogicError("Upper clip does not apply to complex data");
     )
     auto upperClip = [&]( Real alpha ) { return Min(upperBound,alpha); };
-    EntrywiseMap( X, std::function<Real(Real)>(upperClip) );
+    EntrywiseMap( X, function<Real(Real)>(upperClip) );
 }
 
 template<typename Real>
@@ -44,7 +44,7 @@ void Clip( Matrix<Real>& X, Real lowerBound, Real upperBound )
     )
     auto clip = [&]( Real alpha ) 
                 { return Max(lowerBound,Min(upperBound,alpha)); };
-    EntrywiseMap( X, std::function<Real(Real)>(clip) );
+    EntrywiseMap( X, function<Real(Real)>(clip) );
 }
 
 template<typename Real>

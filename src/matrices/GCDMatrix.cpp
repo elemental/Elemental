@@ -16,7 +16,7 @@ void GCDMatrix( Matrix<T>& G, Int m, Int n )
     DEBUG_ONLY(CallStackEntry cse("GCDMatrix"))
     G.Resize( m, n );
     auto gcdFill = []( Int i, Int j ) { return T(GCD(i+1,j+1)); };
-    IndexDependentFill( G, std::function<T(Int,Int)>(gcdFill) );
+    IndexDependentFill( G, function<T(Int,Int)>(gcdFill) );
 }
 
 template<typename T>
@@ -25,7 +25,7 @@ void GCDMatrix( AbstractDistMatrix<T>& G, Int m, Int n )
     DEBUG_ONLY(CallStackEntry cse("GCDMatrix"))
     G.Resize( m, n );
     auto gcdFill = []( Int i, Int j ) { return T(GCD(i+1,j+1)); };
-    IndexDependentFill( G, std::function<T(Int,Int)>(gcdFill) );
+    IndexDependentFill( G, function<T(Int,Int)>(gcdFill) );
 }
 
 template<typename T>
@@ -34,7 +34,7 @@ void GCDMatrix( AbstractBlockDistMatrix<T>& G, Int m, Int n )
     DEBUG_ONLY(CallStackEntry cse("GCDMatrix"))
     G.Resize( m, n );
     auto gcdFill = []( Int i, Int j ) { return T(GCD(i+1,j+1)); };
-    IndexDependentFill( G, std::function<T(Int,Int)>(gcdFill) );
+    IndexDependentFill( G, function<T(Int,Int)>(gcdFill) );
 }
 
 #define PROTO(T) \

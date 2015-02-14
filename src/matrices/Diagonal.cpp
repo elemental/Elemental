@@ -11,7 +11,7 @@
 namespace El {
 
 template<typename S,typename T> 
-void Diagonal( Matrix<S>& D, const std::vector<T>& d )
+void Diagonal( Matrix<S>& D, const vector<T>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("Diagonal"))
     const Int n = d.size();
@@ -35,7 +35,7 @@ void Diagonal( Matrix<S>& D, const Matrix<T>& d )
 }
 
 template<typename S,typename T>
-void Diagonal( AbstractDistMatrix<S>& D, const std::vector<T>& d )
+void Diagonal( AbstractDistMatrix<S>& D, const vector<T>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("Diagonal"))
     const Int n = d.size();
@@ -87,7 +87,7 @@ void Diagonal( AbstractDistMatrix<S>& D, const AbstractDistMatrix<T>& dPre )
 }
 
 template<typename S,typename T>
-void Diagonal( AbstractBlockDistMatrix<S>& D, const std::vector<T>& d )
+void Diagonal( AbstractBlockDistMatrix<S>& D, const vector<T>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("Diagonal"))
     const Int n = d.size();
@@ -119,14 +119,14 @@ void Diagonal( AbstractBlockDistMatrix<S>& D, const Matrix<T>& d )
 }
 
 #define PROTO_TYPES(S,T) \
-  template void Diagonal( Matrix<S>& D, const std::vector<T>& d ); \
+  template void Diagonal( Matrix<S>& D, const vector<T>& d ); \
   template void Diagonal( Matrix<S>& D, const Matrix<T>& d ); \
-  template void Diagonal( AbstractDistMatrix<S>& D, const std::vector<T>& d ); \
+  template void Diagonal( AbstractDistMatrix<S>& D, const vector<T>& d ); \
   template void Diagonal( AbstractDistMatrix<S>& D, const Matrix<T>& d ); \
   template void Diagonal \
   ( AbstractDistMatrix<S>& D, const AbstractDistMatrix<T>& d ); \
   template void Diagonal \
-  ( AbstractBlockDistMatrix<S>& D, const std::vector<T>& d ); \
+  ( AbstractBlockDistMatrix<S>& D, const vector<T>& d ); \
   template void Diagonal \
   ( AbstractBlockDistMatrix<S>& D, const Matrix<T>& d );
 

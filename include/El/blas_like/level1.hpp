@@ -201,12 +201,11 @@ void ConjugateDiagonal( AbstractDistMatrix<T>& A, Int offset=0 );
 // ==================
 template<typename T>
 void ConjugateSubmatrix
-( Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J );
+( Matrix<T>& A, const vector<Int>& I, const vector<Int>& J );
 template<typename T>
 void ConjugateSubmatrix
 ( AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J );
+  const vector<Int>& I, const vector<Int>& J );
 
 // Contract
 // ========
@@ -487,52 +486,52 @@ T Dotu( const DistMultiVec<T>& A, const DistMultiVec<T>& B );
 // EntrywiseFill
 // =============
 template<typename T>
-void EntrywiseFill( Matrix<T>& A, std::function<T(void)> func );
+void EntrywiseFill( Matrix<T>& A, function<T(void)> func );
 template<typename T>
-void EntrywiseFill( AbstractDistMatrix<T>& A, std::function<T(void)> func );
+void EntrywiseFill( AbstractDistMatrix<T>& A, function<T(void)> func );
 template<typename T>
 void EntrywiseFill
-( AbstractBlockDistMatrix<T>& A, std::function<T(void)> func );
+( AbstractBlockDistMatrix<T>& A, function<T(void)> func );
 template<typename T>
-void EntrywiseFill( DistMultiVec<T>& A, std::function<T(void)> func );
+void EntrywiseFill( DistMultiVec<T>& A, function<T(void)> func );
 
 // EntrywiseMap
 // ============
 template<typename T>
-void EntrywiseMap( Matrix<T>& A, std::function<T(T)> func );
+void EntrywiseMap( Matrix<T>& A, function<T(T)> func );
 template<typename T>
-void EntrywiseMap( SparseMatrix<T>& A, std::function<T(T)> func );
+void EntrywiseMap( SparseMatrix<T>& A, function<T(T)> func );
 template<typename T>
-void EntrywiseMap( AbstractDistMatrix<T>& A, std::function<T(T)> func );
+void EntrywiseMap( AbstractDistMatrix<T>& A, function<T(T)> func );
 template<typename T>
-void EntrywiseMap( AbstractBlockDistMatrix<T>& A, std::function<T(T)> func );
+void EntrywiseMap( AbstractBlockDistMatrix<T>& A, function<T(T)> func );
 template<typename T>
-void EntrywiseMap( DistSparseMatrix<T>& A, std::function<T(T)> func );
+void EntrywiseMap( DistSparseMatrix<T>& A, function<T(T)> func );
 template<typename T>
-void EntrywiseMap( DistMultiVec<T>& A, std::function<T(T)> func );
+void EntrywiseMap( DistMultiVec<T>& A, function<T(T)> func );
 
 template<typename S,typename T>
 void EntrywiseMap
-( const Matrix<S>& A, Matrix<T>& B, std::function<T(S)> func );
+( const Matrix<S>& A, Matrix<T>& B, function<T(S)> func );
 template<typename S,typename T>
 void EntrywiseMap
-( const SparseMatrix<S>& A, SparseMatrix<T>& B, std::function<T(S)> func );
+( const SparseMatrix<S>& A, SparseMatrix<T>& B, function<T(S)> func );
 template<typename S,typename T>
 void EntrywiseMap
 ( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B, 
-  std::function<T(S)> func );
+  function<T(S)> func );
 template<typename S,typename T>
 void EntrywiseMap
 ( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B, 
-  std::function<T(S)> func );
+  function<T(S)> func );
 template<typename S,typename T>
 void EntrywiseMap
 ( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B, 
-  std::function<T(S)> func );
+  function<T(S)> func );
 template<typename S,typename T>
 void EntrywiseMap
 ( const DistMultiVec<S>& A, DistMultiVec<T>& B, 
-  std::function<T(S)> func );
+  function<T(S)> func );
 
 // Fill
 // ====
@@ -614,72 +613,71 @@ GetImagPartOfDiagonal( const DistMatrix<T,U,V>& A, Int offset=0 );
 // =================
 template<typename T,typename S>
 void GetMappedDiagonal
-( const Matrix<T>& A, Matrix<S>& d, 
-  std::function<S(T)> func, Int offset=0 );
+( const Matrix<T>& A, Matrix<S>& d, function<S(T)> func, Int offset=0 );
 template<typename T,typename S,Dist U,Dist V>
 void GetMappedDiagonal
 ( const DistMatrix<T,U,V>& A, AbstractDistMatrix<S>& d, 
-  std::function<S(T)> func, Int offset=0 );
+  function<S(T)> func, Int offset=0 );
 
 // GetSubmatrix
 // ============
 template<typename T>
 void GetSubmatrix
 ( const Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
         Matrix<T>& ASub );
 template<typename T>
 void GetRealPartOfSubmatrix
 ( const Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
         Matrix<Base<T>>& ASub );
 template<typename T>
 void GetImagPartOfSubmatrix
 ( const Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
         Matrix<Base<T>>& ASub );
 
 template<typename T>
 Matrix<T> GetSubmatrix
 ( const Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J );
+  const vector<Int>& I, const vector<Int>& J );
 template<typename T>
 Matrix<Base<T>> GetRealPartOfSubmatrix
 ( const Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J );
+  const vector<Int>& I, const vector<Int>& J );
 template<typename T>
 Matrix<Base<T>> GetImagPartOfSubmatrix
 ( const Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J );
+  const vector<Int>& I, const vector<Int>& J );
 
 template<typename T>
 void GetSubmatrix
 ( const AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
         AbstractDistMatrix<T>& ASub );
 template<typename T>
 void GetRealPartOfSubmatrix
 ( const AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
         AbstractDistMatrix<Base<T>>& ASub );
 template<typename T>
 void GetImagPartOfSubmatrix
 ( const AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
         AbstractDistMatrix<Base<T>>& ASub );
 
 template<typename T>
 DistMatrix<T,STAR,STAR> GetSubmatrix
 ( const AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J );
+  const vector<Int>& I, const vector<Int>& J );
 template<typename T>
 DistMatrix<Base<T>,STAR,STAR> GetRealPartOfSubmatrix
 ( const AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J );
+  const vector<Int>& I, const vector<Int>& J );
 template<typename T>
 DistMatrix<Base<T>,STAR,STAR> GetImagPartOfSubmatrix
 ( const AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J );
+  const vector<Int>& I, const vector<Int>& J );
 
 // Hadamard
 // ========
@@ -713,36 +711,36 @@ void ImagPart
 // IndexDependentFill
 // ==================
 template<typename T>
-void IndexDependentFill( Matrix<T>& A, std::function<T(Int,Int)> func );
+void IndexDependentFill( Matrix<T>& A, function<T(Int,Int)> func );
 template<typename T>
 void IndexDependentFill
-( AbstractDistMatrix<T>& A, std::function<T(Int,Int)> func );
+( AbstractDistMatrix<T>& A, function<T(Int,Int)> func );
 template<typename T>
 void IndexDependentFill
-( AbstractBlockDistMatrix<T>& A, std::function<T(Int,Int)> func );
+( AbstractBlockDistMatrix<T>& A, function<T(Int,Int)> func );
 
 // IndexDependentMap
 // =================
 template<typename T>
-void IndexDependentMap( Matrix<T>& A, std::function<T(Int,Int,T)> func );
+void IndexDependentMap( Matrix<T>& A, function<T(Int,Int,T)> func );
 template<typename T>
 void IndexDependentMap
-( AbstractDistMatrix<T>& A, std::function<T(Int,Int,T)> func );
+( AbstractDistMatrix<T>& A, function<T(Int,Int,T)> func );
 template<typename T>
 void IndexDependentMap
-( AbstractBlockDistMatrix<T>& A, std::function<T(Int,Int,T)> func );
+( AbstractBlockDistMatrix<T>& A, function<T(Int,Int,T)> func );
 
 template<typename S,typename T>
 void IndexDependentMap
-( const Matrix<S>& A, Matrix<T>& B, std::function<T(Int,Int,S)> func );
+( const Matrix<S>& A, Matrix<T>& B, function<T(Int,Int,S)> func );
 template<typename S,typename T>
 void IndexDependentMap
 ( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B,
-  std::function<T(Int,Int,S)> func );
+  function<T(Int,Int,S)> func );
 template<typename S,typename T>
 void IndexDependentMap
 ( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B,
-  std::function<T(Int,Int,S)> func );
+  function<T(Int,Int,S)> func );
 
 // MakeHermitian
 // =============
@@ -778,12 +776,10 @@ void MakeReal( AbstractDistMatrix<T>& A );
 // ================
 template<typename T>
 void MakeSubmatrixReal
-( Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J );
+( Matrix<T>& A, const vector<Int>& I, const vector<Int>& J );
 template<typename T>
 void MakeSubmatrixReal
-( AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J );
+( AbstractDistMatrix<T>& A, const vector<Int>& I, const vector<Int>& J );
 
 // MakeSymmetric
 // =============
@@ -1078,33 +1074,33 @@ void SetImagPartOfDiagonal
 template<typename T>
 void SetSubmatrix
 (       Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
   const Matrix<T>& ASub );
 template<typename T>
 void SetRealPartOfSubmatrix
 (       Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
   const Matrix<Base<T>>& ASub );
 template<typename T>
 void SetImagPartOfSubmatrix
 (       Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
   const Matrix<Base<T>>& ASub );
 
 template<typename T>
 void SetSubmatrix
 (       AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
   const AbstractDistMatrix<T>& ASub );
 template<typename T>
 void SetRealPartOfSubmatrix
 (       AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
   const AbstractDistMatrix<Base<T>>& ASub );
 template<typename T>
 void SetImagPartOfSubmatrix
 (       AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
   const AbstractDistMatrix<Base<T>>& ASub );
 
 // Swap
@@ -1312,44 +1308,44 @@ void UpdateImagPartOfDiagonal
 template<typename T,typename S>
 void UpdateMappedDiagonal
 ( Matrix<T>& A, const Matrix<S>& d, 
-  std::function<void(T&,S)> func, Int offset=0 );
+  function<void(T&,S)> func, Int offset=0 );
 template<typename T,typename S,Dist U,Dist V>
 void UpdateMappedDiagonal
 ( DistMatrix<T,U,V>& A, const AbstractDistMatrix<S>& d, 
-  std::function<void(T&,S)> func, Int offset=0 );
+  function<void(T&,S)> func, Int offset=0 );
 
 // UpdateSubmatrix
 // ===============
 template<typename T>
 void UpdateSubmatrix
 (       Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
   T alpha, const Matrix<T>& ASub );
 template<typename T>
 void UpdateRealPartOfSubmatrix
 (       Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
   Base<T> alpha, const Matrix<Base<T>>& ASub );
 template<typename T>
 void UpdateImagPartOfSubmatrix
 (       Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
   Base<T> alpha, const Matrix<Base<T>>& ASub );
 
 template<typename T>
 void UpdateSubmatrix
 (       AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
   T alpha, const AbstractDistMatrix<T>& ASub );
 template<typename T>
 void UpdateRealPartOfSubmatrix
 (       AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
   Base<T> alpha, const AbstractDistMatrix<Base<T>>& ASub );
 template<typename T>
 void UpdateImagPartOfSubmatrix
 (       AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
   Base<T> alpha, const AbstractDistMatrix<Base<T>>& ASub );
 
 // Zero

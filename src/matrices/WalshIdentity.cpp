@@ -32,8 +32,8 @@ void WalshIdentity( AbstractDistMatrix<T>& A, Int k, bool binary )
       LogicError("Walsh matrices are only defined for k>=1");
     const Unsigned n = 1u<<k;
     A.Resize( n, 2*n );
-    std::unique_ptr<AbstractDistMatrix<T>> AL( A.Construct(A.Grid(),A.Root()) );
-    std::unique_ptr<AbstractDistMatrix<T>> AR( A.Construct(A.Grid(),A.Root()) );
+    unique_ptr<AbstractDistMatrix<T>> AL( A.Construct(A.Grid(),A.Root()) );
+    unique_ptr<AbstractDistMatrix<T>> AR( A.Construct(A.Grid(),A.Root()) );
     View( *AL, A, IR(0,n), IR(0,n) );
     View( *AR, A, IR(0,n), IR(n,2*n) );
     Walsh( *AL, k, binary );

@@ -9,8 +9,7 @@
 #include "El.hpp"
 using namespace El;
 
-int
-main( int argc, char* argv[] )
+int main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
@@ -38,7 +37,7 @@ main( int argc, char* argv[] )
         Grid grid( comm, gridHeight );
 
         // Set up random A and B, then make the copies X := B and ACopy := A
-        DistMatrix<double> A(grid), B(grid), ACopy(grid), X(grid);
+        DistMatrix<> A(grid), B(grid), ACopy(grid), X(grid);
         for( Int test=0; test<3; ++test )
         {
             Uniform( A, n, n );
@@ -54,8 +53,8 @@ main( int argc, char* argv[] )
             // Perform the LU factorization and simultaneous solve
             if( commRank == 0 )
             {
-                std::cout << "Starting linear solve...";
-                std::cout.flush();
+                cout << "Starting linear solve...";
+                cout.flush();
             }
             mpi::Barrier( comm );
             double startTime = mpi::Time();
@@ -63,14 +62,14 @@ main( int argc, char* argv[] )
             mpi::Barrier( comm );
             double stopTime = mpi::Time();
             if( commRank == 0 )
-                std::cout << stopTime-startTime << " seconds." << std::endl;
+                cout << stopTime-startTime << " seconds." << endl;
 
             // Form R := A X - B
-            DistMatrix<double> R( B );
+            DistMatrix<> R( B );
             Gemm( NORMAL, NORMAL, 1., ACopy, X, -1., R );
 
             // Compute the relevant Frobenius norms and a relative residual
-            const double epsilon = lapack::MachineEpsilon<double>();
+            const double epsilon = lapack::MachineEpsilon();
             const double AFrobNorm = FrobeniusNorm( ACopy );
             const double BFrobNorm = FrobeniusNorm( B );
             const double XFrobNorm = FrobeniusNorm( X );
@@ -80,12 +79,12 @@ main( int argc, char* argv[] )
             if( commRank == 0 )
             {
                 if( details )
-                    std::cout << "||A||_F       = " << AFrobNorm << "\n"
-                              << "||B||_F       = " << BFrobNorm << "\n"
-                              << "||X||_F       = " << XFrobNorm << "\n"
-                              << "||A X - B||_F = " << RFrobNorm << "\n";
-                std::cout << "||A X - B||_F / (||A||_F ||X||_F epsilon n) = " 
-                          << frobResidual << "\n";
+                    cout << "||A||_F       = " << AFrobNorm << "\n"
+                         << "||B||_F       = " << BFrobNorm << "\n"
+                         << "||X||_F       = " << XFrobNorm << "\n"
+                         << "||A X - B||_F = " << RFrobNorm << "\n";
+                cout << "||A X - B||_F / (||A||_F ||X||_F epsilon n) = " 
+                     << frobResidual << "\n" << endl;
             }
 
             // Compute the relevant infinity norms and a relative residual
@@ -97,13 +96,13 @@ main( int argc, char* argv[] )
             if( commRank == 0 )
             {
                 if( details )
-                    std::cout << "\n"
-                              << "||A||_oo       = " << AInfNorm << "\n"
-                              << "||B||_oo       = " << BInfNorm << "\n"
-                              << "||X||_oo       = " << XInfNorm << "\n"
-                              << "||A X - B||_oo = " << RInfNorm << "\n";
-                std::cout << "||A X - B||_oo / (||A||_oo ||X||_oo epsilon n) = "
-                          << infResidual << "\n";
+                    cout << "\n"
+                         << "||A||_oo       = " << AInfNorm << "\n"
+                         << "||B||_oo       = " << BInfNorm << "\n"
+                         << "||X||_oo       = " << XInfNorm << "\n"
+                         << "||A X - B||_oo = " << RInfNorm << "\n";
+                cout << "||A X - B||_oo / (||A||_oo ||X||_oo epsilon n) = "
+                     << infResidual << "\n" << endl;
             }
 
             // Compute the relevant one norms and a relative residual
@@ -115,17 +114,17 @@ main( int argc, char* argv[] )
             if( commRank == 0 )
             {
                 if( details )
-                    std::cout << "\n"
-                              << "||A||_1       = " << AOneNorm << "\n"
-                              << "||B||_1       = " << BOneNorm << "\n"
-                              << "||X||_1       = " << XOneNorm << "\n"
-                              << "||A X - B||_1 = " << ROneNorm << "\n";
-                std::cout << "||A X - B||_1 / (||A||_1 ||X||_1 epsilon n) = " 
-                          << oneResidual << "\n" << std::endl;
+                    cout << "\n"
+                         << "||A||_1       = " << AOneNorm << "\n"
+                         << "||B||_1       = " << BOneNorm << "\n"
+                         << "||X||_1       = " << XOneNorm << "\n"
+                         << "||A X - B||_1 = " << ROneNorm << "\n";
+                cout << "||A X - B||_1 / (||A||_1 ||X||_1 epsilon n) = " 
+                     << oneResidual << "\n" << endl;
             }
         }
     }
-    catch( std::exception& e ) { ReportException(e); }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

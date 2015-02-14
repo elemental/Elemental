@@ -22,7 +22,7 @@ void NormalUniformSpectrum
     A.Resize( n, n );
 
     // Form d and D
-    std::vector<C> d( n );
+    vector<C> d( n );
     for( Int j=0; j<n; ++j )
         d[j] = SampleBall<C>( center, radius );
     Diagonal( A, d );
@@ -50,7 +50,7 @@ void NormalUniformSpectrum
     A.Resize( n, n );
 
     // Form d and D
-    std::vector<C> d( n );
+    vector<C> d( n );
     if( grid.Rank() == 0 )
         for( Int j=0; j<n; ++j )
             d[j] = SampleBall<C>( center, radius );

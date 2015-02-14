@@ -79,7 +79,7 @@ void Panel
     const Int n = A.Width();
     const Int mB = B.Height();
     const Int nB = B.Width();
-    std::vector<F> pivotBuffer( n );
+    vector<F> pivotBuffer( n );
 
     pivots.Resize( n, 1 );
 

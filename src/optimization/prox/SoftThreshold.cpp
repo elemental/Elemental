@@ -29,7 +29,7 @@ void SoftThreshold( Matrix<F>& A, Base<F> tau, bool relative )
     if( relative )
         tau *= MaxNorm(A);
     auto softThresh = [&]( F alpha ) { return SoftThreshold(alpha,tau); };
-    EntrywiseMap( A, std::function<F(F)>(softThresh) );
+    EntrywiseMap( A, function<F(F)>(softThresh) );
 }
 
 template<typename F>
@@ -39,7 +39,7 @@ void SoftThreshold( AbstractDistMatrix<F>& A, Base<F> tau, bool relative )
     if( relative )
         tau *= MaxNorm(A);
     auto softThresh = [&]( F alpha ) { return SoftThreshold(alpha,tau); };
-    EntrywiseMap( A, std::function<F(F)>(softThresh) );
+    EntrywiseMap( A, function<F(F)>(softThresh) );
 }
 
 #define PROTO(F) \

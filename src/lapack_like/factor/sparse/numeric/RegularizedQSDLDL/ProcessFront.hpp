@@ -7,20 +7,21 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_OPTIMIZATION_REGQSDLDL_PROCESSFRONT_HPP
-#define EL_OPTIMIZATION_REGQSDLDL_PROCESSFRONT_HPP
+#ifndef EL_FACTOR_REGQSDLDL_PROCESSFRONT_HPP
+#define EL_FACTOR_REGQSDLDL_PROCESSFRONT_HPP
 
 namespace El {
 namespace reg_qsd_ldl {
 
 template<typename F>
-inline void ProcessFront
-( Matrix<F>& AL, Matrix<F>& ABR, Base<F> pivTol, 
+inline void ProcessFrontVanilla
+( Matrix<F>& AL, Matrix<F>& ABR, 
+  Base<F> pivTol, 
   const Matrix<Base<F>>& regCand, Matrix<Base<F>>& reg,
   bool aPriori )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("reg_qsd_ldl::ProcessFront");
+        CallStackEntry cse("reg_qsd_ldl::ProcessFrontVanilla");
         if( ABR.Height() != ABR.Width() )
             LogicError("ABR must be square");
         if( AL.Height() != AL.Width() + ABR.Width() )
@@ -62,6 +63,20 @@ inline void ProcessFront
         MakeTrapezoidal( LOWER, AL22 );
         Trrk( LOWER, NORMAL, ADJOINT, F(-1), S21B, AL21B, F(1), ABR );
     }
+}
+
+template<typename F>
+inline void ProcessFront
+( SymmFront<F>& front,
+  Base<F> pivTol, 
+  const Matrix<Base<F>>& regCand, Matrix<Base<F>>& reg,
+  bool aPriori, SymmFrontType factorType )
+{
+    DEBUG_ONLY(CallStackEntry cse("ldl::ProcessFront"))
+    front.type = factorType;
+    ProcessFrontVanilla( front.L, front.work, pivTol, regCand, reg, aPriori );
+    GetDiagonal( front.L, front.diag );
+    FillDiagonal( front.L, F(1) );
 }
 
 template<typename F> 
@@ -283,13 +298,14 @@ inline void ProcessFrontSquare
 }
 
 template<typename F> 
-inline void ProcessFront
-( DistMatrix<F>& AL, DistMatrix<F>& ABR, Base<F> pivTol, 
+inline void ProcessFrontVanilla
+( DistMatrix<F>& AL, DistMatrix<F>& ABR, 
+  Base<F> pivTol, 
   const DistMatrix<Base<F>,VC,STAR>& regCand, 
         DistMatrix<Base<F>,VC,STAR>& reg,
   bool aPriori )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::ProcessFront"))
+    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::ProcessFrontVanilla"))
     const Grid& grid = AL.Grid();
     if( grid.Height() == grid.Width() )
         ProcessFrontSquare( AL, ABR, pivTol, regCand, reg, aPriori );
@@ -297,7 +313,28 @@ inline void ProcessFront
         ProcessFrontGeneral( AL, ABR, pivTol, regCand, reg, aPriori );
 }
 
+template<typename F>
+inline void ProcessFront
+( DistSymmFront<F>& front,
+  Base<F> pivTol, 
+  const DistMatrix<Base<F>,VC,STAR>& regCand, 
+        DistMatrix<Base<F>,VC,STAR>& reg,
+  bool aPriori, SymmFrontType factorType )
+{
+    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::ProcessFront"))
+
+    front.type = factorType;
+
+    ProcessFrontVanilla
+    ( front.L2D, front.work2D, pivTol, regCand, reg, aPriori );
+
+    auto diag = GetDiagonal( front.L2D );
+    front.diag.SetGrid( front.L2D.Grid() );
+    front.diag = diag;
+    FillDiagonal( front.L2D, F(1) );
+}
+
 } // namespace reg_qsd_ldl
 } // namespace El
 
-#endif // ifndef EL_OPTIMIZATION_REGQSDLDL_PROCESSFRONT_HPP
+#endif // ifndef EL_FACTOR_REGQSDLDL_PROCESSFRONT_HPP

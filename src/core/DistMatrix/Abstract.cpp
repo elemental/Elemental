@@ -494,6 +494,16 @@ AbstractDistMatrix<T>::Attach
 
 template<typename T>
 void
+AbstractDistMatrix<T>::Attach( const El::Grid& g, El::Matrix<T>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::Attach"))
+    if( g.Size() != 1 )
+        LogicError("Assumed a grid size of one");
+    Attach( A.Height(), A.Width(), g, 0, 0, A.Buffer(), A.LDim() );
+}
+
+template<typename T>
+void
 AbstractDistMatrix<T>::LockedAttach
 ( Int height, Int width, const El::Grid& g, 
   int colAlign, int rowAlign, const T* buffer, Int ldim, int root )
@@ -529,6 +539,16 @@ AbstractDistMatrix<T>::LockedAttach
     // TODO: Assert that the local dimensions are correct
     LockedAttach
     ( height, width, g, colAlign, rowAlign, A.LockedBuffer(), A.LDim(), root );
+}
+
+template<typename T>
+void
+AbstractDistMatrix<T>::LockedAttach( const El::Grid& g, const El::Matrix<T>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::LockedAttach"))
+    if( g.Size() != 1 )
+        LogicError("Assumed a grid size of one");
+    LockedAttach( A.Height(), A.Width(), g, 0, 0, A.LockedBuffer(), A.LDim() );
 }
 
 // Basic queries

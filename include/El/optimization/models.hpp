@@ -172,14 +172,14 @@ Int LogisticRegression
 // TODO: Implement these functions
 template<typename Real>
 Int ModelFit
-( std::function<void(Matrix<Real>&,Real)> lossProx,
-  std::function<void(Matrix<Real>&,Real)> regProx,
+( function<void(Matrix<Real>&,Real)> lossProx,
+  function<void(Matrix<Real>&,Real)> regProx,
   const Matrix<Real>& A, const Matrix<Real>& b, Matrix<Real>& w,
   Real rho, Int maxIter=1000, bool inv=true, bool progress=true );
 template<typename Real>
 Int ModelFit
-( std::function<void(DistMatrix<Real>&,Real)> lossProx,
-  std::function<void(DistMatrix<Real>&,Real)> regProx,
+( function<void(DistMatrix<Real>&,Real)> lossProx,
+  function<void(DistMatrix<Real>&,Real)> regProx,
   const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, 
         AbstractDistMatrix<Real>& w,
   Real rho, Int maxIter=1000, bool inv=true, bool progress=true );

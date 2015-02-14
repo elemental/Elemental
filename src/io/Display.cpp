@@ -271,9 +271,9 @@ void Display( const DistSparseMatrix<T>& A, std::string title )
 }
 
 void DisplayLocal
-( const DistSymmInfo& info, bool beforeFact, std::string title )
+( const DistSymmNodeInfo& info, bool beforeFact, std::string title )
 {
-    DEBUG_ONLY(CallStackEntry cse("DisplayLocal [DistSymmInfo]"))
+    DEBUG_ONLY(CallStackEntry cse("DisplayLocal [DistSymmNodeInfo]"))
 #ifdef HAVE_QT5
     const int n = info.distNodes.back().size + info.distNodes.back().off;
     auto graphMat = new Matrix<int>;

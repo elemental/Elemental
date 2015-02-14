@@ -99,7 +99,7 @@ void PermuteRows( AbstractDistMatrix<T>& A, const PermutationMeta& oldMeta )
     // Fill vectors with the send data
     auto offsets = meta.sendDispls;
     const int totalSend = meta.TotalSend();
-    std::vector<T> sendData( mpi::Pad(totalSend) );
+    vector<T> sendData( mpi::Pad(totalSend) );
     const int numSends = meta.sendIdx.size();
     for( int send=0; send<numSends; ++send )
     {
@@ -114,7 +114,7 @@ void PermuteRows( AbstractDistMatrix<T>& A, const PermutationMeta& oldMeta )
 
     // Communicate all pivot rows
     const int totalRecv = meta.TotalRecv();
-    std::vector<T> recvData( mpi::Pad(totalRecv) );
+    vector<T> recvData( mpi::Pad(totalRecv) );
     mpi::AllToAll
     ( sendData.data(), meta.sendCounts.data(), meta.sendDispls.data(),
       recvData.data(), meta.recvCounts.data(), meta.recvDispls.data(),

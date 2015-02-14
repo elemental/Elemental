@@ -37,56 +37,55 @@ main( int argc, char* argv[] )
             Int n;
             const TestType testType = TestType(test/2);
             const bool useQR = test % 2;
-            const std::string qrString = ( useQR ? "with QR:" : "with D&C:" );
+            const string qrString = ( useQR ? "with QR:" : "with D&C:" );
             ctrl.seqQR = useQR;
             switch( testType )
             {
             case FOURIER:     
                 if( mpi::WorldRank() == 0 ) 
-                    std::cout << "Testing Fourier " 
-                              << qrString << std::endl;
+                    cout << "Testing Fourier " << qrString << endl;
                 n = k;
                 Fourier( A, n ); 
                 break;
             case HILBERT:     
                 if( mpi::WorldRank() == 0 )
-                    std::cout << "Testing Hilbert " << qrString << std::endl;
+                    cout << "Testing Hilbert " << qrString << endl;
                 n = k;
                 Hilbert( A, n ); 
                 break;
             case IDENTITY:    
                 if( mpi::WorldRank() == 0 )
-                    std::cout << "Testing Identity " << qrString << std::endl;
+                    cout << "Testing Identity " << qrString << endl;
                 n = k;
                 Identity( A, n, n ); 
                 break;
             case ONES:        
                 if( mpi::WorldRank() == 0 )
-                    std::cout << "Testing Ones " << qrString << std::endl;
+                    cout << "Testing Ones " << qrString << endl;
                 n = k;
                 Ones( A, n, n ); 
                 break;
             case ONE_TWO_ONE: 
                 if( mpi::WorldRank() == 0 )
-                    std::cout << "Testing OneTwoOne " << qrString << std::endl;
+                    cout << "Testing OneTwoOne " << qrString << endl;
                 n = k;
                 OneTwoOne( A, n ); 
                 break;
             case UNIFORM:     
                 if( mpi::WorldRank() == 0 )
-                    std::cout << "Testing Uniform " << qrString << std::endl;
+                    cout << "Testing Uniform " << qrString << endl;
                 n = k;
                 Uniform( A, n, n ); 
                 break;
             case WILKINSON:   
                 if( mpi::WorldRank() == 0 )
-                    std::cout << "Testing Wilkinson " << qrString << std::endl;
+                    cout << "Testing Wilkinson " << qrString << endl;
                 Wilkinson( A, k ); 
                 n = 2*k+1;
                 break;
             case ZEROS:       
                 if( mpi::WorldRank() == 0 )
-                    std::cout << "Testing Zeros " << qrString << std::endl;
+                    cout << "Testing Zeros " << qrString << endl;
                 n = k;
                 Zeros( A, n, n ); 
                 break;

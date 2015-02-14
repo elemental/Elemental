@@ -18,10 +18,9 @@ NaturalNestedDissectionRecursion
         Int ny,
         Int nz,
   const Graph& graph, 
-  const std::vector<Int>& perm,
-        DistSeparatorTree& sepTree, 
-        DistSymmElimTree& eTree,
-        Int parent, 
+  const vector<Int>& perm,
+        Separator& sep, 
+        SymmNode& node,
         Int off, 
         Int cutoff )
 {
@@ -30,20 +29,13 @@ NaturalNestedDissectionRecursion
     {
         // Fill in this node of the local separator tree
         const Int numSources = graph.NumSources();
-        sepTree.localSepsAndLeaves.push_back( new SepOrLeaf );
-        SepOrLeaf& leaf = *sepTree.localSepsAndLeaves.back();
-        leaf.parent = parent;
-        leaf.off = off;
-        leaf.inds = perm;
+        sep.off = off;
+        sep.inds = perm;
 
         // Fill in this node of the local elimination tree
-        eTree.localNodes.push_back( new SymmNode );
-        SymmNode& node = *eTree.localNodes.back();
         node.size = numSources;
         node.off = off;
-        node.parent = parent;
-        SwapClear( node.children );
-        std::set<Int> connectedAncestors;
+        set<Int> lowerStruct;
         for( Int s=0; s<node.size; ++s )
         {
             const Int numConnections = graph.NumConnections( s );
@@ -52,51 +44,41 @@ NaturalNestedDissectionRecursion
             {
                 const Int target = graph.Target( edgeOff+t );
                 if( target >= numSources )
-                    connectedAncestors.insert( off+target );
+                    lowerStruct.insert( off+target );
             }
         }
-        node.lowerStruct.resize( connectedAncestors.size() );
-        std::copy
-        ( connectedAncestors.begin(), connectedAncestors.end(), 
-          node.lowerStruct.begin() );
+        CopySTL( lowerStruct, node.lowerStruct );
     }
     else
     {
         // Partition the graph and construct the inverse map
         Int nxLeft, nyLeft, nzLeft, nxRight, nyRight, nzRight;
         Graph leftChild, rightChild;
-        std::vector<Int> map;
+        vector<Int> map;
         const Int sepSize = 
             NaturalBisect
             ( nx, ny, nz, graph, 
               nxLeft, nyLeft, nzLeft, leftChild, 
               nxRight, nyRight, nzRight, rightChild, map );
         const Int numSources = graph.NumSources();
-        std::vector<Int> inverseMap( numSources );
+        vector<Int> invMap( numSources );
         for( Int s=0; s<numSources; ++s )
-            inverseMap[map[s]] = s;
+            invMap[map[s]] = s;
 
         // Mostly compute this node of the local separator tree
         // (we will finish computing the separator indices soon)
-        sepTree.localSepsAndLeaves.push_back( new SepOrLeaf );
-        SepOrLeaf& sep = *sepTree.localSepsAndLeaves.back();
-        sep.parent = parent;
         sep.off = off + (numSources-sepSize);
         sep.inds.resize( sepSize );
         for( Int s=0; s<sepSize; ++s )
         {
             const Int mappedSource = s + (numSources-sepSize);
-            sep.inds[s] = inverseMap[mappedSource];
+            sep.inds[s] = invMap[mappedSource];
         }
     
         // Fill in this node in the local elimination tree
-        eTree.localNodes.push_back( new SymmNode );
-        SymmNode& node = *eTree.localNodes.back();
         node.size = sepSize;
         node.off = sep.off;
-        node.parent = parent;
-        node.children.resize( 2 );
-        std::set<Int> connectedAncestors;
+        set<Int> lowerStruct;
         for( Int s=0; s<sepSize; ++s )
         {
             const Int source = sep.inds[s];
@@ -106,13 +88,10 @@ NaturalNestedDissectionRecursion
             {
                 const Int target = graph.Target( edgeOff+t );
                 if( target >= numSources )
-                    connectedAncestors.insert( off+target );
+                    lowerStruct.insert( off+target );
             }
         }
-        node.lowerStruct.resize( connectedAncestors.size() );
-        std::copy
-        ( connectedAncestors.begin(), connectedAncestors.end(), 
-          node.lowerStruct.begin() );
+        CopySTL( lowerStruct, node.lowerStruct );
 
         // Finish computing the separator indices
         for( Int s=0; s<sepSize; ++s )
@@ -121,25 +100,26 @@ NaturalNestedDissectionRecursion
         // Construct the inverse maps from the child indices to the original
         // degrees of freedom
         const Int leftChildSize = leftChild.NumSources();
-        std::vector<Int> leftPerm( leftChildSize );
+        vector<Int> leftPerm( leftChildSize );
         for( Int s=0; s<leftChildSize; ++s )
-            leftPerm[s] = perm[inverseMap[s]];
+            leftPerm[s] = perm[invMap[s]];
         const Int rightChildSize = rightChild.NumSources();
-        std::vector<Int> rightPerm( rightChildSize );
+        vector<Int> rightPerm( rightChildSize );
         for( Int s=0; s<rightChildSize; ++s )
-            rightPerm[s] = perm[inverseMap[s+leftChildSize]];
+            rightPerm[s] = perm[invMap[s+leftChildSize]];
 
-        // Update right then left so that, once we later reverse the order 
-        // of the nodes, the left node will be ordered first
-        const Int parent = eTree.localNodes.size()-1;
-        node.children[1] = eTree.localNodes.size();
+        sep.children.resize( 2 );
+        node.children.resize( 2 );
+        sep.children[0] = new Separator(&sep);
+        sep.children[1] = new Separator(&sep);
+        node.children[0] = new SymmNode(&node);
+        node.children[1] = new SymmNode(&node);
         NaturalNestedDissectionRecursion
-        ( nxRight, nyRight, nzRight, rightChild, rightPerm, sepTree, eTree, 
-          parent, off+leftChildSize, cutoff );
-        node.children[0] = eTree.localNodes.size();
+        ( nxLeft, nyLeft, nzLeft, leftChild, leftPerm, 
+          *sep.children[0], *node.children[0], off, cutoff );
         NaturalNestedDissectionRecursion
-        ( nxLeft, nyLeft, nzLeft, leftChild, leftPerm, sepTree, eTree, 
-          parent, off, cutoff );
+        ( nxRight, nyRight, nzRight, rightChild, rightPerm, 
+          *sep.children[1], *node.children[1], off+leftChildSize, cutoff );
     }
 }
 
@@ -150,17 +130,19 @@ NaturalNestedDissectionRecursion
         Int nz,
   const DistGraph& graph, 
   const DistMap& perm,
-        DistSeparatorTree& sepTree, 
-        DistSymmElimTree& eTree,
-        Int depth, 
+        DistSeparator& sep, 
+        DistSymmNode& node,
         Int off, 
-        bool onLeft,
         Int cutoff )
 {
     DEBUG_ONLY(CallStackEntry cse("NaturalNestedDissectionRecursion"))
-    const int distDepth = sepTree.distSeps.size();
     mpi::Comm comm = graph.Comm();
-    if( distDepth - depth > 0 )
+    const int commSize = mpi::Size(comm);
+
+    mpi::Dup( comm, sep.comm );
+    mpi::Dup( comm, node.comm );
+
+    if( commSize > 1 )
     {
         // Partition the graph and construct the inverse map
         Int nxChild, nyChild, nzChild;
@@ -176,28 +158,23 @@ NaturalNestedDissectionRecursion
         const Int leftChildSize = 
             ( childIsOnLeft ? childSize : numSources-sepSize-childSize );
 
-        DistMap inverseMap;
-        map.FormInverse( inverseMap );
+        DistMap invMap;
+        map.FormInverse( invMap );
 
         // Mostly fill this node of the DistSeparatorTree
         // (we will finish computing the separator indices at the end)
-        DistSeparator& sep = sepTree.distSeps[distDepth-1-depth];
-        mpi::Dup( comm, sep.comm );
         sep.off = off + (numSources-sepSize);
         sep.inds.resize( sepSize );
         for( Int s=0; s<sepSize; ++s )
             sep.inds[s] = s + (numSources-sepSize);
-        inverseMap.Translate( sep.inds );
+        invMap.Translate( sep.inds );
 
         // Fill in this node of the DistSymmElimTree
-        DistSymmNode& node = eTree.distNodes[distDepth-depth];
         node.size = sepSize;
         node.off = sep.off;
-        node.onLeft = onLeft;
-        mpi::Dup( comm, node.comm );
         const Int numLocalSources = graph.NumLocalSources();
         const Int firstLocalSource = graph.FirstLocalSource();
-        std::set<Int> localConnectedAncestors;
+        set<Int> localStructSet;
         for( Int s=0; s<sepSize; ++s )
         {
             const Int source = sep.inds[s];
@@ -205,43 +182,31 @@ NaturalNestedDissectionRecursion
                 source < firstLocalSource+numLocalSources )
             {
                 const Int localSource = source - firstLocalSource;
-                const Int numConnections = graph.NumConnections( localSource );
+                const Int numConnect = graph.NumConnections( localSource );
                 const Int localOff = graph.EdgeOffset( localSource );
-                for( Int t=0; t<numConnections; ++t )
+                for( Int t=0; t<numConnect; ++t )
                 {
                     const Int target = graph.Target( localOff+t );
                     if( target >= numSources )
-                        localConnectedAncestors.insert( off+target );
+                        localStructSet.insert( off+target );
                 }
             }
         }
-        const int numLocalConnected = localConnectedAncestors.size();
+        const int localStructSize = localStructSet.size();
         const int commSize = mpi::Size( comm );
-        std::vector<int> localConnectedSizes( commSize );
+        vector<int> localStructSizes( commSize );
+        mpi::AllGather( &localStructSize, 1, localStructSizes.data(), 1, comm );
+        vector<Int> localStruct;
+        CopySTL( localStructSet, localStruct );
+        vector<int> localStructOffs;
+        int nonUniqueStructSize = Scan( localStructSizes, localStructOffs );
+        vector<Int> nonUniqueStruct( nonUniqueStructSize );
         mpi::AllGather
-        ( &numLocalConnected, 1, localConnectedSizes.data(), 1, comm );
-        std::vector<Int> localConnectedVec( numLocalConnected );
-        std::copy
-        ( localConnectedAncestors.begin(), localConnectedAncestors.end(), 
-          localConnectedVec.begin() );
-        Int sumOfLocalConnectedSizes=0;
-        std::vector<int> localConnectedOffs( commSize );
-        for( int q=0; q<commSize; ++q )
-        {
-            localConnectedOffs[q] = sumOfLocalConnectedSizes;
-            sumOfLocalConnectedSizes += localConnectedSizes[q];
-        }
-        std::vector<Int> localConnections( sumOfLocalConnectedSizes );
-        mpi::AllGather
-        ( localConnectedVec.data(), numLocalConnected,
-          localConnections.data(), 
-          localConnectedSizes.data(), localConnectedOffs.data(), comm );
-        std::set<Int> connectedAncestors
-        ( localConnections.begin(), localConnections.end() );
-        node.lowerStruct.resize( connectedAncestors.size() );
-        std::copy
-        ( connectedAncestors.begin(), connectedAncestors.end(), 
-          node.lowerStruct.begin() );
+        ( localStruct.data(), localStructSize,
+          nonUniqueStruct.data(), 
+          localStructSizes.data(), localStructOffs.data(), comm );
+        set<Int> structSet( nonUniqueStruct.begin(), nonUniqueStruct.end() );
+        CopySTL( structSet, node.lowerStruct );
 
         // Finish computing the separator indices
         perm.Translate( sep.inds );
@@ -256,147 +221,66 @@ NaturalNestedDissectionRecursion
         else
             for( Int s=0; s<localChildSize; ++s )
                 newPerm.SetLocal( s, s+firstLocalChildSource+leftChildSize );
-        inverseMap.Extend( newPerm );
+        invMap.Extend( newPerm );
         perm.Extend( newPerm );
 
         // Recurse
         const Int newOff = ( childIsOnLeft ? off : off+leftChildSize );
+        sep.child = new DistSeparator(&sep);
+        node.child = new DistSymmNode(&node);
+        node.child->onLeft = childIsOnLeft;
         NaturalNestedDissectionRecursion
-        ( nxChild, nyChild, nzChild, child, newPerm, sepTree, eTree, depth+1, 
-          newOff, childIsOnLeft, cutoff );
-    }
-    else if( graph.NumSources() <= cutoff )
-    {
-        // Convert to a sequential graph
-        const Int numSources = graph.NumSources();
-        Graph seqGraph( graph );
-
-        // Fill in this node of the local separator tree
-        sepTree.localSepsAndLeaves.push_back( new SepOrLeaf );
-        SepOrLeaf& leaf = *sepTree.localSepsAndLeaves.back();
-        leaf.parent = -1;
-        leaf.off = off;
-        leaf.inds = perm.Map();
-
-        // Fill in this node of the local and distributed parts of the 
-        // elimination tree
-        eTree.localNodes.push_back( new SymmNode );
-        SymmNode& localNode = *eTree.localNodes.back();
-        DistSymmNode& distNode = eTree.distNodes[0];
-        mpi::Dup( comm, distNode.comm );
-        distNode.onLeft = onLeft;
-        distNode.size = localNode.size = numSources;
-        distNode.off = localNode.off = off;
-        localNode.parent = -1;
-        SwapClear( localNode.children );
-        std::set<Int> connectedAncestors;
-        for( Int s=0; s<numSources; ++s )
-        {
-            const Int numConnections = seqGraph.NumConnections( s );
-            const Int edgeOff = seqGraph.EdgeOffset( s );
-            for( Int t=0; t<numConnections; ++t )
-            {
-                const Int target = seqGraph.Target( edgeOff+t );
-                if( target >= numSources )
-                    connectedAncestors.insert( off+target );
-            }
-        }
-        localNode.lowerStruct.resize( connectedAncestors.size() );
-        std::copy
-        ( connectedAncestors.begin(), connectedAncestors.end(), 
-          localNode.lowerStruct.begin() );    
-        distNode.lowerStruct = localNode.lowerStruct;
+        ( nxChild, nyChild, nzChild, child, newPerm, 
+          *sep.child, *node.child, newOff, cutoff );
     }
     else
     {
-        // Convert to a sequential graph
         Graph seqGraph( graph );
 
-        // Partition the graph and construct the inverse map
-        Int nxLeft, nyLeft, nzLeft, nxRight, nyRight, nzRight;
-        Graph leftChild, rightChild;
-        std::vector<Int> map;
-        const Int sepSize = 
-            NaturalBisect
-            ( nx, ny, nz, seqGraph, 
-              nxLeft, nyLeft, nzLeft, leftChild, 
-              nxRight, nyRight, nzRight, rightChild, map );
-        const Int numSources = graph.NumSources();
-        std::vector<Int> inverseMap( numSources );
-        for( Int s=0; s<numSources; ++s )
-            inverseMap[map[s]] = s;
+        sep.duplicate = new Separator(&sep);
+        node.duplicate = new SymmNode(&node);
 
-        // Mostly compute this node of the local separator tree
-        // (we will finish computing the separator indices soon)
-        sepTree.localSepsAndLeaves.push_back( new SepOrLeaf );
-        SepOrLeaf& sep = *sepTree.localSepsAndLeaves.back();
-        sep.parent = -1;
-        sep.off = off + (numSources-sepSize);
-        sep.inds.resize( sepSize );
-        for( Int s=0; s<sepSize; ++s )
-        {
-            const Int mappedSource = s + (numSources-sepSize);
-            sep.inds[s] = inverseMap[mappedSource];
-        }
-        
-        // Fill in this node in both the local and distributed parts of 
-        // the elimination tree
-        eTree.localNodes.push_back( new SymmNode );
-        SymmNode& localNode = *eTree.localNodes.back();
-        DistSymmNode& distNode = eTree.distNodes[0];
-        mpi::Dup( comm, distNode.comm );
-        distNode.onLeft = onLeft;
-        distNode.size = localNode.size = sepSize;
-        distNode.off = localNode.off = sep.off;
-        localNode.parent = -1;
-        localNode.children.resize( 2 );
-        std::set<Int> connectedAncestors;
-        for( Int s=0; s<sepSize; ++s )
-        {
-            const Int source = sep.inds[s];
-            const Int numConnections = seqGraph.NumConnections( source );
-            const Int edgeOff = seqGraph.EdgeOffset( source );
-            for( Int t=0; t<numConnections; ++t )
-            {
-                const Int target = seqGraph.Target( edgeOff+t );
-                if( target >= numSources )
-                    connectedAncestors.insert( off+target );
-            }
-        }
-        localNode.lowerStruct.resize( connectedAncestors.size() );
-        std::copy
-        ( connectedAncestors.begin(), connectedAncestors.end(), 
-          localNode.lowerStruct.begin() );
-        distNode.lowerStruct = localNode.lowerStruct;
-
-        // Finish computing the separator indices
-        // (This is a faster version of the Translate member function)
-        for( Int s=0; s<sepSize; ++s )
-            sep.inds[s] = perm.GetLocal( sep.inds[s] );
-
-        // Construct the inverse maps from the child indices to the original
-        // degrees of freedom
-        const Int leftChildSize = leftChild.NumSources();
-        std::vector<Int> leftPerm( leftChildSize );
-        for( Int s=0; s<leftChildSize; ++s )
-            leftPerm[s] = perm.GetLocal( inverseMap[s] );
-        const Int rightChildSize = rightChild.NumSources();
-        std::vector<Int> rightPerm( rightChildSize );
-        for( Int s=0; s<rightChildSize; ++s )
-            rightPerm[s] = perm.GetLocal( inverseMap[s+leftChildSize] );
-
-        // Update right then left so that, once we later reverse the order 
-        // of the nodes, the left node will be ordered first
-        const Int parent=0;
-        localNode.children[1] = eTree.localNodes.size();
         NaturalNestedDissectionRecursion
-        ( nxRight, nyRight, nzRight, rightChild, rightPerm, sepTree, eTree, 
-          parent, off+leftChildSize, cutoff );
-        localNode.children[0] = eTree.localNodes.size();
-        NaturalNestedDissectionRecursion
-        ( nxLeft, nyLeft, nzLeft, leftChild, leftPerm, sepTree, eTree, 
-          parent, off, cutoff );
+        ( nx, ny, nz, seqGraph, perm.Map(), 
+          *sep.duplicate, *node.duplicate, off, cutoff );
+
+        // Pull information up from the duplicates
+        sep.off = sep.duplicate->off;
+        sep.inds = sep.duplicate->inds;
+        node.size = node.duplicate->size;
+        node.off = node.duplicate->off;
+        node.lowerStruct = node.duplicate->lowerStruct;
     }
+}
+
+void NaturalNestedDissection
+(       Int nx,
+        Int ny,
+        Int nz,
+  const Graph& graph, 
+        vector<Int>& map,
+        Separator& sep, 
+        SymmNodeInfo& info,
+        Int cutoff )
+{
+    DEBUG_ONLY(CallStackEntry cse("NaturalNestedDissection"))
+    // NOTE: There is a potential memory leak here if sep or info is reused
+
+    const Int numSources = graph.NumSources();
+    vector<Int> perm( numSources );
+    for( Int s=0; s<numSources; ++s )
+        perm[s] = s;
+
+    SymmNode node;
+    NaturalNestedDissectionRecursion
+    ( nx, ny, nz, graph, perm, sep, node, 0, cutoff );
+
+    // Construct the distributed reordering    
+    BuildMap( sep, map );
+    DEBUG_ONLY(EnsurePermutation( map ))
+
+    // Run the symbolic analysis
+    SymmetricAnalysis( node, info );
 }
 
 void NaturalNestedDissection
@@ -405,40 +289,30 @@ void NaturalNestedDissection
         Int nz,
   const DistGraph& graph, 
         DistMap& map,
-        DistSeparatorTree& sepTree, 
-        DistSymmInfo& info,
+        DistSeparator& sep, 
+        DistSymmNodeInfo& info,
         Int cutoff, 
         bool storeFactRecvInds )
 {
     DEBUG_ONLY(CallStackEntry cse("NaturalNestedDissection"))
-    // NOTE: There is a potential memory leak here if these data structures 
-    //       are reused. Their destructors should call a member function which
-    //       we can simply call here to clear the data
-    DistSymmElimTree eTree;
-    SwapClear( eTree.localNodes );
-    SwapClear( sepTree.localSepsAndLeaves );
-
-    mpi::Comm comm = graph.Comm();
-    const int distDepth = DistributedDepth( comm );
-    eTree.distNodes.resize( distDepth+1 );
-    sepTree.distSeps.resize( distDepth );
+    // NOTE: There is a potential memory leak here if sep or info is reused 
 
     DistMap perm( graph.NumSources(), graph.Comm() );
     const Int firstLocalSource = perm.FirstLocalSource();
     const Int numLocalSources = perm.NumLocalSources();
     for( Int s=0; s<numLocalSources; ++s )
         perm.SetLocal( s, s+firstLocalSource );
-    NaturalNestedDissectionRecursion
-    ( nx, ny, nz, graph, perm, sepTree, eTree, 0, 0, false, cutoff );
 
-    ReverseOrder( sepTree, eTree );
+    DistSymmNode node;
+    NaturalNestedDissectionRecursion
+    ( nx, ny, nz, graph, perm, sep, node, 0, cutoff );
 
     // Construct the distributed reordering    
-    BuildMap( graph, sepTree, map );
-    DEBUG_ONLY(EnsurePermutation( map ))
+    BuildMap( sep, map );
+    DEBUG_ONLY(EnsurePermutation(map))
 
     // Run the symbolic analysis
-    SymmetricAnalysis( eTree, info, storeFactRecvInds );
+    SymmetricAnalysis( node, info, storeFactRecvInds );
 }
 
 Int NaturalBisect
@@ -454,7 +328,7 @@ Int NaturalBisect
         Int& nyRight,
         Int& nzRight,
         Graph& rightChild,
-        std::vector<Int>& perm )
+        vector<Int>& perm )
 {
     DEBUG_ONLY(CallStackEntry cse("NaturalBisect"))
     const Int numSources = graph.NumSources();

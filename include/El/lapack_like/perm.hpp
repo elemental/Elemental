@@ -18,11 +18,11 @@ struct PermutationMeta
     mpi::Comm comm;
 
     // Will treat vector lengths as one
-    std::vector<int> sendCounts, sendDispls,
-                     recvCounts, recvDispls;
+    vector<int> sendCounts, sendDispls,
+                recvCounts, recvDispls;
 
-    std::vector<int> sendIdx, sendRanks,
-                     recvIdx, recvRanks;
+    vector<int> sendIdx, sendRanks,
+                recvIdx, recvRanks;
 
     int TotalSend() const { return sendCounts.back()+sendDispls.back(); }
     int TotalRecv() const { return recvCounts.back()+recvDispls.back(); }

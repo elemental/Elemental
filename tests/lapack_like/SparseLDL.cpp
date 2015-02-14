@@ -1,9 +1,18 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson, Lexing Ying,
-   The University of Texas at Austin, Stanford University, and the
-   Georgia Insitute of Technology.
+   Copyright (c) 2009-2012, Jack Poulson, Lexing Ying, and 
+   The University of Texas at Austin.
    All rights reserved.
- 
+
+   Copyright (c) 2013, Jack Poulson, Lexing Ying, and Stanford University.
+   All rights reserved.
+
+   Copyright (c) 2013-2014, Jack Poulson and 
+   The Georgia Institute of Technology.
+   All rights reserved.
+
+   Copyright (c) 2014-2015, Jack Poulson and Stanford University.
+   All rights reserved.
+   
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
@@ -11,8 +20,7 @@
 #include "El.hpp"
 using namespace El;
 
-int
-main( int argc, char* argv[] )
+int main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
@@ -20,10 +28,10 @@ main( int argc, char* argv[] )
 
     try
     {
-        const int n1 = Input("--n1","first grid dimension",30);
-        const int n2 = Input("--n2","second grid dimension",30);
-        const int n3 = Input("--n3","third grid dimension",30);
-        const int numRhs = Input("--numRhs","number of right-hand sides",5);
+        const Int n1 = Input("--n1","first grid dimension",30);
+        const Int n2 = Input("--n2","second grid dimension",30);
+        const Int n3 = Input("--n3","third grid dimension",30);
+        const Int numRhs = Input("--numRhs","number of right-hand sides",5);
         const bool solve2d = Input("--solve2d","use 2d solve?",false);
         const bool selInv = Input("--selInv","selectively invert?",false);
         const bool intraPiv = Input("--intraPiv","pivot within fronts?",false);
@@ -36,9 +44,9 @@ main( int argc, char* argv[] )
         const int numSeqSeps = Input
             ("--numSeqSeps",
              "number of separators to try per sequential partition",1);
-        const int nbFact = Input("--nbFact","factorization blocksize",96);
-        const int nbSolve = Input("--nbSolve","solve blocksize",96);
-        const int cutoff = Input("--cutoff","cutoff for nested dissection",128);
+        const Int nbFact = Input("--nbFact","factorization blocksize",96);
+        const Int nbSolve = Input("--nbSolve","solve blocksize",96);
+        const Int cutoff = Input("--cutoff","cutoff for nested dissection",128);
         const bool print = Input("--print","print matrix?",false);
         const bool display = Input("--display","display matrix?",false);
         ProcessInput();
@@ -50,46 +58,9 @@ main( int argc, char* argv[] )
         ctrl.cutoff = cutoff;
 
         const int N = n1*n2*n3;
-        DistSparseMatrix<double> A( N, comm );
-
-        // Fill our portion of the 3D negative Laplacian using a n1 x n2 x n3
-        // 7-point stencil in natural ordering: (x,y,z) at x + y*n1 + z*n1*n2
-        if( commRank == 0 )
-        {
-            std::cout << "Filling local portion of matrix...";
-            std::cout.flush();
-        }
-        const double fillStart = mpi::Time();
-        const int firstLocalRow = A.FirstLocalRow();
-        const int localHeight = A.LocalHeight();
-        A.Reserve( 7*localHeight );
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
-        {
-            const int i = firstLocalRow + iLocal;
-            const int x = i % n1;
-            const int y = (i/n1) % n2;
-            const int z = i/(n1*n2);
-
-            A.QueueLocalUpdate( iLocal, i, 6. );
-            if( x != 0 )
-                A.QueueLocalUpdate( iLocal, i-1, -1. );
-            if( x != n1-1 )
-                A.QueueLocalUpdate( iLocal, i+1, -1. );
-            if( y != 0 )
-                A.QueueLocalUpdate( iLocal, i-n1, -1. );
-            if( y != n2-1 )
-                A.QueueLocalUpdate( iLocal, i+n1, -1. );
-            if( z != 0 )
-                A.QueueLocalUpdate( iLocal, i-n1*n2, -1. );
-            if( z != n3-1 )
-                A.QueueLocalUpdate( iLocal, i+n1*n2, -1. );
-        } 
-        A.MakeConsistent();
-        mpi::Barrier( comm );
-        const double fillStop =  mpi::Time();
-        if( commRank == 0 )
-            std::cout << "done, " << fillStop-fillStart << " seconds" 
-                      << std::endl;
+        DistSparseMatrix<double> A(comm);
+        Laplacian( A, n1, n2, n3 );
+        Scale( -1., A );
         if( display )
         {
             Display( A );
@@ -103,8 +74,8 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
         {
-            std::cout << "Generating random X and forming Y := A X...";
-            std::cout.flush();
+            cout << "Generating random X and forming Y := A X...";
+            cout.flush();
         }
         const double multiplyStart = mpi::Time();
         DistMultiVec<double> X( N, numRhs, comm ), Y( N, numRhs, comm );
@@ -116,192 +87,202 @@ main( int argc, char* argv[] )
         mpi::Barrier( comm );
         const double multiplyStop = mpi::Time();
         if( commRank == 0 )
-            std::cout << "done, " << multiplyStop-multiplyStart << " seconds"
-                      << std::endl;
+            cout << "done, " << multiplyStop-multiplyStart << " seconds" 
+                 << endl;
+        if( display )
+        {
+            Display( X, "X" );
+            Display( Y, "Y" );
+        }
+        if( print )
+        {
+            Print( X, "X" );
+            Print( Y, "Y" );
+        }
 
         if( commRank == 0 )
         {
-            std::cout << "Running nested dissection...";
-            std::cout.flush();
+            cout << "Running nested dissection...";
+            cout.flush();
         }
         const double nestedStart = mpi::Time();
-        const DistGraph& graph = A.DistGraph();
-        DistSymmInfo info;
-        DistSeparatorTree sepTree;
-        DistMap map, inverseMap;
+        const auto& graph = A.DistGraph();
+        DistSymmNodeInfo info;
+        DistSeparator sep;
+        DistMap map, invMap;
         if( natural )
             NaturalNestedDissection
-            ( n1, n2, n3, graph, map, sepTree, info, cutoff );
+            ( n1, n2, n3, graph, map, sep, info, cutoff );
         else
-            NestedDissection( graph, map, sepTree, info, ctrl );
-        map.FormInverse( inverseMap );
+            NestedDissection( graph, map, sep, info, ctrl );
+        map.FormInverse( invMap );
         mpi::Barrier( comm );
         const double nestedStop = mpi::Time();
         if( commRank == 0 )
-            std::cout << "done, " << nestedStop-nestedStart << " seconds"
-                      << std::endl;
+            cout << "done, " << nestedStop-nestedStart << " seconds" << endl;
 
+        const Int rootSepSize = info.size;
         if( commRank == 0 )
-        {
-            const int distNodes = info.distNodes.size();
-            const int localNodes = info.localNodes.size();
-            const int rootSepSize = info.distNodes.back().size;
-            std::cout << "\n"
-                      << "On the root process:\n"
-                      << "-----------------------------------------\n"
-                      << localNodes << " local nodes\n"
-                      << distNodes  << " distributed nodes\n"
-                      << rootSepSize << " vertices in root separator\n"
-                      << std::endl;
-        }
+            cout << rootSepSize << " vertices in root separator\n" << endl;
         if( display )
         {
-            std::ostringstream osBefore, osAfter;
+            ostringstream osBefore, osAfter;
             osBefore << "Structure before fact. on process " << commRank;
             osAfter << "Structure after fact. on process " << commRank;
+            /*
             DisplayLocal( info, false, osBefore.str() );
             DisplayLocal( info, true, osAfter.str() );
+            */
         }
 
         if( commRank == 0 )
         {
-            std::cout << "Building DistSymmFrontTree...";
-            std::cout.flush();
+            cout << "Building DistSymmFront tree...";
+            cout.flush();
         }
         mpi::Barrier( comm );
         const double buildStart = mpi::Time();
-        DistSymmFrontTree<double> frontTree( A, map, sepTree, info, false );
+        DistSymmFront<double> front( A, map, sep, info );
         mpi::Barrier( comm );
         const double buildStop = mpi::Time();
         if( commRank == 0 )
-            std::cout << "done, " << buildStop-buildStart << " seconds"
-                      << std::endl;
+            cout << "done, " << buildStop-buildStart << " seconds" << endl;
 
-        double localEntries, minLocalEntries, maxLocalEntries, globalEntries;
-        frontTree.MemoryInfo
-        ( localEntries, minLocalEntries, maxLocalEntries, globalEntries );
-        double localFactFlops, minLocalFactFlops, maxLocalFactFlops, 
-               globalFactFlops;
-        frontTree.FactorizationWork
-        ( localFactFlops, minLocalFactFlops, maxLocalFactFlops, 
-          globalFactFlops, selInv );
-        double localSolveFlops, minLocalSolveFlops, maxLocalSolveFlops,
-               globalSolveFlops;
-        frontTree.SolveWork
-        ( localSolveFlops, minLocalSolveFlops, maxLocalSolveFlops,
-          globalSolveFlops, numRhs );
-        if( commRank == 0 )
         {
-            std::cout 
-              << "Original memory usage for fronts...\n"
-              << "  min local: " << minLocalEntries*sizeof(double)/1e6 
-              << " MB\n"
-              << "  max local: " << maxLocalEntries*sizeof(double)/1e6 
-              << " MB\n"
-              << "  global:    " << globalEntries*sizeof(double)/1e6
-              << " MB\n"
-              << "\n"
-              << "Factorization (and possibly sel-inv) work...\n"
-              << "  min local: " << minLocalFactFlops/1.e9 << " GFlops\n"
-              << "  max local: " << maxLocalFactFlops/1.e9 << " GFlops\n"
-              << "  global:    " << globalFactFlops/1.e9 << " GFlops\n"
-              << "\n"
-              << "Solve...\n"
-              << "  min local: " << minLocalSolveFlops/1.e9 << " GFlops\n"
-              << "  max local: " << maxLocalSolveFlops/1.e9 << " GFlops\n"
-              << "  global:    " << globalSolveFlops/1.e9 << " GFlops\n"
-              << std::endl;
+            // Unpack the DistSymmFront into a sparse matrix
+            DistSparseMatrix<double> APerm;
+            front.Unpack( APerm, sep, info );
+            if( print )
+                Print( APerm, "APerm" );
+            if( display )
+                Display( APerm, "APerm" );
         }
 
+        // TODO: Memory usage
+
         if( commRank == 0 )
         {
-            std::cout << "Running LDL^T and redistribution...";
-            std::cout.flush();
+            cout << "Running LDL^T and redistribution...";
+            cout.flush();
         }
         SetBlocksize( nbFact );
         mpi::Barrier( comm );
         const double ldlStart = mpi::Time();
-        SymmFrontType frontType;
+        SymmFrontType type;
         if( solve2d )
         {
             if( intraPiv )
-                frontType = ( selInv ? LDL_INTRAPIV_SELINV_2D 
-                                     : LDL_INTRAPIV_2D );
+                type = ( selInv ? LDL_INTRAPIV_SELINV_2D : LDL_INTRAPIV_2D );
             else
-                frontType = ( selInv ? LDL_SELINV_2D
-                                     : LDL_2D );
+                type = ( selInv ? LDL_SELINV_2D : LDL_2D );
         }
         else
         {
             if( intraPiv )
-                frontType = ( selInv ? LDL_INTRAPIV_SELINV_1D
-                                     : LDL_INTRAPIV_1D );
+                type = ( selInv ? LDL_INTRAPIV_SELINV_1D : LDL_INTRAPIV_1D );
             else
-                frontType = ( selInv ? LDL_SELINV_1D
-                                     : LDL_1D );
+                type = ( selInv ? LDL_SELINV_1D : LDL_1D );
         }
-        LDL( info, frontTree, frontType );
+        LDL( info, front, type );
         mpi::Barrier( comm );
         const double ldlStop = mpi::Time();
         const double factTime = ldlStop - ldlStart;
-        const double factGFlops = globalFactFlops/(1.e9*factTime);
+        //const double factGFlops = globalFactFlops/(1.e9*factTime);
         if( commRank == 0 )
-            std::cout << "done, " << factTime << " seconds, " 
-                      << factGFlops << " GFlop/s" << std::endl;
+            cout << "done, " << factTime << " seconds" << endl;
 
-        if( commRank == 0 )
-            std::cout << "Memory usage for fronts after factorization..."
-                      << std::endl;
-        frontTree.MemoryInfo
-        ( localEntries, minLocalEntries, maxLocalEntries, globalEntries );
-        if( commRank == 0 )
         {
-            std::cout << "  min local: " << minLocalEntries*sizeof(double)/1e6 
-                      << " MB\n"
-                      << "  max local: " << maxLocalEntries*sizeof(double)/1e6 
-                      << " MB\n"
-                      << "  global:    " << globalEntries*sizeof(double)/1e6
-                      << " MB\n"
-                      << std::endl;
+            // Unpack the factored DistSymmFront into a sparse matrix
+            DistSparseMatrix<double> L;
+            front.Unpack( L, sep, info );
+            if( print )
+                Print( L, "L" );
+            if( display )
+                Display( L, "L" );
         }
 
+        // Check whether the forward solve and multiplication are inverses
+        if( !solve2d )
+        {
+            DistMultiVecNode<double> YNodal( invMap, info, Y );
+            LowerSolve( NORMAL, info, front, YNodal );
+            LowerMultiply( NORMAL, info, front, YNodal );
+
+            DistMultiVec<double> YApprox;
+            YNodal.Push( invMap, info, YApprox );
+            Axpy( -1., Y, YApprox );
+            Matrix<double> YApproxNorms;
+            ColumnNorms( YApprox, YApproxNorms );
+            if( commRank == 0 )
+            {
+                for( int j=0; j<numRhs; ++j )
+                {
+                    cout << "Right-hand side " << j << ":\n"
+                         << "|| error ||_2 = " << YApproxNorms.Get(j,0) << "\n"
+                         << endl;
+                }
+            }
+        }
+
+        // Check whether the backward solve and multiplication are inverses
+        if( !solve2d )
+        {
+            DistMultiVecNode<double> YNodal( invMap, info, Y );
+            LowerSolve( TRANSPOSE, info, front, YNodal );
+            LowerMultiply( TRANSPOSE, info, front, YNodal );
+
+            DistMultiVec<double> YApprox;
+            YNodal.Push( invMap, info, YApprox );
+            Axpy( -1., Y, YApprox );
+            Matrix<double> YApproxNorms;
+            ColumnNorms( YApprox, YApproxNorms );
+            if( commRank == 0 )
+            {
+                for( int j=0; j<numRhs; ++j )
+                {
+                    cout << "Right-hand side " << j << ":\n"
+                         << "|| error ||_2 = " << YApproxNorms.Get(j,0) << "\n"
+                         << endl;
+                }
+            }
+        }
+
+        // TODO: Memory usage after factorization
+
         if( commRank == 0 )
         {
-            std::cout << "Solving against Y...";
-            std::cout.flush();
+            cout << "Solving against Y...";
+            cout.flush();
         }
         SetBlocksize( nbSolve );
         double solveStart, solveStop;
         if( solve2d )
         {
-            DistNodalMatrix<double> YNodal;
-            YNodal.Pull( inverseMap, info, Y );
+            DistMatrixNode<double> YNodal( invMap, info, Y );
             mpi::Barrier( comm );
             solveStart = mpi::Time();
-            ldl::SolveAfter( info, frontTree, YNodal );
+            ldl::SolveAfter( info, front, YNodal );
             mpi::Barrier( comm );
             solveStop = mpi::Time();
-            YNodal.Push( inverseMap, info, Y );
+            YNodal.Push( invMap, info, Y );
         }
         else
         {
-            DistNodalMultiVec<double> YNodal;
-            YNodal.Pull( inverseMap, info, Y );
+            DistMultiVecNode<double> YNodal( invMap, info, Y );
             mpi::Barrier( comm );
             solveStart = mpi::Time();
-            ldl::SolveAfter( info, frontTree, YNodal );
+            ldl::SolveAfter( info, front, YNodal );
             mpi::Barrier( comm );
             solveStop = mpi::Time();
-            YNodal.Push( inverseMap, info, Y );
+            YNodal.Push( invMap, info, Y );
         }
         const double solveTime = solveStop - solveStart;
-        const double solveGFlops = globalSolveFlops/(1.e9*solveTime);
+        //const double solveGFlops = globalSolveFlops/(1.e9*solveTime);
         if( commRank == 0 )
-            std::cout << "done, " << solveTime << " seconds, "
-                      << solveGFlops << " GFlop/s" << std::endl;
+            cout << "done, " << solveTime << " seconds" << endl;
 
         if( commRank == 0 )
-            std::cout << "Checking error in computed solution..." << std::endl;
+            cout << "Checking error in computed solution..." << endl;
         Matrix<double> XNorms, YNorms;
         ColumnNorms( X, XNorms );
         ColumnNorms( Y, YNorms );
@@ -312,16 +293,15 @@ main( int argc, char* argv[] )
         {
             for( int j=0; j<numRhs; ++j )
             {
-                std::cout << "Right-hand side " << j << ":\n"
-                          << "|| x     ||_2 = " << XNorms.Get(j,0) << "\n"
-                          << "|| xComp ||_2 = " << YNorms.Get(j,0) << "\n"
-                          << "|| A x   ||_2 = " << YOrigNorms.Get(j,0) << "\n"
-                          << "|| error ||_2 = " << errorNorms.Get(j,0) << "\n"
-                          << std::endl;
+                cout << "Right-hand side " << j << ":\n"
+                     << "|| x     ||_2 = " << XNorms.Get(j,0) << "\n"
+                     << "|| error ||_2 = " << errorNorms.Get(j,0) << "\n"
+                     << "|| A x   ||_2 = " << YOrigNorms.Get(j,0) << "\n"
+                     << endl;
             }
         }
     }
-    catch( std::exception& e ) { ReportException(e); }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

@@ -29,8 +29,8 @@ void Distance( const Matrix<F>& X, const Matrix<F>& C, Matrix<F>& D )
     ColumnNorms( C, cNorms );
 
     auto squareMap = []( Base<F> alpha ) { return alpha*alpha; };
-    EntrywiseMap( xNorms, std::function<Base<F>(Base<F>)>(squareMap) );
-    EntrywiseMap( cNorms, std::function<Base<F>(Base<F>)>(squareMap) );
+    EntrywiseMap( xNorms, function<Base<F>(Base<F>)>(squareMap) );
+    EntrywiseMap( cNorms, function<Base<F>(Base<F>)>(squareMap) );
 
     for( Int j=0; j<numClusters; ++j )
         for( Int i=0; i<numPoints; ++i )
@@ -54,8 +54,8 @@ void Distance
     ColumnNorms( C, cNorms_MR_STAR );
 
     auto squareMap = []( Base<F> alpha ) { return alpha*alpha; };
-    EntrywiseMap( xNorms_MR_STAR, std::function<Base<F>(Base<F>)>(squareMap) );
-    EntrywiseMap( cNorms_MR_STAR, std::function<Base<F>(Base<F>)>(squareMap) );
+    EntrywiseMap( xNorms_MR_STAR, function<Base<F>(Base<F>)>(squareMap) );
+    EntrywiseMap( cNorms_MR_STAR, function<Base<F>(Base<F>)>(squareMap) );
 
     DistMatrix<Base<F>,MC,STAR> xNorms_MC_STAR(X.Grid());
     xNorms_MC_STAR.AlignWith( D );

@@ -16,7 +16,7 @@ void MakeGaussian( Matrix<F>& A, F mean, Base<F> stddev )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeGaussian"))
     auto sampleNormal = [=]() { return SampleNormal(mean,stddev); };
-    EntrywiseFill( A, std::function<F()>(sampleNormal) );
+    EntrywiseFill( A, function<F()>(sampleNormal) );
 }
 
 template<typename F>
@@ -42,7 +42,7 @@ void MakeGaussian( DistMultiVec<F>& A, F mean, Base<F> stddev )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeGaussian"))
     auto sampleNormal = [=]() { return SampleNormal(mean,stddev); };
-    EntrywiseFill( A, std::function<F()>(sampleNormal) );
+    EntrywiseFill( A, function<F()>(sampleNormal) );
 }
 
 template<typename F>

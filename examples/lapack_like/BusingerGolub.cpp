@@ -104,7 +104,7 @@ main( int argc, char* argv[] )
         Identity( E, m, n );
         qr::ApplyQ( LEFT, NORMAL, QRPiv, tPiv, dPiv, E );
         qr::ApplyQ( LEFT, ADJOINT, QRPiv, tPiv, dPiv, E );
-        const Int k = std::min(m,n);
+        const Int k = Min(m,n);
         auto EUpper = View( E, 0, 0, k, k );
         ShiftDiagonal( EUpper, C(-1) );
         const Real frobOrthogPiv = FrobeniusNorm( EUpper ); 
@@ -127,18 +127,17 @@ main( int argc, char* argv[] )
 
         if( worldRank == 0 )
         {
-            std::cout << "|| A ||_F = " << frobA << "\n\n"
-                      << "With pivoting: \n" 
-                      << "    || A P - Q R ||_F / || A ||_F = " 
-                      << frobQRPiv/frobA << "\n"
-                      << "    || I - Q^H Q ||_F / || A ||_F = "
-                      << frobOrthogPiv/frobA << "\n\n"
-                      << "Without pivoting: \n"
-                      << "    || A - Q R ||_F / || A ||_F = "
-                      << frobQRNoPiv/frobA << "\n"
-                      << "    || I - Q^H Q ||_F / || A ||_F = "
-                      << frobOrthogNoPiv/frobA << "\n"
-                      << std::endl;
+            cout << "|| A ||_F = " << frobA << "\n\n"
+                 << "With pivoting: \n" 
+                 << "    || A P - Q R ||_F / || A ||_F = " 
+                 << frobQRPiv/frobA << "\n"
+                 << "    || I - Q^H Q ||_F / || A ||_F = "
+                 << frobOrthogPiv/frobA << "\n\n"
+                 << "Without pivoting: \n"
+                 << "    || A - Q R ||_F / || A ||_F = "
+                 << frobQRNoPiv/frobA << "\n"
+                 << "    || I - Q^H Q ||_F / || A ||_F = "
+                 << frobOrthogNoPiv/frobA << "\n" << endl;
         }
     }
     catch( exception& e ) { ReportException(e); }

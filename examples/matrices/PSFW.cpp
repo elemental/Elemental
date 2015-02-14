@@ -98,7 +98,7 @@ main( int argc, char* argv[] )
             Print( wOdd, "wOdd" );
         }
     }
-    catch( std::exception& e ) { ReportException(e); }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

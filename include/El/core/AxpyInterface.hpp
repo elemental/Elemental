@@ -51,15 +51,13 @@ private:
     DistMatrix<T,MC,MR>* localToGlobalMat_;
     const DistMatrix<T,MC,MR>* globalToLocalMat_;
 
-    std::vector<bool> sentEomTo_, haveEomFrom_;
-    std::vector<byte> recvVector_;
-    std::vector<mpi::Request> eomSendRequests_;
+    vector<bool> sentEomTo_, haveEomFrom_;
+    vector<byte> recvVector_;
+    vector<mpi::Request> eomSendRequests_;
 
-    std::vector<std::deque<std::vector<byte>>>
-        dataVectors_, requestVectors_, replyVectors_;
-    std::vector<std::deque<bool>> 
-        sendingData_, sendingRequest_, sendingReply_;
-    std::vector<std::deque<mpi::Request>> 
+    vector<deque<vector<byte>>> dataVectors_, requestVectors_, replyVectors_;
+    vector<deque<bool>> sendingData_, sendingRequest_, sendingReply_;
+    vector<deque<mpi::Request>> 
         dataSendRequests_, requestSendRequests_, replySendRequests_;
 
     byte sendDummy_, recvDummy_;
@@ -80,9 +78,9 @@ private:
 
     Int ReadyForSend
     ( Int sendSize,
-      std::deque<std::vector<byte>>& sendVectors,
-      std::deque<mpi::Request>& requests, 
-      std::deque<bool>& requestStatuses );
+      deque<vector<byte>>& sendVectors,
+      deque<mpi::Request>& requests, 
+      deque<bool>& requestStatuses );
 };
 
 } // namespace El

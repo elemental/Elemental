@@ -98,11 +98,11 @@ main( int argc, char* argv[] )
 
         if( mpi::WorldRank() == 0 )
         {
-            std::cout << "|| H ||_F = " << frobH << "\n"
-                      << "|| H X - X Omega ||_F / || A ||_F = " 
-                      << frobResid / frobH << "\n"
-                      << "|| X X^H - I ||_F = " << frobOrthog / frobH
-                      << "\n" << std::endl;
+            cout << "|| H ||_F = " << frobH << "\n"
+                 << "|| H X - X Omega ||_F / || A ||_F = " 
+                 << frobResid / frobH << "\n"
+                 << "|| X X^H - I ||_F = " << frobOrthog / frobH
+                 << "\n" << endl;
         }
     }
     catch( exception& e ) { ReportException(e); }

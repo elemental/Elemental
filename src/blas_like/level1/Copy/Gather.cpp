@@ -29,7 +29,7 @@ void Gather
     Int myShifts[2];
     myShifts[0] = A.ColShift();
     myShifts[1] = A.RowShift();
-    std::vector<Int> shifts;
+    vector<Int> shifts;
     const Int crossSize = B.CrossSize();
     if( B.CrossRank() == B.Root() )
         shifts.resize( 2*crossSize );
@@ -39,12 +39,12 @@ void Gather
     // =======================
     const bool irrelevant = ( A.RedundantRank()!=0 || A.CrossRank()!=A.Root() );
     int totalSend = ( irrelevant ? 0 : A.LocalHeight()*A.LocalWidth() );
-    std::vector<int> recvCounts, recvOffsets;
+    vector<int> recvCounts, recvOffsets;
     if( B.CrossRank() == B.Root() )
         recvCounts.resize( crossSize );
     mpi::Gather( &totalSend, 1, recvCounts.data(), 1, B.Root(), B.CrossComm() );
     int totalRecv = Scan( recvCounts, recvOffsets );
-    std::vector<T> sendBuf(totalSend), recvBuf(totalRecv);
+    vector<T> sendBuf(totalSend), recvBuf(totalRecv);
     if( !irrelevant )
         copy::util::InterleaveMatrix
         ( A.LocalHeight(), A.LocalWidth(),
@@ -95,7 +95,7 @@ void Gather
     Int myShifts[2];
     myShifts[0] = A.ColShift();
     myShifts[1] = A.RowShift();
-    std::vector<Int> shifts;
+    vector<Int> shifts;
     const Int crossSize = B.CrossSize();
     if( B.CrossRank() == B.Root() )
         shifts.resize( 2*crossSize );
@@ -105,12 +105,12 @@ void Gather
     // =======================
     const bool irrelevant = ( A.RedundantRank()!=0 || A.CrossRank()!=A.Root() );
     int totalSend = ( irrelevant ? 0 : A.LocalHeight()*A.LocalWidth() );
-    std::vector<int> recvCounts, recvOffsets;
+    vector<int> recvCounts, recvOffsets;
     if( B.CrossRank() == B.Root() )
         recvCounts.resize( crossSize );
     mpi::Gather( &totalSend, 1, recvCounts.data(), 1, B.Root(), B.CrossComm() );
     int totalRecv = Scan( recvCounts, recvOffsets );
-    std::vector<T> sendBuf(totalSend), recvBuf(totalRecv);
+    vector<T> sendBuf(totalSend), recvBuf(totalRecv);
     if( !irrelevant )
         copy::util::InterleaveMatrix
         ( A.LocalHeight(), A.LocalWidth(),

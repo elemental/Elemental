@@ -13,8 +13,8 @@ namespace El {
 template<typename F1,typename F2> 
 void CauchyLike
 ( Matrix<F1>& A,
-  const std::vector<F2>& r, const std::vector<F2>& s,
-  const std::vector<F2>& x, const std::vector<F2>& y )
+  const vector<F2>& r, const vector<F2>& s,
+  const vector<F2>& x, const vector<F2>& y )
 {
     DEBUG_ONLY(CallStackEntry cse("CauchyLike"))
     const Int m = r.size();
@@ -37,14 +37,14 @@ void CauchyLike
         )
         return F1(r[i]*s[j]/x[i]-y[j]);
       };
-    IndexDependentFill( A, std::function<F1(Int,Int)>(cauchyFill) );
+    IndexDependentFill( A, function<F1(Int,Int)>(cauchyFill) );
 }
 
 template<typename F1,typename F2>
 void CauchyLike
 ( AbstractDistMatrix<F1>& A,
-  const std::vector<F2>& r, const std::vector<F2>& s, 
-  const std::vector<F2>& x, const std::vector<F2>& y )
+  const vector<F2>& r, const vector<F2>& s, 
+  const vector<F2>& x, const vector<F2>& y )
 {
     DEBUG_ONLY(CallStackEntry cse("CauchyLike"))
     const Int m = r.size();
@@ -67,14 +67,14 @@ void CauchyLike
         )
         return F1(r[i]*s[j]/x[i]-y[j]);
       };
-    IndexDependentFill( A, std::function<F1(Int,Int)>(cauchyFill) );
+    IndexDependentFill( A, function<F1(Int,Int)>(cauchyFill) );
 }
 
 template<typename F1,typename F2>
 void CauchyLike
 ( AbstractBlockDistMatrix<F1>& A,
-  const std::vector<F2>& r, const std::vector<F2>& s, 
-  const std::vector<F2>& x, const std::vector<F2>& y )
+  const vector<F2>& r, const vector<F2>& s, 
+  const vector<F2>& x, const vector<F2>& y )
 {
     DEBUG_ONLY(CallStackEntry cse("CauchyLike"))
     const Int m = r.size();
@@ -97,22 +97,22 @@ void CauchyLike
         )
         return F1(r[i]*s[j]/x[i]-y[j]);
       };
-    IndexDependentFill( A, std::function<F1(Int,Int)>(cauchyFill) );
+    IndexDependentFill( A, function<F1(Int,Int)>(cauchyFill) );
 }
 
 #define PROTO_TYPES(F1,F2) \
   template void CauchyLike \
   ( Matrix<F1>& A, \
-    const std::vector<F2>& r, const std::vector<F2>& s, \
-    const std::vector<F2>& x, const std::vector<F2>& y ); \
+    const vector<F2>& r, const vector<F2>& s, \
+    const vector<F2>& x, const vector<F2>& y ); \
   template void CauchyLike \
   ( AbstractDistMatrix<F1>& A, \
-    const std::vector<F2>& r, const std::vector<F2>& s, \
-    const std::vector<F2>& x, const std::vector<F2>& y ); \
+    const vector<F2>& r, const vector<F2>& s, \
+    const vector<F2>& x, const vector<F2>& y ); \
   template void CauchyLike \
   ( AbstractBlockDistMatrix<F1>& A, \
-    const std::vector<F2>& r, const std::vector<F2>& s, \
-    const std::vector<F2>& x, const std::vector<F2>& y );
+    const vector<F2>& r, const vector<F2>& s, \
+    const vector<F2>& x, const vector<F2>& y );
 
 #define PROTO_REAL(F) \
   PROTO_TYPES(F,Int) \

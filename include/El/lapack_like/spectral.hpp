@@ -484,7 +484,7 @@ struct SnapshotCtrl
 
     Int imgSaveFreq, numSaveFreq, imgDispFreq;
     Int imgSaveCount, numSaveCount, imgDispCount;
-    std::string imgBase, numBase;
+    string imgBase, numBase;
     FileFormat imgFormat, numFormat;
     bool itCounts;
 

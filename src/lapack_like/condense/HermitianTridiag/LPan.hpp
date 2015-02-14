@@ -55,7 +55,7 @@ void LPan
     e.AlignCols( A.DiagonalAlign(-1) );
     e.Resize( nW, 1 );
 
-    std::vector<F> w21LastBuffer(n/r+1);
+    vector<F> w21LastBuffer(n/r+1);
     DistMatrix<F> w21Last(g);
     DistMatrix<F,MC,STAR> a21_MC_STAR(g), a21B_MC_STAR(g),
                           p21_MC_STAR(g), p21B_MC_STAR(g),
@@ -141,7 +141,7 @@ void LPan
         if( k == 0 )
         {
             const Int a21LocalHeight = a21.LocalHeight();
-            std::vector<F> rowBroadcastBuffer(a21LocalHeight+1);
+            vector<F> rowBroadcastBuffer(a21LocalHeight+1);
             if( thisIsMyCol )
             {
                 // Pack the broadcast buffer with a21 and tau
@@ -179,7 +179,7 @@ void LPan
         {
             const Int a21LocalHeight = a21.LocalHeight();
             const Int w21LastLocalHeight = aB1.LocalHeight();
-            std::vector<F> 
+            vector<F> 
                 rowBroadcastBuffer(a21LocalHeight+w21LastLocalHeight+1);
             if( thisIsMyCol ) 
             {
@@ -257,7 +257,7 @@ void LPan
             const Int recvRankRM = 
                 (recvRankCM/r)+c*(recvRankCM%r);
 
-            std::vector<F> transposeBuffer( (r+1)*portionSize );
+            vector<F> transposeBuffer( (r+1)*portionSize );
             F* sendBuf = &transposeBuffer[0];
             F* recvBuf = &transposeBuffer[r*portionSize];
 
@@ -383,8 +383,8 @@ void LPan
         {
             const Int x01LocalHeight = x01_MR_STAR.LocalHeight();
             const Int q21LocalHeight = q21_MR_STAR.LocalHeight();
-            std::vector<F> colSumSendBuffer(2*x01LocalHeight+q21LocalHeight),
-                           colSumRecvBuffer(2*x01LocalHeight+q21LocalHeight);
+            vector<F> colSumSendBuffer(2*x01LocalHeight+q21LocalHeight),
+                      colSumRecvBuffer(2*x01LocalHeight+q21LocalHeight);
             MemCopy
             ( colSumSendBuffer.data(), x01_MR_STAR.Buffer(), x01LocalHeight );
             MemCopy
@@ -416,8 +416,8 @@ void LPan
             // combine the Reduce to one of p21[MC,* ] with the redistribution 
             // of q21[MR,* ] -> q21[MC,MR] to the next process column.
             const Int localHeight = p21_MC_STAR.LocalHeight();
-            std::vector<F> reduceToOneSendBuffer(2*localHeight),
-                           reduceToOneRecvBuffer(2*localHeight);
+            vector<F> reduceToOneSendBuffer(2*localHeight),
+                      reduceToOneRecvBuffer(2*localHeight);
 
             // Pack p21[MC,* ]
             MemCopy
@@ -520,8 +520,8 @@ void LPan
             // w21[MC,* ] and w21[MR,* ] so that we may place them into W[MC,* ]
             // and W[MR,* ]
             const Int localHeight = p21_MC_STAR.LocalHeight();
-            std::vector<F> allReduceSendBuffer(2*localHeight),
-                           allReduceRecvBuffer(2*localHeight);
+            vector<F> allReduceSendBuffer(2*localHeight),
+                      allReduceRecvBuffer(2*localHeight);
 
             // Pack p21[MC,* ]
             MemCopy

@@ -29,7 +29,7 @@ void Demmel( Matrix<F>& A, Int n )
     const Real beta = Pow(Real(10),Real(4)/(n-1));
 
     const Int numDiags = 2*n-1;
-    std::vector<F> a( numDiags, 0 );
+    vector<F> a( numDiags, 0 );
     for( Int j=0; j<n; ++j )
         a[j] = -Pow(beta,Real(n-1-j));
     for( Int j=n; j<numDiags; ++j )
@@ -54,7 +54,7 @@ void Demmel( AbstractDistMatrix<F>& A, Int n )
     const Real beta = Pow(Real(10),Real(4)/(n-1));
 
     const Int numDiags = 2*n-1;
-    std::vector<F> a( numDiags, 0 );
+    vector<F> a( numDiags, 0 );
     for( Int j=0; j<n; ++j )
         a[j] = -Pow(beta,Real(n-1-j));
     for( Int j=n; j<numDiags; ++j )
@@ -79,7 +79,7 @@ void Demmel( AbstractBlockDistMatrix<F>& A, Int n )
     const Real beta = Pow(Real(10),Real(4)/(n-1));
 
     const Int numDiags = 2*n-1;
-    std::vector<F> a( numDiags, 0 );
+    vector<F> a( numDiags, 0 );
     for( Int j=0; j<n; ++j )
         a[j] = -Pow(beta,Real(n-1-j));
     for( Int j=n; j<numDiags; ++j )

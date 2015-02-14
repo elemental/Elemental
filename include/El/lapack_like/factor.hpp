@@ -140,8 +140,8 @@ void LDL
 // original sparse matrix before calling LDL.
 template<typename F>
 void LDL
-( DistSymmInfo& info, DistSymmFrontTree<F>& L,
-  SymmFrontType newFrontType=LDL_2D );
+( const DistSymmNodeInfo& info, DistSymmFront<F>& L, 
+  SymmFrontType newType=LDL_2D );
 
 namespace ldl {
 
@@ -183,18 +183,18 @@ void SolveAfter
 
 template<typename F>
 void SolveAfter
-( const DistSymmInfo& info,
-  const DistSymmFrontTree<F>& AFact, DistNodalMultiVec<F>& X );
+( const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front, DistMultiVecNode<F>& X );
 template<typename F>
 void SolveAfter
-( const DistSymmInfo& info,
-  const DistSymmFrontTree<F>& AFact, DistNodalMatrix<F>& X );
+( const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front, DistMatrixNode<F>& X );
 
 template<typename F>
 Int SolveWithIterativeRefinement
 ( const DistSparseMatrix<F>& A,
-  const DistMap& invMap, const DistSymmInfo& info,
-  const DistSymmFrontTree<F>& AFact, DistMultiVec<F>& y,
+  const DistMap& invMap, const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front, DistMultiVec<F>& y,
   Base<F> minReductionFactor=2, Int maxRefineIts=10 );
 
 // Solve linear system with the implicit representations of L, D, and P
@@ -232,12 +232,12 @@ void RegularizedQSDLDL
 
 template<typename F>
 void RegularizedQSDLDL
-( DistSymmInfo& info, DistSymmFrontTree<F>& L,
+( const DistSymmNodeInfo& info, DistSymmFront<F>& front,
   Base<F> pivTol,
-  const DistNodalMultiVec<Base<F>>& regCand,
-        DistNodalMultiVec<Base<F>>& reg,
+  const DistMultiVecNode<Base<F>>& regCand,
+        DistMultiVecNode<Base<F>>& reg,
   bool aPriori=false,
-  SymmFrontType newFrontType=LDL_1D );
+  SymmFrontType newType=LDL_2D );
 
 enum RegQSDRefineAlg
 {
@@ -252,16 +252,16 @@ namespace reg_qsd_ldl {
 template<typename F>
 Int RegularizedSolveAfter
 ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,             const DistSymmInfo& info,
-  const DistSymmFrontTree<F>& AFact,       DistMultiVec<F>& y,
+  const DistMap& invMap,             const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front,           DistMultiVec<F>& y,
   Base<F> minReductionFactor,              Int maxRefineIts,
   bool progress );
 
 template<typename F>
 Int SolveAfter
 ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,             const DistSymmInfo& info,
-  const DistSymmFrontTree<F>& AFact,       DistMultiVec<F>& y,
+  const DistMap& invMap,             const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front,           DistMultiVec<F>& y,
   RegQSDRefineAlg refineAlg,
   Base<F> minReductionFactor,              Int maxRefineIts,
   bool progress );
@@ -553,31 +553,31 @@ struct TreeData
 {
     Matrix<F> QR0, t0;
     Matrix<Base<F>> d0;
-    std::vector<Matrix<F>> QRList;
-    std::vector<Matrix<F>> tList;
-    std::vector<Matrix<Base<F>>> dList;
+    vector<Matrix<F>> QRList;
+    vector<Matrix<F>> tList;
+    vector<Matrix<Base<F>>> dList;
 
     TreeData( Int numStages=0 )
     : QRList(numStages), tList(numStages), dList(numStages)
     { }
 
     TreeData( TreeData<F>&& treeData )
-    : QR0(std::move(treeData.QR0)),
-      t0(std::move(treeData.t0)),
-      d0(std::move(treeData.d0)),
-      QRList(std::move(treeData.QRList)),
-      tList(std::move(treeData.tList)),
-      dList(std::move(treeData.dList))
+    : QR0(move(treeData.QR0)),
+      t0(move(treeData.t0)),
+      d0(move(treeData.d0)),
+      QRList(move(treeData.QRList)),
+      tList(move(treeData.tList)),
+      dList(move(treeData.dList))
     { }
 
     TreeData<F>& operator=( TreeData<F>&& treeData )
     {
-        QR0 = std::move(treeData.QR0);
-        t0 = std::move(treeData.t0);
-        d0 = std::move(treeData.d0);
-        QRList = std::move(treeData.QRList);
-        tList = std::move(treeData.tList);
-        dList = std::move(treeData.dList);
+        QR0 = move(treeData.QR0);
+        t0 = move(treeData.t0);
+        d0 = move(treeData.d0);
+        QRList = move(treeData.QRList);
+        tList = move(treeData.tList);
+        dList = move(treeData.dList);
         return *this;
     }
 };

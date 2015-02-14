@@ -141,11 +141,11 @@ Int ADMM
             Gemv( NORMAL, F(-1), A, x, F(1), s );
             const Real resid = FrobeniusNorm( s );
             const Real obj = Real(1)/Real(2)*resid*resid + lambda*OneNorm(z);
-            std::cout << numIter << ": ||x-z||_2=" << rNorm
-                      << ", epsPri=" << epsPri
-                      << ", |rho| ||z-zOld||_2=" << sNorm
-                      << ", and epsDual=" << epsDual << ", objective="
-                      << obj << std::endl;
+            cout << numIter << ": ||x-z||_2=" << rNorm
+                 << ", epsPri=" << epsPri
+                 << ", |rho| ||z-zOld||_2=" << sNorm
+                 << ", and epsDual=" << epsDual << ", objective="
+                 << obj << endl;
         }
 
         if( rNorm < epsPri && sNorm < epsDual )
@@ -153,7 +153,7 @@ Int ADMM
         ++numIter;
     }
     if( maxIter == numIter )
-        std::cout << "Lasso failed to converge" << std::endl;
+        cout << "Lasso failed to converge" << endl;
     return numIter;
 }
 
@@ -276,11 +276,11 @@ Int ADMM
             const Real obj = Real(1)/Real(2)*resid*resid + lambda*OneNorm(z);
             if( g.Rank() == 0 )
             {
-                std::cout << numIter << ": ||x-z||_2=" << rNorm
-                          << ", epsPri=" << epsPri
-                          << ", |rho| ||z-zOld||_2=" << sNorm
-                          << ", and epsDual=" << epsDual << ", objective="
-                          << obj << std::endl;
+                cout << numIter << ": ||x-z||_2=" << rNorm
+                     << ", epsPri=" << epsPri
+                     << ", |rho| ||z-zOld||_2=" << sNorm
+                     << ", and epsDual=" << epsDual << ", objective="
+                     << obj << endl;
             }
         }
 
@@ -289,7 +289,7 @@ Int ADMM
         ++numIter;
     }
     if( maxIter == numIter )
-        std::cout << "Lasso failed to converge" << std::endl;
+        cout << "Lasso failed to converge" << endl;
     return numIter;
 }
 

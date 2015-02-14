@@ -11,7 +11,7 @@ import time
 
 m = 2000
 n = 4000
-display = False
+display = True
 worldRank = El.mpi.WorldRank()
 
 # Make a sparse matrix with the last column dense

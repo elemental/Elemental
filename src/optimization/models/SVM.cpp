@@ -270,20 +270,20 @@ void SVM
     {
         // Compute the metadata
         // --------------------
-        std::vector<int> sendCounts(commSize,0);
+        vector<int> sendCounts(commSize,0);
         for( Int e=0; e<A.NumLocalEntries(); ++e )
             ++sendCounts[ G.RowOwner(A.Row(e)) ];
         for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
             ++sendCounts[ G.RowOwner(d.GlobalRow(iLoc)) ]; 
-        std::vector<int> recvCounts(commSize);
+        vector<int> recvCounts(commSize);
         mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        std::vector<int> sendOffsets, recvOffsets;
+        vector<int> sendOffsets, recvOffsets;
         const int totalSend = Scan( sendCounts, sendOffsets );
         const int totalRecv = Scan( recvCounts, recvOffsets );
         // Pack
         // ----
-        std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
-        std::vector<Real> vSendBuf(totalSend);
+        vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
+        vector<Real> vSendBuf(totalSend);
         auto offsets = sendOffsets;
         for( Int e=0; e<A.NumLocalEntries(); ++e )
         {
@@ -306,8 +306,8 @@ void SVM
         }
         // Exchange
         // --------
-        std::vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
-        std::vector<Real> vRecvBuf(totalRecv);
+        vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
+        vector<Real> vRecvBuf(totalRecv);
         mpi::AllToAll
         ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
           sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );

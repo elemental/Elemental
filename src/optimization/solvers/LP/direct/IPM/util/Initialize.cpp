@@ -306,7 +306,7 @@ void Initialize
         DistMultiVec<Real>& x,            DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
         DistMap& map,                     DistMap& invMap, 
-        DistSeparatorTree& sepTree,       DistSymmInfo& info,
+        DistSeparator& rootSep,           DistSymmNodeInfo& info,
   bool primalInitialized, bool dualInitialized,
   bool standardShift,     bool progress )
 {
@@ -316,7 +316,7 @@ void Initialize
     DistSparseMatrix<Real> Q(comm);
     Q.Resize( n, n );
     qp::direct::Initialize
-    ( Q, A, b, c, x, y, z, map, invMap, sepTree, info, 
+    ( Q, A, b, c, x, y, z, map, invMap, rootSep, info, 
       primalInitialized, dualInitialized, standardShift, progress );
 }
 
@@ -348,7 +348,7 @@ void Initialize
           DistMultiVec<Real>& x,            DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
           DistMap& map,                     DistMap& invMap, \
-          DistSeparatorTree& sepTree,       DistSymmInfo& info, \
+          DistSeparator& rootSep,           DistSymmNodeInfo& info, \
     bool primalInitialized, bool dualInitialized, \
     bool standardShift,     bool progress );
 

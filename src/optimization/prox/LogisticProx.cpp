@@ -48,7 +48,7 @@ void LogisticProx( Matrix<Real>& A, Real tau, Int numIts )
         }
         return beta;
       };
-    EntrywiseMap( A, std::function<Real(Real)>(logisticProx) );
+    EntrywiseMap( A, function<Real(Real)>(logisticProx) );
 }
 
 template<typename Real>
@@ -84,7 +84,7 @@ void LogisticProx( AbstractDistMatrix<Real>& A, Real tau, Int numIts )
         }
         return beta;
       };
-    EntrywiseMap( A, std::function<Real(Real)>(logisticProx) );
+    EntrywiseMap( A, function<Real(Real)>(logisticProx) );
 }
 
 #define PROTO(Real) \

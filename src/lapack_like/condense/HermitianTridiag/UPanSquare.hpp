@@ -64,7 +64,7 @@ void UPanSquare
     e.AlignCols( expandedABR.DiagonalAlign(1) );
     e.Resize( nW, 1 );
 
-    std::vector<F> w01LastBuffer(n/r+1);
+    vector<F> w01LastBuffer(n/r+1);
     DistMatrix<F> w01Last(g);
     DistMatrix<F,MC,STAR> a01_MC_STAR(g), p01_MC_STAR(g),
                           a01Last_MC_STAR(g), w01Last_MC_STAR(g);
@@ -154,7 +154,7 @@ void UPanSquare
         if( firstIteration )
         {
             const Int a01LocalHeight = a01.LocalHeight();
-            std::vector<F> rowBroadcastBuffer(a01LocalHeight+1);
+            vector<F> rowBroadcastBuffer(a01LocalHeight+1);
             if( thisIsMyCol )
             {
                 // Pack the broadcast buffer with a01 and tau
@@ -203,7 +203,7 @@ void UPanSquare
         {
             const Int a01LocalHeight = a01.LocalHeight();
             const Int w01LastLocalHeight = aT1.LocalHeight();
-            std::vector<F> 
+            vector<F> 
                 rowBroadcastBuffer(a01LocalHeight+w01LastLocalHeight+1);
             if( thisIsMyCol ) 
             {
@@ -265,7 +265,7 @@ void UPanSquare
             {
                 const Int sendSize = A00.LocalHeight()+ATL.LocalHeight();
                 const Int recvSize = A00.LocalWidth()+ATL.LocalWidth();
-                std::vector<F> sendBuffer(sendSize), recvBuffer(recvSize);
+                vector<F> sendBuffer(sendSize), recvBuffer(recvSize);
 
                 // Pack the send buffer
                 MemCopy
@@ -347,8 +347,8 @@ void UPanSquare
             const Int x21LocalHeight = x21_MR_STAR.LocalHeight();
             const Int y21LocalHeight = y21_MR_STAR.LocalHeight();
             const Int reduceSize = x21LocalHeight+y21LocalHeight;
-            std::vector<F> colSumSendBuffer(reduceSize),
-                           colSumRecvBuffer(reduceSize);
+            vector<F> colSumSendBuffer(reduceSize),
+                      colSumRecvBuffer(reduceSize);
             MemCopy
             ( colSumSendBuffer.data(), x21_MR_STAR.Buffer(), x21LocalHeight );
             MemCopy
@@ -384,7 +384,7 @@ void UPanSquare
             // Pairwise exchange with the transpose process
             const Int sendSize = A00.LocalWidth();
             const Int recvSize = A00.LocalHeight();
-            std::vector<F> recvBuffer(recvSize);
+            vector<F> recvBuffer(recvSize);
             mpi::SendRecv
             ( q01_MR_STAR.Buffer(), sendSize, transposeRank,
               recvBuffer.data(),    recvSize, transposeRank, g.VCComm() );
@@ -404,7 +404,7 @@ void UPanSquare
             const Int nextProcessRow = (alpha11.ColAlign()+r-1) % r;
             const Int nextProcessCol = (alpha11.RowAlign()+r-1) % r;
 
-            std::vector<F> reduceToOneRecvBuffer(a01LocalHeight);
+            vector<F> reduceToOneRecvBuffer(a01LocalHeight);
             mpi::Reduce
             ( p01_MC_STAR.Buffer(), reduceToOneRecvBuffer.data(),
               a01LocalHeight, nextProcessCol, g.RowComm() );
@@ -442,7 +442,7 @@ void UPanSquare
             const Int a01LocalHeight = a01.LocalHeight();
 
             // AllReduce sum p01[MC,* ] over process rows
-            std::vector<F> allReduceRecvBuffer(a01LocalHeight);
+            vector<F> allReduceRecvBuffer(a01LocalHeight);
             mpi::AllReduce
             ( p01_MC_STAR.Buffer(), allReduceRecvBuffer.data(), 
               a01LocalHeight, g.RowComm() );

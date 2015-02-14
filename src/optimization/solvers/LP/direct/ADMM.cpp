@@ -154,20 +154,20 @@ Int ADMM
             LowerClip( t, Real(0) );
             Axpy( Real(-1), xTmp, t );
             const Real clipDist = FrobeniusNorm( t );
-            std::cout << numIter << ": "
+            cout << numIter << ": "
               << "||x-z||_2=" << rNorm << ", "
               << "epsPri=" << epsPri << ", "
               << "|rho| ||z-zOld||_2=" << sNorm << ", "
               << "epsDual=" << epsDual << ", "
               << "||x-Pos(x)||_2=" << clipDist << ", "
-              << "c'x=" << objective << std::endl;
+              << "c'x=" << objective << endl;
         }
         if( rNorm < epsPri && sNorm < epsDual )
             break;
         ++numIter;
     }
     if( ctrl.maxIter == numIter )
-        std::cout << "ADMM failed to converge" << std::endl;
+        cout << "ADMM failed to converge" << endl;
     x = xTmp;
     return numIter;
 }
@@ -314,20 +314,20 @@ Int ADMM
             Axpy( Real(-1), xTmp, t );
             const Real clipDist = FrobeniusNorm( t );
             if( grid.Rank() == 0 )
-                std::cout << numIter << ": "
+                cout << numIter << ": "
                   << "||x-z||_2=" << rNorm << ", "
                   << "epsPri=" << epsPri << ", "
                   << "|rho| ||z-zOld||_2=" << sNorm << ", "
                   << "epsDual=" << epsDual << ", "
                   << "||x-Pos(x)||_2=" << clipDist << ", "
-                  << "c'x=" << objective << std::endl;
+                  << "c'x=" << objective << endl;
         }
         if( rNorm < epsPri && sNorm < epsDual )
             break;
         ++numIter;
     }
     if( ctrl.maxIter == numIter && grid.Rank() == 0 )
-        std::cout << "ADMM failed to converge" << std::endl;
+        cout << "ADMM failed to converge" << endl;
     x = xTmp;
     return numIter;
 }

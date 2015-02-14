@@ -75,11 +75,11 @@ private:
     bool haveViewers_;
     int height_, size_, gcd_;
     GridOrder order_;
-    std::vector<int> diagPathsAndRanks_;
+    vector<int> diagPathsAndRanks_;
 
     mpi::Comm viewingComm_; // all processes that create the grid
     mpi::Group viewingGroup_;
-    std::vector<int> vectorColToViewingMap_;
+    vector<int> vectorColToViewingMap_;
 
     // Create a communicator for our owning team
     mpi::Comm owningComm_;

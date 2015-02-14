@@ -65,7 +65,7 @@ Int ADMM
     if( progress )
     {
         const Real qOneNorm = OneNorm( q );
-        std::cout << " || pinv(A) b ||_1 = " << qOneNorm << std::endl;
+        cout << " || pinv(A) b ||_1 = " << qOneNorm << endl;
     }
 
     // Start the basis pursuit
@@ -134,11 +134,11 @@ Int ADMM
         if( progress )
         {
             const Real xOneNorm = OneNorm( x );
-            std::cout << numIter << ": ||x-z||_2=" << rNorm
-                      << ", epsPri=" << epsPri
-                      << ", |rho| ||z-zOld||_2=" << sNorm
-                      << ", and epsDual=" << epsDual << ", ||x||_1="
-                      << xOneNorm << std::endl;
+            cout << numIter << ": ||x-z||_2=" << rNorm
+                 << ", epsPri=" << epsPri
+                 << ", |rho| ||z-zOld||_2=" << sNorm
+                 << ", and epsDual=" << epsDual << ", ||x||_1="
+                 << xOneNorm << endl;
         }
 
         if( rNorm < epsPri && sNorm < epsDual )
@@ -146,7 +146,7 @@ Int ADMM
         ++numIter;
     }
     if( maxIter == numIter )
-        std::cout << "Basis pursuit failed to converge" << std::endl;
+        cout << "Basis pursuit failed to converge" << endl;
     return numIter;
 }
 
@@ -205,7 +205,7 @@ Int ADMM
     {
         const Real qOneNorm = OneNorm( q );
         if( grid.Rank() == 0 )
-            std::cout << " || pinv(A) b ||_1 = " << qOneNorm << std::endl;
+            cout << " || pinv(A) b ||_1 = " << qOneNorm << endl;
     }
 
     // Start the basis pursuit
@@ -275,11 +275,11 @@ Int ADMM
         {
             const Real xOneNorm = OneNorm( x );
             if( grid.Rank() == 0 )
-                std::cout << numIter << ": ||x-z||_2=" << rNorm
-                          << ", epsPri=" << epsPri
-                          << ", |rho| ||z-zOld||_2=" << sNorm
-                          << ", and epsDual=" << epsDual << ", ||x||_1="
-                          << xOneNorm << std::endl;
+                cout << numIter << ": ||x-z||_2=" << rNorm
+                     << ", epsPri=" << epsPri
+                     << ", |rho| ||z-zOld||_2=" << sNorm
+                     << ", and epsDual=" << epsDual << ", ||x||_1="
+                     << xOneNorm << endl;
         }
 
         if( rNorm < epsPri && sNorm < epsDual )
@@ -287,7 +287,7 @@ Int ADMM
         ++numIter;
     }
     if( maxIter == numIter && grid.Rank() == 0 )
-        std::cout << "Basis pursuit failed to converge" << std::endl;
+        cout << "Basis pursuit failed to converge" << endl;
     return numIter;
 }
 

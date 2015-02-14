@@ -33,17 +33,17 @@ struct ProxyCtrl
 // Sequential
 // ----------
 template<typename T,typename S>
-std::shared_ptr<const Matrix<T>> ReadProxy( const Matrix<S>* A );
+shared_ptr<const Matrix<T>> ReadProxy( const Matrix<S>* A );
 template<typename T,typename S>
-std::shared_ptr<Matrix<T>> ReadProxy( Matrix<S>* A );
+shared_ptr<Matrix<T>> ReadProxy( Matrix<S>* A );
 
 // Distributed
 // -----------
 template<typename T,Dist U,Dist V,typename S>
-std::shared_ptr<const DistMatrix<T,U,V>>
+shared_ptr<const DistMatrix<T,U,V>>
 ReadProxy( const AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
 template<typename T,Dist U,Dist V,typename S>
-std::shared_ptr<DistMatrix<T,U,V>>
+shared_ptr<DistMatrix<T,U,V>>
 ReadProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
 
 // Read-write proxy
@@ -52,12 +52,12 @@ ReadProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
 // Sequential
 // ----------
 template<typename T,typename S>
-std::shared_ptr<Matrix<T>> ReadWriteProxy( Matrix<S>* A );
+shared_ptr<Matrix<T>> ReadWriteProxy( Matrix<S>* A );
 
 // Distributed
 // -----------
 template<typename T,Dist U,Dist V,typename S>
-std::shared_ptr<DistMatrix<T,U,V>> ReadWriteProxy
+shared_ptr<DistMatrix<T,U,V>> ReadWriteProxy
 ( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
 
 // Write proxy
@@ -66,12 +66,12 @@ std::shared_ptr<DistMatrix<T,U,V>> ReadWriteProxy
 // Sequential
 // ----------
 template<typename T,typename S>
-std::shared_ptr<Matrix<T>> WriteProxy( Matrix<S>* A );
+shared_ptr<Matrix<T>> WriteProxy( Matrix<S>* A );
 
 // Distributed
 // -----------
 template<typename T,Dist U,Dist V,typename S>
-std::shared_ptr<DistMatrix<T,U,V>> WriteProxy
+shared_ptr<DistMatrix<T,U,V>> WriteProxy
 ( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
 
 } // namespace El

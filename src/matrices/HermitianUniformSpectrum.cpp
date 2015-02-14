@@ -22,7 +22,7 @@ void HermitianUniformSpectrum
     typedef Base<F> Real;
 
     // Form d and D
-    std::vector<F> d( n );
+    vector<F> d( n );
     for( Int j=0; j<n; ++j )
         d[j] = SampleUniform<Real>( lower, upper );
     Diagonal( A, d );
@@ -51,7 +51,7 @@ void HermitianUniformSpectrum
     auto& A = *APtr;
 
     // Form d and D
-    std::vector<F> d( n );
+    vector<F> d( n );
     if( grid.Rank() == 0 )
         for( Int j=0; j<n; ++j )
             d[j] = SampleUniform<Real>( lower, upper );
