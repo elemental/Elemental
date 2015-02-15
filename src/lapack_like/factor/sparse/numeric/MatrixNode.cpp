@@ -48,6 +48,22 @@ MatrixNode<T>::MatrixNode
 }
 
 template<typename T>
+const MatrixNode<T>& MatrixNode<T>::operator=( const MatrixNode<T>& X )
+{
+    DEBUG_ONLY(CallStackEntry cse("MatrixNode::operator="))
+    matrix = X.matrix; 
+ 
+    const Int numChildren = X.children.size();
+    children.resize( numChildren );
+    for( Int c=0; c<numChildren; ++c )
+    {
+        children[c] = new MatrixNode<T>(this);
+        *children[c] = *X.children[c];
+    }
+    return *this;
+}
+
+template<typename T>
 void MatrixNode<T>::Pull
 ( const vector<Int>& invMap, const SymmNodeInfo& info, const Matrix<T>& X )
 {

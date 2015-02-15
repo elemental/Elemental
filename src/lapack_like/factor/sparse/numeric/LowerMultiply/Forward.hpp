@@ -124,20 +124,20 @@ inline void LowerForwardMultiply
         sendSizes[q] = X.commMeta.numChildSendInds[q]*numRHS;
         recvSizes[q] = X.commMeta.childRecvInds[q].size()*numRHS;
     }
+    DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
     vector<int> sendOffs, recvOffs;
     const int sendBufSize = Scan( sendSizes, sendOffs );
     const int recvBufSize = Scan( recvSizes, recvOffs );
 
     // Pack our child's update
     vector<F> sendBuf( sendBufSize );
-    const auto& childRelInds =
-        ( childInfo.onLeft ? info.childRelInds[0] : info.childRelInds[1] );
+    const Int myChild = ( childInfo.onLeft ? 0 : 1 );
     auto packOffs = sendOffs;
     const Int localHeight = childU.LocalHeight();
     for( Int iChildLoc=0; iChildLoc<localHeight; ++iChildLoc )
     {
         const Int iChild = childU.GlobalRow(iChildLoc);
-        const Int q = W.RowOwner( childRelInds[iChild] );
+        const Int q = W.RowOwner( info.childRelInds[myChild][iChild] );
         for( Int j=0; j<numRHS; ++j )
             sendBuf[packOffs[q]++] = childU.GetLocal(iChildLoc,j);
     }
@@ -148,7 +148,6 @@ inline void LowerForwardMultiply
 
     // AllToAll to send and receive the child updates
     vector<F> recvBuf( recvBufSize );
-    DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
     SparseAllToAll
     ( sendBuf, sendSizes, sendOffs,
       recvBuf, recvSizes, recvOffs, comm );
@@ -218,21 +217,21 @@ inline void LowerForwardMultiply
         sendSizes[q] = X.commMeta.numChildSendInds[q];
         recvSizes[q] = X.commMeta.childRecvInds[q].size()/2;
     }
+    DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
     vector<int> sendOffs, recvOffs;
     const int sendBufSize = Scan( sendSizes, sendOffs );
     const int recvBufSize = Scan( recvSizes, recvOffs );
 
     // Pack send data
     vector<F> sendBuf( sendBufSize );
-    const auto& childRelInds =
-        ( childInfo.onLeft ? info.childRelInds[0] : info.childRelInds[1] );
+    const Int myChild = ( childInfo.onLeft ? 0 : 1 );
     auto packOffs = sendOffs;
     const Int localWidth = childU.LocalWidth();
     const Int localHeight = childU.LocalHeight();
     for( Int iChildLoc=0; iChildLoc<localHeight; ++iChildLoc )
     {
         const Int iChild = childU.GlobalRow(iChildLoc);
-        const Int iParent = childRelInds[iChild];
+        const Int iParent = info.childRelInds[myChild][iChild];
         for( Int jChildLoc=0; jChildLoc<localWidth; ++jChildLoc )
         {
             const Int j = childU.GlobalCol(jChildLoc);
@@ -247,7 +246,6 @@ inline void LowerForwardMultiply
 
     // AllToAll to send and receive the child updates
     vector<F> recvBuf( recvBufSize );
-    DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
     SparseAllToAll
     ( sendBuf, sendSizes, sendOffs,
       recvBuf, recvSizes, recvOffs, comm );

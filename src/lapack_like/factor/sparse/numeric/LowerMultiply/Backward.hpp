@@ -114,9 +114,9 @@ inline void LowerBackwardMultiply
 
         const auto& childFront = *front.child;
         const Grid& childGrid =
-            ( frontIs1D ? childFront.L1D.Grid() : childFront.L2D.Grid() );
+          ( frontIs1D ? childFront.L1D.Grid() : childFront.L2D.Grid() );
         const Int childFrontHeight =
-            ( frontIs1D ? childFront.L1D.Height() : childFront.L2D.Height() );
+          ( frontIs1D ? childFront.L1D.Height() : childFront.L2D.Height() );
         auto& childW = X.child->work;
         childW.SetGrid( childGrid );
         childW.Resize( childFrontHeight, numRHS );
@@ -134,6 +134,7 @@ inline void LowerBackwardMultiply
             sendSizes[q] = X.commMeta.childRecvInds[q].size()*numRHS;
             recvSizes[q] = X.commMeta.numChildSendInds[q]*numRHS;
         }
+        DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
         vector<int> sendOffs, recvOffs;
         const int sendBufSize = Scan( sendSizes, sendOffs );
         const int recvBufSize = Scan( recvSizes, recvOffs );
@@ -153,7 +154,6 @@ inline void LowerBackwardMultiply
 
         // AllToAll to send and recv parent updates
         vector<F> recvBuf( recvBufSize );
-        DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
         SparseAllToAll
         ( sendBuf, sendSizes, sendOffs,
           recvBuf, recvSizes, recvOffs, comm );
@@ -162,13 +162,12 @@ inline void LowerBackwardMultiply
         SwapClear( sendOffs );
 
         // Unpack the updates using the send approach from the forward solve
-        const auto& childRelInds =
-          ( info.child->onLeft ? info.childRelInds[0] : info.childRelInds[1] );
+        const Int myChild = ( info.child->onLeft ? 0 : 1 );
         const Int localHeight = childWB.LocalHeight();
         for( Int iUpdateLoc=0; iUpdateLoc<localHeight; ++iUpdateLoc )
         {
             const Int iUpdate = childWB.GlobalRow(iUpdateLoc);
-            const int q = W.RowOwner(childRelInds[iUpdate]);
+            const int q = W.RowOwner(info.childRelInds[myChild][iUpdate]);
             for( Int j=0; j<numRHS; ++j )
                 childWB.SetLocal( iUpdateLoc, j, recvBuf[recvOffs[q]++] );
         }
@@ -232,6 +231,7 @@ inline void LowerBackwardMultiply
             sendSizes[q] = X.commMeta.childRecvInds[q].size()/2;
             recvSizes[q] = X.commMeta.numChildSendInds[q];
         }
+        DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
         vector<int> sendOffs, recvOffs;
         const int sendBufSize = Scan( sendSizes, sendOffs );
         const int recvBufSize = Scan( recvSizes, recvOffs );
@@ -252,7 +252,6 @@ inline void LowerBackwardMultiply
 
         // AllToAll to send and recv parent updates
         vector<F> recvBuf( recvBufSize );
-        DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
         SparseAllToAll
         ( sendBuf, sendSizes, sendOffs,
           recvBuf, recvSizes, recvOffs, comm );
@@ -262,8 +261,7 @@ inline void LowerBackwardMultiply
 
         // Unpack the updates using the send approach from the forward solve
         const auto& childInfo = *info.child;
-        const auto& childRelInds =
-          ( childInfo.onLeft ? info.childRelInds[0] : info.childRelInds[1] );
+        const Int myChild = ( childInfo.onLeft ? 0 : 1 );
         const Int localHeight = childWB.LocalHeight();
         const Int localWidth = childWB.LocalWidth();
         for( Int iUpdateLoc=0; iUpdateLoc<localHeight; ++iUpdateLoc )
@@ -272,7 +270,7 @@ inline void LowerBackwardMultiply
             for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {
                 const Int j = childWB.GlobalCol(jLoc);
-                const int q = W.Owner( childRelInds[iUpdate], j );
+                const int q = W.Owner( info.childRelInds[myChild][iUpdate], j );
                 childWB.SetLocal( iUpdateLoc, jLoc, recvBuf[recvOffs[q]++] );
             }
         }

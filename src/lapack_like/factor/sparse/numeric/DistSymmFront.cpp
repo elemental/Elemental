@@ -683,9 +683,14 @@ void DistSymmFront<F>::ComputeRecvInds( const DistSymmNodeInfo& info ) const
     const int teamRank = mpi::Rank( info.comm );
     const bool onLeft = info.child->onLeft;
     const int childTeamSize = mpi::Size( info.child->comm );
-    vector<int> teamSizes(2);
+    const int childTeamRank = mpi::Rank( info.child->comm );
+    const bool inFirstTeam = ( childTeamRank == teamRank );
+    const bool leftIsFirst = ( onLeft==inFirstTeam );
+    vector<int> teamSizes(2), teamOffs(2);
     teamSizes[0] = ( onLeft ? childTeamSize : teamSize-childTeamSize );
     teamSizes[1] = teamSize - teamSizes[0];
+    teamOffs[0] = ( leftIsFirst ? 0            : teamSizes[1] );
+    teamOffs[1] = ( leftIsFirst ? teamSizes[0] : 0            );
     DEBUG_ONLY(
       if( teamSizes[0] != gridHeights[0]*gridWidths[0] )
           RuntimeError("Computed left grid incorrectly");
@@ -694,14 +699,8 @@ void DistSymmFront<F>::ComputeRecvInds( const DistSymmNodeInfo& info ) const
     )
 
     commMeta.childRecvInds.resize( teamSize );
-
-    const int childTeamRank = mpi::Rank( info.child->comm );
-    const bool inFirstTeam = ( childTeamRank == teamRank );
-    const bool leftIsFirst = ( onLeft==inFirstTeam );
-    vector<int> teamOffs(2);
-    teamOffs[0] = ( leftIsFirst ? 0            : teamSizes[1] );
-    teamOffs[1] = ( leftIsFirst ? teamSizes[0] : 0            );
-
+    for( int q=0; q<teamSize; ++q )
+        commMeta.childRecvInds[q].clear();
     for( Int c=0; c<2; ++c )
     {
         // Compute the recv indices of the child from each process 

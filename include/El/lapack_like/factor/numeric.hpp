@@ -48,6 +48,8 @@ struct MatrixNode
     MatrixNode
     ( const vector<Int>& invMap, const SymmNodeInfo& info, const Matrix<T>& X );
 
+    const MatrixNode<T>& operator=( const MatrixNode<T>& X );
+
     void Pull
     ( const vector<Int>& invMap, const SymmNodeInfo& info, const Matrix<T>& X );
     void Push

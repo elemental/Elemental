@@ -104,8 +104,6 @@ void DistMatrixNode<T>::ComputeCommMeta( const DistSymmNodeInfo& info ) const
     if( child == nullptr )
         return;
    
-    const int teamSize = mpi::Size( info.comm );
-
     const Int numRHS = matrix.Width();
     const Int childSize = info.child->size;
     const Int updateSize = info.child->lowerStruct.size();
@@ -113,21 +111,34 @@ void DistMatrixNode<T>::ComputeCommMeta( const DistSymmNodeInfo& info ) const
     
     auto childWT = child->work( IR(0,childSize),        IR(0,numRHS) );
     auto childWB = child->work( IR(childSize,workSize), IR(0,numRHS) );
+    DEBUG_ONLY(
+      if( matrix.ColAlign() != 0 || matrix.RowAlign() != 0 )
+          LogicError
+          ("matrix was not zero aligned: ",
+           matrix.ColAlign()," ",matrix.RowAlign());
+      if( childWT.ColAlign() != 0 || childWT.RowAlign() != 0 )
+          LogicError
+          ("childWT was not zero aligned: ",
+           childWT.ColAlign()," ",childWT.RowAlign());
+      if( child->work.Height() != workSize || child->work.Width() != numRHS )
+          LogicError
+          ("childWork was not the expected size: ",
+           child->work.Height()," x ",child->work.Width());
+    )
 
     // Fill numChildSendInds
     // =====================
-    commMeta.Empty();
+    const int teamSize = mpi::Size( info.comm );
     commMeta.numChildSendInds.resize( teamSize );
     MemZero( commMeta.numChildSendInds.data(), teamSize );
-    const auto& childRelInds =
-      ( info.child->onLeft ? info.childRelInds[0] : info.childRelInds[1] );
-    const Int localHeight = childWB.LocalHeight();
-    const Int localWidth = childWB.LocalWidth();
-    for( Int iChildLoc=0; iChildLoc<localHeight; ++iChildLoc )
+    const Int myChild = ( info.child->onLeft ? 0 : 1 );
+    const Int childLocalHeight = childWB.LocalHeight();
+    const Int childLocalWidth = childWB.LocalWidth();
+    for( Int iChildLoc=0; iChildLoc<childLocalHeight; ++iChildLoc )
     {
         const Int iChild = childWB.GlobalRow(iChildLoc);
-        const Int iParent = childRelInds[iChild];
-        for( Int jChildLoc=0; jChildLoc<localWidth; ++jChildLoc )
+        const Int iParent = info.childRelInds[myChild][iChild];
+        for( Int jChildLoc=0; jChildLoc<childLocalWidth; ++jChildLoc )
         {
             const Int j = childWB.GlobalCol(jChildLoc);
             const int q = matrix.Owner(iParent,j);
@@ -137,21 +148,28 @@ void DistMatrixNode<T>::ComputeCommMeta( const DistSymmNodeInfo& info ) const
 
     // Compute the solve recv indices
     // ==============================
-    const int teamRank = mpi::Rank( info.comm );
-    const int childTeamSize = mpi::Size( info.child->comm );
-    const int childTeamRank = mpi::Rank( info.child->comm );
-    const bool inFirstTeam = ( childTeamRank == teamRank );
-    const bool leftIsFirst = ( info.child->onLeft==inFirstTeam );
-    vector<int> teamSizes(2), teamOffs(2);
-    teamSizes[0] = info.child->onLeft ? childTeamSize : teamSize-childTeamSize;
-    teamSizes[1] = teamSize - teamSizes[0];
-    teamOffs[0] = ( leftIsFirst ? 0            : teamSizes[1] );
-    teamOffs[1] = ( leftIsFirst ? teamSizes[0] : 0            );
-
-    // Get the child grid dimensions
     vector<int> gridHeights, gridWidths;
     GetChildGridDims( info, gridHeights, gridWidths );
 
+    const int teamRank = mpi::Rank( info.comm );
+    const bool onLeft = info.child->onLeft;
+    const int childTeamSize = mpi::Size( info.child->comm );
+    const int childTeamRank = mpi::Rank( info.child->comm );
+    const bool inFirstTeam = ( childTeamRank == teamRank );
+    const bool leftIsFirst = ( onLeft==inFirstTeam );
+    vector<int> teamSizes(2), teamOffs(2);
+    teamSizes[0] = ( onLeft ? childTeamSize : teamSize-childTeamSize );
+    teamSizes[1] = teamSize - teamSizes[0];
+    teamOffs[0] = ( leftIsFirst ? 0            : teamSizes[1] );
+    teamOffs[1] = ( leftIsFirst ? teamSizes[0] : 0            );
+    DEBUG_ONLY(
+      if( teamSizes[0] != gridHeights[0]*gridWidths[0] )
+          RuntimeError("Computed left grid incorrectly");
+      if( teamSizes[1] != gridHeights[1]*gridWidths[1] )
+          RuntimeError("Computed right grid incorrectly");
+    )
+
+    const Int localWidth = matrix.LocalWidth();
     commMeta.childRecvInds.resize( teamSize );
     for( int q=0; q<teamSize; ++q )
         commMeta.childRecvInds[q].clear();
@@ -159,9 +177,9 @@ void DistMatrixNode<T>::ComputeCommMeta( const DistSymmNodeInfo& info ) const
     {
         const Int numInds = info.childRelInds[c].size();
         vector<Int> rowInds;
-        for( Int i=0; i<numInds; ++i )
-            if( matrix.IsLocalRow( info.childRelInds[c][i] ) )
-                rowInds.push_back( i );
+        for( Int iChild=0; iChild<numInds; ++iChild )
+            if( matrix.IsLocalRow( info.childRelInds[c][iChild] ) )
+                rowInds.push_back( iChild );
 
         const Int numRowInds = rowInds.size();
         for( Int iPre=0; iPre<numRowInds; ++iPre )
