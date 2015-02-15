@@ -40,7 +40,7 @@ inline void LowerForwardMultiply
     // Set up a workspace
     // TODO: Only set up a workspace if there is not a parent 
     //       (or a duplicate's parent)
-    auto& W = front.work;
+    auto& W = X.work;
     const Int numRHS = X.matrix.Width();
     W.Resize( front.L.Height(), numRHS );
     Matrix<F> WT, WB;
@@ -54,7 +54,7 @@ inline void LowerForwardMultiply
     // Update using the children (if they exist)
     for( Int c=0; c<numChildren; ++c )
     {
-        auto& childW = front.children[c]->work;
+        auto& childW = X.children[c]->work;
         const Int childSize = info.children[c]->size;
         const Int childHeight = childW.Height();
         const Int childUSize = childHeight-childSize;
@@ -86,8 +86,8 @@ inline void LowerForwardMultiply
     {
         LowerForwardMultiply( *info.duplicate, *front.duplicate, *X.duplicate );
 
-        const auto& W = front.duplicate->work;
-        front.work1D.LockedAttach( W.Height(), W.Width(), grid, 0, 0, W );
+        const auto& W = X.duplicate->work;
+        X.work.LockedAttach( W.Height(), W.Width(), grid, 0, 0, W );
         return;
     }
 
@@ -95,7 +95,6 @@ inline void LowerForwardMultiply
     const auto& childFront = *front.child;
     if( childFront.type != front.type )
         LogicError("Incompatible front type mixture");
-
     LowerForwardMultiply( childInfo, childFront, *X.child );
 
     // Set up a workspace
@@ -103,7 +102,7 @@ inline void LowerForwardMultiply
     const Int numRHS = X.matrix.Width();
     const Int frontHeight =
       ( frontIs1D ? front.L1D.Height() : front.L2D.Height() );
-    auto& W = front.work1D;
+    auto& W = X.work;
     W.SetGrid( grid );
     W.Resize( frontHeight, numRHS );
     DistMatrix<F,VC,STAR> WT(grid), WB(grid);
@@ -116,14 +115,14 @@ inline void LowerForwardMultiply
     FrontLowerForwardMultiply( front, W );
 
     // Compute the metadata for transmitting child updates
-    const auto& commMeta = info.multiVecMeta;
-    auto& childW = childFront.work1D;
+    X.ComputeCommMeta( info );
+    auto& childW = X.child->work;
     auto childU = childW( IR(childInfo.size,childW.Height()), IR(0,numRHS) );
     vector<int> sendSizes(commSize), recvSizes(commSize);
     for( int q=0; q<commSize; ++q )
     {
-        sendSizes[q] = commMeta.numChildSendInds[q]*numRHS;
-        recvSizes[q] = commMeta.childRecvInds[q].size()*numRHS;
+        sendSizes[q] = X.commMeta.numChildSendInds[q]*numRHS;
+        recvSizes[q] = X.commMeta.childRecvInds[q].size()*numRHS;
     }
     vector<int> sendOffs, recvOffs;
     const int sendBufSize = Scan( sendSizes, sendOffs );
@@ -144,8 +143,8 @@ inline void LowerForwardMultiply
     }
     SwapClear( packOffs );
     childW.Empty();
-    if( front.child->duplicate != nullptr )
-        front.child->duplicate->work.Empty();
+    if( X.child->duplicate != nullptr )
+        X.child->duplicate->work.Empty();
 
     // AllToAll to send and receive the child updates
     vector<F> recvBuf( recvBufSize );
@@ -161,7 +160,7 @@ inline void LowerForwardMultiply
     for( int q=0; q<commSize; ++q )
     {
         const F* recvVals = &recvBuf[recvOffs[q]];
-        const auto& recvInds = commMeta.childRecvInds[q];
+        const auto& recvInds = X.commMeta.childRecvInds[q];
         for( unsigned k=0; k<recvInds.size(); ++k )
             blas::Axpy
             ( numRHS, F(1),
@@ -186,21 +185,18 @@ inline void LowerForwardMultiply
     if( front.duplicate != nullptr )
     {
         LowerForwardMultiply( *info.duplicate, *front.duplicate, *X.duplicate );
-        const auto& work = front.duplicate->work;
-
-        front.work2D.LockedAttach
-        ( work.Height(), work.Width(), grid, 0, 0, work );
+        const auto& work = X.duplicate->work;
+        X.work.LockedAttach( grid, work );
         return;
     }
-    if( X.commMeta.numChildSendInds.size() == 0 )
-        X.ComputeCommMeta( info );
 
     // Set up a workspace
     // TODO: Only set up a workspace if there is a parent
     const Int numRHS = X.matrix.Width();
     const Int frontHeight = front.L2D.Height();
-    auto& W = front.work2D;
+    auto& W = X.work;
     W.SetGrid( grid );
+    W.Align( 0, 0 );
     W.Resize( frontHeight, numRHS );
     DistMatrix<F> WT(grid), WB(grid);
     PartitionDown( W, WT, WB, info.size );
@@ -212,16 +208,15 @@ inline void LowerForwardMultiply
     FrontLowerForwardMultiply( front, W );
 
     // Compute the metadata
+    X.ComputeCommMeta( info );
     const auto& childInfo = *info.child;
-    const auto& childFront = *front.child;
-    const auto& commMeta = X.commMeta;
-    auto& childW = childFront.work2D;
+    auto& childW = X.child->work;
     auto childU = childW( IR(childInfo.size,childW.Height()), IR(0,numRHS) );
     vector<int> sendSizes(commSize), recvSizes(commSize);
     for( int q=0; q<commSize; ++q )
     {
-        sendSizes[q] = commMeta.numChildSendInds[q];
-        recvSizes[q] = commMeta.childRecvInds[q].size()/2;
+        sendSizes[q] = X.commMeta.numChildSendInds[q];
+        recvSizes[q] = X.commMeta.childRecvInds[q].size()/2;
     }
     vector<int> sendOffs, recvOffs;
     const int sendBufSize = Scan( sendSizes, sendOffs );
@@ -247,8 +242,8 @@ inline void LowerForwardMultiply
     }
     SwapClear( packOffs );
     childW.Empty();
-    if( childFront.duplicate != nullptr )
-        childFront.duplicate->work.Empty();
+    if( X.child->duplicate != nullptr )
+        X.child->duplicate->work.Empty();
 
     // AllToAll to send and receive the child updates
     vector<F> recvBuf( recvBufSize );
@@ -263,7 +258,7 @@ inline void LowerForwardMultiply
     // Unpack the child updates (with an Axpy)
     for( int q=0; q<commSize; ++q )
     {
-        const auto& recvInds = commMeta.childRecvInds[q];
+        const auto& recvInds = X.commMeta.childRecvInds[q];
         for( unsigned k=0; k<recvInds.size()/2; ++k )
         {
             const Int iLoc = recvInds[2*k+0];

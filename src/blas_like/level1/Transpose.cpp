@@ -102,6 +102,10 @@ void Transpose
     DEBUG_ONLY(CallStackEntry cse("Transpose"))
     const DistData AData = A.DistData();
     const DistData BData = B.DistData();
+
+    // TODO: Add shortcuts for square process grids and ensure that they have
+    //       an effect on Cholesky and LDL factorizations
+
     // NOTE: The following are ordered in terms of increasing cost
     if( AData.colDist == BData.rowDist &&
         AData.rowDist == BData.colDist &&

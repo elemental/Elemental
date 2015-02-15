@@ -39,7 +39,7 @@ inline void FrontVanillaLowerForwardSolve( const Matrix<F>& L, Matrix<F>& X )
     LockedPartitionDown( L, LT, LB, L.Width() );
     PartitionDown( X, XT, XB, L.Width() );
 
-    Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), LT, XT, true );
+    Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), LT, XT );
     Gemm( NORMAL, NORMAL, F(-1), LB, XT, F(1), XB );
 }
 
@@ -128,8 +128,7 @@ inline void ForwardMany
 
         // X1[* ,* ] := (L11[* ,* ])^-1 X1[* ,* ]
         LocalTrsm
-        ( LEFT, LOWER, NORMAL, NON_UNIT, 
-          F(1), L11_STAR_STAR, X1_STAR_STAR, true );
+        ( LEFT, LOWER, NORMAL, UNIT, F(1), L11_STAR_STAR, X1_STAR_STAR );
         X1 = X1_STAR_STAR;
 
         // X2[VC,* ] -= L21[VC,* ] X1[* ,* ]
@@ -169,8 +168,8 @@ void ForwardSingle( const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X )
 
         // X1[* ,* ] := (L11[* ,* ])^-1 X1[* ,* ]
         LocalTrsm
-        ( LEFT, UPPER, TRANSPOSE, NON_UNIT, 
-          F(1), L11Trans_STAR_STAR, X1_STAR_STAR, true );
+        ( LEFT, UPPER, TRANSPOSE, UNIT, 
+          F(1), L11Trans_STAR_STAR, X1_STAR_STAR );
         X1 = X1_STAR_STAR;
 
         // X2[VC,* ] -= L21[VC,* ] X1[* ,* ]
@@ -246,7 +245,7 @@ inline void FrontVanillaLowerForwardSolve
 
     // XT := inv(LT) XT
     // TODO: Replace with TrsmLLNMedium?
-    Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), LT, XT );
+    Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), LT, XT );
 
     // XB := XB - LB XT
     Gemm( NORMAL, NORMAL, F(-1), LB, XT, F(1), XB );

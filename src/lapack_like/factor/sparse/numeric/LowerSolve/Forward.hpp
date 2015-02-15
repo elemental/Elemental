@@ -40,7 +40,7 @@ inline void LowerForwardSolve
     // Set up a workspace
     // TODO: Only set up a workspace if there is not a parent 
     //       (or a duplicate's parent)
-    auto& W = front.work;
+    auto& W = X.work;
     const Int numRHS = X.matrix.Width();
     W.Resize( front.L.Height(), numRHS );
     Matrix<F> WT, WB;
@@ -51,7 +51,7 @@ inline void LowerForwardSolve
     // Update using the children (if they exist)
     for( Int c=0; c<numChildren; ++c )
     {
-        auto& childW = front.children[c]->work;
+        auto& childW = X.children[c]->work;
         const Int childSize = info.children[c]->size;
         const Int childHeight = childW.Height();
         const Int childUSize = childHeight-childSize;
@@ -86,8 +86,8 @@ inline void LowerForwardSolve
     {
         LowerForwardSolve( *info.duplicate, *front.duplicate, *X.duplicate );
 
-        const auto& W = front.duplicate->work;
-        front.work1D.LockedAttach( grid, W );
+        const auto& W = X.duplicate->work;
+        X.work.LockedAttach( grid, W );
         return;
     }
 
@@ -103,7 +103,7 @@ inline void LowerForwardSolve
     const Int numRHS = X.matrix.Width();
     const Int frontHeight =
       ( frontIs1D ? front.L1D.Height() : front.L2D.Height() );
-    auto& W = front.work1D;
+    auto& W = X.work;
     W.SetGrid( grid );
     W.Resize( frontHeight, numRHS );
     DistMatrix<F,VC,STAR> WT(grid), WB(grid);
@@ -114,14 +114,14 @@ inline void LowerForwardSolve
     const int commSize = mpi::Size( comm );
 
     // Compute the metadata for transmitting child updates
-    const auto& commMeta = info.multiVecMeta;
-    auto& childW = childFront.work1D;
+    X.ComputeCommMeta( info );
+    auto& childW = X.child->work;
     auto childU = childW( IR(childInfo.size,childW.Height()), IR(0,numRHS) );
     vector<int> sendSizes(commSize), recvSizes(commSize);
     for( int q=0; q<commSize; ++q )
     {
-        sendSizes[q] = commMeta.numChildSendInds[q]*numRHS;
-        recvSizes[q] = commMeta.childRecvInds[q].size()*numRHS;
+        sendSizes[q] = X.commMeta.numChildSendInds[q]*numRHS;
+        recvSizes[q] = X.commMeta.childRecvInds[q].size()*numRHS;
     }
     vector<int> sendOffs, recvOffs;
     const int sendBufSize = Scan( sendSizes, sendOffs );
@@ -142,8 +142,8 @@ inline void LowerForwardSolve
     }
     SwapClear( packOffs );
     childW.Empty();
-    if( front.child->duplicate != nullptr )
-        front.child->duplicate->work.Empty();
+    if( X.child->duplicate != nullptr )
+        X.child->duplicate->work.Empty();
 
     // AllToAll to send and receive the child updates
     vector<F> recvBuf( recvBufSize );
@@ -159,7 +159,7 @@ inline void LowerForwardSolve
     for( int q=0; q<commSize; ++q )
     {
         const F* recvVals = &recvBuf[recvOffs[q]];
-        const auto& recvInds = commMeta.childRecvInds[q];
+        const auto& recvInds = X.commMeta.childRecvInds[q];
         for( unsigned k=0; k<recvInds.size(); ++k )
             blas::Axpy
             ( numRHS, F(1),
@@ -182,18 +182,21 @@ inline void LowerForwardSolve
 ( const DistSymmNodeInfo& info,
   const DistSymmFront<F>& front, DistMatrixNode<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistLowerForwardSolve"))
+    DEBUG_ONLY(
+      CallStackEntry cse("DistLowerForwardSolve");
+      if( FrontIs1D(front.type) )
+          LogicError("Front was not 2D");
+    )
+
     const Grid& grid = front.L2D.Grid();
     if( front.duplicate != nullptr )
     {
         LowerForwardSolve( *info.duplicate, *front.duplicate, *X.duplicate );
 
-        const auto& W = front.duplicate->work;
-        front.work2D.LockedAttach( grid, W );
+        const auto& W = X.duplicate->work;
+        X.work.LockedAttach( grid, W );
         return;
     }
-    if( X.commMeta.numChildSendInds.size() == 0 )
-        X.ComputeCommMeta( info );
 
     const auto& childInfo = *info.child;
     const auto& childFront = *front.child;
@@ -206,8 +209,9 @@ inline void LowerForwardSolve
     // TODO: Only set up a workspace if there is a parent
     const Int numRHS = X.matrix.Width();
     const Int frontHeight = front.L2D.Height();
-    auto& W = front.work2D;
+    auto& W = X.work;
     W.SetGrid( grid );
+    W.Align( 0, 0 );
     W.Resize( frontHeight, numRHS );
     DistMatrix<F> WT(grid), WB(grid);
     PartitionDown( W, WT, WB, info.size );
@@ -217,14 +221,14 @@ inline void LowerForwardSolve
     const int commSize = mpi::Size( comm );
 
     // Compute the metadata
-    const auto& commMeta = X.commMeta;
-    auto& childW = childFront.work2D;
+    X.ComputeCommMeta( info );
+    auto& childW = X.child->work;
     auto childU = childW( IR(childInfo.size,childW.Height()), IR(0,numRHS) );
     vector<int> sendSizes(commSize), recvSizes(commSize);
     for( int q=0; q<commSize; ++q )
     {
-        sendSizes[q] = commMeta.numChildSendInds[q];
-        recvSizes[q] = commMeta.childRecvInds[q].size()/2;
+        sendSizes[q] = X.commMeta.numChildSendInds[q];
+        recvSizes[q] = X.commMeta.childRecvInds[q].size()/2;
     }
     vector<int> sendOffs, recvOffs;
     const int sendBufSize = Scan( sendSizes, sendOffs );
@@ -233,10 +237,10 @@ inline void LowerForwardSolve
     // Pack send data
     vector<F> sendBuf( sendBufSize );
     const auto& childRelInds =
-        ( childInfo.onLeft ? info.childRelInds[0] : info.childRelInds[1] );
+      ( childInfo.onLeft ? info.childRelInds[0] : info.childRelInds[1] );
     auto packOffs = sendOffs;
-    const Int localWidth = childU.LocalWidth();
     const Int localHeight = childU.LocalHeight();
+    const Int localWidth = childU.LocalWidth();
     for( Int iChildLoc=0; iChildLoc<localHeight; ++iChildLoc )
     {
         const Int iChild = childU.GlobalRow(iChildLoc);
@@ -245,13 +249,15 @@ inline void LowerForwardSolve
         {
             const Int j = childU.GlobalCol(jChildLoc);
             const int q = W.Owner( iParent, j );
+            if( packOffs[q] >= sendBufSize )
+                LogicError("packOffs[",q,"]=",packOffs[q]," >= ",sendBufSize); 
             sendBuf[packOffs[q]++] = childU.GetLocal(iChildLoc,jChildLoc);
         }
     }
     SwapClear( packOffs );
     childW.Empty();
-    if( childFront.duplicate != nullptr )
-        childFront.duplicate->work.Empty();
+    if( X.child->duplicate != nullptr )
+        X.child->duplicate->work.Empty();
 
     // AllToAll to send and receive the child updates
     vector<F> recvBuf( recvBufSize );
@@ -266,7 +272,7 @@ inline void LowerForwardSolve
     // Unpack the child updates (with an Axpy)
     for( int q=0; q<commSize; ++q )
     {
-        const auto& recvInds = commMeta.childRecvInds[q];
+        const auto& recvInds = X.commMeta.childRecvInds[q];
         for( unsigned k=0; k<recvInds.size()/2; ++k )
         {
             const Int iLoc = recvInds[2*k+0];

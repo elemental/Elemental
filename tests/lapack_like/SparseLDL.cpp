@@ -124,16 +124,16 @@ int main( int argc, char* argv[] )
         const Int rootSepSize = info.size;
         if( commRank == 0 )
             cout << rootSepSize << " vertices in root separator\n" << endl;
+        /*
         if( display )
         {
             ostringstream osBefore, osAfter;
             osBefore << "Structure before fact. on process " << commRank;
-            osAfter << "Structure after fact. on process " << commRank;
-            /*
             DisplayLocal( info, false, osBefore.str() );
+            osAfter << "Structure after fact. on process " << commRank;
             DisplayLocal( info, true, osAfter.str() );
-            */
         }
+        */
 
         if( commRank == 0 )
         {
@@ -148,15 +148,14 @@ int main( int argc, char* argv[] )
         if( commRank == 0 )
             cout << "done, " << buildStop-buildStart << " seconds" << endl;
 
-        {
-            // Unpack the DistSymmFront into a sparse matrix
-            DistSparseMatrix<double> APerm;
-            front.Unpack( APerm, sep, info );
-            if( print )
-                Print( APerm, "APerm" );
-            if( display )
-                Display( APerm, "APerm" );
-        }
+        // Unpack the DistSymmFront into a sparse matrix
+        DistSparseMatrix<double> APerm;
+        front.Unpack( APerm, sep, info );
+        MakeSymmetric( LOWER, APerm );
+        if( print )
+            Print( APerm, "APerm" );
+        if( display )
+            Display( APerm, "APerm" );
 
         // TODO: Memory usage
 
@@ -193,12 +192,50 @@ int main( int argc, char* argv[] )
 
         {
             // Unpack the factored DistSymmFront into a sparse matrix
-            DistSparseMatrix<double> L;
+            DistSparseMatrix<double> L(comm);
             front.Unpack( L, sep, info );
+            DistMultiVec<double> d( N, 1, comm );
+            const Int localHeight = L.LocalHeight();
+            double* valBuf = L.ValueBuffer();
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+            {
+                const Int i = L.GlobalRow(iLoc);
+                const Int off = L.EntryOffset( iLoc );
+                const Int numNnz = L.NumConnections( iLoc );
+                for( Int k=0; k<numNnz; ++k )
+                {
+                    if( L.Col(off+k) == i )
+                    {
+                        d.SetLocal( iLoc, 0, valBuf[off+k] );
+                        valBuf[off+k] = 1.;
+                    }
+                }
+            }
             if( print )
+            {
                 Print( L, "L" );
+                Print( d, "d" );
+            }
             if( display )
+            {
                 Display( L, "L" );
+                Display( d, "d" );
+            }
+
+            DistMultiVec<double> x( N, 1, comm ), y( N, 1, comm );
+            MakeUniform( x );
+            Zero( y );
+            Multiply( NORMAL, 1., APerm, x, 0., y );
+            const double yNrm = FrobeniusNorm( y );
+            
+            DistMultiVec<double> z( N, 1, comm );
+            Multiply( TRANSPOSE, 1., L, x, 0., z );
+            DiagonalScale( NORMAL, d, z );
+            Multiply( NORMAL, -1., L, z, 1., y );
+            const double eNrm = FrobeniusNorm( y );
+
+            if( commRank == 0 )
+                cout << "|| APerm x - L D L^H x ||_2 = " << eNrm/yNrm << endl;
         }
 
         // Check whether the forward solve and multiplication are inverses
@@ -256,26 +293,11 @@ int main( int argc, char* argv[] )
         }
         SetBlocksize( nbSolve );
         double solveStart, solveStop;
-        if( solve2d )
-        {
-            DistMatrixNode<double> YNodal( invMap, info, Y );
-            mpi::Barrier( comm );
-            solveStart = mpi::Time();
-            ldl::SolveAfter( info, front, YNodal );
-            mpi::Barrier( comm );
-            solveStop = mpi::Time();
-            YNodal.Push( invMap, info, Y );
-        }
-        else
-        {
-            DistMultiVecNode<double> YNodal( invMap, info, Y );
-            mpi::Barrier( comm );
-            solveStart = mpi::Time();
-            ldl::SolveAfter( info, front, YNodal );
-            mpi::Barrier( comm );
-            solveStop = mpi::Time();
-            YNodal.Push( invMap, info, Y );
-        }
+        mpi::Barrier( comm );
+        solveStart = mpi::Time();
+        ldl::SolveAfter( invMap, info, front, Y );
+        mpi::Barrier( comm );
+        solveStop = mpi::Time();
         const double solveTime = solveStop - solveStart;
         //const double solveGFlops = globalSolveFlops/(1.e9*solveTime);
         if( commRank == 0 )

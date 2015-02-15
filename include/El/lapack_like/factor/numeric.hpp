@@ -34,6 +34,7 @@ template<typename T>
 struct MatrixNode
 {
     Matrix<T> matrix;
+    Matrix<T> work;
 
     MatrixNode<T>* parent;
     vector<MatrixNode<T>*> children;
@@ -55,16 +56,32 @@ struct MatrixNode
     Int Height() const;
 };
 
+struct MultiVecCommMeta
+{
+    Int localOff, localSize;
+    vector<int> numChildSendInds;
+    vector<vector<Int>> childRecvInds;
+
+    void Empty()
+    {
+        SwapClear( numChildSendInds );
+        SwapClear( childRecvInds );
+    }
+};
+
 // For handling a set of vectors distributed in a [VC,* ] manner over each node
 // of the elimination tree
 template<typename T>
 struct DistMultiVecNode
 {   
     DistMatrix<T,VC,STAR> matrix;
+    DistMatrix<T,VC,STAR> work;
 
     DistMultiVecNode<T>* parent;
     DistMultiVecNode<T>* child;
     MatrixNode<T>* duplicate;
+
+    mutable MultiVecCommMeta commMeta; 
 
     DistMultiVecNode( DistMultiVecNode<T>* parentNode=nullptr );
 
@@ -84,6 +101,20 @@ struct DistMultiVecNode
     void Push
     ( const DistMap& invMap, const DistSymmNodeInfo& info,
             DistMultiVec<T>& X ) const;
+
+    void ComputeCommMeta( const DistSymmNodeInfo& info ) const;
+};
+
+struct MatrixCommMeta
+{
+    vector<int> numChildSendInds;
+    vector<vector<Int>> childRecvInds;
+
+    void Empty()
+    {
+        SwapClear( numChildSendInds );
+        SwapClear( childRecvInds );
+    }
 };
 
 // For handling a matrix distributed in a [MC,MR] manner over each node
@@ -92,6 +123,7 @@ template<typename T>
 struct DistMatrixNode
 {
     DistMatrix<T> matrix;
+    DistMatrix<T> work;
 
     DistMatrixNode<T>* parent;
     DistMatrixNode<T>* child;
@@ -281,11 +313,11 @@ struct SymmFront
     Matrix<F> subdiag;
     Matrix<Int> piv;
 
+    Matrix<F> work;
+
     SymmFront<F>* parent;
     vector<SymmFront<F>*> children;
     DistSymmFront<F>* duplicate;
-
-    mutable Matrix<F> work;
 
     SymmFront( SymmFront<F>* parentNode=nullptr );
     SymmFront( DistSymmFront<F>* dupNode );
@@ -310,6 +342,24 @@ struct SymmFront
     double SolveGFlops( Int numRHS=1 ) const;
 };
 
+struct FactorCommMeta
+{
+    vector<int> numChildSendInds;
+    // This information does not necessarily have to be kept and can be
+    // computed from the above information (albeit somewhat expensively).
+    mutable vector<vector<Int>> childRecvInds;
+
+    void EmptyChildRecvIndices() const
+    { SwapClear(childRecvInds); }
+
+    void Empty()
+    {
+        SwapClear( numChildSendInds );
+        EmptyChildRecvIndices();
+    }
+};
+void ComputeFactRecvInds( const DistSymmNodeInfo& info );
+
 template<typename F>
 struct DistSymmFront
 {
@@ -329,12 +379,12 @@ struct DistSymmFront
     DistMatrix<F,VC,STAR> subdiag;
     DistMatrix<Int,VC,STAR> piv;
 
+    DistMatrix<F> work;
+    mutable FactorCommMeta commMeta;
+
     DistSymmFront<F>* parent;
     DistSymmFront<F>* child;
     SymmFront<F>* duplicate;
-
-    mutable DistMatrix<F,VC,STAR> work1D;
-    mutable DistMatrix<F> work2D;
 
     DistSymmFront( DistSymmFront<F>* parentNode=nullptr );
 
@@ -365,13 +415,31 @@ struct DistSymmFront
     double NumBottomLeftLocalEntries() const;
     double LocalFactorGFlops( bool selInv=false ) const;
     double LocalSolveGFlops( Int numRHS=1 ) const;
+
+    void ComputeRecvInds( const DistSymmNodeInfo& info ) const;
+    void ComputeCommMeta
+    ( const DistSymmNodeInfo& info, bool computeRecvInds ) const;
 };
 
 template<typename F>
 void ChangeFrontType
 ( DistSymmFront<F>& front, SymmFrontType type, bool recurse=true );
 
-// TODO: Move into BLAS3?
+// TODO: Move into BLAS1?
+template<typename F>
+void DiagonalScale
+( const SymmNodeInfo& info, const SymmFront<F>& front,
+  MatrixNode<F>& X );
+template<typename F>
+void DiagonalScale
+( const DistSymmNodeInfo& info, const DistSymmFront<F>& front,
+  DistMultiVecNode<F>& X );
+template<typename F>
+void DiagonalScale
+( const DistSymmNodeInfo& info, const DistSymmFront<F>& L,
+  DistMatrixNode<F>& X );
+
+// TODO: Move into BLAS1?
 template<typename F>
 void DiagonalSolve
 ( const SymmNodeInfo& info, const SymmFront<F>& front,

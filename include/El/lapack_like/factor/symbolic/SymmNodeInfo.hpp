@@ -40,48 +40,6 @@ struct SymmNodeInfo
     ~SymmNodeInfo();
 };
 
-struct FactorCommMeta
-{
-    vector<int> numChildSendInds;
-    // This information does not necessarily have to be kept and can be
-    // computed from the above information (albeit somewhat expensively).
-    mutable vector<vector<Int>> childRecvInds;
-
-    void EmptyChildRecvIndices() const
-    { SwapClear(childRecvInds); }
-
-    void Empty()
-    {
-        SwapClear( numChildSendInds );
-        EmptyChildRecvIndices();
-    }
-};
-
-struct MultiVecCommMeta
-{
-    Int localOff, localSize;
-    vector<int> numChildSendInds;
-    vector<vector<Int>> childRecvInds;
-
-    void Empty()
-    {
-        SwapClear( numChildSendInds );
-        SwapClear( childRecvInds );
-    }
-};
-
-struct MatrixCommMeta
-{
-    vector<int> numChildSendInds;
-    vector<vector<Int>> childRecvInds;
-
-    void Empty()
-    {
-        SwapClear( numChildSendInds );
-        SwapClear( childRecvInds );
-    }
-};
-
 struct DistSymmNodeInfo
 {
     // Known before analysis
@@ -109,16 +67,13 @@ struct DistSymmNodeInfo
     // submatrices of the child updates.
     vector<vector<Int>> childRelInds;
 
-    mutable FactorCommMeta factorMeta;
-    mutable MultiVecCommMeta multiVecMeta;
-
     DistSymmNodeInfo( DistSymmNodeInfo* parentNode=nullptr );
     ~DistSymmNodeInfo();
 };
 
-// Utilities
-void ComputeFactRecvInds( const DistSymmNodeInfo& info );
-void GetChildGridDims( const DistSymmNodeInfo& info, int* childGridDims );
+void GetChildGridDims
+( const DistSymmNodeInfo& info, 
+  vector<int>& gridHeights, vector<int>& gridWidths );
 
 } // namespace El
 

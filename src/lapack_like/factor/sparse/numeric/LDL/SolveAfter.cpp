@@ -26,6 +26,27 @@ namespace ldl {
 
 template<typename F>
 void SolveAfter
+( const DistMap& invMap, const DistSymmNodeInfo& info, 
+  const DistSymmFront<F>& front, DistMultiVec<F>& X )
+{
+    DEBUG_ONLY(CallStackEntry cse("ldl::SolveAfter"))
+
+    if( FrontIs1D(front.type) )
+    {
+        DistMultiVecNode<F> XNodal( invMap, info, X );
+        SolveAfter( info, front, XNodal );
+        XNodal.Push( invMap, info, X );
+    }
+    else
+    {
+        DistMatrixNode<F> XNodal( invMap, info, X );
+        SolveAfter( info, front, XNodal );
+        XNodal.Push( invMap, info, X );
+    }
+}
+
+template<typename F>
+void SolveAfter
 ( const DistSymmNodeInfo& info, 
   const DistSymmFront<F>& front, DistMultiVecNode<F>& X )
 {
@@ -34,7 +55,6 @@ void SolveAfter
     if( !FrontIs1D(front.type) )
     {
         // TODO: Add warning?
-        cout << "Converting RHS from 1D to 2D!" << endl;
         DistMatrixNode<F> XMat( X );
         SolveAfter( info, front, XMat );
         return;
@@ -69,7 +89,6 @@ void SolveAfter
     if( FrontIs1D(front.type) )
     {
         // TODO: Add warning?
-        cout << "Converting RHS from 2D to 1D!" << endl;
         DistMultiVecNode<F> XMV( X );
         SolveAfter( info, front, XMV );
         return;
@@ -159,6 +178,9 @@ Int SolveWithIterativeRefinement
 } // namespace ldl
 
 #define PROTO(F) \
+  template void ldl::SolveAfter \
+  ( const DistMap& invMap, const DistSymmNodeInfo& info, \
+    const DistSymmFront<F>& front, DistMultiVec<F>& X ); \
   template void ldl::SolveAfter \
   ( const DistSymmNodeInfo& info, \
     const DistSymmFront<F>& front, DistMultiVecNode<F>& X ); \

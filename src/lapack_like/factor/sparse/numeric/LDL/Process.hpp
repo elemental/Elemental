@@ -88,7 +88,7 @@ Process
 
         // Pull the relevant information up from the duplicate
         front.type = frontDup.type;
-        front.work2D.LockedAttach( grid, frontDup.work );
+        front.work.LockedAttach( grid, frontDup.work );
         if( !BlockFactorization(factorType) )
         {
             front.diag.LockedAttach( grid, frontDup.diag );
@@ -107,7 +107,7 @@ Process
     Process( childInfo, childFront, factorType );
 
     const Int updateSize = info.lowerStruct.size();
-    front.work2D.Empty();
+    front.work.Empty();
     DEBUG_ONLY(
       if( front.L2D.Height() != info.size+updateSize ||
           front.L2D.Width() != info.size )
@@ -115,18 +115,15 @@ Process
     )
 
     // Compute the metadata for sharing child updates
+    front.ComputeCommMeta( info, true );
     mpi::Comm comm = front.L2D.DistComm();
     const unsigned commSize = mpi::Size( comm );
-    const auto& commMeta = info.factorMeta;
-    const auto& childU = childFront.work2D;
-    const bool computeFactRecvInds = ( commMeta.childRecvInds.size() == 0 );
-    if( computeFactRecvInds )
-        ComputeFactRecvInds( info );
+    const auto& childU = childFront.work;
     vector<int> sendSizes(commSize), recvSizes(commSize);
     for( int q=0; q<commSize; ++q )
     {
-        sendSizes[q] = commMeta.numChildSendInds[q];
-        recvSizes[q] = commMeta.childRecvInds[q].size()/2;
+        sendSizes[q] = front.commMeta.numChildSendInds[q];
+        recvSizes[q] = front.commMeta.childRecvInds[q].size()/2;
     }
     vector<int> sendOffs, recvOffs;
     const int sendBufSize = Scan( sendSizes, sendOffs );
@@ -155,12 +152,12 @@ Process
     DEBUG_ONLY(
       for( int q=0; q<commSize; ++q )
       {
-          if( offs[q]-sendOffs[q] != commMeta.numChildSendInds[q] )
+          if( offs[q]-sendOffs[q] != front.commMeta.numChildSendInds[q] )
               LogicError("Error in packing stage");
       }
     )
     SwapClear( offs );
-    childFront.work2D.Empty();
+    childFront.work.Empty();
     if( childFront.duplicate != nullptr )
         childFront.duplicate->work.Empty();
 
@@ -177,7 +174,7 @@ Process
     // Unpack the child udpates (with an Axpy)
     auto& FL = front.L2D;
     auto FTL = FL( IR(0,info.size), IR(0,info.size) );
-    auto& FBR = front.work2D;
+    auto& FBR = front.work;
     const Int topLocHeight = FTL.LocalHeight();
     const Int leftLocWidth = FTL.LocalWidth();
     FBR.SetGrid( FTL.Grid() );
@@ -185,11 +182,11 @@ Process
     Zeros( FBR, updateSize, updateSize );
     for( int q=0; q<commSize; ++q )
     {
-        const Int numRecvIndPairs = commMeta.childRecvInds[q].size()/2;
+        const Int numRecvIndPairs = front.commMeta.childRecvInds[q].size()/2;
         for( Int k=0; k<numRecvIndPairs; ++k )
         {
-            const Int iLoc = commMeta.childRecvInds[q][2*k+0];
-            const Int jLoc = commMeta.childRecvInds[q][2*k+1];
+            const Int iLoc = front.commMeta.childRecvInds[q][2*k+0];
+            const Int jLoc = front.commMeta.childRecvInds[q][2*k+1];
             const F value = recvBuf[recvOffs[q]+k];
             if( jLoc < leftLocWidth )
                 FL.UpdateLocal( iLoc, jLoc, value );
@@ -200,8 +197,6 @@ Process
     SwapClear( recvBuf );
     SwapClear( recvSizes );
     SwapClear( recvOffs );
-    if( computeFactRecvInds )
-        commMeta.EmptyChildRecvIndices();
 
     ProcessFront( front, factorType );
 }

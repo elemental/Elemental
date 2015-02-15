@@ -629,8 +629,6 @@ void DistSymmFront<F>::Unpack
         A.QueueLocalUpdate
         ( iRecvBuf[e]-firstLocalRow, jRecvBuf[e], vRecvBuf[e] );
     A.MakeConsistent();
-
-    MakeSymmetric( LOWER, A, isHermitian );
 }
 
 template<typename F>
@@ -671,6 +669,127 @@ double DistSymmFront<F>::LocalSolveGFlops( Int numRHS ) const
     DEBUG_ONLY(CallStackEntry cse("DistSymmFront::LocalSolveGFlops"))
     LogicError("This routine needs to be rewritten");
     return 0.;
+}
+
+template<typename F>
+void DistSymmFront<F>::ComputeRecvInds( const DistSymmNodeInfo& info ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("DistSymmFront::ComputeRecvInds"))
+
+    vector<int> gridHeights, gridWidths;
+    GetChildGridDims( info, gridHeights, gridWidths );
+
+    const int teamSize = mpi::Size( info.comm );
+    const int teamRank = mpi::Rank( info.comm );
+    const bool onLeft = info.child->onLeft;
+    const int childTeamSize = mpi::Size( info.child->comm );
+    vector<int> teamSizes(2);
+    teamSizes[0] = ( onLeft ? childTeamSize : teamSize-childTeamSize );
+    teamSizes[1] = teamSize - teamSizes[0];
+    DEBUG_ONLY(
+      if( teamSizes[0] != gridHeights[0]*gridWidths[0] )
+          RuntimeError("Computed left grid incorrectly");
+      if( teamSizes[1] != gridHeights[1]*gridWidths[1] )
+          RuntimeError("Computed right grid incorrectly");
+    )
+
+    commMeta.childRecvInds.resize( teamSize );
+
+    const int childTeamRank = mpi::Rank( info.child->comm );
+    const bool inFirstTeam = ( childTeamRank == teamRank );
+    const bool leftIsFirst = ( onLeft==inFirstTeam );
+    vector<int> teamOffs(2);
+    teamOffs[0] = ( leftIsFirst ? 0            : teamSizes[1] );
+    teamOffs[1] = ( leftIsFirst ? teamSizes[0] : 0            );
+
+    for( Int c=0; c<2; ++c )
+    {
+        // Compute the recv indices of the child from each process 
+        const Int numInds = info.childRelInds[c].size();
+        vector<Int> rowInds, colInds;
+        for( Int iChild=0; iChild<numInds; ++iChild )
+        {
+            if( L2D.IsLocalRow( info.childRelInds[c][iChild] ) )
+                rowInds.push_back( iChild );
+            if( L2D.IsLocalCol( info.childRelInds[c][iChild] ) )
+                colInds.push_back( iChild );
+        }
+
+        vector<Int>::const_iterator it;
+        const Int numColInds = colInds.size();
+        const Int numRowInds = rowInds.size();
+        for( Int jPre=0; jPre<numColInds; ++jPre )
+        {
+            const Int jChild = colInds[jPre];
+            const Int j = info.childRelInds[c][jChild];
+            const Int jLoc = L2D.LocalCol(j);
+
+            const int childCol = (jChild+info.childSizes[c]) % gridWidths[c];
+
+            // Find the first iPre that maps to the lower triangle
+            it = std::lower_bound( rowInds.begin(), rowInds.end(), jChild );
+            const Int iPreStart = Int(it-rowInds.begin());
+            for( Int iPre=iPreStart; iPre<numRowInds; ++iPre )
+            {
+                const Int iChild = rowInds[iPre];
+                const Int i = info.childRelInds[c][iChild];
+                DEBUG_ONLY(
+                  if( iChild < jChild )
+                      LogicError("Invalid iChild");
+                )
+                const Int iLoc = L2D.LocalRow(i);
+
+                const int childRow = (iChild+info.childSizes[c])%gridHeights[c];
+                const int childRank = childRow + childCol*gridHeights[c];
+
+                const int q = teamOffs[c]+ childRank;
+                commMeta.childRecvInds[q].push_back(iLoc);
+                commMeta.childRecvInds[q].push_back(jLoc);
+            }
+        }
+    }
+}
+
+template<typename F>
+void DistSymmFront<F>::ComputeCommMeta
+( const DistSymmNodeInfo& info, bool computeRecvInds ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("DistSymmFront::ComputeCommMeta"))
+    commMeta.Empty();
+    if( child == nullptr )
+        return;
+
+    const int teamSize = L2D.DistSize();
+    commMeta.numChildSendInds.resize( teamSize );
+    El::MemZero( commMeta.numChildSendInds.data(), teamSize );
+    
+    auto& childFront = *child;
+    auto& childInfo = *info.child;
+    const auto& childRelInds =
+      ( childInfo.onLeft ? info.childRelInds[0] : info.childRelInds[1] );
+
+    const auto& FBR = childFront.work;
+    const Int localHeight = FBR.LocalHeight();
+    const Int localWidth = FBR.LocalWidth();
+    for( Int jChildLoc=0; jChildLoc<localWidth; ++jChildLoc )
+    {
+        const Int jChild = FBR.GlobalCol(jChildLoc);
+        const int j = childRelInds[jChild];
+        for( Int iChildLoc=0; iChildLoc<localHeight; ++iChildLoc )
+        {
+            const Int iChild = FBR.GlobalRow(iChildLoc);
+            if( iChild >= jChild )
+            {
+                const Int i = childRelInds[iChild];
+                const int q = L2D.Owner( i, j );
+                ++commMeta.numChildSendInds[q];
+            }
+        }
+    }
+
+    // This is optional since it requires a nontrivial amount of storage.
+    if( computeRecvInds )
+        ComputeRecvInds( info );
 }
 
 #define PROTO(F) template class DistSymmFront<F>;

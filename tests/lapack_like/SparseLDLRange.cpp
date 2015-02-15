@@ -94,14 +94,16 @@ int main( int argc, char* argv[] )
         const Int rootSepSize = info.size;
         if( commRank == 0 )
             cout << rootSepSize << " vertices in root separator\n" << endl;
+        /*
         if( display )
         {
             ostringstream osBefore, osAfter;
             osBefore << "Structure before fact. on process " << commRank;
-            osAfter << "Structure after fact. on process " << commRank;
             DisplayLocal( info, false, osBefore.str() );
+            osAfter << "Structure after fact. on process " << commRank;
             DisplayLocal( info, true, osAfter.str() );
         }
+        */
 
         if( commRank == 0 )
         {
@@ -126,40 +128,22 @@ int main( int argc, char* argv[] )
         SetBlocksize( nbFact );
         mpi::Barrier( comm );
         const double ldlStart = mpi::Time();
+        SymmFrontType type;
         if( solve2d )
         {
             if( intraPiv )
-            {
-                if( selInv )    
-                    LDL( info, front, LDL_INTRAPIV_SELINV_2D );
-                else
-                    LDL( info, front, LDL_INTRAPIV_2D );
-            }
+                type = ( selInv ? LDL_INTRAPIV_SELINV_2D : LDL_INTRAPIV_2D );
             else
-            {
-                if( selInv )
-                    LDL( info, front, LDL_SELINV_2D );
-                else
-                    LDL( info, front, LDL_2D );
-            }
+                type = ( selInv ? LDL_SELINV_2D : LDL_2D );
         }
         else
         {
             if( intraPiv )
-            {
-                if( selInv )
-                    LDL( info, front, LDL_INTRAPIV_SELINV_2D );
-                else
-                    LDL( info, front, LDL_INTRAPIV_1D );
-            }
+                type = ( selInv ? LDL_INTRAPIV_SELINV_1D : LDL_INTRAPIV_1D );
             else
-            {
-                if( selInv )
-                    LDL( info, front, LDL_SELINV_2D );
-                else
-                    LDL( info, front, LDL_1D );
-            }
+                type = ( selInv ? LDL_SELINV_1D : LDL_1D );
         }
+        LDL( info, front, type );
         mpi::Barrier( comm );
         const double ldlStop = mpi::Time();
         const double factTime = ldlStop - ldlStart;
@@ -186,28 +170,11 @@ int main( int argc, char* argv[] )
                     cout << "  nbSolve=" << nbSolve << "...";
                     cout.flush();
                 }
-                double solveStart, solveStop;
-                if( solve2d )
-                {
-                    DistMatrixNode<C> YNodal( invMap, info, Y );
-                    mpi::Barrier( comm );
-                    solveStart = mpi::Time();
-                    ldl::SolveAfter( info, front, YNodal );
-                    mpi::Barrier( comm );
-                    solveStop = mpi::Time();
-                    YNodal.Push( invMap, info, Y );
-                }
-                else
-                {
-                    DistMultiVecNode<C> YNodal( invMap, info, Y );
-                    mpi::Barrier( comm );
-                    solveStart = mpi::Time();
-                    ldl::SolveAfter( info, front, YNodal );
-                    mpi::Barrier( comm );
-                    solveStop = mpi::Time();
-                    YNodal.Push( invMap, info, Y );
-                }
-                const double solveTime = solveStop - solveStart;
+                mpi::Barrier( comm );
+                const double solveStart = mpi::Time();
+                ldl::SolveAfter( invMap, info, front, Y );
+                mpi::Barrier( comm );
+                const double solveTime = mpi::Time() - solveStart;
                 /*
                 const double solveGFlops = globalSolveFlops/(1.e9*solveTime);
                 */

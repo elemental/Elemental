@@ -79,66 +79,78 @@ void DistMultiVecNode<T>::Pull
   const DistMultiVec<T>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("DistMultiVecNode::Pull"))
+    const Int width = X.Width();
 
     // Count the number of indices assigned to this process
+    // (and build the subtree)
     int numRecvInds = 0;
-    {
-        function<void(const SymmNodeInfo&)> localCount = 
-        [&]( const SymmNodeInfo& node )
+    function<void(const SymmNodeInfo&,MatrixNode<T>&)> localCount =
+      [&]( const SymmNodeInfo& node, MatrixNode<T>& XNode )
+      {
+        const Int numChildren = node.children.size();
+        XNode.children.resize(numChildren);
+        for( Int c=0; c<numChildren; ++c )
         {
-            for( const SymmNodeInfo* childNode : node.children )
-                localCount( *childNode );
-            numRecvInds += node.size;
-        };
-        function<void(const DistSymmNodeInfo&)> count = 
-        [&]( const DistSymmNodeInfo& node )
+            XNode.children[c] = new MatrixNode<T>(&XNode);
+            localCount( *node.children[c], *XNode.children[c] );
+        }
+
+        XNode.matrix.Resize( node.size, width );
+        numRecvInds += node.size;
+      };
+    function<void(const DistSymmNodeInfo&,DistMultiVecNode<T>&)> count =
+      [&]( const DistSymmNodeInfo& node, DistMultiVecNode<T>& XNode )
+      {
+        if( node.child == nullptr )
         {
-            if( node.child == nullptr )
-            {
-                localCount( *node.duplicate );
-                return;
-            }
-            count( *node.child );
-            numRecvInds += node.multiVecMeta.localSize;
-        };
-        count( info );
-    }
-    
+            delete XNode.duplicate;
+            XNode.duplicate = new MatrixNode<T>(&XNode);
+            localCount( *node.duplicate, *XNode.duplicate );
+
+            XNode.matrix.Attach( *node.grid, XNode.duplicate->matrix );
+
+            return;
+        }
+        XNode.child = new DistMultiVecNode<T>(&XNode);
+        count( *node.child, *XNode.child );
+
+        XNode.commMeta.Empty();
+        XNode.matrix.SetGrid( *node.grid );
+        XNode.matrix.Resize( node.size, width );
+        numRecvInds += XNode.matrix.LocalHeight();
+      };
+    count( info, *this );
+   
     // Pack the indices for mapping to the original ordering
+    Int off = 0;
     vector<Int> mappedInds( numRecvInds );
-    {
-        Int off = 0;
-        function<void(const SymmNodeInfo&)> localPack = 
-        [&]( const SymmNodeInfo& node )
+    function<void(const SymmNodeInfo&,MatrixNode<T>&)> localPack =
+      [&]( const SymmNodeInfo& node, MatrixNode<T>& XNode )
+      {
+        const Int numChildren = node.children.size();
+        for( Int c=0; c<numChildren; ++c )
+            localPack( *node.children[c], *XNode.children[c] );
+
+        for( Int t=0; t<node.size; ++t )
+            mappedInds[off++] = node.off+t;
+      };
+    function<void(const DistSymmNodeInfo&,DistMultiVecNode<T>&)> pack =
+      [&]( const DistSymmNodeInfo& node, DistMultiVecNode<T>& XNode )
+      {
+        if( node.child == nullptr )
         {
-            for( const SymmNodeInfo* childNode : node.children )        
-                localPack( *childNode );
-            for( Int t=0; t<node.size; ++t )
-                mappedInds[off++] = node.off+t;
-        };
-        function<void(const DistSymmNodeInfo&)> pack = 
-        [&]( const DistSymmNodeInfo& node )
+            localPack( *node.duplicate, *XNode.duplicate );
+            return;
+        }
+        pack( *node.child, *XNode.child );
+
+        for( Int tLoc=0; tLoc<XNode.matrix.LocalHeight(); ++tLoc )
         {
-            if( node.child == nullptr )
-            {
-                localPack( *node.duplicate );
-                return;
-            }
-            pack( *node.child );
-            const Grid& grid = *node.grid;
-            const int gridSize = grid.Size();
-            const int gridRank = grid.VCRank();
-            const int alignment = 0;
-            const int shift = Shift( gridRank, alignment, gridSize );
-            for( Int t=shift; t<node.size; t+=gridSize )
-                mappedInds[off++] = node.off+t;
-        };
-        pack( info );
-        DEBUG_ONLY(
-            if( off != numRecvInds )
-                LogicError("mappedInds was filled incorrectly");
-        )
-    }
+            const Int t = XNode.matrix.GlobalRow(tLoc);
+            mappedInds[off++] = node.off+t;
+        }
+      };
+    pack( info, *this );
 
     // Convert the indices to the original ordering
     invMap.Translate( mappedInds );
@@ -172,7 +184,6 @@ void DistMultiVecNode<T>::Pull
       sendInds.data(), sendSizes.data(), sendOffs.data(), comm );
 
     // Fulfill the requests
-    const Int width = X.Width();
     vector<T> sendVals( numSendInds*width );
     const Int firstLocalRow = X.FirstLocalRow();
     for( Int s=0; s<numSendInds; ++s )
@@ -196,66 +207,47 @@ void DistMultiVecNode<T>::Pull
     SwapClear( sendOffs );
 
     // Unpack the values
-    {
-        Int off = 0;
-        offs = recvOffs;
-        
-        function<void(const SymmNodeInfo&,MatrixNode<T>&)> localUnpack =
-          [&]( const SymmNodeInfo& node, MatrixNode<T>& XNode )
-          {
-            // NOTE: XNode is freshly constructed, so there is no need to worry
-            //       about deleting any existing children
-            const Int numChildren = node.children.size();
-            XNode.children.resize(numChildren);
-            for( Int c=0; c<numChildren; ++c )
-            {
-                XNode.children[c] = new MatrixNode<T>(&XNode);
-                localUnpack( *node.children[c], *XNode.children[c] );
-            }
+    off = 0;
+    offs = recvOffs;
+    function<void(const SymmNodeInfo&,MatrixNode<T>&)> localUnpack =
+      [&]( const SymmNodeInfo& node, MatrixNode<T>& XNode )
+      {
+        const Int numChildren = node.children.size();
+        for( Int c=0; c<numChildren; ++c )
+            localUnpack( *node.children[c], *XNode.children[c] );
 
-            XNode.matrix.Resize( node.size, width );
-            for( Int t=0; t<node.size; ++t )
-            {
-                const Int i = mappedInds[off++];
-                const int q = X.RowOwner(i);
-                for( Int j=0; j<width; ++j )
-                    XNode.matrix.Set( t, j, recvVals[offs[q]++] );
-            }
-          };
-        function<void(const DistSymmNodeInfo&,DistMultiVecNode<T>&)> unpack =
-          [&]( const DistSymmNodeInfo& node, DistMultiVecNode<T>& XNode )
-          {
-            if( node.child == nullptr )
-            {
-                delete XNode.duplicate;
-                XNode.duplicate = new MatrixNode<T>(&XNode);
-                localUnpack( *node.duplicate, *XNode.duplicate );
+        for( Int t=0; t<node.size; ++t )
+        {
+            const Int i = mappedInds[off++];
+            const int q = X.RowOwner(i);
+            for( Int j=0; j<width; ++j )
+                XNode.matrix.Set( t, j, recvVals[offs[q]++] );
+        }
+      };
+    function<void(const DistSymmNodeInfo&,DistMultiVecNode<T>&)> unpack =
+      [&]( const DistSymmNodeInfo& node, DistMultiVecNode<T>& XNode )
+      {
+        if( node.child == nullptr )
+        {
+            localUnpack( *node.duplicate, *XNode.duplicate );
+            return;
+        }
+        unpack( *node.child, *XNode.child );
 
-                XNode.matrix.Attach( *node.grid, XNode.duplicate->matrix );
-
-                return;
-            }
-            XNode.child = new DistMultiVecNode<T>(&XNode);
-            unpack( *node.child, *XNode.child );
-
-            XNode.matrix.SetGrid( *node.grid );
-            XNode.matrix.Resize( node.size, width );
-            const Int localHeight = XNode.matrix.LocalHeight();
-            for( Int tLoc=0; tLoc<localHeight; ++tLoc )
-            {
-                const Int i = mappedInds[off++];
-                const int q = X.RowOwner(i);
-                for( Int j=0; j<width; ++j )
-                    XNode.matrix.SetLocal( tLoc, j, recvVals[offs[q]++] );
-            }
-          };
-        unpack( info, *this );
-
-        DEBUG_ONLY(
-          if( off != numRecvInds )
-              LogicError("Unpacked wrong number of indices");
-        )
-    }
+        const Int localHeight = XNode.matrix.LocalHeight();
+        for( Int tLoc=0; tLoc<localHeight; ++tLoc )
+        {
+            const Int i = mappedInds[off++];
+            const int q = X.RowOwner(i);
+            for( Int j=0; j<width; ++j )
+                XNode.matrix.SetLocal( tLoc, j, recvVals[offs[q]++] );
+        }
+      };
+    unpack( info, *this );
+    DEBUG_ONLY(
+      if( off != numRecvInds )
+          LogicError("Unpacked wrong number of indices");
+    )
 }
 
 template<typename T>
@@ -427,6 +419,83 @@ void DistMultiVecNode<T>::Push
         for( Int j=0; j<width; ++j )
             X.SetLocal( iLoc, j, recvVals[s*width+j] );
     }
+}
+
+template<typename T>
+void DistMultiVecNode<T>::ComputeCommMeta( const DistSymmNodeInfo& info ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("DistMultiVecNode::ComputeCommMeta"))
+    if( commMeta.numChildSendInds.size() != 0 )
+        return;
+
+    commMeta.Empty();
+    if( child == nullptr )
+    {
+        commMeta.localOff = info.duplicate->myOff;
+        commMeta.localSize = info.duplicate->size;
+        return;
+    }
+
+    // This is currently assumed (and will eventually be lifted)
+    const Int numChildren = 2;
+    vector<int> teamSizes(numChildren), teamOffs(numChildren);
+
+    const int teamSize = mpi::Size( info.comm );
+    const int teamRank = mpi::Rank( info.comm );
+    const auto& childNode = *info.child;
+    const int childTeamSize = mpi::Size( childNode.comm );
+    const int childTeamRank = mpi::Rank( childNode.comm );
+    const bool inFirstTeam = ( childTeamRank == teamRank );
+    const bool leftIsFirst = ( childNode.onLeft==inFirstTeam );
+    teamSizes[0] =
+        ( childNode.onLeft ? childTeamSize : teamSize-childTeamSize );
+    teamSizes[1] = teamSize - teamSizes[0];
+    teamOffs[0] = ( leftIsFirst ? 0 : teamSizes[1] );
+    teamOffs[1] = ( leftIsFirst ? teamSizes[0] : 0 );
+
+    const auto& myRelInds =
+        ( childNode.onLeft ? info.childRelInds[0] : info.childRelInds[1] );
+
+    // Fill numChildSendInds
+    commMeta.numChildSendInds.resize( teamSize );
+    El::MemZero( commMeta.numChildSendInds.data(), teamSize );
+    const Int updateSize = childNode.lowerStruct.size();
+    // TODO: Use 'matrix' or 'work' instead?
+    {
+        const Int align = childNode.size % childTeamSize;
+        const Int shift = Shift( childTeamRank, align, childTeamSize );
+        const Int localHeight = Length( updateSize, shift, childTeamSize );
+        for( Int iChildLoc=0; iChildLoc<localHeight; ++iChildLoc )
+        {
+            const Int iChild = shift + iChildLoc*childTeamSize;
+            const int destRank = myRelInds[iChild] % teamSize;
+            ++commMeta.numChildSendInds[destRank];
+        }
+    }
+
+    // Compute the solve recv indices
+    commMeta.childRecvInds.resize( teamSize );
+    for( Int c=0; c<numChildren; ++c )
+    {
+        const Int numInds = info.childRelInds[c].size();
+        vector<Int> inds;
+        for( Int i=0; i<numInds; ++i )
+            if( work.IsLocalRow( info.childRelInds[c][i] ) )
+                inds.push_back( i );
+
+        const Int numSolveInds = inds.size();
+        for( Int iPre=0; iPre<numSolveInds; ++iPre )
+        {
+            const Int iChild = inds[iPre];
+            const Int i = info.childRelInds[c][iChild];
+            const Int iLoc = (i-teamRank) / teamSize;
+            const int childRank = (info.childSizes[c]+iChild) % teamSizes[c];
+            const int frontRank = teamOffs[c] + childRank;
+            commMeta.childRecvInds[frontRank].push_back(iLoc);
+        }
+    }
+    commMeta.localOff = child->commMeta.localOff + child->commMeta.localSize;
+    commMeta.localSize = matrix.LocalHeight();
 }
 
 #define PROTO(T) template class DistMultiVecNode<T>;

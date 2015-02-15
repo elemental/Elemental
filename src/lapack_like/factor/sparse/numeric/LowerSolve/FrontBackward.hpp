@@ -34,7 +34,7 @@ void BackwardMany
 {
     // TODO: Replace this with modified inline code?
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
-    trsm::LLTSmall( orientation, NON_UNIT,  L, X, true );
+    trsm::LLTSmall( orientation, UNIT, L, X );
 }
 
 template<typename F>
@@ -95,7 +95,7 @@ inline void FrontVanillaLowerBackwardSolve
 
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     Gemm( orientation, NORMAL, F(-1), LB, XB, F(1), XT );
-    Trsm( LEFT, LOWER, orientation, NON_UNIT, F(1), LT, XT, true );
+    Trsm( LEFT, LOWER, orientation, UNIT, F(1), LT, XT, true );
 }
 
 template<typename F>
@@ -212,7 +212,7 @@ inline void FrontVanillaLowerBackwardSolve
 
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     Gemm( orientation, NORMAL, F(-1), LB, XB, F(1), XT );
-    Trsm( LEFT, LOWER, orientation, NON_UNIT, F(1), LT, XT );
+    Trsm( LEFT, LOWER, orientation, UNIT, F(1), LT, XT );
 }
 
 template<typename F>

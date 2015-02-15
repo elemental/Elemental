@@ -32,31 +32,28 @@ inline void LowerBackwardSolve
 {
     DEBUG_ONLY(CallStackEntry cse("LowerBackwardSolve"))
 
-    auto* dup = front.duplicate;
-    const bool haveParent = front.parent != nullptr;
-    const bool have1DParent = 
-      dup != nullptr && FrontIs1D(dup->type) && dup->parent != nullptr;
-    const bool have2DParent =
-      dup != nullptr && !FrontIs1D(dup->type) && dup->parent != nullptr;
+    auto* dupMV = X.duplicateMV;
+    auto* dupMat = X.duplicateMat;
+    const bool haveParent = X.parent != nullptr;
+    bool haveDupMVParent = dupMV != nullptr && dupMV->parent != nullptr;
+    bool haveDupMatParent = dupMat != nullptr && dupMat->parent != nullptr;
     auto& W = 
-      ( haveParent ? front.work 
-                   : (have1DParent ? dup->work1D.Matrix() 
-                                   : (have2DParent ? dup->work2D.Matrix() 
-                                                   : X.matrix ) ) );
+      (haveParent ? X.work 
+                  : (haveDupMVParent ? dupMV->work.Matrix() 
+                                     : (haveDupMatParent ? dupMat->work.Matrix()
+                                                         : X.matrix)));
 
     FrontLowerBackwardSolve( front, W, conjugate );
 
     const Int numRHS = X.matrix.Width();
-    if( haveParent || have1DParent || have2DParent )
+    if( haveParent || haveDupMVParent || haveDupMatParent )
         X.matrix = W( IR(0,info.size), IR(0,numRHS) );
 
     const Int numChildren = front.children.size();
     for( Int c=0; c<numChildren; ++c )
     {
-        const auto& childFront = *front.children[c];
-        auto& childW = childFront.work;
-
         // Set up a workspace for the child
+        auto& childW = X.children[c]->work;
         childW.Resize( front.children[c]->L.Height(), numRHS );
         Matrix<F> childWT, childWB; 
         PartitionDown( childW, childWT, childWB, info.children[c]->size );
@@ -72,11 +69,11 @@ inline void LowerBackwardSolve
         }
     }
     if( haveParent )
-        front.work.Empty();
-    else if( have1DParent )
-        dup->work1D.Empty();    
-    else if( have2DParent )
-        dup->work2D.Empty();
+        X.work.Empty();
+    else if( haveDupMVParent )
+        dupMV->work.Empty();
+    else if( haveDupMatParent )
+        dupMat->work.Empty();
 
     for( Int c=0; c<numChildren; ++c )
         LowerBackwardSolve
@@ -96,8 +93,8 @@ inline void LowerBackwardSolve
         return;
     }
 
-    const bool haveParent = ( front.parent != nullptr );
-    auto& W = ( haveParent ? front.work1D : X.matrix );
+    const bool haveParent = ( X.parent != nullptr );
+    auto& W = ( haveParent ? X.work : X.matrix );
     FrontLowerBackwardSolve( front, W, conjugate );
 
     const Int numRHS = X.matrix.Width();
@@ -117,7 +114,7 @@ inline void LowerBackwardSolve
         ( frontIs1D ? childFront.L1D.Grid() : childFront.L2D.Grid() );
     const Int childFrontHeight =
         ( frontIs1D ? childFront.L1D.Height() : childFront.L2D.Height() );
-    auto& childW = childFront.work1D;
+    auto& childW = X.child->work;
     childW.SetGrid( childGrid );
     childW.Resize( childFrontHeight, numRHS );
     DistMatrix<F,VC,STAR> childWT(childGrid), childWB(childGrid);
@@ -125,14 +122,14 @@ inline void LowerBackwardSolve
     childWT = X.child->matrix;
 
     // Compute the metadata for updating the children
+    X.ComputeCommMeta( info );
     mpi::Comm comm = W.DistComm();
     const int commSize = mpi::Size( comm );
-    const auto& commMeta = info.multiVecMeta;
     vector<int> sendSizes(commSize), recvSizes(commSize);
     for( int q=0; q<commSize; ++q )
     {
-        sendSizes[q] = commMeta.childRecvInds[q].size()*numRHS;
-        recvSizes[q] = commMeta.numChildSendInds[q]*numRHS;
+        sendSizes[q] = X.commMeta.childRecvInds[q].size()*numRHS;
+        recvSizes[q] = X.commMeta.numChildSendInds[q]*numRHS;
     }
     vector<int> sendOffs, recvOffs;
     const int sendBufSize = Scan( sendSizes, sendOffs );
@@ -143,7 +140,7 @@ inline void LowerBackwardSolve
     for( int q=0; q<commSize; ++q )
     {
         F* sendVals = &sendBuf[sendOffs[q]];
-        const auto& recvInds = commMeta.childRecvInds[q];
+        const auto& recvInds = X.commMeta.childRecvInds[q];
         for( unsigned k=0; k<recvInds.size(); ++k )
             StridedMemCopy
             ( &sendVals[k*numRHS],           1,
@@ -194,8 +191,8 @@ inline void LowerBackwardSolve
         return;
     }
 
-    const bool haveParent = ( front.parent != nullptr );
-    auto& W = ( haveParent ? front.work2D : X.matrix );
+    const bool haveParent = ( X.parent != nullptr );
+    auto& W = ( haveParent ? X.child->work : X.matrix );
     FrontLowerBackwardSolve( front, W, conjugate );
 
     const Int numRHS = X.matrix.Width();
@@ -211,22 +208,23 @@ inline void LowerBackwardSolve
     const auto& childFront = *front.child;
     const Grid& childGrid = childFront.L2D.Grid();
     const Int childFrontHeight = childFront.L2D.Height();
-    auto& childW = childFront.work2D;
+    auto& childW = X.child->work;
     childW.SetGrid( childGrid );
+    childW.Align( 0, 0 );
     childW.Resize( childFrontHeight, numRHS );
     DistMatrix<F> childWT(childGrid), childWB(childGrid);
     PartitionDown( childW, childWT, childWB, info.child->size );
     childWT = X.child->matrix;
 
     // Set up the metadata for the child updates
+    X.ComputeCommMeta( info );
     mpi::Comm comm = W.DistComm();
     const int commSize = mpi::Size( comm );
-    const auto& commMeta = X.commMeta;
     vector<int> sendSizes(commSize), recvSizes(commSize);
     for( int q=0; q<commSize; ++q )
     {
-        sendSizes[q] = commMeta.childRecvInds[q].size()/2;
-        recvSizes[q] = commMeta.numChildSendInds[q];
+        sendSizes[q] = X.commMeta.childRecvInds[q].size()/2;
+        recvSizes[q] = X.commMeta.numChildSendInds[q];
     }
     vector<int> sendOffs, recvOffs;
     const int sendBufSize = Scan( sendSizes, sendOffs );
@@ -237,7 +235,7 @@ inline void LowerBackwardSolve
     for( int q=0; q<commSize; ++q )
     {
         F* sendVals = &sendBuf[sendOffs[q]];
-        const auto& recvInds = commMeta.childRecvInds[q];
+        const auto& recvInds = X.commMeta.childRecvInds[q];
         for( unsigned k=0; k<recvInds.size()/2; ++k )
         {
             const Int iLoc = recvInds[2*k+0];

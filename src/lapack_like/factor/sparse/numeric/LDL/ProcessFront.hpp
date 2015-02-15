@@ -158,16 +158,15 @@ inline void ProcessFront( SymmFront<F>& front, SymmFrontType factorType )
     {
         ProcessFrontVanilla( front.L, front.work, front.isHermitian );
         GetDiagonal( front.L, front.diag );
-        FillDiagonal( front.L, F(1) );
     }
 }
 
 template<typename F> 
-inline void ProcessFrontGeneral
+inline void ProcessFrontVanilla
 ( DistMatrix<F>& AL, DistMatrix<F>& ABR, bool conjugate=false )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("ldl::ProcessFrontGeneral");
+      CallStackEntry cse("ldl::ProcessFrontVanilla");
       if( ABR.Height() != ABR.Width() )
           LogicError("ABR must be square");
       if( AL.Height() != AL.Width()+ABR.Height() )
@@ -220,152 +219,20 @@ inline void ProcessFrontGeneral
         S21Trans_STAR_MC.AlignWith( AL22 );
         Transpose( AL21_VC_STAR, S21Trans_STAR_MC );
         DiagonalSolve( RIGHT, NORMAL, d1_STAR_STAR, AL21_VC_STAR );
-        AL21_VR_STAR.AlignWith( AL22 );
-        AL21_VR_STAR = AL21_VC_STAR;
         AL21Trans_STAR_MR.AlignWith( AL22 );
-        Transpose( AL21_VR_STAR, AL21Trans_STAR_MR, conjugate );
+        Transpose( AL21_VC_STAR, AL21Trans_STAR_MR, conjugate );
 
         // Partition the update of the bottom-right corner into three pieces
         PartitionRight( S21Trans_STAR_MC, leftL, leftR, AL22.Width() );
         PartitionRight( AL21Trans_STAR_MR, rightL, rightR, AL22.Width() );
         PartitionDown( AL22, AL22T, AL22B, AL22.Width() );
-        LocalTrrk
-        ( LOWER, orientation, F(-1), leftL, rightL, F(1), AL22T );
+        LocalTrrk( LOWER, orientation,  F(-1), leftL, rightL, F(1), AL22T );
         LocalGemm( orientation, NORMAL, F(-1), leftR, rightL, F(1), AL22B );
-        LocalTrrk( LOWER, orientation, F(-1), leftR, rightR, F(1), ABR );
+        LocalTrrk( LOWER, orientation,  F(-1), leftR, rightR, F(1), ABR );
 
         DiagonalSolve( LEFT, NORMAL, d1_STAR_STAR, S21Trans_STAR_MC );
         Transpose( S21Trans_STAR_MC, AL21 );
     }
-}
-
-template<typename F>
-inline void ProcessFrontSquare
-( DistMatrix<F>& AL, DistMatrix<F>& ABR, bool conjugate=false )
-{
-    DEBUG_ONLY(
-      CallStackEntry cse("ldl::ProcessFrontSquare");
-      if( ABR.Height() != ABR.Width() )
-          LogicError("ABR must be square");
-      if( AL.Height() != AL.Width()+ABR.Height() )
-          LogicError("AL & ABR must have compatible dimensions");
-      if( AL.Grid() != ABR.Grid() )
-          LogicError("AL & ABR must use the same grid");
-      if( ABR.ColAlign() !=
-          (AL.ColAlign()+AL.Width()) % AL.Grid().Height() )
-          LogicError("AL & ABR must have compatible col alignments");
-      if( ABR.RowAlign() != 
-          (AL.RowAlign()+AL.Width()) % AL.Grid().Width() )
-          LogicError("AL & ABR must have compatible row alignments");
-    )
-    const Grid& g = AL.Grid();
-    const Int m = AL.Height();
-    const Int n = AL.Width();
-    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
-    DEBUG_ONLY(
-      if( g.Height() != g.Width() )
-          LogicError("This routine assumes a square process grid");
-    )
-
-    // Find the process holding our transposed data
-    const int r = g.Height();
-    int transposeRank;
-    {
-        const int colAlign = AL.ColAlign();
-        const int rowAlign = AL.RowAlign();
-        const int colShift = AL.ColShift();
-        const int rowShift = AL.RowShift();
-
-        const int transposeRow = (colAlign+rowShift) % r;
-        const int transposeCol = (rowAlign+colShift) % r;
-        transposeRank = transposeRow + r*transposeCol;
-    }
-    const bool onDiagonal = ( transposeRank == g.VCRank() );
-
-    DistMatrix<F,STAR,STAR> AL11_STAR_STAR(g);
-    DistMatrix<F,STAR,STAR> d1_STAR_STAR(g);
-    DistMatrix<F,VC,  STAR> AL21_VC_STAR(g);
-    DistMatrix<F,STAR,MC  > S21Trans_STAR_MC(g);
-    DistMatrix<F,STAR,MR  > AL21Trans_STAR_MR(g);
-
-    DistMatrix<F,STAR,MC> leftL(g), leftR(g);
-    DistMatrix<F,STAR,MR> rightL(g), rightR(g);
-    DistMatrix<F> AL22T(g), AL22B(g);
-
-    const Int bsize = Blocksize();
-    for( Int k=0; k<n; k+=bsize )
-    {
-        const Int nb = Min(bsize,n-k);
-        const Range<Int> ind1( k, k+nb ),
-                         ind2Vert( k+nb, m ), ind2Horz( k+nb, n );
-        auto AL11 = AL( ind1,     ind1     );
-        auto AL21 = AL( ind2Vert, ind1     );
-        auto AL22 = AL( ind2Vert, ind2Horz );
-
-        AL11_STAR_STAR = AL11; 
-        LocalLDL( AL11_STAR_STAR, conjugate );
-        GetDiagonal( AL11_STAR_STAR, d1_STAR_STAR );
-        AL11 = AL11_STAR_STAR;
-
-        AL21_VC_STAR.AlignWith( AL22 );
-        AL21_VC_STAR = AL21;
-        LocalTrsm
-        ( RIGHT, LOWER, orientation, UNIT, F(1), AL11_STAR_STAR, AL21_VC_STAR );
-
-        S21Trans_STAR_MC.AlignWith( AL22 );
-        Transpose( AL21_VC_STAR, S21Trans_STAR_MC );
-        // SendRecv to form AL21^T[* ,MR] from S21^T[* ,MC], then conjugate
-        // if necessary.
-        AL21Trans_STAR_MR.AlignWith( AL22 );
-        AL21Trans_STAR_MR.Resize( AL21.Width(), AL21.Height() );
-        {
-            if( onDiagonal )
-            {
-                const int size = AL21.LocalHeight()*AL11.Width();    
-                MemCopy
-                ( AL21Trans_STAR_MR.Buffer(), 
-                  S21Trans_STAR_MC.Buffer(), size );
-            }
-            else
-            {
-                const int sendSize = AL21.LocalHeight()*AL11.Width();
-                const int recvSize = 
-                    (AL22.LocalWidth()+ABR.LocalWidth())*AL11.Height();
-                // We know that the ldim is the height since we have manually
-                // created both temporary matrices.
-                mpi::SendRecv
-                ( S21Trans_STAR_MC.Buffer(), sendSize, transposeRank,
-                  AL21Trans_STAR_MR.Buffer(), 
-                  recvSize, transposeRank, g.VCComm() );
-            }
-            DiagonalSolve( LEFT, NORMAL, d1_STAR_STAR, AL21Trans_STAR_MR );
-            if( conjugate )
-                Conjugate( AL21Trans_STAR_MR );
-        }
-
-        // Partition the update of the bottom-right corner into three pieces
-        PartitionRight( S21Trans_STAR_MC, leftL, leftR, AL22.Width() );
-        PartitionRight( AL21Trans_STAR_MR, rightL, rightR, AL22.Width() );
-        PartitionDown( AL22, AL22T, AL22B, AL22.Width() );
-        LocalTrrk( LOWER, orientation, F(-1), leftL, rightL, F(1), AL22T );
-        LocalGemm( orientation, NORMAL, F(-1), leftR, rightL, F(1), AL22B );
-        LocalTrrk( LOWER, orientation, F(-1), leftR, rightR, F(1), ABR );
-
-        DiagonalSolve( LEFT, NORMAL, d1_STAR_STAR, S21Trans_STAR_MC );
-        Transpose( S21Trans_STAR_MC, AL21 );
-    }
-}
-
-template<typename F> 
-inline void ProcessFrontVanilla
-( DistMatrix<F>& AL, DistMatrix<F>& ABR, bool conjugate )
-{
-    DEBUG_ONLY(CallStackEntry cse("ldl::ProcessFrontVanilla"))
-    const Grid& grid = AL.Grid();
-    if( grid.Height() == grid.Width() )
-        ProcessFrontSquare( AL, ABR, conjugate );
-    else
-        ProcessFrontGeneral( AL, ABR, conjugate );
 }
 
 template<typename F>
@@ -462,31 +329,28 @@ inline void ProcessFront( DistSymmFront<F>& front, SymmFrontType factorType )
 
     if( BlockFactorization(factorType) )
     {
-        ProcessFrontBlock
-        ( front.L2D, front.work2D, front.isHermitian, pivoted );
+        ProcessFrontBlock( front.L2D, front.work, front.isHermitian, pivoted );
     }
     else if( pivoted )
     {
         DistMatrix<F,MD,STAR> subdiag(grid);
         front.piv.SetGrid( grid );
         ProcessFrontIntraPiv
-        ( front.L2D, subdiag, front.piv, front.work2D, front.isHermitian );
+        ( front.L2D, subdiag, front.piv, front.work, front.isHermitian );
 
         auto diag = GetDiagonal( front.L2D );
         front.diag.SetGrid( grid );
         front.subdiag.SetGrid( grid ); 
         front.diag = diag;
         front.subdiag = subdiag;
-        FillDiagonal( front.L2D, F(1) );
     }
     else
     {
-        ProcessFrontVanilla( front.L2D, front.work2D, front.isHermitian );
+        ProcessFrontVanilla( front.L2D, front.work, front.isHermitian );
 
         auto diag = GetDiagonal( front.L2D );
         front.diag.SetGrid( grid );
         front.diag = diag;
-        FillDiagonal( front.L2D, F(1) );
     }
 }
 

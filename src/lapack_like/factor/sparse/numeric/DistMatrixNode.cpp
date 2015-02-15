@@ -63,6 +63,7 @@ DistMatrixNode<T>::operator=( const DistMultiVecNode<T>& X )
         return *this;
     }
 
+    commMeta.Empty();
     matrix.SetGrid( X.matrix.Grid() );
     matrix = X.matrix;
 
@@ -81,7 +82,6 @@ void DistMatrixNode<T>::Pull
     DEBUG_ONLY(CallStackEntry cse("DistMatrixNode::Pull"))
     DistMultiVecNode<T> XMultiVec( invMap, info, X );
     *this = XMultiVec;
-    ComputeCommMeta( info );
 }
 
 template<typename T>
@@ -94,23 +94,50 @@ void DistMatrixNode<T>::Push
     XMultiVec.Push( invMap, info, X );
 }
 
-// NOTE: This implementation could be significantly simplified
+// NOTE: It is assumed that the child 'work' matrix is already filled
 template<typename T>
 void DistMatrixNode<T>::ComputeCommMeta( const DistSymmNodeInfo& info ) const
 {
     DEBUG_ONLY(CallStackEntry cse("DistMatrixNode::ComputeCommMetas"))
+    if( commMeta.numChildSendInds.size() != 0 )
+        return;
     if( child == nullptr )
         return;
    
-    child->ComputeCommMeta( *info.child );
-    const Int width = matrix.Width();
-
     const int teamSize = mpi::Size( info.comm );
-    const int teamRank = mpi::Rank( info.comm );
-    const Grid& grid = *info.grid;
-    const int gridHeight = grid.Height();
-    const int gridWidth = grid.Width();
 
+    const Int numRHS = matrix.Width();
+    const Int childSize = info.child->size;
+    const Int updateSize = info.child->lowerStruct.size();
+    const Int workSize = childSize + updateSize;
+    
+    auto childWT = child->work( IR(0,childSize),        IR(0,numRHS) );
+    auto childWB = child->work( IR(childSize,workSize), IR(0,numRHS) );
+
+    // Fill numChildSendInds
+    // =====================
+    commMeta.Empty();
+    commMeta.numChildSendInds.resize( teamSize );
+    MemZero( commMeta.numChildSendInds.data(), teamSize );
+    const auto& childRelInds =
+      ( info.child->onLeft ? info.childRelInds[0] : info.childRelInds[1] );
+    const Int localHeight = childWB.LocalHeight();
+    const Int localWidth = childWB.LocalWidth();
+    for( Int iChildLoc=0; iChildLoc<localHeight; ++iChildLoc )
+    {
+        const Int iChild = childWB.GlobalRow(iChildLoc);
+        const Int iParent = childRelInds[iChild];
+        for( Int jChildLoc=0; jChildLoc<localWidth; ++jChildLoc )
+        {
+            const Int j = childWB.GlobalCol(jChildLoc);
+            const int q = matrix.Owner(iParent,j);
+            ++commMeta.numChildSendInds[q];
+        }
+    }
+
+    // Compute the solve recv indices
+    // ==============================
+    const int teamRank = mpi::Rank( info.comm );
     const int childTeamSize = mpi::Size( info.child->comm );
     const int childTeamRank = mpi::Rank( info.child->comm );
     const bool inFirstTeam = ( childTeamRank == teamRank );
@@ -121,62 +148,19 @@ void DistMatrixNode<T>::ComputeCommMeta( const DistSymmNodeInfo& info ) const
     teamOffs[0] = ( leftIsFirst ? 0            : teamSizes[1] );
     teamOffs[1] = ( leftIsFirst ? teamSizes[0] : 0            );
 
-    const Grid& childGrid = *info.child->grid;
-    const int childGridHeight = childGrid.Height();
-    const int childGridWidth = childGrid.Width();
-
     // Get the child grid dimensions
-    int childGridDims[4];
-    GetChildGridDims( info, childGridDims );
-    vector<int> gridHeights(2), gridWidths(2);
-    gridHeights[0] = childGridDims[0];
-    gridWidths[0] = childGridDims[1];
-    gridHeights[1] = childGridDims[2];
-    gridWidths[1] = childGridDims[3];
+    vector<int> gridHeights, gridWidths;
+    GetChildGridDims( info, gridHeights, gridWidths );
 
-    // Fill numChildSendInds
-    // =====================
-    commMeta.Empty();
-    commMeta.numChildSendInds.resize( teamSize );
-    MemZero( &commMeta.numChildSendInds[0], teamSize );
-    const Int updateSize = info.child->lowerStruct.size();
-    const auto& childRelInds =
-        ( info.child->onLeft ? info.childRelInds[0] : info.childRelInds[1] );
-    {
-        const int colAlign = info.child->size % childGridHeight;
-        const int colShift = Shift(childGrid.Row(),colAlign,childGridHeight);
-        const Int localHeight = Length(updateSize,colShift,childGridHeight);
-
-        const int rowShift = childGrid.Col();
-        const Int localWidth = Length( width, rowShift, childGridWidth );
-        for( Int iChildLoc=0; iChildLoc<localHeight; ++iChildLoc )
-        {
-            const Int iChild = colShift + iChildLoc*childGridHeight;
-            const int destRow = childRelInds[iChild] % gridHeight;
-            for( Int jChildLoc=0; jChildLoc<localWidth; ++jChildLoc )
-            {
-                const Int jChild = rowShift + jChildLoc*childGridWidth;
-                const int destCol = jChild % gridWidth;
-                const int destRank = destRow + destCol*gridHeight;
-                ++commMeta.numChildSendInds[destRank];
-            }
-        }
-    }
-
-    // Compute the solve recv indices
-    // ==============================
     commMeta.childRecvInds.resize( teamSize );
     for( int q=0; q<teamSize; ++q )
         commMeta.childRecvInds[q].clear();
-    const int colShift = grid.Row();
-    const int rowShift = grid.Col();
-    const Int localWidth = Length( width, rowShift, gridWidth );
     for( Int c=0; c<2; ++c )
     {
         const Int numInds = info.childRelInds[c].size();
         vector<Int> rowInds;
         for( Int i=0; i<numInds; ++i )
-            if( info.childRelInds[c][i] % gridHeight == grid.Row() )
+            if( matrix.IsLocalRow( info.childRelInds[c][i] ) )
                 rowInds.push_back( i );
 
         const Int numRowInds = rowInds.size();
@@ -184,17 +168,17 @@ void DistMatrixNode<T>::ComputeCommMeta( const DistSymmNodeInfo& info ) const
         {
             const Int iChild = rowInds[iPre];
             const Int i = info.childRelInds[c][iChild];
-            const Int iLoc = (i-colShift) / gridHeight;
+            const Int iLoc = matrix.LocalRow(i);
             const int childRow = (info.childSizes[c]+iChild) % gridHeights[c];
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const Int j = rowShift + jLoc*gridWidth;
+                const Int j = matrix.GlobalCol(jLoc);
                 const int childCol = j % gridWidths[c];
                 const int childRank = childRow + childCol*gridHeights[c];
                 const int q = teamOffs[c] + childRank;
                 commMeta.childRecvInds[q].push_back(iLoc);
                 commMeta.childRecvInds[q].push_back(jLoc);
-             }
+            }
         }
     }
 }

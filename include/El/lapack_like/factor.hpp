@@ -181,6 +181,11 @@ template<typename F>
 void SolveAfter
 ( const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, bool conjugated );
 
+// TODO: Sequential interfaces
+template<typename F>
+void SolveAfter
+( const DistMap& invMap, const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front, DistMultiVec<F>& X ); 
 template<typename F>
 void SolveAfter
 ( const DistSymmNodeInfo& info,

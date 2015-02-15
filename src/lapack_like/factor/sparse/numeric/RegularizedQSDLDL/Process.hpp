@@ -93,7 +93,7 @@ Process
 
         // Pull the relevant information from the duplicate
         front.type = frontDup.type;
-        front.work2D.LockedAttach( grid, frontDup.work );
+        front.work.LockedAttach( grid, frontDup.work );
         if( !BlockFactorization(front.type) )
         {
             front.diag.LockedAttach( grid, frontDup.diag );
@@ -113,7 +113,7 @@ Process
       factorType );
 
     const Int updateSize = info.lowerStruct.size();
-    front.work2D.Empty();
+    front.work.Empty();
     DEBUG_ONLY(
       if( front.L2D.Height() != info.size+updateSize ||
           front.L2D.Width() != info.size )
@@ -121,13 +121,11 @@ Process
     )
 
     // Compute the metadata for sharing child updates
+    front.ComputeCommMeta( info, true );
+    const auto& commMeta = front.commMeta;
     mpi::Comm comm = front.L2D.DistComm();
     const unsigned commSize = mpi::Size( comm );
-    const auto& commMeta = info.factorMeta;
-    const auto& childU = childFront.work2D;
-    const bool computeFactRecvInds = ( commMeta.childRecvInds.size() == 0 );
-    if( computeFactRecvInds )
-        ComputeFactRecvInds( info );
+    const auto& childU = childFront.work;
     vector<int> sendSizes(commSize), recvSizes(commSize);
     for( int q=0; q<commSize; ++q )
     {
@@ -166,7 +164,7 @@ Process
       }
     )
     SwapClear( offs );
-    childFront.work2D.Empty();
+    childFront.work.Empty();
     if( childFront.duplicate != nullptr )
         childFront.duplicate->work.Empty();
 
@@ -183,7 +181,7 @@ Process
     // Unpack the child udpates (with an Axpy)
     auto& FL = front.L2D;
     auto FTL = FL( IR(0,info.size), IR(0,info.size) );
-    auto& FBR = front.work2D;
+    auto& FBR = front.work;
     const Int topLocHeight = FTL.LocalHeight();
     const Int leftLocWidth = FTL.LocalWidth();
     FBR.SetGrid( FTL.Grid() );
@@ -206,8 +204,6 @@ Process
     SwapClear( recvBuf );
     SwapClear( recvSizes );
     SwapClear( recvOffs );
-    if( computeFactRecvInds )
-        commMeta.EmptyChildRecvIndices();
 
     ProcessFront
     ( front, pivTol, regCand.matrix, reg.matrix, aPriori, factorType );
