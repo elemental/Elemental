@@ -324,6 +324,44 @@ def DruinskyToledo(A,k):
     else: DataExcept()
   else: TypeExcept()
 
+# Dynamic regularization L
+# ------------------------
+lib.ElDynamicRegL_s.argtypes = \
+lib.ElDynamicRegL_d.argtypes = \
+lib.ElDynamicRegL_c.argtypes = \
+lib.ElDynamicRegL_z.argtypes = \
+lib.ElDynamicRegLDist_s.argtypes = \
+lib.ElDynamicRegLDist_d.argtypes = \
+lib.ElDynamicRegLDist_c.argtypes = \
+lib.ElDynamicRegLDist_z.argtypes = \
+  [c_void_p,iType]
+
+lib.ElDynamicRegL_s.restype = \
+lib.ElDynamicRegL_d.restype = \
+lib.ElDynamicRegL_c.restype = \
+lib.ElDynamicRegL_z.restype = \
+lib.ElDynamicRegLDist_s.restype = \
+lib.ElDynamicRegLDist_d.restype = \
+lib.ElDynamicRegLDist_c.restype = \
+lib.ElDynamicRegLDist_z.restype = \
+  c_uint
+
+def DynamicRegL(L,n):
+  args = [L.obj,n]
+  if type(L) is Matrix: 
+    if   L.tag == sTag: lib.ElDynamicRegL_s(*args)
+    elif L.tag == dTag: lib.ElDynamicRegL_d(*args)
+    elif L.tag == cTag: lib.ElDynamicRegL_c(*args)
+    elif L.tag == zTag: lib.ElDynamicRegL_z(*args)
+    else: DataExcept()
+  elif type(L) is DistMatrix: 
+    if   L.tag == sTag: lib.ElDynamicRegLDist_s(*args)
+    elif L.tag == dTag: lib.ElDynamicRegLDist_d(*args)
+    elif L.tag == cTag: lib.ElDynamicRegLDist_c(*args)
+    elif L.tag == zTag: lib.ElDynamicRegLDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
+
 # Egorov
 # ------
 lib.ElEgorov_c.argtypes = \

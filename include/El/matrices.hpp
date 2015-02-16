@@ -91,6 +91,7 @@ void Diagonal( AbstractBlockDistMatrix<S>& D, const vector<T>& d );
 template<typename S,typename T>
 void Diagonal( AbstractBlockDistMatrix<S>& D, const Matrix<T>& d );
 
+
 // Druinsky-Toledo matrices
 // ========================
 // An example of Bunch-Kaufman A producing large element growth in 
@@ -100,6 +101,15 @@ template<typename F>
 void DruinskyToledo( Matrix<F>& A, Int n );
 template<typename F>
 void DruinskyToledo( AbstractDistMatrix<F>& A, Int n );
+
+// DynamicRegL
+// ===========
+// An example of an L that can appear in a dynamically-regularized LDL^H
+// factorization that has an excessively large condition number
+template<typename T>
+void DynamicRegL( Matrix<T>& L, Int n );
+template<typename T>
+void DynamicRegL( AbstractDistMatrix<T>& L, Int n );
 
 // Egorov
 // ======

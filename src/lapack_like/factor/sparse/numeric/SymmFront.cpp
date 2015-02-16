@@ -238,7 +238,6 @@ void SymmFront<F>::Unpack
       };
     push( rootInfo, *this );
     A.MakeConsistent();
-    MakeSymmetric( LOWER, A, isHermitian );
 }
 
 template<typename F>

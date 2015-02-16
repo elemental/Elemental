@@ -270,6 +270,11 @@ extern "C" {
   { EL_TRY( DruinskyToledo( *CReflect(A), n ) ) } \
   ElError ElDruinskyToledoDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( DruinskyToledo( *CReflect(A), n ) ) } \
+  /* Dynamic regularization L */ \
+  ElError ElDynamicRegL_ ## SIG ( ElMatrix_ ## SIG L, ElInt n ) \
+  { EL_TRY( DynamicRegL( *CReflect(L), n ) ) } \
+  ElError ElDynamicRegLDist_ ## SIG ( ElDistMatrix_ ## SIG L, ElInt n ) \
+  { EL_TRY( DynamicRegL( *CReflect(L), n ) ) } \
   /* Ehrenfest */ \
   ElError ElEhrenfest_ ## SIG ( ElMatrix_ ## SIG P, ElInt n ) \
   { EL_TRY( Ehrenfest( *CReflect(P), n ) ) } \

@@ -169,6 +169,18 @@ EL_EXPORT ElError ElDruinskyToledoDist_d( ElDistMatrix_d A, ElInt n );
 EL_EXPORT ElError ElDruinskyToledoDist_c( ElDistMatrix_c A, ElInt n );
 EL_EXPORT ElError ElDruinskyToledoDist_z( ElDistMatrix_z A, ElInt n );
 
+/* Dynamic regularization L
+   ======================== */
+EL_EXPORT ElError ElDynamicRegL_s( ElMatrix_s L, ElInt n );
+EL_EXPORT ElError ElDynamicRegL_d( ElMatrix_d L, ElInt n );
+EL_EXPORT ElError ElDynamicRegL_c( ElMatrix_c L, ElInt n );
+EL_EXPORT ElError ElDynamicRegL_z( ElMatrix_z L, ElInt n );
+
+EL_EXPORT ElError ElDynamicRegLDist_s( ElDistMatrix_s L, ElInt n );
+EL_EXPORT ElError ElDynamicRegLDist_d( ElDistMatrix_d L, ElInt n );
+EL_EXPORT ElError ElDynamicRegLDist_c( ElDistMatrix_c L, ElInt n );
+EL_EXPORT ElError ElDynamicRegLDist_z( ElDistMatrix_z L, ElInt n );
+
 /* Egorov
    ====== */
 EL_EXPORT ElError ElEgorov_c
