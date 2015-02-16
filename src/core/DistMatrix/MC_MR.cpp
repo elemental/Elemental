@@ -92,7 +92,18 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [MR,MC]"))
-    copy::TransposeDist( A, *this );
+    const Grid& grid = A.Grid();
+    if( grid.Height() == grid.Width() )
+    {
+        const int gridDim = grid.Height();
+        const int transposeRank =
+            this->RowOwner(A.ColShift()) + gridDim*A.RowOwner(this->ColShift());
+        copy::Exchange( A, *this, transposeRank, transposeRank, grid.VCComm() );
+    }
+    else
+    {
+        copy::TransposeDist( A, *this );
+    }
     return *this;
 }
 

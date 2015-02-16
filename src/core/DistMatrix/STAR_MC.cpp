@@ -85,12 +85,23 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[STAR,MC] = [STAR,MR]"))
-    auto A_STAR_VR = MakeUnique<DistMatrix<T,STAR,VR>>( A );
-    auto A_STAR_VC = MakeUnique<DistMatrix<T,STAR,VC>>( this->Grid() );
-    A_STAR_VC->AlignRowsWith(*this);
-    *A_STAR_VC = *A_STAR_VR;
-    A_STAR_VR.reset();
-    *this = *A_STAR_VC;
+    const Grid& grid = A.Grid();
+    if( grid.Height() == grid.Width() )
+    {
+        const int gridDim = grid.Height();
+        const int transposeRank =
+            this->ColOwner(A.RowShift()) + gridDim*A.ColOwner(this->RowShift());
+        copy::Exchange( A, *this, transposeRank, transposeRank, grid.VCComm() );
+    }
+    else
+    {
+        auto A_STAR_VR = MakeUnique<DistMatrix<T,STAR,VR>>( A );
+        auto A_STAR_VC = MakeUnique<DistMatrix<T,STAR,VC>>( grid );
+        A_STAR_VC->AlignRowsWith(*this);
+        *A_STAR_VC = *A_STAR_VR;
+        A_STAR_VR.reset();
+        *this = *A_STAR_VC;
+    }
     return *this;
 }
 

@@ -124,16 +124,27 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[STAR,MR] = [STAR,MC]"))
-    auto A_STAR_VC = MakeUnique<DistMatrix<T,STAR,VC>>( A );
-    auto A_STAR_VR = MakeUnique<DistMatrix<T,STAR,VR>>( this->Grid() );
-    A_STAR_VR->AlignRowsWith(*this);
-    *A_STAR_VR = *A_STAR_VC;
-    A_STAR_VC.reset();
+    const Grid& grid = A.Grid();
+    if( grid.Height() == grid.Width() )
+    {
+        const int gridDim = grid.Height();
+        const int transposeRank =
+            A.ColOwner(this->RowShift()) + gridDim*this->ColOwner(A.RowShift());
+        copy::Exchange( A, *this, transposeRank, transposeRank, grid.VCComm() );
+    }
+    else
+    {
+        auto A_STAR_VC = MakeUnique<DistMatrix<T,STAR,VC>>( A );
+        auto A_STAR_VR = MakeUnique<DistMatrix<T,STAR,VR>>( this->Grid() );
+        A_STAR_VR->AlignRowsWith(*this);
+        *A_STAR_VR = *A_STAR_VC;
+        A_STAR_VC.reset();
 
-    auto A_MC_MR = MakeUnique<DistMatrix<T,MC,MR>>( *A_STAR_VR );
-    A_STAR_VR.reset(); 
+        auto A_MC_MR = MakeUnique<DistMatrix<T,MC,MR>>( *A_STAR_VR );
+        A_STAR_VR.reset(); 
 
-    *this = *A_MC_MR;
+        *this = *A_MC_MR;
+    }
     return *this;
 }
 

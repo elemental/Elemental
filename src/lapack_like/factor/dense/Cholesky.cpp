@@ -9,10 +9,8 @@
 #include "El.hpp"
 
 #include "./Cholesky/LVar3.hpp"
-#include "./Cholesky/LVar3Square.hpp"
 #include "./Cholesky/LVar3Pivoted.hpp"
 #include "./Cholesky/UVar3.hpp"
-#include "./Cholesky/UVar3Square.hpp"
 #include "./Cholesky/UVar3Pivoted.hpp"
 #include "./Cholesky/SolveAfter.hpp"
 
@@ -69,21 +67,10 @@ template<typename F>
 void Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Cholesky"))
-    const Grid& g = A.Grid();
-    if( g.Height() == g.Width() )
-    {
-        if( uplo == LOWER )
-            cholesky::LVar3Square( A );
-        else
-            cholesky::UVar3Square( A );
-    }
+    if( uplo == LOWER )
+        cholesky::LVar3( A );
     else
-    {
-        if( uplo == LOWER )
-            cholesky::LVar3( A );
-        else
-            cholesky::UVar3( A );
-    }
+        cholesky::UVar3( A );
 }
 
 template<typename F> 
@@ -105,23 +92,6 @@ void ReverseCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A )
         cholesky::ReverseLVar3( A );
     else
         cholesky::ReverseUVar3( A );
-    /*
-    const Grid& g = A.Grid();
-    if( g.Height() == g.Width() )
-    {
-        if( uplo == LOWER )
-            cholesky::ReverseLVar3Square( A );
-        else
-            cholesky::ReverseUVar3Square( A );
-    }
-    else
-    {
-        if( uplo == LOWER )
-            cholesky::ReverseLVar3( A );
-        else
-            cholesky::ReverseUVar3( A );
-    }
-    */
 }
 
 // Either 

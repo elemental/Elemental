@@ -12,8 +12,13 @@
 
 namespace El {
 
-// TODO: Find a way to abstract over these with Copy
 namespace copy {
+
+template<typename T>
+void Exchange
+( const AbstractDistMatrix<T>& A,
+        AbstractDistMatrix<T>& B,
+  int sendRank, int recvRank, mpi::Comm comm );
 
 template<typename T,Dist U,Dist V>
 void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B );

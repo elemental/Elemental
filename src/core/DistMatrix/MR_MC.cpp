@@ -55,7 +55,18 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MR,MC] = [MC,MR]"))
-    copy::TransposeDist( A, *this );
+    const Grid& grid = A.Grid();
+    if( grid.Height() == grid.Width() )
+    {
+        const int gridDim = grid.Height();
+        const int transposeRank =
+            A.RowOwner(this->ColShift()) + gridDim*this->RowOwner(A.ColShift());
+        copy::Exchange( A, *this, transposeRank, transposeRank, grid.VCComm() );
+    }
+    else
+    {
+        copy::TransposeDist( A, *this );
+    }
     return *this;
 }
 

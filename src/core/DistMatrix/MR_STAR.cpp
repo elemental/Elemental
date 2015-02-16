@@ -67,20 +67,27 @@ DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[MR,STAR] = [MC,STAR]"))
-    // TODO: Decide if this should be removed or implemented more widely
-    if( !this->Participating() )
+    DEBUG_ONLY(
+      CallStackEntry cse("[MR,STAR] = [MC,STAR]");
+      AssertSameGrids( *this, A );
+    )
+    const Grid& grid = A.Grid();
+    if( grid.Height() == grid.Width() ) 
     {
-        this->Resize( A.Height(), A.Width() );
-        return *this;
+        const int gridDim = grid.Height();
+        const int transposeRank =
+            A.RowOwner(this->ColShift()) + gridDim*this->RowOwner(A.ColShift());
+        copy::Exchange( A, *this, transposeRank, transposeRank, grid.VCComm() );
     }
-
-    auto A_VC_STAR = MakeUnique<DistMatrix<T,VC,STAR>>( A );
-    auto A_VR_STAR = MakeUnique<DistMatrix<T,VR,STAR>>( this->Grid() );
-    A_VR_STAR->AlignColsWith(*this);
-    *A_VR_STAR = *A_VC_STAR;
-    A_VC_STAR.reset(); 
-    *this = *A_VR_STAR;
+    else
+    {
+        auto A_VC_STAR = MakeUnique<DistMatrix<T,VC,STAR>>( A );
+        auto A_VR_STAR = MakeUnique<DistMatrix<T,VR,STAR>>( grid );
+        A_VR_STAR->AlignColsWith(*this);
+        *A_VR_STAR = *A_VC_STAR;
+        A_VC_STAR.reset(); 
+        *this = *A_VR_STAR;
+    }
     return *this;
 }
 

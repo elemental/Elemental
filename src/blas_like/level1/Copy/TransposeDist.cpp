@@ -55,7 +55,8 @@ void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B )
             {
                 T* data = &recvBuf[k*portionSize];
 
-                const Int shift = Shift_(A.ColRank()+colStrideA*k,A.ColAlign(),distSize);
+                const Int shift = 
+                  Shift_(A.ColRank()+colStrideA*k,A.ColAlign(),distSize);
                 const Int offset = (shift-AColShift) / colStrideA;
                 const Int thisLocalHeight = Length_(height,shift,distSize);
 
@@ -89,7 +90,8 @@ void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B )
             {
                 const T* data = &sendBuf[k*portionSize];
 
-                const Int shift = Shift_(B.ColRank()+rowStrideA*k,B.ColAlign(),distSize);
+                const Int shift = 
+                  Shift_(B.ColRank()+rowStrideA*k,B.ColAlign(),distSize);
                 const Int offset = (shift-B.ColShift()) / rowStrideA;
                 const Int thisLocalHeight = Length_(height,shift,distSize);
 
@@ -125,7 +127,8 @@ void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B )
             {
                 T* data = &recvBuf[k*portionSize];
 
-                const Int shift = Shift_(A.RowRank()+rowStrideA*k,A.RowAlign(),distSize);
+                const Int shift = 
+                  Shift_(A.RowRank()+rowStrideA*k,A.RowAlign(),distSize);
                 const Int offset = (shift-A.RowShift()) / rowStrideA;
                 const Int thisLocalWidth = Length_(width,shift,distSize);
 
@@ -159,7 +162,8 @@ void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B )
             {
                 const T* data = &sendBuf[k*portionSize];
 
-                const Int shift = Shift_(B.RowRank()+colStrideA*k,B.RowAlign(),distSize);
+                const Int shift = 
+                  Shift_(B.RowRank()+colStrideA*k,B.RowAlign(),distSize);
                 const Int offset = (shift-B.RowShift()) / colStrideA;
                 const Int thisLocalWidth = Length_(width,shift,distSize);
 
@@ -201,7 +205,8 @@ void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B )
 }
 
 #define PROTO_DIST(T,U,V) \
-  template void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B );
+  template void TransposeDist \
+  ( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,MC,MR) \

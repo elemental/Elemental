@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "El/blas_like/level1/copy_internal.hpp"
 
 namespace El {
 namespace copy {
@@ -18,28 +19,9 @@ void RowwiseVectorExchange
 {
     DEBUG_ONLY(CallStackEntry cse("copy::RowwiseVectorExchange"))
     AssertSameGrids( A, B );
-
-    B.Resize( A.Height(), A.Width() );
     if( !B.Participating() )
         return;
 
-    const Int height = B.Height();
-    const Int localWidthA = A.LocalWidth();
-    const Int localWidthB = B.LocalWidth();
-
-    const Int sendSize = height*localWidthA;
-    const Int recvSize = height*localWidthB;
-    std::vector<T> buffer( sendSize+recvSize );
-    T* sendBuf = &buffer[0];
-    T* recvBuf = &buffer[sendSize];
-
-    // Pack
-    copy::util::InterleaveMatrix
-    ( height, localWidthA,
-      A.LockedBuffer(), 1, A.LDim(),
-      sendBuf,          1, height );
-
-    // Communicate
     const Int distSize = A.DistSize();
     const Int rowDiff = A.RowShift() - B.RowShift();
     const Int sendRankB = Mod( B.DistRank()+rowDiff, distSize );
@@ -47,15 +29,7 @@ void RowwiseVectorExchange
     const Int recvRankB =
       (recvRankA/A.PartialRowStride())+
       (recvRankA%A.PartialRowStride())*A.PartialUnionRowStride();
-    mpi::SendRecv
-    ( sendBuf, sendSize, sendRankB,
-      recvBuf, recvSize, recvRankB, B.DistComm() );
-
-    // Unpack
-    copy::util::InterleaveMatrix
-    ( height, localWidthB,
-      recvBuf,    1, height,
-      B.Buffer(), 1, B.LDim() );
+    copy::Exchange( A, B, sendRankB, recvRankB, B.DistComm() );
 }
 
 #define PROTO_DIST(T,U,V) \
