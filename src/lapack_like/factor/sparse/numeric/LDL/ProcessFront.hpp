@@ -152,8 +152,11 @@ inline void ProcessFront( SymmFront<F>& front, SymmFrontType factorType )
     if( BlockFactorization(factorType) )
         ProcessFrontBlock( front.L, front.work, front.isHermitian, pivoted );
     else if( pivoted )
+    {
         ProcessFrontIntraPiv
         ( front.L, front.subdiag, front.piv, front.work, front.isHermitian );
+        GetDiagonal( front.L, front.diag );
+    }
     else
     {
         ProcessFrontVanilla( front.L, front.work, front.isHermitian );

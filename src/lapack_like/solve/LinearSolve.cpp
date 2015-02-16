@@ -396,9 +396,10 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
     Zeros( u, 2*n, 1 );
     auto& DLoc = D.Matrix();
     auto& uLoc = u.Matrix();
+    const Int DLocHeight = DLoc.Height();
     for( Int j=0; j<k; ++j )
     {
-        auto dLoc = DLoc( IR(0,2*n), IR(j,j+1) ); 
+        auto dLoc = DLoc( IR(0,DLocHeight), IR(j,j+1) ); 
         Copy( dLoc, uLoc );
         reg_qsd_ldl::SolveAfter
         ( J, reg, invMap, info, JFront, u,
@@ -413,7 +414,7 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
         // Compute metadata
         // ----------------
         vector<int> sendCounts(commSize,0);
-        for( Int iLoc=0; iLoc<D.LocalHeight(); ++iLoc )
+        for( Int iLoc=0; iLoc<DLocHeight; ++iLoc )
         {
             const Int i = D.GlobalRow(iLoc);
             if( i < n )

@@ -28,7 +28,8 @@ void RegularizedQSDLDL
     ChangeFrontType( front, SYMM_2D );
 
     // Perform the initial factorization
-    reg_qsd_ldl::Process( info, front, pivTol, regCand, reg, aPriori, InitialFactorType(newType) );
+    reg_qsd_ldl::Process
+    ( info, front, pivTol, regCand, reg, aPriori, InitialFactorType(newType) );
 
     // Convert the fronts from the initial factorization to the requested form
     ChangeFrontType( front, newType );

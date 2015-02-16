@@ -76,7 +76,6 @@ inline void ProcessFront
     front.type = factorType;
     ProcessFrontVanilla( front.L, front.work, pivTol, regCand, reg, aPriori );
     GetDiagonal( front.L, front.diag );
-    FillDiagonal( front.L, F(1) );
 }
 
 template<typename F> 
@@ -185,7 +184,6 @@ inline void ProcessFront
     auto diag = GetDiagonal( front.L2D );
     front.diag.SetGrid( front.L2D.Grid() );
     front.diag = diag;
-    FillDiagonal( front.L2D, F(1) );
 }
 
 } // namespace reg_qsd_ldl

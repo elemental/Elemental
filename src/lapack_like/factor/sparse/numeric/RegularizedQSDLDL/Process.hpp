@@ -122,36 +122,35 @@ Process
 
     // Compute the metadata for sharing child updates
     front.ComputeCommMeta( info, true );
-    const auto& commMeta = front.commMeta;
     mpi::Comm comm = front.L2D.DistComm();
     const unsigned commSize = mpi::Size( comm );
     const auto& childU = childFront.work;
     vector<int> sendSizes(commSize), recvSizes(commSize);
     for( int q=0; q<commSize; ++q )
     {
-        sendSizes[q] = commMeta.numChildSendInds[q];
-        recvSizes[q] = commMeta.childRecvInds[q].size()/2;
+        sendSizes[q] = front.commMeta.numChildSendInds[q];
+        recvSizes[q] = front.commMeta.childRecvInds[q].size()/2;
     }
+    DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
     vector<int> sendOffs, recvOffs;
     const int sendBufSize = Scan( sendSizes, sendOffs );
     const int recvBufSize = Scan( recvSizes, recvOffs );
 
     // Pack the updates
     vector<F> sendBuf( sendBufSize );
-    const auto& childRelInds =
-        ( childInfo.onLeft ? info.childRelInds[0] : info.childRelInds[1] );
+    const Int myChild = ( childInfo.onLeft ? 0 : 1 );
     auto offs = sendOffs;
     const Int updateLocHeight = childU.LocalHeight();
     const Int updateLocWidth = childU.LocalWidth();
     for( Int jChildLoc=0; jChildLoc<updateLocWidth; ++jChildLoc )
     {
         const Int jChild = childU.GlobalCol(jChildLoc);
-        const Int j = childRelInds[jChild];
+        const Int j = info.childRelInds[myChild][jChild];
         const Int iChildOff = childU.LocalRowOffset( jChild );
         for( Int iChildLoc=iChildOff; iChildLoc<updateLocHeight; ++iChildLoc )
         {
             const Int iChild = childU.GlobalRow(iChildLoc);
-            const Int i = childRelInds[iChild];
+            const Int i = info.childRelInds[myChild][iChild];
             const int q = front.L2D.Owner( i, j );
             sendBuf[offs[q]++] = childU.GetLocal(iChildLoc,jChildLoc);
         }
@@ -159,7 +158,7 @@ Process
     DEBUG_ONLY(
       for( int q=0; q<commSize; ++q )
       {
-          if( offs[q]-sendOffs[q] != commMeta.numChildSendInds[q] )
+          if( offs[q]-sendOffs[q] != front.commMeta.numChildSendInds[q] )
               LogicError("Error in packing stage");
       }
     )
@@ -170,7 +169,6 @@ Process
 
     // AllToAll to send and receive the child updates
     vector<F> recvBuf( recvBufSize );
-    DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
     SparseAllToAll
     ( sendBuf, sendSizes, sendOffs,
       recvBuf, recvSizes, recvOffs, comm );
@@ -189,11 +187,11 @@ Process
     Zeros( FBR, updateSize, updateSize );
     for( int q=0; q<commSize; ++q )
     {
-        const Int numRecvIndPairs = commMeta.childRecvInds[q].size()/2;
+        const Int numRecvIndPairs = front.commMeta.childRecvInds[q].size()/2;
         for( Int k=0; k<numRecvIndPairs; ++k )
         {
-            const Int iLoc = commMeta.childRecvInds[q][2*k+0];
-            const Int jLoc = commMeta.childRecvInds[q][2*k+1];
+            const Int iLoc = front.commMeta.childRecvInds[q][2*k+0];
+            const Int jLoc = front.commMeta.childRecvInds[q][2*k+1];
             const F value = recvBuf[recvOffs[q]+k];
             if( jLoc < leftLocWidth )
                 FL.UpdateLocal( iLoc, jLoc, value );

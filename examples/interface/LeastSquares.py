@@ -9,6 +9,7 @@
 import El
 
 n0 = n1 = 20
+display = False
 
 def ExtendedLaplacian(xSize,ySize):
   A = El.DistSparseMatrix()
@@ -35,13 +36,14 @@ def ExtendedLaplacian(xSize,ySize):
   return A
 
 A = ExtendedLaplacian(n0,n1)
-El.Display( A, "A" )
-El.Display( A.DistGraph(), "Graph of A" )
+if display:
+  El.Display( A, "A" )
+  El.Display( A.DistGraph(), "Graph of A" )
 
 y = El.DistMultiVec()
 El.Uniform( y, 2*n0*n1, 1 )
-El.Display( y, "y" )
-El.Print( y, "y" )
+if display:
+  El.Display( y, "y" )
 rank = El.mpi.WorldRank()
 yNrm = El.Nrm2(y)
 if rank == 0:
@@ -49,13 +51,13 @@ if rank == 0:
 
 x = El.LeastSquares(A,y)
 xNrm = El.Nrm2(x)
-El.Display( x, "x" )
-El.Print( x, "x" )
+if display:
+  El.Display( x, "x" )
 if rank == 0:
   print "|| x ||_2 =", xNrm
 El.SparseMultiply(El.NORMAL,-1.,A,x,1.,y)
-El.Display( y, "A x - y" )
-El.Print( y, "A x - y" )
+if display:
+  El.Display( y, "A x - y" )
 eNrm = El.Nrm2(y)
 if rank == 0:
   print "|| A x - y ||_2 / || y ||_2 =", eNrm/yNrm

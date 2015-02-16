@@ -20,9 +20,20 @@ QuasiDiagonalSolve
     DEBUG_ONLY(CallStackEntry cse("QuasiDiagonalSolve"))
     const Int m = X.Height();
     const Int n = X.Width();
+
     Matrix<F> D( 2, 2 );
     if( side == LEFT && uplo == LOWER )
     {
+        DEBUG_ONLY(
+          if( d.Height() != m )
+              LogicError
+              ("d was the wrong size: m=",m,",n=",n,", d ~ ",
+               d.Height()," x ",d.Width());
+          if( dSub.Height() != m-1 )
+              LogicError
+              ("dSub was the wrong size: m=",m,",n=",n,", dSub ~ ",
+               dSub.Height()," x ",dSub.Width());
+        )
         Int i=0;
         while( i < m )
         {
@@ -32,17 +43,16 @@ QuasiDiagonalSolve
             else
                 nb = 1;
 
+            auto XRow = X( IR(i,i+nb), IR(0,n) );
             if( nb == 1 )
             {
-                auto xRow = View( X, i, 0, nb, n );
-                Scale( F(1)/d.Get(i,0), xRow );
+                Scale( F(1)/d.Get(i,0), XRow );
             }
             else
             {
                 D.Set(0,0,d.Get(i,0));    
                 D.Set(1,1,d.Get(i+1,0));
                 D.Set(1,0,dSub.Get(i,0));
-                auto XRow = View( X, i, 0, nb, n );
                 Symmetric2x2Solve( LEFT, LOWER, D, XRow, conjugated );
             }
 
@@ -51,6 +61,17 @@ QuasiDiagonalSolve
     }
     else if( side == RIGHT && uplo == LOWER )
     {
+        DEBUG_ONLY(
+          if( d.Height() != n )
+              LogicError
+              ("d was the wrong size: m=",m,",n=",n,", d ~ ",
+               d.Height()," x ",d.Width());
+          if( dSub.Height() != n-1 )
+              LogicError
+              ("dSub was the wrong size: m=",m,",n=",n,", dSub ~ ",
+               dSub.Height()," x ",dSub.Width());
+        )
+
         Int j=0;
         while( j < n )
         {
@@ -60,17 +81,16 @@ QuasiDiagonalSolve
             else
                 nb = 1;
 
+            auto XCol = X( IR(0,m), IR(j,j+nb) );
             if( nb == 1 )
             {
-                auto xCol = View( X, 0, j, m, nb );
-                Scale( F(1)/d.Get(j,0), xCol );
+                Scale( F(1)/d.Get(j,0), XCol );
             }
             else
             {
                 D.Set(0,0,d.Get(j,0));    
                 D.Set(1,1,d.Get(j+1,0));
                 D.Set(1,0,dSub.Get(j,0));
-                auto XCol = View( X, 0, j, m, nb );
                 Symmetric2x2Solve( RIGHT, LOWER, D, XCol, conjugated );
             }
 
@@ -104,18 +124,18 @@ LeftQuasiDiagonalSolve
     const Int nLocal = X.LocalWidth();
     const Int colStride = X.ColStride();
     DEBUG_ONLY(
-        const Int colAlignPrev = Mod(X.ColAlign()+1,colStride);
-        const Int colAlignNext = Mod(X.ColAlign()-1,colStride);
-        if( d.ColAlign() != X.ColAlign() || dSub.ColAlign() != X.ColAlign() )
-            LogicError("data is not properly aligned");
-        if( XPrev.ColAlign() != colAlignPrev ||
-            dPrev.ColAlign() != colAlignPrev || 
-            dSubPrev.ColAlign() != colAlignPrev )
-            LogicError("'previous' data is not properly aligned");
-        if( XNext.ColAlign() != colAlignNext || 
-            dNext.ColAlign() != colAlignNext || 
-            dSubNext.ColAlign() != colAlignNext )
-            LogicError("'next' data is not properly aligned");
+      const Int colAlignPrev = Mod(X.ColAlign()+1,colStride);
+      const Int colAlignNext = Mod(X.ColAlign()-1,colStride);
+      if( d.ColAlign() != X.ColAlign() || dSub.ColAlign() != X.ColAlign() )
+          LogicError("data is not properly aligned");
+      if( XPrev.ColAlign() != colAlignPrev ||
+          dPrev.ColAlign() != colAlignPrev || 
+          dSubPrev.ColAlign() != colAlignPrev )
+          LogicError("'previous' data is not properly aligned");
+      if( XNext.ColAlign() != colAlignNext || 
+          dNext.ColAlign() != colAlignNext || 
+          dSubNext.ColAlign() != colAlignNext )
+          LogicError("'next' data is not properly aligned");
     )
     const Int prevOff = ( XPrev.ColShift()==X.ColShift()-1 ? 0 : -1 );
     const Int nextOff = ( XNext.ColShift()==X.ColShift()+1 ? 0 : +1 );
@@ -138,8 +158,7 @@ LeftQuasiDiagonalSolve
         const Int iLocPrev = iLoc + prevOff;
         const Int iLocNext = iLoc + nextOff;
 
-        auto x1Loc = View( X.Matrix(), iLoc, 0, 1, nLocal );
-
+        auto x1Loc = X.Matrix()( IR(iLoc,iLoc+1), IR(0,nLocal) );
         if( i<m-1 && dSub.GetLocal(iLoc,0) != F(0) )
         {
             // Handle 2x2 starting at i
@@ -147,8 +166,8 @@ LeftQuasiDiagonalSolve
             D11.Set( 1, 1, dNext.GetLocal(iLocNext,0) );
             D11.Set( 1, 0, dSub.GetLocal(iLoc,0) );
 
-            auto x1NextLoc = 
-                LockedView( XNext.LockedMatrix(), iLocNext, 0, 1, nLocal );
+            const auto& XNextLoc = XNext.LockedMatrix(); 
+            auto x1NextLoc = XNextLoc( IR(iLocNext,iLocNext+1), IR(0,nLocal) );
             FirstHalfOfSymmetric2x2Solve
             ( LEFT, LOWER, D11, x1Loc, x1NextLoc, conjugated );
         }
@@ -159,8 +178,8 @@ LeftQuasiDiagonalSolve
             D11.Set( 1, 1, d.GetLocal(iLoc,0) );
             D11.Set( 1, 0, dSubPrev.GetLocal(iLocPrev,0) );
 
-            auto x1PrevLoc = 
-                LockedView( XPrev.LockedMatrix(), iLocPrev, 0, 1, nLocal );
+            const auto& XPrevLoc = XPrev.LockedMatrix();
+            auto x1PrevLoc = XPrevLoc( IR(iLocPrev,iLocPrev+1), IR(0,nLocal) );
             SecondHalfOfSymmetric2x2Solve
             ( LEFT, LOWER, D11, x1PrevLoc, x1Loc, conjugated );
         }
@@ -195,18 +214,18 @@ RightQuasiDiagonalSolve
     const Int nLocal = X.LocalWidth();
     const Int rowStride = X.RowStride();
     DEBUG_ONLY(
-        const Int rowAlignPrev = Mod(X.RowAlign()+1,rowStride);
-        const Int rowAlignNext = Mod(X.RowAlign()-1,rowStride);
-        if( d.ColAlign() != X.RowAlign() || dSub.RowAlign() != X.RowAlign() )
-            LogicError("data is not properly aligned");
-        if( XPrev.RowAlign() != rowAlignPrev ||
-            dPrev.ColAlign() != rowAlignPrev || 
-            dSubPrev.ColAlign() != rowAlignPrev )
-            LogicError("'previous' data is not properly aligned");
-        if( XNext.RowAlign() != rowAlignNext || 
-            dNext.ColAlign() != rowAlignNext || 
-            dSubNext.ColAlign() != rowAlignNext )
-            LogicError("'next' data is not properly aligned");
+      const Int rowAlignPrev = Mod(X.RowAlign()+1,rowStride);
+      const Int rowAlignNext = Mod(X.RowAlign()-1,rowStride);
+      if( d.ColAlign() != X.RowAlign() || dSub.RowAlign() != X.RowAlign() )
+          LogicError("data is not properly aligned");
+      if( XPrev.RowAlign() != rowAlignPrev ||
+          dPrev.ColAlign() != rowAlignPrev || 
+          dSubPrev.ColAlign() != rowAlignPrev )
+          LogicError("'previous' data is not properly aligned");
+      if( XNext.RowAlign() != rowAlignNext || 
+          dNext.ColAlign() != rowAlignNext || 
+          dSubNext.ColAlign() != rowAlignNext )
+          LogicError("'next' data is not properly aligned");
     )
     const Int prevOff = ( XPrev.RowShift()==X.RowShift()-1 ? 0 : -1 );
     const Int nextOff = ( XNext.RowShift()==X.RowShift()+1 ? 0 : +1 );
@@ -229,8 +248,7 @@ RightQuasiDiagonalSolve
         const Int jLocPrev = jLoc + prevOff;
         const Int jLocNext = jLoc + nextOff;
 
-        auto x1Loc = View( X.Matrix(), 0, jLoc, mLocal, 1 );
-
+        auto x1Loc = X.Matrix()( IR(0,mLocal), IR(jLoc,jLoc+1) );
         if( j<n-1 && dSub.GetLocal(jLoc,0) != F(0) )
         {
             // Handle 2x2 starting at j
@@ -238,8 +256,8 @@ RightQuasiDiagonalSolve
             D11.Set( 1, 1, dNext.GetLocal(jLocNext,0) );
             D11.Set( 1, 0, dSub.GetLocal(jLoc,0) );
 
-            auto x1NextLoc = 
-                LockedView( XNext.LockedMatrix(), 0, jLocNext, mLocal, 1 );
+            const auto& XNextLoc = XNext.LockedMatrix();
+            auto x1NextLoc = XNextLoc( IR(0,mLocal), IR(jLocNext,jLocNext+1) );
             FirstHalfOfSymmetric2x2Solve
             ( RIGHT, LOWER, D11, x1Loc, x1NextLoc, conjugated );
         }
@@ -250,8 +268,8 @@ RightQuasiDiagonalSolve
             D11.Set( 1, 1, d.GetLocal(jLoc,0) );
             D11.Set( 1, 0, dSubPrev.GetLocal(jLocPrev,0) );
 
-            auto x1PrevLoc = 
-                LockedView( XPrev.LockedMatrix(), 0, jLocPrev, mLocal, 1 );
+            const auto& XPrevLoc = XPrev.LockedMatrix();
+            auto x1PrevLoc = XPrevLoc( IR(0,mLocal), IR(jLocPrev,jLocPrev+1) );
             SecondHalfOfSymmetric2x2Solve
             ( RIGHT, LOWER, D11, x1PrevLoc, x1Loc, conjugated );
         }

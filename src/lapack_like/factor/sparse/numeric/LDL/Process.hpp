@@ -131,20 +131,19 @@ Process
 
     // Pack the updates
     vector<F> sendBuf( sendBufSize );
-    const auto& childRelInds =
-      ( childInfo.onLeft ? info.childRelInds[0] : info.childRelInds[1] );
+    const Int myChild = ( childInfo.onLeft ? 0 : 1 );
     auto offs = sendOffs;
     const Int updateLocHeight = childU.LocalHeight();
     const Int updateLocWidth = childU.LocalWidth();
     for( Int jChildLoc=0; jChildLoc<updateLocWidth; ++jChildLoc )
     {
         const Int jChild = childU.GlobalCol(jChildLoc);
-        const Int j = childRelInds[jChild];
+        const Int j = info.childRelInds[myChild][jChild];
         const Int iChildOff = childU.LocalRowOffset( jChild );
         for( Int iChildLoc=iChildOff; iChildLoc<updateLocHeight; ++iChildLoc )
         {
             const Int iChild = childU.GlobalRow(iChildLoc);
-            const Int i = childRelInds[iChild];
+            const Int i = info.childRelInds[myChild][iChild];
             const int q = front.L2D.Owner( i, j );
             sendBuf[offs[q]++] = childU.GetLocal(iChildLoc,jChildLoc);
         }

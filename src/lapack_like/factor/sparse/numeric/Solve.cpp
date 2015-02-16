@@ -44,9 +44,7 @@ void SymmetricSolve
     ldl::SolveWithIterativeRefinement
     ( A, invMap, info, front, X, minReductionFactor, maxRefineIts );
     */
-    DistMultiVecNode<F> XNodal( invMap, info, X );
-    ldl::SolveAfter( info, front, XNodal );
-    XNodal.Push( invMap, info, X );
+    ldl::SolveAfter( invMap, info, front, X );
 }
 
 // TODO: Add iterative refinement parameter
