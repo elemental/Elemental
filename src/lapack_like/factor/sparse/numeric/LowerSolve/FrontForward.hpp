@@ -314,6 +314,8 @@ inline void FrontFastIntraPivLowerForwardSolve
     DEBUG_ONLY(CallStackEntry cse("FrontFastIntraPivLowerForwardSolve"))
 
     // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
+    if( mpi::WorldRank() == 0 )
+        cerr << "Performance warning: pivots not yet cached" << endl;
     const Grid& g = L.Grid();
     DistMatrix<F,VC,STAR> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );

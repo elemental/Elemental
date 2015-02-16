@@ -238,52 +238,6 @@ int main( int argc, char* argv[] )
                 cout << "|| APerm x - L D L^H x ||_2 = " << eNrm/yNrm << endl;
         }
 
-        // Check whether the forward solve and multiplication are inverses
-        if( !solve2d )
-        {
-            DistMultiVecNode<double> YNodal( invMap, info, Y );
-            LowerSolve( NORMAL, info, front, YNodal );
-            LowerMultiply( NORMAL, info, front, YNodal );
-
-            DistMultiVec<double> YApprox;
-            YNodal.Push( invMap, info, YApprox );
-            Axpy( -1., Y, YApprox );
-            Matrix<double> YApproxNorms;
-            ColumnNorms( YApprox, YApproxNorms );
-            if( commRank == 0 )
-            {
-                for( int j=0; j<numRhs; ++j )
-                {
-                    cout << "Right-hand side " << j << ":\n"
-                         << "|| error ||_2 = " << YApproxNorms.Get(j,0) << "\n"
-                         << endl;
-                }
-            }
-        }
-
-        // Check whether the backward solve and multiplication are inverses
-        if( !solve2d )
-        {
-            DistMultiVecNode<double> YNodal( invMap, info, Y );
-            LowerSolve( TRANSPOSE, info, front, YNodal );
-            LowerMultiply( TRANSPOSE, info, front, YNodal );
-
-            DistMultiVec<double> YApprox;
-            YNodal.Push( invMap, info, YApprox );
-            Axpy( -1., Y, YApprox );
-            Matrix<double> YApproxNorms;
-            ColumnNorms( YApprox, YApproxNorms );
-            if( commRank == 0 )
-            {
-                for( int j=0; j<numRhs; ++j )
-                {
-                    cout << "Right-hand side " << j << ":\n"
-                         << "|| error ||_2 = " << YApproxNorms.Get(j,0) << "\n"
-                         << endl;
-                }
-            }
-        }
-
         // TODO: Memory usage after factorization
 
         if( commRank == 0 )

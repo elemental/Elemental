@@ -87,12 +87,16 @@ void ChangeFrontType
                 const Int snSize = front.L1D.Width();
                 auto LT = front.L1D( IR(0,snSize), IR(0,snSize) );
                 TriangularInverse( LOWER, UNIT, LT );
+                FillDiagonal( LT, F(1) );
+                MakeTrapezoidal( LOWER, LT );
             }
             else
             {
                 const Int snSize = front.L2D.Width();
                 auto LT = front.L2D( IR(0,snSize), IR(0,snSize) );
                 TriangularInverse( LOWER, UNIT, LT );
+                FillDiagonal( LT, F(1) );
+                MakeTrapezoidal( LOWER, LT );
             }
         }
 
@@ -114,9 +118,19 @@ void ChangeFrontType
     else
         LogicError("Unavailable front type change");
 
-    front.type = type;
-    if( recurse && front.child != nullptr )
-        ChangeFrontType( *front.child, type, recurse );
+    if( front.child == nullptr )
+    {
+        if( SelInvFactorization(type) )
+            front.type = RemoveSelInv(type);
+        else
+            front.type = type;
+    }
+    else
+    {
+        front.type = type;
+        if( recurse )
+            ChangeFrontType( *front.child, type, recurse );
+    }
 }
 
 #define PROTO(F) \

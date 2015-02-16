@@ -85,15 +85,13 @@ inline void LowerForwardMultiply
     if( front.duplicate != nullptr )
     {
         LowerForwardMultiply( *info.duplicate, *front.duplicate, *X.duplicate );
-
-        const auto& W = X.duplicate->work;
-        X.work.LockedAttach( W.Height(), W.Width(), grid, 0, 0, W );
+        X.work.LockedAttach( grid, X.duplicate->work );
         return;
     }
 
     const auto& childInfo = *info.child;
     const auto& childFront = *front.child;
-    if( childFront.type != front.type )
+    if( frontIs1D != FrontIs1D(childFront.type) )
         LogicError("Incompatible front type mixture");
     LowerForwardMultiply( childInfo, childFront, *X.child );
 
@@ -184,10 +182,17 @@ inline void LowerForwardMultiply
     if( front.duplicate != nullptr )
     {
         LowerForwardMultiply( *info.duplicate, *front.duplicate, *X.duplicate );
-        const auto& work = X.duplicate->work;
-        X.work.LockedAttach( grid, work );
+        X.work.LockedAttach( grid, X.duplicate->work );
         return;
     }
+
+    const auto& childInfo = *info.child;
+    const auto& childFront = *front.child;
+    if( FrontIs1D(front.type) )
+        LogicError("Expected front to be 2D");
+    if( FrontIs1D(front.type) != FrontIs1D(childFront.type) )
+        LogicError("Incompatible front type mixture");
+    LowerForwardMultiply( childInfo, childFront, *X.child );
 
     // Set up a workspace
     // TODO: Only set up a workspace if there is a parent
@@ -208,7 +213,6 @@ inline void LowerForwardMultiply
 
     // Compute the metadata
     X.ComputeCommMeta( info );
-    const auto& childInfo = *info.child;
     auto& childW = X.child->work;
     auto childU = childW( IR(childInfo.size,childW.Height()), IR(0,numRHS) );
     vector<int> sendSizes(commSize), recvSizes(commSize);

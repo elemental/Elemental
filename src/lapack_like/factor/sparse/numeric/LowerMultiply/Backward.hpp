@@ -106,13 +106,11 @@ inline void LowerBackwardMultiply
 
     if( front.child != nullptr )
     {
-        if( front.type != front.child->type )
-            LogicError("Expected front types to match");
-
         // Set up a workspace for our child
         const bool frontIs1D = FrontIs1D( front.type );
-
         const auto& childFront = *front.child;
+        if( FrontIs1D(front.type) != FrontIs1D(childFront.type) )
+            LogicError("Incompatible front type mixture");
         const Grid& childGrid =
           ( frontIs1D ? childFront.L1D.Grid() : childFront.L2D.Grid() );
         const Int childFrontHeight =
@@ -199,18 +197,17 @@ inline void LowerBackwardMultiply
         return;
     }
 
-    const bool haveParent = ( front.parent != nullptr );
+    const bool haveParent = ( X.parent != nullptr );
     auto& W = ( haveParent ? X.work : X.matrix );
 
     const Int numRHS = X.matrix.Width();
 
     if( front.child != nullptr )
     {
-        if( front.type != front.child->type )
-            LogicError("Expected front types to match");
-
         // Set up a workspace for our child
         const auto& childFront = *front.child;
+        if( FrontIs1D(front.type) != FrontIs1D(childFront.type) )
+            LogicError("Incompatible front type mixture");
         const Grid& childGrid = childFront.L2D.Grid();
         const Int childFrontHeight = childFront.L2D.Height();
         auto& childW = X.child->work;

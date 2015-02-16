@@ -42,8 +42,6 @@ inline void LowerBackwardSolve
                   : (haveDupMVParent ? dupMV->work.Matrix() 
                                      : (haveDupMatParent ? dupMat->work.Matrix()
                                                          : X.matrix)));
-    if( W.Width() == 0 )
-        LogicError("W had a zero width: ",W.Height()," x ",W.Width(),", haveParent=",haveParent,", haveDupMVParent=",haveDupMVParent,", haveDupMatParent=",haveDupMatParent);
 
     FrontLowerBackwardSolve( front, W, conjugate );
 
@@ -105,13 +103,12 @@ inline void LowerBackwardSolve
 
     if( front.child == nullptr )
         return;
-    if( front.type != front.child->type )
-        LogicError("Expected front types to match");
 
     // Set up a workspace for our child
     const bool frontIs1D = FrontIs1D( front.type );
-
     const auto& childFront = *front.child;
+    if( FrontIs1D(front.type) != FrontIs1D(childFront.type) )
+        LogicError("Incompatible front type mixture");
     const Grid& childGrid =
       ( frontIs1D ? childFront.L1D.Grid() : childFront.L2D.Grid() );
     const Int childFrontHeight =
@@ -202,11 +199,11 @@ inline void LowerBackwardSolve
 
     if( front.child == nullptr )
         return;
-    if( front.type != front.child->type )
-        LogicError("Expected front types to match");
 
     // Set up a workspace for our child
     const auto& childFront = *front.child;
+    if( FrontIs1D(front.type) != FrontIs1D(childFront.type) )
+        LogicError("Incompatible front type mixture");
     const Grid& childGrid = childFront.L2D.Grid();
     const Int childFrontHeight = childFront.L2D.Height();
     auto& childW = X.child->work;

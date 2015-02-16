@@ -85,15 +85,13 @@ inline void LowerForwardSolve
     if( front.duplicate != nullptr )
     {
         LowerForwardSolve( *info.duplicate, *front.duplicate, *X.duplicate );
-
-        const auto& W = X.duplicate->work;
-        X.work.LockedAttach( grid, W );
+        X.work.LockedAttach( grid, X.duplicate->work );
         return;
     }
 
     const auto& childInfo = *info.child;
     const auto& childFront = *front.child;
-    if( childFront.type != front.type )
+    if( FrontIs1D(front.type) != FrontIs1D(childFront.type) )
         LogicError("Incompatible front type mixture");
 
     LowerForwardSolve( childInfo, childFront, *X.child );
@@ -191,15 +189,13 @@ inline void LowerForwardSolve
     if( front.duplicate != nullptr )
     {
         LowerForwardSolve( *info.duplicate, *front.duplicate, *X.duplicate );
-
-        const auto& W = X.duplicate->work;
-        X.work.LockedAttach( grid, W );
+        X.work.LockedAttach( grid, X.duplicate->work );
         return;
     }
 
     const auto& childInfo = *info.child;
     const auto& childFront = *front.child;
-    if( childFront.type != front.type )
+    if( FrontIs1D(front.type) != FrontIs1D(childFront.type) )
         LogicError("Incompatible front type mixture");
 
     LowerForwardSolve( childInfo, childFront, *X.child );
