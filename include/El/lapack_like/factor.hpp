@@ -181,11 +181,19 @@ template<typename F>
 void SolveAfter
 ( const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, bool conjugated );
 
-// TODO: Sequential interfaces
+template<typename F>
+void SolveAfter
+( const vector<Int>& invMap, const SymmNodeInfo& info,
+  const SymmFront<F>& front, Matrix<F>& X ); 
 template<typename F>
 void SolveAfter
 ( const DistMap& invMap, const DistSymmNodeInfo& info,
   const DistSymmFront<F>& front, DistMultiVec<F>& X ); 
+
+template<typename F>
+void SolveAfter
+( const SymmNodeInfo& info,
+  const SymmFront<F>& front, MatrixNode<F>& X );
 template<typename F>
 void SolveAfter
 ( const DistSymmNodeInfo& info,
@@ -195,6 +203,12 @@ void SolveAfter
 ( const DistSymmNodeInfo& info,
   const DistSymmFront<F>& front, DistMatrixNode<F>& X );
 
+template<typename F>
+Int SolveWithIterativeRefinement
+( const SparseMatrix<F>& A,
+  const vector<Int>& invMap, const SymmNodeInfo& info,
+  const SymmFront<F>& front, Matrix<F>& y,
+  Base<F> minReductionFactor=2, Int maxRefineIts=10 );
 template<typename F>
 Int SolveWithIterativeRefinement
 ( const DistSparseMatrix<F>& A,

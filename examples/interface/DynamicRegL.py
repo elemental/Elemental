@@ -7,8 +7,8 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 import math, El
-n = 20                  # matrix size
-realRes = imagRes = 100 # grid resolution
+n = 50                  # matrix size
+realRes = imagRes = 200 # grid resolution
 
 # Display an instance of the dynamic regularization problematic L
 L = El.DistMatrix(El.dTag)

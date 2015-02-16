@@ -106,10 +106,10 @@ void DruinskyToledo( AbstractDistMatrix<F>& A, Int n );
 // ===========
 // An example of an L that can appear in a dynamically-regularized LDL^H
 // factorization that has an excessively large condition number
-template<typename T>
-void DynamicRegL( Matrix<T>& L, Int n );
-template<typename T>
-void DynamicRegL( AbstractDistMatrix<T>& L, Int n );
+template<typename F>
+void DynamicRegL( Matrix<F>& L, Int n );
+template<typename F>
+void DynamicRegL( AbstractDistMatrix<F>& L, Int n );
 
 // Egorov
 // ======

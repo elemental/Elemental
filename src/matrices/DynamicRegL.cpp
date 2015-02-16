@@ -13,7 +13,7 @@ namespace El {
 template<typename F> 
 void DynamicRegL( Matrix<F>& L, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Grcar"))
+    DEBUG_ONLY(CallStackEntry cse("DynamicRegL"))
     if( n < 3 )
       LogicError("n must be at least three");
     Zeros( L, n, n );
@@ -25,7 +25,7 @@ void DynamicRegL( Matrix<F>& L, Int n )
 template<typename F>
 void DynamicRegL( AbstractDistMatrix<F>& L, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Grcar"))
+    DEBUG_ONLY(CallStackEntry cse("DynamicRegL"))
     if( n < 3 )
       LogicError("n must be at least three");
     Zeros( L, n, n );

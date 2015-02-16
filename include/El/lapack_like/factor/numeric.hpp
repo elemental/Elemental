@@ -164,137 +164,16 @@ enum SymmFrontType
   BLOCK_LDL_INTRAPIV_1D,  BLOCK_LDL_INTRAPIV_2D
 };
 
-inline bool Unfactored( SymmFrontType type )
-{ return type == SYMM_1D || type == SYMM_2D; }
-
-inline bool FrontIs1D( SymmFrontType type )
-{
-    return type == SYMM_1D                ||
-           type == LDL_1D                 ||
-           type == LDL_SELINV_1D          ||
-           type == LDL_INTRAPIV_1D        ||
-           type == LDL_INTRAPIV_SELINV_1D ||
-           type == BLOCK_LDL_1D           ||
-           type == BLOCK_LDL_INTRAPIV_1D;
-}
-
-inline bool BlockFactorization( SymmFrontType type )
-{
-    return type == BLOCK_LDL_1D ||
-           type == BLOCK_LDL_2D ||
-           type == BLOCK_LDL_INTRAPIV_1D ||
-           type == BLOCK_LDL_INTRAPIV_2D;
-}
-
-inline bool SelInvFactorization( SymmFrontType type )
-{
-    return type == LDL_SELINV_1D ||
-           type == LDL_SELINV_2D ||
-           type == LDL_INTRAPIV_SELINV_1D ||
-           type == LDL_INTRAPIV_SELINV_2D;
-}
-
-inline bool PivotedFactorization( SymmFrontType type )
-{
-    return type == LDL_INTRAPIV_1D ||
-           type == LDL_INTRAPIV_2D ||
-           type == LDL_INTRAPIV_SELINV_1D ||
-           type == LDL_INTRAPIV_SELINV_2D ||
-           type == BLOCK_LDL_INTRAPIV_1D  ||
-           type == BLOCK_LDL_INTRAPIV_2D;
-}
-
-inline SymmFrontType ConvertTo2D( SymmFrontType type )
-{
-    DEBUG_ONLY(CallStackEntry cse("ConvertTo2D"))
-    SymmFrontType newType;
-    switch( type )
-    {
-    case SYMM_1D:
-    case SYMM_2D:                newType = SYMM_2D;                break;
-    case LDL_1D:
-    case LDL_2D:                 newType = LDL_2D;                 break;
-    case LDL_SELINV_1D:
-    case LDL_SELINV_2D:          newType = LDL_SELINV_2D;          break;
-    case LDL_INTRAPIV_1D:
-    case LDL_INTRAPIV_2D:        newType = LDL_INTRAPIV_2D;        break;
-    case LDL_INTRAPIV_SELINV_1D:
-    case LDL_INTRAPIV_SELINV_2D: newType = LDL_INTRAPIV_SELINV_2D; break;
-    case BLOCK_LDL_1D:
-    case BLOCK_LDL_2D:           newType = BLOCK_LDL_2D;           break;
-    case BLOCK_LDL_INTRAPIV_1D:
-    case BLOCK_LDL_INTRAPIV_2D:  newType = BLOCK_LDL_INTRAPIV_2D;  break;
-    default: LogicError("Invalid front type");
-    }
-    return newType;
-}
-
-inline SymmFrontType ConvertTo1D( SymmFrontType type )
-{
-    DEBUG_ONLY(CallStackEntry cse("ConvertTo1D"))
-    SymmFrontType newType;
-    switch( type )
-    {
-    case SYMM_1D:
-    case SYMM_2D:                newType = SYMM_1D;                break;
-    case LDL_1D:
-    case LDL_2D:                 newType = LDL_1D;                 break;
-    case LDL_SELINV_1D:
-    case LDL_SELINV_2D:          newType = LDL_SELINV_1D;          break;
-    case LDL_INTRAPIV_1D:
-    case LDL_INTRAPIV_2D:        newType = LDL_INTRAPIV_1D;        break;
-    case LDL_INTRAPIV_SELINV_1D:
-    case LDL_INTRAPIV_SELINV_2D: newType = LDL_INTRAPIV_SELINV_1D; break;
-    case BLOCK_LDL_1D:
-    case BLOCK_LDL_2D:           newType = BLOCK_LDL_1D;           break;
-    case BLOCK_LDL_INTRAPIV_1D:
-    case BLOCK_LDL_INTRAPIV_2D:  newType = BLOCK_LDL_INTRAPIV_1D;  break;
-    default: LogicError("Invalid front type");
-    }
-    return newType;
-}
-
-inline SymmFrontType AppendSelInv( SymmFrontType type )
-{
-    DEBUG_ONLY(CallStackEntry cse("AppendSelInv"))
-    SymmFrontType newType;
-    switch( type )
-    {
-    case LDL_1D:          newType = LDL_SELINV_1D; break;
-    case LDL_2D:          newType = LDL_SELINV_2D; break;
-    case LDL_INTRAPIV_1D: newType = LDL_INTRAPIV_SELINV_1D; break;
-    case LDL_INTRAPIV_2D: newType = LDL_INTRAPIV_SELINV_2D; break;
-    default: LogicError("Sel-inv does not make sense for this type");
-    }
-    return newType;
-}
-
-inline SymmFrontType RemoveSelInv( SymmFrontType type )
-{
-    DEBUG_ONLY(CallStackEntry cse("RemoveSelInv"))
-    SymmFrontType newType;
-    switch( type )
-    {
-    case LDL_SELINV_1D: newType = LDL_1D; break;
-    case LDL_SELINV_2D: newType = LDL_2D; break;
-    case LDL_INTRAPIV_SELINV_1D: newType = LDL_INTRAPIV_1D; break;
-    case LDL_INTRAPIV_SELINV_2D: newType = LDL_INTRAPIV_2D; break;
-    default: LogicError("This type did not involve selective inversion");
-    }
-    return newType;
-}
-
-inline SymmFrontType InitialFactorType( SymmFrontType type )
-{
-    if( Unfactored(type) )
-        LogicError("Front type does not require factorization");
-    if( BlockFactorization(type) )
-        return ConvertTo2D(type);
-    else if( PivotedFactorization(type) )
-        return LDL_INTRAPIV_2D;
-    else
-        return LDL_2D;
-}
+bool Unfactored( SymmFrontType type );
+bool FrontIs1D( SymmFrontType type );
+bool BlockFactorization( SymmFrontType type );
+bool SelInvFactorization( SymmFrontType type );
+bool PivotedFactorization( SymmFrontType type );
+SymmFrontType ConvertTo2D( SymmFrontType type );
+SymmFrontType ConvertTo1D( SymmFrontType type );
+SymmFrontType AppendSelInv( SymmFrontType type );
+SymmFrontType RemoveSelInv( SymmFrontType type );
+SymmFrontType InitialFactorType( SymmFrontType type );
 
 // Only keep track of the left and bottom-right piece of the fronts
 // (with the bottom-right piece stored in workspace) since only the left side
@@ -402,6 +281,7 @@ struct DistSymmFront
       const DistSeparator& rootSep,
       const DistSymmNodeInfo& info,
       bool conjugate=false );
+    // NOTE: This routine is not yet functioning
     void Push
     ( DistSparseMatrix<F>& A, const DistMap& reordering, 
       const DistSeparator& rootSep, const DistSymmNodeInfo& rootInfo ) const;
@@ -421,6 +301,9 @@ struct DistSymmFront
     ( const DistSymmNodeInfo& info, bool computeRecvInds ) const;
 };
 
+template<typename F>
+void ChangeFrontType
+( SymmFront<F>& front, SymmFrontType type, bool recurse=true );
 template<typename F>
 void ChangeFrontType
 ( DistSymmFront<F>& front, SymmFrontType type, bool recurse=true );

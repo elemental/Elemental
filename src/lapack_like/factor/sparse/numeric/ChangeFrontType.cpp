@@ -21,8 +21,25 @@
 
 namespace El {
 
-// This routine could be modified later so that it uses much less memory
-// by replacing the '=' redistributions with piece-by-piece redistributions.
+template<typename F>
+void ChangeFrontType( SymmFront<F>& front, SymmFrontType type, bool recurse )
+{
+    DEBUG_ONLY(CallStackEntry cse("ChangeFrontType"))
+
+    if( type == SYMM_1D || type == SYMM_2D || 
+        type == ConvertTo1D(front.type) || type == ConvertTo2D(front.type) )
+    {
+        // No-op
+    }
+    else
+        LogicError("Unavailable front type change");
+
+    front.type = type;
+    if( recurse )
+        for( auto* child : front.children )
+            ChangeFrontType( *child, type, recurse );
+}
+
 template<typename F>
 void ChangeFrontType
 ( DistSymmFront<F>& front, SymmFrontType type, bool recurse )
@@ -134,6 +151,8 @@ void ChangeFrontType
 }
 
 #define PROTO(F) \
+  template void ChangeFrontType \
+  ( SymmFront<F>& front, SymmFrontType type, bool recurse ); \
   template void ChangeFrontType \
   ( DistSymmFront<F>& front, SymmFrontType type, bool recurse );
 

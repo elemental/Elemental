@@ -26,6 +26,43 @@ namespace ldl {
 
 template<typename F>
 void SolveAfter
+( const vector<Int>& invMap, const SymmNodeInfo& info, 
+  const SymmFront<F>& front, Matrix<F>& X )
+{
+    DEBUG_ONLY(CallStackEntry cse("ldl::SolveAfter"))
+
+    MatrixNode<F> XNodal( invMap, info, X );
+    SolveAfter( info, front, XNodal );
+    XNodal.Push( invMap, info, X );
+}
+
+template<typename F>
+void SolveAfter
+( const SymmNodeInfo& info, const SymmFront<F>& front, MatrixNode<F>& X )
+{
+    DEBUG_ONLY(CallStackEntry cse("ldl::SolveAfter"))
+
+    const Orientation orientation = ( front.isHermitian ? ADJOINT : TRANSPOSE );
+    if( BlockFactorization(front.type) )
+    {
+        // Solve against block diagonal factor, L D
+        LowerSolve( NORMAL, info, front, X );
+        // Solve against the (conjugate-)transpose of the block unit diagonal L
+        LowerSolve( orientation, info, front, X );
+    }
+    else
+    {
+        // Solve against unit diagonal L
+        LowerSolve( NORMAL, info, front, X );
+        // Solve against diagonal
+        DiagonalSolve( info, front, X );
+        // Solve against the (conjugate-)transpose of the unit diagonal L
+        LowerSolve( orientation, info, front, X );
+    }
+}
+
+template<typename F>
+void SolveAfter
 ( const DistMap& invMap, const DistSymmNodeInfo& info, 
   const DistSymmFront<F>& front, DistMultiVec<F>& X )
 {
@@ -115,6 +152,66 @@ void SolveAfter
 
 template<typename F>
 Int SolveWithIterativeRefinement
+( const SparseMatrix<F>& A,
+  const vector<Int>& invMap, const SymmNodeInfo& info,
+  const SymmFront<F>& front, Matrix<F>& y,
+  Base<F> minReductionFactor, Int maxRefineIts )
+{
+    DEBUG_ONLY(CallStackEntry cse("ldl::SolveWithIterativeRefinement"))
+
+    auto yOrig = y;
+
+    // Compute the initial guess
+    // =========================
+    Matrix<F> x;
+    MatrixNode<F> xNodal( invMap, info, y );
+    SolveAfter( info, front, xNodal );
+    xNodal.Push( invMap, info, x );
+
+    Int refineIt = 0;
+    if( maxRefineIts > 0 )
+    {
+        Matrix<F> dx, xCand; 
+        Multiply( NORMAL, F(-1), A, x, F(1), y );
+        Base<F> errorNorm = Nrm2( y );
+        for( ; refineIt<maxRefineIts; ++refineIt )
+        {
+            // Compute the proposed update to the solution
+            // -------------------------------------------
+            xNodal.Pull( invMap, info, y );
+            SolveAfter( info, front, xNodal );
+            xNodal.Push( invMap, info, dx );
+            xCand = x;
+            Axpy( F(1), dx, xCand );
+
+            // If the proposed update lowers the residual, accept it
+            // -----------------------------------------------------
+            y = yOrig;
+            Multiply( NORMAL, F(-1), A, xCand, F(1), y );
+            Base<F> newErrorNorm = Nrm2( y );
+            if( minReductionFactor*newErrorNorm < errorNorm )
+            {
+                x = xCand;
+                errorNorm = newErrorNorm;
+            }
+            else if( newErrorNorm < errorNorm )
+            {
+                x = xCand;
+                errorNorm = newErrorNorm;
+                break;
+            }
+            else
+                break;
+        }
+    }
+    // Store the final result
+    // ======================
+    y = x;
+    return refineIt;
+}
+
+template<typename F>
+Int SolveWithIterativeRefinement
 ( const DistSparseMatrix<F>& A,
   const DistMap& invMap, const DistSymmNodeInfo& info,
   const DistSymmFront<F>& front, DistMultiVec<F>& y,
@@ -179,14 +276,25 @@ Int SolveWithIterativeRefinement
 
 #define PROTO(F) \
   template void ldl::SolveAfter \
+  ( const vector<Int>& invMap, const SymmNodeInfo& info, \
+    const SymmFront<F>& front, Matrix<F>& X ); \
+  template void ldl::SolveAfter \
   ( const DistMap& invMap, const DistSymmNodeInfo& info, \
     const DistSymmFront<F>& front, DistMultiVec<F>& X ); \
+  template void ldl::SolveAfter \
+  ( const SymmNodeInfo& info, \
+    const SymmFront<F>& front, MatrixNode<F>& X ); \
   template void ldl::SolveAfter \
   ( const DistSymmNodeInfo& info, \
     const DistSymmFront<F>& front, DistMultiVecNode<F>& X ); \
   template void ldl::SolveAfter \
   ( const DistSymmNodeInfo& info, \
     const DistSymmFront<F>& front, DistMatrixNode<F>& X ); \
+  template Int ldl::SolveWithIterativeRefinement \
+  ( const SparseMatrix<F>& A, \
+    const vector<Int>& invMap, const SymmNodeInfo& info, \
+    const SymmFront<F>& front, Matrix<F>& y, \
+    Base<F> minReductionFactor, Int maxRefineIts ); \
   template Int ldl::SolveWithIterativeRefinement \
   ( const DistSparseMatrix<F>& A, \
     const DistMap& invMap, const DistSymmNodeInfo& info, \
