@@ -31,7 +31,7 @@ int main( int argc, char* argv[] )
         const Int n1 = Input("--n1","first grid dimension",30);
         const Int n2 = Input("--n2","second grid dimension",30);
         const Int n3 = Input("--n3","third grid dimension",30);
-        const Int numRhs = Input("--numRhs","number of right-hand sides",5);
+        const Int numRHS = Input("--numRHS","number of right-hand sides",5);
         const bool solve2d = Input("--solve2d","use 2d solve?",false);
         const bool selInv = Input("--selInv","selectively invert?",false);
         const bool intraPiv = Input("--intraPiv","pivot within fronts?",false);
@@ -73,12 +73,9 @@ int main( int argc, char* argv[] )
         }
 
         if( commRank == 0 )
-        {
-            cout << "Generating random X and forming Y := A X...";
-            cout.flush();
-        }
+            cout << "Generating random X and forming Y := A X..." << endl;
         const double multiplyStart = mpi::Time();
-        DistMultiVec<double> X( N, numRhs, comm ), Y( N, numRhs, comm );
+        DistMultiVec<double> X( N, numRHS, comm ), Y( N, numRHS, comm );
         MakeUniform( X );
         Zero( Y );
         Multiply( NORMAL, 1., A, X, 0., Y );
@@ -87,8 +84,7 @@ int main( int argc, char* argv[] )
         mpi::Barrier( comm );
         const double multiplyStop = mpi::Time();
         if( commRank == 0 )
-            cout << "done, " << multiplyStop-multiplyStart << " seconds" 
-                 << endl;
+            cout << multiplyStop-multiplyStart << " seconds" << endl; 
         if( display )
         {
             Display( X, "X" );
@@ -101,10 +97,7 @@ int main( int argc, char* argv[] )
         }
 
         if( commRank == 0 )
-        {
-            cout << "Running nested dissection...";
-            cout.flush();
-        }
+            cout << "Running nested dissection..." << endl;
         const double nestedStart = mpi::Time();
         const auto& graph = A.DistGraph();
         DistSymmNodeInfo info;
@@ -119,7 +112,7 @@ int main( int argc, char* argv[] )
         mpi::Barrier( comm );
         const double nestedStop = mpi::Time();
         if( commRank == 0 )
-            cout << "done, " << nestedStop-nestedStart << " seconds" << endl;
+            cout << nestedStop-nestedStart << " seconds" << endl;
 
         const Int rootSepSize = info.size;
         if( commRank == 0 )
@@ -136,17 +129,14 @@ int main( int argc, char* argv[] )
         */
 
         if( commRank == 0 )
-        {
-            cout << "Building DistSymmFront tree...";
-            cout.flush();
-        }
+            cout << "Building DistSymmFront tree..." << endl;
         mpi::Barrier( comm );
         const double buildStart = mpi::Time();
         DistSymmFront<double> front( A, map, sep, info );
         mpi::Barrier( comm );
         const double buildStop = mpi::Time();
         if( commRank == 0 )
-            cout << "done, " << buildStop-buildStart << " seconds" << endl;
+            cout << buildStop-buildStart << " seconds" << endl;
 
         // Unpack the DistSymmFront into a sparse matrix
         DistSparseMatrix<double> APerm;
@@ -157,13 +147,22 @@ int main( int argc, char* argv[] )
         if( display )
             Display( APerm, "APerm" );
 
-        // TODO: Memory usage
+        // Memory usage before factorization
+        const Int localEntriesBefore = front.NumLocalEntries();
+        const Int minLocalEntriesBefore = 
+          mpi::AllReduce( localEntriesBefore, mpi::MIN, comm );
+        const Int maxLocalEntriesBefore =
+          mpi::AllReduce( localEntriesBefore, mpi::MAX, comm );
+        const Int entriesBefore =
+          mpi::AllReduce( localEntriesBefore, mpi::SUM, comm );
+        if( commRank == 0 )
+            cout << "Memory usage before factorization: \n"
+                 << "  min entries:   " << minLocalEntriesBefore << "\n"
+                 << "  max entries:   " << maxLocalEntriesBefore << "\n"
+                 << "  total entries: " << entriesBefore << "\n" << endl;
 
         if( commRank == 0 )
-        {
-            cout << "Running LDL^T and redistribution...";
-            cout.flush();
-        }
+            cout << "Running LDL^T and redistribution..." << endl;
         SetBlocksize( nbFact );
         mpi::Barrier( comm );
         const double ldlStart = mpi::Time();
@@ -186,65 +185,28 @@ int main( int argc, char* argv[] )
         mpi::Barrier( comm );
         const double ldlStop = mpi::Time();
         const double factTime = ldlStop - ldlStart;
-        //const double factGFlops = globalFactFlops/(1.e9*factTime);
+        const double localFactGFlops = front.LocalFactorGFlops( selInv );
+        const double factGFlops = mpi::AllReduce( localFactGFlops, comm ); 
+        const double factSpeed = factGFlops / factTime;
         if( commRank == 0 )
-            cout << "done, " << factTime << " seconds" << endl;
+            cout << factTime << " seconds, " << factSpeed << " GFlop/s" << endl;
 
-        {
-            // Unpack the factored DistSymmFront into a sparse matrix
-            DistSparseMatrix<double> L(comm);
-            front.Unpack( L, sep, info );
-            DistMultiVec<double> d( N, 1, comm );
-            const Int localHeight = L.LocalHeight();
-            double* valBuf = L.ValueBuffer();
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            {
-                const Int i = L.GlobalRow(iLoc);
-                const Int off = L.EntryOffset( iLoc );
-                const Int numNnz = L.NumConnections( iLoc );
-                for( Int k=0; k<numNnz; ++k )
-                {
-                    if( L.Col(off+k) == i )
-                    {
-                        d.SetLocal( iLoc, 0, valBuf[off+k] );
-                        valBuf[off+k] = 1.;
-                    }
-                }
-            }
-            if( print )
-            {
-                Print( L, "L" );
-                Print( d, "d" );
-            }
-            if( display )
-            {
-                Display( L, "L" );
-                Display( d, "d" );
-            }
-
-            DistMultiVec<double> x( N, 1, comm ), y( N, 1, comm );
-            MakeUniform( x );
-            Zero( y );
-            Multiply( NORMAL, 1., APerm, x, 0., y );
-            const double yNrm = FrobeniusNorm( y );
-            
-            DistMultiVec<double> z( N, 1, comm );
-            Multiply( TRANSPOSE, 1., L, x, 0., z );
-            DiagonalScale( NORMAL, d, z );
-            Multiply( NORMAL, -1., L, z, 1., y );
-            const double eNrm = FrobeniusNorm( y );
-
-            if( commRank == 0 )
-                cout << "|| APerm x - L D L^H x ||_2 = " << eNrm/yNrm << endl;
-        }
-
-        // TODO: Memory usage after factorization
+        // Memory usage after factorization
+        const Int localEntriesAfter = front.NumLocalEntries();
+        const Int minLocalEntriesAfter = 
+          mpi::AllReduce( localEntriesAfter, mpi::MIN, comm );
+        const Int maxLocalEntriesAfter =
+          mpi::AllReduce( localEntriesAfter, mpi::MAX, comm );
+        const Int entriesAfter =
+          mpi::AllReduce( localEntriesAfter, mpi::SUM, comm );
+        if( commRank == 0 )
+            cout << "Memory usage after factorization: \n"
+                 << "  min entries:   " << minLocalEntriesAfter << "\n"
+                 << "  max entries:   " << maxLocalEntriesAfter << "\n"
+                 << "  total entries: " << entriesAfter << "\n" << endl;
 
         if( commRank == 0 )
-        {
-            cout << "Solving against Y...";
-            cout.flush();
-        }
+            cout << "Solving against Y..." << endl;
         SetBlocksize( nbSolve );
         double solveStart, solveStop;
         mpi::Barrier( comm );
@@ -253,9 +215,12 @@ int main( int argc, char* argv[] )
         mpi::Barrier( comm );
         solveStop = mpi::Time();
         const double solveTime = solveStop - solveStart;
-        //const double solveGFlops = globalSolveFlops/(1.e9*solveTime);
+        const double localSolveGFlops = front.LocalSolveGFlops( numRHS );
+        const double solveGFlops = mpi::AllReduce( localSolveGFlops, comm ); 
+        const double solveSpeed = solveGFlops / factTime;
         if( commRank == 0 )
-            cout << "done, " << solveTime << " seconds" << endl;
+            cout << solveTime << " seconds, " 
+                 << solveSpeed << " GFlop/s" << endl;
 
         if( commRank == 0 )
             cout << "Checking error in computed solution..." << endl;
@@ -266,16 +231,12 @@ int main( int argc, char* argv[] )
         Matrix<double> errorNorms;
         ColumnNorms( Y, errorNorms );
         if( commRank == 0 )
-        {
-            for( int j=0; j<numRhs; ++j )
-            {
+            for( int j=0; j<numRHS; ++j )
                 cout << "Right-hand side " << j << ":\n"
                      << "|| x     ||_2 = " << XNorms.Get(j,0) << "\n"
                      << "|| error ||_2 = " << errorNorms.Get(j,0) << "\n"
                      << "|| A x   ||_2 = " << YOrigNorms.Get(j,0) << "\n"
                      << endl;
-            }
-        }
     }
     catch( exception& e ) { ReportException(e); }
 

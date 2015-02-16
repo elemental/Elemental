@@ -242,43 +242,97 @@ void SymmFront<F>::Unpack
 }
 
 template<typename F>
-double SymmFront<F>::NumEntries() const
+Int SymmFront<F>::NumEntries() const
 {
     DEBUG_ONLY(CallStackEntry cse("SymmFront::NumEntries"))
-    LogicError("This routine needs to be rewritten");
-    return 0.;
+    Int numEntries = 0;
+    function<void(const SymmFront<F>&)> count =
+      [&]( const SymmFront<F>& front )
+      {
+        for( auto* child : front.children )
+            count( *child );
+
+        // Add in L
+        numEntries += front.L.Height() * front.L.Width();
+ 
+        // Add in the workspace
+        numEntries += front.work.Height()*front.work.Width(); 
+      };
+    count( *this );
+    return numEntries;
 }
 
 template<typename F>
-double SymmFront<F>::NumTopLeftEntries() const
+Int SymmFront<F>::NumTopLeftEntries() const
 {
     DEBUG_ONLY(CallStackEntry cse("SymmFront::NumTopLeftEntries"))
-    LogicError("This routine needs to be rewritten");
-    return 0.;
+    Int numEntries = 0;
+    function<void(const SymmFront<F>&)> count =
+      [&]( const SymmFront<F>& front )
+      {
+        for( auto* child : front.children )
+            count( *child );
+        const Int n = front.L.Width();
+        numEntries += n*n;
+      };
+    count( *this );
+    return numEntries;
 }
 
 template<typename F>
-double SymmFront<F>::NumBottomLeftEntries() const
+Int SymmFront<F>::NumBottomLeftEntries() const
 {
     DEBUG_ONLY(CallStackEntry cse("SymmFront::NumBottomLeftEntries"))
-    LogicError("This routine needs to be rewritten");
-    return 0.;
+    Int numEntries = 0;
+    function<void(const SymmFront<F>&)> count =
+      [&]( const SymmFront<F>& front )
+      {
+        for( auto* child : front.children )
+            count( *child );
+        const Int m = front.L.Height();
+        const Int n = front.L.Width();
+        numEntries += (m-n)*n;
+      };
+    count( *this );
+    return numEntries;
 }
 
 template<typename F>
-double SymmFront<F>::FactorGFlops( bool selInv ) const
+double SymmFront<F>::FactorGFlops() const
 {
     DEBUG_ONLY(CallStackEntry cse("DistSymmFront::FactorGFlops"))
-    LogicError("This routine needs to be rewritten");
-    return 0.;
+    double gflops = 0.;
+    function<void(const SymmFront<F>&)> count =
+      [&]( const SymmFront<F>& front )
+      {
+        for( auto* child : front.children )
+            count( *child );
+        const double m = front.L.Height();
+        const double n = front.L.Width();
+        const double realFrontFlops = (n*n*n/3) + (m-n)*n + (m-n)*(m-n)*n;
+        gflops += (IsComplex<F>::val ? 4*realFrontFlops : realFrontFlops)/1.e9;
+      };
+    count( *this );
+    return gflops;
 }
 
 template<typename F>
 double SymmFront<F>::SolveGFlops( Int numRHS ) const
 {
     DEBUG_ONLY(CallStackEntry cse("SymmFront::SolveGFlops"))
-    LogicError("This routine needs to be rewritten");
-    return 0.;
+    double gflops = 0.;
+    function<void(const SymmFront<F>&)> count =
+      [&]( const SymmFront<F>& front )
+      {
+        for( auto* child : front.children )
+            count( *child );
+        const double m = front.L.Height();
+        const double n = front.L.Width();
+        const double realFrontFlops = m*n*numRHS;
+        gflops += (IsComplex<F>::val ? 4*realFrontFlops : realFrontFlops)/1.e9;
+      };
+    count( *this );
+    return gflops;
 }
 
 #define PROTO(F) template class SymmFront<F>;

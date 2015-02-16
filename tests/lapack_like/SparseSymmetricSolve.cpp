@@ -22,7 +22,7 @@ int main( int argc, char* argv[] )
         const Int n1 = Input("--n1","first grid dimension",30);
         const Int n2 = Input("--n2","second grid dimension",30);
         const Int n3 = Input("--n3","third grid dimension",30);
-        const Int numRhs = Input("--numRhs","number of right-hand sides",5);
+        const Int numRHS = Input("--numRHS","number of right-hand sides",5);
         const bool sequential = Input
             ("--sequential","sequential partitions?",true);
         const int numDistSeps = Input
@@ -58,12 +58,9 @@ int main( int argc, char* argv[] )
         }
 
         if( commRank == 0 )
-        {
-            cout << "Generating random vector X and forming Y := A X...";
-            cout.flush();
-        }
+            cout << "Generating random vector X and forming Y := A X" << endl;
         const double multiplyStart = mpi::Time();
-        DistMultiVec<double> X( N, numRhs, comm ), Y( N, numRhs, comm );
+        DistMultiVec<double> X( N, numRHS, comm ), Y( N, numRHS, comm );
         MakeUniform( X );
         Zero( Y );
         Multiply( NORMAL, 1., A, X, 0., Y );
@@ -72,19 +69,15 @@ int main( int argc, char* argv[] )
         mpi::Barrier( comm );
         const double multiplyStop = mpi::Time();
         if( commRank == 0 )
-            cout << "done, " << multiplyStop-multiplyStart << " seconds"
-                 << endl;
+            cout << multiplyStop-multiplyStart << " seconds" << endl;
 
         if( commRank == 0 )
-        {
-            cout << "Solving...";
-            cout.flush();
-        }
+            cout << "Solving..." << endl;
         const double solveStart = mpi::Time();
         SymmetricSolve( A, Y, false, ctrl );
         const double solveStop = mpi::Time();
         if( commRank == 0 )
-            cout << "done, " << solveStop-solveStart << " seconds" << endl;
+            cout << solveStop-solveStart << " seconds" << endl;
 
         if( commRank == 0 )
             cout << "Checking error in computed solution..." << endl;
@@ -95,9 +88,7 @@ int main( int argc, char* argv[] )
         Matrix<double> errorNorms;
         ColumnNorms( Y, errorNorms );
         if( commRank == 0 )
-        {
-            for( int j=0; j<numRhs; ++j )
-            {
+            for( int j=0; j<numRHS; ++j )
                 cout << "Right-hand side " << j << "\n"
                      << "------------------------------------------\n"
                      << "|| x     ||_2 = " << XNorms.Get(j,0) << "\n"
@@ -105,8 +96,6 @@ int main( int argc, char* argv[] )
                      << "|| A x   ||_2 = " << YOrigNorms.Get(j,0) << "\n"
                      << "|| error ||_2 = " << errorNorms.Get(j,0) << "\n"
                      << endl;
-            }
-        }
     }
     catch( exception& e ) { ReportException(e); }
 

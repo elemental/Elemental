@@ -25,9 +25,9 @@ int main( int argc, char* argv[] )
         const Int n1 = Input("--n1","first grid dimension",30);
         const Int n2 = Input("--n2","second grid dimension",30);
         const Int n3 = Input("--n3","third grid dimension",30);
-        const Int numRhsBeg = Input("--numRhsBeg","min number of rhs's",100);
-        const Int numRhsInc = Input("--numRhsInc","stepsize for rhs's",100);
-        const Int numRhsEnd = Input("--numRhsEnd","max number of rhs's",1000);
+        const Int numRHSBeg = Input("--numRHSBeg","min number of rhs's",100);
+        const Int numRHSInc = Input("--numRHSInc","stepsize for rhs's",100);
+        const Int numRHSEnd = Input("--numRHSEnd","max number of rhs's",1000);
         const bool intraPiv = Input("--intraPiv","frontal pivoting?",false);
         const bool solve2d = Input("--solve2d","use 2d solve?",false);
         const bool selInv = Input("--selInv","selectively invert?",false);
@@ -71,10 +71,7 @@ int main( int argc, char* argv[] )
         }
 
         if( commRank == 0 )
-        {
-            cout << "Running nested dissection...";
-            cout.flush();
-        }
+            cout << "Running nested dissection..." << endl;
         const double nestedStart = mpi::Time();
         const auto& graph = A.DistGraph();
         DistSymmNodeInfo info;
@@ -89,7 +86,7 @@ int main( int argc, char* argv[] )
         mpi::Barrier( comm );
         const double nestedStop = mpi::Time();
         if( commRank == 0 )
-            cout << "done, " << nestedStop-nestedStart << " seconds" << endl;
+            cout << nestedStop-nestedStart << " seconds" << endl;
 
         const Int rootSepSize = info.size;
         if( commRank == 0 )
@@ -106,19 +103,28 @@ int main( int argc, char* argv[] )
         */
 
         if( commRank == 0 )
-        {
-            cout << "Building DistSymmFront tree...";
-            cout.flush();
-        }
+            cout << "Building DistSymmFront tree..." << endl;
         mpi::Barrier( comm );
         const double buildStart = mpi::Time();
         DistSymmFront<C> front( A, map, sep, info, false );
         mpi::Barrier( comm );
         const double buildStop = mpi::Time();
         if( commRank == 0 )
-            cout << "done, " << buildStop-buildStart << " seconds" << endl;
+            cout << buildStop-buildStart << " seconds" << endl;
 
-        // TODO: Memory info
+        // Memory usage before factorization
+        const Int localEntriesBefore = front.NumLocalEntries();
+        const Int minLocalEntriesBefore =
+          mpi::AllReduce( localEntriesBefore, mpi::MIN, comm );
+        const Int maxLocalEntriesBefore =
+          mpi::AllReduce( localEntriesBefore, mpi::MAX, comm );
+        const Int entriesBefore =
+          mpi::AllReduce( localEntriesBefore, mpi::SUM, comm );
+        if( commRank == 0 )
+            cout << "Memory usage before factorization: \n"
+                 << "  min entries:   " << minLocalEntriesBefore << "\n"
+                 << "  max entries:   " << maxLocalEntriesBefore << "\n"
+                 << "  total entries: " << entriesBefore << "\n" << endl;
 
         if( commRank == 0 )
         {
@@ -147,39 +153,48 @@ int main( int argc, char* argv[] )
         mpi::Barrier( comm );
         const double ldlStop = mpi::Time();
         const double factTime = ldlStop - ldlStart;
-        //const double factGFlops = globalFactFlops/(1.e9*factTime);
+        const double localFactGFlops = front.LocalFactorGFlops( selInv );
+        const double factGFlops = mpi::AllReduce( localFactGFlops, comm );
+        const double factSpeed = factGFlops / factTime;
         if( commRank == 0 )
-            cout << "done, " << factTime << " seconds" << endl;
+            cout << factTime << " seconds, " << factSpeed << " GFlop/s" << endl;
 
+        // Memory usage after factorization
+        const Int localEntriesAfter = front.NumLocalEntries();
+        const Int minLocalEntriesAfter =
+          mpi::AllReduce( localEntriesAfter, mpi::MIN, comm );
+        const Int maxLocalEntriesAfter =
+          mpi::AllReduce( localEntriesAfter, mpi::MAX, comm );
+        const Int entriesAfter =
+          mpi::AllReduce( localEntriesAfter, mpi::SUM, comm );
         if( commRank == 0 )
-            cout << "Memory usage for fronts after factorization..." << endl;
-        // TODO: Memory info after factorization
+            cout << "Memory usage after factorization: \n"
+                 << "  min entries:   " << minLocalEntriesAfter << "\n"
+                 << "  max entries:   " << maxLocalEntriesAfter << "\n"
+                 << "  total entries: " << entriesAfter << "\n" << endl;
 
-        for( Int numRhs=numRhsBeg; numRhs<=numRhsEnd; numRhs+=numRhsInc )
+        for( Int numRHS=numRHSBeg; numRHS<=numRHSEnd; numRHS+=numRHSInc )
         {
-            // TODO: Solve work
+            const double localSolveGFlops = front.LocalSolveGFlops(numRHS);
+            const double solveGFlops = mpi::AllReduce( localSolveGFlops, comm );
 
-            DistMultiVec<C> Y( N, numRhs, comm );
+            DistMultiVec<C> Y( N, numRHS, comm );
             for( Int nbSolve=nbSolveBeg; nbSolve<=nbSolveEnd; 
                  nbSolve+=nbSolveInc )
             {
                 MakeUniform( Y );
                 SetBlocksize( nbSolve );
                 if( commRank == 0 )
-                {
-                    cout << "  nbSolve=" << nbSolve << "...";
-                    cout.flush();
-                }
+                    cout << "  nbSolve=" << nbSolve << "..." << endl;
                 mpi::Barrier( comm );
                 const double solveStart = mpi::Time();
                 ldl::SolveAfter( invMap, info, front, Y );
                 mpi::Barrier( comm );
                 const double solveTime = mpi::Time() - solveStart;
-                /*
-                const double solveGFlops = globalSolveFlops/(1.e9*solveTime);
-                */
+                const double solveSpeed = solveGFlops / solveTime;
                 if( commRank == 0 )
-                    cout << "done, " << solveTime << " seconds" << endl;
+                    cout << solveTime << " seconds, " 
+                         << solveSpeed << " GFlop/s" << endl;
             }
         }
     }

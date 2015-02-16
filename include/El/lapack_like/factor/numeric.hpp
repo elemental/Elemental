@@ -336,11 +336,10 @@ struct SymmFront
 
     void Unpack( SparseMatrix<F>& A, const SymmNodeInfo& rootInfo ) const;
 
-    // NOTE: These are temporarily not functioning
-    double NumEntries() const;
-    double NumTopLeftEntries() const;
-    double NumBottomLeftEntries() const;
-    double FactorGFlops( bool selInv=false ) const;
+    Int NumEntries() const;
+    Int NumTopLeftEntries() const;
+    Int NumBottomLeftEntries() const;
+    double FactorGFlops() const;
     double SolveGFlops( Int numRHS=1 ) const;
 };
 
@@ -411,10 +410,9 @@ struct DistSymmFront
     ( DistSparseMatrix<F>& A, 
       const DistSeparator& rootSep, const DistSymmNodeInfo& rootInfo ) const;
 
-    // NOTE: These are temporarily not functioning
-    double NumLocalEntries() const;
-    double NumTopLeftLocalEntries() const;
-    double NumBottomLeftLocalEntries() const;
+    Int NumLocalEntries() const;
+    Int NumTopLeftLocalEntries() const;
+    Int NumBottomLeftLocalEntries() const;
     double LocalFactorGFlops( bool selInv=false ) const;
     double LocalSolveGFlops( Int numRHS=1 ) const;
 

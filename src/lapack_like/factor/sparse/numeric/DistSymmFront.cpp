@@ -632,43 +632,167 @@ void DistSymmFront<F>::Unpack
 }
 
 template<typename F>
-double DistSymmFront<F>::NumLocalEntries() const
+Int DistSymmFront<F>::NumLocalEntries() const
 {
     DEBUG_ONLY(CallStackEntry cse("DistSymmFront::NumLocalEntries"))
-    LogicError("This routine needs to be rewritten");
-    return 0.;
+    Int numEntries = 0;
+    function<void(const DistSymmFront<F>&)> count =
+      [&]( const DistSymmFront<F>& front )
+      {
+        if( front.duplicate != nullptr )
+        {
+            numEntries += front.duplicate->NumEntries();
+            return;
+        }
+        count( *front.child );
+
+        // Add in L
+        numEntries += front.L1D.LocalHeight() * front.L1D.LocalWidth();
+        numEntries += front.L2D.LocalHeight() * front.L2D.LocalWidth();
+        
+        // Add in the workspace
+        numEntries += front.work.LocalHeight() * front.work.LocalWidth();
+      };
+    count( *this );
+    return numEntries;
 }
 
 template<typename F>
-double DistSymmFront<F>::NumTopLeftLocalEntries() const
+Int DistSymmFront<F>::NumTopLeftLocalEntries() const
 {
     DEBUG_ONLY(CallStackEntry cse("DistSymmFront::NumTopLeftLocalEntries"))
-    LogicError("This routine needs to be rewritten");
-    return 0.;
+    Int numEntries = 0;
+    function<void(const DistSymmFront<F>&)> count =
+      [&]( const DistSymmFront<F>& front )
+      {
+        if( front.duplicate != nullptr )
+        {
+            numEntries += front.duplicate->NumTopLeftEntries();
+            return;
+        }
+        count( *front.child );
+
+        if( FrontIs1D(front.type) ) 
+        {
+            const Int n = front.L1D.Width();
+            auto FTL = front.L1D( IR(0,n), IR(0,n) );
+            numEntries += FTL.LocalHeight() * FTL.LocalWidth();
+        }
+        else
+        {
+            const Int n = front.L2D.Width();
+            auto FTL = front.L2D( IR(0,n), IR(0,n) );
+            numEntries += FTL.LocalHeight() * FTL.LocalWidth();
+        }
+      };
+    count( *this );
+    return numEntries;
 }
 
 template<typename F>
-double DistSymmFront<F>::NumBottomLeftLocalEntries() const
+Int DistSymmFront<F>::NumBottomLeftLocalEntries() const
 {
     DEBUG_ONLY(CallStackEntry cse("DistSymmFront::NumBottomLeftLocalEntries"))
-    LogicError("This routine needs to be rewritten");
-    return 0.;
+    Int numEntries = 0;
+    function<void(const DistSymmFront<F>&)> count =
+      [&]( const DistSymmFront<F>& front )
+      {
+        if( front.duplicate != nullptr )
+        {
+            numEntries += front.duplicate->NumBottomLeftEntries();
+            return;
+        }
+        count( *front.child );
+
+        if( FrontIs1D(front.type) ) 
+        {
+            const Int m = front.L1D.Height();
+            const Int n = front.L1D.Width();
+            auto FBL = front.L2D( IR(n,m), IR(0,n) );
+            numEntries += FBL.LocalHeight() * FBL.LocalWidth();
+        }
+        else
+        {
+            const Int m = front.L2D.Height();
+            const Int n = front.L2D.Width();
+            auto FBL = front.L2D( IR(n,m), IR(0,n) );
+            numEntries += FBL.LocalHeight() * FBL.LocalWidth();
+        }
+      };
+    count( *this );
+    return numEntries;
 }
 
 template<typename F>
 double DistSymmFront<F>::LocalFactorGFlops( bool selInv ) const
 {
     DEBUG_ONLY(CallStackEntry cse("DistSymmFront::LocalFactorGFlops"))
-    LogicError("This routine needs to be rewritten");
-    return 0.;
+    double gflops = 0.;
+    function<void(const DistSymmFront<F>&)> count =
+      [&]( const DistSymmFront<F>& front )
+      {
+        if( front.duplicate != nullptr )
+        {
+            gflops += front.duplicate->FactorGFlops();
+            return;
+        }
+        count( *front.child );
+
+        double m, n, p;
+        if( FrontIs1D(front.type) ) 
+        {
+            m = front.L1D.Height();
+            n = front.L1D.Width();
+            p = front.L1D.DistSize();
+        }
+        else
+        {
+            m = front.L2D.Height();
+            n = front.L2D.Width();
+            p = front.L2D.DistSize();
+        }
+        double realFrontFlops = 
+          ( selInv ? (2*n*n*n/3) + (m-n)*n + (m-n)*(m-n)*n
+                   : (1*n*n*n/3) + (m-n)*n + (m-n)*(m-n)*n ) / p;
+        gflops += (IsComplex<F>::val ? 4*realFrontFlops : realFrontFlops)/1.e9;
+      };
+    count( *this );
+    return gflops;
 }
 
 template<typename F>
 double DistSymmFront<F>::LocalSolveGFlops( Int numRHS ) const
 {
     DEBUG_ONLY(CallStackEntry cse("DistSymmFront::LocalSolveGFlops"))
-    LogicError("This routine needs to be rewritten");
-    return 0.;
+    double gflops = 0.;
+    function<void(const DistSymmFront<F>&)> count =
+      [&]( const DistSymmFront<F>& front )
+      {
+        if( front.duplicate != nullptr )
+        {
+            gflops += front.duplicate->SolveGFlops( numRHS );
+            return;
+        }
+        count( *front.child );
+
+        double m, n, p;
+        if( FrontIs1D(front.type) ) 
+        {
+            m = front.L1D.Height();
+            n = front.L1D.Width();
+            p = front.L1D.DistSize();
+        }
+        else
+        {
+            m = front.L2D.Height();
+            n = front.L2D.Width();
+            p = front.L2D.DistSize();
+        }
+        double realFrontFlops = (m*n*numRHS) / p;
+        gflops += (IsComplex<F>::val ? 4*realFrontFlops : realFrontFlops)/1.e9;
+      };
+    count( *this );
+    return gflops;
 }
 
 template<typename F>

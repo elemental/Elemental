@@ -53,10 +53,7 @@ main( int argc, char* argv[] )
             Print( A, "A" );
 
         if( commRank == 0 )
-        {
-            cout << "Generating random vector x and forming y := A x...";
-            cout.flush();
-        }
+            cout << "Generating random vector x and forming y := A x" << endl;
         const double multiplyStart = mpi::Time();
         DistMultiVec<C> x( N, 1, comm ), y( N, 1, comm );
         MakeUniform( x );
@@ -64,16 +61,11 @@ main( int argc, char* argv[] )
         Multiply( NORMAL, C(1), A, x, C(0), y );
         const double yOrigNorm = Nrm2( y );
         mpi::Barrier( comm );
-        const double multiplyStop = mpi::Time();
         if( commRank == 0 )
-            cout << "done, " << multiplyStop-multiplyStart << " seconds"
-                 << endl;
+            cout << mpi::Time()-multiplyStart << " seconds" << endl;
 
         if( commRank == 0 )
-        {
-            cout << "Running nested dissection...";
-            cout.flush();
-        }
+            cout << "Running nested dissection..." << endl;
         const double nestedStart = mpi::Time();
         const auto& graph = A.DistGraph();
         DistSymmNodeInfo info;
@@ -96,32 +88,24 @@ main( int argc, char* argv[] )
         }
         map.FormInverse( invMap );
         mpi::Barrier( comm );
-        const double nestedStop = mpi::Time();
         if( commRank == 0 )
-            cout << "done, " << nestedStop-nestedStart << " seconds" << endl;
+            cout << mpi::Time()-nestedStart << " seconds" << endl;
 
         const int rootSepSize = info.size;
         if( commRank == 0 )
             cout << rootSepSize << " vertices in root separator\n" << endl;
 
         if( commRank == 0 )
-        {
-            cout << "Building DistSymmFront tree...";
-            cout.flush();
-        }
+            cout << "Building DistSymmFront tree..." << endl;
         mpi::Barrier( comm );
         const double buildStart = mpi::Time();
         DistSymmFront<C> front( A, map, sep, info, false );
         mpi::Barrier( comm );
-        const double buildStop = mpi::Time();
         if( commRank == 0 )
-            cout << "done, " << buildStop-buildStart << " seconds" << endl;
+            cout << mpi::Time()-buildStart << " seconds" << endl;
 
         if( commRank == 0 )
-        {
-            cout << "Running block LDL^T...";
-            cout.flush();
-        }
+            cout << "Running LDL factorization..." << endl;
         mpi::Barrier( comm );
         const double ldlStart = mpi::Time();
         SymmFrontType type;
@@ -131,18 +115,15 @@ main( int argc, char* argv[] )
             type = ( selInv ? LDL_SELINV_2D : LDL_2D );
         LDL( info, front, type );
         mpi::Barrier( comm );
-        const double ldlStop = mpi::Time();
         if( commRank == 0 )
-            cout << "done, " << ldlStop-ldlStart << " seconds" << endl;
+            cout << mpi::Time()-ldlStart << " seconds" << endl;
 
-        if( commRank == 0 )
-        {
-            cout << "Computing SVD of connectivity of second separator to "
-                    "the root separator...";
-            cout.flush();
-        }
+
         if( info.child != nullptr && info.child->onLeft )
         {
+            if( commRank == 0 )
+                cout << "Computing SVD of connectivity of second separator to "
+                        "the root separator..." << endl;
             const double svdStart = mpi::Time();
             const auto& FL = front.child->L2D;
             const Grid& grid = FL.Grid();
@@ -158,7 +139,7 @@ main( int argc, char* argv[] )
             const Int minDim = singVals_VR_STAR.Height();
             if( grid.Rank() == singVals.Root() )
             {
-                cout << "done, " << mpi::Time()-svdStart << " seconds\n"
+                cout << mpi::Time()-svdStart << " seconds\n"
                      << "  two norm=" << twoNorm << "\n";
                 for( double tol=1e-1; tol>=1e-10; tol/=10 )
                 {
@@ -178,11 +159,8 @@ main( int argc, char* argv[] )
         }
 
         if( commRank == 0 )
-        {
             cout << "Computing SVD of the largest off-diagonal block of "
-                    "numerical Green's function on root separator...";
-            cout.flush();
-        }
+                    "numerical Green's function on root separator..." << endl;
         {
             const double svdStart = mpi::Time();
             const auto& FL = front.L2D;
@@ -220,19 +198,12 @@ main( int argc, char* argv[] )
         }
 
         if( commRank == 0 )
-        {
-            cout << "Solving against y...";
-            cout.flush();
-        }
+            cout << "Solving against y..." << endl;
         const double solveStart = mpi::Time();
-        DistMatrixNode<C> yNodal;
-        yNodal.Pull( invMap, info, y );
-        ldl::SolveAfter( info, front, yNodal );
-        yNodal.Push( invMap, info, y );
+        ldl::SolveAfter( invMap, info, front, y );
         mpi::Barrier( comm );
-        const double solveStop = mpi::Time();
         if( commRank == 0 )
-            cout << "done, " << solveStop-solveStart << " seconds" << endl;
+            cout << mpi::Time()-solveStart << " seconds" << endl;
 
         if( commRank == 0 )
             cout << "Checking error in computed solution..." << endl;
@@ -241,7 +212,6 @@ main( int argc, char* argv[] )
         Axpy( C(-1), x, y );
         const double errorNorm = Nrm2( y );
         if( commRank == 0 )
-        {
             cout << "|| x     ||_2 = " << xNorm << "\n"
                  << "|| xComp ||_2 = " << yNorm << "\n"
                  << "|| A x   ||_2 = " << yOrigNorm << "\n"
@@ -249,7 +219,6 @@ main( int argc, char* argv[] )
                  << errorNorm/xNorm << "\n"
                  << "|| error ||_2 / || A x ||_2 = " 
                  << errorNorm/yOrigNorm << endl;
-        }
     }
     catch( exception& e ) { ReportException(e); }
 

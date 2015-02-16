@@ -80,10 +80,7 @@ int main( int argc, char* argv[] )
         }
 
         if( commRank == 0 )
-        {
-            cout << "Running nested dissection...";
-            cout.flush();
-        }
+            cout << "Running nested dissection..." << endl;
         const double nestedStart = mpi::Time();
         const DistGraph& graph = A.DistGraph();
         DistSymmNodeInfo info;
@@ -94,24 +91,21 @@ int main( int argc, char* argv[] )
         mpi::Barrier( comm );
         const double nestedStop = mpi::Time();
         if( commRank == 0 )
-            cout << "done, " << nestedStop-nestedStart << " seconds" << endl;
+            cout << nestedStop-nestedStart << " seconds" << endl;
 
         const Int rootSepSize = info.size;
         if( commRank == 0 )
             cout << rootSepSize << " vertices in root separator\n" << endl;
 
         if( commRank == 0 )
-        {
-            cout << "Building DistSymmFront tree...";
-            cout.flush();
-        }
+            cout << "Building DistSymmFront tree..." << endl;
         mpi::Barrier( comm );
         const double buildStart = mpi::Time();
         DistSymmFront<double> front( A, map, sep, info, false );
         mpi::Barrier( comm );
         const double buildStop = mpi::Time();
         if( commRank == 0 )
-            cout << "done, " << buildStop-buildStart << " seconds" << endl;
+            cout << buildStop-buildStart << " seconds" << endl;
 
         for( Int repeat=0; repeat<numRepeats; ++repeat )
         {
@@ -119,10 +113,7 @@ int main( int argc, char* argv[] )
                 MakeFrontsUniform( front );
 
             if( commRank == 0 )
-            {
-                cout << "Running LDL^T and redistribution...";
-                cout.flush();
-            }
+                cout << "Running LDL^T and redistribution..." << endl;
             mpi::Barrier( comm );
             const double ldlStart = mpi::Time();
             if( intraPiv )
@@ -132,20 +123,14 @@ int main( int argc, char* argv[] )
             mpi::Barrier( comm );
             const double ldlStop = mpi::Time();
             if( commRank == 0 )
-                cout << "done, " << ldlStop-ldlStart << " seconds" << endl;
+                cout << ldlStop-ldlStart << " seconds" << endl;
 
             if( commRank == 0 )
-            {
-                cout << "Solving against random right-hand side...";
-                cout.flush();
-            }
+                cout << "Solving against random right-hand side..." << endl;
             const double solveStart = mpi::Time();
             DistMultiVec<double> y( N, 1, comm );
             MakeUniform( y );
-            DistMultiVecNode<double> yNodal;
-            yNodal.Pull( invMap, info, y );
-            ldl::SolveAfter( info, front, yNodal );
-            yNodal.Push( invMap, info, y );
+            ldl::SolveAfter( invMap, info, front, y );
             mpi::Barrier( comm );
             const double solveStop = mpi::Time();
             if( commRank == 0 )
