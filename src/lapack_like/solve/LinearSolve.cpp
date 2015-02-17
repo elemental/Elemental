@@ -223,7 +223,7 @@ void LinearSolve( const SparseMatrix<F>& A, Matrix<F>& B )
     // Form D = [0; B]
     // ===============
     Matrix<F> D;
-    Zeros( D, n, k );
+    Zeros( D, 2*n, k );
     auto DB = D( IR(n,2*n), IR(0,k) );
     DB = B;
 
