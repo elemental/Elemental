@@ -64,6 +64,75 @@ void LeastSquares
 template<typename F>
 void LeastSquares
 ( Orientation orientation,
+  const SparseMatrix<F>& A, const Matrix<F>& B, Matrix<F>& X,
+  const BisectCtrl& ctrl )
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("LeastSquares");
+        if( orientation == NORMAL && A.Height() != B.Height() )
+            LogicError("Heights of A and B must match");
+        if( orientation != NORMAL && A.Width() != B.Height() )
+            LogicError("Width of A and height of B must match");
+    )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int k = B.Width();
+    SparseMatrix<F> C;
+    // TODO: 
+    // Given that the computational complexity of forming A^T A versus
+    // forming A A^T depends upon the sparsity structure of A, rather than
+    // just the matrix dimensions, the following branches should be exposed
+    // as an option for the user until the time where the decision can be
+    // automatically made in both an efficient and reliable manner.
+    if( orientation == NORMAL )
+    {
+        Zeros( X, n, k );
+        if( m >= n )
+        {
+            Herk( LOWER, ADJOINT, Base<F>(1), A, C );
+            MakeHermitian( LOWER, C );
+
+            Multiply( ADJOINT, F(1), A, B, F(0), X );
+            HermitianSolve( C, X, ctrl );
+        }
+        else
+        {
+            Herk( LOWER, NORMAL, Base<F>(1), A, C );
+            MakeHermitian( LOWER, C );
+
+            auto BCopy( B );
+            HermitianSolve( C, BCopy, ctrl );
+            Multiply( ADJOINT, F(1), A, BCopy, F(0), X );
+        }
+    }
+    else if( orientation == ADJOINT || !IsComplex<F>::val )
+    {
+        Zeros( X, m, k );
+        if( m >= n )
+        {
+            Herk( LOWER, NORMAL, Base<F>(1), A, C );
+            MakeHermitian( LOWER, C );
+
+            Multiply( NORMAL, F(1), A, B, F(0), X );
+            HermitianSolve( C, X, ctrl );
+        }
+        else
+        {
+            Herk( LOWER, ADJOINT, Base<F>(1), A, C );
+            MakeHermitian( LOWER, C );
+
+            auto BCopy( B );
+            HermitianSolve( C, BCopy, ctrl );
+            Multiply( NORMAL, F(1), A, BCopy, F(0), X );
+        }
+    }
+    else
+        LogicError("Complex transposed option not yet supported");
+}
+
+template<typename F>
+void LeastSquares
+( Orientation orientation,
   const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, DistMultiVec<F>& X,
   const BisectCtrl& ctrl )
 {
@@ -140,6 +209,10 @@ void LeastSquares
   template void LeastSquares \
   ( Orientation orientation, AbstractDistMatrix<F>& A, \
     const AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& X ); \
+  template void LeastSquares \
+  ( Orientation orientation, \
+    const SparseMatrix<F>& A, const Matrix<F>& B, \
+    Matrix<F>& X, const BisectCtrl& ctrl ); \
   template void LeastSquares \
   ( Orientation orientation, \
     const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, \

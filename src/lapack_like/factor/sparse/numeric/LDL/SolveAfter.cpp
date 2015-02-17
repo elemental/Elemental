@@ -158,7 +158,6 @@ Int SolveWithIterativeRefinement
   Base<F> minReductionFactor, Int maxRefineIts )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::SolveWithIterativeRefinement"))
-
     auto yOrig = y;
 
     // Compute the initial guess

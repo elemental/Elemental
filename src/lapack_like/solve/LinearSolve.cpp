@@ -180,11 +180,104 @@ void LinearSolve
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
 }
 
+// The following routines form the Hermitian quasi-semidefinite system
+// 
+//     | I A^H | | X | = | 0 |,
+//     | A 0   | | Y |   | B |
+//
+// where the top-left corner is positive-definite and the
+// bottom-right corner is negative semi-definite.
+//
+// See Michael Saunders, 
+//   "Chapter 8, Cholesky-based Methods for Sparse Least Squares:
+//    The Benefits of Regularization",
+//    in L. Adams and J.L. Nazareth (eds.), Linear and Nonlinear Conjugate
+//    Gradient-Related Methods, SIAM, Philadelphia, 92--100 (1996).
+
 template<typename F>
 void LinearSolve( const SparseMatrix<F>& A, Matrix<F>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("LinearSolve"))
-    LogicError("Sequential sparse-direct solvers not yet supported");
+    typedef Base<F> Real;
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int k = B.Width();
+    const Int numEntriesA = A.NumEntries();
+    if( m != n )
+        LogicError("Cannot solve a linear system with a non-square matrix");
+
+    // Form J = [I, A^H; A, 0]
+    // =======================
+    SparseMatrix<F> J;
+    Zeros( J, 2*n, 2*n );
+    J.Reserve( 2*numEntriesA + n );
+    for( Int e=0; e<numEntriesA; ++e )
+    {
+        J.QueueUpdate( A.Row(e),   A.Col(e)+n, A.Value(e)       );
+        J.QueueUpdate( A.Col(e)+n, A.Row(e),   Conj(A.Value(e)) );
+    }
+    for( Int e=0; e<n; ++e )
+        J.QueueUpdate( e, e, F(1) );
+    J.MakeConsistent();
+
+    // Form D = [0; B]
+    // ===============
+    Matrix<F> D;
+    Zeros( D, n, k );
+    auto DB = D( IR(n,2*n), IR(0,k) );
+    DB = B;
+
+    // Compute the dynamically-regularized quasi-semidefinite fact of J
+    // ================================================================
+    const Real minReductionFactor = 2;
+    const Int maxRefineIts = 50; 
+    bool print = true;
+    const Real epsilon = lapack::MachineEpsilon<Real>();
+    bool aPriori = true;
+    const Real regMagPrimal = Pow(epsilon,Real(0.75));
+    const Real regMagDual = Pow(epsilon,Real(0.5));
+    const Real pivTol = MaxNorm(J)*epsilon;
+
+    Matrix<Real> regCand, reg;
+    regCand.Resize( 2*n, 1 );
+    for( Int i=0; i<n; ++i )
+        regCand.Set( i, 0, regMagPrimal );
+    for( Int i=n; i<2*n; ++i )
+        regCand.Set( i, 0, -regMagDual );
+    Zeros( reg, 2*n, 1 );
+
+    vector<Int> map, invMap;
+    SymmNodeInfo info;
+    Separator rootSep;
+    NestedDissection( J.LockedGraph(), map, rootSep, info );
+    InvertMap( map, invMap );
+    SymmFront<F> JFront( J, map, info );
+
+    MatrixNode<Real> regCandNodal(invMap,info,regCand), 
+                     regNodal(invMap,info,reg);
+    RegularizedQSDLDL( info, JFront, pivTol, regCandNodal, regNodal, aPriori );
+    regNodal.Push( invMap, info, reg );
+
+    // Successively solve each of the k linear systems
+    // ===============================================
+    // TODO: Extend the iterative refinement to handle multiple right-hand sides
+    Matrix<F> u;
+    Zeros( u, 2*n, 1 );
+    for( Int j=0; j<k; ++j )
+    {
+        auto d = D( IR(0,2*n), IR(j,j+1) );
+        u = d;
+        reg_qsd_ldl::SolveAfter
+        ( J, reg, invMap, info, JFront, u,
+          REG_REFINE_FGMRES,
+          minReductionFactor, maxRefineIts, print );
+        d = u;
+    }
+
+    // Extract X from [X; Y]
+    // =====================
+    auto DT = D( IR(0,n), IR(0,k) );
+    B = DT;
 }
 
 template<typename F>
@@ -200,20 +293,6 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
         LogicError("Cannot solve a linear system with a non-square matrix");
     mpi::Comm comm = A.Comm();
     const int commSize = mpi::Size(comm);
-
-    // Form the Hermitian quasi-semidefinite system
-    // 
-    //     | I A^H | | X | = | 0 |,
-    //     | A 0   | | Y |   | B |
-    //
-    // where the top-left corner is positive-definite and the
-    // bottom-right corner is negative semi-definite.
-    //
-    // See Michael Saunders, 
-    //   "Chapter 8, Cholesky-based Methods for Sparse Least Squares:
-    //    The Benefits of Regularization",
-    //    in L. Adams and J.L. Nazareth (eds.), Linear and Nonlinear Conjugate
-    //    Gradient-Related Methods, SIAM, Philadelphia, 92--100 (1996).
 
     // Form J = [I, A^H; A, 0]
     // =======================

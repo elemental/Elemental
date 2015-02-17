@@ -255,6 +255,14 @@ void RegularizedQSDLDL
 
 template<typename F>
 void RegularizedQSDLDL
+( const SymmNodeInfo& info, SymmFront<F>& front,
+  Base<F> pivTol,
+  const MatrixNode<Base<F>>& regCand,
+        MatrixNode<Base<F>>& reg,
+  bool aPriori=false,
+  SymmFrontType newType=LDL_2D );
+template<typename F>
+void RegularizedQSDLDL
 ( const DistSymmNodeInfo& info, DistSymmFront<F>& front,
   Base<F> pivTol,
   const DistMultiVecNode<Base<F>>& regCand,
@@ -274,12 +282,27 @@ namespace reg_qsd_ldl {
 
 template<typename F>
 Int RegularizedSolveAfter
+( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
+  const vector<Int>& invMap,  const SymmNodeInfo& info,
+  const SymmFront<F>& front,        Matrix<F>& y,
+  Base<F> minReductionFactor,       Int maxRefineIts,
+  bool progress );
+template<typename F>
+Int RegularizedSolveAfter
 ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
   const DistMap& invMap,             const DistSymmNodeInfo& info,
   const DistSymmFront<F>& front,           DistMultiVec<F>& y,
   Base<F> minReductionFactor,              Int maxRefineIts,
   bool progress );
 
+template<typename F>
+Int SolveAfter
+( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
+  const vector<Int>& invMap,  const SymmNodeInfo& info,
+  const SymmFront<F>& front,        Matrix<F>& y,
+  RegQSDRefineAlg refineAlg,
+  Base<F> minReductionFactor,       Int maxRefineIts,
+  bool progress );
 template<typename F>
 Int SolveAfter
 ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,

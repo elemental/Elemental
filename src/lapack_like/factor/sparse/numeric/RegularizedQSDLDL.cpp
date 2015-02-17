@@ -14,6 +14,29 @@ namespace El {
 
 template<typename F>
 void RegularizedQSDLDL
+( const SymmNodeInfo& info, SymmFront<F>& front, Base<F> pivTol, 
+  const MatrixNode<Base<F>>& regCand, 
+        MatrixNode<Base<F>>& reg,
+  bool aPriori,
+  SymmFrontType newType )
+{
+    DEBUG_ONLY(CallStackEntry cse("RegularizedQSDLDL"))
+    if( !Unfactored(front.type) )
+        LogicError("Matrix is already factored");
+
+    // Convert from 1D to 2D if necessary
+    ChangeFrontType( front, SYMM_2D );
+
+    // Perform the initial factorization
+    reg_qsd_ldl::Process
+    ( info, front, pivTol, regCand, reg, aPriori, InitialFactorType(newType) );
+
+    // Convert the fronts from the initial factorization to the requested form
+    ChangeFrontType( front, newType );
+}
+
+template<typename F>
+void RegularizedQSDLDL
 ( const DistSymmNodeInfo& info, DistSymmFront<F>& front, Base<F> pivTol, 
   const DistMultiVecNode<Base<F>>& regCand, 
         DistMultiVecNode<Base<F>>& reg,
@@ -36,6 +59,13 @@ void RegularizedQSDLDL
 }
 
 #define PROTO(F) \
+  template void RegularizedQSDLDL \
+  ( const SymmNodeInfo& info, SymmFront<F>& front, \
+    Base<F> pivTol, \
+    const MatrixNode<Base<F>>& regCand, \
+          MatrixNode<Base<F>>& reg, \
+    bool aPriori, \
+    SymmFrontType newType ); \
   template void RegularizedQSDLDL \
   ( const DistSymmNodeInfo& info, DistSymmFront<F>& front, \
     Base<F> pivTol, \
