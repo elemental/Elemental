@@ -82,7 +82,7 @@ int main( int argc, char* argv[] )
             ( n1, n2, n3, graph, map, sep, info, cutoff );
         else
             NestedDissection( graph, map, sep, info, ctrl );
-        map.FormInverse( invMap );
+        InvertMap( map, invMap );
         mpi::Barrier( comm );
         const double nestedStop = mpi::Time();
         if( commRank == 0 )

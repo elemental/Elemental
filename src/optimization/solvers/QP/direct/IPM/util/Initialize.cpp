@@ -356,7 +356,7 @@ void Initialize
     // Compute the proposed step from the KKT system
     // ---------------------------------------------
     NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-    map.FormInverse( invMap );
+    InvertMap( map, invMap );
 
     DistSymmFront<Real> JFront;
     JFront.Pull( J, map, rootSep, info );

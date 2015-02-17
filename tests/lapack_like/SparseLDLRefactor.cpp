@@ -14,7 +14,7 @@ using namespace El;
 template<typename F>
 void MakeFrontsUniform( SymmFront<F>& front )
 {
-    //ChangeFrontType( front, SYMM_2D );
+    ChangeFrontType( front, SYMM_2D );
     MakeUniform( front.L );
     for( SymmFront<F>* child : front.children )
         MakeFrontsUniform( *child );
@@ -87,7 +87,7 @@ int main( int argc, char* argv[] )
         DistSeparator sep;
         DistMap map, invMap;
         NestedDissection( graph, map, sep, info, ctrl );
-        map.FormInverse( invMap );
+        InvertMap( map, invMap );
         mpi::Barrier( comm );
         const double nestedStop = mpi::Time();
         if( commRank == 0 )

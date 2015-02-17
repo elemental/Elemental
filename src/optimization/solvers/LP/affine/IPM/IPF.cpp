@@ -537,7 +537,7 @@ void IPF
             if( ctrl.primalInitialized && ctrl.dualInitialized && numIts == 0 )
             {
                 NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-                map.FormInverse( invMap );
+                InvertMap( map, invMap );
             }
             JFront.Pull( J, map, rootSep, info );
             regCandNodal.Pull( invMap, info, regCand );

@@ -36,9 +36,7 @@ public:
     // Map manipulation
     // Collectively map each process's local set of indices
     void Translate( vector<Int>& localInds ) const;
-    // Form the inverse map
-    void FormInverse( DistMap& inverseMap ) const;
-    // composite(i) := second(first(i))
+   // composite(i) := second(first(i))
     void Extend( DistMap& firstMap ) const;
     void Extend( const DistMap& firstMap, DistMap& compositeMap ) const;
 
@@ -81,6 +79,9 @@ private:
     vector<Int> map_;
 };
 
+void InvertMap( const vector<Int>& map, vector<Int>& inverseMap );
+void InvertMap( const DistMap& map, DistMap& inverseMap );
+  
 } // namespace El
 
 #endif // ifndef EL_CORE_DISTMAP_DECL_HPP

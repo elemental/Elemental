@@ -152,7 +152,7 @@ NestedDissectionRecursion
             ( childIsOnLeft ? childSize : numSources-sepSize-childSize );
 
         DistMap invMap;
-        map.FormInverse( invMap );
+        InvertMap( map, invMap );
 
         // Mostly fill this node of the DistSeparatorTree
         // (we will finish computing the separator indices at the end)
@@ -325,8 +325,8 @@ Int Bisect
         const Int source = graph.Source( edge );
         const Int target = graph.Target( edge );
         DEBUG_ONLY(
-            if( source < prevSource )
-                RuntimeError("sources were not properly sorted");
+          if( source < prevSource )
+              RuntimeError("sources were not properly sorted");
         )
         while( source != prevSource )
         {
@@ -340,8 +340,8 @@ Int Bisect
         }
     }
     DEBUG_ONLY(
-        if( sourceOff != numSources )
-            LogicError("Mistake in xAdj computation");
+      if( sourceOff != numSources )
+          LogicError("Mistake in xAdj computation");
     )
     xAdj[numSources] = numValidEdges;
 
@@ -417,8 +417,8 @@ Int Bisect
         const Int source = graph.Source( localEdge );
         const Int target = graph.Target( localEdge );
         DEBUG_ONLY(
-            if( source < prevSource )
-                RuntimeError("sources were not properly sorted");
+          if( source < prevSource )
+              RuntimeError("sources were not properly sorted");
         )
         while( source != prevSource )
         {
@@ -432,8 +432,8 @@ Int Bisect
         }
     }
     DEBUG_ONLY(
-        if( sourceOff != numLocalSources )
-            LogicError("Mistake in xAdj computation");
+      if( sourceOff != numLocalSources )
+          LogicError("Mistake in xAdj computation");
     )
     xAdj[numLocalSources] = numLocalValidEdges;
 
@@ -886,12 +886,12 @@ void BuildChildFromPerm
             if( onLeft )
             {
                 DEBUG_ONLY(
-                    if( target >= leftChildSize && 
-                        target < (numSources-sepSize) )
-                        LogicError
-                        ("Invalid bisection, left set touches right:\n",
-                         "  ",source," touches ",target," and leftChildSize=",
-                         leftChildSize);
+                  if( target >= leftChildSize && 
+                      target < (numSources-sepSize) )
+                      LogicError
+                      ("Invalid bisection, left set touches right:\n",
+                       "  ",source," touches ",target," and leftChildSize=",
+                       leftChildSize);
                 )
                 child.QueueLocalConnection
                 ( source-childFirstLocalSource, target );
@@ -899,9 +899,9 @@ void BuildChildFromPerm
             else
             {
                 DEBUG_ONLY(
-                    if( target < leftChildSize )
-                        LogicError
-                        ("Invalid bisection, right set touches left set");
+                  if( target < leftChildSize )
+                      LogicError
+                      ("Invalid bisection, right set touches left set");
                 )
                 child.QueueLocalConnection
                 ( source-leftChildSize-childFirstLocalSource, 
@@ -921,12 +921,12 @@ void BuildMap
     map.resize( numSources );
 
     function<void(const Separator&)> buildMap = 
-      [&]( const Separator& sep ) -> void
+      [&]( const Separator& sep )
       {
-          for( auto* child : sep.children )  
-              buildMap( *child );
-          for( Int t=0; t<sep.inds.size(); ++t )
-              map[sep.inds[t]] = sep.off + t;
+        for( auto* child : sep.children )  
+            buildMap( *child );
+        for( Int t=0; t<sep.inds.size(); ++t )
+            map[sep.inds[t]] = sep.off + t;
       };
     buildMap( rootSep );
 }
@@ -947,10 +947,10 @@ void BuildMap
     function<void(const Separator&)> sendSizeLocalAccumulate =
       [&]( const Separator& sep )
       {
-          for( const Separator* childSep : sep.children )
-              sendSizeLocalAccumulate( *childSep );
-          for( Int i : sep.inds )
-              ++sendSizes[ map.RowOwner(i) ];
+        for( const Separator* childSep : sep.children )
+            sendSizeLocalAccumulate( *childSep );
+        for( Int i : sep.inds )
+            ++sendSizes[ map.RowOwner(i) ];
       };
     function<void(const DistSeparator&)> sendSizeAccumulate = 
       [&]( const DistSeparator& sep )
@@ -1036,9 +1036,9 @@ void BuildMap
     vector<int> recvOffs;
     const int numRecvs = Scan( recvSizes, recvOffs );
     DEBUG_ONLY(
-        const Int numLocalSources = map.NumLocalSources();
-        if( numRecvs != numLocalSources )
-            LogicError("incorrect number of recv indices");
+      const Int numLocalSources = map.NumLocalSources();
+      if( numRecvs != numLocalSources )
+          LogicError("incorrect number of recv indices");
     )
     vector<Int> recvInds( numRecvs );
     mpi::AllToAll

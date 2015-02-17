@@ -159,7 +159,7 @@ NaturalNestedDissectionRecursion
             ( childIsOnLeft ? childSize : numSources-sepSize-childSize );
 
         DistMap invMap;
-        map.FormInverse( invMap );
+        InvertMap( map, invMap );
 
         // Mostly fill this node of the DistSeparatorTree
         // (we will finish computing the separator indices at the end)

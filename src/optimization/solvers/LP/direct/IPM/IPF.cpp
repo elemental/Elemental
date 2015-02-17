@@ -586,7 +586,7 @@ void IPF
             if( numIts == 0 )
             {
                 NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-                map.FormInverse( invMap );
+                InvertMap( map, invMap );
             }
             JFront.Pull( J, map, rootSep, info );
             regCandNodal.Pull( invMap, info, regCand );
@@ -623,7 +623,7 @@ void IPF
             if( ctrl.primalInitialized && ctrl.dualInitialized && numIts == 0 )
             {
                 NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-                map.FormInverse( invMap );
+                InvertMap( map, invMap );
             }
             JFront.Pull( J, map, rootSep, info );
             regCandNodal.Pull( invMap, info, regCand );
@@ -658,7 +658,7 @@ void IPF
             if( numIts == 0 )
             {
                 NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-                map.FormInverse( invMap );
+                InvertMap( map, invMap );
             }
             JFront.Pull( J, map, rootSep, info );
             LDL( info, JFront, LDL_INTRAPIV_1D ); 

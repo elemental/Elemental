@@ -140,6 +140,10 @@ void LDL
 // original sparse matrix before calling LDL.
 template<typename F>
 void LDL
+( const SymmNodeInfo& info, SymmFront<F>& L, 
+  SymmFrontType newType=LDL_2D );
+template<typename F>
+void LDL
 ( const DistSymmNodeInfo& info, DistSymmFront<F>& L, 
   SymmFrontType newType=LDL_2D );
 

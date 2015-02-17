@@ -86,7 +86,7 @@ main( int argc, char* argv[] )
 
             NestedDissection( graph, map, sep, info, ctrl );
         }
-        map.FormInverse( invMap );
+        InvertMap( map, invMap );
         mpi::Barrier( comm );
         if( commRank == 0 )
             cout << mpi::Time()-nestedStart << " seconds" << endl;

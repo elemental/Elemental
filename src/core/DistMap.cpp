@@ -32,7 +32,7 @@ DistMap::~DistMap()
 }
 
 void DistMap::StoreOwners
-( Int numSources, std::vector<Int>& localInds, mpi::Comm comm )
+( Int numSources, vector<Int>& localInds, mpi::Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("DistMap::StoreOwners"))
     SetComm( comm );
@@ -40,13 +40,13 @@ void DistMap::StoreOwners
     const int commSize = mpi::Size( comm );
 
     // Exchange via AllToAlls
-    std::vector<int> sendSizes( commSize, 0 );
+    vector<int> sendSizes( commSize, 0 );
     const Int numLocalInds = localInds.size();
     for( Int s=0; s<numLocalInds; ++s )
         ++sendSizes[ RowOwner(localInds[s]) ]; 
-    std::vector<int> recvSizes( commSize );
+    vector<int> recvSizes( commSize );
     mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, comm );
-    std::vector<int> sendOffs, recvOffs;
+    vector<int> sendOffs, recvOffs;
     const int numSends = Scan( sendSizes, sendOffs );
     const int numRecvs = Scan( recvSizes, recvOffs );
     DEBUG_ONLY(
@@ -54,13 +54,13 @@ void DistMap::StoreOwners
             LogicError("Incorrect number of recv indices");
     )
     auto offs = sendOffs;
-    std::vector<Int> sendInds( numSends );
+    vector<Int> sendInds( numSends );
     for( Int s=0; s<numLocalInds; ++s )
     {
         const Int i = localInds[s];
         sendInds[offs[RowOwner(i)]++] = i;
     }
-    std::vector<Int> recvInds( numRecvs );
+    vector<Int> recvInds( numRecvs );
     mpi::AllToAll
     ( sendInds.data(), sendSizes.data(), sendOffs.data(),
       recvInds.data(), recvSizes.data(), recvOffs.data(), comm );
@@ -76,14 +76,14 @@ void DistMap::StoreOwners
     }
 }
 
-void DistMap::Translate( std::vector<Int>& localInds ) const
+void DistMap::Translate( vector<Int>& localInds ) const
 {
     DEBUG_ONLY(CallStackEntry cse("DistMap::Translate"))
     const int commSize = mpi::Size( comm_ );
     const Int numLocalInds = localInds.size();
 
     // Count how many indices we need each process to map
-    std::vector<int> requestSizes( commSize, 0 );
+    vector<int> requestSizes( commSize, 0 );
     for( Int s=0; s<numLocalInds; ++s )
     {
         const Int i = localInds[s];
@@ -92,16 +92,16 @@ void DistMap::Translate( std::vector<Int>& localInds ) const
     }
 
     // Send our requests and find out what we need to fulfill
-    std::vector<int> fulfillSizes( commSize );
+    vector<int> fulfillSizes( commSize );
     mpi::AllToAll( requestSizes.data(), 1, fulfillSizes.data(), 1, comm_ );
 
     // Prepare for the AllToAll to exchange request sizes
-    std::vector<int> requestOffs, fulfillOffs;
+    vector<int> requestOffs, fulfillOffs;
     const int numRequests = Scan( requestSizes, requestOffs );
     const int numFulfills = Scan( fulfillSizes, fulfillOffs );
 
     // Pack the requested information 
-    std::vector<int> requests( numRequests );
+    vector<int> requests( numRequests );
     auto offs = requestOffs;
     for( Int s=0; s<numLocalInds; ++s )
     {
@@ -111,7 +111,7 @@ void DistMap::Translate( std::vector<Int>& localInds ) const
     }
 
     // Perform the first index exchange
-    std::vector<int> fulfills( numFulfills );
+    vector<int> fulfills( numFulfills );
     mpi::AllToAll
     ( requests.data(), requestSizes.data(), requestOffs.data(),
       fulfills.data(), fulfillSizes.data(), fulfillOffs.data(), comm_ );
@@ -122,13 +122,13 @@ void DistMap::Translate( std::vector<Int>& localInds ) const
         const Int i = fulfills[s];
         const Int iLocal = i - firstLocalSource_;
         DEBUG_ONLY(
-            if( iLocal < 0 || iLocal >= (Int)map_.size() )
-            {
-                const int commRank = mpi::Rank( comm_ );
-                LogicError
-                ("invalid request: i=",i,", iLocal=",iLocal,
-                 ", commRank=",commRank,", blocksize=",blocksize_);
-            }
+          if( iLocal < 0 || iLocal >= (Int)map_.size() )
+          {
+              const int commRank = mpi::Rank( comm_ );
+              LogicError
+              ("invalid request: i=",i,", iLocal=",iLocal,
+               ", commRank=",commRank,", blocksize=",blocksize_);
+          }
         )
         fulfills[s] = map_[iLocal];
     }
@@ -145,62 +145,6 @@ void DistMap::Translate( std::vector<Int>& localInds ) const
         const Int i = localInds[s];
         if( i < numSources_ )
             localInds[s] = requests[offs[RowOwner(i)]++];
-    }
-}
-
-void DistMap::FormInverse( DistMap& inverseMap ) const
-{
-    DEBUG_ONLY(CallStackEntry cse("DistMap::FormInverse"))
-    const int commSize = mpi::Size( comm_ );
-    const Int numLocalSources = map_.size();
-
-    // How many pairs of original and mapped indices to send to each process
-    std::vector<int> sendSizes( commSize, 0 );
-    for( Int s=0; s<numLocalSources; ++s )
-        sendSizes[RowOwner(map_[s])] += 2;
-
-    // Coordinate all of the processes on their send sizes
-    std::vector<int> recvSizes( commSize );
-    mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, comm_ );
-
-    // Prepare for the AllToAll to exchange send sizes
-    std::vector<int> sendOffs, recvOffs;
-    const int numSends = Scan( sendSizes, sendOffs );
-    const int numRecvs = Scan( recvSizes, recvOffs );
-    DEBUG_ONLY(
-        if( numSends != 2*numLocalSources )
-            LogicError("Miscalculated numSends");
-    )
-    DEBUG_ONLY(
-        if( numRecvs != 2*numLocalSources )
-            LogicError("Mistake in number of receives");
-    )
-
-    // Pack our map information
-    std::vector<int> sends( numSends );
-    auto offs = sendOffs;
-    for( Int s=0; s<numLocalSources; ++s )
-    {
-        const Int i = map_[s];
-        const int q = RowOwner(i);
-        sends[offs[q]++] = s+firstLocalSource_;
-        sends[offs[q]++] = i;
-    }
-
-    // Send out the map information
-    std::vector<int> recvs( numRecvs );
-    mpi::AllToAll
-    ( sends.data(), sendSizes.data(), sendOffs.data(),
-      recvs.data(), recvSizes.data(), recvOffs.data(), comm_ );
-
-    // Form our part of the inverse map
-    inverseMap.numSources_ = numSources_;
-    inverseMap.SetComm( comm_ );
-    for( Int s=0; s<numRecvs; s+=2 )
-    {
-        const Int origInd = recvs[s];
-        const Int mappedInd = recvs[s+1];
-        inverseMap.SetLocal( mappedInd-firstLocalSource_, origInd );
     }
 }
 
@@ -275,8 +219,8 @@ void DistMap::SetLocal( Int localSource, Int target )
     map_[localSource] = target; 
 }
 
-      std::vector<Int>& DistMap::Map()       { return map_; }
-const std::vector<Int>& DistMap::Map() const { return map_; }
+      vector<Int>& DistMap::Map()       { return map_; }
+const vector<Int>& DistMap::Map() const { return map_; }
 
       Int* DistMap::Buffer()       { return map_.data(); }
 const Int* DistMap::Buffer() const { return map_.data(); }
@@ -308,6 +252,71 @@ const DistMap& DistMap::operator=( const DistMap& map )
     SetComm( map.comm_ );
     map_ = map.map_;
     return *this;
+}
+
+void InvertMap( const vector<Int>& map, vector<Int>& inverseMap ) 
+{
+    DEBUG_ONLY(CallStackEntry cse("InvertMap"))
+    const int n = map.size();
+    inverseMap.resize( n );
+    for( int i=0; i<n; ++i )
+        inverseMap[map[i]] = i;
+}
+
+void InvertMap( const DistMap& map, DistMap& inverseMap ) 
+{
+    DEBUG_ONLY(CallStackEntry cse("InvertMap"))
+    mpi::Comm comm = map.Comm();
+    const int commSize = mpi::Size( comm );
+    const Int numLocalSources = map.NumLocalSources();
+    const vector<Int>& localMap = map.Map();
+
+    // How many pairs of original and mapped indices to send to each process
+    vector<int> sendSizes( commSize, 0 );
+    for( Int s=0; s<numLocalSources; ++s )
+        sendSizes[map.RowOwner(localMap[s])] += 2;
+
+    // Coordinate all of the processes on their send sizes
+    vector<int> recvSizes( commSize );
+    mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, comm );
+
+    // Prepare for the AllToAll to exchange send sizes
+    vector<int> sendOffs, recvOffs;
+    const int numSends = Scan( sendSizes, sendOffs );
+    const int numRecvs = Scan( recvSizes, recvOffs );
+    DEBUG_ONLY(
+      if( numSends != 2*numLocalSources )
+          LogicError("Miscalculated numSends");
+      if( numRecvs != 2*numLocalSources )
+          LogicError("Mistake in number of receives");
+    )
+
+    // Pack our map information
+    vector<int> sends( numSends );
+    auto offs = sendOffs;
+    for( Int s=0; s<numLocalSources; ++s )
+    {
+        const Int i = localMap[s];
+        const int q = map.RowOwner(i);
+        sends[offs[q]++] = s + map.FirstLocalSource();
+        sends[offs[q]++] = i;
+    }
+
+    // Send out the map information
+    vector<int> recvs( numRecvs );
+    mpi::AllToAll
+    ( sends.data(), sendSizes.data(), sendOffs.data(),
+      recvs.data(), recvSizes.data(), recvOffs.data(), comm );
+
+    // Form our part of the inverse map
+    inverseMap.SetComm( comm );
+    inverseMap.Resize( map.NumSources() );
+    for( Int s=0; s<numRecvs; s+=2 )
+    {
+        const Int origInd = recvs[s];
+        const Int mappedInd = recvs[s+1];
+        inverseMap.SetLocal( mappedInd-map.FirstLocalSource(), origInd );
+    }
 }
 
 } // namespace El

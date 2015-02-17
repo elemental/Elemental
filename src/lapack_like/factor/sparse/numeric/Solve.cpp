@@ -25,6 +25,31 @@ namespace El {
 // TODO: Add iterative refinement parameter
 template<typename F>
 void SymmetricSolve
+( const SparseMatrix<F>& A, Matrix<F>& X, 
+  bool conjugate, const BisectCtrl& ctrl )
+{
+    DEBUG_ONLY(CallStackEntry cse("SymmetricSolve"))
+    SymmNodeInfo info;
+    Separator rootSep;
+    vector<Int> map, invMap;
+    NestedDissection( A.LockedGraph(), map, rootSep, info, ctrl );
+    InvertMap( map, invMap );
+
+    SymmFront<F> front( A, map, info, conjugate );
+    LDL( info, front );
+
+    // TODO: Extend ldl::SolveWithIterativeRefinement to support multiple
+    //       right-hand sides
+    /*
+    ldl::SolveWithIterativeRefinement
+    ( A, invMap, info, front, X, minReductionFactor, maxRefineIts );
+    */
+    ldl::SolveAfter( invMap, info, front, X );
+}
+
+// TODO: Add iterative refinement parameter
+template<typename F>
+void SymmetricSolve
 ( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, 
   bool conjugate, const BisectCtrl& ctrl )
 {
@@ -33,7 +58,7 @@ void SymmetricSolve
     DistSeparator rootSep;
     DistMap map, invMap;
     NestedDissection( A.LockedDistGraph(), map, rootSep, info, ctrl );
-    map.FormInverse( invMap );
+    InvertMap( map, invMap );
 
     DistSymmFront<F> front( A, map, rootSep, info, conjugate );
     LDL( info, front, LDL_INTRAPIV_1D );
@@ -50,6 +75,15 @@ void SymmetricSolve
 // TODO: Add iterative refinement parameter
 template<typename F>
 void HermitianSolve
+( const SparseMatrix<F>& A, Matrix<F>& X, const BisectCtrl& ctrl )
+{
+    DEBUG_ONLY(CallStackEntry cse("HermitianSolve"))
+    SymmetricSolve( A, X, true, ctrl );
+}
+
+// TODO: Add iterative refinement parameter
+template<typename F>
+void HermitianSolve
 ( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, const BisectCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSolve"))
@@ -58,7 +92,13 @@ void HermitianSolve
 
 #define PROTO(F) \
   template void SymmetricSolve \
+  ( const SparseMatrix<F>& A, Matrix<F>& X, bool conjugate, \
+    const BisectCtrl& ctrl ); \
+  template void SymmetricSolve \
   ( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, bool conjugate, \
+    const BisectCtrl& ctrl ); \
+  template void HermitianSolve \
+  ( const SparseMatrix<F>& A, Matrix<F>& X, \
     const BisectCtrl& ctrl ); \
   template void HermitianSolve \
   ( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, \

@@ -8,7 +8,7 @@
 #
 import math, El
 n = 50                  # matrix size
-realRes = imagRes = 200 # grid resolution
+realRes = imagRes = 100 # grid resolution
 
 # Display an instance of the dynamic regularization problematic L
 L = El.DistMatrix(El.dTag)

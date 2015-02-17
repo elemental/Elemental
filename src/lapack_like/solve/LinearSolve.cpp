@@ -380,7 +380,7 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
     DistSymmNodeInfo info;
     DistSeparator rootSep;
     NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-    map.FormInverse( invMap );
+    InvertMap( map, invMap );
     DistSymmFront<F> JFront( J, map, rootSep, info );
 
     DistMultiVecNode<Real> regCandNodal(invMap,info,regCand), 

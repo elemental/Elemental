@@ -25,6 +25,24 @@ namespace El {
 
 template<typename F>
 void LDL
+( const SymmNodeInfo& info, SymmFront<F>& front, SymmFrontType newType )
+{
+    DEBUG_ONLY(CallStackEntry cse("LDL"))
+    if( !Unfactored(front.type) )
+        LogicError("Matrix is already factored");
+
+    // Convert from 1D to 2D if necessary
+    ChangeFrontType( front, SYMM_2D );
+
+    // Perform the initial factorization
+    ldl::Process( info, front, InitialFactorType(newType) );
+
+    // Convert the fronts from the initial factorization to the requested form
+    ChangeFrontType( front, newType );
+}
+
+template<typename F>
+void LDL
 ( const DistSymmNodeInfo& info, DistSymmFront<F>& front, SymmFrontType newType )
 {
     DEBUG_ONLY(CallStackEntry cse("LDL"))
@@ -42,6 +60,9 @@ void LDL
 }
 
 #define PROTO(F) \
+  template void LDL \
+  ( const SymmNodeInfo& info, SymmFront<F>& front, \
+    SymmFrontType newType ); \
   template void LDL \
   ( const DistSymmNodeInfo& info, DistSymmFront<F>& front, \
     SymmFrontType newType );
