@@ -16,9 +16,8 @@ El.GEPPGrowth(A,n)
 El.Display(A,"GEPP growth matrix")
 
 # Display the spectral portrait
-portrait = El.SpectralPortrait(A,realRes,imagRes)
-El.EntrywiseMap(portrait,math.log10)
-El.Display(portrait,"spectral portrait of GEPP growth matrix")
+portrait, box = El.SpectralPortrait(A,realRes,imagRes)
+El.DisplayPortrait(portrait,box,"spectral portrait of GEPP growth matrix")
 
 # Display the relevant pieces of pivoted LU factorization
 p = El.LU(A)

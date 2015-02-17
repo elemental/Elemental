@@ -1491,6 +1491,42 @@ inline PseudospecCtrl<double> CReflect( const ElPseudospecCtrl_d& ctrlC )
     return ctrl;
 }
 
+inline ElSpectralBox_s CReflect( const SpectralBox<float>& box )
+{
+    ElSpectralBox_s boxC;
+    boxC.center = CReflect(box.center);
+    boxC.realWidth = box.realWidth;
+    boxC.imagWidth = box.imagWidth;
+    return boxC;
+}
+
+inline ElSpectralBox_d CReflect( const SpectralBox<double>& box )
+{
+    ElSpectralBox_d boxC;
+    boxC.center = CReflect(box.center);
+    boxC.realWidth = box.realWidth;
+    boxC.imagWidth = box.imagWidth;
+    return boxC;
+}
+
+inline SpectralBox<float> CReflect( const ElSpectralBox_s boxC )
+{
+    SpectralBox<float> box;
+    box.center = CReflect(boxC.center);
+    box.realWidth = CReflect(boxC.realWidth);
+    box.imagWidth = CReflect(boxC.imagWidth);
+    return box;
+}
+
+inline SpectralBox<double> CReflect( const ElSpectralBox_d boxC )
+{
+    SpectralBox<double> box;
+    box.center = CReflect(boxC.center);
+    box.realWidth = CReflect(boxC.realWidth);
+    box.imagWidth = CReflect(boxC.imagWidth);
+    return box;
+}
+
 // Solvers
 // ^^^^^^^
 inline ElTikhonovAlg CReflect( TikhonovAlg alg )

@@ -114,7 +114,11 @@ elseif(BUILD_METIS)
 
   set(EL_HAVE_METIS TRUE)
   set(EL_HAVE_PARMETIS FALSE)
-elseif(MANUAL_METIS)
+else()
+  if(NOT MANUAL_METIS)
+    message(FATAL_ERROR 
+      "If Metis is not to be built, then MANUAL_METIS must be specified")
+  endif()
   include_directories(${METIS_ROOT}/include)
 
   set(EL_HAVE_METIS TRUE)

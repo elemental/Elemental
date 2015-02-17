@@ -7,6 +7,8 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from ..core import *
+from ..blas_like import Copy, EntrywiseMap
+from ..io import ProcessEvents
 import ctypes
 
 # Hermitian tridiagonal eigensolvers
@@ -1184,7 +1186,10 @@ class PseudospecCtrl_s(ctypes.Structure):
               ("basisSize",iType),
               ("reorthog",bType),
               ("progress",bType),
-              ("snapCtrl",SnapshotCtrl)]
+              ("snapCtrl",SnapshotCtrl),
+              ("center",cType),
+              ("realWidth",sType),
+              ("imagWidth",sType)]
   def __init__(self):
     lib.ElPseudospecCtrlDefault_s(pointer(self))
   def Destroy(self):
@@ -1208,11 +1213,77 @@ class PseudospecCtrl_d(ctypes.Structure):
               ("basisSize",iType),
               ("reorthog",bType),
               ("progress",bType),
-              ("snapCtrl",SnapshotCtrl)]
+              ("snapCtrl",SnapshotCtrl),
+              ("center",zType),
+              ("realWidth",dType),
+              ("imagWidth",dType)]
   def __init__(self):
     lib.ElPseudospecCtrlDefault_d(pointer(self))
   def Destroy(self):
     lib.ElPseudospecCtrlDestroy_d(pointer(self))
+
+class SpectralBox_s(ctypes.Structure):
+  _fields_ = [("center",cType),
+              ("realWidth",sType),
+              ("imagWidth",sType)]
+class SpectralBox_d(ctypes.Structure):
+  _fields_ = [("center",zType),
+              ("realWidth",dType),
+              ("imagWidth",dType)]
+
+def DisplayPortrait(portrait,box,title='',tryPython=True):
+  import math
+  if tryPython:
+    if type(portrait) is Matrix:
+      EntrywiseMap(portrait,math.log10)
+      try:
+        import numpy as np
+        import matplotlib as mpl
+        import matplotlib.pyplot as plt
+        isInline = 'inline' in mpl.get_backend()
+        isVec = min(portrait.Height(),portrait.Width()) == 1
+        fig = plt.figure()
+        axis = fig.add_axes([0.1,0.1,0.8,0.8])
+        if isVec:
+          axis.plot(np.squeeze(portrait.ToNumPy()),'bo-')
+        else:
+          lBound = box.center.real - box.realWidth/2
+          rBound = box.center.real + box.realWidth/2 
+          bBound = box.center.imag - box.imagWidth/2
+          tBound = box.center.imag + box.imagWidth/2
+          im = axis.imshow(portrait.ToNumPy(),
+                           extent=[lBound,rBound,bBound,tBound])
+          fig.colorbar(im,ax=axis)
+        plt.title(title)
+        plt.draw()
+        if not isInline:
+            plt.show(block=False)
+        return
+      except:
+        print 'Could not import matplotlib.pyplot'
+    elif type(portrait) is DistMatrix:
+      portrait_CIRC_CIRC = DistMatrix(portrait.tag,CIRC,CIRC,portrait.Grid())
+      Copy(portrait,portrait_CIRC_CIRC)
+      if portrait_CIRC_CIRC.CrossRank() == portrait_CIRC_CIRC.Root():
+        DisplayPortrait(portrait_CIRC_CIRC.Matrix(),box,title,True)
+      return
+
+  # Fall back to the built-in Display if we have not succeeded
+  if not tryPython or type(portrait) is not Matrix:
+    EntrywiseMap(portrait,math.log10)
+  args = [portrait.obj,title]
+  numMsExtra = 200
+  if type(portrait) is Matrix:
+    if   portrait.tag == sTag: lib.ElDisplay_s(*args)
+    elif portrait.tag == dTag: lib.ElDisplay_d(*args)
+    else: DataExcept()
+    ProcessEvents(numMsExtra)
+  elif type(portrait) is DistMatrix:
+    if   portrait.tag == sTag: lib.ElDisplayDist_s(*args)
+    elif portrait.tag == dTag: lib.ElDisplayDist_d(*args)
+    else: DataExcept()
+    ProcessEvents(numMsExtra)
+  else: TypeExcept()
 
 # (Pseudo-)Spectral portrait
 # --------------------------
@@ -1221,14 +1292,16 @@ class PseudospecCtrl_d(ctypes.Structure):
 # matrices, e.g., a Jordan block with eigenvalue zero
 
 lib.ElSpectralPortrait_s.argtypes = \
-lib.ElSpectralPortrait_d.argtypes = \
 lib.ElSpectralPortrait_c.argtypes = \
-lib.ElSpectralPortrait_z.argtypes = \
 lib.ElSpectralPortraitDist_s.argtypes = \
-lib.ElSpectralPortraitDist_d.argtypes = \
 lib.ElSpectralPortraitDist_c.argtypes = \
+  [c_void_p,c_void_p,iType,iType,POINTER(SpectralBox_s)]
+
+lib.ElSpectralPortrait_d.argtypes = \
+lib.ElSpectralPortrait_z.argtypes = \
+lib.ElSpectralPortraitDist_d.argtypes = \
 lib.ElSpectralPortraitDist_z.argtypes = \
-  [c_void_p,c_void_p,iType,iType]
+  [c_void_p,c_void_p,iType,iType,POINTER(SpectralBox_d)]
 
 lib.ElSpectralPortrait_s.restype = \
 lib.ElSpectralPortrait_d.restype = \
@@ -1244,13 +1317,13 @@ lib.ElSpectralPortraitX_s.argtypes = \
 lib.ElSpectralPortraitX_c.argtypes = \
 lib.ElSpectralPortraitXDist_s.argtypes = \
 lib.ElSpectralPortraitXDist_c.argtypes = \
-  [c_void_p,c_void_p,iType,iType,PseudospecCtrl_s]
+  [c_void_p,c_void_p,iType,iType,POINTER(SpectralBox_s),PseudospecCtrl_s]
 
 lib.ElSpectralPortraitX_d.argtypes = \
 lib.ElSpectralPortraitX_z.argtypes = \
 lib.ElSpectralPortraitXDist_d.argtypes = \
 lib.ElSpectralPortraitXDist_z.argtypes = \
-  [c_void_p,c_void_p,iType,iType,PseudospecCtrl_d]
+  [c_void_p,c_void_p,iType,iType,POINTER(SpectralBox_d),PseudospecCtrl_d]
 
 lib.ElSpectralPortraitX_s.restype = \
 lib.ElSpectralPortraitX_d.restype = \
@@ -1265,45 +1338,64 @@ lib.ElSpectralPortraitXDist_z.restype = \
 def SpectralPortrait(A,realSize=200,imagSize=200,ctrl=None):
   if type(A) is Matrix:
     invNormMap = Matrix(Base(A.tag))
-    args = [A.obj,invNormMap.obj,realSize,imagSize]
-    argsCtrl = [A.obj,invNormMap.obj,realSize,imagSize,ctrl]
     if   A.tag == sTag:
+      box = SpectralBox_s()
+      args = [A.obj,invNormMap.obj,realSize,imagSize,pointer(box)]
+      argsCtrl = [A.obj,invNormMap.obj,realSize,imagSize,pointer(box),ctrl]
       if ctrl == None: lib.ElSpectralPortrait_s(*args)
       else:            lib.ElSpectralPortraitX_s(*argsCtrl)
     elif A.tag == dTag:
+      box = SpectralBox_d()
+      args = [A.obj,invNormMap.obj,realSize,imagSize,pointer(box)]
+      argsCtrl = [A.obj,invNormMap.obj,realSize,imagSize,pointer(box),ctrl]
       if ctrl == None: lib.ElSpectralPortrait_d(*args)
       else:            lib.ElSpectralPortraitX_d(*argsCtrl)
     elif A.tag == cTag:
+      box = SpectralBox_s()
+      args = [A.obj,invNormMap.obj,realSize,imagSize,pointer(box)]
+      argsCtrl = [A.obj,invNormMap.obj,realSize,imagSize,pointer(box),ctrl]
       if ctrl == None: lib.ElSpectralPortrait_c(*args)
       else:            lib.ElSpectralPortraitX_c(*argsCtrl)
     elif A.tag == zTag:
+      box = SpectralBox_d()
+      args = [A.obj,invNormMap.obj,realSize,imagSize,pointer(box)]
+      argsCtrl = [A.obj,invNormMap.obj,realSize,imagSize,pointer(box),ctrl]
       if ctrl == None: lib.ElSpectralPortrait_z(*args)
       else:            lib.ElSpectralPortraitX_z(*argsCtrl)
     else: DataExcept()
-    return invNormMap
+    return invNormMap, box
   elif type(A) is DistMatrix:
     invNormMap = DistMatrix(Base(A.tag),MC,MR,A.Grid())
-    args = [A.obj,invNormMap.obj,realSize,imagSize]
-    argsCtrl = [A.obj,invNormMap.obj,realSize,imagSize,ctrl]
     if   A.tag == sTag:
+      box = SpectralBox_s()
+      args = [A.obj,invNormMap.obj,realSize,imagSize,pointer(box)]
+      argsCtrl = [A.obj,invNormMap.obj,realSize,imagSize,pointer(box),ctrl]
       if ctrl == None: lib.ElSpectralPortraitDist_s(*args)
       else:            lib.ElSpectralPortraitXDist_s(*argsCtrl)
     elif A.tag == dTag:
+      box = SpectralBox_d()
+      args = [A.obj,invNormMap.obj,realSize,imagSize,pointer(box)]
+      argsCtrl = [A.obj,invNormMap.obj,realSize,imagSize,pointer(box),ctrl]
       if ctrl == None: lib.ElSpectralPortraitDist_d(*args)
       else:            lib.ElSpectralPortraitXDist_d(*argsCtrl)
     elif A.tag == cTag:
+      box = SpectralBox_s()
+      args = [A.obj,invNormMap.obj,realSize,imagSize,pointer(box)]
+      argsCtrl = [A.obj,invNormMap.obj,realSize,imagSize,pointer(box),ctrl]
       if ctrl == None: lib.ElSpectralPortraitDist_c(*args)
       else:            lib.ElSpectralPortraitXDist_c(*argsCtrl)
     elif A.tag == zTag:
+      box = SpectralBox_d()
+      args = [A.obj,invNormMap.obj,realSize,imagSize,pointer(box)]
+      argsCtrl = [A.obj,invNormMap.obj,realSize,imagSize,pointer(box),ctrl]
       if ctrl == None: lib.ElSpectralPortraitDist_z(*args)
       else:            lib.ElSpectralPortraitXDist_z(*argsCtrl)
     else: DataExcept()
-    return invNormMap
+    return invNormMap, box
   else: TypeExcept()
 
 # (Pseudo-)Spectral window
 # ------------------------
-
 lib.ElSpectralWindow_s.argtypes = \
 lib.ElSpectralWindowDist_s.argtypes = \
   [c_void_p,c_void_p,sType,sType,sType,iType,iType]
@@ -1401,7 +1493,6 @@ def SpectralWindow \
 
 # (Pseudo-)Spectral cloud
 # -----------------------
-
 lib.ElSpectralCloud_s.argtypes = \
 lib.ElSpectralCloud_d.argtypes = \
 lib.ElSpectralCloud_c.argtypes = \

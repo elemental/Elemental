@@ -16,9 +16,8 @@ El.DynamicRegL(L,n)
 El.Display(L,"Dynamic regularization L")
 
 # Display its spectral portrait
-portrait = El.SpectralPortrait(L,realRes,imagRes)
-El.EntrywiseMap(portrait,math.log10)
-El.Display(portrait,"spectral portrait of L")
+portrait, box = El.SpectralPortrait(L,realRes,imagRes)
+El.DisplayPortrait(portrait,box,"spectral portrait of L")
 
 # Display its singular values
 s = El.SVD(L)

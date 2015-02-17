@@ -288,12 +288,13 @@ main( int argc, char* argv[] )
         }
         else
         {
+            SpectralBox<Real> box;
             if( isReal )
                 itCountMap = SpectralPortrait
-                ( AReal, invNormMap, realSize, imagSize, psCtrl );
+                ( AReal, invNormMap, realSize, imagSize, box, psCtrl );
             else
                 itCountMap = SpectralPortrait
-                ( ACpx, invNormMap, realSize, imagSize, psCtrl );
+                ( ACpx, invNormMap, realSize, imagSize, box, psCtrl );
         }
         const Int numIts = MaxNorm( itCountMap );
         if( mpi::WorldRank() == 0 )

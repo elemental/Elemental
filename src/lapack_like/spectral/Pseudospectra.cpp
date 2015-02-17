@@ -774,6 +774,10 @@ Matrix<Int> TriangularSpectralWindow
     psCtrl.snapCtrl.realSize = realSize;
     psCtrl.snapCtrl.imagSize = imagSize;
 
+    psCtrl.center = center;
+    psCtrl.realWidth = realWidth;
+    psCtrl.imagWidth = imagWidth;
+
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
@@ -809,6 +813,10 @@ Matrix<Int> TriangularSpectralWindow
     psCtrl.snapCtrl.realSize = realSize;
     psCtrl.snapCtrl.imagSize = imagSize;
 
+    psCtrl.center = center;
+    psCtrl.realWidth = realWidth;
+    psCtrl.imagWidth = imagWidth;
+
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
@@ -843,6 +851,10 @@ Matrix<Int> QuasiTriangularSpectralWindow
     psCtrl.snapCtrl.realSize = realSize;
     psCtrl.snapCtrl.imagSize = imagSize;
 
+    psCtrl.center = center;
+    psCtrl.realWidth = realWidth;
+    psCtrl.imagWidth = imagWidth;
+
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
@@ -876,6 +888,10 @@ Matrix<Int> QuasiTriangularSpectralWindow
 
     psCtrl.snapCtrl.realSize = realSize;
     psCtrl.snapCtrl.imagSize = imagSize;
+
+    psCtrl.center = center;
+    psCtrl.realWidth = realWidth;
+    psCtrl.imagWidth = imagWidth;
 
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
@@ -913,6 +929,10 @@ Matrix<Int> HessenbergSpectralWindow
     psCtrl.snapCtrl.realSize = realSize;
     psCtrl.snapCtrl.imagSize = imagSize;
 
+    psCtrl.center = center;
+    psCtrl.realWidth = realWidth;
+    psCtrl.imagWidth = imagWidth;
+
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
@@ -947,6 +967,10 @@ Matrix<Int> HessenbergSpectralWindow
 
     psCtrl.snapCtrl.realSize = realSize;
     psCtrl.snapCtrl.imagSize = imagSize;
+
+    psCtrl.center = center;
+    psCtrl.realWidth = realWidth;
+    psCtrl.imagWidth = imagWidth;
 
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
@@ -983,6 +1007,10 @@ DistMatrix<Int> TriangularSpectralWindow
 
     psCtrl.snapCtrl.realSize = realSize;
     psCtrl.snapCtrl.imagSize = imagSize;
+
+    psCtrl.center = center;
+    psCtrl.realWidth = realWidth;
+    psCtrl.imagWidth = imagWidth;
 
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
@@ -1024,6 +1052,10 @@ DistMatrix<Int> TriangularSpectralWindow
     psCtrl.snapCtrl.realSize = realSize;
     psCtrl.snapCtrl.imagSize = imagSize;
 
+    psCtrl.center = center;
+    psCtrl.realWidth = realWidth;
+    psCtrl.imagWidth = imagWidth;
+
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
@@ -1061,6 +1093,10 @@ DistMatrix<Int> QuasiTriangularSpectralWindow
 
     psCtrl.snapCtrl.realSize = realSize;
     psCtrl.snapCtrl.imagSize = imagSize;
+
+    psCtrl.center = center;
+    psCtrl.realWidth = realWidth;
+    psCtrl.imagWidth = imagWidth;
 
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
@@ -1100,6 +1136,10 @@ DistMatrix<Int> QuasiTriangularSpectralWindow
 
     psCtrl.snapCtrl.realSize = realSize;
     psCtrl.snapCtrl.imagSize = imagSize;
+
+    psCtrl.center = center;
+    psCtrl.realWidth = realWidth;
+    psCtrl.imagWidth = imagWidth;
 
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
@@ -1141,6 +1181,10 @@ DistMatrix<Int> HessenbergSpectralWindow
     psCtrl.snapCtrl.realSize = realSize;
     psCtrl.snapCtrl.imagSize = imagSize;
 
+    psCtrl.center = center;
+    psCtrl.realWidth = realWidth;
+    psCtrl.imagWidth = imagWidth;
+
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
@@ -1181,6 +1225,10 @@ DistMatrix<Int> HessenbergSpectralWindow
     psCtrl.snapCtrl.realSize = realSize;
     psCtrl.snapCtrl.imagSize = imagSize;
 
+    psCtrl.center = center;
+    psCtrl.realWidth = realWidth;
+    psCtrl.imagWidth = imagWidth;
+
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
@@ -1219,6 +1267,10 @@ Matrix<Int> SpectralWindow
     psCtrl.snapCtrl.realSize = realSize;
     psCtrl.snapCtrl.imagSize = imagSize;
 
+    psCtrl.center = center;
+    psCtrl.realWidth = realWidth;
+    psCtrl.imagWidth = imagWidth;
+
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
@@ -1255,6 +1307,10 @@ DistMatrix<Int> SpectralWindow
     psCtrl.snapCtrl.realSize = realSize;
     psCtrl.snapCtrl.imagSize = imagSize;
 
+    psCtrl.center = center;
+    psCtrl.realWidth = realWidth;
+    psCtrl.imagWidth = imagWidth;
+
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
@@ -1283,7 +1339,8 @@ DistMatrix<Int> SpectralWindow
 template<typename F>
 Matrix<Int> TriangularSpectralPortrait
 ( const Matrix<F>& U, Matrix<Base<F>>& invNormMap, 
-  Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl )
+  Int realSize, Int imagSize, SpectralBox<Base<F>>& box, 
+  PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularSpectralPortrait"))
     typedef Base<F> Real;
@@ -1319,6 +1376,10 @@ Matrix<Int> TriangularSpectralPortrait
     }
     Complex<Real> center(0,0);
 
+    box.center = center;
+    box.realWidth = width;
+    box.imagWidth = width;
+
     return TriangularSpectralWindow
            ( U, invNormMap, center, width, width, realSize, imagSize, psCtrl );
 }
@@ -1326,7 +1387,8 @@ Matrix<Int> TriangularSpectralPortrait
 template<typename F>
 Matrix<Int> TriangularSpectralPortrait
 ( const Matrix<F>& U, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap, 
-  Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl )
+  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
+  PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularSpectralPortrait"))
     typedef Base<F> Real;
@@ -1362,6 +1424,10 @@ Matrix<Int> TriangularSpectralPortrait
     }
     Complex<Real> center(0,0);
 
+    box.center = center;
+    box.realWidth = width;
+    box.imagWidth = width;
+
     return TriangularSpectralWindow
            ( U, Q, invNormMap, center, width, width, realSize, imagSize, 
              psCtrl );
@@ -1370,7 +1436,8 @@ Matrix<Int> TriangularSpectralPortrait
 template<typename Real>
 Matrix<Int> QuasiTriangularSpectralPortrait
 ( const Matrix<Real>& U, Matrix<Real>& invNormMap, 
-  Int realSize, Int imagSize, PseudospecCtrl<Real> psCtrl )
+  Int realSize, Int imagSize, SpectralBox<Real>& box, 
+  PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTriangularSpectralPortrait"))
 
@@ -1407,6 +1474,10 @@ Matrix<Int> QuasiTriangularSpectralPortrait
     }
     Complex<Real> center(0,0);
 
+    box.center = center;
+    box.realWidth = width;
+    box.imagWidth = width;
+
     return QuasiTriangularSpectralWindow
            ( U, invNormMap, center, width, width, realSize, imagSize, psCtrl );
 }
@@ -1415,7 +1486,7 @@ template<typename Real>
 Matrix<Int> QuasiTriangularSpectralPortrait
 ( const Matrix<Real>& U, const Matrix<Real>& Q,
   Matrix<Real>& invNormMap, Int realSize, Int imagSize, 
-  PseudospecCtrl<Real> psCtrl )
+  SpectralBox<Real>& box, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTriangularSpectralPortrait"))
  
@@ -1452,6 +1523,10 @@ Matrix<Int> QuasiTriangularSpectralPortrait
     }
     Complex<Real> center(0,0);
 
+    box.center = center;
+    box.realWidth = width;
+    box.imagWidth = width;
+
     return QuasiTriangularSpectralWindow
            ( U, Q, invNormMap, center, width, width, realSize, imagSize, 
              psCtrl );
@@ -1460,7 +1535,8 @@ Matrix<Int> QuasiTriangularSpectralPortrait
 template<typename F>
 Matrix<Int> HessenbergSpectralPortrait
 ( const Matrix<F>& H, Matrix<Base<F>>& invNormMap, 
-  Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl )
+  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
+  PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergSpectralPortrait"))
     typedef Base<F> Real;
@@ -1483,6 +1559,10 @@ Matrix<Int> HessenbergSpectralPortrait
                       << ", and infinity norm, " << infNorm << std::endl;
     }
     Complex<Real> center(0,0);
+
+    box.center = center;
+    box.realWidth = width;
+    box.imagWidth = width;
 
     return HessenbergSpectralWindow
            ( H, invNormMap, center, width, width, realSize, imagSize, psCtrl );
@@ -1491,7 +1571,8 @@ Matrix<Int> HessenbergSpectralPortrait
 template<typename F>
 Matrix<Int> HessenbergSpectralPortrait
 ( const Matrix<F>& H, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap, 
-  Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl )
+  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
+  PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergSpectralPortrait"))
     typedef Base<F> Real;
@@ -1514,6 +1595,10 @@ Matrix<Int> HessenbergSpectralPortrait
                       << ", and infinity norm, " << infNorm << std::endl;
     }
     Complex<Real> center(0,0);
+
+    box.center = center;
+    box.realWidth = width;
+    box.imagWidth = width;
 
     return HessenbergSpectralWindow
            ( H, Q, invNormMap, center, width, width, realSize, imagSize, 
@@ -1523,56 +1608,7 @@ Matrix<Int> HessenbergSpectralPortrait
 template<typename F>
 DistMatrix<Int> TriangularSpectralPortrait
 ( const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<Base<F>>& invNormMap, 
-  Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl )
-{
-    DEBUG_ONLY(CallStackEntry cse("TriangularSpectralPortrait"))
-    typedef Base<F> Real;
-    const Grid& g = UPre.Grid();
-
-    // Force 'U' to be in a [MC,MR] distribution so that we can get its diagonal
-    auto UPtr = ReadProxy<F,MC,MR>( &UPre ); 
-    auto& U = *UPtr;
-
-    const Real radius = MaxNorm( GetDiagonal(U) );
-    const Real oneNorm = OneNorm( U );
-
-    // Essentially three cases are handled here:
-    // 1) The zero matrix (force the pseudospectrum width to 1)
-    // 2) Typical matrices (use a small multiple of the spectral radius)
-    // 3) Highly non-normal matrices (e.g., triangular with zero main diagonal)
-    Real width;
-    if( oneNorm == Real(0) )
-    {
-        width = 1;
-        if( psCtrl.progress && g.Rank() == 0 )
-            std::cout << "Setting width to 1 to handle zero matrix"
-                      << std::endl;
-    }
-    else if( radius >= 0.2*oneNorm )
-    {
-        width = 2.5*radius;
-        if( psCtrl.progress && g.Rank() == 0 )
-            std::cout << "Setting width to " << width 
-                      << " based on the spectral radius, " << radius 
-                      << std::endl;
-    }
-    else
-    {
-        width = 0.8*oneNorm;
-        if( psCtrl.progress && g.Rank() == 0 )
-            std::cout << "Setting width to " << width
-                      << " based on the one norm, " << oneNorm << std::endl;
-    }
-    Complex<Real> center(0,0);
-
-    return TriangularSpectralWindow
-           ( U, invNormMap, center, width, width, realSize, imagSize, psCtrl );
-}
-
-template<typename F>
-DistMatrix<Int> TriangularSpectralPortrait
-( const AbstractDistMatrix<F>& UPre, const AbstractDistMatrix<F>& Q, 
-  AbstractDistMatrix<Base<F>>& invNormMap, Int realSize, Int imagSize,
+  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
   PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularSpectralPortrait"))
@@ -1615,25 +1651,29 @@ DistMatrix<Int> TriangularSpectralPortrait
     }
     Complex<Real> center(0,0);
 
+    box.center = center;
+    box.realWidth = width;
+    box.imagWidth = width;
+
     return TriangularSpectralWindow
-           ( U, Q, invNormMap, center, width, width, realSize, imagSize, 
-             psCtrl );
+           ( U, invNormMap, center, width, width, realSize, imagSize, psCtrl );
 }
 
-template<typename Real>
-DistMatrix<Int> QuasiTriangularSpectralPortrait
-( const AbstractDistMatrix<Real>& UPre, AbstractDistMatrix<Real>& invNormMap, 
-  Int realSize, Int imagSize, PseudospecCtrl<Real> psCtrl )
+template<typename F>
+DistMatrix<Int> TriangularSpectralPortrait
+( const AbstractDistMatrix<F>& UPre, const AbstractDistMatrix<F>& Q, 
+  AbstractDistMatrix<Base<F>>& invNormMap, Int realSize, Int imagSize,
+  SpectralBox<Base<F>>& box, PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("QuasiTriangularSpectralPortrait"))
+    DEBUG_ONLY(CallStackEntry cse("TriangularSpectralPortrait"))
+    typedef Base<F> Real;
     const Grid& g = UPre.Grid();
 
-    // Force 'U' to be in a [MC,MR] distribution to get its eigenvalues
-    auto UPtr = ReadProxy<Real,MC,MR>( &UPre ); 
+    // Force 'U' to be in a [MC,MR] distribution so that we can get its diagonal
+    auto UPtr = ReadProxy<F,MC,MR>( &UPre ); 
     auto& U = *UPtr;
-    const auto w = schur::QuasiTriangEig( U );
 
-    const Real radius = MaxNorm( w );
+    const Real radius = MaxNorm( GetDiagonal(U) );
     const Real oneNorm = OneNorm( U );
 
     // Essentially three cases are handled here:
@@ -1665,14 +1705,19 @@ DistMatrix<Int> QuasiTriangularSpectralPortrait
     }
     Complex<Real> center(0,0);
 
-    return QuasiTriangularSpectralWindow
-           ( U, invNormMap, center, width, width, realSize, imagSize, psCtrl );
+    box.center = center;
+    box.realWidth = width;
+    box.imagWidth = width;
+
+    return TriangularSpectralWindow
+           ( U, Q, invNormMap, center, width, width, realSize, imagSize, 
+             psCtrl );
 }
 
 template<typename Real>
 DistMatrix<Int> QuasiTriangularSpectralPortrait
-( const AbstractDistMatrix<Real>& UPre, const AbstractDistMatrix<Real>& Q,
-  AbstractDistMatrix<Real>& invNormMap, Int realSize, Int imagSize,
+( const AbstractDistMatrix<Real>& UPre, AbstractDistMatrix<Real>& invNormMap, 
+  Int realSize, Int imagSize, SpectralBox<Real>& box,
   PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTriangularSpectralPortrait"))
@@ -1715,6 +1760,64 @@ DistMatrix<Int> QuasiTriangularSpectralPortrait
     }
     Complex<Real> center(0,0);
 
+    box.center = center;
+    box.realWidth = width;
+    box.imagWidth = width;
+
+    return QuasiTriangularSpectralWindow
+           ( U, invNormMap, center, width, width, realSize, imagSize, psCtrl );
+}
+
+template<typename Real>
+DistMatrix<Int> QuasiTriangularSpectralPortrait
+( const AbstractDistMatrix<Real>& UPre, const AbstractDistMatrix<Real>& Q,
+  AbstractDistMatrix<Real>& invNormMap, Int realSize, Int imagSize,
+  SpectralBox<Real>& box, PseudospecCtrl<Real> psCtrl )
+{
+    DEBUG_ONLY(CallStackEntry cse("QuasiTriangularSpectralPortrait"))
+    const Grid& g = UPre.Grid();
+
+    // Force 'U' to be in a [MC,MR] distribution to get its eigenvalues
+    auto UPtr = ReadProxy<Real,MC,MR>( &UPre ); 
+    auto& U = *UPtr;
+    const auto w = schur::QuasiTriangEig( U );
+
+    const Real radius = MaxNorm( w );
+    const Real oneNorm = OneNorm( U );
+
+    // Essentially three cases are handled here:
+    // 1) The zero matrix (force the pseudospectrum width to 1)
+    // 2) Typical matrices (use a small multiple of the spectral radius)
+    // 3) Highly non-normal matrices (e.g., triangular with zero main diagonal)
+    Real width;
+    if( oneNorm == Real(0) )
+    {
+        width = 1;
+        if( psCtrl.progress && g.Rank() == 0 )
+            std::cout << "Setting width to 1 to handle zero matrix"
+                      << std::endl;
+    }
+    else if( radius >= 0.2*oneNorm )
+    {
+        width = 2.5*radius;
+        if( psCtrl.progress && g.Rank() == 0 )
+            std::cout << "Setting width to " << width 
+                      << " based on the spectral radius, " << radius 
+                      << std::endl;
+    }
+    else
+    {
+        width = 0.8*oneNorm;
+        if( psCtrl.progress && g.Rank() == 0 )
+            std::cout << "Setting width to " << width
+                      << " based on the one norm, " << oneNorm << std::endl;
+    }
+    Complex<Real> center(0,0);
+
+    box.center = center;
+    box.realWidth = width;
+    box.imagWidth = width;
+
     return QuasiTriangularSpectralWindow
            ( U, Q, invNormMap, center, width, width, realSize, imagSize, 
              psCtrl );
@@ -1723,7 +1826,8 @@ DistMatrix<Int> QuasiTriangularSpectralPortrait
 template<typename F>
 DistMatrix<Int> HessenbergSpectralPortrait
 ( const AbstractDistMatrix<F>& H, AbstractDistMatrix<Base<F>>& invNormMap, 
-  Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl )
+  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
+  PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergSpectralPortrait"))
     typedef Base<F> Real;
@@ -1746,6 +1850,10 @@ DistMatrix<Int> HessenbergSpectralPortrait
                       << ", and infinity norm, " << infNorm << std::endl;
     }
     Complex<Real> center(0,0);
+
+    box.center = center;
+    box.realWidth = width;
+    box.imagWidth = width;
 
     return HessenbergSpectralWindow
            ( H, invNormMap, center, width, width, realSize, imagSize, psCtrl );
@@ -1755,7 +1863,8 @@ template<typename F>
 DistMatrix<Int> HessenbergSpectralPortrait
 ( const AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& Q, 
         AbstractDistMatrix<Base<F>>& invNormMap, 
-  Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl )
+  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
+  PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergSpectralPortrait"))
     typedef Base<F> Real;
@@ -1778,6 +1887,10 @@ DistMatrix<Int> HessenbergSpectralPortrait
                       << ", and infinity norm, " << infNorm << std::endl;
     }
     Complex<Real> center(0,0);
+
+    box.center = center;
+    box.realWidth = width;
+    box.imagWidth = width;
 
     return HessenbergSpectralWindow
            ( H, Q, invNormMap, center, width, width, realSize, imagSize, 
@@ -1789,7 +1902,8 @@ namespace pspec {
 template<typename Real>
 Matrix<Int> Helper
 ( const Matrix<Complex<Real>>& A, Matrix<Real>& invNormMap, 
-  Int realSize, Int imagSize, PseudospecCtrl<Real> psCtrl )
+  Int realSize, Int imagSize, SpectralBox<Real>& box, 
+  PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Helper"))
     typedef Complex<Real> C;
@@ -1803,13 +1917,13 @@ Matrix<Int> Helper
             const bool fullTriangle = true;
             Schur( B, w, fullTriangle, psCtrl.schurCtrl );
             return TriangularSpectralPortrait
-                   ( B, invNormMap, realSize, imagSize, psCtrl );
+                   ( B, invNormMap, realSize, imagSize, box, psCtrl );
         }
         else
         {
             hessenberg::ExplicitCondensed( UPPER, B );
             return HessenbergSpectralPortrait
-                   ( B, invNormMap, realSize, imagSize, psCtrl );
+                   ( B, invNormMap, realSize, imagSize, box, psCtrl );
         }
     }
     else
@@ -1821,7 +1935,7 @@ Matrix<Int> Helper
             const bool fullTriangle = true;
             Schur( B, w, Q, fullTriangle, psCtrl.schurCtrl );
             return TriangularSpectralPortrait
-                   ( B, Q, invNormMap, realSize, imagSize, psCtrl );
+                   ( B, Q, invNormMap, realSize, imagSize, box, psCtrl );
         }
         else
         {
@@ -1830,7 +1944,7 @@ Matrix<Int> Helper
             Identity( Q, B.Height(), B.Height() );
             hessenberg::ApplyQ( LEFT, UPPER, NORMAL, B, t, Q );
             return HessenbergSpectralPortrait
-                   ( B, Q, invNormMap, realSize, imagSize, psCtrl );
+                   ( B, Q, invNormMap, realSize, imagSize, box, psCtrl );
         }
     }
 }
@@ -1839,7 +1953,8 @@ template<typename Real>
 DistMatrix<Int> Helper
 ( const AbstractDistMatrix<Complex<Real>>& A, 
         AbstractDistMatrix<Real>& invNormMap, 
-  Int realSize, Int imagSize, PseudospecCtrl<Real> psCtrl )
+  Int realSize, Int imagSize, SpectralBox<Real>& box,
+  PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Helper"))
     typedef Complex<Real> C;
@@ -1854,13 +1969,13 @@ DistMatrix<Int> Helper
             const bool fullTriangle = true;
             Schur( B, w, fullTriangle, psCtrl.schurCtrl );
             return TriangularSpectralPortrait
-                   ( B, invNormMap, realSize, imagSize, psCtrl );
+                   ( B, invNormMap, realSize, imagSize, box, psCtrl );
         }
         else
         {
             hessenberg::ExplicitCondensed( UPPER, B );
             return HessenbergSpectralPortrait
-                   ( B, invNormMap, realSize, imagSize, psCtrl );
+                   ( B, invNormMap, realSize, imagSize, box, psCtrl );
         }
     }
     else
@@ -1872,7 +1987,7 @@ DistMatrix<Int> Helper
             const bool fullTriangle = true;
             Schur( B, w, Q, fullTriangle, psCtrl.schurCtrl );
             return TriangularSpectralPortrait
-                   ( B, Q, invNormMap, realSize, imagSize, psCtrl );
+                   ( B, Q, invNormMap, realSize, imagSize, box, psCtrl );
         }
         else
         {
@@ -1881,7 +1996,7 @@ DistMatrix<Int> Helper
             Identity( Q, B.Height(), B.Height() );
             hessenberg::ApplyQ( LEFT, UPPER, NORMAL, B, t, Q );
             return HessenbergSpectralPortrait
-                   ( B, Q, invNormMap, realSize, imagSize, psCtrl );
+                   ( B, Q, invNormMap, realSize, imagSize, box, psCtrl );
         }
     }
 }
@@ -1889,7 +2004,8 @@ DistMatrix<Int> Helper
 template<typename Real>
 Matrix<Int> Helper
 ( const Matrix<Real>& A, Matrix<Real>& invNormMap, 
-  Int realSize, Int imagSize, PseudospecCtrl<Real> psCtrl )
+  Int realSize, Int imagSize, SpectralBox<Real>& box,
+  PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Helper"))
     typedef Complex<Real> C;
@@ -1898,7 +2014,7 @@ Matrix<Int> Helper
     {
         Matrix<C> ACpx;
         Copy( A, ACpx );
-        return Helper( ACpx, invNormMap, realSize, imagSize, psCtrl );
+        return Helper( ACpx, invNormMap, realSize, imagSize, box, psCtrl );
     }
 
     if( !psCtrl.schur )
@@ -1914,10 +2030,10 @@ Matrix<Int> Helper
             Matrix<C> BCpx;
             schur::RealToComplex( B, BCpx );
             return TriangularSpectralPortrait
-                   ( BCpx, invNormMap, realSize, imagSize, psCtrl );
+                   ( BCpx, invNormMap, realSize, imagSize, box, psCtrl );
         }
         return QuasiTriangularSpectralPortrait
-               ( B, invNormMap, realSize, imagSize, psCtrl );
+               ( B, invNormMap, realSize, imagSize, box, psCtrl );
     }
     else
     {
@@ -1930,18 +2046,19 @@ Matrix<Int> Helper
             Matrix<C> BCpx, QCpx;
             schur::RealToComplex( B, Q, BCpx, QCpx );
             return TriangularSpectralPortrait
-                   ( BCpx, invNormMap, realSize, imagSize, psCtrl );
+                   ( BCpx, invNormMap, realSize, imagSize, box, psCtrl );
             */
         }
         return QuasiTriangularSpectralPortrait
-               ( B, Q, invNormMap, realSize, imagSize, psCtrl );
+               ( B, Q, invNormMap, realSize, imagSize, box, psCtrl );
     }
 }
 
 template<typename Real>
 DistMatrix<Int> Helper
 ( const AbstractDistMatrix<Real>& A, AbstractDistMatrix<Real>& invNormMap, 
-  Int realSize, Int imagSize, PseudospecCtrl<Real> psCtrl )
+  Int realSize, Int imagSize, SpectralBox<Real>& box,
+  PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Helper"))
     typedef Complex<Real> C;
@@ -1951,7 +2068,8 @@ DistMatrix<Int> Helper
     {
         DistMatrix<C> ACpx(g);
         Copy( A, ACpx );
-        return SpectralPortrait( ACpx, invNormMap, realSize, imagSize, psCtrl );
+        return SpectralPortrait
+               ( ACpx, invNormMap, realSize, imagSize, box, psCtrl );
     }
 
     if( !psCtrl.schur )
@@ -1968,10 +2086,10 @@ DistMatrix<Int> Helper
             DistMatrix<C> BCpx(g);
             schur::RealToComplex( B, BCpx );
             return TriangularSpectralPortrait
-                   ( BCpx, invNormMap, realSize, imagSize, psCtrl );
+                   ( BCpx, invNormMap, realSize, imagSize, box, psCtrl );
         }
         return QuasiTriangularSpectralPortrait
-               ( B, invNormMap, realSize, imagSize, psCtrl );
+               ( B, invNormMap, realSize, imagSize, box, psCtrl );
     }
     else
     {
@@ -1984,11 +2102,11 @@ DistMatrix<Int> Helper
             DistMatrix<C> BCpx(g), QCpx(g);
             schur::RealToComplex( B, Q, BCpx, QCpx );
             return TriangularSpectralPortrait
-                   ( BCpx, QCpx, invNormMap, realSize, imagSize, psCtrl );
+                   ( BCpx, QCpx, invNormMap, realSize, imagSize, box, psCtrl );
             */
         }
         return QuasiTriangularSpectralPortrait
-               ( B, Q, invNormMap, realSize, imagSize, psCtrl );
+               ( B, Q, invNormMap, realSize, imagSize, box, psCtrl );
     }
 }
 
@@ -1997,19 +2115,21 @@ DistMatrix<Int> Helper
 template<typename F>
 Matrix<Int> SpectralPortrait
 ( const Matrix<F>& A, Matrix<Base<F>>& invNormMap, 
-  Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl )
+  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
+  PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SpectralPortrait"))
-    return pspec::Helper( A, invNormMap, realSize, imagSize, psCtrl );
+    return pspec::Helper( A, invNormMap, realSize, imagSize, box, psCtrl );
 }
 
 template<typename F>
 DistMatrix<Int> SpectralPortrait
 ( const AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& invNormMap, 
-  Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl )
+  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
+  PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SpectralPortrait"))
-    return pspec::Helper( A, invNormMap, realSize, imagSize, psCtrl );
+    return pspec::Helper( A, invNormMap, realSize, imagSize, box, psCtrl );
 }
 
 #define PROTO(F) \
@@ -2095,36 +2215,46 @@ DistMatrix<Int> SpectralPortrait
     Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl ); \
   template Matrix<Int> SpectralPortrait \
   ( const Matrix<F>& A, Matrix<Base<F>>& invNormMap, \
-    Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl ); \
+    Int realSize, Int imagSize, SpectralBox<Base<F>>& box, \
+    PseudospecCtrl<Base<F>> psCtrl ); \
   template DistMatrix<Int> SpectralPortrait \
   ( const AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& invNormMap, \
-    Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl ); \
+    Int realSize, Int imagSize, SpectralBox<Base<F>>& box, \
+    PseudospecCtrl<Base<F>> psCtrl ); \
   template Matrix<Int> TriangularSpectralPortrait \
   ( const Matrix<F>& U, Matrix<Base<F>>& invNormMap, \
-    Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl ); \
+    Int realSize, Int imagSize, SpectralBox<Base<F>>& box, \
+    PseudospecCtrl<Base<F>> psCtrl ); \
   template DistMatrix<Int> TriangularSpectralPortrait \
   ( const AbstractDistMatrix<F>& U, AbstractDistMatrix<Base<F>>& invNormMap, \
-    Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl ); \
+    Int realSize, Int imagSize, SpectralBox<Base<F>>& box, \
+    PseudospecCtrl<Base<F>> psCtrl ); \
   template Matrix<Int> TriangularSpectralPortrait \
   ( const Matrix<F>& U, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap, \
-    Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl ); \
+    Int realSize, Int imagSize, SpectralBox<Base<F>>& box, \
+    PseudospecCtrl<Base<F>> psCtrl ); \
   template DistMatrix<Int> TriangularSpectralPortrait \
   ( const AbstractDistMatrix<F>& U, const AbstractDistMatrix<F>& Q, \
     AbstractDistMatrix<Base<F>>& invNormMap, \
-    Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl ); \
+    Int realSize, Int imagSize, SpectralBox<Base<F>>& box, \
+    PseudospecCtrl<Base<F>> psCtrl ); \
   template Matrix<Int> HessenbergSpectralPortrait \
   ( const Matrix<F>& H, Matrix<Base<F>>& invNormMap, \
-    Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl ); \
+    Int realSize, Int imagSize, SpectralBox<Base<F>>& box, \
+    PseudospecCtrl<Base<F>> psCtrl ); \
   template DistMatrix<Int> HessenbergSpectralPortrait \
   ( const AbstractDistMatrix<F>& H, AbstractDistMatrix<Base<F>>& invNormMap, \
-    Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl ); \
+    Int realSize, Int imagSize, SpectralBox<Base<F>>& box, \
+    PseudospecCtrl<Base<F>> psCtrl ); \
   template Matrix<Int> HessenbergSpectralPortrait \
   ( const Matrix<F>& H, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap, \
-    Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl ); \
+    Int realSize, Int imagSize, SpectralBox<Base<F>>& box, \
+    PseudospecCtrl<Base<F>> psCtrl ); \
   template DistMatrix<Int> HessenbergSpectralPortrait \
   ( const AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& Q, \
     AbstractDistMatrix<Base<F>>& invNormMap, \
-    Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl );
+    Int realSize, Int imagSize, SpectralBox<Base<F>>& box, \
+    PseudospecCtrl<Base<F>> psCtrl );
 
 #define PROTO_REAL(Real) \
   PROTO(Real) \
@@ -2162,17 +2292,20 @@ DistMatrix<Int> SpectralPortrait
     Int realSize, Int imagSize, PseudospecCtrl<Real> psCtrl ); \
   template Matrix<Int> QuasiTriangularSpectralPortrait \
   ( const Matrix<Real>& U, Matrix<Real>& invNormMap, \
-    Int realSize, Int imagSize, PseudospecCtrl<Real> psCtrl ); \
+    Int realSize, Int imagSize, SpectralBox<Real>& box, \
+    PseudospecCtrl<Real> psCtrl ); \
   template DistMatrix<Int> QuasiTriangularSpectralPortrait \
   ( const AbstractDistMatrix<Real>& U, AbstractDistMatrix<Real>& invNormMap, \
-    Int realSize, Int imagSize, PseudospecCtrl<Real> psCtrl ); \
+    Int realSize, Int imagSize, SpectralBox<Real>& box, \
+    PseudospecCtrl<Real> psCtrl ); \
   template Matrix<Int> QuasiTriangularSpectralPortrait \
   ( const Matrix<Real>& U, const Matrix<Real>& Q, Matrix<Real>& invNormMap, \
-    Int realSize, Int imagSize, PseudospecCtrl<Real> psCtrl ); \
+    Int realSize, Int imagSize, SpectralBox<Real>& box, \
+    PseudospecCtrl<Real> psCtrl ); \
   template DistMatrix<Int> QuasiTriangularSpectralPortrait \
   ( const AbstractDistMatrix<Real>& U, const AbstractDistMatrix<Real>& Q, \
     AbstractDistMatrix<Real>& invNormMap, Int realSize, Int imagSize, \
-    PseudospecCtrl<Real> psCtrl );
+    SpectralBox<Real>& box, PseudospecCtrl<Real> psCtrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

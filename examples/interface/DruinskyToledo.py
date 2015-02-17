@@ -16,9 +16,8 @@ El.DruinskyToledo(A,k)
 El.Display(A,"Bunch-Kaufman growth matrix")
 
 # Display the spectral portrait
-portrait = El.SpectralPortrait(A,realRes,imagRes)
-El.EntrywiseMap(portrait,math.log10)
-El.Display(portrait,"spectral portrait of Bunch-Kaufman growth matrix")
+portrait, box = El.SpectralPortrait(A,realRes,imagRes)
+El.DisplayPortrait(portrait,box,"spectral portrait of BK growth matrix")
 
 # Make a copy before overwriting with LDL factorization
 A_LU = El.DistMatrix()

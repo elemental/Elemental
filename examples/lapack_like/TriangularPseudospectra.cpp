@@ -217,20 +217,21 @@ main( int argc, char* argv[] )
         }
         else
         {
+            SpectralBox<Real> box;
             if( isReal )
             {
                 if( quasi )
                 {
                     itCountMap = QuasiTriangularSpectralPortrait
-                    ( AReal, invNormMap, realSize, imagSize, psCtrl );
+                    ( AReal, invNormMap, realSize, imagSize, box, psCtrl );
                 }
                 else
                     itCountMap = TriangularSpectralPortrait
-                    ( AReal, invNormMap, realSize, imagSize, psCtrl );
+                    ( AReal, invNormMap, realSize, imagSize, box, psCtrl );
             }
             else
                 itCountMap = TriangularSpectralPortrait
-                ( ACpx, invNormMap, realSize, imagSize, psCtrl );
+                ( ACpx, invNormMap, realSize, imagSize, box, psCtrl );
         }
         const Int numIts = MaxNorm( itCountMap );
         if( mpi::WorldRank() == 0 )

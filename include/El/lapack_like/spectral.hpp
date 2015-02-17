@@ -538,13 +538,23 @@ struct PseudospecCtrl
 
     SnapshotCtrl snapCtrl;
 
+    mutable Complex<Real> center;
+    mutable Real realWidth, imagWidth;
+
     PseudospecCtrl()
     : norm(PS_TWO_NORM), blockWidth(10),
       schur(true), forceComplexSchur(false), forceComplexPs(false), schurCtrl(),
       maxIts(200), tol(1e-6), deflate(true),
       arnoldi(true), basisSize(10), reorthog(true),
-      progress(false), snapCtrl()
+      progress(false), snapCtrl(), center(Real(0)), realWidth(0), imagWidth(0)
     { }
+};
+
+template<typename Real>
+struct SpectralBox
+{
+    Complex<Real> center;
+    Real realWidth, imagWidth;
 };
 
 // (Pseudo-)Spectral portrait
@@ -554,79 +564,81 @@ struct PseudospecCtrl
 template<typename F>
 Matrix<Int> SpectralPortrait
 ( const Matrix<F>& A, Matrix<Base<F>>& invNormMap,
-  Int realSize, Int imagSize,
+  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
   PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int> SpectralPortrait
 ( const AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& invNormMap,
-  Int realSize, Int imagSize,
+  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
   PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 template<typename F>
 Matrix<Int> TriangularSpectralPortrait
 ( const Matrix<F>& U, Matrix<Base<F>>& invNormMap,
-  Int realSize, Int imagSize,
+  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
   PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int> TriangularSpectralPortrait
 ( const AbstractDistMatrix<F>& U, AbstractDistMatrix<Base<F>>& invNormMap,
-  Int realSize, Int imagSize,
+  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
   PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 template<typename F>
 Matrix<Int> TriangularSpectralPortrait
 ( const Matrix<F>& U, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap,
-  Int realSize, Int imagSize,
+  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
   PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int> TriangularSpectralPortrait
 ( const AbstractDistMatrix<F>& U, const AbstractDistMatrix<F>& Q,
   AbstractDistMatrix<Base<F>>& invNormMap,
-  Int realSize, Int imagSize,
+  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
   PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 template<typename Real>
 Matrix<Int> QuasiTriangularSpectralPortrait
 ( const Matrix<Real>& U, Matrix<Real>& invNormMap,
-  Int realSize, Int imagSize,
+  Int realSize, Int imagSize, SpectralBox<Real>& box,
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
 template<typename Real>
 DistMatrix<Int> QuasiTriangularSpectralPortrait
 ( const AbstractDistMatrix<Real>& U, AbstractDistMatrix<Real>& invNormMap,
-  Int realSize, Int imagSize,
+  Int realSize, Int imagSize, SpectralBox<Real>& box,
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
 
 template<typename Real>
 Matrix<Int> QuasiTriangularSpectralPortrait
 ( const Matrix<Real>& U, const Matrix<Real>& Q, Matrix<Real>& invNormMap,
-  Int realSize, Int imagSize,
+  Int realSize, Int imagSize, SpectralBox<Real>& box,
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
 template<typename Real>
 DistMatrix<Int> QuasiTriangularSpectralPortrait
 ( const AbstractDistMatrix<Real>& U, const AbstractDistMatrix<Real>& Q,
-  AbstractDistMatrix<Real>& invNormMap, Int realSize, Int imagSize,
+  AbstractDistMatrix<Real>& invNormMap, Int realSize, Int imagSize, 
+  SpectralBox<Real>& box,
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
 
 template<typename F>
 Matrix<Int> HessenbergSpectralPortrait
 ( const Matrix<F>& H, Matrix<Base<F>>& invNormMap,
-  Int realSize, Int imagSize,
+  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
   PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int> HessenbergSpectralPortrait
 ( const AbstractDistMatrix<F>& H, AbstractDistMatrix<Base<F>>& invNormMap,
-  Int realSize, Int imagSize,
+  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
   PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 template<typename F>
 Matrix<Int> HessenbergSpectralPortrait
 ( const Matrix<F>& H, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap,
-  Int realSize, Int imagSize,
+  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
   PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int> HessenbergSpectralPortrait
 ( const AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& Q,
-  AbstractDistMatrix<Base<F>>& invNormMap, Int realSize, Int imagSize,
+  AbstractDistMatrix<Base<F>>& invNormMap, Int realSize, Int imagSize, 
+  SpectralBox<Base<F>>& box,
   PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 // (Pseudo-)Spectral window

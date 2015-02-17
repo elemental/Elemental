@@ -16,9 +16,8 @@ El.FoxLi(A,n)
 El.Display(A,"Fox-Li/Landau matrix")
 
 # Display its spectral portrait
-portrait = El.SpectralPortrait(A,realRes,imagRes)
-El.EntrywiseMap(portrait,math.log10)
-El.Display(portrait,"spectral portrait of Fox-Li/Landau matrix")
+portrait, box = El.SpectralPortrait(A,realRes,imagRes)
+El.DisplayPortrait(portrait,box,"spectral portrait of Fox-Li/Landau matrix")
 
 # Display its singular values
 s = El.SVD(A)

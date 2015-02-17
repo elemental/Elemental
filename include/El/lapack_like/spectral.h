@@ -917,62 +917,82 @@ typedef struct {
   bool progress;
 
   ElSnapshotCtrl snapCtrl;
+
+  complex_double center;
+  double realWidth, imagWidth;
 } ElPseudospecCtrl_d;
 EL_EXPORT ElError ElPseudospecCtrlDefault_d( ElPseudospecCtrl_d* ctrl );
 /* NOTE: Since conversion from SnapshotCtrl involves deep copies of char* */
 EL_EXPORT ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl );
 
+typedef struct {
+  complex_float center;
+  float realWidth, imagWidth;
+} ElSpectralBox_s;
+typedef struct {
+  complex_double center;
+  double realWidth, imagWidth;
+} ElSpectralBox_d;
+
 /* (Pseudo-)Spectral portrait
    -------------------------- */ 
 EL_EXPORT ElError ElSpectralPortrait_s
-( ElConstMatrix_s A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize );
+( ElConstMatrix_s A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize,
+  ElSpectralBox_s* box );
 EL_EXPORT ElError ElSpectralPortrait_d
-( ElConstMatrix_d A, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize );
+( ElConstMatrix_d A, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize,
+  ElSpectralBox_d* box );
 EL_EXPORT ElError ElSpectralPortrait_c
-( ElConstMatrix_c A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize );
+( ElConstMatrix_c A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize,
+  ElSpectralBox_s* box );
 EL_EXPORT ElError ElSpectralPortrait_z
-( ElConstMatrix_z A, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize );
+( ElConstMatrix_z A, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize,
+  ElSpectralBox_d* box );
 
 EL_EXPORT ElError ElSpectralPortraitDist_s
 ( ElConstDistMatrix_s A, ElDistMatrix_s invNormMap,
-  ElInt realSize, ElInt imagSize );
+  ElInt realSize, ElInt imagSize, ElSpectralBox_s* box );
 EL_EXPORT ElError ElSpectralPortraitDist_d
 ( ElConstDistMatrix_d A, ElDistMatrix_d invNormMap,
-  ElInt realSize, ElInt imagSize );
+  ElInt realSize, ElInt imagSize, ElSpectralBox_d* box );
 EL_EXPORT ElError ElSpectralPortraitDist_c
 ( ElConstDistMatrix_c A, ElDistMatrix_s invNormMap,
-  ElInt realSize, ElInt imagSize );
+  ElInt realSize, ElInt imagSize, ElSpectralBox_s* box );
 EL_EXPORT ElError ElSpectralPortraitDist_z
 ( ElConstDistMatrix_z A, ElDistMatrix_d invNormMap,
-  ElInt realSize, ElInt imagSize );
+  ElInt realSize, ElInt imagSize, ElSpectralBox_d* box );
 
 /* Expert version
    ^^^^^^^^^^^^^^ */
 EL_EXPORT ElError ElSpectralPortraitX_s
 ( ElConstMatrix_s A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize,
-  ElPseudospecCtrl_s ctrl );
+  ElSpectralBox_s* box, ElPseudospecCtrl_s ctrl );
 EL_EXPORT ElError ElSpectralPortraitX_d
 ( ElConstMatrix_d A, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize,
-  ElPseudospecCtrl_d ctrl );
+  ElSpectralBox_d* box, ElPseudospecCtrl_d ctrl );
 EL_EXPORT ElError ElSpectralPortraitX_c
 ( ElConstMatrix_c A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize,
-  ElPseudospecCtrl_s ctrl );
+  ElSpectralBox_s* box, ElPseudospecCtrl_s ctrl );
 EL_EXPORT ElError ElSpectralPortraitX_z
 ( ElConstMatrix_z A, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize,
-  ElPseudospecCtrl_d ctrl );
+  ElSpectralBox_d* box, ElPseudospecCtrl_d ctrl );
 
 EL_EXPORT ElError ElSpectralPortraitXDist_s
 ( ElConstDistMatrix_s A, ElDistMatrix_s invNormMap,
-  ElInt realSize, ElInt imagSize, ElPseudospecCtrl_s ctrl );
+  ElInt realSize, ElInt imagSize, 
+  ElSpectralBox_s* box, ElPseudospecCtrl_s ctrl );
 EL_EXPORT ElError ElSpectralPortraitXDist_d
 ( ElConstDistMatrix_d A, ElDistMatrix_d invNormMap,
-  ElInt realSize, ElInt imagSize, ElPseudospecCtrl_d ctrl );
+  ElInt realSize, ElInt imagSize, 
+  ElSpectralBox_d* box, ElPseudospecCtrl_d ctrl );
 EL_EXPORT ElError ElSpectralPortraitXDist_c
 ( ElConstDistMatrix_c A, ElDistMatrix_s invNormMap,
-  ElInt realSize, ElInt imagSize, ElPseudospecCtrl_s ctrl );
+  ElInt realSize, ElInt imagSize, 
+  ElSpectralBox_s* box, ElPseudospecCtrl_s ctrl );
 EL_EXPORT ElError ElSpectralPortraitXDist_z
 ( ElConstDistMatrix_z A, ElDistMatrix_d invNormMap,
-  ElInt realSize, ElInt imagSize, ElPseudospecCtrl_d ctrl );
+  ElInt realSize, ElInt imagSize, 
+  ElSpectralBox_d* box, ElPseudospecCtrl_d ctrl );
 
 /* (Pseudo-)Spectral window
    ------------------------ */

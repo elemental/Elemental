@@ -6,7 +6,7 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-import math, El
+import El
 n = 200                 # matrix size
 realRes = imagRes = 100 # grid resolution
 
@@ -20,9 +20,8 @@ El.Display(A[(n/4):(3*n/4),(n/4):(3*n/4)],"Middle submatrix")
 El.Display(A[1,0:n],"Second row")
 
 # Display the spectral portrait
-portrait = El.SpectralPortrait(A,realRes,imagRes)
-El.EntrywiseMap(portrait,math.log10)
-El.Display(portrait,"spectral portrait of Fourier matrix")
+portrait, box = El.SpectralPortrait(A,realRes,imagRes)
+El.DisplayPortrait(portrait,box,"spectral portrait of Fourier matrix")
 
 # Require the user to press a button before the figures are closed
 commSize = El.mpi.Size( El.mpi.COMM_WORLD() )
