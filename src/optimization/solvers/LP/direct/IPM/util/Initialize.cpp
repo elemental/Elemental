@@ -288,15 +288,18 @@ void Initialize
   const Matrix<Real>& b,       const Matrix<Real>& c,
         Matrix<Real>& x,             Matrix<Real>& y,
         Matrix<Real>& z,
+        vector<Int>& map,            vector<Int>& invMap, 
+        Separator& rootSep,          SymmNodeInfo& info,
   bool primalInitialized, bool dualInitialized,
-  bool standardShift )
+  bool standardShift,     bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::direct::Initialize"))
     const Int n = A.Width();
     SparseMatrix<Real> Q;
     Q.Resize( n, n );
     qp::direct::Initialize
-    ( Q, A, b, c, x, y, z, primalInitialized, dualInitialized, standardShift );
+    ( Q, A, b, c, x, y, z, map, invMap, rootSep, info,
+      primalInitialized, dualInitialized, standardShift, progress );
 }
 
 template<typename Real>
@@ -340,8 +343,10 @@ void Initialize
     const Matrix<Real>& b,       const Matrix<Real>& c, \
           Matrix<Real>& x,             Matrix<Real>& y, \
           Matrix<Real>& z, \
+          vector<Int>& map,            vector<Int>& invMap, \
+          Separator& rootSep,          SymmNodeInfo& info, \
     bool primalInitialized, bool dualInitialized, \
-    bool standardShift ); \
+    bool standardShift,     bool progress ); \
   template void Initialize \
   ( const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b,      const DistMultiVec<Real>& c, \

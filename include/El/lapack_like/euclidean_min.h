@@ -73,18 +73,31 @@ EL_EXPORT ElError ElLeastSquaresDist_z
 ( ElOrientation orientation, 
   ElDistMatrix_z A, ElConstDistMatrix_z B, ElDistMatrix_z X );
 
+EL_EXPORT ElError ElLeastSquaresSparse_s
+( ElOrientation orientation, ElSparseMatrix_s A, 
+  ElConstMatrix_s B, ElMatrix_s X );
+EL_EXPORT ElError ElLeastSquaresSparse_d
+( ElOrientation orientation, ElSparseMatrix_d A, 
+  ElConstMatrix_d B, ElMatrix_d X );
+EL_EXPORT ElError ElLeastSquaresSparse_c
+( ElOrientation orientation, ElSparseMatrix_c A, 
+  ElConstMatrix_c B, ElMatrix_c X );
+EL_EXPORT ElError ElLeastSquaresSparse_z
+( ElOrientation orientation, ElSparseMatrix_z A, 
+  ElConstMatrix_z B, ElMatrix_z X );
+
 EL_EXPORT ElError ElLeastSquaresDistSparse_s
 ( ElOrientation orientation,
-  ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s Y, ElDistMultiVec_s X );
+  ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s B, ElDistMultiVec_s X );
 EL_EXPORT ElError ElLeastSquaresDistSparse_d
 ( ElOrientation orientation,
-  ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d Y, ElDistMultiVec_d X );
+  ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d B, ElDistMultiVec_d X );
 EL_EXPORT ElError ElLeastSquaresDistSparse_c
 ( ElOrientation orientation,
-  ElConstDistSparseMatrix_c A, ElConstDistMultiVec_c Y, ElDistMultiVec_c X );
+  ElConstDistSparseMatrix_c A, ElConstDistMultiVec_c B, ElDistMultiVec_c X );
 EL_EXPORT ElError ElLeastSquaresDistSparse_z
 ( ElOrientation orientation,
-  ElConstDistSparseMatrix_z A, ElConstDistMultiVec_z Y, ElDistMultiVec_z X );
+  ElConstDistSparseMatrix_z A, ElConstDistMultiVec_z B, ElDistMultiVec_z X );
 
 /* Equality-constrained Least Squares
    ---------------------------------- */

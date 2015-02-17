@@ -308,11 +308,154 @@ void Initialize
   const Matrix<Real>& h,
         Matrix<Real>& x,             Matrix<Real>& y,
         Matrix<Real>& z,             Matrix<Real>& s,
+        vector<Int>& map,            vector<Int>& invMap, 
+        Separator& rootSep,          SymmNodeInfo& info,
   bool primalInitialized, bool dualInitialized,
-  bool standardShift )
+  bool standardShift,     bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::affine::Initialize"))
-    LogicError("Sequential sparse-direct solves not yet supported");
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int k = G.Height();
+    if( primalInitialized )
+    {
+        if( x.Height() != n || x.Width() != 1 )
+            LogicError("x was of the wrong size");
+        if( s.Height() != k || s.Width() != 1 )
+            LogicError("s was of the wrong size");
+    }
+    if( dualInitialized )
+    {
+        if( y.Height() != m || y.Width() != 1 )
+            LogicError("y was of the wrong size");
+        if( z.Height() != k || z.Width() != 1 )
+            LogicError("z was of the wrong size");
+    }
+    if( primalInitialized && dualInitialized )
+    {
+        // TODO: Perform a consistency check
+        return;
+    }
+
+    // Form the KKT matrix
+    // ===================
+    SparseMatrix<Real> J;
+    Matrix<Real> ones;
+    Ones( ones, k, 1 );
+    KKT( Q, A, G, ones, ones, J, false );
+
+    // (Approximately) factor the KKT matrix
+    // =====================================
+    Matrix<Real> regCand, reg;
+    MatrixNode<Real> regCandNodal, regNodal;
+    bool aPriori = true;
+    const Real epsilon = lapack::MachineEpsilon<Real>();
+    const Real pivTol = MaxNorm(J)*epsilon;
+    const Real regMagPrimal = Pow(epsilon,Real(0.75));
+    const Real regMagLagrange = Pow(epsilon,Real(0.5));
+    const Real regMagDual = Pow(epsilon,Real(0.5));
+    regCand.Resize( n+m+k, 1 );
+    for( Int i=0; i<n+m+k; ++i )
+    {
+        if( i < n )
+            regCand.Set( i, 0, regMagPrimal );
+        else if( i < n+m )
+            regCand.Set( i, 0, -regMagLagrange );
+        else
+            regCand.Set( i, 0, -regMagDual );
+    }
+    // Do not use any a priori regularization
+    Zeros( reg, n+m+k, 1 );
+    // Compute the proposed step from the KKT system
+    // ---------------------------------------------
+    NestedDissection( J.LockedGraph(), map, rootSep, info );
+    InvertMap( map, invMap );
+
+    SymmFront<Real> JFront;
+    JFront.Pull( J, map, info );
+    regCandNodal.Pull( invMap, info, regCand );
+    regNodal.Pull( invMap, info, reg );
+    RegularizedQSDLDL
+    ( info, JFront, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
+    regNodal.Push( invMap, info, reg );
+
+    Matrix<Real> rc, rb, rh, rmu, u, d;
+    Zeros( rmu, k, 1 );
+    // TODO: Expose these as control parameters
+    const Real minReductionFactor = 2;
+    const Int maxRefineIts = 10;
+    if( !primalInitialized )
+    {
+        // Minimize || G x - h ||^2, s.t. A x = b  by solving
+        //
+        //    | Q A^T G^T | |  x |   | 0 |
+        //    | A  0   0  | |  u | = | b |,
+        //    | G  0  -I  | | -s |   | h |
+        //
+        //   where 'u' is an unused dummy variable.
+        Zeros( rc, n, 1 );
+        rb = b;
+        Scale( Real(-1), rb );
+        rh = h;
+        Scale( Real(-1), rh );
+        KKTRHS( rc, rb, rh, rmu, ones, d );
+
+        reg_qsd_ldl::SolveAfter
+        ( J, reg, invMap, info, JFront, d,
+          REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, progress );
+        ExpandCoreSolution( m, n, k, d, x, u, s );
+        Scale( Real(-1), s );
+    }
+    if( !dualInitialized )
+    {
+        // Minimize || z ||^2, s.t. A^T y + G^T z + c in range(Q) by solving
+        //
+        //    | Q A^T G^T | | u |   | -c |
+        //    | A  0   0  | | y | = |  0 |,
+        //    | G  0  -I  | | z |   |  0 |
+        //
+        //    where 'u' is an unused dummy variable.
+        rc = c;
+        Zeros( rb, m, 1 );
+        Zeros( rh, k, 1 );
+        KKTRHS( rc, rb, rh, rmu, ones, d );
+
+        reg_qsd_ldl::SolveAfter
+        ( J, reg, invMap, info, JFront, d,
+          REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, progress );
+        ExpandCoreSolution( m, n, k, d, u, y, z );
+    }
+
+    // alpha_p := min { alpha : s + alpha*e >= 0 }
+    // ===========================================
+    const auto sMinPair = VectorMin( s );
+    const Real alphaPrimal = -sMinPair.value;
+    if( alphaPrimal >= Real(0) && primalInitialized )
+        RuntimeError("initialized s was non-positive");
+
+    // alpha_d := min { alpha : z + alpha*e >= 0 }
+    // ===========================================
+    const auto zMinPair = VectorMin( z );
+    const Real alphaDual = -zMinPair.value;
+    if( alphaDual >= Real(0) && dualInitialized )
+        RuntimeError("initialized z was non-positive");
+
+    const Real sNorm = Nrm2( s );
+    const Real zNorm = Nrm2( z );
+    const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
+    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    if( standardShift )
+    {
+        if( alphaPrimal >= -gammaPrimal )
+            Shift( s, alphaPrimal+1 );
+        if( alphaDual >= -gammaDual )
+            Shift( z, alphaDual+1 );
+    }
+    else
+    {
+        LowerClip( s, gammaPrimal );
+        LowerClip( z, gammaDual   );
+    }
 }
 
 template<typename Real>
@@ -502,8 +645,10 @@ void Initialize
     const Matrix<Real>& h, \
           Matrix<Real>& x,             Matrix<Real>& y, \
           Matrix<Real>& z,             Matrix<Real>& s, \
+          vector<Int>& map,            vector<Int>& invMap, \
+          Separator& rootSep,          SymmNodeInfo& info, \
     bool primalInitialized, bool dualInitialized, \
-    bool standardShift ); \
+    bool standardShift,     bool progress ); \
   template void Initialize \
   ( const DistSparseMatrix<Real>& Q, \
     const DistSparseMatrix<Real>& A,  const DistSparseMatrix<Real>& G, \

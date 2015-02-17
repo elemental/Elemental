@@ -70,6 +70,10 @@ lib.ElLeastSquaresDist_s.argtypes = \
 lib.ElLeastSquaresDist_d.argtypes = \
 lib.ElLeastSquaresDist_c.argtypes = \
 lib.ElLeastSquaresDist_z.argtypes = \
+lib.ElLeastSquaresSparse_s.argtypes = \
+lib.ElLeastSquaresSparse_d.argtypes = \
+lib.ElLeastSquaresSparse_c.argtypes = \
+lib.ElLeastSquaresSparse_z.argtypes = \
 lib.ElLeastSquaresDistSparse_s.argtypes = \
 lib.ElLeastSquaresDistSparse_d.argtypes = \
 lib.ElLeastSquaresDistSparse_c.argtypes = \
@@ -84,6 +88,10 @@ lib.ElLeastSquaresDist_s.restype = \
 lib.ElLeastSquaresDist_d.restype = \
 lib.ElLeastSquaresDist_c.restype = \
 lib.ElLeastSquaresDist_z.restype = \
+lib.ElLeastSquaresSparse_s.restype = \
+lib.ElLeastSquaresSparse_d.restype = \
+lib.ElLeastSquaresSparse_c.restype = \
+lib.ElLeastSquaresSparse_z.restype = \
 lib.ElLeastSquaresDistSparse_s.restype = \
 lib.ElLeastSquaresDistSparse_d.restype = \
 lib.ElLeastSquaresDistSparse_c.restype = \
@@ -113,6 +121,17 @@ def LeastSquares(A,B,orient=NORMAL):
     elif A.tag == dTag: lib.ElLeastSquaresDist_d(*args)
     elif A.tag == cTag: lib.ElLeastSquaresDist_c(*args)
     elif A.tag == zTag: lib.ElLeastSquaresDist_z(*args)
+    else: DataExcept()
+    return X
+  elif type(A) is SparseMatrix:
+    if type(B) is not Matrix:
+      raise Exception('RHS was expected to be a Matrix')
+    X = Matrix(A.tag)
+    args = [orient,A.obj,B.obj,X.obj]
+    if   A.tag == sTag: lib.ElLeastSquaresSparse_s(*args)
+    elif A.tag == dTag: lib.ElLeastSquaresSparse_d(*args)
+    elif A.tag == cTag: lib.ElLeastSquaresSparse_c(*args)
+    elif A.tag == zTag: lib.ElLeastSquaresSparse_z(*args)
     else: DataExcept()
     return X
   elif type(A) is DistSparseMatrix:

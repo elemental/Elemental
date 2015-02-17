@@ -284,15 +284,144 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A, 
-  const Matrix<Real>& b,       const Matrix<Real>& c,
-        Matrix<Real>& x,             Matrix<Real>& y,
+( const SparseMatrix<Real>& Q,  const SparseMatrix<Real>& A, 
+  const Matrix<Real>& b,        const Matrix<Real>& c,
+        Matrix<Real>& x,              Matrix<Real>& y,
         Matrix<Real>& z,
+        vector<Int>& map,             vector<Int>& invMap, 
+        Separator& rootSep,           SymmNodeInfo& info,
   bool primalInitialized, bool dualInitialized,
-  bool standardShift )
+  bool standardShift,     bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::direct::Initialize"))
-    LogicError("Sequential sparse-direct solves not yet supported");
+    const Int m = A.Height();
+    const Int n = A.Width();
+    if( primalInitialized )
+        if( x.Height() != n || x.Width() != 1 )
+            LogicError("x was of the wrong size");
+    if( dualInitialized )
+    {
+        if( y.Height() != m || y.Width() != 1 )
+            LogicError("y was of the wrong size");
+        if( z.Height() != n || z.Width() != 1 )
+            LogicError("z was of the wrong size");
+    }
+    if( primalInitialized && dualInitialized )
+    {
+        // TODO: Perform a consistency check
+        return;
+    }
+
+    // Form the KKT matrix
+    // ===================
+    SparseMatrix<Real> J;
+    Matrix<Real> ones;
+    Ones( ones, n, 1 );
+    AugmentedKKT( Q, A, ones, ones, J, false );
+
+    // (Approximately) factor the KKT matrix
+    // =====================================
+    Matrix<Real> regCand, reg;
+    MatrixNode<Real> regCandNodal, regNodal;
+    bool aPriori = true;
+    const Real epsilon = lapack::MachineEpsilon<Real>();
+    const Real pivTol = MaxNorm(J)*epsilon;
+    const Real regMagPrimal = Pow(epsilon,Real(0.75));
+    const Real regMagLagrange = Pow(epsilon,Real(0.5));
+    regCand.Resize( n+m, 1 );
+    for( Int i=0; i<n+m; ++i )
+    {
+        if( i < n )
+            regCand.Set( i, 0, regMagPrimal );
+        else
+            regCand.Set( i, 0, -regMagLagrange );
+    }
+    // Do not use any a priori regularization
+    Zeros( reg, m+n, 1 );
+    // Compute the proposed step from the KKT system
+    // ---------------------------------------------
+    NestedDissection( J.LockedGraph(), map, rootSep, info );
+    InvertMap( map, invMap );
+
+    SymmFront<Real> JFront;
+    JFront.Pull( J, map, info );
+    regCandNodal.Pull( invMap, info, regCand );
+    regNodal.Pull( invMap, info, reg );
+    RegularizedQSDLDL
+    ( info, JFront, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
+    regNodal.Push( invMap, info, reg );
+
+    Matrix<Real> rc, rb, rmu, d, u, v;
+    Zeros( rmu, n, 1 );
+    // TODO: Expose these as control parameters
+    const Real minReductionFactor = 2;
+    const Int maxRefineIts = 10;
+    if( !primalInitialized )
+    {
+        // Minimize || x ||^2, s.t. A x = b  by solving
+        //
+        //    | Q+I A^T | | x |   | 0 |
+        //    | A    0  | | u | = | b |,
+        //
+        // where 'u' is an unused dummy variable.
+        Zeros( rc, n, 1 );
+        rb = b;
+        Scale( Real(-1), rb );
+        Zeros( rmu, n, 1 );
+        AugmentedKKTRHS( ones, rc, rb, rmu, d );
+
+        reg_qsd_ldl::SolveAfter
+        ( J, reg, invMap, info, JFront, d,
+          REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, progress );
+        ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
+    }
+    if( !dualInitialized ) 
+    {
+        // Minimize || z ||^2, s.t. A^T y - z + c in range(Q) by solving
+        //
+        //    | Q+I A^T | | -z |   | -c |
+        //    | A    0  | |  y | = |  0 |.
+        rc = c;
+        Zeros( rb, m, 1 );
+        AugmentedKKTRHS( ones, rc, rb, rmu, d );
+
+        reg_qsd_ldl::SolveAfter
+        ( J, reg, invMap, info, JFront, d,
+          REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, progress );
+        ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );
+        Scale( Real(-1), z );
+    }
+
+    // alpha_p := min { alpha : x + alpha*e >= 0 }
+    // ===========================================
+    const auto xMinPair = VectorMin( x );
+    const Real alphaPrimal = -xMinPair.value;
+    if( alphaPrimal >= Real(0) && primalInitialized )
+        RuntimeError("initialized x was non-positive");
+
+    // alpha_d := min { alpha : z + alpha*e >= 0 }
+    // ===========================================
+    const auto zMinPair = VectorMin( z );
+    const Real alphaDual = -zMinPair.value;
+    if( alphaDual >= Real(0) && dualInitialized )
+        RuntimeError("initialized z was non-positive");
+
+    const Real xNorm = Nrm2( x );
+    const Real zNorm = Nrm2( z );
+    const Real gammaPrimal = Sqrt(epsilon)*Max(xNorm,Real(1));
+    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    if( standardShift )
+    {
+        if( alphaPrimal >= -gammaPrimal )
+            Shift( x, alphaPrimal+1 );
+        if( alphaDual >= -gammaDual )
+            Shift( z, alphaDual+1 );
+    }
+    else
+    {
+        LowerClip( x, gammaPrimal );
+        LowerClip( z, gammaDual   );
+    }
 }
 
 template<typename Real>
@@ -459,17 +588,19 @@ void Initialize
     const Matrix<Real>& b,       const Matrix<Real>& c, \
           Matrix<Real>& x,             Matrix<Real>& y, \
           Matrix<Real>& z, \
-    bool primalInitialized, bool dualInitialized, \
-    bool standardShift ); \
+          vector<Int>& map,            vector<Int>& invMap, \
+          Separator& rootSep,          SymmNodeInfo& info, \
+    bool primalInitialized,      bool dualInitialized, \
+    bool standardShift,          bool progress ); \
   template void Initialize \
-  ( const DistSparseMatrix<Real>& Q,  const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& b,      const DistMultiVec<Real>& c, \
+  ( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A, \
+    const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, \
           DistMultiVec<Real>& x,            DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
           DistMap& map,                     DistMap& invMap, \
           DistSeparator& rootSep,           DistSymmNodeInfo& info, \
-    bool primalInitialized, bool dualInitialized, \
-    bool standardShift,     bool progress );
+    bool primalInitialized,          bool dualInitialized, \
+    bool standardShift,              bool progress );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

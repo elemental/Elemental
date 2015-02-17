@@ -37,8 +37,10 @@ void Initialize
   const Matrix<Real>& b,       const Matrix<Real>& c,
         Matrix<Real>& x,             Matrix<Real>& y, 
         Matrix<Real>& z,
+        vector<Int>& map,            vector<Int>& invMap,
+        Separator& rootSep,          SymmNodeInfo& info,
   bool primalInitialized, bool dualInitialized,
-  bool standardShift );
+  bool standardShift,     bool progress );
 template<typename Real>
 void Initialize
 ( const DistSparseMatrix<Real>& A,

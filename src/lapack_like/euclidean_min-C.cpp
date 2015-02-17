@@ -35,6 +35,11 @@ extern "C" {
     ElConstDistMatrix_ ## SIG B, ElDistMatrix_ ## SIG X ) \
   { EL_TRY( LeastSquares( CReflect(orientation), *CReflect(A), \
                           *CReflect(B), *CReflect(X) ) ) } \
+  ElError ElLeastSquaresSparse_ ## SIG \
+  ( ElOrientation orientation, ElSparseMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG B, ElMatrix_ ## SIG X ) \
+  { EL_TRY( LeastSquares( CReflect(orientation), *CReflect(A), \
+                          *CReflect(B), *CReflect(X) ) ) } \
   ElError ElLeastSquaresDistSparse_ ## SIG \
   ( ElOrientation orientation, \
     ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG X, \
