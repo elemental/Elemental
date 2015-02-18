@@ -1152,6 +1152,56 @@ def FillDiagonal(A,alphaPre,offset=0):
     else: DataExcept()
   else: TypeExcept()
 
+# Full
+# ----
+lib.ElFull_i.argtypes = \
+lib.ElFull_s.argtypes = \
+lib.ElFull_d.argtypes = \
+lib.ElFull_c.argtypes = \
+lib.ElFull_z.argtypes = \
+lib.ElFullDist_i.argtypes = \
+lib.ElFullDist_s.argtypes = \
+lib.ElFullDist_d.argtypes = \
+lib.ElFullDist_c.argtypes = \
+lib.ElFullDist_z.argtypes = \
+  [c_void_p,c_void_p]
+
+lib.ElFull_i.restype = \
+lib.ElFull_s.restype = \
+lib.ElFull_d.restype = \
+lib.ElFull_c.restype = \
+lib.ElFull_z.restype = \
+lib.ElFullDist_i.restype = \
+lib.ElFullDist_s.restype = \
+lib.ElFullDist_d.restype = \
+lib.ElFullDist_c.restype = \
+lib.ElFullDist_z.restype = \
+  c_uint
+
+def Full(A,B):
+  if A.tag != B.tag: 
+    raise Exception("Expected A and B to have the same datatype")
+  args = [A.obj,B.obj]
+  if type(A) is SparseMatrix:
+    if type(B) is not Matrix:
+      raise Exception("Expected B to be a Matrix")
+    if   A.tag == iTag: lib.ElFull_i(*args)
+    elif A.tag == sTag: lib.ElFull_s(*args)
+    elif A.tag == dTag: lib.ElFull_d(*args)
+    elif A.tag == cTag: lib.ElFull_c(*args)
+    elif A.tag == zTag: lib.ElFull_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if type(B) is not DistMatrix:
+      raise Exception("Expected B to be a DistMatrix")
+    if   A.tag == iTag: lib.ElFullDist_i(*args)
+    elif A.tag == sTag: lib.ElFullDist_s(*args)
+    elif A.tag == dTag: lib.ElFullDist_d(*args)
+    elif A.tag == cTag: lib.ElFullDist_c(*args)
+    elif A.tag == zTag: lib.ElFullDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
+
 # Get diagonal
 # ------------
 # TODO
@@ -1381,6 +1431,96 @@ def IndexDependentMap(A,mapFunc):
     elif A.tag == dTag: lib.ElIndexDependentMapDist_d(*args)
     elif A.tag == cTag: lib.ElIndexDependentMapDist_c(*args)
     elif A.tag == zTag: lib.ElIndexDependentMapDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
+
+# Kronecker product
+# -----------------
+lib.ElKronecker_i.argtypes = \
+lib.ElKronecker_s.argtypes = \
+lib.ElKronecker_d.argtypes = \
+lib.ElKronecker_c.argtypes = \
+lib.ElKronecker_z.argtypes = \
+lib.ElKroneckerDist_i.argtypes = \
+lib.ElKroneckerDist_s.argtypes = \
+lib.ElKroneckerDist_d.argtypes = \
+lib.ElKroneckerDist_c.argtypes = \
+lib.ElKroneckerDist_z.argtypes = \
+lib.ElKroneckerSparse_i.argtypes = \
+lib.ElKroneckerSparse_s.argtypes = \
+lib.ElKroneckerSparse_d.argtypes = \
+lib.ElKroneckerSparse_c.argtypes = \
+lib.ElKroneckerSparse_z.argtypes = \
+lib.ElKroneckerDistSparse_i.argtypes = \
+lib.ElKroneckerDistSparse_s.argtypes = \
+lib.ElKroneckerDistSparse_d.argtypes = \
+lib.ElKroneckerDistSparse_c.argtypes = \
+lib.ElKroneckerDistSparse_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+
+lib.ElKronecker_i.restype = \
+lib.ElKronecker_s.restype = \
+lib.ElKronecker_d.restype = \
+lib.ElKronecker_c.restype = \
+lib.ElKronecker_z.restype = \
+lib.ElKroneckerDist_i.restype = \
+lib.ElKroneckerDist_s.restype = \
+lib.ElKroneckerDist_d.restype = \
+lib.ElKroneckerDist_c.restype = \
+lib.ElKroneckerDist_z.restype = \
+lib.ElKroneckerSparse_i.restype = \
+lib.ElKroneckerSparse_s.restype = \
+lib.ElKroneckerSparse_d.restype = \
+lib.ElKroneckerSparse_c.restype = \
+lib.ElKroneckerSparse_z.restype = \
+lib.ElKroneckerDistSparse_i.restype = \
+lib.ElKroneckerDistSparse_s.restype = \
+lib.ElKroneckerDistSparse_d.restype = \
+lib.ElKroneckerDistSparse_c.restype = \
+lib.ElKroneckerDistSparse_z.restype = \
+  c_uint
+
+def Kronecker(A,B,C):
+  if type(A) is not type(B):
+    raise Exception("Python interface assumes type(A) = type(B)")
+  if A.tag != B.tag or B.tag != C.tag:
+    raise Exception("Matrix datatypes must match")
+  args = [A.obj,B.obj,C.obj]
+  if type(C) is Matrix:
+    if type(A) is not Matrix:
+      LogicError("Assumed A and B were of type Matrix")
+    if   A.tag == iTag: lib.ElHadamard_i(*args)
+    elif A.tag == sTag: lib.ElHadamard_s(*args)
+    elif A.tag == dTag: lib.ElHadamard_d(*args)
+    elif A.tag == cTag: lib.ElHadamard_c(*args)
+    elif A.tag == zTag: lib.ElHadamard_z(*args)
+    else: DataExcept()
+  elif type(C) is DistMatrix:
+    if type(A) is not Matrix:
+      LogicError("Assumed A and B were of type Matrix")
+    if   A.tag == iTag: lib.ElHadamardDist_i(*args)
+    elif A.tag == sTag: lib.ElHadamardDist_s(*args)
+    elif A.tag == dTag: lib.ElHadamardDist_d(*args)
+    elif A.tag == cTag: lib.ElHadamardDist_c(*args)
+    elif A.tag == zTag: lib.ElHadamardDist_z(*args)
+    else: DataExcept()
+  elif type(C) is SparseMatrix:
+    if type(A) is not SparseMatrix:
+      LogicError("Assumed A and B were of type SparseMatrix")
+    if   A.tag == iTag: lib.ElHadamardSparse_i(*args)
+    elif A.tag == sTag: lib.ElHadamardSparse_s(*args)
+    elif A.tag == dTag: lib.ElHadamardSparse_d(*args)
+    elif A.tag == cTag: lib.ElHadamardSparse_c(*args)
+    elif A.tag == zTag: lib.ElHadamardSparse_z(*args)
+    else: DataExcept()
+  elif type(C) is DistSparseMatrix:
+    if type(A) is not SparseMatrix:
+      LogicError("Assumed A and B were of type SparseMatrix")
+    if   A.tag == iTag: lib.ElHadamardDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElHadamardDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElHadamardDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElHadamardDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElHadamardDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 

@@ -553,6 +553,20 @@ void FillDiagonal( AbstractDistMatrix<T>& A, T alpha, Int offset=0 );
 template<typename T>
 void FillDiagonal( AbstractBlockDistMatrix<T>& A, T alpha, Int offset=0 );
 
+// Full
+// ====
+template<typename T>
+void Full( const SparseMatrix<T>& A, Matrix<T>& B );
+template<typename T>
+void Full( const DistSparseMatrix<T>& A, AbstractDistMatrix<T>& B );
+
+template<typename T>
+Matrix<T> Full( const SparseMatrix<T>& A );
+// NOTE: A distributed version of the above does not exist because it is not
+//       yet clear how Elemental should currently handle creating a grid within
+//       a subroutine without causing a memory leak. DistMatrix may need to be
+//       modified to allow for ownership of a grid.
+
 // GetDiagonal
 // ===========
 template<typename T>

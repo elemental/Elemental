@@ -185,7 +185,7 @@ void BP
     // x := u - v
     // ==========
     Zeros( x, n, 1 );
-    // Determine the send and recv counts/offsets
+    // Determine the send and recv counts/offs
     // ------------------------------------------
     const Int commSize = mpi::Size(comm);
     vector<int> sendSizes(commSize,0);
@@ -206,23 +206,23 @@ void BP
     // -------------
     vector<Int> sSendBuf(totalSend);
     vector<Real> vSendBuf(totalSend);
-    auto offsets = sendOffs;
+    auto offs = sendOffs;
     for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
     {
         const Int i = xHat.GlobalRow(iLoc);
         if( i < n )
         {
             const int owner = x.RowOwner(i);
-            sSendBuf[offsets[owner]] = i;
-            vSendBuf[offsets[owner]] = xHat.GetLocal(iLoc,0);
-            ++offsets[owner];
+            sSendBuf[offs[owner]] = i;
+            vSendBuf[offs[owner]] = xHat.GetLocal(iLoc,0);
+            ++offs[owner];
         }
         else
         {
             const int owner = x.RowOwner(i-n);
-            sSendBuf[offsets[owner]] = i-n;
-            vSendBuf[offsets[owner]] = -xHat.GetLocal(iLoc,0);
-            ++offsets[owner];
+            sSendBuf[offs[owner]] = i-n;
+            vSendBuf[offs[owner]] = -xHat.GetLocal(iLoc,0);
+            ++offs[owner];
         }
     }
     // Exchange the data

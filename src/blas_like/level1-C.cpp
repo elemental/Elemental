@@ -187,6 +187,13 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, int root )
   ElError ElFillDiagonalDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, CREFLECT(T) alpha, ElInt offset ) \
   { EL_TRY( FillDiagonal( *CReflect(A), CReflect(alpha), offset ) ) } \
+  /* Full */ \
+  ElError ElFull_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
+  { EL_TRY( Full( *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElFullDist_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
+  { EL_TRY( Full( *CReflect(A), *CReflect(B) ) ) } \
   /* Hadamard */ \
   ElError ElHadamard_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, ElMatrix_ ## SIG C ) \
@@ -248,6 +255,21 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, int root )
       IndexDependentMap \
       ( *CReflect(A), std::function<T(Int,Int,T)>(newMap) ); \
     } EL_CATCH; return EL_SUCCESS; } \
+  /* Kronecker */ \
+  ElError ElKronecker_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, ElMatrix_ ## SIG C ) \
+  { EL_TRY( Kronecker( *CReflect(A), *CReflect(B), *CReflect(C) ) ) } \
+  ElError ElKroneckerDist_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, ElDistMatrix_ ## SIG C ) \
+  { EL_TRY( Kronecker( *CReflect(A), *CReflect(B), *CReflect(C) ) ) } \
+  ElError ElKroneckerSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstSparseMatrix_ ## SIG B, \
+    ElSparseMatrix_ ## SIG C ) \
+  { EL_TRY( Kronecker( *CReflect(A), *CReflect(B), *CReflect(C) ) ) } \
+  ElError ElKroneckerDistSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstSparseMatrix_ ## SIG B, \
+    ElDistSparseMatrix_ ## SIG C ) \
+  { EL_TRY( Kronecker( *CReflect(A), *CReflect(B), *CReflect(C) ) ) } \
   /* MakeSymmetric */ \
   ElError ElMakeSymmetric_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \

@@ -662,6 +662,20 @@ EL_EXPORT ElError ElFillDiagonalDist_c
 EL_EXPORT ElError ElFillDiagonalDist_z
 ( ElDistMatrix_z A, complex_double alpha, ElInt offset );
 
+/* Full
+   ==== */
+EL_EXPORT ElError ElFull_i( ElConstSparseMatrix_i A, ElMatrix_i B );
+EL_EXPORT ElError ElFull_s( ElConstSparseMatrix_s A, ElMatrix_s B );
+EL_EXPORT ElError ElFull_d( ElConstSparseMatrix_d A, ElMatrix_d B );
+EL_EXPORT ElError ElFull_c( ElConstSparseMatrix_c A, ElMatrix_c B );
+EL_EXPORT ElError ElFull_z( ElConstSparseMatrix_z A, ElMatrix_z B );
+
+EL_EXPORT ElError ElFullDist_i( ElConstDistSparseMatrix_i A, ElDistMatrix_i B );
+EL_EXPORT ElError ElFullDist_s( ElConstDistSparseMatrix_s A, ElDistMatrix_s B );
+EL_EXPORT ElError ElFullDist_d( ElConstDistSparseMatrix_d A, ElDistMatrix_d B );
+EL_EXPORT ElError ElFullDist_c( ElConstDistSparseMatrix_c A, ElDistMatrix_c B );
+EL_EXPORT ElError ElFullDist_z( ElConstDistSparseMatrix_z A, ElDistMatrix_z B );
+
 /* GetDiagonal
    =========== */
 /* TODO */
@@ -799,6 +813,52 @@ EL_EXPORT ElError ElIndexDependentMapDist_c
 ( ElDistMatrix_c A, complex_float (*func)(ElInt,ElInt,complex_float) );
 EL_EXPORT ElError ElIndexDependentMapDist_z
 ( ElDistMatrix_z A, complex_double (*func)(ElInt,ElInt,complex_double) );
+
+/* Kronecker product
+   ================= */
+EL_EXPORT ElError ElKronecker_i
+( ElConstMatrix_i A, ElConstMatrix_i B, ElMatrix_i C );
+EL_EXPORT ElError ElKronecker_s
+( ElConstMatrix_s A, ElConstMatrix_s B, ElMatrix_s C );
+EL_EXPORT ElError ElKronecker_d
+( ElConstMatrix_d A, ElConstMatrix_d B, ElMatrix_d C );
+EL_EXPORT ElError ElKronecker_c
+( ElConstMatrix_c A, ElConstMatrix_c B, ElMatrix_c C );
+EL_EXPORT ElError ElKronecker_z
+( ElConstMatrix_z A, ElConstMatrix_z B, ElMatrix_z C );
+
+EL_EXPORT ElError ElKroneckerDist_i
+( ElConstMatrix_i A, ElConstMatrix_i B, ElDistMatrix_i C );
+EL_EXPORT ElError ElKroneckerDist_s
+( ElConstMatrix_s A, ElConstMatrix_s B, ElDistMatrix_s C );
+EL_EXPORT ElError ElKroneckerDist_d
+( ElConstMatrix_d A, ElConstMatrix_d B, ElDistMatrix_d C );
+EL_EXPORT ElError ElKroneckerDist_c
+( ElConstMatrix_c A, ElConstMatrix_c B, ElDistMatrix_c C );
+EL_EXPORT ElError ElKroneckerDist_z
+( ElConstMatrix_z A, ElConstMatrix_z B, ElDistMatrix_z C );
+
+EL_EXPORT ElError ElKroneckerSparse_i
+( ElConstSparseMatrix_i A, ElConstSparseMatrix_i B, ElSparseMatrix_i C );
+EL_EXPORT ElError ElKroneckerSparse_s
+( ElConstSparseMatrix_s A, ElConstSparseMatrix_s B, ElSparseMatrix_s C );
+EL_EXPORT ElError ElKroneckerSparse_d
+( ElConstSparseMatrix_d A, ElConstSparseMatrix_d B, ElSparseMatrix_d C );
+EL_EXPORT ElError ElKroneckerSparse_c
+( ElConstSparseMatrix_c A, ElConstSparseMatrix_c B, ElSparseMatrix_c C );
+EL_EXPORT ElError ElKroneckerSparse_z
+( ElConstSparseMatrix_z A, ElConstSparseMatrix_z B, ElSparseMatrix_z C );
+
+EL_EXPORT ElError ElKroneckerDistSparse_i
+( ElConstSparseMatrix_i A, ElConstSparseMatrix_i B, ElDistSparseMatrix_i C );
+EL_EXPORT ElError ElKroneckerDistSparse_s
+( ElConstSparseMatrix_s A, ElConstSparseMatrix_s B, ElDistSparseMatrix_s C );
+EL_EXPORT ElError ElKroneckerDistSparse_d
+( ElConstSparseMatrix_d A, ElConstSparseMatrix_d B, ElDistSparseMatrix_d C );
+EL_EXPORT ElError ElKroneckerDistSparse_c
+( ElConstSparseMatrix_c A, ElConstSparseMatrix_c B, ElDistSparseMatrix_c C );
+EL_EXPORT ElError ElKroneckerDistSparse_z
+( ElConstSparseMatrix_z A, ElConstSparseMatrix_z B, ElDistSparseMatrix_z C );
 
 /* MakeHermitian 
    ============= */
