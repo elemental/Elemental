@@ -33,7 +33,6 @@ Base<F> TwoCondition( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("TwoCondition"))
     typedef Base<F> Real;
-    Print( A, "A" );
     DistMatrix<F> B( A );
     DistMatrix<Real,VR,STAR> s( A.Grid() );
     SVD( B, s );
