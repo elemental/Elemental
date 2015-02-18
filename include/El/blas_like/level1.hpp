@@ -742,6 +742,32 @@ void IndexDependentMap
 ( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B,
   function<T(Int,Int,S)> func );
 
+// Kronecker product
+// =================
+template<typename T>
+void Kronecker( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C );
+template<typename T>
+void Kronecker
+( const Matrix<T>& A, const Matrix<T>& B, AbstractDistMatrix<T>& C );
+template<typename T>
+void Kronecker
+( const SparseMatrix<T>& A, const SparseMatrix<T>& B, SparseMatrix<T>& C );
+template<typename T>
+void Kronecker
+( const SparseMatrix<T>& A, const Matrix<T>& B, SparseMatrix<T>& C );
+template<typename T>
+void Kronecker
+( const Matrix<T>& A, const SparseMatrix<T>& B, SparseMatrix<T>& C );
+template<typename T>
+void Kronecker
+( const SparseMatrix<T>& A, const SparseMatrix<T>& B, DistSparseMatrix<T>& C );
+template<typename T>
+void Kronecker
+( const SparseMatrix<T>& A, const Matrix<T>& B, DistSparseMatrix<T>& C );
+template<typename T>
+void Kronecker
+( const Matrix<T>& A, const SparseMatrix<T>& B, DistSparseMatrix<T>& C );
+
 // MakeHermitian
 // =============
 template<typename T>
