@@ -12,8 +12,6 @@ using namespace El;
 
 extern "C" {
 
-/* TODO: Split into 'models', 'prox', and 'util' */
-
 #define C_PROTO_FIELD(SIG,SIGBASE,F) \
   /* Basis pursuit
      ============= */ \
@@ -61,65 +59,7 @@ extern "C" {
   ElError ElSparseInvCovDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG D, Base<F> lambda, ElDistMatrix_ ## SIG Z, \
     ElInt* numIts ) \
-  { EL_TRY( *numIts = SparseInvCov( *CReflect(D), lambda, *CReflect(Z) ) ) } \
-  /* Utilities
-     ========= */ \
-  /* Coherence
-     --------- */ \
-  ElError ElCoherence_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, Base<F>* coherence ) \
-  { EL_TRY( *coherence = Coherence(*CReflect(A)) ) } \
-  ElError ElCoherenceDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, Base<F>* coherence ) \
-  { EL_TRY( *coherence = Coherence(*CReflect(A)) ) } \
-  /* Covariance
-     ---------- */ \
-  ElError ElCovariance_ ## SIG \
-  ( ElConstMatrix_ ## SIG D, ElMatrix_ ## SIG S ) \
-  { EL_TRY( Covariance( *CReflect(D), *CReflect(S) ) ) } \
-  ElError ElCovarianceDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG D, ElDistMatrix_ ## SIG S ) \
-  { EL_TRY( Covariance( *CReflect(D), *CReflect(S) ) ) } \
-  /* Frobenius-norm prox
-     ------------------- */ \
-  ElError ElFrobeniusProx_ ## SIG ( ElMatrix_ ## SIG A, Base<F> rho ) \
-  { EL_TRY( FrobeniusProx( *CReflect(A), rho ) ) } \
-  ElError ElFrobeniusProxDist_ ## SIG ( ElDistMatrix_ ## SIG A, Base<F> rho ) \
-  { EL_TRY( FrobeniusProx( *CReflect(A), rho ) ) } \
-  /* Log barrier
-     ----------- */ \
-  ElError ElLogBarrier_ ## SIG \
-  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, Base<F>* barrier ) \
-  { EL_TRY( *barrier = LogBarrier( CReflect(uplo), *CReflect(A) ) ) } \
-  ElError ElLogBarrierDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, Base<F>* barrier ) \
-  { EL_TRY( *barrier = LogBarrier( CReflect(uplo), *CReflect(A) ) ) } \
-  /* Log-det divergence
-     ------------------ */ \
-  ElError ElLogDetDiv_ ## SIG \
-  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, \
-    ElConstMatrix_ ## SIG B, Base<F>* div ) \
-  { EL_TRY( *div = LogDetDiv( CReflect(uplo), *CReflect(A), *CReflect(B) ) ) } \
-  ElError ElLogDetDivDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, \
-    ElConstDistMatrix_ ## SIG B, Base<F>* div ) \
-  { EL_TRY( *div = LogDetDiv( CReflect(uplo), *CReflect(A), *CReflect(B) ) ) } \
-  /* Singular-value soft-thresholding
-     -------------------------------- */ \
-  ElError ElSVT_ ## SIG \
-  ( ElMatrix_ ## SIG A, Base<F> rho, bool relative ) \
-  { EL_TRY( SVT( *CReflect(A), rho, relative ) ) } \
-  ElError ElSVTDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, Base<F> rho, bool relative ) \
-  { EL_TRY( SVT( *CReflect(A), rho, relative ) ) } \
-  /* Soft-thresholding
-     ----------------- */ \
-  ElError ElSoftThreshold_ ## SIG \
-  ( ElMatrix_ ## SIG A, Base<F> rho, bool relative ) \
-  { EL_TRY( SoftThreshold( *CReflect(A), rho, relative ) ) } \
-  ElError ElSoftThresholdDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, Base<F> rho, bool relative ) \
-  { EL_TRY( SoftThreshold( *CReflect(A), rho, relative ) ) }
+  { EL_TRY( *numIts = SparseInvCov( *CReflect(D), lambda, *CReflect(Z) ) ) }
 
 #define C_PROTO_REAL(SIG,Real) \
   C_PROTO_FIELD(SIG,SIG,Real) \
@@ -577,37 +517,7 @@ extern "C" {
   ( ElConstDistMatrix_ ## SIG G, ElConstDistMatrix_ ## SIG q, \
     Real gamma, ElDistMatrix_ ## SIG z, ElInt* numIts ) \
   { EL_TRY( *numIts = \
-      svm::ADMM( *CReflect(G), *CReflect(q), gamma, *CReflect(z) ) ) } \
-  /* Utilities
-     ========= */ \
-  /* Clip
-     ---- */ \
-  ElError ElLowerClip_ ## SIG ( ElMatrix_ ## SIG X, Real lowerBound ) \
-  { EL_TRY( LowerClip( *CReflect(X), lowerBound ) ) } \
-  ElError ElLowerClipDist_ ## SIG ( ElDistMatrix_ ## SIG X, Real lowerBound ) \
-  { EL_TRY( LowerClip( *CReflect(X), lowerBound ) ) } \
-  ElError ElUpperClip_ ## SIG ( ElMatrix_ ## SIG X, Real upperBound ) \
-  { EL_TRY( UpperClip( *CReflect(X), upperBound ) ) } \
-  ElError ElUpperClipDist_ ## SIG ( ElDistMatrix_ ## SIG X, Real upperBound ) \
-  { EL_TRY( UpperClip( *CReflect(X), upperBound ) ) } \
-  ElError ElClip_ ## SIG \
-  ( ElMatrix_ ## SIG X, Real lowerBound, Real upperBound ) \
-  { EL_TRY( Clip( *CReflect(X), lowerBound, upperBound ) ) } \
-  ElError ElClipDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG X, Real lowerBound, Real upperBound ) \
-  { EL_TRY( Clip( *CReflect(X), lowerBound, upperBound ) ) } \
-  /* Hinge-loss prox 
-     --------------- */ \
-  ElError ElHingeLossProx_ ## SIG ( ElMatrix_ ## SIG A, Real rho ) \
-  { EL_TRY( HingeLossProx( *CReflect(A), rho ) ) } \
-  ElError ElHingeLossProxDist_ ## SIG ( ElDistMatrix_ ## SIG A, Real rho ) \
-  { EL_TRY( HingeLossProx( *CReflect(A), rho ) ) } \
-  /* Logistic prox
-     ------------- */ \
-  ElError ElLogisticProx_ ## SIG ( ElMatrix_ ## SIG A, Real rho ) \
-  { EL_TRY( LogisticProx( *CReflect(A), rho ) ) } \
-  ElError ElLogisticProxDist_ ## SIG ( ElDistMatrix_ ## SIG A, Real rho ) \
-  { EL_TRY( LogisticProx( *CReflect(A), rho ) ) }
+      svm::ADMM( *CReflect(G), *CReflect(q), gamma, *CReflect(z) ) ) }
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
   C_PROTO_FIELD(SIG,SIGBASE,F) \
