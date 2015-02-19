@@ -1,4 +1,5 @@
 #       
+# module load cray-mpich/7* (any 7+ version is ok)
 # module load gcc/4.9.2 && module load PrgEnv-intel
 #
 
@@ -24,6 +25,10 @@ endif()
 
 set(OpenMP_CXX_FLAGS "-openmp")
 
+# We are using ScaLAPACK from MKL, which is compiled against Intel MPI.
+# We leverage ABI compatibility (http://www.mpich.org/abi/) between
+# Intel MPI 5 and Cray MPI 7 and hope for the best.
+# A more robust solution will be available in the future.
 set(MATH_LIBS "-mkl=cluster")
 set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
 set(BUILD_SHARED_LIBS OFF)
