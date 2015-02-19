@@ -19,7 +19,7 @@ MatrixMarket( Matrix<T>& A, const string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::MatrixMarket"))
     typedef Base<T> Real;
-    ifstream file( filename.c_str() );
+    std::ifstream file( filename.c_str() );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
 

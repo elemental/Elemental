@@ -18,7 +18,7 @@ inline void
 AsciiMatlab( Matrix<T>& A, const string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::AsciiMatlab"))
-    ifstream file( filename.c_str() );
+    std::ifstream file( filename.c_str() );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
     LogicError("Not yet written");
@@ -29,7 +29,7 @@ inline void
 AsciiMatlab( AbstractDistMatrix<T>& A, const string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::AsciiMatlab"))
-    ifstream file( filename.c_str() );
+    std::ifstream file( filename.c_str() );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
     LogicError("Not yet written");
@@ -40,7 +40,7 @@ inline void
 AsciiMatlab( AbstractBlockDistMatrix<T>& A, const string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::AsciiMatlab"))
-    ifstream file( filename.c_str() );
+    std::ifstream file( filename.c_str() );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
     LogicError("Not yet written");

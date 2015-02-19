@@ -18,7 +18,7 @@ inline void
 Binary( Matrix<T>& A, const string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::Binary"))
-    ifstream file( filename.c_str(), std::ios::binary );
+    std::ifstream file( filename.c_str(), std::ios::binary );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
 
@@ -46,7 +46,7 @@ inline void
 Binary( AbstractDistMatrix<T>& A, const string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::Binary"))
-    ifstream file( filename.c_str(), std::ios::binary );
+    std::ifstream file( filename.c_str(), std::ios::binary );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
 
@@ -108,7 +108,7 @@ inline void
 Binary( AbstractBlockDistMatrix<T>& A, const string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::Binary"))
-    ifstream file( filename.c_str(), std::ios::binary );
+    std::ifstream file( filename.c_str(), std::ios::binary );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
 

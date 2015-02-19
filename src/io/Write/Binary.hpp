@@ -20,7 +20,7 @@ Binary( const Matrix<T>& A, string basename="matrix" )
     DEBUG_ONLY(CallStackEntry cse("write::Binary"))
     
     string filename = basename + "." + FileExtension(BINARY);
-    ofstream file( filename.c_str(), std::ios::binary );
+    std::ofstream file( filename.c_str(), std::ios::binary );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
 
