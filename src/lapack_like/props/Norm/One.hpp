@@ -25,7 +25,7 @@ Base<F> OneNorm( const Matrix<F>& A )
         R colSum = 0;
         for( Int i=0; i<height; ++i )
             colSum += Abs(A.Get(i,j));
-        maxColSum = std::max( maxColSum, colSum );
+        maxColSum = Max( maxColSum, colSum );
     }
     return maxColSum;
 }
@@ -48,7 +48,7 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
                 colSum += Abs(A.Get(i,j));
             for( Int i=j+1; i<height; ++i )
                 colSum += Abs(A.Get(j,i));
-            maxColSum = std::max( maxColSum, colSum );
+            maxColSum = Max( maxColSum, colSum );
         }
     }
     else
@@ -60,7 +60,7 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
                 colSum += Abs(A.Get(j,i));
             for( Int i=j; i<height; ++i )
                 colSum += Abs(A.Get(i,j));
-            maxColSum = std::max( maxColSum, colSum );
+            maxColSum = Max( maxColSum, colSum );
         }
     }
     return maxColSum;
@@ -100,7 +100,7 @@ Base<F> OneNorm( const AbstractDistMatrix<F>& A )
         // Find the maximum out of the column sums
         Real myMaxColSum = 0;
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            myMaxColSum = std::max( myMaxColSum, myColSums[jLoc] );
+            myMaxColSum = Max( myMaxColSum, myColSums[jLoc] );
 
         // Find the global maximum column sum by searching the row team
         norm = mpi::AllReduce( myMaxColSum, mpi::MAX, A.RowComm() );
@@ -170,7 +170,7 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 
             // Find the maximum sum
             for( Int j=0; j<height; ++j )
-                maxColSum = std::max( maxColSum, colSums[j] );
+                maxColSum = Max( maxColSum, colSums[j] );
         }
         else
         {
@@ -214,7 +214,7 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 
             // Find the maximum sum
             for( Int j=0; j<height; ++j )
-                maxColSum = std::max( maxColSum, colSums[j] );
+                maxColSum = Max( maxColSum, colSums[j] );
         }
     }
     mpi::Broadcast( maxColSum, A.Root(), A.CrossComm() );

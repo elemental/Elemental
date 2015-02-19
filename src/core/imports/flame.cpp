@@ -49,7 +49,7 @@ void FlaBidiagSVD
   double* U, int ldu, double* V, int ldv, 
   int numAccum, int maxNumIts, int bAlg )
 {
-    std::vector<Complex<double>> G( (k-1)*numAccum ), H( (k-1)*numAccum ); 
+    vector<Complex<double>> G( (k-1)*numAccum ), H( (k-1)*numAccum ); 
     FLA_Bsvd_v_opd_var1
     ( k, mU, mV, numAccum, maxNumIts, d, 1, e, 1, 
       G.data(), 1, k-1, H.data(), 1, k-1, U, 1, ldu, V, 1, ldv, bAlg );
@@ -60,7 +60,7 @@ void FlaBidiagSVD
   Complex<double>* U, int ldu, Complex<double>* V, int ldv, 
   int numAccum, int maxNumIts, int bAlg )
 {
-    std::vector<Complex<double>> G( (k-1)*numAccum ), H( (k-1)*numAccum ); 
+    vector<Complex<double>> G( (k-1)*numAccum ), H( (k-1)*numAccum ); 
     FLA_Bsvd_v_opz_var1
     ( k, mU, mV, numAccum, maxNumIts, d, 1, e, 1, 
       G.data(), 1, k-1, H.data(), 1, k-1, U, 1, ldu, V, 1, ldv, bAlg );

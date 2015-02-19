@@ -17,34 +17,34 @@ namespace El {
 // ----------
 
 template<typename T,typename S>
-std::shared_ptr<const Matrix<T>> ReadProxy( const Matrix<S>* A )
+shared_ptr<const Matrix<T>> ReadProxy( const Matrix<S>* A )
 {
     if( std::is_same<S,T>::value )
     {
         auto ACast = reinterpret_cast<const Matrix<T>*>(A);
-        return std::shared_ptr<const Matrix<T>>
+        return shared_ptr<const Matrix<T>>
                ( ACast, []( const Matrix<T>* B ) { } );
     }
     else
     {
-        auto AShared = std::make_shared<Matrix<T>>();
+        auto AShared = make_shared<Matrix<T>>();
         Copy( *A, *AShared );
         return AShared;
     }
 }
 
 template<typename T,typename S>
-std::shared_ptr<Matrix<T>> ReadProxy( Matrix<S>* A )
+shared_ptr<Matrix<T>> ReadProxy( Matrix<S>* A )
 {
     if( std::is_same<S,T>::value )
     {
         auto ACast = reinterpret_cast<Matrix<T>*>(A);
-        return std::shared_ptr<Matrix<T>>
+        return shared_ptr<Matrix<T>>
                ( ACast, []( const Matrix<T>* B ) { } );
     }
     else 
     {
-        auto AShared = std::make_shared<Matrix<T>>();
+        auto AShared = make_shared<Matrix<T>>();
         Copy( *A, *AShared );
         return AShared;
     }
@@ -54,7 +54,7 @@ std::shared_ptr<Matrix<T>> ReadProxy( Matrix<S>* A )
 // -----------
 
 template<typename T,Dist U,Dist V,typename S>
-std::shared_ptr<const DistMatrix<T,U,V>> 
+shared_ptr<const DistMatrix<T,U,V>> 
 ReadProxy( const AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
 {
     typedef DistMatrix<T,U,V> DM;
@@ -71,10 +71,10 @@ ReadProxy( const AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
             (!ctrl.rootConstrain || A->Root() == ctrl.root);
 
         if( haveColAlign && haveRowAlign && haveRoot )
-            return std::shared_ptr<const DM>( ACast, []( const DM* B ) { } );
+            return shared_ptr<const DM>( ACast, []( const DM* B ) { } );
     }
 
-    auto AShared = std::make_shared<DM>( A->Grid() );
+    auto AShared = make_shared<DM>( A->Grid() );
     if( ctrl.rootConstrain )
         AShared->SetRoot( ctrl.root );
     if( ctrl.colConstrain )
@@ -86,7 +86,7 @@ ReadProxy( const AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
 }
 
 template<typename T,Dist U,Dist V,typename S>
-std::shared_ptr<DistMatrix<T,U,V>> 
+shared_ptr<DistMatrix<T,U,V>> 
 ReadProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
 {
     typedef DistMatrix<T,U,V> DM;
@@ -113,11 +113,11 @@ ReadProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
                 A->AlignRows( ctrl.rowAlign );
             if( ctrl.rootConstrain )
                 A->SetRoot( ctrl.root );
-            return std::shared_ptr<DM>( ACast, []( const DM* B ) { } );
+            return shared_ptr<DM>( ACast, []( const DM* B ) { } );
         }
     }
 
-    auto AShared = std::make_shared<DM>( A->Grid() );
+    auto AShared = make_shared<DM>( A->Grid() );
     if( ctrl.rootConstrain )
         AShared->SetRoot( ctrl.root );
     if( ctrl.colConstrain )
@@ -135,20 +135,20 @@ ReadProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
 // ----------
 
 template<typename T,typename S>
-std::shared_ptr<Matrix<T>> ReadWriteProxy( Matrix<S>* A )
+shared_ptr<Matrix<T>> ReadWriteProxy( Matrix<S>* A )
 {
     typedef Matrix<T> M;
     if( std::is_same<S,T>::value )
     {
         auto ACast = reinterpret_cast<Matrix<T>*>(A);
-        return std::shared_ptr<Matrix<T>>
+        return shared_ptr<Matrix<T>>
                ( ACast, []( const Matrix<T>* B ) { } );
     }
     else
     {
         auto B = new M;
         Copy( *A, *B );
-        return std::shared_ptr<M>
+        return shared_ptr<M>
                ( B, [=]( const M* C ) { Copy( *C, *A ); delete C; } );
     }
 }
@@ -157,7 +157,7 @@ std::shared_ptr<Matrix<T>> ReadWriteProxy( Matrix<S>* A )
 // -----------
 
 template<typename T,Dist U,Dist V,typename S>
-std::shared_ptr<DistMatrix<T,U,V>> 
+shared_ptr<DistMatrix<T,U,V>> 
 ReadWriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
 {
     typedef DistMatrix<T,U,V> DM;
@@ -184,7 +184,7 @@ ReadWriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
                 A->AlignRows( ctrl.rowAlign );
             if( ctrl.rootConstrain )
                 A->SetRoot( ctrl.root );
-            return std::shared_ptr<DM>( ACast, []( const DM* B ) { } );
+            return shared_ptr<DM>( ACast, []( const DM* B ) { } );
         }
     }
 
@@ -205,7 +205,7 @@ ReadWriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
         throw e;
     }
 
-    return std::shared_ptr<DM>
+    return shared_ptr<DM>
            ( ARaw, [=]( const DM* B ) { Copy( *B, *A ); delete B; } );
 }
 
@@ -216,17 +216,17 @@ ReadWriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
 // ----------
 
 template<typename T,typename S>
-std::shared_ptr<Matrix<T>> WriteProxy( Matrix<S>* A )
+shared_ptr<Matrix<T>> WriteProxy( Matrix<S>* A )
 {
     typedef Matrix<T> M;
     if( std::is_same<S,T>::value )
     {
         auto ACast = reinterpret_cast<Matrix<T>*>(A);
-        return std::shared_ptr<Matrix<T>>
+        return shared_ptr<Matrix<T>>
                ( ACast, []( const Matrix<T>* B ) { } );
     }
     else
-        return std::shared_ptr<M>
+        return shared_ptr<M>
                ( new M(A->Height(),A->Width()), 
                  [=]( const M* B ) { Copy( *B, *A ); delete B; } );
 }
@@ -235,7 +235,7 @@ std::shared_ptr<Matrix<T>> WriteProxy( Matrix<S>* A )
 // -----------
 
 template<typename T,Dist U,Dist V,typename S>
-std::shared_ptr<DistMatrix<T,U,V>> 
+shared_ptr<DistMatrix<T,U,V>> 
 WriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
 {
     typedef DistMatrix<T,U,V> DM;
@@ -262,7 +262,7 @@ WriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
                 A->AlignRows( ctrl.rowAlign );
             if( ctrl.rootConstrain )
                 A->SetRoot( ctrl.root );
-            return std::shared_ptr<DM>( ACast, []( const DM* B ) { } );
+            return shared_ptr<DM>( ACast, []( const DM* B ) { } );
         }
     }
 
@@ -283,24 +283,24 @@ WriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
         throw e;
     }
 
-    return std::shared_ptr<DM>
+    return shared_ptr<DM>
            ( ARaw, [=]( const DM* B ) { Copy( *B, *A ); delete B; } );
 }
 
 // TODO: include guards so that certain datatypes can be properly disabled 
 
 #define READ_CONVERT_DIST(S,T,U,V) \
-  template std::shared_ptr<const DistMatrix<T,U,V>> \
+  template shared_ptr<const DistMatrix<T,U,V>> \
   ReadProxy( const AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl ); \
-  template std::shared_ptr<DistMatrix<T,U,V>> \
+  template shared_ptr<DistMatrix<T,U,V>> \
   ReadProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl );
 
 #define READWRITE_CONVERT_DIST(S,T,U,V) \
-  template std::shared_ptr<DistMatrix<T,U,V>> \
+  template shared_ptr<DistMatrix<T,U,V>> \
   ReadWriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl );
 
 #define WRITE_CONVERT_DIST(S,T,U,V) \
-  template std::shared_ptr<DistMatrix<T,U,V>> \
+  template shared_ptr<DistMatrix<T,U,V>> \
   WriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl );
 
 #define CONVERT_DIST(S,T,U,V) \
@@ -309,8 +309,8 @@ WriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
   WRITE_CONVERT_DIST(S,T,U,V)
 
 #define READ_CONVERT(S,T) \
-  template std::shared_ptr<const Matrix<T>> ReadProxy( const Matrix<S>* A ); \
-  template std::shared_ptr<Matrix<T>> ReadProxy( Matrix<S>* A ); \
+  template shared_ptr<const Matrix<T>> ReadProxy( const Matrix<S>* A ); \
+  template shared_ptr<Matrix<T>> ReadProxy( Matrix<S>* A ); \
   READ_CONVERT_DIST(S,T,CIRC,CIRC) \
   READ_CONVERT_DIST(S,T,MC,  MR  ) \
   READ_CONVERT_DIST(S,T,MC,  STAR) \
@@ -327,7 +327,7 @@ WriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
   READ_CONVERT_DIST(S,T,VR,  STAR)
 
 #define READWRITE_CONVERT(S,T) \
-  template std::shared_ptr<Matrix<T>> ReadWriteProxy( Matrix<S>* A ); \
+  template shared_ptr<Matrix<T>> ReadWriteProxy( Matrix<S>* A ); \
   READWRITE_CONVERT_DIST(S,T,CIRC,CIRC) \
   READWRITE_CONVERT_DIST(S,T,MC,  MR  ) \
   READWRITE_CONVERT_DIST(S,T,MC,  STAR) \
@@ -344,7 +344,7 @@ WriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
   READWRITE_CONVERT_DIST(S,T,VR,  STAR)
 
 #define WRITE_CONVERT(S,T) \
-  template std::shared_ptr<Matrix<T>> WriteProxy( Matrix<S>* A ); \
+  template shared_ptr<Matrix<T>> WriteProxy( Matrix<S>* A ); \
   WRITE_CONVERT_DIST(S,T,CIRC,CIRC) \
   WRITE_CONVERT_DIST(S,T,MC,  MR  ) \
   WRITE_CONVERT_DIST(S,T,MC,  STAR) \

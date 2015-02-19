@@ -54,13 +54,13 @@ ElError ElSquareRootCtrlDefault_d( ElSquareRootCtrl_d* ctrl )
   ElError ElRealHermitianFunction_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, Base<F> (*funcC)(Base<F>) ) \
   { try { \
-      std::function<Base<F>(Base<F>)> func( funcC ); \
+      function<Base<F>(Base<F>)> func( funcC ); \
       HermitianFunction( CReflect(uplo), *CReflect(A), func ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElRealHermitianFunctionDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, Base<F> (*funcC)(Base<F>) ) \
   { try { \
-      std::function<Base<F>(Base<F>)> func( funcC ); \
+      function<Base<F>(Base<F>)> func( funcC ); \
       HermitianFunction( CReflect(uplo), *CReflect(A), func ); \
     } EL_CATCH; return EL_SUCCESS; } \
   /* Inverse
@@ -165,7 +165,7 @@ ElError ElSquareRootCtrlDefault_d( ElSquareRootCtrl_d* ctrl )
   { try { \
       auto funcLambda = \
         [&]( Base<F> alpha ) { return CReflect(funcC(alpha)); }; \
-      std::function<F(Base<F>)> func( funcLambda ); \
+      function<F(Base<F>)> func( funcLambda ); \
       HermitianFunction( CReflect(uplo), *CReflect(A), func ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElComplexHermitianFunctionDist_ ## SIG \
@@ -174,7 +174,7 @@ ElError ElSquareRootCtrlDefault_d( ElSquareRootCtrl_d* ctrl )
   { try { \
       auto funcLambda = \
         [&]( Base<F> alpha ) { return CReflect(funcC(alpha)); }; \
-      std::function<F(Base<F>)> func( funcLambda ); \
+      function<F(Base<F>)> func( funcLambda ); \
       HermitianFunction( CReflect(uplo), *CReflect(A), func ); \
     } EL_CATCH; return EL_SUCCESS; } \
   /* Hermitian */ \

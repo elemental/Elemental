@@ -138,10 +138,10 @@ Newton( Matrix<F>& A, const SignCtrl<Base<F>>& ctrl )
         ++numIts;
         std::swap( X, XNew );
         if( ctrl.progress )
-            std::cout << "after " << numIts << " Newton iter's: " 
-                      << "oneDiff=" << oneDiff << ", oneNew=" << oneNew 
-                      << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol=" 
-                      << tol << std::endl;
+            cout << "after " << numIts << " Newton iter's: " 
+                 << "oneDiff=" << oneDiff << ", oneNew=" << oneNew 
+                 << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol=" 
+                 << tol << endl;
         if( oneDiff/oneNew <= Pow(oneNew,ctrl.power)*tol )
             break;
     }
@@ -177,10 +177,10 @@ Newton( DistMatrix<F>& A, const SignCtrl<Base<F>>& ctrl )
         ++numIts;
         std::swap( X, XNew );
         if( ctrl.progress && A.Grid().Rank() == 0 )
-            std::cout << "after " << numIts << " Newton iter's: "
-                      << "oneDiff=" << oneDiff << ", oneNew=" << oneNew
-                      << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol=" 
-                      << tol << std::endl;
+            cout << "after " << numIts << " Newton iter's: "
+                 << "oneDiff=" << oneDiff << ", oneNew=" << oneNew
+                 << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol=" 
+                 << tol << endl;
         if( oneDiff/oneNew <= Pow(oneNew,ctrl.power)*tol )
             break;
     }

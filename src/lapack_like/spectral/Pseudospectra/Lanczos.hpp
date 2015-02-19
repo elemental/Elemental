@@ -20,8 +20,8 @@ const Int HCapacityInit = 10;
 template<typename Real>
 inline void
 ComputeNewEstimates
-( const std::vector<Matrix<Real>>& HDiagList, 
-  const std::vector<Matrix<Real>>& HSubdiagList,
+( const vector<Matrix<Real>>& HDiagList, 
+  const vector<Matrix<Real>>& HSubdiagList,
   Matrix<Real>& activeEsts )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::ComputeNewEstimates"))
@@ -31,7 +31,7 @@ ComputeNewEstimates
         return;
     const int krylovSize = int(HDiagList[0].Height());
     Matrix<Real> HDiag, HSubdiag;
-    std::vector<Real> w(krylovSize);
+    vector<Real> w(krylovSize);
     for( Int j=0; j<numShifts; ++j )
     {
         HDiag = HDiagList[j]; 
@@ -52,8 +52,8 @@ ComputeNewEstimates
 template<typename Real>
 inline void
 ComputeNewEstimates
-( const std::vector<Matrix<Real>>& HDiagList, 
-  const std::vector<Matrix<Real>>& HSubdiagList,
+( const vector<Matrix<Real>>& HDiagList, 
+  const vector<Matrix<Real>>& HSubdiagList,
   DistMatrix<Real,MR,STAR>& activeEsts )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::ComputeNewEstimates"))
@@ -63,8 +63,8 @@ ComputeNewEstimates
 template<typename Real>
 inline void
 Deflate
-( std::vector<Matrix<Real>>& HDiagList,
-  std::vector<Matrix<Real>>& HSubdiagList,
+( vector<Matrix<Real>>& HDiagList,
+  vector<Matrix<Real>>& HSubdiagList,
   Matrix<Complex<Real>>& activeShifts, 
   Matrix<Int          >& activePreimage,
   Matrix<Complex<Real>>& activeXOld,
@@ -99,15 +99,14 @@ Deflate
         }
     }
     if( progress )
-        std::cout << "Deflation took " << timer.Stop() << " seconds"
-                  << std::endl;
+        cout << "Deflation took " << timer.Stop() << " seconds" << endl;
 }
 
 template<typename Real>
 inline void
 Deflate
-( std::vector<Matrix<Real>>& HDiagList,
-  std::vector<Matrix<Real>>& HSubdiagList,
+( vector<Matrix<Real>>& HDiagList,
+  vector<Matrix<Real>>& HSubdiagList,
   DistMatrix<Complex<Real>,VR,STAR>& activeShifts,
   DistMatrix<Int,          VR,STAR>& activePreimage,
   DistMatrix<Complex<Real>        >& activeXOld,
@@ -214,8 +213,7 @@ Deflate
     {
         mpi::Barrier( activeShifts.Grid().Comm() );
         if( activeShifts.Grid().Rank() == 0 ) 
-            std::cout << "Deflation took " << timer.Stop() << " seconds"
-                      << std::endl;
+            cout << "Deflation took " << timer.Stop() << " seconds" << endl;
     }
 }
 
@@ -263,8 +261,8 @@ Lanczos
     Gaussian( X, n, numShifts );
     FixColumns( X );
     Zeros( XNew, n, numShifts );
-    std::vector<Matrix<Real>> HDiagList( numShifts ),
-                              HSubdiagList( numShifts );
+    vector<Matrix<Real>> HDiagList( numShifts ),
+                         HSubdiagList( numShifts );
     for( Int j=0; j<numShifts; ++j )
     {
         HDiagList[j].Resize( 0, 1, Max(HCapacityInit,1) );
@@ -310,8 +308,8 @@ Lanczos
                 const double msTime = subtimer.Stop();
                 const Int numActiveShifts = activeShifts.Height();
                 const double gflops = (8.*n*n*numActiveShifts)/(msTime*1.e9);
-                std::cout << "  MultiShiftTrsm's: " << msTime << " seconds, "
-                          << gflops << " GFlops" << std::endl;
+                cout << "  MultiShiftTrsm's: " << msTime << " seconds, "
+                     << gflops << " GFlops" << endl;
             }
         }
         else
@@ -329,8 +327,8 @@ Lanczos
                 const double msTime = subtimer.Stop();
                 const Int numActiveShifts = activeShifts.Height();
                 const double gflops = (32.*n*n*numActiveShifts)/(msTime*1.e9);
-                std::cout << "  MultiShiftHessSolve's: " << msTime 
-                          << " seconds, " << gflops << " GFlops" << std::endl;
+                cout << "  MultiShiftHessSolve's: " << msTime 
+                     << " seconds, " << gflops << " GFlops" << endl;
             }
         }
 
@@ -357,8 +355,8 @@ Lanczos
             subtimer.Start();
         ComputeNewEstimates( HDiagList, HSubdiagList, activeEsts );
         if( progress )
-            std::cout << "  Ritz computations: " << subtimer.Stop() 
-                      << " seconds" << std::endl;
+            cout << "  Ritz computations: " << subtimer.Stop() 
+                 << " seconds" << endl;
 
         auto activeConverged = 
             FindConverged
@@ -371,9 +369,9 @@ Lanczos
         if( progress )
         {
             const double iterTime = timer.Stop();
-            std::cout << "iteration " << numIts << ": " << iterTime
-                      << " seconds, " << numDone << " of " << numShifts
-                      << " converged" << std::endl;
+            cout << "iteration " << numIts << ": " << iterTime
+                 << " seconds, " << numDone << " of " << numShifts
+                 << " converged" << endl;
         }
 
         ++numIts;
@@ -433,7 +431,7 @@ Lanczos
     const bool progress = psCtrl.progress;
 
     if( deflate && g.Rank() == 0 ) 
-        std::cerr << "NOTE: Deflation swaps not yet optimized!" << std::endl;
+        cerr << "NOTE: Deflation swaps not yet optimized!" << endl;
 
     // Keep track of the number of iterations per shift
     DistMatrix<Int,VR,STAR> itCounts(g);
@@ -468,8 +466,8 @@ Lanczos
     Gaussian( X, n, numShifts );
     FixColumns( X );
     Zeros( XNew, n, numShifts );
-    std::vector<Matrix<Real>> HDiagList( X.LocalWidth() ),
-                              HSubdiagList( X.LocalWidth() );
+    vector<Matrix<Real>> HDiagList( X.LocalWidth() ),
+                         HSubdiagList( X.LocalWidth() );
     for( Int j=0; j<X.LocalWidth(); ++j )
     {
          
@@ -528,9 +526,8 @@ Lanczos
                     const double msTime = subtimer.Stop();
                     const Int numActiveShifts = activeShifts.Height();
                     const double gflops = (8.*n*n*numActiveShifts)/(msTime*1e9);
-                    std::cout << "  MultiShiftTrsm's: " << msTime 
-                              << " seconds, " << gflops << " GFlops" 
-                              << std::endl;
+                    cout << "  MultiShiftTrsm's: " << msTime 
+                         << " seconds, " << gflops << " GFlops" << endl;
                 }
             }
         }
@@ -562,9 +559,8 @@ Lanczos
                     const Int numActiveShifts = activeShifts.Height();
                     const double gflops = 
                         (32.*n*n*numActiveShifts)/(msTime*1.e9);
-                    std::cout << "  MultiShiftHessSolve's: " << msTime
-                              << " seconds, " << gflops << " GFlops" 
-                              << std::endl;
+                    cout << "  MultiShiftHessSolve's: " << msTime
+                         << " seconds, " << gflops << " GFlops" << endl;
                 }
             }
         }
@@ -599,8 +595,8 @@ Lanczos
         {
             mpi::Barrier( g.Comm() );
             if( g.Rank() == 0 )
-                std::cout << "  Ritz computations: " << subtimer.Stop() 
-                          << " seconds" << std::endl;
+                cout << "  Ritz computations: " << subtimer.Stop() 
+                     << " seconds" << endl;
         }
 
         auto activeConverged =
@@ -617,9 +613,9 @@ Lanczos
             if( g.Rank() == 0 )
             {
                 const double iterTime = timer.Stop();
-                std::cout << "iteration " << numIts << ": " << iterTime
-                          << " seconds, " << numDone << " of " << numShifts
-                          << " converged" << std::endl;
+                cout << "iteration " << numIts << ": " << iterTime
+                     << " seconds, " << numDone << " of " << numShifts
+                     << " converged" << endl;
             }
         }
 

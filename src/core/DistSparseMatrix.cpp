@@ -159,10 +159,10 @@ void DistSparseMatrix<T>::MakeConsistent()
     {
         const Int numLocalEntries = vals_.size();
         Int numRemoved = 0;
-        std::vector<Entry<T>> entries( numLocalEntries );
+        vector<Entry<T>> entries( numLocalEntries );
         for( Int s=0; s<numLocalEntries; ++s )
         {
-            std::pair<Int,Int> 
+            pair<Int,Int> 
               candidate(distGraph_.sources_[s],distGraph_.targets_[s]);
             if( distGraph_.markedForRemoval_.find(candidate) ==
                 distGraph_.markedForRemoval_.end() )

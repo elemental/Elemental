@@ -393,7 +393,7 @@ void Wait( Request& request, Status& status )
 void WaitAll( int numRequests, Request* requests )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::WaitAll"))
-    std::vector<Status> statuses( numRequests );
+    vector<Status> statuses( numRequests );
     SafeMpi( MPI_Waitall( numRequests, requests, statuses.data() ) );
 }
 
@@ -1400,7 +1400,7 @@ void Gather
 #ifdef EL_AVOID_COMPLEX_MPI
     const int commRank = Rank( comm );
     const int commSize = Size( comm );
-    std::vector<int> rcsDouble, rdsDouble;
+    vector<int> rcsDouble, rdsDouble;
     if( commRank == root )
     {
         rcsDouble.resize( commSize );
@@ -1538,7 +1538,7 @@ void AllGather
     DEBUG_ONLY(CallStackEntry cse("mpi::AllGather"))
 #ifdef EL_USE_BYTE_ALLGATHERS
     const int commSize = Size( comm );
-    std::vector<int> byteRcs( commSize ), byteRds( commSize );
+    vector<int> byteRcs( commSize ), byteRds( commSize );
     for( int i=0; i<commSize; ++i )
     {
         byteRcs[i] = sizeof(R)*rcs[i];
@@ -1571,7 +1571,7 @@ void AllGather
     DEBUG_ONLY(CallStackEntry cse("mpi::AllGather"))
 #ifdef EL_USE_BYTE_ALLGATHERS
     const int commSize = Size( comm );
-    std::vector<int> byteRcs( commSize ), byteRds( commSize );
+    vector<int> byteRcs( commSize ), byteRds( commSize );
     for( int i=0; i<commSize; ++i )
     {
         byteRcs[i] = 2*sizeof(R)*rcs[i];
@@ -1585,7 +1585,7 @@ void AllGather
 #else
  #ifdef EL_AVOID_COMPLEX_MPI
     const int commSize = Size( comm );
-    std::vector<int> realRcs( commSize ), realRds( commSize );
+    vector<int> realRcs( commSize ), realRds( commSize );
     for( int i=0; i<commSize; ++i )
     {
         realRcs[i] = 2*rcs[i];
@@ -1728,7 +1728,7 @@ void Scatter( R* buf, int sc, int rc, int root, Comm comm )
             MPI_IN_PLACE, rc, TypeMap<R>(), root, comm.comm ) );
 #else
         const int commSize = Size( comm );
-        std::vector<R> sendBuf( sc*commSize );
+        vector<R> sendBuf( sc*commSize );
         MemCopy( sendBuf.data(), buf, sc*commSize );
         SafeMpi
         ( MPI_Scatter
@@ -1760,7 +1760,7 @@ void Scatter( Complex<R>* buf, int sc, int rc, int root, Comm comm )
             MPI_IN_PLACE, 2*rc, TypeMap<R>(), root, comm.comm ) );
 # else
         const int commSize = Size( comm );
-        std::vector<Complex<R>> sendBuf( sc*commSize );
+        vector<Complex<R>> sendBuf( sc*commSize );
         MemCopy( sendBuf.data(), buf, sc*commSize );
         SafeMpi
         ( MPI_Scatter
@@ -1775,7 +1775,7 @@ void Scatter( Complex<R>* buf, int sc, int rc, int root, Comm comm )
             MPI_IN_PLACE, rc, TypeMap<Complex<R>>(), root, comm.comm ) );
 # else
         const int commSize = Size( comm );
-        std::vector<Complex<R>> sendBuf( sc*commSize );
+        vector<Complex<R>> sendBuf( sc*commSize );
         MemCopy( sendBuf.data(), buf, sc*commSize );
         SafeMpi
         ( MPI_Scatter
@@ -1909,10 +1909,10 @@ void AllToAll
 #ifdef EL_AVOID_COMPLEX_MPI
     int p;
     MPI_Comm_size( comm.comm, &p );
-    std::vector<int> scsDoubled(p);
-    std::vector<int> sdsDoubled(p);
-    std::vector<int> rcsDoubled(p);
-    std::vector<int> rdsDoubled(p);
+    vector<int> scsDoubled(p);
+    vector<int> sdsDoubled(p);
+    vector<int> rcsDoubled(p);
+    vector<int> rdsDoubled(p);
     for( int i=0; i<p; ++i )
         scsDoubled[i] = 2*scs[i];
     for( int i=0; i<p; ++i )
@@ -2138,7 +2138,7 @@ void Reduce( T* buf, int count, Op op, int root, Comm comm )
               ( MPI_IN_PLACE, buf, count, TypeMap<T>(), op.op, root, 
                 comm.comm ) );
 #else
-            std::vector<T> sendBuf( count );
+            vector<T> sendBuf( count );
             MemCopy( sendBuf.data(), buf, count );
             SafeMpi
             ( MPI_Reduce
@@ -2171,7 +2171,7 @@ void Reduce( Complex<R>* buf, int count, Op op, int root, Comm comm )
                   ( MPI_IN_PLACE, buf, 2*count, TypeMap<R>(), op.op, 
                     root, comm.comm ) );
 # else
-                std::vector<Complex<R>> sendBuf( count );
+                vector<Complex<R>> sendBuf( count );
                 MemCopy( sendBuf.data(), buf, count );
                 SafeMpi
                 ( MPI_Reduce
@@ -2194,7 +2194,7 @@ void Reduce( Complex<R>* buf, int count, Op op, int root, Comm comm )
                   ( MPI_IN_PLACE, buf, count, TypeMap<Complex<R>>(), op.op, 
                     root, comm.comm ) );
 # else
-                std::vector<Complex<R>> sendBuf( count );
+                vector<Complex<R>> sendBuf( count );
                 MemCopy( sendBuf.data(), buf, count );
                 SafeMpi
                 ( MPI_Reduce
@@ -2217,7 +2217,7 @@ void Reduce( Complex<R>* buf, int count, Op op, int root, Comm comm )
               ( MPI_IN_PLACE, buf, count, TypeMap<Complex<R>>(), op.op, 
                 root, comm.comm ) );
 # else
-            std::vector<Complex<R>> sendBuf( count );
+            vector<Complex<R>> sendBuf( count );
             MemCopy( sendBuf.data(), buf, count );
             SafeMpi
             ( MPI_Reduce
@@ -2425,7 +2425,7 @@ void AllReduce( T* buf, int count, Op op, Comm comm )
         ( MPI_Allreduce
           ( MPI_IN_PLACE, buf, count, TypeMap<T>(), op.op, comm.comm ) );
 #else
-        std::vector<T> sendBuf( count );
+        vector<T> sendBuf( count );
         MemCopy( sendBuf.data(), buf, count );
         SafeMpi
         ( MPI_Allreduce
@@ -2448,7 +2448,7 @@ void AllReduce( Complex<R>* buf, int count, Op op, Comm comm )
             ( MPI_Allreduce
               ( MPI_IN_PLACE, buf, 2*count, TypeMap<R>(), op.op, comm.comm ) );
 # else
-            std::vector<Complex<R>> sendBuf( count );
+            vector<Complex<R>> sendBuf( count );
             MemCopy( sendBuf.data(), buf, count );
             SafeMpi
             ( MPI_Allreduce
@@ -2464,7 +2464,7 @@ void AllReduce( Complex<R>* buf, int count, Op op, Comm comm )
               ( MPI_IN_PLACE, buf, count, TypeMap<Complex<R>>(), 
                 op.op, comm.comm ) );
 # else
-            std::vector<Complex<R>> sendBuf( count );
+            vector<Complex<R>> sendBuf( count );
             MemCopy( sendBuf.data(), buf, count );
             SafeMpi
             ( MPI_Allreduce
@@ -2479,7 +2479,7 @@ void AllReduce( Complex<R>* buf, int count, Op op, Comm comm )
           ( MPI_IN_PLACE, buf, count, TypeMap<Complex<R>>(), op.op, 
             comm.comm ) );
 # else
-        std::vector<Complex<R>> sendBuf( count );
+        vector<Complex<R>> sendBuf( count );
         MemCopy( sendBuf.data(), buf, count );
         SafeMpi
         ( MPI_Allreduce
@@ -2666,7 +2666,7 @@ void ReduceScatter( R* buf, int rc, Op op, Comm comm )
       ( MPI_IN_PLACE, buf, rc, TypeMap<R>(), op.op, comm.comm ) );
 # else
     const int commSize = Size( comm );
-    std::vector<R> sendBuf( rc*commSize );
+    vector<R> sendBuf( rc*commSize );
     MemCopy( sendBuf.data(), buf, rc*commSize );
     SafeMpi
     ( MPI_Reduce_scatter_block
@@ -2698,7 +2698,7 @@ void ReduceScatter( Complex<R>* buf, int rc, Op op, Comm comm )
       ( MPI_IN_PLACE, buf, 2*rc, TypeMap<R>(), op.op, comm.comm ) );
 #  else 
     const int commSize = Size( comm );
-    std::vector<Complex<R>> sendBuf( rc*commSize );
+    vector<Complex<R>> sendBuf( rc*commSize );
     MemCopy( sendBuf.data(), buf, rc*commSize );
     SafeMpi
     ( MPI_Reduce_scatter_block
@@ -2711,7 +2711,7 @@ void ReduceScatter( Complex<R>* buf, int rc, Op op, Comm comm )
       ( MPI_IN_PLACE, buf, rc, TypeMap<Complex<R>>(), op.op, comm.comm ) );
 #  else
     const int commSize = Size( comm );
-    std::vector<Complex<R>> sendBuf( rc*commSize );
+    vector<Complex<R>> sendBuf( rc*commSize );
     MemCopy( sendBuf.data(), buf, rc*commSize );
     SafeMpi
     ( MPI_Reduce_scatter_block
@@ -2778,7 +2778,7 @@ void ReduceScatter
     {
         int p;
         MPI_Comm_size( comm.comm, &p );
-        std::vector<int> rcsDoubled(p);
+        vector<int> rcsDoubled(p);
         for( int i=0; i<p; ++i )
             rcsDoubled[i] = 2*rcs[i];
         SafeMpi
@@ -2836,12 +2836,12 @@ template void ReduceScatter( const Complex<float>* sbuf, Complex<float>* rbuf, c
 template void ReduceScatter( const Complex<double>* sbuf, Complex<double>* rbuf, const int* rcs, Comm comm );
 
 void VerifySendsAndRecvs
-( const std::vector<int>& sendCounts,
-  const std::vector<int>& recvCounts, mpi::Comm comm )
+( const vector<int>& sendCounts,
+  const vector<int>& recvCounts, mpi::Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::VerifySendsAndRecvs"))
     const int commSize = mpi::Size( comm );
-    std::vector<int> actualRecvCounts(commSize);
+    vector<int> actualRecvCounts(commSize);
     mpi::AllToAll
     ( &sendCounts[0],       1,
       &actualRecvCounts[0], 1, comm );
@@ -2854,10 +2854,10 @@ void VerifySendsAndRecvs
 
 template<typename T>
 void SparseAllToAll
-( const std::vector<T>& sendBuffer,
-  const std::vector<int>& sendCounts, const std::vector<int>& sendDispls,
-        std::vector<T>& recvBuffer,
-  const std::vector<int>& recvCounts, const std::vector<int>& recvDispls,
+( const vector<T>& sendBuffer,
+  const vector<int>& sendCounts, const vector<int>& sendDispls,
+        vector<T>& recvBuffer,
+  const vector<int>& recvCounts, const vector<int>& recvDispls,
         mpi::Comm comm )
 {
 #ifdef EL_USE_CUSTOM_ALLTOALLV
@@ -2870,8 +2870,8 @@ void SparseAllToAll
         if( recvCounts[proc] != 0 )
             ++numRecvs;
     }
-    std::vector<mpi::Status> statuses(numSends+numRecvs);
-    std::vector<mpi::Request> requests(numSends+numRecvs);
+    vector<mpi::Status> statuses(numSends+numRecvs);
+    vector<mpi::Request> requests(numSends+numRecvs);
     int rCount=0;
     for( int proc=0; proc<commSize; ++proc )
     {
@@ -2903,10 +2903,10 @@ void SparseAllToAll
 
 #define PROTO(T) \
   template void SparseAllToAll \
-  ( const std::vector<T>& sendBuffer, \
-    const std::vector<int>& sendCounts, const std::vector<int>& sendDispls, \
-          std::vector<T>& recvBuffer, \
-    const std::vector<int>& recvCounts, const std::vector<int>& recvDispls, \
+  ( const vector<T>& sendBuffer, \
+    const vector<int>& sendCounts, const vector<int>& sendDispls, \
+          vector<T>& recvBuffer, \
+    const vector<int>& recvCounts, const vector<int>& recvDispls, \
           mpi::Comm comm );
 #include "El/macros/Instantiate.h"
 

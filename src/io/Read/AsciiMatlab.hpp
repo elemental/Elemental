@@ -15,10 +15,10 @@ namespace read {
 
 template<typename T>
 inline void
-AsciiMatlab( Matrix<T>& A, const std::string filename )
+AsciiMatlab( Matrix<T>& A, const string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::AsciiMatlab"))
-    std::ifstream file( filename.c_str() );
+    ifstream file( filename.c_str() );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
     LogicError("Not yet written");
@@ -26,10 +26,10 @@ AsciiMatlab( Matrix<T>& A, const std::string filename )
 
 template<typename T>
 inline void
-AsciiMatlab( AbstractDistMatrix<T>& A, const std::string filename )
+AsciiMatlab( AbstractDistMatrix<T>& A, const string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::AsciiMatlab"))
-    std::ifstream file( filename.c_str() );
+    ifstream file( filename.c_str() );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
     LogicError("Not yet written");
@@ -37,10 +37,10 @@ AsciiMatlab( AbstractDistMatrix<T>& A, const std::string filename )
 
 template<typename T>
 inline void
-AsciiMatlab( AbstractBlockDistMatrix<T>& A, const std::string filename )
+AsciiMatlab( AbstractBlockDistMatrix<T>& A, const string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::AsciiMatlab"))
-    std::ifstream file( filename.c_str() );
+    ifstream file( filename.c_str() );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
     LogicError("Not yet written");

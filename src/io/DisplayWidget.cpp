@@ -53,8 +53,8 @@ void DisplayWidget<T>::DisplayReal( const Matrix<T>* A )
     {
         for( Int i=0; i<m; ++i )
         {
-            minVal = std::min( minVal, A->GetRealPart(i,j) );
-            maxVal = std::max( maxVal, A->GetRealPart(i,j) );
+            minVal = Min( minVal, A->GetRealPart(i,j) );
+            maxVal = Max( maxVal, A->GetRealPart(i,j) );
         }
     }
 
@@ -119,8 +119,8 @@ void DisplayWidget<T>::DisplayImag( const Matrix<T>* A )
     {
         for( Int i=0; i<m; ++i )
         {
-            minVal = std::min( minVal, A->GetImagPart(i,j) );
-            maxVal = std::max( maxVal, A->GetImagPart(i,j) );
+            minVal = Min( minVal, A->GetImagPart(i,j) );
+            maxVal = Max( maxVal, A->GetImagPart(i,j) );
         }
     }
 
@@ -169,10 +169,10 @@ void DisplayWidget<T>::DisplayImag
 }
 
 template<typename T>
-void DisplayWidget<T>::SavePng( std::string basename ) const
+void DisplayWidget<T>::SavePng( string basename ) const
 {
     DEBUG_ONLY(CallStackEntry cse("DisplayWidget::SavePng"))
-    std::string filename = basename + ".png";
+    string filename = basename + ".png";
     QFile file( filename.c_str() );
     file.open( QIODevice::WriteOnly );
     pixmap_.save( &file, "PNG" );

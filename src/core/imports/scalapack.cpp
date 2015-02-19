@@ -817,7 +817,7 @@ void TwoSidedTrsm
       &dummyWork, &workSize, &info );
 
     workSize = dummyWork;
-    std::vector<float> work( workSize );
+    vector<float> work( workSize );
     EL_SCALAPACK(pssyngst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       work.data(), &workSize, &info );
@@ -837,7 +837,7 @@ void TwoSidedTrsm
       &dummyWork, &workSize, &info );
 
     workSize = dummyWork;
-    std::vector<double> work( workSize );
+    vector<double> work( workSize );
     EL_SCALAPACK(pdsyngst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       work.data(), &workSize, &info );
@@ -858,7 +858,7 @@ void TwoSidedTrsm
       &dummyWork, &workSize, &info );
 
     workSize = dummyWork.real();
-    std::vector<scomplex> work( workSize );
+    vector<scomplex> work( workSize );
     EL_SCALAPACK(pchengst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       work.data(), &workSize, &info );
@@ -879,7 +879,7 @@ void TwoSidedTrsm
       &dummyWork, &workSize, &info );
 
     workSize = dummyWork.real();
-    std::vector<dcomplex> work( workSize );
+    vector<dcomplex> work( workSize );
     EL_SCALAPACK(pzhengst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       work.data(), &workSize, &info );
@@ -902,7 +902,7 @@ void TwoSidedTrmm
       &dummyWork, &workSize, &info );
 
     workSize = dummyWork;
-    std::vector<float> work( workSize );
+    vector<float> work( workSize );
     EL_SCALAPACK(pssyngst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       work.data(), &workSize, &info );
@@ -922,7 +922,7 @@ void TwoSidedTrmm
       &dummyWork, &workSize, &info );
 
     workSize = dummyWork;
-    std::vector<double> work( workSize );
+    vector<double> work( workSize );
     EL_SCALAPACK(pdsyngst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       work.data(), &workSize, &info );
@@ -943,7 +943,7 @@ void TwoSidedTrmm
       &dummyWork, &workSize, &info );
 
     workSize = dummyWork.real();
-    std::vector<scomplex> work( workSize );
+    vector<scomplex> work( workSize );
     EL_SCALAPACK(pchengst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       work.data(), &workSize, &info );
@@ -964,7 +964,7 @@ void TwoSidedTrmm
       &dummyWork, &workSize, &info );
 
     workSize = dummyWork.real();
-    std::vector<dcomplex> work( workSize );
+    vector<dcomplex> work( workSize );
     EL_SCALAPACK(pzhengst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       work.data(), &workSize, &info );
@@ -979,15 +979,15 @@ void HessenbergSchur
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
     const int ilo=1, ihi=n;
-    std::vector<float> wr(n), wi(n);
+    vector<float> wr(n), wi(n);
     int descQ[9] = 
         { 1, descH[1], 0, 0, descH[4], descH[5], descH[6], descH[7], 1 };
     int info;
     if( aed )
     {
-        std::cerr << 
+        cerr << 
           "WARNING: PSHSEQR seems to have a bug in its eigenvalue reordering" 
-          << std::endl;
+          << endl;
         const char job=(fullTriangle?'S':'E'), compz='N';
 
         // Query the workspace sizes
@@ -1001,8 +1001,8 @@ void HessenbergSchur
         // Compute the eigenvalues in parallel
         workSize = dummyWork;
         iWorkSize = dummyIWork;
-        std::vector<float> work(workSize);
-        std::vector<int> iWork(iWorkSize);
+        vector<float> work(workSize);
+        vector<int> iWork(iWorkSize);
         EL_SCALAPACK(pshseqr)
         ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
           0, descQ, work.data(), &workSize, iWork.data(), &iWorkSize, &info );
@@ -1034,8 +1034,8 @@ void HessenbergSchur
         const Int numRowBlocks = n/mb + 1;
         int workSize= 3*n + Max(2*Max(ldH,ldQ)+2*localWidth,numRowBlocks),
             iWorkSize=0;
-        std::vector<float> work(workSize);
-        std::vector<int> iWork(iWorkSize);
+        vector<float> work(workSize);
+        vector<int> iWork(iWorkSize);
 
         // Compute the eigenvalues in parallel
         EL_SCALAPACK(pslahqr)
@@ -1047,7 +1047,7 @@ void HessenbergSchur
     }
     // Combine the real and imaginary components of the eigenvalues
     for( int j=0; j<n; ++j )
-        w[j] = std::complex<float>(wr[j],wi[j]);
+        w[j] = complex<float>(wr[j],wi[j]);
 }
 
 void HessenbergSchur
@@ -1055,15 +1055,15 @@ void HessenbergSchur
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
     const int ilo=1, ihi=n;
-    std::vector<double> wr(n), wi(n);
+    vector<double> wr(n), wi(n);
     int descQ[9] = 
         { 1, descH[1], 0, 0, descH[4], descH[5], descH[6], descH[7], 1 };
     int info;
     if( aed )
     {
-        std::cerr << 
+        cerr << 
           "WARNING: PDHSEQR seems to have a bug in its eigenvalue reordering" 
-          << std::endl;
+          << endl;
         const char job=(fullTriangle?'S':'E'), compz='N';
 
         // Query the workspace sizes
@@ -1076,8 +1076,8 @@ void HessenbergSchur
         // Compute the eigenvalues in parallel
         workSize = dummyWork;
         iWorkSize = dummyIWork;
-        std::vector<double> work(workSize);
-        std::vector<int> iWork(iWorkSize);
+        vector<double> work(workSize);
+        vector<int> iWork(iWorkSize);
         EL_SCALAPACK(pdhseqr)
         ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
           0, descQ, work.data(), &workSize, iWork.data(), &iWorkSize, &info );
@@ -1109,8 +1109,8 @@ void HessenbergSchur
         const Int numRowBlocks = n/mb + 1;
         int workSize= 3*n + Max(2*Max(ldH,ldQ)+2*localWidth,numRowBlocks),
             iWorkSize=0;
-        std::vector<double> work(workSize);
-        std::vector<int> iWork(iWorkSize);
+        vector<double> work(workSize);
+        vector<int> iWork(iWorkSize);
 
         // Compute the eigenvalues in parallel
         EL_SCALAPACK(pdlahqr)
@@ -1122,7 +1122,7 @@ void HessenbergSchur
     }
     // Combine the real and imaginary components of the eigenvalues
     for( int j=0; j<n; ++j )
-        w[j] = std::complex<double>(wr[j],wi[j]);
+        w[j] = complex<double>(wr[j],wi[j]);
 }
 
 void HessenbergSchur
@@ -1150,8 +1150,8 @@ void HessenbergSchur
     // Compute the eigenvalues in parallel
     workSize = dummyWork.real();
     iWorkSize = dummyIWork;
-    std::vector<scomplex> work(workSize);
-    std::vector<int> iWork(iWorkSize);
+    vector<scomplex> work(workSize);
+    vector<int> iWork(iWorkSize);
     EL_SCALAPACK(pclahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
       work.data(), &workSize, iWork.data(), &iWorkSize, &info );
@@ -1184,8 +1184,8 @@ void HessenbergSchur
     // Compute the eigenvalues in parallel
     workSize = dummyWork.real();
     iWorkSize = dummyIWork;
-    std::vector<dcomplex> work(workSize);
-    std::vector<int> iWork(iWorkSize);
+    vector<dcomplex> work(workSize);
+    vector<int> iWork(iWorkSize);
     EL_SCALAPACK(pzlahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
       work.data(), &workSize, iWork.data(), &iWorkSize, &info );
@@ -1199,13 +1199,13 @@ void HessenbergSchur
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
     const int ilo=1, ihi=n;
-    std::vector<float> wr(n), wi(n);
+    vector<float> wr(n), wi(n);
     int info;
     if( aed )
     {
-        std::cerr << 
+        cerr << 
           "WARNING: PSHSEQR seems to have a bug in its eigenvalue reordering" 
-          << std::endl;
+          << endl;
         const char job=(fullTriangle?'S':'E'), compz=(multiplyQ?'V':'I');
 
         // Query the workspace sizes. Due to a bug in p{s,d}hseqr's workspace
@@ -1221,8 +1221,8 @@ void HessenbergSchur
         // Compute the eigenvalues in parallel
         workSize = dummyWork;
         iWorkSize = dummyIWork;
-        std::vector<float> work(workSize);
-        std::vector<int> iWork(iWorkSize);
+        vector<float> work(workSize);
+        vector<int> iWork(iWorkSize);
         EL_SCALAPACK(pshseqr)
         ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
           Q, descQ, work.data(), &workSize, iWork.data(), &iWorkSize, &info );
@@ -1256,8 +1256,8 @@ void HessenbergSchur
         const Int numRowBlocks = n/mb + 1;
         int workSize= 3*n + Max(2*Max(ldH,ldQ)+2*localWidth,numRowBlocks),
             iWorkSize=0;
-        std::vector<float> work(workSize);
-        std::vector<int> iWork(iWorkSize);
+        vector<float> work(workSize);
+        vector<int> iWork(iWorkSize);
 
         // Compute the eigenvalues in parallel
         EL_SCALAPACK(pslahqr)
@@ -1269,7 +1269,7 @@ void HessenbergSchur
     }
     // Combine the real and imaginary components of the eigenvalues
     for( int j=0; j<n; ++j )
-        w[j] = std::complex<float>(wr[j],wi[j]);
+        w[j] = complex<float>(wr[j],wi[j]);
 }
 
 void HessenbergSchur
@@ -1278,13 +1278,13 @@ void HessenbergSchur
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
     const int ilo=1, ihi=n;
-    std::vector<double> wr(n), wi(n);
+    vector<double> wr(n), wi(n);
     int info;
     if( aed )
     {
-        std::cerr << 
+        cerr << 
           "WARNING: PDHSEQR seems to have a bug in its eigenvalue reordering" 
-          << std::endl;
+          << endl;
         const char job=(fullTriangle?'S':'E'), compz=(multiplyQ?'V':'I');
 
         // Query the workspace sizes. Due to a bug in p{s,d}hseqr's workspace
@@ -1300,8 +1300,8 @@ void HessenbergSchur
         // Compute the eigenvalues in parallel
         workSize = dummyWork;
         iWorkSize = dummyIWork;
-        std::vector<double> work(workSize);
-        std::vector<int> iWork(iWorkSize);
+        vector<double> work(workSize);
+        vector<int> iWork(iWorkSize);
         EL_SCALAPACK(pdhseqr)
         ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
           Q, descQ, work.data(), &workSize, iWork.data(), &iWorkSize, &info );
@@ -1335,8 +1335,8 @@ void HessenbergSchur
         const Int numRowBlocks = n/mb + 1;
         int workSize= 3*n + Max(2*Max(ldH,ldQ)+2*localWidth,numRowBlocks),
             iWorkSize=0;
-        std::vector<double> work(workSize);
-        std::vector<int> iWork(iWorkSize);
+        vector<double> work(workSize);
+        vector<int> iWork(iWorkSize);
 
         // Compute the eigenvalues in parallel
         EL_SCALAPACK(pdlahqr)
@@ -1348,7 +1348,7 @@ void HessenbergSchur
     }
     // Combine the real and imaginary components of the eigenvalues
     for( int j=0; j<n; ++j )
-        w[j] = std::complex<double>(wr[j],wi[j]);
+        w[j] = complex<double>(wr[j],wi[j]);
 }
 
 void HessenbergSchur
@@ -1376,8 +1376,8 @@ void HessenbergSchur
     // Compute the eigenvalues in parallel
     workSize = dummyWork.real();
     iWorkSize = dummyIWork;
-    std::vector<scomplex> work(workSize);
-    std::vector<int> iWork(iWorkSize);
+    vector<scomplex> work(workSize);
+    vector<int> iWork(iWorkSize);
     EL_SCALAPACK(pclahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
       work.data(), &workSize, iWork.data(), &iWorkSize, &info );
@@ -1410,8 +1410,8 @@ void HessenbergSchur
     // Compute the eigenvalues in parallel
     workSize = dummyWork.real();
     iWorkSize = dummyIWork;
-    std::vector<dcomplex> work(workSize);
-    std::vector<int> iWork(iWorkSize);
+    vector<dcomplex> work(workSize);
+    vector<int> iWork(iWorkSize);
     EL_SCALAPACK(pzlahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
       work.data(), &workSize, iWork.data(), &iWorkSize, &info );

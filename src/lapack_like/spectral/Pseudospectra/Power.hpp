@@ -49,8 +49,7 @@ Deflate
         }
     }
     if( progress )
-        std::cout << "Deflation took " << timer.Stop() << " seconds" 
-                  << std::endl;
+        cout << "Deflation took " << timer.Stop() << " seconds" << endl;
 }
 
 template<typename Real>
@@ -89,8 +88,7 @@ Deflate
         }
     }
     if( progress )
-        std::cout << "Deflation took " << timer.Stop() << " seconds"
-                  << std::endl;
+        cout << "Deflation took " << timer.Stop() << " seconds" << endl;
 }
 
 template<typename Real>
@@ -142,8 +140,7 @@ Deflate
     activeX        = XCopy;
 
     if( progress && activeShifts.Grid().Rank() == 0 )
-        std::cout << "Deflation took " << timer.Stop() << " seconds"
-                  << std::endl;
+        cout << "Deflation took " << timer.Stop() << " seconds" << endl;
 }
 
 template<typename Real>
@@ -202,8 +199,7 @@ Deflate
     {
         mpi::Barrier( activeShifts.Grid().Comm() );
         if( activeShifts.Grid().Rank() == 0 )
-            std::cout << "Deflation took " << timer.Stop() << " seconds"
-                      << std::endl;
+            cout << "Deflation took " << timer.Stop() << " seconds" << endl;
     }
 }
 
@@ -303,9 +299,9 @@ Power
         if( progress )
         {
             const double iterTime = timer.Stop();
-            std::cout << "iteration " << numIts << ": " << iterTime 
-                      << " seconds, " << numDone << " of " << numShifts 
-                      << " converged" << std::endl;
+            cout << "iteration " << numIts << ": " << iterTime 
+                 << " seconds, " << numDone << " of " << numShifts 
+                 << " converged" << endl;
         }
 
         ++numIts;
@@ -452,9 +448,9 @@ Power
         if( progress && g.Rank() == 0 )
         {
             const double iterTime = timer.Stop();
-            std::cout << "iteration " << numIts << ": " << iterTime 
-                      << " seconds, " << numDone << " of " << numShifts 
-                      << " converged" << std::endl;
+            cout << "iteration " << numIts << ": " << iterTime 
+                 << " seconds, " << numDone << " of " << numShifts 
+                 << " converged" << endl;
         }
 
         ++numIts;

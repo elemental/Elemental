@@ -29,7 +29,7 @@ Int blockHeight=32, blockWidth=32;
 std::mt19937 generator;
 
 // Debugging
-DEBUG_ONLY(std::stack<std::string> callStack)
+DEBUG_ONLY(std::stack<string> callStack)
 
 // Tuning parameters for basic routines
 Int localSymvFloatBlocksize = 64;
@@ -70,17 +70,17 @@ double minRealWindowVal, maxRealWindowVal,
 
 namespace El {
 
-void PrintVersion( std::ostream& os )
+void PrintVersion( ostream& os )
 {
     os << "Elemental version information:\n"
        << "  Git revision: " << EL_GIT_SHA1 << "\n"
        << "  Version:      " << EL_VERSION_MAJOR << "."
                              << EL_VERSION_MINOR << "\n"
        << "  Build type:   " << EL_CMAKE_BUILD_TYPE << "\n"
-       << std::endl;
+       << endl;
 }
 
-void PrintConfig( std::ostream& os )
+void PrintConfig( ostream& os )
 {
     os << 
       "Elemental configuration:\n" <<
@@ -125,10 +125,10 @@ void PrintConfig( std::ostream& os )
 #else
       "  Use byte AllGathers:          NO\n"
 #endif
-       << std::endl;
+       << endl;
 }
 
-void PrintCCompilerInfo( std::ostream& os )
+void PrintCCompilerInfo( ostream& os )
 {
     os << "Elemental's C compiler info:\n"
        << "  EL_CMAKE_C_COMPILER:    " << EL_CMAKE_C_COMPILER << "\n"
@@ -137,10 +137,10 @@ void PrintCCompilerInfo( std::ostream& os )
        << "  EL_MPI_C_COMPILE_FLAGS: " << EL_MPI_C_COMPILE_FLAGS << "\n"
        << "  EL_MPI_LINK_FLAGS:      " << EL_MPI_LINK_FLAGS << "\n"
        << "  EL_MPI_C_LIBRARIES:     " << EL_MPI_C_LIBRARIES << "\n"
-       << std::endl;
+       << endl;
 }
 
-void PrintCxxCompilerInfo( std::ostream& os )
+void PrintCxxCompilerInfo( ostream& os )
 {
     os << "Elemental's C++ compiler info:\n"
        << "  EL_CMAKE_CXX_COMPILER:    " << EL_CMAKE_CXX_COMPILER << "\n"
@@ -150,7 +150,7 @@ void PrintCxxCompilerInfo( std::ostream& os )
        << "  EL_MPI_CXX_COMPILE_FLAGS: " << EL_MPI_CXX_COMPILE_FLAGS << "\n"
        << "  EL_MPI_LINK_FLAGS:        " << EL_MPI_LINK_FLAGS << "\n"
        << "  EL_MPI_CXX_LIBRARIES:     " << EL_MPI_CXX_LIBRARIES << "\n"
-       << std::endl;
+       << endl;
 }
 
 bool Using64BitInt()
@@ -216,7 +216,7 @@ double MaxImagWindowVal()
 void UpdateMinRealWindowVal( double minVal )
 {
     if( ::haveMinRealWindowVal )
-        ::minRealWindowVal = std::min( ::minRealWindowVal, minVal );
+        ::minRealWindowVal = Min( ::minRealWindowVal, minVal );
     else
         ::minRealWindowVal = minVal;
     ::haveMinRealWindowVal = true;
@@ -225,7 +225,7 @@ void UpdateMinRealWindowVal( double minVal )
 void UpdateMaxRealWindowVal( double maxVal )
 {
     if( ::haveMaxRealWindowVal )
-        ::maxRealWindowVal = std::max( ::maxRealWindowVal, maxVal );
+        ::maxRealWindowVal = Max( ::maxRealWindowVal, maxVal );
     else
         ::maxRealWindowVal = maxVal;
     ::haveMaxRealWindowVal = true;
@@ -234,7 +234,7 @@ void UpdateMaxRealWindowVal( double maxVal )
 void UpdateMinImagWindowVal( double minVal )
 {
     if( ::haveMinImagWindowVal )
-        ::minImagWindowVal = std::min( ::minImagWindowVal, minVal );
+        ::minImagWindowVal = Min( ::minImagWindowVal, minVal );
     else
         ::minImagWindowVal = minVal;
     ::haveMinImagWindowVal = true;
@@ -243,7 +243,7 @@ void UpdateMinImagWindowVal( double minVal )
 void UpdateMaxImagWindowVal( double maxVal )
 {
     if( ::haveMaxImagWindowVal )
-        ::maxImagWindowVal = std::max( ::maxImagWindowVal, maxVal );
+        ::maxImagWindowVal = Max( ::maxImagWindowVal, maxVal );
     else
         ::maxImagWindowVal = maxVal;
     ::haveMaxImagWindowVal = true;
@@ -278,8 +278,8 @@ void Initialize( int& argc, char**& argv )
         const Int commRank = mpi::Rank( mpi::COMM_WORLD );
         if( provided != mpi::THREAD_MULTIPLE && commRank == 0 )
         {
-            std::cerr << "WARNING: Could not achieve THREAD_MULTIPLE support."
-                      << std::endl;
+            cerr << "WARNING: Could not achieve THREAD_MULTIPLE support."
+                 << endl;
         }
 #else
         mpi::Initialize( argc, argv );
@@ -372,10 +372,7 @@ void Finalize()
     --::numElemInits;
 
     if( mpi::Finalized() )
-    {
-        std::cerr << "Warning: MPI was finalized before Elemental." 
-                  << std::endl;
-    }
+        cerr << "Warning: MPI was finalized before Elemental." << endl;
     if( ::numElemInits == 0 )
     {
         delete ::args;
@@ -480,7 +477,7 @@ std::mt19937& Generator()
 // If we are not in RELEASE mode, then implement wrappers for a CallStack
 DEBUG_ONLY(
 
-    void PushCallStack( std::string s )
+    void PushCallStack( string s )
     { 
 #ifdef EL_HAVE_OPENMP
         if( omp_get_thread_num() != 0 )
@@ -498,9 +495,9 @@ DEBUG_ONLY(
         ::callStack.pop(); 
     }
 
-    void DumpCallStack( std::ostream& os )
+    void DumpCallStack( ostream& os )
     {
-        std::ostringstream msg;
+        ostringstream msg;
         while( ! ::callStack.empty() )
         {
             msg << "[" << ::callStack.size() << "]: " << ::callStack.top() 
@@ -610,7 +607,7 @@ Int LocalTrrkBlocksize<Complex<double>>()
 { return ::localTrrkComplexDoubleBlocksize; }
 
 template<typename T>
-bool IsSorted( const std::vector<T>& x )
+bool IsSorted( const vector<T>& x )
 {
     const Int vecLength = x.size();
     for( Int i=1; i<vecLength; ++i )
@@ -623,7 +620,7 @@ bool IsSorted( const std::vector<T>& x )
 
 // While is_strictly_sorted exists in Boost, it does not exist in the STL (yet)
 template<typename T>
-bool IsStrictlySorted( const std::vector<T>& x )
+bool IsStrictlySorted( const vector<T>& x )
 {
     const Int vecLength = x.size();
     for( Int i=1; i<vecLength; ++i )
@@ -635,31 +632,29 @@ bool IsStrictlySorted( const std::vector<T>& x )
 }
 
 void Union
-( std::vector<Int>& both,
-  const std::vector<Int>& first, const std::vector<Int>& second )
+( vector<Int>& both, const vector<Int>& first, const vector<Int>& second )
 {
     both.resize( first.size()+second.size() );
-    std::vector<Int>::iterator it = std::set_union
+    vector<Int>::iterator it = std::set_union
       ( first.begin(), first.end(), second.begin(), second.end(),
         both.begin() );
     both.resize( Int(it-both.begin()) );
 }
 
-std::vector<Int>
-Union( const std::vector<Int>& first, const std::vector<Int>& second )
+vector<Int>
+Union( const vector<Int>& first, const vector<Int>& second )
 {
-    std::vector<Int> both;
+    vector<Int> both;
     Union( both, first, second );
     return both;
 }
 
 void RelativeIndices
-( std::vector<Int>& relInds,
-  const std::vector<Int>& sub, const std::vector<Int>& full )
+( vector<Int>& relInds, const vector<Int>& sub, const vector<Int>& full )
 {
     const Int numSub = sub.size();
     relInds.resize( numSub );
-    std::vector<Int>::const_iterator it = full.begin();
+    vector<Int>::const_iterator it = full.begin();
     for( Int i=0; i<numSub; ++i )
     {
         const Int index = sub[i];
@@ -672,18 +667,17 @@ void RelativeIndices
     }
 }
 
-std::vector<Int> RelativeIndices
-( const std::vector<Int>& sub, const std::vector<Int>& full )
+vector<Int> RelativeIndices( const vector<Int>& sub, const vector<Int>& full )
 {
-    std::vector<Int> relInds;
+    vector<Int> relInds;
     RelativeIndices( relInds, sub, full );
     return relInds;
 }
 
-Int Find( const std::vector<Int>& sortedInds, Int index, std::string msg )
+Int Find( const vector<Int>& sortedInds, Int index, string msg )
 {
     DEBUG_ONLY(CallStackEntry cse("Find"))
-    std::vector<Int>::const_iterator vecIt;
+    vector<Int>::const_iterator vecIt;
     vecIt = std::lower_bound( sortedInds.begin(), sortedInds.end(), index );
     DEBUG_ONLY(
         if( vecIt == sortedInds.end() )
@@ -694,8 +688,8 @@ Int Find( const std::vector<Int>& sortedInds, Int index, std::string msg )
 
 #define EL_NO_COMPLEX_PROTO
 #define PROTO(T) \
-  template bool IsSorted( const std::vector<T>& x ); \
-  template bool IsStrictlySorted( const std::vector<T>& x );
+  template bool IsSorted( const vector<T>& x ); \
+  template bool IsStrictlySorted( const vector<T>& x );
 #include "El/macros/Instantiate.h"
 
 } // namespace El

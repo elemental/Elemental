@@ -15,7 +15,7 @@ namespace El {
 
 template<typename F>
 void HermitianFunction
-( UpperOrLower uplo, Matrix<F>& A, std::function<Base<F>(Base<F>)> func )
+( UpperOrLower uplo, Matrix<F>& A, function<Base<F>(Base<F>)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianFunction [Real]"))
     if( A.Height() != A.Width() )
@@ -37,7 +37,7 @@ void HermitianFunction
 template<typename F>
 void HermitianFunction
 ( UpperOrLower uplo, AbstractDistMatrix<F>& APre,
-  std::function<Base<F>(Base<F>)> func )
+  function<Base<F>(Base<F>)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianFunction [Real]"))
 
@@ -69,7 +69,7 @@ void HermitianFunction
 template<typename Real>
 void HermitianFunction
 ( UpperOrLower uplo, Matrix<Complex<Real>>& A, 
-  std::function<Complex<Real>(Real)> func )
+  function<Complex<Real>(Real)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianFunction [Complex]"))
     if( A.Height() != A.Width() )
@@ -97,7 +97,7 @@ void HermitianFunction
 template<typename Real>
 void HermitianFunction
 ( UpperOrLower uplo, AbstractDistMatrix<Complex<Real>>& APre, 
-  std::function<Complex<Real>(Real)> func )
+  function<Complex<Real>(Real)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianFunction [Complex]"))
 
@@ -132,19 +132,19 @@ void HermitianFunction
 #define PROTO_COMPLEX(F) \
   template void HermitianFunction \
   ( UpperOrLower uplo, Matrix<F>& A, \
-    std::function<Base<F>(Base<F>)> func ); \
+    function<Base<F>(Base<F>)> func ); \
   template void HermitianFunction \
   ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
-    std::function<Base<F>(Base<F>)> func );
+    function<Base<F>(Base<F>)> func );
 
 #define PROTO_REAL(Real) \
   PROTO_COMPLEX(Real) \
   template void HermitianFunction \
   ( UpperOrLower uplo, Matrix<Complex<Real>>& A, \
-    std::function<Complex<Real>(Real)> func ); \
+    function<Complex<Real>(Real)> func ); \
   template void HermitianFunction \
   ( UpperOrLower uplo, AbstractDistMatrix<Complex<Real>>& A, \
-    std::function<Complex<Real>(Real)> func );
+    function<Complex<Real>(Real)> func );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

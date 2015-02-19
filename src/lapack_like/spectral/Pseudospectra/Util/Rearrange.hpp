@@ -41,9 +41,9 @@ ReshapeIntoGrid
     X.SetGrid( x.Grid() );
     X.Resize( imagSize, realSize );
 
-    auto xSub = std::unique_ptr<AbstractDistMatrix<T>>
+    auto xSub = unique_ptr<AbstractDistMatrix<T>>
     ( x.Construct(x.Grid(),x.Root()) );
-    auto XSub = std::unique_ptr<AbstractDistMatrix<T>>
+    auto XSub = unique_ptr<AbstractDistMatrix<T>>
     ( X.Construct(X.Grid(),X.Root()) );
 
     for( Int j=0; j<realSize; ++j )
@@ -125,7 +125,7 @@ RestoreOrdering
 template<typename T1,typename T2>
 inline void
 ExtractList
-( const std::vector<Matrix<T1>>& vecList, Matrix<T2>& list, Int i )
+( const vector<Matrix<T1>>& vecList, Matrix<T2>& list, Int i )
 {
     DEBUG_ONLY(
         CallStackEntry cse("pspec::ExtractList");
@@ -141,7 +141,7 @@ ExtractList
 template<typename T1,typename T2>
 inline void
 ExtractList
-( const std::vector<Matrix<T1>>& matList, Matrix<T2>& list, Int i, Int j )
+( const vector<Matrix<T1>>& matList, Matrix<T2>& list, Int i, Int j )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::ExtractList"))
     const Int numMats = matList.size();
@@ -153,7 +153,7 @@ ExtractList
 template<typename T1,typename T2>
 inline void
 PlaceList
-( std::vector<Matrix<T1>>& vecList, const Matrix<T2>& list, Int i )
+( vector<Matrix<T1>>& vecList, const Matrix<T2>& list, Int i )
 {
     DEBUG_ONLY(
         CallStackEntry cse("pspec::PlaceList");
@@ -172,7 +172,7 @@ PlaceList
 template<typename T1,typename T2>
 inline void
 PlaceList
-( std::vector<Matrix<T1>>& matList, const Matrix<T2>& list, Int i, Int j )
+( vector<Matrix<T1>>& matList, const Matrix<T2>& list, Int i, Int j )
 {
     DEBUG_ONLY(
         CallStackEntry cse("pspec::PlaceList");
@@ -189,7 +189,7 @@ PlaceList
 template<typename T1,typename T2>
 inline void
 UpdateList
-( std::vector<Matrix<T1>>& matList, const Matrix<T2>& list, Int i, Int j )
+( vector<Matrix<T1>>& matList, const Matrix<T2>& list, Int i, Int j )
 {
     DEBUG_ONLY(
         CallStackEntry cse("pspec::UpdateList");
@@ -206,7 +206,7 @@ UpdateList
 template<typename T1,typename T2>
 inline void
 PushBackList
-( std::vector<Matrix<T1>>& vecList, const Matrix<T2>& list )
+( vector<Matrix<T1>>& vecList, const Matrix<T2>& list )
 {
     DEBUG_ONLY(
         CallStackEntry cse("pspec::PushBackList"); 
@@ -221,8 +221,7 @@ PushBackList
         const Int m = vecList[k].Height();
         if( vecList[k].LDim() == m )
         {
-            std::cerr << "Warning: reallocation required in PushBackList" 
-                      << std::endl;
+            cerr << "Warning: reallocation required in PushBackList" << endl;
             auto A = vecList[k];
             vecList[k].Resize( m+1, 1 );
             for( Int i=0; i<m; ++i )

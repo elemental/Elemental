@@ -104,7 +104,7 @@ inline void Helper
     dSub_STAR_STAR.Resize( n-1, 1, n );
     Copy( dSub, dSub_STAR_STAR );
 
-    std::vector<double> wVector(n);
+    vector<double> wVector(n);
     herm_tridiag_eig::Info info;
     if( subset.rangeSubset )
         info = herm_tridiag_eig::Eig
@@ -165,7 +165,7 @@ inline void Helper
     }
 
     herm_tridiag_eig::Info info;
-    std::vector<double> wVector(n);
+    vector<double> wVector(n);
     if( subset.rangeSubset )
     {
         info = herm_tridiag_eig::Eig
@@ -323,7 +323,7 @@ inline void Helper
     Int k;
     if( subset.rangeSubset )
     {
-        std::vector<double> dVector(n), dSubVector(n), wVector(n);
+        vector<double> dVector(n), dSubVector(n), wVector(n);
         MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
         MemCopy( dSubVector.data(), dSub_STAR_STAR.Buffer(), n-1 );
         auto estimate = herm_tridiag_eig::EigEstimate
@@ -341,7 +341,7 @@ inline void Helper
     Z.Resize( n, k );
 
     herm_tridiag_eig::Info info;
-    std::vector<double> wVector(n);
+    vector<double> wVector(n);
     if( subset.rangeSubset )
         info = herm_tridiag_eig::Eig
           ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
@@ -411,7 +411,7 @@ inline void Helper
     Int k;
     if( subset.rangeSubset )
     {
-        std::vector<double> dVector(n), dSubVector(n), wVector(n);
+        vector<double> dVector(n), dSubVector(n), wVector(n);
         MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
         MemCopy( dSubVector.data(), dSubReal.Buffer(), n-1 );
         auto estimate = herm_tridiag_eig::EigEstimate
@@ -430,7 +430,7 @@ inline void Helper
     ZReal.Resize( n, k );
 
     herm_tridiag_eig::Info info;
-    std::vector<double> wVector(n);
+    vector<double> wVector(n);
     if( subset.rangeSubset )
         info = herm_tridiag_eig::Eig
           ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(), 
@@ -483,7 +483,7 @@ Int HermitianTridiagEigEstimate
     Copy( d, d_STAR_STAR );
     dSub_STAR_STAR.Resize( n-1, 1, n );
     Copy( dSub, dSub_STAR_STAR );
-    std::vector<double> dVector(n), dSubVector(n), wVector(n);
+    vector<double> dVector(n), dSubVector(n), wVector(n);
     MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
     MemCopy( dSubVector.data(), dSub_STAR_STAR.Buffer(), n-1 );
     auto estimate = herm_tridiag_eig::EigEstimate
@@ -518,7 +518,7 @@ void HermitianTridiagEigPostEstimate
     dSub_STAR_STAR.Resize( n-1, 1, n );
     Copy( dSub, dSub_STAR_STAR );
 
-    std::vector<double> wVector(n);
+    vector<double> wVector(n);
     auto info = herm_tridiag_eig::Eig
     ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), wVector.data(), 
       Z.Buffer(), Z.LDim(), w.ColComm(), vl, vu );

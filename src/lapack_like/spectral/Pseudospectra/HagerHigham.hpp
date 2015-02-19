@@ -34,7 +34,7 @@ OneNormConvergenceTest
     Zeros( activeConverged, numActiveShifts, 1 );
 
     // Compute the infinity norm of each column of Z and its location
-    std::vector<ValueInt<Real>> valueInts(numActiveShifts);
+    vector<ValueInt<Real>> valueInts(numActiveShifts);
     for( Int j=0; j<numActiveShifts; ++j )
     {
         valueInts[j].index = 0;
@@ -53,7 +53,7 @@ OneNormConvergenceTest
     // Compute the real parts of the inner products of each column of Z and X
     // NOTE: Except in the first iteration, each column of X should only have
     //       a single nonzero entry, so this can be greatly accelerated.
-    std::vector<Real> innerProds(numActiveShifts);
+    vector<Real> innerProds(numActiveShifts);
     for( Int j=0; j<numActiveShifts; ++j )
     {
         const C innerProd = 
@@ -123,7 +123,7 @@ OneNormConvergenceTest
 
     // Compute the infinity norm of each local column of Z and its location
     const Int numLocShifts = activeEsts.LocalHeight();
-    std::vector<ValueInt<Real>> valueInts(numLocShifts);
+    vector<ValueInt<Real>> valueInts(numLocShifts);
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
     {
         valueInts[jLoc].value = 0;
@@ -145,7 +145,7 @@ OneNormConvergenceTest
     // Compute the real parts of the inner products of each column of Z and X
     // NOTE: Except in the first iteration, each column of X should only have
     //       a single nonzero entry, so this can be greatly accelerated.
-    std::vector<Real> innerProds(numLocShifts);
+    vector<Real> innerProds(numLocShifts);
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
     {
         const C innerProd = 
@@ -158,7 +158,7 @@ OneNormConvergenceTest
     ( innerProds.data(), numLocShifts, mpi::SUM, activeZ.ColComm() );
 
     // Compute the one norms
-    std::vector<Real> oneNorms(numLocShifts);
+    vector<Real> oneNorms(numLocShifts);
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
         oneNorms[jLoc] = blas::Nrm1( nLoc, activeY.LockedBuffer(0,jLoc), 1 );
     mpi::AllReduce
@@ -260,7 +260,7 @@ HagerHigham
             ( LEFT, UPPER, NORMAL, C(1), UCopy, activeShifts, activeY );
 
             activeZ = activeY;
-            EntrywiseMap( activeZ, std::function<C(C)>(unitMap) );
+            EntrywiseMap( activeZ, function<C(C)>(unitMap) );
 
             // Solve against (U - zI)^H 
             MultiShiftTrsm
@@ -274,7 +274,7 @@ HagerHigham
             ( UPPER, NORMAL, C(1), U, activeShifts, activeY );
 
             activeZ = activeY;
-            EntrywiseMap( activeZ, std::function<C(C)>(unitMap) );
+            EntrywiseMap( activeZ, function<C(C)>(unitMap) );
 
             // Solve against (H - zI)^H
             Matrix<C> activeShiftsConj;
@@ -294,9 +294,9 @@ HagerHigham
         if( progress )
         {
             const double iterTime = timer.Stop();
-            std::cout << "iteration " << numIts << ": " << iterTime 
-                      << " seconds, " << numDone << " of " << numShifts 
-                      << " converged" << std::endl;
+            cout << "iteration " << numIts << ": " << iterTime 
+                 << " seconds, " << numDone << " of " << numShifts 
+                 << " converged" << endl;
         }
 
         ++numIts;
@@ -416,7 +416,7 @@ HagerHigham
             Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeY );
 
             activeZ = activeY;
-            EntrywiseMap( activeZ, std::function<C(C)>(unitMap) );
+            EntrywiseMap( activeZ, function<C(C)>(unitMap) );
 
             // Solve against Q (U - zI)^H Q^H 
             Gemm( ADJOINT, NORMAL, C(1), Q, activeZ, activeV );
@@ -433,7 +433,7 @@ HagerHigham
             Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeY );
 
             activeZ = activeY;
-            EntrywiseMap( activeZ, std::function<C(C)>(unitMap) );
+            EntrywiseMap( activeZ, function<C(C)>(unitMap) );
 
             // Solve against Q (H - zI)^H Q^H 
             Gemm( ADJOINT, NORMAL, C(1), Q, activeZ, activeV );
@@ -455,9 +455,9 @@ HagerHigham
         if( progress )
         {
             const double iterTime = timer.Stop();
-            std::cout << "iteration " << numIts << ": " << iterTime 
-                      << " seconds, " << numDone << " of " << numShifts 
-                      << " converged" << std::endl;
+            cout << "iteration " << numIts << ": " << iterTime 
+                 << " seconds, " << numDone << " of " << numShifts 
+                 << " converged" << endl;
         }
 
         ++numIts;
@@ -609,7 +609,7 @@ HagerHigham
             ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeY );
 
             activeZ = activeY;
-            EntrywiseMap( activeZ, std::function<C(C)>(unitMap) );
+            EntrywiseMap( activeZ, function<C(C)>(unitMap) );
 
             // Solve against (U - zI)^H
             MultiShiftTrsm
@@ -624,7 +624,7 @@ HagerHigham
             activeY = activeV_STAR_VR;
 
             activeZ = activeY;
-            EntrywiseMap( activeZ, std::function<C(C)>(unitMap) );
+            EntrywiseMap( activeZ, function<C(C)>(unitMap) );
 
             // Solve against (H - zI)^H 
             activeV_STAR_VR = activeZ;
@@ -647,9 +647,9 @@ HagerHigham
         if( progress && g.Rank() == 0 )
         {
             const double iterTime = timer.Stop();
-            std::cout << "iteration " << numIts << ": " << iterTime 
-                      << " seconds, " << numDone << " of " << numShifts 
-                      << " converged" << std::endl;
+            cout << "iteration " << numIts << ": " << iterTime 
+                 << " seconds, " << numDone << " of " << numShifts 
+                 << " converged" << endl;
         }
 
         ++numIts;
@@ -693,7 +693,7 @@ HagerHigham
         MultiShiftHessSolve( UPPER, NORMAL, C(1), U, shifts, X_STAR_VR );
         X = X_STAR_VR;
     }
-    std::vector<Real> oneNorms(numLocShifts);
+    vector<Real> oneNorms(numLocShifts);
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
         oneNorms[jLoc] = blas::Nrm1( nLoc, X.LockedBuffer(0,jLoc), 1 );
     mpi::AllReduce( oneNorms.data(), numLocShifts, mpi::SUM, g.ColComm() );
@@ -814,7 +814,7 @@ HagerHigham
             Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeY );
 
             activeZ = activeY;
-            EntrywiseMap( activeZ, std::function<C(C)>(unitMap) );
+            EntrywiseMap( activeZ, function<C(C)>(unitMap) );
 
             // Solve against Q (U - zI)^H Q^H 
             Gemm( ADJOINT, NORMAL, C(1), Q, activeZ, activeV );
@@ -833,7 +833,7 @@ HagerHigham
             Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeY );
 
             activeZ = activeY;
-            EntrywiseMap( activeZ, std::function<C(C)>(unitMap) );
+            EntrywiseMap( activeZ, function<C(C)>(unitMap) );
 
             // Solve against Q (H - zI)^H Q^H 
             Gemm( ADJOINT, NORMAL, C(1), Q, activeZ, activeV );
@@ -858,9 +858,9 @@ HagerHigham
         if( progress && g.Rank() == 0 )
         {
             const double iterTime = timer.Stop();
-            std::cout << "iteration " << numIts << ": " << iterTime 
-                      << " seconds, " << numDone << " of " << numShifts 
-                      << " converged" << std::endl;
+            cout << "iteration " << numIts << ": " << iterTime 
+                 << " seconds, " << numDone << " of " << numShifts 
+                 << " converged" << endl;
         }
 
         ++numIts;
@@ -921,7 +921,7 @@ HagerHigham
         Y = Y_STAR_VR; 
     }
     Gemm( NORMAL, NORMAL, C(1), Q, Y, X );
-    std::vector<Real> oneNorms(numLocShifts);
+    vector<Real> oneNorms(numLocShifts);
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
         oneNorms[jLoc] = blas::Nrm1( nLoc, X.LockedBuffer(0,jLoc), 1 );
     mpi::AllReduce( oneNorms.data(), numLocShifts, mpi::SUM, g.ColComm() );

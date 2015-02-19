@@ -69,12 +69,12 @@ void HermitianSVD
     typedef Base<F> Real;
     DistMatrix<Real,VR,STAR> sSgn( s );
     auto sgnLambda = []( Real sigma ) { return Sgn(sigma,false); };
-    EntrywiseMap( sSgn, std::function<Real(Real)>(sgnLambda) );
+    EntrywiseMap( sSgn, function<Real(Real)>(sgnLambda) );
     DiagonalScale( RIGHT, NORMAL, sSgn, U );
 
     // Set the singular values to the absolute value of the eigenvalues
     auto absLambda = []( Real sigma ) { return Abs(sigma); };
-    EntrywiseMap( s, std::function<Real(Real)>(absLambda) );
+    EntrywiseMap( s, function<Real(Real)>(absLambda) );
 
     // TODO: Descending sort of triplets
 }
@@ -94,7 +94,7 @@ void HermitianSVD( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& s )
 
     // Set the singular values to the absolute value of the eigenvalues
     auto absLambda = []( Real sigma ) { return Abs(sigma); };
-    EntrywiseMap( s, std::function<Real(Real)>(absLambda) );
+    EntrywiseMap( s, function<Real(Real)>(absLambda) );
 
     Sort( s, DESCENDING );
 #else
@@ -115,7 +115,7 @@ void HermitianSVD
     // Set the singular values to the absolute value of the eigenvalues
     typedef Base<F> Real;
     auto absLambda = []( Real sigma ) { return Abs(sigma); };
-    EntrywiseMap( s, std::function<Real(Real)>(absLambda) );
+    EntrywiseMap( s, function<Real(Real)>(absLambda) );
 
     Sort( s, DESCENDING );
 }

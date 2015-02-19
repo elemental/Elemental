@@ -114,7 +114,7 @@ void Grid::SetUpGrid()
         // Set up the map from the VC group to the viewingGroup_ ranks.
         mpi::Group vectorColGroup;
         mpi::CommGroup( vectorColComm_, vectorColGroup ); 
-        std::vector<int> ranks(size_);
+        vector<int> ranks(size_);
         for( int i=0; i<size_; ++i )
             ranks[i] = i;
         mpi::Translate
@@ -124,7 +124,7 @@ void Grid::SetUpGrid()
 
         // Compute which diagonal 'path' we're in, and what our rank is, then
         // perform AllGather world to store everyone's info
-        std::vector<int> myDiagPathAndRank(2);
+        vector<int> myDiagPathAndRank(2);
         myDiagPathAndRank[0] = Mod(matrixRowRank-matrixColRank,gcd_);
         int diagPathRank = 0;
         int row = 0;

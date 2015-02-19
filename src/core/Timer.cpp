@@ -10,7 +10,7 @@
 
 namespace El {
 
-Timer::Timer( const std::string& name )
+Timer::Timer( const string& name )
 : name_(name)
 { }
 
@@ -36,7 +36,7 @@ double Timer::Stop()
     return lastPartialTime_;
 }
 
-void Timer::Reset( const std::string& name )
+void Timer::Reset( const string& name )
 { 
     name_ = name;
     running_ = false;
@@ -44,7 +44,7 @@ void Timer::Reset( const std::string& name )
     lastPartialTime_ = 0;
 }
 
-const std::string& Timer::Name() const { return name_; }
+const string& Timer::Name() const { return name_; }
 
 double Timer::Partial() const
 { 

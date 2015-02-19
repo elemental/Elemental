@@ -15,12 +15,12 @@ namespace write {
 
 template<typename T>
 inline void
-Binary( const Matrix<T>& A, std::string basename="matrix" )
+Binary( const Matrix<T>& A, string basename="matrix" )
 {
     DEBUG_ONLY(CallStackEntry cse("write::Binary"))
     
-    std::string filename = basename + "." + FileExtension(BINARY);
-    std::ofstream file( filename.c_str(), std::ios::binary );
+    string filename = basename + "." + FileExtension(BINARY);
+    ofstream file( filename.c_str(), std::ios::binary );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
 

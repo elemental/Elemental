@@ -18,7 +18,7 @@ namespace pspec {
 template<typename Real>
 inline void
 ComputeNewEstimates
-( const std::vector<Matrix<Complex<Real>>>& HList,
+( const vector<Matrix<Complex<Real>>>& HList,
   const Matrix<Int>& activeConverged,
   Matrix<Real>& activeEsts,
   Int n )
@@ -55,7 +55,7 @@ ComputeNewEstimates
 template<typename Real>
 inline void
 ComputeNewEstimates
-( const std::vector<Matrix<Complex<Real>>>& HList,
+( const vector<Matrix<Complex<Real>>>& HList,
   const DistMatrix<Int,MR,STAR>& activeConverged,
         DistMatrix<Real,MR,STAR>& activeEsts,
         Int n )
@@ -68,9 +68,9 @@ ComputeNewEstimates
 template<typename Real>
 inline void
 Restart
-( const std::vector<Matrix<Complex<Real>>>& HList,
+( const vector<Matrix<Complex<Real>>>& HList,
   const Matrix<Int>& activeConverged,
-  std::vector<Matrix<Complex<Real>>>& VList )
+  vector<Matrix<Complex<Real>>>& VList )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
     const Int n = VList[0].Height();
@@ -123,10 +123,10 @@ Restart
 template<typename Real>
 inline void
 Restart
-( const std::vector<Matrix<Complex<Real>>>& HList,
+( const vector<Matrix<Complex<Real>>>& HList,
   const Matrix<Int>& activeConverged,
-  std::vector<Matrix<Real>>& VRealList,
-  std::vector<Matrix<Real>>& VImagList )
+  vector<Matrix<Real>>& VRealList,
+  vector<Matrix<Real>>& VImagList )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
     const Int n = VRealList[0].Height();
@@ -190,13 +190,13 @@ Restart
 template<typename Real>
 inline void
 Restart
-( const std::vector<Matrix<Complex<Real>>>& HList,
+( const vector<Matrix<Complex<Real>>>& HList,
   const DistMatrix<Int,MR,STAR>& activeConverged,
-  std::vector<DistMatrix<Complex<Real>>>& VList )
+  vector<DistMatrix<Complex<Real>>>& VList )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
     const Int basisSize = HList[0].Width();
-    std::vector<Matrix<Complex<Real>>> VLocList(basisSize+1);
+    vector<Matrix<Complex<Real>>> VLocList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
         VLocList[j] = View( VList[j].Matrix() );
     Restart( HList, activeConverged.LockedMatrix(), VLocList );
@@ -205,14 +205,14 @@ Restart
 template<typename Real>
 inline void
 Restart
-( const std::vector<Matrix<Complex<Real>>>& HList,
+( const vector<Matrix<Complex<Real>>>& HList,
   const DistMatrix<Int,MR,STAR>& activeConverged,
-  std::vector<DistMatrix<Real>>& VRealList,
-  std::vector<DistMatrix<Real>>& VImagList )
+  vector<DistMatrix<Real>>& VRealList,
+  vector<DistMatrix<Real>>& VImagList )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
     const Int basisSize = HList[0].Width();
-    std::vector<Matrix<Real>> VRealLocList(basisSize+1),
+    vector<Matrix<Real>> VRealLocList(basisSize+1),
                               VImagLocList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
     {
@@ -263,11 +263,11 @@ IRA
         Adjoint( U, UAdj );
 
     // Simultaneously run IRA for different shifts
-    std::vector<Matrix<C>> VList(basisSize+1), activeVList(basisSize+1);
+    vector<Matrix<C>> VList(basisSize+1), activeVList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
         Zeros( VList[j], n, numShifts );
     Gaussian( VList[0], n, numShifts );
-    std::vector<Matrix<Complex<Real>>> HList(numShifts);
+    vector<Matrix<Complex<Real>>> HList(numShifts);
     Matrix<Real> realComponents;
     Matrix<Complex<Real>> components;
 
@@ -323,9 +323,8 @@ IRA
                     const double msTime = subtimer.Stop();
                     const Int numActiveShifts = activeShifts.Height();
                     const double gflops = (8.*n*n*numActiveShifts)/(msTime*1e9);
-                    std::cout << "  MultiShiftTrsm's: " << msTime 
-                              << " seconds, " << gflops << " GFlops" 
-                              << std::endl;
+                    cout << "  MultiShiftTrsm's: " << msTime 
+                         << " seconds, " << gflops << " GFlops" << endl;
                 }
             }
             else
@@ -346,9 +345,8 @@ IRA
                     const Int numActiveShifts = activeShifts.Height();
                     const double gflops = 
                         (32.*n*n*numActiveShifts)/(msTime*1.e9);
-                    std::cout << "  MultiShiftHessSolve's: " << msTime
-                              << " seconds, " << gflops << " GFlops" 
-                              << std::endl;
+                    cout << "  MultiShiftHessSolve's: " << msTime
+                         << " seconds, " << gflops << " GFlops" << endl;
                 }
             }
 
@@ -407,8 +405,8 @@ IRA
             subtimer.Start();
         Restart( HList, activeConverged, activeVList );
         if( progress )
-            std::cout << "IRA restart: " << subtimer.Stop()
-                      << " seconds" << std::endl;
+            cout << "IRA restart: " << subtimer.Stop()
+                 << " seconds" << endl;
 
         const Int numActiveDone = ZeroNorm( activeConverged );
         if( deflate )
@@ -419,9 +417,9 @@ IRA
         if( progress )
         {
             const double iterTime = timer.Stop();
-            std::cout << "iteration " << numIts << ": " << iterTime
-                      << " seconds, " << numDone << " of " << numShifts
-                      << " converged" << std::endl;
+            cout << "iteration " << numIts << ": " << iterTime
+                 << " seconds, " << numDone << " of " << numShifts
+                 << " converged" << endl;
         }
         if( numIts >= maxIts )
             break;
@@ -481,10 +479,10 @@ IRA
     }
 
     // Simultaneously run IRA for different shifts
-    std::vector<Matrix<Real>> VRealList(basisSize+1), 
-                              VImagList(basisSize+1),
-                              activeVRealList(basisSize+1),
-                              activeVImagList(basisSize+1);
+    vector<Matrix<Real>> VRealList(basisSize+1), 
+                         VImagList(basisSize+1),
+                         activeVRealList(basisSize+1),
+                         activeVImagList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
     {
         Zeros( VRealList[j], n, numShifts );
@@ -493,7 +491,7 @@ IRA
     // The variance will be off from that of the usual complex case
     Gaussian( VRealList[0], n, numShifts );
     Gaussian( VImagList[0], n, numShifts );
-    std::vector<Matrix<Complex<Real>>> HList(numShifts);
+    vector<Matrix<Complex<Real>>> HList(numShifts);
     Matrix<Real> realComponents;
     Matrix<Complex<Real>> components;
 
@@ -551,8 +549,8 @@ IRA
                 const double msTime = subtimer.Stop();
                 const Int numActiveShifts = activeShifts.Height();
                 const double gflops = (4.*n*n*numActiveShifts)/(msTime*1.e9);
-                std::cout << "  MultiShiftQuasiTrsm's: " << msTime 
-                          << " seconds, " << gflops << " GFlops" << std::endl;
+                cout << "  MultiShiftQuasiTrsm's: " << msTime 
+                     << " seconds, " << gflops << " GFlops" << endl;
             }
 
             // Orthogonalize with respect to the old iterate
@@ -620,8 +618,8 @@ IRA
             subtimer.Start();
         Restart( HList, activeConverged, activeVRealList, activeVImagList );
         if( progress )
-            std::cout << "IRA restart: " << subtimer.Stop()
-                      << " seconds" << std::endl;
+            cout << "IRA restart: " << subtimer.Stop()
+                 << " seconds" << endl;
 
         const Int numActiveDone = ZeroNorm( activeConverged );
         if( deflate )
@@ -632,9 +630,9 @@ IRA
         if( progress )
         {
             const double iterTime = timer.Stop();
-            std::cout << "iteration " << numIts << ": " << iterTime
-                      << " seconds, " << numDone << " of " << numShifts
-                      << " converged" << std::endl;
+            cout << "iteration " << numIts << ": " << iterTime
+                 << " seconds, " << numDone << " of " << numShifts
+                 << " converged" << endl;
         }
         if( numIts >= maxIts )
             break;
@@ -721,7 +719,7 @@ IRA
     }
 
     // Simultaneously run IRA for different shifts
-    std::vector<DistMatrix<C>> VList(basisSize+1), activeVList(basisSize+1);
+    vector<DistMatrix<C>> VList(basisSize+1), activeVList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
     {
         VList[j].SetGrid( g );
@@ -729,7 +727,7 @@ IRA
     }
     Gaussian( VList[0], n, numShifts );
     const Int numMRShifts = VList[0].LocalWidth();
-    std::vector<Matrix<Complex<Real>>> HList(numMRShifts);
+    vector<Matrix<Complex<Real>>> HList(numMRShifts);
     Matrix<Real> realComponents;
     Matrix<Complex<Real>> components;
 
@@ -796,9 +794,8 @@ IRA
                         const Int numActiveShifts = activeShifts.Height();
                         const double gflops = 
                             (8.*n*n*numActiveShifts)/(msTime*1.e9);
-                        std::cout << "  MultiShiftTrsm's: " << msTime 
-                                  << " seconds, " << gflops << " GFlops" 
-                                  << std::endl;
+                        cout << "  MultiShiftTrsm's: " << msTime 
+                             << " seconds, " << gflops << " GFlops" << endl;
                     }
                 }
             }
@@ -830,9 +827,8 @@ IRA
                         const Int numActiveShifts = activeShifts.Height();
                         const double gflops =
                             (32.*n*n*numActiveShifts)/(msTime*1.e9);
-                        std::cout << "  MultiShiftHessSolve's: " << msTime
-                                  << " seconds, " << gflops << " GFlops"
-                                  << std::endl;
+                        cout << "  MultiShiftHessSolve's: " << msTime
+                             << " seconds, " << gflops << " GFlops" << endl;
                     }
                 }
             }
@@ -899,8 +895,8 @@ IRA
         {
             mpi::Barrier( g.Comm() );
             if( g.Rank() == 0 )
-                std::cout << "IRA computations: " << subtimer.Stop()
-                          << " seconds" << std::endl;
+                cout << "IRA computations: " << subtimer.Stop()
+                     << " seconds" << endl;
         }
 
         const Int numActiveDone = ZeroNorm( activeConverged );
@@ -915,9 +911,9 @@ IRA
             if( g.Rank() == 0 )
             {
                 const double iterTime = timer.Stop();
-                std::cout << "iteration " << numIts << ": " << iterTime
-                          << " seconds, " << numDone << " of " << numShifts
-                          << " converged" << std::endl;
+                cout << "iteration " << numIts << ": " << iterTime
+                     << " seconds, " << numDone << " of " << numShifts
+                     << " converged" << endl;
             }
         }
         if( numIts >= maxIts )
@@ -996,10 +992,10 @@ IRA
     }
 
     // Simultaneously run IRA for different shifts
-    std::vector<DistMatrix<Real>> VRealList(basisSize+1), 
-                                  VImagList(basisSize+1),
-                                  activeVRealList(basisSize+1),
-                                  activeVImagList(basisSize+1);
+    vector<DistMatrix<Real>> VRealList(basisSize+1), 
+                             VImagList(basisSize+1),
+                             activeVRealList(basisSize+1),
+                             activeVImagList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
     {
         VRealList[j].SetGrid( g );
@@ -1011,7 +1007,7 @@ IRA
     Gaussian( VRealList[0], n, numShifts );
     Gaussian( VImagList[0], n, numShifts );
     const Int numMRShifts = VRealList[0].LocalWidth();
-    std::vector<Matrix<Complex<Real>>> HList(numMRShifts);
+    vector<Matrix<Complex<Real>>> HList(numMRShifts);
     Matrix<Real> realComponents;
     Matrix<Complex<Real>> components;
 
@@ -1081,9 +1077,8 @@ IRA
                     const Int numActiveShifts = activeShifts.Height();
                     const double gflops = 
                         (4.*n*n*numActiveShifts)/(msTime*1.e9);
-                    std::cout << "  MultiShiftQuasiTrsm's: " << msTime 
-                              << " seconds, " << gflops << " GFlops" 
-                              << std::endl;
+                    cout << "  MultiShiftQuasiTrsm's: " << msTime 
+                         << " seconds, " << gflops << " GFlops" << endl;
                 }
             }
 
@@ -1159,8 +1154,8 @@ IRA
         {
             mpi::Barrier( g.Comm() );
             if( g.Rank() == 0 )
-                std::cout << "IRA computations: " << subtimer.Stop()
-                          << " seconds" << std::endl;
+                cout << "IRA computations: " << subtimer.Stop()
+                     << " seconds" << endl;
         }
 
         const Int numActiveDone = ZeroNorm( activeConverged );
@@ -1175,9 +1170,9 @@ IRA
             if( g.Rank() == 0 )
             {
                 const double iterTime = timer.Stop();
-                std::cout << "iteration " << numIts << ": " << iterTime
-                          << " seconds, " << numDone << " of " << numShifts
-                          << " converged" << std::endl;
+                cout << "iteration " << numIts << ": " << iterTime
+                     << " seconds, " << numDone << " of " << numShifts
+                     << " converged" << endl;
             }
         }
         if( numIts >= maxIts )

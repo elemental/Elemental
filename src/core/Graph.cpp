@@ -115,8 +115,7 @@ void Graph::QueueConnection( Int source, Int target )
       const Int capacity = Capacity();
       const Int numEdges = NumEdges();
       if( numEdges == capacity )
-          std::cerr << "WARNING: Pushing back without first reserving space" 
-                    << std::endl;
+          cerr << "WARNING: Pushing back without first reserving space" << endl;
     )
     if( source < 0 || source >= numSources_ )
         LogicError
@@ -132,7 +131,7 @@ void Graph::QueueConnection( Int source, Int target )
 void Graph::QueueDisconnection( Int source, Int target )
 {
     DEBUG_ONLY(CallStackEntry cse("Graph::QueueDisconnection"))
-    markedForRemoval_.insert( std::pair<Int,Int>(source,target) );
+    markedForRemoval_.insert( pair<Int,Int>(source,target) );
     consistent_ = false;
 }
 
@@ -149,10 +148,10 @@ void Graph::MakeConsistent()
         // TODO: Consider switching to using the following by default so that
         //       no extra allocation/memcpy is required
         Int numRemoved=0;
-        std::vector<std::pair<Int,Int>> pairs( numEdges );
+        vector<pair<Int,Int>> pairs( numEdges );
         for( Int e=0; e<numEdges; ++e )
         {
-            std::pair<Int,Int> candidate(sources_[e],targets_[e]);
+            pair<Int,Int> candidate(sources_[e],targets_[e]);
             if( markedForRemoval_.find(candidate) == markedForRemoval_.end() )
             {
                 pairs[e-numRemoved].first = sources_[e];
@@ -204,7 +203,7 @@ Int Graph::NumEdges() const
 Int Graph::Capacity() const
 {
     DEBUG_ONLY(CallStackEntry cse("Graph::Capacity"))
-    return std::min(sources_.capacity(),targets_.capacity());
+    return Min(sources_.capacity(),targets_.capacity());
 }
 
 bool Graph::Consistent() const { return consistent_; }
@@ -263,7 +262,7 @@ const Int* Graph::LockedTargetBuffer() const { return targets_.data(); }
 // ===================
 
 bool Graph::ComparePairs
-( const std::pair<Int,Int>& a, const std::pair<Int,Int>& b )
+( const pair<Int,Int>& a, const pair<Int,Int>& b )
 { return a.first < b.first || (a.first  == b.first && a.second < b.second); }
 
 void Graph::ComputeEdgeOffsets()

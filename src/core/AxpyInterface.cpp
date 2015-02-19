@@ -356,15 +356,15 @@ AxpyInterface<T>::~AxpyInterface()
            const Grid& g = ( attachedForLocalToGlobal_ ? 
                              localToGlobalMat_->Grid() : 
                              globalToLocalMat_->Grid() );
-           std::ostringstream os;
+           ostringstream os;
            os << g.Rank()
               << "Uncaught exception detected during AxpyInterface destructor "
                  "that required a call to Detach. Instead of allowing for the "
                  "possibility of Detach throwing another exception and "
                  "resulting in a 'terminate', we instead immediately dump the "
                  "call stack (if not in RELEASE mode) since the program will "
-                 "likely hang:" << std::endl;
-           std::cerr << os.str();
+                 "likely hang:" << endl;
+           cerr << os.str();
            DEBUG_ONLY(DumpCallStack())
         }
         else
@@ -645,9 +645,9 @@ void AxpyInterface<T>::AxpyGlobalToLocal( T alpha, Matrix<T>& Y, Int i, Int j )
 template<typename T>
 Int AxpyInterface<T>::ReadyForSend
 ( Int sendSize,
-  std::deque<std::vector<byte>>& sendVectors,
-  std::deque<mpi::Request>& requests, 
-  std::deque<bool>& requestStatuses )
+  deque<vector<byte>>& sendVectors,
+  deque<mpi::Request>& requests, 
+  deque<bool>& requestStatuses )
 {
     DEBUG_ONLY(CallStackEntry cse("AxpyInterface::ReadyForSend"))
     const Int numCreated = sendVectors.size();

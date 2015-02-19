@@ -18,8 +18,8 @@ namespace pspec {
 template<typename Real>
 inline void
 ComputeNewEstimates
-( const std::vector<Matrix<Real>>& HDiagList,
-  const std::vector<Matrix<Real>>& HSubdiagList,
+( const vector<Matrix<Real>>& HDiagList,
+  const vector<Matrix<Real>>& HSubdiagList,
   const Matrix<Int>& activeConverged,
   Matrix<Real>& activeEsts )
 {
@@ -53,8 +53,8 @@ ComputeNewEstimates
 template<typename Real>
 inline void
 ComputeNewEstimates
-( const std::vector<Matrix<Real>>& HDiagList,
-  const std::vector<Matrix<Real>>& HSubdiagList,
+( const vector<Matrix<Real>>& HDiagList,
+  const vector<Matrix<Real>>& HSubdiagList,
   const DistMatrix<Int,MR,STAR>& activeConverged,
         DistMatrix<Real,MR,STAR>& activeEsts )
 {
@@ -67,10 +67,10 @@ ComputeNewEstimates
 template<typename Real>
 inline void
 Restart
-( const std::vector<Matrix<Real>>& HDiagList,
-  const std::vector<Matrix<Real>>& HSubdiagList,
+( const vector<Matrix<Real>>& HDiagList,
+  const vector<Matrix<Real>>& HSubdiagList,
   const Matrix<Int>& activeConverged,
-  std::vector<Matrix<Complex<Real>>>& VList )
+  vector<Matrix<Complex<Real>>>& VList )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
     const Int n = VList[0].Height();
@@ -112,14 +112,14 @@ Restart
 template<typename Real>
 inline void
 Restart
-( const std::vector<Matrix<Real>>& HDiagList,
-  const std::vector<Matrix<Real>>& HSubdiagList,
+( const vector<Matrix<Real>>& HDiagList,
+  const vector<Matrix<Real>>& HSubdiagList,
   const DistMatrix<Int,MR,STAR>& activeConverged,
-  std::vector<DistMatrix<Complex<Real>>>& VList )
+  vector<DistMatrix<Complex<Real>>>& VList )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
     const Int basisSize = HDiagList[0].size();
-    std::vector<Matrix<Complex<Real>>> VLocList(basisSize+1);
+    vector<Matrix<Complex<Real>>> VLocList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
         VLocList[j] = View( VList[j].Matrix() );
     Restart
@@ -167,11 +167,11 @@ IRL
         Adjoint( U, UAdj );
 
     // Simultaneously run IRL for different shifts
-    std::vector<Matrix<C>> VList(basisSize+1), activeVList(basisSize+1);
+    vector<Matrix<C>> VList(basisSize+1), activeVList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
         Zeros( VList[j], n, numShifts );
     Gaussian( VList[0], n, numShifts );
-    std::vector<Matrix<Real>> HDiagList(numShifts), HSubdiagList(numShifts);
+    vector<Matrix<Real>> HDiagList(numShifts), HSubdiagList(numShifts);
     Matrix<Real> realComponents;
     Matrix<Complex<Real>> components;
 
@@ -232,9 +232,8 @@ IRL
                     const Int numActiveShifts = activeShifts.Height();
                     const double gflops = 
                         (8.*n*n*numActiveShifts)/(msTime*1.e9);
-                    std::cout << "  MultiShiftTrsm's: " << msTime 
-                              << " seconds, " << gflops << " GFlops" 
-                              << std::endl;
+                    cout << "  MultiShiftTrsm's: " << msTime 
+                         << " seconds, " << gflops << " GFlops" << endl;
                 }
             }
             else
@@ -255,9 +254,8 @@ IRL
                     const Int numActiveShifts = activeShifts.Height();
                     const double gflops = 
                         (32.*n*n*numActiveShifts)/(msTime*1.e9);
-                    std::cout << "  MultiShiftHessSolve's: " << msTime
-                              << " seconds, " << gflops << " GFlops" 
-                              << std::endl;
+                    cout << "  MultiShiftHessSolve's: " << msTime
+                         << " seconds, " << gflops << " GFlops" << endl;
                 }
             }
 
@@ -310,8 +308,8 @@ IRL
         Restart
         ( HDiagList, HSubdiagList, activeVList, activeConverged, activeEsts );
         if( progress )
-            std::cout << "IRL restart: " << subtimer.Stop()
-                      << " seconds" << std::endl;
+            cout << "IRL restart: " << subtimer.Stop()
+                 << " seconds" << endl;
 
         const Int numActiveDone = ZeroNorm( activeConverged );
         if( deflate )
@@ -322,9 +320,9 @@ IRL
         if( progress )
         {
             const double iterTime = timer.Stop();
-            std::cout << "iteration " << numIts << ": " << iterTime
-                      << " seconds, " << numDone << " of " << numShifts
-                      << " converged" << std::endl;
+            cout << "iteration " << numIts << ": " << iterTime
+                 << " seconds, " << numDone << " of " << numShifts
+                 << " converged" << endl;
         }
         if( numIts >= maxIts )
             break;
@@ -411,7 +409,7 @@ IRL
     }
 
     // Simultaneously run IRL for different shifts
-    std::vector<DistMatrix<C>> VList(basisSize+1), activeVList(basisSize+1);
+    vector<DistMatrix<C>> VList(basisSize+1), activeVList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
     {
         VList[j].SetGrid( g );
@@ -419,8 +417,8 @@ IRL
     }
     Gaussian( VList[0], n, numShifts );
     const Int numMRShifts = VList[0].LocalWidth();
-    std::vector<Matrix<Real>> HDiagList(numMRShifts), 
-                              HSubdiagList(numMRShifts);
+    vector<Matrix<Real>> HDiagList(numMRShifts), 
+                         HSubdiagList(numMRShifts);
     Matrix<Real> realComponents;
     Matrix<Complex<Real>> components;
 
@@ -493,9 +491,8 @@ IRL
                         const Int numActiveShifts = activeShifts.Height();
                         const double gflops = 
                             (8.*n*n*numActiveShifts)/(msTime*1.e9);
-                        std::cout << "  MultiShiftTrsm's: " << msTime 
-                                  << " seconds, " << gflops << " GFlops" 
-                                  << std::endl;
+                        cout << "  MultiShiftTrsm's: " << msTime 
+                             << " seconds, " << gflops << " GFlops" << endl;
                     }
                 }
             }
@@ -527,9 +524,8 @@ IRL
                         const Int numActiveShifts = activeShifts.Height();
                         const double gflops =
                             (32.*n*n*numActiveShifts)/(msTime*1.e9);
-                        std::cout << "  MultiShiftHessSolve's: " << msTime
-                                  << " seconds, " << gflops << " GFlops"
-                                  << std::endl;
+                        cout << "  MultiShiftHessSolve's: " << msTime
+                             << " seconds, " << gflops << " GFlops" << endl;
                     }
                 }
             }
@@ -589,8 +585,8 @@ IRL
         {
             mpi::Barrier( g.Comm() );
             if( g.Rank() == 0 )
-                std::cout << "IRL computations: " << subtimer.Stop()
-                          << " seconds" << std::endl;
+                cout << "IRL computations: " << subtimer.Stop()
+                     << " seconds" << endl;
         }
 
         const Int numActiveDone = ZeroNorm( activeConverged );
@@ -605,9 +601,9 @@ IRL
             if( g.Rank() == 0 )
             {
                 const double iterTime = timer.Stop();
-                std::cout << "iteration " << numIts << ": " << iterTime
-                          << " seconds, " << numDone << " of " << numShifts
-                          << " converged" << std::endl;
+                cout << "iteration " << numIts << ": " << iterTime
+                     << " seconds, " << numDone << " of " << numShifts
+                     << " converged" << endl;
             }
         }
         if( numIts >= maxIts )

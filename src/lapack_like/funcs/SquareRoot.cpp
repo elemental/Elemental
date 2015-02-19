@@ -84,10 +84,10 @@ Newton( Matrix<F>& A, const SquareRootCtrl<Base<F>>& ctrl )
         ++numIts;
         std::swap( X, XNew );
         if( ctrl.progress )
-            std::cout << "after " << numIts << " Newton iter's: "
-                      << "oneDiff=" << oneDiff << ", oneNew=" << oneNew
-                      << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol="
-                      << tol << std::endl;
+            cout << "after " << numIts << " Newton iter's: "
+                 << "oneDiff=" << oneDiff << ", oneNew=" << oneNew
+                 << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol="
+                 << tol << endl;
         if( oneDiff/oneNew <= Pow(oneNew,ctrl.power)*tol )
             break;
     }
@@ -129,10 +129,10 @@ Newton( AbstractDistMatrix<F>& APre, const SquareRootCtrl<Base<F>>& ctrl )
         ++numIts;
         std::swap( X, XNew );
         if( ctrl.progress && g.Rank() == 0 )
-            std::cout << "after " << numIts << " Newton iter's: "
-                      << "oneDiff=" << oneDiff << ", oneNew=" << oneNew
-                      << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol="
-                      << tol << std::endl;
+            cout << "after " << numIts << " Newton iter's: "
+                 << "oneDiff=" << oneDiff << ", oneNew=" << oneNew
+                 << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol="
+                 << tol << endl;
         if( oneDiff/oneNew <= Pow(oneNew,ctrl.power)*tol )
             break;
     }
@@ -182,7 +182,7 @@ void HPSDSquareRoot
     for( Int i=0; i<n; ++i )
     {
         const Real omega = w.Get(i,0);
-        minEig = std::min(minEig,omega);
+        minEig = Min(minEig,omega);
     }
 
     // Set the tolerance equal to n ||A||_2 eps
@@ -234,7 +234,7 @@ void HPSDSquareRoot
     for( Int iLoc=0; iLoc<numLocalEigs; ++iLoc )
     {
         const Real omega = w.GetLocal(iLoc,0);
-        minLocalEig = std::min(minLocalEig,omega);
+        minLocalEig = Min(minLocalEig,omega);
     }
     const Real minEig = mpi::AllReduce( minLocalEig, mpi::MIN, g.VCComm() );
 

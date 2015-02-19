@@ -17,7 +17,7 @@
 namespace El {
 
 template<typename T>
-void Read( Matrix<T>& A, const std::string filename, FileFormat format )
+void Read( Matrix<T>& A, const string filename, FileFormat format )
 {
     DEBUG_ONLY(CallStackEntry cse("Read"))
     if( format == AUTO )
@@ -47,7 +47,7 @@ void Read( Matrix<T>& A, const std::string filename, FileFormat format )
 
 template<typename T>
 void Read
-( AbstractDistMatrix<T>& A, const std::string filename, FileFormat format,
+( AbstractDistMatrix<T>& A, const string filename, FileFormat format,
   bool sequential )
 {
     DEBUG_ONLY(CallStackEntry cse("Read"))
@@ -104,7 +104,7 @@ void Read
 
 template<typename T>
 void Read
-( AbstractBlockDistMatrix<T>& A, const std::string filename, FileFormat format,
+( AbstractBlockDistMatrix<T>& A, const string filename, FileFormat format,
   bool sequential )
 {
     DEBUG_ONLY(CallStackEntry cse("Read"))
@@ -161,12 +161,12 @@ void Read
 
 #define PROTO(T) \
   template void Read \
-  ( Matrix<T>& A, const std::string filename, FileFormat format ); \
+  ( Matrix<T>& A, const string filename, FileFormat format ); \
   template void Read \
-  ( AbstractDistMatrix<T>& A, const std::string filename, \
+  ( AbstractDistMatrix<T>& A, const string filename, \
     FileFormat format, bool sequential ); \
   template void Read \
-  ( AbstractBlockDistMatrix<T>& A, const std::string filename, \
+  ( AbstractBlockDistMatrix<T>& A, const string filename, \
     FileFormat format, bool sequential );
 
 #include "El/macros/Instantiate.h"

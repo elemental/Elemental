@@ -21,6 +21,7 @@ using std::pair;
 using std::set;
 using std::vector;
 
+using std::make_shared;
 using std::shared_ptr;
 using std::unique_ptr;
 

@@ -243,10 +243,10 @@ void SparseMatrix<T>::MakeConsistent()
     {
         const Int numEntries = vals_.size();
         Int numRemoved = 0;
-        std::vector<Entry<T>> entries( numEntries );
+        vector<Entry<T>> entries( numEntries );
         for( Int s=0; s<numEntries; ++s )
         {
-            std::pair<Int,Int> candidate(graph_.sources_[s],graph_.targets_[s]);
+            pair<Int,Int> candidate(graph_.sources_[s],graph_.targets_[s]);
             if( graph_.markedForRemoval_.find(candidate) == 
                 graph_.markedForRemoval_.end() )
             {

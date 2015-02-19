@@ -25,7 +25,7 @@ void ProcessEvents( int numMsecs )
 }
 
 template<typename Real>
-void Display( const Matrix<Real>& A, std::string title )
+void Display( const Matrix<Real>& A, string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Display"))
 #ifdef EL_HAVE_QT5
@@ -56,7 +56,7 @@ void Display( const Matrix<Real>& A, std::string title )
 }
 
 template<typename Real>
-void Display( const Matrix<Complex<Real>>& A, std::string title )
+void Display( const Matrix<Complex<Real>>& A, string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Display"))
 #ifdef EL_HAVE_QT5
@@ -94,7 +94,7 @@ void Display( const Matrix<Complex<Real>>& A, std::string title )
 }
 
 template<typename T>
-void Display( const AbstractDistMatrix<T>& A, std::string title )
+void Display( const AbstractDistMatrix<T>& A, string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Display"))
     if( A.ColStride() == 1 && A.RowStride() == 1 )
@@ -111,7 +111,7 @@ void Display( const AbstractDistMatrix<T>& A, std::string title )
 }
 
 template<typename T>
-void Display( const AbstractBlockDistMatrix<T>& A, std::string title )
+void Display( const AbstractBlockDistMatrix<T>& A, string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Display"))
     if( A.ColStride() == 1 && A.RowStride() == 1 )
@@ -128,7 +128,7 @@ void Display( const AbstractBlockDistMatrix<T>& A, std::string title )
 }
 
 template<typename T>
-void Display( const DistMultiVec<T>& X, std::string title )
+void Display( const DistMultiVec<T>& X, string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Display [DistMultiVec]"))
     const Int commRank = mpi::Rank( X.Comm() );
@@ -144,7 +144,7 @@ void Display( const DistMultiVec<T>& X, std::string title )
     }
 }
 
-void Display( const Graph& graph, std::string title )
+void Display( const Graph& graph, string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Display [Graph]"))
 #ifdef HAVE_QT5
@@ -171,7 +171,7 @@ void Display( const Graph& graph, std::string title )
 #endif
 }
 
-void Display( const DistGraph& graph, std::string title )
+void Display( const DistGraph& graph, string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Display [DistGraph]"))
     const mpi::Comm comm = graph.Comm();
@@ -190,7 +190,7 @@ void Display( const DistGraph& graph, std::string title )
 }
 
 template<typename Real>
-void Display( const SparseMatrix<Real>& A, std::string title )
+void Display( const SparseMatrix<Real>& A, string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Print [SparseMatrix]"))
 #ifdef HAVE_QT5
@@ -219,7 +219,7 @@ void Display( const SparseMatrix<Real>& A, std::string title )
 }
 
 template<typename Real>
-void Display( const SparseMatrix<Complex<Real>>& A, std::string title )
+void Display( const SparseMatrix<Complex<Real>>& A, string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Print [SparseMatrix]"))
 #ifdef HAVE_QT5
@@ -252,7 +252,7 @@ void Display( const SparseMatrix<Complex<Real>>& A, std::string title )
 }
 
 template<typename T>
-void Display( const DistSparseMatrix<T>& A, std::string title )
+void Display( const DistSparseMatrix<T>& A, string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Print [SparseMatrix]"))
     const mpi::Comm comm = A.Comm();
@@ -271,7 +271,7 @@ void Display( const DistSparseMatrix<T>& A, std::string title )
 }
 
 void DisplayLocal
-( const DistSymmNodeInfo& info, bool beforeFact, std::string title )
+( const DistSymmNodeInfo& info, bool beforeFact, string title )
 {
     DEBUG_ONLY(CallStackEntry cse("DisplayLocal [DistSymmNodeInfo]"))
 #ifdef HAVE_QT5
@@ -338,16 +338,16 @@ void DisplayLocal
 }
 
 #define PROTO(T) \
-  template void Display( const Matrix<T>& A, std::string title ); \
+  template void Display( const Matrix<T>& A, string title ); \
   template void Display \
-  ( const AbstractDistMatrix<T>& A, std::string title ); \
+  ( const AbstractDistMatrix<T>& A, string title ); \
   template void Display \
-  ( const AbstractBlockDistMatrix<T>& A, std::string title ); \
-  template void Display( const DistMultiVec<T>& X, std::string title ); \
+  ( const AbstractBlockDistMatrix<T>& A, string title ); \
+  template void Display( const DistMultiVec<T>& X, string title ); \
   template void Display \
-  ( const SparseMatrix<T>& A, std::string title ); \
+  ( const SparseMatrix<T>& A, string title ); \
   template void Display \
-  ( const DistSparseMatrix<T>& A, std::string title );
+  ( const DistSparseMatrix<T>& A, string title );
 
 #include "El/macros/Instantiate.h"
 

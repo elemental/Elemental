@@ -191,8 +191,7 @@ void DistGraph::QueueLocalConnection( Int localSource, Int target )
       const Int capacity = Capacity();
       const Int numLocalEdges = NumLocalEdges();
       if( numLocalEdges == capacity )
-          std::cerr << "WARNING: Pushing back without first reserving space" 
-                    << std::endl;
+          cerr << "WARNING: Pushing back without first reserving space" << endl;
     )
     if( localSource < 0 || localSource >= numLocalSources_ )
         LogicError
@@ -225,7 +224,7 @@ void DistGraph::QueueLocalDisconnection( Int localSource, Int target )
         LogicError
         ("Target was out of bounds: ",target," is not in [0,",numTargets_,")");
     markedForRemoval_.insert
-    ( std::pair<Int,Int>(firstLocalSource_+localSource,target) );
+    ( pair<Int,Int>(firstLocalSource_+localSource,target) );
     consistent_ = false;
 }
 
@@ -240,10 +239,10 @@ void DistGraph::MakeConsistent()
     {
         const Int numLocalEdges = sources_.size();
         Int numRemoved = 0;
-        std::vector<std::pair<Int,Int>> pairs( numLocalEdges );
+        vector<pair<Int,Int>> pairs( numLocalEdges );
         for( Int e=0; e<numLocalEdges; ++e )
         {
-            std::pair<Int,Int> candidate(sources_[e],targets_[e]);
+            pair<Int,Int> candidate(sources_[e],targets_[e]);
             if( markedForRemoval_.find(candidate) == markedForRemoval_.end() )
             {
                 pairs[e-numRemoved].first = sources_[e];
@@ -305,7 +304,7 @@ Int DistGraph::NumLocalEdges() const
 Int DistGraph::Capacity() const
 {
     DEBUG_ONLY(CallStackEntry cse("DistGraph::Capacity"))
-    return std::min(sources_.capacity(),targets_.capacity());
+    return Min(sources_.capacity(),targets_.capacity());
 }
 
 bool DistGraph::Consistent() const { return consistent_; }
@@ -369,7 +368,7 @@ const Int* DistGraph::LockedTargetBuffer() const { return targets_.data(); }
 // ==================
 
 bool DistGraph::ComparePairs
-( const std::pair<Int,Int>& a, const std::pair<Int,Int>& b )
+( const pair<Int,Int>& a, const pair<Int,Int>& b )
 { return a.first < b.first || (a.first == b.first && a.second < b.second); }
 
 void DistGraph::ComputeEdgeOffsets()

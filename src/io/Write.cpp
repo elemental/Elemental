@@ -20,7 +20,7 @@ namespace El {
 template<typename T>
 void Write
 ( const Matrix<T>& A, 
-  std::string basename, FileFormat format, std::string title )
+  string basename, FileFormat format, string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Write"))
     switch( format )
@@ -46,7 +46,7 @@ void Write
 template<typename T>
 void Write
 ( const AbstractDistMatrix<T>& A, 
-  std::string basename, FileFormat format, std::string title )
+  string basename, FileFormat format, string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Write"))
     if( A.ColStride() == 1 && A.RowStride() == 1 )
@@ -65,7 +65,7 @@ void Write
 template<typename T>
 void Write
 ( const AbstractBlockDistMatrix<T>& A, 
-  std::string basename, FileFormat format, std::string title )
+  string basename, FileFormat format, string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Write"))
     if( A.ColStride() == 1 && A.RowStride() == 1 )
@@ -84,13 +84,13 @@ void Write
 #define PROTO(T) \
   template void Write \
   ( const Matrix<T>& A, \
-    std::string basename, FileFormat format, std::string title ); \
+    string basename, FileFormat format, string title ); \
   template void Write \
   ( const AbstractDistMatrix<T>& A, \
-    std::string basename, FileFormat format, std::string title ); \
+    string basename, FileFormat format, string title ); \
   template void Write \
   ( const AbstractBlockDistMatrix<T>& A, \
-    std::string basename, FileFormat format, std::string title );
+    string basename, FileFormat format, string title );
 
 #include "El/macros/Instantiate.h"
 

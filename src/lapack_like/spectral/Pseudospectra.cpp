@@ -43,7 +43,7 @@ Matrix<Int> TriangularSpectralCloud
     {
         Matrix<Int> itCounts;
         if( psCtrl.progress )
-            std::cout << "Matrix was numerically normal" << std::endl;
+            cout << "Matrix was numerically normal" << endl;
         auto w = GetDiagonal(U);
         if( psCtrl.norm == PS_TWO_NORM )
             pspec::Analytic( w, shifts, invNorms, psCtrl.snapCtrl );
@@ -94,7 +94,7 @@ Matrix<Int> TriangularSpectralCloud
     {
         Matrix<Int> itCounts;
         if( psCtrl.progress )
-            std::cout << "Matrix was numerically normal" << std::endl;
+            cout << "Matrix was numerically normal" << endl;
         auto w = GetDiagonal(U);
         if( psCtrl.norm == PS_TWO_NORM )
             pspec::Analytic( w, shifts, invNorms, psCtrl.snapCtrl );
@@ -142,7 +142,7 @@ Matrix<Int> QuasiTriangularSpectralCloud
     {
         Matrix<Int> itCounts;
         if( psCtrl.progress )
-            std::cout << "Matrix was numerically normal" << std::endl;
+            cout << "Matrix was numerically normal" << endl;
         const auto w = schur::QuasiTriangEig( U );
         if( psCtrl.norm == PS_TWO_NORM )
             pspec::Analytic( w, shifts, invNorms, psCtrl.snapCtrl );
@@ -175,7 +175,7 @@ Matrix<Int> QuasiTriangularSpectralCloud
     {
         Matrix<Int> itCounts;
         if( psCtrl.progress )
-            std::cout << "Matrix was numerically normal" << std::endl;
+            cout << "Matrix was numerically normal" << endl;
         auto w = schur::QuasiTriangEig( U );
         if( psCtrl.norm == PS_TWO_NORM )
             pspec::Analytic( w, shifts, invNorms, psCtrl.snapCtrl );
@@ -289,7 +289,7 @@ DistMatrix<Int,VR,STAR> TriangularSpectralCloud
     {
         DistMatrix<Int,VR,STAR> itCounts(g);
         if( psCtrl.progress && g.Rank() == 0 )
-            std::cout << "Matrix was numerically normal" << std::endl;
+            cout << "Matrix was numerically normal" << endl;
         auto w = GetDiagonal(U);
         if( psCtrl.norm == PS_TWO_NORM )
             pspec::Analytic( w, shifts, invNorms, psCtrl.snapCtrl );
@@ -345,7 +345,7 @@ DistMatrix<Int,VR,STAR> TriangularSpectralCloud
     {
         DistMatrix<Int,VR,STAR> itCounts(g);
         if( psCtrl.progress && g.Rank() == 0 )
-            std::cout << "Matrix was numerically normal" << std::endl;
+            cout << "Matrix was numerically normal" << endl;
         auto w = GetDiagonal(U);
         if( psCtrl.norm == PS_TWO_NORM )
             pspec::Analytic( w, shifts, invNorms, psCtrl.snapCtrl );
@@ -404,7 +404,7 @@ DistMatrix<Int,VR,STAR> QuasiTriangularSpectralCloud
     {
         DistMatrix<Int,VR,STAR> itCounts(g);
         if( psCtrl.progress && g.Rank() == 0 )
-            std::cout << "Matrix was numerically normal" << std::endl;
+            cout << "Matrix was numerically normal" << endl;
         auto w = schur::QuasiTriangEig( U );
         if( psCtrl.norm == PS_TWO_NORM )
             pspec::Analytic( w, shifts, invNorms, psCtrl.snapCtrl );
@@ -447,7 +447,7 @@ DistMatrix<Int,VR,STAR> QuasiTriangularSpectralCloud
     {
         DistMatrix<Int,VR,STAR> itCounts(g);
         if( psCtrl.progress && g.Rank() == 0 )
-            std::cout << "Matrix was numerically normal" << std::endl;
+            cout << "Matrix was numerically normal" << endl;
         auto w = schur::QuasiTriangEig( U );
         if( psCtrl.norm == PS_TWO_NORM )
             pspec::Analytic( w, shifts, invNorms, psCtrl.snapCtrl );
@@ -1356,23 +1356,21 @@ Matrix<Int> TriangularSpectralPortrait
     {
         width = 1;
         if( psCtrl.progress )
-            std::cout << "Setting width to 1 to handle zero matrix" 
-                      << std::endl;
+            cout << "Setting width to 1 to handle zero matrix" << endl;
     }
     else if( radius >= 0.2*oneNorm )
     {
         width = 2.5*radius;
         if( psCtrl.progress )
-            std::cout << "Setting width to " << width 
-                      << " based on the spectral radius, " << radius 
-                      << std::endl;
+            cout << "Setting width to " << width 
+                 << " based on the spectral radius, " << radius << endl;
     }
     else
     {
         width = 0.8*oneNorm;
         if( psCtrl.progress )
-            std::cout << "Setting width to " << width 
-                      << " based on the one norm, " << oneNorm << std::endl;
+            cout << "Setting width to " << width 
+                 << " based on the one norm, " << oneNorm << endl;
     }
     Complex<Real> center(0,0);
 
@@ -1404,23 +1402,21 @@ Matrix<Int> TriangularSpectralPortrait
     {
         width = 1;
         if( psCtrl.progress )
-            std::cout << "Setting width to 1 to handle zero matrix" 
-                      << std::endl;
+            cout << "Setting width to 1 to handle zero matrix" << endl;
     }
     else if( radius >= oneNorm/5 )
     {
         width = 2.5*radius;
         if( psCtrl.progress )
-            std::cout << "Setting width to " << width 
-                      << " based on the spectral radius, " << radius 
-                      << std::endl;
+            cout << "Setting width to " << width 
+                 << " based on the spectral radius, " << radius << endl;
     }
     else
     {
         width = 0.8*oneNorm;
         if( psCtrl.progress )
-            std::cout << "Setting width to " << width 
-                      << " based on the one norm, " << oneNorm << std::endl;
+            cout << "Setting width to " << width 
+                 << " based on the one norm, " << oneNorm << endl;
     }
     Complex<Real> center(0,0);
 
@@ -1454,23 +1450,21 @@ Matrix<Int> QuasiTriangularSpectralPortrait
     {
         width = 1;
         if( psCtrl.progress )
-            std::cout << "Setting width to 1 to handle zero matrix" 
-                      << std::endl;
+            cout << "Setting width to 1 to handle zero matrix" << endl;
     }
     else if( radius >= 0.2*oneNorm )
     {
         width = 2.5*radius;
         if( psCtrl.progress )
-            std::cout << "Setting width to " << width 
-                      << " based on the spectral radius, " << radius 
-                      << std::endl;
+            cout << "Setting width to " << width 
+                 << " based on the spectral radius, " << radius << endl;
     }
     else
     {
         width = 0.8*oneNorm;
         if( psCtrl.progress )
-            std::cout << "Setting width to " << width 
-                      << " based on the one norm, " << oneNorm << std::endl;
+            cout << "Setting width to " << width 
+                 << " based on the one norm, " << oneNorm << endl;
     }
     Complex<Real> center(0,0);
 
@@ -1503,23 +1497,21 @@ Matrix<Int> QuasiTriangularSpectralPortrait
     {
         width = 1;
         if( psCtrl.progress )
-            std::cout << "Setting width to 1 to handle zero matrix" 
-                      << std::endl;
+            cout << "Setting width to 1 to handle zero matrix" << endl;
     }
     else if( radius >= 0.2*oneNorm )
     {
         width = 2.5*radius;
         if( psCtrl.progress )
-            std::cout << "Setting width to " << width 
-                      << " based on the spectral radius, " << radius 
-                      << std::endl;
+            cout << "Setting width to " << width 
+                 << " based on the spectral radius, " << radius << endl;
     }
     else
     {
         width = 0.8*oneNorm;
         if( psCtrl.progress )
-            std::cout << "Setting width to " << width 
-                      << " based on the one norm, " << oneNorm << std::endl;
+            cout << "Setting width to " << width 
+                 << " based on the one norm, " << oneNorm << endl;
     }
     Complex<Real> center(0,0);
 
@@ -1547,16 +1539,15 @@ Matrix<Int> HessenbergSpectralPortrait
     {
         width = 1;
         if( psCtrl.progress )
-            std::cout << "Setting width to 1 to handle zero matrix" 
-                      << std::endl;
+            cout << "Setting width to 1 to handle zero matrix" << endl;
     }
     else
     {
         width = 0.8*Max(oneNorm,infNorm);
         if( psCtrl.progress )
-            std::cout << "Setting width to " << width 
-                      << " based on the one norm, " << oneNorm 
-                      << ", and infinity norm, " << infNorm << std::endl;
+            cout << "Setting width to " << width 
+                 << " based on the one norm, " << oneNorm 
+                 << ", and infinity norm, " << infNorm << endl;
     }
     Complex<Real> center(0,0);
 
@@ -1583,16 +1574,15 @@ Matrix<Int> HessenbergSpectralPortrait
     {
         width = 1;
         if( psCtrl.progress )
-            std::cout << "Setting width to 1 to handle zero matrix" 
-                      << std::endl;
+            cout << "Setting width to 1 to handle zero matrix" << endl;
     }
     else
     {
         width = 0.8*Max(oneNorm,infNorm);
         if( psCtrl.progress )
-            std::cout << "Setting width to " << width 
-                      << " based on the one norm, " << oneNorm 
-                      << ", and infinity norm, " << infNorm << std::endl;
+            cout << "Setting width to " << width 
+                 << " based on the one norm, " << oneNorm 
+                 << ", and infinity norm, " << infNorm << endl;
     }
     Complex<Real> center(0,0);
 
@@ -1631,23 +1621,21 @@ DistMatrix<Int> TriangularSpectralPortrait
     {
         width = 1;
         if( psCtrl.progress && g.Rank() == 0 )
-            std::cout << "Setting width to 1 to handle zero matrix"
-                      << std::endl;
+            cout << "Setting width to 1 to handle zero matrix" << endl;
     }
     else if( radius >= 0.2*oneNorm )
     {
         width = 2.5*radius;
         if( psCtrl.progress && g.Rank() == 0 )
-            std::cout << "Setting width to " << width 
-                      << " based on the spectral radius, " << radius 
-                      << std::endl;
+            cout << "Setting width to " << width 
+                 << " based on the spectral radius, " << radius << endl;
     }
     else
     {
         width = 0.8*oneNorm;
         if( psCtrl.progress && g.Rank() == 0 )
-            std::cout << "Setting width to " << width
-                      << " based on the one norm, " << oneNorm << std::endl;
+            cout << "Setting width to " << width
+                 << " based on the one norm, " << oneNorm << endl;
     }
     Complex<Real> center(0,0);
 
@@ -1685,23 +1673,21 @@ DistMatrix<Int> TriangularSpectralPortrait
     {
         width = 1;
         if( psCtrl.progress && g.Rank() == 0 )
-            std::cout << "Setting width to 1 to handle zero matrix"
-                      << std::endl;
+            cout << "Setting width to 1 to handle zero matrix" << endl;
     }
     else if( radius >= 0.2*oneNorm )
     {
         width = 2.5*radius;
         if( psCtrl.progress && g.Rank() == 0 )
-            std::cout << "Setting width to " << width 
-                      << " based on the spectral radius, " << radius 
-                      << std::endl;
+            cout << "Setting width to " << width 
+                 << " based on the spectral radius, " << radius << endl;
     }
     else
     {
         width = 0.8*oneNorm;
         if( psCtrl.progress && g.Rank() == 0 )
-            std::cout << "Setting width to " << width
-                      << " based on the one norm, " << oneNorm << std::endl;
+            cout << "Setting width to " << width
+                 << " based on the one norm, " << oneNorm << endl;
     }
     Complex<Real> center(0,0);
 
@@ -1740,23 +1726,21 @@ DistMatrix<Int> QuasiTriangularSpectralPortrait
     {
         width = 1;
         if( psCtrl.progress && g.Rank() == 0 )
-            std::cout << "Setting width to 1 to handle zero matrix"
-                      << std::endl;
+            cout << "Setting width to 1 to handle zero matrix" << endl;
     }
     else if( radius >= 0.2*oneNorm )
     {
         width = 2.5*radius;
         if( psCtrl.progress && g.Rank() == 0 )
-            std::cout << "Setting width to " << width 
-                      << " based on the spectral radius, " << radius 
-                      << std::endl;
+            cout << "Setting width to " << width 
+                 << " based on the spectral radius, " << radius << endl;
     }
     else
     {
         width = 0.8*oneNorm;
         if( psCtrl.progress && g.Rank() == 0 )
-            std::cout << "Setting width to " << width
-                      << " based on the one norm, " << oneNorm << std::endl;
+            cout << "Setting width to " << width
+                 << " based on the one norm, " << oneNorm << endl;
     }
     Complex<Real> center(0,0);
 
@@ -1794,23 +1778,21 @@ DistMatrix<Int> QuasiTriangularSpectralPortrait
     {
         width = 1;
         if( psCtrl.progress && g.Rank() == 0 )
-            std::cout << "Setting width to 1 to handle zero matrix"
-                      << std::endl;
+            cout << "Setting width to 1 to handle zero matrix" << endl;
     }
     else if( radius >= 0.2*oneNorm )
     {
         width = 2.5*radius;
         if( psCtrl.progress && g.Rank() == 0 )
-            std::cout << "Setting width to " << width 
-                      << " based on the spectral radius, " << radius 
-                      << std::endl;
+            cout << "Setting width to " << width 
+                 << " based on the spectral radius, " << radius << endl;
     }
     else
     {
         width = 0.8*oneNorm;
         if( psCtrl.progress && g.Rank() == 0 )
-            std::cout << "Setting width to " << width
-                      << " based on the one norm, " << oneNorm << std::endl;
+            cout << "Setting width to " << width
+                 << " based on the one norm, " << oneNorm << endl;
     }
     Complex<Real> center(0,0);
 
@@ -1838,16 +1820,15 @@ DistMatrix<Int> HessenbergSpectralPortrait
     {
         width = 1;
         if( psCtrl.progress && H.Grid().Rank() == 0 )
-            std::cout << "Setting width to 1 to handle zero matrix"
-                      << std::endl;
+            cout << "Setting width to 1 to handle zero matrix" << endl;
     }
     else
     {
         width = 0.8*Max(oneNorm,infNorm);
         if( psCtrl.progress && H.Grid().Rank() == 0 )
-            std::cout << "Setting width to " << width 
-                      << " based on the one norm, " << oneNorm 
-                      << ", and infinity norm, " << infNorm << std::endl;
+            cout << "Setting width to " << width 
+                 << " based on the one norm, " << oneNorm 
+                 << ", and infinity norm, " << infNorm << endl;
     }
     Complex<Real> center(0,0);
 
@@ -1875,16 +1856,15 @@ DistMatrix<Int> HessenbergSpectralPortrait
     {
         width = 1;
         if( psCtrl.progress && H.Grid().Rank() == 0 )
-            std::cout << "Setting width to 1 to handle zero matrix"
-                      << std::endl;
+            cout << "Setting width to 1 to handle zero matrix" << endl;
     }
     else
     {
         width = 0.8*Max(oneNorm,infNorm);
         if( psCtrl.progress && H.Grid().Rank() == 0 )
-            std::cout << "Setting width to " << width 
-                      << " based on the one norm, " << oneNorm 
-                      << ", and infinity norm, " << infNorm << std::endl;
+            cout << "Setting width to " << width 
+                 << " based on the one norm, " << oneNorm 
+                 << ", and infinity norm, " << infNorm << endl;
     }
     Complex<Real> center(0,0);
 

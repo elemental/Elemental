@@ -16,7 +16,7 @@
 namespace El {
 
 template<typename T>
-void Spy( const Matrix<T>& A, std::string title, Base<T> tol )
+void Spy( const Matrix<T>& A, string title, Base<T> tol )
 {
     DEBUG_ONLY(CallStackEntry cse("Spy"))
 #ifdef EL_HAVE_QT5
@@ -44,7 +44,7 @@ void Spy( const Matrix<T>& A, std::string title, Base<T> tol )
 }
 
 template<typename T>
-void Spy( const AbstractDistMatrix<T>& A, std::string title, Base<T> tol )
+void Spy( const AbstractDistMatrix<T>& A, string title, Base<T> tol )
 {
     DEBUG_ONLY(CallStackEntry cse("Spy"))
 #ifdef EL_HAVE_QT5
@@ -67,7 +67,7 @@ void Spy( const AbstractDistMatrix<T>& A, std::string title, Base<T> tol )
 }
 
 template<typename T>
-void Spy( const AbstractBlockDistMatrix<T>& A, std::string title, Base<T> tol )
+void Spy( const AbstractBlockDistMatrix<T>& A, string title, Base<T> tol )
 {
     DEBUG_ONLY(CallStackEntry cse("Spy"))
 #ifdef EL_HAVE_QT5
@@ -90,11 +90,11 @@ void Spy( const AbstractBlockDistMatrix<T>& A, std::string title, Base<T> tol )
 }
 
 #define PROTO(T) \
-  template void Spy ( const Matrix<T>& A, std::string title, Base<T> tol ); \
+  template void Spy ( const Matrix<T>& A, string title, Base<T> tol ); \
   template void Spy \
-  ( const AbstractDistMatrix<T>& A, std::string title, Base<T> tol ); \
+  ( const AbstractDistMatrix<T>& A, string title, Base<T> tol ); \
   template void Spy \
-  ( const AbstractBlockDistMatrix<T>& A, std::string title, Base<T> tol ); 
+  ( const AbstractBlockDistMatrix<T>& A, string title, Base<T> tol ); 
 
 #include "El/macros/Instantiate.h"
 

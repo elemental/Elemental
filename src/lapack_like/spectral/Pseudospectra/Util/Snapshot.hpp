@@ -55,7 +55,7 @@ Snapshot
         }
         if( numSave )
         {
-            std::ostringstream os;
+            ostringstream os;
             os << snapCtrl.numBase << "-" << numIts;
             Write( estMap, os.str(), snapCtrl.numFormat );
             if( snapCtrl.itCounts )
@@ -63,10 +63,10 @@ Snapshot
             snapCtrl.numSaveCount = 0;
         }
         if( imgSave || imgDisp )
-            EntrywiseMap( estMap, std::function<Real(Real)>(logMap) );
+            EntrywiseMap( estMap, function<Real(Real)>(logMap) );
         if( imgSave )
         {
-            std::ostringstream os;
+            ostringstream os;
             os << snapCtrl.imgBase << "-" << numIts;
             Write( estMap, os.str(), snapCtrl.imgFormat );
             if( snapCtrl.itCounts )
@@ -79,7 +79,7 @@ Snapshot
         }
         if( imgDisp )
         {
-            std::ostringstream os;
+            ostringstream os;
             os << snapCtrl.imgBase << "-" << numIts;
             Display( estMap, os.str() );       
             if( snapCtrl.itCounts )
@@ -118,16 +118,16 @@ FinalSnapshot
         }
         if( numSave )
         {
-            std::string base = snapCtrl.numBase;
+            string base = snapCtrl.numBase;
             Write( estMap, base, snapCtrl.numFormat );
             if( snapCtrl.itCounts )
                 Write( itCountMap, base+"-counts", snapCtrl.numFormat );
         }
         if( imgSave || imgDisp )
-            EntrywiseMap( estMap, std::function<Real(Real)>(logMap) );
+            EntrywiseMap( estMap, function<Real(Real)>(logMap) );
         if( imgSave )
         {
-            std::string base = snapCtrl.imgBase;
+            string base = snapCtrl.imgBase;
             Write( estMap, base, snapCtrl.imgFormat );
             if( snapCtrl.itCounts )
                 Write( itCountMap, base+"-counts", snapCtrl.imgFormat );
@@ -138,7 +138,7 @@ FinalSnapshot
         }
         if( imgDisp )
         {
-            std::string base = snapCtrl.imgBase;
+            string base = snapCtrl.imgBase;
             Display( estMap, base );       
             if( snapCtrl.itCounts )
                 Display( itCountMap, base+"-counts" );
@@ -194,7 +194,7 @@ Snapshot
         }
         if( numSave )
         {
-            std::ostringstream os;
+            ostringstream os;
             os << snapCtrl.numBase << "-" << numIts;
             Write( estMap, os.str(), snapCtrl.numFormat );
             if( snapCtrl.itCounts )
@@ -202,10 +202,10 @@ Snapshot
             snapCtrl.numSaveCount = 0;
         }
         if( imgSave || imgDisp )
-            EntrywiseMap( estMap, std::function<Real(Real)>(logMap) );
+            EntrywiseMap( estMap, function<Real(Real)>(logMap) );
         if( imgSave )
         {
-            std::ostringstream os;
+            ostringstream os;
             os << snapCtrl.imgBase << "-" << numIts;
             Write( estMap, os.str(), snapCtrl.imgFormat );
             if( snapCtrl.itCounts )
@@ -218,7 +218,7 @@ Snapshot
         }
         if( imgDisp )
         {
-            std::ostringstream os;
+            ostringstream os;
             os << snapCtrl.imgBase << "-" << numIts;
             Display( estMap, os.str() );
             if( snapCtrl.itCounts )
@@ -258,16 +258,16 @@ FinalSnapshot
         }
         if( numSave )
         {
-            std::string base = snapCtrl.numBase;
+            string base = snapCtrl.numBase;
             Write( estMap, base, snapCtrl.numFormat );
             if( snapCtrl.itCounts )
                 Write( itCountMap, base+"-counts", snapCtrl.numFormat );
         }
         if( imgSave || imgDisp )
-            EntrywiseMap( estMap, std::function<Real(Real)>(logMap) );
+            EntrywiseMap( estMap, function<Real(Real)>(logMap) );
         if( imgSave )
         {
-            std::string base = snapCtrl.imgBase;
+            string base = snapCtrl.imgBase;
             Write( estMap, base, snapCtrl.imgFormat );
             if( snapCtrl.itCounts )
                 Write( itCountMap, base+"-counts", snapCtrl.imgFormat );
@@ -278,7 +278,7 @@ FinalSnapshot
         }
         if( imgDisp )
         {
-            std::string base = snapCtrl.imgBase;
+            string base = snapCtrl.imgBase;
             Display( estMap, base );           
             if( snapCtrl.itCounts )
                 Display( itCountMap, base+"-counts" );
