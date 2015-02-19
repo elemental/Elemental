@@ -1047,7 +1047,7 @@ void HessenbergSchur
     }
     // Combine the real and imaginary components of the eigenvalues
     for( int j=0; j<n; ++j )
-        w[j] = complex<float>(wr[j],wi[j]);
+        w[j] = std::complex<float>(wr[j],wi[j]);
 }
 
 void HessenbergSchur
@@ -1122,7 +1122,7 @@ void HessenbergSchur
     }
     // Combine the real and imaginary components of the eigenvalues
     for( int j=0; j<n; ++j )
-        w[j] = complex<double>(wr[j],wi[j]);
+        w[j] = std::complex<double>(wr[j],wi[j]);
 }
 
 void HessenbergSchur
@@ -1269,7 +1269,7 @@ void HessenbergSchur
     }
     // Combine the real and imaginary components of the eigenvalues
     for( int j=0; j<n; ++j )
-        w[j] = complex<float>(wr[j],wi[j]);
+        w[j] = std::complex<float>(wr[j],wi[j]);
 }
 
 void HessenbergSchur
@@ -1348,7 +1348,7 @@ void HessenbergSchur
     }
     // Combine the real and imaginary components of the eigenvalues
     for( int j=0; j<n; ++j )
-        w[j] = complex<double>(wr[j],wi[j]);
+        w[j] = std::complex<double>(wr[j],wi[j]);
 }
 
 void HessenbergSchur
