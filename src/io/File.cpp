@@ -69,7 +69,7 @@ FileFormat DetectFormat( const string filename )
     return FormatFromExtension( ext );
 }
 
-std::ifstream::pos_type FileSize( ifstream& file )
+std::ifstream::pos_type FileSize( std::ifstream& file )
 {
     auto pos = file.tellg();
     file.seekg( 0, std::ifstream::end );
