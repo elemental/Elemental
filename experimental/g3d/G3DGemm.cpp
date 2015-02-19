@@ -56,7 +56,7 @@ void InitB( DistMatrix<double>& B, bool print )
     if( depthRank == 0 )
     {
         if( B.LocalHeight() != B.LDim() )
-            throw std::logic_error("Ldim of B was too large");
+            LogicError("Ldim of B was too large");
 
         double* localBuffer = B.Buffer();
         const int localSize = B.LocalHeight()*B.LocalWidth();
@@ -113,7 +113,7 @@ void DepthBroadcast
 
     const int localSize = A.LocalHeight()*A.LocalWidth();
     if( A.LocalHeight() != A.LDim() )
-        throw std::logic_error("Leading dimension did not match local height");
+        LogicError("Leading dimension did not match local height");
 
     B.Empty();
     B.AlignWith( A );
@@ -149,7 +149,7 @@ void DistributeCols
     // For now, we will make B as large as A...
     // TODO: NOT DO THIS
     if( A.LocalHeight() != A.LDim() )
-        throw std::logic_error("Local height did not match ldim");
+        LogicError("Local height did not match ldim");
     B.Empty();
     B.AlignWith( A );
     Zeros( B, A.Height(), A.Width() );
@@ -182,7 +182,7 @@ void DistributeRows
     const int recvCount = sendCount / depthSize;
 
     // Have the root mesh pack the data for scattering
-    std::vector<double> sendBuf;
+    vector<double> sendBuf;
     const int blockSize = A.Height() / depthSize;
     if( depthRank == 0 )
     {
@@ -222,7 +222,7 @@ void DistributeRows
     }
 
     // Scatter the packed data
-    std::vector<double> recvBuf( recvCount );
+    vector<double> recvBuf( recvCount );
     mpi::Scatter
     ( &sendBuf[0], recvCount, &recvBuf[0], recvCount, 0, depthComm );
 
@@ -241,7 +241,7 @@ void DistributeRows
     DistMatrix<double> dataBlockTrans( meshGrid );
     Transpose( dataBlock, dataBlockTrans );
 
-    std::vector<double> newData( sendCount );
+    vector<double> newData( sendCount );
     MemZero( &newData[0], sendCount );
     const int offset = depthRank*recvCount;
 
@@ -296,7 +296,7 @@ void InitializeMatrices
         CopyOrReset( C, COut );
         break;
     default:
-        throw std::logic_error("Unknown stationary type");
+        LogicError("Unknown stationary type");
     }
 }
 
@@ -310,10 +310,9 @@ void SumContributions
     A.Resize( APartial.Height(), APartial.Width() );
 
     if( APartial.LocalHeight() != APartial.LDim() )
-        throw std::logic_error
-        ("APartial did not have matching local height/ldim");
+        LogicError("APartial did not have matching local height/ldim");
     if( A.LocalHeight() != A.LDim() )
-        throw std::logic_error("A did not have matching local height/ldim");
+        LogicError("A did not have matching local height/ldim");
 
     const int dataSize = APartial.LocalHeight()*APartial.LocalWidth();
     mpi::AllReduce
@@ -345,15 +344,15 @@ int main( int argc, char* argv[] )
             n % r != 0 || n % c != 0 || n % depth != 0 )
         {
             if( commRank == 0 )
-                std::cout << "Dimensions of matrices must be multiples of "
-                             "grid dimensions (for now)" << std::endl;
+                cout << "Dimensions of matrices must be multiples of "
+                        "grid dimensions (for now)" << endl;
             Finalize();
             return 0;
         }
         if( type < 'A' || type > 'C' )
         {
             if( commRank == 0 )
-                std::cout << "Algorithm must be 'A', 'B', or 'C'" << std::endl;
+                cout << "Algorithm must be 'A', 'B', or 'C'" << endl;
             Finalize();
             return 0;
         }
@@ -361,11 +360,11 @@ int main( int argc, char* argv[] )
         DEBUG_ONLY(
             if( commRank == 0 )
             {
-                std::cout 
-                     << "==========================================\n"
-                     << " In debug mode! Performance will be poor! \n"
-                     << "==========================================" 
-                     << std::endl;
+                cout 
+                  << "==========================================\n"
+                  << " In debug mode! Performance will be poor! \n"
+                  << "==========================================" 
+                  << endl;
             }
         )
 
@@ -389,8 +388,7 @@ int main( int argc, char* argv[] )
         mpi::Barrier( comm );
         const double stopTime = mpi::Time();
         if( commRank == 0 )
-            std::cout << "Runtime: " << stopTime-startTime << " seconds" 
-                      << std::endl;
+            cout << "Runtime: " << stopTime-startTime << " seconds" << endl;
 
         if( depthRank == 0 && print )
             Print( C, "C" );

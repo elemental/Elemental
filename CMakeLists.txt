@@ -1,6 +1,8 @@
 #
-#  Copyright (c) 2009-2015, Jack Poulson
-#                     2012, Jed Brown 
+#  Copyright 2009-2015, Jack Poulson
+#  All rights reserved.
+#
+#  Copyright 2012, Jed Brown
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -20,114 +22,98 @@ project(Elemental)
 set(EL_VERSION_MAJOR 0)
 set(EL_VERSION_MINOR 86-dev)
 
-################################################################################
-# Common build options                                                         #
-################################################################################
+# Configuration options
+# =====================
 
-# By default, Elemental builds static libraries, but shared libraries are 
-# also supported through this option.
+# Basic options
+# -------------
+
+# "CMAKE_BUILD_TYPE"
+#   Elemental requires it to be one of the following choices:
+#     1. "PureDebug": Vanilla MPI build meant for development and debugging
+#     2. "PureRelease": Vanilla MPI build meant for production runs
+#     3. "HybridDebug": MPI+OpenMP build meant for development and debugging
+#     4. "HybridRelease": MPI+OpenMP build meant for production runs
+#   If "CMAKE_BUILD_TYPE" is not defined, the default is "PureRelease".
+
+# "CXX_FLAGS"
+#   Optimization and debugging/symbol flags
+
+# "OpenMP_CXX_FLAGS"
+#   Overrides the default compile flags for adding OpenMP support to CXX code
+
+# TODO: Add list of MPI variables here, such as "MPI_CXX_COMPILE_FLAGS"
+
+# TODO: Add discussion of "MATH_LIBS" and "REFERENCE_ROOT"
+
 option(BUILD_SHARED_LIBS "Build shared libraries?" ON)
-if(BUILD_SHARED_LIBS AND WIN32)
-  option(EL_DECLSPEC "Use __declspec(dllexport)?" ON)
-else()
-  option(EL_DECLSPEC "Use __declspec(dllexport)?" OFF)
+
+option(EL_C_INTERFACE "Build C interface" ON)
+if(BUILD_SHARED_LIBS AND EL_C_INTERFACE)
+  # Define PYTHON_SITE_PACKAGES if you want to install the python package
+  # somewhere other than the default system-wide location (e.g., within your
+  # home directory)
+  option(INSTALL_PYTHON_PACKAGE "Install python interface?" TRUE)
 endif()
 
-# Whether or not to build a collection of simple example drivers.
-option(EL_EXAMPLES "A collection of simple examples" OFF)
+# Whether or not to use Qt5 for visualization if it is found.
+# Setting Qt5Widgets_DIR, Qt5_DIR, or Qt5_LIBDIR overrides this variable
+# and is often necessary anyway.
+option(EL_USE_QT5 "Attempt to use Qt5?" OFF)
 
-# Whether or not to build a collection of performance and correctness tests
-option(EL_TESTS "A collection of performance and correctness tests" OFF)
+# NOTE: This is not yet used within Elemental...
+#
+# If BUILD_KISSFFT is set to 'OFF', then an external KISSFFT can be
+# built by defining:
+#   KISSFFT_INCLUDE_DIR: The directory containing kiss_fft.h
+#   KISSFFT_LIBS: The list of KISS-FFT libraries to link
+option(BUILD_KISSFFT "Build KISS FFT" OFF)
+
+option(EL_EXAMPLES "Build simple examples?" OFF)
+option(EL_TESTS "Build performance and correctness tests?" OFF)
+option(EL_EXPERIMENTAL "Build experimental code" OFF)
 
 # Whether or not to have the Memory class zero initialize what it allocates.
 # If valgrind was detected and is running, this will be forced anyway.
 option(EL_ZERO_INIT "Initialize buffers to zero by default?" OFF)
 
-# Whether or not to build current 'experimental' code, such as:
-# Martin's 3D Gemm code
-option(EL_EXPERIMENTAL "Build experimental code" OFF)
-
-option(EL_C_INTERFACE "Build work-in-progress C interface" ON)
-
 # Attempt to use 64-bit integers
 option(EL_USE_64BIT_INTS "Use 64-bit integers where possible" OFF)
-
-# Whether or not to use Qt5 for visualization if it is found (experimental)
-# NOTE: Setting Qt5Widgets_DIR, Qt5_DIR, or Qt5_LIBDIR overrides this variable
-option(EL_USE_QT5 "Attempt to use Qt5?" OFF)
 
 option(EL_USE_CUSTOM_ALLTOALLV "Avoid MPI_Alltoallv for performance reasons" ON)
 option(EL_BARRIER_IN_ALLTOALLV "Barrier before posting non-blocking recvs" OFF)
 
-option(BUILD_KISSFFT "Build KISS FFT" ON)
-if(BUILD_KISSFFT)
-  add_subdirectory(external/kiss_fft)
-  include_directories(external/kiss_fft)
-elseif(MANUAL_KISSFFT)
-  # The following variables should be set:
-  #   KISSFFT_INCLUDE_DIR: The directory containing kiss_fft.h
-  #   KISSFFT_LIBS: The list of KISS-FFT libraries to link
-  include_directories(${KISSFFT_INCLUDE_DIR})
-endif()
-
-# NOTE: ParMETIS cannot yet be legally distributed under an unrestrictive 
-#       license and is currently limited to educational and research purposes.
-#       However, recent versions of METIS can be distributed under the Apache
-#       License Version 2.
+# If the version of METIS packaged with Elemental is to be built (the default),
+# then no METIS-specific variables need to be specified, but if the user prefers
+# to use their own version, then the root path of the installation should be
+# passed in via the METIS_ROOT variable.
 option(BUILD_METIS "Build METIS" ON)
-option(BUILD_PARMETIS "Build ParMETIS" OFF)
-if(BUILD_PARMETIS)
-  message(FATAL_ERROR "ParMETIS cannot be legally distributed with Elemental under a permissive license. A version of Elemental restricted to educational purposes which contains ParMETIS will hopefully soon be available.")
-#  add_subdirectory(external/parmetis)
-#  set(EL_HAVE_METIS TRUE)
-#  set(EL_HAVE_PARMETIS TRUE)
+
+# ParMETIS cannot yet be legally distributed under an unrestrictive 
+# license and is currently limited to educational and research purposes.
+# (recent versions of METIS can be distributed under the Apache License 
+# Version 2).
 #
-#  set(PARMETIS_ROOT ${PROJECT_SOURCE_DIR}/external/parmetis)
-#  set(METIS_ROOT ${PROJECT_SOURCE_DIR}/external/parmetis/metis)
-#  set(GKLIB_INCLUDE_DIR ${PROJECT_BINARY_DIR}/external/parmetis/include)
+# However, if the user is in an educational or government institution, then 
+# it is possible to re-enable support for ParMETIS by specifying the following
+# variables:
 #
-#  include_directories(${GKLIB_INCLUDE_DIR})
-#  include_directories(${METIS_ROOT}/include)
-#  include_directories(${PARMETIS_ROOT}/include)
-elseif(MANUAL_PARMETIS)
-  message(FATAL_ERROR "ParMETIS cannot be legally distributed with Elemental under a permissive license. A version of Elemental restricted to educational purposes which contains ParMETIS will hopefully soon be available.")
-#  # The following variables need to be specified:
-#  #   PARMETIS_TLS_PATCH: defined iff there is a GKlib configure file
-#  #   GKLIB_INCLUDE_DIR: if PARMETIS_TLS_PATCH is defined, this should point
-#  #                      to the directory containing gklib_tls.h
-#  #   METIS_ROOT: the full path to the root of the MeTiS source tree
-#  #   PARMETIS_ROOT: the full path to the root of the ParMeTiS source tree
-#  #   PARMETIS_LIBS: the list of ParMETIS libraries to link to
-#  set(EL_HAVE_METIS TRUE)
-#  set(EL_HAVE_PARMETIS TRUE)
-#  if(PARMETIS_TLS_PATCH)
-#    include_directories(${GKLIB_INCLUDE_DIR})
-#  endif()
+#   METIS_ROOT: the full path to the root of the MeTiS source tree
+#   PARMETIS_ROOT: the full path to the root of the ParMeTiS source tree
+#   PARMETIS_LIBS: the list of ParMETIS libraries to link to
+#   PARMETIS_TLS_PATCH: defined iff there is a GKlib configure file
+#                       (if you have not heard of this, ignore it)
+#   GKLIB_INCLUDE_DIR: if PARMETIS_TLS_PATCH is defined, this should point
+#                      to the directory containing gklib_tls.h
+# 
+# and adding in a custom ParMETIS routine for performing nodal bisections
+# in parallel (which was originally part of Clique and can be easily found).
+# Please contact dev@libelemental.org or poulson@stanford.edu for more details.
 #
-#  include_directories(${METIS_ROOT}/include)
-#  include_directories(${PARMETIS_ROOT}/include)
-elseif(BUILD_METIS)
-  add_subdirectory(external/metis)
+#option(BUILD_PARMETIS "Build ParMETIS" OFF)
 
-  set(METIS_ROOT ${PROJECT_SOURCE_DIR}/external/metis)
-  include_directories(${METIS_ROOT}/include)
-
-  set(EL_HAVE_METIS TRUE)
-  set(EL_HAVE_PARMETIS FALSE)
-else()
-  if(NOT MANUAL_METIS)
-    message(FATAL_ERROR 
-      "If Metis is not to be built, then MANUAL_METIS must be specified")
-  endif()
-  include_directories(${METIS_ROOT}/include)
-
-  set(EL_HAVE_METIS TRUE)
-  set(EL_HAVE_PARMETIS FALSE)
-endif()
-
-################################################################################
-# Advanced build options                                                       #
-################################################################################
+# Advanced options
+# ----------------
 
 # Since it is surprisingly common for MPI libraries to have bugs in their 
 # support for complex data, the following option forces Elemental to cast 
@@ -154,15 +140,6 @@ option(EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
        "AllReduce based block MPI_Reduce_scatter" OFF)
 mark_as_advanced(EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE)
 
-# This can easily be performed, but is likely not a good idea
-option(EL_POOL_MEMORY 
-       "Make Memory class accumulate memory until destruction" OFF)
-mark_as_advanced(EL_POOL_MEMORY)
-
-################################################################################
-# Elemental-development build options                                          #
-################################################################################
-
 # Print a warning any time a redistribution is performed which unpacks a 
 # large amount of data with a non-unit stride
 option(EL_CACHE_WARNINGS "Warns when using cache-unfriendly routines" OFF)
@@ -180,35 +157,8 @@ option(EL_VECTOR_WARNINGS
        "Warn when vector redistribution chances are missed" OFF)
 mark_as_advanced(EL_VECTOR_WARNINGS)
 
-################################################################################
-# Significant command-line variable definitions                                #
-################################################################################
-
-# "CMAKE_BUILD_TYPE"
-#   Elemental requires it to be one of the following choices:
-#     1. "PureDebug": Vanilla MPI build meant for development and debugging
-#     2. "PureRelease": Vanilla MPI build meant for production runs
-#     3. "HybridDebug": MPI+OpenMP build meant for development and debugging
-#     4. "HybridRelease": MPI+OpenMP build meant for production runs
-#   If "CMAKE_BUILD_TYPE" is not defined, the default is "PureRelease".
-
-# "CXX_FLAGS"
-#   Optimization and debugging/symbol flags
-
-# "OpenMP_CXX_FLAGS"
-#   Overrides the default compile flags for adding OpenMP support to CXX code
-
-# TODO: Add list of MPI variables here, such as "MPI_CXX_COMPILE_FLAGS"
-
-# TODO: Add discussion of "MATH_LIBS"
-
-# TODO: Add discussion of "REFERENCE_ROOT"
-
-# TODO: Check to see if there are any others...
-
-################################################################################
-# Build logic starts here                                                      #
-################################################################################
+# Build logic
+# ===========
 
 # Elemental must be built "out-of-source", so we start by ensuring that the
 # source and build directories are different.
@@ -242,13 +192,13 @@ endif()
 string(TOUPPER ${CMAKE_BUILD_TYPE} UPPER_BUILD_TYPE)
 
 # Set the basic compile flags from the build type
-if(NOT WIN32) # I forget why we need this guard
+if(NOT WIN32) 
   set(LANGUAGES CXX C Fortran)
   foreach(LANG ${LANGUAGES})
     if(NOT ${LANG}_FLAGS)
       if(EL_DEBUG)
-        set(${LANG}_FLAGS "-O2 -g -Wunused-variable -Wunused-but-set-variable -Wunused-local-typedefs" CACHE STRING
-        #set(${LANG}_FLAGS "-O2 -g" CACHE STRING
+        #set(${LANG}_FLAGS "-O2 -g -Wunused-variable -Wunused-but-set-variable -Wunused-local-typedefs" CACHE STRING
+        set(${LANG}_FLAGS "-O2 -g" CACHE STRING
           "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
       else()
         set(${LANG}_FLAGS "-O3" CACHE STRING
@@ -256,6 +206,62 @@ if(NOT WIN32) # I forget why we need this guard
       endif()
     endif()
   endforeach()
+endif()
+
+if(BUILD_PARMETIS)
+  message(FATAL_ERROR "ParMETIS cannot be legally distributed with Elemental under a permissive license. A version of Elemental restricted to educational purposes which contains ParMETIS will hopefully soon be available.")
+#  add_subdirectory(external/parmetis)
+#  set(EL_HAVE_METIS TRUE)
+#  set(EL_HAVE_PARMETIS TRUE)
+#
+#  set(PARMETIS_ROOT ${PROJECT_SOURCE_DIR}/external/parmetis)
+#  set(METIS_ROOT ${PROJECT_SOURCE_DIR}/external/parmetis/metis)
+#  set(GKLIB_INCLUDE_DIR ${PROJECT_BINARY_DIR}/external/parmetis/include)
+#
+#  include_directories(${GKLIB_INCLUDE_DIR})
+#  include_directories(${METIS_ROOT}/include)
+#  include_directories(${PARMETIS_ROOT}/include)
+elseif(METIS_ROOT AND PARMETIS_ROOT)
+  message(FATAL_ERROR "ParMETIS cannot be legally distributed with Elemental under a permissive license. A version of Elemental restricted to educational purposes which contains ParMETIS will hopefully soon be available.")
+#  set(EL_HAVE_METIS TRUE)
+#  set(EL_HAVE_PARMETIS TRUE)
+#  if(PARMETIS_TLS_PATCH)
+#    include_directories(${GKLIB_INCLUDE_DIR})
+#  endif()
+#
+#  include_directories(${METIS_ROOT}/include)
+#  include_directories(${PARMETIS_ROOT}/include)
+#  set(MANUAL_PARMETIS TRUE)
+elseif(BUILD_METIS)
+  add_subdirectory(external/metis)
+
+  set(METIS_ROOT ${PROJECT_SOURCE_DIR}/external/metis)
+  include_directories(${METIS_ROOT}/include)
+
+  set(EL_HAVE_METIS TRUE)
+else()
+  if(NOT METIS_ROOT)
+    message(FATAL_ERROR 
+      "If METIS is not to be built, then METIS_ROOT must be specified")
+  endif()
+  include_directories(${METIS_ROOT}/include)
+
+  set(EL_HAVE_METIS TRUE)
+  set(MANUAL_METIS TRUE)
+endif()
+
+if(BUILD_KISSFFT)
+  add_subdirectory(external/kiss_fft)
+  include_directories(external/kiss_fft)
+elseif(KISSFFT_INCLUDE_DIR AND KISSFFT_LIBS)
+  include_directories(${KISSFFT_INCLUDE_DIR})
+  set(MANUAL_KISSFFT TRUE)
+endif()
+
+if(BUILD_SHARED_LIBS AND WIN32)
+  option(EL_DECLSPEC "Use __declspec(dllexport)?" ON)
+else()
+  option(EL_DECLSPEC "Use __declspec(dllexport)?" OFF)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
@@ -313,9 +319,9 @@ set(MPI_CXX_LIBSTRING)
 foreach(LIB ${MPI_CXX_LIBRARIES})
   set(MPI_CXX_LIBSTRING "${MPI_CXX_LIBSTRING} ${LIB}")
 endforeach()
-set(LAPACK_ADDONSTRING)
-foreach(LIB ${LAPACK_ADDONS_LIBS})
-  set(LAPACK_ADDONSTRING "${LAPACK_ADDONSTRING} ${LIB}")
+set(METIS_LIBSTRING)
+foreach(LIB ${METIS_LIBS})
+  set(METIS_LIBSTRING "${METIS_LIBSTRING} ${LIB}")
 endforeach()
 set(QT5_DEFSTRING)
 foreach(DEF ${Qt5Widgets_DEFINITIONS})
@@ -329,6 +335,7 @@ set(QT5_COMPILESTRING)
 foreach(FLAG ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS})
   set(QT5_COMPILESTRING "${QT5_COMPILE_STRING} ${FLAG}")
 endforeach()
+# TODO: Generalize this for non-Unix architectures
 set(QT5_LIBSTRING "-L${Qt5_LIBDIR} -lQt5Widgets -lQt5Gui -lQt5Core")
 configure_file(${PROJECT_SOURCE_DIR}/cmake/ElVars.cmake
                ${PROJECT_BINARY_DIR}/conf/ElVars @ONLY)
@@ -390,8 +397,6 @@ add_custom_target(prepare_El_headers DEPENDS ${PREPARED_HEADERS})
 add_dependencies(El prepare_El_headers)
 
 if(BUILD_SHARED_LIBS)
-  # Install the python interface
-  option(INSTALL_PYTHON_PACKAGE "Install python wrappers as package" TRUE)
   if(INSTALL_PYTHON_PACKAGE)
     if(NOT PYTHON_SITE_PACKAGES)
       execute_process( 
