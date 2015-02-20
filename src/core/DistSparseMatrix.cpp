@@ -62,7 +62,7 @@ template<typename T>
 void DistSparseMatrix<T>::Resize( Int height, Int width )
 {
     distGraph_.Resize( height, width );
-    SwapClear( vals_ );
+    vals_.resize( 0 );
 }
 
 // Change the distribution
@@ -70,8 +70,10 @@ void DistSparseMatrix<T>::Resize( Int height, Int width )
 template<typename T>
 void DistSparseMatrix<T>::SetComm( mpi::Comm comm )
 { 
+    if( Comm() == comm )
+        return;
     distGraph_.SetComm( comm ); 
-    SwapClear( vals_ );
+    vals_.resize( 0 );
 }
 
 // Assembly

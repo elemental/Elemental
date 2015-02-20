@@ -89,9 +89,9 @@ void Graph::Resize( Int numSources, Int numTargets )
 {
     numSources_ = numSources;
     numTargets_ = numTargets;
-    SwapClear( sources_ );
-    SwapClear( targets_ );
-    SwapClear( edgeOffsets_ );
+    sources_.resize( 0 );
+    targets_.resize( 0 );
+    edgeOffsets_.resize( 0 );
     consistent_ = true;
 }
 

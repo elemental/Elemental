@@ -92,7 +92,7 @@ template<typename T>
 void SparseMatrix<T>::Resize( Int height, Int width )
 {
     graph_.Resize( height, width );
-    SwapClear( vals_ );
+    vals_.resize( 0 );
 }
 
 // Assembly

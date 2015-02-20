@@ -116,9 +116,11 @@ void DistGraph::Resize( Int numSources, Int numTargets )
         numLocalSources_ = blocksize_;
     else
         numLocalSources_ = numSources - (commSize-1)*blocksize_;
-    SwapClear( sources_ );
-    SwapClear( targets_ );
-    SwapClear( localEdgeOffsets_ );
+
+    sources_.resize( 0 );
+    targets_.resize( 0 );
+    localEdgeOffsets_.resize( 0 );
+
     consistent_ = true;
 }
 
@@ -126,12 +128,15 @@ void DistGraph::Resize( Int numSources, Int numTargets )
 // -----------------------
 void DistGraph::SetComm( mpi::Comm comm )
 {
+    if( comm == comm_ )
+        return;
+
     if( comm_ != mpi::COMM_WORLD )
         mpi::Free( comm_ );
 
-    SwapClear( sources_ );
-    SwapClear( targets_ );
-    SwapClear( localEdgeOffsets_ );
+    sources_.resize( 0 );
+    targets_.resize( 0 );
+    localEdgeOffsets_.resize( 0 );
     consistent_ = true;
 
     if( comm == mpi::COMM_WORLD )
