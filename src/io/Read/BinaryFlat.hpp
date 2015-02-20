@@ -18,7 +18,7 @@ inline void
 BinaryFlat( Matrix<T>& A, Int height, Int width, const string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::BinaryFlat"))
-    ifstream file( filename.c_str(), std::ios::binary );
+    std::ifstream file( filename.c_str(), std::ios::binary );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
 
@@ -42,7 +42,7 @@ BinaryFlat
 ( AbstractDistMatrix<T>& A, Int height, Int width, const string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::BinaryFlat"))
-    ifstream file( filename.c_str(), std::ios::binary );
+    std::ifstream file( filename.c_str(), std::ios::binary );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
 
@@ -101,7 +101,7 @@ BinaryFlat
 ( AbstractBlockDistMatrix<T>& A, Int height, Int width, const string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::BinaryFlat"))
-    ifstream file( filename.c_str(), std::ios::binary );
+    std::ifstream file( filename.c_str(), std::ios::binary );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
 

@@ -20,7 +20,7 @@ BinaryFlat( const Matrix<T>& A, string basename="matrix" )
     DEBUG_ONLY(CallStackEntry cse("write::BinaryFlat"))
     
     string filename = basename + "." + FileExtension(BINARY_FLAT);
-    ofstream file( filename.c_str(), std::ios::binary );
+    std::ofstream file( filename.c_str(), std::ios::binary );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
 
