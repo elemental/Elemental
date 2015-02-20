@@ -66,7 +66,7 @@ public:
 
     // Change the size of the matrix
     // -----------------------------
-    void Empty();
+    void Empty( bool clearMemory=true );
     void Resize( Int height, Int width );
 
     // Change the distribution

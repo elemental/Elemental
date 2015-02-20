@@ -36,22 +36,22 @@ void Zero( AbstractBlockDistMatrix<T>& A )
 }
 
 template<typename T>
-void Zero( SparseMatrix<T>& A )
+void Zero( SparseMatrix<T>& A, bool clearMemory )
 {
     DEBUG_ONLY(CallStackEntry cse("Zero"))
     const Int m = A.Height();
     const Int n = A.Width();
-    A.Empty();
+    A.Empty( clearMemory );
     A.Resize( m, n );
 }
 
 template<typename T>
-void Zero( DistSparseMatrix<T>& A )
+void Zero( DistSparseMatrix<T>& A, bool clearMemory )
 {
     DEBUG_ONLY(CallStackEntry cse("Zero"))
     const Int m = A.Height();
     const Int n = A.Width();
-    A.Empty();
+    A.Empty( clearMemory );
     A.Resize( m, n );
 }
 
@@ -70,8 +70,8 @@ void Zero( DistMultiVec<T>& X )
   template void Zero( Matrix<T>& A ); \
   template void Zero( AbstractDistMatrix<T>& A ); \
   template void Zero( AbstractBlockDistMatrix<T>& A ); \
-  template void Zero( SparseMatrix<T>& A ); \
-  template void Zero( DistSparseMatrix<T>& A ); \
+  template void Zero( SparseMatrix<T>& A, bool clearMemory ); \
+  template void Zero( DistSparseMatrix<T>& A, bool clearMemory ); \
   template void Zero( DistMultiVec<T>& A );
 
 #include "El/macros/Instantiate.h"

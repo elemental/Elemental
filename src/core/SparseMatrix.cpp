@@ -79,10 +79,13 @@ SparseMatrix<T>::operator=( const DistSparseMatrix<T>& A )
 // Change the size of the matrix
 // -----------------------------
 template<typename T>
-void SparseMatrix<T>::Empty()
+void SparseMatrix<T>::Empty( bool clearMemory )
 {
-    graph_.Empty();
-    SwapClear( vals_ );
+    graph_.Empty( clearMemory );
+    if( clearMemory )
+        SwapClear( vals_ );
+    else
+        vals_.resize( 0 );
 }
 
 template<typename T>

@@ -79,17 +79,26 @@ const DistGraph& DistGraph::operator=( const DistGraph& graph )
 
 // Change the graph size
 // ---------------------
-void DistGraph::Empty()
+void DistGraph::Empty( bool clearMemory )
 {
     numSources_ = 0;
     numTargets_ = 0;
     firstLocalSource_ = 0;
     numLocalSources_ = 0;
     blocksize_ = 0;
-    SwapClear( sources_ );
-    SwapClear( targets_ );
-    SwapClear( localEdgeOffsets_ );
     consistent_ = true;
+    if( clearMemory )
+    {
+        SwapClear( sources_ );
+        SwapClear( targets_ );
+        SwapClear( localEdgeOffsets_ );
+    }
+    else
+    {
+        sources_.resize( 0 );
+        targets_.resize( 0 );
+        localEdgeOffsets_.resize( 0 );
+    }
 }
 
 void DistGraph::Resize( Int numVertices ) 

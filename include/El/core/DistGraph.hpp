@@ -43,7 +43,7 @@ public:
 
     // Changing the graph size
     // -----------------------
-    void Empty();
+    void Empty( bool clearMemory=true );
     void Resize( Int numVertices );
     void Resize( Int numSources, Int numTargets );
 
