@@ -46,7 +46,7 @@ set(EL_VERSION_MINOR 86-dev)
 
 # TODO: Add discussion of "MATH_LIBS" and "REFERENCE_ROOT"
 
-option(BUILD_SHARED_LIBS "Build shared libraries?" ON)
+set(BUILD_SHARED_LIBS "Build shared libraries?" ON)
 
 option(EL_C_INTERFACE "Build C interface" ON)
 if(BUILD_SHARED_LIBS AND EL_C_INTERFACE)
