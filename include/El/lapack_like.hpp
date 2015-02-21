@@ -11,6 +11,9 @@
 #define EL_LAPACK_HPP
 
 #include "./lapack_like/util.hpp"
+
+#include "./lapack_like/equilibrate.hpp"
+
 #include "./lapack_like/reflect.hpp"
 #include "./lapack_like/perm.hpp"
 
