@@ -1,6 +1,15 @@
-#       
+# In your environment: 
+# export CRAY_LINK_TYPE=static
+# module load cmake (must use patched version)
 # module load cray-mpich/7* (any 7+ version is ok)
 # module load gcc/4.9.2 && module load PrgEnv-intel
+# module unload darshan (causes more trouble than it is worth)
+# 
+# You must invoke CMake with "-DBUILD_SHARED_LIBS=OFF", which will disable Python.
+#
+# Here is an example:
+#
+# cd /tmp/build-elemental && export CRAY_LINK_TYPE=static ; module load cmake ; module load gcc ; module unload darshan ; rm -rf * && cmake /global/project/projectdirs/m1907/Elemental/ -DCMAKE_TOOLCHAIN_FILE=/global/project/projectdirs/m1907/Elemental/cmake/toolchains/Edison-intel-mpich-mkl.cmake -DCMAKE_INSTALL_PREFIX=/global/project/projectdirs/m1907/Elemental/install-intel-mpich-mkl -DBUILD_SHARED_LIBS=OFF
 #
 
 # The Cray wrappers
@@ -33,3 +42,7 @@ set(MATH_LIBS "-mkl=cluster")
 set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
 set(BUILD_SHARED_LIBS OFF)
 set(CMAKE_EXE_LINKER_FLAGS "-static")
+
+set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS " ")
+set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS " ")
+set(CMAKE_SHARED_LIBRARY_LINK_Fortran_FLAGS " ")
