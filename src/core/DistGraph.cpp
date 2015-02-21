@@ -79,17 +79,26 @@ const DistGraph& DistGraph::operator=( const DistGraph& graph )
 
 // Change the graph size
 // ---------------------
-void DistGraph::Empty()
+void DistGraph::Empty( bool clearMemory )
 {
     numSources_ = 0;
     numTargets_ = 0;
     firstLocalSource_ = 0;
     numLocalSources_ = 0;
     blocksize_ = 0;
-    SwapClear( sources_ );
-    SwapClear( targets_ );
-    SwapClear( localEdgeOffsets_ );
     consistent_ = true;
+    if( clearMemory )
+    {
+        SwapClear( sources_ );
+        SwapClear( targets_ );
+        SwapClear( localEdgeOffsets_ );
+    }
+    else
+    {
+        sources_.resize( 0 );
+        targets_.resize( 0 );
+        localEdgeOffsets_.resize( 0 );
+    }
 }
 
 void DistGraph::Resize( Int numVertices ) 
@@ -107,9 +116,11 @@ void DistGraph::Resize( Int numSources, Int numTargets )
         numLocalSources_ = blocksize_;
     else
         numLocalSources_ = numSources - (commSize-1)*blocksize_;
-    SwapClear( sources_ );
-    SwapClear( targets_ );
-    SwapClear( localEdgeOffsets_ );
+
+    sources_.resize( 0 );
+    targets_.resize( 0 );
+    localEdgeOffsets_.resize( 0 );
+
     consistent_ = true;
 }
 
@@ -117,12 +128,15 @@ void DistGraph::Resize( Int numSources, Int numTargets )
 // -----------------------
 void DistGraph::SetComm( mpi::Comm comm )
 {
+    if( comm == comm_ )
+        return;
+
     if( comm_ != mpi::COMM_WORLD )
         mpi::Free( comm_ );
 
-    SwapClear( sources_ );
-    SwapClear( targets_ );
-    SwapClear( localEdgeOffsets_ );
+    sources_.resize( 0 );
+    targets_.resize( 0 );
+    localEdgeOffsets_.resize( 0 );
     consistent_ = true;
 
     if( comm == mpi::COMM_WORLD )

@@ -63,14 +63,23 @@ const Graph& Graph::operator=( const DistGraph& graph )
 
 // Changing the graph size
 // -----------------------
-void Graph::Empty()
+void Graph::Empty( bool clearMemory )
 {
     numSources_ = 0;
     numTargets_ = 0;
-    SwapClear( sources_ );
-    SwapClear( targets_ );
-    SwapClear( edgeOffsets_ );
     consistent_ = true;
+    if( clearMemory )
+    {
+        SwapClear( sources_ );
+        SwapClear( targets_ );
+        SwapClear( edgeOffsets_ );
+    }
+    else
+    {
+        sources_.resize( 0 );
+        targets_.resize( 0 );
+        edgeOffsets_.resize( 0 );
+    }
 }
 
 void Graph::Resize( Int numVertices )
@@ -80,9 +89,9 @@ void Graph::Resize( Int numSources, Int numTargets )
 {
     numSources_ = numSources;
     numTargets_ = numTargets;
-    SwapClear( sources_ );
-    SwapClear( targets_ );
-    SwapClear( edgeOffsets_ );
+    sources_.resize( 0 );
+    targets_.resize( 0 );
+    edgeOffsets_.resize( 0 );
     consistent_ = true;
 }
 

@@ -1397,9 +1397,9 @@ void Zero( AbstractDistMatrix<T>& A );
 template<typename T>
 void Zero( AbstractBlockDistMatrix<T>& A );
 template<typename T>
-void Zero( SparseMatrix<T>& A );
+void Zero( SparseMatrix<T>& A, bool clearMemory=true );
 template<typename T>
-void Zero( DistSparseMatrix<T>& A );
+void Zero( DistSparseMatrix<T>& A, bool clearMemory=true );
 template<typename T>
 void Zero( DistMultiVec<T>& A );
 

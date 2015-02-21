@@ -15,6 +15,7 @@ namespace El {
 using std::size_t;
 
 using std::array;
+using std::complex;
 using std::deque;
 using std::function;
 using std::pair;
@@ -31,6 +32,8 @@ using std::string;
 using std::cout;
 using std::cerr;
 using std::endl;
+using std::ifstream;
+using std::ofstream;
 using std::ostream;
 using std::ostringstream;
 
