@@ -8,6 +8,16 @@
 */
 #include "El.hpp"
 
+// The following routines are adaptations of the approach uses by 
+// Saunders et al. (originally recommended by Joseph Fourer) for iteratively 
+// rescaling the columns and rows by their approximate geometric means in order
+// to better scale the original problem. After this iteration is finished,
+// the columns are rescaled so that their maximum entry has magnitude one 
+// (unless the column is identically zero).
+//
+// The implementation of Saunders et al. is commonly referred to as either
+// gmscale.m or gmscal.m. 
+
 namespace El {
 
 template<typename F>
