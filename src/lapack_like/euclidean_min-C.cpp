@@ -46,6 +46,29 @@ extern "C" {
     ElDistMultiVec_ ## SIG Y ) \
   { EL_TRY( LeastSquares( CReflect(orientation), \
       *CReflect(A), *CReflect(X), *CReflect(Y) ) ) } \
+  /* Minimum length
+     -------------- */ \
+  ElError ElMinLength_ ## SIG \
+  ( ElOrientation orientation, ElMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG B, ElMatrix_ ## SIG X ) \
+  { EL_TRY( MinLength( CReflect(orientation), *CReflect(A), \
+                          *CReflect(B), *CReflect(X) ) ) } \
+  ElError ElMinLengthDist_ ## SIG \
+  ( ElOrientation orientation, ElDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIG B, ElDistMatrix_ ## SIG X ) \
+  { EL_TRY( MinLength( CReflect(orientation), *CReflect(A), \
+                          *CReflect(B), *CReflect(X) ) ) } \
+  ElError ElMinLengthSparse_ ## SIG \
+  ( ElOrientation orientation, ElSparseMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG B, ElMatrix_ ## SIG X ) \
+  { EL_TRY( MinLength( CReflect(orientation), *CReflect(A), \
+                          *CReflect(B), *CReflect(X) ) ) } \
+  ElError ElMinLengthDistSparse_ ## SIG \
+  ( ElOrientation orientation, \
+    ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG X, \
+    ElDistMultiVec_ ## SIG Y ) \
+  { EL_TRY( MinLength( CReflect(orientation), \
+      *CReflect(A), *CReflect(X), *CReflect(Y) ) ) } \
   /* Equality-constrained Least Squares
      ---------------------------------- */ \
   ElError ElLSE_ ## SIG \

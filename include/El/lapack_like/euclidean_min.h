@@ -43,13 +43,7 @@ EL_EXPORT ElError ElGLMDist_z
 
 /* Least squares
    ------------- */
-/* When height(A) >= width(A), solve
-
-     min_X || A X - B ||_F,
-
-   otherwise, solve
-
-     min_X || X ||_F s.t. A X = B. */
+/* min_X || A X - B ||_F */
 
 EL_EXPORT ElError ElLeastSquares_s
 ( ElOrientation orientation, ElMatrix_s A, ElConstMatrix_s B, ElMatrix_s X );
@@ -96,6 +90,58 @@ EL_EXPORT ElError ElLeastSquaresDistSparse_c
 ( ElOrientation orientation,
   ElConstDistSparseMatrix_c A, ElConstDistMultiVec_c B, ElDistMultiVec_c X );
 EL_EXPORT ElError ElLeastSquaresDistSparse_z
+( ElOrientation orientation,
+  ElConstDistSparseMatrix_z A, ElConstDistMultiVec_z B, ElDistMultiVec_z X );
+
+/* Minimum length
+   -------------- */
+/* min_X || X ||_F s.t. A X = B. */
+
+EL_EXPORT ElError ElMinLength_s
+( ElOrientation orientation, ElMatrix_s A, ElConstMatrix_s B, ElMatrix_s X );
+EL_EXPORT ElError ElMinLength_d
+( ElOrientation orientation, ElMatrix_d A, ElConstMatrix_d B, ElMatrix_d X );
+EL_EXPORT ElError ElMinLength_c
+( ElOrientation orientation, ElMatrix_c A, ElConstMatrix_c B, ElMatrix_c X );
+EL_EXPORT ElError ElMinLength_z
+( ElOrientation orientation, ElMatrix_z A, ElConstMatrix_z B, ElMatrix_z X );
+
+EL_EXPORT ElError ElMinLengthDist_s
+( ElOrientation orientation, 
+  ElDistMatrix_s A, ElConstDistMatrix_s B, ElDistMatrix_s X );
+EL_EXPORT ElError ElMinLengthDist_d
+( ElOrientation orientation, 
+  ElDistMatrix_d A, ElConstDistMatrix_d B, ElDistMatrix_d X );
+EL_EXPORT ElError ElMinLengthDist_c
+( ElOrientation orientation, 
+  ElDistMatrix_c A, ElConstDistMatrix_c B, ElDistMatrix_c X );
+EL_EXPORT ElError ElMinLengthDist_z
+( ElOrientation orientation, 
+  ElDistMatrix_z A, ElConstDistMatrix_z B, ElDistMatrix_z X );
+
+EL_EXPORT ElError ElMinLengthSparse_s
+( ElOrientation orientation, ElSparseMatrix_s A, 
+  ElConstMatrix_s B, ElMatrix_s X );
+EL_EXPORT ElError ElMinLengthSparse_d
+( ElOrientation orientation, ElSparseMatrix_d A, 
+  ElConstMatrix_d B, ElMatrix_d X );
+EL_EXPORT ElError ElMinLengthSparse_c
+( ElOrientation orientation, ElSparseMatrix_c A, 
+  ElConstMatrix_c B, ElMatrix_c X );
+EL_EXPORT ElError ElMinLengthSparse_z
+( ElOrientation orientation, ElSparseMatrix_z A, 
+  ElConstMatrix_z B, ElMatrix_z X );
+
+EL_EXPORT ElError ElMinLengthDistSparse_s
+( ElOrientation orientation,
+  ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s B, ElDistMultiVec_s X );
+EL_EXPORT ElError ElMinLengthDistSparse_d
+( ElOrientation orientation,
+  ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d B, ElDistMultiVec_d X );
+EL_EXPORT ElError ElMinLengthDistSparse_c
+( ElOrientation orientation,
+  ElConstDistSparseMatrix_c A, ElConstDistMultiVec_c B, ElDistMultiVec_c X );
+EL_EXPORT ElError ElMinLengthDistSparse_z
 ( ElOrientation orientation,
   ElConstDistSparseMatrix_z A, ElConstDistMultiVec_z B, ElDistMultiVec_z X );
 

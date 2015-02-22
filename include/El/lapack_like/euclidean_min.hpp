@@ -27,14 +27,9 @@ void GLM
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
   AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& Y );
 
-// When height(A) >= width(A):
-//
-//    min_X || A X - B ||_F,
-//
-// otherwise 
-//
-//    min_X || X ||_F s.t. A X = B
-// -------------------------------
+// min_X || A X - B ||_F
+// ---------------------
+// NOTE: Assumes height(A) >= width(A)
 template<typename F>
 void LeastSquares
 ( Orientation orientation, Matrix<F>& A, const Matrix<F>& B, 
@@ -44,7 +39,6 @@ void LeastSquares
 ( Orientation orientation, AbstractDistMatrix<F>& A, 
   const AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& X );
 
-// TODO: Allow for the usage of the quasi-semidefinite embedding
 template<typename F>
 void LeastSquares
 ( Orientation orientation,
@@ -52,6 +46,29 @@ void LeastSquares
   const BisectCtrl& ctrl=BisectCtrl() );
 template<typename F>
 void LeastSquares
+( Orientation orientation,
+  const DistSparseMatrix<F>& A, const DistMultiVec<F>& Y, DistMultiVec<F>& X,
+  const BisectCtrl& ctrl=BisectCtrl() );
+
+// min_X || X ||_F s.t. A X = B
+// ----------------------------
+// NOTE: Assumes height(A) <= width(A)
+template<typename F>
+void MinLength
+( Orientation orientation, Matrix<F>& A, const Matrix<F>& B, 
+  Matrix<F>& X );
+template<typename F>
+void MinLength
+( Orientation orientation, AbstractDistMatrix<F>& A, 
+  const AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& X );
+
+template<typename F>
+void MinLength
+( Orientation orientation,
+  const SparseMatrix<F>& A, const Matrix<F>& Y, Matrix<F>& X,
+  const BisectCtrl& ctrl=BisectCtrl() );
+template<typename F>
+void MinLength
 ( Orientation orientation,
   const DistSparseMatrix<F>& A, const DistMultiVec<F>& Y, DistMultiVec<F>& X,
   const BisectCtrl& ctrl=BisectCtrl() );

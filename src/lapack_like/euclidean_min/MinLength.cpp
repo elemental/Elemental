@@ -11,49 +11,49 @@
 namespace El {
 
 template<typename F> 
-void LeastSquares
+void MinLength
 ( Orientation orientation, Matrix<F>& A, const Matrix<F>& B, 
   Matrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("LeastSquares"))
+    DEBUG_ONLY(CallStackEntry cse("MinLength"))
     const Int m = A.Height();
     const Int n = A.Width();
-    if( m < n )
-        LogicError("Assumed height(A) >= width(A)");
+    if( m > n )
+        LogicError("Assumed that height(A) <= width(A)");
     Matrix<F> t;
     Matrix<Base<F>> d;
-    QR( A, t, d );
-    qr::SolveAfter( orientation, A, t, d, B, X );
+    LQ( A, t, d );
+    lq::SolveAfter( orientation, A, t, d, B, X );
 }
 
 template<typename F> 
-void LeastSquares
+void MinLength
 ( Orientation orientation, AbstractDistMatrix<F>& APre,
   const AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("LeastSquares"))
+    DEBUG_ONLY(CallStackEntry cse("MinLength"))
 
     auto APtr = ReadProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     const Int m = A.Height();
     const Int n = A.Width();
-    if( m < n )
-        LogicError("Assumed height(A) >= width(A)");
+    if( m > n )
+        LogicError("Assumed that height(A) <= width(A)");
     DistMatrix<F,MD,STAR> t(A.Grid());
     DistMatrix<Base<F>,MD,STAR> d(A.Grid());
-    QR( A, t, d );
-    qr::SolveAfter( orientation, A, t, d, B, X );
+    LQ( A, t, d );
+    lq::SolveAfter( orientation, A, t, d, B, X );
 }
 
 template<typename F>
-void LeastSquares
+void MinLength
 ( Orientation orientation,
   const SparseMatrix<F>& A, const Matrix<F>& B, Matrix<F>& X,
   const BisectCtrl& ctrl )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("LeastSquares");
+      CallStackEntry cse("MinLength");
       if( orientation == NORMAL && A.Height() != B.Height() )
           LogicError("Heights of A and B must match");
       if( orientation != NORMAL && A.Width() != B.Height() )
@@ -62,8 +62,8 @@ void LeastSquares
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = B.Width();
-    if( m < n )
-        LogicError("Assumed height(A) >= width(A)");
+    if( m > n )
+        LogicError("Assumed height(A) <= width(A)");
 
     // TODO: 
     // Given that the computational complexity of forming A^T A versus
@@ -75,33 +75,35 @@ void LeastSquares
     if( orientation == NORMAL )
     {
         Zeros( X, n, k );
-        Herk( LOWER, ADJOINT, Base<F>(1), A, C );
+        Herk( LOWER, NORMAL, Base<F>(1), A, C );
         MakeHermitian( LOWER, C );
 
-        Multiply( ADJOINT, F(1), A, B, F(0), X );
-        HermitianSolve( C, X, ctrl );
+        auto BCopy( B );
+        HermitianSolve( C, BCopy, ctrl );
+        Multiply( ADJOINT, F(1), A, BCopy, F(0), X );
     }
     else if( orientation == ADJOINT || !IsComplex<F>::val )
     {
         Zeros( X, m, k );
-        Herk( LOWER, NORMAL, Base<F>(1), A, C );
+        Herk( LOWER, ADJOINT, Base<F>(1), A, C );
         MakeHermitian( LOWER, C );
 
-        Multiply( NORMAL, F(1), A, B, F(0), X );
-        HermitianSolve( C, X, ctrl );
+        auto BCopy( B );
+        HermitianSolve( C, BCopy, ctrl );
+        Multiply( NORMAL, F(1), A, BCopy, F(0), X );
     }
     else
         LogicError("Complex transposed option not yet supported");
 }
 
 template<typename F>
-void LeastSquares
+void MinLength
 ( Orientation orientation,
   const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, DistMultiVec<F>& X,
   const BisectCtrl& ctrl )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("LeastSquares");
+      CallStackEntry cse("MinLength");
       if( orientation == NORMAL && A.Height() != B.Height() )
           LogicError("Heights of A and B must match");
       if( orientation != NORMAL && A.Width() != B.Height() )
@@ -110,8 +112,8 @@ void LeastSquares
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = B.Width();
-    if( m < n )
-        LogicError("Assumed height(A) >= width(A)");
+    if( m > n )
+        LogicError("Assumed height(A) <= width(A)");
 
     // TODO: 
     // Given that the computational complexity of forming A^T A versus
@@ -124,37 +126,41 @@ void LeastSquares
     if( orientation == NORMAL )
     {
         Zeros( X, n, k );
-        Herk( LOWER, ADJOINT, Base<F>(1), A, C );
+        Herk( LOWER, NORMAL, Base<F>(1), A, C );
         MakeHermitian( LOWER, C );
 
-        Multiply( ADJOINT, F(1), A, B, F(0), X );
-        HermitianSolve( C, X, ctrl );
+        DistMultiVec<F> BCopy(B.Comm());
+        BCopy = B;
+        HermitianSolve( C, BCopy, ctrl );
+        Multiply( ADJOINT, F(1), A, BCopy, F(0), X );
     }
     else if( orientation == ADJOINT || !IsComplex<F>::val )
     {
         Zeros( X, m, k );
-        Herk( LOWER, NORMAL, Base<F>(1), A, C );
+        Herk( LOWER, ADJOINT, Base<F>(1), A, C );
         MakeHermitian( LOWER, C );
 
-        Multiply( NORMAL, F(1), A, B, F(0), X );
-        HermitianSolve( C, X, ctrl );
+        DistMultiVec<F> BCopy(B.Comm());
+        BCopy = B;
+        HermitianSolve( C, BCopy, ctrl );
+        Multiply( NORMAL, F(1), A, BCopy, F(0), X );
     }
     else
         LogicError("Complex transposed option not yet supported");
 }
 
 #define PROTO(F) \
-  template void LeastSquares \
+  template void MinLength \
   ( Orientation orientation, Matrix<F>& A, const Matrix<F>& B, \
     Matrix<F>& X ); \
-  template void LeastSquares \
+  template void MinLength \
   ( Orientation orientation, AbstractDistMatrix<F>& A, \
     const AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& X ); \
-  template void LeastSquares \
+  template void MinLength \
   ( Orientation orientation, \
     const SparseMatrix<F>& A, const Matrix<F>& B, \
     Matrix<F>& X, const BisectCtrl& ctrl ); \
-  template void LeastSquares \
+  template void MinLength \
   ( Orientation orientation, \
     const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, \
     DistMultiVec<F>& X, const BisectCtrl& ctrl );
