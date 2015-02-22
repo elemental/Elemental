@@ -398,7 +398,7 @@ void DiagonalScale
 
 template<typename TDiag,typename T>
 void DiagonalScale
-( Orientation orientation,
+( LeftOrRight side, Orientation orientation,
   const DistMultiVec<TDiag>& d, DistMultiVec<T>& X );
 
 // DiagonalScaleTrapezoid
@@ -461,7 +461,7 @@ void DiagonalSolve
 
 template<typename FDiag,typename F>
 void DiagonalSolve
-( Orientation orientation,
+( LeftOrRight side, Orientation orientation,
   const DistMultiVec<FDiag>& d, DistMultiVec<F>& X, 
   bool checkIfSingular=true );
 
@@ -874,21 +874,32 @@ ValueInt<Real> VectorMax( const DistMultiVec<Real>& x );
 
 // MaxAbs
 // ======
-template<typename F>
-ValueInt<Base<F>> VectorMaxAbs( const Matrix<F>& x );
-template<typename F>
-ValueInt<Base<F>> VectorMaxAbs( const AbstractDistMatrix<F>& x );
+template<typename T>
+ValueInt<Base<T>> VectorMaxAbs( const Matrix<T>& x );
+template<typename T>
+ValueInt<Base<T>> VectorMaxAbs( const AbstractDistMatrix<T>& x );
 
-template<typename F>
-ValueIntPair<Base<F>> MaxAbs( const Matrix<F>& A );
-template<typename F>
-ValueIntPair<Base<F>> MaxAbs( const AbstractDistMatrix<F>& A );
+template<typename T>
+ValueIntPair<Base<T>> MaxAbs( const Matrix<T>& A );
+template<typename T>
+ValueIntPair<Base<T>> MaxAbs( const AbstractDistMatrix<T>& A );
+template<typename T>
+ValueIntPair<Base<T>> MaxAbs( const SparseMatrix<T>& A );
+template<typename T>
+ValueIntPair<Base<T>> MaxAbs( const DistSparseMatrix<T>& A );
 
-template<typename F>
-ValueIntPair<Base<F>> SymmetricMaxAbs( UpperOrLower uplo, const Matrix<F>& A );
-template<typename F>
-ValueIntPair<Base<F>> SymmetricMaxAbs
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+template<typename T>
+ValueIntPair<Base<T>> 
+SymmetricMaxAbs( UpperOrLower uplo, const Matrix<T>& A );
+template<typename T>
+ValueIntPair<Base<T>> 
+SymmetricMaxAbs( UpperOrLower uplo, const AbstractDistMatrix<T>& A );
+template<typename T>
+ValueIntPair<Base<T>> 
+SymmetricMaxAbs( UpperOrLower uplo, const SparseMatrix<T>& A );
+template<typename T>
+ValueIntPair<Base<T>> 
+SymmetricMaxAbs( UpperOrLower uplo, const DistSparseMatrix<T>& A );
 
 // Min
 // ===

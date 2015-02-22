@@ -708,9 +708,9 @@ void ExpandSolution
     // ds := - z <> ( rmu + s o dz )
     // =============================
     ds = dz;
-    DiagonalScale( NORMAL, s, ds );
+    DiagonalScale( LEFT, NORMAL, s, ds );
     Axpy( Real(1), rmu, ds );
-    DiagonalSolve( NORMAL, z, ds );
+    DiagonalSolve( LEFT, NORMAL, z, ds );
     Scale( Real(-1), ds );
 }
 

@@ -44,6 +44,8 @@ void Mehrotra
     const Int m = A.Height();
     const Int n = A.Width();
 
+    // TODO: Equilibrate QP using GeomEquil on A here
+
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
 
@@ -268,6 +270,7 @@ void Mehrotra
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z ); 
     }
+    // TODO: Unequilibrate QP here
 }
 
 template<typename Real>
@@ -299,6 +302,8 @@ void Mehrotra
     const Int n = A.Width();
     const Grid& grid = A.Grid();
     const Int commRank = A.Grid().Rank();
+
+    // TODO: Equilibrate QP using GeomEquil on A here
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -531,6 +536,7 @@ void Mehrotra
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z ); 
     }
+    // TODO: Unequilibrate QP here
 }
 
 template<typename Real>
@@ -546,6 +552,8 @@ void Mehrotra
     const Int m = A.Height();
     const Int n = A.Width();
     const Real epsilon = lapack::MachineEpsilon<Real>();
+
+    // TODO: Equilibrate QP using GeomEquil on A here
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -879,6 +887,7 @@ void Mehrotra
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z ); 
     }
+    // TODO: Unequilibrate QP here
 }
 
 template<typename Real>
@@ -896,6 +905,8 @@ void Mehrotra
     mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
     const Real epsilon = lapack::MachineEpsilon<Real>();
+
+    // TODO: Equilibrate QP using GeomEquil on A here
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -1033,7 +1044,7 @@ void Mehrotra
         // r_mu := x o z
         // =============
         rmu = z; 
-        DiagonalScale( NORMAL, x, rmu );
+        DiagonalScale( LEFT, NORMAL, x, rmu );
 
         // Compute the affine search direction
         // ===================================
@@ -1121,10 +1132,10 @@ void Mehrotra
         Real rmuNrm2 = Nrm2( rmu );
         dzError = rmu;
         prod = dzAff;
-        DiagonalScale( NORMAL, x, prod );
+        DiagonalScale( LEFT, NORMAL, x, prod );
         Axpy( Real(1), prod, dzError );
         prod = dxAff;
-        DiagonalScale( NORMAL, z, prod );
+        DiagonalScale( LEFT, NORMAL, z, prod );
         Axpy( Real(1), prod, dzError );
         Real dzErrorNrm2 = Nrm2( dzError );
 
@@ -1171,7 +1182,7 @@ void Mehrotra
         // r_mu := dxAff o dzAff - sigma*mu
         // --------------------------------
         rmu = dzAff;
-        DiagonalScale( NORMAL, dxAff, rmu );
+        DiagonalScale( LEFT, NORMAL, dxAff, rmu );
         Shift( rmu, -sigma*mu );
         if( ctrl.system == FULL_KKT )
         {
@@ -1231,6 +1242,7 @@ void Mehrotra
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z ); 
     }
+    // TODO: Unequilibrate QP here
 }
 
 #define PROTO(Real) \

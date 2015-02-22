@@ -55,6 +55,56 @@ void SymmetricSolve
         Conjugate( B );
 }
 
+// TODO: Add iterative refinement parameter
+template<typename F>
+void SymmetricSolve
+( const SparseMatrix<F>& A, Matrix<F>& X,
+  bool conjugate, const BisectCtrl& ctrl )
+{
+    DEBUG_ONLY(CallStackEntry cse("SymmetricSolve"))
+    SymmNodeInfo info;
+    Separator rootSep;
+    vector<Int> map, invMap;
+    NestedDissection( A.LockedGraph(), map, rootSep, info, ctrl );
+    InvertMap( map, invMap );
+
+    SymmFront<F> front( A, map, info, conjugate );
+    LDL( info, front );
+
+    // TODO: Extend ldl::SolveWithIterativeRefinement to support multiple
+    //       right-hand sides
+    /*
+    ldl::SolveWithIterativeRefinement
+    ( A, invMap, info, front, X, minReductionFactor, maxRefineIts );
+    */
+    ldl::SolveAfter( invMap, info, front, X );
+}
+
+// TODO: Add iterative refinement parameter
+template<typename F>
+void SymmetricSolve
+( const DistSparseMatrix<F>& A, DistMultiVec<F>& X,
+  bool conjugate, const BisectCtrl& ctrl )
+{
+    DEBUG_ONLY(CallStackEntry cse("SymmetricSolve"))
+    DistSymmNodeInfo info;
+    DistSeparator rootSep;
+    DistMap map, invMap;
+    NestedDissection( A.LockedDistGraph(), map, rootSep, info, ctrl );
+    InvertMap( map, invMap );
+
+    DistSymmFront<F> front( A, map, rootSep, info, conjugate );
+    LDL( info, front, LDL_INTRAPIV_1D );
+
+    // TODO: Extend ldl::SolveWithIterativeRefinement to support multiple
+    //       right-hand sides
+    /*
+    ldl::SolveWithIterativeRefinement
+    ( A, invMap, info, front, X, minReductionFactor, maxRefineIts );
+    */
+    ldl::SolveAfter( invMap, info, front, X );
+}
+
 #define PROTO(F) \
   template void SymmetricSolve \
   ( UpperOrLower uplo, Orientation orientation, \
@@ -64,6 +114,12 @@ void SymmetricSolve
   ( UpperOrLower uplo, Orientation orientation, \
     AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, bool conjugate, \
     const LDLPivotCtrl<Base<F>>& ctrl ); \
+  template void SymmetricSolve \
+  ( const SparseMatrix<F>& A, Matrix<F>& X, \
+    bool conjugate, const BisectCtrl& ctrl ); \
+  template void SymmetricSolve \
+  ( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, \
+    bool conjugate, const BisectCtrl& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

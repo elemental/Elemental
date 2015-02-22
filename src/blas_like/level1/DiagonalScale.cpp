@@ -102,11 +102,12 @@ void DiagonalScale
         LogicError("d must be a column vector");
     const bool conjugate = ( orientation == ADJOINT );
     T* vBuf = A.ValueBuffer();
+    const Int numEntries = A.NumEntries();
     if( side == LEFT )
     {
         if( d.Height() != A.Height() )
             LogicError("The size of d must match the height of A");
-        for( Int k=0; k<A.NumEntries(); ++k )
+        for( Int k=0; k<numEntries; ++k )
         {
             const Int i = A.Row(k);
             const TDiag delta = ( conjugate ? Conj(d.Get(i,0)) : d.Get(i,0) );
@@ -117,7 +118,7 @@ void DiagonalScale
     {
         if( d.Height() != A.Width() )
             LogicError("The size of d must match the width of A");
-        for( Int k=0; k<A.NumEntries(); ++k )
+        for( Int k=0; k<numEntries; ++k )
         {
             const Int j = A.Col(k);
             const TDiag delta = ( conjugate ? Conj(d.Get(j,0)) : d.Get(j,0) );
@@ -167,7 +168,7 @@ void DiagonalScale
 
 template<typename TDiag,typename T>
 void DiagonalScale
-( Orientation orientation,
+( LeftOrRight side, Orientation orientation,
   const DistMultiVec<TDiag>& d, DistMultiVec<T>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
@@ -175,6 +176,8 @@ void DiagonalScale
         LogicError("d must be a column vector");
     if( !mpi::Congruent( d.Comm(), X.Comm() ) )
         LogicError("Communicators must be congruent");
+    if( side != LEFT )
+        LogicError("Only the 'LEFT' argument is currently supported");
     if( d.Height() != X.Height() )
         LogicError("d and X must be the same size");
     const bool conjugate = ( orientation == ADJOINT );
@@ -212,7 +215,7 @@ void DiagonalScale
   ( LeftOrRight side, Orientation orientation, \
     const DistMultiVec<T>& d, DistSparseMatrix<T>& A ); \
   template void DiagonalScale \
-  ( Orientation orientation, \
+  ( LeftOrRight side, Orientation orientation, \
     const DistMultiVec<T>& d, DistMultiVec<T>& X ); \
   DIST_PROTO(T,CIRC,CIRC); \
   DIST_PROTO(T,MC,  MR  ); \
@@ -244,7 +247,7 @@ void DiagonalScale
   ( LeftOrRight side, Orientation orientation, \
     const DistMultiVec<T>& d, DistSparseMatrix<Complex<T>>& A ); \
   template void DiagonalScale \
-  ( Orientation orientation, \
+  ( LeftOrRight side, Orientation orientation, \
     const DistMultiVec<T>& d, DistMultiVec<Complex<T>>& X ); \
   DIST_PROTO_REAL(T,CIRC,CIRC); \
   DIST_PROTO_REAL(T,MC,  MR  ); \

@@ -45,6 +45,8 @@ void IPF
     const Int m = A.Height();
     const Int n = A.Width();
 
+    // TODO: Equilibrate LP using GeomEquil on A here
+
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
 
@@ -205,6 +207,7 @@ void IPF
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );
     }
+    // TODO: Unequilibrate LP here
 }
 
 template<typename Real>
@@ -235,6 +238,8 @@ void IPF
     const Int n = A.Width();
     const Grid& grid = A.Grid();
     const Int commRank = A.Grid().Rank();
+
+    // TODO: Equilibrate LP using GeomEquil on A here
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -400,6 +405,7 @@ void IPF
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );
     }
+    // TODO: Unequilibrate LP here
 }
 
 template<typename Real>
@@ -415,6 +421,8 @@ void IPF
     const Int m = A.Height();
     const Int n = A.Width();
     const Real epsilon = lapack::MachineEpsilon<Real>();
+
+    // TODO: Equilibrate LP using GeomEquil on A here
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -706,6 +714,7 @@ void IPF
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );
     }
+    // TODO: Unequilibrate LP here
 }
 
 template<typename Real>
@@ -723,6 +732,8 @@ void IPF
     mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
     const Real epsilon = lapack::MachineEpsilon<Real>();
+
+    // TODO: Equilibrate LP using GeomEquil on A here
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -855,7 +866,7 @@ void IPF
         // ====================================================
         const Real mu = Dot(x,z) / n;
         rmu = z;
-        DiagonalScale( NORMAL, x, rmu );
+        DiagonalScale( LEFT, NORMAL, x, rmu );
         Shift( rmu, -ctrl.centering*mu );
 
         // Compute the search direction
@@ -980,10 +991,10 @@ void IPF
         const Real rmuNrm2 = Nrm2( rmu );
         dzError = rmu;
         prod = dz;
-        DiagonalScale( NORMAL, x, prod );
+        DiagonalScale( LEFT, NORMAL, x, prod );
         Axpy( Real(1), prod, dzError );
         prod = dx;
-        DiagonalScale( NORMAL, z, prod );
+        DiagonalScale( LEFT, NORMAL, z, prod );
         Axpy( Real(1), prod, dzError );
         const Real dzErrorNrm2 = Nrm2( dzError );
 
@@ -1016,6 +1027,7 @@ void IPF
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );
     }
+    // TODO: Unequilibrate LP here
 }
 
 #define PROTO(Real) \

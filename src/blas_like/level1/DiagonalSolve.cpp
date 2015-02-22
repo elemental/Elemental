@@ -184,7 +184,7 @@ void DiagonalSolve
 
 template<typename FDiag,typename F>
 void DiagonalSolve
-( Orientation orientation,
+( LeftOrRight side, Orientation orientation,
   const DistMultiVec<FDiag>& d, DistMultiVec<F>& X,
   bool checkIfSingular )
 {
@@ -193,6 +193,8 @@ void DiagonalSolve
         LogicError("d must be a column vector");
     if( !mpi::Congruent( d.Comm(), X.Comm() ) )
         LogicError("Communicators must be congruent");
+    if( side != LEFT )
+        LogicError("Only the 'LEFT' argument is currently supported");
     if( d.Height() != X.Height() )
         LogicError("d and X must be the same size");
     const bool conjugate = ( orientation == ADJOINT );
@@ -235,7 +237,7 @@ void DiagonalSolve
   ( LeftOrRight side, Orientation orientation, \
     const DistMultiVec<T>& d, DistSparseMatrix<T>& A, bool checkIfSingular ); \
   template void DiagonalSolve \
-  ( Orientation orientation, \
+  ( LeftOrRight side, Orientation orientation, \
     const DistMultiVec<T>& d, DistMultiVec<T>& X, bool checkIfSingular ); \
   DIST_PROTO(T,CIRC,CIRC); \
   DIST_PROTO(T,MC,  MR  ); \
@@ -270,7 +272,7 @@ void DiagonalSolve
     const DistMultiVec<T>& d, DistSparseMatrix<Complex<T>>& A, \
     bool checkIfSingular ); \
   template void DiagonalSolve \
-  ( Orientation orientation, \
+  ( LeftOrRight side, Orientation orientation, \
     const DistMultiVec<T>& d, DistMultiVec<Complex<T>>& X, \
     bool checkIfSingular ); \
   DIST_PROTO_REAL(T,CIRC,CIRC); \

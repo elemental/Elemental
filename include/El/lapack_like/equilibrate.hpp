@@ -17,19 +17,19 @@ namespace El {
 template<typename F>
 void GeomEquil
 ( Matrix<F>& A, 
-  Matrix<F>& dRow, Matrix<F>& dCol );
+  Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol );
 template<typename F>
 void GeomEquil
 ( AbstractDistMatrix<F>& A, 
-  AbstractDistMatrix<F>& dRow, AbstractDistMatrix<F>& dCol );
+  AbstractDistMatrix<Base<F>>& dRow, AbstractDistMatrix<Base<F>>& dCol );
 template<typename F>
 void GeomEquil
 ( SparseMatrix<F>& A, 
-  Matrix<F>& dRow, Matrix<F>& dCol );
+  Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol );
 template<typename F>
 void GeomEquil
 ( DistSparseMatrix<F>& A, 
-  DistMultiVec<F>& dRow, DistMultiVec<F>& dCol );
+  DistMultiVec<Base<F>>& dRow, DistMultiVec<Base<F>>& dCol );
 
 } // namespace El
 

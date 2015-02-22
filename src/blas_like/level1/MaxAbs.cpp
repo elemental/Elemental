@@ -10,14 +10,13 @@
 
 namespace El {
 
-// TODO: Switch from F to T
 // TODO: Add options for FastAbs instead of Abs
 
-template<typename F>
-ValueInt<Base<F>> VectorMaxAbs( const Matrix<F>& x )
+template<typename T>
+ValueInt<Base<T>> VectorMaxAbs( const Matrix<T>& x )
 {
     DEBUG_ONLY(CallStackEntry cse("VectorMaxAbs"))
-    typedef Base<F> Real;
+    typedef Base<T> Real;
     const Int m = x.Height();
     const Int n = x.Width();
     DEBUG_ONLY(
@@ -39,11 +38,11 @@ ValueInt<Base<F>> VectorMaxAbs( const Matrix<F>& x )
     {
         for( Int i=0; i<m; ++i )
         {
-            const Real abs = Abs(x.Get(i,0));
-            if( abs > pivot.value )
+            const Real absVal = Abs(x.Get(i,0));
+            if( absVal > pivot.value )
             {
                 pivot.index = i;
-                pivot.value = abs;
+                pivot.value = absVal;
             }
         }
     }
@@ -51,22 +50,22 @@ ValueInt<Base<F>> VectorMaxAbs( const Matrix<F>& x )
     {
         for( Int j=0; j<n; ++j )
         {
-            const Real abs = Abs(x.Get(0,j));
-            if( abs > pivot.value )
+            const Real absVal = Abs(x.Get(0,j));
+            if( absVal > pivot.value )
             {
                 pivot.index = j;
-                pivot.value = abs;
+                pivot.value = absVal;
             }
         }
     }
     return pivot;
 }
 
-template<typename F>
-ValueInt<Base<F>> VectorMaxAbs( const AbstractDistMatrix<F>& x )
+template<typename T>
+ValueInt<Base<T>> VectorMaxAbs( const AbstractDistMatrix<T>& x )
 {
     DEBUG_ONLY(CallStackEntry cse("VectorMaxAbs"))
-    typedef Base<F> Real;
+    typedef Base<T> Real;
     const Int m = x.Height();
     const Int n = x.Width();
     DEBUG_ONLY(
@@ -95,11 +94,11 @@ ValueInt<Base<F>> VectorMaxAbs( const AbstractDistMatrix<F>& x )
                 const Int mLocal = x.LocalHeight();
                 for( Int iLoc=0; iLoc<mLocal; ++iLoc )
                 {
-                    const Real abs = Abs(x.GetLocal(iLoc,0));
-                    if( abs > localPivot.value )
+                    const Real absVal = Abs(x.GetLocal(iLoc,0));
+                    if( absVal > localPivot.value )
                     {
                         localPivot.index = x.GlobalRow(iLoc);
-                        localPivot.value = abs;
+                        localPivot.value = absVal;
                     }
                 }
             }
@@ -111,11 +110,11 @@ ValueInt<Base<F>> VectorMaxAbs( const AbstractDistMatrix<F>& x )
                 const Int nLocal = x.LocalWidth();
                 for( Int jLoc=0; jLoc<nLocal; ++jLoc )
                 {
-                    const Real abs = Abs(x.GetLocal(0,jLoc));
-                    if( abs > localPivot.value )
+                    const Real absVal = Abs(x.GetLocal(0,jLoc));
+                    if( absVal > localPivot.value )
                     {
                         localPivot.index = x.GlobalCol(jLoc);
-                        localPivot.value = abs;
+                        localPivot.value = absVal;
                     }
                 }
             }
@@ -128,11 +127,11 @@ ValueInt<Base<F>> VectorMaxAbs( const AbstractDistMatrix<F>& x )
     return pivot;
 }
 
-template<typename F>
-ValueIntPair<Base<F>> MaxAbs( const Matrix<F>& A )
+template<typename T>
+ValueIntPair<Base<T>> MaxAbs( const Matrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MaxAbs"))
-    typedef Base<F> Real;
+    typedef Base<T> Real;
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -152,10 +151,10 @@ ValueIntPair<Base<F>> MaxAbs( const Matrix<F>& A )
     {
         for( Int i=0; i<m; ++i )
         {
-            const Real abs = Abs(A.Get(i,j));
-            if( abs > pivot.value )
+            const Real absVal = Abs(A.Get(i,j));
+            if( absVal > pivot.value )
             {
-                pivot.value = abs;
+                pivot.value = absVal;
                 pivot.indices[0] = i;
                 pivot.indices[1] = j;
             }
@@ -164,15 +163,15 @@ ValueIntPair<Base<F>> MaxAbs( const Matrix<F>& A )
     return pivot;
 }
 
-template<typename F>
-ValueIntPair<Base<F>> MaxAbs( const AbstractDistMatrix<F>& A )
+template<typename T>
+ValueIntPair<Base<T>> MaxAbs( const AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("MaxAbs");
         if( !A.Grid().InGrid() )
             LogicError("Viewing processes are not allowed");
     )
-    typedef Base<F> Real;
+    typedef Base<T> Real;
     ValueIntPair<Real> pivot;
     if( A.Height() == 0 )
     {
@@ -216,15 +215,83 @@ ValueIntPair<Base<F>> MaxAbs( const AbstractDistMatrix<F>& A )
     return pivot;
 }
 
-template<typename F>
-ValueIntPair<Base<F>> SymmetricMaxAbs( UpperOrLower uplo, const Matrix<F>& A )
+template<typename T>
+ValueIntPair<Base<T>> MaxAbs( const SparseMatrix<T>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("MaxAbs"))
+    typedef Base<T> Real;
+
+    ValueIntPair<Real> pivot;
+    if( A.Height() == 0 || A.Width() == 0 )
+    {
+        pivot.value = 0;
+        pivot.indices[0] = -1;
+        pivot.indices[1] = -1;
+        return pivot;
+    }
+
+    pivot.value = 0;
+    pivot.indices[0] = 0;
+    pivot.indices[1] = 0;
+    const Int numEntries = A.NumEntries();
+    for( Int e=0; e<numEntries; ++e )
+    {
+        const Int i = A.Row(e);
+        const Int j = A.Col(e);
+        const Real absVal = Abs(A.Value(e));
+        if( absVal > pivot.value )
+        {
+            pivot.value = absVal;
+            pivot.indices[0] = i;
+            pivot.indices[1] = j;
+        }
+    }
+    return pivot;
+}
+
+template<typename T>
+ValueIntPair<Base<T>> MaxAbs( const DistSparseMatrix<T>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("MaxAbs"))
+    typedef Base<T> Real;
+
+    ValueIntPair<Real> pivot;
+    if( A.Height() == 0 || A.Width() )
+    {
+        pivot.value = 0;
+        pivot.indices[0] = -1;
+        pivot.indices[1] = -1;
+        return pivot;
+    }
+
+    pivot.value = 0;
+    pivot.indices[0] = 0;
+    pivot.indices[1] = 0;
+    const Int numLocalEntries = A.NumLocalEntries();
+    for( Int e=0; e<numLocalEntries; ++e )
+    {
+        const Int i = A.Row( e );
+        const Int j = A.Col( e );
+        const Real absVal = Abs(A.Value( e ));
+        if( absVal > pivot.value )
+        {
+            pivot.value = absVal;
+            pivot.indices[0] = i;
+            pivot.indices[1] = j;
+        }
+    }
+    return mpi::AllReduce( pivot, mpi::MaxLocPairOp<Real>(), A.Comm() );
+}
+
+template<typename T>
+ValueIntPair<Base<T>> SymmetricMaxAbs( UpperOrLower uplo, const Matrix<T>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("SymmetricMaxAbs");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )
-    typedef Base<F> Real;
+    typedef Base<T> Real;
     const Int n = A.Width();
 
     ValueIntPair<Real> pivot;
@@ -239,32 +306,29 @@ ValueIntPair<Base<F>> SymmetricMaxAbs( UpperOrLower uplo, const Matrix<F>& A )
     pivot.value = 0;
     pivot.indices[0] = 0;
     pivot.indices[1] = 0;
-    if( uplo == LOWER )
+    for( Int j=0; j<n; ++j )
     {
-        for( Int j=0; j<n; ++j )
+        if( uplo == LOWER )
         {
             for( Int i=j; i<n; ++i )
             {
-                const Real abs = Abs(A.Get(i,j));
-                if( abs > pivot.value )
+                const Real absVal = Abs(A.Get(i,j));
+                if( absVal > pivot.value )
                 {
-                    pivot.value = abs;
+                    pivot.value = absVal;
                     pivot.indices[0] = i;
                     pivot.indices[1] = j;
                 }
             }
         }
-    }
-    else
-    {
-        for( Int j=0; j<n; ++j ) 
-        { 
+        else
+        {
             for( Int i=0; i<=j; ++i )
             {
-                const Real abs = Abs(A.Get(i,j));
-                if( abs > pivot.value )
+                const Real absVal = Abs(A.Get(i,j));
+                if( absVal > pivot.value )
                 {
-                    pivot.value = abs;
+                    pivot.value = absVal;
                     pivot.indices[0] = i;
                     pivot.indices[1] = j;
                 }
@@ -274,9 +338,9 @@ ValueIntPair<Base<F>> SymmetricMaxAbs( UpperOrLower uplo, const Matrix<F>& A )
     return pivot;
 }
 
-template<typename F>
-ValueIntPair<Base<F>> SymmetricMaxAbs
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+template<typename T>
+ValueIntPair<Base<T>> SymmetricMaxAbs
+( UpperOrLower uplo, const AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("SymmetricMaxAbs");
@@ -285,7 +349,7 @@ ValueIntPair<Base<F>> SymmetricMaxAbs
         if( !A.Grid().InGrid() )
             LogicError("Viewing processes are not allowed");
     )
-    typedef Base<F> Real;
+    typedef Base<T> Real;
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
 
@@ -305,38 +369,34 @@ ValueIntPair<Base<F>> SymmetricMaxAbs
         localPivot.indices[0] = 0;
         localPivot.indices[1] = 0;
 
-        if( uplo == LOWER )
+        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
         {
-            for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+            const Int j = A.GlobalCol(jLoc);
+            if( uplo == LOWER )
             {
-                const Int j = A.GlobalCol(jLoc);
                 const Int mLocBefore = A.LocalRowOffset(j);
                 for( Int iLoc=mLocBefore; iLoc<mLocal; ++iLoc )
                 {
-                    const Real abs = Abs(A.GetLocal(iLoc,jLoc));
-                    if( abs > localPivot.value )
+                    const Real absVal = Abs(A.GetLocal(iLoc,jLoc));
+                    if( absVal > localPivot.value )
                     {
                         const Int i = A.GlobalRow(iLoc);
-                        localPivot.value = abs;
+                        localPivot.value = absVal;
                         localPivot.indices[0] = i;
                         localPivot.indices[1] = j;
                     }
                 }
             }
-        }
-        else
-        {
-            for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+            else
             {
-                const Int j = A.GlobalCol(jLoc);
                 const Int mLocBefore = A.LocalRowOffset(j+1);
                 for( Int iLoc=0; iLoc<mLocBefore; ++iLoc )
                 {
-                    const Real abs = Abs(A.GetLocal(iLoc,jLoc));
-                    if( abs > localPivot.value )
+                    const Real absVal = Abs(A.GetLocal(iLoc,jLoc));
+                    if( absVal > localPivot.value )
                     {
                         const Int i = A.GlobalRow(iLoc);
-                        localPivot.value = abs;
+                        localPivot.value = absVal;
                         localPivot.indices[0] = i;
                         localPivot.indices[1] = j;
                     }
@@ -353,15 +413,93 @@ ValueIntPair<Base<F>> SymmetricMaxAbs
     return pivot;
 }
 
-#define PROTO(F) \
-  template ValueInt<Base<F>> VectorMaxAbs( const Matrix<F>& x ); \
-  template ValueInt<Base<F>> VectorMaxAbs( const AbstractDistMatrix<F>& x ); \
-  template ValueIntPair<Base<F>> MaxAbs( const Matrix<F>& x ); \
-  template ValueIntPair<Base<F>> MaxAbs( const AbstractDistMatrix<F>& x ); \
-  template ValueIntPair<Base<F>> SymmetricMaxAbs \
-  ( UpperOrLower uplo, const Matrix<F>& A ); \
-  template ValueIntPair<Base<F>> SymmetricMaxAbs \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+template<typename T>
+ValueIntPair<Base<T>> SymmetricMaxAbs
+( UpperOrLower uplo, const SparseMatrix<T>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("SymmetricMaxAbs"))
+    typedef Base<T> Real;
+
+    ValueIntPair<Real> pivot;
+    if( A.Height() == 0 || A.Width() == 0 )
+    {
+        pivot.value = 0;
+        pivot.indices[0] = -1;
+        pivot.indices[1] = -1;
+        return pivot;
+    }
+
+    pivot.value = 0;
+    pivot.indices[0] = 0;
+    pivot.indices[1] = 0;
+    const Int numEntries = A.NumEntries();
+    for( Int e=0; e<numEntries; ++e )
+    {
+        const Int i = A.Row( e );
+        const Int j = A.Col( e );
+        const Real absVal = Abs(A.Value( e ));
+        const bool valid = ( uplo==LOWER ? i>=j : i<=j );
+        if( valid && absVal > pivot.value )
+        {
+            pivot.value = absVal;
+            pivot.indices[0] = i;
+            pivot.indices[1] = j;
+        }
+    }
+    return pivot;
+}
+
+template<typename T>
+ValueIntPair<Base<T>> SymmetricMaxAbs
+( UpperOrLower uplo, const DistSparseMatrix<T>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("SymmetricMaxAbs"))
+    typedef Base<T> Real;
+
+    ValueIntPair<Real> pivot;
+    if( A.Height() == 0 || A.Width() )
+    {
+        pivot.value = 0;
+        pivot.indices[0] = -1;
+        pivot.indices[1] = -1;
+        return pivot;
+    }
+
+    pivot.value = 0;
+    pivot.indices[0] = 0;
+    pivot.indices[1] = 0;
+    const Int numLocalEntries = A.NumLocalEntries();
+    for( Int e=0; e<numLocalEntries; ++e )
+    {
+        const Int i = A.Row( e );
+        const Int j = A.Col( e );
+        const Real absVal = Abs(A.Value( e ));
+        const bool valid = ( uplo==LOWER ? i>=j : i<=j );
+        if( valid && absVal > pivot.value )
+        {
+            pivot.value = absVal;
+            pivot.indices[0] = i;
+            pivot.indices[1] = j;
+        }
+    }
+    return mpi::AllReduce( pivot, mpi::MaxLocPairOp<Real>(), A.Comm() );
+}
+
+#define PROTO(T) \
+  template ValueInt<Base<T>> VectorMaxAbs( const Matrix<T>& x ); \
+  template ValueInt<Base<T>> VectorMaxAbs( const AbstractDistMatrix<T>& x ); \
+  template ValueIntPair<Base<T>> MaxAbs( const Matrix<T>& x ); \
+  template ValueIntPair<Base<T>> MaxAbs( const AbstractDistMatrix<T>& x ); \
+  template ValueIntPair<Base<T>> MaxAbs( const SparseMatrix<T>& x ); \
+  template ValueIntPair<Base<T>> MaxAbs( const DistSparseMatrix<T>& x ); \
+  template ValueIntPair<Base<T>> SymmetricMaxAbs \
+  ( UpperOrLower uplo, const Matrix<T>& A ); \
+  template ValueIntPair<Base<T>> SymmetricMaxAbs \
+  ( UpperOrLower uplo, const AbstractDistMatrix<T>& A ); \
+  template ValueIntPair<Base<T>> SymmetricMaxAbs \
+  ( UpperOrLower uplo, const SparseMatrix<T>& x ); \
+  template ValueIntPair<Base<T>> SymmetricMaxAbs \
+  ( UpperOrLower uplo, const DistSparseMatrix<T>& x );
 
 #include "El/macros/Instantiate.h"
 

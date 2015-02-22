@@ -339,9 +339,9 @@ void ExpandNormalSolution
     // dx := -z <> (r_mu + x o dz)
     // ===========================
     dx = dz;
-    DiagonalScale( NORMAL, x, dx );
+    DiagonalScale( LEFT, NORMAL, x, dx );
     Axpy( Real(1), rmu, dx );
-    DiagonalSolve( NORMAL, z, dx );
+    DiagonalSolve( LEFT, NORMAL, z, dx );
     Scale( Real(-1), dx );
 }
 

@@ -111,7 +111,7 @@ Int RegularizedSolveAfter
     {
         DistMultiVec<F> dx(comm), xCand(comm), xRegScaled(comm);
         xRegScaled = x;
-        DiagonalScale( NORMAL, reg, xRegScaled );
+        DiagonalScale( LEFT, NORMAL, reg, xRegScaled );
         Axpy( F(1), xRegScaled, b );
         Multiply( NORMAL, F(-1), A, x, F(1), b );
         Base<F> errorNorm = Nrm2( b );
@@ -131,7 +131,7 @@ Int RegularizedSolveAfter
             // -----------------------------------------------------
             b = bOrig;
             xRegScaled = xCand;
-            DiagonalScale( NORMAL, reg, xRegScaled );
+            DiagonalScale( LEFT, NORMAL, reg, xRegScaled );
             Axpy( F(-1), xRegScaled, b );
             Multiply( NORMAL, F(-1), A, xCand, F(1), b );
             Base<F> newErrorNorm = Nrm2( b );

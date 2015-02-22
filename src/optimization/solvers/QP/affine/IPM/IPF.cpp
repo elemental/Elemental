@@ -51,6 +51,8 @@ void IPF
     const Int n = A.Width();
     const Int k = G.Height();
 
+    // TODO: Equilibrate the QP here using GeomEquil on [A;G]
+
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
@@ -199,6 +201,7 @@ void IPF
         Axpy( alpha, dz, z );
         Axpy( alpha, ds, s );
     }
+    // TODO: Unequilibrate QP here
 }
 
 template<typename Real>
@@ -236,6 +239,8 @@ void IPF
     const Int k = G.Height();
     const Grid& grid = A.Grid();
     const Int commRank = A.Grid().Rank();
+
+    // TODO: Equilibrate the QP here using GeomEquil on [A;G]
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -389,6 +394,7 @@ void IPF
         Axpy( alpha, dz, z );
         Axpy( alpha, ds, s );
     }
+    // TODO: Unequilibrate the QP here
 }
 
 template<typename Real>
@@ -407,6 +413,8 @@ void IPF
     const Int n = A.Width();
     const Int k = G.Height();
     const Real epsilon = lapack::MachineEpsilon<Real>();
+
+    // TODO: Equilibrate the QP here using GeomEquil on [A;G]
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -609,6 +617,7 @@ void IPF
         Axpy( alpha, dz, z );
         Axpy( alpha, ds, s );
     }
+    // TODO: Unequilibrate the QP here
 }
 
 template<typename Real>
@@ -629,6 +638,8 @@ void IPF
     mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
     const Real epsilon = lapack::MachineEpsilon<Real>();
+
+    // TODO: Equilibrate the QP here using GeomEquil on [A;G]
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -744,7 +755,7 @@ void IPF
         // =============================================================
         const Real mu = Dot(s,z) / k;
         rmu = z;
-        DiagonalScale( NORMAL, s, rmu );
+        DiagonalScale( LEFT, NORMAL, s, rmu );
         Shift( rmu, -ctrl.centering*mu );
 
         const Real minReductionFactor = 2;
@@ -832,6 +843,7 @@ void IPF
         Axpy( alpha, dz, z );
         Axpy( alpha, ds, s );
     }
+    // TODO: Unequilibrate the QP here
 }
 
 #define PROTO(Real) \

@@ -24,6 +24,8 @@ QuasiDiagonalSolve
     Matrix<F> D( 2, 2 );
     if( side == LEFT && uplo == LOWER )
     {
+        if( m == 0 )
+            return;
         DEBUG_ONLY(
           if( d.Height() != m )
               LogicError
@@ -61,6 +63,8 @@ QuasiDiagonalSolve
     }
     else if( side == RIGHT && uplo == LOWER )
     {
+        if( n == 0 )
+            return;
         DEBUG_ONLY(
           if( d.Height() != n )
               LogicError

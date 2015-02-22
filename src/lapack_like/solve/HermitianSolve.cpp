@@ -29,6 +29,24 @@ void HermitianSolve
     SymmetricSolve( uplo, orientation, A, B, true, ctrl );
 }
 
+// TODO: Add iterative refinement parameter
+template<typename F>
+void HermitianSolve
+( const SparseMatrix<F>& A, Matrix<F>& X, const BisectCtrl& ctrl )
+{
+    DEBUG_ONLY(CallStackEntry cse("HermitianSolve"))
+    SymmetricSolve( A, X, true, ctrl );
+}
+
+// TODO: Add iterative refinement parameter
+template<typename F>
+void HermitianSolve
+( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, const BisectCtrl& ctrl )
+{
+    DEBUG_ONLY(CallStackEntry cse("HermitianSolve"))
+    SymmetricSolve( A, X, true, ctrl );
+}
+
 #define PROTO(F) \
   template void HermitianSolve \
   ( UpperOrLower uplo, Orientation orientation, \
@@ -36,7 +54,13 @@ void HermitianSolve
   template void HermitianSolve \
   ( UpperOrLower uplo, Orientation orientation, \
     AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
-    const LDLPivotCtrl<Base<F>>& ctrl );
+    const LDLPivotCtrl<Base<F>>& ctrl ); \
+  template void HermitianSolve \
+  ( const SparseMatrix<F>& A, Matrix<F>& X, \
+    const BisectCtrl& ctrl ); \
+  template void HermitianSolve \
+  ( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, \
+    const BisectCtrl& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

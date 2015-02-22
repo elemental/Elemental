@@ -552,9 +552,9 @@ void ExpandAugmentedSolution
     // dz := - x <> (r_mu + z o dx)
     // ============================
     dz = dx;
-    DiagonalScale( NORMAL, z, dz );
+    DiagonalScale( LEFT, NORMAL, z, dz );
     Axpy( Real(1), rmu, dz );
-    DiagonalSolve( NORMAL, x, dz );
+    DiagonalSolve( LEFT, NORMAL, x, dz );
     Scale( Real(-1), dz );
 }
 

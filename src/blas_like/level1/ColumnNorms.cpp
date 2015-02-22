@@ -41,24 +41,24 @@ void ColumnNorms
 }
 
 template<typename F>
-void ColumnNorms( const AbstractDistMatrix<F>& X, Matrix<Base<F>>& norms )
+void ColumnNorms( const AbstractDistMatrix<F>& A, Matrix<Base<F>>& norms )
 {
     DEBUG_ONLY(CallStackEntry cse("ColumnNorms"))
-    if( !X.Participating() )
+    if( !A.Participating() )
         LogicError("This process must be participating");
     typedef Base<F> Real;
-    const Int mLocal = X.LocalHeight();
-    const Int nLocal = X.LocalWidth();
+    const Int mLocal = A.LocalHeight();
+    const Int nLocal = A.LocalWidth();
 
     // TODO: Switch to more stable parallel norm computation using scaling
     norms.Resize( nLocal, 1 );
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
-        const Base<F> localNorm = blas::Nrm2(mLocal,X.LockedBuffer(0,jLoc),1);
+        const Base<F> localNorm = blas::Nrm2(mLocal,A.LockedBuffer(0,jLoc),1);
         norms.Set( jLoc, 0, localNorm*localNorm );
     }
 
-    mpi::AllReduce( norms.Buffer(), nLocal, mpi::SUM, X.ColComm() );
+    mpi::AllReduce( norms.Buffer(), nLocal, mpi::SUM, A.ColComm() );
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
         const Real alpha = norms.Get(jLoc,0);
@@ -68,25 +68,24 @@ void ColumnNorms( const AbstractDistMatrix<F>& X, Matrix<Base<F>>& norms )
 
 template<typename F,Dist U,Dist V>
 void ColumnNorms
-( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,V,STAR>& norms )
+( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,V,STAR>& norms )
 {
     DEBUG_ONLY(CallStackEntry cse("ColumnNorms"))
-    if( X.RowAlign() != norms.ColAlign() )
-        LogicError("Invalid norms alignment");
     typedef Base<F> Real;
-    const Int n = X.Width();
-    const Int mLocal = X.LocalHeight();
-    const Int nLocal = X.LocalWidth();
+    const Int n = A.Width();
+    const Int mLocal = A.LocalHeight();
+    const Int nLocal = A.LocalWidth();
+    norms.AlignWith( A );
 
     // TODO: Switch to more stable parallel norm computation using scaling
     norms.Resize( n, 1 );
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
-        const Base<F> localNorm = blas::Nrm2(mLocal,X.LockedBuffer(0,jLoc),1);
+        const Base<F> localNorm = blas::Nrm2(mLocal,A.LockedBuffer(0,jLoc),1);
         norms.SetLocal( jLoc, 0, localNorm*localNorm );
     }
 
-    mpi::AllReduce( norms.Buffer(), nLocal, mpi::SUM, X.ColComm() );
+    mpi::AllReduce( norms.Buffer(), nLocal, mpi::SUM, A.ColComm() );
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
         const Real alpha = norms.GetLocal(jLoc,0);

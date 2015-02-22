@@ -48,6 +48,8 @@ void Mehrotra
     const Int n = A.Width();
     const Int k = G.Height();
 
+    // TODO: Equilibrate the QP here by calling GeomEquil on [A;G]
+
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
@@ -246,6 +248,8 @@ void Mehrotra
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
     }
+
+    // TODO: Unequilibrate the QP here
 }
 
 template<typename Real>
@@ -283,6 +287,8 @@ void Mehrotra
     const Int k = G.Height();
     const Grid& grid = A.Grid();
     const Int commRank = A.Grid().Rank();
+
+    // TODO: Equilibrate the QP here by calling GeomEquil on [A;G]
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -512,6 +518,8 @@ void Mehrotra
             Axpy( alphaDual, dz, z );
         }
     }
+
+    // TODO: Unequilibrate the QP here
 }
 
 template<typename Real>
@@ -529,6 +537,8 @@ void Mehrotra
     const Int n = A.Width();
     const Int k = G.Height();
     const Real epsilon = lapack::MachineEpsilon<Real>();
+
+    // TODO: Equilibrate the QP here by calling GeomEquil on [A;G]
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -785,6 +795,8 @@ void Mehrotra
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
     }
+
+    // TODO: Unequilibrate the QP here
 }
 
 template<typename Real>
@@ -804,6 +816,8 @@ void Mehrotra
     mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
     const Real epsilon = lapack::MachineEpsilon<Real>();
+
+    // TODO: Equilibrate the QP here by calling GeomEquil on [A;G]
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -917,7 +931,7 @@ void Mehrotra
         // r_mu := s o z
         // =============
         rmu = z;
-        DiagonalScale( NORMAL, s, rmu );
+        DiagonalScale( LEFT, NORMAL, s, rmu );
 
         // Compute the affine search direction
         // ===================================
@@ -1019,7 +1033,7 @@ void Mehrotra
         // r_mu := dsAff o dzAff - sigma*mu
         // --------------------------------
         rmu = dzAff;
-        DiagonalScale( NORMAL, dsAff, rmu );
+        DiagonalScale( LEFT, NORMAL, dsAff, rmu );
         Shift( rmu, -sigma*mu );
         // Construct the new full KKT RHS
         // ------------------------------
@@ -1061,6 +1075,8 @@ void Mehrotra
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
     }
+
+    // TODO: Unequilibrate the QP here
 }
 
 #define PROTO(Real) \
