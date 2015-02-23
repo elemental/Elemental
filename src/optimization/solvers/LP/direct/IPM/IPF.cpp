@@ -35,17 +35,24 @@ namespace direct {
 
 template<typename Real>
 void IPF
-( const Matrix<Real>& A, 
-  const Matrix<Real>& b, const Matrix<Real>& c,
-        Matrix<Real>& x,       Matrix<Real>& y, 
+( const Matrix<Real>& APre, 
+  const Matrix<Real>& bPre, const Matrix<Real>& cPre,
+        Matrix<Real>& x,          Matrix<Real>& y, 
         Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::direct::IPF"))    
+
+    // Equilibrate the LP by diagonally scaling A
+    auto A = APre;
+    Matrix<Real> dRow, dCol;
+    GeomEquil( A, dRow, dCol );
     const Int m = A.Height();
     const Int n = A.Width();
-
-    // TODO: Equilibrate LP using GeomEquil on A here
+    auto b = bPre;
+    auto c = cPre;
+    DiagonalSolve( LEFT, NORMAL, dRow, b );
+    DiagonalSolve( LEFT, NORMAL, dCol, c );
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -207,7 +214,11 @@ void IPF
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );
     }
-    // TODO: Unequilibrate LP here
+
+    // Unequilibrate the LP
+    DiagonalSolve( LEFT, NORMAL, dCol, x );
+    DiagonalSolve( LEFT, NORMAL, dRow, y );
+    DiagonalScale( LEFT, NORMAL, dCol, z );
 }
 
 template<typename Real>
@@ -219,27 +230,36 @@ void IPF
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::direct::IPF"))    
+    const Grid& grid = APre.Grid();
+    const int commRank = grid.Rank();
 
-    ProxyCtrl proxCtrl;
-    proxCtrl.colConstrain = true;
-    proxCtrl.rowConstrain = true;
-    proxCtrl.colAlign = 0;
-    proxCtrl.rowAlign = 0;
-    auto APtr = ReadProxy<Real,MC,MR>(&APre,proxCtrl);      auto& A = *APtr;
-    auto bPtr = ReadProxy<Real,MC,MR>(&bPre,proxCtrl);      auto& b = *bPtr;
-    auto cPtr = ReadProxy<Real,MC,MR>(&cPre,proxCtrl);      auto& c = *cPtr;
+    // Ensure that the inputs have the appropriate read/write properties
+    DistMatrix<Real> A(grid), b(grid), c(grid);
+    A.Align(0,0);
+    b.Align(0,0);
+    c.Align(0,0);
+    A = APre;
+    b = bPre;
+    c = cPre;
+    ProxyCtrl control;
+    control.colConstrain = true;
+    control.rowConstrain = true;
+    control.colAlign = 0;
+    control.rowAlign = 0;
     // NOTE: x does not need to be a read proxy when !ctrl.primalInitialized
-    auto xPtr = ReadWriteProxy<Real,MC,MR>(&xPre,proxCtrl); auto& x = *xPtr;
-    // NOTE: (y,z) do not need to be read proxies when !ctrl.dualInitialized
-    auto yPtr = ReadWriteProxy<Real,MC,MR>(&yPre,proxCtrl); auto& y = *yPtr;
-    auto zPtr = ReadWriteProxy<Real,MC,MR>(&zPre,proxCtrl); auto& z = *zPtr;
+    auto xPtr = ReadWriteProxy<Real,MC,MR>(&xPre,control); auto& x = *xPtr;
+    // NOTE: {y,z} do not need to be read proxies when !ctrl.dualInitialized
+    auto yPtr = ReadWriteProxy<Real,MC,MR>(&yPre,control); auto& y = *yPtr;
+    auto zPtr = ReadWriteProxy<Real,MC,MR>(&zPre,control); auto& z = *zPtr;
 
+    // Equilibrate the LP by diagonally scaling A
+    DistMatrix<Real,MC,STAR> dRow(grid);
+    DistMatrix<Real,MR,STAR> dCol(grid);
+    GeomEquil( A, dRow, dCol );
     const Int m = A.Height();
     const Int n = A.Width();
-    const Grid& grid = A.Grid();
-    const Int commRank = A.Grid().Rank();
-
-    // TODO: Equilibrate LP using GeomEquil on A here
+    DiagonalSolve( LEFT, NORMAL, dRow, b );
+    DiagonalSolve( LEFT, NORMAL, dCol, c );
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -405,24 +425,34 @@ void IPF
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );
     }
-    // TODO: Unequilibrate LP here
+
+    // Unequilibrate the LP
+    DiagonalSolve( LEFT, NORMAL, dCol, x );
+    DiagonalSolve( LEFT, NORMAL, dRow, y );
+    DiagonalScale( LEFT, NORMAL, dCol, z );
 }
 
 template<typename Real>
 void IPF
-( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& b,       const Matrix<Real>& c,
-        Matrix<Real>& x,             Matrix<Real>& y, 
+( const SparseMatrix<Real>& APre, 
+  const Matrix<Real>& bPre,       const Matrix<Real>& cPre,
+        Matrix<Real>& x,                Matrix<Real>& y, 
         Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::direct::IPF"))    
-
-    const Int m = A.Height();
-    const Int n = A.Width();
     const Real epsilon = lapack::MachineEpsilon<Real>();
 
-    // TODO: Equilibrate LP using GeomEquil on A here
+    // Equilibrate the LP by diagonally scaling A
+    auto A = APre;
+    Matrix<Real> dRow, dCol;
+    GeomEquil( A, dRow, dCol );
+    const Int m = A.Height();
+    const Int n = A.Width();
+    auto b = bPre;
+    auto c = cPre;
+    DiagonalSolve( LEFT, NORMAL, dRow, b );
+    DiagonalSolve( LEFT, NORMAL, dCol, c );
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -714,26 +744,36 @@ void IPF
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );
     }
-    // TODO: Unequilibrate LP here
+
+    // Unequilibrate the LP
+    DiagonalSolve( LEFT, NORMAL, dCol, x );
+    DiagonalSolve( LEFT, NORMAL, dRow, y );
+    DiagonalScale( LEFT, NORMAL, dCol, z );
 }
 
 template<typename Real>
 void IPF
-( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c,
-        DistMultiVec<Real>& x,           DistMultiVec<Real>& y, 
+( const DistSparseMatrix<Real>& APre, 
+  const DistMultiVec<Real>& bPre,     const DistMultiVec<Real>& cPre,
+        DistMultiVec<Real>& x,              DistMultiVec<Real>& y, 
         DistMultiVec<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::direct::IPF"))    
-
-    const Int m = A.Height();
-    const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    const Int commRank = mpi::Rank(comm);
+    mpi::Comm comm = APre.Comm();
+    const int commRank = mpi::Rank(comm);
     const Real epsilon = lapack::MachineEpsilon<Real>();
 
-    // TODO: Equilibrate LP using GeomEquil on A here
+    // Equilibrate the LP by diagonally scaling A
+    auto A = APre;
+    DistMultiVec<Real> dRow(comm), dCol(comm);
+    GeomEquil( A, dRow, dCol );
+    const Int m = A.Height();
+    const Int n = A.Width();
+    auto b = bPre;
+    auto c = cPre;
+    DiagonalSolve( LEFT, NORMAL, dRow, b );
+    DiagonalSolve( LEFT, NORMAL, dCol, c );
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -1027,7 +1067,11 @@ void IPF
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );
     }
-    // TODO: Unequilibrate LP here
+
+    // Unequilibrate the LP
+    DiagonalSolve( LEFT, NORMAL, dCol, x );
+    DiagonalSolve( LEFT, NORMAL, dRow, y );
+    DiagonalScale( LEFT, NORMAL, dCol, z );
 }
 
 #define PROTO(Real) \
