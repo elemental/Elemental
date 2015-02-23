@@ -256,7 +256,7 @@ ValueIntPair<Base<T>> MaxAbs( const DistSparseMatrix<T>& A )
     typedef Base<T> Real;
 
     ValueIntPair<Real> pivot;
-    if( A.Height() == 0 || A.Width() )
+    if( A.Height() == 0 || A.Width() == 0 )
     {
         pivot.value = 0;
         pivot.indices[0] = -1;
@@ -457,7 +457,7 @@ ValueIntPair<Base<T>> SymmetricMaxAbs
     typedef Base<T> Real;
 
     ValueIntPair<Real> pivot;
-    if( A.Height() == 0 || A.Width() )
+    if( A.Height() == 0 || A.Width() == 0 )
     {
         pivot.value = 0;
         pivot.indices[0] = -1;

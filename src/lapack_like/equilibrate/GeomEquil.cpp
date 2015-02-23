@@ -206,7 +206,8 @@ inline void GeometricRowScaling
 }
 
 template<typename F>
-void GeomEquil( Matrix<F>& A, Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol )
+void GeomEquil
+( Matrix<F>& A, Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol, bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("GeomEquil"))
     typedef Base<F> Real;
@@ -228,6 +229,9 @@ void GeomEquil( Matrix<F>& A, Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol )
         return;
     Real minAbsVal = MinAbsNonzero( A, maxAbsVal );
     Real ratio = maxAbsVal / minAbsVal;
+    if( progress )
+        cout << "Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
+             << ratio << endl;
 
     const Real sqrtDamp = Sqrt(damp);
     for( Int iter=0; iter<maxIter; ++iter )
@@ -268,6 +272,9 @@ void GeomEquil( Matrix<F>& A, Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol )
         Real newMaxAbsVal = newMaxAbs.value;
         Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         Real newRatio = newMaxAbsVal / newMinAbsVal;
+        if( progress )
+            cout << "New ratio is " << newMaxAbsVal << "/" 
+                 << newMinAbsVal << "=" << newRatio << endl;
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
         ratio = newRatio;
@@ -290,7 +297,8 @@ void GeomEquil( Matrix<F>& A, Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol )
 template<typename F>
 void GeomEquil
 ( AbstractDistMatrix<F>& APre, 
-  AbstractDistMatrix<Base<F>>& dRowPre, AbstractDistMatrix<Base<F>>& dColPre )
+  AbstractDistMatrix<Base<F>>& dRowPre, AbstractDistMatrix<Base<F>>& dColPre,
+  bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("GeomEquil"))
     typedef Base<F> Real;
@@ -319,6 +327,9 @@ void GeomEquil
         return;
     Real minAbsVal = MinAbsNonzero( A, maxAbsVal );
     Real ratio = maxAbsVal / minAbsVal;
+    if( progress && A.Grid().Rank() == 0 )
+        cout << "Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
+             << ratio << endl;
 
     const Real sqrtDamp = Sqrt(damp);
     DistMatrix<Real,MC,STAR> rowScale(A.Grid());
@@ -353,6 +364,9 @@ void GeomEquil
         Real newMaxAbsVal = newMaxAbs.value;
         Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         Real newRatio = newMaxAbsVal / newMinAbsVal;
+        if( progress && A.Grid().Rank() == 0 )
+            cout << "New ratio is " << newMaxAbsVal << "/" 
+                 << newMinAbsVal << "=" << newRatio << endl;
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
         ratio = newRatio;
@@ -372,7 +386,8 @@ void GeomEquil
 
 template<typename F>
 void GeomEquil
-( SparseMatrix<F>& A, Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol )
+( SparseMatrix<F>& A, Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol,
+  bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("GeomEquil"))
     typedef Base<F> Real;
@@ -395,6 +410,9 @@ void GeomEquil
         return;
     Real minAbsVal = MinAbsNonzero( A, maxAbsVal );
     Real ratio = maxAbsVal / minAbsVal;
+    if( progress )
+        cout << "Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
+             << ratio << endl;
 
     SparseMatrix<F> ATrans;
     Transpose( A, ATrans );
@@ -482,6 +500,9 @@ void GeomEquil
         Real newMaxAbsVal = newMaxAbs.value;
         Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         Real newRatio = newMaxAbsVal / newMinAbsVal;
+        if( progress )
+            cout << "New ratio is " << newMaxAbsVal << "/" 
+                 << newMinAbsVal << "=" << newRatio << endl;
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
         ratio = newRatio;
@@ -510,13 +531,15 @@ void GeomEquil
 template<typename F>
 void GeomEquil
 ( DistSparseMatrix<F>& A, 
-  DistMultiVec<Base<F>>& dRow, DistMultiVec<Base<F>>& dCol )
+  DistMultiVec<Base<F>>& dRow, DistMultiVec<Base<F>>& dCol, 
+  bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("GeomEquil"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
+    const int commRank = mpi::Rank(comm);
     dRow.SetComm( comm );
     dCol.SetComm( comm );
     Ones( dRow, m, 1 );
@@ -535,6 +558,9 @@ void GeomEquil
         return;
     Real minAbsVal = MinAbsNonzero( A, maxAbsVal );
     Real ratio = maxAbsVal / minAbsVal;
+    if( progress && commRank == 0 )
+        cout << "Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
+             << ratio << endl;
 
     DistSparseMatrix<F> ATrans(comm);
 
@@ -615,6 +641,9 @@ void GeomEquil
         Real newMaxAbsVal = newMaxAbs.value;
         Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         Real newRatio = newMaxAbsVal / newMinAbsVal;
+        if( progress && commRank == 0 )
+            cout << "New ratio is " << newMaxAbsVal << "/" 
+                 << newMinAbsVal << "=" << newRatio << endl;
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
         ratio = newRatio;
@@ -644,15 +673,19 @@ void GeomEquil
 
 #define PROTO(F) \
   template void GeomEquil \
-  ( Matrix<F>& A, Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol ); \
+  ( Matrix<F>& A, Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol, \
+    bool progress ); \
   template void GeomEquil \
   ( AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<Base<F>>& dRow, AbstractDistMatrix<Base<F>>& dCol ); \
+    AbstractDistMatrix<Base<F>>& dRow, AbstractDistMatrix<Base<F>>& dCol, \
+    bool progress ); \
   template void GeomEquil \
-  ( SparseMatrix<F>& A, Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol ); \
+  ( SparseMatrix<F>& A, Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol, \
+    bool progress ); \
   template void GeomEquil \
   ( DistSparseMatrix<F>& A, \
-    DistMultiVec<Base<F>>& dRow, DistMultiVec<Base<F>>& dCol );
+    DistMultiVec<Base<F>>& dRow, DistMultiVec<Base<F>>& dCol, \
+    bool progress );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

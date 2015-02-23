@@ -301,16 +301,13 @@ Int LGMRESSolveAfter
 ( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
   const vector<Int>& invMap,  const SymmNodeInfo& info,
   const SymmFront<F>& front,        Matrix<F>& b,
+  Base<F> relTol,                   Int k,
   Base<F> minReductionFactor,       Int maxRefineIts,
   bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::LGMRESSolveAfter"))
     typedef Base<F> Real;
     const Int n = A.Height();
-
-    // TODO: Make these exposed control parameters
-    const Int k = 10; // restart parameter for GMRES(k)
-    const Real relTol = Pow(lapack::MachineEpsilon<Real>(),Real(0.5)); 
 
     // x := 0
     // ======
@@ -501,6 +498,7 @@ Int LGMRESSolveAfter
 ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
   const DistMap& invMap,             const DistSymmNodeInfo& info,
   const DistSymmFront<F>& front,           DistMultiVec<F>& b,
+  Base<F> relTol,                          Int k,
   Base<F> minReductionFactor,              Int maxRefineIts,
   bool progress )
 {
@@ -509,10 +507,6 @@ Int LGMRESSolveAfter
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
-
-    // TODO: Make these exposed control parameters
-    const Int k = 10; // restart parameter for GMRES(k)
-    const Real relTol = Pow(lapack::MachineEpsilon<Real>(),Real(0.5)); 
 
     // x := 0
     // ======
@@ -715,16 +709,13 @@ Int FGMRESSolveAfter
 ( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
   const vector<Int>& invMap,  const SymmNodeInfo& info,
   const SymmFront<F>& front,        Matrix<F>& b,
+  Base<F> relTol,                   Int k,
   Base<F> minReductionFactor,       Int maxRefineIts,
   bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::FGMRESSolveAfter"))
     typedef Base<F> Real;
     const Int n = A.Height();
-
-    // TODO: Make these exposed control parameters
-    const Int k = 10; // restart parameter for GMRES(k)
-    const Real relTol = Pow(lapack::MachineEpsilon<Real>(),Real(0.5)); 
 
     // x := 0
     // ======
@@ -915,6 +906,7 @@ Int FGMRESSolveAfter
 ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
   const DistMap& invMap,             const DistSymmNodeInfo& info,
   const DistSymmFront<F>& front,           DistMultiVec<F>& b,
+  Base<F> relTol,                          Int k,
   Base<F> minReductionFactor,              Int maxRefineIts,
   bool progress )
 {
@@ -923,10 +915,6 @@ Int FGMRESSolveAfter
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
-
-    // TODO: Make these exposed control parameters
-    const Int k = 10; // restart parameter for GMRES(k)
-    const Real relTol = Pow(lapack::MachineEpsilon<Real>(),Real(0.5)); 
 
     // x := 0
     // ======
@@ -1134,16 +1122,19 @@ Int SolveAfter
   bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::SolveAfter"))
+    typedef Base<F> Real;
+    const Int k = 10; // restart parameter
+    const Real relTol = Pow(lapack::MachineEpsilon<Real>(),Real(0.75));
     switch( refineAlg )
     {
     case REG_REFINE_FGMRES:
         return FGMRESSolveAfter
         ( A, reg, invMap, info, front, b, 
-          minReductionFactor, maxRefineIts, progress );
+          relTol, k, minReductionFactor, maxRefineIts, progress );
     case REG_REFINE_LGMRES:
         return LGMRESSolveAfter
         ( A, reg, invMap, info, front, b, 
-          minReductionFactor, maxRefineIts, progress );
+          relTol, k, minReductionFactor, maxRefineIts, progress );
     case REG_REFINE_IR:
         return IRSolveAfter
         ( A, reg, invMap, info, front, b, 
@@ -1167,16 +1158,19 @@ Int SolveAfter
   bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::SolveAfter"))
+    typedef Base<F> Real;
+    const Int k = 10; // restart parameter
+    const Real relTol = Pow(lapack::MachineEpsilon<Real>(),Real(0.75));
     switch( refineAlg )
     {
     case REG_REFINE_FGMRES:
         return FGMRESSolveAfter
         ( A, reg, invMap, info, front, b, 
-          minReductionFactor, maxRefineIts, progress );
+          relTol, k, minReductionFactor, maxRefineIts, progress );
     case REG_REFINE_LGMRES:
         return LGMRESSolveAfter
         ( A, reg, invMap, info, front, b, 
-          minReductionFactor, maxRefineIts, progress );
+          relTol, k, minReductionFactor, maxRefineIts, progress );
     case REG_REFINE_IR:
         return IRSolveAfter
         ( A, reg, invMap, info, front, b, 

@@ -66,8 +66,8 @@ void LeastSquares
 //   Minimum length: min || X ||_F s.t. op(A) X = B, or
 //   Least squares:  min || op(A) X - B ||_F,
 //
-// where op(A) is either A or A^H, via forming a Hermitian quasi-semidefinite 
-// system J D = \hat{B}, where J is 
+// where op(A) is either A, A^T, or A^H, via forming a Hermitian 
+// quasi-semidefinite system J D = \hat{B}, where J is 
 //
 //    | I   A | when height(A) >= width(A), or
 //    | A^H 0 |
@@ -120,72 +120,85 @@ void LeastSquares
           LogicError("Heights of A and B must match");
       if( orientation != NORMAL && A.Width() != B.Height() )
           LogicError("Width of A and height of B must match");
-      if( orientation == TRANSPOSE && IsComplex<F>::val )
-          LogicError("Complex transposes not yet supported");
     )
     typedef Base<F> Real;
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Int k = B.Width();
-    const Int numEntriesA = A.NumEntries();
 
-    const Int mT = ( orientation==NORMAL ? m : n );
-    const Int nT = ( orientation==NORMAL ? n : m );
+    // ABar := inv(D_r) op(A) inv(D_c)
+    // ===============================
+    SparseMatrix<F> ABar;
+    if( orientation == NORMAL )
+        ABar = A;
+    else if( orientation == TRANSPOSE )
+        Transpose( A, ABar );
+    else
+        Adjoint( A, ABar );
+    const Int m = ABar.Height();
+    const Int n = ABar.Width();
+    const Int numEntriesA = ABar.NumEntries();
+    const bool progress = false;
+    Matrix<Real> dRow, dCol;
+    GeomEquil( ABar, dRow, dCol, progress );
+
+    // BBar := inv(D_r) B
+    // ==================
+    auto BBar = B;
+    DiagonalSolve( LEFT, NORMAL, dRow, BBar );
+    const Int k = BBar.Width();
 
     SparseMatrix<F> J;
     Zeros( J, m+n, m+n );
     J.Reserve( 2*numEntriesA + Max(m,n) );
     if( m >= n )
     {
-        // Form J = [I, A; A^H, 0]
-        // =======================
+        // Form J = [D_r^{-2}, ABar; ABar^H, 0]
+        // =============================
         for( Int e=0; e<numEntriesA; ++e )
         {
-            J.QueueUpdate( A.Row(e),   A.Col(e)+m,      A.Value(e)  );
-            J.QueueUpdate( A.Col(e)+m, A.Row(e),   Conj(A.Value(e)) );
+            J.QueueUpdate( ABar.Row(e),   ABar.Col(e)+m,      ABar.Value(e)  );
+            J.QueueUpdate( ABar.Col(e)+m, ABar.Row(e),   Conj(ABar.Value(e)) );
         }
         for( Int e=0; e<m; ++e )
-            J.QueueUpdate( e, e, F(1) );
+            J.QueueUpdate( e, e, Pow(dRow.Get(e,0),Real(-2)) );
     }
     else
     {
-        // Form J = [I, A^H; A, 0]
-        // =======================
+        // Form J = [D_c^{-2}, ABar^H; ABar, 0]
+        // ====================================
         for( Int e=0; e<numEntriesA; ++e )
         {
-            J.QueueUpdate( A.Col(e),   A.Row(e)+n, Conj(A.Value(e)) );
-            J.QueueUpdate( A.Row(e)+n, A.Col(e),        A.Value(e)  );
+            J.QueueUpdate( ABar.Col(e),   ABar.Row(e)+n, Conj(ABar.Value(e)) );
+            J.QueueUpdate( ABar.Row(e)+n, ABar.Col(e),        ABar.Value(e)  );
         }
         for( Int e=0; e<n; ++e )
-            J.QueueUpdate( e, e, F(1) );
+            J.QueueUpdate( e, e, Pow(dCol.Get(e,0),Real(-2)) );
     }
     J.MakeConsistent();
 
     Matrix<F> D;
     Zeros( D, m+n, k );
-    if( mT >= nT )
+    if( m >= n )
     {
-        // Form D = [B; 0]
-        // ===============
-        auto DT = D( IR(0,mT), IR(0,k) );
-        DT = B;
+        // Form D = [BBar; 0]
+        // ==================
+        auto DT = D( IR(0,m), IR(0,k) );
+        DT = BBar;
     }
     else
     {
-        // Form D = [0; B]
-        // ===============
-        auto DB = D( IR(nT,m+n), IR(0,k) );
-        DB = B;
+        // Form D = [0; BBar]
+        // ==================
+        auto DB = D( IR(n,m+n), IR(0,k) );
+        DB = BBar;
     }
 
     // Compute the regularized quasi-semidefinite fact of J
     // ====================================================
     const Real minReductionFactor = 2;
     const Int maxRefineIts = 50;
-    bool print = true;
+    bool print = false;
     const Real epsilon = lapack::MachineEpsilon<Real>();
     bool aPriori = true;
-    const Real regMagPrimal = 0;
+    const Real regMagPrimal = Pow(epsilon,Real(0.5));
     const Real regMagDual = Pow(epsilon,Real(0.5));
     const Real pivTol = MaxNorm(J)*epsilon;
 
@@ -226,21 +239,22 @@ void LeastSquares
         d = u;
     }
 
-    Zeros( X, nT, k );
-    if( mT >= nT )
+    Zeros( X, n, k );
+    if( m >= n )
     {
-        // Extract X from [R; X]
-        // =====================
-        auto DB = D( IR(mT,m+n), IR(0,k) );
+        // Extract XBar from [R; XBar]
+        // ===========================
+        auto DB = D( IR(m,m+n), IR(0,k) );
         X = DB;
     }
     else
     {
-        // Extract X from [X; Y]
-        // =====================
-        auto DT = D( IR(0,nT), IR(0,k) );
+        // Extract XBar from [XBar; Y]
+        // ===========================
+        auto DT = D( IR(0,n), IR(0,k) );
         X = DT;
     }
+    DiagonalSolve( LEFT, NORMAL, dCol, X );
 }
 
 template<typename F>
@@ -255,46 +269,69 @@ void LeastSquares
           LogicError("Heights of A and B must match");
       if( orientation != NORMAL && A.Width() != B.Height() )
           LogicError("Width of A and height of B must match");
-      if( orientation == TRANSPOSE && IsComplex<F>::val )
-          LogicError("Complex transposes not yet supported");
     )
     typedef Base<F> Real;
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Int k = B.Width();
-    const Int numLocalEntriesA = A.NumLocalEntries();
     mpi::Comm comm = A.Comm();
     const int commSize = mpi::Size(comm);
 
-    const Int mT = ( orientation==NORMAL ? m : n );
-    const Int nT = ( orientation==NORMAL ? n : m );
+    // ABar := inv(D_r) op(A) inv(D_c) 
+    // ===============================
+    DistSparseMatrix<F> ABar(comm);
+    if( orientation == NORMAL )
+        ABar = A;
+    else if( orientation == TRANSPOSE )
+        Transpose( A, ABar );
+    else
+        Adjoint( A, ABar );
+    const Int m = ABar.Height();
+    const Int n = ABar.Width();
+    const bool progress = false;
+    DistMultiVec<Real> dRow(comm), dCol(comm);
+    GeomEquil( ABar, dRow, dCol, progress );
 
-    // Set J to [I, A; A^H, 0] or [I, A^H; A, 0] 
-    // =========================================
+    // BBar := inv(D_r) B
+    // ==================
+    const Int k = B.Width();
+    auto BBar = B;
+    DiagonalSolve( LEFT, NORMAL, dRow, BBar );
+
+    // Set J to [D_r^{-2}, ABar; ABar^H, 0] or [D_c^{-2}, ABar^H; ABar, 0] 
+    // ===================================================================
     DistSparseMatrix<F> J(comm);
     Zeros( J, m+n, m+n );
+    const Int numLocalEntriesA = ABar.NumLocalEntries();
     {
         // Compute metadata
         // ----------------
         vector<int> sendCounts(commSize,0);
         for( Int e=0; e<numLocalEntriesA; ++e )
         {
-            const Int i = A.Row(e);
-            const Int j = A.Col(e);
+            const Int i = ABar.Row(e);
+            const Int j = ABar.Col(e);
             if( m >= n )
             {
-                // Sending A
+                // Sending ABar
                 ++sendCounts[ J.RowOwner(i) ];
-                // Sending A^H
+                // Sending ABar^H
                 ++sendCounts[ J.RowOwner(j+m) ];
             }
             else
             {
-                // Sending A
+                // Sending ABar
                 ++sendCounts[ J.RowOwner(i+n) ];
-                // Sending A^H
+                // Sending ABar^H
                 ++sendCounts[ J.RowOwner(j) ];
             }
+        }
+        if( m >= n )
+        {
+            for( Int iLoc=0; iLoc<dRow.LocalHeight(); ++iLoc )
+                ++sendCounts[ J.RowOwner(dRow.GlobalRow(iLoc)) ];
+        }
+        else
+        {
+            for( Int iLoc=0; iLoc<dCol.LocalHeight(); ++iLoc )
+                ++sendCounts[ J.RowOwner(dCol.GlobalRow(iLoc)) ];
         }
         vector<int> recvCounts(commSize);
         mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
@@ -308,20 +345,20 @@ void LeastSquares
         auto offsets = sendOffsets;
         for( Int e=0; e<numLocalEntriesA; ++e )
         {
-            const Int i = A.Row(e);
-            const Int j = A.Col(e);
-            const F value = A.Value(e);
+            const Int i = ABar.Row(e);
+            const Int j = ABar.Col(e);
+            const F value = ABar.Value(e);
 
             if( m >= n )
             {
-                // Sending A
+                // Sending ABar
                 int owner = J.RowOwner(i);
                 sSendBuf[offsets[owner]] = i;
                 tSendBuf[offsets[owner]] = j+m;
                 vSendBuf[offsets[owner]] = value;
                 ++offsets[owner];
 
-                // Sending A^H
+                // Sending ABar^H
                 owner = J.RowOwner(j+m);
                 sSendBuf[offsets[owner]] = j+m;
                 tSendBuf[offsets[owner]] = i;
@@ -330,14 +367,14 @@ void LeastSquares
             }
             else
             {
-                // Sending A
+                // Sending ABar
                 int owner = J.RowOwner(i+n);
                 sSendBuf[offsets[owner]] = i+n;
                 tSendBuf[offsets[owner]] = j;
                 vSendBuf[offsets[owner]] = value;
                 ++offsets[owner];
 
-                // Sending A^H
+                // Sending ABar^H
                 owner = J.RowOwner(j);
                 sSendBuf[offsets[owner]] = j;
                 tSendBuf[offsets[owner]] = i+n;
@@ -345,6 +382,31 @@ void LeastSquares
                 ++offsets[owner];
             }
         }
+        if( m >= n )
+        {
+            for( Int iLoc=0; iLoc<dRow.LocalHeight(); ++iLoc )
+            {
+                const Int i = dRow.GlobalRow(iLoc);
+                const int owner = J.RowOwner(i);
+                sSendBuf[offsets[owner]] = i; 
+                tSendBuf[offsets[owner]] = i;
+                vSendBuf[offsets[owner]] = Pow(dRow.GetLocal(iLoc,0),Real(-2));
+                ++offsets[owner];
+            }
+        }
+        else
+        {
+            for( Int iLoc=0; iLoc<dCol.LocalHeight(); ++iLoc )
+            {
+                const Int i = dCol.GlobalRow(iLoc);
+                const int owner = J.RowOwner(i);
+                sSendBuf[offsets[owner]] = i; 
+                tSendBuf[offsets[owner]] = i;
+                vSendBuf[offsets[owner]] = Pow(dCol.GetLocal(iLoc,0),Real(-2));
+                ++offsets[owner];
+            }
+        }
+
         // Exchange
         // --------
         vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
@@ -358,42 +420,30 @@ void LeastSquares
         mpi::AllToAll
         ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
           vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-        // Add in the identity portion
-        // ---------------------------
-        int numIdentUpdates = 0;
-        for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
-            if( J.GlobalRow(iLoc) < Max(m,n) )
-                ++numIdentUpdates;
-        J.Reserve( totalRecv+numIdentUpdates );
-        for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
-        {
-            const Int i = J.GlobalRow(iLoc);
-            if( i < Max(m,n) )
-                J.QueueLocalUpdate( iLoc, i, F(1) );
-        }
         // Unpack
         // ------
+        J.Reserve( totalRecv );
         for( Int e=0; e<totalRecv; ++e )
             J.QueueLocalUpdate
             ( sRecvBuf[e]-J.FirstLocalRow(), tRecvBuf[e], vRecvBuf[e] );
         J.MakeConsistent();
     }
 
-    // Set D to [B; 0] or [0; B]
-    // =========================
+    // Set D to [BBar; 0] or [0; BBar]
+    // ===============================
     DistMultiVec<F> D(comm);
     Zeros( D, m+n, k );
     {
         // Compute metadata
         // ----------------
         vector<int> sendCounts(commSize,0);
-        for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
+        for( Int iLoc=0; iLoc<BBar.LocalHeight(); ++iLoc )
         {
-            const Int i = B.GlobalRow(iLoc);
-            if( mT >= nT )
+            const Int i = BBar.GlobalRow(iLoc);
+            if( m >= n )
                 sendCounts[ D.RowOwner(i) ] += k;
             else
-                sendCounts[ D.RowOwner(i+nT) ] += k;
+                sendCounts[ D.RowOwner(i+n) ] += k;
         }
         vector<int> recvCounts(commSize);
         mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
@@ -405,16 +455,16 @@ void LeastSquares
         vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
         vector<F> vSendBuf(totalSend);
         auto offsets = sendOffsets;
-        for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
+        for( Int iLoc=0; iLoc<BBar.LocalHeight(); ++iLoc )
         {
-            const Int i = B.GlobalRow(iLoc);
+            const Int i = BBar.GlobalRow(iLoc);
 
-            if( mT >= nT )
+            if( m >= n )
             {
                 int owner = D.RowOwner(i);
                 for( Int j=0; j<k; ++j )
                 {
-                    const F value = B.GetLocal(iLoc,j);
+                    const F value = BBar.GetLocal(iLoc,j);
                     sSendBuf[offsets[owner]] = i;
                     tSendBuf[offsets[owner]] = j;
                     vSendBuf[offsets[owner]] = value;
@@ -426,7 +476,7 @@ void LeastSquares
                 int owner = D.RowOwner(i+n);
                 for( Int j=0; j<k; ++j )
                 {
-                    const F value = B.GetLocal(iLoc,j);
+                    const F value = BBar.GetLocal(iLoc,j);
                     sSendBuf[offsets[owner]] = i+n;
                     tSendBuf[offsets[owner]] = j;
                     vSendBuf[offsets[owner]] = value;
@@ -458,10 +508,10 @@ void LeastSquares
     // ================================================================
     const Real minReductionFactor = 2;
     const Int maxRefineIts = 50;
-    bool print = true;
+    bool print = false;
     const Real epsilon = lapack::MachineEpsilon<Real>();
     bool aPriori = true;
-    const Real regMagPrimal = 0;
+    const Real regMagPrimal = Pow(epsilon,Real(0.5));
     const Real regMagDual = Pow(epsilon,Real(0.5));
     const Real pivTol = MaxNorm(J)*epsilon;
 
@@ -510,9 +560,9 @@ void LeastSquares
     }
 
 
-    // Extract X from [R; X] or [X; Y]
-    // ===============================
-    Zeros( X, nT, k );
+    // Extract XBar from [R; XBar] or [XBar; Y] and then rescale
+    // =========================================================
+    Zeros( X, n, k );
     {
         // Compute metadata
         // ----------------
@@ -520,14 +570,14 @@ void LeastSquares
         for( Int iLoc=0; iLoc<DLocHeight; ++iLoc )
         {
             const Int i = D.GlobalRow(iLoc);
-            if( mT > nT )
+            if( m > n )
             {
-                if( i >= mT )
-                    sendCounts[ X.RowOwner(i-mT) ] += k;
+                if( i >= m )
+                    sendCounts[ X.RowOwner(i-m) ] += k;
             }
             else
             {
-                if( i < nT )
+                if( i < n )
                     sendCounts[ X.RowOwner(i) ] += k;
                 else
                     break;
@@ -546,15 +596,15 @@ void LeastSquares
         for( Int iLoc=0; iLoc<DLocHeight; ++iLoc )
         {
             const Int i = D.GlobalRow(iLoc);
-            if( mT >= nT )
+            if( m >= n )
             {
-                if( i >= mT )
+                if( i >= m )
                 {
-                    int owner = X.RowOwner(i-mT);
+                    int owner = X.RowOwner(i-m);
                     for( Int j=0; j<k; ++j )
                     {
                         const F value = D.GetLocal(iLoc,j);
-                        sSendBuf[offsets[owner]] = i-mT;
+                        sSendBuf[offsets[owner]] = i-m;
                         tSendBuf[offsets[owner]] = j;
                         vSendBuf[offsets[owner]] = value;
                         ++offsets[owner];
@@ -563,7 +613,7 @@ void LeastSquares
             }
             else
             {
-                if( i < nT )
+                if( i < n )
                 {
                     int owner = X.RowOwner(i);
                     for( Int j=0; j<k; ++j )
@@ -596,8 +646,9 @@ void LeastSquares
         // ------
         for( Int e=0; e<totalRecv; ++e )
             X.SetLocal
-            ( sRecvBuf[e]-B.FirstLocalRow(), tRecvBuf[e], vRecvBuf[e] );
+            ( sRecvBuf[e]-X.FirstLocalRow(), tRecvBuf[e], vRecvBuf[e] );
     }
+    DiagonalSolve( LEFT, NORMAL, dCol, X );
 }
 
 #define PROTO(F) \
