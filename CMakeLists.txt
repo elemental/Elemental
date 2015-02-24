@@ -35,6 +35,8 @@ set(EL_VERSION_MINOR 86-dev)
 #     3. "HybridDebug": MPI+OpenMP build meant for development and debugging
 #     4. "HybridRelease": MPI+OpenMP build meant for production runs
 #   If "CMAKE_BUILD_TYPE" is not defined, the default is "PureRelease".
+#   Please keep in mind that the PureRelease and PureDebug modes are by far the
+#   most commonly used and tested.
 
 # "CXX_FLAGS"
 #   Optimization and debugging/symbol flags
@@ -46,7 +48,7 @@ set(EL_VERSION_MINOR 86-dev)
 
 # TODO: Add discussion of "MATH_LIBS" and "REFERENCE_ROOT"
 
-set(BUILD_SHARED_LIBS "Build shared libraries?" ON)
+option(BUILD_SHARED_LIBS "Build shared libraries?" ON)
 
 option(EL_C_INTERFACE "Build C interface" ON)
 if(BUILD_SHARED_LIBS AND EL_C_INTERFACE)
