@@ -35,6 +35,31 @@ void GeomEquil
   DistMultiVec<Base<F>>& dRow, DistMultiVec<Base<F>>& dCol,
   bool progress=false );
 
+template<typename F>
+void StackedGeomEquil
+( Matrix<F>& A, Matrix<F>& B,
+  Matrix<Base<F>>& dRowA, Matrix<Base<F>>& dRowB, Matrix<Base<F>>& dCol,
+  bool progress=false );
+template<typename F>
+void StackedGeomEquil
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
+  AbstractDistMatrix<Base<F>>& dRowA, 
+  AbstractDistMatrix<Base<F>>& dRowB, 
+  AbstractDistMatrix<Base<F>>& dCol,
+  bool progress=false );
+template<typename F>
+void StackedGeomEquil
+( SparseMatrix<F>& A, SparseMatrix<F>& B,
+  Matrix<Base<F>>& dRowA, Matrix<Base<F>>& dRowB, 
+  Matrix<Base<F>>& dCol,
+  bool progress=false );
+template<typename F>
+void StackedGeomEquil
+( DistSparseMatrix<F>& A, DistSparseMatrix<F>& B,
+  DistMultiVec<Base<F>>& dRowA, DistMultiVec<Base<F>>& dRowB, 
+  DistMultiVec<Base<F>>& dCol,
+  bool progress=false );
+
 } // namespace El
 
 #endif // ifndef EL_EQUILIBRATE_HPP

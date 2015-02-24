@@ -19,11 +19,19 @@ Graph::Graph() : numSources_(0), numTargets_(0), consistent_(true) { }
 
 Graph::Graph( Int numVertices )
 : numSources_(numVertices), numTargets_(numVertices), consistent_(true)
-{ }
+{ 
+    edgeOffsets_.resize( numSources_+1 );
+    for( Int e=0; e<=numSources_; ++e )
+        edgeOffsets_[e] = 0;
+}
 
 Graph::Graph( Int numSources, Int numTargets )
 : numSources_(numSources), numTargets_(numTargets), consistent_(true)
-{ }
+{ 
+    edgeOffsets_.resize( numSources_+1 );
+    for( Int e=0; e<=numSources_; ++e )
+        edgeOffsets_[e] = 0;
+}
 
 Graph::Graph( const Graph& graph )
 {
@@ -78,8 +86,9 @@ void Graph::Empty( bool clearMemory )
     {
         sources_.resize( 0 );
         targets_.resize( 0 );
-        edgeOffsets_.resize( 0 );
     }
+    edgeOffsets_.resize( 1 );
+    edgeOffsets_[0] = 0;
 }
 
 void Graph::Resize( Int numVertices )
@@ -91,7 +100,9 @@ void Graph::Resize( Int numSources, Int numTargets )
     numTargets_ = numTargets;
     sources_.resize( 0 );
     targets_.resize( 0 );
-    edgeOffsets_.resize( 0 );
+    edgeOffsets_.resize( numSources+1 );
+    for( Int e=0; e<=numSources; ++e )
+        edgeOffsets_[e] = 0;
     consistent_ = true;
 }
 

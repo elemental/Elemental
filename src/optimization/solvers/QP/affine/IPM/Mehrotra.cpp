@@ -35,20 +35,46 @@ namespace affine {
 
 template<typename Real>
 void Mehrotra
-( const Matrix<Real>& Q,
-  const Matrix<Real>& A, const Matrix<Real>& G,
-  const Matrix<Real>& b, const Matrix<Real>& c,
-  const Matrix<Real>& h,
+( const Matrix<Real>& QPre,
+  const Matrix<Real>& APre, const Matrix<Real>& GPre,
+  const Matrix<Real>& bPre, const Matrix<Real>& cPre,
+  const Matrix<Real>& hPre,
         Matrix<Real>& x,       Matrix<Real>& y, 
         Matrix<Real>& z,       Matrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::affine::Mehrotra"))    
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Int k = G.Height();
 
-    // TODO: Equilibrate the QP here by calling GeomEquil on [A;G]
+    // Equilibrate the QP by diagonally scaling [A;G]
+    auto A = APre;
+    auto G = GPre;
+    Matrix<Real> dRowA, dRowG, dCol;
+    StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+    const Int m = A.Height();
+    const Int k = G.Height();
+    const Int n = A.Width();
+    auto b = bPre;
+    auto c = cPre;
+    auto h = hPre;
+    DiagonalSolve( LEFT, NORMAL, dRowA, b );
+    DiagonalSolve( LEFT, NORMAL, dRowG, h );
+    DiagonalSolve( LEFT, NORMAL, dCol,  c );
+    auto Q = QPre;
+    // TODO: Replace with SymmetricDiagonalSolve
+    {
+        DiagonalSolve( LEFT, NORMAL, dCol,  Q );
+        DiagonalSolve( RIGHT, NORMAL, dCol, Q );
+    }
+    if( ctrl.primalInitialized )
+    {
+        DiagonalScale( LEFT, NORMAL, dCol,  x );
+        DiagonalSolve( LEFT, NORMAL, dRowG, s );
+    }
+    if( ctrl.dualInitialized )
+    {
+        DiagonalScale( LEFT, NORMAL, dRowA, y );
+        DiagonalScale( LEFT, NORMAL, dRowG, z );
+    }
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -249,7 +275,11 @@ void Mehrotra
         Axpy( alphaDual, dz, z );
     }
 
-    // TODO: Unequilibrate the QP here
+    // Unequilibrate the QP
+    DiagonalSolve( LEFT, NORMAL, dCol,  x );
+    DiagonalSolve( LEFT, NORMAL, dRowA, y );
+    DiagonalSolve( LEFT, NORMAL, dRowG, z );
+    DiagonalScale( LEFT, NORMAL, dRowG, s );
 }
 
 template<typename Real>
@@ -263,32 +293,60 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::affine::Mehrotra"))    
+    const Grid& grid = APre.Grid();
+    const int commRank = grid.Rank();
 
-    ProxyCtrl proxCtrl;
-    proxCtrl.colConstrain = true;
-    proxCtrl.rowConstrain = true;
-    proxCtrl.colAlign = 0;
-    proxCtrl.rowAlign = 0;
-    auto QPtr = ReadProxy<Real,MC,MR>(&QPre,proxCtrl);      auto& Q = *QPtr;
-    auto APtr = ReadProxy<Real,MC,MR>(&APre,proxCtrl);      auto& A = *APtr;
-    auto bPtr = ReadProxy<Real,MC,MR>(&bPre,proxCtrl);      auto& b = *bPtr;
-    auto cPtr = ReadProxy<Real,MC,MR>(&cPre,proxCtrl);      auto& c = *cPtr;
-    auto hPtr = ReadProxy<Real,MC,MR>(&hPre,proxCtrl);      auto& h = *hPtr;
-    auto GPtr = ReadProxy<Real,MC,MR>(&GPre,proxCtrl);      auto& G = *GPtr;
-    // NOTE: {x,s} do not need to be read proxies when !ctrl.primalInitialized
-    auto xPtr = ReadWriteProxy<Real,MC,MR>(&xPre,proxCtrl); auto& x = *xPtr;
-    auto sPtr = ReadWriteProxy<Real,MC,MR>(&sPre,proxCtrl); auto& s = *sPtr;
+    // Ensure that the inputs have the appropriate read/write properties
+    DistMatrix<Real> Q(grid), A(grid), G(grid), b(grid), c(grid), h(grid);
+    Q.Align(0,0);
+    A.Align(0,0);
+    G.Align(0,0);
+    b.Align(0,0);
+    c.Align(0,0);
+    Q = QPre;
+    A = APre;
+    G = GPre;
+    b = bPre;
+    c = cPre;
+    h = hPre;
+    ProxyCtrl control;
+    control.colConstrain = true;
+    control.rowConstrain = true;
+    control.colAlign = 0;
+    control.rowAlign = 0;
+    // NOTE: {x,s} do not need to be a read proxy when !ctrl.primalInitialized
+    auto xPtr = ReadWriteProxy<Real,MC,MR>(&xPre,control); auto& x = *xPtr;
+    auto sPtr = ReadWriteProxy<Real,MC,MR>(&sPre,control); auto& s = *sPtr;
     // NOTE: {y,z} do not need to be read proxies when !ctrl.dualInitialized
-    auto yPtr = ReadWriteProxy<Real,MC,MR>(&yPre,proxCtrl); auto& y = *yPtr;
-    auto zPtr = ReadWriteProxy<Real,MC,MR>(&zPre,proxCtrl); auto& z = *zPtr;
+    auto yPtr = ReadWriteProxy<Real,MC,MR>(&yPre,control); auto& y = *yPtr;
+    auto zPtr = ReadWriteProxy<Real,MC,MR>(&zPre,control); auto& z = *zPtr;
 
+    // Equilibrate the QP by diagonally scaling [A;G]
+    DistMatrix<Real,MC,STAR> dRowA(grid),
+                             dRowG(grid);
+    DistMatrix<Real,MR,STAR> dCol(grid);
+    StackedGeomEquil( A, G, dRowA, dRowG, dCol );
     const Int m = A.Height();
-    const Int n = A.Width();
     const Int k = G.Height();
-    const Grid& grid = A.Grid();
-    const Int commRank = A.Grid().Rank();
-
-    // TODO: Equilibrate the QP here by calling GeomEquil on [A;G]
+    const Int n = A.Width();
+    DiagonalSolve( LEFT, NORMAL, dRowA, b );
+    DiagonalSolve( LEFT, NORMAL, dRowG, h );
+    DiagonalSolve( LEFT, NORMAL, dCol,  c );
+    // TODO: Replace with SymmetricDiagonalSolve
+    {
+        DiagonalSolve( LEFT, NORMAL, dCol,  Q );
+        DiagonalSolve( RIGHT, NORMAL, dCol, Q );
+    }
+    if( ctrl.primalInitialized )
+    {
+        DiagonalScale( LEFT, NORMAL, dCol,  x );
+        DiagonalSolve( LEFT, NORMAL, dRowG, s );
+    }
+    if( ctrl.dualInitialized )
+    {
+        DiagonalScale( LEFT, NORMAL, dRowA, y );
+        DiagonalScale( LEFT, NORMAL, dRowG, z );
+    }
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -519,26 +577,56 @@ void Mehrotra
         }
     }
 
-    // TODO: Unequilibrate the QP here
+    // Unequilibrate the QP
+    DiagonalSolve( LEFT, NORMAL, dCol,  x );
+    DiagonalSolve( LEFT, NORMAL, dRowA, y );
+    DiagonalSolve( LEFT, NORMAL, dRowG, z );
+    DiagonalScale( LEFT, NORMAL, dRowG, s );
 }
 
 template<typename Real>
 void Mehrotra
-( const SparseMatrix<Real>& Q,
-  const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
-  const Matrix<Real>& b,       const Matrix<Real>& c,
-  const Matrix<Real>& h,
-        Matrix<Real>& x,             Matrix<Real>& y, 
-        Matrix<Real>& z,             Matrix<Real>& s,
+( const SparseMatrix<Real>& QPre,
+  const SparseMatrix<Real>& APre, const SparseMatrix<Real>& GPre,
+  const Matrix<Real>& bPre,       const Matrix<Real>& cPre,
+  const Matrix<Real>& hPre,
+        Matrix<Real>& x,                Matrix<Real>& y, 
+        Matrix<Real>& z,                Matrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::affine::Mehrotra"))    
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Int k = G.Height();
     const Real epsilon = lapack::MachineEpsilon<Real>();
 
-    // TODO: Equilibrate the QP here by calling GeomEquil on [A;G]
+    // Equilibrate the QP by diagonally scaling [A;G]
+    auto A = APre;
+    auto G = GPre;
+    Matrix<Real> dRowA, dRowG, dCol;
+    StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+    const Int m = A.Height();
+    const Int k = G.Height();
+    const Int n = A.Width();
+    auto b = bPre;
+    auto c = cPre;
+    auto h = hPre;
+    DiagonalSolve( LEFT, NORMAL, dRowA, b );
+    DiagonalSolve( LEFT, NORMAL, dRowG, h );
+    DiagonalSolve( LEFT, NORMAL, dCol,  c );
+    auto Q = QPre;
+    // TODO: Replace with SymmetricDiagonalSolve
+    {
+        DiagonalSolve( LEFT, NORMAL, dCol, Q );
+        DiagonalSolve( RIGHT, NORMAL, dCol, Q );
+    }
+    if( ctrl.primalInitialized )
+    {
+        DiagonalScale( LEFT, NORMAL, dCol,  x );
+        DiagonalSolve( LEFT, NORMAL, dRowG, s );
+    }
+    if( ctrl.dualInitialized )
+    {
+        DiagonalScale( LEFT, NORMAL, dRowA, y );
+        DiagonalScale( LEFT, NORMAL, dRowG, z );
+    }
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -796,28 +884,58 @@ void Mehrotra
         Axpy( alphaDual, dz, z );
     }
 
-    // TODO: Unequilibrate the QP here
+    // Unequilibrate the QP
+    DiagonalSolve( LEFT, NORMAL, dCol,  x );
+    DiagonalSolve( LEFT, NORMAL, dRowA, y );
+    DiagonalSolve( LEFT, NORMAL, dRowG, z );
+    DiagonalScale( LEFT, NORMAL, dRowG, s );
 }
 
 template<typename Real>
 void Mehrotra
-( const DistSparseMatrix<Real>& Q,
-  const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c,
-  const DistMultiVec<Real>& h,
-        DistMultiVec<Real>& x,           DistMultiVec<Real>& y, 
-        DistMultiVec<Real>& z,           DistMultiVec<Real>& s,
+( const DistSparseMatrix<Real>& QPre,
+  const DistSparseMatrix<Real>& APre, const DistSparseMatrix<Real>& GPre,
+  const DistMultiVec<Real>& bPre,     const DistMultiVec<Real>& cPre,
+  const DistMultiVec<Real>& hPre,
+        DistMultiVec<Real>& x,              DistMultiVec<Real>& y, 
+        DistMultiVec<Real>& z,              DistMultiVec<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::affine::Mehrotra"))    
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Int k = G.Height();
-    mpi::Comm comm = A.Comm();
-    const Int commRank = mpi::Rank(comm);
+    mpi::Comm comm = APre.Comm();
+    const int commRank = mpi::Rank(comm);
     const Real epsilon = lapack::MachineEpsilon<Real>();
 
-    // TODO: Equilibrate the QP here by calling GeomEquil on [A;G]
+    // Equilibrate the QP by diagonally scaling [A;G]
+    auto A = APre;
+    auto G = GPre;
+    DistMultiVec<Real> dRowA(comm), dRowG(comm), dCol(comm);
+    StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+    const Int m = A.Height();
+    const Int k = G.Height();
+    const Int n = A.Width();
+    auto b = bPre;
+    auto h = hPre;
+    auto c = cPre;
+    DiagonalSolve( LEFT, NORMAL, dRowA, b );
+    DiagonalSolve( LEFT, NORMAL, dRowG, h );
+    DiagonalSolve( LEFT, NORMAL, dCol,  c );
+    auto Q = QPre;
+    // TODO: Replace with SymmetricDiagonalSolve
+    {
+        DiagonalSolve( LEFT, NORMAL, dCol, Q );
+        DiagonalSolve( RIGHT, NORMAL, dCol, Q );
+    }
+    if( ctrl.primalInitialized )
+    {
+        DiagonalScale( LEFT, NORMAL, dCol,  x );
+        DiagonalSolve( LEFT, NORMAL, dRowG, s );
+    }
+    if( ctrl.dualInitialized )
+    {
+        DiagonalScale( LEFT, NORMAL, dRowA, y );
+        DiagonalScale( LEFT, NORMAL, dRowG, z );
+    }
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -1076,7 +1194,11 @@ void Mehrotra
         Axpy( alphaDual, dz, z );
     }
 
-    // TODO: Unequilibrate the QP here
+    // Unequilibrate the QP
+    DiagonalSolve( LEFT, NORMAL, dCol,  x );
+    DiagonalSolve( LEFT, NORMAL, dRowA, y );
+    DiagonalSolve( LEFT, NORMAL, dRowG, z );
+    DiagonalScale( LEFT, NORMAL, dRowG, s );
 }
 
 #define PROTO(Real) \

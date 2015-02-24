@@ -53,6 +53,13 @@ void IPF
     auto c = cPre;
     DiagonalSolve( LEFT, NORMAL, dRow, b );
     DiagonalSolve( LEFT, NORMAL, dCol, c );
+    if( ctrl.primalInitialized )
+        DiagonalScale( LEFT, NORMAL, dCol, x );
+    if( ctrl.dualInitialized )
+    {
+        DiagonalScale( LEFT, NORMAL, dRow, y );
+        DiagonalSolve( LEFT, NORMAL, dCol, z );
+    }
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -260,6 +267,13 @@ void IPF
     const Int n = A.Width();
     DiagonalSolve( LEFT, NORMAL, dRow, b );
     DiagonalSolve( LEFT, NORMAL, dCol, c );
+    if( ctrl.primalInitialized )
+        DiagonalScale( LEFT, NORMAL, dCol, x );
+    if( ctrl.dualInitialized )
+    {
+        DiagonalScale( LEFT, NORMAL, dRow, y );
+        DiagonalSolve( LEFT, NORMAL, dCol, z );
+    }
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -453,6 +467,13 @@ void IPF
     auto c = cPre;
     DiagonalSolve( LEFT, NORMAL, dRow, b );
     DiagonalSolve( LEFT, NORMAL, dCol, c );
+    if( ctrl.primalInitialized )
+        DiagonalScale( LEFT, NORMAL, dCol, x );
+    if( ctrl.dualInitialized )
+    {
+        DiagonalScale( LEFT, NORMAL, dRow, y );
+        DiagonalSolve( LEFT, NORMAL, dCol, z );
+    }
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -774,6 +795,13 @@ void IPF
     auto c = cPre;
     DiagonalSolve( LEFT, NORMAL, dRow, b );
     DiagonalSolve( LEFT, NORMAL, dCol, c );
+    if( ctrl.primalInitialized )
+        DiagonalScale( LEFT, NORMAL, dCol, x );
+    if( ctrl.dualInitialized )
+    {
+        DiagonalScale( LEFT, NORMAL, dRow, y );
+        DiagonalSolve( LEFT, NORMAL, dCol, z );
+    }
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );

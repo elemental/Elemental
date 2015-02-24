@@ -1,9 +1,20 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson, Lexing Ying,
-   The University of Texas at Austin, Stanford University, and the
-   Georgia Insitute of Technology.
+   Copyright 2009-2011, Jack Poulson.
    All rights reserved.
- 
+
+   Copyright 2011-2012, Jack Poulson, Lexing Ying, and 
+   The University of Texas at Austin.
+   All rights reserved.
+
+   Copyright 2013, Jack Poulson, Lexing Ying, and Stanford University.
+   All rights reserved.
+
+   Copyright 2013-2014, Jack Poulson and The Georgia Institute of Technology.
+   All rights reserved.
+
+   Copyright 2014-2015, Jack Poulson and Stanford University.
+   All rights reserved.
+   
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
@@ -19,21 +30,29 @@ namespace El {
 
 DistGraph::DistGraph()
 : numSources_(0), numTargets_(0), comm_(mpi::COMM_WORLD), consistent_(true)
-{ SetComm( mpi::COMM_WORLD ); }
+{ 
+    SetComm( mpi::COMM_WORLD ); 
+}
 
 DistGraph::DistGraph( mpi::Comm comm )
 : numSources_(0), numTargets_(0), comm_(mpi::COMM_WORLD), consistent_(true)
-{ SetComm( comm ); }
+{ 
+    SetComm( comm ); 
+}
 
 DistGraph::DistGraph( Int numVertices, mpi::Comm comm )
 : numSources_(numVertices), numTargets_(numVertices), comm_(mpi::COMM_WORLD),
   consistent_(true)
-{ SetComm( comm ); }
+{ 
+    SetComm( comm ); 
+}
 
 DistGraph::DistGraph( Int numSources, Int numTargets, mpi::Comm comm )
 : numSources_(numSources), numTargets_(numTargets), comm_(mpi::COMM_WORLD),
   consistent_(true)
-{ SetComm( comm ); }
+{ 
+    SetComm( comm ); 
+}
 
 DistGraph::DistGraph( const Graph& graph )
 {
@@ -97,8 +116,9 @@ void DistGraph::Empty( bool clearMemory )
     {
         sources_.resize( 0 );
         targets_.resize( 0 );
-        localEdgeOffsets_.resize( 0 );
     }
+    localEdgeOffsets_.resize( 1 );
+    localEdgeOffsets_[0] = 0;
 }
 
 void DistGraph::Resize( Int numVertices ) 
@@ -119,7 +139,10 @@ void DistGraph::Resize( Int numSources, Int numTargets )
 
     sources_.resize( 0 );
     targets_.resize( 0 );
-    localEdgeOffsets_.resize( 0 );
+
+    localEdgeOffsets_.resize( numLocalSources_+1 );
+    for( Int e=0; e<=numLocalSources_; ++e )
+        localEdgeOffsets_[e] = 0;
 
     consistent_ = true;
 }
@@ -136,8 +159,6 @@ void DistGraph::SetComm( mpi::Comm comm )
 
     sources_.resize( 0 );
     targets_.resize( 0 );
-    localEdgeOffsets_.resize( 0 );
-    consistent_ = true;
 
     if( comm == mpi::COMM_WORLD )
         comm_ = comm;
@@ -152,6 +173,12 @@ void DistGraph::SetComm( mpi::Comm comm )
         numLocalSources_ = blocksize_;
     else
         numLocalSources_ = numSources_ - (commSize-1)*blocksize_;
+
+    localEdgeOffsets_.resize( numLocalSources_+1 );
+    for( Int e=0; e<=numLocalSources_; ++e )
+        localEdgeOffsets_[e] = 0;
+
+    consistent_ = true;
 }
 
 // Assembly
