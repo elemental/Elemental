@@ -6,8 +6,7 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-import El
-import time
+import El, time
 
 m = 500
 n = 250
@@ -32,8 +31,7 @@ startLAV = time.clock()
 x = El.LAV( A, b, ctrl )
 endLAV = time.clock()
 if worldRank == 0:
-  print "LAV time: ", endLAV-startLAV
-
+  print "LAV time:", endLAV-startLAV, "seconds"
 if display:
   El.Display( x, "x" )
 
@@ -55,13 +53,18 @@ if worldRank == 0:
 # The dense least squares overwrites A
 ALS = El.DistMatrix()
 El.Copy( A, ALS )
+startLS = time.clock()
 xLS = El.LeastSquares(ALS,b)
+endLS = time.clock()
+if worldRank == 0:
+  print "LS time:", endLS-startLS, "seconds"
 if display:
   El.Display( xLS, "x_{LS}" )
 rLS = El.DistMatrix()
 El.Copy( b, rLS )
 El.Gemv( El.NORMAL, -1., A, xLS, 1., rLS )
-El.Display( rLS, "A x_{LS} - b" )
+if display:
+  El.Display( rLS, "A x_{LS} - b" )
 rLSTwoNorm = El.Nrm2(rLS)
 rLSOneNorm = El.EntrywiseNorm(rLS,1)
 if worldRank == 0:

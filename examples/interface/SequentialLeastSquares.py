@@ -6,7 +6,7 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-import El
+import El, time
 
 n0 = n1 = 20
 display = False
@@ -45,7 +45,10 @@ if display:
 yNrm = El.Nrm2(y)
 print "|| y ||_2 =", yNrm
 
+startLS = clock.time()
 x = El.LeastSquares(A,y)
+endLS = clock.time()
+print "LS time:", endLS-startLS, "seconds"
 xNrm = El.Nrm2(x)
 if display:
   El.Display( x, "x" )

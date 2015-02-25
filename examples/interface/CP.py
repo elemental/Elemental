@@ -6,8 +6,7 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-import El
-import time
+import El, time
 
 m = 4000
 n = 2000
@@ -52,8 +51,7 @@ startCP = time.clock()
 x = El.CP( A, b, ctrl )
 endCP = time.clock()
 if worldRank == 0:
-  print "CP time: ", endCP-startCP
-
+  print "CP time:", endCP-startCP, "seconds"
 if display:
   El.Display( x, "x" )
 
@@ -72,13 +70,18 @@ if worldRank == 0:
   print "|| A x - b ||_2  =", rTwoNorm
   print "|| A x - b ||_oo =", rInfNorm
 
+startLS = time.clock()
 xLS = El.LeastSquares(A,b)
+endLS = time.clock()
+if worldRank == 0:
+  print "LS time:", endLS-startLS, "seconds"
 if display:
   El.Display( xLS, "x_{LS}" )
 rLS = El.DistMultiVec()
 El.Copy( b, rLS )
 El.SparseMultiply( El.NORMAL, -1., A, xLS, 1., rLS )
-El.Display( rLS, "A x_{LS} - b" )
+if display:
+  El.Display( rLS, "A x_{LS} - b" )
 rLSTwoNorm = El.Nrm2(rLS)
 rLSInfNorm = El.MaxNorm(rLS)
 if worldRank == 0:

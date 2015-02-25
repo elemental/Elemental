@@ -6,8 +6,7 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-import El
-import time
+import El, time
 
 m = 500
 n = 250
@@ -30,8 +29,7 @@ startNNLS = time.clock()
 x = El.NNLS( A, b )
 endNNLS = time.clock()
 if worldRank == 0:
-  print "NNLS time: ", endNNLS-startNNLS
-
+  print "NNLS time:", endNNLS-startNNLS, "seconds"
 if display:
   El.Display( x, "x" )
 
@@ -52,7 +50,7 @@ startLS = time.clock()
 xLS = El.LeastSquares( ALS, b )
 endLS = time.clock()
 if worldRank == 0:
-  print "LS time: ", endLS-startLS
+  print "LS time:", endLS-startLS, "seconds"
 El.Copy( b, e )
 El.Gemv( El.NORMAL, -1., A, xLS, 1., e )
 if display:
