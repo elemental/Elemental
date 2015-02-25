@@ -620,7 +620,7 @@ void IPF
         DiagonalScale( LEFT, NORMAL, s, rmu );
         Shift( rmu, -ctrl.centering*mu );
 
-        const Real minReductionFactor = 2;
+        const Real relTolRefine = Pow(epsilon,Real(0.5));
         const Int maxRefineIts = 50;
         bool aPriori = true;
         {
@@ -647,7 +647,7 @@ void IPF
 
             const Int numLargeRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d, 
-              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
+              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
             if( numLargeRefines > 3 && !increasedReg )
             {
                 Scale( Real(10), regCand );
@@ -876,7 +876,7 @@ void IPF
         DiagonalScale( LEFT, NORMAL, s, rmu );
         Shift( rmu, -ctrl.centering*mu );
 
-        const Real minReductionFactor = 2;
+        const Real relTolRefine = Pow(epsilon,Real(0.5));
         const Int maxRefineIts = 50;
         bool aPriori = true;
         {
@@ -903,7 +903,7 @@ void IPF
 
             const Int numLargeRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d, 
-              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
+              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
             if( numLargeRefines > 3 && !increasedReg )
             {
                 Scale( Real(10), regCand );

@@ -354,8 +354,8 @@ void Initialize
     Matrix<Real> rc, rb, rmu, d, u, v;
     Zeros( rmu, n, 1 );
     // TODO: Expose these as control parameters
-    const Real minReductionFactor = 2;
-    const Int maxRefineIts = 10;
+    const Real relTolRefine = Pow(epsilon,Real(0.5));
+    const Int maxRefineIts = 50;
     if( !primalInitialized )
     {
         // Minimize || x ||^2, s.t. A x = b  by solving
@@ -372,7 +372,7 @@ void Initialize
 
         reg_qsd_ldl::SolveAfter
         ( J, reg, invMap, info, JFront, d,
-          REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, progress );
+          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, progress );
         ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
     }
     if( !dualInitialized ) 
@@ -387,7 +387,7 @@ void Initialize
 
         reg_qsd_ldl::SolveAfter
         ( J, reg, invMap, info, JFront, d,
-          REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, progress );
+          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, progress );
         ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );
         Scale( Real(-1), z );
     }
@@ -498,8 +498,8 @@ void Initialize
     DistMultiVec<Real> rc(comm), rb(comm), rmu(comm), d(comm), u(comm), v(comm);
     Zeros( rmu, n, 1 );
     // TODO: Expose these as control parameters
-    const Real minReductionFactor = 2;
-    const Int maxRefineIts = 10;
+    const Real relTolRefine = Pow(epsilon,Real(0.5));
+    const Int maxRefineIts = 50;
     if( !primalInitialized )
     {
         // Minimize || x ||^2, s.t. A x = b  by solving
@@ -516,7 +516,7 @@ void Initialize
 
         reg_qsd_ldl::SolveAfter
         ( J, reg, invMap, info, JFront, d,
-          REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, progress );
+          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, progress );
         ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
     }
     if( !dualInitialized ) 
@@ -531,7 +531,7 @@ void Initialize
 
         reg_qsd_ldl::SolveAfter
         ( J, reg, invMap, info, JFront, d,
-          REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, progress );
+          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, progress );
         ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );
         Scale( Real(-1), z );
     }

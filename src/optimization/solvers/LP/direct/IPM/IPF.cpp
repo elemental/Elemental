@@ -44,11 +44,20 @@ void IPF
     DEBUG_ONLY(CallStackEntry cse("lp::direct::IPF"))    
 
     // Equilibrate the LP by diagonally scaling A
+    const bool allowEquil = false;
     auto A = APre;
-    Matrix<Real> dRow, dCol;
-    GeomEquil( A, dRow, dCol );
     const Int m = A.Height();
     const Int n = A.Width();
+    Matrix<Real> dRow, dCol;
+    if( allowEquil )
+    {
+        GeomEquil( A, dRow, dCol );
+    }
+    else
+    {
+        Ones( dRow, m, 1 );
+        Ones( dCol, n, 1 );
+    }
     auto b = bPre;
     auto c = cPre;
     DiagonalSolve( LEFT, NORMAL, dRow, b );
@@ -260,11 +269,20 @@ void IPF
     auto zPtr = ReadWriteProxy<Real,MC,MR>(&zPre,control); auto& z = *zPtr;
 
     // Equilibrate the LP by diagonally scaling A
-    DistMatrix<Real,MC,STAR> dRow(grid);
-    DistMatrix<Real,MR,STAR> dCol(grid);
-    GeomEquil( A, dRow, dCol );
     const Int m = A.Height();
     const Int n = A.Width();
+    const bool allowEquil = false;
+    DistMatrix<Real,MC,STAR> dRow(grid);
+    DistMatrix<Real,MR,STAR> dCol(grid);
+    if( allowEquil )
+    {
+        GeomEquil( A, dRow, dCol );
+    }
+    else
+    {
+        Ones( dRow, m, 1 );
+        Ones( dCol, n, 1 );
+    }
     DiagonalSolve( LEFT, NORMAL, dRow, b );
     DiagonalSolve( LEFT, NORMAL, dCol, c );
     if( ctrl.primalInitialized )
@@ -459,10 +477,19 @@ void IPF
 
     // Equilibrate the LP by diagonally scaling A
     auto A = APre;
-    Matrix<Real> dRow, dCol;
-    GeomEquil( A, dRow, dCol );
     const Int m = A.Height();
     const Int n = A.Width();
+    const bool allowEquil = false;
+    Matrix<Real> dRow, dCol;
+    if( allowEquil )
+    {
+        GeomEquil( A, dRow, dCol );
+    }
+    else
+    {
+        Ones( dRow, m, 1 );
+        Ones( dCol, n, 1 );
+    }
     auto b = bPre;
     auto c = cPre;
     DiagonalSolve( LEFT, NORMAL, dRow, b );
@@ -610,7 +637,7 @@ void IPF
         // Compute the search direction
         // ============================
         // TODO: Expose these as control parameters
-        const Real minReductionFactor = 2;
+        const Real relTolRefine = Pow(epsilon,0.5);
         const Int maxRefineIts = 50;
         bool aPriori = true;
         if( ctrl.system == FULL_KKT )
@@ -642,7 +669,7 @@ void IPF
             // ---------------------------------------------------------
             const Int numLargeRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d, 
-              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
+              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
             if( numLargeRefines > 3 && !increasedReg )
             {
                 Scale( Real(10), regCand );
@@ -679,7 +706,7 @@ void IPF
             // ---------------------------------------------------------
             const Int numLargeRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d, 
-              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
+              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
             if( numLargeRefines > 3 && !increasedReg )
             {
                 Scale( Real(10), regCand );
@@ -709,7 +736,7 @@ void IPF
             // Compute the proposed step
             // -------------------------
             ldl::SolveWithIterativeRefinement
-            ( J, invMap, info, JFront, dy, minReductionFactor, maxRefineIts );
+            ( J, invMap, info, JFront, dy, relTolRefine, maxRefineIts );
             ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
         else
@@ -787,10 +814,19 @@ void IPF
 
     // Equilibrate the LP by diagonally scaling A
     auto A = APre;
-    DistMultiVec<Real> dRow(comm), dCol(comm);
-    GeomEquil( A, dRow, dCol );
     const Int m = A.Height();
     const Int n = A.Width();
+    const bool allowEquil = false;
+    DistMultiVec<Real> dRow(comm), dCol(comm);
+    if( allowEquil )
+    {
+        GeomEquil( A, dRow, dCol );
+    }
+    else
+    {
+        Ones( dRow, m, 1 );
+        Ones( dCol, n, 1 );
+    }
     auto b = bPre;
     auto c = cPre;
     DiagonalSolve( LEFT, NORMAL, dRow, b );
@@ -940,7 +976,7 @@ void IPF
         // Compute the search direction
         // ============================
         // TODO: Expose these as control parameters
-        const Real minReductionFactor = 2;
+        const Real relTolRefine = Pow(epsilon,0.5);
         const Int maxRefineIts = 50;
         bool aPriori = true;
         if( ctrl.system == FULL_KKT )
@@ -972,7 +1008,7 @@ void IPF
             // ---------------------------------------------------------
             const Int numLargeRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d, 
-              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
+              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
             if( numLargeRefines > 3 && !increasedReg )
             {
                 Scale( Real(10), regCand );
@@ -1009,7 +1045,7 @@ void IPF
             // ---------------------------------------------------------
             const Int numLargeRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d, 
-              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
+              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
             if( numLargeRefines > 3 && !increasedReg )
             {
                 Scale( Real(10), regCand );
@@ -1039,7 +1075,7 @@ void IPF
             // Compute the proposed step
             // -------------------------
             ldl::SolveWithIterativeRefinement
-            ( J, invMap, info, JFront, dy, minReductionFactor, maxRefineIts );
+            ( J, invMap, info, JFront, dy, relTolRefine, maxRefineIts );
             ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
         else

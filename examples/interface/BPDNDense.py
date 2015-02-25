@@ -41,8 +41,7 @@ for j in xrange(0,numLambdas):
   x = El.BPDN( A, b, lambd, ctrl )
   endBPDN = time.clock()
   if worldRank == 0:
-    print "BPDN time: ", endBPDN-startBPDN
-
+    print "BPDN time:", endBPDN-startBPDN, "seconds"
   if display:
     El.Display( x, "x" )
 

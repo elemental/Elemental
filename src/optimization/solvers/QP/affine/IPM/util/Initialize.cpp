@@ -382,8 +382,8 @@ void Initialize
     Matrix<Real> rc, rb, rh, rmu, u, d;
     Zeros( rmu, k, 1 );
     // TODO: Expose these as control parameters
-    const Real minReductionFactor = 2;
-    const Int maxRefineIts = 10;
+    const Real relTolRefine = Pow(epsilon,Real(0.5));
+    const Int maxRefineIts = 50;
     if( !primalInitialized )
     {
         // Minimize || G x - h ||^2, s.t. A x = b  by solving
@@ -402,7 +402,7 @@ void Initialize
 
         reg_qsd_ldl::SolveAfter
         ( J, reg, invMap, info, JFront, d,
-          REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, progress );
+          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, progress );
         ExpandCoreSolution( m, n, k, d, x, u, s );
         Scale( Real(-1), s );
     }
@@ -422,7 +422,7 @@ void Initialize
 
         reg_qsd_ldl::SolveAfter
         ( J, reg, invMap, info, JFront, d,
-          REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, progress );
+          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, progress );
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
@@ -543,8 +543,8 @@ void Initialize
                        d(comm);
     Zeros( rmu, k, 1 );
     // TODO: Expose these as control parameters
-    const Real minReductionFactor = 2;
-    const Int maxRefineIts = 10;
+    const Real relTolRefine = Pow(epsilon,Real(0.5));
+    const Int maxRefineIts = 50;
     if( !primalInitialized )
     {
         // Minimize || G x - h ||^2, s.t. A x = b  by solving
@@ -563,7 +563,7 @@ void Initialize
 
         reg_qsd_ldl::SolveAfter
         ( J, reg, invMap, info, JFront, d,
-          REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, progress );
+          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, progress );
         ExpandCoreSolution( m, n, k, d, x, u, s );
         Scale( Real(-1), s );
     }
@@ -583,7 +583,7 @@ void Initialize
 
         reg_qsd_ldl::SolveAfter
         ( J, reg, invMap, info, JFront, d,
-          REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, progress );
+          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, progress );
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 

@@ -212,13 +212,13 @@ Int SolveWithIterativeRefinement
 ( const SparseMatrix<F>& A,
   const vector<Int>& invMap, const SymmNodeInfo& info,
   const SymmFront<F>& front, Matrix<F>& y,
-  Base<F> minReductionFactor=2, Int maxRefineIts=10 );
+  Base<F> relTolRefine,      Int maxRefineIts );
 template<typename F>
 Int SolveWithIterativeRefinement
 ( const DistSparseMatrix<F>& A,
   const DistMap& invMap, const DistSymmNodeInfo& info,
   const DistSymmFront<F>& front, DistMultiVec<F>& y,
-  Base<F> minReductionFactor=2, Int maxRefineIts=10 );
+  Base<F> relTolRefine, Int maxRefineIts );
 
 // Solve linear system with the implicit representations of L, D, and P
 // --------------------------------------------------------------------
@@ -285,14 +285,14 @@ Int RegularizedSolveAfter
 ( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
   const vector<Int>& invMap,  const SymmNodeInfo& info,
   const SymmFront<F>& front,        Matrix<F>& y,
-  Base<F> minReductionFactor,       Int maxRefineIts,
+  Base<F> relTolRefine,       Int maxRefineIts,
   bool progress );
 template<typename F>
 Int RegularizedSolveAfter
 ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
   const DistMap& invMap,             const DistSymmNodeInfo& info,
   const DistSymmFront<F>& front,           DistMultiVec<F>& y,
-  Base<F> minReductionFactor,              Int maxRefineIts,
+  Base<F> relTolRefine,              Int maxRefineIts,
   bool progress );
 
 template<typename F>
@@ -301,7 +301,7 @@ Int SolveAfter
   const vector<Int>& invMap,  const SymmNodeInfo& info,
   const SymmFront<F>& front,        Matrix<F>& y,
   RegQSDRefineAlg refineAlg,
-  Base<F> minReductionFactor,       Int maxRefineIts,
+  Base<F> relTolRefine,       Int maxRefineIts,
   bool progress );
 template<typename F>
 Int SolveAfter
@@ -309,7 +309,7 @@ Int SolveAfter
   const DistMap& invMap,             const DistSymmNodeInfo& info,
   const DistSymmFront<F>& front,           DistMultiVec<F>& y,
   RegQSDRefineAlg refineAlg,
-  Base<F> minReductionFactor,              Int maxRefineIts,
+  Base<F> relTolRefine,              Int maxRefineIts,
   bool progress );
 
 } // namespace reg_qsd_ldl

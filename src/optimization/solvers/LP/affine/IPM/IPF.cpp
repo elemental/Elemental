@@ -50,11 +50,21 @@ void IPF
     // Equilibrate the LP by diagonally scaling [A;G]
     auto A = APre;
     auto G = GPre;
-    Matrix<Real> dRowA, dRowG, dCol;
-    StackedGeomEquil( A, G, dRowA, dRowG, dCol );
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
+    const bool allowEquil = false;
+    Matrix<Real> dRowA, dRowG, dCol;
+    if( allowEquil )
+    {
+        StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+    }
+    else
+    {
+        Ones( dRowA, m, 1 );
+        Ones( dRowG, k, 1 );
+        Ones( dCol,  n, 1 );
+    }
     auto b = bPre;
     auto c = cPre;
     auto h = hPre;
@@ -260,13 +270,23 @@ void IPF
     auto zPtr = ReadWriteProxy<Real,MC,MR>(&zPre,control); auto& z = *zPtr;
 
     // Equilibrate the LP by diagonally scaling [A;G]
-    DistMatrix<Real,MC,STAR> dRowA(grid),
-                             dRowG(grid);
-    DistMatrix<Real,MR,STAR> dCol(grid);
-    StackedGeomEquil( A, G, dRowA, dRowG, dCol );
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
+    const bool allowEquil = false;
+    DistMatrix<Real,MC,STAR> dRowA(grid),
+                             dRowG(grid);
+    DistMatrix<Real,MR,STAR> dCol(grid);
+    if( allowEquil )
+    {
+        StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+    }
+    else
+    {
+        Ones( dRowA, m, 1 );
+        Ones( dRowG, k, 1 );
+        Ones( dCol,  n, 1 );
+    }
     DiagonalSolve( LEFT, NORMAL, dRowA, b );
     DiagonalSolve( LEFT, NORMAL, dRowG, h );
     DiagonalSolve( LEFT, NORMAL, dCol,  c );
@@ -451,11 +471,21 @@ void IPF
     // Equilibrate the LP by diagonally scaling [A;G]
     auto A = APre;
     auto G = GPre;
-    Matrix<Real> dRowA, dRowG, dCol;
-    StackedGeomEquil( A, G, dRowA, dRowG, dCol );
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
+    const bool allowEquil = false;
+    Matrix<Real> dRowA, dRowG, dCol;
+    if( allowEquil )
+    {
+        StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+    }
+    else
+    {
+        Ones( dRowA, m, 1 );
+        Ones( dRowG, k, 1 );
+        Ones( dCol,  n, 1 );
+    }
     auto b = bPre;
     auto c = cPre;
     auto h = hPre;
@@ -584,7 +614,7 @@ void IPF
         DiagonalScale( LEFT, NORMAL, s, rmu );
         Shift( rmu, -ctrl.centering*mu );
 
-        const Real minReductionFactor = 2;
+        const Real relTolRefine = Pow(epsilon,0.5);
         const Int maxRefineIts = 50;
         bool aPriori = true;
         {
@@ -611,7 +641,7 @@ void IPF
 
             const Int numLargeRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d, 
-              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
+              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
             if( numLargeRefines > 3 && !increasedReg )
             {
                 Scale( Real(10), regCand );
@@ -693,11 +723,21 @@ void IPF
     // Equilibrate the LP by diagonally scaling [A;G]
     auto A = APre;
     auto G = GPre;
-    DistMultiVec<Real> dRowA(comm), dRowG(comm), dCol(comm);
-    StackedGeomEquil( A, G, dRowA, dRowG, dCol );
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
+    const bool allowEquil = false;
+    DistMultiVec<Real> dRowA(comm), dRowG(comm), dCol(comm);
+    if( allowEquil ) 
+    {
+        StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+    }
+    else
+    {
+        Ones( dRowA, m, 1 );
+        Ones( dRowG, k, 1 );
+        Ones( dCol,  n, 1 );
+    }
     auto b = bPre;
     auto h = hPre;
     auto c = cPre;
@@ -827,7 +867,7 @@ void IPF
         DiagonalScale( LEFT, NORMAL, s, rmu );
         Shift( rmu, -ctrl.centering*mu );
 
-        const Real minReductionFactor = 2;
+        const Real relTolRefine = Pow(epsilon,0.5);
         const Int maxRefineIts = 50;
         bool aPriori = true;
         {
@@ -854,7 +894,7 @@ void IPF
 
             const Int numLargeRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d, 
-              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
+              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
             if( numLargeRefines > 3 && !increasedReg )
             {
                 Scale( Real(10), regCand );

@@ -8,39 +8,58 @@
 #
 import El, time
 
-m = 4000
-n = 2000
+n0 = 25
+n1 = 25
 display = True
 worldRank = El.mpi.WorldRank()
 
-# Make a sparse matrix with the last column dense
-def Rectang(height,width):
+# Stack two 2D finite-difference matrices on top of each other
+# and make the last column dense
+def StackedFD2D(N0,N1):
   A = El.DistSparseMatrix()
+  height = 2*N0*N1
+  width = N0*N1
   A.Resize(height,width)
   firstLocalRow = A.FirstLocalRow()
   localHeight = A.LocalHeight()
-  A.Reserve(5*localHeight)
+  A.Reserve(6*localHeight)
   for sLoc in xrange(localHeight):
     s = firstLocalRow + sLoc
-    if s < width: 
-      A.QueueLocalUpdate( sLoc, s,        11 )
-    if s >= 1 and s-1 < width: 
-      A.QueueLocalUpdate( sLoc, s-1,      -1 )
-    if s+1 < width:
-      A.QueueLocalUpdate( sLoc, s+1,       2 )
-    if s >= height and s-height < width:
-      A.QueueLocalUpdate( sLoc, s-height, -3 )
-    if s+height < width: 
-      A.QueueLocalUpdate( sLoc, s+height,  4 )
+    if s < N0*N1:
+      x0 = s % N0
+      x1 = s / N0
+      A.QueueLocalUpdate( sLoc, s, 11 )
+      if x0 > 0:
+        A.QueueLocalUpdate( sLoc, s-1, -1 )
+      if x0+1 < N0:
+        A.QueueLocalUpdate( sLoc, s+1, 2 )
+      if x1 > 0:
+        A.QueueLocalUpdate( sLoc, s-N0, -30 )
+      if x1+1 < N1:
+        A.QueueLocalUpdate( sLoc, s+N0, 4 )
+    else:
+      sRel = s-N0*N1
+      x0 = sRel % N0
+      x1 = sRel / N0
+      A.QueueLocalUpdate( sLoc, sRel, -20 )
+      if x0 > 0:
+        A.QueueLocalUpdate( sLoc, sRel-1, -17 )
+      if x0+1 < N0:
+        A.QueueLocalUpdate( sLoc, sRel+1, -20 )
+      if x1 > 0:
+        A.QueueLocalUpdate( sLoc, sRel-N0, -3 )
+      if x1+1 < N1:
+        A.QueueLocalUpdate( sLoc, sRel+N0, 3 )
+
     # The dense last column
-    A.QueueLocalUpdate( sLoc, width-1, -5/height );
+    A.QueueLocalUpdate( sLoc, width-1, -10/height );
 
   A.MakeConsistent()
   return A
 
-A = Rectang(m,n)
+A = StackedFD2D(n0,n1)
 b = El.DistMultiVec()
-El.Gaussian( b, m, 1 )
+El.Gaussian( b, 2*n0*n1, 1 )
 if display:
   El.Display( A, "A" )
   El.Display( b, "b" )

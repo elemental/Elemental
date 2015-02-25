@@ -44,10 +44,19 @@ void Mehrotra
 
     // Equilibrate the QP by diagonally scaling A
     auto A = APre;
-    Matrix<Real> dRow, dCol;
-    GeomEquil( A, dRow, dCol );
     const Int m = A.Height();
     const Int n = A.Width();
+    const bool allowEquil = false;
+    Matrix<Real> dRow, dCol;
+    if( allowEquil )
+    {
+        GeomEquil( A, dRow, dCol );
+    }
+    else
+    {
+        Ones( dRow, m, 1 );
+        Ones( dCol, n, 1 );
+    }
     auto b = bPre;
     auto c = cPre;
     DiagonalSolve( LEFT, NORMAL, dRow, b );
@@ -331,11 +340,20 @@ void Mehrotra
     auto zPtr = ReadWriteProxy<Real,MC,MR>(&zPre,control); auto& z = *zPtr;
 
     // Equilibrate the QP by diagonally scaling A
-    DistMatrix<Real,MC,STAR> dRow(grid);
-    DistMatrix<Real,MR,STAR> dCol(grid);
-    GeomEquil( A, dRow, dCol );
     const Int m = A.Height();
     const Int n = A.Width();
+    const bool allowEquil = false;
+    DistMatrix<Real,MC,STAR> dRow(grid);
+    DistMatrix<Real,MR,STAR> dCol(grid);
+    if( allowEquil )
+    {
+        GeomEquil( A, dRow, dCol );
+    }
+    else
+    {
+        Ones( dRow, m, 1 );
+        Ones( dCol, n, 1 );
+    }
     DiagonalSolve( LEFT, NORMAL, dRow, b );
     DiagonalSolve( LEFT, NORMAL, dCol, c );
     // TODO: Replace with SymmetricDiagonalSolve
@@ -602,10 +620,19 @@ void Mehrotra
 
     // Equilibrate the QP by diagonally scaling A
     auto A = APre;
-    Matrix<Real> dRow, dCol;
-    GeomEquil( A, dRow, dCol );
     const Int m = A.Height();
     const Int n = A.Width();
+    const bool allowEquil = false;
+    Matrix<Real> dRow, dCol;
+    if( allowEquil )
+    {
+        GeomEquil( A, dRow, dCol );
+    }
+    else
+    {
+        Ones( dRow, m, 1 );
+        Ones( dCol, n, 1 );
+    }
     auto b = bPre;
     auto c = cPre;
     DiagonalSolve( LEFT, NORMAL, dRow, b );
@@ -762,7 +789,7 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        const Real minReductionFactor = 2;
+        const Real relTolRefine = Pow(epsilon,0.5);
         const Int maxRefineIts = 50;
         bool aPriori = true;
         Int numLargeAffineRefines=0, numLargeCorrectorRefines=0;
@@ -795,7 +822,7 @@ void Mehrotra
             // ---------------------------------------------------------
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d,
-              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
+              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
             ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -825,7 +852,7 @@ void Mehrotra
 
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d,
-              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
+              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
             ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
         }
         else
@@ -908,7 +935,7 @@ void Mehrotra
             // ---------------------------------------------
             numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d,
-              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
+              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
             ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -921,7 +948,7 @@ void Mehrotra
             // ---------------------------------------------
             numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d,
-              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
+              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else
@@ -978,10 +1005,19 @@ void Mehrotra
 
     // Equilibrate the QP by diagonally scaling A
     auto A = APre;
-    DistMultiVec<Real> dRow(comm), dCol(comm);
-    GeomEquil( A, dRow, dCol );
     const Int m = A.Height();
     const Int n = A.Width();
+    const bool allowEquil = false;
+    DistMultiVec<Real> dRow(comm), dCol(comm);
+    if( allowEquil )
+    {
+        GeomEquil( A, dRow, dCol );
+    }
+    else
+    {
+        Ones( dRow, m, 1 );
+        Ones( dCol, n, 1 );
+    }
     auto b = bPre;
     auto c = cPre;
     DiagonalSolve( LEFT, NORMAL, dRow, b );
@@ -1140,7 +1176,7 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        const Real minReductionFactor = 2;
+        const Real relTolRefine = Pow(epsilon,0.5);
         const Int maxRefineIts = 50;
         bool aPriori = true;
         Int numLargeAffineRefines=0, numLargeCorrectorRefines=0;
@@ -1173,7 +1209,7 @@ void Mehrotra
             // ---------------------------------------------------------
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d,
-              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
+              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
             ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -1203,7 +1239,7 @@ void Mehrotra
 
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d,
-              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
+              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
             ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
         }
         else
@@ -1286,7 +1322,7 @@ void Mehrotra
             // ---------------------------------------------
             numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d,
-              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
+              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
             ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -1299,7 +1335,7 @@ void Mehrotra
             // ---------------------------------------------
             numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d,
-              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
+              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else

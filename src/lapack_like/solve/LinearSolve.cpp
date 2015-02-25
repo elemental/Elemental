@@ -196,6 +196,7 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("LinearSolve"))
     DistMultiVec<F> X;
+    X.SetComm( B.Comm() );
     LeastSquares( NORMAL, A, B, X );
     B = X;
 }

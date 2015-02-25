@@ -8,34 +8,55 @@
 #
 import El, time
 
-n0 = n1 = 20
+n0 = n1 = 100
 display = False
+worldRank = El.mpi.WorldRank()
 
-def ExtendedLaplacian(xSize,ySize):
+# Stack two 2D finite-difference matrices on top of each other
+# and make the last column dense
+def StackedFD2D(N0,N1):
   A = El.DistSparseMatrix()
-  A.Resize(2*xSize*ySize,xSize*ySize)
+  height = 2*N0*N1
+  width = N0*N1
+  A.Resize(height,width)
   firstLocalRow = A.FirstLocalRow()
   localHeight = A.LocalHeight()
-  A.Reserve(5*localHeight)
-  hxInvSq = (1.*(xSize+1))**2
-  hyInvSq = (1.*(ySize+1))**2
+  A.Reserve(6*localHeight)
   for sLoc in xrange(localHeight):
     s = firstLocalRow + sLoc
-    if s < xSize*ySize:
-      x = s % xSize
-      y = s / xSize
-      A.QueueLocalUpdate( sLoc, s, 2*(hxInvSq+hyInvSq) )
-      if x != 0:       A.QueueLocalUpdate( sLoc, s-1,     -hxInvSq )
-      if x != xSize-1: A.QueueLocalUpdate( sLoc, s+1,     -hxInvSq )
-      if y != 0:       A.QueueLocalUpdate( sLoc, s-xSize, -hyInvSq )
-      if y != ySize-1: A.QueueLocalUpdate( sLoc, s+xSize, -hyInvSq )
+    if s < N0*N1:
+      x0 = s % N0
+      x1 = s / N0
+      A.QueueLocalUpdate( sLoc, s, 11 )
+      if x0 > 0:
+        A.QueueLocalUpdate( sLoc, s-1, -1 )
+      if x0+1 < N0:
+        A.QueueLocalUpdate( sLoc, s+1, 2 )
+      if x1 > 0:
+        A.QueueLocalUpdate( sLoc, s-N0, -3 )
+      if x1+1 < N1:
+        A.QueueLocalUpdate( sLoc, s+N0, 4 )
     else:
-      A.QueueLocalUpdate( sLoc, s-xSize*ySize, 2*(hxInvSq+hyInvSq) )
+      sRel = s-N0*N1
+      x0 = sRel % N0
+      x1 = sRel / N0
+      A.QueueLocalUpdate( sLoc, sRel, -20 )
+      if x0 > 0:
+        A.QueueLocalUpdate( sLoc, sRel-1, -1.7 )
+      if x0+1 < N0:
+        A.QueueLocalUpdate( sLoc, sRel+1, -2 )
+      if x1 > 0:
+        A.QueueLocalUpdate( sLoc, sRel-N0, -3 )
+      if x1+1 < N1:
+        A.QueueLocalUpdate( sLoc, sRel+N0, 3 )
+
+    # The dense last column
+    A.QueueLocalUpdate( sLoc, width-1, -10/height );
 
   A.MakeConsistent()
   return A
 
-A = ExtendedLaplacian(n0,n1)
+A = StackedFD2D(n0,n1)
 if display:
   El.Display( A, "A" )
   El.Display( A.DistGraph(), "Graph of A" )

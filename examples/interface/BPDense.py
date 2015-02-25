@@ -32,8 +32,7 @@ startBP = time.clock()
 x = El.BP( A, b, ctrl )
 endBP = time.clock()
 if worldRank == 0:
-  print "BP time: ", endBP-startBP
-
+  print "BP time:", endBP-startBP, "seconds"
 if display:
   El.Display( x, "x" )
 

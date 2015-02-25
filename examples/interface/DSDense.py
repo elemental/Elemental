@@ -41,8 +41,7 @@ for j in xrange(0,numLambdas):
   x = El.DS( A, b, lambd, ctrl )
   endDS = time.clock()
   if worldRank == 0:
-    print "DS time: ", endDS-startDS
-
+    print "DS time:", endDS-startDS, "seconds"
   if display:
     El.Display( x, "x" )
 

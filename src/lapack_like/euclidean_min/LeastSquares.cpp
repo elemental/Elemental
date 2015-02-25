@@ -136,8 +136,17 @@ void LeastSquares
     const Int n = ABar.Width();
     const Int numEntriesA = ABar.NumEntries();
     const bool progress = false;
+    const bool allowEquil = false;
     Matrix<Real> dRow, dCol;
-    GeomEquil( ABar, dRow, dCol, progress );
+    if( allowEquil )
+    {
+        GeomEquil( ABar, dRow, dCol, progress );
+    }
+    else
+    {
+        Ones( dRow, m, 1 );
+        Ones( dCol, n, 1 );
+    }
 
     // BBar := inv(D_r) B
     // ==================
@@ -193,10 +202,9 @@ void LeastSquares
 
     // Compute the regularized quasi-semidefinite fact of J
     // ====================================================
-    const Real minReductionFactor = 2;
-    const Int maxRefineIts = 50;
-    bool print = false;
     const Real epsilon = lapack::MachineEpsilon<Real>();
+    const Real relTolRefine = Pow(epsilon,Real(0.75));
+    const Int maxRefineIts = 50;
     bool aPriori = true;
     const Real regMagPrimal = Pow(epsilon,Real(0.5));
     const Real regMagDual = Pow(epsilon,Real(0.5));
@@ -226,6 +234,7 @@ void LeastSquares
     // Successively solve each of the k linear systems
     // ===============================================
     // TODO: Extend the iterative refinement to handle multiple RHS
+    bool print = false;
     Matrix<F> u;
     Zeros( u, m+n, 1 );
     for( Int j=0; j<k; ++j )
@@ -234,8 +243,7 @@ void LeastSquares
         u = d;
         reg_qsd_ldl::SolveAfter
         ( J, reg, invMap, info, JFront, u,
-          REG_REFINE_FGMRES,
-          minReductionFactor, maxRefineIts, print );
+          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, print );
         d = u;
     }
 
@@ -285,9 +293,18 @@ void LeastSquares
         Adjoint( A, ABar );
     const Int m = ABar.Height();
     const Int n = ABar.Width();
-    const bool progress = false;
+    const bool progress = true;
+    const bool allowEquil = false;
     DistMultiVec<Real> dRow(comm), dCol(comm);
-    GeomEquil( ABar, dRow, dCol, progress );
+    if( allowEquil )
+    {
+        GeomEquil( ABar, dRow, dCol, progress );
+    }
+    else
+    {
+        Ones( dRow, m, 1 );
+        Ones( dCol, n, 1 );
+    }
 
     // BBar := inv(D_r) B
     // ==================
@@ -506,10 +523,9 @@ void LeastSquares
 
     // Compute the dynamically-regularized quasi-semidefinite fact of J
     // ================================================================
-    const Real minReductionFactor = 2;
-    const Int maxRefineIts = 50;
-    bool print = false;
     const Real epsilon = lapack::MachineEpsilon<Real>();
+    const Real relTolRefine = Pow(epsilon,Real(0.75));
+    const Int maxRefineIts = 50;
     bool aPriori = true;
     const Real regMagPrimal = Pow(epsilon,Real(0.5));
     const Real regMagDual = Pow(epsilon,Real(0.5));
@@ -543,6 +559,7 @@ void LeastSquares
     // Successively solve each of the k linear systems
     // ===============================================
     // TODO: Extend the iterative refinement to handle multiple right-hand sides
+    bool print = true;
     DistMultiVec<F> u(comm);
     Zeros( u, m+n, 1 );
     auto& DLoc = D.Matrix();
@@ -554,11 +571,9 @@ void LeastSquares
         Copy( dLoc, uLoc );
         reg_qsd_ldl::SolveAfter
         ( J, reg, invMap, info, JFront, u,
-          REG_REFINE_FGMRES,
-          minReductionFactor, maxRefineIts, print );
+          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, print );
         Copy( uLoc, dLoc );
     }
-
 
     // Extract XBar from [R; XBar] or [XBar; Y] and then rescale
     // =========================================================

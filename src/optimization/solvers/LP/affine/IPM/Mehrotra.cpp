@@ -47,11 +47,21 @@ void Mehrotra
     // Equilibrate the LP by diagonally scaling [A;G]
     auto A = APre;
     auto G = GPre;
-    Matrix<Real> dRowA, dRowG, dCol;
-    StackedGeomEquil( A, G, dRowA, dRowG, dCol );
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
+    const bool allowEquil = false;
+    Matrix<Real> dRowA, dRowG, dCol;
+    if( allowEquil )
+    {
+        StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+    }
+    else
+    {
+        Ones( dRowA, m, 1 );
+        Ones( dRowG, k, 1 );
+        Ones( dCol,  n, 1 );
+    }
     auto b = bPre;
     auto c = cPre;
     auto h = hPre;
@@ -309,13 +319,23 @@ void Mehrotra
     auto zPtr = ReadWriteProxy<Real,MC,MR>(&zPre,control); auto& z = *zPtr;
 
     // Equilibrate the LP by diagonally scaling [A;G]
-    DistMatrix<Real,MC,STAR> dRowA(grid),
-                             dRowG(grid);
-    DistMatrix<Real,MR,STAR> dCol(grid);
-    StackedGeomEquil( A, G, dRowA, dRowG, dCol );
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
+    const bool allowEquil = false;
+    DistMatrix<Real,MC,STAR> dRowA(grid),
+                             dRowG(grid);
+    DistMatrix<Real,MR,STAR> dCol(grid);
+    if( allowEquil )
+    {
+        StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+    }
+    else
+    {
+        Ones( dRowA, m, 1 );
+        Ones( dRowG, k, 1 );
+        Ones( dCol,  n, 1 );
+    }
     DiagonalSolve( LEFT, NORMAL, dRowA, b );
     DiagonalSolve( LEFT, NORMAL, dRowG, h );
     DiagonalSolve( LEFT, NORMAL, dCol,  c );
@@ -554,11 +574,21 @@ void Mehrotra
     // Equilibrate the LP by diagonally scaling [A;G]
     auto A = APre;
     auto G = GPre;
-    Matrix<Real> dRowA, dRowG, dCol;
-    StackedGeomEquil( A, G, dRowA, dRowG, dCol );
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
+    const bool allowEquil = false;
+    Matrix<Real> dRowA, dRowG, dCol;
+    if( allowEquil )
+    {
+        StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+    }
+    else
+    {
+        Ones( dRowA, m, 1 );
+        Ones( dRowG, k, 1 );
+        Ones( dCol,  n, 1 );
+    }
     auto b = bPre;
     auto c = cPre;
     auto h = hPre;
@@ -688,7 +718,7 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        const Real minReductionFactor = 2;
+        const Real relTolRefine = Pow(epsilon,0.5);
         const Int maxRefineIts = 50;
         bool aPriori = true; 
         Int numLargeAffineRefines = 0;
@@ -718,7 +748,7 @@ void Mehrotra
 
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d,
-              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
+              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
             ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
         }
 #ifndef EL_RELEASE
@@ -794,7 +824,7 @@ void Mehrotra
         // ---------------------------------------------
         const Int numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
         ( J, reg, invMap, info, JFront, d,
-          REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
+          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
         if( Max(numLargeAffineRefines,numLargeCorrectorRefines) > 3 &&
             !increasedReg )
@@ -852,11 +882,21 @@ void Mehrotra
     // Equilibrate the LP by diagonally scaling [A;G]
     auto A = APre;
     auto G = GPre;
-    DistMultiVec<Real> dRowA(comm), dRowG(comm), dCol(comm);
-    StackedGeomEquil( A, G, dRowA, dRowG, dCol );
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
+    DistMultiVec<Real> dRowA(comm), dRowG(comm), dCol(comm);
+    const bool allowEquil = false;
+    if( allowEquil )
+    {
+        StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+    }
+    else
+    {
+        Ones( dRowA, m, 1 );
+        Ones( dRowG, k, 1 );
+        Ones( dCol,  n, 1 );
+    }
     auto b = bPre;
     auto h = hPre;
     auto c = cPre;
@@ -987,7 +1027,7 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        const Real minReductionFactor = 2;
+        const Real relTolRefine = Pow(epsilon,0.5);
         const Int maxRefineIts = 50;
         bool aPriori = true; 
         Int numLargeAffineRefines = 0;
@@ -1017,7 +1057,7 @@ void Mehrotra
 
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d,
-              REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
+              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
             ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
         }
 #ifndef EL_RELEASE
@@ -1093,7 +1133,7 @@ void Mehrotra
         // ---------------------------------------------
         const Int numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
         ( J, reg, invMap, info, JFront, d,
-          REG_REFINE_FGMRES, minReductionFactor, maxRefineIts, ctrl.print );
+          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
         if( Max(numLargeAffineRefines,numLargeCorrectorRefines) > 3 &&
             !increasedReg )

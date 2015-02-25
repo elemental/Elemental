@@ -38,8 +38,7 @@ startEN = time.clock()
 x = El.EN( A, b, lambda1, lambda2, ctrl )
 endEN = time.clock()
 if worldRank == 0:
-  print "EN time: ", endEN-startEN
-
+  print "EN time:", endEN-startEN, "seconds"
 if display:
   El.Display( x, "x" )
 
