@@ -50,10 +50,11 @@ struct LeastSquaresCtrl {
     RegQSDSolveCtrl<Real> solveCtrl;
     bool equilibrate;
     bool progress;
+    bool time;
 
     LeastSquaresCtrl()
     : alpha(Pow(lapack::MachineEpsilon<Real>(),Real(0.25))),
-      equilibrate(true), progress(false)
+      equilibrate(true), progress(false), time(false)
     { }
 };
 

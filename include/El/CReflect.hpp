@@ -1424,6 +1424,7 @@ inline ElLeastSquaresCtrl_s CReflect( const LeastSquaresCtrl<float>& ctrl )
     ctrlC.solveCtrl   = CReflect(ctrl.solveCtrl);
     ctrlC.equilibrate = ctrl.equilibrate;
     ctrlC.progress    = ctrl.progress;
+    ctrlC.time        = ctrl.time;
     return ctrlC;
 }
 
@@ -1434,6 +1435,7 @@ inline ElLeastSquaresCtrl_d CReflect( const LeastSquaresCtrl<double>& ctrl )
     ctrlC.solveCtrl   = CReflect(ctrl.solveCtrl);
     ctrlC.equilibrate = ctrl.equilibrate;
     ctrlC.progress    = ctrl.progress;
+    ctrlC.time        = ctrl.time;
     return ctrlC;
 }
 
@@ -1444,6 +1446,7 @@ inline LeastSquaresCtrl<float> CReflect( const ElLeastSquaresCtrl_s& ctrlC )
     ctrl.solveCtrl   = CReflect(ctrlC.solveCtrl);
     ctrl.equilibrate = ctrlC.equilibrate;
     ctrl.progress    = ctrlC.progress;
+    ctrl.time        = ctrlC.time;
     return ctrl;
 }
 
@@ -1454,6 +1457,7 @@ inline LeastSquaresCtrl<double> CReflect( const ElLeastSquaresCtrl_d& ctrlC )
     ctrl.solveCtrl   = CReflect(ctrlC.solveCtrl);
     ctrl.equilibrate = ctrlC.equilibrate;
     ctrl.progress    = ctrlC.progress;
+    ctrl.time        = ctrlC.time;
     return ctrl;
 }
 

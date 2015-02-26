@@ -106,6 +106,7 @@ typedef struct {
   ElRegQSDSolveCtrl_s solveCtrl;
   bool equilibrate;
   bool progress;
+  bool time;
 } ElLeastSquaresCtrl_s;
 ElError ElLeastSquaresCtrlDefault_s( ElLeastSquaresCtrl_s* ctrl );
 
@@ -114,6 +115,7 @@ typedef struct {
   ElRegQSDSolveCtrl_d solveCtrl;
   bool equilibrate;
   bool progress;
+  bool time;
 } ElLeastSquaresCtrl_d;
 ElError ElLeastSquaresCtrlDefault_d( ElLeastSquaresCtrl_d* ctrl );
 

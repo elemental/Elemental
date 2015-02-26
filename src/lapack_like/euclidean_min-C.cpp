@@ -19,6 +19,7 @@ ElError ElLeastSquaresCtrlDefault_s( ElLeastSquaresCtrl_s* ctrl )
     ElRegQSDSolveCtrlDefault_s( &ctrl->solveCtrl );
     ctrl->equilibrate = false;
     ctrl->progress = false;
+    ctrl->time = false;
     return EL_SUCCESS;
 }
 
@@ -29,6 +30,7 @@ ElError ElLeastSquaresCtrlDefault_d( ElLeastSquaresCtrl_d* ctrl )
     ElRegQSDSolveCtrlDefault_d( &ctrl->solveCtrl );
     ctrl->equilibrate = false;
     ctrl->progress = false;
+    ctrl->time = false;
     return EL_SUCCESS;
 }
 

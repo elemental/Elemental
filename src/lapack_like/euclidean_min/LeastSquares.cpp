@@ -285,6 +285,8 @@ void LeastSquares
     const Real epsilon = lapack::MachineEpsilon<Real>();
     mpi::Comm comm = A.Comm();
     const int commSize = mpi::Size(comm);
+    const int commRank = mpi::Rank(comm);
+    Timer timer;
 
     DistSparseMatrix<F> ABar(comm);
     if( orientation == NORMAL )
@@ -303,7 +305,11 @@ void LeastSquares
     DistMultiVec<Real> dRow(comm), dCol(comm);
     if( ctrl.equilibrate )
     {
+        if( commRank == 0 && ctrl.time )
+            timer.Start();
         GeomEquil( ABar, dRow, dCol, ctrl.progress );
+        if( commRank == 0 && ctrl.time )
+            cout << "  GeomEquil: " << timer.Stop() << " secs" << endl;
         DiagonalSolve( LEFT, NORMAL, dRow, BBar );
     }
     else
@@ -545,14 +551,22 @@ void LeastSquares
     DistMap map, invMap;
     DistSymmNodeInfo info;
     DistSeparator rootSep;
+    if( commRank == 0 && ctrl.time )
+        timer.Start();
     NestedDissection( J.LockedDistGraph(), map, rootSep, info );
+    if( commRank == 0 && ctrl.time )
+        cout << "  ND: " << timer.Stop() << " secs" << endl;
     InvertMap( map, invMap );
     DistSymmFront<F> JFront( J, map, rootSep, info );
 
     DistMultiVecNode<Real> regCandNodal(invMap,info,regCand),
                            regNodal(invMap,info,reg);
+    if( commRank == 0 && ctrl.time )
+        timer.Start();
     RegularizedQSDLDL
     ( info, JFront, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
+    if( commRank == 0 && ctrl.time )
+        cout << "  RegQSDLDL: " << timer.Stop() << " secs" << endl;
     regNodal.Push( invMap, info, reg );
 
     // Successively solve each of the k linear systems
@@ -563,6 +577,8 @@ void LeastSquares
     auto& DLoc = D.Matrix();
     auto& uLoc = u.Matrix();
     const Int DLocHeight = DLoc.Height();
+    if( commRank == 0 && ctrl.time )
+        timer.Start();
     for( Int j=0; j<k; ++j )
     {
         auto dLoc = DLoc( IR(0,DLocHeight), IR(j,j+1) );
@@ -571,6 +587,8 @@ void LeastSquares
         ( J, reg, invMap, info, JFront, u, ctrl.solveCtrl );
         Copy( uLoc, dLoc );
     }
+    if( commRank == 0 && ctrl.time )
+        cout << "  Solve: " << timer.Stop() << " secs" << endl;
 
     // Extract XBar from [R; XBar] or [XBar/alpha; Y] and then rescale
     // ===============================================================

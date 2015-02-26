@@ -66,12 +66,12 @@ def GLM(A,B,D):
 
 class LeastSquaresCtrl_s(ctypes.Structure):
   _fields_ = [("alpha",sType),("solveCtrl",RegQSDSolveCtrl_s),
-              ("equilibrate",bType),("progress",bType)]
+              ("equilibrate",bType),("progress",bType),("time",bType)]
   def __init__(self):
     lib.ElLeastSquaresCtrlDefault_s(pointer(self))
 class LeastSquaresCtrl_d(ctypes.Structure):
   _fields_ = [("alpha",dType),("solveCtrl",RegQSDSolveCtrl_d),
-              ("equilibrate",bType),("progress",bType)]
+              ("equilibrate",bType),("progress",bType),("time",bType)]
   def __init__(self):
     lib.ElLeastSquaresCtrlDefault_d(pointer(self))
 
