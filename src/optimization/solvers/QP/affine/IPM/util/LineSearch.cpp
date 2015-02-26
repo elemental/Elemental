@@ -26,7 +26,7 @@ Real IPFLineSearch
   const Matrix<Real>& dz, const Matrix<Real>& ds,
   Real upperBound,
   Real bTol, Real cTol, Real hTol,
-  const qp::IPFLineSearchCtrl<Real>& ctrl )
+  const IPFLineSearchCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::affine::IPFLineSearch"))
     if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
@@ -207,7 +207,7 @@ Real IPFLineSearch
   const AbstractDistMatrix<Real>& dz,   const AbstractDistMatrix<Real>& ds,
   Real upperBound,
   Real bTol, Real cTol, Real hTol,
-  const qp::IPFLineSearchCtrl<Real>& ctrl )
+  const IPFLineSearchCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::affine::IPFLineSearch"))
     if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
@@ -404,7 +404,7 @@ Real IPFLineSearch
   const Matrix<Real>& dz, const Matrix<Real>& ds,
   Real upperBound,
   Real bTol, Real cTol, Real hTol,
-  const qp::IPFLineSearchCtrl<Real>& ctrl )
+  const IPFLineSearchCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::affine::IPFLineSearch"))
     if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
@@ -585,7 +585,7 @@ Real IPFLineSearch
   const DistMultiVec<Real>& dz,    const DistMultiVec<Real>& ds,
   Real upperBound,
   Real bTol, Real cTol, Real hTol,
-  const qp::IPFLineSearchCtrl<Real>& ctrl )
+  const IPFLineSearchCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::affine::IPFLineSearch"))
     if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
@@ -774,7 +774,7 @@ Real IPFLineSearch
     const Matrix<Real>& dz, const Matrix<Real>& ds, \
     Real upperBound, \
     Real bTol, Real cTol, Real hTol, \
-    const qp::IPFLineSearchCtrl<Real>& ctrl ); \
+    const IPFLineSearchCtrl<Real>& ctrl ); \
   template Real IPFLineSearch \
   ( const AbstractDistMatrix<Real>& Q, \
     const AbstractDistMatrix<Real>& A,  const AbstractDistMatrix<Real>& G, \
@@ -786,7 +786,7 @@ Real IPFLineSearch
     const AbstractDistMatrix<Real>& dz, const AbstractDistMatrix<Real>& ds, \
     Real upperBound, \
     Real bTol, Real cTol, Real hTol, \
-    const qp::IPFLineSearchCtrl<Real>& ctrl ); \
+    const IPFLineSearchCtrl<Real>& ctrl ); \
   template Real IPFLineSearch \
   ( const SparseMatrix<Real>& Q, \
     const SparseMatrix<Real>& A, const SparseMatrix<Real>& G, \
@@ -798,7 +798,7 @@ Real IPFLineSearch
     const Matrix<Real>& dz,      const Matrix<Real>& ds, \
     Real upperBound, \
     Real bTol, Real cTol, Real hTol, \
-    const qp::IPFLineSearchCtrl<Real>& ctrl ); \
+    const IPFLineSearchCtrl<Real>& ctrl ); \
   template Real IPFLineSearch \
   ( const DistSparseMatrix<Real>& Q, \
     const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G, \
@@ -810,7 +810,7 @@ Real IPFLineSearch
     const DistMultiVec<Real>& dz,    const DistMultiVec<Real>& ds, \
     Real upperBound, \
     Real bTol, Real cTol, Real hTol, \
-    const qp::IPFLineSearchCtrl<Real>& ctrl );
+    const IPFLineSearchCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

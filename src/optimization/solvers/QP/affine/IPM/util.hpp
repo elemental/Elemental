@@ -162,7 +162,7 @@ Real IPFLineSearch
   const Matrix<Real>& dz, const Matrix<Real>& ds,
   Real upperBound,
   Real bTol, Real cTol, Real hTol,
-  const qp::IPFLineSearchCtrl<Real>& ctrl );
+  const IPFLineSearchCtrl<Real>& ctrl );
 template<typename Real>
 Real IPFLineSearch
 ( const AbstractDistMatrix<Real>& Q,
@@ -175,7 +175,7 @@ Real IPFLineSearch
   const AbstractDistMatrix<Real>& dz, const AbstractDistMatrix<Real>& ds,
   Real upperBound,
   Real bTol, Real cTol, Real hTol,
-  const qp::IPFLineSearchCtrl<Real>& ctrl );
+  const IPFLineSearchCtrl<Real>& ctrl );
 template<typename Real>
 Real IPFLineSearch
 ( const SparseMatrix<Real>& Q,
@@ -188,7 +188,7 @@ Real IPFLineSearch
   const Matrix<Real>& dz,      const Matrix<Real>& ds,
   Real upperBound,
   Real bTol, Real cTol, Real hTol,
-  const qp::IPFLineSearchCtrl<Real>& ctrl );
+  const IPFLineSearchCtrl<Real>& ctrl );
 template<typename Real>
 Real IPFLineSearch
 ( const DistSparseMatrix<Real>& Q,
@@ -201,7 +201,7 @@ Real IPFLineSearch
   const DistMultiVec<Real>& dz,    const DistMultiVec<Real>& ds,
   Real upperBound,
   Real bTol, Real cTol, Real hTol,
-  const qp::IPFLineSearchCtrl<Real>& ctrl );
+  const IPFLineSearchCtrl<Real>& ctrl );
 
 } // namespace affine
 } // namespace qp

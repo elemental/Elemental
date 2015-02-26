@@ -14,6 +14,31 @@
 extern "C" {
 #endif
 
+typedef enum {
+  EL_FULL_KKT,
+  EL_AUGMENTED_KKT,
+  EL_NORMAL_KKT
+} ElKKTSystem;
+
+typedef struct {
+  float gamma;
+  float beta;
+  float psi;
+  float stepRatio;
+  bool print;
+} ElIPFLineSearchCtrl_s;
+
+typedef struct {
+  double gamma;
+  double beta;
+  double psi;
+  double stepRatio;
+  bool print;
+} ElIPFLineSearchCtrl_d;
+
+ElError ElIPFLineSearchCtrlDefault_s( ElIPFLineSearchCtrl_s* ctrl );
+ElError ElIPFLineSearchCtrlDefault_d( ElIPFLineSearchCtrl_d* ctrl );
+
 /* Linear programs
    =============== */
 typedef enum {
@@ -23,25 +48,6 @@ typedef enum {
   EL_LP_MEHROTRA,
   EL_LP_MEHROTRA_SELFDUAL
 } ElLPApproach;
-
-typedef struct {
-  float gamma;
-  float beta;
-  float psi;
-  float stepRatio;
-  bool print;
-} ElLPIPFLineSearchCtrl_s;
-
-typedef struct {
-  double gamma;
-  double beta;
-  double psi;
-  double stepRatio;
-  bool print;
-} ElLPIPFLineSearchCtrl_d;
-
-ElError ElLPIPFLineSearchCtrlDefault_s( ElLPIPFLineSearchCtrl_s* ctrl );
-ElError ElLPIPFLineSearchCtrlDefault_d( ElLPIPFLineSearchCtrl_d* ctrl );
 
 /* Direct conic form
    ----------------- */
@@ -91,11 +97,6 @@ EL_EXPORT ElError ElLPDirectDistSparse_d
 
 /* Expert versions
    ^^^^^^^^^^^^^^^ */
-typedef enum {
-  EL_LP_PRIMAL_FULL_KKT,
-  EL_LP_PRIMAL_AUGMENTED_KKT,
-  EL_LP_PRIMAL_NORMAL_KKT
-} ElLPDirectKKTSystem;
 
 typedef struct {
   float rho;  
@@ -126,11 +127,12 @@ typedef struct {
   float tol;
   ElInt maxIts;
   float centering;
-  ElLPDirectKKTSystem system;
+  ElKKTSystem system;
 
   ElRegQSDSolveCtrl_s solveCtrl;
 
-  ElLPIPFLineSearchCtrl_s lineSearchCtrl;
+  ElIPFLineSearchCtrl_s lineSearchCtrl;
+  bool equilibrate;
   bool print;
 } ElLPDirectIPFCtrl_s;
 
@@ -140,11 +142,12 @@ typedef struct {
   double tol;
   ElInt maxIts;
   double centering;
-  ElLPDirectKKTSystem system;
+  ElKKTSystem system;
 
   ElRegQSDSolveCtrl_d solveCtrl;
 
-  ElLPIPFLineSearchCtrl_d lineSearchCtrl;
+  ElIPFLineSearchCtrl_d lineSearchCtrl;
+  bool equilibrate;
   bool print;
 } ElLPDirectIPFCtrl_d;
 
@@ -157,8 +160,9 @@ typedef struct {
   float tol;
   ElInt maxIts;
   float maxStepRatio;
-  ElLPDirectKKTSystem system;
+  ElKKTSystem system;
   ElRegQSDSolveCtrl_s solveCtrl;
+  bool equilibrate;
   bool print;
 } ElLPDirectMehrotraCtrl_s;
 
@@ -168,8 +172,9 @@ typedef struct {
   double tol;
   ElInt maxIts;
   double maxStepRatio;
-  ElLPDirectKKTSystem system;
+  ElKKTSystem system;
   ElRegQSDSolveCtrl_d solveCtrl;
+  bool equilibrate;
   bool print;
 } ElLPDirectMehrotraCtrl_d;
 
@@ -311,7 +316,8 @@ typedef struct {
 
   ElRegQSDSolveCtrl_s solveCtrl;
 
-  ElLPIPFLineSearchCtrl_s lineSearchCtrl;
+  ElIPFLineSearchCtrl_s lineSearchCtrl;
+  bool equilibrate;
   bool print;
 } ElLPAffineIPFCtrl_s;
 
@@ -324,7 +330,8 @@ typedef struct {
 
   ElRegQSDSolveCtrl_d solveCtrl;
 
-  ElLPIPFLineSearchCtrl_d lineSearchCtrl;
+  ElIPFLineSearchCtrl_d lineSearchCtrl;
+  bool equilibrate;
   bool print;
 } ElLPAffineIPFCtrl_d;
 
@@ -338,6 +345,7 @@ typedef struct {
   ElInt maxIts;
   float maxStepRatio;
   ElRegQSDSolveCtrl_s solveCtrl;
+  bool equilibrate;
   bool print;
 } ElLPAffineMehrotraCtrl_s;
 
@@ -348,6 +356,7 @@ typedef struct {
   ElInt maxIts;
   double maxStepRatio;
   ElRegQSDSolveCtrl_d solveCtrl;
+  bool equilibrate;
   bool print;
 } ElLPAffineMehrotraCtrl_d;
 
@@ -438,25 +447,6 @@ typedef enum {
   EL_QP_MEHROTRA_SELFDUAL
 } ElQPApproach;
 
-typedef struct {
-  float gamma;
-  float beta;
-  float psi;
-  float stepRatio;
-  bool print;
-} ElQPIPFLineSearchCtrl_s;
-
-typedef struct {
-  double gamma;
-  double beta;
-  double psi;
-  double stepRatio;
-  bool print;
-} ElQPIPFLineSearchCtrl_d;
-
-ElError ElQPIPFLineSearchCtrlDefault_s( ElQPIPFLineSearchCtrl_s* ctrl );
-ElError ElQPIPFLineSearchCtrlDefault_d( ElQPIPFLineSearchCtrl_d* ctrl );
-
 /* Direct conic form
    ----------------- */ 
 EL_EXPORT ElError ElQPDirect_s
@@ -505,10 +495,6 @@ EL_EXPORT ElError ElQPDirectDistSparse_d
 
 /* Expert versions
    ^^^^^^^^^^^^^^^ */
-typedef enum {
-  EL_QP_PRIMAL_FULL_KKT,
-  EL_QP_PRIMAL_AUGMENTED_KKT
-} ElQPDirectKKTSystem;
 
 typedef struct {
   bool primalInitialized;
@@ -516,11 +502,12 @@ typedef struct {
   float tol;
   ElInt maxIts;
   float centering;
-  ElQPDirectKKTSystem system;
+  ElKKTSystem system;
 
   ElRegQSDSolveCtrl_s solveCtrl;
 
-  ElQPIPFLineSearchCtrl_s lineSearchCtrl;
+  ElIPFLineSearchCtrl_s lineSearchCtrl;
+  bool equilibrate;
   bool print;
 } ElQPDirectIPFCtrl_s;
 
@@ -530,11 +517,12 @@ typedef struct {
   double tol;
   ElInt maxIts;
   double centering;
-  ElQPDirectKKTSystem system;
+  ElKKTSystem system;
 
   ElRegQSDSolveCtrl_d solveCtrl;
 
-  ElQPIPFLineSearchCtrl_d lineSearchCtrl;
+  ElIPFLineSearchCtrl_d lineSearchCtrl;
+  bool equilibrate;
   bool print;
 } ElQPDirectIPFCtrl_d;
 
@@ -547,8 +535,9 @@ typedef struct {
   float tol;
   ElInt maxIts;
   float maxStepRatio;
-  ElQPDirectKKTSystem system;
+  ElKKTSystem system;
   ElRegQSDSolveCtrl_s solveCtrl;
+  bool equilibrate;
   bool print;
 } ElQPDirectMehrotraCtrl_s;
 
@@ -558,8 +547,9 @@ typedef struct {
   double tol;
   ElInt maxIts;
   double maxStepRatio;
-  ElQPDirectKKTSystem system;
+  ElKKTSystem system;
   ElRegQSDSolveCtrl_d solveCtrl;
+  bool equilibrate;
   bool print;
 } ElQPDirectMehrotraCtrl_d;
 
@@ -705,7 +695,8 @@ typedef struct {
 
   ElRegQSDSolveCtrl_s solveCtrl;
 
-  ElQPIPFLineSearchCtrl_s lineSearchCtrl;
+  ElIPFLineSearchCtrl_s lineSearchCtrl;
+  bool equilibrate;
   bool print;
 } ElQPAffineIPFCtrl_s;
 
@@ -718,7 +709,8 @@ typedef struct {
 
   ElRegQSDSolveCtrl_d solveCtrl;
 
-  ElQPIPFLineSearchCtrl_d lineSearchCtrl;
+  ElIPFLineSearchCtrl_d lineSearchCtrl;
+  bool equilibrate;
   bool print;
 } ElQPAffineIPFCtrl_d;
 
@@ -732,6 +724,7 @@ typedef struct {
   ElInt maxIts;
   float maxStepRatio;
   ElRegQSDSolveCtrl_s solveCtrl;
+  bool equilibrate;
   bool print;
 } ElQPAffineMehrotraCtrl_s;
 
@@ -742,6 +735,7 @@ typedef struct {
   ElInt maxIts;
   double maxStepRatio;
   ElRegQSDSolveCtrl_d solveCtrl;
+  bool equilibrate;
   bool print;
 } ElQPAffineMehrotraCtrl_d;
 

@@ -98,7 +98,7 @@ Real IPFLineSearch
   const Matrix<Real>& dz, const Matrix<Real>& ds,
   Real upperBound,
   Real bTol, Real cTol, Real hTol,
-  const lp::IPFLineSearchCtrl<Real>& ctrl );
+  const IPFLineSearchCtrl<Real>& ctrl );
 template<typename Real>
 Real IPFLineSearch
 ( const AbstractDistMatrix<Real>& A,  const AbstractDistMatrix<Real>& G,
@@ -110,7 +110,7 @@ Real IPFLineSearch
   const AbstractDistMatrix<Real>& dz, const AbstractDistMatrix<Real>& ds,
   Real upperBound,
   Real bTol, Real cTol, Real hTol,
-  const lp::IPFLineSearchCtrl<Real>& ctrl );
+  const IPFLineSearchCtrl<Real>& ctrl );
 template<typename Real>
 Real IPFLineSearch
 ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
@@ -122,7 +122,7 @@ Real IPFLineSearch
   const Matrix<Real>& dz,      const Matrix<Real>& ds,
   Real upperBound,
   Real bTol, Real cTol, Real hTol,
-  const lp::IPFLineSearchCtrl<Real>& ctrl );
+  const IPFLineSearchCtrl<Real>& ctrl );
 template<typename Real>
 Real IPFLineSearch
 ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
@@ -134,7 +134,7 @@ Real IPFLineSearch
   const DistMultiVec<Real>& dz,    const DistMultiVec<Real>& ds,
   Real upperBound,
   Real bTol, Real cTol, Real hTol,
-  const lp::IPFLineSearchCtrl<Real>& ctrl );
+  const IPFLineSearchCtrl<Real>& ctrl );
 
 } // namespace affine
 } // namespace lp

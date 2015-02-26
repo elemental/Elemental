@@ -15,6 +15,9 @@ worldRank = El.mpi.WorldRank()
 
 # Stack two 2D finite-difference matrices on top of each other
 # and make the last column dense
+#
+# NOTE: Increasing the size of the off-diagonal entries by an order of 
+#       magnitude greatly increases the condition number.
 def StackedFD2D(N0,N1):
   A = El.DistSparseMatrix()
   height = 2*N0*N1
@@ -34,7 +37,7 @@ def StackedFD2D(N0,N1):
       if x0+1 < N0:
         A.QueueLocalUpdate( sLoc, s+1, 2 )
       if x1 > 0:
-        A.QueueLocalUpdate( sLoc, s-N0, -30 )
+        A.QueueLocalUpdate( sLoc, s-N0, -3 )
       if x1+1 < N1:
         A.QueueLocalUpdate( sLoc, s+N0, 4 )
     else:
@@ -43,9 +46,9 @@ def StackedFD2D(N0,N1):
       x1 = sRel / N0
       A.QueueLocalUpdate( sLoc, sRel, -20 )
       if x0 > 0:
-        A.QueueLocalUpdate( sLoc, sRel-1, -17 )
+        A.QueueLocalUpdate( sLoc, sRel-1, -1 )
       if x0+1 < N0:
-        A.QueueLocalUpdate( sLoc, sRel+1, -20 )
+        A.QueueLocalUpdate( sLoc, sRel+1, -2 )
       if x1 > 0:
         A.QueueLocalUpdate( sLoc, sRel-N0, -3 )
       if x1+1 < N1:
@@ -65,6 +68,7 @@ if display:
   El.Display( b, "b" )
 
 ctrl = El.LPAffineCtrl_d()
+ctrl.mehrotraCtrl.solveCtrl.progress = True
 ctrl.mehrotraCtrl.progress = True
 startLAV = time.clock()
 x = El.LAV( A, b, ctrl )

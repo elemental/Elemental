@@ -12,6 +12,28 @@
 
 namespace El {
 
+template<typename Real>
+struct IPFLineSearchCtrl {
+    Real gamma;
+    Real beta;
+    Real psi;
+    Real stepRatio;
+    bool print;
+
+    IPFLineSearchCtrl()
+    : gamma(1e-3), beta(2), psi(100), stepRatio(1.5), print(false)
+    { }
+};
+
+namespace KKTSystemNS {
+enum KKTSystem {
+  FULL_KKT,
+  AUGMENTED_KKT,
+  NORMAL_KKT
+};
+}
+using namespace KKTSystemNS;
+
 // Linear program
 // ==============
 
@@ -28,21 +50,6 @@ using namespace LPApproachNS;
 
 namespace lp {
 
-// Infeasible Path-Following Interior Point Method (IPF)
-// -----------------------------------------------------
-template<typename Real>
-struct IPFLineSearchCtrl {
-    Real gamma;
-    Real beta;
-    Real psi;
-    Real stepRatio;
-    bool print;
-
-    IPFLineSearchCtrl()
-    : gamma(1e-3), beta(2), psi(100), stepRatio(1.5), print(false)
-    { }
-};
-
 namespace direct {
 
 // Attempt to solve a pair of Linear Programs in "direct" conic form:
@@ -54,15 +61,8 @@ namespace direct {
 //   s.t. A^T y -z + c = 0, z >= 0
 //
 
-namespace KKTSystemNS {
-enum KKTSystem {
-  FULL_KKT,
-  AUGMENTED_KKT,
-  NORMAL_KKT
-};
-}
-using namespace KKTSystemNS;
-
+// Infeasible Path-Following Interior Point Method (IPF)
+// -----------------------------------------------------
 template<typename Real>
 struct IPFCtrl {
     bool primalInitialized;
@@ -74,14 +74,15 @@ struct IPFCtrl {
 
     RegQSDSolveCtrl<Real> solveCtrl;
 
-    lp::IPFLineSearchCtrl<Real> lineSearchCtrl;
+    IPFLineSearchCtrl<Real> lineSearchCtrl;
 
+    bool equilibrate;
     bool print;
 
     IPFCtrl( bool isSparse ) 
     : primalInitialized(false), dualInitialized(false),
       tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), centering(0.9), 
-      print(false)
+      equilibrate(false), print(false)
     { 
         system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); 
     }
@@ -98,6 +99,7 @@ struct MehrotraCtrl {
     Real maxStepRatio;
     KKTSystem system;
     RegQSDSolveCtrl<Real> solveCtrl;
+    bool equilibrate;
     bool print;
 
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
@@ -106,7 +108,7 @@ struct MehrotraCtrl {
     MehrotraCtrl( bool isSparse )
     : primalInitialized(false), dualInitialized(false), 
       tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), 
-      maxStepRatio(0.99), print(false)
+      maxStepRatio(0.99), equilibrate(false), print(false)
     { system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); }
 };
 
@@ -169,14 +171,15 @@ struct IPFCtrl {
 
     RegQSDSolveCtrl<Real> solveCtrl;
 
-    lp::IPFLineSearchCtrl<Real> lineSearchCtrl;
+    IPFLineSearchCtrl<Real> lineSearchCtrl;
 
+    bool equilibrate;
     bool print;
 
     IPFCtrl() 
     : primalInitialized(false), dualInitialized(false),
       tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), centering(0.9), 
-      print(false)
+      equilibrate(false), print(false)
     { }
 };
 
@@ -190,6 +193,7 @@ struct MehrotraCtrl {
     Int maxIts;
     Real maxStepRatio;
     RegQSDSolveCtrl<Real> solveCtrl;
+    bool equilibrate;
     bool print;
 
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
@@ -198,7 +202,7 @@ struct MehrotraCtrl {
     MehrotraCtrl()
     : primalInitialized(false), dualInitialized(false),
       tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), 
-      maxStepRatio(0.99), print(false)
+      maxStepRatio(0.99), equilibrate(false), print(false)
     { }
 };
 
@@ -300,21 +304,6 @@ using namespace QPApproachNS;
 
 namespace qp {
 
-// Infeasible Path-Following Interior Point Method (IPF)
-// -----------------------------------------------------
-template<typename Real>
-struct IPFLineSearchCtrl {
-    Real gamma;
-    Real beta;
-    Real psi;
-    Real stepRatio;
-    bool print;
-
-    IPFLineSearchCtrl()
-    : gamma(1e-3), beta(2), psi(100), stepRatio(1.5), print(false)
-    { }
-};
-
 namespace direct {
 
 // Attempt to solve a pair of Quadratic Programs in "direct" conic form:
@@ -326,14 +315,8 @@ namespace direct {
 //   s.t. A^T y - z + c in range(Q), z >= 0
 //
 
-namespace KKTSystemNS {
-enum KKTSystem {
-  FULL_KKT,
-  AUGMENTED_KKT
-};
-}
-using namespace KKTSystemNS;
-
+// Infeasible Path-Following Interior Point Method (IPF)
+// -----------------------------------------------------
 template<typename Real>
 struct IPFCtrl {
     bool primalInitialized;
@@ -345,14 +328,15 @@ struct IPFCtrl {
 
     RegQSDSolveCtrl<Real> solveCtrl;
 
-    qp::IPFLineSearchCtrl<Real> lineSearchCtrl;
+    IPFLineSearchCtrl<Real> lineSearchCtrl;
 
+    bool equilibrate;
     bool print;
 
     IPFCtrl() 
     : primalInitialized(false), dualInitialized(false),
       tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), centering(0.9), 
-      system(AUGMENTED_KKT), print(false)
+      system(AUGMENTED_KKT), equilibrate(false), print(false)
     { }
 };
 
@@ -367,6 +351,7 @@ struct MehrotraCtrl {
     Real maxStepRatio;
     KKTSystem system;
     RegQSDSolveCtrl<Real> solveCtrl;
+    bool equilibrate;
     bool print;
 
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
@@ -375,7 +360,8 @@ struct MehrotraCtrl {
     MehrotraCtrl()
     : primalInitialized(false), dualInitialized(false), 
       tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), 
-      maxStepRatio(0.99), system(AUGMENTED_KKT), print(false)
+      maxStepRatio(0.99), system(AUGMENTED_KKT), equilibrate(false), 
+      print(false)
     { }
 };
 
@@ -416,14 +402,15 @@ struct IPFCtrl {
 
     RegQSDSolveCtrl<Real> solveCtrl;
 
-    qp::IPFLineSearchCtrl<Real> lineSearchCtrl;
+    IPFLineSearchCtrl<Real> lineSearchCtrl;
 
+    bool equilibrate;
     bool print;
 
     IPFCtrl() 
     : primalInitialized(false), dualInitialized(false),
       tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), centering(0.9), 
-      print(false)
+      equilibrate(false), print(false)
     { }
 };
 
@@ -437,6 +424,7 @@ struct MehrotraCtrl {
     Int maxIts;
     Real maxStepRatio;
     RegQSDSolveCtrl<Real> solveCtrl;
+    bool equilibrate;
     bool print;
 
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
@@ -445,7 +433,7 @@ struct MehrotraCtrl {
     MehrotraCtrl()
     : primalInitialized(false), dualInitialized(false),
       tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), 
-      maxStepRatio(0.99), print(false)
+      maxStepRatio(0.99), equilibrate(false), print(false)
     { }
 };
 

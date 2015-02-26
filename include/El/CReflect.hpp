@@ -1599,6 +1599,52 @@ inline ElRegularization CReflect( Regularization penalty )
 inline Regularization CReflect( ElRegularization penalty )
 { return static_cast<Regularization>(penalty); }
 
+inline ElKKTSystem CReflect( KKTSystem system )
+{ return static_cast<ElKKTSystem>(system); }
+inline KKTSystem CReflect( ElKKTSystem system )
+{ return static_cast<KKTSystem>(system); }
+
+inline ElIPFLineSearchCtrl_s CReflect( const IPFLineSearchCtrl<float>& ctrl )
+{
+    ElIPFLineSearchCtrl_s ctrlC;
+    ctrlC.gamma     = ctrl.gamma;
+    ctrlC.beta      = ctrl.beta;
+    ctrlC.psi       = ctrl.psi;
+    ctrlC.stepRatio = ctrl.stepRatio;
+    ctrlC.print     = ctrl.print;
+    return ctrlC;
+}
+inline ElIPFLineSearchCtrl_d CReflect( const IPFLineSearchCtrl<double>& ctrl )
+{
+    ElIPFLineSearchCtrl_d ctrlC;
+    ctrlC.gamma     = ctrl.gamma;
+    ctrlC.beta      = ctrl.beta;
+    ctrlC.psi       = ctrl.psi;
+    ctrlC.stepRatio = ctrl.stepRatio;
+    ctrlC.print     = ctrl.print;
+    return ctrlC;
+}
+inline IPFLineSearchCtrl<float> CReflect( ElIPFLineSearchCtrl_s ctrlC )
+{
+    IPFLineSearchCtrl<float> ctrl;
+    ctrl.gamma     = ctrlC.gamma;
+    ctrl.beta      = ctrlC.beta;
+    ctrl.psi       = ctrlC.psi;
+    ctrl.stepRatio = ctrlC.stepRatio;
+    ctrl.print     = ctrlC.print;
+    return ctrl;
+}
+inline IPFLineSearchCtrl<double> CReflect( ElIPFLineSearchCtrl_d ctrlC )
+{
+    IPFLineSearchCtrl<double> ctrl;
+    ctrl.gamma     = ctrlC.gamma;
+    ctrl.beta      = ctrlC.beta;
+    ctrl.psi       = ctrlC.psi;
+    ctrl.stepRatio = ctrlC.stepRatio;
+    ctrl.print     = ctrlC.print;
+    return ctrl;
+}
+
 /* Linear programs
    ^^^^^^^^^^^^^^^ */
 inline ElLPApproach CReflect( LPApproach approach )
@@ -1606,58 +1652,8 @@ inline ElLPApproach CReflect( LPApproach approach )
 inline LPApproach CReflect( ElLPApproach approach )
 { return static_cast<LPApproach>(approach); }
 
-inline ElLPIPFLineSearchCtrl_s CReflect
-( const lp::IPFLineSearchCtrl<float>& ctrl )
-{
-    ElLPIPFLineSearchCtrl_s ctrlC;
-    ctrlC.gamma     = ctrl.gamma;
-    ctrlC.beta      = ctrl.beta;
-    ctrlC.psi       = ctrl.psi;
-    ctrlC.stepRatio = ctrl.stepRatio;
-    ctrlC.print     = ctrl.print;
-    return ctrlC;
-}
-inline ElLPIPFLineSearchCtrl_d CReflect
-( const lp::IPFLineSearchCtrl<double>& ctrl )
-{
-    ElLPIPFLineSearchCtrl_d ctrlC;
-    ctrlC.gamma     = ctrl.gamma;
-    ctrlC.beta      = ctrl.beta;
-    ctrlC.psi       = ctrl.psi;
-    ctrlC.stepRatio = ctrl.stepRatio;
-    ctrlC.print     = ctrl.print;
-    return ctrlC;
-}
-inline lp::IPFLineSearchCtrl<float> CReflect
-( ElLPIPFLineSearchCtrl_s ctrlC )
-{
-    lp::IPFLineSearchCtrl<float> ctrl;
-    ctrl.gamma     = ctrlC.gamma;
-    ctrl.beta      = ctrlC.beta;
-    ctrl.psi       = ctrlC.psi;
-    ctrl.stepRatio = ctrlC.stepRatio;
-    ctrl.print     = ctrlC.print;
-    return ctrl;
-}
-inline lp::IPFLineSearchCtrl<double> CReflect
-( ElLPIPFLineSearchCtrl_d ctrlC )
-{
-    lp::IPFLineSearchCtrl<double> ctrl;
-    ctrl.gamma     = ctrlC.gamma;
-    ctrl.beta      = ctrlC.beta;
-    ctrl.psi       = ctrlC.psi;
-    ctrl.stepRatio = ctrlC.stepRatio;
-    ctrl.print     = ctrlC.print;
-    return ctrl;
-}
-
 /* Direct conic form
    """"""""""""""""" */
-inline ElLPDirectKKTSystem CReflect( lp::direct::KKTSystem system )
-{ return static_cast<ElLPDirectKKTSystem>(system); }
-inline lp::direct::KKTSystem CReflect( ElLPDirectKKTSystem system )
-{ return static_cast<lp::direct::KKTSystem>(system); }
-
 inline ElLPDirectADMMCtrl_s CReflect( const lp::direct::ADMMCtrl<float>& ctrl )
 {
     ElLPDirectADMMCtrl_s ctrlC;
@@ -1716,7 +1712,9 @@ inline ElLPDirectIPFCtrl_s CReflect( const lp::direct::IPFCtrl<float>& ctrl )
     ctrlC.maxIts            = ctrl.maxIts;
     ctrlC.centering         = ctrl.centering;
     ctrlC.system            = CReflect(ctrl.system);
+    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
     ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
+    ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
     return ctrlC;
 }
@@ -1729,7 +1727,9 @@ inline ElLPDirectIPFCtrl_d CReflect( const lp::direct::IPFCtrl<double>& ctrl )
     ctrlC.maxIts            = ctrl.maxIts;
     ctrlC.centering         = ctrl.centering;
     ctrlC.system            = CReflect(ctrl.system);
+    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
     ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
+    ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
     return ctrlC;
 }
@@ -1742,7 +1742,9 @@ inline lp::direct::IPFCtrl<float> CReflect( ElLPDirectIPFCtrl_s ctrlC )
     ctrl.maxIts            = ctrlC.maxIts;
     ctrl.centering         = ctrlC.centering;
     ctrl.system            = CReflect(ctrlC.system);
+    ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
     ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
+    ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
     return ctrl;
 }
@@ -1755,7 +1757,9 @@ inline lp::direct::IPFCtrl<double> CReflect( ElLPDirectIPFCtrl_d ctrlC )
     ctrl.maxIts            = ctrlC.maxIts;
     ctrl.centering         = ctrlC.centering;
     ctrl.system            = CReflect(ctrlC.system);
+    ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
     ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
+    ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
     return ctrl;
 }
@@ -1770,6 +1774,8 @@ inline ElLPDirectMehrotraCtrl_s CReflect
     ctrlC.maxIts            = ctrl.maxIts;
     ctrlC.maxStepRatio      = ctrl.maxStepRatio;
     ctrlC.system            = CReflect(ctrl.system);
+    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
+    ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
     return ctrlC;
 }
@@ -1783,6 +1789,8 @@ inline ElLPDirectMehrotraCtrl_d CReflect
     ctrlC.maxIts            = ctrl.maxIts;
     ctrlC.maxStepRatio      = ctrl.maxStepRatio;
     ctrlC.system            = CReflect(ctrl.system);
+    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
+    ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
     return ctrlC;
 }
@@ -1796,6 +1804,8 @@ inline lp::direct::MehrotraCtrl<float> CReflect
     ctrl.maxIts             = ctrlC.maxIts;
     ctrl.maxStepRatio       = ctrlC.maxStepRatio;
     ctrl.system             = CReflect(ctrlC.system);
+    ctrl.solveCtrl          = CReflect(ctrlC.solveCtrl);
+    ctrl.equilibrate        = ctrlC.equilibrate;
     ctrl.print              = ctrlC.print;
     return ctrl;
 }
@@ -1809,6 +1819,8 @@ inline lp::direct::MehrotraCtrl<double> CReflect
     ctrl.maxIts             = ctrlC.maxIts;
     ctrl.maxStepRatio       = ctrlC.maxStepRatio;
     ctrl.system             = CReflect(ctrlC.system);
+    ctrl.solveCtrl          = CReflect(ctrlC.solveCtrl);
+    ctrl.equilibrate        = ctrlC.equilibrate;
     ctrl.print              = ctrlC.print;
     return ctrl;
 }
@@ -1860,7 +1872,9 @@ inline ElLPAffineIPFCtrl_s CReflect( const lp::affine::IPFCtrl<float>& ctrl )
     ctrlC.tol               = ctrl.tol;
     ctrlC.maxIts            = ctrl.maxIts;
     ctrlC.centering         = ctrl.centering;
+    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
     ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
+    ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
     return ctrlC;
 }
@@ -1872,7 +1886,9 @@ inline ElLPAffineIPFCtrl_d CReflect( const lp::affine::IPFCtrl<double>& ctrl )
     ctrlC.tol               = ctrl.tol;
     ctrlC.maxIts            = ctrl.maxIts;
     ctrlC.centering         = ctrl.centering;
+    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
     ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
+    ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
     return ctrlC;
 }
@@ -1884,7 +1900,9 @@ inline lp::affine::IPFCtrl<float> CReflect( ElLPAffineIPFCtrl_s ctrlC )
     ctrl.tol               = ctrlC.tol;
     ctrl.maxIts            = ctrlC.maxIts;
     ctrl.centering         = ctrlC.centering;
+    ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
     ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
+    ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
     return ctrl;
 }
@@ -1896,7 +1914,9 @@ inline lp::affine::IPFCtrl<double> CReflect( ElLPAffineIPFCtrl_d ctrlC )
     ctrl.tol               = ctrlC.tol;
     ctrl.maxIts            = ctrlC.maxIts;
     ctrl.centering         = ctrlC.centering;
+    ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
     ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
+    ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
     return ctrl;
 }
@@ -1910,6 +1930,8 @@ inline ElLPAffineMehrotraCtrl_s CReflect
     ctrlC.tol               = ctrl.tol;
     ctrlC.maxIts            = ctrl.maxIts;
     ctrlC.maxStepRatio      = ctrl.maxStepRatio;
+    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
+    ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
     return ctrlC;
 }
@@ -1922,6 +1944,8 @@ inline ElLPAffineMehrotraCtrl_d CReflect
     ctrlC.tol               = ctrl.tol;
     ctrlC.maxIts            = ctrl.maxIts;
     ctrlC.maxStepRatio      = ctrl.maxStepRatio;
+    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
+    ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
     return ctrlC;
 }
@@ -1934,6 +1958,8 @@ inline lp::affine::MehrotraCtrl<float> CReflect
     ctrl.tol               = ctrlC.tol;
     ctrl.maxIts            = ctrlC.maxIts;
     ctrl.maxStepRatio      = ctrlC.maxStepRatio;
+    ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
+    ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
     return ctrl;
 }
@@ -1946,6 +1972,8 @@ inline lp::affine::MehrotraCtrl<double> CReflect
     ctrl.tol               = ctrlC.tol;
     ctrl.maxIts            = ctrlC.maxIts;
     ctrl.maxStepRatio      = ctrlC.maxStepRatio;
+    ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
+    ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
     return ctrl;
 }
@@ -1990,58 +2018,8 @@ inline ElQPApproach CReflect( QPApproach approach )
 inline QPApproach CReflect( ElQPApproach approach )
 { return static_cast<QPApproach>(approach); }
 
-inline ElQPIPFLineSearchCtrl_s CReflect
-( const qp::IPFLineSearchCtrl<float>& ctrl )
-{
-    ElQPIPFLineSearchCtrl_s ctrlC;
-    ctrlC.gamma     = ctrl.gamma;
-    ctrlC.beta      = ctrl.beta;
-    ctrlC.psi       = ctrl.psi;
-    ctrlC.stepRatio = ctrl.stepRatio;
-    ctrlC.print     = ctrl.print;
-    return ctrlC;
-}
-inline ElQPIPFLineSearchCtrl_d CReflect
-( const qp::IPFLineSearchCtrl<double>& ctrl )
-{
-    ElQPIPFLineSearchCtrl_d ctrlC;
-    ctrlC.gamma     = ctrl.gamma;
-    ctrlC.beta      = ctrl.beta;
-    ctrlC.psi       = ctrl.psi;
-    ctrlC.stepRatio = ctrl.stepRatio;
-    ctrlC.print     = ctrl.print;
-    return ctrlC;
-}
-inline qp::IPFLineSearchCtrl<float> CReflect
-( ElQPIPFLineSearchCtrl_s ctrlC )
-{
-    qp::IPFLineSearchCtrl<float> ctrl;
-    ctrl.gamma     = ctrlC.gamma;
-    ctrl.beta      = ctrlC.beta;
-    ctrl.psi       = ctrlC.psi;
-    ctrl.stepRatio = ctrlC.stepRatio;
-    ctrl.print     = ctrlC.print;
-    return ctrl;
-}
-inline qp::IPFLineSearchCtrl<double> CReflect
-( ElQPIPFLineSearchCtrl_d ctrlC )
-{
-    qp::IPFLineSearchCtrl<double> ctrl;
-    ctrl.gamma     = ctrlC.gamma;
-    ctrl.beta      = ctrlC.beta;
-    ctrl.psi       = ctrlC.psi;
-    ctrl.stepRatio = ctrlC.stepRatio;
-    ctrl.print     = ctrlC.print;
-    return ctrl;
-}
-
 /* Direct conic form
    """"""""""""""""" */
-inline ElQPDirectKKTSystem CReflect( qp::direct::KKTSystem system )
-{ return static_cast<ElQPDirectKKTSystem>(system); }
-inline qp::direct::KKTSystem CReflect( ElQPDirectKKTSystem system )
-{ return static_cast<qp::direct::KKTSystem>(system); }
-
 inline ElQPDirectIPFCtrl_s CReflect( const qp::direct::IPFCtrl<float>& ctrl )
 {
     ElQPDirectIPFCtrl_s ctrlC;
@@ -2051,7 +2029,9 @@ inline ElQPDirectIPFCtrl_s CReflect( const qp::direct::IPFCtrl<float>& ctrl )
     ctrlC.maxIts            = ctrl.maxIts;
     ctrlC.centering         = ctrl.centering;
     ctrlC.system            = CReflect(ctrl.system);
+    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
     ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
+    ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
     return ctrlC;
 }
@@ -2064,7 +2044,9 @@ inline ElQPDirectIPFCtrl_d CReflect( const qp::direct::IPFCtrl<double>& ctrl )
     ctrlC.maxIts            = ctrl.maxIts;
     ctrlC.centering         = ctrl.centering;
     ctrlC.system            = CReflect(ctrl.system);
+    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
     ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
+    ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
     return ctrlC;
 }
@@ -2077,7 +2059,9 @@ inline qp::direct::IPFCtrl<float> CReflect( ElQPDirectIPFCtrl_s ctrlC )
     ctrl.maxIts            = ctrlC.maxIts;
     ctrl.centering         = ctrlC.centering;
     ctrl.system            = CReflect(ctrlC.system);
+    ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
     ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
+    ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
     return ctrl;
 }
@@ -2090,7 +2074,9 @@ inline qp::direct::IPFCtrl<double> CReflect( ElQPDirectIPFCtrl_d ctrlC )
     ctrl.maxIts            = ctrlC.maxIts;
     ctrl.centering         = ctrlC.centering;
     ctrl.system            = CReflect(ctrlC.system);
+    ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
     ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
+    ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
     return ctrl;
 }
@@ -2105,6 +2091,8 @@ inline ElQPDirectMehrotraCtrl_s CReflect
     ctrlC.maxIts            = ctrl.maxIts;
     ctrlC.maxStepRatio      = ctrl.maxStepRatio;
     ctrlC.system            = CReflect(ctrl.system);
+    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
+    ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
     return ctrlC;
 }
@@ -2118,6 +2106,8 @@ inline ElQPDirectMehrotraCtrl_d CReflect
     ctrlC.maxIts            = ctrl.maxIts;
     ctrlC.maxStepRatio      = ctrl.maxStepRatio;
     ctrlC.system            = CReflect(ctrl.system);
+    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
+    ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
     return ctrlC;
 }
@@ -2131,6 +2121,8 @@ inline qp::direct::MehrotraCtrl<float> CReflect
     ctrl.maxIts             = ctrlC.maxIts;
     ctrl.maxStepRatio       = ctrlC.maxStepRatio;
     ctrl.system             = CReflect(ctrlC.system);
+    ctrl.solveCtrl          = CReflect(ctrlC.solveCtrl);
+    ctrl.equilibrate        = ctrlC.equilibrate;
     ctrl.print              = ctrlC.print;
     return ctrl;
 }
@@ -2144,6 +2136,8 @@ inline qp::direct::MehrotraCtrl<double> CReflect
     ctrl.maxIts             = ctrlC.maxIts;
     ctrl.maxStepRatio       = ctrlC.maxStepRatio;
     ctrl.system             = CReflect(ctrlC.system);
+    ctrl.solveCtrl          = CReflect(ctrlC.solveCtrl);
+    ctrl.equilibrate        = ctrlC.equilibrate;
     ctrl.print              = ctrlC.print;
     return ctrl;
 }
@@ -2191,7 +2185,9 @@ inline ElQPAffineIPFCtrl_s CReflect( const qp::affine::IPFCtrl<float>& ctrl )
     ctrlC.tol               = ctrl.tol;
     ctrlC.maxIts            = ctrl.maxIts;
     ctrlC.centering         = ctrl.centering;
+    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
     ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
+    ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
     return ctrlC;
 }
@@ -2203,7 +2199,9 @@ inline ElQPAffineIPFCtrl_d CReflect( const qp::affine::IPFCtrl<double>& ctrl )
     ctrlC.tol               = ctrl.tol;
     ctrlC.maxIts            = ctrl.maxIts;
     ctrlC.centering         = ctrl.centering;
+    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
     ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
+    ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
     return ctrlC;
 }
@@ -2215,7 +2213,9 @@ inline qp::affine::IPFCtrl<float> CReflect( ElQPAffineIPFCtrl_s ctrlC )
     ctrl.tol               = ctrlC.tol;
     ctrl.maxIts            = ctrlC.maxIts;
     ctrl.centering         = ctrlC.centering;
+    ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
     ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
+    ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
     return ctrl;
 }
@@ -2227,7 +2227,9 @@ inline qp::affine::IPFCtrl<double> CReflect( ElQPAffineIPFCtrl_d ctrlC )
     ctrl.tol               = ctrlC.tol;
     ctrl.maxIts            = ctrlC.maxIts;
     ctrl.centering         = ctrlC.centering;
+    ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
     ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
+    ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
     return ctrl;
 }
@@ -2241,6 +2243,8 @@ inline ElQPAffineMehrotraCtrl_s CReflect
     ctrlC.tol               = ctrl.tol;
     ctrlC.maxIts            = ctrl.maxIts;
     ctrlC.maxStepRatio      = ctrl.maxStepRatio;
+    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
+    ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
     return ctrlC;
 }
@@ -2253,6 +2257,8 @@ inline ElQPAffineMehrotraCtrl_d CReflect
     ctrlC.tol               = ctrl.tol;
     ctrlC.maxIts            = ctrl.maxIts;
     ctrlC.maxStepRatio      = ctrl.maxStepRatio;
+    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
+    ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
     return ctrlC;
 }
@@ -2265,6 +2271,8 @@ inline qp::affine::MehrotraCtrl<float> CReflect
     ctrl.tol               = ctrlC.tol;
     ctrl.maxIts            = ctrlC.maxIts;
     ctrl.maxStepRatio      = ctrlC.maxStepRatio;
+    ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
+    ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
     return ctrl;
 }
@@ -2277,6 +2285,8 @@ inline qp::affine::MehrotraCtrl<double> CReflect
     ctrl.tol               = ctrlC.tol;
     ctrl.maxIts            = ctrlC.maxIts;
     ctrl.maxStepRatio      = ctrlC.maxStepRatio;
+    ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
+    ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
     return ctrl;
 }
