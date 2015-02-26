@@ -44,7 +44,6 @@ void LeastSquares
 ( Orientation orientation, AbstractDistMatrix<F>& A, 
   const AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& X );
 
-// TODO: Allow for the usage of the quasi-semidefinite embedding
 template<typename F>
 void LeastSquares
 ( Orientation orientation,

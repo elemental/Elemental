@@ -773,7 +773,7 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        const Real relTolRefine = Pow(epsilon,Real(0.5));
+        const Real relTolRefine = Pow(epsilon,Real(0.75));
         const Int maxRefineIts = 50;
         bool aPriori = true;
         Int numLargeAffineRefines = 0;
@@ -1093,7 +1093,7 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        const Real relTolRefine = Pow(epsilon,Real(0.5));
+        const Real relTolRefine = Pow(epsilon,Real(0.75));
         const Int maxRefineIts = 50;
         bool aPriori = true;
         Int numLargeAffineRefines = 0;

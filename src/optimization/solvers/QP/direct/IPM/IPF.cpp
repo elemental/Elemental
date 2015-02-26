@@ -650,7 +650,7 @@ void IPF
         // Compute the search direction
         // ============================
         // TODO: Expose these as control parameters
-        const Real relTolRefine = Pow(epsilon,0.5);
+        const Real relTolRefine = Pow(epsilon,0.75);
         const Int maxRefineIts = 50;
         bool aPriori = true;
         if( ctrl.system == FULL_KKT )
@@ -976,7 +976,7 @@ void IPF
         // Compute the search direction
         // ============================
         // TODO: Expose these as control parameters
-        const Real relTolRefine = Pow(epsilon,0.5);
+        const Real relTolRefine = Pow(epsilon,0.75);
         const Int maxRefineIts = 50;
         bool aPriori = true;
         if( ctrl.system == FULL_KKT )

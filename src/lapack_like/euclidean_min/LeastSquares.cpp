@@ -69,25 +69,31 @@ void LeastSquares
 // where op(A) is either A, A^T, or A^H, via forming a Hermitian 
 // quasi-semidefinite system J D = \hat{B}, where J is 
 //
-//    | I   A | when height(A) >= width(A), or
-//    | A^H 0 |
+//    | alpha*I  A | when height(A) >= width(A), or
+//    | A^H      0 |
 //     
-//    | I A^H | when height(A) < width(A).
-//    | A  0  |
+//    | alpha*I A^H | when height(A) < width(A).
+//    | A        0  |
 //
 // When height(op(A)) < width(op(A)), the system
 //
-//     | I     op(A)^H | | X | = | 0 |
-//     | op(A)    0    | | Y |   | B |
+//     | alpha*I  op(A)^H | | X/alpha | = | 0 |
+//     | op(A)       0    | | Y       |   | B |
 //
 // guarantees that op(A) X = B and X is in range(op(A)^H), which shows that 
 // X solves the minimum length problem. Otherwise, the system
 //
-//     | I        op(A) | | R | = | B |
-//     | op(A)^H    0   | | X |   | 0 |
+//     | alpha*I  op(A) | | R/alpha | = | B |
+//     | op(A)^H    0   | | X       |   | 0 |
 // 
 // guarantees that R = B - op(A) X and R in null(op(A)^H), which is equivalent
 // to solving min || op(A) X - B ||_F.
+//
+// Note that, ideally, alpha is roughly the minimum (nonzero) singular value
+// of A, which implies that the condition number of the quasi-semidefinite
+// system is roughly equal to the condition number of A (see the analysis of
+// Bjorck). A typical choice for alpha, assuming that || A ||_2 ~= 1, is
+// epsilon^0.25.
 //
 // The Hermitian quasi-semidefinite systems are solved by converting them into
 // Hermitian quasi-definite form via a priori regularization, applying an 
@@ -122,6 +128,8 @@ void LeastSquares
           LogicError("Width of A and height of B must match");
     )
     typedef Base<F> Real;
+    const Real epsilon = lapack::MachineEpsilon<Real>();
+    const Real alpha = Pow(epsilon,Real(0.25));
 
     // ABar := inv(D_r) op(A) inv(D_c)
     // ===============================
@@ -159,27 +167,27 @@ void LeastSquares
     J.Reserve( 2*numEntriesA + Max(m,n) );
     if( m >= n )
     {
-        // Form J = [D_r^{-2}, ABar; ABar^H, 0]
-        // =============================
+        // Form J = [D_r^{-2}*alpha, ABar; ABar^H, 0]
+        // ==========================================
         for( Int e=0; e<numEntriesA; ++e )
         {
             J.QueueUpdate( ABar.Row(e),   ABar.Col(e)+m,      ABar.Value(e)  );
             J.QueueUpdate( ABar.Col(e)+m, ABar.Row(e),   Conj(ABar.Value(e)) );
         }
         for( Int e=0; e<m; ++e )
-            J.QueueUpdate( e, e, Pow(dRow.Get(e,0),Real(-2)) );
+            J.QueueUpdate( e, e, Pow(dRow.Get(e,0),Real(-2))*alpha );
     }
     else
     {
-        // Form J = [D_c^{-2}, ABar^H; ABar, 0]
-        // ====================================
+        // Form J = [D_c^{-2}*alpha, ABar^H; ABar, 0]
+        // ==========================================
         for( Int e=0; e<numEntriesA; ++e )
         {
             J.QueueUpdate( ABar.Col(e),   ABar.Row(e)+n, Conj(ABar.Value(e)) );
             J.QueueUpdate( ABar.Row(e)+n, ABar.Col(e),        ABar.Value(e)  );
         }
         for( Int e=0; e<n; ++e )
-            J.QueueUpdate( e, e, Pow(dCol.Get(e,0),Real(-2)) );
+            J.QueueUpdate( e, e, Pow(dCol.Get(e,0),Real(-2))*alpha );
     }
     J.MakeConsistent();
 
@@ -202,12 +210,11 @@ void LeastSquares
 
     // Compute the regularized quasi-semidefinite fact of J
     // ====================================================
-    const Real epsilon = lapack::MachineEpsilon<Real>();
-    const Real relTolRefine = Pow(epsilon,Real(0.75));
+    const Real relTolRefine = Pow(epsilon,Real(0.6));
     const Int maxRefineIts = 50;
     bool aPriori = true;
-    const Real regMagPrimal = Pow(epsilon,Real(0.5));
-    const Real regMagDual = Pow(epsilon,Real(0.5));
+    const Real regMagPrimal = 0;
+    const Real regMagDual = alpha;
     const Real pivTol = MaxNorm(J)*epsilon;
 
     Matrix<Real> regCand, reg;
@@ -257,10 +264,11 @@ void LeastSquares
     }
     else
     {
-        // Extract XBar from [XBar; Y]
-        // ===========================
+        // Extract XBar from [XBar/alpha; Y]
+        // =================================
         auto DT = D( IR(0,n), IR(0,k) );
         X = DT;
+        Scale( alpha, X );
     }
     DiagonalSolve( LEFT, NORMAL, dCol, X );
 }
@@ -279,6 +287,8 @@ void LeastSquares
           LogicError("Width of A and height of B must match");
     )
     typedef Base<F> Real;
+    const Real epsilon = lapack::MachineEpsilon<Real>();
+    const Real alpha = Pow(epsilon,Real(0.25));
     mpi::Comm comm = A.Comm();
     const int commSize = mpi::Size(comm);
 
@@ -312,8 +322,8 @@ void LeastSquares
     auto BBar = B;
     DiagonalSolve( LEFT, NORMAL, dRow, BBar );
 
-    // Set J to [D_r^{-2}, ABar; ABar^H, 0] or [D_c^{-2}, ABar^H; ABar, 0] 
-    // ===================================================================
+    // J := [D_r^{-2}*alpha,ABar;ABar^H,0] or [D_c^{-2}*alpha,ABar^H;ABar,0]
+    // =====================================================================
     DistSparseMatrix<F> J(comm);
     Zeros( J, m+n, m+n );
     const Int numLocalEntriesA = ABar.NumLocalEntries();
@@ -407,7 +417,8 @@ void LeastSquares
                 const int owner = J.RowOwner(i);
                 sSendBuf[offsets[owner]] = i; 
                 tSendBuf[offsets[owner]] = i;
-                vSendBuf[offsets[owner]] = Pow(dRow.GetLocal(iLoc,0),Real(-2));
+                vSendBuf[offsets[owner]] = 
+                    Pow(dRow.GetLocal(iLoc,0),Real(-2))*alpha;
                 ++offsets[owner];
             }
         }
@@ -419,7 +430,8 @@ void LeastSquares
                 const int owner = J.RowOwner(i);
                 sSendBuf[offsets[owner]] = i; 
                 tSendBuf[offsets[owner]] = i;
-                vSendBuf[offsets[owner]] = Pow(dCol.GetLocal(iLoc,0),Real(-2));
+                vSendBuf[offsets[owner]] = 
+                    Pow(dCol.GetLocal(iLoc,0),Real(-2))*alpha;
                 ++offsets[owner];
             }
         }
@@ -523,12 +535,11 @@ void LeastSquares
 
     // Compute the dynamically-regularized quasi-semidefinite fact of J
     // ================================================================
-    const Real epsilon = lapack::MachineEpsilon<Real>();
-    const Real relTolRefine = Pow(epsilon,Real(0.75));
+    const Real relTolRefine = Pow(epsilon,Real(0.6));
     const Int maxRefineIts = 50;
     bool aPriori = true;
-    const Real regMagPrimal = Pow(epsilon,Real(0.5));
-    const Real regMagDual = Pow(epsilon,Real(0.5));
+    const Real regMagPrimal = 0;
+    const Real regMagDual = alpha;
     const Real pivTol = MaxNorm(J)*epsilon;
 
     DistMultiVec<Real> regCand(comm), reg(comm);
@@ -575,8 +586,8 @@ void LeastSquares
         Copy( uLoc, dLoc );
     }
 
-    // Extract XBar from [R; XBar] or [XBar; Y] and then rescale
-    // =========================================================
+    // Extract XBar from [R; XBar] or [XBar/alpha; Y] and then rescale
+    // ===============================================================
     Zeros( X, n, k );
     {
         // Compute metadata
@@ -633,7 +644,7 @@ void LeastSquares
                     int owner = X.RowOwner(i);
                     for( Int j=0; j<k; ++j )
                     {
-                        const F value = D.GetLocal(iLoc,j);
+                        const F value = D.GetLocal(iLoc,j)*alpha;
                         sSendBuf[offsets[owner]] = i;
                         tSendBuf[offsets[owner]] = j;
                         vSendBuf[offsets[owner]] = value;

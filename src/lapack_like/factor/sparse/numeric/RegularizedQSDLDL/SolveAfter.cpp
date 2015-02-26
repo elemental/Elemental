@@ -38,7 +38,7 @@ Int RegularizedSolveAfter
         Matrix<F> dx, xCand, xRegScaled;
         xRegScaled = x;
         DiagonalScale( LEFT, NORMAL, reg, xRegScaled );
-        Axpy( F(1), xRegScaled, b );
+        Axpy( F(-1), xRegScaled, b );
         Multiply( NORMAL, F(-1), A, x, F(1), b );
         Base<F> errorNorm = Nrm2( b );
         if( progress )
@@ -72,7 +72,6 @@ Int RegularizedSolveAfter
             Base<F> newErrorNorm = Nrm2( b );
             if( progress )
                 cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
-            
             if( newErrorNorm > errorNorm )
                 RuntimeError
                 ("Relative error increased from ",errorNorm," rather than "
@@ -120,7 +119,7 @@ Int RegularizedSolveAfter
         DistMultiVec<F> dx(comm), xCand(comm), xRegScaled(comm);
         xRegScaled = x;
         DiagonalScale( LEFT, NORMAL, reg, xRegScaled );
-        Axpy( F(1), xRegScaled, b );
+        Axpy( F(-1), xRegScaled, b );
         Multiply( NORMAL, F(-1), A, x, F(1), b );
         Base<F> errorNorm = Nrm2( b );
         if( progress && commRank == 0 )

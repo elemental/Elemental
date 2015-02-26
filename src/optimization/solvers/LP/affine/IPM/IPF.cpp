@@ -614,7 +614,7 @@ void IPF
         DiagonalScale( LEFT, NORMAL, s, rmu );
         Shift( rmu, -ctrl.centering*mu );
 
-        const Real relTolRefine = Pow(epsilon,0.5);
+        const Real relTolRefine = Pow(epsilon,0.75);
         const Int maxRefineIts = 50;
         bool aPriori = true;
         {
@@ -867,7 +867,7 @@ void IPF
         DiagonalScale( LEFT, NORMAL, s, rmu );
         Shift( rmu, -ctrl.centering*mu );
 
-        const Real relTolRefine = Pow(epsilon,0.5);
+        const Real relTolRefine = Pow(epsilon,0.75);
         const Int maxRefineIts = 50;
         bool aPriori = true;
         {
