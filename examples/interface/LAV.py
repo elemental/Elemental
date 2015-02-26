@@ -70,6 +70,8 @@ if display:
 ctrl = El.LPAffineCtrl_d()
 ctrl.mehrotraCtrl.solveCtrl.progress = True
 ctrl.mehrotraCtrl.progress = True
+ctrl.mehrotraCtrl.equilibrate = True
+ctrl.mehrotraCtrl.time = True
 startLAV = time.clock()
 x = El.LAV( A, b, ctrl )
 endLAV = time.clock()

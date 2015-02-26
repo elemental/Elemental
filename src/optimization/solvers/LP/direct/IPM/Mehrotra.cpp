@@ -44,29 +44,29 @@ void Mehrotra
 
     // Equilibrate the LP by diagonally scaling A
     auto A = APre;
+    auto b = bPre;
+    auto c = cPre;
     const Int m = A.Height();
     const Int n = A.Width();
-    const bool allowEquil = false;
     Matrix<Real> dRow, dCol;
-    if( allowEquil )
+    if( ctrl.equilibrate )
     {
         GeomEquil( A, dRow, dCol );
+
+        DiagonalSolve( LEFT, NORMAL, dRow, b ); 
+        DiagonalSolve( LEFT, NORMAL, dCol, c );
+        if( ctrl.primalInitialized )
+            DiagonalScale( LEFT, NORMAL, dCol, x );
+        if( ctrl.dualInitialized )
+        {
+            DiagonalScale( LEFT, NORMAL, dRow, y );
+            DiagonalSolve( LEFT, NORMAL, dCol, z );
+        }
     }
     else
     {
         Ones( dRow, m, 1 );
         Ones( dCol, n, 1 );
-    }
-    auto b = bPre;
-    auto c = cPre;
-    DiagonalSolve( LEFT, NORMAL, dRow, b ); 
-    DiagonalSolve( LEFT, NORMAL, dCol, c );
-    if( ctrl.primalInitialized )
-        DiagonalScale( LEFT, NORMAL, dCol, x );
-    if( ctrl.dualInitialized )
-    {
-        DiagonalScale( LEFT, NORMAL, dRow, y );
-        DiagonalSolve( LEFT, NORMAL, dCol, z );
     }
 
     const Real bNrm2 = Nrm2( b );
@@ -309,10 +309,13 @@ void Mehrotra
         Axpy( alphaDual, dz, z ); 
     }
 
-    // Unequilibrate the LP
-    DiagonalSolve( LEFT, NORMAL, dCol, x );
-    DiagonalSolve( LEFT, NORMAL, dRow, y );
-    DiagonalScale( LEFT, NORMAL, dCol, z );
+    if( ctrl.equilibrate )
+    {
+        // Unequilibrate the LP
+        DiagonalSolve( LEFT, NORMAL, dCol, x );
+        DiagonalSolve( LEFT, NORMAL, dRow, y );
+        DiagonalScale( LEFT, NORMAL, dCol, z );
+    }
 }
 
 template<typename Real>
@@ -347,19 +350,28 @@ void Mehrotra
     auto zPtr = ReadWriteProxy<Real,MC,MR>(&zPre,control); auto& z = *zPtr;
 
     // Equilibrate the LP by diagonally scaling A
-    DistMatrix<Real,MC,STAR> dRow(grid);
-    DistMatrix<Real,MR,STAR> dCol(grid);
-    GeomEquil( A, dRow, dCol );
     const Int m = A.Height();
     const Int n = A.Width();
-    DiagonalSolve( LEFT, NORMAL, dRow, b ); 
-    DiagonalSolve( LEFT, NORMAL, dCol, c );
-    if( ctrl.primalInitialized )
-        DiagonalScale( LEFT, NORMAL, dCol, x );
-    if( ctrl.dualInitialized )
+    DistMatrix<Real,MC,STAR> dRow(grid);
+    DistMatrix<Real,MR,STAR> dCol(grid);
+    if( ctrl.equilibrate )
     {
-        DiagonalScale( LEFT, NORMAL, dRow, y );
-        DiagonalSolve( LEFT, NORMAL, dCol, z );
+        GeomEquil( A, dRow, dCol );
+
+        DiagonalSolve( LEFT, NORMAL, dRow, b ); 
+        DiagonalSolve( LEFT, NORMAL, dCol, c );
+        if( ctrl.primalInitialized )
+            DiagonalScale( LEFT, NORMAL, dCol, x );
+        if( ctrl.dualInitialized )
+        {
+            DiagonalScale( LEFT, NORMAL, dRow, y );
+            DiagonalSolve( LEFT, NORMAL, dCol, z );
+        }
+    }
+    else
+    {
+        Ones( dRow, m, 1 );
+        Ones( dCol, n, 1 );
     }
 
     const Real bNrm2 = Nrm2( b );
@@ -609,10 +621,13 @@ void Mehrotra
         Axpy( alphaDual, dz, z ); 
     }
 
-    // Unequilibrate the LP
-    DiagonalSolve( LEFT, NORMAL, dCol, x );
-    DiagonalSolve( LEFT, NORMAL, dRow, y );
-    DiagonalScale( LEFT, NORMAL, dCol, z );
+    if( ctrl.equilibrate )
+    {
+        // Unequilibrate the LP
+        DiagonalSolve( LEFT, NORMAL, dCol, x );
+        DiagonalSolve( LEFT, NORMAL, dRow, y );
+        DiagonalScale( LEFT, NORMAL, dCol, z );
+    }
 }
 
 template<typename Real>
@@ -629,20 +644,29 @@ void Mehrotra
 
     // Equilibrate the LP by diagonally scaling A
     auto A = APre;
-    Matrix<Real> dRow, dCol;
-    GeomEquil( A, dRow, dCol );
-    const Int m = A.Height();
-    const Int n = A.Width();
     auto b = bPre;
     auto c = cPre;
-    DiagonalSolve( LEFT, NORMAL, dRow, b ); 
-    DiagonalSolve( LEFT, NORMAL, dCol, c );
-    if( ctrl.primalInitialized )
-        DiagonalScale( LEFT, NORMAL, dCol, x );
-    if( ctrl.dualInitialized )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    Matrix<Real> dRow, dCol;
+    if( ctrl.equilibrate )
     {
-        DiagonalScale( LEFT, NORMAL, dRow, y );
-        DiagonalSolve( LEFT, NORMAL, dCol, z );
+        GeomEquil( A, dRow, dCol );
+
+        DiagonalSolve( LEFT, NORMAL, dRow, b ); 
+        DiagonalSolve( LEFT, NORMAL, dCol, c );
+        if( ctrl.primalInitialized )
+            DiagonalScale( LEFT, NORMAL, dCol, x );
+        if( ctrl.dualInitialized )
+        {
+            DiagonalScale( LEFT, NORMAL, dRow, y );
+            DiagonalSolve( LEFT, NORMAL, dCol, z );
+        }
+    }
+    else
+    {
+        Ones( dRow, m, 1 );
+        Ones( dCol, n, 1 );
     }
 
     const Real bNrm2 = Nrm2( b );
@@ -995,10 +1019,13 @@ void Mehrotra
         Axpy( alphaDual, dz, z ); 
     }
 
-    // Unequilibrate the LP
-    DiagonalSolve( LEFT, NORMAL, dCol, x );
-    DiagonalSolve( LEFT, NORMAL, dRow, y );
-    DiagonalScale( LEFT, NORMAL, dCol, z );
+    if( ctrl.equilibrate )
+    {
+        // Unequilibrate the LP
+        DiagonalSolve( LEFT, NORMAL, dCol, x );
+        DiagonalSolve( LEFT, NORMAL, dRow, y );
+        DiagonalScale( LEFT, NORMAL, dCol, z );
+    }
 }
 
 template<typename Real>
@@ -1013,32 +1040,37 @@ void Mehrotra
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);
     const Real epsilon = lapack::MachineEpsilon<Real>();
+    Timer timer;
 
     // Equilibrate the LP by diagonally scaling A
     auto A = APre;
+    auto b = bPre;
+    auto c = cPre;
     const Int m = A.Height();
     const Int n = A.Width();
-    const bool allowEquil = false;
     DistMultiVec<Real> dRow(comm), dCol(comm);
-    if( allowEquil )
+    if( ctrl.equilibrate )
     {
+        if( commRank == 0 && ctrl.time )
+            timer.Start();
         GeomEquil( A, dRow, dCol );
+        if( commRank == 0 && ctrl.time )
+            cout << "  GeomEquil: " << timer.Stop() << " secs" << endl;
+
+        DiagonalSolve( LEFT, NORMAL, dRow, b ); 
+        DiagonalSolve( LEFT, NORMAL, dCol, c );
+        if( ctrl.primalInitialized )
+            DiagonalScale( LEFT, NORMAL, dCol, x );
+        if( ctrl.dualInitialized )
+        {
+            DiagonalScale( LEFT, NORMAL, dRow, y );
+            DiagonalSolve( LEFT, NORMAL, dCol, z );
+        }
     }
     else
     {
         Ones( dRow, m, 1 );
         Ones( dCol, n, 1 );
-    }
-    auto b = bPre;
-    auto c = cPre;
-    DiagonalSolve( LEFT, NORMAL, dRow, b ); 
-    DiagonalSolve( LEFT, NORMAL, dCol, c );
-    if( ctrl.primalInitialized )
-        DiagonalScale( LEFT, NORMAL, dCol, x );
-    if( ctrl.dualInitialized )
-    {
-        DiagonalScale( LEFT, NORMAL, dRow, y );
-        DiagonalSolve( LEFT, NORMAL, dCol, z );
     }
 
     const Real bNrm2 = Nrm2( b );
@@ -1052,6 +1084,8 @@ void Mehrotra
     // augmented formulation
     // TODO: Expose this as a parameter of MehrotraCtrl
     const bool standardShift = true;
+    if( commRank == 0 && ctrl.time )
+        timer.Start();
     if( ctrl.system == AUGMENTED_KKT )
     {
         Initialize
@@ -1069,6 +1103,8 @@ void Mehrotra
           ctrl.primalInitialized, ctrl.dualInitialized, standardShift,
           ctrl.solveCtrl );
     }
+    if( commRank == 0 && ctrl.time )
+        cout << "  Init: " << timer.Stop() << " secs" << endl;
 
     DistSparseMatrix<Real> J(comm);
     DistSymmFront<Real> JFront;
@@ -1195,20 +1231,32 @@ void Mehrotra
             // --------------------------------------------------
             if( numIts == 0 )
             {
+                if( commRank == 0 && ctrl.time )
+                    timer.Start();
                 NestedDissection( J.LockedDistGraph(), map, rootSep, info );
+                if( commRank == 0 && ctrl.time )
+                    cout << "  ND: " << timer.Stop() << " secs" << endl;
                 InvertMap( map, invMap );
             }
             JFront.Pull( J, map, rootSep, info );
             regCandNodal.Pull( invMap, info, regCand );
             regNodal.Pull( invMap, info, reg );
+            if( commRank == 0 && ctrl.time )
+                timer.Start();
             RegularizedQSDLDL
             ( info, JFront, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
+            if( commRank == 0 && ctrl.time )
+                cout << "  RegQSDLDL: " << timer.Stop() << " secs" << endl;
             regNodal.Push( invMap, info, reg );
 
             // Compute the proposed step from the regularized KKT system
             // ---------------------------------------------------------
+            if( commRank == 0 && ctrl.time )
+                timer.Start();
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
+            if( commRank == 0 && ctrl.time )
+                cout << "  Affine: " << timer.Stop() << " secs" << endl;
             ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -1226,18 +1274,30 @@ void Mehrotra
             // ---------------------------------------------
             if( ctrl.primalInitialized && ctrl.dualInitialized && numIts == 0 )
             {
+                if( commRank == 0 && ctrl.time )
+                    timer.Start();
                 NestedDissection( J.LockedDistGraph(), map, rootSep, info );
+                if( commRank == 0 && ctrl.time )
+                    cout << "  ND: " << timer.Stop() << " secs" << endl;
                 InvertMap( map, invMap );
             }
             JFront.Pull( J, map, rootSep, info );
             regCandNodal.Pull( invMap, info, regCand );
             regNodal.Pull( invMap, info, reg );
+            if( commRank == 0 && ctrl.time )
+                timer.Start();
             RegularizedQSDLDL
             ( info, JFront, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
+            if( commRank == 0 && ctrl.time )
+                cout << "  RegQSDLDL: " << timer.Stop() << " secs" << endl;
             regNodal.Push( invMap, info, reg );
 
+            if( commRank == 0 && ctrl.time )
+                timer.Start();
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
+            if( commRank == 0 && ctrl.time )
+                cout << "  Affine: " << timer.Stop() << " secs" << endl;
             ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
         }
         else // ctrl.system == NORMAL_KKT
@@ -1251,14 +1311,26 @@ void Mehrotra
             // ---------------------------------------------
             if( numIts == 0 )
             {
+                if( commRank == 0 && ctrl.time )
+                    timer.Start();
                 NestedDissection( J.LockedDistGraph(), map, rootSep, info );
+                if( commRank == 0 && ctrl.time )
+                    cout << "  ND: " << timer.Stop() << " secs" << endl;
                 InvertMap( map, invMap );
             }
             JFront.Pull( J, map, rootSep, info );
+            if( commRank == 0 && ctrl.time )
+                timer.Start();
             LDL( info, JFront, LDL_1D );
+            if( commRank == 0 && ctrl.time )
+                cout << "  LDL: " << timer.Stop() << " secs" << endl;
+            if( commRank == 0 && ctrl.time )
+                timer.Start(); 
             ldl::SolveWithIterativeRefinement
             ( J, invMap, info, JFront, dyAff, 
               ctrl.solveCtrl.relTolRefine, ctrl.solveCtrl.maxRefineIts );
+            if( commRank == 0 && ctrl.time )
+                cout << "  Affine: " << timer.Stop() << " secs" << endl;
             ExpandNormalSolution( A, c, x, z, rc, rmu, dxAff, dyAff, dzAff );
         }
 #ifndef EL_RELEASE
@@ -1336,8 +1408,12 @@ void Mehrotra
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
+            if( commRank == 0 && ctrl.time )
+                timer.Start();
             numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
+            if( commRank == 0 && ctrl.time )
+                cout << "  Corrector: " << timer.Stop() << " secs" << endl;
             ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -1348,8 +1424,12 @@ void Mehrotra
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
+            if( commRank == 0 && ctrl.time )
+                timer.Start();
             numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
             ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
+            if( commRank == 0 && ctrl.time )
+                cout << "  Corrector: " << timer.Stop() << " secs" << endl;
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else
@@ -1360,9 +1440,13 @@ void Mehrotra
 
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
+            if( commRank == 0 && ctrl.time )
+                timer.Start();
             ldl::SolveWithIterativeRefinement
             ( J, invMap, info, JFront, dy, 
               ctrl.solveCtrl.relTolRefine, ctrl.solveCtrl.maxRefineIts );
+            if( commRank == 0 && ctrl.time )
+                cout << "  Corrector: " << timer.Stop() << " secs" << endl;
             ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
         if( Max(numLargeAffineRefines,numLargeCorrectorRefines) > 3 &&
@@ -1396,10 +1480,13 @@ void Mehrotra
         Axpy( alphaDual, dz, z ); 
     }
 
-    // Unequilibrate the LP
-    DiagonalSolve( LEFT, NORMAL, dCol, x );
-    DiagonalSolve( LEFT, NORMAL, dRow, y );
-    DiagonalScale( LEFT, NORMAL, dCol, z );
+    if( ctrl.equilibrate )
+    {
+        // Unequilibrate the LP
+        DiagonalSolve( LEFT, NORMAL, dCol, x );
+        DiagonalSolve( LEFT, NORMAL, dRow, y );
+        DiagonalScale( LEFT, NORMAL, dCol, z );
+    }
 }
 
 #define PROTO(Real) \

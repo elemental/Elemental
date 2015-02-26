@@ -101,35 +101,51 @@ EL_EXPORT ElError ElLeastSquaresDistSparse_z
 
 /* Expert versions
    ^^^^^^^^^^^^^^^ */
+typedef struct {
+  float alpha;
+  ElRegQSDSolveCtrl_s solveCtrl;
+  bool equilibrate;
+  bool progress;
+} ElLeastSquaresCtrl_s;
+ElError ElLeastSquaresCtrlDefault_s( ElLeastSquaresCtrl_s* ctrl );
+
+typedef struct {
+  double alpha;
+  ElRegQSDSolveCtrl_d solveCtrl;
+  bool equilibrate;
+  bool progress;
+} ElLeastSquaresCtrl_d;
+ElError ElLeastSquaresCtrlDefault_d( ElLeastSquaresCtrl_d* ctrl );
+
 EL_EXPORT ElError ElLeastSquaresXSparse_s
 ( ElOrientation orientation, ElSparseMatrix_s A, 
-  ElConstMatrix_s B, ElMatrix_s X, ElRegQSDSolveCtrl_s solveCtrl );
+  ElConstMatrix_s B, ElMatrix_s X, ElLeastSquaresCtrl_s ctrl );
 EL_EXPORT ElError ElLeastSquaresXSparse_d
 ( ElOrientation orientation, ElSparseMatrix_d A, 
-  ElConstMatrix_d B, ElMatrix_d X, ElRegQSDSolveCtrl_d solveCtrl );
+  ElConstMatrix_d B, ElMatrix_d X, ElLeastSquaresCtrl_d ctrl );
 EL_EXPORT ElError ElLeastSquaresXSparse_c
 ( ElOrientation orientation, ElSparseMatrix_c A, 
-  ElConstMatrix_c B, ElMatrix_c X, ElRegQSDSolveCtrl_s solveCtrl );
+  ElConstMatrix_c B, ElMatrix_c X, ElLeastSquaresCtrl_s ctrl );
 EL_EXPORT ElError ElLeastSquaresXSparse_z
 ( ElOrientation orientation, ElSparseMatrix_z A, 
-  ElConstMatrix_z B, ElMatrix_z X, ElRegQSDSolveCtrl_d solveCtrl );
+  ElConstMatrix_z B, ElMatrix_z X, ElLeastSquaresCtrl_d ctrl );
 
 EL_EXPORT ElError ElLeastSquaresXDistSparse_s
 ( ElOrientation orientation,
   ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s B, ElDistMultiVec_s X,
-  ElRegQSDSolveCtrl_s solveCtrl );
+  ElLeastSquaresCtrl_s ctrl );
 EL_EXPORT ElError ElLeastSquaresXDistSparse_d
 ( ElOrientation orientation,
   ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d B, ElDistMultiVec_d X,
-  ElRegQSDSolveCtrl_d solveCtrl );
+  ElLeastSquaresCtrl_d ctrl );
 EL_EXPORT ElError ElLeastSquaresXDistSparse_c
 ( ElOrientation orientation,
   ElConstDistSparseMatrix_c A, ElConstDistMultiVec_c B, ElDistMultiVec_c X,
-  ElRegQSDSolveCtrl_s solveCtrl );
+  ElLeastSquaresCtrl_s ctrl );
 EL_EXPORT ElError ElLeastSquaresXDistSparse_z
 ( ElOrientation orientation,
   ElConstDistSparseMatrix_z A, ElConstDistMultiVec_z B, ElDistMultiVec_z X,
-  ElRegQSDSolveCtrl_d solveCtrl );
+  ElLeastSquaresCtrl_d ctrl );
 
 /* Equality-constrained Least Squares
    ---------------------------------- */

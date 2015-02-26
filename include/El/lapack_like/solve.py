@@ -6,8 +6,9 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-from ..core import *
-from factor import *
+from El.core import *
+from El.lapack_like.euclidean_min import *
+from El.lapack_like.factor import *
 import ctypes
 
 # Linear solvers
@@ -37,13 +38,13 @@ lib.ElLinearSolveXSparse_s.argtypes = \
 lib.ElLinearSolveXSparse_c.argtypes = \
 lib.ElLinearSolveXDistSparse_s.argtypes = \
 lib.ElLinearSolveXDistSparse_c.argtypes = \
-  [c_void_p,c_void_p,RegQSDSolveCtrl_s]
+  [c_void_p,c_void_p,LeastSquaresCtrl_s]
 
 lib.ElLinearSolveXSparse_d.argtypes = \
 lib.ElLinearSolveXSparse_z.argtypes = \
 lib.ElLinearSolveXDistSparse_d.argtypes = \
 lib.ElLinearSolveXDistSparse_z.argtypes = \
-  [c_void_p,c_void_p,RegQSDSolveCtrl_d]
+  [c_void_p,c_void_p,LeastSquaresCtrl_d]
 
 lib.ElLinearSolve_s.restype = \
 lib.ElLinearSolve_d.restype = \

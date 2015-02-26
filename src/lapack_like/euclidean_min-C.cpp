@@ -12,6 +12,26 @@ using namespace El;
 
 extern "C" {
 
+ElError ElLeastSquaresCtrlDefault_s( ElLeastSquaresCtrl_s* ctrl )
+{
+    const float eps = lapack::MachineEpsilon<float>();
+    ctrl->alpha = Pow(eps,float(0.25));
+    ElRegQSDSolveCtrlDefault_s( &ctrl->solveCtrl );
+    ctrl->equilibrate = false;
+    ctrl->progress = false;
+    return EL_SUCCESS;
+}
+
+ElError ElLeastSquaresCtrlDefault_d( ElLeastSquaresCtrl_d* ctrl )
+{
+    const double eps = lapack::MachineEpsilon<double>();
+    ctrl->alpha = Pow(eps,double(0.25));
+    ElRegQSDSolveCtrlDefault_d( &ctrl->solveCtrl );
+    ctrl->equilibrate = false;
+    ctrl->progress = false;
+    return EL_SUCCESS;
+}
+
 #define C_PROTO(SIG,SIGBASE,F) \
   /* General Linear Model
      -------------------- */ \
@@ -51,14 +71,14 @@ extern "C" {
   ElError ElLeastSquaresXSparse_ ## SIG \
   ( ElOrientation orientation, ElSparseMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG B, ElMatrix_ ## SIG X, \
-    ElRegQSDSolveCtrl_ ## SIGBASE ctrl ) \
+    ElLeastSquaresCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( LeastSquares( CReflect(orientation), *CReflect(A), \
                           *CReflect(B), *CReflect(X), CReflect(ctrl) ) ) } \
   ElError ElLeastSquaresXDistSparse_ ## SIG \
   ( ElOrientation orientation, \
     ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG X, \
     ElDistMultiVec_ ## SIG Y, \
-    ElRegQSDSolveCtrl_ ## SIGBASE ctrl ) \
+    ElLeastSquaresCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( LeastSquares( CReflect(orientation), \
       *CReflect(A), *CReflect(X), *CReflect(Y), CReflect(ctrl) ) ) } \
   /* Equality-constrained Least Squares

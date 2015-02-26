@@ -63,6 +63,18 @@ def GLM(A,B,D):
 
 # Least squares
 # -------------
+
+class LeastSquaresCtrl_s(ctypes.Structure):
+  _fields_ = [("alpha",sType),("solveCtrl",RegQSDSolveCtrl_s),
+              ("equilibrate",bType),("progress",bType)]
+  def __init__(self):
+    lib.ElLeastSquaresCtrlDefault_s(pointer(self))
+class LeastSquaresCtrl_d(ctypes.Structure):
+  _fields_ = [("alpha",dType),("solveCtrl",RegQSDSolveCtrl_d),
+              ("equilibrate",bType),("progress",bType)]
+  def __init__(self):
+    lib.ElLeastSquaresCtrlDefault_d(pointer(self))
+
 lib.ElLeastSquares_s.argtypes = \
 lib.ElLeastSquares_d.argtypes = \
 lib.ElLeastSquares_c.argtypes = \
@@ -85,13 +97,13 @@ lib.ElLeastSquaresXSparse_s.argtypes = \
 lib.ElLeastSquaresXSparse_c.argtypes = \
 lib.ElLeastSquaresXDistSparse_s.argtypes = \
 lib.ElLeastSquaresXDistSparse_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,RegQSDSolveCtrl_s]
+  [c_uint,c_void_p,c_void_p,c_void_p,LeastSquaresCtrl_s]
 
 lib.ElLeastSquaresXSparse_d.argtypes = \
 lib.ElLeastSquaresXSparse_z.argtypes = \
 lib.ElLeastSquaresXDistSparse_d.argtypes = \
 lib.ElLeastSquaresXDistSparse_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,RegQSDSolveCtrl_d]
+  [c_uint,c_void_p,c_void_p,c_void_p,LeastSquaresCtrl_d]
 
 lib.ElLeastSquares_s.restype = \
 lib.ElLeastSquares_d.restype = \

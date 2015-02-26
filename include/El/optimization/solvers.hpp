@@ -78,11 +78,12 @@ struct IPFCtrl {
 
     bool equilibrate;
     bool print;
+    bool time;
 
     IPFCtrl( bool isSparse ) 
     : primalInitialized(false), dualInitialized(false),
       tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), centering(0.9), 
-      equilibrate(false), print(false)
+      equilibrate(true), print(false), time(false)
     { 
         system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); 
     }
@@ -101,6 +102,7 @@ struct MehrotraCtrl {
     RegQSDSolveCtrl<Real> solveCtrl;
     bool equilibrate;
     bool print;
+    bool time;
 
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
     //       the default, (muAff/mu)^3 
@@ -108,7 +110,7 @@ struct MehrotraCtrl {
     MehrotraCtrl( bool isSparse )
     : primalInitialized(false), dualInitialized(false), 
       tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), 
-      maxStepRatio(0.99), equilibrate(false), print(false)
+      maxStepRatio(0.99), equilibrate(true), print(false), time(false)
     { system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); }
 };
 
@@ -175,11 +177,12 @@ struct IPFCtrl {
 
     bool equilibrate;
     bool print;
+    bool time;
 
     IPFCtrl() 
     : primalInitialized(false), dualInitialized(false),
       tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), centering(0.9), 
-      equilibrate(false), print(false)
+      equilibrate(true), print(false), time(false)
     { }
 };
 
@@ -195,6 +198,7 @@ struct MehrotraCtrl {
     RegQSDSolveCtrl<Real> solveCtrl;
     bool equilibrate;
     bool print;
+    bool time;
 
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
     //       the default, (muAff/mu)^3 
@@ -202,7 +206,7 @@ struct MehrotraCtrl {
     MehrotraCtrl()
     : primalInitialized(false), dualInitialized(false),
       tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), 
-      maxStepRatio(0.99), equilibrate(false), print(false)
+      maxStepRatio(0.99), equilibrate(true), print(false), time(false)
     { }
 };
 
@@ -332,11 +336,12 @@ struct IPFCtrl {
 
     bool equilibrate;
     bool print;
+    bool time;
 
     IPFCtrl() 
     : primalInitialized(false), dualInitialized(false),
       tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), centering(0.9), 
-      system(AUGMENTED_KKT), equilibrate(false), print(false)
+      system(AUGMENTED_KKT), equilibrate(true), print(false), time(false)
     { }
 };
 
@@ -353,6 +358,7 @@ struct MehrotraCtrl {
     RegQSDSolveCtrl<Real> solveCtrl;
     bool equilibrate;
     bool print;
+    bool time;
 
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
     //       the default, (muAff/mu)^3 
@@ -360,8 +366,8 @@ struct MehrotraCtrl {
     MehrotraCtrl()
     : primalInitialized(false), dualInitialized(false), 
       tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), 
-      maxStepRatio(0.99), system(AUGMENTED_KKT), equilibrate(false), 
-      print(false)
+      maxStepRatio(0.99), system(AUGMENTED_KKT), equilibrate(true), 
+      print(false), time(false)
     { }
 };
 
@@ -406,11 +412,12 @@ struct IPFCtrl {
 
     bool equilibrate;
     bool print;
+    bool time;
 
     IPFCtrl() 
     : primalInitialized(false), dualInitialized(false),
       tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), centering(0.9), 
-      equilibrate(false), print(false)
+      equilibrate(true), print(false), time(false)
     { }
 };
 
@@ -426,6 +433,7 @@ struct MehrotraCtrl {
     RegQSDSolveCtrl<Real> solveCtrl;
     bool equilibrate;
     bool print;
+    bool time;
 
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
     //       the default, (muAff/mu)^3 
@@ -433,7 +441,7 @@ struct MehrotraCtrl {
     MehrotraCtrl()
     : primalInitialized(false), dualInitialized(false),
       tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), 
-      maxStepRatio(0.99), equilibrate(false), print(false)
+      maxStepRatio(0.99), equilibrate(true), print(false), time(false)
     { }
 };
 

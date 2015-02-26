@@ -118,7 +118,7 @@ template<typename F>
 void LeastSquares
 ( Orientation orientation,
   const SparseMatrix<F>& A, const Matrix<F>& B, Matrix<F>& X,
-  const RegQSDSolveCtrl<Base<F>>& solveCtrl )
+  const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(
       CallStackEntry cse("LeastSquares");
@@ -129,10 +129,7 @@ void LeastSquares
     )
     typedef Base<F> Real;
     const Real epsilon = lapack::MachineEpsilon<Real>();
-    const Real alpha = Pow(epsilon,Real(0.25));
 
-    // ABar := inv(D_r) op(A) inv(D_c)
-    // ===============================
     SparseMatrix<F> ABar;
     if( orientation == NORMAL )
         ABar = A;
@@ -140,27 +137,25 @@ void LeastSquares
         Transpose( A, ABar );
     else
         Adjoint( A, ABar );
+    auto BBar = B;
     const Int m = ABar.Height();
     const Int n = ABar.Width();
+    const Int k = BBar.Width();
     const Int numEntriesA = ABar.NumEntries();
-    const bool progress = false;
-    const bool allowEquil = false;
+
+    // Equilibrate the least squares problem
+    // =====================================
     Matrix<Real> dRow, dCol;
-    if( allowEquil )
+    if( ctrl.equilibrate )
     {
-        GeomEquil( ABar, dRow, dCol, progress );
+        GeomEquil( ABar, dRow, dCol, ctrl.progress );
+        DiagonalSolve( LEFT, NORMAL, dRow, BBar );
     }
     else
     {
         Ones( dRow, m, 1 );
         Ones( dCol, n, 1 );
     }
-
-    // BBar := inv(D_r) B
-    // ==================
-    auto BBar = B;
-    DiagonalSolve( LEFT, NORMAL, dRow, BBar );
-    const Int k = BBar.Width();
 
     SparseMatrix<F> J;
     Zeros( J, m+n, m+n );
@@ -175,7 +170,7 @@ void LeastSquares
             J.QueueUpdate( ABar.Col(e)+m, ABar.Row(e),   Conj(ABar.Value(e)) );
         }
         for( Int e=0; e<m; ++e )
-            J.QueueUpdate( e, e, Pow(dRow.Get(e,0),Real(-2))*alpha );
+            J.QueueUpdate( e, e, Pow(dRow.Get(e,0),Real(-2))*ctrl.alpha );
     }
     else
     {
@@ -187,7 +182,7 @@ void LeastSquares
             J.QueueUpdate( ABar.Row(e)+n, ABar.Col(e),        ABar.Value(e)  );
         }
         for( Int e=0; e<n; ++e )
-            J.QueueUpdate( e, e, Pow(dCol.Get(e,0),Real(-2))*alpha );
+            J.QueueUpdate( e, e, Pow(dCol.Get(e,0),Real(-2))*ctrl.alpha );
     }
     J.MakeConsistent();
 
@@ -212,7 +207,7 @@ void LeastSquares
     // ====================================================
     bool aPriori = true;
     const Real regMagPrimal = 0;
-    const Real regMagDual = alpha;
+    const Real regMagDual = ctrl.alpha;
     const Real pivTol = MaxNorm(J)*epsilon;
 
     Matrix<Real> regCand, reg;
@@ -245,7 +240,8 @@ void LeastSquares
     {
         auto d = D( IR(0,m+n), IR(j,j+1) );
         u = d;
-        reg_qsd_ldl::SolveAfter( J, reg, invMap, info, JFront, u, solveCtrl );
+        reg_qsd_ldl::SolveAfter
+        ( J, reg, invMap, info, JFront, u, ctrl.solveCtrl );
         d = u;
     }
 
@@ -263,16 +259,20 @@ void LeastSquares
         // =================================
         auto DT = D( IR(0,n), IR(0,k) );
         X = DT;
-        Scale( alpha, X );
+        Scale( ctrl.alpha, X );
     }
-    DiagonalSolve( LEFT, NORMAL, dCol, X );
+
+    // Unequilibrate the problem
+    // =========================
+    if( ctrl.equilibrate )
+        DiagonalSolve( LEFT, NORMAL, dCol, X );
 }
 
 template<typename F>
 void LeastSquares
 ( Orientation orientation,
   const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, DistMultiVec<F>& X,
-  const RegQSDSolveCtrl<Base<F>>& solveCtrl )
+  const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(
       CallStackEntry cse("LeastSquares");
@@ -283,12 +283,9 @@ void LeastSquares
     )
     typedef Base<F> Real;
     const Real epsilon = lapack::MachineEpsilon<Real>();
-    const Real alpha = Pow(epsilon,Real(0.25));
     mpi::Comm comm = A.Comm();
     const int commSize = mpi::Size(comm);
 
-    // ABar := inv(D_r) op(A) inv(D_c) 
-    // ===============================
     DistSparseMatrix<F> ABar(comm);
     if( orientation == NORMAL )
         ABar = A;
@@ -296,26 +293,24 @@ void LeastSquares
         Transpose( A, ABar );
     else
         Adjoint( A, ABar );
+    auto BBar = B;
     const Int m = ABar.Height();
     const Int n = ABar.Width();
-    const bool progress = true;
-    const bool allowEquil = false;
+    const Int k = B.Width();
+
+    // Equilibrate the problem
+    // =======================
     DistMultiVec<Real> dRow(comm), dCol(comm);
-    if( allowEquil )
+    if( ctrl.equilibrate )
     {
-        GeomEquil( ABar, dRow, dCol, progress );
+        GeomEquil( ABar, dRow, dCol, ctrl.progress );
+        DiagonalSolve( LEFT, NORMAL, dRow, BBar );
     }
     else
     {
         Ones( dRow, m, 1 );
         Ones( dCol, n, 1 );
     }
-
-    // BBar := inv(D_r) B
-    // ==================
-    const Int k = B.Width();
-    auto BBar = B;
-    DiagonalSolve( LEFT, NORMAL, dRow, BBar );
 
     // J := [D_r^{-2}*alpha,ABar;ABar^H,0] or [D_c^{-2}*alpha,ABar^H;ABar,0]
     // =====================================================================
@@ -413,7 +408,7 @@ void LeastSquares
                 sSendBuf[offsets[owner]] = i; 
                 tSendBuf[offsets[owner]] = i;
                 vSendBuf[offsets[owner]] = 
-                    Pow(dRow.GetLocal(iLoc,0),Real(-2))*alpha;
+                    Pow(dRow.GetLocal(iLoc,0),Real(-2))*ctrl.alpha;
                 ++offsets[owner];
             }
         }
@@ -426,7 +421,7 @@ void LeastSquares
                 sSendBuf[offsets[owner]] = i; 
                 tSendBuf[offsets[owner]] = i;
                 vSendBuf[offsets[owner]] = 
-                    Pow(dCol.GetLocal(iLoc,0),Real(-2))*alpha;
+                    Pow(dCol.GetLocal(iLoc,0),Real(-2))*ctrl.alpha;
                 ++offsets[owner];
             }
         }
@@ -532,7 +527,7 @@ void LeastSquares
     // ================================================================
     bool aPriori = true;
     const Real regMagPrimal = 0;
-    const Real regMagDual = alpha;
+    const Real regMagDual = ctrl.alpha;
     const Real pivTol = MaxNorm(J)*epsilon;
 
     DistMultiVec<Real> regCand(comm), reg(comm);
@@ -572,7 +567,8 @@ void LeastSquares
     {
         auto dLoc = DLoc( IR(0,DLocHeight), IR(j,j+1) );
         Copy( dLoc, uLoc );
-        reg_qsd_ldl::SolveAfter( J, reg, invMap, info, JFront, u, solveCtrl );
+        reg_qsd_ldl::SolveAfter
+        ( J, reg, invMap, info, JFront, u, ctrl.solveCtrl );
         Copy( uLoc, dLoc );
     }
 
@@ -634,7 +630,7 @@ void LeastSquares
                     int owner = X.RowOwner(i);
                     for( Int j=0; j<k; ++j )
                     {
-                        const F value = D.GetLocal(iLoc,j)*alpha;
+                        const F value = D.GetLocal(iLoc,j)*ctrl.alpha;
                         sSendBuf[offsets[owner]] = i;
                         tSendBuf[offsets[owner]] = j;
                         vSendBuf[offsets[owner]] = value;
@@ -664,7 +660,11 @@ void LeastSquares
             X.SetLocal
             ( sRecvBuf[e]-X.FirstLocalRow(), tRecvBuf[e], vRecvBuf[e] );
     }
-    DiagonalSolve( LEFT, NORMAL, dCol, X );
+
+    // Unequilibrate the problem
+    // =========================
+    if( ctrl.equilibrate )
+        DiagonalSolve( LEFT, NORMAL, dCol, X );
 }
 
 #define PROTO(F) \
@@ -677,11 +677,11 @@ void LeastSquares
   template void LeastSquares \
   ( Orientation orientation, \
     const SparseMatrix<F>& A, const Matrix<F>& B, \
-    Matrix<F>& X, const RegQSDSolveCtrl<Base<F>>& ctrl ); \
+    Matrix<F>& X, const LeastSquaresCtrl<Base<F>>& ctrl ); \
   template void LeastSquares \
   ( Orientation orientation, \
     const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, \
-    DistMultiVec<F>& X, const RegQSDSolveCtrl<Base<F>>& ctrl );
+    DistMultiVec<F>& X, const LeastSquaresCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

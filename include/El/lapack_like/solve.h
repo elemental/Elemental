@@ -11,6 +11,7 @@
 #define EL_LAPACK_SOLVE_C_H
 
 #include "El/core/DistMatrix.h"
+#include "El/lapack_like/euclidean_min.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,22 +49,22 @@ EL_EXPORT ElError ElLinearSolveDistSparse_z
 /* Expert versions
    ^^^^^^^^^^^^^^^ */
 EL_EXPORT ElError ElLinearSolveXSparse_s
-( ElSparseMatrix_s A, ElMatrix_s B, ElRegQSDSolveCtrl_s ctrl );
+( ElSparseMatrix_s A, ElMatrix_s B, ElLeastSquaresCtrl_s ctrl );
 EL_EXPORT ElError ElLinearSolveXSparse_d
-( ElSparseMatrix_d A, ElMatrix_d B, ElRegQSDSolveCtrl_d ctrl );
+( ElSparseMatrix_d A, ElMatrix_d B, ElLeastSquaresCtrl_d ctrl );
 EL_EXPORT ElError ElLinearSolveXSparse_c
-( ElSparseMatrix_c A, ElMatrix_c B, ElRegQSDSolveCtrl_s ctrl );
+( ElSparseMatrix_c A, ElMatrix_c B, ElLeastSquaresCtrl_s ctrl );
 EL_EXPORT ElError ElLinearSolveXSparse_z
-( ElSparseMatrix_z A, ElMatrix_z B, ElRegQSDSolveCtrl_d ctrl );
+( ElSparseMatrix_z A, ElMatrix_z B, ElLeastSquaresCtrl_d ctrl );
 
 EL_EXPORT ElError ElLinearSolveXDistSparse_s
-( ElDistSparseMatrix_s A, ElDistMultiVec_s B, ElRegQSDSolveCtrl_s ctrl );
+( ElDistSparseMatrix_s A, ElDistMultiVec_s B, ElLeastSquaresCtrl_s ctrl );
 EL_EXPORT ElError ElLinearSolveXDistSparse_d
-( ElDistSparseMatrix_d A, ElDistMultiVec_d B, ElRegQSDSolveCtrl_d ctrl );
+( ElDistSparseMatrix_d A, ElDistMultiVec_d B, ElLeastSquaresCtrl_d ctrl );
 EL_EXPORT ElError ElLinearSolveXDistSparse_c
-( ElDistSparseMatrix_c A, ElDistMultiVec_c B, ElRegQSDSolveCtrl_s ctrl );
+( ElDistSparseMatrix_c A, ElDistMultiVec_c B, ElLeastSquaresCtrl_s ctrl );
 EL_EXPORT ElError ElLinearSolveXDistSparse_z
-( ElDistSparseMatrix_z A, ElDistMultiVec_z B, ElRegQSDSolveCtrl_d ctrl );
+( ElDistSparseMatrix_z A, ElDistMultiVec_z B, ElLeastSquaresCtrl_d ctrl );
 
 /* Symmetric solve
    --------------- */

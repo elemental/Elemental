@@ -29,9 +29,9 @@ inline void
 RowEchelon( Matrix<F>& A, Matrix<F>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("RowEchelon");
-        if( A.Height() != B.Height() )
-            LogicError("A and B must be the same height");
+      CallStackEntry cse("RowEchelon");
+      if( A.Height() != B.Height() )
+          LogicError("A and B must be the same height");
     )
 
     Matrix<Int> p1Piv;
@@ -75,10 +75,10 @@ inline void
 RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("RowEchelon");
-        AssertSameGrids( A, B );
-        if( A.Height() != B.Height() )
-            LogicError("A and B must be the same height");
+      CallStackEntry cse("RowEchelon");
+      AssertSameGrids( A, B );
+      if( A.Height() != B.Height() )
+          LogicError("A and B must be the same height");
     )
     const Int mA = A.Height();
     const Int nA = A.Width();
@@ -194,7 +194,7 @@ void LinearSolve
 template<typename F>
 void LinearSolve
 ( const SparseMatrix<F>& A, Matrix<F>& B, 
-  const RegQSDSolveCtrl<Base<F>>& ctrl )
+  const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LinearSolve"))
     Matrix<F> X;
@@ -205,7 +205,7 @@ void LinearSolve
 template<typename F>
 void LinearSolve
 ( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, 
-  const RegQSDSolveCtrl<Base<F>>& ctrl )
+  const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LinearSolve"))
     DistMultiVec<F> X;
@@ -220,10 +220,10 @@ void LinearSolve
   ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B ); \
   template void LinearSolve \
   ( const SparseMatrix<F>& A, Matrix<F>& B, \
-    const RegQSDSolveCtrl<Base<F>>& ctrl ); \
+    const LeastSquaresCtrl<Base<F>>& ctrl ); \
   template void LinearSolve \
   ( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, \
-    const RegQSDSolveCtrl<Base<F>>& ctrl );
+    const LeastSquaresCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

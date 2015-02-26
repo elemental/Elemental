@@ -31,11 +31,11 @@ extern "C" {
      ^^^^^^^^^^^^^^^ */ \
   ElError ElLinearSolveXSparse_ ## SIG \
   ( ElSparseMatrix_ ## SIG A, ElMatrix_ ## SIG B, \
-    ElRegQSDSolveCtrl_ ## SIGBASE ctrl ) \
+    ElLeastSquaresCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( LinearSolve( *CReflect(A), *CReflect(B), CReflect(ctrl) ) ) } \
   ElError ElLinearSolveXDistSparse_ ## SIG \
   ( ElDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG B, \
-    ElRegQSDSolveCtrl_ ## SIGBASE ctrl ) \
+    ElLeastSquaresCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( LinearSolve( *CReflect(A), *CReflect(B), CReflect(ctrl) ) ) } \
   /* HPD solve
      --------- */ \

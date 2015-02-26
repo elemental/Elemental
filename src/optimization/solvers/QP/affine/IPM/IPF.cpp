@@ -48,44 +48,44 @@ void IPF
 {
     DEBUG_ONLY(CallStackEntry cse("qp::affine::IPF"))    
     // Equilibrate the QP by diagonally scaling [A;G]
+    auto Q = QPre;
     auto A = APre;
     auto G = GPre;
+    auto b = bPre;
+    auto c = cPre;
+    auto h = hPre;
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
-    const bool allowEquil = false;
     Matrix<Real> dRowA, dRowG, dCol;
-    if( allowEquil )
+    if( ctrl.equilibrate )
     {
         StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+
+        DiagonalSolve( LEFT, NORMAL, dRowA, b );
+        DiagonalSolve( LEFT, NORMAL, dRowG, h );
+        DiagonalSolve( LEFT, NORMAL, dCol,  c );
+        // TODO: Replace with SymmetricDiagonalSolve
+        {
+            DiagonalSolve( LEFT, NORMAL, dCol,  Q );
+            DiagonalSolve( RIGHT, NORMAL, dCol, Q );
+        }
+        if( ctrl.primalInitialized )
+        {
+            DiagonalScale( LEFT, NORMAL, dCol,  x );
+            DiagonalSolve( LEFT, NORMAL, dRowG, s );
+        }
+        if( ctrl.dualInitialized )
+        {
+            DiagonalScale( LEFT, NORMAL, dRowA, y );
+            DiagonalScale( LEFT, NORMAL, dRowG, z );
+        }
     }
     else
     {
         Ones( dRowA, m, 1 );
         Ones( dRowG, k, 1 );
         Ones( dCol,  n, 1 );
-    }
-    auto b = bPre;
-    auto c = cPre;
-    auto h = hPre;
-    DiagonalSolve( LEFT, NORMAL, dRowA, b );
-    DiagonalSolve( LEFT, NORMAL, dRowG, h );
-    DiagonalSolve( LEFT, NORMAL, dCol,  c );
-    auto Q = QPre;
-    // TODO: Replace with SymmetricDiagonalSolve
-    {
-        DiagonalSolve( LEFT, NORMAL, dCol,  Q );
-        DiagonalSolve( RIGHT, NORMAL, dCol, Q );
-    }
-    if( ctrl.primalInitialized )
-    {
-        DiagonalScale( LEFT, NORMAL, dCol,  x );
-        DiagonalSolve( LEFT, NORMAL, dRowG, s );
-    }
-    if( ctrl.dualInitialized )
-    {
-        DiagonalScale( LEFT, NORMAL, dRowA, y );
-        DiagonalScale( LEFT, NORMAL, dRowG, z );
     }
 
     const Real bNrm2 = Nrm2( b );
@@ -237,11 +237,14 @@ void IPF
         Axpy( alpha, ds, s );
     }
 
-    // Unequilibrate the QP
-    DiagonalSolve( LEFT, NORMAL, dCol,  x );
-    DiagonalSolve( LEFT, NORMAL, dRowA, y );
-    DiagonalSolve( LEFT, NORMAL, dRowG, z );
-    DiagonalScale( LEFT, NORMAL, dRowG, s );
+    if( ctrl.equilibrate )
+    {
+        // Unequilibrate the QP
+        DiagonalSolve( LEFT, NORMAL, dCol,  x );
+        DiagonalSolve( LEFT, NORMAL, dRowA, y );
+        DiagonalSolve( LEFT, NORMAL, dRowG, z );
+        DiagonalScale( LEFT, NORMAL, dRowG, s );
+    }
 }
 
 template<typename Real>
@@ -287,37 +290,37 @@ void IPF
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
-    const bool allowEquil = false;
     DistMatrix<Real,MC,STAR> dRowA(grid),
                              dRowG(grid);
     DistMatrix<Real,MR,STAR> dCol(grid);
-    if( allowEquil )
+    if( ctrl.equilibrate )
     {
         StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+
+        DiagonalSolve( LEFT, NORMAL, dRowA, b );
+        DiagonalSolve( LEFT, NORMAL, dRowG, h );
+        DiagonalSolve( LEFT, NORMAL, dCol,  c );
+        // TODO: Replace with SymmetricDiagonalSolve
+        {
+            DiagonalSolve( LEFT, NORMAL, dCol,  Q );
+            DiagonalSolve( RIGHT, NORMAL, dCol, Q );
+        }
+        if( ctrl.primalInitialized )
+        {
+            DiagonalScale( LEFT, NORMAL, dCol,  x );
+            DiagonalSolve( LEFT, NORMAL, dRowG, s );
+        }
+        if( ctrl.dualInitialized )
+        {
+            DiagonalScale( LEFT, NORMAL, dRowA, y );
+            DiagonalScale( LEFT, NORMAL, dRowG, z );
+        }
     }
     else
     {
         Ones( dRowA, m, 1 );
         Ones( dRowG, k, 1 );
         Ones( dCol,  n, 1 );
-    }
-    DiagonalSolve( LEFT, NORMAL, dRowA, b );
-    DiagonalSolve( LEFT, NORMAL, dRowG, h );
-    DiagonalSolve( LEFT, NORMAL, dCol,  c );
-    // TODO: Replace with SymmetricDiagonalSolve
-    {
-        DiagonalSolve( LEFT, NORMAL, dCol,  Q );
-        DiagonalSolve( RIGHT, NORMAL, dCol, Q );
-    }
-    if( ctrl.primalInitialized )
-    {
-        DiagonalScale( LEFT, NORMAL, dCol,  x );
-        DiagonalSolve( LEFT, NORMAL, dRowG, s );
-    }
-    if( ctrl.dualInitialized )
-    {
-        DiagonalScale( LEFT, NORMAL, dRowA, y );
-        DiagonalScale( LEFT, NORMAL, dRowG, z );
     }
 
     const Real bNrm2 = Nrm2( b );
@@ -473,11 +476,14 @@ void IPF
         Axpy( alpha, ds, s );
     }
 
-    // Unequilibrate the QP
-    DiagonalSolve( LEFT, NORMAL, dCol,  x );
-    DiagonalSolve( LEFT, NORMAL, dRowA, y );
-    DiagonalSolve( LEFT, NORMAL, dRowG, z );
-    DiagonalScale( LEFT, NORMAL, dRowG, s );
+    if( ctrl.equilibrate )
+    {
+        // Unequilibrate the QP
+        DiagonalSolve( LEFT, NORMAL, dCol,  x );
+        DiagonalSolve( LEFT, NORMAL, dRowA, y );
+        DiagonalSolve( LEFT, NORMAL, dRowG, z );
+        DiagonalScale( LEFT, NORMAL, dRowG, s );
+    }
 }
 
 template<typename Real>
@@ -494,44 +500,45 @@ void IPF
     const Real epsilon = lapack::MachineEpsilon<Real>();
 
     // Equilibrate the QP by diagonally scaling [A;G]
+    auto Q = QPre;
     auto A = APre;
     auto G = GPre;
+    auto b = bPre;
+    auto c = cPre;
+    auto h = hPre;
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
-    const bool allowEquil = false;
     Matrix<Real> dRowA, dRowG, dCol;
-    if( allowEquil )
+    if( ctrl.equilibrate )
     {
         StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+
+        DiagonalSolve( LEFT, NORMAL, dRowA, b );
+        DiagonalSolve( LEFT, NORMAL, dRowG, h );
+        DiagonalSolve( LEFT, NORMAL, dCol,  c );
+
+        // TODO: Replace with SymmetricDiagonalSolve
+        {
+            DiagonalSolve( LEFT, NORMAL, dCol, Q );
+            DiagonalSolve( RIGHT, NORMAL, dCol, Q );
+        }
+        if( ctrl.primalInitialized )
+        {
+            DiagonalScale( LEFT, NORMAL, dCol,  x );
+            DiagonalSolve( LEFT, NORMAL, dRowG, s );
+        }
+        if( ctrl.dualInitialized )
+        {
+            DiagonalScale( LEFT, NORMAL, dRowA, y );
+            DiagonalScale( LEFT, NORMAL, dRowG, z );
+        }
     }
     else
     {
         Ones( dRowA, m, 1 );
         Ones( dRowG, k, 1 );
         Ones( dCol,  n, 1 );
-    }
-    auto b = bPre;
-    auto c = cPre;
-    auto h = hPre;
-    DiagonalSolve( LEFT, NORMAL, dRowA, b );
-    DiagonalSolve( LEFT, NORMAL, dRowG, h );
-    DiagonalSolve( LEFT, NORMAL, dCol,  c );
-    auto Q = QPre;
-    // TODO: Replace with SymmetricDiagonalSolve
-    {
-        DiagonalSolve( LEFT, NORMAL, dCol, Q );
-        DiagonalSolve( RIGHT, NORMAL, dCol, Q );
-    }
-    if( ctrl.primalInitialized )
-    {
-        DiagonalScale( LEFT, NORMAL, dCol,  x );
-        DiagonalSolve( LEFT, NORMAL, dRowG, s );
-    }
-    if( ctrl.dualInitialized )
-    {
-        DiagonalScale( LEFT, NORMAL, dRowA, y );
-        DiagonalScale( LEFT, NORMAL, dRowG, z );
     }
 
     const Real bNrm2 = Nrm2( b );
@@ -736,11 +743,14 @@ void IPF
         Axpy( alpha, ds, s );
     }
 
-    // Unequilibrate the QP
-    DiagonalSolve( LEFT, NORMAL, dCol,  x );
-    DiagonalSolve( LEFT, NORMAL, dRowA, y );
-    DiagonalSolve( LEFT, NORMAL, dRowG, z );
-    DiagonalScale( LEFT, NORMAL, dRowG, s );
+    if( ctrl.equilibrate )
+    {
+        // Unequilibrate the QP
+        DiagonalSolve( LEFT, NORMAL, dCol,  x );
+        DiagonalSolve( LEFT, NORMAL, dRowA, y );
+        DiagonalSolve( LEFT, NORMAL, dRowG, z );
+        DiagonalScale( LEFT, NORMAL, dRowG, s );
+    }
 }
 
 template<typename Real>
@@ -759,45 +769,44 @@ void IPF
     const Real epsilon = lapack::MachineEpsilon<Real>();
 
     // Equilibrate the QP by diagonally scaling [A;G]
+    auto Q = QPre;
     auto A = APre;
     auto G = GPre;
+    auto b = bPre;
+    auto h = hPre;
+    auto c = cPre;
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
-    const bool allowEquil = false;
     DistMultiVec<Real> dRowA(comm), dRowG(comm), dCol(comm);
-    if( allowEquil )
+    if( ctrl.equilibrate )
     {
         StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+
+        DiagonalSolve( LEFT, NORMAL, dRowA, b );
+        DiagonalSolve( LEFT, NORMAL, dRowG, h );
+        DiagonalSolve( LEFT, NORMAL, dCol,  c );
+        // TODO: Replace with SymmetricDiagonalSolve
+        {
+            DiagonalSolve( LEFT, NORMAL, dCol, Q );
+            DiagonalSolve( RIGHT, NORMAL, dCol, Q );
+        }
+        if( ctrl.primalInitialized )
+        {
+            DiagonalScale( LEFT, NORMAL, dCol,  x );
+            DiagonalSolve( LEFT, NORMAL, dRowG, s );
+        }
+        if( ctrl.dualInitialized )
+        {
+            DiagonalScale( LEFT, NORMAL, dRowA, y );
+            DiagonalScale( LEFT, NORMAL, dRowG, z );
+        }
     }
     else
     {
         Ones( dRowA, m, 1 );
         Ones( dRowG, k, 1 );
         Ones( dCol,  n, 1 );
-    }
-
-    auto b = bPre;
-    auto h = hPre;
-    auto c = cPre;
-    DiagonalSolve( LEFT, NORMAL, dRowA, b );
-    DiagonalSolve( LEFT, NORMAL, dRowG, h );
-    DiagonalSolve( LEFT, NORMAL, dCol,  c );
-    auto Q = QPre;
-    // TODO: Replace with SymmetricDiagonalSolve
-    {
-        DiagonalSolve( LEFT, NORMAL, dCol, Q );
-        DiagonalSolve( RIGHT, NORMAL, dCol, Q );
-    }
-    if( ctrl.primalInitialized )
-    {
-        DiagonalScale( LEFT, NORMAL, dCol,  x );
-        DiagonalSolve( LEFT, NORMAL, dRowG, s );
-    }
-    if( ctrl.dualInitialized )
-    {
-        DiagonalScale( LEFT, NORMAL, dRowA, y );
-        DiagonalScale( LEFT, NORMAL, dRowG, z );
     }
 
     const Real bNrm2 = Nrm2( b );
@@ -1001,11 +1010,14 @@ void IPF
         Axpy( alpha, ds, s );
     }
 
-    // Unequilibrate the QP
-    DiagonalSolve( LEFT, NORMAL, dCol,  x );
-    DiagonalSolve( LEFT, NORMAL, dRowA, y );
-    DiagonalSolve( LEFT, NORMAL, dRowG, z );
-    DiagonalScale( LEFT, NORMAL, dRowG, s );
+    if( ctrl.equilibrate )
+    {
+        // Unequilibrate the QP
+        DiagonalSolve( LEFT, NORMAL, dCol,  x );
+        DiagonalSolve( LEFT, NORMAL, dRowA, y );
+        DiagonalSolve( LEFT, NORMAL, dRowG, z );
+        DiagonalScale( LEFT, NORMAL, dRowG, s );
+    }
 }
 
 #define PROTO(Real) \

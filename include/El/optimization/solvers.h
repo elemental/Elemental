@@ -134,6 +134,7 @@ typedef struct {
   ElIPFLineSearchCtrl_s lineSearchCtrl;
   bool equilibrate;
   bool print;
+  bool time;
 } ElLPDirectIPFCtrl_s;
 
 typedef struct {
@@ -149,6 +150,7 @@ typedef struct {
   ElIPFLineSearchCtrl_d lineSearchCtrl;
   bool equilibrate;
   bool print;
+  bool time;
 } ElLPDirectIPFCtrl_d;
 
 ElError ElLPDirectIPFCtrlDefault_s( ElLPDirectIPFCtrl_s* ctrl, bool isSparse );
@@ -164,6 +166,7 @@ typedef struct {
   ElRegQSDSolveCtrl_s solveCtrl;
   bool equilibrate;
   bool print;
+  bool time;
 } ElLPDirectMehrotraCtrl_s;
 
 typedef struct {
@@ -176,6 +179,7 @@ typedef struct {
   ElRegQSDSolveCtrl_d solveCtrl;
   bool equilibrate;
   bool print;
+  bool time;
 } ElLPDirectMehrotraCtrl_d;
 
 ElError ElLPDirectMehrotraCtrlDefault_s
@@ -319,6 +323,7 @@ typedef struct {
   ElIPFLineSearchCtrl_s lineSearchCtrl;
   bool equilibrate;
   bool print;
+  bool time;
 } ElLPAffineIPFCtrl_s;
 
 typedef struct {
@@ -333,6 +338,7 @@ typedef struct {
   ElIPFLineSearchCtrl_d lineSearchCtrl;
   bool equilibrate;
   bool print;
+  bool time;
 } ElLPAffineIPFCtrl_d;
 
 ElError ElLPAffineIPFCtrlDefault_s( ElLPAffineIPFCtrl_s* ctrl );
@@ -347,6 +353,7 @@ typedef struct {
   ElRegQSDSolveCtrl_s solveCtrl;
   bool equilibrate;
   bool print;
+  bool time;
 } ElLPAffineMehrotraCtrl_s;
 
 typedef struct {
@@ -358,6 +365,7 @@ typedef struct {
   ElRegQSDSolveCtrl_d solveCtrl;
   bool equilibrate;
   bool print;
+  bool time;
 } ElLPAffineMehrotraCtrl_d;
 
 ElError ElLPAffineMehrotraCtrlDefault_s( ElLPAffineMehrotraCtrl_s* ctrl );
@@ -509,6 +517,7 @@ typedef struct {
   ElIPFLineSearchCtrl_s lineSearchCtrl;
   bool equilibrate;
   bool print;
+  bool time;
 } ElQPDirectIPFCtrl_s;
 
 typedef struct {
@@ -524,6 +533,7 @@ typedef struct {
   ElIPFLineSearchCtrl_d lineSearchCtrl;
   bool equilibrate;
   bool print;
+  bool time;
 } ElQPDirectIPFCtrl_d;
 
 ElError ElQPDirectIPFCtrlDefault_s( ElQPDirectIPFCtrl_s* ctrl );
@@ -539,6 +549,7 @@ typedef struct {
   ElRegQSDSolveCtrl_s solveCtrl;
   bool equilibrate;
   bool print;
+  bool time;
 } ElQPDirectMehrotraCtrl_s;
 
 typedef struct {
@@ -551,6 +562,7 @@ typedef struct {
   ElRegQSDSolveCtrl_d solveCtrl;
   bool equilibrate;
   bool print;
+  bool time;
 } ElQPDirectMehrotraCtrl_d;
 
 ElError ElQPDirectMehrotraCtrlDefault_s( ElQPDirectMehrotraCtrl_s* ctrl );
@@ -698,6 +710,7 @@ typedef struct {
   ElIPFLineSearchCtrl_s lineSearchCtrl;
   bool equilibrate;
   bool print;
+  bool time;
 } ElQPAffineIPFCtrl_s;
 
 typedef struct {
@@ -712,6 +725,7 @@ typedef struct {
   ElIPFLineSearchCtrl_d lineSearchCtrl;
   bool equilibrate;
   bool print;
+  bool time;
 } ElQPAffineIPFCtrl_d;
 
 ElError ElQPAffineIPFCtrlDefault_s( ElQPAffineIPFCtrl_s* ctrl );
@@ -726,6 +740,7 @@ typedef struct {
   ElRegQSDSolveCtrl_s solveCtrl;
   bool equilibrate;
   bool print;
+  bool time;
 } ElQPAffineMehrotraCtrl_s;
 
 typedef struct {
@@ -737,6 +752,7 @@ typedef struct {
   ElRegQSDSolveCtrl_d solveCtrl;
   bool equilibrate;
   bool print;
+  bool time;
 } ElQPAffineMehrotraCtrl_d;
 
 ElError ElQPAffineMehrotraCtrlDefault_s( ElQPAffineMehrotraCtrl_s* ctrl );

@@ -47,36 +47,36 @@ void IPF
     DEBUG_ONLY(CallStackEntry cse("qp::direct::IPF"))    
 
     // Equilibrate the QP by diagonally scaling A
+    auto Q = QPre;
     auto A = APre;
+    auto b = bPre;
+    auto c = cPre;
     const Int m = A.Height();
     const Int n = A.Width();
-    const bool allowEquil = false;
     Matrix<Real> dRow, dCol;
-    if( allowEquil )
+    if( ctrl.equilibrate )
     {
         GeomEquil( A, dRow, dCol );
+
+        DiagonalSolve( LEFT, NORMAL, dRow, b );
+        DiagonalSolve( LEFT, NORMAL, dCol, c );
+        // TODO: Replace with SymmetricDiagonalSolve
+        {
+            DiagonalSolve( LEFT, NORMAL, dCol, Q );
+            DiagonalSolve( RIGHT, NORMAL, dCol, Q );
+        }
+        if( ctrl.primalInitialized )
+            DiagonalScale( LEFT, NORMAL, dCol, x );
+        if( ctrl.dualInitialized )
+        {
+            DiagonalScale( LEFT, NORMAL, dRow, y );
+            DiagonalSolve( LEFT, NORMAL, dCol, z );
+        }
     }
     else
     {
         Ones( dRow, m, 1 );
         Ones( dCol, n, 1 );
-    }
-    auto b = bPre;
-    auto c = cPre;
-    DiagonalSolve( LEFT, NORMAL, dRow, b );
-    DiagonalSolve( LEFT, NORMAL, dCol, c );
-    auto Q = QPre;
-    // TODO: Replace with SymmetricDiagonalSolve
-    {
-        DiagonalSolve( LEFT, NORMAL, dCol, Q );
-        DiagonalSolve( RIGHT, NORMAL, dCol, Q );
-    }
-    if( ctrl.primalInitialized )
-        DiagonalScale( LEFT, NORMAL, dCol, x );
-    if( ctrl.dualInitialized )
-    {
-        DiagonalScale( LEFT, NORMAL, dRow, y );
-        DiagonalSolve( LEFT, NORMAL, dCol, z );
     }
 
     const Real bNrm2 = Nrm2( b );
@@ -233,10 +233,13 @@ void IPF
         Axpy( alpha, dz, z );
     }
 
-    // Unequilibrate the QP
-    DiagonalSolve( LEFT, NORMAL, dCol, x );
-    DiagonalSolve( LEFT, NORMAL, dRow, y );
-    DiagonalScale( LEFT, NORMAL, dCol, z );
+    if( ctrl.equilibrate )
+    {
+        // Unequilibrate the QP
+        DiagonalSolve( LEFT, NORMAL, dCol, x );
+        DiagonalSolve( LEFT, NORMAL, dRow, y );
+        DiagonalScale( LEFT, NORMAL, dCol, z );
+    }
 }
 
 template<typename Real>
@@ -275,31 +278,31 @@ void IPF
     // Equilibrate the QP by diagonally scaling A
     const Int m = A.Height();
     const Int n = A.Width();
-    const bool allowEquil = false;
     DistMatrix<Real,MC,STAR> dRow(grid);
     DistMatrix<Real,MR,STAR> dCol(grid);
-    if( allowEquil )
+    if( ctrl.equilibrate )
     {
         GeomEquil( A, dRow, dCol );
+
+        DiagonalSolve( LEFT, NORMAL, dRow, b );
+        DiagonalSolve( LEFT, NORMAL, dCol, c );
+        // TODO: Replace with SymmetricDiagonalSolve
+        {
+            DiagonalSolve( LEFT, NORMAL, dCol, Q );
+            DiagonalSolve( RIGHT, NORMAL, dCol, Q );
+        }
+        if( ctrl.primalInitialized )
+            DiagonalScale( LEFT, NORMAL, dCol, x );
+        if( ctrl.dualInitialized )
+        {
+            DiagonalScale( LEFT, NORMAL, dRow, y );
+            DiagonalSolve( LEFT, NORMAL, dCol, z );
+        }
     }
     else
     {
         Ones( dRow, m, 1 );
         Ones( dCol, n, 1 );
-    }
-    DiagonalSolve( LEFT, NORMAL, dRow, b );
-    DiagonalSolve( LEFT, NORMAL, dCol, c );
-    // TODO: Replace with SymmetricDiagonalSolve
-    {
-        DiagonalSolve( LEFT, NORMAL, dCol, Q );
-        DiagonalSolve( RIGHT, NORMAL, dCol, Q );
-    }
-    if( ctrl.primalInitialized )
-        DiagonalScale( LEFT, NORMAL, dCol, x );
-    if( ctrl.dualInitialized )
-    {
-        DiagonalScale( LEFT, NORMAL, dRow, y );
-        DiagonalSolve( LEFT, NORMAL, dCol, z );
     }
 
     const Real bNrm2 = Nrm2( b );
@@ -460,10 +463,13 @@ void IPF
         Axpy( alpha, dz, z );
     }
 
-    // Unequilibrate the QP
-    DiagonalSolve( LEFT, NORMAL, dCol, x );
-    DiagonalSolve( LEFT, NORMAL, dRow, y );
-    DiagonalScale( LEFT, NORMAL, dCol, z );
+    if( ctrl.equilibrate )
+    {
+        // Unequilibrate the QP
+        DiagonalSolve( LEFT, NORMAL, dCol, x );
+        DiagonalSolve( LEFT, NORMAL, dRow, y );
+        DiagonalScale( LEFT, NORMAL, dCol, z );
+    }
 }
 
 template<typename Real>
@@ -478,36 +484,36 @@ void IPF
     const Real epsilon = lapack::MachineEpsilon<Real>();
 
     // Equilibrate the QP by diagonally scaling A
+    auto Q = QPre;
     auto A = APre;
+    auto b = bPre;
+    auto c = cPre;
     const Int m = A.Height();
     const Int n = A.Width();
-    const bool allowEquil = false;
     Matrix<Real> dRow, dCol;
-    if( allowEquil )
+    if( ctrl.equilibrate )
     {
         GeomEquil( A, dRow, dCol );
+
+        DiagonalSolve( LEFT, NORMAL, dRow, b );
+        DiagonalSolve( LEFT, NORMAL, dCol, c );
+        // TODO: Replace with SymmetricDiagonalSolve
+        {
+            DiagonalSolve( LEFT, NORMAL, dCol, Q );
+            DiagonalSolve( RIGHT, NORMAL, dCol, Q );
+        }
+        if( ctrl.primalInitialized )
+            DiagonalScale( LEFT, NORMAL, dCol, x );
+        if( ctrl.dualInitialized )
+        {
+            DiagonalScale( LEFT, NORMAL, dRow, y );
+            DiagonalSolve( LEFT, NORMAL, dCol, z );
+        }
     }
     else
     {
         Ones( dRow, m, 1 );
         Ones( dCol, n, 1 );
-    }
-    auto b = bPre;
-    auto c = cPre;
-    DiagonalSolve( LEFT, NORMAL, dRow, b );
-    DiagonalSolve( LEFT, NORMAL, dCol, c );
-    auto Q = QPre;
-    // TODO: Replace with SymmetricDiagonalSolve
-    {
-        DiagonalSolve( LEFT, NORMAL, dCol, Q );
-        DiagonalSolve( RIGHT, NORMAL, dCol, Q );
-    }
-    if( ctrl.primalInitialized )
-        DiagonalScale( LEFT, NORMAL, dCol, x );
-    if( ctrl.dualInitialized )
-    {
-        DiagonalScale( LEFT, NORMAL, dRow, y );
-        DiagonalSolve( LEFT, NORMAL, dCol, z );
     }
 
     const Real bNrm2 = Nrm2( b );
@@ -778,10 +784,13 @@ void IPF
         Axpy( alpha, dz, z );
     }
 
-    // Unequilibrate the QP
-    DiagonalSolve( LEFT, NORMAL, dCol, x );
-    DiagonalSolve( LEFT, NORMAL, dRow, y );
-    DiagonalScale( LEFT, NORMAL, dCol, z );
+    if( ctrl.equilibrate )
+    {
+        // Unequilibrate the QP
+        DiagonalSolve( LEFT, NORMAL, dCol, x );
+        DiagonalSolve( LEFT, NORMAL, dRow, y );
+        DiagonalScale( LEFT, NORMAL, dCol, z );
+    }
 }
 
 template<typename Real>
@@ -798,36 +807,36 @@ void IPF
     const Real epsilon = lapack::MachineEpsilon<Real>();
 
     // Equilibrate the QP by diagonally scaling A
+    auto Q = QPre;
     auto A = APre;
+    auto b = bPre;
+    auto c = cPre;
     const Int m = A.Height();
     const Int n = A.Width();
-    const bool allowEquil = false;
     DistMultiVec<Real> dRow(comm), dCol(comm);
-    if( allowEquil )
+    if( ctrl.equilibrate )
     {
         GeomEquil( A, dRow, dCol );
+
+        DiagonalSolve( LEFT, NORMAL, dRow, b );
+        DiagonalSolve( LEFT, NORMAL, dCol, c );
+        // TODO: Replace with SymmetricDiagonalSolve
+        {
+            DiagonalSolve( LEFT, NORMAL, dCol, Q );
+            DiagonalSolve( RIGHT, NORMAL, dCol, Q );
+        }
+        if( ctrl.primalInitialized )
+            DiagonalScale( LEFT, NORMAL, dCol, x );
+        if( ctrl.dualInitialized )
+        {
+            DiagonalScale( LEFT, NORMAL, dRow, y );
+            DiagonalSolve( LEFT, NORMAL, dCol, z );
+        }
     }
     else
     {
         Ones( dRow, m, 1 );
         Ones( dCol, n, 1 );
-    }
-    auto b = bPre;
-    auto c = cPre;
-    DiagonalSolve( LEFT, NORMAL, dRow, b );
-    DiagonalSolve( LEFT, NORMAL, dCol, c );
-    auto Q = QPre;
-    // TODO: Replace with SymmetricDiagonalSolve
-    {
-        DiagonalSolve( LEFT, NORMAL, dCol, Q );
-        DiagonalSolve( RIGHT, NORMAL, dCol, Q );
-    }
-    if( ctrl.primalInitialized )
-        DiagonalScale( LEFT, NORMAL, dCol, x );
-    if( ctrl.dualInitialized )
-    {
-        DiagonalScale( LEFT, NORMAL, dRow, y );
-        DiagonalSolve( LEFT, NORMAL, dCol, z );
     }
 
     const Real bNrm2 = Nrm2( b );
@@ -1102,10 +1111,13 @@ void IPF
         Axpy( alpha, dz, z );
     }
 
-    // Unequilibrate the QP
-    DiagonalSolve( LEFT, NORMAL, dCol, x );
-    DiagonalSolve( LEFT, NORMAL, dRow, y );
-    DiagonalScale( LEFT, NORMAL, dCol, z );
+    if( ctrl.equilibrate )
+    {
+        // Unequilibrate the QP
+        DiagonalSolve( LEFT, NORMAL, dCol, x );
+        DiagonalSolve( LEFT, NORMAL, dRow, y );
+        DiagonalScale( LEFT, NORMAL, dCol, z );
+    }
 }
 
 #define PROTO(Real) \

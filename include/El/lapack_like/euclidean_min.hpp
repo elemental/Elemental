@@ -44,16 +44,29 @@ void LeastSquares
 ( Orientation orientation, AbstractDistMatrix<F>& A, 
   const AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& X );
 
+template<typename Real>
+struct LeastSquaresCtrl {
+    Real alpha;
+    RegQSDSolveCtrl<Real> solveCtrl;
+    bool equilibrate;
+    bool progress;
+
+    LeastSquaresCtrl()
+    : alpha(Pow(lapack::MachineEpsilon<Real>(),Real(0.25))),
+      equilibrate(true), progress(false)
+    { }
+};
+
 template<typename F>
 void LeastSquares
 ( Orientation orientation,
   const SparseMatrix<F>& A, const Matrix<F>& Y, Matrix<F>& X,
-  const RegQSDSolveCtrl<Base<F>>& ctrl=RegQSDSolveCtrl<Base<F>>() );
+  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 template<typename F>
 void LeastSquares
 ( Orientation orientation,
   const DistSparseMatrix<F>& A, const DistMultiVec<F>& Y, DistMultiVec<F>& X,
-  const RegQSDSolveCtrl<Base<F>>& ctrl=RegQSDSolveCtrl<Base<F>>() );
+  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 
 // min_X || A X - C ||_F subject to B X = D
 // ----------------------------------------

@@ -1417,6 +1417,46 @@ inline RegQSDSolveCtrl<double> CReflect( const ElRegQSDSolveCtrl_d& ctrlC )
     return ctrl;
 }
 
+inline ElLeastSquaresCtrl_s CReflect( const LeastSquaresCtrl<float>& ctrl )
+{
+    ElLeastSquaresCtrl_s ctrlC;
+    ctrlC.alpha       = ctrl.alpha; 
+    ctrlC.solveCtrl   = CReflect(ctrl.solveCtrl);
+    ctrlC.equilibrate = ctrl.equilibrate;
+    ctrlC.progress    = ctrl.progress;
+    return ctrlC;
+}
+
+inline ElLeastSquaresCtrl_d CReflect( const LeastSquaresCtrl<double>& ctrl )
+{
+    ElLeastSquaresCtrl_d ctrlC;
+    ctrlC.alpha       = ctrl.alpha; 
+    ctrlC.solveCtrl   = CReflect(ctrl.solveCtrl);
+    ctrlC.equilibrate = ctrl.equilibrate;
+    ctrlC.progress    = ctrl.progress;
+    return ctrlC;
+}
+
+inline LeastSquaresCtrl<float> CReflect( const ElLeastSquaresCtrl_s& ctrlC )
+{
+    LeastSquaresCtrl<float> ctrl;
+    ctrl.alpha       = ctrlC.alpha; 
+    ctrl.solveCtrl   = CReflect(ctrlC.solveCtrl);
+    ctrl.equilibrate = ctrlC.equilibrate;
+    ctrl.progress    = ctrlC.progress;
+    return ctrl;
+}
+
+inline LeastSquaresCtrl<double> CReflect( const ElLeastSquaresCtrl_d& ctrlC )
+{
+    LeastSquaresCtrl<double> ctrl;
+    ctrl.alpha       = ctrlC.alpha; 
+    ctrl.solveCtrl   = CReflect(ctrlC.solveCtrl);
+    ctrl.equilibrate = ctrlC.equilibrate;
+    ctrl.progress    = ctrlC.progress;
+    return ctrl;
+}
+
 // Properties
 // ^^^^^^^^^^
 inline ElNormType CReflect( NormType type )
@@ -1716,6 +1756,7 @@ inline ElLPDirectIPFCtrl_s CReflect( const lp::direct::IPFCtrl<float>& ctrl )
     ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
     ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
+    ctrlC.time              = ctrl.time;
     return ctrlC;
 }
 inline ElLPDirectIPFCtrl_d CReflect( const lp::direct::IPFCtrl<double>& ctrl )
@@ -1731,6 +1772,7 @@ inline ElLPDirectIPFCtrl_d CReflect( const lp::direct::IPFCtrl<double>& ctrl )
     ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
     ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
+    ctrlC.time              = ctrl.time;
     return ctrlC;
 }
 inline lp::direct::IPFCtrl<float> CReflect( ElLPDirectIPFCtrl_s ctrlC )
@@ -1746,6 +1788,7 @@ inline lp::direct::IPFCtrl<float> CReflect( ElLPDirectIPFCtrl_s ctrlC )
     ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
     ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
+    ctrl.time              = ctrlC.time;
     return ctrl;
 }
 inline lp::direct::IPFCtrl<double> CReflect( ElLPDirectIPFCtrl_d ctrlC )
@@ -1761,6 +1804,7 @@ inline lp::direct::IPFCtrl<double> CReflect( ElLPDirectIPFCtrl_d ctrlC )
     ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
     ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
+    ctrl.time              = ctrlC.time;
     return ctrl;
 }
 
@@ -1777,6 +1821,7 @@ inline ElLPDirectMehrotraCtrl_s CReflect
     ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
     ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
+    ctrlC.time              = ctrl.time;
     return ctrlC;
 }
 inline ElLPDirectMehrotraCtrl_d CReflect
@@ -1792,6 +1837,7 @@ inline ElLPDirectMehrotraCtrl_d CReflect
     ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
     ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
+    ctrlC.time              = ctrl.time;
     return ctrlC;
 }
 inline lp::direct::MehrotraCtrl<float> CReflect
@@ -1807,6 +1853,7 @@ inline lp::direct::MehrotraCtrl<float> CReflect
     ctrl.solveCtrl          = CReflect(ctrlC.solveCtrl);
     ctrl.equilibrate        = ctrlC.equilibrate;
     ctrl.print              = ctrlC.print;
+    ctrl.time               = ctrlC.time;
     return ctrl;
 }
 inline lp::direct::MehrotraCtrl<double> CReflect
@@ -1822,6 +1869,7 @@ inline lp::direct::MehrotraCtrl<double> CReflect
     ctrl.solveCtrl          = CReflect(ctrlC.solveCtrl);
     ctrl.equilibrate        = ctrlC.equilibrate;
     ctrl.print              = ctrlC.print;
+    ctrl.time               = ctrlC.time;
     return ctrl;
 }
 
@@ -1876,6 +1924,7 @@ inline ElLPAffineIPFCtrl_s CReflect( const lp::affine::IPFCtrl<float>& ctrl )
     ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
     ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
+    ctrlC.time              = ctrl.time;
     return ctrlC;
 }
 inline ElLPAffineIPFCtrl_d CReflect( const lp::affine::IPFCtrl<double>& ctrl )
@@ -1890,6 +1939,7 @@ inline ElLPAffineIPFCtrl_d CReflect( const lp::affine::IPFCtrl<double>& ctrl )
     ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
     ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
+    ctrlC.time              = ctrl.time;
     return ctrlC;
 }
 inline lp::affine::IPFCtrl<float> CReflect( ElLPAffineIPFCtrl_s ctrlC )
@@ -1904,6 +1954,7 @@ inline lp::affine::IPFCtrl<float> CReflect( ElLPAffineIPFCtrl_s ctrlC )
     ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
     ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
+    ctrl.time              = ctrlC.time;
     return ctrl;
 }
 inline lp::affine::IPFCtrl<double> CReflect( ElLPAffineIPFCtrl_d ctrlC )
@@ -1918,6 +1969,7 @@ inline lp::affine::IPFCtrl<double> CReflect( ElLPAffineIPFCtrl_d ctrlC )
     ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
     ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
+    ctrl.time              = ctrlC.time;
     return ctrl;
 }
 
@@ -1933,6 +1985,7 @@ inline ElLPAffineMehrotraCtrl_s CReflect
     ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
     ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
+    ctrlC.time              = ctrl.time;
     return ctrlC;
 }
 inline ElLPAffineMehrotraCtrl_d CReflect
@@ -1947,6 +2000,7 @@ inline ElLPAffineMehrotraCtrl_d CReflect
     ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
     ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
+    ctrlC.time              = ctrl.time;
     return ctrlC;
 }
 inline lp::affine::MehrotraCtrl<float> CReflect
@@ -1961,6 +2015,7 @@ inline lp::affine::MehrotraCtrl<float> CReflect
     ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
     ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
+    ctrl.time              = ctrlC.time;
     return ctrl;
 }
 inline lp::affine::MehrotraCtrl<double> CReflect
@@ -1975,6 +2030,7 @@ inline lp::affine::MehrotraCtrl<double> CReflect
     ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
     ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
+    ctrl.time              = ctrlC.time;
     return ctrl;
 }
 
@@ -2033,6 +2089,7 @@ inline ElQPDirectIPFCtrl_s CReflect( const qp::direct::IPFCtrl<float>& ctrl )
     ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
     ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
+    ctrlC.time              = ctrl.time;
     return ctrlC;
 }
 inline ElQPDirectIPFCtrl_d CReflect( const qp::direct::IPFCtrl<double>& ctrl )
@@ -2048,6 +2105,7 @@ inline ElQPDirectIPFCtrl_d CReflect( const qp::direct::IPFCtrl<double>& ctrl )
     ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
     ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
+    ctrlC.time              = ctrl.time;
     return ctrlC;
 }
 inline qp::direct::IPFCtrl<float> CReflect( ElQPDirectIPFCtrl_s ctrlC )
@@ -2063,6 +2121,7 @@ inline qp::direct::IPFCtrl<float> CReflect( ElQPDirectIPFCtrl_s ctrlC )
     ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
     ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
+    ctrl.time              = ctrlC.time;
     return ctrl;
 }
 inline qp::direct::IPFCtrl<double> CReflect( ElQPDirectIPFCtrl_d ctrlC )
@@ -2078,6 +2137,7 @@ inline qp::direct::IPFCtrl<double> CReflect( ElQPDirectIPFCtrl_d ctrlC )
     ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
     ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
+    ctrl.time              = ctrlC.time;
     return ctrl;
 }
 
@@ -2094,6 +2154,7 @@ inline ElQPDirectMehrotraCtrl_s CReflect
     ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
     ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
+    ctrlC.time              = ctrl.time;
     return ctrlC;
 }
 inline ElQPDirectMehrotraCtrl_d CReflect
@@ -2109,6 +2170,7 @@ inline ElQPDirectMehrotraCtrl_d CReflect
     ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
     ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
+    ctrlC.time              = ctrl.time;
     return ctrlC;
 }
 inline qp::direct::MehrotraCtrl<float> CReflect
@@ -2124,6 +2186,7 @@ inline qp::direct::MehrotraCtrl<float> CReflect
     ctrl.solveCtrl          = CReflect(ctrlC.solveCtrl);
     ctrl.equilibrate        = ctrlC.equilibrate;
     ctrl.print              = ctrlC.print;
+    ctrl.time               = ctrlC.time;
     return ctrl;
 }
 inline qp::direct::MehrotraCtrl<double> CReflect
@@ -2139,6 +2202,7 @@ inline qp::direct::MehrotraCtrl<double> CReflect
     ctrl.solveCtrl          = CReflect(ctrlC.solveCtrl);
     ctrl.equilibrate        = ctrlC.equilibrate;
     ctrl.print              = ctrlC.print;
+    ctrl.time               = ctrlC.time;
     return ctrl;
 }
 
@@ -2189,6 +2253,7 @@ inline ElQPAffineIPFCtrl_s CReflect( const qp::affine::IPFCtrl<float>& ctrl )
     ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
     ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
+    ctrlC.time              = ctrl.time;
     return ctrlC;
 }
 inline ElQPAffineIPFCtrl_d CReflect( const qp::affine::IPFCtrl<double>& ctrl )
@@ -2203,6 +2268,7 @@ inline ElQPAffineIPFCtrl_d CReflect( const qp::affine::IPFCtrl<double>& ctrl )
     ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
     ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
+    ctrlC.time              = ctrl.time;
     return ctrlC;
 }
 inline qp::affine::IPFCtrl<float> CReflect( ElQPAffineIPFCtrl_s ctrlC )
@@ -2217,6 +2283,7 @@ inline qp::affine::IPFCtrl<float> CReflect( ElQPAffineIPFCtrl_s ctrlC )
     ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
     ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
+    ctrl.time              = ctrlC.time;
     return ctrl;
 }
 inline qp::affine::IPFCtrl<double> CReflect( ElQPAffineIPFCtrl_d ctrlC )
@@ -2231,6 +2298,7 @@ inline qp::affine::IPFCtrl<double> CReflect( ElQPAffineIPFCtrl_d ctrlC )
     ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
     ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
+    ctrl.time              = ctrlC.time;
     return ctrl;
 }
 
@@ -2246,6 +2314,7 @@ inline ElQPAffineMehrotraCtrl_s CReflect
     ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
     ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
+    ctrlC.time              = ctrl.time;
     return ctrlC;
 }
 inline ElQPAffineMehrotraCtrl_d CReflect
@@ -2260,6 +2329,7 @@ inline ElQPAffineMehrotraCtrl_d CReflect
     ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
     ctrlC.equilibrate       = ctrl.equilibrate;
     ctrlC.print             = ctrl.print;
+    ctrlC.time              = ctrl.time;
     return ctrlC;
 }
 inline qp::affine::MehrotraCtrl<float> CReflect
@@ -2274,6 +2344,7 @@ inline qp::affine::MehrotraCtrl<float> CReflect
     ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
     ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
+    ctrl.time              = ctrlC.time;
     return ctrl;
 }
 inline qp::affine::MehrotraCtrl<double> CReflect
@@ -2288,6 +2359,7 @@ inline qp::affine::MehrotraCtrl<double> CReflect
     ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
     ctrl.equilibrate       = ctrlC.equilibrate;
     ctrl.print             = ctrlC.print;
+    ctrl.time              = ctrlC.time;
     return ctrl;
 }
 

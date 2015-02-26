@@ -11,6 +11,7 @@
 #define EL_SOLVE_HPP
 
 #include "El/lapack_like/factor.hpp"
+#include "El/lapack_like/euclidean_min.hpp"
 
 namespace El {
 
@@ -26,11 +27,11 @@ void LinearSolve( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
 template<typename F>
 void LinearSolve
 ( const SparseMatrix<F>& A, Matrix<F>& B, 
-  const RegQSDSolveCtrl<Base<F>>& ctrl=RegQSDSolveCtrl<Base<F>>() );
+  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 template<typename F>
 void LinearSolve
 ( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, 
-  const RegQSDSolveCtrl<Base<F>>& ctrl=RegQSDSolveCtrl<Base<F>>() );
+  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 
 // B := A \ B for a Hermitian A
 // ----------------------------

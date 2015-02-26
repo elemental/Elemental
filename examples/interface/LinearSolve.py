@@ -58,8 +58,10 @@ rank = El.mpi.WorldRank()
 if rank == 0:
   print "|| y ||_2 =", yNrm
 
-ctrl = El.RegQSDSolveCtrl_d()
-ctrl.relTolRefine = 1e-10
+ctrl = El.LeastSquaresCtrl_d()
+ctrl.solveCtrl.relTolRefine = 1e-10
+ctrl.solveCtrl.progress = True
+ctrl.equilibrate = True
 ctrl.progress = True
 
 solveStart = time.clock()
