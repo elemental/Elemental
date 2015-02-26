@@ -617,7 +617,8 @@ void Mehrotra
     const bool standardShift = true;
     Initialize
     ( A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
-      ctrl.primalInitialized, ctrl.dualInitialized, standardShift, ctrl.print );
+      ctrl.primalInitialized, ctrl.dualInitialized, standardShift, 
+      ctrl.solveCtrl );
 
     SparseMatrix<Real> J;
     SymmFront<Real> JFront;
@@ -718,9 +719,7 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        const Real relTolRefine = Pow(epsilon,0.75);
-        const Int maxRefineIts = 50;
-        bool aPriori = true; 
+        const bool aPriori = true; 
         Int numLargeAffineRefines = 0;
         {
             // Construct the full KKT system
@@ -747,8 +746,7 @@ void Mehrotra
             regNodal.Push( invMap, info, reg );
 
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d,
-              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
+            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
             ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
         }
 #ifndef EL_RELEASE
@@ -823,8 +821,7 @@ void Mehrotra
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
         const Int numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
-        ( J, reg, invMap, info, JFront, d,
-          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
+        ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
         if( Max(numLargeAffineRefines,numLargeCorrectorRefines) > 3 &&
             !increasedReg )
@@ -925,7 +922,8 @@ void Mehrotra
     const bool standardShift = true;
     Initialize
     ( A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
-      ctrl.primalInitialized, ctrl.dualInitialized, standardShift, ctrl.print );
+      ctrl.primalInitialized, ctrl.dualInitialized, standardShift, 
+      ctrl.solveCtrl );
 
     DistSparseMatrix<Real> J(comm);
     DistSymmFront<Real> JFront;
@@ -1056,8 +1054,7 @@ void Mehrotra
             regNodal.Push( invMap, info, reg );
 
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d,
-              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
+            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
             ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
         }
 #ifndef EL_RELEASE
@@ -1132,8 +1129,7 @@ void Mehrotra
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
         const Int numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
-        ( J, reg, invMap, info, JFront, d,
-          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
+        ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
         if( Max(numLargeAffineRefines,numLargeCorrectorRefines) > 3 &&
             !increasedReg )

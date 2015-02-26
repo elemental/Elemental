@@ -278,6 +278,28 @@ enum RegQSDRefineAlg
   REG_REFINE_IR_MOD
 };
 
+template<typename Real>
+struct RegQSDSolveCtrl
+{
+    RegQSDRefineAlg alg;
+    Real relTol;
+    Real relTolRefine;
+    Int maxRefineIts;
+    Int restart;
+    bool progress;
+
+    RegQSDSolveCtrl()
+    {
+        alg = REG_REFINE_FGMRES;
+        const Real eps = lapack::MachineEpsilon<Real>(); 
+        relTol = Pow(eps,Real(0.5));
+        relTolRefine = Pow(eps,Real(0.5));
+        maxRefineIts = 50;
+        restart = 10;
+        progress = false;
+    }
+};
+
 namespace reg_qsd_ldl {
 
 template<typename F>
@@ -300,17 +322,13 @@ Int SolveAfter
 ( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
   const vector<Int>& invMap,  const SymmNodeInfo& info,
   const SymmFront<F>& front,        Matrix<F>& y,
-  RegQSDRefineAlg refineAlg,
-  Base<F> relTolRefine,       Int maxRefineIts,
-  bool progress );
+  const RegQSDSolveCtrl<Base<F>>& ctrl );
 template<typename F>
 Int SolveAfter
 ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
   const DistMap& invMap,             const DistSymmNodeInfo& info,
   const DistSymmFront<F>& front,           DistMultiVec<F>& y,
-  RegQSDRefineAlg refineAlg,
-  Base<F> relTolRefine,              Int maxRefineIts,
-  bool progress );
+  const RegQSDSolveCtrl<Base<F>>& ctrl );
 
 } // namespace reg_qsd_ldl
 

@@ -24,9 +24,13 @@ void LinearSolve( Matrix<F>& A, Matrix<F>& B );
 template<typename F>
 void LinearSolve( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
 template<typename F>
-void LinearSolve( const SparseMatrix<F>& A, Matrix<F>& B );
+void LinearSolve
+( const SparseMatrix<F>& A, Matrix<F>& B, 
+  const RegQSDSolveCtrl<Base<F>>& ctrl=RegQSDSolveCtrl<Base<F>>() );
 template<typename F>
-void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B );
+void LinearSolve
+( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, 
+  const RegQSDSolveCtrl<Base<F>>& ctrl=RegQSDSolveCtrl<Base<F>>() );
 
 // B := A \ B for a Hermitian A
 // ----------------------------

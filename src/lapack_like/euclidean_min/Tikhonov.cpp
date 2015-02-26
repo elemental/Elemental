@@ -49,6 +49,7 @@ void Tikhonov
     }
 }
 
+// TODO: Switch to a similar approach as in LeastSquares
 template<typename F> 
 void Tikhonov
 ( const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& BPre, 
@@ -94,6 +95,7 @@ void Tikhonov
     }
 }
 
+// TODO: Switch to a similar approach as in LeastSquares
 template<typename F>
 void Tikhonov
 ( const DistSparseMatrix<F>& A, const DistMultiVec<F>& B,

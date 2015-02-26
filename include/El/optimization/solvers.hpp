@@ -72,14 +72,19 @@ struct IPFCtrl {
     Real centering; 
     KKTSystem system;
 
+    RegQSDSolveCtrl<Real> solveCtrl;
+
     lp::IPFLineSearchCtrl<Real> lineSearchCtrl;
 
     bool print;
 
     IPFCtrl( bool isSparse ) 
     : primalInitialized(false), dualInitialized(false),
-      tol(1e-8), maxIts(1000), centering(0.9), print(false)
-    { system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); }
+      tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), centering(0.9), 
+      print(false)
+    { 
+        system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); 
+    }
 };
 
 // Mehrotra's Predictor-Corrector Infeasible Interior Point Method
@@ -92,6 +97,7 @@ struct MehrotraCtrl {
     Int maxIts;
     Real maxStepRatio;
     KKTSystem system;
+    RegQSDSolveCtrl<Real> solveCtrl;
     bool print;
 
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
@@ -99,7 +105,8 @@ struct MehrotraCtrl {
 
     MehrotraCtrl( bool isSparse )
     : primalInitialized(false), dualInitialized(false), 
-      tol(1e-8), maxIts(1000), maxStepRatio(0.99), print(false)
+      tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), 
+      maxStepRatio(0.99), print(false)
     { system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); }
 };
 
@@ -160,13 +167,16 @@ struct IPFCtrl {
     Int maxIts;
     Real centering; 
 
+    RegQSDSolveCtrl<Real> solveCtrl;
+
     lp::IPFLineSearchCtrl<Real> lineSearchCtrl;
 
     bool print;
 
     IPFCtrl() 
     : primalInitialized(false), dualInitialized(false),
-      tol(1e-8), maxIts(1000), centering(0.9), print(false)
+      tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), centering(0.9), 
+      print(false)
     { }
 };
 
@@ -179,6 +189,7 @@ struct MehrotraCtrl {
     Real tol;
     Int maxIts;
     Real maxStepRatio;
+    RegQSDSolveCtrl<Real> solveCtrl;
     bool print;
 
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
@@ -186,7 +197,8 @@ struct MehrotraCtrl {
 
     MehrotraCtrl()
     : primalInitialized(false), dualInitialized(false),
-      tol(1e-8), maxIts(1000), maxStepRatio(0.99), print(false)
+      tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), 
+      maxStepRatio(0.99), print(false)
     { }
 };
 
@@ -331,14 +343,16 @@ struct IPFCtrl {
     Real centering; 
     KKTSystem system;
 
+    RegQSDSolveCtrl<Real> solveCtrl;
+
     qp::IPFLineSearchCtrl<Real> lineSearchCtrl;
 
     bool print;
 
     IPFCtrl() 
     : primalInitialized(false), dualInitialized(false),
-      tol(1e-8), maxIts(1000), centering(0.9), system(AUGMENTED_KKT), 
-      print(false)
+      tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), centering(0.9), 
+      system(AUGMENTED_KKT), print(false)
     { }
 };
 
@@ -352,6 +366,7 @@ struct MehrotraCtrl {
     Int maxIts;
     Real maxStepRatio;
     KKTSystem system;
+    RegQSDSolveCtrl<Real> solveCtrl;
     bool print;
 
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
@@ -359,8 +374,8 @@ struct MehrotraCtrl {
 
     MehrotraCtrl()
     : primalInitialized(false), dualInitialized(false), 
-      tol(1e-8), maxIts(1000), maxStepRatio(0.99), system(AUGMENTED_KKT),
-      print(false)
+      tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), 
+      maxStepRatio(0.99), system(AUGMENTED_KKT), print(false)
     { }
 };
 
@@ -399,13 +414,16 @@ struct IPFCtrl {
     Int maxIts;
     Real centering; 
 
+    RegQSDSolveCtrl<Real> solveCtrl;
+
     qp::IPFLineSearchCtrl<Real> lineSearchCtrl;
 
     bool print;
 
     IPFCtrl() 
     : primalInitialized(false), dualInitialized(false),
-      tol(1e-8), maxIts(1000), centering(0.9), print(false)
+      tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), centering(0.9), 
+      print(false)
     { }
 };
 
@@ -418,6 +436,7 @@ struct MehrotraCtrl {
     Real tol;
     Int maxIts;
     Real maxStepRatio;
+    RegQSDSolveCtrl<Real> solveCtrl;
     bool print;
 
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
@@ -425,7 +444,8 @@ struct MehrotraCtrl {
 
     MehrotraCtrl()
     : primalInitialized(false), dualInitialized(false),
-      tol(1e-8), maxIts(1000), maxStepRatio(0.99), print(false)
+      tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), 
+      maxStepRatio(0.99), print(false)
     { }
 };
 

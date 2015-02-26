@@ -48,12 +48,12 @@ template<typename F>
 void LeastSquares
 ( Orientation orientation,
   const SparseMatrix<F>& A, const Matrix<F>& Y, Matrix<F>& X,
-  const BisectCtrl& ctrl=BisectCtrl() );
+  const RegQSDSolveCtrl<Base<F>>& ctrl=RegQSDSolveCtrl<Base<F>>() );
 template<typename F>
 void LeastSquares
 ( Orientation orientation,
   const DistSparseMatrix<F>& A, const DistMultiVec<F>& Y, DistMultiVec<F>& X,
-  const BisectCtrl& ctrl=BisectCtrl() );
+  const RegQSDSolveCtrl<Base<F>>& ctrl=RegQSDSolveCtrl<Base<F>>() );
 
 // min_X || A X - C ||_F subject to B X = D
 // ----------------------------------------

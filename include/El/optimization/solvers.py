@@ -7,6 +7,7 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from El.core import *
+from El.lapack_like.factor import *
 
 # Linear program
 # ==============
@@ -58,14 +59,16 @@ lib.ElLPDirectIPFCtrlDefault_d.restype = c_uint
 class LPDirectIPFCtrl_s(ctypes.Structure):
   _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
               ("tol",sType),("maxIts",iType),("centering",sType),
-              ("system",c_uint),("lineSearchCtrl",LPIPFLineSearchCtrl_s),
+              ("system",c_uint),("solveCtrl",RegQSDSolveCtrl_s),
+              ("lineSearchCtrl",LPIPFLineSearchCtrl_s),
               ("progress",bType)]
   def __init__(self,isSparse=True):
     lib.ElLPDirectIPFCtrlDefault_s(pointer(self),isSparse)
 class LPDirectIPFCtrl_d(ctypes.Structure):
   _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
               ("tol",dType),("maxIts",iType),("centering",dType),
-              ("system",c_uint),("lineSearchCtrl",LPIPFLineSearchCtrl_d),
+              ("system",c_uint),("solveCtrl",RegQSDSolveCtrl_d),
+              ("lineSearchCtrl",LPIPFLineSearchCtrl_d),
               ("progress",bType)]
   def __init__(self,isSparse=True):
     lib.ElLPDirectIPFCtrlDefault_d(pointer(self),isSparse)
@@ -77,13 +80,15 @@ lib.ElLPDirectMehrotraCtrlDefault_d.restype = c_uint
 class LPDirectMehrotraCtrl_s(ctypes.Structure):
   _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
               ("tol",sType),("maxIts",iType),("maxStepRatio",sType),
-              ("system",c_uint),("progress",bType)]
+              ("system",c_uint),("solveCtrl",RegQSDSolveCtrl_s),
+              ("progress",bType)]
   def __init__(self,isSparse=True):
     lib.ElLPDirectMehrotraCtrlDefault_s(pointer(self),isSparse)
 class LPDirectMehrotraCtrl_d(ctypes.Structure):
   _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
               ("tol",dType),("maxIts",iType),("maxStepRatio",dType),
-              ("system",c_uint),("progress",bType)]
+              ("system",c_uint),("solveCtrl",RegQSDSolveCtrl_d),
+              ("progress",bType)]
   def __init__(self,isSparse=True):
     lib.ElLPDirectMehrotraCtrlDefault_d(pointer(self),isSparse)
 
@@ -207,6 +212,7 @@ lib.ElLPAffineIPFCtrlDefault_d.restype = c_uint
 class LPAffineIPFCtrl_s(ctypes.Structure):
   _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
               ("tol",sType),("maxIts",iType),("centering",sType),
+              ("solveCtrl",RegQSDSolveCtrl_s),
               ("lineSearchCtrl",LPIPFLineSearchCtrl_s),
               ("progress",bType)]
   def __init__(self):
@@ -214,6 +220,7 @@ class LPAffineIPFCtrl_s(ctypes.Structure):
 class LPAffineIPFCtrl_d(ctypes.Structure):
   _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
               ("tol",dType),("maxIts",iType),("centering",dType),
+              ("solveCtrl",RegQSDSolveCtrl_d),
               ("lineSearchCtrl",LPIPFLineSearchCtrl_d),
               ("progress",bType)]
   def __init__(self):
@@ -226,13 +233,13 @@ lib.ElLPAffineMehrotraCtrlDefault_d.restype = c_uint
 class LPAffineMehrotraCtrl_s(ctypes.Structure):
   _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
               ("tol",sType),("maxIts",iType),("maxStepRatio",sType),
-              ("progress",bType)]
+              ("solveCtrl",RegQSDSolveCtrl_s),("progress",bType)]
   def __init__(self):
     lib.ElLPAffineMehrotraCtrlDefault_s(pointer(self))
 class LPAffineMehrotraCtrl_d(ctypes.Structure):
   _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
               ("tol",dType),("maxIts",iType),("maxStepRatio",dType),
-              ("progress",bType)]
+              ("solveCtrl",RegQSDSolveCtrl_d),("progress",bType)]
   def __init__(self):
     lib.ElLPAffineMehrotraCtrlDefault_d(pointer(self))
 
@@ -382,15 +389,15 @@ lib.ElQPDirectIPFCtrlDefault_d.restype = c_uint
 class QPDirectIPFCtrl_s(ctypes.Structure):
   _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
               ("tol",sType),("maxIts",iType),("centering",sType),
-              ("system",c_uint),("lineSearchCtrl",QPIPFLineSearchCtrl_s),
-              ("progress",bType)]
+              ("system",c_uint),("solveCtrl",RegQSDSolveCtrl_s),
+              ("lineSearchCtrl",QPIPFLineSearchCtrl_s),("progress",bType)]
   def __init__(self):
     lib.ElQPDirectIPFCtrlDefault_s(pointer(self))
 class QPDirectIPFCtrl_d(ctypes.Structure):
   _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
               ("tol",dType),("maxIts",iType),("centering",dType),
-              ("system",c_uint),("lineSearchCtrl",QPIPFLineSearchCtrl_d),
-              ("progress",bType)]
+              ("system",c_uint),("solveCtrl",RegQSDSolveCtrl_d),
+              ("lineSearchCtrl",QPIPFLineSearchCtrl_d),("progress",bType)]
   def __init__(self):
     lib.ElQPDirectIPFCtrlDefault_d(pointer(self))
 
@@ -401,13 +408,15 @@ lib.ElQPDirectMehrotraCtrlDefault_d.restype = c_uint
 class QPDirectMehrotraCtrl_s(ctypes.Structure):
   _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
               ("tol",sType),("maxIts",iType),("maxStepRatio",sType),
-              ("system",c_uint),("progress",bType)]
+              ("system",c_uint),("solveCtrl",RegQSDSolveCtrl_s),
+              ("progress",bType)]
   def __init__(self):
     lib.ElQPDirectMehrotraCtrlDefault_s(pointer(self))
 class QPDirectMehrotraCtrl_d(ctypes.Structure):
   _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
               ("tol",dType),("maxIts",iType),("maxStepRatio",dType),
-              ("system",c_uint),("progress",bType)]
+              ("system",c_uint),("solveCtrl",RegQSDSolveCtrl_d),
+              ("progress",bType)]
   def __init__(self):
     lib.ElQPDirectMehrotraCtrlDefault_d(pointer(self))
 
@@ -530,6 +539,7 @@ lib.ElQPAffineIPFCtrlDefault_d.restype = c_uint
 class QPAffineIPFCtrl_s(ctypes.Structure):
   _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
               ("tol",sType),("maxIts",iType),("centering",sType),
+              ("solveCtrl",RegQSDSolveCtrl_s),
               ("lineSearchCtrl",QPIPFLineSearchCtrl_s),
               ("progress",bType)]
   def __init__(self):
@@ -537,6 +547,7 @@ class QPAffineIPFCtrl_s(ctypes.Structure):
 class QPAffineIPFCtrl_d(ctypes.Structure):
   _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
               ("tol",dType),("maxIts",iType),("centering",dType),
+              ("solveCtrl",RegQSDSolveCtrl_d),
               ("lineSearchCtrl",QPIPFLineSearchCtrl_d),
               ("progress",bType)]
   def __init__(self):
@@ -549,12 +560,14 @@ lib.ElQPAffineMehrotraCtrlDefault_d.restype = c_uint
 class QPAffineMehrotraCtrl_s(ctypes.Structure):
   _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
               ("tol",sType),("maxIts",iType),("maxStepRatio",sType),
+              ("solveCtrl",RegQSDSolveCtrl_s),
               ("progress",bType)]
   def __init__(self):
     lib.ElQPAffineMehrotraCtrlDefault_s(pointer(self))
 class QPAffineMehrotraCtrl_d(ctypes.Structure):
   _fields_ = [("primalInitialized",bType),("dualInitialized",bType),
               ("tol",dType),("maxIts",iType),("maxStepRatio",dType),
+              ("solveCtrl",RegQSDSolveCtrl_d),
               ("progress",bType)]
   def __init__(self):
     lib.ElQPAffineMehrotraCtrlDefault_d(pointer(self))

@@ -14,6 +14,9 @@ worldRank = El.mpi.WorldRank()
 
 # Stack two 2D finite-difference matrices on top of each other
 # and make the last column dense
+#
+# NOTE: Increasing the magnitudes of the off-diagonal entries by an order of
+#       magnitude makes the condition number vastly higher.
 def StackedFD2D(N0,N1):
   A = El.DistSparseMatrix()
   height = 2*N0*N1

@@ -514,7 +514,8 @@ void IPF
     const bool standardShift = true;
     Initialize
     ( A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
-      ctrl.primalInitialized, ctrl.dualInitialized, standardShift, ctrl.print );
+      ctrl.primalInitialized, ctrl.dualInitialized, standardShift, 
+      ctrl.solveCtrl );
 
     SparseMatrix<Real> J;
     SymmFront<Real> JFront;
@@ -614,9 +615,7 @@ void IPF
         DiagonalScale( LEFT, NORMAL, s, rmu );
         Shift( rmu, -ctrl.centering*mu );
 
-        const Real relTolRefine = Pow(epsilon,0.75);
-        const Int maxRefineIts = 50;
-        bool aPriori = true;
+        const bool aPriori = true;
         {
             // TODO: Add default regularization
             KKT( A, G, s, z, J, false );
@@ -640,8 +639,7 @@ void IPF
             regNodal.Push( invMap, info, reg );
 
             const Int numLargeRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d, 
-              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
+            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
             if( numLargeRefines > 3 && !increasedReg )
             {
                 Scale( Real(10), regCand );
@@ -766,7 +764,8 @@ void IPF
     const bool standardShift = true;
     Initialize
     ( A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
-      ctrl.primalInitialized, ctrl.dualInitialized, standardShift, ctrl.print );
+      ctrl.primalInitialized, ctrl.dualInitialized, standardShift, 
+      ctrl.solveCtrl );
 
     DistSparseMatrix<Real> J(comm);
     DistSymmFront<Real> JFront;
@@ -867,9 +866,7 @@ void IPF
         DiagonalScale( LEFT, NORMAL, s, rmu );
         Shift( rmu, -ctrl.centering*mu );
 
-        const Real relTolRefine = Pow(epsilon,0.75);
-        const Int maxRefineIts = 50;
-        bool aPriori = true;
+        const bool aPriori = true;
         {
             // TODO: Add default regularization
             KKT( A, G, s, z, J, false );
@@ -893,8 +890,7 @@ void IPF
             regNodal.Push( invMap, info, reg );
 
             const Int numLargeRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d, 
-              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
+            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
             if( numLargeRefines > 3 && !increasedReg )
             {
                 Scale( Real(10), regCand );

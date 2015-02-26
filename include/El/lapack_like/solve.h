@@ -45,6 +45,26 @@ EL_EXPORT ElError ElLinearSolveDistSparse_c
 EL_EXPORT ElError ElLinearSolveDistSparse_z
 ( ElDistSparseMatrix_z A, ElDistMultiVec_z B );
 
+/* Expert versions
+   ^^^^^^^^^^^^^^^ */
+EL_EXPORT ElError ElLinearSolveXSparse_s
+( ElSparseMatrix_s A, ElMatrix_s B, ElRegQSDSolveCtrl_s ctrl );
+EL_EXPORT ElError ElLinearSolveXSparse_d
+( ElSparseMatrix_d A, ElMatrix_d B, ElRegQSDSolveCtrl_d ctrl );
+EL_EXPORT ElError ElLinearSolveXSparse_c
+( ElSparseMatrix_c A, ElMatrix_c B, ElRegQSDSolveCtrl_s ctrl );
+EL_EXPORT ElError ElLinearSolveXSparse_z
+( ElSparseMatrix_z A, ElMatrix_z B, ElRegQSDSolveCtrl_d ctrl );
+
+EL_EXPORT ElError ElLinearSolveXDistSparse_s
+( ElDistSparseMatrix_s A, ElDistMultiVec_s B, ElRegQSDSolveCtrl_s ctrl );
+EL_EXPORT ElError ElLinearSolveXDistSparse_d
+( ElDistSparseMatrix_d A, ElDistMultiVec_d B, ElRegQSDSolveCtrl_d ctrl );
+EL_EXPORT ElError ElLinearSolveXDistSparse_c
+( ElDistSparseMatrix_c A, ElDistMultiVec_c B, ElRegQSDSolveCtrl_s ctrl );
+EL_EXPORT ElError ElLinearSolveXDistSparse_z
+( ElDistSparseMatrix_z A, ElDistMultiVec_z B, ElRegQSDSolveCtrl_d ctrl );
+
 /* Symmetric solve
    --------------- */
 EL_EXPORT ElError ElSymmetricSolve_s

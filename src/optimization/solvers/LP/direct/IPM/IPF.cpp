@@ -474,6 +474,8 @@ void IPF
 {
     DEBUG_ONLY(CallStackEntry cse("lp::direct::IPF"))    
     const Real epsilon = lapack::MachineEpsilon<Real>();
+    // TODO: Expose as a control parameter
+    bool aPrioriReg = true;
 
     // Equilibrate the LP by diagonally scaling A
     auto A = APre;
@@ -518,7 +520,7 @@ void IPF
         Initialize
         ( A, b, c, x, y, z, map, invMap, rootSep, info,
           ctrl.primalInitialized, ctrl.dualInitialized, standardShift,
-          ctrl.print );
+          ctrl.solveCtrl );
     }
     else
     {
@@ -528,7 +530,7 @@ void IPF
         Initialize
         ( A, b, c, x, y, z, augMap, augInvMap, augRootSep, augInfo, 
           ctrl.primalInitialized, ctrl.dualInitialized, standardShift,
-          ctrl.print );
+          ctrl.solveCtrl );
     }
 
     SparseMatrix<Real> J;
@@ -636,10 +638,6 @@ void IPF
 
         // Compute the search direction
         // ============================
-        // TODO: Expose these as control parameters
-        const Real relTolRefine = Pow(epsilon,0.75);
-        const Int maxRefineIts = 50;
-        bool aPriori = true;
         if( ctrl.system == FULL_KKT )
         {
             // Construct the full KKT system
@@ -662,14 +660,14 @@ void IPF
             regCandNodal.Pull( invMap, info, regCand );
             regNodal.Pull( invMap, info, reg );
             RegularizedQSDLDL
-            ( info, JFront, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
+            ( info, JFront, pivTol, regCandNodal, regNodal, aPrioriReg, 
+              LDL_1D );
             regNodal.Push( invMap, info, reg );
 
             // Compute the proposed step from the regularized KKT system
             // ---------------------------------------------------------
             const Int numLargeRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d, 
-              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
+              ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
             if( numLargeRefines > 3 && !increasedReg )
             {
                 Scale( Real(10), regCand );
@@ -699,14 +697,14 @@ void IPF
             regCandNodal.Pull( invMap, info, regCand );
             regNodal.Pull( invMap, info, reg );
             RegularizedQSDLDL
-            ( info, JFront, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
+            ( info, JFront, pivTol, regCandNodal, regNodal, aPrioriReg, 
+              LDL_1D );
             regNodal.Push( invMap, info, reg );
 
             // Compute the proposed step from the regularized KKT system
             // ---------------------------------------------------------
             const Int numLargeRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d, 
-              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
+              ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
             if( numLargeRefines > 3 && !increasedReg )
             {
                 Scale( Real(10), regCand );
@@ -736,7 +734,8 @@ void IPF
             // Compute the proposed step
             // -------------------------
             ldl::SolveWithIterativeRefinement
-            ( J, invMap, info, JFront, dy, relTolRefine, maxRefineIts );
+            ( J, invMap, info, JFront, dy, 
+              ctrl.solveCtrl.relTolRefine, ctrl.solveCtrl.maxRefineIts );
             ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
         else
@@ -811,6 +810,7 @@ void IPF
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);
     const Real epsilon = lapack::MachineEpsilon<Real>();
+    bool aPrioriReg = true;
 
     // Equilibrate the LP by diagonally scaling A
     auto A = APre;
@@ -855,7 +855,7 @@ void IPF
         Initialize
         ( A, b, c, x, y, z, map, invMap, rootSep, info,
           ctrl.primalInitialized, ctrl.dualInitialized, standardShift,
-          ctrl.print );
+          ctrl.solveCtrl );
     }
     else
     {
@@ -865,7 +865,7 @@ void IPF
         Initialize
         ( A, b, c, x, y, z, augMap, augInvMap, augRootSep, augInfo, 
           ctrl.primalInitialized, ctrl.dualInitialized, standardShift,
-          ctrl.print );
+          ctrl.solveCtrl );
     }
 
     DistSparseMatrix<Real> J(comm);
@@ -975,10 +975,6 @@ void IPF
 
         // Compute the search direction
         // ============================
-        // TODO: Expose these as control parameters
-        const Real relTolRefine = Pow(epsilon,0.75);
-        const Int maxRefineIts = 50;
-        bool aPriori = true;
         if( ctrl.system == FULL_KKT )
         {
             // Construct the full KKT system
@@ -1001,14 +997,14 @@ void IPF
             regCandNodal.Pull( invMap, info, regCand );
             regNodal.Pull( invMap, info, reg );
             RegularizedQSDLDL
-            ( info, JFront, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
+            ( info, JFront, pivTol, regCandNodal, regNodal, aPrioriReg, 
+              LDL_1D );
             regNodal.Push( invMap, info, reg );
 
             // Compute the proposed step from the regularized KKT system
             // ---------------------------------------------------------
             const Int numLargeRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d, 
-              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
+              ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
             if( numLargeRefines > 3 && !increasedReg )
             {
                 Scale( Real(10), regCand );
@@ -1038,14 +1034,14 @@ void IPF
             regCandNodal.Pull( invMap, info, regCand );
             regNodal.Pull( invMap, info, reg );
             RegularizedQSDLDL
-            ( info, JFront, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
+            ( info, JFront, pivTol, regCandNodal, regNodal, aPrioriReg, 
+              LDL_1D );
             regNodal.Push( invMap, info, reg );
 
             // Compute the proposed step from the regularized KKT system
             // ---------------------------------------------------------
             const Int numLargeRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d, 
-              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
+              ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
             if( numLargeRefines > 3 && !increasedReg )
             {
                 Scale( Real(10), regCand );
@@ -1075,7 +1071,8 @@ void IPF
             // Compute the proposed step
             // -------------------------
             ldl::SolveWithIterativeRefinement
-            ( J, invMap, info, JFront, dy, relTolRefine, maxRefineIts );
+            ( J, invMap, info, JFront, dy, 
+              ctrl.solveCtrl.relTolRefine, ctrl.solveCtrl.maxRefineIts );
             ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
         else

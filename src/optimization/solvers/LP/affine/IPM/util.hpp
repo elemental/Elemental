@@ -43,7 +43,8 @@ void Initialize
         vector<Int>& map,            vector<Int>& invMap,
         Separator& rootSep,          SymmNodeInfo& info,
   bool primalInitialized, bool dualInitialized,
-  bool standardShift,     bool progress );
+  bool standardShift, 
+  const RegQSDSolveCtrl<Real>& solveCtrl );
 template<typename Real>
 void Initialize
 ( const DistSparseMatrix<Real>& A,  const DistSparseMatrix<Real>& G,
@@ -54,7 +55,8 @@ void Initialize
         DistMap& map,                     DistMap& invMap,
         DistSeparator& rootSep,           DistSymmNodeInfo& info,
   bool primalInitialized, bool dualInitialized,
-  bool standardShift,     bool progress );
+  bool standardShift,
+  const RegQSDSolveCtrl<Real>& solveCtrl );
 
 // Full system
 // ===========

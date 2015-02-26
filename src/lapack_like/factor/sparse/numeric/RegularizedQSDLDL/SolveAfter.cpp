@@ -1136,32 +1136,29 @@ Int SolveAfter
 ( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
   const vector<Int>& invMap,  const SymmNodeInfo& info,
   const SymmFront<F>& front,        Matrix<F>& b,
-  RegQSDRefineAlg refineAlg,
-  Base<F> relTolRefine,             Int maxRefineIts,
-  bool progress )
+  const RegQSDSolveCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::SolveAfter"))
-    typedef Base<F> Real;
-    const Int k = 10; // restart parameter
-    const Real relTol = Pow(lapack::MachineEpsilon<Real>(),Real(0.75));
-    switch( refineAlg )
+    switch( ctrl.alg )
     {
     case REG_REFINE_FGMRES:
         return FGMRESSolveAfter
         ( A, reg, invMap, info, front, b, 
-          relTol, k, relTolRefine, maxRefineIts, progress );
+          ctrl.relTol, ctrl.restart, ctrl.relTolRefine, ctrl.maxRefineIts, 
+          ctrl.progress );
     case REG_REFINE_LGMRES:
         return LGMRESSolveAfter
         ( A, reg, invMap, info, front, b, 
-          relTol, k, relTolRefine, maxRefineIts, progress );
+          ctrl.relTol, ctrl.restart, ctrl.relTolRefine, ctrl.maxRefineIts, 
+          ctrl.progress );
     case REG_REFINE_IR:
         return IRSolveAfter
         ( A, reg, invMap, info, front, b, 
-          relTolRefine, maxRefineIts, progress );
+          ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress );
     case REG_REFINE_IR_MOD:    
         return RegularizedSolveAfter
         ( A, reg, invMap, info, front, b, 
-          relTolRefine, maxRefineIts, progress );
+          ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress );
     default:
         LogicError("Invalid refinement algorithm");
     }
@@ -1172,32 +1169,29 @@ Int SolveAfter
 ( const DistSparseMatrix<F>& A,   const DistMultiVec<Base<F>>& reg,
   const DistMap& invMap,          const DistSymmNodeInfo& info,
   const DistSymmFront<F>& front,        DistMultiVec<F>& b,
-  RegQSDRefineAlg refineAlg,
-  Base<F> relTolRefine,                 Int maxRefineIts,
-  bool progress )
+  const RegQSDSolveCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::SolveAfter"))
-    typedef Base<F> Real;
-    const Int k = 10; // restart parameter
-    const Real relTol = Pow(lapack::MachineEpsilon<Real>(),Real(0.75));
-    switch( refineAlg )
+    switch( ctrl.alg )
     {
     case REG_REFINE_FGMRES:
         return FGMRESSolveAfter
         ( A, reg, invMap, info, front, b, 
-          relTol, k, relTolRefine, maxRefineIts, progress );
+          ctrl.relTol, ctrl.restart, ctrl.relTolRefine, ctrl.maxRefineIts, 
+          ctrl.progress );
     case REG_REFINE_LGMRES:
         return LGMRESSolveAfter
         ( A, reg, invMap, info, front, b, 
-          relTol, k, relTolRefine, maxRefineIts, progress );
+          ctrl.relTol, ctrl.restart, ctrl.relTolRefine, ctrl.maxRefineIts, 
+          ctrl.progress );
     case REG_REFINE_IR:
         return IRSolveAfter
         ( A, reg, invMap, info, front, b, 
-          relTolRefine, maxRefineIts, progress );
+          ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress );
     case REG_REFINE_IR_MOD:    
         return RegularizedSolveAfter
         ( A, reg, invMap, info, front, b, 
-          relTolRefine, maxRefineIts, progress );
+          ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress );
     default:
         LogicError("Invalid refinement algorithm");
     }
@@ -1208,28 +1202,24 @@ Int SolveAfter
   ( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg, \
     const vector<Int>& invMap,  const SymmNodeInfo& info, \
     const SymmFront<F>& front,        Matrix<F>& b, \
-    Base<F> relTolRefine,       Int maxRefineIts, \
+    Base<F> relTol,             Int maxRefineIts, \
     bool progress ); \
   template Int RegularizedSolveAfter \
   ( const DistSparseMatrix<F>& A,  const DistMultiVec<Base<F>>& reg, \
     const DistMap& invMap,         const DistSymmNodeInfo& info, \
     const DistSymmFront<F>& front,       DistMultiVec<F>& b, \
-    Base<F> relTolRefine,          Int maxRefineIts, \
+    Base<F> relTol,                Int maxRefineIts, \
     bool progress ); \
   template Int SolveAfter \
   ( const SparseMatrix<F>& A,  const Matrix<Base<F>>& reg, \
     const vector<Int>& invMap, const SymmNodeInfo& info, \
     const SymmFront<F>& front,       Matrix<F>& b, \
-    RegQSDRefineAlg refineAlg, \
-    Base<F> relTolRefine,      Int maxRefineIts, \
-    bool progress ); \
+    const RegQSDSolveCtrl<Base<F>>& ctrl ); \
   template Int SolveAfter \
   ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg, \
     const DistMap& invMap,             const DistSymmNodeInfo& info, \
     const DistSymmFront<F>& front,           DistMultiVec<F>& b, \
-    RegQSDRefineAlg refineAlg, \
-    Base<F> relTolRefine,              Int maxRefineIts, \
-    bool progress );
+    const RegQSDSolveCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

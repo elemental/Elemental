@@ -69,6 +69,7 @@ ElError ElLPDirectIPFCtrlDefault_s( ElLPDirectIPFCtrl_s* ctrl, bool isSparse )
     ctrl->centering = 0.9;
     ctrl->system = ( isSparse ? EL_LP_PRIMAL_AUGMENTED_KKT
                               : EL_LP_PRIMAL_NORMAL_KKT );
+    ElRegQSDSolveCtrlDefault_s( &ctrl->solveCtrl );
     ElLPIPFLineSearchCtrlDefault_s( &ctrl->lineSearchCtrl );
     ctrl->print = false;
     return EL_SUCCESS;
@@ -83,6 +84,7 @@ ElError ElLPDirectIPFCtrlDefault_d( ElLPDirectIPFCtrl_d* ctrl, bool isSparse )
     ctrl->centering = 0.9;
     ctrl->system = ( isSparse ? EL_LP_PRIMAL_AUGMENTED_KKT
                               : EL_LP_PRIMAL_NORMAL_KKT );
+    ElRegQSDSolveCtrlDefault_d( &ctrl->solveCtrl );
     ElLPIPFLineSearchCtrlDefault_d( &ctrl->lineSearchCtrl );
     ctrl->print = false;
     return EL_SUCCESS;
@@ -99,6 +101,7 @@ ElError ElLPDirectMehrotraCtrlDefault_s
     ctrl->print = false;
     ctrl->system = ( isSparse ? EL_LP_PRIMAL_AUGMENTED_KKT 
                               : EL_LP_PRIMAL_NORMAL_KKT );;
+    ElRegQSDSolveCtrlDefault_s( &ctrl->solveCtrl );
     return EL_SUCCESS;
 }
 
@@ -113,6 +116,7 @@ ElError ElLPDirectMehrotraCtrlDefault_d
     ctrl->print = false;
     ctrl->system = ( isSparse ? EL_LP_PRIMAL_AUGMENTED_KKT 
                               : EL_LP_PRIMAL_NORMAL_KKT );;
+    ElRegQSDSolveCtrlDefault_d( &ctrl->solveCtrl );
     return EL_SUCCESS;
 }
 
@@ -144,6 +148,7 @@ ElError ElLPAffineIPFCtrlDefault_s( ElLPAffineIPFCtrl_s* ctrl )
     ctrl->tol = 1e-8;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
+    ElRegQSDSolveCtrlDefault_s( &ctrl->solveCtrl );
     ElLPIPFLineSearchCtrlDefault_s( &ctrl->lineSearchCtrl );
     ctrl->print = false;
     return EL_SUCCESS;
@@ -156,6 +161,7 @@ ElError ElLPAffineIPFCtrlDefault_d( ElLPAffineIPFCtrl_d* ctrl )
     ctrl->tol = 1e-8;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
+    ElRegQSDSolveCtrlDefault_d( &ctrl->solveCtrl );
     ElLPIPFLineSearchCtrlDefault_d( &ctrl->lineSearchCtrl );
     ctrl->print = false;
     return EL_SUCCESS;
@@ -168,6 +174,7 @@ ElError ElLPAffineMehrotraCtrlDefault_s( ElLPAffineMehrotraCtrl_s* ctrl )
     ctrl->tol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
+    ElRegQSDSolveCtrlDefault_s( &ctrl->solveCtrl );
     ctrl->print = false;
     return EL_SUCCESS;
 }
@@ -179,6 +186,7 @@ ElError ElLPAffineMehrotraCtrlDefault_d( ElLPAffineMehrotraCtrl_d* ctrl )
     ctrl->tol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
+    ElRegQSDSolveCtrlDefault_d( &ctrl->solveCtrl );
     ctrl->print = false;
     return EL_SUCCESS;
 }
@@ -231,6 +239,7 @@ ElError ElQPDirectIPFCtrlDefault_s( ElQPDirectIPFCtrl_s* ctrl )
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
     ctrl->system = EL_QP_PRIMAL_AUGMENTED_KKT;
+    ElRegQSDSolveCtrlDefault_s( &ctrl->solveCtrl );
     ElQPIPFLineSearchCtrlDefault_s( &ctrl->lineSearchCtrl );
     ctrl->print = false;
     return EL_SUCCESS;
@@ -244,6 +253,7 @@ ElError ElQPDirectIPFCtrlDefault_d( ElQPDirectIPFCtrl_d* ctrl )
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
     ctrl->system = EL_QP_PRIMAL_AUGMENTED_KKT;
+    ElRegQSDSolveCtrlDefault_d( &ctrl->solveCtrl );
     ElQPIPFLineSearchCtrlDefault_d( &ctrl->lineSearchCtrl );
     ctrl->print = false;
     return EL_SUCCESS;
@@ -257,6 +267,7 @@ ElError ElQPDirectMehrotraCtrlDefault_s( ElQPDirectMehrotraCtrl_s* ctrl )
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ctrl->print = false;
+    ElRegQSDSolveCtrlDefault_s( &ctrl->solveCtrl );
     ctrl->system = EL_QP_PRIMAL_AUGMENTED_KKT;
     return EL_SUCCESS;
 }
@@ -269,6 +280,7 @@ ElError ElQPDirectMehrotraCtrlDefault_d( ElQPDirectMehrotraCtrl_d* ctrl )
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ctrl->print = false;
+    ElRegQSDSolveCtrlDefault_d( &ctrl->solveCtrl );
     ctrl->system = EL_QP_PRIMAL_AUGMENTED_KKT;
     return EL_SUCCESS;
 }
@@ -298,6 +310,7 @@ ElError ElQPAffineIPFCtrlDefault_s( ElQPAffineIPFCtrl_s* ctrl )
     ctrl->tol = 1e-8;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
+    ElRegQSDSolveCtrlDefault_s( &ctrl->solveCtrl );
     ElQPIPFLineSearchCtrlDefault_s( &ctrl->lineSearchCtrl );
     ctrl->print = false;
     return EL_SUCCESS;
@@ -310,6 +323,7 @@ ElError ElQPAffineIPFCtrlDefault_d( ElQPAffineIPFCtrl_d* ctrl )
     ctrl->tol = 1e-8;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
+    ElRegQSDSolveCtrlDefault_d( &ctrl->solveCtrl );
     ElQPIPFLineSearchCtrlDefault_d( &ctrl->lineSearchCtrl );
     ctrl->print = false;
     return EL_SUCCESS;
@@ -322,6 +336,7 @@ ElError ElQPAffineMehrotraCtrlDefault_s( ElQPAffineMehrotraCtrl_s* ctrl )
     ctrl->tol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
+    ElRegQSDSolveCtrlDefault_s( &ctrl->solveCtrl );
     ctrl->print = false;
     return EL_SUCCESS;
 }
@@ -333,6 +348,7 @@ ElError ElQPAffineMehrotraCtrlDefault_d( ElQPAffineMehrotraCtrl_d* ctrl )
     ctrl->tol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
+    ElRegQSDSolveCtrlDefault_d( &ctrl->solveCtrl );
     ctrl->print = false;
     return EL_SUCCESS;
 }

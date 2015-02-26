@@ -128,6 +128,8 @@ typedef struct {
   float centering;
   ElLPDirectKKTSystem system;
 
+  ElRegQSDSolveCtrl_s solveCtrl;
+
   ElLPIPFLineSearchCtrl_s lineSearchCtrl;
   bool print;
 } ElLPDirectIPFCtrl_s;
@@ -139,6 +141,8 @@ typedef struct {
   ElInt maxIts;
   double centering;
   ElLPDirectKKTSystem system;
+
+  ElRegQSDSolveCtrl_d solveCtrl;
 
   ElLPIPFLineSearchCtrl_d lineSearchCtrl;
   bool print;
@@ -154,6 +158,7 @@ typedef struct {
   ElInt maxIts;
   float maxStepRatio;
   ElLPDirectKKTSystem system;
+  ElRegQSDSolveCtrl_s solveCtrl;
   bool print;
 } ElLPDirectMehrotraCtrl_s;
 
@@ -164,6 +169,7 @@ typedef struct {
   ElInt maxIts;
   double maxStepRatio;
   ElLPDirectKKTSystem system;
+  ElRegQSDSolveCtrl_d solveCtrl;
   bool print;
 } ElLPDirectMehrotraCtrl_d;
 
@@ -303,6 +309,8 @@ typedef struct {
   ElInt maxIts;
   float centering;
 
+  ElRegQSDSolveCtrl_s solveCtrl;
+
   ElLPIPFLineSearchCtrl_s lineSearchCtrl;
   bool print;
 } ElLPAffineIPFCtrl_s;
@@ -313,6 +321,8 @@ typedef struct {
   double tol;
   ElInt maxIts;
   double centering;
+
+  ElRegQSDSolveCtrl_d solveCtrl;
 
   ElLPIPFLineSearchCtrl_d lineSearchCtrl;
   bool print;
@@ -327,6 +337,7 @@ typedef struct {
   float tol;
   ElInt maxIts;
   float maxStepRatio;
+  ElRegQSDSolveCtrl_s solveCtrl;
   bool print;
 } ElLPAffineMehrotraCtrl_s;
 
@@ -336,6 +347,7 @@ typedef struct {
   double tol;
   ElInt maxIts;
   double maxStepRatio;
+  ElRegQSDSolveCtrl_d solveCtrl;
   bool print;
 } ElLPAffineMehrotraCtrl_d;
 
@@ -506,6 +518,8 @@ typedef struct {
   float centering;
   ElQPDirectKKTSystem system;
 
+  ElRegQSDSolveCtrl_s solveCtrl;
+
   ElQPIPFLineSearchCtrl_s lineSearchCtrl;
   bool print;
 } ElQPDirectIPFCtrl_s;
@@ -517,6 +531,8 @@ typedef struct {
   ElInt maxIts;
   double centering;
   ElQPDirectKKTSystem system;
+
+  ElRegQSDSolveCtrl_d solveCtrl;
 
   ElQPIPFLineSearchCtrl_d lineSearchCtrl;
   bool print;
@@ -532,6 +548,7 @@ typedef struct {
   ElInt maxIts;
   float maxStepRatio;
   ElQPDirectKKTSystem system;
+  ElRegQSDSolveCtrl_s solveCtrl;
   bool print;
 } ElQPDirectMehrotraCtrl_s;
 
@@ -542,6 +559,7 @@ typedef struct {
   ElInt maxIts;
   double maxStepRatio;
   ElQPDirectKKTSystem system;
+  ElRegQSDSolveCtrl_d solveCtrl;
   bool print;
 } ElQPDirectMehrotraCtrl_d;
 
@@ -685,6 +703,8 @@ typedef struct {
   ElInt maxIts;
   float centering;
 
+  ElRegQSDSolveCtrl_s solveCtrl;
+
   ElQPIPFLineSearchCtrl_s lineSearchCtrl;
   bool print;
 } ElQPAffineIPFCtrl_s;
@@ -695,6 +715,8 @@ typedef struct {
   double tol;
   ElInt maxIts;
   double centering;
+
+  ElRegQSDSolveCtrl_d solveCtrl;
 
   ElQPIPFLineSearchCtrl_d lineSearchCtrl;
   bool print;
@@ -709,6 +731,7 @@ typedef struct {
   float tol;
   ElInt maxIts;
   float maxStepRatio;
+  ElRegQSDSolveCtrl_s solveCtrl;
   bool print;
 } ElQPAffineMehrotraCtrl_s;
 
@@ -718,6 +741,7 @@ typedef struct {
   double tol;
   ElInt maxIts;
   double maxStepRatio;
+  ElRegQSDSolveCtrl_d solveCtrl;
   bool print;
 } ElQPAffineMehrotraCtrl_d;
 

@@ -311,7 +311,8 @@ void Initialize
         vector<Int>& map,            vector<Int>& invMap, 
         Separator& rootSep,          SymmNodeInfo& info,
   bool primalInitialized, bool dualInitialized,
-  bool standardShift,     bool progress )
+  bool standardShift,
+  const RegQSDSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::affine::Initialize"))
     const Int m = A.Height();
@@ -381,9 +382,6 @@ void Initialize
 
     Matrix<Real> rc, rb, rh, rmu, u, d;
     Zeros( rmu, k, 1 );
-    // TODO: Expose these as control parameters
-    const Real relTolRefine = Pow(epsilon,Real(0.5));
-    const Int maxRefineIts = 50;
     if( !primalInitialized )
     {
         // Minimize || G x - h ||^2, s.t. A x = b  by solving
@@ -400,9 +398,7 @@ void Initialize
         Scale( Real(-1), rh );
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter
-        ( J, reg, invMap, info, JFront, d,
-          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, progress );
+        reg_qsd_ldl::SolveAfter( J, reg, invMap, info, JFront, d, solveCtrl );
         ExpandCoreSolution( m, n, k, d, x, u, s );
         Scale( Real(-1), s );
     }
@@ -420,9 +416,7 @@ void Initialize
         Zeros( rh, k, 1 );
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter
-        ( J, reg, invMap, info, JFront, d,
-          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, progress );
+        reg_qsd_ldl::SolveAfter( J, reg, invMap, info, JFront, d, solveCtrl );
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
@@ -469,7 +463,8 @@ void Initialize
         DistMap& map,                     DistMap& invMap, 
         DistSeparator& rootSep,           DistSymmNodeInfo& info,
   bool primalInitialized, bool dualInitialized,
-  bool standardShift,     bool progress )
+  bool standardShift, 
+  const RegQSDSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::affine::Initialize"))
     const Int m = A.Height();
@@ -542,9 +537,6 @@ void Initialize
     DistMultiVec<Real> rc(comm), rb(comm), rh(comm), rmu(comm), u(comm),
                        d(comm);
     Zeros( rmu, k, 1 );
-    // TODO: Expose these as control parameters
-    const Real relTolRefine = Pow(epsilon,Real(0.5));
-    const Int maxRefineIts = 50;
     if( !primalInitialized )
     {
         // Minimize || G x - h ||^2, s.t. A x = b  by solving
@@ -561,9 +553,7 @@ void Initialize
         Scale( Real(-1), rh );
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter
-        ( J, reg, invMap, info, JFront, d,
-          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, progress );
+        reg_qsd_ldl::SolveAfter( J, reg, invMap, info, JFront, d, solveCtrl );
         ExpandCoreSolution( m, n, k, d, x, u, s );
         Scale( Real(-1), s );
     }
@@ -581,9 +571,7 @@ void Initialize
         Zeros( rh, k, 1 );
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter
-        ( J, reg, invMap, info, JFront, d,
-          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, progress );
+        reg_qsd_ldl::SolveAfter( J, reg, invMap, info, JFront, d, solveCtrl );
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
@@ -648,7 +636,8 @@ void Initialize
           vector<Int>& map,            vector<Int>& invMap, \
           Separator& rootSep,          SymmNodeInfo& info, \
     bool primalInitialized, bool dualInitialized, \
-    bool standardShift,     bool progress ); \
+    bool standardShift, \
+    const RegQSDSolveCtrl<Real>& solveCtrl ); \
   template void Initialize \
   ( const DistSparseMatrix<Real>& Q, \
     const DistSparseMatrix<Real>& A,  const DistSparseMatrix<Real>& G, \
@@ -659,7 +648,8 @@ void Initialize
           DistMap& map,                     DistMap& invMap, \
           DistSeparator& rootSep,           DistSymmNodeInfo& info, \
     bool primalInitialized, bool dualInitialized, \
-    bool standardShift,     bool progress );
+    bool standardShift, \
+    const RegQSDSolveCtrl<Real>& solveCtrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

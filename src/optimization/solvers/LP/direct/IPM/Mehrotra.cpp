@@ -625,6 +625,7 @@ void Mehrotra
 {
     DEBUG_ONLY(CallStackEntry cse("lp::direct::Mehrotra"))    
     const Real epsilon = lapack::MachineEpsilon<Real>();
+    const bool aPriori = true;
 
     // Equilibrate the LP by diagonally scaling A
     auto A = APre;
@@ -660,7 +661,7 @@ void Mehrotra
         Initialize
         ( A, b, c, x, y, z, map, invMap, rootSep, info,
           ctrl.primalInitialized, ctrl.dualInitialized, standardShift,
-          ctrl.print ); 
+          ctrl.solveCtrl );
     }  
     else
     {
@@ -670,7 +671,7 @@ void Mehrotra
         Initialize
         ( A, b, c, x, y, z, augMap, augInvMap, augRootSep, augInfo,
           ctrl.primalInitialized, ctrl.dualInitialized, standardShift,
-          ctrl.print );
+          ctrl.solveCtrl );
     }
 
     SparseMatrix<Real> J;
@@ -777,9 +778,6 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        const Real relTolRefine = Pow(epsilon,0.75);
-        const Int maxRefineIts = 50;
-        bool aPriori = true;
         Int numLargeAffineRefines=0, numLargeCorrectorRefines=0;
         if( ctrl.system == FULL_KKT )
         {
@@ -809,8 +807,7 @@ void Mehrotra
             // Compute the proposed step from the regularized KKT system
             // ---------------------------------------------------------
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d,
-              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
+            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
             ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -839,8 +836,7 @@ void Mehrotra
             regNodal.Push( invMap, info, reg );
 
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d,
-              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
+            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
             ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
         }
         else // ctrl.system == NORMAL_KKT
@@ -860,7 +856,8 @@ void Mehrotra
             JFront.Pull( J, map, info );
             LDL( info, JFront );
             ldl::SolveWithIterativeRefinement
-            ( J, invMap, info, JFront, dyAff, relTolRefine, maxRefineIts );
+            ( J, invMap, info, JFront, dyAff, 
+              ctrl.solveCtrl.relTolRefine, ctrl.solveCtrl.maxRefineIts );
             ExpandNormalSolution( A, c, x, z, rc, rmu, dxAff, dyAff, dzAff );
         }
 #ifndef EL_RELEASE
@@ -939,8 +936,7 @@ void Mehrotra
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d,
-              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
+            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
             ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -952,8 +948,7 @@ void Mehrotra
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d,
-              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
+            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else
@@ -965,7 +960,8 @@ void Mehrotra
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             ldl::SolveWithIterativeRefinement
-            ( J, invMap, info, JFront, dy, relTolRefine, maxRefineIts );
+            ( J, invMap, info, JFront, dy, 
+              ctrl.solveCtrl.relTolRefine, ctrl.solveCtrl.maxRefineIts );
             ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
         if( Max(numLargeAffineRefines,numLargeCorrectorRefines) > 3 &&
@@ -1061,7 +1057,7 @@ void Mehrotra
         Initialize
         ( A, b, c, x, y, z, map, invMap, rootSep, info,
           ctrl.primalInitialized, ctrl.dualInitialized, standardShift,
-          ctrl.print ); 
+          ctrl.solveCtrl );
     }  
     else
     {
@@ -1071,7 +1067,7 @@ void Mehrotra
         Initialize
         ( A, b, c, x, y, z, augMap, augInvMap, augRootSep, augInfo,
           ctrl.primalInitialized, ctrl.dualInitialized, standardShift,
-          ctrl.print );
+          ctrl.solveCtrl );
     }
 
     DistSparseMatrix<Real> J(comm);
@@ -1212,8 +1208,7 @@ void Mehrotra
             // Compute the proposed step from the regularized KKT system
             // ---------------------------------------------------------
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d,
-              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
+            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
             ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -1242,8 +1237,7 @@ void Mehrotra
             regNodal.Push( invMap, info, reg );
 
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d,
-              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
+            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
             ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
         }
         else // ctrl.system == NORMAL_KKT
@@ -1263,7 +1257,8 @@ void Mehrotra
             JFront.Pull( J, map, rootSep, info );
             LDL( info, JFront, LDL_1D );
             ldl::SolveWithIterativeRefinement
-            ( J, invMap, info, JFront, dyAff, relTolRefine, maxRefineIts );
+            ( J, invMap, info, JFront, dyAff, 
+              ctrl.solveCtrl.relTolRefine, ctrl.solveCtrl.maxRefineIts );
             ExpandNormalSolution( A, c, x, z, rc, rmu, dxAff, dyAff, dzAff );
         }
 #ifndef EL_RELEASE
@@ -1342,8 +1337,7 @@ void Mehrotra
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d,
-              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
+            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
             ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -1355,8 +1349,7 @@ void Mehrotra
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d,
-              REG_REFINE_FGMRES, relTolRefine, maxRefineIts, ctrl.print );
+            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else
@@ -1368,7 +1361,8 @@ void Mehrotra
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             ldl::SolveWithIterativeRefinement
-            ( J, invMap, info, JFront, dy, relTolRefine, maxRefineIts );
+            ( J, invMap, info, JFront, dy, 
+              ctrl.solveCtrl.relTolRefine, ctrl.solveCtrl.maxRefineIts );
             ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
         if( Max(numLargeAffineRefines,numLargeCorrectorRefines) > 3 &&

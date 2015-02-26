@@ -1364,6 +1364,59 @@ inline QRCtrl<double> CReflect( const ElQRCtrl_d& ctrlC )
     return ctrl;
 }
 
+inline RegQSDRefineAlg CReflect( ElRegQSDRefineAlg alg ) 
+{ return static_cast<RegQSDRefineAlg>(alg); }
+inline ElRegQSDRefineAlg CReflect( RegQSDRefineAlg alg )
+{ return static_cast<ElRegQSDRefineAlg>(alg); }
+
+inline ElRegQSDSolveCtrl_s CReflect( const RegQSDSolveCtrl<float>& ctrl )
+{
+    ElRegQSDSolveCtrl_s ctrlC;
+    ctrlC.alg = CReflect(ctrl.alg);
+    ctrlC.relTol = ctrl.relTol;
+    ctrlC.relTolRefine = ctrl.relTolRefine;
+    ctrlC.maxRefineIts = ctrl.maxRefineIts;
+    ctrlC.restart = ctrl.restart;
+    ctrlC.progress = ctrl.progress;
+    return ctrlC;
+}
+
+inline ElRegQSDSolveCtrl_d CReflect( const RegQSDSolveCtrl<double>& ctrl )
+{
+    ElRegQSDSolveCtrl_d ctrlC;
+    ctrlC.alg = CReflect(ctrl.alg);
+    ctrlC.relTol = ctrl.relTol;
+    ctrlC.relTolRefine = ctrl.relTolRefine;
+    ctrlC.maxRefineIts = ctrl.maxRefineIts;
+    ctrlC.restart = ctrl.restart;
+    ctrlC.progress = ctrl.progress;
+    return ctrlC;
+}
+
+inline RegQSDSolveCtrl<float> CReflect( const ElRegQSDSolveCtrl_s& ctrlC )
+{
+    RegQSDSolveCtrl<float> ctrl;
+    ctrl.alg = CReflect(ctrlC.alg);
+    ctrl.relTol = ctrlC.relTol;
+    ctrl.relTolRefine = ctrlC.relTolRefine;
+    ctrl.maxRefineIts = ctrlC.maxRefineIts;
+    ctrl.restart = ctrlC.restart;
+    ctrl.progress = ctrlC.progress;
+    return ctrl;
+}
+
+inline RegQSDSolveCtrl<double> CReflect( const ElRegQSDSolveCtrl_d& ctrlC )
+{
+    RegQSDSolveCtrl<double> ctrl;
+    ctrl.alg = CReflect(ctrlC.alg);
+    ctrl.relTol = ctrlC.relTol;
+    ctrl.relTolRefine = ctrlC.relTolRefine;
+    ctrl.maxRefineIts = ctrlC.maxRefineIts;
+    ctrl.restart = ctrlC.restart;
+    ctrl.progress = ctrlC.progress;
+    return ctrl;
+}
+
 // Properties
 // ^^^^^^^^^^
 inline ElNormType CReflect( NormType type )

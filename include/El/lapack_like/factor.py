@@ -574,6 +574,31 @@ def MultiplyAfterLDLPiv(A,dSub,p,B,conjugate=True):
     else: DataExcept()
   else: TypeExcept()
 
+# Regularized Quasi-Semidefinite LDL^H factorization
+# ==================================================
+
+# Emulate an enum for the Regularized QSD LDL solve/refinement
+(REG_REFINE_FGMRES,REG_REFINE_LGMRES,REG_REFINE_IR,REG_REFINE_IR_MOD)=(0,1,2,3)
+
+lib.ElRegQSDSolveCtrlDefault_s.argtypes = \
+lib.ElRegQSDSolveCtrlDefault_d.argtypes = \
+  [c_void_p]
+lib.ElRegQSDSolveCtrlDefault_s.restype = \
+lib.ElRegQSDSolveCtrlDefault_d.restype = \
+  c_uint
+class RegQSDSolveCtrl_s(ctypes.Structure):
+  _fields_ = [("alg",c_uint),("relTol",sType),("relRefineTol",sType),
+              ("maxRefineIts",iType),("restart",iType),("progress",bType)]
+  def __init__(self):
+    lib.ElRegQSDSolveCtrlDefault_s(pointer(self))
+class RegQSDSolveCtrl_d(ctypes.Structure):
+  _fields_ = [("alg",c_uint),("relTol",dType),("relRefineTol",dType),
+              ("maxRefineIts",iType),("restart",iType),("progress",bType)]
+  def __init__(self):
+    lib.ElRegQSDSolveCtrlDefault_d(pointer(self))
+
+# TODO: Wrappers for the factorization and solve
+
 # LU factorization
 # ================
 
@@ -1096,22 +1121,22 @@ def SolveAfterLQ(orient,A,t,d,B):
 
 # QR factorization
 # ================
-lib.ElQRCtrlFillDefault_s.argtypes = \
-lib.ElQRCtrlFillDefault_d.argtypes = \
+lib.ElQRCtrlDefault_s.argtypes = \
+lib.ElQRCtrlDefault_d.argtypes = \
   [c_void_p]
-lib.ElQRCtrlFillDefault_s.restype = \
-lib.ElQRCtrlFillDefault_d.restype = \
+lib.ElQRCtrlDefault_s.restype = \
+lib.ElQRCtrlDefault_d.restype = \
   c_uint
 class QRCtrl_s(ctypes.Structure):
   _fields_ = [("colPiv",bType),("boundRank",bType),("maxRank",iType),
               ("adaptive",bType),("tol",sType),("alwaysRecomputeNorms",bType)]
   def __init__(self):
-    lib.ElQRCtrlFillDefault_s(pointer(self))
+    lib.ElQRCtrlDefault_s(pointer(self))
 class QRCtrl_d(ctypes.Structure):
   _fields_ = [("colPiv",bType),("boundRank",bType),("maxRank",iType),
               ("adaptive",bType),("tol",dType),("alwaysRecomputeNorms",bType)]
   def __init__(self):
-    lib.ElQRCtrlFillDefault_d(pointer(self))
+    lib.ElQRCtrlDefault_d(pointer(self))
 
 (QR_IMPLICIT,QR_EXPLICIT,QR_EXPLICIT_TRIANG,QR_EXPLICIT_UNITARY)=(0,1,2,3)
 

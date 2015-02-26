@@ -27,6 +27,16 @@ extern "C" {
   ElError ElLinearSolveDistSparse_ ## SIG \
   ( ElDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG B ) \
   { EL_TRY( LinearSolve( *CReflect(A), *CReflect(B) ) ) } \
+  /* Expert versions
+     ^^^^^^^^^^^^^^^ */ \
+  ElError ElLinearSolveXSparse_ ## SIG \
+  ( ElSparseMatrix_ ## SIG A, ElMatrix_ ## SIG B, \
+    ElRegQSDSolveCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( LinearSolve( *CReflect(A), *CReflect(B), CReflect(ctrl) ) ) } \
+  ElError ElLinearSolveXDistSparse_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG B, \
+    ElRegQSDSolveCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( LinearSolve( *CReflect(A), *CReflect(B), CReflect(ctrl) ) ) } \
   /* HPD solve
      --------- */ \
   ElError ElHPDSolve_ ## SIG \

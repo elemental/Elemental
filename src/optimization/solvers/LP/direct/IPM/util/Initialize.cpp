@@ -291,7 +291,8 @@ void Initialize
         vector<Int>& map,            vector<Int>& invMap, 
         Separator& rootSep,          SymmNodeInfo& info,
   bool primalInitialized, bool dualInitialized,
-  bool standardShift,     bool progress )
+  bool standardShift,  
+  const RegQSDSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::direct::Initialize"))
     const Int n = A.Width();
@@ -299,7 +300,7 @@ void Initialize
     Q.Resize( n, n );
     qp::direct::Initialize
     ( Q, A, b, c, x, y, z, map, invMap, rootSep, info,
-      primalInitialized, dualInitialized, standardShift, progress );
+      primalInitialized, dualInitialized, standardShift, solveCtrl );
 }
 
 template<typename Real>
@@ -311,7 +312,8 @@ void Initialize
         DistMap& map,                     DistMap& invMap, 
         DistSeparator& rootSep,           DistSymmNodeInfo& info,
   bool primalInitialized, bool dualInitialized,
-  bool standardShift,     bool progress )
+  bool standardShift, 
+  const RegQSDSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::direct::Initialize"))
     const Int n = A.Width();
@@ -320,7 +322,7 @@ void Initialize
     Q.Resize( n, n );
     qp::direct::Initialize
     ( Q, A, b, c, x, y, z, map, invMap, rootSep, info, 
-      primalInitialized, dualInitialized, standardShift, progress );
+      primalInitialized, dualInitialized, standardShift, solveCtrl );
 }
 
 #define PROTO(Real) \
@@ -346,7 +348,8 @@ void Initialize
           vector<Int>& map,            vector<Int>& invMap, \
           Separator& rootSep,          SymmNodeInfo& info, \
     bool primalInitialized, bool dualInitialized, \
-    bool standardShift,     bool progress ); \
+    bool standardShift, \
+    const RegQSDSolveCtrl<Real>& solveCtrl ); \
   template void Initialize \
   ( const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b,      const DistMultiVec<Real>& c, \
@@ -355,7 +358,8 @@ void Initialize
           DistMap& map,                     DistMap& invMap, \
           DistSeparator& rootSep,           DistSymmNodeInfo& info, \
     bool primalInitialized, bool dualInitialized, \
-    bool standardShift,     bool progress );
+    bool standardShift, \
+    const RegQSDSolveCtrl<Real>& solveCtrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

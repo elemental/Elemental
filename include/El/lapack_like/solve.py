@@ -7,6 +7,7 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from ..core import *
+from factor import *
 import ctypes
 
 # Linear solvers
@@ -32,6 +33,18 @@ lib.ElLinearSolveDistSparse_c.argtypes = \
 lib.ElLinearSolveDistSparse_z.argtypes = \
   [c_void_p,c_void_p]
 
+lib.ElLinearSolveXSparse_s.argtypes = \
+lib.ElLinearSolveXSparse_c.argtypes = \
+lib.ElLinearSolveXDistSparse_s.argtypes = \
+lib.ElLinearSolveXDistSparse_c.argtypes = \
+  [c_void_p,c_void_p,RegQSDSolveCtrl_s]
+
+lib.ElLinearSolveXSparse_d.argtypes = \
+lib.ElLinearSolveXSparse_z.argtypes = \
+lib.ElLinearSolveXDistSparse_d.argtypes = \
+lib.ElLinearSolveXDistSparse_z.argtypes = \
+  [c_void_p,c_void_p,RegQSDSolveCtrl_d]
+
 lib.ElLinearSolve_s.restype = \
 lib.ElLinearSolve_d.restype = \
 lib.ElLinearSolve_c.restype = \
@@ -48,10 +61,19 @@ lib.ElLinearSolveDistSparse_s.restype = \
 lib.ElLinearSolveDistSparse_d.restype = \
 lib.ElLinearSolveDistSparse_c.restype = \
 lib.ElLinearSolveDistSparse_z.restype = \
+lib.ElLinearSolveXSparse_s.restype = \
+lib.ElLinearSolveXSparse_d.restype = \
+lib.ElLinearSolveXSparse_c.restype = \
+lib.ElLinearSolveXSparse_z.restype = \
+lib.ElLinearSolveXDistSparse_s.restype = \
+lib.ElLinearSolveXDistSparse_d.restype = \
+lib.ElLinearSolveXDistSparse_c.restype = \
+lib.ElLinearSolveXDistSparse_z.restype = \
   c_uint
 
-def LinearSolve(A,B):
+def LinearSolve(A,B,ctrl=None):
   args = [A.obj,B.obj]
+  argsCtrl = [A.obj,B.obj,ctrl]
   if type(A) is Matrix:
     if type(B) is not Matrix:
       raise Exception('Expected B to be a Matrix')
@@ -71,18 +93,34 @@ def LinearSolve(A,B):
   elif type(A) is SparseMatrix:
     if type(B) is not Matrix:
       raise Exception('Expected B to be a Matrix')
-    if   A.tag == sTag: lib.ElLinearSolveSparse_s(*args)
-    elif A.tag == dTag: lib.ElLinearSolveSparse_d(*args)
-    elif A.tag == cTag: lib.ElLinearSolveSparse_c(*args)
-    elif A.tag == zTag: lib.ElLinearSolveSparse_z(*args)
+    if   A.tag == sTag: 
+      if ctrl==None: lib.ElLinearSolveSparse_s(*args)
+      else:          lib.ElLinearSolveXSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl==None: lib.ElLinearSolveSparse_d(*args)
+      else:          lib.ElLinearSolveXSparse_d(*argsCtrl)
+    elif A.tag == cTag: 
+      if ctrl==None: lib.ElLinearSolveSparse_c(*args)
+      else:          lib.ElLinearSolveXSparse_c(*argsCtrl)
+    elif A.tag == zTag: 
+      if ctrl==None: lib.ElLinearSolveSparse_z(*args)
+      else:          lib.ElLinearSolveXSparse_z(*argsCtrl)
     else: DataExcept()
   elif type(A) is DistSparseMatrix:
     if type(B) is not DistMultiVec:
       raise Exception('Expected B to be a DistMultiVec')
-    if   A.tag == sTag: lib.ElLinearSolveDistSparse_s(*args)
-    elif A.tag == dTag: lib.ElLinearSolveDistSparse_d(*args)
-    elif A.tag == cTag: lib.ElLinearSolveDistSparse_c(*args)
-    elif A.tag == zTag: lib.ElLinearSolveDistSparse_z(*args)
+    if   A.tag == sTag: 
+      if ctrl==None: lib.ElLinearSolveDistSparse_s(*args)
+      else:          lib.ElLinearSolveXDistSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl==None: lib.ElLinearSolveDistSparse_d(*args)
+      else:          lib.ElLinearSolveXDistSparse_d(*argsCtrl)
+    elif A.tag == cTag: 
+      if ctrl==None: lib.ElLinearSolveDistSparse_c(*args)
+      else:          lib.ElLinearSolveXDistSparse_c(*argsCtrl)
+    elif A.tag == zTag: 
+      if ctrl==None: lib.ElLinearSolveDistSparse_z(*args)
+      else:          lib.ElLinearSolveXDistSparse_z(*argsCtrl)
     else: DataExcept()
   else: TypeExcept()
 

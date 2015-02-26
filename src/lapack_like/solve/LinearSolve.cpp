@@ -192,21 +192,25 @@ void LinearSolve
 //       one, this should hopefully not cause unnecessary trouble.
 
 template<typename F>
-void LinearSolve( const SparseMatrix<F>& A, Matrix<F>& B )
+void LinearSolve
+( const SparseMatrix<F>& A, Matrix<F>& B, 
+  const RegQSDSolveCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LinearSolve"))
     Matrix<F> X;
-    LeastSquares( NORMAL, A, B, X );
+    LeastSquares( NORMAL, A, B, X, ctrl );
     B = X;
 }
 
 template<typename F>
-void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
+void LinearSolve
+( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, 
+  const RegQSDSolveCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LinearSolve"))
     DistMultiVec<F> X;
     X.SetComm( B.Comm() );
-    LeastSquares( NORMAL, A, B, X );
+    LeastSquares( NORMAL, A, B, X, ctrl );
     B = X;
 }
 
@@ -214,9 +218,12 @@ void LinearSolve( const DistSparseMatrix<F>& A, DistMultiVec<F>& B )
   template void LinearSolve( Matrix<F>& A, Matrix<F>& B ); \
   template void LinearSolve \
   ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B ); \
-  template void LinearSolve( const SparseMatrix<F>& A, Matrix<F>& B ); \
   template void LinearSolve \
-  ( const DistSparseMatrix<F>& A, DistMultiVec<F>& B );
+  ( const SparseMatrix<F>& A, Matrix<F>& B, \
+    const RegQSDSolveCtrl<Base<F>>& ctrl ); \
+  template void LinearSolve \
+  ( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, \
+    const RegQSDSolveCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

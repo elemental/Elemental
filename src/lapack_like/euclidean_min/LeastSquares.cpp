@@ -118,7 +118,7 @@ template<typename F>
 void LeastSquares
 ( Orientation orientation,
   const SparseMatrix<F>& A, const Matrix<F>& B, Matrix<F>& X,
-  const BisectCtrl& ctrl )
+  const RegQSDSolveCtrl<Base<F>>& solveCtrl )
 {
     DEBUG_ONLY(
       CallStackEntry cse("LeastSquares");
@@ -210,8 +210,6 @@ void LeastSquares
 
     // Compute the regularized quasi-semidefinite fact of J
     // ====================================================
-    const Real relTolRefine = Pow(epsilon,Real(0.6));
-    const Int maxRefineIts = 50;
     bool aPriori = true;
     const Real regMagPrimal = 0;
     const Real regMagDual = alpha;
@@ -241,16 +239,13 @@ void LeastSquares
     // Successively solve each of the k linear systems
     // ===============================================
     // TODO: Extend the iterative refinement to handle multiple RHS
-    bool print = false;
     Matrix<F> u;
     Zeros( u, m+n, 1 );
     for( Int j=0; j<k; ++j )
     {
         auto d = D( IR(0,m+n), IR(j,j+1) );
         u = d;
-        reg_qsd_ldl::SolveAfter
-        ( J, reg, invMap, info, JFront, u,
-          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, print );
+        reg_qsd_ldl::SolveAfter( J, reg, invMap, info, JFront, u, solveCtrl );
         d = u;
     }
 
@@ -277,7 +272,7 @@ template<typename F>
 void LeastSquares
 ( Orientation orientation,
   const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, DistMultiVec<F>& X,
-  const BisectCtrl& ctrl )
+  const RegQSDSolveCtrl<Base<F>>& solveCtrl )
 {
     DEBUG_ONLY(
       CallStackEntry cse("LeastSquares");
@@ -535,8 +530,6 @@ void LeastSquares
 
     // Compute the dynamically-regularized quasi-semidefinite fact of J
     // ================================================================
-    const Real relTolRefine = Pow(epsilon,Real(0.6));
-    const Int maxRefineIts = 50;
     bool aPriori = true;
     const Real regMagPrimal = 0;
     const Real regMagDual = alpha;
@@ -570,7 +563,6 @@ void LeastSquares
     // Successively solve each of the k linear systems
     // ===============================================
     // TODO: Extend the iterative refinement to handle multiple right-hand sides
-    bool print = true;
     DistMultiVec<F> u(comm);
     Zeros( u, m+n, 1 );
     auto& DLoc = D.Matrix();
@@ -580,9 +572,7 @@ void LeastSquares
     {
         auto dLoc = DLoc( IR(0,DLocHeight), IR(j,j+1) );
         Copy( dLoc, uLoc );
-        reg_qsd_ldl::SolveAfter
-        ( J, reg, invMap, info, JFront, u,
-          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, print );
+        reg_qsd_ldl::SolveAfter( J, reg, invMap, info, JFront, u, solveCtrl );
         Copy( uLoc, dLoc );
     }
 
@@ -687,11 +677,11 @@ void LeastSquares
   template void LeastSquares \
   ( Orientation orientation, \
     const SparseMatrix<F>& A, const Matrix<F>& B, \
-    Matrix<F>& X, const BisectCtrl& ctrl ); \
+    Matrix<F>& X, const RegQSDSolveCtrl<Base<F>>& ctrl ); \
   template void LeastSquares \
   ( Orientation orientation, \
     const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, \
-    DistMultiVec<F>& X, const BisectCtrl& ctrl );
+    DistMultiVec<F>& X, const RegQSDSolveCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

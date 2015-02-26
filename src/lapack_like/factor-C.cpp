@@ -12,7 +12,31 @@ using namespace El;
 
 extern "C" {
 
-ElError ElQRCtrlFillDefault_s( ElQRCtrl_s* ctrl )
+ElError ElRegQSDSolveCtrlDefault_s( ElRegQSDSolveCtrl_s* ctrl )
+{
+    const float eps = lapack::MachineEpsilon<float>();
+    ctrl->alg = EL_REG_REFINE_FGMRES;
+    ctrl->relTol = Pow(eps,float(0.5));
+    ctrl->relTolRefine = Pow(eps,float(0.5));
+    ctrl->maxRefineIts = 50;
+    ctrl->restart = 10;
+    ctrl->progress = false;
+    return EL_SUCCESS;
+}
+
+ElError ElRegQSDSolveCtrlDefault_d( ElRegQSDSolveCtrl_d* ctrl )
+{
+    const double eps = lapack::MachineEpsilon<double>();
+    ctrl->alg = EL_REG_REFINE_FGMRES;
+    ctrl->relTol = Pow(eps,0.5);
+    ctrl->relTolRefine = Pow(eps,0.5);
+    ctrl->maxRefineIts = 50;
+    ctrl->restart = 10;
+    ctrl->progress = false;
+    return EL_SUCCESS;
+}
+
+ElError ElQRCtrlDefault_s( ElQRCtrl_s* ctrl )
 {
     ctrl->colPiv = false;
     ctrl->boundRank = false;
@@ -23,7 +47,7 @@ ElError ElQRCtrlFillDefault_s( ElQRCtrl_s* ctrl )
     return EL_SUCCESS;
 }
 
-ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
+ElError ElQRCtrlDefault_d( ElQRCtrl_d* ctrl )
 {
     ctrl->colPiv = false;
     ctrl->boundRank = false;

@@ -291,7 +291,8 @@ void Initialize
         vector<Int>& map,             vector<Int>& invMap, 
         Separator& rootSep,           SymmNodeInfo& info,
   bool primalInitialized, bool dualInitialized,
-  bool standardShift,     bool progress )
+  bool standardShift, 
+  const RegQSDSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::direct::Initialize"))
     const Int m = A.Height();
@@ -353,9 +354,6 @@ void Initialize
 
     Matrix<Real> rc, rb, rmu, d, u, v;
     Zeros( rmu, n, 1 );
-    // TODO: Expose these as control parameters
-    const Real relTolRefine = Pow(epsilon,Real(0.5));
-    const Int maxRefineIts = 50;
     if( !primalInitialized )
     {
         // Minimize || x ||^2, s.t. A x = b  by solving
@@ -370,9 +368,7 @@ void Initialize
         Zeros( rmu, n, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
-        reg_qsd_ldl::SolveAfter
-        ( J, reg, invMap, info, JFront, d,
-          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, progress );
+        reg_qsd_ldl::SolveAfter( J, reg, invMap, info, JFront, d, solveCtrl );
         ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
     }
     if( !dualInitialized ) 
@@ -385,9 +381,7 @@ void Initialize
         Zeros( rb, m, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
-        reg_qsd_ldl::SolveAfter
-        ( J, reg, invMap, info, JFront, d,
-          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, progress );
+        reg_qsd_ldl::SolveAfter( J, reg, invMap, info, JFront, d, solveCtrl );
         ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );
         Scale( Real(-1), z );
     }
@@ -433,7 +427,8 @@ void Initialize
         DistMap& map,                     DistMap& invMap, 
         DistSeparator& rootSep,           DistSymmNodeInfo& info,
   bool primalInitialized, bool dualInitialized,
-  bool standardShift,     bool progress )
+  bool standardShift, 
+  const RegQSDSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::direct::Initialize"))
     const Int m = A.Height();
@@ -497,9 +492,6 @@ void Initialize
 
     DistMultiVec<Real> rc(comm), rb(comm), rmu(comm), d(comm), u(comm), v(comm);
     Zeros( rmu, n, 1 );
-    // TODO: Expose these as control parameters
-    const Real relTolRefine = Pow(epsilon,Real(0.5));
-    const Int maxRefineIts = 50;
     if( !primalInitialized )
     {
         // Minimize || x ||^2, s.t. A x = b  by solving
@@ -514,9 +506,7 @@ void Initialize
         Zeros( rmu, n, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
-        reg_qsd_ldl::SolveAfter
-        ( J, reg, invMap, info, JFront, d,
-          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, progress );
+        reg_qsd_ldl::SolveAfter( J, reg, invMap, info, JFront, d, solveCtrl );
         ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
     }
     if( !dualInitialized ) 
@@ -529,9 +519,7 @@ void Initialize
         Zeros( rb, m, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
-        reg_qsd_ldl::SolveAfter
-        ( J, reg, invMap, info, JFront, d,
-          REG_REFINE_FGMRES, relTolRefine, maxRefineIts, progress );
+        reg_qsd_ldl::SolveAfter( J, reg, invMap, info, JFront, d, solveCtrl );
         ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );
         Scale( Real(-1), z );
     }
@@ -591,7 +579,8 @@ void Initialize
           vector<Int>& map,            vector<Int>& invMap, \
           Separator& rootSep,          SymmNodeInfo& info, \
     bool primalInitialized,      bool dualInitialized, \
-    bool standardShift,          bool progress ); \
+    bool standardShift, \
+    const RegQSDSolveCtrl<Real>& solveCtrl ); \
   template void Initialize \
   ( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, \
@@ -600,7 +589,8 @@ void Initialize
           DistMap& map,                     DistMap& invMap, \
           DistSeparator& rootSep,           DistSymmNodeInfo& info, \
     bool primalInitialized,          bool dualInitialized, \
-    bool standardShift,              bool progress );
+    bool standardShift, \
+    const RegQSDSolveCtrl<Real>& solveCtrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

@@ -7,6 +7,7 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from ..core import *
+from factor import *
 import ctypes
 
 # Euclidean minimization
@@ -80,6 +81,18 @@ lib.ElLeastSquaresDistSparse_c.argtypes = \
 lib.ElLeastSquaresDistSparse_z.argtypes = \
   [c_uint,c_void_p,c_void_p,c_void_p]
 
+lib.ElLeastSquaresXSparse_s.argtypes = \
+lib.ElLeastSquaresXSparse_c.argtypes = \
+lib.ElLeastSquaresXDistSparse_s.argtypes = \
+lib.ElLeastSquaresXDistSparse_c.argtypes = \
+  [c_uint,c_void_p,c_void_p,c_void_p,RegQSDSolveCtrl_s]
+
+lib.ElLeastSquaresXSparse_d.argtypes = \
+lib.ElLeastSquaresXSparse_z.argtypes = \
+lib.ElLeastSquaresXDistSparse_d.argtypes = \
+lib.ElLeastSquaresXDistSparse_z.argtypes = \
+  [c_uint,c_void_p,c_void_p,c_void_p,RegQSDSolveCtrl_d]
+
 lib.ElLeastSquares_s.restype = \
 lib.ElLeastSquares_d.restype = \
 lib.ElLeastSquares_c.restype = \
@@ -96,9 +109,17 @@ lib.ElLeastSquaresDistSparse_s.restype = \
 lib.ElLeastSquaresDistSparse_d.restype = \
 lib.ElLeastSquaresDistSparse_c.restype = \
 lib.ElLeastSquaresDistSparse_z.restype = \
+lib.ElLeastSquaresXSparse_s.restype = \
+lib.ElLeastSquaresXSparse_d.restype = \
+lib.ElLeastSquaresXSparse_c.restype = \
+lib.ElLeastSquaresXSparse_z.restype = \
+lib.ElLeastSquaresXDistSparse_s.restype = \
+lib.ElLeastSquaresXDistSparse_d.restype = \
+lib.ElLeastSquaresXDistSparse_c.restype = \
+lib.ElLeastSquaresXDistSparse_z.restype = \
   c_uint
 
-def LeastSquares(A,B,orient=NORMAL):
+def LeastSquares(A,B,orient=NORMAL,ctrl=None):
   if A.tag != B.tag:
     raise Exception('Datatypes of A and B must match')
   if type(A) is Matrix:
@@ -128,10 +149,19 @@ def LeastSquares(A,B,orient=NORMAL):
       raise Exception('RHS was expected to be a Matrix')
     X = Matrix(A.tag)
     args = [orient,A.obj,B.obj,X.obj]
-    if   A.tag == sTag: lib.ElLeastSquaresSparse_s(*args)
-    elif A.tag == dTag: lib.ElLeastSquaresSparse_d(*args)
-    elif A.tag == cTag: lib.ElLeastSquaresSparse_c(*args)
-    elif A.tag == zTag: lib.ElLeastSquaresSparse_z(*args)
+    argsCtrl = [orient,A.obj,B.obj,X.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl==None: lib.ElLeastSquaresSparse_s(*args)
+      else:          lib.ElLeastSquaresXSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl==None: lib.ElLeastSquaresSparse_d(*args)
+      else:          lib.ElLeastSquaresXSparse_d(*argsCtrl)
+    elif A.tag == cTag: 
+      if ctrl==None: lib.ElLeastSquaresSparse_c(*args)
+      else:          lib.ElLeastSquaresXSparse_c(*argsCtrl)
+    elif A.tag == zTag: 
+      if ctrl==None: lib.ElLeastSquaresSparse_z(*args)
+      else:          lib.ElLeastSquaresXSparse_z(*argsCtrl)
     else: DataExcept()
     return X
   elif type(A) is DistSparseMatrix:
@@ -139,10 +169,19 @@ def LeastSquares(A,B,orient=NORMAL):
       raise Exception('RHS was expected to be a DistMultiVec')
     X = DistMultiVec(A.tag,A.Comm())
     args = [orient,A.obj,B.obj,X.obj]
-    if   A.tag == sTag: lib.ElLeastSquaresDistSparse_s(*args)
-    elif A.tag == dTag: lib.ElLeastSquaresDistSparse_d(*args)
-    elif A.tag == cTag: lib.ElLeastSquaresDistSparse_c(*args)
-    elif A.tag == zTag: lib.ElLeastSquaresDistSparse_z(*args)
+    argsCtrl = [orient,A.obj,B.obj,X.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl==None: lib.ElLeastSquaresDistSparse_s(*args)
+      else:          lib.ElLeastSquaresXDistSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl==None: lib.ElLeastSquaresDistSparse_d(*args)
+      else:          lib.ElLeastSquaresXDistSparse_d(*argsCtrl)
+    elif A.tag == cTag: 
+      if ctrl==None: lib.ElLeastSquaresDistSparse_c(*args)
+      else:          lib.ElLeastSquaresXDistSparse_c(*argsCtrl)
+    elif A.tag == zTag: 
+      if ctrl==None: lib.ElLeastSquaresDistSparse_z(*args)
+      else:          lib.ElLeastSquaresXDistSparse_z(*argsCtrl)
     else: DataExcept()
     return X
   else: TypeExcept()

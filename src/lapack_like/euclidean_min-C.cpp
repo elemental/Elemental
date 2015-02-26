@@ -46,6 +46,21 @@ extern "C" {
     ElDistMultiVec_ ## SIG Y ) \
   { EL_TRY( LeastSquares( CReflect(orientation), \
       *CReflect(A), *CReflect(X), *CReflect(Y) ) ) } \
+  /* Expert versions
+     ^^^^^^^^^^^^^^^ */ \
+  ElError ElLeastSquaresXSparse_ ## SIG \
+  ( ElOrientation orientation, ElSparseMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG B, ElMatrix_ ## SIG X, \
+    ElRegQSDSolveCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( LeastSquares( CReflect(orientation), *CReflect(A), \
+                          *CReflect(B), *CReflect(X), CReflect(ctrl) ) ) } \
+  ElError ElLeastSquaresXDistSparse_ ## SIG \
+  ( ElOrientation orientation, \
+    ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG X, \
+    ElDistMultiVec_ ## SIG Y, \
+    ElRegQSDSolveCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( LeastSquares( CReflect(orientation), \
+      *CReflect(A), *CReflect(X), *CReflect(Y), CReflect(ctrl) ) ) } \
   /* Equality-constrained Least Squares
      ---------------------------------- */ \
   ElError ElLSE_ ## SIG \

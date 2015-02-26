@@ -8,15 +8,14 @@
 #
 import El, time
 
-n0 = n1 = 100
+n0 = n1 = 200
 display = False
 worldRank = El.mpi.WorldRank()
 
 # A 2D finite-difference matrix with a dense last column
-#
-# NOTE: Increasing the magnitudes of the off-diagonal entries causes the matrix
-#       to become significantly more ill-conditioned and stresses the 
-#       effective condition number of the SQD solves.
+# 
+# NOTE: Increasing the magnitude of the off-diagonal entries by an order of
+#       magnitude makes the matrix vastly worse-conditioned.
 def FD2D(N0,N1):
   A = El.DistSparseMatrix()
   height = N0*N1
@@ -59,8 +58,12 @@ rank = El.mpi.WorldRank()
 if rank == 0:
   print "|| y ||_2 =", yNrm
 
+ctrl = El.RegQSDSolveCtrl_d()
+ctrl.relTolRefine = 1e-10
+ctrl.progress = True
+
 solveStart = time.clock()
-El.LinearSolve(A,x)
+El.LinearSolve(A,x,ctrl)
 solveStop = time.clock()
 if worldRank == 0:
   print "LinearSolve time:", solveStop-solveStart, "seconds"

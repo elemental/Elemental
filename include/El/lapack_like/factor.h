@@ -359,6 +359,41 @@ EL_EXPORT ElError ElMultiplyAfterLDLPivDist_z
 ( ElConstDistMatrix_z A, ElConstDistMatrix_z dSub, ElConstDistMatrix_i p, 
   ElDistMatrix_z B, bool conjugate );
 
+/* Regularized Quasi-semidefinite LDL^H factorizations
+   =================================================== */
+
+typedef enum
+{
+  EL_REG_REFINE_FGMRES,
+  EL_REG_REFINE_LGMRES,
+  EL_REG_REFINE_IR,
+  EL_REG_REFINE_IR_MOD
+} ElRegQSDRefineAlg;
+
+typedef struct
+{
+  ElRegQSDRefineAlg alg;
+  float relTol;
+  float relTolRefine;
+  ElInt maxRefineIts;
+  ElInt restart;
+  bool progress;
+} ElRegQSDSolveCtrl_s;
+ElError ElRegQSDSolveCtrlDefault_s( ElRegQSDSolveCtrl_s* ctrl );
+
+typedef struct
+{
+  ElRegQSDRefineAlg alg;
+  double relTol;
+  double relTolRefine;
+  ElInt maxRefineIts;
+  ElInt restart;
+  bool progress;
+} ElRegQSDSolveCtrl_d;
+ElError ElRegQSDSolveCtrlDefault_d( ElRegQSDSolveCtrl_d* ctrl );
+
+/* TODO: Wrappers for regularized factorizations and solves */
+
 /* LU factorization
    ================ */
 
@@ -650,7 +685,7 @@ typedef struct
 
     /* TODO: Add Chan ratio */
 } ElQRCtrl_s;
-EL_EXPORT ElError ElQRCtrlFillDefault_s( ElQRCtrl_s* ctrl );
+EL_EXPORT ElError ElQRCtrlDefault_s( ElQRCtrl_s* ctrl );
 
 typedef struct 
 {
@@ -666,7 +701,7 @@ typedef struct
 
     /* TODO: Add Chan ratio */
 } ElQRCtrl_d;
-EL_EXPORT ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl );
+EL_EXPORT ElError ElQRCtrlDefault_d( ElQRCtrl_d* ctrl );
 
 /* Return the packed QR factorization (with no pivoting)
    ----------------------------------------------------- */

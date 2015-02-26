@@ -65,6 +65,7 @@ void Ridge
     }
 }
 
+// TODO: Switch to a similar approach as in LeastSquares
 template<typename F> 
 void Ridge
 ( const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& BPre, 
@@ -125,6 +126,7 @@ void Ridge
     }
 }
 
+// TODO: Switch to a similar approach as in LeastSquares
 template<typename F>
 void Ridge
 ( const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, Base<F> alpha,
