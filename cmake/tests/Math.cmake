@@ -1,3 +1,8 @@
+
+# Default locations (currently, Linux-centric) for searching for math libs
+# ========================================================================
+set(MATH_PATHS "/usr/lib" "/usr/lib/openmpi/lib" "/usr/lib/gcc/x86_64-linux-gnu/4.8" "/lib/x86_64-linux-gnu" "/usr/lib/x86_64-linux-gnu")
+
 # Check for BLAS and LAPACK support
 # =================================
 if(EL_PURE)
@@ -27,11 +32,11 @@ elseif(APPLE)
 else()
   # Look for default BLAS and LAPACK
   if(REFERENCE_ROOT)
-    message(STATUS "Searching REFERENCE_ROOT=${REFERENCE_ROOT} for math libs")
+    message(STATUS "Searching REFERENCE_ROOT=${REFERENCE_ROOT} first for math libs")
   endif()
   set(REFERENCE_REQUIRED LAPACK BLAS)
-  find_library(BLAS_LIB NAMES blas PATHS ${REFERENCE_ROOT})
-  find_library(LAPACK_LIB NAMES lapack reflapack PATHS ${REFERENCE_ROOT})
+  find_library(BLAS_LIB NAMES blas HINTS ${REFERENCE_ROOT} PATHS ${MATH_PATHS})
+  find_library(LAPACK_LIB NAMES lapack reflapack HINTS ${REFERENCE_ROOT} PATHS ${MATH_PATHS})
   set(REFERENCE_FOUND TRUE)
   foreach(NAME ${REFERENCE_REQUIRED})
     if(${NAME}_LIB)
@@ -127,5 +132,28 @@ if(NOT EL_DISABLE_SCALAPACK)
   else()
     set(EL_HAVE_SCALAPACK FALSE)
     message(STATUS "ScaLAPACK was NOT detected.")
+  endif()
+endif()
+
+# Check for quad-precision support
+# ================================
+if(NOT EL_DISABLE_QUAD)
+  find_library(QUADMATH_LIB NAMES quadmath PATHS ${MATH_PATHS})
+  if(QUADMATH_LIB)
+    set(CMAKE_REQUIRED_LIBRARIES ${QUADMATH_LIB})
+    set(QUADMATH_CODE
+      "#include <iostream>
+       #include <quadmath.h>
+       int main( int argc, char* argv[] )
+       {
+           __float128 a = 2.0q;
+           __complex128 z;
+ 
+           char aStr[128];
+           quadmath_snprintf( aStr, sizeof(aStr), \"%Q\", a );
+           std::cout << aStr << std::endl;
+           return 0;    
+       }")
+    check_cxx_source_compiles("${QUADMATH_CODE}" EL_HAVE_QUADMATH)
   endif()
 endif()
