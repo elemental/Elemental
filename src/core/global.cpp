@@ -333,27 +333,8 @@ void Initialize( int& argc, char**& argv )
     // Build the default grid
     defaultGrid = new Grid( mpi::COMM_WORLD );
 
-    // Create the types and ops needed for ValueInt
-    mpi::CreateValueIntType<Int>();
-    mpi::CreateValueIntType<float>();
-    mpi::CreateValueIntType<double>();
-    mpi::CreateMaxLocOp<Int>();
-    mpi::CreateMaxLocOp<float>();
-    mpi::CreateMaxLocOp<double>();
-    mpi::CreateMinLocOp<Int>();
-    mpi::CreateMinLocOp<float>();
-    mpi::CreateMinLocOp<double>();
-
-    // Do the same for ValueIntPair
-    mpi::CreateValueIntPairType<Int>();
-    mpi::CreateValueIntPairType<float>();
-    mpi::CreateValueIntPairType<double>();
-    mpi::CreateMaxLocPairOp<Int>();
-    mpi::CreateMaxLocPairOp<float>();
-    mpi::CreateMaxLocPairOp<double>();
-    mpi::CreateMinLocPairOp<Int>();
-    mpi::CreateMinLocPairOp<float>();
-    mpi::CreateMinLocPairOp<double>();
+    // Create the types and ops
+    mpi::CreateCustom();
 
     const unsigned rank = mpi::Rank( mpi::COMM_WORLD );
     // TODO: Allow for switching on/off reproducibility?
@@ -377,28 +358,9 @@ void Finalize()
     {
         delete ::args;
         ::args = 0;
-
-        // Destroy the types and ops needed for ValueInt
-        mpi::DestroyValueIntType<Int>();
-        mpi::DestroyValueIntType<float>();
-        mpi::DestroyValueIntType<double>();
-        mpi::DestroyMaxLocOp<Int>();
-        mpi::DestroyMaxLocOp<float>();
-        mpi::DestroyMaxLocOp<double>();
-        mpi::DestroyMinLocOp<Int>();
-        mpi::DestroyMinLocOp<float>();
-        mpi::DestroyMinLocOp<double>();
-
-        // Do the same for ValueIntPair
-        mpi::DestroyValueIntPairType<Int>();
-        mpi::DestroyValueIntPairType<float>();
-        mpi::DestroyValueIntPairType<double>();
-        mpi::DestroyMaxLocPairOp<Int>();
-        mpi::DestroyMaxLocPairOp<float>();
-        mpi::DestroyMaxLocPairOp<double>();
-        mpi::DestroyMinLocPairOp<Int>();
-        mpi::DestroyMinLocPairOp<float>();
-        mpi::DestroyMinLocPairOp<double>();
+       
+        // Destroy the types and ops
+        mpi::DestroyCustom();
 
         // Delete the default grid
         delete ::defaultGrid;

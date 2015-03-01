@@ -123,6 +123,7 @@ void Abort( Comm comm, int errCode );
 double Time();
 void Create( UserFunction* func, bool commutes, Op& op );
 void Free( Op& op );
+void Free( Datatype& type );
 
 // Communicator manipulation
 int WorldRank();
@@ -186,122 +187,146 @@ int GetCount( Status& status );
 
 // Send
 // ----
-template<typename R>
-void TaggedSend( const R* buf, int count, int to, int tag, Comm comm );
-template<typename R>
-void TaggedSend( const Complex<R>* buf, int count, int to, int tag, Comm comm );
+template<typename Real>
+void TaggedSend
+( const Real* buf, int count, int to, int tag, Comm comm );
+template<typename Real>
+void TaggedSend
+( const Complex<Real>* buf, int count, int to, int tag, Comm comm );
+
 // If the tag is irrelevant
 template<typename T>
 void Send( const T* buf, int count, int to, Comm comm );
+
 // If the send-count is one
 template<typename T>
 void TaggedSend( T b, int to, int tag, Comm comm );
+
 // If the send-count is one and the tag is irrelevant
 template<typename T>
 void Send( T b, int to, Comm comm );
 
 // Non-blocking send
 // -----------------
-template<typename R>
+template<typename Real>
 void TaggedISend
-( const R* buf, int count, int to, int tag, Comm comm, Request& request );
-template<typename R>
+( const Real* buf, int count, int to, int tag, Comm comm, Request& request );
+template<typename Real>
 void TaggedISend
-( const Complex<R>* buf, int count, int to, int tag, Comm comm, 
+( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
   Request& request );
+
 // If the tag is irrelevant
 template<typename T>
 void ISend( const T* buf, int count, int to, Comm comm, Request& request );
+
 // If the send count is one
 template<typename T>
 void TaggedISend( T b, int to, int tag, Comm comm, Request& request );
+
 // If the send count is one and the tag is irrelevant
 template<typename T>
 void ISend( T b, int to, Comm comm, Request& request );
 
 // Non-blocking synchronous Send
 // -----------------------------
-template<typename R>
+template<typename Real>
 void TaggedISSend
-( const R* buf, int count, int to, int tag, Comm comm, Request& request );
-template<typename R>
+( const Real* buf, int count, int to, int tag, Comm comm, Request& request );
+template<typename Real>
 void TaggedISSend
-( const Complex<R>* buf, int count, int to, int tag, Comm comm, 
+( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
   Request& request );
+
 // If the tag is irrelevant
 template<typename T>
 void ISSend( const T* buf, int count, int to, Comm comm, Request& request );
+
 // If the send count is one
 template<typename T>
 void TaggedISSend( T b, int to, int tag, Comm comm, Request& request );
+
 // If the send count is one and the tag is irrelevant
 template<typename T>
 void ISSend( T b, int to, Comm comm, Request& request );
 
 // Recv
 // ----
-template<typename R>
-void TaggedRecv( R* buf, int count, int from, int tag, Comm comm );
-template<typename R>
-void TaggedRecv( Complex<R>* buf, int count, int from, int tag, Comm comm );
+template<typename Real>
+void TaggedRecv( Real* buf, int count, int from, int tag, Comm comm );
+template<typename Real>
+void TaggedRecv( Complex<Real>* buf, int count, int from, int tag, Comm comm );
+
 // If the tag is irrelevant
 template<typename T>
 void Recv( T* buf, int count, int from, Comm comm );
+
 // If the recv count is one
 template<typename T>
 T TaggedRecv( int from, int tag, Comm comm );
+
 // If the recv count is one and the tag is irrelevant
 template<typename T>
 T Recv( int from, Comm comm );
 
 // Non-blocking recv
 // -----------------
-template<typename R>
+template<typename Real>
 void TaggedIRecv
-( R* buf, int count, int from, int tag, Comm comm, Request& request );
-template<typename R>
+( Real* buf, int count, int from, int tag, Comm comm, 
+  Request& request );
+template<typename Real>
 void TaggedIRecv
-( Complex<R>* buf, int count, int from, int tag, Comm comm, Request& request );
+( Complex<Real>* buf, int count, int from, int tag, Comm comm, 
+  Request& request );
+
 // If the tag is irrelevant
 template<typename T>
 void IRecv( T* buf, int count, int from, Comm comm, Request& request );
+
 // If the recv count is one
 template<typename T>
 T TaggedIRecv( int from, int tag, Comm comm, Request& request );
+
 // If the recv count is one and the tag is irrelevant
 template<typename T>
 T IRecv( int from, Comm comm, Request& request );
 
 // SendRecv
 // --------
-template<typename R>
+template<typename Real>
 void TaggedSendRecv
-( const R* sbuf, int sc, int to,   int stag,
-        R* rbuf, int rc, int from, int rtag, Comm comm );
-template<typename R>
+( const Real* sbuf, int sc, int to,   int stag,
+        Real* rbuf, int rc, int from, int rtag, Comm comm );
+template<typename Real>
 void TaggedSendRecv
-( const Complex<R>* sbuf, int sc, int to,   int stag,
-        Complex<R>* rbuf, int rc, int from, int rtag, Comm comm );
+( const Complex<Real>* sbuf, int sc, int to,   int stag,
+        Complex<Real>* rbuf, int rc, int from, int rtag, Comm comm );
+
 // If the tags are irrelevant
 template<typename T>
 void SendRecv
 ( const T* sbuf, int sc, int to,
         T* rbuf, int rc, int from, Comm comm );
+
 // If the send and recv counts are one
 template<typename T>
 T TaggedSendRecv( T sb, int to, int stag, int from, int rtag, Comm comm );
+
 // If the send and recv counts are one and the tags don't matter
 template<typename T>
 T SendRecv( T sb, int to, int from, Comm comm );
 
 // Single-buffer SendRecv
 // ----------------------
-template<typename R>
+template<typename Real>
 void TaggedSendRecv
-( R* buf, int count, int to, int stag, int from, int rtag, Comm comm );
-template<typename R>
+( Real* buf, int count, int to, int stag, int from, int rtag, Comm comm );
+template<typename Real>
 void TaggedSendRecv
-( Complex<R>* buf, int count, int to, int stag, int from, int rtag, Comm comm );
+( Complex<Real>* buf, int count, int to, int stag, int from, int rtag, 
+  Comm comm );
+
 // If the tags don't matter
 template<typename T>
 void SendRecv( T* buf, int count, int to, int from, Comm comm );
@@ -311,10 +336,11 @@ void SendRecv( T* buf, int count, int to, int from, Comm comm );
 
 // Broadcast
 // ---------
-template<typename R>
-void Broadcast( R* buf, int count, int root, Comm comm );
-template<typename R>
-void Broadcast( Complex<R>* buf, int count, int root, Comm comm );
+template<typename Real>
+void Broadcast( Real* buf, int count, int root, Comm comm );
+template<typename Real>
+void Broadcast( Complex<Real>* buf, int count, int root, Comm comm );
+
 // If the message length is one
 template<typename T>
 void Broadcast( T& b, int root, Comm comm );
@@ -322,12 +348,13 @@ void Broadcast( T& b, int root, Comm comm );
 #ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
 // Non-blocking broadcast
 // ----------------------
-template<typename R>
+template<typename Real>
 void IBroadcast
-( R* buf, int count, int root, Comm comm, Request& request );
-template<typename R>
+( Real* buf, int count, int root, Comm comm, Request& request );
+template<typename Real>
 void IBroadcast
-( Complex<R>* buf, int count, int root, Comm comm, Request& request );
+( Complex<Real>* buf, int count, int root, Comm comm, Request& request );
+
 // If the message length is one
 template<typename T>
 void IBroadcast( T& b, int root, Comm comm, Request& request );
@@ -335,116 +362,119 @@ void IBroadcast( T& b, int root, Comm comm, Request& request );
 
 // Gather
 // ------
-template<typename R>
+template<typename Real>
 void Gather
-( const R* sbuf, int sc,
-        R* rbuf, int rc, int root, Comm comm );
-template<typename R>
+( const Real* sbuf, int sc,
+        Real* rbuf, int rc, int root, Comm comm );
+template<typename Real>
 void  Gather
-( const Complex<R>* sbuf, int sc,
-        Complex<R>* rbuf, int rc, int root, Comm comm );
+( const Complex<Real>* sbuf, int sc,
+        Complex<Real>* rbuf, int rc, int root, Comm comm );
 
 #ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
 // Non-blocking gather
 // -------------------
-template<typename R>
+template<typename Real>
 void IGather
-( const R* sbuf, int sc,
-        R* rbuf, int rc, int root, Comm comm, Request& request );
-template<typename R>
+( const Real* sbuf, int sc,
+        Real* rbuf, int rc, int root, Comm comm, Request& request );
+template<typename Real>
 void IGather
-( const Complex<R>* sbuf, int sc,
-        Complex<R>* rbuf, int rc, int root, Comm comm, Request& request );
+( const Complex<Real>* sbuf, int sc,
+        Complex<Real>* rbuf, int rc, int root, Comm comm, Request& request );
 #endif
 
 // Gather with variable recv sizes
 // -------------------------------
-template<typename R>
+template<typename Real>
 void Gather
-( const R* sbuf, int sc,
-        R* rbuf, const int* rcs, const int* rds, int root, Comm comm );
-template<typename R>
+( const Real* sbuf, int sc,
+        Real* rbuf, const int* rcs, const int* rds, int root, Comm comm );
+template<typename Real>
 void Gather
-( const Complex<R>* sbuf, int sc,
-        Complex<R>* rbuf, const int* rcs, const int* rds, 
+( const Complex<Real>* sbuf, int sc,
+        Complex<Real>* rbuf, const int* rcs, const int* rds, 
   int root, Comm comm );
 
 // AllGather
 // ---------
-template<typename R>
+template<typename Real>
 void AllGather
-( const R* sbuf, int sc,
-        R* rbuf, int rc, Comm comm );
-template<typename R>
+( const Real* sbuf, int sc,
+        Real* rbuf, int rc, Comm comm );
+template<typename Real>
 void AllGather
-( const Complex<R>* sbuf, int sc,
-        Complex<R>* rbuf, int rc, Comm comm );
+( const Complex<Real>* sbuf, int sc,
+        Complex<Real>* rbuf, int rc, Comm comm );
 
 // AllGather with variable recv sizes
 // ----------------------------------
-template<typename R>
+template<typename Real>
 void AllGather
-( const R* sbuf, int sc,
-        R* rbuf, const int* rcs, const int* rds, Comm comm );
-template<typename R>
+( const Real* sbuf, int sc,
+        Real* rbuf, const int* rcs, const int* rds, Comm comm );
+template<typename Real>
 void AllGather
-( const Complex<R>* sbuf, int sc,
-        Complex<R>* rbuf, const int* rcs, const int* rds, Comm comm );
+( const Complex<Real>* sbuf, int sc,
+        Complex<Real>* rbuf, const int* rcs, const int* rds, Comm comm );
 
 // Scatter
 // -------
-template<typename R>
+template<typename Real>
 void Scatter
-( const R* sbuf, int sc,
-        R* rbuf, int rc, int root, Comm comm );
-template<typename R>
+( const Real* sbuf, int sc,
+        Real* rbuf, int rc, int root, Comm comm );
+template<typename Real>
 void Scatter
-( const Complex<R>* sbuf, int sc,
-        Complex<R>* rbuf, int rc, int root, Comm comm );
+( const Complex<Real>* sbuf, int sc,
+        Complex<Real>* rbuf, int rc, int root, Comm comm );
 // In-place option
-template<typename R>
-void Scatter( R* buf, int sc, int rc, int root, Comm comm );
-template<typename R>
-void Scatter( Complex<R>* buf, int sc, int rc, int root, Comm comm );
+template<typename Real>
+void Scatter( Real* buf, int sc, int rc, int root, Comm comm );
+template<typename Real>
+void Scatter( Complex<Real>* buf, int sc, int rc, int root, Comm comm );
 
 // AllToAll
 // --------
-template<typename R>
+template<typename Real>
 void AllToAll
-( const R* sbuf, int sc,
-        R* rbuf, int rc, Comm comm );
-template<typename R>
+( const Real* sbuf, int sc,
+        Real* rbuf, int rc, Comm comm );
+template<typename Real>
 void AllToAll
-( const Complex<R>* sbuf, int sc,
-        Complex<R>* rbuf, int rc, Comm comm );
+( const Complex<Real>* sbuf, int sc,
+        Complex<Real>* rbuf, int rc, Comm comm );
 
 // AllToAll with non-uniform send/recv sizes
 // -----------------------------------------
-template<typename R>
+template<typename Real>
 void AllToAll
-( const R* sbuf, const int* scs, const int* sds,
-        R* rbuf, const int* rcs, const int* rds, Comm comm );
-template<typename R>
+( const Real* sbuf, const int* scs, const int* sds,
+        Real* rbuf, const int* rcs, const int* rds, Comm comm );
+template<typename Real>
 void AllToAll
-( const Complex<R>* sbuf, const int* scs, const int* sds,
-        Complex<R>* rbuf, const int* rcs, const int* rds, Comm comm );
+( const Complex<Real>* sbuf, const int* scs, const int* sds,
+        Complex<Real>* rbuf, const int* rcs, const int* rds, Comm comm );
 
 // Reduce
 // ------
 template<typename T>
 void Reduce
 ( const T* sbuf, T* rbuf, int count, Op op, int root, Comm comm );
-template<typename R>
+template<typename Real>
 void Reduce
-( const Complex<R>* sbuf, Complex<R>* rbuf, int count, Op op, 
+( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op, 
   int root, Comm comm );
-// Default to mpi::SUM
+
+// Default to SUM
 template<typename T>
 void Reduce( const T* sbuf, T* rbuf, int count, int root, Comm comm );
+
 // With a message-size of one
 template<typename T>
 T Reduce( T sb, Op op, int root, Comm comm );
-// With a message-size of one and default to mpi::SUM
+
+// With a message-size of one and default to SUM
 template<typename T>
 T Reduce( T sb, int root, Comm comm );
 
@@ -452,9 +482,10 @@ T Reduce( T sb, int root, Comm comm );
 // --------------------
 template<typename T>
 void Reduce( T* buf, int count, Op op, int root, Comm comm );
-template<typename R>
-void Reduce( Complex<R>* buf, int count, Op op, int root, Comm comm );
-// Default to mpi::SUM
+template<typename Real>
+void Reduce( Complex<Real>* buf, int count, Op op, int root, Comm comm );
+
+// Default to SUM
 template<typename T>
 void Reduce( T* buf, int count, int root, Comm comm );
 
@@ -462,16 +493,19 @@ void Reduce( T* buf, int count, int root, Comm comm );
 // ---------
 template<typename T>
 void AllReduce( const T* sbuf, T* rbuf, int count, Op op, Comm comm );
-template<typename R>
+template<typename Real>
 void AllReduce
-( const Complex<R>* sbuf, Complex<R>* rbuf, int count, Op op, Comm comm );
-// Default to mpi::SUM
+( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op, Comm comm );
+
+// Default to SUM
 template<typename T>
 void AllReduce( const T* sbuf, T* rbuf, int count, Comm comm );
+
 // If the message-length is one
 template<typename T>
 T AllReduce( T sb, Op op, Comm comm );
-// If the message-length is one (and default to mpi::SUM)
+
+// If the message-length is one (and default to SUM)
 template<typename T>
 T AllReduce( T sb, Comm comm );
 
@@ -479,181 +513,50 @@ T AllReduce( T sb, Comm comm );
 // -----------------------
 template<typename T>
 void AllReduce( T* buf, int count, Op op, Comm comm );
-template<typename R>
-void AllReduce( Complex<R>* buf, int count, Op op, Comm comm );
-// Default to mpi::SUM
+template<typename Real>
+void AllReduce( Complex<Real>* buf, int count, Op op, Comm comm );
+
+// Default to SUM
 template<typename T>
 void AllReduce( T* buf, int count, Comm comm );
 
 // ReduceScatter
 // -------------
-template<typename R>
+template<typename Real>
 void ReduceScatter
-( R* sbuf, R* rbuf, int rc, Op op, Comm comm );
-template<typename R>
+( Real* sbuf, Real* rbuf, int rc, Op op, Comm comm );
+template<typename Real>
 void ReduceScatter
-( Complex<R>* sbuf, Complex<R>* rbuf, int rc, Op op, Comm comm );
-// Default to mpi::SUM
+( Complex<Real>* sbuf, Complex<Real>* rbuf, int rc, Op op, Comm comm );
+
+// Default to SUM
 template<typename T>
 void ReduceScatter( T* sbuf, T* rbuf, int rc, Comm comm );
 
 // Single-buffer ReduceScatter
 // ---------------------------
-template<typename R>
-void ReduceScatter( R* buf, int rc, Op op, Comm comm );
-template<typename R>
-void ReduceScatter( Complex<R>* buf, int rc, Op op, Comm comm );
-// Default to mpi::SUM
+template<typename Real>
+void ReduceScatter( Real* buf, int rc, Op op, Comm comm );
+template<typename Real>
+void ReduceScatter( Complex<Real>* buf, int rc, Op op, Comm comm );
+
+// Default to SUM
 template<typename T>
 void ReduceScatter( T* buf, int rc, Comm comm );
 
 // Variable-length ReduceScatter
 // -----------------------------
-template<typename R>
+template<typename Real>
 void ReduceScatter
-( const R* sbuf, R* rbuf, const int* rcs, Op op, Comm comm );
-template<typename R>
+( const Real* sbuf, Real* rbuf, const int* rcs, Op op, Comm comm );
+template<typename Real>
 void ReduceScatter
-( const Complex<R>* sbuf, Complex<R>* rbuf, const int* rcs, Op op, Comm comm );
-// Default to mpi::SUM
+( const Complex<Real>* sbuf, Complex<Real>* rbuf, const int* rcs, Op op, 
+  Comm comm );
+
+// Default to SUM
 template<typename T>
 void ReduceScatter( const T* sbuf, T* rbuf, const int* rcs, Comm comm );
-
-template<typename R>
-void MaxLocFunc
-( void* in, void* out, int* length, mpi::Datatype* datatype );
-template<typename R>
-void MaxLocPairFunc
-( void* in, void* out, int* length, mpi::Datatype* datatype );
-
-template<typename R>
-void MinLocFunc
-( void* in, void* out, int* length, mpi::Datatype* datatype );
-template<typename R>
-void MinLocPairFunc
-( void* in, void* out, int* length, mpi::Datatype* datatype );
-
-template<typename R> mpi::Datatype& ValueIntType();
-template<> mpi::Datatype& ValueIntType<Int>();
-template<> mpi::Datatype& ValueIntType<float>();
-template<> mpi::Datatype& ValueIntType<double>();
-
-template<typename R> mpi::Datatype& ValueIntPairType();
-template<> mpi::Datatype& ValueIntPairType<Int>();
-template<> mpi::Datatype& ValueIntPairType<float>();
-template<> mpi::Datatype& ValueIntPairType<double>();
-
-template<typename R> void CreateValueIntType();
-template<typename R> void CreateValueIntPairType();
-template<typename R> void DestroyValueIntType();
-template<typename R> void DestroyValueIntPairType();
-
-template<typename R> mpi::Op MaxLocOp();
-template<> mpi::Op MaxLocOp<Int>();
-template<> mpi::Op MaxLocOp<float>();
-template<> mpi::Op MaxLocOp<double>();
-
-template<typename R> mpi::Op MaxLocPairOp();
-template<> mpi::Op MaxLocPairOp<Int>();
-template<> mpi::Op MaxLocPairOp<float>();
-template<> mpi::Op MaxLocPairOp<double>();
-
-template<typename R> void CreateMaxLocOp();
-template<> void CreateMaxLocOp<Int>();
-template<> void CreateMaxLocOp<float>();
-template<> void CreateMaxLocOp<double>();
-
-template<typename R> void CreateMaxLocPairOp();
-template<> void CreateMaxLocPairOp<Int>();
-template<> void CreateMaxLocPairOp<float>();
-template<> void CreateMaxLocPairOp<double>();
-
-template<typename R> void DestroyMaxLocOp();
-template<> void DestroyMaxLocOp<Int>();
-template<> void DestroyMaxLocOp<float>();
-template<> void DestroyMaxLocOp<double>();
-
-template<typename R> void DestroyMaxLocPairOp();
-template<> void DestroyMaxLocPairOp<Int>();
-template<> void DestroyMaxLocPairOp<float>();
-template<> void DestroyMaxLocPairOp<double>();
-
-template<typename R> mpi::Op MinLocOp();
-template<> mpi::Op MinLocOp<Int>();
-template<> mpi::Op MinLocOp<float>();
-template<> mpi::Op MinLocOp<double>();
-
-template<typename R> mpi::Op MinLocPairOp();
-template<> mpi::Op MinLocPairOp<Int>();
-template<> mpi::Op MinLocPairOp<float>();
-template<> mpi::Op MinLocPairOp<double>();
-
-template<typename R> void CreateMinLocOp();
-template<> void CreateMinLocOp<Int>();
-template<> void CreateMinLocOp<float>();
-template<> void CreateMinLocOp<double>();
-
-template<typename R> void CreateMinLocPairOp();
-template<> void CreateMinLocPairOp<Int>();
-template<> void CreateMinLocPairOp<float>();
-template<> void CreateMinLocPairOp<double>();
-
-template<typename R> void DestroyMinLocOp();
-template<> void DestroyMinLocOp<Int>();
-template<> void DestroyMinLocOp<float>();
-template<> void DestroyMinLocOp<double>();
-
-template<typename R> void DestroyMinLocPairOp();
-template<> void DestroyMinLocPairOp<Int>();
-template<> void DestroyMinLocPairOp<float>();
-template<> void DestroyMinLocPairOp<double>();
-
-template<typename T> Datatype TypeMap();
-template<> inline Datatype TypeMap<byte>() { return MPI_UNSIGNED_CHAR; }
-template<> inline Datatype TypeMap<int>() { return MPI_INT; }
-template<> inline Datatype TypeMap<unsigned>() { return MPI_UNSIGNED; }
-template<> inline Datatype TypeMap<long int>() { return MPI_LONG_INT; }
-template<> inline Datatype TypeMap<long unsigned>()
-{ return MPI_UNSIGNED_LONG; }
-template<> inline Datatype TypeMap<long long int>()
-{
-#ifdef EL_HAVE_MPI_LONG_LONG
-    return MPI_LONG_LONG_INT;
-#else
-    throw std::runtime_error("MPI_LONG_LONG_INT does not exist");
-    return 0;
-#endif
-}
-template<>
-inline Datatype TypeMap<unsigned long long>()
-{
-#ifdef EL_HAVE_MPI_LONG_LONG
-    return MPI_UNSIGNED_LONG_LONG;
-#else
-    throw std::runtime_error("MPI_UNSIGNED_LONG_LONG does not exist");
-    return 0;
-#endif
-}
-template<> inline Datatype TypeMap<float>() { return MPI_FLOAT; }
-template<> inline Datatype TypeMap<double>() { return MPI_DOUBLE; }
-template<> inline Datatype TypeMap<Complex<float>>()
-{ return MPI_COMPLEX; }
-template<> inline Datatype TypeMap<Complex<double>>()
-{ return MPI_DOUBLE_COMPLEX; }
-
-template<> inline Datatype TypeMap<ValueInt<Int>>()
-{ return ValueIntType<Int>(); }
-template<> inline Datatype TypeMap<ValueInt<float>>()
-{ return ValueIntType<float>(); }
-template<> inline Datatype TypeMap<ValueInt<double>>()
-{ return ValueIntType<double>(); }
-
-template<> inline Datatype TypeMap<ValueIntPair<Int>>()
-{ return ValueIntPairType<Int>(); }
-template<> inline Datatype TypeMap<ValueIntPair<float>>()
-{ return ValueIntPairType<float>(); }
-template<> inline Datatype TypeMap<ValueIntPair<double>>()
-{ return ValueIntPairType<double>(); }
 
 template<typename T>
 void SparseAllToAll
@@ -663,11 +566,87 @@ void SparseAllToAll
         std::vector<T>& recvBuffer,
   const std::vector<int>& recvCounts, 
   const std::vector<int>& recvOffs,
-        mpi::Comm comm );
+        Comm comm );
 
 void VerifySendsAndRecvs
 ( const std::vector<int>& sendCounts,
-  const std::vector<int>& recvCounts, mpi::Comm comm );
+  const std::vector<int>& recvCounts, Comm comm );
+
+void CreateCustom();
+void DestroyCustom();
+
+template<typename T> Datatype TypeMap();
+template<> Datatype TypeMap<byte>();
+template<> Datatype TypeMap<int>();
+template<> Datatype TypeMap<unsigned>();
+template<> Datatype TypeMap<long int>();
+template<> Datatype TypeMap<long unsigned>();
+template<> Datatype TypeMap<long long int>();
+template<> Datatype TypeMap<unsigned long long>();
+template<> Datatype TypeMap<float>();
+template<> Datatype TypeMap<double>();
+template<> Datatype TypeMap<Complex<float>>();
+template<> Datatype TypeMap<Complex<double>>();
+#ifdef EL_HAVE_QUAD
+template<> Datatype TypeMap<Complex<Quad>>();
+#endif
+template<> Datatype TypeMap<ValueInt<Int>>();
+template<> Datatype TypeMap<ValueInt<float>>();
+template<> Datatype TypeMap<ValueInt<double>>();
+#ifdef EL_HAVE_QUAD
+template<> Datatype TypeMap<ValueInt<Quad>>();
+#endif
+template<> Datatype TypeMap<ValueIntPair<Int>>();
+template<> Datatype TypeMap<ValueIntPair<float>>();
+template<> Datatype TypeMap<ValueIntPair<double>>();
+#ifdef EL_HAVE_QUAD
+template<> Datatype TypeMap<ValueIntPair<Quad>>();
+#endif
+
+template<typename Real> inline Op MaxOp() { return MAX; }
+template<typename Real> inline Op MinOp() { return MIN; }
+#ifdef EL_HAVE_QUAD
+template<> Op MaxOp<Quad>();
+template<> Op MinOp<Quad>();
+#endif
+
+template<typename T> inline Op SumOp() { return SUM; }
+#ifdef EL_HAVE_QUAD
+template<> Op SumOp<Quad>();
+template<> Op SumOp<Complex<Quad>>();
+#endif
+
+template<typename Real> Op MaxLocOp();
+template<> Op MaxLocOp<Int>();
+template<> Op MaxLocOp<float>();
+template<> Op MaxLocOp<double>();
+#ifdef EL_HAVE_QUAD
+template<> Op MaxLocOp<Quad>();
+#endif
+
+template<typename Real> Op MaxLocPairOp();
+template<> Op MaxLocPairOp<Int>();
+template<> Op MaxLocPairOp<float>();
+template<> Op MaxLocPairOp<double>();
+#ifdef EL_HAVE_QUAD
+template<> Op MaxLocPairOp<Quad>();
+#endif
+
+template<typename Real> Op MinLocOp();
+template<> Op MinLocOp<Int>();
+template<> Op MinLocOp<float>();
+template<> Op MinLocOp<double>();
+#ifdef EL_HAVE_QUAD
+template<> Op MinLocOp<Quad>();
+#endif
+
+template<typename Real> Op MinLocPairOp();
+template<> Op MinLocPairOp<Int>();
+template<> Op MinLocPairOp<float>();
+template<> Op MinLocPairOp<double>();
+#ifdef EL_HAVE_QUAD
+template<> Op MinLocPairOp<Quad>();
+#endif
 
 } // mpi
 } // elem

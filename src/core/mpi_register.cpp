@@ -9,36 +9,100 @@
 #include "El.hpp"
 
 namespace {
-El::mpi::Datatype typeIntInt;
-El::mpi::Datatype typeFloatInt;
-El::mpi::Datatype typeDoubleInt;
 
-El::mpi::Op maxLocIntOp;
-El::mpi::Op maxLocFloatOp;
-El::mpi::Op maxLocDoubleOp;
+// Datatypes
+// =========
+El::mpi::Datatype QuadType, QuadComplexType;
 
-El::mpi::Op minLocIntOp;
-El::mpi::Op minLocFloatOp;
-El::mpi::Op minLocDoubleOp;
+El::mpi::Datatype IntIntType, floatIntType, doubleIntType;
+#ifdef EL_HAVE_QUAD
+El::mpi::Datatype QuadIntType;
+#endif
 
-El::mpi::Datatype typeIntIntPair;
-El::mpi::Datatype typeFloatIntPair;
-El::mpi::Datatype typeDoubleIntPair;
+El::mpi::Datatype IntIntPairType, floatIntPairType, doubleIntPairType;
+#ifdef EL_HAVE_QUAD
+El::mpi::Datatype QuadIntPairType;
+#endif
 
-El::mpi::Op maxLocPairIntOp;
-El::mpi::Op maxLocPairFloatOp;
-El::mpi::Op maxLocPairDoubleOp;
+// Operations
+// ==========
+#ifdef EL_HAVE_QUAD
+El::mpi::Op minQuadOp;
+El::mpi::Op maxQuadOp;
+El::mpi::Op sumQuadOp, sumQuadComplexOp;
+#endif
 
-El::mpi::Op minLocPairIntOp;
-El::mpi::Op minLocPairFloatOp;
-El::mpi::Op minLocPairDoubleOp;
+El::mpi::Op maxLocIntOp, maxLocFloatOp, maxLocDoubleOp;
+#ifdef EL_HAVE_QUAD
+El::mpi::Op maxLocQuadOp;
+#endif
+
+El::mpi::Op maxLocPairIntOp, maxLocPairFloatOp, maxLocPairDoubleOp;
+#ifdef EL_HAVE_QUAD
+El::mpi::Op maxLocPairQuadOp;
+#endif
+
+El::mpi::Op minLocIntOp, minLocFloatOp, minLocDoubleOp;
+#ifdef EL_HAVE_QUAD
+El::mpi::Op minLocQuadOp;
+#endif
+
+El::mpi::Op minLocPairIntOp, minLocPairFloatOp, minLocPairDoubleOp;
+#ifdef EL_HAVE_QUAD
+El::mpi::Op minLocPairQuadOp;
+#endif
+
 } // anonymouse namespace   
 
 namespace El {
 namespace mpi {
 
+#ifdef EL_HAVE_QUAD
+static void
+MaxQuad( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+{
+    const Quad* inData = static_cast<Quad*>(inVoid);
+    Quad* outData = static_cast<Quad*>(outVoid);
+    for( int j=0; j<*length; ++j )
+    {
+        if( inData[j] > outData[j] )
+            outData[j] = inData[j];
+    }
+}
+
+static void
+MinQuad( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+{
+    const Quad* inData = static_cast<Quad*>(inVoid);
+    Quad* outData = static_cast<Quad*>(outVoid);
+    for( int j=0; j<*length; ++j )
+    {
+        if( inData[j] < outData[j] )
+            outData[j] = inData[j];
+    }
+}
+
+static void
+SumQuad( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+{
+    const Quad* inData = static_cast<Quad*>(inVoid);
+    Quad* outData = static_cast<Quad*>(outVoid);
+    for( int j=0; j<*length; ++j )
+        outData[j] += inData[j];
+}
+
+static void
+SumQuadComplex( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+{
+    const Complex<Quad>* inData = static_cast<Complex<Quad>*>(inVoid);
+    Complex<Quad>* outData = static_cast<Complex<Quad>*>(outVoid);
+    for( int j=0; j<*length; ++j )
+        outData[j] += inData[j];
+}
+#endif 
+
 template<typename T>
-void
+static void
 MaxLocFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
 {           
     const ValueInt<T>* inData = static_cast<ValueInt<T>*>(inVoid);
@@ -53,26 +117,19 @@ MaxLocFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
             outData[j] = inData[j];
     }
 }
+template void
+MaxLocFunc<Int>( void* in, void* out, int* length, Datatype* datatype );
+template void
+MaxLocFunc<float>( void* in, void* out, int* length, Datatype* datatype );
+template void
+MaxLocFunc<double>( void* in, void* out, int* length, Datatype* datatype );
+#ifdef EL_HAVE_QUAD
+template void
+MaxLocFunc<Quad>( void* in, void* out, int* length, Datatype* datatype );
+#endif
 
 template<typename T>
-void
-MinLocFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
-{           
-    const ValueInt<T>* inData = static_cast<ValueInt<T>*>(inVoid);
-    ValueInt<T>* outData = static_cast<ValueInt<T>*>(outVoid);
-    for( int j=0; j<*length; ++j )
-    {
-        const T inVal = inData[j].value;
-        const T outVal = outData[j].value;
-        const Int inInd = inData[j].index;
-        const Int outInd = outData[j].index; 
-        if( inVal < outVal || (inVal == outVal && inInd < outInd) )
-            outData[j] = inData[j];
-    }
-}
-
-template<typename T>
-void
+static void
 MaxLocPairFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
 {           
     const ValueIntPair<T>* inData = static_cast<ValueIntPair<T>*>(inVoid);
@@ -91,9 +148,46 @@ MaxLocPairFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
             outData[j] = inData[j];
     }
 }
+template void
+MaxLocPairFunc<Int>( void* in, void* out, int* length, Datatype* datatype );
+template void
+MaxLocPairFunc<float>( void* in, void* out, int* length, Datatype* datatype );
+template void
+MaxLocPairFunc<double>( void* in, void* out, int* length, Datatype* datatype );
+#ifdef EL_HAVE_QUAD
+template void
+MaxLocPairFunc<Quad>( void* in, void* out, int* length, Datatype* datatype );
+#endif
 
 template<typename T>
-void
+static void
+MinLocFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+{           
+    const ValueInt<T>* inData = static_cast<ValueInt<T>*>(inVoid);
+    ValueInt<T>* outData = static_cast<ValueInt<T>*>(outVoid);
+    for( int j=0; j<*length; ++j )
+    {
+        const T inVal = inData[j].value;
+        const T outVal = outData[j].value;
+        const Int inInd = inData[j].index;
+        const Int outInd = outData[j].index; 
+        if( inVal < outVal || (inVal == outVal && inInd < outInd) )
+            outData[j] = inData[j];
+    }
+}
+template void
+MinLocFunc<Int>( void* in, void* out, int* length, Datatype* datatype );
+template void
+MinLocFunc<float>( void* in, void* out, int* length, Datatype* datatype );
+template void
+MinLocFunc<double>( void* in, void* out, int* length, Datatype* datatype );
+#ifdef EL_HAVE_QUAD
+template void
+MinLocFunc<Quad>( void* in, void* out, int* length, Datatype* datatype );
+#endif
+
+template<typename T>
+static void
 MinLocPairFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
 {           
     const ValueIntPair<T>* inData = static_cast<ValueIntPair<T>*>(inVoid);
@@ -112,22 +206,102 @@ MinLocPairFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
             outData[j] = inData[j];
     }
 }
+template void
+MinLocPairFunc<Int>( void* in, void* out, int* length, Datatype* datatype );
+template void
+MinLocPairFunc<float>( void* in, void* out, int* length, Datatype* datatype );
+template void
+MinLocPairFunc<double>( void* in, void* out, int* length, Datatype* datatype );
+#ifdef EL_HAVE_QUAD
+template void
+MinLocPairFunc<Quad>( void* in, void* out, int* length, Datatype* datatype );
+#endif
 
+template<typename R> static Datatype& ValueIntType();
 template<>
-Datatype& ValueIntType<Int>()        { return ::typeIntInt; }
+Datatype& ValueIntType<Int>()    { return ::IntIntType; }
 template<>
-Datatype& ValueIntType<float>()      { return ::typeFloatInt; }
+Datatype& ValueIntType<float>()  { return ::floatIntType; }
 template<>
-Datatype& ValueIntType<double>()     { return ::typeDoubleInt; }
+Datatype& ValueIntType<double>() { return ::doubleIntType; }
+#ifdef EL_HAVE_QUAD
 template<>
-Datatype& ValueIntPairType<Int>()    { return ::typeIntIntPair; }
+Datatype& ValueIntType<Quad>()   { return ::QuadIntType; }
+#endif
+
+template<typename R> static Datatype& ValueIntPairType();
 template<>
-Datatype& ValueIntPairType<float>()  { return ::typeFloatIntPair; }
+Datatype& ValueIntPairType<Int>()    { return ::IntIntPairType; }
 template<>
-Datatype& ValueIntPairType<double>() { return ::typeDoubleIntPair; }
+Datatype& ValueIntPairType<float>()  { return ::floatIntPairType; }
+template<>
+Datatype& ValueIntPairType<double>() { return ::doubleIntPairType; }
+#ifdef EL_HAVE_QUAD
+template<>
+Datatype& ValueIntPairType<Quad>()   { return ::QuadIntPairType; }
+#endif
+
+template<> Datatype TypeMap<byte>()          { return MPI_UNSIGNED_CHAR; }
+template<> Datatype TypeMap<int>()           { return MPI_INT; }
+template<> Datatype TypeMap<unsigned>()      { return MPI_UNSIGNED; }
+template<> Datatype TypeMap<long int>()      { return MPI_LONG_INT; }
+template<> Datatype TypeMap<long unsigned>() { return MPI_UNSIGNED_LONG; }
+template<> Datatype TypeMap<long long int>()
+{
+#ifdef EL_HAVE_MPI_LONG_LONG
+    return MPI_LONG_LONG_INT;
+#else
+    throw std::runtime_error("MPI_LONG_LONG_INT does not exist");
+    return 0;
+#endif
+}
+template<>
+Datatype TypeMap<unsigned long long>()
+{
+#ifdef EL_HAVE_MPI_LONG_LONG
+    return MPI_UNSIGNED_LONG_LONG;
+#else
+    throw std::runtime_error("MPI_UNSIGNED_LONG_LONG does not exist");
+    return 0;
+#endif
+}
+
+template<> Datatype TypeMap<float>()  { return MPI_FLOAT; }
+template<> Datatype TypeMap<double>() { return MPI_DOUBLE; }
+#ifdef EL_HAVE_QUAD
+template<> Datatype TypeMap<Quad>()   { return ::QuadType; }
+#endif
+
+template<> Datatype TypeMap<Complex<float>>()  { return MPI_COMPLEX; }
+template<> Datatype TypeMap<Complex<double>>() { return MPI_DOUBLE_COMPLEX; }
+#ifdef EL_HAVE_QUAD
+template<> Datatype TypeMap<Complex<Quad>>()   { return ::QuadComplexType; }
+#endif
+
+template<> Datatype TypeMap<ValueInt<Int>>()
+{ return ValueIntType<Int>(); }
+template<> Datatype TypeMap<ValueInt<float>>()
+{ return ValueIntType<float>(); }
+template<> Datatype TypeMap<ValueInt<double>>()
+{ return ValueIntType<double>(); }
+#ifdef EL_HAVE_QUAD
+template<> Datatype TypeMap<ValueInt<Quad>>()
+{ return ValueIntType<Quad>(); }
+#endif
+
+template<> Datatype TypeMap<ValueIntPair<Int>>()
+{ return ValueIntPairType<Int>(); }
+template<> Datatype TypeMap<ValueIntPair<float>>()
+{ return ValueIntPairType<float>(); }
+template<> Datatype TypeMap<ValueIntPair<double>>()
+{ return ValueIntPairType<double>(); }
+#ifdef EL_HAVE_QUAD
+template<> Datatype TypeMap<ValueIntPair<Quad>>()
+{ return ValueIntPairType<Quad>(); }
+#endif
 
 template<typename T>
-void CreateValueIntType()
+static void CreateValueIntType()
 {
     DEBUG_ONLY(CallStackEntry cse("CreateValueIntType"))
     Datatype typeList[2];
@@ -155,20 +329,12 @@ void CreateValueIntType()
 template void CreateValueIntType<Int>();
 template void CreateValueIntType<float>();
 template void CreateValueIntType<double>();
+#ifdef EL_HAVE_QUAD
+template void CreateValueIntType<Quad>();
+#endif
 
 template<typename T>
-void DestroyValueIntType()
-{
-    DEBUG_ONLY(CallStackEntry cse("DestroyValueIntType"))
-    Datatype& type = ValueIntType<T>();
-    MPI_Type_free( &type );
-}
-template void DestroyValueIntType<Int>();
-template void DestroyValueIntType<float>();
-template void DestroyValueIntType<double>();
-
-template<typename T>
-void CreateValueIntPairType()
+static void CreateValueIntPairType()
 {
     DEBUG_ONLY(CallStackEntry cse("CreateValueIntPairType"))
     Datatype typeList[2];
@@ -196,297 +362,174 @@ void CreateValueIntPairType()
 template void CreateValueIntPairType<Int>();
 template void CreateValueIntPairType<float>();
 template void CreateValueIntPairType<double>();
+#ifdef EL_HAVE_QUAD
+template void CreateValueIntPairType<Quad>();
+#endif
 
-template<typename T>
-void DestroyValueIntPairType()
+void CreateCustom()
 {
-    DEBUG_ONLY(CallStackEntry cse("DestroyValueIntPairType"))
-    Datatype& type = ValueIntPairType<T>();
-    MPI_Type_free( &type );
-}
-template void DestroyValueIntPairType<Int>();
-template void DestroyValueIntPairType<float>();
-template void DestroyValueIntPairType<double>();
+    // Create the necessary types
+    // ==========================
+#ifdef EL_HAVE_QUAD
+    // Create an MPI type for Quad
+    // ---------------------------
+    MPI_Type_contiguous( 2, MPI_DOUBLE, &::QuadType );
+    MPI_Type_commit( &::QuadType );
 
-template<>
-void CreateMaxLocOp<Int>()
-{
-    DEBUG_ONLY(CallStackEntry cse("CreateMaxLocOp<Int>"))
-    Create( (UserFunction*)MaxLocFunc<Int>, true, ::maxLocIntOp );
-}
+    // Create an MPI type for Complex<Quad>
+    // ------------------------------------
+    MPI_Type_contiguous( 4, MPI_DOUBLE, &::QuadComplexType );
+    MPI_Type_commit( &::QuadComplexType );
+#endif
+    // A value and an integer
+    // ----------------------
+    mpi::CreateValueIntType<Int>();
+    mpi::CreateValueIntType<float>();
+    mpi::CreateValueIntType<double>();
+#ifdef EL_HAVE_QUAD
+    mpi::CreateValueIntType<Quad>();
+#endif
+    // A triplet of a value and a pair of integers
+    // -------------------------------------------
+    mpi::CreateValueIntPairType<Int>();
+    mpi::CreateValueIntPairType<float>();
+    mpi::CreateValueIntPairType<double>();
+#ifdef EL_HAVE_QUAD
+    mpi::CreateValueIntPairType<Quad>();
+#endif
 
-template<>
-void CreateMaxLocOp<float>()
-{
-    DEBUG_ONLY(CallStackEntry cse("CreateMaxLocOp<float>"))
-    Create( (UserFunction*)MaxLocFunc<float>, true, ::maxLocFloatOp );
-}
-
-template<>
-void CreateMaxLocOp<double>()
-{
-    DEBUG_ONLY(CallStackEntry cse("CreateMaxLocOp<double>"))
+    // Create the necessary MPI operations
+    // ===================================
+    // Functions for scalar types
+    // --------------------------
+#ifdef EL_HAVE_QUAD
+    Create( (UserFunction*)MaxQuad, true, ::maxQuadOp );
+    Create( (UserFunction*)MinQuad, true, ::minQuadOp );
+    Create( (UserFunction*)SumQuad, true, ::sumQuadOp );
+    Create( (UserFunction*)SumQuadComplex, true, ::sumQuadComplexOp );
+#endif
+    // Functions for the value and integer
+    // -----------------------------------
+    Create( (UserFunction*)MaxLocFunc<Int>,    true, ::maxLocIntOp    );
+    Create( (UserFunction*)MinLocFunc<Int>,    true, ::minLocIntOp    );
+    Create( (UserFunction*)MaxLocFunc<float>,  true, ::maxLocFloatOp  );
+    Create( (UserFunction*)MinLocFunc<float>,  true, ::minLocFloatOp  );
     Create( (UserFunction*)MaxLocFunc<double>, true, ::maxLocDoubleOp );
-}
-
-template<>
-void CreateMinLocOp<Int>()
-{
-    DEBUG_ONLY(CallStackEntry cse("CreateMinLocOp<Int>"))
-    Create( (UserFunction*)MinLocFunc<Int>, true, ::minLocIntOp );
-}
-
-template<>
-void CreateMinLocOp<float>()
-{
-    DEBUG_ONLY(CallStackEntry cse("CreateMinLocOp<float>"))
-    Create( (UserFunction*)MinLocFunc<float>, true, ::minLocFloatOp );
-}
-
-template<>
-void CreateMinLocOp<double>()
-{
-    DEBUG_ONLY(CallStackEntry cse("CreateMinLocOp<double>"))
     Create( (UserFunction*)MinLocFunc<double>, true, ::minLocDoubleOp );
-}
-
-template<>
-void CreateMaxLocPairOp<Int>()
-{
-    DEBUG_ONLY(CallStackEntry cse("CreateMaxLocPairOp<Int>"))
-    Create( (UserFunction*)MaxLocPairFunc<Int>, true, ::maxLocPairIntOp );
-}
-
-template<>
-void CreateMaxLocPairOp<float>()
-{
-    DEBUG_ONLY(CallStackEntry cse("CreateMaxLocPairOp<float>"))
-    Create( (UserFunction*)MaxLocPairFunc<float>, true, ::maxLocPairFloatOp );
-}
-
-template<>
-void CreateMaxLocPairOp<double>()
-{
-    DEBUG_ONLY(CallStackEntry cse("CreateMaxLocPairOp<double>"))
+#ifdef EL_HAVE_QUAD
+    Create( (UserFunction*)MaxLocFunc<Quad>,   true, ::maxLocQuadOp   );
+    Create( (UserFunction*)MinLocFunc<Quad>,   true, ::minLocQuadOp   );
+#endif
+    // Functions for the triplet of a value and a pair of integers
+    // -----------------------------------------------------------
+    Create( (UserFunction*)MaxLocPairFunc<Int>,    true, ::maxLocPairIntOp    );
+    Create( (UserFunction*)MinLocPairFunc<Int>,    true, ::minLocPairIntOp    );
+    Create( (UserFunction*)MaxLocPairFunc<float>,  true, ::maxLocPairFloatOp  );
+    Create( (UserFunction*)MinLocPairFunc<float>,  true, ::minLocPairFloatOp  );
     Create( (UserFunction*)MaxLocPairFunc<double>, true, ::maxLocPairDoubleOp );
-}
-
-template<>
-void CreateMinLocPairOp<Int>()
-{
-    DEBUG_ONLY(CallStackEntry cse("CreateMinLocPairOp<Int>"))
-    Create( (UserFunction*)MinLocPairFunc<Int>, true, ::minLocPairIntOp );
-}
-
-template<>
-void CreateMinLocPairOp<float>()
-{
-    DEBUG_ONLY(CallStackEntry cse("CreateMinLocPairOp<float>"))
-    Create( (UserFunction*)MinLocPairFunc<float>, true, ::minLocPairFloatOp );
-}
-
-template<>
-void CreateMinLocPairOp<double>()
-{
-    DEBUG_ONLY(CallStackEntry cse("CreateMinLocPairOp<double>"))
     Create( (UserFunction*)MinLocPairFunc<double>, true, ::minLocPairDoubleOp );
+#ifdef EL_HAVE_QUAD
+    Create( (UserFunction*)MaxLocPairFunc<Quad>,   true, ::maxLocPairQuadOp   );
+    Create( (UserFunction*)MinLocPairFunc<Quad>,   true, ::minLocPairQuadOp   );
+#endif
 }
 
-template<>
-void DestroyMaxLocOp<Int>()
+void DestroyCustom()
 {
-    DEBUG_ONLY(CallStackEntry cse("DestroyMaxLocOp<Int>"))
+    // Destroy the created types
+    // =========================
+#ifdef EL_HAVE_QUAD
+    Free( ::QuadType );
+    Free( ::QuadComplexType );
+#endif
+
+    Free( ValueIntType<Int>() );
+    Free( ValueIntType<float>() );
+    Free( ValueIntType<double>() );
+#ifdef EL_HAVE_QUAD
+    Free( ValueIntType<Quad>() );
+#endif
+
+    Free( ValueIntPairType<Int>() );
+    Free( ValueIntPairType<float>() );
+    Free( ValueIntPairType<double>() );
+#ifdef EL_HAVE_QUAD
+    Free( ValueIntPairType<Quad>() );
+#endif
+
+    // Destroy the created operations
+    // ==============================
+#ifdef EL_HAVE_QUAD
+    Free( ::maxQuadOp );
+    Free( ::minQuadOp );
+    Free( ::sumQuadOp );
+    Free( ::sumQuadComplexOp );
+#endif
+
     Free( ::maxLocIntOp );
-}
-
-template<>
-void DestroyMaxLocOp<float>()
-{
-    DEBUG_ONLY(CallStackEntry cse("DestroyMaxLocOp<float>"))
     Free( ::maxLocFloatOp );
-}
-
-template<>
-void DestroyMaxLocOp<double>()
-{
-    DEBUG_ONLY(CallStackEntry cse("DestroyMaxLocOp<double>"))
     Free( ::maxLocDoubleOp );
-}
+#ifdef EL_HAVE_QUAD
+    Free( ::maxLocQuadOp );
+#endif
 
-template<>
-void DestroyMinLocOp<Int>()
-{
-    DEBUG_ONLY(CallStackEntry cse("DestroyMinLocOp<Int>"))
-    Free( ::minLocIntOp );
-}
-
-template<>
-void DestroyMinLocOp<float>()
-{
-    DEBUG_ONLY(CallStackEntry cse("DestroyMinLocOp<float>"))
-    Free( ::minLocFloatOp );
-}
-
-template<>
-void DestroyMinLocOp<double>()
-{
-    DEBUG_ONLY(CallStackEntry cse("DestroyMinLocOp<double>"))
-    Free( ::minLocDoubleOp );
-}
-
-template<>
-void DestroyMaxLocPairOp<Int>()
-{
-    DEBUG_ONLY(CallStackEntry cse("DestroyMaxLocPairOp<Int>"))
     Free( ::maxLocPairIntOp );
-}
-
-template<>
-void DestroyMaxLocPairOp<float>()
-{
-    DEBUG_ONLY(CallStackEntry cse("DestroyMaxLocPairOp<float>"))
     Free( ::maxLocPairFloatOp );
-}
-
-template<>
-void DestroyMaxLocPairOp<double>()
-{
-    DEBUG_ONLY(CallStackEntry cse("DestroyMaxLocPairOp<double>"))
     Free( ::maxLocPairDoubleOp );
-}
+#ifdef EL_HAVE_QUAD
+    Free( ::maxLocPairQuadOp );
+#endif
 
-template<>
-void DestroyMinLocPairOp<Int>()
-{
-    DEBUG_ONLY(CallStackEntry cse("DestroyMinLocPairOp<Int>"))
+    Free( ::minLocIntOp );
+    Free( ::minLocFloatOp );
+    Free( ::minLocDoubleOp );
+#ifdef EL_HAVE_QUAD
+    Free( ::minLocQuadOp );
+#endif
+
     Free( ::minLocPairIntOp );
-}
-
-template<>
-void DestroyMinLocPairOp<float>()
-{
-    DEBUG_ONLY(CallStackEntry cse("DestroyMinLocPairOp<float>"))
     Free( ::minLocPairFloatOp );
-}
-
-template<>
-void DestroyMinLocPairOp<double>()
-{
-    DEBUG_ONLY(CallStackEntry cse("DestroyMinLocPairOp<double>"))
     Free( ::minLocPairDoubleOp );
+#ifdef EL_HAVE_QUAD
+    Free( ::minLocPairQuadOp );
+#endif
 }
 
-template<>
-Op MaxLocOp<Int>()
-{
-    DEBUG_ONLY(CallStackEntry cse("MaxLocOp<Int>"))
-    return ::maxLocIntOp;
-}
+#ifdef EL_HAVE_QUAD
+template<> Op MaxOp<Quad>() { return ::maxQuadOp; }
+template<> Op MinOp<Quad>() { return ::maxQuadOp; }
 
-template<>
-Op MaxLocOp<float>()
-{
-    DEBUG_ONLY(CallStackEntry cse("MaxLocOp<float>"))
-    return ::maxLocFloatOp;
-}
+template<> Op SumOp<Quad>()          { return ::sumQuadOp; }
+template<> Op SumOp<Complex<Quad>>() { return ::sumQuadComplexOp; }
+#endif
 
-template<>
-Op MaxLocOp<double>()
-{
-    DEBUG_ONLY(CallStackEntry cse("MaxLocOp<double>"))
-    return ::maxLocDoubleOp;
-}
+template<> Op MaxLocOp<Int>()    { return ::maxLocIntOp; }
+template<> Op MaxLocOp<float>()  { return ::maxLocFloatOp; }
+template<> Op MaxLocOp<double>() { return ::maxLocDoubleOp; }
+#ifdef EL_HAVE_QUAD
+template<> Op MaxLocOp<Quad>()   { return ::maxLocQuadOp; }
+#endif
 
-template<>
-Op MinLocOp<Int>()
-{
-    DEBUG_ONLY(CallStackEntry cse("MinLocOp<Int>"))
-    return ::minLocIntOp;
-}
+template<> Op MaxLocPairOp<Int>()    { return ::maxLocPairIntOp; }
+template<> Op MaxLocPairOp<float>()  { return ::maxLocPairFloatOp; }
+template<> Op MaxLocPairOp<double>() { return ::maxLocPairDoubleOp; }
+#ifdef EL_HAVE_QUAD
+template<> Op MaxLocPairOp<Quad>()   { return ::maxLocPairQuadOp; }
+#endif
 
-template<>
-Op MinLocOp<float>()
-{
-    DEBUG_ONLY(CallStackEntry cse("MinLocOp<float>"))
-    return ::minLocFloatOp;
-}
+template<> Op MinLocOp<Int>()    { return ::minLocIntOp; }
+template<> Op MinLocOp<float>()  { return ::minLocFloatOp; }
+template<> Op MinLocOp<double>() { return ::minLocDoubleOp; }
+#ifdef EL_HAVE_QUAD
+template<> Op MinLocOp<Quad>()   { return ::minLocQuadOp; }
+#endif
 
-template<>
-Op MinLocOp<double>()
-{
-    DEBUG_ONLY(CallStackEntry cse("MinLocOp<double>"))
-    return ::minLocDoubleOp;
-}
-
-template<>
-Op MaxLocPairOp<Int>()
-{
-    DEBUG_ONLY(CallStackEntry cse("MaxLocPairOp<Int>"))
-    return ::maxLocPairIntOp;
-}
-
-template<>
-Op MaxLocPairOp<float>()
-{
-    DEBUG_ONLY(CallStackEntry cse("MaxLocPairOp<float>"))
-    return ::maxLocPairFloatOp;
-}
-
-template<>
-Op MaxLocPairOp<double>()
-{
-    DEBUG_ONLY(CallStackEntry cse("MaxLocPairOp<double>"))
-    return ::maxLocPairDoubleOp;
-}
-
-template<>
-Op MinLocPairOp<Int>()
-{
-    DEBUG_ONLY(CallStackEntry cse("MinLocPairOp<Int>"))
-    return ::minLocPairIntOp;
-}
-
-template<>
-Op MinLocPairOp<float>()
-{
-    DEBUG_ONLY(CallStackEntry cse("MinLocPairOp<float>"))
-    return ::minLocPairFloatOp;
-}
-
-template<>
-Op MinLocPairOp<double>()
-{
-    DEBUG_ONLY(CallStackEntry cse("MinLocPairOp<double>"))
-    return ::minLocPairDoubleOp;
-}
-
-template void
-MaxLocFunc<Int>( void* in, void* out, int* length, Datatype* datatype );
-template void
-MaxLocFunc<float>( void* in, void* out, int* length, Datatype* datatype );
-template void
-MaxLocFunc<double>( void* in, void* out, int* length, Datatype* datatype );
-
-template void
-MinLocFunc<Int>( void* in, void* out, int* length, Datatype* datatype );
-template void
-MinLocFunc<float>( void* in, void* out, int* length, Datatype* datatype );
-template void
-MinLocFunc<double>( void* in, void* out, int* length, Datatype* datatype );
-
-template void
-MaxLocPairFunc<Int>( void* in, void* out, int* length, Datatype* datatype );
-template void
-MaxLocPairFunc<float>( void* in, void* out, int* length, Datatype* datatype );
-template void
-MaxLocPairFunc<double>( void* in, void* out, int* length, Datatype* datatype );
-
-template void
-MinLocPairFunc<Int>( void* in, void* out, int* length, Datatype* datatype );
-template void
-MinLocPairFunc<float>( void* in, void* out, int* length, Datatype* datatype );
-template void
-MinLocPairFunc<double>( void* in, void* out, int* length, Datatype* datatype );
+template<> Op MinLocPairOp<Int>()    { return ::minLocPairIntOp; }
+template<> Op MinLocPairOp<float>()  { return ::minLocPairFloatOp; }
+template<> Op MinLocPairOp<double>() { return ::minLocPairDoubleOp; }
+#ifdef EL_HAVE_QUAD
+template<> Op MinLocPairOp<Quad>()   { return ::minLocPairQuadOp; }
+#endif
 
 } // namespace mpi
 } // namespace El
