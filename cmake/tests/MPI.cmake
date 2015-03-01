@@ -40,6 +40,30 @@ if(EL_USE_64BIT_INTS AND NOT EL_HAVE_MPI_LONG_LONG)
     "Did not detect MPI_LONG_LONG_INT and MPI_UNSIGNED_LONG_LONG")
 endif()
 
+# Check if MPI_LONG_DOUBLE[_COMPLEX] is supported
+# ===============================================
+set(MPI_LONG_DOUBLE_CODE
+    "#include \"mpi.h\"
+     int main( int argc, char* argv[] )
+     {
+         MPI_Init( &argc, &argv );
+         MPI_Datatype longDbl = MPI_LONG_DOUBLE;
+         MPI_Finalize();
+         return 0;
+     }")
+set(MPI_LONG_DOUBLE_COMPLEX_CODE
+    "#include \"mpi.h\"
+     int main( int argc, char* argv[] )
+     {
+         MPI_Init( &argc, &argv );
+         MPI_Datatype longDblCpx = MPI_LONG_DOUBLE_COMPLEX;
+         MPI_Finalize();
+         return 0;
+     }")
+check_cxx_source_compiles("${MPI_LONG_DOUBLE_CODE}" EL_HAVE_MPI_LONG_DOUBLE)
+check_cxx_source_compiles("${MPI_LONG_DOUBLE_COMPLEX_CODE}" 
+  EL_HAVE_MPI_LONG_DOUBLE_COMPLEX)
+
 # Detect support for various optional MPI routines
 # ================================================
 check_function_exists(MPI_Reduce_scatter_block EL_HAVE_MPI_REDUCE_SCATTER_BLOCK)

@@ -40,6 +40,9 @@
 #cmakedefine EL_HAVE_SCALAPACK
 #cmakedefine EL_SCALAPACK_POST
 #cmakedefine EL_HAVE_FLA_BSVD
+#cmakedefine EL_HAVE_QUAD
+#cmakedefine EL_HAVE_INTEL_QUAD
+#cmakedefine EL_HAVE_QUADMATH
 #define EL_FORT_LOGICAL @EL_FORT_LOGICAL@
 #define EL_FORT_TRUE    @EL_FORT_TRUE@
 #define EL_FORT_FALSE   @EL_FORT_FALSE@
@@ -57,6 +60,8 @@
 #cmakedefine EL_HAVE_MPI_REDUCE_SCATTER_BLOCK
 #cmakedefine EL_HAVE_MPI_IN_PLACE
 #cmakedefine EL_HAVE_MPI_LONG_LONG
+#cmakedefine EL_HAVE_MPI_LONG_DOUBLE
+#cmakedefine EL_HAVE_MPI_LONG_DOUBLE_COMPLEX
 #cmakedefine EL_HAVE_MPI_COMM_SET_ERRHANDLER
 #cmakedefine EL_HAVE_MPI_INIT_THREAD
 #cmakedefine EL_HAVE_MPI_QUERY_THREAD

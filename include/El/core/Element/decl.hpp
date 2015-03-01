@@ -10,7 +10,17 @@
 #ifndef EL_ELEMENT_DECL_HPP
 #define EL_ELEMENT_DECL_HPP
 
+#ifdef EL_HAVE_QUADMATH
+#include <quadmath.h>
+#endif
+
 namespace El {
+
+#ifdef EL_HAVE_INTEL_QUAD
+typedef _Quad Quad;
+#elif defined(EL_HAVE_QUADMATH)
+typedef __float128 Quad;
+#endif
 
 template<typename Real>
 using Complex = std::complex<Real>;
@@ -31,8 +41,11 @@ template<typename F> using Base = typename BaseHelper<F>::type;
 template<typename Real> struct IsComplex                { enum { val=0 }; };
 template<typename Real> struct IsComplex<Complex<Real>> { enum { val=1 }; };
 
-// Complex pretty-printing
-// -----------------------
+// Pretty-printing
+// ---------------
+#ifdef EL_HAVE_QUAD
+std::ostream& operator<<( std::ostream& os, Quad alpha );
+#endif
 template<typename Real>
 std::ostream& operator<<( std::ostream& os, Complex<Real> alpha );
 
@@ -73,11 +86,17 @@ template<typename Real> Complex<Real> Conj( const Complex<Real>& alpha );
 // Complex argument
 // ----------------
 template<typename F> Base<F> Arg( const F& alpha );
+#ifdef EL_HAVE_QUADMATH
+template<> Quad Arg( const Complex<Quad>& alpha );
+#endif
 
 // Construct a complex number from its polar coordinates
 // -----------------------------------------------------
 template<typename Real>
 Complex<Real> ComplexFromPolar( const Real& r, const Real& theta=0 );
+#ifdef EL_HAVE_QUADMATH
+template<> Complex<Quad> ComplexFromPolar( const Quad& r, const Quad& theta );
+#endif
 
 // Magnitude and sign
 // ==================
@@ -86,16 +105,28 @@ Complex<Real> ComplexFromPolar( const Real& r, const Real& theta=0 );
 // --------------------------------------------------------
 // Note: Unnecessary overflow may occur for complex values, please see SafeAbs
 template<typename T> Base<T> Abs( const T& alpha );
+#ifdef EL_HAVE_QUADMATH
+template<> Quad Abs( const Quad& alpha );
+template<> Quad Abs( const Complex<Quad>& alpha );
+#endif
 
 // Carefully avoid unnecessary overflow in an absolute value computation
 // ---------------------------------------------------------------------
 // Note: The real implementation is equivalent to Abs
 template<typename Real> Real SafeAbs( const Real& alpha );
 template<typename Real> Real SafeAbs( const Complex<Real>& alpha );
+#ifdef EL_HAVE_QUADMATH
+template<> Quad SafeAbs( const Quad& alpha );
+template<> Quad SafeAbs( const Complex<Quad>& alpha );
+#endif
 
 // Return the sum of the absolute values of the real and imaginary components
 // --------------------------------------------------------------------------
 template<typename F> Base<F> FastAbs( const F& alpha );
+#ifdef EL_HAVE_QUADMATH
+template<> Quad FastAbs( const Quad& alpha );
+template<> Quad FastAbs( const Complex<Quad>& alpha );
+#endif
 
 // Return the sign of a real element
 // ---------------------------------
@@ -104,31 +135,107 @@ template<typename Real> Real Sgn( const Real& alpha, bool symmetric=true );
 // Exponentiation
 // ==============
 template<typename F> F Exp( const F& alpha );
+#ifdef EL_HAVE_QUADMATH
+template<> Quad Exp( const Quad& alpha );
+template<> Complex<Quad> Exp( const Complex<Quad>& alpha );
+#endif
+
 template<typename F,typename T> F Pow( const F& alpha, const T& beta );
+#ifdef EL_HAVE_QUADMATH
+template<> Quad Pow( const Quad& alpha, const Quad& beta );
+template<> Complex<Quad> Pow
+( const Complex<Quad>& alpha, const Complex<Quad>& beta );
+#endif
 
 template<typename F> F Log( const F& alpha );
+#ifdef EL_HAVE_QUADMATH
+template<> Quad Log( const Quad& alpha );
+template<> Complex<Quad> Log( const Complex<Quad>& alpha );
+#endif
+
 template<typename F> F Sqrt( const F& alpha );
+#ifdef EL_HAVE_QUADMATH
+template<> Quad Sqrt( const Quad& alpha );
+template<> Complex<Quad> Sqrt( const Complex<Quad>& alpha );
+#endif
 
 // Trigonometric functions
 // =======================
 template<typename F> F Cos( const F& alpha );
+#ifdef EL_HAVE_QUADMATH
+template<> Quad Cos( const Quad& alpha );
+template<> Complex<Quad> Cos( const Complex<Quad>& alpha );
+#endif
+
 template<typename F> F Sin( const F& alpha );
+#ifdef EL_HAVE_QUADMATH
+template<> Quad Sin( const Quad& alpha );
+template<> Complex<Quad> Sin( const Complex<Quad>& alpha );
+#endif
+
 template<typename F> F Tan( const F& alpha );
+#ifdef EL_HAVE_QUADMATH
+template<> Quad Tan( const Quad& alpha );
+template<> Complex<Quad> Tan( const Complex<Quad>& alpha );
+#endif
 
 template<typename F> F Acos( const F& alpha );
+#ifdef EL_HAVE_QUADMATH
+template<> Quad Acos( const Quad& alpha );
+template<> Complex<Quad> Acos( const Complex<Quad>& alpha );
+#endif
+
 template<typename F> F Asin( const F& alpha );
+#ifdef EL_HAVE_QUADMATH
+template<> Quad Asin( const Quad& alpha );
+template<> Complex<Quad> Asin( const Complex<Quad>& alpha );
+#endif
+
 template<typename F> F Atan( const F& alpha );
+#ifdef EL_HAVE_QUADMATH
+template<> Quad Atan( const Quad& alpha );
+template<> Complex<Quad> Atan( const Complex<Quad>& alpha );
+#endif
+
 template<typename Real> Real Atan2( const Real& y, const Real& x );
 
 // Hyperbolic functions
 // ====================
 template<typename F> F Cosh( const F& alpha );
+#ifdef EL_HAVE_QUADMATH
+template<> Quad Cosh( const Quad& alpha );
+template<> Complex<Quad> Cosh( const Complex<Quad>& alpha );
+#endif
+
 template<typename F> F Sinh( const F& alpha );
+#ifdef EL_HAVE_QUADMATH
+template<> Quad Sinh( const Quad& alpha );
+template<> Complex<Quad> Sinh( const Complex<Quad>& alpha );
+#endif
+
 template<typename F> F Tanh( const F& alpha );
+#ifdef EL_HAVE_QUADMATH
+template<> Quad Tanh( const Quad& alpha );
+template<> Complex<Quad> Tanh( const Complex<Quad>& alpha );
+#endif
 
 template<typename F> F Acosh( const F& alpha );
+#ifdef EL_HAVE_QUADMATH
+template<> Quad Acosh( const Quad& alpha );
+template<> Complex<Quad> Acosh( const Complex<Quad>& alpha );
+#endif
+
 template<typename F> F Asinh( const F& alpha );
+#ifdef EL_HAVE_QUADMATH
+template<> Quad Asinh( const Quad& alpha );
+template<> Complex<Quad> Asinh( const Complex<Quad>& alpha );
+#endif
+
 template<typename F> F Atanh( const F& alpha );
+#ifdef EL_HAVE_QUADMATH
+template<> Quad Atanh( const Quad& alpha );
+template<> Complex<Quad> Atanh( const Complex<Quad>& alpha );
+#endif
 
 } // namespace El
 
