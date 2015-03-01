@@ -431,25 +431,6 @@ int GetCount( Status& status )
     SafeMpi( MPI_Get_count( &status, TypeMap<T>(), &count ) );
     return count;
 }
-template int GetCount<byte>( Status& status );
-template int GetCount<int>( Status& status );
-template int GetCount<unsigned>( Status& status );
-template int GetCount<long int>( Status& status );
-template int GetCount<unsigned long>( Status& status );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template int GetCount<long long int>( Status& status );
-template int GetCount<unsigned long long>( Status& status );
-#endif
-template int GetCount<float>( Status& status );
-template int GetCount<double>( Status& status );
-#ifdef EL_HAVE_QUAD
-template int GetCount<Quad>( Status& status );
-#endif
-template int GetCount<Complex<float>>( Status& status );
-template int GetCount<Complex<double>>( Status& status );
-#ifdef EL_HAVE_QUAD
-template int GetCount<Complex<Quad>>( Status& status );
-#endif
 
 template<typename Real>
 void TaggedSend( const Real* buf, int count, int to, int tag, Comm comm )
@@ -479,97 +460,17 @@ void TaggedSend
 #endif
 }
 
-template void TaggedSend( const byte* buf, int count, int to, int tag, Comm comm );
-template void TaggedSend( const int* buf, int count, int to, int tag, Comm comm );
-template void TaggedSend( const unsigned* buf, int count, int to, int tag, Comm comm  );
-template void TaggedSend( const long int* buf, int count, int to, int tag, Comm comm );
-template void TaggedSend( const unsigned long* buf, int count, int to, int tag, Comm comm  );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void TaggedSend( const long long int* buf, int count, int to, int tag, Comm comm );
-template void TaggedSend( const unsigned long long* buf, int count, int to, int tag, Comm comm  );
-#endif
-template void TaggedSend( const float* buf, int count, int to, int tag, Comm comm );
-template void TaggedSend( const double* buf, int count, int to, int tag, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void TaggedSend( const Quad* buf, int count, int to, int tag, Comm comm );
-#endif
-template void TaggedSend( const Complex<float>* buf, int count, int to, int tag, Comm comm );
-template void TaggedSend( const Complex<double>* buf, int count, int to, int tag, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void TaggedSend( const Complex<Quad>* buf, int count, int to, int tag, Comm comm );
-#endif
-
 template<typename T>
 void Send( const T* buf, int count, int to, Comm comm )
 { TaggedSend( buf, count, to, 0, comm ); }
-
-template void Send( const byte* buf, int count, int to, Comm comm );
-template void Send( const int* buf, int count, int to, Comm comm );
-template void Send( const unsigned* buf, int count, int to, Comm comm );
-template void Send( const long int* buf, int count, int to, Comm comm );
-template void Send( const unsigned long* buf, int count, int to, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void Send( const long long int* buf, int count, int to, Comm comm );
-template void Send( const unsigned long long* buf, int count, int to, Comm comm );
-#endif
-template void Send( const float* buf, int count, int to, Comm comm );
-template void Send( const double* buf, int count, int to, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Send( const Quad* buf, int count, int to, Comm comm );
-#endif
-template void Send( const Complex<float>* buf, int count, int to, Comm comm );
-template void Send( const Complex<double>* buf, int count, int to, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Send( const Complex<Quad>* buf, int count, int to, Comm comm );
-#endif
 
 template<typename T>
 void TaggedSend( T b, int to, int tag, Comm comm )
 { TaggedSend( &b, 1, to, tag, comm ); }
 
-template void TaggedSend( byte b, int to, int tag, Comm comm );
-template void TaggedSend( int b, int to, int tag, Comm comm );
-template void TaggedSend( unsigned b, int to, int tag, Comm comm );
-template void TaggedSend( long int b, int to, int tag, Comm comm );
-template void TaggedSend( unsigned long b, int to, int tag, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void TaggedSend( long long int b, int to, int tag, Comm comm );
-template void TaggedSend( unsigned long long b, int to, int tag, Comm comm );
-#endif
-template void TaggedSend( float b, int to, int tag, Comm comm );
-template void TaggedSend( double b, int to, int tag, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void TaggedSend( Quad b, int to, int tag, Comm comm );
-#endif
-template void TaggedSend( Complex<float> b, int to, int tag, Comm comm );
-template void TaggedSend( Complex<double> b, int to, int tag, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void TaggedSend( Complex<Quad> b, int to, int tag, Comm comm );
-#endif
-
 template<typename T>
 void Send( T b, int to, Comm comm )
 { TaggedSend( b, to, 0, comm ); }
-
-template void Send( byte b, int to, Comm comm );
-template void Send( int b, int to, Comm comm );
-template void Send( unsigned b, int to, Comm comm );
-template void Send( long int b, int to, Comm comm );
-template void Send( unsigned long b, int to, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void Send( long long int b, int to, Comm comm );
-template void Send( unsigned long long b, int to, Comm comm );
-#endif
-template void Send( float b, int to, Comm comm );
-template void Send( double b, int to, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Send( Quad b, int to, Comm comm );
-#endif
-template void Send( Complex<float> b, int to, Comm comm );
-template void Send( Complex<double> b, int to, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Send( Complex<Quad> b, int to, Comm comm );
-#endif
 
 template<typename Real>
 void TaggedISend
@@ -601,98 +502,18 @@ void TaggedISend
 #endif
 }
 
-template void TaggedISend( const byte* buf, int count, int to, int tag, Comm comm, Request& request );
-template void TaggedISend( const int* buf, int count, int to, int tag, Comm comm, Request& request );
-template void TaggedISend( const unsigned* buf, int count, int to, int tag, Comm comm, Request& request );
-template void TaggedISend( const long int* buf, int count, int to, int tag, Comm comm, Request& request );
-template void TaggedISend( const unsigned long* buf, int count, int to, int tag, Comm comm, Request& request );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void TaggedISend( const long long int* buf, int count, int to, int tag, Comm comm, Request& request );
-template void TaggedISend( const unsigned long long* buf, int count, int to, int tag, Comm comm, Request& request );
-#endif
-template void TaggedISend( const float* buf, int count, int to, int tag, Comm comm, Request& request );
-template void TaggedISend( const double* buf, int count, int to, int tag, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void TaggedISend( const Quad* buf, int count, int to, int tag, Comm comm, Request& request );
-#endif
-template void TaggedISend( const Complex<float>* buf, int count, int to, int tag, Comm comm, Request& request );
-template void TaggedISend( const Complex<double>* buf, int count, int to, int tag, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void TaggedISend( const Complex<Quad>* buf, int count, int to, int tag, Comm comm, Request& request );
-#endif
-
 template<typename T>
 void ISend
 ( const T* buf, int count, int to, Comm comm, Request& request )
 { TaggedISend( buf, count, to, 0, comm, request ); } 
 
-template void ISend( const byte* buf, int count, int to, Comm comm, Request& request );
-template void ISend( const int* buf, int count, int to, Comm comm, Request& request );
-template void ISend( const unsigned* buf, int count, int to, Comm comm, Request& request );
-template void ISend( const long int* buf, int count, int to, Comm comm, Request& request );
-template void ISend( const unsigned long* buf, int count, int to, Comm comm, Request& request );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void ISend( const long long int* buf, int count, int to, Comm comm, Request& request );
-template void ISend( const unsigned long long* buf, int count, int to, Comm comm, Request& request );
-#endif
-template void ISend( const float* buf, int count, int to, Comm comm, Request& request );
-template void ISend( const double* buf, int count, int to, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void ISend( const Quad* buf, int count, int to, Comm comm, Request& request );
-#endif
-template void ISend( const Complex<float>* buf, int count, int to, Comm comm, Request& request );
-template void ISend( const Complex<double>* buf, int count, int to, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void ISend( const Complex<Quad>* buf, int count, int to, Comm comm, Request& request );
-#endif
-
 template<typename T>
 void TaggedISend( T b, int to, int tag, Comm comm, Request& request )
 { TaggedISend( &b, 1, to, tag, comm, request ); }
 
-template void TaggedISend( byte buf, int to, int tag, Comm comm, Request& request );
-template void TaggedISend( int buf, int to, int tag, Comm comm, Request& request );
-template void TaggedISend( unsigned buf, int to, int tag, Comm comm, Request& request );
-template void TaggedISend( long int buf, int to, int tag, Comm comm, Request& request );
-template void TaggedISend( unsigned long buf, int to, int tag, Comm comm, Request& request );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void TaggedISend( long long int buf, int to, int tag, Comm comm, Request& request );
-template void TaggedISend( unsigned long long buf, int to, int tag, Comm comm, Request& request );
-#endif
-template void TaggedISend( float buf, int to, int tag, Comm comm, Request& request );
-template void TaggedISend( double buf, int to, int tag, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void TaggedISend( Quad buf, int to, int tag, Comm comm, Request& request );
-#endif
-template void TaggedISend( Complex<float> buf, int to, int tag, Comm comm, Request& request );
-template void TaggedISend( Complex<double> buf, int to, int tag, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void TaggedISend( Complex<Quad> buf, int to, int tag, Comm comm, Request& request );
-#endif
-
 template<typename T>
 void ISend( T b, int to, Comm comm, Request& request )
 { TaggedISend( b, to, 0, comm, request ); }
-
-template void ISend( byte buf, int to, Comm comm, Request& request );
-template void ISend( int buf, int to, Comm comm, Request& request );
-template void ISend( unsigned buf, int to, Comm comm, Request& request );
-template void ISend( long int buf, int to, Comm comm, Request& request );
-template void ISend( unsigned long buf, int to, Comm comm, Request& request );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void ISend( long long int buf, int to, Comm comm, Request& request );
-template void ISend( unsigned long long buf, int to, Comm comm, Request& request );
-#endif
-template void ISend( float buf, int to, Comm comm, Request& request );
-template void ISend( double buf, int to, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void ISend( Quad buf, int to, Comm comm, Request& request );
-#endif
-template void ISend( Complex<float> buf, int to, Comm comm, Request& request );
-template void ISend( Complex<double> buf, int to, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void ISend( Complex<Quad> buf, int to, Comm comm, Request& request );
-#endif
 
 template<typename Real>
 void TaggedISSend
@@ -724,73 +545,13 @@ void TaggedISSend
 #endif
 }
 
-template void TaggedISSend( const byte* buf, int count, int to, int tag, Comm comm, Request& request );
-template void TaggedISSend( const int* buf, int count, int to, int tag, Comm comm, Request& request );
-template void TaggedISSend( const unsigned* buf, int count, int to, int tag, Comm comm, Request& request );
-template void TaggedISSend( const long int* buf, int count, int to, int tag, Comm comm, Request& request );
-template void TaggedISSend( const unsigned long* buf, int count, int to, int tag, Comm comm, Request& request );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void TaggedISSend( const long long int* buf, int count, int to, int tag, Comm comm, Request& request );
-template void TaggedISSend( const unsigned long long* buf, int count, int to, int tag, Comm comm, Request& request );
-#endif
-template void TaggedISSend( const float* buf, int count, int to, int tag, Comm comm, Request& request );
-template void TaggedISSend( const double* buf, int count, int to, int tag, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void TaggedISSend( const Quad* buf, int count, int to, int tag, Comm comm, Request& request );
-#endif
-template void TaggedISSend( const Complex<float>* buf, int count, int to, int tag, Comm comm, Request& request );
-template void TaggedISSend( const Complex<double>* buf, int count, int to, int tag, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void TaggedISSend( const Complex<Quad>* buf, int count, int to, int tag, Comm comm, Request& request );
-#endif
-
 template<typename T>
 void ISSend( const T* buf, int count, int to, Comm comm, Request& request )
 { TaggedISSend( buf, count, to, 0, comm, request ); }
 
-template void ISSend( const byte* buf, int count, int to, Comm comm, Request& request );
-template void ISSend( const int* buf, int count, int to, Comm comm, Request& request );
-template void ISSend( const unsigned* buf, int count, int to, Comm comm, Request& request );
-template void ISSend( const long int* buf, int count, int to, Comm comm, Request& request );
-template void ISSend( const unsigned long* buf, int count, int to, Comm comm, Request& request );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void ISSend( const long long int* buf, int count, int to, Comm comm, Request& request );
-template void ISSend( const unsigned long long* buf, int count, int to, Comm comm, Request& request );
-#endif
-template void ISSend( const float* buf, int count, int to, Comm comm, Request& request );
-template void ISSend( const double* buf, int count, int to, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void ISSend( const Quad* buf, int count, int to, Comm comm, Request& request );
-#endif
-template void ISSend( const Complex<float>* buf, int count, int to, Comm comm, Request& request );
-template void ISSend( const Complex<double>* buf, int count, int to, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void ISSend( const Complex<Quad>* buf, int count, int to, Comm comm, Request& request );
-#endif
-
 template<typename T>
 void TaggedISSend( T b, int to, int tag, Comm comm, Request& request )
 { TaggedISSend( &b, 1, to, tag, comm, request ); }
-
-template void TaggedISSend( byte b, int to, int tag, Comm comm, Request& request );
-template void TaggedISSend( int b, int to, int tag, Comm comm, Request& request );
-template void TaggedISSend( unsigned b, int to, int tag, Comm comm, Request& request );
-template void TaggedISSend( long int b, int to, int tag, Comm comm, Request& request );
-template void TaggedISSend( unsigned long b, int to, int tag, Comm comm, Request& request );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void TaggedISSend( long long int b, int to, int tag, Comm comm, Request& request );
-template void TaggedISSend( unsigned long long b, int to, int tag, Comm comm, Request& request );
-#endif
-template void TaggedISSend( float b, int to, int tag, Comm comm, Request& request );
-template void TaggedISSend( double b, int to, int tag, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void TaggedISSend( Quad b, int to, int tag, Comm comm, Request& request );
-#endif
-template void TaggedISSend( Complex<float> b, int to, int tag, Comm comm, Request& request );
-template void TaggedISSend( Complex<double> b, int to, int tag, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void TaggedISSend( Complex<Quad> b, int to, int tag, Comm comm, Request& request );
-#endif
 
 template<typename Real>
 void TaggedRecv( Real* buf, int count, int from, int tag, Comm comm )
@@ -816,97 +577,17 @@ void TaggedRecv( Complex<Real>* buf, int count, int from, int tag, Comm comm )
 #endif
 }
 
-template void TaggedRecv( byte* buf, int count, int from, int tag, Comm comm );
-template void TaggedRecv( int* buf, int count, int from, int tag, Comm comm );
-template void TaggedRecv( unsigned* buf, int count, int from, int tag, Comm comm );
-template void TaggedRecv( long int* buf, int count, int from, int tag, Comm comm );
-template void TaggedRecv( unsigned long* buf, int count, int from, int tag, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void TaggedRecv( long long int* buf, int count, int from, int tag, Comm comm );
-template void TaggedRecv( unsigned long long* buf, int count, int from, int tag, Comm comm );
-#endif
-template void TaggedRecv( float* buf, int count, int from, int tag, Comm comm );
-template void TaggedRecv( double* buf, int count, int from, int tag, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void TaggedRecv( Quad* buf, int count, int from, int tag, Comm comm );
-#endif
-template void TaggedRecv( Complex<float>* buf, int count, int from, int tag, Comm comm );
-template void TaggedRecv( Complex<double>* buf, int count, int from, int tag, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void TaggedRecv( Complex<Quad>* buf, int count, int from, int tag, Comm comm );
-#endif
-
 template<typename T>
 void Recv( T* buf, int count, int from, Comm comm )
 { TaggedRecv( buf, count, from, mpi::ANY_TAG, comm ); }
-
-template void Recv( byte* buf, int count, int from, Comm comm );
-template void Recv( int* buf, int count, int from, Comm comm );
-template void Recv( unsigned* buf, int count, int from, Comm comm );
-template void Recv( long int* buf, int count, int from, Comm comm );
-template void Recv( unsigned long* buf, int count, int from, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void Recv( long long int* buf, int count, int from, Comm comm );
-template void Recv( unsigned long long* buf, int count, int from, Comm comm );
-#endif
-template void Recv( float* buf, int count, int from, Comm comm );
-template void Recv( double* buf, int count, int from, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Recv( Quad* buf, int count, int from, Comm comm );
-#endif
-template void Recv( Complex<float>* buf, int count, int from, Comm comm );
-template void Recv( Complex<double>* buf, int count, int from, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Recv( Complex<Quad>* buf, int count, int from, Comm comm );
-#endif
 
 template<typename T>
 T TaggedRecv( int from, int tag, Comm comm )
 { T b; TaggedRecv( &b, 1, from, tag, comm ); return b; }
 
-template byte TaggedRecv( int from, int tag, Comm comm );
-template int TaggedRecv( int from, int tag, Comm comm );
-template unsigned TaggedRecv( int from, int tag, Comm comm );
-template long int TaggedRecv( int from, int tag, Comm comm );
-template unsigned long TaggedRecv( int from, int tag, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template long long int TaggedRecv( int from, int tag, Comm comm );
-template unsigned long long TaggedRecv( int from, int tag, Comm comm );
-#endif
-template float TaggedRecv( int from, int tag, Comm comm );
-template double TaggedRecv( int from, int tag, Comm comm );
-#ifdef EL_HAVE_QUAD
-template Quad TaggedRecv( int from, int tag, Comm comm );
-#endif
-template Complex<float> TaggedRecv( int from, int tag, Comm comm );
-template Complex<double> TaggedRecv( int from, int tag, Comm comm );
-#ifdef EL_HAVE_QUAD
-template Complex<Quad> TaggedRecv( int from, int tag, Comm comm );
-#endif
-
 template<typename T>
 T Recv( int from, Comm comm )
 { return TaggedRecv<T>( from, mpi::ANY_TAG, comm ); }
-
-template byte Recv( int from, Comm comm );
-template int Recv( int from, Comm comm );
-template unsigned Recv( int from, Comm comm );
-template long int Recv( int from, Comm comm );
-template unsigned long Recv( int from, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template long long int Recv( int from, Comm comm );
-template unsigned long long Recv( int from, Comm comm );
-#endif
-template float Recv( int from, Comm comm );
-template double Recv( int from, Comm comm );
-#ifdef EL_HAVE_QUAD
-template Quad Recv( int from, Comm comm );
-#endif
-template Complex<float> Recv( int from, Comm comm );
-template Complex<double> Recv( int from, Comm comm );
-#ifdef EL_HAVE_QUAD
-template Complex<Quad> Recv( int from, Comm comm );
-#endif
 
 template<typename Real>
 void TaggedIRecv
@@ -934,97 +615,17 @@ void TaggedIRecv
 #endif
 }
 
-template void TaggedIRecv( byte* buf, int count, int from, int tag, Comm comm, Request& request );
-template void TaggedIRecv( int* buf, int count, int from, int tag, Comm comm, Request& request );
-template void TaggedIRecv( unsigned* buf, int count, int from, int tag, Comm comm, Request& request );
-template void TaggedIRecv( long int* buf, int count, int from, int tag, Comm comm, Request& request );
-template void TaggedIRecv( unsigned long* buf, int count, int from, int tag, Comm comm, Request& request );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void TaggedIRecv( long long int* buf, int count, int from, int tag, Comm comm, Request& request );
-template void TaggedIRecv( unsigned long long* buf, int count, int from, int tag, Comm comm, Request& request );
-#endif
-template void TaggedIRecv( float* buf, int count, int from, int tag, Comm comm, Request& request );
-template void TaggedIRecv( double* buf, int count, int from, int tag, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void TaggedIRecv( Quad* buf, int count, int from, int tag, Comm comm, Request& request );
-#endif
-template void TaggedIRecv( Complex<float>* buf, int count, int from, int tag, Comm comm, Request& request );
-template void TaggedIRecv( Complex<double>* buf, int count, int from, int tag, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void TaggedIRecv( Complex<Quad>* buf, int count, int from, int tag, Comm comm, Request& request );
-#endif
-
 template<typename T>
 void IRecv( T* buf, int count, int from, Comm comm, Request& request )
 { TaggedIRecv( buf, count, from, mpi::ANY_TAG, comm, request ); }
-
-template void IRecv( byte* buf, int count, int from, Comm comm, Request& request );
-template void IRecv( int* buf, int count, int from, Comm comm, Request& request );
-template void IRecv( unsigned* buf, int count, int from, Comm comm, Request& request );
-template void IRecv( long int* buf, int count, int from, Comm comm, Request& request );
-template void IRecv( unsigned long* buf, int count, int from, Comm comm, Request& request );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void IRecv( long long int* buf, int count, int from, Comm comm, Request& request );
-template void IRecv( unsigned long long* buf, int count, int from, Comm comm, Request& request );
-#endif
-template void IRecv( float* buf, int count, int from, Comm comm, Request& request );
-template void IRecv( double* buf, int count, int from, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void IRecv( Quad* buf, int count, int from, Comm comm, Request& request );
-#endif
-template void IRecv( Complex<float>* buf, int count, int from, Comm comm, Request& request );
-template void IRecv( Complex<double>* buf, int count, int from, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void IRecv( Complex<Quad>* buf, int count, int from, Comm comm, Request& request );
-#endif
 
 template<typename T>
 T TaggedIRecv( int from, int tag, Comm comm, Request& request )
 { T b; TaggedIRecv( &b, 1, from, tag, comm, request ); return b; }
 
-template byte TaggedIRecv( int from, int tag, Comm comm, Request& request );
-template int TaggedIRecv( int from, int tag, Comm comm, Request& request );
-template unsigned TaggedIRecv( int from, int tag, Comm comm, Request& request );
-template long int TaggedIRecv( int from, int tag, Comm comm, Request& request );
-template unsigned long TaggedIRecv( int from, int tag, Comm comm, Request& request );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template long long int TaggedIRecv( int from, int tag, Comm comm, Request& request );
-template unsigned long long TaggedIRecv( int from, int tag, Comm comm, Request& request );
-#endif
-template float TaggedIRecv( int from, int tag, Comm comm, Request& request );
-template double TaggedIRecv( int from, int tag, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template Quad TaggedIRecv( int from, int tag, Comm comm, Request& request );
-#endif
-template Complex<float> TaggedIRecv( int from, int tag, Comm comm, Request& request );
-template Complex<double> TaggedIRecv( int from, int tag, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template Complex<Quad> TaggedIRecv( int from, int tag, Comm comm, Request& request );
-#endif
-
 template<typename T>
 T IRecv( int from, Comm comm, Request& request )
 { return TaggedIRecv<T>( from, mpi::ANY_TAG, comm, request ); }
-
-template byte IRecv( int from, Comm comm, Request& request );
-template int IRecv( int from, Comm comm, Request& request );
-template unsigned IRecv( int from, Comm comm, Request& request );
-template long int IRecv( int from, Comm comm, Request& request );
-template unsigned long IRecv( int from, Comm comm, Request& request );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template long long int IRecv( int from, Comm comm, Request& request );
-template unsigned long long IRecv( int from, Comm comm, Request& request );
-#endif
-template float IRecv( int from, Comm comm, Request& request );
-template double IRecv( int from, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template Quad IRecv( int from, Comm comm, Request& request );
-#endif
-template Complex<float> IRecv( int from, Comm comm, Request& request );
-template Complex<double> IRecv( int from, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template Complex<Quad> IRecv( int from, Comm comm, Request& request );
-#endif
 
 template<typename Real>
 void TaggedSendRecv
@@ -1063,103 +664,11 @@ void TaggedSendRecv
 #endif
 }
 
-template void TaggedSendRecv
-( const byte* sbuf, int sc, int to,   int stag, 
-        byte* rbuf, int rc, int from, int rtag, Comm comm );
-template void TaggedSendRecv
-( const int* sbuf, int sc, int to,   int stag, 
-        int* rbuf, int rc, int from, int rtag, Comm comm );
-template void TaggedSendRecv
-( const unsigned* sbuf, int sc, int to,   int stag, 
-        unsigned* rbuf, int rc, int from, int rtag, Comm comm );
-template void TaggedSendRecv
-( const long int* sbuf, int sc, int to,   int stag, 
-        long int* rbuf, int rc, int from, int rtag, Comm comm );
-template void TaggedSendRecv
-( const unsigned long* sbuf, int sc, int to,   int stag, 
-        unsigned long* rbuf, int rc, int from, int rtag, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void TaggedSendRecv
-( const long long int* sbuf, int sc, int to,   int stag, 
-        long long int* rbuf, int rc, int from, int rtag, Comm comm );
-template void TaggedSendRecv
-( const unsigned long long* sbuf, int sc, int to,   int stag, 
-        unsigned long long* rbuf, int rc, int from, int rtag, Comm comm );
-#endif
-template void TaggedSendRecv
-( const float* sbuf, int sc, int to,   int stag, 
-        float* rbuf, int rc, int from, int rtag, Comm comm );
-template void TaggedSendRecv
-( const double* sbuf, int sc, int to,   int stag, 
-        double* rbuf, int rc, int from, int rtag, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void TaggedSendRecv
-( const Quad* sbuf, int sc, int to,   int stag, 
-        Quad* rbuf, int rc, int from, int rtag, Comm comm );
-#endif
-template void TaggedSendRecv
-( const Complex<float>* sbuf, int sc, int to,   int stag, 
-        Complex<float>* rbuf, int rc, int from, int rtag, Comm comm );
-template void TaggedSendRecv
-( const Complex<double>* sbuf, int sc, int to, int stag, 
-        Complex<double>* rbuf, int rc, int from, int rtag, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void TaggedSendRecv
-( const Complex<Quad>* sbuf, int sc, int to,   int stag, 
-        Complex<Quad>* rbuf, int rc, int from, int rtag, Comm comm );
-#endif
-
 template<typename T>
 void SendRecv
 ( const T* sbuf, int sc, int to, 
         T* rbuf, int rc, int from, Comm comm )
 { TaggedSendRecv( sbuf, sc, to, 0, rbuf, rc, from, mpi::ANY_TAG, comm ); }
-
-template void SendRecv
-( const byte* sbuf, int sc, int to, 
-        byte* rbuf, int rc, int from, Comm comm );
-template void SendRecv
-( const int* sbuf, int sc, int to, 
-        int* rbuf, int rc, int from, Comm comm );
-template void SendRecv
-( const unsigned* sbuf, int sc, int to, 
-        unsigned* rbuf, int rc, int from, Comm comm );
-template void SendRecv
-( const long int* sbuf, int sc, int to, 
-        long int* rbuf, int rc, int from, Comm comm );
-template void SendRecv
-( const unsigned long* sbuf, int sc, int to, 
-        unsigned long* rbuf, int rc, int from, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void SendRecv
-( const long long int* sbuf, int sc, int to, 
-        long long int* rbuf, int rc, int from, Comm comm );
-template void SendRecv
-( const unsigned long long* sbuf, int sc, int to, 
-        unsigned long long* rbuf, int rc, int from, Comm comm );
-#endif
-template void SendRecv
-( const float* sbuf, int sc, int to,
-        float* rbuf, int rc, int from, Comm comm );
-template void SendRecv
-( const double* sbuf, int sc, int to,
-        double* rbuf, int rc, int from, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void SendRecv
-( const Quad* sbuf, int sc, int to,
-        Quad* rbuf, int rc, int from, Comm comm );
-#endif
-template void SendRecv
-( const Complex<float>* sbuf, int sc, int to, 
-        Complex<float>* rbuf, int rc, int from, Comm comm );
-template void SendRecv
-( const Complex<double>* sbuf, int sc, int to, 
-        Complex<double>* rbuf, int rc, int from, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void SendRecv
-( const Complex<Quad>* sbuf, int sc, int to,
-        Complex<Quad>* rbuf, int rc, int from, Comm comm );
-#endif
 
 template<typename T>
 T TaggedSendRecv( T sb, int to, int stag, int from, int rtag, Comm comm )
@@ -1169,64 +678,9 @@ T TaggedSendRecv( T sb, int to, int stag, int from, int rtag, Comm comm )
     return rb; 
 }
 
-template byte TaggedSendRecv
-( byte sb, int to, int stag, int from, int rtag, Comm comm );
-template int TaggedSendRecv
-( int sb, int to, int stag, int from, int rtag, Comm comm );
-template unsigned TaggedSendRecv
-( unsigned sb, int to, int stag, int from, int rtag, Comm comm );
-template long int TaggedSendRecv
-( long int sb, int to, int stag, int from, int rtag, Comm comm );
-template unsigned long TaggedSendRecv
-( unsigned long sb, int to, int stag, int from, int rtag, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template long long int TaggedSendRecv
-( long long int sb, int to, int stag, int from, int rtag, Comm comm );
-template unsigned long long TaggedSendRecv
-( unsigned long long sb, int to, int stag, int from, int rtag, Comm comm );
-#endif
-template float TaggedSendRecv
-( float sb, int to, int stag, int from, int rtag, Comm comm );
-template double TaggedSendRecv
-( double sb, int to, int stag, int from, int rtag, Comm comm );
-#ifdef EL_HAVE_QUAD
-template Quad TaggedSendRecv
-( Quad sb, int to, int stag, int from, int rtag, Comm comm );
-#endif
-template Complex<float> TaggedSendRecv
-( Complex<float> sb, int to, int stag, int from, int rtag, Comm comm );
-template Complex<double> TaggedSendRecv
-( Complex<double> sb, int to, int stag, int from, int rtag, Comm comm );
-#ifdef EL_HAVE_QUAD
-template Complex<Quad> TaggedSendRecv
-( Complex<Quad> sb, int to, int stag, int from, int rtag, Comm comm );
-#endif
-
 template<typename T>
 T SendRecv( T sb, int to, int from, Comm comm )
 { return TaggedSendRecv( sb, to, 0, from, mpi::ANY_TAG, comm ); }
-
-template byte SendRecv( byte sb, int to, int from, Comm comm );
-template int SendRecv( int sb, int to, int from, Comm comm );
-template unsigned SendRecv( unsigned sb, int to, int from, Comm comm );
-template long int SendRecv( long int sb, int to, int from, Comm comm );
-template unsigned long SendRecv( unsigned long sb, int to, int from, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template long long int SendRecv( long long int sb, int to, int from, Comm comm );
-template unsigned long long SendRecv( unsigned long long sb, int to, int from, Comm comm );
-#endif
-template float SendRecv( float sb, int to, int from, Comm comm );
-template double SendRecv( double sb, int to, int from, Comm comm );
-#ifdef EL_HAVE_QUAD
-template Quad SendRecv( Quad sb, int to, int from, Comm comm );
-#endif
-template Complex<float> SendRecv
-( Complex<float> sb, int to, int from, Comm comm );
-template Complex<double> SendRecv
-( Complex<double> sb, int to, int from, Comm comm );
-#ifdef EL_HAVE_QUAD
-template Complex<Quad> SendRecv( Complex<Quad> sb, int to, int from, Comm comm );
-#endif
 
 template<typename Real>
 void TaggedSendRecv
@@ -1258,78 +712,9 @@ void TaggedSendRecv
 #endif
 }
 
-template void TaggedSendRecv
-( byte* buf, int count, int to, int stag, int from, int rtag, Comm comm );
-template void TaggedSendRecv
-( int* buf, int count, int to, int stag, int from, int rtag, Comm comm );
-template void TaggedSendRecv
-( unsigned* buf, int count, int to, int stag, int from, int rtag, Comm comm );
-template void TaggedSendRecv
-( long int* buf, int count, int to, int stag, int from, int rtag, Comm comm );
-template void TaggedSendRecv
-( unsigned long* buf, int count, int to, int stag, int from, int rtag, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void TaggedSendRecv
-( long long int* buf, int count, int to, int stag, int from, int rtag, Comm comm );
-template void TaggedSendRecv
-( unsigned long long* buf, int count, int to, int stag, int from, int rtag, Comm comm );
-#endif
-template void TaggedSendRecv
-( float* buf, int count, int to, int stag, int from, int rtag, Comm comm );
-template void TaggedSendRecv
-( double* buf, int count, int to, int stag, int from, int rtag, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void TaggedSendRecv
-( Quad* buf, int count, int to, int stag, int from, int rtag, Comm comm );
-#endif
-template void TaggedSendRecv
-( Complex<float>* buf, int count, int to, int stag, 
-  int from, int rtag, Comm comm );
-template void TaggedSendRecv
-( Complex<double>* buf, int count, int to, int stag, 
-  int from, int rtag, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void TaggedSendRecv
-( Complex<Quad>* buf, int count, int to, int stag, 
-  int from, int rtag, Comm comm );
-#endif
-
 template<typename T>
 void SendRecv( T* buf, int count, int to, int from, Comm comm )
 { TaggedSendRecv( buf, count, to, 0, from, mpi::ANY_TAG, comm ); }
-
-template void SendRecv
-( byte* buf, int count, int to, int from, Comm comm );
-template void SendRecv
-( int* buf, int count, int to, int from, Comm comm );
-template void SendRecv
-( unsigned* buf, int count, int to, int from, Comm comm );
-template void SendRecv
-( long int* buf, int count, int to, int from, Comm comm );
-template void SendRecv
-( unsigned long* buf, int count, int to, int from, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void SendRecv
-( long long int* buf, int count, int to, int from, Comm comm );
-template void SendRecv
-( unsigned long long* buf, int count, int to, int from, Comm comm );
-#endif
-template void SendRecv
-( float* buf, int count, int to, int from, Comm comm );
-template void SendRecv
-( double* buf, int count, int to, int from, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void SendRecv
-( Quad* buf, int count, int to, int from, Comm comm );
-#endif
-template void SendRecv
-( Complex<float>* buf, int count, int to, int from, Comm comm );
-template void SendRecv
-( Complex<double>* buf, int count, int to, int from, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void SendRecv
-( Complex<Quad>* buf, int count, int to, int from, Comm comm );
-#endif
 
 template<typename Real>
 void Broadcast( Real* buf, int count, int root, Comm comm )
@@ -1349,57 +734,20 @@ void Broadcast( Complex<Real>* buf, int count, int root, Comm comm )
 #endif
 }
 
-template void Broadcast( byte* buf, int count, int root, Comm comm );
-template void Broadcast( int* buf, int count, int root, Comm comm );
-template void Broadcast( unsigned* buf, int count, int root, Comm comm );
-template void Broadcast( long int* buf, int count, int root, Comm comm );
-template void Broadcast( unsigned long* buf, int count, int root, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void Broadcast( long long int* buf, int count, int root, Comm comm );
-template void Broadcast( unsigned long long* buf, int count, int root, Comm comm );
-#endif
-template void Broadcast( float* buf, int count, int root, Comm comm );
-template void Broadcast( double* buf, int count, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Broadcast( Quad* buf, int count, int root, Comm comm );
-#endif
-template void Broadcast( Complex<float>* buf, int count, int root, Comm comm );
-template void Broadcast( Complex<double>* buf, int count, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Broadcast( Complex<Quad>* buf, int count, int root, Comm comm );
-#endif
-
 template<typename T>
 void Broadcast( T& b, int root, Comm comm )
 { Broadcast( &b, 1, root, comm ); }
 
-template void Broadcast( byte& b, int root, Comm comm );
-template void Broadcast( int& b, int root, Comm comm );
-template void Broadcast( unsigned& b, int root, Comm comm );
-template void Broadcast( long int& b, int root, Comm comm );
-template void Broadcast( unsigned long& b, int root, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void Broadcast( long long int& b, int root, Comm comm );
-template void Broadcast( unsigned long long& b, int root, Comm comm );
-#endif
-template void Broadcast( float& b, int root, Comm comm );
-template void Broadcast( double& b, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Broadcast( Quad& b, int root, Comm comm );
-#endif
-template void Broadcast( Complex<float>& b, int root, Comm comm );
-template void Broadcast( Complex<double>& b, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Broadcast( Complex<Quad>& b, int root, Comm comm );
-#endif
-
-#ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
 template<typename Real>
 void IBroadcast( Real* buf, int count, int root, Comm comm, Request& request )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::IBroadcast"))
+#ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
     SafeMpi
     ( MPI_Ibcast( buf, count, TypeMap<Real>(), root, comm.comm, &request ) );
+#else
+    LogicError("Elemental was not configured with non-blocking support");
+#endif
 }
 
 template<typename Real>
@@ -1407,6 +755,7 @@ void IBroadcast
 ( Complex<Real>* buf, int count, int root, Comm comm, Request& request )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::IBroadcast"))
+#ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Ibcast( buf, 2*count, TypeMap<Real>(), root, comm.comm, &request ) );
@@ -1415,52 +764,14 @@ void IBroadcast
     ( MPI_Ibcast
       ( buf, count, TypeMap<Complex<Real>>(), root, comm.comm, &request ) );
 #endif
+#else
+    LogicError("Elemental was not configured with non-blocking support");
+#endif
 }
-
-template void IBroadcast( byte* buf, int count, int root, Comm comm, Request& request );
-template void IBroadcast( int* buf, int count, int root, Comm comm, Request& request );
-template void IBroadcast( unsigned* buf, int count, int root, Comm comm, Request& request );
-template void IBroadcast( long int* buf, int count, int root, Comm comm, Request& request );
-template void IBroadcast( unsigned long* buf, int count, int root, Comm comm, Request& request );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void IBroadcast( long long int* buf, int count, int root, Comm comm, Request& request );
-template void IBroadcast( unsigned long long* buf, int count, int root, Comm comm, Request& request );
-#endif
-template void IBroadcast( float* buf, int count, int root, Comm comm, Request& request );
-template void IBroadcast( double* buf, int count, int root, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void IBroadcast( Quad* buf, int count, int root, Comm comm, Request& request );
-#endif
-template void IBroadcast( Complex<float>* buf, int count, int root, Comm comm, Request& request );
-template void IBroadcast( Complex<double>* buf, int count, int root, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void IBroadcast( Complex<Quad>* buf, int count, int root, Comm comm, Request& request );
-#endif
 
 template<typename T>
 void IBroadcast( T& b, int root, Comm comm, Request& request )
 { IBroadcast( &b, 1, root, comm, request ); }
-
-template void IBroadcast( byte& b, int root, Comm comm, Request& request );
-template void IBroadcast( int& b, int root, Comm comm, Request& request );
-template void IBroadcast( unsigned& b, int root, Comm comm, Request& request );
-template void IBroadcast( long int& b, int root, Comm comm, Request& request );
-template void IBroadcast( unsigned long& b, int root, Comm comm, Request& request );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void IBroadcast( long long int& b, int root, Comm comm, Request& request );
-template void IBroadcast( unsigned long long& b, int root, Comm comm, Request& request );
-#endif
-template void IBroadcast( float& b, int root, Comm comm, Request& request );
-template void IBroadcast( double& b, int root, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void IBroadcast( Quad& b, int root, Comm comm, Request& request );
-#endif
-template void IBroadcast( Complex<float>& b, int root, Comm comm, Request& request );
-template void IBroadcast( Complex<double>& b, int root, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void IBroadcast( Complex<Quad>& b, int root, Comm comm, Request& request );
-#endif
-#endif // ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
 
 template<typename Real>
 void Gather
@@ -1494,37 +805,20 @@ void Gather
 #endif
 }
 
-template void Gather( const byte* sbuf, int sc, byte* rbuf, int rc, int root, Comm comm );
-template void Gather( const int* sbuf, int sc, int* rbuf, int rc, int root, Comm comm );
-template void Gather( const unsigned* sbuf, int sc, unsigned* rbuf, int rc, int root, Comm comm );
-template void Gather( const long int* sbuf, int sc, long int* rbuf, int rc, int root, Comm comm );
-template void Gather( const unsigned long* sbuf, int sc, unsigned long* rbuf, int rc, int root, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void Gather( const long long int* sbuf, int sc, long long int* rbuf, int rc, int root, Comm comm );
-template void Gather( const unsigned long long* sbuf, int sc, unsigned long long* rbuf, int rc, int root, Comm comm );
-#endif
-template void Gather( const float* sbuf, int sc, float* rbuf, int rc, int root, Comm comm );
-template void Gather( const double* sbuf, int sc, double* rbuf, int rc, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Gather( const Quad* sbuf, int sc, Quad* rbuf, int rc, int root, Comm comm );
-#endif
-template void Gather( const Complex<float>* sbuf, int sc, Complex<float>* rbuf, int rc, int root, Comm comm );
-template void Gather( const Complex<double>* sbuf, int sc, Complex<double>* rbuf, int rc, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Gather( const Complex<Quad>* sbuf, int sc, Complex<Quad>* rbuf, int rc, int root, Comm comm );
-#endif
-
-#ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
 template<typename Real>
 void IGather
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc, int root, Comm comm, Request& request )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::IGather"))
+#ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
     SafeMpi
     ( MPI_Igather
       ( const_cast<Real*>(sbuf), sc, TypeMap<Real>(),
         rbuf,                    rc, TypeMap<Real>(), root, comm.comm, &request ) );
+#else
+    LogicError("Elemental was not configured with non-blocking support");
+#endif
 }
 
 template<typename Real>
@@ -1533,6 +827,7 @@ void IGather
         Complex<Real>* rbuf, int rc, int root, Comm comm, Request& request )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::IGather"))
+#ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Igather
@@ -1546,54 +841,10 @@ void IGather
         rbuf,                             rc, TypeMap<Complex<Real>>(), 
         root, comm.comm, &request ) );
 #endif
+#else
+    LogicError("Elemental was not configured with non-blocking support");
+#endif
 }
-
-template void IGather
-( const byte* sbuf, int sc, 
-        byte* rbuf, int rc, int root, Comm comm, Request& request );
-template void IGather
-( const int* sbuf, int sc, 
-        int* rbuf, int rc, int root, Comm comm, Request& request );
-template void IGather
-( const unsigned* sbuf, int sc, 
-        unsigned* rbuf, int rc, int root, Comm comm, Request& request );
-template void IGather
-( const long int* sbuf, int sc, 
-        long int* rbuf, int rc, int root, Comm comm, Request& request );
-template void IGather
-( const unsigned long* sbuf, int sc, 
-        unsigned long* rbuf, int rc, int root, Comm comm, Request& request );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void IGather
-( const long long int* sbuf, int sc,
-        long long int* rbuf, int rc, int root, Comm comm, Request& request );
-template void IGather
-( const unsigned long long* sbuf, int sc,
-        unsigned long long* rbuf, int rc, int root, Comm comm, Request& request );
-#endif
-template void IGather
-( const float* sbuf, int sc, 
-        float* rbuf, int rc, int root, Comm comm, Request& request );
-template void IGather
-( const double* sbuf, int sc, 
-        double* rbuf, int rc, int root, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void IGather
-( const Quad* sbuf, int sc, 
-        Quad* rbuf, int rc, int root, Comm comm, Request& request );
-#endif
-template void IGather
-( const Complex<float>* sbuf, int sc, 
-        Complex<float>* rbuf, int rc, int root, Comm comm, Request& request );
-template void IGather
-( const Complex<double>* sbuf, int sc, 
-        Complex<double>* rbuf, int rc, int root, Comm comm, Request& request );
-#ifdef EL_HAVE_QUAD
-template void IGather
-( const Complex<Quad>* sbuf, int sc, 
-        Complex<Quad>* rbuf, int rc, int root, Comm comm, Request& request );
-#endif
-#endif // ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
 
 template<typename Real>
 void Gather
@@ -1654,55 +905,6 @@ void Gather
 #endif
 }
 
-template void Gather
-( const byte* sbuf, int sc, 
-        byte* rbuf, const int* rcs, const int* rds, int root, Comm comm );
-template void Gather
-( const int* sbuf, int sc, 
-        int* rbuf, const int* rcs, const int* rds, int root, Comm comm );
-template void Gather
-( const unsigned* sbuf, int sc, 
-        unsigned* rbuf, const int* rcs, const int* rds, int root, Comm comm );
-template void Gather
-( const long int* sbuf, int sc, 
-        long int* rbuf, const int* rcs, const int* rds, int root, Comm comm );
-template void Gather
-( const unsigned long* sbuf, int sc, 
-        unsigned long* rbuf, const int* rcs, const int* rds, int root, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void Gather
-( const long long int* sbuf, int sc, 
-        long long int* rbuf, const int* rcs, const int* rds, int root, Comm comm );
-template void Gather
-( const unsigned long long* sbuf, int sc, 
-        unsigned long long* rbuf, const int* rcs, const int* rds, int root, Comm comm );
-#endif
-template void Gather
-( const float* sbuf, int sc, 
-        float* rbuf, const int* rcs, const int* rds, int root, Comm comm );
-template void Gather
-( const double* sbuf, int sc, 
-        double* rbuf, const int* rcs, const int* rds, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Gather
-( const Quad* sbuf, int sc, 
-        Quad* rbuf, const int* rcs, const int* rds, int root, Comm comm );
-#endif
-template void Gather
-( const Complex<float>* sbuf, int sc, 
-        Complex<float>* rbuf, const int* rcs, const int* rds, 
-  int root, Comm comm );
-template void Gather
-( const Complex<double>* sbuf, int sc, 
-        Complex<double>* rbuf, const int* rcs, const int* rds, 
-  int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Gather
-( const Complex<Quad>* sbuf, int sc, 
-        Complex<Quad>* rbuf, const int* rcs, const int* rds, 
-  int root, Comm comm );
-#endif
-
 template<typename Real>
 void AllGather
 ( const Real* sbuf, int sc,
@@ -1749,26 +951,6 @@ void AllGather
  #endif
 #endif
 }
-
-template void AllGather( const byte* sbuf, int sc, byte* rbuf, int rc, Comm comm );
-template void AllGather( const int* sbuf, int sc, int* rbuf, int rc, Comm comm );
-template void AllGather( const unsigned* sbuf, int sc, unsigned* rbuf, int rc, Comm comm );
-template void AllGather( const long int* sbuf, int sc, long int* rbuf, int rc, Comm comm );
-template void AllGather( const unsigned long* sbuf, int sc, unsigned long* rbuf, int rc, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void AllGather( const long long int* sbuf, int sc, long long int* rbuf, int rc, Comm comm );
-template void AllGather( const unsigned long long* sbuf, int sc, unsigned long long* rbuf, int rc, Comm comm );
-#endif
-template void AllGather( const float* sbuf, int sc, float* rbuf, int rc, Comm comm );
-template void AllGather( const double* sbuf, int sc, double* rbuf, int rc, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllGather( const Quad* sbuf, int sc, Quad* rbuf, int rc, Comm comm );
-#endif
-template void AllGather( const Complex<float>* sbuf, int sc, Complex<float>* rbuf, int rc, Comm comm );
-template void AllGather( const Complex<double>* sbuf, int sc, Complex<double>* rbuf, int rc, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllGather( const Complex<Quad>* sbuf, int sc, Complex<Quad>* rbuf, int rc, Comm comm );
-#endif
 
 template<typename Real>
 void AllGather
@@ -1850,52 +1032,6 @@ void AllGather
 #endif
 }
 
-template void AllGather
-( const byte* sbuf, int sc, 
-        byte* rbuf, const int* rcs, const int* rds, Comm comm );
-template void AllGather
-( const int* sbuf, int sc, 
-        int* rbuf, const int* rcs, const int* rds, Comm comm );
-template void AllGather
-( const unsigned* sbuf, int sc, 
-        unsigned* rbuf, const int* rcs, const int* rds, Comm comm );
-template void AllGather
-( const long int* sbuf, int sc, 
-        long int* rbuf, const int* rcs, const int* rds, Comm comm );
-template void AllGather
-( const unsigned long* sbuf, int sc, 
-        unsigned long* rbuf, const int* rcs, const int* rds, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void AllGather
-( const long long int* sbuf, int sc, 
-        long long int* rbuf, const int* rcs, const int* rds, Comm comm );
-template void AllGather
-( const unsigned long long* sbuf, int sc, 
-        unsigned long long* rbuf, const int* rcs, const int* rds, Comm comm );
-#endif
-template void AllGather
-( const float* sbuf, int sc, 
-        float* rbuf, const int* rcs, const int* rds, Comm comm );
-template void AllGather
-( const double* sbuf, int sc, 
-        double* rbuf, const int* rcs, const int* rds, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllGather
-( const Quad* sbuf, int sc, 
-        Quad* rbuf, const int* rcs, const int* rds, Comm comm );
-#endif
-template void AllGather
-( const Complex<float>* sbuf, int sc, 
-        Complex<float>* rbuf, const int* rcs, const int* rds, Comm comm );
-template void AllGather
-( const Complex<double>* sbuf, int sc, 
-        Complex<double>* rbuf, const int* rcs, const int* rds, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllGather
-( const Complex<Quad>* sbuf, int sc, 
-        Complex<Quad>* rbuf, const int* rcs, const int* rds, Comm comm );
-#endif
-
 template<typename Real>
 void Scatter
 ( const Real* sbuf, int sc,
@@ -1927,52 +1063,6 @@ void Scatter
         root, comm.comm ) );
 #endif
 }
-
-template void Scatter
-( const byte* sbuf, int sc, 
-        byte* rbuf, int rc, int root, Comm comm );
-template void Scatter
-( const int* sbuf, int sc, 
-        int* rbuf, int rc, int root, Comm comm );
-template void Scatter
-( const unsigned* sbuf, int sc, 
-        unsigned* rbuf, int rc, int root, Comm comm );
-template void Scatter
-( const long int* sbuf, int sc, 
-        long int* rbuf, int rc, int root, Comm comm );
-template void Scatter
-( const unsigned long* sbuf, int sc, 
-        unsigned long* rbuf, int rc, int root, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void Scatter
-( const long long int* sbuf, int sc, 
-        long long int* rbuf, int rc, int root, Comm comm );
-template void Scatter
-( const unsigned long long* sbuf, int sc, 
-        unsigned long long* rbuf, int rc, int root, Comm comm );
-#endif
-template void Scatter
-( const float* sbuf, int sc, 
-        float* rbuf, int rc, int root, Comm comm );
-template void Scatter
-( const double* sbuf, int sc, 
-        double* rbuf, int rc, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Scatter
-( const Quad* sbuf, int sc, 
-        Quad* rbuf, int rc, int root, Comm comm );
-#endif
-template void Scatter
-( const Complex<float>* sbuf, int sc, 
-        Complex<float>* rbuf, int rc, int root, Comm comm );
-template void Scatter
-( const Complex<double>* sbuf, int sc, 
-        Complex<double>* rbuf, int rc, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Scatter
-( const Complex<Quad>* sbuf, int sc, 
-        Complex<Quad>* rbuf, int rc, int root, Comm comm );
-#endif
 
 template<typename Real>
 void Scatter( Real* buf, int sc, int rc, int root, Comm comm )
@@ -2060,26 +1150,6 @@ void Scatter( Complex<Real>* buf, int sc, int rc, int root, Comm comm )
     }
 }
 
-template void Scatter( byte* buf, int sc, int rc, int root, Comm comm );
-template void Scatter( int* buf, int sc, int rc, int root, Comm comm );
-template void Scatter( unsigned* buf, int sc, int rc, int root, Comm comm );
-template void Scatter( long int* buf, int sc, int rc, int root, Comm comm );
-template void Scatter( unsigned long* buf, int sc, int rc, int root, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void Scatter( long long int* buf, int sc, int rc, int root, Comm comm );
-template void Scatter( unsigned long long* buf, int sc, int rc, int root, Comm comm );
-#endif
-template void Scatter( float* buf, int sc, int rc, int root, Comm comm );
-template void Scatter( double* buf, int sc, int rc, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Scatter( Quad* buf, int sc, int rc, int root, Comm comm );
-#endif
-template void Scatter( Complex<float>* buf, int sc, int rc, int root, Comm comm );
-template void Scatter( Complex<double>* buf, int sc, int rc, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Scatter( Complex<Quad>* buf, int sc, int rc, int root, Comm comm );
-#endif
-
 template<typename Real>
 void AllToAll
 ( const Real* sbuf, int sc,
@@ -2111,52 +1181,6 @@ void AllToAll
 #endif
 }
 
-template void AllToAll
-( const byte* sbuf, int sc, 
-        byte* rbuf, int rc, Comm comm );
-template void AllToAll
-( const int* sbuf, int sc, 
-        int* rbuf, int rc, Comm comm );
-template void AllToAll
-( const unsigned* sbuf, int sc, 
-        unsigned* rbuf, int rc, Comm comm );
-template void AllToAll
-( const long int* sbuf, int sc, 
-        long int* rbuf, int rc, Comm comm );
-template void AllToAll
-( const unsigned long* sbuf, int sc, 
-        unsigned long* rbuf, int rc, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void AllToAll
-( const long long int* sbuf, int sc, 
-        long long int* rbuf, int rc, Comm comm );
-template void AllToAll
-( const unsigned long long* sbuf, int sc, 
-        unsigned long long* rbuf, int rc, Comm comm );
-#endif
-template void AllToAll
-( const float* sbuf, int sc, 
-        float* rbuf, int rc, Comm comm );
-template void AllToAll
-( const double* sbuf, int sc, 
-        double* rbuf, int rc, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllToAll
-( const Quad* sbuf, int sc, 
-        Quad* rbuf, int rc, Comm comm );
-#endif
-template void AllToAll
-( const Complex<float>* sbuf, int sc, 
-        Complex<float>* rbuf, int rc, Comm comm );
-template void AllToAll
-( const Complex<double>* sbuf, int sc, 
-        Complex<double>* rbuf, int rc, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllToAll
-( const Complex<Quad>* sbuf, int sc, 
-        Complex<Quad>* rbuf, int rc, Comm comm );
-#endif
-
 template<typename Real>
 void AllToAll
 ( const Real* sbuf, const int* scs, const int* sds, 
@@ -2185,18 +1209,15 @@ void AllToAll
 #ifdef EL_AVOID_COMPLEX_MPI
     int p;
     MPI_Comm_size( comm.comm, &p );
-    vector<int> scsDoubled(p);
-    vector<int> sdsDoubled(p);
-    vector<int> rcsDoubled(p);
-    vector<int> rdsDoubled(p);
+    vector<int> scsDoubled(p), sdsDoubled(p),
+                rcsDoubled(p), rdsDoubled(p);
     for( int i=0; i<p; ++i )
+    {
         scsDoubled[i] = 2*scs[i];
-    for( int i=0; i<p; ++i )
         sdsDoubled[i] = 2*sds[i];
-    for( int i=0; i<p; ++i )
         rcsDoubled[i] = 2*rcs[i];
-    for( int i=0; i<p; ++i )
         rdsDoubled[i] = 2*rds[i];
+    }
     SafeMpi
     ( MPI_Alltoallv
       ( const_cast<Complex<Real>*>(sbuf),
@@ -2216,52 +1237,6 @@ void AllToAll
         comm.comm ) );
 #endif
 }
-
-template void AllToAll
-( const byte* sbuf, const int* scs, const int* sds,
-        byte* rbuf, const int* rcs, const int* rds, Comm comm );
-template void AllToAll
-( const int* sbuf, const int* scs, const int* sds,
-        int* rbuf, const int* rcs, const int* rds, Comm comm );
-template void AllToAll
-( const unsigned* sbuf, const int* scs, const int* sds,
-        unsigned* rbuf, const int* rcs, const int* rds, Comm comm );
-template void AllToAll
-( const long int* sbuf, const int* scs, const int* sds,
-        long int* rbuf, const int* rcs, const int* rds, Comm comm );
-template void AllToAll
-( const unsigned long* sbuf, const int* scs, const int* sds,
-        unsigned long* rbuf, const int* rcs, const int* rds, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void AllToAll
-( const long long int* sbuf, const int* scs, const int* sds,
-        long long int* rbuf, const int* rcs, const int* rds, Comm comm );
-template void AllToAll
-( const unsigned long long* sbuf, const int* scs, const int* sds,
-        unsigned long long* rbuf, const int* rcs, const int* rds, Comm comm );
-#endif
-template void AllToAll
-( const float* sbuf, const int* scs, const int* sds,
-        float* rbuf, const int* rcs, const int* rds, Comm comm );
-template void AllToAll
-( const double* sbuf, const int* scs, const int* sds,
-        double* rbuf, const int* rcs, const int* rds, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllToAll
-( const Quad* sbuf, const int* scs, const int* sds,
-        Quad* rbuf, const int* rcs, const int* rds, Comm comm );
-#endif
-template void AllToAll
-( const Complex<float>* sbuf, const int* scs, const int* sds,
-        Complex<float>* rbuf, const int* rcs, const int* rds, Comm comm );
-template void AllToAll
-( const Complex<double>* sbuf, const int* scs, const int* sds,
-        Complex<double>* rbuf, const int* rcs, const int* rds, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllToAll
-( const Complex<Quad>* sbuf, const int* scs, const int* sds,
-        Complex<Quad>* rbuf, const int* rcs, const int* rds, Comm comm );
-#endif
 
 template<typename Real>
 void Reduce
@@ -2326,70 +1301,9 @@ void Reduce
     }
 }
 
-template void Reduce( const byte* sbuf, byte* rbuf, int count, Op op, int root, Comm comm );
-template void Reduce( const int* sbuf, int* rbuf, int count, Op op, int root, Comm comm );
-template void Reduce( const unsigned* sbuf, unsigned* rbuf, int count, Op op, int root, Comm comm );
-template void Reduce( const long int* sbuf, long int* rbuf, int count, Op op, int root, Comm comm );
-template void Reduce( const unsigned long* sbuf, unsigned long* rbuf, int count, Op op, int root, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void Reduce( const long long int* sbuf, long long int* rbuf, int count, Op op, int root, Comm comm );
-template void Reduce( const unsigned long long* sbuf, unsigned long long* rbuf, int count, Op op, int root, Comm comm );
-#endif
-template void Reduce( const float* sbuf, float* rbuf, int count, Op op, int root, Comm comm );
-template void Reduce( const double* sbuf, double* rbuf, int count, Op op, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Reduce( const Quad* sbuf, Quad* rbuf, int count, Op op, int root, Comm comm );
-#endif
-template void Reduce( const Complex<float>* sbuf, Complex<float>* rbuf, int count, Op op, int root, Comm comm );
-template void Reduce( const Complex<double>* sbuf, Complex<double>* rbuf, int count, Op op, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Reduce( const Complex<Quad>* sbuf, Complex<Quad>* rbuf, int count, Op op, int root, Comm comm );
-#endif
-template void Reduce( const ValueInt<Int>* sbuf, ValueInt<Int>* rbuf, int count, Op op, int root, Comm comm );
-template void Reduce( const ValueInt<float>* sbuf, ValueInt<float>* rbuf, int count, Op op, int root, Comm comm );
-template void Reduce( const ValueInt<double>* sbuf, ValueInt<double>* rbuf, int count, Op op, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Reduce( const ValueInt<Quad>* sbuf, ValueInt<Quad>* rbuf, int count, Op op, int root, Comm comm );
-#endif
-template void Reduce( const ValueIntPair<Int>* sbuf, ValueIntPair<Int>* rbuf, int count, Op op, int root, Comm comm );
-template void Reduce( const ValueIntPair<float>* sbuf, ValueIntPair<float>* rbuf, int count, Op op, int root, Comm comm );
-template void Reduce( const ValueIntPair<double>* sbuf, ValueIntPair<double>* rbuf, int count, Op op, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Reduce( const ValueIntPair<Quad>* sbuf, ValueIntPair<Quad>* rbuf, int count, Op op, int root, Comm comm );
-#endif
-
 template<typename T>
 void Reduce( const T* sbuf, T* rbuf, int count, int root, Comm comm )
 { Reduce( sbuf, rbuf, count, mpi::SUM, root, comm ); }
-
-template void Reduce( const byte* sbuf, byte* rbuf, int count, int root, Comm comm );
-template void Reduce( const int* sbuf, int* rbuf, int count, int root, Comm comm );
-template void Reduce( const unsigned* sbuf, unsigned* rbuf, int count, int root, Comm comm );
-template void Reduce( const long int* sbuf, long int* rbuf, int count, int root, Comm comm );
-template void Reduce( const unsigned long* sbuf, unsigned long* rbuf, int count, int root, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void Reduce( const long long int* sbuf, long long int* rbuf, int count, int root, Comm comm );
-template void Reduce( const unsigned long long* sbuf, unsigned long long* rbuf, int count, int root, Comm comm );
-#endif
-template void Reduce( const float* sbuf, float* rbuf, int count, int root, Comm comm );
-template void Reduce( const double* sbuf, double* rbuf, int count, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Reduce( const Quad* sbuf, Quad* rbuf, int count, int root, Comm comm );
-#endif
-template void Reduce( const Complex<float>* sbuf, Complex<float>* rbuf, int count, int root, Comm comm );
-template void Reduce( const Complex<double>* sbuf, Complex<double>* rbuf, int count, int root, Comm comm );
-template void Reduce( const ValueInt<Int>* sbuf, ValueInt<Int>* rbuf, int count, int root, Comm comm );
-template void Reduce( const ValueInt<float>* sbuf, ValueInt<float>* rbuf, int count, int root, Comm comm );
-template void Reduce( const ValueInt<double>* sbuf, ValueInt<double>* rbuf, int count, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Reduce( const ValueInt<Quad>* sbuf, ValueInt<Quad>* rbuf, int count, int root, Comm comm );
-#endif
-template void Reduce( const ValueIntPair<Int>* sbuf, ValueIntPair<Int>* rbuf, int count, int root, Comm comm );
-template void Reduce( const ValueIntPair<float>* sbuf, ValueIntPair<float>* rbuf, int count, int root, Comm comm );
-template void Reduce( const ValueIntPair<double>* sbuf, ValueIntPair<double>* rbuf, int count, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Reduce( const ValueIntPair<Quad>* sbuf, ValueIntPair<Quad>* rbuf, int count, int root, Comm comm );
-#endif
 
 template<typename T>
 T Reduce( T sb, Op op, int root, Comm comm )
@@ -2399,38 +1313,6 @@ T Reduce( T sb, Op op, int root, Comm comm )
     return rb;
 }
 
-template byte Reduce( byte sb, Op op, int root, Comm comm );
-template int Reduce( int sb, Op op, int root, Comm comm );
-template unsigned Reduce( unsigned sb, Op op, int root, Comm comm );
-template long int Reduce( long int sb, Op op, int root, Comm comm );
-template unsigned long Reduce( unsigned long sb, Op op, int root, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template long long int Reduce( long long int sb, Op op, int root, Comm comm );
-template unsigned long long Reduce( unsigned long long sb, Op op, int root, Comm comm );
-#endif
-template float Reduce( float sb, Op op, int root, Comm comm );
-template double Reduce( double sb, Op op, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template Quad Reduce( Quad sb, Op op, int root, Comm comm );
-#endif
-template Complex<float> Reduce( Complex<float> sb, Op op, int root, Comm comm );
-template Complex<double> Reduce( Complex<double> sb, Op op, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template Complex<Quad> Reduce( Complex<Quad> sb, Op op, int root, Comm comm );
-#endif
-template ValueInt<Int> Reduce( ValueInt<Int> sb, Op op, int root, Comm comm );
-template ValueInt<float> Reduce( ValueInt<float> sb, Op op, int root, Comm comm );
-template ValueInt<double> Reduce( ValueInt<double> sb, Op op, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template ValueInt<Quad> Reduce( ValueInt<Quad> sb, Op op, int root, Comm comm );
-#endif
-template ValueIntPair<Int> Reduce( ValueIntPair<Int> sb, Op op, int root, Comm comm );
-template ValueIntPair<float> Reduce( ValueIntPair<float> sb, Op op, int root, Comm comm );
-template ValueIntPair<double> Reduce( ValueIntPair<double> sb, Op op, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template ValueIntPair<Quad> Reduce( ValueIntPair<Quad> sb, Op op, int root, Comm comm );
-#endif
-
 template<typename T>
 T Reduce( T sb, int root, Comm comm )
 { 
@@ -2438,38 +1320,6 @@ T Reduce( T sb, int root, Comm comm )
     Reduce( &sb, &rb, 1, mpi::SUM, root, comm );
     return rb;
 }
-
-template byte Reduce( byte sb, int root, Comm comm );
-template int Reduce( int sb, int root, Comm comm );
-template unsigned Reduce( unsigned sb, int root, Comm comm );
-template long int Reduce( long int sb, int root, Comm comm );
-template unsigned long Reduce( unsigned long sb, int root, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template long long int Reduce( long long int sb, int root, Comm comm );
-template unsigned long long Reduce( unsigned long long sb, int root, Comm comm );
-#endif
-template float Reduce( float sb, int root, Comm comm );
-template double Reduce( double sb, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template Quad Reduce( Quad sb, int root, Comm comm );
-#endif
-template Complex<float> Reduce( Complex<float> sb, int root, Comm comm );
-template Complex<double> Reduce( Complex<double> sb, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template Complex<Quad> Reduce( Complex<Quad> sb, int root, Comm comm );
-#endif
-template ValueInt<Int> Reduce( ValueInt<Int> sb, int root, Comm comm );
-template ValueInt<float> Reduce( ValueInt<float> sb, int root, Comm comm );
-template ValueInt<double> Reduce( ValueInt<double> sb, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template ValueInt<Quad> Reduce( ValueInt<Quad> sb, int root, Comm comm );
-#endif
-template ValueIntPair<Int> Reduce( ValueIntPair<Int> sb, int root, Comm comm );
-template ValueIntPair<float> Reduce( ValueIntPair<float> sb, int root, Comm comm );
-template ValueIntPair<double> Reduce( ValueIntPair<double> sb, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template ValueIntPair<Quad> Reduce( ValueIntPair<Quad> sb, int root, Comm comm );
-#endif
 
 template<typename Real>
 void Reduce( Real* buf, int count, Op op, int root, Comm comm )
@@ -2598,73 +1448,9 @@ void Reduce( Complex<Real>* buf, int count, Op op, int root, Comm comm )
     }
 }
 
-template void Reduce( byte* buf, int count, Op op, int root, Comm comm );
-template void Reduce( int* buf, int count, Op op, int root, Comm comm );
-template void Reduce( unsigned* buf, int count, Op op, int root, Comm comm );
-template void Reduce( long int* buf, int count, Op op, int root, Comm comm );
-template void Reduce( unsigned long* buf, int count, Op op, int root, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void Reduce( long long int* buf, int count, Op op, int root, Comm comm );
-template void Reduce( unsigned long long* buf, int count, Op op, int root, Comm comm );
-#endif
-template void Reduce( float* buf, int count, Op op, int root, Comm comm );
-template void Reduce( double* buf, int count, Op op, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Reduce( Quad* buf, int count, Op op, int root, Comm comm );
-#endif
-template void Reduce( Complex<float>* buf, int count, Op op, int root, Comm comm );
-template void Reduce( Complex<double>* buf, int count, Op op, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Reduce( Complex<Quad>* buf, int count, Op op, int root, Comm comm );
-#endif
-template void Reduce( ValueInt<Int>* buf, int count, Op op, int root, Comm comm );
-template void Reduce( ValueInt<float>* buf, int count, Op op, int root, Comm comm );
-template void Reduce( ValueInt<double>* buf, int count, Op op, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Reduce( ValueInt<Quad>* buf, int count, Op op, int root, Comm comm );
-#endif
-template void Reduce( ValueIntPair<Int>* buf, int count, Op op, int root, Comm comm );
-template void Reduce( ValueIntPair<float>* buf, int count, Op op, int root, Comm comm );
-template void Reduce( ValueIntPair<double>* buf, int count, Op op, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Reduce( ValueIntPair<Quad>* buf, int count, Op op, int root, Comm comm );
-#endif
-
 template<typename T>
 void Reduce( T* buf, int count, int root, Comm comm )
 { Reduce( buf, count, mpi::SUM, root, comm ); }
-
-template void Reduce( byte* buf, int count, int root, Comm comm );
-template void Reduce( int* buf, int count, int root, Comm comm );
-template void Reduce( unsigned* buf, int count, int root, Comm comm );
-template void Reduce( long int* buf, int count, int root, Comm comm );
-template void Reduce( unsigned long* buf, int count, int root, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void Reduce( long long int* buf, int count, int root, Comm comm );
-template void Reduce( unsigned long long* buf, int count, int root, Comm comm );
-#endif
-template void Reduce( float* buf, int count, int root, Comm comm );
-template void Reduce( double* buf, int count, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Reduce( Quad* buf, int count, int root, Comm comm );
-#endif
-template void Reduce( Complex<float>* buf, int count, int root, Comm comm );
-template void Reduce( Complex<double>* buf, int count, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Reduce( Complex<Quad>* buf, int count, int root, Comm comm );
-#endif
-template void Reduce( ValueInt<Int>* buf, int count, int root, Comm comm );
-template void Reduce( ValueInt<float>* buf, int count, int root, Comm comm );
-template void Reduce( ValueInt<double>* buf, int count, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Reduce( ValueInt<Quad>* buf, int count, int root, Comm comm );
-#endif
-template void Reduce( ValueIntPair<Int>* buf, int count, int root, Comm comm );
-template void Reduce( ValueIntPair<float>* buf, int count, int root, Comm comm );
-template void Reduce( ValueIntPair<double>* buf, int count, int root, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void Reduce( ValueIntPair<Quad>* buf, int count, int root, Comm comm );
-#endif
 
 template<typename Real>
 void AllReduce( const Real* sbuf, Real* rbuf, int count, Op op, Comm comm )
@@ -2726,145 +1512,17 @@ void AllReduce
     }
 }
 
-template void AllReduce( const byte* sbuf, byte* rbuf, int count, Op op, Comm comm );
-template void AllReduce( const int* sbuf, int* rbuf, int count, Op op, Comm comm );
-template void AllReduce( const unsigned* sbuf, unsigned* rbuf, int count, Op op, Comm comm );
-template void AllReduce( const long int* sbuf, long int* rbuf, int count, Op op, Comm comm );
-template void AllReduce( const unsigned long* sbuf, unsigned long* rbuf, int count, Op op, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void AllReduce( const long long int* sbuf, long long int* rbuf, int count, Op op, Comm comm );
-template void AllReduce( const unsigned long long* sbuf, unsigned long long* rbuf, int count, Op op, Comm comm );
-#endif
-template void AllReduce( const float* sbuf, float* rbuf, int count, Op op, Comm comm );
-template void AllReduce( const double* sbuf, double* rbuf, int count, Op op, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllReduce( const Quad* sbuf, Quad* rbuf, int count, Op op, Comm comm );
-#endif
-template void AllReduce( const Complex<float>* sbuf, Complex<float>* rbuf, int count, Op op, Comm comm );
-template void AllReduce( const Complex<double>* sbuf, Complex<double>* rbuf, int count, Op op, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllReduce<Quad>( const Complex<Quad>* sbuf, Complex<Quad>* rbuf, int count, Op op, Comm comm );
-#endif
-template void AllReduce( const ValueInt<Int>* sbuf, ValueInt<Int>* rbuf, int count, Op op, Comm comm );
-template void AllReduce( const ValueInt<float>* sbuf, ValueInt<float>* rbuf, int count, Op op, Comm comm );
-template void AllReduce( const ValueInt<double>* sbuf, ValueInt<double>* rbuf, int count, Op op, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllReduce( const ValueInt<Quad>* sbuf, ValueInt<Quad>* rbuf, int count, Op op, Comm comm );
-#endif
-template void AllReduce( const ValueIntPair<Int>* sbuf, ValueIntPair<Int>* rbuf, int count, Op op, Comm comm );
-template void AllReduce( const ValueIntPair<float>* sbuf, ValueIntPair<float>* rbuf, int count, Op op, Comm comm );
-template void AllReduce( const ValueIntPair<double>* sbuf, ValueIntPair<double>* rbuf, int count, Op op, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllReduce( const ValueIntPair<Quad>* sbuf, ValueIntPair<Quad>* rbuf, int count, Op op, Comm comm );
-#endif
-
 template<typename T>
 void AllReduce( const T* sbuf, T* rbuf, int count, Comm comm )
 { AllReduce( sbuf, rbuf, count, mpi::SUM, comm ); }
-
-template void AllReduce( const byte* sbuf, byte* rbuf, int count, Comm comm );
-template void AllReduce( const int* sbuf, int* rbuf, int count, Comm comm );
-template void AllReduce( const unsigned* sbuf, unsigned* rbuf, int count, Comm comm );
-template void AllReduce( const long int* sbuf, long int* rbuf, int count, Comm comm );
-template void AllReduce( const unsigned long* sbuf, unsigned long* rbuf, int count, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void AllReduce( const long long int* sbuf, long long int* rbuf, int count, Comm comm );
-template void AllReduce( const unsigned long long* sbuf, unsigned long long* rbuf, int count, Comm comm );
-#endif
-template void AllReduce( const float* sbuf, float* rbuf, int count, Comm comm );
-template void AllReduce( const double* sbuf, double* rbuf, int count, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllReduce( const Quad* sbuf, Quad* rbuf, int count, Comm comm );
-#endif
-template void AllReduce( const Complex<float>* sbuf, Complex<float>* rbuf, int count, Comm comm );
-template void AllReduce( const Complex<double>* sbuf, Complex<double>* rbuf, int count, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllReduce( const Complex<Quad>* sbuf, Complex<Quad>* rbuf, int count, Comm comm );
-#endif
-template void AllReduce( const ValueInt<Int>* sbuf, ValueInt<Int>* rbuf, int count, Comm comm );
-template void AllReduce( const ValueInt<float>* sbuf, ValueInt<float>* rbuf, int count, Comm comm );
-template void AllReduce( const ValueInt<double>* sbuf, ValueInt<double>* rbuf, int count, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllReduce( const ValueInt<Quad>* sbuf, ValueInt<Quad>* rbuf, int count, Comm comm );
-#endif
-template void AllReduce( const ValueIntPair<Int>* sbuf, ValueIntPair<Int>* rbuf, int count, Comm comm );
-template void AllReduce( const ValueIntPair<float>* sbuf, ValueIntPair<float>* rbuf, int count, Comm comm );
-template void AllReduce( const ValueIntPair<double>* sbuf, ValueIntPair<double>* rbuf, int count, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllReduce( const ValueIntPair<Quad>* sbuf, ValueIntPair<Quad>* rbuf, int count, Comm comm );
-#endif
 
 template<typename T>
 T AllReduce( T sb, Op op, Comm comm )
 { T rb; AllReduce( &sb, &rb, 1, op, comm ); return rb; }
 
-template byte AllReduce( byte sb, Op op, Comm comm );
-template int AllReduce( int sb, Op op, Comm comm );
-template unsigned AllReduce( unsigned sb, Op op, Comm comm );
-template long int AllReduce( long int sb, Op op, Comm comm );
-template unsigned long AllReduce( unsigned long sb, Op op, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template long long int AllReduce( long long int sb, Op op, Comm comm );
-template unsigned long long AllReduce( unsigned long long sb, Op op, Comm comm );
-#endif
-template float AllReduce( float sb, Op op, Comm comm );
-template double AllReduce( double sb, Op op, Comm comm );
-#ifdef EL_HAVE_QUAD
-template Quad AllReduce( Quad sb, Op op, Comm comm );
-#endif
-template Complex<float> AllReduce( Complex<float> sb, Op op, Comm comm );
-template Complex<double> AllReduce( Complex<double> sb, Op op, Comm comm );
-#ifdef EL_HAVE_QUAD
-template Complex<Quad> AllReduce( Complex<Quad> sb, Op op, Comm comm );
-#endif
-template ValueInt<Int> AllReduce( ValueInt<Int> sb, Op op, Comm comm );
-template ValueInt<float> AllReduce( ValueInt<float> sb, Op op, Comm comm );
-template ValueInt<double> AllReduce( ValueInt<double> sb, Op op, Comm comm );
-#ifdef EL_HAVE_QUAD
-template ValueInt<Quad> AllReduce( ValueInt<Quad> sb, Op op, Comm comm );
-#endif
-template ValueIntPair<Int> AllReduce( ValueIntPair<Int> sb, Op op, Comm comm );
-template ValueIntPair<float> AllReduce( ValueIntPair<float> sb, Op op, Comm comm );
-template ValueIntPair<double> AllReduce( ValueIntPair<double> sb, Op op, Comm comm );
-#ifdef EL_HAVE_QUAD
-template ValueIntPair<Quad> AllReduce( ValueIntPair<Quad> sb, Op op, Comm comm );
-#endif
-
 template<typename T>
 T AllReduce( T sb, Comm comm )
 { return AllReduce( sb, mpi::SUM, comm ); }
-
-template byte AllReduce( byte sb, Comm comm );
-template int AllReduce( int sb, Comm comm );
-template unsigned AllReduce( unsigned sb, Comm comm );
-template long int AllReduce( long int sb, Comm comm );
-template unsigned long AllReduce( unsigned long sb, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template long long int AllReduce( long long int sb, Comm comm );
-template unsigned long long AllReduce( unsigned long long sb, Comm comm );
-#endif
-template float AllReduce( float sb, Comm comm );
-template double AllReduce( double sb, Comm comm );
-#ifdef EL_HAVE_QUAD
-template Quad AllReduce( Quad sb, Comm comm );
-#endif
-template Complex<float> AllReduce( Complex<float> sb, Comm comm );
-template Complex<double> AllReduce( Complex<double> sb, Comm comm );
-#ifdef EL_HAVE_QUAD
-template Complex<Quad> AllReduce( Complex<Quad> sb, Comm comm );
-#endif
-template ValueInt<Int> AllReduce( ValueInt<Int> sb, Comm comm );
-template ValueInt<float> AllReduce( ValueInt<float> sb, Comm comm );
-template ValueInt<double> AllReduce( ValueInt<double> sb, Comm comm );
-#ifdef EL_HAVE_QUAD
-template ValueInt<Quad> AllReduce( ValueInt<Quad> sb, Comm comm );
-#endif
-template ValueIntPair<Int> AllReduce( ValueIntPair<Int> sb, Comm comm );
-template ValueIntPair<float> AllReduce( ValueIntPair<float> sb, Comm comm );
-template ValueIntPair<double> AllReduce( ValueIntPair<double> sb, Comm comm );
-#ifdef EL_HAVE_QUAD
-template ValueIntPair<Quad> AllReduce( ValueIntPair<Quad> sb, Comm comm );
-#endif
 
 template<typename Real>
 void AllReduce( Real* buf, int count, Op op, Comm comm )
@@ -2958,73 +1616,9 @@ void AllReduce( Complex<Real>* buf, int count, Op op, Comm comm )
     }
 }
 
-template void AllReduce( byte* buf, int count, Op op, Comm comm );
-template void AllReduce( int* buf, int count, Op op, Comm comm );
-template void AllReduce( unsigned* buf, int count, Op op, Comm comm );
-template void AllReduce( long int* buf, int count, Op op, Comm comm );
-template void AllReduce( unsigned long* buf, int count, Op op, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void AllReduce( long long int* buf, int count, Op op, Comm comm );
-template void AllReduce( unsigned long long* buf, int count, Op op, Comm comm );
-#endif
-template void AllReduce( float* buf, int count, Op op, Comm comm );
-template void AllReduce( double* buf, int count, Op op, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllReduce( Quad* buf, int count, Op op, Comm comm );
-#endif
-template void AllReduce( Complex<float>* buf, int count, Op op, Comm comm );
-template void AllReduce( Complex<double>* buf, int count, Op op, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllReduce( Complex<Quad>* buf, int count, Op op, Comm comm );
-#endif
-template void AllReduce( ValueInt<Int>* buf, int count, Op op, Comm comm );
-template void AllReduce( ValueInt<float>* buf, int count, Op op, Comm comm );
-template void AllReduce( ValueInt<double>* buf, int count, Op op, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllReduce( ValueInt<Quad>* buf, int count, Op op, Comm comm );
-#endif
-template void AllReduce( ValueIntPair<Int>* buf, int count, Op op, Comm comm );
-template void AllReduce( ValueIntPair<float>* buf, int count, Op op, Comm comm );
-template void AllReduce( ValueIntPair<double>* buf, int count, Op op, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllReduce( ValueIntPair<Quad>* buf, int count, Op op, Comm comm );
-#endif
-
 template<typename T>
 void AllReduce( T* buf, int count, Comm comm )
 { AllReduce( buf, count, mpi::SUM, comm ); }
-
-template void AllReduce( byte* buf, int count, Comm comm );
-template void AllReduce( int* buf, int count, Comm comm );
-template void AllReduce( unsigned* buf, int count, Comm comm );
-template void AllReduce( long int* buf, int count, Comm comm );
-template void AllReduce( unsigned long* buf, int count, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void AllReduce( long long int* buf, int count, Comm comm );
-template void AllReduce( unsigned long long* buf, int count, Comm comm );
-#endif
-template void AllReduce( float* buf, int count, Comm comm );
-template void AllReduce( double* buf, int count, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllReduce( Quad* buf, int count, Comm comm );
-#endif
-template void AllReduce( Complex<float>* buf, int count, Comm comm );
-template void AllReduce( Complex<double>* buf, int count, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllReduce( Complex<Quad>* buf, int count, Comm comm );
-#endif
-template void AllReduce( ValueInt<Int>* buf, int count, Comm comm );
-template void AllReduce( ValueInt<float>* buf, int count, Comm comm );
-template void AllReduce( ValueInt<double>* buf, int count, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllReduce( ValueInt<Quad>* buf, int count, Comm comm );
-#endif
-template void AllReduce( ValueIntPair<Int>* buf, int count, Comm comm );
-template void AllReduce( ValueIntPair<float>* buf, int count, Comm comm );
-template void AllReduce( ValueIntPair<double>* buf, int count, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void AllReduce( ValueIntPair<Quad>* buf, int count, Comm comm );
-#endif
 
 template<typename Real>
 void ReduceScatter( Real* sbuf, Real* rbuf, int rc, Op op, Comm comm )
@@ -3088,97 +1682,17 @@ void ReduceScatter
 #endif
 }
 
-template void ReduceScatter( byte* sbuf, byte* rbuf, int rc, Op op, Comm comm );
-template void ReduceScatter( int* sbuf, int* rbuf, int rc, Op op, Comm comm );
-template void ReduceScatter( unsigned* sbuf, unsigned* rbuf, int rc, Op op, Comm comm );
-template void ReduceScatter( long int* sbuf, long int* rbuf, int rc, Op op, Comm comm );
-template void ReduceScatter( unsigned long* sbuf, unsigned long* rbuf, int rc, Op op, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void ReduceScatter( long long int* sbuf, long long int* rbuf, int rc, Op op, Comm comm );
-template void ReduceScatter( unsigned long long* sbuf, unsigned long long* rbuf, int rc, Op op, Comm comm );
-#endif
-template void ReduceScatter( float* sbuf, float* rbuf, int rc, Op op, Comm comm );
-template void ReduceScatter( double* sbuf, double* rbuf, int rc, Op op, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void ReduceScatter( Quad* sbuf, Quad* rbuf, int rc, Op op, Comm comm );
-#endif
-template void ReduceScatter( Complex<float>* sbuf, Complex<float>* rbuf, int rc, Op op, Comm comm );
-template void ReduceScatter( Complex<double>* sbuf, Complex<double>* rbuf, int rc, Op op, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void ReduceScatter( Complex<Quad>* sbuf, Complex<Quad>* rbuf, int rc, Op op, Comm comm );
-#endif
-
 template<typename T>
 void ReduceScatter( T* sbuf, T* rbuf, int rc, Comm comm )
 { ReduceScatter( sbuf, rbuf, rc, mpi::SUM, comm ); }
-
-template void ReduceScatter( byte* sbuf, byte* rbuf, int rc, Comm comm );
-template void ReduceScatter( int* sbuf, int* rbuf, int rc, Comm comm );
-template void ReduceScatter( unsigned* sbuf, unsigned* rbuf, int rc, Comm comm );
-template void ReduceScatter( long int* sbuf, long int* rbuf, int rc, Comm comm );
-template void ReduceScatter( unsigned long* sbuf, unsigned long* rbuf, int rc, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void ReduceScatter( long long int* sbuf, long long int* rbuf, int rc, Comm comm );
-template void ReduceScatter( unsigned long long* sbuf, unsigned long long* rbuf, int rc, Comm comm );
-#endif
-template void ReduceScatter( float* sbuf, float* rbuf, int rc, Comm comm );
-template void ReduceScatter( double* sbuf, double* rbuf, int rc, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void ReduceScatter( Quad* sbuf, Quad* rbuf, int rc, Comm comm );
-#endif
-template void ReduceScatter( Complex<float>* sbuf, Complex<float>* rbuf, int rc, Comm comm );
-template void ReduceScatter( Complex<double>* sbuf, Complex<double>* rbuf, int rc, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void ReduceScatter( Complex<Quad>* sbuf, Complex<Quad>* rbuf, int rc, Comm comm );
-#endif
 
 template<typename T>
 T ReduceScatter( T sb, Op op, Comm comm )
 { T rb; ReduceScatter( &sb, &rb, 1, op, comm ); return rb; }
 
-template byte ReduceScatter( byte sb, Op op, Comm comm );
-template int ReduceScatter( int sb, Op op, Comm comm );
-template unsigned ReduceScatter( unsigned sb, Op op, Comm comm );
-template long int ReduceScatter( long int sb, Op op, Comm comm );
-template unsigned long ReduceScatter( unsigned long sb, Op op, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template long long int ReduceScatter( long long int sb, Op op, Comm comm );
-template unsigned long long ReduceScatter( unsigned long long sb, Op op, Comm comm );
-#endif
-template float ReduceScatter( float sb, Op op, Comm comm );
-template double ReduceScatter( double sb, Op op, Comm comm );
-#ifdef EL_HAVE_QUAD
-template Quad ReduceScatter( Quad sb, Op op, Comm comm );
-#endif
-template Complex<float> ReduceScatter( Complex<float> sb, Op op, Comm comm );
-template Complex<double> ReduceScatter( Complex<double> sb, Op op, Comm comm );
-#ifdef EL_HAVE_QUAD
-template Complex<Quad> ReduceScatter( Complex<Quad> sb, Op op, Comm comm );
-#endif
-
 template<typename T>
 T ReduceScatter( T sb, Comm comm )
 { return ReduceScatter( sb, mpi::SUM, comm ); }
-
-template byte ReduceScatter( byte sb, Comm comm );
-template int ReduceScatter( int sb, Comm comm );
-template unsigned ReduceScatter( unsigned sb, Comm comm );
-template long int ReduceScatter( long int sb, Comm comm );
-template unsigned long ReduceScatter( unsigned long sb, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template long long int ReduceScatter( long long int sb, Comm comm );
-template unsigned long long ReduceScatter( unsigned long long sb, Comm comm );
-#endif
-template float ReduceScatter( float sb, Comm comm );
-template double ReduceScatter( double sb, Comm comm );
-#ifdef EL_HAVE_QUAD
-template Quad ReduceScatter( Quad sb, Comm comm );
-#endif
-template Complex<float> ReduceScatter( Complex<float> sb, Comm comm );
-template Complex<double> ReduceScatter( Complex<double> sb, Comm comm );
-#ifdef EL_HAVE_QUAD
-template Complex<Quad> ReduceScatter( Complex<Quad> sb, Comm comm );
-#endif
 
 template<typename Real>
 void ReduceScatter( Real* buf, int rc, Op op, Comm comm )
@@ -3272,49 +1786,9 @@ void ReduceScatter( Complex<Real>* buf, int rc, Op op, Comm comm )
 #endif
 }
 
-template void ReduceScatter( byte* buf, int rc, Op op, Comm comm );
-template void ReduceScatter( int* buf, int rc, Op op, Comm comm );
-template void ReduceScatter( unsigned* buf, int rc, Op op, Comm comm );
-template void ReduceScatter( long int* buf, int rc, Op op, Comm comm );
-template void ReduceScatter( unsigned long* buf, int rc, Op op, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void ReduceScatter( long long int* buf, int rc, Op op, Comm comm );
-template void ReduceScatter( unsigned long long* buf, int rc, Op op, Comm comm );
-#endif
-template void ReduceScatter( float* buf, int rc, Op op, Comm comm );
-template void ReduceScatter( double* buf, int rc, Op op, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void ReduceScatter( Quad* buf, int rc, Op op, Comm comm );
-#endif
-template void ReduceScatter( Complex<float>* buf, int rc, Op op, Comm comm );
-template void ReduceScatter( Complex<double>* buf, int rc, Op op, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void ReduceScatter( Complex<Quad>* buf, int rc, Op op, Comm comm );
-#endif
-
 template<typename T>
 void ReduceScatter( T* buf, int rc, Comm comm )
 { ReduceScatter( buf, rc, mpi::SUM, comm ); }
-
-template void ReduceScatter( byte* buf, int rc, Comm comm );
-template void ReduceScatter( int* buf, int rc, Comm comm );
-template void ReduceScatter( unsigned* buf, int rc, Comm comm );
-template void ReduceScatter( long int* buf, int rc, Comm comm );
-template void ReduceScatter( unsigned long* buf, int rc, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void ReduceScatter( long long int* buf, int rc, Comm comm );
-template void ReduceScatter( unsigned long long* buf, int rc, Comm comm );
-#endif
-template void ReduceScatter( float* buf, int rc, Comm comm );
-template void ReduceScatter( double* buf, int rc, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void ReduceScatter( Quad* buf, int rc, Comm comm );
-#endif
-template void ReduceScatter( Complex<float>* buf, int rc, Comm comm );
-template void ReduceScatter( Complex<double>* buf, int rc, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void ReduceScatter( Complex<Quad>* buf, int rc, Comm comm );
-#endif
 
 template<typename Real>
 void ReduceScatter
@@ -3378,49 +1852,9 @@ void ReduceScatter
 #endif
 }
 
-template void ReduceScatter( const byte* sbuf, byte* rbuf, const int* rcs, Op op, Comm comm );
-template void ReduceScatter( const int* sbuf, int* rbuf, const int* rcs, Op op, Comm comm );
-template void ReduceScatter( const unsigned* sbuf, unsigned* rbuf, const int* rcs, Op op, Comm comm );
-template void ReduceScatter( const long int* sbuf, long int* rbuf, const int* rcs, Op op, Comm comm );
-template void ReduceScatter( const unsigned long* sbuf, unsigned long* rbuf, const int* rcs, Op op, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void ReduceScatter( const long long int* sbuf, long long int* rbuf, const int* rcs, Op op, Comm comm );
-template void ReduceScatter( const unsigned long long* sbuf, unsigned long long* rbuf, const int* rcs, Op op, Comm comm );
-#endif
-template void ReduceScatter( const float* sbuf, float* rbuf, const int* rcs, Op op, Comm comm );
-template void ReduceScatter( const double* sbuf, double* rbuf, const int* rcs, Op op, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void ReduceScatter( const Quad* sbuf, Quad* rbuf, const int* rcs, Op op, Comm comm );
-#endif
-template void ReduceScatter( const Complex<float>* sbuf, Complex<float>* rbuf, const int* rcs, Op op, Comm comm );
-template void ReduceScatter( const Complex<double>* sbuf, Complex<double>* rbuf, const int* rcs, Op op, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void ReduceScatter( const Complex<Quad>* sbuf, Complex<Quad>* rbuf, const int* rcs, Op op, Comm comm );
-#endif
-
 template<typename T>
 void ReduceScatter( const T* sbuf, T* rbuf, const int* rcs, Comm comm )
 { ReduceScatter( sbuf, rbuf, rcs, mpi::SUM, comm ); }
-
-template void ReduceScatter( const byte* sbuf, byte* rbuf, const int* rcs, Comm comm );
-template void ReduceScatter( const int* sbuf, int* rbuf, const int* rcs, Comm comm );
-template void ReduceScatter( const unsigned* sbuf, unsigned* rbuf, const int* rcs, Comm comm );
-template void ReduceScatter( const long int* sbuf, long int* rbuf, const int* rcs, Comm comm );
-template void ReduceScatter( const unsigned long* sbuf, unsigned long* rbuf, const int* rcs, Comm comm );
-#ifdef EL_HAVE_MPI_LONG_LONG
-template void ReduceScatter( const long long int* sbuf, long long int* rbuf, const int* rcs, Comm comm );
-template void ReduceScatter( const unsigned long long* sbuf, unsigned long long* rbuf, const int* rcs, Comm comm );
-#endif
-template void ReduceScatter( const float* sbuf, float* rbuf, const int* rcs, Comm comm );
-template void ReduceScatter( const double* sbuf, double* rbuf, const int* rcs, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void ReduceScatter( const Quad* sbuf, Quad* rbuf, const int* rcs, Comm comm );
-#endif
-template void ReduceScatter( const Complex<float>* sbuf, Complex<float>* rbuf, const int* rcs, Comm comm );
-template void ReduceScatter( const Complex<double>* sbuf, Complex<double>* rbuf, const int* rcs, Comm comm );
-#ifdef EL_HAVE_QUAD
-template void ReduceScatter( const Complex<Quad>* sbuf, Complex<Quad>* rbuf, const int* rcs, Comm comm );
-#endif
 
 void VerifySendsAndRecvs
 ( const vector<int>& sendCounts,
@@ -3487,6 +1921,119 @@ void SparseAllToAll
       recvBuffer.data(), recvCounts.data(), recvDispls.data(), comm );
 #endif
 }
+
+#define MPI_PROTO(T) \
+  template int GetCount<T>( Status& status ); \
+  template void TaggedSend( const T* buf, int count, int to, int tag, Comm comm ); \
+  template void Send( const T* buf, int count, int to, Comm comm ); \
+  template void TaggedSend( T b, int to, int tag, Comm comm ); \
+  template void Send( T b, int to, Comm comm ); \
+  template void TaggedISend( const T* buf, int count, int to, int tag, Comm comm, Request& request ); \
+  template void ISend( const T* buf, int count, int to, Comm comm, Request& request ); \
+  template void TaggedISend( T buf, int to, int tag, Comm comm, Request& request ); \
+  template void ISend( T buf, int to, Comm comm, Request& request ); \
+  template void TaggedISSend( const T* buf, int count, int to, int tag, Comm comm, Request& request ); \
+  template void ISSend( const T* buf, int count, int to, Comm comm, Request& request ); \
+  template void TaggedISSend( T b, int to, int tag, Comm comm, Request& request ); \
+  template void TaggedRecv( T* buf, int count, int from, int tag, Comm comm ); \
+  template void Recv( T* buf, int count, int from, Comm comm ); \
+  template T TaggedRecv<T>( int from, int tag, Comm comm ); \
+  template T Recv( int from, Comm comm ); \
+  template void TaggedIRecv( T* buf, int count, int from, int tag, Comm comm, Request& request ); \
+  template void IRecv( T* buf, int count, int from, Comm comm, Request& request ); \
+  template T TaggedIRecv<T>( int from, int tag, Comm comm, Request& request ); \
+  template T IRecv<T>( int from, Comm comm, Request& request ); \
+  template void TaggedSendRecv \
+  ( const T* sbuf, int sc, int to,   int stag, \
+          T* rbuf, int rc, int from, int rtag, Comm comm ); \
+  template void SendRecv \
+  ( const T* sbuf, int sc, int to, \
+          T* rbuf, int rc, int from, Comm comm ); \
+  template T TaggedSendRecv \
+  ( T sb, int to, int stag, int from, int rtag, Comm comm ); \
+  template T SendRecv( T sb, int to, int from, Comm comm ); \
+  template void TaggedSendRecv \
+  ( T* buf, int count, int to, int stag, int from, int rtag, Comm comm ); \
+  template void SendRecv \
+  ( T* buf, int count, int to, int from, Comm comm ); \
+  template void Broadcast( T* buf, int count, int root, Comm comm ); \
+  template void Broadcast( T& b, int root, Comm comm ); \
+  template void IBroadcast( T* buf, int count, int root, Comm comm, Request& request ); \
+  template void IBroadcast( T& b, int root, Comm comm, Request& request ); \
+  template void Gather( const T* sbuf, int sc, T* rbuf, int rc, int root, Comm comm ); \
+  template void IGather \
+  ( const T* sbuf, int sc, \
+          T* rbuf, int rc, int root, Comm comm, Request& request ); \
+  template void Gather \
+  ( const T* sbuf, int sc, \
+          T* rbuf, const int* rcs, const int* rds, int root, Comm comm ); \
+  template void AllGather( const T* sbuf, int sc, T* rbuf, int rc, Comm comm ); \
+  template void AllGather \
+  ( const T* sbuf, int sc, \
+          T* rbuf, const int* rcs, const int* rds, Comm comm ); \
+  template void Scatter \
+  ( const T* sbuf, int sc, \
+          T* rbuf, int rc, int root, Comm comm ); \
+  template void Scatter( T* buf, int sc, int rc, int root, Comm comm ); \
+  template void AllToAll \
+  ( const T* sbuf, int sc, \
+          T* rbuf, int rc, Comm comm ); \
+  template void AllToAll \
+  ( const T* sbuf, const int* scs, const int* sds, \
+          T* rbuf, const int* rcs, const int* rds, Comm comm ); \
+  template void Reduce( const T* sbuf, T* rbuf, int count, Op op, int root, Comm comm ); \
+  template void Reduce( const T* sbuf, T* rbuf, int count, int root, Comm comm ); \
+  template T Reduce( T sb, Op op, int root, Comm comm ); \
+  template T Reduce( T sb, int root, Comm comm ); \
+  template void Reduce( T* buf, int count, Op op, int root, Comm comm ); \
+  template void Reduce( T* buf, int count, int root, Comm comm ); \
+  template void AllReduce( const T* sbuf, T* rbuf, int count, Op op, Comm comm ); \
+  template void AllReduce( const T* sbuf, T* rbuf, int count, Comm comm ); \
+  template T AllReduce( T sb, Op op, Comm comm ); \
+  template T AllReduce( T sb, Comm comm ); \
+  template void AllReduce( T* buf, int count, Op op, Comm comm ); \
+  template void AllReduce( T* buf, int count, Comm comm ); \
+  template void ReduceScatter( T* sbuf, T* rbuf, int rc, Op op, Comm comm ); \
+  template void ReduceScatter( T* sbuf, T* rbuf, int rc, Comm comm ); \
+  template T ReduceScatter( T sb, Op op, Comm comm ); \
+  template T ReduceScatter( T sb, Comm comm ); \
+  template void ReduceScatter( T* buf, int rc, Op op, Comm comm ); \
+  template void ReduceScatter( T* buf, int rc, Comm comm ); \
+  template void ReduceScatter( const T* sbuf, T* rbuf, const int* rcs, Op op, Comm comm ); \
+  template void ReduceScatter( const T* sbuf, T* rbuf, const int* rcs, Comm comm );
+
+MPI_PROTO(byte)
+MPI_PROTO(int)
+MPI_PROTO(unsigned)
+MPI_PROTO(long int)
+MPI_PROTO(unsigned long)
+#ifdef EL_HAVE_MPI_LONG_LONG
+MPI_PROTO(long long int)
+MPI_PROTO(unsigned long long)
+#endif
+MPI_PROTO(float)
+MPI_PROTO(double)
+#ifdef EL_HAVE_QUAD
+MPI_PROTO(Quad)
+#endif
+MPI_PROTO(Complex<float>)
+MPI_PROTO(Complex<double>)
+#ifdef EL_HAVE_QUAD
+MPI_PROTO(Complex<Quad>)
+#endif
+
+MPI_PROTO(ValueInt<Int>)
+MPI_PROTO(ValueInt<float>)
+MPI_PROTO(ValueInt<double>)
+#ifdef EL_HAVE_QUAD
+MPI_PROTO(ValueInt<Quad>)
+#endif
+MPI_PROTO(ValueIntPair<Int>)
+MPI_PROTO(ValueIntPair<float>)
+MPI_PROTO(ValueIntPair<double>)
+#ifdef EL_HAVE_QUAD
+MPI_PROTO(ValueIntPair<Quad>)
+#endif
 
 #define PROTO(T) \
   template void SparseAllToAll \

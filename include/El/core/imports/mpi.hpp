@@ -345,7 +345,6 @@ void Broadcast( Complex<Real>* buf, int count, int root, Comm comm );
 template<typename T>
 void Broadcast( T& b, int root, Comm comm );
 
-#ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
 // Non-blocking broadcast
 // ----------------------
 template<typename Real>
@@ -358,7 +357,6 @@ void IBroadcast
 // If the message length is one
 template<typename T>
 void IBroadcast( T& b, int root, Comm comm, Request& request );
-#endif
 
 // Gather
 // ------
@@ -371,7 +369,6 @@ void  Gather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, int rc, int root, Comm comm );
 
-#ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
 // Non-blocking gather
 // -------------------
 template<typename Real>
@@ -382,7 +379,6 @@ template<typename Real>
 void IGather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, int rc, int root, Comm comm, Request& request );
-#endif
 
 // Gather with variable recv sizes
 // -------------------------------
