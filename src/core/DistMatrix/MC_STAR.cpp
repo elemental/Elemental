@@ -279,6 +279,7 @@ int DM::RedundantSize() const { return this->grid_->MRSize(); }
   BOTH( T,VC,  STAR); \
   BOTH( T,VR,  STAR);
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

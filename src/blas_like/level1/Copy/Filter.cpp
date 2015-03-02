@@ -64,6 +64,7 @@ void Filter
   PROTO_DIST(T,VC,  STAR) \
   PROTO_DIST(T,VR,  STAR) 
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace copy

@@ -19,9 +19,9 @@ void Multiply
   T beta,                                  Matrix<T>& Y )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Multiply");
-        if( X.Width() != Y.Width() )
-            LogicError("X and Y must have the same width");
+      CallStackEntry cse("Multiply");
+      if( X.Width() != Y.Width() )
+          LogicError("X and Y must have the same width");
     )
     const Int m = A.Height();
     const Int b = X.Width();
@@ -89,12 +89,12 @@ void Multiply
   T beta,                                      DistMultiVec<T>& Y )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Multiply");
-        if( X.Width() != Y.Width() )
-            LogicError("X and Y must have the same width");
-        if( !mpi::Congruent( A.Comm(), X.Comm() ) || 
-            !mpi::Congruent( X.Comm(), Y.Comm() ) )
-            LogicError("Communicators did not match");
+      CallStackEntry cse("Multiply");
+      if( X.Width() != Y.Width() )
+          LogicError("X and Y must have the same width");
+      if( !mpi::Congruent( A.Comm(), X.Comm() ) || 
+          !mpi::Congruent( X.Comm(), Y.Comm() ) )
+          LogicError("Communicators did not match");
     )
     mpi::Comm comm = A.Comm();
     const int commSize = mpi::Size( comm );
@@ -108,11 +108,11 @@ void Multiply
         // Compute the set of row indices that we need from X in a normal
         // multiply or update of Y in the adjoint case
         const Int numLocalEntries = A.NumLocalEntries();
-        std::set<Int> indexSet;
+        set<Int> indexSet;
         for( Int e=0; e<numLocalEntries; ++e )
             indexSet.insert( A.Col(e) );
         const Int numRecvInds = indexSet.size();
-        std::vector<Int> recvInds( numRecvInds );
+        vector<Int> recvInds( numRecvInds );
         meta.recvSizes.clear();
         meta.recvSizes.resize( commSize, 0 );
         meta.recvOffs.resize( commSize );
@@ -120,7 +120,7 @@ void Multiply
           ( orientation == NORMAL ? X.Blocksize() : Y.Blocksize() );;
         {
             Int off=0, lastOff=0, qPrev=0;
-            std::set<Int>::const_iterator setIt;
+            set<Int>::const_iterator setIt;
             for( setIt=indexSet.begin(); setIt!=indexSet.end(); ++setIt )
             {
                 const Int j = *setIt;
@@ -171,10 +171,10 @@ void Multiply
 
     // Convert the sizes and offsets to be compatible with the current width
     const Int b = X.Width();
-    std::vector<int> recvSizes=meta.recvSizes,
-                     recvOffs=meta.recvOffs,
-                     sendSizes=meta.sendSizes,
-                     sendOffs=meta.sendOffs;
+    vector<int> recvSizes=meta.recvSizes,
+                recvOffs=meta.recvOffs,
+                sendSizes=meta.sendSizes,
+                sendOffs=meta.sendOffs;
     for( int q=0; q<commSize; ++q )
     {
         recvSizes[q] *= b;    
@@ -193,7 +193,7 @@ void Multiply
         // Pack the send values
         const Int numSendInds = meta.sendInds.size();
         const Int firstLocalRow = X.FirstLocalRow();
-        std::vector<T> sendVals( numSendInds*b );
+        vector<T> sendVals( numSendInds*b );
         for( Int s=0; s<numSendInds; ++s )
         {
             const Int i = meta.sendInds[s];
@@ -203,7 +203,7 @@ void Multiply
         }
 
         // Now send them
-        std::vector<T> recvVals( meta.numRecvInds*b );
+        vector<T> recvVals( meta.numRecvInds*b );
         mpi::AllToAll
         ( sendVals.data(), sendSizes.data(), sendOffs.data(),
           recvVals.data(), recvSizes.data(), recvOffs.data(), comm );
@@ -235,7 +235,7 @@ void Multiply
 
         // Form and pack the updates to Y
         const bool conjugate = ( orientation == ADJOINT );
-        std::vector<T> sendVals( meta.numRecvInds*b, 0 );
+        vector<T> sendVals( meta.numRecvInds*b, 0 );
         const Int ALocalHeight = A.LocalHeight();
         for( Int iLoc=0; iLoc<ALocalHeight; ++iLoc )
         {
@@ -258,7 +258,7 @@ void Multiply
 
         // Inject the updates to Y into the network
         const Int numRecvInds = meta.sendInds.size();
-        std::vector<T> recvVals( numRecvInds*b );
+        vector<T> recvVals( numRecvInds*b );
         mpi::AllToAll
         ( sendVals.data(), recvSizes.data(), recvOffs.data(),
           recvVals.data(), sendSizes.data(), sendOffs.data(), comm );

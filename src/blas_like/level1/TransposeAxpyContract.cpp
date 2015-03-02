@@ -24,7 +24,7 @@ void TransposeAxpyContract
     }
     else if( A.ColDist() == V && A.RowDist() == Partial(U) )
     {
-        std::unique_ptr<AbstractDistMatrix<T>>
+        unique_ptr<AbstractDistMatrix<T>>
           ASumFilt( B.ConstructTranspose(B.Grid(),B.Root()) );
         if( B.ColConstrained() )
             ASumFilt->AlignRowsWith( B, false );
@@ -39,7 +39,7 @@ void TransposeAxpyContract
     }
     else if( A.ColDist() == V && A.RowDist() == Collect(U) )
     {
-        std::unique_ptr<AbstractDistMatrix<T>>
+        unique_ptr<AbstractDistMatrix<T>>
           ASumFilt( B.ConstructTranspose(B.Grid(),B.Root()) );
         if( B.ColConstrained() )
             ASumFilt->AlignRowsWith( B, false );
@@ -73,6 +73,7 @@ void TransposeAxpyContract
   ( T alpha, const AbstractBlockDistMatrix<T>& A, \
                    AbstractBlockDistMatrix<T>& B, bool conjugate );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

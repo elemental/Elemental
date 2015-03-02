@@ -21,17 +21,17 @@ void Syrk
   T alpha, const Matrix<T>& A, T beta, Matrix<T>& C, bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Syrk");
-        if( orientation == NORMAL )
-        {
-            if( A.Height() != C.Height() || A.Height() != C.Width() )
-                LogicError("Nonconformal Syrk");
-        }
-        else
-        {
-            if( A.Width() != C.Height() || A.Width() != C.Width() )
-                LogicError("Nonconformal Syrk");
-        }
+      CallStackEntry cse("Syrk");
+      if( orientation == NORMAL )
+      {
+          if( A.Height() != C.Height() || A.Height() != C.Width() )
+              LogicError("Nonconformal Syrk");
+      }
+      else
+      {
+          if( A.Width() != C.Height() || A.Width() != C.Width() )
+              LogicError("Nonconformal Syrk");
+      }
     )
     const char uploChar = UpperOrLowerToChar( uplo );
     const char transChar = OrientationToChar( orientation );
@@ -202,7 +202,7 @@ void Syrk
 
     // Count the number of entries that we will send to each process
     // =============================================================
-    std::vector<int> sendSizes(commSize,0);
+    vector<int> sendSizes(commSize,0);
     const Int localHeightA = A.LocalHeight();
     for( Int kLoc=0; kLoc<localHeightA; ++kLoc )
     {
@@ -220,19 +220,19 @@ void Syrk
             }
         }
     }
-    std::vector<int> recvSizes(commSize);
+    vector<int> recvSizes(commSize);
     mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, comm );
 
     // Convert the send and recv counts to offsets and total sizes
     // ===========================================================
-    std::vector<int> sendOffsets, recvOffsets;
+    vector<int> sendOffsets, recvOffsets;
     const int totalSend = Scan( sendSizes, sendOffsets );
     const int totalRecv = Scan( recvSizes, recvOffsets );
 
     // Pack the send buffers
     // ===================== 
-    std::vector<Int> sourceBuf(totalSend), targetBuf(totalSend);
-    std::vector<T> valueBuf(totalSend);
+    vector<Int> sourceBuf(totalSend), targetBuf(totalSend);
+    vector<T> valueBuf(totalSend);
     auto offsets = sendOffsets;
     for( Int kLoc=0; kLoc<localHeightA; ++kLoc )
     {
@@ -265,8 +265,8 @@ void Syrk
     // ===================
     const Int oldSize = C.NumLocalEntries();
     const Int newCapacity = oldSize + totalRecv;
-    std::vector<Int> sourceRecvBuf(totalRecv), targetRecvBuf(totalRecv);
-    std::vector<T> valueRecvBuf(totalRecv);
+    vector<Int> sourceRecvBuf(totalRecv), targetRecvBuf(totalRecv);
+    vector<T> valueRecvBuf(totalRecv);
     mpi::AllToAll
     ( sourceBuf.data(), sendSizes.data(), sendOffsets.data(),
       sourceRecvBuf.data(), recvSizes.data(), recvOffsets.data(), comm );

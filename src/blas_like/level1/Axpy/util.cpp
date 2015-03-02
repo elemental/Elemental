@@ -32,6 +32,7 @@ void InterleaveMatrixUpdate
     const T* A, Int colStrideA, Int rowStrideA, \
           T* B, Int colStrideB, Int rowStrideB );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace util

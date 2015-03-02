@@ -63,7 +63,7 @@ void MakeSymmetric
     if( conjugate )
         MakeDiagonalReal(A);
 
-    std::unique_ptr<AbstractDistMatrix<T>> 
+    unique_ptr<AbstractDistMatrix<T>> 
       ATrans( A.Construct(A.Grid(),A.Root()) );
     Transpose( A, *ATrans, conjugate );
     if( uplo == LOWER )
@@ -144,7 +144,7 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
     // =====================================================
     mpi::Comm comm = A.Comm();
     const int commSize = mpi::Size(comm);
-    std::vector<int> sendCounts(commSize,0);
+    vector<int> sendCounts(commSize,0);
     for( Int k=0; k<numLocalEntries; ++k )
     {
         const Int i = sBuf[k];
@@ -152,20 +152,20 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
         if( (uplo == LOWER && i > j) || (uplo == UPPER && i < j) )
             ++sendCounts[ A.RowOwner(j) ];
     }
-    std::vector<int> recvCounts(commSize);
+    vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
 
     // Convert the send/recv counts into offsets and total sizes
     // =========================================================
-    std::vector<int> sendOffsets, recvOffsets;
+    vector<int> sendOffsets, recvOffsets;
     const int totalSend = Scan( sendCounts, sendOffsets );
     const int totalRecv = Scan( recvCounts, recvOffsets );
 
     // Pack the triplets
     // =================
-    std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
-    std::vector<T> vSendBuf(totalSend);
-    std::vector<int> offsets = sendOffsets;
+    vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
+    vector<T> vSendBuf(totalSend);
+    auto offsets = sendOffsets;
     for( Int k=0; k<numLocalEntries; ++k )
     {
         const Int i = sBuf[k];
@@ -186,8 +186,8 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
 
     // Exchange and unpack the triplets
     // ================================
-    std::vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
-    std::vector<T> vRecvBuf(totalRecv);
+    vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
+    vector<T> vRecvBuf(totalRecv);
     mpi::AllToAll
     ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
       sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );

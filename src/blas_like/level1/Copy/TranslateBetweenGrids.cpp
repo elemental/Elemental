@@ -64,7 +64,7 @@ void TranslateBetweenGrids
     // necessarily defined on every process, we instead work with A's owning
     // group and account for row-major ordering if necessary.
     const int sizeA = A.Grid().Size();
-    std::vector<int> rankMap(sizeA), ranks(sizeA);
+    vector<int> rankMap(sizeA), ranks(sizeA);
     if( A.Grid().Order() == COLUMN_MAJOR )
     {
         for( int j=0; j<sizeA; ++j )
@@ -96,7 +96,7 @@ void TranslateBetweenGrids
         requiredMemory += maxSendSize;
     if( inBGrid )
         requiredMemory += maxSendSize;
-    std::vector<T> auxBuf( requiredMemory );
+    vector<T> auxBuf( requiredMemory );
     Int offset = 0;
     T* sendBuf = &auxBuf[offset];
     if( inAGrid )
@@ -231,7 +231,7 @@ void TranslateBetweenGrids
         requiredMemory += height*width;
     if( B.Participating() )
         requiredMemory += height*width;
-    std::vector<T> buffer( requiredMemory );
+    vector<T> buffer( requiredMemory );
     Int offset = 0;
     T* sendBuf = &buffer[offset];
     if( rankA == 0 ) 
@@ -298,6 +298,7 @@ void TranslateBetweenGrids
   PROTO_DIST(T,VC,STAR) \
   PROTO_DIST(T,VR,STAR) 
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace copy

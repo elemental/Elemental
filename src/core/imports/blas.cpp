@@ -512,6 +512,23 @@ namespace blas {
 
 // Level 1 BLAS
 // ============
+template<typename T>
+void Axpy( int n, T alpha, const T* x, int incx, T* y, int incy )
+{
+    for( Int i=0; i<n; ++i )
+        y[i*incy] += alpha*x[i*incx];
+}
+template void Axpy
+( int n, Int alpha, const Int* x, int incx, Int* y, int incy );
+#ifdef EL_HAVE_QUAD
+template void Axpy
+( int n, Quad alpha, 
+  const Quad* x, int incx, Quad* y, int incy );
+template void Axpy
+( int n, Complex<Quad> alpha, 
+  const Complex<Quad>* x, int incx, Complex<Quad>* y, int incy );
+#endif
+
 void Axpy
 ( int n, float alpha, const float* x, int incx, float* y, int incy )
 { EL_BLAS(saxpy)( &n, &alpha, x, &incx, y, &incy ); }
@@ -524,6 +541,20 @@ void Axpy
 void Axpy
 ( int n, dcomplex alpha, const dcomplex* x, int incx, dcomplex* y, int incy )
 { EL_BLAS(zaxpy)( &n, &alpha, x, &incx, y, &incy ); }
+
+template<typename T>
+void Copy( int n, const T* x, int incx, T* y, int incy )
+{
+    for( int i=0; i<n; ++i )
+        y[i*incy] = x[i*incx];
+}
+template void Copy( int n, const Int* x, int incx, Int* y, int incy );
+#ifdef EL_HAVE_QUAD
+template void Copy
+( int n, const Quad* x, int incx, Quad* y, int incy );
+template void Copy
+( int n, const Complex<Quad>* x, int incx, Complex<Quad>* y, int incy );
+#endif
 
 void Copy( int n, const float* x, int incx, float* y, int incy )
 { EL_BLAS(scopy)( &n, x, &incx, y, &incy ); }

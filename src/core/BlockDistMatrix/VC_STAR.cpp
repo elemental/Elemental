@@ -225,6 +225,7 @@ int BDM::RedundantSize() const { return 1; }
   OTHER(T,VC,  STAR); \
   BOTH( T,VR,  STAR);
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

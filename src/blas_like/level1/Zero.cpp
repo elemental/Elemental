@@ -74,6 +74,7 @@ void Zero( DistMultiVec<T>& X )
   template void Zero( DistSparseMatrix<T>& A, bool clearMemory ); \
   template void Zero( DistMultiVec<T>& A );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

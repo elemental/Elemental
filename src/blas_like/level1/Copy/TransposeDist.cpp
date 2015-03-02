@@ -40,7 +40,7 @@ void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B )
         const Int recvRankB = 
             (recvRankA/colStrideA)+rowStrideA*(recvRankA%colStrideA);
 
-        std::vector<T> buffer( (colStrideA+rowStrideA)*portionSize );
+        vector<T> buffer( (colStrideA+rowStrideA)*portionSize );
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[colStrideA*portionSize];
 
@@ -113,7 +113,7 @@ void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B )
         const Int recvRankA = 
             (recvRankB/rowStrideA)+colStrideA*(recvRankB%rowStrideA);
 
-        std::vector<T> buffer( (colStrideA+rowStrideA)*portionSize );
+        vector<T> buffer( (colStrideA+rowStrideA)*portionSize );
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[rowStrideA*portionSize];
 
@@ -212,6 +212,7 @@ void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B )
   PROTO_DIST(T,MC,MR) \
   PROTO_DIST(T,MR,MC)
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace copy

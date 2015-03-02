@@ -46,7 +46,7 @@ void ColFilter( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
     {
 #ifdef EL_UNALIGNED_WARNINGS
         if( B.Grid().Rank() == 0 )
-            std::cerr << "Unaligned ColFilter" << std::endl;
+            cerr << "Unaligned ColFilter" << endl;
 #endif
         const Int rowStride = B.RowStride();
         const Int sendRowRank = Mod( B.RowRank()+rowDiff, rowStride );
@@ -54,7 +54,7 @@ void ColFilter( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
         const Int localWidthA = A.LocalWidth();
         const Int sendSize = localHeight*localWidthA;
         const Int recvSize = localHeight*localWidth;
-        std::vector<T> buffer( sendSize+recvSize );
+        vector<T> buffer( sendSize+recvSize );
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[sendSize];
 
@@ -92,6 +92,7 @@ void ColFilter
   template void ColFilter \
   ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace copy

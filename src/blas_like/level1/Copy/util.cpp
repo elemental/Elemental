@@ -386,6 +386,7 @@ void StridedUnpack
     const T* APortions, Int portionSize, \
           T* B,         Int BLDim );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace util

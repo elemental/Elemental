@@ -66,6 +66,7 @@ void Zeros( DistMultiVec<T>& A, Int m, Int n )
   template void Zeros( DistSparseMatrix<T>& A, Int m, Int n ); \
   template void Zeros( DistMultiVec<T>& A, Int m, Int n );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

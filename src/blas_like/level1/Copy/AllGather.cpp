@@ -32,7 +32,7 @@ void AllGather
         const Int maxLocalHeight = MaxLength(height,colStride);
         const Int maxLocalWidth = MaxLength(width,rowStride);
         const Int portionSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
-        std::vector<T> buf( (distStride+1)*portionSize );
+        vector<T> buf( (distStride+1)*portionSize );
         T* sendBuf = &buf[0];
         T* recvBuf = &buf[portionSize];
 
@@ -59,7 +59,7 @@ void AllGather
         // Pack from the root
         const Int BLocalHeight = B.LocalHeight();
         const Int BLocalWidth = B.LocalWidth();
-        std::vector<T> buf(BLocalHeight*BLocalWidth);
+        vector<T> buf(BLocalHeight*BLocalWidth);
         if( A.CrossRank() == A.Root() )
             util::InterleaveMatrix
             ( BLocalHeight, BLocalWidth,
@@ -113,6 +113,7 @@ void AllGather
   PROTO_DIST(T,VC,  STAR) \
   PROTO_DIST(T,VR,  STAR) 
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace copy

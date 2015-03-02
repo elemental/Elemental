@@ -37,7 +37,7 @@ void RowAllToAllDemote
     const Int maxLocalWidth = MaxLength(width,rowStride);
     const Int portionSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
 
-    std::vector<T> buffer( 2*rowStrideUnion*portionSize );
+    vector<T> buffer( 2*rowStrideUnion*portionSize );
     T* firstBuf  = &buffer[0];
     T* secondBuf = &buffer[rowStrideUnion*portionSize];
 
@@ -68,7 +68,7 @@ void RowAllToAllDemote
     {
 #ifdef EL_UNALIGNED_WARNINGS
         if( B.Grid().Rank() == 0 )
-            std::cerr << "Unaligned RowAllToAllDemote" << std::endl;
+            cerr << "Unaligned RowAllToAllDemote" << endl;
 #endif
         const Int sendRowRankPart = Mod( rowRankPart+rowDiff, rowStridePart );
         const Int recvRowRankPart = Mod( rowRankPart-rowDiff, rowStridePart );
@@ -136,6 +136,7 @@ void RowAllToAllDemote
   PROTO_DIST(T,VC,  STAR) \
   PROTO_DIST(T,VR,  STAR) 
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace copy

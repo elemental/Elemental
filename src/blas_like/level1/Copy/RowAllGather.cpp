@@ -45,7 +45,7 @@ void RowAllGather( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
                 const Int maxLocalWidth = MaxLength(width,rowStride);
 
                 const Int portionSize = mpi::Pad( localHeight*maxLocalWidth );
-                std::vector<T> buffer( (rowStride+1)*portionSize );
+                vector<T> buffer( (rowStride+1)*portionSize );
                 T* sendBuf = &buffer[0];
                 T* recvBuf = &buffer[portionSize];
 
@@ -70,7 +70,7 @@ void RowAllGather( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
         {
 #ifdef EL_UNALIGNED_WARNINGS
             if( A.Grid().Rank() == 0 )
-                std::cerr << "Unaligned RowAllGather." << std::endl;
+                cerr << "Unaligned RowAllGather." << endl;
 #endif
             const Int sendColRank = Mod( A.ColRank()+colDiff, A.ColStride() );
             const Int recvColRank = Mod( A.ColRank()-colDiff, A.ColStride() );
@@ -97,7 +97,7 @@ void RowAllGather( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
                 const Int maxLocalWidth = MaxLength(width,rowStride);
 
                 const Int portionSize = mpi::Pad(maxLocalHeight*maxLocalWidth);
-                std::vector<T> buffer( (rowStride+1)*portionSize );
+                vector<T> buffer( (rowStride+1)*portionSize );
                 T* firstBuf = &buffer[0];
                 T* secondBuf = &buffer[portionSize];
 
@@ -130,7 +130,7 @@ void RowAllGather( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
         // Pack from the root
         const Int localHeight = B.LocalHeight();
         const Int localWidth = B.LocalWidth();
-        std::vector<T> buf( localHeight*localWidth );
+        vector<T> buf( localHeight*localWidth );
         if( A.CrossRank() == A.Root() )
             util::InterleaveMatrix
             ( localHeight, localWidth,
@@ -165,6 +165,7 @@ void RowAllGather
   template void RowAllGather \
   ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace copy

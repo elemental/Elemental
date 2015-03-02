@@ -305,6 +305,7 @@ void SparseMatrix<T>::AssertConsistent() const
 { graph_.AssertConsistent(); }
 
 #define PROTO(T) template class SparseMatrix<T>;
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

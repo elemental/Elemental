@@ -42,7 +42,7 @@ void ColAllToAllDemote
     const Int maxLocalWidth = MaxLength(width,colStrideUnion);
     const Int portionSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
 
-    std::vector<T> buffer( 2*colStrideUnion*portionSize );
+    vector<T> buffer( 2*colStrideUnion*portionSize );
     T* firstBuf  = &buffer[0];
     T* secondBuf = &buffer[colStrideUnion*portionSize];
 
@@ -73,7 +73,7 @@ void ColAllToAllDemote
     {
 #ifdef EL_UNALIGNED_WARNINGS
         if( B.Grid().Rank() == 0 )
-            std::cerr << "Unaligned ColAllToAllDemote" << std::endl;
+            cerr << "Unaligned ColAllToAllDemote" << endl;
 #endif
         const Int sendColRankPart = Mod( colRankPart+colDiff, colStridePart );
         const Int recvColRankPart = Mod( colRankPart-colDiff, colStridePart );
@@ -141,6 +141,7 @@ void ColAllToAllDemote
   PROTO_DIST(T,VC,  STAR) \
   PROTO_DIST(T,VR,  STAR) 
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace copy

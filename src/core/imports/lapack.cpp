@@ -392,6 +392,40 @@ double SafeNorm( double alpha, Complex<double> beta )
 
 // Copy a matrix
 // =============
+template<typename T>
+void Copy
+( char uplo, int m, int n, const T* A, int lda, T* B, int ldb )
+{
+    if( uplo == 'L' )
+    {
+        for( Int j=0; j<n; ++j )
+            for( Int i=j; i<m; ++i )
+                B[i+j*ldb] = A[i+j*lda];
+    }
+    else if( uplo == 'U' ) 
+    {
+        for( Int j=0; j<n; ++j )
+            for( Int i=0; i<=j; ++i )
+                B[i+j*ldb] = A[i+j*lda];
+    }
+    else
+    {
+        for( Int j=0; j<n; ++j )
+            for( Int i=0; i<m; ++i )
+                B[i+j*ldb] = A[i+j*lda];
+    }
+}
+template void Copy
+( char uplo, int m, int n, const Int* A, int lda, Int* B, int ldb );
+#ifdef EL_HAVE_QUAD
+template void Copy
+( char uplo, int m, int n, 
+  const Quad* A, int lda, Quad* B, int ldb );
+template void Copy
+( char uplo, int m, int n, 
+  const Complex<Quad>* A, int lda, Complex<Quad>* B, int ldb );
+#endif
+
 void Copy
 ( char uplo, int m, int n, const float* A, int lda, float* B, int ldb )
 { EL_LAPACK(slacpy)( &uplo, &m, &n, A, &lda, B, &ldb ); }

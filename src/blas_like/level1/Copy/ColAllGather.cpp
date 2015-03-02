@@ -28,11 +28,11 @@ void ColAllGather( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 #ifdef EL_CACHE_WARNINGS
     if( height != 1 && A.Grid().Rank() == 0 )
     {
-        std::cerr <<
+        cerr <<
           "The matrix redistribution [* ,V] <- [U,V] potentially causes a "
           "large amount of cache-thrashing. If possible, avoid it by "
           "performing the redistribution with a (conjugate)-transpose"
-          << std::endl;
+          << endl;
     }
 #endif
     B.AlignRowsAndResize( A.RowAlign(), height, width, false, false );
@@ -45,7 +45,7 @@ void ColAllGather( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
             if( height == 1 )
             {
                 const Int localWidthB = B.LocalWidth();
-                std::vector<T> bcastBuf(localWidthB);
+                vector<T> bcastBuf(localWidthB);
 
                 if( A.ColRank() == A.ColAlign() )
                 {
@@ -71,7 +71,7 @@ void ColAllGather( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
                 const Int localWidth = A.LocalWidth();
                 const Int portionSize = mpi::Pad( maxLocalHeight*localWidth );
 
-                std::vector<T> buffer( (colStride+1)*portionSize );
+                vector<T> buffer( (colStride+1)*portionSize );
                 T* sendBuf = &buffer[0];
                 T* recvBuf = &buffer[portionSize];
 
@@ -96,7 +96,7 @@ void ColAllGather( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
         {
 #ifdef EL_UNALIGNED_WARNINGS
             if( A.Grid().Rank() == 0 )
-                std::cerr << "Unaligned [U,V] -> [* ,V]." << std::endl;
+                cerr << "Unaligned [U,V] -> [* ,V]." << endl;
 #endif
             const Int sendRowRank = Mod( A.RowRank()+rowDiff, A.RowStride() );
             const Int recvRowRank = Mod( A.RowRank()-rowDiff, A.RowStride() );
@@ -104,7 +104,7 @@ void ColAllGather( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
             if( height == 1 )
             {
                 const Int localWidthB = B.LocalWidth();
-                std::vector<T> buffer;
+                vector<T> buffer;
                 T* bcastBuf;
 
                 if( A.ColRank() == A.ColAlign() )
@@ -145,7 +145,7 @@ void ColAllGather( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
                 const Int portionSize =
                     mpi::Pad( maxLocalHeight*maxLocalWidth );
 
-                std::vector<T> buffer( (colStride+1)*portionSize );
+                vector<T> buffer( (colStride+1)*portionSize );
                 T* firstBuf  = &buffer[0];
                 T* secondBuf = &buffer[portionSize];
 
@@ -178,7 +178,7 @@ void ColAllGather( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
         // Pack from the root
         const Int localHeight = B.LocalHeight();
         const Int localWidth = B.LocalWidth();
-        std::vector<T> buf( localHeight*localWidth );
+        vector<T> buf( localHeight*localWidth );
         if( A.CrossRank() == A.Root() )
             util::InterleaveMatrix
             ( localHeight, localWidth,
@@ -213,6 +213,7 @@ void ColAllGather
   template void ColAllGather \
   ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace copy

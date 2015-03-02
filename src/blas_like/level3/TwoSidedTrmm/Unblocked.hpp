@@ -25,7 +25,7 @@ LUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& L )
     const Int ldl = L.LDim();
     T* ABuffer = A.Buffer();
     const T* LBuffer = L.LockedBuffer();
-    std::vector<T> a10Conj( n ), l10Conj( n );
+    vector<T> a10Conj( n ), l10Conj( n );
     for( Int j=0; j<n; ++j )
     {
         const Int a21Height = n - (j+1);

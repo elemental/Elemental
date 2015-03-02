@@ -12,8 +12,7 @@ namespace El {
 
 template<typename T>
 void ConjugateSubmatrix
-(       Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J )
+( Matrix<T>& A, const vector<Int>& I, const vector<Int>& J )
 {
     DEBUG_ONLY(CallStackEntry cse("ConjugateSubmatrix"))
     const Int m = I.size();
@@ -33,8 +32,7 @@ void ConjugateSubmatrix
 
 template<typename T>
 void ConjugateSubmatrix
-(       AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J )
+( AbstractDistMatrix<T>& A, const vector<Int>& I, const vector<Int>& J )
 {
     DEBUG_ONLY(CallStackEntry cse("ConjugateSubmatrix"))
     const Int m = I.size();
@@ -65,11 +63,9 @@ void ConjugateSubmatrix
 
 #define PROTO(T) \
   template void ConjugateSubmatrix \
-  (       Matrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J ); \
+  ( Matrix<T>& A, const vector<Int>& I, const vector<Int>& J ); \
   template void ConjugateSubmatrix \
-  (       AbstractDistMatrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J );
+  ( AbstractDistMatrix<T>& A, const vector<Int>& I, const vector<Int>& J );
 
 #include "El/macros/Instantiate.h"
 

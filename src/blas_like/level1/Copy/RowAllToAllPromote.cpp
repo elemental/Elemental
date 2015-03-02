@@ -38,7 +38,7 @@ void RowAllToAllPromote
     const Int maxLocalHeight = MaxLength(height,rowStrideUnion);
     const Int portionSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
 
-    std::vector<T> buffer( 2*rowStrideUnion*portionSize );
+    vector<T> buffer( 2*rowStrideUnion*portionSize );
     T* firstBuf  = &buffer[0];
     T* secondBuf = &buffer[rowStrideUnion*portionSize];
 
@@ -69,7 +69,7 @@ void RowAllToAllPromote
     {
 #ifdef EL_UNALIGNED_WARNINGS
         if( A.Grid().Rank() == 0 )
-            std::cerr << "Unaligned RowAllToAllPromote" << std::endl;
+            cerr << "Unaligned RowAllToAllPromote" << endl;
 #endif
         const Int sendRowRankPart = Mod( rowRankPart+rowDiff, rowStridePart );
         const Int recvRowRankPart = Mod( rowRankPart-rowDiff, rowStridePart );
@@ -137,6 +137,7 @@ void RowAllToAllPromote
   PROTO_DIST(T,VC,  STAR) \
   PROTO_DIST(T,VR,  STAR) 
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace copy

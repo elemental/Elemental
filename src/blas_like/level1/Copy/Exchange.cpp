@@ -107,6 +107,7 @@ void Exchange
   ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, \
     int sendRank, int recvRank, mpi::Comm comm );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace copy

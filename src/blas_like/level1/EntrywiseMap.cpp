@@ -186,7 +186,7 @@ void EntrywiseMap
   template void EntrywiseMap \
   ( const DistMultiVec<S>& A, DistMultiVec<T>& B, std::function<T(S)> func );
 
-#define PROTO(T) \
+#define PROTO_WITHOUT_QUAD(T) \
   PROTO_TYPES(T,Int) \
   PROTO_TYPES(T,float) \
   PROTO_TYPES(T,double) \
@@ -203,6 +203,16 @@ void EntrywiseMap
   template void EntrywiseMap \
   ( DistMultiVec<T>& A, std::function<T(T)> func );
 
+#ifdef EL_HAVE_QUAD
+#define PROTO(T) \
+  PROTO_WITHOUT_QUAD(T) \
+  PROTO_TYPES(T,Quad) \
+  PROTO_TYPES(T,Complex<Quad>)
+#else
+#define PROTO(T) PROTO_WITHOUT_QUAD(T)
+#endif
+
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

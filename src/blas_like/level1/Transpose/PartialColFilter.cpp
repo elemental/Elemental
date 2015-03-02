@@ -72,6 +72,7 @@ void PartialColFilter
   ( const AbstractBlockDistMatrix<T>& A, \
           AbstractBlockDistMatrix<T>& B, bool conjugate );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace transpose

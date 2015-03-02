@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void MakeSubmatrixReal
 (       Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J )
+  const vector<Int>& I, const vector<Int>& J )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeSubmatrixReal"))
     const Int m = I.size();
@@ -34,7 +34,7 @@ void MakeSubmatrixReal
 template<typename T>
 void MakeSubmatrixReal
 (       AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J )
+  const vector<Int>& I, const vector<Int>& J )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeSubmatrixReal"))
     const Int m = I.size();
@@ -65,11 +65,9 @@ void MakeSubmatrixReal
 
 #define PROTO(T) \
   template void MakeSubmatrixReal \
-  (       Matrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J ); \
+  ( Matrix<T>& A, const vector<Int>& I, const vector<Int>& J ); \
   template void MakeSubmatrixReal \
-  (       AbstractDistMatrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J );
+  ( AbstractDistMatrix<T>& A, const vector<Int>& I, const vector<Int>& J );
 
 #include "El/macros/Instantiate.h"
 

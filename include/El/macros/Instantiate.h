@@ -6,7 +6,6 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-
 #ifndef PROTO_INT
 # define PROTO_INT(T) PROTO(T)
 #endif
@@ -42,6 +41,9 @@ PROTO_FLOAT
 # if !defined(EL_NO_DOUBLE_PROTO)
 PROTO_DOUBLE
 # endif
+#if defined(EL_ENABLE_QUAD) && defined(EL_HAVE_QUAD)
+PROTO_REAL(Quad)
+#endif
 #endif
 
 #if !defined(EL_NO_COMPLEX_PROTO)
@@ -51,4 +53,7 @@ PROTO_COMPLEX_FLOAT
 # if !defined(EL_NO_COMPLEX_DOUBLE_PROTO)
 PROTO_COMPLEX_DOUBLE
 # endif
+#if defined(EL_ENABLE_QUAD) && defined(EL_HAVE_QUAD)
+PROTO_COMPLEX(Complex<Quad>)
+#endif
 #endif

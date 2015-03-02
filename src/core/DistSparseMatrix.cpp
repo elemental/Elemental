@@ -371,6 +371,7 @@ void DistSparseMatrix<T>::AssertConsistent() const
 }
 
 #define PROTO(T) template class DistSparseMatrix<T>;
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

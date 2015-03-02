@@ -689,6 +689,7 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
   /* Promotions down from Complex<double> */ \
   CONVERT(Complex<double>,Complex<float>)
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

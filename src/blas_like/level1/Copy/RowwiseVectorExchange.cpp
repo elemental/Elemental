@@ -41,6 +41,7 @@ void RowwiseVectorExchange
   PROTO_DIST(T,MC,MR) \
   PROTO_DIST(T,MR,MC)
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace copy

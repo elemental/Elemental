@@ -55,6 +55,7 @@ void Adjoint( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B )
   template void Adjoint( const SparseMatrix<T>& A, SparseMatrix<T>& B ); \
   template void Adjoint( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

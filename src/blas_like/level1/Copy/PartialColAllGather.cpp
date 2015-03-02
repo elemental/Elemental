@@ -24,19 +24,19 @@ void PartialColAllGather
 #ifdef EL_VECTOR_WARNINGS
     if( width == 1 && A.Grid().Rank() == 0 )
     {
-        std::cerr <<
+        cerr <<
           "The vector version of PartialColAllGather is not yet written but "
           "would only require modifying the vector version of "
-          "PartialRowAllGather" << std::endl;
+          "PartialRowAllGather" << endl;
     }
 #endif
 #ifdef EL_CACHE_WARNINGS
     if( width && A.Grid().Rank() == 0 )
     {
-        std::cerr <<
+        cerr <<
           "PartialColAllGather potentially causes a large amount of cache-"
           "thrashing. If possible, avoid it by performing the redistribution"
-          "on the (conjugate-)transpose" << std::endl;
+          "on the (conjugate-)transpose" << endl;
     }
 #endif
     B.AlignColsAndResize
@@ -55,7 +55,7 @@ void PartialColAllGather
 
     const Int maxLocalHeight = MaxLength(height,A.ColStride());
     const Int portionSize = mpi::Pad( maxLocalHeight*width );
-    std::vector<T> buffer( (colStrideUnion+1)*portionSize );
+    vector<T> buffer( (colStrideUnion+1)*portionSize );
     T* firstBuf = &buffer[0];
     T* secondBuf = &buffer[portionSize];
 
@@ -85,7 +85,7 @@ void PartialColAllGather
     {
 #ifdef EL_UNALIGNED_WARNINGS
         if( A.Grid().Rank() == 0 )
-            std::cerr << "Unaligned PartialColAllGather" << std::endl;
+            cerr << "Unaligned PartialColAllGather" << endl;
 #endif
         // Perform a SendRecv to match the row alignments
         util::InterleaveMatrix
@@ -148,6 +148,7 @@ void PartialColAllGather
   PROTO_DIST(T,VC,  STAR) \
   PROTO_DIST(T,VR,  STAR) 
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace copy

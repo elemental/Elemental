@@ -257,6 +257,7 @@ void Transpose
   ( const DistSparseMatrix<T>& A, \
           DistSparseMatrix<T>& B, bool conjugate );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

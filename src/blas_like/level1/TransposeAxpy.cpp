@@ -114,7 +114,7 @@ void TransposeAxpy
     }
     else
     {
-        std::unique_ptr<AbstractDistMatrix<T>>
+        unique_ptr<AbstractDistMatrix<T>>
             C( B.ConstructTranspose(A.Grid(),A.Root()) );
         C->AlignRowsWith( B.DistData() );
         C->AlignColsWith( B.DistData() );
@@ -138,22 +138,22 @@ void TransposeAxpy
     // ==========================================================
     mpi::Comm comm = A.Comm();
     const Int commSize = mpi::Size( comm );
-    std::vector<int> sendCounts(commSize,0);
+    vector<int> sendCounts(commSize,0);
     for( Int k=0; k<A.NumLocalEntries(); ++k )
         ++sendCounts[ B.RowOwner(A.Col(k)) ];
-    std::vector<int> recvCounts(commSize);
+    vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
 
     // Convert the send/recv counts into offsets and total sizes
     // =========================================================
-    std::vector<int> sendOffsets, recvOffsets;
+    vector<int> sendOffsets, recvOffsets;
     const int totalSend = Scan( sendCounts, sendOffsets );
     const int totalRecv = Scan( recvCounts, recvOffsets );
 
     // Pack the triplets
     // =================
-    std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
-    std::vector<T> vSendBuf(totalSend);
+    vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
+    vector<T> vSendBuf(totalSend);
     auto offsets = sendOffsets;
     for( Int k=0; k<A.NumLocalEntries(); ++k )
     {
@@ -173,8 +173,8 @@ void TransposeAxpy
     // ================================
     // TODO: Switch to a mechanism which directly unpacks into the 
     //       class's local storage?
-    std::vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
-    std::vector<T> vRecvBuf(totalRecv);
+    vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
+    vector<T> vRecvBuf(totalRecv);
     mpi::AllToAll
     ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
       sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
@@ -214,6 +214,7 @@ void TransposeAxpy
   PROTO_TYPES(T,Base<T>) \
   PROTO_TYPES(T,T)
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

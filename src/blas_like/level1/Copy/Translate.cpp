@@ -49,7 +49,7 @@ void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B )
     {
 #ifdef EL_UNALIGNED_WARNINGS
         if( g.Rank() == 0 )
-            std::cerr << "Unaligned [U,V] <- [U,V]" << std::endl;
+            cerr << "Unaligned [U,V] <- [U,V]" << endl;
 #endif
         const Int colRank = A.ColRank();
         const Int rowRank = A.RowRank();
@@ -59,7 +59,7 @@ void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B )
         const Int maxHeight = MaxLength( height, colStride );
         const Int maxWidth  = MaxLength( width,  rowStride );
         const Int pkgSize = mpi::Pad( maxHeight*maxWidth );
-        std::vector<T> buffer;
+        vector<T> buffer;
         if( crossRank == root || crossRank == B.Root() )
             buffer.resize( pkgSize ); 
 
@@ -157,7 +157,7 @@ void Translate( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,U,V>& B )
 
         // Determine how much data our process sends and recvs from every 
         // other process
-        std::vector<int> sendCounts(distSize,0), recvCounts(distSize,0);
+        vector<int> sendCounts(distSize,0), recvCounts(distSize,0);
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
         {
             const Int j = A.GlobalCol(jLoc);
@@ -179,13 +179,13 @@ void Translate( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,U,V>& B )
 
         // Translate the send/recv counts into displacements and allocate
         // the send and recv buffers
-        std::vector<int> sendDispls, recvDispls;
+        vector<int> sendDispls, recvDispls;
         const Int totalSend = Scan( sendCounts, sendDispls );
         const Int totalRecv = Scan( recvCounts, recvDispls );
-        std::vector<T> sendBuf(totalSend), recvBuf(totalRecv);
+        vector<T> sendBuf(totalSend), recvBuf(totalRecv);
 
         // Pack the send data
-        std::vector<int> offsets = sendDispls;
+        auto offsets = sendDispls;
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
         {
             const Int j = A.GlobalCol(jLoc);
@@ -241,6 +241,7 @@ void Translate( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,U,V>& B )
   PROTO_DIST(T,VC,STAR) \
   PROTO_DIST(T,VR,STAR) 
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace copy

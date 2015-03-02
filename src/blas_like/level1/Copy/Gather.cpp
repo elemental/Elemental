@@ -172,6 +172,7 @@ void Gather
   ( const AbstractBlockDistMatrix<T>& A, \
           BlockDistMatrix<T,CIRC,CIRC>& B );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace copy

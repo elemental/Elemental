@@ -90,10 +90,10 @@ void Memory<G>::Empty()
     buffer_ = nullptr;
 }
 
-template class Memory<Int>;
-template class Memory<float>;
-template class Memory<double>;
-template class Memory<Complex<float>>;
-template class Memory<Complex<double>>;
+#define PROTO(T) \
+  template class Memory<T>;
+
+#define EL_ENABLE_QUAD
+#include "El/macros/Instantiate.h"
 
 } // namespace El

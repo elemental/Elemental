@@ -43,7 +43,7 @@ void PartialRowAllGather
 
     const Int maxLocalWidth = MaxLength(width,rowStride);
     const Int portionSize = mpi::Pad( height*maxLocalWidth );
-    std::vector<T> buffer( (rowStrideUnion+1)*portionSize );
+    vector<T> buffer( (rowStrideUnion+1)*portionSize );
     T* firstBuf = &buffer[0];
     T* secondBuf = &buffer[portionSize];
 
@@ -73,7 +73,7 @@ void PartialRowAllGather
     {
 #ifdef EL_UNALIGNED_WARNINGS
         if( A.Grid().Rank() == 0 )
-            std::cerr << "Unaligned PartialRowAllGather" << std::endl;
+            cerr << "Unaligned PartialRowAllGather" << endl;
 #endif
         // Perform a SendRecv to match the row alignments
         util::InterleaveMatrix
@@ -118,6 +118,7 @@ void PartialRowAllGather
   template void PartialRowAllGather \
   ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace copy

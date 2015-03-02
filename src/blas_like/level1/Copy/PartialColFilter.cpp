@@ -51,7 +51,7 @@ void PartialColFilter
     {
 #ifdef EL_UNALIGNED_WARNINGS
         if( B.Grid().Rank() == 0 )
-            std::cerr << "Unaligned PartialColFilter" << std::endl;
+            cerr << "Unaligned PartialColFilter" << endl;
 #endif
         const Int colRankPart = B.PartialColRank();
         const Int colRankUnion = B.PartialUnionColRank();
@@ -66,7 +66,7 @@ void PartialColFilter
         const Int localHeightSend = Length( height, sendColShift, colStride );
         const Int sendSize = localHeightSend*width;
         const Int recvSize = localHeight    *width;
-        std::vector<T> buffer( sendSize+recvSize );
+        vector<T> buffer( sendSize+recvSize );
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[sendSize];
         // Pack
@@ -103,6 +103,7 @@ void PartialColFilter
   template void PartialColFilter \
   ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace copy

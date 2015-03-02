@@ -41,7 +41,7 @@ void Scatter
     if( target == mpi::UNDEFINED )
         return;
 
-    std::vector<T> buffer;
+    vector<T> buffer;
     T* recvBuf=0; // some compilers (falsely) warn otherwise
     if( A.CrossRank() == root )
     {
@@ -105,7 +105,7 @@ void Scatter
     if( B.Participating() )
     {
         const Int pkgSize = mpi::Pad( height*width );
-        std::vector<T> buffer( pkgSize );
+        vector<T> buffer( pkgSize );
 
         // Pack            
         if( A.Participating() )
@@ -149,6 +149,7 @@ void Scatter
   ( const BlockDistMatrix<T,CIRC,CIRC>& A, \
           BlockDistMatrix<T,STAR,STAR>& B );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace copy

@@ -47,7 +47,7 @@ void RowFilter
     {
 #ifdef EL_UNALIGNED_WARNINGS
         if( B.Grid().Rank() == 0 )
-            std::cerr << "Unaligned RowFilter" << std::endl;
+            cerr << "Unaligned RowFilter" << endl;
 #endif
         const Int colStride = B.ColStride();
         const Int sendColRank = Mod( B.ColRank()+colDiff, colStride );
@@ -56,7 +56,7 @@ void RowFilter
         const Int sendSize = localHeightA*localWidth;
         const Int recvSize = localHeight *localWidth;
 
-        std::vector<T> buffer( sendSize+recvSize );
+        vector<T> buffer( sendSize+recvSize );
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[sendSize];
 
@@ -94,6 +94,7 @@ void RowFilter
   template void RowFilter \
   ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace copy

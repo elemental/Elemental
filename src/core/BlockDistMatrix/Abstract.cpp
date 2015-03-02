@@ -1246,6 +1246,7 @@ void AssertConforming2x2
  #define PROTO(T) template class AbstractBlockDistMatrix<T>;
 #endif
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

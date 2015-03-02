@@ -17,6 +17,9 @@ namespace blas {
 
 // Level 1 BLAS 
 // ============
+template<typename T>
+void Axpy( int n, T alpha, const T* x, int incx, T* y, int incy );
+
 void Axpy
 ( int n, float    alpha, const float   * x, int incx, float   * y, int incy );
 void Axpy
@@ -27,6 +30,9 @@ void Axpy
 ( int n, dcomplex alpha, const dcomplex* x, int incx, dcomplex* y, int incy );
 template<typename T>
 void Axpy( int n, T alpha, const T* x, int incx, T* y, int incy );
+
+template<typename T>
+void Copy( int n, const T* x, int incx, T* y, int incy );
 
 void Copy( int n, const float   * x, int incx, float   * y, int incy );
 void Copy( int n, const double  * x, int incx, double  * y, int incy );
@@ -460,26 +466,10 @@ namespace blas {
 
 // Templated wrappers
 // ==================
+// TODO: Move the remaining routines into src/
 
 // Level 1 BLAS
 // ------------
-
-template<typename T>
-inline void Axpy
-( int n, T alpha, const T* x, int incx, T* y, int incy )
-{
-    for( int i=0; i<n; ++i )
-        y[i*incy] += alpha*x[i*incx];
-}
-
-template<typename T>
-inline void Copy
-( int n, const T* x, int incx, T* y, int incy )
-{
-    for( int i=0; i<n; ++i )
-        y[i*incy] = x[i*incx];
-}
-
 template<typename T>
 inline T Dot( int n, const T* x, int incx, const T* y, int incy )
 { Dotc( n, x, incx, y, incy ); }

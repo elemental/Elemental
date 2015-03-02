@@ -78,7 +78,7 @@ UUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
     const Int ldu = U.LDim();
     F* ABuffer = A.Buffer();
     const F* UBuffer = U.LockedBuffer();
-    std::vector<F> a12Conj( n ), u12Conj( n );
+    vector<F> a12Conj( n ), u12Conj( n );
     for( Int j=0; j<n; ++j )
     {
         const Int a21Height = n - (j+1);

@@ -192,6 +192,7 @@ void DistMultiVec<T>::UpdateLocal( Int localRow, Int col, T value )
 
 #define PROTO(T) template class DistMultiVec<T>;
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El
