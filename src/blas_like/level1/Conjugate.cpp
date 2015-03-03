@@ -59,6 +59,7 @@ void Conjugate( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
   template void Conjugate \
   ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

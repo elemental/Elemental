@@ -87,6 +87,7 @@ T HilbertSchmidt( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
   template T HilbertSchmidt \
   ( const DistMultiVec<T>& A, const DistMultiVec<T>& B );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

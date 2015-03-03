@@ -14,7 +14,7 @@ template<typename T>
 void SetDiagonal( Matrix<T>& A, const Matrix<T>& d, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("SetDiagonal"))
-    std::function<void(T&,T)> func
+    function<void(T&,T)> func
     ( []( T& beta, T gamma ) { beta = gamma; } );
     UpdateMappedDiagonal( A, d, func, offset );
 }
@@ -23,7 +23,7 @@ template<typename T>
 void SetRealPartOfDiagonal( Matrix<T>& A, const Matrix<Base<T>>& d, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("SetRealPartOfDiagonal"))
-    std::function<void(T&,Base<T>)> func
+    function<void(T&,Base<T>)> func
     ( []( T& beta, Base<T> gamma ) { SetRealPart(beta,gamma); } );
     UpdateMappedDiagonal( A, d, func, offset );
 }
@@ -32,7 +32,7 @@ template<typename T>
 void SetImagPartOfDiagonal( Matrix<T>& A, const Matrix<Base<T>>& d, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("SetImagPartOfDiagonal"))
-    std::function<void(T&,Base<T>)> func
+    function<void(T&,Base<T>)> func
     ( []( T& beta, Base<T> gamma ) { SetImagPart(beta,gamma); } );
     UpdateMappedDiagonal( A, d, func, offset );
 }
@@ -42,7 +42,7 @@ void SetDiagonal
 ( DistMatrix<T,U,V>& A, const AbstractDistMatrix<T>& d, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("SetDiagonal"))
-    std::function<void(T&,T)> func
+    function<void(T&,T)> func
     ( []( T& beta, T gamma ) { beta = gamma; } );
     UpdateMappedDiagonal( A, d, func, offset );
 }
@@ -52,7 +52,7 @@ void SetRealPartOfDiagonal
 ( DistMatrix<T,U,V>& A, const AbstractDistMatrix<Base<T>>& d, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("SetRealPartOfDiagonal"))
-    std::function<void(T&,Base<T>)> func
+    function<void(T&,Base<T>)> func
     ( []( T& beta, Base<T> gamma ) { SetRealPart(beta,gamma); } );
     UpdateMappedDiagonal( A, d, func, offset );
 }
@@ -62,7 +62,7 @@ void SetImagPartOfDiagonal
 ( DistMatrix<T,U,V>& A, const AbstractDistMatrix<Base<T>>& d, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("SetImagPartOfDiagonal"))
-    std::function<void(T&,Base<T>)> func
+    function<void(T&,Base<T>)> func
     ( []( T& beta, Base<T> gamma ) { SetImagPart(beta,gamma); } );
     UpdateMappedDiagonal( A, d, func, offset );
 }

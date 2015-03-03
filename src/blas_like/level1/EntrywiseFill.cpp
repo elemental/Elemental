@@ -11,7 +11,7 @@
 namespace El {
 
 template<typename T>
-void EntrywiseFill( Matrix<T>& A, std::function<T(void)> func )
+void EntrywiseFill( Matrix<T>& A, function<T(void)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("EntrywiseFill"))
     const Int m = A.Height();
@@ -22,27 +22,28 @@ void EntrywiseFill( Matrix<T>& A, std::function<T(void)> func )
 }
 
 template<typename T>
-void EntrywiseFill( AbstractDistMatrix<T>& A, std::function<T(void)> func )
+void EntrywiseFill( AbstractDistMatrix<T>& A, function<T(void)> func )
 { EntrywiseFill( A.Matrix(), func ); }
 
 template<typename T>
-void EntrywiseFill( AbstractBlockDistMatrix<T>& A, std::function<T(void)> func )
+void EntrywiseFill( AbstractBlockDistMatrix<T>& A, function<T(void)> func )
 { EntrywiseFill( A.Matrix(), func ); }
 
 template<typename T>
-void EntrywiseFill( DistMultiVec<T>& A, std::function<T(void)> func )
+void EntrywiseFill( DistMultiVec<T>& A, function<T(void)> func )
 { EntrywiseFill( A.Matrix(), func ); }
 
 #define PROTO(T) \
   template void EntrywiseFill \
-  ( Matrix<T>& A, std::function<T(void)> func ); \
+  ( Matrix<T>& A, function<T(void)> func ); \
   template void EntrywiseFill \
-  ( AbstractDistMatrix<T>& A, std::function<T(void)> func ); \
+  ( AbstractDistMatrix<T>& A, function<T(void)> func ); \
   template void EntrywiseFill \
-  ( AbstractBlockDistMatrix<T>& A, std::function<T(void)> func ); \
+  ( AbstractBlockDistMatrix<T>& A, function<T(void)> func ); \
   template void EntrywiseFill \
-  ( DistMultiVec<T>& A, std::function<T(void)> func );
+  ( DistMultiVec<T>& A, function<T(void)> func );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -366,6 +366,19 @@ double MachineOverflowThreshold<double>()
 // Safely compute norms
 // ====================
 
+template<typename Real>
+Real SafeNorm( Real alpha, Real beta )
+{
+    Real scale = 0;
+    Real scaledSquare = 1;
+    UpdateScaledSquare( alpha, scale, scaledSquare );
+    UpdateScaledSquare( beta, scale, scaledSquare );
+    return scale*Sqrt(scaledSquare);
+}
+#ifdef EL_HAVE_QUAD
+template Quad SafeNorm( Quad alpha, Quad beta );
+#endif
+
 float SafeNorm( float alpha, float beta )
 { return EL_LAPACK(slapy2)( &alpha, &beta ); }
 

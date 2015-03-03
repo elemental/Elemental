@@ -26,7 +26,7 @@ void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, Int rank )
     }
     else
     {
-        std::vector<T> buf( localSize );
+        vector<T> buf( localSize );
 
         // Pack
         if( mpi::Rank(comm) == rank )
@@ -62,7 +62,7 @@ void Broadcast( AbstractBlockDistMatrix<T>& A, mpi::Comm comm, Int rank )
     }
     else
     {
-        std::vector<T> buf( localSize );
+        vector<T> buf( localSize );
 
         // Pack
         if( mpi::Rank(comm) == rank )
@@ -82,13 +82,13 @@ void Broadcast( AbstractBlockDistMatrix<T>& A, mpi::Comm comm, Int rank )
     }
 }
 
-
 #define PROTO(T) \
   template void Broadcast \
   ( AbstractDistMatrix<T>& A, mpi::Comm comm, Int rank ); \
   template void Broadcast \
   ( AbstractBlockDistMatrix<T>& A, mpi::Comm comm, Int rank );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

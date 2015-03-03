@@ -11,7 +11,7 @@
 namespace El {
 
 template<typename T>
-void EntrywiseMap( Matrix<T>& A, std::function<T(T)> func )
+void EntrywiseMap( Matrix<T>& A, function<T(T)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("EntrywiseMap"))
     const Int m = A.Height();
@@ -22,7 +22,7 @@ void EntrywiseMap( Matrix<T>& A, std::function<T(T)> func )
 }
 
 template<typename T>
-void EntrywiseMap( SparseMatrix<T>& A, std::function<T(T)> func )
+void EntrywiseMap( SparseMatrix<T>& A, function<T(T)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("EntrywiseMap"))
     T* vBuf = A.ValueBuffer();
@@ -32,15 +32,15 @@ void EntrywiseMap( SparseMatrix<T>& A, std::function<T(T)> func )
 }
 
 template<typename T>
-void EntrywiseMap( AbstractDistMatrix<T>& A, std::function<T(T)> func )
+void EntrywiseMap( AbstractDistMatrix<T>& A, function<T(T)> func )
 { EntrywiseMap( A.Matrix(), func ); }
 
 template<typename T>
-void EntrywiseMap( AbstractBlockDistMatrix<T>& A, std::function<T(T)> func )
+void EntrywiseMap( AbstractBlockDistMatrix<T>& A, function<T(T)> func )
 { EntrywiseMap( A.Matrix(), func ); }
 
 template<typename T>
-void EntrywiseMap( DistSparseMatrix<T>& A, std::function<T(T)> func )
+void EntrywiseMap( DistSparseMatrix<T>& A, function<T(T)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("EntrywiseMap"))
     T* vBuf = A.ValueBuffer();
@@ -50,11 +50,11 @@ void EntrywiseMap( DistSparseMatrix<T>& A, std::function<T(T)> func )
 }
 
 template<typename T>
-void EntrywiseMap( DistMultiVec<T>& A, std::function<T(T)> func )
+void EntrywiseMap( DistMultiVec<T>& A, function<T(T)> func )
 { EntrywiseMap( A.Matrix(), func ); }
 
 template<typename S,typename T>
-void EntrywiseMap( const Matrix<S>& A, Matrix<T>& B, std::function<T(S)> func )
+void EntrywiseMap( const Matrix<S>& A, Matrix<T>& B, function<T(S)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("EntrywiseMap"))
     const Int m = A.Height();
@@ -67,7 +67,7 @@ void EntrywiseMap( const Matrix<S>& A, Matrix<T>& B, std::function<T(S)> func )
 
 template<typename S,typename T>
 void EntrywiseMap
-( const SparseMatrix<S>& A, SparseMatrix<T>& B, std::function<T(S)> func )
+( const SparseMatrix<S>& A, SparseMatrix<T>& B, function<T(S)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("EntrywiseMap"))
     const Int m = A.Height();
@@ -84,7 +84,7 @@ void EntrywiseMap
 template<typename S,typename T>
 void EntrywiseMap
 ( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B, 
-  std::function<T(S)> func )
+  function<T(S)> func )
 { 
     if( A.DistData().colDist == B.DistData().colDist &&
         A.DistData().rowDist == B.DistData().rowDist )
@@ -112,7 +112,7 @@ void EntrywiseMap
 template<typename S,typename T>
 void EntrywiseMap
 ( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B, 
-  std::function<T(S)> func )
+  function<T(S)> func )
 { 
     if( A.DistData().colDist == B.DistData().colDist &&
         A.DistData().rowDist == B.DistData().rowDist )
@@ -140,7 +140,7 @@ void EntrywiseMap
 template<typename S,typename T>
 void EntrywiseMap
 ( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B, 
-  std::function<T(S)> func )
+  function<T(S)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("EntrywiseMap"))
     const Int m = A.Height();
@@ -159,7 +159,7 @@ void EntrywiseMap
 
 template<typename S,typename T>
 void EntrywiseMap
-( const DistMultiVec<S>& A, DistMultiVec<T>& B, std::function<T(S)> func )
+( const DistMultiVec<S>& A, DistMultiVec<T>& B, function<T(S)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("EntrywiseMap"))
     const Int m = A.Height();
@@ -171,20 +171,20 @@ void EntrywiseMap
 
 #define PROTO_TYPES(S,T) \
   template void EntrywiseMap \
-  ( const Matrix<S>& A, Matrix<T>& B, std::function<T(S)> func ); \
+  ( const Matrix<S>& A, Matrix<T>& B, function<T(S)> func ); \
   template void EntrywiseMap \
-  ( const SparseMatrix<S>& A, SparseMatrix<T>& B, std::function<T(S)> func ); \
+  ( const SparseMatrix<S>& A, SparseMatrix<T>& B, function<T(S)> func ); \
   template void EntrywiseMap \
   ( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B, \
-    std::function<T(S)> func ); \
+    function<T(S)> func ); \
   template void EntrywiseMap \
   ( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B, \
-    std::function<T(S)> func ); \
+    function<T(S)> func ); \
   template void EntrywiseMap \
   ( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B, \
-    std::function<T(S)> func ); \
+    function<T(S)> func ); \
   template void EntrywiseMap \
-  ( const DistMultiVec<S>& A, DistMultiVec<T>& B, std::function<T(S)> func );
+  ( const DistMultiVec<S>& A, DistMultiVec<T>& B, function<T(S)> func );
 
 #define PROTO_WITHOUT_QUAD(T) \
   PROTO_TYPES(T,Int) \
@@ -192,16 +192,13 @@ void EntrywiseMap
   PROTO_TYPES(T,double) \
   PROTO_TYPES(T,Complex<float>) \
   PROTO_TYPES(T,Complex<double>) \
-  template void EntrywiseMap( Matrix<T>& A, std::function<T(T)> func ); \
-  template void EntrywiseMap( SparseMatrix<T>& A, std::function<T(T)> func ); \
+  template void EntrywiseMap( Matrix<T>& A, function<T(T)> func ); \
+  template void EntrywiseMap( SparseMatrix<T>& A, function<T(T)> func ); \
+  template void EntrywiseMap( AbstractDistMatrix<T>& A, function<T(T)> func ); \
   template void EntrywiseMap \
-  ( AbstractDistMatrix<T>& A, std::function<T(T)> func ); \
-  template void EntrywiseMap \
-  ( AbstractBlockDistMatrix<T>& A, std::function<T(T)> func ); \
-  template void EntrywiseMap \
-  ( DistSparseMatrix<T>& A, std::function<T(T)> func ); \
-  template void EntrywiseMap \
-  ( DistMultiVec<T>& A, std::function<T(T)> func );
+  ( AbstractBlockDistMatrix<T>& A, function<T(T)> func ); \
+  template void EntrywiseMap( DistSparseMatrix<T>& A, function<T(T)> func ); \
+  template void EntrywiseMap( DistMultiVec<T>& A, function<T(T)> func );
 
 #ifdef EL_HAVE_QUAD
 #define PROTO(T) \

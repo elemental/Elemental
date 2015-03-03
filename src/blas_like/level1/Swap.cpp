@@ -77,12 +77,12 @@ void Swap
         )
         // TODO: Optimize communication
 
-        std::unique_ptr<AbstractDistMatrix<T>> 
+        unique_ptr<AbstractDistMatrix<T>> 
           YLikeX( X.Construct(g,X.Root()) );
         YLikeX->AlignWith( X.DistData() );
         Copy( Y, *YLikeX );
 
-        std::unique_ptr<AbstractDistMatrix<T>> 
+        unique_ptr<AbstractDistMatrix<T>> 
           XLikeY( Y.Construct(g,Y.Root()) );
         XLikeY->AlignWith( Y.DistData() );
         Copy( X, *XLikeY );
@@ -99,12 +99,12 @@ void Swap
         )
 
         // TODO: Optimize communication
-        std::unique_ptr<AbstractDistMatrix<T>> 
+        unique_ptr<AbstractDistMatrix<T>> 
           YTransLikeX( X.Construct(g,X.Root()) );
         YTransLikeX->AlignWith( X.DistData() );
         Transpose( Y, *YTransLikeX, conjugate );
 
-        std::unique_ptr<AbstractDistMatrix<T>> 
+        unique_ptr<AbstractDistMatrix<T>> 
           XTransLikeY( Y.Construct(g,Y.Root()) );
         XTransLikeY->AlignWith( Y.DistData() );
         Transpose( X, *XTransLikeY, conjugate );
@@ -136,9 +136,9 @@ void RowSwap( AbstractDistMatrix<T>& A, Int to, Int from )
         return;
     const Int n = A.Width();
     const Int nLocal = A.LocalWidth();
-    std::unique_ptr<AbstractDistMatrix<T>> 
+    unique_ptr<AbstractDistMatrix<T>> 
       aToRow( A.Construct(A.Grid(),A.Root()) );
-    std::unique_ptr<AbstractDistMatrix<T>> 
+    unique_ptr<AbstractDistMatrix<T>> 
       aFromRow( A.Construct(A.Grid(),A.Root()) );
     View( *aToRow, A, IR(to,to+1), IR(0,n) );
     View( *aFromRow, A, IR(from,from+1), IR(0,n) );
@@ -149,7 +149,7 @@ void RowSwap( AbstractDistMatrix<T>& A, Int to, Int from )
     }
     else if( aToRow->ColShift() == 0 )
     {
-        std::vector<T> buf( nLocal );
+        vector<T> buf( nLocal );
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
             buf[jLoc] = aToRow->GetLocal(0,jLoc);
         mpi::SendRecv
@@ -160,7 +160,7 @@ void RowSwap( AbstractDistMatrix<T>& A, Int to, Int from )
     }
     else if( aFromRow->ColShift() == 0 )
     {
-        std::vector<T> buf( nLocal );
+        vector<T> buf( nLocal );
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
             buf[jLoc] = aFromRow->GetLocal(0,jLoc);
         mpi::SendRecv
@@ -193,9 +193,9 @@ void ColSwap( AbstractDistMatrix<T>& A, Int to, Int from )
         return;
     const Int m = A.Height();
     const Int mLocal = A.LocalHeight();
-    std::unique_ptr<AbstractDistMatrix<T>> 
+    unique_ptr<AbstractDistMatrix<T>> 
       aToCol( A.Construct(A.Grid(),A.Root()) );
-    std::unique_ptr<AbstractDistMatrix<T>> 
+    unique_ptr<AbstractDistMatrix<T>> 
       aFromCol( A.Construct(A.Grid(),A.Root()) );
     View( *aToCol, A, IR(0,m), IR(to,to+1) );
     View( *aFromCol, A, IR(0,m), IR(from,from+1) );
@@ -236,7 +236,8 @@ void SymmetricSwap
     const Int n = A.Height();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     if( to > from )
-        std::swap( to, from ); if( uplo == LOWER )
+        std::swap( to, from ); 
+    if( uplo == LOWER )
     { 
         // Bottom swap
         if( from+1 < n )
@@ -320,7 +321,7 @@ void SymmetricSwap
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )
-    typedef std::unique_ptr<AbstractDistMatrix<T>> ADMPtr;
+    typedef unique_ptr<AbstractDistMatrix<T>> ADMPtr;
 
     if( to == from )
     {

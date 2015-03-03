@@ -31,8 +31,7 @@ template<typename S,typename T>
 void Copy( const Matrix<S>& A, Matrix<T>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
-    auto convert = []( const S alpha ) { return T(alpha); };
-    EntrywiseMap( A, B, std::function<T(S)>(convert) );
+    EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
 }
 
 template<typename T,Dist U,Dist V>
@@ -207,9 +206,9 @@ void CopyFromRoot( const DistGraph& distGraph, Graph& graph )
     const int commRank = mpi::Rank( comm );
 
     const int numLocalEdges = distGraph.NumLocalEdges();
-    std::vector<int> edgeSizes(commSize);
+    vector<int> edgeSizes(commSize);
     mpi::AllGather( &numLocalEdges, 1, edgeSizes.data(), 1, comm );
-    std::vector<int> edgeOffsets;
+    vector<int> edgeOffsets;
     const int numEdges = Scan( edgeSizes, edgeOffsets );
 
     graph.Resize( distGraph.NumSources(), distGraph.NumTargets() );
@@ -237,9 +236,9 @@ void CopyFromNonRoot( const DistGraph& distGraph, int root )
         LogicError("Root called CopyFromNonRoot");
 
     const int numLocalEdges = distGraph.NumLocalEdges();
-    std::vector<int> edgeSizes(commSize);
+    vector<int> edgeSizes(commSize);
     mpi::AllGather( &numLocalEdges, 1, edgeSizes.data(), 1, comm );
-    std::vector<int> edgeOffsets;
+    vector<int> edgeOffsets;
     Scan( edgeSizes, edgeOffsets );
 
     mpi::Gather
@@ -261,8 +260,7 @@ template<typename S,typename T>
 void Copy( const SparseMatrix<S>& A, SparseMatrix<T>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
-    auto convert = []( const S alpha ) { return T(alpha); };
-    EntrywiseMap( A, B, std::function<T(S)>(convert) );
+    EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
 }
 
 template<typename S,typename T>
@@ -271,7 +269,7 @@ void Copy( const SparseMatrix<S>& A, Matrix<T>& B )
     DEBUG_ONLY(CallStackEntry cse("Copy"))
     Zeros( B, A.Height(), A.Width() );
     for( Int k=0; k<A.NumEntries(); ++k )
-        B.Update( A.Row(k), A.Col(k), T(A.Value(k)) );
+        B.Update( A.Row(k), A.Col(k), Caster<S,T>::Cast(A.Value(k)) );
 }
 
 template<typename T>
@@ -298,32 +296,32 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
 
     // Compute the number of entries of A to send to each member of B
     // ==============================================================
-    std::vector<int> sendCounts(commSize,0);
+    vector<int> sendCounts(commSize,0);
     for( Int k=0; k<A.NumLocalEntries(); ++k )
     {
         const Int i = A.Row(k);
         const Int j = A.Col(k);
         ++sendCounts[ B.Owner(i,j) ];
     }
-    std::vector<int> recvCounts(commSize);
+    vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
 
     // Convert the send/recv counts into offsets and total sizes
     // =========================================================
-    std::vector<int> sendOffsets, recvOffsets;
+    vector<int> sendOffsets, recvOffsets;
     const int totalSend = Scan( sendCounts, sendOffsets );
     const int totalRecv = Scan( recvCounts, recvOffsets );
 
     // Pack the triplets
     // =================
-    std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
-    std::vector<T> vSendBuf(totalSend);
+    vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
+    vector<T> vSendBuf(totalSend);
     auto offsets = sendOffsets;
     for( Int k=0; k<A.NumLocalEntries(); ++k )
     {
         const Int i = A.Row(k);
         const Int j = A.Col(k);
-        const T value = T(A.Value(k));
+        const T value = Caster<S,T>::Cast(A.Value(k));
         const int owner = B.Owner(i,j);
         sSendBuf[offsets[owner]] = i;
         tSendBuf[offsets[owner]] = j;
@@ -333,8 +331,8 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
 
     // Exchange and unpack the triplets
     // ================================
-    std::vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
-    std::vector<T> vRecvBuf(totalRecv);
+    vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
+    vector<T> vRecvBuf(totalRecv);
     mpi::AllToAll
     ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
       sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
@@ -358,9 +356,9 @@ void CopyFromRoot( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A )
     const int commRank = mpi::Rank( comm );
 
     const int numLocalEntries = ADist.NumLocalEntries();
-    std::vector<int> entrySizes(commSize);
+    vector<int> entrySizes(commSize);
     mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
-    std::vector<int> entryOffsets;
+    vector<int> entryOffsets;
     const int numEntries = Scan( entrySizes, entryOffsets );
 
     A.Resize( ADist.Height(), ADist.Width() );
@@ -394,9 +392,9 @@ void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, int root )
         LogicError("Root called CopyFromNonRoot");
 
     const int numLocalEntries = ADist.NumLocalEntries();
-    std::vector<int> entrySizes(commSize);
+    vector<int> entrySizes(commSize);
     mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
-    std::vector<int> entryOffsets;
+    vector<int> entryOffsets;
     Scan( entrySizes, entryOffsets );
 
     mpi::Gather
@@ -419,6 +417,13 @@ void Copy( const DistMultiVec<T>& A, DistMultiVec<T>& B )
     B.Matrix() = A.LockedMatrix();
 }
 
+template<typename S,typename T>
+void Copy( const DistMultiVec<S>& A, DistMultiVec<T>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Copy [DistMultiVec]"))
+    EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
+}
+
 template<typename T>
 void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
 {
@@ -437,19 +442,19 @@ void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
    
     // Compute the metadata
     // ====================
-    std::vector<int> sendCounts(commSize,0);
+    vector<int> sendCounts(commSize,0);
     for( Int j=0; j<n; ++j )
         for( Int iLoc=0; iLoc<mLoc; ++iLoc )
             ++sendCounts[ B.Owner(A.GlobalRow(iLoc),j) ]; 
-    std::vector<int> recvCounts(commSize);
+    vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    std::vector<int> sendOffsets, recvOffsets;
+    vector<int> sendOffsets, recvOffsets;
     const int totalSend = Scan( sendCounts, sendOffsets );
     const int totalRecv = Scan( recvCounts, recvOffsets );
     // Pack
     // ====
-    std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
-    std::vector<T> vSendBuf(totalSend);
+    vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
+    vector<T> vSendBuf(totalSend);
     auto offsets = sendOffsets;
     for( Int j=0; j<n; ++j )
     {
@@ -465,8 +470,8 @@ void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
     }
     // Exchange
     // ========
-    std::vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
-    std::vector<T> vRecvBuf(totalRecv);
+    vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
+    vector<T> vRecvBuf(totalRecv);
     mpi::AllToAll
     ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
       sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
@@ -501,19 +506,19 @@ void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
    
     // Compute the metadata
     // ====================
-    std::vector<int> sendCounts(commSize,0);
+    vector<int> sendCounts(commSize,0);
     for( Int jLoc=0; jLoc<nLoc; ++jLoc )
         for( Int iLoc=0; iLoc<mLoc; ++iLoc )
             ++sendCounts[ B.RowOwner(A.GlobalRow(iLoc)) ]; 
-    std::vector<int> recvCounts(commSize);
+    vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    std::vector<int> sendOffsets, recvOffsets;
+    vector<int> sendOffsets, recvOffsets;
     const int totalSend = Scan( sendCounts, sendOffsets );
     const int totalRecv = Scan( recvCounts, recvOffsets );
     // Pack
     // ====
-    std::vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
-    std::vector<T> vSendBuf(totalSend);
+    vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
+    vector<T> vSendBuf(totalSend);
     auto offsets = sendOffsets;
     for( Int jLoc=0; jLoc<nLoc; ++jLoc )
     {
@@ -530,8 +535,8 @@ void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
     }
     // Exchange
     // ========
-    std::vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
-    std::vector<T> vRecvBuf(totalRecv);
+    vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
+    vector<T> vRecvBuf(totalRecv);
     mpi::AllToAll
     ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
       sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
@@ -558,12 +563,12 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
     const Int m = XDist.Height();
     const Int n = XDist.Width();
     const int numLocalEntries = XDist.LocalHeight()*n;
-    std::vector<int> entrySizes(commSize);
+    vector<int> entrySizes(commSize);
     mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
-    std::vector<int> entryOffsets;
+    vector<int> entryOffsets;
     const int numEntries = Scan( entrySizes, entryOffsets );
 
-    std::vector<T> recvBuf( numEntries );
+    vector<T> recvBuf( numEntries );
     X.Resize( m, n, Max(m,1) );
     const auto& XDistLoc = XDist.LockedMatrix();
     if( XDistLoc.Height() == XDistLoc.LDim() )
@@ -575,7 +580,7 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
     }
     else
     {
-        std::vector<T> sendBuf( numLocalEntries );
+        vector<T> sendBuf( numLocalEntries );
         for( Int jLoc=0; jLoc<XDistLoc.Width(); ++jLoc )
             for( Int iLoc=0; iLoc<XDistLoc.Height(); ++iLoc )
                 sendBuf[iLoc+jLoc*XDistLoc.Height()] = XDistLoc.Get(iLoc,jLoc);
@@ -604,9 +609,9 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
         LogicError("Called CopyFromNonRoot from root");
 
     const int numLocalEntries = XDist.LocalHeight()*XDist.Width();
-    std::vector<int> entrySizes(commSize);
+    vector<int> entrySizes(commSize);
     mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
-    std::vector<int> entryOffsets;
+    vector<int> entryOffsets;
     Scan( entrySizes, entryOffsets );
 
     const auto& XDistLoc = XDist.LockedMatrix();
@@ -618,7 +623,7 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
     }
     else
     {
-        std::vector<T> sendBuf( numLocalEntries );
+        vector<T> sendBuf( numLocalEntries );
         for( Int jLoc=0; jLoc<XDistLoc.Width(); ++jLoc )
             for( Int iLoc=0; iLoc<XDistLoc.Height(); ++iLoc )
                 sendBuf[iLoc+jLoc*XDistLoc.Height()] = XDistLoc.Get(iLoc,jLoc);
@@ -628,17 +633,17 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
     }
 }
 
-// TODO: include guards so that certain datatypes can be properly disabled 
 #define CONVERT(S,T) \
   template void Copy( const Matrix<S>& A, Matrix<T>& B ); \
-  template void Copy( const SparseMatrix<S>& A, SparseMatrix<T>& B ); \
-  template void Copy( const SparseMatrix<S>& A, Matrix<T>& B ); \
   template void Copy \
   ( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B ); \
   template void Copy \
   ( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B ); \
   template void Copy \
-  ( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B );
+  ( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B ); \
+  template void Copy( const SparseMatrix<S>& A, SparseMatrix<T>& B ); \
+  template void Copy( const SparseMatrix<S>& A, Matrix<T>& B ); \
+  template void Copy( const DistMultiVec<S>& A, DistMultiVec<T>& B );
 
 #define SAME(T) \
   CONVERT(T,T) \
@@ -646,7 +651,6 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
   template void CopyFromRoot \
   ( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A ); \
   template void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, int root ); \
-  template void Copy( const DistMultiVec<T>& A, DistMultiVec<T>& B ); \
   template void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B ); \
   template void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B ); \
   template void CopyFromRoot( const DistMultiVec<T>& ADist, Matrix<T>& A ); \
@@ -656,38 +660,72 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
 
 #define PROTO_REAL(Real) \
   SAME(Real) \
-  /* Promotions up to Real */ \
   CONVERT(Int,Real) \
-  /* Promotions up from Real */ \
   CONVERT(Real,Complex<Real>)
 
 #define PROTO_COMPLEX(C) \
   SAME(C) \
-  /* Promotions up to C */ \
   CONVERT(Int,C)
+
+#ifdef EL_HAVE_QUAD
 
 #define PROTO_FLOAT \
   PROTO_REAL(float) \
-  /* Promotions up from float */ \
+  CONVERT(float,double) \
+  CONVERT(float,Quad) \
+  CONVERT(float,Complex<double>) \
+  CONVERT(float,Complex<Quad>)
+
+#define PROTO_DOUBLE \
+  PROTO_REAL(double) \
+  CONVERT(double,float) \
+  CONVERT(double,Quad) \
+  CONVERT(double,Complex<float>) \
+  CONVERT(double,Complex<Quad>)
+
+#define PROTO_QUAD \
+  PROTO_REAL(Quad) \
+  CONVERT(Quad,float) \
+  CONVERT(Quad,double) \
+  CONVERT(Quad,Complex<float>) \
+  CONVERT(Quad,Complex<double>)
+
+#define PROTO_COMPLEX_FLOAT \
+  PROTO_COMPLEX(Complex<float>) \
+  CONVERT(Complex<float>,Complex<double>) \
+  CONVERT(Complex<float>,Complex<Quad>)
+
+#define PROTO_COMPLEX_DOUBLE \
+  PROTO_COMPLEX(Complex<double>) \
+  CONVERT(Complex<double>,Complex<float>) \
+  CONVERT(Complex<double>,Complex<Quad>)
+
+#define PROTO_COMPLEX_QUAD \
+  PROTO_COMPLEX(Complex<Quad>) \
+  CONVERT(Complex<Quad>,Complex<float>) \
+  CONVERT(Complex<Quad>,Complex<double>)
+
+#else
+
+#define PROTO_FLOAT \
+  PROTO_REAL(float) \
   CONVERT(float,double) \
   CONVERT(float,Complex<double>)
 
 #define PROTO_DOUBLE \
   PROTO_REAL(double) \
-  /* Promotions down to float */ \
   CONVERT(double,float) \
-  /* Mixed conversion */ \
   CONVERT(double,Complex<float>)
 
 #define PROTO_COMPLEX_FLOAT \
   PROTO_COMPLEX(Complex<float>) \
-  /* Promotions up from Complex<float> */ \
   CONVERT(Complex<float>,Complex<double>)
 
 #define PROTO_COMPLEX_DOUBLE \
   PROTO_COMPLEX(Complex<double>) \
-  /* Promotions down from Complex<double> */ \
   CONVERT(Complex<double>,Complex<float>)
+
+#endif
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

@@ -68,6 +68,7 @@ void ConjugateDiagonal( AbstractBlockDistMatrix<T>& A, Int offset )
   template void ConjugateDiagonal( AbstractDistMatrix<T>& A, Int offset ); \
   template void ConjugateDiagonal( AbstractBlockDistMatrix<T>& A, Int offset ); 
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

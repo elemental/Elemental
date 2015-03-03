@@ -123,19 +123,19 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, int root )
   ( ElMatrix_ ## SIG A, CREFLECT(T) (*fill)() ) \
   { try { \
       auto newFill = [&]() { return CReflect(fill()); }; \
-      EntrywiseFill( *CReflect(A), std::function<T(void)>(newFill) ); \
+      EntrywiseFill( *CReflect(A), function<T(void)>(newFill) ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElEntrywiseFillDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, CREFLECT(T) (*fill)() ) \
   { try { \
       auto newFill = [&]() { return CReflect(fill()); }; \
-      EntrywiseFill( *CReflect(A), std::function<T(void)>(newFill) ); \
+      EntrywiseFill( *CReflect(A), function<T(void)>(newFill) ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElEntrywiseFillDistMultiVec_ ## SIG \
   ( ElDistMultiVec_ ## SIG A, CREFLECT(T) (*fill)() ) \
   { try { \
       auto newFill = [&]() { return CReflect(fill()); }; \
-      EntrywiseFill( *CReflect(A), std::function<T(void)>(newFill) ); \
+      EntrywiseFill( *CReflect(A), function<T(void)>(newFill) ); \
     } EL_CATCH; return EL_SUCCESS; } \
   /* EntrywiseMap */ \
   ElError ElEntrywiseMap_ ## SIG \
@@ -143,35 +143,35 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, int root )
   { try { \
       auto newMap = [&]( T alpha ) \
         { return CReflect(func(CReflect(alpha))); }; \
-      EntrywiseMap( *CReflect(A), std::function<T(T)>(newMap) ); \
+      EntrywiseMap( *CReflect(A), function<T(T)>(newMap) ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElEntrywiseMapDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, CREFLECT(T) (*func)(CREFLECT(T)) ) \
   { try { \
       auto newMap = [&]( T alpha ) \
         { return CReflect(func(CReflect(alpha))); }; \
-      EntrywiseMap( *CReflect(A), std::function<T(T)>(newMap) ); \
+      EntrywiseMap( *CReflect(A), function<T(T)>(newMap) ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElEntrywiseMapSparse_ ## SIG \
   ( ElSparseMatrix_ ## SIG A, CREFLECT(T) (*func)(CREFLECT(T)) ) \
   { try { \
       auto newMap = [&]( T alpha ) \
         { return CReflect(func(CReflect(alpha))); }; \
-      EntrywiseMap( *CReflect(A), std::function<T(T)>(newMap) ); \
+      EntrywiseMap( *CReflect(A), function<T(T)>(newMap) ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElEntrywiseMapDistSparse_ ## SIG \
   ( ElDistSparseMatrix_ ## SIG A, CREFLECT(T) (*func)(CREFLECT(T)) ) \
   { try { \
       auto newMap = [&]( T alpha ) \
         { return CReflect(func(CReflect(alpha))); }; \
-      EntrywiseMap( *CReflect(A), std::function<T(T)>(newMap) ); \
+      EntrywiseMap( *CReflect(A), function<T(T)>(newMap) ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElEntrywiseMapDistMultiVec_ ## SIG \
   ( ElDistMultiVec_ ## SIG A, CREFLECT(T) (*func)(CREFLECT(T)) ) \
   { try { \
       auto newMap = [&]( T alpha ) \
         { return CReflect(func(CReflect(alpha))); }; \
-      EntrywiseMap( *CReflect(A), std::function<T(T)>(newMap) ); \
+      EntrywiseMap( *CReflect(A), function<T(T)>(newMap) ); \
     } EL_CATCH; return EL_SUCCESS; } \
   /* Fill */ \
   ElError ElFill_ ## SIG \
@@ -229,14 +229,14 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, int root )
   { try { \
       auto newFill = [&]( Int i, Int j ) { return CReflect(fill(i,j)); }; \
       IndexDependentFill \
-      ( *CReflect(A), std::function<T(Int,Int)>(newFill) ); \
+      ( *CReflect(A), function<T(Int,Int)>(newFill) ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElIndexDependentFillDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, CREFLECT(T) (*fill)(ElInt,ElInt) ) \
   { try { \
       auto newFill = [&]( Int i, Int j ) { return CReflect(fill(i,j)); }; \
       IndexDependentFill \
-      ( *CReflect(A), std::function<T(Int,Int)>(newFill) ); \
+      ( *CReflect(A), function<T(Int,Int)>(newFill) ); \
     } EL_CATCH; return EL_SUCCESS; } \
   /* IndexDependentMap */ \
   ElError ElIndexDependentMap_ ## SIG \
@@ -245,7 +245,7 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, int root )
       auto newMap = [&]( Int i, Int j, T alpha ) \
         { return CReflect(func(i,j,CReflect(alpha))); }; \
       IndexDependentMap \
-      ( *CReflect(A), std::function<T(Int,Int,T)>(newMap) ); \
+      ( *CReflect(A), function<T(Int,Int,T)>(newMap) ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElIndexDependentMapDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, CREFLECT(T) (*func)(ElInt,ElInt,CREFLECT(T)) ) \
@@ -253,7 +253,7 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, int root )
       auto newMap = [&]( Int i, Int j, T alpha ) \
         { return CReflect(func(i,j,CReflect(alpha))); }; \
       IndexDependentMap \
-      ( *CReflect(A), std::function<T(Int,Int,T)>(newMap) ); \
+      ( *CReflect(A), function<T(Int,Int,T)>(newMap) ); \
     } EL_CATCH; return EL_SUCCESS; } \
   /* Kronecker */ \
   ElError ElKronecker_ ## SIG \

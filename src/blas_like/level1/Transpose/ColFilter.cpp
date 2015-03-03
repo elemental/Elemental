@@ -23,7 +23,7 @@ void ColFilter
             A.RowDist() != Collect(B.ColDist()) )
             LogicError("Incompatible distributions");
     )
-    std::unique_ptr<AbstractDistMatrix<T>> 
+    unique_ptr<AbstractDistMatrix<T>> 
         AFilt( B.ConstructTranspose(B.Grid(),B.Root()) );
     if( B.ColConstrained() )
         AFilt->AlignRowsWith( B, false );
@@ -49,7 +49,7 @@ void ColFilter
             A.RowDist() != Collect(B.ColDist()) )
             LogicError("Incompatible distributions");
     )
-    std::unique_ptr<AbstractBlockDistMatrix<T>> 
+    unique_ptr<AbstractBlockDistMatrix<T>> 
         AFilt( B.ConstructTranspose(B.Grid(),B.Root()) );
     if( B.ColConstrained() )
         AFilt->AlignRowsWith( B, false );

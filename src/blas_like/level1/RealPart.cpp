@@ -27,7 +27,7 @@ void RealPart
 ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& AReal )
 { 
     auto realPart = []( T alpha ) { return RealPart(alpha); };
-    std::function<Base<T>(T)> realLambda( realPart );
+    function<Base<T>(T)> realLambda( realPart );
     EntrywiseMap( A, AReal, realLambda );
 }
 
@@ -36,7 +36,7 @@ void RealPart
 ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<Base<T>>& AReal )
 { 
     auto realPart = []( T alpha ) { return RealPart(alpha); };
-    std::function<Base<T>(T)> realLambda( realPart );
+    function<Base<T>(T)> realLambda( realPart );
     EntrywiseMap( A, AReal, realLambda );
 }
 

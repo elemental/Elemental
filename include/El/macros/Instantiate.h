@@ -20,6 +20,12 @@
 # define PROTO_DOUBLE PROTO_REAL(double)
 #endif
 
+#if defined(EL_HAVE_QUAD) && defined(EL_ENABLE_QUAD)
+#ifndef PROTO_QUAD
+# define PROTO_QUAD PROTO_REAL(Quad)
+#endif
+#endif
+
 #ifndef PROTO_COMPLEX
 # define PROTO_COMPLEX(T) PROTO(T)
 #endif
@@ -28,6 +34,12 @@
 #endif
 #ifndef PROTO_COMPLEX_DOUBLE
 # define PROTO_COMPLEX_DOUBLE PROTO_COMPLEX(Complex<double>)
+#endif
+
+#if defined(EL_HAVE_QUAD) && defined(EL_ENABLE_QUAD)
+#ifndef PROTO_COMPLEX_QUAD
+# define PROTO_COMPLEX_QUAD PROTO_COMPLEX(Complex<Quad>)
+#endif
 #endif
 
 #ifndef EL_NO_INT_PROTO
@@ -42,7 +54,7 @@ PROTO_FLOAT
 PROTO_DOUBLE
 # endif
 #if defined(EL_ENABLE_QUAD) && defined(EL_HAVE_QUAD)
-PROTO_REAL(Quad)
+PROTO_QUAD
 #endif
 #endif
 
@@ -54,6 +66,6 @@ PROTO_COMPLEX_FLOAT
 PROTO_COMPLEX_DOUBLE
 # endif
 #if defined(EL_ENABLE_QUAD) && defined(EL_HAVE_QUAD)
-PROTO_COMPLEX(Complex<Quad>)
+PROTO_COMPLEX_QUAD
 #endif
 #endif

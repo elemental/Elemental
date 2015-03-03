@@ -61,6 +61,7 @@ void FillDiagonal( AbstractBlockDistMatrix<T>& A, T alpha, Int offset )
   template void FillDiagonal \
   ( AbstractBlockDistMatrix<T>& A, T alpha, Int offset );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

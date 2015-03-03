@@ -84,6 +84,7 @@ T Dotu( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
   ( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B ); \
   template T Dotu( const DistMultiVec<T>& A, const DistMultiVec<T>& B );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

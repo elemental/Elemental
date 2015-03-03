@@ -20,7 +20,7 @@ Int PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svt::PivotedQR");
-        if( numSteps > std::min(A.Height(),A.Width()) )
+        if( numSteps > Min(A.Height(),A.Width()) )
             LogicError("number of steps is too large");
     )
     typedef Base<F> Real;
@@ -65,7 +65,7 @@ Int PivotedQR
 {
     DEBUG_ONLY(
         CallStackEntry cse("svt::PivotedQR");
-        if( numSteps > std::min(APre.Height(),APre.Width()) )
+        if( numSteps > Min(APre.Height(),APre.Width()) )
             LogicError("number of steps is too large");
     )
 

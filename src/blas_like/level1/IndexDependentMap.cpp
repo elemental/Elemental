@@ -11,7 +11,7 @@
 namespace El {
 
 template<typename T>
-void IndexDependentMap( Matrix<T>& A, std::function<T(Int,Int,T)> func )
+void IndexDependentMap( Matrix<T>& A, function<T(Int,Int,T)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("IndexDependentMap"))
     const Int m = A.Height();
@@ -23,7 +23,7 @@ void IndexDependentMap( Matrix<T>& A, std::function<T(Int,Int,T)> func )
 
 template<typename T>
 void IndexDependentMap
-( AbstractDistMatrix<T>& A, std::function<T(Int,Int,T)> func )
+( AbstractDistMatrix<T>& A, function<T(Int,Int,T)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("IndexDependentMap"))
     const Int mLoc = A.LocalHeight();
@@ -41,7 +41,7 @@ void IndexDependentMap
 
 template<typename T>
 void IndexDependentMap
-( AbstractBlockDistMatrix<T>& A, std::function<T(Int,Int,T)> func )
+( AbstractBlockDistMatrix<T>& A, function<T(Int,Int,T)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("IndexDependentMap"))
     const Int mLoc = A.LocalHeight();
@@ -59,7 +59,7 @@ void IndexDependentMap
 
 template<typename S,typename T>
 void IndexDependentMap
-( const Matrix<S>& A, Matrix<T>& B, std::function<T(Int,Int,S)> func )
+( const Matrix<S>& A, Matrix<T>& B, function<T(Int,Int,S)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("IndexDependentMap"))
     const Int m = A.Height();
@@ -73,7 +73,7 @@ void IndexDependentMap
 template<typename S,typename T>
 void IndexDependentMap
 ( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B, 
-  std::function<T(Int,Int,S)> func )
+  function<T(Int,Int,S)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("IndexDependentMap"))
     const Int mLoc = A.LocalHeight();
@@ -94,7 +94,7 @@ void IndexDependentMap
 template<typename S,typename T>
 void IndexDependentMap
 ( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B, 
-  std::function<T(Int,Int,S)> func )
+  function<T(Int,Int,S)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("IndexDependentMap"))
     const Int mLoc = A.LocalHeight();
@@ -114,21 +114,21 @@ void IndexDependentMap
 
 #define PROTO(T) \
   template void IndexDependentMap \
-  ( Matrix<T>& A, std::function<T(Int,Int,T)> func ); \
+  ( Matrix<T>& A, function<T(Int,Int,T)> func ); \
   template void IndexDependentMap \
-  ( AbstractDistMatrix<T>& A, std::function<T(Int,Int,T)> func ); \
+  ( AbstractDistMatrix<T>& A, function<T(Int,Int,T)> func ); \
   template void IndexDependentMap \
-  ( AbstractBlockDistMatrix<T>& A, std::function<T(Int,Int,T)> func );
+  ( AbstractBlockDistMatrix<T>& A, function<T(Int,Int,T)> func );
 
 #define PROTO_TYPES(S,T) \
   template void IndexDependentMap \
-  ( const Matrix<S>& A, Matrix<T>& B, std::function<T(Int,Int,S)> func ); \
+  ( const Matrix<S>& A, Matrix<T>& B, function<T(Int,Int,S)> func ); \
   template void IndexDependentMap \
   ( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B, \
-    std::function<T(Int,Int,S)> func ); \
+    function<T(Int,Int,S)> func ); \
   template void IndexDependentMap \
   ( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B, \
-    std::function<T(Int,Int,S)> func );
+    function<T(Int,Int,S)> func );
 
 #define PROTO_INT(T) \
   PROTO(T) \

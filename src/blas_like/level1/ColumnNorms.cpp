@@ -169,8 +169,8 @@ void ColumnNorms( const DistMultiVec<F>& X, Matrix<Base<F>>& norms )
     mpi::Comm comm = X.Comm();
 
     norms.Resize( width, 1 );
-    std::vector<Real> localScales( width ),
-                      localScaledSquares( width );
+    vector<Real> localScales( width ),
+                 localScaledSquares( width );
     for( Int j=0; j<width; ++j )
     {
         Real localScale = 0;
@@ -186,7 +186,7 @@ void ColumnNorms( const DistMultiVec<F>& X, Matrix<Base<F>>& norms )
     }
 
     // Find the maximum relative scales
-    std::vector<Real> scales( width );
+    vector<Real> scales( width );
     mpi::AllReduce( &localScales[0], &scales[0], width, mpi::MAX, comm );
 
     // Equilibrate the local scaled sums
@@ -204,7 +204,7 @@ void ColumnNorms( const DistMultiVec<F>& X, Matrix<Base<F>>& norms )
     }
 
     // Combine the local contributions
-    std::vector<Real> scaledSquares( width );
+    vector<Real> scaledSquares( width );
     mpi::AllReduce
     ( &localScaledSquares[0], &scaledSquares[0], width, mpi::SUM, comm );
     for( Int j=0; j<width; ++j )
@@ -277,6 +277,7 @@ void ColumnNorms
   PROTO_REAL_DIST(Real,VR,  STAR)
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

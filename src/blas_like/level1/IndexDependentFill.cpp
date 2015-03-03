@@ -11,7 +11,7 @@
 namespace El {
 
 template<typename T>
-void IndexDependentFill( Matrix<T>& A, std::function<T(Int,Int)> func )
+void IndexDependentFill( Matrix<T>& A, function<T(Int,Int)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("IndexDependentFill"))
     const Int m = A.Height();
@@ -23,7 +23,7 @@ void IndexDependentFill( Matrix<T>& A, std::function<T(Int,Int)> func )
 
 template<typename T>
 void IndexDependentFill
-( AbstractDistMatrix<T>& A, std::function<T(Int,Int)> func )
+( AbstractDistMatrix<T>& A, function<T(Int,Int)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("IndexDependentFill"))
     const Int mLoc = A.LocalHeight();
@@ -41,7 +41,7 @@ void IndexDependentFill
 
 template<typename T>
 void IndexDependentFill
-( AbstractBlockDistMatrix<T>& A, std::function<T(Int,Int)> func )
+( AbstractBlockDistMatrix<T>& A, function<T(Int,Int)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("IndexDependentFill"))
     const Int mLoc = A.LocalHeight();
@@ -59,11 +59,11 @@ void IndexDependentFill
 
 #define PROTO(T) \
   template void IndexDependentFill \
-  ( Matrix<T>& A, std::function<T(Int,Int)> func ); \
+  ( Matrix<T>& A, function<T(Int,Int)> func ); \
   template void IndexDependentFill \
-  ( AbstractDistMatrix<T>& A, std::function<T(Int,Int)> func ); \
+  ( AbstractDistMatrix<T>& A, function<T(Int,Int)> func ); \
   template void IndexDependentFill \
-  ( AbstractBlockDistMatrix<T>& A, std::function<T(Int,Int)> func );
+  ( AbstractBlockDistMatrix<T>& A, function<T(Int,Int)> func );
 
 #include "El/macros/Instantiate.h"
 

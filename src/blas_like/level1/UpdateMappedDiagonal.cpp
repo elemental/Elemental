@@ -12,7 +12,7 @@ namespace El {
 
 template<typename T,typename S>
 void UpdateMappedDiagonal
-( Matrix<T>& A, const Matrix<S>& d, std::function<void(T&,S)> func, Int offset )
+( Matrix<T>& A, const Matrix<S>& d, function<void(T&,S)> func, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("UpdateMappedDiagonal"))
     const Int iStart = Max(-offset,0);
@@ -35,7 +35,7 @@ void UpdateMappedDiagonal
 template<typename T,typename S,Dist U,Dist V>
 void UpdateMappedDiagonal
 ( DistMatrix<T,U,V>& A, const AbstractDistMatrix<S>& dPre, 
-  std::function<void(T&,S)> func, Int offset )
+  function<void(T&,S)> func, Int offset )
 { 
     DEBUG_ONLY(
       CallStackEntry cse("UpdateMappedDiagonal");
@@ -81,11 +81,11 @@ void UpdateMappedDiagonal
 #define PROTO_DIST_TYPES(S,T,U,V) \
   template void UpdateMappedDiagonal \
   ( DistMatrix<T,U,V>& A, const AbstractDistMatrix<S>& d, \
-    std::function<void(T&,S)> func, Int offset );
+    function<void(T&,S)> func, Int offset );
 
 #define PROTO_TYPES(S,T) \
   template void UpdateMappedDiagonal \
-  ( Matrix<T>& A, const Matrix<S>& d, std::function<void(T&,S)> func, \
+  ( Matrix<T>& A, const Matrix<S>& d, function<void(T&,S)> func, \
     Int offset ); \
   PROTO_DIST_TYPES(S,T,CIRC,CIRC) \
   PROTO_DIST_TYPES(S,T,MC,  MR  ) \

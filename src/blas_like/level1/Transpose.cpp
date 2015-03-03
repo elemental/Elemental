@@ -148,7 +148,7 @@ void Transpose
     }
     else
     {
-        std::unique_ptr<AbstractDistMatrix<T>> 
+        unique_ptr<AbstractDistMatrix<T>> 
             C( B.ConstructTranspose(A.Grid(),A.Root()) );
         C->AlignRowsWith( BData );
         C->AlignColsWith( BData );
@@ -213,7 +213,7 @@ void Transpose
     }
     else
     {
-        std::unique_ptr<AbstractBlockDistMatrix<T>> 
+        unique_ptr<AbstractBlockDistMatrix<T>> 
             C( B.ConstructTranspose(A.Grid(),A.Root()) );
         C->AlignRowsWith( BData );
         C->AlignColsWith( BData );

@@ -304,6 +304,7 @@ void DiagonalScaleTrapezoid
   DIST_PROTO_REAL(T,VC  ,STAR); \
   DIST_PROTO_REAL(T,VR  ,STAR);
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

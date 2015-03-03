@@ -48,6 +48,7 @@ void Fill( DistMultiVec<T>& A, T alpha )
   template void Fill( AbstractBlockDistMatrix<T>& A, T alpha ); \
   template void Fill( DistMultiVec<T>& A, T alpha ); \
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

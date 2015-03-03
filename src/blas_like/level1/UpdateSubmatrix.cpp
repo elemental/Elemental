@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void UpdateSubmatrix
 (       Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
   T alpha, const Matrix<T>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("UpdateSubmatrix"))
@@ -35,7 +35,7 @@ void UpdateSubmatrix
 template<typename T>
 void UpdateRealPartOfSubmatrix
 (       Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
   Base<T> alpha, const Matrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("UpdateRealPartOfSubmatrix"))
@@ -57,7 +57,7 @@ void UpdateRealPartOfSubmatrix
 template<typename T>
 void UpdateImagPartOfSubmatrix
 (       Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
   Base<T> alpha, const Matrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("UpdateImagPartOfSubmatrix"))
@@ -79,7 +79,7 @@ void UpdateImagPartOfSubmatrix
 template<typename T>
 void UpdateSubmatrix
 (       AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
   T alpha, const AbstractDistMatrix<T>& ASubPre )
 {
     DEBUG_ONLY(CallStackEntry cse("UpdateSubmatrix"))
@@ -116,7 +116,7 @@ void UpdateSubmatrix
 template<typename T>
 void UpdateRealPartOfSubmatrix
 (       AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
   Base<T> alpha, const AbstractDistMatrix<Base<T>>& ASubPre )
 {
     DEBUG_ONLY(CallStackEntry cse("UpdateRealPartOfSubmatrix"))
@@ -153,7 +153,7 @@ void UpdateRealPartOfSubmatrix
 template<typename T>
 void UpdateImagPartOfSubmatrix
 (       AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
   Base<T> alpha, const AbstractDistMatrix<Base<T>>& ASubPre )
 {
     DEBUG_ONLY(CallStackEntry cse("UpdateImagPartOfSubmatrix"))
@@ -190,27 +190,27 @@ void UpdateImagPartOfSubmatrix
 #define PROTO(T) \
   template void UpdateSubmatrix \
   (       Matrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J, \
+    const vector<Int>& I, const vector<Int>& J, \
     T alpha, const Matrix<T>& ASub ); \
   template void UpdateRealPartOfSubmatrix \
   (       Matrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J, \
+    const vector<Int>& I, const vector<Int>& J, \
     Base<T> alpha, const Matrix<Base<T>>& ASub ); \
   template void UpdateImagPartOfSubmatrix \
   (       Matrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J, \
+    const vector<Int>& I, const vector<Int>& J, \
     Base<T> alpha, const Matrix<Base<T>>& ASub ); \
   template void UpdateSubmatrix \
   (       AbstractDistMatrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J, \
+    const vector<Int>& I, const vector<Int>& J, \
     T alpha, const AbstractDistMatrix<T>& ASub ); \
   template void UpdateRealPartOfSubmatrix \
   (       AbstractDistMatrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J, \
+    const vector<Int>& I, const vector<Int>& J, \
     Base<T> alpha, const AbstractDistMatrix<Base<T>>& ASub ); \
   template void UpdateImagPartOfSubmatrix \
   (       AbstractDistMatrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J, \
+    const vector<Int>& I, const vector<Int>& J, \
     Base<T> alpha, const AbstractDistMatrix<Base<T>>& ASub );
 
 #include "El/macros/Instantiate.h"

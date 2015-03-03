@@ -26,7 +26,7 @@ void AllReduce( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op )
     }
     else
     {
-        std::vector<T> buf( localSize );
+        vector<T> buf( localSize );
 
         // Pack
         copy::util::InterleaveMatrix
@@ -60,7 +60,7 @@ void AllReduce( AbstractBlockDistMatrix<T>& A, mpi::Comm comm, mpi::Op op )
     }
     else
     {
-        std::vector<T> buf( localSize );
+        vector<T> buf( localSize );
 
         // Pack
         copy::util::InterleaveMatrix
@@ -84,6 +84,7 @@ void AllReduce( AbstractBlockDistMatrix<T>& A, mpi::Comm comm, mpi::Op op )
   template void AllReduce \
   ( AbstractBlockDistMatrix<T>& A, mpi::Comm comm, mpi::Op op );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

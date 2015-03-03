@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void GetSubmatrix
 ( const Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
         Matrix<T>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
@@ -37,7 +37,7 @@ void GetSubmatrix
 template<typename T>
 void GetRealPartOfSubmatrix
 ( const Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
         Matrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("GetRealPartOfSubmatrix"))
@@ -61,7 +61,7 @@ void GetRealPartOfSubmatrix
 template<typename T>
 void GetImagPartOfSubmatrix
 ( const Matrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
         Matrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("GetImagPartOfSubmatrix"))
@@ -84,7 +84,7 @@ void GetImagPartOfSubmatrix
 
 template<typename T>
 Matrix<T> GetSubmatrix
-( const Matrix<T>& A, const std::vector<Int>& I, const std::vector<Int>& J )
+( const Matrix<T>& A, const vector<Int>& I, const vector<Int>& J )
 {
     DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
     Matrix<T> ASub;
@@ -94,7 +94,7 @@ Matrix<T> GetSubmatrix
 
 template<typename T>
 Matrix<Base<T>> GetRealPartOfSubmatrix
-( const Matrix<T>& A, const std::vector<Int>& I, const std::vector<Int>& J )
+( const Matrix<T>& A, const vector<Int>& I, const vector<Int>& J )
 {
     DEBUG_ONLY(CallStackEntry cse("GetRealPartOfSubmatrix"))
     Matrix<Base<T>> ASub;
@@ -104,7 +104,7 @@ Matrix<Base<T>> GetRealPartOfSubmatrix
 
 template<typename T>
 Matrix<Base<T>> GetImagPartOfSubmatrix
-( const Matrix<T>& A, const std::vector<Int>& I, const std::vector<Int>& J )
+( const Matrix<T>& A, const vector<Int>& I, const vector<Int>& J )
 {
     DEBUG_ONLY(CallStackEntry cse("GetImagPartOfSubmatrix"))
     Matrix<Base<T>> ASub;
@@ -115,7 +115,7 @@ Matrix<Base<T>> GetImagPartOfSubmatrix
 template<typename T>
 void GetSubmatrix
 ( const AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
         AbstractDistMatrix<T>& ASubPre )
 {
     DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
@@ -160,7 +160,7 @@ void GetSubmatrix
 template<typename T>
 void GetRealPartOfSubmatrix
 ( const AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
         AbstractDistMatrix<Base<T>>& ASubPre )
 {
     DEBUG_ONLY(CallStackEntry cse("GetRealPartOfSubmatrix"))
@@ -206,7 +206,7 @@ void GetRealPartOfSubmatrix
 template<typename T>
 void GetImagPartOfSubmatrix
 ( const AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J, 
+  const vector<Int>& I, const vector<Int>& J, 
         AbstractDistMatrix<Base<T>>& ASubPre )
 {
     DEBUG_ONLY(CallStackEntry cse("GetImagPartOfSubmatrix"))
@@ -252,7 +252,7 @@ void GetImagPartOfSubmatrix
 template<typename T>
 DistMatrix<T,STAR,STAR> GetSubmatrix
 ( const AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J )
+  const vector<Int>& I, const vector<Int>& J )
 {
     DistMatrix<T,STAR,STAR> ASub( A.Grid() );
     GetSubmatrix( A, I, J, ASub );
@@ -262,7 +262,7 @@ DistMatrix<T,STAR,STAR> GetSubmatrix
 template<typename T>
 DistMatrix<Base<T>,STAR,STAR> GetRealPartOfSubmatrix
 ( const AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J )
+  const vector<Int>& I, const vector<Int>& J )
 {
     DistMatrix<Base<T>,STAR,STAR> ASub( A.Grid() );
     GetRealPartOfSubmatrix( A, I, J, ASub );
@@ -272,7 +272,7 @@ DistMatrix<Base<T>,STAR,STAR> GetRealPartOfSubmatrix
 template<typename T>
 DistMatrix<Base<T>,STAR,STAR> GetImagPartOfSubmatrix
 ( const AbstractDistMatrix<T>& A, 
-  const std::vector<Int>& I, const std::vector<Int>& J )
+  const vector<Int>& I, const vector<Int>& J )
 {
     DistMatrix<Base<T>,STAR,STAR> ASub( A.Grid() );
     GetImagPartOfSubmatrix( A, I, J, ASub );
@@ -282,46 +282,46 @@ DistMatrix<Base<T>,STAR,STAR> GetImagPartOfSubmatrix
 #define PROTO(T) \
   template void GetSubmatrix \
   ( const Matrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J, \
+    const vector<Int>& I, const vector<Int>& J, \
           Matrix<T>& ASub ); \
   template void GetRealPartOfSubmatrix \
   ( const Matrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J, \
+    const vector<Int>& I, const vector<Int>& J, \
           Matrix<Base<T>>& ASub ); \
   template void GetImagPartOfSubmatrix \
   ( const Matrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J, \
+    const vector<Int>& I, const vector<Int>& J, \
           Matrix<Base<T>>& ASub ); \
   template Matrix<T> GetSubmatrix \
   ( const Matrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J ); \
+    const vector<Int>& I, const vector<Int>& J ); \
   template Matrix<Base<T>> GetRealPartOfSubmatrix \
   ( const Matrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J ); \
+    const vector<Int>& I, const vector<Int>& J ); \
   template Matrix<Base<T>> GetImagPartOfSubmatrix \
   ( const Matrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J ); \
+    const vector<Int>& I, const vector<Int>& J ); \
   template void GetSubmatrix \
   ( const AbstractDistMatrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J, \
+    const vector<Int>& I, const vector<Int>& J, \
           AbstractDistMatrix<T>& ASub ); \
   template void GetRealPartOfSubmatrix \
   ( const AbstractDistMatrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J, \
+    const vector<Int>& I, const vector<Int>& J, \
           AbstractDistMatrix<Base<T>>& ASub ); \
   template void GetImagPartOfSubmatrix \
   ( const AbstractDistMatrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J, \
+    const vector<Int>& I, const vector<Int>& J, \
           AbstractDistMatrix<Base<T>>& ASub ); \
   template DistMatrix<T,STAR,STAR> GetSubmatrix \
   ( const AbstractDistMatrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J ); \
+    const vector<Int>& I, const vector<Int>& J ); \
   template DistMatrix<Base<T>,STAR,STAR> GetRealPartOfSubmatrix \
   ( const AbstractDistMatrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J ); \
+    const vector<Int>& I, const vector<Int>& J ); \
   template DistMatrix<Base<T>,STAR,STAR> GetImagPartOfSubmatrix \
   ( const AbstractDistMatrix<T>& A, \
-    const std::vector<Int>& I, const std::vector<Int>& J );
+    const vector<Int>& I, const vector<Int>& J );
 
 #include "El/macros/Instantiate.h"
 

@@ -115,7 +115,7 @@ void AxpyTrapezoid
     }
     else
     {
-        std::unique_ptr<AbstractDistMatrix<T>> 
+        unique_ptr<AbstractDistMatrix<T>> 
           XCopy( Y.Construct(Y.Grid(),Y.Root()) );
         XCopy->AlignWith( YDistData );
         Copy( X, *XCopy );
@@ -172,6 +172,7 @@ void AxpyTrapezoid
   PROTO_TYPES(T,Base<T>) \
   PROTO_TYPES(T,T)
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

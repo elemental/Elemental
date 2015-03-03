@@ -369,39 +369,74 @@ WriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
 
 #define PROTO_REAL(Real) \
   CONVERT(Real,Real) \
-  /* Promotions up to Real */ \
   READ_CONVERT(Int,Real) \
-  /* Promotions up from Real */ \
   READ_CONVERT(Real,Complex<Real>)
 
 #define PROTO_COMPLEX(C) \
   CONVERT(C,C) \
-  /* Promotions up to C */ \
   READ_CONVERT(Int,C)
+
+#ifdef EL_HAVE_QUAD
 
 #define PROTO_FLOAT \
   PROTO_REAL(float) \
-  /* Promotions up from float */ \
+  CONVERT(float,double) \
+  CONVERT(float,Quad) \
+  READ_CONVERT(float,Complex<double>) \
+  READ_CONVERT(float,Complex<Quad>)
+
+#define PROTO_DOUBLE \
+  PROTO_REAL(double) \
+  CONVERT(double,float) \
+  CONVERT(double,Quad) \
+  READ_CONVERT(double,Complex<float>) \
+  READ_CONVERT(double,Complex<Quad>)
+
+#define PROTO_QUAD \
+  PROTO_REAL(Quad) \
+  CONVERT(Quad,float) \
+  CONVERT(Quad,double) \
+  READ_CONVERT(Quad,Complex<float>) \
+  READ_CONVERT(Quad,Complex<double>)
+
+#define PROTO_COMPLEX_FLOAT \
+  PROTO_COMPLEX(Complex<float>) \
+  CONVERT(Complex<float>,Complex<double>) \
+  CONVERT(Complex<float>,Complex<Quad>)
+
+#define PROTO_COMPLEX_DOUBLE \
+  PROTO_COMPLEX(Complex<double>) \
+  CONVERT(Complex<double>,Complex<float>) \
+  CONVERT(Complex<double>,Complex<Quad>) 
+
+#define PROTO_COMPLEX_QUAD \
+  PROTO_COMPLEX(Complex<Quad>) \
+  CONVERT(Complex<Quad>,Complex<float>) \
+  CONVERT(Complex<Quad>,Complex<double>) 
+
+#else
+
+#define PROTO_FLOAT \
+  PROTO_REAL(float) \
   CONVERT(float,double) \
   READ_CONVERT(float,Complex<double>)
 
 #define PROTO_DOUBLE \
   PROTO_REAL(double) \
-  /* Promotions down to float */ \
   CONVERT(double,float) \
-  /* Mixed conversion */ \
   READ_CONVERT(double,Complex<float>)
 
 #define PROTO_COMPLEX_FLOAT \
   PROTO_COMPLEX(Complex<float>) \
-  /* Promotions up from Complex<float> */ \
   CONVERT(Complex<float>,Complex<double>)
 
 #define PROTO_COMPLEX_DOUBLE \
   PROTO_COMPLEX(Complex<double>) \
-  /* Promotions down from Complex<double> */ \
   CONVERT(Complex<double>,Complex<float>)
 
+#endif
+
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

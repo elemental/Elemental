@@ -622,6 +622,21 @@ dcomplex Dotu( int n, const dcomplex* x, int incx, const dcomplex* y, int incy )
     return alpha;
 }
 
+template<typename F>
+Base<F> Nrm2( int n, const F* x, int incx )
+{
+    typedef Base<F> Real;
+    Real scale = 0; 
+    Real scaledSquare = 1;
+    for( int i=0; i<n; ++i )
+        UpdateScaledSquare( x[i*incx], scale, scaledSquare );
+    return scale*Sqrt(scaledSquare);
+}
+#ifdef EL_HAVE_QUAD
+template Quad Nrm2( int n, const Quad* x, int incx );
+template Quad Nrm2( int n, const Complex<Quad>* x, int incx );
+#endif
+
 float Nrm2( int n, const float* x, int incx )
 { return EL_BLAS(snrm2)( &n, x, &incx ); }
 double Nrm2( int n, const double* x, int incx )
@@ -656,6 +671,28 @@ void Rot
 void Rot
 ( int n, dcomplex* x, int incx, dcomplex* y, int incy, double c, dcomplex s )
 { EL_BLAS(zrot)( &n, x, &incx, y, &incy, &c, &s ); }
+
+template<typename T>
+void Scal( int n, T alpha, T* x, int incx )
+{
+    for( Int j=0; j<n; ++j )
+        x[j*incx] *= alpha;
+}
+template<typename T>
+void Scal( int n, Base<T> alpha, T* x, int incx )
+{
+    for( Int j=0; j<n; ++j )
+        x[j*incx] *= alpha;
+}
+#ifdef EL_HAVE_QUAD
+template void Scal( int n, int alpha, int* x, int incx );
+template void Scal( int n, Quad alpha, Quad* x, int incx );
+template void Scal( int n, Complex<Quad> alpha, Complex<Quad>* x, int incx );
+
+template void Scal( int n, float alpha, Complex<float>* x, int incx );
+template void Scal( int n, double alpha, Complex<double>* x, int incx );
+template void Scal( int n, Quad alpha, Complex<Quad>* x, int incx );
+#endif
 
 void Scal( int n, float alpha, float* x, int incx )
 { EL_BLAS(sscal)( &n, &alpha, x, &incx ); }

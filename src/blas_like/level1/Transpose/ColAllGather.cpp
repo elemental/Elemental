@@ -23,7 +23,7 @@ void ColAllGather
             B.RowDist() != Collect(A.ColDist()) )
             LogicError("Incompatible distributions");
     )
-    std::unique_ptr<AbstractDistMatrix<T>> ATrans
+    unique_ptr<AbstractDistMatrix<T>> ATrans
     ( A.ConstructTranspose(A.Grid(),A.Root()) );
     ATrans->AlignWith( A );
     ATrans->Resize( A.Width(), A.Height() );
@@ -42,7 +42,7 @@ void ColAllGather
             B.RowDist() != Collect(A.ColDist()) )
             LogicError("Incompatible distributions");
     )
-    std::unique_ptr<AbstractBlockDistMatrix<T>> ATrans
+    unique_ptr<AbstractBlockDistMatrix<T>> ATrans
     ( A.ConstructTranspose(A.Grid(),A.Root()) );
     ATrans->AlignWith( A );
     ATrans->Resize( A.Width(), A.Height() );

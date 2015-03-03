@@ -76,6 +76,9 @@ void Copy( char uplo, int m, int n, const T* A, int lda, T* B, int ldb );
 // For safely computing norms without overflow/underflow
 // =====================================================
 
+template<typename Real>
+Real SafeNorm( Real alpha, Real beta );
+
 float SafeNorm( float alpha, float beta );
 double SafeNorm( double alpha, double beta );
 float SafeNorm( float alpha, float beta, float gamma );

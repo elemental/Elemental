@@ -12,7 +12,7 @@ namespace El {
 
 template<typename T,typename S>
 void GetMappedDiagonal
-( const Matrix<T>& A, Matrix<S>& d, std::function<S(T)> func, Int offset )
+( const Matrix<T>& A, Matrix<S>& d, function<S(T)> func, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("GetMappedDiagonal"))
     const Int diagLength = A.DiagonalLength(offset);
@@ -37,7 +37,7 @@ void GetMappedDiagonal
 template<typename T,typename S,Dist U,Dist V>
 void GetMappedDiagonal
 ( const DistMatrix<T,U,V>& A, AbstractDistMatrix<S>& dPre, 
-  std::function<S(T)> func, Int offset )
+  function<S(T)> func, Int offset )
 { 
     DEBUG_ONLY(
       CallStackEntry cse("GetMappedDiagonal");
@@ -84,11 +84,11 @@ void GetMappedDiagonal
 #define PROTO_DIST_TYPES(S,T,U,V) \
   template void GetMappedDiagonal \
   ( const DistMatrix<T,U,V>& A, AbstractDistMatrix<S>& d, \
-    std::function<S(T)> func, Int offset );
+    function<S(T)> func, Int offset );
 
 #define PROTO_TYPES(S,T) \
   template void GetMappedDiagonal \
-  ( const Matrix<T>& A, Matrix<S>& B, std::function<S(T)> func, Int offset ); \
+  ( const Matrix<T>& A, Matrix<S>& B, function<S(T)> func, Int offset ); \
   PROTO_DIST_TYPES(S,T,CIRC,CIRC) \
   PROTO_DIST_TYPES(S,T,MC,  MR  ) \
   PROTO_DIST_TYPES(S,T,MC,  STAR) \

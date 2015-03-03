@@ -14,7 +14,7 @@ template<typename T>
 void GetDiagonal( const Matrix<T>& A, Matrix<T>& d, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("GetDiagonal"))
-    std::function<T(T)> identity( []( T alpha ) { return alpha; } ); 
+    function<T(T)> identity( []( T alpha ) { return alpha; } ); 
     GetMappedDiagonal( A, d, identity, offset );
 }
 
@@ -23,7 +23,7 @@ void GetRealPartOfDiagonal
 ( const Matrix<T>& A, Matrix<Base<T>>& d, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("GetRealPartOfDiagonal"))
-    std::function<Base<T>(T)> realPart
+    function<Base<T>(T)> realPart
     ( []( T alpha ) { return RealPart(alpha); } ); 
     GetMappedDiagonal( A, d, realPart, offset );
 }
@@ -33,7 +33,7 @@ void GetImagPartOfDiagonal
 ( const Matrix<T>& A, Matrix<Base<T>>& d, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("GetImagPartOfDiagonal"))
-    std::function<Base<T>(T)> imagPart
+    function<Base<T>(T)> imagPart
     ( []( T alpha ) { return ImagPart(alpha); } ); 
     GetMappedDiagonal( A, d, imagPart, offset );
 }
@@ -69,7 +69,7 @@ void GetDiagonal
 ( const DistMatrix<T,U,V>& A, AbstractDistMatrix<T>& d, Int offset )
 { 
     DEBUG_ONLY(CallStackEntry cse("GetDiagonal"))
-    std::function<T(T)> identity( []( T alpha ) { return alpha; } );
+    function<T(T)> identity( []( T alpha ) { return alpha; } );
     GetMappedDiagonal( A, d, identity, offset );
 }
 
@@ -78,7 +78,7 @@ void GetRealPartOfDiagonal
 ( const DistMatrix<T,U,V>& A, AbstractDistMatrix<Base<T>>& d, Int offset )
 { 
     DEBUG_ONLY(CallStackEntry cse("GetRealPartOfDiagonal"))
-    std::function<Base<T>(T)> realPart
+    function<Base<T>(T)> realPart
     ( []( T alpha ) { return RealPart(alpha); } );
     GetMappedDiagonal( A, d, realPart, offset );
 }
@@ -88,7 +88,7 @@ void GetImagPartOfDiagonal
 ( const DistMatrix<T,U,V>& A, AbstractDistMatrix<Base<T>>& d, Int offset )
 { 
     DEBUG_ONLY(CallStackEntry cse("GetImagPartOfDiagonal"))
-    std::function<Base<T>(T)> imagPart
+    function<Base<T>(T)> imagPart
     ( []( T alpha ) { return ImagPart(alpha); } );
     GetMappedDiagonal( A, d, imagPart, offset );
 }

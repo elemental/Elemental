@@ -27,11 +27,11 @@ void PartialColScatter
 #ifdef EL_CACHE_WARNINGS
     if( A.Width() != 1 && A.Grid().Rank() == 0 )
     {
-        std::cerr <<
+        cerr <<
           "axpy_contract::PartialColScatterUpdate potentially causes a large "
           "amount of cache-thrashing. If possible, avoid it by forming the "
           "(conjugate-)transpose of the [UGath,* ] matrix instead."
-          << std::endl;
+          << endl;
     }
 #endif
     if( B.ColAlign() % A.ColStride() == A.ColAlign() )
@@ -49,7 +49,7 @@ void PartialColScatter
         const Int recvSize = mpi::Pad( maxLocalHeight*width );
         const Int sendSize = colStrideUnion*recvSize;
 
-        std::vector<T> buffer( sendSize );
+        vector<T> buffer( sendSize );
 
         // Pack
         copy::util::PartialColStridedPack
@@ -100,7 +100,7 @@ void PartialRowScatter
         const Int recvSize = mpi::Pad( height*maxLocalWidth );
         const Int sendSize = rowStrideUnion*recvSize;
 
-        std::vector<T> buffer( sendSize );
+        vector<T> buffer( sendSize );
 
         // Pack
         copy::util::PartialRowStridedPack
@@ -138,20 +138,20 @@ void ColScatter
 #ifdef EL_VECTOR_WARNINGS
     if( A.Width() == 1 && B.Grid().Rank() == 0 )
     {
-        std::cerr <<
+        cerr <<
           "The vector version of ColScatter does not"
           " yet have a vector version implemented, but it would only "
           "require a modification of the vector version of RowScatter"
-          << std::endl;
+          << endl;
     }
 #endif
 #ifdef EL_CACHE_WARNINGS
     if( A.Width() != 1 && B.Grid().Rank() == 0 )
     {
-        std::cerr <<
+        cerr <<
           "axpy_contract::ColScatter potentially causes a large "
           "amount of cache-thrashing. If possible, avoid it by forming the "
-          "(conjugate-)transpose of the [* ,V] matrix instead." << std::endl;
+          "(conjugate-)transpose of the [* ,V] matrix instead." << endl;
     }
 #endif
     if( !B.Participating() )
@@ -171,7 +171,7 @@ void ColScatter
 
         const Int recvSize = mpi::Pad( maxLocalHeight*localWidth );
         const Int sendSize = colStride*recvSize;
-        std::vector<T> buffer( sendSize );
+        vector<T> buffer( sendSize );
 
         // Pack 
         copy::util::ColStridedPack
@@ -193,7 +193,7 @@ void ColScatter
     {
 #ifdef EL_UNALIGNED_WARNINGS
         if( B.Grid().Rank() == 0 )
-            std::cerr << "Unaligned ColScatter" << std::endl;
+            cerr << "Unaligned ColScatter" << endl;
 #endif
         const Int localWidthA = A.LocalWidth();
         const Int maxLocalHeight = MaxLength(height,colStride);
@@ -202,7 +202,7 @@ void ColScatter
         const Int sendSize_RS = colStride*recvSize_RS;
         const Int recvSize_SR = localHeight*localWidth;
 
-        std::vector<T> buffer( recvSize_RS + Max(sendSize_RS,recvSize_SR) );
+        vector<T> buffer( recvSize_RS + Max(sendSize_RS,recvSize_SR) );
         T* firstBuf = &buffer[0];
         T* secondBuf = &buffer[recvSize_RS];
 
@@ -253,7 +253,7 @@ void RowScatter
         {
             const Int localHeight = B.LocalHeight();
             const Int portionSize = mpi::Pad( localHeight );
-            std::vector<T> buffer( portionSize );
+            vector<T> buffer( portionSize );
 
             // Reduce to rowAlign
             const Int rowAlign = B.RowAlign();
@@ -280,7 +280,7 @@ void RowScatter
             const Int sendSize = rowStride*portionSize;
 
             // Pack 
-            std::vector<T> buffer( sendSize );
+            vector<T> buffer( sendSize );
             copy::util::RowStridedPack
             ( localHeight, width,
               rowAlign, rowStride,
@@ -301,7 +301,7 @@ void RowScatter
     {
 #ifdef EL_UNALIGNED_WARNINGS
         if( B.Grid().Rank() == 0 )
-            std::cerr << "Unaligned RowScatter" << std::endl;
+            cerr << "Unaligned RowScatter" << endl;
 #endif
         const Int colRank = B.ColRank();
         const Int colStride = B.ColStride();
@@ -314,7 +314,7 @@ void RowScatter
 
         if( width == 1 )
         {
-            std::vector<T> buffer( localHeight+localHeightA );
+            vector<T> buffer( localHeight+localHeightA );
             T* sendBuf = &buffer[0];
             T* recvBuf = &buffer[localHeightA];
 
@@ -348,7 +348,7 @@ void RowScatter
             const Int sendSize_RS = rowStride * recvSize_RS;
             const Int recvSize_SR = localHeight * localWidth;
 
-            std::vector<T> buffer( recvSize_RS + Max(sendSize_RS,recvSize_SR) );
+            vector<T> buffer( recvSize_RS + Max(sendSize_RS,recvSize_SR) );
             T* firstBuf = &buffer[0];
             T* secondBuf = &buffer[recvSize_RS];
 
@@ -405,7 +405,7 @@ void Scatter
     const Int recvSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
     const Int sendSize = colStride*rowStride*recvSize;
 
-    std::vector<T> buffer( sendSize );
+    vector<T> buffer( sendSize );
 
     // Pack 
     copy::util::StridedPack

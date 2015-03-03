@@ -24,7 +24,7 @@ void TransposeContract
     }
     else
     {
-        std::unique_ptr<AbstractDistMatrix<T>> 
+        unique_ptr<AbstractDistMatrix<T>> 
             ASumFilt( B.ConstructTranspose(B.Grid(),B.Root()) );
         if( B.ColConstrained() )
             ASumFilt->AlignRowsWith( B, false );
@@ -54,7 +54,7 @@ void TransposeContract
     }
     else
     {
-        std::unique_ptr<AbstractBlockDistMatrix<T>> 
+        unique_ptr<AbstractBlockDistMatrix<T>> 
             ASumFilt( B.ConstructTranspose(B.Grid(),B.Root()) );
         if( B.ColConstrained() )
             ASumFilt->AlignRowsWith( B, false );
@@ -78,6 +78,7 @@ void TransposeContract
   ( const AbstractBlockDistMatrix<T>& A, \
           AbstractBlockDistMatrix<T>& B, bool conjugate );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

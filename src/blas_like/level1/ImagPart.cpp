@@ -27,7 +27,7 @@ void ImagPart
 ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& AImag )
 { 
     auto imagPart = []( T alpha ) { return ImagPart(alpha); };
-    std::function<Base<T>(T)> realLambda( imagPart );
+    function<Base<T>(T)> realLambda( imagPart );
     EntrywiseMap( A, AImag, realLambda );
 }
 
@@ -36,7 +36,7 @@ void ImagPart
 ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<Base<T>>& AImag )
 { 
     auto imagPart = []( T alpha ) { return ImagPart(alpha); };
-    std::function<Base<T>(T)> realLambda( imagPart );
+    function<Base<T>(T)> realLambda( imagPart );
     EntrywiseMap( A, AImag, realLambda );
 }
 

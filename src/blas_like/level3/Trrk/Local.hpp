@@ -17,7 +17,7 @@ namespace trrk {
 
 template<typename T>
 void EnsureConformal
-( const DistMatrix<T,MC,STAR>& A, const DistMatrix<T>& C, std::string name )
+( const DistMatrix<T,MC,STAR>& A, const DistMatrix<T>& C, string name )
 {
     if( A.Height() != C.Height() || A.ColAlign() != C.ColAlign() )
         LogicError(name," not conformal with C");
@@ -25,7 +25,7 @@ void EnsureConformal
 
 template<typename T>
 void EnsureConformal
-( const DistMatrix<T,STAR,MC>& A, const DistMatrix<T>& C, std::string name )
+( const DistMatrix<T,STAR,MC>& A, const DistMatrix<T>& C, string name )
 {
     if( A.Width() != C.Height() || A.RowAlign() != C.ColAlign() )
         LogicError(name," not conformal with C");
@@ -33,7 +33,7 @@ void EnsureConformal
 
 template<typename T>
 void EnsureConformal
-( const DistMatrix<T,MR,STAR>& A, const DistMatrix<T>& C, std::string name )
+( const DistMatrix<T,MR,STAR>& A, const DistMatrix<T>& C, string name )
 {
     if( A.Height() != C.Width() || A.ColAlign() != C.RowAlign() )
         LogicError(name," not conformal with C");
@@ -41,7 +41,7 @@ void EnsureConformal
 
 template<typename T>
 void EnsureConformal
-( const DistMatrix<T,STAR,MR>& A, const DistMatrix<T>& C, std::string name )
+( const DistMatrix<T,STAR,MR>& A, const DistMatrix<T>& C, string name )
 {
     if( A.Width() != C.Width() || A.RowAlign() != C.RowAlign() )
         LogicError(name," not conformal with C");

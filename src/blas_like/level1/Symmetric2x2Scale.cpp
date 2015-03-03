@@ -199,7 +199,7 @@ Symmetric2x2Scale
             return;
 
         F *ALocCol1=nullptr, *ALocCol2=nullptr;
-        std::vector<F> buffer;
+        vector<F> buffer;
         {
             if( inFirstCol && inSecondCol )
             {
