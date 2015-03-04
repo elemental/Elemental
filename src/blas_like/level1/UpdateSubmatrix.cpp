@@ -213,6 +213,7 @@ void UpdateImagPartOfSubmatrix
     const vector<Int>& I, const vector<Int>& J, \
     Base<T> alpha, const AbstractDistMatrix<Base<T>>& ASub );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

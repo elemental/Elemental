@@ -190,6 +190,12 @@ void Geru
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda );
 
+template<typename T>
+void Hemv
+( char uplo, int m,
+  T alpha, const T* A, int lda, const T* x, int incx,
+  T beta,                             T* y, int incy );
+
 void Hemv
 ( char uplo, int m,
   float alpha, const float* A, int lda, const float* x, int incx,
@@ -237,6 +243,12 @@ void Her2
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda );
 
+template<typename T>
+void Symv
+( char uplo, int m,
+  T alpha, const T* A, int lda, const T* x, int incx,
+  T beta,                             T* y, int incy );
+
 void Symv
 ( char uplo, int m,
   float alpha, const float* A, int lda, const float* x, int incx,
@@ -283,6 +295,11 @@ void Syr2
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda );
+
+template<typename T>
+void Trmv
+( char uplo, char trans, char diag, int m,
+  const T* A, int lda, T* x, int incx );
 
 void Trmv
 ( char uplo, char trans, char diag, int m,
@@ -517,7 +534,7 @@ inline void Gemv
 {
     if( trans == 'N' )
     {
-        if( m > 0 && n == 0 && beta == 0 )
+        if( m > 0 && n == 0 && beta == T(0) )
         {
             for( int i=0; i<m; ++i )
                 y[i*incy] = 0;   
@@ -530,7 +547,7 @@ inline void Gemv
     }
     else if( trans == 'T' ) 
     {
-        if( n > 0 && m == 0 && beta == 0 )
+        if( n > 0 && m == 0 && beta == T(0) )
         {
             for( int i=0; i<n; ++i )
                 y[i*incy] = 0;   
@@ -543,7 +560,7 @@ inline void Gemv
     }
     else
     {
-        if( n > 0 && m == 0 && beta == 0 )
+        if( n > 0 && m == 0 && beta == T(0) )
         {
             for( int i=0; i<n; ++i )
                 y[i*incy] = 0;   
@@ -559,25 +576,23 @@ inline void Gemv
 // TODO: templated Ger
 // TODO: templated Gerc
 // TODO: templated Geru
-// TODO: templated Hemv
 // TODO: templated Her
 // TODO: templated Her2
-// TODO: templated Symv
 // TODO: templated Syr
 // TODO: templated Syr2
-// TODO: templated Trmv
 // TODO: templated Trsv
 
 // Level 3 BLAS
 // ------------
 
+// TODO: Introduce some form of blocking
 template<typename T>
 inline void Gemm
 ( char transA, char transB, int m, int n, int k,
   T alpha, const T* A, int lda, const T* B, int ldb,
   T beta,        T* C, int ldc )
 {
-    if( m > 0 && n > 0 && k == 0 && beta == 0 )
+    if( m > 0 && n > 0 && k == 0 && beta == T(0) )
     {
         for( int j=0; j<n; ++j )
             for( int i=0; i<m; ++i )
@@ -586,9 +601,10 @@ inline void Gemm
     }
 
     // Scale C
-    for( int j=0; j<n; ++j )
-        for( int i=0; i<m; ++i )
-            C[i+j*ldc] *= beta;
+    if( beta != T(1) )
+        for( int j=0; j<n; ++j )
+            for( int i=0; i<m; ++i )
+                C[i+j*ldc] *= beta;
 
     // Naive implementation
     if( transA == 'N' && transB == 'N' )

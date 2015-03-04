@@ -226,24 +226,24 @@ Base<F> SymmetricFrobeniusNorm
 
 // Infinity norm
 // -------------
-template<typename F>
-Base<F> InfinityNorm( const Matrix<F>& A );
-template<typename F>
-Base<F> InfinityNorm( const AbstractDistMatrix<F>& A );
+template<typename T>
+Base<T> InfinityNorm( const Matrix<T>& A );
+template<typename T>
+Base<T> InfinityNorm( const AbstractDistMatrix<T>& A );
 
-template<typename F>
-Base<F> HermitianInfinityNorm
-( UpperOrLower uplo, const Matrix<F>& A );
-template<typename F>
-Base<F> HermitianInfinityNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+template<typename T>
+Base<T> HermitianInfinityNorm
+( UpperOrLower uplo, const Matrix<T>& A );
+template<typename T>
+Base<T> HermitianInfinityNorm
+( UpperOrLower uplo, const AbstractDistMatrix<T>& A );
 
-template<typename F>
-Base<F> SymmetricInfinityNorm
-( UpperOrLower uplo, const Matrix<F>& A );
-template<typename F>
-Base<F> SymmetricInfinityNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+template<typename T>
+Base<T> SymmetricInfinityNorm
+( UpperOrLower uplo, const Matrix<T>& A );
+template<typename T>
+Base<T> SymmetricInfinityNorm
+( UpperOrLower uplo, const AbstractDistMatrix<T>& A );
 
 // Ky-Fan norms
 // ------------
@@ -339,20 +339,20 @@ Base<F> SymmetricNuclearNorm
 
 // One norm
 // --------
-template<typename F>
-Base<F> OneNorm( const Matrix<F>& A );
-template<typename F>
-Base<F> OneNorm( const AbstractDistMatrix<F>& A );
+template<typename T>
+Base<T> OneNorm( const Matrix<T>& A );
+template<typename T>
+Base<T> OneNorm( const AbstractDistMatrix<T>& A );
 
-template<typename F>
-Base<F> HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A );
-template<typename F>
-Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+template<typename T>
+Base<T> HermitianOneNorm( UpperOrLower uplo, const Matrix<T>& A );
+template<typename T>
+Base<T> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<T>& A );
 
-template<typename F>
-Base<F> SymmetricOneNorm( UpperOrLower uplo, const Matrix<F>& A );
-template<typename F>
-Base<F> SymmetricOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+template<typename T>
+Base<T> SymmetricOneNorm( UpperOrLower uplo, const Matrix<T>& A );
+template<typename T>
+Base<T> SymmetricOneNorm( UpperOrLower uplo, const AbstractDistMatrix<T>& A );
 
 // Schatten norm
 // -------------

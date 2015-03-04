@@ -32,10 +32,17 @@ std::mt19937 generator;
 DEBUG_ONLY(std::stack<string> callStack)
 
 // Tuning parameters for basic routines
+Int localSymvIntBlocksize = 64;
 Int localSymvFloatBlocksize = 64;
 Int localSymvDoubleBlocksize = 64;
+#ifdef EL_HAVE_QUAD
+Int localSymvQuadBlocksize = 64;
+#endif
 Int localSymvComplexFloatBlocksize = 64;
 Int localSymvComplexDoubleBlocksize = 64;
+#ifdef EL_HAVE_QUAD
+Int localSymvComplexQuadBlocksize = 64;
+#endif
 
 Int localTrr2kFloatBlocksize = 64;
 Int localTrr2kDoubleBlocksize = 64;
@@ -473,12 +480,22 @@ DEBUG_ONLY(
 ) // DEBUG_ONLY
 
 template<>
+void SetLocalSymvBlocksize<Int>( Int blocksize )
+{ ::localSymvIntBlocksize = blocksize; }
+
+template<>
 void SetLocalSymvBlocksize<float>( Int blocksize )
 { ::localSymvFloatBlocksize = blocksize; }
 
 template<>
 void SetLocalSymvBlocksize<double>( Int blocksize )
 { ::localSymvDoubleBlocksize = blocksize; }
+
+#ifdef EL_HAVE_QUAD
+template<>
+void SetLocalSymvBlocksize<Quad>( Int blocksize )
+{ ::localSymvQuadBlocksize = blocksize; }
+#endif
 
 template<>
 void SetLocalSymvBlocksize<Complex<float>>( Int blocksize )
@@ -488,6 +505,16 @@ template<>
 void SetLocalSymvBlocksize<Complex<double>>( Int blocksize )
 { ::localSymvComplexDoubleBlocksize = blocksize; }
 
+#ifdef EL_HAVE_QUAD
+template<>
+void SetLocalSymvBlocksize<Complex<Quad>>( Int blocksize )
+{ ::localSymvComplexQuadBlocksize = blocksize; }
+#endif
+
+template<>
+Int LocalSymvBlocksize<Int>()
+{ return ::localSymvIntBlocksize; }
+
 template<>
 Int LocalSymvBlocksize<float>()
 { return ::localSymvFloatBlocksize; }
@@ -496,6 +523,12 @@ template<>
 Int LocalSymvBlocksize<double>()
 { return ::localSymvDoubleBlocksize; }
 
+#ifdef EL_HAVE_QUAD
+template<>
+Int LocalSymvBlocksize<Quad>()
+{ return ::localSymvQuadBlocksize; }
+#endif
+
 template<>
 Int LocalSymvBlocksize<Complex<float>>()
 { return ::localSymvComplexFloatBlocksize; }
@@ -503,6 +536,12 @@ Int LocalSymvBlocksize<Complex<float>>()
 template<>
 Int LocalSymvBlocksize<Complex<double>>()
 { return ::localSymvComplexDoubleBlocksize; }
+
+#ifdef EL_HAVE_QUAD
+template<>
+Int LocalSymvBlocksize<Complex<Quad>>()
+{ return ::localSymvComplexQuadBlocksize; }
+#endif
 
 template<>
 void SetLocalTrr2kBlocksize<float>( Int blocksize )
@@ -652,6 +691,7 @@ Int Find( const vector<Int>& sortedInds, Int index, string msg )
 #define PROTO(T) \
   template bool IsSorted( const vector<T>& x ); \
   template bool IsStrictlySorted( const vector<T>& x );
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

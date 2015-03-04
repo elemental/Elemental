@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_NORM_TWO_HPP
-#define EL_NORM_TWO_HPP
+#include "El.hpp"
 
 namespace El {
 
@@ -74,6 +72,17 @@ Base<F> SymmetricTwoNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
     return MaxNorm( s );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template Base<F> TwoNorm( const Matrix<F>& A ); \
+  template Base<F> TwoNorm( const AbstractDistMatrix<F>& A ); \
+  template Base<F> HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A ); \
+  template Base<F> HermitianTwoNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
+  template Base<F> SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A ); \
+  template Base<F> SymmetricTwoNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
 
-#endif // ifndef EL_NORM_TWO_HPP
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
+
+} // namespace El

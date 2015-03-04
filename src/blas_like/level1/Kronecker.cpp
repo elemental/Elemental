@@ -254,6 +254,7 @@ void Kronecker
   ( const SparseMatrix<T>& A, const Matrix<T>& B, \
           DistSparseMatrix<T>& C );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

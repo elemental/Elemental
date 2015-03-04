@@ -449,6 +449,7 @@ void HermitianSwap
   template void HermitianSwap \
   ( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int to, Int from );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

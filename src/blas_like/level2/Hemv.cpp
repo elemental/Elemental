@@ -41,8 +41,7 @@ void Hemv
     T beta, AbstractDistMatrix<T>& y, \
     const SymvCtrl<T>& ctrl );
 
-// blas::Hemv not yet supported
-#define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

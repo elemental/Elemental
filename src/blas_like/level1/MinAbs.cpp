@@ -359,6 +359,7 @@ SymmetricMinAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
   template ValueIntPair<Base<F>> SymmetricMinAbs \
   ( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

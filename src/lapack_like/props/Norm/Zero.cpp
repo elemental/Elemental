@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_NORM_ZERO_HPP
-#define EL_NORM_ZERO_HPP
+#include "El.hpp"
 
 // The number of nonzeros in a matrix isn't really a norm...
 // but the terminology is common
@@ -67,6 +65,13 @@ Int ZeroNorm( const DistSparseMatrix<T>& A, Base<T> tol )
     return mpi::AllReduce( numNonzeros, A.Comm() );
 }
 
-} // namespace El
+#define PROTO(T) \
+  template Int ZeroNorm( const Matrix<T>& A, Base<T> tol ); \
+  template Int ZeroNorm( const AbstractDistMatrix<T>& A, Base<T> tol ); \
+  template Int ZeroNorm( const SparseMatrix<T>& A, Base<T> tol ); \
+  template Int ZeroNorm( const DistSparseMatrix<T>& A, Base<T> tol );
 
-#endif // ifndef EL_NORM_ZERO_HPP
+#define EL_ENABLE_QUAD
+#include "El/macros/Instantiate.h"
+
+} // namespace El

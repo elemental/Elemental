@@ -70,6 +70,7 @@ void Hadamard
     const AbstractDistMatrix<T>& B, \
           AbstractDistMatrix<T>& C );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

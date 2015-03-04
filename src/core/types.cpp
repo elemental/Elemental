@@ -186,7 +186,13 @@ UpperOrLower CharToUpperOrLower( char c )
 
 template class SafeProduct<float>;
 template class SafeProduct<double>;
+#ifdef EL_ENABLE_QUAD
+template class SafeProduct<Quad>;
+#endif
 template class SafeProduct<Complex<float>>;
 template class SafeProduct<Complex<double>>;
+#ifdef EL_ENABLE_QUAD
+template class SafeProduct<Complex<Quad>>;
+#endif
 
 } // namespace El

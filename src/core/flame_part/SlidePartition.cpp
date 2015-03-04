@@ -492,6 +492,7 @@ void SlideLockedPartitionDownDiagonal
     AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, \
     const AbstractDistMatrix<T>& A20, const AbstractDistMatrix<T>& A21, const AbstractDistMatrix<T>& A22 );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

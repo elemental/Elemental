@@ -44,6 +44,7 @@ void MakeHermitian( UpperOrLower uplo, DistSparseMatrix<T>& A )
   template void MakeHermitian( UpperOrLower uplo, SparseMatrix<T>& A ); \
   template void MakeHermitian( UpperOrLower uplo, DistSparseMatrix<T>& A );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

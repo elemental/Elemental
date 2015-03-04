@@ -119,6 +119,7 @@ void Gemv
     const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x, \
           AbstractDistMatrix<T>& y );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

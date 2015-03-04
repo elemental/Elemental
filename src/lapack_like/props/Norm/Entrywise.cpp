@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_NORM_ENTRYWISE_HPP
-#define EL_NORM_ENTRYWISE_HPP
+#include "El.hpp"
 
 namespace El {
 
@@ -266,6 +264,31 @@ Base<F> SymmetricEntrywiseNorm
     return HermitianEntrywiseNorm( uplo, A, p );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template Base<F> EntrywiseNorm( const Matrix<F>& A, Base<F> p ); \
+  template Base<F> EntrywiseNorm( const AbstractDistMatrix<F>& A, Base<F> p ); \
+  template Base<F> EntrywiseNorm( const SparseMatrix<F>& A, Base<F> p ); \
+  template Base<F> EntrywiseNorm( const DistSparseMatrix<F>& A, Base<F> p ); \
+  template Base<F> EntrywiseNorm( const DistMultiVec<F>& A, Base<F> p ); \
+  template Base<F> HermitianEntrywiseNorm \
+  ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p ); \
+  template Base<F> HermitianEntrywiseNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p ); \
+  template Base<F> HermitianEntrywiseNorm \
+  ( UpperOrLower uplo, const SparseMatrix<F>& A, Base<F> p ); \
+  template Base<F> HermitianEntrywiseNorm \
+  ( UpperOrLower uplo, const DistSparseMatrix<F>& A, Base<F> p ); \
+  template Base<F> SymmetricEntrywiseNorm \
+  ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p ); \
+  template Base<F> SymmetricEntrywiseNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p ); \
+  template Base<F> SymmetricEntrywiseNorm \
+  ( UpperOrLower uplo, const SparseMatrix<F>& A, Base<F> p ); \
+  template Base<F> SymmetricEntrywiseNorm \
+  ( UpperOrLower uplo, const DistSparseMatrix<F>& A, Base<F> p );
 
-#endif // ifndef EL_NORM_ENTRYWISE_HPP
+#define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#include "El/macros/Instantiate.h"
+
+} // namespace El

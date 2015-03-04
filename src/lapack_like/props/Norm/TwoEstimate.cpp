@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_NORM_TWOESTIMATE_HPP
-#define EL_NORM_TWOESTIMATE_HPP
+#include "El.hpp"
 
 namespace El {
 
@@ -239,6 +237,24 @@ Base<F> SymmetricTwoNormEstimate
     return estimate;
 }
 
-} // namespace El
+#define PROTO(F) \
+  template Base<F> TwoNormEstimate \
+  ( const Matrix<F>& A, Base<F> tol, Int maxIts ); \
+  template Base<F> TwoNormEstimate \
+  ( const AbstractDistMatrix<F>& A, Base<F> tol, Int maxIts ); \
+  template Base<F> HermitianTwoNormEstimate \
+  ( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol, Int maxIts ); \
+  template Base<F> HermitianTwoNormEstimate \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> tol, \
+    Int maxIts ); \
+  template Base<F> SymmetricTwoNormEstimate \
+  ( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol, Int maxIts ); \
+  template Base<F> SymmetricTwoNormEstimate \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> tol, \
+    Int maxIts );
 
-#endif // ifndef EL_NORM_TWOESTIMATE_HPP
+#define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#include "El/macros/Instantiate.h"
+
+} // namespace El

@@ -214,6 +214,7 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
   template void MakeSymmetric \
   ( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

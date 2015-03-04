@@ -128,17 +128,12 @@ template<> Quad Abs( const Complex<Quad>& alpha );
 template<typename Real> Real SafeAbs( const Real& alpha );
 template<typename Real> Real SafeAbs( const Complex<Real>& alpha );
 #ifdef EL_HAVE_QUAD
-template<> Quad SafeAbs( const Quad& alpha );
 template<> Quad SafeAbs( const Complex<Quad>& alpha );
 #endif
 
 // Return the sum of the absolute values of the real and imaginary components
 // --------------------------------------------------------------------------
 template<typename F> Base<F> FastAbs( const F& alpha );
-#ifdef EL_HAVE_QUAD
-template<> Quad FastAbs( const Quad& alpha );
-template<> Quad FastAbs( const Complex<Quad>& alpha );
-#endif
 
 // Return the sign of a real element
 // ---------------------------------

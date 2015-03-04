@@ -68,6 +68,7 @@ void MakeDiagonalReal( AbstractBlockDistMatrix<T>& A, Int offset )
   template void MakeDiagonalReal( AbstractDistMatrix<T>& A, Int offset ); \
   template void MakeDiagonalReal( AbstractBlockDistMatrix<T>& A, Int offset ); 
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

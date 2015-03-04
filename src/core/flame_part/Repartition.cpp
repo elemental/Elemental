@@ -532,6 +532,7 @@ void LockedRepartitionDownDiagonal
     AbstractDistMatrix<T>& A20, AbstractDistMatrix<T>& A21, \
     AbstractDistMatrix<T>& A22, Int bsize );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

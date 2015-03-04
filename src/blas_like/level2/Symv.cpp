@@ -316,8 +316,7 @@ void LocalRowAccumulate
           DistMatrix<T,STAR,MR>& z_STAR_MR, bool conjugate, \
     const SymvCtrl<T>& ctrl );
 
-// blas::Symv not yet supported
-#define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

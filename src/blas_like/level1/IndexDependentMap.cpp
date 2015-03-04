@@ -144,6 +144,7 @@ void IndexDependentMap
   PROTO_TYPES(Int,T) \
   PROTO_TYPES(Base<T>,T) 
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_NORM_FROBENIUS_HPP
-#define EL_NORM_FROBENIUS_HPP
+#include "El.hpp"
 
 namespace El {
 
@@ -346,6 +344,31 @@ Base<F> FrobeniusNorm( const DistMultiVec<F>& A )
     return norm;
 }
 
-} // namespace El
+#define PROTO(F) \
+  template Base<F> FrobeniusNorm( const Matrix<F>& A ); \
+  template Base<F> FrobeniusNorm ( const AbstractDistMatrix<F>& A ); \
+  template Base<F> FrobeniusNorm( const SparseMatrix<F>& A ); \
+  template Base<F> FrobeniusNorm( const DistSparseMatrix<F>& A ); \
+  template Base<F> FrobeniusNorm ( const DistMultiVec<F>& A ); \
+  template Base<F> HermitianFrobeniusNorm \
+  ( UpperOrLower uplo, const Matrix<F>& A ); \
+  template Base<F> HermitianFrobeniusNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
+  template Base<F> HermitianFrobeniusNorm \
+  ( UpperOrLower uplo, const SparseMatrix<F>& A ); \
+  template Base<F> HermitianFrobeniusNorm \
+  ( UpperOrLower uplo, const DistSparseMatrix<F>& A ); \
+  template Base<F> SymmetricFrobeniusNorm \
+  ( UpperOrLower uplo, const Matrix<F>& A ); \
+  template Base<F> SymmetricFrobeniusNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
+  template Base<F> SymmetricFrobeniusNorm \
+  ( UpperOrLower uplo, const SparseMatrix<F>& A ); \
+  template Base<F> SymmetricFrobeniusNorm \
+  ( UpperOrLower uplo, const DistSparseMatrix<F>& A );
 
-#endif // ifndef EL_NORM_FROBENIUS_HPP
+#define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#include "El/macros/Instantiate.h"
+
+} // namespace El

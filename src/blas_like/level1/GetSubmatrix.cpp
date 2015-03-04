@@ -323,6 +323,7 @@ DistMatrix<Base<T>,STAR,STAR> GetImagPartOfSubmatrix
   ( const AbstractDistMatrix<T>& A, \
     const vector<Int>& I, const vector<Int>& J );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

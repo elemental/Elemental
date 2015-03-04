@@ -830,6 +830,67 @@ void Geru
                         dcomplex* A, int lda )
 { EL_BLAS(zgeru)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
+// TODO: Introduce some sort of blocking
+template<typename T>
+void Hemv
+( char uplo, int m,
+  T alpha, const T* A, int lda, const T* x, int incx,
+  T beta,        T* y, int incy )
+{
+    // y := beta*y
+    if( beta == T(0) )
+    {
+        for( Int i=0; i<m; ++i )
+            y[i*incy] = 0;
+    }
+    else if( beta != T(1) )
+    {
+        for( Int i=0; i<m; ++i )
+            y[i*incy] *= beta;
+    }
+
+    if( uplo == LOWER )
+    {
+        // Multiply with the lower triangle
+        for( Int j=0; j<m; ++j )
+            for( Int i=j; i<m; ++i )
+                y[i*incy] += alpha*A[i+j*lda]*x[j*incx];
+
+        // Multiply with the adjoint of the strictly lower triangle
+        for( Int j=0; j<m; ++j ) 
+            for( Int i=j+1; i<m; ++i )
+                y[j*incy] += alpha*Conj(A[i+j*lda])*x[i*incx];
+    }
+    else
+    {
+        // Multiply with the upper triangle
+        for( Int j=0; j<m; ++j )
+            for( Int i=0; i<=j; ++i )
+                y[i*incy] += alpha*A[i+j*lda]*x[j*incx];
+
+        // Multiply with the adjoint of the strictly upper triangle
+        for( Int j=0; j<m; ++j ) 
+            for( Int i=0; i<j; ++i )
+                y[j*incy] += alpha*Conj(A[i+j*lda])*x[i*incx];
+    }
+}
+
+template void Hemv
+( char uplo, int m, 
+  Int alpha, const Int* A, int lda, const Int* x, int incx, 
+  Int beta,                               Int* y, int incy );
+#ifdef EL_HAVE_QUAD
+template void Hemv
+( char uplo, int m, 
+  Quad alpha, const Quad* A, int lda, const Quad* x, int incx, 
+  Quad beta,                                Quad* y, int incy );
+template void Hemv
+( char uplo, int m, 
+  Complex<Quad> alpha, const Complex<Quad>* A, int lda, 
+                       const Complex<Quad>* x, int incx, 
+  Complex<Quad> beta,        Complex<Quad>* y, int incy );
+#endif
+
 void Hemv
 ( char uplo, int m,
   float alpha, const float* A, int lda, const float* x, int incx,
@@ -897,6 +958,67 @@ void Her2
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda )
 { EL_BLAS(zher2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &lda ); }
+
+// TODO: Introduce some sort of blocking
+template<typename T>
+void Symv
+( char uplo, int m,
+  T alpha, const T* A, int lda, const T* x, int incx,
+  T beta,        T* y, int incy )
+{
+    // y := beta*y
+    if( beta == T(0) )
+    {
+        for( Int i=0; i<m; ++i )
+            y[i*incy] = 0;
+    }
+    else if( beta != T(1) )
+    {
+        for( Int i=0; i<m; ++i )
+            y[i*incy] *= beta;
+    }
+
+    if( uplo == LOWER )
+    {
+        // Multiply with the lower triangle
+        for( Int j=0; j<m; ++j )
+            for( Int i=j; i<m; ++i )
+                y[i*incy] += alpha*A[i+j*lda]*x[j*incx];
+
+        // Multiply with the transpose of the strictly lower triangle
+        for( Int j=0; j<m; ++j ) 
+            for( Int i=j+1; i<m; ++i )
+                y[j*incy] += alpha*A[i+j*lda]*x[i*incx];
+    }
+    else
+    {
+        // Multiply with the upper triangle
+        for( Int j=0; j<m; ++j )
+            for( Int i=0; i<=j; ++i )
+                y[i*incy] += alpha*A[i+j*lda]*x[j*incx];
+
+        // Multiply with the transpose of the strictly upper triangle
+        for( Int j=0; j<m; ++j ) 
+            for( Int i=0; i<j; ++i )
+                y[j*incy] += alpha*A[i+j*lda]*x[i*incx];
+    }
+}
+
+template void Symv
+( char uplo, int m, 
+  Int alpha, const Int* A, int lda, const Int* x, int incx, 
+  Int beta,                               Int* y, int incy );
+#ifdef EL_HAVE_QUAD
+template void Symv
+( char uplo, int m, 
+  Quad alpha, const Quad* A, int lda, const Quad* x, int incx, 
+  Quad beta,                                Quad* y, int incy );
+template void Symv
+( char uplo, int m, 
+  Complex<Quad> alpha, const Complex<Quad>* A, int lda, 
+                       const Complex<Quad>* x, int incx, 
+  Complex<Quad> beta,        Complex<Quad>* y, int incy );
+#endif
 
 void Symv
 ( char uplo, int m,
@@ -997,6 +1119,106 @@ void Syr2
     EL_BLAS(zsyr2k)
     ( &uplo, &trans, &m, &k, &alpha, x, &incx, y, &incy, &beta, A, &lda );
 }
+
+// TODO: Verify correctness and introduce blocking
+template<typename T>
+void Trmv
+( char uplo, char trans, char diag, int m,
+  const T* A, int lda, T* x, int incx )
+{
+    const bool conj = ( trans == 'C' );
+    if( uplo == LOWER )
+    {
+        if( trans == 'N' )
+        {
+            for( Int j=m-1; j>=0; --j )
+            {
+                T gamma = x[j*incx]; 
+                if( gamma != T(0) )
+                {
+                    for( Int i=m-1; i>j; --i )
+                        x[i*incx] += gamma*A[i+j*lda];
+                    if( diag != 'N' )
+                        x[j*incx] *= A[j+j*lda];
+                }
+            }
+        }
+        else
+        {
+            for( Int j=0; j<m; ++j )
+            {
+                T gamma = x[j*incx]; 
+                if( conj )
+                {
+                    if( diag != 'N' )
+                        gamma *= Conj(A[j+j*lda]);
+                    for( Int i=j+1; i<m; ++i )
+                        gamma += Conj(A[i+j*lda])*x[i*incx];
+                }
+                else
+                {
+                    if( diag != 'N' )
+                        gamma *= A[j+j*lda];
+                    for( Int i=j+1; i<m; ++i )
+                        gamma += A[i+j*lda]*x[i*incx];
+                }
+                x[j*incx] = gamma;
+            }
+        }
+    }
+    else
+    {
+        if( trans == 'N' )
+        {
+            for( Int j=0; j<m; ++j )
+            {
+                T gamma = x[j*incx]; 
+                if( gamma != T(0) )
+                {
+                    for( Int i=0; i<j; ++i )
+                        x[i*incx] += gamma*A[i+j*lda];
+                    if( diag != 'N' )
+                        x[j*incx] *= A[j+j*lda];
+                }
+            }
+        }
+        else
+        {
+            for( Int j=m-1; j>=0; --j )
+            {
+                T gamma = x[j*incx]; 
+                if( conj )
+                {
+                    if( diag != 'N' )
+                        gamma *= Conj(A[j+j*lda]);
+                    for( Int i=j-1; i>=0; --i )
+                        gamma += Conj(A[i+j*lda])*x[i*incx];
+                }
+                else
+                {
+                    if( diag != 'N' )
+                        gamma *= A[j+j*lda];
+                    for( Int i=j-1; i>=0; --i )
+                        gamma += A[i+j*lda]*x[i*incx];
+                }
+                x[j*incx] = gamma;
+            }
+        }
+    }
+}
+
+template void Trmv
+( char uplo, char trans, char diag, int m,
+  const Int* A, int lda, Int* x, int incx );
+
+#ifdef EL_HAVE_QUAD
+template void Trmv
+( char uplo, char trans, char diag, int m,
+  const Quad* A, int lda, Quad* x, int incx );
+template void Trmv
+( char uplo, char trans, char diag, int m,
+  const Complex<Quad>* A, int lda, Complex<Quad>* x, int incx );
+#endif
 
 void Trmv
 ( char uplo, char trans, char diag, int m,

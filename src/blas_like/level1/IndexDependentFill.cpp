@@ -65,6 +65,7 @@ void IndexDependentFill
   template void IndexDependentFill \
   ( AbstractBlockDistMatrix<T>& A, function<T(Int,Int)> func );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -48,6 +48,7 @@ void RealPart
   ( const AbstractBlockDistMatrix<T>& A, \
           AbstractBlockDistMatrix<Base<T>>& AReal );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

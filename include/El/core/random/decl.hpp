@@ -32,6 +32,13 @@ T UnitCell();
 template<typename T=double>
 T SampleUniform( T a=0, T b=UnitCell<T>() );
 
+#ifdef EL_HAVE_QUAD
+template<>
+Quad SampleUniform( Quad a, Quad b );
+template<>
+Complex<Quad> SampleUniform( Complex<Quad> a, Complex<Quad> b );
+#endif
+
 template<>
 Int SampleUniform<Int>( Int a, Int b );
 
@@ -41,6 +48,13 @@ Int SampleUniform<Int>( Int a, Int b );
 // deviation, but different means.
 template<typename T=double>
 T SampleNormal( T mean=0, Base<T> stddev=1 );
+
+#ifdef EL_HAVE_QUAD
+template<>
+Quad SampleNormal( Quad mean, Quad stddev );
+template<>
+Complex<Quad> SampleNormal( Complex<Quad> mean, Quad stddev );
+#endif
 
 // Generate a sample from a uniform PDF over the (closed) unit ball about the 
 // origin of the ring implied by the type T using the most natural metric.

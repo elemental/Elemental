@@ -42,7 +42,6 @@ void Trmv
   ( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, \
     const Matrix<T>& A, Matrix<T>& x );
 
-#define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
 
 } // namespace El

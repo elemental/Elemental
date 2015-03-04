@@ -175,6 +175,7 @@ void MakeTrapezoidal( UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset )
   template void MakeTrapezoidal \
   ( UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

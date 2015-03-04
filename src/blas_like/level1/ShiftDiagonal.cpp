@@ -114,6 +114,7 @@ void ShiftDiagonal( DistSparseMatrix<T>& A, S alpha, Int offset )
   PROTO_TYPES(T,Base<T>) \
   PROTO_SAME(T)
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

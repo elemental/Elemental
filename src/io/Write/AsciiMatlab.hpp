@@ -24,7 +24,7 @@ AsciiMatlab
         title = "matrix";
 
     string filename = basename + "." + FileExtension(ASCII_MATLAB);
-    std::ofstream file( filename.c_str() );
+    ofstream file( filename.c_str() );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
 

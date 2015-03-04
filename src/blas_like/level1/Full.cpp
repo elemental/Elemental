@@ -104,6 +104,7 @@ Matrix<T> Full( const SparseMatrix<T>& A )
   ( const DistSparseMatrix<T>& A, AbstractDistMatrix<T>& B ); \
   template Matrix<T> Full( const SparseMatrix<T>& A );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

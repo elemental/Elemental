@@ -102,6 +102,19 @@ void UpdateMappedDiagonal
   PROTO_DIST_TYPES(S,T,VC,  STAR) \
   PROTO_DIST_TYPES(S,T,VR,  STAR)
 
+#ifdef EL_HAVE_QUAD
+
+#define PROTO(T) \
+  PROTO_TYPES(T,Int) \
+  PROTO_TYPES(T,float) \
+  PROTO_TYPES(T,double) \
+  PROTO_TYPES(T,Quad) \
+  PROTO_TYPES(T,Complex<float>) \
+  PROTO_TYPES(T,Complex<double>) \
+  PROTO_TYPES(T,Complex<Quad>)
+
+#else
+
 #define PROTO(T) \
   PROTO_TYPES(T,Int) \
   PROTO_TYPES(T,float) \
@@ -109,6 +122,9 @@ void UpdateMappedDiagonal
   PROTO_TYPES(T,Complex<float>) \
   PROTO_TYPES(T,Complex<double>)
 
+#endif
+
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -48,6 +48,7 @@ void ImagPart
   ( const AbstractBlockDistMatrix<T>& A, \
           AbstractBlockDistMatrix<Base<T>>& AImag );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -501,6 +501,7 @@ ValueIntPair<Base<T>> SymmetricMaxAbs
   template ValueIntPair<Base<T>> SymmetricMaxAbs \
   ( UpperOrLower uplo, const DistSparseMatrix<T>& x );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

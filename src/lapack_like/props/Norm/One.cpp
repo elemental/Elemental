@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_NORM_ONE_HPP
-#define EL_NORM_ONE_HPP
+#include "El.hpp"
 
 namespace El {
 
@@ -228,6 +226,19 @@ Base<F> SymmetricOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
     return HermitianOneNorm( uplo, A );
 }
 
-} // namespace El
+#define PROTO(T) \
+  template Base<T> OneNorm( const Matrix<T>& A ); \
+  template Base<T> OneNorm ( const AbstractDistMatrix<T>& A ); \
+  template Base<T> HermitianOneNorm \
+  ( UpperOrLower uplo, const Matrix<T>& A ); \
+  template Base<T> HermitianOneNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<T>& A ); \
+  template Base<T> SymmetricOneNorm \
+  ( UpperOrLower uplo, const Matrix<T>& A ); \
+  template Base<T> SymmetricOneNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<T>& A );
 
-#endif // ifndef EL_NORM_ONE_HPP
+#define EL_ENABLE_QUAD
+#include "El/macros/Instantiate.h"
+
+} // namespace El

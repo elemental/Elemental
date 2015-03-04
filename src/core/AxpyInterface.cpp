@@ -754,6 +754,7 @@ void AxpyInterface<T>::Detach()
 }
 
 #define PROTO(T) template class AxpyInterface<T>;
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -38,6 +38,7 @@ void MakeReal( AbstractDistMatrix<T>& A )
   template void MakeReal( Matrix<T>& A ); \
   template void MakeReal( AbstractDistMatrix<T>& A ); 
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

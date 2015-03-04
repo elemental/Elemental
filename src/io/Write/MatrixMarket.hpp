@@ -20,7 +20,7 @@ MatrixMarket( const Matrix<T>& A, string basename="matrix" )
     DEBUG_ONLY(CallStackEntry cse("write::MatrixMarket"))
     
     string filename = basename + "." + FileExtension(MATRIX_MARKET);
-    std::ofstream file( filename.c_str(), std::ios::binary );
+    ofstream file( filename.c_str(), std::ios::binary );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
 

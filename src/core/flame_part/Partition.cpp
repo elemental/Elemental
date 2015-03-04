@@ -601,6 +601,7 @@ void LockedPartitionUpDiagonal
     AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR, \
     AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, Int diagDist );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

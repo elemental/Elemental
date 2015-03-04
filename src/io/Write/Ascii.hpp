@@ -19,7 +19,7 @@ Ascii( const Matrix<T>& A, string basename="matrix", string title="" )
 {
     DEBUG_ONLY(CallStackEntry cse("write::Ascii"))
     string filename = basename + "." + FileExtension(ASCII);
-    std::ofstream file( filename.c_str() );
+    ofstream file( filename.c_str() );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
 

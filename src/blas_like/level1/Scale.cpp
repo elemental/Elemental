@@ -163,6 +163,7 @@ void Scale( S alpha, DistMultiVec<T>& A )
   ( T alpha, AbstractBlockDistMatrix<Base<T>>& AReal, \
              AbstractBlockDistMatrix<Base<T>>& AImag );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

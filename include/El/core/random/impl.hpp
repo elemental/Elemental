@@ -95,6 +95,54 @@ inline T SampleUniform( T a, T b )
     return sample;
 }
 
+#ifdef EL_HAVE_QUAD
+template<>
+inline Quad SampleUniform( Quad a, Quad b )
+{
+    Quad sample;
+
+#ifdef EL_HAVE_CXX11RANDOM
+    std::mt19937& gen = Generator();
+    std::uniform_real_distribution<long double> 
+      uni((long double)a,(long double)b);
+    sample = uni(gen);
+#else
+    sample = (Real(rand())/(Real(RAND_MAX)+1))*(b-a) + a;
+#endif
+
+    return sample;
+}
+
+template<>
+inline Complex<Quad> SampleUniform( Complex<Quad> a, Complex<Quad> b )
+{
+    Complex<Quad> sample;
+
+#ifdef EL_HAVE_CXX11RANDOM
+    std::mt19937& gen = Generator();
+    std::uniform_real_distribution<long double> 
+      realUni((long double)RealPart(a),(long double)RealPart(b));
+    SetRealPart( sample, Quad(realUni(gen)) ); 
+
+    std::uniform_real_distribution<long double> 
+      imagUni((long double)ImagPart(a),(long double)ImagPart(b));
+    SetImagPart( sample, Quad(imagUni(gen)) );
+#else
+    Real aReal = RealPart(a);
+    Real aImag = ImagPart(a);
+    Real bReal = RealPart(b);
+    Real bImag = ImagPart(b);
+    Real realPart = (Real(rand())/(Real(RAND_MAX)+1))*(bReal-aReal) + aReal;
+    SetRealPart( sample, realPart );
+
+    Real imagPart = (Real(rand())/(Real(RAND_MAX)+1))*(bImag-aImag) + aImag;
+    SetImagPart( sample, imagPart );
+#endif
+
+    return sample;
+}
+#endif
+
 template<>
 inline Int SampleUniform<Int>( Int a, Int b )
 {
@@ -112,11 +160,11 @@ inline F SampleNormal( F mean, Base<F> stddev )
 {
     typedef Base<F> Real;
     F sample;
+    if( IsComplex<F>::val )
+        stddev = stddev / Sqrt(Real(2));
 
 #ifdef EL_HAVE_CXX11RANDOM
     std::mt19937& gen = Generator();
-    if( IsComplex<F>::val )
-        stddev = stddev / Sqrt(Real(2));
     std::normal_distribution<Real> realNormal( RealPart(mean), stddev );
     SetRealPart( sample, realNormal(gen) );
     if( IsComplex<F>::val )
@@ -134,7 +182,7 @@ inline F SampleNormal( F mean, Base<F> stddev )
         const Real U = SampleUniform<Real>(-1,1);
         const Real V = SampleUniform<Real>(-1,1);
         const Real S = Sqrt(U*U+V*V);
-        if( S > 0 && S < 1)
+        if( S > Real(0) && S < Real(1) )
         {
             const Real W = Sqrt(-2*Log(S)/S);
             SetRealPart( sample, RealPart(mean) + stddev*U*W );
@@ -147,6 +195,79 @@ inline F SampleNormal( F mean, Base<F> stddev )
 
     return sample;
 }
+
+#ifdef EL_HAVE_QUAD
+template<>
+inline Quad SampleNormal( Quad mean, Quad stddev )
+{
+    Quad sample;
+
+#ifdef EL_HAVE_CXX11RANDOM
+    std::mt19937& gen = Generator();
+    std::normal_distribution<long double> 
+      normal( (long double)mean, (long double)stddev );
+    sample = normal(gen);
+#else
+    // Run Marsiglia's polar method
+    // ============================
+    // NOTE: Half of the generated samples are thrown away in the case that
+    //       F is real.
+    while( true )
+    {
+        const Quad U = SampleUniform<Quad>(-1,1);
+        const Quad V = SampleUniform<Quad>(-1,1);
+        const Quad S = Sqrt(U*U+V*V);
+        if( S > Quad(0) && S < Quad(1) )
+        {
+            const Quad W = Sqrt(-2*Log(S)/S);
+            sample = mean + stddev*U*W;
+            break;
+        }
+    }
+#endif
+
+    return sample;
+}
+
+template<>
+inline Complex<Quad> SampleNormal( Complex<Quad> mean, Quad stddev )
+{
+    Complex<Quad> sample;
+    stddev = stddev / Sqrt(Quad(2));
+
+#ifdef EL_HAVE_CXX11RANDOM
+    std::mt19937& gen = Generator();
+
+    std::normal_distribution<long double> 
+      realNormal( (long double)RealPart(mean), (long double)stddev );
+    SetRealPart( sample, Quad(realNormal(gen)) );
+
+    std::normal_distribution<long double>
+      imagNormal( (long double)ImagPart(mean), (long double)stddev );
+    SetImagPart( sample, Quad(imagNormal(gen)) );
+#else
+    // Run Marsiglia's polar method
+    // ============================
+    // NOTE: Half of the generated samples are thrown away in the case that
+    //       F is real.
+    while( true )
+    {
+        const Quad U = SampleUniform<Quad>(-1,1);
+        const Quad V = SampleUniform<Quad>(-1,1);
+        const Quad S = Sqrt(U*U+V*V);
+        if( S > Quad(0) && S < Quad(1) )
+        {
+            const Quad W = Sqrt(-2*Log(S)/S);
+            SetRealPart( sample, RealPart(mean) + stddev*U*W );
+            SetImagPart( sample, ImagPart(mean) + stddev*V*W );
+            break;
+        }
+    }
+#endif
+
+    return sample;
+}
+#endif
 
 template<>
 inline float

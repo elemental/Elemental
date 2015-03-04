@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_NORM_MAX_HPP
-#define EL_NORM_MAX_HPP
+#include "El.hpp"
 
 namespace El {
 
@@ -214,6 +212,30 @@ Base<T> SymmetricMaxNorm( UpperOrLower uplo, const DistSparseMatrix<T>& A )
     return HermitianMaxNorm( uplo, A );
 }
 
-} // namespace El
+#define PROTO(T) \
+  template Base<T> MaxNorm( const Matrix<T>& A ); \
+  template Base<T> MaxNorm ( const AbstractDistMatrix<T>& A ); \
+  template Base<T> MaxNorm( const SparseMatrix<T>& A ); \
+  template Base<T> MaxNorm( const DistSparseMatrix<T>& A ); \
+  template Base<T> MaxNorm( const DistMultiVec<T>& A ); \
+  template Base<T> HermitianMaxNorm \
+  ( UpperOrLower uplo, const Matrix<T>& A ); \
+  template Base<T> HermitianMaxNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<T>& A ); \
+  template Base<T> HermitianMaxNorm \
+  ( UpperOrLower uplo, const SparseMatrix<T>& A ); \
+  template Base<T> HermitianMaxNorm \
+  ( UpperOrLower uplo, const DistSparseMatrix<T>& A ); \
+  template Base<T> SymmetricMaxNorm \
+  ( UpperOrLower uplo, const Matrix<T>& A ); \
+  template Base<T> SymmetricMaxNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<T>& A ); \
+  template Base<T> SymmetricMaxNorm \
+  ( UpperOrLower uplo, const SparseMatrix<T>& A ); \
+  template Base<T> SymmetricMaxNorm \
+  ( UpperOrLower uplo, const DistSparseMatrix<T>& A );
 
-#endif // ifndef EL_NORM_MAX_HPP
+#define EL_ENABLE_QUAD
+#include "El/macros/Instantiate.h"
+
+} // namespace El

@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_NORM_KYFAN_HPP
-#define EL_NORM_KYFAN_HPP
+#include "El.hpp"
 
 namespace El {
 
@@ -56,6 +54,19 @@ Base<F> SymmetricKyFanNorm
     return SymmetricKyFanSchattenNorm( uplo, A, k, Base<F>(1) );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template Base<F> KyFanNorm( const Matrix<F>& A, Int k ); \
+  template Base<F> KyFanNorm( const AbstractDistMatrix<F>& A, Int k ); \
+  template Base<F> HermitianKyFanNorm \
+  ( UpperOrLower uplo, const Matrix<F>& A, Int k ); \
+  template Base<F> HermitianKyFanNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k ); \
+  template Base<F> SymmetricKyFanNorm \
+  ( UpperOrLower uplo, const Matrix<F>& A, Int k ); \
+  template Base<F> SymmetricKyFanNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k );
 
-#endif // ifndef EL_NORM_KYFAN_HPP
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
+
+} // namespace El

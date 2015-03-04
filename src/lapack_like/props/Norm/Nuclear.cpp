@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_NORM_NUCLEAR_HPP
-#define EL_NORM_NUCLEAR_HPP
+#include "El.hpp"
 
 namespace El {
 
@@ -56,6 +54,19 @@ Base<F> SymmetricNuclearNorm
     return SymmetricSchattenNorm( uplo, A, Base<F>(1) );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template Base<F> NuclearNorm( const Matrix<F>& A ); \
+  template Base<F> NuclearNorm( const AbstractDistMatrix<F>& A ); \
+  template Base<F> HermitianNuclearNorm \
+  ( UpperOrLower uplo, const Matrix<F>& A ); \
+  template Base<F> HermitianNuclearNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
+  template Base<F> SymmetricNuclearNorm \
+  ( UpperOrLower uplo, const Matrix<F>& A ); \
+  template Base<F> SymmetricNuclearNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
 
-#endif // ifndef EL_NORM_NUCLEAR_HPP
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
+
+} // namespace El
