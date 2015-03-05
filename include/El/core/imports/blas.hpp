@@ -399,7 +399,7 @@ void Hemm
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc );
 
-// Left off HERE for templates
+// TODO: Templated Her2k
 
 void Her2k
 ( char uplo, char trans, int n, int k,
@@ -417,6 +417,12 @@ void Her2k
 ( char uplo, char trans, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   double beta,          dcomplex* C, int ldc );
+
+template<typename T>
+void Herk
+( char uplo, int n, int k, 
+  Base<T> alpha, const T* A, int lda, 
+  Base<T> beta,        T* C, int ldc );
 
 void Herk
 ( char uplo, char trans, int n, int k,
@@ -456,6 +462,8 @@ void Symm
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc );
 
+// TODO: Templated Syr2k
+
 void Syr2k
 ( char uplo, char trans, int n, int k,
   float alpha, const float* A, int lda, const float* B, int ldb,
@@ -472,6 +480,12 @@ void Syr2k
 ( char uplo, char trans, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc );
+
+template<typename T>
+void Syrk
+( char uplo, int n, int k, 
+  T alpha, const T* A, int lda, 
+  T beta,        T* C, int ldc );
 
 void Syrk
 ( char uplo, char trans, int n, int k,
@@ -490,6 +504,8 @@ void Syrk
   dcomplex alpha, const dcomplex* A, int lda,
   dcomplex beta,        dcomplex* C, int ldc );
 
+// TODO: Templated Trmm
+
 void Trmm
 ( char side,  char uplo, char trans, char unit, int m, int n,
   float alpha, const float* A, int lda, float* B, int ldb );
@@ -503,6 +519,8 @@ void Trmm
 ( char side,  char uplo, char trans, char unit, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, dcomplex* B, int ldb );
 
+// TODO: Templated Trsm
+
 void Trsm
 ( char side,  char uplo, char trans, char unit, int m, int n,
   float alpha, const float* A, int lda, float* B, int ldb );
@@ -515,51 +533,6 @@ void Trsm
 void Trsm
 ( char side,  char uplo, char trans, char unit, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, dcomplex* B, int ldb );
-
-} // namespace blas
-} // namespace El
-
-namespace El {
-namespace blas {
-
-// Templated wrappers
-// ==================
-// TODO: Move the remaining routines into src/core/imports/blas.cpp
-
-// Level 1 BLAS
-// ------------
-template<typename T>
-inline T Dot( int n, const T* x, int incx, const T* y, int incy )
-{ Dotc( n, x, incx, y, incy ); }
-
-template<typename T>
-inline T Dotc( int n, const T* x, int incx, const T* y, int incy )
-{
-    T alpha = 0;
-    for( int i=0; i<n; ++i )
-        alpha += Conj(x[i*incx])*y[i*incy];
-    return alpha;
-}
-
-template<typename T>
-inline T Dotu( int n, const T* x, int incx, const T* y, int incy )
-{
-    T alpha = 0;
-    for( int i=0; i<n; ++i )
-        alpha += x[i*incx]*y[i*incy];
-    return alpha;
-}
-
-template<typename T>
-inline void Swap( int n, T* x, int incx, T* y, int incy )
-{
-    for( int i=0; i<n; ++i )
-    {
-        const T temp = x[i*incx];
-        x[i*incx] = y[i*incy];
-        y[i*incy] = temp;
-    }
-}
 
 } // namespace blas
 } // namespace El

@@ -565,6 +565,21 @@ void Copy( int n, const scomplex* x, int incx, scomplex* y, int incy )
 void Copy( int n, const dcomplex* x, int incx, dcomplex* y, int incy )
 { EL_BLAS(zcopy)( &n, x, &incx, y, &incy ); }
 
+template<typename T>
+T Dot( int n, const T* x, int incx, const T* y, int incy )
+{
+    T alpha = 0;
+    for( int i=0; i<n; ++i )
+        alpha += Conj(x[i*incx])*y[i*incy];
+    return alpha;
+}
+template Int Dot( int n, const Int* x, int incx, const Int* y, int incy );
+#ifdef EL_HAVE_QUAD
+template Quad Dot( int n, const Quad* x, int incx, const Quad* y, int incy );
+template Complex<Quad> Dot
+( int n, const Complex<Quad>* x, int incx, const Complex<Quad>* y, int incy );
+#endif
+
 float Dot( int n, const float* x, int incx, const float* y, int incy )
 { return EL_BLAS(sdot)( &n, x, &incx, y, &incy ); }
 double Dot( int n, const double* x, int incx, const double* y, int incy )
@@ -584,24 +599,20 @@ dcomplex Dot( int n, const dcomplex* x, int incx, const dcomplex* y, int incy )
     return alpha;
 }
 
-float Dotc( int n, const float* x, int incx, const float* y, int incy )
-{ return EL_BLAS(sdot)( &n, x, &incx, y, &incy ); }
-double Dotc( int n, const double* x, int incx, const double* y, int incy )
-{ return EL_BLAS(ddot)( &n, x, &incx, y, &incy ); }
-scomplex Dotc( int n, const scomplex* x, int incx, const scomplex* y, int incy )
-{ 
-    scomplex alpha = 0;
-    for( int i=0; i<n; ++i ) 
-        alpha += Conj(x[i*incx])*y[i*incy];
+template<typename T>
+T Dotu( int n, const T* x, int incx, const T* y, int incy )
+{
+    T alpha = 0;
+    for( int i=0; i<n; ++i )
+        alpha += x[i*incx]*y[i*incy];
     return alpha;
 }
-dcomplex Dotc( int n, const dcomplex* x, int incx, const dcomplex* y, int incy )
-{ 
-    dcomplex alpha = 0;
-    for( int i=0; i<n; ++i ) 
-        alpha += Conj(x[i*incx])*y[i*incy];
-    return alpha;
-}
+template Int Dotu( int n, const Int* x, int incx, const Int* y, int incy );
+#ifdef EL_HAVE_QUAD
+template Quad Dotu( int n, const Quad* x, int incx, const Quad* y, int incy );
+template Complex<Quad> Dotu
+( int n, const Complex<Quad>* x, int incx, const Complex<Quad>* y, int incy );
+#endif
 
 float Dotu( int n, const float* x, int incx, const float* y, int incy )
 { return EL_BLAS(sdot)( &n, x, &incx, y, &incy ); }
@@ -712,6 +723,23 @@ float Nrm1( int n, const scomplex* x, int incx )
 { return EL_LAPACK(scsum1)( &n, x, &incx ); }
 double Nrm1( int n, const dcomplex* x, int incx )
 { return EL_LAPACK(dzsum1)( &n, x, &incx ); }
+
+template<typename T>
+void Swap( int n, T* x, int incx, T* y, int incy )
+{
+    for( int i=0; i<n; ++i )
+    {
+        const T temp = x[i*incx];
+        x[i*incx] = y[i*incy];
+        y[i*incy] = temp;
+    }
+}
+template void Swap( int n, Int* x, int incx, Int* y, int incy );
+#ifdef EL_HAVE_QUAD
+template void Swap( int n, Quad* x, int incx, Quad* y, int incy );
+template void Swap
+( int n, Complex<Quad>* x, int incx, Complex<Quad>* y, int incy );
+#endif
 
 void Swap( int n, float* x, int incx, float* y, int incy )
 { EL_BLAS(sswap)( &n, x, &incx, y, &incy ); }
@@ -2046,6 +2074,42 @@ void Her2k
     ( &uplo, &trans, &n, &k, &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
 
+template<typename T>
+void Herk
+( char uplo, int n, int k, 
+  Base<T> alpha, const T* A, int lda, 
+  Base<T> beta,        T* C, int ldc )
+{
+    if( uplo == 'L' )
+    {
+        for( int j=0; j<n; ++j )
+            for( int i=j; i<n; ++i )
+                for( int l=0; l<k; ++l )
+                    C[i+j*ldc] += alpha*A[i+l*lda]*Conj(A[j+l*lda]);
+    }
+    else
+    {
+        for( int j=0; j<n; ++j )
+            for( int i=0; i<=j; ++i )
+                for( int l=0; l<k; ++l )
+                    C[i+j*ldc] += alpha*A[i+l*lda]*Conj(A[j+l*lda]);
+    }
+}
+template void Herk
+( char uplo, int n, int k, 
+  Int alpha, const Int* A, int lda, 
+  Int beta,        Int* C, int ldc );
+#ifdef EL_HAVE_QUAD
+template void Herk
+( char uplo, int n, int k, 
+  Quad alpha, const Quad* A, int lda, 
+  Quad beta,        Quad* C, int ldc );
+template void Herk
+( char uplo, int n, int k,
+  Quad alpha, const Complex<Quad>* A, int lda, 
+  Quad beta,        Complex<Quad>* C, int ldc );
+#endif
+
 void Herk
 ( char uplo, char trans, int n, int k,
   float alpha, const float* A, int lda,
@@ -2246,6 +2310,42 @@ void Syr2k
     EL_BLAS(zsyr2k)
     ( &uplo, &trans, &n, &k, &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 }
+
+template<typename T>
+void Syrk
+( char uplo, int n, int k, 
+  T alpha, const T* A, int lda, 
+  T beta,        T* C, int ldc )
+{
+    if( uplo == 'L' )
+    {
+        for( int j=0; j<n; ++j )
+            for( int i=j; i<n; ++i )
+                for( int l=0; l<k; ++l )
+                    C[i+j*ldc] += alpha*A[i+l*lda]*A[j+l*lda];
+    }
+    else
+    {
+        for( int j=0; j<n; ++j )
+            for( int i=0; i<=j; ++i )
+                for( int l=0; l<k; ++l )
+                    C[i+j*ldc] += alpha*A[i+l*lda]*A[j+l*lda];
+    }
+}
+template void Syrk
+( char uplo, int n, int k, 
+  Int alpha, const Int* A, int lda, 
+  Int beta,        Int* C, int ldc );
+#ifdef EL_HAVE_QUAD
+template void Syrk
+( char uplo, int n, int k, 
+  Quad alpha, const Quad* A, int lda, 
+  Quad beta,        Quad* C, int ldc );
+template void Syrk
+( char uplo, int n, int k,
+  Complex<Quad> alpha, const Complex<Quad>* A, int lda, 
+  Complex<Quad> beta,        Complex<Quad>* C, int ldc );
+#endif
 
 void Syrk
 ( char uplo, char trans, int n, int k,
