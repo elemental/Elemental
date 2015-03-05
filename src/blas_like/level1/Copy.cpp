@@ -280,6 +280,13 @@ void Copy( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B )
 }
 
 template<typename S,typename T>
+void Copy( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Copy"))
+    EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
+}
+
+template<typename S,typename T>
 void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
@@ -642,12 +649,12 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
   template void Copy \
   ( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B ); \
   template void Copy( const SparseMatrix<S>& A, SparseMatrix<T>& B ); \
+  template void Copy( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B ); \
   template void Copy( const SparseMatrix<S>& A, Matrix<T>& B ); \
   template void Copy( const DistMultiVec<S>& A, DistMultiVec<T>& B );
 
 #define SAME(T) \
   CONVERT(T,T) \
-  template void Copy( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B ); \
   template void CopyFromRoot \
   ( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A ); \
   template void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, int root ); \

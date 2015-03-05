@@ -14,14 +14,16 @@ namespace reg_qsd_ldl {
 // TODO: Switch to returning the relative residual of the refined solution
 
 template<typename F>
-Int RegularizedSolveAfter
+inline Int RegularizedSolveAfterNoPromote
 ( const SparseMatrix<F>& A,    const Matrix<Base<F>>& reg,
   const vector<Int>& invMap,   const SymmNodeInfo& info,
   const SymmFront<F>& front,         Matrix<F>& b,
   Base<F> relTol,                    Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfter"))
+    DEBUG_ONLY(
+      CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote")
+    )
     auto bOrig = b;
     const Base<F> bNorm = Nrm2( b );
 
@@ -35,7 +37,7 @@ Int RegularizedSolveAfter
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        Matrix<F> dx, xCand, xRegScaled;
+        Matrix<F> dx, xRegScaled;
         xRegScaled = x;
         DiagonalScale( LEFT, NORMAL, reg, xRegScaled );
         Axpy( F(-1), xRegScaled, b );
@@ -59,25 +61,19 @@ Int RegularizedSolveAfter
             xNodal.Pull( invMap, info, b );
             ldl::SolveAfter( info, front, xNodal );
             xNodal.Push( invMap, info, dx );
-            xCand = x;
-            Axpy( F(1), dx, xCand );
+            Axpy( F(1), dx, x );
 
-            // If the proposed update lowers the residual, accept it
-            // -----------------------------------------------------
+            // Check the new residual
+            // ----------------------
             b = bOrig;
-            xRegScaled = xCand;
+            xRegScaled = x;
             DiagonalScale( LEFT, NORMAL, reg, xRegScaled );
             Axpy( F(-1), xRegScaled, b );
-            Multiply( NORMAL, F(-1), A, xCand, F(1), b );
-            Base<F> newErrorNorm = Nrm2( b );
+            Multiply( NORMAL, F(-1), A, x, F(1), b );
+            auto newErrorNorm = Nrm2( b );
             if( progress )
                 cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
-            if( newErrorNorm > errorNorm )
-                RuntimeError
-                ("Relative error increased from ",errorNorm," rather than "
-                 "meeting ",relTol," tolerance");
 
-            x = xCand;
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
@@ -91,14 +87,115 @@ Int RegularizedSolveAfter
 }
 
 template<typename F>
+inline Int RegularizedSolveAfterPromote
+( const SparseMatrix<F>& A,    const Matrix<Base<F>>& reg,
+  const vector<Int>& invMap,   const SymmNodeInfo& info,
+  const SymmFront<F>& front,         Matrix<F>& b,
+  Base<F> relTol,                    Int maxRefineIts,
+  bool progress )
+{
+    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
+    typedef Base<F> Real;
+    typedef Promote<Real> RealProm;
+    typedef Promote<F> FProm;
+
+    Matrix<FProm> bProm, bOrigProm;
+    Copy( b, bProm );
+    Copy( b, bOrigProm );
+    const RealProm bNorm = Nrm2( bOrigProm );
+
+    Matrix<RealProm> regProm;
+    Copy( reg, regProm );
+
+    // Compute the initial guess
+    // =========================
+    MatrixNode<F> xNodal( invMap, info, b );
+    ldl::SolveAfter( info, front, xNodal );
+    xNodal.Push( invMap, info, b );
+    Matrix<FProm> xProm;
+    Copy( b, xProm );
+
+    SparseMatrix<FProm> AProm;
+    Copy( A, AProm );
+
+    Int refineIt = 0;
+    if( maxRefineIts > 0 )
+    {
+        Matrix<FProm> dxProm, xRegScaledProm;
+        xRegScaledProm = xProm;
+        DiagonalScale( LEFT, NORMAL, regProm, xRegScaledProm );
+        Axpy( FProm(-1), xRegScaledProm, bProm );
+        Multiply( NORMAL, FProm(-1), AProm, xProm, FProm(1), bProm );
+        auto errorNorm = Nrm2( bProm );
+        if( progress )
+            cout << "    original rel error: " << errorNorm/bNorm << endl;
+ 
+        while( true )
+        {
+            if( errorNorm/bNorm <= relTol )
+            {
+                if( progress )
+                    cout << "    " << errorNorm/bNorm << " <= " << relTol
+                         << endl;
+                break;
+            }
+
+            // Compute the proposed update to the solution
+            // -------------------------------------------
+            Copy( bProm, b );
+            xNodal.Pull( invMap, info, b );
+            ldl::SolveAfter( info, front, xNodal );
+            xNodal.Push( invMap, info, b );
+            Copy( b, dxProm );
+            Axpy( FProm(1), dxProm, xProm );
+
+            // Check the new residual
+            // ----------------------
+            bProm = bOrigProm;
+            xRegScaledProm = xProm;
+            DiagonalScale( LEFT, NORMAL, regProm, xRegScaledProm );
+            Axpy( FProm(-1), xRegScaledProm, bProm );
+            Multiply( NORMAL, FProm(-1), AProm, xProm, FProm(1), bProm );
+            auto newErrorNorm = Nrm2( bProm );
+            if( progress )
+                cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
+
+            errorNorm = newErrorNorm;
+            ++refineIt;
+            if( refineIt >= maxRefineIts )
+                RuntimeError("Iterative refinement did not converge in time"); 
+        }
+    }
+    // Store the final result
+    // ======================
+    Copy( xProm, b );
+    return refineIt;
+}
+
+template<typename F>
 Int RegularizedSolveAfter
+( const SparseMatrix<F>& A,    const Matrix<Base<F>>& reg,
+  const vector<Int>& invMap,   const SymmNodeInfo& info,
+  const SymmFront<F>& front,         Matrix<F>& b,
+  Base<F> relTol,                    Int maxRefineIts,
+  bool progress )
+{
+    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfter"))
+    return RegularizedSolveAfterPromote
+           ( A, reg, invMap, info, front, b, relTol, maxRefineIts, progress );
+}
+
+template<typename F>
+inline Int RegularizedSolveAfterNoPromote
 ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
   const DistMap& invMap,             const DistSymmNodeInfo& info,
   const DistSymmFront<F>& front,           DistMultiVec<F>& b,
   Base<F> relTol,                          Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfter"))
+    DEBUG_ONLY(
+      CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote")
+    )
     mpi::Comm comm = b.Comm();
     const Int commRank = mpi::Rank(comm);
 
@@ -116,7 +213,7 @@ Int RegularizedSolveAfter
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        DistMultiVec<F> dx(comm), xCand(comm), xRegScaled(comm);
+        DistMultiVec<F> dx(comm), xRegScaled(comm);
         xRegScaled = x;
         DiagonalScale( LEFT, NORMAL, reg, xRegScaled );
         Axpy( F(-1), xRegScaled, b );
@@ -139,25 +236,19 @@ Int RegularizedSolveAfter
             xNodal.Pull( invMap, info, b );
             ldl::SolveAfter( info, front, xNodal );
             xNodal.Push( invMap, info, dx );
-            xCand = x;
-            Axpy( F(1), dx, xCand );
+            Axpy( F(1), dx, x );
 
-            // If the proposed update lowers the residual, accept it
-            // -----------------------------------------------------
+            // Compute the new residual
+            // ------------------------
             b = bOrig;
-            xRegScaled = xCand;
+            xRegScaled = x;
             DiagonalScale( LEFT, NORMAL, reg, xRegScaled );
             Axpy( F(-1), xRegScaled, b );
-            Multiply( NORMAL, F(-1), A, xCand, F(1), b );
+            Multiply( NORMAL, F(-1), A, x, F(1), b );
             Base<F> newErrorNorm = Nrm2( b );
             if( progress && commRank == 0 )
                 cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
-            if( newErrorNorm > errorNorm )
-                RuntimeError
-                ("Relative error increased from ",errorNorm," rather than "
-                 "meeting ",relTol," tolerance");
 
-            x = xCand;
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
@@ -168,6 +259,109 @@ Int RegularizedSolveAfter
     // ======================
     b = x;
     return refineIt;
+}
+
+template<typename F>
+inline Int RegularizedSolveAfterPromote
+( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap,             const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front,           DistMultiVec<F>& b,
+  Base<F> relTol,                          Int maxRefineIts,
+  bool progress )
+{
+    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
+    typedef Base<F> Real;
+    typedef Promote<Real> RealProm;
+    typedef Promote<F> FProm;
+
+    mpi::Comm comm = b.Comm();
+    const Int commRank = mpi::Rank(comm);
+
+    DistMultiVec<FProm> bProm(comm), bOrigProm(comm);
+    Copy( b, bProm ); 
+    Copy( b, bOrigProm );
+    const auto bNorm = Nrm2( bProm );
+    if( progress && commRank == 0 )
+        cout << "   original || b ||_2 = " << bNorm << endl;
+
+    DistMultiVec<RealProm> regProm(comm);
+    Copy( reg, regProm );
+
+    // Compute the initial guess
+    // =========================
+    DistMultiVecNode<F> xNodal( invMap, info, b );
+    ldl::SolveAfter( info, front, xNodal );
+    xNodal.Push( invMap, info, b );
+    DistMultiVec<FProm> xProm(comm);
+    Copy( b, xProm );
+
+    DistSparseMatrix<FProm> AProm(comm);
+    Copy( A, AProm );
+
+    Int refineIt = 0;
+    if( maxRefineIts > 0 )
+    {
+        DistMultiVec<FProm> dxProm(comm), xRegScaledProm(comm);
+        xRegScaledProm = xProm;
+        DiagonalScale( LEFT, NORMAL, regProm, xRegScaledProm );
+        Axpy( FProm(-1), xRegScaledProm, bProm );
+        Multiply( NORMAL, FProm(-1), AProm, xProm, FProm(1), bProm );
+        auto errorNorm = Nrm2( bProm );
+        if( progress && commRank == 0 )
+            cout << "    original rel error: " << errorNorm/bNorm << endl;
+        while( true )
+        {
+            if( errorNorm/bNorm <= relTol )
+            {
+                if( progress && commRank == 0 )
+                    cout << "    " << errorNorm/bNorm << " <= " << relTol
+                         << endl;
+                break;
+            }
+
+            // Compute the proposed update to the solution
+            // -------------------------------------------
+            Copy( bProm, b );
+            xNodal.Pull( invMap, info, b );
+            ldl::SolveAfter( info, front, xNodal );
+            xNodal.Push( invMap, info, b );
+            Copy( b, dxProm );
+            Axpy( FProm(1), dxProm, xProm );
+
+            // Check the new residual
+            // ----------------------
+            bProm = bOrigProm;
+            xRegScaledProm = xProm;
+            DiagonalScale( LEFT, NORMAL, regProm, xRegScaledProm );
+            Axpy( FProm(-1), xRegScaledProm, bProm );
+            Multiply( NORMAL, FProm(-1), AProm, xProm, FProm(1), bProm );
+            auto newErrorNorm = Nrm2( bProm );
+            if( progress && commRank == 0 )
+                cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
+
+            errorNorm = newErrorNorm;
+            ++refineIt;
+            if( refineIt >= maxRefineIts )
+                RuntimeError("Iterative refinement did not converge in time"); 
+        }
+    }
+    // Store the final result
+    // ======================
+    Copy( xProm, b );
+    return refineIt;
+}
+
+template<typename F>
+Int RegularizedSolveAfter
+( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap,             const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front,           DistMultiVec<F>& b,
+  Base<F> relTol,                          Int maxRefineIts,
+  bool progress )
+{
+    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfter"))
+    RegularizedSolveAfterPromote
+    ( A, reg, invMap, info, front, b, relTol, maxRefineIts, progress );
 }
 
 template<typename F>
@@ -191,7 +385,7 @@ Int IRSolveAfter
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        Matrix<F> dx, xCand;
+        Matrix<F> dx;
         Multiply( NORMAL, F(-1), A, x, F(1), b );
         Base<F> errorNorm = Nrm2( b );
         if( progress )
@@ -211,23 +405,16 @@ Int IRSolveAfter
             dx = b;
             RegularizedSolveAfter
             ( A, reg, invMap, info, front, dx, relTol, maxRefineIts, progress );
-            xCand = x;
-            Axpy( F(1), dx, xCand );
+            Axpy( F(1), dx, x );
 
-            // If the proposed update lowers the residual, accept it
-            // -----------------------------------------------------
+            // Compute the new residual
+            // ------------------------
             b = bOrig;
-            Multiply( NORMAL, F(-1), A, xCand, F(1), b );
+            Multiply( NORMAL, F(-1), A, x, F(1), b );
             Base<F> newErrorNorm = Nrm2( b );
             if( progress )
                 cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
 
-            if( newErrorNorm > errorNorm )
-                RuntimeError
-                ("Relative error increased from ",errorNorm," rather than "
-                 "meeting ",relTol," tolerance");
-
-            x = xCand;
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
@@ -266,7 +453,7 @@ Int IRSolveAfter
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        DistMultiVec<F> dx(comm), xCand(comm);
+        DistMultiVec<F> dx(comm);
         Multiply( NORMAL, F(-1), A, x, F(1), b );
         Base<F> errorNorm = Nrm2( b );
         if( progress && commRank == 0 )
@@ -286,23 +473,16 @@ Int IRSolveAfter
             dx = b;
             RegularizedSolveAfter
             ( A, reg, invMap, info, front, dx, relTol, maxRefineIts, progress );
-            xCand = x;
-            Axpy( F(1), dx, xCand );
+            Axpy( F(1), dx, x );
 
             // If the proposed update lowers the residual, accept it
             // -----------------------------------------------------
             b = bOrig;
-            Multiply( NORMAL, F(-1), A, xCand, F(1), b );
+            Multiply( NORMAL, F(-1), A, x, F(1), b );
             Base<F> newErrorNorm = Nrm2( b );
             if( progress && commRank == 0 )
                 cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
 
-            if( newErrorNorm > errorNorm )
-                RuntimeError
-                ("Relative error increased from ",errorNorm," rather than "
-                 "meeting ",relTol," tolerance");
-
-            x = xCand;
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )

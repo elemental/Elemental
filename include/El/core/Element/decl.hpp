@@ -28,6 +28,22 @@ using Complex = std::complex<Real>;
 // Basic element manipulation and I/O
 // ==================================
 
+// Increase the precision (if possible)
+// ------------------------------------
+template<typename F> struct PromoteHelper { typedef F type; };
+template<> struct PromoteHelper<float> { typedef double type; };
+#ifdef EL_HAVE_QUAD
+template<> struct PromoteHelper<double> { typedef Quad type; };
+#endif
+template<> struct PromoteHelper<Complex<float>> 
+{ typedef Complex<double> type; };
+#ifdef EL_HAVE_QUAD
+template<> struct PromoteHelper<Complex<double>>
+{ typedef Complex<Quad> type; };
+#endif
+
+template<typename F> using Promote = typename PromoteHelper<F>::type;
+
 // Returning the underlying, or "base", real field
 // -----------------------------------------------
 // Note: The following is for internal usage only; please use Base

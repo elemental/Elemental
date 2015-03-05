@@ -165,6 +165,10 @@ void Mehrotra
         rmu = z;
         DiagonalScale( LEFT, NORMAL, s, rmu );
 
+        // Compute the diagonal scaling of the top-left block
+        // ==================================================
+        // TODO
+
         // Compute the affine search direction
         // ===================================
         // Construct the full KKT system
@@ -445,6 +449,10 @@ void Mehrotra
         rmu = z;
         DiagonalScale( LEFT, NORMAL, s, rmu );
 
+        // Compute the diagonal scaling of the top-left block
+        // ==================================================
+        // TODO
+
         // Compute the affine search direction
         // ===================================
         // Construct the full KKT system
@@ -722,6 +730,10 @@ void Mehrotra
         // =============
         rmu = z;
         DiagonalScale( LEFT, NORMAL, s, rmu );
+
+        // Compute the diagonal scaling of the top-left block
+        // ==================================================
+        // TODO
 
         // Compute the affine search direction
         // ===================================
@@ -1040,6 +1052,10 @@ void Mehrotra
         // =============
         rmu = z;
         DiagonalScale( LEFT, NORMAL, s, rmu );
+
+        // Compute the diagonal scaling of the top-left block
+        // ==================================================
+        // TODO
 
         // Compute the affine search direction
         // ===================================

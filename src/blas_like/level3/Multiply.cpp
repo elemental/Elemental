@@ -285,6 +285,7 @@ void Multiply
       T alpha, const DistSparseMatrix<T>& A, const DistMultiVec<T>& X, \
       T beta,                                      DistMultiVec<T>& Y );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El
