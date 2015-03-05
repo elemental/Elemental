@@ -96,8 +96,8 @@ void Rot
 void Rot
 ( int n, dcomplex* x, int incx, dcomplex* y, int incy, double c, dcomplex s );
 
-template<typename T> void Scal( int n, T alpha, T* x, int incx );
-template<typename T> void Scal( int n, Base<T> alpha, T* x, int incx );
+template<typename T> void Scal( int n, T alpha,         T*  x, int incx );
+template<typename T> void Scal( int n, T alpha, Complex<T>* x, int incx );
 void Scal( int n, float    alpha, float   * x, int incx );
 void Scal( int n, double   alpha, double  * x, int incx );
 void Scal( int n, scomplex alpha, scomplex* x, int incx );
