@@ -126,8 +126,7 @@ void Geru
   ( T alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y, \
                    AbstractDistMatrix<T>& A );
 
-// blas::Geru not yet supported
-#define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

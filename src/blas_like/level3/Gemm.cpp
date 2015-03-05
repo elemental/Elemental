@@ -141,6 +141,7 @@ void Gemm
     T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
                    AbstractDistMatrix<T>& C, GemmAlgorithm alg );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

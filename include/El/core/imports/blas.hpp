@@ -117,6 +117,12 @@ template<typename T> void Swap( int n, T* x, int incx, T* y, int incy );
             
 // Level 2 BLAS
 // ============
+template<typename T>
+void Gemv
+( char trans, int m, int n,
+  T alpha, const T* A, int lda, const T* x, int incx,
+  T beta,        T* y, int incy );
+
 void Gemv
 ( char trans, int m, int n,
   float alpha, const float* A, int lda, const float* x, int incx,
@@ -133,11 +139,12 @@ void Gemv
 ( char trans, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* x, int incx,
   dcomplex beta,        dcomplex* y, int incy );
+
 template<typename T>
-void Gemv
-( char trans, int m, int n,
-  T alpha, const T* A, int lda, const T* x, int incx,
-  T beta,        T* y, int incy );
+void Ger
+( int m, int n,
+  T alpha, const T* x, int incx, const T* y, int incy,
+                                       T* A, int lda );
 
 void Ger
 ( int m, int n,
@@ -156,22 +163,11 @@ void Ger
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda );
 
-void Gerc
+template<typename T>
+void Geru
 ( int m, int n,
-  float alpha, const float* x, int incx, const float* y, int incy,
-                     float* A, int lda );
-void Gerc
-( int m, int n,
-  double alpha, const double* x, int incx, const double* y, int incy,
-                      double* A, int lda );
-void Gerc
-( int m, int n,
-  scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
-                        scomplex* A, int lda );
-void Gerc
-( int m, int n,
-  dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
-                        dcomplex* A, int lda );
+  T alpha, const T* x, int incx, const T* y, int incy,
+                                       T* A, int lda );
 
 void Geru
 ( int m, int n,
@@ -213,6 +209,11 @@ void Hemv
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* x, int incx,
   dcomplex beta,        dcomplex* y, int incy );
 
+template<typename T>
+void Her
+( char uplo, int m,
+  Base<T> alpha, const T* x, int incx, T* A, int lda );
+
 void Her
 ( char uplo, int m,
   float alpha, const float* x, int incx, float* A, int lda );
@@ -225,6 +226,13 @@ void Her
 void Her
 ( char uplo, int m,
   double alpha, const dcomplex* x, int incx, dcomplex* A, int lda );
+
+template<typename T>
+void Her2
+( char uplo, int m,
+  T alpha, const T* x, int incx, 
+           const T* y, int incy,
+                 T* A, int lda );
 
 void Her2
 ( char uplo, int m,
@@ -266,6 +274,10 @@ void Symv
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* x, int incx,
   dcomplex beta,        dcomplex* y, int incy );
 
+template<typename T>
+void Syr
+( char uplo, int m, T alpha, const T* x, int incx, T* A, int lda );
+
 void Syr
 ( char uplo, int m,
   float alpha, const float* x, int incx, float* A, int lda );
@@ -278,6 +290,13 @@ void Syr
 void Syr
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* x, int incx, dcomplex* A, int lda );
+
+template<typename T>
+void Syr2
+( char uplo, int m,
+  T alpha, const T* x, int incx, 
+           const T* y, int incy,
+                 T* A, int lda );
 
 void Syr2
 ( char uplo, int m,
@@ -314,6 +333,11 @@ void Trmv
 ( char uplo, char trans, char diag, int m,
   const dcomplex* A, int lda, dcomplex* x, int incx );
 
+template<typename F>
+void Trsv
+( char uplo, char trans, char diag, int m,
+  const F* A, int lda, F* x, int incx );
+
 void Trsv
 ( char uplo, char trans, char diag, int m,
   const float* A, int lda, float* x, int incx );
@@ -329,6 +353,12 @@ void Trsv
 
 // Level 3 BLAS
 // ============
+template<typename T>
+void Gemm
+( char transA, char transB, int m, int n, int k,
+  T alpha, const T* A, int lda, const T* B, int ldb,
+  T beta,        T* C, int ldc );
+
 void Gemm
 ( char transA, char transB, int m, int n, int k,
   float alpha, const float* A, int lda, const float* B, int ldb,
@@ -345,9 +375,10 @@ void Gemm
 ( char transA, char transB, int m, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc );
+
 template<typename T>
-void Gemm
-( char transA, char transB, int m, int n, int k,
+void Hemm
+( char side, char uplo, int m, int n,
   T alpha, const T* A, int lda, const T* B, int ldb,
   T beta,        T* C, int ldc );
 
@@ -367,6 +398,8 @@ void Hemm
 ( char side, char uplo, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc );
+
+// Left off HERE for templates
 
 void Her2k
 ( char uplo, char trans, int n, int k,
@@ -399,6 +432,12 @@ void Herk
 ( char uplo, char trans, int n, int k,
   double alpha, const dcomplex* A, int lda,
   double beta,        dcomplex* C, int ldc );
+
+template<typename T>
+void Symm
+( char side, char uplo, int m, int n,
+  T alpha, const T* A, int lda, const T* B, int ldb,
+  T beta,        T* C, int ldc );
 
 void Symm
 ( char side, char uplo, int m, int n,
@@ -485,7 +524,7 @@ namespace blas {
 
 // Templated wrappers
 // ==================
-// TODO: Move the remaining routines into src/
+// TODO: Move the remaining routines into src/core/imports/blas.cpp
 
 // Level 1 BLAS
 // ------------
@@ -521,183 +560,6 @@ inline void Swap( int n, T* x, int incx, T* y, int incy )
         y[i*incy] = temp;
     }
 }
-
-
-// Level 2 BLAS
-// ------------
-
-template<typename T>
-inline void Gemv
-( char trans, int m, int n,
-  T alpha, const T* A, int lda, const T* x, int incx,
-  T beta,        T* y, int incy )
-{
-    if( trans == 'N' )
-    {
-        if( m > 0 && n == 0 && beta == T(0) )
-        {
-            for( int i=0; i<m; ++i )
-                y[i*incy] = 0;   
-            return;
-        }
-        Scal( m, beta, y, incy );
-        for( int i=0; i<m; ++i ) 
-            for( int j=0; j<n; ++j )
-                y[i*incy] += alpha*A[i+j*lda]*x[j*incx];
-    }
-    else if( trans == 'T' ) 
-    {
-        if( n > 0 && m == 0 && beta == T(0) )
-        {
-            for( int i=0; i<n; ++i )
-                y[i*incy] = 0;   
-            return;
-        }
-        Scal( n, beta, y, incy );
-        for( int i=0; i<n; ++i ) 
-            for( int j=0; j<m; ++j )
-                y[i*incy] += alpha*A[j+i*lda]*x[j*incx];
-    }
-    else
-    {
-        if( n > 0 && m == 0 && beta == T(0) )
-        {
-            for( int i=0; i<n; ++i )
-                y[i*incy] = 0;   
-            return;
-        }
-        Scal( n, beta, y, incy );
-        for( int i=0; i<n; ++i ) 
-            for( int j=0; j<m; ++j )
-                y[i*incy] += alpha*Conj(A[j+i*lda])*x[j*incx];
-    }
-}
-
-// TODO: templated Ger
-// TODO: templated Gerc
-// TODO: templated Geru
-// TODO: templated Her
-// TODO: templated Her2
-// TODO: templated Syr
-// TODO: templated Syr2
-// TODO: templated Trsv
-
-// Level 3 BLAS
-// ------------
-
-// TODO: Introduce some form of blocking
-template<typename T>
-inline void Gemm
-( char transA, char transB, int m, int n, int k,
-  T alpha, const T* A, int lda, const T* B, int ldb,
-  T beta,        T* C, int ldc )
-{
-    if( m > 0 && n > 0 && k == 0 && beta == T(0) )
-    {
-        for( int j=0; j<n; ++j )
-            for( int i=0; i<m; ++i )
-                C[i+j*ldc] = 0;
-        return;
-    }
-
-    // Scale C
-    if( beta != T(1) )
-        for( int j=0; j<n; ++j )
-            for( int i=0; i<m; ++i )
-                C[i+j*ldc] *= beta;
-
-    // Naive implementation
-    if( transA == 'N' && transB == 'N' )
-    {
-        // C := alpha A B + C
-        for( int j=0; j<n; ++j )
-            for( int i=0; i<m; ++i )
-                for( int l=0; l<k; ++l )
-                    C[i+j*ldc] += alpha*A[i+l*lda]*B[l+j*ldb];
-    }
-    else if( transA == 'N' )
-    {
-        if( transB == 'T' )
-        {
-            // C := alpha A B^T + C
-            for( int j=0; j<n; ++j )
-                for( int i=0; i<m; ++i )
-                    for( int l=0; l<k; ++l )
-                        C[i+j*ldc] += alpha*A[i+l*lda]*B[j+l*ldb];
-        }
-        else
-        {
-            // C := alpha A B^H + C
-            for( int j=0; j<n; ++j )
-                for( int i=0; i<m; ++i )
-                    for( int l=0; l<k; ++l )
-                        C[i+j*ldc] += alpha*A[i+l*lda]*Conj(B[j+l*ldb]);
-        }
-    }
-    else if( transB == 'N' )
-    {
-        if( transA == 'T' )
-        {
-            // C := alpha A^T B + C
-            for( int j=0; j<n; ++j )
-                for( int i=0; i<m; ++i )
-                    for( int l=0; l<k; ++l )
-                        C[i+j*ldc] += alpha*A[l+i*lda]*B[l+j*ldb];
-        }
-        else
-        {
-            // C := alpha A^H B + C
-            for( int j=0; j<n; ++j )
-                for( int i=0; i<m; ++i )
-                    for( int l=0; l<k; ++l )
-                        C[i+j*ldc] += alpha*Conj(A[l+i*lda])*B[l+j*ldb];
-        }
-    }
-    else
-    {
-        if( transA == 'T' && transB == 'T' )
-        {
-            // C := alpha A^T B^T + C
-            for( int j=0; j<n; ++j )
-                for( int i=0; i<m; ++i )
-                    for( int l=0; l<k; ++l )
-                        C[i+j*ldc] += alpha*A[l+i*lda]*B[j+l*ldb];
-        }
-        else if( transA == 'T' )
-        {
-            // C := alpha A^T B^H + C
-            for( int j=0; j<n; ++j )
-                for( int i=0; i<m; ++i )
-                    for( int l=0; l<k; ++l )
-                        C[i+j*ldc] += alpha*A[l+i*lda]*Conj(B[j+l*ldb]);
-        }
-        else if( transB == 'T' )
-        {
-            // C := alpha A^H B^T + C
-            for( int j=0; j<n; ++j )
-                for( int i=0; i<m; ++i )
-                    for( int l=0; l<k; ++l )
-                        C[i+j*ldc] += alpha*Conj(A[l+i*lda])*B[j+l*ldb];
-        }
-        else
-        {
-            // C := alpha A^H B^H + C
-            for( int j=0; j<n; ++j )
-                for( int i=0; i<m; ++i )
-                    for( int l=0; l<k; ++l )
-                        C[i+j*ldc] += alpha*Conj(A[l+i*lda])*Conj(B[j+l*ldb]);
-        }
-    }
-}
-
-// TODO: templated Hemm
-// TODO: templated Her2k
-// TODO: templated Herk
-// TODO: templated Symm
-// TODO: templated Syr2k
-// TODO: templated Syrk
-// TODO: templated Trmm
-// TODO: templated Trsm
 
 } // namespace blas
 } // namespace El

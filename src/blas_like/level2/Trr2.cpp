@@ -143,6 +143,7 @@ void Trr2
     T alpha, const AbstractDistMatrix<T>& X, const AbstractDistMatrix<T>& Y, \
     AbstractDistMatrix<T>& A, bool conjugate );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

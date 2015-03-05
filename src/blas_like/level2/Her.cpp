@@ -35,8 +35,7 @@ void Her
     Base<T> alpha, const AbstractDistMatrix<T>& x, \
                          AbstractDistMatrix<T>& A );
 
-// blas::Her not yet supported
-#define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

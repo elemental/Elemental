@@ -39,8 +39,7 @@ void Hemm
     T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
     T beta,        AbstractDistMatrix<T>& C );
 
-// blas::Hemm not yet supported for Int
-#define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

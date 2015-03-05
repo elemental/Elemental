@@ -42,6 +42,7 @@ void Trmv
   ( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, \
     const Matrix<T>& A, Matrix<T>& x );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El
