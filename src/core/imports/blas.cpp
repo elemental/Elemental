@@ -695,13 +695,14 @@ void Scal( int n, Base<T> alpha, T* x, int incx )
     for( int j=0; j<n; ++j )
         x[j*incx] *= alpha;
 }
-#ifdef EL_HAVE_QUAD
 template void Scal( int n, int alpha, int* x, int incx );
+#ifdef EL_HAVE_QUAD
 template void Scal( int n, Quad alpha, Quad* x, int incx );
 template void Scal( int n, Complex<Quad> alpha, Complex<Quad>* x, int incx );
-
+#endif
 template void Scal( int n, float alpha, Complex<float>* x, int incx );
 template void Scal( int n, double alpha, Complex<double>* x, int incx );
+#ifdef EL_HAVE_QUAD
 template void Scal( int n, Quad alpha, Complex<Quad>* x, int incx );
 #endif
 
