@@ -58,7 +58,7 @@ void Mehrotra
     Matrix<Real> dRowA, dRowG, dCol;
     if( ctrl.equilibrate )
     {
-        StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+        StackedGeomEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
         DiagonalSolve( LEFT, NORMAL, dRowA, b );
         DiagonalSolve( LEFT, NORMAL, dRowG, h );
         DiagonalSolve( LEFT, NORMAL, dCol,  c );
@@ -342,7 +342,7 @@ void Mehrotra
     DistMatrix<Real,MR,STAR> dCol(grid);
     if( ctrl.equilibrate )
     {
-        StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+        StackedGeomEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
         DiagonalSolve( LEFT, NORMAL, dRowA, b );
         DiagonalSolve( LEFT, NORMAL, dRowG, h );
         DiagonalSolve( LEFT, NORMAL, dCol,  c );
@@ -634,7 +634,7 @@ void Mehrotra
     Matrix<Real> dRowA, dRowG, dCol;
     if( ctrl.equilibrate )
     {
-        StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+        StackedGeomEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
         DiagonalSolve( LEFT, NORMAL, dRowA, b );
         DiagonalSolve( LEFT, NORMAL, dRowG, h );
         DiagonalSolve( LEFT, NORMAL, dCol,  c );
@@ -675,7 +675,7 @@ void Mehrotra
       ctrl.primalInitialized, ctrl.dualInitialized, standardShift, 
       ctrl.solveCtrl );
 
-    SparseMatrix<Real> J;
+    SparseMatrix<Real> J, JOrig;
     SymmFront<Real> JFront;
     Matrix<Real> d,
                  rc,    rb,    rh,    rmu,
@@ -686,7 +686,7 @@ void Mehrotra
     // TODO: Dynamically modify these values in the manner suggested by 
     //       Altman and Gondzio based upon the number of performed steps of
     //       iterative refinement
-    const Real regMagPrimal = Pow(epsilon,Real(0.75));
+    const Real regMagPrimal = Pow(epsilon,Real(0.5));
     const Real regMagLagrange = Pow(epsilon,Real(0.5));
     const Real regMagDual = Pow(epsilon,Real(0.5));
     regCand.Resize( n+m+k, 1 );
@@ -702,6 +702,7 @@ void Mehrotra
     MatrixNode<Real> regCandNodal, regNodal;
     bool increasedReg = false;
 
+    Matrix<Real> dInner;
 #ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError;
 #endif
@@ -782,11 +783,12 @@ void Mehrotra
         {
             // Construct the full KKT system
             // -----------------------------
-            // TODO: Add default regularization
-            KKT( Q, A, G, s, z, J, false );
+            KKT( Q, A, G, s, z, JOrig, false );
+            J = JOrig;
+            SymmetricGeomEquil( J, dInner, ctrl.print );
+
             KKTRHS( rc, rb, rh, rmu, z, d );
             const Real pivTol = MaxNorm(J)*epsilon;
-            // Do not use any a priori regularization
             Zeros( reg, m+n+k, 1 );
 
             // Compute the proposed step from the KKT system
@@ -804,7 +806,7 @@ void Mehrotra
             regNodal.Push( invMap, info, reg );
 
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
+            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
             ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
         }
 #ifndef EL_RELEASE
@@ -880,7 +882,7 @@ void Mehrotra
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
         const Int numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
-        ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
+        ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
         if( Max(numLargeAffineRefines,numLargeCorrectorRefines) > 3 && 
             !increasedReg )
@@ -955,7 +957,7 @@ void Mehrotra
     {
         if( commRank == 0 && ctrl.time )
             timer.Start();
-        StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+        StackedGeomEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
         if( commRank == 0 && ctrl.time )
             cout << "  GeomEquil: " << timer.Stop() << " secs" << endl;
 
@@ -1003,7 +1005,7 @@ void Mehrotra
     if( commRank == 0 && ctrl.time )
         cout << "  Init: " << timer.Stop() << " secs" << endl;
 
-    DistSparseMatrix<Real> J(comm);
+    DistSparseMatrix<Real> J(comm), JOrig(comm);
     DistSymmFront<Real> JFront;
     DistMultiVec<Real> d(comm),
                        rc(comm),    rb(comm),    rh(comm),    rmu(comm),
@@ -1014,7 +1016,7 @@ void Mehrotra
     // TODO: Dynamically modify these values in the manner suggested by 
     //       Altman and Gondzio based upon the number of performed steps of
     //       iterative refinement
-    const Real regMagPrimal = Pow(epsilon,Real(0.75));
+    const Real regMagPrimal = Pow(epsilon,Real(0.5));
     const Real regMagLagrange = Pow(epsilon,Real(0.5));
     const Real regMagDual = Pow(epsilon,Real(0.5));
     regCand.Resize( n+m+k, 1 );
@@ -1031,6 +1033,7 @@ void Mehrotra
     DistMultiVecNode<Real> regCandNodal, regNodal;
     bool increasedReg = false;
 
+    DistMultiVec<Real> dInner(comm);
 #ifndef EL_RELEASE
     DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm);
 #endif
@@ -1111,11 +1114,12 @@ void Mehrotra
         {
             // Construct the full KKT system
             // -----------------------------
-            // TODO: Add default regularization
-            KKT( Q, A, G, s, z, J, false );
+            KKT( Q, A, G, s, z, JOrig, false );
+            J = JOrig;
+            SymmetricGeomEquil( J, dInner, ctrl.print );
+
             KKTRHS( rc, rb, rh, rmu, z, d );
             const Real pivTol = MaxNorm(J)*epsilon;
-            // Do not use any a priori regularization
             Zeros( reg, m+n+k, 1 );
 
             // Compute the proposed step from the KKT system
@@ -1143,7 +1147,7 @@ void Mehrotra
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
+            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
             if( commRank == 0 && ctrl.time )
                 cout << "  Aff solve: " << timer.Stop() << " secs" << endl;
             ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
@@ -1223,7 +1227,7 @@ void Mehrotra
         if( commRank == 0 && ctrl.time )
             timer.Start();
         const Int numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
-        ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
+        ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
         if( commRank == 0 && ctrl.time )
             cout << "  Corrector solver: " << timer.Stop() << " secs" << endl;
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );

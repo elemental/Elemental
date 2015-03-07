@@ -8,16 +8,13 @@
 #
 import El, time
 
-n0 = 25
-n1 = 25
+n0 = 50
+n1 = 50
 display = True
 worldRank = El.mpi.WorldRank()
 
 # Stack two 2D finite-difference matrices on top of each other
 # and make the last column dense
-#
-# NOTE: Increasing the size of the off-diagonal entries by an order of 
-#       magnitude greatly increases the condition number.
 def StackedFD2D(N0,N1):
   A = El.DistSparseMatrix()
   height = 2*N0*N1
@@ -33,13 +30,13 @@ def StackedFD2D(N0,N1):
       x1 = s / N0
       A.QueueLocalUpdate( sLoc, s, 11 )
       if x0 > 0:
-        A.QueueLocalUpdate( sLoc, s-1, -1 )
+        A.QueueLocalUpdate( sLoc, s-1, -10 )
       if x0+1 < N0:
-        A.QueueLocalUpdate( sLoc, s+1, 2 )
+        A.QueueLocalUpdate( sLoc, s+1, 20 )
       if x1 > 0:
-        A.QueueLocalUpdate( sLoc, s-N0, -3 )
+        A.QueueLocalUpdate( sLoc, s-N0, -30 )
       if x1+1 < N1:
-        A.QueueLocalUpdate( sLoc, s+N0, 4 )
+        A.QueueLocalUpdate( sLoc, s+N0, 40 )
     else:
       sRel = s-N0*N1
       x0 = sRel % N0

@@ -179,6 +179,7 @@ void DisplayWidget<T>::SavePng( string basename ) const
 }
 
 #define PROTO(T) template class DisplayWidget<T>;
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

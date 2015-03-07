@@ -311,10 +311,27 @@ Int RegularizedSolveAfter
   bool progress );
 template<typename F>
 Int RegularizedSolveAfter
-( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,             const DistSymmNodeInfo& info,
-  const DistSymmFront<F>& front,           DistMultiVec<F>& y,
-  Base<F> relTolRefine,              Int maxRefineIts,
+( const DistSparseMatrix<F>& A,  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap,         const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front,       DistMultiVec<F>& y,
+  Base<F> relTolRefine,          Int maxRefineIts,
+  bool progress );
+
+template<typename F>
+Int RegularizedSolveAfter
+( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
+  const Matrix<Base<F>>& d,
+  const vector<Int>& invMap,  const SymmNodeInfo& info,
+  const SymmFront<F>& front,        Matrix<F>& y,
+  Base<F> relTolRefine,       Int maxRefineIts,
+  bool progress );
+template<typename F>
+Int RegularizedSolveAfter
+( const DistSparseMatrix<F>& A,    const DistMultiVec<Base<F>>& reg,
+  const DistMultiVec<Base<F>>& d,
+  const DistMap& invMap,           const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front,         DistMultiVec<F>& y,
+  Base<F> relTolRefine,            Int maxRefineIts,
   bool progress );
 
 template<typename F>
@@ -326,6 +343,21 @@ Int SolveAfter
 template<typename F>
 Int SolveAfter
 ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap,             const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front,           DistMultiVec<F>& y,
+  const RegQSDSolveCtrl<Base<F>>& ctrl );
+
+template<typename F>
+Int SolveAfter
+( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
+  const Matrix<Base<F>>& d,
+  const vector<Int>& invMap,  const SymmNodeInfo& info,
+  const SymmFront<F>& front,        Matrix<F>& y,
+  const RegQSDSolveCtrl<Base<F>>& ctrl );
+template<typename F>
+Int SolveAfter
+( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
+  const DistMultiVec<Base<F>>& d,
   const DistMap& invMap,             const DistSymmNodeInfo& info,
   const DistSymmFront<F>& front,           DistMultiVec<F>& y,
   const RegQSDSolveCtrl<Base<F>>& ctrl );

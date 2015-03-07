@@ -327,7 +327,7 @@ void Initialize
     bool aPriori = true;
     const Real epsilon = lapack::MachineEpsilon<Real>();
     const Real pivTol = MaxNorm(J)*epsilon;
-    const Real regMagPrimal = Pow(epsilon,Real(0.75));
+    const Real regMagPrimal = Pow(epsilon,Real(0.5));
     const Real regMagLagrange = Pow(epsilon,Real(0.5));
     regCand.Resize( n+m, 1 );
     for( Int i=0; i<n+m; ++i )
@@ -464,7 +464,7 @@ void Initialize
     bool aPriori = true;
     const Real epsilon = lapack::MachineEpsilon<Real>();
     const Real pivTol = MaxNorm(J)*epsilon;
-    const Real regMagPrimal = Pow(epsilon,Real(0.75));
+    const Real regMagPrimal = Pow(epsilon,Real(0.5));
     const Real regMagLagrange = Pow(epsilon,Real(0.5));
     regCand.Resize( n+m, 1 );
     for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )

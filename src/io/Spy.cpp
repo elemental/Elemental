@@ -23,7 +23,6 @@ void Spy( const Matrix<T>& A, string title, Base<T> tol )
     if( GuiDisabled() )
         LogicError("GUI was disabled");
 
-    // Convert A to double-precision since Qt's MOC does not support templates
     const Int m = A.Height();
     const Int n = A.Width();
     Matrix<Int>* ASpy = new Matrix<Int>( m, n );
@@ -96,6 +95,7 @@ void Spy( const AbstractBlockDistMatrix<T>& A, string title, Base<T> tol )
   template void Spy \
   ( const AbstractBlockDistMatrix<T>& A, string title, Base<T> tol ); 
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -59,7 +59,7 @@ void IPF
     Matrix<Real> dRowA, dRowG, dCol;
     if( ctrl.equilibrate )
     {
-        StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+        StackedGeomEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
 
         DiagonalSolve( LEFT, NORMAL, dRowA, b );
         DiagonalSolve( LEFT, NORMAL, dRowG, h );
@@ -281,7 +281,7 @@ void IPF
     DistMatrix<Real,MR,STAR> dCol(grid);
     if( ctrl.equilibrate )
     {
-        StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+        StackedGeomEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
 
         DiagonalSolve( LEFT, NORMAL, dRowA, b );
         DiagonalSolve( LEFT, NORMAL, dRowG, h );
@@ -486,7 +486,7 @@ void IPF
     Matrix<Real> dRowA, dRowG, dCol;
     if( ctrl.equilibrate )
     {
-        StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+        StackedGeomEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
 
         DiagonalSolve( LEFT, NORMAL, dRowA, b );
         DiagonalSolve( LEFT, NORMAL, dRowG, h );
@@ -523,7 +523,7 @@ void IPF
       ctrl.primalInitialized, ctrl.dualInitialized, standardShift, 
       ctrl.solveCtrl );
 
-    SparseMatrix<Real> J;
+    SparseMatrix<Real> J, JOrig;
     SymmFront<Real> JFront;
     Matrix<Real> d,
                  rc, rb, rh, rmu,
@@ -532,7 +532,7 @@ void IPF
     // TODO: Dynamically modify these values in the manner suggested by 
     //       Altman and Gondzio based upon the number of performed steps of
     //       iterative refinement
-    const Real regMagPrimal = Pow(epsilon,Real(0.75));
+    const Real regMagPrimal = Pow(epsilon,Real(0.5));
     const Real regMagLagrange = Pow(epsilon,Real(0.5));
     const Real regMagDual = Pow(epsilon,Real(0.5));
     Matrix<Real> regCand, reg;
@@ -549,6 +549,7 @@ void IPF
     MatrixNode<Real> regCandNodal, regNodal;
     bool increasedReg = false;
 
+    Matrix<Real> dInner;
 #ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError;
 #endif
@@ -623,11 +624,12 @@ void IPF
 
         const bool aPriori = true;
         {
-            // TODO: Add default regularization
-            KKT( A, G, s, z, J, false );
+            KKT( A, G, s, z, JOrig, false );
+            J = JOrig;
+            SymmetricGeomEquil( J, dInner, ctrl.print );
+
             KKTRHS( rc, rb, rh, rmu, z, d );
             const Real pivTol = MaxNorm(J)*epsilon;
-            // Do not use any a priori regularization
             Zeros( reg, m+n+k, 1 );
 
             // Compute the proposed step from the KKT system
@@ -645,7 +647,7 @@ void IPF
             regNodal.Push( invMap, info, reg );
 
             const Int numLargeRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
+            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
             if( numLargeRefines > 3 && !increasedReg )
             {
                 Scale( Real(10), regCand );
@@ -739,7 +741,7 @@ void IPF
     DistMultiVec<Real> dRowA(comm), dRowG(comm), dCol(comm);
     if( ctrl.equilibrate ) 
     {
-        StackedGeomEquil( A, G, dRowA, dRowG, dCol );
+        StackedGeomEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
 
         DiagonalSolve( LEFT, NORMAL, dRowA, b );
         DiagonalSolve( LEFT, NORMAL, dRowG, h );
@@ -776,7 +778,7 @@ void IPF
       ctrl.primalInitialized, ctrl.dualInitialized, standardShift, 
       ctrl.solveCtrl );
 
-    DistSparseMatrix<Real> J(comm);
+    DistSparseMatrix<Real> J(comm), JOrig(comm);
     DistSymmFront<Real> JFront;
     DistMultiVec<Real> d(comm),
                        rc(comm), rb(comm), rh(comm), rmu(comm),
@@ -785,7 +787,7 @@ void IPF
     // TODO: Dynamically modify these values in the manner suggested by 
     //       Altman and Gondzio based upon the number of performed steps of
     //       iterative refinement
-    const Real regMagPrimal = Pow(epsilon,Real(0.75));
+    const Real regMagPrimal = Pow(epsilon,Real(0.5));
     const Real regMagLagrange = Pow(epsilon,Real(0.5));
     const Real regMagDual = Pow(epsilon,Real(0.5));
     DistMultiVec<Real> regCand(comm), reg(comm);
@@ -803,6 +805,7 @@ void IPF
     DistMultiVecNode<Real> regCandNodal, regNodal;
     bool increasedReg = false;
 
+    DistMultiVec<Real> dInner(comm);
 #ifndef EL_RELEASE
     DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm);
 #endif
@@ -877,11 +880,12 @@ void IPF
 
         const bool aPriori = true;
         {
-            // TODO: Add default regularization
-            KKT( A, G, s, z, J, false );
+            KKT( A, G, s, z, JOrig, false );
+            J = JOrig;
+            SymmetricGeomEquil( J, dInner, ctrl.print );
+
             KKTRHS( rc, rb, rh, rmu, z, d );
             const Real pivTol = MaxNorm(J)*epsilon;
-            // Do not use any a priori regularization
             Zeros( reg, m+n+k, 1 );
 
             // Compute the proposed step from the KKT system
@@ -899,7 +903,7 @@ void IPF
             regNodal.Push( invMap, info, reg );
 
             const Int numLargeRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
+            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
             if( numLargeRefines > 3 && !increasedReg )
             {
                 Scale( Real(10), regCand );

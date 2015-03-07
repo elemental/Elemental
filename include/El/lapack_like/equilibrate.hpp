@@ -35,6 +35,22 @@ void GeomEquil
   DistMultiVec<Base<F>>& dRow, DistMultiVec<Base<F>>& dCol,
   bool progress=false );
 
+// NOTE: It is assumed that the matrix is explicitly symmetric/Hermitian
+//       (either will be equivalent for this routine)
+template<typename F>
+void SymmetricGeomEquil
+( Matrix<F>& A, Matrix<Base<F>>& d, bool progress=false );
+template<typename F>
+void SymmetricGeomEquil
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& d, 
+  bool progress=false );
+template<typename F>
+void SymmetricGeomEquil
+( SparseMatrix<F>& A, Matrix<Base<F>>& d, bool progress=false );
+template<typename F>
+void SymmetricGeomEquil
+( DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& d, bool progress=false );
+
 template<typename F>
 void StackedGeomEquil
 ( Matrix<F>& A, Matrix<F>& B,

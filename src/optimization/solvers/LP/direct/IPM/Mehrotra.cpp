@@ -51,7 +51,7 @@ void Mehrotra
     Matrix<Real> dRow, dCol;
     if( ctrl.equilibrate )
     {
-        GeomEquil( A, dRow, dCol );
+        GeomEquil( A, dRow, dCol, ctrl.print );
 
         DiagonalSolve( LEFT, NORMAL, dRow, b ); 
         DiagonalSolve( LEFT, NORMAL, dCol, c );
@@ -356,7 +356,7 @@ void Mehrotra
     DistMatrix<Real,MR,STAR> dCol(grid);
     if( ctrl.equilibrate )
     {
-        GeomEquil( A, dRow, dCol );
+        GeomEquil( A, dRow, dCol, ctrl.print );
 
         DiagonalSolve( LEFT, NORMAL, dRow, b ); 
         DiagonalSolve( LEFT, NORMAL, dCol, c );
@@ -651,7 +651,7 @@ void Mehrotra
     Matrix<Real> dRow, dCol;
     if( ctrl.equilibrate )
     {
-        GeomEquil( A, dRow, dCol );
+        GeomEquil( A, dRow, dCol, ctrl.print );
 
         DiagonalSolve( LEFT, NORMAL, dRow, b ); 
         DiagonalSolve( LEFT, NORMAL, dCol, c );
@@ -698,7 +698,7 @@ void Mehrotra
           ctrl.solveCtrl );
     }
 
-    SparseMatrix<Real> J;
+    SparseMatrix<Real> J, JOrig;
     SymmFront<Real> JFront;
     Matrix<Real> d, 
                  rc,    rb,    rmu, 
@@ -711,7 +711,7 @@ void Mehrotra
     //       iterative refinement
     if( ctrl.system == FULL_KKT )
     {
-        const Real regMagPrimal = Pow(epsilon,Real(0.75));
+        const Real regMagPrimal = Pow(epsilon,Real(0.5));
         const Real regMagLagrange = Pow(epsilon,Real(0.5));
         const Real regMagDual = Pow(epsilon,Real(0.5));
         regCand.Resize( m+2*n, 1 );
@@ -727,7 +727,7 @@ void Mehrotra
     }
     else if( ctrl.system == AUGMENTED_KKT )
     {
-        const Real regMagPrimal = Pow(epsilon,Real(0.75));
+        const Real regMagPrimal = Pow(epsilon,Real(0.5));
         const Real regMagLagrange = Pow(epsilon,Real(0.5));
         regCand.Resize( n+m, 1 );
         for( Int i=0; i<n+m; ++i )
@@ -741,6 +741,7 @@ void Mehrotra
     MatrixNode<Real> regCandNodal, regNodal;
     bool increasedReg = false;
 
+    Matrix<Real> dInner;
 #ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError, prod;
 #endif
@@ -807,8 +808,10 @@ void Mehrotra
         {
             // Construct the full KKT system
             // -----------------------------
-            // TODO: Add default regularization
-            KKT( A, x, z, J, false );
+            KKT( A, x, z, JOrig, false );
+            J = JOrig;
+            SymmetricGeomEquil( J, dInner, ctrl.print );
+
             KKTRHS( rc, rb, rmu, z, d );
             const Real pivTol = MaxNorm(J)*epsilon;
             // Do not use any a priori regularization
@@ -831,15 +834,17 @@ void Mehrotra
             // Compute the proposed step from the regularized KKT system
             // ---------------------------------------------------------
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
+            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
             ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
         }
         else if( ctrl.system == AUGMENTED_KKT )
         {
             // Construct the "augmented" KKT system
             // ------------------------------------
-            // TODO: Add default regularization
-            AugmentedKKT( A, x, z, J, false );
+            AugmentedKKT( A, x, z, JOrig, false );
+            J = JOrig;
+            SymmetricGeomEquil( J, dInner, ctrl.print );
+
             AugmentedKKTRHS( x, rc, rb, rmu, d );
             const Real pivTol = MaxNorm(J)*epsilon;
             // Do not use any a priori regularization
@@ -860,13 +865,14 @@ void Mehrotra
             regNodal.Push( invMap, info, reg );
 
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
+            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
             ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
         }
         else // ctrl.system == NORMAL_KKT
         {
             // Construct the "normal" KKT system
             // ---------------------------------
+            // TODO: Add equilibration
             NormalKKT( A, x, z, J, false );
             NormalKKTRHS( A, x, z, rc, rb, rmu, dyAff );
 
@@ -960,7 +966,7 @@ void Mehrotra
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
+            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
             ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -972,7 +978,7 @@ void Mehrotra
             // Compute the proposed step from the KKT system
             // ---------------------------------------------
             numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
+            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else
@@ -1053,7 +1059,7 @@ void Mehrotra
     {
         if( commRank == 0 && ctrl.time )
             timer.Start();
-        GeomEquil( A, dRow, dCol );
+        GeomEquil( A, dRow, dCol, ctrl.print );
         if( commRank == 0 && ctrl.time )
             cout << "  GeomEquil: " << timer.Stop() << " secs" << endl;
 
@@ -1106,7 +1112,7 @@ void Mehrotra
     if( commRank == 0 && ctrl.time )
         cout << "  Init: " << timer.Stop() << " secs" << endl;
 
-    DistSparseMatrix<Real> J(comm);
+    DistSparseMatrix<Real> J(comm), JOrig(comm);
     DistSymmFront<Real> JFront;
     DistMultiVec<Real> d(comm), 
                        rc(comm),    rb(comm),    rmu(comm), 
@@ -1119,7 +1125,7 @@ void Mehrotra
     //       iterative refinement
     if( ctrl.system == FULL_KKT )
     {
-        const Real regMagPrimal = Pow(epsilon,Real(0.75));
+        const Real regMagPrimal = Pow(epsilon,Real(0.5));
         const Real regMagLagrange = Pow(epsilon,Real(0.5));
         const Real regMagDual = Pow(epsilon,Real(0.5));
         regCand.Resize( m+2*n, 1 );
@@ -1136,7 +1142,7 @@ void Mehrotra
     }
     else if( ctrl.system == AUGMENTED_KKT )
     {
-        const Real regMagPrimal = Pow(epsilon,Real(0.75));
+        const Real regMagPrimal = Pow(epsilon,Real(0.5));
         const Real regMagLagrange = Pow(epsilon,Real(0.5));
         regCand.Resize( n+m, 1 );
         for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
@@ -1151,6 +1157,7 @@ void Mehrotra
     DistMultiVecNode<Real> regCandNodal, regNodal;
     bool increasedReg = false;
 
+    DistMultiVec<Real> dInner(comm);
 #ifndef EL_RELEASE
     DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm), prod(comm);
 #endif
@@ -1212,16 +1219,16 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        const Real relTolRefine = Pow(epsilon,0.75);
-        const Int maxRefineIts = 50;
         bool aPriori = true;
         Int numLargeAffineRefines=0, numLargeCorrectorRefines=0;
         if( ctrl.system == FULL_KKT )
         {
             // Construct the full KKT system
             // -----------------------------
-            // TODO: Add default regularization
-            KKT( A, x, z, J, false );
+            KKT( A, x, z, JOrig, false );
+            J = JOrig;
+            SymmetricGeomEquil( J, dInner, ctrl.print );
+
             KKTRHS( rc, rb, rmu, z, d );
             const Real pivTol = MaxNorm(J)*epsilon;
             // Do not use any a priori regularization
@@ -1254,7 +1261,7 @@ void Mehrotra
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
+            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
             if( commRank == 0 && ctrl.time )
                 cout << "  Affine: " << timer.Stop() << " secs" << endl;
             ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
@@ -1263,8 +1270,10 @@ void Mehrotra
         {
             // Construct the "augmented" KKT system
             // ------------------------------------
-            // TODO: Add default regularization
-            AugmentedKKT( A, x, z, J, false );
+            AugmentedKKT( A, x, z, JOrig, false );
+            J = JOrig;
+            SymmetricGeomEquil( J, dInner, ctrl.print );
+
             AugmentedKKTRHS( x, rc, rb, rmu, d );
             const Real pivTol = MaxNorm(J)*epsilon;
             // Do not use any a priori regularization
@@ -1295,7 +1304,7 @@ void Mehrotra
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             numLargeAffineRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
+            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
             if( commRank == 0 && ctrl.time )
                 cout << "  Affine: " << timer.Stop() << " secs" << endl;
             ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
@@ -1304,6 +1313,7 @@ void Mehrotra
         {
             // Construct the "normal" KKT system
             // ---------------------------------
+            // TODO: Add equilibration
             NormalKKT( A, x, z, J, false );
             NormalKKTRHS( A, x, z, rc, rb, rmu, dyAff );
 
@@ -1411,7 +1421,7 @@ void Mehrotra
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
+            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
             if( commRank == 0 && ctrl.time )
                 cout << "  Corrector: " << timer.Stop() << " secs" << endl;
             ExpandSolution( m, n, d, dx, dy, dz );
@@ -1427,7 +1437,7 @@ void Mehrotra
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             numLargeCorrectorRefines = reg_qsd_ldl::SolveAfter
-            ( J, reg, invMap, info, JFront, d, ctrl.solveCtrl );
+            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
             if( commRank == 0 && ctrl.time )
                 cout << "  Corrector: " << timer.Stop() << " secs" << endl;
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );

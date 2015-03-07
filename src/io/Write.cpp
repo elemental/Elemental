@@ -92,6 +92,7 @@ void Write
   ( const AbstractBlockDistMatrix<T>& A, \
     string basename, FileFormat format, string title );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El
