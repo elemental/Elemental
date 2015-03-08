@@ -72,7 +72,7 @@ struct IPFCtrl {
     Real centering; 
     KKTSystem system;
 
-    RegQSDSolveCtrl<Real> solveCtrl;
+    RegQSDCtrl<Real> qsdCtrl;
 
     IPFLineSearchCtrl<Real> lineSearchCtrl;
 
@@ -99,7 +99,7 @@ struct MehrotraCtrl {
     Int maxIts;
     Real maxStepRatio;
     KKTSystem system;
-    RegQSDSolveCtrl<Real> solveCtrl;
+    RegQSDCtrl<Real> qsdCtrl;
     bool equilibrate;
     bool print;
     bool time;
@@ -171,7 +171,7 @@ struct IPFCtrl {
     Int maxIts;
     Real centering; 
 
-    RegQSDSolveCtrl<Real> solveCtrl;
+    RegQSDCtrl<Real> qsdCtrl;
 
     IPFLineSearchCtrl<Real> lineSearchCtrl;
 
@@ -195,7 +195,7 @@ struct MehrotraCtrl {
     Real tol;
     Int maxIts;
     Real maxStepRatio;
-    RegQSDSolveCtrl<Real> solveCtrl;
+    RegQSDCtrl<Real> qsdCtrl;
     bool equilibrate;
     bool print;
     bool time;
@@ -330,7 +330,7 @@ struct IPFCtrl {
     Real centering; 
     KKTSystem system;
 
-    RegQSDSolveCtrl<Real> solveCtrl;
+    RegQSDCtrl<Real> qsdCtrl;
 
     IPFLineSearchCtrl<Real> lineSearchCtrl;
 
@@ -355,7 +355,7 @@ struct MehrotraCtrl {
     Int maxIts;
     Real maxStepRatio;
     KKTSystem system;
-    RegQSDSolveCtrl<Real> solveCtrl;
+    RegQSDCtrl<Real> qsdCtrl;
     bool equilibrate;
     bool print;
     bool time;
@@ -406,7 +406,7 @@ struct IPFCtrl {
     Int maxIts;
     Real centering; 
 
-    RegQSDSolveCtrl<Real> solveCtrl;
+    RegQSDCtrl<Real> qsdCtrl;
 
     IPFLineSearchCtrl<Real> lineSearchCtrl;
 
@@ -430,7 +430,7 @@ struct MehrotraCtrl {
     Real tol;
     Int maxIts;
     Real maxStepRatio;
-    RegQSDSolveCtrl<Real> solveCtrl;
+    RegQSDCtrl<Real> qsdCtrl;
     bool equilibrate;
     bool print;
     bool time;

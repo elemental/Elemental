@@ -8,14 +8,12 @@
 #
 import El, time
 
-n0 = n1 = 200
+#n0 = n1 = 200
+n0 = n1 = 100
 display = False
 worldRank = El.mpi.WorldRank()
 
 # A 2D finite-difference matrix with a dense last column
-# 
-# NOTE: Increasing the magnitude of the off-diagonal entries by an order of
-#       magnitude makes the matrix vastly worse-conditioned.
 def FD2D(N0,N1):
   A = El.DistSparseMatrix()
   height = N0*N1
@@ -30,16 +28,16 @@ def FD2D(N0,N1):
     x1 = s / N0
     A.QueueLocalUpdate( sLoc, s, 11 )
     if x0 > 0:
-      A.QueueLocalUpdate( sLoc, s-1, -1 )
+      A.QueueLocalUpdate( sLoc, s-1, -10 )
     if x0+1 < N0:
-      A.QueueLocalUpdate( sLoc, s+1, 2 )
+      A.QueueLocalUpdate( sLoc, s+1, 20 )
     if x1 > 0:
-      A.QueueLocalUpdate( sLoc, s-N0, -3 )
+      A.QueueLocalUpdate( sLoc, s-N0, -30 )
     if x1+1 < N1:
-      A.QueueLocalUpdate( sLoc, s+N0, 4 )
+      A.QueueLocalUpdate( sLoc, s+N0, 40 )
 
     # The dense last column
-    A.QueueLocalUpdate( sLoc, width-1, -10/height );
+    A.QueueLocalUpdate( sLoc, width-1, -10./height );
 
   A.MakeConsistent()
   return A
@@ -59,10 +57,15 @@ if rank == 0:
   print "|| y ||_2 =", yNrm
 
 ctrl = El.LeastSquaresCtrl_d()
-ctrl.solveCtrl.relTolRefine = 1e-10
-ctrl.solveCtrl.progress = True
-ctrl.equilibrate = True
+ctrl.alpha = 1e-4
+ctrl.equilibrate = False
 ctrl.progress = True
+ctrl.qsdCtrl.regPrimal = 1e-8
+ctrl.qsdCtrl.regDual = 1e-8
+ctrl.qsdCtrl.alg = El.REG_REFINE_FGMRES
+ctrl.qsdCtrl.relTol = 1e-7
+ctrl.qsdCtrl.relTolRefine = 1e-12
+ctrl.qsdCtrl.progress = True
 
 solveStart = time.clock()
 El.LinearSolve(A,x,ctrl)

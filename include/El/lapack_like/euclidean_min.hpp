@@ -47,7 +47,7 @@ void LeastSquares
 template<typename Real>
 struct LeastSquaresCtrl {
     Real alpha;
-    RegQSDSolveCtrl<Real> solveCtrl;
+    RegQSDCtrl<Real> qsdCtrl;
     bool equilibrate;
     bool progress;
     bool time;

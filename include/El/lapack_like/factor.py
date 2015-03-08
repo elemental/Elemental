@@ -580,22 +580,24 @@ def MultiplyAfterLDLPiv(A,dSub,p,B,conjugate=True):
 # Emulate an enum for the Regularized QSD LDL solve/refinement
 (REG_REFINE_FGMRES,REG_REFINE_LGMRES,REG_REFINE_IR,REG_REFINE_IR_MOD)=(0,1,2,3)
 
-lib.ElRegQSDSolveCtrlDefault_s.argtypes = \
-lib.ElRegQSDSolveCtrlDefault_d.argtypes = \
+lib.ElRegQSDCtrlDefault_s.argtypes = \
+lib.ElRegQSDCtrlDefault_d.argtypes = \
   [c_void_p]
-lib.ElRegQSDSolveCtrlDefault_s.restype = \
-lib.ElRegQSDSolveCtrlDefault_d.restype = \
+lib.ElRegQSDCtrlDefault_s.restype = \
+lib.ElRegQSDCtrlDefault_d.restype = \
   c_uint
-class RegQSDSolveCtrl_s(ctypes.Structure):
-  _fields_ = [("alg",c_uint),("relTol",sType),("relRefineTol",sType),
+class RegQSDCtrl_s(ctypes.Structure):
+  _fields_ = [("regPrimal",sType),("regDual",sType),
+              ("alg",c_uint),("relTol",sType),("relTolRefine",sType),
               ("maxRefineIts",iType),("restart",iType),("progress",bType)]
   def __init__(self):
-    lib.ElRegQSDSolveCtrlDefault_s(pointer(self))
-class RegQSDSolveCtrl_d(ctypes.Structure):
-  _fields_ = [("alg",c_uint),("relTol",dType),("relRefineTol",dType),
+    lib.ElRegQSDCtrlDefault_s(pointer(self))
+class RegQSDCtrl_d(ctypes.Structure):
+  _fields_ = [("regPrimal",dType),("regDual",dType),
+              ("alg",c_uint),("relTol",dType),("relTolRefine",dType),
               ("maxRefineIts",iType),("restart",iType),("progress",bType)]
   def __init__(self):
-    lib.ElRegQSDSolveCtrlDefault_d(pointer(self))
+    lib.ElRegQSDCtrlDefault_d(pointer(self))
 
 # TODO: Wrappers for the factorization and solve
 

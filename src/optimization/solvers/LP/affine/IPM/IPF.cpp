@@ -472,7 +472,6 @@ void IPF
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::affine::IPF"))    
-    const Real epsilon = lapack::MachineEpsilon<Real>();
 
     // Equilibrate the LP by diagonally scaling [A;G]
     auto A = APre;
@@ -521,7 +520,7 @@ void IPF
     Initialize
     ( A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
       ctrl.primalInitialized, ctrl.dualInitialized, standardShift, 
-      ctrl.solveCtrl );
+      ctrl.qsdCtrl );
 
     SparseMatrix<Real> J, JOrig;
     SymmFront<Real> JFront;
@@ -529,25 +528,15 @@ void IPF
                  rc, rb, rh, rmu,
                  dx, dy, dz, ds;
 
-    // TODO: Dynamically modify these values in the manner suggested by 
-    //       Altman and Gondzio based upon the number of performed steps of
-    //       iterative refinement
-    const Real regMagPrimal = Pow(epsilon,Real(0.5));
-    const Real regMagLagrange = Pow(epsilon,Real(0.5));
-    const Real regMagDual = Pow(epsilon,Real(0.5));
-    Matrix<Real> regCand, reg;
-    regCand.Resize( m+2*n, 1 );
+    Matrix<Real> reg;
+    reg.Resize( m+2*n, 1 );
     for( Int i=0; i<m+2*n; ++i )
     {
         if( i < n )
-            regCand.Set( i, 0, regMagPrimal );
-        else if( i < n+m )
-            regCand.Set( i, 0, -regMagLagrange );
+            reg.Set( i, 0, ctrl.qsdCtrl.regPrimal );
         else
-            regCand.Set( i, 0, -regMagDual );
+            reg.Set( i, 0, -ctrl.qsdCtrl.regDual );
     }
-    MatrixNode<Real> regCandNodal, regNodal;
-    bool increasedReg = false;
 
     Matrix<Real> dInner;
 #ifndef EL_RELEASE
@@ -622,39 +611,27 @@ void IPF
         DiagonalScale( LEFT, NORMAL, s, rmu );
         Shift( rmu, -ctrl.centering*mu );
 
-        const bool aPriori = true;
+        // Factor the regularized, "full" KKT system
+        // -----------------------------------------
+        KKT( A, G, s, z, JOrig, false );
+        J = JOrig;
+        SymmetricGeomEquil( J, dInner, ctrl.print );
+        UpdateRealPartOfDiagonal( J, Real(1), reg );
+        if( ctrl.primalInitialized && ctrl.dualInitialized && numIts == 0 )
         {
-            KKT( A, G, s, z, JOrig, false );
-            J = JOrig;
-            SymmetricGeomEquil( J, dInner, ctrl.print );
-
-            KKTRHS( rc, rb, rh, rmu, z, d );
-            const Real pivTol = MaxNorm(J)*epsilon;
-            Zeros( reg, m+n+k, 1 );
-
-            // Compute the proposed step from the KKT system
-            // ---------------------------------------------
-            if( ctrl.primalInitialized && ctrl.dualInitialized && numIts == 0 )
-            {
-                NestedDissection( J.LockedGraph(), map, rootSep, info );
-                InvertMap( map, invMap );
-            }
-            JFront.Pull( J, map, info );
-            regCandNodal.Pull( invMap, info, regCand );
-            regNodal.Pull( invMap, info, reg );
-            RegularizedQSDLDL
-            ( info, JFront, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
-            regNodal.Push( invMap, info, reg );
-
-            const Int numLargeRefines = reg_qsd_ldl::SolveAfter
-            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
-            if( numLargeRefines > 3 && !increasedReg )
-            {
-                Scale( Real(10), regCand );
-                increasedReg = true;
-            }
-            ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
+            NestedDissection( J.LockedGraph(), map, rootSep, info );
+            InvertMap( map, invMap );
         }
+        JFront.Pull( J, map, info );
+        LDL( info, JFront, LDL_2D );
+
+        // Compute the proposed step from the KKT system
+        // ---------------------------------------------
+        KKTRHS( rc, rb, rh, rmu, z, d );
+        reg_qsd_ldl::SolveAfter
+        ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+        ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
+
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
@@ -727,7 +704,6 @@ void IPF
     DEBUG_ONLY(CallStackEntry cse("lp::affine::IPF"))    
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);
-    const Real epsilon = lapack::MachineEpsilon<Real>();
 
     // Equilibrate the LP by diagonally scaling [A;G]
     auto A = APre;
@@ -776,7 +752,7 @@ void IPF
     Initialize
     ( A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
       ctrl.primalInitialized, ctrl.dualInitialized, standardShift, 
-      ctrl.solveCtrl );
+      ctrl.qsdCtrl );
 
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     DistSymmFront<Real> JFront;
@@ -784,26 +760,16 @@ void IPF
                        rc(comm), rb(comm), rh(comm), rmu(comm),
                        dx(comm), dy(comm), dz(comm), ds(comm);
 
-    // TODO: Dynamically modify these values in the manner suggested by 
-    //       Altman and Gondzio based upon the number of performed steps of
-    //       iterative refinement
-    const Real regMagPrimal = Pow(epsilon,Real(0.5));
-    const Real regMagLagrange = Pow(epsilon,Real(0.5));
-    const Real regMagDual = Pow(epsilon,Real(0.5));
-    DistMultiVec<Real> regCand(comm), reg(comm);
-    regCand.Resize( m+2*n, 1 );
-    for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
+    DistMultiVec<Real> reg(comm);
+    reg.Resize( m+2*n, 1 );
+    for( Int iLoc=0; iLoc<reg.LocalHeight(); ++iLoc )
     {
-        const Int i = regCand.GlobalRow(iLoc);
+        const Int i = reg.GlobalRow(iLoc);
         if( i < n )
-            regCand.SetLocal( iLoc, 0, regMagPrimal );
-        else if( i < n+m )
-            regCand.SetLocal( iLoc, 0, -regMagLagrange );
+            reg.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
         else
-            regCand.SetLocal( iLoc, 0, -regMagDual );
+            reg.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
     }
-    DistMultiVecNode<Real> regCandNodal, regNodal;
-    bool increasedReg = false;
 
     DistMultiVec<Real> dInner(comm);
 #ifndef EL_RELEASE
@@ -878,39 +844,27 @@ void IPF
         DiagonalScale( LEFT, NORMAL, s, rmu );
         Shift( rmu, -ctrl.centering*mu );
 
-        const bool aPriori = true;
+        // Factor the regularized, "full" KKT system
+        // -----------------------------------------
+        KKT( A, G, s, z, JOrig, false );
+        J = JOrig;
+        SymmetricGeomEquil( J, dInner, ctrl.print );
+        UpdateRealPartOfDiagonal( J, Real(1), reg );
+        if( ctrl.primalInitialized && ctrl.dualInitialized && numIts == 0 )
         {
-            KKT( A, G, s, z, JOrig, false );
-            J = JOrig;
-            SymmetricGeomEquil( J, dInner, ctrl.print );
-
-            KKTRHS( rc, rb, rh, rmu, z, d );
-            const Real pivTol = MaxNorm(J)*epsilon;
-            Zeros( reg, m+n+k, 1 );
-
-            // Compute the proposed step from the KKT system
-            // ---------------------------------------------
-            if( ctrl.primalInitialized && ctrl.dualInitialized && numIts == 0 )
-            {
-                NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-                InvertMap( map, invMap );
-            }
-            JFront.Pull( J, map, rootSep, info );
-            regCandNodal.Pull( invMap, info, regCand );
-            regNodal.Pull( invMap, info, reg );
-            RegularizedQSDLDL
-            ( info, JFront, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
-            regNodal.Push( invMap, info, reg );
-
-            const Int numLargeRefines = reg_qsd_ldl::SolveAfter
-            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
-            if( numLargeRefines > 3 && !increasedReg )
-            {
-                Scale( Real(10), regCand );
-                increasedReg = true;
-            }
-            ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
+            NestedDissection( J.LockedDistGraph(), map, rootSep, info );
+            InvertMap( map, invMap );
         }
+        JFront.Pull( J, map, rootSep, info );
+        LDL( info, JFront, LDL_2D );
+
+        // Compute the proposed step from the KKT system
+        // ---------------------------------------------
+        KKTRHS( rc, rb, rh, rmu, z, d );
+        reg_qsd_ldl::SolveAfter
+        ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+        ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
+
 #ifndef EL_RELEASE
         // Sanity checks
         // =============

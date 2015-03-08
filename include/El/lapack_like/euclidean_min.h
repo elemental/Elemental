@@ -103,7 +103,7 @@ EL_EXPORT ElError ElLeastSquaresDistSparse_z
    ^^^^^^^^^^^^^^^ */
 typedef struct {
   float alpha;
-  ElRegQSDSolveCtrl_s solveCtrl;
+  ElRegQSDCtrl_s qsdCtrl;
   bool equilibrate;
   bool progress;
   bool time;
@@ -112,7 +112,7 @@ ElError ElLeastSquaresCtrlDefault_s( ElLeastSquaresCtrl_s* ctrl );
 
 typedef struct {
   double alpha;
-  ElRegQSDSolveCtrl_d solveCtrl;
+  ElRegQSDCtrl_d qsdCtrl;
   bool equilibrate;
   bool progress;
   bool time;

@@ -292,7 +292,7 @@ void Initialize
         Separator& rootSep,          SymmNodeInfo& info,
   bool primalInitialized, bool dualInitialized,
   bool standardShift,  
-  const RegQSDSolveCtrl<Real>& solveCtrl )
+  const RegQSDCtrl<Real>& qsdCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::direct::Initialize"))
     const Int n = A.Width();
@@ -300,7 +300,7 @@ void Initialize
     Q.Resize( n, n );
     qp::direct::Initialize
     ( Q, A, b, c, x, y, z, map, invMap, rootSep, info,
-      primalInitialized, dualInitialized, standardShift, solveCtrl );
+      primalInitialized, dualInitialized, standardShift, qsdCtrl );
 }
 
 template<typename Real>
@@ -313,7 +313,7 @@ void Initialize
         DistSeparator& rootSep,           DistSymmNodeInfo& info,
   bool primalInitialized, bool dualInitialized,
   bool standardShift, 
-  const RegQSDSolveCtrl<Real>& solveCtrl )
+  const RegQSDCtrl<Real>& qsdCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::direct::Initialize"))
     const Int n = A.Width();
@@ -322,7 +322,7 @@ void Initialize
     Q.Resize( n, n );
     qp::direct::Initialize
     ( Q, A, b, c, x, y, z, map, invMap, rootSep, info, 
-      primalInitialized, dualInitialized, standardShift, solveCtrl );
+      primalInitialized, dualInitialized, standardShift, qsdCtrl );
 }
 
 #define PROTO(Real) \
@@ -349,7 +349,7 @@ void Initialize
           Separator& rootSep,          SymmNodeInfo& info, \
     bool primalInitialized, bool dualInitialized, \
     bool standardShift, \
-    const RegQSDSolveCtrl<Real>& solveCtrl ); \
+    const RegQSDCtrl<Real>& qsdCtrl ); \
   template void Initialize \
   ( const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b,      const DistMultiVec<Real>& c, \
@@ -359,7 +359,7 @@ void Initialize
           DistSeparator& rootSep,           DistSymmNodeInfo& info, \
     bool primalInitialized, bool dualInitialized, \
     bool standardShift, \
-    const RegQSDSolveCtrl<Real>& solveCtrl );
+    const RegQSDCtrl<Real>& qsdCtrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

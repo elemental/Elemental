@@ -12,9 +12,11 @@ using namespace El;
 
 extern "C" {
 
-ElError ElRegQSDSolveCtrlDefault_s( ElRegQSDSolveCtrl_s* ctrl )
+ElError ElRegQSDCtrlDefault_s( ElRegQSDCtrl_s* ctrl )
 {
     const float eps = lapack::MachineEpsilon<float>();
+    ctrl->regPrimal = Pow(eps,float(0.5));
+    ctrl->regDual = Pow(eps,float(0.5));
     ctrl->alg = EL_REG_REFINE_FGMRES;
     ctrl->relTol = Pow(eps,float(0.5));
     ctrl->relTolRefine = Pow(eps,float(0.5));
@@ -24,9 +26,11 @@ ElError ElRegQSDSolveCtrlDefault_s( ElRegQSDSolveCtrl_s* ctrl )
     return EL_SUCCESS;
 }
 
-ElError ElRegQSDSolveCtrlDefault_d( ElRegQSDSolveCtrl_d* ctrl )
+ElError ElRegQSDCtrlDefault_d( ElRegQSDCtrl_d* ctrl )
 {
     const double eps = lapack::MachineEpsilon<double>();
+    ctrl->regPrimal = Pow(eps,0.5);
+    ctrl->regDual = Pow(eps,0.5); 
     ctrl->alg = EL_REG_REFINE_FGMRES;
     ctrl->relTol = Pow(eps,0.5);
     ctrl->relTolRefine = Pow(eps,0.5);

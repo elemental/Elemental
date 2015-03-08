@@ -1361,6 +1361,29 @@ void UpdateImagPartOfDiagonal
 ( DistMatrix<T,U,V>& A, Base<T> alpha, const AbstractDistMatrix<Base<T>>& d, 
   Int offset=0 );
 
+template<typename T>
+void UpdateDiagonal
+( SparseMatrix<T>& A, T alpha, const Matrix<T>& d, Int offset=0 );
+template<typename T>
+void UpdateRealPartOfDiagonal
+( SparseMatrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset=0 );
+template<typename T>
+void UpdateImagPartOfDiagonal
+( SparseMatrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset=0 );
+
+template<typename T>
+void UpdateDiagonal
+( DistSparseMatrix<T>& A, T alpha, 
+  const DistMultiVec<T>& d, Int offset=0 );
+template<typename T>
+void UpdateRealPartOfDiagonal
+( DistSparseMatrix<T>& A, Base<T> alpha, 
+  const DistMultiVec<Base<T>>& d, Int offset=0 );
+template<typename T>
+void UpdateImagPartOfDiagonal
+( DistSparseMatrix<T>& A, Base<T> alpha, 
+  const DistMultiVec<Base<T>>& d, Int offset=0 );
+
 // UpdateMappedDiagonal
 // ====================
 template<typename T,typename S>
@@ -1370,6 +1393,15 @@ void UpdateMappedDiagonal
 template<typename T,typename S,Dist U,Dist V>
 void UpdateMappedDiagonal
 ( DistMatrix<T,U,V>& A, const AbstractDistMatrix<S>& d, 
+  function<void(T&,S)> func, Int offset=0 );
+
+template<typename T,typename S>
+void UpdateMappedDiagonal
+( SparseMatrix<T>& A, const Matrix<S>& d, 
+  function<void(T&,S)> func, Int offset=0 );
+template<typename T,typename S>
+void UpdateMappedDiagonal
+( DistSparseMatrix<T>& A, const DistMultiVec<S>& d, 
   function<void(T&,S)> func, Int offset=0 );
 
 // UpdateSubmatrix

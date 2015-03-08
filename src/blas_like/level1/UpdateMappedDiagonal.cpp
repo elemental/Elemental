@@ -30,7 +30,28 @@ void UpdateMappedDiagonal
     }
 }
 
-// TODO: SparseMatrix implementation
+template<typename T,typename S>
+void UpdateMappedDiagonal
+( SparseMatrix<T>& A, const Matrix<S>& d, 
+  function<void(T&,S)> func, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("UpdateMappedDiagonal"))
+
+    const Int numUpdates = d.Height();
+    A.Reserve( A.NumEntries() + numUpdates );
+
+    for( Int k=0; k<numUpdates; ++k )
+    {
+        const Int i = ( offset >= 0 ? k        : k-offset );
+        const Int j = ( offset >= 0 ? k+offset : k        );
+
+        T alpha = 0;
+        func( alpha, d.Get(Min(i,j),0) );
+        A.QueueUpdate( i, j, alpha );
+    }
+
+    A.MakeConsistent();
+}
 
 template<typename T,typename S,Dist U,Dist V>
 void UpdateMappedDiagonal
@@ -76,7 +97,30 @@ void UpdateMappedDiagonal
     }
 }
 
-// TODO: DistSparseMatrix implementation
+template<typename T,typename S>
+void UpdateMappedDiagonal
+( DistSparseMatrix<T>& A, const DistMultiVec<S>& d, 
+  function<void(T&,S)> func, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("UpdateMappedDiagonal"))
+    if( offset != 0 )
+        LogicError("Offset assumed to be zero for distributed sparse matrices");
+
+    A.Reserve( A.NumLocalEntries() + d.LocalHeight() );
+
+    const Int localHeight = d.LocalHeight();
+    const Int firstLocalRow = d.FirstLocalRow();
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+    {
+        const Int i = A.GlobalRow(iLoc);
+
+        T alpha = 0;
+        func( alpha, d.GetLocal(iLoc,0) );
+        A.QueueLocalUpdate( iLoc, i, alpha );
+    }
+
+    A.MakeConsistent(); 
+}
 
 #define PROTO_DIST_TYPES(S,T,U,V) \
   template void UpdateMappedDiagonal \
@@ -87,6 +131,12 @@ void UpdateMappedDiagonal
   template void UpdateMappedDiagonal \
   ( Matrix<T>& A, const Matrix<S>& d, function<void(T&,S)> func, \
     Int offset ); \
+  template void UpdateMappedDiagonal \
+  ( SparseMatrix<T>& A, const Matrix<S>& d, function<void(T&,S)> func, \
+    Int offset ); \
+  template void UpdateMappedDiagonal \
+  ( DistSparseMatrix<T>& A, const DistMultiVec<S>& d, \
+    function<void(T&,S)> func, Int offset ); \
   PROTO_DIST_TYPES(S,T,CIRC,CIRC) \
   PROTO_DIST_TYPES(S,T,MC,  MR  ) \
   PROTO_DIST_TYPES(S,T,MC,  STAR) \

@@ -41,7 +41,7 @@ void Initialize
         Separator& rootSep,          SymmNodeInfo& info,
   bool primalInitialized, bool dualInitialized,
   bool standardShift, 
-  const RegQSDSolveCtrl<Real>& solveCtrl );
+  const RegQSDCtrl<Real>& qsdCtrl );
 template<typename Real>
 void Initialize
 ( const DistSparseMatrix<Real>& A,
@@ -52,7 +52,7 @@ void Initialize
         DistSeparator& rootSep,           DistSymmNodeInfo& info,
   bool primalInitialized,           bool dualInitialized,
   bool standardShift,
-  const RegQSDSolveCtrl<Real>& solveCtrl );
+  const RegQSDCtrl<Real>& qsdCtrl );
 
 // Full system
 // ===========

@@ -565,8 +565,6 @@ inline Int RegularizedSolveAfterPromote
     Copy( b, bProm ); 
     Copy( b, bOrigProm );
     const auto bNorm = Nrm2( bProm );
-    if( progress && commRank == 0 )
-        cout << "   original || b ||_2 = " << bNorm << endl;
 
     DistMultiVec<RealProm> regProm(comm);
     Copy( reg, regProm );
@@ -656,8 +654,6 @@ inline Int RegularizedSolveAfterPromote
     Copy( b, bProm ); 
     Copy( b, bOrigProm );
     const auto bNorm = Nrm2( bProm );
-    if( progress && commRank == 0 )
-        cout << "   original || b ||_2 = " << bNorm << endl;
 
     DistMultiVec<RealProm> dProm(comm);
     Copy( d, dProm );
@@ -2665,7 +2661,7 @@ Int SolveAfter
 ( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
   const vector<Int>& invMap,  const SymmNodeInfo& info,
   const SymmFront<F>& front,        Matrix<F>& b,
-  const RegQSDSolveCtrl<Base<F>>& ctrl )
+  const RegQSDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::SolveAfter"))
     switch( ctrl.alg )
@@ -2699,7 +2695,7 @@ Int SolveAfter
   const Matrix<Base<F>>& d,
   const vector<Int>& invMap,  const SymmNodeInfo& info,
   const SymmFront<F>& front,        Matrix<F>& b,
-  const RegQSDSolveCtrl<Base<F>>& ctrl )
+  const RegQSDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::SolveAfter"))
     switch( ctrl.alg )
@@ -2732,7 +2728,7 @@ Int SolveAfter
 ( const DistSparseMatrix<F>& A,   const DistMultiVec<Base<F>>& reg,
   const DistMap& invMap,          const DistSymmNodeInfo& info,
   const DistSymmFront<F>& front,        DistMultiVec<F>& b,
-  const RegQSDSolveCtrl<Base<F>>& ctrl )
+  const RegQSDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::SolveAfter"))
     switch( ctrl.alg )
@@ -2766,7 +2762,7 @@ Int SolveAfter
   const DistMultiVec<Base<F>>& d,
   const DistMap& invMap,           const DistSymmNodeInfo& info,
   const DistSymmFront<F>& front,         DistMultiVec<F>& b,
-  const RegQSDSolveCtrl<Base<F>>& ctrl )
+  const RegQSDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::SolveAfter"))
     switch( ctrl.alg )
@@ -2825,24 +2821,24 @@ Int SolveAfter
   ( const SparseMatrix<F>& A,  const Matrix<Base<F>>& reg, \
     const vector<Int>& invMap, const SymmNodeInfo& info, \
     const SymmFront<F>& front,       Matrix<F>& b, \
-    const RegQSDSolveCtrl<Base<F>>& ctrl ); \
+    const RegQSDCtrl<Base<F>>& ctrl ); \
   template Int SolveAfter \
   ( const SparseMatrix<F>& A,  const Matrix<Base<F>>& reg, \
     const Matrix<Base<F>>& d, \
     const vector<Int>& invMap, const SymmNodeInfo& info, \
     const SymmFront<F>& front,       Matrix<F>& b, \
-    const RegQSDSolveCtrl<Base<F>>& ctrl ); \
+    const RegQSDCtrl<Base<F>>& ctrl ); \
   template Int SolveAfter \
   ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg, \
     const DistMap& invMap,             const DistSymmNodeInfo& info, \
     const DistSymmFront<F>& front,           DistMultiVec<F>& b, \
-    const RegQSDSolveCtrl<Base<F>>& ctrl ); \
+    const RegQSDCtrl<Base<F>>& ctrl ); \
   template Int SolveAfter \
   ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg, \
     const DistMultiVec<Base<F>>& d, \
     const DistMap& invMap,             const DistSymmNodeInfo& info, \
     const DistSymmFront<F>& front,           DistMultiVec<F>& b, \
-    const RegQSDSolveCtrl<Base<F>>& ctrl );
+    const RegQSDCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

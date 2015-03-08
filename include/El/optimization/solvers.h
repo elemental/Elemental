@@ -129,7 +129,7 @@ typedef struct {
   float centering;
   ElKKTSystem system;
 
-  ElRegQSDSolveCtrl_s solveCtrl;
+  ElRegQSDCtrl_s qsdCtrl;
 
   ElIPFLineSearchCtrl_s lineSearchCtrl;
   bool equilibrate;
@@ -145,7 +145,7 @@ typedef struct {
   double centering;
   ElKKTSystem system;
 
-  ElRegQSDSolveCtrl_d solveCtrl;
+  ElRegQSDCtrl_d qsdCtrl;
 
   ElIPFLineSearchCtrl_d lineSearchCtrl;
   bool equilibrate;
@@ -163,7 +163,7 @@ typedef struct {
   ElInt maxIts;
   float maxStepRatio;
   ElKKTSystem system;
-  ElRegQSDSolveCtrl_s solveCtrl;
+  ElRegQSDCtrl_s qsdCtrl;
   bool equilibrate;
   bool print;
   bool time;
@@ -176,7 +176,7 @@ typedef struct {
   ElInt maxIts;
   double maxStepRatio;
   ElKKTSystem system;
-  ElRegQSDSolveCtrl_d solveCtrl;
+  ElRegQSDCtrl_d qsdCtrl;
   bool equilibrate;
   bool print;
   bool time;
@@ -318,7 +318,7 @@ typedef struct {
   ElInt maxIts;
   float centering;
 
-  ElRegQSDSolveCtrl_s solveCtrl;
+  ElRegQSDCtrl_s qsdCtrl;
 
   ElIPFLineSearchCtrl_s lineSearchCtrl;
   bool equilibrate;
@@ -333,7 +333,7 @@ typedef struct {
   ElInt maxIts;
   double centering;
 
-  ElRegQSDSolveCtrl_d solveCtrl;
+  ElRegQSDCtrl_d qsdCtrl;
 
   ElIPFLineSearchCtrl_d lineSearchCtrl;
   bool equilibrate;
@@ -350,7 +350,7 @@ typedef struct {
   float tol;
   ElInt maxIts;
   float maxStepRatio;
-  ElRegQSDSolveCtrl_s solveCtrl;
+  ElRegQSDCtrl_s qsdCtrl;
   bool equilibrate;
   bool print;
   bool time;
@@ -362,7 +362,7 @@ typedef struct {
   double tol;
   ElInt maxIts;
   double maxStepRatio;
-  ElRegQSDSolveCtrl_d solveCtrl;
+  ElRegQSDCtrl_d qsdCtrl;
   bool equilibrate;
   bool print;
   bool time;
@@ -512,7 +512,7 @@ typedef struct {
   float centering;
   ElKKTSystem system;
 
-  ElRegQSDSolveCtrl_s solveCtrl;
+  ElRegQSDCtrl_s qsdCtrl;
 
   ElIPFLineSearchCtrl_s lineSearchCtrl;
   bool equilibrate;
@@ -528,7 +528,7 @@ typedef struct {
   double centering;
   ElKKTSystem system;
 
-  ElRegQSDSolveCtrl_d solveCtrl;
+  ElRegQSDCtrl_d qsdCtrl;
 
   ElIPFLineSearchCtrl_d lineSearchCtrl;
   bool equilibrate;
@@ -546,7 +546,7 @@ typedef struct {
   ElInt maxIts;
   float maxStepRatio;
   ElKKTSystem system;
-  ElRegQSDSolveCtrl_s solveCtrl;
+  ElRegQSDCtrl_s qsdCtrl;
   bool equilibrate;
   bool print;
   bool time;
@@ -559,7 +559,7 @@ typedef struct {
   ElInt maxIts;
   double maxStepRatio;
   ElKKTSystem system;
-  ElRegQSDSolveCtrl_d solveCtrl;
+  ElRegQSDCtrl_d qsdCtrl;
   bool equilibrate;
   bool print;
   bool time;
@@ -705,7 +705,7 @@ typedef struct {
   ElInt maxIts;
   float centering;
 
-  ElRegQSDSolveCtrl_s solveCtrl;
+  ElRegQSDCtrl_s qsdCtrl;
 
   ElIPFLineSearchCtrl_s lineSearchCtrl;
   bool equilibrate;
@@ -720,7 +720,7 @@ typedef struct {
   ElInt maxIts;
   double centering;
 
-  ElRegQSDSolveCtrl_d solveCtrl;
+  ElRegQSDCtrl_d qsdCtrl;
 
   ElIPFLineSearchCtrl_d lineSearchCtrl;
   bool equilibrate;
@@ -737,7 +737,7 @@ typedef struct {
   float tol;
   ElInt maxIts;
   float maxStepRatio;
-  ElRegQSDSolveCtrl_s solveCtrl;
+  ElRegQSDCtrl_s qsdCtrl;
   bool equilibrate;
   bool print;
   bool time;
@@ -749,7 +749,7 @@ typedef struct {
   double tol;
   ElInt maxIts;
   double maxStepRatio;
-  ElRegQSDSolveCtrl_d solveCtrl;
+  ElRegQSDCtrl_d qsdCtrl;
   bool equilibrate;
   bool print;
   bool time;

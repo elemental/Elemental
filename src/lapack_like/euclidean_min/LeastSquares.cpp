@@ -128,7 +128,6 @@ void LeastSquares
           LogicError("Width of A and height of B must match");
     )
     typedef Base<F> Real;
-    const Real epsilon = lapack::MachineEpsilon<Real>();
 
     SparseMatrix<F> ABar;
     if( orientation == NORMAL )
@@ -157,7 +156,7 @@ void LeastSquares
         Ones( dCol, n, 1 );
     }
 
-    SparseMatrix<F> J;
+    SparseMatrix<F> J, JOrig;
     Zeros( J, m+n, m+n );
     J.Reserve( 2*numEntriesA + Max(m,n) );
     if( m >= n )
@@ -205,18 +204,14 @@ void LeastSquares
 
     // Compute the regularized quasi-semidefinite fact of J
     // ====================================================
-    bool aPriori = true;
-    const Real regMagPrimal = 0;
-    const Real regMagDual = ctrl.alpha;
-    const Real pivTol = MaxNorm(J)*epsilon;
-
-    Matrix<Real> regCand, reg;
-    regCand.Resize( m+n, 1 );
+    Matrix<Real> reg;
+    reg.Resize( m+n, 1 );
     for( Int i=0; i<Max(m,n); ++i )
-        regCand.Set( i, 0, regMagPrimal );
+        reg.Set( i, 0, ctrl.qsdCtrl.regPrimal );
     for( Int i=Max(m,n); i<m+n; ++i )
-        regCand.Set( i, 0, -regMagDual );
-    Zeros( reg, m+n, 1 );
+        reg.Set( i, 0, -ctrl.qsdCtrl.regDual );
+    JOrig = J;
+    UpdateRealPartOfDiagonal( J, Real(1), reg );
 
     vector<Int> map, invMap;
     SymmNodeInfo info;
@@ -224,12 +219,7 @@ void LeastSquares
     NestedDissection( J.LockedGraph(), map, rootSep, info );
     InvertMap( map, invMap );
     SymmFront<F> JFront( J, map, info );
-
-    MatrixNode<Real> regCandNodal(invMap,info,regCand),
-                     regNodal(invMap,info,reg);
-    RegularizedQSDLDL
-    ( info, JFront, pivTol, regCandNodal, regNodal, aPriori );
-    regNodal.Push( invMap, info, reg );
+    LDL( info, JFront );
 
     // Successively solve each of the k linear systems
     // ===============================================
@@ -241,7 +231,7 @@ void LeastSquares
         auto d = D( IR(0,m+n), IR(j,j+1) );
         u = d;
         reg_qsd_ldl::SolveAfter
-        ( J, reg, invMap, info, JFront, u, ctrl.solveCtrl );
+        ( JOrig, reg, invMap, info, JFront, u, ctrl.qsdCtrl );
         d = u;
     }
 
@@ -282,7 +272,6 @@ void LeastSquares
           LogicError("Width of A and height of B must match");
     )
     typedef Base<F> Real;
-    const Real epsilon = lapack::MachineEpsilon<Real>();
     mpi::Comm comm = A.Comm();
     const int commSize = mpi::Size(comm);
     const int commRank = mpi::Rank(comm);
@@ -320,7 +309,7 @@ void LeastSquares
 
     // J := [D_r^{-2}*alpha,ABar;ABar^H,0] or [D_c^{-2}*alpha,ABar^H;ABar,0]
     // =====================================================================
-    DistSparseMatrix<F> J(comm);
+    DistSparseMatrix<F> J(comm), JOrig(comm);
     Zeros( J, m+n, m+n );
     const Int numLocalEntriesA = ABar.NumLocalEntries();
     {
@@ -531,22 +520,18 @@ void LeastSquares
 
     // Compute the dynamically-regularized quasi-semidefinite fact of J
     // ================================================================
-    bool aPriori = true;
-    const Real regMagPrimal = 0;
-    const Real regMagDual = ctrl.alpha;
-    const Real pivTol = MaxNorm(J)*epsilon;
-
-    DistMultiVec<Real> regCand(comm), reg(comm);
-    regCand.Resize( m+n, 1 );
-    for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
+    DistMultiVec<Real> reg(comm);
+    reg.Resize( m+n, 1 );
+    for( Int iLoc=0; iLoc<reg.LocalHeight(); ++iLoc )
     {
-        const Int i = regCand.GlobalRow(iLoc);
+        const Int i = reg.GlobalRow(iLoc);
         if( i < Max(m,n) )
-            regCand.SetLocal( iLoc, 0, regMagPrimal );
+            reg.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
         else
-            regCand.SetLocal( iLoc, 0, -regMagDual );
+            reg.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
     }
-    Zeros( reg, m+n, 1 );
+    JOrig = J;
+    UpdateRealPartOfDiagonal( J, Real(1), reg );
 
     DistMap map, invMap;
     DistSymmNodeInfo info;
@@ -559,15 +544,11 @@ void LeastSquares
     InvertMap( map, invMap );
     DistSymmFront<F> JFront( J, map, rootSep, info );
 
-    DistMultiVecNode<Real> regCandNodal(invMap,info,regCand),
-                           regNodal(invMap,info,reg);
     if( commRank == 0 && ctrl.time )
         timer.Start();
-    RegularizedQSDLDL
-    ( info, JFront, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
+    LDL( info, JFront, LDL_2D );
     if( commRank == 0 && ctrl.time )
-        cout << "  RegQSDLDL: " << timer.Stop() << " secs" << endl;
-    regNodal.Push( invMap, info, reg );
+        cout << "  LDL: " << timer.Stop() << " secs" << endl;
 
     // Successively solve each of the k linear systems
     // ===============================================
@@ -584,7 +565,7 @@ void LeastSquares
         auto dLoc = DLoc( IR(0,DLocHeight), IR(j,j+1) );
         Copy( dLoc, uLoc );
         reg_qsd_ldl::SolveAfter
-        ( J, reg, invMap, info, JFront, u, ctrl.solveCtrl );
+        ( JOrig, reg, invMap, info, JFront, u, ctrl.qsdCtrl );
         Copy( uLoc, dLoc );
     }
     if( commRank == 0 && ctrl.time )

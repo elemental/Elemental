@@ -16,7 +16,7 @@ ElError ElLeastSquaresCtrlDefault_s( ElLeastSquaresCtrl_s* ctrl )
 {
     const float eps = lapack::MachineEpsilon<float>();
     ctrl->alpha = Pow(eps,float(0.25));
-    ElRegQSDSolveCtrlDefault_s( &ctrl->solveCtrl );
+    ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
     ctrl->equilibrate = false;
     ctrl->progress = false;
     ctrl->time = false;
@@ -27,7 +27,7 @@ ElError ElLeastSquaresCtrlDefault_d( ElLeastSquaresCtrl_d* ctrl )
 {
     const double eps = lapack::MachineEpsilon<double>();
     ctrl->alpha = Pow(eps,double(0.25));
-    ElRegQSDSolveCtrlDefault_d( &ctrl->solveCtrl );
+    ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
     ctrl->equilibrate = false;
     ctrl->progress = false;
     ctrl->time = false;

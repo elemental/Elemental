@@ -372,25 +372,29 @@ typedef enum
 
 typedef struct
 {
+  float regPrimal;
+  float regDual;
   ElRegQSDRefineAlg alg;
   float relTol;
   float relTolRefine;
   ElInt maxRefineIts;
   ElInt restart;
   bool progress;
-} ElRegQSDSolveCtrl_s;
-ElError ElRegQSDSolveCtrlDefault_s( ElRegQSDSolveCtrl_s* ctrl );
+} ElRegQSDCtrl_s;
+ElError ElRegQSDCtrlDefault_s( ElRegQSDCtrl_s* ctrl );
 
 typedef struct
 {
+  double regPrimal;
+  double regDual;
   ElRegQSDRefineAlg alg;
   double relTol;
   double relTolRefine;
   ElInt maxRefineIts;
   ElInt restart;
   bool progress;
-} ElRegQSDSolveCtrl_d;
-ElError ElRegQSDSolveCtrlDefault_d( ElRegQSDSolveCtrl_d* ctrl );
+} ElRegQSDCtrl_d;
+ElError ElRegQSDCtrlDefault_d( ElRegQSDCtrl_d* ctrl );
 
 /* TODO: Wrappers for regularized factorizations and solves */
 

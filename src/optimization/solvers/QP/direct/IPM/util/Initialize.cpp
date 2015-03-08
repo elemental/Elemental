@@ -292,7 +292,7 @@ void Initialize
         Separator& rootSep,           SymmNodeInfo& info,
   bool primalInitialized, bool dualInitialized,
   bool standardShift, 
-  const RegQSDSolveCtrl<Real>& solveCtrl )
+  const RegQSDCtrl<Real>& qsdCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::direct::Initialize"))
     const Int m = A.Height();
@@ -315,43 +315,34 @@ void Initialize
 
     // Form the KKT matrix
     // ===================
-    SparseMatrix<Real> J;
+    SparseMatrix<Real> J, JOrig;
     Matrix<Real> ones;
     Ones( ones, n, 1 );
-    AugmentedKKT( Q, A, ones, ones, J, false );
+    AugmentedKKT( Q, A, ones, ones, JOrig, false );
+    J = JOrig;
 
     // (Approximately) factor the KKT matrix
     // =====================================
-    Matrix<Real> regCand, reg;
-    MatrixNode<Real> regCandNodal, regNodal;
-    bool aPriori = true;
-    const Real epsilon = lapack::MachineEpsilon<Real>();
-    const Real pivTol = MaxNorm(J)*epsilon;
-    const Real regMagPrimal = Pow(epsilon,Real(0.5));
-    const Real regMagLagrange = Pow(epsilon,Real(0.5));
-    regCand.Resize( n+m, 1 );
+    Matrix<Real> reg;
+    reg.Resize( n+m, 1 );
     for( Int i=0; i<n+m; ++i )
     {
         if( i < n )
-            regCand.Set( i, 0, regMagPrimal );
+            reg.Set( i, 0, qsdCtrl.regPrimal );
         else
-            regCand.Set( i, 0, -regMagLagrange );
+            reg.Set( i, 0, -qsdCtrl.regDual );
     }
-    // Do not use any a priori regularization
-    Zeros( reg, m+n, 1 );
-    // Compute the proposed step from the KKT system
-    // ---------------------------------------------
+    UpdateRealPartOfDiagonal( J, Real(1), reg );
+
     NestedDissection( J.LockedGraph(), map, rootSep, info );
     InvertMap( map, invMap );
 
     SymmFront<Real> JFront;
     JFront.Pull( J, map, info );
-    regCandNodal.Pull( invMap, info, regCand );
-    regNodal.Pull( invMap, info, reg );
-    RegularizedQSDLDL
-    ( info, JFront, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
-    regNodal.Push( invMap, info, reg );
+    LDL( info, JFront, LDL_2D );
 
+    // Compute the proposed step from the KKT system
+    // ---------------------------------------------
     Matrix<Real> rc, rb, rmu, d, u, v;
     Zeros( rmu, n, 1 );
     if( !primalInitialized )
@@ -368,7 +359,7 @@ void Initialize
         Zeros( rmu, n, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
-        reg_qsd_ldl::SolveAfter( J, reg, invMap, info, JFront, d, solveCtrl );
+        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
         ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
     }
     if( !dualInitialized ) 
@@ -381,7 +372,7 @@ void Initialize
         Zeros( rb, m, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
-        reg_qsd_ldl::SolveAfter( J, reg, invMap, info, JFront, d, solveCtrl );
+        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
         ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );
         Scale( Real(-1), z );
     }
@@ -400,6 +391,7 @@ void Initialize
     if( alphaDual >= Real(0) && dualInitialized )
         RuntimeError("initialized z was non-positive");
 
+    const Real epsilon = lapack::MachineEpsilon<Real>();
     const Real xNorm = Nrm2( x );
     const Real zNorm = Nrm2( z );
     const Real gammaPrimal = Sqrt(epsilon)*Max(xNorm,Real(1));
@@ -428,7 +420,7 @@ void Initialize
         DistSeparator& rootSep,           DistSymmNodeInfo& info,
   bool primalInitialized, bool dualInitialized,
   bool standardShift, 
-  const RegQSDSolveCtrl<Real>& solveCtrl )
+  const RegQSDCtrl<Real>& qsdCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("lp::direct::Initialize"))
     const Int m = A.Height();
@@ -452,44 +444,35 @@ void Initialize
 
     // Form the KKT matrix
     // ===================
-    DistSparseMatrix<Real> J(comm);
+    DistSparseMatrix<Real> J(comm), JOrig(comm);
     DistMultiVec<Real> ones(comm);
     Ones( ones, n, 1 );
-    AugmentedKKT( Q, A, ones, ones, J, false );
+    AugmentedKKT( Q, A, ones, ones, JOrig, false );
+    J = JOrig;
 
     // (Approximately) factor the KKT matrix
     // =====================================
-    DistMultiVec<Real> regCand(comm), reg(comm);
-    DistMultiVecNode<Real> regCandNodal, regNodal;
-    bool aPriori = true;
-    const Real epsilon = lapack::MachineEpsilon<Real>();
-    const Real pivTol = MaxNorm(J)*epsilon;
-    const Real regMagPrimal = Pow(epsilon,Real(0.5));
-    const Real regMagLagrange = Pow(epsilon,Real(0.5));
-    regCand.Resize( n+m, 1 );
-    for( Int iLoc=0; iLoc<regCand.LocalHeight(); ++iLoc )
+    DistMultiVec<Real> reg(comm);
+    reg.Resize( n+m, 1 );
+    for( Int iLoc=0; iLoc<reg.LocalHeight(); ++iLoc )
     {
-        const Int i = regCand.GlobalRow(iLoc);
+        const Int i = reg.GlobalRow(iLoc);
         if( i < n )
-            regCand.SetLocal( iLoc, 0, regMagPrimal );
+            reg.SetLocal( iLoc, 0, qsdCtrl.regPrimal );
         else
-            regCand.SetLocal( iLoc, 0, -regMagLagrange );
+            reg.SetLocal( iLoc, 0, -qsdCtrl.regDual );
     }
-    // Do not use any a priori regularization
-    Zeros( reg, m+n, 1 );
-    // Compute the proposed step from the KKT system
-    // ---------------------------------------------
+    UpdateRealPartOfDiagonal( J, Real(1), reg );
+
     NestedDissection( J.LockedDistGraph(), map, rootSep, info );
     InvertMap( map, invMap );
 
     DistSymmFront<Real> JFront;
     JFront.Pull( J, map, rootSep, info );
-    regCandNodal.Pull( invMap, info, regCand );
-    regNodal.Pull( invMap, info, reg );
-    RegularizedQSDLDL
-    ( info, JFront, pivTol, regCandNodal, regNodal, aPriori, LDL_1D );
-    regNodal.Push( invMap, info, reg );
+    LDL( info, JFront, LDL_2D );
 
+    // Compute the proposed step from the KKT system
+    // ---------------------------------------------
     DistMultiVec<Real> rc(comm), rb(comm), rmu(comm), d(comm), u(comm), v(comm);
     Zeros( rmu, n, 1 );
     if( !primalInitialized )
@@ -506,7 +489,7 @@ void Initialize
         Zeros( rmu, n, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
-        reg_qsd_ldl::SolveAfter( J, reg, invMap, info, JFront, d, solveCtrl );
+        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
         ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
     }
     if( !dualInitialized ) 
@@ -519,7 +502,7 @@ void Initialize
         Zeros( rb, m, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
-        reg_qsd_ldl::SolveAfter( J, reg, invMap, info, JFront, d, solveCtrl );
+        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
         ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );
         Scale( Real(-1), z );
     }
@@ -538,6 +521,7 @@ void Initialize
     if( alphaDual >= Real(0) && dualInitialized )
         RuntimeError("initialized z was non-positive");
 
+    const Real epsilon = lapack::MachineEpsilon<Real>();
     const Real xNorm = Nrm2( x );
     const Real zNorm = Nrm2( z );
     const Real gammaPrimal = Sqrt(epsilon)*Max(xNorm,Real(1));
@@ -580,7 +564,7 @@ void Initialize
           Separator& rootSep,          SymmNodeInfo& info, \
     bool primalInitialized,      bool dualInitialized, \
     bool standardShift, \
-    const RegQSDSolveCtrl<Real>& solveCtrl ); \
+    const RegQSDCtrl<Real>& qsdCtrl ); \
   template void Initialize \
   ( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, \
@@ -590,7 +574,7 @@ void Initialize
           DistSeparator& rootSep,           DistSymmNodeInfo& info, \
     bool primalInitialized,          bool dualInitialized, \
     bool standardShift, \
-    const RegQSDSolveCtrl<Real>& solveCtrl );
+    const RegQSDCtrl<Real>& qsdCtrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

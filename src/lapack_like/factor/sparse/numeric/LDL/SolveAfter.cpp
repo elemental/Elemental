@@ -94,6 +94,7 @@ void SolveAfter
         // TODO: Add warning?
         DistMatrixNode<F> XMat( X );
         SolveAfter( info, front, XMat );
+        X = XMat;
         return;
     }
 
@@ -128,6 +129,7 @@ void SolveAfter
         // TODO: Add warning?
         DistMultiVecNode<F> XMV( X );
         SolveAfter( info, front, XMV );
+        X = XMV;
         return;
     }
 

@@ -234,42 +234,8 @@ void SolveAfter
 
 } // namespace ldl
 
-// Regularized Quasi-semidefinite LDL^H factorization
-// ==================================================
-// NOTE: If the pivot candidate is not at least as large as the pivot tolerance
-//       and with the implied sign, then it is increased by the specified value.
-//       If aPriori is set to true, then this regularization is *always* 
-//       applied.
-template<typename F>
-void RegularizedQSDLDL
-( Matrix<F>& A, Base<F> pivTol,
-  const Matrix<Base<F>>& regCand,
-        Matrix<Base<F>>& reg, 
-  bool aPriori=false );
-template<typename F>
-void RegularizedQSDLDL
-( AbstractDistMatrix<F>& A, Base<F> pivTol,
-  const AbstractDistMatrix<Base<F>>& regCand,
-        AbstractDistMatrix<Base<F>>& reg,
-  bool aPriori=false );
-
-template<typename F>
-void RegularizedQSDLDL
-( const SymmNodeInfo& info, SymmFront<F>& front,
-  Base<F> pivTol,
-  const MatrixNode<Base<F>>& regCand,
-        MatrixNode<Base<F>>& reg,
-  bool aPriori=false,
-  SymmFrontType newType=LDL_2D );
-template<typename F>
-void RegularizedQSDLDL
-( const DistSymmNodeInfo& info, DistSymmFront<F>& front,
-  Base<F> pivTol,
-  const DistMultiVecNode<Base<F>>& regCand,
-        DistMultiVecNode<Base<F>>& reg,
-  bool aPriori=false,
-  SymmFrontType newType=LDL_2D );
-
+// Regularized Quasi-semidefinite solves
+// =====================================
 enum RegQSDRefineAlg
 {
   REG_REFINE_FGMRES,
@@ -279,8 +245,10 @@ enum RegQSDRefineAlg
 };
 
 template<typename Real>
-struct RegQSDSolveCtrl
+struct RegQSDCtrl
 {
+    Real regPrimal, regDual;
+
     RegQSDRefineAlg alg;
     Real relTol;
     Real relTolRefine;
@@ -288,10 +256,12 @@ struct RegQSDSolveCtrl
     Int restart;
     bool progress;
 
-    RegQSDSolveCtrl()
+    RegQSDCtrl()
     {
-        alg = REG_REFINE_FGMRES;
         const Real eps = lapack::MachineEpsilon<Real>(); 
+        regPrimal = regDual = Pow(eps,Real(0.5));
+
+        alg = REG_REFINE_FGMRES;
         relTol = Pow(eps,Real(0.5));
         relTolRefine = Pow(eps,Real(0.5));
         maxRefineIts = 50;
@@ -339,13 +309,13 @@ Int SolveAfter
 ( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
   const vector<Int>& invMap,  const SymmNodeInfo& info,
   const SymmFront<F>& front,        Matrix<F>& y,
-  const RegQSDSolveCtrl<Base<F>>& ctrl );
+  const RegQSDCtrl<Base<F>>& ctrl );
 template<typename F>
 Int SolveAfter
 ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
   const DistMap& invMap,             const DistSymmNodeInfo& info,
   const DistSymmFront<F>& front,           DistMultiVec<F>& y,
-  const RegQSDSolveCtrl<Base<F>>& ctrl );
+  const RegQSDCtrl<Base<F>>& ctrl );
 
 template<typename F>
 Int SolveAfter
@@ -353,14 +323,14 @@ Int SolveAfter
   const Matrix<Base<F>>& d,
   const vector<Int>& invMap,  const SymmNodeInfo& info,
   const SymmFront<F>& front,        Matrix<F>& y,
-  const RegQSDSolveCtrl<Base<F>>& ctrl );
+  const RegQSDCtrl<Base<F>>& ctrl );
 template<typename F>
 Int SolveAfter
 ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
   const DistMultiVec<Base<F>>& d,
   const DistMap& invMap,             const DistSymmNodeInfo& info,
   const DistSymmFront<F>& front,           DistMultiVec<F>& y,
-  const RegQSDSolveCtrl<Base<F>>& ctrl );
+  const RegQSDCtrl<Base<F>>& ctrl );
 
 } // namespace reg_qsd_ldl
 
