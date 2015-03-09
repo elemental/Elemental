@@ -10,15 +10,15 @@ Functionality priorities
 
 Fundamental functionality additions
 -----------------------------------
+[o] Lanczos eigenvalue estimation (e.g., for condition estimation)
 [o] 2D sparse matrix distributions
 [o] Matrix type tags for, for example, merging {Gemm,Hemm,Trmm,etc.} into "*"
 [o] Estimate for spectral radius
 [o] Low-rank modifications of QR
-[o] Banded Cholesky factorization
-[o] QR with full pivoting (Businger-Golub plus row-sorting or row-pivoting)
-[o] Finishing prototype generalized Spectral Divide and Conquer
+[-] Successive Band Reduction
 [-] Windowed QR with column pivoting
 [-] Power-method-like p-norm estimation
+[-] More work on (generalized) Spectral Divide and Conquer Schur decompositions
 [-] QL factorization and ql::SolveAfter
 [-] Strong RRQR and RRLQ 
 [-] CUR decompositions (already have (pseudo-)skeleton)
@@ -27,7 +27,6 @@ Fundamental functionality additions
 [-] (Blocked) Aasen's
 [-] TSQR for non-powers-of-two
 [-] TSLU (via tournament pivoting)
-[-] Successive Band Reduction
 [-] Native nonsymmetric (generalized) eigensolver via QR (QZ) algorithm
 [-] Generalized Sylvester equations
 
@@ -46,15 +45,15 @@ Incremental functionality improvements
 [o] Relative interval subset computation for HermitianEig (i.e., in [-1,1])
 [o] Sequential blocked reduction to tridiagonal form
 [o] Quadratic-time Haar generation via random Householder reflectors
+[o] Banded Cholesky factorization
+[o] QR with full pivoting (Businger-Golub plus row-sorting or row-pivoting)
 [-] 'Control' equivalents to 'Attach' for DistMatrix, and ability to forfeit
     buffers in (Dist)Matrix
 [-] Axpy interface implementation using one-sided communication
 [-] Square process grid specializations of LDL and Bunch-Kaufman
 [-] Businger-esque element-growth monitoring in GEPP and Bunch-Kaufman
 [-] More Sign algorithms (switch to Newton-Schulz near convergence)
-[-] Distribute between different grids for any distribution
 [-] Way for DistMatrix with single process to view Matrix, and operator=
-[-] Ostrowski matrices
 [-] Various approaches (e.g., HJS) for parallel tridiagonalization
 [-] Wrappers for more LAPACK eigensolvers
 [-] Sequential versions of Trr2k 
@@ -112,8 +111,8 @@ Build system
 [o] Support PMRRR when pthreads are not available (e.g., Windows)
 [o] Support for OpenBLAS [-D MATH_LIBS="-lopenblas;-lpthread;-lm;-lgfortran"]
 [o] Support for BLIS
-[o] Support for automatically downloading and building netlib BLAS and LAPACK
-[o] Speed up build with C++11's extern templates
+[o] Support for netlib BLAS/LAPACK
+[o] Attempt to shorten build via extern templates
 
 MPI and Threading
 -----------------

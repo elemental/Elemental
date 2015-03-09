@@ -52,8 +52,6 @@ inline Base<F> MinAbsNonzero
 {
     DEBUG_ONLY(CallStackEntry cse("MinAbsNonzero"))
     typedef Base<F> Real;
-    const Int m = A.Height();
-    const Int n = A.Width();
     Real minAbs;
     if( A.Participating() )
     {

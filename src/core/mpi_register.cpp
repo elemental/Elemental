@@ -12,7 +12,9 @@ namespace {
 
 // Datatypes
 // =========
+#ifdef EL_HAVE_QUAD
 El::mpi::Datatype QuadType, QuadComplexType;
+#endif
 
 El::mpi::Datatype IntIntType, floatIntType, doubleIntType;
 #ifdef EL_HAVE_QUAD

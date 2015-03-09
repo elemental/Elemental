@@ -109,7 +109,6 @@ void UpdateMappedDiagonal
     A.Reserve( A.NumLocalEntries() + d.LocalHeight() );
 
     const Int localHeight = d.LocalHeight();
-    const Int firstLocalRow = d.FirstLocalRow();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = A.GlobalRow(iLoc);

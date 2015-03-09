@@ -134,8 +134,11 @@ void SymmetricGeomEquil
     // TODO: Expose these as control parameters
     const Int minIter = 3;
     const Int maxIter = 10; 
-    const Real damp = Real(1)/Real(1000);
     const Real relTol = Real(9)/Real(10);
+
+    // TODO: Incorporate damping
+    //const Real damp = Real(1)/Real(1000);
+    //const Real sqrtDamp = Sqrt(damp);
 
     // Compute the original ratio of the maximum to minimum nonzero
     auto maxAbs = MaxAbs( A );
@@ -148,7 +151,6 @@ void SymmetricGeomEquil
         cout << "Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
-    const Real sqrtDamp = Sqrt(damp);
     DistMatrix<Real,MR,STAR> scales(A.Grid());
     for( Int iter=0; iter<maxIter; ++iter )
     {
@@ -211,7 +213,6 @@ void SymmetricGeomEquil
     DEBUG_ONLY(CallStackEntry cse("SymmetricGeomEquil"))
     typedef Base<F> Real;
     const Int n = A.Height();
-    const Int numEntries = A.NumEntries();
     Ones( d, n, 1 );
 
     // TODO: Expose these as control parameters

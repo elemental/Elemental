@@ -743,7 +743,7 @@ Int RegularizedSolveAfter
   bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfter"))
-    RegularizedSolveAfterPromote
+    return RegularizedSolveAfterPromote
     ( A, reg, invMap, info, front, b, relTol, maxRefineIts, progress );
 }
 
@@ -757,7 +757,7 @@ Int RegularizedSolveAfter
   bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfter"))
-    RegularizedSolveAfterPromote
+    return RegularizedSolveAfterPromote
     ( A, reg, d, invMap, info, front, b, relTol, maxRefineIts, progress );
 }
 

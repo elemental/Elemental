@@ -262,8 +262,11 @@ void GeomEquil
     // TODO: Expose these as control parameters
     const Int minIter = 3;
     const Int maxIter = 10; 
-    const Real damp = Real(1)/Real(1000);
     const Real relTol = Real(9)/Real(10);
+
+    // TODO: Incorporate damping
+    //const Real damp = Real(1)/Real(1000);
+    //const Real sqrtDamp = Sqrt(damp);
 
     // Compute the original ratio of the maximum to minimum nonzero
     auto maxAbs = MaxAbs( A );
@@ -276,7 +279,6 @@ void GeomEquil
         cout << "Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
-    const Real sqrtDamp = Sqrt(damp);
     DistMatrix<Real,MC,STAR> rowScale(A.Grid());
     DistMatrix<Real,MR,STAR> colScale(A.Grid());
     for( Int iter=0; iter<maxIter; ++iter )
@@ -370,8 +372,11 @@ void StackedGeomEquil
     // TODO: Expose these as control parameters
     const Int minIter = 3;
     const Int maxIter = 10; 
-    const Real damp = Real(1)/Real(1000);
     const Real relTol = Real(9)/Real(10);
+
+    // TODO: Incorporate damping
+    //const Real damp = Real(1)/Real(1000);
+    //const Real sqrtDamp = Sqrt(damp);
 
     // Compute the original ratio of the maximum to minimum nonzero
     auto maxAbsA = MaxAbs( A );
@@ -387,7 +392,6 @@ void StackedGeomEquil
         cout << "Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
-    const Real sqrtDamp = Sqrt(damp);
     DistMatrix<Real,MC,STAR> rowScaleA(A.Grid()),
                              rowScaleB(A.Grid());
     DistMatrix<Real,MR,STAR> colScale(A.Grid());
@@ -465,7 +469,6 @@ void GeomEquil
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int numEntries = A.NumEntries();
     Ones( dRow, m, 1 );
     Ones( dCol, n, 1 );
 
@@ -612,8 +615,6 @@ void StackedGeomEquil
     const Int mA = A.Height();
     const Int mB = B.Height();
     const Int n = A.Width();
-    const Int numEntriesA = A.NumEntries();
-    const Int numEntriesB = B.NumEntries();
     Ones( dRowA, mA, 1 );
     Ones( dRowB, mB, 1 );
     Ones( dCol, n, 1 );
