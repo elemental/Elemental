@@ -44,6 +44,17 @@ extern "C" {
       vector<T> d( CReflect(dBuf), CReflect(dBuf)+dSize ); \
       Diagonal( *CReflect(A), d ); \
     } EL_CATCH; return EL_SUCCESS; } \
+  /* Dynamic regularization counter-example */ \
+  ElError ElDynamicRegCounter_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( DynamicRegCounter( *CReflect(A), n ) ) } \
+  ElError ElDynamicRegCounterDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( DynamicRegCounter( *CReflect(A), n ) ) } \
+  ElError ElDynamicRegCounterSparse_ ## SIG \
+  ( ElSparseMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( DynamicRegCounter( *CReflect(A), n ) ) } \
+  ElError ElDynamicRegCounterDistSparse_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( DynamicRegCounter( *CReflect(A), n ) ) } \
   /* Forsythe */ \
   ElError ElForsythe_ ## SIG \
   ( ElMatrix_ ## SIG J, ElInt n, CREFLECT(T) alpha, CREFLECT(T) lambda ) \
@@ -109,6 +120,17 @@ extern "C" {
   ElError ElJordanDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElInt n, CREFLECT(T) lambda ) \
   { EL_TRY( Jordan( *CReflect(A), n, CReflect(lambda) ) ) } \
+  /* Jordan-Cholesky */ \
+  ElError ElJordanCholesky_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( JordanCholesky( *CReflect(A), n ) ) } \
+  ElError ElJordanCholeskyDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( JordanCholesky( *CReflect(A), n ) ) } \
+  ElError ElJordanCholeskySparse_ ## SIG \
+  ( ElSparseMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( JordanCholesky( *CReflect(A), n ) ) } \
+  ElError ElJordanCholeskyDistSparse_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( JordanCholesky( *CReflect(A), n ) ) } \
   /* KMS */ \
   ElError ElKMS_ ## SIG \
   ( ElMatrix_ ## SIG K, ElInt n, CREFLECT(T) rho ) \
@@ -270,11 +292,6 @@ extern "C" {
   { EL_TRY( DruinskyToledo( *CReflect(A), n ) ) } \
   ElError ElDruinskyToledoDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( DruinskyToledo( *CReflect(A), n ) ) } \
-  /* Dynamic regularization L */ \
-  ElError ElDynamicRegL_ ## SIG ( ElMatrix_ ## SIG L, ElInt n ) \
-  { EL_TRY( DynamicRegL( *CReflect(L), n ) ) } \
-  ElError ElDynamicRegLDist_ ## SIG ( ElDistMatrix_ ## SIG L, ElInt n ) \
-  { EL_TRY( DynamicRegL( *CReflect(L), n ) ) } \
   /* Ehrenfest */ \
   ElError ElEhrenfest_ ## SIG ( ElMatrix_ ## SIG P, ElInt n ) \
   { EL_TRY( Ehrenfest( *CReflect(P), n ) ) } \

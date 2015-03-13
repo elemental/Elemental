@@ -39,6 +39,7 @@ void Pei( AbstractBlockDistMatrix<T>& P, Int n, T alpha )
   template void Pei( AbstractDistMatrix<T>& P, Int n, T alpha ); \
   template void Pei( AbstractBlockDistMatrix<T>& P, Int n, T alpha );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

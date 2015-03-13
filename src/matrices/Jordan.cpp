@@ -42,6 +42,7 @@ void Jordan( AbstractBlockDistMatrix<T>& J, Int n, T lambda )
   template void Jordan( AbstractDistMatrix<T>& J, Int n, T lambda ); \
   template void Jordan( AbstractBlockDistMatrix<T>& J, Int n, T lambda );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

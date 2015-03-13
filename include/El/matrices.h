@@ -169,17 +169,31 @@ EL_EXPORT ElError ElDruinskyToledoDist_d( ElDistMatrix_d A, ElInt n );
 EL_EXPORT ElError ElDruinskyToledoDist_c( ElDistMatrix_c A, ElInt n );
 EL_EXPORT ElError ElDruinskyToledoDist_z( ElDistMatrix_z A, ElInt n );
 
-/* Dynamic regularization L
-   ======================== */
-EL_EXPORT ElError ElDynamicRegL_s( ElMatrix_s L, ElInt n );
-EL_EXPORT ElError ElDynamicRegL_d( ElMatrix_d L, ElInt n );
-EL_EXPORT ElError ElDynamicRegL_c( ElMatrix_c L, ElInt n );
-EL_EXPORT ElError ElDynamicRegL_z( ElMatrix_z L, ElInt n );
+/* Dynamic regularization counter-example
+   ====================================== */
+EL_EXPORT ElError ElDynamicRegCounter_s( ElMatrix_s A, ElInt n );
+EL_EXPORT ElError ElDynamicRegCounter_d( ElMatrix_d A, ElInt n );
+EL_EXPORT ElError ElDynamicRegCounter_c( ElMatrix_c A, ElInt n );
+EL_EXPORT ElError ElDynamicRegCounter_z( ElMatrix_z A, ElInt n );
 
-EL_EXPORT ElError ElDynamicRegLDist_s( ElDistMatrix_s L, ElInt n );
-EL_EXPORT ElError ElDynamicRegLDist_d( ElDistMatrix_d L, ElInt n );
-EL_EXPORT ElError ElDynamicRegLDist_c( ElDistMatrix_c L, ElInt n );
-EL_EXPORT ElError ElDynamicRegLDist_z( ElDistMatrix_z L, ElInt n );
+EL_EXPORT ElError ElDynamicRegCounterDist_s( ElDistMatrix_s A, ElInt n );
+EL_EXPORT ElError ElDynamicRegCounterDist_d( ElDistMatrix_d A, ElInt n );
+EL_EXPORT ElError ElDynamicRegCounterDist_c( ElDistMatrix_c A, ElInt n );
+EL_EXPORT ElError ElDynamicRegCounterDist_z( ElDistMatrix_z A, ElInt n );
+
+EL_EXPORT ElError ElDynamicRegCounterSparse_s( ElSparseMatrix_s A, ElInt n );
+EL_EXPORT ElError ElDynamicRegCounterSparse_d( ElSparseMatrix_d A, ElInt n );
+EL_EXPORT ElError ElDynamicRegCounterSparse_c( ElSparseMatrix_c A, ElInt n );
+EL_EXPORT ElError ElDynamicRegCounterSparse_z( ElSparseMatrix_z A, ElInt n );
+
+EL_EXPORT ElError ElDynamicRegCounterDistSparse_s
+( ElDistSparseMatrix_s A, ElInt n );
+EL_EXPORT ElError ElDynamicRegCounterDistSparse_d
+( ElDistSparseMatrix_d A, ElInt n );
+EL_EXPORT ElError ElDynamicRegCounterDistSparse_c
+( ElDistSparseMatrix_c A, ElInt n );
+EL_EXPORT ElError ElDynamicRegCounterDistSparse_z
+( ElDistSparseMatrix_z A, ElInt n );
 
 /* Egorov
    ====== */
@@ -684,6 +698,32 @@ EL_EXPORT ElError ElJordanDist_c
 ( ElDistMatrix_c J, ElInt n, complex_float lambda );
 EL_EXPORT ElError ElJordanDist_z
 ( ElDistMatrix_z J, ElInt n, complex_double lambda );
+
+/* Jordan-Cholesky (a matrix whose Cholesky factor is 2 J_{1/2}(n))
+   ================================================================ */
+EL_EXPORT ElError ElJordanCholesky_s( ElMatrix_s A, ElInt n );
+EL_EXPORT ElError ElJordanCholesky_d( ElMatrix_d A, ElInt n );
+EL_EXPORT ElError ElJordanCholesky_c( ElMatrix_c A, ElInt n );
+EL_EXPORT ElError ElJordanCholesky_z( ElMatrix_z A, ElInt n );
+
+EL_EXPORT ElError ElJordanCholeskyDist_s( ElDistMatrix_s A, ElInt n );
+EL_EXPORT ElError ElJordanCholeskyDist_d( ElDistMatrix_d A, ElInt n );
+EL_EXPORT ElError ElJordanCholeskyDist_c( ElDistMatrix_c A, ElInt n );
+EL_EXPORT ElError ElJordanCholeskyDist_z( ElDistMatrix_z A, ElInt n );
+
+EL_EXPORT ElError ElJordanCholeskySparse_s( ElSparseMatrix_s A, ElInt n );
+EL_EXPORT ElError ElJordanCholeskySparse_d( ElSparseMatrix_d A, ElInt n );
+EL_EXPORT ElError ElJordanCholeskySparse_c( ElSparseMatrix_c A, ElInt n );
+EL_EXPORT ElError ElJordanCholeskySparse_z( ElSparseMatrix_z A, ElInt n );
+
+EL_EXPORT ElError ElJordanCholeskyDistSparse_s
+( ElDistSparseMatrix_s A, ElInt n );
+EL_EXPORT ElError ElJordanCholeskyDistSparse_d
+( ElDistSparseMatrix_d A, ElInt n );
+EL_EXPORT ElError ElJordanCholeskyDistSparse_c
+( ElDistSparseMatrix_c A, ElInt n );
+EL_EXPORT ElError ElJordanCholeskyDistSparse_z
+( ElDistSparseMatrix_z A, ElInt n );
 
 /* Kahan
    ===== */

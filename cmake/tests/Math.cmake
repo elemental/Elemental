@@ -138,43 +138,31 @@ endif()
 # Check for quad-precision support
 # ================================
 if(NOT EL_DISABLE_QUAD)
-  set(INTEL_QUAD_CODE
+  find_library(QUADMATH_LIB NAMES quadmath PATHS ${MATH_PATHS})
+  if(QUADMATH_LIB)
+    set(CMAKE_REQUIRED_LIBRARIES ${QUADMATH_LIB})
+    set(QUADMATH_CODE
       "#include <complex>
+       #include <iostream>
+       #include <quadmath.h>
        int main( int argc, char* argv[] )
        {
-           _Quad a;
-           return 0;
+           __float128 a = 2.0q;
+
+           char aStr[128];
+           quadmath_snprintf( aStr, sizeof(aStr), \"%Q\", a );
+           std::cout << aStr << std::endl;
+
+           __complex128 y;
+           std::complex<__float128> z;
+
+           return 0;    
        }")
-  check_cxx_source_compiles("${INTEL_QUAD_CODE}" EL_HAVE_INTEL_QUAD) 
-  if(EL_HAVE_INTEL_QUAD)
-    set(EL_HAVE_QUAD TRUE)
-  else()
-    find_library(QUADMATH_LIB NAMES quadmath PATHS ${MATH_PATHS})
-    if(QUADMATH_LIB)
-      set(CMAKE_REQUIRED_LIBRARIES ${QUADMATH_LIB})
-      set(QUADMATH_CODE
-        "#include <complex>
-         #include <iostream>
-         #include <quadmath.h>
-         int main( int argc, char* argv[] )
-         {
-             __float128 a = 2.0q;
-  
-             char aStr[128];
-             quadmath_snprintf( aStr, sizeof(aStr), \"%Q\", a );
-             std::cout << aStr << std::endl;
-  
-             __complex128 y;
-             std::complex<__float128> z;
-  
-             return 0;    
-         }")
-      check_cxx_source_compiles("${QUADMATH_CODE}" EL_HAVE_QUADMATH)
-      if(EL_HAVE_QUADMATH)
-        set(EL_HAVE_QUAD TRUE)
-      else()
-        message(WARNING "Found quadmath lib but could not use it in C++")
-      endif()
+    check_cxx_source_compiles("${QUADMATH_CODE}" EL_HAVE_QUADMATH)
+    if(EL_HAVE_QUADMATH)
+      set(EL_HAVE_QUAD TRUE)
+    else()
+      message(WARNING "Found quadmath lib but could not use it in C++")
     endif()
   endif()
 endif()

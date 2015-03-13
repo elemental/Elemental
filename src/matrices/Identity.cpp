@@ -66,6 +66,7 @@ void Identity( AbstractBlockDistMatrix<T>& I, Int m, Int n )
   template void Identity( AbstractDistMatrix<T>& I, Int m, Int n ); \
   template void Identity( AbstractBlockDistMatrix<T>& I, Int m, Int n );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

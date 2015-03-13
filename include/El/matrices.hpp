@@ -102,14 +102,32 @@ void DruinskyToledo( Matrix<F>& A, Int n );
 template<typename F>
 void DruinskyToledo( AbstractDistMatrix<F>& A, Int n );
 
-// DynamicRegL
-// ===========
-// An example of an L that can appear in a dynamically-regularized LDL^H
-// factorization that has an excessively large condition number
-template<typename F>
-void DynamicRegL( Matrix<F>& L, Int n );
-template<typename F>
-void DynamicRegL( AbstractDistMatrix<F>& L, Int n );
+// DynamicRegCounter
+// =================
+// An example of a well-conditioned sparse matrix that, for n >= 100, causes
+// catastrophic failure of dynamic regularization since the first n pivots are
+// all one, but the upper-left quadrant has a condition number behaving as
+// O(2^n).
+//
+// The matrix is of the form
+//
+//   A = | 4 J_{1/2}(n)^T J_{1/2}(n)   I |,
+//       |            I               -I |
+//
+// where J_{lambda}(n) is the n x n Jordan block with eigenvalue lambda.
+//
+// The upper-left corner corresponds to the matrix formed by JordanCholesky,
+// whose Cholesky factor is 2 J_{1/2}(n), which has a unit diagonal but is 
+// incredibly ill-conditioned.
+//
+template<typename T>
+void DynamicRegCounter( Matrix<T>& A, Int n );
+template<typename T>
+void DynamicRegCounter( AbstractDistMatrix<T>& A, Int n );
+template<typename T>
+void DynamicRegCounter( SparseMatrix<T>& A, Int n );
+template<typename T>
+void DynamicRegCounter( DistSparseMatrix<T>& A, Int n );
 
 // Egorov
 // ======
@@ -411,6 +429,20 @@ template<typename T>
 void Jordan( AbstractDistMatrix<T>& J, Int n, T lambda );
 template<typename T>
 void Jordan( AbstractBlockDistMatrix<T>& J, Int n, T lambda );
+
+// JordanCholesky
+// ==============
+// Set A = 4 J_{1/2}(n)^T J_{1/2}(n), which has is tridiagonal with its main
+// diagonal equal to five everywhere but the top-left entry, and its sub and
+// super-diagonals equal to 2.
+template<typename T>
+void JordanCholesky( Matrix<T>& A, Int n );
+template<typename T>
+void JordanCholesky( AbstractDistMatrix<T>& A, Int n );
+template<typename T>
+void JordanCholesky( SparseMatrix<T>& A, Int n );
+template<typename T>
+void JordanCholesky( DistSparseMatrix<T>& A, Int n );
 
 // Kahan
 // =====

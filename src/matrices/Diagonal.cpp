@@ -141,6 +141,7 @@ void Diagonal( AbstractBlockDistMatrix<S>& D, const Matrix<T>& d )
   PROTO_TYPES(S,Base<S>) \
   PROTO_TYPES(S,S)
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

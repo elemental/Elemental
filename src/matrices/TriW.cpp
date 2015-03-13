@@ -51,6 +51,7 @@ void TriW( AbstractBlockDistMatrix<T>& A, Int n, T alpha, Int k )
   template void TriW( AbstractDistMatrix<T>& A, Int n, T alpha, Int k ); \
   template void TriW( AbstractBlockDistMatrix<T>& A, Int n, T alpha, Int k );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

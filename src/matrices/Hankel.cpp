@@ -55,6 +55,7 @@ void Hankel
   template void Hankel \
   ( AbstractBlockDistMatrix<T>& A, Int m, Int n, const vector<T>& a );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

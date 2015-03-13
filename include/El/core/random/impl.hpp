@@ -297,6 +297,22 @@ SampleBall<Complex<double>>( Complex<double> center, double radius )
     return center + Complex<double>(r*cos(angle),r*sin(angle));
 }
 
+#ifdef EL_HAVE_QUAD
+template<>
+inline Quad
+SampleBall<Quad>( Quad center, Quad radius )
+{ return SampleUniform<Quad>(center-radius,center+radius); }
+
+template<>
+inline Complex<Quad>
+SampleBall<Complex<Quad>>( Complex<Quad> center, Quad radius )
+{
+    const Quad r = SampleUniform<Quad>(0,radius);
+    const Quad angle = SampleUniform<Quad>(0.f,Quad(2*Pi));
+    return center + Complex<Quad>(r*Cos(angle),r*Sin(angle));
+}
+#endif
+
 // I'm not certain if there is any good way to define this
 template<>
 inline Int

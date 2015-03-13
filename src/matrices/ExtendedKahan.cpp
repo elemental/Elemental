@@ -141,6 +141,7 @@ void ExtendedKahan( AbstractDistMatrix<F>& A, Int k, Base<F> phi, Base<F> mu )
   ( AbstractDistMatrix<F>& A, Int k, Base<F> phi, Base<F> mu );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -45,6 +45,7 @@ void Circulant( AbstractBlockDistMatrix<T>& A, const vector<T>& a )
   template void Circulant( AbstractDistMatrix<T>& A, const vector<T>& a ); \
   template void Circulant( AbstractBlockDistMatrix<T>& A, const vector<T>& a ); 
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

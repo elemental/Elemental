@@ -52,6 +52,7 @@ void Lehmer( AbstractBlockDistMatrix<F>& L, Int n )
   template void Lehmer( AbstractBlockDistMatrix<F>& L, Int n );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

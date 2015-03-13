@@ -54,6 +54,7 @@ void Grcar( AbstractBlockDistMatrix<T>& A, Int n, Int k )
   template void Grcar( AbstractDistMatrix<T>& A, Int n, Int k ); \
   template void Grcar( AbstractBlockDistMatrix<T>& A, Int n, Int k );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

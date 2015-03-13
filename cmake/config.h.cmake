@@ -41,7 +41,6 @@
 #cmakedefine EL_SCALAPACK_POST
 #cmakedefine EL_HAVE_FLA_BSVD
 #cmakedefine EL_HAVE_QUAD
-#cmakedefine EL_HAVE_INTEL_QUAD
 #cmakedefine EL_HAVE_QUADMATH
 #define EL_FORT_LOGICAL @EL_FORT_LOGICAL@
 #define EL_FORT_TRUE    @EL_FORT_TRUE@

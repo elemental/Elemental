@@ -134,6 +134,7 @@ void Laplacian( DistSparseMatrix<F>& L, Int nx, Int ny, Int nz )
   ( DistSparseMatrix<F>& L, Int nx, Int ny, Int nz );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

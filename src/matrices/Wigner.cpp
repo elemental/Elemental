@@ -32,6 +32,7 @@ void Wigner( AbstractDistMatrix<F>& A, Int n, F mean, Base<F> stddev )
   ( AbstractDistMatrix<F>& A, Int n, F mean, Base<F> stddev );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

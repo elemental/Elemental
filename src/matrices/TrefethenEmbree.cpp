@@ -63,11 +63,14 @@ void TrefethenEmbree( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
 
 #define PROTO(Real) \
   template void TrefethenEmbree( Matrix<Complex<Real>>& A, Int n ); \
-  template void TrefethenEmbree( AbstractDistMatrix<Complex<Real>>& A, Int n ); \
-  template void TrefethenEmbree( AbstractBlockDistMatrix<Complex<Real>>& A, Int n );
+  template void TrefethenEmbree \
+  ( AbstractDistMatrix<Complex<Real>>& A, Int n ); \
+  template void TrefethenEmbree \
+  ( AbstractBlockDistMatrix<Complex<Real>>& A, Int n );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

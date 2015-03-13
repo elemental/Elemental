@@ -36,6 +36,7 @@ void Bernoulli( AbstractBlockDistMatrix<T>& A, Int m, Int n )
   template void Bernoulli( AbstractDistMatrix<T>& A, Int m, Int n ); \
   template void Bernoulli( AbstractBlockDistMatrix<T>& A, Int m, Int n );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

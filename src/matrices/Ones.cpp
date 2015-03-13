@@ -48,6 +48,7 @@ void Ones( DistMultiVec<T>& A, Int m, Int n )
   template void Ones( AbstractBlockDistMatrix<T>& A, Int m, Int n ); \
   template void Ones( DistMultiVec<T>& A, Int m, Int n );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

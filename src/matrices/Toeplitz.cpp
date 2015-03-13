@@ -69,6 +69,7 @@ void Toeplitz
   PROTO_TYPES(T,Base<T>) \
   PROTO_TYPES(T,T)
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

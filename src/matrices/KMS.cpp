@@ -51,6 +51,7 @@ void KMS( AbstractBlockDistMatrix<T>& K, Int n, T rho )
   template void KMS( AbstractDistMatrix<T>& K, Int n, T rho ); \
   template void KMS( AbstractBlockDistMatrix<T>& K, Int n, T rho );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

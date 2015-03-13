@@ -50,6 +50,7 @@ void GEPPGrowth( AbstractDistMatrix<T>& A, Int n )
   template void GEPPGrowth( Matrix<T>& A, Int n ); \
   template void GEPPGrowth( AbstractDistMatrix<T>& A, Int n );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

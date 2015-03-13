@@ -27,17 +27,6 @@ inline ostream& operator<<( ostream& os, Quad alpha )
     os << str;
     return os;
 }
-#elif defined(EL_HAVE_INTEL_QUAD)
-inline ostream& operator<<( ostream& os, Quad alpha )
-{
-    // Tim Prince from Intel [1] seems to recommend printing _Quad by first
-    // converting to a double. Boost seems to have implemented its own
-    // (fairly sophisticated) alternative.
-    //
-    // [1] https://software.intel.com/en-us/forums/topic/285901
-    os << double(alpha);
-    return os;
-}
 #endif
 #endif
 
@@ -233,6 +222,20 @@ inline Complex<Quad> Pow
     __imag__(alpha) = alphaPre.imag();
     __real__(beta)  = betaPre.real();
     __imag__(beta)  = betaPre.imag();
+
+    __complex128 gamma = cpowq(alpha,beta);
+    return Complex<Quad>(crealq(gamma),cimagq(gamma));
+}
+
+template<>
+inline Complex<Quad> Pow
+( const Complex<Quad>& alphaPre, const Quad& betaPre )
+{
+    __complex128 alpha, beta;
+    __real__(alpha) = alphaPre.real();
+    __imag__(alpha) = alphaPre.imag();
+    __real__(beta)  = betaPre;
+    __imag__(beta)  = 0;
 
     __complex128 gamma = cpowq(alpha,beta);
     return Complex<Quad>(crealq(gamma),cimagq(gamma));

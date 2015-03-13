@@ -54,6 +54,7 @@ void ThreeValued( AbstractBlockDistMatrix<T>& A, Int m, Int n, double p )
   template void ThreeValued \
   ( AbstractBlockDistMatrix<T>& A, Int m, Int n, double p );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

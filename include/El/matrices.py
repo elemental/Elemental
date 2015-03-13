@@ -324,41 +324,69 @@ def DruinskyToledo(A,k):
     else: DataExcept()
   else: TypeExcept()
 
-# Dynamic regularization L
-# ------------------------
-lib.ElDynamicRegL_s.argtypes = \
-lib.ElDynamicRegL_d.argtypes = \
-lib.ElDynamicRegL_c.argtypes = \
-lib.ElDynamicRegL_z.argtypes = \
-lib.ElDynamicRegLDist_s.argtypes = \
-lib.ElDynamicRegLDist_d.argtypes = \
-lib.ElDynamicRegLDist_c.argtypes = \
-lib.ElDynamicRegLDist_z.argtypes = \
+# Dynamic regularization counter-example
+# --------------------------------------
+lib.ElDynamicRegCounter_s.argtypes = \
+lib.ElDynamicRegCounter_d.argtypes = \
+lib.ElDynamicRegCounter_c.argtypes = \
+lib.ElDynamicRegCounter_z.argtypes = \
+lib.ElDynamicRegCounterDist_s.argtypes = \
+lib.ElDynamicRegCounterDist_d.argtypes = \
+lib.ElDynamicRegCounterDist_c.argtypes = \
+lib.ElDynamicRegCounterDist_z.argtypes = \
+lib.ElDynamicRegCounterSparse_s.argtypes = \
+lib.ElDynamicRegCounterSparse_d.argtypes = \
+lib.ElDynamicRegCounterSparse_c.argtypes = \
+lib.ElDynamicRegCounterSparse_z.argtypes = \
+lib.ElDynamicRegCounterDistSparse_s.argtypes = \
+lib.ElDynamicRegCounterDistSparse_d.argtypes = \
+lib.ElDynamicRegCounterDistSparse_c.argtypes = \
+lib.ElDynamicRegCounterDistSparse_z.argtypes = \
   [c_void_p,iType]
 
-lib.ElDynamicRegL_s.restype = \
-lib.ElDynamicRegL_d.restype = \
-lib.ElDynamicRegL_c.restype = \
-lib.ElDynamicRegL_z.restype = \
-lib.ElDynamicRegLDist_s.restype = \
-lib.ElDynamicRegLDist_d.restype = \
-lib.ElDynamicRegLDist_c.restype = \
-lib.ElDynamicRegLDist_z.restype = \
+lib.ElDynamicRegCounter_s.restype = \
+lib.ElDynamicRegCounter_d.restype = \
+lib.ElDynamicRegCounter_c.restype = \
+lib.ElDynamicRegCounter_z.restype = \
+lib.ElDynamicRegCounterDist_s.restype = \
+lib.ElDynamicRegCounterDist_d.restype = \
+lib.ElDynamicRegCounterDist_c.restype = \
+lib.ElDynamicRegCounterDist_z.restype = \
+lib.ElDynamicRegCounterSparse_s.restype = \
+lib.ElDynamicRegCounterSparse_d.restype = \
+lib.ElDynamicRegCounterSparse_c.restype = \
+lib.ElDynamicRegCounterSparse_z.restype = \
+lib.ElDynamicRegCounterDistSparse_s.restype = \
+lib.ElDynamicRegCounterDistSparse_d.restype = \
+lib.ElDynamicRegCounterDistSparse_c.restype = \
+lib.ElDynamicRegCounterDistSparse_z.restype = \
   c_uint
 
-def DynamicRegL(L,n):
-  args = [L.obj,n]
-  if type(L) is Matrix: 
-    if   L.tag == sTag: lib.ElDynamicRegL_s(*args)
-    elif L.tag == dTag: lib.ElDynamicRegL_d(*args)
-    elif L.tag == cTag: lib.ElDynamicRegL_c(*args)
-    elif L.tag == zTag: lib.ElDynamicRegL_z(*args)
+def DynamicRegCounter(A,n):
+  args = [A.obj,n]
+  if type(A) is Matrix: 
+    if   A.tag == sTag: lib.ElDynamicRegCounter_s(*args)
+    elif A.tag == dTag: lib.ElDynamicRegCounter_d(*args)
+    elif A.tag == cTag: lib.ElDynamicRegCounter_c(*args)
+    elif A.tag == zTag: lib.ElDynamicRegCounter_z(*args)
     else: DataExcept()
-  elif type(L) is DistMatrix: 
-    if   L.tag == sTag: lib.ElDynamicRegLDist_s(*args)
-    elif L.tag == dTag: lib.ElDynamicRegLDist_d(*args)
-    elif L.tag == cTag: lib.ElDynamicRegLDist_c(*args)
-    elif L.tag == zTag: lib.ElDynamicRegLDist_z(*args)
+  elif type(A) is DistMatrix: 
+    if   A.tag == sTag: lib.ElDynamicRegCounterDist_s(*args)
+    elif A.tag == dTag: lib.ElDynamicRegCounterDist_d(*args)
+    elif A.tag == cTag: lib.ElDynamicRegCounterDist_c(*args)
+    elif A.tag == zTag: lib.ElDynamicRegCounterDist_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix: 
+    if   A.tag == sTag: lib.ElDynamicRegCounterSparse_s(*args)
+    elif A.tag == dTag: lib.ElDynamicRegCounterSparse_d(*args)
+    elif A.tag == cTag: lib.ElDynamicRegCounterSparse_c(*args)
+    elif A.tag == zTag: lib.ElDynamicRegCounterSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix: 
+    if   A.tag == sTag: lib.ElDynamicRegCounterDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElDynamicRegCounterDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElDynamicRegCounterDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElDynamicRegCounterDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 
@@ -1698,6 +1726,72 @@ def Jordan(J,n,lambPre):
     elif J.tag == dTag: lib.ElJordanDist_d(*args)
     elif J.tag == cTag: lib.ElJordanDist_c(*args)
     elif J.tag == zTag: lib.ElJordanDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
+
+# Jordan-Cholesky
+# ---------------
+lib.ElJordanCholesky_s.argtypes = \
+lib.ElJordanCholesky_d.argtypes = \
+lib.ElJordanCholesky_c.argtypes = \
+lib.ElJordanCholesky_z.argtypes = \
+lib.ElJordanCholeskyDist_s.argtypes = \
+lib.ElJordanCholeskyDist_d.argtypes = \
+lib.ElJordanCholeskyDist_c.argtypes = \
+lib.ElJordanCholeskyDist_z.argtypes = \
+lib.ElJordanCholeskySparse_s.argtypes = \
+lib.ElJordanCholeskySparse_d.argtypes = \
+lib.ElJordanCholeskySparse_c.argtypes = \
+lib.ElJordanCholeskySparse_z.argtypes = \
+lib.ElJordanCholeskyDistSparse_s.argtypes = \
+lib.ElJordanCholeskyDistSparse_d.argtypes = \
+lib.ElJordanCholeskyDistSparse_c.argtypes = \
+lib.ElJordanCholeskyDistSparse_z.argtypes = \
+  [c_void_p,iType]
+
+lib.ElJordanCholesky_s.restype = \
+lib.ElJordanCholesky_d.restype = \
+lib.ElJordanCholesky_c.restype = \
+lib.ElJordanCholesky_z.restype = \
+lib.ElJordanCholeskyDist_s.restype = \
+lib.ElJordanCholeskyDist_d.restype = \
+lib.ElJordanCholeskyDist_c.restype = \
+lib.ElJordanCholeskyDist_z.restype = \
+lib.ElJordanCholeskySparse_s.restype = \
+lib.ElJordanCholeskySparse_d.restype = \
+lib.ElJordanCholeskySparse_c.restype = \
+lib.ElJordanCholeskySparse_z.restype = \
+lib.ElJordanCholeskyDistSparse_s.restype = \
+lib.ElJordanCholeskyDistSparse_d.restype = \
+lib.ElJordanCholeskyDistSparse_c.restype = \
+lib.ElJordanCholeskyDistSparse_z.restype = \
+  c_uint
+
+def JordanCholesky(A,n):
+  args = [A.obj,n]
+  if type(A) is Matrix: 
+    if   A.tag == sTag: lib.ElJordanCholesky_s(*args)
+    elif A.tag == dTag: lib.ElJordanCholesky_d(*args)
+    elif A.tag == cTag: lib.ElJordanCholesky_c(*args)
+    elif A.tag == zTag: lib.ElJordanCholesky_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMatrix: 
+    if   A.tag == sTag: lib.ElJordanCholeskyDist_s(*args)
+    elif A.tag == dTag: lib.ElJordanCholeskyDist_d(*args)
+    elif A.tag == cTag: lib.ElJordanCholeskyDist_c(*args)
+    elif A.tag == zTag: lib.ElJordanCholeskyDist_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix: 
+    if   A.tag == sTag: lib.ElJordanCholeskySparse_s(*args)
+    elif A.tag == dTag: lib.ElJordanCholeskySparse_d(*args)
+    elif A.tag == cTag: lib.ElJordanCholeskySparse_c(*args)
+    elif A.tag == zTag: lib.ElJordanCholeskySparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix: 
+    if   A.tag == sTag: lib.ElJordanCholeskyDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElJordanCholeskyDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElJordanCholeskyDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElJordanCholeskyDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 

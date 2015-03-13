@@ -45,6 +45,7 @@ void WalshIdentity( AbstractDistMatrix<T>& A, Int k, bool binary )
   ( Matrix<T>& A, Int k, bool binary ); \
   template void WalshIdentity( AbstractDistMatrix<T>& A, Int k, bool binary );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

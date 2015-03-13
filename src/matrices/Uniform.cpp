@@ -99,6 +99,7 @@ void Uniform( DistMultiVec<T>& A, Int m, Int n, T center, Base<T> radius )
   template void Uniform \
   ( DistMultiVec<T>& A, Int m, Int n, T center, Base<T> radius );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -16,9 +16,7 @@
 
 namespace El {
 
-#ifdef EL_HAVE_INTEL_QUAD
-typedef _Quad Quad;
-#elif defined(EL_HAVE_QUADMATH)
+#if defined(EL_HAVE_QUADMATH)
 typedef __float128 Quad;
 #endif
 
@@ -168,6 +166,8 @@ template<typename F,typename T> F Pow( const F& alpha, const T& beta );
 template<> Quad Pow( const Quad& alpha, const Quad& beta );
 template<> Complex<Quad> Pow
 ( const Complex<Quad>& alpha, const Complex<Quad>& beta );
+template<> Complex<Quad> Pow
+( const Complex<Quad>& alpha, const Quad& beta );
 #endif
 
 template<typename F> F Log( const F& alpha );

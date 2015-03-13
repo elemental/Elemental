@@ -47,6 +47,7 @@ void Fiedler( AbstractBlockDistMatrix<F>& A, const vector<F>& c )
   ( AbstractBlockDistMatrix<F>& A, const vector<F>& c );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

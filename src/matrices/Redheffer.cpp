@@ -51,6 +51,7 @@ void Redheffer( AbstractBlockDistMatrix<T>& R, Int n )
   template void Redheffer( AbstractDistMatrix<T>& R, Int n ); \
   template void Redheffer( AbstractBlockDistMatrix<T>& R, Int n );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

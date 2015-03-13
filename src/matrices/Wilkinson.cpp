@@ -44,6 +44,7 @@ void Wilkinson( AbstractDistMatrix<T>& A, Int k )
   template void Wilkinson( Matrix<T>& A, Int k ); \
   template void Wilkinson( AbstractDistMatrix<T>& A, Int k );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

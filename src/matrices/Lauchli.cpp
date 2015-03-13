@@ -43,6 +43,7 @@ void Lauchli( AbstractDistMatrix<T>& A, Int n, T mu )
   template void Lauchli( Matrix<T>& A, Int n, T mu ); \
   template void Lauchli( AbstractDistMatrix<T>& A, Int n, T mu );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

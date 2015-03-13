@@ -42,6 +42,7 @@ void GCDMatrix( AbstractBlockDistMatrix<T>& G, Int m, Int n )
   template void GCDMatrix( AbstractDistMatrix<T>& G, Int m, Int n ); \
   template void GCDMatrix( AbstractBlockDistMatrix<T>& G, Int m, Int n );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

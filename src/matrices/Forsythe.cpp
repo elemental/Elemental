@@ -44,6 +44,7 @@ void Forsythe( AbstractBlockDistMatrix<T>& J, Int n, T alpha, T lambda )
   template void Forsythe \
   ( AbstractBlockDistMatrix<T>& J, Int n, T alpha, T lambda );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El

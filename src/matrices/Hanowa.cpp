@@ -74,6 +74,7 @@ void Hanowa( AbstractDistMatrix<T>& A, Int n, T mu )
   template void Hanowa( Matrix<T>& A, Int n, T mu ); \
   template void Hanowa( AbstractDistMatrix<T>& A, Int n, T mu );
 
+#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El
