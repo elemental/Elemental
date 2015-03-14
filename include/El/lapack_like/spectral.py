@@ -1398,11 +1398,11 @@ def SpectralPortrait(A,realSize=200,imagSize=200,ctrl=None):
 # ------------------------
 lib.ElSpectralWindow_s.argtypes = \
 lib.ElSpectralWindowDist_s.argtypes = \
-  [c_void_p,c_void_p,sType,sType,sType,iType,iType]
+  [c_void_p,c_void_p,cType,sType,sType,iType,iType]
 
 lib.ElSpectralWindow_d.argtypes = \
 lib.ElSpectralWindowDist_d.argtypes = \
-  [c_void_p,c_void_p,dType,dType,dType,iType,iType]
+  [c_void_p,c_void_p,zType,dType,dType,iType,iType]
 
 lib.ElSpectralWindow_c.argtypes = \
 lib.ElSpectralWindowDist_c.argtypes = \
@@ -1424,11 +1424,11 @@ lib.ElSpectralWindowDist_z.restype = \
 
 lib.ElSpectralWindowX_s.argtypes = \
 lib.ElSpectralWindowXDist_s.argtypes = \
-  [c_void_p,c_void_p,sType,sType,sType,iType,iType,PseudospecCtrl_s]
+  [c_void_p,c_void_p,cType,sType,sType,iType,iType,PseudospecCtrl_s]
 
 lib.ElSpectralWindowX_d.argtypes = \
 lib.ElSpectralWindowXDist_d.argtypes = \
-  [c_void_p,c_void_p,dType,dType,dType,iType,iType,PseudospecCtrl_d]
+  [c_void_p,c_void_p,zType,dType,dType,iType,iType,PseudospecCtrl_d]
 
 lib.ElSpectralWindowX_c.argtypes = \
 lib.ElSpectralWindowXDist_c.argtypes = \
@@ -1450,7 +1450,7 @@ lib.ElSpectralWindowXDist_z.restype = \
 
 def SpectralWindow \
     (A,centerPre,realWidth,imagWidth,realSize=200,imagSize=200,ctrl=None):
-  center = TagToType(A.tag)(centerPre)
+  center = TagToType(Complexify(A.tag))(centerPre)
   if type(A) is Matrix:
     invNormMap = Matrix(Base(A.tag))
     args = [A.obj,invNormMap.obj,center,realWidth,imagWidth,realSize,imagSize]
