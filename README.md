@@ -10,7 +10,7 @@ and has recently absorbed the functionality from the sparse-direct solver
 [Clique](http://www.github.com/poulson/Clique.git).
 
 Please visit [the download page](http://libelemental.org/download/) for 
-download instructions, but note that 0.85 wil be the first release containing sparse-direct support.
+details about recent and upcoming releases.
 
 ### Documentation
 
@@ -24,6 +24,7 @@ including:
 * Dense and sparse Interior Point Methods for linear and quadratic programs
 * Support for dense and sparse basis pursuit, Lasso, SVM, etc.
 * High-performance pseudospectral computation and visualization
+* Dense and sparse-direct Least Squares and Minimum Length problems
 * Quadratic-time low-rank Cholesky and LU modifications
 * Bunch-Kaufman and Bunch-Parlett for accurate symmetric factorization
 * LU and Cholesky with full pivoting
