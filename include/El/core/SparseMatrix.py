@@ -9,335 +9,15 @@
 from environment import *
 import Graph as G
 
-# SparseMatrix
-# ============
-
-lib.ElSparseMatrixCreate_i.argtypes = [POINTER(c_void_p)]
-lib.ElSparseMatrixCreate_i.restype = c_uint
-lib.ElSparseMatrixCreate_s.argtypes = [POINTER(c_void_p)]
-lib.ElSparseMatrixCreate_s.restype = c_uint
-lib.ElSparseMatrixCreate_d.argtypes = [POINTER(c_void_p)]
-lib.ElSparseMatrixCreate_d.restype = c_uint
-lib.ElSparseMatrixCreate_c.argtypes = [POINTER(c_void_p)]
-lib.ElSparseMatrixCreate_c.restype = c_uint
-lib.ElSparseMatrixCreate_z.argtypes = [POINTER(c_void_p)]
-lib.ElSparseMatrixCreate_z.restype = c_uint
-
-lib.ElSparseMatrixDestroy_i.argtypes = [c_void_p]
-lib.ElSparseMatrixDestroy_i.restype = c_uint
-lib.ElSparseMatrixDestroy_s.argtypes = [c_void_p]
-lib.ElSparseMatrixDestroy_s.restype = c_uint
-lib.ElSparseMatrixDestroy_d.argtypes = [c_void_p]
-lib.ElSparseMatrixDestroy_d.restype = c_uint
-lib.ElSparseMatrixDestroy_c.argtypes = [c_void_p]
-lib.ElSparseMatrixDestroy_c.restype = c_uint
-lib.ElSparseMatrixDestroy_z.argtypes = [c_void_p]
-lib.ElSparseMatrixDestroy_z.restype = c_uint
-
-lib.ElSparseMatrixEmpty_i.argtypes = [c_void_p]
-lib.ElSparseMatrixEmpty_i.restype = c_uint
-lib.ElSparseMatrixEmpty_s.argtypes = [c_void_p]
-lib.ElSparseMatrixEmpty_s.restype = c_uint
-lib.ElSparseMatrixEmpty_d.argtypes = [c_void_p]
-lib.ElSparseMatrixEmpty_d.restype = c_uint
-lib.ElSparseMatrixEmpty_c.argtypes = [c_void_p]
-lib.ElSparseMatrixEmpty_c.restype = c_uint
-lib.ElSparseMatrixEmpty_z.argtypes = [c_void_p]
-lib.ElSparseMatrixEmpty_z.restype = c_uint
-
-lib.ElSparseMatrixResize_i.argtypes = [c_void_p,iType,iType]
-lib.ElSparseMatrixResize_i.restype = c_uint
-lib.ElSparseMatrixResize_s.argtypes = [c_void_p,iType,iType]
-lib.ElSparseMatrixResize_s.restype = c_uint
-lib.ElSparseMatrixResize_d.argtypes = [c_void_p,iType,iType]
-lib.ElSparseMatrixResize_d.restype = c_uint
-lib.ElSparseMatrixResize_c.argtypes = [c_void_p,iType,iType]
-lib.ElSparseMatrixResize_c.restype = c_uint
-lib.ElSparseMatrixResize_z.argtypes = [c_void_p,iType,iType]
-lib.ElSparseMatrixResize_z.restype = c_uint
-
-lib.ElSparseMatrixReserve_i.argtypes = [c_void_p,iType]
-lib.ElSparseMatrixReserve_i.restype = c_uint
-lib.ElSparseMatrixReserve_s.argtypes = [c_void_p,iType]
-lib.ElSparseMatrixReserve_s.restype = c_uint
-lib.ElSparseMatrixReserve_d.argtypes = [c_void_p,iType]
-lib.ElSparseMatrixReserve_d.restype = c_uint
-lib.ElSparseMatrixReserve_c.argtypes = [c_void_p,iType]
-lib.ElSparseMatrixReserve_c.restype = c_uint
-lib.ElSparseMatrixReserve_z.argtypes = [c_void_p,iType]
-lib.ElSparseMatrixReserve_z.restype = c_uint
-
-lib.ElSparseMatrixUpdate_i.argtypes = [c_void_p,iType,iType,iType]
-lib.ElSparseMatrixUpdate_i.restype = c_uint
-lib.ElSparseMatrixUpdate_s.argtypes = [c_void_p,iType,iType,sType]
-lib.ElSparseMatrixUpdate_s.restype = c_uint
-lib.ElSparseMatrixUpdate_d.argtypes = [c_void_p,iType,iType,dType]
-lib.ElSparseMatrixUpdate_d.restype = c_uint
-lib.ElSparseMatrixUpdate_c.argtypes = [c_void_p,iType,iType,cType]
-lib.ElSparseMatrixUpdate_c.restype = c_uint
-lib.ElSparseMatrixUpdate_z.argtypes = [c_void_p,iType,iType,zType]
-lib.ElSparseMatrixUpdate_z.restype = c_uint
-
-lib.ElSparseMatrixZero_i.argtypes = [c_void_p,iType,iType]
-lib.ElSparseMatrixZero_i.restype = c_uint
-lib.ElSparseMatrixZero_s.argtypes = [c_void_p,iType,iType]
-lib.ElSparseMatrixZero_s.restype = c_uint
-lib.ElSparseMatrixZero_d.argtypes = [c_void_p,iType,iType]
-lib.ElSparseMatrixZero_d.restype = c_uint
-lib.ElSparseMatrixZero_c.argtypes = [c_void_p,iType,iType]
-lib.ElSparseMatrixZero_c.restype = c_uint
-lib.ElSparseMatrixZero_z.argtypes = [c_void_p,iType,iType]
-lib.ElSparseMatrixZero_z.restype = c_uint
-
-lib.ElSparseMatrixQueueUpdate_i.argtypes = [c_void_p,iType,iType,iType]
-lib.ElSparseMatrixQueueUpdate_i.restype = c_uint
-lib.ElSparseMatrixQueueUpdate_s.argtypes = [c_void_p,iType,iType,sType]
-lib.ElSparseMatrixQueueUpdate_s.restype = c_uint
-lib.ElSparseMatrixQueueUpdate_d.argtypes = [c_void_p,iType,iType,dType]
-lib.ElSparseMatrixQueueUpdate_d.restype = c_uint
-lib.ElSparseMatrixQueueUpdate_c.argtypes = [c_void_p,iType,iType,cType]
-lib.ElSparseMatrixQueueUpdate_c.restype = c_uint
-lib.ElSparseMatrixQueueUpdate_z.argtypes = [c_void_p,iType,iType,zType]
-lib.ElSparseMatrixQueueUpdate_z.restype = c_uint
-
-lib.ElSparseMatrixQueueZero_i.argtypes = [c_void_p,iType,iType]
-lib.ElSparseMatrixQueueZero_i.restype = c_uint
-lib.ElSparseMatrixQueueZero_s.argtypes = [c_void_p,iType,iType]
-lib.ElSparseMatrixQueueZero_s.restype = c_uint
-lib.ElSparseMatrixQueueZero_d.argtypes = [c_void_p,iType,iType]
-lib.ElSparseMatrixQueueZero_d.restype = c_uint
-lib.ElSparseMatrixQueueZero_c.argtypes = [c_void_p,iType,iType]
-lib.ElSparseMatrixQueueZero_c.restype = c_uint
-lib.ElSparseMatrixQueueZero_z.argtypes = [c_void_p,iType,iType]
-lib.ElSparseMatrixQueueZero_z.restype = c_uint
-
-lib.ElSparseMatrixMakeConsistent_i.argtypes = [c_void_p]
-lib.ElSparseMatrixMakeConsistent_i.restype = c_uint
-lib.ElSparseMatrixMakeConsistent_s.argtypes = [c_void_p]
-lib.ElSparseMatrixMakeConsistent_s.restype = c_uint
-lib.ElSparseMatrixMakeConsistent_d.argtypes = [c_void_p]
-lib.ElSparseMatrixMakeConsistent_d.restype = c_uint
-lib.ElSparseMatrixMakeConsistent_c.argtypes = [c_void_p]
-lib.ElSparseMatrixMakeConsistent_c.restype = c_uint
-lib.ElSparseMatrixMakeConsistent_z.argtypes = [c_void_p]
-lib.ElSparseMatrixMakeConsistent_z.restype = c_uint
-
-lib.ElSparseMatrixHeight_i.argtypes = [c_void_p,POINTER(iType)]
-lib.ElSparseMatrixHeight_i.restype = c_uint
-lib.ElSparseMatrixHeight_s.argtypes = [c_void_p,POINTER(iType)]
-lib.ElSparseMatrixHeight_s.restype = c_uint
-lib.ElSparseMatrixHeight_d.argtypes = [c_void_p,POINTER(iType)]
-lib.ElSparseMatrixHeight_d.restype = c_uint
-lib.ElSparseMatrixHeight_c.argtypes = [c_void_p,POINTER(iType)]
-lib.ElSparseMatrixHeight_c.restype = c_uint
-lib.ElSparseMatrixHeight_z.argtypes = [c_void_p,POINTER(iType)]
-lib.ElSparseMatrixHeight_z.restype = c_uint
-
-lib.ElSparseMatrixWidth_i.argtypes = [c_void_p,POINTER(iType)]
-lib.ElSparseMatrixWidth_i.restype = c_uint
-lib.ElSparseMatrixWidth_s.argtypes = [c_void_p,POINTER(iType)]
-lib.ElSparseMatrixWidth_s.restype = c_uint
-lib.ElSparseMatrixWidth_d.argtypes = [c_void_p,POINTER(iType)]
-lib.ElSparseMatrixWidth_d.restype = c_uint
-lib.ElSparseMatrixWidth_c.argtypes = [c_void_p,POINTER(iType)]
-lib.ElSparseMatrixWidth_c.restype = c_uint
-lib.ElSparseMatrixWidth_z.argtypes = [c_void_p,POINTER(iType)]
-lib.ElSparseMatrixWidth_z.restype = c_uint
-
-lib.ElSparseMatrixNumEntries_i.argtypes = [c_void_p,POINTER(iType)]
-lib.ElSparseMatrixNumEntries_i.restype = c_uint
-lib.ElSparseMatrixNumEntries_s.argtypes = [c_void_p,POINTER(iType)]
-lib.ElSparseMatrixNumEntries_s.restype = c_uint
-lib.ElSparseMatrixNumEntries_d.argtypes = [c_void_p,POINTER(iType)]
-lib.ElSparseMatrixNumEntries_d.restype = c_uint
-lib.ElSparseMatrixNumEntries_c.argtypes = [c_void_p,POINTER(iType)]
-lib.ElSparseMatrixNumEntries_c.restype = c_uint
-lib.ElSparseMatrixNumEntries_z.argtypes = [c_void_p,POINTER(iType)]
-lib.ElSparseMatrixNumEntries_z.restype = c_uint
-
-lib.ElSparseMatrixCapacity_i.argtypes = [c_void_p,POINTER(iType)]
-lib.ElSparseMatrixCapacity_i.restype = c_uint
-lib.ElSparseMatrixCapacity_s.argtypes = [c_void_p,POINTER(iType)]
-lib.ElSparseMatrixCapacity_s.restype = c_uint
-lib.ElSparseMatrixCapacity_d.argtypes = [c_void_p,POINTER(iType)]
-lib.ElSparseMatrixCapacity_d.restype = c_uint
-lib.ElSparseMatrixCapacity_c.argtypes = [c_void_p,POINTER(iType)]
-lib.ElSparseMatrixCapacity_c.restype = c_uint
-lib.ElSparseMatrixCapacity_z.argtypes = [c_void_p,POINTER(iType)]
-lib.ElSparseMatrixCapacity_z.restype = c_uint
-
-lib.ElSparseMatrixConsistent_i.argtypes = [c_void_p,POINTER(bType)]
-lib.ElSparseMatrixConsistent_i.restype = c_uint
-lib.ElSparseMatrixConsistent_s.argtypes = [c_void_p,POINTER(bType)]
-lib.ElSparseMatrixConsistent_s.restype = c_uint
-lib.ElSparseMatrixConsistent_d.argtypes = [c_void_p,POINTER(bType)]
-lib.ElSparseMatrixConsistent_d.restype = c_uint
-lib.ElSparseMatrixConsistent_c.argtypes = [c_void_p,POINTER(bType)]
-lib.ElSparseMatrixConsistent_c.restype = c_uint
-lib.ElSparseMatrixConsistent_z.argtypes = [c_void_p,POINTER(bType)]
-lib.ElSparseMatrixConsistent_z.restype = c_uint
-
-lib.ElSparseMatrixGraph_i.argtypes = [c_void_p,POINTER(c_void_p)]
-lib.ElSparseMatrixGraph_i.restype = c_uint
-lib.ElSparseMatrixGraph_s.argtypes = [c_void_p,POINTER(c_void_p)]
-lib.ElSparseMatrixGraph_s.restype = c_uint
-lib.ElSparseMatrixGraph_d.argtypes = [c_void_p,POINTER(c_void_p)]
-lib.ElSparseMatrixGraph_d.restype = c_uint
-lib.ElSparseMatrixGraph_c.argtypes = [c_void_p,POINTER(c_void_p)]
-lib.ElSparseMatrixGraph_c.restype = c_uint
-lib.ElSparseMatrixGraph_z.argtypes = [c_void_p,POINTER(c_void_p)]
-lib.ElSparseMatrixGraph_z.restype = c_uint
-
-lib.ElSparseMatrixLockedGraph_i.argtypes = [c_void_p,POINTER(c_void_p)]
-lib.ElSparseMatrixLockedGraph_i.restype = c_uint
-lib.ElSparseMatrixLockedGraph_s.argtypes = [c_void_p,POINTER(c_void_p)]
-lib.ElSparseMatrixLockedGraph_s.restype = c_uint
-lib.ElSparseMatrixLockedGraph_d.argtypes = [c_void_p,POINTER(c_void_p)]
-lib.ElSparseMatrixLockedGraph_d.restype = c_uint
-lib.ElSparseMatrixLockedGraph_c.argtypes = [c_void_p,POINTER(c_void_p)]
-lib.ElSparseMatrixLockedGraph_c.restype = c_uint
-lib.ElSparseMatrixLockedGraph_z.argtypes = [c_void_p,POINTER(c_void_p)]
-lib.ElSparseMatrixLockedGraph_z.restype = c_uint
-
-lib.ElSparseMatrixRow_i.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElSparseMatrixRow_i.restype = c_uint
-lib.ElSparseMatrixRow_s.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElSparseMatrixRow_s.restype = c_uint
-lib.ElSparseMatrixRow_d.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElSparseMatrixRow_d.restype = c_uint
-lib.ElSparseMatrixRow_c.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElSparseMatrixRow_c.restype = c_uint
-lib.ElSparseMatrixRow_z.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElSparseMatrixRow_z.restype = c_uint
-
-lib.ElSparseMatrixCol_i.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElSparseMatrixCol_i.restype = c_uint
-lib.ElSparseMatrixCol_s.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElSparseMatrixCol_s.restype = c_uint
-lib.ElSparseMatrixCol_d.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElSparseMatrixCol_d.restype = c_uint
-lib.ElSparseMatrixCol_c.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElSparseMatrixCol_c.restype = c_uint
-lib.ElSparseMatrixCol_z.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElSparseMatrixCol_z.restype = c_uint
-
-lib.ElSparseMatrixValue_i.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElSparseMatrixValue_i.restype = c_uint
-lib.ElSparseMatrixValue_s.argtypes = [c_void_p,iType,POINTER(sType)]
-lib.ElSparseMatrixValue_s.restype = c_uint
-lib.ElSparseMatrixValue_d.argtypes = [c_void_p,iType,POINTER(dType)]
-lib.ElSparseMatrixValue_d.restype = c_uint
-lib.ElSparseMatrixValue_c.argtypes = [c_void_p,iType,POINTER(cType)]
-lib.ElSparseMatrixValue_c.restype = c_uint
-lib.ElSparseMatrixValue_z.argtypes = [c_void_p,iType,POINTER(zType)]
-lib.ElSparseMatrixValue_z.restype = c_uint
-
-lib.ElSparseMatrixEntryOffset_i.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElSparseMatrixEntryOffset_i.restype = c_uint
-lib.ElSparseMatrixEntryOffset_s.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElSparseMatrixEntryOffset_s.restype = c_uint
-lib.ElSparseMatrixEntryOffset_d.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElSparseMatrixEntryOffset_d.restype = c_uint
-lib.ElSparseMatrixEntryOffset_c.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElSparseMatrixEntryOffset_c.restype = c_uint
-lib.ElSparseMatrixEntryOffset_z.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElSparseMatrixEntryOffset_z.restype = c_uint
-
-lib.ElSparseMatrixNumConnections_i.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElSparseMatrixNumConnections_i.restype = c_uint
-lib.ElSparseMatrixNumConnections_s.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElSparseMatrixNumConnections_s.restype = c_uint
-lib.ElSparseMatrixNumConnections_d.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElSparseMatrixNumConnections_d.restype = c_uint
-lib.ElSparseMatrixNumConnections_c.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElSparseMatrixNumConnections_c.restype = c_uint
-lib.ElSparseMatrixNumConnections_z.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElSparseMatrixNumConnections_z.restype = c_uint
-
-lib.ElSparseMatrixSourceBuffer_i.argtypes = [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixSourceBuffer_i.restype = c_uint
-lib.ElSparseMatrixSourceBuffer_s.argtypes = [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixSourceBuffer_s.restype = c_uint
-lib.ElSparseMatrixSourceBuffer_d.argtypes = [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixSourceBuffer_d.restype = c_uint
-lib.ElSparseMatrixSourceBuffer_c.argtypes = [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixSourceBuffer_c.restype = c_uint
-lib.ElSparseMatrixSourceBuffer_z.argtypes = [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixSourceBuffer_z.restype = c_uint
-
-lib.ElSparseMatrixLockedSourceBuffer_i.argtypes = \
-  [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixLockedSourceBuffer_i.restype = c_uint
-lib.ElSparseMatrixLockedSourceBuffer_s.argtypes = \
-  [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixLockedSourceBuffer_s.restype = c_uint
-lib.ElSparseMatrixLockedSourceBuffer_d.argtypes = \
-  [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixLockedSourceBuffer_d.restype = c_uint
-lib.ElSparseMatrixLockedSourceBuffer_c.argtypes = \
-  [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixLockedSourceBuffer_c.restype = c_uint
-lib.ElSparseMatrixLockedSourceBuffer_z.argtypes = \
-  [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixLockedSourceBuffer_z.restype = c_uint
-
-lib.ElSparseMatrixTargetBuffer_i.argtypes = [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixTargetBuffer_i.restype = c_uint
-lib.ElSparseMatrixTargetBuffer_s.argtypes = [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixTargetBuffer_s.restype = c_uint
-lib.ElSparseMatrixTargetBuffer_d.argtypes = [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixTargetBuffer_d.restype = c_uint
-lib.ElSparseMatrixTargetBuffer_c.argtypes = [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixTargetBuffer_c.restype = c_uint
-lib.ElSparseMatrixTargetBuffer_z.argtypes = [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixTargetBuffer_z.restype = c_uint
-
-lib.ElSparseMatrixLockedTargetBuffer_i.argtypes = \
-  [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixLockedTargetBuffer_i.restype = c_uint
-lib.ElSparseMatrixLockedTargetBuffer_s.argtypes = \
-  [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixLockedTargetBuffer_s.restype = c_uint
-lib.ElSparseMatrixLockedTargetBuffer_d.argtypes = \
-  [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixLockedTargetBuffer_d.restype = c_uint
-lib.ElSparseMatrixLockedTargetBuffer_c.argtypes = \
-  [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixLockedTargetBuffer_c.restype = c_uint
-lib.ElSparseMatrixLockedTargetBuffer_z.argtypes = \
-  [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixLockedTargetBuffer_z.restype = c_uint
-
-lib.ElSparseMatrixValueBuffer_i.argtypes = [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixValueBuffer_i.restype = c_uint
-lib.ElSparseMatrixValueBuffer_s.argtypes = [c_void_p,POINTER(POINTER(sType))]
-lib.ElSparseMatrixValueBuffer_s.restype = c_uint
-lib.ElSparseMatrixValueBuffer_d.argtypes = [c_void_p,POINTER(POINTER(dType))]
-lib.ElSparseMatrixValueBuffer_d.restype = c_uint
-lib.ElSparseMatrixValueBuffer_c.argtypes = [c_void_p,POINTER(POINTER(cType))]
-lib.ElSparseMatrixValueBuffer_c.restype = c_uint
-lib.ElSparseMatrixValueBuffer_z.argtypes = [c_void_p,POINTER(POINTER(zType))]
-lib.ElSparseMatrixValueBuffer_z.restype = c_uint
-
-lib.ElSparseMatrixLockedValueBuffer_i.argtypes = \
-  [c_void_p,POINTER(POINTER(iType))]
-lib.ElSparseMatrixLockedValueBuffer_i.restype = c_uint
-lib.ElSparseMatrixLockedValueBuffer_s.argtypes = \
-  [c_void_p,POINTER(POINTER(sType))]
-lib.ElSparseMatrixLockedValueBuffer_s.restype = c_uint
-lib.ElSparseMatrixLockedValueBuffer_d.argtypes = \
-  [c_void_p,POINTER(POINTER(dType))]
-lib.ElSparseMatrixLockedValueBuffer_d.restype = c_uint
-lib.ElSparseMatrixLockedValueBuffer_c.argtypes = \
-  [c_void_p,POINTER(POINTER(cType))]
-lib.ElSparseMatrixLockedValueBuffer_c.restype = c_uint
-lib.ElSparseMatrixLockedValueBuffer_z.argtypes = \
-  [c_void_p,POINTER(POINTER(zType))]
-lib.ElSparseMatrixLockedValueBuffer_z.restype = c_uint
-
 class SparseMatrix(object):
   # Constructors and destructors
   # ============================
+  lib.ElSparseMatrixCreate_i.argtypes = \
+  lib.ElSparseMatrixCreate_s.argtypes = \
+  lib.ElSparseMatrixCreate_d.argtypes = \
+  lib.ElSparseMatrixCreate_c.argtypes = \
+  lib.ElSparseMatrixCreate_z.argtypes = \
+    [POINTER(c_void_p)]
   def __init__(self,tag=dTag,create=True):
     self.obj = c_void_p()
     self.tag = tag
@@ -350,6 +30,13 @@ class SparseMatrix(object):
       elif tag == cTag: lib.ElSparseMatrixCreate_c(*args)
       elif tag == zTag: lib.ElSparseMatrixCreate_z(*args)
       else: DataExcept()
+
+  lib.ElSparseMatrixDestroy_i.argtypes = \
+  lib.ElSparseMatrixDestroy_s.argtypes = \
+  lib.ElSparseMatrixDestroy_d.argtypes = \
+  lib.ElSparseMatrixDestroy_c.argtypes = \
+  lib.ElSparseMatrixDestroy_z.argtypes = \
+    [c_void_p]
   def Destroy(self):
     args = [self.obj]
     if   self.tag == iTag: lib.ElSparseMatrixDestroy_i(*args)
@@ -358,8 +45,15 @@ class SparseMatrix(object):
     elif self.tag == cTag: lib.ElSparseMatrixDestroy_c(*args)
     elif self.tag == zTag: lib.ElSparseMatrixDestroy_z(*args)
     else: DataExcept()
+
   # Assignment and reconfiguration
   # ==============================
+  lib.ElSparseMatrixEmpty_i.argtypes = \
+  lib.ElSparseMatrixEmpty_s.argtypes = \
+  lib.ElSparseMatrixEmpty_d.argtypes = \
+  lib.ElSparseMatrixEmpty_c.argtypes = \
+  lib.ElSparseMatrixEmpty_z.argtypes = \
+    [c_void_p]
   def Empty(self):
     args = [self.obj]
     if   self.tag == iTag: lib.ElSparseMatrixEmpty_i(*args)
@@ -368,6 +62,13 @@ class SparseMatrix(object):
     elif self.tag == cTag: lib.ElSparseMatrixEmpty_c(*args)
     elif self.tag == zTag: lib.ElSparseMatrixEmpty_z(*args)
     else: DataExcept()
+
+  lib.ElSparseMatrixResize_i.argtypes = \
+  lib.ElSparseMatrixResize_s.argtypes = \
+  lib.ElSparseMatrixResize_d.argtypes = \
+  lib.ElSparseMatrixResize_c.argtypes = \
+  lib.ElSparseMatrixResize_z.argtypes = \
+    [c_void_p,iType,iType]
   def Resize(self,height,width):
     args = [self.obj,height,width]
     if   self.tag == iTag: lib.ElSparseMatrixResize_i(*args)
@@ -376,6 +77,13 @@ class SparseMatrix(object):
     elif self.tag == cTag: lib.ElSparseMatrixResize_c(*args)
     elif self.tag == zTag: lib.ElSparseMatrixResize_z(*args)
     else: DataExcept()
+
+  lib.ElSparseMatrixReserve_i.argtypes = \
+  lib.ElSparseMatrixReserve_s.argtypes = \
+  lib.ElSparseMatrixReserve_d.argtypes = \
+  lib.ElSparseMatrixReserve_c.argtypes = \
+  lib.ElSparseMatrixReserve_z.argtypes = \
+    [c_void_p,iType]
   def Reserve(self,numEntries):
     args = [self.obj,numEntries]
     if   self.tag == iTag: lib.ElSparseMatrixReserve_i(*args)
@@ -384,6 +92,12 @@ class SparseMatrix(object):
     elif self.tag == cTag: lib.ElSparseMatrixReserve_c(*args)
     elif self.tag == zTag: lib.ElSparseMatrixReserve_z(*args)
     else: DataExcept()
+
+  lib.ElSparseMatrixUpdate_i.argtypes = [c_void_p,iType,iType,iType]
+  lib.ElSparseMatrixUpdate_s.argtypes = [c_void_p,iType,iType,sType]
+  lib.ElSparseMatrixUpdate_d.argtypes = [c_void_p,iType,iType,dType]
+  lib.ElSparseMatrixUpdate_c.argtypes = [c_void_p,iType,iType,cType]
+  lib.ElSparseMatrixUpdate_z.argtypes = [c_void_p,iType,iType,zType]
   def Update(self,row,col,value):
     args = [self.obj,row,col,value]
     if   self.tag == iTag: lib.ElSparseMatrixUpdate_i(*args)
@@ -392,6 +106,13 @@ class SparseMatrix(object):
     elif self.tag == cTag: lib.ElSparseMatrixUpdate_c(*args)
     elif self.tag == zTag: lib.ElSparseMatrixUpdate_z(*args)
     else: DataExcept()
+
+  lib.ElSparseMatrixZero_i.argtypes = \
+  lib.ElSparseMatrixZero_s.argtypes = \
+  lib.ElSparseMatrixZero_d.argtypes = \
+  lib.ElSparseMatrixZero_c.argtypes = \
+  lib.ElSparseMatrixZero_z.argtypes = \
+    [c_void_p,iType,iType]
   def Zero(self,row,col):
     args = [self.obj,row,col]
     if   self.tag == iTag: lib.ElSparseMatrixZero_i(*args)
@@ -400,6 +121,12 @@ class SparseMatrix(object):
     elif self.tag == cTag: lib.ElSparseMatrixZero_c(*args)
     elif self.tag == zTag: lib.ElSparseMatrixZero_z(*args)
     else: DataExcept()
+
+  lib.ElSparseMatrixQueueUpdate_i.argtypes = [c_void_p,iType,iType,iType]
+  lib.ElSparseMatrixQueueUpdate_s.argtypes = [c_void_p,iType,iType,sType]
+  lib.ElSparseMatrixQueueUpdate_d.argtypes = [c_void_p,iType,iType,dType]
+  lib.ElSparseMatrixQueueUpdate_c.argtypes = [c_void_p,iType,iType,cType]
+  lib.ElSparseMatrixQueueUpdate_z.argtypes = [c_void_p,iType,iType,zType]
   def QueueUpdate(self,row,col,value):
     args = [self.obj,row,col,value]
     if   self.tag == iTag: lib.ElSparseMatrixQueueUpdate_i(*args)
@@ -408,6 +135,13 @@ class SparseMatrix(object):
     elif self.tag == cTag: lib.ElSparseMatrixQueueUpdate_c(*args)
     elif self.tag == zTag: lib.ElSparseMatrixQueueUpdate_z(*args)
     else: DataExcept()
+
+  lib.ElSparseMatrixQueueZero_i.argtypes = \
+  lib.ElSparseMatrixQueueZero_s.argtypes = \
+  lib.ElSparseMatrixQueueZero_d.argtypes = \
+  lib.ElSparseMatrixQueueZero_c.argtypes = \
+  lib.ElSparseMatrixQueueZero_z.argtypes = \
+    [c_void_p,iType,iType]
   def QueueZero(self,row,col):
     args = [self.obj,row,col]
     if   self.tag == iTag: lib.ElSparseMatrixQueueZero_i(*args)
@@ -416,6 +150,13 @@ class SparseMatrix(object):
     elif self.tag == cTag: lib.ElSparseMatrixQueueZero_c(*args)
     elif self.tag == zTag: lib.ElSparseMatrixQueueZero_z(*args)
     else: DataExcept()
+
+  lib.ElSparseMatrixMakeConsistent_i.argtypes = \
+  lib.ElSparseMatrixMakeConsistent_s.argtypes = \
+  lib.ElSparseMatrixMakeConsistent_d.argtypes = \
+  lib.ElSparseMatrixMakeConsistent_c.argtypes = \
+  lib.ElSparseMatrixMakeConsistent_z.argtypes = \
+    [c_void_p]
   def MakeConsistent(self):
     args = [self.obj]
     if   self.tag == iTag: lib.ElSparseMatrixMakeConsistent_i(*args)
@@ -424,8 +165,15 @@ class SparseMatrix(object):
     elif self.tag == cTag: lib.ElSparseMatrixMakeConsistent_c(*args)
     elif self.tag == zTag: lib.ElSparseMatrixMakeConsistent_z(*args)
     else: DataExcept()
+
   # Queries
   # =======
+  lib.ElSparseMatrixHeight_i.argtypes = \
+  lib.ElSparseMatrixHeight_s.argtypes = \
+  lib.ElSparseMatrixHeight_d.argtypes = \
+  lib.ElSparseMatrixHeight_c.argtypes = \
+  lib.ElSparseMatrixHeight_z.argtypes = \
+    [c_void_p,POINTER(iType)]
   def Height(self):
     height = iType()
     args = [self.obj,pointer(height)]
@@ -436,6 +184,13 @@ class SparseMatrix(object):
     elif self.tag == zTag: lib.ElSparseMatrixHeight_z(*args)
     else: DataExcept()
     return height.value
+
+  lib.ElSparseMatrixWidth_i.argtypes = \
+  lib.ElSparseMatrixWidth_s.argtypes = \
+  lib.ElSparseMatrixWidth_d.argtypes = \
+  lib.ElSparseMatrixWidth_c.argtypes = \
+  lib.ElSparseMatrixWidth_z.argtypes = \
+    [c_void_p,POINTER(iType)]
   def Width(self):
     width = iType()
     args = [self.obj,pointer(width)]
@@ -446,6 +201,13 @@ class SparseMatrix(object):
     elif self.tag == zTag: lib.ElSparseMatrixWidth_z(*args)
     else: DataExcept()
     return width.value
+
+  lib.ElSparseMatrixNumEntries_i.argtypes = \
+  lib.ElSparseMatrixNumEntries_s.argtypes = \
+  lib.ElSparseMatrixNumEntries_d.argtypes = \
+  lib.ElSparseMatrixNumEntries_c.argtypes = \
+  lib.ElSparseMatrixNumEntries_z.argtypes = \
+    [c_void_p,POINTER(iType)]
   def NumEntries(self):
     numEntries = iType()
     args = [self.obj,pointer(numEntries)]
@@ -456,6 +218,13 @@ class SparseMatrix(object):
     elif self.tag == zTag: lib.ElSparseMatrixNumEntries_z(*args)
     else: DataExcept()
     return numEntries.value
+
+  lib.ElSparseMatrixCapacity_i.argtypes = \
+  lib.ElSparseMatrixCapacity_s.argtypes = \
+  lib.ElSparseMatrixCapacity_d.argtypes = \
+  lib.ElSparseMatrixCapacity_c.argtypes = \
+  lib.ElSparseMatrixCapacity_z.argtypes = \
+    [c_void_p,POINTER(iType)]
   def Capacity(self):
     capacity = iType()
     args = [self.obj,pointer(capacity)]
@@ -466,6 +235,13 @@ class SparseMatrix(object):
     elif self.tag == zTag: lib.ElSparseMatrixCapacity_z(*args)
     else: DataExcept()
     return capacity.value
+
+  lib.ElSparseMatrixConsistent_i.argtypes = \
+  lib.ElSparseMatrixConsistent_s.argtypes = \
+  lib.ElSparseMatrixConsistent_d.argtypes = \
+  lib.ElSparseMatrixConsistent_c.argtypes = \
+  lib.ElSparseMatrixConsistent_z.argtypes = \
+    [c_void_p,POINTER(bType)]
   def Consistent(self):
     consistent = bType()
     args = [self.obj,pointer(consistent)]
@@ -476,26 +252,43 @@ class SparseMatrix(object):
     elif self.tag == zTag: lib.ElSparseMatrixConsistent_z(*args)
     else: DataExcept()
     return consistent.value
-  def Graph(self):
+
+  lib.ElSparseMatrixGraph_i.argtypes = \
+  lib.ElSparseMatrixGraph_s.argtypes = \
+  lib.ElSparseMatrixGraph_d.argtypes = \
+  lib.ElSparseMatrixGraph_c.argtypes = \
+  lib.ElSparseMatrixGraph_z.argtypes = \
+  lib.ElSparseMatrixLockedGraph_i.argtypes = \
+  lib.ElSparseMatrixLockedGraph_s.argtypes = \
+  lib.ElSparseMatrixLockedGraph_d.argtypes = \
+  lib.ElSparseMatrixLockedGraph_c.argtypes = \
+  lib.ElSparseMatrixLockedGraph_z.argtypes = \
+    [c_void_p,POINTER(c_void_p)]
+  def Graph(self,locked=False):
     graph = G.Graph(False)
     args = [self.obj,pointer(graph.obj)]
-    if   self.tag == iTag: lib.ElSparseMatrixGraph_i(*args)  
-    elif self.tag == sTag: lib.ElSparseMatrixGraph_s(*args)
-    elif self.tag == dTag: lib.ElSparseMatrixGraph_d(*args)
-    elif self.tag == cTag: lib.ElSparseMatrixGraph_c(*args)
-    elif self.tag == zTag: lib.ElSparseMatrixGraph_z(*args)
-    else: DataExcept()
+    if locked:
+      if   self.tag == iTag: lib.ElSparseMatrixLockedGraph_i(*args)  
+      elif self.tag == sTag: lib.ElSparseMatrixLockedGraph_s(*args)
+      elif self.tag == dTag: lib.ElSparseMatrixLockedGraph_d(*args)
+      elif self.tag == cTag: lib.ElSparseMatrixLockedGraph_c(*args)
+      elif self.tag == zTag: lib.ElSparseMatrixLockedGraph_z(*args)
+      else: DataExcept()
+    else:
+      if   self.tag == iTag: lib.ElSparseMatrixGraph_i(*args)  
+      elif self.tag == sTag: lib.ElSparseMatrixGraph_s(*args)
+      elif self.tag == dTag: lib.ElSparseMatrixGraph_d(*args)
+      elif self.tag == cTag: lib.ElSparseMatrixGraph_c(*args)
+      elif self.tag == zTag: lib.ElSparseMatrixGraph_z(*args)
+      else: DataExcept()
     return graph
-  def LockedGraph(self):
-    graph = G.Graph(False)
-    args = [self.obj,pointer(graph.obj)]
-    if   self.tag == iTag: lib.ElSparseMatrixLockedGraph_i(*args)  
-    elif self.tag == sTag: lib.ElSparseMatrixLockedGraph_s(*args)
-    elif self.tag == dTag: lib.ElSparseMatrixLockedGraph_d(*args)
-    elif self.tag == cTag: lib.ElSparseMatrixLockedGraph_c(*args)
-    elif self.tag == zTag: lib.ElSparseMatrixLockedGraph_z(*args)
-    else: DataExcept()
-    return graph
+
+  lib.ElSparseMatrixRow_i.argtypes = \
+  lib.ElSparseMatrixRow_s.argtypes = \
+  lib.ElSparseMatrixRow_d.argtypes = \
+  lib.ElSparseMatrixRow_c.argtypes = \
+  lib.ElSparseMatrixRow_z.argtypes = \
+    [c_void_p,iType,POINTER(iType)]
   def Row(self,index):
     row = iType() 
     args = [self.obj,index,pointer(row)]
@@ -506,6 +299,13 @@ class SparseMatrix(object):
     elif self.tag == zTag: lib.ElSparseMatrixRow_z(*args)
     else: DataExcept()
     return row.value
+
+  lib.ElSparseMatrixCol_i.argtypes = \
+  lib.ElSparseMatrixCol_s.argtypes = \
+  lib.ElSparseMatrixCol_d.argtypes = \
+  lib.ElSparseMatrixCol_c.argtypes = \
+  lib.ElSparseMatrixCol_z.argtypes = \
+    [c_void_p,iType,POINTER(iType)]
   def Col(self,index):
     col = iType() 
     args = [self.obj,index,pointer(col)]
@@ -516,6 +316,12 @@ class SparseMatrix(object):
     elif self.tag == zTag: lib.ElSparseMatrixCol_z(*args)
     else: DataExcept()
     return col.value
+
+  lib.ElSparseMatrixValue_i.argtypes = [c_void_p,iType,POINTER(iType)]
+  lib.ElSparseMatrixValue_s.argtypes = [c_void_p,iType,POINTER(sType)]
+  lib.ElSparseMatrixValue_d.argtypes = [c_void_p,iType,POINTER(dType)]
+  lib.ElSparseMatrixValue_c.argtypes = [c_void_p,iType,POINTER(cType)]
+  lib.ElSparseMatrixValue_z.argtypes = [c_void_p,iType,POINTER(zType)]
   def Value(self,index):
     value =  TagToType(self.tag)()
     args = [self.obj,index,pointer(value)]
@@ -526,6 +332,13 @@ class SparseMatrix(object):
     elif self.tag == zTag: lib.ElSparseMatrixValue_z(*args)
     else: DataExcept()
     return value.value
+
+  lib.ElSparseMatrixEntryOffset_i.argtypes = \
+  lib.ElSparseMatrixEntryOffset_s.argtypes = \
+  lib.ElSparseMatrixEntryOffset_d.argtypes = \
+  lib.ElSparseMatrixEntryOffset_c.argtypes = \
+  lib.ElSparseMatrixEntryOffset_z.argtypes = \
+    [c_void_p,iType,POINTER(iType)]
   def EntryOffset(self,row):
     offset = iType()
     args = [self.obj,row,pointer(offset)]
@@ -536,6 +349,13 @@ class SparseMatrix(object):
     elif self.tag == zTag: lib.ElSparseMatrixEntryOffset_z(*args)
     else: DataExcept()
     return offset.value
+
+  lib.ElSparseMatrixNumConnections_i.argtypes = \
+  lib.ElSparseMatrixNumConnections_s.argtypes = \
+  lib.ElSparseMatrixNumConnections_d.argtypes = \
+  lib.ElSparseMatrixNumConnections_c.argtypes = \
+  lib.ElSparseMatrixNumConnections_z.argtypes = \
+    [c_void_p,iType,POINTER(iType)]
   def NumConnections(self,row):
     numConnections = iType()
     args = [self.obj,row,pointer(numConnections)]
@@ -546,63 +366,97 @@ class SparseMatrix(object):
     elif self.tag == zTag: lib.ElSparseMatrixNumConnections_z(*args)
     else: DataExcept()
     return numConnections.value
-  def SourceBuffer(self):
+
+  lib.ElSparseMatrixSourceBuffer_i.argtypes = \
+  lib.ElSparseMatrixSourceBuffer_s.argtypes = \
+  lib.ElSparseMatrixSourceBuffer_d.argtypes = \
+  lib.ElSparseMatrixSourceBuffer_c.argtypes = \
+  lib.ElSparseMatrixSourceBuffer_z.argtypes = \
+  lib.ElSparseMatrixLockedSourceBuffer_i.argtypes = \
+  lib.ElSparseMatrixLockedSourceBuffer_s.argtypes = \
+  lib.ElSparseMatrixLockedSourceBuffer_d.argtypes = \
+  lib.ElSparseMatrixLockedSourceBuffer_c.argtypes = \
+  lib.ElSparseMatrixLockedSourceBuffer_z.argtypes = \
+    [c_void_p,POINTER(POINTER(iType))]
+  def SourceBuffer(self,locked=False):
     sourceBuf = POINTER(iType)()
     args = [self.obj,pointer(sourceBuf)]    
-    if   self.tag == iTag: lib.ElSparseMatrixSourceBuffer_i(*args)
-    elif self.tag == sTag: lib.ElSparseMatrixSourceBuffer_s(*args)
-    elif self.tag == dTag: lib.ElSparseMatrixSourceBuffer_d(*args)
-    elif self.tag == cTag: lib.ElSparseMatrixSourceBuffer_c(*args)
-    elif self.tag == zTag: lib.ElSparseMatrixSourceBuffer_z(*args)
-    else: DataExcept()
+    if locked:
+      if   self.tag == iTag: lib.ElSparseMatrixLockedSourceBuffer_i(*args)
+      elif self.tag == sTag: lib.ElSparseMatrixLockedSourceBuffer_s(*args)
+      elif self.tag == dTag: lib.ElSparseMatrixLockedSourceBuffer_d(*args)
+      elif self.tag == cTag: lib.ElSparseMatrixLockedSourceBuffer_c(*args)
+      elif self.tag == zTag: lib.ElSparseMatrixLockedSourceBuffer_z(*args)
+      else: DataExcept()
+    else:
+      if   self.tag == iTag: lib.ElSparseMatrixSourceBuffer_i(*args)
+      elif self.tag == sTag: lib.ElSparseMatrixSourceBuffer_s(*args)
+      elif self.tag == dTag: lib.ElSparseMatrixSourceBuffer_d(*args)
+      elif self.tag == cTag: lib.ElSparseMatrixSourceBuffer_c(*args)
+      elif self.tag == zTag: lib.ElSparseMatrixSourceBuffer_z(*args)
+      else: DataExcept()
     return sourceBuf
-  def LockedSourceBuffer(self):
-    sourceBuf = POINTER(iType)()
-    args = [self.obj,pointer(sourceBuf)]    
-    if   self.tag == iTag: lib.ElSparseMatrixLockedSourceBuffer_i(*args)
-    elif self.tag == sTag: lib.ElSparseMatrixLockedSourceBuffer_s(*args)
-    elif self.tag == dTag: lib.ElSparseMatrixLockedSourceBuffer_d(*args)
-    elif self.tag == cTag: lib.ElSparseMatrixLockedSourceBuffer_c(*args)
-    elif self.tag == zTag: lib.ElSparseMatrixLockedSourceBuffer_z(*args)
-    else: DataExcept()
-    return sourceBuf
-  def TargetBuffer(self):
+
+  lib.ElSparseMatrixTargetBuffer_i.argtypes = \
+  lib.ElSparseMatrixTargetBuffer_s.argtypes = \
+  lib.ElSparseMatrixTargetBuffer_d.argtypes = \
+  lib.ElSparseMatrixTargetBuffer_c.argtypes = \
+  lib.ElSparseMatrixTargetBuffer_z.argtypes = \
+  lib.ElSparseMatrixLockedTargetBuffer_i.argtypes = \
+  lib.ElSparseMatrixLockedTargetBuffer_s.argtypes = \
+  lib.ElSparseMatrixLockedTargetBuffer_d.argtypes = \
+  lib.ElSparseMatrixLockedTargetBuffer_c.argtypes = \
+  lib.ElSparseMatrixLockedTargetBuffer_z.argtypes = \
+    [c_void_p,POINTER(POINTER(iType))]
+  def TargetBuffer(self,locked=False):
     targetBuf = POINTER(iType)()
     args = [self.obj,pointer(targetBuf)]    
-    if   self.tag == iTag: lib.ElSparseMatrixTargetBuffer_i(*args)
-    elif self.tag == sTag: lib.ElSparseMatrixTargetBuffer_s(*args)
-    elif self.tag == dTag: lib.ElSparseMatrixTargetBuffer_d(*args)
-    elif self.tag == cTag: lib.ElSparseMatrixTargetBuffer_c(*args)
-    elif self.tag == zTag: lib.ElSparseMatrixTargetBuffer_z(*args)
-    else: DataExcept()
+    if locked:
+      if   self.tag == iTag: lib.ElSparseMatrixLockedTargetBuffer_i(*args)
+      elif self.tag == sTag: lib.ElSparseMatrixLockedTargetBuffer_s(*args)
+      elif self.tag == dTag: lib.ElSparseMatrixLockedTargetBuffer_d(*args)
+      elif self.tag == cTag: lib.ElSparseMatrixLockedTargetBuffer_c(*args)
+      elif self.tag == zTag: lib.ElSparseMatrixLockedTargetBuffer_z(*args)
+      else: DataExcept()
+    else:
+      if   self.tag == iTag: lib.ElSparseMatrixTargetBuffer_i(*args)
+      elif self.tag == sTag: lib.ElSparseMatrixTargetBuffer_s(*args)
+      elif self.tag == dTag: lib.ElSparseMatrixTargetBuffer_d(*args)
+      elif self.tag == cTag: lib.ElSparseMatrixTargetBuffer_c(*args)
+      elif self.tag == zTag: lib.ElSparseMatrixTargetBuffer_z(*args)
+      else: DataExcept()
     return targetBuf
-  def LockedTargetBuffer(self):
-    targetBuf = POINTER(iType)()
-    args = [self.obj,pointer(targetBuf)]    
-    if   self.tag == iTag: lib.ElSparseMatrixLockedTargetBuffer_i(*args)
-    elif self.tag == sTag: lib.ElSparseMatrixLockedTargetBuffer_s(*args)
-    elif self.tag == dTag: lib.ElSparseMatrixLockedTargetBuffer_d(*args)
-    elif self.tag == cTag: lib.ElSparseMatrixLockedTargetBuffer_c(*args)
-    elif self.tag == zTag: lib.ElSparseMatrixLockedTargetBuffer_z(*args)
-    else: DataExcept()
-    return targetBuf
-  def ValueBuffer(self):
+
+  lib.ElSparseMatrixValueBuffer_i.argtypes = \
+  lib.ElSparseMatrixLockedValueBuffer_i.argtypes = \
+    [c_void_p,POINTER(POINTER(iType))]
+  lib.ElSparseMatrixValueBuffer_s.argtypes = \
+  lib.ElSparseMatrixLockedValueBuffer_s.argtypes = \
+    [c_void_p,POINTER(POINTER(sType))]
+  lib.ElSparseMatrixValueBuffer_d.argtypes = \
+  lib.ElSparseMatrixLockedValueBuffer_d.argtypes = \
+    [c_void_p,POINTER(POINTER(dType))]
+  lib.ElSparseMatrixValueBuffer_c.argtypes = \
+  lib.ElSparseMatrixLockedValueBuffer_c.argtypes = \
+    [c_void_p,POINTER(POINTER(cType))]
+  lib.ElSparseMatrixValueBuffer_z.argtypes = \
+  lib.ElSparseMatrixLockedValueBuffer_z.argtypes = \
+    [c_void_p,POINTER(POINTER(zType))]
+  def ValueBuffer(self,locked=False):
     valueBuf = POINTER(TagToType(self.tag))()
     args = [self.obj,pointer(valueBuf)]
-    if   self.tag == iTag: lib.ElSparseMatrixValueBuffer_i(*args)
-    elif self.tag == sTag: lib.ElSparseMatrixValueBuffer_s(*args)
-    elif self.tag == dTag: lib.ElSparseMatrixValueBuffer_d(*args)
-    elif self.tag == cTag: lib.ElSparseMatrixValueBuffer_c(*args)
-    elif self.tag == zTag: lib.ElSparseMatrixValueBuffer_z(*args)
-    else: DataExcept()
-    return valueBuf
-  def LockedValueBuffer(self):
-    valueBuf = POINTER(TagToType(self.tag))()
-    args = [self.obj,pointer(valueBuf)]
-    if   self.tag == iTag: lib.ElSparseMatrixLockedValueBuffer_i(*args)
-    elif self.tag == sTag: lib.ElSparseMatrixLockedValueBuffer_s(*args)
-    elif self.tag == dTag: lib.ElSparseMatrixLockedValueBuffer_d(*args)
-    elif self.tag == cTag: lib.ElSparseMatrixLockedValueBuffer_c(*args)
-    elif self.tag == zTag: lib.ElSparseMatrixLockedValueBuffer_z(*args)
-    else: DataExcept()
+    if locked:
+      if   self.tag == iTag: lib.ElSparseMatrixLockedValueBuffer_i(*args)
+      elif self.tag == sTag: lib.ElSparseMatrixLockedValueBuffer_s(*args)
+      elif self.tag == dTag: lib.ElSparseMatrixLockedValueBuffer_d(*args)
+      elif self.tag == cTag: lib.ElSparseMatrixLockedValueBuffer_c(*args)
+      elif self.tag == zTag: lib.ElSparseMatrixLockedValueBuffer_z(*args)
+      else: DataExcept()
+    else:
+      if   self.tag == iTag: lib.ElSparseMatrixValueBuffer_i(*args)
+      elif self.tag == sTag: lib.ElSparseMatrixValueBuffer_s(*args)
+      elif self.tag == dTag: lib.ElSparseMatrixValueBuffer_d(*args)
+      elif self.tag == cTag: lib.ElSparseMatrixValueBuffer_c(*args)
+      elif self.tag == zTag: lib.ElSparseMatrixValueBuffer_z(*args)
+      else: DataExcept()
     return valueBuf

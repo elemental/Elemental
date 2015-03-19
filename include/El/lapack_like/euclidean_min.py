@@ -25,16 +25,6 @@ lib.ElGLMDist_c.argtypes = \
 lib.ElGLMDist_z.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p]
 
-lib.ElGLM_s.restype = \
-lib.ElGLM_d.restype = \
-lib.ElGLM_c.restype = \
-lib.ElGLM_z.restype = \
-lib.ElGLMDist_s.restype = \
-lib.ElGLMDist_d.restype = \
-lib.ElGLMDist_c.restype = \
-lib.ElGLMDist_z.restype = \
-  c_uint
-
 def GLM(A,B,D):
   if type(A) is not type(B) or type(B) is not type(D):
     raise Exception('Matrix types of {A,B,D} must match')
@@ -104,32 +94,6 @@ lib.ElLeastSquaresXSparse_z.argtypes = \
 lib.ElLeastSquaresXDistSparse_d.argtypes = \
 lib.ElLeastSquaresXDistSparse_z.argtypes = \
   [c_uint,c_void_p,c_void_p,c_void_p,LeastSquaresCtrl_d]
-
-lib.ElLeastSquares_s.restype = \
-lib.ElLeastSquares_d.restype = \
-lib.ElLeastSquares_c.restype = \
-lib.ElLeastSquares_z.restype = \
-lib.ElLeastSquaresDist_s.restype = \
-lib.ElLeastSquaresDist_d.restype = \
-lib.ElLeastSquaresDist_c.restype = \
-lib.ElLeastSquaresDist_z.restype = \
-lib.ElLeastSquaresSparse_s.restype = \
-lib.ElLeastSquaresSparse_d.restype = \
-lib.ElLeastSquaresSparse_c.restype = \
-lib.ElLeastSquaresSparse_z.restype = \
-lib.ElLeastSquaresDistSparse_s.restype = \
-lib.ElLeastSquaresDistSparse_d.restype = \
-lib.ElLeastSquaresDistSparse_c.restype = \
-lib.ElLeastSquaresDistSparse_z.restype = \
-lib.ElLeastSquaresXSparse_s.restype = \
-lib.ElLeastSquaresXSparse_d.restype = \
-lib.ElLeastSquaresXSparse_c.restype = \
-lib.ElLeastSquaresXSparse_z.restype = \
-lib.ElLeastSquaresXDistSparse_s.restype = \
-lib.ElLeastSquaresXDistSparse_d.restype = \
-lib.ElLeastSquaresXDistSparse_c.restype = \
-lib.ElLeastSquaresXDistSparse_z.restype = \
-  c_uint
 
 def LeastSquares(A,B,orient=NORMAL,ctrl=None):
   if A.tag != B.tag:
@@ -210,16 +174,6 @@ lib.ElLSEDist_c.argtypes = \
 lib.ElLSEDist_z.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
 
-lib.ElLSE_s.restype = \
-lib.ElLSE_d.restype = \
-lib.ElLSE_c.restype = \
-lib.ElLSE_z.restype = \
-lib.ElLSEDist_s.restype = \
-lib.ElLSEDist_d.restype = \
-lib.ElLSEDist_c.restype = \
-lib.ElLSEDist_z.restype = \
-  c_uint
-
 def LSE(A,B,C,D):
   if type(A) is not type(B) or type(B) is not type(C) or type(C) is not type(D):
     raise Exception('Matrix types of {A,B,C,D} must match')
@@ -266,20 +220,6 @@ lib.ElRidgeDist_z.argtypes = \
 lib.ElRidgeDistSparse_d.argtypes = \
 lib.ElRidgeDistSparse_z.argtypes = \
   [c_void_p,c_void_p,dType,c_void_p]
-
-lib.ElRidge_s.restype = \
-lib.ElRidge_d.restype = \
-lib.ElRidge_c.restype = \
-lib.ElRidge_z.restype = \
-lib.ElRidgeDist_s.restype = \
-lib.ElRidgeDist_d.restype = \
-lib.ElRidgeDist_c.restype = \
-lib.ElRidgeDist_z.restype = \
-lib.ElRidgeDistSparse_s.restype = \
-lib.ElRidgeDistSparse_d.restype = \
-lib.ElRidgeDistSparse_c.restype = \
-lib.ElRidgeDistSparse_z.restype = \
-  c_uint
 
 def Ridge(A,B,alpha,alg=RIDGE_CHOLESKY):
   if A.tag != B.tag:
@@ -337,19 +277,6 @@ lib.ElTikhonovDistSparse_d.argtypes = \
 lib.ElTikhonovDistSparse_c.argtypes = \
 lib.ElTikhonovDistSparse_z.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p]
-
-lib.ElTikhonov_s.restype = c_uint
-lib.ElTikhonov_d.restype = c_uint
-lib.ElTikhonov_c.restype = c_uint
-lib.ElTikhonov_z.restype = c_uint
-lib.ElTikhonovDist_s.restype = c_uint
-lib.ElTikhonovDist_d.restype = c_uint
-lib.ElTikhonovDist_c.restype = c_uint
-lib.ElTikhonovDist_z.restype = c_uint
-lib.ElTikhonovDistSparse_s.restype = c_uint
-lib.ElTikhonovDistSparse_d.restype = c_uint
-lib.ElTikhonovDistSparse_c.restype = c_uint
-lib.ElTikhonovDistSparse_z.restype = c_uint
 
 def Tikhonov(A,B,Gamma,alg=TIKHONOV_CHOLESKY):
   if type(A) is not type(Gamma):

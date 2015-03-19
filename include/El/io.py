@@ -41,35 +41,6 @@ lib.ElPrintDistSparse_c.argtypes = \
 lib.ElPrintDistSparse_z.argtypes = \
   [c_void_p,c_char_p]
 
-lib.ElPrint_i.restype = \
-lib.ElPrint_s.restype = \
-lib.ElPrint_d.restype = \
-lib.ElPrint_c.restype = \
-lib.ElPrint_z.restype = \
-lib.ElPrintDist_i.restype = \
-lib.ElPrintDist_s.restype = \
-lib.ElPrintDist_d.restype = \
-lib.ElPrintDist_c.restype = \
-lib.ElPrintDist_z.restype = \
-lib.ElPrintDistMultiVec_i.restype = \
-lib.ElPrintDistMultiVec_s.restype = \
-lib.ElPrintDistMultiVec_d.restype = \
-lib.ElPrintDistMultiVec_c.restype = \
-lib.ElPrintDistMultiVec_z.restype = \
-lib.ElPrintGraph.restype = \
-lib.ElPrintDistGraph.restype = \
-lib.ElPrintSparse_i.restype = \
-lib.ElPrintSparse_s.restype = \
-lib.ElPrintSparse_d.restype = \
-lib.ElPrintSparse_c.restype = \
-lib.ElPrintSparse_z.restype = \
-lib.ElPrintDistSparse_i.restype = \
-lib.ElPrintDistSparse_s.restype = \
-lib.ElPrintDistSparse_d.restype = \
-lib.ElPrintDistSparse_c.restype = \
-lib.ElPrintDistSparse_z.restype = \
-  c_uint
-
 def Print(A,title=''):
   args = [A.obj,title]
   if type(A) is Matrix:
@@ -114,31 +85,26 @@ def Print(A,title=''):
   else: TypeExcept()
 
 lib.ElSetColorMap.argtypes = [c_uint]
-lib.ElSetColorMap.restype = c_uint
 def SetColorMap(colorMap):
   lib.ElSetColorMap(colorMap)
 
 lib.ElGetColorMap.argtypes = [POINTER(c_uint)]
-lib.ElGetColorMap.restype = c_uint
 def ColorMap():
   colorMap = c_uint()
   lib.ElGetColorMap(pointer(colorMap))
   return colorMap
 
 lib.ElSetNumDiscreteColors.argtypes = [iType]
-lib.ElSetNumDiscreteColors.restype = c_uint
 def SetNumDiscreteColors(numColors):
   lib.ElSetNumDiscreteColors(numColors)
 
 lib.ElNumDiscreteColors.argtypes = [POINTER(iType)]
-lib.ElNumDiscreteColors.restype = c_uint
 def NumDiscreteColors():
   numDiscrete = iType()
   lib.ElNumDiscreteColors(pointer(numDiscrete))
   return numDiscrete
 
 lib.ElProcessEvents.argtypes = [c_int]
-lib.ElProcessEvents.restype = c_uint
 def ProcessEvents(numMsecs):
   lib.ElProcessEvents(numMsecs)
 
@@ -170,35 +136,6 @@ lib.ElDisplayDistSparse_d.argtypes = \
 lib.ElDisplayDistSparse_c.argtypes = \
 lib.ElDisplayDistSparse_z.argtypes = \
   [c_void_p,c_char_p]
-
-lib.ElDisplay_i.restype = \
-lib.ElDisplay_s.restype = \
-lib.ElDisplay_d.restype = \
-lib.ElDisplay_c.restype = \
-lib.ElDisplay_z.restype = \
-lib.ElDisplayDist_i.restype = \
-lib.ElDisplayDist_s.restype = \
-lib.ElDisplayDist_d.restype = \
-lib.ElDisplayDist_c.restype = \
-lib.ElDisplayDist_z.restype = \
-lib.ElDisplayDistMultiVec_i.restype = \
-lib.ElDisplayDistMultiVec_s.restype = \
-lib.ElDisplayDistMultiVec_d.restype = \
-lib.ElDisplayDistMultiVec_c.restype = \
-lib.ElDisplayDistMultiVec_z.restype = \
-lib.ElDisplayGraph.restype = \
-lib.ElDisplayDistGraph.restype = \
-lib.ElDisplaySparse_i.restype = \
-lib.ElDisplaySparse_s.restype = \
-lib.ElDisplaySparse_d.restype = \
-lib.ElDisplaySparse_c.restype = \
-lib.ElDisplaySparse_z.restype = \
-lib.ElDisplayDistSparse_i.restype = \
-lib.ElDisplayDistSparse_s.restype = \
-lib.ElDisplayDistSparse_d.restype = \
-lib.ElDisplayDistSparse_c.restype = \
-lib.ElDisplayDistSparse_z.restype = \
-  c_uint
 
 def Display(A,title='',tryPython=True):
   if tryPython: 
@@ -361,18 +298,6 @@ lib.ElSpy_z.argtypes = \
 lib.ElSpyDist_z.argtypes = \
   [c_void_p,c_char_p,dType]
 
-lib.ElSpy_i.restype = \
-lib.ElSpy_s.restype = \
-lib.ElSpy_d.restype = \
-lib.ElSpy_c.restype = \
-lib.ElSpy_z.restype = \
-lib.ElSpyDist_i.restype = \
-lib.ElSpyDist_s.restype = \
-lib.ElSpyDist_d.restype = \
-lib.ElSpyDist_c.restype = \
-lib.ElSpyDist_z.restype = \
-  c_uint
-
 def Spy(A,title='',tol=0):
   args = [A.obj,title,tol]
   if type(A) is Matrix:
@@ -403,18 +328,6 @@ lib.ElReadDist_c.argtypes = \
 lib.ElReadDist_z.argtypes = \
   [c_void_p,c_char_p,c_uint]
 
-lib.ElRead_i.restype = \
-lib.ElRead_s.restype = \
-lib.ElRead_d.restype = \
-lib.ElRead_c.restype = \
-lib.ElRead_z.restype = \
-lib.ElReadDist_i.restype = \
-lib.ElReadDist_s.restype = \
-lib.ElReadDist_d.restype = \
-lib.ElReadDist_c.restype = \
-lib.ElReadDist_z.restype = \
-  c_uint
-
 def Read(A,filename,fileFormat=AUTO):
   args = [A.obj,filename,fileFormat]
   if type(A) is Matrix:
@@ -444,18 +357,6 @@ lib.ElWriteDist_d.argtypes = \
 lib.ElWriteDist_c.argtypes = \
 lib.ElWriteDist_z.argtypes = \
   [c_void_p,c_char_p,c_uint,c_char_p]
-
-lib.ElWrite_i.restype = \
-lib.ElWrite_s.restype = \
-lib.ElWrite_d.restype = \
-lib.ElWrite_c.restype = \
-lib.ElWrite_z.restype = \
-lib.ElWriteDist_i.restype = \
-lib.ElWriteDist_s.restype = \
-lib.ElWriteDist_d.restype = \
-lib.ElWriteDist_c.restype = \
-lib.ElWriteDist_z.restype = \
-  c_uint
 
 def Write(A,basename,fileFormat,title=''):
   args = [A.obj,basename,fileFormat,title]

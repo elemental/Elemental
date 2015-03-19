@@ -8,158 +8,129 @@
 #
 from environment import *
 
-# Graph
-# ======
-
-lib.ElGraphCreate.argtypes = [POINTER(c_void_p)]
-lib.ElGraphCreate.restype = c_uint
-
-lib.ElGraphDestroy.argtypes = [c_void_p]
-lib.ElGraphDestroy.restype = c_uint
-
-lib.ElGraphEmpty.argtypes = [c_void_p]
-lib.ElGraphEmpty.restype = c_uint
-
-lib.ElGraphResize.argtypes = [c_void_p,iType,iType]
-lib.ElGraphResize.restype = c_uint
-
-lib.ElGraphReserve.argtypes = [c_void_p,iType]
-lib.ElGraphReserve.restype = c_uint
-
-lib.ElGraphConnect.argtypes = [c_void_p,iType,iType]
-lib.ElGraphConnect.restype = c_uint
-
-lib.ElGraphDisconnect.argtypes = [c_void_p,iType,iType]
-lib.ElGraphDisconnect.restype = c_uint
-
-lib.ElGraphQueueConnection.argtypes = [c_void_p,iType,iType]
-lib.ElGraphQueueConnection.restype = c_uint
-
-lib.ElGraphQueueDisconnection.argtypes = [c_void_p,iType,iType]
-lib.ElGraphQueueDisconnection.restype = c_uint
-
-lib.ElGraphMakeConsistent.argtypes = [c_void_p]
-lib.ElGraphMakeConsistent.restype = c_uint
-
-lib.ElGraphNumSources.argtypes = [c_void_p,POINTER(iType)]
-lib.ElGraphNumSources.restype = c_uint
-
-lib.ElGraphNumTargets.argtypes = [c_void_p,POINTER(iType)]
-lib.ElGraphNumTargets.restype = c_uint
-
-lib.ElGraphNumEdges.argtypes = [c_void_p,POINTER(iType)]
-lib.ElGraphNumEdges.restype = c_uint
-
-lib.ElGraphCapacity.argtypes = [c_void_p,POINTER(iType)]
-lib.ElGraphCapacity.restype = c_uint
-
-lib.ElGraphConsistent.argtypes = [c_void_p,POINTER(bType)]
-lib.ElGraphConsistent.restype = c_uint
-
-lib.ElGraphSource.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElGraphSource.restype = c_uint
-
-lib.ElGraphTarget.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElGraphTarget.restype = c_uint
-
-lib.ElGraphEdgeOffset.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElGraphEdgeOffset.restype = c_uint
-
-lib.ElGraphNumConnections.argtypes = [c_void_p,iType,POINTER(iType)]
-lib.ElGraphNumConnections.restype = c_uint
-
-lib.ElGraphSourceBuffer.argtypes = [c_void_p,POINTER(POINTER(iType))]
-lib.ElGraphSourceBuffer.restype = c_uint
-
-lib.ElGraphLockedSourceBuffer.argtypes = [c_void_p,POINTER(POINTER(iType))]
-lib.ElGraphLockedSourceBuffer.restype = c_uint
-
-lib.ElGraphTargetBuffer.argtypes = [c_void_p,POINTER(POINTER(iType))]
-lib.ElGraphTargetBuffer.restype = c_uint
-
-lib.ElGraphLockedTargetBuffer.argtypes = [c_void_p,POINTER(POINTER(iType))]
-lib.ElGraphLockedTargetBuffer.restype = c_uint
-
 class Graph(object):
   # Constructors and destructors
   # ============================
+  lib.ElGraphCreate.argtypes = [POINTER(c_void_p)]
   def __init__(self,create=True):
     self.obj = c_void_p()
     if create:
       lib.ElGraphCreate(pointer(self.obj))
+
+  lib.ElGraphDestroy.argtypes = [c_void_p]
   def Destroy(self):
     lib.ElGraphDestroy(self.obj)
+
   # Assignment and reconfiguration
   # ==============================
+  lib.ElGraphEmpty.argtypes = [c_void_p]
   def Empty(self):
     lib.ElGraphEmpty(self.obj)
+
+  lib.ElGraphResize.argtypes = [c_void_p,iType,iType]
   def Resize(self,numSources,numTargets=None):
     if numTargets == None: 
       numTargets = numSources
     lib.ElGraphResize(self.obj,numSources,numTargets)
+
+  lib.ElGraphReserve.argtypes = [c_void_p,iType]
   def Reserve(self,numEdges):
     lib.ElGraphReserve(self.obj,numEdges)
+
+  lib.ElGraphConnect.argtypes = [c_void_p,iType,iType]
   def Connect(self,source,target):
     lib.ElGraphConnect(self.obj,source,target)
+
+  lib.ElGraphDisconnect.argtypes = [c_void_p,iType,iType]
   def Disconnect(self,source,target):
     lib.ElGraphDisconnect(self.obj,source,target)
+
+  lib.ElGraphQueueConnection.argtypes = [c_void_p,iType,iType]
   def QueueConnection(self,source,target):
     lib.ElGraphQueueConnection(self.obj,source,target)
+
+  lib.ElGraphQueueDisconnection.argtypes = [c_void_p,iType,iType]
   def QueueDisconnection(self,source,target):
     lib.ElGraphQueueDisconnection(self.obj,source,target)
+
+  lib.ElGraphMakeConsistent.argtypes = [c_void_p]
   def MakeConsistent(self):
     lib.ElGraphMakeConsistent(self.obj)
+
   # Queries
   # =======
+  lib.ElGraphNumSources.argtypes = [c_void_p,POINTER(iType)]
   def NumSources(self):
     numSources = iType()
     lib.ElGraphNumSources(self.obj,pointer(numSources))
     return numSources.value
+
+  lib.ElGraphNumTargets.argtypes = [c_void_p,POINTER(iType)]
   def NumTargets(self):
     numTargets = iType()
     lib.ElGraphNumTargets(self.obj,pointer(numTargets))
     return numTargets.value
+
+  lib.ElGraphNumEdges.argtypes = [c_void_p,POINTER(iType)]
   def NumEdges(self):
     numEdges = iType()
     lib.ElGraphNumEdges(self.obj,pointer(numEdges))
     return numEdges.value
+
+  lib.ElGraphCapacity.argtypes = [c_void_p,POINTER(iType)]
   def Capacity(self):
     capacity = iType()
     lib.ElGraphCapacity(self.obj,pointer(capacity))
     return capacity.value
+
+  lib.ElGraphConsistent.argtypes = [c_void_p,POINTER(bType)]
   def Consistent(self):
     consistent = bType()
     lib.ElGraphConsistent(self.obj,pointer(consistent))
     return consistent.value
+
+  lib.ElGraphSource.argtypes = [c_void_p,iType,POINTER(iType)]
   def Source(self,edge):
     source = iType()
     lib.ElGraphSource(self.obj,edge,pointer(source))
     return source.value
+
+  lib.ElGraphTarget.argtypes = [c_void_p,iType,POINTER(iType)]
   def Target(self,edge):
     target = iType()
     lib.ElGraphTarget(self.obj,edge,pointer(target))
     return target.value
+
+  lib.ElGraphEdgeOffset.argtypes = [c_void_p,iType,POINTER(iType)]
   def EdgeOffset(self,source):
     edgeOffset = iType()
     lib.ElGraphEdgeOffset(self.obj,source,pointer(edgeOffset))
     return edgeOffset.value
+
+  lib.ElGraphNumConnections.argtypes = [c_void_p,iType,POINTER(iType)]
   def NumConnections(self,source):
     numConnections = iType()
     lib.ElGraphNumConnections(self.obj,source,pointer(numConnections))
     return numConnections.value
-  def SourceBuffer(self):
+
+  lib.ElGraphSourceBuffer.argtypes = \
+  lib.ElGraphLockedSourceBuffer.argtypes = \
+    [c_void_p,POINTER(POINTER(iType))]
+  def SourceBuffer(self,locked=False):
     sourceBuf = POINTER(iType)()
-    lib.ElGraphSourceBuffer(self.obj,pointer(sourceBuf))
+    if locked:
+      lib.ElGraphLockedSourceBuffer(self.obj,pointer(sourceBuf))
+    else:
+      lib.ElGraphSourceBuffer(self.obj,pointer(sourceBuf))
     return sourceBuf
-  def LockedSourceBuffer(self):
-    sourceBuf = POINTER(iType)()
-    lib.ElGraphLockedSourceBuffer(self.obj,pointer(sourceBuf))
-    return sourceBuf
+
+  lib.ElGraphTargetBuffer.argtypes = \
+  lib.ElGraphLockedTargetBuffer.argtypes = \
+    [c_void_p,POINTER(POINTER(iType))]
   def TargetBuffer(self):
     targetBuf = POINTER(iType)()
-    lib.ElGraphTargetBuffer(self.obj,pointer(targetBuf))
-    return targetBuf
-  def LockedTargetBuffer(self):
-    targetBuf = POINTER(iType)()
-    lib.ElGraphLockedTargetBuffer(self.obj,pointer(targetBuf))
+    if locked:
+      lib.ElGraphLockedTargetBuffer(self.obj,pointer(targetBuf))
+    else:
+      lib.ElGraphTargetBuffer(self.obj,pointer(targetBuf))
     return targetBuf

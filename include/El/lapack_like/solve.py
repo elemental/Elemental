@@ -46,32 +46,6 @@ lib.ElLinearSolveXDistSparse_d.argtypes = \
 lib.ElLinearSolveXDistSparse_z.argtypes = \
   [c_void_p,c_void_p,LeastSquaresCtrl_d]
 
-lib.ElLinearSolve_s.restype = \
-lib.ElLinearSolve_d.restype = \
-lib.ElLinearSolve_c.restype = \
-lib.ElLinearSolve_z.restype = \
-lib.ElLinearSolveDist_s.restype = \
-lib.ElLinearSolveDist_d.restype = \
-lib.ElLinearSolveDist_c.restype = \
-lib.ElLinearSolveDist_z.restype = \
-lib.ElLinearSolveSparse_s.restype = \
-lib.ElLinearSolveSparse_d.restype = \
-lib.ElLinearSolveSparse_c.restype = \
-lib.ElLinearSolveSparse_z.restype = \
-lib.ElLinearSolveDistSparse_s.restype = \
-lib.ElLinearSolveDistSparse_d.restype = \
-lib.ElLinearSolveDistSparse_c.restype = \
-lib.ElLinearSolveDistSparse_z.restype = \
-lib.ElLinearSolveXSparse_s.restype = \
-lib.ElLinearSolveXSparse_d.restype = \
-lib.ElLinearSolveXSparse_c.restype = \
-lib.ElLinearSolveXSparse_z.restype = \
-lib.ElLinearSolveXDistSparse_s.restype = \
-lib.ElLinearSolveXDistSparse_d.restype = \
-lib.ElLinearSolveXDistSparse_c.restype = \
-lib.ElLinearSolveXDistSparse_z.restype = \
-  c_uint
-
 def LinearSolve(A,B,ctrl=None):
   args = [A.obj,B.obj]
   argsCtrl = [A.obj,B.obj,ctrl]
@@ -144,22 +118,6 @@ lib.ElHermitianSolveDistSparse_c.argtypes = \
 lib.ElHermitianSolveDistSparse_z.argtypes = \
   [c_void_p,c_void_p]
 
-lib.ElSymmetricSolve_s.restype = \
-lib.ElSymmetricSolve_d.restype = \
-lib.ElSymmetricSolve_c.restype = \
-lib.ElSymmetricSolve_z.restype = \
-lib.ElSymmetricSolveDist_s.restype = \
-lib.ElSymmetricSolveDist_d.restype = \
-lib.ElSymmetricSolveDist_c.restype = \
-lib.ElSymmetricSolveDist_z.restype = \
-lib.ElSymmetricSolveDistSparse_s.restype = \
-lib.ElSymmetricSolveDistSparse_d.restype = \
-lib.ElSymmetricSolveDistSparse_c.restype = \
-lib.ElSymmetricSolveDistSparse_z.restype = \
-lib.ElHermitianSolveDistSparse_c.restype = \
-lib.ElHermitianSolveDistSparse_z.restype = \
-  c_uint
-
 def SymmetricSolve(A,B,conjugate=False,uplo=LOWER,orient=NORMAL):
   if A.tag != B.tag:
     raise Exception('Datatypes of A and B must match')
@@ -221,16 +179,6 @@ lib.ElHPDSolveDist_c.argtypes = \
 lib.ElHPDSolveDist_z.argtypes = \
   [c_uint,c_uint,c_void_p,c_void_p]
 
-lib.ElHPDSolve_s.restype = \
-lib.ElHPDSolve_d.restype = \
-lib.ElHPDSolve_c.restype = \
-lib.ElHPDSolve_z.restype = \
-lib.ElHPDSolveDist_s.restype = \
-lib.ElHPDSolveDist_d.restype = \
-lib.ElHPDSolveDist_c.restype = \
-lib.ElHPDSolveDist_z.restype = \
-  c_uint
-
 def HPDSolve(A,B,uplo=LOWER,orient=NORMAL):
   if type(A) is not type(B):
     raise Exception('Matrix types of A and B must match')
@@ -262,16 +210,6 @@ lib.ElMultiShiftHessSolveDist_d.argtypes = \
 lib.ElMultiShiftHessSolveDist_c.argtypes = \
 lib.ElMultiShiftHessSolveDist_z.argtypes = \
   [c_uint,c_uint,zType,c_void_p,c_void_p,c_void_p]
-
-lib.ElMultiShiftHessSolve_s.restype = \
-lib.ElMultiShiftHessSolve_d.restype = \
-lib.ElMultiShiftHessSolve_c.restype = \
-lib.ElMultiShiftHessSolve_z.restype = \
-lib.ElMultiShiftHessSolveDist_s.restype = \
-lib.ElMultiShiftHessSolveDist_d.restype = \
-lib.ElMultiShiftHessSolveDist_c.restype = \
-lib.ElMultiShiftHessSolveDist_z.restype = \
-  c_uint
 
 def MultiShiftHessSolve(H,shifts,X,alphaPre=1,uplo=LOWER,orient=NORMAL):
   if type(H) is not type(shifts) or type(shifts) is not type(X):

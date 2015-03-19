@@ -24,16 +24,6 @@ lib.ElConditionDist_d.argtypes = \
 lib.ElConditionDist_z.argtypes = \
   [c_void_p,c_uint,POINTER(dType)]
 
-lib.ElCondition_s.restype = \
-lib.ElCondition_d.restype = \
-lib.ElCondition_c.restype = \
-lib.ElCondition_z.restype = \
-lib.ElConditionDist_s.restype = \
-lib.ElConditionDist_d.restype = \
-lib.ElConditionDist_c.restype = \
-lib.ElConditionDist_z.restype = \
-  c_uint
-
 def Condition(A,normType=FROBENIUS_NORM):
   cond = TagToType(Base(A.tag))()
   args = [A.obj,normType,pointer(cond)]
@@ -64,16 +54,6 @@ lib.ElFrobeniusConditionDist_d.argtypes = \
 lib.ElFrobeniusConditionDist_z.argtypes = \
   [c_void_p,POINTER(dType)]
 
-lib.ElFrobeniusCondition_s.restype = \
-lib.ElFrobeniusCondition_d.restype = \
-lib.ElFrobeniusCondition_c.restype = \
-lib.ElFrobeniusCondition_z.restype = \
-lib.ElFrobeniusConditionDist_s.restype = \
-lib.ElFrobeniusConditionDist_d.restype = \
-lib.ElFrobeniusConditionDist_c.restype = \
-lib.ElFrobeniusConditionDist_z.restype = \
-  c_uint
-
 def FrobeniusCondition(A):
   cond = TagToType(Base(A.tag))()
   args = [A.obj,pointer(cond)]
@@ -102,16 +82,6 @@ lib.ElInfinityCondition_z.argtypes = \
 lib.ElInfinityConditionDist_d.argtypes = \
 lib.ElInfinityConditionDist_z.argtypes = \
   [c_void_p,POINTER(dType)]
-
-lib.ElInfinityCondition_s.restype = \
-lib.ElInfinityCondition_d.restype = \
-lib.ElInfinityCondition_c.restype = \
-lib.ElInfinityCondition_z.restype = \
-lib.ElInfinityConditionDist_s.restype = \
-lib.ElInfinityConditionDist_d.restype = \
-lib.ElInfinityConditionDist_c.restype = \
-lib.ElInfinityConditionDist_z.restype = \
-  c_uint
 
 def InfinityCondition(A):
   cond = TagToType(Base(A.tag))()
@@ -142,16 +112,6 @@ lib.ElMaxConditionDist_d.argtypes = \
 lib.ElMaxConditionDist_z.argtypes = \
   [c_void_p,POINTER(dType)]
 
-lib.ElMaxCondition_s.restype = \
-lib.ElMaxCondition_d.restype = \
-lib.ElMaxCondition_c.restype = \
-lib.ElMaxCondition_z.restype = \
-lib.ElMaxConditionDist_s.restype = \
-lib.ElMaxConditionDist_d.restype = \
-lib.ElMaxConditionDist_c.restype = \
-lib.ElMaxConditionDist_z.restype = \
-  c_uint
-
 def MaxCondition(A):
   cond = TagToType(Base(A.tag))()
   args = [A.obj,pointer(cond)]
@@ -181,16 +141,6 @@ lib.ElOneConditionDist_d.argtypes = \
 lib.ElOneConditionDist_z.argtypes = \
   [c_void_p,POINTER(dType)]
 
-lib.ElOneCondition_s.restype = \
-lib.ElOneCondition_d.restype = \
-lib.ElOneCondition_c.restype = \
-lib.ElOneCondition_z.restype = \
-lib.ElOneConditionDist_s.restype = \
-lib.ElOneConditionDist_d.restype = \
-lib.ElOneConditionDist_c.restype = \
-lib.ElOneConditionDist_z.restype = \
-  c_uint
-
 def OneCondition(A):
   cond = TagToType(Base(A.tag))()
   args = [A.obj,pointer(cond)]
@@ -219,16 +169,6 @@ lib.ElTwoCondition_z.argtypes = \
 lib.ElTwoConditionDist_d.argtypes = \
 lib.ElTwoConditionDist_z.argtypes = \
   [c_void_p,POINTER(dType)]
-
-lib.ElTwoCondition_s.restype = \
-lib.ElTwoCondition_d.restype = \
-lib.ElTwoCondition_c.restype = \
-lib.ElTwoCondition_z.restype = \
-lib.ElTwoConditionDist_s.restype = \
-lib.ElTwoConditionDist_d.restype = \
-lib.ElTwoConditionDist_c.restype = \
-lib.ElTwoConditionDist_z.restype = \
-  c_uint
 
 def TwoCondition(A):
   cond = TagToType(Base(A.tag))()
@@ -268,16 +208,6 @@ lib.ElSafeDeterminant_z.argtypes = \
 lib.ElSafeDeterminantDist_z.argtypes = \
   [c_void_p,POINTER(SafeProduct_z)]
 
-lib.ElSafeDeterminant_s.restype = \
-lib.ElSafeDeterminant_d.restype = \
-lib.ElSafeDeterminant_c.restype = \
-lib.ElSafeDeterminant_z.restype = \
-lib.ElSafeDeterminantDist_s.restype = \
-lib.ElSafeDeterminantDist_d.restype = \
-lib.ElSafeDeterminantDist_c.restype = \
-lib.ElSafeDeterminantDist_z.restype = \
-  c_uint
-
 def SafeDeterminant(A):
   safeProd = TagToSafeProduct(A.tag)
   args = [A.obj,pointer(safeProd)]
@@ -307,16 +237,6 @@ lib.ElSafeHPDDeterminant_z.argtypes = \
 lib.ElSafeHPDDeterminantDist_d.argtypes = \
 lib.ElSafeHPDDeterminantDist_z.argtypes = \
   [c_uint,c_void_p,POINTER(SafeProduct_d)]
-
-lib.ElSafeHPDDeterminant_s.restype = \
-lib.ElSafeHPDDeterminant_d.restype = \
-lib.ElSafeHPDDeterminant_c.restype = \
-lib.ElSafeHPDDeterminant_z.restype = \
-lib.ElSafeHPDDeterminantDist_s.restype = \
-lib.ElSafeHPDDeterminantDist_d.restype = \
-lib.ElSafeHPDDeterminantDist_c.restype = \
-lib.ElSafeHPDDeterminantDist_z.restype = \
-  c_uint
 
 def SafeHPDDeterminant(uplo,A):
   safeProd = TagToSafeProd(Base(A.tag))
@@ -354,16 +274,6 @@ lib.ElDeterminant_z.argtypes = \
 lib.ElDeterminantDist_z.argtypes = \
   [c_void_p,POINTER(zType)]
 
-lib.ElDeterminant_s.restype = \
-lib.ElDeterminant_d.restype = \
-lib.ElDeterminant_c.restype = \
-lib.ElDeterminant_z.restype = \
-lib.ElDeterminantDist_s.restype = \
-lib.ElDeterminantDist_d.restype = \
-lib.ElDeterminantDist_c.restype = \
-lib.ElDeterminantDist_z.restype = \
-  c_uint
-
 def Determinant(A):
   prod = TagToType(A.tag)()
   args = [A.obj,pointer(prod)]
@@ -398,16 +308,6 @@ lib.ElHPDDeterminant_z.argtypes = \
 lib.ElHPDDeterminantDist_z.argtypes = \
   [c_uint,c_void_p,POINTER(zType)]
 
-lib.ElHPDDeterminant_s.restype = \
-lib.ElHPDDeterminant_d.restype = \
-lib.ElHPDDeterminant_c.restype = \
-lib.ElHPDDeterminant_z.restype = \
-lib.ElHPDDeterminantDist_s.restype = \
-lib.ElHPDDeterminantDist_d.restype = \
-lib.ElHPDDeterminantDist_c.restype = \
-lib.ElHPDDeterminantDist_z.restype = \
-  c_uint
-
 def HPDDeterminant(uplo,A):
   prod = TagToType(Base(A.tag))()
   args = [uplo,A.obj,pointer(prod)]
@@ -437,16 +337,6 @@ lib.ElInertiaDist_d.argtypes = \
 lib.ElInertiaDist_c.argtypes = \
 lib.ElInertiaDist_z.argtypes = \
   [c_uint,c_void_p,c_uint,POINTER(InertiaType)]
-
-lib.ElInertia_s.restype = \
-lib.ElInertia_d.restype = \
-lib.ElInertia_c.restype = \
-lib.ElInertia_z.restype = \
-lib.ElInertiaDist_s.restype = \
-lib.ElInertiaDist_d.restype = \
-lib.ElInertiaDist_c.restype = \
-lib.ElInertiaDist_z.restype = \
-  c_uint
 
 def Inertia(uplo,A,pivType=BUNCH_KAUFMAN_A):
   inertia = InertiaType()
@@ -479,16 +369,6 @@ lib.ElNorm_z.argtypes = \
 lib.ElNormDist_d.argtypes = \
 lib.ElNormDist_z.argtypes = \
   [c_void_p,c_uint,POINTER(dType)]
-
-lib.ElNorm_s.restype = \
-lib.ElNorm_d.restype = \
-lib.ElNorm_c.restype = \
-lib.ElNorm_z.restype = \
-lib.ElNormDist_s.restype = \
-lib.ElNormDist_d.restype = \
-lib.ElNormDist_c.restype = \
-lib.ElNormDist_z.restype = \
-  c_uint
 
 def Norm(A,normType=FROBENIUS_NORM):
   norm = TagToType(Base(A.tag))()
@@ -523,20 +403,6 @@ lib.ElSymmetricNormDist_z.argtypes = \
 lib.ElHermitianNorm_z.argtypes = \
 lib.ElHermitianNormDist_z.argtypes = \
   [c_uint,c_void_p,c_uint,POINTER(dType)]
-
-lib.ElSymmetricNorm_s.restype = \
-lib.ElSymmetricNorm_d.restype = \
-lib.ElSymmetricNorm_c.restype = \
-lib.ElSymmetricNorm_z.restype = \
-lib.ElSymmetricNormDist_s.restype = \
-lib.ElSymmetricNormDist_d.restype = \
-lib.ElSymmetricNormDist_c.restype = \
-lib.ElSymmetricNormDist_z.restype = \
-lib.ElHermitianNorm_c.restype = \
-lib.ElHermitianNorm_z.restype = \
-lib.ElHermitianNormDist_c.restype = \
-lib.ElHermitianNormDist_z.restype = \
-  c_uint
 
 def SymmetricNorm(uplo,A,normType=FROBENIUS_NORM,conjugate=False):
   norm = TagToType(Base(A.tag))()
@@ -589,28 +455,6 @@ lib.ElEntrywiseNormDistSparse_z.argtypes = \
 lib.ElEntrywiseNormDistMultiVec_d.argtypes = \
 lib.ElEntrywiseNormDistMultiVec_z.argtypes = \
   [c_void_p,dType,POINTER(dType)]
-
-lib.ElEntrywiseNorm_s.restype = \
-lib.ElEntrywiseNorm_d.restype = \
-lib.ElEntrywiseNorm_c.restype = \
-lib.ElEntrywiseNorm_z.restype = \
-lib.ElEntrywiseNormDist_s.restype = \
-lib.ElEntrywiseNormDist_d.restype = \
-lib.ElEntrywiseNormDist_c.restype = \
-lib.ElEntrywiseNormDist_z.restype = \
-lib.ElEntrywiseNormSparse_s.restype = \
-lib.ElEntrywiseNormSparse_d.restype = \
-lib.ElEntrywiseNormSparse_c.restype = \
-lib.ElEntrywiseNormSparse_z.restype = \
-lib.ElEntrywiseNormDistSparse_s.restype = \
-lib.ElEntrywiseNormDistSparse_d.restype = \
-lib.ElEntrywiseNormDistSparse_c.restype = \
-lib.ElEntrywiseNormDistSparse_z.restype = \
-lib.ElEntrywiseNormDistMultiVec_s.restype = \
-lib.ElEntrywiseNormDistMultiVec_d.restype = \
-lib.ElEntrywiseNormDistMultiVec_c.restype = \
-lib.ElEntrywiseNormDistMultiVec_z.restype = \
-  c_uint
 
 def EntrywiseNorm(A,p=1):
   norm = TagToType(Base(A.tag))()
@@ -668,24 +512,6 @@ lib.ElSymmetricEntrywiseNormDistSparse_d.argtypes = \
 lib.ElSymmetricEntrywiseNormDistSparse_z.argtypes = \
   [c_uint,c_void_p,dType,POINTER(dType)]
 
-lib.ElSymmetricEntrywiseNorm_s.restype = \
-lib.ElSymmetricEntrywiseNorm_d.restype = \
-lib.ElSymmetricEntrywiseNorm_c.restype = \
-lib.ElSymmetricEntrywiseNorm_z.restype = \
-lib.ElSymmetricEntrywiseNormDist_s.restype = \
-lib.ElSymmetricEntrywiseNormDist_d.restype = \
-lib.ElSymmetricEntrywiseNormDist_c.restype = \
-lib.ElSymmetricEntrywiseNormDist_z.restype = \
-lib.ElSymmetricEntrywiseNormSparse_s.restype = \
-lib.ElSymmetricEntrywiseNormSparse_d.restype = \
-lib.ElSymmetricEntrywiseNormSparse_c.restype = \
-lib.ElSymmetricEntrywiseNormSparse_z.restype = \
-lib.ElSymmetricEntrywiseNormDistSparse_s.restype = \
-lib.ElSymmetricEntrywiseNormDistSparse_d.restype = \
-lib.ElSymmetricEntrywiseNormDistSparse_c.restype = \
-lib.ElSymmetricEntrywiseNormDistSparse_z.restype = \
-  c_uint
-
 def SymmetricEntrywiseNorm(uplo,A,p=1):
   norm = TagToType(Base(A.tag))()
   args = [uplo,A.obj,p,pointer(norm)]
@@ -741,28 +567,6 @@ lib.ElFrobeniusNormDistSparse_z.argtypes = \
 lib.ElFrobeniusNormDistMultiVec_d.argtypes = \
 lib.ElFrobeniusNormDistMultiVec_z.argtypes = \
   [c_void_p,POINTER(dType)]
-
-lib.ElFrobeniusNorm_s.restype = \
-lib.ElFrobeniusNorm_d.restype = \
-lib.ElFrobeniusNorm_c.restype = \
-lib.ElFrobeniusNorm_z.restype = \
-lib.ElFrobeniusNormDist_s.restype = \
-lib.ElFrobeniusNormDist_d.restype = \
-lib.ElFrobeniusNormDist_c.restype = \
-lib.ElFrobeniusNormDist_z.restype = \
-lib.ElFrobeniusNormSparse_s.restype = \
-lib.ElFrobeniusNormSparse_d.restype = \
-lib.ElFrobeniusNormSparse_c.restype = \
-lib.ElFrobeniusNormSparse_z.restype = \
-lib.ElFrobeniusNormDistSparse_s.restype = \
-lib.ElFrobeniusNormDistSparse_d.restype = \
-lib.ElFrobeniusNormDistSparse_c.restype = \
-lib.ElFrobeniusNormDistSparse_z.restype = \
-lib.ElFrobeniusNormDistMultiVec_s.restype = \
-lib.ElFrobeniusNormDistMultiVec_d.restype = \
-lib.ElFrobeniusNormDistMultiVec_c.restype = \
-lib.ElFrobeniusNormDistMultiVec_z.restype = \
-  c_uint
 
 def FrobeniusNorm(A):
   norm = TagToType(Base(A.tag))()
@@ -820,24 +624,6 @@ lib.ElSymmetricFrobeniusNormDistSparse_d.argtypes = \
 lib.ElSymmetricFrobeniusNormDistSparse_z.argtypes = \
   [c_uint,c_void_p,POINTER(dType)]
 
-lib.ElSymmetricFrobeniusNorm_s.restype = \
-lib.ElSymmetricFrobeniusNorm_d.restype = \
-lib.ElSymmetricFrobeniusNorm_c.restype = \
-lib.ElSymmetricFrobeniusNorm_z.restype = \
-lib.ElSymmetricFrobeniusNormDist_s.restype = \
-lib.ElSymmetricFrobeniusNormDist_d.restype = \
-lib.ElSymmetricFrobeniusNormDist_c.restype = \
-lib.ElSymmetricFrobeniusNormDist_z.restype = \
-lib.ElSymmetricFrobeniusNormSparse_s.restype = \
-lib.ElSymmetricFrobeniusNormSparse_d.restype = \
-lib.ElSymmetricFrobeniusNormSparse_c.restype = \
-lib.ElSymmetricFrobeniusNormSparse_z.restype = \
-lib.ElSymmetricFrobeniusNormDistSparse_s.restype = \
-lib.ElSymmetricFrobeniusNormDistSparse_d.restype = \
-lib.ElSymmetricFrobeniusNormDistSparse_c.restype = \
-lib.ElSymmetricFrobeniusNormDistSparse_z.restype = \
-  c_uint
-
 def SymmetricFrobeniusNorm(uplo,A):
   norm = TagToType(Base(A.tag))()
   args = [uplo,A.obj,pointer(norm)]
@@ -882,16 +668,6 @@ lib.ElInfinityNormDist_d.argtypes = \
 lib.ElInfinityNormDist_z.argtypes = \
   [c_void_p,POINTER(dType)]
 
-lib.ElInfinityNorm_s.restype = \
-lib.ElInfinityNorm_d.restype = \
-lib.ElInfinityNorm_c.restype = \
-lib.ElInfinityNorm_z.restype = \
-lib.ElInfinityNormDist_s.restype = \
-lib.ElInfinityNormDist_d.restype = \
-lib.ElInfinityNormDist_c.restype = \
-lib.ElInfinityNormDist_z.restype = \
-  c_uint
-
 def InfinityNorm(A):
   norm = TagToType(Base(A.tag))()
   args = [A.obj,pointer(norm)]
@@ -921,16 +697,6 @@ lib.ElSymmetricInfinityNorm_z.argtypes = \
 lib.ElSymmetricInfinityNormDist_d.argtypes = \
 lib.ElSymmetricInfinityNormDist_z.argtypes = \
   [c_uint,c_void_p,POINTER(dType)]
-
-lib.ElSymmetricInfinityNorm_s.restype = \
-lib.ElSymmetricInfinityNorm_d.restype = \
-lib.ElSymmetricInfinityNorm_c.restype = \
-lib.ElSymmetricInfinityNorm_z.restype = \
-lib.ElSymmetricInfinityNormDist_s.restype = \
-lib.ElSymmetricInfinityNormDist_d.restype = \
-lib.ElSymmetricInfinityNormDist_c.restype = \
-lib.ElSymmetricInfinityNormDist_z.restype = \
-  c_uint
 
 def SymmetricInfinityNorm(uplo,A):
   norm = TagToType(Base(A.tag))()
@@ -963,16 +729,6 @@ lib.ElKyFanNorm_z.argtypes = \
 lib.ElKyFanNormDist_d.argtypes = \
 lib.ElKyFanNormDist_z.argtypes = \
   [c_void_p,iType,POINTER(dType)]
-
-lib.ElKyFanNorm_s.restype = \
-lib.ElKyFanNorm_d.restype = \
-lib.ElKyFanNorm_c.restype = \
-lib.ElKyFanNorm_z.restype = \
-lib.ElKyFanNormDist_s.restype = \
-lib.ElKyFanNormDist_d.restype = \
-lib.ElKyFanNormDist_c.restype = \
-lib.ElKyFanNormDist_z.restype = \
-  c_uint
 
 def KyFanNorm(A,k):
   norm = TagToType(Base(A.tag))()
@@ -1007,20 +763,6 @@ lib.ElSymmetricKyFanNormDist_z.argtypes = \
 lib.ElHermitianKyFanNorm_z.argtypes = \
 lib.ElHermitianKyFanNormDist_z.argtypes = \
   [c_uint,c_void_p,iType,POINTER(dType)]
-
-lib.ElSymmetricKyFanNorm_s.restype = \
-lib.ElSymmetricKyFanNorm_d.restype = \
-lib.ElSymmetricKyFanNorm_c.restype = \
-lib.ElSymmetricKyFanNorm_z.restype = \
-lib.ElSymmetricKyFanNormDist_s.restype = \
-lib.ElSymmetricKyFanNormDist_d.restype = \
-lib.ElSymmetricKyFanNormDist_c.restype = \
-lib.ElSymmetricKyFanNormDist_z.restype = \
-lib.ElHermitianKyFanNorm_c.restype = \
-lib.ElHermitianKyFanNorm_z.restype = \
-lib.ElHermitianKyFanNormDist_c.restype = \
-lib.ElHermitianKyFanNormDist_z.restype = \
-  c_uint
 
 def SymmetricKyFanNorm(uplo,A,k,conjugate=False):
   norm = TagToType(Base(A.tag))()
@@ -1062,16 +804,6 @@ lib.ElKyFanSchattenNormDist_d.argtypes = \
 lib.ElKyFanSchattenNormDist_z.argtypes = \
   [c_void_p,iType,dType,POINTER(dType)]
 
-lib.ElKyFanSchattenNorm_s.restype = \
-lib.ElKyFanSchattenNorm_d.restype = \
-lib.ElKyFanSchattenNorm_c.restype = \
-lib.ElKyFanSchattenNorm_z.restype = \
-lib.ElKyFanSchattenNormDist_s.restype = \
-lib.ElKyFanSchattenNormDist_d.restype = \
-lib.ElKyFanSchattenNormDist_c.restype = \
-lib.ElKyFanSchattenNormDist_z.restype = \
-  c_uint
-
 def KyFanSchattenNorm(A,k,p):
   norm = TagToType(Base(A.tag))()
   args = [A.obj,k,p,pointer(norm)]
@@ -1105,20 +837,6 @@ lib.ElSymmetricKyFanSchattenNormDist_z.argtypes = \
 lib.ElHermitianKyFanSchattenNorm_z.argtypes = \
 lib.ElHermitianKyFanSchattenNormDist_z.argtypes = \
   [c_uint,c_void_p,iType,dType,POINTER(dType)]
-
-lib.ElSymmetricKyFanSchattenNorm_s.restype = \
-lib.ElSymmetricKyFanSchattenNorm_d.restype = \
-lib.ElSymmetricKyFanSchattenNorm_c.restype = \
-lib.ElSymmetricKyFanSchattenNorm_z.restype = \
-lib.ElSymmetricKyFanSchattenNormDist_s.restype = \
-lib.ElSymmetricKyFanSchattenNormDist_d.restype = \
-lib.ElSymmetricKyFanSchattenNormDist_c.restype = \
-lib.ElSymmetricKyFanSchattenNormDist_z.restype = \
-lib.ElHermitianKyFanSchattenNorm_c.restype = \
-lib.ElHermitianKyFanSchattenNorm_z.restype = \
-lib.ElHermitianKyFanSchattenNormDist_c.restype = \
-lib.ElHermitianKyFanSchattenNormDist_z.restype = \
-  c_uint
 
 def SymmetricKyFanSchattenNorm(uplo,A,k,p,conjugate=False):
   norm = TagToType(Base(A.tag))()
@@ -1178,33 +896,6 @@ lib.ElMaxNormDistSparse_z.argtypes = \
 lib.ElMaxNormDistMultiVec_d.argtypes = \
 lib.ElMaxNormDistMultiVec_z.argtypes = \
   [c_void_p,POINTER(dType)]
-
-lib.ElMaxNorm_i.restype = \
-lib.ElMaxNorm_s.restype = \
-lib.ElMaxNorm_d.restype = \
-lib.ElMaxNorm_c.restype = \
-lib.ElMaxNorm_z.restype = \
-lib.ElMaxNormDist_i.restype = \
-lib.ElMaxNormDist_s.restype = \
-lib.ElMaxNormDist_d.restype = \
-lib.ElMaxNormDist_c.restype = \
-lib.ElMaxNormDist_z.restype = \
-lib.ElMaxNormSparse_i.restype = \
-lib.ElMaxNormSparse_s.restype = \
-lib.ElMaxNormSparse_d.restype = \
-lib.ElMaxNormSparse_c.restype = \
-lib.ElMaxNormSparse_z.restype = \
-lib.ElMaxNormDistSparse_i.restype = \
-lib.ElMaxNormDistSparse_s.restype = \
-lib.ElMaxNormDistSparse_d.restype = \
-lib.ElMaxNormDistSparse_c.restype = \
-lib.ElMaxNormDistSparse_z.restype = \
-lib.ElMaxNormDistMultiVec_i.restype = \
-lib.ElMaxNormDistMultiVec_s.restype = \
-lib.ElMaxNormDistMultiVec_d.restype = \
-lib.ElMaxNormDistMultiVec_c.restype = \
-lib.ElMaxNormDistMultiVec_z.restype = \
-  c_uint
 
 def MaxNorm(A):
   norm = TagToType(Base(A.tag))()
@@ -1271,28 +962,6 @@ lib.ElSymmetricMaxNormDistSparse_d.argtypes = \
 lib.ElSymmetricMaxNormDistSparse_z.argtypes = \
   [c_uint,c_void_p,POINTER(dType)]
 
-lib.ElSymmetricMaxNorm_i.restype = \
-lib.ElSymmetricMaxNorm_s.restype = \
-lib.ElSymmetricMaxNorm_d.restype = \
-lib.ElSymmetricMaxNorm_c.restype = \
-lib.ElSymmetricMaxNorm_z.restype = \
-lib.ElSymmetricMaxNormDist_i.restype = \
-lib.ElSymmetricMaxNormDist_s.restype = \
-lib.ElSymmetricMaxNormDist_d.restype = \
-lib.ElSymmetricMaxNormDist_c.restype = \
-lib.ElSymmetricMaxNormDist_z.restype = \
-lib.ElSymmetricMaxNormSparse_i.restype = \
-lib.ElSymmetricMaxNormSparse_s.restype = \
-lib.ElSymmetricMaxNormSparse_d.restype = \
-lib.ElSymmetricMaxNormSparse_c.restype = \
-lib.ElSymmetricMaxNormSparse_z.restype = \
-lib.ElSymmetricMaxNormDistSparse_i.restype = \
-lib.ElSymmetricMaxNormDistSparse_s.restype = \
-lib.ElSymmetricMaxNormDistSparse_d.restype = \
-lib.ElSymmetricMaxNormDistSparse_c.restype = \
-lib.ElSymmetricMaxNormDistSparse_z.restype = \
-  c_uint
-
 def SymmetricMaxNorm(uplo,A):
   norm = TagToType(Base(A.tag))()
   args = [uplo,A.obj,pointer(norm)]
@@ -1339,15 +1008,6 @@ lib.ElNuclearNorm_z.argtypes = \
 lib.ElNuclearNormDist_d.argtypes = \
 lib.ElNuclearNormDist_z.argtypes = \
   [c_void_p,POINTER(dType)]
-lib.ElNuclearNorm_s.restype = \
-lib.ElNuclearNorm_d.restype = \
-lib.ElNuclearNorm_c.restype = \
-lib.ElNuclearNorm_z.restype = \
-lib.ElNuclearNormDist_s.restype = \
-lib.ElNuclearNormDist_d.restype = \
-lib.ElNuclearNormDist_c.restype = \
-lib.ElNuclearNormDist_z.restype = \
-  c_uint
 
 def NuclearNorm(A):
   norm = TagToType(Base(A.tag))()
@@ -1381,19 +1041,6 @@ lib.ElSymmetricNuclearNormDist_z.argtypes = \
 lib.ElHermitianNuclearNorm_z.argtypes = \
 lib.ElHermitianNuclearNormDist_z.argtypes = \
   [c_uint,c_void_p,POINTER(dType)]
-lib.ElSymmetricNuclearNorm_s.restype = \
-lib.ElSymmetricNuclearNorm_d.restype = \
-lib.ElSymmetricNuclearNorm_c.restype = \
-lib.ElSymmetricNuclearNorm_z.restype = \
-lib.ElSymmetricNuclearNormDist_s.restype = \
-lib.ElSymmetricNuclearNormDist_d.restype = \
-lib.ElSymmetricNuclearNormDist_c.restype = \
-lib.ElSymmetricNuclearNormDist_z.restype = \
-lib.ElHermitianNuclearNorm_c.restype = \
-lib.ElHermitianNuclearNorm_z.restype = \
-lib.ElHermitianNuclearNormDist_c.restype = \
-lib.ElHermitianNuclearNormDist_z.restype = \
-  c_uint
 
 def SymmetricNuclearNorm(uplo,A,conjugate=False):
   norm = TagToType(Base(A.tag))()
@@ -1435,16 +1082,6 @@ lib.ElOneNormDist_d.argtypes = \
 lib.ElOneNormDist_z.argtypes = \
   [c_void_p,POINTER(dType)]
 
-lib.ElOneNorm_s.restype = \
-lib.ElOneNorm_d.restype = \
-lib.ElOneNorm_c.restype = \
-lib.ElOneNorm_z.restype = \
-lib.ElOneNormDist_s.restype = \
-lib.ElOneNormDist_d.restype = \
-lib.ElOneNormDist_c.restype = \
-lib.ElOneNormDist_z.restype = \
-  c_uint
-
 def OneNorm(A):
   norm = TagToType(Base(A.tag))()
   args = [A.obj,pointer(norm)]
@@ -1474,16 +1111,6 @@ lib.ElSymmetricOneNorm_z.argtypes = \
 lib.ElSymmetricOneNormDist_d.argtypes = \
 lib.ElSymmetricOneNormDist_z.argtypes = \
   [c_uint,c_void_p,POINTER(dType)]
-
-lib.ElSymmetricOneNorm_s.restype = \
-lib.ElSymmetricOneNorm_d.restype = \
-lib.ElSymmetricOneNorm_c.restype = \
-lib.ElSymmetricOneNorm_z.restype = \
-lib.ElSymmetricOneNormDist_s.restype = \
-lib.ElSymmetricOneNormDist_d.restype = \
-lib.ElSymmetricOneNormDist_c.restype = \
-lib.ElSymmetricOneNormDist_z.restype = \
-  c_uint
 
 def SymmetricOneNorm(uplo,A):
   norm = TagToType(Base(A.tag))()
@@ -1516,16 +1143,6 @@ lib.ElSchattenNorm_z.argtypes = \
 lib.ElSchattenNormDist_d.argtypes = \
 lib.ElSchattenNormDist_z.argtypes = \
   [c_void_p,dType,POINTER(dType)]
-
-lib.ElSchattenNorm_s.restype = \
-lib.ElSchattenNorm_d.restype = \
-lib.ElSchattenNorm_c.restype = \
-lib.ElSchattenNorm_z.restype = \
-lib.ElSchattenNormDist_s.restype = \
-lib.ElSchattenNormDist_d.restype = \
-lib.ElSchattenNormDist_c.restype = \
-lib.ElSchattenNormDist_z.restype = \
-  c_uint
 
 def SchattenNorm(A,p):
   norm = TagToType(Base(A.tag))()
@@ -1560,20 +1177,6 @@ lib.ElSymmetricSchattenNormDist_z.argtypes = \
 lib.ElHermitianSchattenNorm_z.argtypes = \
 lib.ElHermitianSchattenNormDist_z.argtypes = \
   [c_uint,c_void_p,dType,POINTER(dType)]
-
-lib.ElSymmetricSchattenNorm_s.restype = \
-lib.ElSymmetricSchattenNorm_d.restype = \
-lib.ElSymmetricSchattenNorm_c.restype = \
-lib.ElSymmetricSchattenNorm_z.restype = \
-lib.ElSymmetricSchattenNormDist_s.restype = \
-lib.ElSymmetricSchattenNormDist_d.restype = \
-lib.ElSymmetricSchattenNormDist_c.restype = \
-lib.ElSymmetricSchattenNormDist_z.restype = \
-lib.ElHermitianSchattenNorm_c.restype = \
-lib.ElHermitianSchattenNorm_z.restype = \
-lib.ElHermitianSchattenNormDist_c.restype = \
-lib.ElHermitianSchattenNormDist_z.restype = \
-  c_uint
 
 def SymmetricSchattenNorm(uplo,A,p,conjugate=False):
   norm = TagToType(Base(A.tag))()
@@ -1615,16 +1218,6 @@ lib.ElTwoNormDist_d.argtypes = \
 lib.ElTwoNormDist_z.argtypes = \
   [c_void_p,POINTER(dType)]
 
-lib.ElTwoNorm_s.restype = \
-lib.ElTwoNorm_d.restype = \
-lib.ElTwoNorm_c.restype = \
-lib.ElTwoNorm_z.restype = \
-lib.ElTwoNormDist_s.restype = \
-lib.ElTwoNormDist_d.restype = \
-lib.ElTwoNormDist_c.restype = \
-lib.ElTwoNormDist_z.restype = \
-  c_uint
-
 def TwoNorm(A):
   norm = TagToType(Base(A.tag))()
   args = [A.obj,pointer(norm)]
@@ -1658,20 +1251,6 @@ lib.ElSymmetricTwoNormDist_z.argtypes = \
 lib.ElHermitianTwoNorm_z.argtypes = \
 lib.ElHermitianTwoNormDist_z.argtypes = \
   [c_uint,c_void_p,POINTER(dType)]
-
-lib.ElSymmetricTwoNorm_s.restype = \
-lib.ElSymmetricTwoNorm_d.restype = \
-lib.ElSymmetricTwoNorm_c.restype = \
-lib.ElSymmetricTwoNorm_z.restype = \
-lib.ElSymmetricTwoNormDist_s.restype = \
-lib.ElSymmetricTwoNormDist_d.restype = \
-lib.ElSymmetricTwoNormDist_c.restype = \
-lib.ElSymmetricTwoNormDist_z.restype = \
-lib.ElHermitianTwoNorm_c.restype = \
-lib.ElHermitianTwoNorm_z.restype = \
-lib.ElHermitianTwoNormDist_c.restype = \
-lib.ElHermitianTwoNormDist_z.restype = \
-  c_uint
 
 def SymmetricTwoNorm(uplo,A,conjugate=False):
   norm = TagToType(Base(A.tag))()
@@ -1731,28 +1310,6 @@ lib.ElZeroNormSparse_z.argtypes = \
 lib.ElZeroNormDistSparse_z.argtypes = \
   [c_void_p,cType,POINTER(iType)]
 
-lib.ElZeroNorm_i.restype = \
-lib.ElZeroNorm_s.restype = \
-lib.ElZeroNorm_d.restype = \
-lib.ElZeroNorm_c.restype = \
-lib.ElZeroNorm_z.restype = \
-lib.ElZeroNormDist_i.restype = \
-lib.ElZeroNormDist_s.restype = \
-lib.ElZeroNormDist_d.restype = \
-lib.ElZeroNormDist_c.restype = \
-lib.ElZeroNormDist_z.restype = \
-lib.ElZeroNormSparse_i.restype = \
-lib.ElZeroNormSparse_s.restype = \
-lib.ElZeroNormSparse_d.restype = \
-lib.ElZeroNormSparse_c.restype = \
-lib.ElZeroNormSparse_z.restype = \
-lib.ElZeroNormDistSparse_i.restype = \
-lib.ElZeroNormDistSparse_s.restype = \
-lib.ElZeroNormDistSparse_d.restype = \
-lib.ElZeroNormDistSparse_c.restype = \
-lib.ElZeroNormDistSparse_z.restype = \
-  c_uint
-
 def ZeroNorm(A,tol=0):
   norm = iType()
   args = [A.obj,tol,pointer(norm)]
@@ -1799,16 +1356,6 @@ lib.ElTwoNormEstimateDist_d.argtypes = \
 lib.ElTwoNormEstimateDist_z.argtypes = \
   [c_void_p,dType,iType,POINTER(dType)]
 
-lib.ElTwoNormEstimate_s.restype = \
-lib.ElTwoNormEstimate_d.restype = \
-lib.ElTwoNormEstimate_c.restype = \
-lib.ElTwoNormEstimate_z.restype = \
-lib.ElTwoNormEstimateDist_s.restype = \
-lib.ElTwoNormEstimateDist_d.restype = \
-lib.ElTwoNormEstimateDist_c.restype = \
-lib.ElTwoNormEstimateDist_z.restype = \
-  c_uint
-
 def TwoNormEstimate(A,tol=1e-6,maxIts=100):
   norm = TagToType(Base(A.tag))()
   args = [A.obj,tol,maxIts,pointer(norm)]
@@ -1842,20 +1389,6 @@ lib.ElHermitianTwoNormEstimateDist_z.argtypes = \
 lib.ElHermitianTwoNormEstimate_z.argtypes = \
 lib.ElHermitianTwoNormEstimateDist_z.argtypes = \
   [c_uint,c_void_p,dType,iType,POINTER(dType)]
-
-lib.ElSymmetricTwoNormEstimate_s.restype = \
-lib.ElSymmetricTwoNormEstimate_d.restype = \
-lib.ElSymmetricTwoNormEstimate_c.restype = \
-lib.ElSymmetricTwoNormEstimate_z.restype = \
-lib.ElSymmetricTwoNormEstimateDist_s.restype = \
-lib.ElSymmetricTwoNormEstimateDist_d.restype = \
-lib.ElHermitianTwoNormEstimateDist_c.restype = \
-lib.ElHermitianTwoNormEstimateDist_z.restype = \
-lib.ElHermitianTwoNormEstimate_c.restype = \
-lib.ElHermitianTwoNormEstimate_z.restype = \
-lib.ElHermitianTwoNormEstimateDist_c.restype = \
-lib.ElHermitianTwoNormEstimateDist_z.restype = \
-  c_uint
 
 def SymmetricTwoNormEstimate(uplo,A,tol=1e-6,maxIts=100,conjugate=False):
   norm = TagToType(Base(A.tag))()
@@ -1902,16 +1435,6 @@ lib.ElTraceDist_c.argtypes = \
 lib.ElTrace_z.argtypes = \
 lib.ElTraceDist_z.argtypes = \
   [c_void_p,POINTER(zType)]
-
-lib.ElTrace_s.restype = \
-lib.ElTrace_d.restype = \
-lib.ElTrace_c.restype = \
-lib.ElTrace_z.restype = \
-lib.ElTraceDist_s.restype = \
-lib.ElTraceDist_d.restype = \
-lib.ElTraceDist_c.restype = \
-lib.ElTraceDist_z.restype = \
-  c_uint
 
 def Trace(A):
   trace = TagToType(A.tag)()

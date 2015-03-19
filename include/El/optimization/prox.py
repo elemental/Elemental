@@ -16,11 +16,6 @@ lib.ElLowerClipDist_s.argtypes = \
 lib.ElLowerClip_d.argtypes = \
 lib.ElLowerClipDist_d.argtypes = \
   [c_void_p,dType]
-lib.ElLowerClip_s.restype = \
-lib.ElLowerClip_d.restype = \
-lib.ElLowerClipDist_s.restype = \
-lib.ElLowerClipDist_d.restype = \
-  c_uint
 
 def LowerClip(X,lowerBound=0):
   args = [X.obj,lowerBound]
@@ -40,11 +35,6 @@ lib.ElUpperClipDist_s.argtypes = \
 lib.ElUpperClip_d.argtypes = \
 lib.ElUpperClipDist_d.argtypes = \
   [c_void_p,dType]
-lib.ElUpperClip_s.restype = \
-lib.ElUpperClip_d.restype = \
-lib.ElUpperClipDist_s.restype = \
-lib.ElUpperClipDist_d.restype = \
-  c_uint
 
 def UpperClip(X,upperBound=1):
   args = [X.obj,upperBound]
@@ -64,11 +54,6 @@ lib.ElClipDist_s.argtypes = \
 lib.ElClip_d.argtypes = \
 lib.ElClipDist_d.argtypes = \
   [c_void_p,dType,dType]
-lib.ElClip_s.restype = \
-lib.ElClip_d.restype = \
-lib.ElClipDist_s.restype = \
-lib.ElClipDist_d.restype = \
-  c_uint
 
 def Clip(X,lowerBound=0,upperBound=1):
   args = [X.obj,lowerBound,upperBound]
@@ -95,16 +80,6 @@ lib.ElFrobeniusProxDist_d.argtypes = \
 lib.ElFrobeniusProxDist_z.argtypes = \
   [c_void_p,dType]
 
-lib.ElFrobeniusProx_s.restype = \
-lib.ElFrobeniusProx_d.restype = \
-lib.ElFrobeniusProx_c.restype = \
-lib.ElFrobeniusProx_z.restype = \
-lib.ElFrobeniusProxDist_s.restype = \
-lib.ElFrobeniusProxDist_d.restype = \
-lib.ElFrobeniusProxDist_c.restype = \
-lib.ElFrobeniusProxDist_z.restype = \
-  c_uint
-
 def FrobeniusProx(A,rho):
   args = [A.obj,rho]
   if type(A) is Matrix:
@@ -130,12 +105,6 @@ lib.ElHingeLossProx_d.argtypes = \
 lib.ElHingeLossProxDist_d.argtypes = \
   [c_void_p,dType]
 
-lib.ElHingeLossProx_s.restype = \
-lib.ElHingeLossProx_d.restype = \
-lib.ElHingeLossProxDist_s.restype = \
-lib.ElHingeLossProxDist_d.restype = \
-  c_uint
-
 def HingeLossProx(A,rho):
   args = [A.obj,rho]
   if type(A) is Matrix:
@@ -156,12 +125,6 @@ lib.ElLogisticProxDist_s.argtypes = \
 lib.ElLogisticProx_d.argtypes = \
 lib.ElLogisticProxDist_d.argtypes = \
   [c_void_p,dType]
-
-lib.ElLogisticProx_s.restype = \
-lib.ElLogisticProx_d.restype = \
-lib.ElLogisticProxDist_s.restype = \
-lib.ElLogisticProxDist_d.restype = \
-  c_uint
 
 def LogisticProx(A,rho):
   args = [A.obj,rho]
@@ -187,16 +150,6 @@ lib.ElSVT_z.argtypes = \
 lib.ElSVTDist_d.argtypes = \
 lib.ElSVTDist_z.argtypes = \
   [c_void_p,dType,bType]
-
-lib.ElSVT_s.restype = \
-lib.ElSVT_d.restype = \
-lib.ElSVT_c.restype = \
-lib.ElSVT_z.restype = \
-lib.ElSVTDist_s.restype = \
-lib.ElSVTDist_d.restype = \
-lib.ElSVTDist_c.restype = \
-lib.ElSVTDist_z.restype = \
-  c_uint
 
 def SVT(A,rho,relative=False):
   args = [A.obj,rho,relative]
@@ -226,16 +179,6 @@ lib.ElSoftThreshold_z.argtypes = \
 lib.ElSoftThresholdDist_d.argtypes = \
 lib.ElSoftThresholdDist_z.argtypes = \
   [c_void_p,dType,bType]
-
-lib.ElSoftThreshold_s.restype = \
-lib.ElSoftThreshold_d.restype = \
-lib.ElSoftThreshold_c.restype = \
-lib.ElSoftThreshold_z.restype = \
-lib.ElSoftThresholdDist_s.restype = \
-lib.ElSoftThresholdDist_d.restype = \
-lib.ElSoftThresholdDist_c.restype = \
-lib.ElSoftThresholdDist_z.restype = \
-  c_uint
 
 def SoftThreshold(A,rho,relative=False):
   args = [A.obj,rho,relative]

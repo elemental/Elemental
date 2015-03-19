@@ -22,15 +22,6 @@ lib.ElBPSparse_d.argtypes = \
 lib.ElBPDistSparse_s.argtypes = \
 lib.ElBPDistSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p]
-lib.ElBP_s.restype = \
-lib.ElBP_d.restype = \
-lib.ElBPDist_s.restype = \
-lib.ElBPDist_d.restype = \
-lib.ElBPSparse_s.restype = \
-lib.ElBPSparse_d.restype = \
-lib.ElBPDistSparse_s.restype = \
-lib.ElBPDistSparse_d.restype = \
-  c_uint
 
 lib.ElBPX_s.argtypes = \
 lib.ElBPXDist_s.argtypes = \
@@ -44,15 +35,6 @@ lib.ElBPXSparse_d.argtypes = \
 lib.ElBPXDistSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,
    LPDirectCtrl_d]
-lib.ElBPX_s.restype = \
-lib.ElBPX_d.restype = \
-lib.ElBPXDist_s.restype = \
-lib.ElBPXDist_d.restype = \
-lib.ElBPXSparse_s.restype = \
-lib.ElBPXSparse_d.restype = \
-lib.ElBPXDistSparse_s.restype = \
-lib.ElBPXDistSparse_d.restype = \
-  c_uint
 
 def BP(A,b,ctrl=None):
   if A.tag != b.tag:
@@ -126,15 +108,6 @@ lib.ElBPADMMDist_d.argtypes = \
 lib.ElBPADMMDist_c.argtypes = \
 lib.ElBPADMMDist_z.argtypes = \
   [c_void_p,c_void_p,c_void_p,POINTER(iType)]
-lib.ElBPADMM_s.restype = \
-lib.ElBPADMM_d.restype = \
-lib.ElBPADMM_c.restype = \
-lib.ElBPADMM_z.restype = \
-lib.ElBPADMMDist_s.restype = \
-lib.ElBPADMMDist_d.restype = \
-lib.ElBPADMMDist_c.restype = \
-lib.ElBPADMMDist_z.restype = \
-  c_uint
 def BPADMM(A,b):
   if type(A) is not type(b):
     raise Exception('Types of A and b must match')
@@ -172,15 +145,6 @@ lib.ElCPSparse_d.argtypes = \
 lib.ElCPDistSparse_s.argtypes = \
 lib.ElCPDistSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p]
-lib.ElCP_s.restype = \
-lib.ElCP_d.restype = \
-lib.ElCPDist_s.restype = \
-lib.ElCPDist_d.restype = \
-lib.ElCPSparse_s.restype = \
-lib.ElCPSparse_d.restype = \
-lib.ElCPDistSparse_s.restype = \
-lib.ElCPDistSparse_d.restype = \
-  c_uint
 
 lib.ElCPX_s.argtypes = \
 lib.ElCPXDist_s.argtypes = \
@@ -194,15 +158,6 @@ lib.ElCPXSparse_d.argtypes = \
 lib.ElCPXDistSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,
    LPAffineCtrl_d]
-lib.ElCPX_s.restype = \
-lib.ElCPX_d.restype = \
-lib.ElCPXDist_s.restype = \
-lib.ElCPXDist_d.restype = \
-lib.ElCPXSparse_s.restype = \
-lib.ElCPXSparse_d.restype = \
-lib.ElCPXDistSparse_s.restype = \
-lib.ElCPXDistSparse_d.restype = \
-  c_uint
 
 def CP(A,b,ctrl=None):
   if A.tag != b.tag:
@@ -277,15 +232,6 @@ lib.ElDSDist_d.argtypes = \
 lib.ElDSSparse_d.argtypes = \
 lib.ElDSDistSparse_d.argtypes = \
   [c_void_p,c_void_p,dType,c_void_p]
-lib.ElDS_s.restype = \
-lib.ElDS_d.restype = \
-lib.ElDSDist_s.restype = \
-lib.ElDSDist_d.restype = \
-lib.ElDSSparse_s.restype = \
-lib.ElDSSparse_d.restype = \
-lib.ElDSDistSparse_s.restype = \
-lib.ElDSDistSparse_d.restype = \
-  c_uint
 
 lib.ElDSX_s.argtypes = \
 lib.ElDSXDist_s.argtypes = \
@@ -299,15 +245,6 @@ lib.ElDSXSparse_d.argtypes = \
 lib.ElDSXDistSparse_d.argtypes = \
   [c_void_p,c_void_p,dType,c_void_p,
    LPAffineCtrl_d]
-lib.ElDSX_s.restype = \
-lib.ElDSX_d.restype = \
-lib.ElDSXDist_s.restype = \
-lib.ElDSXDist_d.restype = \
-lib.ElDSXSparse_s.restype = \
-lib.ElDSXSparse_d.restype = \
-lib.ElDSXDistSparse_s.restype = \
-lib.ElDSXDistSparse_d.restype = \
-  c_uint
 
 def DS(A,b,lambdaPre,ctrl=None):
   if A.tag != b.tag:
@@ -382,15 +319,6 @@ lib.ElLAVSparse_d.argtypes = \
 lib.ElLAVDistSparse_s.argtypes = \
 lib.ElLAVDistSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p]
-lib.ElLAV_s.restype = \
-lib.ElLAV_d.restype = \
-lib.ElLAVDist_s.restype = \
-lib.ElLAVDist_d.restype = \
-lib.ElLAVSparse_s.restype = \
-lib.ElLAVSparse_d.restype = \
-lib.ElLAVDistSparse_s.restype = \
-lib.ElLAVDistSparse_d.restype = \
-  c_uint
 
 lib.ElLAVX_s.argtypes = \
 lib.ElLAVXDist_s.argtypes = \
@@ -404,15 +332,6 @@ lib.ElLAVXSparse_d.argtypes = \
 lib.ElLAVXDistSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,
    LPAffineCtrl_d]
-lib.ElLAVX_s.restype = \
-lib.ElLAVX_d.restype = \
-lib.ElLAVXDist_s.restype = \
-lib.ElLAVXDist_d.restype = \
-lib.ElLAVXSparse_s.restype = \
-lib.ElLAVXSparse_d.restype = \
-lib.ElLAVXDistSparse_s.restype = \
-lib.ElLAVXDistSparse_d.restype = \
-  c_uint
 
 def LAV(A,b,ctrl=None):
   if A.tag != b.tag:
@@ -486,12 +405,6 @@ lib.ElLogisticRegression_d.argtypes = \
 lib.ElLogisticRegressionDist_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,dType,c_uint,POINTER(iType)]
 
-lib.ElLogisticRegression_s.restype = \
-lib.ElLogisticRegression_d.restype = \
-lib.ElLogisticRegressionDist_s.restype = \
-lib.ElLogisticRegressionDist_d.restype = \
-  c_uint
-
 def LogisticRegression(G,q,gamma,penalty=L1_PENALTY):
   if type(G) is not type(q):
     raise Exception('Types of G and q must match')
@@ -524,11 +437,6 @@ lib.ElModelFit_d.argtypes = \
 lib.ElModelFitDist_d.argtypes = \
   [CFUNCTYPE(None,c_void_p,dType),CFUNCTYPE(None,c_void_p,dType),
    c_void_p,c_void_p,c_void_p,dType,POINTER(iType)]
-lib.ElModelFit_s.restype = \
-lib.ElModelFit_d.restype = \
-lib.ElModelFitDist_s.restype = \
-lib.ElModelFitDist_d.restype = \
-  c_uint
 
 def ModelFit(lossProx,regProx,A,b,rho=1.2):
   if type(A) is not type(b):
@@ -567,15 +475,6 @@ lib.ElNMFXDist_s.argtypes = \
 lib.ElNMFX_d.argtypes = \
 lib.ElNMFXDist_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,QPDirectCtrl_d]
-lib.ElNMF_s.restype = \
-lib.ElNMF_d.restype = \
-lib.ElNMFDist_s.restype = \
-lib.ElNMFDist_d.restype = \
-lib.ElNMFX_s.restype = \
-lib.ElNMFX_d.restype = \
-lib.ElNMFXDist_s.restype = \
-lib.ElNMFXDist_d.restype = \
-  c_uint
 
 def NMF(A,ctrl=None):
   args = [A.obj,X.obj,Y.obj]
@@ -619,23 +518,6 @@ lib.ElNNLSXDist_d.argtypes = \
 lib.ElNNLSXSparse_d.argtypes = \
 lib.ElNNLSXDistSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,QPDirectCtrl_d]
-lib.ElNNLS_s.restype = \
-lib.ElNNLS_d.restype = \
-lib.ElNNLSDist_s.restype = \
-lib.ElNNLSDist_d.restype = \
-lib.ElNNLSSparse_s.restype = \
-lib.ElNNLSSparse_d.restype = \
-lib.ElNNLSDistSparse_s.restype = \
-lib.ElNNLSDistSparse_d.restype = \
-lib.ElNNLSX_s.restype = \
-lib.ElNNLSX_d.restype = \
-lib.ElNNLSXDist_s.restype = \
-lib.ElNNLSXDist_d.restype = \
-lib.ElNNLSXSparse_s.restype = \
-lib.ElNNLSXSparse_d.restype = \
-lib.ElNNLSXDistSparse_s.restype = \
-lib.ElNNLSXDistSparse_d.restype = \
-  c_uint
 
 def NNLS(A,b,ctrl=None):
   if A.tag != b.tag:
@@ -705,11 +587,6 @@ lib.ElNNLSADMM_d.argtypes = \
 lib.ElNNLSADMMDist_s.argtypes = \
 lib.ElNNLSADMMDist_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,POINTER(iType)]
-lib.ElNNLSADMM_s.restype = \
-lib.ElNNLSADMM_d.restype = \
-lib.ElNNLSADMMDist_s.restype = \
-lib.ElNNLSADMMDist_d.restype = \
-  c_uint
 
 def NNLSADMM(A,B):
   if type(A) is not type(B):
@@ -746,16 +623,6 @@ lib.ElBPDNSparse_d.argtypes = \
 lib.ElBPDNDistSparse_d.argtypes = \
   [c_void_p,c_void_p,dType,c_void_p]
 
-lib.ElBPDN_s.restype = \
-lib.ElBPDN_d.restype = \
-lib.ElBPDNDist_s.restype = \
-lib.ElBPDNDist_d.restype = \
-lib.ElBPDNSparse_s.restype = \
-lib.ElBPDNSparse_d.restype = \
-lib.ElBPDNDistSparse_s.restype = \
-lib.ElBPDNDistSparse_d.restype = \
-  c_uint
-
 lib.ElBPDNX_s.argtypes = \
 lib.ElBPDNXDist_s.argtypes = \
 lib.ElBPDNXSparse_s.argtypes = \
@@ -768,15 +635,6 @@ lib.ElBPDNXSparse_d.argtypes = \
 lib.ElBPDNXDistSparse_d.argtypes = \
   [c_void_p,c_void_p,dType,c_void_p,
    QPAffineCtrl_d]
-lib.ElBPDNX_s.restype = \
-lib.ElBPDNX_d.restype = \
-lib.ElBPDNXDist_s.restype = \
-lib.ElBPDNXDist_d.restype = \
-lib.ElBPDNXSparse_s.restype = \
-lib.ElBPDNXSparse_d.restype = \
-lib.ElBPDNXDistSparse_s.restype = \
-lib.ElBPDNXDistSparse_d.restype = \
-  c_uint
 
 def BPDN(A,b,lambdPre,ctrl=None):
   if A.tag != b.tag:
@@ -853,16 +711,6 @@ lib.ElBPDNADMMDist_d.argtypes = \
 lib.ElBPDNADMMDist_z.argtypes = \
   [c_void_p,c_void_p,dType,c_void_p,POINTER(iType)]
 
-lib.ElBPDNADMM_s.restype = \
-lib.ElBPDNADMM_d.restype = \
-lib.ElBPDNADMM_c.restype = \
-lib.ElBPDNADMM_z.restype = \
-lib.ElBPDNADMMDist_s.restype = \
-lib.ElBPDNADMMDist_d.restype = \
-lib.ElBPDNADMMDist_c.restype = \
-lib.ElBPDNADMMDist_z.restype = \
-  c_uint
-
 def BPDNADMM(A,b,lamb):
   if type(A) is not type(b): raise Exception('Types of A and b must match')
   if A.tag != b.tag: raise Exception('Datatypes of A and b must match')
@@ -900,16 +748,6 @@ lib.ElENSparse_d.argtypes = \
 lib.ElENDistSparse_d.argtypes = \
   [c_void_p,c_void_p,dType,dType,c_void_p]
 
-lib.ElEN_s.restype = \
-lib.ElEN_d.restype = \
-lib.ElENDist_s.restype = \
-lib.ElENDist_d.restype = \
-lib.ElENSparse_s.restype = \
-lib.ElENSparse_d.restype = \
-lib.ElENDistSparse_s.restype = \
-lib.ElENDistSparse_d.restype = \
-  c_uint
-
 lib.ElENX_s.argtypes = \
 lib.ElENXDist_s.argtypes = \
 lib.ElENXSparse_s.argtypes = \
@@ -922,15 +760,6 @@ lib.ElENXSparse_d.argtypes = \
 lib.ElENXDistSparse_d.argtypes = \
   [c_void_p,c_void_p,dType,dType,c_void_p,
    QPAffineCtrl_d]
-lib.ElENX_s.restype = \
-lib.ElENX_d.restype = \
-lib.ElENXDist_s.restype = \
-lib.ElENXDist_d.restype = \
-lib.ElENXSparse_s.restype = \
-lib.ElENXSparse_d.restype = \
-lib.ElENXDistSparse_s.restype = \
-lib.ElENXDistSparse_d.restype = \
-  c_uint
 
 def EN(A,b,lambda1Pre,lambda2Pre,ctrl=None):
   if A.tag != b.tag:
@@ -1006,15 +835,6 @@ lib.ElRPCADist_d.argtypes = \
 lib.ElRPCADist_c.argtypes = \
 lib.ElRPCADist_z.argtypes = \
   [c_void_p,c_void_p,c_void_p]
-lib.ElRPCA_s.restype = \
-lib.ElRPCA_d.restype = \
-lib.ElRPCA_c.restype = \
-lib.ElRPCA_z.restype = \
-lib.ElRPCADist_s.restype = \
-lib.ElRPCADist_d.restype = \
-lib.ElRPCADist_c.restype = \
-lib.ElRPCADist_z.restype = \
-  c_uint
 
 def RPCA(M):
   if type(M) is Matrix:
@@ -1049,16 +869,6 @@ lib.ElSparseInvCov_z.argtypes = \
 lib.ElSparseInvCovDist_d.argtypes = \
 lib.ElSparseInvCovDist_z.argtypes = \
   [c_void_p,dType,c_void_p,POINTER(iType)]
-
-lib.ElSparseInvCov_s.restype = \
-lib.ElSparseInvCov_d.restype = \
-lib.ElSparseInvCov_c.restype = \
-lib.ElSparseInvCov_z.restype = \
-lib.ElSparseInvCovDist_s.restype = \
-lib.ElSparseInvCovDist_d.restype = \
-lib.ElSparseInvCovDist_c.restype = \
-lib.ElSparseInvCovDist_z.restype = \
-  c_uint
 
 def SparseInvCov(D,lamb):
   numIts = iType()
@@ -1095,16 +905,6 @@ lib.ElSVMSparse_d.argtypes = \
 lib.ElSVMDistSparse_d.argtypes = \
   [c_void_p,c_void_p,dType,c_void_p]
 
-lib.ElSVM_s.restype = \
-lib.ElSVM_d.restype = \
-lib.ElSVMDist_s.restype = \
-lib.ElSVMDist_d.restype = \
-lib.ElSVMSparse_s.restype = \
-lib.ElSVMSparse_d.restype = \
-lib.ElSVMDistSparse_s.restype = \
-lib.ElSVMDistSparse_d.restype = \
-  c_uint
-
 lib.ElSVMX_s.argtypes = \
 lib.ElSVMXDist_s.argtypes = \
 lib.ElSVMXSparse_s.argtypes = \
@@ -1117,15 +917,6 @@ lib.ElSVMXSparse_d.argtypes = \
 lib.ElSVMXDistSparse_d.argtypes = \
   [c_void_p,c_void_p,dType,c_void_p,
    QPAffineCtrl_d]
-lib.ElSVMX_s.restype = \
-lib.ElSVMX_d.restype = \
-lib.ElSVMXDist_s.restype = \
-lib.ElSVMXDist_d.restype = \
-lib.ElSVMXSparse_s.restype = \
-lib.ElSVMXSparse_d.restype = \
-lib.ElSVMXDistSparse_s.restype = \
-lib.ElSVMXDistSparse_d.restype = \
-  c_uint
 
 def SVM(A,d,lambdPre,ctrl=None):
   if A.tag != d.tag:
@@ -1197,11 +988,6 @@ lib.ElSVMADMMDist_s.argtypes = \
 lib.ElSVMADMM_d.argtypes = \
 lib.ElSVMADMMDist_d.argtypes = \
   [c_void_p,c_void_p,dType,c_void_p,POINTER(iType)]
-lib.ElSVMADMM_s.restype = \
-lib.ElSVMADMM_d.restype = \
-lib.ElSVMADMMDist_s.restype = \
-lib.ElSVMADMMDist_d.restype = \
-  c_uint
 
 def SVMADMM(G,q,gamma):
   if type(G) is not type(q):
@@ -1236,14 +1022,6 @@ lib.ElTVDist_d.argtypes = \
 lib.ElTVDistSparse_d.argtypes = \
   [c_void_p,dType,c_void_p]
 
-lib.ElTV_s.restype = \
-lib.ElTV_d.restype = \
-lib.ElTVDist_s.restype = \
-lib.ElTVDist_d.restype = \
-lib.ElTVDistSparse_s.restype = \
-lib.ElTVDistSparse_d.restype = \
-  c_uint
-
 lib.ElTVX_s.argtypes = \
 lib.ElTVXDist_s.argtypes = \
 lib.ElTVXDistSparse_s.argtypes = \
@@ -1252,13 +1030,6 @@ lib.ElTVX_d.argtypes = \
 lib.ElTVXDist_d.argtypes = \
 lib.ElTVXDistSparse_d.argtypes = \
   [c_void_p,dType,c_void_p,QPAffineCtrl_d]
-lib.ElTVX_s.restype = \
-lib.ElTVX_d.restype = \
-lib.ElTVXDist_s.restype = \
-lib.ElTVXDist_d.restype = \
-lib.ElTVXDistSparse_s.restype = \
-lib.ElTVXDistSparse_d.restype = \
-  c_uint
 
 def TV(b,lambdPre,ctrl=None):
   lambd = TagToType(b.tag)(lambdPre)

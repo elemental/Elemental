@@ -46,7 +46,7 @@ typedef enum
   EL_ARG_ERROR,           /* input argument error */
   EL_LOGIC_ERROR,         /* catch-all for logic errors */
   EL_RUNTIME_ERROR,       /* catch-all for runtime errors */
-  EL_ERROR                /* catch-all if the cause is unspecified */
+  EL_ERROR=-1             /* catch-all if the cause is unspecified */
 } ElError;
 const char* ElErrorString( ElError error );
 

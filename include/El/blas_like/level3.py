@@ -19,30 +19,21 @@ from ..core import *
  GEMM_CANNON)=(0,1,2,3,4,5)
 
 lib.ElGemm_i.argtypes = [c_uint,c_uint,iType,c_void_p,c_void_p,iType,c_void_p]
-lib.ElGemm_i.restype = c_uint
 lib.ElGemm_s.argtypes = [c_uint,c_uint,sType,c_void_p,c_void_p,sType,c_void_p]
-lib.ElGemm_s.restype = c_uint
 lib.ElGemm_d.argtypes = [c_uint,c_uint,dType,c_void_p,c_void_p,dType,c_void_p]
-lib.ElGemm_d.restype = c_uint
 lib.ElGemm_c.argtypes = [c_uint,c_uint,cType,c_void_p,c_void_p,cType,c_void_p]
-lib.ElGemm_c.restype = c_uint
 lib.ElGemm_z.argtypes = [c_uint,c_uint,zType,c_void_p,c_void_p,zType,c_void_p]
-lib.ElGemm_z.restype = c_uint
 lib.ElGemmXDist_i.argtypes = \
   [c_uint,c_uint,iType,c_void_p,c_void_p,iType,c_void_p,c_uint]
-lib.ElGemmXDist_i.restype = c_uint
 lib.ElGemmXDist_s.argtypes = \
   [c_uint,c_uint,sType,c_void_p,c_void_p,sType,c_void_p,c_uint]
-lib.ElGemmXDist_s.restype = c_uint
 lib.ElGemmXDist_d.argtypes = \
   [c_uint,c_uint,dType,c_void_p,c_void_p,dType,c_void_p,c_uint]
-lib.ElGemmXDist_d.restype = c_uint
 lib.ElGemmXDist_c.argtypes = \
   [c_uint,c_uint,cType,c_void_p,c_void_p,cType,c_void_p,c_uint]
-lib.ElGemmXDist_c.restype = c_uint
 lib.ElGemmXDist_z.argtypes = \
   [c_uint,c_uint,zType,c_void_p,c_void_p,zType,c_void_p,c_uint]
-lib.ElGemmXDist_z.restype = c_uint
+
 def Gemm(orientA,orientB,alphaPre,A,B,betaPre,C,alg=GEMM_DEFAULT):
   if A.tag != B.tag or B.tag != C.tag:
     raise Exception('Datatypes of {A,B,C} must match')
@@ -71,36 +62,24 @@ def Gemm(orientA,orientB,alphaPre,A,B,betaPre,C,alg=GEMM_DEFAULT):
 # Symm/Hemm
 # ---------
 lib.ElSymm_s.argtypes = [c_uint,c_uint,sType,c_void_p,c_void_p,sType,c_void_p]
-lib.ElSymm_s.restype = c_uint
 lib.ElSymm_d.argtypes = [c_uint,c_uint,dType,c_void_p,c_void_p,dType,c_void_p]
-lib.ElSymm_d.restype = c_uint
 lib.ElSymm_c.argtypes = [c_uint,c_uint,cType,c_void_p,c_void_p,cType,c_void_p]
-lib.ElSymm_c.restype = c_uint
 lib.ElSymm_z.argtypes = [c_uint,c_uint,zType,c_void_p,c_void_p,zType,c_void_p]
-lib.ElSymm_z.restype = c_uint
 lib.ElSymmDist_s.argtypes = \
   [c_uint,c_uint,sType,c_void_p,c_void_p,sType,c_void_p]
-lib.ElSymmDist_s.restype = c_uint
 lib.ElSymmDist_d.argtypes = \
   [c_uint,c_uint,dType,c_void_p,c_void_p,dType,c_void_p]
-lib.ElSymmDist_d.restype = c_uint
 lib.ElSymmDist_c.argtypes = \
   [c_uint,c_uint,cType,c_void_p,c_void_p,cType,c_void_p]
-lib.ElSymmDist_c.restype = c_uint
 lib.ElSymmDist_z.argtypes = \
   [c_uint,c_uint,zType,c_void_p,c_void_p,zType,c_void_p]
-lib.ElSymmDist_z.restype = c_uint
 
 lib.ElHemm_c.argtypes = [c_uint,c_uint,cType,c_void_p,c_void_p,cType,c_void_p]
-lib.ElHemm_c.restype = c_uint
 lib.ElHemm_z.argtypes = [c_uint,c_uint,zType,c_void_p,c_void_p,zType,c_void_p]
-lib.ElHemm_z.restype = c_uint
 lib.ElHemmDist_c.argtypes = \
   [c_uint,c_uint,cType,c_void_p,c_void_p,cType,c_void_p]
-lib.ElHemmDist_c.restype = c_uint
 lib.ElHemmDist_z.argtypes = \
   [c_uint,c_uint,zType,c_void_p,c_void_p,zType,c_void_p]
-lib.ElHemmDist_z.restype = c_uint
 
 def Symm(side,uplo,alphaPre,A,B,betaPre,C,conj=False):
   if A.tag != B.tag or B.tag != C.tag: 
@@ -137,55 +116,41 @@ def Hemm(side,uplo,alpha,A,B,betaPre,C):
 
 # Syrk/Herk
 # ---------
-lib.ElSyrk_s.argtypes = [c_uint,c_uint,sType,c_void_p,sType,c_void_p]
-lib.ElSyrk_s.restype = c_uint
-lib.ElSyrk_d.argtypes = [c_uint,c_uint,dType,c_void_p,dType,c_void_p]
-lib.ElSyrk_d.restype = c_uint
-lib.ElSyrk_c.argtypes = [c_uint,c_uint,cType,c_void_p,cType,c_void_p]
-lib.ElSyrk_c.restype = c_uint
-lib.ElSyrk_z.argtypes = [c_uint,c_uint,zType,c_void_p,zType,c_void_p]
-lib.ElSyrk_z.restype = c_uint
-lib.ElSyrkDist_s.argtypes = [c_uint,c_uint,sType,c_void_p,sType,c_void_p]
-lib.ElSyrkDist_s.restype = c_uint
-lib.ElSyrkDist_d.argtypes = [c_uint,c_uint,dType,c_void_p,dType,c_void_p]
-lib.ElSyrkDist_d.restype = c_uint
-lib.ElSyrkDist_c.argtypes = [c_uint,c_uint,cType,c_void_p,cType,c_void_p]
-lib.ElSyrkDist_c.restype = c_uint
-lib.ElSyrkDist_z.argtypes = [c_uint,c_uint,zType,c_void_p,zType,c_void_p]
-lib.ElSyrkDist_z.restype = c_uint
-lib.ElSyrkSparse_s.argtypes = [c_uint,c_uint,sType,c_void_p,sType,c_void_p]
-lib.ElSyrkSparse_s.restype = c_uint
-lib.ElSyrkSparse_d.argtypes = [c_uint,c_uint,dType,c_void_p,dType,c_void_p]
-lib.ElSyrkSparse_d.restype = c_uint
-lib.ElSyrkSparse_c.argtypes = [c_uint,c_uint,cType,c_void_p,cType,c_void_p]
-lib.ElSyrkSparse_c.restype = c_uint
-lib.ElSyrkSparse_z.argtypes = [c_uint,c_uint,zType,c_void_p,zType,c_void_p]
-lib.ElSyrkSparse_z.restype = c_uint
-lib.ElSyrkDistSparse_s.argtypes = [c_uint,c_uint,sType,c_void_p,sType,c_void_p]
-lib.ElSyrkDistSparse_s.restype = c_uint
-lib.ElSyrkDistSparse_d.argtypes = [c_uint,c_uint,dType,c_void_p,dType,c_void_p]
-lib.ElSyrkDistSparse_d.restype = c_uint
-lib.ElSyrkDistSparse_c.argtypes = [c_uint,c_uint,cType,c_void_p,cType,c_void_p]
-lib.ElSyrkDistSparse_c.restype = c_uint
-lib.ElSyrkDistSparse_z.argtypes = [c_uint,c_uint,zType,c_void_p,zType,c_void_p]
-lib.ElSyrkDistSparse_z.restype = c_uint
+lib.ElSyrk_s.argtypes = \
+lib.ElSyrkDist_s.argtypes = \
+lib.ElSyrkSparse_s.argtypes = \
+lib.ElSyrkDistSparse_s.argtypes = \
+  [c_uint,c_uint,sType,c_void_p,sType,c_void_p]
 
-lib.ElHerk_c.argtypes = [c_uint,c_uint,sType,c_void_p,sType,c_void_p]
-lib.ElHerk_c.restype = c_uint
-lib.ElHerk_z.argtypes = [c_uint,c_uint,dType,c_void_p,dType,c_void_p]
-lib.ElHerk_z.restype = c_uint
-lib.ElHerkDist_c.argtypes = [c_uint,c_uint,sType,c_void_p,sType,c_void_p]
-lib.ElHerkDist_c.restype = c_uint
-lib.ElHerkDist_z.argtypes = [c_uint,c_uint,dType,c_void_p,dType,c_void_p]
-lib.ElHerkDist_z.restype = c_uint
-lib.ElHerkSparse_c.argtypes = [c_uint,c_uint,sType,c_void_p,sType,c_void_p]
-lib.ElHerkSparse_c.restype = c_uint
-lib.ElHerkSparse_z.argtypes = [c_uint,c_uint,dType,c_void_p,dType,c_void_p]
-lib.ElHerkSparse_z.restype = c_uint
-lib.ElHerkDistSparse_c.argtypes = [c_uint,c_uint,sType,c_void_p,sType,c_void_p]
-lib.ElHerkDistSparse_c.restype = c_uint
-lib.ElHerkDistSparse_z.argtypes = [c_uint,c_uint,dType,c_void_p,dType,c_void_p]
-lib.ElHerkDistSparse_z.restype = c_uint
+lib.ElSyrk_d.argtypes = \
+lib.ElSyrkDist_d.argtypes = \
+lib.ElSyrkSparse_d.argtypes = \
+lib.ElSyrkDistSparse_d.argtypes = \
+  [c_uint,c_uint,dType,c_void_p,dType,c_void_p]
+
+lib.ElSyrk_c.argtypes = \
+lib.ElSyrkDist_c.argtypes = \
+lib.ElSyrkSparse_c.argtypes = \
+lib.ElSyrkDistSparse_c.argtypes = \
+  [c_uint,c_uint,cType,c_void_p,cType,c_void_p]
+
+lib.ElSyrk_z.argtypes = \
+lib.ElSyrkDist_z.argtypes = \
+lib.ElSyrkSparse_z.argtypes = \
+lib.ElSyrkDistSparse_z.argtypes = \
+  [c_uint,c_uint,zType,c_void_p,zType,c_void_p]
+
+lib.ElHerk_c.argtypes = \
+lib.ElHerkDist_c.argtypes = \
+lib.ElHerkSparse_c.argtypes = \
+lib.ElHerkDistSparse_c.argtypes = \
+  [c_uint,c_uint,sType,c_void_p,sType,c_void_p]
+
+lib.ElHerk_z.argtypes = \
+lib.ElHerkDist_z.argtypes = \
+lib.ElHerkSparse_z.argtypes = \
+lib.ElHerkDistSparse_z.argtypes = \
+  [c_uint,c_uint,dType,c_void_p,dType,c_void_p]
 
 def Syrk(uplo,orient,alphaPre,A,betaPre,C,conj=False):
   if A.tag != C.tag: raise Exception('Datatypes of A and C must match')
@@ -241,36 +206,24 @@ def Herk(uplo,orient,alpha,A,beta,C):
 # Syr2k/Her2k
 # -----------
 lib.ElSyr2k_s.argtypes = [c_uint,c_uint,sType,c_void_p,c_void_p,sType,c_void_p]
-lib.ElSyr2k_s.restype = c_uint
 lib.ElSyr2k_d.argtypes = [c_uint,c_uint,dType,c_void_p,c_void_p,dType,c_void_p]
-lib.ElSyr2k_d.restype = c_uint
 lib.ElSyr2k_c.argtypes = [c_uint,c_uint,cType,c_void_p,c_void_p,cType,c_void_p]
-lib.ElSyr2k_c.restype = c_uint
 lib.ElSyr2k_z.argtypes = [c_uint,c_uint,zType,c_void_p,c_void_p,zType,c_void_p]
-lib.ElSyr2k_z.restype = c_uint
 lib.ElSyr2kDist_s.argtypes = \
   [c_uint,c_uint,sType,c_void_p,c_void_p,sType,c_void_p]
-lib.ElSyr2kDist_s.restype = c_uint
 lib.ElSyr2kDist_d.argtypes = \
   [c_uint,c_uint,dType,c_void_p,c_void_p,dType,c_void_p]
-lib.ElSyr2kDist_d.restype = c_uint
 lib.ElSyr2kDist_c.argtypes = \
   [c_uint,c_uint,cType,c_void_p,c_void_p,cType,c_void_p]
-lib.ElSyr2kDist_c.restype = c_uint
 lib.ElSyr2kDist_z.argtypes = \
   [c_uint,c_uint,zType,c_void_p,c_void_p,zType,c_void_p]
-lib.ElSyr2kDist_z.restype = c_uint
 
 lib.ElHer2k_c.argtypes = [c_uint,c_uint,cType,c_void_p,c_void_p,sType,c_void_p]
-lib.ElHer2k_c.restype = c_uint
 lib.ElHer2k_z.argtypes = [c_uint,c_uint,zType,c_void_p,c_void_p,dType,c_void_p]
-lib.ElHer2k_z.restype = c_uint
 lib.ElHer2kDist_c.argtypes = \
   [c_uint,c_uint,cType,c_void_p,c_void_p,sType,c_void_p]
-lib.ElHer2kDist_c.restype = c_uint
 lib.ElHer2kDist_z.argtypes = \
   [c_uint,c_uint,zType,c_void_p,c_void_p,dType,c_void_p]
-lib.ElHer2kDist_z.restype = c_uint
 
 def Syr2k(uplo,orient,alphaPre,A,B,beta,C,conj=False):
   if A.tag != B.tag or B.tag != C.tag: 
@@ -310,35 +263,25 @@ def Her2k(uplo,orient,alpha,A,B,beta,C):
 # --------
 lib.ElSparseMultiply_i.argtypes = \
   [c_uint,iType,c_void_p,c_void_p,iType,c_void_p]
-lib.ElSparseMultiply_i.restype = c_uint
 lib.ElSparseMultiply_s.argtypes = \
   [c_uint,sType,c_void_p,c_void_p,sType,c_void_p]
-lib.ElSparseMultiply_s.restype = c_uint
 lib.ElSparseMultiply_d.argtypes = \
   [c_uint,dType,c_void_p,c_void_p,dType,c_void_p]
-lib.ElSparseMultiply_d.restype = c_uint
 lib.ElSparseMultiply_c.argtypes = \
   [c_uint,cType,c_void_p,c_void_p,cType,c_void_p]
-lib.ElSparseMultiply_c.restype = c_uint
 lib.ElSparseMultiply_z.argtypes = \
   [c_uint,zType,c_void_p,c_void_p,zType,c_void_p]
-lib.ElSparseMultiply_z.restype = c_uint
 
 lib.ElSparseMultiplyDist_i.argtypes = \
   [c_uint,iType,c_void_p,c_void_p,iType,c_void_p]
-lib.ElSparseMultiplyDist_i.restype = c_uint
 lib.ElSparseMultiplyDist_s.argtypes = \
   [c_uint,sType,c_void_p,c_void_p,sType,c_void_p]
-lib.ElSparseMultiplyDist_s.restype = c_uint
 lib.ElSparseMultiplyDist_d.argtypes = \
   [c_uint,dType,c_void_p,c_void_p,dType,c_void_p]
-lib.ElSparseMultiplyDist_d.restype = c_uint
 lib.ElSparseMultiplyDist_c.argtypes = \
   [c_uint,cType,c_void_p,c_void_p,cType,c_void_p]
-lib.ElSparseMultiplyDist_c.restype = c_uint
 lib.ElSparseMultiplyDist_z.argtypes = \
   [c_uint,zType,c_void_p,c_void_p,zType,c_void_p]
-lib.ElSparseMultiplyDist_z.restype = c_uint
 
 # TODO: Generalize so that this is part of a routine 'Multiply'
 def SparseMultiply(orient,alpha,A,X,beta,Y):
@@ -371,29 +314,21 @@ def SparseMultiply(orient,alpha,A,X,beta,Y):
 # MultiShiftQuasiTrsm
 # -------------------
 lib.ElMultiShiftQuasiTrsm_s.argtypes = \
-  [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p,c_void_p]
-lib.ElMultiShiftQuasiTrsm_s.restype = c_uint
-lib.ElMultiShiftQuasiTrsm_d.argtypes = \
-  [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p,c_void_p]
-lib.ElMultiShiftQuasiTrsm_d.restype = c_uint
-lib.ElMultiShiftQuasiTrsm_c.argtypes = \
-  [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p,c_void_p]
-lib.ElMultiShiftQuasiTrsm_c.restype = c_uint
-lib.ElMultiShiftQuasiTrsm_z.argtypes = \
-  [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p,c_void_p]
-lib.ElMultiShiftQuasiTrsm_z.restype = c_uint
 lib.ElMultiShiftQuasiTrsmDist_s.argtypes = \
   [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p,c_void_p]
-lib.ElMultiShiftQuasiTrsmDist_s.restype = c_uint
+
+lib.ElMultiShiftQuasiTrsm_d.argtypes = \
 lib.ElMultiShiftQuasiTrsmDist_d.argtypes = \
-  [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p,c_void_p]
-lib.ElMultiShiftQuasiTrsmDist_d.restype = c_uint
+  [c_uint,c_uint,c_uint,dType,c_void_p,c_void_p,c_void_p]
+
+lib.ElMultiShiftQuasiTrsm_c.argtypes = \
 lib.ElMultiShiftQuasiTrsmDist_c.argtypes = \
-  [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p,c_void_p]
-lib.ElMultiShiftQuasiTrsmDist_c.restype = c_uint
+  [c_uint,c_uint,c_uint,cType,c_void_p,c_void_p,c_void_p]
+
+lib.ElMultiShiftQuasiTrsm_z.argtypes = \
 lib.ElMultiShiftQuasiTrsmDist_z.argtypes = \
-  [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p,c_void_p]
-lib.ElMultiShiftQuasiTrsmDist_z.restype = c_uint
+  [c_uint,c_uint,c_uint,zType,c_void_p,c_void_p,c_void_p]
+
 def MultiShiftQuasiTrsm(side,uplo,orient,alphaPre,A,shifts,B):
   if type(A) is not type(shifts) or type(shifts) is not type(B): 
     raise Exception('Types of A and B must match')
@@ -418,29 +353,21 @@ def MultiShiftQuasiTrsm(side,uplo,orient,alphaPre,A,shifts,B):
 # MultiShiftTrsm
 # --------------
 lib.ElMultiShiftTrsm_s.argtypes = \
-  [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p,c_void_p]
-lib.ElMultiShiftTrsm_s.restype = c_uint
-lib.ElMultiShiftTrsm_d.argtypes = \
-  [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p,c_void_p]
-lib.ElMultiShiftTrsm_d.restype = c_uint
-lib.ElMultiShiftTrsm_c.argtypes = \
-  [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p,c_void_p]
-lib.ElMultiShiftTrsm_c.restype = c_uint
-lib.ElMultiShiftTrsm_z.argtypes = \
-  [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p,c_void_p]
-lib.ElMultiShiftTrsm_z.restype = c_uint
 lib.ElMultiShiftTrsmDist_s.argtypes = \
   [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p,c_void_p]
-lib.ElMultiShiftTrsmDist_s.restype = c_uint
+
+lib.ElMultiShiftTrsm_d.argtypes = \
 lib.ElMultiShiftTrsmDist_d.argtypes = \
-  [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p,c_void_p]
-lib.ElMultiShiftTrsmDist_d.restype = c_uint
+  [c_uint,c_uint,c_uint,dType,c_void_p,c_void_p,c_void_p]
+
+lib.ElMultiShiftTrsm_c.argtypes = \
 lib.ElMultiShiftTrsmDist_c.argtypes = \
-  [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p,c_void_p]
-lib.ElMultiShiftTrsmDist_c.restype = c_uint
+  [c_uint,c_uint,c_uint,cType,c_void_p,c_void_p,c_void_p]
+
+lib.ElMultiShiftTrsm_z.argtypes = \
 lib.ElMultiShiftTrsmDist_z.argtypes = \
-  [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p,c_void_p]
-lib.ElMultiShiftTrsmDist_z.restype = c_uint
+  [c_uint,c_uint,c_uint,zType,c_void_p,c_void_p,c_void_p]
+
 def MultiShiftTrsm(side,uplo,orient,alphaPre,A,shifts,B):
   if type(A) is not type(shifts) or type(shifts) is not type(B): 
     raise Exception('Types of A and B must match')
@@ -464,22 +391,22 @@ def MultiShiftTrsm(side,uplo,orient,alphaPre,A,shifts,B):
 
 # QuasiTrsm
 # ---------
-lib.ElQuasiTrsm_s.argtypes = [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p]
-lib.ElQuasiTrsm_s.restype = c_uint
-lib.ElQuasiTrsm_d.argtypes = [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p]
-lib.ElQuasiTrsm_d.restype = c_uint
-lib.ElQuasiTrsm_c.argtypes = [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p]
-lib.ElQuasiTrsm_c.restype = c_uint
-lib.ElQuasiTrsm_z.argtypes = [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p]
-lib.ElQuasiTrsm_z.restype = c_uint
-lib.ElQuasiTrsmDist_s.argtypes = [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p]
-lib.ElQuasiTrsmDist_s.restype = c_uint
-lib.ElQuasiTrsmDist_d.argtypes = [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p]
-lib.ElQuasiTrsmDist_d.restype = c_uint
-lib.ElQuasiTrsmDist_c.argtypes = [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p]
-lib.ElQuasiTrsmDist_c.restype = c_uint
-lib.ElQuasiTrsmDist_z.argtypes = [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p]
-lib.ElQuasiTrsmDist_z.restype = c_uint
+lib.ElQuasiTrsm_s.argtypes = \
+lib.ElQuasiTrsmDist_s.argtypes = \
+  [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p]
+
+lib.ElQuasiTrsm_d.argtypes = \
+lib.ElQuasiTrsmDist_d.argtypes = \
+  [c_uint,c_uint,c_uint,dType,c_void_p,c_void_p]
+
+lib.ElQuasiTrsm_c.argtypes = \
+lib.ElQuasiTrsmDist_c.argtypes = \
+  [c_uint,c_uint,c_uint,cType,c_void_p,c_void_p]
+
+lib.ElQuasiTrsm_z.argtypes = \
+lib.ElQuasiTrsmDist_z.argtypes = \
+  [c_uint,c_uint,c_uint,zType,c_void_p,c_void_p]
+
 def QuasiTrsm(side,uplo,orient,alphaPre,A,B):
   if type(A) is not type(B): raise Exception('Types of A and B must match')
   if A.tag != B.tag: raise Exception('Datatypes of A and B must match')
@@ -501,22 +428,18 @@ def QuasiTrsm(side,uplo,orient,alphaPre,A,B):
 
 # Trdtrmm
 # -------
-lib.ElTrdtrmm_s.argtypes = [c_uint,c_void_p]
-lib.ElTrdtrmm_s.restype = c_uint
-lib.ElTrdtrmm_d.argtypes = [c_uint,c_void_p]
-lib.ElTrdtrmm_d.restype = c_uint
-lib.ElTrdtrmm_c.argtypes = [c_uint,c_void_p,bType]
-lib.ElTrdtrmm_c.restype = c_uint
-lib.ElTrdtrmm_z.argtypes = [c_uint,c_void_p,bType]
-lib.ElTrdtrmm_z.restype = c_uint
-lib.ElTrdtrmmDist_s.argtypes = [c_uint,c_void_p]
-lib.ElTrdtrmmDist_s.restype = c_uint
-lib.ElTrdtrmmDist_d.argtypes = [c_uint,c_void_p]
-lib.ElTrdtrmmDist_d.restype = c_uint
-lib.ElTrdtrmmDist_c.argtypes = [c_uint,c_void_p,bType]
-lib.ElTrdtrmmDist_c.restype = c_uint
-lib.ElTrdtrmmDist_z.argtypes = [c_uint,c_void_p,bType]
-lib.ElTrdtrmmDist_z.restype = c_uint
+lib.ElTrdtrmm_s.argtypes = \
+lib.ElTrdtrmm_d.argtypes = \
+lib.ElTrdtrmmDist_s.argtypes = \
+lib.ElTrdtrmmDist_d.argtypes = \
+  [c_uint,c_void_p]
+
+lib.ElTrdtrmm_c.argtypes = \
+lib.ElTrdtrmm_z.argtypes = \
+lib.ElTrdtrmmDist_c.argtypes = \
+lib.ElTrdtrmmDist_z.argtypes = \
+  [c_uint,c_void_p,bType]
+
 def Trdtrmm(uplo,A,conjugate=False):
   args = [uplo,A.obj]
   argsCpx = [uplo,A.obj,conjugate]
@@ -536,22 +459,18 @@ def Trdtrmm(uplo,A,conjugate=False):
 
 # TrdtrmmQuasi
 # ------------
-lib.ElTrdtrmmQuasi_s.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElTrdtrmmQuasi_s.restype = c_uint
-lib.ElTrdtrmmQuasi_d.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElTrdtrmmQuasi_d.restype = c_uint
-lib.ElTrdtrmmQuasi_c.argtypes = [c_uint,c_void_p,c_void_p,bType]
-lib.ElTrdtrmmQuasi_c.restype = c_uint
-lib.ElTrdtrmmQuasi_z.argtypes = [c_uint,c_void_p,c_void_p,bType]
-lib.ElTrdtrmmQuasi_z.restype = c_uint
-lib.ElTrdtrmmQuasiDist_s.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElTrdtrmmQuasiDist_s.restype = c_uint
-lib.ElTrdtrmmQuasiDist_d.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElTrdtrmmQuasiDist_d.restype = c_uint
-lib.ElTrdtrmmQuasiDist_c.argtypes = [c_uint,c_void_p,c_void_p,bType]
-lib.ElTrdtrmmQuasiDist_c.restype = c_uint
-lib.ElTrdtrmmQuasiDist_z.argtypes = [c_uint,c_void_p,c_void_p,bType]
-lib.ElTrdtrmmQuasiDist_z.restype = c_uint
+lib.ElTrdtrmmQuasi_s.argtypes = \
+lib.ElTrdtrmmQuasi_d.argtypes = \
+lib.ElTrdtrmmQuasiDist_s.argtypes = \
+lib.ElTrdtrmmQuasiDist_d.argtypes = \
+  [c_uint,c_void_p,c_void_p]
+
+lib.ElTrdtrmmQuasi_c.argtypes = \
+lib.ElTrdtrmmQuasi_z.argtypes = \
+lib.ElTrdtrmmQuasiDist_c.argtypes = \
+lib.ElTrdtrmmQuasiDist_z.argtypes = \
+  [c_uint,c_void_p,c_void_p,bType]
+
 def TrdtrmmQuasi(uplo,A,dOff,conjugate=False):
   if type(A) is not type(dOff): 
     raise Exception('Types of A and dOff must match')
@@ -575,26 +494,22 @@ def TrdtrmmQuasi(uplo,A,dOff,conjugate=False):
 
 # Trmm
 # ----
-lib.ElTrmm_s.argtypes = [c_uint,c_uint,c_uint,c_uint,sType,c_void_p,c_void_p]
-lib.ElTrmm_s.restype = c_uint
-lib.ElTrmm_d.argtypes = [c_uint,c_uint,c_uint,c_uint,dType,c_void_p,c_void_p]
-lib.ElTrmm_d.restype = c_uint
-lib.ElTrmm_c.argtypes = [c_uint,c_uint,c_uint,c_uint,cType,c_void_p,c_void_p]
-lib.ElTrmm_c.restype = c_uint
-lib.ElTrmm_z.argtypes = [c_uint,c_uint,c_uint,c_uint,zType,c_void_p,c_void_p]
-lib.ElTrmm_z.restype = c_uint
+lib.ElTrmm_s.argtypes = \
 lib.ElTrmmDist_s.argtypes = \
   [c_uint,c_uint,c_uint,c_uint,sType,c_void_p,c_void_p]
-lib.ElTrmmDist_s.restype = c_uint
+
+lib.ElTrmm_d.argtypes = \
 lib.ElTrmmDist_d.argtypes = \
   [c_uint,c_uint,c_uint,c_uint,dType,c_void_p,c_void_p]
-lib.ElTrmmDist_d.restype = c_uint
+
+lib.ElTrmm_c.argtypes = \
 lib.ElTrmmDist_c.argtypes = \
   [c_uint,c_uint,c_uint,c_uint,cType,c_void_p,c_void_p]
-lib.ElTrmmDist_c.restype = c_uint
+
+lib.ElTrmm_z.argtypes = \
 lib.ElTrmmDist_z.argtypes = \
   [c_uint,c_uint,c_uint,c_uint,zType,c_void_p,c_void_p]
-lib.ElTrmmDist_z.restype = c_uint
+
 def Trmm(side,uplo,orient,diag,alphaPre,A,B):
   if type(A) is not type(B): raise Exception('Types of A and B must match')
   if A.tag != B.tag: raise Exception('Datatypes of A and B must match')
@@ -617,29 +532,21 @@ def Trmm(side,uplo,orient,diag,alphaPre,A,B):
 # Trrk
 # ----
 lib.ElTrrk_s.argtypes = \
-  [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p,sType,c_void_p]
-lib.ElTrrk_s.restype = c_uint
-lib.ElTrrk_d.argtypes = \
-  [c_uint,c_uint,c_uint,dType,c_void_p,c_void_p,dType,c_void_p]
-lib.ElTrrk_d.restype = c_uint
-lib.ElTrrk_c.argtypes = \
-  [c_uint,c_uint,c_uint,cType,c_void_p,c_void_p,cType,c_void_p]
-lib.ElTrrk_c.restype = c_uint
-lib.ElTrrk_z.argtypes = \
-  [c_uint,c_uint,c_uint,zType,c_void_p,c_void_p,zType,c_void_p]
-lib.ElTrrk_z.restype = c_uint
 lib.ElTrrkDist_s.argtypes = \
   [c_uint,c_uint,c_uint,sType,c_void_p,c_void_p,sType,c_void_p]
-lib.ElTrrkDist_s.restype = c_uint
+
+lib.ElTrrk_d.argtypes = \
 lib.ElTrrkDist_d.argtypes = \
   [c_uint,c_uint,c_uint,dType,c_void_p,c_void_p,dType,c_void_p]
-lib.ElTrrkDist_d.restype = c_uint
+
+lib.ElTrrk_c.argtypes = \
 lib.ElTrrkDist_c.argtypes = \
   [c_uint,c_uint,c_uint,cType,c_void_p,c_void_p,cType,c_void_p]
-lib.ElTrrkDist_c.restype = c_uint
+
+lib.ElTrrk_z.argtypes = \
 lib.ElTrrkDist_z.argtypes = \
   [c_uint,c_uint,c_uint,zType,c_void_p,c_void_p,zType,c_void_p]
-lib.ElTrrkDist_z.restype = c_uint
+
 def Trrk(uplo,orientA,orientB,alphaPre,A,B,betaPre,C):
   if type(A) is not type(B) or type(B) is not type(C):
     raise Exception('Types of {A,B,C} must match')
@@ -667,35 +574,27 @@ def Trrk(uplo,orientA,orientB,alphaPre,A,B,betaPre,C):
 #lib.ElTrr2k_s.argtypes = \
 #  [c_uint,c_uint,c_uint,c_uint,c_uint,
 #   sType,c_void_p,c_void_p,sType,c_void_p,c_void_p,sType,c_void_p]
-#lib.ElTrr2k_s.restype = c_uint
 #lib.ElTrr2k_d.argtypes = \
 #  [c_uint,c_uint,c_uint,c_uint,c_uint,
 #   dType,c_void_p,c_void_p,dType,c_void_p,c_void_p,dType,c_void_p]
-#lib.ElTrr2k_d.restype = c_uint
 #lib.ElTrr2k_c.argtypes = \
 #  [c_uint,c_uint,c_uint,c_uint,c_uint,
 #   cType,c_void_p,c_void_p,cType,c_void_p,c_void_p,cType,c_void_p]
-#lib.ElTrr2k_c.restype = c_uint
 #lib.ElTrr2k_z.argtypes = \
 #  [c_uint,c_uint,c_uint,c_uint,c_uint,
 #   zType,c_void_p,c_void_p,zType,c_void_p,c_void_p,zType,c_void_p]
-#lib.ElTrr2k_z.restype = c_uint
 lib.ElTrr2kDist_s.argtypes = \
   [c_uint,c_uint,c_uint,c_uint,c_uint,
    sType,c_void_p,c_void_p,sType,c_void_p,c_void_p,sType,c_void_p]
-lib.ElTrr2kDist_s.restype = c_uint
 lib.ElTrr2kDist_d.argtypes = \
   [c_uint,c_uint,c_uint,c_uint,c_uint,
    dType,c_void_p,c_void_p,dType,c_void_p,c_void_p,dType,c_void_p]
-lib.ElTrr2kDist_d.restype = c_uint
 lib.ElTrr2kDist_c.argtypes = \
   [c_uint,c_uint,c_uint,c_uint,c_uint,
    cType,c_void_p,c_void_p,cType,c_void_p,c_void_p,cType,c_void_p]
-lib.ElTrr2kDist_c.restype = c_uint
 lib.ElTrr2kDist_z.argtypes = \
   [c_uint,c_uint,c_uint,c_uint,c_uint,
    zType,c_void_p,c_void_p,zType,c_void_p,c_void_p,zType,c_void_p]
-lib.ElTrr2kDist_z.restype = c_uint
 def Trr2k(uplo,orientA,orientB,orientC,orientD,
           alphaPre,A,B,betaPre,C,D,gammaPre,E):
   if type(A) is not type(B) or type(B) is not type(C) or \
@@ -720,26 +619,22 @@ def Trr2k(uplo,orientA,orientB,orientC,orientD,
 
 # Trsm
 # ----
-lib.ElTrsm_s.argtypes = [c_uint,c_uint,c_uint,c_uint,sType,c_void_p,c_void_p]
-lib.ElTrsm_s.restype = c_uint
-lib.ElTrsm_d.argtypes = [c_uint,c_uint,c_uint,c_uint,dType,c_void_p,c_void_p]
-lib.ElTrsm_d.restype = c_uint
-lib.ElTrsm_c.argtypes = [c_uint,c_uint,c_uint,c_uint,cType,c_void_p,c_void_p]
-lib.ElTrsm_c.restype = c_uint
-lib.ElTrsm_z.argtypes = [c_uint,c_uint,c_uint,c_uint,zType,c_void_p,c_void_p]
-lib.ElTrsm_z.restype = c_uint
+lib.ElTrsm_s.argtypes = \
 lib.ElTrsmDist_s.argtypes = \
   [c_uint,c_uint,c_uint,c_uint,sType,c_void_p,c_void_p]
-lib.ElTrsmDist_s.restype = c_uint
+
+lib.ElTrsm_d.argtypes = \
 lib.ElTrsmDist_d.argtypes = \
   [c_uint,c_uint,c_uint,c_uint,dType,c_void_p,c_void_p]
-lib.ElTrsmDist_d.restype = c_uint
+
+lib.ElTrsm_c.argtypes = \
 lib.ElTrsmDist_c.argtypes = \
   [c_uint,c_uint,c_uint,c_uint,cType,c_void_p,c_void_p]
-lib.ElTrsmDist_c.restype = c_uint
+
+lib.ElTrsm_z.argtypes = \
 lib.ElTrsmDist_z.argtypes = \
   [c_uint,c_uint,c_uint,c_uint,zType,c_void_p,c_void_p]
-lib.ElTrsmDist_z.restype = c_uint
+
 def Trsm(side,uplo,orient,diag,alphaPre,A,B):
   if type(A) is not type(B): raise Exception('Types of A and B must match')
   if A.tag != B.tag: raise Exception('Datatypes of A and B must match')
@@ -761,26 +656,22 @@ def Trsm(side,uplo,orient,diag,alphaPre,A,B):
 
 # Trstrm
 # ------
-lib.ElTrstrm_s.argtypes = [c_uint,c_uint,c_uint,c_uint,sType,c_void_p,c_void_p]
-lib.ElTrstrm_s.restype = c_uint
-lib.ElTrstrm_d.argtypes = [c_uint,c_uint,c_uint,c_uint,dType,c_void_p,c_void_p]
-lib.ElTrstrm_d.restype = c_uint
-lib.ElTrstrm_c.argtypes = [c_uint,c_uint,c_uint,c_uint,cType,c_void_p,c_void_p]
-lib.ElTrstrm_c.restype = c_uint
-lib.ElTrstrm_z.argtypes = [c_uint,c_uint,c_uint,c_uint,zType,c_void_p,c_void_p]
-lib.ElTrstrm_z.restype = c_uint
+lib.ElTrstrm_s.argtypes = \
 lib.ElTrstrmDist_s.argtypes = \
   [c_uint,c_uint,c_uint,c_uint,sType,c_void_p,c_void_p]
-lib.ElTrstrmDist_s.restype = c_uint
+
+lib.ElTrstrm_d.argtypes = \
 lib.ElTrstrmDist_d.argtypes = \
   [c_uint,c_uint,c_uint,c_uint,dType,c_void_p,c_void_p]
-lib.ElTrstrmDist_d.restype = c_uint
+
+lib.ElTrstrm_c.argtypes = \
 lib.ElTrstrmDist_c.argtypes = \
   [c_uint,c_uint,c_uint,c_uint,cType,c_void_p,c_void_p]
-lib.ElTrstrmDist_c.restype = c_uint
+
+lib.ElTrstrm_z.argtypes = \
 lib.ElTrstrmDist_z.argtypes = \
   [c_uint,c_uint,c_uint,c_uint,zType,c_void_p,c_void_p]
-lib.ElTrstrmDist_z.restype = c_uint
+
 def Trstrm(side,uplo,orient,diag,alphaPre,A,B):
   if type(A) is not type(B): raise Exception('Types of A and B must match')
   if A.tag != B.tag: raise Exception('Datatypes of A and B must match')
@@ -802,22 +693,18 @@ def Trstrm(side,uplo,orient,diag,alphaPre,A,B):
 
 # Trtrmm
 # ------
-lib.ElTrtrmm_s.argtypes = [c_uint,c_void_p]
-lib.ElTrtrmm_s.restype = c_uint
-lib.ElTrtrmm_d.argtypes = [c_uint,c_void_p]
-lib.ElTrtrmm_d.restype = c_uint
-lib.ElTrtrmm_c.argtypes = [c_uint,c_void_p,bType]
-lib.ElTrtrmm_c.restype = c_uint
-lib.ElTrtrmm_z.argtypes = [c_uint,c_void_p,bType]
-lib.ElTrtrmm_z.restype = c_uint
-lib.ElTrtrmmDist_s.argtypes = [c_uint,c_void_p]
-lib.ElTrtrmmDist_s.restype = c_uint
-lib.ElTrtrmmDist_d.argtypes = [c_uint,c_void_p]
-lib.ElTrtrmmDist_d.restype = c_uint
-lib.ElTrtrmmDist_c.argtypes = [c_uint,c_void_p,bType]
-lib.ElTrtrmmDist_c.restype = c_uint
-lib.ElTrtrmmDist_z.argtypes = [c_uint,c_void_p,bType]
-lib.ElTrtrmmDist_z.restype = c_uint
+lib.ElTrtrmm_s.argtypes = \
+lib.ElTrtrmm_d.argtypes = \
+lib.ElTrtrmmDist_s.argtypes = \
+lib.ElTrtrmmDist_d.argtypes = \
+  [c_uint,c_void_p]
+
+lib.ElTrtrmm_c.argtypes = \
+lib.ElTrtrmm_z.argtypes = \
+lib.ElTrtrmmDist_c.argtypes = \
+lib.ElTrtrmmDist_z.argtypes = \
+  [c_uint,c_void_p,bType]
+
 def Trtrmm(uplo,A,conjugate=False):
   args = [uplo,A.obj]
   argsCpx = [uplo,A.obj,conjugate]
@@ -837,22 +724,16 @@ def Trtrmm(uplo,A,conjugate=False):
 
 # Two-sided Trmm
 # --------------
-lib.ElTwoSidedTrmm_s.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElTwoSidedTrmm_s.restype = c_uint
-lib.ElTwoSidedTrmm_d.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElTwoSidedTrmm_d.restype = c_uint
-lib.ElTwoSidedTrmm_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElTwoSidedTrmm_c.restype = c_uint
-lib.ElTwoSidedTrmm_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElTwoSidedTrmm_z.restype = c_uint
-lib.ElTwoSidedTrmmDist_s.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElTwoSidedTrmmDist_s.restype = c_uint
-lib.ElTwoSidedTrmmDist_d.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElTwoSidedTrmmDist_d.restype = c_uint
-lib.ElTwoSidedTrmmDist_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElTwoSidedTrmmDist_c.restype = c_uint
-lib.ElTwoSidedTrmmDist_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElTwoSidedTrmmDist_z.restype = c_uint
+lib.ElTwoSidedTrmm_s.argtypes = \
+lib.ElTwoSidedTrmm_d.argtypes = \
+lib.ElTwoSidedTrmm_c.argtypes = \
+lib.ElTwoSidedTrmm_z.argtypes = \
+lib.ElTwoSidedTrmmDist_s.argtypes = \
+lib.ElTwoSidedTrmmDist_d.argtypes = \
+lib.ElTwoSidedTrmmDist_c.argtypes = \
+lib.ElTwoSidedTrmmDist_z.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p]
+
 def TwoSidedTrmm(uplo,diag,A,B):
   if type(A) is not type(B): raise Exception('Types of A and B must match')
   if A.tag != B.tag: raise Exception('Datatypes of A and B must match')
@@ -873,22 +754,16 @@ def TwoSidedTrmm(uplo,diag,A,B):
 
 # Two-sided Trsm
 # --------------
-lib.ElTwoSidedTrsm_s.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElTwoSidedTrsm_s.restype = c_uint
-lib.ElTwoSidedTrsm_d.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElTwoSidedTrsm_d.restype = c_uint
-lib.ElTwoSidedTrsm_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElTwoSidedTrsm_c.restype = c_uint
-lib.ElTwoSidedTrsm_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElTwoSidedTrsm_z.restype = c_uint
-lib.ElTwoSidedTrsmDist_s.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElTwoSidedTrsmDist_s.restype = c_uint
-lib.ElTwoSidedTrsmDist_d.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElTwoSidedTrsmDist_d.restype = c_uint
-lib.ElTwoSidedTrsmDist_c.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElTwoSidedTrsmDist_c.restype = c_uint
-lib.ElTwoSidedTrsmDist_z.argtypes = [c_uint,c_uint,c_void_p,c_void_p]
-lib.ElTwoSidedTrsmDist_z.restype = c_uint
+lib.ElTwoSidedTrsm_s.argtypes = \
+lib.ElTwoSidedTrsm_d.argtypes = \
+lib.ElTwoSidedTrsm_c.argtypes = \
+lib.ElTwoSidedTrsm_z.argtypes = \
+lib.ElTwoSidedTrsmDist_s.argtypes = \
+lib.ElTwoSidedTrsmDist_d.argtypes = \
+lib.ElTwoSidedTrsmDist_c.argtypes = \
+lib.ElTwoSidedTrsmDist_z.argtypes = \
+  [c_uint,c_uint,c_void_p,c_void_p]
+
 def TwoSidedTrsm(uplo,diag,A,B):
   if type(A) is not type(B): raise Exception('Types of A and B must match')
   if A.tag != B.tag: raise Exception('Datatypes of A and B must match')

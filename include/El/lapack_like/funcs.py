@@ -14,41 +14,30 @@ from ctypes import CFUNCTYPE
 # ==================
 lib.ElRealHermitianFunction_s.argtypes = \
   [c_uint,c_void_p,CFUNCTYPE(sType,sType)]
-lib.ElRealHermitianFunction_s.restype = c_uint
 lib.ElRealHermitianFunction_d.argtypes = \
   [c_uint,c_void_p,CFUNCTYPE(dType,dType)]
-lib.ElRealHermitianFunction_d.restype = c_uint
 lib.ElRealHermitianFunction_c.argtypes = \
   [c_uint,c_void_p,CFUNCTYPE(sType,sType)]
-lib.ElRealHermitianFunction_c.restype = c_uint
 lib.ElRealHermitianFunction_z.argtypes = \
   [c_uint,c_void_p,CFUNCTYPE(dType,dType)]
-lib.ElRealHermitianFunction_z.restype = c_uint
 lib.ElRealHermitianFunctionDist_s.argtypes = \
   [c_uint,c_void_p,CFUNCTYPE(sType,sType)]
-lib.ElRealHermitianFunctionDist_s.restype = c_uint
 lib.ElRealHermitianFunctionDist_d.argtypes = \
   [c_uint,c_void_p,CFUNCTYPE(dType,dType)]
-lib.ElRealHermitianFunctionDist_d.restype = c_uint
 lib.ElRealHermitianFunctionDist_c.argtypes = \
   [c_uint,c_void_p,CFUNCTYPE(sType,sType)]
-lib.ElRealHermitianFunctionDist_c.restype = c_uint
 lib.ElRealHermitianFunctionDist_z.argtypes = \
   [c_uint,c_void_p,CFUNCTYPE(dType,dType)]
-lib.ElRealHermitianFunctionDist_z.restype = c_uint
 
 lib.ElComplexHermitianFunction_c.argtypes = \
   [c_uint,c_void_p,CFUNCTYPE(cType,sType)]
-lib.ElComplexHermitianFunction_c.restype = c_uint
 lib.ElComplexHermitianFunction_z.argtypes = \
   [c_uint,c_void_p,CFUNCTYPE(zType,dType)]
-lib.ElComplexHermitianFunction_z.restype = c_uint
 lib.ElComplexHermitianFunctionDist_c.argtypes = \
   [c_uint,c_void_p,CFUNCTYPE(cType,sType)]
-lib.ElComplexHermitianFunctionDist_c.restype = c_uint
 lib.ElComplexHermitianFunctionDist_z.argtypes = \
   [c_uint,c_void_p,CFUNCTYPE(zType,dType)]
-lib.ElComplexHermitianFunctionDist_z.restype = c_uint
+
 def HermitianFunction(uplo,A,func,isReal=True):
   if isReal:
     cFunc = CFUNCTYPE(TagToType(Base(A.tag)),TagToType(Base(A.tag)))(func)
@@ -84,22 +73,15 @@ def HermitianFunction(uplo,A,func,isReal=True):
 
 # General
 # -------
-lib.ElInverse_s.argtypes = [c_void_p]
-lib.ElInverse_s.restype = c_uint
-lib.ElInverse_d.argtypes = [c_void_p]
-lib.ElInverse_d.restype = c_uint
-lib.ElInverse_c.argtypes = [c_void_p]
-lib.ElInverse_c.restype = c_uint
-lib.ElInverse_z.argtypes = [c_void_p]
-lib.ElInverse_z.restype = c_uint
-lib.ElInverseDist_s.argtypes = [c_void_p]
-lib.ElInverseDist_s.restype = c_uint
-lib.ElInverseDist_d.argtypes = [c_void_p]
-lib.ElInverseDist_d.restype = c_uint
-lib.ElInverseDist_c.argtypes = [c_void_p]
-lib.ElInverseDist_c.restype = c_uint
-lib.ElInverseDist_z.argtypes = [c_void_p]
-lib.ElInverseDist_z.restype = c_uint
+lib.ElInverse_s.argtypes = \
+lib.ElInverse_d.argtypes = \
+lib.ElInverse_c.argtypes = \
+lib.ElInverse_z.argtypes = \
+lib.ElInverseDist_s.argtypes = \
+lib.ElInverseDist_d.argtypes = \
+lib.ElInverseDist_c.argtypes = \
+lib.ElInverseDist_z.argtypes = \
+  [c_void_p]
 def Inverse(A):
   args = [A.obj]
   if type(A) is Matrix:
@@ -118,22 +100,15 @@ def Inverse(A):
 
 # After LU factorization with partial pivoting
 # --------------------------------------------
-lib.ElInverseAfterLUPartialPiv_s.argtypes = [c_void_p,c_void_p]
-lib.ElInverseAfterLUPartialPiv_s.restype = c_uint
-lib.ElInverseAfterLUPartialPiv_d.argtypes = [c_void_p,c_void_p]
-lib.ElInverseAfterLUPartialPiv_d.restype = c_uint
-lib.ElInverseAfterLUPartialPiv_c.argtypes = [c_void_p,c_void_p]
-lib.ElInverseAfterLUPartialPiv_c.restype = c_uint
-lib.ElInverseAfterLUPartialPiv_z.argtypes = [c_void_p,c_void_p]
-lib.ElInverseAfterLUPartialPiv_z.restype = c_uint
-lib.ElInverseAfterLUPartialPivDist_s.argtypes = [c_void_p,c_void_p]
-lib.ElInverseAfterLUPartialPivDist_s.restype = c_uint
-lib.ElInverseAfterLUPartialPivDist_d.argtypes = [c_void_p,c_void_p]
-lib.ElInverseAfterLUPartialPivDist_d.restype = c_uint
-lib.ElInverseAfterLUPartialPivDist_c.argtypes = [c_void_p,c_void_p]
-lib.ElInverseAfterLUPartialPivDist_c.restype = c_uint
-lib.ElInverseAfterLUPartialPivDist_z.argtypes = [c_void_p,c_void_p]
-lib.ElInverseAfterLUPartialPivDist_z.restype = c_uint
+lib.ElInverseAfterLUPartialPiv_s.argtypes = \
+lib.ElInverseAfterLUPartialPiv_d.argtypes = \
+lib.ElInverseAfterLUPartialPiv_c.argtypes = \
+lib.ElInverseAfterLUPartialPiv_z.argtypes = \
+lib.ElInverseAfterLUPartialPivDist_s.argtypes = \
+lib.ElInverseAfterLUPartialPivDist_d.argtypes = \
+lib.ElInverseAfterLUPartialPivDist_c.argtypes = \
+lib.ElInverseAfterLUPartialPivDist_z.argtypes = \
+  [c_void_p,c_void_p]
 def InverseAfterLUPartialPiv(A,p):
   if type(A) is not type(p):
     raise Exception('Types of A and p must match')
@@ -156,22 +131,15 @@ def InverseAfterLUPartialPiv(A,p):
 
 # Invert a Hermitian Positive-Definite matrix
 # -------------------------------------------
-lib.ElHPDInverse_s.argtypes = [c_uint,c_void_p]
-lib.ElHPDInverse_s.restype = c_uint
-lib.ElHPDInverse_d.argtypes = [c_uint,c_void_p]
-lib.ElHPDInverse_d.restype = c_uint
-lib.ElHPDInverse_c.argtypes = [c_uint,c_void_p]
-lib.ElHPDInverse_c.restype = c_uint
-lib.ElHPDInverse_z.argtypes = [c_uint,c_void_p]
-lib.ElHPDInverse_z.restype = c_uint
-lib.ElHPDInverseDist_s.argtypes = [c_uint,c_void_p]
-lib.ElHPDInverseDist_s.restype = c_uint
-lib.ElHPDInverseDist_d.argtypes = [c_uint,c_void_p]
-lib.ElHPDInverseDist_d.restype = c_uint
-lib.ElHPDInverseDist_c.argtypes = [c_uint,c_void_p]
-lib.ElHPDInverseDist_c.restype = c_uint
-lib.ElHPDInverseDist_z.argtypes = [c_uint,c_void_p]
-lib.ElHPDInverseDist_z.restype = c_uint
+lib.ElHPDInverse_s.argtypes = \
+lib.ElHPDInverse_d.argtypes = \
+lib.ElHPDInverse_c.argtypes = \
+lib.ElHPDInverse_z.argtypes = \
+lib.ElHPDInverseDist_s.argtypes = \
+lib.ElHPDInverseDist_d.argtypes = \
+lib.ElHPDInverseDist_c.argtypes = \
+lib.ElHPDInverseDist_z.argtypes = \
+  [c_uint,c_void_p]
 def HPDInverse(uplo,A):
   args = [uplo,A.obj]
   if type(A) is Matrix:
@@ -190,30 +158,19 @@ def HPDInverse(uplo,A):
 
 # Invert a symmetric/Hermitian matrix
 # -----------------------------------
-lib.ElSymmetricInverse_s.argtypes = [c_uint,c_void_p]
-lib.ElSymmetricInverse_s.restype = c_uint
-lib.ElSymmetricInverse_d.argtypes = [c_uint,c_void_p]
-lib.ElSymmetricInverse_d.restype = c_uint
-lib.ElSymmetricInverse_c.argtypes = [c_uint,c_void_p]
-lib.ElSymmetricInverse_c.restype = c_uint
-lib.ElSymmetricInverse_z.argtypes = [c_uint,c_void_p]
-lib.ElSymmetricInverse_z.restype = c_uint
-lib.ElSymmetricInverseDist_s.argtypes = [c_uint,c_void_p]
-lib.ElSymmetricInverseDist_s.restype = c_uint
-lib.ElSymmetricInverseDist_d.argtypes = [c_uint,c_void_p]
-lib.ElSymmetricInverseDist_d.restype = c_uint
-lib.ElSymmetricInverseDist_c.argtypes = [c_uint,c_void_p]
-lib.ElSymmetricInverseDist_c.restype = c_uint
-lib.ElSymmetricInverseDist_z.argtypes = [c_uint,c_void_p]
-lib.ElSymmetricInverseDist_z.restype = c_uint
-lib.ElHermitianInverse_c.argtypes = [c_uint,c_void_p]
-lib.ElHermitianInverse_c.restype = c_uint
-lib.ElHermitianInverse_z.argtypes = [c_uint,c_void_p]
-lib.ElHermitianInverse_z.restype = c_uint
-lib.ElHermitianInverseDist_c.argtypes = [c_uint,c_void_p]
-lib.ElHermitianInverseDist_c.restype = c_uint
-lib.ElHermitianInverseDist_z.argtypes = [c_uint,c_void_p]
-lib.ElHermitianInverseDist_z.restype = c_uint
+lib.ElSymmetricInverse_s.argtypes = \
+lib.ElSymmetricInverse_d.argtypes = \
+lib.ElSymmetricInverse_c.argtypes = \
+lib.ElSymmetricInverse_z.argtypes = \
+lib.ElSymmetricInverseDist_s.argtypes = \
+lib.ElSymmetricInverseDist_d.argtypes = \
+lib.ElSymmetricInverseDist_c.argtypes = \
+lib.ElSymmetricInverseDist_z.argtypes = \
+lib.ElHermitianInverse_c.argtypes = \
+lib.ElHermitianInverse_z.argtypes = \
+lib.ElHermitianInverseDist_c.argtypes = \
+lib.ElHermitianInverseDist_z.argtypes = \
+  [c_uint,c_void_p]
 def SymmetricInverse(uplo,A,conjugate=False):
   args = [uplo,A.obj]
   if type(A) is Matrix:
@@ -242,22 +199,15 @@ def HermitianInverse(uplo,A):
 
 # Triangular
 # ----------
-lib.ElTriangularInverse_s.argtypes = [c_uint,c_uint,c_void_p]
-lib.ElTriangularInverse_s.restype = c_uint
-lib.ElTriangularInverse_d.argtypes = [c_uint,c_uint,c_void_p]
-lib.ElTriangularInverse_d.restype = c_uint
-lib.ElTriangularInverse_c.argtypes = [c_uint,c_uint,c_void_p]
-lib.ElTriangularInverse_c.restype = c_uint
-lib.ElTriangularInverse_z.argtypes = [c_uint,c_uint,c_void_p]
-lib.ElTriangularInverse_z.restype = c_uint
-lib.ElTriangularInverseDist_s.argtypes = [c_uint,c_uint,c_void_p]
-lib.ElTriangularInverseDist_s.restype = c_uint
-lib.ElTriangularInverseDist_d.argtypes = [c_uint,c_uint,c_void_p]
-lib.ElTriangularInverseDist_d.restype = c_uint
-lib.ElTriangularInverseDist_c.argtypes = [c_uint,c_uint,c_void_p]
-lib.ElTriangularInverseDist_c.restype = c_uint
-lib.ElTriangularInverseDist_z.argtypes = [c_uint,c_uint,c_void_p]
-lib.ElTriangularInverseDist_z.restype = c_uint
+lib.ElTriangularInverse_s.argtypes = \
+lib.ElTriangularInverse_d.argtypes = \
+lib.ElTriangularInverse_c.argtypes = \
+lib.ElTriangularInverse_z.argtypes = \
+lib.ElTriangularInverseDist_s.argtypes = \
+lib.ElTriangularInverseDist_d.argtypes = \
+lib.ElTriangularInverseDist_c.argtypes = \
+lib.ElTriangularInverseDist_z.argtypes = \
+  [c_uint,c_uint,c_void_p]
 def TriangularInverse(uplo,diag,A):
   args = [uplo,diag,A.obj]
   if type(A) is Matrix:
@@ -276,22 +226,15 @@ def TriangularInverse(uplo,diag,A):
 
 # Pseudoinverse
 # =============
-lib.ElPseudoinverse_s.argtypes = [c_void_p]
-lib.ElPseudoinverse_s.restype = c_uint
-lib.ElPseudoinverse_d.argtypes = [c_void_p]
-lib.ElPseudoinverse_d.restype = c_uint
-lib.ElPseudoinverse_c.argtypes = [c_void_p]
-lib.ElPseudoinverse_c.restype = c_uint
-lib.ElPseudoinverse_z.argtypes = [c_void_p]
-lib.ElPseudoinverse_z.restype = c_uint
-lib.ElPseudoinverseDist_s.argtypes = [c_void_p]
-lib.ElPseudoinverseDist_s.restype = c_uint
-lib.ElPseudoinverseDist_d.argtypes = [c_void_p]
-lib.ElPseudoinverseDist_d.restype = c_uint
-lib.ElPseudoinverseDist_c.argtypes = [c_void_p]
-lib.ElPseudoinverseDist_c.restype = c_uint
-lib.ElPseudoinverseDist_z.argtypes = [c_void_p]
-lib.ElPseudoinverseDist_z.restype = c_uint
+lib.ElPseudoinverse_s.argtypes = \
+lib.ElPseudoinverse_d.argtypes = \
+lib.ElPseudoinverse_c.argtypes = \
+lib.ElPseudoinverse_z.argtypes = \
+lib.ElPseudoinverseDist_s.argtypes = \
+lib.ElPseudoinverseDist_d.argtypes = \
+lib.ElPseudoinverseDist_c.argtypes = \
+lib.ElPseudoinverseDist_z.argtypes = \
+  [c_void_p]
 def Pseudoinverse(A):
   args = [A.obj]
   if type(A) is Matrix:
@@ -308,22 +251,15 @@ def Pseudoinverse(A):
     else: DataExcept()
   else: TypeExcept()
 
-lib.ElHermitianPseudoinverse_s.argtypes = [c_uint,c_void_p]
-lib.ElHermitianPseudoinverse_s.restype = c_uint
-lib.ElHermitianPseudoinverse_d.argtypes = [c_uint,c_void_p]
-lib.ElHermitianPseudoinverse_d.restype = c_uint
-lib.ElHermitianPseudoinverse_c.argtypes = [c_uint,c_void_p]
-lib.ElHermitianPseudoinverse_c.restype = c_uint
-lib.ElHermitianPseudoinverse_z.argtypes = [c_uint,c_void_p]
-lib.ElHermitianPseudoinverse_z.restype = c_uint
-lib.ElHermitianPseudoinverseDist_s.argtypes = [c_uint,c_void_p]
-lib.ElHermitianPseudoinverseDist_s.restype = c_uint
-lib.ElHermitianPseudoinverseDist_d.argtypes = [c_uint,c_void_p]
-lib.ElHermitianPseudoinverseDist_d.restype = c_uint
-lib.ElHermitianPseudoinverseDist_c.argtypes = [c_uint,c_void_p]
-lib.ElHermitianPseudoinverseDist_c.restype = c_uint
-lib.ElHermitianPseudoinverseDist_z.argtypes = [c_uint,c_void_p]
-lib.ElHermitianPseudoinverseDist_z.restype = c_uint
+lib.ElHermitianPseudoinverse_s.argtypes = \
+lib.ElHermitianPseudoinverse_d.argtypes = \
+lib.ElHermitianPseudoinverse_c.argtypes = \
+lib.ElHermitianPseudoinverse_z.argtypes = \
+lib.ElHermitianPseudoinverseDist_s.argtypes = \
+lib.ElHermitianPseudoinverseDist_d.argtypes = \
+lib.ElHermitianPseudoinverseDist_c.argtypes = \
+lib.ElHermitianPseudoinverseDist_z.argtypes = \
+  [c_uint,c_void_p]
 def HermitianPseudoinverse(uplo,A):
   args = [uplo,A.obj]
   if type(A) is Matrix:
@@ -342,38 +278,26 @@ def HermitianPseudoinverse(uplo,A):
 
 # Sign
 # ====
-lib.ElSign_s.argtypes = [c_void_p]
-lib.ElSign_s.restype = c_uint
-lib.ElSign_d.argtypes = [c_void_p]
-lib.ElSign_d.restype = c_uint
-lib.ElSign_c.argtypes = [c_void_p]
-lib.ElSign_c.restype = c_uint
-lib.ElSign_z.argtypes = [c_void_p]
-lib.ElSign_z.restype = c_uint
-lib.ElSignDecomp_s.argtypes = [c_void_p,c_void_p]
-lib.ElSignDecomp_s.restype = c_uint
-lib.ElSignDecomp_d.argtypes = [c_void_p,c_void_p]
-lib.ElSignDecomp_d.restype = c_uint
-lib.ElSignDecomp_c.argtypes = [c_void_p,c_void_p]
-lib.ElSignDecomp_c.restype = c_uint
-lib.ElSignDecomp_z.argtypes = [c_void_p,c_void_p]
-lib.ElSignDecomp_z.restype = c_uint
-lib.ElSignDist_s.argtypes = [c_void_p]
-lib.ElSignDist_s.restype = c_uint
-lib.ElSignDist_d.argtypes = [c_void_p]
-lib.ElSignDist_d.restype = c_uint
-lib.ElSignDist_c.argtypes = [c_void_p]
-lib.ElSignDist_c.restype = c_uint
-lib.ElSignDist_z.argtypes = [c_void_p]
-lib.ElSignDist_z.restype = c_uint
-lib.ElSignDecompDist_s.argtypes = [c_void_p,c_void_p]
-lib.ElSignDecompDist_s.restype = c_uint
-lib.ElSignDecompDist_d.argtypes = [c_void_p,c_void_p]
-lib.ElSignDecompDist_d.restype = c_uint
-lib.ElSignDecompDist_c.argtypes = [c_void_p,c_void_p]
-lib.ElSignDecompDist_c.restype = c_uint
-lib.ElSignDecompDist_z.argtypes = [c_void_p,c_void_p]
-lib.ElSignDecompDist_z.restype = c_uint
+lib.ElSign_s.argtypes = \
+lib.ElSign_d.argtypes = \
+lib.ElSign_c.argtypes = \
+lib.ElSign_z.argtypes = \
+lib.ElSignDist_s.argtypes = \
+lib.ElSignDist_d.argtypes = \
+lib.ElSignDist_c.argtypes = \
+lib.ElSignDist_z.argtypes = \
+  [c_void_p]
+
+lib.ElSignDecomp_s.argtypes = \
+lib.ElSignDecomp_d.argtypes = \
+lib.ElSignDecomp_c.argtypes = \
+lib.ElSignDecomp_z.argtypes = \
+lib.ElSignDecompDist_s.argtypes = \
+lib.ElSignDecompDist_d.argtypes = \
+lib.ElSignDecompDist_c.argtypes = \
+lib.ElSignDecompDist_z.argtypes = \
+  [c_void_p,c_void_p]
+
 def Sign(A,fullDecomp=False):
   if type(A) is Matrix:
     if fullDecomp:
@@ -411,38 +335,26 @@ def Sign(A,fullDecomp=False):
       else: DataExcept()
   else: TypeExcept()
 
-lib.ElHermitianSign_s.argtypes = [c_uint,c_void_p]
-lib.ElHermitianSign_s.restype = c_uint
-lib.ElHermitianSign_d.argtypes = [c_uint,c_void_p]
-lib.ElHermitianSign_d.restype = c_uint
-lib.ElHermitianSign_c.argtypes = [c_uint,c_void_p]
-lib.ElHermitianSign_c.restype = c_uint
-lib.ElHermitianSign_z.argtypes = [c_uint,c_void_p]
-lib.ElHermitianSign_z.restype = c_uint
-lib.ElHermitianSignDecomp_s.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianSignDecomp_s.restype = c_uint
-lib.ElHermitianSignDecomp_d.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianSignDecomp_d.restype = c_uint
-lib.ElHermitianSignDecomp_c.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianSignDecomp_c.restype = c_uint
-lib.ElHermitianSignDecomp_z.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianSignDecomp_z.restype = c_uint
-lib.ElHermitianSignDist_s.argtypes = [c_uint,c_void_p]
-lib.ElHermitianSignDist_s.restype = c_uint
-lib.ElHermitianSignDist_d.argtypes = [c_uint,c_void_p]
-lib.ElHermitianSignDist_d.restype = c_uint
-lib.ElHermitianSignDist_c.argtypes = [c_uint,c_void_p]
-lib.ElHermitianSignDist_c.restype = c_uint
-lib.ElHermitianSignDist_z.argtypes = [c_uint,c_void_p]
-lib.ElHermitianSignDist_z.restype = c_uint
-lib.ElHermitianSignDecompDist_s.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianSignDecompDist_s.restype = c_uint
-lib.ElHermitianSignDecompDist_d.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianSignDecompDist_d.restype = c_uint
-lib.ElHermitianSignDecompDist_c.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianSignDecompDist_c.restype = c_uint
-lib.ElHermitianSignDecompDist_z.argtypes = [c_uint,c_void_p,c_void_p]
-lib.ElHermitianSignDecompDist_z.restype = c_uint
+lib.ElHermitianSign_s.argtypes = \
+lib.ElHermitianSign_d.argtypes = \
+lib.ElHermitianSign_c.argtypes = \
+lib.ElHermitianSign_z.argtypes = \
+lib.ElHermitianSignDist_s.argtypes = \
+lib.ElHermitianSignDist_d.argtypes = \
+lib.ElHermitianSignDist_c.argtypes = \
+lib.ElHermitianSignDist_z.argtypes = \
+  [c_uint,c_void_p]
+
+lib.ElHermitianSignDecomp_s.argtypes = \
+lib.ElHermitianSignDecomp_d.argtypes = \
+lib.ElHermitianSignDecomp_c.argtypes = \
+lib.ElHermitianSignDecomp_z.argtypes = \
+lib.ElHermitianSignDecompDist_s.argtypes = \
+lib.ElHermitianSignDecompDist_d.argtypes = \
+lib.ElHermitianSignDecompDist_c.argtypes = \
+lib.ElHermitianSignDecompDist_z.argtypes = \
+  [c_uint,c_void_p,c_void_p]
+
 def HermitianSign(uplo,A,fullDecomp=False):
   if type(A) is Matrix:
     if fullDecomp:
@@ -482,22 +394,16 @@ def HermitianSign(uplo,A,fullDecomp=False):
 
 # Square-root
 # ===========
-lib.ElSquareRoot_s.argtypes = [c_void_p]
-lib.ElSquareRoot_s.restype = c_uint
-lib.ElSquareRoot_d.argtypes = [c_void_p]
-lib.ElSquareRoot_d.restype = c_uint
-lib.ElSquareRoot_c.argtypes = [c_void_p]
-lib.ElSquareRoot_c.restype = c_uint
-lib.ElSquareRoot_z.argtypes = [c_void_p]
-lib.ElSquareRoot_z.restype = c_uint
-lib.ElSquareRootDist_s.argtypes = [c_void_p]
-lib.ElSquareRootDist_s.restype = c_uint
-lib.ElSquareRootDist_d.argtypes = [c_void_p]
-lib.ElSquareRootDist_d.restype = c_uint
-lib.ElSquareRootDist_c.argtypes = [c_void_p]
-lib.ElSquareRootDist_c.restype = c_uint
-lib.ElSquareRootDist_z.argtypes = [c_void_p]
-lib.ElSquareRootDist_z.restype = c_uint
+lib.ElSquareRoot_s.argtypes = \
+lib.ElSquareRoot_d.argtypes = \
+lib.ElSquareRoot_c.argtypes = \
+lib.ElSquareRoot_z.argtypes = \
+lib.ElSquareRootDist_s.argtypes = \
+lib.ElSquareRootDist_d.argtypes = \
+lib.ElSquareRootDist_c.argtypes = \
+lib.ElSquareRootDist_z.argtypes = \
+  [c_void_p]
+
 def SquareRoot(A):
   args = [A.obj]
   if type(A) is Matrix:
@@ -514,22 +420,16 @@ def SquareRoot(A):
     else: DataExcept()
   else: TypeExcept()
 
-lib.ElHPSDSquareRoot_s.argtypes = [c_uint,c_void_p]
-lib.ElHPSDSquareRoot_s.restype = c_uint
-lib.ElHPSDSquareRoot_d.argtypes = [c_uint,c_void_p]
-lib.ElHPSDSquareRoot_d.restype = c_uint
-lib.ElHPSDSquareRoot_c.argtypes = [c_uint,c_void_p]
-lib.ElHPSDSquareRoot_c.restype = c_uint
-lib.ElHPSDSquareRoot_z.argtypes = [c_uint,c_void_p]
-lib.ElHPSDSquareRoot_z.restype = c_uint
-lib.ElHPSDSquareRootDist_s.argtypes = [c_uint,c_void_p]
-lib.ElHPSDSquareRootDist_s.restype = c_uint
-lib.ElHPSDSquareRootDist_d.argtypes = [c_uint,c_void_p]
-lib.ElHPSDSquareRootDist_d.restype = c_uint
-lib.ElHPSDSquareRootDist_c.argtypes = [c_uint,c_void_p]
-lib.ElHPSDSquareRootDist_c.restype = c_uint
-lib.ElHPSDSquareRootDist_z.argtypes = [c_uint,c_void_p]
-lib.ElHPSDSquareRootDist_z.restype = c_uint
+lib.ElHPSDSquareRoot_s.argtypes = \
+lib.ElHPSDSquareRoot_d.argtypes = \
+lib.ElHPSDSquareRoot_c.argtypes = \
+lib.ElHPSDSquareRoot_z.argtypes = \
+lib.ElHPSDSquareRootDist_s.argtypes = \
+lib.ElHPSDSquareRootDist_d.argtypes = \
+lib.ElHPSDSquareRootDist_c.argtypes = \
+lib.ElHPSDSquareRootDist_z.argtypes = \
+  [c_uint,c_void_p]
+
 def HPSDSquareRoot(uplo,A):
   args = [uplo,A.obj]
   if type(A) is Matrix:

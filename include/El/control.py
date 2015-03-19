@@ -18,16 +18,6 @@ lib.ElLyapunovDist_c.argtypes = \
 lib.ElLyapunovDist_z.argtypes = \
   [c_void_p,c_void_p,c_void_p]
 
-lib.ElLyapunov_s.restype = \
-lib.ElLyapunov_d.restype = \
-lib.ElLyapunov_c.restype = \
-lib.ElLyapunov_z.restype = \
-lib.ElLyapunovDist_s.restype = \
-lib.ElLyapunovDist_d.restype = \
-lib.ElLyapunovDist_c.restype = \
-lib.ElLyapunovDist_z.restype = \
-  c_uint
-
 def Lyapunov(A,C):
   if type(A) is not type(C):
     raise Exception('Matrix types must match')
@@ -63,16 +53,6 @@ lib.ElRicattiDist_c.argtypes = \
 lib.ElRicattiDist_z.argtypes = \
   [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
 
-lib.ElRicatti_s.restype = \
-lib.ElRicatti_d.restype = \
-lib.ElRicatti_c.restype = \
-lib.ElRicatti_z.restype = \
-lib.ElRicattiDist_s.restype = \
-lib.ElRicattiDist_d.restype = \
-lib.ElRicattiDist_c.restype = \
-lib.ElRicattiDist_z.restype = \
-  c_uint
-
 def Ricatti(uplo,A,K,L):
   if type(A) is Matrix:
     X = Matrix(A.tag)
@@ -104,16 +84,6 @@ lib.ElRicattiPreformedDist_c.argtypes = \
 lib.ElRicattiPreformedDist_z.argtypes = \
   [c_void_p,c_void_p]
 
-lib.ElRicattiPreformed_s.restype = \
-lib.ElRicattiPreformed_d.restype = \
-lib.ElRicattiPreformed_c.restype = \
-lib.ElRicattiPreformed_z.restype = \
-lib.ElRicattiPreformedDist_s.restype = \
-lib.ElRicattiPreformedDist_d.restype = \
-lib.ElRicattiPreformedDist_c.restype = \
-lib.ElRicattiPreformedDist_z.restype = \
-  c_uint
-
 def RicattiPreformed(W):
   if type(W) is Matrix:
     X = Matrix(W.tag)
@@ -144,16 +114,6 @@ lib.ElSylvesterDist_d.argtypes = \
 lib.ElSylvesterDist_c.argtypes = \
 lib.ElSylvesterDist_z.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p]
-
-lib.ElSylvester_s.restype = \
-lib.ElSylvester_d.restype = \
-lib.ElSylvester_c.restype = \
-lib.ElSylvester_z.restype = \
-lib.ElSylvesterDist_s.restype = \
-lib.ElSylvesterDist_d.restype = \
-lib.ElSylvesterDist_c.restype = \
-lib.ElSylvesterDist_z.restype = \
-  c_uint
 
 def Sylvester(A,B,C):
   if type(A) is not type(B) or type(B) is not type(C):
@@ -189,16 +149,6 @@ lib.ElSylvesterPreformedDist_d.argtypes = \
 lib.ElSylvesterPreformedDist_c.argtypes = \
 lib.ElSylvesterPreformedDist_z.argtypes = \
   [iType,c_void_p,c_void_p]
-
-lib.ElSylvesterPreformed_s.restype = \
-lib.ElSylvesterPreformed_d.restype = \
-lib.ElSylvesterPreformed_c.restype = \
-lib.ElSylvesterPreformed_z.restype = \
-lib.ElSylvesterPreformedDist_s.restype = \
-lib.ElSylvesterPreformedDist_d.restype = \
-lib.ElSylvesterPreformedDist_c.restype = \
-lib.ElSylvesterPreformedDist_z.restype = \
-  c_uint
 
 def SylvesterPreformed(m,W):
   if type(W) is Matrix:

@@ -20,15 +20,6 @@ lib.ElCoherence_z.argtypes = \
 lib.ElCoherenceDist_d.argtypes = \
 lib.ElCoherenceDist_z.argtypes = \
   [c_void_p,POINTER(dType)]
-lib.ElCoherence_s.restype = \
-lib.ElCoherence_d.restype = \
-lib.ElCoherence_c.restype = \
-lib.ElCoherence_z.restype = \
-lib.ElCoherenceDist_s.restype = \
-lib.ElCoherenceDist_d.restype = \
-lib.ElCoherenceDist_c.restype = \
-lib.ElCoherenceDist_z.restype = \
-  c_uint
 
 def Coherence(A):
   value = TagToType(Base(A.tag))()
@@ -59,16 +50,6 @@ lib.ElCovarianceDist_d.argtypes = \
 lib.ElCovarianceDist_c.argtypes = \
 lib.ElCovarianceDist_z.argtypes = \
   [c_void_p,c_void_p]
-
-lib.ElCovariance_s.restype = \
-lib.ElCovariance_d.restype = \
-lib.ElCovariance_c.restype = \
-lib.ElCovariance_z.restype = \
-lib.ElCovarianceDist_s.restype = \
-lib.ElCovarianceDist_d.restype = \
-lib.ElCovarianceDist_c.restype = \
-lib.ElCovarianceDist_z.restype = \
-  c_uint
 
 def Covariance(D):
   if type(D) is Matrix:
@@ -104,16 +85,6 @@ lib.ElLogBarrierDist_d.argtypes = \
 lib.ElLogBarrierDist_z.argtypes = \
   [c_uint,c_void_p,POINTER(dType)]
 
-lib.ElLogBarrier_s.restype = \
-lib.ElLogBarrier_d.restype = \
-lib.ElLogBarrier_c.restype = \
-lib.ElLogBarrier_z.restype = \
-lib.ElLogBarrierDist_s.restype = \
-lib.ElLogBarrierDist_d.restype = \
-lib.ElLogBarrierDist_c.restype = \
-lib.ElLogBarrierDist_z.restype = \
-  c_uint
-
 def LogBarrier(uplo,A):
   barrier = TagToType(Base(A.tag))()
   args = [uplo,A.obj,pointer(barrier)]
@@ -144,16 +115,6 @@ lib.ElLogDetDiv_z.argtypes = \
 lib.ElLogDetDivDist_d.argtypes = \
 lib.ElLogDetDivDist_z.argtypes = \
   [c_uint,c_void_p,c_void_p,POINTER(dType)]
-
-lib.ElLogDetDiv_s.restype = \
-lib.ElLogDetDiv_d.restype = \
-lib.ElLogDetDiv_c.restype = \
-lib.ElLogDetDiv_z.restype = \
-lib.ElLogDetDivDist_s.restype = \
-lib.ElLogDetDivDist_d.restype = \
-lib.ElLogDetDivDist_c.restype = \
-lib.ElLogDetDivDist_z.restype = \
-  c_uint
 
 def LogDetDiv(uplo,A,B):
   div = TagToType(Base(A.tag))()

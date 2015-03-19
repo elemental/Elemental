@@ -31,24 +31,6 @@ lib.ElBidiagOnlyDist_c.argtypes = \
 lib.ElBidiagOnlyDist_z.argtypes = \
   [c_void_p]
 
-lib.ElBidiag_s.restype = \
-lib.ElBidiag_d.restype = \
-lib.ElBidiag_c.restype = \
-lib.ElBidiag_z.restype = \
-lib.ElBidiagDist_s.restype = \
-lib.ElBidiagDist_d.restype = \
-lib.ElBidiagDist_c.restype = \
-lib.ElBidiagDist_z.restype = \
-lib.ElBidiagOnly_s.restype = \
-lib.ElBidiagOnly_d.restype = \
-lib.ElBidiagOnly_c.restype = \
-lib.ElBidiagOnly_z.restype = \
-lib.ElBidiagOnlyDist_s.restype = \
-lib.ElBidiagOnlyDist_d.restype = \
-lib.ElBidiagOnlyDist_c.restype = \
-lib.ElBidiagOnlyDist_z.restype = \
-  c_uint
-
 def Bidiag(A,bidiagOnly=False):
   if type(A) is Matrix:
     if bidiagOnly:
@@ -99,16 +81,6 @@ lib.ElApplyQAfterBidiagDist_c.argtypes = \
 lib.ElApplyQAfterBidiagDist_z.argtypes = \
   [c_uint,c_uint,c_void_p,c_void_p,c_void_p]
 
-lib.ElApplyQAfterBidiag_s.restype = \
-lib.ElApplyQAfterBidiag_d.restype = \
-lib.ElApplyQAfterBidiag_c.restype = \
-lib.ElApplyQAfterBidiag_z.restype = \
-lib.ElApplyQAfterBidiagDist_s.restype = \
-lib.ElApplyQAfterBidiagDist_d.restype = \
-lib.ElApplyQAfterBidiagDist_c.restype = \
-lib.ElApplyQAfterBidiagDist_z.restype = \
-  c_uint
-
 def ApplyQAfterBidiag(side,orient,A,t,B):
   if type(A) is not type(t) or type(t) is not type(B):
     raise Exception('Matrix types of {A,t,B} must match')
@@ -139,16 +111,6 @@ lib.ElApplyPAfterBidiagDist_d.argtypes = \
 lib.ElApplyPAfterBidiagDist_c.argtypes = \
 lib.ElApplyPAfterBidiagDist_z.argtypes = \
   [c_uint,c_uint,c_void_p,c_void_p,c_void_p]
-
-lib.ElApplyPAfterBidiag_s.restype = \
-lib.ElApplyPAfterBidiag_d.restype = \
-lib.ElApplyPAfterBidiag_c.restype = \
-lib.ElApplyPAfterBidiag_z.restype = \
-lib.ElApplyPAfterBidiagDist_s.restype = \
-lib.ElApplyPAfterBidiagDist_d.restype = \
-lib.ElApplyPAfterBidiagDist_c.restype = \
-lib.ElApplyPAfterBidiagDist_z.restype = \
-  c_uint
 
 def ApplyPAfterBidiag(side,orient,A,t,B):
   if type(A) is not type(t) or type(t) is not type(B):
@@ -195,24 +157,6 @@ lib.ElHermitianTridiagOnlyDist_d.argtypes = \
 lib.ElHermitianTridiagOnlyDist_c.argtypes = \
 lib.ElHermitianTridiagOnlyDist_z.argtypes = \
   [c_uint,c_void_p]
-
-lib.ElHermitianTridiag_s.restype = \
-lib.ElHermitianTridiag_d.restype = \
-lib.ElHermitianTridiag_c.restype = \
-lib.ElHermitianTridiag_z.restype = \
-lib.ElHermitianTridiagDist_s.restype = \
-lib.ElHermitianTridiagDist_d.restype = \
-lib.ElHermitianTridiagDist_c.restype = \
-lib.ElHermitianTridiagDist_z.restype = \
-lib.ElHermitianTridiagOnly_s.restype = \
-lib.ElHermitianTridiagOnly_d.restype = \
-lib.ElHermitianTridiagOnly_c.restype = \
-lib.ElHermitianTridiagOnly_z.restype = \
-lib.ElHermitianTridiagOnlyDist_s.restype = \
-lib.ElHermitianTridiagOnlyDist_d.restype = \
-lib.ElHermitianTridiagOnlyDist_c.restype = \
-lib.ElHermitianTridiagOnlyDist_z.restype = \
-  c_uint
 
 def HermitianTridiag(uplo,A,onlyTridiag=False,ctrl=None):
   if type(A) is Matrix:
@@ -267,16 +211,6 @@ lib.ElApplyQAfterHermitianTridiagDist_c.argtypes = \
 lib.ElApplyQAfterHermitianTridiagDist_z.argtypes = \
   [c_uint,c_uint,c_uint,c_void_p,c_void_p,c_void_p]
 
-lib.ElApplyQAfterHermitianTridiag_s.restype = \
-lib.ElApplyQAfterHermitianTridiag_d.restype = \
-lib.ElApplyQAfterHermitianTridiag_c.restype = \
-lib.ElApplyQAfterHermitianTridiag_z.restype = \
-lib.ElApplyQAfterHermitianTridiagDist_s.restype = \
-lib.ElApplyQAfterHermitianTridiagDist_d.restype = \
-lib.ElApplyQAfterHermitianTridiagDist_c.restype = \
-lib.ElApplyQAfterHermitianTridiagDist_z.restype = \
-  c_uint
-
 def ApplyQAfterHermitianTridiag(side,uplo,orient,A,t,B):
   if type(A) is not type(t) or type(t) is not type(B):
     raise Exception('Matrix types of {A,t,B} must match')
@@ -318,24 +252,6 @@ lib.ElHessenbergDist_d.argtypes = \
 lib.ElHessenbergDist_c.argtypes = \
 lib.ElHessenbergDist_z.argtypes = \
   [c_uint,c_void_p,c_void_p]
-
-lib.ElHessenbergOnly_s.restype = \
-lib.ElHessenbergOnly_d.restype = \
-lib.ElHessenbergOnly_c.restype = \
-lib.ElHessenbergOnly_z.restype = \
-lib.ElHessenbergOnlyDist_s.restype = \
-lib.ElHessenbergOnlyDist_d.restype = \
-lib.ElHessenbergOnlyDist_c.restype = \
-lib.ElHessenbergOnlyDist_z.restype = \
-lib.ElHessenberg_s.restype = \
-lib.ElHessenberg_d.restype = \
-lib.ElHessenberg_c.restype = \
-lib.ElHessenberg_z.restype = \
-lib.ElHessenbergDist_s.restype = \
-lib.ElHessenbergDist_d.restype = \
-lib.ElHessenbergDist_c.restype = \
-lib.ElHessenbergDist_z.restype = \
-  c_uint
 
 def Hessenberg(uplo,A,hessOnly=False):
   if type(A) is Matrix:
@@ -383,16 +299,6 @@ lib.ElApplyQAfterHessenbergDist_d.argtypes = \
 lib.ElApplyQAfterHessenbergDist_c.argtypes = \
 lib.ElApplyQAfterHessenbergDist_z.argtypes = \
   [c_uint,c_uint,c_uint,c_void_p,c_void_p,c_void_p]
-
-lib.ElApplyQAfterHessenberg_s.restype = \
-lib.ElApplyQAfterHessenberg_d.restype = \
-lib.ElApplyQAfterHessenberg_c.restype = \
-lib.ElApplyQAfterHessenberg_z.restype = \
-lib.ElApplyQAfterHessenbergDist_s.restype = \
-lib.ElApplyQAfterHessenbergDist_d.restype = \
-lib.ElApplyQAfterHessenbergDist_c.restype = \
-lib.ElApplyQAfterHessenbergDist_z.restype = \
-  c_uint
 
 def ApplyQAfterHessenberg(side,uplo,orient,A,t,B):
   if type(A) is not type(t) or type(t) is not type(B):

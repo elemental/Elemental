@@ -10,17 +10,11 @@ from ..core import *
 import ctypes
 
 lib.ElPermutationMetaSet.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPermutationMetaSet.restype = c_uint
 lib.ElPermutationMetaClear.argtypes = [c_void_p]
-lib.ElPermutationMetaClear.restype = c_uint
 lib.ElPermutationMetaTotalSend.argtypes = [c_void_p,POINTER(c_int)]
-lib.ElPermutationMetaTotalSend.restype = c_uint
 lib.ElPermutationMetaTotalRecv.argtypes = [c_void_p,POINTER(c_int)]
-lib.ElPermutationMetaTotalRecv.restype = c_uint
 lib.ElPermutationMetaScaleUp.argtypes = [c_void_p,iType]
-lib.ElPermutationMetaScaleUp.restype = c_uint
 lib.ElPermutationMetaScaleDown.argtypes = [c_void_p,iType]
-lib.ElPermutationMetaScaleDown.restype = c_uint
 class PermutationMeta(ctypes.Structure):
   _fields_ = [("align",iType),("comm",mpi.Comm),
               ("sendCounts",POINTER(iType)),("sendDispls",POINTER(iType)),
@@ -57,26 +51,17 @@ class PermutationMeta(ctypes.Structure):
 
 # Apply column pivots
 # ===================
-lib.ElApplyColPivots_i.argtypes = [c_void_p,c_void_p,iType]
-lib.ElApplyColPivots_i.restype = c_uint
-lib.ElApplyColPivots_s.argtypes = [c_void_p,c_void_p,iType]
-lib.ElApplyColPivots_s.restype = c_uint
-lib.ElApplyColPivots_d.argtypes = [c_void_p,c_void_p,iType]
-lib.ElApplyColPivots_d.restype = c_uint
-lib.ElApplyColPivots_c.argtypes = [c_void_p,c_void_p,iType]
-lib.ElApplyColPivots_c.restype = c_uint
-lib.ElApplyColPivots_z.argtypes = [c_void_p,c_void_p,iType]
-lib.ElApplyColPivots_z.restype = c_uint
-lib.ElApplyColPivotsDist_i.argtypes = [c_void_p,c_void_p,iType]
-lib.ElApplyColPivotsDist_i.restype = c_uint
-lib.ElApplyColPivotsDist_s.argtypes = [c_void_p,c_void_p,iType]
-lib.ElApplyColPivotsDist_s.restype = c_uint
-lib.ElApplyColPivotsDist_d.argtypes = [c_void_p,c_void_p,iType]
-lib.ElApplyColPivotsDist_d.restype = c_uint
-lib.ElApplyColPivotsDist_c.argtypes = [c_void_p,c_void_p,iType]
-lib.ElApplyColPivotsDist_c.restype = c_uint
-lib.ElApplyColPivotsDist_z.argtypes = [c_void_p,c_void_p,iType]
-lib.ElApplyColPivotsDist_z.restype = c_uint
+lib.ElApplyColPivots_i.argtypes = \
+lib.ElApplyColPivots_s.argtypes = \
+lib.ElApplyColPivots_d.argtypes = \
+lib.ElApplyColPivots_c.argtypes = \
+lib.ElApplyColPivots_z.argtypes = \
+lib.ElApplyColPivotsDist_i.argtypes = \
+lib.ElApplyColPivotsDist_s.argtypes = \
+lib.ElApplyColPivotsDist_d.argtypes = \
+lib.ElApplyColPivotsDist_c.argtypes = \
+lib.ElApplyColPivotsDist_z.argtypes = \
+  [c_void_p,c_void_p,iType]
 def ApplyColPivots(A,pivots,offset=0):
   if type(A) is not type(pivots):
     raise Exception('Types of A and pivots must match')
@@ -101,26 +86,17 @@ def ApplyColPivots(A,pivots,offset=0):
 
 # Apply row pivots
 # ================
-lib.ElApplyRowPivots_i.argtypes = [c_void_p,c_void_p,iType]
-lib.ElApplyRowPivots_i.restype = c_uint
-lib.ElApplyRowPivots_s.argtypes = [c_void_p,c_void_p,iType]
-lib.ElApplyRowPivots_s.restype = c_uint
-lib.ElApplyRowPivots_d.argtypes = [c_void_p,c_void_p,iType]
-lib.ElApplyRowPivots_d.restype = c_uint
-lib.ElApplyRowPivots_c.argtypes = [c_void_p,c_void_p,iType]
-lib.ElApplyRowPivots_c.restype = c_uint
-lib.ElApplyRowPivots_z.argtypes = [c_void_p,c_void_p,iType]
-lib.ElApplyRowPivots_z.restype = c_uint
-lib.ElApplyRowPivotsDist_i.argtypes = [c_void_p,c_void_p,iType]
-lib.ElApplyRowPivotsDist_i.restype = c_uint
-lib.ElApplyRowPivotsDist_s.argtypes = [c_void_p,c_void_p,iType]
-lib.ElApplyRowPivotsDist_s.restype = c_uint
-lib.ElApplyRowPivotsDist_d.argtypes = [c_void_p,c_void_p,iType]
-lib.ElApplyRowPivotsDist_d.restype = c_uint
-lib.ElApplyRowPivotsDist_c.argtypes = [c_void_p,c_void_p,iType]
-lib.ElApplyRowPivotsDist_c.restype = c_uint
-lib.ElApplyRowPivotsDist_z.argtypes = [c_void_p,c_void_p,iType]
-lib.ElApplyRowPivotsDist_z.restype = c_uint
+lib.ElApplyRowPivots_i.argtypes = \
+lib.ElApplyRowPivots_s.argtypes = \
+lib.ElApplyRowPivots_d.argtypes = \
+lib.ElApplyRowPivots_c.argtypes = \
+lib.ElApplyRowPivots_z.argtypes = \
+lib.ElApplyRowPivotsDist_i.argtypes = \
+lib.ElApplyRowPivotsDist_s.argtypes = \
+lib.ElApplyRowPivotsDist_d.argtypes = \
+lib.ElApplyRowPivotsDist_c.argtypes = \
+lib.ElApplyRowPivotsDist_z.argtypes = \
+  [c_void_p,c_void_p,iType]
 def ApplyRowPivots(A,pivots,offset=0):
   if type(A) is not type(pivots):
     raise Exception('Types of A and pivots must match')
@@ -145,31 +121,20 @@ def ApplyRowPivots(A,pivots,offset=0):
 
 # Apply symmetric pivots
 # ======================
-lib.ElApplySymmetricPivots_i.argtypes = [c_uint,c_void_p,c_void_p,iType]
-lib.ElApplySymmetricPivots_i.restype = c_uint
-lib.ElApplySymmetricPivots_s.argtypes = [c_uint,c_void_p,c_void_p,iType]
-lib.ElApplySymmetricPivots_s.restype = c_uint
-lib.ElApplySymmetricPivots_d.argtypes = [c_uint,c_void_p,c_void_p,iType]
-lib.ElApplySymmetricPivots_d.restype = c_uint
-lib.ElApplySymmetricPivots_c.argtypes = [c_uint,c_void_p,c_void_p,bType,iType]
-lib.ElApplySymmetricPivots_c.restype = c_uint
-lib.ElApplySymmetricPivots_z.argtypes = [c_uint,c_void_p,c_void_p,bType,iType]
-lib.ElApplySymmetricPivots_z.restype = c_uint
+lib.ElApplySymmetricPivots_i.argtypes = \
+lib.ElApplySymmetricPivots_s.argtypes = \
+lib.ElApplySymmetricPivots_d.argtypes = \
 lib.ElApplySymmetricPivotsDist_i.argtypes = \
-  [c_uint,c_void_p,c_void_p,iType]
-lib.ElApplySymmetricPivotsDist_i.restype = c_uint
 lib.ElApplySymmetricPivotsDist_s.argtypes = \
-  [c_uint,c_void_p,c_void_p,iType]
-lib.ElApplySymmetricPivotsDist_s.restype = c_uint
 lib.ElApplySymmetricPivotsDist_d.argtypes = \
   [c_uint,c_void_p,c_void_p,iType]
-lib.ElApplySymmetricPivotsDist_d.restype = c_uint
+
+lib.ElApplySymmetricPivots_c.argtypes = \
+lib.ElApplySymmetricPivots_z.argtypes = \
 lib.ElApplySymmetricPivotsDist_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,bType,iType]
-lib.ElApplySymmetricPivotsDist_c.restype = c_uint
 lib.ElApplySymmetricPivotsDist_z.argtypes = \
   [c_uint,c_void_p,c_void_p,bType,iType]
-lib.ElApplySymmetricPivotsDist_z.restype = c_uint
+
 def ApplySymmetricPivots(uplo,A,p,conjugate=False,offset=0):
   if type(A) is not type(p):
     raise Exception('Types of A and p must match')
@@ -194,35 +159,19 @@ def ApplySymmetricPivots(uplo,A,p,conjugate=False,offset=0):
   else: TypeExcept()
 
 lib.ElApplyInverseSymmetricPivots_i.argtypes = \
-  [c_uint,c_void_p,c_void_p,iType]
-lib.ElApplyInverseSymmetricPivots_i.restype = c_uint
 lib.ElApplyInverseSymmetricPivots_s.argtypes = \
-  [c_uint,c_void_p,c_void_p,iType]
-lib.ElApplyInverseSymmetricPivots_s.restype = c_uint
 lib.ElApplyInverseSymmetricPivots_d.argtypes = \
-  [c_uint,c_void_p,c_void_p,iType]
-lib.ElApplyInverseSymmetricPivots_d.restype = c_uint
-lib.ElApplyInverseSymmetricPivots_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,bType,iType]
-lib.ElApplyInverseSymmetricPivots_c.restype = c_uint
-lib.ElApplyInverseSymmetricPivots_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,bType,iType]
-lib.ElApplyInverseSymmetricPivots_z.restype = c_uint
 lib.ElApplyInverseSymmetricPivotsDist_i.argtypes = \
-  [c_uint,c_void_p,c_void_p,iType]
-lib.ElApplyInverseSymmetricPivotsDist_i.restype = c_uint
 lib.ElApplyInverseSymmetricPivotsDist_s.argtypes = \
-  [c_uint,c_void_p,c_void_p,iType]
-lib.ElApplyInverseSymmetricPivotsDist_s.restype = c_uint
 lib.ElApplyInverseSymmetricPivotsDist_d.argtypes = \
   [c_uint,c_void_p,c_void_p,iType]
-lib.ElApplyInverseSymmetricPivotsDist_d.restype = c_uint
+
+lib.ElApplyInverseSymmetricPivots_c.argtypes = \
+lib.ElApplyInverseSymmetricPivots_z.argtypes = \
 lib.ElApplyInverseSymmetricPivotsDist_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,bType,iType]
-lib.ElApplyInverseSymmetricPivotsDist_c.restype = c_uint
 lib.ElApplyInverseSymmetricPivotsDist_z.argtypes = \
   [c_uint,c_void_p,c_void_p,bType,iType]
-lib.ElApplyInverseSymmetricPivotsDist_z.restype = c_uint
+
 def ApplyInverseSymmetricPivots(uplo,A,p,conjugate=False,offset=0):
   if type(A) is not type(p):
     raise Exception('Types of A and p must match')
@@ -249,9 +198,7 @@ def ApplyInverseSymmetricPivots(uplo,A,p,conjugate=False,offset=0):
 # Explicit permutation
 # ====================
 lib.ElExplicitPermutation.argtypes = [c_void_p,c_void_p]
-lib.ElExplicitPermutation.restype = c_uint
 lib.ElExplicitPermutationDist.argtypes = [c_void_p,c_void_p]
-lib.ElExplicitPermutationDist.restype = c_uint
 def ExplicitPermutation(p):
   if p.tag != iTag:
     raise Exception('p must be integral')
@@ -268,9 +215,7 @@ def ExplicitPermutation(p):
 # Invert permutation
 # ==================
 lib.ElInvertPermutation.argtypes = [c_void_p,c_void_p]
-lib.ElInvertPermutation.restype = c_uint
 lib.ElInvertPermutationDist.argtypes = [c_void_p,c_void_p]
-lib.ElInvertPermutationDist.restype = c_uint
 def InvertPermutation(p):
   if p.tag != iTag:
     raise Exception('p must be integral')
@@ -287,9 +232,7 @@ def InvertPermutation(p):
 # Parity of a permutation
 # =======================
 lib.ElPermutationParity.argtypes = [c_void_p,POINTER(bType)]
-lib.ElPermutationParity.restype = c_uint
 lib.ElPermutationParityDist.argtypes = [c_void_p,POINTER(bType)]
-lib.ElPermutationParityDist.restype = c_uint
 def PermutationParity(p):
   if p.tag != iTag:
     raise Exception('p must be integral')
@@ -303,46 +246,30 @@ def PermutationParity(p):
 
 # Permute columns
 # ===============
-lib.ElPermuteCols_i.argtypes = [c_void_p,c_void_p]
-lib.ElPermuteCols_i.restype = c_uint
-lib.ElPermuteCols_s.argtypes = [c_void_p,c_void_p]
-lib.ElPermuteCols_s.restype = c_uint
-lib.ElPermuteCols_d.argtypes = [c_void_p,c_void_p]
-lib.ElPermuteCols_d.restype = c_uint
-lib.ElPermuteCols_c.argtypes = [c_void_p,c_void_p]
-lib.ElPermuteCols_c.restype = c_uint
-lib.ElPermuteCols_z.argtypes = [c_void_p,c_void_p]
-lib.ElPermuteCols_z.restype = c_uint
-lib.ElPermuteColsDist_i.argtypes = [c_void_p,c_void_p]
-lib.ElPermuteColsDist_i.restype = c_uint
-lib.ElPermuteColsDist_s.argtypes = [c_void_p,c_void_p]
-lib.ElPermuteColsDist_s.restype = c_uint
-lib.ElPermuteColsDist_d.argtypes = [c_void_p,c_void_p]
-lib.ElPermuteColsDist_d.restype = c_uint
-lib.ElPermuteColsDist_c.argtypes = [c_void_p,c_void_p]
-lib.ElPermuteColsDist_c.restype = c_uint
-lib.ElPermuteColsDist_z.argtypes = [c_void_p,c_void_p]
-lib.ElPermuteColsDist_z.restype = c_uint
-lib.ElPermuteColsBoth_i.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPermuteColsBoth_i.restype = c_uint
-lib.ElPermuteColsBoth_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPermuteColsBoth_s.restype = c_uint
-lib.ElPermuteColsBoth_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPermuteColsBoth_d.restype = c_uint
-lib.ElPermuteColsBoth_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPermuteColsBoth_c.restype = c_uint
-lib.ElPermuteColsBoth_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPermuteColsBoth_z.restype = c_uint
-lib.ElPermuteColsBothDist_i.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPermuteColsBothDist_i.restype = c_uint
-lib.ElPermuteColsBothDist_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPermuteColsBothDist_s.restype = c_uint
-lib.ElPermuteColsBothDist_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPermuteColsBothDist_d.restype = c_uint
-lib.ElPermuteColsBothDist_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPermuteColsBothDist_c.restype = c_uint
-lib.ElPermuteColsBothDist_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPermuteColsBothDist_z.restype = c_uint
+lib.ElPermuteCols_i.argtypes = \
+lib.ElPermuteCols_s.argtypes = \
+lib.ElPermuteCols_d.argtypes = \
+lib.ElPermuteCols_c.argtypes = \
+lib.ElPermuteCols_z.argtypes = \
+lib.ElPermuteColsDist_i.argtypes = \
+lib.ElPermuteColsDist_s.argtypes = \
+lib.ElPermuteColsDist_d.argtypes = \
+lib.ElPermuteColsDist_c.argtypes = \
+lib.ElPermuteColsDist_z.argtypes = \
+  [c_void_p,c_void_p]
+
+lib.ElPermuteColsBoth_i.argtypes = \
+lib.ElPermuteColsBoth_s.argtypes = \
+lib.ElPermuteColsBoth_d.argtypes = \
+lib.ElPermuteColsBoth_c.argtypes = \
+lib.ElPermuteColsBoth_z.argtypes = \
+lib.ElPermuteColsBothDist_i.argtypes = \
+lib.ElPermuteColsBothDist_s.argtypes = \
+lib.ElPermuteColsBothDist_d.argtypes = \
+lib.ElPermuteColsBothDist_c.argtypes = \
+lib.ElPermuteColsBothDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+
 def PermuteCols(A,p,pInv=None):
   if type(A) is Matrix:
     if pInv == None:
@@ -380,16 +307,13 @@ def PermuteCols(A,p,pInv=None):
       else: DataExcept()
   else: TypeExcept()
 
-lib.ElPermuteColsMetaDist_i.argtypes = [c_void_p,POINTER(PermutationMeta)]
-lib.ElPermuteColsMetaDist_i.restype = c_uint
-lib.ElPermuteColsMetaDist_s.argtypes = [c_void_p,POINTER(PermutationMeta)]
-lib.ElPermuteColsMetaDist_s.restype = c_uint
-lib.ElPermuteColsMetaDist_d.argtypes = [c_void_p,POINTER(PermutationMeta)]
-lib.ElPermuteColsMetaDist_d.restype = c_uint
-lib.ElPermuteColsMetaDist_c.argtypes = [c_void_p,POINTER(PermutationMeta)]
-lib.ElPermuteColsMetaDist_c.restype = c_uint
-lib.ElPermuteColsMetaDist_z.argtypes = [c_void_p,POINTER(PermutationMeta)]
-lib.ElPermuteColsMetaDist_z.restype = c_uint
+lib.ElPermuteColsMetaDist_i.argtypes = \
+lib.ElPermuteColsMetaDist_s.argtypes = \
+lib.ElPermuteColsMetaDist_d.argtypes = \
+lib.ElPermuteColsMetaDist_c.argtypes = \
+lib.ElPermuteColsMetaDist_z.argtypes = \
+  [c_void_p,POINTER(PermutationMeta)]
+
 def PermuteColsMeta(A,meta):
   if type(A) is DistMatrix:
     if   A.tag == iTag: lib.ElPermuteColsMetaDist_i(A.obj,pointer(meta))
@@ -402,46 +326,30 @@ def PermuteColsMeta(A,meta):
 
 # Permute rows
 # ============
-lib.ElPermuteRows_i.argtypes = [c_void_p,c_void_p]
-lib.ElPermuteRows_i.restype = c_uint
-lib.ElPermuteRows_s.argtypes = [c_void_p,c_void_p]
-lib.ElPermuteRows_s.restype = c_uint
-lib.ElPermuteRows_d.argtypes = [c_void_p,c_void_p]
-lib.ElPermuteRows_d.restype = c_uint
-lib.ElPermuteRows_c.argtypes = [c_void_p,c_void_p]
-lib.ElPermuteRows_c.restype = c_uint
-lib.ElPermuteRows_z.argtypes = [c_void_p,c_void_p]
-lib.ElPermuteRows_z.restype = c_uint
-lib.ElPermuteRowsDist_i.argtypes = [c_void_p,c_void_p]
-lib.ElPermuteRowsDist_i.restype = c_uint
-lib.ElPermuteRowsDist_s.argtypes = [c_void_p,c_void_p]
-lib.ElPermuteRowsDist_s.restype = c_uint
-lib.ElPermuteRowsDist_d.argtypes = [c_void_p,c_void_p]
-lib.ElPermuteRowsDist_d.restype = c_uint
-lib.ElPermuteRowsDist_c.argtypes = [c_void_p,c_void_p]
-lib.ElPermuteRowsDist_c.restype = c_uint
-lib.ElPermuteRowsDist_z.argtypes = [c_void_p,c_void_p]
-lib.ElPermuteRowsDist_z.restype = c_uint
-lib.ElPermuteRowsBoth_i.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPermuteRowsBoth_i.restype = c_uint
-lib.ElPermuteRowsBoth_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPermuteRowsBoth_s.restype = c_uint
-lib.ElPermuteRowsBoth_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPermuteRowsBoth_d.restype = c_uint
-lib.ElPermuteRowsBoth_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPermuteRowsBoth_c.restype = c_uint
-lib.ElPermuteRowsBoth_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPermuteRowsBoth_z.restype = c_uint
-lib.ElPermuteRowsBothDist_i.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPermuteRowsBothDist_i.restype = c_uint
-lib.ElPermuteRowsBothDist_s.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPermuteRowsBothDist_s.restype = c_uint
-lib.ElPermuteRowsBothDist_d.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPermuteRowsBothDist_d.restype = c_uint
-lib.ElPermuteRowsBothDist_c.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPermuteRowsBothDist_c.restype = c_uint
-lib.ElPermuteRowsBothDist_z.argtypes = [c_void_p,c_void_p,c_void_p]
-lib.ElPermuteRowsBothDist_z.restype = c_uint
+lib.ElPermuteRows_i.argtypes = \
+lib.ElPermuteRows_s.argtypes = \
+lib.ElPermuteRows_d.argtypes = \
+lib.ElPermuteRows_c.argtypes = \
+lib.ElPermuteRows_z.argtypes = \
+lib.ElPermuteRowsDist_i.argtypes = \
+lib.ElPermuteRowsDist_s.argtypes = \
+lib.ElPermuteRowsDist_d.argtypes = \
+lib.ElPermuteRowsDist_c.argtypes = \
+lib.ElPermuteRowsDist_z.argtypes = \
+  [c_void_p,c_void_p]
+
+lib.ElPermuteRowsBoth_i.argtypes = \
+lib.ElPermuteRowsBoth_s.argtypes = \
+lib.ElPermuteRowsBoth_d.argtypes = \
+lib.ElPermuteRowsBoth_c.argtypes = \
+lib.ElPermuteRowsBoth_z.argtypes = \
+lib.ElPermuteRowsBothDist_i.argtypes = \
+lib.ElPermuteRowsBothDist_s.argtypes = \
+lib.ElPermuteRowsBothDist_d.argtypes = \
+lib.ElPermuteRowsBothDist_c.argtypes = \
+lib.ElPermuteRowsBothDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+
 def PermuteRows(A,p,pInv=None):
   if type(A) is Matrix:
     if pInv == None:
@@ -483,16 +391,13 @@ def PermuteRows(A,p,pInv=None):
       else: DataExcept()
   else: TypeExcept()
 
-lib.ElPermuteRowsMetaDist_i.argtypes = [c_void_p,POINTER(PermutationMeta)]
-lib.ElPermuteRowsMetaDist_i.restype = c_uint
-lib.ElPermuteRowsMetaDist_s.argtypes = [c_void_p,POINTER(PermutationMeta)]
-lib.ElPermuteRowsMetaDist_s.restype = c_uint
-lib.ElPermuteRowsMetaDist_d.argtypes = [c_void_p,POINTER(PermutationMeta)]
-lib.ElPermuteRowsMetaDist_d.restype = c_uint
-lib.ElPermuteRowsMetaDist_c.argtypes = [c_void_p,POINTER(PermutationMeta)]
-lib.ElPermuteRowsMetaDist_c.restype = c_uint
-lib.ElPermuteRowsMetaDist_z.argtypes = [c_void_p,POINTER(PermutationMeta)]
-lib.ElPermuteRowsMetaDist_z.restype = c_uint
+lib.ElPermuteRowsMetaDist_i.argtypes = \
+lib.ElPermuteRowsMetaDist_s.argtypes = \
+lib.ElPermuteRowsMetaDist_d.argtypes = \
+lib.ElPermuteRowsMetaDist_c.argtypes = \
+lib.ElPermuteRowsMetaDist_z.argtypes = \
+  [c_void_p,POINTER(PermutationMeta)]
+
 def PermuteRowsMeta(A,meta):
   args = [A.obj,pointer(meta)]
   if type(A) is DistMatrix:
@@ -507,9 +412,7 @@ def PermuteRowsMeta(A,meta):
 # Pivot parity
 # ============
 lib.ElPivotParity.argtypes = [c_void_p,iType,POINTER(bType)]
-lib.ElPivotParity.restype = c_uint
 lib.ElPivotParityDist.argtypes = [c_void_p,iType,POINTER(bType)]
-lib.ElPivotParityDist.restype = c_uint
 def PivotParity(p,offset=0):
   if p.tag != iTag:
     raise Exception('p must be integral')
@@ -522,11 +425,9 @@ def PivotParity(p,offset=0):
 
 # Convert a pivot sequence to a partial permutation vector
 # ========================================================
-lib.ElPivotsToPartialPermutation.argtypes = [c_void_p,c_void_p,c_void_p,iType]
-lib.ElPivotsToPartialPermutation.restype = c_uint
+lib.ElPivotsToPartialPermutation.argtypes = \
 lib.ElPivotsToPartialPermutationDist.argtypes = \
   [c_void_p,c_void_p,c_void_p,iType]
-lib.ElPivotsToPartialPermutationDist.restype = c_uint
 def PivotsToPartialPermutation(pivots,offset=0):
   if pivots.tag != iTag:
     raise Exception('pivots must be integral')
@@ -544,10 +445,9 @@ def PivotsToPartialPermutation(pivots,offset=0):
 
 # Convert a pivot sequence to a permutation vector
 # ================================================
-lib.ElPivotsToPermutation.argtypes = [c_void_p,c_void_p,iType]
-lib.ElPivotsToPermutation.restype = c_uint
-lib.ElPivotsToPermutationDist.argtypes = [c_void_p,c_void_p,iType]
-lib.ElPivotsToPermutationDist.restype = c_uint
+lib.ElPivotsToPermutation.argtypes = \
+lib.ElPivotsToPermutationDist.argtypes = \
+  [c_void_p,c_void_p,iType]
 def PivotsToPermutation(pivots,offset=0):
   if pivots.tag != iTag:
     raise Exception('pivots must be integral')
@@ -561,10 +461,9 @@ def PivotsToPermutation(pivots,offset=0):
     return p
   else: TypeExcept()
 
-lib.ElPivotsToInversePermutation.argtypes = [c_void_p,c_void_p,iType]
-lib.ElPivotsToInversePermutation.restype = c_uint
-lib.ElPivotsToInversePermutationDist.argtypes = [c_void_p,c_void_p,iType]
-lib.ElPivotsToInversePermutationDist.restype = c_uint
+lib.ElPivotsToInversePermutation.argtypes = \
+lib.ElPivotsToInversePermutationDist.argtypes = \
+  [c_void_p,c_void_p,iType]
 def PivotsToInversePermutation(pivots,offset=0):
   if pivots.tag != iTag:
     raise Exception('pivots must be integral')
@@ -577,4 +476,3 @@ def PivotsToInversePermutation(pivots,offset=0):
     lib.ElPivotsToInversePermutationDist(pivots.obj,pInv.obj,offset)
     return pInv
   else: TypeExcept()
-

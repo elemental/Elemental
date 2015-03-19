@@ -7,6 +7,7 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 import sys, ctypes
+import numpy as np
 from ctypes import pythonapi
 
 # TODO: Greatly improve this search functionality.
@@ -36,23 +37,29 @@ from ctypes import c_size_t, c_ubyte, c_uint, c_int, c_float, c_double
 from ctypes import c_longlong, c_void_p, c_char_p
 from ctypes import pointer, POINTER
 
-
-
 # TODO: Switch to a different boolean type if appropriate
 bType = c_ubyte
 
 # Determine whether we have 64-bit integers or not
 lib.ElUsing64BitInt.argtypes = [POINTER(bType)]
-lib.ElUsing64BitInt.restype = c_uint
 using64 = bType()
 lib.ElUsing64BitInt(pointer(using64))
 if using64:
   iType = c_longlong
+  iSize = 8
+  iNpType = np.int64
 else:
   iType = c_int
+  iSize = 4
+  iNpType = np.int32
 
 sType = c_float
+sSize = 4
+sNpType = np.float32
+
 dType = c_double
+dSize = 8
+dNpType = np.float64
 
 class ComplexFloat(ctypes.Structure):
   _fields_ = [("real",sType),("imag",sType)]
@@ -67,6 +74,9 @@ class ComplexFloat(ctypes.Structure):
       imag = val1
     super(ComplexFloat,self).__init__(real,imag)
 cType = ComplexFloat
+cSize = 2*sSize
+cNpType = np.complex64
+
 class ComplexDouble(ctypes.Structure):
   _fields_ = [("real",dType),("imag",dType)]
   def __init__(self,val0=0,val1=0):
@@ -80,6 +90,8 @@ class ComplexDouble(ctypes.Structure):
       imag = val1
     super(ComplexDouble,self).__init__(real,imag)
 zType = ComplexDouble
+zSize = 2*dSize
+zNpType = np.complex128
 
 # Create a simple enum for the supported datatypes
 (iTag,sTag,dTag,cTag,zTag)=(0,1,2,3,4)
@@ -110,6 +122,22 @@ def TagToType(tag):
   elif tag == dTag: return dType
   elif tag == cTag: return cType
   elif tag == zTag: return zType
+  else: raise Exception('Invalid tag')
+
+def TagToSize(tag):
+  if   tag == iTag: return iSize
+  elif tag == sTag: return sSize
+  elif tag == dTag: return dSize
+  elif tag == cTag: return cSize
+  elif tag == zTag: return zSize
+  else: raise Exception('Invalid tag')
+
+def TagToNumpyType(tag):
+  if   tag == iTag: return iNpType
+  elif tag == sTag: return sNpType
+  elif tag == dTag: return dNpType
+  elif tag == cTag: return cNpType
+  elif tag == zTag: return zNpType
   else: raise Exception('Invalid tag')
 
 # Emulate an enum for matrix distributions
@@ -208,7 +236,6 @@ class InertiaType(ctypes.Structure):
 # --------------
 
 lib.ElInitialize.argtypes = [POINTER(c_int),POINTER(POINTER(c_char_p))]
-lib.ElInitialize.restype = c_uint
 def Initialize():
   argc = c_int()
   argv = POINTER(c_char_p)()
@@ -216,26 +243,20 @@ def Initialize():
   lib.ElInitialize(pointer(argc),pointer(argv))
 
 lib.ElFinalize.argtypes = []
-lib.ElFinalize.restype = c_uint
 def Finalize():
   lib.ElFinalize()
 
-lib.ElInitialized.argtypes = [bType]
-lib.ElInitialized.restype = c_uint
+lib.ElInitialized.argtypes = [POINTER(bType)]
 def Initialized():
-  # NOTE: This is not expected to be portable and should be fixed
   active = bType()
-  activeP = pointer(active)
-  lib.ElInitialized( activeP )
+  lib.ElInitialized( pointer(active) )
   return active.value
 
 lib.ElSetBlocksize.argtypes = [iType]
-lib.ElSetBlocksize.restype = c_uint
 def SetBlocksize(blocksize):
   lib.ElSetBlocksize(blocksize)
 
 lib.ElBlocksize.argtypes = [POINTER(iType)]
-lib.ElBlocksize.restype = c_uint
 def Blocksize():
   blocksize = iType()
   lib.ElBlocksize(pointer(blocksize))
@@ -247,22 +268,18 @@ pythonapi.PyFile_AsFile.argtypes = [ctypes.py_object]
 pythonapi.PyFile_AsFile.restype = c_void_p
 
 lib.ElPrintVersion.argtypes = [c_void_p]
-lib.ElPrintVersion.restype = c_uint
 def PrintVersion(f=pythonapi.PyFile_AsFile(sys.stdout)):
   lib.ElPrintVersion(f)
 
 lib.ElPrintConfig.argtypes = [c_void_p]
-lib.ElPrintConfig.restype = c_uint
 def PrintConfig(f=pythonapi.PyFile_AsFile(sys.stdout)):
   lib.ElPrintConfig(f)
 
 lib.ElPrintCCompilerInfo.argtypes = [c_void_p]
-lib.ElPrintCCompilerInfo.restype = c_uint
 def PrintCCompilerInfo(f=pythonapi.PyFile_AsFile(sys.stdout)):
   lib.ElPrintCCompilerInfo(f)
 
 lib.ElPrintCxxCompilerInfo.argtypes = [c_void_p]
-lib.ElPrintCxxCompilerInfo.restype = c_uint
 def PrintCxxCompilerInfo(f=pythonapi.PyFile_AsFile(sys.stdout)):
   lib.ElPrintCxxCompilerInfo(f)
 
