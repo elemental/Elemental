@@ -16,11 +16,8 @@
 extern "C" {
 #endif
 
-/* Euclidean minimization
-   ====================== */
-
 /* General Linear Model
-   -------------------- */
+   ==================== */
 /* Solve min_{X,Y} || Y ||_F subject to D = A X + B Y */
 
 EL_EXPORT ElError ElGLM_s
@@ -42,7 +39,7 @@ EL_EXPORT ElError ElGLMDist_z
 ( ElDistMatrix_z A, ElDistMatrix_z B, ElDistMatrix_z D, ElDistMatrix_z Y );
 
 /* Least squares
-   ------------- */
+   ============= */
 /* When height(A) >= width(A), solve
 
      min_X || A X - B ||_F,
@@ -100,7 +97,7 @@ EL_EXPORT ElError ElLeastSquaresDistSparse_z
   ElConstDistSparseMatrix_z A, ElConstDistMultiVec_z B, ElDistMultiVec_z X );
 
 /* Expert versions
-   ^^^^^^^^^^^^^^^ */
+   --------------- */
 typedef struct {
   float alpha;
   ElRegQSDCtrl_s qsdCtrl;
@@ -150,7 +147,7 @@ EL_EXPORT ElError ElLeastSquaresXDistSparse_z
   ElLeastSquaresCtrl_d ctrl );
 
 /* Equality-constrained Least Squares
-   ---------------------------------- */
+   ================================== */
 /* Solves min_X || A X - C ||_F subject to B X = D */
 
 EL_EXPORT ElError ElLSE_s
@@ -178,7 +175,7 @@ EL_EXPORT ElError ElLSEDist_z
 /* TODO: Expert version which also returns the residual */
 
 /* Ridge regression
-   ---------------- */
+   ================ */
 /* Ridge regression is a special case of Tikhonov regularization with 
    the regularization matrix equal to gamma I */
 
@@ -265,7 +262,7 @@ EL_EXPORT ElError ElRidgeDistSparse_z
   double gamma,                ElDistMultiVec_z X );
 
 /* Tikhonov regularization
-   ----------------------- */
+   ======================= */
 /* Defining W = op(A), where op(A) is either A, A^T, or A^H, Tikhonov
    regularization involves the solution of either
 

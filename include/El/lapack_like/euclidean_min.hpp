@@ -14,11 +14,10 @@
 
 namespace El {
 
-// Euclidean minimization
-// ======================
-
-// min_{X,Y} || Y ||_F subject to D = A X + B Y
-// --------------------------------------------
+// Generalized (Gauss-Markov) Linear Model
+// =======================================
+// Solve 
+//   min_{X,Y} || Y ||_F subject to D = A X + B Y
 template<typename F>
 void GLM
 ( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y );
@@ -26,9 +25,10 @@ template<typename F>
 void GLM
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
   AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& Y );
+// TODO: Sparse-direct implementations
 
 // Least Squares (or Minimum Length)
-// ---------------------------------
+// =================================
 // When height(op(A)) >= width(op(A)), solve
 //
 //    min_X || op(A) X - B ||_F,
@@ -75,8 +75,10 @@ void LeastSquares
                                       DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 
-// min_X || A X - C ||_F subject to B X = D
-// ----------------------------------------
+// Equality-constrained Least Squarees
+// ===================================
+// Solve
+//   min_X || A X - C ||_F subject to B X = D
 template<typename F>
 void LSE
 ( Matrix<F>& A, Matrix<F>& B, Matrix<F>& C, Matrix<F>& D, 
@@ -87,8 +89,10 @@ void LSE
   AbstractDistMatrix<F>& C, AbstractDistMatrix<F>& D, 
   AbstractDistMatrix<F>& X, bool computeResidual=false );
 
+// TODO: Sparse-direct implementations
+
 // Ridge regression
-// ----------------
+// ================
 // A special case of Tikhonov regularization where the regularization matrix
 // G is of the form gamma I.
 
@@ -128,7 +132,7 @@ void Ridge
   const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 
 // Tikhonov regularization
-// -----------------------
+// =======================
 
 // Either solve the regularized Least Squares problem
 //
