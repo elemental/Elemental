@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_CONDITION_FROBENIUS_HPP
-#define EL_CONDITION_FROBENIUS_HPP
+#include "El.hpp"
 
 namespace El {
 
@@ -40,6 +38,11 @@ Base<F> FrobeniusCondition( const AbstractDistMatrix<F>& A )
     return oneNorm*oneNormInv;
 }
 
-} // namespace El
+#define PROTO(F) \
+  template Base<F> FrobeniusCondition( const Matrix<F>& A ); \
+  template Base<F> FrobeniusCondition( const AbstractDistMatrix<F>& A );
 
-#endif // ifndef EL_CONDITION_FROBENIUS_HPP
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
+
+} // namespace El

@@ -41,6 +41,7 @@ EL_EXPORT ElError ElFrobeniusCondition_s( ElConstMatrix_s A, float* cond );
 EL_EXPORT ElError ElFrobeniusCondition_d( ElConstMatrix_d A, double* cond );
 EL_EXPORT ElError ElFrobeniusCondition_c( ElConstMatrix_c A, float* cond );
 EL_EXPORT ElError ElFrobeniusCondition_z( ElConstMatrix_z A, double* cond );
+
 EL_EXPORT ElError ElFrobeniusConditionDist_s
 ( ElConstDistMatrix_s A, float* cond );
 EL_EXPORT ElError ElFrobeniusConditionDist_d

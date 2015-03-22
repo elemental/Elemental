@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_CONDITION_TWO_HPP
-#define EL_CONDITION_TWO_HPP
+#include "El.hpp"
 
 namespace El {
 
@@ -44,6 +42,11 @@ Base<F> TwoCondition( const AbstractDistMatrix<F>& A )
     return cond;
 }
 
-} // namespace El
+#define PROTO(F) \
+  template Base<F> TwoCondition( const Matrix<F>& A ); \
+  template Base<F> TwoCondition( const AbstractDistMatrix<F>& A );
 
-#endif // ifndef EL_CONDITION_TWO_HPP
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
+
+} // namespace El

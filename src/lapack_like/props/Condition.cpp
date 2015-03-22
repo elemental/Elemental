@@ -8,12 +8,6 @@
 */
 #include "El.hpp"
 
-#include "./Condition/Frobenius.hpp"
-#include "./Condition/Infinity.hpp"
-#include "./Condition/Max.hpp"
-#include "./Condition/One.hpp"
-#include "./Condition/Two.hpp"
-
 namespace El {
 
 template<typename F> 
@@ -74,17 +68,7 @@ Base<F> Condition( const AbstractDistMatrix<F>& A, NormType type )
 
 #define PROTO(F) \
   template Base<F> Condition( const Matrix<F>& A, NormType type ); \
-  template Base<F> Condition( const AbstractDistMatrix<F>& A, NormType type ); \
-  template Base<F> FrobeniusCondition( const Matrix<F>& A ); \
-  template Base<F> FrobeniusCondition( const AbstractDistMatrix<F>& A ); \
-  template Base<F> InfinityCondition( const Matrix<F>& A ); \
-  template Base<F> InfinityCondition( const AbstractDistMatrix<F>& A ); \
-  template Base<F> MaxCondition( const Matrix<F>& A ); \
-  template Base<F> MaxCondition( const AbstractDistMatrix<F>& A ); \
-  template Base<F> OneCondition( const Matrix<F>& A ); \
-  template Base<F> OneCondition( const AbstractDistMatrix<F>& A ); \
-  template Base<F> TwoCondition( const Matrix<F>& A ); \
-  template Base<F> TwoCondition( const AbstractDistMatrix<F>& A );
+  template Base<F> Condition( const AbstractDistMatrix<F>& A, NormType type );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
