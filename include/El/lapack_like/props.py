@@ -238,7 +238,7 @@ lib.ElSafeHPDDeterminantDist_d.argtypes = \
 lib.ElSafeHPDDeterminantDist_z.argtypes = \
   [c_uint,c_void_p,POINTER(SafeProduct_d)]
 
-def SafeHPDDeterminant(uplo,A):
+def SafeHPDDeterminant(A,uplo=LOWER):
   safeProd = TagToSafeProd(Base(A.tag))
   args = [uplo,A.obj,pointer(safeProd)]
   if type(A) is Matrix:
@@ -308,7 +308,7 @@ lib.ElHPDDeterminant_z.argtypes = \
 lib.ElHPDDeterminantDist_z.argtypes = \
   [c_uint,c_void_p,POINTER(zType)]
 
-def HPDDeterminant(uplo,A):
+def HPDDeterminant(A,uplo=LOWER):
   prod = TagToType(Base(A.tag))()
   args = [uplo,A.obj,pointer(prod)]
   if type(A) is Matrix:
@@ -338,7 +338,7 @@ lib.ElInertiaDist_c.argtypes = \
 lib.ElInertiaDist_z.argtypes = \
   [c_uint,c_void_p,c_uint,POINTER(InertiaType)]
 
-def Inertia(uplo,A,pivType=BUNCH_KAUFMAN_A):
+def Inertia(A,uplo=LOWER,pivType=BUNCH_KAUFMAN_A):
   inertia = InertiaType()
   args = [uplo,A.obj,pivType,pointer(inertia)]
   if type(A) is Matrix:
@@ -404,7 +404,7 @@ lib.ElHermitianNorm_z.argtypes = \
 lib.ElHermitianNormDist_z.argtypes = \
   [c_uint,c_void_p,c_uint,POINTER(dType)]
 
-def SymmetricNorm(uplo,A,normType=FROBENIUS_NORM,conjugate=False):
+def SymmetricNorm(A,conjugate=False,uplo=LOWER,normType=FROBENIUS_NORM):
   norm = TagToType(Base(A.tag))()
   args = [uplo,A.obj,normType,pointer(norm)]
   if type(A) is Matrix:
@@ -429,8 +429,8 @@ def SymmetricNorm(uplo,A,normType=FROBENIUS_NORM,conjugate=False):
     else: DataExcept()
   else: TypeExcept()
   return norm.value
-def HermitianNorm(uplo,A,normType=FROBENIUS_NORM):
-  return SymmetricNorm(uplo,A,normType,True)
+def HermitianNorm(A,uplo=LOWER,normType=FROBENIUS_NORM):
+  return SymmetricNorm(A,True,uplo,normType)
 
 lib.ElEntrywiseNorm_s.argtypes = \
 lib.ElEntrywiseNorm_c.argtypes = \
@@ -512,7 +512,7 @@ lib.ElSymmetricEntrywiseNormDistSparse_d.argtypes = \
 lib.ElSymmetricEntrywiseNormDistSparse_z.argtypes = \
   [c_uint,c_void_p,dType,POINTER(dType)]
 
-def SymmetricEntrywiseNorm(uplo,A,p=1):
+def SymmetricEntrywiseNorm(A,p=1,uplo=LOWER):
   norm = TagToType(Base(A.tag))()
   args = [uplo,A.obj,p,pointer(norm)]
   if type(A) is Matrix:
@@ -541,8 +541,8 @@ def SymmetricEntrywiseNorm(uplo,A,p=1):
     else: DataExcept()
   else: TypeExcept()
   return norm.value
-def HermitianEntrywiseNorm(uplo,A,p=1):
-  return SymmetricEntrywiseNorm(uplo,A,p)
+def HermitianEntrywiseNorm(A,p=1,uplo=LOWER):
+  return SymmetricEntrywiseNorm(A,p,uplo)
 
 lib.ElFrobeniusNorm_s.argtypes = \
 lib.ElFrobeniusNorm_c.argtypes = \
@@ -624,7 +624,7 @@ lib.ElSymmetricFrobeniusNormDistSparse_d.argtypes = \
 lib.ElSymmetricFrobeniusNormDistSparse_z.argtypes = \
   [c_uint,c_void_p,POINTER(dType)]
 
-def SymmetricFrobeniusNorm(uplo,A):
+def SymmetricFrobeniusNorm(A,uplo=LOWER):
   norm = TagToType(Base(A.tag))()
   args = [uplo,A.obj,pointer(norm)]
   if type(A) is Matrix:
@@ -653,8 +653,8 @@ def SymmetricFrobeniusNorm(uplo,A):
     else: DataExcept()
   else: TypeExcept()
   return norm.value
-def HermitianFrobeniusNorm(uplo,A):
-  return SymmetricFrobeniusNorm(uplo,A)
+def HermitianFrobeniusNorm(A,uplo=LOWER):
+  return SymmetricFrobeniusNorm(A,uplo)
 
 lib.ElInfinityNorm_s.argtypes = \
 lib.ElInfinityNorm_c.argtypes = \
@@ -698,7 +698,7 @@ lib.ElSymmetricInfinityNormDist_d.argtypes = \
 lib.ElSymmetricInfinityNormDist_z.argtypes = \
   [c_uint,c_void_p,POINTER(dType)]
 
-def SymmetricInfinityNorm(uplo,A):
+def SymmetricInfinityNorm(A,uplo=LOWER):
   norm = TagToType(Base(A.tag))()
   args = [uplo,A.obj,pointer(norm)]
   if type(A) is Matrix:
@@ -715,8 +715,8 @@ def SymmetricInfinityNorm(uplo,A):
     else: DataExcept()
   else: TypeExcept()
   return norm.value
-def HermitianInfinityNorm(uplo,A):
-  return SymmetricInfinityNorm(uplo,A)
+def HermitianInfinityNorm(A,uplo=LOWER):
+  return SymmetricInfinityNorm(A,uplo)
 
 lib.ElKyFanNorm_s.argtypes = \
 lib.ElKyFanNorm_c.argtypes = \
@@ -764,7 +764,7 @@ lib.ElHermitianKyFanNorm_z.argtypes = \
 lib.ElHermitianKyFanNormDist_z.argtypes = \
   [c_uint,c_void_p,iType,POINTER(dType)]
 
-def SymmetricKyFanNorm(uplo,A,k,conjugate=False):
+def SymmetricKyFanNorm(A,k,conjugate=False,uplo=LOWER):
   norm = TagToType(Base(A.tag))()
   args = [uplo,A.obj,k,pointer(norm)]
   if type(A) is Matrix:
@@ -789,8 +789,8 @@ def SymmetricKyFanNorm(uplo,A,k,conjugate=False):
     else: DataExcept()
   else: TypeExcept()
   return norm.value
-def HermitianKyFanNorm(uplo,A,k):
-  return SymmetricKyFanNorm(uplo,A,k,True)
+def HermitianKyFanNorm(A,k,uplo=LOWER):
+  return SymmetricKyFanNorm(A,k,True,uplo)
 
 lib.ElKyFanSchattenNorm_s.argtypes = \
 lib.ElKyFanSchattenNorm_c.argtypes = \
@@ -838,7 +838,7 @@ lib.ElHermitianKyFanSchattenNorm_z.argtypes = \
 lib.ElHermitianKyFanSchattenNormDist_z.argtypes = \
   [c_uint,c_void_p,iType,dType,POINTER(dType)]
 
-def SymmetricKyFanSchattenNorm(uplo,A,k,p,conjugate=False):
+def SymmetricKyFanSchattenNorm(A,k,p,conjugate=False,uplo=LOWER):
   norm = TagToType(Base(A.tag))()
   args = [uplo,A.obj,k,p,pointer(norm)]
   if type(A) is Matrix:
@@ -863,8 +863,8 @@ def SymmetricKyFanSchattenNorm(uplo,A,k,p,conjugate=False):
     else: DataExcept()
   else: TypeExcept()
   return norm.value
-def HermitianKyFanSchattenNorm(uplo,A,k,p):
-  return SymmetricKyFanSchattenNorm(uplo,A,k,p,True)
+def HermitianKyFanSchattenNorm(A,k,p,uplo=LOWER):
+  return SymmetricKyFanSchattenNorm(A,k,p,True,uplo)
 
 lib.ElMaxNorm_i.argtypes = \
 lib.ElMaxNormDist_i.argtypes = \
@@ -962,7 +962,7 @@ lib.ElSymmetricMaxNormDistSparse_d.argtypes = \
 lib.ElSymmetricMaxNormDistSparse_z.argtypes = \
   [c_uint,c_void_p,POINTER(dType)]
 
-def SymmetricMaxNorm(uplo,A):
+def SymmetricMaxNorm(A,uplo=LOWER):
   norm = TagToType(Base(A.tag))()
   args = [uplo,A.obj,pointer(norm)]
   if type(A) is Matrix:
@@ -995,8 +995,8 @@ def SymmetricMaxNorm(uplo,A):
     else: DataExcept()
   else: TypeExcept()
   return norm.value
-def HermitianMaxNorm(uplo,A):
-  return SymmetricMaxNorm(uplo,A)
+def HermitianMaxNorm(A,uplo=LOWER):
+  return SymmetricMaxNorm(A,uplo)
 
 lib.ElNuclearNorm_s.argtypes = \
 lib.ElNuclearNorm_c.argtypes = \
@@ -1042,7 +1042,7 @@ lib.ElHermitianNuclearNorm_z.argtypes = \
 lib.ElHermitianNuclearNormDist_z.argtypes = \
   [c_uint,c_void_p,POINTER(dType)]
 
-def SymmetricNuclearNorm(uplo,A,conjugate=False):
+def SymmetricNuclearNorm(A,conjugate=False,uplo=LOWER):
   norm = TagToType(Base(A.tag))()
   args = [uplo,A.obj,pointer(norm)]
   if type(A) is Matrix:
@@ -1067,8 +1067,8 @@ def SymmetricNuclearNorm(uplo,A,conjugate=False):
     else: DataExcept()
   else: TypeExcept()
   return norm.value
-def HermitianNuclearNorm(uplo,A):
-  return SymmetricNuclearNorm(uplo,A,True)
+def HermitianNuclearNorm(A,uplo=LOWER):
+  return SymmetricNuclearNorm(A,True,uplo)
 
 lib.ElOneNorm_s.argtypes = \
 lib.ElOneNorm_c.argtypes = \
@@ -1112,7 +1112,7 @@ lib.ElSymmetricOneNormDist_d.argtypes = \
 lib.ElSymmetricOneNormDist_z.argtypes = \
   [c_uint,c_void_p,POINTER(dType)]
 
-def SymmetricOneNorm(uplo,A):
+def SymmetricOneNorm(A,uplo=LOWER):
   norm = TagToType(Base(A.tag))()
   args = [uplo,A.obj,pointer(norm)]
   if type(A) is Matrix:
@@ -1129,8 +1129,8 @@ def SymmetricOneNorm(uplo,A):
     else: DataExcept()
   else: TypeExcept()
   return norm.value
-def HermitianOneNorm(uplo,A):
-  return SymmetricOneNorm(uplo,A)
+def HermitianOneNorm(A,uplo=LOWER):
+  return SymmetricOneNorm(A,uplo)
 
 lib.ElSchattenNorm_s.argtypes = \
 lib.ElSchattenNorm_c.argtypes = \
@@ -1178,7 +1178,7 @@ lib.ElHermitianSchattenNorm_z.argtypes = \
 lib.ElHermitianSchattenNormDist_z.argtypes = \
   [c_uint,c_void_p,dType,POINTER(dType)]
 
-def SymmetricSchattenNorm(uplo,A,p,conjugate=False):
+def SymmetricSchattenNorm(A,p,conjugate=False,uplo=LOWER):
   norm = TagToType(Base(A.tag))()
   args = [uplo,A.obj,p,pointer(norm)]
   if type(A) is Matrix:
@@ -1203,8 +1203,8 @@ def SymmetricSchattenNorm(uplo,A,p,conjugate=False):
     else: DataExcept()
   else: TypeExcept()
   return norm.value
-def HermitianSchattenNorm(uplo,A,p):
-  return SymmetricSchattenNorm(uplo,A,p,True)
+def HermitianSchattenNorm(A,p,uplo=LOWER):
+  return SymmetricSchattenNorm(A,p,True,uplo)
 
 lib.ElTwoNorm_s.argtypes = \
 lib.ElTwoNorm_c.argtypes = \
@@ -1252,7 +1252,7 @@ lib.ElHermitianTwoNorm_z.argtypes = \
 lib.ElHermitianTwoNormDist_z.argtypes = \
   [c_uint,c_void_p,POINTER(dType)]
 
-def SymmetricTwoNorm(uplo,A,conjugate=False):
+def SymmetricTwoNorm(A,conjugate=False,uplo=LOWER):
   norm = TagToType(Base(A.tag))()
   args = [uplo,A.obj,pointer(norm)]
   if type(A) is Matrix:
@@ -1277,8 +1277,8 @@ def SymmetricTwoNorm(uplo,A,conjugate=False):
     else: DataExcept()
   else: TypeExcept()
   return norm.value
-def HermitianTwoNorm(uplo,A):
-  return SymmetricTwoNorm(uplo,A,True)
+def HermitianTwoNorm(A,uplo=LOWER):
+  return SymmetricTwoNorm(A,True,uplo)
 
 lib.ElZeroNorm_i.argtypes = \
 lib.ElZeroNormDist_i.argtypes = \
@@ -1390,7 +1390,7 @@ lib.ElHermitianTwoNormEstimate_z.argtypes = \
 lib.ElHermitianTwoNormEstimateDist_z.argtypes = \
   [c_uint,c_void_p,dType,iType,POINTER(dType)]
 
-def SymmetricTwoNormEstimate(uplo,A,tol=1e-6,maxIts=100,conjugate=False):
+def SymmetricTwoNormEstimate(A,conjugate=False,uplo=LOWER,tol=1e-6,maxIts=100):
   norm = TagToType(Base(A.tag))()
   args = [uplo,A.obj,tol,maxIts,pointer(norm)]
   if type(A) is Matrix:
@@ -1415,8 +1415,8 @@ def SymmetricTwoNormEstimate(uplo,A,tol=1e-6,maxIts=100,conjugate=False):
     else: DataExcept()
   else: TypeExcept()
   return norm.value
-def HermitianTwoNormEstimate(uplo,A,tol=1e-6,maxIts=100):
-  return HermitianTwoNormEstimate(uplo,A,tol,maxits,True)
+def HermitianTwoNormEstimate(A,uplo=LOWER,tol=1e-6,maxIts=100):
+  return SymmetricTwoNormEstimate(A,True,uplo,tol,maxits)
 
 # Trace
 # =====
