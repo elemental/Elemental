@@ -22,19 +22,19 @@ extern "C" {
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( LinearSolve( *CReflect(A), *CReflect(B) ) ) } \
   ElError ElLinearSolveSparse_ ## SIG \
-  ( ElSparseMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
+  ( ElConstSparseMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
   { EL_TRY( LinearSolve( *CReflect(A), *CReflect(B) ) ) } \
   ElError ElLinearSolveDistSparse_ ## SIG \
-  ( ElDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG B ) \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG B ) \
   { EL_TRY( LinearSolve( *CReflect(A), *CReflect(B) ) ) } \
   /* Expert versions
      ^^^^^^^^^^^^^^^ */ \
   ElError ElLinearSolveXSparse_ ## SIG \
-  ( ElSparseMatrix_ ## SIG A, ElMatrix_ ## SIG B, \
+  ( ElConstSparseMatrix_ ## SIG A, ElMatrix_ ## SIG B, \
     ElLeastSquaresCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( LinearSolve( *CReflect(A), *CReflect(B), CReflect(ctrl) ) ) } \
   ElError ElLinearSolveXDistSparse_ ## SIG \
-  ( ElDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG B, \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG B, \
     ElLeastSquaresCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( LinearSolve( *CReflect(A), *CReflect(B), CReflect(ctrl) ) ) } \
   /* HPD solve
@@ -49,6 +49,12 @@ extern "C" {
     ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( HPDSolve( CReflect(uplo), CReflect(orientation), \
                       *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElHPDSolveSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
+  { EL_TRY( HPDSolve( *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElHPDSolveDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG B ) \
+  { EL_TRY( HPDSolve( *CReflect(A), *CReflect(B) ) ) } \
   /* Multi-shift Hessenberg solve
      ---------------------------- */ \
   ElError ElMultiShiftHessSolve_ ## SIG \
@@ -77,9 +83,12 @@ extern "C" {
     ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( SymmetricSolve( CReflect(uplo), CReflect(orientation), \
                             *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElSymmetricSolveSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElMatrix_ ## SIG B, bool tryLDL ) \
+  { EL_TRY( SymmetricSolve( *CReflect(A), *CReflect(B), tryLDL ) ) } \
   ElError ElSymmetricSolveDistSparse_ ## SIG \
-  ( ElConstDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG X ) \
-  { EL_TRY( SymmetricSolve( *CReflect(A), *CReflect(X) ) ) }
+  ( ElConstDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG B, bool tryLDL ) \
+  { EL_TRY( SymmetricSolve( *CReflect(A), *CReflect(B), tryLDL ) ) }
 
 #define C_PROTO_REAL(SIG,F) \
   C_PROTO_FIELD(SIG,SIG,F)
@@ -98,9 +107,14 @@ extern "C" {
     ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( HermitianSolve( CReflect(uplo), CReflect(orientation), \
                             *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElHermitianSolveSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElMatrix_ ## SIG B, \
+    bool tryLDL ) \
+  { EL_TRY( HermitianSolve( *CReflect(A), *CReflect(B), tryLDL ) ) } \
   ElError ElHermitianSolveDistSparse_ ## SIG \
-  ( ElConstDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG X ) \
-  { EL_TRY( HermitianSolve( *CReflect(A), *CReflect(X) ) ) }
+  ( ElConstDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG B, \
+    bool tryLDL ) \
+  { EL_TRY( HermitianSolve( *CReflect(A), *CReflect(B), tryLDL ) ) }
 
 #define EL_NO_INT_PROTO
 #include "El/macros/CInstantiate.h"

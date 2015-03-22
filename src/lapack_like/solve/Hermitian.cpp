@@ -32,19 +32,21 @@ void HermitianSolve
 // TODO: Add iterative refinement parameter
 template<typename F>
 void HermitianSolve
-( const SparseMatrix<F>& A, Matrix<F>& X, const BisectCtrl& ctrl )
+( const SparseMatrix<F>& A, Matrix<F>& B, 
+  bool tryLDL, const BisectCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSolve"))
-    SymmetricSolve( A, X, true, ctrl );
+    SymmetricSolve( A, B, true, tryLDL, ctrl );
 }
 
 // TODO: Add iterative refinement parameter
 template<typename F>
 void HermitianSolve
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, const BisectCtrl& ctrl )
+( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, 
+  bool tryLDL, const BisectCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSolve"))
-    SymmetricSolve( A, X, true, ctrl );
+    SymmetricSolve( A, B, true, tryLDL, ctrl );
 }
 
 #define PROTO(F) \
@@ -56,11 +58,11 @@ void HermitianSolve
     AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
     const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void HermitianSolve \
-  ( const SparseMatrix<F>& A, Matrix<F>& X, \
-    const BisectCtrl& ctrl ); \
+  ( const SparseMatrix<F>& A, Matrix<F>& B, \
+    bool tryLDL, const BisectCtrl& ctrl ); \
   template void HermitianSolve \
-  ( const DistSparseMatrix<F>& A, DistMultiVec<F>& X, \
-    const BisectCtrl& ctrl );
+  ( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, \
+    bool tryLDL, const BisectCtrl& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

@@ -110,15 +110,23 @@ lib.ElSymmetricSolveDist_d.argtypes = \
 lib.ElSymmetricSolveDist_c.argtypes = \
 lib.ElSymmetricSolveDist_z.argtypes = \
   [c_uint,c_uint,c_void_p,c_void_p]
+lib.ElSymmetricSolveSparse_s.argtypes = \
+lib.ElSymmetricSolveSparse_d.argtypes = \
 lib.ElSymmetricSolveDistSparse_s.argtypes = \
 lib.ElSymmetricSolveDistSparse_d.argtypes = \
-lib.ElSymmetricSolveDistSparse_c.argtypes = \
-lib.ElSymmetricSolveDistSparse_z.argtypes = \
+  [c_void_p,c_void_p,bType]
+lib.ElHermitianSolveSparse_c.argtypes = \
+lib.ElHermitianSolveSparse_z.argtypes = \
 lib.ElHermitianSolveDistSparse_c.argtypes = \
 lib.ElHermitianSolveDistSparse_z.argtypes = \
-  [c_void_p,c_void_p]
+  [c_void_p,c_void_p,bType]
+lib.ElSymmetricSolveSparse_c.argtypes = \
+lib.ElSymmetricSolveSparse_z.argtypes = \
+lib.ElSymmetricSolveDistSparse_c.argtypes = \
+lib.ElSymmetricSolveDistSparse_z.argtypes = \
+  [c_void_p,c_void_p,bType,bType]
 
-def SymmetricSolve(A,B,conjugate=False,uplo=LOWER,orient=NORMAL):
+def SymmetricSolve(A,B,tryLDL=False,conjugate=False,uplo=LOWER,orient=NORMAL):
   if A.tag != B.tag:
     raise Exception('Datatypes of A and B must match')
   if type(A) is Matrix:
@@ -147,25 +155,42 @@ def SymmetricSolve(A,B,conjugate=False,uplo=LOWER,orient=NORMAL):
       if conjugate: lib.ElHermitianSolveDist_z(*args)
       else:         lib.ElSymmetricSolveDist_z(*args)
     else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if orient != NORMAL:
+      raise Exception('Non-normal sparse orientations not yet supported')
+    if type(B) is not Matrix:
+      raise Exception('Expected RHS to be a Matrix')
+    args = [A.obj,B.obj,tryLDL]
+    argsSymmCpx = [A.obj,B.obj,conjugate,tryLDL]
+    if   A.tag == sTag: lib.ElSymmetricSolveSparse_s(*args)
+    elif A.tag == dTag: lib.ElSymmetricSolveSparse_d(*args)
+    elif A.tag == cTag:
+      if conjugate: lib.ElHermitianSolveSparse_c(*args)
+      else:         lib.ElSymmetricSolveSparse_c(*argsSymmCpx)
+    elif A.tag == zTag:
+      if conjugate: lib.ElHermitianSolveSparse_z(*args)
+      else:         lib.ElSymmetricSolveSparse_z(*argsSymmCpx)
+    else: DataExcept()
   elif type(A) is DistSparseMatrix:
     if orient != NORMAL:
       raise Exception('Non-normal sparse orientations not yet supported')
     if type(B) is not DistMultiVec:
       raise Exception('Expected RHS to be a DistMultiVec')
-    args = [A.obj,B.obj]
+    args = [A.obj,B.obj,tryLDL]
+    argsSymmCpx = [A.obj,B.obj,conjugate,tryLDL]
     if   A.tag == sTag: lib.ElSymmetricSolveDistSparse_s(*args)
     elif A.tag == dTag: lib.ElSymmetricSolveDistSparse_d(*args)
     elif A.tag == cTag:
       if conjugate: lib.ElHermitianSolveDistSparse_c(*args)
-      else:         lib.ElSymmetricSolveDistSparse_c(*args)
+      else:         lib.ElSymmetricSolveDistSparse_c(*argsSymmCpx)
     elif A.tag == zTag:
       if conjugate: lib.ElHermitianSolveDistSparse_z(*args)
-      else:         lib.ElSymmetricSolveDistSparse_z(*args)
+      else:         lib.ElSymmetricSolveDistSparse_z(*argsSymmCpx)
     else: DataExcept()
   else: TypeExcept()
 
-def HermitianSolve(A,B,uplo,orient):
-  SymmetricSolve(A,B,True,uplo,orient)
+def HermitianSolve(A,B,tryLDL=False,uplo=LOWER,orient=NORMAL):
+  SymmetricSolve(A,B,tryLDL,True,uplo,orient)
 
 # Hermitian positive-definite solve
 # ---------------------------------
@@ -179,23 +204,51 @@ lib.ElHPDSolveDist_c.argtypes = \
 lib.ElHPDSolveDist_z.argtypes = \
   [c_uint,c_uint,c_void_p,c_void_p]
 
+lib.ElHPDSolveSparse_s.argtypes = \
+lib.ElHPDSolveSparse_d.argtypes = \
+lib.ElHPDSolveSparse_c.argtypes = \
+lib.ElHPDSolveSparse_z.argtypes = \
+lib.ElHPDSolveDistSparse_s.argtypes = \
+lib.ElHPDSolveDistSparse_d.argtypes = \
+lib.ElHPDSolveDistSparse_c.argtypes = \
+lib.ElHPDSolveDistSparse_z.argtypes = \
+  [c_void_p,c_void_p]
+
 def HPDSolve(A,B,uplo=LOWER,orient=NORMAL):
-  if type(A) is not type(B):
-    raise Exception('Matrix types of A and B must match')
   if A.tag != B.tag:
     raise Exception('Datatypes of A and B must match')
   args = [uplo,orient,A.obj,B.obj]
   if type(A) is Matrix:
+    if type(B) is not Matrix:
+      raise Exception('Expected B to be a Matrix')
     if   A.tag == sTag: lib.ElHPDSolve_s(*args)
     elif A.tag == dTag: lib.ElHPDSolve_d(*args)
     elif A.tag == cTag: lib.ElHPDSolve_c(*args)
     elif A.tag == zTag: lib.ElHPDSolve_z(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
+    if type(B) is not DistMatrix:
+      raise Exception('Expected B to be a DistMatrix')
     if   A.tag == sTag: lib.ElHPDSolveDist_s(*args)
     elif A.tag == dTag: lib.ElHPDSolveDist_d(*args)
     elif A.tag == cTag: lib.ElHPDSolveDist_c(*args)
     elif A.tag == zTag: lib.ElHPDSolveDist_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if type(B) is not Matrix:
+      raise Exception('Expected B to be a Matrix')
+    if   A.tag == sTag: lib.ElHPDSolveSparse_s(*args)
+    elif A.tag == dTag: lib.ElHPDSolveSparse_d(*args)
+    elif A.tag == cTag: lib.ElHPDSolveSparse_c(*args)
+    elif A.tag == zTag: lib.ElHPDSolveSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if type(B) is not DistMultiVec:
+      raise Exception('Expected B to be a DistMultiVec')
+    if   A.tag == sTag: lib.ElHPDSolveDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElHPDSolveDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElHPDSolveDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElHPDSolveDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 

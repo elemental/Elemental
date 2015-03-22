@@ -17,11 +17,8 @@
 extern "C" {
 #endif
 
-/* Linear solvers
-   ============== */
-
-/* Linear solve
-   ------------ */
+/* Linear
+   ====== */
 EL_EXPORT ElError ElLinearSolve_s( ElMatrix_s A, ElMatrix_s B );
 EL_EXPORT ElError ElLinearSolve_d( ElMatrix_d A, ElMatrix_d B );
 EL_EXPORT ElError ElLinearSolve_c( ElMatrix_c A, ElMatrix_c B );
@@ -32,42 +29,46 @@ EL_EXPORT ElError ElLinearSolveDist_d( ElDistMatrix_d A, ElDistMatrix_d B );
 EL_EXPORT ElError ElLinearSolveDist_c( ElDistMatrix_c A, ElDistMatrix_c B );
 EL_EXPORT ElError ElLinearSolveDist_z( ElDistMatrix_z A, ElDistMatrix_z B );
 
-EL_EXPORT ElError ElLinearSolveSparse_s( ElSparseMatrix_s A, ElMatrix_s B );
-EL_EXPORT ElError ElLinearSolveSparse_d( ElSparseMatrix_d A, ElMatrix_d B );
-EL_EXPORT ElError ElLinearSolveSparse_c( ElSparseMatrix_c A, ElMatrix_c B );
-EL_EXPORT ElError ElLinearSolveSparse_z( ElSparseMatrix_z A, ElMatrix_z B );
+EL_EXPORT ElError ElLinearSolveSparse_s
+( ElConstSparseMatrix_s A, ElMatrix_s B );
+EL_EXPORT ElError ElLinearSolveSparse_d
+( ElConstSparseMatrix_d A, ElMatrix_d B );
+EL_EXPORT ElError ElLinearSolveSparse_c
+( ElConstSparseMatrix_c A, ElMatrix_c B );
+EL_EXPORT ElError ElLinearSolveSparse_z
+( ElConstSparseMatrix_z A, ElMatrix_z B );
 
 EL_EXPORT ElError ElLinearSolveDistSparse_s
-( ElDistSparseMatrix_s A, ElDistMultiVec_s B );
+( ElConstDistSparseMatrix_s A, ElDistMultiVec_s B );
 EL_EXPORT ElError ElLinearSolveDistSparse_d
-( ElDistSparseMatrix_d A, ElDistMultiVec_d B );
+( ElConstDistSparseMatrix_d A, ElDistMultiVec_d B );
 EL_EXPORT ElError ElLinearSolveDistSparse_c
-( ElDistSparseMatrix_c A, ElDistMultiVec_c B );
+( ElConstDistSparseMatrix_c A, ElDistMultiVec_c B );
 EL_EXPORT ElError ElLinearSolveDistSparse_z
-( ElDistSparseMatrix_z A, ElDistMultiVec_z B );
+( ElConstDistSparseMatrix_z A, ElDistMultiVec_z B );
 
 /* Expert versions
-   ^^^^^^^^^^^^^^^ */
+   --------------- */
 EL_EXPORT ElError ElLinearSolveXSparse_s
-( ElSparseMatrix_s A, ElMatrix_s B, ElLeastSquaresCtrl_s ctrl );
+( ElConstSparseMatrix_s A, ElMatrix_s B, ElLeastSquaresCtrl_s ctrl );
 EL_EXPORT ElError ElLinearSolveXSparse_d
-( ElSparseMatrix_d A, ElMatrix_d B, ElLeastSquaresCtrl_d ctrl );
+( ElConstSparseMatrix_d A, ElMatrix_d B, ElLeastSquaresCtrl_d ctrl );
 EL_EXPORT ElError ElLinearSolveXSparse_c
-( ElSparseMatrix_c A, ElMatrix_c B, ElLeastSquaresCtrl_s ctrl );
+( ElConstSparseMatrix_c A, ElMatrix_c B, ElLeastSquaresCtrl_s ctrl );
 EL_EXPORT ElError ElLinearSolveXSparse_z
-( ElSparseMatrix_z A, ElMatrix_z B, ElLeastSquaresCtrl_d ctrl );
+( ElConstSparseMatrix_z A, ElMatrix_z B, ElLeastSquaresCtrl_d ctrl );
 
 EL_EXPORT ElError ElLinearSolveXDistSparse_s
-( ElDistSparseMatrix_s A, ElDistMultiVec_s B, ElLeastSquaresCtrl_s ctrl );
+( ElConstDistSparseMatrix_s A, ElDistMultiVec_s B, ElLeastSquaresCtrl_s ctrl );
 EL_EXPORT ElError ElLinearSolveXDistSparse_d
-( ElDistSparseMatrix_d A, ElDistMultiVec_d B, ElLeastSquaresCtrl_d ctrl );
+( ElConstDistSparseMatrix_d A, ElDistMultiVec_d B, ElLeastSquaresCtrl_d ctrl );
 EL_EXPORT ElError ElLinearSolveXDistSparse_c
-( ElDistSparseMatrix_c A, ElDistMultiVec_c B, ElLeastSquaresCtrl_s ctrl );
+( ElConstDistSparseMatrix_c A, ElDistMultiVec_c B, ElLeastSquaresCtrl_s ctrl );
 EL_EXPORT ElError ElLinearSolveXDistSparse_z
-( ElDistSparseMatrix_z A, ElDistMultiVec_z B, ElLeastSquaresCtrl_d ctrl );
+( ElConstDistSparseMatrix_z A, ElDistMultiVec_z B, ElLeastSquaresCtrl_d ctrl );
 
-/* Symmetric solve
-   --------------- */
+/* Symmetric
+   ========= */
 EL_EXPORT ElError ElSymmetricSolve_s
 ( ElUpperOrLower uplo, ElOrientation orientation, ElMatrix_s A, ElMatrix_s B );
 EL_EXPORT ElError ElSymmetricSolve_d
@@ -92,17 +93,26 @@ EL_EXPORT ElError ElSymmetricSolveDist_z
 
 /* TODO: Expert version for choosing pivot strategy */
 
+EL_EXPORT ElError ElSymmetricSolveSparse_s
+( ElConstSparseMatrix_s A, ElMatrix_s B, bool tryLDL );
+EL_EXPORT ElError ElSymmetricSolveSparse_d
+( ElConstSparseMatrix_d A, ElMatrix_d B, bool tryLDL );
+EL_EXPORT ElError ElSymmetricSolveSparse_c
+( ElConstSparseMatrix_c A, ElMatrix_c B, bool tryLDL );
+EL_EXPORT ElError ElSymmetricSolveSparse_z
+( ElConstSparseMatrix_z A, ElMatrix_z B, bool tryLDL );
+
 EL_EXPORT ElError ElSymmetricSolveDistSparse_s
-( ElConstDistSparseMatrix_s A, ElDistMultiVec_s X );
+( ElConstDistSparseMatrix_s A, ElDistMultiVec_s B, bool tryLDL );
 EL_EXPORT ElError ElSymmetricSolveDistSparse_d
-( ElConstDistSparseMatrix_d A, ElDistMultiVec_d X );
+( ElConstDistSparseMatrix_d A, ElDistMultiVec_d B, bool tryLDL );
 EL_EXPORT ElError ElSymmetricSolveDistSparse_c
-( ElConstDistSparseMatrix_c A, ElDistMultiVec_c X );
+( ElConstDistSparseMatrix_c A, ElDistMultiVec_c B, bool tryLDL );
 EL_EXPORT ElError ElSymmetricSolveDistSparse_z
-( ElConstDistSparseMatrix_z A, ElDistMultiVec_z X );
+( ElConstDistSparseMatrix_z A, ElDistMultiVec_z B, bool tryLDL );
 
 /* Hermitian solve
-   --------------- */
+   =============== */
 EL_EXPORT ElError ElHermitianSolve_c
 ( ElUpperOrLower uplo, ElOrientation orientation, ElMatrix_c A, ElMatrix_c B );
 EL_EXPORT ElError ElHermitianSolve_z
@@ -117,13 +127,18 @@ EL_EXPORT ElError ElHermitianSolveDist_z
 
 /* TODO: Expert version for choosing pivot strategy */
 
-EL_EXPORT ElError ElHermitianSolveDistSparse_c
-( ElConstDistSparseMatrix_c A, ElDistMultiVec_c X );
-EL_EXPORT ElError ElHermitianSolveDistSparse_z
-( ElConstDistSparseMatrix_z A, ElDistMultiVec_z X );
+EL_EXPORT ElError ElHermitianSolveSparse_c
+( ElConstSparseMatrix_c A, ElMatrix_c B, bool tryLDL );
+EL_EXPORT ElError ElHermitianSolveSparse_z
+( ElConstSparseMatrix_z A, ElMatrix_z B, bool tryLDL );
 
-/* HPD solve
-   --------- */
+EL_EXPORT ElError ElHermitianSolveDistSparse_c
+( ElConstDistSparseMatrix_c A, ElDistMultiVec_c B, bool tryLDL );
+EL_EXPORT ElError ElHermitianSolveDistSparse_z
+( ElConstDistSparseMatrix_z A, ElDistMultiVec_z B, bool tryLDL );
+
+/* HPD
+   === */
 EL_EXPORT ElError ElHPDSolve_s
 ( ElUpperOrLower uplo, ElOrientation orientation, ElMatrix_s A, ElMatrix_s B );
 EL_EXPORT ElError ElHPDSolve_d
@@ -146,10 +161,20 @@ EL_EXPORT ElError ElHPDSolveDist_z
 ( ElUpperOrLower uplo, ElOrientation orientation, 
   ElDistMatrix_z A, ElDistMatrix_z B );
 
+EL_EXPORT ElError ElHPDSolveSparse_c
+( ElConstSparseMatrix_c A, ElMatrix_c B );
+EL_EXPORT ElError ElHPDSolveSparse_z
+( ElConstSparseMatrix_z A, ElMatrix_z B );
+
+EL_EXPORT ElError ElHPDSolveDistSparse_c
+( ElConstDistSparseMatrix_c A, ElDistMultiVec_c B );
+EL_EXPORT ElError ElHPDSolveDistSparse_z
+( ElConstDistSparseMatrix_z A, ElDistMultiVec_z B );
+
 /* TODO: Hessenberg solve */
 
-/* Multi-shift Hessenberg solve
-   ---------------------------- */
+/* Multi-shift Hessenberg
+   ====================== */
 EL_EXPORT ElError ElMultiShiftHessSolve_s
 ( ElUpperOrLower uplo, ElOrientation orientation, float alpha,
   ElConstMatrix_s H, ElConstMatrix_s shifts, ElMatrix_s X );
