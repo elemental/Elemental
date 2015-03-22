@@ -680,6 +680,23 @@ EL_EXPORT ElError ElIdentityDist_d( ElDistMatrix_d A, ElInt m, ElInt n );
 EL_EXPORT ElError ElIdentityDist_c( ElDistMatrix_c A, ElInt m, ElInt n );
 EL_EXPORT ElError ElIdentityDist_z( ElDistMatrix_z A, ElInt m, ElInt n );
 
+EL_EXPORT ElError ElIdentitySparse_i( ElSparseMatrix_i A, ElInt m, ElInt n );
+EL_EXPORT ElError ElIdentitySparse_s( ElSparseMatrix_s A, ElInt m, ElInt n );
+EL_EXPORT ElError ElIdentitySparse_d( ElSparseMatrix_d A, ElInt m, ElInt n );
+EL_EXPORT ElError ElIdentitySparse_c( ElSparseMatrix_c A, ElInt m, ElInt n );
+EL_EXPORT ElError ElIdentitySparse_z( ElSparseMatrix_z A, ElInt m, ElInt n );
+
+EL_EXPORT ElError ElIdentityDistSparse_i
+( ElDistSparseMatrix_i A, ElInt m, ElInt n );
+EL_EXPORT ElError ElIdentityDistSparse_s
+( ElDistSparseMatrix_s A, ElInt m, ElInt n );
+EL_EXPORT ElError ElIdentityDistSparse_d
+( ElDistSparseMatrix_d A, ElInt m, ElInt n );
+EL_EXPORT ElError ElIdentityDistSparse_c
+( ElDistSparseMatrix_c A, ElInt m, ElInt n );
+EL_EXPORT ElError ElIdentityDistSparse_z
+( ElDistSparseMatrix_z A, ElInt m, ElInt n );
+
 /* Jordan
    ====== */
 EL_EXPORT ElError ElJordan_i( ElMatrix_i J, ElInt n, ElInt lambda );

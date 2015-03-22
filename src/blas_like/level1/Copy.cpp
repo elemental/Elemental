@@ -315,43 +315,36 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
 
     // Convert the send/recv counts into offsets and total sizes
     // =========================================================
-    vector<int> sendOffsets, recvOffsets;
-    const int totalSend = Scan( sendCounts, sendOffsets );
-    const int totalRecv = Scan( recvCounts, recvOffsets );
+    vector<int> sendOffs, recvOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
+    const int totalRecv = Scan( recvCounts, recvOffs );
 
     // Pack the triplets
     // =================
-    vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
-    vector<T> vSendBuf(totalSend);
-    auto offsets = sendOffsets;
+    vector<ValueIntPair<T>> sendBuf(totalSend);
+    auto offs = sendOffs;
     for( Int k=0; k<A.NumLocalEntries(); ++k )
     {
         const Int i = A.Row(k);
         const Int j = A.Col(k);
         const T value = Caster<S,T>::Cast(A.Value(k));
         const int owner = B.Owner(i,j);
-        sSendBuf[offsets[owner]] = i;
-        tSendBuf[offsets[owner]] = j;
-        vSendBuf[offsets[owner]] = value;
-        ++offsets[owner];
+        sendBuf[offs[owner]].indices[0] = i;
+        sendBuf[offs[owner]].indices[1] = j;
+        sendBuf[offs[owner]].value = value;
+        ++offs[owner];
     }
 
     // Exchange and unpack the triplets
     // ================================
-    vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
-    vector<T> vRecvBuf(totalRecv);
+    vector<ValueIntPair<T>> recvBuf(totalRecv);
     mpi::AllToAll
-    ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-    mpi::AllToAll
-    ( tSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      tRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-    mpi::AllToAll
-    ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
     for( Int k=0; k<totalRecv; ++k )
         B.UpdateLocal
-        ( B.LocalRow(sRecvBuf[k]), B.LocalCol(tRecvBuf[k]), vRecvBuf[k] );
+        ( B.LocalRow(recvBuf[k].indices[0]), B.LocalCol(recvBuf[k].indices[1]), 
+          recvBuf[k].value );
 }
 
 template<typename T>
@@ -365,8 +358,8 @@ void CopyFromRoot( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A )
     const int numLocalEntries = ADist.NumLocalEntries();
     vector<int> entrySizes(commSize);
     mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
-    vector<int> entryOffsets;
-    const int numEntries = Scan( entrySizes, entryOffsets );
+    vector<int> entryOffs;
+    const int numEntries = Scan( entrySizes, entryOffs );
 
     A.Resize( ADist.Height(), ADist.Width() );
     A.Reserve( numEntries );
@@ -375,15 +368,15 @@ void CopyFromRoot( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A )
     A.vals_.resize( numEntries );
     mpi::Gather
     ( ADist.LockedSourceBuffer(), numLocalEntries,
-      A.SourceBuffer(), entrySizes.data(), entryOffsets.data(), 
+      A.SourceBuffer(), entrySizes.data(), entryOffs.data(), 
       commRank, comm );
     mpi::Gather
     ( ADist.LockedTargetBuffer(), numLocalEntries,
-      A.TargetBuffer(), entrySizes.data(), entryOffsets.data(), 
+      A.TargetBuffer(), entrySizes.data(), entryOffs.data(), 
       commRank, comm );
     mpi::Gather
     ( ADist.LockedValueBuffer(), numLocalEntries,
-      A.ValueBuffer(), entrySizes.data(), entryOffsets.data(), 
+      A.ValueBuffer(), entrySizes.data(), entryOffs.data(), 
       commRank, comm );
     A.MakeConsistent();
 }
@@ -401,18 +394,18 @@ void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, int root )
     const int numLocalEntries = ADist.NumLocalEntries();
     vector<int> entrySizes(commSize);
     mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
-    vector<int> entryOffsets;
-    Scan( entrySizes, entryOffsets );
+    vector<int> entryOffs;
+    Scan( entrySizes, entryOffs );
 
     mpi::Gather
     ( ADist.LockedSourceBuffer(), numLocalEntries,
-      (Int*)0, entrySizes.data(), entryOffsets.data(), root, comm );
+      (Int*)0, entrySizes.data(), entryOffs.data(), root, comm );
     mpi::Gather
     ( ADist.LockedTargetBuffer(), numLocalEntries,
-      (Int*)0, entrySizes.data(), entryOffsets.data(), root, comm );
+      (Int*)0, entrySizes.data(), entryOffs.data(), root, comm );
     mpi::Gather
     ( ADist.LockedValueBuffer(), numLocalEntries,
-      (T*)0, entrySizes.data(), entryOffsets.data(), root, comm );
+      (T*)0, entrySizes.data(), entryOffs.data(), root, comm );
 }
 
 template<typename T>
@@ -455,43 +448,35 @@ void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
             ++sendCounts[ B.Owner(A.GlobalRow(iLoc),j) ]; 
     vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    vector<int> sendOffsets, recvOffsets;
-    const int totalSend = Scan( sendCounts, sendOffsets );
-    const int totalRecv = Scan( recvCounts, recvOffsets );
+    vector<int> sendOffs, recvOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
+    const int totalRecv = Scan( recvCounts, recvOffs );
     // Pack
     // ====
-    vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
-    vector<T> vSendBuf(totalSend);
-    auto offsets = sendOffsets;
+    vector<ValueIntPair<T>> sendBuf(totalSend);
+    auto offs = sendOffs;
     for( Int j=0; j<n; ++j )
     {
         for( Int iLoc=0; iLoc<mLoc; ++iLoc )
         {
             const Int i = A.GlobalRow(iLoc);
             const int owner = B.Owner(i,j);
-            sSendBuf[offsets[owner]] = i;
-            tSendBuf[offsets[owner]] = j;
-            vSendBuf[offsets[owner]] = A.GetLocal(iLoc,j);
-            ++offsets[owner];
+            sendBuf[offs[owner]].indices[0] = i;
+            sendBuf[offs[owner]].indices[1] = j;
+            sendBuf[offs[owner]].value = A.GetLocal(iLoc,j);
+            ++offs[owner];
         }
     }
     // Exchange
     // ========
-    vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
-    vector<T> vRecvBuf(totalRecv);
+    vector<ValueIntPair<T>> recvBuf(totalRecv);
     mpi::AllToAll
-    ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-    mpi::AllToAll
-    ( tSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      tRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-    mpi::AllToAll
-    ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
     // Unpack
     // ======
     for( Int e=0; e<totalRecv; ++e )    
-        B.Set( sRecvBuf[e], tRecvBuf[e], vRecvBuf[e] );
+        B.Set( recvBuf[e].indices[0], recvBuf[e].indices[1], recvBuf[e].value );
 }
 
 template<typename T>
@@ -519,14 +504,13 @@ void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
             ++sendCounts[ B.RowOwner(A.GlobalRow(iLoc)) ]; 
     vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    vector<int> sendOffsets, recvOffsets;
-    const int totalSend = Scan( sendCounts, sendOffsets );
-    const int totalRecv = Scan( recvCounts, recvOffsets );
+    vector<int> sendOffs, recvOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
+    const int totalRecv = Scan( recvCounts, recvOffs );
     // Pack
     // ====
-    vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
-    vector<T> vSendBuf(totalSend);
-    auto offsets = sendOffsets;
+    vector<ValueIntPair<T>> sendBuf(totalSend);
+    auto offs = sendOffs;
     for( Int jLoc=0; jLoc<nLoc; ++jLoc )
     {
         const Int j = A.GlobalCol(jLoc);
@@ -534,29 +518,24 @@ void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
         {
             const Int i = A.GlobalRow(iLoc);
             const int owner = B.RowOwner(i);
-            sSendBuf[offsets[owner]] = i;
-            tSendBuf[offsets[owner]] = j;
-            vSendBuf[offsets[owner]] = A.GetLocal(iLoc,jLoc);
-            ++offsets[owner];
+            sendBuf[offs[owner]].indices[0] = i;
+            sendBuf[offs[owner]].indices[1] = j;
+            sendBuf[offs[owner]].value = A.GetLocal(iLoc,jLoc);
+            ++offs[owner];
         }
     }
     // Exchange
     // ========
-    vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
-    vector<T> vRecvBuf(totalRecv);
+    vector<ValueIntPair<T>> recvBuf(totalRecv);
     mpi::AllToAll
-    ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-    mpi::AllToAll
-    ( tSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      tRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-    mpi::AllToAll
-    ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
     // Unpack
     // ======
     for( Int e=0; e<totalRecv; ++e )    
-        B.SetLocal( sRecvBuf[e]-B.FirstLocalRow(), tRecvBuf[e], vRecvBuf[e] );
+        B.SetLocal
+        ( recvBuf[e].indices[0]-B.FirstLocalRow(), recvBuf[e].indices[1], 
+          recvBuf[e].value );
 }
 
 template<typename T>
@@ -572,8 +551,8 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
     const int numLocalEntries = XDist.LocalHeight()*n;
     vector<int> entrySizes(commSize);
     mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
-    vector<int> entryOffsets;
-    const int numEntries = Scan( entrySizes, entryOffsets );
+    vector<int> entryOffs;
+    const int numEntries = Scan( entrySizes, entryOffs );
 
     vector<T> recvBuf( numEntries );
     X.Resize( m, n, Max(m,1) );
@@ -582,7 +561,7 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
     {
         mpi::Gather
         ( XDistLoc.LockedBuffer(), numLocalEntries,
-          recvBuf.data(), entrySizes.data(), entryOffsets.data(), 
+          recvBuf.data(), entrySizes.data(), entryOffs.data(), 
           commRank, comm );
     }
     else
@@ -593,15 +572,15 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
                 sendBuf[iLoc+jLoc*XDistLoc.Height()] = XDistLoc.Get(iLoc,jLoc);
         mpi::Gather
         ( sendBuf.data(), numLocalEntries,
-          recvBuf.data(), entrySizes.data(), entryOffsets.data(), 
+          recvBuf.data(), entrySizes.data(), entryOffs.data(), 
           commRank, comm );
     }
     for( Int q=0; q<commSize; ++q )
     {
-        const Int iOff = entryOffsets[q]/n;
+        const Int iOff = entryOffs[q]/n;
         const Int iSize = entrySizes[q]/n;
         for( Int t=0; t<entrySizes[q]; ++t )
-            X.Set( iOff+(t%iSize), t/iSize, recvBuf[entryOffsets[q]+t] );
+            X.Set( iOff+(t%iSize), t/iSize, recvBuf[entryOffs[q]+t] );
     }
 }
 
@@ -618,15 +597,15 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
     const int numLocalEntries = XDist.LocalHeight()*XDist.Width();
     vector<int> entrySizes(commSize);
     mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
-    vector<int> entryOffsets;
-    Scan( entrySizes, entryOffsets );
+    vector<int> entryOffs;
+    Scan( entrySizes, entryOffs );
 
     const auto& XDistLoc = XDist.LockedMatrix();
     if( XDistLoc.Height() == XDistLoc.LDim() )
     {
         mpi::Gather
         ( XDistLoc.LockedBuffer(), numLocalEntries,
-          (T*)0, entrySizes.data(), entryOffsets.data(), root, comm );
+          (T*)0, entrySizes.data(), entryOffs.data(), root, comm );
     }
     else
     {
@@ -636,7 +615,7 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
                 sendBuf[iLoc+jLoc*XDistLoc.Height()] = XDistLoc.Get(iLoc,jLoc);
         mpi::Gather
         ( sendBuf.data(), numLocalEntries,
-          (T*)0, entrySizes.data(), entryOffsets.data(), root, comm );
+          (T*)0, entrySizes.data(), entryOffs.data(), root, comm );
     }
 }
 

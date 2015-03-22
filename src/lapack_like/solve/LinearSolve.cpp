@@ -180,17 +180,6 @@ void LinearSolve
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
 }
 
-// TODO: Expose BisectCtrl
-
-// TODO: Exploit the fact that the top-left block of the augmented system
-//
-//          K = | alpha*I  A^H |
-//              |    A      0  |
-// 
-//       can be set to zero, unlike in the case of rectangular A. However,
-//       as long as A is equilibrated to have a maximum two-norm of roughly
-//       one, this should hopefully not cause unnecessary trouble.
-
 template<typename F>
 void LinearSolve
 ( const SparseMatrix<F>& A, Matrix<F>& B, 

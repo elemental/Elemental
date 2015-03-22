@@ -96,7 +96,7 @@ template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const SparseMatrix<T>& A, 
-  T beta, SparseMatrix<T>& C, bool conjugate )
+  T beta,        SparseMatrix<T>& C, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Syrk"))
 
@@ -176,7 +176,7 @@ template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const DistSparseMatrix<T>& A, 
-  T beta, DistSparseMatrix<T>& C, bool conjugate )
+  T beta,        DistSparseMatrix<T>& C, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Syrk"))
 
@@ -225,15 +225,14 @@ void Syrk
 
     // Convert the send and recv counts to offsets and total sizes
     // ===========================================================
-    vector<int> sendOffsets, recvOffsets;
-    const int totalSend = Scan( sendSizes, sendOffsets );
-    const int totalRecv = Scan( recvSizes, recvOffsets );
+    vector<int> sendOffs, recvOffs;
+    const int totalSend = Scan( sendSizes, sendOffs );
+    const int totalRecv = Scan( recvSizes, recvOffs );
 
     // Pack the send buffers
     // ===================== 
-    vector<Int> sourceBuf(totalSend), targetBuf(totalSend);
-    vector<T> valueBuf(totalSend);
-    auto offsets = sendOffsets;
+    vector<ValueIntPair<T>> sendBuf(totalSend);
+    auto offs = sendOffs;
     for( Int kLoc=0; kLoc<localHeightA; ++kLoc )
     {
         const Int offset = A.EntryOffset(kLoc);
@@ -249,13 +248,13 @@ void Syrk
                 if( (uplo==LOWER && i>=j) || (uplo==UPPER && i<=j) )
                 {
                     const T A_kj = A.Value(offset+jConn);
-                    const Int s = offsets[owner]++;
-                    sourceBuf[s] = i;
-                    targetBuf[s] = j;
+                    const Int s = offs[owner]++;
+                    sendBuf[s].indices[0] = i;
+                    sendBuf[s].indices[1] = j;
                     if( conjugate )
-                        valueBuf[s] = T(alpha)*Conj(A_ki)*A_kj;
+                        sendBuf[s].value = T(alpha)*Conj(A_ki)*A_kj;
                     else
-                        valueBuf[s] = T(alpha)*A_ki*A_kj;
+                        sendBuf[s].value = T(alpha)*A_ki*A_kj;
                 }
             }
         }
@@ -265,42 +264,15 @@ void Syrk
     // ===================
     const Int oldSize = C.NumLocalEntries();
     const Int newCapacity = oldSize + totalRecv;
-    vector<Int> sourceRecvBuf(totalRecv), targetRecvBuf(totalRecv);
-    vector<T> valueRecvBuf(totalRecv);
+    vector<ValueIntPair<T>> recvBuf(totalRecv);
     mpi::AllToAll
-    ( sourceBuf.data(), sendSizes.data(), sendOffsets.data(),
-      sourceRecvBuf.data(), recvSizes.data(), recvOffsets.data(), comm );
-    mpi::AllToAll
-    ( targetBuf.data(), sendSizes.data(), sendOffsets.data(),
-      targetRecvBuf.data(), recvSizes.data(), recvOffsets.data(), comm );
-    mpi::AllToAll
-    ( valueBuf.data(), sendSizes.data(), sendOffsets.data(),
-      valueRecvBuf.data(), recvSizes.data(), recvOffsets.data(), comm );
+    ( sendBuf.data(), sendSizes.data(), sendOffs.data(),
+      recvBuf.data(), recvSizes.data(), recvOffs.data(), comm );
     C.Reserve( newCapacity );
     for( Int k=0; k<totalRecv; ++k )
         C.QueueLocalUpdate
-        ( sourceRecvBuf[k]-C.FirstLocalRow(), 
-          targetRecvBuf[k], valueRecvBuf[k] );
-    // NOTE: In order to avoid unnecessary workspace, we can directly manipulate
-    //       the internals of the class
-    /*
-    C.distGraph_.consistent_ = false;
-    C.distGraph_.sources_.resize( newCapacity );
-    C.distGraph_.targets_.resize( newCapacity );
-    C.vals_.resize( newCapacity );
-    mpi::AllToAll
-    ( sourceBuf.data(), sendSizes.data(), sendOffsets.data(),
-      C.distGraph_.sources_.data()+oldSize, 
-      recvSizes.data(), recvOffsets.data(), comm );
-    mpi::AllToAll
-    ( targetBuf.data(), sendSizes.data(), sendOffsets.data(),
-      C.distGraph_.targets_.data()+oldSize, 
-      recvSizes.data(), recvOffsets.data(), comm );
-    mpi::AllToAll
-    ( valueBuf.data(), sendSizes.data(), sendOffsets.data(),
-      C.vals_.data()+oldSize, 
-      recvSizes.data(), recvOffsets.data(), comm );
-    */
+        ( recvBuf[k].indices[0]-C.FirstLocalRow(), recvBuf[k].indices[1], 
+          recvBuf[k].value );
 
     // Make the distributed matrix consistent
     // ======================================

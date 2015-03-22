@@ -1254,6 +1254,16 @@ lib.ElIdentityDist_s.argtypes = \
 lib.ElIdentityDist_d.argtypes = \
 lib.ElIdentityDist_c.argtypes = \
 lib.ElIdentityDist_z.argtypes = \
+lib.ElIdentitySparse_i.argtypes = \
+lib.ElIdentitySparse_s.argtypes = \
+lib.ElIdentitySparse_d.argtypes = \
+lib.ElIdentitySparse_c.argtypes = \
+lib.ElIdentitySparse_z.argtypes = \
+lib.ElIdentityDistSparse_i.argtypes = \
+lib.ElIdentityDistSparse_s.argtypes = \
+lib.ElIdentityDistSparse_d.argtypes = \
+lib.ElIdentityDistSparse_c.argtypes = \
+lib.ElIdentityDistSparse_z.argtypes = \
   [c_void_p,iType,iType]
 
 def Identity(A,m,n):
@@ -1271,6 +1281,20 @@ def Identity(A,m,n):
     elif A.tag == dTag: lib.ElIdentityDist_d(*args)
     elif A.tag == cTag: lib.ElIdentityDist_c(*args)
     elif A.tag == zTag: lib.ElIdentityDist_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == iTag: lib.ElIdentitySparse_i(*args)
+    elif A.tag == sTag: lib.ElIdentitySparse_s(*args)
+    elif A.tag == dTag: lib.ElIdentitySparse_d(*args)
+    elif A.tag == cTag: lib.ElIdentitySparse_c(*args)
+    elif A.tag == zTag: lib.ElIdentitySparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == iTag: lib.ElIdentityDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElIdentityDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElIdentityDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElIdentityDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElIdentityDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 

@@ -161,36 +161,32 @@ void TV
         }
         vector<int> recvCounts(commSize);
         mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        vector<int> sendOffsets, recvOffsets;
-        const int totalSend = Scan( sendCounts, sendOffsets );
-        const int totalRecv = Scan( recvCounts, recvOffsets );
+        vector<int> sendOffs, recvOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
+        const int totalRecv = Scan( recvCounts, recvOffs );
         // Pack -b
         // -------
-        vector<Int> sSendBuf(totalSend);
-        vector<Real> vSendBuf(totalSend);
-        auto offsets = sendOffsets;
+        vector<ValueInt<Real>> sendBuf(totalSend);
+        auto offs = sendOffs;
         for( Int iLoc=0; iLoc<b.LocalHeight(); ++iLoc )
         {
             const Int i = b.GlobalRow(iLoc);
             const int owner = c.RowOwner(i);
-            sSendBuf[offsets[owner]] = i;
-            vSendBuf[offsets[owner]] = -b.GetLocal(iLoc,0);
-            ++offsets[owner];
+            sendBuf[offs[owner]].index = i;
+            sendBuf[offs[owner]].value = -b.GetLocal(iLoc,0);
+            ++offs[owner];
         }
         // Redistribute
         // ------------
-        vector<Int> sRecvBuf(totalRecv);
-        vector<Real> vRecvBuf(totalRecv);
+        vector<ValueInt<Real>> recvBuf(totalRecv);
         mpi::AllToAll
-        ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-          sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-        mpi::AllToAll
-        ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-          vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+        ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
         // Unpack
         // ------
         for( Int e=0; e<totalRecv; ++e )
-            c.SetLocal( sRecvBuf[e]-c.FirstLocalRow(), 0, vRecvBuf[e] );
+            c.SetLocal
+            ( recvBuf[e].index-c.FirstLocalRow(), 0, recvBuf[e].value );
     }
     for( Int iLoc=0; iLoc<c.LocalHeight(); ++iLoc )
     {
@@ -256,41 +252,37 @@ void TV
         }
         vector<int> recvCounts(commSize);
         mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        vector<int> sendOffsets, recvOffsets;
-        const int totalSend = Scan( sendCounts, sendOffsets );
-        const int totalRecv = Scan( recvCounts, recvOffsets );
+        vector<int> sendOffs, recvOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
+        const int totalRecv = Scan( recvCounts, recvOffs );
         // Pack x
         // ------
-        vector<Int> sSendBuf(totalSend);
-        vector<Real> vSendBuf(totalSend);
-        auto offsets = sendOffsets;
+        vector<ValueInt<Real>> sendBuf(totalSend);
+        auto offs = sendOffs;
         for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
         {
             const Int i = xHat.GlobalRow(iLoc);
             if( i < n )
             {
                 const int owner = x.RowOwner(i);
-                sSendBuf[offsets[owner]] = i;
-                vSendBuf[offsets[owner]] = xHat.GetLocal(iLoc,0);
-                ++offsets[owner];
+                sendBuf[offs[owner]].index = i;
+                sendBuf[offs[owner]].value = xHat.GetLocal(iLoc,0);
+                ++offs[owner];
             }
             else
                 break;
         }
         // Redistribute
         // ------------
-        vector<Int> sRecvBuf(totalRecv);
-        vector<Real> vRecvBuf(totalRecv);
+        vector<ValueInt<Real>> recvBuf(totalRecv);
         mpi::AllToAll
-        ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-          sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-        mpi::AllToAll
-        ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-          vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+        ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
         // Unpack
         // ------
         for( Int e=0; e<totalRecv; ++e )
-            x.SetLocal( sRecvBuf[e]-x.FirstLocalRow(), 0, vRecvBuf[e] );
+            x.SetLocal
+            ( recvBuf[e].index-x.FirstLocalRow(), 0, recvBuf[e].value );
     }
 }
 

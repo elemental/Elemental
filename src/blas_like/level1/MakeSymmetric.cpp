@@ -157,15 +157,14 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
 
     // Convert the send/recv counts into offsets and total sizes
     // =========================================================
-    vector<int> sendOffsets, recvOffsets;
-    const int totalSend = Scan( sendCounts, sendOffsets );
-    const int totalRecv = Scan( recvCounts, recvOffsets );
+    vector<int> sendOffs, recvOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
+    const int totalRecv = Scan( recvCounts, recvOffs );
 
     // Pack the triplets
     // =================
-    vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
-    vector<T> vSendBuf(totalSend);
-    auto offsets = sendOffsets;
+    vector<ValueIntPair<T>> sendBuf(totalSend);
+    auto offs = sendOffs;
     for( Int k=0; k<numLocalEntries; ++k )
     {
         const Int i = sBuf[k];
@@ -173,34 +172,25 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
         if( (uplo == LOWER && i > j) || (uplo == UPPER && i < j) )
         {
             const int owner = A.RowOwner(j);
-            const Int s = offsets[owner];
-            sSendBuf[s] = j;
-            tSendBuf[s] = i;
-            if( conjugate )
-                vSendBuf[s] = Conj(vBuf[k]);
-            else
-                vSendBuf[s] = vBuf[k];
-            ++offsets[owner];
+            const Int s = offs[owner];
+            sendBuf[s].indices[0] = j;
+            sendBuf[s].indices[1] = i;
+            sendBuf[s].value = ( conjugate ? Conj(vBuf[k]) : vBuf[k] );
+            ++offs[owner];
         }
     }
 
     // Exchange and unpack the triplets
     // ================================
-    vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
-    vector<T> vRecvBuf(totalRecv);
+    vector<ValueIntPair<T>> recvBuf(totalRecv);
     mpi::AllToAll
-    ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-    mpi::AllToAll
-    ( tSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      tRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-    mpi::AllToAll
-    ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
     A.Reserve( A.NumLocalEntries()+totalRecv );
     for( Int k=0; k<totalRecv; ++k )
         A.QueueLocalUpdate
-        ( sRecvBuf[k]-A.FirstLocalRow(), tRecvBuf[k], vRecvBuf[k] );
+        ( recvBuf[k].indices[0]-A.FirstLocalRow(), recvBuf[k].indices[1], 
+          recvBuf[k].value );
     A.MakeConsistent();
 }
 

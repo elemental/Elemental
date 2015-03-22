@@ -179,7 +179,8 @@ EL_EXPORT ElError ElLSEDist_z
 
 /* Ridge regression
    ---------------- */
-/* NOTE: This is simply Tikhonov regularization with Gamma = alpha I */
+/* Ridge regression is a special case of Tikhonov regularization with 
+   the regularization matrix equal to gamma I */
 
 typedef enum {
   EL_RIDGE_CHOLESKY,
@@ -188,47 +189,97 @@ typedef enum {
 } ElRidgeAlg;
 
 EL_EXPORT ElError ElRidge_s
-( ElConstMatrix_s A, ElConstMatrix_s B, float alpha, ElMatrix_s X,
+( ElOrientation orientation,
+  ElConstMatrix_s A, ElConstMatrix_s B, 
+  float gamma,       ElMatrix_s X,
   ElRidgeAlg alg );
 EL_EXPORT ElError ElRidge_d
-( ElConstMatrix_d A, ElConstMatrix_d B, double alpha, ElMatrix_d X,
+( ElOrientation orientation,
+  ElConstMatrix_d A, ElConstMatrix_d B, 
+  double gamma,      ElMatrix_d X,
   ElRidgeAlg alg );
 EL_EXPORT ElError ElRidge_c
-( ElConstMatrix_c A, ElConstMatrix_c B, float alpha, ElMatrix_c X,
+( ElOrientation orientation,
+  ElConstMatrix_c A, ElConstMatrix_c B, 
+  float gamma,       ElMatrix_c X,
   ElRidgeAlg alg );
 EL_EXPORT ElError ElRidge_z
-( ElConstMatrix_z A, ElConstMatrix_z B, double alpha, ElMatrix_z X,
+( ElOrientation orientation,
+  ElConstMatrix_z A, ElConstMatrix_z B, 
+  double gamma,      ElMatrix_z X,
   ElRidgeAlg alg );
 
 EL_EXPORT ElError ElRidgeDist_s
-( ElConstDistMatrix_s A, ElConstDistMatrix_s B, float alpha, 
-  ElDistMatrix_s X, ElRidgeAlg alg );
+( ElOrientation orientation,
+  ElConstDistMatrix_s A, ElConstDistMatrix_s B, 
+  float gamma,           ElDistMatrix_s X, 
+  ElRidgeAlg alg );
 EL_EXPORT ElError ElRidgeDist_d
-( ElConstDistMatrix_d A, ElConstDistMatrix_d B, double alpha, 
-  ElDistMatrix_d X, ElRidgeAlg alg );
+( ElOrientation orientation,
+  ElConstDistMatrix_d A, ElConstDistMatrix_d B, 
+  double gamma,          ElDistMatrix_d X, 
+  ElRidgeAlg alg );
 EL_EXPORT ElError ElRidgeDist_c
-( ElConstDistMatrix_c A, ElConstDistMatrix_c B, float alpha, 
-  ElDistMatrix_c X, ElRidgeAlg alg );
+( ElOrientation orientation,
+  ElConstDistMatrix_c A, ElConstDistMatrix_c B, 
+  float gamma,           ElDistMatrix_c X, 
+  ElRidgeAlg alg );
 EL_EXPORT ElError ElRidgeDist_z
-( ElConstDistMatrix_z A, ElConstDistMatrix_z B, double alpha, 
-  ElDistMatrix_z X, ElRidgeAlg alg );
+( ElOrientation orientation,
+  ElConstDistMatrix_z A, ElConstDistMatrix_z B, 
+  double gamma,          ElDistMatrix_z X, 
+  ElRidgeAlg alg );
+
+EL_EXPORT ElError ElRidgeSparse_s
+( ElOrientation orientation,
+  ElConstSparseMatrix_s A, ElConstMatrix_s B,
+  float gamma,             ElMatrix_s X );
+EL_EXPORT ElError ElRidgeSparse_d
+( ElOrientation orientation,
+  ElConstSparseMatrix_d A, ElConstMatrix_d B,
+  double gamma,            ElMatrix_d X );
+EL_EXPORT ElError ElRidgeSparse_c
+( ElOrientation orientation,
+  ElConstSparseMatrix_c A, ElConstMatrix_c B,
+  float gamma,             ElMatrix_c X );
+EL_EXPORT ElError ElRidgeSparse_z
+( ElOrientation orientation,
+  ElConstSparseMatrix_z A, ElConstMatrix_z B,
+  double gamma,            ElMatrix_z X );
 
 EL_EXPORT ElError ElRidgeDistSparse_s
-( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s Y,
-  float alpha, ElDistMultiVec_s X );
+( ElOrientation orientation,
+  ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s B,
+  float gamma,                 ElDistMultiVec_s X );
 EL_EXPORT ElError ElRidgeDistSparse_d
-( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d Y,
-  double alpha, ElDistMultiVec_d X );
+( ElOrientation orientation,
+  ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d B,
+  double gamma,                ElDistMultiVec_d X );
 EL_EXPORT ElError ElRidgeDistSparse_c
-( ElConstDistSparseMatrix_c A, ElConstDistMultiVec_c Y,
-  float alpha, ElDistMultiVec_c X );
+( ElOrientation orientation,
+  ElConstDistSparseMatrix_c A, ElConstDistMultiVec_c B,
+  float gamma,                 ElDistMultiVec_c X );
 EL_EXPORT ElError ElRidgeDistSparse_z
-( ElConstDistSparseMatrix_z A, ElConstDistMultiVec_z Y,
-  double alpha, ElDistMultiVec_z X );
+( ElOrientation orientation,
+  ElConstDistSparseMatrix_z A, ElConstDistMultiVec_z B,
+  double gamma,                ElDistMultiVec_z X );
 
 /* Tikhonov regularization
    ----------------------- */
-/* Solve min_X || op(A) X - B ||_2^2 + || Gamma X ||_2^2 */
+/* Defining W = op(A), where op(A) is either A, A^T, or A^H, Tikhonov
+   regularization involves the solution of either
+
+   Regularized Least Squares:
+
+     min_X || [W; G] X - [B; 0] ||_F^2
+
+   or
+
+   Regularized Minimum Length:
+
+     min_{X,S} || [X, S] ||_F^
+     s.t.      [W, G] [X; S] = B.
+*/
 
 typedef enum {
   EL_TIKHONOV_CHOLESKY,
@@ -236,43 +287,80 @@ typedef enum {
 } ElTikhonovAlg;
 
 EL_EXPORT ElError ElTikhonov_s
-( ElConstMatrix_s A, ElConstMatrix_s B, ElConstMatrix_s Gamma, ElMatrix_s X, 
+( ElOrientation orientation,
+  ElConstMatrix_s A, ElConstMatrix_s B, 
+  ElConstMatrix_s G, ElMatrix_s X, 
   ElTikhonovAlg alg );
 EL_EXPORT ElError ElTikhonov_d
-( ElConstMatrix_d A, ElConstMatrix_d B, ElConstMatrix_d Gamma, ElMatrix_d X, 
+( ElOrientation orientation,
+  ElConstMatrix_d A, ElConstMatrix_d B, 
+  ElConstMatrix_d G, ElMatrix_d X, 
   ElTikhonovAlg alg );
 EL_EXPORT ElError ElTikhonov_c
-( ElConstMatrix_c A, ElConstMatrix_c B, ElConstMatrix_c Gamma, ElMatrix_c X, 
+( ElOrientation orientation,
+  ElConstMatrix_c A, ElConstMatrix_c B, 
+  ElConstMatrix_c G, ElMatrix_c X, 
   ElTikhonovAlg alg );
 EL_EXPORT ElError ElTikhonov_z
-( ElConstMatrix_z A, ElConstMatrix_z B, ElConstMatrix_z Gamma, ElMatrix_z X, 
+( ElOrientation orientation,
+  ElConstMatrix_z A, ElConstMatrix_z B, 
+  ElConstMatrix_z G, ElMatrix_z X, 
   ElTikhonovAlg alg );
 
 EL_EXPORT ElError ElTikhonovDist_s
-( ElConstDistMatrix_s A, ElConstDistMatrix_s B, ElConstDistMatrix_s Gamma, 
-  ElDistMatrix_s X, ElTikhonovAlg alg );
+( ElOrientation orientation,
+  ElConstDistMatrix_s A, ElConstDistMatrix_s B, 
+  ElConstDistMatrix_s G, ElDistMatrix_s X, 
+  ElTikhonovAlg alg );
 EL_EXPORT ElError ElTikhonovDist_d
-( ElConstDistMatrix_d A, ElConstDistMatrix_d B, ElConstDistMatrix_d Gamma, 
-  ElDistMatrix_d X, ElTikhonovAlg alg );
+( ElOrientation orientation,
+  ElConstDistMatrix_d A, ElConstDistMatrix_d B, 
+  ElConstDistMatrix_d G, ElDistMatrix_d X, 
+  ElTikhonovAlg alg );
 EL_EXPORT ElError ElTikhonovDist_c
-( ElConstDistMatrix_c A, ElConstDistMatrix_c B, ElConstDistMatrix_c Gamma, 
-  ElDistMatrix_c X, ElTikhonovAlg alg );
+( ElOrientation orientation,
+  ElConstDistMatrix_c A, ElConstDistMatrix_c B, 
+  ElConstDistMatrix_c G, ElDistMatrix_c X, 
+  ElTikhonovAlg alg );
 EL_EXPORT ElError ElTikhonovDist_z
-( ElConstDistMatrix_z A, ElConstDistMatrix_z B, ElConstDistMatrix_z Gamma, 
-  ElDistMatrix_z X, ElTikhonovAlg alg );
+( ElOrientation orientation,
+  ElConstDistMatrix_z A, ElConstDistMatrix_z B, 
+  ElConstDistMatrix_z G, ElDistMatrix_z X, 
+  ElTikhonovAlg alg );
+
+EL_EXPORT ElError ElTikhonovSparse_s
+( ElOrientation orientation,
+  ElConstSparseMatrix_s A, ElConstMatrix_s B,
+  ElConstSparseMatrix_s G, ElMatrix_s X );
+EL_EXPORT ElError ElTikhonovSparse_d
+( ElOrientation orientation,
+  ElConstSparseMatrix_d A, ElConstMatrix_d B,
+  ElConstSparseMatrix_d G, ElMatrix_d X );
+EL_EXPORT ElError ElTikhonovSparse_c
+( ElOrientation orientation,
+  ElConstSparseMatrix_c A, ElConstMatrix_c B,
+  ElConstSparseMatrix_c G, ElMatrix_c X );
+EL_EXPORT ElError ElTikhonovSparse_z
+( ElOrientation orientation,
+  ElConstSparseMatrix_z A, ElConstMatrix_z B,
+  ElConstSparseMatrix_z G, ElMatrix_z X );
 
 EL_EXPORT ElError ElTikhonovDistSparse_s
-( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s Y,
-  ElConstDistSparseMatrix_s Gamma, ElDistMultiVec_s X );
+( ElOrientation orientation,
+  ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s B,
+  ElConstDistSparseMatrix_s G, ElDistMultiVec_s X );
 EL_EXPORT ElError ElTikhonovDistSparse_d
-( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d Y,
-  ElConstDistSparseMatrix_d Gamma, ElDistMultiVec_d X );
+( ElOrientation orientation,
+  ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d B,
+  ElConstDistSparseMatrix_d G, ElDistMultiVec_d X );
 EL_EXPORT ElError ElTikhonovDistSparse_c
-( ElConstDistSparseMatrix_c A, ElConstDistMultiVec_c Y,
-  ElConstDistSparseMatrix_c Gamma, ElDistMultiVec_c X );
+( ElOrientation orientation,
+  ElConstDistSparseMatrix_c A, ElConstDistMultiVec_c B,
+  ElConstDistSparseMatrix_c G, ElDistMultiVec_c X );
 EL_EXPORT ElError ElTikhonovDistSparse_z
-( ElConstDistSparseMatrix_z A, ElConstDistMultiVec_z Y,
-  ElConstDistSparseMatrix_z Gamma, ElDistMultiVec_z X );
+( ElOrientation orientation,
+  ElConstDistSparseMatrix_z A, ElConstDistMultiVec_z B,
+  ElConstDistSparseMatrix_z G, ElDistMultiVec_z X );
 
 #ifdef __cplusplus
 } // extern "C"

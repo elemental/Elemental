@@ -29,5 +29,9 @@ apt-get install -y cmake
 apt-get install -y git
 
 # Check out Elemental
-git clone --recursive http://github.com/elemental/Elemental.git
+git clone --recursive https://github.com/elemental/Elemental
 chown -R vagrant Elemental
+
+# Check out ScaLAPACK
+git clone https://github.com/poulson/scalapack
+chown -R vagrant scalapack

@@ -254,15 +254,14 @@ void KKT
     // ----------------------------------------------------------------
     vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    vector<int> sendOffsets, recvOffsets;
-    const int totalSend = Scan( sendCounts, sendOffsets );
-    const int totalRecv = Scan( recvCounts, recvOffsets );
+    vector<int> sendOffs, recvOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
+    const int totalRecv = Scan( recvCounts, recvOffs );
 
     // Pack the triplets
     // =================
-    vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
-    vector<Real> vSendBuf(totalSend);
-    auto offsets = sendOffsets;
+    vector<ValueIntPair<Real>> sendBuf(totalSend);
+    auto offs = sendOffs;
     // Pack Q
     // ------
     for( Int e=0; e<Q.NumLocalEntries(); ++e )
@@ -273,10 +272,10 @@ void KKT
         {
             const Real value = Q.Value(e);
             const int owner = J.RowOwner(i);
-            sSendBuf[offsets[owner]] = i; 
-            tSendBuf[offsets[owner]] = j;
-            vSendBuf[offsets[owner]] = value;
-            ++offsets[owner];
+            sendBuf[offs[owner]].indices[0] = i; 
+            sendBuf[offs[owner]].indices[1] = j;
+            sendBuf[offs[owner]].value = value;
+            ++offs[owner];
         }
     }
     // Pack A
@@ -287,10 +286,10 @@ void KKT
         const Int j = A.Col(e);
         const Real value = A.Value(e);
         const int owner = J.RowOwner(i);
-        sSendBuf[offsets[owner]] = i;
-        tSendBuf[offsets[owner]] = j;
-        vSendBuf[offsets[owner]] = value;
-        ++offsets[owner];
+        sendBuf[offs[owner]].indices[0] = i;
+        sendBuf[offs[owner]].indices[1] = j;
+        sendBuf[offs[owner]].value = value;
+        ++offs[owner];
     }
     // Pack A^T
     // --------
@@ -302,10 +301,10 @@ void KKT
             const Int j = ATrans.Col(e) + n;
             const Real value = ATrans.Value(e);
             const int owner = J.RowOwner(i);
-            sSendBuf[offsets[owner]] = i;
-            tSendBuf[offsets[owner]] = j;
-            vSendBuf[offsets[owner]] = value;
-            ++offsets[owner];
+            sendBuf[offs[owner]].indices[0] = i;
+            sendBuf[offs[owner]].indices[1] = j;
+            sendBuf[offs[owner]].value = value;
+            ++offs[owner];
         }
     }
     // Pack -z <> x
@@ -316,25 +315,18 @@ void KKT
         const Int j = i;
         const Real value = -x.GetLocal(iLoc,0)/z.GetLocal(iLoc,0);
         const int owner = J.RowOwner(i);
-        sSendBuf[offsets[owner]] = i;
-        tSendBuf[offsets[owner]] = j;
-        vSendBuf[offsets[owner]] = value;
-        ++offsets[owner];
+        sendBuf[offs[owner]].indices[0] = i;
+        sendBuf[offs[owner]].indices[1] = j;
+        sendBuf[offs[owner]].value = value;
+        ++offs[owner];
     }
 
     // Exchange the triplets
     // =====================
-    vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
-    vector<Real> vRecvBuf(totalRecv);
+    vector<ValueIntPair<Real>> recvBuf(totalRecv);
     mpi::AllToAll
-    ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-    mpi::AllToAll
-    ( tSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      tRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-    mpi::AllToAll
-    ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
 
     // Unpack the triplets
     // ===================
@@ -366,7 +358,8 @@ void KKT
     // ---------------------------------
     for( Int e=0; e<totalRecv; ++e )
         J.QueueLocalUpdate
-        ( sRecvBuf[e]-J.FirstLocalRow(), tRecvBuf[e], vRecvBuf[e] );
+        ( recvBuf[e].indices[0]-J.FirstLocalRow(), recvBuf[e].indices[1], 
+          recvBuf[e].value );
     J.MakeConsistent();
 }
 
@@ -448,55 +441,51 @@ void KKTRHS
         ++sendCounts[ d.RowOwner( n+m + rmu.GlobalRow(iLoc) ) ];
     vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    vector<int> sendOffsets, recvOffsets;
-    const int totalSend = Scan( sendCounts, sendOffsets );
-    const int totalRecv = Scan( recvCounts, recvOffsets );
+    vector<int> sendOffs, recvOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
+    const int totalRecv = Scan( recvCounts, recvOffs );
 
     // Pack the doublets
     // =================
-    vector<Int> sSendBuf(totalSend);
-    vector<Real> vSendBuf(totalSend);
-    auto offsets = sendOffsets;
+    vector<ValueInt<Real>> sendBuf(totalSend);
+    auto offs = sendOffs;
     for( Int iLoc=0; iLoc<rc.LocalHeight(); ++iLoc )
     {
         const Int i = rc.GlobalRow(iLoc);
         const Real value = -rc.GetLocal(iLoc,0);
         const int owner = d.RowOwner(i);
-        sSendBuf[offsets[owner]] = i;
-        vSendBuf[offsets[owner]] = value;
-        ++offsets[owner];
+        sendBuf[offs[owner]].index = i;
+        sendBuf[offs[owner]].value = value;
+        ++offs[owner];
     }
     for( Int iLoc=0; iLoc<rb.LocalHeight(); ++iLoc )
     {
         const Int i = n + rb.GlobalRow(iLoc);
         const Real value = -rb.GetLocal(iLoc,0);
         const int owner = d.RowOwner(i);
-        sSendBuf[offsets[owner]] = i;
-        vSendBuf[offsets[owner]] = value;
-        ++offsets[owner];
+        sendBuf[offs[owner]].index = i;
+        sendBuf[offs[owner]].value = value;
+        ++offs[owner];
     }
     for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
     {
         const Int i = n+m + rmu.GlobalRow(iLoc);
         const Real value = rmu.GetLocal(iLoc,0)/z.GetLocal(iLoc,0);
         const int owner = d.RowOwner(i);
-        sSendBuf[offsets[owner]] = i;
-        vSendBuf[offsets[owner]] = value;
-        ++offsets[owner];
+        sendBuf[offs[owner]].index = i;
+        sendBuf[offs[owner]].value = value;
+        ++offs[owner];
     }
 
     // Exchange and unpack the doublets
     // ================================
-    vector<Int> sRecvBuf(totalRecv);
-    vector<Real> vRecvBuf(totalRecv);
+    vector<ValueInt<Real>> recvBuf(totalRecv);
     mpi::AllToAll
-    ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-    mpi::AllToAll
-    ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
     for( Int e=0; e<totalRecv; ++e )
-        d.UpdateLocal( sRecvBuf[e]-d.FirstLocalRow(), 0, vRecvBuf[e] );
+        d.UpdateLocal
+        ( recvBuf[e].index-d.FirstLocalRow(), 0, recvBuf[e].value );
 }
 
 template<typename Real>

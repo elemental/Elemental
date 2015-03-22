@@ -16,14 +16,16 @@ namespace {
 El::mpi::Datatype QuadType, QuadComplexType;
 #endif
 
-El::mpi::Datatype IntIntType, floatIntType, doubleIntType;
+El::mpi::Datatype IntIntType, floatIntType, doubleIntType,
+                  floatComplexIntType, doubleComplexIntType;
 #ifdef EL_HAVE_QUAD
-El::mpi::Datatype QuadIntType;
+El::mpi::Datatype QuadIntType, QuadComplexIntType;
 #endif
 
-El::mpi::Datatype IntIntPairType, floatIntPairType, doubleIntPairType;
+El::mpi::Datatype IntIntPairType, floatIntPairType, doubleIntPairType,
+                  floatComplexIntPairType, doubleComplexIntPairType;
 #ifdef EL_HAVE_QUAD
-El::mpi::Datatype QuadIntPairType;
+El::mpi::Datatype QuadIntPairType, QuadComplexIntPairType;
 #endif
 
 // Operations
@@ -230,6 +232,14 @@ Datatype& ValueIntType<double>() { return ::doubleIntType; }
 template<>
 Datatype& ValueIntType<Quad>()   { return ::QuadIntType; }
 #endif
+template<>
+Datatype& ValueIntType<Complex<float>>()  { return ::floatComplexIntType; }
+template<>
+Datatype& ValueIntType<Complex<double>>() { return ::doubleComplexIntType; }
+#ifdef EL_HAVE_QUAD
+template<>
+Datatype& ValueIntType<Complex<Quad>>()   { return ::QuadComplexIntType; }
+#endif
 
 template<typename R> static Datatype& ValueIntPairType();
 template<>
@@ -241,6 +251,17 @@ Datatype& ValueIntPairType<double>() { return ::doubleIntPairType; }
 #ifdef EL_HAVE_QUAD
 template<>
 Datatype& ValueIntPairType<Quad>()   { return ::QuadIntPairType; }
+#endif
+template<>
+Datatype& ValueIntPairType<Complex<float>>()
+{ return ::floatComplexIntPairType; }
+template<>
+Datatype& ValueIntPairType<Complex<double>>() 
+{ return ::doubleComplexIntPairType; }
+#ifdef EL_HAVE_QUAD
+template<>
+Datatype& ValueIntPairType<Complex<Quad>>() 
+{ return ::QuadComplexIntPairType; }
 #endif
 
 template<> Datatype TypeMap<byte>()          { return MPI_UNSIGNED_CHAR; }
@@ -290,6 +311,14 @@ template<> Datatype TypeMap<ValueInt<double>>()
 template<> Datatype TypeMap<ValueInt<Quad>>()
 { return ValueIntType<Quad>(); }
 #endif
+template<> Datatype TypeMap<ValueInt<Complex<float>>>()
+{ return ValueIntType<Complex<float>>(); }
+template<> Datatype TypeMap<ValueInt<Complex<double>>>()
+{ return ValueIntType<Complex<double>>(); }
+#ifdef EL_HAVE_QUAD
+template<> Datatype TypeMap<ValueInt<Complex<Quad>>>()
+{ return ValueIntType<Complex<Quad>>(); }
+#endif
 
 template<> Datatype TypeMap<ValueIntPair<Int>>()
 { return ValueIntPairType<Int>(); }
@@ -300,6 +329,14 @@ template<> Datatype TypeMap<ValueIntPair<double>>()
 #ifdef EL_HAVE_QUAD
 template<> Datatype TypeMap<ValueIntPair<Quad>>()
 { return ValueIntPairType<Quad>(); }
+#endif
+template<> Datatype TypeMap<ValueIntPair<Complex<float>>>()
+{ return ValueIntPairType<Complex<float>>(); }
+template<> Datatype TypeMap<ValueIntPair<Complex<double>>>()
+{ return ValueIntPairType<Complex<double>>(); }
+#ifdef EL_HAVE_QUAD
+template<> Datatype TypeMap<ValueIntPair<Complex<Quad>>>()
+{ return ValueIntPairType<Complex<Quad>>(); }
 #endif
 
 template<typename T>
@@ -334,6 +371,11 @@ template void CreateValueIntType<double>();
 #ifdef EL_HAVE_QUAD
 template void CreateValueIntType<Quad>();
 #endif
+template void CreateValueIntType<Complex<float>>();
+template void CreateValueIntType<Complex<double>>();
+#ifdef EL_HAVE_QUAD
+template void CreateValueIntType<Complex<Quad>>();
+#endif
 
 template<typename T>
 static void CreateValueIntPairType()
@@ -367,6 +409,11 @@ template void CreateValueIntPairType<double>();
 #ifdef EL_HAVE_QUAD
 template void CreateValueIntPairType<Quad>();
 #endif
+template void CreateValueIntPairType<Complex<float>>();
+template void CreateValueIntPairType<Complex<double>>();
+#ifdef EL_HAVE_QUAD
+template void CreateValueIntPairType<Complex<Quad>>();
+#endif
 
 void CreateCustom()
 {
@@ -391,6 +438,11 @@ void CreateCustom()
 #ifdef EL_HAVE_QUAD
     mpi::CreateValueIntType<Quad>();
 #endif
+    mpi::CreateValueIntType<Complex<float>>();
+    mpi::CreateValueIntType<Complex<double>>();
+#ifdef EL_HAVE_QUAD
+    mpi::CreateValueIntType<Complex<Quad>>();
+#endif
     // A triplet of a value and a pair of integers
     // -------------------------------------------
     mpi::CreateValueIntPairType<Int>();
@@ -398,6 +450,11 @@ void CreateCustom()
     mpi::CreateValueIntPairType<double>();
 #ifdef EL_HAVE_QUAD
     mpi::CreateValueIntPairType<Quad>();
+#endif
+    mpi::CreateValueIntPairType<Complex<float>>();
+    mpi::CreateValueIntPairType<Complex<double>>();
+#ifdef EL_HAVE_QUAD
+    mpi::CreateValueIntPairType<Complex<Quad>>();
 #endif
 
     // Create the necessary MPI operations
@@ -451,12 +508,22 @@ void DestroyCustom()
 #ifdef EL_HAVE_QUAD
     Free( ValueIntType<Quad>() );
 #endif
+    Free( ValueIntType<Complex<float>>() );
+    Free( ValueIntType<Complex<double>>() );
+#ifdef EL_HAVE_QUAD
+    Free( ValueIntType<Complex<Quad>>() );
+#endif
 
     Free( ValueIntPairType<Int>() );
     Free( ValueIntPairType<float>() );
     Free( ValueIntPairType<double>() );
 #ifdef EL_HAVE_QUAD
     Free( ValueIntPairType<Quad>() );
+#endif
+    Free( ValueIntPairType<Complex<float>>() );
+    Free( ValueIntPairType<Complex<double>>() );
+#ifdef EL_HAVE_QUAD
+    Free( ValueIntPairType<Complex<Quad>>() );
 #endif
 
     // Destroy the created operations

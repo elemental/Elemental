@@ -175,6 +175,47 @@ void ColumnNorms
 ( const DistMultiVec<Real>& XReal, const DistMultiVec<Real>& XImag, 
   Matrix<Real>& norms );
 
+// Concatenation
+// =============
+
+// Horizontal concatenation: C := [A, B]
+// -------------------------------------
+template<typename T>
+void HCat
+( const Matrix<T>& A, const Matrix<T>& B, 
+        Matrix<T>& C );
+template<typename T>
+void HCat
+( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, 
+        AbstractDistMatrix<T>& C );
+template<typename T>
+void HCat
+( const SparseMatrix<T>& A, const SparseMatrix<T>& B, 
+        SparseMatrix<T>& C );
+template<typename T>
+void HCat
+( const DistSparseMatrix<T>& A, const DistSparseMatrix<T>& B, 
+        DistSparseMatrix<T>& C );
+
+// Vertical concatenation: C := [A; B]
+// -----------------------------------
+template<typename T>
+void VCat
+( const Matrix<T>& A, const Matrix<T>& B, 
+        Matrix<T>& C );
+template<typename T>
+void VCat
+( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, 
+        AbstractDistMatrix<T>& C );
+template<typename T>
+void VCat
+( const SparseMatrix<T>& A, const SparseMatrix<T>& B, 
+        SparseMatrix<T>& C );
+template<typename T>
+void VCat
+( const DistSparseMatrix<T>& A, const DistSparseMatrix<T>& B, 
+        DistSparseMatrix<T>& C );
+
 // Conjugate
 // =========
 template<typename Real>

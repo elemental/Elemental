@@ -98,38 +98,67 @@ ElError ElLeastSquaresCtrlDefault_d( ElLeastSquaresCtrl_d* ctrl )
   /* Ridge regression
      ---------------- */ \
   ElError ElRidge_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
-    Base<F> alpha, ElMatrix_ ## SIG X, ElRidgeAlg alg ) \
-  { EL_TRY( Ridge( *CReflect(A), *CReflect(B), \
-                   alpha, *CReflect(X), CReflect(alg) ) ) } \
+  ( ElOrientation orientation, \
+    ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
+    Base<F> gamma,           ElMatrix_ ## SIG X, \
+    ElRidgeAlg alg ) \
+  { EL_TRY( Ridge( CReflect(orientation), \
+                   *CReflect(A), *CReflect(B), \
+                   gamma,        *CReflect(X), CReflect(alg) ) ) } \
   ElError ElRidgeDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
-    Base<F> alpha, ElDistMatrix_ ## SIG X, ElRidgeAlg alg ) \
-  { EL_TRY( Ridge( *CReflect(A), *CReflect(B), \
-                   alpha, *CReflect(X), CReflect(alg) ) ) } \
+  ( ElOrientation orientation, \
+    ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
+    Base<F> gamma,               ElDistMatrix_ ## SIG X, \
+    ElRidgeAlg alg ) \
+  { EL_TRY( Ridge( CReflect(orientation), \
+                   *CReflect(A), *CReflect(B), \
+                   gamma,        *CReflect(X), CReflect(alg) ) ) } \
+  ElError ElRidgeSparse_ ## SIG \
+  ( ElOrientation orientation, \
+    ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
+    Base<F> gamma,                 ElMatrix_ ## SIG X ) \
+  { EL_TRY( Ridge( CReflect(orientation), \
+                   *CReflect(A), *CReflect(B), \
+                   gamma,        *CReflect(X) ) ) } \
   ElError ElRidgeDistSparse_ ## SIG \
-  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG X, \
-    Base<F> alpha, ElDistMultiVec_ ## SIG Y ) \
-  { EL_TRY( Ridge( *CReflect(A), *CReflect(X), alpha, *CReflect(Y) ) ) } \
+  ( ElOrientation orientation, \
+    ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG B, \
+    Base<F> gamma,                     ElDistMultiVec_ ## SIG X ) \
+  { EL_TRY( Ridge( CReflect(orientation), \
+                   *CReflect(A), *CReflect(B), \
+                   gamma,        *CReflect(X) ) ) } \
   /* Tikhonov regularization
      ----------------------- */ \
   ElError ElTikhonov_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
-    ElConstMatrix_ ## SIG Gamma, ElMatrix_ ## SIG X, \
+  ( ElOrientation orientation, \
+    ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
+    ElConstMatrix_ ## SIG G, ElMatrix_ ## SIG X, \
     ElTikhonovAlg alg ) \
-  { EL_TRY( Tikhonov( *CReflect(A), *CReflect(B), \
-                      *CReflect(Gamma), *CReflect(X), CReflect(alg) ) ) } \
+  { EL_TRY( Tikhonov( CReflect(orientation), \
+                      *CReflect(A), *CReflect(B), \
+                      *CReflect(G), *CReflect(X), CReflect(alg) ) ) } \
   ElError ElTikhonovDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
-    ElConstDistMatrix_ ## SIG Gamma, ElDistMatrix_ ## SIG X, \
+  ( ElOrientation orientation, \
+    ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
+    ElConstDistMatrix_ ## SIG G, ElDistMatrix_ ## SIG X, \
     ElTikhonovAlg alg ) \
-  { EL_TRY( Tikhonov( *CReflect(A), *CReflect(B), \
-                      *CReflect(Gamma), *CReflect(X), CReflect(alg) ) ) } \
+  { EL_TRY( Tikhonov( CReflect(orientation), \
+                      *CReflect(A), *CReflect(B), \
+                      *CReflect(G), *CReflect(X), CReflect(alg) ) ) } \
+  ElError ElTikhonovSparse_ ## SIG \
+  ( ElOrientation orientation, \
+    ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
+    ElConstSparseMatrix_ ## SIG G, ElMatrix_ ## SIG X ) \
+  { EL_TRY( Tikhonov( CReflect(orientation), \
+                      *CReflect(A), *CReflect(B), \
+                      *CReflect(G), *CReflect(X) ) ) } \
   ElError ElTikhonovDistSparse_ ## SIG \
-  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG X, \
-    ElConstDistSparseMatrix_ ## SIG Gamma, ElDistMultiVec_ ## SIG Y ) \
-  { EL_TRY( Tikhonov( *CReflect(A), *CReflect(X), *CReflect(Gamma), \
-                      *CReflect(Y) ) ) }
+  ( ElOrientation orientation, \
+    ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG B, \
+    ElConstDistSparseMatrix_ ## SIG G, ElDistMultiVec_ ## SIG X ) \
+  { EL_TRY( Tikhonov( CReflect(orientation), \
+                      *CReflect(A), *CReflect(B), \
+                      *CReflect(G), *CReflect(X) ) ) }
 
 #define EL_NO_INT_PROTO
 #include "El/macros/CInstantiate.h"

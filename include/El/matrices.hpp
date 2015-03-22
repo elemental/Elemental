@@ -420,6 +420,10 @@ template<typename T>
 void Identity( AbstractDistMatrix<T>& I, Int m, Int n );
 template<typename T> 
 void Identity( AbstractBlockDistMatrix<T>& I, Int m, Int n );
+template<typename T> 
+void Identity( SparseMatrix<T>& I, Int m, Int n );
+template<typename T> 
+void Identity( DistSparseMatrix<T>& I, Int m, Int n );
 
 // Jordan
 // ======

@@ -60,10 +60,20 @@ struct ValueInt<Complex<Real>>
     Complex<Real> value;
     Int index;
 
-    static bool Lesser( const ValueInt<Real>& a, const ValueInt<Real>& b )
-    { return Abs(a.value) < Abs(b.value); }
-    static bool Greater( const ValueInt<Real>& a, const ValueInt<Real>& b )
-    { return Abs(a.value) > Abs(b.value); }
+    static bool Lesser
+    ( const ValueInt<Complex<Real>>& a, const ValueInt<Complex<Real>>& b )
+    { 
+        return RealPart(a.value) < RealPart(b.value) ||
+               (RealPart(a.value) == RealPart(b.value) && 
+                ImagPart(a.value) < ImagPart(b.value));
+    }
+    static bool Greater
+    ( const ValueInt<Complex<Real>>& a, const ValueInt<Complex<Real>>& b )
+    {
+        return RealPart(a.value) > RealPart(b.value) ||
+               (RealPart(a.value) == RealPart(b.value) && 
+                ImagPart(a.value) > ImagPart(b.value));
+    }
 };
 
 template<typename Real>
@@ -85,11 +95,21 @@ struct ValueIntPair<Complex<Real>>
     Int indices[2];
     
     static bool Lesser
-    ( const ValueIntPair<Real>& a, const ValueIntPair<Real>& b )
-    { return Abs(a.value) < Abs(b.value); }
+    ( const ValueIntPair<Complex<Real>>& a, 
+      const ValueIntPair<Complex<Real>>& b )
+    { 
+        return RealPart(a.value) < RealPart(b.value) ||
+               (RealPart(a.value) == RealPart(b.value) && 
+                ImagPart(a.value) < ImagPart(b.value));
+    }
     static bool Greater
-    ( const ValueIntPair<Real>& a, const ValueIntPair<Real>& b )
-    { return Abs(a.value) > Abs(b.value); }
+    ( const ValueIntPair<Complex<Real>>& a, 
+      const ValueIntPair<Complex<Real>>& b )
+    {
+        return RealPart(a.value) > RealPart(b.value) ||
+               (RealPart(a.value) == RealPart(b.value) && 
+                ImagPart(a.value) > ImagPart(b.value));
+    }
 };
 
 template<typename F>

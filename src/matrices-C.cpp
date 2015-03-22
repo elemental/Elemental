@@ -113,6 +113,12 @@ extern "C" {
   { EL_TRY( Identity( *CReflect(A), m, n ) ) } \
   ElError ElIdentityDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n ) \
   { EL_TRY( Identity( *CReflect(A), m, n ) ) } \
+  ElError ElIdentitySparse_ ## SIG \
+  ( ElSparseMatrix_ ## SIG A, ElInt m, ElInt n ) \
+  { EL_TRY( Identity( *CReflect(A), m, n ) ) } \
+  ElError ElIdentityDistSparse_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG A, ElInt m, ElInt n ) \
+  { EL_TRY( Identity( *CReflect(A), m, n ) ) } \
   /* Jordan */ \
   ElError ElJordan_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt n, CREFLECT(T) lambda ) \

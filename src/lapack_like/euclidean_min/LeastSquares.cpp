@@ -12,8 +12,9 @@ namespace El {
 
 template<typename F> 
 void LeastSquares
-( Orientation orientation, Matrix<F>& A, const Matrix<F>& B, 
-  Matrix<F>& X )
+( Orientation orientation, 
+  Matrix<F>& A, const Matrix<F>& B, 
+                      Matrix<F>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("LeastSquares"))
 
@@ -36,8 +37,9 @@ void LeastSquares
 
 template<typename F> 
 void LeastSquares
-( Orientation orientation, AbstractDistMatrix<F>& APre,
-  const AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& X )
+( Orientation orientation, 
+  AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& B, 
+                                     AbstractDistMatrix<F>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("LeastSquares"))
 
@@ -63,36 +65,36 @@ void LeastSquares
 
 // The following routines solve either
 //
-//   Minimum length: min || X ||_F s.t. op(A) X = B, or
-//   Least squares:  min || op(A) X - B ||_F,
+//   Minimum length: 
+//     min_X || X ||_F 
+//     s.t. W X = B, or
 //
-// where op(A) is either A, A^T, or A^H, via forming a Hermitian 
-// quasi-semidefinite system J D = \hat{B}, where J is 
+//   Least squares:  
+//     min_X || W X - B ||_F,
 //
-//    | alpha*I  A | when height(A) >= width(A), or
-//    | A^H      0 |
-//     
-//    | alpha*I A^H | when height(A) < width(A).
-//    | A        0  |
+// where W=op(A) is either A, A^T, or A^H, via forming a Hermitian 
+// quasi-semidefinite system 
 //
-// When height(op(A)) < width(op(A)), the system
+//    | alpha*I  W | | R/alpha | = | B |,
+//    |   W^H    0 | | X       |   | 0 |
 //
-//     | alpha*I  op(A)^H | | X/alpha | = | 0 |
-//     | op(A)       0    | | Y       |   | B |
+// when height(W) >= width(W), or
 //
-// guarantees that op(A) X = B and X is in range(op(A)^H), which shows that 
-// X solves the minimum length problem. Otherwise, the system
+//    | alpha*I  W^H | | X | = | 0 |,
+//    |   W       0  | | Y |   | B |
 //
-//     | alpha*I  op(A) | | R/alpha | = | B |
-//     | op(A)^H    0   | | X       |   | 0 |
+// when height(W) < width(W).
+//  
+// The latter guarantees that W X = B and X in range(W^H), which shows that 
+// X solves the minimum length problem. The former defines R = B - W X and 
+// ensures that R is in the null-space of W^H (therefore solving the least 
+// squares problem).
 // 
-// guarantees that R = B - op(A) X and R in null(op(A)^H), which is equivalent
-// to solving min || op(A) X - B ||_F.
-//
 // Note that, ideally, alpha is roughly the minimum (nonzero) singular value
-// of A, which implies that the condition number of the quasi-semidefinite
-// system is roughly equal to the condition number of A (see the analysis of
-// Bjorck). A typical choice for alpha, assuming that || A ||_2 ~= 1, is
+// of W, which implies that the condition number of the quasi-semidefinite 
+// system is roughly equal to the condition number of W (see the analysis of 
+// Bjorck). If it is too expensive to estimate the minimum singular value, and 
+// W is equilibrated to have a unit two-norm, a typical choice for alpha is 
 // epsilon^0.25.
 //
 // The Hermitian quasi-semidefinite systems are solved by converting them into
@@ -114,74 +116,58 @@ void LeastSquares
 // iteratively refining *within* the preconditioner was not discussed.
 //
 
+// NOTE: The following routines are implemented as a special case of Tikhonov
+//       regularization with either an m x 0 or 0 x n regularization matrix.
+
+namespace ls {
+
 template<typename F>
-void LeastSquares
-( Orientation orientation,
-  const SparseMatrix<F>& A, const Matrix<F>& B, Matrix<F>& X,
+inline void Equilibrated
+( const SparseMatrix<F>& A,  const Matrix<F>& B, 
+                                   Matrix<F>& X,
+  const Matrix<Base<F>>& dR, const Matrix<Base<F>>& dC,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("LeastSquares");
-      if( orientation == NORMAL && A.Height() != B.Height() )
+      CallStackEntry cse("ls::Equilibrated");
+      if( A.Height() != B.Height() )
           LogicError("Heights of A and B must match");
-      if( orientation != NORMAL && A.Width() != B.Height() )
+      if( A.Width() != B.Height() )
           LogicError("Width of A and height of B must match");
     )
     typedef Base<F> Real;
 
-    SparseMatrix<F> ABar;
-    if( orientation == NORMAL )
-        ABar = A;
-    else if( orientation == TRANSPOSE )
-        Transpose( A, ABar );
-    else
-        Adjoint( A, ABar );
-    auto BBar = B;
-    const Int m = ABar.Height();
-    const Int n = ABar.Width();
-    const Int k = BBar.Width();
-    const Int numEntriesA = ABar.NumEntries();
-
-    // Equilibrate the least squares problem
-    // =====================================
-    Matrix<Real> dRow, dCol;
-    if( ctrl.equilibrate )
-    {
-        GeomEquil( ABar, dRow, dCol, ctrl.progress );
-        DiagonalSolve( LEFT, NORMAL, dRow, BBar );
-    }
-    else
-    {
-        Ones( dRow, m, 1 );
-        Ones( dCol, n, 1 );
-    }
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int k = B.Width();
+    const Int numEntriesA = A.NumEntries();
 
     SparseMatrix<F> J, JOrig;
     Zeros( J, m+n, m+n );
     J.Reserve( 2*numEntriesA + Max(m,n) );
     if( m >= n )
     {
-        // Form J = [D_r^{-2}*alpha, ABar; ABar^H, 0]
-        // ==========================================
+        // Form J = [D_r^{-2}*alpha, A; A^H, 0]
+        // ====================================
         for( Int e=0; e<numEntriesA; ++e )
         {
-            J.QueueUpdate( ABar.Row(e),   ABar.Col(e)+m,      ABar.Value(e)  );
-            J.QueueUpdate( ABar.Col(e)+m, ABar.Row(e),   Conj(ABar.Value(e)) );
+            J.QueueUpdate( A.Row(e),   A.Col(e)+m,      A.Value(e)  );
+            J.QueueUpdate( A.Col(e)+m, A.Row(e),   Conj(A.Value(e)) );
         }
         for( Int e=0; e<m; ++e )
-            J.QueueUpdate( e, e, Pow(dRow.Get(e,0),Real(-2))*ctrl.alpha );
+            J.QueueUpdate( e, e, Pow(dR.Get(e,0),Real(-2))*ctrl.alpha );
     }
     else
     {
-        // Form J = [D_c^{-2}*alpha, ABar^H; ABar, 0]
-        // ==========================================
+        // Form J = [D_c^{-2}*alpha, A^H; A, 0]
+        // ====================================
         for( Int e=0; e<numEntriesA; ++e )
         {
-            J.QueueUpdate( ABar.Col(e),   ABar.Row(e)+n, Conj(ABar.Value(e)) );
-            J.QueueUpdate( ABar.Row(e)+n, ABar.Col(e),        ABar.Value(e)  );
+            J.QueueUpdate( A.Col(e),   A.Row(e)+n, Conj(A.Value(e)) );
+            J.QueueUpdate( A.Row(e)+n, A.Col(e),        A.Value(e)  );
         }
         for( Int e=0; e<n; ++e )
-            J.QueueUpdate( e, e, Pow(dCol.Get(e,0),Real(-2))*ctrl.alpha );
+            J.QueueUpdate( e, e, Pow(dC.Get(e,0),Real(-2))*ctrl.alpha );
     }
     J.MakeConsistent();
 
@@ -189,17 +175,17 @@ void LeastSquares
     Zeros( D, m+n, k );
     if( m >= n )
     {
-        // Form D = [BBar; 0]
+        // Form D = [B; 0]
         // ==================
         auto DT = D( IR(0,m), IR(0,k) );
-        DT = BBar;
+        DT = B;
     }
     else
     {
-        // Form D = [0; BBar]
-        // ==================
+        // Form D = [0; B]
+        // ===============
         auto DB = D( IR(n,m+n), IR(0,k) );
-        DB = BBar;
+        DB = B;
     }
 
     // Compute the regularized quasi-semidefinite fact of J
@@ -238,46 +224,33 @@ void LeastSquares
     Zeros( X, n, k );
     if( m >= n )
     {
-        // Extract XBar from [R; XBar]
+        // Extract X from [R/alpha; X]
         // ===========================
         auto DB = D( IR(m,m+n), IR(0,k) );
         X = DB;
     }
     else
     {
-        // Extract XBar from [XBar/alpha; Y]
-        // =================================
+        // Extract X from [X; Y]
+        // =====================
         auto DT = D( IR(0,n), IR(0,k) );
         X = DT;
-        Scale( ctrl.alpha, X );
     }
-
-    // Unequilibrate the problem
-    // =========================
-    if( ctrl.equilibrate )
-        DiagonalSolve( LEFT, NORMAL, dCol, X );
 }
+
+} // namespace ls
 
 template<typename F>
 void LeastSquares
 ( Orientation orientation,
-  const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, DistMultiVec<F>& X,
+  const SparseMatrix<F>& A, const Matrix<F>& B, 
+                                  Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(
-      CallStackEntry cse("LeastSquares");
-      if( orientation == NORMAL && A.Height() != B.Height() )
-          LogicError("Heights of A and B must match");
-      if( orientation != NORMAL && A.Width() != B.Height() )
-          LogicError("Width of A and height of B must match");
-    )
+    DEBUG_ONLY(CallStackEntry cse("LeastSquares"))
     typedef Base<F> Real;
-    mpi::Comm comm = A.Comm();
-    const int commSize = mpi::Size(comm);
-    const int commRank = mpi::Rank(comm);
-    Timer timer;
 
-    DistSparseMatrix<F> ABar(comm);
+    SparseMatrix<F> ABar;
     if( orientation == NORMAL )
         ABar = A;
     else if( orientation == TRANSPOSE )
@@ -287,173 +260,197 @@ void LeastSquares
     auto BBar = B;
     const Int m = ABar.Height();
     const Int n = ABar.Width();
-    const Int k = B.Width();
 
-    // Equilibrate the problem
-    // =======================
-    DistMultiVec<Real> dRow(comm), dCol(comm);
+    // Equilibrate the least squares problem
+    // =====================================
+    Matrix<Real> dR, dC;
     if( ctrl.equilibrate )
     {
-        if( commRank == 0 && ctrl.time )
-            timer.Start();
-        GeomEquil( ABar, dRow, dCol, ctrl.progress );
-        if( commRank == 0 && ctrl.time )
-            cout << "  GeomEquil: " << timer.Stop() << " secs" << endl;
-        DiagonalSolve( LEFT, NORMAL, dRow, BBar );
+        GeomEquil( ABar, dR, dC, ctrl.progress );
+        DiagonalSolve( LEFT, NORMAL, dR, BBar );
     }
     else
     {
-        Ones( dRow, m, 1 );
-        Ones( dCol, n, 1 );
+        Ones( dR, m, 1 );
+        Ones( dC, n, 1 );
     }
 
-    // J := [D_r^{-2}*alpha,ABar;ABar^H,0] or [D_c^{-2}*alpha,ABar^H;ABar,0]
-    // =====================================================================
+    // Solve the equilibrated least squares problem
+    // ============================================
+    ls::Equilibrated( ABar, BBar, X, dR, dC, ctrl );
+
+    // Unequilibrate the solution
+    // ==========================
+    if( ctrl.equilibrate )
+        DiagonalSolve( LEFT, NORMAL, dC, X );
+}
+
+namespace ls {
+
+template<typename F>
+void Equilibrated
+( const DistSparseMatrix<F>& A,    const DistMultiVec<F>& B, 
+                                         DistMultiVec<F>& X,
+  const DistMultiVec<Base<F>>& dR, const DistMultiVec<Base<F>>& dC,
+  const LeastSquaresCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(
+      CallStackEntry cse("ls::Equilibrated");
+      if( A.Height() != B.Height() )
+          LogicError("Heights of A and B must match");
+      if( A.Width() != B.Height() )
+          LogicError("Width of A and height of B must match");
+    )
+    typedef Base<F> Real;
+    mpi::Comm comm = A.Comm();
+    const int commSize = mpi::Size(comm);
+    const int commRank = mpi::Rank(comm);
+    Timer timer;
+
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int k = B.Width();
+
+    // J := [D_r^{-2}*alpha,A;A^H,0] or [D_c^{-2}*alpha,A^H;A,0]
+    // =========================================================
     DistSparseMatrix<F> J(comm), JOrig(comm);
     Zeros( J, m+n, m+n );
-    const Int numLocalEntriesA = ABar.NumLocalEntries();
+    const Int numLocalEntriesA = A.NumLocalEntries();
     {
         // Compute metadata
         // ----------------
         vector<int> sendCounts(commSize,0);
         for( Int e=0; e<numLocalEntriesA; ++e )
         {
-            const Int i = ABar.Row(e);
-            const Int j = ABar.Col(e);
+            const Int i = A.Row(e);
+            const Int j = A.Col(e);
             if( m >= n )
             {
-                // Sending ABar
+                // Sending A
                 ++sendCounts[ J.RowOwner(i) ];
-                // Sending ABar^H
+                // Sending A^H
                 ++sendCounts[ J.RowOwner(j+m) ];
             }
             else
             {
-                // Sending ABar
+                // Sending A
                 ++sendCounts[ J.RowOwner(i+n) ];
-                // Sending ABar^H
+                // Sending A^H
                 ++sendCounts[ J.RowOwner(j) ];
             }
         }
         if( m >= n )
         {
-            for( Int iLoc=0; iLoc<dRow.LocalHeight(); ++iLoc )
-                ++sendCounts[ J.RowOwner(dRow.GlobalRow(iLoc)) ];
+            for( Int iLoc=0; iLoc<dR.LocalHeight(); ++iLoc )
+                ++sendCounts[ J.RowOwner(dR.GlobalRow(iLoc)) ];
         }
         else
         {
-            for( Int iLoc=0; iLoc<dCol.LocalHeight(); ++iLoc )
-                ++sendCounts[ J.RowOwner(dCol.GlobalRow(iLoc)) ];
+            for( Int iLoc=0; iLoc<dC.LocalHeight(); ++iLoc )
+                ++sendCounts[ J.RowOwner(dC.GlobalRow(iLoc)) ];
         }
         vector<int> recvCounts(commSize);
         mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        vector<int> sendOffsets(commSize), recvOffsets(commSize);
-        const int totalSend = Scan( sendCounts, sendOffsets );
-        const int totalRecv = Scan( recvCounts, recvOffsets );
+        vector<int> sendOffs, recvOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
+        const int totalRecv = Scan( recvCounts, recvOffs );
         // Pack
         // ----
-        vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
-        vector<F> vSendBuf(totalSend);
-        auto offsets = sendOffsets;
+        vector<ValueIntPair<F>> sendBuf(totalSend);
+        auto offs = sendOffs;
         for( Int e=0; e<numLocalEntriesA; ++e )
         {
-            const Int i = ABar.Row(e);
-            const Int j = ABar.Col(e);
-            const F value = ABar.Value(e);
+            const Int i = A.Row(e);
+            const Int j = A.Col(e);
+            const F value = A.Value(e);
 
             if( m >= n )
             {
-                // Sending ABar
+                // Sending A
                 int owner = J.RowOwner(i);
-                sSendBuf[offsets[owner]] = i;
-                tSendBuf[offsets[owner]] = j+m;
-                vSendBuf[offsets[owner]] = value;
-                ++offsets[owner];
+                sendBuf[offs[owner]].indices[0] = i;
+                sendBuf[offs[owner]].indices[1] = j+m;
+                sendBuf[offs[owner]].value = value;
+                ++offs[owner];
 
-                // Sending ABar^H
+                // Sending A^H
                 owner = J.RowOwner(j+m);
-                sSendBuf[offsets[owner]] = j+m;
-                tSendBuf[offsets[owner]] = i;
-                vSendBuf[offsets[owner]] = Conj(value);
-                ++offsets[owner];
+                sendBuf[offs[owner]].indices[0] = j+m;
+                sendBuf[offs[owner]].indices[1] = i;
+                sendBuf[offs[owner]].value = Conj(value);
+                ++offs[owner];
             }
             else
             {
-                // Sending ABar
+                // Sending A
                 int owner = J.RowOwner(i+n);
-                sSendBuf[offsets[owner]] = i+n;
-                tSendBuf[offsets[owner]] = j;
-                vSendBuf[offsets[owner]] = value;
-                ++offsets[owner];
+                sendBuf[offs[owner]].indices[0] = i+n;
+                sendBuf[offs[owner]].indices[1] = j;
+                sendBuf[offs[owner]].value = value;
+                ++offs[owner];
 
-                // Sending ABar^H
+                // Sending A^H
                 owner = J.RowOwner(j);
-                sSendBuf[offsets[owner]] = j;
-                tSendBuf[offsets[owner]] = i+n;
-                vSendBuf[offsets[owner]] = Conj(value);
-                ++offsets[owner];
+                sendBuf[offs[owner]].indices[0] = j;
+                sendBuf[offs[owner]].indices[1] = i+n;
+                sendBuf[offs[owner]].value = Conj(value);
+                ++offs[owner];
             }
         }
         if( m >= n )
         {
-            for( Int iLoc=0; iLoc<dRow.LocalHeight(); ++iLoc )
+            for( Int iLoc=0; iLoc<dR.LocalHeight(); ++iLoc )
             {
-                const Int i = dRow.GlobalRow(iLoc);
+                const Int i = dR.GlobalRow(iLoc);
                 const int owner = J.RowOwner(i);
-                sSendBuf[offsets[owner]] = i; 
-                tSendBuf[offsets[owner]] = i;
-                vSendBuf[offsets[owner]] = 
-                    Pow(dRow.GetLocal(iLoc,0),Real(-2))*ctrl.alpha;
-                ++offsets[owner];
+                sendBuf[offs[owner]].indices[0] = i; 
+                sendBuf[offs[owner]].indices[1] = i;
+                sendBuf[offs[owner]].value = 
+                    Pow(dR.GetLocal(iLoc,0),Real(-2))*ctrl.alpha;
+                ++offs[owner];
             }
         }
         else
         {
-            for( Int iLoc=0; iLoc<dCol.LocalHeight(); ++iLoc )
+            for( Int iLoc=0; iLoc<dC.LocalHeight(); ++iLoc )
             {
-                const Int i = dCol.GlobalRow(iLoc);
+                const Int i = dC.GlobalRow(iLoc);
                 const int owner = J.RowOwner(i);
-                sSendBuf[offsets[owner]] = i; 
-                tSendBuf[offsets[owner]] = i;
-                vSendBuf[offsets[owner]] = 
-                    Pow(dCol.GetLocal(iLoc,0),Real(-2))*ctrl.alpha;
-                ++offsets[owner];
+                sendBuf[offs[owner]].indices[0] = i; 
+                sendBuf[offs[owner]].indices[1] = i;
+                sendBuf[offs[owner]].value = 
+                    Pow(dC.GetLocal(iLoc,0),Real(-2))*ctrl.alpha;
+                ++offs[owner];
             }
         }
 
         // Exchange
         // --------
-        vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
-        vector<F> vRecvBuf(totalRecv);
+        vector<ValueIntPair<F>> recvBuf(totalRecv);
         mpi::AllToAll
-        ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-          sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-        mpi::AllToAll
-        ( tSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-          tRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-        mpi::AllToAll
-        ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-          vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+        ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
         // Unpack
         // ------
         J.Reserve( totalRecv );
         for( Int e=0; e<totalRecv; ++e )
             J.QueueLocalUpdate
-            ( sRecvBuf[e]-J.FirstLocalRow(), tRecvBuf[e], vRecvBuf[e] );
+            ( recvBuf[e].indices[0]-J.FirstLocalRow(), recvBuf[e].indices[1], 
+              recvBuf[e].value );
         J.MakeConsistent();
     }
 
-    // Set D to [BBar; 0] or [0; BBar]
-    // ===============================
+    // Set D to [B; 0] or [0; B]
+    // =========================
     DistMultiVec<F> D(comm);
     Zeros( D, m+n, k );
     {
         // Compute metadata
         // ----------------
         vector<int> sendCounts(commSize,0);
-        for( Int iLoc=0; iLoc<BBar.LocalHeight(); ++iLoc )
+        for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
         {
-            const Int i = BBar.GlobalRow(iLoc);
+            const Int i = B.GlobalRow(iLoc);
             if( m >= n )
                 sendCounts[ D.RowOwner(i) ] += k;
             else
@@ -461,28 +458,26 @@ void LeastSquares
         }
         vector<int> recvCounts(commSize);
         mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        vector<int> sendOffsets(commSize), recvOffsets(commSize);
-        const int totalSend = Scan( sendCounts, sendOffsets );
-        const int totalRecv = Scan( recvCounts, recvOffsets );
+        vector<int> sendOffs, recvOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
+        const int totalRecv = Scan( recvCounts, recvOffs );
         // Pack
         // ----
-        vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
-        vector<F> vSendBuf(totalSend);
-        auto offsets = sendOffsets;
-        for( Int iLoc=0; iLoc<BBar.LocalHeight(); ++iLoc )
+        vector<ValueIntPair<F>> sendBuf(totalSend);
+        auto offs = sendOffs;
+        for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
         {
-            const Int i = BBar.GlobalRow(iLoc);
-
+            const Int i = B.GlobalRow(iLoc);
             if( m >= n )
             {
                 int owner = D.RowOwner(i);
                 for( Int j=0; j<k; ++j )
                 {
-                    const F value = BBar.GetLocal(iLoc,j);
-                    sSendBuf[offsets[owner]] = i;
-                    tSendBuf[offsets[owner]] = j;
-                    vSendBuf[offsets[owner]] = value;
-                    ++offsets[owner];
+                    const F value = B.GetLocal(iLoc,j);
+                    sendBuf[offs[owner]].indices[0] = i;
+                    sendBuf[offs[owner]].indices[1] = j;
+                    sendBuf[offs[owner]].value = value;
+                    ++offs[owner];
                 }
             }
             else
@@ -490,36 +485,30 @@ void LeastSquares
                 int owner = D.RowOwner(i+n);
                 for( Int j=0; j<k; ++j )
                 {
-                    const F value = BBar.GetLocal(iLoc,j);
-                    sSendBuf[offsets[owner]] = i+n;
-                    tSendBuf[offsets[owner]] = j;
-                    vSendBuf[offsets[owner]] = value;
-                    ++offsets[owner];
+                    const F value = B.GetLocal(iLoc,j);
+                    sendBuf[offs[owner]].indices[0] = i+n;
+                    sendBuf[offs[owner]].indices[1] = j;
+                    sendBuf[offs[owner]].value = value;
+                    ++offs[owner];
                 }
             }
         }
         // Exchange
         // --------
-        vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
-        vector<F> vRecvBuf(totalRecv);
+        vector<ValueIntPair<F>> recvBuf(totalRecv);
         mpi::AllToAll
-        ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-          sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-        mpi::AllToAll
-        ( tSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-          tRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-        mpi::AllToAll
-        ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-          vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+        ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
         // Unpack
         // ------
         for( Int e=0; e<totalRecv; ++e )
             D.UpdateLocal
-            ( sRecvBuf[e]-D.FirstLocalRow(), tRecvBuf[e], vRecvBuf[e] );
+            ( recvBuf[e].indices[0]-D.FirstLocalRow(), recvBuf[e].indices[1], 
+              recvBuf[e].value );
     }
 
-    // Compute the dynamically-regularized quasi-semidefinite fact of J
-    // ================================================================
+    // Compute the regularized quasi-semidefinite fact of J
+    // ====================================================
     DistMultiVec<Real> reg(comm);
     reg.Resize( m+n, 1 );
     for( Int iLoc=0; iLoc<reg.LocalHeight(); ++iLoc )
@@ -571,8 +560,8 @@ void LeastSquares
     if( commRank == 0 && ctrl.time )
         cout << "  Solve: " << timer.Stop() << " secs" << endl;
 
-    // Extract XBar from [R; XBar] or [XBar/alpha; Y] and then rescale
-    // ===============================================================
+    // Extract X from [R/alpha; X] or [X; Y] and then rescale
+    // ======================================================
     Zeros( X, n, k );
     {
         // Compute metadata
@@ -596,14 +585,13 @@ void LeastSquares
         }
         vector<int> recvCounts(commSize);
         mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        vector<int> sendOffsets(commSize), recvOffsets(commSize);
-        const int totalSend = Scan( sendCounts, sendOffsets );
-        const int totalRecv = Scan( recvCounts, recvOffsets );
+        vector<int> sendOffs, recvOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
+        const int totalRecv = Scan( recvCounts, recvOffs );
         // Pack
         // ----
-        vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
-        vector<F> vSendBuf(totalSend);
-        auto offsets = sendOffsets;
+        vector<ValueIntPair<F>> sendBuf(totalSend);
+        auto offs = sendOffs;
         for( Int iLoc=0; iLoc<DLocHeight; ++iLoc )
         {
             const Int i = D.GlobalRow(iLoc);
@@ -615,10 +603,10 @@ void LeastSquares
                     for( Int j=0; j<k; ++j )
                     {
                         const F value = D.GetLocal(iLoc,j);
-                        sSendBuf[offsets[owner]] = i-m;
-                        tSendBuf[offsets[owner]] = j;
-                        vSendBuf[offsets[owner]] = value;
-                        ++offsets[owner];
+                        sendBuf[offs[owner]].indices[0] = i-m;
+                        sendBuf[offs[owner]].indices[1] = j;
+                        sendBuf[offs[owner]].value = value;
+                        ++offs[owner];
                     }
                 }
             }
@@ -629,11 +617,11 @@ void LeastSquares
                     int owner = X.RowOwner(i);
                     for( Int j=0; j<k; ++j )
                     {
-                        const F value = D.GetLocal(iLoc,j)*ctrl.alpha;
-                        sSendBuf[offsets[owner]] = i;
-                        tSendBuf[offsets[owner]] = j;
-                        vSendBuf[offsets[owner]] = value;
-                        ++offsets[owner];
+                        const F value = D.GetLocal(iLoc,j);
+                        sendBuf[offs[owner]].indices[0] = i;
+                        sendBuf[offs[owner]].indices[1] = j;
+                        sendBuf[offs[owner]].value = value;
+                        ++offs[owner];
                     }
                 }
                 else
@@ -642,28 +630,77 @@ void LeastSquares
         }
         // Exchange
         // --------
-        vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
-        vector<F> vRecvBuf(totalRecv);
+        vector<ValueIntPair<F>> recvBuf(totalRecv);
         mpi::AllToAll
-        ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-          sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-        mpi::AllToAll
-        ( tSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-          tRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-        mpi::AllToAll
-        ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-          vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+        ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
         // Unpack
         // ------
         for( Int e=0; e<totalRecv; ++e )
             X.SetLocal
-            ( sRecvBuf[e]-X.FirstLocalRow(), tRecvBuf[e], vRecvBuf[e] );
+            ( recvBuf[e].indices[0]-X.FirstLocalRow(), recvBuf[e].indices[1], 
+              recvBuf[e].value );
+    }
+}
+
+} // namespace ls
+
+template<typename F>
+void LeastSquares
+( Orientation orientation,
+  const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, 
+                                      DistMultiVec<F>& X,
+  const LeastSquaresCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(
+      CallStackEntry cse("LeastSquares");
+      if( orientation == NORMAL && A.Height() != B.Height() )
+          LogicError("Heights of A and B must match");
+      if( orientation != NORMAL && A.Width() != B.Height() )
+          LogicError("Width of A and height of B must match");
+    )
+    typedef Base<F> Real;
+    mpi::Comm comm = A.Comm();
+    const int commRank = mpi::Rank(comm);
+    Timer timer;
+
+    DistSparseMatrix<F> ABar(comm);
+    if( orientation == NORMAL )
+        ABar = A;
+    else if( orientation == TRANSPOSE )
+        Transpose( A, ABar );
+    else
+        Adjoint( A, ABar );
+    auto BBar = B;
+    const Int m = ABar.Height();
+    const Int n = ABar.Width();
+
+    // Equilibrate the problem
+    // =======================
+    DistMultiVec<Real> dR(comm), dC(comm);
+    if( ctrl.equilibrate )
+    {
+        if( commRank == 0 && ctrl.time )
+            timer.Start();
+        GeomEquil( ABar, dR, dC, ctrl.progress );
+        if( commRank == 0 && ctrl.time )
+            cout << "  GeomEquil: " << timer.Stop() << " secs" << endl;
+        DiagonalSolve( LEFT, NORMAL, dR, BBar );
+    }
+    else
+    {
+        Ones( dR, m, 1 );
+        Ones( dC, n, 1 );
     }
 
-    // Unequilibrate the problem
-    // =========================
+    // Solve the equilibrated problem
+    // ==============================
+    ls::Equilibrated( ABar, BBar, X, dR, dC, ctrl );
+
+    // Unequilibrate the solution
+    // ==========================
     if( ctrl.equilibrate )
-        DiagonalSolve( LEFT, NORMAL, dCol, X );
+        DiagonalSolve( LEFT, NORMAL, dC, X );
 }
 
 #define PROTO(F) \

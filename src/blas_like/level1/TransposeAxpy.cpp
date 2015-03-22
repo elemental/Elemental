@@ -146,48 +146,38 @@ void TransposeAxpy
 
     // Convert the send/recv counts into offsets and total sizes
     // =========================================================
-    vector<int> sendOffsets, recvOffsets;
-    const int totalSend = Scan( sendCounts, sendOffsets );
-    const int totalRecv = Scan( recvCounts, recvOffsets );
+    vector<int> sendOffs, recvOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
+    const int totalRecv = Scan( recvCounts, recvOffs );
 
     // Pack the triplets
     // =================
-    vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
-    vector<T> vSendBuf(totalSend);
-    auto offsets = sendOffsets;
+    vector<ValueIntPair<T>> sendBuf(totalSend);
+    auto offs = sendOffs;
     for( Int k=0; k<A.NumLocalEntries(); ++k )
     {
         const Int j = A.Col(k);
         const int owner = B.RowOwner(j);
-        const Int s = offsets[owner];
-        sSendBuf[s] = j;
-        tSendBuf[s] = A.Row(k);
-        if( conjugate )
-            vSendBuf[s] = Conj(A.Value(k));
-        else
-            vSendBuf[s] = A.Value(k);
-        ++offsets[owner];
+        const Int s = offs[owner];
+        sendBuf[s].indices[0] = j;
+        sendBuf[s].indices[1] = A.Row(k);
+        sendBuf[s].value = ( conjugate ? Conj(A.Value(k)) : A.Value(k) );
+        ++offs[owner];
     }
 
     // Exchange and unpack the triplets
     // ================================
     // TODO: Switch to a mechanism which directly unpacks into the 
     //       class's local storage?
-    vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
-    vector<T> vRecvBuf(totalRecv);
+    vector<ValueIntPair<T>> recvBuf(totalRecv);
     mpi::AllToAll
-    ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-    mpi::AllToAll
-    ( tSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      tRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-    mpi::AllToAll
-    ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
     B.Reserve( B.NumLocalEntries()+totalRecv );
     for( Int k=0; k<totalRecv; ++k )
         B.QueueLocalUpdate
-        ( sRecvBuf[k]-B.FirstLocalRow(), tRecvBuf[k], vRecvBuf[k] );
+        ( recvBuf[k].indices[0]-B.FirstLocalRow(), recvBuf[k].indices[1], 
+          recvBuf[k].value );
     B.MakeConsistent();
 }
 

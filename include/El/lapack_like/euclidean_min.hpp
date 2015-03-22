@@ -27,22 +27,26 @@ void GLM
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
   AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& Y );
 
-// When height(A) >= width(A):
+// Least Squares (or Minimum Length)
+// ---------------------------------
+// When height(op(A)) >= width(op(A)), solve
 //
-//    min_X || A X - B ||_F,
+//    min_X || op(A) X - B ||_F,
 //
-// otherwise 
+// otherwise, solve 
 //
-//    min_X || X ||_F s.t. A X = B
-// -------------------------------
+//    min_X || X ||_F s.t. op(A) X = B.
+//
 template<typename F>
 void LeastSquares
-( Orientation orientation, Matrix<F>& A, const Matrix<F>& B, 
-  Matrix<F>& X );
+( Orientation orientation, 
+  Matrix<F>& A, const Matrix<F>& B, 
+                      Matrix<F>& X );
 template<typename F>
 void LeastSquares
-( Orientation orientation, AbstractDistMatrix<F>& A, 
-  const AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& X );
+( Orientation orientation, 
+  AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
+                                  AbstractDistMatrix<F>& X );
 
 template<typename Real>
 struct LeastSquaresCtrl {
@@ -61,12 +65,14 @@ struct LeastSquaresCtrl {
 template<typename F>
 void LeastSquares
 ( Orientation orientation,
-  const SparseMatrix<F>& A, const Matrix<F>& Y, Matrix<F>& X,
+  const SparseMatrix<F>& A, const Matrix<F>& Y, 
+                                  Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 template<typename F>
 void LeastSquares
 ( Orientation orientation,
-  const DistSparseMatrix<F>& A, const DistMultiVec<F>& Y, DistMultiVec<F>& X,
+  const DistSparseMatrix<F>& A, const DistMultiVec<F>& Y, 
+                                      DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 
 // min_X || A X - C ||_F subject to B X = D
@@ -83,8 +89,8 @@ void LSE
 
 // Ridge regression
 // ----------------
-// NOTE: This is simply Tikhonov regularization for cases where 
-//       Gamma = alpha I
+// A special case of Tikhonov regularization where the regularization matrix
+// G is of the form gamma I.
 
 namespace RidgeAlgNS {
 enum RidgeAlg {
@@ -97,27 +103,44 @@ using namespace RidgeAlgNS;
 
 template<typename F>
 void Ridge
-( const Matrix<F>& A, const Matrix<F>& B, 
-  Base<F> alpha, Matrix<F>& X, RidgeAlg alg=RIDGE_CHOLESKY );
+( Orientation orientation,
+  const Matrix<F>& A, const Matrix<F>& B, 
+        Base<F> gamma,      Matrix<F>& X, 
+  RidgeAlg alg=RIDGE_CHOLESKY );
 template<typename F>
 void Ridge
-( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
-  Base<F> alpha, AbstractDistMatrix<F>& X, RidgeAlg alg=RIDGE_CHOLESKY );
+( Orientation orientation,
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
+  Base<F> gamma,                        AbstractDistMatrix<F>& X, 
+  RidgeAlg alg=RIDGE_CHOLESKY );
 
 template<typename F>
 void Ridge
-( const SparseMatrix<F>& A, const Matrix<F>& B, Base<F> alpha,
-        Matrix<F>& X, const BisectCtrl& ctrl=BisectCtrl() );
+( Orientation orientation,
+  const SparseMatrix<F>& A, const Matrix<F>& B, 
+        Base<F> gamma,            Matrix<F>& X, 
+  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 template<typename F>
 void Ridge
-( const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, Base<F> alpha,
-        DistMultiVec<F>& X, const BisectCtrl& ctrl=BisectCtrl() );
+( Orientation orientation,
+  const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, 
+        Base<F> gamma,                DistMultiVec<F>& X, 
+  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 
 // Tikhonov regularization
 // -----------------------
-// Solve arg min_X || op(A) X - B ||_2^2 + || Gamma X ||_2^2
-// where op(A) is A, A^T, or A^H.
 
+// Either solve the regularized Least Squares problem
+//
+//    min_ X || [W;G] X - [B;0] ||_F
+// 
+// or the regularized Minimum Length problem
+//
+//    min_{X,S} || [X; S] ||_F 
+//    s.t. [W, G] [X; S] = B,
+//
+// where W is defined as op(A), which is either A, A^T, or A^H.
+//
 namespace TikhonovAlgNS {
 enum TikhonovAlg {
     TIKHONOV_CHOLESKY,
@@ -128,27 +151,33 @@ using namespace TikhonovAlgNS;
 
 template<typename F>
 void Tikhonov
-( const Matrix<F>& A, const Matrix<F>& B, 
-  const Matrix<F>& Gamma, Matrix<F>& X, 
+( Orientation orientation,
+  const Matrix<F>& A, const Matrix<F>& B, 
+  const Matrix<F>& G,       Matrix<F>& X, 
   TikhonovAlg alg=TIKHONOV_CHOLESKY );
 template<typename F>
 void Tikhonov
-( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
-  const AbstractDistMatrix<F>& Gamma, AbstractDistMatrix<F>& X, 
+( Orientation orientation,
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
+  const AbstractDistMatrix<F>& G,       AbstractDistMatrix<F>& X, 
   TikhonovAlg alg=TIKHONOV_CHOLESKY );
 
 template<typename F>
 void Tikhonov
-( const SparseMatrix<F>& A, const Matrix<F>& B,
-  const SparseMatrix<F>& Gamma, Matrix<F>& X,
-  const BisectCtrl& ctrl=BisectCtrl() );
+( Orientation orientation,
+  const SparseMatrix<F>& A, const Matrix<F>& B,
+  const SparseMatrix<F>& G,       Matrix<F>& X,
+  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 template<typename F>
 void Tikhonov
-( const DistSparseMatrix<F>& A, const DistMultiVec<F>& B,
-  const DistSparseMatrix<F>& Gamma, DistMultiVec<F>& X,
-  const BisectCtrl& ctrl=BisectCtrl() );
+( Orientation orientation,
+  const DistSparseMatrix<F>& A, const DistMultiVec<F>& B,
+  const DistSparseMatrix<F>& G,       DistMultiVec<F>& X,
+  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 
 // TODO: Generalized Tikhonov regularization
+
+// TODO: Total Least Squares
 
 } // namespace El
 

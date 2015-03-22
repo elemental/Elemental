@@ -2028,11 +2028,21 @@ MPI_PROTO(ValueInt<double>)
 #ifdef EL_HAVE_QUAD
 MPI_PROTO(ValueInt<Quad>)
 #endif
+MPI_PROTO(ValueInt<Complex<float>>)
+MPI_PROTO(ValueInt<Complex<double>>)
+#ifdef EL_HAVE_QUAD
+MPI_PROTO(ValueInt<Complex<Quad>>)
+#endif
 MPI_PROTO(ValueIntPair<Int>)
 MPI_PROTO(ValueIntPair<float>)
 MPI_PROTO(ValueIntPair<double>)
 #ifdef EL_HAVE_QUAD
 MPI_PROTO(ValueIntPair<Quad>)
+#endif
+MPI_PROTO(ValueIntPair<Complex<float>>)
+MPI_PROTO(ValueIntPair<Complex<double>>)
+#ifdef EL_HAVE_QUAD
+MPI_PROTO(ValueIntPair<Complex<Quad>>)
 #endif
 
 #define PROTO(T) \

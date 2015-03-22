@@ -8,8 +8,7 @@
 #
 import El, time
 
-#n0 = n1 = 200
-n0 = n1 = 100
+n0 = n1 = 200
 display = False
 worldRank = El.mpi.WorldRank()
 
@@ -28,13 +27,13 @@ def FD2D(N0,N1):
     x1 = s / N0
     A.QueueLocalUpdate( sLoc, s, 11 )
     if x0 > 0:
-      A.QueueLocalUpdate( sLoc, s-1, -10 )
+      A.QueueLocalUpdate( sLoc, s-1, -1 )
     if x0+1 < N0:
-      A.QueueLocalUpdate( sLoc, s+1, 20 )
+      A.QueueLocalUpdate( sLoc, s+1, 2 )
     if x1 > 0:
-      A.QueueLocalUpdate( sLoc, s-N0, -30 )
+      A.QueueLocalUpdate( sLoc, s-N0, -3 )
     if x1+1 < N1:
-      A.QueueLocalUpdate( sLoc, s+N0, 40 )
+      A.QueueLocalUpdate( sLoc, s+N0, 4 )
 
     # The dense last column
     A.QueueLocalUpdate( sLoc, width-1, -10./height );
@@ -57,13 +56,13 @@ if rank == 0:
   print "|| y ||_2 =", yNrm
 
 ctrl = El.LeastSquaresCtrl_d()
-ctrl.alpha = 1e-4
-ctrl.equilibrate = False
+ctrl.alpha = 0
+ctrl.equilibrate = True
 ctrl.progress = True
-ctrl.qsdCtrl.regPrimal = 1e-8
-ctrl.qsdCtrl.regDual = 1e-8
+ctrl.qsdCtrl.regPrimal = 1e-6
+ctrl.qsdCtrl.regDual = 1e-6
 ctrl.qsdCtrl.alg = El.REG_REFINE_FGMRES
-ctrl.qsdCtrl.relTol = 1e-7
+ctrl.qsdCtrl.relTol = 1e-9
 ctrl.qsdCtrl.relTolRefine = 1e-12
 ctrl.qsdCtrl.progress = True
 

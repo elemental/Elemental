@@ -204,8 +204,7 @@ void BP
     const int totalRecv = Scan( recvSizes, recvOffs );
     // Pack the data 
     // -------------
-    vector<Int> sSendBuf(totalSend);
-    vector<Real> vSendBuf(totalSend);
+    vector<ValueInt<Real>> sendBuf(totalSend);
     auto offs = sendOffs;
     for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
     {
@@ -213,32 +212,29 @@ void BP
         if( i < n )
         {
             const int owner = x.RowOwner(i);
-            sSendBuf[offs[owner]] = i;
-            vSendBuf[offs[owner]] = xHat.GetLocal(iLoc,0);
+            sendBuf[offs[owner]].index = i;
+            sendBuf[offs[owner]].value = xHat.GetLocal(iLoc,0);
             ++offs[owner];
         }
         else
         {
             const int owner = x.RowOwner(i-n);
-            sSendBuf[offs[owner]] = i-n;
-            vSendBuf[offs[owner]] = -xHat.GetLocal(iLoc,0);
+            sendBuf[offs[owner]].index = i-n;
+            sendBuf[offs[owner]].value = -xHat.GetLocal(iLoc,0);
             ++offs[owner];
         }
     }
     // Exchange the data
     // -----------------
-    vector<Int> sRecvBuf(totalRecv);
-    vector<Real> vRecvBuf(totalRecv);
+    vector<ValueInt<Real>> recvBuf(totalRecv);
     mpi::AllToAll
-    ( sSendBuf.data(), sendSizes.data(), sendOffs.data(),
-      sRecvBuf.data(), recvSizes.data(), recvOffs.data(), comm );
-    mpi::AllToAll
-    ( vSendBuf.data(), sendSizes.data(), sendOffs.data(),
-      vRecvBuf.data(), recvSizes.data(), recvOffs.data(), comm );
+    ( sendBuf.data(), sendSizes.data(), sendOffs.data(),
+      recvBuf.data(), recvSizes.data(), recvOffs.data(), comm );
     // Unpack the data
     // ---------------
     for( Int e=0; e<totalRecv; ++e )
-        x.UpdateLocal( sRecvBuf[e]-x.FirstLocalRow(), 0, vRecvBuf[e] );
+        x.UpdateLocal
+        ( recvBuf[e].index-x.FirstLocalRow(), 0, recvBuf[e].value );
 }
 
 #define PROTO(Real) \

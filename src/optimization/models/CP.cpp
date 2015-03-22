@@ -244,43 +244,37 @@ void CP
         }
         vector<int> recvCounts(commSize);
         mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        vector<int> sendOffsets, recvOffsets;
-        const int totalSend = Scan( sendCounts, sendOffsets );
-        const int totalRecv = Scan( recvCounts, recvOffsets );
+        vector<int> sendOffs, recvOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
+        const int totalRecv = Scan( recvCounts, recvOffs );
         // Pack 
         // ----
-        vector<Int> sSendBuf(totalSend), tSendBuf(totalSend);
-        vector<Real> vSendBuf(totalSend);
-        auto offsets = sendOffsets;
+        vector<ValueIntPair<Real>> sendBuf(totalSend);
+        auto offs = sendOffs;
         for( Int e=0; e<A.NumLocalEntries(); ++e )
         {
             const Int i = A.Row(e);
             const Int j = A.Col(e);
             const Real value = A.Value(e);
+
             int owner = G.RowOwner(i);    
-            sSendBuf[offsets[owner]] = i;
-            tSendBuf[offsets[owner]] = j;
-            vSendBuf[offsets[owner]] = value;
-            ++offsets[owner];
+            sendBuf[offs[owner]].indices[0] = i;
+            sendBuf[offs[owner]].indices[1] = j;
+            sendBuf[offs[owner]].value = value;
+            ++offs[owner];
+
             owner = G.RowOwner(i+m);
-            sSendBuf[offsets[owner]] = i+m;
-            tSendBuf[offsets[owner]] = j;
-            vSendBuf[offsets[owner]] = -value;
-            ++offsets[owner];
+            sendBuf[offs[owner]].indices[0] = i+m;
+            sendBuf[offs[owner]].indices[1] = j;
+            sendBuf[offs[owner]].value = -value;
+            ++offs[owner];
         }
         // Exchange
         // --------
-        vector<Int> sRecvBuf(totalRecv), tRecvBuf(totalRecv);
-        vector<Real> vRecvBuf(totalRecv);
+        vector<ValueIntPair<Real>> recvBuf(totalRecv);
         mpi::AllToAll
-        ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-          sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-        mpi::AllToAll
-        ( tSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-          tRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-        mpi::AllToAll
-        ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-          vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+        ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
         // Unpack
         // ------
         G.Reserve( totalRecv+G.LocalHeight() );
@@ -288,7 +282,8 @@ void CP
             G.QueueLocalUpdate( iLoc, n, Real(-1) );
         for( Int e=0; e<totalRecv; ++e )
             G.QueueLocalUpdate
-            ( sRecvBuf[e]-G.FirstLocalRow(), tRecvBuf[e], vRecvBuf[e] );
+            ( recvBuf[e].indices[0]-G.FirstLocalRow(), recvBuf[e].indices[1], 
+              recvBuf[e].value );
         G.MakeConsistent();
     }
 
@@ -308,41 +303,39 @@ void CP
         }
         vector<int> recvCounts(commSize);
         mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        vector<int> sendOffsets, recvOffsets;
-        const int totalSend = Scan( sendCounts, sendOffsets );
-        const int totalRecv = Scan( recvCounts, recvOffsets );
+        vector<int> sendOffs, recvOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
+        const int totalRecv = Scan( recvCounts, recvOffs );
         // Pack
         // ----
-        vector<Int> sSendBuf(totalSend);
-        vector<Real> vSendBuf(totalSend);
-        auto offsets = sendOffsets;
+        vector<ValueInt<Real>> sendBuf(totalSend);
+        auto offs = sendOffs;
         for( Int iLoc=0; iLoc<b.LocalHeight(); ++iLoc )
         {
             const Int i = b.GlobalRow(iLoc);
             const Real value = b.GetLocal(iLoc,0);
+
             int owner = h.RowOwner(i);
-            sSendBuf[offsets[owner]] = i;
-            vSendBuf[offsets[owner]] = value;
-            ++offsets[owner];
+            sendBuf[offs[owner]].index = i;
+            sendBuf[offs[owner]].value = value;
+            ++offs[owner];
+
             owner = h.RowOwner(i+m);
-            sSendBuf[offsets[owner]] = i+m;
-            vSendBuf[offsets[owner]] = -value;
-            ++offsets[owner];
+            sendBuf[offs[owner]].index = i+m;
+            sendBuf[offs[owner]].value = -value;
+            ++offs[owner];
         }
         // Exchange
         // --------
-        vector<Int> sRecvBuf(totalRecv);
-        vector<Real> vRecvBuf(totalRecv);
+        vector<ValueInt<Real>> recvBuf(totalRecv);
         mpi::AllToAll
-        ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-          sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-        mpi::AllToAll
-        ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-          vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+        ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
         // Unpack
         // ------
         for( Int e=0; e<totalRecv; ++e )
-            h.SetLocal( sRecvBuf[e]-h.FirstLocalRow(), 0, vRecvBuf[e] );
+            h.SetLocal
+            ( recvBuf[e].index-h.FirstLocalRow(), 0, recvBuf[e].value );
     }
 
     // Solve the affine LP
@@ -365,14 +358,13 @@ void CP
         }
         vector<int> recvCounts(commSize);
         mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        vector<int> sendOffsets, recvOffsets;
-        const int totalSend = Scan( sendCounts, sendOffsets );
-        const int totalRecv = Scan( recvCounts, recvOffsets );
+        vector<int> sendOffs, recvOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
+        const int totalRecv = Scan( recvCounts, recvOffs );
         // Pack
         // ----
-        vector<Int> sSendBuf(totalSend);
-        vector<Real> vSendBuf(totalSend);
-        auto offsets = sendOffsets;
+        vector<ValueInt<Real>> sendBuf(totalSend);
+        auto offs = sendOffs;
         for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
         {
             const Int i = xHat.GlobalRow(iLoc);
@@ -380,25 +372,22 @@ void CP
             {
                 const Real value = xHat.GetLocal(iLoc,0);
                 int owner = x.RowOwner(i);
-                sSendBuf[offsets[owner]] = i;
-                vSendBuf[offsets[owner]] = value;
-                ++offsets[owner];
+                sendBuf[offs[owner]].index = i;
+                sendBuf[offs[owner]].value = value;
+                ++offs[owner];
             }
         }
         // Exchange
         // --------
-        vector<Int> sRecvBuf(totalRecv);
-        vector<Real> vRecvBuf(totalRecv);
+        vector<ValueInt<Real>> recvBuf(totalRecv);
         mpi::AllToAll
-        ( sSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-          sRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
-        mpi::AllToAll
-        ( vSendBuf.data(), sendCounts.data(), sendOffsets.data(),
-          vRecvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+        ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
         // Unpack
         // ------
         for( Int e=0; e<totalRecv; ++e )
-            x.SetLocal( sRecvBuf[e]-x.FirstLocalRow(), 0, vRecvBuf[e] );
+            x.SetLocal
+            ( recvBuf[e].index-x.FirstLocalRow(), 0, recvBuf[e].value );
     }
 }
 

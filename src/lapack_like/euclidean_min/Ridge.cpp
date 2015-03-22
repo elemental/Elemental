@@ -12,22 +12,34 @@ namespace El {
 
 template<typename F> 
 void Ridge
-( const Matrix<F>& A, const Matrix<F>& B, 
-  Base<F> alpha, Matrix<F>& X, RidgeAlg alg )
+( Orientation orientation,
+  const Matrix<F>& A, const Matrix<F>& B, 
+        Base<F> gamma,      Matrix<F>& X, 
+  RidgeAlg alg )
 {
     DEBUG_ONLY(CallStackEntry cse("Ridge"))
-    const Int m = A.Height();
-    const Int n = A.Width();
+
+    const bool normal = ( orientation==NORMAL );
+    const Int m = ( normal ? A.Height() : A.Width()  );
+    const Int n = ( normal ? A.Width()  : A.Height() );
+    if( orientation == TRANSPOSE && IsComplex<F>::val )
+        LogicError("Transpose version of complex Ridge not yet supported");
 
     if( m >= n )
     {
         Matrix<F> Z;
         if( alg == RIDGE_CHOLESKY )
         {
-            Herk( LOWER, ADJOINT, Base<F>(1), A, Z );
-            ShiftDiagonal( Z, F(alpha*alpha) );
+            if( orientation == NORMAL )
+                Herk( LOWER, ADJOINT, Base<F>(1), A, Z );
+            else
+                Herk( LOWER, NORMAL, Base<F>(1), A, Z );
+            ShiftDiagonal( Z, F(gamma*gamma) );
             Cholesky( LOWER, Z );
-            Gemm( ADJOINT, NORMAL, F(1), A, B, X );
+            if( orientation == NORMAL )
+                Gemm( ADJOINT, NORMAL, F(1), A, B, X );
+            else
+                Gemm( NORMAL, NORMAL, F(1), A, B, X );
             cholesky::SolveAfter( LOWER, NORMAL, Z, X );
         }
         else if( alg == RIDGE_QR )
@@ -35,23 +47,32 @@ void Ridge
             Zeros( Z, m+n, n );
             auto ZT = Z( IR(0,m),   IR(0,n) );
             auto ZB = Z( IR(m,m+n), IR(0,n) );
-            ZT = A;
-            FillDiagonal( ZB, F(alpha*alpha) );
+            if( orientation == NORMAL )
+                ZT = A;
+            else
+                Adjoint( A, ZT );
+            FillDiagonal( ZB, F(gamma*gamma) );
             // NOTE: This QR factorization could exploit the upper-triangular
             //       structure of the diagonal matrix ZB
             qr::ExplicitTriang( Z );
-            Gemm( ADJOINT, NORMAL, F(1), A, B, X );
+            if( orientation == NORMAL )
+                Gemm( ADJOINT, NORMAL, F(1), A, B, X );
+            else
+                Gemm( NORMAL, NORMAL, F(1), A, B, X );
             cholesky::SolveAfter( LOWER, NORMAL, Z, X );
         }
         else
         {
             Matrix<F> U, V;
             Matrix<Base<F>> s; 
-            U = A;
+            if( orientation == NORMAL )
+                U = A;
+            else
+                Adjoint( A, U );
             SVD( U, s, V );
             auto sigmaMap = 
               [=]( Base<F> sigma ) 
-              { return sigma / (sigma*sigma + alpha*alpha); };
+              { return sigma / (sigma*sigma + gamma*gamma); };
             EntrywiseMap( s, function<Base<F>(Base<F>)>(sigmaMap) );
             Gemm( ADJOINT, NORMAL, F(1), U, B, X );
             DiagonalScale( LEFT, NORMAL, s, X );
@@ -65,11 +86,12 @@ void Ridge
     }
 }
 
-// TODO: Switch to a similar approach as in LeastSquares
 template<typename F> 
 void Ridge
-( const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& BPre, 
-  Base<F> alpha, AbstractDistMatrix<F>& XPre, RidgeAlg alg )
+( Orientation orientation,
+  const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& BPre, 
+        Base<F> gamma,                     AbstractDistMatrix<F>& XPre, 
+  RidgeAlg alg )
 {
     DEBUG_ONLY(CallStackEntry cse("Ridge"))
 
@@ -77,18 +99,27 @@ void Ridge
     auto BPtr = ReadProxy<F,MC,MR>( &BPre );  auto& B = *BPtr;
     auto XPtr = WriteProxy<F,MC,MR>(& XPre ); auto& X = *XPtr;
 
-    const Int m = A.Height();
-    const Int n = A.Width();
+    const bool normal = ( orientation==NORMAL );
+    const Int m = ( normal ? A.Height() : A.Width()  );
+    const Int n = ( normal ? A.Width()  : A.Height() );
+    if( orientation == TRANSPOSE && IsComplex<F>::val )
+        LogicError("Transpose version of complex Ridge not yet supported");
 
     if( m >= n )
     {
         DistMatrix<F> Z(A.Grid());
         if( alg == RIDGE_CHOLESKY )
         {
-            Herk( LOWER, ADJOINT, Base<F>(1), A, Z );
-            ShiftDiagonal( Z, F(alpha*alpha) );
+            if( orientation == NORMAL )
+                Herk( LOWER, ADJOINT, Base<F>(1), A, Z );
+            else
+                Herk( LOWER, NORMAL, Base<F>(1), A, Z );
+            ShiftDiagonal( Z, F(gamma*gamma) );
             Cholesky( LOWER, Z );
-            Gemm( ADJOINT, NORMAL, F(1), A, B, X );
+            if( orientation == NORMAL )
+                Gemm( ADJOINT, NORMAL, F(1), A, B, X );
+            else
+                Gemm( NORMAL, NORMAL, F(1), A, B, X );
             cholesky::SolveAfter( LOWER, NORMAL, Z, X );
         }
         else if( alg == RIDGE_QR )
@@ -96,23 +127,32 @@ void Ridge
             Zeros( Z, m+n, n );
             auto ZT = Z( IR(0,m),   IR(0,n) ); 
             auto ZB = Z( IR(m,m+n), IR(0,n) );
-            ZT = A;
-            FillDiagonal( ZB, F(alpha*alpha) );
+            if( orientation == NORMAL )
+                ZT = A;
+            else
+                Adjoint( A, ZT );
+            FillDiagonal( ZB, F(gamma*gamma) );
             // NOTE: This QR factorization could exploit the upper-triangular
             //       structure of the diagonal matrix ZB
             qr::ExplicitTriang( Z );
-            Gemm( ADJOINT, NORMAL, F(1), A, B, X );
+            if( orientation == NORMAL )
+                Gemm( ADJOINT, NORMAL, F(1), A, B, X );
+            else
+                Gemm( NORMAL, NORMAL, F(1), A, B, X );
             cholesky::SolveAfter( LOWER, NORMAL, Z, X );
         }
         else
         {
             DistMatrix<F> U(A.Grid()), V(A.Grid());
             DistMatrix<Base<F>,VR,STAR> s(A.Grid());
-            U = A;
+            if( orientation == NORMAL )
+                U = A;
+            else
+                Adjoint( A, U );
             SVD( U, s, V );
             auto sigmaMap = 
               [=]( Base<F> sigma ) 
-              { return sigma / (sigma*sigma + alpha*alpha); };
+              { return sigma / (sigma*sigma + gamma*gamma); };
             EntrywiseMap( s, function<Base<F>(Base<F>)>(sigmaMap) );
             Gemm( ADJOINT, NORMAL, F(1), U, B, X );
             DiagonalScale( LEFT, NORMAL, s, X );
@@ -126,55 +166,69 @@ void Ridge
     }
 }
 
-// TODO: Switch to a similar approach as in LeastSquares
 template<typename F>
 void Ridge
-( const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, Base<F> alpha,
-        DistMultiVec<F>& X, const BisectCtrl& ctrl )
+( Orientation orientation,
+  const SparseMatrix<F>& A, const Matrix<F>& B, 
+        Base<F> gamma,            Matrix<F>& X, 
+  const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Ridge");
-        if( A.Height() != B.Height() )
-            LogicError("Heights of A and B must match");
+      CallStackEntry cse("Ridge");
+      if( A.Height() != B.Height() )
+          LogicError("Heights of A and B must match");
     )
-    const Int m = A.Height();
+
     const Int n = A.Width();
-    DistSparseMatrix<F> C(A.Comm());
+    SparseMatrix<F> G;
+    Zeros( G, n, n );
+    ShiftDiagonal( G, gamma );
 
-    X.SetComm( B.Comm() );
-    Zeros( X, n, B.Width() );
-    if( m >= n )
-    {
-        Herk( LOWER, ADJOINT, Base<F>(1), A, C );
-        ShiftDiagonal( C, F(alpha*alpha) );
-        MakeHermitian( LOWER, C );
+    Tikhonov( orientation, A, B, G, X, ctrl );
+}
 
-        Multiply( ADJOINT, F(1), A, B, F(0), X );
-        HermitianSolve( C, X, ctrl );
-    }
-    else
-    {
-        Herk( LOWER, NORMAL, Base<F>(1), A, C );
-        ShiftDiagonal( C, F(alpha*alpha) );
-        MakeHermitian( LOWER, C );
+template<typename F>
+void Ridge
+( Orientation orientation,
+  const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, 
+        Base<F> gamma,                DistMultiVec<F>& X, 
+  const LeastSquaresCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(
+      CallStackEntry cse("Ridge");
+      if( A.Height() != B.Height() )
+          LogicError("Heights of A and B must match");
+    )
 
-        DistMultiVec<F> BCopy(B.Comm());
-        BCopy = B;
-        HermitianSolve( C, BCopy, ctrl );
-        Multiply( ADJOINT, F(1), A, BCopy, F(0), X );
-    }
+    const Int n = A.Width();
+    DistSparseMatrix<F> G(A.Comm());
+    Zeros( G, n, n );
+    ShiftDiagonal( G, gamma );
+
+    Tikhonov( orientation, A, B, G, X, ctrl );
 }
 
 #define PROTO(F) \
   template void Ridge \
-  ( const Matrix<F>& A, const Matrix<F>& B, \
-    Base<F> alpha, Matrix<F>& X, RidgeAlg alg ); \
+  ( Orientation orientation, \
+    const Matrix<F>& A, const Matrix<F>& B, \
+          Base<F> gamma,      Matrix<F>& X, \
+    RidgeAlg alg ); \
   template void Ridge \
-  ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, \
-    Base<F> alpha, AbstractDistMatrix<F>& X, RidgeAlg alg ); \
+  ( Orientation orientation, \
+    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, \
+          Base<F> gamma,                  AbstractDistMatrix<F>& X, \
+    RidgeAlg alg ); \
   template void Ridge \
-  ( const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, Base<F> alpha, \
-    DistMultiVec<F>& X, const BisectCtrl& ctrl );
+  ( Orientation orientation, \
+    const SparseMatrix<F>& A, const Matrix<F>& B, \
+          Base<F> gamma,            Matrix<F>& X, \
+    const LeastSquaresCtrl<Base<F>>& ctrl ); \
+  template void Ridge \
+  ( Orientation orientation, \
+    const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, \
+          Base<F> gamma,                DistMultiVec<F>& X, \
+    const LeastSquaresCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
