@@ -89,7 +89,18 @@ void LSE
   AbstractDistMatrix<F>& C, AbstractDistMatrix<F>& D, 
   AbstractDistMatrix<F>& X, bool computeResidual=false );
 
-// TODO: Sparse-direct implementations
+template<typename F>
+void LSE
+( const SparseMatrix<F>& A, const SparseMatrix<F>& B,
+  const Matrix<F>& C,       const Matrix<F>& D,
+        Matrix<F>& X,
+  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
+template<typename F>
+void LSE
+( const DistSparseMatrix<F>& A, const DistSparseMatrix<F>& B,
+  const DistMultiVec<F>& C,     const DistMultiVec<F>& D,
+        DistMultiVec<F>& X,
+  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 
 // Ridge regression
 // ================

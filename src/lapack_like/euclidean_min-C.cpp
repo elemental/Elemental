@@ -87,14 +87,48 @@ ElError ElLeastSquaresCtrlDefault_d( ElLeastSquaresCtrl_d* ctrl )
      ---------------------------------- */ \
   ElError ElLSE_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG B, \
-    ElMatrix_ ## SIG C, ElMatrix_ ## SIG D, ElMatrix_ ## SIG X ) \
+    ElMatrix_ ## SIG C, ElMatrix_ ## SIG D, \
+    ElMatrix_ ## SIG X ) \
   { EL_TRY( LSE( *CReflect(A), *CReflect(B), \
-                 *CReflect(C), *CReflect(D), *CReflect(X) ) ) } \
+                 *CReflect(C), *CReflect(D), \
+                 *CReflect(X) ) ) } \
   ElError ElLSEDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B, \
-    ElDistMatrix_ ## SIG C, ElDistMatrix_ ## SIG D, ElDistMatrix_ ## SIG X ) \
+    ElDistMatrix_ ## SIG C, ElDistMatrix_ ## SIG D, \
+    ElDistMatrix_ ## SIG X ) \
   { EL_TRY( LSE( *CReflect(A), *CReflect(B), \
-                 *CReflect(C), *CReflect(D), *CReflect(X) ) ) } \
+                 *CReflect(C), *CReflect(D), \
+                  *CReflect(X) ) ) } \
+  ElError ElLSESparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstSparseMatrix_ ## SIG B, \
+    ElConstMatrix_ ## SIG C,       ElConstMatrix_ ## SIG D, \
+    ElMatrix_ ## SIG X ) \
+  { EL_TRY( LSE( *CReflect(A), *CReflect(B), \
+                 *CReflect(C), *CReflect(D), \
+                  *CReflect(X) ) ) } \
+  ElError ElLSEDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistSparseMatrix_ ## SIG B, \
+    ElConstDistMultiVec_ ## SIG C,     ElConstDistMultiVec_ ## SIG D, \
+    ElDistMultiVec_ ## SIG X ) \
+  { EL_TRY( LSE( *CReflect(A), *CReflect(B), \
+                 *CReflect(C), *CReflect(D), \
+                 *CReflect(X) ) ) } \
+  /* Expert versions
+     ^^^^^^^^^^^^^^^ */ \
+  ElError ElLSEXSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstSparseMatrix_ ## SIG B, \
+    ElConstMatrix_ ## SIG C,       ElConstMatrix_ ## SIG D, \
+    ElMatrix_ ## SIG X, ElLeastSquaresCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( LSE( *CReflect(A), *CReflect(B), \
+                 *CReflect(C), *CReflect(D), \
+                 *CReflect(X), CReflect(ctrl) ) ) } \
+  ElError ElLSEXDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistSparseMatrix_ ## SIG B, \
+    ElConstDistMultiVec_ ## SIG C,     ElConstDistMultiVec_ ## SIG D, \
+    ElDistMultiVec_ ## SIG X, ElLeastSquaresCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( LSE( *CReflect(A), *CReflect(B), \
+                 *CReflect(C), *CReflect(D), \
+                 *CReflect(X), CReflect(ctrl) ) ) } \
   /* Ridge regression
      ---------------- */ \
   ElError ElRidge_ ## SIG \

@@ -8,14 +8,14 @@
 */
 #include "El.hpp"
 
-// This driver solves a sequence of Equality-constrained Least Squares (LSE)
-// problems using a Generalized RQ factorization. 
+// This file implements both dense and sparse-direct solutions of 
+// Equality-constrained Least Squares (LSE):
 //
-// The problem formulation is 
-//     min || A x - c ||_2 subject to B x = d,
-//      x
-// where A is m x n, B is p x n, and p <= n <= m+p. It is assumed that 
-// B has full row rank, p, and [A;B] has full column rank, n.
+//     min_x || A x - c ||_2 subject to B x = d.
+//
+// For dense instances of the problem, a Generalized RQ factorization can be
+// employed as long as A is m x n, B is p x n, and p <= n <= m+p. It is 
+// assumed that B has full row rank, p, and [A;B] has full column rank, n.
 //
 // A Generalized RQ factorization of (B,A),
 //    B = T Q = | 0 T12 | Q,  A = Z | R11 R12 | Q,
@@ -49,6 +49,18 @@
 // D is overwritten with arbitrary values.
 //
 // Note that essentially the same scheme is used in LAPACK's {S,D,C,Z}GGLSE.
+//
+// For sparse instances of the LSE problem, the symmetric quasi-semidefinite
+// augmented system
+//
+//     | 0 A^H B^H | |  x |   | 0 |
+//     | A -I   0  | | -r | = | b |
+//     | B  0   0  | |  y |   | d |
+//
+// is formed, equilibrated, and then a priori regularization is added in order
+// to make the system sufficiently quasi-definite. A Cholesky-like factorization
+// of this regularized system is then used as a preconditioner for FGMRES(k).
+//
 
 namespace El {
 
@@ -236,6 +248,120 @@ void LSE
     rq::ApplyQ( LEFT, ADJOINT, B, tB, dB, X );
 }
 
+template<typename F> 
+void LSE
+( const SparseMatrix<F>& A, const SparseMatrix<F>& B, 
+  const Matrix<F>& C,       const Matrix<F>& D, 
+        Matrix<F>& X,
+  const LeastSquaresCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CallStackEntry cse("LSE"))
+    typedef Base<F> Real;
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int k = B.Height();
+    const Int numRHS = C.Width();
+    const Int numEntriesA = A.NumEntries();
+    const Int numEntriesB = B.NumEntries();
+
+    // Form the augmented matrix
+    // =========================
+    //
+    //         | 0  A^H  B^H |
+    //     J = | A  -I    0  |
+    //         | B   0    0  |
+    //
+    SparseMatrix<F> J; 
+    Zeros( J, n+m+k, n+m+k );
+    J.Reserve( 2*numEntriesA+2*numEntriesB+m ); 
+    for( Int e=0; e<numEntriesA; ++e )
+    {
+        J.QueueUpdate( A.Row(e)+n, A.Col(e),        A.Value(e)  );
+        J.QueueUpdate( A.Col(e),   A.Row(e)+n, Conj(A.Value(e)) );
+    }
+    for( Int e=0; e<numEntriesB; ++e )
+    {
+        J.QueueUpdate( B.Row(e)+n+m, B.Col(e),          B.Value(e)  );
+        J.QueueUpdate( B.Col(e),     B.Row(e)+n+m, Conj(B.Value(e)) );
+    }
+    for( Int e=0; e<m; ++e )
+        J.QueueUpdate( e+n, e+n, F(-1) );
+    J.MakeConsistent();
+
+    // Form the augmented RHS
+    // ======================
+    //   G = [ C; 0; D ]
+    Matrix<F> G;
+    Zeros( G, n+m+k, numRHS );
+    {
+        auto Gx = G( IR(0,n),       IR(0,numRHS) );
+        auto Gy = G( IR(n+m,n+m+k), IR(0,numRHS) );
+        Gx = C;
+        Gy = D;
+    }
+    
+    // Equilibrate the augmented system
+    // ================================
+    Matrix<Real> dEquil;
+    SymmetricGeomEquil( J, dEquil, ctrl.progress ); 
+    DiagonalSolve( LEFT, NORMAL, dEquil, G );
+
+    // Add the a priori regularization
+    // ===============================
+    Matrix<Real> reg;
+    Zeros( reg, n+m+k, 1 );
+    for( Int i=0; i<n; ++i )
+        reg.Set( i, 0, ctrl.qsdCtrl.regPrimal );
+    for( Int i=n; i<n+m+k; ++i )
+        reg.Set( i, 0, -ctrl.qsdCtrl.regDual );
+    SparseMatrix<F> JOrig;
+    JOrig = J;
+    UpdateRealPartOfDiagonal( J, Real(1), reg );
+
+    // Factor the regularized system
+    // =============================
+    vector<Int> map, invMap; 
+    SymmNodeInfo info;
+    Separator rootSep;
+    NestedDissection( J.LockedGraph(), map, rootSep, info );
+    InvertMap( map, invMap );
+    SymmFront<F> JFront( J, map, info );
+    LDL( info, JFront );    
+
+    // Successively solve each of the numRHS linear systems
+    // ====================================================
+    Matrix<F> u;
+    Zeros( u, n+m+k, 1 );
+    for( Int j=0; j<numRHS; ++j )
+    {
+        auto g = G( IR(0,n+m+k), IR(j,j+1) );
+        u = g;
+        reg_qsd_ldl::SolveAfter
+        ( JOrig, reg, invMap, info, JFront, u, ctrl.qsdCtrl );
+        g = u;
+    }
+
+    // Unequilibrate the solutions
+    // ===========================
+    DiagonalSolve( LEFT, NORMAL, dEquil, G );
+
+    // Extract x from G = [ x; -r; y ]
+    // ===============================
+    X = G( IR(0,n), IR(0,numRHS) );
+}
+
+template<typename F> 
+void LSE
+( const DistSparseMatrix<F>& A, const DistSparseMatrix<F>& B, 
+  const DistMultiVec<F>& C,     const DistMultiVec<F>& D, 
+        DistMultiVec<F>& X,
+  const LeastSquaresCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CallStackEntry cse("LSE"))
+    // TODO
+    LogicError("This routine is not yet written");
+}
+
 #define PROTO(F) \
   template void LSE \
   ( Matrix<F>& A, Matrix<F>& B, Matrix<F>& C, Matrix<F>& D, \
@@ -243,7 +369,17 @@ void LSE
   template void LSE \
   ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
     AbstractDistMatrix<F>& C, AbstractDistMatrix<F>& D, \
-    AbstractDistMatrix<F>& X, bool computeResidual );
+    AbstractDistMatrix<F>& X, bool computeResidual ); \
+  template void LSE \
+  ( const SparseMatrix<F>& A, const SparseMatrix<F>& B, \
+    const Matrix<F>& C,       const Matrix<F>& D, \
+          Matrix<F>& X, \
+    const LeastSquaresCtrl<Base<F>>& ctrl ); \
+  template void LSE \
+  ( const DistSparseMatrix<F>& A, const DistSparseMatrix<F>& B, \
+    const DistMultiVec<F>& C,     const DistMultiVec<F>& D, \
+          DistMultiVec<F>& X, \
+    const LeastSquaresCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

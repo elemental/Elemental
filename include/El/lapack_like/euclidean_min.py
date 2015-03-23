@@ -172,14 +172,36 @@ lib.ElLSEDist_s.argtypes = \
 lib.ElLSEDist_d.argtypes = \
 lib.ElLSEDist_c.argtypes = \
 lib.ElLSEDist_z.argtypes = \
+lib.ElLSESparse_s.argtypes = \
+lib.ElLSESparse_d.argtypes = \
+lib.ElLSESparse_c.argtypes = \
+lib.ElLSESparse_z.argtypes = \
+lib.ElLSEDistSparse_s.argtypes = \
+lib.ElLSEDistSparse_d.argtypes = \
+lib.ElLSEDistSparse_c.argtypes = \
+lib.ElLSEDistSparse_z.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElLSEXSparse_s.argtypes = \
+lib.ElLSEXSparse_c.argtypes = \
+lib.ElLSEXDistSparse_s.argtypes = \
+lib.ElLSEXDistSparse_c.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,LeastSquaresCtrl_s]
+lib.ElLSEXSparse_d.argtypes = \
+lib.ElLSEXSparse_z.argtypes = \
+lib.ElLSEXDistSparse_d.argtypes = \
+lib.ElLSEXDistSparse_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,LeastSquaresCtrl_d]
 
-def LSE(A,B,C,D):
-  if type(A) is not type(B) or type(B) is not type(C) or type(C) is not type(D):
-    raise Exception('Matrix types of {A,B,C,D} must match')
+def LSE(A,B,C,D,ctrl=None):
+  if type(A) is not type(B):
+    raise Exception('Matrix types of A and B must match')
+  if type(C) is not type(D):
+    raise Exception('Matrix types of C and D must match')
   if A.tag != B.tag or B.tag != C.tag or C.tag != D.tag:
     raise Exception('Datatypes of {A,B,C,D} must match')
   if type(A) is Matrix:
+    if type(C) is not Matrix:
+      raise Exception('Expected C to be a Matrix')
     X = Matrix(A.tag)
     args = [A.obj,B.obj,C.obj,D.obj,X.obj]
     if   A.tag == sTag: lib.ElLSE_s(*args)
@@ -189,12 +211,54 @@ def LSE(A,B,C,D):
     else: DataExcept()
     return X
   elif type(A) is DistMatrix:
+    if type(C) is not DistMatrix:
+      raise Exception('Expected C to be a DistMatrix')
     X = DistMatrix(A.tag,MC,MR,A.Grid())
     args = [A.obj,B.obj,C.obj,D.obj,X.obj]
     if   A.tag == sTag: lib.ElLSEDist_s(*args)
     elif A.tag == dTag: lib.ElLSEDist_d(*args)
     elif A.tag == cTag: lib.ElLSEDist_c(*args)
     elif A.tag == zTag: lib.ElLSEDist_z(*args)
+    else: DataExcept()
+    return X
+  elif type(A) is SparseMatrix:
+    if type(C) is not Matrix:
+      raise Exception('Expected C to be a Matrix')
+    X = Matrix(A.tag)
+    args = [A.obj,B.obj,C.obj,D.obj,X.obj]
+    argsCtrl = [A.obj,B.obj,C.obj,D.obj,X.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl==None: lib.ElLSESparse_s(*args)
+      else:          lib.ElLSEXSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl==None: lib.ElLSESparse_d(*args)
+      else:          lib.ElLSEXSparse_d(*argsCtrl)
+    elif A.tag == cTag: 
+      if ctrl==None: lib.ElLSESparse_c(*args)
+      else:          lib.ElLSEXSparse_c(*argsCtrl)
+    elif A.tag == zTag: 
+      if ctrl==None: lib.ElLSESparse_z(*args)
+      else:          lib.ElLSEXSparse_z(*argsCtrl)
+    else: DataExcept()
+    return X
+  elif type(A) is DistSparseMatrix:
+    if type(C) is not DistMultiVec:
+      raise Exception('Expected C to be a DistMultiVec')
+    X = DistMultiVec(A.tag,A.Comm())
+    args = [A.obj,B.obj,C.obj,D.obj,X.obj]
+    argsCtrl = [A.obj,B.obj,C.obj,D.obj,X.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl==None: lib.ElLSEDistSparse_s(*args)
+      else:          lib.ElLSEXDistSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl==None: lib.ElLSEDistSparse_d(*args)
+      else:          lib.ElLSEXDistSparse_d(*argsCtrl)
+    elif A.tag == cTag: 
+      if ctrl==None: lib.ElLSEDistSparse_c(*args)
+      else:          lib.ElLSEXDistSparse_c(*argsCtrl)
+    elif A.tag == zTag: 
+      if ctrl==None: lib.ElLSEDistSparse_z(*args)
+      else:          lib.ElLSEXDistSparse_z(*argsCtrl)
     else: DataExcept()
     return X
   else: TypeExcept()

@@ -142,7 +142,7 @@ inline void Equilibrated
     const Int k = B.Width();
     const Int numEntriesA = A.NumEntries();
 
-    SparseMatrix<F> J, JOrig;
+    SparseMatrix<F> J;
     Zeros( J, m+n, m+n );
     J.Reserve( 2*numEntriesA + Max(m,n) );
     if( m >= n )
@@ -196,6 +196,7 @@ inline void Equilibrated
         reg.Set( i, 0, ctrl.qsdCtrl.regPrimal );
     for( Int i=Max(m,n); i<m+n; ++i )
         reg.Set( i, 0, -ctrl.qsdCtrl.regDual );
+    SparseMatrix<F> JOrig;
     JOrig = J;
     UpdateRealPartOfDiagonal( J, Real(1), reg );
 
@@ -313,7 +314,7 @@ void Equilibrated
 
     // J := [D_r^{-2}*alpha,A;A^H,0] or [D_c^{-2}*alpha,A^H;A,0]
     // =========================================================
-    DistSparseMatrix<F> J(comm), JOrig(comm);
+    DistSparseMatrix<F> J(comm);
     Zeros( J, m+n, m+n );
     const Int numLocalEntriesA = A.NumLocalEntries();
     {
@@ -519,6 +520,7 @@ void Equilibrated
         else
             reg.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
     }
+    DistSparseMatrix<F> JOrig(comm);
     JOrig = J;
     UpdateRealPartOfDiagonal( J, Real(1), reg );
 

@@ -174,6 +174,74 @@ EL_EXPORT ElError ElLSEDist_z
 
 /* TODO: Expert version which also returns the residual */
 
+EL_EXPORT ElError ElLSESparse_s
+( ElConstSparseMatrix_s A, ElConstSparseMatrix_s B,
+  ElConstMatrix_s C,       ElConstMatrix_s D,
+  ElMatrix_s X );
+EL_EXPORT ElError ElLSESparse_d
+( ElConstSparseMatrix_d A, ElConstSparseMatrix_d B,
+  ElConstMatrix_d C,       ElConstMatrix_d D,
+  ElMatrix_d X );
+EL_EXPORT ElError ElLSESparse_c
+( ElConstSparseMatrix_c A, ElConstSparseMatrix_c B,
+  ElConstMatrix_c C,       ElConstMatrix_c D,
+  ElMatrix_c X );
+EL_EXPORT ElError ElLSESparse_z
+( ElConstSparseMatrix_z A, ElConstSparseMatrix_z B,
+  ElConstMatrix_z C,       ElConstMatrix_z D,
+  ElMatrix_z X );
+
+EL_EXPORT ElError ElLSEDistSparse_s
+( ElConstDistSparseMatrix_s A, ElConstDistSparseMatrix_s B,
+  ElConstDistMultiVec_s C,     ElConstDistMultiVec_s D,
+  ElDistMultiVec_s X );
+EL_EXPORT ElError ElLSEDistSparse_d
+( ElConstDistSparseMatrix_d A, ElConstDistSparseMatrix_d B,
+  ElConstDistMultiVec_d C,     ElConstDistMultiVec_d D,
+  ElDistMultiVec_d X );
+EL_EXPORT ElError ElLSEDistSparse_c
+( ElConstDistSparseMatrix_c A, ElConstDistSparseMatrix_c B,
+  ElConstDistMultiVec_c C,     ElConstDistMultiVec_c D,
+  ElDistMultiVec_c X );
+EL_EXPORT ElError ElLSEDistSparse_z
+( ElConstDistSparseMatrix_z A, ElConstDistSparseMatrix_z B,
+  ElConstDistMultiVec_z C,     ElConstDistMultiVec_z D,
+  ElDistMultiVec_z X );
+
+EL_EXPORT ElError ElLSEXSparse_s
+( ElConstSparseMatrix_s A, ElConstSparseMatrix_s B,
+  ElConstMatrix_s C,       ElConstMatrix_s D,
+  ElMatrix_s X, ElLeastSquaresCtrl_s ctrl );
+EL_EXPORT ElError ElLSEXSparse_d
+( ElConstSparseMatrix_d A, ElConstSparseMatrix_d B,
+  ElConstMatrix_d C,       ElConstMatrix_d D,
+  ElMatrix_d X, ElLeastSquaresCtrl_d ctrl );
+EL_EXPORT ElError ElLSEXSparse_c
+( ElConstSparseMatrix_c A, ElConstSparseMatrix_c B,
+  ElConstMatrix_c C,       ElConstMatrix_c D,
+  ElMatrix_c X, ElLeastSquaresCtrl_s ctrl );
+EL_EXPORT ElError ElLSEXSparse_z
+( ElConstSparseMatrix_z A, ElConstSparseMatrix_z B,
+  ElConstMatrix_z C,       ElConstMatrix_z D,
+  ElMatrix_z X, ElLeastSquaresCtrl_d ctrl );
+
+EL_EXPORT ElError ElLSEXDistSparse_s
+( ElConstDistSparseMatrix_s A, ElConstDistSparseMatrix_s B,
+  ElConstDistMultiVec_s C,     ElConstDistMultiVec_s D,
+  ElDistMultiVec_s X, ElLeastSquaresCtrl_s ctrl );
+EL_EXPORT ElError ElLSEXDistSparse_d
+( ElConstDistSparseMatrix_d A, ElConstDistSparseMatrix_d B,
+  ElConstDistMultiVec_d C,     ElConstDistMultiVec_d D,
+  ElDistMultiVec_d X, ElLeastSquaresCtrl_d ctrl );
+EL_EXPORT ElError ElLSEXDistSparse_c
+( ElConstDistSparseMatrix_c A, ElConstDistSparseMatrix_c B,
+  ElConstDistMultiVec_c C,     ElConstDistMultiVec_c D,
+  ElDistMultiVec_c X, ElLeastSquaresCtrl_s ctrl );
+EL_EXPORT ElError ElLSEXDistSparse_z
+( ElConstDistSparseMatrix_z A, ElConstDistSparseMatrix_z B,
+  ElConstDistMultiVec_z C,     ElConstDistMultiVec_z D,
+  ElDistMultiVec_z X, ElLeastSquaresCtrl_d ctrl );
+
 /* Ridge regression
    ================ */
 /* Ridge regression is a special case of Tikhonov regularization with 
