@@ -106,21 +106,20 @@ Matrix<T>::~Matrix() { }
 // Return a view
 // -------------
 template<typename T>
-Matrix<T> Matrix<T>::operator()( Range<Int> indVert, Range<Int> indHorz )
+Matrix<T> Matrix<T>::operator()( Range<Int> I, Range<Int> J )
 {
-    DEBUG_ONLY(CallStackEntry cse("Matrix( ind, ind )"))
+    DEBUG_ONLY(CallStackEntry cse("Matrix::operator()"))
     if( this->Locked() )
-        return LockedView( *this, indVert, indHorz );
+        return LockedView( *this, I, J );
     else
-        return View( *this, indVert, indHorz );
+        return View( *this, I, J );
 }
 
 template<typename T>
-const Matrix<T> Matrix<T>::operator()
-( Range<Int> indVert, Range<Int> indHorz ) const
+const Matrix<T> Matrix<T>::operator()( Range<Int> I, Range<Int> J ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("Matrix( ind, ind )"))
-    return LockedView( *this, indVert, indHorz );
+    DEBUG_ONLY(CallStackEntry cse("Matrix::operator()"))
+    return LockedView( *this, I, J );
 }
 
 // Make a copy

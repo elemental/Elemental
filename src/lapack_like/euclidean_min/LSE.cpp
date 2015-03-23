@@ -53,9 +53,9 @@
 // For sparse instances of the LSE problem, the symmetric quasi-semidefinite
 // augmented system
 //
-//     | 0 A^H B^H | |  x |   | 0 |
-//     | A -I   0  | | -r | = | b |
-//     | B  0   0  | |  y |   | d |
+//     | 0    A^H    B^H | |     x    |   | 0 |
+//     | A -alpha*I   0  | | -r/alpha | = | c |
+//     | B     0      0  | |  y/alpha |   | d |
 //
 // is formed, equilibrated, and then a priori regularization is added in order
 // to make the system sufficiently quasi-definite. A Cholesky-like factorization
@@ -267,9 +267,9 @@ void LSE
     // Form the augmented matrix
     // =========================
     //
-    //         | 0  A^H  B^H |
-    //     J = | A  -I    0  |
-    //         | B   0    0  |
+    //         | 0     A^H    B^H |
+    //     J = | A  -alpha*I   0  |
+    //         | B      0      0  |
     //
     SparseMatrix<F> J; 
     Zeros( J, n+m+k, n+m+k );
@@ -285,18 +285,18 @@ void LSE
         J.QueueUpdate( B.Col(e),     B.Row(e)+n+m, Conj(B.Value(e)) );
     }
     for( Int e=0; e<m; ++e )
-        J.QueueUpdate( e+n, e+n, F(-1) );
+        J.QueueUpdate( e+n, e+n, -ctrl.alpha );
     J.MakeConsistent();
 
     // Form the augmented RHS
     // ======================
-    //   G = [ C; 0; D ]
+    //   G = [ 0; C; D ]
     Matrix<F> G;
     Zeros( G, n+m+k, numRHS );
     {
-        auto Gx = G( IR(0,n),       IR(0,numRHS) );
+        auto Gr = G( IR(n,n+m),     IR(0,numRHS) );
         auto Gy = G( IR(n+m,n+m+k), IR(0,numRHS) );
-        Gx = C;
+        Gr = C;
         Gy = D;
     }
     
@@ -345,8 +345,8 @@ void LSE
     // ===========================
     DiagonalSolve( LEFT, NORMAL, dEquil, G );
 
-    // Extract x from G = [ x; -r; y ]
-    // ===============================
+    // Extract x from G = [ x; -r/alpha; y/alpha ]
+    // ===========================================
     X = G( IR(0,n), IR(0,numRHS) );
 }
 

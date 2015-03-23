@@ -30,6 +30,10 @@ public:
 
     // Assignment  and reconfiguration
     // ===============================
+
+    // Make a copy of a submatrix
+    // --------------------------
+    DistMultiVec<T> operator()( Range<Int> I, Range<Int> J ) const;
    
     // Assignment
     // ----------

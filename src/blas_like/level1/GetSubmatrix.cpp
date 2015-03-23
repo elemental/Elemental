@@ -279,6 +279,621 @@ DistMatrix<Base<T>,STAR,STAR> GetImagPartOfSubmatrix
     return ASub;
 }
 
+template<typename T>
+void GetSubmatrix
+( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J,
+        SparseMatrix<T>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
+    const Int mSub = I.end-I.beg;
+    const Int nSub = J.end-J.beg;
+    Zeros( ASub, mSub, nSub );
+
+    // Reserve the number of nonzeros that live within the submatrix
+    Int numNonzerosSub = 0;
+    for( Int i=I.beg; i<I.end; ++i )
+    {
+        const Int rowOff = A.EntryOffset(i);
+        const Int numConn = A.NumConnections(i);
+        for( Int e=rowOff; e<rowOff+numConn; ++e )
+        {
+            const Int j = A.Col(e);
+            if( j >= J.beg && j < J.end )
+                ++numNonzerosSub;
+        }
+    }
+    ASub.Reserve( numNonzerosSub );
+
+    // Insert the nonzeros
+    for( Int i=I.beg; i<I.end; ++i ) 
+    {
+        const Int rowOff = A.EntryOffset(i);
+        const Int numConn = A.NumConnections(i);
+        for( Int e=rowOff; e<rowOff+numConn; ++e )
+        {
+            const Int j = A.Col(e);
+            if( j >= J.beg && j < J.end )
+                ASub.QueueUpdate( i-I.beg, j-J.beg, A.Value(e) );
+        }
+    }
+    ASub.MakeConsistent();
+}
+
+template<typename T>
+void GetRealPartOfSubmatrix
+( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J,
+        SparseMatrix<Base<T>>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("GetRealPartOfSubmatrix"))
+    const Int mSub = I.end-I.beg;
+    const Int nSub = J.end-J.beg;
+    Zeros( ASub, mSub, nSub );
+
+    // Reserve the number of nonzeros that live within the submatrix
+    Int numNonzerosSub = 0;
+    for( Int i=I.beg; i<I.end; ++i )
+    {
+        const Int rowOff = A.EntryOffset(i);
+        const Int numConn = A.NumConnections(i);
+        for( Int e=rowOff; e<rowOff+numConn; ++e )
+        {
+            const Int j = A.Col(e);
+            if( j >= J.beg && j < J.end )
+                ++numNonzerosSub;
+        }
+    }
+    ASub.Reserve( numNonzerosSub );
+
+    // Insert the nonzeros
+    for( Int i=I.beg; i<I.end; ++i ) 
+    {
+        const Int rowOff = A.EntryOffset(i);
+        const Int numConn = A.NumConnections(i);
+        for( Int e=rowOff; e<rowOff+numConn; ++e )
+        {
+            const Int j = A.Col(e);
+            if( j >= J.beg && j < J.end )
+                ASub.QueueUpdate( i-I.beg, j-J.beg, RealPart(A.Value(e)) );
+        }
+    }
+    ASub.MakeConsistent();
+}
+
+template<typename T>
+void GetImagPartOfSubmatrix
+( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J,
+        SparseMatrix<Base<T>>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("GetImagPartOfSubmatrix"))
+    const Int mSub = I.end-I.beg;
+    const Int nSub = J.end-J.beg;
+    Zeros( ASub, mSub, nSub );
+
+    // Reserve the number of nonzeros that live within the submatrix
+    Int numNonzerosSub = 0;
+    for( Int i=I.beg; i<I.end; ++i )
+    {
+        const Int rowOff = A.EntryOffset(i);
+        const Int numConn = A.NumConnections(i);
+        for( Int e=rowOff; e<rowOff+numConn; ++e )
+        {
+            const Int j = A.Col(e);
+            if( j >= J.beg && j < J.end )
+                ++numNonzerosSub;
+        }
+    }
+    ASub.Reserve( numNonzerosSub );
+
+    // Insert the nonzeros
+    for( Int i=I.beg; i<I.end; ++i ) 
+    {
+        const Int rowOff = A.EntryOffset(i);
+        const Int numConn = A.NumConnections(i);
+        for( Int e=rowOff; e<rowOff+numConn; ++e )
+        {
+            const Int j = A.Col(e);
+            if( j >= J.beg && j < J.end )
+                ASub.QueueUpdate( i-I.beg, j-J.beg, ImagPart(A.Value(e)) );
+        }
+    }
+    ASub.MakeConsistent();
+}
+
+template<typename T>
+SparseMatrix<T> GetSubmatrix
+( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J )
+{
+    SparseMatrix<T> ASub;
+    GetSubmatrix( A, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+SparseMatrix<Base<T>> GetRealPartOfSubmatrix
+( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J )
+{
+    SparseMatrix<Base<T>> ASub;
+    GetRealPartOfSubmatrix( A, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+SparseMatrix<Base<T>> GetImagPartOfSubmatrix
+( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J )
+{
+    SparseMatrix<Base<T>> ASub;
+    GetImagPartOfSubmatrix( A, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+void GetSubmatrix
+( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J,
+        DistSparseMatrix<T>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
+    const Int mSub = I.end-I.beg;
+    const Int nSub = J.end-J.beg;
+    const Int numEntries = A.NumLocalEntries();
+
+    mpi::Comm comm = A.Comm();
+    const int commSize = mpi::Size( comm );
+    ASub.SetComm( comm );
+    Zeros( ASub, mSub, nSub );
+
+    // Compute the metadata
+    // ====================
+    vector<int> sendCounts(commSize,0);
+    for( Int e=0; e<numEntries; ++e )
+    {
+        const Int i = A.Row(e);
+        const Int j = A.Col(e);
+        if( i >= I.end )
+            break;
+        else if( i >= I.beg && j >= J.beg && j < J.end )
+            ++sendCounts[ ASub.RowOwner(i-I.beg) ];
+    }
+    vector<int> recvCounts(commSize);
+    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
+    vector<int> sendOffs, recvOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
+    const int totalRecv = Scan( recvCounts, recvOffs );
+
+    // Pack the data
+    // =============
+    auto offs = sendOffs;
+    vector<ValueIntPair<T>> sendBuf(totalSend);
+    for( Int e=0; e<numEntries; ++e )
+    {
+        const Int i = A.Row(e);
+        const Int j = A.Col(e);
+        const T value = A.Value(e);
+        if( i >= I.end )
+            break;
+        else if( i >= I.beg && j >= J.beg && j < J.end )
+        {
+            const Int iSub = i - I.beg;
+            const Int jSub = j - J.beg;
+            const int owner = ASub.RowOwner( iSub );
+            sendBuf[offs[owner]].indices[0] = iSub;
+            sendBuf[offs[owner]].indices[1] = jSub;
+            sendBuf[offs[owner]].value = value;
+            ++offs[owner];
+        }
+    }
+    
+    // Exchange and unpack the data
+    // ============================
+    vector<ValueIntPair<T>> recvBuf(totalRecv);
+    mpi::AllToAll
+    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
+    for( Int e=0; e<totalRecv; ++e )
+        ASub.QueueLocalUpdate
+        ( recvBuf[e].indices[0]-ASub.FirstLocalRow(), recvBuf[e].indices[1], 
+          recvBuf[e].value );
+    ASub.MakeConsistent();
+}
+
+template<typename T>
+void GetRealPartOfSubmatrix
+( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J,
+        DistSparseMatrix<Base<T>>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("GetRealPartOfSubmatrix"))
+    const Int mSub = I.end-I.beg;
+    const Int nSub = J.end-J.beg;
+    const Int numEntries = A.NumLocalEntries();
+
+    mpi::Comm comm = A.Comm();
+    const int commSize = mpi::Size( comm );
+    ASub.SetComm( comm );
+    Zeros( ASub, mSub, nSub );
+
+    // Compute the metadata
+    // ====================
+    vector<int> sendCounts(commSize,0);
+    for( Int e=0; e<numEntries; ++e )
+    {
+        const Int i = A.Row(e);
+        const Int j = A.Col(e);
+        if( i >= I.end )
+            break;
+        else if( i >= I.beg && j >= J.beg && j < J.end )
+            ++sendCounts[ ASub.RowOwner(i-I.beg) ];
+    }
+    vector<int> recvCounts(commSize);
+    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
+    vector<int> sendOffs, recvOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
+    const int totalRecv = Scan( recvCounts, recvOffs );
+
+    // Pack the data
+    // =============
+    auto offs = sendOffs;
+    vector<ValueIntPair<Base<T>>> sendBuf(totalSend);
+    for( Int e=0; e<numEntries; ++e )
+    {
+        const Int i = A.Row(e);
+        const Int j = A.Col(e);
+        const Base<T> value = RealPart(A.Value(e));
+        if( i >= I.end )
+            break;
+        else if( i >= I.beg && j >= J.beg && j < J.end )
+        {
+            const Int iSub = i - I.beg;
+            const Int jSub = j - J.beg;
+            const int owner = ASub.RowOwner( iSub );
+            sendBuf[offs[owner]].indices[0] = iSub;
+            sendBuf[offs[owner]].indices[1] = jSub;
+            sendBuf[offs[owner]].value = value;
+            ++offs[owner];
+        }
+    }
+    
+    // Exchange and unpack the data
+    // ============================
+    vector<ValueIntPair<Base<T>>> recvBuf(totalRecv);
+    mpi::AllToAll
+    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
+    for( Int e=0; e<totalRecv; ++e )
+        ASub.QueueLocalUpdate
+        ( recvBuf[e].indices[0]-ASub.FirstLocalRow(), recvBuf[e].indices[1], 
+          recvBuf[e].value );
+    ASub.MakeConsistent();
+}
+
+template<typename T>
+void GetImagPartOfSubmatrix
+( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J,
+        DistSparseMatrix<Base<T>>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("GetImagPartOfSubmatrix"))
+    const Int mSub = I.end-I.beg;
+    const Int nSub = J.end-J.beg;
+    const Int numEntries = A.NumLocalEntries();
+
+    mpi::Comm comm = A.Comm();
+    const int commSize = mpi::Size( comm );
+    ASub.SetComm( comm );
+    Zeros( ASub, mSub, nSub );
+
+    // Compute the metadata
+    // ====================
+    vector<int> sendCounts(commSize,0);
+    for( Int e=0; e<numEntries; ++e )
+    {
+        const Int i = A.Row(e);
+        const Int j = A.Col(e);
+        if( i >= I.end )
+            break;
+        else if( i >= I.beg && j >= J.beg && j < J.end )
+            ++sendCounts[ ASub.RowOwner(i-I.beg) ];
+    }
+    vector<int> recvCounts(commSize);
+    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
+    vector<int> sendOffs, recvOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
+    const int totalRecv = Scan( recvCounts, recvOffs );
+
+    // Pack the data
+    // =============
+    auto offs = sendOffs;
+    vector<ValueIntPair<Base<T>>> sendBuf(totalSend);
+    for( Int e=0; e<numEntries; ++e )
+    {
+        const Int i = A.Row(e);
+        const Int j = A.Col(e);
+        const Base<T> value = ImagPart(A.Value(e));
+        if( i >= I.end )
+            break;
+        else if( i >= I.beg && j >= J.beg && j < J.end )
+        {
+            const Int iSub = i - I.beg;
+            const Int jSub = j - J.beg;
+            const int owner = ASub.RowOwner( iSub );
+            sendBuf[offs[owner]].indices[0] = iSub;
+            sendBuf[offs[owner]].indices[1] = jSub;
+            sendBuf[offs[owner]].value = value;
+            ++offs[owner];
+        }
+    }
+    
+    // Exchange and unpack the data
+    // ============================
+    vector<ValueIntPair<Base<T>>> recvBuf(totalRecv);
+    mpi::AllToAll
+    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
+    for( Int e=0; e<totalRecv; ++e )
+        ASub.QueueLocalUpdate
+        ( recvBuf[e].indices[0]-ASub.FirstLocalRow(), recvBuf[e].indices[1], 
+          recvBuf[e].value );
+    ASub.MakeConsistent();
+}
+
+template<typename T>
+DistSparseMatrix<T> GetSubmatrix
+( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J )
+{
+    DistSparseMatrix<T> ASub(A.Comm());
+    GetSubmatrix( A, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+DistSparseMatrix<Base<T>> GetRealPartOfSubmatrix
+( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J )
+{
+    DistSparseMatrix<Base<T>> ASub(A.Comm());
+    GetRealPartOfSubmatrix( A, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+DistSparseMatrix<Base<T>> GetImagPartOfSubmatrix
+( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J )
+{
+    DistSparseMatrix<Base<T>> ASub(A.Comm());
+    GetImagPartOfSubmatrix( A, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+void GetSubmatrix
+( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J,
+        DistMultiVec<T>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
+    const Int mSub = I.end-I.beg;
+    const Int nSub = J.end-J.beg;
+    const Int localHeight = A.LocalHeight();
+
+    mpi::Comm comm = A.Comm();
+    const int commSize = mpi::Size( comm );
+    ASub.SetComm( comm );
+    Zeros( ASub, mSub, nSub );
+
+    // Compute the metadata
+    // ====================
+    vector<int> sendCounts(commSize,0);
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+    {
+        const Int i = A.GlobalRow(iLoc);
+        if( i >= I.end )
+            break;
+        else if( i >= I.beg )
+            sendCounts[ ASub.RowOwner(i-I.beg) ] += J.end-J.beg;
+    }
+    vector<int> recvCounts(commSize);
+    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
+    vector<int> sendOffs, recvOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
+    const int totalRecv = Scan( recvCounts, recvOffs );
+
+    // Pack the data
+    // =============
+    auto offs = sendOffs;
+    vector<ValueIntPair<T>> sendBuf(totalSend);
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+    {
+        const Int i = A.GlobalRow(iLoc);
+        if( i >= I.end )
+            break;
+        else if( i >= I.beg )
+        {
+            for( Int j=J.beg; j<J.end; ++j )
+            {
+                const T value = A.GetLocal(iLoc,j);
+                const Int iSub = i - I.beg;
+                const Int jSub = j - J.beg;
+                const int owner = ASub.RowOwner( iSub );
+                sendBuf[offs[owner]].indices[0] = iSub;
+                sendBuf[offs[owner]].indices[1] = jSub;
+                sendBuf[offs[owner]].value = value;
+                ++offs[owner];
+            }
+        }
+    }
+    
+    // Exchange and unpack the data
+    // ============================
+    vector<ValueIntPair<T>> recvBuf(totalRecv);
+    mpi::AllToAll
+    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
+    for( Int e=0; e<totalRecv; ++e )
+        ASub.SetLocal
+        ( recvBuf[e].indices[0]-ASub.FirstLocalRow(), recvBuf[e].indices[1], 
+          recvBuf[e].value );
+}
+
+template<typename T>
+void GetRealPartOfSubmatrix
+( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J,
+        DistMultiVec<Base<T>>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("GetRealPartOfSubmatrix"))
+    const Int mSub = I.end-I.beg;
+    const Int nSub = J.end-J.beg;
+    const Int localHeight = A.LocalHeight();
+
+    mpi::Comm comm = A.Comm();
+    const int commSize = mpi::Size( comm );
+    ASub.SetComm( comm );
+    Zeros( ASub, mSub, nSub );
+
+    // Compute the metadata
+    // ====================
+    vector<int> sendCounts(commSize,0);
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+    {
+        const Int i = A.GlobalRow(iLoc);
+        if( i >= I.end )
+            break;
+        else if( i >= I.beg )
+            sendCounts[ ASub.RowOwner(i-I.beg) ] += J.end-J.beg;
+    }
+    vector<int> recvCounts(commSize);
+    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
+    vector<int> sendOffs, recvOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
+    const int totalRecv = Scan( recvCounts, recvOffs );
+
+    // Pack the data
+    // =============
+    auto offs = sendOffs;
+    vector<ValueIntPair<Base<T>>> sendBuf(totalSend);
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+    {
+        const Int i = A.GlobalRow(iLoc);
+        if( i >= I.end )
+            break;
+        else if( i >= I.beg )
+        {
+            for( Int j=J.beg; j<J.end; ++j )
+            {
+                const Base<T> value = RealPart(A.GetLocal(iLoc,j));
+                const Int iSub = i - I.beg;
+                const Int jSub = j - J.beg;
+                const int owner = ASub.RowOwner( iSub );
+                sendBuf[offs[owner]].indices[0] = iSub;
+                sendBuf[offs[owner]].indices[1] = jSub;
+                sendBuf[offs[owner]].value = value;
+                ++offs[owner];
+            }
+        }
+    }
+    
+    // Exchange and unpack the data
+    // ============================
+    vector<ValueIntPair<Base<T>>> recvBuf(totalRecv);
+    mpi::AllToAll
+    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
+    for( Int e=0; e<totalRecv; ++e )
+        ASub.SetLocal
+        ( recvBuf[e].indices[0]-ASub.FirstLocalRow(), recvBuf[e].indices[1], 
+          recvBuf[e].value );
+}
+
+template<typename T>
+void GetImagPartOfSubmatrix
+( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J,
+        DistMultiVec<Base<T>>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("GetImagPartOfSubmatrix"))
+    const Int mSub = I.end-I.beg;
+    const Int nSub = J.end-J.beg;
+    const Int localHeight = A.LocalHeight();
+
+    mpi::Comm comm = A.Comm();
+    const int commSize = mpi::Size( comm );
+    ASub.SetComm( comm );
+    Zeros( ASub, mSub, nSub );
+
+    // Compute the metadata
+    // ====================
+    vector<int> sendCounts(commSize,0);
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+    {
+        const Int i = A.GlobalRow(iLoc);
+        if( i >= I.end )
+            break;
+        else if( i >= I.beg )
+            sendCounts[ ASub.RowOwner(i-I.beg) ] += J.end-J.beg;
+    }
+    vector<int> recvCounts(commSize);
+    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
+    vector<int> sendOffs, recvOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
+    const int totalRecv = Scan( recvCounts, recvOffs );
+
+    // Pack the data
+    // =============
+    auto offs = sendOffs;
+    vector<ValueIntPair<Base<T>>> sendBuf(totalSend);
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+    {
+        const Int i = A.GlobalRow(iLoc);
+        if( i >= I.end )
+            break;
+        else if( i >= I.beg )
+        {
+            for( Int j=J.beg; j<J.end; ++j )
+            {
+                const Base<T> value = ImagPart(A.GetLocal(iLoc,j));
+                const Int iSub = i - I.beg;
+                const Int jSub = j - J.beg;
+                const int owner = ASub.RowOwner( iSub );
+                sendBuf[offs[owner]].indices[0] = iSub;
+                sendBuf[offs[owner]].indices[1] = jSub;
+                sendBuf[offs[owner]].value = value;
+                ++offs[owner];
+            }
+        }
+    }
+    
+    // Exchange and unpack the data
+    // ============================
+    vector<ValueIntPair<Base<T>>> recvBuf(totalRecv);
+    mpi::AllToAll
+    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
+    for( Int e=0; e<totalRecv; ++e )
+        ASub.SetLocal
+        ( recvBuf[e].indices[0]-ASub.FirstLocalRow(), recvBuf[e].indices[1], 
+          recvBuf[e].value );
+}
+
+template<typename T>
+DistMultiVec<T> GetSubmatrix
+( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J )
+{
+    DistMultiVec<T> ASub(A.Comm());
+    GetSubmatrix( A, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+DistMultiVec<Base<T>> GetRealPartOfSubmatrix
+( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J )
+{
+    DistMultiVec<Base<T>> ASub(A.Comm());
+    GetRealPartOfSubmatrix( A, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+DistMultiVec<Base<T>> GetImagPartOfSubmatrix
+( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J )
+{
+    DistMultiVec<Base<T>> ASub(A.Comm());
+    GetImagPartOfSubmatrix( A, I, J, ASub );
+    return ASub;
+}
+
 #define PROTO(T) \
   template void GetSubmatrix \
   ( const Matrix<T>& A, \
@@ -321,7 +936,52 @@ DistMatrix<Base<T>,STAR,STAR> GetImagPartOfSubmatrix
     const vector<Int>& I, const vector<Int>& J ); \
   template DistMatrix<Base<T>,STAR,STAR> GetImagPartOfSubmatrix \
   ( const AbstractDistMatrix<T>& A, \
-    const vector<Int>& I, const vector<Int>& J );
+    const vector<Int>& I, const vector<Int>& J ); \
+  template void GetSubmatrix \
+  ( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J, \
+          SparseMatrix<T>& ASub ); \
+  template void GetRealPartOfSubmatrix \
+  ( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J, \
+          SparseMatrix<Base<T>>& ASub ); \
+  template void GetImagPartOfSubmatrix \
+  ( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J, \
+          SparseMatrix<Base<T>>& ASub ); \
+  template void GetSubmatrix \
+  ( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J, \
+          DistSparseMatrix<T>& ASub ); \
+  template void GetRealPartOfSubmatrix \
+  ( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J, \
+          DistSparseMatrix<Base<T>>& ASub ); \
+  template void GetImagPartOfSubmatrix \
+  ( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J, \
+          DistSparseMatrix<Base<T>>& ASub ); \
+  template SparseMatrix<T> GetSubmatrix \
+  ( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J ); \
+  template SparseMatrix<Base<T>> GetRealPartOfSubmatrix \
+  ( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J ); \
+  template SparseMatrix<Base<T>> GetImagPartOfSubmatrix \
+  ( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J ); \
+  template DistSparseMatrix<T> GetSubmatrix \
+  ( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J ); \
+  template DistSparseMatrix<Base<T>> GetRealPartOfSubmatrix \
+  ( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J ); \
+  template DistSparseMatrix<Base<T>> GetImagPartOfSubmatrix \
+  ( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J ); \
+  template void GetSubmatrix \
+  ( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J, \
+          DistMultiVec<T>& ASub ); \
+  template void GetRealPartOfSubmatrix \
+  ( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J, \
+          DistMultiVec<Base<T>>& ASub ); \
+  template void GetImagPartOfSubmatrix \
+  ( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J, \
+          DistMultiVec<Base<T>>& ASub ); \
+  template DistMultiVec<T> GetSubmatrix \
+  ( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J ); \
+  template DistMultiVec<Base<T>> GetRealPartOfSubmatrix \
+  ( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J ); \
+  template DistMultiVec<Base<T>> GetImagPartOfSubmatrix \
+  ( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

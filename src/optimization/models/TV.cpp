@@ -237,53 +237,7 @@ void TV
 
     // Extract x from [x;t]
     // ====================
-    {
-        Zeros( x, n, 1 );
-        // Compute the metadata
-        // --------------------
-        vector<int> sendCounts(commSize,0);
-        for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
-        {
-            const Int i = xHat.GlobalRow(iLoc);
-            if( i < n )
-                ++sendCounts[ x.RowOwner(i) ];
-            else
-                break;
-        }
-        vector<int> recvCounts(commSize);
-        mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        vector<int> sendOffs, recvOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        const int totalRecv = Scan( recvCounts, recvOffs );
-        // Pack x
-        // ------
-        vector<ValueInt<Real>> sendBuf(totalSend);
-        auto offs = sendOffs;
-        for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
-        {
-            const Int i = xHat.GlobalRow(iLoc);
-            if( i < n )
-            {
-                const int owner = x.RowOwner(i);
-                sendBuf[offs[owner]].index = i;
-                sendBuf[offs[owner]].value = xHat.GetLocal(iLoc,0);
-                ++offs[owner];
-            }
-            else
-                break;
-        }
-        // Redistribute
-        // ------------
-        vector<ValueInt<Real>> recvBuf(totalRecv);
-        mpi::AllToAll
-        ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-        // Unpack
-        // ------
-        for( Int e=0; e<totalRecv; ++e )
-            x.SetLocal
-            ( recvBuf[e].index-x.FirstLocalRow(), 0, recvBuf[e].value );
-    }
+    GetSubmatrix( xHat, IR(0,n), IR(0,1), x );
 }
 
 #define PROTO(Real) \

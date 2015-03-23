@@ -222,13 +222,9 @@ void Tikhonov
     // Extract the solution
     // ====================
     if( m >= n )
-    {
         X = XEmb;
-    }
     else
-    {
         X = XEmb( IR(0,n), IR(0,numRHS) ); 
-    }
 }
 
 template<typename F>
@@ -317,63 +313,9 @@ void Tikhonov
     // Extract the solution
     // ====================
     if( m >= n )
-    {
         X = XEmb;
-    }
     else
-    {
-        // Extract X from XEmb = [X; S]
-        // ----------------------------
-        // TODO: Automate this process
-        // Compute the metadata
-        // ^^^^^^^^^^^^^^^^^^^^
-        vector<int> sendCounts(commSize,0);
-        for( Int iLoc=0; iLoc<XEmb.LocalHeight(); ++iLoc )
-        {
-            const Int i = XEmb.GlobalRow(iLoc);
-            if( i < n )
-                sendCounts[ X.RowOwner(i) ] += numRHS;
-            else
-                break;
-        }
-        vector<int> recvCounts(commSize);
-        mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        vector<int> sendOffs, recvOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        const int totalRecv = Scan( recvCounts, recvOffs );
-        // Pack
-        // ^^^^
-        auto offs = sendOffs;
-        vector<ValueIntPair<F>> sendBuf(totalSend);
-        for( Int iLoc=0; iLoc<XEmb.LocalHeight(); ++iLoc )
-        {
-            const Int i = XEmb.GlobalRow(iLoc);
-            if( i < n )
-            {
-                const int owner = X.RowOwner(i);
-                for( Int j=0; j<numRHS; ++j )
-                {
-                    const F value = XEmb.GetLocal(iLoc,j);
-                    sendBuf[offs[owner]].indices[0] = i;
-                    sendBuf[offs[owner]].indices[1] = j;
-                    sendBuf[offs[owner]].value = value;
-                    ++offs[owner];
-                }
-            }
-            else
-                break;
-        }
-        // Exchange and unpack
-        // ^^^^^^^^^^^^^^^^^^^
-        vector<ValueIntPair<F>> recvBuf(totalRecv);
-        mpi::AllToAll
-        ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-        for( Int e=0; e<totalRecv; ++e )
-            X.UpdateLocal
-            ( recvBuf[e].indices[0]-X.FirstLocalRow(), recvBuf[e].indices[1],
-              recvBuf[e].value );
-    }
+        GetSubmatrix( XEmb, IR(0,n), IR(0,numRHS), X );
 }
 
 #define PROTO(F) \

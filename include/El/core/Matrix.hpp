@@ -41,8 +41,8 @@ public:
 
     // Return a view
     // -------------
-          Matrix<T> operator()( Range<Int> indVert, Range<Int> indHorz );
-    const Matrix<T> operator()( Range<Int> indVert, Range<Int> indHorz ) const;
+          Matrix<T> operator()( Range<Int> I, Range<Int> J );
+    const Matrix<T> operator()( Range<Int> I, Range<Int> J ) const;
 
     // Make a copy
     // -----------

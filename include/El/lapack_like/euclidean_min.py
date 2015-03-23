@@ -95,7 +95,7 @@ lib.ElLeastSquaresXDistSparse_d.argtypes = \
 lib.ElLeastSquaresXDistSparse_z.argtypes = \
   [c_uint,c_void_p,c_void_p,c_void_p,LeastSquaresCtrl_d]
 
-def LeastSquares(A,B,orient=NORMAL,ctrl=None):
+def LeastSquares(A,B,ctrl=None,orient=NORMAL):
   if A.tag != B.tag:
     raise Exception('Datatypes of A and B must match')
   if type(A) is Matrix:

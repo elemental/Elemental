@@ -465,12 +465,12 @@ class Matrix(object):
       elif self.tag == dTag: lib.ElLockedView_d(*args)
       elif self.tag == cTag: lib.ElLockedView_c(*args)
       elif self.tag == zTag: lib.ElLockedView_z(*args)
-      else: raise Exception('Unsupported datatype')
+      else: DataExcept()
     else:
       if   self.tag == iTag: lib.ElView_i(*args)
       elif self.tag == sTag: lib.ElView_s(*args)
       elif self.tag == dTag: lib.ElView_d(*args)
       elif self.tag == cTag: lib.ElView_c(*args)
       elif self.tag == zTag: lib.ElView_z(*args)
-      else: raise Exception('Unsupported datatype')
+      else: DataExcept()
     return ASub

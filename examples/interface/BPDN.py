@@ -58,6 +58,8 @@ b = El.DistMultiVec()
 El.Gaussian( b, n0*n1, 1 )
 if display:
   El.Display( A, "A" )
+  El.Display( A[0:n0*n1,0:n0*n1], "AL" )
+  El.Display( A[0:n0*n1,n0*n1:2*n0*n1], "AR" )
   El.Display( b, "b" )
 
 ctrl = El.QPAffineCtrl_d()

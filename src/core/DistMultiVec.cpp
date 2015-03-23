@@ -66,6 +66,16 @@ DistMultiVec<T>::operator=( const AbstractDistMatrix<T>& A )
     return *this;
 }
 
+// Make a copy of a submatrix
+// --------------------------
+template<typename T>
+DistMultiVec<T>
+DistMultiVec<T>::operator()( Range<Int> I, Range<Int> J ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("DistMultiVec::operator()"))
+    return GetSubmatrix( *this, I, J );
+}   
+
 // Change the size of the matrix
 // -----------------------------
 template<typename T>

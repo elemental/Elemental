@@ -72,6 +72,40 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, int root )
     ( AxpyTrapezoid \
       ( CReflect(uplo), CReflect(alpha), \
         *CReflect(X), *CReflect(Y), offset ) ) } \
+  /* Horizontal concatenation */ \
+  ElError ElHCat_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
+    ElMatrix_ ## SIG C ) \
+  { EL_TRY( HCat( *CReflect(A), *CReflect(B), *CReflect(C) ) ) } \
+  ElError ElHCatDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
+    ElDistMatrix_ ## SIG C ) \
+  { EL_TRY( HCat( *CReflect(A), *CReflect(B), *CReflect(C) ) ) } \
+  ElError ElHCatSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstSparseMatrix_ ## SIG B, \
+    ElSparseMatrix_ ## SIG C ) \
+  { EL_TRY( HCat( *CReflect(A), *CReflect(B), *CReflect(C) ) ) } \
+  ElError ElHCatDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistSparseMatrix_ ## SIG B, \
+    ElDistSparseMatrix_ ## SIG C ) \
+  { EL_TRY( HCat( *CReflect(A), *CReflect(B), *CReflect(C) ) ) } \
+  /* Vertical concatenation */ \
+  ElError ElVCat_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
+    ElMatrix_ ## SIG C ) \
+  { EL_TRY( VCat( *CReflect(A), *CReflect(B), *CReflect(C) ) ) } \
+  ElError ElVCatDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
+    ElDistMatrix_ ## SIG C ) \
+  { EL_TRY( VCat( *CReflect(A), *CReflect(B), *CReflect(C) ) ) } \
+  ElError ElVCatSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstSparseMatrix_ ## SIG B, \
+    ElSparseMatrix_ ## SIG C ) \
+  { EL_TRY( VCat( *CReflect(A), *CReflect(B), *CReflect(C) ) ) } \
+  ElError ElVCatDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistSparseMatrix_ ## SIG B, \
+    ElDistSparseMatrix_ ## SIG C ) \
+  { EL_TRY( VCat( *CReflect(A), *CReflect(B), *CReflect(C) ) ) } \
   /* B = A */ \
   ElError ElCopy_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
@@ -194,6 +228,22 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, int root )
   ElError ElFullDist_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( Full( *CReflect(A), *CReflect(B) ) ) } \
+  /* GetSubmatrix */ \
+  ElError ElGetSubmatrixSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElRange_i I, ElRange_i J, \
+    ElSparseMatrix_ ## SIG ASub ) \
+  { EL_TRY( GetSubmatrix \
+            ( *CReflect(A), CReflect(I), CReflect(J), *CReflect(ASub) ) ) } \
+  ElError ElGetSubmatrixDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElRange_i I, ElRange_i J, \
+    ElDistSparseMatrix_ ## SIG ASub ) \
+  { EL_TRY( GetSubmatrix \
+            ( *CReflect(A), CReflect(I), CReflect(J), *CReflect(ASub) ) ) } \
+  ElError ElGetSubmatrixDistMultiVec_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG A, ElRange_i I, ElRange_i J, \
+    ElDistMultiVec_ ## SIG ASub ) \
+  { EL_TRY( GetSubmatrix \
+            ( *CReflect(A), CReflect(I), CReflect(J), *CReflect(ASub) ) ) } \
   /* Hadamard */ \
   ElError ElHadamard_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, ElMatrix_ ## SIG C ) \

@@ -56,6 +56,16 @@ DistSparseMatrix<T>::~DistSparseMatrix()
 // -----------
 // TODO
 
+// Make a copy of a submatrix
+// --------------------------
+template<typename T>
+DistSparseMatrix<T>
+DistSparseMatrix<T>::operator()( Range<Int> I, Range<Int> J ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::operator()"))
+    return GetSubmatrix( *this, I, J );
+}   
+
 // Change the matrix size
 // ----------------------
 template<typename T>

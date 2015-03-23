@@ -625,3 +625,23 @@ class DistSparseMatrix(object):
       elif self.tag == zTag: lib.ElDistSparseMatrixValueBuffer_z(*args)
       else: DataExcept()
     return valueBuf
+
+  lib.ElGetSubmatrixDistSparse_i.argtypes = \
+  lib.ElGetSubmatrixDistSparse_s.argtypes = \
+  lib.ElGetSubmatrixDistSparse_d.argtypes = \
+  lib.ElGetSubmatrixDistSparse_c.argtypes = \
+  lib.ElGetSubmatrixDistSparse_z.argtypes = \
+    [c_void_p,IndexRange,IndexRange,c_void_p]
+  def __getitem__(self,indTup):
+    iInd, jInd = indTup
+    iRan = IndexRange(iInd)
+    jRan = IndexRange(jInd) 
+    ASub = DistSparseMatrix(self.tag,self.Comm())
+    args = [self.obj,iRan,jRan,ASub.obj]
+    if   self.tag == iTag: lib.ElGetSubmatrixDistSparse_i(*args)
+    elif self.tag == sTag: lib.ElGetSubmatrixDistSparse_s(*args)
+    elif self.tag == dTag: lib.ElGetSubmatrixDistSparse_d(*args)
+    elif self.tag == cTag: lib.ElGetSubmatrixDistSparse_c(*args)
+    elif self.tag == zTag: lib.ElGetSubmatrixDistSparse_z(*args)
+    else: DataExcept()
+    return ASub

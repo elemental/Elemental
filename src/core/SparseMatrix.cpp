@@ -76,6 +76,16 @@ SparseMatrix<T>::operator=( const DistSparseMatrix<T>& A )
     return *this;
 }
 
+// Make a copy of a submatrix
+// --------------------------
+template<typename T>
+SparseMatrix<T>
+SparseMatrix<T>::operator()( Range<Int> I, Range<Int> J ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::operator()"))
+    return GetSubmatrix( *this, I, J );
+}
+
 // Change the size of the matrix
 // -----------------------------
 template<typename T>

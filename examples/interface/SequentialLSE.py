@@ -8,10 +8,10 @@
 #
 import El, time, random
 
-n0 = n1 = 10
+n0 = n1 = 100
 numRowsB = 5
 numRHS = 1
-display = True
+display = False
 
 # NOTE: Increasing the magnitudes of the off-diagonal entries by an order of
 #       magnitude makes the condition number vastly higher.
@@ -69,6 +69,9 @@ DNorm = El.FrobeniusNorm( D )
 
 ctrl = El.LeastSquaresCtrl_d()
 ctrl.progress = True
+ctrl.qsdCtrl.relTol = 1e-12
+ctrl.qsdCtrl.relTolRefine = 1e-12
+ctrl.qsdCtrl.progress = True
 
 startLSE = time.clock()
 X = El.LSE(A,B,C,D,ctrl)
@@ -78,12 +81,6 @@ if display:
   El.Display( X, "X" )
 
 E = El.Matrix()
-El.Copy( D, E )
-El.SparseMultiply( El.NORMAL, -1., B, X, 1., E )
-constraintNorm = El.FrobeniusNorm( E )
-if display:
-  El.Display( E, "D - B X" )
-print "|| D - B X ||_F / || D ||_F =", constraintNorm/DNorm
 
 El.Copy( C, E )
 El.SparseMultiply( El.NORMAL, -1., A, X, 1., E )
@@ -91,6 +88,51 @@ residNorm = El.FrobeniusNorm( E )
 if display:
   El.Display( E, "C - A X" )
 print "|| C - A X ||_F / || C ||_F =", residNorm/CNorm
+
+El.Copy( D, E )
+El.SparseMultiply( El.NORMAL, -1., B, X, 1., E )
+equalNorm = El.FrobeniusNorm( E )
+if display:
+  El.Display( E, "D - B X" )
+print "|| D - B X ||_F / || D ||_F =", equalNorm/DNorm
+
+# Now try solving a weighted least squares problem
+# (as lambda -> infinity, the exact solution converges to that of LSE)
+def SolveWeighted(A,B,C,D,lambd):
+  BScale = El.SparseMatrix()
+  El.Copy( B, BScale )
+  El.Scale( lambd, BScale )
+
+  DScale = El.Matrix()
+  El.Copy( D, DScale ) 
+  El.Scale( lambd, DScale )
+
+  AEmb = El.VCat(A,BScale)
+  CEmb = El.VCat(C,DScale)
+
+  X=El.LeastSquares(AEmb,CEmb,ctrl)
+
+  El.Copy( C, E )
+  El.SparseMultiply( El.NORMAL, -1., A, X, 1., E )
+  residNorm = El.FrobeniusNorm( E )
+  if display:
+    El.Display( E, "C - A X" )
+  print "lambda=", lambd, ": || C - A X ||_F / || C ||_F =", residNorm/CNorm
+
+  El.Copy( D, E )
+  El.SparseMultiply( El.NORMAL, -1., B, X, 1., E )
+  equalNorm = El.FrobeniusNorm( E )
+  if display:
+    El.Display( E, "D - B X" )
+  print "lambda=", lambd, ": || D - B X ||_F / || D ||_F =", equalNorm/DNorm
+
+SolveWeighted(A,B,C,D,1)
+SolveWeighted(A,B,C,D,10)
+SolveWeighted(A,B,C,D,100)
+SolveWeighted(A,B,C,D,1000)
+SolveWeighted(A,B,C,D,10000)
+SolveWeighted(A,B,C,D,100000)
+SolveWeighted(A,B,C,D,1000000)
 
 # Require the user to press a button before the figures are closed
 El.Finalize()

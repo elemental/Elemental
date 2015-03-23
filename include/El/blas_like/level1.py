@@ -179,6 +179,151 @@ def ColumnNorms(A):
     return norms
   else: TypeExcept()
 
+# Concatenation
+# -------------
+
+# Horizontal concatenation
+# ^^^^^^^^^^^^^^^^^^^^^^^^
+lib.ElHCat_i.argtypes = \
+lib.ElHCat_s.argtypes = \
+lib.ElHCat_d.argtypes = \
+lib.ElHCat_c.argtypes = \
+lib.ElHCat_z.argtypes = \
+lib.ElHCatDist_i.argtypes = \
+lib.ElHCatDist_s.argtypes = \
+lib.ElHCatDist_d.argtypes = \
+lib.ElHCatDist_c.argtypes = \
+lib.ElHCatDist_z.argtypes = \
+lib.ElHCatSparse_i.argtypes = \
+lib.ElHCatSparse_s.argtypes = \
+lib.ElHCatSparse_d.argtypes = \
+lib.ElHCatSparse_c.argtypes = \
+lib.ElHCatSparse_z.argtypes = \
+lib.ElHCatDistSparse_i.argtypes = \
+lib.ElHCatDistSparse_s.argtypes = \
+lib.ElHCatDistSparse_d.argtypes = \
+lib.ElHCatDistSparse_c.argtypes = \
+lib.ElHCatDistSparse_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+
+def HCat(A,B):
+  if type(A) is not type(B):
+    raise Exception('Types of A and B must match')
+  if A.tag != B.tag:
+    raise Exception('Datatype of A and B must match')
+  if type(A) is Matrix:
+    C = Matrix(A.tag)
+    args = [A.obj,B.obj,C.obj]
+    if   A.tag == iTag: lib.ElHCat_i(*args)
+    elif A.tag == sTag: lib.ElHCat_s(*args)
+    elif A.tag == dTag: lib.ElHCat_d(*args)
+    elif A.tag == cTag: lib.ElHCat_c(*args)
+    elif A.tag == zTag: lib.ElHCat_z(*args)
+    else: DataExcept()
+    return C
+  elif type(A) is DistMatrix:
+    C = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,B.obj,C.obj]
+    if   A.tag == iTag: lib.ElHCatDist_i(*args)
+    elif A.tag == sTag: lib.ElHCatDist_s(*args)
+    elif A.tag == dTag: lib.ElHCatDist_d(*args)
+    elif A.tag == cTag: lib.ElHCatDist_c(*args)
+    elif A.tag == zTag: lib.ElHCatDist_z(*args)
+    else: DataExcept()
+    return C
+  elif type(A) is SparseMatrix: 
+    C = SparseMatrix(A.tag)
+    args = [A.obj,B.obj,C.obj]
+    if   A.tag == iTag: lib.ElHCatSparse_i(*args)
+    elif A.tag == sTag: lib.ElHCatSparse_s(*args)
+    elif A.tag == dTag: lib.ElHCatSparse_d(*args)
+    elif A.tag == cTag: lib.ElHCatSparse_c(*args)
+    elif A.tag == zTag: lib.ElHCatSparse_z(*args)
+    else: DataExcept()
+    return C
+  elif type(A) is DistSparseMatrix:
+    C = DistSparseMatrix(A.tag,A.Comm())
+    args = [A.obj,B.obj,C.obj]
+    if   A.tag == iTag: lib.ElHCatDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElHCatDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElHCatDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElHCatDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElHCatDistSparse_z(*args)
+    else: DataExcept()
+    return C
+  else: TypeExcept()
+
+# Vertical concatenation
+# ^^^^^^^^^^^^^^^^^^^^^^
+lib.ElVCat_i.argtypes = \
+lib.ElVCat_s.argtypes = \
+lib.ElVCat_d.argtypes = \
+lib.ElVCat_c.argtypes = \
+lib.ElVCat_z.argtypes = \
+lib.ElVCatDist_i.argtypes = \
+lib.ElVCatDist_s.argtypes = \
+lib.ElVCatDist_d.argtypes = \
+lib.ElVCatDist_c.argtypes = \
+lib.ElVCatDist_z.argtypes = \
+lib.ElVCatSparse_i.argtypes = \
+lib.ElVCatSparse_s.argtypes = \
+lib.ElVCatSparse_d.argtypes = \
+lib.ElVCatSparse_c.argtypes = \
+lib.ElVCatSparse_z.argtypes = \
+lib.ElVCatDistSparse_i.argtypes = \
+lib.ElVCatDistSparse_s.argtypes = \
+lib.ElVCatDistSparse_d.argtypes = \
+lib.ElVCatDistSparse_c.argtypes = \
+lib.ElVCatDistSparse_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+
+def VCat(A,B):
+  if type(A) is not type(B):
+    raise Exception('Types of A and B must match')
+  if A.tag != B.tag:
+    raise Exception('Datatype of A and B must match')
+  if type(A) is Matrix:
+    C = Matrix(A.tag)
+    args = [A.obj,B.obj,C.obj]
+    if   A.tag == iTag: lib.ElVCat_i(*args)
+    elif A.tag == sTag: lib.ElVCat_s(*args)
+    elif A.tag == dTag: lib.ElVCat_d(*args)
+    elif A.tag == cTag: lib.ElVCat_c(*args)
+    elif A.tag == zTag: lib.ElVCat_z(*args)
+    else: DataExcept()
+    return C
+  elif type(A) is DistMatrix:
+    C = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,B.obj,C.obj]
+    if   A.tag == iTag: lib.ElVCatDist_i(*args)
+    elif A.tag == sTag: lib.ElVCatDist_s(*args)
+    elif A.tag == dTag: lib.ElVCatDist_d(*args)
+    elif A.tag == cTag: lib.ElVCatDist_c(*args)
+    elif A.tag == zTag: lib.ElVCatDist_z(*args)
+    else: DataExcept()
+    return C
+  elif type(A) is SparseMatrix: 
+    C = SparseMatrix(A.tag)
+    args = [A.obj,B.obj,C.obj]
+    if   A.tag == iTag: lib.ElVCatSparse_i(*args)
+    elif A.tag == sTag: lib.ElVCatSparse_s(*args)
+    elif A.tag == dTag: lib.ElVCatSparse_d(*args)
+    elif A.tag == cTag: lib.ElVCatSparse_c(*args)
+    elif A.tag == zTag: lib.ElVCatSparse_z(*args)
+    else: DataExcept()
+    return C
+  elif type(A) is DistSparseMatrix:
+    C = DistSparseMatrix(A.tag,A.Comm())
+    args = [A.obj,B.obj,C.obj]
+    if   A.tag == iTag: lib.ElVCatDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElVCatDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElVCatDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElVCatDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElVCatDistSparse_z(*args)
+    else: DataExcept()
+    return C
+  else: TypeExcept()
+
 # Conjugate
 # ---------
 lib.ElConjugate_c.argtypes = \
@@ -925,6 +1070,58 @@ def Full(A,B):
 # Get diagonal
 # ------------
 # TODO
+
+# Get submatrix
+# -------------
+lib.ElGetSubmatrixSparse_i.argtypes = \
+lib.ElGetSubmatrixSparse_s.argtypes = \
+lib.ElGetSubmatrixSparse_d.argtypes = \
+lib.ElGetSubmatrixSparse_c.argtypes = \
+lib.ElGetSubmatrixSparse_z.argtypes = \
+lib.ElGetSubmatrixDistSparse_i.argtypes = \
+lib.ElGetSubmatrixDistSparse_s.argtypes = \
+lib.ElGetSubmatrixDistSparse_d.argtypes = \
+lib.ElGetSubmatrixDistSparse_c.argtypes = \
+lib.ElGetSubmatrixDistSparse_z.argtypes = \
+lib.ElGetSubmatrixDistMultiVec_i.argtypes = \
+lib.ElGetSubmatrixDistMultiVec_s.argtypes = \
+lib.ElGetSubmatrixDistMultiVec_d.argtypes = \
+lib.ElGetSubmatrixDistMultiVec_c.argtypes = \
+lib.ElGetSubmatrixDistMultiVec_z.argtypes = \
+  [c_void_p,IndexRange,IndexRange,c_void_p]
+
+def GetSubmatrix(A,I,J):
+  if type(A) is SparseMatrix:
+    ASub = SparseMatrix(A.tag)
+    args = [A.obj,I,J,ASub.obj]
+    if   A.tag == iTag: lib.ElGetSubmatrixSparse_i(*args)
+    elif A.tag == sTag: lib.ElGetSubmatrixSparse_s(*args)
+    elif A.tag == dTag: lib.ElGetSubmatrixSparse_d(*args)
+    elif A.tag == cTag: lib.ElGetSubmatrixSparse_c(*args)
+    elif A.tag == zTag: lib.ElGetSubmatrixSparse_z(*args)
+    else: DataExcept()
+    return ASub
+  elif type(A) is DistSparseMatrix:
+    ASub = DistSparseMatrix(A.tag,A.Comm())
+    args = [A.obj,I,J,ASub.obj]
+    if   A.tag == iTag: lib.ElGetSubmatrixDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElGetSubmatrixDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElGetSubmatrixDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElGetSubmatrixDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElGetSubmatrixDistSparse_z(*args)
+    else: DataExcept()
+    return ASub
+  elif type(A) is DistMultiVec:
+    ASub = DistMultiVec(A.tag,A.Comm())
+    args = [A.obj,I,J,ASub.obj]
+    if   A.tag == iTag: lib.ElGetSubmatrixDistMultiVec_i(*args)
+    elif A.tag == sTag: lib.ElGetSubmatrixDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElGetSubmatrixDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElGetSubmatrixDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElGetSubmatrixDistMultiVec_z(*args)
+    else: DataExcept()
+    return ASub
+  else: TypeExcept()
 
 # Hadamard
 # --------

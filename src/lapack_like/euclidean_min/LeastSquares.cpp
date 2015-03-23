@@ -139,7 +139,7 @@ inline void Equilibrated
 
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int k = B.Width();
+    const Int numRHS = B.Width();
     const Int numEntriesA = A.NumEntries();
 
     SparseMatrix<F> J;
@@ -172,19 +172,19 @@ inline void Equilibrated
     J.MakeConsistent();
 
     Matrix<F> D;
-    Zeros( D, m+n, k );
+    Zeros( D, m+n, numRHS );
     if( m >= n )
     {
         // Form D = [B; 0]
         // ==================
-        auto DT = D( IR(0,m), IR(0,k) );
+        auto DT = D( IR(0,m), IR(0,numRHS) );
         DT = B;
     }
     else
     {
         // Form D = [0; B]
         // ===============
-        auto DB = D( IR(n,m+n), IR(0,k) );
+        auto DB = D( IR(n,m+n), IR(0,numRHS) );
         DB = B;
     }
 
@@ -208,12 +208,12 @@ inline void Equilibrated
     SymmFront<F> JFront( J, map, info );
     LDL( info, JFront );
 
-    // Successively solve each of the k linear systems
-    // ===============================================
+    // Successively solve each of the linear systems
+    // =============================================
     // TODO: Extend the iterative refinement to handle multiple RHS
     Matrix<F> u;
     Zeros( u, m+n, 1 );
-    for( Int j=0; j<k; ++j )
+    for( Int j=0; j<numRHS; ++j )
     {
         auto d = D( IR(0,m+n), IR(j,j+1) );
         u = d;
@@ -222,19 +222,19 @@ inline void Equilibrated
         d = u;
     }
 
-    Zeros( X, n, k );
+    Zeros( X, n, numRHS );
     if( m >= n )
     {
         // Extract X from [R/alpha; X]
         // ===========================
-        auto DB = D( IR(m,m+n), IR(0,k) );
+        auto DB = D( IR(m,m+n), IR(0,numRHS) );
         X = DB;
     }
     else
     {
         // Extract X from [X; Y]
         // =====================
-        auto DT = D( IR(0,n), IR(0,k) );
+        auto DT = D( IR(0,n), IR(0,numRHS) );
         X = DT;
     }
 }
@@ -310,7 +310,7 @@ void Equilibrated
 
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int k = B.Width();
+    const Int numRHS = B.Width();
 
     // J := [D_r^{-2}*alpha,A;A^H,0] or [D_c^{-2}*alpha,A^H;A,0]
     // =========================================================
@@ -444,7 +444,7 @@ void Equilibrated
     // Set D to [B; 0] or [0; B]
     // =========================
     DistMultiVec<F> D(comm);
-    Zeros( D, m+n, k );
+    Zeros( D, m+n, numRHS );
     {
         // Compute metadata
         // ----------------
@@ -453,9 +453,9 @@ void Equilibrated
         {
             const Int i = B.GlobalRow(iLoc);
             if( m >= n )
-                sendCounts[ D.RowOwner(i) ] += k;
+                sendCounts[ D.RowOwner(i) ] += numRHS;
             else
-                sendCounts[ D.RowOwner(i+n) ] += k;
+                sendCounts[ D.RowOwner(i+n) ] += numRHS;
         }
         vector<int> recvCounts(commSize);
         mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
@@ -472,7 +472,7 @@ void Equilibrated
             if( m >= n )
             {
                 int owner = D.RowOwner(i);
-                for( Int j=0; j<k; ++j )
+                for( Int j=0; j<numRHS; ++j )
                 {
                     const F value = B.GetLocal(iLoc,j);
                     sendBuf[offs[owner]].indices[0] = i;
@@ -484,7 +484,7 @@ void Equilibrated
             else
             {
                 int owner = D.RowOwner(i+n);
-                for( Int j=0; j<k; ++j )
+                for( Int j=0; j<numRHS; ++j )
                 {
                     const F value = B.GetLocal(iLoc,j);
                     sendBuf[offs[owner]].indices[0] = i+n;
@@ -551,7 +551,7 @@ void Equilibrated
     const Int DLocHeight = DLoc.Height();
     if( commRank == 0 && ctrl.time )
         timer.Start();
-    for( Int j=0; j<k; ++j )
+    for( Int j=0; j<numRHS; ++j )
     {
         auto dLoc = DLoc( IR(0,DLocHeight), IR(j,j+1) );
         Copy( dLoc, uLoc );
@@ -564,85 +564,10 @@ void Equilibrated
 
     // Extract X from [R/alpha; X] or [X; Y] and then rescale
     // ======================================================
-    Zeros( X, n, k );
-    {
-        // Compute metadata
-        // ----------------
-        vector<int> sendCounts(commSize,0);
-        for( Int iLoc=0; iLoc<DLocHeight; ++iLoc )
-        {
-            const Int i = D.GlobalRow(iLoc);
-            if( m > n )
-            {
-                if( i >= m )
-                    sendCounts[ X.RowOwner(i-m) ] += k;
-            }
-            else
-            {
-                if( i < n )
-                    sendCounts[ X.RowOwner(i) ] += k;
-                else
-                    break;
-            }
-        }
-        vector<int> recvCounts(commSize);
-        mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        vector<int> sendOffs, recvOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        const int totalRecv = Scan( recvCounts, recvOffs );
-        // Pack
-        // ----
-        vector<ValueIntPair<F>> sendBuf(totalSend);
-        auto offs = sendOffs;
-        for( Int iLoc=0; iLoc<DLocHeight; ++iLoc )
-        {
-            const Int i = D.GlobalRow(iLoc);
-            if( m >= n )
-            {
-                if( i >= m )
-                {
-                    int owner = X.RowOwner(i-m);
-                    for( Int j=0; j<k; ++j )
-                    {
-                        const F value = D.GetLocal(iLoc,j);
-                        sendBuf[offs[owner]].indices[0] = i-m;
-                        sendBuf[offs[owner]].indices[1] = j;
-                        sendBuf[offs[owner]].value = value;
-                        ++offs[owner];
-                    }
-                }
-            }
-            else
-            {
-                if( i < n )
-                {
-                    int owner = X.RowOwner(i);
-                    for( Int j=0; j<k; ++j )
-                    {
-                        const F value = D.GetLocal(iLoc,j);
-                        sendBuf[offs[owner]].indices[0] = i;
-                        sendBuf[offs[owner]].indices[1] = j;
-                        sendBuf[offs[owner]].value = value;
-                        ++offs[owner];
-                    }
-                }
-                else
-                    break;
-            }
-        }
-        // Exchange
-        // --------
-        vector<ValueIntPair<F>> recvBuf(totalRecv);
-        mpi::AllToAll
-        ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-        // Unpack
-        // ------
-        for( Int e=0; e<totalRecv; ++e )
-            X.SetLocal
-            ( recvBuf[e].indices[0]-X.FirstLocalRow(), recvBuf[e].indices[1], 
-              recvBuf[e].value );
-    }
+    if( m >= n )
+        GetSubmatrix( D, IR(m,m+n), IR(0,numRHS), X );
+    else
+        GetSubmatrix( D, IR(0,n),   IR(0,numRHS), X );
 }
 
 } // namespace ls

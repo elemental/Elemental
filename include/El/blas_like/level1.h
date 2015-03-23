@@ -16,8 +16,9 @@
 extern "C" {
 #endif
 
-/* B = A^H 
+/* Adjoint
    ======= */
+/* B := A^H */
 EL_EXPORT ElError ElAdjoint_c( ElConstMatrix_c A, ElMatrix_c B );
 EL_EXPORT ElError ElAdjoint_z( ElConstMatrix_z A, ElMatrix_z B );
 
@@ -34,8 +35,9 @@ EL_EXPORT ElError ElAdjointDistSparse_c
 EL_EXPORT ElError ElAdjointDistSparse_z
 ( ElConstDistSparseMatrix_z A, ElDistSparseMatrix_z B );
 
-/* Y := alpha A X + Y 
-   ================== */
+/* Alpha X Plus Y (AXPY)
+   ===================== */
+/* Y := alpha X + Y */
 EL_EXPORT ElError ElAxpy_i
 ( ElInt alpha, ElConstMatrix_i X, ElMatrix_i Y );
 EL_EXPORT ElError ElAxpy_s
@@ -91,8 +93,9 @@ EL_EXPORT ElError ElAxpyDistMultiVec_c
 EL_EXPORT ElError ElAxpyDistMultiVec_z
 ( complex_double alpha, ElConstDistMultiVec_z X, ElDistMultiVec_z Y );
 
-/* tri(Y) := tri(alpha A X + Y)
-   ============================ */
+/* Trapezoidal Axpy
+   ================ */
+/* tri(Y) := tri(alpha A X + Y) */
 EL_EXPORT ElError ElAxpyTrapezoid_i
 ( ElUpperOrLower uplo, ElInt alpha, 
   ElConstMatrix_i X, ElMatrix_i Y, ElInt offset );
@@ -169,8 +172,118 @@ EL_EXPORT ElError ElColumnNormsDistMultiVec_c
 EL_EXPORT ElError ElColumnNormsDistMultiVec_z
 ( ElConstDistMultiVec_z A, ElMatrix_d norms );
 
-/* A := Conj(A) 
-   ============ */
+/* Concatenate
+   =========== */
+
+/* Horizontal concatenation
+   ------------------------ */
+/* C := [A, B] */
+
+EL_EXPORT ElError ElHCat_i
+( ElConstMatrix_i A, ElConstMatrix_i B, ElMatrix_i C );
+EL_EXPORT ElError ElHCat_s
+( ElConstMatrix_s A, ElConstMatrix_s B, ElMatrix_s C );
+EL_EXPORT ElError ElHCat_d
+( ElConstMatrix_d A, ElConstMatrix_d B, ElMatrix_d C );
+EL_EXPORT ElError ElHCat_c
+( ElConstMatrix_c A, ElConstMatrix_c B, ElMatrix_c C );
+EL_EXPORT ElError ElHCat_z
+( ElConstMatrix_z A, ElConstMatrix_z B, ElMatrix_z C );
+
+EL_EXPORT ElError ElHCatDist_i
+( ElConstDistMatrix_i A, ElConstDistMatrix_i B, ElDistMatrix_i C );
+EL_EXPORT ElError ElHCatDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_s B, ElDistMatrix_s C );
+EL_EXPORT ElError ElHCatDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_d B, ElDistMatrix_d C );
+EL_EXPORT ElError ElHCatDist_c
+( ElConstDistMatrix_c A, ElConstDistMatrix_c B, ElDistMatrix_c C );
+EL_EXPORT ElError ElHCatDist_z
+( ElConstDistMatrix_z A, ElConstDistMatrix_z B, ElDistMatrix_z C );
+
+EL_EXPORT ElError ElHCatSparse_i
+( ElConstSparseMatrix_i A, ElConstSparseMatrix_i B, ElSparseMatrix_i C );
+EL_EXPORT ElError ElHCatSparse_s
+( ElConstSparseMatrix_s A, ElConstSparseMatrix_s B, ElSparseMatrix_s C );
+EL_EXPORT ElError ElHCatSparse_d
+( ElConstSparseMatrix_d A, ElConstSparseMatrix_d B, ElSparseMatrix_d C );
+EL_EXPORT ElError ElHCatSparse_c
+( ElConstSparseMatrix_c A, ElConstSparseMatrix_c B, ElSparseMatrix_c C );
+EL_EXPORT ElError ElHCatSparse_z
+( ElConstSparseMatrix_z A, ElConstSparseMatrix_z B, ElSparseMatrix_z C );
+
+EL_EXPORT ElError ElHCatDistSparse_i
+( ElConstDistSparseMatrix_i A, ElConstDistSparseMatrix_i B, 
+  ElDistSparseMatrix_i C );
+EL_EXPORT ElError ElHCatDistSparse_s
+( ElConstDistSparseMatrix_s A, ElConstDistSparseMatrix_s B, 
+  ElDistSparseMatrix_s C );
+EL_EXPORT ElError ElHCatDistSparse_d
+( ElConstDistSparseMatrix_d A, ElConstDistSparseMatrix_d B, 
+  ElDistSparseMatrix_d C );
+EL_EXPORT ElError ElHCatDistSparse_c
+( ElConstDistSparseMatrix_c A, ElConstDistSparseMatrix_c B, 
+  ElDistSparseMatrix_c C );
+EL_EXPORT ElError ElHCatDistSparse_z
+( ElConstDistSparseMatrix_z A, ElConstDistSparseMatrix_z B, 
+  ElDistSparseMatrix_z C );
+
+/* Vertical concatenation
+   ---------------------- */
+/* C := [A; B] */
+
+EL_EXPORT ElError ElVCat_i
+( ElConstMatrix_i A, ElConstMatrix_i B, ElMatrix_i C );
+EL_EXPORT ElError ElVCat_s
+( ElConstMatrix_s A, ElConstMatrix_s B, ElMatrix_s C );
+EL_EXPORT ElError ElVCat_d
+( ElConstMatrix_d A, ElConstMatrix_d B, ElMatrix_d C );
+EL_EXPORT ElError ElVCat_c
+( ElConstMatrix_c A, ElConstMatrix_c B, ElMatrix_c C );
+EL_EXPORT ElError ElVCat_z
+( ElConstMatrix_z A, ElConstMatrix_z B, ElMatrix_z C );
+
+EL_EXPORT ElError ElVCatDist_i
+( ElConstDistMatrix_i A, ElConstDistMatrix_i B, ElDistMatrix_i C );
+EL_EXPORT ElError ElVCatDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_s B, ElDistMatrix_s C );
+EL_EXPORT ElError ElVCatDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_d B, ElDistMatrix_d C );
+EL_EXPORT ElError ElVCatDist_c
+( ElConstDistMatrix_c A, ElConstDistMatrix_c B, ElDistMatrix_c C );
+EL_EXPORT ElError ElVCatDist_z
+( ElConstDistMatrix_z A, ElConstDistMatrix_z B, ElDistMatrix_z C );
+
+EL_EXPORT ElError ElVCatSparse_i
+( ElConstSparseMatrix_i A, ElConstSparseMatrix_i B, ElSparseMatrix_i C );
+EL_EXPORT ElError ElVCatSparse_s
+( ElConstSparseMatrix_s A, ElConstSparseMatrix_s B, ElSparseMatrix_s C );
+EL_EXPORT ElError ElVCatSparse_d
+( ElConstSparseMatrix_d A, ElConstSparseMatrix_d B, ElSparseMatrix_d C );
+EL_EXPORT ElError ElVCatSparse_c
+( ElConstSparseMatrix_c A, ElConstSparseMatrix_c B, ElSparseMatrix_c C );
+EL_EXPORT ElError ElVCatSparse_z
+( ElConstSparseMatrix_z A, ElConstSparseMatrix_z B, ElSparseMatrix_z C );
+
+EL_EXPORT ElError ElVCatDistSparse_i
+( ElConstDistSparseMatrix_i A, ElConstDistSparseMatrix_i B, 
+  ElDistSparseMatrix_i C );
+EL_EXPORT ElError ElVCatDistSparse_s
+( ElConstDistSparseMatrix_s A, ElConstDistSparseMatrix_s B, 
+  ElDistSparseMatrix_s C );
+EL_EXPORT ElError ElVCatDistSparse_d
+( ElConstDistSparseMatrix_d A, ElConstDistSparseMatrix_d B, 
+  ElDistSparseMatrix_d C );
+EL_EXPORT ElError ElVCatDistSparse_c
+( ElConstDistSparseMatrix_c A, ElConstDistSparseMatrix_c B, 
+  ElDistSparseMatrix_c C );
+EL_EXPORT ElError ElVCatDistSparse_z
+( ElConstDistSparseMatrix_z A, ElConstDistSparseMatrix_z B, 
+  ElDistSparseMatrix_z C );
+
+/* Conjugate
+   ========= */
+/* A := Conj(A) */
 EL_EXPORT ElError ElConjugate_c( ElMatrix_c A );
 EL_EXPORT ElError ElConjugate_z( ElMatrix_z A );
 
@@ -686,7 +799,55 @@ EL_EXPORT ElError ElFullDist_z( ElConstDistSparseMatrix_z A, ElDistMatrix_z B );
 
 /* GetSubmatrix
    ============ */
-/* TODO */
+/* TODO: vector versions and real/imag versions */
+
+EL_EXPORT ElError ElGetSubmatrixSparse_i
+( ElConstSparseMatrix_i A, ElRange_i I, ElRange_i J,
+  ElSparseMatrix_i ASub );
+EL_EXPORT ElError ElGetSubmatrixSparse_s
+( ElConstSparseMatrix_s A, ElRange_i I, ElRange_i J,
+  ElSparseMatrix_s ASub );
+EL_EXPORT ElError ElGetSubmatrixSparse_d
+( ElConstSparseMatrix_d A, ElRange_i I, ElRange_i J,
+  ElSparseMatrix_d ASub );
+EL_EXPORT ElError ElGetSubmatrixSparse_c
+( ElConstSparseMatrix_c A, ElRange_i I, ElRange_i J,
+  ElSparseMatrix_c ASub );
+EL_EXPORT ElError ElGetSubmatrixSparse_z
+( ElConstSparseMatrix_z A, ElRange_i I, ElRange_i J,
+  ElSparseMatrix_z ASub );
+
+EL_EXPORT ElError ElGetSubmatrixDistSparse_i
+( ElConstDistSparseMatrix_i A, ElRange_i I, ElRange_i J,
+  ElDistSparseMatrix_i ASub );
+EL_EXPORT ElError ElGetSubmatrixDistSparse_s
+( ElConstDistSparseMatrix_s A, ElRange_i I, ElRange_i J,
+  ElDistSparseMatrix_s ASub );
+EL_EXPORT ElError ElGetSubmatrixDistSparse_d
+( ElConstDistSparseMatrix_d A, ElRange_i I, ElRange_i J,
+  ElDistSparseMatrix_d ASub );
+EL_EXPORT ElError ElGetSubmatrixDistSparse_c
+( ElConstDistSparseMatrix_c A, ElRange_i I, ElRange_i J,
+  ElDistSparseMatrix_c ASub );
+EL_EXPORT ElError ElGetSubmatrixDistSparse_z
+( ElConstDistSparseMatrix_z A, ElRange_i I, ElRange_i J,
+  ElDistSparseMatrix_z ASub );
+
+EL_EXPORT ElError ElGetSubmatrixDistMultiVec_i
+( ElConstDistMultiVec_i A, ElRange_i I, ElRange_i J,
+  ElDistMultiVec_i ASub );
+EL_EXPORT ElError ElGetSubmatrixDistMultiVec_s
+( ElConstDistMultiVec_s A, ElRange_i I, ElRange_i J,
+  ElDistMultiVec_s ASub );
+EL_EXPORT ElError ElGetSubmatrixDistMultiVec_d
+( ElConstDistMultiVec_d A, ElRange_i I, ElRange_i J,
+  ElDistMultiVec_d ASub );
+EL_EXPORT ElError ElGetSubmatrixDistMultiVec_c
+( ElConstDistMultiVec_c A, ElRange_i I, ElRange_i J,
+  ElDistMultiVec_c ASub );
+EL_EXPORT ElError ElGetSubmatrixDistMultiVec_z
+( ElConstDistMultiVec_z A, ElRange_i I, ElRange_i J,
+  ElDistMultiVec_z ASub );
 
 /* Hadamard
    ======== */

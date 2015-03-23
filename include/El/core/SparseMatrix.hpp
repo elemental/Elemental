@@ -43,6 +43,10 @@ public:
     const SparseMatrix<T>& operator=( const DistSparseMatrix<T>& A );
     // TODO: Move assignment
 
+    // Make a copy of a submatrix
+    // --------------------------
+    SparseMatrix<T> operator()( Range<Int> I, Range<Int> J ) const;
+
     // Change the size of the matrix
     // -----------------------------
     void Empty( bool clearMemory=true );

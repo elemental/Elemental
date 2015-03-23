@@ -63,7 +63,8 @@ def StackedFD2D(N0,N1):
 A = StackedFD2D(n0,n1)
 if display:
   El.Display( A, "A" )
-  El.Display( A.DistGraph(), "Graph of A" )
+  El.Display( A[0:n0*n1,0:n0*n1], "AT" )
+  El.Display( A[n0*n1:2*n0*n1,0:n0*n1], "AB" )
 
 # Regularize with 3 I
 G = El.DistSparseMatrix()

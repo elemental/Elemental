@@ -64,6 +64,10 @@ public:
     // TODO: operator=
     // TODO: Move assignment
 
+    // Make a copy of a submatrix
+    // --------------------------
+    DistSparseMatrix<T> operator()( Range<Int> I, Range<Int> J ) const;
+
     // Change the size of the matrix
     // -----------------------------
     void Empty( bool clearMemory=true );

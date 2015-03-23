@@ -308,3 +308,23 @@ class DistMultiVec(object):
     elif self.tag == cTag: lib.ElDistMultiVecUpdateLocal_c(*args)
     elif self.tag == zTag: lib.ElDistMultiVecUpdateLocal_z(*args)
     else: DataExcept()
+
+  lib.ElGetSubmatrixDistMultiVec_i.argtypes = \
+  lib.ElGetSubmatrixDistMultiVec_s.argtypes = \
+  lib.ElGetSubmatrixDistMultiVec_d.argtypes = \
+  lib.ElGetSubmatrixDistMultiVec_c.argtypes = \
+  lib.ElGetSubmatrixDistMultiVec_z.argtypes = \
+    [c_void_p,IndexRange,IndexRange,c_void_p]
+  def __getitem__(self,indTup):
+    iInd, jInd = indTup
+    iRan = IndexRange(iInd)
+    jRan = IndexRange(jInd)
+    ASub = DistMultiVecMatrix(self.tag,self.Comm())
+    args = [self.obj,iRan,jRan,ASub.obj]
+    if   self.tag == iTag: lib.ElGetSubmatrixDistMultiVec_i(*args)
+    elif self.tag == sTag: lib.ElGetSubmatrixDistMultiVec_s(*args)
+    elif self.tag == dTag: lib.ElGetSubmatrixDistMultiVec_d(*args)
+    elif self.tag == cTag: lib.ElGetSubmatrixDistMultiVec_c(*args)
+    elif self.tag == zTag: lib.ElGetSubmatrixDistMultiVec_z(*args)
+    else: DataExcept()
+    return ASub
