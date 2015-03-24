@@ -173,13 +173,8 @@ void AugmentedKKT
         if( i >= j || !onlyLower )
             ++sendCounts[ J.RowOwner(i) ]; 
     }
-    // Communicate to determine the number we receive from each process
-    // ----------------------------------------------------------------
-    vector<int> recvCounts(commSize);
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    vector<int> sendOffs, recvOffs;
-    int totalSend = Scan( sendCounts, sendOffs );
-    int totalRecv = Scan( recvCounts, recvOffs );
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
 
     // Pack the triplets
     // =================
@@ -245,15 +240,11 @@ void AugmentedKKT
 
     // Exchange and unpack the triplets
     // ================================
-    vector<ValueIntPair<Real>> recvBuf(totalRecv);
-    mpi::AllToAll
-    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-    J.Reserve( totalRecv );
-    for( Int e=0; e<totalRecv; ++e )
+    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+    J.Reserve( recvBuf.size() );
+    for( auto& entry : recvBuf )
         J.QueueLocalUpdate
-        ( recvBuf[e].indices[0]-J.FirstLocalRow(), recvBuf[e].indices[1], 
-          recvBuf[e].value );
+        ( entry.indices[0]-J.FirstLocalRow(), entry.indices[1], entry.value );
     J.MakeConsistent();
 }
 
@@ -344,11 +335,8 @@ void AugmentedKKTRHS
         ++sendCounts[ d.RowOwner( rc.GlobalRow(iLoc) ) ];
     for( Int iLoc=0; iLoc<rb.LocalHeight(); ++iLoc )
         ++sendCounts[ d.RowOwner( rb.GlobalRow(iLoc)+n ) ];
-    vector<int> recvCounts(commSize);
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    vector<int> sendOffs, recvOffs;
+    vector<int> sendOffs;
     const int totalSend = Scan( sendCounts, sendOffs );
-    const int totalRecv = Scan( recvCounts, recvOffs );
 
     // Pack the doublets
     // =================
@@ -376,13 +364,9 @@ void AugmentedKKTRHS
 
     // Exchange and unpack the doublets
     // ================================
-    vector<ValueInt<Real>> recvBuf(totalRecv);
-    mpi::AllToAll
-    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-    for( Int e=0; e<totalRecv; ++e )
-        d.UpdateLocal
-        ( recvBuf[e].index-d.FirstLocalRow(), 0, recvBuf[e].value );
+    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+    for( auto& entry : recvBuf )
+        d.UpdateLocal( entry.index-d.FirstLocalRow(), 0, entry.value );
 }
 
 template<typename Real>
@@ -491,11 +475,8 @@ void ExpandAugmentedSolution
     }
     // Communicate to determine the number we receive from each process
     // ----------------------------------------------------------------
-    vector<int> recvCounts(commSize);
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    vector<int> sendOffs, recvOffs;
-    int totalSend = Scan( sendCounts, sendOffs );
-    int totalRecv = Scan( recvCounts, recvOffs );
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
     // Pack the entries and row indices of dx and dy
     // ---------------------------------------------
     vector<ValueInt<Real>> sendBuf(totalSend);
@@ -520,17 +501,14 @@ void ExpandAugmentedSolution
     }
     // Exchange and unpack the entries and indices
     // -------------------------------------------
-    vector<ValueInt<Real>> recvBuf(totalRecv);
-    mpi::AllToAll
-    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-    for( Int e=0; e<totalRecv; ++e )
+    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+    for( auto& entry : recvBuf )
     {
-        const Int i = recvBuf[e].index;
+        const Int i = entry.index;
         if( i < n )
-            dx.SetLocal( i-dx.FirstLocalRow(), 0, recvBuf[e].value );
+            dx.SetLocal( i-dx.FirstLocalRow(), 0, entry.value );
         else
-            dy.SetLocal( i-n-dy.FirstLocalRow(), 0, recvBuf[e].value );
+            dy.SetLocal( i-n-dy.FirstLocalRow(), 0, entry.value );
     }
 
     // dz := - x <> (r_mu + z o dx)

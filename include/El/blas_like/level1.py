@@ -204,6 +204,11 @@ lib.ElHCatDistSparse_s.argtypes = \
 lib.ElHCatDistSparse_d.argtypes = \
 lib.ElHCatDistSparse_c.argtypes = \
 lib.ElHCatDistSparse_z.argtypes = \
+lib.ElHCatDistMultiVec_i.argtypes = \
+lib.ElHCatDistMultiVec_s.argtypes = \
+lib.ElHCatDistMultiVec_d.argtypes = \
+lib.ElHCatDistMultiVec_c.argtypes = \
+lib.ElHCatDistMultiVec_z.argtypes = \
   [c_void_p,c_void_p,c_void_p]
 
 def HCat(A,B):
@@ -251,6 +256,16 @@ def HCat(A,B):
     elif A.tag == zTag: lib.ElHCatDistSparse_z(*args)
     else: DataExcept()
     return C
+  elif type(A) is DistMultiVec:
+    C = DistMultiVec(A.tag,A.Comm())
+    args = [A.obj,B.obj,C.obj]
+    if   A.tag == iTag: lib.ElHCatDistMultiVec_i(*args)
+    elif A.tag == sTag: lib.ElHCatDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElHCatDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElHCatDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElHCatDistMultiVec_z(*args)
+    else: DataExcept()
+    return C
   else: TypeExcept()
 
 # Vertical concatenation
@@ -275,6 +290,11 @@ lib.ElVCatDistSparse_s.argtypes = \
 lib.ElVCatDistSparse_d.argtypes = \
 lib.ElVCatDistSparse_c.argtypes = \
 lib.ElVCatDistSparse_z.argtypes = \
+lib.ElVCatDistMultiVec_i.argtypes = \
+lib.ElVCatDistMultiVec_s.argtypes = \
+lib.ElVCatDistMultiVec_d.argtypes = \
+lib.ElVCatDistMultiVec_c.argtypes = \
+lib.ElVCatDistMultiVec_z.argtypes = \
   [c_void_p,c_void_p,c_void_p]
 
 def VCat(A,B):
@@ -320,6 +340,16 @@ def VCat(A,B):
     elif A.tag == dTag: lib.ElVCatDistSparse_d(*args)
     elif A.tag == cTag: lib.ElVCatDistSparse_c(*args)
     elif A.tag == zTag: lib.ElVCatDistSparse_z(*args)
+    else: DataExcept()
+    return C
+  elif type(A) is DistMultiVec:
+    C = DistMultiVec(A.tag,A.Comm())
+    args = [A.obj,B.obj,C.obj]
+    if   A.tag == iTag: lib.ElVCatDistMultiVec_i(*args)
+    elif A.tag == sTag: lib.ElVCatDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElVCatDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElVCatDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElVCatDistMultiVec_z(*args)
     else: DataExcept()
     return C
   else: TypeExcept()

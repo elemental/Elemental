@@ -18,11 +18,10 @@ worldRank = El.mpi.WorldRank()
 def Deriv(height):
   A = El.DistSparseMatrix()
   A.Resize(height-1,height)
-  firstLocalRow = A.FirstLocalRow()
   localHeight = A.LocalHeight()
   A.Reserve(2*localHeight)
   for iLoc in xrange(localHeight):
-    i = firstLocalRow + iLoc
+    i = A.GlobalRow(iLoc)
     A.QueueLocalUpdate( iLoc, i, 1. )
     A.QueueLocalUpdate( iLoc, i+1, -1. )
 

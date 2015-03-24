@@ -197,13 +197,10 @@ void BP
         else
             ++sendSizes[ x.RowOwner(i-n) ];
     }
-    vector<int> recvSizes(commSize);
-    mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, comm );
-    vector<int> sendOffs, recvOffs;
-    const int totalSend = Scan( sendSizes, sendOffs );
-    const int totalRecv = Scan( recvSizes, recvOffs );
     // Pack the data 
     // -------------
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendSizes, sendOffs );
     vector<ValueInt<Real>> sendBuf(totalSend);
     auto offs = sendOffs;
     for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
@@ -224,17 +221,11 @@ void BP
             ++offs[owner];
         }
     }
-    // Exchange the data
-    // -----------------
-    vector<ValueInt<Real>> recvBuf(totalRecv);
-    mpi::AllToAll
-    ( sendBuf.data(), sendSizes.data(), sendOffs.data(),
-      recvBuf.data(), recvSizes.data(), recvOffs.data(), comm );
-    // Unpack the data
-    // ---------------
-    for( Int e=0; e<totalRecv; ++e )
-        x.UpdateLocal
-        ( recvBuf[e].index-x.FirstLocalRow(), 0, recvBuf[e].value );
+    // Exchange and unpack the data
+    // ----------------------------
+    auto recvBuf = mpi::AllToAll( sendBuf, sendSizes, sendOffs, comm );
+    for( auto& entry : recvBuf )
+        x.UpdateLocal( entry.index-x.FirstLocalRow(), 0, entry.value );
 }
 
 #define PROTO(Real) \

@@ -310,17 +310,11 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
         const Int j = A.Col(k);
         ++sendCounts[ B.Owner(i,j) ];
     }
-    vector<int> recvCounts(commSize);
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-
-    // Convert the send/recv counts into offsets and total sizes
-    // =========================================================
-    vector<int> sendOffs, recvOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    const int totalRecv = Scan( recvCounts, recvOffs );
 
     // Pack the triplets
     // =================
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
     vector<ValueIntPair<T>> sendBuf(totalSend);
     auto offs = sendOffs;
     for( Int k=0; k<A.NumLocalEntries(); ++k )
@@ -337,14 +331,11 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
 
     // Exchange and unpack the triplets
     // ================================
-    vector<ValueIntPair<T>> recvBuf(totalRecv);
-    mpi::AllToAll
-    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-    for( Int k=0; k<totalRecv; ++k )
+    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+    for( auto& entry : recvBuf )
         B.UpdateLocal
-        ( B.LocalRow(recvBuf[k].indices[0]), B.LocalCol(recvBuf[k].indices[1]), 
-          recvBuf[k].value );
+        ( B.LocalRow(entry.indices[0]), B.LocalCol(entry.indices[1]), 
+          entry.value );
 }
 
 template<typename T>
@@ -446,13 +437,11 @@ void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
     for( Int j=0; j<n; ++j )
         for( Int iLoc=0; iLoc<mLoc; ++iLoc )
             ++sendCounts[ B.Owner(A.GlobalRow(iLoc),j) ]; 
-    vector<int> recvCounts(commSize);
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    vector<int> sendOffs, recvOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    const int totalRecv = Scan( recvCounts, recvOffs );
+
     // Pack
     // ====
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
     vector<ValueIntPair<T>> sendBuf(totalSend);
     auto offs = sendOffs;
     for( Int j=0; j<n; ++j )
@@ -467,16 +456,12 @@ void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
             ++offs[owner];
         }
     }
-    // Exchange
-    // ========
-    vector<ValueIntPair<T>> recvBuf(totalRecv);
-    mpi::AllToAll
-    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-    // Unpack
-    // ======
-    for( Int e=0; e<totalRecv; ++e )    
-        B.Set( recvBuf[e].indices[0], recvBuf[e].indices[1], recvBuf[e].value );
+
+    // Exchange and unpack
+    // ===================
+    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+    for( auto& entry : recvBuf )
+        B.Set( entry.indices[0], entry.indices[1], entry.value );
 }
 
 template<typename T>
@@ -502,13 +487,11 @@ void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
     for( Int jLoc=0; jLoc<nLoc; ++jLoc )
         for( Int iLoc=0; iLoc<mLoc; ++iLoc )
             ++sendCounts[ B.RowOwner(A.GlobalRow(iLoc)) ]; 
-    vector<int> recvCounts(commSize);
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    vector<int> sendOffs, recvOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    const int totalRecv = Scan( recvCounts, recvOffs );
+
     // Pack
     // ====
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
     vector<ValueIntPair<T>> sendBuf(totalSend);
     auto offs = sendOffs;
     for( Int jLoc=0; jLoc<nLoc; ++jLoc )
@@ -524,18 +507,13 @@ void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
             ++offs[owner];
         }
     }
-    // Exchange
-    // ========
-    vector<ValueIntPair<T>> recvBuf(totalRecv);
-    mpi::AllToAll
-    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-    // Unpack
-    // ======
-    for( Int e=0; e<totalRecv; ++e )    
+
+    // Exchange and unpack
+    // ===================
+    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+    for( auto& entry : recvBuf )
         B.SetLocal
-        ( recvBuf[e].indices[0]-B.FirstLocalRow(), recvBuf[e].indices[1], 
-          recvBuf[e].value );
+        ( entry.indices[0]-B.FirstLocalRow(), entry.indices[1], entry.value );
 }
 
 template<typename T>

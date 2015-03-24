@@ -453,14 +453,11 @@ void GetSubmatrix
         else if( i >= I.beg && j >= J.beg && j < J.end )
             ++sendCounts[ ASub.RowOwner(i-I.beg) ];
     }
-    vector<int> recvCounts(commSize);
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    vector<int> sendOffs, recvOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    const int totalRecv = Scan( recvCounts, recvOffs );
 
     // Pack the data
     // =============
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
     auto offs = sendOffs;
     vector<ValueIntPair<T>> sendBuf(totalSend);
     for( Int e=0; e<numEntries; ++e )
@@ -484,14 +481,12 @@ void GetSubmatrix
     
     // Exchange and unpack the data
     // ============================
-    vector<ValueIntPair<T>> recvBuf(totalRecv);
-    mpi::AllToAll
-    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-    for( Int e=0; e<totalRecv; ++e )
+    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+    ASub.Reserve( recvBuf.size() );
+    for( auto& entry : recvBuf )
         ASub.QueueLocalUpdate
-        ( recvBuf[e].indices[0]-ASub.FirstLocalRow(), recvBuf[e].indices[1], 
-          recvBuf[e].value );
+        ( entry.indices[0]-ASub.FirstLocalRow(), entry.indices[1], 
+          entry.value );
     ASub.MakeConsistent();
 }
 
@@ -522,14 +517,11 @@ void GetRealPartOfSubmatrix
         else if( i >= I.beg && j >= J.beg && j < J.end )
             ++sendCounts[ ASub.RowOwner(i-I.beg) ];
     }
-    vector<int> recvCounts(commSize);
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    vector<int> sendOffs, recvOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    const int totalRecv = Scan( recvCounts, recvOffs );
 
     // Pack the data
     // =============
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
     auto offs = sendOffs;
     vector<ValueIntPair<Base<T>>> sendBuf(totalSend);
     for( Int e=0; e<numEntries; ++e )
@@ -553,14 +545,12 @@ void GetRealPartOfSubmatrix
     
     // Exchange and unpack the data
     // ============================
-    vector<ValueIntPair<Base<T>>> recvBuf(totalRecv);
-    mpi::AllToAll
-    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-    for( Int e=0; e<totalRecv; ++e )
+    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+    ASub.Reserve( recvBuf.size() );
+    for( auto& entry : recvBuf )
         ASub.QueueLocalUpdate
-        ( recvBuf[e].indices[0]-ASub.FirstLocalRow(), recvBuf[e].indices[1], 
-          recvBuf[e].value );
+        ( entry.indices[0]-ASub.FirstLocalRow(), entry.indices[1], 
+          entry.value );
     ASub.MakeConsistent();
 }
 
@@ -591,14 +581,11 @@ void GetImagPartOfSubmatrix
         else if( i >= I.beg && j >= J.beg && j < J.end )
             ++sendCounts[ ASub.RowOwner(i-I.beg) ];
     }
-    vector<int> recvCounts(commSize);
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    vector<int> sendOffs, recvOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    const int totalRecv = Scan( recvCounts, recvOffs );
 
     // Pack the data
     // =============
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
     auto offs = sendOffs;
     vector<ValueIntPair<Base<T>>> sendBuf(totalSend);
     for( Int e=0; e<numEntries; ++e )
@@ -622,14 +609,12 @@ void GetImagPartOfSubmatrix
     
     // Exchange and unpack the data
     // ============================
-    vector<ValueIntPair<Base<T>>> recvBuf(totalRecv);
-    mpi::AllToAll
-    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-    for( Int e=0; e<totalRecv; ++e )
+    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+    ASub.Reserve( recvBuf.size() );
+    for( auto& entry : recvBuf )
         ASub.QueueLocalUpdate
-        ( recvBuf[e].indices[0]-ASub.FirstLocalRow(), recvBuf[e].indices[1], 
-          recvBuf[e].value );
+        ( entry.indices[0]-ASub.FirstLocalRow(), entry.indices[1], 
+          entry.value );
     ASub.MakeConsistent();
 }
 
@@ -686,14 +671,11 @@ void GetSubmatrix
         else if( i >= I.beg )
             sendCounts[ ASub.RowOwner(i-I.beg) ] += J.end-J.beg;
     }
-    vector<int> recvCounts(commSize);
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    vector<int> sendOffs, recvOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    const int totalRecv = Scan( recvCounts, recvOffs );
 
     // Pack the data
     // =============
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
     auto offs = sendOffs;
     vector<ValueIntPair<T>> sendBuf(totalSend);
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
@@ -719,14 +701,11 @@ void GetSubmatrix
     
     // Exchange and unpack the data
     // ============================
-    vector<ValueIntPair<T>> recvBuf(totalRecv);
-    mpi::AllToAll
-    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-    for( Int e=0; e<totalRecv; ++e )
+    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+    for( auto& entry : recvBuf )
         ASub.SetLocal
-        ( recvBuf[e].indices[0]-ASub.FirstLocalRow(), recvBuf[e].indices[1], 
-          recvBuf[e].value );
+        ( entry.indices[0]-ASub.FirstLocalRow(), entry.indices[1], 
+          entry.value );
 }
 
 template<typename T>
@@ -755,14 +734,11 @@ void GetRealPartOfSubmatrix
         else if( i >= I.beg )
             sendCounts[ ASub.RowOwner(i-I.beg) ] += J.end-J.beg;
     }
-    vector<int> recvCounts(commSize);
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    vector<int> sendOffs, recvOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    const int totalRecv = Scan( recvCounts, recvOffs );
 
     // Pack the data
     // =============
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
     auto offs = sendOffs;
     vector<ValueIntPair<Base<T>>> sendBuf(totalSend);
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
@@ -788,14 +764,11 @@ void GetRealPartOfSubmatrix
     
     // Exchange and unpack the data
     // ============================
-    vector<ValueIntPair<Base<T>>> recvBuf(totalRecv);
-    mpi::AllToAll
-    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-    for( Int e=0; e<totalRecv; ++e )
+    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+    for( auto& entry : recvBuf )
         ASub.SetLocal
-        ( recvBuf[e].indices[0]-ASub.FirstLocalRow(), recvBuf[e].indices[1], 
-          recvBuf[e].value );
+        ( entry.indices[0]-ASub.FirstLocalRow(), entry.indices[1], 
+          entry.value );
 }
 
 template<typename T>
@@ -824,14 +797,11 @@ void GetImagPartOfSubmatrix
         else if( i >= I.beg )
             sendCounts[ ASub.RowOwner(i-I.beg) ] += J.end-J.beg;
     }
-    vector<int> recvCounts(commSize);
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    vector<int> sendOffs, recvOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    const int totalRecv = Scan( recvCounts, recvOffs );
 
     // Pack the data
     // =============
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
     auto offs = sendOffs;
     vector<ValueIntPair<Base<T>>> sendBuf(totalSend);
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
@@ -857,14 +827,11 @@ void GetImagPartOfSubmatrix
     
     // Exchange and unpack the data
     // ============================
-    vector<ValueIntPair<Base<T>>> recvBuf(totalRecv);
-    mpi::AllToAll
-    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-    for( Int e=0; e<totalRecv; ++e )
+    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+    for( auto& entry : recvBuf )
         ASub.SetLocal
-        ( recvBuf[e].indices[0]-ASub.FirstLocalRow(), recvBuf[e].indices[1], 
-          recvBuf[e].value );
+        ( entry.indices[0]-ASub.FirstLocalRow(), entry.indices[1], 
+          entry.value );
 }
 
 template<typename T>

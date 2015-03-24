@@ -95,6 +95,9 @@ extern "C" {
   ElError ElDistSparseMatrixRowOwner_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElInt i, int* owner ) \
   { EL_TRY( *owner = CReflect(A)->RowOwner(i) ) } \
+  ElError ElDistSparseMatrixGlobalRow_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElInt iLoc, ElInt* i ) \
+  { EL_TRY( *i = CReflect(A)->GlobalRow(iLoc) ) } \
   ElError ElDistSparseMatrixRow_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElInt localInd, ElInt* row ) \
   { EL_TRY( *row = CReflect(A)->Row(localInd) ) } \

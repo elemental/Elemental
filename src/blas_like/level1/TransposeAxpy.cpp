@@ -141,17 +141,11 @@ void TransposeAxpy
     vector<int> sendCounts(commSize,0);
     for( Int k=0; k<A.NumLocalEntries(); ++k )
         ++sendCounts[ B.RowOwner(A.Col(k)) ];
-    vector<int> recvCounts(commSize);
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-
-    // Convert the send/recv counts into offsets and total sizes
-    // =========================================================
-    vector<int> sendOffs, recvOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    const int totalRecv = Scan( recvCounts, recvOffs );
 
     // Pack the triplets
     // =================
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
     vector<ValueIntPair<T>> sendBuf(totalSend);
     auto offs = sendOffs;
     for( Int k=0; k<A.NumLocalEntries(); ++k )
@@ -167,17 +161,11 @@ void TransposeAxpy
 
     // Exchange and unpack the triplets
     // ================================
-    // TODO: Switch to a mechanism which directly unpacks into the 
-    //       class's local storage?
-    vector<ValueIntPair<T>> recvBuf(totalRecv);
-    mpi::AllToAll
-    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-    B.Reserve( B.NumLocalEntries()+totalRecv );
-    for( Int k=0; k<totalRecv; ++k )
+    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+    B.Reserve( B.NumLocalEntries()+recvBuf.size() );
+    for( auto& entry : recvBuf )
         B.QueueLocalUpdate
-        ( recvBuf[k].indices[0]-B.FirstLocalRow(), recvBuf[k].indices[1], 
-          recvBuf[k].value );
+        ( entry.indices[0]-B.FirstLocalRow(), entry.indices[1], entry.value );
     B.MakeConsistent();
 }
 

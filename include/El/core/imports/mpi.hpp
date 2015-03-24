@@ -452,6 +452,13 @@ void AllToAll
 ( const Complex<Real>* sbuf, const int* scs, const int* sds,
         Complex<Real>* rbuf, const int* rcs, const int* rds, Comm comm );
 
+template<typename T>
+std::vector<T> AllToAll
+( const std::vector<T>& sendBuf, 
+  const std::vector<int>& sendCounts, 
+  const std::vector<int>& sendDispls,
+  mpi::Comm comm );
+
 // Reduce
 // ------
 template<typename T>

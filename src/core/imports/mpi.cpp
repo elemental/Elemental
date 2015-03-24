@@ -1238,6 +1238,25 @@ void AllToAll
 #endif
 }
 
+template<typename T>
+std::vector<T> AllToAll
+( const std::vector<T>& sendBuf,
+  const std::vector<int>& sendCounts, 
+  const std::vector<int>& sendOffs,
+  mpi::Comm comm )
+{
+    const int commSize = mpi::Size( comm ); 
+    std::vector<int> recvCounts(commSize);
+    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm ); 
+    std::vector<int> recvOffs;
+    const int totalRecv = Scan( recvCounts, recvOffs );
+    std::vector<T> recvBuf(totalRecv);
+    mpi::AllToAll
+    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
+    return recvBuf;
+}
+
 template<typename Real>
 void Reduce
 ( const Real* sbuf, Real* rbuf, int count, Op op, int root, Comm comm )
@@ -1981,6 +2000,11 @@ void SparseAllToAll
   template void AllToAll \
   ( const T* sbuf, const int* scs, const int* sds, \
           T* rbuf, const int* rcs, const int* rds, Comm comm ); \
+  template std::vector<T> AllToAll \
+  ( const std::vector<T>& sendBuf, \
+    const std::vector<int>& sendCounts, \
+    const std::vector<int>& sendOffs, \
+    mpi::Comm comm ); \
   template void Reduce( const T* sbuf, T* rbuf, int count, Op op, int root, Comm comm ); \
   template void Reduce( const T* sbuf, T* rbuf, int count, int root, Comm comm ); \
   template T Reduce( T sb, Op op, int root, Comm comm ); \

@@ -448,6 +448,23 @@ class DistSparseMatrix(object):
     else: DataExcept()
     return owner.value
 
+  lib.ElDistSparseMatrixGlobalRow_i.argtypes = \
+  lib.ElDistSparseMatrixGlobalRow_s.argtypes = \
+  lib.ElDistSparseMatrixGlobalRow_d.argtypes = \
+  lib.ElDistSparseMatrixGlobalRow_c.argtypes = \
+  lib.ElDistSparseMatrixGlobalRow_z.argtypes = \
+    [c_void_p,iType,POINTER(iType)]
+  def GlobalRow(self,iLoc):
+    i = iType()
+    args = [self.obj,iLoc,pointer(i)]
+    if   self.tag == iTag: lib.ElDistSparseMatrixGlobalRow_i(*args)
+    elif self.tag == sTag: lib.ElDistSparseMatrixGlobalRow_s(*args)
+    elif self.tag == dTag: lib.ElDistSparseMatrixGlobalRow_d(*args)
+    elif self.tag == cTag: lib.ElDistSparseMatrixGlobalRow_c(*args)
+    elif self.tag == zTag: lib.ElDistSparseMatrixGlobalRow_z(*args)
+    else: DataExcept()
+    return i.value
+
   lib.ElDistSparseMatrixRow_i.argtypes = \
   lib.ElDistSparseMatrixRow_s.argtypes = \
   lib.ElDistSparseMatrixRow_d.argtypes = \

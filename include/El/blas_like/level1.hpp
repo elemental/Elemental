@@ -196,6 +196,10 @@ template<typename T>
 void HCat
 ( const DistSparseMatrix<T>& A, const DistSparseMatrix<T>& B, 
         DistSparseMatrix<T>& C );
+template<typename T>
+void HCat
+( const DistMultiVec<T>& A, const DistMultiVec<T>& B, 
+        DistMultiVec<T>& C );
 
 // Vertical concatenation: C := [A; B]
 // -----------------------------------
@@ -215,6 +219,10 @@ template<typename T>
 void VCat
 ( const DistSparseMatrix<T>& A, const DistSparseMatrix<T>& B, 
         DistSparseMatrix<T>& C );
+template<typename T>
+void VCat
+( const DistMultiVec<T>& A, const DistMultiVec<T>& B, 
+        DistMultiVec<T>& C );
 
 // Conjugate
 // =========

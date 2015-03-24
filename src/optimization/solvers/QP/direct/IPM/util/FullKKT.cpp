@@ -250,13 +250,8 @@ void KKT
     // --------------
     for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
         ++sendCounts[ J.RowOwner( m+n + x.GlobalRow(iLoc) ) ];
-    // Communicate to determine the number we receive from each process
-    // ----------------------------------------------------------------
-    vector<int> recvCounts(commSize);
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    vector<int> sendOffs, recvOffs;
+    vector<int> sendOffs;
     const int totalSend = Scan( sendCounts, sendOffs );
-    const int totalRecv = Scan( recvCounts, recvOffs );
 
     // Pack the triplets
     // =================
@@ -321,15 +316,9 @@ void KKT
         ++offs[owner];
     }
 
-    // Exchange the triplets
-    // =====================
-    vector<ValueIntPair<Real>> recvBuf(totalRecv);
-    mpi::AllToAll
-    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-
-    // Unpack the triplets
-    // ===================
+    // Exchange and unpack the triplets
+    // ================================
+    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
     // Count the total number of entries for the negative identities
     // -------------------------------------------------------------
     Int negIdentUpdates = 0;
@@ -341,9 +330,7 @@ void KKT
         else if( i >= n+m )
             ++negIdentUpdates;
     }
-    // Reserve the total number of local updates
-    // -----------------------------------------
-    J.Reserve( totalRecv+negIdentUpdates );
+    J.Reserve( recvBuf.size()+negIdentUpdates );
     // Append the local negative identity updates
     // ------------------------------------------
     for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
@@ -356,10 +343,9 @@ void KKT
     }
     // Append the received local updates
     // ---------------------------------
-    for( Int e=0; e<totalRecv; ++e )
+    for( auto& entry : recvBuf )
         J.QueueLocalUpdate
-        ( recvBuf[e].indices[0]-J.FirstLocalRow(), recvBuf[e].indices[1], 
-          recvBuf[e].value );
+        ( entry.indices[0]-J.FirstLocalRow(), entry.indices[1], entry.value );
     J.MakeConsistent();
 }
 
@@ -430,8 +416,8 @@ void KKTRHS
     mpi::Comm comm = rmu.Comm();
     const Int commSize = mpi::Size( comm ); 
 
-    // Compute the number of entries to send/recv from each process
-    // ============================================================
+    // Compute the number of entries to send from each process
+    // =======================================================
     vector<int> sendCounts(commSize,0);
     for( Int iLoc=0; iLoc<rc.LocalHeight(); ++iLoc )
         ++sendCounts[ d.RowOwner( rc.GlobalRow(iLoc) ) ];
@@ -439,11 +425,8 @@ void KKTRHS
         ++sendCounts[ d.RowOwner( n + rb.GlobalRow(iLoc) ) ];
     for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
         ++sendCounts[ d.RowOwner( n+m + rmu.GlobalRow(iLoc) ) ];
-    vector<int> recvCounts(commSize);
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    vector<int> sendOffs, recvOffs;
+    vector<int> sendOffs;
     const int totalSend = Scan( sendCounts, sendOffs );
-    const int totalRecv = Scan( recvCounts, recvOffs );
 
     // Pack the doublets
     // =================
@@ -479,13 +462,9 @@ void KKTRHS
 
     // Exchange and unpack the doublets
     // ================================
-    vector<ValueInt<Real>> recvBuf(totalRecv);
-    mpi::AllToAll
-    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-    for( Int e=0; e<totalRecv; ++e )
-        d.UpdateLocal
-        ( recvBuf[e].index-d.FirstLocalRow(), 0, recvBuf[e].value );
+    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+    for( auto& entry : recvBuf )
+        d.UpdateLocal( entry.index-d.FirstLocalRow(), 0, entry.value );
 }
 
 template<typename Real>

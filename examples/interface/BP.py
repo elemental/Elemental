@@ -21,11 +21,10 @@ def ConcatFD2D(N0,N1):
   height = N0*N1
   width = 2*N0*N1
   A.Resize(height,width)
-  firstLocalRow = A.FirstLocalRow()
   localHeight = A.LocalHeight()
   A.Reserve(11*localHeight)
   for sLoc in xrange(localHeight):
-    s = firstLocalRow + sLoc
+    s = A.GlobalRow(sLoc)
     x0 = s % N0
     x1 = s / N0
     sRel = s + N0*N1

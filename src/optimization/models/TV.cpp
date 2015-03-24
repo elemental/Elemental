@@ -159,11 +159,8 @@ void TV
             const Int i = b.GlobalRow(iLoc);
             ++sendCounts[ c.RowOwner(i) ];
         }
-        vector<int> recvCounts(commSize);
-        mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        vector<int> sendOffs, recvOffs;
+        vector<int> sendOffs;
         const int totalSend = Scan( sendCounts, sendOffs );
-        const int totalRecv = Scan( recvCounts, recvOffs );
         // Pack -b
         // -------
         vector<ValueInt<Real>> sendBuf(totalSend);
@@ -176,17 +173,11 @@ void TV
             sendBuf[offs[owner]].value = -b.GetLocal(iLoc,0);
             ++offs[owner];
         }
-        // Redistribute
-        // ------------
-        vector<ValueInt<Real>> recvBuf(totalRecv);
-        mpi::AllToAll
-        ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-        // Unpack
-        // ------
-        for( Int e=0; e<totalRecv; ++e )
-            c.SetLocal
-            ( recvBuf[e].index-c.FirstLocalRow(), 0, recvBuf[e].value );
+        // Redistribute and unpack
+        // -----------------------
+        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+        for( auto& entry : recvBuf )
+            c.SetLocal( entry.index-c.FirstLocalRow(), 0, entry.value );
     }
     for( Int iLoc=0; iLoc<c.LocalHeight(); ++iLoc )
     {

@@ -220,17 +220,11 @@ void Syrk
             }
         }
     }
-    vector<int> recvSizes(commSize);
-    mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, comm );
-
-    // Convert the send and recv counts to offsets and total sizes
-    // ===========================================================
-    vector<int> sendOffs, recvOffs;
-    const int totalSend = Scan( sendSizes, sendOffs );
-    const int totalRecv = Scan( recvSizes, recvOffs );
 
     // Pack the send buffers
     // ===================== 
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendSizes, sendOffs );
     vector<ValueIntPair<T>> sendBuf(totalSend);
     auto offs = sendOffs;
     for( Int kLoc=0; kLoc<localHeightA; ++kLoc )
@@ -260,22 +254,13 @@ void Syrk
         }
     }
 
-    // Receive the updates
-    // ===================
-    const Int oldSize = C.NumLocalEntries();
-    const Int newCapacity = oldSize + totalRecv;
-    vector<ValueIntPair<T>> recvBuf(totalRecv);
-    mpi::AllToAll
-    ( sendBuf.data(), sendSizes.data(), sendOffs.data(),
-      recvBuf.data(), recvSizes.data(), recvOffs.data(), comm );
-    C.Reserve( newCapacity );
-    for( Int k=0; k<totalRecv; ++k )
+    // Receive and apply the updates
+    // =============================
+    auto recvBuf = mpi::AllToAll( sendBuf, sendSizes, sendOffs, comm );
+    C.Reserve( C.NumLocalEntries() + recvBuf.size() );
+    for( auto& entry : recvBuf )
         C.QueueLocalUpdate
-        ( recvBuf[k].indices[0]-C.FirstLocalRow(), recvBuf[k].indices[1], 
-          recvBuf[k].value );
-
-    // Make the distributed matrix consistent
-    // ======================================
+        ( entry.indices[0]-C.FirstLocalRow(), entry.indices[1], entry.value );
     C.MakeConsistent();
 }
 

@@ -41,14 +41,11 @@ void Full( const DistSparseMatrix<T>& A, AbstractDistMatrix<T>& BPre )
     vector<int> sendSizes( commSize, 0 );
     for( Int e=0; e<numLocalEntries; ++e )
         ++sendSizes[ B.Owner( A.Row(e), A.Col(e) ) ];
-    vector<int> recvSizes(commSize);
-    mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, comm );
-    vector<int> sendOffs, recvOffs;
-    const int totalSend = Scan( sendSizes, sendOffs );
-    const int totalRecv = Scan( recvSizes, recvOffs );
 
     // Pack the data
     // -------------
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendSizes, sendOffs );
     vector<ValueIntPair<T>> sendBuf(totalSend);
     auto offs = sendOffs;
     for( Int e=0; e<numLocalEntries; ++e )
@@ -63,18 +60,11 @@ void Full( const DistSparseMatrix<T>& A, AbstractDistMatrix<T>& BPre )
         ++offs[owner];
     }
 
-    // Exchange the data
-    // -----------------
-    vector<ValueIntPair<T>> recvBuf(totalRecv);
-    mpi::AllToAll
-    ( sendBuf.data(), sendSizes.data(), sendOffs.data(),
-      recvBuf.data(), recvSizes.data(), recvOffs.data(), comm );
-    
-    // Unpack the data
-    // ---------------
-    for( Int e=0; e<totalRecv; ++e )
-        B.Update
-        ( recvBuf[e].indices[0], recvBuf[e].indices[1], recvBuf[e].value );
+    // Exchange and unpack
+    // -------------------
+    auto recvBuf = mpi::AllToAll( sendBuf, sendSizes, sendOffs, comm );
+    for( auto& entry : recvBuf )
+        B.Update( entry.indices[0], entry.indices[1], entry.value );
 }
 
 template<typename T>

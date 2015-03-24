@@ -23,11 +23,10 @@ worldRank = El.mpi.WorldRank()
 def Rectang(height,width):
   A = El.DistSparseMatrix()
   A.Resize(height,width)
-  firstLocalRow = A.FirstLocalRow()
   localHeight = A.LocalHeight()
   A.Reserve(5*localHeight)
   for sLoc in xrange(localHeight):
-    s = firstLocalRow + sLoc
+    s = A.GlobalRow(sLoc)
     if s < width: 
       A.QueueLocalUpdate( sLoc, s,        11 )
     if s >= 1 and s-1 < width:

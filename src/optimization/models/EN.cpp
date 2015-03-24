@@ -332,11 +332,8 @@ void EN
         else
             break;
     }
-    vector<int> recvCounts(commSize);
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    vector<int> sendOffs, recvOffs;
+    vector<int> sendOffs;
     const int totalSend = Scan( sendCounts, sendOffs );
-    const int totalRecv = Scan( recvCounts, recvOffs );
     // Pack the data 
     // -------------
     vector<ValueInt<Real>> sendBuf(totalSend);
@@ -361,17 +358,11 @@ void EN
         else
             break;
     }
-    // Exchange the data
-    // -----------------
-    vector<ValueInt<Real>> recvBuf(totalRecv);
-    mpi::AllToAll
-    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-    // Unpack the data
-    // ---------------
-    for( Int e=0; e<totalRecv; ++e )
-        x.UpdateLocal
-        ( recvBuf[e].index-x.FirstLocalRow(), 0, recvBuf[e].value );
+    // Exchange and unpack the data
+    // ----------------------------
+    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+    for( auto& entry : recvBuf )
+        x.UpdateLocal( entry.index-x.FirstLocalRow(), 0, entry.value );
 }
 
 #define PROTO(Real) \

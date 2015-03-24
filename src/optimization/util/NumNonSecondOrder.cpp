@@ -105,13 +105,13 @@ Int NumNonSecondOrder
             ++sendCounts[x.RowOwner(firstInd)];
         }
     }
-    vector<int> sendOffsets, recvOffsets;
-    int totalSend = Scan( sendCounts, sendOffsets );
-    int totalRecv = Scan( recvCounts, recvOffsets );
+    vector<int> sendOffs, recvOffs;
+    int totalSend = Scan( sendCounts, sendOffs );
+    int totalRecv = Scan( recvCounts, recvOffs );
     // Pack the entries 
     // ----------------
     vector<Real> sendBuf(totalSend);
-    auto offsets = sendOffsets;
+    auto offs = sendOffs;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
@@ -121,17 +121,17 @@ Int NumNonSecondOrder
 
         const Int firstInd = firstInds.GetLocal(iLoc,0);
         if( i != firstInd )
-            sendBuf[offsets[x.RowOwner(firstInd)]++];
+            sendBuf[offs[x.RowOwner(firstInd)]++];
     }
     // Exchange entries
     // ----------------
     vector<Real> recvBuf(totalRecv); 
     mpi::AllToAll 
-    ( sendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      recvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
     // Check the cone constraints
     // --------------------------
-    offsets = recvOffsets;
+    offs = recvOffs;
     vector<Real> socBuf(cutoff-1);
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
@@ -145,7 +145,7 @@ Int NumNonSecondOrder
         {
             const Real t = x.GetLocal(iLoc,0);
             for( Int k=1; k<order; ++k )
-                socBuf[k-1] = recvBuf[offsets[x.RowOwner(i+k)]++];
+                socBuf[k-1] = recvBuf[offs[x.RowOwner(i+k)]++];
             const Real botNrm = blas::Nrm2( order-1, socBuf.data(), 1 );
             if( t < botNrm )
                 ++numLocalNonSO;
@@ -174,18 +174,18 @@ Int NumNonSecondOrder
     int numSendCones = sendCones.size();
     vector<int> numRecvCones(commSize);
     mpi::AllGather( &numSendCones, 1, numRecvCones.data(), 1, comm );
-    totalRecv = Scan( numRecvCones, recvOffsets );
+    totalRecv = Scan( numRecvCones, recvOffs );
     vector<Real> recvCaps(totalRecv);
     vector<Int> recvCones(totalRecv), recvOrders(totalRecv);
     mpi::AllGather
     ( sendCaps.data(), numSendCones,
-      recvCaps.data(), numRecvCones.data(), recvOffsets.data(), comm );
+      recvCaps.data(), numRecvCones.data(), recvOffs.data(), comm );
     mpi::AllGather
     ( sendCones.data(), numSendCones,
-      recvCones.data(), numRecvCones.data(), recvOffsets.data(), comm );
+      recvCones.data(), numRecvCones.data(), recvOffs.data(), comm );
     mpi::AllGather
     ( sendOrders.data(), numSendCones,
-      recvOrders.data(), numRecvCones.data(), recvOffsets.data(), comm );
+      recvOrders.data(), numRecvCones.data(), recvOffs.data(), comm );
     for( Int largeCone=0; largeCone<totalRecv; ++largeCone )
     {
         const Int i = recvCones[largeCone];
@@ -248,13 +248,13 @@ Int NumNonSecondOrder
             ++sendCounts[x.RowOwner(firstInd)];
         }
     }
-    vector<int> sendOffsets, recvOffsets;
-    int totalSend = Scan( sendCounts, sendOffsets );
-    int totalRecv = Scan( recvCounts, recvOffsets );
+    vector<int> sendOffs, recvOffs;
+    int totalSend = Scan( sendCounts, sendOffs );
+    int totalRecv = Scan( recvCounts, recvOffs );
     // Pack the entries 
     // ----------------
     vector<Real> sendBuf(totalSend);
-    auto offsets = sendOffsets;
+    auto offs = sendOffs;
     for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
@@ -264,17 +264,17 @@ Int NumNonSecondOrder
 
         const Int firstInd = firstInds.GetLocal(iLoc,0);
         if( i != firstInd )
-            sendBuf[offsets[x.RowOwner(firstInd)]++];
+            sendBuf[offs[x.RowOwner(firstInd)]++];
     }
     // Exchange entries
     // ----------------
     vector<Real> recvBuf(totalRecv); 
     mpi::AllToAll 
-    ( sendBuf.data(), sendCounts.data(), sendOffsets.data(),
-      recvBuf.data(), recvCounts.data(), recvOffsets.data(), comm );
+    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
     // Check the cone constraints
     // --------------------------
-    offsets = recvOffsets;
+    offs = recvOffs;
     vector<Real> socBuf(cutoff-1);
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
@@ -288,7 +288,7 @@ Int NumNonSecondOrder
         {
             const Real t = x.GetLocal(iLoc,0);
             for( Int k=1; k<order; ++k )
-                socBuf[k-1] = recvBuf[offsets[x.RowOwner(i+k)]++];
+                socBuf[k-1] = recvBuf[offs[x.RowOwner(i+k)]++];
             const Real botNrm = blas::Nrm2( order-1, socBuf.data(), 1 );
             if( t < botNrm )
                 ++numLocalNonSO;
@@ -317,18 +317,18 @@ Int NumNonSecondOrder
     int numSendCones = sendCones.size();
     vector<int> numRecvCones(commSize);
     mpi::AllGather( &numSendCones, 1, numRecvCones.data(), 1, comm );
-    totalRecv = Scan( numRecvCones, recvOffsets ); 
+    totalRecv = Scan( numRecvCones, recvOffs ); 
     vector<Real> recvCaps(totalRecv);
     vector<Int> recvCones(totalRecv), recvOrders(totalRecv);
     mpi::AllGather
     ( sendCaps.data(), numSendCones,
-      recvCaps.data(), numRecvCones.data(), recvOffsets.data(), comm );
+      recvCaps.data(), numRecvCones.data(), recvOffs.data(), comm );
     mpi::AllGather
     ( sendCones.data(), numSendCones,
-      recvCones.data(), numRecvCones.data(), recvOffsets.data(), comm );
+      recvCones.data(), numRecvCones.data(), recvOffs.data(), comm );
     mpi::AllGather
     ( sendOrders.data(), numSendCones,
-      recvOrders.data(), numRecvCones.data(), recvOffsets.data(), comm );
+      recvOrders.data(), numRecvCones.data(), recvOffs.data(), comm );
     for( Int largeCone=0; largeCone<totalRecv; ++largeCone )
     {
         const Int i = recvCones[largeCone];

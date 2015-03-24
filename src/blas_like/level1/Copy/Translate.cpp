@@ -179,13 +179,13 @@ void Translate( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,U,V>& B )
 
         // Translate the send/recv counts into displacements and allocate
         // the send and recv buffers
-        vector<int> sendDispls, recvDispls;
-        const Int totalSend = Scan( sendCounts, sendDispls );
-        const Int totalRecv = Scan( recvCounts, recvDispls );
+        vector<int> sendOffs, recvOffs;
+        const Int totalSend = Scan( sendCounts, sendOffs );
+        const Int totalRecv = Scan( recvCounts, recvOffs );
         vector<T> sendBuf(totalSend), recvBuf(totalRecv);
 
         // Pack the send data
-        auto offsets = sendDispls;
+        auto offs = sendOffs;
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
         {
             const Int j = A.GlobalCol(jLoc);
@@ -193,19 +193,19 @@ void Translate( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,U,V>& B )
             {
                 const Int i = A.GlobalRow(iLoc);
                 const int owner = B.Owner(i,j);
-                sendBuf[offsets[owner]++] = A.GetLocal(iLoc,jLoc);
+                sendBuf[offs[owner]++] = A.GetLocal(iLoc,jLoc);
             }
         }
 
         // Perform the all-to-all communication
         mpi::AllToAll
-        ( sendBuf.data(), sendCounts.data(), sendDispls.data(),
-          recvBuf.data(), recvCounts.data(), recvDispls.data(),
+        ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+          recvBuf.data(), recvCounts.data(), recvOffs.data(),
           A.DistComm() );
         SwapClear( sendBuf );
 
         // Unpack the received data
-        offsets = recvDispls;
+        offs = recvOffs;
         for( Int jLoc=0; jLoc<nLocalB; ++jLoc )
         {
             const Int j = B.GlobalCol(jLoc);
@@ -213,7 +213,7 @@ void Translate( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,U,V>& B )
             {
                 const Int i = B.GlobalRow(iLoc);
                 const int owner = A.Owner(i,j);
-                B.SetLocal( iLoc, jLoc, recvBuf[offsets[owner]++] );
+                B.SetLocal( iLoc, jLoc, recvBuf[offs[owner]++] );
             }
         }
     }

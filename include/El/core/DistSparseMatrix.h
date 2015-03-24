@@ -374,6 +374,19 @@ EL_EXPORT ElError ElDistSparseMatrixRowOwner_c
 EL_EXPORT ElError ElDistSparseMatrixRowOwner_z
 ( ElConstDistSparseMatrix_z A, ElInt i, int* owner );
 
+/* Int DistSparseMatrix<T>::GlobalRow( Int iLoc ) const
+   ---------------------------------------------------- */
+EL_EXPORT ElError ElDistSparseMatrixGlobalRow_i
+( ElConstDistSparseMatrix_i A, ElInt iLoc, ElInt* i );
+EL_EXPORT ElError ElDistSparseMatrixGlobalRow_s
+( ElConstDistSparseMatrix_s A, ElInt iLoc, ElInt* i );
+EL_EXPORT ElError ElDistSparseMatrixGlobalRow_d
+( ElConstDistSparseMatrix_d A, ElInt iLoc, ElInt* i );
+EL_EXPORT ElError ElDistSparseMatrixGlobalRow_c
+( ElConstDistSparseMatrix_c A, ElInt iLoc, ElInt* i );
+EL_EXPORT ElError ElDistSparseMatrixGlobalRow_z
+( ElConstDistSparseMatrix_z A, ElInt iLoc, ElInt* i );
+
 /* Int DistSparseMatrix<T>::Row( Int localInd ) const
    -------------------------------------------------- */
 EL_EXPORT ElError ElDistSparseMatrixRow_i

@@ -275,11 +275,8 @@ void SVM
             ++sendCounts[ G.RowOwner(A.Row(e)) ];
         for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
             ++sendCounts[ G.RowOwner(d.GlobalRow(iLoc)) ]; 
-        vector<int> recvCounts(commSize);
-        mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        vector<int> sendOffs, recvOffs;
+        vector<int> sendOffs;
         const int totalSend = Scan( sendCounts, sendOffs );
-        const int totalRecv = Scan( recvCounts, recvOffs );
         // Pack
         // ----
         vector<ValueIntPair<Real>> sendBuf(totalSend);
@@ -305,15 +302,12 @@ void SVM
         }
         // Exchange and unpack
         // -------------------
-        vector<ValueIntPair<Real>> recvBuf(totalRecv);
-        mpi::AllToAll
-        ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-        G.Reserve( totalRecv+G.LocalHeight() );
-        for( Int e=0; e<totalRecv; ++e )
+        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+        G.Reserve( recvBuf.size()+G.LocalHeight() );
+        for( auto& entry : recvBuf )
             G.QueueLocalUpdate
-            ( recvBuf[e].indices[0]-G.FirstLocalRow(), recvBuf[e].indices[1], 
-              recvBuf[e].value );
+            ( entry.indices[0]-G.FirstLocalRow(), entry.indices[1], 
+              entry.value );
         for( Int iLoc=0; iLoc<G.LocalHeight(); ++iLoc )
         {
             const Int i = G.GlobalRow(iLoc);

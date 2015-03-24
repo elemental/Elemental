@@ -13,13 +13,12 @@ n0 = n1 = 20
 def Laplacian(xSize,ySize):
   A = El.DistSparseMatrix(El.dTag)
   A.Resize(xSize*ySize,xSize*ySize)
-  firstLocalRow = A.FirstLocalRow()
   localHeight = A.LocalHeight()
   A.Reserve(5*localHeight)
   hxInvSq = (1.*(xSize+1))**2
   hyInvSq = (1.*(ySize+1))**2
   for sLoc in xrange(localHeight):
-    s = firstLocalRow + sLoc
+    s = A.GlobalRow(sLoc)
     x = s % xSize
     y = s / xSize
     A.QueueLocalUpdate( sLoc, s, 2*(hxInvSq+hyInvSq) )

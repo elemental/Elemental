@@ -502,13 +502,10 @@ void Var2
             // Sending A^T
             ++sendCounts[ AHat.RowOwner(j+m) ];
         }
-        vector<int> recvCounts(commSize);
-        mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        vector<int> sendOffs, recvOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        const int totalRecv = Scan( recvCounts, recvOffs );
         // Pack
         // ----
+        vector<int> sendOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
         vector<ValueIntPair<Real>> sendBuf(totalSend);
         auto offs = sendOffs;
         for( Int e=0; e<numLocalEntriesA; ++e )
@@ -534,19 +531,14 @@ void Var2
             sendBuf[offs[owner]].value = value;
             ++offs[owner];
         }
-        // Exchange
-        // --------
-        vector<ValueIntPair<Real>> recvBuf(totalRecv);
-        mpi::AllToAll
-        ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-        // Unpack and add in I's
-        // ---------------------
-        AHat.Reserve( totalRecv + AHat.LocalHeight() );
-        for( Int e=0; e<totalRecv; ++e )
+        // Exchange and unpack
+        // -------------------
+        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+        AHat.Reserve( recvBuf.size() + AHat.LocalHeight() );
+        for( auto& entry : recvBuf )
             AHat.QueueLocalUpdate
-            ( recvBuf[e].indices[0]-AHat.FirstLocalRow(), recvBuf[e].indices[1],
-              recvBuf[e].value ); 
+            ( entry.indices[0]-AHat.FirstLocalRow(), entry.indices[1],
+              entry.value ); 
         for( Int iLoc=0; iLoc<AHat.LocalHeight(); ++iLoc )
         {
             const Int i = AHat.GlobalRow(iLoc);
@@ -567,13 +559,10 @@ void Var2
             const Int i = b.GlobalRow(iLoc);
             ++sendCounts[ bHat.RowOwner(i) ];
         }
-        vector<int> recvCounts(commSize);
-        mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        vector<int> sendOffs, recvOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        const int totalRecv = Scan( recvCounts, recvOffs );
         // Pack
         // ----
+        vector<int> sendOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
         vector<ValueInt<Real>> sendBuf(totalSend);
         auto offs = sendOffs;
         for( Int iLoc=0; iLoc<b.LocalHeight(); ++iLoc )
@@ -584,17 +573,11 @@ void Var2
             sendBuf[offs[owner]].value = b.GetLocal(iLoc,0);
             ++offs[owner];
         }
-        // Exchange
-        // --------
-        vector<ValueInt<Real>> recvBuf(totalRecv);
-        mpi::AllToAll
-        ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-        // Unpack
-        // ------
-        for( Int e=0; e<totalRecv; ++e )
-            bHat.SetLocal
-            ( recvBuf[e].index-bHat.FirstLocalRow(), 0, recvBuf[e].value );
+        // Exchange and unpack
+        // -------------------
+        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+        for( auto& entry : recvBuf )
+            bHat.SetLocal( entry.index-bHat.FirstLocalRow(), 0, entry.value );
     }
 
     // Solve the affine LP
@@ -619,13 +602,10 @@ void Var2
             else
                 break;
         }
-        vector<int> recvCounts(commSize);
-        mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        vector<int> sendOffs, recvOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        const int totalRecv = Scan( recvCounts, recvOffs );
         // Pack
         // ----
+        vector<int> sendOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
         vector<ValueInt<Real>> sendBuf(totalSend);
         auto offs = sendOffs;
         for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
@@ -648,17 +628,11 @@ void Var2
             else
                 break;
         }
-        // Exchange
-        // --------
-        vector<ValueInt<Real>> recvBuf(totalRecv);
-        mpi::AllToAll
-        ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-        // Unpack
-        // ------
-        for( Int e=0; e<totalRecv; ++e )
-            x.UpdateLocal
-            ( recvBuf[e].index-x.FirstLocalRow(), 0, recvBuf[e].value );
+        // Exchange and unpack
+        // -------------------
+        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+        for( auto& entry : recvBuf )
+            x.UpdateLocal( entry.index-x.FirstLocalRow(), 0, entry.value );
     }
 }
 

@@ -228,6 +228,22 @@ EL_EXPORT ElError ElHCatDistSparse_z
 ( ElConstDistSparseMatrix_z A, ElConstDistSparseMatrix_z B, 
   ElDistSparseMatrix_z C );
 
+EL_EXPORT ElError ElHCatDistMultiVec_i
+( ElConstDistMultiVec_i A, ElConstDistMultiVec_i B, 
+  ElDistMultiVec_i C );
+EL_EXPORT ElError ElHCatDistMultiVec_s
+( ElConstDistMultiVec_s A, ElConstDistMultiVec_s B, 
+  ElDistMultiVec_s C );
+EL_EXPORT ElError ElHCatDistMultiVec_d
+( ElConstDistMultiVec_d A, ElConstDistMultiVec_d B, 
+  ElDistMultiVec_d C );
+EL_EXPORT ElError ElHCatDistMultiVec_c
+( ElConstDistMultiVec_c A, ElConstDistMultiVec_c B, 
+  ElDistMultiVec_c C );
+EL_EXPORT ElError ElHCatDistMultiVec_z
+( ElConstDistMultiVec_z A, ElConstDistMultiVec_z B, 
+  ElDistMultiVec_z C );
+
 /* Vertical concatenation
    ---------------------- */
 /* C := [A; B] */
@@ -280,6 +296,22 @@ EL_EXPORT ElError ElVCatDistSparse_c
 EL_EXPORT ElError ElVCatDistSparse_z
 ( ElConstDistSparseMatrix_z A, ElConstDistSparseMatrix_z B, 
   ElDistSparseMatrix_z C );
+
+EL_EXPORT ElError ElVCatDistMultiVec_i
+( ElConstDistMultiVec_i A, ElConstDistMultiVec_i B, 
+  ElDistMultiVec_i C );
+EL_EXPORT ElError ElVCatDistMultiVec_s
+( ElConstDistMultiVec_s A, ElConstDistMultiVec_s B, 
+  ElDistMultiVec_s C );
+EL_EXPORT ElError ElVCatDistMultiVec_d
+( ElConstDistMultiVec_d A, ElConstDistMultiVec_d B, 
+  ElDistMultiVec_d C );
+EL_EXPORT ElError ElVCatDistMultiVec_c
+( ElConstDistMultiVec_c A, ElConstDistMultiVec_c B, 
+  ElDistMultiVec_c C );
+EL_EXPORT ElError ElVCatDistMultiVec_z
+( ElConstDistMultiVec_z A, ElConstDistMultiVec_z B, 
+  ElDistMultiVec_z C );
 
 /* Conjugate
    ========= */

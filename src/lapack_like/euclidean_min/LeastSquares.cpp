@@ -350,11 +350,8 @@ void Equilibrated
             for( Int iLoc=0; iLoc<dC.LocalHeight(); ++iLoc )
                 ++sendCounts[ J.RowOwner(dC.GlobalRow(iLoc)) ];
         }
-        vector<int> recvCounts(commSize);
-        mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        vector<int> sendOffs, recvOffs;
+        vector<int> sendOffs;
         const int totalSend = Scan( sendCounts, sendOffs );
-        const int totalRecv = Scan( recvCounts, recvOffs );
         // Pack
         // ----
         vector<ValueIntPair<F>> sendBuf(totalSend);
@@ -425,19 +422,14 @@ void Equilibrated
             }
         }
 
-        // Exchange
-        // --------
-        vector<ValueIntPair<F>> recvBuf(totalRecv);
-        mpi::AllToAll
-        ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-        // Unpack
-        // ------
-        J.Reserve( totalRecv );
-        for( Int e=0; e<totalRecv; ++e )
+        // Exchange and unpack
+        // -------------------
+        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+        J.Reserve( recvBuf.size() );
+        for( auto& entry : recvBuf )
             J.QueueLocalUpdate
-            ( recvBuf[e].indices[0]-J.FirstLocalRow(), recvBuf[e].indices[1], 
-              recvBuf[e].value );
+            ( entry.indices[0]-J.FirstLocalRow(), entry.indices[1], 
+              entry.value );
         J.MakeConsistent();
     }
 
@@ -457,11 +449,8 @@ void Equilibrated
             else
                 sendCounts[ D.RowOwner(i+n) ] += numRHS;
         }
-        vector<int> recvCounts(commSize);
-        mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        vector<int> sendOffs, recvOffs;
+        vector<int> sendOffs;
         const int totalSend = Scan( sendCounts, sendOffs );
-        const int totalRecv = Scan( recvCounts, recvOffs );
         // Pack
         // ----
         vector<ValueIntPair<F>> sendBuf(totalSend);
@@ -494,18 +483,13 @@ void Equilibrated
                 }
             }
         }
-        // Exchange
-        // --------
-        vector<ValueIntPair<F>> recvBuf(totalRecv);
-        mpi::AllToAll
-        ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-        // Unpack
-        // ------
-        for( Int e=0; e<totalRecv; ++e )
+        // Exchange and unpack
+        // -------------------
+        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+        for( auto& entry : recvBuf )
             D.UpdateLocal
-            ( recvBuf[e].indices[0]-D.FirstLocalRow(), recvBuf[e].indices[1], 
-              recvBuf[e].value );
+            ( entry.indices[0]-D.FirstLocalRow(), entry.indices[1], 
+              entry.value );
     }
 
     // Compute the regularized quasi-semidefinite fact of J
@@ -565,9 +549,9 @@ void Equilibrated
     // Extract X from [R/alpha; X] or [X; Y] and then rescale
     // ======================================================
     if( m >= n )
-        GetSubmatrix( D, IR(m,m+n), IR(0,numRHS), X );
+        X = D( IR(m,m+n), IR(0,numRHS) );
     else
-        GetSubmatrix( D, IR(0,n),   IR(0,numRHS), X );
+        X = D( IR(0,n),   IR(0,numRHS) );
 }
 
 } // namespace ls

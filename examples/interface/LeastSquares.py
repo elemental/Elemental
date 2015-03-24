@@ -22,11 +22,10 @@ def StackedFD2D(N0,N1):
   height = 2*N0*N1
   width = N0*N1
   A.Resize(height,width)
-  firstLocalRow = A.FirstLocalRow()
   localHeight = A.LocalHeight()
   A.Reserve(6*localHeight)
   for sLoc in xrange(localHeight):
-    s = firstLocalRow + sLoc
+    s = A.GlobalRow(sLoc)
     if s < N0*N1:
       x0 = s % N0
       x1 = s / N0

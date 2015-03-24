@@ -271,11 +271,8 @@ void Tikhonov
         vector<int> sendCounts(commSize,0);
         for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
             sendCounts[ BEmb.RowOwner(B.GlobalRow(iLoc)) ] += numRHS;
-        vector<int> recvCounts(commSize);
-        mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-        vector<int> sendOffs, recvOffs;
+        vector<int> sendOffs;
         const int totalSend = Scan( sendCounts, sendOffs );
-        const int totalRecv = Scan( recvCounts, recvOffs );
         // Pack
         // ^^^^
         auto offs = sendOffs;
@@ -295,14 +292,11 @@ void Tikhonov
         }
         // Exchange and unpack
         // ^^^^^^^^^^^^^^^^^^^
-        vector<ValueIntPair<F>> recvBuf(totalRecv);
-        mpi::AllToAll
-        ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-        for( Int e=0; e<totalRecv; ++e )
+        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+        for( auto& entry : recvBuf )
             BEmb.UpdateLocal
-            ( recvBuf[e].indices[0]-BEmb.FirstLocalRow(), recvBuf[e].indices[1],
-              recvBuf[e].value );
+            ( entry.indices[0]-BEmb.FirstLocalRow(), entry.indices[1],
+              entry.value );
     }
 
     // Solve the higher-dimensional problem

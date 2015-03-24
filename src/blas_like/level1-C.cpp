@@ -89,6 +89,10 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, int root )
   ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistSparseMatrix_ ## SIG B, \
     ElDistSparseMatrix_ ## SIG C ) \
   { EL_TRY( HCat( *CReflect(A), *CReflect(B), *CReflect(C) ) ) } \
+  ElError ElHCatDistMultiVec_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG A, ElConstDistMultiVec_ ## SIG B, \
+    ElDistMultiVec_ ## SIG C ) \
+  { EL_TRY( HCat( *CReflect(A), *CReflect(B), *CReflect(C) ) ) } \
   /* Vertical concatenation */ \
   ElError ElVCat_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
@@ -105,6 +109,10 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, int root )
   ElError ElVCatDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistSparseMatrix_ ## SIG B, \
     ElDistSparseMatrix_ ## SIG C ) \
+  { EL_TRY( VCat( *CReflect(A), *CReflect(B), *CReflect(C) ) ) } \
+  ElError ElVCatDistMultiVec_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG A, ElConstDistMultiVec_ ## SIG B, \
+    ElDistMultiVec_ ## SIG C ) \
   { EL_TRY( VCat( *CReflect(A), *CReflect(B), *CReflect(C) ) ) } \
   /* B = A */ \
   ElError ElCopy_ ## SIG \

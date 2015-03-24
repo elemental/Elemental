@@ -197,11 +197,8 @@ void VCat
         ++sendCounts[ C.RowOwner(A.Row(e)) ];
     for( Int e=0; e<numEntriesB; ++e )
         ++sendCounts[ C.RowOwner(B.Row(e)+mA) ];
-    vector<int> recvCounts(commSize);
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
-    vector<int> sendOffs, recvOffs; 
+    vector<int> sendOffs; 
     const int totalSend = Scan( sendCounts, sendOffs );
-    const int totalRecv = Scan( recvCounts, recvOffs );
     // Pack
     // ----
     vector<ValueIntPair<T>> sendBuf(totalSend);
@@ -228,20 +225,107 @@ void VCat
         sendBuf[offs[owner]].indices[1] = j;
         ++offs[owner];
     }
-    // Exchange
-    // --------
-    vector<ValueIntPair<T>> recvBuf(totalRecv);
-    mpi::AllToAll
-    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-    // Unpack
-    // ------
-    C.Reserve( totalRecv );
-    for( Int e=0; e<totalRecv; ++e )
+
+    // Exchange and unpack
+    // -------------------
+    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+    C.Reserve( recvBuf.size() );
+    for( auto& entry : recvBuf )
         C.QueueLocalUpdate
-        ( recvBuf[e].indices[0]-C.FirstLocalRow(), recvBuf[e].indices[1], 
-          recvBuf[e].value );
+        ( entry.indices[0]-C.FirstLocalRow(), entry.indices[1], entry.value );
     C.MakeConsistent();
+}
+
+template<typename T>
+void HCat
+( const DistMultiVec<T>& A, const DistMultiVec<T>& B,
+        DistMultiVec<T>& C )
+{
+    DEBUG_ONLY(CallStackEntry cse("HCat"))
+    if( A.Height() != B.Height() )
+        LogicError("A and B must be the same height for HCat");
+
+    const Int m = A.Height();
+    const Int nA = A.Width();
+    const Int nB = B.Width();
+    mpi::Comm comm = A.Comm();
+
+    C.SetComm( comm );
+    Zeros( C, m, nA+nB );
+
+    const Int localHeight = C.LocalHeight();
+    const auto& ALoc = A.LockedMatrix();
+    const auto& BLoc = B.LockedMatrix();
+    auto& CLoc = C.Matrix();
+    auto CLocL = CLoc( IR(0,localHeight), IR(0,nA)     );
+    auto CLocR = CLoc( IR(0,localHeight), IR(nA,nA+nB) );
+    CLocL = ALoc;
+    CLocR = BLoc;
+}
+
+template<typename T>
+void VCat
+( const DistMultiVec<T>& A, const DistMultiVec<T>& B,
+        DistMultiVec<T>& C )
+{
+    DEBUG_ONLY(CallStackEntry cse("VCat"))
+    if( A.Width() != B.Width() )
+        LogicError("A and B must be the same width for VCat");
+
+    const Int mA = A.Height();
+    const Int mB = B.Height();
+    const Int n = A.Width();
+    mpi::Comm comm = A.Comm();
+    const int commSize = mpi::Size( comm );
+
+    C.SetComm( comm );
+    Zeros( C, mA+mB, n );
+    
+    // Compute the metadata
+    // --------------------
+    vector<int> sendCounts(commSize,0);
+    for( Int iLoc=0; iLoc<A.LocalHeight(); ++iLoc )
+        sendCounts[ C.RowOwner(A.GlobalRow(iLoc)) ] += n;
+    for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
+        sendCounts[ C.RowOwner(B.GlobalRow(iLoc)+mA) ] += n;
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
+
+    // Pack
+    // ----
+    auto offs = sendOffs;
+    vector<ValueIntPair<T>> sendBuf(totalSend);
+    for( Int iLoc=0; iLoc<A.LocalHeight(); ++iLoc )
+    {
+        const Int i = A.GlobalRow(iLoc);
+        const int owner = C.RowOwner(i);
+        for( Int j=0; j<n; ++j )
+        {
+            sendBuf[offs[owner]].indices[0] = i;
+            sendBuf[offs[owner]].indices[1] = j;
+            sendBuf[offs[owner]].value = A.GetLocal(iLoc,j);
+            ++offs[owner];
+        }
+    }
+    for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
+    {
+        const Int i = B.GlobalRow(iLoc)+mA;
+        const int owner = C.RowOwner(i);
+        for( Int j=0; j<n; ++j )
+        {
+            sendBuf[offs[owner]].indices[0] = i;
+            sendBuf[offs[owner]].indices[1] = j;
+            sendBuf[offs[owner]].value = B.GetLocal(iLoc,j);
+            ++offs[owner];
+        }
+    }
+
+    // Exchange and unpack
+    // -------------------
+    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+    for( auto& entry : recvBuf )
+        C.SetLocal
+        ( entry.indices[0]-C.FirstLocalRow(), entry.indices[1], entry.value );
 }
 
 #define PROTO(T) \
@@ -264,7 +348,13 @@ void VCat
           DistSparseMatrix<T>& C ); \
   template void VCat \
   ( const DistSparseMatrix<T>& A, const DistSparseMatrix<T>& B, \
-          DistSparseMatrix<T>& C );
+          DistSparseMatrix<T>& C ); \
+  template void HCat \
+  ( const DistMultiVec<T>& A, const DistMultiVec<T>& B, \
+          DistMultiVec<T>& C ); \
+  template void VCat \
+  ( const DistMultiVec<T>& A, const DistMultiVec<T>& B, \
+          DistMultiVec<T>& C );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
