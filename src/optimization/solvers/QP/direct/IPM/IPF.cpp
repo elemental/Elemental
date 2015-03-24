@@ -165,7 +165,7 @@ void IPF
 
             // Compute the proposed step from the KKT system
             // =============================================
-            SymmetricSolve( LOWER, NORMAL, J, d );
+            symm_solve::Overwrite( LOWER, NORMAL, J, d );
             ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -177,7 +177,7 @@ void IPF
 
             // Compute the proposed step from the KKT system
             // =============================================
-            SymmetricSolve( LOWER, NORMAL, J, d );
+            symm_solve::Overwrite( LOWER, NORMAL, J, d );
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else
@@ -395,7 +395,7 @@ void IPF
 
             // Compute the proposed step from the KKT system
             // =============================================
-            SymmetricSolve( LOWER, NORMAL, J, d );
+            symm_solve::Overwrite( LOWER, NORMAL, J, d );
             ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -407,7 +407,7 @@ void IPF
 
             // Compute the proposed step from the KKT system
             // =============================================
-            SymmetricSolve( LOWER, NORMAL, J, d );
+            symm_solve::Overwrite( LOWER, NORMAL, J, d );
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else

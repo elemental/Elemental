@@ -10,12 +10,15 @@
 
 namespace El {
 
+namespace symm_solve {
+
 template<typename F>
-void SymmetricSolve
-( UpperOrLower uplo, Orientation orientation, Matrix<F>& A, 
-  Matrix<F>& B, bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl )
+void Overwrite
+( UpperOrLower uplo, Orientation orientation, 
+  Matrix<F>& A, Matrix<F>& B, 
+  bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricSolve"))
+    DEBUG_ONLY(CallStackEntry cse("symm_solve::Overwrite"))
     if( uplo == UPPER )
         LogicError("Upper Bunch-Kaufman is not yet supported");
     Matrix<Int> p; 
@@ -31,12 +34,12 @@ void SymmetricSolve
 }
 
 template<typename F>
-void SymmetricSolve
-( UpperOrLower uplo, Orientation orientation, AbstractDistMatrix<F>& APre,
-  AbstractDistMatrix<F>& BPre, bool conjugate, 
-  const LDLPivotCtrl<Base<F>>& ctrl )
+void Overwrite
+( UpperOrLower uplo, Orientation orientation, 
+  AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre, 
+  bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricSolve"))
+    DEBUG_ONLY(CallStackEntry cse("symm_solve::Overwrite"))
     if( uplo == UPPER )
         LogicError("Upper Bunch-Kaufman is not yet supported");
 
@@ -53,6 +56,30 @@ void SymmetricSolve
     ldl::SolveAfter( A, dSub, p, B, conjugate );
     if( conjFlip )
         Conjugate( B );
+}
+
+} // namespace symm_solve
+
+template<typename F>
+void SymmetricSolve
+( UpperOrLower uplo, Orientation orientation, 
+  const Matrix<F>& A, Matrix<F>& B, 
+  bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CallStackEntry cse("SymmetricSolve"))
+    Matrix<F> ACopy( A );
+    symm_solve::Overwrite( uplo, orientation, ACopy, B, conjugate, ctrl );
+}
+
+template<typename F>
+void SymmetricSolve
+( UpperOrLower uplo, Orientation orientation, 
+  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
+  bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CallStackEntry cse("SymmetricSolve"))
+    DistMatrix<F> ACopy( A );
+    symm_solve::Overwrite( uplo, orientation, ACopy, B, conjugate, ctrl );
 }
 
 // TODO: Add iterative refinement parameter
@@ -121,14 +148,22 @@ void SymmetricSolve
 }
 
 #define PROTO(F) \
-  template void SymmetricSolve \
+  template void symm_solve::Overwrite \
   ( UpperOrLower uplo, Orientation orientation, \
     Matrix<F>& A, Matrix<F>& B, bool conjugate, \
     const LDLPivotCtrl<Base<F>>& ctrl ); \
-  template void SymmetricSolve \
+  template void symm_solve::Overwrite \
   ( UpperOrLower uplo, Orientation orientation, \
     AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, bool conjugate, \
     const LDLPivotCtrl<Base<F>>& ctrl ); \
+  template void SymmetricSolve \
+  ( UpperOrLower uplo, Orientation orientation, \
+    const Matrix<F>& A, Matrix<F>& B, \
+    bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl ); \
+  template void SymmetricSolve \
+  ( UpperOrLower uplo, Orientation orientation, \
+    const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
+    bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void SymmetricSolve \
   ( const SparseMatrix<F>& A, Matrix<F>& B, \
     bool conjugate, bool tryLDL, const BisectCtrl& ctrl ); \

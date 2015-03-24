@@ -14,50 +14,51 @@
 extern "C" {
 #endif
 
-/* NOTE: 'cc' 4.8.2 in Ubuntu fails if "ElRange_i I" is replaced with
-         "ElRange_i I" */
+/* UNEXPLAINED COMPILER BUG: 
+  'cc' 4.8.2 in Ubuntu fails if "ElRange_i iRange" is replaced with 
+  "ElRange_i I" */
 
 EL_EXPORT ElError ElView_i
-( ElMatrix_i A, ElMatrix_i B, ElRange_i I, ElRange_i jRange );
+( ElMatrix_i A, ElMatrix_i B, ElRange_i iRange, ElRange_i jRange );
 EL_EXPORT ElError ElView_s
-( ElMatrix_s A, ElMatrix_s B, ElRange_i I, ElRange_i jRange );
+( ElMatrix_s A, ElMatrix_s B, ElRange_i iRange, ElRange_i jRange );
 EL_EXPORT ElError ElView_d
-( ElMatrix_d A, ElMatrix_d B, ElRange_i I, ElRange_i jRange );
+( ElMatrix_d A, ElMatrix_d B, ElRange_i iRange, ElRange_i jRange );
 EL_EXPORT ElError ElView_c
-( ElMatrix_c A, ElMatrix_c B, ElRange_i I, ElRange_i jRange );
+( ElMatrix_c A, ElMatrix_c B, ElRange_i iRange, ElRange_i jRange );
 EL_EXPORT ElError ElView_z
-( ElMatrix_z A, ElMatrix_z B, ElRange_i I, ElRange_i jRange );
+( ElMatrix_z A, ElMatrix_z B, ElRange_i iRange, ElRange_i jRange );
 EL_EXPORT ElError ElViewDist_i
-( ElDistMatrix_i A, ElDistMatrix_i B, ElRange_i I, ElRange_i jRange );
+( ElDistMatrix_i A, ElDistMatrix_i B, ElRange_i iRange, ElRange_i jRange );
 EL_EXPORT ElError ElViewDist_s
-( ElDistMatrix_s A, ElDistMatrix_s B, ElRange_i I, ElRange_i jRange );
+( ElDistMatrix_s A, ElDistMatrix_s B, ElRange_i iRange, ElRange_i jRange );
 EL_EXPORT ElError ElViewDist_d
-( ElDistMatrix_d A, ElDistMatrix_d B, ElRange_i I, ElRange_i jRange );
+( ElDistMatrix_d A, ElDistMatrix_d B, ElRange_i iRange, ElRange_i jRange );
 EL_EXPORT ElError ElViewDist_c
-( ElDistMatrix_c A, ElDistMatrix_c B, ElRange_i I, ElRange_i jRange );
+( ElDistMatrix_c A, ElDistMatrix_c B, ElRange_i iRange, ElRange_i jRange );
 EL_EXPORT ElError ElViewDist_z
-( ElDistMatrix_z A, ElDistMatrix_z B, ElRange_i I, ElRange_i jRange );
+( ElDistMatrix_z A, ElDistMatrix_z B, ElRange_i iRange, ElRange_i jRange );
 
 EL_EXPORT ElError ElLockedView_i
-( ElMatrix_i A, ElConstMatrix_i B, ElRange_i I, ElRange_i jRange );
+( ElMatrix_i A, ElConstMatrix_i B, ElRange_i iRange, ElRange_i jRange );
 EL_EXPORT ElError ElLockedView_s
-( ElMatrix_s A, ElConstMatrix_s B, ElRange_i I, ElRange_i jRange );
+( ElMatrix_s A, ElConstMatrix_s B, ElRange_i iRange, ElRange_i jRange );
 EL_EXPORT ElError ElLockedView_d
-( ElMatrix_d A, ElConstMatrix_d B, ElRange_i I, ElRange_i jRange );
+( ElMatrix_d A, ElConstMatrix_d B, ElRange_i iRange, ElRange_i jRange );
 EL_EXPORT ElError ElLockedView_c
-( ElMatrix_c A, ElConstMatrix_c B, ElRange_i I, ElRange_i jRange );
+( ElMatrix_c A, ElConstMatrix_c B, ElRange_i iRange, ElRange_i jRange );
 EL_EXPORT ElError ElLockedView_z
-( ElMatrix_z A, ElConstMatrix_z B, ElRange_i I, ElRange_i jRange );
+( ElMatrix_z A, ElConstMatrix_z B, ElRange_i iRange, ElRange_i jRange );
 EL_EXPORT ElError ElLockedViewDist_i
-( ElDistMatrix_i A, ElConstDistMatrix_i B, ElRange_i I, ElRange_i jRange );
+( ElDistMatrix_i A, ElConstDistMatrix_i B, ElRange_i iRange, ElRange_i jRange );
 EL_EXPORT ElError ElLockedViewDist_s
-( ElDistMatrix_s A, ElConstDistMatrix_s B, ElRange_i I, ElRange_i jRange );
+( ElDistMatrix_s A, ElConstDistMatrix_s B, ElRange_i iRange, ElRange_i jRange );
 EL_EXPORT ElError ElLockedViewDist_d
-( ElDistMatrix_d A, ElConstDistMatrix_d B, ElRange_i I, ElRange_i jRange );
+( ElDistMatrix_d A, ElConstDistMatrix_d B, ElRange_i iRange, ElRange_i jRange );
 EL_EXPORT ElError ElLockedViewDist_c
-( ElDistMatrix_c A, ElConstDistMatrix_c B, ElRange_i I, ElRange_i jRange );
+( ElDistMatrix_c A, ElConstDistMatrix_c B, ElRange_i iRange, ElRange_i jRange );
 EL_EXPORT ElError ElLockedViewDist_z
-( ElDistMatrix_z A, ElConstDistMatrix_z B, ElRange_i I, ElRange_i jRange );
+( ElDistMatrix_z A, ElConstDistMatrix_z B, ElRange_i iRange, ElRange_i jRange );
 
 EL_EXPORT ElError ElViewOffset_i
 ( ElMatrix_i A, ElMatrix_i B, 

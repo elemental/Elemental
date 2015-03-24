@@ -10,28 +10,52 @@
 
 namespace El {
 
+namespace hpd_solve {
+
 template<typename F>
-void HPDSolve
+void Overwrite
 ( UpperOrLower uplo, Orientation orientation, 
   Matrix<F>& A, Matrix<F>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("HPDSolve"))
+    DEBUG_ONLY(CallStackEntry cse("hpd_solve::Overwrite"))
     Cholesky( uplo, A );
     cholesky::SolveAfter( uplo, orientation, A, B );
 }
 
 template<typename F>
-void HPDSolve
+void Overwrite
 ( UpperOrLower uplo, Orientation orientation, 
   AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("HPDSolve"))
+    DEBUG_ONLY(CallStackEntry cse("hpd_solve::Overwrite"))
 
     auto APtr = ReadProxy<F,MC,MR>( &APre );  auto& A = *APtr;
     auto BPtr = WriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
 
     Cholesky( uplo, A );
     cholesky::SolveAfter( uplo, orientation, A, B );
+}
+
+} // namespace hpd_solve
+
+template<typename F>
+void HPDSolve
+( UpperOrLower uplo, Orientation orientation, 
+  const Matrix<F>& A, Matrix<F>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("HPDSolve"))
+    Matrix<F> ACopy( A );
+    hpd_solve::Overwrite( uplo, orientation, ACopy, B );
+}
+
+template<typename F>
+void HPDSolve
+( UpperOrLower uplo, Orientation orientation, 
+  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("HPDSolve"))
+    DistMatrix<F> ACopy( A );
+    hpd_solve::Overwrite( uplo, orientation, ACopy, B );
 }
 
 // TODO: Add iterative refinement parameter
@@ -85,12 +109,18 @@ void HPDSolve
 }
 
 #define PROTO(F) \
-  template void HPDSolve \
+  template void hpd_solve::Overwrite \
   ( UpperOrLower uplo, Orientation orientation, \
     Matrix<F>& A, Matrix<F>& B ); \
-  template void HPDSolve \
+  template void hpd_solve::Overwrite \
   ( UpperOrLower uplo, Orientation orientation, \
     AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B ); \
+  template void HPDSolve \
+  ( UpperOrLower uplo, Orientation orientation, \
+    const Matrix<F>& A, Matrix<F>& B ); \
+  template void HPDSolve \
+  ( UpperOrLower uplo, Orientation orientation, \
+    const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B ); \
   template void HPDSolve \
   ( const SparseMatrix<F>& A, Matrix<F>& B, const BisectCtrl& ctrl ); \
   template void HPDSolve \

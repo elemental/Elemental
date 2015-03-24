@@ -10,9 +10,34 @@
 
 namespace El {
 
+namespace herm_solve {
+
+template<typename F>
+void Overwrite
+( UpperOrLower uplo, Orientation orientation, 
+  Matrix<F>& A, Matrix<F>& B, 
+  const LDLPivotCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CallStackEntry cse("herm_solve::Overwrite"))
+    symm_solve::Overwrite( uplo, orientation, A, B, true, ctrl );
+}
+
+template<typename F>
+void Overwrite
+( UpperOrLower uplo, Orientation orientation, 
+  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
+  const LDLPivotCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CallStackEntry cse("herm_solve::Overwrite"))
+    symm_solve::Overwrite( uplo, orientation, A, B, true, ctrl );
+}
+
+} // namespace herm_solve
+
 template<typename F>
 void HermitianSolve
-( UpperOrLower uplo, Orientation orientation, Matrix<F>& A, Matrix<F>& B, 
+( UpperOrLower uplo, Orientation orientation, 
+  const Matrix<F>& A, Matrix<F>& B, 
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSolve"))
@@ -22,7 +47,7 @@ void HermitianSolve
 template<typename F>
 void HermitianSolve
 ( UpperOrLower uplo, Orientation orientation, 
-  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
+  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSolve"))
@@ -50,12 +75,21 @@ void HermitianSolve
 }
 
 #define PROTO(F) \
-  template void HermitianSolve \
+  template void herm_solve::Overwrite \
   ( UpperOrLower uplo, Orientation orientation, \
-    Matrix<F>& A, Matrix<F>& B, const LDLPivotCtrl<Base<F>>& ctrl ); \
-  template void HermitianSolve \
+    Matrix<F>& A, Matrix<F>& B, \
+    const LDLPivotCtrl<Base<F>>& ctrl ); \
+  template void herm_solve::Overwrite \
   ( UpperOrLower uplo, Orientation orientation, \
     AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
+    const LDLPivotCtrl<Base<F>>& ctrl ); \
+  template void HermitianSolve \
+  ( UpperOrLower uplo, Orientation orientation, \
+    const Matrix<F>& A, Matrix<F>& B, \
+    const LDLPivotCtrl<Base<F>>& ctrl ); \
+  template void HermitianSolve \
+  ( UpperOrLower uplo, Orientation orientation, \
+    const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
     const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void HermitianSolve \
   ( const SparseMatrix<F>& A, Matrix<F>& B, \

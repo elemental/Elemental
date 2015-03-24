@@ -155,20 +155,22 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
     }
 }
 
+namespace lin_solve {
+
 template<typename F> 
-void LinearSolve( Matrix<F>& A, Matrix<F>& B )
+void Overwrite( Matrix<F>& A, Matrix<F>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("LinearSolve"))
+    DEBUG_ONLY(CallStackEntry cse("lin_solve::Overwrite"))
     // Perform Gaussian elimination
     RowEchelon( A, B );
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
 }
 
 template<typename F> 
-void LinearSolve
+void Overwrite
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("LinearSolve"))
+    DEBUG_ONLY(CallStackEntry cse("lin_solve::Overwrite"))
     // Perform Gaussian elimination
 
     // NOTE: Since only the upper triangle of the factorization is formed,
@@ -178,6 +180,25 @@ void LinearSolve
 
     RowEchelon( A, B );
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
+}
+
+} // namespace lin_solve
+
+template<typename F> 
+void LinearSolve( const Matrix<F>& A, Matrix<F>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("LinearSolve"))
+    Matrix<F> ACopy( A );
+    lin_solve::Overwrite( ACopy, B );
+}
+
+template<typename F> 
+void LinearSolve
+( const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("LinearSolve"))
+    DistMatrix<F> ACopy( A );
+    lin_solve::Overwrite( ACopy, B );
 }
 
 template<typename F>
@@ -204,9 +225,12 @@ void LinearSolve
 }
 
 #define PROTO(F) \
-  template void LinearSolve( Matrix<F>& A, Matrix<F>& B ); \
-  template void LinearSolve \
+  template void lin_solve::Overwrite( Matrix<F>& A, Matrix<F>& B ); \
+  template void lin_solve::Overwrite \
   ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B ); \
+  template void LinearSolve( const Matrix<F>& A, Matrix<F>& B ); \
+  template void LinearSolve \
+  ( const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B ); \
   template void LinearSolve \
   ( const SparseMatrix<F>& A, Matrix<F>& B, \
     const LeastSquaresCtrl<Base<F>>& ctrl ); \

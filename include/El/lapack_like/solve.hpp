@@ -18,9 +18,10 @@ namespace El {
 // Linear
 // ======
 template<typename F>
-void LinearSolve( Matrix<F>& A, Matrix<F>& B );
+void LinearSolve( const Matrix<F>& A, Matrix<F>& B );
 template<typename F>
-void LinearSolve( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
+void LinearSolve( const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
+
 template<typename F>
 void LinearSolve
 ( const SparseMatrix<F>& A, Matrix<F>& B, 
@@ -30,17 +31,26 @@ void LinearSolve
 ( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, 
   const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 
+namespace lin_solve {
+
+template<typename F>
+void Overwrite( Matrix<F>& A, Matrix<F>& B );
+template<typename F>
+void Overwrite( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
+
+} // namespace lin_solve
+
 // Hermitian
 // =========
 template<typename F>
 void HermitianSolve
 ( UpperOrLower uplo, Orientation orientation, 
-  Matrix<F>& A, Matrix<F>& B, 
+  const Matrix<F>& A, Matrix<F>& B, 
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 void HermitianSolve
 ( UpperOrLower uplo, Orientation orientation,
-  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
+  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
 template<typename F>
@@ -54,18 +64,33 @@ void HermitianSolve
   bool tryLDL=false,
   const BisectCtrl& ctrl=BisectCtrl() );
 
+namespace herm_solve {
+
+template<typename F>
+void Overwrite
+( UpperOrLower uplo, Orientation orientation, 
+  Matrix<F>& A, Matrix<F>& B, 
+  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
+template<typename F>
+void Overwrite
+( UpperOrLower uplo, Orientation orientation,
+  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
+  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
+
+} // namespace herm_solve
+
 // Symmetric
 // =========
 template<typename F>
 void SymmetricSolve
 ( UpperOrLower uplo, Orientation orientation, 
-  Matrix<F>& A, Matrix<F>& B, 
+  const Matrix<F>& A, Matrix<F>& B, 
   bool conjugate=false, 
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 void SymmetricSolve
 ( UpperOrLower uplo, Orientation orientation,
-  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
+  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
   bool conjugate=false, 
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
@@ -79,17 +104,34 @@ void SymmetricSolve
 ( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, 
   bool conjugate=false, bool tryLDL=false,
   const BisectCtrl& ctrl=BisectCtrl() );
+
+namespace symm_solve {
+
+template<typename F>
+void Overwrite
+( UpperOrLower uplo, Orientation orientation, 
+  Matrix<F>& A, Matrix<F>& B, 
+  bool conjugate=false, 
+  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
+template<typename F>
+void Overwrite
+( UpperOrLower uplo, Orientation orientation,
+  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
+  bool conjugate=false, 
+  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
+
+} // namespace symm_solve
 
 // Hermitian Positive-Definite
 // ===========================
 template<typename F>
 void HPDSolve
 ( UpperOrLower uplo, Orientation orientation, 
-  Matrix<F>& A, Matrix<F>& B );
+  const Matrix<F>& A, Matrix<F>& B );
 template<typename F>
 void HPDSolve
 ( UpperOrLower uplo, Orientation orientation,
-  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
+  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
 
 template<typename F>
 void HPDSolve
@@ -99,6 +141,19 @@ template<typename F>
 void HPDSolve
 ( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, 
   const BisectCtrl& ctrl=BisectCtrl() );
+
+namespace hpd_solve {
+
+template<typename F>
+void Overwrite
+( UpperOrLower uplo, Orientation orientation, 
+  Matrix<F>& A, Matrix<F>& B );
+template<typename F>
+void Overwrite
+( UpperOrLower uplo, Orientation orientation,
+  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
+
+} // namespace hpd_solve
 
 // Multi-shift Hessenberg
 // ======================

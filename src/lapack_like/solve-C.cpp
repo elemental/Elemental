@@ -16,10 +16,10 @@ extern "C" {
   /* Linear solve
      ------------ */ \
   ElError ElLinearSolve_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
+  ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
   { EL_TRY( LinearSolve( *CReflect(A), *CReflect(B) ) ) } \
   ElError ElLinearSolveDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
+  ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( LinearSolve( *CReflect(A), *CReflect(B) ) ) } \
   ElError ElLinearSolveSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
@@ -41,12 +41,12 @@ extern "C" {
      --------- */ \
   ElError ElHPDSolve_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \
-    ElMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
+    ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
   { EL_TRY( HPDSolve( CReflect(uplo), CReflect(orientation), \
                       *CReflect(A), *CReflect(B) ) ) } \
   ElError ElHPDSolveDist_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \
-    ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
+    ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( HPDSolve( CReflect(uplo), CReflect(orientation), \
                       *CReflect(A), *CReflect(B) ) ) } \
   ElError ElHPDSolveSparse_ ## SIG \
@@ -75,12 +75,12 @@ extern "C" {
      --------------- */ \
   ElError ElSymmetricSolve_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \
-    ElMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
+    ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
   { EL_TRY( SymmetricSolve( CReflect(uplo), CReflect(orientation), \
                             *CReflect(A), *CReflect(B) ) ) } \
   ElError ElSymmetricSolveDist_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \
-    ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
+    ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( SymmetricSolve( CReflect(uplo), CReflect(orientation), \
                             *CReflect(A), *CReflect(B) ) ) } \
   ElError ElSymmetricSolveSparse_ ## SIG \
@@ -99,12 +99,12 @@ extern "C" {
      --------------- */ \
   ElError ElHermitianSolve_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \
-    ElMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
+    ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
   { EL_TRY( HermitianSolve( CReflect(uplo), CReflect(orientation), \
                             *CReflect(A), *CReflect(B) ) ) } \
   ElError ElHermitianSolveDist_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \
-    ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
+    ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( HermitianSolve( CReflect(uplo), CReflect(orientation), \
                             *CReflect(A), *CReflect(B) ) ) } \
   ElError ElHermitianSolveSparse_ ## SIG \

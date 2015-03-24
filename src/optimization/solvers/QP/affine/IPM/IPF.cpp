@@ -184,7 +184,7 @@ void IPF
 
         // Compute the proposed step from the KKT system
         // =============================================
-        SymmetricSolve( LOWER, NORMAL, J, d );
+        symm_solve::Overwrite( LOWER, NORMAL, J, d );
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
 
 #ifndef EL_RELEASE
@@ -423,7 +423,7 @@ void IPF
 
         // Compute the proposed step from the KKT system
         // =============================================
-        SymmetricSolve( LOWER, NORMAL, J, d );
+        symm_solve::Overwrite( LOWER, NORMAL, J, d );
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
 
 #ifndef EL_RELEASE

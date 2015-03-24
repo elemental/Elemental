@@ -36,13 +36,12 @@ int main( int argc, char* argv[] )
             gridHeight = Grid::FindFactor( commSize );
         Grid grid( comm, gridHeight );
 
-        // Set up random A and B, then make the copies X := B and ACopy := A
-        DistMatrix<> A(grid), B(grid), ACopy(grid), X(grid);
+        // Set up random A and B, then make the copies X := B
+        DistMatrix<> A(grid), B(grid), X(grid);
         for( Int test=0; test<3; ++test )
         {
             Uniform( A, n, n );
             Uniform( B, n, numRhs );
-            ACopy = A;
             X = B;
             if( print )
             {
@@ -66,11 +65,11 @@ int main( int argc, char* argv[] )
 
             // Form R := A X - B
             DistMatrix<> R( B );
-            Gemm( NORMAL, NORMAL, 1., ACopy, X, -1., R );
+            Gemm( NORMAL, NORMAL, 1., A, X, -1., R );
 
             // Compute the relevant Frobenius norms and a relative residual
             const double epsilon = lapack::MachineEpsilon();
-            const double AFrobNorm = FrobeniusNorm( ACopy );
+            const double AFrobNorm = FrobeniusNorm( A );
             const double BFrobNorm = FrobeniusNorm( B );
             const double XFrobNorm = FrobeniusNorm( X );
             const double RFrobNorm = FrobeniusNorm( R );
@@ -88,7 +87,7 @@ int main( int argc, char* argv[] )
             }
 
             // Compute the relevant infinity norms and a relative residual
-            const double AInfNorm = InfinityNorm( ACopy );
+            const double AInfNorm = InfinityNorm( A );
             const double BInfNorm = InfinityNorm( B );
             const double XInfNorm = InfinityNorm( X );
             const double RInfNorm = InfinityNorm( R );
@@ -106,7 +105,7 @@ int main( int argc, char* argv[] )
             }
 
             // Compute the relevant one norms and a relative residual
-            const double AOneNorm = OneNorm( ACopy );
+            const double AOneNorm = OneNorm( A );
             const double BOneNorm = OneNorm( B );
             const double XOneNorm = OneNorm( X );
             const double ROneNorm = OneNorm( R );

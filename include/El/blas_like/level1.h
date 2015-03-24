@@ -16,6 +16,10 @@
 extern "C" {
 #endif
 
+/* UNEXPLAINED COMPILER BUG: 
+  'cc' 4.8.2 in Ubuntu fails if "ElRange_i iRange" is replaced with 
+  "ElRange_i I" */
+
 /* Adjoint
    ======= */
 /* B := A^H */
@@ -834,51 +838,51 @@ EL_EXPORT ElError ElFullDist_z( ElConstDistSparseMatrix_z A, ElDistMatrix_z B );
 /* TODO: vector versions and real/imag versions */
 
 EL_EXPORT ElError ElGetSubmatrixSparse_i
-( ElConstSparseMatrix_i A, ElRange_i I, ElRange_i J,
+( ElConstSparseMatrix_i A, ElRange_i iRange, ElRange_i jRange,
   ElSparseMatrix_i ASub );
 EL_EXPORT ElError ElGetSubmatrixSparse_s
-( ElConstSparseMatrix_s A, ElRange_i I, ElRange_i J,
+( ElConstSparseMatrix_s A, ElRange_i iRange, ElRange_i jRange,
   ElSparseMatrix_s ASub );
 EL_EXPORT ElError ElGetSubmatrixSparse_d
-( ElConstSparseMatrix_d A, ElRange_i I, ElRange_i J,
+( ElConstSparseMatrix_d A, ElRange_i iRange, ElRange_i jRange,
   ElSparseMatrix_d ASub );
 EL_EXPORT ElError ElGetSubmatrixSparse_c
-( ElConstSparseMatrix_c A, ElRange_i I, ElRange_i J,
+( ElConstSparseMatrix_c A, ElRange_i iRange, ElRange_i jRange,
   ElSparseMatrix_c ASub );
 EL_EXPORT ElError ElGetSubmatrixSparse_z
-( ElConstSparseMatrix_z A, ElRange_i I, ElRange_i J,
+( ElConstSparseMatrix_z A, ElRange_i iRange, ElRange_i jRange,
   ElSparseMatrix_z ASub );
 
 EL_EXPORT ElError ElGetSubmatrixDistSparse_i
-( ElConstDistSparseMatrix_i A, ElRange_i I, ElRange_i J,
+( ElConstDistSparseMatrix_i A, ElRange_i iRange, ElRange_i jRange,
   ElDistSparseMatrix_i ASub );
 EL_EXPORT ElError ElGetSubmatrixDistSparse_s
-( ElConstDistSparseMatrix_s A, ElRange_i I, ElRange_i J,
+( ElConstDistSparseMatrix_s A, ElRange_i iRange, ElRange_i jRange,
   ElDistSparseMatrix_s ASub );
 EL_EXPORT ElError ElGetSubmatrixDistSparse_d
-( ElConstDistSparseMatrix_d A, ElRange_i I, ElRange_i J,
+( ElConstDistSparseMatrix_d A, ElRange_i iRange, ElRange_i jRange,
   ElDistSparseMatrix_d ASub );
 EL_EXPORT ElError ElGetSubmatrixDistSparse_c
-( ElConstDistSparseMatrix_c A, ElRange_i I, ElRange_i J,
+( ElConstDistSparseMatrix_c A, ElRange_i iRange, ElRange_i jRange,
   ElDistSparseMatrix_c ASub );
 EL_EXPORT ElError ElGetSubmatrixDistSparse_z
-( ElConstDistSparseMatrix_z A, ElRange_i I, ElRange_i J,
+( ElConstDistSparseMatrix_z A, ElRange_i iRange, ElRange_i jRange,
   ElDistSparseMatrix_z ASub );
 
 EL_EXPORT ElError ElGetSubmatrixDistMultiVec_i
-( ElConstDistMultiVec_i A, ElRange_i I, ElRange_i J,
+( ElConstDistMultiVec_i A, ElRange_i iRange, ElRange_i jRange,
   ElDistMultiVec_i ASub );
 EL_EXPORT ElError ElGetSubmatrixDistMultiVec_s
-( ElConstDistMultiVec_s A, ElRange_i I, ElRange_i J,
+( ElConstDistMultiVec_s A, ElRange_i iRange, ElRange_i jRange,
   ElDistMultiVec_s ASub );
 EL_EXPORT ElError ElGetSubmatrixDistMultiVec_d
-( ElConstDistMultiVec_d A, ElRange_i I, ElRange_i J,
+( ElConstDistMultiVec_d A, ElRange_i iRange, ElRange_i jRange,
   ElDistMultiVec_d ASub );
 EL_EXPORT ElError ElGetSubmatrixDistMultiVec_c
-( ElConstDistMultiVec_c A, ElRange_i I, ElRange_i J,
+( ElConstDistMultiVec_c A, ElRange_i iRange, ElRange_i jRange,
   ElDistMultiVec_c ASub );
 EL_EXPORT ElError ElGetSubmatrixDistMultiVec_z
-( ElConstDistMultiVec_z A, ElRange_i I, ElRange_i J,
+( ElConstDistMultiVec_z A, ElRange_i iRange, ElRange_i jRange,
   ElDistMultiVec_z ASub );
 
 /* Hadamard

@@ -21,19 +21,37 @@ The [documentation for Elemental](http://libelemental.org/documentation) is buil
 Elemental supports a wide collection of distributed-memory functionality, 
 including:
 
-* Dense and sparse Interior Point Methods for linear and quadratic programs
-* Support for dense and sparse basis pursuit, Lasso, SVM, etc.
+**Convex optimization**:
+* Dense and sparse Interior Point Methods for Linear and Quadratic Programs
+    - Basis Pursuit
+    - Chebyshev Points
+    - Dantzig selectors
+    - LASSO / Basis Pursuit Denoising
+    - Least Absolute Value regression
+    - Non-negative Least Squares
+    - Support Vector Machines
+    - (1D) Total Variation
+* Various prototype dense Alternating Direction Method of Multipliers routines
+    - Sparse inverse covariance selection
+    - Robust Principal Component Analysis
+* Prototype alternating direction Non-negative Matrix Factorization
+
+**Linear algebra**:
+* Dense and sparse-direct (generalized) Least Squares problems
+    - Least Squares / Minimum Length
+    - Tikhonov (and ridge) regression
+    - Equality-constrained Least Squares
+    - General (Gauss-Markov) Linear Models
 * High-performance pseudospectral computation and visualization
-* Dense and sparse-direct Least Squares and Minimum Length problems
 * Quadratic-time low-rank Cholesky and LU modifications
 * Bunch-Kaufman and Bunch-Parlett for accurate symmetric factorization
 * LU and Cholesky with full pivoting
 * Column-pivoted QR and interpolative/skeleton decompositions
 * Quadratically Weighted Dynamic Halley iteration for the polar decomposition
-* Spectral Divide and Conquer Schur decomposition and Hermitian EVD
 * Many algorithms for Singular-Value soft-Thresholding (SVT)
 * Tall-skinny QR decompositions
 * Hermitian matrix functions
+* Prototype Spectral Divide and Conquer Schur decomposition and Hermitian EVD
 * Sign-based Lyapunov/Ricatti/Sylvester solvers
 
 ### License
