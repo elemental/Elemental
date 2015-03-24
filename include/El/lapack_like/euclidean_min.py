@@ -10,50 +10,8 @@ from ..core import *
 from factor import *
 import ctypes
 
-# Euclidean minimization
-# ======================
-
-# General Linear Model
-# --------------------
-lib.ElGLM_s.argtypes = \
-lib.ElGLM_d.argtypes = \
-lib.ElGLM_c.argtypes = \
-lib.ElGLM_z.argtypes = \
-lib.ElGLMDist_s.argtypes = \
-lib.ElGLMDist_d.argtypes = \
-lib.ElGLMDist_c.argtypes = \
-lib.ElGLMDist_z.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p]
-
-def GLM(A,B,D):
-  if type(A) is not type(B) or type(B) is not type(D):
-    raise Exception('Matrix types of {A,B,D} must match')
-  if A.tag != B.tag or B.tag != D.tag:
-    raise Exception('Datatypes of {A,B,D} must match')
-
-  if type(A) is Matrix:
-    Y = Matrix(A.tag)
-    args = [A.obj,B.obj,D.obj,Y.obj]
-    if   A.tag == sTag: lib.ElGLM_s(*args)
-    elif A.tag == dTag: lib.ElGLM_d(*args)
-    elif A.tag == cTag: lib.ElGLM_c(*args)
-    elif A.tag == zTag: lib.ElGLM_z(*args)
-    else: DataExcept()
-    return Y
-  elif type(A) is DistMatrix:
-    Y = DistMatrix(A.tag,MC,MR,A.Grid())
-    args = [A.obj,B.obj,D.obj,Y.obj]
-    if   A.tag == sTag: lib.ElGLMDist_s(*args)
-    elif A.tag == dTag: lib.ElGLMDist_d(*args)
-    elif A.tag == cTag: lib.ElGLMDist_c(*args)
-    elif A.tag == zTag: lib.ElGLMDist_z(*args)
-    else: DataExcept()
-    return Y
-  else: TypeExcept()
-
 # Least squares
-# -------------
-
+# =============
 class LeastSquaresCtrl_s(ctypes.Structure):
   _fields_ = [("alpha",sType),("qsdCtrl",RegQSDCtrl_s),
               ("equilibrate",bType),("progress",bType),("time",bType)]
@@ -162,8 +120,157 @@ def LeastSquares(A,B,ctrl=None,orient=NORMAL):
     return X
   else: TypeExcept()
 
+# Ridge regression
+# ================
+(RIDGE_CHOLESKY,RIDGE_QR,RIDGE_SVD)=(0,1,2)
+
+lib.ElRidge_s.argtypes = \
+lib.ElRidge_c.argtypes = \
+lib.ElRidgeDist_s.argtypes = \
+lib.ElRidgeDist_c.argtypes = \
+  [c_uint,c_void_p,c_void_p,sType,c_void_p,c_uint]
+lib.ElRidgeSparse_s.argtypes = \
+lib.ElRidgeSparse_c.argtypes = \
+lib.ElRidgeDistSparse_s.argtypes = \
+lib.ElRidgeDistSparse_c.argtypes = \
+  [c_uint,c_void_p,c_void_p,sType,c_void_p]
+
+lib.ElRidge_d.argtypes = \
+lib.ElRidge_z.argtypes = \
+lib.ElRidgeDist_d.argtypes = \
+lib.ElRidgeDist_z.argtypes = \
+  [c_uint,c_void_p,c_void_p,dType,c_void_p,c_uint]
+lib.ElRidgeSparse_d.argtypes = \
+lib.ElRidgeSparse_z.argtypes = \
+lib.ElRidgeDistSparse_d.argtypes = \
+lib.ElRidgeDistSparse_z.argtypes = \
+  [c_uint,c_void_p,c_void_p,dType,c_void_p]
+
+def Ridge(A,B,gamma,orient=NORMAL,alg=RIDGE_CHOLESKY):
+  if A.tag != B.tag:
+    raise Exception('Datatypes of A and B must match')
+  if type(A) is Matrix:
+    if type(B) is not Matrix:
+      raise Exception('Expected RHS to be a Matrix')
+    X = Matrix(A.tag)
+    args = [orient,A.obj,B.obj,gamma,X.obj,alg]
+    if   A.tag == sTag: lib.ElRidge_s(*args)
+    elif A.tag == dTag: lib.ElRidge_d(*args)
+    elif A.tag == cTag: lib.ElRidge_c(*args)
+    elif A.tag == zTag: lib.ElRidge_z(*args)
+    else: DataExcept()
+    return X
+  elif type(A) is DistMatrix:
+    if type(B) is not DistMatrix:
+      raise Exception('Expected RHS to be a DistMatrix')
+    X = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [orient,A.obj,B.obj,gamma,X.obj,alg]
+    if   A.tag == sTag: lib.ElRidgeDist_s(*args)
+    elif A.tag == dTag: lib.ElRidgeDist_d(*args)
+    elif A.tag == cTag: lib.ElRidgeDist_c(*args)
+    elif A.tag == zTag: lib.ElRidgeDist_z(*args)
+    else: DataExcept()
+    return X
+  elif type(A) is SparseMatrix:
+    if type(B) is not Matrix:
+      raise Exception('Expected RHS to be a Matrix')
+    X = Matrix(A.tag)
+    args = [orient,A.obj,B.obj,gamma,X.obj]
+    if   A.tag == sTag: lib.ElRidgeSparse_s(*args)
+    elif A.tag == dTag: lib.ElRidgeSparse_d(*args)
+    elif A.tag == cTag: lib.ElRidgeSparse_c(*args)
+    elif A.tag == zTag: lib.ElRidgeSparse_z(*args)
+    else: DataExcept()
+    return X
+  elif type(A) is DistSparseMatrix:
+    if type(B) is not DistMultiVec:
+      raise Exception('Expected RHS to be a DistMultiVec')
+    X = DistMultiVec(A.tag,A.Comm())
+    args = [orient,A.obj,B.obj,gamma,X.obj]
+    if   A.tag == sTag: lib.ElRidgeDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElRidgeDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElRidgeDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElRidgeDistSparse_z(*args)
+    else: DataExcept()
+    return X
+  else: TypeExcept()
+
+# Tikhonov regularization
+# =======================
+(TIKHONOV_CHOLESKY,TIKHONOV_QR)=(0,1)
+
+lib.ElTikhonov_s.argtypes = \
+lib.ElTikhonov_d.argtypes = \
+lib.ElTikhonov_c.argtypes = \
+lib.ElTikhonov_z.argtypes = \
+lib.ElTikhonovDist_s.argtypes = \
+lib.ElTikhonovDist_d.argtypes = \
+lib.ElTikhonovDist_c.argtypes = \
+lib.ElTikhonovDist_z.argtypes = \
+  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
+lib.ElTikhonovSparse_s.argtypes = \
+lib.ElTikhonovSparse_d.argtypes = \
+lib.ElTikhonovSparse_c.argtypes = \
+lib.ElTikhonovSparse_z.argtypes = \
+lib.ElTikhonovDistSparse_s.argtypes = \
+lib.ElTikhonovDistSparse_d.argtypes = \
+lib.ElTikhonovDistSparse_c.argtypes = \
+lib.ElTikhonovDistSparse_z.argtypes = \
+  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
+
+def Tikhonov(A,B,G,orient=NORMAL,alg=TIKHONOV_CHOLESKY):
+  if type(A) is not type(G):
+    raise Exception('Matrix types of A and G must match')
+  if A.tag != B.tag or B.tag != G.tag:
+    raise Exception('Datatypes of {A,B,G} must match')
+  if type(A) is Matrix:
+    if type(B) is not Matrix:
+      raise Exception('Expected RHS to be a Matrix')
+    X = Matrix(A.tag)
+    args = [orient,A.obj,B.obj,G.obj,X.obj,alg]
+    if   A.tag == sTag: lib.ElTikhonov_s(*args)
+    elif A.tag == dTag: lib.ElTikhonov_d(*args)
+    elif A.tag == cTag: lib.ElTikhonov_c(*args)
+    elif A.tag == zTag: lib.ElTikhonov_z(*args)
+    else: DataExcept()
+    return X
+  elif type(A) is DistMatrix:
+    if type(B) is not DistMatrix:
+      raise Exception('Expected RHS to be a DistMatrix')
+    X = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [orient,A.obj,B.obj,G.obj,X.obj,alg]
+    if   A.tag == sTag: lib.ElTikhonovDist_s(*args)
+    elif A.tag == dTag: lib.ElTikhonovDist_d(*args)
+    elif A.tag == cTag: lib.ElTikhonovDist_c(*args)
+    elif A.tag == zTag: lib.ElTikhonovDist_z(*args)
+    else: DataExcept()
+    return X
+  elif type(A) is SparseMatrix:
+    if type(B) is not Matrix:
+      raise Exception('Expected RHS to be a Matrix')
+    X = Matrix(A.tag)
+    args = [orient,A.obj,B.obj,G.obj,X.obj]
+    if   A.tag == sTag: lib.ElTikhonovSparse_s(*args)
+    elif A.tag == dTag: lib.ElTikhonovSparse_d(*args)
+    elif A.tag == cTag: lib.ElTikhonovSparse_c(*args)
+    elif A.tag == zTag: lib.ElTikhonovSparse_z(*args)
+    else: DataExcept()
+    return X
+  elif type(A) is DistSparseMatrix:
+    if type(B) is not DistMultiVec:
+      raise Exception('Expected RHS to be a DistMultiVec')
+    X = DistMultiVec(A.tag,A.Comm())
+    args = [orient,A.obj,B.obj,G.obj,X.obj]
+    if   A.tag == sTag: lib.ElTikhonovDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElTikhonovDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElTikhonovDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElTikhonovDistSparse_z(*args)
+    else: DataExcept()
+    return X
+  else: TypeExcept()
+
 # Equality-constrained least squares
-# ----------------------------------
+# ==================================
 lib.ElLSE_s.argtypes = \
 lib.ElLSE_d.argtypes = \
 lib.ElLSE_c.argtypes = \
@@ -263,151 +370,107 @@ def LSE(A,B,C,D,ctrl=None):
     return X
   else: TypeExcept()
 
-# Ridge regression
-# ----------------
-(RIDGE_CHOLESKY,RIDGE_QR,RIDGE_SVD)=(0,1,2)
+# General Linear Model
+# ====================
+lib.ElGLM_s.argtypes = \
+lib.ElGLM_d.argtypes = \
+lib.ElGLM_c.argtypes = \
+lib.ElGLM_z.argtypes = \
+lib.ElGLMDist_s.argtypes = \
+lib.ElGLMDist_d.argtypes = \
+lib.ElGLMDist_c.argtypes = \
+lib.ElGLMDist_z.argtypes = \
+lib.ElGLMSparse_s.argtypes = \
+lib.ElGLMSparse_d.argtypes = \
+lib.ElGLMSparse_c.argtypes = \
+lib.ElGLMSparse_z.argtypes = \
+lib.ElGLMDistSparse_s.argtypes = \
+lib.ElGLMDistSparse_d.argtypes = \
+lib.ElGLMDistSparse_c.argtypes = \
+lib.ElGLMDistSparse_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElGLMSparse_s.argtypes = \
+lib.ElGLMSparse_c.argtypes = \
+lib.ElGLMDistSparse_s.argtypes = \
+lib.ElGLMDistSparse_c.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,LeastSquaresCtrl_s]
+lib.ElGLMSparse_d.argtypes = \
+lib.ElGLMSparse_z.argtypes = \
+lib.ElGLMDistSparse_d.argtypes = \
+lib.ElGLMDistSparse_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,LeastSquaresCtrl_d]
 
-lib.ElRidge_s.argtypes = \
-lib.ElRidge_c.argtypes = \
-lib.ElRidgeDist_s.argtypes = \
-lib.ElRidgeDist_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,sType,c_void_p,c_uint]
-lib.ElRidgeSparse_s.argtypes = \
-lib.ElRidgeSparse_c.argtypes = \
-lib.ElRidgeDistSparse_s.argtypes = \
-lib.ElRidgeDistSparse_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,sType,c_void_p]
+def GLM(A,B,D,ctrl=None):
+  if type(A) is not type(B):
+    raise Exception('Expected types of A and B to match')
+  if A.tag != B.tag or B.tag != D.tag:
+    raise Exception('Datatypes of {A,B,D} must match')
 
-lib.ElRidge_d.argtypes = \
-lib.ElRidge_z.argtypes = \
-lib.ElRidgeDist_d.argtypes = \
-lib.ElRidgeDist_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,dType,c_void_p,c_uint]
-lib.ElRidgeSparse_d.argtypes = \
-lib.ElRidgeSparse_z.argtypes = \
-lib.ElRidgeDistSparse_d.argtypes = \
-lib.ElRidgeDistSparse_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,dType,c_void_p]
-
-def Ridge(A,B,gamma,orient=NORMAL,alg=RIDGE_CHOLESKY):
-  if A.tag != B.tag:
-    raise Exception('Datatypes of A and B must match')
   if type(A) is Matrix:
-    if type(B) is not Matrix:
-      raise Exception('Expected RHS to be a Matrix')
+    if type(D) is not Matrix:
+      raise Exception('Expected D to be a Matrix')
     X = Matrix(A.tag)
-    args = [orient,A.obj,B.obj,gamma,X.obj,alg]
-    if   A.tag == sTag: lib.ElRidge_s(*args)
-    elif A.tag == dTag: lib.ElRidge_d(*args)
-    elif A.tag == cTag: lib.ElRidge_c(*args)
-    elif A.tag == zTag: lib.ElRidge_z(*args)
+    Y = Matrix(A.tag)
+    args = [A.obj,B.obj,D.obj,X.obj,Y.obj]
+    if   A.tag == sTag: lib.ElGLM_s(*args)
+    elif A.tag == dTag: lib.ElGLM_d(*args)
+    elif A.tag == cTag: lib.ElGLM_c(*args)
+    elif A.tag == zTag: lib.ElGLM_z(*args)
     else: DataExcept()
-    return X
+    return X, Y
   elif type(A) is DistMatrix:
-    if type(B) is not DistMatrix:
-      raise Exception('Expected RHS to be a DistMatrix')
+    if type(D) is not DistMatrix:
+      raise Exception('Expected D to be a DistMatrix')
     X = DistMatrix(A.tag,MC,MR,A.Grid())
-    args = [orient,A.obj,B.obj,gamma,X.obj,alg]
-    if   A.tag == sTag: lib.ElRidgeDist_s(*args)
-    elif A.tag == dTag: lib.ElRidgeDist_d(*args)
-    elif A.tag == cTag: lib.ElRidgeDist_c(*args)
-    elif A.tag == zTag: lib.ElRidgeDist_z(*args)
+    Y = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,B.obj,D.obj,X.obj,Y.obj]
+    if   A.tag == sTag: lib.ElGLMDist_s(*args)
+    elif A.tag == dTag: lib.ElGLMDist_d(*args)
+    elif A.tag == cTag: lib.ElGLMDist_c(*args)
+    elif A.tag == zTag: lib.ElGLMDist_z(*args)
     else: DataExcept()
-    return X
+    return X, Y
   elif type(A) is SparseMatrix:
-    if type(B) is not Matrix:
-      raise Exception('Expected RHS to be a Matrix')
+    if type(D) is not Matrix:
+      raise Exception('Expected D to be a Matrix')
     X = Matrix(A.tag)
-    args = [orient,A.obj,B.obj,gamma,X.obj]
-    if   A.tag == sTag: lib.ElRidgeSparse_s(*args)
-    elif A.tag == dTag: lib.ElRidgeSparse_d(*args)
-    elif A.tag == cTag: lib.ElRidgeSparse_c(*args)
-    elif A.tag == zTag: lib.ElRidgeSparse_z(*args)
+    Y = Matrix(A.tag)
+    args = [A.obj,B.obj,D.obj,X.obj,Y.obj]
+    argsCtrl = [A.obj,B.obj,D.obj,X.obj,Y.obj,ctrl]
+    if   A.tag == sTag:
+      if ctrl==None: lib.ElGLMSparse_s(*args)
+      else:          lib.ElGLMXSparse_s(*argsCtrl)
+    elif A.tag == dTag:
+      if ctrl==None: lib.ElGLMSparse_d(*args)
+      else:          lib.ElGLMXSparse_d(*argsCtrl)
+    elif A.tag == cTag:
+      if ctrl==None: lib.ElGLMSparse_c(*args)
+      else:          lib.ElGLMXSparse_c(*argsCtrl)
+    elif A.tag == zTag:
+      if ctrl==None: lib.ElGLMSparse_z(*args)
+      else:          lib.ElGLMXSparse_z(*argsCtrl)
     else: DataExcept()
-    return X
+    return X, Y
   elif type(A) is DistSparseMatrix:
-    if type(B) is not DistMultiVec:
-      raise Exception('Expected RHS to be a DistMultiVec')
-    X = DistMultiVec(A.tag,A.Comm())
-    args = [orient,A.obj,B.obj,gamma,X.obj]
-    if   A.tag == sTag: lib.ElRidgeDistSparse_s(*args)
-    elif A.tag == dTag: lib.ElRidgeDistSparse_d(*args)
-    elif A.tag == cTag: lib.ElRidgeDistSparse_c(*args)
-    elif A.tag == zTag: lib.ElRidgeDistSparse_z(*args)
+    if type(D) is not DistMultiVec:
+      raise Exception('Expected D to be a DistMultiVec')
+    X = DistMultiVec(A.tag)
+    Y = DistMultiVec(A.tag)
+    args = [A.obj,B.obj,D.obj,X.obj,Y.obj]
+    argsCtrl = [A.obj,B.obj,D.obj,X.obj,Y.obj,ctrl]
+    if   A.tag == sTag:
+      if ctrl==None: lib.ElGLMDistSparse_s(*args)
+      else:          lib.ElGLMXDistSparse_s(*argsCtrl)
+    elif A.tag == dTag:
+      if ctrl==None: lib.ElGLMDistSparse_d(*args)
+      else:          lib.ElGLMXDistSparse_d(*argsCtrl)
+    elif A.tag == cTag:
+      if ctrl==None: lib.ElGLMDistSparse_c(*args)
+      else:          lib.ElGLMXDistSparse_c(*argsCtrl)
+    elif A.tag == zTag:
+      if ctrl==None: lib.ElGLMDistSparse_z(*args)
+      else:          lib.ElGLMXDistSparse_z(*argsCtrl)
     else: DataExcept()
-    return X
+    return X, Y
   else: TypeExcept()
 
-# Tikhonov regularization
-# -----------------------
-(TIKHONOV_CHOLESKY,TIKHONOV_QR)=(0,1)
-
-lib.ElTikhonov_s.argtypes = \
-lib.ElTikhonov_d.argtypes = \
-lib.ElTikhonov_c.argtypes = \
-lib.ElTikhonov_z.argtypes = \
-lib.ElTikhonovDist_s.argtypes = \
-lib.ElTikhonovDist_d.argtypes = \
-lib.ElTikhonovDist_c.argtypes = \
-lib.ElTikhonovDist_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
-lib.ElTikhonovSparse_s.argtypes = \
-lib.ElTikhonovSparse_d.argtypes = \
-lib.ElTikhonovSparse_c.argtypes = \
-lib.ElTikhonovSparse_z.argtypes = \
-lib.ElTikhonovDistSparse_s.argtypes = \
-lib.ElTikhonovDistSparse_d.argtypes = \
-lib.ElTikhonovDistSparse_c.argtypes = \
-lib.ElTikhonovDistSparse_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
-
-def Tikhonov(A,B,G,orient=NORMAL,alg=TIKHONOV_CHOLESKY):
-  if type(A) is not type(G):
-    raise Exception('Matrix types of A and G must match')
-  if A.tag != B.tag or B.tag != G.tag:
-    raise Exception('Datatypes of {A,B,G} must match')
-  if type(A) is Matrix:
-    if type(B) is not Matrix:
-      raise Exception('Expected RHS to be a Matrix')
-    X = Matrix(A.tag)
-    args = [orient,A.obj,B.obj,G.obj,X.obj,alg]
-    if   A.tag == sTag: lib.ElTikhonov_s(*args)
-    elif A.tag == dTag: lib.ElTikhonov_d(*args)
-    elif A.tag == cTag: lib.ElTikhonov_c(*args)
-    elif A.tag == zTag: lib.ElTikhonov_z(*args)
-    else: DataExcept()
-    return X
-  elif type(A) is DistMatrix:
-    if type(B) is not DistMatrix:
-      raise Exception('Expected RHS to be a DistMatrix')
-    X = DistMatrix(A.tag,MC,MR,A.Grid())
-    args = [orient,A.obj,B.obj,G.obj,X.obj,alg]
-    if   A.tag == sTag: lib.ElTikhonovDist_s(*args)
-    elif A.tag == dTag: lib.ElTikhonovDist_d(*args)
-    elif A.tag == cTag: lib.ElTikhonovDist_c(*args)
-    elif A.tag == zTag: lib.ElTikhonovDist_z(*args)
-    else: DataExcept()
-    return X
-  elif type(A) is SparseMatrix:
-    if type(B) is not Matrix:
-      raise Exception('Expected RHS to be a Matrix')
-    X = Matrix(A.tag)
-    args = [orient,A.obj,B.obj,G.obj,X.obj]
-    if   A.tag == sTag: lib.ElTikhonovSparse_s(*args)
-    elif A.tag == dTag: lib.ElTikhonovSparse_d(*args)
-    elif A.tag == cTag: lib.ElTikhonovSparse_c(*args)
-    elif A.tag == zTag: lib.ElTikhonovSparse_z(*args)
-    else: DataExcept()
-    return X
-  elif type(A) is DistSparseMatrix:
-    if type(B) is not DistMultiVec:
-      raise Exception('Expected RHS to be a DistMultiVec')
-    X = DistMultiVec(A.tag,A.Comm())
-    args = [orient,A.obj,B.obj,G.obj,X.obj]
-    if   A.tag == sTag: lib.ElTikhonovDistSparse_s(*args)
-    elif A.tag == dTag: lib.ElTikhonovDistSparse_d(*args)
-    elif A.tag == cTag: lib.ElTikhonovDistSparse_c(*args)
-    elif A.tag == zTag: lib.ElTikhonovDistSparse_z(*args)
-    else: DataExcept()
-    return X
-  else: TypeExcept()

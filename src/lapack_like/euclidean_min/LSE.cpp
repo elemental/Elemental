@@ -40,9 +40,9 @@
 // top term to zero, which involves solving the upper-triangular system
 //     R11 y1 = g1 - R12 y2.
 //       
-// On exit, A and B are overwritten with their implicit Generalized RQ 
-// factorization of (B,A), and, optionally, C is overwritten with the rotated
-// residual matrix
+// On exit of the internal dense implementation, A and B are overwritten with 
+// their implicit Generalized RQ factorization of (B,A), and, optionally, C is 
+// overwritten with the rotated residual matrix
 //     Z^H (A X - C) = (R Q X - Z^H C) = |           0 |,
 //                                       | R22 Y2 - G1 |
 // where R22 is an upper-trapezoidal (not necessarily triangular) matrix.
@@ -64,12 +64,15 @@
 
 namespace El {
 
+namespace lse {
+
 template<typename F> 
-void LSE
-( Matrix<F>& A, Matrix<F>& B, Matrix<F>& C, Matrix<F>& D, Matrix<F>& X, 
-  bool computeResidual )
+void Overwrite
+( Matrix<F>& A, Matrix<F>& B, 
+  Matrix<F>& C, Matrix<F>& D, 
+  Matrix<F>& X, bool computeResidual )
 {
-    DEBUG_ONLY(CallStackEntry cse("LSE"))
+    DEBUG_ONLY(CallStackEntry cse("lse::Overwrite"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int p = B.Height();
@@ -151,12 +154,12 @@ void LSE
 }
 
 template<typename F> 
-void LSE
+void Overwrite
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre, 
   AbstractDistMatrix<F>& CPre, AbstractDistMatrix<F>& DPre, 
   AbstractDistMatrix<F>& XPre, bool computeResidual )
 {
-    DEBUG_ONLY(CallStackEntry cse("LSE"))
+    DEBUG_ONLY(CallStackEntry cse("lse::Overwrite"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
@@ -246,6 +249,30 @@ void LSE
 
     // X := Q^H Y
     rq::ApplyQ( LEFT, ADJOINT, B, tB, dB, X );
+}
+
+} // namespace lse
+
+template<typename F> 
+void LSE
+( const Matrix<F>& A, const Matrix<F>& B, 
+  const Matrix<F>& C, const Matrix<F>& D, 
+        Matrix<F>& X )
+{
+    DEBUG_ONLY(CallStackEntry cse("LSE"))
+    Matrix<F> ACopy( A ), BCopy( B ), CCopy( C ), DCopy( D );
+    lse::Overwrite( ACopy, BCopy, CCopy, DCopy, X );
+}
+
+template<typename F> 
+void LSE
+( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
+  const AbstractDistMatrix<F>& C, const AbstractDistMatrix<F>& D, 
+        AbstractDistMatrix<F>& X )
+{
+    DEBUG_ONLY(CallStackEntry cse("LSE"))
+    DistMatrix<F> ACopy( A ), BCopy( B ), CCopy( C ), DCopy( D );
+    lse::Overwrite( ACopy, BCopy, CCopy, DCopy, X );
 }
 
 template<typename F> 
@@ -345,7 +372,7 @@ void LSE
     // ===========================
     DiagonalSolve( LEFT, NORMAL, dEquil, G );
 
-    // Extract x from G = [ x; -r/alpha; y/alpha ]
+    // Extract X from G = [ X; -R/alpha; Y/alpha ]
     // ===========================================
     X = G( IR(0,n), IR(0,numRHS) );
 }
@@ -579,19 +606,28 @@ void LSE
     // ===========================
     DiagonalSolve( LEFT, NORMAL, dEquil, G );
 
-    // Extract x from G = [ x; -r/alpha; y/alpha ]
+    // Extract X from G = [ X; -R/alpha; Y/alpha ]
     // ===========================================
     X = G( IR(0,n), IR(0,numRHS) );
 }
 
 #define PROTO(F) \
-  template void LSE \
-  ( Matrix<F>& A, Matrix<F>& B, Matrix<F>& C, Matrix<F>& D, \
+  template void lse::Overwrite \
+  ( Matrix<F>& A, Matrix<F>& B, \
+    Matrix<F>& C, Matrix<F>& D, \
     Matrix<F>& X, bool computeResidual ); \
-  template void LSE \
+  template void lse::Overwrite \
   ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
     AbstractDistMatrix<F>& C, AbstractDistMatrix<F>& D, \
     AbstractDistMatrix<F>& X, bool computeResidual ); \
+  template void LSE \
+  ( const Matrix<F>& A, const Matrix<F>& B, \
+    const Matrix<F>& C, const Matrix<F>& D, \
+          Matrix<F>& X ); \
+  template void LSE \
+  ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, \
+    const AbstractDistMatrix<F>& C, const AbstractDistMatrix<F>& D, \
+          AbstractDistMatrix<F>& X ); \
   template void LSE \
   ( const SparseMatrix<F>& A, const SparseMatrix<F>& B, \
     const Matrix<F>& C,       const Matrix<F>& D, \

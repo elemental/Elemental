@@ -38,7 +38,7 @@ void Ricatti( Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl )
     Matrix<F> ML, MR;
     PartitionRight( W, ML, MR, n );
     Scale( F(-1), MR );
-    LeastSquares( NORMAL, ML, MR, X );
+    ls::Overwrite( NORMAL, ML, MR, X );
 }
 
 template<typename F>
@@ -67,7 +67,7 @@ void Ricatti
     DistMatrix<F> ML(g), MR(g);
     PartitionRight( W, ML, MR, n );
     Scale( F(-1), MR );
-    LeastSquares( NORMAL, ML, MR, X );
+    ls::Overwrite( NORMAL, ML, MR, X );
 }
 
 template<typename F>

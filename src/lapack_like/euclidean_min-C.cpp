@@ -35,100 +35,42 @@ ElError ElLeastSquaresCtrlDefault_d( ElLeastSquaresCtrl_d* ctrl )
 }
 
 #define C_PROTO(SIG,SIGBASE,F) \
-  /* General Linear Model
-     -------------------- */ \
-  ElError ElGLM_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG B, \
-    ElMatrix_ ## SIG D, ElMatrix_ ## SIG Y ) \
-  { EL_TRY( GLM( *CReflect(A), *CReflect(B), *CReflect(D), *CReflect(Y) ) ) } \
-  ElError ElGLMDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B, \
-    ElDistMatrix_ ## SIG D, ElDistMatrix_ ## SIG Y ) \
-  { EL_TRY( GLM( *CReflect(A), *CReflect(B), *CReflect(D), *CReflect(Y) ) ) } \
   /* Least squares
      ------------- */ \
   ElError ElLeastSquares_ ## SIG \
-  ( ElOrientation orientation, ElMatrix_ ## SIG A, \
+  ( ElOrientation orientation, ElConstMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG B, ElMatrix_ ## SIG X ) \
   { EL_TRY( LeastSquares( CReflect(orientation), *CReflect(A), \
                           *CReflect(B), *CReflect(X) ) ) } \
   ElError ElLeastSquaresDist_ ## SIG \
-  ( ElOrientation orientation, ElDistMatrix_ ## SIG A, \
+  ( ElOrientation orientation, ElConstDistMatrix_ ## SIG A, \
     ElConstDistMatrix_ ## SIG B, ElDistMatrix_ ## SIG X ) \
   { EL_TRY( LeastSquares( CReflect(orientation), *CReflect(A), \
                           *CReflect(B), *CReflect(X) ) ) } \
   ElError ElLeastSquaresSparse_ ## SIG \
-  ( ElOrientation orientation, ElSparseMatrix_ ## SIG A, \
+  ( ElOrientation orientation, ElConstSparseMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG B, ElMatrix_ ## SIG X ) \
   { EL_TRY( LeastSquares( CReflect(orientation), *CReflect(A), \
                           *CReflect(B), *CReflect(X) ) ) } \
   ElError ElLeastSquaresDistSparse_ ## SIG \
-  ( ElOrientation orientation, \
-    ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG X, \
-    ElDistMultiVec_ ## SIG Y ) \
+  ( ElOrientation orientation, ElConstDistSparseMatrix_ ## SIG A, \
+    ElConstDistMultiVec_ ## SIG B, ElDistMultiVec_ ## SIG X ) \
   { EL_TRY( LeastSquares( CReflect(orientation), \
-      *CReflect(A), *CReflect(X), *CReflect(Y) ) ) } \
+      *CReflect(A), *CReflect(B), *CReflect(X) ) ) } \
   /* Expert versions
      ^^^^^^^^^^^^^^^ */ \
   ElError ElLeastSquaresXSparse_ ## SIG \
-  ( ElOrientation orientation, ElSparseMatrix_ ## SIG A, \
-    ElConstMatrix_ ## SIG B, ElMatrix_ ## SIG X, \
+  ( ElOrientation orientation, ElConstSparseMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG B,   ElMatrix_ ## SIG X, \
     ElLeastSquaresCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( LeastSquares( CReflect(orientation), *CReflect(A), \
                           *CReflect(B), *CReflect(X), CReflect(ctrl) ) ) } \
   ElError ElLeastSquaresXDistSparse_ ## SIG \
-  ( ElOrientation orientation, \
-    ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG X, \
-    ElDistMultiVec_ ## SIG Y, \
+  ( ElOrientation orientation, ElConstDistSparseMatrix_ ## SIG A, \
+    ElConstDistMultiVec_ ## SIG B, ElDistMultiVec_ ## SIG X, \
     ElLeastSquaresCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( LeastSquares( CReflect(orientation), \
-      *CReflect(A), *CReflect(X), *CReflect(Y), CReflect(ctrl) ) ) } \
-  /* Equality-constrained Least Squares
-     ---------------------------------- */ \
-  ElError ElLSE_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG B, \
-    ElMatrix_ ## SIG C, ElMatrix_ ## SIG D, \
-    ElMatrix_ ## SIG X ) \
-  { EL_TRY( LSE( *CReflect(A), *CReflect(B), \
-                 *CReflect(C), *CReflect(D), \
-                 *CReflect(X) ) ) } \
-  ElError ElLSEDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B, \
-    ElDistMatrix_ ## SIG C, ElDistMatrix_ ## SIG D, \
-    ElDistMatrix_ ## SIG X ) \
-  { EL_TRY( LSE( *CReflect(A), *CReflect(B), \
-                 *CReflect(C), *CReflect(D), \
-                  *CReflect(X) ) ) } \
-  ElError ElLSESparse_ ## SIG \
-  ( ElConstSparseMatrix_ ## SIG A, ElConstSparseMatrix_ ## SIG B, \
-    ElConstMatrix_ ## SIG C,       ElConstMatrix_ ## SIG D, \
-    ElMatrix_ ## SIG X ) \
-  { EL_TRY( LSE( *CReflect(A), *CReflect(B), \
-                 *CReflect(C), *CReflect(D), \
-                  *CReflect(X) ) ) } \
-  ElError ElLSEDistSparse_ ## SIG \
-  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistSparseMatrix_ ## SIG B, \
-    ElConstDistMultiVec_ ## SIG C,     ElConstDistMultiVec_ ## SIG D, \
-    ElDistMultiVec_ ## SIG X ) \
-  { EL_TRY( LSE( *CReflect(A), *CReflect(B), \
-                 *CReflect(C), *CReflect(D), \
-                 *CReflect(X) ) ) } \
-  /* Expert versions
-     ^^^^^^^^^^^^^^^ */ \
-  ElError ElLSEXSparse_ ## SIG \
-  ( ElConstSparseMatrix_ ## SIG A, ElConstSparseMatrix_ ## SIG B, \
-    ElConstMatrix_ ## SIG C,       ElConstMatrix_ ## SIG D, \
-    ElMatrix_ ## SIG X, ElLeastSquaresCtrl_ ## SIGBASE ctrl ) \
-  { EL_TRY( LSE( *CReflect(A), *CReflect(B), \
-                 *CReflect(C), *CReflect(D), \
-                 *CReflect(X), CReflect(ctrl) ) ) } \
-  ElError ElLSEXDistSparse_ ## SIG \
-  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistSparseMatrix_ ## SIG B, \
-    ElConstDistMultiVec_ ## SIG C,     ElConstDistMultiVec_ ## SIG D, \
-    ElDistMultiVec_ ## SIG X, ElLeastSquaresCtrl_ ## SIGBASE ctrl ) \
-  { EL_TRY( LSE( *CReflect(A), *CReflect(B), \
-                 *CReflect(C), *CReflect(D), \
-                 *CReflect(X), CReflect(ctrl) ) ) } \
+      *CReflect(A), *CReflect(B), *CReflect(X), CReflect(ctrl) ) ) } \
   /* Ridge regression
      ---------------- */ \
   ElError ElRidge_ ## SIG \
@@ -192,7 +134,101 @@ ElError ElLeastSquaresCtrlDefault_d( ElLeastSquaresCtrl_d* ctrl )
     ElConstDistSparseMatrix_ ## SIG G, ElDistMultiVec_ ## SIG X ) \
   { EL_TRY( Tikhonov( CReflect(orientation), \
                       *CReflect(A), *CReflect(B), \
-                      *CReflect(G), *CReflect(X) ) ) }
+                      *CReflect(G), *CReflect(X) ) ) } \
+  /* Equality-constrained Least Squares
+     ---------------------------------- */ \
+  ElError ElLSE_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
+    ElConstMatrix_ ## SIG C, ElConstMatrix_ ## SIG D, \
+    ElMatrix_ ## SIG X ) \
+  { EL_TRY( LSE( *CReflect(A), *CReflect(B), \
+                 *CReflect(C), *CReflect(D), \
+                 *CReflect(X) ) ) } \
+  ElError ElLSEDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
+    ElConstDistMatrix_ ## SIG C, ElConstDistMatrix_ ## SIG D, \
+    ElDistMatrix_ ## SIG X ) \
+  { EL_TRY( LSE( *CReflect(A), *CReflect(B), \
+                 *CReflect(C), *CReflect(D), \
+                  *CReflect(X) ) ) } \
+  ElError ElLSESparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstSparseMatrix_ ## SIG B, \
+    ElConstMatrix_ ## SIG C,       ElConstMatrix_ ## SIG D, \
+    ElMatrix_ ## SIG X ) \
+  { EL_TRY( LSE( *CReflect(A), *CReflect(B), \
+                 *CReflect(C), *CReflect(D), \
+                  *CReflect(X) ) ) } \
+  ElError ElLSEDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistSparseMatrix_ ## SIG B, \
+    ElConstDistMultiVec_ ## SIG C,     ElConstDistMultiVec_ ## SIG D, \
+    ElDistMultiVec_ ## SIG X ) \
+  { EL_TRY( LSE( *CReflect(A), *CReflect(B), \
+                 *CReflect(C), *CReflect(D), \
+                 *CReflect(X) ) ) } \
+  /* Expert versions
+     ^^^^^^^^^^^^^^^ */ \
+  ElError ElLSEXSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstSparseMatrix_ ## SIG B, \
+    ElConstMatrix_ ## SIG C,       ElConstMatrix_ ## SIG D, \
+    ElMatrix_ ## SIG X, ElLeastSquaresCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( LSE( *CReflect(A), *CReflect(B), \
+                 *CReflect(C), *CReflect(D), \
+                 *CReflect(X), CReflect(ctrl) ) ) } \
+  ElError ElLSEXDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistSparseMatrix_ ## SIG B, \
+    ElConstDistMultiVec_ ## SIG C,     ElConstDistMultiVec_ ## SIG D, \
+    ElDistMultiVec_ ## SIG X, ElLeastSquaresCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( LSE( *CReflect(A), *CReflect(B), \
+                 *CReflect(C), *CReflect(D), \
+                 *CReflect(X), CReflect(ctrl) ) ) } \
+  /* General Linear Model
+     -------------------- */ \
+  ElError ElGLM_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
+    ElConstMatrix_ ## SIG D, \
+    ElMatrix_ ## SIG X,      ElMatrix_ ## SIG Y ) \
+  { EL_TRY( GLM( *CReflect(A), *CReflect(B), \
+                 *CReflect(D), \
+                 *CReflect(X), *CReflect(Y) ) ) } \
+  ElError ElGLMDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
+    ElConstDistMatrix_ ## SIG D, \
+    ElDistMatrix_ ## SIG X,      ElDistMatrix_ ## SIG Y ) \
+  { EL_TRY( GLM( *CReflect(A), *CReflect(B), \
+                 *CReflect(D), \
+                 *CReflect(X), *CReflect(Y) ) ) } \
+  ElError ElGLMSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstSparseMatrix_ ## SIG B, \
+    ElConstMatrix_ ## SIG D, \
+    ElMatrix_ ## SIG X,            ElMatrix_ ## SIG Y ) \
+  { EL_TRY( GLM( *CReflect(A), *CReflect(B), \
+                 *CReflect(D), \
+                 *CReflect(X), *CReflect(Y) ) ) } \
+  ElError ElGLMDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistSparseMatrix_ ## SIG B, \
+    ElConstDistMultiVec_ ## SIG D, \
+    ElDistMultiVec_ ## SIG X,          ElDistMultiVec_ ## SIG Y ) \
+  { EL_TRY( GLM( *CReflect(A), *CReflect(B), \
+                 *CReflect(D), \
+                 *CReflect(X), *CReflect(Y) ) ) } \
+  /* Expert versions
+     ^^^^^^^^^^^^^^^ */ \
+  ElError ElGLMXSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstSparseMatrix_ ## SIG B, \
+    ElConstMatrix_ ## SIG D, \
+    ElMatrix_ ## SIG X,            ElMatrix_ ## SIG Y, \
+    ElLeastSquaresCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( GLM( *CReflect(A), *CReflect(B), \
+                 *CReflect(D), \
+                 *CReflect(X), *CReflect(Y), CReflect(ctrl) ) ) } \
+  ElError ElGLMXDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistSparseMatrix_ ## SIG B, \
+    ElConstDistMultiVec_ ## SIG D, \
+    ElDistMultiVec_ ## SIG X,          ElDistMultiVec_ ## SIG Y, \
+    ElLeastSquaresCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( GLM( *CReflect(A), *CReflect(B), \
+                 *CReflect(D), \
+                 *CReflect(X), *CReflect(Y), CReflect(ctrl) ) ) }
 
 #define EL_NO_INT_PROTO
 #include "El/macros/CInstantiate.h"

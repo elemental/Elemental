@@ -10,13 +10,15 @@
 
 namespace El {
 
+namespace ls {
+
 template<typename F> 
-void LeastSquares
+void Overwrite
 ( Orientation orientation, 
   Matrix<F>& A, const Matrix<F>& B, 
-                      Matrix<F>& X )
+  Matrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("LeastSquares"))
+    DEBUG_ONLY(CallStackEntry cse("ls::Overwrite"))
 
     Matrix<F> t;
     Matrix<Base<F>> d;
@@ -36,12 +38,12 @@ void LeastSquares
 }
 
 template<typename F> 
-void LeastSquares
+void Overwrite
 ( Orientation orientation, 
   AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& B, 
-                                     AbstractDistMatrix<F>& X )
+  AbstractDistMatrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("LeastSquares"))
+    DEBUG_ONLY(CallStackEntry cse("ls::Overwrite"))
 
     auto APtr = ReadProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
@@ -61,6 +63,30 @@ void LeastSquares
         LQ( A, t, d );
         lq::SolveAfter( orientation, A, t, d, B, X );
     }
+}
+
+} // namespace ls
+
+template<typename F> 
+void LeastSquares
+( Orientation orientation, 
+  const Matrix<F>& A, const Matrix<F>& B, 
+        Matrix<F>& X )
+{
+    DEBUG_ONLY(CallStackEntry cse("LeastSquares"))
+    Matrix<F> ACopy( A );
+    ls::Overwrite( orientation, ACopy, B, X );
+}
+
+template<typename F> 
+void LeastSquares
+( Orientation orientation, 
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
+        AbstractDistMatrix<F>& X )
+{
+    DEBUG_ONLY(CallStackEntry cse("LeastSquares"))
+    DistMatrix<F> ACopy( A );
+    ls::Overwrite( orientation, ACopy, B, X ); 
 }
 
 // The following routines solve either
@@ -124,7 +150,7 @@ namespace ls {
 template<typename F>
 inline void Equilibrated
 ( const SparseMatrix<F>& A,  const Matrix<F>& B, 
-                                   Matrix<F>& X,
+        Matrix<F>& X,
   const Matrix<Base<F>>& dR, const Matrix<Base<F>>& dC,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
@@ -245,7 +271,7 @@ template<typename F>
 void LeastSquares
 ( Orientation orientation,
   const SparseMatrix<F>& A, const Matrix<F>& B, 
-                                  Matrix<F>& X,
+        Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LeastSquares"))
@@ -291,7 +317,7 @@ namespace ls {
 template<typename F>
 void Equilibrated
 ( const DistSparseMatrix<F>& A,    const DistMultiVec<F>& B, 
-                                         DistMultiVec<F>& X,
+        DistMultiVec<F>& X,
   const DistMultiVec<Base<F>>& dR, const DistMultiVec<Base<F>>& dC,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
@@ -560,7 +586,7 @@ template<typename F>
 void LeastSquares
 ( Orientation orientation,
   const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, 
-                                      DistMultiVec<F>& X,
+        DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(
@@ -615,11 +641,17 @@ void LeastSquares
 }
 
 #define PROTO(F) \
-  template void LeastSquares \
+  template void ls::Overwrite \
   ( Orientation orientation, Matrix<F>& A, const Matrix<F>& B, \
     Matrix<F>& X ); \
-  template void LeastSquares \
+  template void ls::Overwrite \
   ( Orientation orientation, AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& X ); \
+  template void LeastSquares \
+  ( Orientation orientation, const Matrix<F>& A, const Matrix<F>& B, \
+    Matrix<F>& X ); \
+  template void LeastSquares \
+  ( Orientation orientation, const AbstractDistMatrix<F>& A, \
     const AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& X ); \
   template void LeastSquares \
   ( Orientation orientation, \

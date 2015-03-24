@@ -41,14 +41,10 @@ main( int argc, char* argv[] )
             gridHeight = Grid::FindFactor( commSize );
         Grid g( comm, gridHeight );
 
-        DistMatrix<F> A(g), B(g), D(g), Y(g);
+        DistMatrix<F> A(g), B(g), D(g), X(g), Y(g);
         Uniform( A, m, n );
         Uniform( B, m, p );
         Uniform( D, m, numRhs );
-        auto ACopy( A );
-        auto BCopy( B );
-        auto DCopy( D );
-
         if( print )
         {
             Print( A, "A" );
@@ -56,20 +52,19 @@ main( int argc, char* argv[] )
             Print( D, "D" );
         }
 
-        GLM( A, B, D, Y );
-
+        GLM( A, B, D, X, Y );
         if( print ) 
         {
-            Print( D, "X" );
+            Print( X, "X" );
             Print( Y, "Y" );
         }
         
-        const Real DFrob = FrobeniusNorm( DCopy ); 
-        Gemm( NORMAL, NORMAL, F(-1), ACopy, D, F(1), DCopy );
-        Gemm( NORMAL, NORMAL, F(-1), BCopy, Y, F(1), DCopy );
-        const Real EFrob = FrobeniusNorm( DCopy );
+        const Real DFrob = FrobeniusNorm( D ); 
+        Gemm( NORMAL, NORMAL, F(-1), A, D, F(1), D );
+        Gemm( NORMAL, NORMAL, F(-1), B, Y, F(1), D );
+        const Real EFrob = FrobeniusNorm( D );
         if( print )
-            Print( DCopy, "D - A X - B Y" );
+            Print( D, "D - A X - B Y" );
         if( commRank == 0 )
             cout << "|| D             ||_F = " << DFrob << "\n"
                  << "|| A X + B Y - D ||_F = " << EFrob << "\n" << endl;

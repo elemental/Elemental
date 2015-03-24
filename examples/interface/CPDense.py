@@ -50,11 +50,8 @@ if worldRank == 0:
   print "|| A x - b ||_2  =", rTwoNorm
   print "|| A x - b ||_oo =", rInfNorm
 
-# The dense least squares overwrites A
-ALS = El.DistMatrix()
-El.Copy( A, ALS )
 startLS = time.clock()
-xLS = El.LeastSquares(ALS,b)
+xLS = El.LeastSquares(A,b)
 endLS = time.clock()
 if worldRank == 0:
   print "LS time:", endLS-startLS, "seconds"

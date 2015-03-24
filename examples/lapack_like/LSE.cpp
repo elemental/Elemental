@@ -47,8 +47,6 @@ main( int argc, char* argv[] )
         Uniform( B, p, n );
         Uniform( C, m, numRhs );
         Uniform( D, p, numRhs );
-        auto BCopy( B );
-        auto DCopy( D );
 
         const Real AFrob = FrobeniusNorm( A );
         const Real BFrob = FrobeniusNorm( B );
@@ -63,18 +61,13 @@ main( int argc, char* argv[] )
         }
 
         LSE( A, B, C, D, X, resid );
-
         if( print ) 
-        { 
             Print( X, "X" );
-            if( resid )
-                Print( C, "rotated residuals" );
-        }
         
-        Gemm( NORMAL, NORMAL, F(-1), BCopy, X, F(1), DCopy );
-        const Real EFrob = FrobeniusNorm( DCopy );
+        Gemm( NORMAL, NORMAL, F(-1), B, X, F(1), D );
+        const Real EFrob = FrobeniusNorm( D );
         if( print )
-            Print( DCopy, "D - B X" );
+            Print( D, "D - B X" );
         if( commRank == 0 )
             std::cout << "|| A       ||_F = " << AFrob << "\n"
                       << "|| B       ||_F = " << BFrob << "\n"

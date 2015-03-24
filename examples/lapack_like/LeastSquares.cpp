@@ -39,16 +39,15 @@ main( int argc, char* argv[] )
             gridHeight = Grid::FindFactor( commSize );
         Grid grid( comm, gridHeight );
 
-        // Set up random A and B, then make the copies X := B and ACopy := A
+        // Set up random A and B, then make the copy X := B
         typedef Complex<double> F;
-        DistMatrix<F> A(grid), B(grid), ACopy(grid), X(grid), Z(grid);
+        DistMatrix<F> A(grid), B(grid), X(grid), Z(grid);
         for( Int test=0; test<3; ++test )
         {
             const Int k = ( orientation==NORMAL ? m : n );
             const Int N = ( orientation==NORMAL ? n : m );
             Uniform( A, m, n );
             Zeros( B, k, numRhs );
-            ACopy = A;
 
             // Form B in the range of op(A)
             Uniform( Z, N, numRhs );
@@ -70,11 +69,11 @@ main( int argc, char* argv[] )
 
             // Form R := op(A) X - B
             DistMatrix<F> R( B );
-            Gemm( orientation, NORMAL, F(1), ACopy, X, F(-1), R );
+            Gemm( orientation, NORMAL, F(1), A, X, F(-1), R );
 
             // Compute the relevant Frobenius norms and a relative residual
             const double epsilon = lapack::MachineEpsilon<double>();
-            const double AFrobNorm = FrobeniusNorm( ACopy );
+            const double AFrobNorm = FrobeniusNorm( A );
             const double BFrobNorm = FrobeniusNorm( B );
             const double XFrobNorm = FrobeniusNorm( X );
             const double RFrobNorm = FrobeniusNorm( R );

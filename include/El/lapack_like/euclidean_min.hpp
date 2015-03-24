@@ -14,19 +14,6 @@
 
 namespace El {
 
-// Generalized (Gauss-Markov) Linear Model
-// =======================================
-// Solve 
-//   min_{X,Y} || Y ||_F subject to D = A X + B Y
-template<typename F>
-void GLM
-( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y );
-template<typename F>
-void GLM
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
-  AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& Y );
-// TODO: Sparse-direct implementations
-
 // Least Squares (or Minimum Length)
 // =================================
 // When height(op(A)) >= width(op(A)), solve
@@ -40,13 +27,13 @@ void GLM
 template<typename F>
 void LeastSquares
 ( Orientation orientation, 
-  Matrix<F>& A, const Matrix<F>& B, 
-                      Matrix<F>& X );
+  const Matrix<F>& A, const Matrix<F>& B, 
+                            Matrix<F>& X );
 template<typename F>
 void LeastSquares
 ( Orientation orientation, 
-  AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
-                                  AbstractDistMatrix<F>& X );
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
+                                        AbstractDistMatrix<F>& X );
 
 template<typename Real>
 struct LeastSquaresCtrl {
@@ -75,32 +62,22 @@ void LeastSquares
                                       DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 
-// Equality-constrained Least Squarees
-// ===================================
-// Solve
-//   min_X || A X - C ||_F subject to B X = D
-template<typename F>
-void LSE
-( Matrix<F>& A, Matrix<F>& B, Matrix<F>& C, Matrix<F>& D, 
-  Matrix<F>& X, bool computeResidual=false );
-template<typename F>
-void LSE
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
-  AbstractDistMatrix<F>& C, AbstractDistMatrix<F>& D, 
-  AbstractDistMatrix<F>& X, bool computeResidual=false );
+// Dense versions which overwrite their input
+// ------------------------------------------
+namespace ls {
 
 template<typename F>
-void LSE
-( const SparseMatrix<F>& A, const SparseMatrix<F>& B,
-  const Matrix<F>& C,       const Matrix<F>& D,
-        Matrix<F>& X,
-  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
+void Overwrite
+( Orientation orientation, 
+  Matrix<F>& A, const Matrix<F>& B, 
+                      Matrix<F>& X );
 template<typename F>
-void LSE
-( const DistSparseMatrix<F>& A, const DistSparseMatrix<F>& B,
-  const DistMultiVec<F>& C,     const DistMultiVec<F>& D,
-        DistMultiVec<F>& X,
-  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
+void Overwrite
+( Orientation orientation, 
+  AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
+                                  AbstractDistMatrix<F>& X );
+
+} // namespace ls
 
 // Ridge regression
 // ================
@@ -189,6 +166,96 @@ void Tikhonov
   const DistSparseMatrix<F>& A, const DistMultiVec<F>& B,
   const DistSparseMatrix<F>& G,       DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
+
+// Equality-constrained Least Squarees
+// ===================================
+// Solve
+//   min_X || A X - C ||_F subject to B X = D
+template<typename F>
+void LSE
+( const Matrix<F>& A, const Matrix<F>& B, 
+  const Matrix<F>& C, const Matrix<F>& D, 
+        Matrix<F>& X );
+template<typename F>
+void LSE
+( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
+  const AbstractDistMatrix<F>& C, const AbstractDistMatrix<F>& D, 
+        AbstractDistMatrix<F>& X );
+
+template<typename F>
+void LSE
+( const SparseMatrix<F>& A, const SparseMatrix<F>& B,
+  const Matrix<F>& C,       const Matrix<F>& D,
+        Matrix<F>& X,
+  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
+template<typename F>
+void LSE
+( const DistSparseMatrix<F>& A, const DistSparseMatrix<F>& B,
+  const DistMultiVec<F>& C,     const DistMultiVec<F>& D,
+        DistMultiVec<F>& X,
+  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
+
+// Dense versions which overwrite inputs where possible
+// ----------------------------------------------------
+namespace lse {
+
+// A and B are overwritten with their factorizations and both C and D
+// are modified
+template<typename F>
+void Overwrite
+( Matrix<F>& A, Matrix<F>& B, Matrix<F>& C, Matrix<F>& D, 
+  Matrix<F>& X, bool computeResidual=false );
+template<typename F>
+void Overwrite
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
+  AbstractDistMatrix<F>& C, AbstractDistMatrix<F>& D, 
+  AbstractDistMatrix<F>& X, bool computeResidual=false );
+
+} // namespace lse
+
+// Generalized (Gauss-Markov) Linear Model
+// =======================================
+// Solve 
+//   min_{X,Y} || Y ||_F subject to A X + B Y = D
+
+template<typename F>
+void GLM
+( const Matrix<F>& A, const Matrix<F>& B, 
+  const Matrix<F>& D, 
+        Matrix<F>& X,       Matrix<F>& Y );
+template<typename F>
+void GLM
+( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
+  const AbstractDistMatrix<F>& D, 
+        AbstractDistMatrix<F>& X,       AbstractDistMatrix<F>& Y );
+
+template<typename F>
+void GLM
+( const SparseMatrix<F>& A, const SparseMatrix<F>& B,
+  const Matrix<F>& D,             
+        Matrix<F>& X,             Matrix<F>& Y,
+  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
+template<typename F>
+void GLM
+( const DistSparseMatrix<F>& A, const DistSparseMatrix<F>& B,
+  const DistMultiVec<F>& D,           
+        DistMultiVec<F>& X,           DistMultiVec<F>& Y,
+  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
+
+// Dense versions which overwrite the input where possible
+// -------------------------------------------------------
+namespace glm {
+
+// A and B are overwritten with their factorizations and X is returned in D
+template<typename F>
+void Overwrite
+( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y );
+template<typename F>
+void Overwrite
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
+  AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& Y );
+
+} // namespace glm
 
 // TODO: Generalized Tikhonov regularization
 
