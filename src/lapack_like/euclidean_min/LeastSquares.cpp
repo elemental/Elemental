@@ -106,8 +106,8 @@ void LeastSquares
 //
 // when height(W) >= width(W), or
 //
-//    | alpha*I  W^H | | X | = | 0 |,
-//    |   W       0  | | Y |   | B |
+//    | alpha*I  W^H | |     X   | = | 0 |,
+//    |   W       0  | | alpha*Y |   | B |
 //
 // when height(W) < width(W).
 //  
@@ -158,8 +158,6 @@ inline void Equilibrated
       CallStackEntry cse("ls::Equilibrated");
       if( A.Height() != B.Height() )
           LogicError("Heights of A and B must match");
-      if( A.Width() != B.Height() )
-          LogicError("Width of A and height of B must match");
     )
     typedef Base<F> Real;
 
@@ -258,8 +256,8 @@ inline void Equilibrated
     }
     else
     {
-        // Extract X from [X; Y]
-        // =====================
+        // Extract X from [X; alpha*Y]
+        // ===========================
         auto DT = D( IR(0,n), IR(0,numRHS) );
         X = DT;
     }
@@ -325,8 +323,6 @@ void Equilibrated
       CallStackEntry cse("ls::Equilibrated");
       if( A.Height() != B.Height() )
           LogicError("Heights of A and B must match");
-      if( A.Width() != B.Height() )
-          LogicError("Width of A and height of B must match");
     )
     typedef Base<F> Real;
     mpi::Comm comm = A.Comm();
@@ -572,8 +568,8 @@ void Equilibrated
     if( commRank == 0 && ctrl.time )
         cout << "  Solve: " << timer.Stop() << " secs" << endl;
 
-    // Extract X from [R/alpha; X] or [X; Y] and then rescale
-    // ======================================================
+    // Extract X from [R/alpha; X] or [X; alpha*Y] and then rescale
+    // ============================================================
     if( m >= n )
         X = D( IR(m,m+n), IR(0,numRHS) );
     else
@@ -589,13 +585,7 @@ void LeastSquares
         DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(
-      CallStackEntry cse("LeastSquares");
-      if( orientation == NORMAL && A.Height() != B.Height() )
-          LogicError("Heights of A and B must match");
-      if( orientation != NORMAL && A.Width() != B.Height() )
-          LogicError("Width of A and height of B must match");
-    )
+    DEBUG_ONLY(CallStackEntry cse("LeastSquares"))
     typedef Base<F> Real;
     mpi::Comm comm = A.Comm();
     const int commRank = mpi::Rank(comm);

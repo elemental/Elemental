@@ -23,6 +23,7 @@ int main( int argc, char* argv[] )
         const Int n2 = Input("--n2","second grid dimension",30);
         const Int n3 = Input("--n3","third grid dimension",30);
         const Int numRHS = Input("--numRHS","number of right-hand sides",5);
+        const bool tryLDL = Input("--tryLDL","try LDL?",true);
         const bool sequential = Input
             ("--sequential","sequential partitions?",true);
         const int numDistSeps = Input
@@ -56,6 +57,7 @@ int main( int argc, char* argv[] )
             Print( A );
             Print( A.DistGraph() );
         }
+        const bool conjugate = false;
 
         if( commRank == 0 )
             cout << "Generating random vector X and forming Y := A X" << endl;
@@ -74,7 +76,7 @@ int main( int argc, char* argv[] )
         if( commRank == 0 )
             cout << "Solving..." << endl;
         const double solveStart = mpi::Time();
-        SymmetricSolve( A, Y, false, ctrl );
+        SymmetricSolve( A, Y, conjugate, tryLDL, ctrl );
         const double solveStop = mpi::Time();
         if( commRank == 0 )
             cout << solveStop-solveStart << " seconds" << endl;

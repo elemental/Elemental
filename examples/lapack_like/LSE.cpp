@@ -27,7 +27,6 @@ main( int argc, char* argv[] )
         const Int p = Input("--p","number of constraints",20);
         const Int numRhs = Input("--numRhs","# of right-hand sides",5);
         const Int blocksize = Input("--blocksize","algorithmic blocksize",64);
-        const bool resid = Input("--resid","compute residual?",true);
         const bool print = Input("--print","print matrices?",false);
         Int gridHeight = Input("--gridHeight","grid height",0);
         ProcessInput();
@@ -48,8 +47,6 @@ main( int argc, char* argv[] )
         Uniform( C, m, numRhs );
         Uniform( D, p, numRhs );
 
-        const Real AFrob = FrobeniusNorm( A );
-        const Real BFrob = FrobeniusNorm( B );
         const Real CFrob = FrobeniusNorm( C );
         const Real DFrob = FrobeniusNorm( D );
         if( print )
@@ -60,27 +57,20 @@ main( int argc, char* argv[] )
             Print( D, "D" );
         }
 
-        LSE( A, B, C, D, X, resid );
+        LSE( A, B, C, D, X );
         if( print ) 
             Print( X, "X" );
         
+        Gemm( NORMAL, NORMAL, F(-1), A, X, F(1), C );
         Gemm( NORMAL, NORMAL, F(-1), B, X, F(1), D );
+        const Real resid = FrobeniusNorm( C );
         const Real EFrob = FrobeniusNorm( D );
         if( print )
             Print( D, "D - B X" );
         if( commRank == 0 )
-            std::cout << "|| A       ||_F = " << AFrob << "\n"
-                      << "|| B       ||_F = " << BFrob << "\n"
-                      << "|| C       ||_F = " << CFrob << "\n"
-                      << "|| D       ||_F = " << DFrob << "\n"
-                      << "|| B X - D ||_F = " << EFrob << "\n"
-                      << std::endl;
-        if( resid )
-        {
-            const Real residFrob = FrobeniusNorm( C );
-            if( commRank == 0 )
-                std::cout << "|| A X - C ||_F = " << residFrob << std::endl;
-        }
+            cout << "|| C - A X ||_F / || C ||_F = " << resid/CFrob << "\n"
+                 << "|| D - B X ||_F / || D ||_F = " << EFrob/DFrob << "\n"
+                 << endl;
     }
     catch( std::exception& e ) { ReportException(e); }
 
