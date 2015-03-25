@@ -9,9 +9,10 @@
 import El, time, random
 
 n0 = n1 = 100
-numRowsB = 5
+numColsB = 3
 numRHS = 1
 display = False
+output = False
 commRank = El.mpi.WorldRank()
 
 # NOTE: Increasing the magnitudes of the off-diagonal entries by an order of
@@ -43,109 +44,110 @@ def FD2D(N0,N1):
   A.MakeConsistent()
   return A
 
-def Constraints(numRows,N0,N1):
+def Constraints(numCols,N0,N1):
   B = El.DistSparseMatrix()
-  El.Zeros( B, numRows, N0*N1 )
+  El.Zeros( B, N0*N1, numCols )
   localHeight = B.LocalHeight()
-  B.Reserve( localHeight*N0*N1 )
+  B.Reserve( localHeight*numCols )
   for sLoc in xrange(localHeight):
     s = B.GlobalRow(sLoc)
-    for j in xrange(N0*N1):
+    for j in xrange(numCols):
       B.QueueLocalUpdate( sLoc, j, random.uniform(0,1) )
 
   B.MakeConsistent()
   return B
 
 A = FD2D(n0,n1)
-B = Constraints(numRowsB,n0,n1)
+B = Constraints(numColsB,n0,n1)
 if display:
   El.Display( A, "A" )
   El.Display( B, "B" )
+if output:
+  El.Print( A, "A" )
+  El.Print( B, "B" )
 
-C = El.DistMultiVec()
 D = El.DistMultiVec()
-El.Uniform( C, A.Height(), numRHS )
-El.Uniform( D, B.Height(), numRHS )
+El.Uniform( D, A.Height(), numRHS )
 if display:
-  El.Display( C, "C" )
   El.Display( D, "D" )
-CNorm = El.FrobeniusNorm( C )
+if output:
+  El.Print( D, "D" )
 DNorm = El.FrobeniusNorm( D )
 
 baseAlpha = 1e-4
 ctrl = El.LeastSquaresCtrl_d()
 ctrl.alpha = baseAlpha
 ctrl.progress = True
+ctrl.equilibrate = False
 ctrl.qsdCtrl.relTol = 1e-10
 ctrl.qsdCtrl.relTolRefine = 1e-12
 ctrl.qsdCtrl.progress = True
-startLSE = time.clock()
-X = El.LSE(A,B,C,D,ctrl)
-endLSE = time.clock()
+startGLM = time.clock()
+X,Y = El.GLM(A,B,D,ctrl)
+endGLM = time.clock()
 if commRank == 0:
-  print "LSE time:", endLSE-startLSE, "seconds"
+  print "GLM time:", endGLM-startGLM, "seconds"
 if display:
   El.Display( X, "X" )
+  El.Display( Y, "Y" )
+if output:
+  El.Print( X, "X" )
+  El.Print( Y, "Y" )
+
+YNorm = El.FrobeniusNorm( Y )
+if commRank == 0:
+  print "|| Y ||_F =", YNorm
 
 E = El.DistMultiVec()
-
-El.Copy( C, E )
+El.Copy( D, E )
 El.SparseMultiply( El.NORMAL, -1., A, X, 1., E )
+El.SparseMultiply( El.NORMAL, -1., B, Y, 1., E )
 residNorm = El.FrobeniusNorm( E )
 if display:
-  El.Display( E, "C - A X" )
+  El.Display( E, "D - A X - B Y" )
+if output:
+  El.Print( E, "D - A X - B Y" )
 if commRank == 0:
-  print "|| C - A X ||_F / || C ||_F =", residNorm/CNorm
-
-El.Copy( D, E )
-El.SparseMultiply( El.NORMAL, -1., B, X, 1., E )
-equalNorm = El.FrobeniusNorm( E )
-if display:
-  El.Display( E, "D - B X" )
-if commRank == 0:
-  print "|| D - B X ||_F / || D ||_F =", equalNorm/DNorm
+  print "|| D - A X - B Y ||_F / || D ||_F =", residNorm/DNorm
 
 # Now try solving a weighted least squares problem
 # (as lambda -> infinity, the exact solution converges to that of LSE)
-def SolveWeighted(A,B,C,D,lambd):
-  BScale = El.DistSparseMatrix()
-  El.Copy( B, BScale )
-  El.Scale( lambd, BScale )
-
-  DScale = El.DistMultiVec()
-  El.Copy( D, DScale ) 
-  El.Scale( lambd, DScale )
-
-  AEmb = El.VCat(A,BScale)
-  CEmb = El.VCat(C,DScale)
+def SolveWeighted(A,B,D,lambd):
+  AScale = El.DistSparseMatrix()
+  El.Copy( A, AScale )
+  El.Scale( lambd, AScale )
+  AEmb = El.HCat(AScale,B)
+  if display:
+    El.Display( AEmb, "[lambda*A, B]" )
+  if output:
+    El.Print( AEmb, "[lambda*A, B]" )
 
   ctrl.alpha = lambd*lambd*baseAlpha
   if commRank == 0:
     print "lambda=", lambd, ": ctrl.alpha=", ctrl.alpha
-  X=El.LeastSquares(AEmb,CEmb,ctrl)
+  XEmb=El.LeastSquares(AEmb,D,ctrl)
 
-  El.Copy( C, E )
-  El.SparseMultiply( El.NORMAL, -1., A, X, 1., E )
-  residNorm = El.FrobeniusNorm( E )
-  if display:
-    El.Display( E, "C - A X" )
+  X = XEmb[0:n0*n1,0:numRHS]
+  Y = XEmb[n0*n1:n0*n1+numColsB,0:numRHS]
+  El.Scale( lambd, X )
+
+  YNorm = El.FrobeniusNorm( Y )
   if commRank == 0:
-    print "lambda=", lambd, ": || C - A X ||_F / || C ||_F =", residNorm/CNorm
+    print "lambda=", lambd, ": || Y ||_F =", YNorm
 
   El.Copy( D, E )
-  El.SparseMultiply( El.NORMAL, -1., B, X, 1., E )
-  equalNorm = El.FrobeniusNorm( E )
-  if display:
-    El.Display( E, "D - B X" )
+  El.SparseMultiply( El.NORMAL, -1., A, X, 1., E )
+  El.SparseMultiply( El.NORMAL, -1., B, Y, 1., E )
+  residNorm = El.FrobeniusNorm( E )
   if commRank == 0:
-    print "lambda=", lambd, ": || D - B X ||_F / || D ||_F =", equalNorm/DNorm
+    print "lambda=", lambd, ": || D - A X - B Y ||_F / || D ||_F =", residNorm/DNorm
 
-SolveWeighted(A,B,C,D,1)
-SolveWeighted(A,B,C,D,10)
-SolveWeighted(A,B,C,D,100)
-SolveWeighted(A,B,C,D,1000)
-SolveWeighted(A,B,C,D,10000)
-SolveWeighted(A,B,C,D,100000)
+SolveWeighted(A,B,D,1)
+SolveWeighted(A,B,D,10)
+SolveWeighted(A,B,D,100)
+SolveWeighted(A,B,D,1000)
+SolveWeighted(A,B,D,10000)
+SolveWeighted(A,B,D,100000)
 
 # Require the user to press a button before the figures are closed
 commSize = El.mpi.Size( El.mpi.COMM_WORLD() )

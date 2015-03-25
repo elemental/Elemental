@@ -319,7 +319,7 @@ class DistMultiVec(object):
     iInd, jInd = indTup
     iRan = IndexRange(iInd)
     jRan = IndexRange(jInd)
-    ASub = DistMultiVecMatrix(self.tag,self.Comm())
+    ASub = DistMultiVec(self.tag,self.Comm())
     args = [self.obj,iRan,jRan,ASub.obj]
     if   self.tag == iTag: lib.ElGetSubmatrixDistMultiVec_i(*args)
     elif self.tag == sTag: lib.ElGetSubmatrixDistMultiVec_s(*args)
