@@ -878,6 +878,72 @@ def SVD(A,vectors=False):
       return s
   else: TypeExcept()
 
+# Product Lanczos
+# ===============
+lib.ElProductLanczosSparse_s.argtypes = \
+lib.ElProductLanczosSparse_d.argtypes = \
+lib.ElProductLanczosSparse_c.argtypes = \
+lib.ElProductLanczosSparse_z.argtypes = \
+lib.ElProductLanczosDistSparse_s.argtypes = \
+lib.ElProductLanczosDistSparse_d.argtypes = \
+lib.ElProductLanczosDistSparse_c.argtypes = \
+lib.ElProductLanczosDistSparse_z.argtypes = \
+  [c_void_p,c_void_p,iType]
+
+def ProductLanczos(A,basisSize=15):
+  T = Matrix(Base(A.tag))
+  args = [A.obj,T.obj,basisSize]
+  if type(A) is SparseMatrix:
+    if   A.tag == sTag: lib.ElProductLanczosSparse_s(*args)
+    elif A.tag == dTag: lib.ElProductLanczosSparse_d(*args)
+    elif A.tag == cTag: lib.ElProductLanczosSparse_c(*args)
+    elif A.tag == zTag: lib.ElProductLanczosSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == sTag: lib.ElProductLanczosDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElProductLanczosDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElProductLanczosDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElProductLanczosDistSparse_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
+  return T
+
+lib.ElProductLanczosDecompSparse_s.argtypes = \
+lib.ElProductLanczosDecompSparse_c.argtypes = \
+lib.ElProductLanczosDecompDistSparse_s.argtypes = \
+lib.ElProductLanczosDecompDistSparse_c.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,POINTER(sType),iType]
+lib.ElProductLanczosDecompSparse_d.argtypes = \
+lib.ElProductLanczosDecompSparse_z.argtypes = \
+lib.ElProductLanczosDecompDistSparse_d.argtypes = \
+lib.ElProductLanczosDecompDistSparse_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,POINTER(dType),iType]
+
+def ProductLanczosDecomp(A,basisSize=15):
+  T = Matrix(Base(A.tag))
+  beta = TagToType(Base(A.tag))()
+  if type(A) is SparseMatrix:
+    V = Matrix(A.tag)
+    v = Matrix(A.tag)
+    args = [A.obj,V.obj,T.obj,v.obj,pointer(beta),basisSize]
+    if   A.tag == sTag: lib.ElProductLanczosDecompSparse_s(*args)
+    elif A.tag == dTag: lib.ElProductLanczosDecompSparse_d(*args)
+    elif A.tag == cTag: lib.ElProductLanczosDecompSparse_c(*args)
+    elif A.tag == zTag: lib.ElProductLanczosDecompSparse_z(*args)
+    else: DataExcept()
+    return V, T, v, beta.value
+  elif type(A) is DistSparseMatrix:
+    V = DistMultiVec(A.tag,A.Comm())
+    v = DistMultiVec(A.tag,A.Comm())
+    args = [A.obj,V.obj,T.obj,v.obj,pointer(beta),basisSize]
+    if   A.tag == sTag: lib.ElProductLanczosDecompDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElProductLanczosDecompDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElProductLanczosDecompDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElProductLanczosDecompDistSparse_z(*args)
+    else: DataExcept()
+    return V, T, v, beta.value
+  else: TypeExcept()
+
 # Pseudospectra
 # =============
 lib.ElSnapshotCtrlDefault.argtypes = \

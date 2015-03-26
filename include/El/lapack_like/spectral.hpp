@@ -468,6 +468,32 @@ void HermitianSVD
   AbstractDistMatrix<Base<F>>& s, AbstractDistMatrix<F>& U, 
   AbstractDistMatrix<F>& V );
 
+// Product Lanczos
+// ===============
+// Form the product Lanczos decomposition
+//
+//    B V = V T + v (beta e_{k-1})^H,
+//
+// where B is either A^H A or A A^H, depending upon which is larger.
+
+template<typename F>
+void ProductLanczos
+( const SparseMatrix<F>& A, Matrix<Base<F>>& T, Int basisSize=15 );
+template<typename F>
+void ProductLanczos
+( const DistSparseMatrix<F>& A, Matrix<Base<F>>& T, Int basisSize=15 );
+
+template<typename F>
+Base<F> ProductLanczosDecomp
+( const SparseMatrix<F>& A, Matrix<F>& V,
+        Matrix<Base<F>>& T, Matrix<F>& v,
+  Int basisSize=15 );
+template<typename F>
+Base<F> ProductLanczosDecomp
+( const DistSparseMatrix<F>& A, DistMultiVec<F>& V,
+        Matrix<Base<F>>& T,     DistMultiVec<F>& v,
+  Int basisSize=15 );
+
 // Pseudospectra
 // =============
 enum PseudospecNorm {

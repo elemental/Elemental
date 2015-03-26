@@ -852,6 +852,60 @@ EL_EXPORT ElError ElSVDDist_c
 EL_EXPORT ElError ElSVDDist_z
 ( ElDistMatrix_z A, ElDistMatrix_d s, ElDistMatrix_z V );
 
+/* Product Lanczos
+   =============== */
+EL_EXPORT ElError ElProductLanczosSparse_s
+( ElConstSparseMatrix_s A, ElMatrix_s T, ElInt basisSize );
+EL_EXPORT ElError ElProductLanczosSparse_d
+( ElConstSparseMatrix_d A, ElMatrix_d T, ElInt basisSize );
+EL_EXPORT ElError ElProductLanczosSparse_c
+( ElConstSparseMatrix_c A, ElMatrix_s T, ElInt basisSize );
+EL_EXPORT ElError ElProductLanczosSparse_z
+( ElConstSparseMatrix_z A, ElMatrix_d T, ElInt basisSize );
+
+EL_EXPORT ElError ElProductLanczosDistSparse_s
+( ElConstDistSparseMatrix_s A, ElMatrix_s T, ElInt basisSize );
+EL_EXPORT ElError ElProductLanczosDistSparse_d
+( ElConstDistSparseMatrix_d A, ElMatrix_d T, ElInt basisSize );
+EL_EXPORT ElError ElProductLanczosDistSparse_c
+( ElConstDistSparseMatrix_c A, ElMatrix_s T, ElInt basisSize );
+EL_EXPORT ElError ElProductLanczosDistSparse_z
+( ElConstDistSparseMatrix_z A, ElMatrix_d T, ElInt basisSize );
+
+EL_EXPORT ElError ElProductLanczosDecompSparse_s
+( ElConstSparseMatrix_s A, ElMatrix_s V,
+  ElMatrix_s T,            ElMatrix_s v, 
+  float* beta, ElInt basisSize );
+EL_EXPORT ElError ElProductLanczosDecompSparse_d
+( ElConstSparseMatrix_d A, ElMatrix_d V,
+  ElMatrix_d T,            ElMatrix_d v, 
+  double* beta, ElInt basisSize );
+EL_EXPORT ElError ElProductLanczosDecompSparse_c
+( ElConstSparseMatrix_c A, ElMatrix_c V,
+  ElMatrix_s T,            ElMatrix_c v, 
+  float* beta, ElInt basisSize );
+EL_EXPORT ElError ElProductLanczosDecompSparse_z
+( ElConstSparseMatrix_z A, ElMatrix_z V,
+  ElMatrix_d T,            ElMatrix_z v, 
+  double* beta, ElInt basisSize );
+
+EL_EXPORT ElError ElProductLanczosDecompDistSparse_s
+( ElConstDistSparseMatrix_s A, ElDistMultiVec_s V,
+  ElMatrix_s T,                ElDistMultiVec_s v, 
+  float* beta, ElInt basisSize );
+EL_EXPORT ElError ElProductLanczosDecompDistSparse_d
+( ElConstDistSparseMatrix_d A, ElDistMultiVec_d V,
+  ElMatrix_d T,                ElDistMultiVec_d v, 
+  double* beta, ElInt basisSize );
+EL_EXPORT ElError ElProductLanczosDecompDistSparse_c
+( ElConstDistSparseMatrix_c A, ElDistMultiVec_c V,
+  ElMatrix_s T,                ElDistMultiVec_c v, 
+  float* beta, ElInt basisSize );
+EL_EXPORT ElError ElProductLanczosDecompDistSparse_z
+( ElConstDistSparseMatrix_z A, ElDistMultiVec_z V,
+  ElMatrix_d T,                ElDistMultiVec_z v, 
+  double* beta, ElInt basisSize );
+
 /* Pseudospectra
    ============= */
 typedef enum {

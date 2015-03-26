@@ -521,7 +521,31 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s, \
     ElDistMatrix_ ## SIG U, ElDistMatrix_ ## SIG V ) \
   { EL_TRY( HermitianSVD( CReflect(uplo), *CReflect(A), \
-      *CReflect(s), *CReflect(U), *CReflect(V) ) ) }
+      *CReflect(s), *CReflect(U), *CReflect(V) ) ) } \
+  /* Product Lanczos
+     =============== */ \
+  ElError ElProductLanczosSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElMatrix_ ## SIGBASE T, \
+    ElInt basisSize ) \
+  { EL_TRY( ProductLanczos( *CReflect(A), *CReflect(T), basisSize ) ) } \
+  ElError ElProductLanczosDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElMatrix_ ## SIGBASE T, \
+    ElInt basisSize ) \
+  { EL_TRY( ProductLanczos( *CReflect(A), *CReflect(T), basisSize ) ) } \
+  ElError ElProductLanczosDecompSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElMatrix_ ## SIG V, \
+    ElMatrix_ ## SIGBASE T,        ElMatrix_ ## SIG v, \
+    Base<F>* beta, ElInt basisSize ) \
+  { EL_TRY( *beta = ProductLanczosDecomp \
+                    ( *CReflect(A), *CReflect(V), \
+                      *CReflect(T), *CReflect(v), basisSize ) ) } \
+  ElError ElProductLanczosDecompDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG V, \
+    ElMatrix_ ## SIGBASE T,            ElDistMultiVec_ ## SIG v, \
+    Base<F>* beta, ElInt basisSize ) \
+  { EL_TRY( *beta = ProductLanczosDecomp \
+                    ( *CReflect(A), *CReflect(V), \
+                      *CReflect(T), *CReflect(v), basisSize ) ) }
 
 #define C_PROTO_COMPLEX_ONLY(SIG,SIGBASE,F) \
   /* Schur decomposition
