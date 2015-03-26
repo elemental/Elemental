@@ -545,7 +545,19 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
     Base<F>* beta, ElInt basisSize ) \
   { EL_TRY( *beta = ProductLanczosDecomp \
                     ( *CReflect(A), *CReflect(V), \
-                      *CReflect(T), *CReflect(v), basisSize ) ) }
+                      *CReflect(T), *CReflect(v), basisSize ) ) } \
+  /* Extremal singular value estimation
+     ================================== */ \
+  ElError ElExtremalSingValEstSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElInt basisSize, \
+    Base<F>* sigMin, Base<F>* sigMax ) \
+  { EL_TRY( auto extremal = ExtremalSingValEst( *CReflect(A), basisSize ); \
+            *sigMin = extremal.first; *sigMax = extremal.second ) } \
+  ElError ElExtremalSingValEstDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElInt basisSize, \
+    Base<F>* sigMin, Base<F>* sigMax ) \
+  { EL_TRY( auto extremal = ExtremalSingValEst( *CReflect(A), basisSize ); \
+            *sigMin = extremal.first; *sigMax = extremal.second ) } 
 
 #define C_PROTO_COMPLEX_ONLY(SIG,SIGBASE,F) \
   /* Schur decomposition

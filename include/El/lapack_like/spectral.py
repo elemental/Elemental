@@ -944,6 +944,38 @@ def ProductLanczosDecomp(A,basisSize=15):
     return V, T, v, beta.value
   else: TypeExcept()
 
+# Extremal singular value estimation
+# ==================================
+lib.ElExtremalSingValEstSparse_s.argtypes = \
+lib.ElExtremalSingValEstSparse_c.argtypes = \
+lib.ElExtremalSingValEstDistSparse_s.argtypes = \
+lib.ElExtremalSingValEstDistSparse_c.argtypes = \
+  [c_void_p,iType,POINTER(sType),POINTER(sType)]
+lib.ElExtremalSingValEstSparse_d.argtypes = \
+lib.ElExtremalSingValEstSparse_z.argtypes = \
+lib.ElExtremalSingValEstDistSparse_d.argtypes = \
+lib.ElExtremalSingValEstDistSparse_z.argtypes = \
+  [c_void_p,iType,POINTER(dType),POINTER(dType)]
+
+def ExtremalSingValEst(A,basisSize=15):
+  sigMin = TagToType(Base(A.tag))()
+  sigMax = TagToType(Base(A.tag))()
+  args = [A.obj,basisSize,pointer(sigMin),pointer(sigMax)]
+  if type(A) is SparseMatrix:
+    if   A.tag == sTag: lib.ElExtremalSingValEstSparse_s(*args)
+    elif A.tag == dTag: lib.ElExtremalSingValEstSparse_d(*args)
+    elif A.tag == cTag: lib.ElExtremalSingValEstSparse_c(*args)
+    elif A.tag == zTag: lib.ElExtremalSingValEstSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == sTag: lib.ElExtremalSingValEstDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElExtremalSingValEstDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElExtremalSingValEstDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElExtremalSingValEstDistSparse_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
+  return sigMin, sigMax
+
 # Pseudospectra
 # =============
 lib.ElSnapshotCtrlDefault.argtypes = \

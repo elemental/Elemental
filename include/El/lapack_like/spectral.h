@@ -906,6 +906,34 @@ EL_EXPORT ElError ElProductLanczosDecompDistSparse_z
   ElMatrix_d T,                ElDistMultiVec_z v, 
   double* beta, ElInt basisSize );
 
+/* Extremal singular value estimation
+   ================================== */
+EL_EXPORT ElError ElExtremalSingValEstSparse_s
+( ElConstSparseMatrix_s A, ElInt basisSize, 
+  float* sigMin, float* sigMax );
+EL_EXPORT ElError ElExtremalSingValEstSparse_d
+( ElConstSparseMatrix_d A, ElInt basisSize, 
+  double* sigMin, double* sigMax );
+EL_EXPORT ElError ElExtremalSingValEstSparse_c
+( ElConstSparseMatrix_c A, ElInt basisSize, 
+  float* sigMin, float* sigMax );
+EL_EXPORT ElError ElExtremalSingValEstSparse_z
+( ElConstSparseMatrix_z A, ElInt basisSize, 
+  double* sigMin, double* sigMax );
+
+EL_EXPORT ElError ElExtremalSingValEstDistSparse_s
+( ElConstDistSparseMatrix_s A, ElInt basisSize, 
+  float* sigMin, float* sigMax );
+EL_EXPORT ElError ElExtremalSingValEstDistSparse_d
+( ElConstDistSparseMatrix_d A, ElInt basisSize, 
+  double* sigMin, double* sigMax );
+EL_EXPORT ElError ElExtremalSingValEstDistSparse_c
+( ElConstDistSparseMatrix_c A, ElInt basisSize, 
+  float* sigMin, float* sigMax );
+EL_EXPORT ElError ElExtremalSingValEstDistSparse_z
+( ElConstDistSparseMatrix_z A, ElInt basisSize, 
+  double* sigMin, double* sigMax );
+
 /* Pseudospectra
    ============= */
 typedef enum {

@@ -494,6 +494,18 @@ Base<F> ProductLanczosDecomp
         Matrix<Base<F>>& T,     DistMultiVec<F>& v,
   Int basisSize=15 );
 
+// Extremal singular value estimates
+// =================================
+// Form a product Lanczos decomposition and use the square-roots of the 
+// Ritz values as estimates of the extremal singular values.
+
+template<typename F>
+pair<Base<F>,Base<F>> 
+ExtremalSingValEst( const SparseMatrix<F>& A, Int basisSize=15 );
+template<typename F>
+pair<Base<F>,Base<F>> 
+ExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize=15 );
+
 // Pseudospectra
 // =============
 enum PseudospecNorm {
