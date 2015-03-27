@@ -186,6 +186,8 @@ void SetImagPartOfSubmatrix
     }
 }
 
+// TODO: DistMultiVec version similar to GetSubmatrix implementation
+
 #define PROTO(T) \
   template void SetSubmatrix \
   (       Matrix<T>& A, \

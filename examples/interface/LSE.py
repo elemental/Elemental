@@ -8,10 +8,11 @@
 #
 import El, time, random
 
-n0 = n1 = 100
+n0 = n1 = 50
 numRowsB = 5
 numRHS = 1
 display = False
+output = False
 commRank = El.mpi.WorldRank()
 
 # NOTE: Increasing the magnitudes of the off-diagonal entries by an order of
@@ -61,6 +62,9 @@ B = Constraints(numRowsB,n0,n1)
 if display:
   El.Display( A, "A" )
   El.Display( B, "B" )
+if output:
+  El.Print( A, "A" )
+  El.Print( B, "B" )
 
 C = El.DistMultiVec()
 D = El.DistMultiVec()
@@ -69,6 +73,9 @@ El.Uniform( D, B.Height(), numRHS )
 if display:
   El.Display( C, "C" )
   El.Display( D, "D" )
+if output:
+  El.Print( C, "C" )
+  El.Print( D, "D" )
 CNorm = El.FrobeniusNorm( C )
 DNorm = El.FrobeniusNorm( D )
 
@@ -76,6 +83,7 @@ baseAlpha = 1e-4
 ctrl = El.LeastSquaresCtrl_d()
 ctrl.alpha = baseAlpha
 ctrl.progress = True
+ctrl.equilibrate = True
 ctrl.qsdCtrl.relTol = 1e-10
 ctrl.qsdCtrl.relTolRefine = 1e-12
 ctrl.qsdCtrl.progress = True
@@ -86,6 +94,8 @@ if commRank == 0:
   print "LSE time:", endLSE-startLSE, "seconds"
 if display:
   El.Display( X, "X" )
+if output:
+  El.Print( X, "X" )
 
 E = El.DistMultiVec()
 
@@ -94,6 +104,8 @@ El.SparseMultiply( El.NORMAL, -1., A, X, 1., E )
 residNorm = El.FrobeniusNorm( E )
 if display:
   El.Display( E, "C - A X" )
+if output:
+  El.Print( E, "C - A X" )
 if commRank == 0:
   print "|| C - A X ||_F / || C ||_F =", residNorm/CNorm
 
@@ -102,6 +114,8 @@ El.SparseMultiply( El.NORMAL, -1., B, X, 1., E )
 equalNorm = El.FrobeniusNorm( E )
 if display:
   El.Display( E, "D - B X" )
+if output:
+  El.Print( E, "D - B X" )
 if commRank == 0:
   print "|| D - B X ||_F / || D ||_F =", equalNorm/DNorm
 
@@ -118,8 +132,10 @@ def SolveWeighted(A,B,C,D,lambd):
 
   AEmb = El.VCat(A,BScale)
   CEmb = El.VCat(C,DScale)
+  if output:
+    El.Print( AEmb, "AEmb" )
 
-  ctrl.alpha = lambd*lambd*baseAlpha
+  ctrl.alpha = baseAlpha
   if commRank == 0:
     print "lambda=", lambd, ": ctrl.alpha=", ctrl.alpha
   X=El.LeastSquares(AEmb,CEmb,ctrl)
@@ -129,6 +145,8 @@ def SolveWeighted(A,B,C,D,lambd):
   residNorm = El.FrobeniusNorm( E )
   if display:
     El.Display( E, "C - A X" )
+  if output:
+    El.Print( E, "C - A X" )
   if commRank == 0:
     print "lambda=", lambd, ": || C - A X ||_F / || C ||_F =", residNorm/CNorm
 
@@ -137,6 +155,8 @@ def SolveWeighted(A,B,C,D,lambd):
   equalNorm = El.FrobeniusNorm( E )
   if display:
     El.Display( E, "D - B X" )
+  if output:
+    El.Print( E, "D - B X" )
   if commRank == 0:
     print "lambda=", lambd, ": || D - B X ||_F / || D ||_F =", equalNorm/DNorm
 

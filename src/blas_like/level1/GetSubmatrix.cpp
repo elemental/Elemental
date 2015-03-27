@@ -659,6 +659,15 @@ void GetSubmatrix
     const int commSize = mpi::Size( comm );
     ASub.SetComm( comm );
     Zeros( ASub, mSub, nSub );
+    
+    // If no communication is necessary, take the easy and fast approach
+    if( mSub == A.Height() )
+    {
+        for( Int j=J.beg; j<J.end; ++j )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+                ASub.SetLocal( iLoc, j-J.beg, A.GetLocal(iLoc,j) );
+        return;
+    }
 
     // Compute the metadata
     // ====================

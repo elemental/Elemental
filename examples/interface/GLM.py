@@ -122,7 +122,7 @@ def SolveWeighted(A,B,D,lambd):
   if output:
     El.Print( AEmb, "[lambda*A, B]" )
 
-  ctrl.alpha = lambd*lambd*baseAlpha
+  ctrl.alpha = baseAlpha
   if commRank == 0:
     print "lambda=", lambd, ": ctrl.alpha=", ctrl.alpha
   XEmb=El.LeastSquares(AEmb,D,ctrl)

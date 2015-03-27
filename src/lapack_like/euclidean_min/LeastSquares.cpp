@@ -297,18 +297,20 @@ void LeastSquares
         Ones( dR, m, 1 );
         Ones( dC, n, 1 );
     }
+    Real normScale = 1;
     if( ctrl.scaleTwoNorm )
     {
         // Scale ABar down to roughly unit two-norm
         auto extremal = ExtremalSingValEst( ABar, ctrl.basisSize ); 
-        Scale( F(1)/extremal.second, ABar );
-        Scale( extremal.second, dR );
         if( ctrl.progress )
             cout << "Estimated || A ||_2 ~= " << extremal.second << endl;
+        normScale = extremal.second;
+        Scale( F(1)/normScale, ABar );
     }
 
     // Equilibrate the RHS
     // ===================
+    Scale( F(1)/normScale, BBar );
     DiagonalSolve( LEFT, NORMAL, dR, BBar );
 
     // Solve the equilibrated least squares problem
@@ -627,18 +629,20 @@ void LeastSquares
         Ones( dR, m, 1 );
         Ones( dC, n, 1 );
     } 
+    Real normScale = 1;
     if( ctrl.scaleTwoNorm )
     {
         // Scale ABar down to roughly unit two-norm
         auto extremal = ExtremalSingValEst( ABar, ctrl.basisSize );
-        Scale( F(1)/extremal.second, ABar );
-        Scale( extremal.second, dR );
         if( ctrl.progress )
             cout << "Estimated || A ||_2 ~= " << extremal.second << endl;
+        normScale = extremal.second;
+        Scale( F(1)/normScale, ABar );
     }
 
     // Equilibrate the RHS
     // ===================
+    Scale( F(1)/normScale, BBar );
     DiagonalSolve( LEFT, NORMAL, dR, BBar );
 
     // Solve the equilibrated least squares problem
