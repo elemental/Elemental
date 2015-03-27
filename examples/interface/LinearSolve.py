@@ -9,7 +9,9 @@
 import El, time
 
 n0 = n1 = 200
+
 display = False
+output = False
 worldRank = El.mpi.WorldRank()
 
 # A 2D finite-difference matrix with a dense last column
@@ -48,6 +50,9 @@ El.Copy( x, y )
 if display:
   El.Display( A, "A" )
   El.Display( y, "y" )
+if output:
+  El.Print( A, "A" )
+  El.Print( y, "y" )
 
 yNrm = El.Nrm2(y)
 rank = El.mpi.WorldRank()
@@ -55,14 +60,16 @@ if rank == 0:
   print "|| y ||_2 =", yNrm
 
 ctrl = El.LeastSquaresCtrl_d()
-ctrl.alpha = 0
+ctrl.scaleTwoNorm = True
+ctrl.basisSize = 15
+ctrl.alpha = 1e-5
 ctrl.equilibrate = True
 ctrl.progress = True
-ctrl.qsdCtrl.regPrimal = 1e-6
-ctrl.qsdCtrl.regDual = 1e-6
+ctrl.qsdCtrl.regPrimal = 0
+ctrl.qsdCtrl.regDual = 1e-8
 ctrl.qsdCtrl.alg = El.REG_REFINE_FGMRES
-ctrl.qsdCtrl.relTol = 1e-9
-ctrl.qsdCtrl.relTolRefine = 1e-12
+ctrl.qsdCtrl.relTol = 1e-12
+ctrl.qsdCtrl.relTolRefine = 1e-18
 ctrl.qsdCtrl.progress = True
 
 solveStart = time.clock()
@@ -72,6 +79,8 @@ if worldRank == 0:
   print "LinearSolve time:", solveStop-solveStart, "seconds"
 if display:
   El.Display( x, "x" )
+if output:
+  El.Print( x, "x" )
 xNrm = El.Nrm2(x)
 if rank == 0:
   print "|| x ||_2 =", xNrm
@@ -79,8 +88,11 @@ if rank == 0:
 El.SparseMultiply(El.NORMAL,-1.,A,x,1.,y)
 if display:
   El.Display( y, "A x - y" )
+if output:
+  El.Print( y, "A x - y" )
 eNrm = El.Nrm2(y)
 if rank == 0:
+  print "|| y ||_2 =", yNrm
   print "|| A x - y ||_2 / || y ||_2 =", eNrm/yNrm
 
 # Require the user to press a button before the figures are closed

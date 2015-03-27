@@ -36,15 +36,27 @@ void LeastSquares
                                         AbstractDistMatrix<F>& X );
 
 template<typename Real>
-struct LeastSquaresCtrl {
+struct LeastSquaresCtrl 
+{
+    bool scaleTwoNorm;
+    Int basisSize; // only used if 'scaleTwoNorm' is true
+
+    // Note: while 'alpha' should ideally be roughly equal to the minimum 
+    //       singular value of A (possibly scaled down to unit two-norm),
+    //       Saunders has recommended in at least one publication that 
+    //       alpha ~= 1e-4 is a decent default. After experimenting with the
+    //       estimation of the minimum singular value via Lanczos on A^H A
+    //       failed (the literature agrees), I fell back to this default value.
     Real alpha;
+
     RegQSDCtrl<Real> qsdCtrl;
     bool equilibrate;
     bool progress;
     bool time;
 
     LeastSquaresCtrl()
-    : alpha(Pow(lapack::MachineEpsilon<Real>(),Real(0.25))),
+    : scaleTwoNorm(true), basisSize(15),
+      alpha(Pow(lapack::MachineEpsilon<Real>(),Real(0.25))),
       equilibrate(true), progress(false), time(false)
     { }
 };

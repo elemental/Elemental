@@ -890,7 +890,7 @@ lib.ElProductLanczosDistSparse_c.argtypes = \
 lib.ElProductLanczosDistSparse_z.argtypes = \
   [c_void_p,c_void_p,iType]
 
-def ProductLanczos(A,basisSize=15):
+def ProductLanczos(A,basisSize=20):
   T = Matrix(Base(A.tag))
   args = [A.obj,T.obj,basisSize]
   if type(A) is SparseMatrix:
@@ -919,7 +919,7 @@ lib.ElProductLanczosDecompDistSparse_d.argtypes = \
 lib.ElProductLanczosDecompDistSparse_z.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,POINTER(dType),iType]
 
-def ProductLanczosDecomp(A,basisSize=15):
+def ProductLanczosDecomp(A,basisSize=20):
   T = Matrix(Base(A.tag))
   beta = TagToType(Base(A.tag))()
   if type(A) is SparseMatrix:
@@ -957,7 +957,7 @@ lib.ElExtremalSingValEstDistSparse_d.argtypes = \
 lib.ElExtremalSingValEstDistSparse_z.argtypes = \
   [c_void_p,iType,POINTER(dType),POINTER(dType)]
 
-def ExtremalSingValEst(A,basisSize=15):
+def ExtremalSingValEst(A,basisSize=20):
   sigMin = TagToType(Base(A.tag))()
   sigMax = TagToType(Base(A.tag))()
   args = [A.obj,basisSize,pointer(sigMin),pointer(sigMax)]

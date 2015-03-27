@@ -478,10 +478,10 @@ void HermitianSVD
 
 template<typename F>
 void ProductLanczos
-( const SparseMatrix<F>& A, Matrix<Base<F>>& T, Int basisSize=15 );
+( const SparseMatrix<F>& A, Matrix<Base<F>>& T, Int basisSize=20 );
 template<typename F>
 void ProductLanczos
-( const DistSparseMatrix<F>& A, Matrix<Base<F>>& T, Int basisSize=15 );
+( const DistSparseMatrix<F>& A, Matrix<Base<F>>& T, Int basisSize=20 );
 
 template<typename F>
 Base<F> ProductLanczosDecomp
@@ -498,13 +498,17 @@ Base<F> ProductLanczosDecomp
 // =================================
 // Form a product Lanczos decomposition and use the square-roots of the 
 // Ritz values as estimates of the extremal singular values.
+//
+// Note that the minimum singular value, which is the first value returned in
+// the pair, is likely to be extremely inaccurate for problems with large
+// condition numbers (but the dominant singular value is likely to be accurate).
 
 template<typename F>
 pair<Base<F>,Base<F>> 
-ExtremalSingValEst( const SparseMatrix<F>& A, Int basisSize=15 );
+ExtremalSingValEst( const SparseMatrix<F>& A, Int basisSize=20 );
 template<typename F>
 pair<Base<F>,Base<F>> 
-ExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize=15 );
+ExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize=20 );
 
 // Pseudospectra
 // =============

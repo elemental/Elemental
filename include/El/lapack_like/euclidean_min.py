@@ -13,12 +13,14 @@ import ctypes
 # Least squares
 # =============
 class LeastSquaresCtrl_s(ctypes.Structure):
-  _fields_ = [("alpha",sType),("qsdCtrl",RegQSDCtrl_s),
+  _fields_ = [("scaleTwoNorm",bType),("basisSize",iType),("alpha",sType),
+              ("qsdCtrl",RegQSDCtrl_s),
               ("equilibrate",bType),("progress",bType),("time",bType)]
   def __init__(self):
     lib.ElLeastSquaresCtrlDefault_s(pointer(self))
 class LeastSquaresCtrl_d(ctypes.Structure):
-  _fields_ = [("alpha",dType),("qsdCtrl",RegQSDCtrl_d),
+  _fields_ = [("scaleTwoNorm",bType),("basisSize",iType),("alpha",dType),
+              ("qsdCtrl",RegQSDCtrl_d),
               ("equilibrate",bType),("progress",bType),("time",bType)]
   def __init__(self):
     lib.ElLeastSquaresCtrlDefault_d(pointer(self))

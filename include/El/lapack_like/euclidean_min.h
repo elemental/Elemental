@@ -81,6 +81,8 @@ EL_EXPORT ElError ElLeastSquaresDistSparse_z
 /* Expert versions
    --------------- */
 typedef struct {
+  bool scaleTwoNorm;
+  ElInt basisSize;
   float alpha;
   ElRegQSDCtrl_s qsdCtrl;
   bool equilibrate;
@@ -90,6 +92,8 @@ typedef struct {
 ElError ElLeastSquaresCtrlDefault_s( ElLeastSquaresCtrl_s* ctrl );
 
 typedef struct {
+  bool scaleTwoNorm;
+  ElInt basisSize;
   double alpha;
   ElRegQSDCtrl_d qsdCtrl;
   bool equilibrate;

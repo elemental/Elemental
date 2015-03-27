@@ -1428,44 +1428,52 @@ inline RegQSDCtrl<double> CReflect( const ElRegQSDCtrl_d& ctrlC )
 inline ElLeastSquaresCtrl_s CReflect( const LeastSquaresCtrl<float>& ctrl )
 {
     ElLeastSquaresCtrl_s ctrlC;
-    ctrlC.alpha       = ctrl.alpha; 
-    ctrlC.qsdCtrl     = CReflect(ctrl.qsdCtrl);
-    ctrlC.equilibrate = ctrl.equilibrate;
-    ctrlC.progress    = ctrl.progress;
-    ctrlC.time        = ctrl.time;
+    ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
+    ctrlC.basisSize    = ctrl.basisSize;
+    ctrlC.alpha        = ctrl.alpha; 
+    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.equilibrate  = ctrl.equilibrate;
+    ctrlC.progress     = ctrl.progress;
+    ctrlC.time         = ctrl.time;
     return ctrlC;
 }
 
 inline ElLeastSquaresCtrl_d CReflect( const LeastSquaresCtrl<double>& ctrl )
 {
     ElLeastSquaresCtrl_d ctrlC;
-    ctrlC.alpha       = ctrl.alpha; 
-    ctrlC.qsdCtrl     = CReflect(ctrl.qsdCtrl);
-    ctrlC.equilibrate = ctrl.equilibrate;
-    ctrlC.progress    = ctrl.progress;
-    ctrlC.time        = ctrl.time;
+    ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
+    ctrlC.basisSize    = ctrl.basisSize;
+    ctrlC.alpha        = ctrl.alpha; 
+    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.equilibrate  = ctrl.equilibrate;
+    ctrlC.progress     = ctrl.progress;
+    ctrlC.time         = ctrl.time;
     return ctrlC;
 }
 
 inline LeastSquaresCtrl<float> CReflect( const ElLeastSquaresCtrl_s& ctrlC )
 {
     LeastSquaresCtrl<float> ctrl;
-    ctrl.alpha       = ctrlC.alpha; 
-    ctrl.qsdCtrl     = CReflect(ctrlC.qsdCtrl);
-    ctrl.equilibrate = ctrlC.equilibrate;
-    ctrl.progress    = ctrlC.progress;
-    ctrl.time        = ctrlC.time;
+    ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
+    ctrl.basisSize    = ctrlC.basisSize;
+    ctrl.alpha        = ctrlC.alpha; 
+    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.equilibrate  = ctrlC.equilibrate;
+    ctrl.progress     = ctrlC.progress;
+    ctrl.time         = ctrlC.time;
     return ctrl;
 }
 
 inline LeastSquaresCtrl<double> CReflect( const ElLeastSquaresCtrl_d& ctrlC )
 {
     LeastSquaresCtrl<double> ctrl;
-    ctrl.alpha       = ctrlC.alpha; 
-    ctrl.qsdCtrl     = CReflect(ctrlC.qsdCtrl);
-    ctrl.equilibrate = ctrlC.equilibrate;
-    ctrl.progress    = ctrlC.progress;
-    ctrl.time        = ctrlC.time;
+    ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
+    ctrl.basisSize    = ctrlC.basisSize;
+    ctrl.alpha        = ctrlC.alpha; 
+    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.equilibrate  = ctrlC.equilibrate;
+    ctrl.progress     = ctrlC.progress;
+    ctrl.time         = ctrlC.time;
     return ctrl;
 }
 

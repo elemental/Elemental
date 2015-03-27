@@ -72,8 +72,10 @@ yNrm = El.Nrm2(y)
 if rank == 0:
   print "|| y ||_2 =", yNrm
 
+ctrl = El.LeastSquaresCtrl_d()
+ctrl.progress = True
 startLS = time.clock()
-x = El.LeastSquares(A,y)
+x = El.LeastSquares(A,y,ctrl)
 endLS = time.clock()
 if worldRank == 0:
   print "LS time:", endLS-startLS, "seconds"

@@ -16,20 +16,11 @@ ExtremalSingValEst( const SparseMatrix<F>& A, Int basisSize )
 {
     DEBUG_ONLY(CallStackEntry cse("ExtremalSingValEst"))
     typedef Base<F> Real;
-    const Int minDim = Min(A.Height(),A.Width());
-
     Matrix<Real> T;
     ProductLanczos( A, T, basisSize );
     const Int k = T.Height();
     if( k == 0 )
-    {
         return pair<Real,Real>(0,0);
-    }
-    else if( k == 1 )
-    {
-        const Real onlySing = Sqrt( Max(T.Get(0,0),0) );
-        return pair<Real,Real>(onlySing,onlySing);
-    }
 
     Matrix<Real> d, dSub;
     d = GetDiagonal( T );
@@ -39,8 +30,8 @@ ExtremalSingValEst( const SparseMatrix<F>& A, Int basisSize )
     HermitianTridiagEig( d, dSub, w, ASCENDING );
     
     pair<Real,Real> extremal;
-    extremal.first = Sqrt( Max(w.Get(0,0),0) );
-    extremal.second = Sqrt( Max(w.Get(minDim-1,0),0) );
+    extremal.first = Sqrt( Max(w.Get(0,0),Real(0)) );
+    extremal.second = Sqrt( Max(w.Get(k-1,0),Real(0)) );
     return extremal;
 }
 
@@ -50,20 +41,11 @@ ExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize )
 {
     DEBUG_ONLY(CallStackEntry cse("ExtremalSingValEst"))
     typedef Base<F> Real;
-    const Int minDim = Min(A.Height(),A.Width());
-
     Matrix<Real> T;
     ProductLanczos( A, T, basisSize );
     const Int k = T.Height();
     if( k == 0 )
-    {
         return pair<Real,Real>(0,0);
-    }
-    else if( k == 1 )
-    {
-        const Real onlySing = Sqrt( Max(T.Get(0,0),0) );
-        return pair<Real,Real>(onlySing,onlySing);
-    }
 
     Matrix<Real> d, dSub;
     d = GetDiagonal( T );
@@ -73,8 +55,8 @@ ExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize )
     HermitianTridiagEig( d, dSub, w, ASCENDING );
     
     pair<Real,Real> extremal;
-    extremal.first = Sqrt( Max(w.Get(0,0),0) );
-    extremal.second = Sqrt( Max(w.Get(minDim-1,0),0) );
+    extremal.first = Sqrt( Max(w.Get(0,0),Real(0)) );
+    extremal.second = Sqrt( Max(w.Get(k-1,0),Real(0)) );
     return extremal;
 }
 
