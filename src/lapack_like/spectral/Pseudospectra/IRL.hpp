@@ -174,6 +174,7 @@ IRL
     vector<Matrix<Real>> HDiagList(numShifts), HSubdiagList(numShifts);
     Matrix<Real> realComponents;
     Matrix<Complex<Real>> components;
+    Matrix<Real> colNorms; 
 
     Matrix<Int> activeConverged;
     Zeros( activeConverged, numShifts, 1 );
@@ -211,7 +212,7 @@ IRL
             timer.Start();
         Matrix<Real> colNorms;
         ColumnNorms( activeVList[0], colNorms );
-        InvBetaScale( colNorms, activeVList[0] );
+        DiagonalSolve( RIGHT, NORMAL, colNorms, activeVList[0] );
         for( Int j=0; j<basisSize; ++j )
         {
             lastActiveEsts = activeEsts;
@@ -286,11 +287,10 @@ IRL
             }
 
             // Compute the norm of what is left
-            ColumnNorms( activeVList[j+1], realComponents );
-            PushBackList( HSubdiagList, realComponents );
-
+            ColumnNorms( activeVList[j+1], colNorms );
+            PushBackList( HSubdiagList, colNorms );
             // TODO: Handle lucky breakdowns
-            InvBetaScale( realComponents, activeVList[j+1] );
+            DiagonalSolve( RIGHT, NORMAL, colNorms, activeVList[j+1] );
 
             ComputeNewEstimates
             ( HDiagList, HSubdiagList, activeConverged, activeEsts );
@@ -421,6 +421,7 @@ IRL
                          HSubdiagList(numMRShifts);
     Matrix<Real> realComponents;
     Matrix<Complex<Real>> components;
+    DistMatrix<Real,MR,STAR> colNorms(g);
 
     DistMatrix<Int,MR,STAR> activeConverged(g);
     Zeros( activeConverged, numShifts, 1 );
@@ -463,7 +464,7 @@ IRL
         }
         DistMatrix<Real,MR,STAR> colNorms(g);
         ColumnNorms( activeVList[0], colNorms );
-        InvBetaScale( colNorms, activeVList[0] );
+        DiagonalSolve( RIGHT, NORMAL, colNorms, activeVList[0] );
         for( Int j=0; j<basisSize; ++j )
         {
             lastActiveEsts = activeEsts;
@@ -557,11 +558,10 @@ IRL
             }
 
             // Compute the norm of what is left
-            ColumnNorms( activeVList[j+1], realComponents );
-            PushBackList( HSubdiagList, realComponents );
-
+            ColumnNorms( activeVList[j+1], colNorms );
+            PushBackList( HSubdiagList, colNorms.Matrix() );
             // TODO: Handle lucky breakdowns
-            InvBetaScale( realComponents, activeVList[j+1] );
+            DiagonalSolve( RIGHT, NORMAL, colNorms, activeVList[j+1] );
 
             ComputeNewEstimates
             ( HDiagList, HSubdiagList, activeConverged, activeEsts );

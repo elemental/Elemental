@@ -277,7 +277,8 @@ Lanczos
     Zeros( estimates, numShifts, 1 );
     auto lastActiveEsts = estimates;
     Matrix<Int> activePreimage;
-    Matrix<Real> realComponents;
+    Matrix<Real> components;
+    Matrix<Real> colNorms;
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );
@@ -335,22 +336,22 @@ Lanczos
         // Orthogonalize with respect to the old iterate
         if( numIts > 0 )
         {
-            ExtractList( HSubdiagList, realComponents, numIts-1 );
-            ColumnSubtractions( realComponents, activeXOld, activeXNew );
+            ExtractList( HSubdiagList, components, numIts-1 );
+            ColumnSubtractions( components, activeXOld, activeXNew );
         }
 
         // Orthogonalize with respect to the last iterate
-        InnerProducts( activeX, activeXNew, realComponents );
-        PushBackList( HDiagList, realComponents );
-        ColumnSubtractions( realComponents, activeX, activeXNew );
+        InnerProducts( activeX, activeXNew, components );
+        PushBackList( HDiagList, components );
+        ColumnSubtractions( components, activeX, activeXNew );
 
         // Compute the norm of what is left
-        ColumnNorms( activeXNew, realComponents );
-        PushBackList( HSubdiagList, realComponents );
+        ColumnNorms( activeXNew, colNorms );
+        PushBackList( HSubdiagList, colNorms );
 
         activeXOld = activeX;
         activeX    = activeXNew; 
-        InvBetaScale( realComponents, activeX );
+        DiagonalSolve( RIGHT, NORMAL, colNorms, activeX );
         if( progress )
             subtimer.Start();
         ComputeNewEstimates( HDiagList, HSubdiagList, activeEsts );
@@ -484,7 +485,8 @@ Lanczos
     Zeros( estimates, numShifts, 1 );
     auto lastActiveEsts = estimates;
     DistMatrix<Int,VR,STAR> activePreimage(g);
-    Matrix<Real> realComponents;
+    Matrix<Real> components;
+    DistMatrix<Real,MR,STAR> colNorms(g);
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );
@@ -568,22 +570,22 @@ Lanczos
         // Orthogonalize with respect to the old iterate
         if( numIts > 0 )
         {
-            ExtractList( HSubdiagList, realComponents, numIts-1 );
-            ColumnSubtractions( realComponents, activeXOld, activeXNew );
+            ExtractList( HSubdiagList, components, numIts-1 );
+            ColumnSubtractions( components, activeXOld, activeXNew );
         }
 
         // Orthogonalize with respect to the last iterate
-        InnerProducts( activeX, activeXNew, realComponents );
-        PushBackList( HDiagList, realComponents );
-        ColumnSubtractions( realComponents, activeX, activeXNew );
+        InnerProducts( activeX, activeXNew, components );
+        PushBackList( HDiagList, components );
+        ColumnSubtractions( components, activeX, activeXNew );
 
         // Compute the norm of what is left
-        ColumnNorms( activeXNew, realComponents );
-        PushBackList( HSubdiagList, realComponents );
+        ColumnNorms( activeXNew, colNorms );
+        PushBackList( HSubdiagList, colNorms.Matrix() );
 
         activeXOld = activeX;
         activeX    = activeXNew;
-        InvBetaScale( realComponents, activeX );
+        DiagonalSolve( RIGHT, NORMAL, colNorms, activeX );
         if( progress )
         {
             mpi::Barrier( g.Comm() );

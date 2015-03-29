@@ -89,8 +89,6 @@ ColumnSubtractions
           LogicError("components assumed to be a column vector");
     )
     const Int numShifts = Y.Width();
-    if( numShifts == 0 )
-        return;
     const Int m = Y.Height();
     for( Int j=0; j<numShifts; ++j )
     {
@@ -112,8 +110,6 @@ ColumnSubtractions
           LogicError("components assumed to be a column vector");
     )
     const Int numShifts = YReal.Width();
-    if( numShifts == 0 )
-        return;
     const Int m = YReal.Height();
     for( Int j=0; j<numShifts; ++j )
     {
@@ -136,9 +132,9 @@ ColumnSubtractions
   const DistMatrix<F>& X, DistMatrix<F>& Y )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("pspec::ColumnSubtractions");
-        if( X.ColAlign() != Y.ColAlign() || X.RowAlign() != Y.RowAlign() )
-            LogicError("X and Y should have been aligned");
+      CallStackEntry cse("pspec::ColumnSubtractions");
+      if( X.ColAlign() != Y.ColAlign() || X.RowAlign() != Y.RowAlign() )
+          LogicError("X and Y should have been aligned");
     )
     ColumnSubtractions( components, X.LockedMatrix(), Y.Matrix() );
 }
@@ -151,10 +147,10 @@ ColumnSubtractions
         DistMatrix<Real>& YReal,       DistMatrix<Real>& YImag )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("pspec::ColumnSubtractions");
-        if( XReal.ColAlign() != YReal.ColAlign() || 
-            XReal.RowAlign() != YReal.RowAlign() )
-            LogicError("X and Y should have been aligned");
+      CallStackEntry cse("pspec::ColumnSubtractions");
+      if( XReal.ColAlign() != YReal.ColAlign() || 
+          XReal.RowAlign() != YReal.RowAlign() )
+          LogicError("X and Y should have been aligned");
     )
     ColumnSubtractions
     ( components, XReal.LockedMatrix(), XImag.LockedMatrix(), 
@@ -322,27 +318,6 @@ InnerProducts
     const Int numLocShifts = XReal.LocalWidth();
     mpi::AllReduce
     ( innerProds.Buffer(), numLocShifts, mpi::SUM, XReal.ColComm() );
-}
-
-template<typename F>
-inline void
-InvBetaScale( const Matrix<Base<F>>& scales, Matrix<F>& Y )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::InvBetaScale"))
-    const Int numShifts = Y.Width();
-    if( numShifts == 0 )
-        return;
-    const Int m = Y.Height();
-    for( Int j=0; j<numShifts; ++j )
-        blas::Scal( m, F(1)/scales.Get(j,0), Y.Buffer(0,j), 1 );
-}
-
-template<typename F>
-inline void
-InvBetaScale( const Matrix<Base<F>>& scales, DistMatrix<F>& Y )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::InvBetaScale"))
-    InvBetaScale( scales, Y.Matrix() );
 }
 
 template<typename F>

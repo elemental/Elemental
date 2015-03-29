@@ -147,33 +147,51 @@ void Broadcast( AbstractBlockDistMatrix<T>& A, mpi::Comm comm, Int rank=0 );
 // ============
 template<typename F>
 void ColumnNorms( const Matrix<F>& X, Matrix<Base<F>>& norms );
+
+template<typename F,Dist U,Dist V>
+void ColumnNorms
+( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,V,STAR>& norms );
+
+template<typename F>
+void ColumnNorms( const DistMultiVec<F>& X, Matrix<Base<F>>& norms );
+
+template<typename F>
+void ColumnNorms( const SparseMatrix<F>& X, Matrix<Base<F>>& norms );
+
+template<typename F>
+void ColumnNorms( const DistSparseMatrix<F>& X, DistMultiVec<Base<F>>& norms );
+
+// Versions which operate on explicitly-separated complex matrices
+// ---------------------------------------------------------------
 template<typename Real>
 void ColumnNorms
 ( const Matrix<Real>& XReal, const Matrix<Real>& XImag, 
   Matrix<Real>& norms );
 
-template<typename F>
-void ColumnNorms
-( const AbstractDistMatrix<F>& X, Matrix<Base<F>>& norms );
-template<typename F,Dist U,Dist V>
-void ColumnNorms
-( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,V,STAR>& norms );
-
-template<typename Real>
-void ColumnNorms
-( const AbstractDistMatrix<Real>& XReal, const AbstractDistMatrix<Real>& XImag, 
-  Matrix<Real>& norms );
 template<typename Real,Dist U,Dist V>
 void ColumnNorms
 ( const DistMatrix<Real,U,V>& XReal, const DistMatrix<Real,U,V>& XImag, 
   DistMatrix<Real,V,STAR>& norms );
 
-template<typename F>
-void ColumnNorms( const DistMultiVec<F>& X, Matrix<Base<F>>& norms );
 template<typename Real>
 void ColumnNorms
 ( const DistMultiVec<Real>& XReal, const DistMultiVec<Real>& XImag, 
   Matrix<Real>& norms );
+
+// Row norms
+// =========
+template<typename F>
+void RowNorms( const Matrix<F>& X, Matrix<Base<F>>& norms );
+
+template<typename F,Dist U,Dist V>
+void RowNorms
+( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,U,STAR>& norms );
+
+template<typename F>
+void RowNorms( const SparseMatrix<F>& X, Matrix<Base<F>>& norms );
+
+template<typename F>
+void RowNorms( const DistSparseMatrix<F>& X, DistMultiVec<Base<F>>& norms );
 
 // Concatenation
 // =============

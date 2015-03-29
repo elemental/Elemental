@@ -19,50 +19,8 @@ void ColumnNorms( const Matrix<F>& X, Matrix<Base<F>>& norms )
     norms.Resize( n, 1 );
     for( Int j=0; j<n; ++j )
     {
-        const Base<F> alpha = blas::Nrm2( m, X.LockedBuffer(0,j), 1 );
+        Base<F> alpha = blas::Nrm2( m, X.LockedBuffer(0,j), 1 );
         norms.Set( j, 0, alpha );
-    }
-}
-
-template<typename Real>
-void ColumnNorms
-( const Matrix<Real>& XReal, const Matrix<Real>& XImag, Matrix<Real>& norms )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
-    const Int m = XReal.Height();
-    const Int n = XReal.Width();
-    norms.Resize( n, 1 );
-    for( Int j=0; j<n; ++j )
-    {
-        const Real alpha = blas::Nrm2( m, XReal.LockedBuffer(0,j), 1 );
-        const Real beta  = blas::Nrm2( m, XImag.LockedBuffer(0,j), 1 );
-        norms.Set( j, 0, lapack::SafeNorm(alpha,beta) );
-    }
-}
-
-template<typename F>
-void ColumnNorms( const AbstractDistMatrix<F>& A, Matrix<Base<F>>& norms )
-{
-    DEBUG_ONLY(CallStackEntry cse("ColumnNorms"))
-    if( !A.Participating() )
-        LogicError("This process must be participating");
-    typedef Base<F> Real;
-    const Int mLocal = A.LocalHeight();
-    const Int nLocal = A.LocalWidth();
-
-    // TODO: Switch to more stable parallel norm computation using scaling
-    norms.Resize( nLocal, 1 );
-    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-    {
-        const Base<F> localNorm = blas::Nrm2(mLocal,A.LockedBuffer(0,jLoc),1);
-        norms.Set( jLoc, 0, localNorm*localNorm );
-    }
-
-    mpi::AllReduce( norms.Buffer(), nLocal, mpi::SUM, A.ColComm() );
-    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-    {
-        const Real alpha = norms.Get(jLoc,0);
-        norms.Set( jLoc, 0, Sqrt(alpha) );
     }
 }
 
@@ -71,7 +29,6 @@ void ColumnNorms
 ( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,V,STAR>& norms )
 {
     DEBUG_ONLY(CallStackEntry cse("ColumnNorms"))
-    typedef Base<F> Real;
     const Int n = A.Width();
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
@@ -81,82 +38,13 @@ void ColumnNorms
     norms.Resize( n, 1 );
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
-        const Base<F> localNorm = blas::Nrm2(mLocal,A.LockedBuffer(0,jLoc),1);
+        Base<F> localNorm = blas::Nrm2(mLocal,A.LockedBuffer(0,jLoc),1);
         norms.SetLocal( jLoc, 0, localNorm*localNorm );
     }
 
     mpi::AllReduce( norms.Buffer(), nLocal, mpi::SUM, A.ColComm() );
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-    {
-        const Real alpha = norms.GetLocal(jLoc,0);
-        norms.SetLocal( jLoc, 0, Sqrt(alpha) );
-    }
-}
-
-template<typename Real>
-void ColumnNorms
-( const AbstractDistMatrix<Real>& XReal,
-  const AbstractDistMatrix<Real>& XImag, Matrix<Real>& norms )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
-    AssertSameDists( XReal, XImag );
-    if( XReal.ColAlign() != XImag.ColAlign() ||
-        XReal.RowAlign() != XImag.RowAlign() )
-        LogicError("XReal and XImag must have the same alignments");
-    if( XReal.Height() != XImag.Height() ||
-        XReal.Width() != XImag.Width() )
-        LogicError("XReal and XImag must be the same size");
-    if( !XReal.Participating() || !XImag.Participating() )
-        LogicError("This process must be participating in XReal and XImag");
-    const Int mLocal = XReal.LocalHeight();
-    const Int nLocal = XReal.LocalWidth();
-
-    // TODO: Switch to more stable parallel norm computation using scaling
-    norms.Resize( nLocal, 1 );
-    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-    {
-        const Real alpha = blas::Nrm2(mLocal,XReal.LockedBuffer(0,jLoc),1);
-        const Real beta = blas::Nrm2(mLocal,XImag.LockedBuffer(0,jLoc),1);
-        const Real gamma = lapack::SafeNorm(alpha,beta);
-        norms.Set( jLoc, 0, gamma*gamma );
-    }
-
-    mpi::AllReduce( norms.Buffer(), nLocal, mpi::SUM, XReal.ColComm() );
-    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-    {
-        const Real alpha = norms.Get(jLoc,0);
-        norms.Set( jLoc, 0, Sqrt(alpha) );
-    }
-}
-
-template<typename Real,Dist U,Dist V>
-void ColumnNorms
-( const DistMatrix<Real,U,V>& XReal,
-  const DistMatrix<Real,U,V>& XImag, DistMatrix<Real,V,STAR>& norms )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
-    if( XReal.RowAlign() != norms.ColAlign() )
-        LogicError("Invalid norms alignment");
-    const Int n = XReal.Width();
-    const Int mLocal = XReal.LocalHeight();
-    const Int nLocal = XReal.LocalWidth();
-
-    // TODO: Switch to more stable parallel norm computation using scaling
-    norms.Resize( n, 1 );
-    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-    {
-        const Real alpha = blas::Nrm2(mLocal,XReal.LockedBuffer(0,jLoc),1);
-        const Real beta = blas::Nrm2(mLocal,XImag.LockedBuffer(0,jLoc),1);
-        const Real gamma = lapack::SafeNorm(alpha,beta);
-        norms.SetLocal( jLoc, 0, gamma*gamma );
-    }
-
-    mpi::AllReduce( norms.Buffer(), nLocal, mpi::SUM, XReal.ColComm() );
-    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-    {
-        const Real alpha = norms.GetLocal(jLoc,0);
-        norms.SetLocal( jLoc, 0, Sqrt(alpha) );
-    }
+        norms.SetLocal( jLoc, 0, Sqrt(norms.GetLocal(jLoc,0)) );
 }
 
 template<typename F>
@@ -187,7 +75,7 @@ void ColumnNorms( const DistMultiVec<F>& X, Matrix<Base<F>>& norms )
 
     // Find the maximum relative scales
     vector<Real> scales( width );
-    mpi::AllReduce( &localScales[0], &scales[0], width, mpi::MAX, comm );
+    mpi::AllReduce( localScales.data(), scales.data(), width, mpi::MAX, comm );
 
     // Equilibrate the local scaled sums
     for( Int j=0; j<width; ++j )
@@ -206,9 +94,72 @@ void ColumnNorms( const DistMultiVec<F>& X, Matrix<Base<F>>& norms )
     // Combine the local contributions
     vector<Real> scaledSquares( width );
     mpi::AllReduce
-    ( &localScaledSquares[0], &scaledSquares[0], width, mpi::SUM, comm );
+    ( localScaledSquares.data(), scaledSquares.data(), width, mpi::SUM, comm );
     for( Int j=0; j<width; ++j )
         norms.Set( j, 0, scales[j]*Sqrt(scaledSquares[j]) );
+}
+
+template<typename F>
+void ColumnNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
+{
+    DEBUG_ONLY(CallStackEntry cse("ColumnNorms"))
+    SparseMatrix<F> ATrans;
+    Transpose( A, ATrans );
+    RowNorms( ATrans, norms );
+}
+
+template<typename F>
+void ColumnNorms( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
+{
+    DEBUG_ONLY(CallStackEntry cse("ColumnNorms"))
+    DistSparseMatrix<F> ATrans(A.Comm());
+    Transpose( A, ATrans );
+    RowNorms( ATrans, norms );
+}
+
+// Versions which operate on explicitly-separated complex matrices
+// ===============================================================
+template<typename Real>
+void ColumnNorms
+( const Matrix<Real>& XReal, const Matrix<Real>& XImag, Matrix<Real>& norms )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
+    const Int m = XReal.Height();
+    const Int n = XReal.Width();
+    norms.Resize( n, 1 );
+    for( Int j=0; j<n; ++j )
+    {
+        Real alpha = blas::Nrm2( m, XReal.LockedBuffer(0,j), 1 );
+        Real beta  = blas::Nrm2( m, XImag.LockedBuffer(0,j), 1 );
+        norms.Set( j, 0, lapack::SafeNorm(alpha,beta) );
+    }
+}
+
+template<typename Real,Dist U,Dist V>
+void ColumnNorms
+( const DistMatrix<Real,U,V>& XReal,
+  const DistMatrix<Real,U,V>& XImag, DistMatrix<Real,V,STAR>& norms )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
+    if( XReal.RowAlign() != norms.ColAlign() )
+        LogicError("Invalid norms alignment");
+    const Int n = XReal.Width();
+    const Int mLocal = XReal.LocalHeight();
+    const Int nLocal = XReal.LocalWidth();
+
+    // TODO: Switch to more stable parallel norm computation using scaling
+    norms.Resize( n, 1 );
+    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+    {
+        Real alpha = blas::Nrm2(mLocal,XReal.LockedBuffer(0,jLoc),1);
+        Real beta = blas::Nrm2(mLocal,XImag.LockedBuffer(0,jLoc),1);
+        Real gamma = lapack::SafeNorm(alpha,beta);
+        norms.SetLocal( jLoc, 0, gamma*gamma );
+    }
+
+    mpi::AllReduce( norms.Buffer(), nLocal, mpi::SUM, XReal.ColComm() );
+    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+        norms.SetLocal( jLoc, 0, Sqrt(norms.GetLocal(jLoc,0)) );
 }
 
 template<typename Real>
@@ -228,7 +179,9 @@ void ColumnNorms
   template void ColumnNorms \
   ( const Matrix<F>& X, Matrix<Base<F>>& norms ); \
   template void ColumnNorms \
-  ( const AbstractDistMatrix<F>& X, Matrix<Base<F>>& norms ); \
+  ( const SparseMatrix<F>& A, Matrix<Base<F>>& norms ); \
+  template void ColumnNorms \
+  ( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms ); \
   template void ColumnNorms \
   ( const DistMultiVec<F>& X, Matrix<Base<F>>& norms ); \
   PROTO_DIST(F,MC,  MR  ) \
@@ -254,10 +207,6 @@ void ColumnNorms
   PROTO(Real) \
   template void ColumnNorms \
   ( const Matrix<Real>& XReal, const Matrix<Real>& XImag, \
-    Matrix<Real>& norms ); \
-  template void ColumnNorms \
-  ( const AbstractDistMatrix<Real>& XReal, \
-    const AbstractDistMatrix<Real>& XImag, \
     Matrix<Real>& norms ); \
   template void ColumnNorms \
   ( const DistMultiVec<Real>& XReal, const DistMultiVec<Real>& XImag, \

@@ -213,7 +213,7 @@ Restart
     DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
     const Int basisSize = HList[0].Width();
     vector<Matrix<Real>> VRealLocList(basisSize+1),
-                              VImagLocList(basisSize+1);
+                         VImagLocList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
     {
         VRealLocList[j] = View( VRealList[j].Matrix() );
@@ -268,8 +268,8 @@ IRA
         Zeros( VList[j], n, numShifts );
     Gaussian( VList[0], n, numShifts );
     vector<Matrix<Complex<Real>>> HList(numShifts);
-    Matrix<Real> realComponents;
     Matrix<Complex<Real>> components;
+    Matrix<Real> colNorms;
 
     Matrix<Int> activeConverged;
     Zeros( activeConverged, numShifts, 1 );
@@ -301,8 +301,8 @@ IRA
 
         if( progress )
             timer.Start();
-        ColumnNorms( activeVList[0], realComponents );
-        InvBetaScale( realComponents, activeVList[0] );
+        ColumnNorms( activeVList[0], colNorms );
+        DiagonalSolve( RIGHT, NORMAL, colNorms, activeVList[0] );
         for( Int j=0; j<basisSize; ++j )
         {
             lastActiveEsts = activeEsts;
@@ -385,11 +385,10 @@ IRA
             }
 
             // Compute the norm of what is left
-            ColumnNorms( activeVList[j+1], realComponents );
-            PlaceList( HList, realComponents, j+1, j );
-
+            ColumnNorms( activeVList[j+1], colNorms );
+            PlaceList( HList, colNorms, j+1, j );
             // TODO: Handle lucky breakdowns
-            InvBetaScale( realComponents, activeVList[j+1] );
+            DiagonalSolve( RIGHT, NORMAL, colNorms, activeVList[j+1] );
 
             ComputeNewEstimates( HList, activeConverged, activeEsts, j+1 );
             // We will have the same estimate two iterations in a row when
@@ -492,8 +491,8 @@ IRA
     Gaussian( VRealList[0], n, numShifts );
     Gaussian( VImagList[0], n, numShifts );
     vector<Matrix<Complex<Real>>> HList(numShifts);
-    Matrix<Real> realComponents;
     Matrix<Complex<Real>> components;
+    Matrix<Real> colNorms;
 
     Matrix<Int> activeConverged;
     Zeros( activeConverged, numShifts, 1 );
@@ -528,9 +527,9 @@ IRA
 
         if( progress )
             timer.Start();
-        ColumnNorms( activeVRealList[0], activeVImagList[0], realComponents );
-        InvBetaScale( realComponents, activeVRealList[0] );
-        InvBetaScale( realComponents, activeVImagList[0] );
+        ColumnNorms( activeVRealList[0], activeVImagList[0], colNorms );
+        DiagonalSolve( RIGHT, NORMAL, colNorms, activeVRealList[0] );
+        DiagonalSolve( RIGHT, NORMAL, colNorms, activeVImagList[0] );
         for( Int j=0; j<basisSize; ++j )
         {
             lastActiveEsts = activeEsts;
@@ -596,13 +595,11 @@ IRA
             }
 
             // Compute the norm of what is left
-            ColumnNorms
-            ( activeVRealList[j+1], activeVImagList[j+1], realComponents );
-            PlaceList( HList, realComponents, j+1, j );
-
+            ColumnNorms( activeVRealList[j+1], activeVImagList[j+1], colNorms );
+            PlaceList( HList, colNorms, j+1, j );
             // TODO: Handle lucky breakdowns
-            InvBetaScale( realComponents, activeVRealList[j+1] );
-            InvBetaScale( realComponents, activeVImagList[j+1] );
+            DiagonalSolve( RIGHT, NORMAL, colNorms, activeVRealList[j+1] );
+            DiagonalSolve( RIGHT, NORMAL, colNorms, activeVImagList[j+1] );
 
             ComputeNewEstimates( HList, activeConverged, activeEsts, j+1 );
             // We will have the same estimate two iterations in a row when
@@ -728,8 +725,8 @@ IRA
     Gaussian( VList[0], n, numShifts );
     const Int numMRShifts = VList[0].LocalWidth();
     vector<Matrix<Complex<Real>>> HList(numMRShifts);
-    Matrix<Real> realComponents;
     Matrix<Complex<Real>> components;
+    DistMatrix<Real,MR,STAR> colNorms(g);
 
     DistMatrix<Int,MR,STAR> activeConverged(g);
     Zeros( activeConverged, numShifts, 1 );
@@ -765,8 +762,8 @@ IRA
             if( g.Rank() == 0 )
                 timer.Start();
         }
-        ColumnNorms( activeVList[0], realComponents );
-        InvBetaScale( realComponents, activeVList[0] );
+        ColumnNorms( activeVList[0], colNorms );
+        DiagonalSolve( RIGHT, NORMAL, colNorms, activeVList[0] );
         for( Int j=0; j<basisSize; ++j )
         {
             lastActiveEsts = activeEsts;
@@ -868,11 +865,10 @@ IRA
             }
 
             // Compute the norm of what is left
-            ColumnNorms( activeVList[j+1], realComponents );
-            PlaceList( HList, realComponents, j+1, j );
-
+            ColumnNorms( activeVList[j+1], colNorms );
+            PlaceList( HList, colNorms.Matrix(), j+1, j );
             // TODO: Handle lucky breakdowns
-            InvBetaScale( realComponents, activeVList[j+1] );
+            DiagonalSolve( RIGHT, NORMAL, colNorms, activeVList[j+1] );
 
             ComputeNewEstimates( HList, activeConverged, activeEsts, j+1 );
             // We will have the same estimate two iterations in a row when
@@ -1008,8 +1004,8 @@ IRA
     Gaussian( VImagList[0], n, numShifts );
     const Int numMRShifts = VRealList[0].LocalWidth();
     vector<Matrix<Complex<Real>>> HList(numMRShifts);
-    Matrix<Real> realComponents;
     Matrix<Complex<Real>> components;
+    DistMatrix<Real,MR,STAR> colNorms(g);
 
     DistMatrix<Int,MR,STAR> activeConverged(g);
     Zeros( activeConverged, numShifts, 1 );
@@ -1048,9 +1044,9 @@ IRA
             if( g.Rank() == 0 )
                 timer.Start();
         }
-        ColumnNorms( activeVRealList[0], activeVImagList[0], realComponents );
-        InvBetaScale( realComponents, activeVRealList[0] );
-        InvBetaScale( realComponents, activeVImagList[0] );
+        ColumnNorms( activeVRealList[0], activeVImagList[0], colNorms );
+        DiagonalSolve( RIGHT, NORMAL, colNorms, activeVRealList[0] );
+        DiagonalSolve( RIGHT, NORMAL, colNorms, activeVImagList[0] );
         for( Int j=0; j<basisSize; ++j )
         {
             lastActiveEsts = activeEsts;
@@ -1125,13 +1121,11 @@ IRA
             }
 
             // Compute the norm of what is left
-            ColumnNorms
-            ( activeVRealList[j+1], activeVImagList[j+1], realComponents );
-            PlaceList( HList, realComponents, j+1, j );
-
+            ColumnNorms( activeVRealList[j+1], activeVImagList[j+1], colNorms );
+            PlaceList( HList, colNorms.Matrix(), j+1, j );
             // TODO: Handle lucky breakdowns
-            InvBetaScale( realComponents, activeVRealList[j+1] );
-            InvBetaScale( realComponents, activeVImagList[j+1] );
+            DiagonalSolve( RIGHT, NORMAL, colNorms, activeVRealList[j+1] );
+            DiagonalSolve( RIGHT, NORMAL, colNorms, activeVImagList[j+1] );
 
             ComputeNewEstimates( HList, activeConverged, activeEsts, j+1 );
             // We will have the same estimate two iterations in a row when
