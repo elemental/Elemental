@@ -151,7 +151,6 @@ template<typename F>
 inline void Equilibrated
 ( const SparseMatrix<F>& A,  const Matrix<F>& B, 
         Matrix<F>& X,
-  const Matrix<Base<F>>& dR, const Matrix<Base<F>>& dC,
   Base<F> alpha, const RegQSDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(
@@ -171,27 +170,27 @@ inline void Equilibrated
     J.Reserve( 2*numEntriesA + Max(m,n) );
     if( m >= n )
     {
-        // Form J = [D_r^{-2}*alpha, A; A^H, 0]
-        // ====================================
+        // Form J = [alpha*I, A; A^H, 0]
+        // =============================
         for( Int e=0; e<numEntriesA; ++e )
         {
             J.QueueUpdate( A.Row(e),   A.Col(e)+m,      A.Value(e)  );
             J.QueueUpdate( A.Col(e)+m, A.Row(e),   Conj(A.Value(e)) );
         }
         for( Int e=0; e<m; ++e )
-            J.QueueUpdate( e, e, Pow(dR.Get(e,0),Real(-2))*alpha );
+            J.QueueUpdate( e, e, alpha );
     }
     else
     {
-        // Form J = [D_c^{-2}*alpha, A^H; A, 0]
-        // ====================================
+        // Form J = [alpha, A^H; A, 0]
+        // ===========================
         for( Int e=0; e<numEntriesA; ++e )
         {
             J.QueueUpdate( A.Col(e),   A.Row(e)+n, Conj(A.Value(e)) );
             J.QueueUpdate( A.Row(e)+n, A.Col(e),        A.Value(e)  );
         }
         for( Int e=0; e<n; ++e )
-            J.QueueUpdate( e, e, Pow(dC.Get(e,0),Real(-2))*alpha );
+            J.QueueUpdate( e, e, alpha );
     }
     J.MakeConsistent();
 
@@ -290,7 +289,18 @@ void LeastSquares
     Matrix<Real> dR, dC;
     if( ctrl.equilibrate )
     {
-        GeomEquil( ABar, dR, dC, ctrl.progress );
+        if( m >= n )
+        {
+            ColumnNorms( ABar, dC );
+            DiagonalSolve( RIGHT, NORMAL, dC, ABar );
+            Ones( dR, m, 1 );
+        }
+        else
+        {
+            RowNorms( ABar, dR );
+            DiagonalSolve( LEFT, NORMAL, dR, ABar );
+            Ones( dC, n, 1 );
+        }
     }
     else
     {
@@ -306,16 +316,16 @@ void LeastSquares
             cout << "Estimated || A ||_2 ~= " << extremal.second << endl;
         normScale = extremal.second;
         Scale( F(1)/normScale, ABar );
+        Scale( normScale, dR );
     }
 
     // Equilibrate the RHS
     // ===================
-    Scale( F(1)/normScale, BBar );
     DiagonalSolve( LEFT, NORMAL, dR, BBar );
 
     // Solve the equilibrated least squares problem
     // ============================================
-    ls::Equilibrated( ABar, BBar, X, dR, dC, ctrl.alpha, ctrl.qsdCtrl );
+    ls::Equilibrated( ABar, BBar, X, ctrl.alpha, ctrl.qsdCtrl );
 
     // Unequilibrate the solution
     // ==========================
@@ -326,9 +336,8 @@ namespace ls {
 
 template<typename F>
 void Equilibrated
-( const DistSparseMatrix<F>& A,    const DistMultiVec<F>& B, 
+( const DistSparseMatrix<F>& A,  const DistMultiVec<F>& B, 
         DistMultiVec<F>& X,
-  const DistMultiVec<Base<F>>& dR, const DistMultiVec<Base<F>>& dC,
   Base<F> alpha, const RegQSDCtrl<Base<F>>& ctrl, bool time )
 {
     DEBUG_ONLY(
@@ -346,10 +355,21 @@ void Equilibrated
     const Int n = A.Width();
     const Int numRHS = B.Width();
 
-    // J := [D_r^{-2}*alpha,A;A^H,0] or [D_c^{-2}*alpha,A^H;A,0]
-    // =========================================================
+    // J := [alpha*I,A;A^H,0] or [alpha*I,A^H;A,0]
+    // ===========================================
     DistSparseMatrix<F> J(comm);
     Zeros( J, m+n, m+n );
+    // Count the number of local alpha updates
+    // ---------------------------------------
+    Int numAlphaUpdates = 0;
+    for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
+    {
+        const Int i = J.GlobalRow(iLoc);
+        if( i < Max(m,n) )
+            ++numAlphaUpdates;
+        else
+            break;
+    }
     const Int numLocalEntriesA = A.NumLocalEntries();
     {
         // Compute metadata
@@ -374,20 +394,10 @@ void Equilibrated
                 ++sendCounts[ J.RowOwner(j) ];
             }
         }
-        if( m >= n )
-        {
-            for( Int iLoc=0; iLoc<dR.LocalHeight(); ++iLoc )
-                ++sendCounts[ J.RowOwner(dR.GlobalRow(iLoc)) ];
-        }
-        else
-        {
-            for( Int iLoc=0; iLoc<dC.LocalHeight(); ++iLoc )
-                ++sendCounts[ J.RowOwner(dC.GlobalRow(iLoc)) ];
-        }
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
         // Pack
         // ----
+        vector<int> sendOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
         vector<ValueIntPair<F>> sendBuf(totalSend);
         auto offs = sendOffs;
         for( Int e=0; e<numLocalEntriesA; ++e )
@@ -429,37 +439,18 @@ void Equilibrated
                 ++offs[owner];
             }
         }
-        if( m >= n )
-        {
-            for( Int iLoc=0; iLoc<dR.LocalHeight(); ++iLoc )
-            {
-                const Int i = dR.GlobalRow(iLoc);
-                const int owner = J.RowOwner(i);
-                sendBuf[offs[owner]].indices[0] = i; 
-                sendBuf[offs[owner]].indices[1] = i;
-                sendBuf[offs[owner]].value = 
-                    Pow(dR.GetLocal(iLoc,0),Real(-2))*alpha;
-                ++offs[owner];
-            }
-        }
-        else
-        {
-            for( Int iLoc=0; iLoc<dC.LocalHeight(); ++iLoc )
-            {
-                const Int i = dC.GlobalRow(iLoc);
-                const int owner = J.RowOwner(i);
-                sendBuf[offs[owner]].indices[0] = i; 
-                sendBuf[offs[owner]].indices[1] = i;
-                sendBuf[offs[owner]].value = 
-                    Pow(dC.GetLocal(iLoc,0),Real(-2))*alpha;
-                ++offs[owner];
-            }
-        }
-
         // Exchange and unpack
         // -------------------
         auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        J.Reserve( recvBuf.size() );
+        J.Reserve( recvBuf.size()+numAlphaUpdates );
+        for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
+        {
+            const Int i = J.GlobalRow(iLoc);
+            if( i < Max(m,n) )
+                J.QueueLocalUpdate( iLoc, i, alpha );
+            else
+                break;
+        }
         for( auto& entry : recvBuf )
             J.QueueLocalUpdate
             ( entry.indices[0]-J.FirstLocalRow(), entry.indices[1], 
@@ -483,10 +474,10 @@ void Equilibrated
             else
                 sendCounts[ D.RowOwner(i+n) ] += numRHS;
         }
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
         // Pack
         // ----
+        vector<int> sendOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
         vector<ValueIntPair<F>> sendBuf(totalSend);
         auto offs = sendOffs;
         for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
@@ -599,8 +590,6 @@ void LeastSquares
     DEBUG_ONLY(CallStackEntry cse("LeastSquares"))
     typedef Base<F> Real;
     mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank(comm);
-    Timer timer;
 
     DistSparseMatrix<F> ABar(comm);
     if( orientation == NORMAL )
@@ -618,11 +607,18 @@ void LeastSquares
     DistMultiVec<Real> dR(comm), dC(comm);
     if( ctrl.equilibrate )
     {
-        if( commRank == 0 && time )
-            timer.Start();
-        GeomEquil( ABar, dR, dC, ctrl.progress );
-        if( commRank == 0 && time )
-            cout << "  GeomEquil: " << timer.Stop() << " secs" << endl;
+        if( m >= n )
+        {
+            ColumnNorms( ABar, dC );
+            DiagonalSolve( RIGHT, NORMAL, dC, ABar );
+            Ones( dR, m, 1 );
+        }
+        else
+        {
+            RowNorms( ABar, dR );
+            DiagonalSolve( LEFT, NORMAL, dR, ABar );
+            Ones( dC, n, 1 );
+        }
     }
     else
     {
@@ -638,17 +634,16 @@ void LeastSquares
             cout << "Estimated || A ||_2 ~= " << extremal.second << endl;
         normScale = extremal.second;
         Scale( F(1)/normScale, ABar );
+        Scale( normScale, dR );
     }
 
     // Equilibrate the RHS
     // ===================
-    Scale( F(1)/normScale, BBar );
     DiagonalSolve( LEFT, NORMAL, dR, BBar );
 
     // Solve the equilibrated least squares problem
     // ============================================
-    ls::Equilibrated
-    ( ABar, BBar, X, dR, dC, ctrl.alpha, ctrl.qsdCtrl, ctrl.time );
+    ls::Equilibrated( ABar, BBar, X, ctrl.alpha, ctrl.qsdCtrl, ctrl.time );
 
     // Unequilibrate the solution
     // ==========================

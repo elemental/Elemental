@@ -288,32 +288,31 @@ void LSE
     const Int n = A.Width();
     const Int k = B.Height();
     const Int numRHS = C.Width();
-    const Int numEntriesA = A.NumEntries();
-    const Int numEntriesB = B.NumEntries();
 
-    // Form the augmented matrix
-    // =========================
-    //
-    //         | 0     A^H    B^H |
-    //     J = | A  -alpha*I   0  |
-    //         | B      0      0  |
-    //
-    SparseMatrix<F> J; 
-    Zeros( J, n+m+k, n+m+k );
-    J.Reserve( 2*numEntriesA+2*numEntriesB+m ); 
-    for( Int e=0; e<numEntriesA; ++e )
+    // Rescale W = [ A; B ]
+    // ====================
+    Matrix<Real> dC;
+    SparseMatrix<F> W;
+    VCat( A, B, W );
+    if( ctrl.equilibrate )
     {
-        J.QueueUpdate( A.Row(e)+n, A.Col(e),        A.Value(e)  );
-        J.QueueUpdate( A.Col(e),   A.Row(e)+n, Conj(A.Value(e)) );
+        ColumnNorms( W, dC );
+        DiagonalSolve( RIGHT, NORMAL, dC, W );
     }
-    for( Int e=0; e<numEntriesB; ++e )
+    else
     {
-        J.QueueUpdate( B.Row(e)+n+m, B.Col(e),          B.Value(e)  );
-        J.QueueUpdate( B.Col(e),     B.Row(e)+n+m, Conj(B.Value(e)) );
+        Ones( dC, n, 1 );
     }
-    for( Int e=0; e<m; ++e )
-        J.QueueUpdate( e+n, e+n, -ctrl.alpha );
-    J.MakeConsistent();
+    Real normScale = 1;
+    if( ctrl.scaleTwoNorm )
+    {
+        auto extremal = ExtremalSingValEst( W, ctrl.basisSize );
+        if( ctrl.progress )
+            cout << "Estimated || A ||_2 ~= " << extremal.second << endl;
+        normScale = extremal.second;
+        Scale( F(1)/normScale, W );
+        Scale( normScale, dC );
+    }
 
     // Form the augmented RHS
     // ======================
@@ -326,13 +325,27 @@ void LSE
         Gr = C;
         Gy = D;
     }
-    
-    // Equilibrate the augmented system
-    // ================================
-    Matrix<Real> dEquil;
-    SymmetricGeomEquil( J, dEquil, ctrl.progress ); 
-    DiagonalSolve( LEFT, NORMAL, dEquil, G );
 
+    // Form the augmented matrix
+    // =========================
+    //
+    //         | 0     A^H    B^H |
+    //     J = | A  -alpha*I   0  |
+    //         | B      0      0  |
+    //
+    const Int numEntriesW = W.NumEntries();
+    SparseMatrix<F> J; 
+    Zeros( J, n+m+k, n+m+k );
+    J.Reserve( 2*numEntriesW+m ); 
+    for( Int e=0; e<numEntriesW; ++e )
+    {
+        J.QueueUpdate( W.Row(e)+n, W.Col(e),        W.Value(e)  );
+        J.QueueUpdate( W.Col(e),   W.Row(e)+n, Conj(W.Value(e)) );
+    }
+    for( Int e=0; e<m; ++e )
+        J.QueueUpdate( e+n, e+n, -ctrl.alpha );
+    J.MakeConsistent();
+    
     // Add the a priori regularization
     // ===============================
     Matrix<Real> reg;
@@ -368,13 +381,10 @@ void LSE
         g = u;
     }
 
-    // Unequilibrate the solutions
-    // ===========================
-    DiagonalSolve( LEFT, NORMAL, dEquil, G );
-
-    // Extract X from G = [ X; -R/alpha; Y/alpha ]
-    // ===========================================
+    // Extract X from G = [ Dc*X; -R/alpha; Y/alpha ]
+    // ==============================================
     X = G( IR(0,n), IR(0,numRHS) );
+    DiagonalSolve( LEFT, NORMAL, dC, X );
 }
 
 template<typename F> 
@@ -390,110 +400,33 @@ void LSE
     const Int n = A.Width();
     const Int k = B.Height();
     const Int numRHS = C.Width();
-    const Int numEntriesA = A.NumLocalEntries();
-    const Int numEntriesB = B.NumLocalEntries();
     mpi::Comm comm = A.Comm();
     const int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm );
 
-    // Form the augmented matrix
-    // =========================
-    //
-    //         | 0     A^H    B^H |
-    //     J = | A  -alpha*I   0  |
-    //         | B      0      0  |
-    //
-    DistSparseMatrix<F> J(comm); 
-    Zeros( J, n+m+k, n+m+k );
+    // Rescale W = [ A; B ]
+    // ====================
+    DistMultiVec<Real> dC(comm);
+    DistSparseMatrix<F> W(comm);
+    VCat( A, B, W );
+    if( ctrl.equilibrate )
     {
-        // Compute the metadata
-        // --------------------
-        vector<int> sendCounts(commSize,0);
-        for( Int e=0; e<numEntriesA; ++e )
-        {
-            ++sendCounts[ J.RowOwner(A.Row(e)+n) ];
-            ++sendCounts[ J.RowOwner(A.Col(e))   ];
-        }
-        for( Int e=0; e<numEntriesB; ++e )
-        {
-            ++sendCounts[ J.RowOwner(B.Row(e)+n+m) ];
-            ++sendCounts[ J.RowOwner(B.Col(e))     ];
-        }
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        // Pack the A and B data
-        // ---------------------
-        auto offs = sendOffs;
-        vector<ValueIntPair<F>> sendBuf(totalSend);
-        for( Int e=0; e<numEntriesA; ++e )
-        {
-            const Int i = A.Row(e);
-            const Int j = A.Col(e);
-            const F value = A.Value(e);
-
-            // Send this entry of A into its normal position
-            int owner = J.RowOwner(i+n);
-            sendBuf[offs[owner]].indices[0] = i+n;            
-            sendBuf[offs[owner]].indices[1] = j;
-            sendBuf[offs[owner]].value = value;
-            ++offs[owner];
-
-            // Send this entry of A into its adjoint position
-            owner = J.RowOwner(j);
-            sendBuf[offs[owner]].indices[0] = j;
-            sendBuf[offs[owner]].indices[1] = i+n;
-            sendBuf[offs[owner]].value = Conj(value);
-            ++offs[owner];
-        }
-        for( Int e=0; e<numEntriesB; ++e )
-        {
-            const Int i = B.Row(e);
-            const Int j = B.Col(e);
-            const F value = B.Value(e);
-
-            // Send this entry of B into its normal position
-            int owner = J.RowOwner(i+n+m);
-            sendBuf[offs[owner]].indices[0] = i+n+m;
-            sendBuf[offs[owner]].indices[1] = j;
-            sendBuf[offs[owner]].value = value;
-            ++offs[owner];
-
-            // Send this entry of B into its adjoint position
-            owner = J.RowOwner(j);
-            sendBuf[offs[owner]].indices[0] = j;
-            sendBuf[offs[owner]].indices[1] = i+n+m;
-            sendBuf[offs[owner]].value = Conj(value);
-            ++offs[owner];
-        }
-        // Exchange and unpack the data
-        // ----------------------------
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        // Count the total number of negative alpha updates
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        Int numNegAlphaUpdates = 0;
-        for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
-        {
-            const Int i = J.GlobalRow(iLoc);
-            if( i >= n+m )
-                break;
-            else if( i >= n )
-                ++numNegAlphaUpdates;
-        }
-        // Unpack
-        // ^^^^^^
-        J.Reserve( recvBuf.size() + numNegAlphaUpdates );
-        for( auto& entry : recvBuf )
-            J.QueueLocalUpdate
-            ( entry.indices[0]-J.FirstLocalRow(), entry.indices[1],
-              entry.value );
-        for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
-        {
-            const Int i = J.GlobalRow(iLoc);
-            if( i >= n+m )
-                break;
-            else if( i >= n )
-                J.QueueLocalUpdate( iLoc, i, -ctrl.alpha );
-        }
-        J.MakeConsistent();
+        ColumnNorms( W, dC );
+        DiagonalSolve( RIGHT, NORMAL, dC, W );
+    }
+    else
+    {
+        Ones( dC, n, 1 );
+    }
+    Real normScale = 1;
+    if( ctrl.scaleTwoNorm )
+    {
+        auto extremal = ExtremalSingValEst( W, ctrl.basisSize );
+        if( ctrl.progress && commRank == 0 )
+            cout << "Estimated || A ||_2 ~= " << extremal.second << endl;
+        normScale = extremal.second;
+        Scale( F(1)/normScale, W );
+        Scale( normScale, dC );
     }
 
     // Form the augmented RHS
@@ -553,12 +486,83 @@ void LSE
             ( entry.indices[0]-G.FirstLocalRow(), entry.indices[1],
               entry.value );
     }
-    
-    // Equilibrate the augmented system
-    // ================================
-    DistMultiVec<Real> dEquil(comm);
-    SymmetricGeomEquil( J, dEquil, ctrl.progress ); 
-    DiagonalSolve( LEFT, NORMAL, dEquil, G );
+
+    // Form the augmented matrix
+    // =========================
+    //
+    //         | 0     A^H    B^H |
+    //     J = | A  -alpha*I   0  |
+    //         | B      0      0  |
+    //
+    const Int numEntriesW = W.NumLocalEntries();
+    DistSparseMatrix<F> J(comm); 
+    Zeros( J, n+m+k, n+m+k );
+    {
+        // Compute the metadata
+        // --------------------
+        vector<int> sendCounts(commSize,0);
+        for( Int e=0; e<numEntriesW; ++e )
+        {
+            ++sendCounts[ J.RowOwner(W.Row(e)+n) ];
+            ++sendCounts[ J.RowOwner(W.Col(e))   ];
+        }
+        // Pack W
+        // ------
+        vector<int> sendOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
+        auto offs = sendOffs;
+        vector<ValueIntPair<F>> sendBuf(totalSend);
+        for( Int e=0; e<numEntriesW; ++e )
+        {
+            const Int i = W.Row(e);
+            const Int j = W.Col(e);
+            const F value = W.Value(e);
+
+            // Send this entry of W into its normal position
+            int owner = J.RowOwner(i+n);
+            sendBuf[offs[owner]].indices[0] = i+n;            
+            sendBuf[offs[owner]].indices[1] = j;
+            sendBuf[offs[owner]].value = value;
+            ++offs[owner];
+
+            // Send this entry of W into its adjoint position
+            owner = J.RowOwner(j);
+            sendBuf[offs[owner]].indices[0] = j;
+            sendBuf[offs[owner]].indices[1] = i+n;
+            sendBuf[offs[owner]].value = Conj(value);
+            ++offs[owner];
+        }
+        // Exchange and unpack the data
+        // ----------------------------
+        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+        // Count the total number of negative alpha updates
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        Int numNegAlphaUpdates = 0;
+        for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
+        {
+            const Int i = J.GlobalRow(iLoc);
+            if( i >= n+m )
+                break;
+            else if( i >= n )
+                ++numNegAlphaUpdates;
+        }
+        // Unpack
+        // ^^^^^^
+        J.Reserve( recvBuf.size() + numNegAlphaUpdates );
+        for( auto& entry : recvBuf )
+            J.QueueLocalUpdate
+            ( entry.indices[0]-J.FirstLocalRow(), entry.indices[1],
+              entry.value );
+        for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
+        {
+            const Int i = J.GlobalRow(iLoc);
+            if( i >= n+m )
+                break;
+            else if( i >= n )
+                J.QueueLocalUpdate( iLoc, i, -ctrl.alpha );
+        }
+        J.MakeConsistent();
+    }
 
     // Add the a priori regularization
     // ===============================
@@ -602,13 +606,10 @@ void LSE
         Copy( uLoc, gLoc );
     }
 
-    // Unequilibrate the solutions
-    // ===========================
-    DiagonalSolve( LEFT, NORMAL, dEquil, G );
-
-    // Extract X from G = [ X; -R/alpha; Y/alpha ]
-    // ===========================================
+    // Extract X from G = [ Dc*X; -R/alpha; Y/alpha ]
+    // ==============================================
     X = G( IR(0,n), IR(0,numRHS) );
+    DiagonalSolve( LEFT, NORMAL, dC, X );
 }
 
 #define PROTO(F) \

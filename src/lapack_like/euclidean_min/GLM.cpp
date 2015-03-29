@@ -210,35 +210,34 @@ void GLM
     const Int n = A.Width();
     const Int k = B.Width();
     const Int numRHS = D.Width();
-    const Int numEntriesA = A.NumEntries();
-    const Int numEntriesB = B.NumEntries();
 
-    // Form the augmented matrix
-    // =========================
-    //
-    //         | 0    A      B    |
-    //     J = | A^H  0      0    |
-    //         | B^H  0  -alpha*I |
-    //
-    SparseMatrix<F> J;
-    Zeros( J, m+n+k, m+n+k );
-    J.Reserve( 2*numEntriesA+2*numEntriesB+m );
-    for( Int e=0; e<numEntriesA; ++e )
+    // Rescale the rows of W := [ A, B ]
+    // ===============================
+    Matrix<Real> dR;
+    SparseMatrix<F> W;
+    HCat( A, B, W );
+    if( ctrl.equilibrate )
     {
-        J.QueueUpdate( A.Row(e),   A.Col(e)+m, A.Value(e)       );
-        J.QueueUpdate( A.Col(e)+m, A.Row(e),   Conj(A.Value(e)) );
+        RowNorms( W, dR ); 
+        DiagonalSolve( LEFT, NORMAL, dR, W );
     }
-    for( Int e=0; e<numEntriesB; ++e )
+    else
     {
-        J.QueueUpdate( B.Row(e),     B.Col(e)+m+n,      B.Value(e)  );
-        J.QueueUpdate( B.Col(e)+m+n, B.Row(e),     Conj(B.Value(e)) );
+        Ones( dR, m, 1 );
     }
-    for( Int e=0; e<k; ++e )
-        J.QueueUpdate( e+m+n, e+m+n, -ctrl.alpha );
-    J.MakeConsistent();
+    Real normScale = 1;
+    if( ctrl.scaleTwoNorm )
+    {
+        auto extremal = ExtremalSingValEst( W, ctrl.basisSize );
+        if( ctrl.progress )
+            cout << "Estimated || A ||_2 ~= " << extremal.second << endl;
+        normScale = extremal.second;
+        Scale( F(1)/normScale, W );
+        Scale( normScale, dR );
+    }
 
-    // Form the augmented RHS
-    // ======================
+    // Form the augmented RHS (and rescale it)
+    // =======================================
     //   G = [ D/alpha; 0; 0 ]
     Matrix<F> G;
     Zeros( G, m+n+k, numRHS );
@@ -247,15 +246,30 @@ void GLM
         // Use X as a temporary
         X = D;
         Scale( F(1)/ctrl.alpha, X );
+        DiagonalSolve( LEFT, NORMAL, dR, X );
         Gz = X;
         X.Empty();
     }
 
-    // Equilibrate the augmented system
-    // ================================
-    Matrix<Real> dEquil;
-    SymmetricGeomEquil( J, dEquil, ctrl.progress );
-    DiagonalSolve( LEFT, NORMAL, dEquil, G );
+    // Form the augmented matrix
+    // =========================
+    //
+    //         | 0    A      B    |
+    //     J = | A^H  0      0    |
+    //         | B^H  0  -alpha*I |
+    //
+    const Int numEntriesW = W.NumEntries();
+    SparseMatrix<F> J;
+    Zeros( J, m+n+k, m+n+k );
+    J.Reserve( 2*numEntriesW+m );
+    for( Int e=0; e<numEntriesW; ++e )
+    {
+        J.QueueUpdate( W.Row(e),   W.Col(e)+m, W.Value(e)       );
+        J.QueueUpdate( W.Col(e)+m, W.Row(e),   Conj(W.Value(e)) );
+    }
+    for( Int e=0; e<k; ++e )
+        J.QueueUpdate( e+m+n, e+m+n, -ctrl.alpha );
+    J.MakeConsistent();
 
     // Add the a priori regularization
     // ===============================
@@ -292,10 +306,6 @@ void GLM
         g = u;
     }
 
-    // Unequilibrate the solutions
-    // ===========================
-    DiagonalSolve( LEFT, NORMAL, dEquil, G );
-
     // Extract X and Y from G = [ Z; X/alpha; Y/alpha ]
     // ================================================
     // Well, actually, the solution has been equilibrated, but the division
@@ -319,10 +329,78 @@ void GLM
     const Int n = A.Width();
     const Int k = B.Width();
     const Int numRHS = D.Width();
-    const Int numEntriesA = A.NumLocalEntries();
-    const Int numEntriesB = B.NumLocalEntries();
     mpi::Comm comm = A.Comm();
     const int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm );
+
+    // Rescale the rows of W := [ A, B ]
+    // ===============================
+    DistMultiVec<Real> dR(comm);
+    DistSparseMatrix<F> W(comm);
+    HCat( A, B, W );
+    if( ctrl.equilibrate )
+    {
+        RowNorms( W, dR );
+        DiagonalSolve( LEFT, NORMAL, dR, W );
+    }
+    else
+    {
+        Ones( dR, m, 1 );
+    }
+    Real normScale = 1;
+    if( ctrl.scaleTwoNorm )
+    {
+        auto extremal = ExtremalSingValEst( W, ctrl.basisSize );
+        if( ctrl.progress && commRank == 0 )
+            cout << "Estimated || A ||_2 ~= " << extremal.second << endl;
+        normScale = extremal.second;
+        Scale( F(1)/normScale, W );
+        Scale( normScale, dR );
+    }
+
+    // Form the augmented RHS
+    // ======================
+    //   G = [ D/alpha; 0; 0 ]
+    DistMultiVec<F> G(comm);
+    Zeros( G, m+n+k, numRHS );
+    X = D;
+    Scale( F(1)/ctrl.alpha, X );
+    DiagonalSolve( LEFT, NORMAL, dR, X );
+    {
+        // Compute the metadata
+        // --------------------
+        vector<int> sendCounts(commSize,0);
+        for( Int iLoc=0; iLoc<X.LocalHeight(); ++iLoc )
+        {
+            const Int i = X.GlobalRow(iLoc);
+            sendCounts[ G.RowOwner(i) ] += numRHS;
+        }
+        vector<int> sendOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
+        // Pack the data
+        // -------------
+        auto offs = sendOffs;
+        vector<ValueIntPair<F>> sendBuf(totalSend);
+        for( Int iLoc=0; iLoc<X.LocalHeight(); ++iLoc )
+        {
+            const Int i = X.GlobalRow(iLoc);
+            const int owner = G.RowOwner(i);
+            for( Int j=0; j<numRHS; ++j )
+            {
+                sendBuf[offs[owner]].indices[0] = i;
+                sendBuf[offs[owner]].indices[1] = j;
+                sendBuf[offs[owner]].value = X.GetLocal(iLoc,j);
+                ++offs[owner];
+            }
+        }
+        // Exchange and unpack the data
+        // ----------------------------
+        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+        for( auto& entry : recvBuf )
+            G.SetLocal
+            ( entry.indices[0]-G.FirstLocalRow(), entry.indices[1],
+              entry.value );
+    }
 
     // Form the augmented matrix
     // =========================
@@ -331,64 +409,40 @@ void GLM
     //     J = | A^H  0      0    |
     //         | B^H  0  -alpha*I |
     //
+    const Int numEntriesW = W.NumLocalEntries();
     DistSparseMatrix<F> J(comm);
     Zeros( J, m+n+k, m+n+k );
     {
         // Compute the metadata
         // --------------------
         vector<int> sendCounts(commSize,0);
-        for( Int e=0; e<numEntriesA; ++e )
+        for( Int e=0; e<numEntriesW; ++e )
         {
-            ++sendCounts[ J.RowOwner(A.Row(e))   ];
-            ++sendCounts[ J.RowOwner(A.Col(e)+m) ];
+            ++sendCounts[ J.RowOwner(W.Row(e))   ];
+            ++sendCounts[ J.RowOwner(W.Col(e)+m) ];
         }
-        for( Int e=0; e<numEntriesB; ++e )
-        {
-            ++sendCounts[ J.RowOwner(B.Row(e))     ];
-            ++sendCounts[ J.RowOwner(B.Col(e)+m+n) ];
-        }
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
         // Pack the A and B data
         // ---------------------
+        vector<int> sendOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
         auto offs = sendOffs;
         vector<ValueIntPair<F>> sendBuf(totalSend);
-        for( Int e=0; e<numEntriesA; ++e )
+        for( Int e=0; e<numEntriesW; ++e )
         {
-            const Int i = A.Row(e);
-            const Int j = A.Col(e);
-            const F value = A.Value(e);
+            const Int i = W.Row(e);
+            const Int j = W.Col(e);
+            const F value = W.Value(e);
 
-            // Send this entry of A into its normal position
+            // Send this entry of W into its normal position
             int owner = J.RowOwner(i);
             sendBuf[offs[owner]].indices[0] = i;
             sendBuf[offs[owner]].indices[1] = j+m;
             sendBuf[offs[owner]].value = value;
             ++offs[owner];
 
-            // Send this entry of A into its adjoint position
+            // Send this entry of W into its adjoint position
             owner = J.RowOwner(j+m);
             sendBuf[offs[owner]].indices[0] = j+m;
-            sendBuf[offs[owner]].indices[1] = i;
-            sendBuf[offs[owner]].value = Conj(value);
-            ++offs[owner];
-        }
-        for( Int e=0; e<numEntriesB; ++e )
-        {
-            const Int i = B.Row(e);
-            const Int j = B.Col(e);
-            const F value = B.Value(e);
-
-            // Send this entry of B into its normal position
-            int owner = J.RowOwner(i);
-            sendBuf[offs[owner]].indices[0] = i;
-            sendBuf[offs[owner]].indices[1] = j+m+n;
-            sendBuf[offs[owner]].value = value;
-            ++offs[owner];
-
-            // Send this entry of B into its adjoint position
-            owner = J.RowOwner(j+m+n);
-            sendBuf[offs[owner]].indices[0] = j+m+n;
             sendBuf[offs[owner]].indices[1] = i;
             sendBuf[offs[owner]].value = Conj(value);
             ++offs[owner];
@@ -420,53 +474,6 @@ void GLM
         }
         J.MakeConsistent();
     }
-
-    // Form the augmented RHS
-    // ======================
-    //   G = [ D/alpha; 0; 0 ]
-    DistMultiVec<F> G(comm);
-    Zeros( G, m+n+k, numRHS );
-    {
-        // Compute the metadata
-        // --------------------
-        vector<int> sendCounts(commSize,0);
-        for( Int iLoc=0; iLoc<D.LocalHeight(); ++iLoc )
-        {
-            const Int i = D.GlobalRow(iLoc);
-            sendCounts[ G.RowOwner(i) ] += numRHS;
-        }
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        // Pack the data
-        // -------------
-        auto offs = sendOffs;
-        vector<ValueIntPair<F>> sendBuf(totalSend);
-        for( Int iLoc=0; iLoc<D.LocalHeight(); ++iLoc )
-        {
-            const Int i = D.GlobalRow(iLoc);
-            const int owner = G.RowOwner(i);
-            for( Int j=0; j<numRHS; ++j )
-            {
-                sendBuf[offs[owner]].indices[0] = i;
-                sendBuf[offs[owner]].indices[1] = j;
-                sendBuf[offs[owner]].value = D.GetLocal(iLoc,j)/ctrl.alpha;
-                ++offs[owner];
-            }
-        }
-        // Exchange and unpack the data
-        // ----------------------------
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        for( auto& entry : recvBuf )
-            G.SetLocal
-            ( entry.indices[0]-G.FirstLocalRow(), entry.indices[1],
-              entry.value );
-    }
-
-    // Equilibrate the augmented system
-    // ================================
-    DistMultiVec<Real> dEquil(comm);
-    SymmetricGeomEquil( J, dEquil, ctrl.progress );
-    DiagonalSolve( LEFT, NORMAL, dEquil, G );
 
     // Add the a priori regularization
     // ===============================
@@ -509,10 +516,6 @@ void GLM
         ( JOrig, reg, invMap, info, JFront, u, ctrl.qsdCtrl );
         Copy( uLoc, gLoc );
     }
-
-    // Unequilibrate the solutions
-    // ===========================
-    DiagonalSolve( LEFT, NORMAL, dEquil, G );
 
     // Extract X and Y from G = [ Z; X/alpha; Y/alpha ]
     // ================================================
