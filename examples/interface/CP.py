@@ -8,8 +8,8 @@
 #
 import El, time
 
-n0 = 25
-n1 = 25
+n0 = 50
+n1 = 50
 display = True
 worldRank = El.mpi.WorldRank()
 
@@ -64,7 +64,13 @@ if display:
   El.Display( b, "b" )
 
 ctrl = El.LPAffineCtrl_d()
+ctrl.mehrotraCtrl.outerEquil = True
+ctrl.mehrotraCtrl.innerEquil = True
+ctrl.mehrotraCtrl.scaleTwoNorm = True
 ctrl.mehrotraCtrl.progress = True
+ctrl.mehrotraCtrl.qsdCtrl.relTol = 1e-10
+ctrl.mehrotraCtrl.qsdCtrl.relTolRefine = 1e-11
+ctrl.mehrotraCtrl.qsdCtrl.progress = True
 startCP = time.clock()
 x = El.CP( A, b, ctrl )
 endCP = time.clock()

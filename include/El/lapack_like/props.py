@@ -1349,27 +1349,50 @@ lib.ElTwoNormEstimate_c.argtypes = \
 lib.ElTwoNormEstimateDist_s.argtypes = \
 lib.ElTwoNormEstimateDist_c.argtypes = \
   [c_void_p,sType,iType,POINTER(sType)]
-
 lib.ElTwoNormEstimate_d.argtypes = \
 lib.ElTwoNormEstimate_z.argtypes = \
 lib.ElTwoNormEstimateDist_d.argtypes = \
 lib.ElTwoNormEstimateDist_z.argtypes = \
   [c_void_p,dType,iType,POINTER(dType)]
 
-def TwoNormEstimate(A,tol=1e-6,maxIts=100):
+lib.ElTwoNormEstimateSparse_s.argtypes = \
+lib.ElTwoNormEstimateSparse_c.argtypes = \
+lib.ElTwoNormEstimateDistSparse_s.argtypes = \
+lib.ElTwoNormEstimateDistSparse_c.argtypes = \
+  [c_void_p,iType,POINTER(sType)]
+lib.ElTwoNormEstimateSparse_d.argtypes = \
+lib.ElTwoNormEstimateSparse_z.argtypes = \
+lib.ElTwoNormEstimateDistSparse_d.argtypes = \
+lib.ElTwoNormEstimateDistSparse_z.argtypes = \
+  [c_void_p,iType,POINTER(dType)]
+
+def TwoNormEstimate(A,basisSize=15,tol=1e-6,maxIts=100):
   norm = TagToType(Base(A.tag))()
-  args = [A.obj,tol,maxIts,pointer(norm)]
+  argsDense = [A.obj,tol,maxIts,pointer(norm)]
+  argsSparse = [A.obj,basisSize,pointer(norm)]
   if type(A) is Matrix:
-    if   A.tag == sTag: lib.ElTwoNormEstimate_s(*args)
-    elif A.tag == dTag: lib.ElTwoNormEstimate_d(*args)
-    elif A.tag == cTag: lib.ElTwoNormEstimate_c(*args)
-    elif A.tag == zTag: lib.ElTwoNormEstimate_z(*args)
+    if   A.tag == sTag: lib.ElTwoNormEstimate_s(*argsDense)
+    elif A.tag == dTag: lib.ElTwoNormEstimate_d(*argsDense)
+    elif A.tag == cTag: lib.ElTwoNormEstimate_c(*argsDense)
+    elif A.tag == zTag: lib.ElTwoNormEstimate_z(*argsDense)
     else: DataExcept()
   elif type(A) is DistMatrix:
-    if   A.tag == sTag: lib.ElTwoNormEstimateDist_s(*args)
-    elif A.tag == dTag: lib.ElTwoNormEstimateDist_d(*args)
-    elif A.tag == cTag: lib.ElTwoNormEstimateDist_c(*args)
-    elif A.tag == zTag: lib.ElTwoNormEstimateDist_z(*args)
+    if   A.tag == sTag: lib.ElTwoNormEstimateDist_s(*argsDense)
+    elif A.tag == dTag: lib.ElTwoNormEstimateDist_d(*argsDense)
+    elif A.tag == cTag: lib.ElTwoNormEstimateDist_c(*argsDense)
+    elif A.tag == zTag: lib.ElTwoNormEstimateDist_z(*argsDense)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == sTag: lib.ElTwoNormEstimateSparse_s(*argsSparse)
+    elif A.tag == dTag: lib.ElTwoNormEstimateSparse_d(*argsSparse)
+    elif A.tag == cTag: lib.ElTwoNormEstimateSparse_c(*argsSparse)
+    elif A.tag == zTag: lib.ElTwoNormEstimateSparse_z(*argsSparse)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == sTag: lib.ElTwoNormEstimateDistSparse_s(*argsSparse)
+    elif A.tag == dTag: lib.ElTwoNormEstimateDistSparse_d(*argsSparse)
+    elif A.tag == cTag: lib.ElTwoNormEstimateDistSparse_c(*argsSparse)
+    elif A.tag == zTag: lib.ElTwoNormEstimateDistSparse_z(*argsSparse)
     else: DataExcept()
   else: TypeExcept()
   return norm.value

@@ -65,7 +65,7 @@ inline void BusingerGolub
     vector<Real> origNorms;
     const Real maxOrigNorm = ColNorms( A, origNorms );
     auto norms = origNorms;
-    const Real updateTol = Sqrt(lapack::MachineEpsilon<Real>());
+    const Real updateTol = Sqrt(Epsilon<Real>());
 
     // Initialize the inverse permutation to the identity
     Matrix<Int> pInv;
@@ -307,7 +307,7 @@ inline void BusingerGolub
     vector<Real> origNorms( A.LocalWidth() );
     const Real maxOrigNorm = ColNorms( A, origNorms );
     auto norms = origNorms;
-    const Real updateTol = Sqrt(lapack::MachineEpsilon<Real>());
+    const Real updateTol = Sqrt(Epsilon<Real>());
     vector<Int> inaccurateNorms;
 
     // Initialize the inverse permutation to the identity

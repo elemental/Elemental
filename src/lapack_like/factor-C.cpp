@@ -14,7 +14,7 @@ extern "C" {
 
 ElError ElRegQSDCtrlDefault_s( ElRegQSDCtrl_s* ctrl )
 {
-    const float eps = lapack::MachineEpsilon<float>();
+    const float eps = Epsilon<float>();
     ctrl->regPrimal = Pow(eps,float(0.5));
     ctrl->regDual = Pow(eps,float(0.5));
     ctrl->alg = EL_REG_REFINE_FGMRES;
@@ -28,7 +28,7 @@ ElError ElRegQSDCtrlDefault_s( ElRegQSDCtrl_s* ctrl )
 
 ElError ElRegQSDCtrlDefault_d( ElRegQSDCtrl_d* ctrl )
 {
-    const double eps = lapack::MachineEpsilon<double>();
+    const double eps = Epsilon<double>();
     ctrl->regPrimal = Pow(eps,0.5);
     ctrl->regDual = Pow(eps,0.5); 
     ctrl->alg = EL_REG_REFINE_FGMRES;

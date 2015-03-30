@@ -54,19 +54,19 @@ void Mehrotra
     const Int k = G.Height();
     const Int n = A.Width();
     Matrix<Real> dRowA, dRowG, dCol;
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
         StackedGeomEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
 
         DiagonalSolve( LEFT, NORMAL, dRowA, b );
         DiagonalSolve( LEFT, NORMAL, dRowG, h );
         DiagonalSolve( LEFT, NORMAL, dCol,  c );
-        if( ctrl.primalInitialized )
+        if( ctrl.primalInit )
         {
             DiagonalScale( LEFT, NORMAL, dCol,  x );
             DiagonalSolve( LEFT, NORMAL, dRowG, s );
         }
-        if( ctrl.dualInitialized )
+        if( ctrl.dualInit )
         {
             DiagonalScale( LEFT, NORMAL, dRowA, y );
             DiagonalScale( LEFT, NORMAL, dRowG, z );
@@ -87,7 +87,7 @@ void Mehrotra
     const bool standardShift = true;
     Initialize
     ( A, G, b, c, h, x, y, z, s, 
-      ctrl.primalInitialized, ctrl.dualInitialized, standardShift );
+      ctrl.primalInit, ctrl.dualInit, standardShift );
 
     Matrix<Real> J, d,
                  rmu,   rc,    rb,    rh,
@@ -275,7 +275,7 @@ void Mehrotra
         Axpy( alphaDual, dz, z );
     }
 
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
         // Unequilibrate the LP
         DiagonalSolve( LEFT, NORMAL, dCol,  x );
@@ -314,10 +314,10 @@ void Mehrotra
     control.rowConstrain = true;
     control.colAlign = 0;
     control.rowAlign = 0;
-    // NOTE: {x,s} do not need to be a read proxy when !ctrl.primalInitialized
+    // NOTE: {x,s} do not need to be a read proxy when !ctrl.primalInit
     auto xPtr = ReadWriteProxy<Real,MC,MR>(&xPre,control); auto& x = *xPtr;
     auto sPtr = ReadWriteProxy<Real,MC,MR>(&sPre,control); auto& s = *sPtr;
-    // NOTE: {y,z} do not need to be read proxies when !ctrl.dualInitialized
+    // NOTE: {y,z} do not need to be read proxies when !ctrl.dualInit
     auto yPtr = ReadWriteProxy<Real,MC,MR>(&yPre,control); auto& y = *yPtr;
     auto zPtr = ReadWriteProxy<Real,MC,MR>(&zPre,control); auto& z = *zPtr;
 
@@ -328,19 +328,19 @@ void Mehrotra
     DistMatrix<Real,MC,STAR> dRowA(grid),
                              dRowG(grid);
     DistMatrix<Real,MR,STAR> dCol(grid);
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
         StackedGeomEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
 
         DiagonalSolve( LEFT, NORMAL, dRowA, b );
         DiagonalSolve( LEFT, NORMAL, dRowG, h );
         DiagonalSolve( LEFT, NORMAL, dCol,  c );
-        if( ctrl.primalInitialized )
+        if( ctrl.primalInit )
         {
             DiagonalScale( LEFT, NORMAL, dCol,  x );
             DiagonalSolve( LEFT, NORMAL, dRowG, s );
         }
-        if( ctrl.dualInitialized )
+        if( ctrl.dualInit )
         {
             DiagonalScale( LEFT, NORMAL, dRowA, y );
             DiagonalScale( LEFT, NORMAL, dRowG, z );
@@ -361,7 +361,7 @@ void Mehrotra
     const bool standardShift = true;
     Initialize
     ( A, G, b, c, h, x, y, z, s, 
-      ctrl.primalInitialized, ctrl.dualInitialized, standardShift );
+      ctrl.primalInit, ctrl.dualInit, standardShift );
 
     DistMatrix<Real> J(grid),     d(grid), 
                      rc(grid),    rb(grid),    rh(grid),    rmu(grid),
@@ -555,7 +555,7 @@ void Mehrotra
         Axpy( alphaDual, dz, z );
     }
 
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
         // Unequilibrate the LP
         DiagonalSolve( LEFT, NORMAL, dCol,  x );
@@ -586,19 +586,19 @@ void Mehrotra
     const Int k = G.Height();
     const Int n = A.Width();
     Matrix<Real> dRowA, dRowG, dCol;
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
         StackedGeomEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
 
         DiagonalSolve( LEFT, NORMAL, dRowA, b );
         DiagonalSolve( LEFT, NORMAL, dRowG, h );
         DiagonalSolve( LEFT, NORMAL, dCol,  c );
-        if( ctrl.primalInitialized )
+        if( ctrl.primalInit )
         {
             DiagonalScale( LEFT, NORMAL, dCol,  x );
             DiagonalSolve( LEFT, NORMAL, dRowG, s );
         }
-        if( ctrl.dualInitialized )
+        if( ctrl.dualInit )
         {
             DiagonalScale( LEFT, NORMAL, dRowA, y );
             DiagonalScale( LEFT, NORMAL, dRowG, z );
@@ -622,8 +622,7 @@ void Mehrotra
     const bool standardShift = true;
     Initialize
     ( A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
-      ctrl.primalInitialized, ctrl.dualInitialized, standardShift, 
-      ctrl.qsdCtrl );
+      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
 
     SparseMatrix<Real> J, JOrig;
     SymmFront<Real> JFront;
@@ -721,9 +720,20 @@ void Mehrotra
         // ---------------------------------------
         KKT( A, G, s, z, JOrig, false );
         J = JOrig;
-        SymmetricGeomEquil( J, dInner, ctrl.print );
+        if( ctrl.innerEquil )
+            SymmetricGeomEquil( J, dInner, ctrl.print );
+        else
+            Ones( dInner, reg.Height(), 1 );
+        if( ctrl.scaleTwoNorm )
+        {
+            Real twoNormEst = TwoNormEstimate( J, ctrl.basisSize );
+            if( ctrl.print )
+                cout << "Estimated || J ||_2 ~= " << twoNormEst << endl;
+            Scale( Real(1)/twoNormEst, J );
+            Scale( Sqrt(twoNormEst), dInner );
+        }
         UpdateRealPartOfDiagonal( J, Real(1), reg );
-        if( ctrl.primalInitialized && ctrl.dualInitialized && numIts == 0 )
+        if( ctrl.primalInit && ctrl.dualInit && numIts == 0 )
         {
             NestedDissection( J.LockedGraph(), map, rootSep, info );
             InvertMap( map, invMap );
@@ -838,7 +848,7 @@ void Mehrotra
         Axpy( alphaDual, dz, z );
     }
 
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
         // Unequilibrate the LP
         DiagonalSolve( LEFT, NORMAL, dCol,  x );
@@ -872,7 +882,7 @@ void Mehrotra
     const Int k = G.Height();
     const Int n = A.Width();
     DistMultiVec<Real> dRowA(comm), dRowG(comm), dCol(comm);
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
         if( commRank == 0 && ctrl.time )
             timer.Start();
@@ -883,12 +893,12 @@ void Mehrotra
         DiagonalSolve( LEFT, NORMAL, dRowA, b );
         DiagonalSolve( LEFT, NORMAL, dRowG, h );
         DiagonalSolve( LEFT, NORMAL, dCol,  c );
-        if( ctrl.primalInitialized )
+        if( ctrl.primalInit )
         {
             DiagonalScale( LEFT, NORMAL, dCol,  x );
             DiagonalSolve( LEFT, NORMAL, dRowG, s );
         }
-        if( ctrl.dualInitialized )
+        if( ctrl.dualInit )
         {
             DiagonalScale( LEFT, NORMAL, dRowA, y );
             DiagonalScale( LEFT, NORMAL, dRowG, z );
@@ -914,8 +924,7 @@ void Mehrotra
         timer.Start();
     Initialize
     ( A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
-      ctrl.primalInitialized, ctrl.dualInitialized, standardShift, 
-      ctrl.qsdCtrl );
+      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
     if( commRank == 0 && ctrl.time )
         cout << "  Init: " << timer.Stop() << " secs" << endl;
 
@@ -1016,9 +1025,20 @@ void Mehrotra
         // -----------------------------
         KKT( A, G, s, z, JOrig, false );
         J = JOrig;
-        SymmetricGeomEquil( J, dInner, ctrl.print );
+        if( ctrl.innerEquil )
+            SymmetricGeomEquil( J, dInner, ctrl.print );
+        else
+            Ones( dInner, reg.Height(), 1 );
+        if( ctrl.scaleTwoNorm )
+        {
+            Real twoNormEst = TwoNormEstimate( J, ctrl.basisSize );
+            if( ctrl.print && commRank == 0 )
+                cout << "Estimated || J ||_2 ~= " << twoNormEst << endl;
+            Scale( Real(1)/twoNormEst, J );
+            Scale( Sqrt(twoNormEst), dInner );
+        }
         UpdateRealPartOfDiagonal( J, Real(1), reg );
-        if( ctrl.primalInitialized && ctrl.dualInitialized && numIts == 0 )
+        if( ctrl.primalInit && ctrl.dualInit && numIts == 0 )
         {
             if( commRank == 0 && ctrl.time )
                 timer.Start();
@@ -1149,7 +1169,7 @@ void Mehrotra
         Axpy( alphaDual, dz, z );
     }
 
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
         // Unequilibrate the LP
         DiagonalSolve( LEFT, NORMAL, dCol,  x );

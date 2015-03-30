@@ -249,24 +249,19 @@ struct RegQSDCtrl
 {
     Real regPrimal, regDual;
 
-    RegQSDRefineAlg alg;
+    RegQSDRefineAlg alg=REG_REFINE_FGMRES;
     Real relTol;
     Real relTolRefine;
-    Int maxRefineIts;
-    Int restart;
-    bool progress;
+    Int maxRefineIts=50;
+    Int restart=10;
+    bool progress=false;
 
     RegQSDCtrl()
     {
-        const Real eps = lapack::MachineEpsilon<Real>(); 
+        const Real eps = Epsilon<Real>(); 
         regPrimal = regDual = Pow(eps,Real(0.5));
-
-        alg = REG_REFINE_FGMRES;
         relTol = Pow(eps,Real(0.5));
         relTolRefine = Pow(eps,Real(0.5));
-        maxRefineIts = 50;
-        restart = 10;
-        progress = false;
     }
 };
 
@@ -495,21 +490,15 @@ void Explicit( AbstractDistMatrix<F>& L, AbstractDistMatrix<F>& A );
 template<typename Real>
 struct QRCtrl
 {
-    bool colPiv;
+    bool colPiv=false;
 
-    bool boundRank;  
-    Int maxRank;
+    bool boundRank=false;
+    Int maxRank=0;
 
-    bool adaptive;
-    Real tol;
+    bool adaptive=false;
+    Real tol=0;
 
-    bool alwaysRecomputeNorms;
-
-    QRCtrl()
-    : colPiv(false), 
-      boundRank(false), maxRank(0), adaptive(false), tol(0),
-      alwaysRecomputeNorms(false)
-    { }
+    bool alwaysRecomputeNorms=false;
 };
 
 // Return an implicit representation of Q and R such that A = Q R

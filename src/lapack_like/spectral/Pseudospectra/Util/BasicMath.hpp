@@ -60,7 +60,7 @@ QuasiTriangIsNormal( const AbstractDistMatrix<F>& U, Base<F> tol )
 
 template<typename F>
 inline Base<F> NormCap()
-{ return Base<F>(1)/lapack::MachineEpsilon<Base<F>>(); }
+{ return Base<F>(1)/Epsilon<Base<F>>(); }
 
 template<typename F>
 inline bool HasNan( const Matrix<F>& H )

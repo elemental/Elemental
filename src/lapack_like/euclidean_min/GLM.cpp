@@ -228,10 +228,9 @@ void GLM
     Real normScale = 1;
     if( ctrl.scaleTwoNorm )
     {
-        auto extremal = ExtremalSingValEst( W, ctrl.basisSize );
+        normScale = TwoNormEstimate( W, ctrl.basisSize );
         if( ctrl.progress )
-            cout << "Estimated || A ||_2 ~= " << extremal.second << endl;
-        normScale = extremal.second;
+            cout << "Estimated || [ A, B ] ||_2 ~= " << normScale << endl;
         Scale( F(1)/normScale, W );
         Scale( normScale, dR );
     }
@@ -350,10 +349,9 @@ void GLM
     Real normScale = 1;
     if( ctrl.scaleTwoNorm )
     {
-        auto extremal = ExtremalSingValEst( W, ctrl.basisSize );
+        normScale = TwoNormEstimate( W, ctrl.basisSize );
         if( ctrl.progress && commRank == 0 )
-            cout << "Estimated || A ||_2 ~= " << extremal.second << endl;
-        normScale = extremal.second;
+            cout << "Estimated || [ A, B ] ||_2 ~= " << normScale << endl;
         Scale( F(1)/normScale, W );
         Scale( normScale, dR );
     }

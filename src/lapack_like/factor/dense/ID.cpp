@@ -95,7 +95,7 @@ BusingerGolub
     QR( A, t, d, p, ctrl );
     const Int numSteps = t.Height();
 
-    const Real eps = lapack::MachineEpsilon<Real>();
+    const Real eps = Epsilon<Real>();
     const Real pinvTol = ( ctrl.adaptive ? ctrl.tol : numSteps*eps );
 
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
@@ -124,7 +124,7 @@ BusingerGolub
     const Int numSteps = t.Height();
 
     const Int n = A.Width();
-    const Real eps = lapack::MachineEpsilon<Real>();
+    const Real eps = Epsilon<Real>();
     const Real pinvTol = ( ctrl.adaptive ? ctrl.tol : numSteps*eps );
 
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves

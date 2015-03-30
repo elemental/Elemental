@@ -25,28 +25,22 @@ enum SignScaling {
 using namespace SignScalingNS;
 
 template<typename Real>
-struct SignCtrl {
-    Int maxIts;
-    Real tol;
-    Real power;
-    SignScaling scaling;
-    bool progress;
-
-    SignCtrl()
-    : maxIts(100), tol(0), power(1), scaling(SIGN_SCALE_FROB), progress(false)
-    { }
+struct SignCtrl 
+{
+    Int maxIts=100;
+    Real tol=0;
+    Real power=1;
+    SignScaling scaling=SIGN_SCALE_FROB;
+    bool progress=false;
 };
 
 template<typename Real>
-struct SquareRootCtrl {
-    Int maxIts;
-    Real tol;
-    Real power;
-    bool progress;
-
-    SquareRootCtrl()
-    : maxIts(100), tol(0), power(1), progress(false)
-    { }
+struct SquareRootCtrl 
+{
+    Int maxIts=100;
+    Real tol=0;
+    Real power=1;
+    bool progress=false;
 };
 
 // Hermitian function

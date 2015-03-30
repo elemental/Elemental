@@ -17,31 +17,21 @@ namespace El {
 template<typename Real>
 struct HermitianEigSubset
 {
-    bool indexSubset;
-    Int lowerIndex, upperIndex;
+    bool indexSubset=false;
+    Int lowerIndex=0, upperIndex=0;
  
-    bool rangeSubset;
-    Real lowerBound, upperBound;
-
-    HermitianEigSubset() 
-    : indexSubset(false), lowerIndex(0), upperIndex(0), 
-      rangeSubset(false), lowerBound(0), upperBound(0) { }
+    bool rangeSubset=false;
+    Real lowerBound=0, upperBound=0;
 };
 
 template<typename Real>
-struct HermitianSDCCtrl {
-    Int cutoff;
-    Int maxInnerIts;
-    Int maxOuterIts;
-    Real tol;
-    Real spreadFactor;
-    bool progress;
-
-    HermitianSDCCtrl()
-    : cutoff(256), maxInnerIts(2), maxOuterIts(10),
-      tol(0), spreadFactor(1e-6),
-      progress(false)
-    { }
+struct HermitianSDCCtrl 
+{
+    Int cutoff=256;
+    Int maxInnerIts=2, maxOuterIts=10;
+    Real tol=0;
+    Real spreadFactor=1e-6;
+    bool progress=false;
 };
 
 template<typename F>
@@ -49,12 +39,8 @@ struct HermitianEigCtrl
 {
     HermitianTridiagCtrl<F> tridiagCtrl;
     HermitianSDCCtrl<Base<F>> sdcCtrl;
-    bool useSDC;
-    bool timeStages;
-
-    HermitianEigCtrl()
-    : useSDC(false), timeStages(false)
-    { }
+    bool useSDC=false;
+    bool timeStages=false;
 };
 
 // Compute eigenvalues
@@ -103,9 +89,9 @@ void HermitianEig
 namespace PencilNS {
 enum Pencil
 {
-    AXBX=1,
-    ABX=2,
-    BAX=3
+  AXBX=1,
+  ABX=2,
+  BAX=3
 };
 }
 using namespace PencilNS;
@@ -195,13 +181,12 @@ void Sort
 
 // Polar decomposition
 // ===================
-struct PolarCtrl {
-    bool qdwh;
-    bool colPiv;
-    Int maxIts;
-    mutable Int numIts;
-
-    PolarCtrl() : qdwh(false), colPiv(false), maxIts(20), numIts(0) { }
+struct PolarCtrl 
+{
+    bool qdwh=false;
+    bool colPiv=false;
+    Int maxIts=20;
+    mutable Int numIts=0;
 };
 
 template<typename F>
@@ -237,41 +222,30 @@ void HermitianPolar
 template<typename Real> struct SignCtrl;
 
 template<typename Real>
-struct SDCCtrl {
-    Int cutoff;
-    Int maxInnerIts;
-    Int maxOuterIts;
-    Real tol;
-    Real spreadFactor;
-    bool random;
-    bool progress;
+struct SDCCtrl 
+{
+    Int cutoff=256;
+    Int maxInnerIts=2, maxOuterIts=10;
+    Real tol=0;
+    Real spreadFactor=1e-6;
+    bool random=true;
+    bool progress=false;
 
     SignCtrl<Real> signCtrl;
-
-    SDCCtrl()
-    : cutoff(256), maxInnerIts(2), maxOuterIts(10),
-      tol(0), spreadFactor(1e-6),
-      random(true), progress(false), signCtrl()
-    { }
 };
 
-struct HessQRCtrl {
-    bool distAED;
-    Int blockHeight, blockWidth;
-
-    HessQRCtrl() 
-    : distAED(false), 
-      blockHeight(DefaultBlockHeight()), blockWidth(DefaultBlockWidth()) 
-    { }
+struct HessQRCtrl 
+{
+    bool distAED=false;
+    Int blockHeight=DefaultBlockHeight(), blockWidth=DefaultBlockWidth();
 };
 
 template<typename Real>
-struct SchurCtrl {
-    bool useSDC;
+struct SchurCtrl 
+{
+    bool useSDC=false;
     HessQRCtrl qrCtrl;
     SDCCtrl<Real> sdcCtrl;    
-
-    SchurCtrl() : useSDC(false), qrCtrl(), sdcCtrl() { }
 };
 
 template<typename F>
@@ -386,7 +360,8 @@ void SkewHermitianEig
 // Singular Value Decomposition
 // ============================
 template<typename Real>
-struct SVDCtrl {
+struct SVDCtrl 
+{
     // Bidiagonal SVD options
     // ----------------------
 
@@ -394,18 +369,18 @@ struct SVDCtrl {
     // instead of (Cuppen's) Divide and Conquer when computing singular
     // vectors. When only singular values are requested, a bidiagonal DQDS
     // algorithm is always run.
-    bool seqQR;
+    bool seqQR=false;
 
     // Chan's algorithm
     // ----------------
 
     // The minimum height/width ratio before preprocessing with a QR 
     // decomposition when only computing singular values
-    double valChanRatio;
+    double valChanRatio=1.2;
 
     // The minimum height/width ratio before preprocessing with a QR
     // decomposition when computing a full SVD
-    double fullChanRatio;
+    double fullChanRatio=1.5;
 
     // Thresholding
     // ------------
@@ -416,20 +391,14 @@ struct SVDCtrl {
     // When thresholded, a cross-product algorithm is used. This is often
     // advantageous since tridiagonal eigensolvers tend to have faster 
     // parallel implementations than bidiagonal SVD's.
-    bool thresholded;
+    bool thresholded=false;
 
     // If the tolerance should be relative to the largest singular value
-    bool relative;
+    bool relative=true;
 
     // The numerical tolerance for the thresholding. If this value is kept at
     // zero, then a value is automatically chosen based upon the matrix
-    Real tol; 
-
-    // Default constructor
-    // -------------------
-    SVDCtrl()
-    : seqQR(false), valChanRatio(1.2), fullChanRatio(1.5),
-      thresholded(false), relative(true), tol(0) { }
+    Real tol=0; 
 };
 
 // Compute the singular values
@@ -522,21 +491,13 @@ enum PseudospecNorm {
 // snapshots of the pseudospectral estimates should be saved
 struct SnapshotCtrl
 {
-    Int realSize, imagSize;
+    Int realSize=0, imagSize=0;
 
-    Int imgSaveFreq, numSaveFreq, imgDispFreq;
-    Int imgSaveCount, numSaveCount, imgDispCount;
-    string imgBase, numBase;
-    FileFormat imgFormat, numFormat;
-    bool itCounts;
-
-    SnapshotCtrl()
-    : realSize(0), imagSize(0),
-      imgSaveFreq(-1), numSaveFreq(-1), imgDispFreq(-1),
-      imgSaveCount(0), numSaveCount(0), imgDispCount(0),
-      imgBase("ps"), numBase("ps"), imgFormat(PNG), numFormat(ASCII_MATLAB),
-      itCounts(true)
-    { }
+    Int imgSaveFreq=-1, numSaveFreq=-1, imgDispFreq=-1;
+    Int imgSaveCount=0, numSaveCount=0, imgDispCount=0;
+    string imgBase="ps", numBase="ps";
+    FileFormat imgFormat=PNG, numFormat=ASCII_MATLAB;
+    bool itCounts=true;
 
     void ResetCounts()
     {
@@ -555,41 +516,33 @@ struct SnapshotCtrl
 template<typename Real>
 struct PseudospecCtrl
 {
-    PseudospecNorm norm;
-    Int blockWidth; // block width for block 1-norm estimator
+    PseudospecNorm norm=PS_TWO_NORM;
+    Int blockWidth=10; // block width for block 1-norm estimator
 
     // Preprocessing configuration
-    bool schur; // begin with reduction to Schur form?
-    bool forceComplexSchur;
-    bool forceComplexPs;
+    bool schur=true; // begin with reduction to Schur form?
+    bool forceComplexSchur=false;
+    bool forceComplexPs=false;
     SchurCtrl<Real> schurCtrl;
 
     // Convergence and deflation criteria
-    Int maxIts;
-    Real tol;
-    bool deflate;
+    Int maxIts=200;
+    Real tol=1e-6;
+    bool deflate=true;
 
     // (Implicitly Restarted) Arnoldi/Lanczos. If basisSize > 1, then
     // there is implicit restarting
-    bool arnoldi;
-    Int basisSize;
-    bool reorthog; // only matters for IRL, which isn't currently used
+    bool arnoldi=true;
+    Int basisSize=10;
+    bool reorthog=true; // only matters for IRL, which isn't currently used
 
     // Whether or not to print progress information at each iteration
-    bool progress;
+    bool progress=false;
 
     SnapshotCtrl snapCtrl;
 
-    mutable Complex<Real> center;
-    mutable Real realWidth, imagWidth;
-
-    PseudospecCtrl()
-    : norm(PS_TWO_NORM), blockWidth(10),
-      schur(true), forceComplexSchur(false), forceComplexPs(false), schurCtrl(),
-      maxIts(200), tol(1e-6), deflate(true),
-      arnoldi(true), basisSize(10), reorthog(true),
-      progress(false), snapCtrl(), center(Real(0)), realWidth(0), imagWidth(0)
-    { }
+    mutable Complex<Real> center = Complex<Real>(0);
+    mutable Real realWidth=0, imagWidth=0;
 };
 
 template<typename Real>

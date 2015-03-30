@@ -71,28 +71,27 @@ void Initialize
   const Matrix<Real>& h,
         Matrix<Real>& x,       Matrix<Real>& y,
         Matrix<Real>& z,       Matrix<Real>& s,
-  bool primalInitialized, bool dualInitialized,
-  bool standardShift )
+  bool primalInit, bool dualInit, bool standardShift )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::affine::Initialize"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
-    if( primalInitialized )
+    if( primalInit )
     {
         if( x.Height() != n || x.Width() != 1 )
             LogicError("x was of the wrong size");
         if( s.Height() != k || s.Width() != 1 )
             LogicError("s was of the wrong size");
     }
-    if( dualInitialized )
+    if( dualInit )
     {
         if( y.Height() != m || y.Width() != 1 )
             LogicError("y was of the wrong size");
         if( z.Height() != k || z.Width() != 1 )
             LogicError("z was of the wrong size");
     }
-    if( primalInitialized && dualInitialized )
+    if( primalInit && dualInit )
     {
         // TODO: Perform a consistency check
         return;
@@ -112,7 +111,7 @@ void Initialize
 
     Matrix<Real> rc, rb, rh, rmu, u, d;
     Zeros( rmu, k, 1 );
-    if( !primalInitialized )
+    if( !primalInit )
     {
         // Minimize || G x - h ||^2, s.t. A x = b  by solving
         //
@@ -131,7 +130,7 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, x, u, s );
         Scale( Real(-1), s );
     }
-    if( !dualInitialized )
+    if( !dualInit )
     {
         // Minimize || z ||^2, s.t. A^T y + G^T z + c in range(Q) by solving
         //
@@ -152,17 +151,17 @@ void Initialize
     // ===========================================
     const auto sMinPair = VectorMin( s );
     const Real alphaPrimal = -sMinPair.value;
-    if( alphaPrimal >= Real(0) && primalInitialized )
+    if( alphaPrimal >= Real(0) && primalInit )
         RuntimeError("initialized s was non-positive");
 
     // alpha_d := min { alpha : z + alpha*e >= 0 }
     // ===========================================
     const auto zMinPair = VectorMin( z );
     const Real alphaDual = -zMinPair.value;
-    if( alphaDual >= Real(0) && dualInitialized )
+    if( alphaDual >= Real(0) && dualInit )
         RuntimeError("initialized z was non-positive");
 
-    const Real epsilon = lapack::MachineEpsilon<Real>();
+    const Real epsilon = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
     const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
@@ -189,29 +188,28 @@ void Initialize
   const AbstractDistMatrix<Real>& h,
         AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
         AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s,
-  bool primalInitialized, bool dualInitialized,
-  bool standardShift )
+  bool primalInit, bool dualInit, bool standardShift )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::affine::Initialize"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
     const Grid& g = A.Grid();
-    if( primalInitialized )
+    if( primalInit )
     {
         if( x.Height() != n || x.Width() != 1 )
             LogicError("x was of the wrong size");
         if( s.Height() != k || s.Width() != 1 )
             LogicError("s was of the wrong size");
     }
-    if( dualInitialized )
+    if( dualInit )
     {
         if( y.Height() != m || y.Width() != 1 )
             LogicError("y was of the wrong size");
         if( z.Height() != k || z.Width() != 1 )
             LogicError("z was of the wrong size");
     }
-    if( primalInitialized && dualInitialized )
+    if( primalInit && dualInit )
     {
         // TODO: Perform a consistency check
         return;
@@ -231,7 +229,7 @@ void Initialize
 
     DistMatrix<Real> rc(g), rb(g), rh(g), rmu(g), d(g), u(g);
     Zeros( rmu, k, 1 );
-    if( !primalInitialized )
+    if( !primalInit )
     {
         // Minimize || G x - h ||^2, s.t. A x = b  by solving
         //
@@ -250,7 +248,7 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, x, u, s );
         Scale( Real(-1), s );
     }
-    if( !dualInitialized )
+    if( !dualInit )
     {
         // Minimize || z ||^2, s.t. A^T y + G^T z + c in range(Q) by solving
         //
@@ -271,17 +269,17 @@ void Initialize
     // ===========================================
     const auto sMinPair = VectorMin( s );
     const Real alphaPrimal = -sMinPair.value;
-    if( alphaPrimal >= Real(0) && primalInitialized )
+    if( alphaPrimal >= Real(0) && primalInit )
         RuntimeError("initialized s was non-positive");
 
     // alpha_d := min { alpha : z + alpha*e >= 0 }
     // ===========================================
     const auto zMinPair = VectorMin( z );
     const Real alphaDual = -zMinPair.value;
-    if( alphaDual >= Real(0) && dualInitialized )
+    if( alphaDual >= Real(0) && dualInit )
         RuntimeError("initialized z was non-positive");
 
-    const Real epsilon = lapack::MachineEpsilon<Real>();
+    const Real epsilon = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
     const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
@@ -310,29 +308,28 @@ void Initialize
         Matrix<Real>& z,             Matrix<Real>& s,
         vector<Int>& map,            vector<Int>& invMap, 
         Separator& rootSep,          SymmNodeInfo& info,
-  bool primalInitialized, bool dualInitialized,
-  bool standardShift,
+  bool primalInit, bool dualInit, bool standardShift,
   const RegQSDCtrl<Real>& qsdCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::affine::Initialize"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
-    if( primalInitialized )
+    if( primalInit )
     {
         if( x.Height() != n || x.Width() != 1 )
             LogicError("x was of the wrong size");
         if( s.Height() != k || s.Width() != 1 )
             LogicError("s was of the wrong size");
     }
-    if( dualInitialized )
+    if( dualInit )
     {
         if( y.Height() != m || y.Width() != 1 )
             LogicError("y was of the wrong size");
         if( z.Height() != k || z.Width() != 1 )
             LogicError("z was of the wrong size");
     }
-    if( primalInitialized && dualInitialized )
+    if( primalInit && dualInit )
     {
         // TODO: Perform a consistency check
         return;
@@ -369,7 +366,7 @@ void Initialize
     // ---------------------------------------------
     Matrix<Real> rc, rb, rh, rmu, u, d;
     Zeros( rmu, k, 1 );
-    if( !primalInitialized )
+    if( !primalInit )
     {
         // Minimize || G x - h ||^2, s.t. A x = b  by solving
         //
@@ -389,7 +386,7 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, x, u, s );
         Scale( Real(-1), s );
     }
-    if( !dualInitialized )
+    if( !dualInit )
     {
         // Minimize || z ||^2, s.t. A^T y + G^T z + c in range(Q) by solving
         //
@@ -411,17 +408,17 @@ void Initialize
     // ===========================================
     const auto sMinPair = VectorMin( s );
     const Real alphaPrimal = -sMinPair.value;
-    if( alphaPrimal >= Real(0) && primalInitialized )
+    if( alphaPrimal >= Real(0) && primalInit )
         RuntimeError("initialized s was non-positive");
 
     // alpha_d := min { alpha : z + alpha*e >= 0 }
     // ===========================================
     const auto zMinPair = VectorMin( z );
     const Real alphaDual = -zMinPair.value;
-    if( alphaDual >= Real(0) && dualInitialized )
+    if( alphaDual >= Real(0) && dualInit )
         RuntimeError("initialized z was non-positive");
 
-    const Real epsilon = lapack::MachineEpsilon<Real>();
+    const Real epsilon = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
     const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
@@ -450,8 +447,7 @@ void Initialize
         DistMultiVec<Real>& z,            DistMultiVec<Real>& s,
         DistMap& map,                     DistMap& invMap, 
         DistSeparator& rootSep,           DistSymmNodeInfo& info,
-  bool primalInitialized, bool dualInitialized,
-  bool standardShift, 
+  bool primalInit, bool dualInit, bool standardShift, 
   const RegQSDCtrl<Real>& qsdCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("qp::affine::Initialize"))
@@ -459,21 +455,21 @@ void Initialize
     const Int n = A.Width();
     const Int k = G.Height();
     mpi::Comm comm = A.Comm();
-    if( primalInitialized )
+    if( primalInit )
     {
         if( x.Height() != n || x.Width() != 1 )
             LogicError("x was of the wrong size");
         if( s.Height() != k || s.Width() != 1 )
             LogicError("s was of the wrong size");
     }
-    if( dualInitialized )
+    if( dualInit )
     {
         if( y.Height() != m || y.Width() != 1 )
             LogicError("y was of the wrong size");
         if( z.Height() != k || z.Width() != 1 )
             LogicError("z was of the wrong size");
     }
-    if( primalInitialized && dualInitialized )
+    if( primalInit && dualInit )
     {
         // TODO: Perform a consistency check
         return;
@@ -513,7 +509,7 @@ void Initialize
     DistMultiVec<Real> rc(comm), rb(comm), rh(comm), rmu(comm), u(comm),
                        d(comm);
     Zeros( rmu, k, 1 );
-    if( !primalInitialized )
+    if( !primalInit )
     {
         // Minimize || G x - h ||^2, s.t. A x = b  by solving
         //
@@ -533,7 +529,7 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, x, u, s );
         Scale( Real(-1), s );
     }
-    if( !dualInitialized )
+    if( !dualInit )
     {
         // Minimize || z ||^2, s.t. A^T y + G^T z + c in range(Q) by solving
         //
@@ -555,17 +551,17 @@ void Initialize
     // ===========================================
     const auto sMinPair = VectorMin( s );
     const Real alphaPrimal = -sMinPair.value;
-    if( alphaPrimal >= Real(0) && primalInitialized )
+    if( alphaPrimal >= Real(0) && primalInit )
         RuntimeError("initialized s was non-positive");
 
     // alpha_d := min { alpha : z + alpha*e >= 0 }
     // ===========================================
     const auto zMinPair = VectorMin( z );
     const Real alphaDual = -zMinPair.value;
-    if( alphaDual >= Real(0) && dualInitialized )
+    if( alphaDual >= Real(0) && dualInit )
         RuntimeError("initialized z was non-positive");
 
-    const Real epsilon = lapack::MachineEpsilon<Real>();
+    const Real epsilon = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
     const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
@@ -592,8 +588,7 @@ void Initialize
     const Matrix<Real>& h, \
           Matrix<Real>& x,       Matrix<Real>& y, \
           Matrix<Real>& z,       Matrix<Real>& s, \
-    bool primalInitialized, bool dualInitialized, \
-    bool standardShift ); \
+    bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
   ( const AbstractDistMatrix<Real>& Q, \
     const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G, \
@@ -601,8 +596,7 @@ void Initialize
     const AbstractDistMatrix<Real>& h, \
           AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y, \
           AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s, \
-    bool primalInitialized, bool dualInitialized, \
-    bool standardShift ); \
+    bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
   ( const SparseMatrix<Real>& Q, \
     const SparseMatrix<Real>& A, const SparseMatrix<Real>& G, \
@@ -612,8 +606,7 @@ void Initialize
           Matrix<Real>& z,             Matrix<Real>& s, \
           vector<Int>& map,            vector<Int>& invMap, \
           Separator& rootSep,          SymmNodeInfo& info, \
-    bool primalInitialized, bool dualInitialized, \
-    bool standardShift, \
+    bool primalInit, bool dualInit, bool standardShift, \
     const RegQSDCtrl<Real>& qsdCtrl ); \
   template void Initialize \
   ( const DistSparseMatrix<Real>& Q, \
@@ -624,8 +617,7 @@ void Initialize
           DistMultiVec<Real>& z,            DistMultiVec<Real>& s, \
           DistMap& map,                     DistMap& invMap, \
           DistSeparator& rootSep,           DistSymmNodeInfo& info, \
-    bool primalInitialized, bool dualInitialized, \
-    bool standardShift, \
+    bool primalInit, bool dualInit, bool standardShift, \
     const RegQSDCtrl<Real>& qsdCtrl );
 
 #define EL_NO_INT_PROTO

@@ -11,6 +11,7 @@
 #define EL_IMPORTS_LAPACK_HPP
 
 namespace El {
+
 namespace lapack {
 
 // Machine constants
@@ -398,6 +399,13 @@ void Eig( int n, scomplex* A, int ldA, scomplex* w, scomplex* X, int ldX );
 void Eig( int n, dcomplex* A, int ldA, dcomplex* w, dcomplex* X, int ldX );
 
 } // namespace lapack
+
+// NOTE: Since lapack::MachineEpsilon<Real>() is used so often, we will import
+//       it as Epsilon<Real>()
+template<typename Real>
+Real Epsilon()
+{ return lapack::MachineEpsilon<Real>(); }
+
 } // namespace El
 
 #endif // ifndef EL_IMPORTS_LAPACK_HPP

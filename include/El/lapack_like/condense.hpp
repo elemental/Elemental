@@ -79,14 +79,11 @@ enum HermitianTridiagApproach
 using namespace HermitianTridiagApproachNS;
 
 template<typename F>
-struct HermitianTridiagCtrl {
-    HermitianTridiagApproach approach;
-    GridOrder order;
+struct HermitianTridiagCtrl 
+{
+    HermitianTridiagApproach approach=HERMITIAN_TRIDIAG_SQUARE;
+    GridOrder order=ROW_MAJOR;
     SymvCtrl<F> symvCtrl;
-
-    HermitianTridiagCtrl<F>()
-    : approach(HERMITIAN_TRIDIAG_SQUARE), order(ROW_MAJOR)
-    { }
 };
 
 template<typename F>

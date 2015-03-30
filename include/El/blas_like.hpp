@@ -54,13 +54,10 @@ template<> Int LocalTrr2kBlocksize<Complex<float>>();
 template<> Int LocalTrr2kBlocksize<Complex<double>>();
 
 template<typename T>
-struct SymvCtrl {
-    Int bsize;
-    bool avoidTrmvBasedLocalSymv;
-
-    SymvCtrl()
-    : bsize(LocalSymvBlocksize<T>()), avoidTrmvBasedLocalSymv(true)
-    { }
+struct SymvCtrl 
+{
+    Int bsize=LocalSymvBlocksize<T>();
+    bool avoidTrmvBasedLocalSymv=true;
 };
 
 } // namespace El

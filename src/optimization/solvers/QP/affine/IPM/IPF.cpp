@@ -70,12 +70,12 @@ void IPF
             DiagonalSolve( LEFT, NORMAL, dCol,  Q );
             DiagonalSolve( RIGHT, NORMAL, dCol, Q );
         }
-        if( ctrl.primalInitialized )
+        if( ctrl.primalInit )
         {
             DiagonalScale( LEFT, NORMAL, dCol,  x );
             DiagonalSolve( LEFT, NORMAL, dRowG, s );
         }
-        if( ctrl.dualInitialized )
+        if( ctrl.dualInit )
         {
             DiagonalScale( LEFT, NORMAL, dRowA, y );
             DiagonalScale( LEFT, NORMAL, dRowG, z );
@@ -96,7 +96,7 @@ void IPF
     const bool standardShift = true;
     Initialize
     ( Q, A, G, b, c, h, x, y, z, s, 
-      ctrl.primalInitialized, ctrl.dualInitialized, standardShift );
+      ctrl.primalInit, ctrl.dualInit, standardShift );
 
     Matrix<Real> J, d,
                  rmu, rc, rb, rh,
@@ -279,10 +279,10 @@ void IPF
     control.rowConstrain = true;
     control.colAlign = 0;
     control.rowAlign = 0;
-    // NOTE: {x,s} do not need to be a read proxy when !ctrl.primalInitialized
+    // NOTE: {x,s} do not need to be a read proxy when !ctrl.primalInit
     auto xPtr = ReadWriteProxy<Real,MC,MR>(&xPre,control); auto& x = *xPtr;
     auto sPtr = ReadWriteProxy<Real,MC,MR>(&sPre,control); auto& s = *sPtr;
-    // NOTE: {y,z} do not need to be read proxies when !ctrl.dualInitialized
+    // NOTE: {y,z} do not need to be read proxies when !ctrl.dualInit
     auto yPtr = ReadWriteProxy<Real,MC,MR>(&yPre,control); auto& y = *yPtr;
     auto zPtr = ReadWriteProxy<Real,MC,MR>(&zPre,control); auto& z = *zPtr;
 
@@ -305,12 +305,12 @@ void IPF
             DiagonalSolve( LEFT, NORMAL, dCol,  Q );
             DiagonalSolve( RIGHT, NORMAL, dCol, Q );
         }
-        if( ctrl.primalInitialized )
+        if( ctrl.primalInit )
         {
             DiagonalScale( LEFT, NORMAL, dCol,  x );
             DiagonalSolve( LEFT, NORMAL, dRowG, s );
         }
-        if( ctrl.dualInitialized )
+        if( ctrl.dualInit )
         {
             DiagonalScale( LEFT, NORMAL, dRowA, y );
             DiagonalScale( LEFT, NORMAL, dRowG, z );
@@ -331,7 +331,7 @@ void IPF
     const bool standardShift = true;
     Initialize
     ( Q, A, G, b, c, h, x, y, z, s, 
-      ctrl.primalInitialized, ctrl.dualInitialized, standardShift );
+      ctrl.primalInit, ctrl.dualInit, standardShift );
 
     DistMatrix<Real> J(grid), d(grid), 
                      rc(grid), rb(grid), rh(grid), rmu(grid),
@@ -522,12 +522,12 @@ void IPF
             DiagonalSolve( LEFT, NORMAL, dCol, Q );
             DiagonalSolve( RIGHT, NORMAL, dCol, Q );
         }
-        if( ctrl.primalInitialized )
+        if( ctrl.primalInit )
         {
             DiagonalScale( LEFT, NORMAL, dCol,  x );
             DiagonalSolve( LEFT, NORMAL, dRowG, s );
         }
-        if( ctrl.dualInitialized )
+        if( ctrl.dualInit )
         {
             DiagonalScale( LEFT, NORMAL, dRowA, y );
             DiagonalScale( LEFT, NORMAL, dRowG, z );
@@ -551,8 +551,7 @@ void IPF
     const bool standardShift = true;
     Initialize
     ( Q, A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
-      ctrl.primalInitialized, ctrl.dualInitialized, standardShift, 
-      ctrl.qsdCtrl );
+      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
 
     SparseMatrix<Real> J, JOrig;
     SymmFront<Real> JFront;
@@ -654,7 +653,7 @@ void IPF
         J = JOrig;
         SymmetricGeomEquil( J, dInner, ctrl.print );
         UpdateRealPartOfDiagonal( J, Real(1), reg );
-        if( ctrl.primalInitialized && ctrl.dualInitialized && numIts == 0 )
+        if( ctrl.primalInit && ctrl.dualInit && numIts == 0 )
         {
             NestedDissection( J.LockedGraph(), map, rootSep, info );
             InvertMap( map, invMap );
@@ -767,12 +766,12 @@ void IPF
             DiagonalSolve( LEFT, NORMAL, dCol, Q );
             DiagonalSolve( RIGHT, NORMAL, dCol, Q );
         }
-        if( ctrl.primalInitialized )
+        if( ctrl.primalInit )
         {
             DiagonalScale( LEFT, NORMAL, dCol,  x );
             DiagonalSolve( LEFT, NORMAL, dRowG, s );
         }
-        if( ctrl.dualInitialized )
+        if( ctrl.dualInit )
         {
             DiagonalScale( LEFT, NORMAL, dRowA, y );
             DiagonalScale( LEFT, NORMAL, dRowG, z );
@@ -796,8 +795,7 @@ void IPF
     const bool standardShift = true;
     Initialize
     ( Q, A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
-      ctrl.primalInitialized, ctrl.dualInitialized, standardShift, 
-      ctrl.qsdCtrl );
+      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
 
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     DistSymmFront<Real> JFront;
@@ -900,7 +898,7 @@ void IPF
         J = JOrig;
         SymmetricGeomEquil( J, dInner, ctrl.print );
         UpdateRealPartOfDiagonal( J, Real(1), reg );
-        if( ctrl.primalInitialized && ctrl.dualInitialized && numIts == 0 )
+        if( ctrl.primalInit && ctrl.dualInit && numIts == 0 )
         {
             NestedDissection( J.LockedDistGraph(), map, rootSep, info );
             InvertMap( map, invMap );

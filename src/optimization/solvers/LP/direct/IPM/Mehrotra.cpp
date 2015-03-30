@@ -49,15 +49,15 @@ void Mehrotra
     const Int m = A.Height();
     const Int n = A.Width();
     Matrix<Real> dRow, dCol;
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
         GeomEquil( A, dRow, dCol, ctrl.print );
 
         DiagonalSolve( LEFT, NORMAL, dRow, b ); 
         DiagonalSolve( LEFT, NORMAL, dCol, c );
-        if( ctrl.primalInitialized )
+        if( ctrl.primalInit )
             DiagonalScale( LEFT, NORMAL, dCol, x );
-        if( ctrl.dualInitialized )
+        if( ctrl.dualInit )
         {
             DiagonalScale( LEFT, NORMAL, dRow, y );
             DiagonalSolve( LEFT, NORMAL, dCol, z );
@@ -75,8 +75,7 @@ void Mehrotra
     // TODO: Expose this as a parameter of MehrotraCtrl
     const bool standardShift = true;
     Initialize
-    ( A, b, c, x, y, z, ctrl.primalInitialized, ctrl.dualInitialized,
-      standardShift ); 
+    ( A, b, c, x, y, z, ctrl.primalInit, ctrl.dualInit, standardShift ); 
 
     Matrix<Real> J, d, 
                  rb,    rc,    rmu,
@@ -309,7 +308,7 @@ void Mehrotra
         Axpy( alphaDual, dz, z ); 
     }
 
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
         // Unequilibrate the LP
         DiagonalSolve( LEFT, NORMAL, dCol, x );
@@ -343,9 +342,9 @@ void Mehrotra
     control.rowConstrain = true;
     control.colAlign = 0;
     control.rowAlign = 0;
-    // NOTE: x does not need to be a read proxy when !ctrl.primalInitialized
+    // NOTE: x does not need to be a read proxy when !ctrl.primalInit
     auto xPtr = ReadWriteProxy<Real,MC,MR>(&xPre,control); auto& x = *xPtr;
-    // NOTE: {y,z} do not need to be read proxies when !ctrl.dualInitialized
+    // NOTE: {y,z} do not need to be read proxies when !ctrl.dualInit
     auto yPtr = ReadWriteProxy<Real,MC,MR>(&yPre,control); auto& y = *yPtr;
     auto zPtr = ReadWriteProxy<Real,MC,MR>(&zPre,control); auto& z = *zPtr;
 
@@ -354,15 +353,15 @@ void Mehrotra
     const Int n = A.Width();
     DistMatrix<Real,MC,STAR> dRow(grid);
     DistMatrix<Real,MR,STAR> dCol(grid);
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
         GeomEquil( A, dRow, dCol, ctrl.print );
 
         DiagonalSolve( LEFT, NORMAL, dRow, b ); 
         DiagonalSolve( LEFT, NORMAL, dCol, c );
-        if( ctrl.primalInitialized )
+        if( ctrl.primalInit )
             DiagonalScale( LEFT, NORMAL, dCol, x );
-        if( ctrl.dualInitialized )
+        if( ctrl.dualInit )
         {
             DiagonalScale( LEFT, NORMAL, dRow, y );
             DiagonalSolve( LEFT, NORMAL, dCol, z );
@@ -380,8 +379,7 @@ void Mehrotra
     // TODO: Expose this as a parameter of MehrotraCtrl
     const bool standardShift = true;
     Initialize
-    ( A, b, c, x, y, z, ctrl.primalInitialized, ctrl.dualInitialized,
-      standardShift ); 
+    ( A, b, c, x, y, z, ctrl.primalInit, ctrl.dualInit, standardShift ); 
 
     DistMatrix<Real> 
         J(grid), d(grid), 
@@ -621,7 +619,7 @@ void Mehrotra
         Axpy( alphaDual, dz, z ); 
     }
 
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
         // Unequilibrate the LP
         DiagonalSolve( LEFT, NORMAL, dCol, x );
@@ -647,15 +645,15 @@ void Mehrotra
     const Int m = A.Height();
     const Int n = A.Width();
     Matrix<Real> dRow, dCol;
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
         GeomEquil( A, dRow, dCol, ctrl.print );
 
         DiagonalSolve( LEFT, NORMAL, dRow, b ); 
         DiagonalSolve( LEFT, NORMAL, dCol, c );
-        if( ctrl.primalInitialized )
+        if( ctrl.primalInit )
             DiagonalScale( LEFT, NORMAL, dCol, x );
-        if( ctrl.dualInitialized )
+        if( ctrl.dualInit )
         {
             DiagonalScale( LEFT, NORMAL, dRow, y );
             DiagonalSolve( LEFT, NORMAL, dCol, z );
@@ -682,8 +680,7 @@ void Mehrotra
     {
         Initialize
         ( A, b, c, x, y, z, map, invMap, rootSep, info,
-          ctrl.primalInitialized, ctrl.dualInitialized, standardShift,
-          ctrl.qsdCtrl );
+          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
     }  
     else
     {
@@ -692,8 +689,7 @@ void Mehrotra
         Separator augRootSep;
         Initialize
         ( A, b, c, x, y, z, augMap, augInvMap, augRootSep, augInfo,
-          ctrl.primalInitialized, ctrl.dualInitialized, standardShift,
-          ctrl.qsdCtrl );
+          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
     }
 
     SparseMatrix<Real> J, JOrig;
@@ -789,14 +785,31 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        if( ctrl.system == FULL_KKT )
+        if( ctrl.system == FULL_KKT || ctrl.system == AUGMENTED_KKT )
         {
-            // Factor the regularized, full KKT system
-            // ---------------------------------------
-            KKT( A, x, z, JOrig, false );
+            if( ctrl.system == FULL_KKT )
+                KKT( A, x, z, JOrig, false );
+            else
+                AugmentedKKT( A, x, z, JOrig, false );
+
             J = JOrig;
-            SymmetricGeomEquil( J, dInner, ctrl.print );
+
+            if( ctrl.innerEquil )
+                SymmetricGeomEquil( J, dInner, ctrl.print );
+            else
+                Ones( dInner, reg.Height(), 1 );
+
+            if( ctrl.scaleTwoNorm )
+            {
+                Real twoNormEst = TwoNormEstimate( J, ctrl.basisSize );
+                if( ctrl.print )
+                    cout << "Estimated || J ||_2 ~= " << twoNormEst << endl;
+                Scale( Real(1)/twoNormEst, J );
+                Scale( Sqrt(twoNormEst), dInner );
+            }
+
             UpdateRealPartOfDiagonal( J, Real(1), reg );
+
             if( numIts == 0 )
             {
                 NestedDissection( J.LockedGraph(), map, rootSep, info );
@@ -807,33 +820,16 @@ void Mehrotra
 
             // Compute the proposed step from the regularized KKT system
             // ---------------------------------------------------------
-            KKTRHS( rc, rb, rmu, z, d );
+            if( ctrl.system == FULL_KKT )
+                KKTRHS( rc, rb, rmu, z, d );
+            else
+                AugmentedKKTRHS( x, rc, rb, rmu, d );
             reg_qsd_ldl::SolveAfter
             ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
-            ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
-        }
-        else if( ctrl.system == AUGMENTED_KKT )
-        {
-            // Factor the regularized, "augmented" KKT system
-            // ----------------------------------------------
-            AugmentedKKT( A, x, z, JOrig, false );
-            J = JOrig;
-            SymmetricGeomEquil( J, dInner, ctrl.print );
-            UpdateRealPartOfDiagonal( J, Real(1), reg );
-            if( ctrl.primalInitialized && ctrl.dualInitialized && numIts == 0 )
-            {
-                NestedDissection( J.LockedGraph(), map, rootSep, info );
-                InvertMap( map, invMap );
-            }
-            JFront.Pull( J, map, info );
-            LDL( info, JFront, LDL_2D );
-
-            // Compute the proposed step from the KKT system
-            // ---------------------------------------------
-            AugmentedKKTRHS( x, rc, rb, rmu, d );
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
-            ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
+            if( ctrl.system == FULL_KKT )
+                ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
+            else
+                ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
         }
         else // ctrl.system == NORMAL_KKT
         {
@@ -969,7 +965,7 @@ void Mehrotra
         Axpy( alphaDual, dz, z ); 
     }
 
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
         // Unequilibrate the LP
         DiagonalSolve( LEFT, NORMAL, dCol, x );
@@ -998,7 +994,7 @@ void Mehrotra
     const Int m = A.Height();
     const Int n = A.Width();
     DistMultiVec<Real> dRow(comm), dCol(comm);
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
         if( commRank == 0 && ctrl.time )
             timer.Start();
@@ -1008,9 +1004,9 @@ void Mehrotra
 
         DiagonalSolve( LEFT, NORMAL, dRow, b ); 
         DiagonalSolve( LEFT, NORMAL, dCol, c );
-        if( ctrl.primalInitialized )
+        if( ctrl.primalInit )
             DiagonalScale( LEFT, NORMAL, dCol, x );
-        if( ctrl.dualInitialized )
+        if( ctrl.dualInit )
         {
             DiagonalScale( LEFT, NORMAL, dRow, y );
             DiagonalSolve( LEFT, NORMAL, dCol, z );
@@ -1039,8 +1035,7 @@ void Mehrotra
     {
         Initialize
         ( A, b, c, x, y, z, map, invMap, rootSep, info,
-          ctrl.primalInitialized, ctrl.dualInitialized, standardShift,
-          ctrl.qsdCtrl );
+          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
     }  
     else
     {
@@ -1049,8 +1044,7 @@ void Mehrotra
         DistSeparator augRootSep;
         Initialize
         ( A, b, c, x, y, z, augMap, augInvMap, augRootSep, augInfo,
-          ctrl.primalInitialized, ctrl.dualInitialized, standardShift,
-          ctrl.qsdCtrl );
+          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
     }
     if( commRank == 0 && ctrl.time )
         cout << "  Init: " << timer.Stop() << " secs" << endl;
@@ -1150,14 +1144,31 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        if( ctrl.system == FULL_KKT )
+        if( ctrl.system == FULL_KKT || ctrl.system == AUGMENTED_KKT )
         {
-            // Factor the regularized, full KKT system
-            // ---------------------------------------
-            KKT( A, x, z, JOrig, false );
+            if( ctrl.system == FULL_KKT )
+                KKT( A, x, z, JOrig, false );
+            else
+                AugmentedKKT( A, x, z, JOrig, false );
+
             J = JOrig;
-            SymmetricGeomEquil( J, dInner, ctrl.print );
+
+            if( ctrl.innerEquil )
+                SymmetricGeomEquil( J, dInner, ctrl.print );
+            else
+                Ones( dInner, reg.Height(), 1 );
+
+            if( ctrl.scaleTwoNorm )
+            {
+                Real twoNormEst = TwoNormEstimate( J, ctrl.basisSize );
+                if( ctrl.print && commRank == 0 )
+                    cout << "Estimated || J ||_2 ~= " << twoNormEst << endl;
+                Scale( Real(1)/twoNormEst, J );
+                Scale( Sqrt(twoNormEst), dInner );
+            }
+
             UpdateRealPartOfDiagonal( J, Real(1), reg );
+
             if( numIts == 0 )
             {
                 if( commRank == 0 && ctrl.time )
@@ -1174,51 +1185,22 @@ void Mehrotra
             if( commRank == 0 && ctrl.time )
                 cout << "  LDL: " << timer.Stop() << " secs" << endl;
 
-            // Compute the proposed step from the regularized KKT system
-            // ---------------------------------------------------------
-            KKTRHS( rc, rb, rmu, z, d );
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
-            if( commRank == 0 && ctrl.time )
-                cout << "  Affine: " << timer.Stop() << " secs" << endl;
-            ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
-        }
-        else if( ctrl.system == AUGMENTED_KKT )
-        {
-            // Factor the regularized, "augmented" KKT system
-            // ----------------------------------------------
-            AugmentedKKT( A, x, z, JOrig, false );
-            J = JOrig;
-            SymmetricGeomEquil( J, dInner, ctrl.print );
-            UpdateRealPartOfDiagonal( J, Real(1), reg );
-            if( ctrl.primalInitialized && ctrl.dualInitialized && numIts == 0 )
-            {
-                if( commRank == 0 && ctrl.time )
-                    timer.Start();
-                NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-                if( commRank == 0 && ctrl.time )
-                    cout << "  ND: " << timer.Stop() << " secs" << endl;
-                InvertMap( map, invMap );
-            }
-            JFront.Pull( J, map, rootSep, info );
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            LDL( info, JFront, LDL_2D );
-            if( commRank == 0 && ctrl.time )
-                cout << "  LDL: " << timer.Stop() << " secs" << endl;
+            if( ctrl.system == FULL_KKT )
+                KKTRHS( rc, rb, rmu, z, d );
+            else
+                AugmentedKKTRHS( x, rc, rb, rmu, d );
 
-            // Compute the proposed step from the regularized KKT system
-            // ---------------------------------------------------------
-            AugmentedKKTRHS( x, rc, rb, rmu, d );
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             reg_qsd_ldl::SolveAfter
             ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
             if( commRank == 0 && ctrl.time )
                 cout << "  Affine: " << timer.Stop() << " secs" << endl;
-            ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
+
+            if( ctrl.system == FULL_KKT )
+                ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
+            else
+                ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
         }
         else // ctrl.system == NORMAL_KKT
         {
@@ -1380,7 +1362,7 @@ void Mehrotra
         Axpy( alphaDual, dz, z ); 
     }
 
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
         // Unequilibrate the LP
         DiagonalSolve( LEFT, NORMAL, dCol, x );

@@ -32,7 +32,7 @@ inline void TallAbsoluteThresholded
     const Real frobNorm = FrobeniusNorm( A );
     if( tol == Real(0) )
     {
-        const Real eps = lapack::MachineEpsilon<Real>();
+        const Real eps = Epsilon<Real>();
         tol = m*frobNorm*eps;
     }
     if( tol >= frobNorm )
@@ -170,7 +170,7 @@ TallAbsoluteThresholded
     const Real frobNorm = FrobeniusNorm( A );
     if( tol == Real(0) )
     {
-        const Real eps = lapack::MachineEpsilon<Real>();
+        const Real eps = Epsilon<Real>();
         tol = m*frobNorm*eps;
     }
     if( tol >= frobNorm )
@@ -334,7 +334,7 @@ TallAbsoluteThresholded
     const Real frobNorm = FrobeniusNorm( A );
     if( tol == Real(0) )
     {
-        const Real eps = lapack::MachineEpsilon<Real>();
+        const Real eps = Epsilon<Real>();
         tol = m*frobNorm*eps;
     }
     if( tol >= frobNorm )
@@ -489,7 +489,7 @@ WideAbsoluteThresholded
     const Real frobNorm = FrobeniusNorm( A );
     if( tol == Real(0) )
     {
-        const Real eps = lapack::MachineEpsilon<Real>();
+        const Real eps = Epsilon<Real>();
         tol = n*frobNorm*eps;
     }
     if( tol >= frobNorm )
@@ -628,7 +628,7 @@ WideAbsoluteThresholded
     const Real frobNorm = FrobeniusNorm( A );
     if( tol == Real(0) )
     {
-        const Real eps = lapack::MachineEpsilon<Real>();
+        const Real eps = Epsilon<Real>();
         tol = n*frobNorm*eps;
     }
     if( tol >= frobNorm )

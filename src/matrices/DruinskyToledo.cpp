@@ -32,7 +32,7 @@ void DruinskyToledo( Matrix<F>& A, Int k )
         return;
     }
     typedef Base<F> Real;
-    const Real phi = Real(1) + 4*lapack::MachineEpsilon<Real>();
+    const Real phi = Real(1) + 4*Epsilon<Real>();
     const Real alphaPhi = LDLPivotConstant<Real>(BUNCH_KAUFMAN_A)*phi;
     vector<Real> d( k-2 );
     Real sigma(1);
@@ -75,7 +75,7 @@ void DruinskyToledo( AbstractDistMatrix<F>& A, Int k )
         return;
     }
     typedef Base<F> Real;
-    const Real phi = Real(1) + 4*lapack::MachineEpsilon<Real>();
+    const Real phi = Real(1) + 4*Epsilon<Real>();
     const Real alphaPhi = LDLPivotConstant<Real>(BUNCH_KAUFMAN_A)*phi;
     vector<Real> d( k-2 );
     Real sigma(1);

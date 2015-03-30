@@ -38,8 +38,8 @@ void LeastSquares
 template<typename Real>
 struct LeastSquaresCtrl 
 {
-    bool scaleTwoNorm;
-    Int basisSize; // only used if 'scaleTwoNorm' is true
+    bool scaleTwoNorm=true;
+    Int basisSize=15; // only used if 'scaleTwoNorm' is true
 
     // Note: while 'alpha' should ideally be roughly equal to the minimum 
     //       singular value of A (possibly scaled down to unit two-norm),
@@ -47,18 +47,12 @@ struct LeastSquaresCtrl
     //       alpha ~= 1e-4 is a decent default. After experimenting with the
     //       estimation of the minimum singular value via Lanczos on A^H A
     //       failed (the literature agrees), I fell back to this default value.
-    Real alpha;
+    Real alpha=Pow(Epsilon<Real>(),Real(0.25));
 
     RegQSDCtrl<Real> qsdCtrl;
-    bool equilibrate;
-    bool progress;
-    bool time;
-
-    LeastSquaresCtrl()
-    : scaleTwoNorm(true), basisSize(15),
-      alpha(Pow(lapack::MachineEpsilon<Real>(),Real(0.25))),
-      equilibrate(true), progress(false), time(false)
-    { }
+    bool equilibrate=true;
+    bool progress=false;
+    bool time=false;
 };
 
 template<typename F>

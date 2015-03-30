@@ -20,16 +20,14 @@ void Initialize
   const Matrix<Real>& b, const Matrix<Real>& c,
         Matrix<Real>& x,       Matrix<Real>& y, 
         Matrix<Real>& z,
-  bool primalInitialized, bool dualInitialized,
-  bool standardShift );
+  bool primalInit, bool dualInit, bool standardShift );
 template<typename Real>
 void Initialize
 ( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
         AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y, 
         AbstractDistMatrix<Real>& z,
-  bool primalInitialized, bool dualInitialized,
-  bool standardShift );
+  bool primalInit, bool dualInit, bool standardShift );
 template<typename Real>
 void Initialize
 ( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A,
@@ -38,8 +36,7 @@ void Initialize
         Matrix<Real>& z,
         vector<Int>& map,            vector<Int>& invMap,
         Separator& rootSep,          SymmNodeInfo& info,
-  bool primalInitialized,      bool dualInitialized,
-  bool standardShift, 
+  bool primalInit, bool dualInit, bool standardShift, 
   const RegQSDCtrl<Real>& qsdCtrl );
 template<typename Real>
 void Initialize
@@ -49,8 +46,7 @@ void Initialize
         DistMultiVec<Real>& z, 
         DistMap& map,                     DistMap& invMap,
         DistSeparator& rootSep,           DistSymmNodeInfo& info,
-  bool primalInitialized,           bool dualInitialized,
-  bool standardShift, 
+  bool primalInit, bool dualInit, bool standardShift, 
   const RegQSDCtrl<Real>& qsdCtrl );
 
 // Full system

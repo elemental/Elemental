@@ -9,8 +9,8 @@
 import El
 import time
 
-n0 = 25
-n1 = 25
+n0 = 50
+n1 = 50
 lambda1 = 3
 lambda2 = 4
 display = True
@@ -63,6 +63,10 @@ if display:
   El.Display( b, "b" )
 
 ctrl = El.QPAffineCtrl_d()
+ctrl.mehrotraCtrl.outerEquil = True
+ctrl.mehrotraCtrl.innerEquil = True
+ctrl.mehrotraCtrl.scaleTwoNorm = True
+ctrl.mehrotraCtrl.basisSize = 15
 ctrl.mehrotraCtrl.progress = True
 if worldRank == 0:
   print "lambda1 =", lambda1, "lambda2 =", lambda2

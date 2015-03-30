@@ -63,8 +63,8 @@ ElError ElLPDirectADMMCtrlDefault_d( ElLPDirectADMMCtrl_d* ctrl )
 
 ElError ElLPDirectIPFCtrlDefault_s( ElLPDirectIPFCtrl_s* ctrl, bool isSparse )
 {
-    ctrl->primalInitialized = false;
-    ctrl->dualInitialized = false;
+    ctrl->primalInit = false;
+    ctrl->dualInit = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
@@ -79,8 +79,8 @@ ElError ElLPDirectIPFCtrlDefault_s( ElLPDirectIPFCtrl_s* ctrl, bool isSparse )
 
 ElError ElLPDirectIPFCtrlDefault_d( ElLPDirectIPFCtrl_d* ctrl, bool isSparse )
 {
-    ctrl->primalInitialized = false;
-    ctrl->dualInitialized = false;
+    ctrl->primalInit = false;
+    ctrl->dualInit = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
@@ -96,14 +96,17 @@ ElError ElLPDirectIPFCtrlDefault_d( ElLPDirectIPFCtrl_d* ctrl, bool isSparse )
 ElError ElLPDirectMehrotraCtrlDefault_s
 ( ElLPDirectMehrotraCtrl_s* ctrl, bool isSparse )
 {
-    ctrl->primalInitialized = false;
-    ctrl->dualInitialized = false;
+    ctrl->primalInit = false;
+    ctrl->dualInit = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ctrl->system = ( isSparse ? EL_AUGMENTED_KKT : EL_NORMAL_KKT );;
     ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
-    ctrl->equilibrate = false;
+    ctrl->outerEquil = true;
+    ctrl->innerEquil = true;
+    ctrl->scaleTwoNorm = true;
+    ctrl->basisSize = 15;
     ctrl->print = false;
     ctrl->time = false;
     return EL_SUCCESS;
@@ -112,14 +115,17 @@ ElError ElLPDirectMehrotraCtrlDefault_s
 ElError ElLPDirectMehrotraCtrlDefault_d
 ( ElLPDirectMehrotraCtrl_d* ctrl, bool isSparse )
 {
-    ctrl->primalInitialized = false;
-    ctrl->dualInitialized = false;
+    ctrl->primalInit = false;
+    ctrl->dualInit = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ctrl->system = ( isSparse ? EL_AUGMENTED_KKT : EL_NORMAL_KKT );;
     ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
-    ctrl->equilibrate = false;
+    ctrl->outerEquil = true;
+    ctrl->innerEquil = true;
+    ctrl->scaleTwoNorm = true;
+    ctrl->basisSize = 15;
     ctrl->print = false;
     ctrl->time = false;
     return EL_SUCCESS;
@@ -148,8 +154,8 @@ ElError ElLPDirectCtrlDefault_d
    ----------------- */
 ElError ElLPAffineIPFCtrlDefault_s( ElLPAffineIPFCtrl_s* ctrl )
 {
-    ctrl->primalInitialized = false;
-    ctrl->dualInitialized = false;
+    ctrl->primalInit = false;
+    ctrl->dualInit = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
@@ -163,8 +169,8 @@ ElError ElLPAffineIPFCtrlDefault_s( ElLPAffineIPFCtrl_s* ctrl )
 
 ElError ElLPAffineIPFCtrlDefault_d( ElLPAffineIPFCtrl_d* ctrl )
 {
-    ctrl->primalInitialized = false;
-    ctrl->dualInitialized = false;
+    ctrl->primalInit = false;
+    ctrl->dualInit = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
@@ -178,13 +184,16 @@ ElError ElLPAffineIPFCtrlDefault_d( ElLPAffineIPFCtrl_d* ctrl )
 
 ElError ElLPAffineMehrotraCtrlDefault_s( ElLPAffineMehrotraCtrl_s* ctrl )
 {
-    ctrl->primalInitialized = false;
-    ctrl->dualInitialized = false;
+    ctrl->primalInit = false;
+    ctrl->dualInit = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
-    ctrl->equilibrate = false;
+    ctrl->outerEquil = true;
+    ctrl->innerEquil = true;
+    ctrl->scaleTwoNorm = true;
+    ctrl->basisSize = 15;
     ctrl->print = false;
     ctrl->time = false;
     return EL_SUCCESS;
@@ -192,13 +201,16 @@ ElError ElLPAffineMehrotraCtrlDefault_s( ElLPAffineMehrotraCtrl_s* ctrl )
 
 ElError ElLPAffineMehrotraCtrlDefault_d( ElLPAffineMehrotraCtrl_d* ctrl )
 {
-    ctrl->primalInitialized = false;
-    ctrl->dualInitialized = false;
+    ctrl->primalInit = false;
+    ctrl->dualInit = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
-    ctrl->equilibrate = false;
+    ctrl->outerEquil = true;
+    ctrl->innerEquil = true;
+    ctrl->scaleTwoNorm = true;
+    ctrl->basisSize = 15;
     ctrl->print = false;
     ctrl->time = false;
     return EL_SUCCESS;
@@ -227,8 +239,8 @@ ElError ElLPAffineCtrlDefault_d( ElLPAffineCtrl_d* ctrl )
    ----------------- */
 ElError ElQPDirectIPFCtrlDefault_s( ElQPDirectIPFCtrl_s* ctrl )
 {
-    ctrl->primalInitialized = false;
-    ctrl->dualInitialized = false;
+    ctrl->primalInit = false;
+    ctrl->dualInit = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
@@ -243,8 +255,8 @@ ElError ElQPDirectIPFCtrlDefault_s( ElQPDirectIPFCtrl_s* ctrl )
 
 ElError ElQPDirectIPFCtrlDefault_d( ElQPDirectIPFCtrl_d* ctrl )
 {
-    ctrl->primalInitialized = false;
-    ctrl->dualInitialized = false;
+    ctrl->primalInit = false;
+    ctrl->dualInit = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
@@ -259,14 +271,17 @@ ElError ElQPDirectIPFCtrlDefault_d( ElQPDirectIPFCtrl_d* ctrl )
 
 ElError ElQPDirectMehrotraCtrlDefault_s( ElQPDirectMehrotraCtrl_s* ctrl )
 {
-    ctrl->primalInitialized = false;
-    ctrl->dualInitialized = false;
+    ctrl->primalInit = false;
+    ctrl->dualInit = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
     ctrl->system = EL_AUGMENTED_KKT;
-    ctrl->equilibrate = false;
+    ctrl->outerEquil = true;
+    ctrl->innerEquil = true;
+    ctrl->scaleTwoNorm = true;
+    ctrl->basisSize = 15;
     ctrl->print = false;
     ctrl->time = false;
     return EL_SUCCESS;
@@ -274,14 +289,17 @@ ElError ElQPDirectMehrotraCtrlDefault_s( ElQPDirectMehrotraCtrl_s* ctrl )
 
 ElError ElQPDirectMehrotraCtrlDefault_d( ElQPDirectMehrotraCtrl_d* ctrl )
 {
-    ctrl->primalInitialized = false;
-    ctrl->dualInitialized = false;
+    ctrl->primalInit = false;
+    ctrl->dualInit = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
     ctrl->system = EL_AUGMENTED_KKT;
-    ctrl->equilibrate = false;
+    ctrl->outerEquil = true;
+    ctrl->innerEquil = true;
+    ctrl->scaleTwoNorm = true;
+    ctrl->basisSize = 15;
     ctrl->print = false;
     ctrl->time = false;
     return EL_SUCCESS;
@@ -307,8 +325,8 @@ ElError ElQPDirectCtrlDefault_d( ElQPDirectCtrl_d* ctrl )
    ----------------- */
 ElError ElQPAffineIPFCtrlDefault_s( ElQPAffineIPFCtrl_s* ctrl )
 {
-    ctrl->primalInitialized = false;
-    ctrl->dualInitialized = false;
+    ctrl->primalInit = false;
+    ctrl->dualInit = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
@@ -322,8 +340,8 @@ ElError ElQPAffineIPFCtrlDefault_s( ElQPAffineIPFCtrl_s* ctrl )
 
 ElError ElQPAffineIPFCtrlDefault_d( ElQPAffineIPFCtrl_d* ctrl )
 {
-    ctrl->primalInitialized = false;
-    ctrl->dualInitialized = false;
+    ctrl->primalInit = false;
+    ctrl->dualInit = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
@@ -337,13 +355,16 @@ ElError ElQPAffineIPFCtrlDefault_d( ElQPAffineIPFCtrl_d* ctrl )
 
 ElError ElQPAffineMehrotraCtrlDefault_s( ElQPAffineMehrotraCtrl_s* ctrl )
 {
-    ctrl->primalInitialized = false;
-    ctrl->dualInitialized = false;
+    ctrl->primalInit = false;
+    ctrl->dualInit = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
-    ctrl->equilibrate = false;
+    ctrl->outerEquil = true;
+    ctrl->innerEquil = true;
+    ctrl->scaleTwoNorm = true;
+    ctrl->basisSize = 15;
     ctrl->print = false;
     ctrl->time = false;
     return EL_SUCCESS;
@@ -351,13 +372,16 @@ ElError ElQPAffineMehrotraCtrlDefault_s( ElQPAffineMehrotraCtrl_s* ctrl )
 
 ElError ElQPAffineMehrotraCtrlDefault_d( ElQPAffineMehrotraCtrl_d* ctrl )
 {
-    ctrl->primalInitialized = false;
-    ctrl->dualInitialized = false;
+    ctrl->primalInit = false;
+    ctrl->dualInit = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
-    ctrl->equilibrate = false;
+    ctrl->outerEquil = true;
+    ctrl->innerEquil = true;
+    ctrl->scaleTwoNorm = true;
+    ctrl->basisSize = 15;
     ctrl->print = false;
     ctrl->time = false;
     return EL_SUCCESS;

@@ -226,7 +226,7 @@ RandomizedSignDivide
     const Real oneA = OneNorm( A );
     Real tol = ctrl.tol;
     if( tol == Real(0) )
-        tol = 500*n*lapack::MachineEpsilon<Real>();
+        tol = 500*n*Epsilon<Real>();
 
     // S := sgn(G)
     // S := 1/2 ( S + I )
@@ -289,7 +289,7 @@ RandomizedSignDivide
     const Real oneA = OneNorm( A );
     Real tol = ctrl.tol;
     if( tol == Real(0) )
-        tol = 500*n*lapack::MachineEpsilon<Real>();
+        tol = 500*n*Epsilon<Real>();
 
     // S := sgn(G)
     // S := 1/2 ( S + I )
@@ -348,7 +348,7 @@ SpectralDivide( Matrix<Real>& A, const SDCCtrl<Real>& ctrl )
     const Int n = A.Height();
     const ValueInt<Real> median = Median(GetDiagonal(A));
     const Real infNorm = InfinityNorm(A);
-    const Real eps = lapack::MachineEpsilon<Real>();
+    const Real eps = Epsilon<Real>();
     Real tol = ctrl.tol;
     if( tol == Real(0) )
         tol = 500*n*eps;
@@ -414,7 +414,7 @@ SpectralDivide
     typedef Complex<Real> F;
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
-    const Real eps = lapack::MachineEpsilon<Real>();
+    const Real eps = Epsilon<Real>();
     Real tol = ctrl.tol;
     if( tol == Real(0) )
         tol = 500*n*eps;
@@ -485,7 +485,7 @@ SpectralDivide
     const Int n = A.Height();
     const auto median = Median(GetDiagonal(A));
     const Real infNorm = InfinityNorm(A);
-    const Real eps = lapack::MachineEpsilon<Real>();
+    const Real eps = Epsilon<Real>();
     Real tol = ctrl.tol;
     if( tol == Real(0) )
         tol = 500*n*eps;
@@ -552,7 +552,7 @@ SpectralDivide
     typedef Complex<Real> F;
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
-    const Real eps = lapack::MachineEpsilon<Real>();
+    const Real eps = Epsilon<Real>();
     Real tol = ctrl.tol;
     if( tol == Real(0) )
         tol = 500*n*eps;
@@ -622,7 +622,7 @@ SpectralDivide( DistMatrix<Real>& A, const SDCCtrl<Real>& ctrl )
     const Int n = A.Height();
     const auto median = Median(GetDiagonal(A));
     const Real infNorm = InfinityNorm(A);
-    const Real eps = lapack::MachineEpsilon<Real>();
+    const Real eps = Epsilon<Real>();
     Real tol = ctrl.tol;
     if( tol == Real(0) )
         tol = 500*n*eps;
@@ -690,7 +690,7 @@ SpectralDivide
     typedef Complex<Real> F;
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
-    const Real eps = lapack::MachineEpsilon<Real>();
+    const Real eps = Epsilon<Real>();
     Real tol = ctrl.tol;
     if( tol == Real(0) )
         tol = 500*n*eps;
@@ -764,7 +764,7 @@ SpectralDivide
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
     const auto median = Median(GetDiagonal(A));
-    const Real eps = lapack::MachineEpsilon<Real>();
+    const Real eps = Epsilon<Real>();
     Real tol = ctrl.tol;
     if( tol == Real(0) )
         tol = 500*n*eps;
@@ -833,7 +833,7 @@ SpectralDivide
     typedef Complex<Real> F;
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
-    const Real eps = lapack::MachineEpsilon<Real>();
+    const Real eps = Epsilon<Real>();
     Real tol = ctrl.tol;
     if( tol == Real(0) )
         tol = 500*n*eps;

@@ -13,16 +13,13 @@
 namespace El {
 
 template<typename Real>
-struct IPFLineSearchCtrl {
-    Real gamma;
-    Real beta;
-    Real psi;
-    Real stepRatio;
-    bool print;
-
-    IPFLineSearchCtrl()
-    : gamma(1e-3), beta(2), psi(100), stepRatio(1.5), print(false)
-    { }
+struct IPFLineSearchCtrl 
+{
+    Real gamma=1e-3;
+    Real beta=2;
+    Real psi=100;
+    Real stepRatio=1.5;
+    bool print=false;
 };
 
 namespace KKTSystemNS {
@@ -39,11 +36,11 @@ using namespace KKTSystemNS;
 
 namespace LPApproachNS {
 enum LPApproach {
-    LP_ADMM,
-    LP_IPF,
-    LP_IPF_SELFDUAL,     // NOTE: Not yet supported
-    LP_MEHROTRA,
-    LP_MEHROTRA_SELFDUAL // NOTE: Not yet supported
+  LP_ADMM,
+  LP_IPF,
+  LP_IPF_SELFDUAL,     // NOTE: Not yet supported
+  LP_MEHROTRA,
+  LP_MEHROTRA_SELFDUAL // NOTE: Not yet supported
 };
 } // namespace LPApproachNS
 using namespace LPApproachNS;
@@ -64,53 +61,47 @@ namespace direct {
 // Infeasible Path-Following Interior Point Method (IPF)
 // -----------------------------------------------------
 template<typename Real>
-struct IPFCtrl {
-    bool primalInitialized;
-    bool dualInitialized;
-    Real tol;
-    Int maxIts;
-    Real centering; 
+struct IPFCtrl 
+{
+    bool primalInit=false, dualInit=false;
+    Real tol=Sqrt(Epsilon<Real>());
+    Int maxIts=1000;
+    Real centering=0.9; 
     KKTSystem system;
 
     RegQSDCtrl<Real> qsdCtrl;
 
     IPFLineSearchCtrl<Real> lineSearchCtrl;
 
-    bool equilibrate;
-    bool print;
-    bool time;
+    bool equilibrate=true;
+    bool print=false;
+    bool time=false;
 
     IPFCtrl( bool isSparse ) 
-    : primalInitialized(false), dualInitialized(false),
-      tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), centering(0.9), 
-      equilibrate(true), print(false), time(false)
-    { 
-        system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); 
-    }
+    { system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); }
 };
 
 // Mehrotra's Predictor-Corrector Infeasible Interior Point Method
 // ---------------------------------------------------------------
 template<typename Real>
-struct MehrotraCtrl {
-    bool primalInitialized;
-    bool dualInitialized;
-    Real tol;
-    Int maxIts;
-    Real maxStepRatio;
+struct MehrotraCtrl 
+{
+    bool primalInit=false, dualInit=false;
+    Real tol=Sqrt(Epsilon<Real>());
+    Int maxIts=1000;
+    Real maxStepRatio=0.99;
     KKTSystem system;
     RegQSDCtrl<Real> qsdCtrl;
-    bool equilibrate;
-    bool print;
-    bool time;
+    bool outerEquil=true, innerEquil=true;
+    bool scaleTwoNorm=true;
+    Int basisSize = 15;
+    bool print=false;
+    bool time=false;
 
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
     //       the default, (muAff/mu)^3 
 
     MehrotraCtrl( bool isSparse )
-    : primalInitialized(false), dualInitialized(false), 
-      tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), 
-      maxStepRatio(0.99), equilibrate(true), print(false), time(false)
     { system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); }
 };
 
@@ -119,18 +110,13 @@ struct MehrotraCtrl {
 template<typename Real>
 struct ADMMCtrl
 {
-    Real rho;
-    Real alpha;
-    Int maxIter;
-    Real absTol;
-    Real relTol;
-    bool inv;
-    bool print;
-
-    ADMMCtrl()
-    : rho(1), alpha(1.2), maxIter(500), absTol(1e-6), relTol(1e-4), inv(true),
-      print(true)
-    { }
+    Real rho=1;
+    Real alpha=1.2;
+    Int maxIter=500;
+    Real absTol=1e-6;
+    Real relTol=1e-4;
+    bool inv=true;
+    bool print=true;
 };
 
 // Control structure for the high-level "direct" conic-form LP solver
@@ -138,13 +124,13 @@ struct ADMMCtrl
 template<typename Real>
 struct Ctrl
 {
-    LPApproach approach;
+    LPApproach approach=LP_MEHROTRA;
     ADMMCtrl<Real> admmCtrl;
     IPFCtrl<Real> ipfCtrl;
     MehrotraCtrl<Real> mehrotraCtrl;
 
     Ctrl( bool isSparse ) 
-    : approach(LP_MEHROTRA), ipfCtrl(isSparse), mehrotraCtrl(isSparse)
+    : ipfCtrl(isSparse), mehrotraCtrl(isSparse)
     { }
 };
 
@@ -164,50 +150,40 @@ namespace affine {
 // Infeasible Path-Following Interior Point Method (IPF)
 // -----------------------------------------------------
 template<typename Real>
-struct IPFCtrl {
-    bool primalInitialized;
-    bool dualInitialized;
-    Real tol;
-    Int maxIts;
-    Real centering; 
+struct IPFCtrl 
+{
+    bool primalInit=false, dualInit=false;
+    Real tol=Sqrt(Epsilon<Real>());
+    Int maxIts=1000;
+    Real centering=0.9; 
 
     RegQSDCtrl<Real> qsdCtrl;
 
     IPFLineSearchCtrl<Real> lineSearchCtrl;
 
-    bool equilibrate;
-    bool print;
-    bool time;
-
-    IPFCtrl() 
-    : primalInitialized(false), dualInitialized(false),
-      tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), centering(0.9), 
-      equilibrate(true), print(false), time(false)
-    { }
+    bool equilibrate=true;
+    bool print=false;
+    bool time=false;
 };
 
 // Mehrotra's Predictor-Corrector Infeasible Interior Point Method
 // ---------------------------------------------------------------
 template<typename Real>
-struct MehrotraCtrl {
-    bool primalInitialized;
-    bool dualInitialized;
-    Real tol;
-    Int maxIts;
-    Real maxStepRatio;
+struct MehrotraCtrl 
+{
+    bool primalInit=false, dualInit=false;
+    Real tol=Sqrt(Epsilon<Real>());
+    Int maxIts=1000;
+    Real maxStepRatio=0.99;
     RegQSDCtrl<Real> qsdCtrl;
-    bool equilibrate;
-    bool print;
-    bool time;
+    bool outerEquil=true, innerEquil=true;
+    bool scaleTwoNorm=true;
+    Int basisSize = 15;
+    bool print=false;
+    bool time=false;
 
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
     //       the default, (muAff/mu)^3 
-
-    MehrotraCtrl()
-    : primalInitialized(false), dualInitialized(false),
-      tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), 
-      maxStepRatio(0.99), equilibrate(true), print(false), time(false)
-    { }
 };
 
 // Control structure for the high-level "affine" conic-form LP solver
@@ -215,11 +191,9 @@ struct MehrotraCtrl {
 template<typename Real>
 struct Ctrl
 {
-    LPApproach approach;
+    LPApproach approach=LP_MEHROTRA;
     IPFCtrl<Real> ipfCtrl;
     MehrotraCtrl<Real> mehrotraCtrl;
-
-    Ctrl() : approach(LP_MEHROTRA) { }
 };
 
 } // namespace affine
@@ -297,11 +271,11 @@ void LP
 
 namespace QPApproachNS {
 enum QPApproach {
-    QP_ADMM,
-    QP_IPF,
-    QP_IPF_SELFDUAL,     // NOTE: Not yet supported
-    QP_MEHROTRA,
-    QP_MEHROTRA_SELFDUAL // NOTE: Not yet supported
+  QP_ADMM,
+  QP_IPF,
+  QP_IPF_SELFDUAL,     // NOTE: Not yet supported
+  QP_MEHROTRA,
+  QP_MEHROTRA_SELFDUAL // NOTE: Not yet supported
 };
 } // namespace QPApproachNS
 using namespace QPApproachNS;
@@ -322,53 +296,42 @@ namespace direct {
 // Infeasible Path-Following Interior Point Method (IPF)
 // -----------------------------------------------------
 template<typename Real>
-struct IPFCtrl {
-    bool primalInitialized;
-    bool dualInitialized;
-    Real tol;
-    Int maxIts;
-    Real centering; 
-    KKTSystem system;
+struct IPFCtrl 
+{
+    bool primalInit=false, dualInit=false;
+    Real tol=Sqrt(Epsilon<Real>());
+    Int maxIts=1000;
+    Real centering=0.9; 
+    KKTSystem system=AUGMENTED_KKT;
 
     RegQSDCtrl<Real> qsdCtrl;
 
     IPFLineSearchCtrl<Real> lineSearchCtrl;
 
-    bool equilibrate;
-    bool print;
-    bool time;
-
-    IPFCtrl() 
-    : primalInitialized(false), dualInitialized(false),
-      tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), centering(0.9), 
-      system(AUGMENTED_KKT), equilibrate(true), print(false), time(false)
-    { }
+    bool equilibrate=true;
+    bool print=false;
+    bool time=false;
 };
 
 // Mehrotra's Predictor-Corrector Infeasible Interior Point Method
 // ---------------------------------------------------------------
 template<typename Real>
-struct MehrotraCtrl {
-    bool primalInitialized;
-    bool dualInitialized;
-    Real tol;
-    Int maxIts;
-    Real maxStepRatio;
-    KKTSystem system;
+struct MehrotraCtrl 
+{
+    bool primalInit=false, dualInit=false;
+    Real tol=Sqrt(Epsilon<Real>());
+    Int maxIts=1000;
+    Real maxStepRatio=0.99;
+    KKTSystem system=AUGMENTED_KKT;
     RegQSDCtrl<Real> qsdCtrl;
-    bool equilibrate;
-    bool print;
-    bool time;
+    bool outerEquil=true, innerEquil=true;
+    bool scaleTwoNorm=true;
+    Int basisSize = 15;
+    bool print=false;
+    bool time=false;
 
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
     //       the default, (muAff/mu)^3 
-
-    MehrotraCtrl()
-    : primalInitialized(false), dualInitialized(false), 
-      tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), 
-      maxStepRatio(0.99), system(AUGMENTED_KKT), equilibrate(true), 
-      print(false), time(false)
-    { }
 };
 
 // Control structure for the high-level "direct" conic-form QP solver
@@ -376,11 +339,9 @@ struct MehrotraCtrl {
 template<typename Real>
 struct Ctrl
 {
-    QPApproach approach;
+    QPApproach approach=QP_MEHROTRA;
     IPFCtrl<Real> ipfCtrl;
     MehrotraCtrl<Real> mehrotraCtrl;
-
-    Ctrl() : approach(QP_MEHROTRA) { }
 };
 
 } // namespace direct
@@ -399,50 +360,40 @@ namespace affine {
 // Infeasible Path-Following Interior Point Method (IPF)
 // -----------------------------------------------------
 template<typename Real>
-struct IPFCtrl {
-    bool primalInitialized;
-    bool dualInitialized;
-    Real tol;
-    Int maxIts;
-    Real centering; 
+struct IPFCtrl 
+{
+    bool primalInit=false, dualInit=false;
+    Real tol=Sqrt(Epsilon<Real>());
+    Int maxIts=1000;
+    Real centering=0.9; 
 
     RegQSDCtrl<Real> qsdCtrl;
 
     IPFLineSearchCtrl<Real> lineSearchCtrl;
 
-    bool equilibrate;
-    bool print;
-    bool time;
-
-    IPFCtrl() 
-    : primalInitialized(false), dualInitialized(false),
-      tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), centering(0.9), 
-      equilibrate(true), print(false), time(false)
-    { }
+    bool equilibrate=true;
+    bool print=false;
+    bool time=false;
 };
 
 // Mehrotra's Predictor-Corrector Infeasible Interior Point Method
 // ---------------------------------------------------------------
 template<typename Real>
-struct MehrotraCtrl {
-    bool primalInitialized;
-    bool dualInitialized;
-    Real tol;
-    Int maxIts;
-    Real maxStepRatio;
+struct MehrotraCtrl 
+{
+    bool primalInit=false, dualInit=false;
+    Real tol=Sqrt(Epsilon<Real>());
+    Int maxIts=1000;
+    Real maxStepRatio=0.99;
     RegQSDCtrl<Real> qsdCtrl;
-    bool equilibrate;
-    bool print;
-    bool time;
+    bool outerEquil=true, innerEquil=true;
+    bool scaleTwoNorm=true;
+    Int basisSize = 15;
+    bool print=false;
+    bool time=false;
 
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
     //       the default, (muAff/mu)^3 
-
-    MehrotraCtrl()
-    : primalInitialized(false), dualInitialized(false),
-      tol(Sqrt(lapack::MachineEpsilon<Real>())), maxIts(1000), 
-      maxStepRatio(0.99), equilibrate(true), print(false), time(false)
-    { }
 };
 
 // Control structure for the high-level "affine" conic-form QP solver
@@ -450,11 +401,9 @@ struct MehrotraCtrl {
 template<typename Real>
 struct Ctrl
 {
-    QPApproach approach;
+    QPApproach approach=QP_MEHROTRA;
     IPFCtrl<Real> ipfCtrl;
     MehrotraCtrl<Real> mehrotraCtrl;
-
-    Ctrl() : approach(QP_MEHROTRA) { }
 };
 
 } // namespace affine
@@ -470,18 +419,13 @@ namespace box {
 template<typename Real>
 struct ADMMCtrl
 {
-    Real rho;
-    Real alpha;
-    Int maxIter;
-    Real absTol;
-    Real relTol;
-    bool inv;
-    bool print;
-
-    ADMMCtrl()
-    : rho(1), alpha(1.2), maxIter(500), absTol(1e-6), relTol(1e-4), inv(true),
-      print(true)
-    { }
+    Real rho=1;
+    Real alpha=1.2;
+    Int maxIter=500;
+    Real absTol=1e-6;
+    Real relTol=1e-4;
+    bool inv=true;
+    bool print=true;
 };
 
 template<typename Real>

@@ -1766,65 +1766,65 @@ inline lp::direct::ADMMCtrl<double> CReflect( ElLPDirectADMMCtrl_d ctrlC )
 inline ElLPDirectIPFCtrl_s CReflect( const lp::direct::IPFCtrl<float>& ctrl )
 {
     ElLPDirectIPFCtrl_s ctrlC;
-    ctrlC.primalInitialized = ctrl.primalInitialized;
-    ctrlC.dualInitialized   = ctrl.dualInitialized;
-    ctrlC.tol               = ctrl.tol;
-    ctrlC.maxIts            = ctrl.maxIts;
-    ctrlC.centering         = ctrl.centering;
-    ctrlC.system            = CReflect(ctrl.system);
-    ctrlC.qsdCtrl           = CReflect(ctrl.qsdCtrl);
-    ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
-    ctrlC.equilibrate       = ctrl.equilibrate;
-    ctrlC.print             = ctrl.print;
-    ctrlC.time              = ctrl.time;
+    ctrlC.primalInit     = ctrl.primalInit;
+    ctrlC.dualInit       = ctrl.dualInit;
+    ctrlC.tol            = ctrl.tol;
+    ctrlC.maxIts         = ctrl.maxIts;
+    ctrlC.centering      = ctrl.centering;
+    ctrlC.system         = CReflect(ctrl.system);
+    ctrlC.qsdCtrl        = CReflect(ctrl.qsdCtrl);
+    ctrlC.lineSearchCtrl = CReflect(ctrl.lineSearchCtrl);
+    ctrlC.equilibrate    = ctrl.equilibrate;
+    ctrlC.print          = ctrl.print;
+    ctrlC.time           = ctrl.time;
     return ctrlC;
 }
 inline ElLPDirectIPFCtrl_d CReflect( const lp::direct::IPFCtrl<double>& ctrl )
 {
     ElLPDirectIPFCtrl_d ctrlC;
-    ctrlC.primalInitialized = ctrl.primalInitialized;
-    ctrlC.dualInitialized   = ctrl.dualInitialized;
-    ctrlC.tol               = ctrl.tol;
-    ctrlC.maxIts            = ctrl.maxIts;
-    ctrlC.centering         = ctrl.centering;
-    ctrlC.system            = CReflect(ctrl.system);
-    ctrlC.qsdCtrl           = CReflect(ctrl.qsdCtrl);
-    ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
-    ctrlC.equilibrate       = ctrl.equilibrate;
-    ctrlC.print             = ctrl.print;
-    ctrlC.time              = ctrl.time;
+    ctrlC.primalInit     = ctrl.primalInit;
+    ctrlC.dualInit       = ctrl.dualInit;
+    ctrlC.tol            = ctrl.tol;
+    ctrlC.maxIts         = ctrl.maxIts;
+    ctrlC.centering      = ctrl.centering;
+    ctrlC.system         = CReflect(ctrl.system);
+    ctrlC.qsdCtrl        = CReflect(ctrl.qsdCtrl);
+    ctrlC.lineSearchCtrl = CReflect(ctrl.lineSearchCtrl);
+    ctrlC.equilibrate    = ctrl.equilibrate;
+    ctrlC.print          = ctrl.print;
+    ctrlC.time           = ctrl.time;
     return ctrlC;
 }
 inline lp::direct::IPFCtrl<float> CReflect( ElLPDirectIPFCtrl_s ctrlC )
 {
     lp::direct::IPFCtrl<float> ctrl(false);
-    ctrl.primalInitialized = ctrlC.primalInitialized;
-    ctrl.dualInitialized   = ctrlC.dualInitialized;
-    ctrl.tol               = ctrlC.tol;
-    ctrl.maxIts            = ctrlC.maxIts;
-    ctrl.centering         = ctrlC.centering;
-    ctrl.system            = CReflect(ctrlC.system);
-    ctrl.qsdCtrl           = CReflect(ctrlC.qsdCtrl);
-    ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
-    ctrl.equilibrate       = ctrlC.equilibrate;
-    ctrl.print             = ctrlC.print;
-    ctrl.time              = ctrlC.time;
+    ctrl.primalInit     = ctrlC.primalInit;
+    ctrl.dualInit       = ctrlC.dualInit;
+    ctrl.tol            = ctrlC.tol;
+    ctrl.maxIts         = ctrlC.maxIts;
+    ctrl.centering      = ctrlC.centering;
+    ctrl.system         = CReflect(ctrlC.system);
+    ctrl.qsdCtrl        = CReflect(ctrlC.qsdCtrl);
+    ctrl.lineSearchCtrl = CReflect(ctrlC.lineSearchCtrl);
+    ctrl.equilibrate    = ctrlC.equilibrate;
+    ctrl.print          = ctrlC.print;
+    ctrl.time           = ctrlC.time;
     return ctrl;
 }
 inline lp::direct::IPFCtrl<double> CReflect( ElLPDirectIPFCtrl_d ctrlC )
 {
     lp::direct::IPFCtrl<double> ctrl(false);
-    ctrl.primalInitialized = ctrlC.primalInitialized;
-    ctrl.dualInitialized   = ctrlC.dualInitialized;
-    ctrl.tol               = ctrlC.tol;
-    ctrl.maxIts            = ctrlC.maxIts;
-    ctrl.centering         = ctrlC.centering;
-    ctrl.system            = CReflect(ctrlC.system);
-    ctrl.qsdCtrl           = CReflect(ctrlC.qsdCtrl);
-    ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
-    ctrl.equilibrate       = ctrlC.equilibrate;
-    ctrl.print             = ctrlC.print;
-    ctrl.time              = ctrlC.time;
+    ctrl.primalInit     = ctrlC.primalInit;
+    ctrl.dualInit       = ctrlC.dualInit;
+    ctrl.tol            = ctrlC.tol;
+    ctrl.maxIts         = ctrlC.maxIts;
+    ctrl.centering      = ctrlC.centering;
+    ctrl.system         = CReflect(ctrlC.system);
+    ctrl.qsdCtrl        = CReflect(ctrlC.qsdCtrl);
+    ctrl.lineSearchCtrl = CReflect(ctrlC.lineSearchCtrl);
+    ctrl.equilibrate    = ctrlC.equilibrate;
+    ctrl.print          = ctrlC.print;
+    ctrl.time           = ctrlC.time;
     return ctrl;
 }
 
@@ -1832,64 +1832,76 @@ inline ElLPDirectMehrotraCtrl_s CReflect
 ( const lp::direct::MehrotraCtrl<float>& ctrl )
 {
     ElLPDirectMehrotraCtrl_s ctrlC;
-    ctrlC.primalInitialized = ctrl.primalInitialized;
-    ctrlC.dualInitialized   = ctrl.dualInitialized;
-    ctrlC.tol               = ctrl.tol;
-    ctrlC.maxIts            = ctrl.maxIts;
-    ctrlC.maxStepRatio      = ctrl.maxStepRatio;
-    ctrlC.system            = CReflect(ctrl.system);
-    ctrlC.qsdCtrl           = CReflect(ctrl.qsdCtrl);
-    ctrlC.equilibrate       = ctrl.equilibrate;
-    ctrlC.print             = ctrl.print;
-    ctrlC.time              = ctrl.time;
+    ctrlC.primalInit   = ctrl.primalInit;
+    ctrlC.dualInit     = ctrl.dualInit;
+    ctrlC.tol          = ctrl.tol;
+    ctrlC.maxIts       = ctrl.maxIts;
+    ctrlC.maxStepRatio = ctrl.maxStepRatio;
+    ctrlC.system       = CReflect(ctrl.system);
+    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.outerEquil   = ctrl.outerEquil;
+    ctrlC.innerEquil   = ctrl.innerEquil;
+    ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
+    ctrlC.basisSize    = ctrl.basisSize;
+    ctrlC.print        = ctrl.print;
+    ctrlC.time         = ctrl.time;
     return ctrlC;
 }
 inline ElLPDirectMehrotraCtrl_d CReflect
 ( const lp::direct::MehrotraCtrl<double>& ctrl )
 {
     ElLPDirectMehrotraCtrl_d ctrlC;
-    ctrlC.primalInitialized = ctrl.primalInitialized;
-    ctrlC.dualInitialized   = ctrl.dualInitialized;
-    ctrlC.tol               = ctrl.tol;
-    ctrlC.maxIts            = ctrl.maxIts;
-    ctrlC.maxStepRatio      = ctrl.maxStepRatio;
-    ctrlC.system            = CReflect(ctrl.system);
-    ctrlC.qsdCtrl           = CReflect(ctrl.qsdCtrl);
-    ctrlC.equilibrate       = ctrl.equilibrate;
-    ctrlC.print             = ctrl.print;
-    ctrlC.time              = ctrl.time;
+    ctrlC.primalInit   = ctrl.primalInit;
+    ctrlC.dualInit     = ctrl.dualInit;
+    ctrlC.tol          = ctrl.tol;
+    ctrlC.maxIts       = ctrl.maxIts;
+    ctrlC.maxStepRatio = ctrl.maxStepRatio;
+    ctrlC.system       = CReflect(ctrl.system);
+    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.outerEquil   = ctrl.outerEquil;
+    ctrlC.innerEquil   = ctrl.innerEquil;
+    ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
+    ctrlC.basisSize    = ctrl.basisSize;
+    ctrlC.print        = ctrl.print;
+    ctrlC.time         = ctrl.time;
     return ctrlC;
 }
 inline lp::direct::MehrotraCtrl<float> CReflect
 ( ElLPDirectMehrotraCtrl_s ctrlC )
 {
     lp::direct::MehrotraCtrl<float> ctrl(false);
-    ctrl.primalInitialized  = ctrlC.primalInitialized;
-    ctrl.dualInitialized    = ctrlC.dualInitialized;
-    ctrl.tol                = ctrlC.tol;
-    ctrl.maxIts             = ctrlC.maxIts;
-    ctrl.maxStepRatio       = ctrlC.maxStepRatio;
-    ctrl.system             = CReflect(ctrlC.system);
-    ctrl.qsdCtrl            = CReflect(ctrlC.qsdCtrl);
-    ctrl.equilibrate        = ctrlC.equilibrate;
-    ctrl.print              = ctrlC.print;
-    ctrl.time               = ctrlC.time;
+    ctrl.primalInit   = ctrlC.primalInit;
+    ctrl.dualInit     = ctrlC.dualInit;
+    ctrl.tol          = ctrlC.tol;
+    ctrl.maxIts       = ctrlC.maxIts;
+    ctrl.maxStepRatio = ctrlC.maxStepRatio;
+    ctrl.system       = CReflect(ctrlC.system);
+    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.outerEquil   = ctrlC.outerEquil;
+    ctrl.innerEquil   = ctrlC.innerEquil;
+    ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
+    ctrl.basisSize    = ctrlC.basisSize;
+    ctrl.print        = ctrlC.print;
+    ctrl.time         = ctrlC.time;
     return ctrl;
 }
 inline lp::direct::MehrotraCtrl<double> CReflect
 ( ElLPDirectMehrotraCtrl_d ctrlC )
 {
     lp::direct::MehrotraCtrl<double> ctrl(false);
-    ctrl.primalInitialized  = ctrlC.primalInitialized;
-    ctrl.dualInitialized    = ctrlC.dualInitialized;
-    ctrl.tol                = ctrlC.tol;
-    ctrl.maxIts             = ctrlC.maxIts;
-    ctrl.maxStepRatio       = ctrlC.maxStepRatio;
-    ctrl.system             = CReflect(ctrlC.system);
-    ctrl.qsdCtrl            = CReflect(ctrlC.qsdCtrl);
-    ctrl.equilibrate        = ctrlC.equilibrate;
-    ctrl.print              = ctrlC.print;
-    ctrl.time               = ctrlC.time;
+    ctrl.primalInit   = ctrlC.primalInit;
+    ctrl.dualInit     = ctrlC.dualInit;
+    ctrl.tol          = ctrlC.tol;
+    ctrl.maxIts       = ctrlC.maxIts;
+    ctrl.maxStepRatio = ctrlC.maxStepRatio;
+    ctrl.system       = CReflect(ctrlC.system);
+    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.outerEquil   = ctrlC.outerEquil;
+    ctrl.innerEquil   = ctrlC.innerEquil;
+    ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
+    ctrl.basisSize    = ctrlC.basisSize;
+    ctrl.print        = ctrlC.print;
+    ctrl.time         = ctrlC.time;
     return ctrl;
 }
 
@@ -1935,61 +1947,61 @@ inline lp::direct::Ctrl<double> CReflect( ElLPDirectCtrl_d ctrlC )
 inline ElLPAffineIPFCtrl_s CReflect( const lp::affine::IPFCtrl<float>& ctrl )
 {
     ElLPAffineIPFCtrl_s ctrlC;
-    ctrlC.primalInitialized = ctrl.primalInitialized;
-    ctrlC.dualInitialized   = ctrl.dualInitialized;
-    ctrlC.tol               = ctrl.tol;
-    ctrlC.maxIts            = ctrl.maxIts;
-    ctrlC.centering         = ctrl.centering;
-    ctrlC.qsdCtrl           = CReflect(ctrl.qsdCtrl);
-    ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
-    ctrlC.equilibrate       = ctrl.equilibrate;
-    ctrlC.print             = ctrl.print;
-    ctrlC.time              = ctrl.time;
+    ctrlC.primalInit     = ctrl.primalInit;
+    ctrlC.dualInit       = ctrl.dualInit;
+    ctrlC.tol            = ctrl.tol;
+    ctrlC.maxIts         = ctrl.maxIts;
+    ctrlC.centering      = ctrl.centering;
+    ctrlC.qsdCtrl        = CReflect(ctrl.qsdCtrl);
+    ctrlC.lineSearchCtrl = CReflect(ctrl.lineSearchCtrl);
+    ctrlC.equilibrate    = ctrl.equilibrate;
+    ctrlC.print          = ctrl.print;
+    ctrlC.time           = ctrl.time;
     return ctrlC;
 }
 inline ElLPAffineIPFCtrl_d CReflect( const lp::affine::IPFCtrl<double>& ctrl )
 {
     ElLPAffineIPFCtrl_d ctrlC;
-    ctrlC.primalInitialized = ctrl.primalInitialized;
-    ctrlC.dualInitialized   = ctrl.dualInitialized;
-    ctrlC.tol               = ctrl.tol;
-    ctrlC.maxIts            = ctrl.maxIts;
-    ctrlC.centering         = ctrl.centering;
-    ctrlC.qsdCtrl           = CReflect(ctrl.qsdCtrl);
-    ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
-    ctrlC.equilibrate       = ctrl.equilibrate;
-    ctrlC.print             = ctrl.print;
-    ctrlC.time              = ctrl.time;
+    ctrlC.primalInit     = ctrl.primalInit;
+    ctrlC.dualInit       = ctrl.dualInit;
+    ctrlC.tol            = ctrl.tol;
+    ctrlC.maxIts         = ctrl.maxIts;
+    ctrlC.centering      = ctrl.centering;
+    ctrlC.qsdCtrl        = CReflect(ctrl.qsdCtrl);
+    ctrlC.lineSearchCtrl = CReflect(ctrl.lineSearchCtrl);
+    ctrlC.equilibrate    = ctrl.equilibrate;
+    ctrlC.print          = ctrl.print;
+    ctrlC.time           = ctrl.time;
     return ctrlC;
 }
 inline lp::affine::IPFCtrl<float> CReflect( ElLPAffineIPFCtrl_s ctrlC )
 {
     lp::affine::IPFCtrl<float> ctrl;
-    ctrl.primalInitialized = ctrlC.primalInitialized;
-    ctrl.dualInitialized   = ctrlC.dualInitialized;
-    ctrl.tol               = ctrlC.tol;
-    ctrl.maxIts            = ctrlC.maxIts;
-    ctrl.centering         = ctrlC.centering;
-    ctrl.qsdCtrl           = CReflect(ctrlC.qsdCtrl);
-    ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
-    ctrl.equilibrate       = ctrlC.equilibrate;
-    ctrl.print             = ctrlC.print;
-    ctrl.time              = ctrlC.time;
+    ctrl.primalInit     = ctrlC.primalInit;
+    ctrl.dualInit       = ctrlC.dualInit;
+    ctrl.tol            = ctrlC.tol;
+    ctrl.maxIts         = ctrlC.maxIts;
+    ctrl.centering      = ctrlC.centering;
+    ctrl.qsdCtrl        = CReflect(ctrlC.qsdCtrl);
+    ctrl.lineSearchCtrl = CReflect(ctrlC.lineSearchCtrl);
+    ctrl.equilibrate    = ctrlC.equilibrate;
+    ctrl.print          = ctrlC.print;
+    ctrl.time           = ctrlC.time;
     return ctrl;
 }
 inline lp::affine::IPFCtrl<double> CReflect( ElLPAffineIPFCtrl_d ctrlC )
 {
     lp::affine::IPFCtrl<double> ctrl;
-    ctrl.primalInitialized = ctrlC.primalInitialized;
-    ctrl.dualInitialized   = ctrlC.dualInitialized;
-    ctrl.tol               = ctrlC.tol;
-    ctrl.maxIts            = ctrlC.maxIts;
-    ctrl.centering         = ctrlC.centering;
-    ctrl.qsdCtrl           = CReflect(ctrlC.qsdCtrl);
-    ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
-    ctrl.equilibrate       = ctrlC.equilibrate;
-    ctrl.print             = ctrlC.print;
-    ctrl.time              = ctrlC.time;
+    ctrl.primalInit     = ctrlC.primalInit;
+    ctrl.dualInit       = ctrlC.dualInit;
+    ctrl.tol            = ctrlC.tol;
+    ctrl.maxIts         = ctrlC.maxIts;
+    ctrl.centering      = ctrlC.centering;
+    ctrl.qsdCtrl        = CReflect(ctrlC.qsdCtrl);
+    ctrl.lineSearchCtrl = CReflect(ctrlC.lineSearchCtrl);
+    ctrl.equilibrate    = ctrlC.equilibrate;
+    ctrl.print          = ctrlC.print;
+    ctrl.time           = ctrlC.time;
     return ctrl;
 }
 
@@ -1997,60 +2009,72 @@ inline ElLPAffineMehrotraCtrl_s CReflect
 ( const lp::affine::MehrotraCtrl<float>& ctrl )
 {
     ElLPAffineMehrotraCtrl_s ctrlC;
-    ctrlC.primalInitialized = ctrl.primalInitialized;
-    ctrlC.dualInitialized   = ctrl.dualInitialized;
-    ctrlC.tol               = ctrl.tol;
-    ctrlC.maxIts            = ctrl.maxIts;
-    ctrlC.maxStepRatio      = ctrl.maxStepRatio;
-    ctrlC.qsdCtrl           = CReflect(ctrl.qsdCtrl);
-    ctrlC.equilibrate       = ctrl.equilibrate;
-    ctrlC.print             = ctrl.print;
-    ctrlC.time              = ctrl.time;
+    ctrlC.primalInit   = ctrl.primalInit;
+    ctrlC.dualInit     = ctrl.dualInit;
+    ctrlC.tol          = ctrl.tol;
+    ctrlC.maxIts       = ctrl.maxIts;
+    ctrlC.maxStepRatio = ctrl.maxStepRatio;
+    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.outerEquil   = ctrl.outerEquil;
+    ctrlC.innerEquil   = ctrl.innerEquil;
+    ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
+    ctrlC.basisSize    = ctrl.basisSize;
+    ctrlC.print        = ctrl.print;
+    ctrlC.time         = ctrl.time;
     return ctrlC;
 }
 inline ElLPAffineMehrotraCtrl_d CReflect
 ( const lp::affine::MehrotraCtrl<double>& ctrl )
 {
     ElLPAffineMehrotraCtrl_d ctrlC;
-    ctrlC.primalInitialized = ctrl.primalInitialized;
-    ctrlC.dualInitialized   = ctrl.dualInitialized;
-    ctrlC.tol               = ctrl.tol;
-    ctrlC.maxIts            = ctrl.maxIts;
-    ctrlC.maxStepRatio      = ctrl.maxStepRatio;
-    ctrlC.qsdCtrl           = CReflect(ctrl.qsdCtrl);
-    ctrlC.equilibrate       = ctrl.equilibrate;
-    ctrlC.print             = ctrl.print;
-    ctrlC.time              = ctrl.time;
+    ctrlC.primalInit   = ctrl.primalInit;
+    ctrlC.dualInit     = ctrl.dualInit;
+    ctrlC.tol          = ctrl.tol;
+    ctrlC.maxIts       = ctrl.maxIts;
+    ctrlC.maxStepRatio = ctrl.maxStepRatio;
+    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.outerEquil   = ctrl.outerEquil;
+    ctrlC.innerEquil   = ctrl.innerEquil;
+    ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
+    ctrlC.basisSize    = ctrl.basisSize;
+    ctrlC.print        = ctrl.print;
+    ctrlC.time         = ctrl.time;
     return ctrlC;
 }
 inline lp::affine::MehrotraCtrl<float> CReflect
 ( ElLPAffineMehrotraCtrl_s ctrlC )
 {
     lp::affine::MehrotraCtrl<float> ctrl;
-    ctrl.primalInitialized = ctrlC.primalInitialized;
-    ctrl.dualInitialized   = ctrlC.dualInitialized;
-    ctrl.tol               = ctrlC.tol;
-    ctrl.maxIts            = ctrlC.maxIts;
-    ctrl.maxStepRatio      = ctrlC.maxStepRatio;
-    ctrl.qsdCtrl           = CReflect(ctrlC.qsdCtrl);
-    ctrl.equilibrate       = ctrlC.equilibrate;
-    ctrl.print             = ctrlC.print;
-    ctrl.time              = ctrlC.time;
+    ctrl.primalInit   = ctrlC.primalInit;
+    ctrl.dualInit     = ctrlC.dualInit;
+    ctrl.tol          = ctrlC.tol;
+    ctrl.maxIts       = ctrlC.maxIts;
+    ctrl.maxStepRatio = ctrlC.maxStepRatio;
+    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.outerEquil   = ctrlC.outerEquil;
+    ctrl.innerEquil   = ctrlC.innerEquil;
+    ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
+    ctrl.basisSize    = ctrlC.basisSize;
+    ctrl.print        = ctrlC.print;
+    ctrl.time         = ctrlC.time;
     return ctrl;
 }
 inline lp::affine::MehrotraCtrl<double> CReflect
 ( ElLPAffineMehrotraCtrl_d ctrlC )
 {
     lp::affine::MehrotraCtrl<double> ctrl;
-    ctrl.primalInitialized = ctrlC.primalInitialized;
-    ctrl.dualInitialized   = ctrlC.dualInitialized;
-    ctrl.tol               = ctrlC.tol;
-    ctrl.maxIts            = ctrlC.maxIts;
-    ctrl.maxStepRatio      = ctrlC.maxStepRatio;
-    ctrl.qsdCtrl           = CReflect(ctrlC.qsdCtrl);
-    ctrl.equilibrate       = ctrlC.equilibrate;
-    ctrl.print             = ctrlC.print;
-    ctrl.time              = ctrlC.time;
+    ctrl.primalInit   = ctrlC.primalInit;
+    ctrl.dualInit     = ctrlC.dualInit;
+    ctrl.tol          = ctrlC.tol;
+    ctrl.maxIts       = ctrlC.maxIts;
+    ctrl.maxStepRatio = ctrlC.maxStepRatio;
+    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.outerEquil   = ctrlC.outerEquil;
+    ctrl.innerEquil   = ctrlC.innerEquil;
+    ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
+    ctrl.basisSize    = ctrlC.basisSize;
+    ctrl.print        = ctrlC.print;
+    ctrl.time         = ctrlC.time;
     return ctrl;
 }
 
@@ -2099,65 +2123,65 @@ inline QPApproach CReflect( ElQPApproach approach )
 inline ElQPDirectIPFCtrl_s CReflect( const qp::direct::IPFCtrl<float>& ctrl )
 {
     ElQPDirectIPFCtrl_s ctrlC;
-    ctrlC.primalInitialized = ctrl.primalInitialized;
-    ctrlC.dualInitialized   = ctrl.dualInitialized;
-    ctrlC.tol               = ctrl.tol;
-    ctrlC.maxIts            = ctrl.maxIts;
-    ctrlC.centering         = ctrl.centering;
-    ctrlC.system            = CReflect(ctrl.system);
-    ctrlC.qsdCtrl           = CReflect(ctrl.qsdCtrl);
-    ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
-    ctrlC.equilibrate       = ctrl.equilibrate;
-    ctrlC.print             = ctrl.print;
-    ctrlC.time              = ctrl.time;
+    ctrlC.primalInit     = ctrl.primalInit;
+    ctrlC.dualInit       = ctrl.dualInit;
+    ctrlC.tol            = ctrl.tol;
+    ctrlC.maxIts         = ctrl.maxIts;
+    ctrlC.centering      = ctrl.centering;
+    ctrlC.system         = CReflect(ctrl.system);
+    ctrlC.qsdCtrl        = CReflect(ctrl.qsdCtrl);
+    ctrlC.lineSearchCtrl = CReflect(ctrl.lineSearchCtrl);
+    ctrlC.equilibrate    = ctrl.equilibrate;
+    ctrlC.print          = ctrl.print;
+    ctrlC.time           = ctrl.time;
     return ctrlC;
 }
 inline ElQPDirectIPFCtrl_d CReflect( const qp::direct::IPFCtrl<double>& ctrl )
 {
     ElQPDirectIPFCtrl_d ctrlC;
-    ctrlC.primalInitialized = ctrl.primalInitialized;
-    ctrlC.dualInitialized   = ctrl.dualInitialized;
-    ctrlC.tol               = ctrl.tol;
-    ctrlC.maxIts            = ctrl.maxIts;
-    ctrlC.centering         = ctrl.centering;
-    ctrlC.system            = CReflect(ctrl.system);
-    ctrlC.qsdCtrl           = CReflect(ctrl.qsdCtrl);
-    ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
-    ctrlC.equilibrate       = ctrl.equilibrate;
-    ctrlC.print             = ctrl.print;
-    ctrlC.time              = ctrl.time;
+    ctrlC.primalInit     = ctrl.primalInit;
+    ctrlC.dualInit       = ctrl.dualInit;
+    ctrlC.tol            = ctrl.tol;
+    ctrlC.maxIts         = ctrl.maxIts;
+    ctrlC.centering      = ctrl.centering;
+    ctrlC.system         = CReflect(ctrl.system);
+    ctrlC.qsdCtrl        = CReflect(ctrl.qsdCtrl);
+    ctrlC.lineSearchCtrl = CReflect(ctrl.lineSearchCtrl);
+    ctrlC.equilibrate    = ctrl.equilibrate;
+    ctrlC.print          = ctrl.print;
+    ctrlC.time           = ctrl.time;
     return ctrlC;
 }
 inline qp::direct::IPFCtrl<float> CReflect( ElQPDirectIPFCtrl_s ctrlC )
 {
     qp::direct::IPFCtrl<float> ctrl;
-    ctrl.primalInitialized = ctrlC.primalInitialized;
-    ctrl.dualInitialized   = ctrlC.dualInitialized;
-    ctrl.tol               = ctrlC.tol;
-    ctrl.maxIts            = ctrlC.maxIts;
-    ctrl.centering         = ctrlC.centering;
-    ctrl.system            = CReflect(ctrlC.system);
-    ctrl.qsdCtrl           = CReflect(ctrlC.qsdCtrl);
-    ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
-    ctrl.equilibrate       = ctrlC.equilibrate;
-    ctrl.print             = ctrlC.print;
-    ctrl.time              = ctrlC.time;
+    ctrl.primalInit     = ctrlC.primalInit;
+    ctrl.dualInit       = ctrlC.dualInit;
+    ctrl.tol            = ctrlC.tol;
+    ctrl.maxIts         = ctrlC.maxIts;
+    ctrl.centering      = ctrlC.centering;
+    ctrl.system         = CReflect(ctrlC.system);
+    ctrl.qsdCtrl        = CReflect(ctrlC.qsdCtrl);
+    ctrl.lineSearchCtrl = CReflect(ctrlC.lineSearchCtrl);
+    ctrl.equilibrate    = ctrlC.equilibrate;
+    ctrl.print          = ctrlC.print;
+    ctrl.time           = ctrlC.time;
     return ctrl;
 }
 inline qp::direct::IPFCtrl<double> CReflect( ElQPDirectIPFCtrl_d ctrlC )
 {
     qp::direct::IPFCtrl<double> ctrl;
-    ctrl.primalInitialized = ctrlC.primalInitialized;
-    ctrl.dualInitialized   = ctrlC.dualInitialized;
-    ctrl.tol               = ctrlC.tol;
-    ctrl.maxIts            = ctrlC.maxIts;
-    ctrl.centering         = ctrlC.centering;
-    ctrl.system            = CReflect(ctrlC.system);
-    ctrl.qsdCtrl           = CReflect(ctrlC.qsdCtrl);
-    ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
-    ctrl.equilibrate       = ctrlC.equilibrate;
-    ctrl.print             = ctrlC.print;
-    ctrl.time              = ctrlC.time;
+    ctrl.primalInit     = ctrlC.primalInit;
+    ctrl.dualInit       = ctrlC.dualInit;
+    ctrl.tol            = ctrlC.tol;
+    ctrl.maxIts         = ctrlC.maxIts;
+    ctrl.centering      = ctrlC.centering;
+    ctrl.system         = CReflect(ctrlC.system);
+    ctrl.qsdCtrl        = CReflect(ctrlC.qsdCtrl);
+    ctrl.lineSearchCtrl = CReflect(ctrlC.lineSearchCtrl);
+    ctrl.equilibrate    = ctrlC.equilibrate;
+    ctrl.print          = ctrlC.print;
+    ctrl.time           = ctrlC.time;
     return ctrl;
 }
 
@@ -2165,64 +2189,76 @@ inline ElQPDirectMehrotraCtrl_s CReflect
 ( const qp::direct::MehrotraCtrl<float>& ctrl )
 {
     ElQPDirectMehrotraCtrl_s ctrlC;
-    ctrlC.primalInitialized = ctrl.primalInitialized;
-    ctrlC.dualInitialized   = ctrl.dualInitialized;
-    ctrlC.tol               = ctrl.tol;
-    ctrlC.maxIts            = ctrl.maxIts;
-    ctrlC.maxStepRatio      = ctrl.maxStepRatio;
-    ctrlC.system            = CReflect(ctrl.system);
-    ctrlC.qsdCtrl           = CReflect(ctrl.qsdCtrl);
-    ctrlC.equilibrate       = ctrl.equilibrate;
-    ctrlC.print             = ctrl.print;
-    ctrlC.time              = ctrl.time;
+    ctrlC.primalInit   = ctrl.primalInit;
+    ctrlC.dualInit     = ctrl.dualInit;
+    ctrlC.tol          = ctrl.tol;
+    ctrlC.maxIts       = ctrl.maxIts;
+    ctrlC.maxStepRatio = ctrl.maxStepRatio;
+    ctrlC.system       = CReflect(ctrl.system);
+    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.outerEquil   = ctrl.outerEquil;
+    ctrlC.innerEquil   = ctrl.innerEquil;
+    ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
+    ctrlC.basisSize    = ctrl.basisSize;
+    ctrlC.print        = ctrl.print;
+    ctrlC.time         = ctrl.time;
     return ctrlC;
 }
 inline ElQPDirectMehrotraCtrl_d CReflect
 ( const qp::direct::MehrotraCtrl<double>& ctrl )
 {
     ElQPDirectMehrotraCtrl_d ctrlC;
-    ctrlC.primalInitialized = ctrl.primalInitialized;
-    ctrlC.dualInitialized   = ctrl.dualInitialized;
-    ctrlC.tol               = ctrl.tol;
-    ctrlC.maxIts            = ctrl.maxIts;
-    ctrlC.maxStepRatio      = ctrl.maxStepRatio;
-    ctrlC.system            = CReflect(ctrl.system);
-    ctrlC.qsdCtrl           = CReflect(ctrl.qsdCtrl);
-    ctrlC.equilibrate       = ctrl.equilibrate;
-    ctrlC.print             = ctrl.print;
-    ctrlC.time              = ctrl.time;
+    ctrlC.primalInit   = ctrl.primalInit;
+    ctrlC.dualInit     = ctrl.dualInit;
+    ctrlC.tol          = ctrl.tol;
+    ctrlC.maxIts       = ctrl.maxIts;
+    ctrlC.maxStepRatio = ctrl.maxStepRatio;
+    ctrlC.system       = CReflect(ctrl.system);
+    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.outerEquil   = ctrl.outerEquil;
+    ctrlC.innerEquil   = ctrl.innerEquil;
+    ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
+    ctrlC.basisSize    = ctrl.basisSize;
+    ctrlC.print        = ctrl.print;
+    ctrlC.time         = ctrl.time;
     return ctrlC;
 }
 inline qp::direct::MehrotraCtrl<float> CReflect
 ( ElQPDirectMehrotraCtrl_s ctrlC )
 {
     qp::direct::MehrotraCtrl<float> ctrl;
-    ctrl.primalInitialized  = ctrlC.primalInitialized;
-    ctrl.dualInitialized    = ctrlC.dualInitialized;
-    ctrl.tol                = ctrlC.tol;
-    ctrl.maxIts             = ctrlC.maxIts;
-    ctrl.maxStepRatio       = ctrlC.maxStepRatio;
-    ctrl.system             = CReflect(ctrlC.system);
-    ctrl.qsdCtrl            = CReflect(ctrlC.qsdCtrl);
-    ctrl.equilibrate        = ctrlC.equilibrate;
-    ctrl.print              = ctrlC.print;
-    ctrl.time               = ctrlC.time;
+    ctrl.primalInit   = ctrlC.primalInit;
+    ctrl.dualInit     = ctrlC.dualInit;
+    ctrl.tol          = ctrlC.tol;
+    ctrl.maxIts       = ctrlC.maxIts;
+    ctrl.maxStepRatio = ctrlC.maxStepRatio;
+    ctrl.system       = CReflect(ctrlC.system);
+    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.outerEquil   = ctrlC.outerEquil;
+    ctrl.innerEquil   = ctrlC.innerEquil;
+    ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
+    ctrl.basisSize    = ctrlC.basisSize;
+    ctrl.print        = ctrlC.print;
+    ctrl.time         = ctrlC.time;
     return ctrl;
 }
 inline qp::direct::MehrotraCtrl<double> CReflect
 ( ElQPDirectMehrotraCtrl_d ctrlC )
 {
     qp::direct::MehrotraCtrl<double> ctrl;
-    ctrl.primalInitialized  = ctrlC.primalInitialized;
-    ctrl.dualInitialized    = ctrlC.dualInitialized;
-    ctrl.tol                = ctrlC.tol;
-    ctrl.maxIts             = ctrlC.maxIts;
-    ctrl.maxStepRatio       = ctrlC.maxStepRatio;
-    ctrl.system             = CReflect(ctrlC.system);
-    ctrl.qsdCtrl            = CReflect(ctrlC.qsdCtrl);
-    ctrl.equilibrate        = ctrlC.equilibrate;
-    ctrl.print              = ctrlC.print;
-    ctrl.time               = ctrlC.time;
+    ctrl.primalInit   = ctrlC.primalInit;
+    ctrl.dualInit     = ctrlC.dualInit;
+    ctrl.tol          = ctrlC.tol;
+    ctrl.maxIts       = ctrlC.maxIts;
+    ctrl.maxStepRatio = ctrlC.maxStepRatio;
+    ctrl.system       = CReflect(ctrlC.system);
+    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.outerEquil   = ctrlC.outerEquil;
+    ctrl.innerEquil   = ctrlC.innerEquil;
+    ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
+    ctrl.basisSize    = ctrlC.basisSize;
+    ctrl.print        = ctrlC.print;
+    ctrl.time         = ctrlC.time;
     return ctrl;
 }
 
@@ -2264,61 +2300,61 @@ inline qp::direct::Ctrl<double> CReflect( ElQPDirectCtrl_d ctrlC )
 inline ElQPAffineIPFCtrl_s CReflect( const qp::affine::IPFCtrl<float>& ctrl )
 {
     ElQPAffineIPFCtrl_s ctrlC;
-    ctrlC.primalInitialized = ctrl.primalInitialized;
-    ctrlC.dualInitialized   = ctrl.dualInitialized;
-    ctrlC.tol               = ctrl.tol;
-    ctrlC.maxIts            = ctrl.maxIts;
-    ctrlC.centering         = ctrl.centering;
-    ctrlC.qsdCtrl           = CReflect(ctrl.qsdCtrl);
-    ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
-    ctrlC.equilibrate       = ctrl.equilibrate;
-    ctrlC.print             = ctrl.print;
-    ctrlC.time              = ctrl.time;
+    ctrlC.primalInit     = ctrl.primalInit;
+    ctrlC.dualInit       = ctrl.dualInit;
+    ctrlC.tol            = ctrl.tol;
+    ctrlC.maxIts         = ctrl.maxIts;
+    ctrlC.centering      = ctrl.centering;
+    ctrlC.qsdCtrl        = CReflect(ctrl.qsdCtrl);
+    ctrlC.lineSearchCtrl = CReflect(ctrl.lineSearchCtrl);
+    ctrlC.equilibrate    = ctrl.equilibrate;
+    ctrlC.print          = ctrl.print;
+    ctrlC.time           = ctrl.time;
     return ctrlC;
 }
 inline ElQPAffineIPFCtrl_d CReflect( const qp::affine::IPFCtrl<double>& ctrl )
 {
     ElQPAffineIPFCtrl_d ctrlC;
-    ctrlC.primalInitialized = ctrl.primalInitialized;
-    ctrlC.dualInitialized   = ctrl.dualInitialized;
-    ctrlC.tol               = ctrl.tol;
-    ctrlC.maxIts            = ctrl.maxIts;
-    ctrlC.centering         = ctrl.centering;
-    ctrlC.qsdCtrl           = CReflect(ctrl.qsdCtrl);
-    ctrlC.lineSearchCtrl    = CReflect(ctrl.lineSearchCtrl);
-    ctrlC.equilibrate       = ctrl.equilibrate;
-    ctrlC.print             = ctrl.print;
-    ctrlC.time              = ctrl.time;
+    ctrlC.primalInit     = ctrl.primalInit;
+    ctrlC.dualInit       = ctrl.dualInit;
+    ctrlC.tol            = ctrl.tol;
+    ctrlC.maxIts         = ctrl.maxIts;
+    ctrlC.centering      = ctrl.centering;
+    ctrlC.qsdCtrl        = CReflect(ctrl.qsdCtrl);
+    ctrlC.lineSearchCtrl = CReflect(ctrl.lineSearchCtrl);
+    ctrlC.equilibrate    = ctrl.equilibrate;
+    ctrlC.print          = ctrl.print;
+    ctrlC.time           = ctrl.time;
     return ctrlC;
 }
 inline qp::affine::IPFCtrl<float> CReflect( ElQPAffineIPFCtrl_s ctrlC )
 {
     qp::affine::IPFCtrl<float> ctrl;
-    ctrl.primalInitialized = ctrlC.primalInitialized;
-    ctrl.dualInitialized   = ctrlC.dualInitialized;
-    ctrl.tol               = ctrlC.tol;
-    ctrl.maxIts            = ctrlC.maxIts;
-    ctrl.centering         = ctrlC.centering;
-    ctrl.qsdCtrl           = CReflect(ctrlC.qsdCtrl);
-    ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
-    ctrl.equilibrate       = ctrlC.equilibrate;
-    ctrl.print             = ctrlC.print;
-    ctrl.time              = ctrlC.time;
+    ctrl.primalInit     = ctrlC.primalInit;
+    ctrl.dualInit       = ctrlC.dualInit;
+    ctrl.tol            = ctrlC.tol;
+    ctrl.maxIts         = ctrlC.maxIts;
+    ctrl.centering      = ctrlC.centering;
+    ctrl.qsdCtrl        = CReflect(ctrlC.qsdCtrl);
+    ctrl.lineSearchCtrl = CReflect(ctrlC.lineSearchCtrl);
+    ctrl.equilibrate    = ctrlC.equilibrate;
+    ctrl.print          = ctrlC.print;
+    ctrl.time           = ctrlC.time;
     return ctrl;
 }
 inline qp::affine::IPFCtrl<double> CReflect( ElQPAffineIPFCtrl_d ctrlC )
 {
     qp::affine::IPFCtrl<double> ctrl;
-    ctrl.primalInitialized = ctrlC.primalInitialized;
-    ctrl.dualInitialized   = ctrlC.dualInitialized;
-    ctrl.tol               = ctrlC.tol;
-    ctrl.maxIts            = ctrlC.maxIts;
-    ctrl.centering         = ctrlC.centering;
-    ctrl.qsdCtrl           = CReflect(ctrlC.qsdCtrl);
-    ctrl.lineSearchCtrl    = CReflect(ctrlC.lineSearchCtrl);
-    ctrl.equilibrate       = ctrlC.equilibrate;
-    ctrl.print             = ctrlC.print;
-    ctrl.time              = ctrlC.time;
+    ctrl.primalInit     = ctrlC.primalInit;
+    ctrl.dualInit       = ctrlC.dualInit;
+    ctrl.tol            = ctrlC.tol;
+    ctrl.maxIts         = ctrlC.maxIts;
+    ctrl.centering      = ctrlC.centering;
+    ctrl.qsdCtrl        = CReflect(ctrlC.qsdCtrl);
+    ctrl.lineSearchCtrl = CReflect(ctrlC.lineSearchCtrl);
+    ctrl.equilibrate    = ctrlC.equilibrate;
+    ctrl.print          = ctrlC.print;
+    ctrl.time           = ctrlC.time;
     return ctrl;
 }
 
@@ -2326,60 +2362,72 @@ inline ElQPAffineMehrotraCtrl_s CReflect
 ( const qp::affine::MehrotraCtrl<float>& ctrl )
 {
     ElQPAffineMehrotraCtrl_s ctrlC;
-    ctrlC.primalInitialized = ctrl.primalInitialized;
-    ctrlC.dualInitialized   = ctrl.dualInitialized;
-    ctrlC.tol               = ctrl.tol;
-    ctrlC.maxIts            = ctrl.maxIts;
-    ctrlC.maxStepRatio      = ctrl.maxStepRatio;
-    ctrlC.qsdCtrl           = CReflect(ctrl.qsdCtrl);
-    ctrlC.equilibrate       = ctrl.equilibrate;
-    ctrlC.print             = ctrl.print;
-    ctrlC.time              = ctrl.time;
+    ctrlC.primalInit   = ctrl.primalInit;
+    ctrlC.dualInit     = ctrl.dualInit;
+    ctrlC.tol          = ctrl.tol;
+    ctrlC.maxIts       = ctrl.maxIts;
+    ctrlC.maxStepRatio = ctrl.maxStepRatio;
+    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.outerEquil   = ctrl.outerEquil;
+    ctrlC.innerEquil   = ctrl.innerEquil;
+    ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
+    ctrlC.basisSize    = ctrl.basisSize;
+    ctrlC.print        = ctrl.print;
+    ctrlC.time         = ctrl.time;
     return ctrlC;
 }
 inline ElQPAffineMehrotraCtrl_d CReflect
 ( const qp::affine::MehrotraCtrl<double>& ctrl )
 {
     ElQPAffineMehrotraCtrl_d ctrlC;
-    ctrlC.primalInitialized = ctrl.primalInitialized;
-    ctrlC.dualInitialized   = ctrl.dualInitialized;
-    ctrlC.tol               = ctrl.tol;
-    ctrlC.maxIts            = ctrl.maxIts;
-    ctrlC.maxStepRatio      = ctrl.maxStepRatio;
-    ctrlC.qsdCtrl           = CReflect(ctrl.qsdCtrl);
-    ctrlC.equilibrate       = ctrl.equilibrate;
-    ctrlC.print             = ctrl.print;
-    ctrlC.time              = ctrl.time;
+    ctrlC.primalInit   = ctrl.primalInit;
+    ctrlC.dualInit     = ctrl.dualInit;
+    ctrlC.tol          = ctrl.tol;
+    ctrlC.maxIts       = ctrl.maxIts;
+    ctrlC.maxStepRatio = ctrl.maxStepRatio;
+    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.outerEquil   = ctrl.outerEquil;
+    ctrlC.innerEquil   = ctrl.innerEquil;
+    ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
+    ctrlC.basisSize    = ctrl.basisSize;
+    ctrlC.print        = ctrl.print;
+    ctrlC.time         = ctrl.time;
     return ctrlC;
 }
 inline qp::affine::MehrotraCtrl<float> CReflect
 ( ElQPAffineMehrotraCtrl_s ctrlC )
 {
     qp::affine::MehrotraCtrl<float> ctrl;
-    ctrl.primalInitialized = ctrlC.primalInitialized;
-    ctrl.dualInitialized   = ctrlC.dualInitialized;
-    ctrl.tol               = ctrlC.tol;
-    ctrl.maxIts            = ctrlC.maxIts;
-    ctrl.maxStepRatio      = ctrlC.maxStepRatio;
-    ctrl.qsdCtrl           = CReflect(ctrlC.qsdCtrl);
-    ctrl.equilibrate       = ctrlC.equilibrate;
-    ctrl.print             = ctrlC.print;
-    ctrl.time              = ctrlC.time;
+    ctrl.primalInit   = ctrlC.primalInit;
+    ctrl.dualInit     = ctrlC.dualInit;
+    ctrl.tol          = ctrlC.tol;
+    ctrl.maxIts       = ctrlC.maxIts;
+    ctrl.maxStepRatio = ctrlC.maxStepRatio;
+    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.outerEquil   = ctrlC.outerEquil;
+    ctrl.innerEquil   = ctrlC.innerEquil;
+    ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
+    ctrl.basisSize    = ctrlC.basisSize;
+    ctrl.print        = ctrlC.print;
+    ctrl.time         = ctrlC.time;
     return ctrl;
 }
 inline qp::affine::MehrotraCtrl<double> CReflect
 ( ElQPAffineMehrotraCtrl_d ctrlC )
 {
     qp::affine::MehrotraCtrl<double> ctrl;
-    ctrl.primalInitialized = ctrlC.primalInitialized;
-    ctrl.dualInitialized   = ctrlC.dualInitialized;
-    ctrl.tol               = ctrlC.tol;
-    ctrl.maxIts            = ctrlC.maxIts;
-    ctrl.maxStepRatio      = ctrlC.maxStepRatio;
-    ctrl.qsdCtrl           = CReflect(ctrlC.qsdCtrl);
-    ctrl.equilibrate       = ctrlC.equilibrate;
-    ctrl.print             = ctrlC.print;
-    ctrl.time              = ctrlC.time;
+    ctrl.primalInit   = ctrlC.primalInit;
+    ctrl.dualInit     = ctrlC.dualInit;
+    ctrl.tol          = ctrlC.tol;
+    ctrl.maxIts       = ctrlC.maxIts;
+    ctrl.maxStepRatio = ctrlC.maxStepRatio;
+    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.outerEquil   = ctrlC.outerEquil;
+    ctrl.innerEquil   = ctrlC.innerEquil;
+    ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
+    ctrl.basisSize    = ctrlC.basisSize;
+    ctrl.print        = ctrlC.print;
+    ctrl.time         = ctrlC.time;
     return ctrl;
 }
 

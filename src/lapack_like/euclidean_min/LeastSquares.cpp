@@ -311,10 +311,9 @@ void LeastSquares
     if( ctrl.scaleTwoNorm )
     {
         // Scale ABar down to roughly unit two-norm
-        auto extremal = ExtremalSingValEst( ABar, ctrl.basisSize ); 
+        normScale = TwoNormEstimate( ABar, ctrl.basisSize ); 
         if( ctrl.progress )
-            cout << "Estimated || A ||_2 ~= " << extremal.second << endl;
-        normScale = extremal.second;
+            cout << "Estimated || A ||_2 ~= " << normScale << endl;
         Scale( F(1)/normScale, ABar );
         Scale( normScale, dR );
     }
@@ -629,10 +628,9 @@ void LeastSquares
     if( ctrl.scaleTwoNorm )
     {
         // Scale ABar down to roughly unit two-norm
-        auto extremal = ExtremalSingValEst( ABar, ctrl.basisSize );
+        normScale = TwoNormEstimate( ABar, ctrl.basisSize );
         if( ctrl.progress )
-            cout << "Estimated || A ||_2 ~= " << extremal.second << endl;
-        normScale = extremal.second;
+            cout << "Estimated || A ||_2 ~= " << normScale << endl;
         Scale( F(1)/normScale, ABar );
         Scale( normScale, dR );
     }

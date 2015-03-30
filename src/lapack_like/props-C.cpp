@@ -349,6 +349,12 @@ extern "C" {
   ElError ElTwoNormEstimateDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, Base<F> tol, ElInt maxIts, Base<F>* normEst ) \
   { EL_TRY( *normEst = TwoNormEstimate( *CReflect(A), tol, maxIts ) ) } \
+  ElError ElTwoNormEstimateSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElInt basisSize, Base<F>* normEst ) \
+  { EL_TRY( *normEst = TwoNormEstimate( *CReflect(A), basisSize ) ) } \
+  ElError ElTwoNormEstimateDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElInt basisSize, Base<F>* normEst ) \
+  { EL_TRY( *normEst = TwoNormEstimate( *CReflect(A), basisSize ) ) } \
   ElError ElSymmetricTwoNormEstimate_ ## SIG \
   ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, \
     Base<F> tol, ElInt maxIts, Base<F>* normEst ) \

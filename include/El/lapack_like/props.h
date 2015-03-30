@@ -866,6 +866,7 @@ EL_EXPORT ElError ElTwoNormEstimate_c
 ( ElConstMatrix_c A, float tol, ElInt maxIts, float* normEst );
 EL_EXPORT ElError ElTwoNormEstimate_z
 ( ElConstMatrix_z A, double tol, ElInt maxIts, double* normEst );
+
 EL_EXPORT ElError ElTwoNormEstimateDist_s
 ( ElConstDistMatrix_s A, float tol, ElInt maxIts, float* normEst );
 EL_EXPORT ElError ElTwoNormEstimateDist_d
@@ -874,6 +875,24 @@ EL_EXPORT ElError ElTwoNormEstimateDist_c
 ( ElConstDistMatrix_c A, float tol, ElInt maxIts, float* normEst );
 EL_EXPORT ElError ElTwoNormEstimateDist_z
 ( ElConstDistMatrix_z A, double tol, ElInt maxIts, double* normEst );
+
+EL_EXPORT ElError ElTwoNormEstimateSparse_s
+( ElConstSparseMatrix_s A, ElInt basisSize, float* normEst );
+EL_EXPORT ElError ElTwoNormEstimateSparse_d
+( ElConstSparseMatrix_d A, ElInt basisSize, double* normEst );
+EL_EXPORT ElError ElTwoNormEstimateSparse_c
+( ElConstSparseMatrix_c A, ElInt basisSize, float* normEst );
+EL_EXPORT ElError ElTwoNormEstimateSparse_z
+( ElConstSparseMatrix_z A, ElInt basisSize, double* normEst );
+
+EL_EXPORT ElError ElTwoNormEstimateDistSparse_s
+( ElConstDistSparseMatrix_s A, ElInt basisSize, float* normEst );
+EL_EXPORT ElError ElTwoNormEstimateDistSparse_d
+( ElConstDistSparseMatrix_d A, ElInt basisSize, double* normEst );
+EL_EXPORT ElError ElTwoNormEstimateDistSparse_c
+( ElConstDistSparseMatrix_c A, ElInt basisSize, float* normEst );
+EL_EXPORT ElError ElTwoNormEstimateDistSparse_z
+( ElConstDistSparseMatrix_z A, ElInt basisSize, double* normEst );
 
 EL_EXPORT ElError ElSymmetricTwoNormEstimate_s
 ( ElUpperOrLower uplo, ElConstMatrix_s A, float tol, ElInt maxIts, 

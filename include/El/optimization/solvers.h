@@ -122,8 +122,7 @@ ElError ElLPDirectADMMCtrlDefault_s( ElLPDirectADMMCtrl_s* ctrl );
 ElError ElLPDirectADMMCtrlDefault_d( ElLPDirectADMMCtrl_d* ctrl );
 
 typedef struct {
-  bool primalInitialized;
-  bool dualInitialized;
+  bool primalInit, dualInit;
   float tol;
   ElInt maxIts;
   float centering;
@@ -138,8 +137,7 @@ typedef struct {
 } ElLPDirectIPFCtrl_s;
 
 typedef struct {
-  bool primalInitialized;
-  bool dualInitialized;
+  bool primalInit, dualInit;
   double tol;
   ElInt maxIts;
   double centering;
@@ -157,27 +155,29 @@ ElError ElLPDirectIPFCtrlDefault_s( ElLPDirectIPFCtrl_s* ctrl, bool isSparse );
 ElError ElLPDirectIPFCtrlDefault_d( ElLPDirectIPFCtrl_d* ctrl, bool isSparse );
 
 typedef struct {
-  bool primalInitialized;
-  bool dualInitialized;
+  bool primalInit, dualInit;
   float tol;
   ElInt maxIts;
   float maxStepRatio;
   ElKKTSystem system;
   ElRegQSDCtrl_s qsdCtrl;
-  bool equilibrate;
+  bool outerEquil, innerEquil;
+  bool scaleTwoNorm;
+  ElInt basisSize;
   bool print;
   bool time;
 } ElLPDirectMehrotraCtrl_s;
 
 typedef struct {
-  bool primalInitialized;
-  bool dualInitialized;
+  bool primalInit, dualInit;
   double tol;
   ElInt maxIts;
   double maxStepRatio;
   ElKKTSystem system;
   ElRegQSDCtrl_d qsdCtrl;
-  bool equilibrate;
+  bool outerEquil, innerEquil;
+  bool scaleTwoNorm;
+  ElInt basisSize;
   bool print;
   bool time;
 } ElLPDirectMehrotraCtrl_d;
@@ -312,8 +312,7 @@ EL_EXPORT ElError ElLPAffineDistSparse_d
 /* Expert versions
    ^^^^^^^^^^^^^^^ */
 typedef struct {
-  bool primalInitialized;
-  bool dualInitialized;
+  bool primalInit, dualInit;
   float tol;
   ElInt maxIts;
   float centering;
@@ -327,8 +326,7 @@ typedef struct {
 } ElLPAffineIPFCtrl_s;
 
 typedef struct {
-  bool primalInitialized;
-  bool dualInitialized;
+  bool primalInit, dualInit;
   double tol;
   ElInt maxIts;
   double centering;
@@ -345,25 +343,27 @@ ElError ElLPAffineIPFCtrlDefault_s( ElLPAffineIPFCtrl_s* ctrl );
 ElError ElLPAffineIPFCtrlDefault_d( ElLPAffineIPFCtrl_d* ctrl );
 
 typedef struct {
-  bool primalInitialized;
-  bool dualInitialized;
+  bool primalInit, dualInit;
   float tol;
   ElInt maxIts;
   float maxStepRatio;
   ElRegQSDCtrl_s qsdCtrl;
-  bool equilibrate;
+  bool outerEquil, innerEquil;
+  bool scaleTwoNorm;
+  ElInt basisSize;
   bool print;
   bool time;
 } ElLPAffineMehrotraCtrl_s;
 
 typedef struct {
-  bool primalInitialized;
-  bool dualInitialized;
+  bool primalInit, dualInit;
   double tol;
   ElInt maxIts;
   double maxStepRatio;
   ElRegQSDCtrl_d qsdCtrl;
-  bool equilibrate;
+  bool outerEquil, innerEquil;
+  bool scaleTwoNorm;
+  ElInt basisSize;
   bool print;
   bool time;
 } ElLPAffineMehrotraCtrl_d;
@@ -505,8 +505,7 @@ EL_EXPORT ElError ElQPDirectDistSparse_d
    ^^^^^^^^^^^^^^^ */
 
 typedef struct {
-  bool primalInitialized;
-  bool dualInitialized;
+  bool primalInit, dualInit;
   float tol;
   ElInt maxIts;
   float centering;
@@ -521,8 +520,7 @@ typedef struct {
 } ElQPDirectIPFCtrl_s;
 
 typedef struct {
-  bool primalInitialized;
-  bool dualInitialized;
+  bool primalInit, dualInit;
   double tol;
   ElInt maxIts;
   double centering;
@@ -540,27 +538,29 @@ ElError ElQPDirectIPFCtrlDefault_s( ElQPDirectIPFCtrl_s* ctrl );
 ElError ElQPDirectIPFCtrlDefault_d( ElQPDirectIPFCtrl_d* ctrl );
 
 typedef struct {
-  bool primalInitialized;
-  bool dualInitialized;
+  bool primalInit, dualInit;
   float tol;
   ElInt maxIts;
   float maxStepRatio;
   ElKKTSystem system;
   ElRegQSDCtrl_s qsdCtrl;
-  bool equilibrate;
+  bool outerEquil, innerEquil;
+  bool scaleTwoNorm;
+  ElInt basisSize;
   bool print;
   bool time;
 } ElQPDirectMehrotraCtrl_s;
 
 typedef struct {
-  bool primalInitialized;
-  bool dualInitialized;
+  bool primalInit, dualInit;
   double tol;
   ElInt maxIts;
   double maxStepRatio;
   ElKKTSystem system;
   ElRegQSDCtrl_d qsdCtrl;
-  bool equilibrate;
+  bool outerEquil, innerEquil;
+  bool scaleTwoNorm;
+  ElInt basisSize;
   bool print;
   bool time;
 } ElQPDirectMehrotraCtrl_d;
@@ -699,8 +699,7 @@ EL_EXPORT ElError ElQPAffineDistSparse_d
 /* Expert versions
    ^^^^^^^^^^^^^^^ */
 typedef struct {
-  bool primalInitialized;
-  bool dualInitialized;
+  bool primalInit, dualInit;
   float tol;
   ElInt maxIts;
   float centering;
@@ -714,8 +713,7 @@ typedef struct {
 } ElQPAffineIPFCtrl_s;
 
 typedef struct {
-  bool primalInitialized;
-  bool dualInitialized;
+  bool primalInit, dualInit;
   double tol;
   ElInt maxIts;
   double centering;
@@ -732,25 +730,27 @@ ElError ElQPAffineIPFCtrlDefault_s( ElQPAffineIPFCtrl_s* ctrl );
 ElError ElQPAffineIPFCtrlDefault_d( ElQPAffineIPFCtrl_d* ctrl );
 
 typedef struct {
-  bool primalInitialized;
-  bool dualInitialized;
+  bool primalInit, dualInit;
   float tol;
   ElInt maxIts;
   float maxStepRatio;
   ElRegQSDCtrl_s qsdCtrl;
-  bool equilibrate;
+  bool outerEquil, innerEquil;
+  bool scaleTwoNorm;
+  ElInt basisSize;
   bool print;
   bool time;
 } ElQPAffineMehrotraCtrl_s;
 
 typedef struct {
-  bool primalInitialized;
-  bool dualInitialized;
+  bool primalInit, dualInit;
   double tol;
   ElInt maxIts;
   double maxStepRatio;
   ElRegQSDCtrl_d qsdCtrl;
-  bool equilibrate;
+  bool outerEquil, innerEquil;
+  bool scaleTwoNorm;
+  ElInt basisSize;
   bool print;
   bool time;
 } ElQPAffineMehrotraCtrl_d;

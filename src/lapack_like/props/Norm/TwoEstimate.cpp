@@ -84,6 +84,20 @@ Base<F> TwoNormEstimate
 }
 
 template<typename F>
+Base<F> TwoNormEstimate( const SparseMatrix<F>& A, Int basisSize )
+{
+    auto extremal = ExtremalSingValEst( A, basisSize );
+    return extremal.second;
+}
+
+template<typename F>
+Base<F> TwoNormEstimate( const DistSparseMatrix<F>& A, Int basisSize )
+{
+    auto extremal = ExtremalSingValEst( A, basisSize );
+    return extremal.second;
+}
+
+template<typename F>
 Base<F> HermitianTwoNormEstimate
 ( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol, Int maxIts )
 {
@@ -242,6 +256,10 @@ Base<F> SymmetricTwoNormEstimate
   ( const Matrix<F>& A, Base<F> tol, Int maxIts ); \
   template Base<F> TwoNormEstimate \
   ( const AbstractDistMatrix<F>& A, Base<F> tol, Int maxIts ); \
+  template Base<F> TwoNormEstimate \
+  ( const SparseMatrix<F>& A, Int basisSize ); \
+  template Base<F> TwoNormEstimate \
+  ( const DistSparseMatrix<F>& A, Int basisSize ); \
   template Base<F> HermitianTwoNormEstimate \
   ( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol, Int maxIts ); \
   template Base<F> HermitianTwoNormEstimate \
@@ -254,7 +272,6 @@ Base<F> SymmetricTwoNormEstimate
     Int maxIts );
 
 #define EL_NO_INT_PROTO
-#define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
 } // namespace El
