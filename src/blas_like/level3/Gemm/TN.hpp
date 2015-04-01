@@ -14,14 +14,14 @@ namespace gemm {
 template<typename T> 
 inline void
 SUMMA_TNA
-( Orientation orientationOfA,
+( Orientation orientA,
   T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("gemm::SUMMA_TNA");    
         AssertSameGrids( APre, BPre, CPre );
-        if( orientationOfA == NORMAL )
+        if( orientA == NORMAL )
             LogicError("A must be (Conjugate)Transposed");
         if( APre.Width() != CPre.Height() || BPre.Width() != CPre.Width() ||
             APre.Height() != BPre.Height() )
@@ -58,7 +58,7 @@ SUMMA_TNA
         // D1[MR,*] := alpha (A1[MC,MR])^T B1[MC,*]
         //           = alpha (A1^T)[MR,MC] B1[MC,*]
         B1_MC_STAR = B1; 
-        LocalGemm( orientationOfA, NORMAL, alpha, A, B1_MC_STAR, D1_MR_STAR );
+        LocalGemm( orientA, NORMAL, alpha, A, B1_MC_STAR, D1_MR_STAR );
 
         // C1[MC,MR] += scattered & transposed D1[MR,*] summed over grid cols
         Contract( D1_MR_STAR, D1_MR_MC );
@@ -70,14 +70,14 @@ SUMMA_TNA
 template<typename T> 
 inline void
 SUMMA_TNB
-( Orientation orientationOfA,
+( Orientation orientA,
   T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("gemm::SUMMA_TNB");
         AssertSameGrids( APre, BPre, CPre );
-        if( orientationOfA == NORMAL )
+        if( orientA == NORMAL )
             LogicError("A must be (Conjugate)Transposed");
         if( APre.Width() != CPre.Height() || BPre.Width() != CPre.Width() ||
             APre.Height() != BPre.Height() )
@@ -91,7 +91,7 @@ SUMMA_TNB
     const Int sumDim = BPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
-    const bool conjugate = ( orientationOfA == ADJOINT );
+    const bool conjugate = ( orientA == ADJOINT );
 
     auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
     auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
@@ -114,9 +114,7 @@ SUMMA_TNB
         // D1[*,MR] := alpha (A1[MC,*])^[T/H] B[MC,MR]
         //           = alpha (A1^[T/H])[*,MC] B[MC,MR]
         A1_MC_STAR = A1; // A1[MC,*] <- A1[MC,MR]
-        LocalGemm
-        ( orientationOfA, NORMAL, 
-          T(1), B, A1_MC_STAR, D1Trans_MR_STAR );
+        LocalGemm( orientA, NORMAL, T(1), B, A1_MC_STAR, D1Trans_MR_STAR );
         TransposeAxpyContract( alpha, D1Trans_MR_STAR, C1, conjugate );
     }
 }
@@ -125,14 +123,14 @@ SUMMA_TNB
 template<typename T> 
 inline void
 SUMMA_TNC
-( Orientation orientationOfA,
+( Orientation orientA,
   T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("gemm::SUMMA_TNC");
         AssertSameGrids( APre, BPre, CPre );
-        if( orientationOfA == NORMAL )
+        if( orientA == NORMAL )
             LogicError("A must be (Conjugate)Transposed");
         if( APre.Width() != CPre.Height() || BPre.Width() != CPre.Width() ||
             APre.Height() != BPre.Height() )
@@ -170,15 +168,14 @@ SUMMA_TNC
         A1_STAR_MC = A1; 
         Transpose( B1, B1Trans_MR_STAR );
         LocalGemm
-        ( orientationOfA, TRANSPOSE, 
-          alpha, A1_STAR_MC, B1Trans_MR_STAR, T(1), C );
+        ( orientA, TRANSPOSE, alpha, A1_STAR_MC, B1Trans_MR_STAR, T(1), C );
     }
 }
 
 template<typename T>
 inline void
 SUMMA_TN
-( Orientation orientationOfA,
+( Orientation orientA,
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   T beta,        AbstractDistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT )
 {
@@ -192,15 +189,15 @@ SUMMA_TN
     {
     case GEMM_DEFAULT:
         if( m <= n && weightTowardsC*m <= k )
-            SUMMA_TNB( orientationOfA, alpha, A, B, beta, C );
+            SUMMA_TNB( orientA, alpha, A, B, beta, C );
         else if( n <= m && weightTowardsC*n <= k )
-            SUMMA_TNA( orientationOfA, alpha, A, B, beta, C );
+            SUMMA_TNA( orientA, alpha, A, B, beta, C );
         else
-            SUMMA_TNC( orientationOfA, alpha, A, B, beta, C );
+            SUMMA_TNC( orientA, alpha, A, B, beta, C );
         break;
-    case GEMM_SUMMA_A: SUMMA_TNA( orientationOfA, alpha, A, B, beta, C ); break;
-    case GEMM_SUMMA_B: SUMMA_TNB( orientationOfA, alpha, A, B, beta, C ); break;
-    case GEMM_SUMMA_C: SUMMA_TNC( orientationOfA, alpha, A, B, beta, C ); break;
+    case GEMM_SUMMA_A: SUMMA_TNA( orientA, alpha, A, B, beta, C ); break;
+    case GEMM_SUMMA_B: SUMMA_TNB( orientA, alpha, A, B, beta, C ); break;
+    case GEMM_SUMMA_C: SUMMA_TNC( orientA, alpha, A, B, beta, C ); break;
     default: LogicError("Unsupported Gemm option");
     }
 }

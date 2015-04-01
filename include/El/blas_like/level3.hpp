@@ -458,7 +458,10 @@ inline void LocalGemm
             if( A.ColDist() != C.ColDist() ||
                 A.RowDist() != B.ColDist() ||
                 B.RowDist() != C.RowDist() )
-                LogicError("C[X,Y] = A[X,Z] B[Z,Y]");
+                LogicError
+                ("Tried to form C[",C.ColDist(),",",C.RowDist(),"] := "
+                 "A[",A.ColDist(),",",A.RowDist(),"] "
+                 "B[",B.ColDist(),",",B.RowDist(),"]");
             if( A.ColAlign() != C.ColAlign() )
                 LogicError("A's cols must align with C's rows");
             if( A.RowAlign() != B.ColAlign() )
@@ -479,7 +482,10 @@ inline void LocalGemm
             if( A.ColDist() != C.ColDist() ||
                 A.RowDist() != B.RowDist() ||
                 B.ColDist() != C.RowDist() )
-                LogicError("C[X,Y] = A[X,Z] (B[Y,Z])^(T/H)");
+                LogicError
+                ("Tried to form C[",C.ColDist(),",",C.RowDist(),"] := "
+                 "A[",A.ColDist(),",",A.RowDist(),"] "
+                 "B[",B.ColDist(),",",B.RowDist(),"]'");
             if( A.ColAlign() != C.ColAlign() )
                 LogicError("A's cols must align with C's rows");
             if( A.RowAlign() != B.RowAlign() )
@@ -500,7 +506,10 @@ inline void LocalGemm
             if( A.RowDist() != C.ColDist() ||
                 A.ColDist() != B.ColDist() ||
                 B.RowDist() != C.RowDist() )
-                LogicError("C[X,Y] = (A[Z,X])^(T/H) B[Z,Y]");
+                LogicError
+                ("Tried to form C[",C.ColDist(),",",C.RowDist(),"] := "
+                 "A[",A.ColDist(),",",A.RowDist(),"]' "
+                 "B[",B.ColDist(),",",B.RowDist(),"]");
             if( A.RowAlign() != C.ColAlign() )
                 LogicError("A's rows must align with C's cols");
             if( A.ColAlign() != B.ColAlign() )
@@ -521,7 +530,10 @@ inline void LocalGemm
             if( A.RowDist() != C.ColDist() ||
                 A.ColDist() != B.RowDist() ||
                 B.ColDist() != C.RowDist() )
-                LogicError("C[X,Y] = (A[Z,X])^(T/H) (B[Y,Z])^(T/H)");
+                LogicError
+                ("Tried to form C[",C.ColDist(),",",C.RowDist(),"] := "
+                 "A[",A.ColDist(),",",A.RowDist(),"]' "
+                 "B[",B.ColDist(),",",B.RowDist(),"]'");
             if( A.RowAlign() != C.ColAlign() )
                 LogicError("A's rows must align with C's cols");
             if( A.ColAlign() != B.RowAlign() )
