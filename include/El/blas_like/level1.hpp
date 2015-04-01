@@ -706,6 +706,14 @@ template<typename T,typename S,Dist U,Dist V>
 void GetMappedDiagonal
 ( const DistMatrix<T,U,V>& A, AbstractDistMatrix<S>& d, 
   function<S(T)> func, Int offset=0 );
+template<typename T,typename S>
+void GetMappedDiagonal
+( const SparseMatrix<T>& A, Matrix<S>& d, 
+  function<S(T)> func, Int offset=0 );
+template<typename T,typename S>
+void GetMappedDiagonal
+( const DistSparseMatrix<T>& A, DistMultiVec<S>& d, 
+  function<S(T)> func, Int offset=0 );
 
 // GetSubmatrix
 // ============

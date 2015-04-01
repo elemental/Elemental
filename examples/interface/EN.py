@@ -68,6 +68,7 @@ ctrl.mehrotraCtrl.innerEquil = True
 ctrl.mehrotraCtrl.scaleTwoNorm = True
 ctrl.mehrotraCtrl.basisSize = 15
 ctrl.mehrotraCtrl.progress = True
+ctrl.mehrotraCtrl.qsdCtrl.progress = True
 if worldRank == 0:
   print "lambda1 =", lambda1, "lambda2 =", lambda2
 startEN = time.clock()

@@ -76,6 +76,33 @@ void StackedGeomEquil
   DistMultiVec<Base<F>>& dCol,
   bool progress=false );
 
+// More general equilibration
+// ==========================
+template<typename F>
+void SymmetricEquil
+( Matrix<F>& A, Matrix<Base<F>>& d, 
+  bool geomEquil=true, bool diagEquil=false, 
+  bool scaleTwoNorm=true, Int basisSize=15, 
+  bool progress=false );
+template<typename F>
+void SymmetricEquil
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& d, 
+  bool geomEquil=true, bool diagEquil=false,
+  bool scaleTwoNorm=true, Int basisSize=15, 
+  bool progress=false );
+template<typename F>
+void SymmetricEquil
+( SparseMatrix<F>& A, Matrix<Base<F>>& d, 
+  bool geomEquil=true, bool diagEquil=false,
+  bool scaleTwoNorm=true, Int basisSize=15,
+  bool progress=false );
+template<typename F>
+void SymmetricEquil
+( DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& d, 
+  bool geomEquil=true, bool diagEquil=false,
+  bool scaleTwoNorm=true, Int basisSize=15,
+  bool progress=false );
+
 } // namespace El
 
 #endif // ifndef EL_EQUILIBRATE_HPP

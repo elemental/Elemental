@@ -44,7 +44,7 @@ void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
     const Real minAbsVal = MinAbsNonzero( A, maxAbsVal );
     Real ratio = maxAbsVal / minAbsVal;
     if( progress )
-        cout << "Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
+        cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
     Matrix<Real> scales;
@@ -77,7 +77,7 @@ void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress )
-            cout << "New ratio is " << newMaxAbsVal << "/" 
+            cout << "    New ratio is " << newMaxAbsVal << "/" 
                  << newMinAbsVal << "=" << newRatio << endl;
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
@@ -104,7 +104,7 @@ void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
     const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
     const Real newRatio = newMaxAbsVal / newMinAbsVal;
     if( progress )
-        cout << "Final ratio is " << newMaxAbsVal << "/" 
+        cout << "    Final ratio is " << newMaxAbsVal << "/" 
              << newMinAbsVal << "=" << newRatio << endl;
 }
 
@@ -121,7 +121,7 @@ void SymmetricGeomEquil
     control.rowConstrain = true;
     control.colAlign = 0;
     control.rowAlign = 0;
-    auto APtr    = ReadWriteProxy<F,MC,MR>(&APre,control);
+    auto APtr = ReadWriteProxy<F,MC,MR>(&APre,control);
     auto dPtr = WriteProxy<Real,MC,STAR>(&dPre,control); 
     auto& A = *APtr;
     auto& d = *dPtr;
@@ -148,7 +148,7 @@ void SymmetricGeomEquil
     const Real minAbsVal = MinAbsNonzero( A, maxAbsVal );
     Real ratio = maxAbsVal / minAbsVal;
     if( progress && A.Grid().Rank() == 0 )
-        cout << "Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
+        cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
     DistMatrix<Real,MR,STAR> scales(A.Grid());
@@ -172,7 +172,7 @@ void SymmetricGeomEquil
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress && A.Grid().Rank() == 0 )
-            cout << "New ratio is " << newMaxAbsVal << "/" 
+            cout << "    New ratio is " << newMaxAbsVal << "/" 
                  << newMinAbsVal << "=" << newRatio << endl;
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
@@ -202,7 +202,7 @@ void SymmetricGeomEquil
     const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
     const Real newRatio = newMaxAbsVal / newMinAbsVal;
     if( progress && A.Grid().Rank() == 0 ) 
-        cout << "Final ratio is " << newMaxAbsVal << "/"
+        cout << "    Final ratio is " << newMaxAbsVal << "/"
              << newMinAbsVal << "=" << newRatio << endl;
 }
 
@@ -229,7 +229,7 @@ void SymmetricGeomEquil
     const Real minAbsVal = MinAbsNonzero( A, maxAbsVal );
     Real ratio = maxAbsVal / minAbsVal;
     if( progress )
-        cout << "Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
+        cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
     SparseMatrix<F> ATrans;
@@ -280,7 +280,7 @@ void SymmetricGeomEquil
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress )
-            cout << "New ratio is " << newMaxAbsVal << "/" 
+            cout << "    New ratio is " << newMaxAbsVal << "/" 
                  << newMinAbsVal << "=" << newRatio << endl;
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
@@ -309,7 +309,7 @@ void SymmetricGeomEquil
     const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
     const Real newRatio = newMaxAbsVal / newMinAbsVal;
     if( progress )
-        cout << "Final ratio is " << newMaxAbsVal << "/" 
+        cout << "    Final ratio is " << newMaxAbsVal << "/" 
              << newMinAbsVal << "=" << newRatio << endl;
 }
 
@@ -339,7 +339,7 @@ void SymmetricGeomEquil
     const Real minAbsVal = MinAbsNonzero( A, maxAbsVal );
     Real ratio = maxAbsVal / minAbsVal;
     if( progress && commRank == 0 )
-        cout << "Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
+        cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
     DistSparseMatrix<F> ATrans(comm);
@@ -394,7 +394,7 @@ void SymmetricGeomEquil
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress && commRank == 0 )
-            cout << "New ratio is " << newMaxAbsVal << "/" 
+            cout << "    New ratio is " << newMaxAbsVal << "/" 
                  << newMinAbsVal << "=" << newRatio << endl;
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
@@ -424,7 +424,7 @@ void SymmetricGeomEquil
     const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
     const Real newRatio = newMaxAbsVal / newMinAbsVal;
     if( progress && commRank == 0 )
-        cout << "Final ratio is " << newMaxAbsVal << "/" 
+        cout << "    Final ratio is " << newMaxAbsVal << "/" 
              << newMinAbsVal << "=" << newRatio << endl;
 }
 

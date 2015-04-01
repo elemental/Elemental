@@ -791,23 +791,11 @@ void Mehrotra
                 KKT( A, x, z, JOrig, false );
             else
                 AugmentedKKT( A, x, z, JOrig, false );
-
             J = JOrig;
-
-            if( ctrl.innerEquil )
-                SymmetricGeomEquil( J, dInner, ctrl.print );
-            else
-                Ones( dInner, reg.Height(), 1 );
-
-            if( ctrl.scaleTwoNorm )
-            {
-                Real twoNormEst = TwoNormEstimate( J, ctrl.basisSize );
-                if( ctrl.print )
-                    cout << "Estimated || J ||_2 ~= " << twoNormEst << endl;
-                Scale( Real(1)/twoNormEst, J );
-                Scale( Sqrt(twoNormEst), dInner );
-            }
-
+            SymmetricEquil
+            ( J, dInner, 
+              false, ctrl.innerEquil, 
+              ctrl.scaleTwoNorm, ctrl.basisSize, ctrl.print );
             UpdateRealPartOfDiagonal( J, Real(1), reg );
 
             if( numIts == 0 )
@@ -1150,23 +1138,11 @@ void Mehrotra
                 KKT( A, x, z, JOrig, false );
             else
                 AugmentedKKT( A, x, z, JOrig, false );
-
             J = JOrig;
-
-            if( ctrl.innerEquil )
-                SymmetricGeomEquil( J, dInner, ctrl.print );
-            else
-                Ones( dInner, reg.Height(), 1 );
-
-            if( ctrl.scaleTwoNorm )
-            {
-                Real twoNormEst = TwoNormEstimate( J, ctrl.basisSize );
-                if( ctrl.print && commRank == 0 )
-                    cout << "Estimated || J ||_2 ~= " << twoNormEst << endl;
-                Scale( Real(1)/twoNormEst, J );
-                Scale( Sqrt(twoNormEst), dInner );
-            }
-
+            SymmetricEquil
+            ( J, dInner,
+              false, ctrl.innerEquil, 
+              ctrl.scaleTwoNorm, ctrl.basisSize, ctrl.print );
             UpdateRealPartOfDiagonal( J, Real(1), reg );
 
             if( numIts == 0 )

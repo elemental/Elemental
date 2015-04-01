@@ -46,7 +46,7 @@ void GeomEquil
     const Real minAbsVal = MinAbsNonzero( A, maxAbsVal );
     Real ratio = maxAbsVal / minAbsVal;
     if( progress )
-        cout << "Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
+        cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
     const Real sqrtDamp = Sqrt(damp);
@@ -89,7 +89,7 @@ void GeomEquil
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress )
-            cout << "New ratio is " << newMaxAbsVal << "/" 
+            cout << "    New ratio is " << newMaxAbsVal << "/" 
                  << newMinAbsVal << "=" << newRatio << endl;
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
@@ -142,7 +142,7 @@ void StackedGeomEquil
     const Real minAbsVal = Min(minAbsValA,minAbsValB);
     Real ratio = maxAbsVal / minAbsVal;
     if( progress )
-        cout << "Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
+        cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
     const Real sqrtDamp = Sqrt(damp);
@@ -207,7 +207,7 @@ void StackedGeomEquil
         const Real newMinAbsVal = Min(newMinAbsValA,newMinAbsValB);
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress )
-            cout << "New ratio is " << newMaxAbsVal << "/" 
+            cout << "    New ratio is " << newMaxAbsVal << "/" 
                  << newMinAbsVal << "=" << newRatio << endl;
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
@@ -276,7 +276,7 @@ void GeomEquil
     const Real minAbsVal = MinAbsNonzero( A, maxAbsVal );
     Real ratio = maxAbsVal / minAbsVal;
     if( progress && A.Grid().Rank() == 0 )
-        cout << "Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
+        cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
     DistMatrix<Real,MC,STAR> rowScale(A.Grid());
@@ -312,7 +312,7 @@ void GeomEquil
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress && A.Grid().Rank() == 0 )
-            cout << "New ratio is " << newMaxAbsVal << "/" 
+            cout << "    New ratio is " << newMaxAbsVal << "/" 
                  << newMinAbsVal << "=" << newRatio << endl;
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
@@ -389,7 +389,7 @@ void StackedGeomEquil
     const Real minAbsVal = Min(minAbsValA,minAbsValB);
     Real ratio = maxAbsVal / minAbsVal;
     if( progress && A.Grid().Rank() == 0 )
-        cout << "Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
+        cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
     DistMatrix<Real,MC,STAR> rowScaleA(A.Grid()),
@@ -439,7 +439,7 @@ void StackedGeomEquil
         const Real newMinAbsVal = Min(newMinAbsValA,newMinAbsValB);
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress && A.Grid().Rank() == 0 )
-            cout << "New ratio is " << newMaxAbsVal << "/" 
+            cout << "    New ratio is " << newMaxAbsVal << "/" 
                  << newMinAbsVal << "=" << newRatio << endl;
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
@@ -486,7 +486,7 @@ void GeomEquil
     const Real minAbsVal = MinAbsNonzero( A, maxAbsVal );
     Real ratio = maxAbsVal / minAbsVal;
     if( progress )
-        cout << "Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
+        cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
     SparseMatrix<F> ATrans;
@@ -576,7 +576,7 @@ void GeomEquil
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress )
-            cout << "New ratio is " << newMaxAbsVal << "/" 
+            cout << "    New ratio is " << newMaxAbsVal << "/" 
                  << newMinAbsVal << "=" << newRatio << endl;
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
@@ -636,7 +636,7 @@ void StackedGeomEquil
     const Real minAbsVal = Min(minAbsValA,minAbsValB);
     Real ratio = maxAbsVal / minAbsVal;
     if( progress )
-        cout << "Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
+        cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
     SparseMatrix<F> ATrans, BTrans;
@@ -777,7 +777,7 @@ void StackedGeomEquil
         const Real newMinAbsVal = Min(newMinAbsValA,newMinAbsValB);
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress )
-            cout << "New ratio is " << newMaxAbsVal << "/" 
+            cout << "    New ratio is " << newMaxAbsVal << "/" 
                  << newMinAbsVal << "=" << newRatio << endl;
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
@@ -852,7 +852,7 @@ void GeomEquil
     const Real minAbsVal = MinAbsNonzero( A, maxAbsVal );
     Real ratio = maxAbsVal / minAbsVal;
     if( progress && commRank == 0 )
-        cout << "Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
+        cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
     DistSparseMatrix<F> ATrans(comm);
@@ -935,7 +935,7 @@ void GeomEquil
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress && commRank == 0 )
-            cout << "New ratio is " << newMaxAbsVal << "/" 
+            cout << "    New ratio is " << newMaxAbsVal << "/" 
                  << newMinAbsVal << "=" << newRatio << endl;
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
@@ -1003,7 +1003,7 @@ void StackedGeomEquil
     const Real minAbsVal = Min(minAbsValA,minAbsValB);
     Real ratio = maxAbsVal / minAbsVal;
     if( progress && commRank == 0 )
-        cout << "Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
+        cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
     DistSparseMatrix<F> ATrans(comm), BTrans(comm);
@@ -1134,7 +1134,7 @@ void StackedGeomEquil
         const Real newMinAbsVal = Min(newMinAbsValA,newMinAbsValB);
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress && commRank == 0 )
-            cout << "New ratio is " << newMaxAbsVal << "/" 
+            cout << "    New ratio is " << newMaxAbsVal << "/" 
                  << newMinAbsVal << "=" << newRatio << endl;
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
