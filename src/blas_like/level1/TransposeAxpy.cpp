@@ -30,23 +30,23 @@ void TransposeAxpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y, bool conjugate )
         const Int incX = ( nX==1 ? 1  : ldX );
         const Int incY = ( nY==1 ? 1  : ldY );
         DEBUG_ONLY(
-            const Int mY = Y.Height();
-            const Int lengthY = ( nY==1 ? mY : nY );
-            if( lengthX != lengthY )
-                LogicError("Nonconformal TransposeAxpy");
+          const Int mY = Y.Height();
+          const Int lengthY = ( nY==1 ? mY : nY );
+          if( lengthX != lengthY )
+              LogicError("Nonconformal TransposeAxpy");
         )
         if( conjugate )
             for( Int j=0; j<lengthX; ++j )
-                YBuf[j*incY] += alpha*Conj(XBuf[incX]);
+                YBuf[j*incY] += alpha*Conj(XBuf[j*incX]);
         else
             blas::Axpy( lengthX, alpha, XBuf, incX, YBuf, incY );
     }
     else
     {
         DEBUG_ONLY(
-            const Int mY = Y.Height();
-            if( mX != nY || nX != mY )
-                LogicError("Nonconformal TransposeAxpy");
+          const Int mY = Y.Height();
+          if( mX != nY || nX != mY )
+              LogicError("Nonconformal TransposeAxpy");
         )
         if( nX <= mX )
         {

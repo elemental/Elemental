@@ -19,16 +19,16 @@ SUMMA_TNA
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("gemm::SUMMA_TNA");    
-        AssertSameGrids( APre, BPre, CPre );
-        if( orientA == NORMAL )
-            LogicError("A must be (Conjugate)Transposed");
-        if( APre.Width() != CPre.Height() || BPre.Width() != CPre.Width() ||
-            APre.Height() != BPre.Height() )
-            LogicError
-            ("Nonconformal matrices:\n",
-             DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
-             DimsString(CPre,"C"));
+      CallStackEntry cse("gemm::SUMMA_TNA");    
+      AssertSameGrids( APre, BPre, CPre );
+      if( orientA == NORMAL )
+          LogicError("A must be (Conjugate)Transposed");
+      if( APre.Width() != CPre.Height() || BPre.Width() != CPre.Width() ||
+          APre.Height() != BPre.Height() )
+          LogicError
+          ("Nonconformal matrices:\n",
+           DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
+           DimsString(CPre,"C"));
     )
     const Int m = CPre.Height();
     const Int n = CPre.Width();
@@ -75,16 +75,16 @@ SUMMA_TNB
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("gemm::SUMMA_TNB");
-        AssertSameGrids( APre, BPre, CPre );
-        if( orientA == NORMAL )
-            LogicError("A must be (Conjugate)Transposed");
-        if( APre.Width() != CPre.Height() || BPre.Width() != CPre.Width() ||
-            APre.Height() != BPre.Height() )
-            LogicError
-            ("Nonconformal matrices:\n",
-             DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
-             DimsString(CPre,"C"));
+      CallStackEntry cse("gemm::SUMMA_TNB");
+      AssertSameGrids( APre, BPre, CPre );
+      if( orientA == NORMAL )
+          LogicError("A must be (Conjugate)Transposed");
+      if( APre.Width() != CPre.Height() || BPre.Width() != CPre.Width() ||
+          APre.Height() != BPre.Height() )
+          LogicError
+          ("Nonconformal matrices:\n",
+           DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
+           DimsString(CPre,"C"));
     )
     const Int m = CPre.Height();
     const Int n = CPre.Width();
@@ -128,16 +128,16 @@ SUMMA_TNC
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("gemm::SUMMA_TNC");
-        AssertSameGrids( APre, BPre, CPre );
-        if( orientA == NORMAL )
-            LogicError("A must be (Conjugate)Transposed");
-        if( APre.Width() != CPre.Height() || BPre.Width() != CPre.Width() ||
-            APre.Height() != BPre.Height() )
-            LogicError
-            ("Nonconformal matrices:\n",
-             DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
-             DimsString(CPre,"C"));
+      CallStackEntry cse("gemm::SUMMA_TNC");
+      AssertSameGrids( APre, BPre, CPre );
+      if( orientA == NORMAL )
+          LogicError("A must be (Conjugate)Transposed");
+      if( APre.Width() != CPre.Height() || BPre.Width() != CPre.Width() ||
+          APre.Height() != BPre.Height() )
+          LogicError
+          ("Nonconformal matrices:\n",
+           DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
+           DimsString(CPre,"C"));
     )
     const Int m = CPre.Height();
     const Int n = CPre.Width();

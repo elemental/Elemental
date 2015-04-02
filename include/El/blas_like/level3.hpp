@@ -452,103 +452,103 @@ inline void LocalGemm
   T beta,        AbstractDistMatrix<T>& C )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("LocalGemm");
-        if( orientA == NORMAL && orientB == NORMAL )
-        {
-            if( A.ColDist() != C.ColDist() ||
-                A.RowDist() != B.ColDist() ||
-                B.RowDist() != C.RowDist() )
-                LogicError
-                ("Tried to form C[",C.ColDist(),",",C.RowDist(),"] := "
-                 "A[",A.ColDist(),",",A.RowDist(),"] "
-                 "B[",B.ColDist(),",",B.RowDist(),"]");
-            if( A.ColAlign() != C.ColAlign() )
-                LogicError("A's cols must align with C's rows");
-            if( A.RowAlign() != B.ColAlign() )
-                LogicError("A's rows must align with B's cols");
-            if( B.RowAlign() != C.RowAlign() )
-                LogicError("B's rows must align with C's rows");
-            if( A.Height() != C.Height() ||
-                A.Width() != B.Height() ||
-                B.Width() != C.Width() )
-                LogicError
-                ("Nonconformal LocalGemmNN:\n",
-                 DimsString(A,"A"),"\n",
-                 DimsString(B,"B"),"\n",
-                 DimsString(C,"C"));
-        }
-        else if( orientA == NORMAL )
-        {
-            if( A.ColDist() != C.ColDist() ||
-                A.RowDist() != B.RowDist() ||
-                B.ColDist() != C.RowDist() )
-                LogicError
-                ("Tried to form C[",C.ColDist(),",",C.RowDist(),"] := "
-                 "A[",A.ColDist(),",",A.RowDist(),"] "
-                 "B[",B.ColDist(),",",B.RowDist(),"]'");
-            if( A.ColAlign() != C.ColAlign() )
-                LogicError("A's cols must align with C's rows");
-            if( A.RowAlign() != B.RowAlign() )
-                LogicError("A's rows must align with B's rows");
-            if( B.ColAlign() != C.RowAlign() )
-                LogicError("B's cols must align with C's rows");
-            if( A.Height() != C.Height() ||
-                A.Width() != B.Width() ||
-                B.Height() != C.Width() )
-                LogicError
-                ("Nonconformal LocalGemmNT:\n",
-                 DimsString(A,"A"),"\n",
-                 DimsString(B,"B"),"\n",
-                 DimsString(C,"C"));
-        }
-        else if( orientB == NORMAL )
-        {
-            if( A.RowDist() != C.ColDist() ||
-                A.ColDist() != B.ColDist() ||
-                B.RowDist() != C.RowDist() )
-                LogicError
-                ("Tried to form C[",C.ColDist(),",",C.RowDist(),"] := "
-                 "A[",A.ColDist(),",",A.RowDist(),"]' "
-                 "B[",B.ColDist(),",",B.RowDist(),"]");
-            if( A.RowAlign() != C.ColAlign() )
-                LogicError("A's rows must align with C's cols");
-            if( A.ColAlign() != B.ColAlign() )
-                LogicError("A's cols must align with B's cols");
-            if( B.RowAlign() != C.RowAlign() )
-                LogicError("B's rows must align with C's rows");
-            if( A.Width() != C.Height() ||
-                A.Height() != B.Height() ||
-                B.Width() != C.Width() )
-                LogicError
-                ("Nonconformal LocalGemmTN:\n",
-                 DimsString(A,"A"),"\n",
-                 DimsString(B,"B"),"\n",
-                 DimsString(C,"C"));
-        }
-        else
-        {
-            if( A.RowDist() != C.ColDist() ||
-                A.ColDist() != B.RowDist() ||
-                B.ColDist() != C.RowDist() )
-                LogicError
-                ("Tried to form C[",C.ColDist(),",",C.RowDist(),"] := "
-                 "A[",A.ColDist(),",",A.RowDist(),"]' "
-                 "B[",B.ColDist(),",",B.RowDist(),"]'");
-            if( A.RowAlign() != C.ColAlign() )
-                LogicError("A's rows must align with C's cols");
-            if( A.ColAlign() != B.RowAlign() )
-                LogicError("A's cols must align with B's rows");
-            if( B.ColAlign() != C.RowAlign() )
-                LogicError("B's cols must align with C's rows");
-            if( A.Width() != C.Height() ||
-                A.Height() != B.Width() ||
-                B.Height() != C.Width() )
-                LogicError
-                ("Nonconformal LocalGemmTT:\n",
-                 DimsString(A,"A"),"\n",
-                 DimsString(B,"B"),"\n",
-                 DimsString(C,"C"));
-        }
+      CallStackEntry cse("LocalGemm");
+      if( orientA == NORMAL && orientB == NORMAL )
+      {
+          if( A.ColDist() != C.ColDist() ||
+              A.RowDist() != B.ColDist() ||
+              B.RowDist() != C.RowDist() )
+              LogicError
+              ("Tried to form C[",C.ColDist(),",",C.RowDist(),"] := "
+               "A[",A.ColDist(),",",A.RowDist(),"] "
+               "B[",B.ColDist(),",",B.RowDist(),"]");
+          if( A.ColAlign() != C.ColAlign() )
+              LogicError("A's cols must align with C's rows");
+          if( A.RowAlign() != B.ColAlign() )
+              LogicError("A's rows must align with B's cols");
+          if( B.RowAlign() != C.RowAlign() )
+              LogicError("B's rows must align with C's rows");
+          if( A.Height() != C.Height() ||
+              A.Width() != B.Height() ||
+              B.Width() != C.Width() )
+              LogicError
+              ("Nonconformal LocalGemmNN:\n",
+               DimsString(A,"A"),"\n",
+               DimsString(B,"B"),"\n",
+               DimsString(C,"C"));
+      }
+      else if( orientA == NORMAL )
+      {
+          if( A.ColDist() != C.ColDist() ||
+              A.RowDist() != B.RowDist() ||
+              B.ColDist() != C.RowDist() )
+              LogicError
+              ("Tried to form C[",C.ColDist(),",",C.RowDist(),"] := "
+               "A[",A.ColDist(),",",A.RowDist(),"] "
+               "B[",B.ColDist(),",",B.RowDist(),"]'");
+          if( A.ColAlign() != C.ColAlign() )
+              LogicError("A's cols must align with C's rows");
+          if( A.RowAlign() != B.RowAlign() )
+              LogicError("A's rows must align with B's rows");
+          if( B.ColAlign() != C.RowAlign() )
+              LogicError("B's cols must align with C's rows");
+          if( A.Height() != C.Height() ||
+              A.Width() != B.Width() ||
+              B.Height() != C.Width() )
+              LogicError
+              ("Nonconformal LocalGemmNT:\n",
+               DimsString(A,"A"),"\n",
+               DimsString(B,"B"),"\n",
+               DimsString(C,"C"));
+      }
+      else if( orientB == NORMAL )
+      {
+          if( A.RowDist() != C.ColDist() ||
+              A.ColDist() != B.ColDist() ||
+              B.RowDist() != C.RowDist() )
+              LogicError
+              ("Tried to form C[",C.ColDist(),",",C.RowDist(),"] := "
+               "A[",A.ColDist(),",",A.RowDist(),"]' "
+               "B[",B.ColDist(),",",B.RowDist(),"]");
+          if( A.RowAlign() != C.ColAlign() )
+              LogicError("A's rows must align with C's cols");
+          if( A.ColAlign() != B.ColAlign() )
+              LogicError("A's cols must align with B's cols");
+          if( B.RowAlign() != C.RowAlign() )
+              LogicError("B's rows must align with C's rows");
+          if( A.Width() != C.Height() ||
+              A.Height() != B.Height() ||
+              B.Width() != C.Width() )
+              LogicError
+              ("Nonconformal LocalGemmTN:\n",
+               DimsString(A,"A"),"\n",
+               DimsString(B,"B"),"\n",
+               DimsString(C,"C"));
+      }
+      else
+      {
+          if( A.RowDist() != C.ColDist() ||
+              A.ColDist() != B.RowDist() ||
+              B.ColDist() != C.RowDist() )
+              LogicError
+              ("Tried to form C[",C.ColDist(),",",C.RowDist(),"] := "
+               "A[",A.ColDist(),",",A.RowDist(),"]' "
+               "B[",B.ColDist(),",",B.RowDist(),"]'");
+          if( A.RowAlign() != C.ColAlign() )
+              LogicError("A's rows must align with C's cols");
+          if( A.ColAlign() != B.RowAlign() )
+              LogicError("A's cols must align with B's rows");
+          if( B.ColAlign() != C.RowAlign() )
+              LogicError("B's cols must align with C's rows");
+          if( A.Width() != C.Height() ||
+              A.Height() != B.Width() ||
+              B.Height() != C.Width() )
+              LogicError
+              ("Nonconformal LocalGemmTT:\n",
+               DimsString(A,"A"),"\n",
+               DimsString(B,"B"),"\n",
+               DimsString(C,"C"));
+      }
     )
     Gemm
     ( orientA , orientB,
