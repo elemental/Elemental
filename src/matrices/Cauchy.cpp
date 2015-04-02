@@ -18,7 +18,7 @@ void Cauchy( Matrix<F1>& A, const vector<F2>& x, const vector<F2>& y )
     const Int n = y.size();
     A.Resize( m, n );
     auto cauchyFill = 
-      [&]( Int i, Int j )
+      [&]( Int i, Int j ) -> F1
       {
          DEBUG_ONLY(
              // TODO: Use tolerance instead?
@@ -42,7 +42,7 @@ void Cauchy
     const Int n = y.size();
     A.Resize( m, n );
     auto cauchyFill = 
-      [&]( Int i, Int j )
+      [&]( Int i, Int j ) -> F1
       {
          DEBUG_ONLY(
              // TODO: Use tolerance instead?
@@ -66,7 +66,7 @@ void Cauchy
     const Int n = y.size();
     A.Resize( m, n );
     auto cauchyFill = 
-      [&]( Int i, Int j )
+      [&]( Int i, Int j ) -> F1
       {
          DEBUG_ONLY(
              // TODO: Use tolerance instead?

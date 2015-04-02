@@ -26,7 +26,7 @@ void CauchyLike
     A.Resize( m, n );
 
     auto cauchyFill = 
-      [&]( Int i, Int j )
+      [&]( Int i, Int j ) -> F1
       {
         DEBUG_ONLY(
           // TODO: Use tolerance instead?
@@ -56,7 +56,7 @@ void CauchyLike
     A.Resize( m, n );
 
     auto cauchyFill =
-      [&]( Int i, Int j )
+      [&]( Int i, Int j ) -> F1
       {
         DEBUG_ONLY(
           // TODO: Use tolerance instead?
@@ -86,7 +86,7 @@ void CauchyLike
     A.Resize( m, n );
 
     auto cauchyFill =
-      [&]( Int i, Int j )
+      [&]( Int i, Int j ) -> F1
       {
         DEBUG_ONLY(
           // TODO: Use tolerance instead?
