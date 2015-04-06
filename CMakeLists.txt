@@ -5,8 +5,8 @@
 #  Copyright 2012, Jed Brown
 #  All rights reserved.
 #
-#  This file is part of Elemental and is under the BSD 2-Clause License, 
-#  which can be found in the LICENSE file in the root directory, or at 
+#  This file is part of Elemental and is under the BSD 2-Clause License,
+#  which can be found in the LICENSE file in the root directory, or at
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 cmake_minimum_required(VERSION 2.8.8)
@@ -51,11 +51,20 @@ set(EL_VERSION_MINOR 86-dev)
 option(BUILD_SHARED_LIBS "Build shared libraries?" ON)
 
 option(EL_C_INTERFACE "Build C interface" ON)
+
 if(BUILD_SHARED_LIBS AND EL_C_INTERFACE)
   # Define PYTHON_SITE_PACKAGES if you want to install the python package
   # somewhere other than the default system-wide location (e.g., within your
   # home directory)
-  option(INSTALL_PYTHON_PACKAGE "Install python interface?" TRUE)
+  option(INSTALL_PYTHON_PACKAGE "Install Python interface? (requires Python 2.x)" FALSE)
+
+  set(Python_ADDITIONAL_VERSIONS 2.7)
+  include(FindPythonInterp) #Check for Python version
+
+  #Only Python 2.x supported
+  if (PYTHON_VERSION_MAJOR EQUAL 2)
+    set(INSTALL_PYTHON_PACKAGE TRUE)
+  endif()
 endif()
 
 # Whether or not to use Qt5 for visualization if it is found.
@@ -91,12 +100,12 @@ option(EL_BARRIER_IN_ALLTOALLV "Barrier before posting non-blocking recvs" OFF)
 # passed in via the METIS_ROOT variable.
 option(BUILD_METIS "Build METIS" ON)
 
-# ParMETIS cannot yet be legally distributed under an unrestrictive 
+# ParMETIS cannot yet be legally distributed under an unrestrictive
 # license and is currently limited to educational and research purposes.
-# (recent versions of METIS can be distributed under the Apache License 
+# (recent versions of METIS can be distributed under the Apache License
 # Version 2).
 #
-# However, if the user is in an educational or government institution, then 
+# However, if the user is in an educational or government institution, then
 # it is possible to re-enable support for ParMETIS by specifying the following
 # variables:
 #
@@ -107,7 +116,7 @@ option(BUILD_METIS "Build METIS" ON)
 #                       (if you have not heard of this, ignore it)
 #   GKLIB_INCLUDE_DIR: if PARMETIS_TLS_PATCH is defined, this should point
 #                      to the directory containing gklib_tls.h
-# 
+#
 # and adding in a custom ParMETIS routine for performing nodal bisections
 # in parallel (which was originally part of Clique and can be easily found).
 # Please contact dev@libelemental.org or poulson@stanford.edu for more details.
@@ -117,51 +126,51 @@ option(BUILD_METIS "Build METIS" ON)
 # Advanced options
 # ----------------
 
-# Since it is surprisingly common for MPI libraries to have bugs in their 
-# support for complex data, the following option forces Elemental to cast 
+# Since it is surprisingly common for MPI libraries to have bugs in their
+# support for complex data, the following option forces Elemental to cast
 # all possible MPI communications in terms of twice as many real units of data.
 option(EL_AVOID_COMPLEX_MPI "Avoid potentially buggy complex MPI routines" ON)
 mark_as_advanced(EL_AVOID_COMPLEX_MPI)
 
-# At one point, a bug was found in IBM's C++ compiler for Blue Gene/P, 
+# At one point, a bug was found in IBM's C++ compiler for Blue Gene/P,
 # where OpenMP statements of the form a[i] += alpha b[i], with complex data,
 # would segfault and/or return incorrect results
 option(EL_AVOID_OMP_FMA "Avoid a bug in the IBM compilers." OFF)
 mark_as_advanced(EL_AVOID_OMP_FMA)
 
-# Due to a subtle flaw in the Blue Gene/P extensions for MPICH2, treating 
-# floating-point data as a collection of byte-sized objects results in a 
+# Due to a subtle flaw in the Blue Gene/P extensions for MPICH2, treating
+# floating-point data as a collection of byte-sized objects results in a
 # better algorithm being chosen for MPI_Allgather. This should not effect
 # performance on most machines.
 option(EL_USE_BYTE_ALLGATHERS "Avoid BG/P allgather performance bug." ON)
 mark_as_advanced(EL_USE_BYTE_ALLGATHERS)
 
-# If MPI_Reduce_scatter_block doesn't exist, perform it by composing 
+# If MPI_Reduce_scatter_block doesn't exist, perform it by composing
 # MPI_Allreduce and std::memcpy rather than MPI_Reduce and MPI_Scatter
 option(EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
        "AllReduce based block MPI_Reduce_scatter" OFF)
 mark_as_advanced(EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE)
 
-# Print a warning any time a redistribution is performed which unpacks a 
+# Print a warning any time a redistribution is performed which unpacks a
 # large amount of data with a non-unit stride
 option(EL_CACHE_WARNINGS "Warns when using cache-unfriendly routines" OFF)
 mark_as_advanced(EL_CACHE_WARNINGS)
 
-# Print a warning when an improperly aligned redistribution is performed, 
+# Print a warning when an improperly aligned redistribution is performed,
 # i.e., if an unnecessary permutation communication stage must take place
-option(EL_UNALIGNED_WARNINGS 
+option(EL_UNALIGNED_WARNINGS
        "Warn when performing unaligned redistributions" OFF)
 mark_as_advanced(EL_UNALIGNED_WARNINGS)
 
 # Print a warning if an opportunity was missed to implement a redistribution
 # approach specifically for vectors (instead of matrices)
-option(EL_VECTOR_WARNINGS 
+option(EL_VECTOR_WARNINGS
        "Warn when vector redistribution chances are missed" OFF)
 mark_as_advanced(EL_VECTOR_WARNINGS)
 
 # Handle RPATHs for Mac
 # =====================
-# These settings are recommend by 
+# These settings are recommend by
 # <http://www.cmake.org/Wiki/CMake_RPATH_handling>, which was accessed on
 # February 20, 2015.
 
@@ -170,7 +179,7 @@ set(CMAKE_SKIP_BUILD_RPATH  FALSE)
 
 # when building, don't use the install RPATH already
 # (but later on when installing)
-set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE) 
+set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
@@ -219,7 +228,7 @@ endif()
 string(TOUPPER ${CMAKE_BUILD_TYPE} UPPER_BUILD_TYPE)
 
 # Set the basic compile flags from the build type
-if(NOT WIN32) 
+if(NOT WIN32)
   set(LANGUAGES CXX C Fortran)
   foreach(LANG ${LANGUAGES})
     if(NOT ${LANG}_FLAGS)
@@ -268,7 +277,7 @@ elseif(BUILD_METIS)
   set(EL_HAVE_METIS TRUE)
 else()
   if(NOT METIS_ROOT)
-    message(FATAL_ERROR 
+    message(FATAL_ERROR
       "If METIS is not to be built, then METIS_ROOT must be specified")
   endif()
   include_directories(${METIS_ROOT}/include)
@@ -299,7 +308,7 @@ include(tests/OpenMP)
 
 include(tests/Qt5)
 if(EL_HAVE_QT5)
-  set(EL_HEADERS_PREMOC 
+  set(EL_HEADERS_PREMOC
       "include/El/io/DisplayWindow-premoc.hpp;include/El/io/ComplexDisplayWindow-premoc.hpp")
   qt_wrap_cpp(El EL_MOC_SRC ${EL_HEADERS_PREMOC})
   include_directories(${Qt5Widgets_INCLUDE_DIRS})
@@ -329,14 +338,14 @@ add_subdirectory(external/pmrrr)
 # Create the Elemental configuration header
 configure_file(${PROJECT_SOURCE_DIR}/cmake/config.h.cmake
                ${PROJECT_BINARY_DIR}/include/El/config.h)
-install(FILES ${PROJECT_BINARY_DIR}/include/El/config.h 
+install(FILES ${PROJECT_BINARY_DIR}/include/El/config.h
         DESTINATION include/El)
 
 # Create a file which can be included in Makefile's.
 # This is meant to be analogous to PETSc's 'conf/petscvariables' file
 set(MPI_CXX_INCSTRING)
 foreach(INC_PATH ${MPI_CXX_INCLUDE_PATH})
-  set(MPI_CXX_INCSTRING "${MPI_CXX_INCSTRING} -I${INC_PATH}")  
+  set(MPI_CXX_INCSTRING "${MPI_CXX_INCSTRING} -I${INC_PATH}")
 endforeach()
 set(MATH_LIBSTRING)
 foreach(LIB ${MATH_LIBS})
@@ -372,17 +381,17 @@ install(FILES ${PROJECT_BINARY_DIR}/conf/ElVars DESTINATION conf)
 # ================
 
 # Grab the .c and .cpp files
-file(GLOB_RECURSE EL_C_CPP_SOURCE RELATIVE ${PROJECT_SOURCE_DIR} 
+file(GLOB_RECURSE EL_C_CPP_SOURCE RELATIVE ${PROJECT_SOURCE_DIR}
   "src/*.c" "src/*.cpp")
 # Grab the C/C++ headers
-file(GLOB_RECURSE EL_C_CPP_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} 
+file(GLOB_RECURSE EL_C_CPP_HEADERS RELATIVE ${PROJECT_SOURCE_DIR}
   "include/*.h" "include/*.hpp")
 set(EL_C_CPP_FILES "${EL_C_CPP_SOURCE};${EL_C_CPP_HEADERS};${EL_MOC_SRC}")
 
 set(LINK_LIBS ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
 
 if(EL_HAVE_QT5)
-  set(LINK_LIBS ${LINK_LIBS} ${Qt5Widgets_LIBRARIES})  
+  set(LINK_LIBS ${LINK_LIBS} ${Qt5Widgets_LIBRARIES})
 endif()
 
 if(BUILD_KISSFFT)
@@ -426,9 +435,9 @@ add_dependencies(El prepare_El_headers)
 if(BUILD_SHARED_LIBS)
   if(INSTALL_PYTHON_PACKAGE)
     if(NOT PYTHON_SITE_PACKAGES)
-      execute_process( 
-        COMMAND python -c 
-        "from distutils.sysconfig import get_python_lib; print get_python_lib()" 
+      execute_process(
+        COMMAND PYTHON_EXECUTABLE -c
+	"from distutils.sysconfig import get_python_lib; print get_python_lib()"
         OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE
       )
     endif()
@@ -457,7 +466,7 @@ if(EL_TESTS)
   set(TEST_DIR ${PROJECT_SOURCE_DIR}/tests)
   set(TEST_TYPES core blas_like lapack_like optimization)
   foreach(TYPE ${TEST_TYPES})
-    file(GLOB_RECURSE ${TYPE}_TESTS 
+    file(GLOB_RECURSE ${TYPE}_TESTS
       RELATIVE ${PROJECT_SOURCE_DIR}/tests/${TYPE}/ "tests/${TYPE}/*.cpp")
 
     set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/${TYPE}")
@@ -465,7 +474,7 @@ if(EL_TESTS)
       set(DRIVER ${TEST_DIR}/${TYPE}/${TEST})
       get_filename_component(TESTNAME ${TEST} NAME_WE)
       add_executable(tests-${TYPE}-${TESTNAME} ${DRIVER})
-      set_source_files_properties(${DRIVER} PROPERTIES 
+      set_source_files_properties(${DRIVER} PROPERTIES
         OBJECT_DEPENDS "${PREPARED_HEADERS}")
       target_link_libraries(tests-${TYPE}-${TESTNAME} El)
       set_target_properties(tests-${TYPE}-${TESTNAME} PROPERTIES
@@ -482,15 +491,15 @@ endif()
 # Build the example drivers if necessary
 if(EL_EXAMPLES)
   set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
-  set(EXAMPLE_TYPES 
+  set(EXAMPLE_TYPES
       optimization core blas_like interface io lapack_like matrices)
   foreach(TYPE ${EXAMPLE_TYPES})
     if(EL_C_INTERFACE)
-      file(GLOB_RECURSE ${TYPE}_EXAMPLES RELATIVE 
+      file(GLOB_RECURSE ${TYPE}_EXAMPLES RELATIVE
            ${PROJECT_SOURCE_DIR}/examples/${TYPE}/ "examples/${TYPE}/*.cpp"
                                                    "examples/${TYPE}/*.c" )
     else()
-      file(GLOB_RECURSE ${TYPE}_EXAMPLES RELATIVE 
+      file(GLOB_RECURSE ${TYPE}_EXAMPLES RELATIVE
            ${PROJECT_SOURCE_DIR}/examples/${TYPE}/ "examples/${TYPE}/*.cpp")
     endif()
     set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/${TYPE}")
@@ -498,16 +507,16 @@ if(EL_EXAMPLES)
       set(DRIVER ${EXAMPLE_DIR}/${TYPE}/${EXAMPLE})
       get_filename_component(EXNAME ${EXAMPLE} NAME_WE)
       add_executable(examples-${TYPE}-${EXNAME} ${DRIVER})
-      set_source_files_properties(${DRIVER} PROPERTIES 
+      set_source_files_properties(${DRIVER} PROPERTIES
         OBJECT_DEPENDS "${PREPARED_HEADERS}")
       target_link_libraries(examples-${TYPE}-${EXNAME} El)
-      set_target_properties(examples-${TYPE}-${EXNAME} PROPERTIES 
+      set_target_properties(examples-${TYPE}-${EXNAME} PROPERTIES
         OUTPUT_NAME ${EXNAME} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
       if(MPI_LINK_FLAGS)
         set_target_properties(examples-${TYPE}-${EXNAME} PROPERTIES
           LINK_FLAGS ${MPI_LINK_FLAGS})
       endif()
-      install(TARGETS examples-${TYPE}-${EXNAME} 
+      install(TARGETS examples-${TYPE}-${EXNAME}
         DESTINATION bin/examples/${TYPE})
     endforeach()
   endforeach()
@@ -523,10 +532,10 @@ if(EL_EXPERIMENTAL)
   foreach(EXPER ${G3D_EXPERS})
     set(DRIVER ${EXPERIMENTAL_DIR}/g3d/${EXPER}.cpp)
     add_executable(experimental-g3d-${EXPER} ${DRIVER})
-    set_source_files_properties(${DRIVER} PROPERTIES 
+    set_source_files_properties(${DRIVER} PROPERTIES
       OBJECT_DEPENDS "${PREPARED_HEADERS}")
     target_link_libraries(experimental-g3d-${EXPER} El)
-    set_target_properties(experimental-g3d-${EXPER} PROPERTIES 
+    set_target_properties(experimental-g3d-${EXPER} PROPERTIES
       OUTPUT_NAME ${EXPER} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     if(MPI_LINK_FLAGS)
       set_target_properties(experimental-g3d-${EXPER} PROPERTIES
