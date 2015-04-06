@@ -269,8 +269,11 @@ elseif(METIS_ROOT AND PARMETIS_ROOT)
 #  include_directories(${PARMETIS_ROOT}/include)
 #  set(MANUAL_PARMETIS TRUE)
 elseif(BUILD_METIS)
+  if(NOT EXISTS "${CMAKE_SOURCE_DIR}/external/metis/CMakeLists.txt")
+    message(FATAL_ERROR
+      "${CMAKE_SOURCE_DIR}/external/metis is not correctly set up. If you are building from source, make sure all git submodules in the source directory are checked out, e.g. with\ncd ${CMAKE_SOURCE_DIR} && git pull --recurse-submodules")
+  endif()
   add_subdirectory(external/metis)
-
   set(METIS_ROOT ${PROJECT_SOURCE_DIR}/external/metis)
   include_directories(${METIS_ROOT}/include)
 
@@ -287,6 +290,10 @@ else()
 endif()
 
 if(BUILD_KISSFFT)
+  if(NOT EXISTS "${CMAKE_SOURCE_DIR}/external/kiss_fft/CMakeLists.txt")
+    message(FATAL_ERROR
+      "${CMAKE_SOURCE_DIR}/external/kiss_fft is not correctly set up. If you are building from source, make sure all git submodules in the source directory are checked out, e.g. with\ncd ${CMAKE_SOURCE_DIR} && git pull --recurse-submodules")
+  endif()
   add_subdirectory(external/kiss_fft)
   include_directories(external/kiss_fft)
 elseif(KISSFFT_INCLUDE_DIR AND KISSFFT_LIBS)
@@ -333,6 +340,10 @@ set(CXX_FLAGS "${CXX_FLAGS} ${EXTRA_FLAGS}")
 set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} ${CXX_FLAGS})
 
 # Add the Parallel Multiple Relatively Robust Representations (PMRRR) project
+if(NOT EXISTS "${CMAKE_SOURCE_DIR}/external/pmrrr/CMakeLists.txt")
+   message(FATAL_ERROR
+      "${CMAKE_SOURCE_DIR}/external/pmrrr is not correctly set up. If you are building from source, make sure all git submodules in the source directory are checked out, e.g. with\ncd ${CMAKE_SOURCE_DIR} && git pull --recurse-submodules")
+endif()
 add_subdirectory(external/pmrrr)
 
 # Create the Elemental configuration header
