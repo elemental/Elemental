@@ -436,12 +436,12 @@ if(BUILD_SHARED_LIBS)
   if(INSTALL_PYTHON_PACKAGE)
     if(NOT PYTHON_SITE_PACKAGES)
       execute_process(
-        COMMAND PYTHON_EXECUTABLE -c
+        COMMAND ${PYTHON_EXECUTABLE} -c
 	"from distutils.sysconfig import get_python_lib; print get_python_lib()"
         OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE
       )
+     set(PYTHON_SITE_PACKAGES ${PYTHON_SITE_PACKAGES} CACHE PATH "Destination for Python site package directory")
     endif()
-    message(STATUS "PYTHON_SITE_PACKAGES=${PYTHON_SITE_PACKAGES}")
     install(
       DIRECTORY ${PROJECT_SOURCE_DIR}/include/
       DESTINATION ${PYTHON_SITE_PACKAGES}
