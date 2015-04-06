@@ -216,9 +216,7 @@ void CP
     // c := [zeros(n,1);1]
     // ===================
     Zeros( c, n+1, 1 );
-    // Have the process which owns the last entry set it to one
-    if( c.GlobalRow(c.LocalHeight()-1) == n )
-        c.SetLocal( c.LocalHeight()-1, 0, Real(1) );
+    c.Set( n, 0, Real(1) );
 
     // \hat A := zeros(0,n+1)
     // ====================== 
@@ -246,7 +244,7 @@ void CP
         // ----
         vector<int> sendOffs;
         const int totalSend = Scan( sendCounts, sendOffs );
-        vector<ValueIntPair<Real>> sendBuf(totalSend);
+        vector<Entry<Real>> sendBuf(totalSend);
         auto offs = sendOffs;
         for( Int e=0; e<A.NumLocalEntries(); ++e )
         {
@@ -255,16 +253,10 @@ void CP
             const Real value = A.Value(e);
 
             int owner = G.RowOwner(i);    
-            sendBuf[offs[owner]].indices[0] = i;
-            sendBuf[offs[owner]].indices[1] = j;
-            sendBuf[offs[owner]].value = value;
-            ++offs[owner];
+            sendBuf[offs[owner]++] = Entry<Real>{ value, i, j };
 
             owner = G.RowOwner(i+m);
-            sendBuf[offs[owner]].indices[0] = i+m;
-            sendBuf[offs[owner]].indices[1] = j;
-            sendBuf[offs[owner]].value = -value;
-            ++offs[owner];
+            sendBuf[offs[owner]++] = Entry<Real>{ -value, i+m, j };
         }
         // Exchange and unpack
         // -------------------
@@ -273,9 +265,7 @@ void CP
         for( Int iLoc=0; iLoc<G.LocalHeight(); ++iLoc )
             G.QueueLocalUpdate( iLoc, n, Real(-1) );
         for( auto& entry : recvBuf )
-            G.QueueLocalUpdate
-            ( entry.indices[0]-G.FirstLocalRow(), entry.indices[1], 
-              entry.value );
+            G.QueueUpdate( entry.indices[0], entry.indices[1], entry.value );
         G.MakeConsistent();
     }
 
@@ -305,20 +295,16 @@ void CP
             const Real value = b.GetLocal(iLoc,0);
 
             int owner = h.RowOwner(i);
-            sendBuf[offs[owner]].index = i;
-            sendBuf[offs[owner]].value = value;
-            ++offs[owner];
+            sendBuf[offs[owner]++] = ValueInt<Real>{ value, i };
 
             owner = h.RowOwner(i+m);
-            sendBuf[offs[owner]].index = i+m;
-            sendBuf[offs[owner]].value = -value;
-            ++offs[owner];
+            sendBuf[offs[owner]++] = ValueInt<Real>{ -value, i+m };
         }
         // Exchange and unpack
         // -------------------
         auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
         for( auto& entry : recvBuf )
-            h.SetLocal( entry.index-h.FirstLocalRow(), 0, entry.value );
+            h.Set( entry.index, 0, entry.value );
     }
 
     // Solve the affine LP

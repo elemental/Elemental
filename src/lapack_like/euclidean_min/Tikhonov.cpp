@@ -276,27 +276,19 @@ void Tikhonov
         // Pack
         // ^^^^
         auto offs = sendOffs;
-        vector<ValueIntPair<F>> sendBuf(totalSend);
+        vector<Entry<F>> sendBuf(totalSend);
         for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
         {
             const Int i = B.GlobalRow(iLoc);
             const int owner = BEmb.RowOwner(i);
             for( Int j=0; j<numRHS; ++j )
-            {
-                const F value = B.GetLocal(iLoc,j);
-                sendBuf[offs[owner]].indices[0] = i;
-                sendBuf[offs[owner]].indices[1] = j;
-                sendBuf[offs[owner]].value = value;
-                ++offs[owner];
-            }
+                sendBuf[offs[owner]++] = Entry<F>{ B.GetLocal(iLoc,j), i, j };
         }
         // Exchange and unpack
         // ^^^^^^^^^^^^^^^^^^^
         auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
         for( auto& entry : recvBuf )
-            BEmb.UpdateLocal
-            ( entry.indices[0]-BEmb.FirstLocalRow(), entry.indices[1],
-              entry.value );
+            BEmb.Update( entry.indices[0], entry.indices[1], entry.value );
     }
 
     // Solve the higher-dimensional problem

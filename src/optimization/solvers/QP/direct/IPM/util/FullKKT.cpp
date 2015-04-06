@@ -250,12 +250,12 @@ void KKT
     // --------------
     for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
         ++sendCounts[ J.RowOwner( m+n + x.GlobalRow(iLoc) ) ];
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
 
     // Pack the triplets
     // =================
-    vector<ValueIntPair<Real>> sendBuf(totalSend);
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
+    vector<Entry<Real>> sendBuf(totalSend);
     auto offs = sendOffs;
     // Pack Q
     // ------
@@ -264,14 +264,7 @@ void KKT
         const Int i = Q.Row(e);
         const Int j = Q.Col(e);
         if( i >= j || !onlyLower ) 
-        {
-            const Real value = Q.Value(e);
-            const int owner = J.RowOwner(i);
-            sendBuf[offs[owner]].indices[0] = i; 
-            sendBuf[offs[owner]].indices[1] = j;
-            sendBuf[offs[owner]].value = value;
-            ++offs[owner];
-        }
+            sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ Q.Value(e), i, j };
     }
     // Pack A
     // ------
@@ -279,12 +272,7 @@ void KKT
     {
         const Int i = A.Row(e) + n;
         const Int j = A.Col(e);
-        const Real value = A.Value(e);
-        const int owner = J.RowOwner(i);
-        sendBuf[offs[owner]].indices[0] = i;
-        sendBuf[offs[owner]].indices[1] = j;
-        sendBuf[offs[owner]].value = value;
-        ++offs[owner];
+        sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ A.Value(e), i, j };
     }
     // Pack A^T
     // --------
@@ -295,11 +283,7 @@ void KKT
             const Int i = ATrans.Row(e);
             const Int j = ATrans.Col(e) + n;
             const Real value = ATrans.Value(e);
-            const int owner = J.RowOwner(i);
-            sendBuf[offs[owner]].indices[0] = i;
-            sendBuf[offs[owner]].indices[1] = j;
-            sendBuf[offs[owner]].value = value;
-            ++offs[owner];
+            sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ value, i, j };
         }
     }
     // Pack -z <> x
@@ -309,11 +293,7 @@ void KKT
         const Int i = m+n + x.GlobalRow(iLoc);
         const Int j = i;
         const Real value = -x.GetLocal(iLoc,0)/z.GetLocal(iLoc,0);
-        const int owner = J.RowOwner(i);
-        sendBuf[offs[owner]].indices[0] = i;
-        sendBuf[offs[owner]].indices[1] = j;
-        sendBuf[offs[owner]].value = value;
-        ++offs[owner];
+        sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ value, i, j };
     }
 
     // Exchange and unpack the triplets
@@ -336,16 +316,13 @@ void KKT
     for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
     {
         const Int i = J.GlobalRow(iLoc);
-        if( i < n && !onlyLower )
-            J.QueueLocalUpdate( iLoc, i+(n+m), Real(-1) );
-        else if( i >= n+m )
-            J.QueueLocalUpdate( iLoc, i-(n+m), Real(-1) );
+        if( (i < n && !onlyLower) || i >= n+m )
+            J.QueueUpdate( i, i+(n+m), Real(-1) );
     }
     // Append the received local updates
     // ---------------------------------
     for( auto& entry : recvBuf )
-        J.QueueLocalUpdate
-        ( entry.indices[0]-J.FirstLocalRow(), entry.indices[1], entry.value );
+        J.QueueUpdate( entry.indices[0], entry.indices[1], entry.value );
     J.MakeConsistent();
 }
 
@@ -425,46 +402,37 @@ void KKTRHS
         ++sendCounts[ d.RowOwner( n + rb.GlobalRow(iLoc) ) ];
     for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
         ++sendCounts[ d.RowOwner( n+m + rmu.GlobalRow(iLoc) ) ];
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
 
     // Pack the doublets
     // =================
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
     vector<ValueInt<Real>> sendBuf(totalSend);
     auto offs = sendOffs;
     for( Int iLoc=0; iLoc<rc.LocalHeight(); ++iLoc )
     {
         const Int i = rc.GlobalRow(iLoc);
         const Real value = -rc.GetLocal(iLoc,0);
-        const int owner = d.RowOwner(i);
-        sendBuf[offs[owner]].index = i;
-        sendBuf[offs[owner]].value = value;
-        ++offs[owner];
+        sendBuf[offs[d.RowOwner(i)]++] = ValueInt<Real>{ value, i };
     }
     for( Int iLoc=0; iLoc<rb.LocalHeight(); ++iLoc )
     {
         const Int i = n + rb.GlobalRow(iLoc);
         const Real value = -rb.GetLocal(iLoc,0);
-        const int owner = d.RowOwner(i);
-        sendBuf[offs[owner]].index = i;
-        sendBuf[offs[owner]].value = value;
-        ++offs[owner];
+        sendBuf[offs[d.RowOwner(i)]++] = ValueInt<Real>{ value, i };
     }
     for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
     {
         const Int i = n+m + rmu.GlobalRow(iLoc);
         const Real value = rmu.GetLocal(iLoc,0)/z.GetLocal(iLoc,0);
-        const int owner = d.RowOwner(i);
-        sendBuf[offs[owner]].index = i;
-        sendBuf[offs[owner]].value = value;
-        ++offs[owner];
+        sendBuf[offs[d.RowOwner(i)]++] = ValueInt<Real>{ value, i };
     }
 
     // Exchange and unpack the doublets
     // ================================
     auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
     for( auto& entry : recvBuf )
-        d.UpdateLocal( entry.index-d.FirstLocalRow(), 0, entry.value );
+        d.Update( entry.index, 0, entry.value );
 }
 
 template<typename Real>

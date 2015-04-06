@@ -180,6 +180,24 @@ T DistMultiVec<T>::Get( Int row, Int col ) const
 }
 
 template<typename T>
+void DistMultiVec<T>::Set( Int row, Int col, T value )
+{
+    DEBUG_ONLY(CallStackEntry cse("DistMultiVec::Set"))
+    const Int firstLocalRow = FirstLocalRow();
+    if( row >= firstLocalRow && row < firstLocalRow+LocalHeight() )
+        SetLocal( row-firstLocalRow, col, value );
+}
+
+template<typename T>
+void DistMultiVec<T>::Update( Int row, Int col, T value )
+{
+    DEBUG_ONLY(CallStackEntry cse("DistMultiVec::Update"))
+    const Int firstLocalRow = FirstLocalRow();
+    if( row >= firstLocalRow && row < firstLocalRow+LocalHeight() )
+        UpdateLocal( row-firstLocalRow, col, value );
+}
+
+template<typename T>
 T DistMultiVec<T>::GetLocal( Int localRow, Int col ) const
 { 
     DEBUG_ONLY(CallStackEntry cse("DistMultiVec::GetLocal"))

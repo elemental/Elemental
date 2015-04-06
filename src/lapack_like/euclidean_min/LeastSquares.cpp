@@ -397,7 +397,7 @@ void Equilibrated
         // ----
         vector<int> sendOffs;
         const int totalSend = Scan( sendCounts, sendOffs );
-        vector<ValueIntPair<F>> sendBuf(totalSend);
+        vector<Entry<F>> sendBuf(totalSend);
         auto offs = sendOffs;
         for( Int e=0; e<numLocalEntriesA; ++e )
         {
@@ -408,34 +408,16 @@ void Equilibrated
             if( m >= n )
             {
                 // Sending A
-                int owner = J.RowOwner(i);
-                sendBuf[offs[owner]].indices[0] = i;
-                sendBuf[offs[owner]].indices[1] = j+m;
-                sendBuf[offs[owner]].value = value;
-                ++offs[owner];
-
+                sendBuf[offs[J.RowOwner(i)]++] = Entry<F>{value,i,j+m};
                 // Sending A^H
-                owner = J.RowOwner(j+m);
-                sendBuf[offs[owner]].indices[0] = j+m;
-                sendBuf[offs[owner]].indices[1] = i;
-                sendBuf[offs[owner]].value = Conj(value);
-                ++offs[owner];
+                sendBuf[offs[J.RowOwner(j+m)]++] = Entry<F>{Conj(value),j+m,i};
             }
             else
             {
                 // Sending A
-                int owner = J.RowOwner(i+n);
-                sendBuf[offs[owner]].indices[0] = i+n;
-                sendBuf[offs[owner]].indices[1] = j;
-                sendBuf[offs[owner]].value = value;
-                ++offs[owner];
-
+                sendBuf[offs[J.RowOwner(i+n)]++] = Entry<F>{value,i+n,j};
                 // Sending A^H
-                owner = J.RowOwner(j);
-                sendBuf[offs[owner]].indices[0] = j;
-                sendBuf[offs[owner]].indices[1] = i+n;
-                sendBuf[offs[owner]].value = Conj(value);
-                ++offs[owner];
+                sendBuf[offs[J.RowOwner(j)]++] = Entry<F>{Conj(value),j,i+n};
             }
         }
         // Exchange and unpack
@@ -446,14 +428,12 @@ void Equilibrated
         {
             const Int i = J.GlobalRow(iLoc);
             if( i < Max(m,n) )
-                J.QueueLocalUpdate( iLoc, i, alpha );
+                J.QueueUpdate( i, i, alpha );
             else
                 break;
         }
         for( auto& entry : recvBuf )
-            J.QueueLocalUpdate
-            ( entry.indices[0]-J.FirstLocalRow(), entry.indices[1], 
-              entry.value );
+            J.QueueUpdate( entry.indices[0], entry.indices[1], entry.value );
         J.MakeConsistent();
     }
 
@@ -477,7 +457,7 @@ void Equilibrated
         // ----
         vector<int> sendOffs;
         const int totalSend = Scan( sendCounts, sendOffs );
-        vector<ValueIntPair<F>> sendBuf(totalSend);
+        vector<Entry<F>> sendBuf(totalSend);
         auto offs = sendOffs;
         for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
         {
@@ -488,10 +468,7 @@ void Equilibrated
                 for( Int j=0; j<numRHS; ++j )
                 {
                     const F value = B.GetLocal(iLoc,j);
-                    sendBuf[offs[owner]].indices[0] = i;
-                    sendBuf[offs[owner]].indices[1] = j;
-                    sendBuf[offs[owner]].value = value;
-                    ++offs[owner];
+                    sendBuf[offs[owner]++] = Entry<F>{value,i,j};
                 }
             }
             else
@@ -500,10 +477,7 @@ void Equilibrated
                 for( Int j=0; j<numRHS; ++j )
                 {
                     const F value = B.GetLocal(iLoc,j);
-                    sendBuf[offs[owner]].indices[0] = i+n;
-                    sendBuf[offs[owner]].indices[1] = j;
-                    sendBuf[offs[owner]].value = value;
-                    ++offs[owner];
+                    sendBuf[offs[owner]++] = Entry<F>{value,i+n,j};
                 }
             }
         }
@@ -511,9 +485,7 @@ void Equilibrated
         // -------------------
         auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
         for( auto& entry : recvBuf )
-            D.UpdateLocal
-            ( entry.indices[0]-D.FirstLocalRow(), entry.indices[1], 
-              entry.value );
+            D.Update( entry.indices[0], entry.indices[1], entry.value );
     }
 
     // Compute the regularized quasi-semidefinite fact of J

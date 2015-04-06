@@ -359,6 +359,7 @@ void DistSymmFront<F>::Unpack
     Zeros( A, n, n );
     
     // Compute the metadata for sending the entries of the frontal tree
+    // ================================================================
     // TODO: Avoid metadata redundancy within each row of a front
     vector<int> sendSizes(commSize,0);
     function<void(const Separator&,
@@ -459,14 +460,12 @@ void DistSymmFront<F>::Unpack
         }
       };
     count( rootSep, rootInfo, *this );
-    vector<int> recvSizes(commSize);
-    mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, comm );
-    vector<int> sendOffs, recvOffs;
-    const int totalSend = Scan( sendSizes, sendOffs );
-    const int totalRecv = Scan( recvSizes, recvOffs );
 
     // Pack the data
-    vector<ValueIntPair<F>> sendBuf(totalSend);
+    // =============
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendSizes, sendOffs );
+    vector<Entry<F>> sendBuf(totalSend);
     auto offs = sendOffs;
     function<void(const Separator&,
                   const SymmNodeInfo&,
@@ -485,10 +484,8 @@ void DistSymmFront<F>::Unpack
             const int q = A.RowOwner(i);
             for( Int t=0; t<=s; ++t ) 
             {
-                sendBuf[offs[q]].indices[0] = i;
-                sendBuf[offs[q]].indices[1] = node.off+t;
-                sendBuf[offs[q]].value = front.L.Get(s,t);
-                ++offs[q];
+                F value = front.L.Get(s,t);
+                sendBuf[offs[q]++] = Entry<F>{ value, i, node.off+t };
             }
         }
 
@@ -499,10 +496,8 @@ void DistSymmFront<F>::Unpack
             const int q = A.RowOwner(i);
             for( Int t=0; t<node.size; ++t )
             {
-                sendBuf[offs[q]].indices[0] = i;
-                sendBuf[offs[q]].indices[1] = node.off+t;
-                sendBuf[offs[q]].value = front.L.Get(node.size+s,t);
-                ++offs[q];
+                F value = front.L.Get(node.size+s,t);
+                sendBuf[offs[q]++] = Entry<F>{ value, i, node.off+t };
             }
         }
       };
@@ -539,10 +534,8 @@ void DistSymmFront<F>::Unpack
                     const Int t = FTL.GlobalCol(tLoc);
                     if( t <= s )
                     {
-                        sendBuf[offs[q]].indices[0] = i;
-                        sendBuf[offs[q]].indices[1] = node.off+t;
-                        sendBuf[offs[q]].value = FTL.GetLocal(sLoc,tLoc);
-                        ++offs[q];
+                        F value = FTL.GetLocal(sLoc,tLoc);
+                        sendBuf[offs[q]++] = Entry<F>{ value, i, node.off+t };
                     }
                 }
             }
@@ -554,11 +547,9 @@ void DistSymmFront<F>::Unpack
                 const int q = A.RowOwner(i);
                 for( Int tLoc=0; tLoc<localWidth; ++tLoc )
                 {
-                    const Int t = FBL.GlobalCol(tLoc);
-                    sendBuf[offs[q]].indices[0] = i;
-                    sendBuf[offs[q]].indices[1] = node.off+t;
-                    sendBuf[offs[q]].value = FBL.GetLocal(sLoc,tLoc);
-                    ++offs[q];
+                    Int t = FBL.GlobalCol(tLoc);
+                    F value = FBL.GetLocal(sLoc,tLoc);
+                    sendBuf[offs[q]++] = Entry<F>{ value, i, node.off+t };
                 }
             }
         }
@@ -582,10 +573,8 @@ void DistSymmFront<F>::Unpack
                     const Int t = FTL.GlobalCol(tLoc);
                     if( t <= s )
                     {
-                        sendBuf[offs[q]].indices[0] = i;
-                        sendBuf[offs[q]].indices[1] = node.off + t;
-                        sendBuf[offs[q]].value = FTL.GetLocal(sLoc,tLoc);
-                        ++offs[q];
+                        F value = FTL.GetLocal(sLoc,tLoc);
+                        sendBuf[offs[q]++] = Entry<F>{ value, i, node.off+t };
                     }
                 }
             }
@@ -597,30 +586,21 @@ void DistSymmFront<F>::Unpack
                 const int q = A.RowOwner(i);
                 for( Int tLoc=0; tLoc<localWidth; ++tLoc )
                 {
-                    const Int t = FBL.GlobalCol(tLoc);
-                    sendBuf[offs[q]].indices[0] = i;
-                    sendBuf[offs[q]].indices[1] = node.off + t;
-                    sendBuf[offs[q]].value = FBL.GetLocal(sLoc,tLoc);
-                    ++offs[q];
+                    Int t = FBL.GlobalCol(tLoc);
+                    F value = FBL.GetLocal(sLoc,tLoc);
+                    sendBuf[offs[q]++] = Entry<F>{ value, i, node.off+t };
                 }
             }
         }
       };
     pack( rootSep, rootInfo, *this );
 
-    // Exchange the data
-    vector<ValueIntPair<F>> recvBuf(totalRecv);
-    mpi::AllToAll
-    ( sendBuf.data(), sendSizes.data(), sendOffs.data(),
-      recvBuf.data(), recvSizes.data(), recvOffs.data(), comm );
-    
-    // Unpack the data
-    A.Reserve( totalRecv );
-    const Int firstLocalRow = A.FirstLocalRow();
-    for( Int e=0; e<totalRecv; ++e )
-        A.QueueLocalUpdate
-        ( recvBuf[e].indices[0]-firstLocalRow, recvBuf[e].indices[1], 
-          recvBuf[e].value );
+    // Exchange and unpack
+    // ===================
+    auto recvBuf = mpi::AllToAll( sendBuf, sendSizes, sendOffs, comm );
+    A.Reserve( recvBuf.size() );
+    for( auto& entry : recvBuf )
+        A.QueueUpdate( entry.indices[0], entry.indices[1], entry.value );
     A.MakeConsistent();
 }
 

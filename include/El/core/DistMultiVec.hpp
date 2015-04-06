@@ -72,7 +72,9 @@ public:
     // ======================
     T Get( Int row, Int col ) const;
     T GetLocal( Int localRow, Int col ) const;
+    void Set( Int row, Int col, T value );
     void SetLocal( Int localRow, Int col, T value );
+    void Update( Int row, Int col, T value );
     void UpdateLocal( Int localRow, Int col, T value );
 
 private:

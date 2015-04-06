@@ -282,10 +282,8 @@ void EN
     AHat.Reserve( 2*numLocalEntriesA+AHat.LocalHeight() );
     for( Int e=0; e<numLocalEntriesA; ++e )
     {
-        AHat.QueueLocalUpdate
-        ( A.Row(e)-A.FirstLocalRow(), A.Col(e),    A.Value(e) );
-        AHat.QueueLocalUpdate
-        ( A.Row(e)-A.FirstLocalRow(), A.Col(e)+n, -A.Value(e) );
+        AHat.QueueUpdate( A.Row(e), A.Col(e),    A.Value(e) );
+        AHat.QueueUpdate( A.Row(e), A.Col(e)+n, -A.Value(e) );
     }
     for( Int iLoc=0; iLoc<AHat.LocalHeight(); ++iLoc )
     {
@@ -332,10 +330,10 @@ void EN
         else
             break;
     }
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
     // Pack the data 
     // -------------
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
     vector<ValueInt<Real>> sendBuf(totalSend);
     auto offs = sendOffs;
     for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
@@ -343,17 +341,14 @@ void EN
         const Int i = xHat.GlobalRow(iLoc);
         if( i < n )
         {
-            const int owner = x.RowOwner(i);
-            sendBuf[offs[owner]].index = i;
-            sendBuf[offs[owner]].value = xHat.GetLocal(iLoc,0);
-            ++offs[owner];
+            int owner = x.RowOwner(i);
+            sendBuf[offs[owner]++] = ValueInt<Real>{ xHat.GetLocal(iLoc,0), i };
         }
         else if( i < 2*n )
         {
-            const int owner = x.RowOwner(i-n);
-            sendBuf[offs[owner]].index = i-n;
-            sendBuf[offs[owner]].value = -xHat.GetLocal(iLoc,0);
-            ++offs[owner];
+            int owner = x.RowOwner(i-n);
+            Real value = -xHat.GetLocal(iLoc,0);
+            sendBuf[offs[owner]++] = ValueInt<Real>{ value, i-n };
         }
         else
             break;
@@ -362,7 +357,7 @@ void EN
     // ----------------------------
     auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
     for( auto& entry : recvBuf )
-        x.UpdateLocal( entry.index-x.FirstLocalRow(), 0, entry.value );
+        x.Update( entry.index, 0, entry.value );
 }
 
 #define PROTO(Real) \

@@ -275,39 +275,31 @@ void SVM
             ++sendCounts[ G.RowOwner(A.Row(e)) ];
         for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
             ++sendCounts[ G.RowOwner(d.GlobalRow(iLoc)) ]; 
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
         // Pack
         // ----
-        vector<ValueIntPair<Real>> sendBuf(totalSend);
+        vector<int> sendOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
+        vector<Entry<Real>> sendBuf(totalSend);
         auto offs = sendOffs;
         for( Int e=0; e<A.NumLocalEntries(); ++e )
         {
-            const Int i = A.Row(e);
-            const int owner = G.RowOwner(i);
-            const Real value = -d.GetLocal(i-d.FirstLocalRow(),0)*A.Value(e);
-            sendBuf[offs[owner]].indices[0] = i;
-            sendBuf[offs[owner]].indices[1] = A.Col(e);
-            sendBuf[offs[owner]].value = value;
-            ++offs[owner];
+            Int i = A.Row(e);
+            int owner = G.RowOwner(i);
+            Real value = -d.GetLocal(i-d.FirstLocalRow(),0)*A.Value(e);
+            sendBuf[offs[owner]++] = Entry<Real>{ value, i, A.Col(e) };
         }
         for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
         {
-            const Int i = d.GlobalRow(iLoc);
-            const int owner = G.RowOwner(i);
-            sendBuf[offs[owner]].indices[0] = i; 
-            sendBuf[offs[owner]].indices[1] = n;
-            sendBuf[offs[owner]].value = -d.GetLocal(iLoc,0);
-            ++offs[owner];
+            Int i = d.GlobalRow(iLoc);
+            int owner = G.RowOwner(i);
+            sendBuf[offs[owner]++] = Entry<Real>{ -d.GetLocal(iLoc,0), i, n };
         }
         // Exchange and unpack
         // -------------------
         auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
         G.Reserve( recvBuf.size()+G.LocalHeight() );
         for( auto& entry : recvBuf )
-            G.QueueLocalUpdate
-            ( entry.indices[0]-G.FirstLocalRow(), entry.indices[1], 
-              entry.value );
+            G.QueueUpdate( entry.indices[0], entry.indices[1], entry.value );
         for( Int iLoc=0; iLoc<G.LocalHeight(); ++iLoc )
         {
             const Int i = G.GlobalRow(iLoc);

@@ -81,7 +81,7 @@ struct ValueIntPair
 {
     Real value;
     Int indices[2];
-    
+
     static bool Lesser( const ValueInt<Real>& a, const ValueInt<Real>& b )
     { return a.value < b.value; }
     static bool Greater( const ValueInt<Real>& a, const ValueInt<Real>& b )

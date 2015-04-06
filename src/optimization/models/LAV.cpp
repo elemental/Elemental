@@ -217,8 +217,7 @@ void LAV
     const Int numLocalEntriesA = A.NumLocalEntries();
     AHat.Reserve( numLocalEntriesA + 2*AHat.LocalHeight() );
     for( Int e=0; e<numLocalEntriesA; ++e )
-        AHat.QueueLocalUpdate
-        ( A.Row(e)-AHat.FirstLocalRow(), A.Col(e), A.Value(e) );
+        AHat.QueueUpdate( A.Row(e), A.Col(e), A.Value(e) );
     for( Int iLoc=0; iLoc<AHat.LocalHeight(); ++iLoc )
     {
         const Int i = AHat.GlobalRow(iLoc);

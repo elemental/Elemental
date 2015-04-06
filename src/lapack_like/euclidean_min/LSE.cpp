@@ -446,43 +446,31 @@ void LSE
             const Int i = D.GlobalRow(iLoc);
             sendCounts[ G.RowOwner(i+n+m) ] += numRHS;
         }
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
         // Pack the data
         // -------------
+        vector<int> sendOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
         auto offs = sendOffs;
-        vector<ValueIntPair<F>> sendBuf(totalSend);
+        vector<Entry<F>> sendBuf(totalSend);
         for( Int iLoc=0; iLoc<C.LocalHeight(); ++iLoc )
         {
             const Int i = C.GlobalRow(iLoc);
             const int owner = G.RowOwner(i+n);
             for( Int j=0; j<numRHS; ++j )
-            {
-                sendBuf[offs[owner]].indices[0] = i+n;
-                sendBuf[offs[owner]].indices[1] = j;
-                sendBuf[offs[owner]].value = C.GetLocal(iLoc,j);
-                ++offs[owner];
-            }
+                sendBuf[offs[owner]++] = Entry<F>{C.GetLocal(iLoc,j),i+n,j};
         }
         for( Int iLoc=0; iLoc<D.LocalHeight(); ++iLoc )
         {
             const Int i = D.GlobalRow(iLoc);
             const int owner = G.RowOwner(i+n+m);
             for( Int j=0; j<numRHS; ++j )
-            {
-                sendBuf[offs[owner]].indices[0] = i+n+m;
-                sendBuf[offs[owner]].indices[1] = j;
-                sendBuf[offs[owner]].value = D.GetLocal(iLoc,j);
-                ++offs[owner];
-            }
+                sendBuf[offs[owner]++] = Entry<F>{D.GetLocal(iLoc,j),i+n+m,j};
         }
         // Exchange and unpack the data
         // ----------------------------
         auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
         for( auto& entry : recvBuf )
-            G.SetLocal
-            ( entry.indices[0]-G.FirstLocalRow(), entry.indices[1],
-              entry.value );
+            G.Set( entry.indices[0], entry.indices[1], entry.value );
     }
 
     // Form the augmented matrix
@@ -509,26 +497,18 @@ void LSE
         vector<int> sendOffs;
         const int totalSend = Scan( sendCounts, sendOffs );
         auto offs = sendOffs;
-        vector<ValueIntPair<F>> sendBuf(totalSend);
+        vector<Entry<F>> sendBuf(totalSend);
         for( Int e=0; e<numEntriesW; ++e )
         {
             const Int i = W.Row(e);
             const Int j = W.Col(e);
             const F value = W.Value(e);
-
             // Send this entry of W into its normal position
             int owner = J.RowOwner(i+n);
-            sendBuf[offs[owner]].indices[0] = i+n;            
-            sendBuf[offs[owner]].indices[1] = j;
-            sendBuf[offs[owner]].value = value;
-            ++offs[owner];
-
+            sendBuf[offs[owner]++] = Entry<F>{value,i+n,j};
             // Send this entry of W into its adjoint position
             owner = J.RowOwner(j);
-            sendBuf[offs[owner]].indices[0] = j;
-            sendBuf[offs[owner]].indices[1] = i+n;
-            sendBuf[offs[owner]].value = Conj(value);
-            ++offs[owner];
+            sendBuf[offs[owner]++] = Entry<F>{Conj(value),j,i+n};
         }
         // Exchange and unpack the data
         // ----------------------------
@@ -548,16 +528,14 @@ void LSE
         // ^^^^^^
         J.Reserve( recvBuf.size() + numNegAlphaUpdates );
         for( auto& entry : recvBuf )
-            J.QueueLocalUpdate
-            ( entry.indices[0]-J.FirstLocalRow(), entry.indices[1],
-              entry.value );
+            J.QueueUpdate( entry.indices[0], entry.indices[1], entry.value );
         for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
         {
             const Int i = J.GlobalRow(iLoc);
             if( i >= n+m )
                 break;
             else if( i >= n )
-                J.QueueLocalUpdate( iLoc, i, -ctrl.alpha );
+                J.QueueUpdate( i, i, -ctrl.alpha );
         }
         J.MakeConsistent();
     }

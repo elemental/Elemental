@@ -208,24 +208,22 @@ void BP
         const Int i = xHat.GlobalRow(iLoc);
         if( i < n )
         {
-            const int owner = x.RowOwner(i);
-            sendBuf[offs[owner]].index = i;
-            sendBuf[offs[owner]].value = xHat.GetLocal(iLoc,0);
-            ++offs[owner];
+            int owner = x.RowOwner(i);
+            Real value = xHat.GetLocal(iLoc,0);
+            sendBuf[offs[owner]++] = ValueInt<Real>{ value, i };
         }
         else
         {
-            const int owner = x.RowOwner(i-n);
-            sendBuf[offs[owner]].index = i-n;
-            sendBuf[offs[owner]].value = -xHat.GetLocal(iLoc,0);
-            ++offs[owner];
+            int owner = x.RowOwner(i-n);
+            Real value = -xHat.GetLocal(iLoc,0);
+            sendBuf[offs[owner]++] = ValueInt<Real>{ value, i-n };
         }
     }
     // Exchange and unpack the data
     // ----------------------------
     auto recvBuf = mpi::AllToAll( sendBuf, sendSizes, sendOffs, comm );
     for( auto& entry : recvBuf )
-        x.UpdateLocal( entry.index-x.FirstLocalRow(), 0, entry.value );
+        x.Update( entry.index, 0, entry.value );
 }
 
 #define PROTO(Real) \
