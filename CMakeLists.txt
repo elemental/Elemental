@@ -198,8 +198,8 @@ endif()
 
 # Elemental must be built "out-of-source", so we start by ensuring that the
 # source and build directories are different.
-if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
-  message(FATAL_ERROR "In-source build attempted; please clean the CMake cache and then switch to an out-of-source build, e.g., rm CMakeCache.txt && rm -Rf CMakeFiles/ && mkdir build/ && cd build/ && cmake ..")
+if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
+  message(FATAL_ERROR "In-source build attempted; please clean the CMake cache and then switch to an out-of-source build, e.g.,\nrm CMakeCache.txt && rm -Rf CMakeFiles/\nmkdir build/ && cd build/ && cmake ..")
 endif()
 
 # Get the Git revision
