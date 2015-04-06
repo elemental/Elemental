@@ -20,7 +20,6 @@ if(NOT HAVE_MPI_QUERY_THREAD)
 endif()
 
 # Add in the preprocessor definitions and fortran name-mangling
-set(C_BASE_FLAGS "${ELEM_BLAS_DEFS} ${ELEM_LAPACK_DEFS}")
 if(NOT HAVE_SPINLOCKS)
   set(C_BASE_FLAGS "${C_BASE_FLAGS} -DNOSPINLOCKS")
 endif()
