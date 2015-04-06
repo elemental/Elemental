@@ -35,10 +35,13 @@
 
 /* Math libraries */
 #define EL_MATH_LIBS "@MATH_LIBS@"
-#cmakedefine EL_BLAS_POST
-#cmakedefine EL_LAPACK_POST
+#cmakedefine EL_HAVE_BLAS_SUFFIX
+#cmakedefine EL_BLAS_SUFFIX
+#cmakedefine EL_HAVE_LAPACK_SUFFIX
+#cmakedefine EL_LAPACK_SUFFIX
 #cmakedefine EL_HAVE_SCALAPACK
-#cmakedefine EL_SCALAPACK_POST
+#cmakedefine EL_HAVE_SCALAPACK_SUFFIX
+#cmakedefine EL_SCALAPACK_SUFFIX
 #cmakedefine EL_HAVE_FLA_BSVD
 #cmakedefine EL_HAVE_QUAD
 #cmakedefine EL_HAVE_QUADMATH
