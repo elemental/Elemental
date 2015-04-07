@@ -45,8 +45,7 @@ set(MPI_LINK_FLAGS       "-L${MPI_ROOT}/lib -L${PAMI_ROOT}/lib -L${SPI_ROOT}/lib
 set(MPI_C_LIBRARIES       "${MPI_LINK_FLAGS}   -lmpich-xl -lopa-xl -lmpl-xl -lpami-gcc -lSPI -lSPI_cnk -lrt -lpthread -lstdc++ -lpthread")
 set(MPI_CXX_LIBRARIES     "${MPI_LINK_FLAGS} -lmpichcxx-xl ${MPI_C_LIBRARIES}")
 
-if(CMAKE_BUILD_TYPE MATCHES PureDebug OR
-   CMAKE_BUILD_TYPE MATCHES HybridDebug)
+if(CMAKE_BUILD_TYPE MATCHES Debug)
   set(CXX_FLAGS "-g")
 else()
   set(CXX_FLAGS "-g -O3")
@@ -81,14 +80,13 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(LAPACK_FLAGS "-L${LAPACK_LIB} -llapack")
 set(XLF_FLAGS "-L${XLF_LIB} -lxlf90_r")
 set(MASS_FLAGS "-L${MASS_LIB} -lmassv -lmass")
-if(CMAKE_BUILD_TYPE MATCHES PureDebug OR
-   CMAKE_BUILD_TYPE MATCHES PureRelease OR 
-   NOT CMAKE_BUILD_TYPE)
-  set(ESSL_FLAGS "-L${ESSL_LIB} -lesslbg")
-  set(XL_FLAGS "-L${XLSMP_LIB} -lxlomp_ser")
-else()
+
+if(EL_HYBRID)
   set(ESSL_FLAGS "-L${ESSL_LIB} -lesslsmpbg")
   set(XL_FLAGS "-L${XLSMP_LIB} -lxlsmp")
+else()
+  set(ESSL_FLAGS "-L${ESSL_LIB} -lesslbg")
+  set(XL_FLAGS "-L${XLSMP_LIB} -lxlomp_ser")
 endif()
 
 #set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})

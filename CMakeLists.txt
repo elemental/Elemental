@@ -9,7 +9,7 @@
 #  which can be found in the LICENSE file in the root directory, or at
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-cmake_minimum_required(VERSION 2.8.8)
+cmake_minimum_required(VERSION 2.8.12)
 include(CheckCSourceCompiles)
 include(CheckCXXSourceCompiles)
 include(CheckFunctionExists)
@@ -29,14 +29,13 @@ set(EL_VERSION_MINOR 86-dev)
 # -------------
 
 # "CMAKE_BUILD_TYPE"
-#   Elemental requires it to be one of the following choices:
-#     1. "PureDebug": Vanilla MPI build meant for development and debugging
-#     2. "PureRelease": Vanilla MPI build meant for production runs
-#     3. "HybridDebug": MPI+OpenMP build meant for development and debugging
-#     4. "HybridRelease": MPI+OpenMP build meant for production runs
-#   If "CMAKE_BUILD_TYPE" is not defined, the default is "PureRelease".
-#   Please keep in mind that the PureRelease and PureDebug modes are by far the
-#   most commonly used and tested.
+#   Elemental requires it to be one of the following two choices:
+#     1. Debug: Meant for development and debugging
+#     2. Release: Meant for production runs
+#   If either MinSizeRel or RelWithDebInfo are specified, then Elemental falls 
+#   back to Release mode.
+#   
+#   If "CMAKE_BUILD_TYPE" is not defined, the default is Release mode.
 
 # "CXX_FLAGS"
 #   Optimization and debugging/symbol flags
@@ -49,6 +48,10 @@ set(EL_VERSION_MINOR 86-dev)
 # TODO: Add discussion of "MATH_LIBS" and "REFERENCE_ROOT"
 
 option(BUILD_SHARED_LIBS "Build shared libraries?" ON)
+
+# Whether or not to attempt to use OpenMP within hot-spots in Elemental
+# (NOTE: This option is not actively maintained)
+option(EL_HYBRID "Make use of OpenMP within MPI packing/unpacking" OFF)
 
 option(EL_C_INTERFACE "Build C interface" ON)
 
@@ -205,25 +208,28 @@ endif()
 # Get the Git revision
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 
-# Extract a few booleans from the build type and default to PureRelease
-if(NOT CMAKE_BUILD_TYPE)
-  message(STATUS "Build mode not specified, defaulting to PureRelease build.")
-  set(CMAKE_BUILD_TYPE PureRelease)
-endif()
-if(CMAKE_BUILD_TYPE STREQUAL "HybridDebug")
-  set(EL_HYBRID TRUE)
-  set(EL_DEBUG TRUE)
-elseif(CMAKE_BUILD_TYPE STREQUAL "HybridRelease")
-  set(EL_HYBRID TRUE)
-  set(EL_RELEASE TRUE)
-elseif(CMAKE_BUILD_TYPE STREQUAL "PureDebug")
-  set(EL_PURE TRUE)
-  set(EL_DEBUG TRUE)
-elseif(CMAKE_BUILD_TYPE STREQUAL "PureRelease")
-  set(EL_PURE TRUE)
-  set(EL_RELEASE TRUE)
+# Ensure that the build type is set to either Release or Debug
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+  # This option is okay as-is
+  set(CMAKE_BUILD_TYPE Release)
+elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  # This option is okay as-is
+  set(CMAKE_BUILD_TYPE Debug)
+elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+  message(WARNING "RelWithDebInfo not supported; switching to Release")
+  set(CMAKE_BUILD_TYPE Release)
+elseif(CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
+  message(WARNING "MinSizeRel not supported; switching to Release")
+  set(CMAKE_BUILD_TYPE Release)
 else()
-  message(FATAL_ERROR "CMAKE_BUILD_TYPE must be [Hybrid,Pure][Debug,Release]")
+  message(WARNING "Build mode not specified, defaulting to Release build.")
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+  set(EL_DEBUG FALSE)
+else()
+  set(EL_DEBUG TRUE)
 endif()
 string(TOUPPER ${CMAKE_BUILD_TYPE} UPPER_BUILD_TYPE)
 
@@ -233,9 +239,12 @@ if(NOT WIN32)
   foreach(LANG ${LANGUAGES})
     if(NOT ${LANG}_FLAGS)
       if(EL_DEBUG)
-        #set(${LANG}_FLAGS "-O2 -g -Wunused-variable -Wunused-but-set-variable -Wunused-local-typedefs" CACHE STRING
-        set(${LANG}_FLAGS "-O2 -g" CACHE STRING
-          "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
+        if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+          set(${LANG}_FLAGS "-O2 -g -Wunused-variable -Wunused-but-set-variable -Wunused-local-typedefs" CACHE STRING "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
+        else()
+          set(${LANG}_FLAGS "-O2 -g" CACHE STRING
+            "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
+        endif()
       else()
         set(${LANG}_FLAGS "-O3" CACHE STRING
           "${LANG} optimization flags for ${UPPER_BUILD_TYPE} mode")

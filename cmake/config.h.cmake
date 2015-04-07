@@ -15,6 +15,7 @@
 #define EL_VERSION_MINOR "@EL_VERSION_MINOR@"
 #define EL_CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
 #cmakedefine EL_RELEASE
+#cmakedefine EL_HYBRID
 
 #define EL_MPI_LINK_FLAGS      "@MPI_LINK_FLAGS@"
 

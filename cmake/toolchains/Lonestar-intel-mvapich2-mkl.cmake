@@ -23,8 +23,7 @@ set(MPI_C_LIBRARIES "-limf ${MPI_BASE_LIBS}")
 set(MPI_CXX_LIBRARIES "-limf -lmpichcxx ${MPI_BASE_LIBS}")
 set(MPI_Fortran_LIBRARIES "-limf -lmpichf90 ${MPI_BASE_LIBS}")
 
-if(CMAKE_BUILD_TYPE MATCHES PureDebug OR
-   CMAKE_BUILD_TYPE MATCHES HybridDebug)
+if(CMAKE_BUILD_TYPE MATCHES Debug)
   set(CXX_FLAGS "-g")
 else()
   set(CXX_FLAGS "-O3")
@@ -32,10 +31,8 @@ endif()
 
 set(OpenMP_CXX_FLAGS "-openmp")
 
-if(CMAKE_BUILD_TYPE MATCHES PureDebug OR
-   CMAKE_BUILD_TYPE MATCHES PureRelease OR
-   NOT CMAKE_BUILD_TYPE)
-  set(MATH_LIBS "-L/opt/apps/intel/11.1/mkl/lib/em64t -lmkl_intel_lp64 -lmkl_sequential -lmkl_core /opt/apps/intel/11.1/lib/intel64/libifcore.a /opt/apps/intel/11.1/lib/intel64/libsvml.a")
-else()
+if(EL_HYBRID)
   set(MATH_LIBS "-L/opt/apps/intel/11.1/mkl/lib/em64t -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -lguide -lpthread /opt/apps/intel/11.1/lib/intel64/libifcore.a /opt/apps/intel/11.1/lib/intel64/libsvml.a")
+else()
+  set(MATH_LIBS "-L/opt/apps/intel/11.1/mkl/lib/em64t -lmkl_intel_lp64 -lmkl_sequential -lmkl_core /opt/apps/intel/11.1/lib/intel64/libifcore.a /opt/apps/intel/11.1/lib/intel64/libsvml.a")
 endif()

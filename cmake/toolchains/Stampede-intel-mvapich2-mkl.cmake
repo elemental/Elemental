@@ -23,8 +23,7 @@ set(MPI_C_LIBRARIES "-limf ${MPI_BASE_LIBS}")
 set(MPI_CXX_LIBRARIES "-limf -lmpichcxx ${MPI_BASE_LIBS}")
 set(MPI_Fortran_LIBRARIES "-limf -lmpichf90 ${MPI_BASE_LIBS}")
 
-if(CMAKE_BUILD_TYPE MATCHES PureDebug OR
-   CMAKE_BUILD_TYPE MATCHES HybridDebug)
+if(CMAKE_BUILD_TYPE MATCHES Debug)
   set(CXX_FLAGS "-g")
 else()
   set(CXX_FLAGS "-O3")

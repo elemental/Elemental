@@ -10,8 +10,7 @@ set(MPI_C_COMPILER       ${MPI_COMPILER_DIR}/mpicc)
 set(MPI_CXX_COMPILER     ${MPI_COMPILER_DIR}/mpicxx)
 set(MPI_Fortran_COMPILER ${MPI_COMPILER_DIR}/mpif90)
 
-if(CMAKE_BUILD_TYPE MATCHES PureDebug OR
-   CMAKE_BUILD_TYPE MATCHES HybridDebug)
+if(CMAKE_BUILD_TYPE MATCHES Debug)
   set(CXX_FLAGS "-g")
 else()
   set(CXX_FLAGS "-O3")
