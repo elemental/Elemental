@@ -79,7 +79,8 @@
 # define EL_NOEXCEPT
 #endif
 
-#define EL_CONCAT(name1,name2) name1 ## #name2
+#define EL_CONCAT2(name1,name2) name1 ## name2
+#define EL_CONCAT(name1,name2) EL_CONCAT2(name1,name2)
 
 #if defined(EL_HAVE_BLAS_SUFFIX)
 # define EL_BLAS(name) EL_CONCAT(name,EL_BLAS_SUFFIX)
