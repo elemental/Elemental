@@ -388,6 +388,12 @@ configure_file(${PROJECT_SOURCE_DIR}/cmake/ElVars.cmake
                ${PROJECT_BINARY_DIR}/conf/ElVars @ONLY)
 install(FILES ${PROJECT_BINARY_DIR}/conf/ElVars DESTINATION conf)
 
+#Install sandbox test
+configure_file(${PROJECT_SOURCE_DIR}/sandbox/Makefile
+		${PROJECT_BINARY_DIR}/sandbox/Makefile @ONLY)
+install(FILES ${PROJECT_BINARY_DIR}/sandbox/Makefile DESTINATION sandbox)
+install(FILES ${PROJECT_SOURCE_DIR}/sandbox/test.cpp DESTINATION sandbox)
+
 # The main library
 # ================
 
@@ -560,3 +566,9 @@ endif()
 if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   include(./cmake/ElSub.cmake)
 endif()
+
+# Add sandbox/test program
+include(CTest)
+
+add_test(NAME sandbox_test WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/sandbox COMMAND make)
+
