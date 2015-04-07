@@ -79,21 +79,23 @@
 # define EL_NOEXCEPT
 #endif
 
+#define EL_CONCAT(name1,name2) name1 ## name2
+
 #if defined(EL_HAVE_BLAS_SUFFIX)
-# define EL_BLAS(name) name ## EL_BLAS_SUFFIX
+# define EL_BLAS(name) EL_CONCAT(name,EL_BLAS_SUFFIX)
 #else
 # define EL_BLAS(name) name
 #endif
 
 #if defined(EL_HAVE_LAPACK_SUFFIX)
-# define EL_LAPACK(name) name ## EL_LAPACK_SUFFIX
+# define EL_LAPACK(name) EL_CONCAT(name,EL_LAPACK_SUFFIX)
 #else
 # define EL_LAPACK(name) name
 #endif
 
 #if defined(EL_HAVE_SCALAPACK)
 # if defined(EL_HAVE_SCALAPACK_SUFFIX)
-#  define EL_SCALAPACK(name) name ## EL_SCALAPACK_SUFFIX
+#  define EL_SCALAPACK(name) EL_CONCAT(name,EL_SCALAPACK_SUFFIX)
 # else
 #  define EL_SCALAPACK(name) name
 # endif
