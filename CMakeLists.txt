@@ -388,12 +388,6 @@ configure_file(${PROJECT_SOURCE_DIR}/cmake/ElVars.cmake
                ${PROJECT_BINARY_DIR}/conf/ElVars @ONLY)
 install(FILES ${PROJECT_BINARY_DIR}/conf/ElVars DESTINATION conf)
 
-#Install sandbox test
-configure_file(${PROJECT_SOURCE_DIR}/sandbox/Makefile
-		${PROJECT_BINARY_DIR}/sandbox/Makefile @ONLY)
-install(FILES ${PROJECT_BINARY_DIR}/sandbox/Makefile DESTINATION sandbox)
-install(FILES ${PROJECT_SOURCE_DIR}/sandbox/test.cpp DESTINATION sandbox)
-
 # The main library
 # ================
 
@@ -567,8 +561,36 @@ if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   include(./cmake/ElSub.cmake)
 endif()
 
-# Add sandbox/test program
+# Tests
 include(CTest)
 
+#Install sandbox test
+configure_file(${PROJECT_SOURCE_DIR}/sandbox/Makefile.cmake
+		${PROJECT_BINARY_DIR}/sandbox/Makefile @ONLY)
+install(FILES ${PROJECT_BINARY_DIR}/sandbox/Makefile DESTINATION sandbox)
+install(FILES ${PROJECT_SOURCE_DIR}/sandbox/test.cpp DESTINATION sandbox)
+
 add_test(NAME sandbox_test WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/sandbox COMMAND make)
+
+#Install other tests
+#Scans through all subdirectories of tests/, and defines a new test for each
+#.cpp file found inside
+
+#Makefile driver has to be CMake-configured to use build variables
+configure_file(${PROJECT_SOURCE_DIR}/tests/Makefile.cmake
+		${PROJECT_BINARY_DIR}/tests/Makefile @ONLY)
+install(DIRECTORY tests DESTINATION ${CMAKE_INSTALL_PREFIX})
+
+foreach(TestDir core blas_like lapack_like optimization)
+  install(FILES ${PROJECT_BINARY_DIR}/tests/Makefile DESTINATION tests/${TestDir})
+
+  file(GLOB TestSources RELATIVE "${PROJECT_SOURCE_DIR}/tests/${TestDir}"
+    "${PROJECT_SOURCE_DIR}/tests/${TestDir}/*.cpp")
+
+  foreach(TestSource ${TestSources})
+    string(REGEX REPLACE ".cpp\$" "" TestName ${TestSource})
+
+    add_test(NAME ${TestDir}_${TestName} WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/tests/${TestDir} COMMAND make ${TestName})
+  endforeach(TestSource)
+endforeach(TestDir)
 
