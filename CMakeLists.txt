@@ -62,8 +62,8 @@ if(BUILD_SHARED_LIBS AND EL_C_INTERFACE)
   include(FindPythonInterp) #Check for Python version
 
   #Only Python 2.x supported
-  if (PYTHON_VERSION_MAJOR EQUAL 2)
-    set(INSTALL_PYTHON_PACKAGE TRUE)
+  if (NOT PYTHON_VERSION_MAJOR EQUAL 2)
+    set(INSTALL_PYTHON_PACKAGE FALSE)
   endif()
 endif()
 
