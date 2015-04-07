@@ -833,12 +833,22 @@ AbstractDistMatrix<T>::Set( Int i, Int j, T value )
 
 template<typename T>
 void
+AbstractDistMatrix<T>::Set( const Entry<T>& entry )
+{ Set( entry.i, entry.j, entry.value ); }
+
+template<typename T>
+void
 AbstractDistMatrix<T>::SetRealPart( Int i, Int j, Base<T> value )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::SetRealPart"))
     if( IsLocal(i,j) )
         SetLocalRealPart( LocalRow(i), LocalCol(j), value );
 }
+
+template<typename T>
+void
+AbstractDistMatrix<T>::SetRealPart( const Entry<Base<T>>& entry )
+{ SetRealPart( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void
@@ -851,12 +861,22 @@ AbstractDistMatrix<T>::SetImagPart( Int i, Int j, Base<T> value )
 
 template<typename T>
 void
+AbstractDistMatrix<T>::SetImagPart( const Entry<Base<T>>& entry )
+{ SetImagPart( entry.i, entry.j, entry.value ); }
+
+template<typename T>
+void
 AbstractDistMatrix<T>::Update( Int i, Int j, T value )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::Update"))
     if( IsLocal(i,j) )
         UpdateLocal( LocalRow(i), LocalCol(j), value );
 }
+
+template<typename T>
+void
+AbstractDistMatrix<T>::Update( const Entry<T>& entry )
+{ Update( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void
@@ -869,12 +889,22 @@ AbstractDistMatrix<T>::UpdateRealPart( Int i, Int j, Base<T> value )
 
 template<typename T>
 void
+AbstractDistMatrix<T>::UpdateRealPart( const Entry<Base<T>>& entry )
+{ UpdateRealPart( entry.i, entry.j, entry.value ); }
+
+template<typename T>
+void
 AbstractDistMatrix<T>::UpdateImagPart( Int i, Int j, Base<T> value )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::UpdateImagPart"))
     if( IsLocal(i,j) )
         UpdateLocalImagPart( LocalRow(i), LocalCol(j), value );
 }
+
+template<typename T>
+void
+AbstractDistMatrix<T>::UpdateImagPart( const Entry<Base<T>>& entry )
+{ UpdateImagPart( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void
@@ -919,8 +949,18 @@ AbstractDistMatrix<T>::SetLocal( Int iLoc, Int jLoc, T alpha )
 
 template<typename T>
 void
+AbstractDistMatrix<T>::SetLocal( const Entry<T>& localEntry )
+{ SetLocal( localEntry.i, localEntry.j, localEntry.value ); }
+
+template<typename T>
+void
 AbstractDistMatrix<T>::SetLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha )
 { matrix_.SetRealPart(iLoc,jLoc,alpha); }
+
+template<typename T>
+void
+AbstractDistMatrix<T>::SetLocalRealPart( const Entry<Base<T>>& localEntry )
+{ SetLocalRealPart( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
 void
@@ -929,8 +969,18 @@ AbstractDistMatrix<T>::SetLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha )
 
 template<typename T>
 void
+AbstractDistMatrix<T>::SetLocalImagPart( const Entry<Base<T>>& localEntry )
+{ SetLocalImagPart( localEntry.i, localEntry.j, localEntry.value ); }
+
+template<typename T>
+void
 AbstractDistMatrix<T>::UpdateLocal( Int iLoc, Int jLoc, T alpha )
 { matrix_.Update(iLoc,jLoc,alpha); }
+
+template<typename T>
+void
+AbstractDistMatrix<T>::UpdateLocal( const Entry<T>& localEntry )
+{ UpdateLocal( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
 void
@@ -940,9 +990,19 @@ AbstractDistMatrix<T>::UpdateLocalRealPart
 
 template<typename T>
 void
+AbstractDistMatrix<T>::UpdateLocalRealPart( const Entry<Base<T>>& localEntry )
+{ UpdateLocalRealPart( localEntry.i, localEntry.j, localEntry.value ); }
+
+template<typename T>
+void
 AbstractDistMatrix<T>::UpdateLocalImagPart
 ( Int iLoc, Int jLoc, Base<T> alpha )
 { matrix_.UpdateImagPart(iLoc,jLoc,alpha); }
+
+template<typename T>
+void
+AbstractDistMatrix<T>::UpdateLocalImagPart( const Entry<Base<T>>& localEntry )
+{ UpdateLocalImagPart( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
 void

@@ -869,12 +869,20 @@ void AbstractBlockDistMatrix<T>::Set( Int i, Int j, T value )
 }
 
 template<typename T>
+void AbstractBlockDistMatrix<T>::Set( const Entry<T>& entry )
+{ Set( entry.i, entry.j, entry.value ); }
+
+template<typename T>
 void AbstractBlockDistMatrix<T>::SetRealPart( Int i, Int j, Base<T> value )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::SetRealPart"))
     if( IsLocal(i,j) )
         SetLocalRealPart( LocalRow(i), LocalCol(j), value );
 }
+
+template<typename T>
+void AbstractBlockDistMatrix<T>::SetRealPart( const Entry<Base<T>>& entry )
+{ SetRealPart( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void AbstractBlockDistMatrix<T>::SetImagPart( Int i, Int j, Base<T> value )
@@ -885,12 +893,20 @@ void AbstractBlockDistMatrix<T>::SetImagPart( Int i, Int j, Base<T> value )
 }
 
 template<typename T>
+void AbstractBlockDistMatrix<T>::SetImagPart( const Entry<Base<T>>& entry )
+{ SetImagPart( entry.i, entry.j, entry.value ); }
+
+template<typename T>
 void AbstractBlockDistMatrix<T>::Update( Int i, Int j, T value )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::Update"))
     if( IsLocal(i,j) )
         UpdateLocal( LocalRow(i), LocalCol(j), value );
 }
+
+template<typename T>
+void AbstractBlockDistMatrix<T>::Update( const Entry<T>& entry )
+{ Update( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void AbstractBlockDistMatrix<T>::UpdateRealPart( Int i, Int j, Base<T> value )
@@ -901,12 +917,20 @@ void AbstractBlockDistMatrix<T>::UpdateRealPart( Int i, Int j, Base<T> value )
 }
 
 template<typename T>
+void AbstractBlockDistMatrix<T>::UpdateRealPart( const Entry<Base<T>>& entry )
+{ UpdateRealPart( entry.i, entry.j, entry.value ); }
+
+template<typename T>
 void AbstractBlockDistMatrix<T>::UpdateImagPart( Int i, Int j, Base<T> value )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::UpdateImagPart"))
     if( IsLocal(i,j) )
         UpdateLocalImagPart( LocalRow(i), LocalCol(j), value );
 }
+
+template<typename T>
+void AbstractBlockDistMatrix<T>::UpdateImagPart( const Entry<Base<T>>& entry )
+{ UpdateImagPart( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void AbstractBlockDistMatrix<T>::MakeReal( Int i, Int j )
@@ -947,9 +971,18 @@ void AbstractBlockDistMatrix<T>::SetLocal( Int iLoc, Int jLoc, T alpha )
 { matrix_.Set(iLoc,jLoc,alpha); }
 
 template<typename T>
+void AbstractBlockDistMatrix<T>::SetLocal( const Entry<T>& localEntry )
+{ SetLocal( localEntry.i, localEntry.j, localEntry.value ); }
+
+template<typename T>
 void AbstractBlockDistMatrix<T>::SetLocalRealPart
 ( Int iLoc, Int jLoc, Base<T> alpha )
 { matrix_.SetRealPart(iLoc,jLoc,alpha); }
+
+template<typename T>
+void 
+AbstractBlockDistMatrix<T>::SetLocalRealPart( const Entry<Base<T>>& localEntry )
+{ SetLocalRealPart( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
 void AbstractBlockDistMatrix<T>::SetLocalImagPart
@@ -957,8 +990,17 @@ void AbstractBlockDistMatrix<T>::SetLocalImagPart
 { matrix_.SetImagPart(iLoc,jLoc,alpha); }
 
 template<typename T>
+void 
+AbstractBlockDistMatrix<T>::SetLocalImagPart( const Entry<Base<T>>& localEntry )
+{ SetLocalImagPart( localEntry.i, localEntry.j, localEntry.value ); }
+
+template<typename T>
 void AbstractBlockDistMatrix<T>::UpdateLocal( Int iLoc, Int jLoc, T alpha )
 { matrix_.Update(iLoc,jLoc,alpha); }
+
+template<typename T>
+void AbstractBlockDistMatrix<T>::UpdateLocal( const Entry<T>& localEntry )
+{ UpdateLocal( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
 void AbstractBlockDistMatrix<T>::UpdateLocalRealPart
@@ -966,9 +1008,21 @@ void AbstractBlockDistMatrix<T>::UpdateLocalRealPart
 { matrix_.UpdateRealPart(iLoc,jLoc,alpha); }
 
 template<typename T>
+void 
+AbstractBlockDistMatrix<T>::UpdateLocalRealPart
+( const Entry<Base<T>>& localEntry )
+{ UpdateLocalRealPart( localEntry.i, localEntry.j, localEntry.value ); }
+
+template<typename T>
 void AbstractBlockDistMatrix<T>::UpdateLocalImagPart
 ( Int iLoc, Int jLoc, Base<T> alpha )
 { matrix_.UpdateImagPart(iLoc,jLoc,alpha); }
+
+template<typename T>
+void 
+AbstractBlockDistMatrix<T>::UpdateLocalImagPart
+( const Entry<Base<T>>& localEntry )
+{ UpdateLocalImagPart( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
 void AbstractBlockDistMatrix<T>::MakeLocalReal( Int iLoc, Int jLoc )

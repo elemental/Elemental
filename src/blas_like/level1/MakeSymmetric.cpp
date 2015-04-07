@@ -157,7 +157,7 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
     // =================
     vector<int> sendOffs;
     const int totalSend = Scan( sendCounts, sendOffs );
-    vector<ValueIntPair<T>> sendBuf(totalSend);
+    vector<Entry<T>> sendBuf(totalSend);
     auto offs = sendOffs;
     for( Int k=0; k<numLocalEntries; ++k )
     {
@@ -166,11 +166,10 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
         if( (uplo == LOWER && i > j) || (uplo == UPPER && i < j) )
         {
             const int owner = A.RowOwner(j);
-            const Int s = offs[owner];
-            sendBuf[s].indices[0] = j;
-            sendBuf[s].indices[1] = i;
+            const Int s = offs[owner]++;
+            sendBuf[s].i = j;
+            sendBuf[s].j = i;
             sendBuf[s].value = ( conjugate ? Conj(vBuf[k]) : vBuf[k] );
-            ++offs[owner];
         }
     }
 
@@ -179,8 +178,7 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
     auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
     A.Reserve( A.NumLocalEntries()+recvBuf.size() );
     for( auto& entry : recvBuf )
-        A.QueueLocalUpdate
-        ( entry.indices[0]-A.FirstLocalRow(), entry.indices[1], entry.value );
+        A.QueueUpdate( entry );
     A.MakeConsistent();
 }
 

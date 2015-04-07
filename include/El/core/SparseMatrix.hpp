@@ -57,10 +57,12 @@ public:
     void Reserve( Int numEntries );
 
     // A safe update/zeroing mechanism
+    void Update( const Entry<T>& entry );
     void Update( Int row, Int col, T value );
     void Zero( Int row, Int col );
 
     // For performing many updates and forcing consistency at the end
+    void QueueUpdate( const Entry<T>& entry );
     void QueueUpdate( Int row, Int col, T value );
     void QueueZero( Int row, Int col );
     void MakeConsistent();

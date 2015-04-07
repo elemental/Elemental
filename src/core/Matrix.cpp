@@ -336,6 +336,10 @@ void Matrix<T>::Set( Int i, Int j, T alpha )
 }
 
 template<typename T>
+void Matrix<T>::Set( const Entry<T>& entry )
+{ Set( entry.i, entry.j, entry.value ); }
+
+template<typename T>
 void Matrix<T>::SetRealPart( Int i, Int j, Base<T> alpha )
 {
     DEBUG_ONLY(
@@ -346,6 +350,10 @@ void Matrix<T>::SetRealPart( Int i, Int j, Base<T> alpha )
     )
     El::SetRealPart( Set_( i, j ), alpha );
 }
+
+template<typename T>
+void Matrix<T>::SetRealPart( const Entry<Base<T>>& entry )
+{ SetRealPart( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void Matrix<T>::SetImagPart( Int i, Int j, Base<T> alpha )
@@ -361,6 +369,10 @@ void Matrix<T>::SetImagPart( Int i, Int j, Base<T> alpha )
 }
 
 template<typename T>
+void Matrix<T>::SetImagPart( const Entry<Base<T>>& entry )
+{ SetImagPart( entry.i, entry.j, entry.value ); }
+
+template<typename T>
 void Matrix<T>::Update( Int i, Int j, T alpha ) 
 {
     DEBUG_ONLY(
@@ -371,6 +383,10 @@ void Matrix<T>::Update( Int i, Int j, T alpha )
     )
     Set_( i, j ) += alpha;
 }
+
+template<typename T>
+void Matrix<T>::Update( const Entry<T>& entry )
+{ Update( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void Matrix<T>::UpdateRealPart( Int i, Int j, Base<T> alpha )
@@ -385,6 +401,10 @@ void Matrix<T>::UpdateRealPart( Int i, Int j, Base<T> alpha )
 }
 
 template<typename T>
+void Matrix<T>::UpdateRealPart( const Entry<Base<T>>& entry )
+{ UpdateRealPart( entry.i, entry.j, entry.value ); }
+
+template<typename T>
 void Matrix<T>::UpdateImagPart( Int i, Int j, Base<T> alpha )
 {
     DEBUG_ONLY(
@@ -396,6 +416,10 @@ void Matrix<T>::UpdateImagPart( Int i, Int j, Base<T> alpha )
     ComplainIfReal();
     El::UpdateImagPart( Set_( i, j ), alpha );
 }
+
+template<typename T>
+void Matrix<T>::UpdateImagPart( const Entry<Base<T>>& entry )
+{ UpdateImagPart( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void Matrix<T>::MakeReal( Int i, Int j )

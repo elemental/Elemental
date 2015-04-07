@@ -186,7 +186,7 @@ void AugmentedKKT
     {
         const Int i = A.Row(e) + n;
         const Int j = A.Col(e);
-        sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ A.Value(e), i, j };
+        sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, A.Value(e) };
     }
     // Pack A^T
     // --------
@@ -197,7 +197,7 @@ void AugmentedKKT
             const Int i = ATrans.Row(e);
             const Int j = ATrans.Col(e) + n;
             const Real value = ATrans.Value(e);
-            sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ value, i, j };
+            sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, value };
         }
     }
     // Pack x <> z
@@ -207,7 +207,7 @@ void AugmentedKKT
         const Int i = x.GlobalRow(iLoc);
         const Int j = i;
         const Real value = z.GetLocal(iLoc,0)/x.GetLocal(iLoc,0);
-        sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ value, i, j };
+        sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, value };
     }
     // Pack Q
     // ------
@@ -216,7 +216,7 @@ void AugmentedKKT
         const Int i = Q.Row(e);
         const Int j = Q.Col(e);
         if( i >= j || !onlyLower )
-            sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ Q.Value(e), i, j };
+            sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, Q.Value(e) };
     }
 
     // Exchange and unpack the triplets
@@ -224,7 +224,7 @@ void AugmentedKKT
     auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
     J.Reserve( recvBuf.size() );
     for( auto& entry : recvBuf )
-        J.QueueUpdate( entry.indices[0], entry.indices[1], entry.value );
+        J.QueueUpdate( entry );
     J.MakeConsistent();
 }
 

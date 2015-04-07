@@ -457,20 +457,20 @@ void LSE
             const Int i = C.GlobalRow(iLoc);
             const int owner = G.RowOwner(i+n);
             for( Int j=0; j<numRHS; ++j )
-                sendBuf[offs[owner]++] = Entry<F>{C.GetLocal(iLoc,j),i+n,j};
+                sendBuf[offs[owner]++] = Entry<F>{i+n,j,C.GetLocal(iLoc,j)};
         }
         for( Int iLoc=0; iLoc<D.LocalHeight(); ++iLoc )
         {
             const Int i = D.GlobalRow(iLoc);
             const int owner = G.RowOwner(i+n+m);
             for( Int j=0; j<numRHS; ++j )
-                sendBuf[offs[owner]++] = Entry<F>{D.GetLocal(iLoc,j),i+n+m,j};
+                sendBuf[offs[owner]++] = Entry<F>{i+n+m,j,D.GetLocal(iLoc,j)};
         }
         // Exchange and unpack the data
         // ----------------------------
         auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
         for( auto& entry : recvBuf )
-            G.Set( entry.indices[0], entry.indices[1], entry.value );
+            G.Set( entry );
     }
 
     // Form the augmented matrix
@@ -505,10 +505,10 @@ void LSE
             const F value = W.Value(e);
             // Send this entry of W into its normal position
             int owner = J.RowOwner(i+n);
-            sendBuf[offs[owner]++] = Entry<F>{value,i+n,j};
+            sendBuf[offs[owner]++] = Entry<F>{i+n,j,value};
             // Send this entry of W into its adjoint position
             owner = J.RowOwner(j);
-            sendBuf[offs[owner]++] = Entry<F>{Conj(value),j,i+n};
+            sendBuf[offs[owner]++] = Entry<F>{j,i+n,Conj(value)};
         }
         // Exchange and unpack the data
         // ----------------------------
@@ -528,7 +528,7 @@ void LSE
         // ^^^^^^
         J.Reserve( recvBuf.size() + numNegAlphaUpdates );
         for( auto& entry : recvBuf )
-            J.QueueUpdate( entry.indices[0], entry.indices[1], entry.value );
+            J.QueueUpdate( entry );
         for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
         {
             const Int i = J.GlobalRow(iLoc);

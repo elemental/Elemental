@@ -82,13 +82,17 @@ public:
     void Reserve( Int numLocalEntries );
 
     // A safe procedure for applying a local update or zeroing an entry
+    void Update( const Entry<T>& entry );
     void Update( Int row, Int col, T value );
+    void UpdateLocal( const Entry<T>& localEntry );
     void UpdateLocal( Int localRow, Int col, T value );
     void Zero( Int row, Int col );
     void ZeroLocal( Int localRow, Int col );
 
     // For applying a sequence of updates and then forcing consistency
+    void QueueUpdate( const Entry<T>& entry );
     void QueueUpdate( Int row, Int col, T value );
+    void QueueLocalUpdate( const Entry<T>& localEntry );
     void QueueLocalUpdate( Int localRow, Int col, T value );
     void QueueZero( Int row, Int col );
     void QueueLocalZero( Int localRow, Int col );

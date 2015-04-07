@@ -225,7 +225,7 @@ void Syrk
     // ===================== 
     vector<int> sendOffs;
     const int totalSend = Scan( sendSizes, sendOffs );
-    vector<ValueIntPair<T>> sendBuf(totalSend);
+    vector<Entry<T>> sendBuf(totalSend);
     auto offs = sendOffs;
     for( Int kLoc=0; kLoc<localHeightA; ++kLoc )
     {
@@ -243,8 +243,8 @@ void Syrk
                 {
                     const T A_kj = A.Value(offset+jConn);
                     const Int s = offs[owner]++;
-                    sendBuf[s].indices[0] = i;
-                    sendBuf[s].indices[1] = j;
+                    sendBuf[s].i = i;
+                    sendBuf[s].j = j;
                     if( conjugate )
                         sendBuf[s].value = T(alpha)*Conj(A_ki)*A_kj;
                     else
@@ -259,8 +259,7 @@ void Syrk
     auto recvBuf = mpi::AllToAll( sendBuf, sendSizes, sendOffs, comm );
     C.Reserve( C.NumLocalEntries() + recvBuf.size() );
     for( auto& entry : recvBuf )
-        C.QueueLocalUpdate
-        ( entry.indices[0]-C.FirstLocalRow(), entry.indices[1], entry.value );
+        C.QueueUpdate( entry );
     C.MakeConsistent();
 }
 

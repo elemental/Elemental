@@ -315,7 +315,7 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
     // =================
     vector<int> sendOffs;
     const int totalSend = Scan( sendCounts, sendOffs );
-    vector<ValueIntPair<T>> sendBuf(totalSend);
+    vector<Entry<T>> sendBuf(totalSend);
     auto offs = sendOffs;
     for( Int k=0; k<A.NumLocalEntries(); ++k )
     {
@@ -323,19 +323,14 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
         const Int j = A.Col(k);
         const T value = Caster<S,T>::Cast(A.Value(k));
         const int owner = B.Owner(i,j);
-        sendBuf[offs[owner]].indices[0] = i;
-        sendBuf[offs[owner]].indices[1] = j;
-        sendBuf[offs[owner]].value = value;
-        ++offs[owner];
+        sendBuf[offs[owner]++] = Entry<T>{ i, j, value };
     }
 
     // Exchange and unpack the triplets
     // ================================
     auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
     for( auto& entry : recvBuf )
-        B.UpdateLocal
-        ( B.LocalRow(entry.indices[0]), B.LocalCol(entry.indices[1]), 
-          entry.value );
+        B.Update( entry );
 }
 
 template<typename T>
@@ -442,7 +437,7 @@ void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
     // ====
     vector<int> sendOffs;
     const int totalSend = Scan( sendCounts, sendOffs );
-    vector<ValueIntPair<T>> sendBuf(totalSend);
+    vector<Entry<T>> sendBuf(totalSend);
     auto offs = sendOffs;
     for( Int j=0; j<n; ++j )
     {
@@ -450,10 +445,7 @@ void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
         {
             const Int i = A.GlobalRow(iLoc);
             const int owner = B.Owner(i,j);
-            sendBuf[offs[owner]].indices[0] = i;
-            sendBuf[offs[owner]].indices[1] = j;
-            sendBuf[offs[owner]].value = A.GetLocal(iLoc,j);
-            ++offs[owner];
+            sendBuf[offs[owner]++] = Entry<T>{ i, j, A.GetLocal(iLoc,j) };
         }
     }
 
@@ -461,7 +453,7 @@ void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
     // ===================
     auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
     for( auto& entry : recvBuf )
-        B.Set( entry.indices[0], entry.indices[1], entry.value );
+        B.Set( entry );
 }
 
 template<typename T>
@@ -492,7 +484,7 @@ void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
     // ====
     vector<int> sendOffs;
     const int totalSend = Scan( sendCounts, sendOffs );
-    vector<ValueIntPair<T>> sendBuf(totalSend);
+    vector<Entry<T>> sendBuf(totalSend);
     auto offs = sendOffs;
     for( Int jLoc=0; jLoc<nLoc; ++jLoc )
     {
@@ -501,10 +493,7 @@ void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
         {
             const Int i = A.GlobalRow(iLoc);
             const int owner = B.RowOwner(i);
-            sendBuf[offs[owner]].indices[0] = i;
-            sendBuf[offs[owner]].indices[1] = j;
-            sendBuf[offs[owner]].value = A.GetLocal(iLoc,jLoc);
-            ++offs[owner];
+            sendBuf[offs[owner]++] = Entry<T>{ i, j, A.GetLocal(iLoc,jLoc) };
         }
     }
 
@@ -512,8 +501,7 @@ void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
     // ===================
     auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
     for( auto& entry : recvBuf )
-        B.SetLocal
-        ( entry.indices[0]-B.FirstLocalRow(), entry.indices[1], entry.value );
+        B.Set( entry );
 }
 
 template<typename T>

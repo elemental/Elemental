@@ -1176,27 +1176,27 @@ EL_EXPORT ElError ElMakeTrapezoidalDistSparse_z
 
 /* Max
    === */
-EL_EXPORT ElError ElMax_i( ElConstMatrix_i A, ElValueIntPair_i* entry );
-EL_EXPORT ElError ElMax_s( ElConstMatrix_s A, ElValueIntPair_s* entry );
-EL_EXPORT ElError ElMax_d( ElConstMatrix_d A, ElValueIntPair_d* entry );
+EL_EXPORT ElError ElMax_i( ElConstMatrix_i A, ElEntry_i* entry );
+EL_EXPORT ElError ElMax_s( ElConstMatrix_s A, ElEntry_s* entry );
+EL_EXPORT ElError ElMax_d( ElConstMatrix_d A, ElEntry_d* entry );
 
-EL_EXPORT ElError ElMaxDist_i( ElConstDistMatrix_i A, ElValueIntPair_i* entry );
-EL_EXPORT ElError ElMaxDist_s( ElConstDistMatrix_s A, ElValueIntPair_s* entry );
-EL_EXPORT ElError ElMaxDist_d( ElConstDistMatrix_d A, ElValueIntPair_d* entry );
+EL_EXPORT ElError ElMaxDist_i( ElConstDistMatrix_i A, ElEntry_i* entry );
+EL_EXPORT ElError ElMaxDist_s( ElConstDistMatrix_s A, ElEntry_s* entry );
+EL_EXPORT ElError ElMaxDist_d( ElConstDistMatrix_d A, ElEntry_d* entry );
 
 EL_EXPORT ElError ElSymmetricMax_i
-( ElUpperOrLower uplo, ElConstMatrix_i A, ElValueIntPair_i* entry );
+( ElUpperOrLower uplo, ElConstMatrix_i A, ElEntry_i* entry );
 EL_EXPORT ElError ElSymmetricMax_s
-( ElUpperOrLower uplo, ElConstMatrix_s A, ElValueIntPair_s* entry );
+( ElUpperOrLower uplo, ElConstMatrix_s A, ElEntry_s* entry );
 EL_EXPORT ElError ElSymmetricMax_d
-( ElUpperOrLower uplo, ElConstMatrix_d A, ElValueIntPair_d* entry );
+( ElUpperOrLower uplo, ElConstMatrix_d A, ElEntry_d* entry );
 
 EL_EXPORT ElError ElSymmetricMaxDist_i
-( ElUpperOrLower uplo, ElConstDistMatrix_i A, ElValueIntPair_i* entry );
+( ElUpperOrLower uplo, ElConstDistMatrix_i A, ElEntry_i* entry );
 EL_EXPORT ElError ElSymmetricMaxDist_s
-( ElUpperOrLower uplo, ElConstDistMatrix_s A, ElValueIntPair_s* entry );
+( ElUpperOrLower uplo, ElConstDistMatrix_s A, ElEntry_s* entry );
 EL_EXPORT ElError ElSymmetricMaxDist_d
-( ElUpperOrLower uplo, ElConstDistMatrix_d A, ElValueIntPair_d* entry );
+( ElUpperOrLower uplo, ElConstDistMatrix_d A, ElEntry_d* entry );
 
 EL_EXPORT ElError ElVectorMax_i( ElConstMatrix_i x, ElValueInt_i* entry );
 EL_EXPORT ElError ElVectorMax_s( ElConstMatrix_s x, ElValueInt_s* entry );
@@ -1211,44 +1211,44 @@ EL_EXPORT ElError ElVectorMaxDist_d
 
 /* MaxAbs
    ====== */
-EL_EXPORT ElError ElMaxAbs_i( ElConstMatrix_i A, ElValueIntPair_i* entry );
-EL_EXPORT ElError ElMaxAbs_s( ElConstMatrix_s A, ElValueIntPair_s* entry );
-EL_EXPORT ElError ElMaxAbs_d( ElConstMatrix_d A, ElValueIntPair_d* entry );
-EL_EXPORT ElError ElMaxAbs_c( ElConstMatrix_c A, ElValueIntPair_s* entry );
-EL_EXPORT ElError ElMaxAbs_z( ElConstMatrix_z A, ElValueIntPair_d* entry );
+EL_EXPORT ElError ElMaxAbs_i( ElConstMatrix_i A, ElEntry_i* entry );
+EL_EXPORT ElError ElMaxAbs_s( ElConstMatrix_s A, ElEntry_s* entry );
+EL_EXPORT ElError ElMaxAbs_d( ElConstMatrix_d A, ElEntry_d* entry );
+EL_EXPORT ElError ElMaxAbs_c( ElConstMatrix_c A, ElEntry_s* entry );
+EL_EXPORT ElError ElMaxAbs_z( ElConstMatrix_z A, ElEntry_d* entry );
 
 EL_EXPORT ElError ElMaxAbsDist_i
-( ElConstDistMatrix_i A, ElValueIntPair_i* entry );
+( ElConstDistMatrix_i A, ElEntry_i* entry );
 EL_EXPORT ElError ElMaxAbsDist_s
-( ElConstDistMatrix_s A, ElValueIntPair_s* entry );
+( ElConstDistMatrix_s A, ElEntry_s* entry );
 EL_EXPORT ElError ElMaxAbsDist_d
-( ElConstDistMatrix_d A, ElValueIntPair_d* entry );
+( ElConstDistMatrix_d A, ElEntry_d* entry );
 EL_EXPORT ElError ElMaxAbsDist_c
-( ElConstDistMatrix_c A, ElValueIntPair_s* entry );
+( ElConstDistMatrix_c A, ElEntry_s* entry );
 EL_EXPORT ElError ElMaxAbsDist_z
-( ElConstDistMatrix_z A, ElValueIntPair_d* entry );
+( ElConstDistMatrix_z A, ElEntry_d* entry );
 
 EL_EXPORT ElError ElSymmetricMaxAbs_i
-( ElUpperOrLower uplo, ElConstMatrix_i A, ElValueIntPair_i* entry );
+( ElUpperOrLower uplo, ElConstMatrix_i A, ElEntry_i* entry );
 EL_EXPORT ElError ElSymmetricMaxAbs_s
-( ElUpperOrLower uplo, ElConstMatrix_s A, ElValueIntPair_s* entry );
+( ElUpperOrLower uplo, ElConstMatrix_s A, ElEntry_s* entry );
 EL_EXPORT ElError ElSymmetricMaxAbs_d
-( ElUpperOrLower uplo, ElConstMatrix_d A, ElValueIntPair_d* entry );
+( ElUpperOrLower uplo, ElConstMatrix_d A, ElEntry_d* entry );
 EL_EXPORT ElError ElSymmetricMaxAbs_c
-( ElUpperOrLower uplo, ElConstMatrix_c A, ElValueIntPair_s* entry );
+( ElUpperOrLower uplo, ElConstMatrix_c A, ElEntry_s* entry );
 EL_EXPORT ElError ElSymmetricMaxAbs_z
-( ElUpperOrLower uplo, ElConstMatrix_z A, ElValueIntPair_d* entry );
+( ElUpperOrLower uplo, ElConstMatrix_z A, ElEntry_d* entry );
 
 EL_EXPORT ElError ElSymmetricMaxAbsDist_i
-( ElUpperOrLower uplo, ElConstDistMatrix_i A, ElValueIntPair_i* entry );
+( ElUpperOrLower uplo, ElConstDistMatrix_i A, ElEntry_i* entry );
 EL_EXPORT ElError ElSymmetricMaxAbsDist_s
-( ElUpperOrLower uplo, ElConstDistMatrix_s A, ElValueIntPair_s* entry );
+( ElUpperOrLower uplo, ElConstDistMatrix_s A, ElEntry_s* entry );
 EL_EXPORT ElError ElSymmetricMaxAbsDist_d
-( ElUpperOrLower uplo, ElConstDistMatrix_d A, ElValueIntPair_d* entry );
+( ElUpperOrLower uplo, ElConstDistMatrix_d A, ElEntry_d* entry );
 EL_EXPORT ElError ElSymmetricMaxAbsDist_c
-( ElUpperOrLower uplo, ElConstDistMatrix_c A, ElValueIntPair_s* entry );
+( ElUpperOrLower uplo, ElConstDistMatrix_c A, ElEntry_s* entry );
 EL_EXPORT ElError ElSymmetricMaxAbsDist_z
-( ElUpperOrLower uplo, ElConstDistMatrix_z A, ElValueIntPair_d* entry );
+( ElUpperOrLower uplo, ElConstDistMatrix_z A, ElEntry_d* entry );
 
 EL_EXPORT ElError ElVectorMaxAbs_i( ElConstMatrix_i x, ElValueInt_i* entry );
 EL_EXPORT ElError ElVectorMaxAbs_s( ElConstMatrix_s x, ElValueInt_s* entry );
@@ -1269,27 +1269,27 @@ EL_EXPORT ElError ElVectorMaxAbsDist_z
 
 /* Min
    === */
-EL_EXPORT ElError ElMin_i( ElConstMatrix_i A, ElValueIntPair_i* entry );
-EL_EXPORT ElError ElMin_s( ElConstMatrix_s A, ElValueIntPair_s* entry );
-EL_EXPORT ElError ElMin_d( ElConstMatrix_d A, ElValueIntPair_d* entry );
+EL_EXPORT ElError ElMin_i( ElConstMatrix_i A, ElEntry_i* entry );
+EL_EXPORT ElError ElMin_s( ElConstMatrix_s A, ElEntry_s* entry );
+EL_EXPORT ElError ElMin_d( ElConstMatrix_d A, ElEntry_d* entry );
 
-EL_EXPORT ElError ElMinDist_i( ElConstDistMatrix_i A, ElValueIntPair_i* entry );
-EL_EXPORT ElError ElMinDist_s( ElConstDistMatrix_s A, ElValueIntPair_s* entry );
-EL_EXPORT ElError ElMinDist_d( ElConstDistMatrix_d A, ElValueIntPair_d* entry );
+EL_EXPORT ElError ElMinDist_i( ElConstDistMatrix_i A, ElEntry_i* entry );
+EL_EXPORT ElError ElMinDist_s( ElConstDistMatrix_s A, ElEntry_s* entry );
+EL_EXPORT ElError ElMinDist_d( ElConstDistMatrix_d A, ElEntry_d* entry );
 
 EL_EXPORT ElError ElSymmetricMin_i
-( ElUpperOrLower uplo, ElConstMatrix_i A, ElValueIntPair_i* entry );
+( ElUpperOrLower uplo, ElConstMatrix_i A, ElEntry_i* entry );
 EL_EXPORT ElError ElSymmetricMin_s
-( ElUpperOrLower uplo, ElConstMatrix_s A, ElValueIntPair_s* entry );
+( ElUpperOrLower uplo, ElConstMatrix_s A, ElEntry_s* entry );
 EL_EXPORT ElError ElSymmetricMin_d
-( ElUpperOrLower uplo, ElConstMatrix_d A, ElValueIntPair_d* entry );
+( ElUpperOrLower uplo, ElConstMatrix_d A, ElEntry_d* entry );
 
 EL_EXPORT ElError ElSymmetricMinDist_i
-( ElUpperOrLower uplo, ElConstDistMatrix_i A, ElValueIntPair_i* entry );
+( ElUpperOrLower uplo, ElConstDistMatrix_i A, ElEntry_i* entry );
 EL_EXPORT ElError ElSymmetricMinDist_s
-( ElUpperOrLower uplo, ElConstDistMatrix_s A, ElValueIntPair_s* entry );
+( ElUpperOrLower uplo, ElConstDistMatrix_s A, ElEntry_s* entry );
 EL_EXPORT ElError ElSymmetricMinDist_d
-( ElUpperOrLower uplo, ElConstDistMatrix_d A, ElValueIntPair_d* entry );
+( ElUpperOrLower uplo, ElConstDistMatrix_d A, ElEntry_d* entry );
 
 EL_EXPORT ElError ElVectorMin_i( ElConstMatrix_i x, ElValueInt_i* entry );
 EL_EXPORT ElError ElVectorMin_s( ElConstMatrix_s x, ElValueInt_s* entry );
@@ -1304,44 +1304,44 @@ EL_EXPORT ElError ElVectorMinDist_d
 
 /* MinAbs
    ====== */
-EL_EXPORT ElError ElMinAbs_i( ElConstMatrix_i A, ElValueIntPair_i* entry );
-EL_EXPORT ElError ElMinAbs_s( ElConstMatrix_s A, ElValueIntPair_s* entry );
-EL_EXPORT ElError ElMinAbs_d( ElConstMatrix_d A, ElValueIntPair_d* entry );
-EL_EXPORT ElError ElMinAbs_c( ElConstMatrix_c A, ElValueIntPair_s* entry );
-EL_EXPORT ElError ElMinAbs_z( ElConstMatrix_z A, ElValueIntPair_d* entry );
+EL_EXPORT ElError ElMinAbs_i( ElConstMatrix_i A, ElEntry_i* entry );
+EL_EXPORT ElError ElMinAbs_s( ElConstMatrix_s A, ElEntry_s* entry );
+EL_EXPORT ElError ElMinAbs_d( ElConstMatrix_d A, ElEntry_d* entry );
+EL_EXPORT ElError ElMinAbs_c( ElConstMatrix_c A, ElEntry_s* entry );
+EL_EXPORT ElError ElMinAbs_z( ElConstMatrix_z A, ElEntry_d* entry );
 
 EL_EXPORT ElError ElMinAbsDist_i
-( ElConstDistMatrix_i A, ElValueIntPair_i* entry );
+( ElConstDistMatrix_i A, ElEntry_i* entry );
 EL_EXPORT ElError ElMinAbsDist_s
-( ElConstDistMatrix_s A, ElValueIntPair_s* entry );
+( ElConstDistMatrix_s A, ElEntry_s* entry );
 EL_EXPORT ElError ElMinAbsDist_d
-( ElConstDistMatrix_d A, ElValueIntPair_d* entry );
+( ElConstDistMatrix_d A, ElEntry_d* entry );
 EL_EXPORT ElError ElMinAbsDist_c
-( ElConstDistMatrix_c A, ElValueIntPair_s* entry );
+( ElConstDistMatrix_c A, ElEntry_s* entry );
 EL_EXPORT ElError ElMinAbsDist_z
-( ElConstDistMatrix_z A, ElValueIntPair_d* entry );
+( ElConstDistMatrix_z A, ElEntry_d* entry );
 
 EL_EXPORT ElError ElSymmetricMinAbs_i
-( ElUpperOrLower uplo, ElConstMatrix_i A, ElValueIntPair_i* entry );
+( ElUpperOrLower uplo, ElConstMatrix_i A, ElEntry_i* entry );
 EL_EXPORT ElError ElSymmetricMinAbs_s
-( ElUpperOrLower uplo, ElConstMatrix_s A, ElValueIntPair_s* entry );
+( ElUpperOrLower uplo, ElConstMatrix_s A, ElEntry_s* entry );
 EL_EXPORT ElError ElSymmetricMinAbs_d
-( ElUpperOrLower uplo, ElConstMatrix_d A, ElValueIntPair_d* entry );
+( ElUpperOrLower uplo, ElConstMatrix_d A, ElEntry_d* entry );
 EL_EXPORT ElError ElSymmetricMinAbs_c
-( ElUpperOrLower uplo, ElConstMatrix_c A, ElValueIntPair_s* entry );
+( ElUpperOrLower uplo, ElConstMatrix_c A, ElEntry_s* entry );
 EL_EXPORT ElError ElSymmetricMinAbs_z
-( ElUpperOrLower uplo, ElConstMatrix_z A, ElValueIntPair_d* entry );
+( ElUpperOrLower uplo, ElConstMatrix_z A, ElEntry_d* entry );
 
 EL_EXPORT ElError ElSymmetricMinAbsDist_i
-( ElUpperOrLower uplo, ElConstDistMatrix_i A, ElValueIntPair_i* entry );
+( ElUpperOrLower uplo, ElConstDistMatrix_i A, ElEntry_i* entry );
 EL_EXPORT ElError ElSymmetricMinAbsDist_s
-( ElUpperOrLower uplo, ElConstDistMatrix_s A, ElValueIntPair_s* entry );
+( ElUpperOrLower uplo, ElConstDistMatrix_s A, ElEntry_s* entry );
 EL_EXPORT ElError ElSymmetricMinAbsDist_d
-( ElUpperOrLower uplo, ElConstDistMatrix_d A, ElValueIntPair_d* entry );
+( ElUpperOrLower uplo, ElConstDistMatrix_d A, ElEntry_d* entry );
 EL_EXPORT ElError ElSymmetricMinAbsDist_c
-( ElUpperOrLower uplo, ElConstDistMatrix_c A, ElValueIntPair_s* entry );
+( ElUpperOrLower uplo, ElConstDistMatrix_c A, ElEntry_s* entry );
 EL_EXPORT ElError ElSymmetricMinAbsDist_z
-( ElUpperOrLower uplo, ElConstDistMatrix_z A, ElValueIntPair_d* entry );
+( ElUpperOrLower uplo, ElConstDistMatrix_z A, ElEntry_d* entry );
 
 EL_EXPORT ElError ElVectorMinAbs_i( ElConstMatrix_i x, ElValueInt_i* entry );
 EL_EXPORT ElError ElVectorMinAbs_s( ElConstMatrix_s x, ElValueInt_s* entry );

@@ -408,16 +408,16 @@ void Equilibrated
             if( m >= n )
             {
                 // Sending A
-                sendBuf[offs[J.RowOwner(i)]++] = Entry<F>{value,i,j+m};
+                sendBuf[offs[J.RowOwner(i)]++] = Entry<F>{i,j+m,value};
                 // Sending A^H
-                sendBuf[offs[J.RowOwner(j+m)]++] = Entry<F>{Conj(value),j+m,i};
+                sendBuf[offs[J.RowOwner(j+m)]++] = Entry<F>{j+m,i,Conj(value)};
             }
             else
             {
                 // Sending A
-                sendBuf[offs[J.RowOwner(i+n)]++] = Entry<F>{value,i+n,j};
+                sendBuf[offs[J.RowOwner(i+n)]++] = Entry<F>{i+n,j,value};
                 // Sending A^H
-                sendBuf[offs[J.RowOwner(j)]++] = Entry<F>{Conj(value),j,i+n};
+                sendBuf[offs[J.RowOwner(j)]++] = Entry<F>{j,i+n,Conj(value)};
             }
         }
         // Exchange and unpack
@@ -433,7 +433,7 @@ void Equilibrated
                 break;
         }
         for( auto& entry : recvBuf )
-            J.QueueUpdate( entry.indices[0], entry.indices[1], entry.value );
+            J.QueueUpdate( entry );
         J.MakeConsistent();
     }
 
@@ -468,7 +468,7 @@ void Equilibrated
                 for( Int j=0; j<numRHS; ++j )
                 {
                     const F value = B.GetLocal(iLoc,j);
-                    sendBuf[offs[owner]++] = Entry<F>{value,i,j};
+                    sendBuf[offs[owner]++] = Entry<F>{i,j,value};
                 }
             }
             else
@@ -477,7 +477,7 @@ void Equilibrated
                 for( Int j=0; j<numRHS; ++j )
                 {
                     const F value = B.GetLocal(iLoc,j);
-                    sendBuf[offs[owner]++] = Entry<F>{value,i+n,j};
+                    sendBuf[offs[owner]++] = Entry<F>{i+n,j,value};
                 }
             }
         }
@@ -485,7 +485,7 @@ void Equilibrated
         // -------------------
         auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
         for( auto& entry : recvBuf )
-            D.Update( entry.indices[0], entry.indices[1], entry.value );
+            D.Update( entry );
     }
 
     // Compute the regularized quasi-semidefinite fact of J

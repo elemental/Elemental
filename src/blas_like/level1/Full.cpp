@@ -46,7 +46,7 @@ void Full( const DistSparseMatrix<T>& A, AbstractDistMatrix<T>& BPre )
     // -------------
     vector<int> sendOffs;
     const int totalSend = Scan( sendSizes, sendOffs );
-    vector<ValueIntPair<T>> sendBuf(totalSend);
+    vector<Entry<T>> sendBuf(totalSend);
     auto offs = sendOffs;
     for( Int e=0; e<numLocalEntries; ++e )
     {
@@ -54,17 +54,14 @@ void Full( const DistSparseMatrix<T>& A, AbstractDistMatrix<T>& BPre )
         const Int j = A.Col(e);
         const T value = A.Value(e);
         const int owner = B.Owner( i, j );
-        sendBuf[offs[owner]].indices[0] = i;
-        sendBuf[offs[owner]].indices[1] = j;
-        sendBuf[offs[owner]].value = value;
-        ++offs[owner];
+        sendBuf[offs[owner]++] = Entry<T>{ i, j, value };
     }
 
     // Exchange and unpack
     // -------------------
     auto recvBuf = mpi::AllToAll( sendBuf, sendSizes, sendOffs, comm );
     for( auto& entry : recvBuf )
-        B.Update( entry.indices[0], entry.indices[1], entry.value );
+        B.Update( entry );
 }
 
 template<typename T>

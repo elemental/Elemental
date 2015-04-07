@@ -88,29 +88,29 @@ typedef struct
 
 typedef struct
 {
+  ElInt i, j;
   ElInt value;
-  ElInt indices[2];
-} ElValueIntPair_i;
+} ElEntry_i;
 typedef struct
 {
+  ElInt i, j;
   float value;
-  ElInt indices[2];
-} ElValueIntPair_s;
+} ElEntry_s;
 typedef struct
 {
+  ElInt i, j;
   double value;
-  ElInt indices[2];
-} ElValueIntPair_d;
+} ElEntry_d;
 typedef struct
 {
+  ElInt i, j;
   complex_float value;
-  ElInt indices[2];
-} ElValueIntPair_c;
+} ElEntry_c;
 typedef struct
 {
+  ElInt i, j;
   complex_double value;
-  ElInt indices[2];
-} ElValueIntPair_z;
+} ElEntry_z;
 
 /* product = rho * exp(kappa*n)
    where rho lies in (usually on) the unit circle and kappa is real-valued. */

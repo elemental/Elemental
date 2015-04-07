@@ -201,7 +201,7 @@ void VCat
     const int totalSend = Scan( sendCounts, sendOffs );
     // Pack
     // ----
-    vector<ValueIntPair<T>> sendBuf(totalSend);
+    vector<Entry<T>> sendBuf(totalSend);
     auto offs = sendOffs;
     for( Int e=0; e<numEntriesA; ++e )
     {
@@ -209,10 +209,7 @@ void VCat
         const Int j = A.Col(e);
         const T value = A.Value(e);
         const int owner = C.RowOwner(i);
-        sendBuf[offs[owner]].value = value;
-        sendBuf[offs[owner]].indices[0] = i;
-        sendBuf[offs[owner]].indices[1] = j;
-        ++offs[owner];
+        sendBuf[offs[owner]++] = Entry<T>{ i, j, value };
     }
     for( Int e=0; e<numEntriesB; ++e )
     {
@@ -220,10 +217,7 @@ void VCat
         const Int j = B.Col(e);
         const T value = B.Value(e);
         const int owner = C.RowOwner(i);
-        sendBuf[offs[owner]].value = value;
-        sendBuf[offs[owner]].indices[0] = i;
-        sendBuf[offs[owner]].indices[1] = j;
-        ++offs[owner];
+        sendBuf[offs[owner]++] = Entry<T>{ i, j, value };
     }
 
     // Exchange and unpack
@@ -231,8 +225,7 @@ void VCat
     auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
     C.Reserve( recvBuf.size() );
     for( auto& entry : recvBuf )
-        C.QueueLocalUpdate
-        ( entry.indices[0]-C.FirstLocalRow(), entry.indices[1], entry.value );
+        C.QueueUpdate( entry );
     C.MakeConsistent();
 }
 
@@ -294,38 +287,27 @@ void VCat
     // Pack
     // ----
     auto offs = sendOffs;
-    vector<ValueIntPair<T>> sendBuf(totalSend);
+    vector<Entry<T>> sendBuf(totalSend);
     for( Int iLoc=0; iLoc<A.LocalHeight(); ++iLoc )
     {
         const Int i = A.GlobalRow(iLoc);
         const int owner = C.RowOwner(i);
         for( Int j=0; j<n; ++j )
-        {
-            sendBuf[offs[owner]].indices[0] = i;
-            sendBuf[offs[owner]].indices[1] = j;
-            sendBuf[offs[owner]].value = A.GetLocal(iLoc,j);
-            ++offs[owner];
-        }
+            sendBuf[offs[owner]++] = Entry<T>{ i, j, A.GetLocal(iLoc,j) };
     }
     for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
     {
         const Int i = B.GlobalRow(iLoc)+mA;
         const int owner = C.RowOwner(i);
         for( Int j=0; j<n; ++j )
-        {
-            sendBuf[offs[owner]].indices[0] = i;
-            sendBuf[offs[owner]].indices[1] = j;
-            sendBuf[offs[owner]].value = B.GetLocal(iLoc,j);
-            ++offs[owner];
-        }
+            sendBuf[offs[owner]++] = Entry<T>{ i, j, B.GetLocal(iLoc,j) };
     }
 
     // Exchange and unpack
     // -------------------
     auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
     for( auto& entry : recvBuf )
-        C.SetLocal
-        ( entry.indices[0]-C.FirstLocalRow(), entry.indices[1], entry.value );
+        C.Set( entry );
 }
 
 #define PROTO(T) \

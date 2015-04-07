@@ -37,11 +37,11 @@ ValueInt<Base<F>> VectorMinAbs( const Matrix<F>& x )
     {
         for( Int i=1; i<m; ++i )
         {
-            const Real abs = Abs(x.Get(i,0));
-            if( abs < pivot.value )
+            const Real absVal = Abs(x.Get(i,0));
+            if( absVal < pivot.value )
             {
                 pivot.index = i;
-                pivot.value = abs;
+                pivot.value = absVal;
             }
         }
     }
@@ -49,11 +49,11 @@ ValueInt<Base<F>> VectorMinAbs( const Matrix<F>& x )
     {
         for( Int j=1; j<n; ++j )
         {
-            const Real abs = Abs(x.Get(0,j));
-            if( abs < pivot.value )
+            const Real absVal = Abs(x.Get(0,j));
+            if( absVal < pivot.value )
             {
                 pivot.index = j;
-                pivot.value = abs;
+                pivot.value = absVal;
             }
         }
     }
@@ -93,11 +93,11 @@ ValueInt<Base<F>> VectorMinAbs( const AbstractDistMatrix<F>& x )
                 const Int mLocal = x.LocalHeight();
                 for( Int iLoc=0; iLoc<mLocal; ++iLoc )
                 {
-                    const Real abs = Abs(x.GetLocal(iLoc,0));
-                    if( abs < localPivot.value )
+                    const Real absVal = Abs(x.GetLocal(iLoc,0));
+                    if( absVal < localPivot.value )
                     {
                         localPivot.index = x.GlobalRow(iLoc);
-                        localPivot.value = abs;
+                        localPivot.value = absVal;
                     }
                 }
             }
@@ -109,11 +109,11 @@ ValueInt<Base<F>> VectorMinAbs( const AbstractDistMatrix<F>& x )
                 const Int nLocal = x.LocalWidth();
                 for( Int jLoc=0; jLoc<nLocal; ++jLoc )
                 {
-                    const Real abs = Abs(x.GetLocal(0,jLoc));
-                    if( abs < localPivot.value )
+                    const Real absVal = Abs(x.GetLocal(0,jLoc));
+                    if( absVal < localPivot.value )
                     {
                         localPivot.index = x.GlobalCol(jLoc);
-                        localPivot.value = abs;
+                        localPivot.value = absVal;
                     }
                 }
             }
@@ -121,41 +121,40 @@ ValueInt<Base<F>> VectorMinAbs( const AbstractDistMatrix<F>& x )
         pivot = mpi::AllReduce
                 ( localPivot, mpi::MinLocOp<Real>(), x.DistComm() );
     }
-    mpi::Broadcast( pivot.index, x.Root(), x.CrossComm() );
-    mpi::Broadcast( pivot.value, x.Root(), x.CrossComm() );
+    mpi::Broadcast( pivot, x.Root(), x.CrossComm() );
     return pivot;
 }
 
 template<typename F>
-ValueIntPair<Base<F>> MinAbs( const Matrix<F>& A )
+Entry<Base<F>> MinAbs( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MinAbs"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
 
-    ValueIntPair<Real> pivot;
+    Entry<Real> pivot;
     if( Min(m,n) == 0 )
     {
+        pivot.i = -1;
+        pivot.j = -1;
         pivot.value = 0;
-        pivot.indices[0] = -1;
-        pivot.indices[1] = -1;
         return pivot;
     }
 
+    pivot.i = 0;
+    pivot.j = 0;
     pivot.value = Abs(A.Get(0,0));
-    pivot.indices[0] = 0;
-    pivot.indices[1] = 0;
     for( Int j=0; j<n; ++j )
     {
         for( Int i=0; i<m; ++i )
         {
-            const Real abs = Abs(A.Get(i,j));
-            if( abs < pivot.value )
+            const Real absVal = Abs(A.Get(i,j));
+            if( absVal < pivot.value )
             {
-                pivot.value = abs;
-                pivot.indices[0] = i;
-                pivot.indices[1] = j;
+                pivot.i = i;
+                pivot.j = j;
+                pivot.value = absVal;
             }
         }
     }
@@ -163,27 +162,27 @@ ValueIntPair<Base<F>> MinAbs( const Matrix<F>& A )
 }
 
 template<typename F>
-ValueIntPair<Base<F>> MinAbs( const AbstractDistMatrix<F>& A )
+Entry<Base<F>> MinAbs( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("MinAbs");
-        if( !A.Grid().InGrid() )
-            LogicError("Viewing processes are not allowed");
+      CallStackEntry cse("MinAbs");
+      if( !A.Grid().InGrid() )
+          LogicError("Viewing processes are not allowed");
     )
     typedef Base<F> Real;
-    ValueIntPair<Real> pivot;
+    Entry<Real> pivot;
     if( Min(A.Height(),A.Width()) == 0 )
     {
+        pivot.i = -1;
+        pivot.j = -1;
         pivot.value = 0;
-        pivot.indices[0] = -1;
-        pivot.indices[1] = -1;
         return pivot;
     }
 
-    ValueIntPair<Real> localPivot;
+    Entry<Real> localPivot;
+    localPivot.i = 0;
+    localPivot.j = 0;
     localPivot.value = Abs(A.Get(0,0));
-    localPivot.indices[0] = 0;
-    localPivot.indices[1] = 0;
     if( A.Participating() )
     {
         // Store the index/value of the local pivot candidate
@@ -198,9 +197,9 @@ ValueIntPair<Base<F>> MinAbs( const AbstractDistMatrix<F>& A )
                 if( value < localPivot.value )
                 {
                     const Int i = A.GlobalRow(iLoc);
+                    localPivot.i = i;
+                    localPivot.j = j;
                     localPivot.value = value;
-                    localPivot.indices[0] = i;
-                    localPivot.indices[1] = j;
                 }
             }
         }
@@ -209,45 +208,44 @@ ValueIntPair<Base<F>> MinAbs( const AbstractDistMatrix<F>& A )
         pivot = mpi::AllReduce
                 ( localPivot, mpi::MinLocPairOp<Real>(), A.DistComm() );
     }
-    mpi::Broadcast( pivot.indices, 2, A.Root(), A.CrossComm() );
-    mpi::Broadcast( pivot.value, A.Root(), A.CrossComm() );
+    mpi::Broadcast( pivot, A.Root(), A.CrossComm() );
     return pivot;
 }
 
 template<typename F>
-ValueIntPair<Base<F>> SymmetricMinAbs( UpperOrLower uplo, const Matrix<F>& A )
+Entry<Base<F>> SymmetricMinAbs( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("SymmetricMinAbs");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CallStackEntry cse("SymmetricMinAbs");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     typedef Base<F> Real;
     const Int n = A.Width();
-    ValueIntPair<Real> pivot;
+    Entry<Real> pivot;
     if( n == 0 )
     {
+        pivot.i = -1;
+        pivot.j = -1;
         pivot.value = 0;
-        pivot.indices[0] = -1;
-        pivot.indices[1] = -1;
         return pivot;
     }
 
+    pivot.i = 0;
+    pivot.j = 0;
     pivot.value = Abs(A.Get(0,0));
-    pivot.indices[0] = 0;
-    pivot.indices[1] = 0;
     if( uplo == LOWER )
     {
         for( Int j=0; j<n; ++j )
         {
             for( Int i=j; i<n; ++i )
             {
-                const Real abs = Abs(A.Get(i,j));
-                if( abs < pivot.value )
+                const Real absVal = Abs(A.Get(i,j));
+                if( absVal < pivot.value )
                 {
-                    pivot.value = abs;
-                    pivot.indices[0] = i;
-                    pivot.indices[1] = j;
+                    pivot.i = i;
+                    pivot.j = j;
+                    pivot.value = absVal;
                 }
             }
         }
@@ -258,12 +256,12 @@ ValueIntPair<Base<F>> SymmetricMinAbs( UpperOrLower uplo, const Matrix<F>& A )
         { 
             for( Int i=0; i<=j; ++i )
             {
-                const Real abs = Abs(A.Get(i,j));
-                if( abs < pivot.value )
+                const Real absVal = Abs(A.Get(i,j));
+                if( absVal < pivot.value )
                 {
-                    pivot.value = abs;
-                    pivot.indices[0] = i;
-                    pivot.indices[1] = j;
+                    pivot.i = i;
+                    pivot.j = j;
+                    pivot.value = absVal;
                 }
             }
         }
@@ -272,33 +270,33 @@ ValueIntPair<Base<F>> SymmetricMinAbs( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-ValueIntPair<Base<F>>
+Entry<Base<F>>
 SymmetricMinAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("SymmetricMinAbs");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( !A.Grid().InGrid() )
-            LogicError("Viewing processes are not allowed");
+      CallStackEntry cse("SymmetricMinAbs");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( !A.Grid().InGrid() )
+          LogicError("Viewing processes are not allowed");
     )
     typedef Base<F> Real;
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
 
-    ValueIntPair<Real> pivot;
+    Entry<Real> pivot;
     if( A.Height() == 0 )
     {
+        pivot.i = -1;
+        pivot.j = -1;
         pivot.value = 0;
-        pivot.indices[0] = -1;
-        pivot.indices[1] = -1;
         return pivot;
     }
 
-    ValueIntPair<Real> localPivot;
+    Entry<Real> localPivot;
+    localPivot.i = 0;
+    localPivot.j = 0;
     localPivot.value = Abs(A.Get(0,0));
-    localPivot.indices[0] = 0;
-    localPivot.indices[1] = 0;
     if( A.Participating() )
     {
         if( uplo == LOWER )
@@ -309,13 +307,13 @@ SymmetricMinAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
                 const Int mLocBefore = A.LocalRowOffset(j);
                 for( Int iLoc=mLocBefore; iLoc<mLocal; ++iLoc )
                 {
-                    const Real abs = Abs(A.GetLocal(iLoc,jLoc));
-                    if( abs < localPivot.value )
+                    const Real absVal = Abs(A.GetLocal(iLoc,jLoc));
+                    if( absVal < localPivot.value )
                     {
                         const Int i = A.GlobalRow(iLoc);
-                        localPivot.value = abs;
-                        localPivot.indices[0] = i;
-                        localPivot.indices[1] = j;
+                        localPivot.i = i;
+                        localPivot.j = j;
+                        localPivot.value = absVal;
                     }
                 }
             }
@@ -328,13 +326,13 @@ SymmetricMinAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
                 const Int mLocBefore = A.LocalRowOffset(j+1);
                 for( Int iLoc=0; iLoc<mLocBefore; ++iLoc )
                 {
-                    const Real abs = Abs(A.GetLocal(iLoc,jLoc));
-                    if( abs < localPivot.value )
+                    const Real absVal = Abs(A.GetLocal(iLoc,jLoc));
+                    if( absVal < localPivot.value )
                     {
                         const Int i = A.GlobalRow(iLoc);
-                        localPivot.value = abs;
-                        localPivot.indices[0] = i;
-                        localPivot.indices[1] = j;
+                        localPivot.i = i;
+                        localPivot.j = j;
+                        localPivot.value = absVal;
                     }
                 }
             }
@@ -344,19 +342,18 @@ SymmetricMinAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
         pivot = mpi::AllReduce
                 ( localPivot, mpi::MinLocPairOp<Real>(), A.DistComm() );
     }
-    mpi::Broadcast( pivot.indices, 2, A.Root(), A.CrossComm() );
-    mpi::Broadcast( pivot.value, A.Root(), A.CrossComm() );
+    mpi::Broadcast( pivot, A.Root(), A.CrossComm() );
     return pivot;
 }
 
 #define PROTO(F) \
   template ValueInt<Base<F>> VectorMinAbs( const Matrix<F>& x ); \
   template ValueInt<Base<F>> VectorMinAbs( const AbstractDistMatrix<F>& x ); \
-  template ValueIntPair<Base<F>> MinAbs( const Matrix<F>& x ); \
-  template ValueIntPair<Base<F>> MinAbs( const AbstractDistMatrix<F>& x ); \
-  template ValueIntPair<Base<F>> SymmetricMinAbs \
+  template Entry<Base<F>> MinAbs( const Matrix<F>& x ); \
+  template Entry<Base<F>> MinAbs( const AbstractDistMatrix<F>& x ); \
+  template Entry<Base<F>> SymmetricMinAbs \
   ( UpperOrLower uplo, const Matrix<F>& A ); \
-  template ValueIntPair<Base<F>> SymmetricMinAbs \
+  template Entry<Base<F>> SymmetricMinAbs \
   ( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
 
 #define EL_ENABLE_QUAD

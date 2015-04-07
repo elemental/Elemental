@@ -253,10 +253,10 @@ void CP
             const Real value = A.Value(e);
 
             int owner = G.RowOwner(i);    
-            sendBuf[offs[owner]++] = Entry<Real>{ value, i, j };
+            sendBuf[offs[owner]++] = Entry<Real>{ i, j, value };
 
             owner = G.RowOwner(i+m);
-            sendBuf[offs[owner]++] = Entry<Real>{ -value, i+m, j };
+            sendBuf[offs[owner]++] = Entry<Real>{ i+m, j, -value };
         }
         // Exchange and unpack
         // -------------------
@@ -265,7 +265,7 @@ void CP
         for( Int iLoc=0; iLoc<G.LocalHeight(); ++iLoc )
             G.QueueLocalUpdate( iLoc, n, Real(-1) );
         for( auto& entry : recvBuf )
-            G.QueueUpdate( entry.indices[0], entry.indices[1], entry.value );
+            G.QueueUpdate( entry );
         G.MakeConsistent();
     }
 

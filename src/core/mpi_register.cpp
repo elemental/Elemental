@@ -22,10 +22,10 @@ El::mpi::Datatype IntIntType, floatIntType, doubleIntType,
 El::mpi::Datatype QuadIntType, QuadComplexIntType;
 #endif
 
-El::mpi::Datatype IntIntPairType, floatIntPairType, doubleIntPairType,
-                  floatComplexIntPairType, doubleComplexIntPairType;
+El::mpi::Datatype IntEntryType, floatEntryType, doubleEntryType,
+                  floatComplexEntryType, doubleComplexEntryType;
 #ifdef EL_HAVE_QUAD
-El::mpi::Datatype QuadIntPairType, QuadComplexIntPairType;
+El::mpi::Datatype QuadEntryType, QuadComplexEntryType;
 #endif
 
 // Operations
@@ -136,20 +136,15 @@ template<typename T>
 static void
 MaxLocPairFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
 {           
-    const ValueIntPair<T>* inData = static_cast<ValueIntPair<T>*>(inVoid);
-    ValueIntPair<T>* outData = static_cast<ValueIntPair<T>*>(outVoid);
-    for( int j=0; j<*length; ++j )
+    const Entry<T>* inData = static_cast<Entry<T>*>(inVoid);
+    Entry<T>* outData = static_cast<Entry<T>*>(outVoid);
+    for( int k=0; k<*length; ++k )
     {
-        const T inVal = inData[j].value;
-        const T outVal = outData[j].value;
-        const Int inInd0 = inData[j].indices[0];
-        const Int inInd1 = inData[j].indices[1];
-        const Int outInd0 = outData[j].indices[0];
-        const Int outInd1 = outData[j].indices[1];
-        const bool inIndLess = 
-            ( inInd0 < outInd0 || (inInd0 == outInd0 && inInd1 < outInd1) );
-        if( inVal > outVal || (inVal == outVal && inIndLess) )
-            outData[j] = inData[j];
+        const Entry<T>& in = inData[k];
+        Entry<T>& out = outData[k];
+        bool inIndLess = ( in.i < out.i || (in.i == out.i && in.j < out.j) );
+        if( in.value > out.value || (in.value == out.value && inIndLess) )
+            out = in;
     }
 }
 template void
@@ -194,20 +189,15 @@ template<typename T>
 static void
 MinLocPairFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
 {           
-    const ValueIntPair<T>* inData = static_cast<ValueIntPair<T>*>(inVoid);
-    ValueIntPair<T>* outData = static_cast<ValueIntPair<T>*>(outVoid);
-    for( int j=0; j<*length; ++j )
+    const Entry<T>* inData = static_cast<Entry<T>*>(inVoid);
+    Entry<T>* outData = static_cast<Entry<T>*>(outVoid);
+    for( int k=0; k<*length; ++k )
     {
-        const T inVal = inData[j].value;
-        const T outVal = outData[j].value;
-        const Int inInd0 = inData[j].indices[0];
-        const Int inInd1 = inData[j].indices[1];
-        const Int outInd0 = outData[j].indices[0];
-        const Int outInd1 = outData[j].indices[1];
-        const bool inIndLess = 
-            ( inInd0 < outInd0 || (inInd0 == outInd0 && inInd1 < outInd1) );
-        if( inVal < outVal || (inVal == outVal && inIndLess) )
-            outData[j] = inData[j];
+        const Entry<T>& in = inData[k];
+        Entry<T>& out = outData[k];
+        bool inIndLess = ( in.i < out.i || (in.i == out.i && in.j < out.j) );
+        if( in.value < out.value || (in.value == out.value && inIndLess) )
+            out = in;
     }
 }
 template void
@@ -241,27 +231,24 @@ template<>
 Datatype& ValueIntType<Complex<Quad>>()   { return ::QuadComplexIntType; }
 #endif
 
-template<typename R> static Datatype& ValueIntPairType();
+template<typename R> static Datatype& EntryType();
 template<>
-Datatype& ValueIntPairType<Int>()    { return ::IntIntPairType; }
+Datatype& EntryType<Int>()    { return ::IntEntryType; }
 template<>
-Datatype& ValueIntPairType<float>()  { return ::floatIntPairType; }
+Datatype& EntryType<float>()  { return ::floatEntryType; }
 template<>
-Datatype& ValueIntPairType<double>() { return ::doubleIntPairType; }
+Datatype& EntryType<double>() { return ::doubleEntryType; }
 #ifdef EL_HAVE_QUAD
 template<>
-Datatype& ValueIntPairType<Quad>()   { return ::QuadIntPairType; }
+Datatype& EntryType<Quad>()   { return ::QuadEntryType; }
 #endif
 template<>
-Datatype& ValueIntPairType<Complex<float>>()
-{ return ::floatComplexIntPairType; }
+Datatype& EntryType<Complex<float>>() { return ::floatComplexEntryType; }
 template<>
-Datatype& ValueIntPairType<Complex<double>>() 
-{ return ::doubleComplexIntPairType; }
+Datatype& EntryType<Complex<double>>() { return ::doubleComplexEntryType; }
 #ifdef EL_HAVE_QUAD
 template<>
-Datatype& ValueIntPairType<Complex<Quad>>() 
-{ return ::QuadComplexIntPairType; }
+Datatype& EntryType<Complex<Quad>>() { return ::QuadComplexEntryType; }
 #endif
 
 template<> Datatype TypeMap<byte>()          { return MPI_UNSIGNED_CHAR; }
@@ -320,23 +307,23 @@ template<> Datatype TypeMap<ValueInt<Complex<Quad>>>()
 { return ValueIntType<Complex<Quad>>(); }
 #endif
 
-template<> Datatype TypeMap<ValueIntPair<Int>>()
-{ return ValueIntPairType<Int>(); }
-template<> Datatype TypeMap<ValueIntPair<float>>()
-{ return ValueIntPairType<float>(); }
-template<> Datatype TypeMap<ValueIntPair<double>>()
-{ return ValueIntPairType<double>(); }
+template<> Datatype TypeMap<Entry<Int>>()
+{ return EntryType<Int>(); }
+template<> Datatype TypeMap<Entry<float>>()
+{ return EntryType<float>(); }
+template<> Datatype TypeMap<Entry<double>>()
+{ return EntryType<double>(); }
 #ifdef EL_HAVE_QUAD
-template<> Datatype TypeMap<ValueIntPair<Quad>>()
-{ return ValueIntPairType<Quad>(); }
+template<> Datatype TypeMap<Entry<Quad>>()
+{ return EntryType<Quad>(); }
 #endif
-template<> Datatype TypeMap<ValueIntPair<Complex<float>>>()
-{ return ValueIntPairType<Complex<float>>(); }
-template<> Datatype TypeMap<ValueIntPair<Complex<double>>>()
-{ return ValueIntPairType<Complex<double>>(); }
+template<> Datatype TypeMap<Entry<Complex<float>>>()
+{ return EntryType<Complex<float>>(); }
+template<> Datatype TypeMap<Entry<Complex<double>>>()
+{ return EntryType<Complex<double>>(); }
 #ifdef EL_HAVE_QUAD
-template<> Datatype TypeMap<ValueIntPair<Complex<Quad>>>()
-{ return ValueIntPairType<Complex<Quad>>(); }
+template<> Datatype TypeMap<Entry<Complex<Quad>>>()
+{ return EntryType<Complex<Quad>>(); }
 #endif
 
 template<typename T>
@@ -378,41 +365,45 @@ template void CreateValueIntType<Complex<Quad>>();
 #endif
 
 template<typename T>
-static void CreateValueIntPairType()
+static void CreateEntryType()
 {
-    DEBUG_ONLY(CallStackEntry cse("CreateValueIntPairType"))
-    Datatype typeList[2];
-    typeList[0] = TypeMap<T>();
+    DEBUG_ONLY(CallStackEntry cse("CreateEntryType"))
+    Datatype typeList[3];
+    typeList[0] = TypeMap<Int>();
     typeList[1] = TypeMap<Int>();
+    typeList[2] = TypeMap<T>();
     
-    int blockLengths[2];
+    int blockLengths[3];
     blockLengths[0] = 1;
-    blockLengths[1] = 2; 
+    blockLengths[1] = 1; 
+    blockLengths[2] = 1; 
 
-    ValueIntPair<T> v;
-    MPI_Aint startAddr, valueAddr, indexAddr;
-    MPI_Get_address( &v,        &startAddr );
-    MPI_Get_address( &v.value,  &valueAddr );
-    MPI_Get_address( v.indices, &indexAddr );
+    Entry<T> v;
+    MPI_Aint startAddr, iAddr, jAddr, valueAddr;
+    MPI_Get_address( &v,       &startAddr );
+    MPI_Get_address( &v.i,     &iAddr );
+    MPI_Get_address( &v.j,     &jAddr );
+    MPI_Get_address( &v.value, &valueAddr );
 
-    MPI_Aint displs[2];
-    displs[0] = valueAddr - startAddr;
-    displs[1] = indexAddr - startAddr;
+    MPI_Aint displs[3];
+    displs[0] = iAddr - startAddr;
+    displs[1] = jAddr - startAddr;
+    displs[2] = valueAddr - startAddr;
 
-    Datatype& type = ValueIntPairType<T>();
-    MPI_Type_create_struct( 2, blockLengths, displs, typeList, &type );
+    Datatype& type = EntryType<T>();
+    MPI_Type_create_struct( 3, blockLengths, displs, typeList, &type );
     MPI_Type_commit( &type );
 }
-template void CreateValueIntPairType<Int>();
-template void CreateValueIntPairType<float>();
-template void CreateValueIntPairType<double>();
+template void CreateEntryType<Int>();
+template void CreateEntryType<float>();
+template void CreateEntryType<double>();
 #ifdef EL_HAVE_QUAD
-template void CreateValueIntPairType<Quad>();
+template void CreateEntryType<Quad>();
 #endif
-template void CreateValueIntPairType<Complex<float>>();
-template void CreateValueIntPairType<Complex<double>>();
+template void CreateEntryType<Complex<float>>();
+template void CreateEntryType<Complex<double>>();
 #ifdef EL_HAVE_QUAD
-template void CreateValueIntPairType<Complex<Quad>>();
+template void CreateEntryType<Complex<Quad>>();
 #endif
 
 void CreateCustom()
@@ -445,16 +436,16 @@ void CreateCustom()
 #endif
     // A triplet of a value and a pair of integers
     // -------------------------------------------
-    mpi::CreateValueIntPairType<Int>();
-    mpi::CreateValueIntPairType<float>();
-    mpi::CreateValueIntPairType<double>();
+    mpi::CreateEntryType<Int>();
+    mpi::CreateEntryType<float>();
+    mpi::CreateEntryType<double>();
 #ifdef EL_HAVE_QUAD
-    mpi::CreateValueIntPairType<Quad>();
+    mpi::CreateEntryType<Quad>();
 #endif
-    mpi::CreateValueIntPairType<Complex<float>>();
-    mpi::CreateValueIntPairType<Complex<double>>();
+    mpi::CreateEntryType<Complex<float>>();
+    mpi::CreateEntryType<Complex<double>>();
 #ifdef EL_HAVE_QUAD
-    mpi::CreateValueIntPairType<Complex<Quad>>();
+    mpi::CreateEntryType<Complex<Quad>>();
 #endif
 
     // Create the necessary MPI operations
@@ -514,16 +505,16 @@ void DestroyCustom()
     Free( ValueIntType<Complex<Quad>>() );
 #endif
 
-    Free( ValueIntPairType<Int>() );
-    Free( ValueIntPairType<float>() );
-    Free( ValueIntPairType<double>() );
+    Free( EntryType<Int>() );
+    Free( EntryType<float>() );
+    Free( EntryType<double>() );
 #ifdef EL_HAVE_QUAD
-    Free( ValueIntPairType<Quad>() );
+    Free( EntryType<Quad>() );
 #endif
-    Free( ValueIntPairType<Complex<float>>() );
-    Free( ValueIntPairType<Complex<double>>() );
+    Free( EntryType<Complex<float>>() );
+    Free( EntryType<Complex<double>>() );
 #ifdef EL_HAVE_QUAD
-    Free( ValueIntPairType<Complex<Quad>>() );
+    Free( EntryType<Complex<Quad>>() );
 #endif
 
     // Destroy the created operations

@@ -189,6 +189,10 @@ void DistMultiVec<T>::Set( Int row, Int col, T value )
 }
 
 template<typename T>
+void DistMultiVec<T>::Set( const Entry<T>& entry )
+{ Set( entry.i, entry.j, entry.value ); }
+
+template<typename T>
 void DistMultiVec<T>::Update( Int row, Int col, T value )
 {
     DEBUG_ONLY(CallStackEntry cse("DistMultiVec::Update"))
@@ -196,6 +200,10 @@ void DistMultiVec<T>::Update( Int row, Int col, T value )
     if( row >= firstLocalRow && row < firstLocalRow+LocalHeight() )
         UpdateLocal( row-firstLocalRow, col, value );
 }
+
+template<typename T>
+void DistMultiVec<T>::Update( const Entry<T>& entry )
+{ Update( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 T DistMultiVec<T>::GetLocal( Int localRow, Int col ) const
@@ -212,11 +220,19 @@ void DistMultiVec<T>::SetLocal( Int localRow, Int col, T value )
 }
 
 template<typename T>
+void DistMultiVec<T>::SetLocal( const Entry<T>& localEntry )
+{ SetLocal( localEntry.i, localEntry.j, localEntry.value ); }
+
+template<typename T>
 void DistMultiVec<T>::UpdateLocal( Int localRow, Int col, T value )
 {
     DEBUG_ONLY(CallStackEntry cse("DistMultiVec::UpdateLocal"))
     multiVec_.Update(localRow,col,value);
 }
+
+template<typename T>
+void DistMultiVec<T>::UpdateLocal( const Entry<T>& localEntry )
+{ UpdateLocal( localEntry.i, localEntry.j, localEntry.value ); }
 
 #define PROTO(T) template class DistMultiVec<T>;
 

@@ -1570,39 +1570,39 @@ def TagToValueInt(tag):
   elif tag == zTag: return ValueInt_z()
   else: DataExcept()
 
-class ValueIntPair_i(ctypes.Structure):
-  _fields_ = [("value",iType),("indices",(iType*2))]
-class ValueIntPair_s(ctypes.Structure):
-  _fields_ = [("value",sType),("indices",(iType*2))]
-class ValueIntPair_d(ctypes.Structure):
-  _fields_ = [("value",dType),("indices",(iType*2))]
-class ValueIntPair_c(ctypes.Structure):
-  _fields_ = [("value",cType),("indices",(iType*2))]
-class ValueIntPair_z(ctypes.Structure):
-  _fields_ = [("value",zType),("indices",(iType*2))]
-def TagToValueIntPair(tag):
-  if   tag == iTag: return ValueIntPair_i()
-  elif tag == sTag: return ValueIntPair_s()
-  elif tag == dTag: return ValueIntPair_d()
-  elif tag == cTag: return ValueIntPair_c()
-  elif tag == zTag: return ValueIntPair_z()
+class Entry_i(ctypes.Structure):
+  _fields_ = [("i",iType),("j",iType),("value",iType)]
+class Entry_s(ctypes.Structure):
+  _fields_ = [("i",iType),("j",iType),("value",sType)]
+class Entry_d(ctypes.Structure):
+  _fields_ = [("i",iType),("j",iType),("value",dType)]
+class Entry_c(ctypes.Structure):
+  _fields_ = [("i",iType),("j",iType),("value",cType)]
+class Entry_z(ctypes.Structure):
+  _fields_ = [("i",iType),("j",iType),("value",zType)]
+def TagToEntry(tag):
+  if   tag == iTag: return Entry_i()
+  elif tag == sTag: return Entry_s()
+  elif tag == dTag: return Entry_d()
+  elif tag == cTag: return Entry_c()
+  elif tag == zTag: return Entry_z()
   else: DataExcept()
 
 lib.ElMax_i.argtypes = \
 lib.ElMaxDist_i.argtypes = \
-  [c_void_p,POINTER(ValueIntPair_i)]
+  [c_void_p,POINTER(Entry_i)]
 
 lib.ElMax_s.argtypes = \
 lib.ElMaxDist_s.argtypes = \
-  [c_void_p,POINTER(ValueIntPair_s)]
+  [c_void_p,POINTER(Entry_s)]
 
 lib.ElMax_d.argtypes = \
 lib.ElMaxDist_d.argtypes = \
-  [c_void_p,POINTER(ValueIntPair_d)]
+  [c_void_p,POINTER(Entry_d)]
 
 def Max(A):
-  pair = TagToValueIntPair(A.tag)
-  args = [A.obj,pointer(pair)]
+  entry = TagToEntry(A.tag)
+  args = [A.obj,pointer(entry)]
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElMax_i(*args) 
     elif A.tag == sTag: lib.ElMax_s(*args) 
@@ -1614,23 +1614,23 @@ def Max(A):
     elif A.tag == dTag: lib.ElMaxDist_d(*args) 
     else: DataExcept()
   else: TypeExcept()
-  return pair.value, pair.indices[0], pair.indices[1]
+  return entry
 
 lib.ElSymmetricMax_i.argtypes = \
 lib.ElSymmetricMaxDist_i.argtypes = \
-  [c_uint,c_void_p,POINTER(ValueIntPair_i)]
+  [c_uint,c_void_p,POINTER(Entry_i)]
 
 lib.ElSymmetricMax_s.argtypes = \
 lib.ElSymmetricMaxDist_s.argtypes = \
-  [c_uint,c_void_p,POINTER(ValueIntPair_s)]
+  [c_uint,c_void_p,POINTER(Entry_s)]
 
 lib.ElSymmetricMax_d.argtypes = \
 lib.ElSymmetricMaxDist_d.argtypes = \
-  [c_uint,c_void_p,POINTER(ValueIntPair_d)]
+  [c_uint,c_void_p,POINTER(Entry_d)]
 
 def SymmetricMax(uplo,A):
-  pair = TagToValueIntPair(A.tag)
-  args = [uplo,A.obj,pointer(pair)]
+  entry = TagToEntry(A.tag)
+  args = [uplo,A.obj,pointer(entry)]
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElSymmetricMax_i(*args) 
     elif A.tag == sTag: lib.ElSymmetricMax_s(*args) 
@@ -1642,7 +1642,7 @@ def SymmetricMax(uplo,A):
     elif A.tag == dTag: lib.ElSymmetricMaxDist_d(*args) 
     else: DataExcept()
   else: TypeExcept()
-  return pair.value, pair.indices[0], pair.indices[1]
+  return entry
 
 lib.ElVectorMax_i.argtypes = \
 lib.ElVectorMaxDist_i.argtypes = \
@@ -1670,29 +1670,29 @@ def VectorMax(A):
     elif A.tag == dTag: lib.ElVectorMaxDist_d(*args) 
     else: DataExcept()
   else: TypeExcept()
-  return pair.value, pair.index
+  return pair
 
 # MaxAbs
 # ------
 lib.ElMaxAbs_i.argtypes = \
 lib.ElMaxAbsDist_i.argtypes = \
-  [c_void_p,POINTER(ValueIntPair_i)]
+  [c_void_p,POINTER(Entry_i)]
 
 lib.ElMaxAbs_s.argtypes = \
 lib.ElMaxAbs_c.argtypes = \
 lib.ElMaxAbsDist_s.argtypes = \
 lib.ElMaxAbsDist_c.argtypes = \
-  [c_void_p,POINTER(ValueIntPair_s)]
+  [c_void_p,POINTER(Entry_s)]
 
 lib.ElMaxAbs_d.argtypes = \
 lib.ElMaxAbs_z.argtypes = \
 lib.ElMaxAbsDist_d.argtypes = \
 lib.ElMaxAbsDist_z.argtypes = \
-  [c_void_p,POINTER(ValueIntPair_d)]
+  [c_void_p,POINTER(Entry_d)]
 
 def MaxAbs(A):
-  pair = TagToValueIntPair(Base(A.tag))
-  args = [A.obj,pointer(pair)]
+  entry = TagToEntry(Base(A.tag))
+  args = [A.obj,pointer(entry)]
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElMaxAbs_i(*args) 
     elif A.tag == sTag: lib.ElMaxAbs_s(*args) 
@@ -1708,27 +1708,27 @@ def MaxAbs(A):
     elif A.tag == zTag: lib.ElMaxAbsDist_z(*args) 
     else: DataExcept()
   else: TypeExcept()
-  return pair.value, pair.indices[0], pair.indices[1]
+  return entry
 
 lib.ElSymmetricMaxAbs_i.argtypes = \
 lib.ElSymmetricMaxAbsDist_i.argtypes = \
-  [c_uint,c_void_p,POINTER(ValueIntPair_i)]
+  [c_uint,c_void_p,POINTER(Entry_i)]
 
 lib.ElSymmetricMaxAbs_s.argtypes = \
 lib.ElSymmetricMaxAbs_c.argtypes = \
 lib.ElSymmetricMaxAbsDist_s.argtypes = \
 lib.ElSymmetricMaxAbsDist_c.argtypes = \
-  [c_uint,c_void_p,POINTER(ValueIntPair_s)]
+  [c_uint,c_void_p,POINTER(Entry_s)]
 
 lib.ElSymmetricMaxAbs_d.argtypes = \
 lib.ElSymmetricMaxAbs_z.argtypes = \
 lib.ElSymmetricMaxAbsDist_d.argtypes = \
 lib.ElSymmetricMaxAbsDist_z.argtypes = \
-  [c_uint,c_void_p,POINTER(ValueIntPair_d)]
+  [c_uint,c_void_p,POINTER(Entry_d)]
 
 def SymmetricMaxAbs(uplo,A):
-  pair = TagToValueIntPair(Base(A.tag))
-  args = [uplo,A.obj,pointer(pair)]
+  entry = TagToEntry(Base(A.tag))
+  args = [uplo,A.obj,pointer(entry)]
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElSymmetricMaxAbs_i(*args) 
     elif A.tag == sTag: lib.ElSymmetricMaxAbs_s(*args) 
@@ -1744,7 +1744,7 @@ def SymmetricMaxAbs(uplo,A):
     elif A.tag == zTag: lib.ElSymmetricMaxAbsDist_z(*args) 
     else: DataExcept()
   else: TypeExcept()
-  return pair.value, pair.indices[0], pair.indices[1]
+  return entry
 
 lib.ElVectorMaxAbs_i.argtypes = \
 lib.ElVectorMaxAbsDist_i.argtypes = \
@@ -1784,25 +1784,25 @@ def VectorMaxAbs(A):
     elif A.tag == zTag: lib.ElVectorMaxAbsDist_z(*args) 
     else: DataExcept()
   else: TypeExcept()
-  return pair.value, pair.index
+  return pair
 
 # Min
 # ---
 lib.ElMin_i.argtypes = \
 lib.ElMinDist_i.argtypes = \
-  [c_void_p,POINTER(ValueIntPair_i)]
+  [c_void_p,POINTER(Entry_i)]
 
 lib.ElMin_s.argtypes = \
 lib.ElMinDist_s.argtypes = \
-  [c_void_p,POINTER(ValueIntPair_s)]
+  [c_void_p,POINTER(Entry_s)]
 
 lib.ElMin_d.argtypes = \
 lib.ElMinDist_d.argtypes = \
-  [c_void_p,POINTER(ValueIntPair_d)]
+  [c_void_p,POINTER(Entry_d)]
 
 def Min(A):
-  pair = TagToValueIntPair(A.tag)
-  args = [A.obj,pointer(pair)]
+  entry = TagToEntry(A.tag)
+  args = [A.obj,pointer(entry)]
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElMin_i(*args) 
     elif A.tag == sTag: lib.ElMin_s(*args) 
@@ -1814,23 +1814,23 @@ def Min(A):
     elif A.tag == dTag: lib.ElMinDist_d(*args) 
     else: DataExcept()
   else: TypeExcept()
-  return pair.value, pair.indices[0], pair.indices[1]
+  return entry
 
 lib.ElSymmetricMin_i.argtypes = \
 lib.ElSymmetricMinDist_i.argtypes = \
-  [c_uint,c_void_p,POINTER(ValueIntPair_i)]
+  [c_uint,c_void_p,POINTER(Entry_i)]
 
 lib.ElSymmetricMin_s.argtypes = \
 lib.ElSymmetricMinDist_s.argtypes = \
-  [c_uint,c_void_p,POINTER(ValueIntPair_s)]
+  [c_uint,c_void_p,POINTER(Entry_s)]
 
 lib.ElSymmetricMin_d.argtypes = \
 lib.ElSymmetricMinDist_d.argtypes = \
-  [c_uint,c_void_p,POINTER(ValueIntPair_d)]
+  [c_uint,c_void_p,POINTER(Entry_d)]
 
 def SymmetricMin(uplo,A):
-  pair = TagToValueIntPair(A.tag)
-  args = [uplo,A.obj,pointer(pair)]
+  entry = TagToEntry(A.tag)
+  args = [uplo,A.obj,pointer(entry)]
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElSymmetricMin_i(*args) 
     elif A.tag == sTag: lib.ElSymmetricMin_s(*args) 
@@ -1842,7 +1842,7 @@ def SymmetricMin(uplo,A):
     elif A.tag == dTag: lib.ElSymmetricMinDist_d(*args) 
     else: DataExcept()
   else: TypeExcept()
-  return pair.value, pair.indices[0], pair.indices[1]
+  return entry
 
 lib.ElVectorMin_i.argtypes = \
 lib.ElVectorMinDist_i.argtypes = \
@@ -1870,33 +1870,33 @@ def VectorMin(A):
     elif A.tag == dTag: lib.ElVectorMinDist_d(*args) 
     else: DataExcept()
   else: TypeExcept()
-  return pair.value, pair.index
+  return pair
 
 # MinAbs
 # ------
 lib.ElMinAbs_i.argtypes = \
 lib.ElMinAbsDist_i.argtypes = \
-  [c_void_p,POINTER(ValueIntPair_i)]
+  [c_void_p,POINTER(Entry_i)]
 
 lib.ElMinAbs_s.argtypes = \
 lib.ElMinAbsDist_s.argtypes = \
-  [c_void_p,POINTER(ValueIntPair_s)]
+  [c_void_p,POINTER(Entry_s)]
 
 lib.ElMinAbs_d.argtypes = \
 lib.ElMinAbsDist_d.argtypes = \
-  [c_void_p,POINTER(ValueIntPair_d)]
+  [c_void_p,POINTER(Entry_d)]
 
 lib.ElMinAbs_c.argtypes = \
 lib.ElMinAbsDist_c.argtypes = \
-  [c_void_p,POINTER(ValueIntPair_s)]
+  [c_void_p,POINTER(Entry_s)]
 
 lib.ElMinAbs_z.argtypes = \
 lib.ElMinAbsDist_z.argtypes = \
-  [c_void_p,POINTER(ValueIntPair_d)]
+  [c_void_p,POINTER(Entry_d)]
 
 def MinAbs(A):
-  pair = TagToValueIntPair(Base(A.tag))
-  args = [A.obj,pointer(pair)]
+  entry = TagToEntry(Base(A.tag))
+  args = [A.obj,pointer(entry)]
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElMinAbs_i(*args) 
     elif A.tag == sTag: lib.ElMinAbs_s(*args) 
@@ -1912,31 +1912,31 @@ def MinAbs(A):
     elif A.tag == zTag: lib.ElMinAbsDist_z(*args) 
     else: DataExcept()
   else: TypeExcept()
-  return pair.value, pair.indices[0], pair.indices[1]
+  return entry
 
 lib.ElSymmetricMinAbs_i.argtypes = \
 lib.ElSymmetricMinAbsDist_i.argtypes = \
-  [c_uint,c_void_p,POINTER(ValueIntPair_i)]
+  [c_uint,c_void_p,POINTER(Entry_i)]
 
 lib.ElSymmetricMinAbs_s.argtypes = \
 lib.ElSymmetricMinAbsDist_s.argtypes = \
-  [c_uint,c_void_p,POINTER(ValueIntPair_s)]
+  [c_uint,c_void_p,POINTER(Entry_s)]
 
 lib.ElSymmetricMinAbs_d.argtypes = \
 lib.ElSymmetricMinAbsDist_d.argtypes = \
-  [c_uint,c_void_p,POINTER(ValueIntPair_d)]
+  [c_uint,c_void_p,POINTER(Entry_d)]
 
 lib.ElSymmetricMinAbs_c.argtypes = \
 lib.ElSymmetricMinAbsDist_c.argtypes = \
-  [c_uint,c_void_p,POINTER(ValueIntPair_s)]
+  [c_uint,c_void_p,POINTER(Entry_s)]
 
 lib.ElSymmetricMinAbs_z.argtypes = \
 lib.ElSymmetricMinAbsDist_z.argtypes = \
-  [c_uint,c_void_p,POINTER(ValueIntPair_d)]
+  [c_uint,c_void_p,POINTER(Entry_d)]
 
 def SymmetricMinAbs(uplo,A):
-  pair = TagToValueIntPair(Base(A.tag))
-  args = [uplo,A.obj,pointer(pair)]
+  entry = TagToEntry(Base(A.tag))
+  args = [uplo,A.obj,pointer(entry)]
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElSymmetricMinAbs_i(*args) 
     elif A.tag == sTag: lib.ElSymmetricMinAbs_s(*args) 
@@ -1952,7 +1952,7 @@ def SymmetricMinAbs(uplo,A):
     elif A.tag == zTag: lib.ElSymmetricMinAbsDist_z(*args) 
     else: DataExcept()
   else: TypeExcept()
-  return pair.value, pair.indices[0], pair.indices[1]
+  return entry
 
 lib.ElVectorMinAbs_i.argtypes = \
 lib.ElVectorMinAbsDist_i.argtypes = \
@@ -1992,7 +1992,7 @@ def VectorMinAbs(A):
     elif A.tag == zTag: lib.ElVectorMinAbsDist_z(*args) 
     else: DataExcept()
   else: TypeExcept()
-  return pair.value, pair.index
+  return pair
 
 # Nrm2
 # ----

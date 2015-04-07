@@ -485,7 +485,7 @@ void DistSymmFront<F>::Unpack
             for( Int t=0; t<=s; ++t ) 
             {
                 F value = front.L.Get(s,t);
-                sendBuf[offs[q]++] = Entry<F>{ value, i, node.off+t };
+                sendBuf[offs[q]++] = Entry<F>{ i, node.off+t, value };
             }
         }
 
@@ -497,7 +497,7 @@ void DistSymmFront<F>::Unpack
             for( Int t=0; t<node.size; ++t )
             {
                 F value = front.L.Get(node.size+s,t);
-                sendBuf[offs[q]++] = Entry<F>{ value, i, node.off+t };
+                sendBuf[offs[q]++] = Entry<F>{ i, node.off+t, value };
             }
         }
       };
@@ -535,7 +535,7 @@ void DistSymmFront<F>::Unpack
                     if( t <= s )
                     {
                         F value = FTL.GetLocal(sLoc,tLoc);
-                        sendBuf[offs[q]++] = Entry<F>{ value, i, node.off+t };
+                        sendBuf[offs[q]++] = Entry<F>{ i, node.off+t, value };
                     }
                 }
             }
@@ -549,7 +549,7 @@ void DistSymmFront<F>::Unpack
                 {
                     Int t = FBL.GlobalCol(tLoc);
                     F value = FBL.GetLocal(sLoc,tLoc);
-                    sendBuf[offs[q]++] = Entry<F>{ value, i, node.off+t };
+                    sendBuf[offs[q]++] = Entry<F>{ i, node.off+t, value };
                 }
             }
         }
@@ -574,7 +574,7 @@ void DistSymmFront<F>::Unpack
                     if( t <= s )
                     {
                         F value = FTL.GetLocal(sLoc,tLoc);
-                        sendBuf[offs[q]++] = Entry<F>{ value, i, node.off+t };
+                        sendBuf[offs[q]++] = Entry<F>{ i, node.off+t, value };
                     }
                 }
             }
@@ -588,7 +588,7 @@ void DistSymmFront<F>::Unpack
                 {
                     Int t = FBL.GlobalCol(tLoc);
                     F value = FBL.GetLocal(sLoc,tLoc);
-                    sendBuf[offs[q]++] = Entry<F>{ value, i, node.off+t };
+                    sendBuf[offs[q]++] = Entry<F>{ i, node.off+t, value };
                 }
             }
         }
@@ -600,7 +600,7 @@ void DistSymmFront<F>::Unpack
     auto recvBuf = mpi::AllToAll( sendBuf, sendSizes, sendOffs, comm );
     A.Reserve( recvBuf.size() );
     for( auto& entry : recvBuf )
-        A.QueueUpdate( entry.indices[0], entry.indices[1], entry.value );
+        A.QueueUpdate( entry );
     A.MakeConsistent();
 }
 

@@ -515,19 +515,19 @@ void Var2
             const Real value = A.Value(e);
             // Sending A
             int owner = AHat.RowOwner(i);
-            sendBuf[offs[owner]++] = Entry<Real>{ value, i, j };
+            sendBuf[offs[owner]++] = Entry<Real>{ i, j, value };
             // Sending -A
-            sendBuf[offs[owner]++] = Entry<Real>{ -value, i, j+n }; 
+            sendBuf[offs[owner]++] = Entry<Real>{ i, j+n, -value }; 
             // Sending A^T
             owner = AHat.RowOwner(j+m);
-            sendBuf[offs[owner]++] = Entry<Real>{ value, j+m, i+2*n }; 
+            sendBuf[offs[owner]++] = Entry<Real>{ j+m, i+2*n, value }; 
         }
         // Exchange and unpack
         // -------------------
         auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
         AHat.Reserve( recvBuf.size() + AHat.LocalHeight() );
         for( auto& entry : recvBuf )
-            AHat.QueueUpdate( entry.indices[0], entry.indices[1], entry.value );
+            AHat.QueueUpdate( entry );
         for( Int iLoc=0; iLoc<AHat.LocalHeight(); ++iLoc )
         {
             const Int i = AHat.GlobalRow(iLoc);

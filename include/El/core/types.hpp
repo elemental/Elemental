@@ -77,43 +77,38 @@ struct ValueInt<Complex<Real>>
 };
 
 template<typename Real>
-struct ValueIntPair
+struct Entry
 {
+    Int i, j;
     Real value;
-    Int indices[2];
 
-    static bool Lesser( const ValueInt<Real>& a, const ValueInt<Real>& b )
+    static bool Lesser( const Entry<Real>& a, const Entry<Real>& b )
     { return a.value < b.value; }
-    static bool Greater( const ValueInt<Real>& a, const ValueInt<Real>& b )
+    static bool Greater( const Entry<Real>& a, const Entry<Real>& b )
     { return a.value > b.value; }
 };
 
 template<typename Real>
-struct ValueIntPair<Complex<Real>>
+struct Entry<Complex<Real>>
 {
+    Int i, j;
     Complex<Real> value;
-    Int indices[2];
     
     static bool Lesser
-    ( const ValueIntPair<Complex<Real>>& a, 
-      const ValueIntPair<Complex<Real>>& b )
+    ( const Entry<Complex<Real>>& a, const Entry<Complex<Real>>& b )
     { 
         return RealPart(a.value) < RealPart(b.value) ||
                (RealPart(a.value) == RealPart(b.value) && 
                 ImagPart(a.value) < ImagPart(b.value));
     }
     static bool Greater
-    ( const ValueIntPair<Complex<Real>>& a, 
-      const ValueIntPair<Complex<Real>>& b )
+    ( const Entry<Complex<Real>>& a, const Entry<Complex<Real>>& b )
     {
         return RealPart(a.value) > RealPart(b.value) ||
                (RealPart(a.value) == RealPart(b.value) && 
                 ImagPart(a.value) > ImagPart(b.value));
     }
 };
-
-template<typename F>
-using Entry = ValueIntPair<F>;
 
 // For the safe computation of products. The result is given by 
 //   product = rho * exp(kappa*n)

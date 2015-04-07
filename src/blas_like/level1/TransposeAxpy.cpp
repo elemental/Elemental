@@ -146,17 +146,16 @@ void TransposeAxpy
     // =================
     vector<int> sendOffs;
     const int totalSend = Scan( sendCounts, sendOffs );
-    vector<ValueIntPair<T>> sendBuf(totalSend);
+    vector<Entry<T>> sendBuf(totalSend);
     auto offs = sendOffs;
     for( Int k=0; k<A.NumLocalEntries(); ++k )
     {
         const Int j = A.Col(k);
         const int owner = B.RowOwner(j);
-        const Int s = offs[owner];
-        sendBuf[s].indices[0] = j;
-        sendBuf[s].indices[1] = A.Row(k);
+        const Int s = offs[owner]++;
+        sendBuf[s].i = j;
+        sendBuf[s].j = A.Row(k);
         sendBuf[s].value = ( conjugate ? Conj(A.Value(k)) : A.Value(k) );
-        ++offs[owner];
     }
 
     // Exchange and unpack the triplets
@@ -164,8 +163,7 @@ void TransposeAxpy
     auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
     B.Reserve( B.NumLocalEntries()+recvBuf.size() );
     for( auto& entry : recvBuf )
-        B.QueueLocalUpdate
-        ( entry.indices[0]-B.FirstLocalRow(), entry.indices[1], entry.value );
+        B.QueueUpdate( entry );
     B.MakeConsistent();
 }
 

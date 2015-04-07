@@ -162,24 +162,24 @@ ValueInt<Real> VectorMin( const DistMultiVec<Real>& x )
 }
 
 template<typename Real>
-ValueIntPair<Real> Min( const Matrix<Real>& A )
+Entry<Real> Min( const Matrix<Real>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Min"))
     const Int m = A.Height();
     const Int n = A.Width();
 
-    ValueIntPair<Real> pivot;
+    Entry<Real> pivot;
     if( Min(m,n) == 0 )
     {
+        pivot.i = -1;
+        pivot.j = -1;
         pivot.value = 0;
-        pivot.indices[0] = -1;
-        pivot.indices[1] = -1;
         return pivot;
     }
 
+    pivot.i = 0;
+    pivot.j = 0;
     pivot.value = A.Get(0,0);
-    pivot.indices[0] = 0;
-    pivot.indices[1] = 0;
     for( Int j=0; j<n; ++j )
     {
         for( Int i=0; i<m; ++i )
@@ -187,9 +187,9 @@ ValueIntPair<Real> Min( const Matrix<Real>& A )
             const Real value = A.Get(i,j);
             if( value < pivot.value )
             {
+                pivot.i = i;
+                pivot.j = j;
                 pivot.value = value;
-                pivot.indices[0] = i;
-                pivot.indices[1] = j;
             }
         }
     }
@@ -197,26 +197,26 @@ ValueIntPair<Real> Min( const Matrix<Real>& A )
 }
 
 template<typename Real>
-ValueIntPair<Real> Min( const AbstractDistMatrix<Real>& A )
+Entry<Real> Min( const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Min");
         if( !A.Grid().InGrid() )
             LogicError("Viewing processes are not allowed");
     )
-    ValueIntPair<Real> pivot;
+    Entry<Real> pivot;
     if( Min(A.Height(),A.Width()) == 0 )
     {
+        pivot.i = -1;
+        pivot.j = -1;
         pivot.value = 0;
-        pivot.indices[0] = -1;
-        pivot.indices[1] = -1;
         return pivot;
     }
 
-    ValueIntPair<Real> localPivot;
+    Entry<Real> localPivot;
+    localPivot.i = 0;
+    localPivot.j = 0;
     localPivot.value = A.Get(0,0);
-    localPivot.indices[0] = 0;
-    localPivot.indices[1] = 0;
     if( A.Participating() )
     {
         // Store the index/value of the local pivot candidate
@@ -231,9 +231,9 @@ ValueIntPair<Real> Min( const AbstractDistMatrix<Real>& A )
                 if( value < localPivot.value )
                 {
                     const Int i = A.GlobalRow(iLoc);
+                    localPivot.i = i;
+                    localPivot.j = j;
                     localPivot.value = value;
-                    localPivot.indices[0] = i;
-                    localPivot.indices[1] = j;
                 }
             }
         }
@@ -242,32 +242,31 @@ ValueIntPair<Real> Min( const AbstractDistMatrix<Real>& A )
         pivot = mpi::AllReduce
                 ( localPivot, mpi::MinLocPairOp<Real>(), A.DistComm() );
     }
-    mpi::Broadcast( pivot.indices, 2, A.Root(), A.CrossComm() );
-    mpi::Broadcast( pivot.value, A.Root(), A.CrossComm() );
+    mpi::Broadcast( pivot, A.Root(), A.CrossComm() );
     return pivot;
 }
 
 template<typename Real>
-ValueIntPair<Real> SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
+Entry<Real> SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("SymmetricMin");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CallStackEntry cse("SymmetricMin");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     const Int n = A.Width();
-    ValueIntPair<Real> pivot;
+    Entry<Real> pivot;
     if( n == 0 )
     {
+        pivot.i = -1;
+        pivot.j = -1;
         pivot.value = 0;
-        pivot.indices[0] = -1;
-        pivot.indices[1] = -1;
         return pivot;
     }
 
+    pivot.i = 0;
+    pivot.j = 0;
     pivot.value = A.Get(0,0);
-    pivot.indices[0] = 0;
-    pivot.indices[1] = 0;
     if( uplo == LOWER )
     {
         for( Int j=0; j<n; ++j )
@@ -277,9 +276,9 @@ ValueIntPair<Real> SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
                 const Real value = A.Get(i,j);
                 if( value < pivot.value )
                 {
+                    pivot.i = i;
+                    pivot.j = j;
                     pivot.value = value;
-                    pivot.indices[0] = i;
-                    pivot.indices[1] = j;
                 }
             }
         }
@@ -293,9 +292,9 @@ ValueIntPair<Real> SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
                 const Real value = A.Get(i,j);
                 if( value < pivot.value )
                 {
+                    pivot.i = i;
+                    pivot.j = j;
                     pivot.value = value;
-                    pivot.indices[0] = i;
-                    pivot.indices[1] = j;
                 }
             }
         }
@@ -304,32 +303,32 @@ ValueIntPair<Real> SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
 }
 
 template<typename Real>
-ValueIntPair<Real>
+Entry<Real>
 SymmetricMin( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("SymmetricMin");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( !A.Grid().InGrid() )
-            LogicError("Viewing processes are not allowed");
+      CallStackEntry cse("SymmetricMin");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( !A.Grid().InGrid() )
+          LogicError("Viewing processes are not allowed");
     )
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
 
-    ValueIntPair<Real> pivot;
+    Entry<Real> pivot;
     if( A.Height() == 0 )
     {
+        pivot.i = -1;
+        pivot.j = -1;
         pivot.value = 0;
-        pivot.indices[0] = -1;
-        pivot.indices[1] = -1;
         return pivot;
     }
 
-    ValueIntPair<Real> localPivot;
+    Entry<Real> localPivot;
+    localPivot.i = 0;
+    localPivot.j = 0;
     localPivot.value = A.Get(0,0);
-    localPivot.indices[0] = 0;
-    localPivot.indices[1] = 0;
     if( A.Participating() )
     {
         if( uplo == LOWER )
@@ -344,9 +343,9 @@ SymmetricMin( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
                     if( value < localPivot.value )
                     {
                         const Int i = A.GlobalRow(iLoc);
+                        localPivot.i = i;
+                        localPivot.j = j;
                         localPivot.value = value;
-                        localPivot.indices[0] = i;
-                        localPivot.indices[1] = j;
                     }
                 }
             }
@@ -363,9 +362,9 @@ SymmetricMin( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
                     if( value < localPivot.value )
                     {
                         const Int i = A.GlobalRow(iLoc);
+                        localPivot.i = i;
+                        localPivot.j = j;
                         localPivot.value = value;
-                        localPivot.indices[0] = i;
-                        localPivot.indices[1] = j;
                     }
                 }
             }
@@ -375,8 +374,7 @@ SymmetricMin( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
         pivot = mpi::AllReduce
                 ( localPivot, mpi::MinLocPairOp<Real>(), A.DistComm() );
     }
-    mpi::Broadcast( pivot.indices, 2, A.Root(), A.CrossComm() );
-    mpi::Broadcast( pivot.value, A.Root(), A.CrossComm() );
+    mpi::Broadcast( pivot, A.Root(), A.CrossComm() );
     return pivot;
 }
 
@@ -384,11 +382,11 @@ SymmetricMin( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
   template ValueInt<Real> VectorMin( const Matrix<Real>& x ); \
   template ValueInt<Real> VectorMin( const AbstractDistMatrix<Real>& x ); \
   template ValueInt<Real> VectorMin( const DistMultiVec<Real>& x ); \
-  template ValueIntPair<Real> Min( const Matrix<Real>& x ); \
-  template ValueIntPair<Real> Min( const AbstractDistMatrix<Real>& x ); \
-  template ValueIntPair<Real> SymmetricMin \
+  template Entry<Real> Min( const Matrix<Real>& x ); \
+  template Entry<Real> Min( const AbstractDistMatrix<Real>& x ); \
+  template Entry<Real> SymmetricMin \
   ( UpperOrLower uplo, const Matrix<Real>& A ); \
-  template ValueIntPair<Real> SymmetricMin \
+  template Entry<Real> SymmetricMin \
   ( UpperOrLower uplo, const AbstractDistMatrix<Real>& A );
 
 #define EL_NO_COMPLEX_PROTO

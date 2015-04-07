@@ -41,8 +41,8 @@ Full( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q )
         // Find the index and value of the pivot candidate
         auto ABR = A( indB, indR );
         auto pivot = MaxAbs( ABR );
-        const Int iPiv = pivot.indices[0] + k;
-        const Int jPiv = pivot.indices[1] + k;
+        const Int iPiv = pivot.i + k;
+        const Int jPiv = pivot.j + k;
 
         RowSwap( A, k, iPiv );
         RowSwap( p, k, iPiv );
@@ -101,8 +101,8 @@ Full
         // Find the index and value of the pivot candidate
         auto ABR = A( indB, indR );
         auto pivot = MaxAbs( ABR );
-        const Int iPiv = pivot.indices[0] + k;
-        const Int jPiv = pivot.indices[1] + k;
+        const Int iPiv = pivot.i + k;
+        const Int jPiv = pivot.j + k;
 
         RowSwap( A, iPiv, k );
         RowSwap( p, iPiv, k );

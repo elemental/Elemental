@@ -282,13 +282,13 @@ void Tikhonov
             const Int i = B.GlobalRow(iLoc);
             const int owner = BEmb.RowOwner(i);
             for( Int j=0; j<numRHS; ++j )
-                sendBuf[offs[owner]++] = Entry<F>{ B.GetLocal(iLoc,j), i, j };
+                sendBuf[offs[owner]++] = Entry<F>{ i, j, B.GetLocal(iLoc,j) };
         }
         // Exchange and unpack
         // ^^^^^^^^^^^^^^^^^^^
         auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
         for( auto& entry : recvBuf )
-            BEmb.Update( entry.indices[0], entry.indices[1], entry.value );
+            BEmb.Update( entry );
     }
 
     // Solve the higher-dimensional problem

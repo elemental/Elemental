@@ -170,10 +170,8 @@ void BP
     AHat.Reserve( 2*numLocalEntriesA );
     for( Int e=0; e<numLocalEntriesA; ++e )
     {
-        AHat.QueueLocalUpdate
-        ( A.Row(e)-A.FirstLocalRow(), A.Col(e),    A.Value(e) );
-        AHat.QueueLocalUpdate
-        ( A.Row(e)-A.FirstLocalRow(), A.Col(e)+n, -A.Value(e) );
+        AHat.QueueUpdate( A.Row(e), A.Col(e),    A.Value(e) );
+        AHat.QueueUpdate( A.Row(e), A.Col(e)+n, -A.Value(e) );
     }
     AHat.MakeConsistent();
 

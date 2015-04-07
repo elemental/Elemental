@@ -115,12 +115,20 @@ void DistSparseMatrix<T>::Update( Int row, Int col, T value )
 }
 
 template<typename T>
+void DistSparseMatrix<T>::Update( const Entry<T>& entry )
+{ Update( entry.i, entry.j, entry.value ); }
+
+template<typename T>
 void DistSparseMatrix<T>::UpdateLocal( Int localRow, Int col, T value )
 {
     DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::UpdateLocal"))
     QueueLocalUpdate( localRow, col, value );
     MakeConsistent();
 }
+
+template<typename T>
+void DistSparseMatrix<T>::UpdateLocal( const Entry<T>& localEntry )
+{ UpdateLocal( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
 void DistSparseMatrix<T>::Zero( Int row, Int col )
@@ -147,6 +155,10 @@ void DistSparseMatrix<T>::QueueUpdate( Int row, Int col, T value )
 }
 
 template<typename T>
+void DistSparseMatrix<T>::QueueUpdate( const Entry<T>& entry )
+{ QueueUpdate( entry.i, entry.j, entry.value ); }
+
+template<typename T>
 void DistSparseMatrix<T>::QueueLocalUpdate( Int localRow, Int col, T value )
 {
     DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::QueueLocalUpdate"))
@@ -154,6 +166,10 @@ void DistSparseMatrix<T>::QueueLocalUpdate( Int localRow, Int col, T value )
     vals_.push_back( value );
     multMeta.ready = false;
 }
+
+template<typename T>
+void DistSparseMatrix<T>::QueueLocalUpdate( const Entry<T>& localEntry )
+{ QueueLocalUpdate( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
 void DistSparseMatrix<T>::QueueZero( Int row, Int col )
@@ -193,8 +209,8 @@ void DistSparseMatrix<T>::MakeConsistent()
             if( distGraph_.markedForRemoval_.find(candidate) ==
                 distGraph_.markedForRemoval_.end() )
             {
-                entries[s-numRemoved].indices[0] = distGraph_.sources_[s];
-                entries[s-numRemoved].indices[1] = distGraph_.targets_[s];
+                entries[s-numRemoved].i = distGraph_.sources_[s];
+                entries[s-numRemoved].j = distGraph_.targets_[s];
                 entries[s-numRemoved].value = vals_[s];
             }
             else
@@ -210,16 +226,11 @@ void DistSparseMatrix<T>::MakeConsistent()
         Int lastUnique=0;
         for( Int s=1; s<numLocalEntries; ++s )
         {
-            if( entries[s].indices[0] != entries[lastUnique].indices[0] ||
-                entries[s].indices[1] != entries[lastUnique].indices[1] )
+            if( entries[s].i != entries[lastUnique].i ||
+                entries[s].j != entries[lastUnique].j )
             {
                 ++lastUnique;
-                if( s != lastUnique )
-                {
-                    entries[lastUnique].indices[0] = entries[s].indices[0];
-                    entries[lastUnique].indices[1] = entries[s].indices[1];
-                    entries[lastUnique].value = entries[s].value;
-                }
+                entries[lastUnique] = entries[s];
             }
             else
                 entries[lastUnique].value += entries[s].value;
@@ -232,8 +243,8 @@ void DistSparseMatrix<T>::MakeConsistent()
         vals_.resize( numUnique );
         for( Int s=0; s<numUnique; ++s )
         {
-            distGraph_.sources_[s] = entries[s].indices[0];
-            distGraph_.targets_[s] = entries[s].indices[1];
+            distGraph_.sources_[s] = entries[s].i;
+            distGraph_.targets_[s] = entries[s].j;
             vals_[s] = entries[s].value;
         }
 
@@ -370,8 +381,7 @@ const T* DistSparseMatrix<T>::LockedValueBuffer() const
 
 template<typename T>
 bool DistSparseMatrix<T>::CompareEntries( const Entry<T>& a, const Entry<T>& b )
-{ return a.indices[0] < b.indices[0] || 
-         (a.indices[0] == b.indices[0] && a.indices[1] < b.indices[1]); }
+{ return a.i < b.i || (a.i == b.i && a.j < b.j); }
 
 template<typename T>
 void DistSparseMatrix<T>::AssertConsistent() const

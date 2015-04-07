@@ -264,7 +264,7 @@ void KKT
         const Int i = Q.Row(e);
         const Int j = Q.Col(e);
         if( i >= j || !onlyLower ) 
-            sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ Q.Value(e), i, j };
+            sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, Q.Value(e) };
     }
     // Pack A
     // ------
@@ -272,7 +272,7 @@ void KKT
     {
         const Int i = A.Row(e) + n;
         const Int j = A.Col(e);
-        sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ A.Value(e), i, j };
+        sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, A.Value(e) };
     }
     // Pack A^T
     // --------
@@ -283,7 +283,7 @@ void KKT
             const Int i = ATrans.Row(e);
             const Int j = ATrans.Col(e) + n;
             const Real value = ATrans.Value(e);
-            sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ value, i, j };
+            sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, value };
         }
     }
     // Pack -z <> x
@@ -293,7 +293,7 @@ void KKT
         const Int i = m+n + x.GlobalRow(iLoc);
         const Int j = i;
         const Real value = -x.GetLocal(iLoc,0)/z.GetLocal(iLoc,0);
-        sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ value, i, j };
+        sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, value };
     }
 
     // Exchange and unpack the triplets
@@ -322,7 +322,7 @@ void KKT
     // Append the received local updates
     // ---------------------------------
     for( auto& entry : recvBuf )
-        J.QueueUpdate( entry.indices[0], entry.indices[1], entry.value );
+        J.QueueUpdate( entry );
     J.MakeConsistent();
 }
 

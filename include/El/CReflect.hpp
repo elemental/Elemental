@@ -266,29 +266,30 @@ inline ValueInt<Complex<double>>* CReflect( ElValueInt_z* entryC )
 inline ElValueInt_z* CReflect( ValueInt<Complex<double>>* entryC )
 { return EL_RC(ElValueInt_z*,entryC); }
 
-inline ValueIntPair<Int> CReflect( ElValueIntPair_i entryC )
-{ return {entryC.value,{entryC.indices[0],entryC.indices[1]}}; }
-inline ElValueIntPair_i CReflect( ValueIntPair<Int> entry )
-{ return {entry.value,{entry.indices[0],entry.indices[1]}}; }
+inline Entry<Int> CReflect( ElEntry_i entryC )
+{ return { entryC.i, entryC.j, entryC.value }; }
+inline ElEntry_i CReflect( Entry<Int> entry )
+{ return { entry.i, entry.j, entry.value }; }
 
-inline ValueIntPair<float> CReflect( ElValueIntPair_s entryC )
-{ return {entryC.value,{entryC.indices[0],entryC.indices[1]}}; }
-inline ElValueIntPair_s CReflect( ValueIntPair<float> entry )
-{ return {entry.value,{entry.indices[0],entry.indices[1]}}; }
+inline Entry<float> CReflect( ElEntry_s entryC )
+{ return { entryC.i, entryC.j, entryC.value }; }
+inline ElEntry_s CReflect( Entry<float> entry )
+{ return { entry.i, entry.j, entry.value }; }
 
-inline ValueIntPair<double> CReflect( ElValueIntPair_d entryC )
-{ return {entryC.value,{entryC.indices[0],entryC.indices[1]}}; }
-inline ElValueIntPair_d CReflect( ValueIntPair<double> entry )
-{ return {entry.value,{entry.indices[0],entry.indices[1]}}; }
+inline Entry<double> CReflect( ElEntry_d entryC )
+{ return { entryC.i, entryC.j, entryC.value }; }
+inline ElEntry_d CReflect( Entry<double> entry )
+{ return { entry.i, entry.j, entry.value }; }
 
-inline ValueIntPair<Complex<float>> CReflect( ElValueIntPair_c entryC ) { return {CReflect(entryC.value),{entryC.indices[0],entryC.indices[1]}}; }
-inline ElValueIntPair_c CReflect( ValueIntPair<Complex<float>> entry )
-{ return {CReflect(entry.value),{entry.indices[0],entry.indices[1]}}; }
+inline Entry<Complex<float>> CReflect( ElEntry_c entryC ) 
+{ return { entryC.i, entryC.j, CReflect(entryC.value) }; }
+inline ElEntry_c CReflect( Entry<Complex<float>> entry )
+{ return { entry.i, entry.j, CReflect(entry.value) }; }
 
-inline ValueIntPair<Complex<double>> CReflect( ElValueIntPair_z entryC )
-{ return {CReflect(entryC.value),{entryC.indices[0],entryC.indices[1]}}; }
-inline ElValueIntPair_z CReflect( ValueIntPair<Complex<double>> entry )
-{ return {CReflect(entry.value),{entry.indices[0],entry.indices[1]}}; }
+inline Entry<Complex<double>> CReflect( ElEntry_z entryC )
+{ return { entryC.i, entryC.j, CReflect(entryC.value) }; }
+inline ElEntry_z CReflect( Entry<Complex<double>> entry )
+{ return { entry.i, entry.j, CReflect(entry.value) }; }
 
 // Matrix
 // ------

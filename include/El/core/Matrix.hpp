@@ -82,11 +82,17 @@ public:
     Base<T> GetRealPart( Int i, Int j ) const;
     Base<T> GetImagPart( Int i, Int j ) const;
     void Set( Int i, Int j, T alpha );
+    void Set( const Entry<T>& entry );
     void SetRealPart( Int i, Int j, Base<T> alpha );
     void SetImagPart( Int i, Int j, Base<T> alpha );
+    void SetRealPart( const Entry<Base<T>>& entry );
+    void SetImagPart( const Entry<Base<T>>& entry );
     void Update( Int i, Int j, T alpha );
+    void Update( const Entry<T>& entry );
     void UpdateRealPart( Int i, Int j, Base<T> alpha );
     void UpdateImagPart( Int i, Int j, Base<T> alpha );
+    void UpdateRealPart( const Entry<Base<T>>& entry );
+    void UpdateImagPart( const Entry<Base<T>>& entry );
     void MakeReal( Int i, Int j );
     void Conjugate( Int i, Int j );
 

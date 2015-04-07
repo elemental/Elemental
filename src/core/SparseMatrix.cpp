@@ -123,6 +123,10 @@ void SparseMatrix<T>::Update( Int row, Int col, T value )
 }
 
 template<typename T>
+void SparseMatrix<T>::Update( const Entry<T>& entry )
+{ Update( entry.i, entry.j, entry.value ); }
+
+template<typename T>
 void SparseMatrix<T>::Zero( Int row, Int col )
 {
     DEBUG_ONLY(CallStackEntry cse("SparseMatrix::Zero"))
@@ -137,6 +141,10 @@ void SparseMatrix<T>::QueueUpdate( Int row, Int col, T value )
     graph_.QueueConnection( row, col );
     vals_.push_back( value );
 }
+
+template<typename T>
+void SparseMatrix<T>::QueueUpdate( const Entry<T>& entry )
+{ QueueUpdate( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void SparseMatrix<T>::QueueZero( Int row, Int col )
@@ -240,8 +248,7 @@ const T* SparseMatrix<T>::LockedValueBuffer() const
 
 template<typename T>
 bool SparseMatrix<T>::CompareEntries( const Entry<T>& a, const Entry<T>& b )
-{ return a.indices[0] < b.indices[0] || 
-         (a.indices[0] == b.indices[0] && a.indices[1] < b.indices[1]); }
+{ return a.i < b.i || (a.i == b.i && a.j < b.j); }
 
 template<typename T>
 void SparseMatrix<T>::MakeConsistent()
@@ -263,8 +270,8 @@ void SparseMatrix<T>::MakeConsistent()
             if( graph_.markedForRemoval_.find(candidate) == 
                 graph_.markedForRemoval_.end() )
             {
-                entries[s-numRemoved].indices[0] = graph_.sources_[s];
-                entries[s-numRemoved].indices[1] = graph_.targets_[s];
+                entries[s-numRemoved].i = graph_.sources_[s];
+                entries[s-numRemoved].j = graph_.targets_[s];
                 entries[s-numRemoved].value = vals_[s];
             }
             else
@@ -280,13 +287,11 @@ void SparseMatrix<T>::MakeConsistent()
         Int lastUnique=0;
         for( Int s=1; s<numEntries; ++s )
         {
-            if( entries[s].indices[0] != entries[lastUnique].indices[0] ||
-                entries[s].indices[1] != entries[lastUnique].indices[1] )
+            if( entries[s].i != entries[lastUnique].i ||
+                entries[s].j != entries[lastUnique].j )
             {
                 ++lastUnique;
-                entries[lastUnique].indices[0] = entries[s].indices[0];
-                entries[lastUnique].indices[1] = entries[s].indices[1];
-                entries[lastUnique].value = entries[s].value;
+                entries[lastUnique] = entries[s];
             }
             else
                 entries[lastUnique].value += entries[s].value;
@@ -299,8 +304,8 @@ void SparseMatrix<T>::MakeConsistent()
         vals_.resize( numUnique );
         for( Int s=0; s<numUnique; ++s )
         {
-            graph_.sources_[s] = entries[s].indices[0];
-            graph_.targets_[s] = entries[s].indices[1];
+            graph_.sources_[s] = entries[s].i;
+            graph_.targets_[s] = entries[s].j;
             vals_[s] = entries[s].value;
         }
 

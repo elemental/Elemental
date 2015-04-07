@@ -286,20 +286,20 @@ void SVM
             Int i = A.Row(e);
             int owner = G.RowOwner(i);
             Real value = -d.GetLocal(i-d.FirstLocalRow(),0)*A.Value(e);
-            sendBuf[offs[owner]++] = Entry<Real>{ value, i, A.Col(e) };
+            sendBuf[offs[owner]++] = Entry<Real>{ i, A.Col(e), value };
         }
         for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
         {
             Int i = d.GlobalRow(iLoc);
             int owner = G.RowOwner(i);
-            sendBuf[offs[owner]++] = Entry<Real>{ -d.GetLocal(iLoc,0), i, n };
+            sendBuf[offs[owner]++] = Entry<Real>{ i, n, -d.GetLocal(iLoc,0) };
         }
         // Exchange and unpack
         // -------------------
         auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
         G.Reserve( recvBuf.size()+G.LocalHeight() );
         for( auto& entry : recvBuf )
-            G.QueueUpdate( entry.indices[0], entry.indices[1], entry.value );
+            G.QueueUpdate( entry );
         for( Int iLoc=0; iLoc<G.LocalHeight(); ++iLoc )
         {
             const Int i = G.GlobalRow(iLoc);

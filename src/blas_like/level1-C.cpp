@@ -356,19 +356,19 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, int root )
   { EL_TRY( MakeTrapezoidal( CReflect(uplo), *CReflect(A), offset ) ) } \
   /* MaxAbs */ \
   ElError ElMaxAbs_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElValueIntPair_ ## SIGBASE *entry ) \
+  ( ElConstMatrix_ ## SIG A, ElEntry_ ## SIGBASE *entry ) \
   { EL_TRY( *entry = CReflect(MaxAbs(*CReflect(A))) ) } \
   ElError ElMaxAbsDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElValueIntPair_ ## SIGBASE *entry ) \
+  ( ElConstDistMatrix_ ## SIG A, ElEntry_ ## SIGBASE *entry ) \
   { EL_TRY( *entry = CReflect(MaxAbs(*CReflect(A))) ) } \
   ElError ElSymmetricMaxAbs_ ## SIG \
   ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, \
-    ElValueIntPair_ ## SIGBASE *entry ) \
+    ElEntry_ ## SIGBASE *entry ) \
   { EL_TRY( *entry = \
       CReflect(SymmetricMaxAbs(CReflect(uplo),*CReflect(A))) ) } \
   ElError ElSymmetricMaxAbsDist_ ## SIG \
   ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, \
-    ElValueIntPair_ ## SIGBASE *entry ) \
+    ElEntry_ ## SIGBASE *entry ) \
   { EL_TRY( *entry = \
       CReflect(SymmetricMaxAbs(CReflect(uplo),*CReflect(A))) ) } \
   ElError ElVectorMaxAbs_ ## SIG \
@@ -379,19 +379,19 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, int root )
   { EL_TRY( *entry = CReflect(VectorMaxAbs(*CReflect(x))) ) } \
   /* MinAbs */ \
   ElError ElMinAbs_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElValueIntPair_ ## SIGBASE *entry ) \
+  ( ElConstMatrix_ ## SIG A, ElEntry_ ## SIGBASE *entry ) \
   { EL_TRY( *entry = CReflect(MinAbs(*CReflect(A))) ) } \
   ElError ElMinAbsDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElValueIntPair_ ## SIGBASE *entry ) \
+  ( ElConstDistMatrix_ ## SIG A, ElEntry_ ## SIGBASE *entry ) \
   { EL_TRY( *entry = CReflect(MinAbs(*CReflect(A))) ) } \
   ElError ElSymmetricMinAbs_ ## SIG \
   ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, \
-    ElValueIntPair_ ## SIGBASE *entry ) \
+    ElEntry_ ## SIGBASE *entry ) \
   { EL_TRY( *entry = \
       CReflect(SymmetricMinAbs(CReflect(uplo),*CReflect(A))) ) } \
   ElError ElSymmetricMinAbsDist_ ## SIG \
   ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, \
-    ElValueIntPair_ ## SIGBASE *entry ) \
+    ElEntry_ ## SIGBASE *entry ) \
   { EL_TRY( *entry = \
       CReflect(SymmetricMinAbs(CReflect(uplo),*CReflect(A))) ) } \
   ElError ElVectorMinAbs_ ## SIG \
@@ -614,21 +614,17 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, int root )
   { EL_TRY( *prod = CReflect(Dotu(*CReflect(A),*CReflect(B))) ) } \
   /* Max */ \
   ElError ElMax_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElValueIntPair_ ## SIG *entry ) \
+  ( ElConstMatrix_ ## SIG A, ElEntry_ ## SIG *entry ) \
   { EL_TRY( *entry = CReflect(Max(*CReflect(A))) ) } \
   ElError ElMaxDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElValueIntPair_ ## SIG *entry ) \
+  ( ElConstDistMatrix_ ## SIG A, ElEntry_ ## SIG *entry ) \
   { EL_TRY( *entry = CReflect(Max(*CReflect(A))) ) } \
   ElError ElSymmetricMax_ ## SIG \
-  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, \
-    ElValueIntPair_ ## SIG *entry ) \
-  { EL_TRY( *entry = \
-      CReflect(SymmetricMax(CReflect(uplo),*CReflect(A))) ) } \
+  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, ElEntry_ ## SIG *entry ) \
+  { EL_TRY( *entry = CReflect(SymmetricMax(CReflect(uplo),*CReflect(A))) ) } \
   ElError ElSymmetricMaxDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, \
-    ElValueIntPair_ ## SIG *entry ) \
-  { EL_TRY( *entry = \
-      CReflect(SymmetricMax(CReflect(uplo),*CReflect(A))) ) } \
+  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, ElEntry_ ## SIG *entry ) \
+  { EL_TRY( *entry = CReflect(SymmetricMax(CReflect(uplo),*CReflect(A))) ) } \
   ElError ElVectorMax_ ## SIG \
   ( ElConstMatrix_ ## SIG x, ElValueInt_ ## SIG *entry ) \
   { EL_TRY( *entry = CReflect(VectorMax(*CReflect(x))) ) } \
@@ -637,21 +633,17 @@ ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, int root )
   { EL_TRY( *entry = CReflect(VectorMax(*CReflect(x))) ) } \
   /* Min */ \
   ElError ElMin_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElValueIntPair_ ## SIG *entry ) \
+  ( ElConstMatrix_ ## SIG A, ElEntry_ ## SIG *entry ) \
   { EL_TRY( *entry = CReflect(Min(*CReflect(A))) ) } \
   ElError ElMinDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElValueIntPair_ ## SIG *entry ) \
+  ( ElConstDistMatrix_ ## SIG A, ElEntry_ ## SIG *entry ) \
   { EL_TRY( *entry = CReflect(Min(*CReflect(A))) ) } \
   ElError ElSymmetricMin_ ## SIG \
-  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, \
-    ElValueIntPair_ ## SIG *entry ) \
-  { EL_TRY( *entry = \
-      CReflect(SymmetricMin(CReflect(uplo),*CReflect(A))) ) } \
+  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, ElEntry_ ## SIG *entry ) \
+  { EL_TRY( *entry = CReflect(SymmetricMin(CReflect(uplo),*CReflect(A))) ) } \
   ElError ElSymmetricMinDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, \
-    ElValueIntPair_ ## SIG *entry ) \
-  { EL_TRY( *entry = \
-      CReflect(SymmetricMin(CReflect(uplo),*CReflect(A))) ) } \
+  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, ElEntry_ ## SIG *entry ) \
+  { EL_TRY( *entry = CReflect(SymmetricMin(CReflect(uplo),*CReflect(A))) ) } \
   ElError ElVectorMin_ ## SIG \
   ( ElConstMatrix_ ## SIG x, ElValueInt_ ## SIG *entry ) \
   { EL_TRY( *entry = CReflect(VectorMin(*CReflect(x))) ) } \

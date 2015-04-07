@@ -284,7 +284,7 @@ void KKT
         const Int i = Q.Row(e);
         const Int j = Q.Col(e);
         if( i >= j || !onlyLower )
-            sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ Q.Value(e), i, j };
+            sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, Q.Value(e) };
     }
     // Pack A
     // ------
@@ -292,7 +292,7 @@ void KKT
     {
         const Int i = A.Row(e) + n;
         const Int j = A.Col(e);
-        sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ A.Value(e), i, j };
+        sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, A.Value(e) };
     }
     // Pack G
     // ------
@@ -300,7 +300,7 @@ void KKT
     {
         const Int i = G.Row(e) + n + m;
         const Int j = G.Col(e);
-        sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ G.Value(e), i, j };
+        sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, G.Value(e) };
     }
     // Pack A^T
     // --------
@@ -311,7 +311,7 @@ void KKT
             const Int i = ATrans.Row(e);
             const Int j = ATrans.Col(e) + n;
             const Real value = ATrans.Value(e);
-            sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ value, i, j };
+            sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, value };
         }
     }
     // Pack G^T
@@ -323,7 +323,7 @@ void KKT
             const Int i = GTrans.Row(e);
             const Int j = GTrans.Col(e) + n + m;
             const Real value = GTrans.Value(e);
-            sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ value, i, j };
+            sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, value };
         }
     }
     // Pack -z <> s
@@ -333,7 +333,7 @@ void KKT
         const Int i = m+n + s.GlobalRow(iLoc);
         const Int j = i;
         const Real value = -s.GetLocal(iLoc,0)/z.GetLocal(iLoc,0);
-        sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ value, i, j };
+        sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, value };
     }
 
     // Exchange and unpack the triplets
@@ -341,7 +341,7 @@ void KKT
     auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
     J.Reserve( recvBuf.size() );
     for( auto& entry : recvBuf )
-        J.QueueUpdate( entry.indices[0], entry.indices[1], entry.value );
+        J.QueueUpdate( entry );
     J.MakeConsistent();
 }
 

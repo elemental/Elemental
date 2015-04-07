@@ -1009,14 +1009,14 @@ void MakeTrapezoidal( UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset=0 );
 // Max
 // ===
 template<typename Real>
-ValueIntPair<Real> Max( const Matrix<Real>& A );
+Entry<Real> Max( const Matrix<Real>& A );
 template<typename Real>
-ValueIntPair<Real> Max( const AbstractDistMatrix<Real>& A );
+Entry<Real> Max( const AbstractDistMatrix<Real>& A );
 
 template<typename Real>
-ValueIntPair<Real> SymmetricMax( UpperOrLower uplo, const Matrix<Real>& A );
+Entry<Real> SymmetricMax( UpperOrLower uplo, const Matrix<Real>& A );
 template<typename Real>
-ValueIntPair<Real>
+Entry<Real>
 SymmetricMax( UpperOrLower uplo, const AbstractDistMatrix<Real>& A );
 
 template<typename Real>
@@ -1034,25 +1034,25 @@ template<typename T>
 ValueInt<Base<T>> VectorMaxAbs( const AbstractDistMatrix<T>& x );
 
 template<typename T>
-ValueIntPair<Base<T>> MaxAbs( const Matrix<T>& A );
+Entry<Base<T>> MaxAbs( const Matrix<T>& A );
 template<typename T>
-ValueIntPair<Base<T>> MaxAbs( const AbstractDistMatrix<T>& A );
+Entry<Base<T>> MaxAbs( const AbstractDistMatrix<T>& A );
 template<typename T>
-ValueIntPair<Base<T>> MaxAbs( const SparseMatrix<T>& A );
+Entry<Base<T>> MaxAbs( const SparseMatrix<T>& A );
 template<typename T>
-ValueIntPair<Base<T>> MaxAbs( const DistSparseMatrix<T>& A );
+Entry<Base<T>> MaxAbs( const DistSparseMatrix<T>& A );
 
 template<typename T>
-ValueIntPair<Base<T>> 
+Entry<Base<T>> 
 SymmetricMaxAbs( UpperOrLower uplo, const Matrix<T>& A );
 template<typename T>
-ValueIntPair<Base<T>> 
+Entry<Base<T>> 
 SymmetricMaxAbs( UpperOrLower uplo, const AbstractDistMatrix<T>& A );
 template<typename T>
-ValueIntPair<Base<T>> 
+Entry<Base<T>> 
 SymmetricMaxAbs( UpperOrLower uplo, const SparseMatrix<T>& A );
 template<typename T>
-ValueIntPair<Base<T>> 
+Entry<Base<T>> 
 SymmetricMaxAbs( UpperOrLower uplo, const DistSparseMatrix<T>& A );
 
 // Min
@@ -1065,14 +1065,14 @@ template<typename Real>
 ValueInt<Real> VectorMin( const DistMultiVec<Real>& x );
 
 template<typename Real>
-ValueIntPair<Real> Min( const Matrix<Real>& A );
+Entry<Real> Min( const Matrix<Real>& A );
 template<typename Real>
-ValueIntPair<Real> Min( const AbstractDistMatrix<Real>& A );
+Entry<Real> Min( const AbstractDistMatrix<Real>& A );
 
 template<typename Real>
-ValueIntPair<Real> SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A );
+Entry<Real> SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A );
 template<typename Real>
-ValueIntPair<Real>
+Entry<Real>
 SymmetricMin( UpperOrLower uplo, const AbstractDistMatrix<Real>& A );
 
 // MinAbs
@@ -1083,14 +1083,14 @@ template<typename F>
 ValueInt<Base<F>> VectorMinAbs( const AbstractDistMatrix<F>& x );
 
 template<typename F>
-ValueIntPair<Base<F>> MinAbs( const Matrix<F>& A );
+Entry<Base<F>> MinAbs( const Matrix<F>& A );
 template<typename F>
-ValueIntPair<Base<F>> MinAbs( const AbstractDistMatrix<F>& A );
+Entry<Base<F>> MinAbs( const AbstractDistMatrix<F>& A );
 
 template<typename F>
-ValueIntPair<Base<F>> SymmetricMinAbs( UpperOrLower uplo, const Matrix<F>& A );
+Entry<Base<F>> SymmetricMinAbs( UpperOrLower uplo, const Matrix<F>& A );
 template<typename F>
-ValueIntPair<Base<F>>
+Entry<Base<F>>
 SymmetricMinAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
 
 // Nrm2

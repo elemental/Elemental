@@ -381,13 +381,13 @@ void GLM
             const Int i = X.GlobalRow(iLoc);
             const int owner = G.RowOwner(i);
             for( Int j=0; j<numRHS; ++j )
-                sendBuf[offs[owner]++] = Entry<F>{ X.GetLocal(iLoc,j), i, j };
+                sendBuf[offs[owner]++] = Entry<F>{ i, j, X.GetLocal(iLoc,j) };
         }
         // Exchange and unpack the data
         // ----------------------------
         auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
         for( auto& entry : recvBuf )
-            G.Set( entry.indices[0], entry.indices[1], entry.value );
+            G.Set( entry );
     }
 
     // Form the augmented matrix
@@ -422,10 +422,10 @@ void GLM
             const F value = W.Value(e);
             // Send this entry of W into its normal position
             int owner = J.RowOwner(i);
-            sendBuf[offs[owner]++] = Entry<F>{value,i,j+m};
+            sendBuf[offs[owner]++] = Entry<F>{i,j+m,value};
             // Send this entry of W into its adjoint position
             owner = J.RowOwner(j+m);
-            sendBuf[offs[owner]++] = Entry<F>{Conj(value),j+m,i};
+            sendBuf[offs[owner]++] = Entry<F>{j+m,i,Conj(value)};
         }
         // Exchange and unpack the data
         // ----------------------------
@@ -443,7 +443,7 @@ void GLM
         // ^^^^^^
         J.Reserve( recvBuf.size() + numNegAlphaUpdates );
         for( auto& entry : recvBuf )
-            J.QueueUpdate( entry.indices[0], entry.indices[1], entry.value );
+            J.QueueUpdate( entry );
         for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
         {
             const Int i = J.GlobalRow(iLoc);

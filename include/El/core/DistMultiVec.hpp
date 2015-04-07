@@ -73,9 +73,13 @@ public:
     T Get( Int row, Int col ) const;
     T GetLocal( Int localRow, Int col ) const;
     void Set( Int row, Int col, T value );
+    void Set( const Entry<T>& entry );
     void SetLocal( Int localRow, Int col, T value );
+    void SetLocal( const Entry<T>& localEntry );
     void Update( Int row, Int col, T value );
+    void Update( const Entry<T>& entry );
     void UpdateLocal( Int localRow, Int col, T value );
+    void UpdateLocal( const Entry<T>& entry );
 
 private:
     Int height_, width_;

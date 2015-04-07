@@ -605,16 +605,16 @@ template<> Datatype TypeMap<ValueInt<Complex<double>>>();
 template<> Datatype TypeMap<ValueInt<Complex<Quad>>>();
 #endif
 
-template<> Datatype TypeMap<ValueIntPair<Int>>();
-template<> Datatype TypeMap<ValueIntPair<float>>();
-template<> Datatype TypeMap<ValueIntPair<double>>();
+template<> Datatype TypeMap<Entry<Int>>();
+template<> Datatype TypeMap<Entry<float>>();
+template<> Datatype TypeMap<Entry<double>>();
 #ifdef EL_HAVE_QUAD
-template<> Datatype TypeMap<ValueIntPair<Quad>>();
+template<> Datatype TypeMap<Entry<Quad>>();
 #endif
-template<> Datatype TypeMap<ValueIntPair<Complex<float>>>();
-template<> Datatype TypeMap<ValueIntPair<Complex<double>>>();
+template<> Datatype TypeMap<Entry<Complex<float>>>();
+template<> Datatype TypeMap<Entry<Complex<double>>>();
 #ifdef EL_HAVE_QUAD
-template<> Datatype TypeMap<ValueIntPair<Complex<Quad>>>();
+template<> Datatype TypeMap<Entry<Complex<Quad>>>();
 #endif
 
 template<typename Real> inline Op MaxOp() { return MAX; }

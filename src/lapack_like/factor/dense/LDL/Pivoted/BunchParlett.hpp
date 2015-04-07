@@ -24,7 +24,7 @@ BunchParlett( const Matrix<F>& A, Base<F> gamma )
         gamma = LDLPivotConstant<Real>( BUNCH_PARLETT );
 
     const ValueInt<Real> diagMax = VectorMaxAbs( GetDiagonal(A) );
-    const ValueIntPair<Real> offDiagMax = SymmetricMaxAbs( LOWER, A );
+    const Entry<Real> offDiagMax = SymmetricMaxAbs( LOWER, A );
 
     LDLPivot pivot;
     if( diagMax.value >= gamma*offDiagMax.value )
@@ -36,8 +36,8 @@ BunchParlett( const Matrix<F>& A, Base<F> gamma )
     else
     {
         pivot.nb = 2;
-        pivot.from[0] = offDiagMax.indices[0];
-        pivot.from[1] = offDiagMax.indices[1];
+        pivot.from[0] = offDiagMax.i;
+        pivot.from[1] = offDiagMax.j;
         return pivot;
     }
 }
@@ -52,7 +52,7 @@ BunchParlett( const DistMatrix<F>& A, Base<F> gamma )
         gamma = LDLPivotConstant<Real>( BUNCH_PARLETT );
 
     const ValueInt<Real> diagMax = VectorMaxAbs( GetDiagonal(A) );
-    const ValueIntPair<Real> offDiagMax = SymmetricMaxAbs( LOWER, A );
+    const Entry<Real> offDiagMax = SymmetricMaxAbs( LOWER, A );
 
     LDLPivot pivot;
     if( diagMax.value >= gamma*offDiagMax.value )
@@ -64,8 +64,8 @@ BunchParlett( const DistMatrix<F>& A, Base<F> gamma )
     else
     {
         pivot.nb = 2; 
-        pivot.from[0] = offDiagMax.indices[0];
-        pivot.from[1] = offDiagMax.indices[1];
+        pivot.from[0] = offDiagMax.i;
+        pivot.from[1] = offDiagMax.j;
         return pivot;
     }
 }
