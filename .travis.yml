@@ -30,7 +30,6 @@ before_script:
   - test $MPI == mpich3 && MPIEXEC='mpiexec -launcher fork' || true
 
 script:
-  - mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX:PATH=local ..
+  - mkdir build && cd build && cmake ..
   - make -j8 -l8 && sudo make -j8 -l8 install && sudo ctest -j2 --output-on-failure
-# - make -j8 -l8 all install && ctest -j2 --output-on-failure
 
