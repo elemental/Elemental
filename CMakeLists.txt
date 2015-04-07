@@ -32,9 +32,9 @@ set(EL_VERSION_MINOR 86-dev)
 #   Elemental requires it to be one of the following two choices:
 #     1. Debug: Meant for development and debugging
 #     2. Release: Meant for production runs
-#   If either MinSizeRel or RelWithDebInfo are specified, then Elemental falls 
+#   If either MinSizeRel or RelWithDebInfo are specified, then Elemental falls
 #   back to Release mode.
-#   
+#
 #   If "CMAKE_BUILD_TYPE" is not defined, the default is Release mode.
 
 # "CXX_FLAGS"
@@ -504,6 +504,7 @@ if(EL_TESTS)
           LINK_FLAGS ${MPI_LINK_FLAGS})
       endif()
       install(TARGETS tests-${TYPE}-${TESTNAME} DESTINATION bin/tests/${TYPE})
+      add_test(NAME ${TYPE}/${TESTNAME} WORKING_DIRECTORY ${TEST_DIR} COMMAND tests-${TYPE}-${TESTNAME})
     endforeach()
   endforeach()
 endif()
@@ -599,7 +600,6 @@ foreach(TestDir core blas_like lapack_like optimization)
   foreach(TestSource ${TestSources})
     string(REGEX REPLACE ".cpp\$" "" TestName ${TestSource})
 
-    add_test(NAME ${TestDir}_${TestName} WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/tests/${TestDir} COMMAND make ${TestName})
   endforeach(TestSource)
 endforeach(TestDir)
 
