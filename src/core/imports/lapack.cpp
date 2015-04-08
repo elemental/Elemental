@@ -8,6 +8,7 @@
 */
 #include "El.hpp"
 
+using El::BlasInt;
 using El::scomplex;
 using El::dcomplex;
 
