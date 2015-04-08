@@ -1,4 +1,4 @@
-include @CMAKE_INSTALL_PREFIX@/conf/ElVars
+include ../conf/ElVars
 
 OS := $(shell uname)
 
