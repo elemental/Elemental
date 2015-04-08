@@ -26,8 +26,9 @@ install:
   - sudo apt-get install -qq -y lcov clang-3.7 gcc-4.9 g++-4.9 gfortran-4.9 libstdc++-4.9-dev libopenblas-dev liblapack-dev
   - git pull --recurse-submodules
   - sh external/travis-install-mpi.sh $MPI
-  - gem install coveralls-lcov
+  - sudo pip install cpp-coveralls
   - curl http://www.cmake.org/files/v3.2/cmake-3.2.1-Linux-x86_64.tar.gz | sudo tar -x -z --strip-components 1 -C /usr
+
 before_script:
   - if test x$CC = xclang; then export CC=clang-3.7; export CXX=clang++-3.7; fi
   - if test x$CC = xgcc; then export CC=gcc-4.9; export CXX=g++-4.9; fi
@@ -40,10 +41,5 @@ script:
     cmake .. -DASSERT=ON -DASSERT2=ON -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Debug;
     if test $? -ne 0; then cat CMakeFiles/CMakeError.log; fi
   - make -j3 -l3 && sudo make -j3 -l3 install && sudo ctest -j3 --output-on-failure
-  - lcov --directory /usr/local/tests --base-directory /usr/local/tests --capture --output-file coverage.info
-  - lcov --remove coverage.info '/usr*' -o coverage.info
-  - cd .. && coveralls-lcov build/coverage.info
-#- find /usr/local -name *.gcov
-#- find .. -name *.gcov
-#- cd /usr/local/tests && coveralls --exclude lib --exclude tests --gcov-options '\-lp'
+  - errcode=$?; coveralls --gcov-options '\-lp'; exit $errcode
 
