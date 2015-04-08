@@ -45,7 +45,7 @@ int main( int argc, char* argv[] )
         ProcessInput();
 
         const Int N = n1*n2*n3;
-        DistSparseMatrix<C> A( N, comm );
+        DistSparseMatrix<C> A( N, N, comm );
         HelmholtzPML( A, n1, n2, n3, C(omega), b, sigma, p );
         if( display )
             Display( A, "A" );
