@@ -130,10 +130,10 @@ void SymmetricTridiagEig
 
 // Floating-point range
 // ^^^^^^^^^^^^^^^^^^^^
-int SymmetricTridiagEig
+BlasInt SymmetricTridiagEig
 ( BlasInt n, float* d, float* e, float* w, 
   float vl, float vu, float abstol=0 );
-int SymmetricTridiagEig
+BlasInt SymmetricTridiagEig
 ( BlasInt n, double* d, double* e, double* w, 
   double vl, double vu, double abstol=0 );
 
@@ -160,10 +160,10 @@ void SymmetricTridiagEig
 
 // Floating-point range
 // ^^^^^^^^^^^^^^^^^^^^
-int SymmetricTridiagEig
+BlasInt SymmetricTridiagEig
 ( BlasInt n, float* d, float* e, float* w, float* Z, BlasInt ldZ,
   float vl, float vu, float abstol=0 );
-int SymmetricTridiagEig
+BlasInt SymmetricTridiagEig
 ( BlasInt n, double* d, double* e, double* w, double* Z, BlasInt ldZ,
   double vl, double vu, double abstol=0 );
 
@@ -195,16 +195,16 @@ void HermitianEig
 
 // Floating-point range
 // ^^^^^^^^^^^^^^^^^^^^
-int HermitianEig
+BlasInt HermitianEig
 ( char uplo, BlasInt n, float* A, BlasInt ldA, float* w,
   float vl, float vu, float abstol=0 );
-int HermitianEig
+BlasInt HermitianEig
 ( char uplo, BlasInt n, double* A, BlasInt ldA, double* w,
   double vl, double vu, double abstol=0 );
-int HermitianEig
+BlasInt HermitianEig
 ( char uplo, BlasInt n, scomplex* A, BlasInt ldA, float* w,
   float vl, float vu, float abstol=0 );
-int HermitianEig
+BlasInt HermitianEig
 ( char uplo, BlasInt n, dcomplex* A, BlasInt ldA, double* w,
   double vl, double vu, double abstol=0 );
 
@@ -247,19 +247,19 @@ void HermitianEig
 
 // Floating-point range
 // ^^^^^^^^^^^^^^^^^^^^
-int HermitianEig
+BlasInt HermitianEig
 ( char uplo, BlasInt n, 
   float* A, BlasInt ldA, float* w, float* Z, BlasInt ldZ,
   float vl, float vu, float abstol=0 );
-int HermitianEig
+BlasInt HermitianEig
 ( char uplo, BlasInt n, 
   double* A, BlasInt ldA, double* w, double* Z, BlasInt ldZ,
   double vl, double vu, double abstol=0 );
-int HermitianEig
+BlasInt HermitianEig
 ( char uplo, BlasInt n, 
   scomplex* A, BlasInt ldA, float* w, scomplex* Z, BlasInt ldZ,
   float vl, float vu, float abstol=0 );
-int HermitianEig
+BlasInt HermitianEig
 ( char uplo, BlasInt n, 
   dcomplex* A, BlasInt ldA, double* w, dcomplex* Z, BlasInt ldZ,
   double vl, double vu, double abstol=0 );

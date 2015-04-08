@@ -169,6 +169,15 @@ bool Using64BitInt()
 #endif
 }
 
+bool Using64BitBlasInt()
+{
+#ifdef EL_USE_64BIT_BLAS_INTS
+    return true;
+#else
+    return false;
+#endif
+}
+
 void SetColorMap( ColorMap map )
 { ::colorMap = map; }
 

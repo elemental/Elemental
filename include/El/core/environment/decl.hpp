@@ -45,6 +45,7 @@ void PrintConfig( ostream& os=cout );
 void PrintCCompilerInfo( ostream& os=cout );
 void PrintCxxCompilerInfo( ostream& os=cout );
 bool Using64BitInt();
+bool Using64BitBlasInt();
 
 // For initializing and finalizing Elemental
 void Initialize( int& argc, char**& argv );
