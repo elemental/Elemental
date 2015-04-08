@@ -95,7 +95,7 @@ option(EL_ZERO_INIT "Initialize buffers to zero by default?" OFF)
 option(EL_USE_64BIT_INTS "Use 64-bit integers for El indexing" OFF)
 option(EL_USE_64BIT_BLAS_INTS "Use 64-bit integers for BLAS/LAPACK" OFF)
 if(EL_USE_64BIT_BLAS_INTS)
-  set(EL_USE_64BIT_INTS TRUE)
+    set(EL_USE_64BIT_INTS ON)
 endif()
 
 option(EL_USE_CUSTOM_ALLTOALLV "Avoid MPI_Alltoallv for performance reasons" ON)
