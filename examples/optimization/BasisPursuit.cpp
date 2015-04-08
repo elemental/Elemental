@@ -42,7 +42,7 @@ main( int argc, char* argv[] )
 
         DistMatrix<C> A, b, xTrue;
         Uniform( A, m, n );
-        Uniform( b, n, 1 );
+        Uniform( b, m, 1 );
         if( print )
         {
             Print( A, "A" );

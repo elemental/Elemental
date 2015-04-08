@@ -40,7 +40,8 @@ main( int argc, char* argv[] )
         ctrl.numDistSeps = numDistSeps;
 
         const Int numVertices = n*n*n;
-        DistGraph graph( numVertices, comm );
+        DistGraph graph( comm );
+        graph.Resize( numVertices );
 
         // Fill our portion of the graph of a 3D n x n x n 7-point stencil
         // in natural ordering: (x,y,z) at x + y*n + z*n*n

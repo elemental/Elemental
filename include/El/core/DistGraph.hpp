@@ -23,10 +23,9 @@ class DistGraph
 public:
     // Constructors and destructors
     // ============================
-    DistGraph();
-    DistGraph( mpi::Comm comm );
-    DistGraph( Int numVertices, mpi::Comm comm );
-    DistGraph( Int numSources, Int numTargets, mpi::Comm comm );
+    DistGraph( mpi::Comm comm=mpi::COMM_WORLD );
+    DistGraph( Int numSources, mpi::Comm comm=mpi::COMM_WORLD );
+    DistGraph( Int numSources, Int numTargets, mpi::Comm comm=mpi::COMM_WORLD );
     DistGraph( const Graph& graph );
     // TODO: Move constructor
     DistGraph( const DistGraph& graph );
@@ -106,6 +105,8 @@ private:
 
     vector<Int> sources_, targets_;
     set<pair<Int,Int>> markedForRemoval_;
+
+    void InitializeLocalData();
 
     // Helpers for local indexing
     bool consistent_;

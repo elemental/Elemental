@@ -48,10 +48,8 @@ class DistSparseMatrix
 public:
     // Constructors and destructors
     // ============================
-    DistSparseMatrix();
-    DistSparseMatrix( mpi::Comm comm );
-    DistSparseMatrix( Int height, mpi::Comm comm );
-    DistSparseMatrix( Int height, Int width, mpi::Comm comm );
+    DistSparseMatrix( mpi::Comm comm=mpi::COMM_WORLD );
+    DistSparseMatrix( Int height, Int width, mpi::Comm comm=mpi::COMM_WORLD );
     // TODO: Constructor for building from another DistSparseMatrix
     // TODO: Move constructor
     ~DistSparseMatrix();
@@ -139,6 +137,8 @@ public:
 private:
     El::DistGraph distGraph_;
     vector<T> vals_;
+
+    void InitializeLocalData();
 
     static bool CompareEntries( const Entry<T>& a, const Entry<T>& b );
 

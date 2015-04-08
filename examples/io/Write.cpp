@@ -26,22 +26,26 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         if( basename == "" )
-            LogicError("Please specify a basename for writing");
+        {
+            cout << "Please specify a basename for writing" << endl;
+        }
+        else
+        {
+            DistMatrix<Complex<double>> A;
+            FoxLi( A, n, omega );
+            if( display )
+                Display( A, "A" );
+            if( print )
+                Print( A, "A" );
+            Write( A, basename, MATRIX_MARKET );
 
-        DistMatrix<Complex<double>> A;
-        FoxLi( A, n, omega );
-        if( display )
-            Display( A, "A" );
-        if( print )
-            Print( A, "A" );
-        Write( A, basename, MATRIX_MARKET );
-
-        DistMatrix<Complex<double>> B;
-        Read( B, basename+".mm" );
-        if( display )
-            Display( B, "B" );
-        if( print )
-            Print( B, "B" );
+            DistMatrix<Complex<double>> B;
+            Read( B, basename+".mm" );
+            if( display )
+                Display( B, "B" );
+            if( print )
+                Print( B, "B" );
+        }
     }
     catch( std::exception& e ) { ReportException(e); }
 

@@ -27,17 +27,8 @@ namespace El {
 // ============================
 
 template<typename T>
-DistSparseMatrix<T>::DistSparseMatrix()
-{ }
-
-template<typename T>
 DistSparseMatrix<T>::DistSparseMatrix( mpi::Comm comm )
 : distGraph_(comm)
-{ }
-
-template<typename T>
-DistSparseMatrix<T>::DistSparseMatrix( Int height, mpi::Comm comm )
-: distGraph_(height,comm)
 { }
 
 template<typename T>

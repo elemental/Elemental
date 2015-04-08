@@ -41,6 +41,7 @@ int main( int argc, char* argv[] )
 
         const Int numVertices = n*n*n;
         DistGraph graph( numVertices, comm );
+        graph.Resize( numVertices );
 
         const Int firstLocalSource = graph.FirstLocalSource();
         const Int numLocalSources = graph.NumLocalSources();

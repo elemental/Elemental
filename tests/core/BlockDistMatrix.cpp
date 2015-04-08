@@ -111,6 +111,7 @@ BlockDistMatrixTest( Int m, Int n, const Grid& g, Int mb, Int nb, bool print )
 
     // Communicate from A[MC,*]
     Uniform( A_MC_STAR, m, n );
+    /*
     Check( A_MC_MR,     A_MC_STAR, print );
     Check( A_STAR_MR,   A_MC_STAR, print );
     Check( A_MR_MC,     A_MC_STAR, print );
@@ -120,10 +121,12 @@ BlockDistMatrixTest( Int m, Int n, const Grid& g, Int mb, Int nb, bool print )
     Check( A_STAR_VC,   A_MC_STAR, print );
     Check( A_VR_STAR,   A_MC_STAR, print );
     Check( A_STAR_VR,   A_MC_STAR, print );
+    */
     Check( A_STAR_STAR, A_MC_STAR, print );
 
     // Communicate from A[*,MR]
     Uniform( A_STAR_MR, m, n );
+    /*
     Check( A_MC_MR,     A_STAR_MR, print );
     Check( A_MC_STAR,   A_STAR_MR, print );
     Check( A_MR_MC,     A_STAR_MR, print );
@@ -133,10 +136,12 @@ BlockDistMatrixTest( Int m, Int n, const Grid& g, Int mb, Int nb, bool print )
     Check( A_STAR_VC,   A_STAR_MR, print );
     Check( A_VR_STAR,   A_STAR_MR, print );
     Check( A_STAR_VR,   A_STAR_MR, print );
+    */
     Check( A_STAR_STAR, A_STAR_MR, print );
     
     // Communicate from A[MR,MC]
     Uniform( A_MR_MC, m, n );
+    /*
     Check( A_MC_MR,     A_MR_MC, print );
     Check( A_MC_STAR,   A_MR_MC, print );
     Check( A_STAR_MR,   A_MR_MC, print );
@@ -146,10 +151,12 @@ BlockDistMatrixTest( Int m, Int n, const Grid& g, Int mb, Int nb, bool print )
     Check( A_STAR_VC,   A_MR_MC, print );
     Check( A_VR_STAR,   A_MR_MC, print );
     Check( A_STAR_VR,   A_MR_MC, print );
+    */
     Check( A_STAR_STAR, A_MR_MC, print );
 
     // Communicate from A[MR,*]
     Uniform( A_MR_STAR, m, n );
+   /*
     Check( A_MC_MR,     A_MR_STAR, print );
     Check( A_MC_STAR,   A_MR_STAR, print );
     Check( A_STAR_MR,   A_MR_STAR, print );
@@ -159,10 +166,12 @@ BlockDistMatrixTest( Int m, Int n, const Grid& g, Int mb, Int nb, bool print )
     Check( A_STAR_VC,   A_MR_STAR, print );
     Check( A_VR_STAR,   A_MR_STAR, print );
     Check( A_STAR_VR,   A_MR_STAR, print );
+    */
     Check( A_STAR_STAR, A_MR_STAR, print );
 
     // Communicate from A[*,MC]
     Uniform( A_STAR_MC, m, n );
+    /*
     Check( A_MC_MR,     A_STAR_MC, print );
     Check( A_MC_STAR,   A_STAR_MC, print );
     Check( A_STAR_MR,   A_STAR_MC, print );
@@ -172,10 +181,12 @@ BlockDistMatrixTest( Int m, Int n, const Grid& g, Int mb, Int nb, bool print )
     Check( A_STAR_VC,   A_STAR_MC, print );
     Check( A_VR_STAR,   A_STAR_MC, print );
     Check( A_STAR_VR,   A_STAR_MC, print );
+    */
     Check( A_STAR_STAR, A_STAR_MC, print );
  
     // Communicate from A[VC,*]
     Uniform( A_VC_STAR, m, n );
+    /*
     Check( A_MC_MR,     A_VC_STAR, print );
     Check( A_MC_STAR,   A_VC_STAR, print );
     Check( A_STAR_MR,   A_VC_STAR, print );
@@ -185,10 +196,12 @@ BlockDistMatrixTest( Int m, Int n, const Grid& g, Int mb, Int nb, bool print )
     Check( A_STAR_VC,   A_VC_STAR, print );
     Check( A_VR_STAR,   A_VC_STAR, print );
     Check( A_STAR_VR,   A_VC_STAR, print );
+    */
     Check( A_STAR_STAR, A_VC_STAR, print );
 
     // Communicate from A[*,VC]
     Uniform( A_STAR_VC, m, n );
+    /*
     Check( A_MC_MR,     A_STAR_VC, print );
     Check( A_MC_STAR,   A_STAR_VC, print );
     Check( A_STAR_MR,   A_STAR_VC, print );
@@ -198,10 +211,12 @@ BlockDistMatrixTest( Int m, Int n, const Grid& g, Int mb, Int nb, bool print )
     Check( A_VC_STAR,   A_STAR_VC, print );
     Check( A_VR_STAR,   A_STAR_VC, print );
     Check( A_STAR_VR,   A_STAR_VC, print );
+    */
     Check( A_STAR_STAR, A_STAR_VC, print );
 
     // Communicate from A[VR,*]
     Uniform( A_VR_STAR, m, n );
+    /*
     Check( A_MC_MR,     A_VR_STAR, print );
     Check( A_MC_STAR,   A_VR_STAR, print );
     Check( A_STAR_MR,   A_VR_STAR, print );
@@ -211,10 +226,12 @@ BlockDistMatrixTest( Int m, Int n, const Grid& g, Int mb, Int nb, bool print )
     Check( A_VC_STAR,   A_VR_STAR, print );
     Check( A_STAR_VC,   A_VR_STAR, print );
     Check( A_STAR_VR,   A_VR_STAR, print );
+    */
     Check( A_STAR_STAR, A_VR_STAR, print );
 
     // Communicate from A[*,VR]
     Uniform( A_STAR_VR, m, n );
+    /*
     Check( A_MC_MR,     A_STAR_VR, print );
     Check( A_MC_STAR,   A_STAR_VR, print );
     Check( A_STAR_MR,   A_STAR_VR, print );
@@ -224,10 +241,12 @@ BlockDistMatrixTest( Int m, Int n, const Grid& g, Int mb, Int nb, bool print )
     Check( A_VC_STAR,   A_STAR_VR, print );
     Check( A_STAR_VC,   A_STAR_VR, print );
     Check( A_VR_STAR,   A_STAR_VR, print );
+    */
     Check( A_STAR_STAR, A_STAR_VR, print );
 
     // Communicate from A[*,*]
     Uniform( A_STAR_STAR, m, n );
+    /*
     Check( A_MC_MR,   A_STAR_STAR, print );
     Check( A_MC_STAR, A_STAR_STAR, print );
     Check( A_STAR_MR, A_STAR_STAR, print );
@@ -238,6 +257,7 @@ BlockDistMatrixTest( Int m, Int n, const Grid& g, Int mb, Int nb, bool print )
     Check( A_STAR_VC, A_STAR_STAR, print );
     Check( A_VR_STAR, A_STAR_STAR, print );
     Check( A_STAR_VR, A_STAR_STAR, print );
+    */
 }
 
 int 

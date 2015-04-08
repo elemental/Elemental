@@ -16,24 +16,25 @@ namespace El {
 // ============================
 
 template<typename T>
-DistMultiVec<T>::DistMultiVec()
-: height_(0), width_(0), comm_(mpi::COMM_WORLD), 
-  blocksize_(0), firstLocalRow_(0)
-{ }
-
-template<typename T>
 DistMultiVec<T>::DistMultiVec( mpi::Comm comm )
-: height_(0), width_(0), comm_(mpi::COMM_WORLD), 
-  blocksize_(0), firstLocalRow_(0)
+: height_(0), width_(0)
 { 
-    SetComm( comm );
+    if( comm == mpi::COMM_WORLD )
+        comm_ = comm;
+    else
+        mpi::Dup( comm, comm_ );
+    InitializeLocalData();
 }
 
 template<typename T>
 DistMultiVec<T>::DistMultiVec( Int height, Int width, mpi::Comm comm )
-: height_(height), width_(width), comm_(mpi::COMM_WORLD)
+: height_(height), width_(width)
 { 
-    SetComm( comm );
+    if( comm == mpi::COMM_WORLD )
+        comm_ = comm;
+    else
+        mpi::Dup( comm, comm_ );
+    InitializeLocalData();
 }
 
 template<typename T>
@@ -89,19 +90,25 @@ void DistMultiVec<T>::Empty()
 }
 
 template<typename T>
-void DistMultiVec<T>::Resize( Int height, Int width )
+void DistMultiVec<T>::InitializeLocalData()
 {
     const Int commRank = mpi::Rank( comm_ );
     const Int commSize = mpi::Size( comm_ );
-    height_ = height;
-    width_ = width;
-    blocksize_ = height/commSize;
+    blocksize_ = height_/commSize;
     firstLocalRow_ = commRank*blocksize_;
     const Int localHeight =
         ( commRank<commSize-1 ?
           blocksize_ :
           height_ - (commSize-1)*blocksize_ );
-    multiVec_.Resize( localHeight, width );
+    multiVec_.Resize( localHeight, width_ );
+}
+
+template<typename T>
+void DistMultiVec<T>::Resize( Int height, Int width )
+{
+    height_ = height;
+    width_ = width;
+    InitializeLocalData();
 }
 
 // Change the distribution
@@ -117,15 +124,7 @@ void DistMultiVec<T>::SetComm( mpi::Comm comm )
     else
         comm_ = comm;
 
-    const Int commRank = mpi::Rank( comm );
-    const Int commSize = mpi::Size( comm );
-    blocksize_ = height_/commSize;
-    firstLocalRow_ = blocksize_*commRank;
-    const Int localHeight =
-        ( commRank<commSize-1 ?
-          blocksize_ :
-          height_ - (commSize-1)*blocksize_ );
-    multiVec_.Resize( localHeight, width_ );
+    InitializeLocalData();
 }
 
 // Queries

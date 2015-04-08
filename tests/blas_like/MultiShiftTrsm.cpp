@@ -115,7 +115,7 @@ main( int argc, char* argv[] )
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char sideChar = Input("--side","side to solve from: L/R",'L');
         const char uploChar = Input
-            ("--uplo","lower or upper quasi-triangular: L/U",'L');
+            ("--uplo","lower or upper quasi-triangular: L/U",'U');
         const char transChar = Input
             ("--trans","orientation of quasi-triangular matrix: N/T/C",'N');
         const Int m = Input("--m","height of result",100);

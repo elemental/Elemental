@@ -24,8 +24,6 @@ public:
     // Constructors and destructors
     // ============================
     SparseMatrix();
-    SparseMatrix( Int height );
-    SparseMatrix( Int height, Int width );
     SparseMatrix( const SparseMatrix<T>& A );
     // NOTE: This requires A to be distributed over a single process
     SparseMatrix( const DistSparseMatrix<T>& A );

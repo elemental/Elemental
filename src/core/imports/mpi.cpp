@@ -1717,6 +1717,13 @@ template<typename Real>
 void ReduceScatter( Real* buf, int rc, Op op, Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::ReduceScatter"))
+#ifdef EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+    const int commSize = Size( comm );
+    const int commRank = Rank( comm );
+    AllReduce( buf, rc*commSize, op, comm );
+    if( commRank != 0 )
+        MemCopy( buf, &buf[commRank*rc], rc );
+#elif defined(EL_HAVE_MPI_REDUCE_SCATTER_BLOCK)
     MPI_Op opC;
     if( op == SUM )
         opC = SumOp<Real>().op; 
@@ -1726,14 +1733,6 @@ void ReduceScatter( Real* buf, int rc, Op op, Comm comm )
         opC = MinOp<Real>().op;
     else
         opC = op.op;
-
-#ifdef EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
-    const int commSize = Size( comm );
-    const int commRank = Rank( comm );
-    AllReduce( buf, rc*commSize, op, comm );
-    if( commRank != 0 )
-        MemCopy( buf, &buf[commRank*rc], rc );
-#elif defined(EL_HAVE_MPI_REDUCE_SCATTER_BLOCK)
 # ifdef EL_HAVE_MPI_IN_PLACE
     SafeMpi
     ( MPI_Reduce_scatter_block
@@ -1758,12 +1757,6 @@ template<typename Real>
 void ReduceScatter( Complex<Real>* buf, int rc, Op op, Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::ReduceScatter"))
-    MPI_Op opC;
-    if( op == SUM )
-        opC = SumOp<Complex<Real>>().op; 
-    else
-        opC = op.op;
-
 #ifdef EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = Size( comm );
     const int commRank = Rank( comm );
@@ -1771,6 +1764,11 @@ void ReduceScatter( Complex<Real>* buf, int rc, Op op, Comm comm )
     if( commRank != 0 )
         MemCopy( buf, &buf[commRank*rc], rc );
 #elif defined(EL_HAVE_MPI_REDUCE_SCATTER_BLOCK)
+    MPI_Op opC;
+    if( op == SUM )
+        opC = SumOp<Complex<Real>>().op; 
+    else
+        opC = op.op;
 # ifdef EL_AVOID_COMPLEX_MPI
 #  ifdef EL_HAVE_MPI_IN_PLACE
     SafeMpi

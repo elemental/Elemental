@@ -23,9 +23,8 @@ class DistMultiVec
 public:
     // Constructors and destructors
     // ============================
-    DistMultiVec();
-    DistMultiVec( mpi::Comm comm );
-    DistMultiVec( Int height, Int width, mpi::Comm comm );
+    DistMultiVec( mpi::Comm comm=mpi::COMM_WORLD );
+    DistMultiVec( Int height, Int width, mpi::Comm comm=mpi::COMM_WORLD );
     ~DistMultiVec();
 
     // Assignment  and reconfiguration
@@ -90,6 +89,8 @@ private:
     Int firstLocalRow_;
 
     El::Matrix<T> multiVec_;
+
+    void InitializeLocalData();
 };
 
 } // namespace El

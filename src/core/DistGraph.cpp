@@ -28,30 +28,34 @@ namespace El {
 // TODO: Always duplicate the communicator and do not treat mpi::COMM_WORLD
 //       and mpi::COMM_SELF as special cases.
 
-DistGraph::DistGraph()
-: numSources_(0), numTargets_(0), comm_(mpi::COMM_WORLD), consistent_(true)
-{ 
-    SetComm( mpi::COMM_WORLD ); 
-}
-
 DistGraph::DistGraph( mpi::Comm comm )
-: numSources_(0), numTargets_(0), comm_(mpi::COMM_WORLD), consistent_(true)
+: numSources_(0), numTargets_(0)
 { 
-    SetComm( comm ); 
+    if( comm == mpi::COMM_WORLD )
+        comm_ = comm;
+    else
+        mpi::Dup( comm, comm_ );
+    InitializeLocalData();
 }
 
-DistGraph::DistGraph( Int numVertices, mpi::Comm comm )
-: numSources_(numVertices), numTargets_(numVertices), comm_(mpi::COMM_WORLD),
-  consistent_(true)
+DistGraph::DistGraph( Int numSources, mpi::Comm comm )
+: numSources_(numSources), numTargets_(numSources)
 { 
-    SetComm( comm ); 
+    if( comm == mpi::COMM_WORLD )
+        comm_ = comm;
+    else
+        mpi::Dup( comm, comm_ );
+    InitializeLocalData();
 }
 
 DistGraph::DistGraph( Int numSources, Int numTargets, mpi::Comm comm )
-: numSources_(numSources), numTargets_(numTargets), comm_(mpi::COMM_WORLD),
-  consistent_(true)
+: numSources_(numSources), numTargets_(numTargets)
 { 
-    SetComm( comm ); 
+    if( comm == mpi::COMM_WORLD )
+        comm_ = comm;
+    else
+        mpi::Dup( comm, comm_ );
+    InitializeLocalData();
 }
 
 DistGraph::DistGraph( const Graph& graph )
@@ -149,24 +153,10 @@ void DistGraph::Resize( Int numSources, Int numTargets )
 
 // Change the distribution
 // -----------------------
-void DistGraph::SetComm( mpi::Comm comm )
+void DistGraph::InitializeLocalData()
 {
-    if( comm == comm_ )
-        return;
-
-    if( comm_ != mpi::COMM_WORLD )
-        mpi::Free( comm_ );
-
-    sources_.resize( 0 );
-    targets_.resize( 0 );
-
-    if( comm == mpi::COMM_WORLD )
-        comm_ = comm;
-    else
-        mpi::Dup( comm, comm_ );
-
-    const int commRank = mpi::Rank( comm );
-    const int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm_ );
+    const int commSize = mpi::Size( comm_ );
     blocksize_ = numSources_/commSize;
     firstLocalSource_ = commRank*blocksize_;
     if( commRank < commSize-1 )
@@ -178,7 +168,25 @@ void DistGraph::SetComm( mpi::Comm comm )
     for( Int e=0; e<=numLocalSources_; ++e )
         localEdgeOffsets_[e] = 0;
 
+    sources_.resize( 0 );
+    targets_.resize( 0 );
     consistent_ = true;
+}
+
+void DistGraph::SetComm( mpi::Comm comm )
+{
+    if( comm == comm_ )
+        return;
+
+    if( comm_ != mpi::COMM_WORLD )
+        mpi::Free( comm_ );
+
+    if( comm == mpi::COMM_WORLD )
+        comm_ = comm;
+    else
+        mpi::Dup( comm, comm_ );
+
+    InitializeLocalData();
 }
 
 // Assembly
