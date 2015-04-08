@@ -28,6 +28,9 @@ install:
   - sh external/travis-install-mpi.sh $MPI
   - sudo pip install cpp-coveralls
   - curl http://www.cmake.org/files/v3.2/cmake-3.2.1-Linux-x86_64.tar.gz | sudo tar -x -z --strip-components 1 -C /usr
+  - curl http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.11.orig.tar.gz | tar xz
+  - sudo make -j8 -l8 -C lcov-1.11/ install
+  - gem install coveralls-lcov
 
 before_script:
   - if test x$CC = xclang; then export CC=clang-3.7; export CXX=clang++-3.7; fi
@@ -35,11 +38,18 @@ before_script:
   - sudo hostname localhost
   - test $MPI == mpich2 && MPIEXEC='mpiexec -launcher fork' || true
   - test $MPI == mpich3 && MPIEXEC='mpiexec -launcher fork' || true
+  - lcov --directory . --zerocounters
 
 script:
   - mkdir build && cd build;
-    cmake .. -DASSERT=ON -DASSERT2=ON -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Debug;
+    cmake .. -DASSERT=ON -DASSERT2=ON -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCXX_FLAGS="-g -O0 -Wall -fprofile-arcs -ftest-coverage" -DC_FLAGS="-g -O0 -Wall -fprofile-arcs -ftest-coverage" -DFortran_FLAGS="-g -O0 -Wall -fprofile-arcs -ftest-coverage" -DCMAKE_BUILD_TYPE=Debug;
     if test $? -ne 0; then cat CMakeFiles/CMakeError.log; fi
   - make -j3 -l3 && sudo make -j3 -l3 install && sudo ctest -j3 --output-on-failure
-  - errcode=$?; coveralls --gcov-options '\-lp'; exit $errcode
+
+after_success:
+  - find ${TRAVIS_BUILD_DIR} -name *.gc*
+  - lcov --directory . --capture --output-file coverage.info # capture coverage info
+  - lcov --remove coverage.info 'tests/*' '/usr/*' --output-file coverage.info # filter out system and test code
+  - lcov --list coverage.info # debug before upload
+  - coveralls-lcov --repo-token orrZO32nywoXo9Y70QEcCJ3M8v00QVOaC coverage.info # uploads to coveralls
 
