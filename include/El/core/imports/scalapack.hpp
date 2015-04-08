@@ -14,6 +14,9 @@
 
 namespace El {
 
+// TODO: Decide which routines should be modified to use 64-bit integers if
+//       BLAS/LAPACK were modified to do so...
+
 namespace blacs {
 
 int Handle( MPI_Comm comm );

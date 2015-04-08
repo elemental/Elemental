@@ -73,6 +73,7 @@
 #cmakedefine EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
 #cmakedefine EL_USE_BYTE_ALLGATHERS
 #cmakedefine EL_USE_64BIT_INTS
+#cmakedefine EL_USE_64BIT_BLAS_INTS
 
 /* Sparse-direct configuration */
 #cmakedefine EL_USE_CUSTOM_ALLTOALLV

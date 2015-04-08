@@ -11,6 +11,13 @@
 #define EL_IMPORTS_BLAS_HPP
 
 namespace El {
+
+#ifdef EL_USE_64BIT_BLAS_INTS
+typedef long long int BlasInt;
+#else
+typedef int BlasInt;
+#endif
+
 namespace blas {
 
 // NOTE: templated routines are custom and not wrappers
@@ -18,65 +25,77 @@ namespace blas {
 // Level 1 BLAS 
 // ============
 template<typename T>
-void Axpy( int n, T alpha, const T* x, int incx, T* y, int incy );
+void Axpy( BlasInt n, T alpha, const T* x, BlasInt incx, T* y, BlasInt incy );
 
 void Axpy
-( int n, float    alpha, const float   * x, int incx, float   * y, int incy );
+( BlasInt n, float    alpha, 
+  const float   * x, BlasInt incx, float   * y, BlasInt incy );
 void Axpy
-( int n, double   alpha, const double  * x, int incx, double  * y, int incy );
+( BlasInt n, double   alpha, 
+  const double  * x, BlasInt incx, double  * y, BlasInt incy );
 void Axpy
-( int n, scomplex alpha, const scomplex* x, int incx, scomplex* y, int incy );
+( BlasInt n, scomplex alpha, 
+  const scomplex* x, BlasInt incx, scomplex* y, BlasInt incy );
 void Axpy
-( int n, dcomplex alpha, const dcomplex* x, int incx, dcomplex* y, int incy );
+( BlasInt n, dcomplex alpha, 
+  const dcomplex* x, BlasInt incx, dcomplex* y, BlasInt incy );
 template<typename T>
-void Axpy( int n, T alpha, const T* x, int incx, T* y, int incy );
+void Axpy( BlasInt n, T alpha, const T* x, BlasInt incx, T* y, BlasInt incy );
 
 template<typename T>
-void Copy( int n, const T* x, int incx, T* y, int incy );
+void Copy( BlasInt n, const T* x, BlasInt incx, T* y, BlasInt incy );
 
-void Copy( int n, const float   * x, int incx, float   * y, int incy );
-void Copy( int n, const double  * x, int incx, double  * y, int incy );
-void Copy( int n, const scomplex* x, int incx, scomplex* y, int incy );
-void Copy( int n, const dcomplex* x, int incx, dcomplex* y, int incy );
+void Copy
+( BlasInt n, const float   * x, BlasInt incx, float   * y, BlasInt incy );
+void Copy
+( BlasInt n, const double  * x, BlasInt incx, double  * y, BlasInt incy );
+void Copy
+( BlasInt n, const scomplex* x, BlasInt incx, scomplex* y, BlasInt incy );
+void Copy
+( BlasInt n, const dcomplex* x, BlasInt incx, dcomplex* y, BlasInt incy );
 template<typename T>
-void Copy( int n, const T* x, int incx, T* y, int incy );
+void Copy( BlasInt n, const T* x, BlasInt incx, T* y, BlasInt incy );
 
-float    Dot( int n, const float   * x, int incx, const float   * y, int incy );
-double   Dot( int n, const double  * x, int incx, const double  * y, int incy );
-scomplex Dot( int n, const scomplex* x, int incx, const scomplex* y, int incy );
-dcomplex Dot( int n, const dcomplex* x, int incx, const dcomplex* y, int incy );
+float    Dot
+( BlasInt n, const float   * x, BlasInt incx, const float   * y, BlasInt incy );
+double   Dot
+( BlasInt n, const double  * x, BlasInt incx, const double  * y, BlasInt incy );
+scomplex Dot
+( BlasInt n, const scomplex* x, BlasInt incx, const scomplex* y, BlasInt incy );
+dcomplex Dot
+( BlasInt n, const dcomplex* x, BlasInt incx, const dcomplex* y, BlasInt incy );
 template<typename T>
-T Dot( int n, const T* x, int incx, const T* y, int incy );
+T Dot( BlasInt n, const T* x, BlasInt incx, const T* y, BlasInt incy );
 
 float    Dotc
-( int n, const float   * x, int incx, const float   * y, int incy );
+( BlasInt n, const float   * x, BlasInt incx, const float   * y, BlasInt incy );
 double   Dotc
-( int n, const double  * x, int incx, const double  * y, int incy );
+( BlasInt n, const double  * x, BlasInt incx, const double  * y, BlasInt incy );
 scomplex Dotc
-( int n, const scomplex* x, int incx, const scomplex* y, int incy );
+( BlasInt n, const scomplex* x, BlasInt incx, const scomplex* y, BlasInt incy );
 dcomplex Dotc
-( int n, const dcomplex* x, int incx, const dcomplex* y, int incy );
+( BlasInt n, const dcomplex* x, BlasInt incx, const dcomplex* y, BlasInt incy );
 template<typename T>
-T Dotc( int n, const T* x, int incx, const T* y, int incy );
+T Dotc( BlasInt n, const T* x, BlasInt incx, const T* y, BlasInt incy );
 
 float    Dotu
-( int n, const float   * x, int incx, const float   * y, int incy );
+( BlasInt n, const float   * x, BlasInt incx, const float   * y, BlasInt incy );
 double   Dotu
-( int n, const double  * x, int incx, const double  * y, int incy );
+( BlasInt n, const double  * x, BlasInt incx, const double  * y, BlasInt incy );
 scomplex Dotu
-( int n, const scomplex* x, int incx, const scomplex* y, int incy );
+( BlasInt n, const scomplex* x, BlasInt incx, const scomplex* y, BlasInt incy );
 dcomplex Dotu
-( int n, const dcomplex* x, int incx, const dcomplex* y, int incy );
+( BlasInt n, const dcomplex* x, BlasInt incx, const dcomplex* y, BlasInt incy );
 template<typename T>
-T Dotu( int n, const T* x, int incx, const T* y, int incy );
+T Dotu( BlasInt n, const T* x, BlasInt incx, const T* y, BlasInt incy );
 
 template<typename F>
-Base<F> Nrm2( int n, const F* x, int incx );
+Base<F> Nrm2( BlasInt n, const F* x, BlasInt incx );
 
-float  Nrm2( int n, const float   * x, int incx );
-double Nrm2( int n, const double  * x, int incx );
-float  Nrm2( int n, const scomplex* x, int incx );
-double Nrm2( int n, const dcomplex* x, int incx );
+float  Nrm2( BlasInt n, const float   * x, BlasInt incx );
+double Nrm2( BlasInt n, const double  * x, BlasInt incx );
+float  Nrm2( BlasInt n, const scomplex* x, BlasInt incx );
+double Nrm2( BlasInt n, const dcomplex* x, BlasInt incx );
 
 float Givens
 ( float alpha, float beta, float* c, float* s );
@@ -88,451 +107,516 @@ dcomplex Givens
 ( dcomplex alpha, dcomplex beta, double* c, dcomplex* s );
 
 void Rot
-( int n, float   * x, int incx, float   * y, int incy, float  c, float    s );
+( BlasInt n, float   * x, BlasInt incx, 
+             float   * y, BlasInt incy, float  c, float    s );
 void Rot
-( int n, double  * x, int incx, double  * y, int incy, double c, double   s );
+( BlasInt n, double  * x, BlasInt incx, 
+             double  * y, BlasInt incy, double c, double   s );
 void Rot
-( int n, scomplex* x, int incx, scomplex* y, int incy, float  c, scomplex s );
+( BlasInt n, scomplex* x, BlasInt incx, 
+             scomplex* y, BlasInt incy, float  c, scomplex s );
 void Rot
-( int n, dcomplex* x, int incx, dcomplex* y, int incy, double c, dcomplex s );
+( BlasInt n, dcomplex* x, BlasInt incx, 
+             dcomplex* y, BlasInt incy, double c, dcomplex s );
 
-template<typename T> void Scal( int n, T alpha,         T*  x, int incx );
-template<typename T> void Scal( int n, T alpha, Complex<T>* x, int incx );
-void Scal( int n, float    alpha, float   * x, int incx );
-void Scal( int n, double   alpha, double  * x, int incx );
-void Scal( int n, scomplex alpha, scomplex* x, int incx );
-void Scal( int n, dcomplex alpha, dcomplex* x, int incx );
+template<typename T> 
+void Scal( BlasInt n, T alpha,         T*  x, BlasInt incx );
+template<typename T> 
+void Scal( BlasInt n, T alpha, Complex<T>* x, BlasInt incx );
+void Scal( BlasInt n, float    alpha, float   * x, BlasInt incx );
+void Scal( BlasInt n, double   alpha, double  * x, BlasInt incx );
+void Scal( BlasInt n, scomplex alpha, scomplex* x, BlasInt incx );
+void Scal( BlasInt n, dcomplex alpha, dcomplex* x, BlasInt incx );
 
 // NOTE: Nrm1 is not the official name but is consistent with Nrm2
-float  Nrm1( int n, const float   * x, int incx );
-double Nrm1( int n, const double  * x, int incx );
-float  Nrm1( int n, const scomplex* x, int incx );
-double Nrm1( int n, const dcomplex* x, int incx );
+float  Nrm1( BlasInt n, const float   * x, BlasInt incx );
+double Nrm1( BlasInt n, const double  * x, BlasInt incx );
+float  Nrm1( BlasInt n, const scomplex* x, BlasInt incx );
+double Nrm1( BlasInt n, const dcomplex* x, BlasInt incx );
 
-void Swap( int n, float   * x, int incx, float   * y, int incy );
-void Swap( int n, double  * x, int incx, double  * y, int incy );
-void Swap( int n, scomplex* x, int incx, scomplex* y, int incy );
-void Swap( int n, dcomplex* x, int incx, dcomplex* y, int incy );
-template<typename T> void Swap( int n, T* x, int incx, T* y, int incy );
+void Swap( BlasInt n, float   * x, BlasInt incx, float   * y, BlasInt incy );
+void Swap( BlasInt n, double  * x, BlasInt incx, double  * y, BlasInt incy );
+void Swap( BlasInt n, scomplex* x, BlasInt incx, scomplex* y, BlasInt incy );
+void Swap( BlasInt n, dcomplex* x, BlasInt incx, dcomplex* y, BlasInt incy );
+template<typename T> 
+void Swap( BlasInt n, T* x, BlasInt incx, T* y, BlasInt incy );
             
 // Level 2 BLAS
 // ============
 template<typename T>
 void Gemv
-( char trans, int m, int n,
-  T alpha, const T* A, int lda, const T* x, int incx,
-  T beta,        T* y, int incy );
+( char trans, BlasInt m, BlasInt n,
+  T alpha, const T* A, BlasInt lda, 
+           const T* x, BlasInt incx,
+  T beta,        T* y, BlasInt incy );
 
 void Gemv
-( char trans, int m, int n,
-  float alpha, const float* A, int lda, const float* x, int incx,
-  float beta,        float* y, int incy );
+( char trans, BlasInt m, BlasInt n,
+  float alpha, const float* A, BlasInt lda, 
+               const float* x, BlasInt incx,
+  float beta,        float* y, BlasInt incy );
 void Gemv
-( char trans, int m, int n,
-  double alpha, const double* A, int lda, const double* x, int incx,
-  double beta,        double* y, int incy );
+( char trans, BlasInt m, BlasInt n,
+  double alpha, const double* A, BlasInt lda, 
+                const double* x, BlasInt incx,
+  double beta,        double* y, BlasInt incy );
 void Gemv
-( char trans, int m, int n,
-  scomplex alpha, const scomplex* A, int lda, const scomplex* x, int incx,
-  scomplex beta,        scomplex* y, int incy );
+( char trans, BlasInt m, BlasInt n,
+  scomplex alpha, const scomplex* A, BlasInt lda, 
+                  const scomplex* x, BlasInt incx,
+  scomplex beta,        scomplex* y, BlasInt incy );
 void Gemv
-( char trans, int m, int n,
-  dcomplex alpha, const dcomplex* A, int lda, const dcomplex* x, int incx,
-  dcomplex beta,        dcomplex* y, int incy );
+( char trans, BlasInt m, BlasInt n,
+  dcomplex alpha, const dcomplex* A, BlasInt lda, 
+                  const dcomplex* x, BlasInt incx,
+  dcomplex beta,        dcomplex* y, BlasInt incy );
 
 template<typename T>
 void Ger
-( int m, int n,
-  T alpha, const T* x, int incx, const T* y, int incy,
-                                       T* A, int lda );
+( BlasInt m, BlasInt n,
+  T alpha, const T* x, BlasInt incx, 
+           const T* y, BlasInt incy,
+                 T* A, BlasInt lda );
 
 void Ger
-( int m, int n,
-  float alpha, const float* x, int incx, const float* y, int incy,
-                     float* A, int lda );
+( BlasInt m, BlasInt n,
+  float alpha, const float* x, BlasInt incx, 
+               const float* y, BlasInt incy,
+                     float* A, BlasInt lda );
 void Ger
-( int m, int n,
-  double alpha, const double* x, int incx, const double* y, int incy,
-                      double* A, int lda );
+( BlasInt m, BlasInt n,
+  double alpha, const double* x, BlasInt incx, 
+                const double* y, BlasInt incy,
+                      double* A, BlasInt lda );
 void Ger
-( int m, int n,
-  scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
-                        scomplex* A, int lda );
+( BlasInt m, BlasInt n,
+  scomplex alpha, const scomplex* x, BlasInt incx, 
+                  const scomplex* y, BlasInt incy,
+                        scomplex* A, BlasInt lda );
 void Ger
-( int m, int n,
-  dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
-                        dcomplex* A, int lda );
+( BlasInt m, BlasInt n,
+  dcomplex alpha, const dcomplex* x, BlasInt incx, 
+                  const dcomplex* y, BlasInt incy,
+                        dcomplex* A, BlasInt lda );
 
 template<typename T>
 void Geru
-( int m, int n,
-  T alpha, const T* x, int incx, const T* y, int incy,
-                                       T* A, int lda );
+( BlasInt m, BlasInt n,
+  T alpha, const T* x, BlasInt incx, 
+           const T* y, BlasInt incy,
+                 T* A, BlasInt lda );
 
 void Geru
-( int m, int n,
-  float alpha, const float* x, int incx, const float* y, int incy,
-                     float* A, int lda );
+( BlasInt m, BlasInt n,
+  float alpha, const float* x, BlasInt incx, 
+               const float* y, BlasInt incy,
+                     float* A, BlasInt lda );
 void Geru
-( int m, int n,
-  double alpha, const double* x, int incx, const double* y, int incy,
-                      double* A, int lda );
+( BlasInt m, BlasInt n,
+  double alpha, const double* x, BlasInt incx, 
+                const double* y, BlasInt incy,
+                      double* A, BlasInt lda );
 void Geru
-( int m, int n,
-  scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
-                        scomplex* A, int lda );
+( BlasInt m, BlasInt n,
+  scomplex alpha, const scomplex* x, BlasInt incx, 
+                  const scomplex* y, BlasInt incy,
+                        scomplex* A, BlasInt lda );
 void Geru
-( int m, int n,
-  dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
-                        dcomplex* A, int lda );
+( BlasInt m, BlasInt n,
+  dcomplex alpha, const dcomplex* x, BlasInt incx, 
+                  const dcomplex* y, BlasInt incy,
+                        dcomplex* A, BlasInt lda );
 
 template<typename T>
 void Hemv
-( char uplo, int m,
-  T alpha, const T* A, int lda, const T* x, int incx,
-  T beta,                             T* y, int incy );
+( char uplo, BlasInt m,
+  T alpha, const T* A, BlasInt lda, 
+           const T* x, BlasInt incx,
+  T beta,        T* y, BlasInt incy );
 
 void Hemv
-( char uplo, int m,
-  float alpha, const float* A, int lda, const float* x, int incx,
-  float beta,        float* y, int incy );
+( char uplo, BlasInt m,
+  float alpha, const float* A, BlasInt lda, 
+               const float* x, BlasInt incx,
+  float beta,        float* y, BlasInt incy );
 void Hemv
-( char uplo, int m,
-  double alpha, const double* A, int lda, const double* x, int incx,
-  double beta,        double* y, int incy );
+( char uplo, BlasInt m,
+  double alpha, const double* A, BlasInt lda, 
+                const double* x, BlasInt incx,
+  double beta,        double* y, BlasInt incy );
 void Hemv
-( char uplo, int m,
-  scomplex alpha, const scomplex* A, int lda, const scomplex* x, int incx,
-  scomplex beta,        scomplex* y, int incy );
+( char uplo, BlasInt m,
+  scomplex alpha, const scomplex* A, BlasInt lda, 
+                  const scomplex* x, BlasInt incx,
+  scomplex beta,        scomplex* y, BlasInt incy );
 void Hemv
-( char uplo, int m,
-  dcomplex alpha, const dcomplex* A, int lda, const dcomplex* x, int incx,
-  dcomplex beta,        dcomplex* y, int incy );
+( char uplo, BlasInt m,
+  dcomplex alpha, const dcomplex* A, BlasInt lda, 
+                  const dcomplex* x, BlasInt incx,
+  dcomplex beta,        dcomplex* y, BlasInt incy );
 
 template<typename T>
 void Her
-( char uplo, int m,
-  Base<T> alpha, const T* x, int incx, T* A, int lda );
+( char uplo, BlasInt m,
+  Base<T> alpha, const T* x, BlasInt incx, T* A, BlasInt lda );
 
 void Her
-( char uplo, int m,
-  float alpha, const float* x, int incx, float* A, int lda );
+( char uplo, BlasInt m,
+  float alpha, const float* x, BlasInt incx, float* A, BlasInt lda );
 void Her
-( char uplo, int m,
-  double alpha, const double* x, int incx, double* A, int lda );
+( char uplo, BlasInt m,
+  double alpha, const double* x, BlasInt incx, double* A, BlasInt lda );
 void Her
-( char uplo, int m,
-  float alpha, const scomplex* x, int incx, scomplex* A, int lda );
+( char uplo, BlasInt m,
+  float alpha, const scomplex* x, BlasInt incx, scomplex* A, BlasInt lda );
 void Her
-( char uplo, int m,
-  double alpha, const dcomplex* x, int incx, dcomplex* A, int lda );
+( char uplo, BlasInt m,
+  double alpha, const dcomplex* x, BlasInt incx, dcomplex* A, BlasInt lda );
 
 template<typename T>
 void Her2
-( char uplo, int m,
-  T alpha, const T* x, int incx, 
-           const T* y, int incy,
-                 T* A, int lda );
+( char uplo, BlasInt m,
+  T alpha, const T* x, BlasInt incx, 
+           const T* y, BlasInt incy,
+                 T* A, BlasInt lda );
 
 void Her2
-( char uplo, int m,
-  float alpha, const float* x, int incx, const float* y, int incy,
-                     float* A, int lda );
+( char uplo, BlasInt m,
+  float alpha, const float* x, BlasInt incx, 
+               const float* y, BlasInt incy,
+                     float* A, BlasInt lda );
 void Her2
-( char uplo, int m,
-  double alpha, const double* x, int incx, const double* y, int incy,
-                      double* A, int lda );
+( char uplo, BlasInt m,
+  double alpha, const double* x, BlasInt incx, 
+                const double* y, BlasInt incy,
+                      double* A, BlasInt lda );
 void Her2
-( char uplo, int m,
-  scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
-                        scomplex* A, int lda );
+( char uplo, BlasInt m,
+  scomplex alpha, const scomplex* x, BlasInt incx, 
+                  const scomplex* y, BlasInt incy,
+                        scomplex* A, BlasInt lda );
 void Her2
-( char uplo, int m,
-  dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
-                        dcomplex* A, int lda );
+( char uplo, BlasInt m,
+  dcomplex alpha, const dcomplex* x, BlasInt incx, 
+                  const dcomplex* y, BlasInt incy,
+                        dcomplex* A, BlasInt lda );
 
 template<typename T>
 void Symv
-( char uplo, int m,
-  T alpha, const T* A, int lda, const T* x, int incx,
-  T beta,                             T* y, int incy );
+( char uplo, BlasInt m,
+  T alpha, const T* A, BlasInt lda, 
+           const T* x, BlasInt incx,
+  T beta,        T* y, BlasInt incy );
 
 void Symv
-( char uplo, int m,
-  float alpha, const float* A, int lda, const float* x, int incx,
-  float beta,        float* y, int incy );
+( char uplo, BlasInt m,
+  float alpha, const float* A, BlasInt lda, 
+               const float* x, BlasInt incx,
+  float beta,        float* y, BlasInt incy );
 void Symv
-( char uplo, int m, 
-  double alpha, const double* A, int lda, const double* x, int incx,
-  double beta,        double* y, int incy );
+( char uplo, BlasInt m, 
+  double alpha, const double* A, BlasInt lda, 
+                const double* x, BlasInt incx,
+  double beta,        double* y, BlasInt incy );
 void Symv
-( char uplo, int m,
-  scomplex alpha, const scomplex* A, int lda, const scomplex* x, int incx,
-  scomplex beta,        scomplex* y, int incy );
+( char uplo, BlasInt m,
+  scomplex alpha, const scomplex* A, BlasInt lda, 
+                  const scomplex* x, BlasInt incx,
+  scomplex beta,        scomplex* y, BlasInt incy );
 void Symv
-( char uplo, int m,
-  dcomplex alpha, const dcomplex* A, int lda, const dcomplex* x, int incx,
-  dcomplex beta,        dcomplex* y, int incy );
+( char uplo, BlasInt m,
+  dcomplex alpha, const dcomplex* A, BlasInt lda, 
+                  const dcomplex* x, BlasInt incx,
+  dcomplex beta,        dcomplex* y, BlasInt incy );
 
 template<typename T>
 void Syr
-( char uplo, int m, T alpha, const T* x, int incx, T* A, int lda );
+( char uplo, BlasInt m, T alpha, const T* x, BlasInt incx, T* A, BlasInt lda );
 
 void Syr
-( char uplo, int m,
-  float alpha, const float* x, int incx, float* A, int lda );
+( char uplo, BlasInt m,
+  float alpha, const float* x, BlasInt incx, float* A, BlasInt lda );
 void Syr
-( char uplo, int m,
-  double alpha, const double* x, int incx, double* A, int lda );
+( char uplo, BlasInt m,
+  double alpha, const double* x, BlasInt incx, double* A, BlasInt lda );
 void Syr
-( char uplo, int m,
-  scomplex alpha, const scomplex* x, int incx, scomplex* A, int lda ); 
+( char uplo, BlasInt m,
+  scomplex alpha, const scomplex* x, BlasInt incx, scomplex* A, BlasInt lda ); 
 void Syr
-( char uplo, int m,
-  dcomplex alpha, const dcomplex* x, int incx, dcomplex* A, int lda );
+( char uplo, BlasInt m,
+  dcomplex alpha, const dcomplex* x, BlasInt incx, dcomplex* A, BlasInt lda );
 
 template<typename T>
 void Syr2
-( char uplo, int m,
-  T alpha, const T* x, int incx, 
-           const T* y, int incy,
-                 T* A, int lda );
+( char uplo, BlasInt m,
+  T alpha, const T* x, BlasInt incx, 
+           const T* y, BlasInt incy,
+                 T* A, BlasInt lda );
 
 void Syr2
-( char uplo, int m,
-  float alpha, const float* x, int incx, const float* y, int incy,
-                     float* A, int lda );
+( char uplo, BlasInt m,
+  float alpha, const float* x, BlasInt incx, 
+               const float* y, BlasInt incy,
+                     float* A, BlasInt lda );
 void Syr2
-( char uplo, int m,
-  double alpha, const double* x, int incx, const double* y, int incy,
-                      double* A, int lda );
+( char uplo, BlasInt m,
+  double alpha, const double* x, BlasInt incx, 
+                const double* y, BlasInt incy,
+                      double* A, BlasInt lda );
 void Syr2
-( char uplo, int m,
-  scomplex alpha, const scomplex* x, int incx, const scomplex* y, int incy,
-                        scomplex* A, int lda );
+( char uplo, BlasInt m,
+  scomplex alpha, const scomplex* x, BlasInt incx, 
+                  const scomplex* y, BlasInt incy,
+                        scomplex* A, BlasInt lda );
 void Syr2
-( char uplo, int m,
-  dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
-                        dcomplex* A, int lda );
+( char uplo, BlasInt m,
+  dcomplex alpha, const dcomplex* x, BlasInt incx, 
+                  const dcomplex* y, BlasInt incy,
+                        dcomplex* A, BlasInt lda );
 
 template<typename T>
 void Trmv
-( char uplo, char trans, char diag, int m,
-  const T* A, int lda, T* x, int incx );
+( char uplo, char trans, char diag, BlasInt m,
+  const T* A, BlasInt lda, T* x, BlasInt incx );
 
 void Trmv
-( char uplo, char trans, char diag, int m,
-  const float* A, int lda, float* x, int incx );
+( char uplo, char trans, char diag, BlasInt m,
+  const float* A, BlasInt lda, float* x, BlasInt incx );
 void Trmv
-( char uplo, char trans, char diag, int m,
-  const double* A, int lda, double* x, int incx );
+( char uplo, char trans, char diag, BlasInt m,
+  const double* A, BlasInt lda, double* x, BlasInt incx );
 void Trmv
-( char uplo, char trans, char diag, int m,
-  const scomplex* A, int lda, scomplex* x, int incx );
+( char uplo, char trans, char diag, BlasInt m,
+  const scomplex* A, BlasInt lda, scomplex* x, BlasInt incx );
 void Trmv
-( char uplo, char trans, char diag, int m,
-  const dcomplex* A, int lda, dcomplex* x, int incx );
+( char uplo, char trans, char diag, BlasInt m,
+  const dcomplex* A, BlasInt lda, dcomplex* x, BlasInt incx );
 
 template<typename F>
 void Trsv
-( char uplo, char trans, char diag, int m,
-  const F* A, int lda, F* x, int incx );
+( char uplo, char trans, char diag, BlasInt m,
+  const F* A, BlasInt lda, F* x, BlasInt incx );
 
 void Trsv
-( char uplo, char trans, char diag, int m,
-  const float* A, int lda, float* x, int incx );
+( char uplo, char trans, char diag, BlasInt m,
+  const float* A, BlasInt lda, float* x, BlasInt incx );
 void Trsv
-( char uplo, char trans, char diag, int m,
-  const double* A, int lda, double* x, int incx );
+( char uplo, char trans, char diag, BlasInt m,
+  const double* A, BlasInt lda, double* x, BlasInt incx );
 void Trsv
-( char uplo, char trans, char diag, int m,
-  const scomplex* A, int lda, scomplex* x, int incx );
+( char uplo, char trans, char diag, BlasInt m,
+  const scomplex* A, BlasInt lda, scomplex* x, BlasInt incx );
 void Trsv
-( char uplo, char trans, char diag, int m,
-  const dcomplex* A, int lda, dcomplex* x, int incx );
+( char uplo, char trans, char diag, BlasInt m,
+  const dcomplex* A, BlasInt lda, dcomplex* x, BlasInt incx );
 
 // Level 3 BLAS
 // ============
 template<typename T>
 void Gemm
-( char transA, char transB, int m, int n, int k,
-  T alpha, const T* A, int lda, const T* B, int ldb,
-  T beta,        T* C, int ldc );
+( char transA, char transB, BlasInt m, BlasInt n, BlasInt k,
+  T alpha, const T* A, BlasInt lda, 
+           const T* B, BlasInt ldb,
+  T beta,        T* C, BlasInt ldc );
 
 void Gemm
-( char transA, char transB, int m, int n, int k,
-  float alpha, const float* A, int lda, const float* B, int ldb,
-  float beta,        float* C, int ldc );
+( char transA, char transB, BlasInt m, BlasInt n, BlasInt k,
+  float alpha, const float* A, BlasInt lda, 
+               const float* B, BlasInt ldb,
+  float beta,        float* C, BlasInt ldc );
 void Gemm
-( char transA, char transB, int m, int n, int k,
-  double alpha, const double* A, int lda, const double* B, int ldb,
-  double beta,        double* C, int ldc );
+( char transA, char transB, BlasInt m, BlasInt n, BlasInt k,
+  double alpha, const double* A, BlasInt lda, 
+                const double* B, BlasInt ldb,
+  double beta,        double* C, BlasInt ldc );
 void Gemm
-( char transA, char transB, int m, int n, int k,
-  scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
-  scomplex beta,        scomplex* C, int ldc );
+( char transA, char transB, BlasInt m, BlasInt n, BlasInt k,
+  scomplex alpha, const scomplex* A, BlasInt lda, 
+                  const scomplex* B, BlasInt ldb,
+  scomplex beta,        scomplex* C, BlasInt ldc );
 void Gemm
-( char transA, char transB, int m, int n, int k,
-  dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
-  dcomplex beta,        dcomplex* C, int ldc );
+( char transA, char transB, BlasInt m, BlasInt n, BlasInt k,
+  dcomplex alpha, const dcomplex* A, BlasInt lda, 
+                  const dcomplex* B, BlasInt ldb,
+  dcomplex beta,        dcomplex* C, BlasInt ldc );
 
 template<typename T>
 void Hemm
-( char side, char uplo, int m, int n,
-  T alpha, const T* A, int lda, const T* B, int ldb,
-  T beta,        T* C, int ldc );
+( char side, char uplo, BlasInt m, BlasInt n,
+  T alpha, const T* A, BlasInt lda, 
+           const T* B, BlasInt ldb,
+  T beta,        T* C, BlasInt ldc );
 
 void Hemm
-( char side, char uplo, int m, int n,
-  float alpha, const float* A, int lda, const float* B, int ldb,
-  float beta,        float* C, int ldc );
+( char side, char uplo, BlasInt m, BlasInt n,
+  float alpha, const float* A, BlasInt lda, 
+               const float* B, BlasInt ldb,
+  float beta,        float* C, BlasInt ldc );
 void Hemm
-( char side, char uplo, int m, int n,
-  double alpha, const double* A, int lda, const double* B, int ldb,
-  double beta,        double* C, int ldc );
+( char side, char uplo, BlasInt m, BlasInt n,
+  double alpha, const double* A, BlasInt lda, 
+                const double* B, BlasInt ldb,
+  double beta,        double* C, BlasInt ldc );
 void Hemm
-( char side, char uplo, int m, int n,
-  scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
-  scomplex beta,        scomplex* C, int ldc );
+( char side, char uplo, BlasInt m, BlasInt n,
+  scomplex alpha, const scomplex* A, BlasInt lda, 
+                  const scomplex* B, BlasInt ldb,
+  scomplex beta,        scomplex* C, BlasInt ldc );
 void Hemm
-( char side, char uplo, int m, int n,
-  dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
-  dcomplex beta,        dcomplex* C, int ldc );
+( char side, char uplo, BlasInt m, BlasInt n,
+  dcomplex alpha, const dcomplex* A, BlasInt lda, 
+                  const dcomplex* B, BlasInt ldb,
+  dcomplex beta,        dcomplex* C, BlasInt ldc );
 
 // TODO: Templated Her2k
 
 void Her2k
-( char uplo, char trans, int n, int k,
-  float alpha, const float* A, int lda, const float* B, int ldb,
-  float beta,        float* C, int ldc );
+( char uplo, char trans, BlasInt n, BlasInt k,
+  float alpha, const float* A, BlasInt lda, 
+               const float* B, BlasInt ldb,
+  float beta,        float* C, BlasInt ldc );
 void Her2k
-( char uplo, char trans, int n, int k,
-  double alpha, const double* A, int lda, const double* B, int ldb,
-  double beta,        double* C, int ldc );
+( char uplo, char trans, BlasInt n, BlasInt k,
+  double alpha, const double* A, BlasInt lda, 
+                const double* B, BlasInt ldb,
+  double beta,        double* C, BlasInt ldc );
 void Her2k
-( char uplo, char trans, int n, int k,
-  scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
-  float beta,           scomplex* C, int ldc );
+( char uplo, char trans, BlasInt n, BlasInt k,
+  scomplex alpha, const scomplex* A, BlasInt lda, 
+                  const scomplex* B, BlasInt ldb,
+  float beta,           scomplex* C, BlasInt ldc );
 void Her2k
-( char uplo, char trans, int n, int k,
-  dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
-  double beta,          dcomplex* C, int ldc );
+( char uplo, char trans, BlasInt n, BlasInt k,
+  dcomplex alpha, const dcomplex* A, BlasInt lda, 
+                  const dcomplex* B, BlasInt ldb,
+  double beta,          dcomplex* C, BlasInt ldc );
 
 template<typename T>
 void Herk
-( char uplo, int n, int k, 
-  Base<T> alpha, const T* A, int lda, 
-  Base<T> beta,        T* C, int ldc );
+( char uplo, BlasInt n, BlasInt k, 
+  Base<T> alpha, const T* A, BlasInt lda, 
+  Base<T> beta,        T* C, BlasInt ldc );
 
 void Herk
-( char uplo, char trans, int n, int k,
-  float alpha, const float* A, int lda, float beta, float* C, int ldc );
+( char uplo, char trans, BlasInt n, BlasInt k,
+  float alpha, const float* A, BlasInt lda, 
+  float beta,        float* C, BlasInt ldc );
 void Herk
-( char uplo, char trans, int n, int k,
-  double alpha, const double* A, int lda, double beta, double* C, int ldc );
+( char uplo, char trans, BlasInt n, BlasInt k,
+  double alpha, const double* A, BlasInt lda, 
+  double beta,        double* C, BlasInt ldc );
 void Herk
-( char uplo, char trans, int n, int k,
-  float alpha, const scomplex* A, int lda,
-  float beta,        scomplex* C, int ldc );
+( char uplo, char trans, BlasInt n, BlasInt k,
+  float alpha, const scomplex* A, BlasInt lda,
+  float beta,        scomplex* C, BlasInt ldc );
 void Herk
-( char uplo, char trans, int n, int k,
-  double alpha, const dcomplex* A, int lda,
-  double beta,        dcomplex* C, int ldc );
+( char uplo, char trans, BlasInt n, BlasInt k,
+  double alpha, const dcomplex* A, BlasInt lda,
+  double beta,        dcomplex* C, BlasInt ldc );
 
 template<typename T>
 void Symm
-( char side, char uplo, int m, int n,
-  T alpha, const T* A, int lda, const T* B, int ldb,
-  T beta,        T* C, int ldc );
+( char side, char uplo, BlasInt m, BlasInt n,
+  T alpha, const T* A, BlasInt lda, 
+           const T* B, BlasInt ldb,
+  T beta,        T* C, BlasInt ldc );
 
 void Symm
-( char side, char uplo, int m, int n,
-  float alpha, const float* A, int lda, const float* B, int ldb,
-  float beta,        float* C, int ldc );
+( char side, char uplo, BlasInt m, BlasInt n,
+  float alpha, const float* A, BlasInt lda, 
+               const float* B, BlasInt ldb,
+  float beta,        float* C, BlasInt ldc );
 void Symm
-( char side, char uplo, int m, int n,
-  double alpha, const double* A, int lda, const double* B, int ldb,
-  double beta,        double* C, int ldc );
+( char side, char uplo, BlasInt m, BlasInt n,
+  double alpha, const double* A, BlasInt lda, 
+                const double* B, BlasInt ldb,
+  double beta,        double* C, BlasInt ldc );
 void Symm
-( char side, char uplo, int m, int n,
-  scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
-  scomplex beta,        scomplex* C, int ldc );
+( char side, char uplo, BlasInt m, BlasInt n,
+  scomplex alpha, const scomplex* A, BlasInt lda, 
+                  const scomplex* B, BlasInt ldb,
+  scomplex beta,        scomplex* C, BlasInt ldc );
 void Symm
-( char side, char uplo, int m, int n,
-  dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
-  dcomplex beta,        dcomplex* C, int ldc );
+( char side, char uplo, BlasInt m, BlasInt n,
+  dcomplex alpha, const dcomplex* A, BlasInt lda, 
+                  const dcomplex* B, BlasInt ldb,
+  dcomplex beta,        dcomplex* C, BlasInt ldc );
 
 // TODO: Templated Syr2k
 
 void Syr2k
-( char uplo, char trans, int n, int k,
-  float alpha, const float* A, int lda, const float* B, int ldb,
-  float beta,        float* C, int ldc );
+( char uplo, char trans, BlasInt n, BlasInt k,
+  float alpha, const float* A, BlasInt lda, 
+               const float* B, BlasInt ldb,
+  float beta,        float* C, BlasInt ldc );
 void Syr2k
-( char uplo, char trans, int n, int k,
-  double alpha, const double* A, int lda, const double* B, int ldb,
-  double beta,        double* C, int ldc );
+( char uplo, char trans, BlasInt n, BlasInt k,
+  double alpha, const double* A, BlasInt lda, 
+                const double* B, BlasInt ldb,
+  double beta,        double* C, BlasInt ldc );
 void Syr2k
-( char uplo, char trans, int n, int k,
-  scomplex alpha, const scomplex* A, int lda, const scomplex* B, int ldb,
-  scomplex beta,        scomplex* C, int ldc );
+( char uplo, char trans, BlasInt n, BlasInt k,
+  scomplex alpha, const scomplex* A, BlasInt lda, 
+                  const scomplex* B, BlasInt ldb,
+  scomplex beta,        scomplex* C, BlasInt ldc );
 void Syr2k
-( char uplo, char trans, int n, int k,
-  dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
-  dcomplex beta,        dcomplex* C, int ldc );
+( char uplo, char trans, BlasInt n, BlasInt k,
+  dcomplex alpha, const dcomplex* A, BlasInt lda, 
+                  const dcomplex* B, BlasInt ldb,
+  dcomplex beta,        dcomplex* C, BlasInt ldc );
 
 template<typename T>
 void Syrk
-( char uplo, int n, int k, 
-  T alpha, const T* A, int lda, 
-  T beta,        T* C, int ldc );
+( char uplo, BlasInt n, BlasInt k, 
+  T alpha, const T* A, BlasInt lda, 
+  T beta,        T* C, BlasInt ldc );
 
 void Syrk
-( char uplo, char trans, int n, int k,
-  float alpha, const float* A, int lda,
-  float beta,        float* C, int ldc );
+( char uplo, char trans, BlasInt n, BlasInt k,
+  float alpha, const float* A, BlasInt lda,
+  float beta,        float* C, BlasInt ldc );
 void Syrk
-( char uplo, char trans, int n, int k,
-  double alpha, const double* A, int lda,
-  double beta,        double* C, int ldc );
+( char uplo, char trans, BlasInt n, BlasInt k,
+  double alpha, const double* A, BlasInt lda,
+  double beta,        double* C, BlasInt ldc );
 void Syrk
-( char uplo, char trans, int n, int k,
-  scomplex alpha, const scomplex* A, int lda,
-  scomplex beta,        scomplex* C, int ldc );
+( char uplo, char trans, BlasInt n, BlasInt k,
+  scomplex alpha, const scomplex* A, BlasInt lda,
+  scomplex beta,        scomplex* C, BlasInt ldc );
 void Syrk
-( char uplo, char trans, int n, int k,
-  dcomplex alpha, const dcomplex* A, int lda,
-  dcomplex beta,        dcomplex* C, int ldc );
+( char uplo, char trans, BlasInt n, BlasInt k,
+  dcomplex alpha, const dcomplex* A, BlasInt lda,
+  dcomplex beta,        dcomplex* C, BlasInt ldc );
 
 // TODO: Templated Trmm
 
 void Trmm
-( char side,  char uplo, char trans, char unit, int m, int n,
-  float alpha, const float* A, int lda, float* B, int ldb );
+( char side,  char uplo, char trans, char unit, BlasInt m, BlasInt n,
+  float alpha, const float* A, BlasInt lda, float* B, BlasInt ldb );
 void Trmm
-( char side,  char uplo, char trans, char unit, int m, int n,
-  double alpha, const double* A, int lda, double* B, int ldb );
+( char side,  char uplo, char trans, char unit, BlasInt m, BlasInt n,
+  double alpha, const double* A, BlasInt lda, double* B, BlasInt ldb );
 void Trmm
-( char side,  char uplo, char trans, char unit, int m, int n,
-  scomplex alpha, const scomplex* A, int lda, scomplex* B, int ldb );
+( char side,  char uplo, char trans, char unit, BlasInt m, BlasInt n,
+  scomplex alpha, const scomplex* A, BlasInt lda, scomplex* B, BlasInt ldb );
 void Trmm
-( char side,  char uplo, char trans, char unit, int m, int n,
-  dcomplex alpha, const dcomplex* A, int lda, dcomplex* B, int ldb );
+( char side,  char uplo, char trans, char unit, BlasInt m, BlasInt n,
+  dcomplex alpha, const dcomplex* A, BlasInt lda, dcomplex* B, BlasInt ldb );
 
 // TODO: Templated Trsm
 
 void Trsm
-( char side,  char uplo, char trans, char unit, int m, int n,
-  float alpha, const float* A, int lda, float* B, int ldb );
+( char side,  char uplo, char trans, char unit, BlasInt m, BlasInt n,
+  float alpha, const float* A, BlasInt lda, float* B, BlasInt ldb );
 void Trsm
-( char side,  char uplo, char trans, char unit, int m, int n,
-  double alpha, const double* A, int lda, double* B, int ldb );
+( char side,  char uplo, char trans, char unit, BlasInt m, BlasInt n,
+  double alpha, const double* A, BlasInt lda, double* B, BlasInt ldb );
 void Trsm
-( char side,  char uplo, char trans, char unit, int m, int n,
-  scomplex alpha, const scomplex* A, int lda, scomplex* B, int ldb );
+( char side,  char uplo, char trans, char unit, BlasInt m, BlasInt n,
+  scomplex alpha, const scomplex* A, BlasInt lda, scomplex* B, BlasInt ldb );
 void Trsm
-( char side,  char uplo, char trans, char unit, int m, int n,
-  dcomplex alpha, const dcomplex* A, int lda, dcomplex* B, int ldb );
+( char side,  char uplo, char trans, char unit, BlasInt m, BlasInt n,
+  dcomplex alpha, const dcomplex* A, BlasInt lda, dcomplex* B, BlasInt ldb );
 
 } // namespace blas
 } // namespace El

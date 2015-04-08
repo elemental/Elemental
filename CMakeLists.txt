@@ -91,8 +91,12 @@ option(EL_EXPERIMENTAL "Build experimental code" OFF)
 # If valgrind was detected and is running, this will be forced anyway.
 option(EL_ZERO_INIT "Initialize buffers to zero by default?" OFF)
 
-# Attempt to use 64-bit integers
-option(EL_USE_64BIT_INTS "Use 64-bit integers where possible" OFF)
+# Attempt to use 64-bit integers?
+option(EL_USE_64BIT_INTS "Use 64-bit integers for El indexing" OFF)
+option(EL_USE_64BIT_BLAS_INTS "Use 64-bit integers for BLAS/LAPACK" OFF)
+if(EL_USE_64BIT_BLAS_INTS)
+  set(EL_USE_64BIT_INTS TRUE)
+endif()
 
 option(EL_USE_CUSTOM_ALLTOALLV "Avoid MPI_Alltoallv for performance reasons" ON)
 option(EL_BARRIER_IN_ALLTOALLV "Barrier before posting non-blocking recvs" OFF)
