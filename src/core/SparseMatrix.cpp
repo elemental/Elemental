@@ -18,11 +18,6 @@ template<typename T>
 SparseMatrix<T>::SparseMatrix() { }
 
 template<typename T>
-SparseMatrix<T>::SparseMatrix( Int height )
-: graph_(height)
-{ }
-
-template<typename T>
 SparseMatrix<T>::SparseMatrix( Int height, Int width )
 : graph_(height,width)
 { }
