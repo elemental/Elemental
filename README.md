@@ -125,4 +125,4 @@ which is distributed under the (equally permissive)
 
 **Build system**
 
-* [CMake >= 2.8.8](http://www.cmake.org/)
+* [CMake >= 2.8.12](http://www.cmake.org/)
