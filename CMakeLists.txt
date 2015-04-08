@@ -32,9 +32,9 @@ set(EL_VERSION_MINOR 86-dev)
 #   Elemental requires it to be one of the following two choices:
 #     1. Debug: Meant for development and debugging
 #     2. Release: Meant for production runs
-#   If either MinSizeRel or RelWithDebInfo are specified, then Elemental falls 
+#   If either MinSizeRel or RelWithDebInfo are specified, then Elemental falls
 #   back to Release mode.
-#   
+#
 #   If "CMAKE_BUILD_TYPE" is not defined, the default is Release mode.
 
 # "CXX_FLAGS"
@@ -481,6 +481,47 @@ endif()
 # Make sure the Elemental headers can be found
 include_directories("${PROJECT_BINARY_DIR}/include")
 
+# Build experimental drivers
+if(EL_EXPERIMENTAL)
+  set(EXPERIMENTAL_DIR ${PROJECT_SOURCE_DIR}/experimental)
+
+  # Build the G3D example(s)
+  set(G3D_EXPERS G3DGemm)
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/g3d")
+  foreach(EXPER ${G3D_EXPERS})
+    set(DRIVER ${EXPERIMENTAL_DIR}/g3d/${EXPER}.cpp)
+    add_executable(experimental-g3d-${EXPER} ${DRIVER})
+    set_source_files_properties(${DRIVER} PROPERTIES
+      OBJECT_DEPENDS "${PREPARED_HEADERS}")
+    target_link_libraries(experimental-g3d-${EXPER} El)
+    set_target_properties(experimental-g3d-${EXPER} PROPERTIES
+      OUTPUT_NAME ${EXPER} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+    if(MPI_LINK_FLAGS)
+      set_target_properties(experimental-g3d-${EXPER} PROPERTIES
+        LINK_FLAGS ${MPI_LINK_FLAGS})
+    endif()
+    install(TARGETS experimental-g3d-${EXPER} DESTINATION bin/experimental/g3d)
+  endforeach()
+endif()
+
+# If Elemental is a subproject, then pass some variables to the parent
+if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+  include(./cmake/ElSub.cmake)
+endif()
+
+# Tests
+include(CTest)
+
+#Install sandbox test
+install(FILES ${PROJECT_SOURCE_DIR}/sandbox/Makefile DESTINATION sandbox)
+install(FILES ${PROJECT_SOURCE_DIR}/sandbox/test.cpp DESTINATION sandbox)
+add_executable(sandbox-test ${PROJECT_SOURCE_DIR}/sandbox/test.cpp)
+set_source_files_properties(${PROJECT_SOURCE_DIR}/sandbox/test.cpp PROPERTIES OBJECT_DEPENDS "${PREPARED_HEADERS}")
+target_link_libraries(sandbox-test El)
+set_target_properties(sandbox-test PROPERTIES
+	OUTPUT_NAME sandbox-test RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+add_test(NAME sandbox/test WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/bin COMMAND sandbox-test)
+
 # Build the test drivers if necessary
 if(EL_TESTS)
   set(TEST_DIR ${PROJECT_SOURCE_DIR}/tests)
@@ -504,6 +545,9 @@ if(EL_TESTS)
           LINK_FLAGS ${MPI_LINK_FLAGS})
       endif()
       install(TARGETS tests-${TYPE}-${TESTNAME} DESTINATION bin/tests/${TYPE})
+      if(NOT TESTNAME STREQUAL "SparseLDLRange") #Skip tests that can time out
+        add_test(NAME Tests/${TYPE}/${TESTNAME} WORKING_DIRECTORY ${TEST_DIR} COMMAND tests-${TYPE}-${TESTNAME})
+      endif()
     endforeach()
   endforeach()
 endif()
@@ -538,68 +582,9 @@ if(EL_EXAMPLES)
       endif()
       install(TARGETS examples-${TYPE}-${EXNAME}
         DESTINATION bin/examples/${TYPE})
+      add_test(NAME Examples/${TYPE}/${EXNAME} WORKING_DIRECTORY ${OUTPUT_DIR} COMMAND examples-${TYPE}-${EXNAME})
     endforeach()
   endforeach()
 endif()
 
-# Build experimental drivers
-if(EL_EXPERIMENTAL)
-  set(EXPERIMENTAL_DIR ${PROJECT_SOURCE_DIR}/experimental)
-
-  # Build the G3D example(s)
-  set(G3D_EXPERS G3DGemm)
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/g3d")
-  foreach(EXPER ${G3D_EXPERS})
-    set(DRIVER ${EXPERIMENTAL_DIR}/g3d/${EXPER}.cpp)
-    add_executable(experimental-g3d-${EXPER} ${DRIVER})
-    set_source_files_properties(${DRIVER} PROPERTIES
-      OBJECT_DEPENDS "${PREPARED_HEADERS}")
-    target_link_libraries(experimental-g3d-${EXPER} El)
-    set_target_properties(experimental-g3d-${EXPER} PROPERTIES
-      OUTPUT_NAME ${EXPER} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
-    if(MPI_LINK_FLAGS)
-      set_target_properties(experimental-g3d-${EXPER} PROPERTIES
-        LINK_FLAGS ${MPI_LINK_FLAGS})
-    endif()
-    install(TARGETS experimental-g3d-${EXPER} DESTINATION bin/experimental/g3d)
-  endforeach()
-endif()
-
-# If Elemental is a subproject, then pass some variables to the parent
-if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-  include(./cmake/ElSub.cmake)
-endif()
-
-# Tests
-include(CTest)
-
-#Install sandbox test
-configure_file(${PROJECT_SOURCE_DIR}/sandbox/Makefile.cmake
-		${PROJECT_BINARY_DIR}/sandbox/Makefile @ONLY)
-install(FILES ${PROJECT_BINARY_DIR}/sandbox/Makefile DESTINATION sandbox)
-install(FILES ${PROJECT_SOURCE_DIR}/sandbox/test.cpp DESTINATION sandbox)
-
-add_test(NAME sandbox_test WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/sandbox COMMAND make)
-
-#Install other tests
-#Scans through all subdirectories of tests/, and defines a new test for each
-#.cpp file found inside
-
-#Makefile driver has to be CMake-configured to use build variables
-configure_file(${PROJECT_SOURCE_DIR}/tests/Makefile.cmake
-		${PROJECT_BINARY_DIR}/tests/Makefile @ONLY)
-install(DIRECTORY tests DESTINATION ${CMAKE_INSTALL_PREFIX})
-
-foreach(TestDir core blas_like lapack_like optimization)
-  install(FILES ${PROJECT_BINARY_DIR}/tests/Makefile DESTINATION tests/${TestDir})
-
-  file(GLOB TestSources RELATIVE "${PROJECT_SOURCE_DIR}/tests/${TestDir}"
-    "${PROJECT_SOURCE_DIR}/tests/${TestDir}/*.cpp")
-
-  foreach(TestSource ${TestSources})
-    string(REGEX REPLACE ".cpp\$" "" TestName ${TestSource})
-
-    add_test(NAME ${TestDir}_${TestName} WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/tests/${TestDir} COMMAND make ${TestName})
-  endforeach(TestSource)
-endforeach(TestDir)
 
