@@ -150,8 +150,7 @@ void Transpose
     {
         unique_ptr<AbstractDistMatrix<T>> 
             C( B.ConstructTranspose(A.Grid(),A.Root()) );
-        C->AlignRowsWith( BData );
-        C->AlignColsWith( BData );
+        C->AlignWith( BData );
         Copy( A, *C );
         B.Resize( A.Width(), A.Height() );
         Transpose( C->LockedMatrix(), B.Matrix(), conjugate );
@@ -215,8 +214,7 @@ void Transpose
     {
         unique_ptr<AbstractBlockDistMatrix<T>> 
             C( B.ConstructTranspose(A.Grid(),A.Root()) );
-        C->AlignRowsWith( BData );
-        C->AlignColsWith( BData );
+        C->AlignWith( BData );
         Copy( A, *C );
         B.Resize( A.Width(), A.Height() );
         Transpose( C->LockedMatrix(), B.Matrix(), conjugate );

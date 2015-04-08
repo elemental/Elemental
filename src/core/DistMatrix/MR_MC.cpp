@@ -59,9 +59,11 @@ DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
     if( grid.Height() == grid.Width() )
     {
         const int gridDim = grid.Height();
-        const int transposeRank =
-            A.RowOwner(this->ColShift()) + gridDim*this->RowOwner(A.ColShift());
-        copy::Exchange( A, *this, transposeRank, transposeRank, grid.VCComm() );
+        const int sendRank = this->ColOwner(A.RowShift()) + 
+                             this->RowOwner(A.ColShift())*gridDim;
+        const int recvRank = A.RowOwner(this->ColShift()) + 
+                             A.ColOwner(this->RowShift())*gridDim;
+        copy::Exchange( A, *this, sendRank, recvRank, grid.VCComm() );
     }
     else
     {

@@ -77,13 +77,11 @@ void Swap
         )
         // TODO: Optimize communication
 
-        unique_ptr<AbstractDistMatrix<T>> 
-          YLikeX( X.Construct(g,X.Root()) );
+        unique_ptr<AbstractDistMatrix<T>> YLikeX( X.Construct(g,X.Root()) );
         YLikeX->AlignWith( X.DistData() );
         Copy( Y, *YLikeX );
 
-        unique_ptr<AbstractDistMatrix<T>> 
-          XLikeY( Y.Construct(g,Y.Root()) );
+        unique_ptr<AbstractDistMatrix<T>> XLikeY( Y.Construct(g,Y.Root()) );
         XLikeY->AlignWith( Y.DistData() );
         Copy( X, *XLikeY );
 
