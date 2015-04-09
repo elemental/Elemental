@@ -133,7 +133,7 @@ Int MatrixNode<T>::Height() const
     return height;
 }
 
-#define PROTO(T) template class MatrixNode<T>;
+#define PROTO(T) template struct MatrixNode<T>;
 #include "El/macros/Instantiate.h"
 
 } // namespace El

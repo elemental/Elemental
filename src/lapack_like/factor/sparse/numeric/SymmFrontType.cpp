@@ -114,7 +114,7 @@ SymmFrontType ConvertTo1D( SymmFrontType type )
 SymmFrontType AppendSelInv( SymmFrontType type )
 {
     DEBUG_ONLY(CallStackEntry cse("AppendSelInv"))
-    SymmFrontType newType;
+    SymmFrontType newType=LDL_SELINV_2D;
     switch( type )
     {
     case LDL_1D:          newType = LDL_SELINV_1D; break;
@@ -129,7 +129,7 @@ SymmFrontType AppendSelInv( SymmFrontType type )
 SymmFrontType RemoveSelInv( SymmFrontType type )
 {
     DEBUG_ONLY(CallStackEntry cse("RemoveSelInv"))
-    SymmFrontType newType;
+    SymmFrontType newType=LDL_2D;
     switch( type )
     {
     case LDL_SELINV_1D: newType = LDL_1D; break;

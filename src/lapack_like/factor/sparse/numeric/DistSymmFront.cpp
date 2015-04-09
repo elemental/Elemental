@@ -888,7 +888,7 @@ void DistSymmFront<F>::ComputeCommMeta
         ComputeRecvInds( info );
 }
 
-#define PROTO(F) template class DistSymmFront<F>;
+#define PROTO(F) template struct DistSymmFront<F>;
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
 

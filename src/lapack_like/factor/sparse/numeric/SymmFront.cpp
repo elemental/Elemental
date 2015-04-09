@@ -334,7 +334,7 @@ double SymmFront<F>::SolveGFlops( Int numRHS ) const
     return gflops;
 }
 
-#define PROTO(F) template class SymmFront<F>;
+#define PROTO(F) template struct SymmFront<F>;
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
 

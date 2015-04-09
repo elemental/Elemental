@@ -201,7 +201,7 @@ void DistMatrixNode<T>::ComputeCommMeta( const DistSymmNodeInfo& info ) const
     }
 }
 
-#define PROTO(T) template class DistMatrixNode<T>;
+#define PROTO(T) template struct DistMatrixNode<T>;
 #include "El/macros/Instantiate.h"
 
 } // namespace El

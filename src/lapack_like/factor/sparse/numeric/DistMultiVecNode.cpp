@@ -498,7 +498,7 @@ void DistMultiVecNode<T>::ComputeCommMeta( const DistSymmNodeInfo& info ) const
     commMeta.localSize = matrix.LocalHeight();
 }
 
-#define PROTO(T) template class DistMultiVecNode<T>;
+#define PROTO(T) template struct DistMultiVecNode<T>;
 #include "El/macros/Instantiate.h"
 
 } // namespace El

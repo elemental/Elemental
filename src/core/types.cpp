@@ -184,15 +184,15 @@ UpperOrLower CharToUpperOrLower( char c )
 
 } // namespace UpperOrLowerNS
 
-template class SafeProduct<float>;
-template class SafeProduct<double>;
+template struct SafeProduct<float>;
+template struct SafeProduct<double>;
 #ifdef EL_ENABLE_QUAD
-template class SafeProduct<Quad>;
+template struct SafeProduct<Quad>;
 #endif
-template class SafeProduct<Complex<float>>;
-template class SafeProduct<Complex<double>>;
+template struct SafeProduct<Complex<float>>;
+template struct SafeProduct<Complex<double>>;
 #ifdef EL_ENABLE_QUAD
-template class SafeProduct<Complex<Quad>>;
+template struct SafeProduct<Complex<Quad>>;
 #endif
 
 } // namespace El
