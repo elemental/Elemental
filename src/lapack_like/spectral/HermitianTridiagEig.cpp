@@ -108,17 +108,17 @@ inline void Helper
     herm_tridiag_eig::Info info;
     if( subset.rangeSubset )
         info = herm_tridiag_eig::Eig
-          ( BlasInt(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
             wVector.data(), w.ColComm(), 
             subset.lowerBound, subset.upperBound );
     else if( subset.indexSubset )
         info = herm_tridiag_eig::Eig
-          ( BlasInt(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
             wVector.data(), w.ColComm(), 
-            BlasInt(subset.lowerIndex), BlasInt(subset.upperIndex) );
+            int(subset.lowerIndex), int(subset.upperIndex) );
     else
         info = herm_tridiag_eig::Eig
-          ( BlasInt(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
             wVector.data(), w.ColComm() );
     w.Resize( info.numGlobalEigenvalues, 1 );
     for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
@@ -169,21 +169,21 @@ inline void Helper
     if( subset.rangeSubset )
     {
         info = herm_tridiag_eig::Eig
-          ( BlasInt(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(),
+          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(),
             wVector.data(), w.ColComm(),
             subset.lowerBound, subset.upperBound );
     }
     else if( subset.indexSubset )
     {
         info = herm_tridiag_eig::Eig
-          ( BlasInt(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(),
+          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(),
             wVector.data(), w.ColComm(),
-            BlasInt(subset.lowerIndex), BlasInt(subset.upperIndex) );
+            int(subset.lowerIndex), int(subset.upperIndex) );
     }
     else
     {
         info = herm_tridiag_eig::Eig
-          ( BlasInt(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(),
+          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(),
             wVector.data(), w.ColComm() );
     }
     w.Resize( info.numGlobalEigenvalues, 1 );
@@ -327,7 +327,7 @@ inline void Helper
         MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
         MemCopy( dSubVector.data(), dSub_STAR_STAR.Buffer(), n-1 );
         auto estimate = herm_tridiag_eig::EigEstimate
-          ( BlasInt(n), dVector.data(), dSubVector.data(),
+          ( int(n), dVector.data(), dSubVector.data(),
             wVector.data(), w.ColComm(),
             subset.lowerBound, subset.upperBound );
         SwapClear( dVector );
@@ -344,17 +344,17 @@ inline void Helper
     vector<double> wVector(n);
     if( subset.rangeSubset )
         info = herm_tridiag_eig::Eig
-          ( BlasInt(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
             wVector.data(), Z.Buffer(), Z.LDim(), w.ColComm(),
             subset.lowerBound, subset.upperBound );
     else if( subset.indexSubset )
         info = herm_tridiag_eig::Eig
-          ( BlasInt(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
             wVector.data(), Z.Buffer(), Z.LDim(), w.ColComm(),
-            BlasInt(subset.lowerIndex), BlasInt(subset.upperIndex) );
+            int(subset.lowerIndex), int(subset.upperIndex) );
     else
         info = herm_tridiag_eig::Eig
-          ( BlasInt(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
             wVector.data(), Z.Buffer(), Z.LDim(), w.ColComm() );
     w.Resize( info.numGlobalEigenvalues, 1 );
     Z.Resize( n, info.numGlobalEigenvalues );
@@ -415,7 +415,7 @@ inline void Helper
         MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
         MemCopy( dSubVector.data(), dSubReal.Buffer(), n-1 );
         auto estimate = herm_tridiag_eig::EigEstimate
-          ( BlasInt(n), dVector.data(), dSubVector.data(),
+          ( int(n), dVector.data(), dSubVector.data(),
             wVector.data(), w.ColComm(),
             subset.lowerBound, subset.upperBound );
         SwapClear( dVector );
@@ -433,17 +433,17 @@ inline void Helper
     vector<double> wVector(n);
     if( subset.rangeSubset )
         info = herm_tridiag_eig::Eig
-          ( BlasInt(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(), 
             wVector.data(), ZReal.Buffer(), ZReal.LDim(), w.ColComm(),
             subset.lowerBound, subset.upperBound );
     else if( subset.indexSubset )
         info = herm_tridiag_eig::Eig
-          ( BlasInt(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(), 
             wVector.data(), ZReal.Buffer(), ZReal.LDim(), w.ColComm(),
-            BlasInt(subset.lowerIndex), BlasInt(subset.upperIndex) );
+            int(subset.lowerIndex), int(subset.upperIndex) );
     else
         info = herm_tridiag_eig::Eig
-          ( BlasInt(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(), 
             wVector.data(), ZReal.Buffer(), ZReal.LDim(), w.ColComm() );
 
     w.Resize( info.numGlobalEigenvalues, 1 );
@@ -487,7 +487,7 @@ Int HermitianTridiagEigEstimate
     MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
     MemCopy( dSubVector.data(), dSub_STAR_STAR.Buffer(), n-1 );
     auto estimate = herm_tridiag_eig::EigEstimate
-    ( BlasInt(n), dVector.data(), dSubVector.data(), wVector.data(), wColComm,
+    ( int(n), dVector.data(), dSubVector.data(), wVector.data(), wColComm,
       vl, vu );
     return estimate.numGlobalEigenvalues;
 }
@@ -520,7 +520,7 @@ void HermitianTridiagEigPostEstimate
 
     vector<double> wVector(n);
     auto info = herm_tridiag_eig::Eig
-    ( BlasInt(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), wVector.data(),
+    ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), wVector.data(),
       Z.Buffer(), Z.LDim(), w.ColComm(), vl, vu );
     const Int k = info.numGlobalEigenvalues;
 

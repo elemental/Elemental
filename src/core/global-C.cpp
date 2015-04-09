@@ -30,37 +30,37 @@ const char* ElErrorString( ElError error )
 {
     if( error == EL_SUCCESS )
     {
-        const char* errString = "EL_SUCCESS";
-        return errString;
+        static const char* successString = "EL_SUCCESS";
+        return successString;
     }
     else if( error == EL_ALLOC_ERROR )
     {
-        const char* errString = "EL_ALLOC_ERROR";
-        return errString;
+        static const char* allocString = "EL_ALLOC_ERROR";
+        return allocString;
     }
     else if( error == EL_OUT_OF_BOUNDS_ERROR )
     {
-        const char* errString = "EL_OUT_OF_BOUNDS_ERROR";
-        return errString;
+        static const char* oobString = "EL_OUT_OF_BOUNDS_ERROR";
+        return oobString;
     }
     else if( error == EL_ARG_ERROR )
     {
-        const char* errString = "EL_ARG_ERROR";
-        return errString;
+        static const char* argString = "EL_ARG_ERROR";
+        return argString;
     }
     else if( error == EL_LOGIC_ERROR )
     {
-        const char* errString = "EL_LOGIC_ERROR";
-        return errString;
+        static const char* logicString = "EL_LOGIC_ERROR";
+        return logicString;
     }
     else if( error == EL_RUNTIME_ERROR )
     {
-        const char* errString = "EL_RUNTIME_ERROR";
-        return errString;
+        static const char* runtimeString = "EL_RUNTIME_ERROR";
+        return runtimeString;
     }
     else
     {
-        const char* errString = "EL_ERROR";
+        static const char* errString = "EL_ERROR";
         return errString;
     }
 }
