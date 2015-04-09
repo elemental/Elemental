@@ -44,10 +44,9 @@ script:
   - mkdir build && cd build;
     cmake .. -DASSERT=ON -DASSERT2=ON -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCXX_FLAGS="-g -O0 -Wall -fprofile-arcs -ftest-coverage" -DC_FLAGS="-g -O0 -Wall -fprofile-arcs -ftest-coverage" -DFortran_FLAGS="-g -O0 -Wall -fprofile-arcs -ftest-coverage" -DCMAKE_BUILD_TYPE=Debug;
     if test $? -ne 0; then cat CMakeFiles/CMakeError.log; fi
-  - make -j3 -l3 && sudo make -j3 -l3 install && sudo ctest -j3 --output-on-failure
+  - make -j2 && sudo make -j2 install && sudo ctest -j3 --output-on-failure
 
 after_success:
-  - find ${TRAVIS_BUILD_DIR} -name *.gc*
   - lcov --directory . --capture --output-file coverage.info # capture coverage info
   - lcov --remove coverage.info 'tests/*' '/usr/*' --output-file coverage.info # filter out system and test code
   - lcov --list coverage.info # debug before upload
