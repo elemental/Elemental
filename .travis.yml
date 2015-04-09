@@ -41,10 +41,15 @@ before_script:
   - lcov --directory . --zerocounters
 
 script:
-  - mkdir build && cd build;
+  - mkdir build && cd build
     cmake .. -DASSERT=ON -DASSERT2=ON -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCXX_FLAGS="-g -O0 -Wall -fprofile-arcs -ftest-coverage" -DC_FLAGS="-g -O0 -Wall -fprofile-arcs -ftest-coverage" -DFortran_FLAGS="-g -O0 -Wall -fprofile-arcs -ftest-coverage" -DCMAKE_BUILD_TYPE=Debug;
     if test $? -ne 0; then cat CMakeFiles/CMakeError.log; fi
-  - make -j2 && sudo make -j2 install && sudo ctest -j3 --output-on-failure
+  - make -j8 -l8;
+    if test $? -ne 0; then make -j1; fi;
+    if test $? -ne 0; then make -j1; fi;
+    if test $? -ne 0; then make -j1; fi;
+    sudo make -j2 install;
+    sudo ctest -j8 --output-on-failure
 
 after_success:
   - lcov --directory . --capture --output-file coverage.info # capture coverage info
