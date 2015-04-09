@@ -160,20 +160,20 @@ void HermitianEig
     if( subset.rangeSubset )
     {
         const Int numEigs = lapack::HermitianEig
-          ( uploChar, int(n), A.Buffer(), int(A.LDim()), w.Buffer(), 
+          ( uploChar, BlasInt(n), A.Buffer(), BlasInt(A.LDim()), w.Buffer(), 
             subset.lowerBound, subset.upperBound );
         w.Resize( numEigs, 1 );
     }
     else if( subset.indexSubset )
     {
         lapack::HermitianEig
-        ( uploChar, int(n), A.Buffer(), int(A.LDim()), w.Buffer(), 
-          int(subset.lowerIndex), int(subset.upperIndex) );
+        ( uploChar, BlasInt(n), A.Buffer(), BlasInt(A.LDim()), w.Buffer(), 
+          BlasInt(subset.lowerIndex), BlasInt(subset.upperIndex) );
         w.Resize( subset.upperIndex-subset.lowerIndex+1, 1 );
     }
     else
         lapack::HermitianEig
-        ( uploChar, int(n), A.Buffer(), int(A.LDim()), w.Buffer() );
+        ( uploChar, BlasInt(n), A.Buffer(), BlasInt(A.LDim()), w.Buffer() );
     Sort( w, sort );
 }
 
@@ -210,20 +210,20 @@ void HermitianEig
     if( subset.rangeSubset )
     {
         const Int numEigs = lapack::HermitianEig
-          ( uploChar, int(n), A.Buffer(), int(A.LDim()), w.Buffer(), 
+          ( uploChar, BlasInt(n), A.Buffer(), BlasInt(A.LDim()), w.Buffer(), 
             subset.lowerBound, subset.upperBound );
         w.Resize( numEigs, 1 );
     }
     else if( subset.indexSubset )
     {
         lapack::HermitianEig
-        ( uploChar, int(n), A.Buffer(), int(A.LDim()), w.Buffer(), 
-          int(subset.lowerIndex), int(subset.upperIndex) );
+        ( uploChar, BlasInt(n), A.Buffer(), BlasInt(A.LDim()), w.Buffer(), 
+          BlasInt(subset.lowerIndex), BlasInt(subset.upperIndex) );
         w.Resize( subset.upperIndex-subset.lowerIndex+1, 1 );
     }
     else
         lapack::HermitianEig
-        ( uploChar, int(n), A.Buffer(), int(A.LDim()), w.Buffer() );
+        ( uploChar, BlasInt(n), A.Buffer(), BlasInt(A.LDim()), w.Buffer() );
     Sort( w, sort );
 }
 
@@ -338,17 +338,17 @@ void HermitianEig
         const Int numEigs = subset.upperIndex-subset.lowerIndex+1;
         Z.Resize( n, numEigs );
         lapack::HermitianEig
-        ( uploChar, int(n), A.Buffer(), int(A.LDim()), w.Buffer(), 
-          Z.Buffer(), int(Z.LDim()),
-          int(subset.lowerIndex), int(subset.upperIndex) );
+        ( uploChar, BlasInt(n), A.Buffer(), BlasInt(A.LDim()), w.Buffer(), 
+          Z.Buffer(), BlasInt(Z.LDim()),
+          BlasInt(subset.lowerIndex), BlasInt(subset.upperIndex) );
         w.Resize( numEigs, 1 );
     }
     else if( subset.rangeSubset )
     {
         Z.Resize( n, n );
         const Int numEigs = lapack::HermitianEig
-          ( uploChar, int(n), A.Buffer(), int(A.LDim()), w.Buffer(), 
-            Z.Buffer(), int(Z.LDim()),
+          ( uploChar, BlasInt(n), A.Buffer(), BlasInt(A.LDim()), w.Buffer(), 
+            Z.Buffer(), BlasInt(Z.LDim()),
             subset.lowerBound, subset.upperBound );
         w.Resize( numEigs, 1 );
         Z.Resize( n, numEigs );
@@ -357,8 +357,8 @@ void HermitianEig
     {
         Z.Resize( n, n );
         lapack::HermitianEig
-        ( uploChar, int(n), A.Buffer(), int(A.LDim()), w.Buffer(), 
-          Z.Buffer(), int(Z.LDim()) );
+        ( uploChar, BlasInt(n), A.Buffer(), BlasInt(A.LDim()), w.Buffer(), 
+          Z.Buffer(), BlasInt(Z.LDim()) );
     }
     herm_eig::Sort( w, Z, sort );
 }
@@ -400,17 +400,17 @@ void HermitianEig
         const Int numEigs = subset.upperIndex-subset.lowerIndex+1;
         Z.Resize( n, numEigs );
         lapack::HermitianEig
-        ( uploChar, int(n), A.Buffer(), A.LDim(), w.Buffer(), 
-          Z.Buffer(), int(Z.LDim()),
-          int(subset.lowerIndex), int(subset.upperIndex) );
+        ( uploChar, BlasInt(n), A.Buffer(), A.LDim(), w.Buffer(), 
+          Z.Buffer(), BlasInt(Z.LDim()),
+          BlasInt(subset.lowerIndex), BlasInt(subset.upperIndex) );
         w.Resize( numEigs, 1 );
     }
     else if( subset.rangeSubset )
     {
         Z.Resize( n, n );
         const Int numEigs = lapack::HermitianEig
-          ( uploChar, int(n), A.Buffer(), A.LDim(), w.Buffer(), 
-            Z.Buffer(), int(Z.LDim()),
+          ( uploChar, BlasInt(n), A.Buffer(), A.LDim(), w.Buffer(), 
+            Z.Buffer(), BlasInt(Z.LDim()),
             subset.lowerBound, subset.upperBound );
         w.Resize( numEigs, 1 );
         Z.Resize( n, numEigs );
@@ -419,8 +419,8 @@ void HermitianEig
     {
         Z.Resize( n, n );
         lapack::HermitianEig
-        ( uploChar, int(n), A.Buffer(), int(A.LDim()), w.Buffer(), 
-          Z.Buffer(), int(Z.LDim()) );
+        ( uploChar, BlasInt(n), A.Buffer(), BlasInt(A.LDim()), w.Buffer(), 
+          Z.Buffer(), BlasInt(Z.LDim()) );
     }
     herm_eig::Sort( w.Matrix(), Z.Matrix(), sort );
 }

@@ -29,7 +29,7 @@ inline void Helper
     if( subset.rangeSubset )
     {
          const Int k = lapack::SymmetricTridiagEig
-          ( int(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
+          ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
             subset.lowerBound, subset.upperBound );
          w.Resize( k, 1 );
     }
@@ -37,13 +37,13 @@ inline void Helper
     {
         const Int numEig = subset.upperIndex-subset.lowerIndex+1;
         lapack::SymmetricTridiagEig
-        ( int(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
-          int(subset.lowerIndex), int(subset.upperIndex) );
+        ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
+          BlasInt(subset.lowerIndex), BlasInt(subset.upperIndex) );
         w.Resize( numEig, 1 );
     }
     else
         lapack::SymmetricTridiagEig
-        ( int(n), d.Buffer(), dSub.Buffer(), w.Buffer() );
+        ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer() );
     Sort( w, sort );
 }
 
@@ -108,17 +108,17 @@ inline void Helper
     herm_tridiag_eig::Info info;
     if( subset.rangeSubset )
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
+          ( BlasInt(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
             wVector.data(), w.ColComm(), 
             subset.lowerBound, subset.upperBound );
     else if( subset.indexSubset )
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
+          ( BlasInt(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
             wVector.data(), w.ColComm(), 
-            int(subset.lowerIndex), int(subset.upperIndex) );
+            BlasInt(subset.lowerIndex), BlasInt(subset.upperIndex) );
     else
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
+          ( BlasInt(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
             wVector.data(), w.ColComm() );
     w.Resize( info.numGlobalEigenvalues, 1 );
     for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
@@ -169,21 +169,21 @@ inline void Helper
     if( subset.rangeSubset )
     {
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(),
+          ( BlasInt(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(),
             wVector.data(), w.ColComm(),
             subset.lowerBound, subset.upperBound );
     }
     else if( subset.indexSubset )
     {
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(),
+          ( BlasInt(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(),
             wVector.data(), w.ColComm(),
-            int(subset.lowerIndex), int(subset.upperIndex) );
+            BlasInt(subset.lowerIndex), BlasInt(subset.upperIndex) );
     }
     else
     {
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(),
+          ( BlasInt(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(),
             wVector.data(), w.ColComm() );
     }
     w.Resize( info.numGlobalEigenvalues, 1 );
@@ -222,8 +222,8 @@ inline void Helper
     {
          Z.Resize( n, n );
          const Int k = lapack::SymmetricTridiagEig
-          ( int(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
-            Z.Buffer(), int(Z.LDim()),
+          ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
+            Z.Buffer(), BlasInt(Z.LDim()),
             subset.lowerBound, subset.upperBound );
          w.Resize( k, 1 );
          Z.Resize( n, k );
@@ -233,17 +233,17 @@ inline void Helper
         const Int numEig = subset.upperIndex-subset.lowerIndex+1;
         Z.Resize( n, numEig );
         lapack::SymmetricTridiagEig
-        ( int(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
-          Z.Buffer(), int(Z.LDim()),
-          int(subset.lowerIndex), int(subset.upperIndex) );
+        ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
+          Z.Buffer(), BlasInt(Z.LDim()),
+          BlasInt(subset.lowerIndex), BlasInt(subset.upperIndex) );
         w.Resize( numEig, 1 );
     }
     else
     {
         Z.Resize( n, n );
         lapack::SymmetricTridiagEig
-        ( int(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
-          Z.Buffer(), int(Z.LDim()) );
+        ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
+          Z.Buffer(), BlasInt(Z.LDim()) );
     }
     herm_eig::Sort( w, Z, sort );
 }
@@ -327,7 +327,7 @@ inline void Helper
         MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
         MemCopy( dSubVector.data(), dSub_STAR_STAR.Buffer(), n-1 );
         auto estimate = herm_tridiag_eig::EigEstimate
-          ( int(n), dVector.data(), dSubVector.data(),
+          ( BlasInt(n), dVector.data(), dSubVector.data(),
             wVector.data(), w.ColComm(),
             subset.lowerBound, subset.upperBound );
         SwapClear( dVector );
@@ -344,17 +344,17 @@ inline void Helper
     vector<double> wVector(n);
     if( subset.rangeSubset )
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
+          ( BlasInt(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
             wVector.data(), Z.Buffer(), Z.LDim(), w.ColComm(),
             subset.lowerBound, subset.upperBound );
     else if( subset.indexSubset )
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
+          ( BlasInt(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
             wVector.data(), Z.Buffer(), Z.LDim(), w.ColComm(),
-            int(subset.lowerIndex), int(subset.upperIndex) );
+            BlasInt(subset.lowerIndex), BlasInt(subset.upperIndex) );
     else
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
+          ( BlasInt(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
             wVector.data(), Z.Buffer(), Z.LDim(), w.ColComm() );
     w.Resize( info.numGlobalEigenvalues, 1 );
     Z.Resize( n, info.numGlobalEigenvalues );
@@ -415,7 +415,7 @@ inline void Helper
         MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
         MemCopy( dSubVector.data(), dSubReal.Buffer(), n-1 );
         auto estimate = herm_tridiag_eig::EigEstimate
-          ( int(n), dVector.data(), dSubVector.data(),
+          ( BlasInt(n), dVector.data(), dSubVector.data(),
             wVector.data(), w.ColComm(),
             subset.lowerBound, subset.upperBound );
         SwapClear( dVector );
@@ -433,17 +433,17 @@ inline void Helper
     vector<double> wVector(n);
     if( subset.rangeSubset )
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(), 
+          ( BlasInt(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(), 
             wVector.data(), ZReal.Buffer(), ZReal.LDim(), w.ColComm(),
             subset.lowerBound, subset.upperBound );
     else if( subset.indexSubset )
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(), 
+          ( BlasInt(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(), 
             wVector.data(), ZReal.Buffer(), ZReal.LDim(), w.ColComm(),
-            int(subset.lowerIndex), int(subset.upperIndex) );
+            BlasInt(subset.lowerIndex), BlasInt(subset.upperIndex) );
     else
         info = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(), 
+          ( BlasInt(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(), 
             wVector.data(), ZReal.Buffer(), ZReal.LDim(), w.ColComm() );
 
     w.Resize( info.numGlobalEigenvalues, 1 );
@@ -487,7 +487,7 @@ Int HermitianTridiagEigEstimate
     MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
     MemCopy( dSubVector.data(), dSub_STAR_STAR.Buffer(), n-1 );
     auto estimate = herm_tridiag_eig::EigEstimate
-    ( int(n), dVector.data(), dSubVector.data(), wVector.data(), wColComm,
+    ( BlasInt(n), dVector.data(), dSubVector.data(), wVector.data(), wColComm,
       vl, vu );
     return estimate.numGlobalEigenvalues;
 }
@@ -520,7 +520,7 @@ void HermitianTridiagEigPostEstimate
 
     vector<double> wVector(n);
     auto info = herm_tridiag_eig::Eig
-    ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), wVector.data(), 
+    ( BlasInt(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), wVector.data(),
       Z.Buffer(), Z.LDim(), w.ColComm(), vl, vu );
     const Int k = info.numGlobalEigenvalues;
 
