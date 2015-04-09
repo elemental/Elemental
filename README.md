@@ -3,15 +3,16 @@
 </p>
 
 ![Travis CI](https://travis-ci.org/elemental/Elemental.svg?branch=master)
+[![Coverage Status](https://coveralls.io/repos/elemental/Elemental/badge.svg?branch=master)](https://coveralls.io/r/elemental/Elemental?branch=master)
 
-**Elemental** is a modern C++ library for distributed-memory dense and 
+**Elemental** is a modern C++ library for distributed-memory dense and
 sparse-direct linear algebra and optimization.
 The library was initially released in
-[Elemental: A new framework for distributed memory dense linear algebra](https://dl.acm.org/citation.cfm?doid=2427023.2427030) 
+[Elemental: A new framework for distributed memory dense linear algebra](https://dl.acm.org/citation.cfm?doid=2427023.2427030)
 and has recently absorbed the functionality from the sparse-direct solver
 [Clique](http://www.github.com/poulson/Clique.git).
 
-Please visit [the download page](http://libelemental.org/download/) for 
+Please visit [the download page](http://libelemental.org/download/) for
 details about recent and upcoming releases.
 
 ### Documentation
@@ -20,7 +21,7 @@ The [documentation for Elemental](http://libelemental.org/documentation) is buil
 
 ### Unique features
 
-Elemental supports a wide collection of distributed-memory functionality, 
+Elemental supports a wide collection of distributed-memory functionality,
 including:
 
 **Convex optimization**:
@@ -58,11 +59,11 @@ including:
 
 ### License
 
-All of Elemental is distributed under the terms of the 
-[New BSD License](http://www.opensource.org/licenses/bsd-license.php), 
-with the exception of 
-[METIS 5.1.0](http://glaros.dtc.umn.edu/gkhome/metis/metis/overview), 
-which is distributed under the (equally permissive) 
+All of Elemental is distributed under the terms of the
+[New BSD License](http://www.opensource.org/licenses/bsd-license.php),
+with the exception of
+[METIS 5.1.0](http://glaros.dtc.umn.edu/gkhome/metis/metis/overview),
+which is distributed under the (equally permissive)
 [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html).
 
 ### Related open-source projects
@@ -73,7 +74,7 @@ which is distributed under the (equally permissive)
 * [NuLAB](https://github.com/solomonik/NuLAB)
 * [PaRSEC/DPLASMA](http://icl.eecs.utk.edu/projectsdev/parsec/index.html)
 * [PLAPACK](http://www.cs.utexas.edu/~plapack)
-* [ScaLAPACK](http://www.netlib.org/scalapack) 
+* [ScaLAPACK](http://www.netlib.org/scalapack)
 
 **Distributed sparse-direct linear algebra**:
 
