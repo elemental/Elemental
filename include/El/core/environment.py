@@ -37,8 +37,14 @@ from ctypes import c_size_t, c_ubyte, c_uint, c_int, c_float, c_double
 from ctypes import c_longlong, c_void_p, c_char_p
 from ctypes import pointer, POINTER
 
-# TODO: Switch to a different boolean type if appropriate
-bType = c_ubyte
+# Query whether or not the size of bool is one byte (otherwise use a c_uint)
+lib.ElSizeOfBool.argtypes = [POINTER(c_uint)]
+boolSize = c_uint()
+lib.ElSizeOfBool(pointer(boolSize))
+if boolSize.val == 1:
+  bType = c_ubyte
+else:
+  bType = c_uint
 
 # Determine whether we have 64-bit integers or not
 lib.ElUsing64BitInt.argtypes = [POINTER(bType)]
