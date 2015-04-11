@@ -77,22 +77,22 @@ public:
 
     // Assembly
     // --------
-    void Reserve( Int numLocalEntries );
+    void Reserve( Int numLocalEntries, Int numRemoteEntries=0 );
 
     // A safe procedure for applying a local update or zeroing an entry
-    void Update( const Entry<T>& entry );
-    void Update( Int row, Int col, T value );
+    void Update( const Entry<T>& entry, bool passive=true );
+    void Update( Int row, Int col, T value, bool passive=true );
     void UpdateLocal( const Entry<T>& localEntry );
     void UpdateLocal( Int localRow, Int col, T value );
-    void Zero( Int row, Int col );
+    void Zero( Int row, Int col, bool passive=true );
     void ZeroLocal( Int localRow, Int col );
 
     // For applying a sequence of updates and then forcing consistency
-    void QueueUpdate( const Entry<T>& entry );
-    void QueueUpdate( Int row, Int col, T value );
+    void QueueUpdate( const Entry<T>& entry, bool passive=true );
+    void QueueUpdate( Int row, Int col, T value, bool passive=true );
     void QueueLocalUpdate( const Entry<T>& localEntry );
     void QueueLocalUpdate( Int localRow, Int col, T value );
-    void QueueZero( Int row, Int col );
+    void QueueZero( Int row, Int col, bool passive=true );
     void QueueLocalZero( Int localRow, Int col );
     void MakeConsistent();
 
@@ -137,6 +137,7 @@ public:
 private:
     El::DistGraph distGraph_;
     vector<T> vals_;
+    vector<T> remoteVals_;
 
     void InitializeLocalData();
 

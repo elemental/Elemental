@@ -59,7 +59,7 @@ if(BUILD_SHARED_LIBS AND EL_C_INTERFACE)
   # Define PYTHON_SITE_PACKAGES if you want to install the python package
   # somewhere other than the default system-wide location (e.g., within your
   # home directory)
-  option(INSTALL_PYTHON_PACKAGE "Install Python interface? (requires Python 2.x)" FALSE)
+  option(INSTALL_PYTHON_PACKAGE "Install Python interface? (requires Python 2.x)" TRUE)
 
   set(Python_ADDITIONAL_VERSIONS 2.7)
   include(FindPythonInterp) #Check for Python version

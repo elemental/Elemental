@@ -191,16 +191,18 @@ void DistGraph::SetComm( mpi::Comm comm )
 
 // Assembly
 // --------
-void DistGraph::Reserve( Int numLocalEdges )
+void DistGraph::Reserve( Int numLocalEdges, Int numRemoteEdges )
 { 
     sources_.reserve( numLocalEdges );
     targets_.reserve( numLocalEdges );
+    remoteSources_.reserve( numRemoteEdges );
+    remoteTargets_.reserve( numRemoteEdges );
 }
 
-void DistGraph::Connect( Int source, Int target )
+void DistGraph::Connect( Int source, Int target, bool passive )
 {
     DEBUG_ONLY(CallStackEntry cse("DistGraph::Connect"))
-    QueueConnection( source, target );
+    QueueConnection( source, target, passive );
     MakeConsistent();
 }
 
@@ -211,10 +213,10 @@ void DistGraph::ConnectLocal( Int localSource, Int target )
     MakeConsistent();
 }
 
-void DistGraph::Disconnect( Int source, Int target )
+void DistGraph::Disconnect( Int source, Int target, bool passive )
 {
     DEBUG_ONLY(CallStackEntry cse("DistGraph::Disconnect"))
-    QueueDisconnection( source, target );
+    QueueDisconnection( source, target, passive );
     MakeConsistent();
 }
 
@@ -225,21 +227,27 @@ void DistGraph::DisconnectLocal( Int localSource, Int target )
     MakeConsistent();
 }
 
-void DistGraph::QueueConnection( Int source, Int target )
+void DistGraph::QueueConnection( Int source, Int target, bool passive )
 {
     DEBUG_ONLY(CallStackEntry cse("DistGraph::QueueConnection"))
     if( source < firstLocalSource_ || 
         source >= firstLocalSource_+numLocalSources_ )
+    {
         QueueLocalConnection( source-firstLocalSource_, target );
+    }
+    else if( !passive )
+    {
+        remoteSources_.push_back( source );
+        remoteTargets_.push_back( target );
+        consistent_ = false;
+    }
 }
 
 void DistGraph::QueueLocalConnection( Int localSource, Int target )
 {
     DEBUG_ONLY(
       CallStackEntry cse("DistGraph::QueueLocalConnection");
-      const Int capacity = Capacity();
-      const Int numLocalEdges = NumLocalEdges();
-      if( numLocalEdges == capacity )
+      if( NumLocalEdges() == Capacity() )
           cerr << "WARNING: Pushing back without first reserving space" << endl;
     )
     if( localSource < 0 || localSource >= numLocalSources_ )
@@ -254,12 +262,19 @@ void DistGraph::QueueLocalConnection( Int localSource, Int target )
     consistent_ = false;
 }
 
-void DistGraph::QueueDisconnection( Int source, Int target )
+void DistGraph::QueueDisconnection( Int source, Int target, bool passive )
 {
     DEBUG_ONLY(CallStackEntry cse("DistGraph::QueueDisconnection"))
     if( source < firstLocalSource_ || 
         source >= firstLocalSource_+numLocalSources_ )
+    {
         QueueLocalDisconnection( source-firstLocalSource_, target );
+    }
+    else if( !passive )
+    {
+        remoteRemovals_.push_back( pair<Int,Int>(source,target) );
+        consistent_ = false;
+    }
 }
 
 void DistGraph::QueueLocalDisconnection( Int localSource, Int target )
@@ -280,12 +295,81 @@ void DistGraph::QueueLocalDisconnection( Int localSource, Int target )
 void DistGraph::MakeConsistent()
 {
     DEBUG_ONLY(
-        CallStackEntry cse("DistGraph::MakeConsistent");
-        if( sources_.size() != targets_.size() )
-            LogicError("Inconsistent graph buffer sizes");
+      CallStackEntry cse("DistGraph::MakeConsistent");
+      if( sources_.size() != targets_.size() )
+          LogicError("Inconsistent graph buffer sizes");
     )
     if( !consistent_ )
     {
+        int commSize = mpi::Size( comm_ );
+
+        // Send the remote edges
+        // =====================
+        {
+            // Compute the send counts
+            // -----------------------
+            vector<int> sendCounts(commSize);
+            for( auto s : remoteSources_ )
+                ++sendCounts[SourceOwner(s)];
+            // Pack the send data
+            // ------------------
+            vector<int> sendOffs;
+            const int totalSend = Scan( sendCounts, sendOffs );
+            auto offs = sendOffs;
+            vector<Int> sendSources(totalSend), sendTargets(totalSend);
+            for( Int i=0; i<remoteSources_.size(); ++i ) 
+            {
+                const int owner = SourceOwner(remoteSources_[i]);
+                sendSources[offs[owner]] = remoteSources_[i];
+                sendTargets[offs[owner]] = remoteTargets_[i]; 
+                ++offs[owner];
+            }
+            SwapClear( remoteSources_ );
+            SwapClear( remoteTargets_ );
+            // Exchange and unpack
+            // -------------------
+            auto recvSources = 
+              mpi::AllToAll( sendSources, sendCounts, sendOffs, comm_ );
+            auto recvTargets = 
+              mpi::AllToAll( sendTargets, sendCounts, sendOffs, comm_ ); 
+            for( Int i=0; i<recvSources.size(); ++i )
+                QueueConnection( recvSources[i], recvTargets[i] );
+        }
+
+        // Send the remote edge removals
+        // =============================
+        {
+            // Compute the send counts
+            // -----------------------
+            vector<int> sendCounts(commSize);
+            for( Int i=0; i<remoteRemovals_.size(); ++i )
+                ++sendCounts[SourceOwner(remoteRemovals_[i].first)];
+            // Pack the send data
+            // ------------------
+            vector<int> sendOffs;
+            const int totalSend = Scan( sendCounts, sendOffs );
+            auto offs = sendOffs;
+            vector<Int> sendSources(totalSend), sendTargets(totalSend);
+            for( Int i=0; i<remoteRemovals_.size(); ++i ) 
+            {
+                const int owner = SourceOwner(remoteRemovals_[i].first);
+                sendSources[offs[owner]] = remoteRemovals_[i].first;
+                sendTargets[offs[owner]] = remoteRemovals_[i].second; 
+                ++offs[owner];
+            }
+            SwapClear( remoteRemovals_ );
+            // Exchange and unpack
+            // -------------------
+            auto recvSources = 
+              mpi::AllToAll( sendSources, sendCounts, sendOffs, comm_ );
+            auto recvTargets = 
+              mpi::AllToAll( sendTargets, sendCounts, sendOffs, comm_ ); 
+            for( Int i=0; i<recvSources.size(); ++i )
+                QueueDisconnection( recvSources[i], recvTargets[i] );
+        }
+
+        // Ensure that the kept local edges are sorted and unique
+        // ======================================================
         const Int numLocalEdges = sources_.size();
         Int numRemoved = 0;
         vector<pair<Int,Int>> pairs( numLocalEdges );
@@ -302,10 +386,9 @@ void DistGraph::MakeConsistent()
                 ++numRemoved;
             }
         }
-        markedForRemoval_.clear();
+        SwapClear( markedForRemoval_ );
         pairs.resize( numLocalEdges-numRemoved );
         std::sort( pairs.begin(), pairs.end(), ComparePairs );
-
         // Compress out duplicates
         Int lastUnique=0;
         for( Int e=1; e<numLocalEdges; ++e )
@@ -319,7 +402,6 @@ void DistGraph::MakeConsistent()
         }
         const Int numUnique = lastUnique+1;
         pairs.resize( numUnique );
-
         sources_.resize( numUnique );
         targets_.resize( numUnique );
         for( Int e=0; e<numUnique; ++e )
@@ -327,7 +409,6 @@ void DistGraph::MakeConsistent()
             sources_[e] = pairs[e].first;
             targets_[e] = pairs[e].second;
         }
-
         ComputeEdgeOffsets();
 
         consistent_ = true;
@@ -362,6 +443,20 @@ bool DistGraph::Consistent() const { return consistent_; }
 // ------------------------
 mpi::Comm DistGraph::Comm() const { return comm_; }
 Int DistGraph::Blocksize() const { return blocksize_; }
+
+int DistGraph::SourceOwner( Int s ) const
+{ 
+    // TODO: Get rid of RowToProcess...
+    return RowToProcess( s, Blocksize(), mpi::Size(Comm()) ); 
+}
+
+Int DistGraph::GlobalSource( Int sLoc ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("DistGraph::GlobalSource"))
+    if( sLoc < 0 || sLoc > NumLocalSources() )
+        LogicError("Invalid local source index");
+    return sLoc + FirstLocalSource();
+}
 
 // Detailed local information
 // --------------------------

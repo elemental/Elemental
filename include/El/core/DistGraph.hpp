@@ -52,18 +52,18 @@ public:
 
     // Assembly
     // --------
-    void Reserve( Int numLocalEdges );
+    void Reserve( Int numLocalEdges, Int numRemoteEdges=0 );
 
     // Safe edge insertion/removal procedure
-    void Connect( Int source, Int target );
+    void Connect( Int source, Int target, bool passive=true );
     void ConnectLocal( Int localSource, Int target );
-    void Disconnect( Int source, Int target ); 
+    void Disconnect( Int source, Int target, bool passive=true ); 
     void DisconnectLocal( Int localSource, Int target );
 
     // For inserting/removing a sequence of edges and then forcing consistency
-    void QueueConnection( Int source, Int target );
+    void QueueConnection( Int source, Int target, bool passive=true );
     void QueueLocalConnection( Int localSource, Int target ); 
-    void QueueDisconnection( Int source, Int target );
+    void QueueDisconnection( Int source, Int target, bool passive=true );
     void QueueLocalDisconnection( Int localSource, Int target );
     void MakeConsistent();
 
@@ -84,6 +84,8 @@ public:
     // ------------------------
     mpi::Comm Comm() const;
     Int Blocksize() const;
+    int SourceOwner( Int s ) const;
+    Int GlobalSource( Int sLoc ) const;
 
     // Detailed local information
     // --------------------------
@@ -105,6 +107,9 @@ private:
 
     vector<Int> sources_, targets_;
     set<pair<Int,Int>> markedForRemoval_;
+
+    vector<Int> remoteSources_, remoteTargets_;
+    vector<pair<Int,Int>> remoteRemovals_;
 
     void InitializeLocalData();
 

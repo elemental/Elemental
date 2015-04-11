@@ -28,31 +28,36 @@ ElError ElDistGraphResize
 ElError ElDistGraphSetComm( ElDistGraph graph, MPI_Comm comm )
 { EL_TRY( CReflect(graph)->SetComm(comm) ) }
 
-ElError ElDistGraphReserve( ElDistGraph graph, ElInt numEdges )
-{ EL_TRY( CReflect(graph)->Reserve(numEdges) ) }
+ElError ElDistGraphReserve
+( ElDistGraph graph, ElInt numLocalEdges, ElInt numRemoteEdges )
+{ EL_TRY( CReflect(graph)->Reserve(numLocalEdges,numRemoteEdges) ) }
 
-ElError ElDistGraphConnect( ElDistGraph graph, ElInt row, ElInt col )
-{ EL_TRY( CReflect(graph)->Connect( row, col ) ) }
+ElError 
+ElDistGraphConnect( ElDistGraph graph, ElInt row, ElInt col, bool passive )
+{ EL_TRY( CReflect(graph)->Connect( row, col, passive ) ) }
 
 ElError ElDistGraphConnectLocal( ElDistGraph graph, ElInt localRow, ElInt col )
 { EL_TRY( CReflect(graph)->ConnectLocal( localRow, col ) ) }
 
-ElError ElDistGraphDisconnect( ElDistGraph graph, ElInt row, ElInt col )
-{ EL_TRY( CReflect(graph)->Disconnect( row, col ) ) }
+ElError 
+ElDistGraphDisconnect( ElDistGraph graph, ElInt row, ElInt col, bool passive )
+{ EL_TRY( CReflect(graph)->Disconnect( row, col, passive ) ) }
 
 ElError ElDistGraphDisconnectLocal
 ( ElDistGraph graph, ElInt localRow, ElInt col )
 { EL_TRY( CReflect(graph)->DisconnectLocal( localRow, col ) ) }
 
-ElError ElDistGraphQueueConnection( ElDistGraph graph, ElInt row, ElInt col )
-{ EL_TRY( CReflect(graph)->QueueConnection( row, col ) ) }
+ElError ElDistGraphQueueConnection
+( ElDistGraph graph, ElInt row, ElInt col, bool passive )
+{ EL_TRY( CReflect(graph)->QueueConnection( row, col, passive ) ) }
 
 ElError ElDistGraphQueueLocalConnection
 ( ElDistGraph graph, ElInt localRow, ElInt col )
 { EL_TRY( CReflect(graph)->QueueLocalConnection( localRow, col ) ) }
 
-ElError ElDistGraphQueueDisconnection( ElDistGraph graph, ElInt row, ElInt col )
-{ EL_TRY( CReflect(graph)->QueueDisconnection( row, col ) ) }
+ElError ElDistGraphQueueDisconnection
+( ElDistGraph graph, ElInt row, ElInt col, bool passive )
+{ EL_TRY( CReflect(graph)->QueueDisconnection( row, col, passive ) ) }
 
 ElError ElDistGraphQueueLocalDisconnection
 ( ElDistGraph graph, ElInt localRow, ElInt col )

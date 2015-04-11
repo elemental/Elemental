@@ -100,9 +100,9 @@ class DistSparseMatrix(object):
   lib.ElDistSparseMatrixReserve_d.argtypes = \
   lib.ElDistSparseMatrixReserve_c.argtypes = \
   lib.ElDistSparseMatrixReserve_z.argtypes = \
-    [c_void_p,iType]
-  def Reserve(self,numEntries):
-    args = [self.obj,numEntries]
+    [c_void_p,iType,iType]
+  def Reserve(self,numLocalEntries,numRemoteEntries=0):
+    args = [self.obj,numLocalEntries,numRemoteEntries]
     if   self.tag == iTag: lib.ElDistSparseMatrixReserve_i(*args)
     elif self.tag == sTag: lib.ElDistSparseMatrixReserve_s(*args)
     elif self.tag == dTag: lib.ElDistSparseMatrixReserve_d(*args)
@@ -110,13 +110,13 @@ class DistSparseMatrix(object):
     elif self.tag == zTag: lib.ElDistSparseMatrixReserve_z(*args)
     else: DataExcept()
 
-  lib.ElDistSparseMatrixUpdate_i.argtypes = [c_void_p,iType,iType,iType]
-  lib.ElDistSparseMatrixUpdate_s.argtypes = [c_void_p,iType,iType,sType]
-  lib.ElDistSparseMatrixUpdate_d.argtypes = [c_void_p,iType,iType,dType]
-  lib.ElDistSparseMatrixUpdate_c.argtypes = [c_void_p,iType,iType,cType]
-  lib.ElDistSparseMatrixUpdate_z.argtypes = [c_void_p,iType,iType,zType]
-  def Update(self,row,col,value):
-    args = [self.obj,row,col,value]
+  lib.ElDistSparseMatrixUpdate_i.argtypes = [c_void_p,iType,iType,iType,bType]
+  lib.ElDistSparseMatrixUpdate_s.argtypes = [c_void_p,iType,iType,sType,bType]
+  lib.ElDistSparseMatrixUpdate_d.argtypes = [c_void_p,iType,iType,dType,bType]
+  lib.ElDistSparseMatrixUpdate_c.argtypes = [c_void_p,iType,iType,cType,bType]
+  lib.ElDistSparseMatrixUpdate_z.argtypes = [c_void_p,iType,iType,zType,bType]
+  def Update(self,row,col,value,passive=True):
+    args = [self.obj,row,col,value,passive]
     if   self.tag == iTag: lib.ElDistSparseMatrixUpdate_i(*args)
     elif self.tag == sTag: lib.ElDistSparseMatrixUpdate_s(*args)
     elif self.tag == dTag: lib.ElDistSparseMatrixUpdate_d(*args)
@@ -143,9 +143,9 @@ class DistSparseMatrix(object):
   lib.ElDistSparseMatrixZero_d.argtypes = \
   lib.ElDistSparseMatrixZero_c.argtypes = \
   lib.ElDistSparseMatrixZero_z.argtypes = \
-    [c_void_p,iType,iType]
-  def Zero(self,row,col):
-    args = [self.obj,row,col]
+    [c_void_p,iType,iType,bType]
+  def Zero(self,row,col,passive=True):
+    args = [self.obj,row,col,passive]
     if   self.tag == iTag: lib.ElDistSparseMatrixZero_i(*args)
     elif self.tag == sTag: lib.ElDistSparseMatrixZero_s(*args)
     elif self.tag == dTag: lib.ElDistSparseMatrixZero_d(*args)
@@ -168,13 +168,18 @@ class DistSparseMatrix(object):
     elif self.tag == zTag: lib.ElDistSparseMatrixZeroLocal_z(*args)
     else: DataExcept()
 
-  lib.ElDistSparseMatrixQueueUpdate_i.argtypes = [c_void_p,iType,iType,iType]
-  lib.ElDistSparseMatrixQueueUpdate_s.argtypes = [c_void_p,iType,iType,sType]
-  lib.ElDistSparseMatrixQueueUpdate_d.argtypes = [c_void_p,iType,iType,dType]
-  lib.ElDistSparseMatrixQueueUpdate_c.argtypes = [c_void_p,iType,iType,cType]
-  lib.ElDistSparseMatrixQueueUpdate_z.argtypes = [c_void_p,iType,iType,zType]
-  def QueueUpdate(self,row,col,value):
-    args = [self.obj,row,col,value]
+  lib.ElDistSparseMatrixQueueUpdate_i.argtypes = \
+    [c_void_p,iType,iType,iType,bType]
+  lib.ElDistSparseMatrixQueueUpdate_s.argtypes = \
+    [c_void_p,iType,iType,sType,bType]
+  lib.ElDistSparseMatrixQueueUpdate_d.argtypes = \
+    [c_void_p,iType,iType,dType,bType]
+  lib.ElDistSparseMatrixQueueUpdate_c.argtypes = \
+    [c_void_p,iType,iType,cType,bType]
+  lib.ElDistSparseMatrixQueueUpdate_z.argtypes = \
+    [c_void_p,iType,iType,zType,bType]
+  def QueueUpdate(self,row,col,value,passive=True):
+    args = [self.obj,row,col,value,passive]
     if   self.tag == iTag: lib.ElDistSparseMatrixQueueUpdate_i(*args)
     elif self.tag == sTag: lib.ElDistSparseMatrixQueueUpdate_s(*args)
     elif self.tag == dTag: lib.ElDistSparseMatrixQueueUpdate_d(*args)
@@ -206,9 +211,9 @@ class DistSparseMatrix(object):
   lib.ElDistSparseMatrixQueueZero_d.argtypes = \
   lib.ElDistSparseMatrixQueueZero_c.argtypes = \
   lib.ElDistSparseMatrixQueueZero_z.argtypes = \
-    [c_void_p,iType,iType]
-  def QueueZero(self,row,col):
-    args = [self.obj,row,col]
+    [c_void_p,iType,iType,bType]
+  def QueueZero(self,row,col,passive=True):
+    args = [self.obj,row,col,passive]
     if   self.tag == iTag: lib.ElDistSparseMatrixQueueZero_i(*args)
     elif self.tag == sTag: lib.ElDistSparseMatrixQueueZero_s(*args)
     elif self.tag == dTag: lib.ElDistSparseMatrixQueueZero_d(*args)

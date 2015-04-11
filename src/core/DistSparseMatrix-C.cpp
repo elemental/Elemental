@@ -28,31 +28,34 @@ extern "C" {
   ( ElDistSparseMatrix_ ## SIG A, MPI_Comm comm ) \
   { EL_TRY( CReflect(A)->SetComm(mpi::Comm(comm)) ) } \
   ElError ElDistSparseMatrixReserve_ ## SIG \
-  ( ElDistSparseMatrix_ ## SIG A, ElInt numEntries ) \
-  { EL_TRY( CReflect(A)->Reserve(numEntries) ) } \
+  ( ElDistSparseMatrix_ ## SIG A, \
+    ElInt numLocalEntries, ElInt numRemoteEntries ) \
+  { EL_TRY( CReflect(A)->Reserve(numLocalEntries,numRemoteEntries) ) } \
   ElError ElDistSparseMatrixUpdate_ ## SIG \
-  ( ElDistSparseMatrix_ ## SIG A, ElInt row, ElInt col, CREFLECT(T) value ) \
-  { EL_TRY( CReflect(A)->Update(row,col,CReflect(value)) ) } \
+  ( ElDistSparseMatrix_ ## SIG A, \
+    ElInt row, ElInt col, CREFLECT(T) value, bool passive ) \
+  { EL_TRY( CReflect(A)->Update(row,col,CReflect(value),passive) ) } \
   ElError ElDistSparseMatrixUpdateLocal_ ## SIG \
   ( ElDistSparseMatrix_ ## SIG A, \
     ElInt localRow, ElInt col, CREFLECT(T) value ) \
   { EL_TRY( CReflect(A)->UpdateLocal(localRow,col,CReflect(value)) ) } \
   ElError ElDistSparseMatrixZero_ ## SIG \
-  ( ElDistSparseMatrix_ ## SIG A, ElInt row, ElInt col ) \
-  { EL_TRY( CReflect(A)->Zero(row,col) ) } \
+  ( ElDistSparseMatrix_ ## SIG A, ElInt row, ElInt col, bool passive ) \
+  { EL_TRY( CReflect(A)->Zero(row,col,passive) ) } \
   ElError ElDistSparseMatrixZeroLocal_ ## SIG \
   ( ElDistSparseMatrix_ ## SIG A, ElInt localRow, ElInt col ) \
   { EL_TRY( CReflect(A)->ZeroLocal(localRow,col) ) } \
   ElError ElDistSparseMatrixQueueUpdate_ ## SIG \
-  ( ElDistSparseMatrix_ ## SIG A, ElInt row, ElInt col, CREFLECT(T) value ) \
-  { EL_TRY( CReflect(A)->QueueUpdate(row,col,CReflect(value)) ) } \
+  ( ElDistSparseMatrix_ ## SIG A, \
+    ElInt row, ElInt col, CREFLECT(T) value, bool passive ) \
+  { EL_TRY( CReflect(A)->QueueUpdate(row,col,CReflect(value),passive) ) } \
   ElError ElDistSparseMatrixQueueLocalUpdate_ ## SIG \
   ( ElDistSparseMatrix_ ## SIG A, \
     ElInt localRow, ElInt col, CREFLECT(T) value ) \
   { EL_TRY( CReflect(A)->QueueLocalUpdate(localRow,col,CReflect(value)) ) } \
   ElError ElDistSparseMatrixQueueZero_ ## SIG \
-  ( ElDistSparseMatrix_ ## SIG A, ElInt row, ElInt col ) \
-  { EL_TRY( CReflect(A)->QueueZero(row,col) ) } \
+  ( ElDistSparseMatrix_ ## SIG A, ElInt row, ElInt col, bool passive ) \
+  { EL_TRY( CReflect(A)->QueueZero(row,col,passive) ) } \
   ElError ElDistSparseMatrixQueueLocalZero_ ## SIG \
   ( ElDistSparseMatrix_ ## SIG A, ElInt localRow, ElInt col ) \
   { EL_TRY( CReflect(A)->QueueLocalZero(localRow,col) ) } \

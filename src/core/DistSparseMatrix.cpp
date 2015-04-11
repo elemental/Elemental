@@ -91,23 +91,24 @@ void DistSparseMatrix<T>::SetComm( mpi::Comm comm )
 // Assembly
 // --------
 template<typename T>
-void DistSparseMatrix<T>::Reserve( Int numLocalEntries )
+void DistSparseMatrix<T>::Reserve( Int numLocalEntries, Int numRemoteEntries )
 { 
-    distGraph_.Reserve( numLocalEntries );
+    distGraph_.Reserve( numLocalEntries, numRemoteEntries );
     vals_.reserve( numLocalEntries );
+    remoteVals_.reserve( numRemoteEntries );
 }
 
 template<typename T>
-void DistSparseMatrix<T>::Update( Int row, Int col, T value )
+void DistSparseMatrix<T>::Update( Int row, Int col, T value, bool passive )
 {
     DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::Update"))
-    QueueUpdate( row, col, value );
+    QueueUpdate( row, col, value, passive );
     MakeConsistent();
 }
 
 template<typename T>
-void DistSparseMatrix<T>::Update( const Entry<T>& entry )
-{ Update( entry.i, entry.j, entry.value ); }
+void DistSparseMatrix<T>::Update( const Entry<T>& entry, bool passive )
+{ Update( entry.i, entry.j, entry.value, passive ); }
 
 template<typename T>
 void DistSparseMatrix<T>::UpdateLocal( Int localRow, Int col, T value )
@@ -122,10 +123,10 @@ void DistSparseMatrix<T>::UpdateLocal( const Entry<T>& localEntry )
 { UpdateLocal( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
-void DistSparseMatrix<T>::Zero( Int row, Int col )
+void DistSparseMatrix<T>::Zero( Int row, Int col, bool passive )
 {
     DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::Zero"))
-    QueueZero( row, col );
+    QueueZero( row, col, passive );
     MakeConsistent();
 }
 
@@ -138,16 +139,25 @@ void DistSparseMatrix<T>::ZeroLocal( Int localRow, Int col )
 }
 
 template<typename T>
-void DistSparseMatrix<T>::QueueUpdate( Int row, Int col, T value )
+void DistSparseMatrix<T>::QueueUpdate( Int row, Int col, T value, bool passive )
 {
     DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::QueueUpdate"))
     if( row >= FirstLocalRow() && row < FirstLocalRow()+LocalHeight() )
+    {
         QueueLocalUpdate( row-FirstLocalRow(), col, value );
+    }
+    else if( !passive )
+    {
+        distGraph_.remoteSources_.push_back( row ); 
+        distGraph_.remoteTargets_.push_back( col );
+        remoteVals_.push_back( value );
+        distGraph_.consistent_ = false;
+    }
 }
 
 template<typename T>
-void DistSparseMatrix<T>::QueueUpdate( const Entry<T>& entry )
-{ QueueUpdate( entry.i, entry.j, entry.value ); }
+void DistSparseMatrix<T>::QueueUpdate( const Entry<T>& entry, bool passive )
+{ QueueUpdate( entry.i, entry.j, entry.value, passive ); }
 
 template<typename T>
 void DistSparseMatrix<T>::QueueLocalUpdate( Int localRow, Int col, T value )
@@ -163,11 +173,18 @@ void DistSparseMatrix<T>::QueueLocalUpdate( const Entry<T>& localEntry )
 { QueueLocalUpdate( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
-void DistSparseMatrix<T>::QueueZero( Int row, Int col )
+void DistSparseMatrix<T>::QueueZero( Int row, Int col, bool passive )
 {
     DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::QueueZero"))
     if( row >= FirstLocalRow() && row < FirstLocalRow()+LocalHeight() )
+    {
         QueueLocalZero( row-FirstLocalRow(), col );
+    }
+    else if( !passive )
+    {
+        distGraph_.remoteRemovals_.push_back( pair<Int,Int>(row,col) );
+        distGraph_.consistent_ = false;
+    }
 }
 
 template<typename T>
@@ -190,6 +207,75 @@ void DistSparseMatrix<T>::MakeConsistent()
 
     if( !distGraph_.consistent_ )
     {
+        int commSize = mpi::Size( distGraph_.comm_ );
+
+        // Send the remote updates
+        // =======================
+        {
+            // Compute the send counts
+            // -----------------------
+            vector<int> sendCounts(commSize);
+            for( auto s : distGraph_.remoteSources_ )
+                ++sendCounts[RowOwner(s)];
+            // Pack the send data
+            // ------------------
+            vector<int> sendOffs;
+            const int totalSend = Scan( sendCounts, sendOffs );
+            auto offs = sendOffs;
+            vector<Entry<T>> sendBuf(totalSend);
+            for( Int i=0; i<distGraph_.remoteSources_.size(); ++i )
+            {
+                const int owner = RowOwner(distGraph_.remoteSources_[i]);
+                sendBuf[offs[owner]++] = 
+                    Entry<T>
+                    { distGraph_.remoteSources_[i],
+                      distGraph_.remoteTargets_[i], remoteVals_[i] };
+            }
+            SwapClear( distGraph_.remoteSources_ );
+            SwapClear( distGraph_.remoteTargets_ );
+            SwapClear( remoteVals_ );
+            // Exchange and unpack
+            // -------------------
+            auto recvBuf=
+              mpi::AllToAll( sendBuf, sendCounts, sendOffs, distGraph_.comm_ );
+            for( auto& entry : recvBuf )
+                QueueUpdate( entry );
+        }
+
+        // Send the remote entry removals
+        // ==============================
+        {
+            // Compute the send counts
+            // -----------------------
+            vector<int> sendCounts(commSize);
+            for( Int i=0; i<distGraph_.remoteRemovals_.size(); ++i )
+                ++sendCounts[RowOwner(distGraph_.remoteRemovals_[i].first)];
+            // Pack the send data
+            // ------------------
+            vector<int> sendOffs;
+            const int totalSend = Scan( sendCounts, sendOffs );
+            auto offs = sendOffs;
+            vector<Int> sendRows(totalSend), sendCols(totalSend);
+            for( Int i=0; i<distGraph_.remoteRemovals_.size(); ++i )
+            {
+                const int owner = RowOwner(distGraph_.remoteRemovals_[i].first);
+                sendRows[offs[owner]] = distGraph_.remoteRemovals_[i].first;
+                sendCols[offs[owner]] = distGraph_.remoteRemovals_[i].second;
+                ++offs[owner];
+            }
+            SwapClear( distGraph_.remoteRemovals_ );
+            // Exchange and unpack
+            // -------------------
+            auto recvRows = 
+              mpi::AllToAll(sendRows,sendCounts,sendOffs,distGraph_.comm_);
+            auto recvCols = 
+              mpi::AllToAll(sendCols,sendCounts,sendOffs,distGraph_.comm_);
+            for( Int i=0; i<recvRows.size(); ++i )
+                QueueZero( recvRows[i], recvCols[i] );
+        }
+
+        // Ensure that the kept local triplets are sorted and combined
+        // ===========================================================
         const Int numLocalEntries = vals_.size();
         Int numRemoved = 0;
         vector<Entry<T>> entries( numLocalEntries );
@@ -209,11 +295,11 @@ void DistSparseMatrix<T>::MakeConsistent()
                 ++numRemoved;
             }
         }
-        distGraph_.markedForRemoval_.clear();
+        SwapClear( distGraph_.markedForRemoval_ );
         entries.resize( numLocalEntries-numRemoved );
         std::sort( entries.begin(), entries.end(), CompareEntries );
-
-        // Compress out duplicates
+        // Combine duplicates
+        // ------------------
         Int lastUnique=0;
         for( Int s=1; s<numLocalEntries; ++s )
         {
@@ -228,7 +314,6 @@ void DistSparseMatrix<T>::MakeConsistent()
         }
         const Int numUnique = lastUnique+1;
         entries.resize( numUnique );
-
         distGraph_.sources_.resize( numUnique );
         distGraph_.targets_.resize( numUnique );
         vals_.resize( numUnique );
@@ -238,7 +323,6 @@ void DistSparseMatrix<T>::MakeConsistent()
             distGraph_.targets_[s] = entries[s].j;
             vals_[s] = entries[s].value;
         }
-
         distGraph_.ComputeEdgeOffsets();
 
         distGraph_.consistent_ = true;
@@ -293,17 +377,16 @@ template<typename T>
 mpi::Comm DistSparseMatrix<T>::Comm() const { return distGraph_.Comm(); }
 template<typename T>
 Int DistSparseMatrix<T>::Blocksize() const { return distGraph_.Blocksize(); }
+
 template<typename T>
 int DistSparseMatrix<T>::RowOwner( Int i ) const 
-{ return RowToProcess( i, Blocksize(), mpi::Size(Comm()) ); }
+{ return distGraph_.SourceOwner(i); }
 
 template<typename T>
 Int DistSparseMatrix<T>::GlobalRow( Int iLoc ) const
 { 
     DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::GlobalRow"))
-    if( iLoc < 0 || iLoc > LocalHeight() )
-        LogicError("Invalid local row index");
-    return iLoc + FirstLocalRow(); 
+    return distGraph_.GlobalSource(iLoc); 
 }
 
 // Detailed local information

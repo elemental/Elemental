@@ -38,37 +38,37 @@ class DistGraph(object):
   def SetComm(self,comm):
     lib.ElDistGraphSetComm(self,comm)
 
-  lib.ElDistGraphReserve.argtypes = [c_void_p,iType]
-  def Reserve(self,numEdges):
-    lib.ElDistGraphReserve(self.obj,numEdges)
+  lib.ElDistGraphReserve.argtypes = [c_void_p,iType,iType]
+  def Reserve(self,numLocalEdges,numRemoteEdges=0):
+    lib.ElDistGraphReserve(self.obj,numLocalEdges,numRemoteEdges)
 
-  lib.ElDistGraphConnect.argtypes = [c_void_p,iType,iType]
-  def Connect(self,source,target):
-    lib.ElDistGraphConnect(self.obj,source,target)
+  lib.ElDistGraphConnect.argtypes = [c_void_p,iType,iType,bType]
+  def Connect(self,source,target,passive=True):
+    lib.ElDistGraphConnect(self.obj,source,target,passive)
 
   lib.ElDistGraphConnectLocal.argtypes = [c_void_p,iType,iType]
   def ConnectLocal(self,localSource,target):
     lib.ElDistGraphConnectLocal(self.obj,localSource,target)
 
-  lib.ElDistGraphDisconnect.argtypes = [c_void_p,iType,iType]
-  def Disconnect(self,source,target):
-    lib.ElDistGraphDisconnect(self.obj,source,target)
+  lib.ElDistGraphDisconnect.argtypes = [c_void_p,iType,iType,bType]
+  def Disconnect(self,source,target,passive=True):
+    lib.ElDistGraphDisconnect(self.obj,source,target,passive)
 
   lib.ElDistGraphDisconnectLocal.argtypes = [c_void_p,iType,iType]
   def DisconnectLocal(self,localSource,target):
     lib.ElDistGraphDisconnectLocal(self.obj,localSource,target)
 
-  lib.ElDistGraphQueueConnection.argtypes = [c_void_p,iType,iType]
-  def QueueConnection(self,source,target):
-    lib.ElDistGraphQueueConnection(self.obj,source,target)
+  lib.ElDistGraphQueueConnection.argtypes = [c_void_p,iType,iType,bType]
+  def QueueConnection(self,source,target,passive=True):
+    lib.ElDistGraphQueueConnection(self.obj,source,target,passive)
 
   lib.ElDistGraphQueueLocalConnection.argtypes = [c_void_p,iType,iType]
   def QueueLocalConnection(self,localSource,target):
     lib.ElDistGraphQueueLocalConnection(self.obj,localSource,target)
 
-  lib.ElDistGraphQueueDisconnection.argtypes = [c_void_p,iType,iType]
-  def QueueDisconnection(self,source,target):
-    lib.ElDistGraphQueueDisconnection(self.obj,source,target)
+  lib.ElDistGraphQueueDisconnection.argtypes = [c_void_p,iType,iType,bType]
+  def QueueDisconnection(self,source,target,passive=True):
+    lib.ElDistGraphQueueDisconnection(self.obj,source,target,passive)
 
   lib.ElDistGraphQueueLocalDisconnection.argtypes = [c_void_p,iType,iType]
   def QueueLocalDisconnection(self,localSource,target):
