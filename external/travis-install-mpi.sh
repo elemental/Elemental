@@ -9,7 +9,12 @@ case $1 in
     sudo dpkg -i ./mpich_3.1-1ubuntu_amd64.deb;
     rm -f ./mpich_3.1-1ubuntu_amd64.deb;;
   openmpi) set -x;
-    sudo apt-get install openmpi-bin openmpi-dev;;
+    sudo apt-get install libibnetdisc-dev alien;
+    wget -q http://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-1.8.4-1.src.rpm;
+    sudo alien -d ./openmpi-1.8.4-1.src.rpm;
+    sudo dpkg -i ./openmpi-1.8.4-1.src.deb;
+    rm -f ./openmpi-1.8.4-1.src.rpm;
+    rm -f ./openmpi-1.8.4-1.src.deb;;
   *)
     echo "Unknown MPI implementation:" $1; exit 1;;
 esac
