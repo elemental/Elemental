@@ -42,7 +42,7 @@ before_script:
 
 script:
   - mkdir build && cd build;
-    cmake .. -DASSERT=ON -DASSERT2=ON -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCXX_FLAGS="-g -O0 -Wall -fprofile-arcs -ftest-coverage -Wl,--no-keep-memory" -DC_FLAGS="-g -O0 -Wall -fprofile-arcs -ftest-coverage -Wl,--no-keep-memory" -DFortran_FLAGS="-g -O0 -Wall -fprofile-arcs -ftest-coverage -Wl,--no-keep-memory" -DCMAKE_BUILD_TYPE=Debug;
+    cmake .. -DASSERT=ON -DASSERT2=ON -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCXX_FLAGS="-g -O0 -Wall -fprofile-arcs -ftest-coverage -Wl,--no-keep-memory" -DC_FLAGS="-g -O0 -Wall -fprofile-arcs -ftest-coverage -Wl,--no-keep-memory" -DFortran_FLAGS="-g -O0 -Wall -fprofile-arcs -ftest-coverage -Wl,--no-keep-memory" -DCMAKE_BUILD_TYPE=Release;
     if test $? -ne 0; then cat CMakeFiles/CMakeError.log; fi
   - make -j3 && sudo make -j2 install && sudo ctest -j3 --output-on-failure
 
