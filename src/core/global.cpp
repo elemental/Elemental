@@ -365,7 +365,10 @@ void Finalize()
 {
     DEBUG_ONLY(CallStackEntry cse("Finalize"))
     if( ::numElemInits <= 0 )
-        LogicError("Finalized Elemental more than initialized");
+    { 
+        cerr << "Finalized Elemental more times than initialized" << endl;
+        return;
+    }
     --::numElemInits;
 
     if( mpi::Finalized() )

@@ -14,7 +14,7 @@ void TestMatrix( Int m, Int n, Int ldim )
 {
     if( m > ldim || ldim == 0 )
         LogicError("Leading dimension must be >= m and nonzero");
-    std::vector<T> buffer(ldim*n);
+    vector<T> buffer(ldim*n);
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
             buffer[i+j*ldim] = i+j*m;
@@ -35,7 +35,7 @@ void TestMatrix( Int m, Int n, Int ldim )
 
     const Int commRank = mpi::Rank( mpi::COMM_WORLD );
     if( commRank == 0 )
-        std::cout << "passed" << std::endl;
+        cout << "passed" << endl;
 }
 
 int 
@@ -51,17 +51,11 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         if( mpi::WorldRank() == 0 )
-        {
-            std::cout << "Testing with doubles...";
-            std::cout.flush();
-        }
+            cout << "Testing with doubles" << endl;
         TestMatrix<double>( m, n, ldim );
 
         if( mpi::WorldRank() == 0 )
-        {
-            std::cout << "Testing with double-precision complex...";
-            std::cout.flush();
-        }
+            cout << "Testing with double-precision complex..." << endl;
         TestMatrix<Complex<double>>( m, n, ldim );
     }
     catch( std::exception& e ) { ReportException(e); }

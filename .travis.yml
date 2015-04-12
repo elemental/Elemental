@@ -6,7 +6,6 @@ compiler:
 
 env:
   - MPI=mpich2
-  - MPI=mpich3
   - MPI=openmpi
 
 matrix:
@@ -37,7 +36,6 @@ before_script:
   - if test x$CC = xgcc; then export CC=gcc-4.9; export CXX=g++-4.9; fi
   - sudo hostname localhost
   - test $MPI == mpich2 && MPIEXEC='mpiexec -launcher fork' || true
-  - test $MPI == mpich3 && MPIEXEC='mpiexec -launcher fork' || true
   - lcov --directory . --zerocounters
 
 script:
