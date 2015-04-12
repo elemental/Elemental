@@ -1101,6 +1101,23 @@ def Full(A,B):
 # ------------
 # TODO
 
+# Get subgraph
+# ------------
+lib.ElGetSubgraph.argtypes = \
+lib.ElGetSubgraphDist.argtypes = \
+  [c_void_p,IndexRange,IndexRange,c_void_p]
+
+def GetSubgraph(graph,I,J):
+  if type(graph) is Graph:
+    subgraph = Graph()
+    lib.ElGetSubgraph(graph.obj,I,J,subgraph.obj)
+    return subgraph
+  elif type(graph) is DistGraph:
+    subgraph = DistGraph(graph.Comm())
+    lib.ElGetSubgraphDist(graph.obj,I,J,subgraph.obj)
+    return subgraph
+  else: TypeExcept()
+
 # Get submatrix
 # -------------
 lib.ElGetSubmatrixSparse_i.argtypes = \

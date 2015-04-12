@@ -55,12 +55,14 @@ public:
     // --------
     void Reserve( Int numEntries );
 
-    // A safe update/zeroing mechanism
+    // Expensive independent updates and explicit zeroing
+    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     void Update( const Entry<T>& entry );
     void Update( Int row, Int col, T value );
     void Zero( Int row, Int col );
 
-    // For performing many updates and forcing consistency at the end
+    // Batch updating and zeroing (recommended)
+    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     void QueueUpdate( const Entry<T>& entry );
     void QueueUpdate( Int row, Int col, T value );
     void QueueZero( Int row, Int col );

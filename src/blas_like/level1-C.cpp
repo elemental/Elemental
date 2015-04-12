@@ -22,6 +22,17 @@ ElError ElCopyGraphFromRoot( ElConstDistGraph GDist, ElGraph G )
 ElError ElCopyGraphFromNonRoot( ElConstDistGraph GDist, int root )
 { EL_TRY( CopyFromNonRoot( *CReflect(GDist), root ) ) }
 
+ElError ElGetSubgraph
+( ElConstGraph graph, ElRange_i I, ElRange_i J, ElGraph subgraph )
+{ EL_TRY( GetSubgraph
+          ( *CReflect(graph), CReflect(I), CReflect(J), 
+            *CReflect(subgraph) ) ) }
+ElError ElGetSubgraphDist
+( ElConstDistGraph graph, ElRange_i I, ElRange_i J, ElDistGraph subgraph )
+{ EL_TRY( GetSubgraph
+          ( *CReflect(graph), CReflect(I), CReflect(J), 
+            *CReflect(subgraph) ) ) }
+
 #define C_PROTO_BASE(SIG,SIGBASE,T) \
   /* Y := alpha X + Y */ \
   ElError ElAxpy_ ## SIG \

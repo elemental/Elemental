@@ -79,21 +79,26 @@ public:
     // --------
     void Reserve( Int numLocalEntries, Int numRemoteEntries=0 );
 
-    // A safe procedure for applying a local update or zeroing an entry
+    // Expensive independent updates and explicit zeroing
+    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     void Update( const Entry<T>& entry, bool passive=true );
     void Update( Int row, Int col, T value, bool passive=true );
+    void Zero( Int row, Int col, bool passive=true );
+
     void UpdateLocal( const Entry<T>& localEntry );
     void UpdateLocal( Int localRow, Int col, T value );
-    void Zero( Int row, Int col, bool passive=true );
     void ZeroLocal( Int localRow, Int col );
 
-    // For applying a sequence of updates and then forcing consistency
+    // Batch updating and zeroing (recommended)
+    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     void QueueUpdate( const Entry<T>& entry, bool passive=true );
     void QueueUpdate( Int row, Int col, T value, bool passive=true );
+    void QueueZero( Int row, Int col, bool passive=true );
+
     void QueueLocalUpdate( const Entry<T>& localEntry );
     void QueueLocalUpdate( Int localRow, Int col, T value );
-    void QueueZero( Int row, Int col, bool passive=true );
     void QueueLocalZero( Int localRow, Int col );
+
     void ProcessQueues();
 
     // Queries

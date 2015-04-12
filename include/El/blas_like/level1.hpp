@@ -715,6 +715,16 @@ void GetMappedDiagonal
 ( const DistSparseMatrix<T>& A, DistMultiVec<S>& d, 
   function<S(T)> func, Int offset=0 );
 
+// GetSubgraph
+// ===========
+void GetSubgraph
+( const Graph& graph, Range<Int> I, Range<Int> J, Graph& subgraph );
+void GetSubgraph
+( const DistGraph& graph, Range<Int> I, Range<Int> J, DistGraph& subgraph );
+
+Graph GetSubgraph( const Graph& graph, Range<Int> I, Range<Int> J );
+DistGraph GetSubgraph( const DistGraph& graph, Range<Int> I, Range<Int> J );
+
 // GetSubmatrix
 // ============
 // TODO: Range<Int> versions of dense GetSubmatrix which simply construct

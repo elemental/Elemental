@@ -100,6 +100,14 @@ const DistGraph& DistGraph::operator=( const DistGraph& graph )
     return *this;
 }
 
+// Make a copy of a contiguous subgraph
+// ------------------------------------
+DistGraph DistGraph::operator()( Range<Int> I, Range<Int> J ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("DistGraph::operator()"))
+    return GetSubgraph( *this, I, J );
+}
+
 // Change the graph size
 // ---------------------
 void DistGraph::Empty( bool clearMemory )

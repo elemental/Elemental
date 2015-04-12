@@ -833,6 +833,15 @@ EL_EXPORT ElError ElFullDist_z( ElConstDistSparseMatrix_z A, ElDistMatrix_z B );
    ================= */
 /* TODO */
 
+/* GetSubgraph
+   =========== */
+EL_EXPORT ElError ElGetSubgraph
+( ElConstGraph graph, ElRange_i iRange, ElRange_i jRange, 
+  ElGraph subgraph );
+EL_EXPORT ElError ElGetSubgraphDist
+( ElConstDistGraph graph, ElRange_i iRange, ElRange_i jRange, 
+  ElDistGraph subgraph );
+
 /* GetSubmatrix
    ============ */
 /* TODO: vector versions and real/imag versions */

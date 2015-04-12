@@ -69,6 +69,14 @@ const Graph& Graph::operator=( const DistGraph& graph )
     return *this;
 }
 
+// Make a copy of a contiguous subgraph
+// ------------------------------------
+Graph Graph::operator()( Range<Int> I, Range<Int> J ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("Graph::operator()"))
+    return GetSubgraph( *this, I, J );
+}
+
 // Changing the graph size
 // -----------------------
 void Graph::Empty( bool clearMemory )
