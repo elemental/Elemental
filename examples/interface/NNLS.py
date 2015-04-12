@@ -34,7 +34,7 @@ def Rectang(height,width):
     # The dense last column
     A.QueueLocalUpdate( sLoc, width-1, -5/height );
 
-  A.MakeConsistent()
+  A.ProcessQueues()
   return A
 
 A = Rectang(m,n)

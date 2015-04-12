@@ -78,7 +78,7 @@ void EntrywiseMap
     B.Reserve( numEntries );
     for( Int k=0; k<numEntries; ++k )
         B.QueueUpdate( A.Row(k), A.Col(k), func(A.Value(k)) );
-    B.MakeConsistent();
+    B.ProcessQueues();
 }
 
 template<typename S,typename T>
@@ -154,7 +154,7 @@ void EntrywiseMap
     for( Int k=0; k<numLocalEntries; ++k )
         B.QueueLocalUpdate
         ( A.Row(k)-firstLocalRow, A.Col(k), func(A.Value(k)) );
-    B.MakeConsistent();
+    B.ProcessQueues();
 }
 
 template<typename S,typename T>

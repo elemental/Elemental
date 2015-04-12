@@ -46,7 +46,7 @@ public:
 
     // Make a copy
     // -----------
-    Matrix<T>& operator=( const Matrix<T>& A );
+    const Matrix<T>& operator=( const Matrix<T>& A );
 
     // Move assignment
     // ---------------

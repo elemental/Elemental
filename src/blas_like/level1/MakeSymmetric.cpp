@@ -118,7 +118,7 @@ void MakeSymmetric( UpperOrLower uplo, SparseMatrix<T>& A, bool conjugate )
             }
         }
     }
-    A.MakeConsistent();
+    A.ProcessQueues();
 }
 
 template<typename T>
@@ -179,7 +179,7 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
     A.Reserve( A.NumLocalEntries()+recvBuf.size() );
     for( auto& entry : recvBuf )
         A.QueueUpdate( entry );
-    A.MakeConsistent();
+    A.ProcessQueues();
 }
 
 #define PROTO(T) \

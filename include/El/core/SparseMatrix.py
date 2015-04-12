@@ -151,19 +151,19 @@ class SparseMatrix(object):
     elif self.tag == zTag: lib.ElSparseMatrixQueueZero_z(*args)
     else: DataExcept()
 
-  lib.ElSparseMatrixMakeConsistent_i.argtypes = \
-  lib.ElSparseMatrixMakeConsistent_s.argtypes = \
-  lib.ElSparseMatrixMakeConsistent_d.argtypes = \
-  lib.ElSparseMatrixMakeConsistent_c.argtypes = \
-  lib.ElSparseMatrixMakeConsistent_z.argtypes = \
+  lib.ElSparseMatrixProcessQueues_i.argtypes = \
+  lib.ElSparseMatrixProcessQueues_s.argtypes = \
+  lib.ElSparseMatrixProcessQueues_d.argtypes = \
+  lib.ElSparseMatrixProcessQueues_c.argtypes = \
+  lib.ElSparseMatrixProcessQueues_z.argtypes = \
     [c_void_p]
-  def MakeConsistent(self):
+  def ProcessQueues(self):
     args = [self.obj]
-    if   self.tag == iTag: lib.ElSparseMatrixMakeConsistent_i(*args)
-    elif self.tag == sTag: lib.ElSparseMatrixMakeConsistent_s(*args)
-    elif self.tag == dTag: lib.ElSparseMatrixMakeConsistent_d(*args)
-    elif self.tag == cTag: lib.ElSparseMatrixMakeConsistent_c(*args)
-    elif self.tag == zTag: lib.ElSparseMatrixMakeConsistent_z(*args)
+    if   self.tag == iTag: lib.ElSparseMatrixProcessQueues_i(*args)
+    elif self.tag == sTag: lib.ElSparseMatrixProcessQueues_s(*args)
+    elif self.tag == dTag: lib.ElSparseMatrixProcessQueues_d(*args)
+    elif self.tag == cTag: lib.ElSparseMatrixProcessQueues_c(*args)
+    elif self.tag == zTag: lib.ElSparseMatrixProcessQueues_z(*args)
     else: DataExcept()
 
   # Queries

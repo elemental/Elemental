@@ -50,7 +50,7 @@ void UpdateMappedDiagonal
         A.QueueUpdate( i, j, alpha );
     }
 
-    A.MakeConsistent();
+    A.ProcessQueues();
 }
 
 template<typename T,typename S,Dist U,Dist V>
@@ -118,7 +118,7 @@ void UpdateMappedDiagonal
         A.QueueLocalUpdate( iLoc, i, alpha );
     }
 
-    A.MakeConsistent(); 
+    A.ProcessQueues(); 
 }
 
 #define PROTO_DIST_TYPES(S,T,U,V) \

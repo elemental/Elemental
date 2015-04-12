@@ -77,7 +77,7 @@ void Helmholtz( SparseMatrix<F>& H, Int n, F shift )
         if( i != n-1 )
             H.QueueUpdate( i, i+1, -hInvSquared );
     }
-    H.MakeConsistent();
+    H.ProcessQueues();
 }
 
 template<typename F>
@@ -102,7 +102,7 @@ void Helmholtz( DistSparseMatrix<F>& H, Int n, F shift )
         if( i != n-1 )
             H.QueueLocalUpdate( iLoc, i+1, -hInvSquared );
     }
-    H.MakeConsistent();
+    H.ProcessQueues();
 }
 
 // 2D Helmholtz
@@ -201,7 +201,7 @@ void Helmholtz( SparseMatrix<F>& H, Int nx, Int ny, F shift )
         if( y != ny-1 )
             H.QueueUpdate( i, i+nx, -hyInvSquared );
     }
-    H.MakeConsistent();
+    H.ProcessQueues();
 }
 
 template<typename F>
@@ -236,7 +236,7 @@ void Helmholtz( DistSparseMatrix<F>& H, Int nx, Int ny, F shift )
         if( y != ny-1 )
             H.QueueLocalUpdate( iLoc, i+nx, -hyInvSquared );
     }
-    H.MakeConsistent();
+    H.ProcessQueues();
 }
 
 // 3D Helmholtz
@@ -356,7 +356,7 @@ void Helmholtz( SparseMatrix<F>& H, Int nx, Int ny, Int nz, F shift )
         if( z != nz-1 )
             H.QueueUpdate( i, i+nx*ny, -hzInvSquared );
     }
-    H.MakeConsistent();
+    H.ProcessQueues();
 }
 
 template<typename F> 
@@ -398,7 +398,7 @@ void Helmholtz( DistSparseMatrix<F>& H, Int nx, Int ny, Int nz, F shift )
         if( z != nz-1 )
             H.QueueLocalUpdate( iLoc, i+nx*ny, -hzInvSquared );
     }
-    H.MakeConsistent();
+    H.ProcessQueues();
 }
 
 #define PROTO(F) \

@@ -93,7 +93,7 @@ void Kronecker
             C.QueueUpdate( i, j, valA*valB );
         }
     }
-    C.MakeConsistent();
+    C.ProcessQueues();
 }
 
 template<typename T> 
@@ -126,7 +126,7 @@ void Kronecker
             }
         }
     }
-    C.MakeConsistent();
+    C.ProcessQueues();
 }
 
 template<typename T> 
@@ -159,7 +159,7 @@ void Kronecker
             }
         }
     }
-    C.MakeConsistent();
+    C.ProcessQueues();
 }
 
 template<typename T> 
@@ -214,7 +214,7 @@ void Kronecker
             }
         }
     }
-    C.MakeConsistent();
+    C.ProcessQueues();
 }
 
 template<typename T> 

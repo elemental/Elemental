@@ -71,7 +71,7 @@ void DynamicRegCounter( SparseMatrix<T>& A, Int n )
         A.QueueUpdate( e+n, e, T(1) );
         A.QueueUpdate( e+n, e+n, T(-1) );
     }
-    A.MakeConsistent();
+    A.ProcessQueues();
 }
 
 template<typename T>
@@ -111,7 +111,7 @@ void DynamicRegCounter( DistSparseMatrix<T>& A, Int n )
             A.QueueLocalUpdate( iLoc, i, T(-1) );
         }
     }
-    A.MakeConsistent();
+    A.ProcessQueues();
 }
 
 #define PROTO(T) \

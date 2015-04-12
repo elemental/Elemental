@@ -178,7 +178,7 @@ void CP
     }
     for( Int i=0; i<2*m; ++i )
         G.QueueUpdate( i, n, Real(-1) );
-    G.MakeConsistent();
+    G.ProcessQueues();
 
     // h := |  b |
     //      | -b |
@@ -266,7 +266,7 @@ void CP
             G.QueueLocalUpdate( iLoc, n, Real(-1) );
         for( auto& entry : recvBuf )
             G.QueueUpdate( entry );
-        G.MakeConsistent();
+        G.ProcessQueues();
     }
 
     // h := |  b |

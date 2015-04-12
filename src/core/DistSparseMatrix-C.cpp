@@ -59,9 +59,9 @@ extern "C" {
   ElError ElDistSparseMatrixQueueLocalZero_ ## SIG \
   ( ElDistSparseMatrix_ ## SIG A, ElInt localRow, ElInt col ) \
   { EL_TRY( CReflect(A)->QueueLocalZero(localRow,col) ) } \
-  ElError ElDistSparseMatrixMakeConsistent_ ## SIG \
+  ElError ElDistSparseMatrixProcessQueues_ ## SIG \
   ( ElDistSparseMatrix_ ## SIG A ) \
-  { EL_TRY( CReflect(A)->MakeConsistent() ) } \
+  { EL_TRY( CReflect(A)->ProcessQueues() ) } \
   ElError ElDistSparseMatrixHeight_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElInt* height ) \
   { EL_TRY( *height = CReflect(A)->Height() ) } \

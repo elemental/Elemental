@@ -29,7 +29,7 @@ def Semidefinite(height):
     s = Q.GlobalRow(sLoc)
     Q.QueueLocalUpdate( sLoc, s, 1 );
 
-  Q.MakeConsistent()
+  Q.ProcessQueues()
   return Q
 
 # Make a sparse matrix with the last column dense
@@ -53,7 +53,7 @@ def Rectang(height,width):
     # The dense last column
     A.QueueLocalUpdate( sLoc, width-1, -5/height );
 
-  A.MakeConsistent()
+  A.ProcessQueues()
   return A
 
 Q = Semidefinite(n)

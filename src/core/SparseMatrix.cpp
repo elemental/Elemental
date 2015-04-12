@@ -114,7 +114,7 @@ void SparseMatrix<T>::Update( Int row, Int col, T value )
 {
     DEBUG_ONLY(CallStackEntry cse("SparseMatrix::Update"))
     QueueUpdate( row, col, value );
-    MakeConsistent();
+    ProcessQueues();
 }
 
 template<typename T>
@@ -126,7 +126,7 @@ void SparseMatrix<T>::Zero( Int row, Int col )
 {
     DEBUG_ONLY(CallStackEntry cse("SparseMatrix::Zero"))
     QueueZero( row, col );
-    MakeConsistent();
+    ProcessQueues();
 }
 
 template<typename T>
@@ -246,10 +246,10 @@ bool SparseMatrix<T>::CompareEntries( const Entry<T>& a, const Entry<T>& b )
 { return a.i < b.i || (a.i == b.i && a.j < b.j); }
 
 template<typename T>
-void SparseMatrix<T>::MakeConsistent()
+void SparseMatrix<T>::ProcessQueues()
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SparseMatrix::MakeConsistent");
+      CallStackEntry cse("SparseMatrix::ProcessQueues");
       if( graph_.sources_.size() != graph_.targets_.size() || 
           graph_.targets_.size() != vals_.size() )
           LogicError("Inconsistent sparse matrix buffer sizes");

@@ -131,7 +131,7 @@ void BP
         AHat.QueueUpdate( A.Row(e), A.Col(e),    A.Value(e) );
         AHat.QueueUpdate( A.Row(e), A.Col(e)+n, -A.Value(e) );
     }
-    AHat.MakeConsistent();
+    AHat.ProcessQueues();
 
     // Solve the direct LP
     // ===================
@@ -173,7 +173,7 @@ void BP
         AHat.QueueUpdate( A.Row(e), A.Col(e),    A.Value(e) );
         AHat.QueueUpdate( A.Row(e), A.Col(e)+n, -A.Value(e) );
     }
-    AHat.MakeConsistent();
+    AHat.ProcessQueues();
 
     // Solve the direct LP
     // ===================

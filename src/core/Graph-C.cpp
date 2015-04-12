@@ -39,8 +39,8 @@ ElError ElGraphQueueConnection( ElGraph graph, ElInt source, ElInt target )
 ElError ElGraphQueueDisconnection( ElGraph graph, ElInt source, ElInt target )
 { EL_TRY( CReflect(graph)->QueueDisconnection( source, target ) ) }
 
-ElError ElGraphMakeConsistent( ElGraph graph )
-{ EL_TRY( CReflect(graph)->MakeConsistent() ) }
+ElError ElGraphProcessQueues( ElGraph graph )
+{ EL_TRY( CReflect(graph)->ProcessQueues() ) }
 
 ElError ElGraphNumSources( ElConstGraph graph, ElInt* numSources )
 { EL_TRY( *numSources = CReflect(graph)->NumSources() ) } 

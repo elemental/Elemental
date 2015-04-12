@@ -316,7 +316,7 @@ void GetSubmatrix
                 ASub.QueueUpdate( i-I.beg, j-J.beg, A.Value(e) );
         }
     }
-    ASub.MakeConsistent();
+    ASub.ProcessQueues();
 }
 
 template<typename T>
@@ -356,7 +356,7 @@ void GetRealPartOfSubmatrix
                 ASub.QueueUpdate( i-I.beg, j-J.beg, RealPart(A.Value(e)) );
         }
     }
-    ASub.MakeConsistent();
+    ASub.ProcessQueues();
 }
 
 template<typename T>
@@ -396,7 +396,7 @@ void GetImagPartOfSubmatrix
                 ASub.QueueUpdate( i-I.beg, j-J.beg, ImagPart(A.Value(e)) );
         }
     }
-    ASub.MakeConsistent();
+    ASub.ProcessQueues();
 }
 
 template<typename T>
@@ -482,7 +482,7 @@ void GetSubmatrix
     ASub.Reserve( recvBuf.size() );
     for( auto& entry : recvBuf )
         ASub.QueueUpdate( entry );
-    ASub.MakeConsistent();
+    ASub.ProcessQueues();
 }
 
 template<typename T>
@@ -541,7 +541,7 @@ void GetRealPartOfSubmatrix
     ASub.Reserve( recvBuf.size() );
     for( auto& entry : recvBuf )
         ASub.QueueUpdate( entry );
-    ASub.MakeConsistent();
+    ASub.ProcessQueues();
 }
 
 template<typename T>
@@ -600,7 +600,7 @@ void GetImagPartOfSubmatrix
     ASub.Reserve( recvBuf.size() );
     for( auto& entry : recvBuf )
         ASub.QueueUpdate( entry );
-    ASub.MakeConsistent();
+    ASub.ProcessQueues();
 }
 
 template<typename T>

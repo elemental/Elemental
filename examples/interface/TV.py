@@ -25,7 +25,7 @@ def Deriv(height):
     A.QueueLocalUpdate( iLoc, i, 1. )
     A.QueueLocalUpdate( iLoc, i+1, -1. )
 
-  A.MakeConsistent()
+  A.ProcessQueues()
   return A
 
 D = Deriv(n)

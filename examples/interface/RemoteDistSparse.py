@@ -51,7 +51,7 @@ def RemoteStackedFD2D(N0,N1):
       if x1+1 < N1:
         A.QueueUpdate( s, sRel+N0, 3, passive=False )
 
-  A.MakeConsistent()
+  A.ProcessQueues()
   return A
 
 A = RemoteStackedFD2D(n0,n1)

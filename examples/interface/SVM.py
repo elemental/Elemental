@@ -60,7 +60,7 @@ def StackedFD2D(N0,N1):
     # The dense last column
     A.QueueLocalUpdate( sLoc, width-1, -10/height );
 
-  A.MakeConsistent()
+  A.ProcessQueues()
   return A
 
 # Define a random (affine) hyperplane

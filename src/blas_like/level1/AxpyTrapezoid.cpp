@@ -60,7 +60,7 @@ void AxpyTrapezoid
         if( (uplo==UPPER && j-i >= offset) || (uplo==LOWER && j-i <= offset) )
             Y.QueueUpdate( i, j, alpha*X.Value(k) );
     }
-    Y.MakeConsistent();
+    Y.ProcessQueues();
 }
 
 template<typename T,typename S>
@@ -144,7 +144,7 @@ void AxpyTrapezoid
         if( (uplo==UPPER && j-i >= offset) || (uplo==LOWER && j-i <= offset) )
             Y.QueueLocalUpdate( i-firstLocalRow, j, alpha*X.Value(k) );
     }
-    Y.MakeConsistent();
+    Y.ProcessQueues();
 }
 
 #define PROTO_TYPES(T,S) \

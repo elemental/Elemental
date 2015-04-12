@@ -109,7 +109,7 @@ void HCat
         C.QueueUpdate( A.Row(e), A.Col(e), A.Value(e) );
     for( Int e=0; e<numEntriesB; ++e )
         C.QueueUpdate( B.Row(e), B.Col(e)+nA, B.Value(e) );
-    C.MakeConsistent();
+    C.ProcessQueues();
 }
 
 template<typename T>
@@ -133,7 +133,7 @@ void VCat
         C.QueueUpdate( A.Row(e), A.Col(e), A.Value(e) );
     for( Int e=0; e<numEntriesB; ++e )
         C.QueueUpdate( B.Row(e)+mA, B.Col(e), B.Value(e) );
-    C.MakeConsistent();
+    C.ProcessQueues();
 }
 
 template<typename T>
@@ -163,7 +163,7 @@ void HCat
         C.QueueLocalUpdate( A.Row(e)-firstLocalRow, A.Col(e), A.Value(e) );
     for( Int e=0; e<numEntriesB; ++e )
         C.QueueLocalUpdate( B.Row(e)-firstLocalRow, B.Col(e)+nA, B.Value(e) );
-    C.MakeConsistent();
+    C.ProcessQueues();
 }
 
 template<typename T>
@@ -226,7 +226,7 @@ void VCat
     C.Reserve( recvBuf.size() );
     for( auto& entry : recvBuf )
         C.QueueUpdate( entry );
-    C.MakeConsistent();
+    C.ProcessQueues();
 }
 
 template<typename T>

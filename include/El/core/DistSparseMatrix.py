@@ -236,19 +236,19 @@ class DistSparseMatrix(object):
     elif self.tag == zTag: lib.ElDistSparseMatrixQueueLocalZero_z(*args)
     else: DataExcept()
 
-  lib.ElDistSparseMatrixMakeConsistent_i.argtypes = \
-  lib.ElDistSparseMatrixMakeConsistent_s.argtypes = \
-  lib.ElDistSparseMatrixMakeConsistent_d.argtypes = \
-  lib.ElDistSparseMatrixMakeConsistent_c.argtypes = \
-  lib.ElDistSparseMatrixMakeConsistent_z.argtypes = \
+  lib.ElDistSparseMatrixProcessQueues_i.argtypes = \
+  lib.ElDistSparseMatrixProcessQueues_s.argtypes = \
+  lib.ElDistSparseMatrixProcessQueues_d.argtypes = \
+  lib.ElDistSparseMatrixProcessQueues_c.argtypes = \
+  lib.ElDistSparseMatrixProcessQueues_z.argtypes = \
     [c_void_p]
-  def MakeConsistent(self):
+  def ProcessQueues(self):
     args = [self.obj]
-    if   self.tag == iTag: lib.ElDistSparseMatrixMakeConsistent_i(*args)
-    elif self.tag == sTag: lib.ElDistSparseMatrixMakeConsistent_s(*args)
-    elif self.tag == dTag: lib.ElDistSparseMatrixMakeConsistent_d(*args)
-    elif self.tag == cTag: lib.ElDistSparseMatrixMakeConsistent_c(*args)
-    elif self.tag == zTag: lib.ElDistSparseMatrixMakeConsistent_z(*args)
+    if   self.tag == iTag: lib.ElDistSparseMatrixProcessQueues_i(*args)
+    elif self.tag == sTag: lib.ElDistSparseMatrixProcessQueues_s(*args)
+    elif self.tag == dTag: lib.ElDistSparseMatrixProcessQueues_d(*args)
+    elif self.tag == cTag: lib.ElDistSparseMatrixProcessQueues_c(*args)
+    elif self.tag == zTag: lib.ElDistSparseMatrixProcessQueues_z(*args)
     else: DataExcept()
 
   # Queries

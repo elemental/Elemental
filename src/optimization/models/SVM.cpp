@@ -167,7 +167,7 @@ void SVM
     Q.Reserve( n );
     for( Int e=0; e<n; ++e )
         Q.QueueUpdate( e, e, Real(1) );
-    Q.MakeConsistent();
+    Q.ProcessQueues();
 
     // c := [0;0;lambda]
     // =================
@@ -198,7 +198,7 @@ void SVM
         G.QueueUpdate( e,   e+n+1, Real(-1) );
         G.QueueUpdate( e+m, e+n+1, Real(-1) );
     }
-    G.MakeConsistent();
+    G.ProcessQueues();
 
     // h := [-ones(m,1); zeros(m,1)]
     // =============================
@@ -245,7 +245,7 @@ void SVM
         for( Int iLoc=0; iLoc<Q.LocalHeight(); ++iLoc )
             if( Q.GlobalRow(iLoc) < n )
                 Q.QueueLocalUpdate( iLoc, Q.GlobalRow(iLoc), Real(1) );
-        Q.MakeConsistent();
+        Q.ProcessQueues();
     }
 
     // c := [0;0;lambda]
@@ -308,7 +308,7 @@ void SVM
             else
                 G.QueueLocalUpdate( iLoc, i-m+n+1, Real(-1) );
         }
-        G.MakeConsistent();
+        G.ProcessQueues();
     }
 
     // h := [-ones(m,1); zeros(m,1)]

@@ -165,7 +165,7 @@ void HelmholtzPML
         if( x != n-1 )
             H.QueueUpdate( i, i+1, -xTermR );
     }
-    H.MakeConsistent();
+    H.ProcessQueues();
 }
 
 template<typename Real> 
@@ -209,7 +209,7 @@ void HelmholtzPML
         if( x != n-1 )
             H.QueueLocalUpdate( iLoc, i+1, -xTermR );
     }
-    H.MakeConsistent();
+    H.ProcessQueues();
 }
 
 // 2D Helmholtz with PML
@@ -391,7 +391,7 @@ void HelmholtzPML
         if( y != ny-1 )
             H.QueueUpdate( i, i+nx, -yTermR );
     }
-    H.MakeConsistent();
+    H.ProcessQueues();
 }
 
 template<typename Real> 
@@ -454,7 +454,7 @@ void HelmholtzPML
         if( y != ny-1 )
             H.QueueLocalUpdate( iLoc, i+nx, -yTermR );
     }
-    H.MakeConsistent();
+    H.ProcessQueues();
 }
 
 // 3D Helmholtz with PML
@@ -690,7 +690,7 @@ void HelmholtzPML
         if( z != nz-1 )
             H.QueueUpdate( i, i+nx*ny, -zTermR );
     }
-    H.MakeConsistent();
+    H.ProcessQueues();
 }
 
 template<typename Real> 
@@ -771,7 +771,7 @@ void HelmholtzPML
         if( z != nz-1 )
             H.QueueLocalUpdate( iLoc, i+nx*ny, -zTermR );
     }
-    H.MakeConsistent();
+    H.ProcessQueues();
 }
 
 #define PROTO(Real) \

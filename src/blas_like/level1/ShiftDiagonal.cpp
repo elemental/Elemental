@@ -72,7 +72,7 @@ void ShiftDiagonal( SparseMatrix<T>& A, S alpha, Int offset )
         if( i+offset >= 0 && i+offset < n )
             A.QueueUpdate( i, i+offset, T(alpha) );
     }
-    A.MakeConsistent();
+    A.ProcessQueues();
 }
 
 template<typename T,typename S>
@@ -89,7 +89,7 @@ void ShiftDiagonal( DistSparseMatrix<T>& A, S alpha, Int offset )
         if( i+offset >= 0 && i+offset < n )
             A.QueueLocalUpdate( iLocal, i+offset, alpha );
     }
-    A.MakeConsistent();
+    A.ProcessQueues();
 }
 
 #define PROTO_TYPES(T,S) \

@@ -74,7 +74,7 @@ int main( int argc, char* argv[] )
             if( z != n-1 )
                 graph.QueueLocalConnection( iLocal, i+n*n );
         }
-        graph.MakeConsistent();
+        graph.ProcessQueues();
         mpi::Barrier( comm );
         if( commRank == 0 )
             cout << "done" << endl;

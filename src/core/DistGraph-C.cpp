@@ -63,8 +63,8 @@ ElError ElDistGraphQueueLocalDisconnection
 ( ElDistGraph graph, ElInt localRow, ElInt col )
 { EL_TRY( CReflect(graph)->QueueLocalDisconnection( localRow, col ) ) }
 
-ElError ElDistGraphMakeConsistent( ElDistGraph graph )
-{ EL_TRY( CReflect(graph)->MakeConsistent() ) }
+ElError ElDistGraphProcessQueues( ElDistGraph graph )
+{ EL_TRY( CReflect(graph)->ProcessQueues() ) }
 
 ElError ElDistGraphNumSources( ElConstDistGraph graph, ElInt* numSources )
 { EL_TRY( *numSources = CReflect(graph)->NumSources() ) } 

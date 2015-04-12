@@ -390,7 +390,7 @@ void Var2
     }
     for( Int e=0; e<m+n; ++e )
         AHat.QueueUpdate( e, e+2*n, Real(1) );
-    AHat.MakeConsistent();
+    AHat.ProcessQueues();
 
     // \hat b := | b |
     //           | 0 |
@@ -415,7 +415,7 @@ void Var2
         else
             G.QueueUpdate( i, i+(m-n), Real(-1) );
     }
-    G.MakeConsistent();
+    G.ProcessQueues();
 
     // h := [0;0;lambda e;lambda e]
     // ============================
@@ -474,7 +474,7 @@ void Var2
         else
             G.QueueLocalUpdate( iLoc, i+(m-n), Real(-1) );
     }
-    G.MakeConsistent();
+    G.ProcessQueues();
 
     // h := [0;0;lambda e;lambda e]
     // ============================
@@ -533,7 +533,7 @@ void Var2
             const Int i = AHat.GlobalRow(iLoc);
             AHat.QueueLocalUpdate( iLoc, i+2*n, Real(1) );
         }
-        AHat.MakeConsistent();
+        AHat.ProcessQueues();
     }
     // \hat b := | b |
     //           | 0 |

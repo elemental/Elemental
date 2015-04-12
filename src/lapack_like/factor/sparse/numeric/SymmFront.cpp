@@ -182,7 +182,7 @@ void SymmFront<F>::Push
         }
       };
     push( rootInfo, *this );
-    A.MakeConsistent();
+    A.ProcessQueues();
     MakeSymmetric( LOWER, A, isHermitian );
 }
 
@@ -237,7 +237,7 @@ void SymmFront<F>::Unpack
         }
       };
     push( rootInfo, *this );
-    A.MakeConsistent();
+    A.ProcessQueues();
 }
 
 template<typename F>

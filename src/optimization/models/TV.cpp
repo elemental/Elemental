@@ -60,7 +60,7 @@ void TV
     Q.Reserve( n );
     for( Int e=0; e<n; ++e )
         Q.QueueUpdate( e, e, Real(1) );
-    Q.MakeConsistent();
+    Q.ProcessQueues();
 
     // c := [-b;lambda]
     // =================
@@ -95,7 +95,7 @@ void TV
         G.QueueUpdate( e,     e+n, Real(-1) );
         G.QueueUpdate( e+n-1, e+n, Real(-1) );
     }
-    G.MakeConsistent();
+    G.ProcessQueues();
 
     // h := 0
     // ======
@@ -145,7 +145,7 @@ void TV
         else
             break;
     }
-    Q.MakeConsistent();
+    Q.ProcessQueues();
 
     // c := [-b;lambda]
     // =================
@@ -210,7 +210,7 @@ void TV
             G.QueueLocalUpdate( iLoc, i+n-(n-1), Real(-1) );
         }
     }
-    G.MakeConsistent();
+    G.ProcessQueues();
 
     // h := 0
     // ======

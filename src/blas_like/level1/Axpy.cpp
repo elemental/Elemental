@@ -64,7 +64,7 @@ void Axpy( S alphaS, const SparseMatrix<T>& X, SparseMatrix<T>& Y )
     Y.Reserve( Y.NumEntries()+numEntries );
     for( Int k=0; k<numEntries; ++k ) 
         Y.QueueUpdate( X.Row(k), X.Col(k), alpha*X.Value(k) );
-    Y.MakeConsistent();
+    Y.ProcessQueues();
 }
 
 template<typename T,typename S>
@@ -108,7 +108,7 @@ void Axpy( S alphaS, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y )
     for( Int k=0; k<numLocalEntries; ++k ) 
         Y.QueueLocalUpdate
         ( X.Row(k)-firstLocalRow, X.Col(k), alpha*X.Value(k) );
-    Y.MakeConsistent();
+    Y.ProcessQueues();
 }
 
 template<typename T,typename S>

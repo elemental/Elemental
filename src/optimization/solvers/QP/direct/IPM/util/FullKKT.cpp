@@ -202,7 +202,7 @@ void KKT
         for( Int e=0; e<n; ++e )
             J.QueueUpdate( e, n+m+e, Real(-1) );
     }
-    J.MakeConsistent();
+    J.ProcessQueues();
 }
 
 template<typename Real>
@@ -323,7 +323,7 @@ void KKT
     // ---------------------------------
     for( auto& entry : recvBuf )
         J.QueueUpdate( entry );
-    J.MakeConsistent();
+    J.ProcessQueues();
 }
 
 template<typename Real>

@@ -190,7 +190,7 @@ void EN
         Q.QueueUpdate( e, e, 2*lambda2 );
     for( Int e=0; e<m; ++e )
         Q.QueueUpdate( 2*n+e, 2*n+e, Real(1) );
-    Q.MakeConsistent();
+    Q.ProcessQueues();
 
     // c := lambda_1*[1;1;0]
     // =====================
@@ -210,7 +210,7 @@ void EN
     }
     for( Int e=0; e<m; ++e )
         AHat.QueueUpdate( e, e+2*n, Real(1) );
-    AHat.MakeConsistent();
+    AHat.ProcessQueues();
 
     // G := | -I  0 0 |
     //      |  0 -I 0 |
@@ -219,7 +219,7 @@ void EN
     G.Reserve( 2*m );
     for( Int e=0; e<2*m; ++e )
         G.QueueUpdate( e, e, Real(-1) );
-    G.MakeConsistent();
+    G.ProcessQueues();
 
     // h := 0
     // ======
@@ -264,7 +264,7 @@ void EN
         else
             Q.QueueLocalUpdate( iLoc, i, Real(2) );
     }
-    Q.MakeConsistent();
+    Q.ProcessQueues();
 
     // c := lambda_1*[1;1;0]
     // =====================
@@ -290,7 +290,7 @@ void EN
         const Int i = AHat.GlobalRow(iLoc);
         AHat.QueueLocalUpdate( iLoc, i+2*n, Real(1) );
     }
-    AHat.MakeConsistent();
+    AHat.ProcessQueues();
 
     // G := | -I  0 0 |
     //      |  0 -I 0 |
@@ -302,7 +302,7 @@ void EN
         const Int i = G.GlobalRow(iLoc);
         G.QueueLocalUpdate( iLoc, i, Real(-1) );
     }
-    G.MakeConsistent();
+    G.ProcessQueues();
 
     // h := 0
     // ======

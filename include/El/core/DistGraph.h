@@ -91,9 +91,9 @@ EL_EXPORT ElError ElDistGraphQueueDisconnection
 EL_EXPORT ElError ElDistGraphQueueLocalDisconnection
 ( ElDistGraph graph, ElInt localRow, ElInt col );
 
-/* void DistGraph::MakeConsistent()
-   -------------------------------- */ 
-EL_EXPORT ElError ElDistGraphMakeConsistent( ElDistGraph graph );
+/* void DistGraph::ProcessQueues()
+   ------------------------------- */ 
+EL_EXPORT ElError ElDistGraphProcessQueues( ElDistGraph graph );
 
 /* Queries
    ======= */

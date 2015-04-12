@@ -94,7 +94,7 @@ public:
     void QueueLocalUpdate( Int localRow, Int col, T value );
     void QueueZero( Int row, Int col, bool passive=true );
     void QueueLocalZero( Int localRow, Int col );
-    void MakeConsistent();
+    void ProcessQueues();
 
     // Queries
     // =======

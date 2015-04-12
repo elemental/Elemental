@@ -41,7 +41,7 @@ def FD2D(N0,N1):
     # The dense last column
     A.QueueLocalUpdate( sLoc, width-1, -10/height );
 
-  A.MakeConsistent()
+  A.ProcessQueues()
   return A
 
 def Constraints(numCols,N0,N1):
@@ -54,7 +54,7 @@ def Constraints(numCols,N0,N1):
     for j in xrange(numCols):
       B.QueueLocalUpdate( sLoc, j, random.uniform(0,1) )
 
-  B.MakeConsistent()
+  B.ProcessQueues()
   return B
 
 A = FD2D(n0,n1)

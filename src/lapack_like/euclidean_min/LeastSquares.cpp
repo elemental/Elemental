@@ -192,7 +192,7 @@ inline void Equilibrated
         for( Int e=0; e<n; ++e )
             J.QueueUpdate( e, e, alpha );
     }
-    J.MakeConsistent();
+    J.ProcessQueues();
 
     Matrix<F> D;
     Zeros( D, m+n, numRHS );
@@ -434,7 +434,7 @@ void Equilibrated
         }
         for( auto& entry : recvBuf )
             J.QueueUpdate( entry );
-        J.MakeConsistent();
+        J.ProcessQueues();
     }
 
     // Set D to [B; 0] or [0; B]

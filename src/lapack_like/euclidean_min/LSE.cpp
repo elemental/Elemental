@@ -343,7 +343,7 @@ void LSE
     }
     for( Int e=0; e<m; ++e )
         J.QueueUpdate( e+n, e+n, -ctrl.alpha );
-    J.MakeConsistent();
+    J.ProcessQueues();
     
     // Add the a priori regularization
     // ===============================
@@ -537,7 +537,7 @@ void LSE
             else if( i >= n )
                 J.QueueUpdate( i, i, -ctrl.alpha );
         }
-        J.MakeConsistent();
+        J.ProcessQueues();
     }
 
     // Add the a priori regularization

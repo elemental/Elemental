@@ -660,7 +660,7 @@ void BuildChildrenFromPerm
             leftChild.QueueConnection( source, target );
         }
     }
-    leftChild.MakeConsistent();
+    leftChild.ProcessQueues();
 
     // Build the right child's graph
     rightChild.Resize( rightChildSize, numTargets-leftChildSize );
@@ -686,7 +686,7 @@ void BuildChildrenFromPerm
             ( source-leftChildSize, target-leftChildSize );
         }
     }
-    rightChild.MakeConsistent();
+    rightChild.ProcessQueues();
 }
 
 void BuildChildFromPerm
@@ -909,7 +909,7 @@ void BuildChildFromPerm
             }
         }
     }
-    child.MakeConsistent();
+    child.ProcessQueues();
 }
 
 void BuildMap

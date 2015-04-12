@@ -64,7 +64,7 @@ public:
     void QueueUpdate( const Entry<T>& entry );
     void QueueUpdate( Int row, Int col, T value );
     void QueueZero( Int row, Int col );
-    void MakeConsistent();
+    void ProcessQueues();
 
     // Queries
     // =======

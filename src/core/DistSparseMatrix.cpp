@@ -103,7 +103,7 @@ void DistSparseMatrix<T>::Update( Int row, Int col, T value, bool passive )
 {
     DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::Update"))
     QueueUpdate( row, col, value, passive );
-    MakeConsistent();
+    ProcessQueues();
 }
 
 template<typename T>
@@ -115,7 +115,7 @@ void DistSparseMatrix<T>::UpdateLocal( Int localRow, Int col, T value )
 {
     DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::UpdateLocal"))
     QueueLocalUpdate( localRow, col, value );
-    MakeConsistent();
+    ProcessQueues();
 }
 
 template<typename T>
@@ -127,7 +127,7 @@ void DistSparseMatrix<T>::Zero( Int row, Int col, bool passive )
 {
     DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::Zero"))
     QueueZero( row, col, passive );
-    MakeConsistent();
+    ProcessQueues();
 }
 
 template<typename T>
@@ -135,7 +135,7 @@ void DistSparseMatrix<T>::ZeroLocal( Int localRow, Int col )
 {
     DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::ZeroLocal"))
     QueueLocalZero( localRow, col );
-    MakeConsistent();
+    ProcessQueues();
 }
 
 template<typename T>
@@ -196,10 +196,10 @@ void DistSparseMatrix<T>::QueueLocalZero( Int localRow, Int col )
 }
 
 template<typename T>
-void DistSparseMatrix<T>::MakeConsistent()
+void DistSparseMatrix<T>::ProcessQueues()
 {
     DEBUG_ONLY(
-      CallStackEntry cse("DistSparseMatrix::MakeConsistent");
+      CallStackEntry cse("DistSparseMatrix::ProcessQueues");
       if( distGraph_.sources_.size() != distGraph_.targets_.size() || 
           distGraph_.targets_.size() != vals_.size() )
           LogicError("Inconsistent sparse matrix buffer sizes");

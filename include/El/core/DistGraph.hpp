@@ -65,7 +65,7 @@ public:
     void QueueLocalConnection( Int localSource, Int target ); 
     void QueueDisconnection( Int source, Int target, bool passive=true );
     void QueueLocalDisconnection( Int localSource, Int target );
-    void MakeConsistent();
+    void ProcessQueues();
 
     // Queries
     // =======

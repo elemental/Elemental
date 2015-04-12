@@ -30,7 +30,7 @@ def ExtendedLaplacian(xSize,ySize):
     else:
       A.QueueUpdate( s, s-xSize*ySize, 2*(hxInvSq+hyInvSq) )
 
-  A.MakeConsistent()
+  A.ProcessQueues()
   return A
 
 A = ExtendedLaplacian(n0,n1)

@@ -63,7 +63,7 @@ public:
     // For appending/removing many edges and then forcing consistency at the end
     void QueueConnection( Int source, Int target );
     void QueueDisconnection( Int source, Int target );
-    void MakeConsistent();
+    void ProcessQueues();
 
     // Queries
     // =======

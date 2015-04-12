@@ -87,7 +87,7 @@ void TransposeAxpy
     else
         for( Int k=0; k<numEntries; ++k ) 
             Y.QueueUpdate( X.Col(k), X.Row(k), alpha*X.Value(k) );
-    Y.MakeConsistent();
+    Y.ProcessQueues();
 }
 
 template<typename T,typename S>
@@ -164,7 +164,7 @@ void TransposeAxpy
     B.Reserve( B.NumLocalEntries()+recvBuf.size() );
     for( auto& entry : recvBuf )
         B.QueueUpdate( entry );
-    B.MakeConsistent();
+    B.ProcessQueues();
 }
 
 #define PROTO_TYPES(T,S) \

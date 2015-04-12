@@ -37,8 +37,8 @@ extern "C" {
   ElError ElSparseMatrixQueueZero_ ## SIG \
   ( ElSparseMatrix_ ## SIG A, ElInt row, ElInt col ) \
   { EL_TRY( CReflect(A)->QueueZero(row,col) ) } \
-  ElError ElSparseMatrixMakeConsistent_ ## SIG ( ElSparseMatrix_ ## SIG A ) \
-  { EL_TRY( CReflect(A)->MakeConsistent() ) } \
+  ElError ElSparseMatrixProcessQueues_ ## SIG ( ElSparseMatrix_ ## SIG A ) \
+  { EL_TRY( CReflect(A)->ProcessQueues() ) } \
   ElError ElSparseMatrixHeight_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, ElInt* height ) \
   { EL_TRY( *height = CReflect(A)->Height() ) } \

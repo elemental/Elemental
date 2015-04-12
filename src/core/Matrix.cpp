@@ -126,7 +126,7 @@ const Matrix<T> Matrix<T>::operator()( Range<Int> I, Range<Int> J ) const
 // -----------
 
 template<typename T>
-Matrix<T>& Matrix<T>::operator=( const Matrix<T>& A )
+const Matrix<T>& Matrix<T>::operator=( const Matrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Matrix::operator="))
     Copy( A, *this );

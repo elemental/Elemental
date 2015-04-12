@@ -143,7 +143,7 @@ void MakeTrapezoidal( UpperOrLower uplo, SparseMatrix<T>& A, Int offset )
             (uplo == UPPER && j-i < offset) )
             A.QueueZero( i, j );
     }
-    A.MakeConsistent();
+    A.ProcessQueues();
 }
 
 template<typename T>
@@ -160,7 +160,7 @@ void MakeTrapezoidal( UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset )
             (uplo == UPPER && j-i < offset) )
             A.QueueLocalZero( i-firstLocalRow, j );
     }
-    A.MakeConsistent();
+    A.ProcessQueues();
 }
 
 #define PROTO(T) \

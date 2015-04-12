@@ -165,7 +165,7 @@ void LAV
         AHat.QueueUpdate( i, i+n,   Real( 1) );
         AHat.QueueUpdate( i, i+n+m, Real(-1) );
     }
-    AHat.MakeConsistent();
+    AHat.ProcessQueues();
 
     // G := | 0 -I  0 |
     //      | 0  0 -I |
@@ -174,7 +174,7 @@ void LAV
     G.Reserve( G.Height() );
     for( Int i=0; i<2*m; ++i )
         G.QueueUpdate( i, i+n, Real(-1) );
-    G.MakeConsistent();
+    G.ProcessQueues();
 
     // h := | 0 |
     //      | 0 |
@@ -224,7 +224,7 @@ void LAV
         AHat.QueueLocalUpdate( iLoc, i+n,   Real( 1) );
         AHat.QueueLocalUpdate( iLoc, i+n+m, Real(-1) );
     }
-    AHat.MakeConsistent();
+    AHat.ProcessQueues();
 
     // G := | 0 -I  0 |
     //      | 0  0 -I |
@@ -233,7 +233,7 @@ void LAV
     G.Reserve( G.LocalHeight() );
     for( Int iLoc=0; iLoc<G.LocalHeight(); ++iLoc )
         G.QueueLocalUpdate( iLoc, G.GlobalRow(iLoc)+n, Real(-1) );
-    G.MakeConsistent();
+    G.ProcessQueues();
 
     // h := | 0 |
     //      | 0 |

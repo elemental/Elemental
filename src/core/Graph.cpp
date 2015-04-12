@@ -118,14 +118,14 @@ void Graph::Connect( Int source, Int target )
 {
     DEBUG_ONLY(CallStackEntry cse("Graph::Connect"))
     QueueConnection( source, target );
-    MakeConsistent();
+    ProcessQueues();
 }
 
 void Graph::Disconnect( Int source, Int target )
 {
     DEBUG_ONLY(CallStackEntry cse("Graph::Disconnect"))
     QueueDisconnection( source, target );
-    MakeConsistent();
+    ProcessQueues();
 }
 
 void Graph::QueueConnection( Int source, Int target )
@@ -155,10 +155,10 @@ void Graph::QueueDisconnection( Int source, Int target )
     consistent_ = false;
 }
 
-void Graph::MakeConsistent()
+void Graph::ProcessQueues()
 {
     DEBUG_ONLY(
-      CallStackEntry cse("Graph::MakeConsistent");
+      CallStackEntry cse("Graph::ProcessQueues");
       if( sources_.size() != targets_.size() )
           LogicError("Inconsistent graph buffer sizes");
     )
@@ -312,7 +312,7 @@ void Graph::ComputeEdgeOffsets()
 void Graph::AssertConsistent() const
 { 
     if( !consistent_ )
-        LogicError("Graph was not consistent; run MakeConsistent()");
+        LogicError("Graph was not consistent; run ProcessQueues()");
 }
 
 } // namespace El

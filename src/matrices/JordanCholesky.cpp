@@ -60,7 +60,7 @@ void JordanCholesky( SparseMatrix<T>& A, Int n )
         if( e < n-1 )
             A.QueueUpdate( e, e+1, T(2) );
     }
-    A.MakeConsistent();
+    A.ProcessQueues();
 }
 
 template<typename T>
@@ -85,7 +85,7 @@ void JordanCholesky( DistSparseMatrix<T>& A, Int n )
         if( i < n-1 )
             A.QueueLocalUpdate( iLoc, i+1, T(2) );
     }
-    A.MakeConsistent();
+    A.ProcessQueues();
 }
 
 #define PROTO(T) \

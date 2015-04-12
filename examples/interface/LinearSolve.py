@@ -39,7 +39,7 @@ def FD2D(N0,N1):
     # The dense last column
     A.QueueLocalUpdate( sLoc, width-1, -10./height );
 
-  A.MakeConsistent()
+  A.ProcessQueues()
   return A
 
 A = FD2D(n0,n1)

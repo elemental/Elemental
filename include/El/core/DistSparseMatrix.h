@@ -219,13 +219,13 @@ EL_EXPORT ElError ElDistSparseMatrixQueueLocalZero_c
 EL_EXPORT ElError ElDistSparseMatrixQueueLocalZero_z
 ( ElDistSparseMatrix_z A, ElInt localRow, ElInt col );
 
-/* void DistSparseMatrix<T>::MakeConsistent()
-   ------------------------------------------ */ 
-EL_EXPORT ElError ElDistSparseMatrixMakeConsistent_i( ElDistSparseMatrix_i A );
-EL_EXPORT ElError ElDistSparseMatrixMakeConsistent_s( ElDistSparseMatrix_s A );
-EL_EXPORT ElError ElDistSparseMatrixMakeConsistent_d( ElDistSparseMatrix_d A );
-EL_EXPORT ElError ElDistSparseMatrixMakeConsistent_c( ElDistSparseMatrix_c A );
-EL_EXPORT ElError ElDistSparseMatrixMakeConsistent_z( ElDistSparseMatrix_z A );
+/* void DistSparseMatrix<T>::ProcessQueues()
+   ----------------------------------------- */ 
+EL_EXPORT ElError ElDistSparseMatrixProcessQueues_i( ElDistSparseMatrix_i A );
+EL_EXPORT ElError ElDistSparseMatrixProcessQueues_s( ElDistSparseMatrix_s A );
+EL_EXPORT ElError ElDistSparseMatrixProcessQueues_d( ElDistSparseMatrix_d A );
+EL_EXPORT ElError ElDistSparseMatrixProcessQueues_c( ElDistSparseMatrix_c A );
+EL_EXPORT ElError ElDistSparseMatrixProcessQueues_z( ElDistSparseMatrix_z A );
 
 /* Queries
    ======= */

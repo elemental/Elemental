@@ -27,7 +27,7 @@ def Square(xSize,ySize):
     if y != 0:       A.QueueUpdate( s, s-xSize, -4*hyInvSq )
     if y != ySize-1: A.QueueUpdate( s, s+xSize, -3*hyInvSq )
 
-  A.MakeConsistent()
+  A.ProcessQueues()
   return A
 
 def Rectang(height,width):
@@ -48,7 +48,7 @@ def Rectang(height,width):
     # The dense last column
     A.QueueUpdate( s, width-1, -5/height );
 
-  A.MakeConsistent()
+  A.ProcessQueues()
   return A
 
 #A = Square(n0,n1)

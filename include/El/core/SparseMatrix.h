@@ -136,13 +136,13 @@ EL_EXPORT ElError ElSparseMatrixQueueZero_c
 EL_EXPORT ElError ElSparseMatrixQueueZero_z
 ( ElSparseMatrix_z A, ElInt row, ElInt col );
 
-/* void SparseMatrix<T>::MakeConsistent()
+/* void SparseMatrix<T>::ProcessQueues()
    -------------------------------------- */ 
-EL_EXPORT ElError ElSparseMatrixMakeConsistent_i( ElSparseMatrix_i A );
-EL_EXPORT ElError ElSparseMatrixMakeConsistent_s( ElSparseMatrix_s A );
-EL_EXPORT ElError ElSparseMatrixMakeConsistent_d( ElSparseMatrix_d A );
-EL_EXPORT ElError ElSparseMatrixMakeConsistent_c( ElSparseMatrix_c A );
-EL_EXPORT ElError ElSparseMatrixMakeConsistent_z( ElSparseMatrix_z A );
+EL_EXPORT ElError ElSparseMatrixProcessQueues_i( ElSparseMatrix_i A );
+EL_EXPORT ElError ElSparseMatrixProcessQueues_s( ElSparseMatrix_s A );
+EL_EXPORT ElError ElSparseMatrixProcessQueues_d( ElSparseMatrix_d A );
+EL_EXPORT ElError ElSparseMatrixProcessQueues_c( ElSparseMatrix_c A );
+EL_EXPORT ElError ElSparseMatrixProcessQueues_z( ElSparseMatrix_z A );
 
 /* Queries
    ======= */

@@ -27,7 +27,7 @@ def Laplacian(xSize,ySize):
     if y != 0:       A.QueueLocalUpdate( sLoc, s-xSize, -hyInvSq )
     if y != ySize-1: A.QueueLocalUpdate( sLoc, s+xSize, -hyInvSq )
 
-  A.MakeConsistent()
+  A.ProcessQueues()
   return A
 
 A = Laplacian(n0,n1)

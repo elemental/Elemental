@@ -74,9 +74,9 @@ class DistGraph(object):
   def QueueLocalDisconnection(self,localSource,target):
     lib.ElDistGraphQueueLocalDisconnection(self.obj,localSource,target)
 
-  lib.ElDistGraphMakeConsistent.argtypes = [c_void_p]
-  def MakeConsistent(self):
-    lib.ElDistGraphMakeConsistent(self.obj)
+  lib.ElDistGraphProcessQueues.argtypes = [c_void_p]
+  def ProcessQueues(self):
+    lib.ElDistGraphProcessQueues(self.obj)
 
   # Queries
   # =======

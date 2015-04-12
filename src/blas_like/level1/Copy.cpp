@@ -145,7 +145,7 @@ void Copy( const Graph& A, Graph& B )
     B.targets_ = A.targets_;
     B.consistent_ = A.consistent_;
     B.edgeOffsets_ = A.edgeOffsets_;
-    B.MakeConsistent();
+    B.ProcessQueues();
 }
 
 void Copy( const Graph& A, DistGraph& B )
@@ -161,7 +161,7 @@ void Copy( const Graph& A, DistGraph& B )
     B.targets_ = A.targets_;
     B.consistent_ = A.consistent_;
     B.localEdgeOffsets_ = A.edgeOffsets_;
-    B.MakeConsistent();
+    B.ProcessQueues();
 }
 
 void Copy( const DistGraph& A, Graph& B )
@@ -179,7 +179,7 @@ void Copy( const DistGraph& A, Graph& B )
     B.targets_ = A.targets_;
     B.consistent_ = A.consistent_;
     B.edgeOffsets_ = A.localEdgeOffsets_;
-    B.MakeConsistent();
+    B.ProcessQueues();
 }
 
 void Copy( const DistGraph& A, DistGraph& B )
@@ -195,7 +195,7 @@ void Copy( const DistGraph& A, DistGraph& B )
     B.targets_ = A.targets_;
     B.consistent_ = A.consistent_;
     B.localEdgeOffsets_ = A.localEdgeOffsets_;
-    B.MakeConsistent();
+    B.ProcessQueues();
 }
 
 void CopyFromRoot( const DistGraph& distGraph, Graph& graph )
@@ -223,7 +223,7 @@ void CopyFromRoot( const DistGraph& distGraph, Graph& graph )
     ( distGraph.LockedTargetBuffer(), numLocalEdges,
       graph.TargetBuffer(), edgeSizes.data(), edgeOffsets.data(), 
       commRank, comm );
-    graph.MakeConsistent();
+    graph.ProcessQueues();
 }
 
 void CopyFromNonRoot( const DistGraph& distGraph, int root )
@@ -364,7 +364,7 @@ void CopyFromRoot( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A )
     ( ADist.LockedValueBuffer(), numLocalEntries,
       A.ValueBuffer(), entrySizes.data(), entryOffs.data(), 
       commRank, comm );
-    A.MakeConsistent();
+    A.ProcessQueues();
 }
 
 template<typename T>

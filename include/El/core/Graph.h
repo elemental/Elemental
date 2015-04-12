@@ -65,9 +65,9 @@ EL_EXPORT ElError ElGraphQueueConnection
 EL_EXPORT ElError ElGraphQueueDisconnection
 ( ElGraph graph, ElInt source, ElInt target );
 
-/* void Graph::MakeConsistent()
-   ---------------------------- */ 
-EL_EXPORT ElError ElGraphMakeConsistent( ElGraph graph );
+/* void Graph::ProcessQueues()
+   --------------------------- */ 
+EL_EXPORT ElError ElGraphProcessQueues( ElGraph graph );
 
 /* Queries
    ======= */

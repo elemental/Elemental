@@ -268,7 +268,7 @@ void GLM
     }
     for( Int e=0; e<k; ++e )
         J.QueueUpdate( e+m+n, e+m+n, -ctrl.alpha );
-    J.MakeConsistent();
+    J.ProcessQueues();
 
     // Add the a priori regularization
     // ===============================
@@ -450,7 +450,7 @@ void GLM
             if( i >= m+n )
                 J.QueueUpdate( i, i, -ctrl.alpha );
         }
-        J.MakeConsistent();
+        J.ProcessQueues();
     }
 
     // Add the a priori regularization

@@ -25,7 +25,7 @@ def LCF(lcf):
     G.QueueConnection(s,t)
     G.QueueConnection(t,s)
 
-  G.MakeConsistent()
+  G.ProcessQueues()
   return G
 
 levi = [-13,-9,7,-7,9,13]*5

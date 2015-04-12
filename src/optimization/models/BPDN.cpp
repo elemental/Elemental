@@ -189,7 +189,7 @@ void BPDN
     Q.Reserve( m );
     for( Int e=0; e<m; ++e )
         Q.QueueUpdate( 2*n+e, 2*n+e, Real(1) );
-    Q.MakeConsistent();
+    Q.ProcessQueues();
 
     // c := lambda*[1;1;0]
     // ===================
@@ -209,7 +209,7 @@ void BPDN
     }
     for( Int e=0; e<m; ++e )
         AHat.QueueUpdate( e, e+2*n, Real(1) );
-    AHat.MakeConsistent();
+    AHat.ProcessQueues();
 
     // G := | -I  0 0 |
     //      |  0 -I 0 |
@@ -218,7 +218,7 @@ void BPDN
     G.Reserve( 2*m );
     for( Int e=0; e<2*m; ++e )
         G.QueueUpdate( e, e, Real(-1) );
-    G.MakeConsistent();
+    G.ProcessQueues();
 
     // h := 0
     // ======
@@ -263,7 +263,7 @@ void BPDN
         for( Int iLoc=0; iLoc<Q.LocalHeight(); ++iLoc )
             if( Q.GlobalRow(iLoc) >= 2*n )
                 Q.QueueLocalUpdate( iLoc, Q.GlobalRow(iLoc), Real(1) );
-        Q.MakeConsistent();
+        Q.ProcessQueues();
     }
 
     // c := lambda*[1;1;0]
@@ -290,7 +290,7 @@ void BPDN
         const Int i = AHat.GlobalRow(iLoc);
         AHat.QueueLocalUpdate( iLoc, i+2*n, Real(1) );
     }
-    AHat.MakeConsistent();
+    AHat.ProcessQueues();
 
     // G := | -I  0 0 |
     //      |  0 -I 0 |
@@ -302,7 +302,7 @@ void BPDN
         const Int i = G.GlobalRow(iLoc);
         G.QueueLocalUpdate( iLoc, i, Real(-1) );
     }
-    G.MakeConsistent();
+    G.ProcessQueues();
 
     // h := 0
     // ======

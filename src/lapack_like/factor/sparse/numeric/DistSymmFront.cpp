@@ -601,7 +601,7 @@ void DistSymmFront<F>::Unpack
     A.Reserve( recvBuf.size() );
     for( auto& entry : recvBuf )
         A.QueueUpdate( entry );
-    A.MakeConsistent();
+    A.ProcessQueues();
 }
 
 template<typename F>

@@ -153,7 +153,7 @@ void Syrk
 
     // Force the result to be consistent
     // =================================
-    C.MakeConsistent();
+    C.ProcessQueues();
 }
 
 template<typename T>
@@ -260,7 +260,7 @@ void Syrk
     C.Reserve( C.NumLocalEntries() + recvBuf.size() );
     for( auto& entry : recvBuf )
         C.QueueUpdate( entry );
-    C.MakeConsistent();
+    C.ProcessQueues();
 }
 
 template<typename T>

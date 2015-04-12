@@ -203,28 +203,28 @@ void DistGraph::Connect( Int source, Int target, bool passive )
 {
     DEBUG_ONLY(CallStackEntry cse("DistGraph::Connect"))
     QueueConnection( source, target, passive );
-    MakeConsistent();
+    ProcessQueues();
 }
 
 void DistGraph::ConnectLocal( Int localSource, Int target )
 {
     DEBUG_ONLY(CallStackEntry cse("DistGraph::ConnectLocal"))
     QueueLocalConnection( localSource, target );
-    MakeConsistent();
+    ProcessQueues();
 }
 
 void DistGraph::Disconnect( Int source, Int target, bool passive )
 {
     DEBUG_ONLY(CallStackEntry cse("DistGraph::Disconnect"))
     QueueDisconnection( source, target, passive );
-    MakeConsistent();
+    ProcessQueues();
 }
 
 void DistGraph::DisconnectLocal( Int localSource, Int target )
 {
     DEBUG_ONLY(CallStackEntry cse("DistGraph::DisconnectLocal"))
     QueueLocalDisconnection( localSource, target );
-    MakeConsistent();
+    ProcessQueues();
 }
 
 void DistGraph::QueueConnection( Int source, Int target, bool passive )
@@ -292,10 +292,10 @@ void DistGraph::QueueLocalDisconnection( Int localSource, Int target )
     consistent_ = false;
 }
 
-void DistGraph::MakeConsistent()
+void DistGraph::ProcessQueues()
 {
     DEBUG_ONLY(
-      CallStackEntry cse("DistGraph::MakeConsistent");
+      CallStackEntry cse("DistGraph::ProcessQueues");
       if( sources_.size() != targets_.size() )
           LogicError("Inconsistent graph buffer sizes");
     )

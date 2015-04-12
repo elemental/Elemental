@@ -66,7 +66,7 @@ void Identity( SparseMatrix<T>& I, Int m, Int n )
     I.Reserve( Min(m,n) );
     for( Int j=0; j<Min(m,n); ++j )
         I.QueueUpdate( j, j, T(1) );
-    I.MakeConsistent();
+    I.ProcessQueues();
 }
 
 template<typename T>
@@ -85,7 +85,7 @@ void Identity( DistSparseMatrix<T>& I, Int m, Int n )
         if( i < n )
             I.QueueLocalUpdate( iLoc, i, T(1) );
     }
-    I.MakeConsistent();
+    I.ProcessQueues();
 }
 
 #define PROTO(T) \

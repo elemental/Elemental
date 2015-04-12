@@ -126,7 +126,7 @@ void AugmentedKKT
         if( !onlyLower )
             J.QueueUpdate( A.Col(e), A.Row(e)+n, A.Value(e) );
     }
-    J.MakeConsistent();
+    J.ProcessQueues();
 }
 
 template<typename Real>
@@ -225,7 +225,7 @@ void AugmentedKKT
     J.Reserve( recvBuf.size() );
     for( auto& entry : recvBuf )
         J.QueueUpdate( entry );
-    J.MakeConsistent();
+    J.ProcessQueues();
 }
 
 template<typename Real>
