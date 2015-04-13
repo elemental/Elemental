@@ -53,9 +53,9 @@ class Graph(object):
   def QueueDisconnection(self,source,target):
     lib.ElGraphQueueDisconnection(self.obj,source,target)
 
-  lib.ElGraphMakeConsistent.argtypes = [c_void_p]
-  def MakeConsistent(self):
-    lib.ElGraphMakeConsistent(self.obj)
+  lib.ElGraphProcessQueues.argtypes = [c_void_p]
+  def ProcessQueues(self):
+    lib.ElGraphProcessQueues(self.obj)
 
   # Queries
   # =======
