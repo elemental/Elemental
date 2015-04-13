@@ -2465,6 +2465,123 @@ inline qp::affine::Ctrl<double> CReflect( ElQPAffineCtrl_d ctrlC )
     return ctrl;
 }
 
+// Models
+// ^^^^^^
+
+// Robust Principal Component Analysis
+// """""""""""""""""""""""""""""""""""
+
+inline ElRPCACtrl_s CReflect( const RPCACtrl<float>& ctrl )
+{
+    ElRPCACtrl_s ctrlC;
+    ctrlC.useALM      = ctrl.useALM;
+    ctrlC.usePivQR    = ctrl.usePivQR;
+    ctrlC.progress    = ctrl.progress;
+    ctrlC.numPivSteps = ctrl.numPivSteps;
+    ctrlC.maxIts      = ctrl.maxIts;
+    ctrlC.tau         = ctrl.tau;
+    ctrlC.beta        = ctrl.beta;
+    ctrlC.rho         = ctrl.rho;
+    ctrlC.tol         = ctrl.tol;
+    return ctrlC;
+}
+
+inline ElRPCACtrl_d CReflect( const RPCACtrl<double>& ctrl )
+{
+    ElRPCACtrl_d ctrlC;
+    ctrlC.useALM      = ctrl.useALM;
+    ctrlC.usePivQR    = ctrl.usePivQR;
+    ctrlC.progress    = ctrl.progress;
+    ctrlC.numPivSteps = ctrl.numPivSteps;
+    ctrlC.maxIts      = ctrl.maxIts;
+    ctrlC.tau         = ctrl.tau;
+    ctrlC.beta        = ctrl.beta;
+    ctrlC.rho         = ctrl.rho;
+    ctrlC.tol         = ctrl.tol;
+    return ctrlC;
+}
+
+inline RPCACtrl<float> CReflect( const ElRPCACtrl_s ctrlC )
+{
+    RPCACtrl<float> ctrl;
+    ctrl.useALM      = ctrlC.useALM;
+    ctrl.usePivQR    = ctrlC.usePivQR;
+    ctrl.progress    = ctrlC.progress;
+    ctrl.numPivSteps = ctrlC.numPivSteps;
+    ctrl.maxIts      = ctrlC.maxIts;
+    ctrl.tau         = ctrlC.tau;
+    ctrl.beta        = ctrlC.beta;
+    ctrl.rho         = ctrlC.rho;
+    ctrl.tol         = ctrlC.tol;
+    return ctrl;
+}
+
+inline RPCACtrl<double> CReflect( const ElRPCACtrl_d ctrlC )
+{
+    RPCACtrl<double> ctrl;
+    ctrl.useALM      = ctrlC.useALM;
+    ctrl.usePivQR    = ctrlC.usePivQR;
+    ctrl.progress    = ctrlC.progress;
+    ctrl.numPivSteps = ctrlC.numPivSteps;
+    ctrl.maxIts      = ctrlC.maxIts;
+    ctrl.tau         = ctrlC.tau;
+    ctrl.beta        = ctrlC.beta;
+    ctrl.rho         = ctrlC.rho;
+    ctrl.tol         = ctrlC.tol;
+    return ctrl;
+}
+
+// Sparse inverse covariance selection
+// """""""""""""""""""""""""""""""""""
+
+inline ElSparseInvCovCtrl_s CReflect( const SparseInvCovCtrl<float>& ctrl )
+{
+    ElSparseInvCovCtrl_s ctrlC;
+    ctrlC.rho      = ctrl.rho;
+    ctrlC.alpha    = ctrl.alpha;
+    ctrlC.maxIter  = ctrl.maxIter;
+    ctrlC.absTol   = ctrl.absTol;
+    ctrlC.relTol   = ctrl.relTol;
+    ctrlC.progress = ctrl.progress;
+    return ctrlC;
+}
+
+inline ElSparseInvCovCtrl_d CReflect( const SparseInvCovCtrl<double>& ctrl )
+{
+    ElSparseInvCovCtrl_d ctrlC;
+    ctrlC.rho      = ctrl.rho;
+    ctrlC.alpha    = ctrl.alpha;
+    ctrlC.maxIter  = ctrl.maxIter;
+    ctrlC.absTol   = ctrl.absTol;
+    ctrlC.relTol   = ctrl.relTol;
+    ctrlC.progress = ctrl.progress;
+    return ctrlC;
+}
+
+inline SparseInvCovCtrl<float> CReflect( const ElSparseInvCovCtrl_s ctrlC )
+{
+    SparseInvCovCtrl<float> ctrl;
+    ctrl.rho      = ctrlC.rho;
+    ctrl.alpha    = ctrlC.alpha;
+    ctrl.maxIter  = ctrlC.maxIter;
+    ctrl.absTol   = ctrlC.absTol;
+    ctrl.relTol   = ctrlC.relTol;
+    ctrl.progress = ctrlC.progress;
+    return ctrl;
+}
+
+inline SparseInvCovCtrl<double> CReflect( const ElSparseInvCovCtrl_d ctrlC )
+{
+    SparseInvCovCtrl<double> ctrl;
+    ctrl.rho      = ctrlC.rho;
+    ctrl.alpha    = ctrlC.alpha;
+    ctrl.maxIter  = ctrlC.maxIter;
+    ctrl.absTol   = ctrlC.absTol;
+    ctrl.relTol   = ctrlC.relTol;
+    ctrl.progress = ctrlC.progress;
+    return ctrl;
+}
+
 } // namespace El
 
 #endif // ifndef EL_CREFLECT_C_HPP

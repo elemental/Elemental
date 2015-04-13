@@ -36,8 +36,8 @@ typedef struct {
   bool print;
 } ElIPFLineSearchCtrl_d;
 
-ElError ElIPFLineSearchCtrlDefault_s( ElIPFLineSearchCtrl_s* ctrl );
-ElError ElIPFLineSearchCtrlDefault_d( ElIPFLineSearchCtrl_d* ctrl );
+EL_EXPORT ElError ElIPFLineSearchCtrlDefault_s( ElIPFLineSearchCtrl_s* ctrl );
+EL_EXPORT ElError ElIPFLineSearchCtrlDefault_d( ElIPFLineSearchCtrl_d* ctrl );
 
 /* Linear programs
    =============== */
@@ -118,8 +118,8 @@ typedef struct {
   bool print;
 } ElLPDirectADMMCtrl_d;
 
-ElError ElLPDirectADMMCtrlDefault_s( ElLPDirectADMMCtrl_s* ctrl );
-ElError ElLPDirectADMMCtrlDefault_d( ElLPDirectADMMCtrl_d* ctrl );
+EL_EXPORT ElError ElLPDirectADMMCtrlDefault_s( ElLPDirectADMMCtrl_s* ctrl );
+EL_EXPORT ElError ElLPDirectADMMCtrlDefault_d( ElLPDirectADMMCtrl_d* ctrl );
 
 typedef struct {
   bool primalInit, dualInit;
@@ -151,8 +151,10 @@ typedef struct {
   bool time;
 } ElLPDirectIPFCtrl_d;
 
-ElError ElLPDirectIPFCtrlDefault_s( ElLPDirectIPFCtrl_s* ctrl, bool isSparse );
-ElError ElLPDirectIPFCtrlDefault_d( ElLPDirectIPFCtrl_d* ctrl, bool isSparse );
+EL_EXPORT ElError ElLPDirectIPFCtrlDefault_s
+( ElLPDirectIPFCtrl_s* ctrl, bool isSparse );
+EL_EXPORT ElError ElLPDirectIPFCtrlDefault_d
+( ElLPDirectIPFCtrl_d* ctrl, bool isSparse );
 
 typedef struct {
   bool primalInit, dualInit;
@@ -182,9 +184,9 @@ typedef struct {
   bool time;
 } ElLPDirectMehrotraCtrl_d;
 
-ElError ElLPDirectMehrotraCtrlDefault_s
+EL_EXPORT ElError ElLPDirectMehrotraCtrlDefault_s
 ( ElLPDirectMehrotraCtrl_s* ctrl, bool isSparse );
-ElError ElLPDirectMehrotraCtrlDefault_d
+EL_EXPORT ElError ElLPDirectMehrotraCtrlDefault_d
 ( ElLPDirectMehrotraCtrl_d* ctrl, bool isSparse );
 
 typedef struct {
@@ -200,8 +202,10 @@ typedef struct {
   ElLPDirectMehrotraCtrl_d mehrotraCtrl;
 } ElLPDirectCtrl_d;
 
-ElError ElLPDirectCtrlDefault_s( ElLPDirectCtrl_s* ctrl, bool isSparse );
-ElError ElLPDirectCtrlDefault_d( ElLPDirectCtrl_d* ctrl, bool isSparse );
+EL_EXPORT ElError ElLPDirectCtrlDefault_s
+( ElLPDirectCtrl_s* ctrl, bool isSparse );
+EL_EXPORT ElError ElLPDirectCtrlDefault_d
+( ElLPDirectCtrl_d* ctrl, bool isSparse );
 
 EL_EXPORT ElError ElLPDirectX_s
 ( ElConstMatrix_s A,
@@ -339,8 +343,8 @@ typedef struct {
   bool time;
 } ElLPAffineIPFCtrl_d;
 
-ElError ElLPAffineIPFCtrlDefault_s( ElLPAffineIPFCtrl_s* ctrl );
-ElError ElLPAffineIPFCtrlDefault_d( ElLPAffineIPFCtrl_d* ctrl );
+EL_EXPORT ElError ElLPAffineIPFCtrlDefault_s( ElLPAffineIPFCtrl_s* ctrl );
+EL_EXPORT ElError ElLPAffineIPFCtrlDefault_d( ElLPAffineIPFCtrl_d* ctrl );
 
 typedef struct {
   bool primalInit, dualInit;
@@ -368,8 +372,10 @@ typedef struct {
   bool time;
 } ElLPAffineMehrotraCtrl_d;
 
-ElError ElLPAffineMehrotraCtrlDefault_s( ElLPAffineMehrotraCtrl_s* ctrl );
-ElError ElLPAffineMehrotraCtrlDefault_d( ElLPAffineMehrotraCtrl_d* ctrl );
+EL_EXPORT ElError ElLPAffineMehrotraCtrlDefault_s
+( ElLPAffineMehrotraCtrl_s* ctrl );
+EL_EXPORT ElError ElLPAffineMehrotraCtrlDefault_d
+( ElLPAffineMehrotraCtrl_d* ctrl );
 
 typedef struct {
   ElLPApproach approach;  
@@ -382,8 +388,8 @@ typedef struct {
   ElLPAffineMehrotraCtrl_d mehrotraCtrl;
 } ElLPAffineCtrl_d;
 
-ElError ElLPAffineCtrlDefault_s( ElLPAffineCtrl_s* ctrl );
-ElError ElLPAffineCtrlDefault_d( ElLPAffineCtrl_d* ctrl );
+EL_EXPORT ElError ElLPAffineCtrlDefault_s( ElLPAffineCtrl_s* ctrl );
+EL_EXPORT ElError ElLPAffineCtrlDefault_d( ElLPAffineCtrl_d* ctrl );
 
 EL_EXPORT ElError ElLPAffineX_s
 ( ElConstMatrix_s A, ElConstMatrix_s G,
@@ -534,8 +540,8 @@ typedef struct {
   bool time;
 } ElQPDirectIPFCtrl_d;
 
-ElError ElQPDirectIPFCtrlDefault_s( ElQPDirectIPFCtrl_s* ctrl );
-ElError ElQPDirectIPFCtrlDefault_d( ElQPDirectIPFCtrl_d* ctrl );
+EL_EXPORT ElError ElQPDirectIPFCtrlDefault_s( ElQPDirectIPFCtrl_s* ctrl );
+EL_EXPORT ElError ElQPDirectIPFCtrlDefault_d( ElQPDirectIPFCtrl_d* ctrl );
 
 typedef struct {
   bool primalInit, dualInit;
@@ -565,8 +571,10 @@ typedef struct {
   bool time;
 } ElQPDirectMehrotraCtrl_d;
 
-ElError ElQPDirectMehrotraCtrlDefault_s( ElQPDirectMehrotraCtrl_s* ctrl );
-ElError ElQPDirectMehrotraCtrlDefault_d( ElQPDirectMehrotraCtrl_d* ctrl );
+EL_EXPORT ElError ElQPDirectMehrotraCtrlDefault_s
+( ElQPDirectMehrotraCtrl_s* ctrl );
+EL_EXPORT ElError ElQPDirectMehrotraCtrlDefault_d
+( ElQPDirectMehrotraCtrl_d* ctrl );
 
 typedef struct {
   ElQPApproach approach;  
@@ -579,8 +587,8 @@ typedef struct {
   ElQPDirectMehrotraCtrl_d mehrotraCtrl;
 } ElQPDirectCtrl_d;
 
-ElError ElQPDirectCtrlDefault_s( ElQPDirectCtrl_s* ctrl );
-ElError ElQPDirectCtrlDefault_d( ElQPDirectCtrl_d* ctrl );
+EL_EXPORT ElError ElQPDirectCtrlDefault_s( ElQPDirectCtrl_s* ctrl );
+EL_EXPORT ElError ElQPDirectCtrlDefault_d( ElQPDirectCtrl_d* ctrl );
 
 EL_EXPORT ElError ElQPDirectX_s
 ( ElConstMatrix_s Q, ElConstMatrix_s A, 
@@ -726,8 +734,8 @@ typedef struct {
   bool time;
 } ElQPAffineIPFCtrl_d;
 
-ElError ElQPAffineIPFCtrlDefault_s( ElQPAffineIPFCtrl_s* ctrl );
-ElError ElQPAffineIPFCtrlDefault_d( ElQPAffineIPFCtrl_d* ctrl );
+EL_EXPORT ElError ElQPAffineIPFCtrlDefault_s( ElQPAffineIPFCtrl_s* ctrl );
+EL_EXPORT ElError ElQPAffineIPFCtrlDefault_d( ElQPAffineIPFCtrl_d* ctrl );
 
 typedef struct {
   bool primalInit, dualInit;
@@ -755,8 +763,10 @@ typedef struct {
   bool time;
 } ElQPAffineMehrotraCtrl_d;
 
-ElError ElQPAffineMehrotraCtrlDefault_s( ElQPAffineMehrotraCtrl_s* ctrl );
-ElError ElQPAffineMehrotraCtrlDefault_d( ElQPAffineMehrotraCtrl_d* ctrl );
+EL_EXPORT ElError ElQPAffineMehrotraCtrlDefault_s
+( ElQPAffineMehrotraCtrl_s* ctrl );
+EL_EXPORT ElError ElQPAffineMehrotraCtrlDefault_d
+( ElQPAffineMehrotraCtrl_d* ctrl );
 
 typedef struct {
   ElQPApproach approach;  
@@ -769,8 +779,8 @@ typedef struct {
   ElQPAffineMehrotraCtrl_d mehrotraCtrl;
 } ElQPAffineCtrl_d;
 
-ElError ElQPAffineCtrlDefault_s( ElQPAffineCtrl_s* ctrl );
-ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl );
+EL_EXPORT ElError ElQPAffineCtrlDefault_s( ElQPAffineCtrl_s* ctrl );
+EL_EXPORT ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl );
 
 EL_EXPORT ElError ElQPAffineX_s
 ( ElConstMatrix_s Q,

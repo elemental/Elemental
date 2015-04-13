@@ -577,6 +577,57 @@ EL_EXPORT ElError ElRPCADist_c
 EL_EXPORT ElError ElRPCADist_z
 ( ElConstDistMatrix_z M, ElDistMatrix_z L, ElDistMatrix_z S );
 
+/* Expert interface
+   ---------------- */
+typedef struct {
+  bool useALM;
+  bool usePivQR;
+  bool progress;
+  ElInt numPivSteps;
+  ElInt maxIts;
+  float tau;
+  float beta;
+  float rho;
+  float tol;
+} ElRPCACtrl_s;
+
+typedef struct {
+  bool useALM;
+  bool usePivQR;
+  bool progress;
+  ElInt numPivSteps;
+  ElInt maxIts;
+  double tau;
+  double beta;
+  double rho;
+  double tol;
+} ElRPCACtrl_d;
+
+EL_EXPORT ElError ElRPCACtrlDefault_s( ElRPCACtrl_s* ctrl );
+EL_EXPORT ElError ElRPCACtrlDefault_d( ElRPCACtrl_d* ctrl );
+
+EL_EXPORT ElError ElRPCAX_s
+( ElConstMatrix_s M, ElMatrix_s L, ElMatrix_s S, ElRPCACtrl_s ctrl );
+EL_EXPORT ElError ElRPCAX_d
+( ElConstMatrix_d M, ElMatrix_d L, ElMatrix_d S, ElRPCACtrl_d ctrl );
+EL_EXPORT ElError ElRPCAX_c
+( ElConstMatrix_c M, ElMatrix_c L, ElMatrix_c S, ElRPCACtrl_s ctrl );
+EL_EXPORT ElError ElRPCAX_z
+( ElConstMatrix_z M, ElMatrix_z L, ElMatrix_z S, ElRPCACtrl_d ctrl );
+
+EL_EXPORT ElError ElRPCAXDist_s
+( ElConstDistMatrix_s M, ElDistMatrix_s L, ElDistMatrix_s S, 
+  ElRPCACtrl_s ctrl );
+EL_EXPORT ElError ElRPCAXDist_d
+( ElConstDistMatrix_d M, ElDistMatrix_d L, ElDistMatrix_d S, 
+  ElRPCACtrl_d ctrl );
+EL_EXPORT ElError ElRPCAXDist_c
+( ElConstDistMatrix_c M, ElDistMatrix_c L, ElDistMatrix_c S, 
+  ElRPCACtrl_s ctrl );
+EL_EXPORT ElError ElRPCAXDist_z
+( ElConstDistMatrix_z M, ElDistMatrix_z L, ElDistMatrix_z S, 
+  ElRPCACtrl_d ctrl );
+
 /* Sparse inverse covariance selection
    =================================== */
 EL_EXPORT ElError ElSparseInvCov_s
@@ -597,7 +648,54 @@ EL_EXPORT ElError ElSparseInvCovDist_c
 EL_EXPORT ElError ElSparseInvCovDist_z
 ( ElConstDistMatrix_z D, double lambda, ElDistMatrix_z Z, ElInt* numIts );
 
-/* TODO: Expert versions */
+/* Expert versions
+   --------------- */
+typedef struct {
+  float rho;
+  float alpha;
+  ElInt maxIter;
+  float absTol;
+  float relTol;
+  bool progress;
+} ElSparseInvCovCtrl_s;
+
+typedef struct {
+  double rho;
+  double alpha;
+  ElInt maxIter;
+  double absTol;
+  double relTol;
+  bool progress;
+} ElSparseInvCovCtrl_d;
+
+EL_EXPORT ElError ElSparseInvCovCtrlDefault_s( ElSparseInvCovCtrl_s* ctrl );
+EL_EXPORT ElError ElSparseInvCovCtrlDefault_d( ElSparseInvCovCtrl_d* ctrl );
+
+EL_EXPORT ElError ElSparseInvCovX_s
+( ElConstMatrix_s D, float lambda, ElMatrix_s Z, 
+  ElSparseInvCovCtrl_s ctrl, ElInt* numIts );
+EL_EXPORT ElError ElSparseInvCovX_d
+( ElConstMatrix_d D, double lambda, ElMatrix_d Z,
+  ElSparseInvCovCtrl_d ctrl, ElInt* numIts );
+EL_EXPORT ElError ElSparseInvCovX_c
+( ElConstMatrix_c D, float lambda, ElMatrix_c Z,
+  ElSparseInvCovCtrl_s ctrl, ElInt* numIts );
+EL_EXPORT ElError ElSparseInvCovX_z
+( ElConstMatrix_z D, double lambda, ElMatrix_z Z,
+  ElSparseInvCovCtrl_d ctrl, ElInt* numIts );
+
+EL_EXPORT ElError ElSparseInvCovXDist_s
+( ElConstDistMatrix_s D, float lambda, ElDistMatrix_s Z,
+  ElSparseInvCovCtrl_s ctrl, ElInt* numIts );
+EL_EXPORT ElError ElSparseInvCovXDist_d
+( ElConstDistMatrix_d D, double lambda, ElDistMatrix_d Z,
+  ElSparseInvCovCtrl_d ctrl, ElInt* numIts );
+EL_EXPORT ElError ElSparseInvCovXDist_c
+( ElConstDistMatrix_c D, float lambda, ElDistMatrix_c Z,
+  ElSparseInvCovCtrl_s ctrl, ElInt* numIts );
+EL_EXPORT ElError ElSparseInvCovXDist_z
+( ElConstDistMatrix_z D, double lambda, ElDistMatrix_z Z,
+  ElSparseInvCovCtrl_d ctrl, ElInt* numIts );
 
 /* Support Vector Machine
    ====================== */

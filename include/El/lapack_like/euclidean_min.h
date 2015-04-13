@@ -89,7 +89,7 @@ typedef struct {
   bool progress;
   bool time;
 } ElLeastSquaresCtrl_s;
-ElError ElLeastSquaresCtrlDefault_s( ElLeastSquaresCtrl_s* ctrl );
+EL_EXPORT ElError ElLeastSquaresCtrlDefault_s( ElLeastSquaresCtrl_s* ctrl );
 
 typedef struct {
   bool scaleTwoNorm;
@@ -100,7 +100,7 @@ typedef struct {
   bool progress;
   bool time;
 } ElLeastSquaresCtrl_d;
-ElError ElLeastSquaresCtrlDefault_d( ElLeastSquaresCtrl_d* ctrl );
+EL_EXPORT ElError ElLeastSquaresCtrlDefault_d( ElLeastSquaresCtrl_d* ctrl );
 
 EL_EXPORT ElError ElLeastSquaresXSparse_s
 ( ElOrientation orientation, ElConstSparseMatrix_s A, 

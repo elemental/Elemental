@@ -322,23 +322,17 @@ void EN
 template<typename Real>
 struct RPCACtrl
 {
-    bool useALM;
-    bool usePivQR;
-    bool progress;
+    bool useALM=true;
+    bool usePivQR=false;
+    bool progress=true;
 
-    Int numPivSteps;
-    Int maxIts;
+    Int numPivSteps=75;
+    Int maxIts=1000;
 
-    Real tau;
-    Real beta;
-    Real rho;
-    Real tol;
-
-    RPCACtrl() 
-    : useALM(true), usePivQR(false), progress(true), 
-      numPivSteps(75), maxIts(1000),
-      tau(0), beta(1), rho(6), tol(1e-5)
-    { }
+    Real tau=0;
+    Real beta=1;
+    Real rho=6;
+    Real tol=1e-5;
 };
 
 template<typename F>
@@ -354,16 +348,25 @@ void RPCA
 
 // Sparse inverse covariance selection
 // ===================================
+template<typename Real>
+struct SparseInvCovCtrl
+{
+    Real rho=1.;
+    Real alpha=1.2;
+    Int maxIter=500;
+    Real absTol=1e-6;
+    Real relTol=1e-4;
+    bool progress=true;
+};
+
 template<typename F>
 Int SparseInvCov
 ( const Matrix<F>& D, Base<F> lambda, Matrix<F>& Z,
-  Base<F> rho=1., Base<F> alpha=1.2, Int maxIter=500,
-  Base<F> absTol=1e-6, Base<F> relTol=1e-4, bool progress=true );
+  const SparseInvCovCtrl<Base<F>>& ctrl=SparseInvCovCtrl<Base<F>>() );
 template<typename F>
 Int SparseInvCov
 ( const AbstractDistMatrix<F>& D, Base<F> lambda, AbstractDistMatrix<F>& Z,
-  Base<F> rho=1., Base<F> alpha=1.2, Int maxIter=500,
-  Base<F> absTol=1e-6, Base<F> relTol=1e-4, bool progress=true );
+  const SparseInvCovCtrl<Base<F>>& ctrl=SparseInvCovCtrl<Base<F>>() );
 
 // Support Vector Machine (soft-margin)
 // ====================================

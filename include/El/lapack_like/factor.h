@@ -381,7 +381,7 @@ typedef struct
   ElInt restart;
   bool progress;
 } ElRegQSDCtrl_s;
-ElError ElRegQSDCtrlDefault_s( ElRegQSDCtrl_s* ctrl );
+EL_EXPORT ElError ElRegQSDCtrlDefault_s( ElRegQSDCtrl_s* ctrl );
 
 typedef struct
 {
@@ -394,7 +394,7 @@ typedef struct
   ElInt restart;
   bool progress;
 } ElRegQSDCtrl_d;
-ElError ElRegQSDCtrlDefault_d( ElRegQSDCtrl_d* ctrl );
+EL_EXPORT ElError ElRegQSDCtrlDefault_d( ElRegQSDCtrl_d* ctrl );
 
 /* TODO: Wrappers for regularized factorizations and solves */
 

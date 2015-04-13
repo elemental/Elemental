@@ -826,6 +826,23 @@ def EN(A,b,lambda1Pre,lambda2Pre,ctrl=None):
 
 # Robust Principal Component Analysis
 # ===================================
+
+lib.ElRPCACtrlDefault_s.argtypes = \
+lib.ElRPCACtrlDefault_d.argtypes = \
+  [c_void_p]
+class RPCACtrl_s(ctypes.Structure):
+  _fields_ = [("useALM",bType),("usePivQR",bType),("progress",bType),
+              ("numPivSteps",iType),("maxIts",iType),
+              ("tau",sType),("beta",sType),("rho",sType),("tol",sType)]
+  def __init__(self):
+    lib.ElRPCACtrlDefault_s(pointer(self))
+class RPCACtrl_d(ctypes.Structure):
+  _fields_ = [("useALM",bType),("usePivQR",bType),("progress",bType),
+              ("numPivSteps",iType),("maxIts",iType),
+              ("tau",dType),("beta",dType),("rho",dType),("tol",dType)]
+  def __init__(self):
+    lib.ElRPCACtrlDefault_d(pointer(self))
+
 lib.ElRPCA_s.argtypes = \
 lib.ElRPCA_d.argtypes = \
 lib.ElRPCA_c.argtypes = \
@@ -836,29 +853,78 @@ lib.ElRPCADist_c.argtypes = \
 lib.ElRPCADist_z.argtypes = \
   [c_void_p,c_void_p,c_void_p]
 
-def RPCA(M):
+lib.ElRPCAX_s.argtypes = \
+lib.ElRPCAX_c.argtypes = \
+lib.ElRPCAXDist_s.argtypes = \
+lib.ElRPCAXDist_c.argtypes = \
+  [c_void_p,c_void_p,c_void_p,RPCACtrl_s]
+
+lib.ElRPCAX_d.argtypes = \
+lib.ElRPCAX_z.argtypes = \
+lib.ElRPCAXDist_d.argtypes = \
+lib.ElRPCAXDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,RPCACtrl_d]
+
+def RPCA(M,ctrl=None):
   if type(M) is Matrix:
     L = Matrix(M.tag)
     S = Matrix(M.tag)
     args = [M.obj,L.obj,S.obj]
-    if   M.tag == sTag: lib.ElRPCA_s(*args)
-    elif M.tag == dTag: lib.ElRPCA_d(*args)
-    elif M.tag == cTag: lib.ElRPCA_c(*args)
-    elif M.tag == zTag: lib.ElRPCA_z(*args)
+    argsCtrl = [M.obj,L.obj,S.obj,ctrl]
+    if   M.tag == sTag: 
+      if ctrl==None: lib.ElRPCA_s(*args)
+      else:          lib.ElRPCAX_s(*argsCtrl)
+    elif M.tag == dTag: 
+      if ctrl==None: lib.ElRPCA_d(*args)
+      else:          lib.ElRPCAX_d(*argsCtrl)
+    elif M.tag == cTag: 
+      if ctrl==None: lib.ElRPCA_c(*args)
+      else:          lib.ElRPCAX_c(*argsCtrl)
+    elif M.tag == zTag: 
+      if ctrl==None: lib.ElRPCA_z(*args)
+      else:          lib.ElRPCAX_z(*argsCtrl)
     return L, S
   elif type(M) is DistMatrix:
     L = DistMatrix(M.tag,MC,MR,M.Grid())
     S = DistMatrix(M.tag,MC,MR,M.Grid())
     args = [M.obj,L.obj,S.obj]
-    if   M.tag == sTag: lib.ElRPCADist_s(*args)
-    elif M.tag == dTag: lib.ElRPCADist_d(*args)
-    elif M.tag == cTag: lib.ElRPCADist_c(*args)
-    elif M.tag == zTag: lib.ElRPCADist_z(*args)
+    argsCtrl = [M.obj,L.obj,S.obj,ctrl]
+    if   M.tag == sTag: 
+      if ctrl==None: lib.ElRPCADist_s(*args)
+      else:          lib.ElRPCAXDist_s(*argsCtrl)
+    elif M.tag == dTag: 
+      if ctrl==None: lib.ElRPCADist_d(*args)
+      else:          lib.ElRPCAXDist_d(*argsCtrl)
+    elif M.tag == cTag: 
+      if ctrl==None: lib.ElRPCADist_c(*args)
+      else:          lib.ElRPCAXDist_c(*argsCtrl)
+    elif M.tag == zTag: 
+      if ctrl==None: lib.ElRPCADist_z(*args)
+      else:          lib.ElRPCAXDist_z(*argsCtrl)
     return L, S
   else: TypeExcept()
 
 # Sparse inverse covariance selection
 # ===================================
+
+lib.ElSparseInvCovCtrlDefault_s.argtypes = \
+lib.ElSparseInvCovCtrlDefault_d.argtypes = \
+  [c_void_p]
+class SparseInvCovCtrl_s(ctypes.Structure):
+  _fields_ = [("rho",sType),("alpha",sType),
+              ("maxIter",iType),
+              ("absTol",sType),("relTol",sType),
+              ("progress",bType)]
+  def __init__(self):
+    lib.ElSparseInvCovCtrlDefault_s(pointer(self))
+class SparseInvCovCtrl_d(ctypes.Structure):
+  _fields_ = [("rho",dType),("alpha",dType),
+              ("maxIter",iType),
+              ("absTol",dType),("relTol",dType),
+              ("progress",bType)]
+  def __init__(self):
+    lib.ElSparseInvCovCtrlDefault_d(pointer(self))
+
 lib.ElSparseInvCov_s.argtypes = \
 lib.ElSparseInvCov_c.argtypes = \
 lib.ElSparseInvCovDist_s.argtypes = \
@@ -870,24 +936,54 @@ lib.ElSparseInvCovDist_d.argtypes = \
 lib.ElSparseInvCovDist_z.argtypes = \
   [c_void_p,dType,c_void_p,POINTER(iType)]
 
-def SparseInvCov(D,lamb):
+lib.ElSparseInvCovX_s.argtypes = \
+lib.ElSparseInvCovX_c.argtypes = \
+lib.ElSparseInvCovXDist_s.argtypes = \
+lib.ElSparseInvCovXDist_c.argtypes = \
+  [c_void_p,sType,c_void_p,SparseInvCovCtrl_s,POINTER(iType)]
+lib.ElSparseInvCovX_d.argtypes = \
+lib.ElSparseInvCovX_z.argtypes = \
+lib.ElSparseInvCovXDist_d.argtypes = \
+lib.ElSparseInvCovXDist_z.argtypes = \
+  [c_void_p,dType,c_void_p,SparseInvCovCtrl_d,POINTER(iType)]
+
+def SparseInvCov(D,lambdaPre,ctrl=None):
   numIts = iType()
+  lambd = TagToType(Base(D.tag))(lambdaPre) 
   if type(D) is Matrix:
     Z = Matrix(D.tag)
     args = [D.obj,lamb,Z.obj,pointer(numIts)]
-    if   D.tag == sTag: lib.ElSparseInvCov_s(*args)
-    elif D.tag == dTag: lib.ElSparseInvCov_d(*args)
-    elif D.tag == cTag: lib.ElSparseInvCov_c(*args)
-    elif D.tag == zTag: lib.ElSparseInvCov_z(*args)
+    argsCtrl = [D.obj,lamb,Z.obj,ctrl,pointer(numIts)]
+    if   D.tag == sTag: 
+      if ctrl==None: lib.ElSparseInvCov_s(*args)
+      else:          lib.ElSparseInvCovX_s(*argsCtrl)
+    elif D.tag == dTag: 
+      if ctrl==None: lib.ElSparseInvCov_d(*args)
+      else:          lib.ElSparseInvCovX_d(*argsCtrl)
+    elif D.tag == cTag:
+      if ctrl==None: lib.ElSparseInvCov_c(*args)
+      else:          lib.ElSparseInvCovX_c(*argsCtrl)
+    elif D.tag == zTag:
+      if ctrl==None: lib.ElSparseInvCov_z(*args)
+      else:          lib.ElSparseInvCovX_z(*argsCtrl)
     else: DataExcept()
     return Z, numIts
   elif type(D) is DistMatrix:
     Z = DistMatrix(D.tag,MC,MR,D.Grid())
     args = [D.obj,lamb,Z.obj,pointer(numIts)]
-    if   D.tag == sTag: lib.ElSparseInvCovDist_s(*args)
-    elif D.tag == dTag: lib.ElSparseInvCovDist_d(*args)
-    elif D.tag == cTag: lib.ElSparseInvCovDist_c(*args)
-    elif D.tag == zTag: lib.ElSparseInvCovDist_z(*args)
+    argsCtrl = [D.obj,lamb,Z.obj,ctrl,pointer(numIts)]
+    if   D.tag == sTag: 
+      if ctrl==None: lib.ElSparseInvCovDist_s(*args)
+      else:          lib.ElSparseInvCovXDist_s(*argsCtrl)
+    elif D.tag == dTag: 
+      if ctrl==None: lib.ElSparseInvCovDist_d(*args)
+      else:          lib.ElSparseInvCovXDist_d(*argsCtrl)
+    elif D.tag == cTag:
+      if ctrl==None: lib.ElSparseInvCovDist_c(*args)
+      else:          lib.ElSparseInvCovXDist_c(*argsCtrl)
+    elif D.tag == zTag:
+      if ctrl==None: lib.ElSparseInvCovDist_z(*args)
+      else:          lib.ElSparseInvCovXDist_z(*argsCtrl)
     else: DataExcept()
     return Z, numIts
   else: TypeExcept()

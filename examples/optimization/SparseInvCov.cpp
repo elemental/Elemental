@@ -20,8 +20,7 @@ using namespace El;
 typedef double Real;
 typedef Real F;
 
-int 
-main( int argc, char* argv[] )
+int main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
 
@@ -132,9 +131,15 @@ main( int argc, char* argv[] )
                  << "|| cov(D)-SNoisy ||_F / || S ||_F = " 
                  << covErrNorm/SNorm << "\n" << endl;
 
+        SparseInvCovCtrl<Base<F>> ctrl;
+        ctrl.rho = rho;
+        ctrl.alpha = alpha;
+        ctrl.maxIter = maxIter;
+        ctrl.relTol = relTol;
+        ctrl.progress = progress;
+
         DistMatrix<F> Z;
-        SparseInvCov
-        ( D, lambda, Z, rho, alpha, maxIter, absTol, relTol, progress );
+        SparseInvCov( D, lambda, Z, ctrl );
 
         const Real SInvNorm = FrobeniusNorm( SInv );
         G = Z;

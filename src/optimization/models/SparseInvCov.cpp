@@ -22,8 +22,7 @@ namespace El {
 template<typename F>
 Int SparseInvCov
 ( const Matrix<F>& D, Base<F> lambda, Matrix<F>& Z,
-  Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, 
-  bool progress )
+  const SparseInvCovCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SparseInvCov"))
     typedef Base<F> Real;
@@ -38,19 +37,20 @@ Int SparseInvCov
     Zeros( X, n, n );
     Zeros( Z, n, n );
     Zeros( U, n, n );
-    while( numIter < maxIter )
+    while( numIter < ctrl.maxIter )
     {
         ZOld = Z;
 
         // X := rho*(Z-U) - S
         X = Z;
         Axpy( F(-1), U, X );
-        Scale( rho, X );
+        Scale( ctrl.rho, X );
         Axpy( F(-1), S, X );
 
         // X := f(X), f(gamma) = (gamma+sqrt(gamma+4*rho)) / (2*rho)
         auto eigMap = 
-          [rho](Real gamma){return (gamma+Sqrt(gamma*gamma+4*rho))/(2*rho);};
+          [ctrl](Real gamma)
+          { return (gamma+Sqrt(gamma*gamma+4*ctrl.rho))/(2*ctrl.rho); };
         HermitianFunction( LOWER, X, function<Real(Real)>(eigMap) );
         // Make X explicitly Hermitian since HermitianHilbertSchmidt is not
         // yet available. This should result in Z and U remaining explicitly
@@ -59,13 +59,13 @@ Int SparseInvCov
 
         // XHat := alpha*X + (1-alpha)*ZOld
         XHat = X;
-        Scale( alpha, XHat );
-        Axpy( 1-alpha, ZOld, XHat );
+        Scale( ctrl.alpha, XHat );
+        Axpy( 1-ctrl.alpha, ZOld, XHat );
 
         // Z := SoftThreshold(XHat+U,lambda/rho)
         Z = XHat;
         Axpy( Real(1), U, Z );
-        SoftThreshold( Z, lambda/rho );
+        SoftThreshold( Z, lambda/ctrl.rho );
 
         // U := U + (XHat-Z)
         Axpy( Real(1),  XHat, U );
@@ -78,15 +78,16 @@ Int SparseInvCov
         // sNorm := |rho| || Z - ZOld ||_F
         T = Z;
         Axpy( Real(-1), ZOld, T );
-        const Real sNorm = Abs(rho)*FrobeniusNorm(T);
+        const Real sNorm = Abs(ctrl.rho)*FrobeniusNorm(T);
 
-        const Real epsPri = n*absTol + 
-            relTol*Max(FrobeniusNorm(X),FrobeniusNorm(Z));
-        const Real epsDual = n*absTol + relTol*Abs(rho)*FrobeniusNorm(U);
+        const Real epsPri = n*ctrl.absTol + 
+            ctrl.relTol*Max(FrobeniusNorm(X),FrobeniusNorm(Z));
+        const Real epsDual = n*ctrl.absTol + 
+            ctrl.relTol*Abs(ctrl.rho)*FrobeniusNorm(U);
 
-        if( progress )
+        if( ctrl.progress )
         {
-            const Real trace = RealPart(HilbertSchmidt( S, X ));
+            const Real trace = RealPart(HilbertSchmidt(S,X));
             const SafeProduct<Real> safeDet = SafeHPDDeterminant( LOWER, X );
             const Real ZOne = EntrywiseNorm( Z, Real(1) );
             const Real objective = trace-safeDet.kappa*safeDet.n+lambda*ZOne;
@@ -101,7 +102,7 @@ Int SparseInvCov
             break;
         ++numIter;
     }
-    if( maxIter == numIter )
+    if( ctrl.maxIter == numIter )
         cout << "ADMM failed to converge" << endl;
     return numIter;
 }
@@ -109,8 +110,7 @@ Int SparseInvCov
 template<typename F>
 Int SparseInvCov
 ( const AbstractDistMatrix<F>& D, Base<F> lambda, AbstractDistMatrix<F>& ZPre,
-  Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, 
-  bool progress )
+  const SparseInvCovCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SparseInvCov"))
 
@@ -130,19 +130,20 @@ Int SparseInvCov
     Zeros( X, n, n );
     Zeros( Z, n, n );
     Zeros( U, n, n );
-    while( numIter < maxIter )
+    while( numIter < ctrl.maxIter )
     {
         ZOld = Z;
 
         // X := rho*(Z-U) - S
         X = Z;
         Axpy( F(-1), U, X );
-        Scale( rho, X );
+        Scale( ctrl.rho, X );
         Axpy( F(-1), S, X );
 
         // X := f(X), f(gamma) = (gamma+sqrt(gamma+4*rho)) / (2*rho)
         auto eigMap = 
-          [rho](Real gamma){return (gamma+Sqrt(gamma*gamma+4*rho))/(2*rho);};
+          [ctrl](Real gamma)
+          { return (gamma+Sqrt(gamma*gamma+4*ctrl.rho))/(2*ctrl.rho); };
         HermitianFunction( LOWER, X, function<Real(Real)>(eigMap) );
         // Make X explicitly Hermitian since HermitianHilbertSchmidt is not
         // yet available. This should result in Z and U remaining explicitly
@@ -151,13 +152,13 @@ Int SparseInvCov
 
         // XHat := alpha*X + (1-alpha)*ZOld
         XHat = X;
-        Scale( alpha, XHat );
-        Axpy( 1-alpha, ZOld, XHat );
+        Scale( ctrl.alpha, XHat );
+        Axpy( 1-ctrl.alpha, ZOld, XHat );
 
         // Z := SoftThreshold(XHat+U,lambda/rho)
         Z = XHat;
         Axpy( Real(1), U, Z );
-        SoftThreshold( Z, lambda/rho );
+        SoftThreshold( Z, lambda/ctrl.rho );
 
         // U := U + (XHat-Z)
         Axpy( Real(1),  XHat, U );
@@ -170,15 +171,16 @@ Int SparseInvCov
         // sNorm := |rho| || Z - ZOld ||_F
         T = Z;
         Axpy( Real(-1), ZOld, T );
-        const Real sNorm = Abs(rho)*FrobeniusNorm(T);
+        const Real sNorm = Abs(ctrl.rho)*FrobeniusNorm(T);
 
-        const Real epsPri = n*absTol + 
-            relTol*Max(FrobeniusNorm(X),FrobeniusNorm(Z));
-        const Real epsDual = n*absTol + relTol*Abs(rho)*FrobeniusNorm(U);
+        const Real epsPri = n*ctrl.absTol + 
+            ctrl.relTol*Max(FrobeniusNorm(X),FrobeniusNorm(Z));
+        const Real epsDual = n*ctrl.absTol + 
+            ctrl.relTol*Abs(ctrl.rho)*FrobeniusNorm(U);
 
-        if( progress )
+        if( ctrl.progress )
         {
-            const Real trace = RealPart(HilbertSchmidt( S, X ));
+            const Real trace = RealPart(HilbertSchmidt(S,X));
             const SafeProduct<Real> safeDet = SafeHPDDeterminant( LOWER, X );
             const Real ZOne = EntrywiseNorm( Z, Real(1) );
             const Real objective = trace-safeDet.kappa*safeDet.n+lambda*ZOne;
@@ -194,7 +196,7 @@ Int SparseInvCov
             break;
         ++numIter;
     }
-    if( maxIter == numIter && g.Rank() == 0 )
+    if( ctrl.maxIter == numIter && g.Rank() == 0 )
         cout << "ADMM failed to converge" << endl;
     return numIter;
 }
@@ -202,12 +204,10 @@ Int SparseInvCov
 #define PROTO(F) \
   template Int SparseInvCov \
   ( const Matrix<F>& D, Base<F> lambda, Matrix<F>& Z, \
-    Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
-    bool progress ); \
+    const SparseInvCovCtrl<Base<F>>& ctrl ); \
   template Int SparseInvCov \
   ( const AbstractDistMatrix<F>& D, Base<F> lambda, AbstractDistMatrix<F>& Z, \
-    Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
-    bool progress );
+    const SparseInvCovCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

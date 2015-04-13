@@ -12,6 +12,60 @@ using namespace El;
 
 extern "C" {
 
+/* Robust Principal Component Analysis
+   =================================== */
+ElError ElRPCACtrlDefault_s( ElRPCACtrl_s* ctrl )
+{
+    ctrl->useALM = true;
+    ctrl->usePivQR = false;
+    ctrl->progress = true;
+    ctrl->numPivSteps = 7;
+    ctrl->maxIts = 1000;
+    ctrl->tau = 0;
+    ctrl->beta = 1;
+    ctrl->rho = 6;
+    ctrl->tol = 1e-5;
+    return EL_SUCCESS;
+}
+
+ElError ElRPCACtrlDefault_d( ElRPCACtrl_d* ctrl )
+{
+    ctrl->useALM = true;
+    ctrl->usePivQR = false;
+    ctrl->progress = true;
+    ctrl->numPivSteps = 7;
+    ctrl->maxIts = 1000;
+    ctrl->tau = 0;
+    ctrl->beta = 1;
+    ctrl->rho = 6;
+    ctrl->tol = 1e-5;
+    return EL_SUCCESS;
+}
+
+/* Sparse Inverse Covariance Selection
+   =================================== */
+ElError ElSparseInvCovCtrlDefault_s( ElSparseInvCovCtrl_s* ctrl )
+{
+    ctrl->rho = 1;
+    ctrl->alpha = 1.2;
+    ctrl->maxIter = 500;
+    ctrl->absTol = 1e-6;
+    ctrl->relTol = 1e-4;
+    ctrl->progress = true;
+    return EL_SUCCESS;
+}
+
+ElError ElSparseInvCovCtrlDefault_d( ElSparseInvCovCtrl_d* ctrl )
+{
+    ctrl->rho = 1;
+    ctrl->alpha = 1.2;
+    ctrl->maxIter = 500;
+    ctrl->absTol = 1e-6;
+    ctrl->relTol = 1e-4;
+    ctrl->progress = true;
+    return EL_SUCCESS;
+}
+
 #define C_PROTO_FIELD(SIG,SIGBASE,F) \
   /* Basis pursuit
      ============= */ \
@@ -50,6 +104,19 @@ extern "C" {
   ( ElConstDistMatrix_ ## SIG M, \
     ElDistMatrix_ ## SIG L, ElDistMatrix_ ## SIG S ) \
   { EL_TRY( RPCA( *CReflect(M), *CReflect(L), *CReflect(S) ) ) } \
+  /* Expert versions
+     --------------- */ \
+  ElError ElRPCAX_ ## SIG \
+  ( ElConstMatrix_ ## SIG M, ElMatrix_ ## SIG L, ElMatrix_ ## SIG S, \
+    ElRPCACtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( \
+      RPCA( *CReflect(M), *CReflect(L), *CReflect(S), CReflect(ctrl) ) ) } \
+  ElError ElRPCAXDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG M, \
+    ElDistMatrix_ ## SIG L, ElDistMatrix_ ## SIG S, \
+    ElRPCACtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( \
+      RPCA( *CReflect(M), *CReflect(L), *CReflect(S), CReflect(ctrl) ) ) } \
   /* Sparse inverse covariance selection
      =================================== */ \
   ElError ElSparseInvCov_ ## SIG \
@@ -59,7 +126,19 @@ extern "C" {
   ElError ElSparseInvCovDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG D, Base<F> lambda, ElDistMatrix_ ## SIG Z, \
     ElInt* numIts ) \
-  { EL_TRY( *numIts = SparseInvCov( *CReflect(D), lambda, *CReflect(Z) ) ) }
+  { EL_TRY( *numIts = SparseInvCov( *CReflect(D), lambda, *CReflect(Z) ) ) } \
+  /* Expert versions
+     --------------- */ \
+  ElError ElSparseInvCovX_ ## SIG \
+  ( ElConstMatrix_ ## SIG D, Base<F> lambda, ElMatrix_ ## SIG Z, \
+    ElSparseInvCovCtrl_ ## SIGBASE ctrl, ElInt* numIts ) \
+  { EL_TRY( *numIts = \
+      SparseInvCov( *CReflect(D), lambda, *CReflect(Z), CReflect(ctrl) ) ) } \
+  ElError ElSparseInvCovXDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG D, Base<F> lambda, ElDistMatrix_ ## SIG Z, \
+    ElSparseInvCovCtrl_ ## SIGBASE ctrl, ElInt* numIts ) \
+  { EL_TRY( *numIts = \
+      SparseInvCov( *CReflect(D), lambda, *CReflect(Z), CReflect(ctrl) ) ) }
 
 #define C_PROTO_REAL(SIG,Real) \
   C_PROTO_FIELD(SIG,SIG,Real) \
