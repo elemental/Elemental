@@ -280,7 +280,7 @@ elseif(METIS_ROOT AND PARMETIS_ROOT)
 elseif(BUILD_METIS)
   if(NOT EXISTS "${CMAKE_SOURCE_DIR}/external/metis/CMakeLists.txt")
     message(FATAL_ERROR
-      "${CMAKE_SOURCE_DIR}/external/metis is not correctly set up. If you are building from source, make sure all git submodules in the source directory are checked out, e.g. with\ncd ${CMAKE_SOURCE_DIR} && git pull --recurse-submodules")
+      "${CMAKE_SOURCE_DIR}/external/metis is not correctly set up. If you are building from source, make sure all git submodules in the source directory are checked out, e.g. with\ncd ${CMAKE_SOURCE_DIR} && git submodule update --recursive --init")
   endif()
   add_subdirectory(external/metis)
   set(METIS_ROOT ${PROJECT_SOURCE_DIR}/external/metis)
