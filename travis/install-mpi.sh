@@ -7,9 +7,9 @@ case $1 in
     sudo apt-get install alien;
     wget -q http://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-1.8.4-1.src.rpm;
     sudo alien -d ./openmpi-1.8.4-1.src.rpm;
-    sudo dpkg -i ./openmpi-1.8.4-1.deb;
+    sudo dpkg -i ./openmpi_1.8.4-2_amd64.deb;
     rm -f ./openmpi-1.8.4-1.src.rpm;
-    rm -f ./openmpi-1.8.4-1.deb;;
+    rm -f ./openmpi_1.8.4-2_amd64.deb;;
   *)
     echo "Unknown MPI implementation:" $1; exit 1;;
 esac
