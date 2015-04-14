@@ -952,8 +952,8 @@ def SparseInvCov(D,lambdaPre,ctrl=None):
   lambd = TagToType(Base(D.tag))(lambdaPre) 
   if type(D) is Matrix:
     Z = Matrix(D.tag)
-    args = [D.obj,lamb,Z.obj,pointer(numIts)]
-    argsCtrl = [D.obj,lamb,Z.obj,ctrl,pointer(numIts)]
+    args = [D.obj,lambd,Z.obj,pointer(numIts)]
+    argsCtrl = [D.obj,lambd,Z.obj,ctrl,pointer(numIts)]
     if   D.tag == sTag: 
       if ctrl==None: lib.ElSparseInvCov_s(*args)
       else:          lib.ElSparseInvCovX_s(*argsCtrl)
@@ -970,8 +970,8 @@ def SparseInvCov(D,lambdaPre,ctrl=None):
     return Z, numIts
   elif type(D) is DistMatrix:
     Z = DistMatrix(D.tag,MC,MR,D.Grid())
-    args = [D.obj,lamb,Z.obj,pointer(numIts)]
-    argsCtrl = [D.obj,lamb,Z.obj,ctrl,pointer(numIts)]
+    args = [D.obj,lambd,Z.obj,pointer(numIts)]
+    argsCtrl = [D.obj,lambd,Z.obj,ctrl,pointer(numIts)]
     if   D.tag == sTag: 
       if ctrl==None: lib.ElSparseInvCovDist_s(*args)
       else:          lib.ElSparseInvCovXDist_s(*argsCtrl)
