@@ -16,7 +16,7 @@ template<typename Real>
 Int LogisticRegression
 ( const Matrix<Real>& G, const Matrix<Real>& q, Matrix<Real>& w,
   Real gamma, Regularization penalty, 
-  Real rho, Int maxIter, bool inv, bool progress )
+  const ModelFitCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LogisticRegression"))
     const Int numExamples = G.Height();
@@ -62,8 +62,7 @@ Int LogisticRegression
     Matrix<Real> b;
     Zeros( b, numExamples, 1 );
 
-    return ModelFit
-    ( logisticFunc, proxFunc, A, b, w, rho, maxIter, inv, progress );
+    return ModelFit( logisticFunc, proxFunc, A, b, w, ctrl );
 }
 
 template<typename Real>
@@ -71,7 +70,7 @@ Int LogisticRegression
 ( const AbstractDistMatrix<Real>& G, const AbstractDistMatrix<Real>& q, 
         AbstractDistMatrix<Real>& w, 
   Real gamma, Regularization penalty, 
-  Real rho, Int maxIter, bool inv, bool progress )
+  const ModelFitCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("LogisticRegression"))
     const Int numExamples = G.Height();
@@ -125,20 +124,19 @@ Int LogisticRegression
     DistMatrix<Real> b(G.Grid());
     Zeros( b, numExamples, 1 );
 
-    return ModelFit
-    ( logisticFunc, proxFunc, A, b, w, rho, maxIter, inv, progress );
+    return ModelFit( logisticFunc, proxFunc, A, b, w, ctrl );
 }
 
 #define PROTO(Real) \
   template Int LogisticRegression \
   ( const Matrix<Real>& G, const Matrix<Real>& q, Matrix<Real>& w, \
     Real gamma, Regularization penalty, \
-    Real rho, Int maxIter, bool inv, bool progress ); \
+    const ModelFitCtrl<Real>& ctrl ); \
   template Int LogisticRegression \
   ( const AbstractDistMatrix<Real>& G, const AbstractDistMatrix<Real>& q, \
           AbstractDistMatrix<Real>& w, \
     Real gamma, Regularization penalty, \
-    Real rho, Int maxIter, bool inv, bool progress );
+    const ModelFitCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

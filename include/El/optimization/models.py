@@ -432,13 +432,13 @@ def LogisticRegression(G,q,gamma,penalty=L1_PENALTY):
 lib.ElModelFit_s.argtypes = \
 lib.ElModelFitDist_s.argtypes = \
   [CFUNCTYPE(None,c_void_p,sType),CFUNCTYPE(None,c_void_p,sType),
-   c_void_p,c_void_p,c_void_p,sType,POINTER(iType)]
+   c_void_p,c_void_p,c_void_p,POINTER(iType)]
 lib.ElModelFit_d.argtypes = \
 lib.ElModelFitDist_d.argtypes = \
   [CFUNCTYPE(None,c_void_p,dType),CFUNCTYPE(None,c_void_p,dType),
-   c_void_p,c_void_p,c_void_p,dType,POINTER(iType)]
+   c_void_p,c_void_p,c_void_p,POINTER(iType)]
 
-def ModelFit(lossProx,regProx,A,b,rho=1.2):
+def ModelFit(lossProx,regProx,A,b):
   if type(A) is not type(b):
     raise Exception('Types of A and b must match')
   if A.tag != b.tag:
@@ -448,14 +448,14 @@ def ModelFit(lossProx,regProx,A,b,rho=1.2):
   cReg = CFUNCTYPE(None,c_void_p,TagToType(A.tag))(regProx)
   if type(A) is Matrix:
     w = Matrix(A.tag)
-    args = [cLoss,cReg,A.obj,b.obj,w.obj,rho,pointer(numIts)]
+    args = [cLoss,cReg,A.obj,b.obj,w.obj,pointer(numIts)]
     if   A.tag == sTag: lib.ElModelFit_s(*args)
     elif A.tag == dTag: lib.ElModelFit_d(*args)
     else: DataExcept()
     return w, numIts
   elif type(A) is DistMatrix:
     w = DistMatrix(A.tag,MC,MR,A.Grid())
-    args = [cLoss,cReg,A.obj,b.obj,w.obj,rho,pointer(numIts)]
+    args = [cLoss,cReg,A.obj,b.obj,w.obj,pointer(numIts)]
     if   A.tag == sTag: lib.ElModelFitDist_s(*args)
     elif A.tag == dTag: lib.ElModelFitDist_d(*args)
     else: DataExcept()

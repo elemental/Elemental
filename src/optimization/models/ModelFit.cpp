@@ -20,7 +20,7 @@ Int ModelFit
 ( function<void(Matrix<Real>&,Real)> lossProx,
   function<void(Matrix<Real>&,Real)> regProx,
   const Matrix<Real>& A, const Matrix<Real>& b, Matrix<Real>& w, 
-  Real rho, Int maxIter, bool inv, bool progress )
+  const ModelFitCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("ModelFit"))
     const Int m = A.Height();
@@ -37,7 +37,7 @@ Int ModelFit
         Identity( P, m, m );
         Herk( LOWER, NORMAL, Real(1), A, Real(1), P );
     }
-    if( inv )
+    if( ctrl.inv )
         HPDInverse( LOWER, P );
     else
         Cholesky( LOWER, P ); 
@@ -53,8 +53,8 @@ Int ModelFit
     Zeros( ux, n, 1 );
     Zeros( uy, m, 1 );
 
-    for( ; numIter<maxIter-1; ++numIter )
-    //while( numIter < maxIter )
+    for( ; numIter<ctrl.maxIter-1; ++numIter )
+    //while( numIter < ctrl.maxIter )
     {
         // Project onto A x1 + b = y1
         x0 = x2; 
@@ -65,7 +65,7 @@ Int ModelFit
         // Overwrite y0 to perform a single Gemv
         Axpy( Real(-1), b, y0 ); 
         Gemv( ADJOINT, Real(1), A, y0, Real(1), x1 );
-        if( inv )
+        if( ctrl.inv )
         {
             s = x1;
             Hemv( LOWER, Real(1), P, s, Real(0), x1 );
@@ -81,12 +81,12 @@ Int ModelFit
         y0 = y1;
         Axpy( Real(1), uy, y0 );
         y2 = y0;
-        lossProx( y2, rho );
+        lossProx( y2, ctrl.rho );
 
         x0 = x1;
         Axpy( Real(1), ux, x0 );       
         x2 = x0;
-        regProx( x2, rho );
+        regProx( x2, ctrl.rho );
 
         // Update dual variables
         Axpy( Real(1), x1, ux );
@@ -94,7 +94,7 @@ Int ModelFit
         Axpy( Real(-1), x2, ux );
         Axpy( Real(-1), y2, uy );
     }
-    if( maxIter == numIter )
+    if( ctrl.maxIter == numIter )
         cout << "Model fit failed to converge" << endl;
     w = x2;
     return numIter;
@@ -106,7 +106,7 @@ Int ModelFit
   function<void(DistMatrix<Real>&,Real)> regProx,
   const AbstractDistMatrix<Real>& APre, const AbstractDistMatrix<Real>& bPre, 
         AbstractDistMatrix<Real>& wPre, 
-  Real rho, Int maxIter, bool inv, bool progress )
+  const ModelFitCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("ModelFit"))
 
@@ -129,7 +129,7 @@ Int ModelFit
         Identity( P, m, m );
         Herk( LOWER, NORMAL, Real(1), A, Real(1), P );
     }
-    if( inv )
+    if( ctrl.inv )
         HPDInverse( LOWER, P );
     else
         Cholesky( LOWER, P ); 
@@ -145,8 +145,8 @@ Int ModelFit
     Zeros( ux, n, 1 );
     Zeros( uy, m, 1 );
 
-    for( ; numIter<maxIter-1; ++numIter )
-    //while( numIter < maxIter )
+    for( ; numIter<ctrl.maxIter-1; ++numIter )
+    //while( numIter < ctrl.maxIter )
     {
         // Project onto A x1 + b = y1
         x0 = x2; 
@@ -157,7 +157,7 @@ Int ModelFit
         // Overwrite y0 to perform a single Gemv
         Axpy( Real(-1), b, y0 ); 
         Gemv( ADJOINT, Real(1), A, y0, Real(1), x1 );
-        if( inv )
+        if( ctrl.inv )
         {
             s = x1;
             Hemv( LOWER, Real(1), P, s, Real(0), x1 );
@@ -173,12 +173,12 @@ Int ModelFit
         y0 = y1;
         Axpy( Real(1), uy, y0 );
         y2 = y0;
-        lossProx( y2, rho );
+        lossProx( y2, ctrl.rho );
 
         x0 = x1;
         Axpy( Real(1), ux, x0 );       
         x2 = x0;
-        regProx( x2, rho );
+        regProx( x2, ctrl.rho );
 
         // Update dual variables
         Axpy( Real(1), x1, ux );
@@ -186,7 +186,7 @@ Int ModelFit
         Axpy( Real(-1), x2, ux );
         Axpy( Real(-1), y2, uy );
     }
-    if( maxIter == numIter )
+    if( ctrl.maxIter == numIter )
         cout << "Model fit failed to converge" << endl;
     w = x2;
     return numIter;
@@ -197,13 +197,13 @@ Int ModelFit
   ( function<void(Matrix<Real>&,Real)> lossProx, \
     function<void(Matrix<Real>&,Real)> regProx, \
     const Matrix<Real>& A, const Matrix<Real>& b, Matrix<Real>& w, \
-    Real rho, Int maxIter, bool inv, bool progress ); \
+    const ModelFitCtrl<Real>& ctrl ); \
   template Int ModelFit \
   ( function<void(DistMatrix<Real>&,Real)> lossProx, \
     function<void(DistMatrix<Real>&,Real)> regProx, \
     const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, \
           AbstractDistMatrix<Real>& w, \
-    Real rho, Int maxIter, bool inv, bool progress );
+    const ModelFitCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

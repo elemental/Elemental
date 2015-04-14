@@ -28,21 +28,29 @@ using namespace RegularizationNS;
 
 namespace bp {
 
+template<typename Real>
+struct ADMMCtrl {
+  Real rho=1;
+  Real alpha=1.2;
+  Int maxIter=500;
+  Real absTol=1e-6;
+  Real relTol=1e-4;
+  bool usePinv=false;
+  Real pinvTol=0;
+  bool progress=true;
+};
+
 // Put this into BP as an optional backend
 template<typename F>
 Int ADMM
 ( const Matrix<F>& A, const Matrix<F>& b,
   Matrix<F>& z,
-  Base<F> rho=1., Base<F> alpha=1.2, Int maxIter=500, Base<F> absTol=1e-6, 
-  Base<F> relTol=1e-4, bool usePinv=false, Base<F> pinvTol=0, 
-  bool progress=true );
+  const ADMMCtrl<Base<F>>& ctrl=ADMMCtrl<Base<F>>() );
 template<typename F>
 Int ADMM
 ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& b,
         AbstractDistMatrix<F>& z,
-  Base<F> rho=1., Base<F> alpha=1.2, Int maxIter=500, Base<F> absTol=1e-6, 
-  Base<F> relTol=1e-4, bool usePinv=false, Base<F> pinvTol=0,
-  bool progress=true );
+  const ADMMCtrl<Base<F>>& ctrl=ADMMCtrl<Base<F>>() );
 
 } // namespace bp
 
@@ -153,36 +161,46 @@ void DS
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 
-// Logistic Regression
-// ===================
-template<typename Real>
-Int LogisticRegression
-( const Matrix<Real>& G, const Matrix<Real>& q, Matrix<Real>& z,
-  Real gamma, Regularization penalty=L1_PENALTY,
-  Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
-template<typename Real>
-Int LogisticRegression
-( const AbstractDistMatrix<Real>& G, const AbstractDistMatrix<Real>& q, 
-        AbstractDistMatrix<Real>& z,
-  Real gamma, Regularization penalty=L1_PENALTY,
-  Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
-
 // Fit a model with using a loss function plus regularization
 // ==========================================================
-// TODO: Implement these functions
+
+template<typename Real>
+struct ModelFitCtrl {
+  Real rho=1;
+  Int maxIter=500;
+  bool inv=true;
+  bool progress=true;
+};
+
 template<typename Real>
 Int ModelFit
 ( function<void(Matrix<Real>&,Real)> lossProx,
   function<void(Matrix<Real>&,Real)> regProx,
   const Matrix<Real>& A, const Matrix<Real>& b, Matrix<Real>& w,
-  Real rho, Int maxIter=1000, bool inv=true, bool progress=true );
+  const ModelFitCtrl<Real>& ctrl=ModelFitCtrl<Real>() );
 template<typename Real>
 Int ModelFit
 ( function<void(DistMatrix<Real>&,Real)> lossProx,
   function<void(DistMatrix<Real>&,Real)> regProx,
   const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, 
         AbstractDistMatrix<Real>& w,
-  Real rho, Int maxIter=1000, bool inv=true, bool progress=true );
+  const ModelFitCtrl<Real>& ctrl=ModelFitCtrl<Real>() );
+
+// Logistic Regression
+// ===================
+// TODO: Use an exponential cone IPM (e.g., that from Santiago Akle's work)
+
+template<typename Real>
+Int LogisticRegression
+( const Matrix<Real>& G, const Matrix<Real>& q, Matrix<Real>& z,
+  Real gamma, Regularization penalty=L1_PENALTY,
+  const ModelFitCtrl<Real>& ctrl=ModelFitCtrl<Real>() );
+template<typename Real>
+Int LogisticRegression
+( const AbstractDistMatrix<Real>& G, const AbstractDistMatrix<Real>& q, 
+        AbstractDistMatrix<Real>& z,
+  Real gamma, Regularization penalty=L1_PENALTY,
+  const ModelFitCtrl<Real>& ctrl=ModelFitCtrl<Real>() );
 
 // Non-negative matrix factorization
 // =================================
@@ -247,18 +265,27 @@ void NNLS
 
 namespace bpdn {
 
+template<typename Real>
+struct ADMMCtrl {
+  Real rho=1;
+  Real alpha=1.2;
+  Real maxIter=500;
+  Real absTol=1e-6;
+  Real relTol=1e-4;
+  bool inv=true;
+  bool progress=true;
+};
+
 template<typename F>
 Int ADMM
-( const Matrix<F>& A, const Matrix<F>& b, Base<F> lambda,
-  Matrix<F>& z,
-  Base<F> rho=1, Base<F> alpha=1.2, Int maxIter=500, Base<F> absTol=1e-6, 
-  Base<F> relTol=1e-4, bool inv=true, bool progress=true );
+( const Matrix<F>& A, const Matrix<F>& b, 
+  Base<F> lambda, Matrix<F>& z,
+  const ADMMCtrl<Base<F>>& ctrl=ADMMCtrl<Base<F>>() );
 template<typename F>
 Int ADMM
 ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& b, 
   Base<F> lambda, AbstractDistMatrix<F>& z,
-  Base<F> rho=1, Base<F> alpha=1.2, Int maxIter=500, Base<F> absTol=1e-6, 
-  Base<F> relTol=1e-4, bool inv=true, bool progress=true );
+  const ADMMCtrl<Base<F>>& ctrl=ADMMCtrl<Base<F>>() );
 
 } // namespace bpdn
 
@@ -389,12 +416,12 @@ template<typename Real>
 Int ADMM
 ( const Matrix<Real>& A, const Matrix<Real>& d, 
         Real lambda,           Matrix<Real>& x,
-  Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
+  const ModelFitCtrl<Real>& ctrl=ModelFitCtrl<Real>() );
 template<typename Real>
 Int ADMM
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& d, 
         Real lambda,                       AbstractDistMatrix<Real>& x,
-  Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
+  const ModelFitCtrl<Real>& ctrl=ModelFitCtrl<Real>() );
 
 } // namespace svm
 

@@ -482,7 +482,7 @@ ElError ElSparseInvCovCtrlDefault_d( ElSparseInvCovCtrl_d* ctrl )
   ( void (*lossProx)(ElMatrix_ ## SIG,Real), \
     void (*regProx)(ElMatrix_ ## SIG,Real), \
     ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
-    ElMatrix_ ## SIG w, Real rho, ElInt* numIts ) \
+    ElMatrix_ ## SIG w, ElInt* numIts ) \
   { try { \
       auto lossLambda = \
         [&]( Matrix<Real>& B, Real tau ) { lossProx(CReflect(&B),tau); }; \
@@ -491,13 +491,13 @@ ElError ElSparseInvCovCtrlDefault_d( ElSparseInvCovCtrl_d* ctrl )
       *numIts = ModelFit \
         ( function<void(Matrix<Real>&,Real)>(lossLambda), \
           function<void(Matrix<Real>&,Real)>(regLambda), \
-          *CReflect(A), *CReflect(b), *CReflect(w), rho ); \
+          *CReflect(A), *CReflect(b), *CReflect(w) ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElModelFitDist_ ## SIG \
   ( void (*lossProx)(ElDistMatrix_ ## SIG,Real), \
     void (*regProx)(ElDistMatrix_ ## SIG,Real), \
     ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
-    ElDistMatrix_ ## SIG w, Real rho, ElInt* numIts ) \
+    ElDistMatrix_ ## SIG w, ElInt* numIts ) \
   { try { \
       auto lossLambda = \
         [&]( DistMatrix<Real>& B, Real tau ) { lossProx(CReflect(&B),tau); }; \
@@ -506,7 +506,7 @@ ElError ElSparseInvCovCtrlDefault_d( ElSparseInvCovCtrl_d* ctrl )
       *numIts = ModelFit \
         ( function<void(DistMatrix<Real>&,Real)>(lossLambda), \
           function<void(DistMatrix<Real>&,Real)>(regLambda), \
-          *CReflect(A), *CReflect(b), *CReflect(w), rho ); \
+          *CReflect(A), *CReflect(b), *CReflect(w) ); \
     } EL_CATCH; return EL_SUCCESS; } \
   /* Non-negative matrix factorization
      ================================= */ \

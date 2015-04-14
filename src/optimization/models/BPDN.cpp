@@ -52,8 +52,7 @@ namespace El {
 template<typename Real>
 void BPDN
 ( const Matrix<Real>& A, const Matrix<Real>& b, 
-        Real lambda,
-        Matrix<Real>& x,
+        Real lambda,           Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("BPDN"))
@@ -111,8 +110,7 @@ void BPDN
 template<typename Real>
 void BPDN
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, 
-        Real lambda,
-        AbstractDistMatrix<Real>& x,
+        Real lambda,                       AbstractDistMatrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("BPDN"))
@@ -170,8 +168,7 @@ void BPDN
 template<typename Real>
 void BPDN
 ( const SparseMatrix<Real>& A, const Matrix<Real>& b, 
-        Real lambda,
-        Matrix<Real>& x,
+        Real lambda,                 Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("BPDN"))
@@ -238,8 +235,7 @@ void BPDN
 template<typename Real>
 void BPDN
 ( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b, 
-        Real lambda,
-        DistMultiVec<Real>& x,
+        Real lambda,                     DistMultiVec<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("BPDN"))

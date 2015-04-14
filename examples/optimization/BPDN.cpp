@@ -53,9 +53,17 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "A" );
 
+        bpdn::ADMMCtrl<Real> ctrl;
+        ctrl.rho = rho;
+        ctrl.alpha = alpha;
+        ctrl.maxIter = maxIter;
+        ctrl.absTol = absTol;
+        ctrl.relTol = relTol;
+        ctrl.inv = inv;
+        ctrl.progress = progress;
+
         DistMatrix<C> z;
-        bpdn::ADMM
-        ( A, b, lambda, z, rho, alpha, maxIter, absTol, relTol, inv, progress );
+        bpdn::ADMM( A, b, lambda, z, ctrl );
         if( print )
             Print( z, "z" );
         const Real zOneNorm = OneNorm( z );

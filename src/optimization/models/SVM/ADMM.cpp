@@ -18,7 +18,7 @@ template<typename Real>
 Int ADMM
 ( const Matrix<Real>& G, const Matrix<Real>& q, 
         Real gamma,            Matrix<Real>& w,
-  Real rho, Int maxIter, bool inv, bool progress )
+  const ModelFitCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("svm::ADMM"))
     const Int numExamples = G.Height();
@@ -47,14 +47,14 @@ Int ADMM
     return ModelFit
     ( function<void(Matrix<Real>&,Real)>(hingeProx),
       function<void(Matrix<Real>&,Real)>(frobProx),
-      A, b, w, rho, maxIter, inv, progress );
+      A, b, w, ctrl );
 }
 
 template<typename Real>
 Int ADMM
 ( const AbstractDistMatrix<Real>& G, const AbstractDistMatrix<Real>& q, 
         Real gamma,                        AbstractDistMatrix<Real>& w, 
-  Real rho, Int maxIter, bool inv, bool progress )
+  const ModelFitCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("svm::ADMM"))
     const Int numExamples = G.Height();
@@ -91,18 +91,18 @@ Int ADMM
     return ModelFit
     ( function<void(DistMatrix<Real>&,Real)>(hingeProx),
       function<void(DistMatrix<Real>&,Real)>(frobProx),
-      A, b, w, rho, maxIter, inv, progress );
+      A, b, w, ctrl );
 }
 
 #define PROTO(Real) \
   template Int ADMM \
   ( const Matrix<Real>& G, const Matrix<Real>& q, \
           Real gamma,            Matrix<Real>& w, \
-    Real rho, Int maxIter, bool inv, bool progress ); \
+    const ModelFitCtrl<Real>& ctrl ); \
   template Int ADMM \
   ( const AbstractDistMatrix<Real>& G, const AbstractDistMatrix<Real>& q, \
           Real gamma,                        AbstractDistMatrix<Real>& w, \
-    Real rho, Int maxIter, bool inv, bool progress );
+    const ModelFitCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

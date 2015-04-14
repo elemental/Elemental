@@ -21,8 +21,7 @@ template<typename F>
 Int ADMM
 ( const Matrix<F>& A, const Matrix<F>& b, 
         Matrix<F>& z, 
-  Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, 
-  bool usePinv, Base<F> pinvTol, bool progress )
+  const ADMMCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("bp::ADMM"))
     // Find a means of quickly applyinv pinv(A) and then form pinv(A) b
@@ -40,10 +39,10 @@ Int ADMM
     Matrix<F> pinvA;
     Matrix<F> Q, L, R;
     Matrix<F> q, s;
-    if( usePinv )
+    if( ctrl.usePinv )
     {
         pinvA = A;
-        Pseudoinverse( pinvA, pinvTol );
+        Pseudoinverse( pinvA, ctrl.pinvTol );
         Gemv( NORMAL, F(1), pinvA, b, q );
     }
     else if( m >= n )
@@ -62,7 +61,7 @@ Int ADMM
         Gemv( ADJOINT, F(1), Q, s, q );
     }
 
-    if( progress )
+    if( ctrl.progress )
     {
         const Real qOneNorm = OneNorm( q );
         cout << " || pinv(A) b ||_1 = " << qOneNorm << endl;
@@ -74,7 +73,7 @@ Int ADMM
     Zeros( x, n, 1 );
     Zeros( z, n, 1 );
     Zeros( u, n, 1 );
-    while( numIter < maxIter )
+    while( numIter < ctrl.maxIter )
     {
         zOld = z;
 
@@ -85,7 +84,7 @@ Int ADMM
         Axpy( F(-1), u, s );
         x = s;
         Gemv( NORMAL, F(1), A, s, t );
-        if( usePinv )
+        if( ctrl.usePinv )
         {
             Gemv( NORMAL, F(1), pinvA, t, s );
         }
@@ -104,13 +103,13 @@ Int ADMM
 
         // xHat := alpha x + (1-alpha) zOld
         xHat = x;
-        Scale( alpha, xHat );
-        Axpy( 1-alpha, zOld, xHat );
+        Scale( ctrl.alpha, xHat );
+        Axpy( 1-ctrl.alpha, zOld, xHat );
 
         // z := SoftThresh(xHat+u,1/rho)
         z = xHat;
         Axpy( F(1), u, z );
-        SoftThreshold( z, 1/rho );
+        SoftThreshold( z, 1/ctrl.rho );
 
         // u := u + (xHat - z)
         Axpy( F(1),  xHat, u );
@@ -124,14 +123,14 @@ Int ADMM
         // sNorm := || rho*(z-zOld) ||_2
         s = z;
         Axpy( F(-1), zOld, s );
-        const Real sNorm = Abs(rho)*FrobeniusNorm( s );
+        const Real sNorm = Abs(ctrl.rho)*FrobeniusNorm( s );
 
-        const Real epsPri = Sqrt(Real(n))*absTol +
-            relTol*Max(FrobeniusNorm(x),FrobeniusNorm(z));
-        const Real epsDual = Sqrt(Real(n))*absTol +
-            relTol*Abs(rho)*FrobeniusNorm(u);
+        const Real epsPri = Sqrt(Real(n))*ctrl.absTol +
+            ctrl.relTol*Max(FrobeniusNorm(x),FrobeniusNorm(z));
+        const Real epsDual = Sqrt(Real(n))*ctrl.absTol +
+            ctrl.relTol*Abs(ctrl.rho)*FrobeniusNorm(u);
 
-        if( progress )
+        if( ctrl.progress )
         {
             const Real xOneNorm = OneNorm( x );
             cout << numIter << ": ||x-z||_2=" << rNorm
@@ -145,7 +144,7 @@ Int ADMM
             break;
         ++numIter;
     }
-    if( maxIter == numIter )
+    if( ctrl.maxIter == numIter )
         cout << "Basis pursuit failed to converge" << endl;
     return numIter;
 }
@@ -154,8 +153,7 @@ template<typename F>
 Int ADMM
 ( const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& bPre, 
         AbstractDistMatrix<F>& zPre,
-  Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, 
-  bool usePinv, Base<F> pinvTol, bool progress )
+  const ADMMCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("bp::ADMM"))
 
@@ -179,10 +177,10 @@ Int ADMM
     DistMatrix<F> pinvA(grid);
     DistMatrix<F> Q(grid), L(grid), R(grid);
     DistMatrix<F> q(grid), s(grid);
-    if( usePinv )
+    if( ctrl.usePinv )
     {
         pinvA = A;
-        Pseudoinverse( pinvA, pinvTol );
+        Pseudoinverse( pinvA, ctrl.pinvTol );
         Gemv( NORMAL, F(1), pinvA, b, q );
     }
     else if( m >= n )
@@ -201,7 +199,7 @@ Int ADMM
         Gemv( ADJOINT, F(1), Q, s, q );
     }
 
-    if( progress )
+    if( ctrl.progress )
     {
         const Real qOneNorm = OneNorm( q );
         if( grid.Rank() == 0 )
@@ -214,7 +212,7 @@ Int ADMM
     Zeros( x, n, 1 );
     Zeros( z, n, 1 );
     Zeros( u, n, 1 );
-    while( numIter < maxIter )
+    while( numIter < ctrl.maxIter )
     {
         zOld = z;
 
@@ -225,7 +223,7 @@ Int ADMM
         Axpy( F(-1), u, s );
         x = s;
         Gemv( NORMAL, F(1), A, s, t );
-        if( usePinv )
+        if( ctrl.usePinv )
         {
             Gemv( NORMAL, F(1), pinvA, t, s );
         }
@@ -244,13 +242,13 @@ Int ADMM
 
         // xHat := alpha x + (1-alpha) zOld
         xHat = x;
-        Scale( alpha, xHat );
-        Axpy( 1-alpha, zOld, xHat );
+        Scale( ctrl.alpha, xHat );
+        Axpy( 1-ctrl.alpha, zOld, xHat );
 
         // z := SoftThresh(xHat+u,1/rho)
         z = xHat;
         Axpy( F(1), u, z );
-        SoftThreshold( z, 1/rho );
+        SoftThreshold( z, 1/ctrl.rho );
 
         // u := u + (xHat - z)
         Axpy( F(1),  xHat, u );
@@ -264,14 +262,14 @@ Int ADMM
         // sNorm := || rho*(z-zOld) ||_2
         s = z;
         Axpy( F(-1), zOld, s );
-        const Real sNorm = Abs(rho)*FrobeniusNorm( s );
+        const Real sNorm = Abs(ctrl.rho)*FrobeniusNorm( s );
 
-        const Real epsPri = Sqrt(Real(n))*absTol +
-            relTol*Max(FrobeniusNorm(x),FrobeniusNorm(z));
-        const Real epsDual = Sqrt(Real(n))*absTol +
-            relTol*Abs(rho)*FrobeniusNorm(u);
+        const Real epsPri = Sqrt(Real(n))*ctrl.absTol +
+            ctrl.relTol*Max(FrobeniusNorm(x),FrobeniusNorm(z));
+        const Real epsDual = Sqrt(Real(n))*ctrl.absTol +
+            ctrl.relTol*Abs(ctrl.rho)*FrobeniusNorm(u);
 
-        if( progress )
+        if( ctrl.progress )
         {
             const Real xOneNorm = OneNorm( x );
             if( grid.Rank() == 0 )
@@ -286,7 +284,7 @@ Int ADMM
             break;
         ++numIter;
     }
-    if( maxIter == numIter && grid.Rank() == 0 )
+    if( ctrl.maxIter == numIter && grid.Rank() == 0 )
         cout << "Basis pursuit failed to converge" << endl;
     return numIter;
 }
@@ -295,16 +293,14 @@ Int ADMM
   template Int ADMM \
   ( const Matrix<F>& A, const Matrix<F>& b, \
           Matrix<F>& z, \
-    Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
-    bool usePinv, Base<F> pinvTol, bool progress ); \
+    const ADMMCtrl<Base<F>>& ctrl ); \
   template Int ADMM \
   ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& b, \
           AbstractDistMatrix<F>& z, \
-    Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
-    bool usePinv, Base<F> pinvTol, bool progress );
+    const ADMMCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
 
 } // namespace bp
-} // namepace elem
+} // namepace El

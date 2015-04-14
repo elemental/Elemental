@@ -70,8 +70,14 @@ main( int argc, char* argv[] )
         if( display )
             Display( G, "G" );
 
+        ModelFitCtrl<Real> ctrl;
+        ctrl.rho = rho;
+        ctrl.maxIter = maxIter;
+        ctrl.inv = inv;
+        ctrl.progress = progress;
+
         DistMatrix<Real> wHatSVM;
-        svm::ADMM( G, q, gamma, wHatSVM, rho, maxIter, inv, progress );
+        svm::ADMM( G, q, gamma, wHatSVM, ctrl );
         auto wSVM = View( wHatSVM, 0, 0, n, 1 );
         const Real offsetSVM = -wHatSVM.Get(n,0);
         const Real wSVMNorm = FrobeniusNorm( wSVM );

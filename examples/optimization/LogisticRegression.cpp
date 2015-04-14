@@ -73,9 +73,14 @@ main( int argc, char* argv[] )
         if( display )
             Display( G, "G" );
 
+        ModelFitCtrl<Real> ctrl;
+        ctrl.rho = rho;
+        ctrl.maxIter = maxIter;
+        ctrl.inv = inv;
+        ctrl.progress = progress;
+
         DistMatrix<Real> wHatLog;
-        LogisticRegression
-        ( G, q, wHatLog, gamma, penalty, rho, maxIter, inv, progress );
+        LogisticRegression( G, q, wHatLog, gamma, penalty );
         auto wLog = View( wHatLog, 0, 0, n, 1 );
         const Real offsetLog = -wHatLog.Get(n,0);
         const Real wLogOneNorm = OneNorm( wLog );

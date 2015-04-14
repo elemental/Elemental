@@ -33,9 +33,9 @@ namespace bpdn {
 
 template<typename F>
 Int ADMM
-( const Matrix<F>& A, const Matrix<F>& b, Base<F> lambda, Matrix<F>& z, 
-  Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, 
-  bool inv, bool progress )
+( const Matrix<F>& A,   const Matrix<F>& b, 
+        Base<F> lambda,       Matrix<F>& z, 
+  const ADMMCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("bpdn::ADMM"))
     typedef Base<F> Real;
@@ -46,14 +46,14 @@ Int ADMM
     if( m >= n )
     {
         Identity( P, n, n );        
-        Herk( LOWER, ADJOINT, Real(1), A, rho, P );
+        Herk( LOWER, ADJOINT, Real(1), A, ctrl.rho, P );
     }
     else
     {
         Identity( P, m, m );
-        Herk( LOWER, NORMAL, Real(1), A, rho, P );
+        Herk( LOWER, NORMAL, Real(1), A, ctrl.rho, P );
     }
-    if( inv )
+    if( ctrl.inv )
         HPDInverse( LOWER, P );
     else
         Cholesky( LOWER, P ); 
@@ -68,17 +68,17 @@ Int ADMM
     Zeros( x, n, 1 );
     Zeros( z, n, 1 );
     Zeros( u, n, 1 );
-    while( numIter < maxIter )
+    while( numIter < ctrl.maxIter )
     {
         zOld = z;
 
         // x := (A^H A + rho) \ (A^H b + rho*(z-u))
         x = w;
-        Axpy(  rho, z, x );
-        Axpy( -rho, u, x );
+        Axpy(  ctrl.rho, z, x );
+        Axpy( -ctrl.rho, u, x );
         if( m >= n )
         {
-            if( inv )
+            if( ctrl.inv )
             {
                 s = x;
                 Hemv( LOWER, F(1), P, s, F(0), x );
@@ -92,7 +92,7 @@ Int ADMM
         else
         {
             Gemv( NORMAL, F(1), A, x, s );
-            if( inv )
+            if( ctrl.inv )
             {
                 auto t( s );
                 Hemv( LOWER, F(1), P, t, F(0), s );
@@ -103,18 +103,18 @@ Int ADMM
                 Trsv( LOWER, ADJOINT, NON_UNIT, P, s );
             }
             Gemv( ADJOINT, F(-1), A, s, F(1), x );
-            Scale( 1/rho, x );
+            Scale( 1/ctrl.rho, x );
         }
 
         // xHat := alpha x + (1-alpha) zOld
         xHat = x;
-        Scale( alpha, xHat );
-        Axpy( 1-alpha, zOld, xHat );
+        Scale( ctrl.alpha, xHat );
+        Axpy( 1-ctrl.alpha, zOld, xHat );
 
         // z := SoftThresh(xHat+u,lambda/rho)
         z = xHat;
         Axpy( F(1), u, z );
-        SoftThreshold( z, lambda/rho );
+        SoftThreshold( z, lambda/ctrl.rho );
 
         // u := u + (xHat - z)
         Axpy( F(1),  xHat, u );
@@ -128,14 +128,14 @@ Int ADMM
         // sNorm := || rho*(z-zOld) ||_2
         s = z;
         Axpy( F(-1), zOld, s );
-        const Real sNorm = Abs(rho)*FrobeniusNorm( s );
+        const Real sNorm = Abs(ctrl.rho)*FrobeniusNorm( s );
 
-        const Real epsPri = Sqrt(Real(n))*absTol +
-            relTol*Max(FrobeniusNorm(x),FrobeniusNorm(z));
-        const Real epsDual = Sqrt(Real(n))*absTol +
-            relTol*Abs(rho)*FrobeniusNorm(u);
+        const Real epsPri = Sqrt(Real(n))*ctrl.absTol +
+            ctrl.relTol*Max(FrobeniusNorm(x),FrobeniusNorm(z));
+        const Real epsDual = Sqrt(Real(n))*ctrl.absTol +
+            ctrl.relTol*Abs(ctrl.rho)*FrobeniusNorm(u);
 
-        if( progress )
+        if( ctrl.progress )
         {
             s = b;
             Gemv( NORMAL, F(-1), A, x, F(1), s );
@@ -152,7 +152,7 @@ Int ADMM
             break;
         ++numIter;
     }
-    if( maxIter == numIter )
+    if( ctrl.maxIter == numIter )
         cout << "Lasso failed to converge" << endl;
     return numIter;
 }
@@ -160,9 +160,8 @@ Int ADMM
 template<typename F>
 Int ADMM
 ( const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& bPre, 
-  Base<F> lambda, AbstractDistMatrix<F>& zPre, 
-  Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, 
-  bool inv, bool progress )
+        Base<F> lambda,                    AbstractDistMatrix<F>& zPre, 
+  const ADMMCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("bpdn::ADMM"))
 
@@ -179,14 +178,14 @@ Int ADMM
     if( m >= n )
     {
         Identity( P, n, n );        
-        Herk( LOWER, ADJOINT, Real(1), A, rho, P );
+        Herk( LOWER, ADJOINT, Real(1), A, ctrl.rho, P );
     }
     else
     {
         Identity( P, m, m );
-        Herk( LOWER, NORMAL, Real(1), A, rho, P );
+        Herk( LOWER, NORMAL, Real(1), A, ctrl.rho, P );
     }
-    if( inv )
+    if( ctrl.inv )
         HPDInverse( LOWER, P );
     else
         Cholesky( LOWER, P ); 
@@ -201,17 +200,17 @@ Int ADMM
     Zeros( x, n, 1 );
     Zeros( z, n, 1 );
     Zeros( u, n, 1 );
-    while( numIter < maxIter )
+    while( numIter < ctrl.maxIter )
     {
         zOld = z;
 
         // x := (A^H A + rho) \ (A^H b + rho*(z-u))
         x = w;
-        Axpy(  rho, z, x );
-        Axpy( -rho, u, x );
+        Axpy(  ctrl.rho, z, x );
+        Axpy( -ctrl.rho, u, x );
         if( m >= n )
         {
-            if( inv )
+            if( ctrl.inv )
             {
                 s = x;
                 Hemv( LOWER, F(1), P, s, F(0), x );
@@ -225,7 +224,7 @@ Int ADMM
         else
         {
             Gemv( NORMAL, F(1), A, x, s );
-            if( inv )
+            if( ctrl.inv )
             {
                 auto t( s );
                 Hemv( LOWER, F(1), P, t, F(0), s );
@@ -236,18 +235,18 @@ Int ADMM
                 Trsv( LOWER, ADJOINT, NON_UNIT, P, s );
             }
             Gemv( ADJOINT, F(-1), A, s, F(1), x );
-            Scale( 1/rho, x );
+            Scale( 1/ctrl.rho, x );
         }
 
         // xHat := alpha x + (1-alpha) zOld
         xHat = x;
-        Scale( alpha, xHat );
-        Axpy( 1-alpha, zOld, xHat );
+        Scale( ctrl.alpha, xHat );
+        Axpy( 1-ctrl.alpha, zOld, xHat );
 
         // z := SoftThresh(xHat+u,lambda/rho)
         z = xHat;
         Axpy( F(1), u, z );
-        SoftThreshold( z, lambda/rho );
+        SoftThreshold( z, lambda/ctrl.rho );
 
         // u := u + (xHat - z)
         Axpy( F(1),  xHat, u );
@@ -261,14 +260,14 @@ Int ADMM
         // sNorm := || rho*(z-zOld) ||_2
         s = z;
         Axpy( F(-1), zOld, s );
-        const Real sNorm = Abs(rho)*FrobeniusNorm( s );
+        const Real sNorm = Abs(ctrl.rho)*FrobeniusNorm( s );
 
-        const Real epsPri = Sqrt(Real(n))*absTol +
-            relTol*Max(FrobeniusNorm(x),FrobeniusNorm(z));
-        const Real epsDual = Sqrt(Real(n))*absTol +
-            relTol*Abs(rho)*FrobeniusNorm(u);
+        const Real epsPri = Sqrt(Real(n))*ctrl.absTol +
+            ctrl.relTol*Max(FrobeniusNorm(x),FrobeniusNorm(z));
+        const Real epsDual = Sqrt(Real(n))*ctrl.absTol +
+            ctrl.relTol*Abs(ctrl.rho)*FrobeniusNorm(u);
 
-        if( progress )
+        if( ctrl.progress )
         {
             s = b;
             Gemv( NORMAL, F(-1), A, x, F(1), s );
@@ -288,22 +287,20 @@ Int ADMM
             break;
         ++numIter;
     }
-    if( maxIter == numIter )
+    if( ctrl.maxIter == numIter )
         cout << "Lasso failed to converge" << endl;
     return numIter;
 }
 
 #define PROTO(F) \
   template Int ADMM \
-  ( const Matrix<F>& A, const Matrix<F>& b, Base<F> lambda, \
-    Matrix<F>& z, \
-    Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
-    bool inv, bool progress ); \
+  ( const Matrix<F>& A,   const Matrix<F>& b, \
+          Base<F> lambda,       Matrix<F>& z, \
+    const ADMMCtrl<Base<F>>& ctrl ); \
   template Int ADMM \
   ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& b, \
-    Base<F> lambda, AbstractDistMatrix<F>& z, \
-    Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
-    bool inv, bool progress );
+          Base<F> lambda,                 AbstractDistMatrix<F>& z, \
+    const ADMMCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

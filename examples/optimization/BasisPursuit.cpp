@@ -51,10 +51,18 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "A" );
 
+        bp::ADMMCtrl<Real> ctrl;
+        ctrl.rho = rho;
+        ctrl.alpha = alpha;
+        ctrl.maxIter = maxIter;
+        ctrl.absTol = absTol;
+        ctrl.relTol = relTol;
+        ctrl.usePinv = usePinv;
+        ctrl.pinvTol = pinvTol;
+        ctrl.progress = progress;
+
         DistMatrix<C> x;
-        bp::ADMM
-        ( A, b, x, rho, alpha, maxIter, absTol, relTol, usePinv, pinvTol,
-          progress );
+        bp::ADMM( A, b, x, ctrl );
         if( print )
             Print( x, "x" );
         const Int xZeroNorm = ZeroNorm( x );
