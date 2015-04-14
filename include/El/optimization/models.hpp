@@ -21,8 +21,6 @@ enum Regularization {
 }
 using namespace RegularizationNS;
 
-// TODO: Modify the following routines to use control structures instead
-
 // Basis pursuit: min || x ||_1 such that A x = b
 // ==============================================
 
@@ -40,7 +38,8 @@ struct ADMMCtrl {
   bool progress=true;
 };
 
-// Put this into BP as an optional backend
+// TODO: Put this into BP as an optional backend
+// NOTE: This routine is still a prototype
 template<typename F>
 Int ADMM
 ( const Matrix<F>& A, const Matrix<F>& b,
@@ -172,6 +171,7 @@ struct ModelFitCtrl {
   bool progress=true;
 };
 
+// NOTE: This routine is still a prototype
 template<typename Real>
 Int ModelFit
 ( function<void(Matrix<Real>&,Real)> lossProx,
@@ -188,6 +188,7 @@ Int ModelFit
 
 // Logistic Regression
 // ===================
+// NOTE: This routine is still a prototype
 // TODO: Use an exponential cone IPM (e.g., that from Santiago Akle's work)
 
 template<typename Real>
@@ -224,6 +225,7 @@ void NMF
 
 namespace nnls {
 
+// NOTE: This routine is still a prototype
 template<typename Real>
 Int ADMM
 ( const Matrix<Real>& A, const Matrix<Real>& B, 
@@ -276,6 +278,7 @@ struct ADMMCtrl {
   bool progress=true;
 };
 
+// NOTE: This routine is still a prototype
 template<typename F>
 Int ADMM
 ( const Matrix<F>& A, const Matrix<F>& b, 
@@ -412,6 +415,7 @@ Int SparseInvCov
 namespace svm {
 
 // TODO: Put this into SVM as an optional backend
+// NOTE: This routine is still a prototype
 template<typename Real>
 Int ADMM
 ( const Matrix<Real>& A, const Matrix<Real>& d, 
