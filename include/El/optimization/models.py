@@ -13,6 +13,7 @@ from ctypes import CFUNCTYPE
 
 # Basis pursuit
 # =============
+# TODO: Switch to more general BP which can call bp::ADMM under the hood
 lib.ElBP_s.argtypes = \
 lib.ElBP_d.argtypes = \
 lib.ElBPDist_s.argtypes = \
@@ -95,43 +96,6 @@ def BP(A,b,ctrl=None):
       else:            lib.ElBPXDistSparse_d(*argsCtrl)
     else: DataExcept()
     return x
-  else: TypeExcept()
-
-# ADMM
-# ----
-lib.ElBPADMM_s.argtypes = \
-lib.ElBPADMM_d.argtypes = \
-lib.ElBPADMM_c.argtypes = \
-lib.ElBPADMM_z.argtypes = \
-lib.ElBPADMMDist_s.argtypes = \
-lib.ElBPADMMDist_d.argtypes = \
-lib.ElBPADMMDist_c.argtypes = \
-lib.ElBPADMMDist_z.argtypes = \
-  [c_void_p,c_void_p,c_void_p,POINTER(iType)]
-def BPADMM(A,b):
-  if type(A) is not type(b):
-    raise Exception('Types of A and b must match')
-  if A.tag != b.tag:
-    raise Exception('Datatypes of A and b must match')
-  numIts = iType()
-  if type(A) is Matrix:
-    z = Matrix(A.tag)
-    args = [A.obj,b.obj,z.obj,pointer(numIts)]
-    if   A.tag == sTag: lib.ElBPADMM_s(*args)
-    elif A.tag == dTag: lib.ElBPADMM_d(*args)
-    elif A.tag == cTag: lib.ElBPADMM_c(*args)
-    elif A.tag == zTag: lib.ElBPADMM_z(*args)
-    else: DataExcept()
-    return z, numIts
-  elif type(A) is DistMatrix:
-    z = DistMatrix(A.tag,MC,MR,A.Grid())
-    args = [A.obj,b.obj,z.obj,pointer(numIts)]
-    if   A.tag == sTag: lib.ElBPADMMDist_s(*args)
-    elif A.tag == dTag: lib.ElBPADMMDist_d(*args)
-    elif A.tag == cTag: lib.ElBPADMMDist_c(*args)
-    elif A.tag == zTag: lib.ElBPADMMDist_z(*args)
-    else: DataExcept()
-    return z, numIts
   else: TypeExcept()
 
 # Chebyshev point
@@ -462,43 +426,22 @@ def ModelFit(lossProx,regProx,A,b):
     return w, numIts
   else: TypeExcept()
 
-# Non-negative matrix factorization
-# =================================
-lib.ElNMF_s.argtypes = \
-lib.ElNMF_d.argtypes = \
-lib.ElNMFDist_s.argtypes = \
-lib.ElNMFDist_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p]
-lib.ElNMFX_s.argtypes = \
-lib.ElNMFXDist_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,QPDirectCtrl_s]
-lib.ElNMFX_d.argtypes = \
-lib.ElNMFXDist_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,QPDirectCtrl_d]
-
-def NMF(A,ctrl=None):
-  args = [A.obj,X.obj,Y.obj]
-  argsCtrl = [A.obj,X.obj,Y.obj,ctrl]
-  if type(A) is Matrix:
-    if   A.tag == sTag: 
-      if ctrl==None: lib.ElNMF_s(*args)
-      else:          lib.ElNMFX_s(*argsCtrl)
-    elif A.tag == dTag: 
-      if ctrl==None: lib.ElNMF_d(*args)
-      else:          lib.ElNMFX_d(*argsCtrl)
-    else: DataExcept()
-  elif type(A) is DistMatrix:
-    if   A.tag == sTag: 
-      if ctrl==None: lib.ElNMFDist_s(*args)
-      else:          lib.ElNMFXDist_s(*argsCtrl)
-    elif A.tag == dTag: 
-      if ctrl==None: lib.ElNMFDist_d(*args)
-      else:          lib.ElNMFXDist_d(*argsCtrl)
-    else: DataExcept()
-  else: TypeExcept()
-
 # Non-negative least squares
 # ==========================
+lib.ElNNLSCtrlDefault_s.argtypes = \
+lib.ElNNLSCtrlDefault_d.argtypes = \
+  [c_void_p]
+class NNLSCtrl_s(ctypes.Structure):
+  _fields_ = [("useIPM",bType),
+              ("admmCtrl",QPBoxADMMCtrl_s),("ipmCtrl",QPDirectCtrl_s)]
+  def __init__(self):
+    lib.ElNNLSCtrlDefault_s(pointer(self))
+class NNLSCtrl_d(ctypes.Structure):
+  _fields_ = [("useIPM",bType),
+              ("admmCtrl",QPBoxADMMCtrl_d),("ipmCtrl",QPDirectCtrl_d)]
+  def __init__(self):
+    lib.ElNNLSCtrlDefault_d(pointer(self))
+
 lib.ElNNLS_s.argtypes = \
 lib.ElNNLS_d.argtypes = \
 lib.ElNNLSDist_s.argtypes = \
@@ -512,12 +455,12 @@ lib.ElNNLSX_s.argtypes = \
 lib.ElNNLSXDist_s.argtypes = \
 lib.ElNNLSXSparse_s.argtypes = \
 lib.ElNNLSXDistSparse_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,QPDirectCtrl_s]
+  [c_void_p,c_void_p,c_void_p,NNLSCtrl_s]
 lib.ElNNLSX_d.argtypes = \
 lib.ElNNLSXDist_d.argtypes = \
 lib.ElNNLSXSparse_d.argtypes = \
 lib.ElNNLSXDistSparse_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,QPDirectCtrl_d]
+  [c_void_p,c_void_p,c_void_p,NNLSCtrl_d]
 
 def NNLS(A,b,ctrl=None):
   if A.tag != b.tag:
@@ -580,38 +523,73 @@ def NNLS(A,b,ctrl=None):
     return x
   else: TypeExcept()
 
-# ADMM
-# ----
-lib.ElNNLSADMM_s.argtypes = \
-lib.ElNNLSADMM_d.argtypes = \
-lib.ElNNLSADMMDist_s.argtypes = \
-lib.ElNNLSADMMDist_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,POINTER(iType)]
+# Non-negative matrix factorization
+# =================================
+lib.ElNMF_s.argtypes = \
+lib.ElNMF_d.argtypes = \
+lib.ElNMFDist_s.argtypes = \
+lib.ElNMFDist_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+lib.ElNMFX_s.argtypes = \
+lib.ElNMFXDist_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,NNLSCtrl_s]
+lib.ElNMFX_d.argtypes = \
+lib.ElNMFXDist_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,NNLSCtrl_d]
 
-def NNLSADMM(A,B):
-  if type(A) is not type(B):
-    raise Exception('Types of A and B must match')
-  if A.tag != B.tag:
-    raise Exception('Datatypes of A and B must match')
-  numIts = iType()
+def NMF(A,ctrl=None):
+  args = [A.obj,X.obj,Y.obj]
+  argsCtrl = [A.obj,X.obj,Y.obj,ctrl]
   if type(A) is Matrix:
-    X = Matrix(A.tag)
-    args = [A.obj,B.obj,X.obj,pointer(numIts)]
-    if   A.tag == sTag: lib.ElNNLSADMM_s(*args)
-    elif A.tag == dTag: lib.ElNNLSADMM_d(*args)
+    if   A.tag == sTag: 
+      if ctrl==None: lib.ElNMF_s(*args)
+      else:          lib.ElNMFX_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl==None: lib.ElNMF_d(*args)
+      else:          lib.ElNMFX_d(*argsCtrl)
     else: DataExcept()
-    return X, numIts
   elif type(A) is DistMatrix:
-    X = DistMatrix(A.tag,MC,MR,A.Grid())
-    args = [A.obj,B.obj,X.obj,pointer(numIts)]
-    if   A.tag == sTag: lib.ElNNLSADMMDist_s(*args)
-    elif A.tag == dTag: lib.ElNNLSADMMDist_d(*args)
+    if   A.tag == sTag: 
+      if ctrl==None: lib.ElNMFDist_s(*args)
+      else:          lib.ElNMFXDist_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl==None: lib.ElNMFDist_d(*args)
+      else:          lib.ElNMFXDist_d(*argsCtrl)
     else: DataExcept()
-    return X, numIts
   else: TypeExcept()
 
 # Basis pursuit denoising
 # =======================
+lib.ElBPDNADMMCtrlDefault_s.argtypes = \
+lib.ElBPDNADMMCtrlDefault_d.argtypes = \
+  [c_void_p]
+class BPDNADMMCtrl_s(ctypes.Structure):
+  _fields_ = [("rho",sType),("alpha",sType),("maxIter",iType),
+              ("absTol",sType),("relTol",sType),
+              ("inv",bType),("progress",bType)]
+  def __init__(self):
+    lib.ElBPDNADMMCtrlDefault_s(pointer(self))
+class BPDNADMMCtrl_d(ctypes.Structure):
+  _fields_ = [("rho",dType),("alpha",dType),("maxIter",iType),
+              ("absTol",dType),("relTol",dType),
+              ("inv",bType),("progress",bType)]
+  def __init__(self):
+    lib.ElBPDNADMMCtrlDefault_d(pointer(self))
+
+lib.ElBPDNCtrlDefault_s.argtypes = \
+lib.ElBPDNCtrlDefault_d.argtypes = \
+  [c_void_p]
+class BPDNCtrl_s(ctypes.Structure):
+  _fields_ = [("useIPM",bType),
+              ("admmCtrl",BPDNADMMCtrl_s),("ipmCtrl",QPAffineCtrl_s)]
+  def __init__(self):
+    lib.ElBPDNCtrlDefault_s(pointer(self))
+class BPDNCtrl_d(ctypes.Structure):
+  _fields_ = [("useIPM",bType),
+              ("admmCtrl",BPDNADMMCtrl_d),("ipmCtrl",QPAffineCtrl_d)]
+  def __init__(self):
+    lib.ElBPDNCtrlDefault_d(pointer(self))
+
 lib.ElBPDN_s.argtypes = \
 lib.ElBPDNDist_s.argtypes = \
 lib.ElBPDNSparse_s.argtypes = \
@@ -627,14 +605,12 @@ lib.ElBPDNX_s.argtypes = \
 lib.ElBPDNXDist_s.argtypes = \
 lib.ElBPDNXSparse_s.argtypes = \
 lib.ElBPDNXDistSparse_s.argtypes = \
-  [c_void_p,c_void_p,sType,c_void_p,
-   QPAffineCtrl_s]
+  [c_void_p,c_void_p,sType,c_void_p,BPDNCtrl_s]
 lib.ElBPDNX_d.argtypes = \
 lib.ElBPDNXDist_d.argtypes = \
 lib.ElBPDNXSparse_d.argtypes = \
 lib.ElBPDNXDistSparse_d.argtypes = \
-  [c_void_p,c_void_p,dType,c_void_p,
-   QPAffineCtrl_d]
+  [c_void_p,c_void_p,dType,c_void_p,BPDNCtrl_d]
 
 def BPDN(A,b,lambdPre,ctrl=None):
   if A.tag != b.tag:
@@ -696,43 +672,6 @@ def BPDN(A,b,lambdPre,ctrl=None):
       else:            lib.ElBPDNXDistSparse_d(*argsCtrl)
     else: DataExcept()
     return x
-  else: TypeExcept()
-
-# ADMM
-# ----
-lib.ElBPDNADMM_s.argtypes = \
-lib.ElBPDNADMM_c.argtypes = \
-lib.ElBPDNADMMDist_s.argtypes = \
-lib.ElBPDNADMMDist_c.argtypes = \
-  [c_void_p,c_void_p,sType,c_void_p,POINTER(iType)]
-lib.ElBPDNADMM_d.argtypes = \
-lib.ElBPDNADMM_z.argtypes = \
-lib.ElBPDNADMMDist_d.argtypes = \
-lib.ElBPDNADMMDist_z.argtypes = \
-  [c_void_p,c_void_p,dType,c_void_p,POINTER(iType)]
-
-def BPDNADMM(A,b,lamb):
-  if type(A) is not type(b): raise Exception('Types of A and b must match')
-  if A.tag != b.tag: raise Exception('Datatypes of A and b must match')
-  numIts = iType()
-  if type(A) is Matrix:
-    z = Matrix(A.tag)
-    args = [A.obj,b.obj,lamb,z.obj,pointer(numIts)]
-    if   A.tag == sTag: lib.ElBPDNADMM_s(*args)
-    elif A.tag == dTag: lib.ElBPDNADMM_d(*args)
-    elif A.tag == cTag: lib.ElBPDNADMM_c(*args)
-    elif A.tag == zTag: lib.ElBPDNADMM_z(*args)
-    else: DataExcept()
-    return z, numIts
-  elif type(A) is DistMatrix:
-    z = DistMatrix(A.tag,MC,MR,A.Grid())
-    args = [A.obj,b.obj,lamb,z.obj,pointer(numIts)]
-    if   A.tag == sTag: lib.ElBPDNADMMDist_s(*args)
-    elif A.tag == dTag: lib.ElBPDNADMMDist_d(*args)
-    elif A.tag == cTag: lib.ElBPDNADMMDist_c(*args)
-    elif A.tag == zTag: lib.ElBPDNADMMDist_z(*args)
-    else: DataExcept()
-    return z, numIts
   else: TypeExcept()
 
 # Elastic net

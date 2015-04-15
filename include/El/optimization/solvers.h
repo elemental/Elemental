@@ -869,7 +869,44 @@ EL_EXPORT ElError ElQPBoxADMMDist_d
 ( ElConstDistMatrix_d Q, ElConstDistMatrix_d C, double lb, double ub, 
   ElDistMatrix_d X, ElInt* numIts );
 
-/* TODO: Expert versions */
+/* Expert versions 
+   """"""""""""""" */
+typedef struct {
+  float rho;   
+  float alpha;
+  ElInt maxIter;
+  float absTol;
+  float relTol;
+  bool inv;
+  bool print;
+} ElQPBoxADMMCtrl_s;
+
+typedef struct {
+  double rho;   
+  double alpha;
+  ElInt maxIter;
+  double absTol;
+  double relTol;
+  bool inv;
+  bool print;
+} ElQPBoxADMMCtrl_d;
+
+EL_EXPORT ElError ElQPBoxADMMCtrlDefault_s( ElQPBoxADMMCtrl_s* ctrl );
+EL_EXPORT ElError ElQPBoxADMMCtrlDefault_d( ElQPBoxADMMCtrl_d* ctrl );
+
+EL_EXPORT ElError ElQPBoxADMMX_s
+( ElConstMatrix_s Q, ElConstMatrix_s C, float lb, float ub, 
+  ElMatrix_s X, ElQPBoxADMMCtrl_s ctrl, ElInt* numIts );
+EL_EXPORT ElError ElQPBoxADMMX_d
+( ElConstMatrix_d Q, ElConstMatrix_d C, double lb, double ub, 
+  ElMatrix_d X, ElQPBoxADMMCtrl_d ctrl, ElInt* numIts );
+
+EL_EXPORT ElError ElQPBoxADMMXDist_s
+( ElConstDistMatrix_s Q, ElConstDistMatrix_s C, float lb, float ub, 
+  ElDistMatrix_s X, ElQPBoxADMMCtrl_s ctrl, ElInt* numIts );
+EL_EXPORT ElError ElQPBoxADMMXDist_d
+( ElConstDistMatrix_d Q, ElConstDistMatrix_d C, double lb, double ub, 
+  ElDistMatrix_d X, ElQPBoxADMMCtrl_d ctrl, ElInt* numIts );
 
 #ifdef __cplusplus
 } // extern "C"

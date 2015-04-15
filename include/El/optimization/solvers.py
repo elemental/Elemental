@@ -607,6 +607,24 @@ def QPAffine(Q,A,G,b,c,h,x,y,z,s,ctrl=None):
 
 # Box form
 # --------
+lib.ElQPBoxADMMCtrlDefault_s.argtypes = \
+lib.ElQPBoxADMMCtrlDefault_d.argtypes = \
+  [c_void_p]
+class QPBoxADMMCtrl_s(ctypes.Structure):
+  _fields_ = [("rho",sType),("alpha",sType),
+              ("maxIter",iType),
+              ("absTol",sType),("relTol",sType),
+              ("inv",bType),("progress",bType)]
+  def __init__(self):
+    lib.ElQPBoxADMMCtrlDefault_s(pointer(self))
+class QPBoxADMMCtrl_d(ctypes.Structure):
+  _fields_ = [("rho",dType),("alpha",dType),
+              ("maxIter",iType),
+              ("absTol",dType),("relTol",dType),
+              ("inv",bType),("progress",bType)]
+  def __init__(self):
+    lib.ElQPBoxADMMCtrlDefault_d(pointer(self))
+
 lib.ElQPBoxADMM_s.argtypes = \
 lib.ElQPBoxADMMDist_s.argtypes = \
   [c_void_p,c_void_p,sType,sType,c_void_p,POINTER(iType)]
@@ -614,7 +632,14 @@ lib.ElQPBoxADMM_d.argtypes = \
 lib.ElQPBoxADMMDist_d.argtypes = \
   [c_void_p,c_void_p,dType,dType,c_void_p,POINTER(iType)]
 
-def QPBoxADMM(Q,C,lb,ub):
+lib.ElQPBoxADMMX_s.argtypes = \
+lib.ElQPBoxADMMXDist_s.argtypes = \
+  [c_void_p,c_void_p,sType,sType,c_void_p,QPBoxADMMCtrl_s,POINTER(iType)]
+lib.ElQPBoxADMMX_d.argtypes = \
+lib.ElQPBoxADMMXDist_d.argtypes = \
+  [c_void_p,c_void_p,dType,dType,c_void_p,QPBoxADMMCtrl_d,POINTER(iType)]
+
+def QPBoxADMM(Q,C,lb,ub,ctrl=None):
   if type(Q) is not type(C):
     raise Exception('Types of Q and C must match')
   if Q.tag != C.tag:
@@ -623,15 +648,25 @@ def QPBoxADMM(Q,C,lb,ub):
   if type(Q) is Matrix:
     Z = Matrix(Q.tag)
     args = [Q.obj,C.obj,lb,ub,Z.obj,pointer(numIts)]
-    if   Q.tag == sTag: lib.ElQPBoxADMM_s(*args)
-    elif Q.tag == dTag: lib.ElQPBoxADMM_d(*args)
+    argsCtrl = [Q.obj,C.obj,lb,ub,Z.obj,ctrl,pointer(numIts)]
+    if   Q.tag == sTag: 
+      if ctrl==None: lib.ElQPBoxADMM_s(*args)
+      else:          lib.ElQPBoxADMMX_s(*argsCtrl)
+    elif Q.tag == dTag: 
+      if ctrl==None: lib.ElQPBoxADMM_d(*args)
+      else:          lib.ElQPBoxADMMX_d(*argsCtrl)
     else: DataExcept()
     return Z, numIts
   elif type(Q) is DistMatrix:
     Z = DistMatrix(Q.tag,MC,MR,Q.Grid())
     args = [Q.obj,C.obj,lb,ub,Z.obj,pointer(numIts)]
-    if   Q.tag == sTag: lib.ElQPBoxADMMDist_s(*args)
-    elif Q.tag == dTag: lib.ElQPBoxADMMDist_d(*args)
+    argsCtrl = [Q.obj,C.obj,lb,ub,Z.obj,ctrl,pointer(numIts)]
+    if   Q.tag == sTag: 
+      if ctrl==None: lib.ElQPBoxADMMDist_s(*args)
+      else:          lib.ElQPBoxADMMXDist_s(*argsCtrl)
+    elif Q.tag == dTag: 
+      if ctrl==None: lib.ElQPBoxADMMDist_d(*args)
+      else:          lib.ElQPBoxADMMXDist_d(*argsCtrl)
     else: DataExcept()
     return Z, numIts
   else: TypeExcept()

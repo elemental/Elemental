@@ -2465,8 +2465,192 @@ inline qp::affine::Ctrl<double> CReflect( ElQPAffineCtrl_d ctrlC )
     return ctrl;
 }
 
+/* Box-constrained
+   """"""""""""""" */
+inline ElQPBoxADMMCtrl_s CReflect( const qp::box::ADMMCtrl<float>& ctrl )
+{
+    ElQPBoxADMMCtrl_s ctrlC;
+    ctrlC.rho     = ctrl.rho;
+    ctrlC.alpha   = ctrl.alpha;
+    ctrlC.maxIter = ctrl.maxIter;
+    ctrlC.absTol  = ctrl.absTol;
+    ctrlC.relTol  = ctrl.relTol;
+    ctrlC.inv     = ctrl.inv;
+    ctrlC.print   = ctrl.print;
+    return ctrlC;
+}
+
+inline ElQPBoxADMMCtrl_d CReflect( const qp::box::ADMMCtrl<double>& ctrl )
+{
+    ElQPBoxADMMCtrl_d ctrlC;
+    ctrlC.rho     = ctrl.rho;
+    ctrlC.alpha   = ctrl.alpha;
+    ctrlC.maxIter = ctrl.maxIter;
+    ctrlC.absTol  = ctrl.absTol;
+    ctrlC.relTol  = ctrl.relTol;
+    ctrlC.inv     = ctrl.inv;
+    ctrlC.print   = ctrl.print;
+    return ctrlC;
+}
+
+inline qp::box::ADMMCtrl<float> CReflect( ElQPBoxADMMCtrl_s ctrlC )
+{
+    qp::box::ADMMCtrl<float> ctrl;
+    ctrl.rho     = ctrlC.rho;
+    ctrl.alpha   = ctrlC.alpha;
+    ctrl.maxIter = ctrlC.maxIter;
+    ctrl.absTol  = ctrlC.absTol;
+    ctrl.relTol  = ctrlC.relTol;
+    ctrl.inv     = ctrlC.inv;
+    ctrl.print   = ctrlC.print;
+    return ctrl;
+}
+
+inline qp::box::ADMMCtrl<double> CReflect( ElQPBoxADMMCtrl_d ctrlC )
+{
+    qp::box::ADMMCtrl<double> ctrl;
+    ctrl.rho     = ctrlC.rho;
+    ctrl.alpha   = ctrlC.alpha;
+    ctrl.maxIter = ctrlC.maxIter;
+    ctrl.absTol  = ctrlC.absTol;
+    ctrl.relTol  = ctrlC.relTol;
+    ctrl.inv     = ctrlC.inv;
+    ctrl.print   = ctrlC.print;
+    return ctrl;
+}
+
 // Models
 // ^^^^^^
+
+// BPDN / LASSO
+// """"""""""""
+
+inline ElBPDNADMMCtrl_s CReflect( const bpdn::ADMMCtrl<float>& ctrl )
+{
+    ElBPDNADMMCtrl_s ctrlC;
+    ctrlC.rho      = ctrl.rho;
+    ctrlC.alpha    = ctrl.alpha;
+    ctrlC.maxIter  = ctrl.maxIter;
+    ctrlC.absTol   = ctrl.absTol;
+    ctrlC.relTol   = ctrl.relTol;
+    ctrlC.inv      = ctrl.inv;
+    ctrlC.progress = ctrl.progress;
+    return ctrlC;
+}
+
+inline ElBPDNADMMCtrl_d CReflect( const bpdn::ADMMCtrl<double>& ctrl )
+{
+    ElBPDNADMMCtrl_d ctrlC;
+    ctrlC.rho      = ctrl.rho;
+    ctrlC.alpha    = ctrl.alpha;
+    ctrlC.maxIter  = ctrl.maxIter;
+    ctrlC.absTol   = ctrl.absTol;
+    ctrlC.relTol   = ctrl.relTol;
+    ctrlC.inv      = ctrl.inv;
+    ctrlC.progress = ctrl.progress;
+    return ctrlC;
+}
+
+inline bpdn::ADMMCtrl<float> CReflect( ElBPDNADMMCtrl_s ctrlC )
+{
+    bpdn::ADMMCtrl<float> ctrl;
+    ctrl.rho      = ctrlC.rho;
+    ctrl.alpha    = ctrlC.alpha;
+    ctrl.maxIter  = ctrlC.maxIter;
+    ctrl.absTol   = ctrlC.absTol;
+    ctrl.relTol   = ctrlC.relTol;
+    ctrl.inv      = ctrlC.inv;
+    ctrl.progress = ctrlC.progress;
+    return ctrl;
+}
+
+inline bpdn::ADMMCtrl<double> CReflect( ElBPDNADMMCtrl_d ctrlC )
+{
+    bpdn::ADMMCtrl<double> ctrl;
+    ctrl.rho      = ctrlC.rho;
+    ctrl.alpha    = ctrlC.alpha;
+    ctrl.maxIter  = ctrlC.maxIter;
+    ctrl.absTol   = ctrlC.absTol;
+    ctrl.relTol   = ctrlC.relTol;
+    ctrl.inv      = ctrlC.inv;
+    ctrl.progress = ctrlC.progress;
+    return ctrl;
+}
+
+inline ElBPDNCtrl_s CReflect( const BPDNCtrl<float>& ctrl )
+{
+    ElBPDNCtrl_s ctrlC;
+    ctrlC.useIPM   = ctrl.useIPM;
+    ctrlC.admmCtrl = CReflect(ctrl.admmCtrl);
+    ctrlC.ipmCtrl  = CReflect(ctrl.ipmCtrl);
+    return ctrlC;
+}
+
+inline ElBPDNCtrl_d CReflect( const BPDNCtrl<double>& ctrl )
+{
+    ElBPDNCtrl_d ctrlC;
+    ctrlC.useIPM   = ctrl.useIPM;
+    ctrlC.admmCtrl = CReflect(ctrl.admmCtrl);
+    ctrlC.ipmCtrl  = CReflect(ctrl.ipmCtrl);
+    return ctrlC;
+}
+
+inline BPDNCtrl<float> CReflect( ElBPDNCtrl_s ctrlC )
+{
+    BPDNCtrl<float> ctrl;
+    ctrl.useIPM   = ctrlC.useIPM;
+    ctrl.admmCtrl = CReflect(ctrlC.admmCtrl);
+    ctrl.ipmCtrl  = CReflect(ctrlC.ipmCtrl);
+    return ctrl;
+}
+
+inline BPDNCtrl<double> CReflect( ElBPDNCtrl_d ctrlC )
+{
+    BPDNCtrl<double> ctrl;
+    ctrl.useIPM   = ctrlC.useIPM;
+    ctrl.admmCtrl = CReflect(ctrlC.admmCtrl);
+    ctrl.ipmCtrl  = CReflect(ctrlC.ipmCtrl);
+    return ctrl;
+}
+
+// Non-negative Least Squares
+// """"""""""""""""""""""""""
+
+inline ElNNLSCtrl_s CReflect( const NNLSCtrl<float>& ctrl )
+{
+    ElNNLSCtrl_s ctrlC;
+    ctrlC.useIPM   = ctrl.useIPM;
+    ctrlC.admmCtrl = CReflect(ctrl.admmCtrl);
+    ctrlC.ipmCtrl  = CReflect(ctrl.ipmCtrl);
+    return ctrlC;
+}
+
+inline ElNNLSCtrl_d CReflect( const NNLSCtrl<double>& ctrl )
+{
+    ElNNLSCtrl_d ctrlC;
+    ctrlC.useIPM   = ctrl.useIPM;
+    ctrlC.admmCtrl = CReflect(ctrl.admmCtrl);
+    ctrlC.ipmCtrl  = CReflect(ctrl.ipmCtrl);
+    return ctrlC;
+}
+
+inline NNLSCtrl<float> CReflect( ElNNLSCtrl_s ctrlC )
+{
+    NNLSCtrl<float> ctrl;
+    ctrl.useIPM   = ctrlC.useIPM;
+    ctrl.admmCtrl = CReflect(ctrlC.admmCtrl);
+    ctrl.ipmCtrl  = CReflect(ctrlC.ipmCtrl);
+    return ctrl;
+}
+
+inline NNLSCtrl<double> CReflect( ElNNLSCtrl_d ctrlC )
+{
+    NNLSCtrl<double> ctrl;
+    ctrl.useIPM   = ctrlC.useIPM;
+    ctrl.admmCtrl = CReflect(ctrlC.admmCtrl);
+    ctrl.ipmCtrl  = CReflect(ctrlC.ipmCtrl);
+    return ctrl;
+}
 
 // Robust Principal Component Analysis
 // """""""""""""""""""""""""""""""""""

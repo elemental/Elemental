@@ -17,7 +17,7 @@ template<typename Real>
 void NMF
 ( const Matrix<Real>& A, 
         Matrix<Real>& X, Matrix<Real>& Y,
-  const qp::direct::Ctrl<Real>& ctrl )
+  const NNLSCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("NMF"))
     if( IsComplex<Real>::val ) 
@@ -40,7 +40,7 @@ template<typename Real>
 void NMF
 ( const AbstractDistMatrix<Real>& APre, 
         AbstractDistMatrix<Real>& XPre, AbstractDistMatrix<Real>& YPre,
-  const qp::direct::Ctrl<Real>& ctrl )
+  const NNLSCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("NMF"))
     if( IsComplex<Real>::val ) 
@@ -67,11 +67,11 @@ void NMF
   template void NMF \
   ( const Matrix<Real>& A, \
           Matrix<Real>& X, Matrix<Real>& Y, \
-    const qp::direct::Ctrl<Real>& ctrl ); \
+    const NNLSCtrl<Real>& ctrl ); \
   template void NMF \
   ( const AbstractDistMatrix<Real>& A, \
           AbstractDistMatrix<Real>& X, AbstractDistMatrix<Real>& Y, \
-    const qp::direct::Ctrl<Real>& ctrl );
+    const NNLSCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
