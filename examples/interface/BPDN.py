@@ -61,8 +61,8 @@ if display:
   El.Display( A[0:n0*n1,n0*n1:2*n0*n1], "AR" )
   El.Display( b, "b" )
 
-ctrl = El.QPAffineCtrl_d()
-ctrl.mehrotraCtrl.progress = True
+ctrl = El.BPDNCtrl_d()
+ctrl.ipmCtrl.mehrotraCtrl.progress = True
 
 for j in xrange(0,numLambdas):
   lambd = startLambda + j*(endLambda-startLambda)/(numLambdas-1.)

@@ -62,19 +62,5 @@ Int ADMM
     return qp::box::ADMM( Q, C, Real(0), maxReal, X, ctrl );
 }
 
-#define PROTO(Real) \
-  template Int ADMM \
-  ( const Matrix<Real>& A, const Matrix<Real>& B, \
-          Matrix<Real>& X, \
-    const qp::box::ADMMCtrl<Real>& ctrl ); \
-  template Int ADMM \
-  ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& B, \
-          AbstractDistMatrix<Real>& X, \
-    const qp::box::ADMMCtrl<Real>& ctrl );
-
-#define EL_NO_INT_PROTO
-#define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
-
 } // namespace nnls
 } // namespace El

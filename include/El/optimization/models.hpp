@@ -203,6 +203,40 @@ Int LogisticRegression
   Real gamma, Regularization penalty=L1_PENALTY,
   const ModelFitCtrl<Real>& ctrl=ModelFitCtrl<Real>() );
 
+// Non-negative least squares
+// ==========================
+// TODO: Generalize to complex
+// NOTE: The following can solve a *sequence* of NNLS problems
+
+template<typename Real>
+struct NNLSCtrl {
+  // NOTE: The ADMM implementation is still a prototype
+  bool useIPM=true;
+  qp::box::ADMMCtrl<Real> admmCtrl;
+  qp::direct::Ctrl<Real> ipmCtrl;    
+};
+
+template<typename Real>
+void NNLS
+( const Matrix<Real>& A, const Matrix<Real>& B, 
+        Matrix<Real>& X,
+  const NNLSCtrl<Real>& ctrl=NNLSCtrl<Real>() );
+template<typename Real>
+void NNLS
+( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& B, 
+        AbstractDistMatrix<Real>& X, 
+  const NNLSCtrl<Real>& ctrl=NNLSCtrl<Real>() );
+template<typename Real>
+void NNLS
+( const SparseMatrix<Real>& A, const Matrix<Real>& B, 
+        Matrix<Real>& X,
+  const NNLSCtrl<Real>& ctrl=NNLSCtrl<Real>() );
+template<typename Real>
+void NNLS
+( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& B, 
+        DistMultiVec<Real>& X,
+  const NNLSCtrl<Real>& ctrl=NNLSCtrl<Real>() );
+
 // Non-negative matrix factorization
 // =================================
 // TODO: Generalize to complex
@@ -210,55 +244,13 @@ template<typename Real>
 void NMF
 ( const Matrix<Real>& A, 
         Matrix<Real>& X, Matrix<Real>& Y,
-  const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
+  const NNLSCtrl<Real>& ctrl=NNLSCtrl<Real>() );
 template<typename Real>
 void NMF
 ( const AbstractDistMatrix<Real>& A, 
         AbstractDistMatrix<Real>& X, AbstractDistMatrix<Real>& Y,
-  const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
+  const NNLSCtrl<Real>& ctrl=NNLSCtrl<Real>() );
 // TODO: Sparse versions
-
-// Non-negative least squares
-// ==========================
-// TODO: Generalize to complex
-// NOTE: The following can solve a *sequence* of NNLS problems
-
-namespace nnls {
-
-// NOTE: This routine is still a prototype
-template<typename Real>
-Int ADMM
-( const Matrix<Real>& A, const Matrix<Real>& B, 
-        Matrix<Real>& X,
-  const qp::box::ADMMCtrl<Real>& ctrl=qp::box::ADMMCtrl<Real>() );
-template<typename Real>
-Int ADMM
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& B, 
-        AbstractDistMatrix<Real>& X, 
-  const qp::box::ADMMCtrl<Real>& ctrl=qp::box::ADMMCtrl<Real>() );
-
-} // namespace nnls
-
-template<typename Real>
-void NNLS
-( const Matrix<Real>& A, const Matrix<Real>& B, 
-        Matrix<Real>& X,
-  const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
-template<typename Real>
-void NNLS
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& B, 
-        AbstractDistMatrix<Real>& X, 
-  const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
-template<typename Real>
-void NNLS
-( const SparseMatrix<Real>& A, const Matrix<Real>& B, 
-        Matrix<Real>& X,
-  const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
-template<typename Real>
-void NNLS
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& B, 
-        DistMultiVec<Real>& X,
-  const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
 
 // Basis pursuit denoising (BPDN), a.k.a.,
 // Least absolute selection and shrinkage operator (Lasso):
@@ -271,51 +263,47 @@ template<typename Real>
 struct ADMMCtrl {
   Real rho=1;
   Real alpha=1.2;
-  Real maxIter=500;
+  Int maxIter=500;
   Real absTol=1e-6;
   Real relTol=1e-4;
   bool inv=true;
   bool progress=true;
 };
 
-// NOTE: This routine is still a prototype
-template<typename F>
-Int ADMM
-( const Matrix<F>& A, const Matrix<F>& b, 
-  Base<F> lambda, Matrix<F>& z,
-  const ADMMCtrl<Base<F>>& ctrl=ADMMCtrl<Base<F>>() );
-template<typename F>
-Int ADMM
-( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& b, 
-  Base<F> lambda, AbstractDistMatrix<F>& z,
-  const ADMMCtrl<Base<F>>& ctrl=ADMMCtrl<Base<F>>() );
-
 } // namespace bpdn
+
+template<typename Real>
+struct BPDNCtrl {
+  bool useIPM=true;
+  // NOTE: The ADMM implementation is still a prototype
+  bpdn::ADMMCtrl<Real> admmCtrl;
+  qp::affine::Ctrl<Real> ipmCtrl;
+};
 
 template<typename Real>
 void BPDN
 ( const Matrix<Real>& A, const Matrix<Real>& b, 
         Real lambda,
         Matrix<Real>& x,
-  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
+  const BPDNCtrl<Real>& ctrl=BPDNCtrl<Real>() );
 template<typename Real>
 void BPDN
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
         Real lambda,
         AbstractDistMatrix<Real>& x,
-  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
+  const BPDNCtrl<Real>& ctrl=BPDNCtrl<Real>() );
 template<typename Real>
 void BPDN
 ( const SparseMatrix<Real>& A, const Matrix<Real>& b,
         Real lambda,
         Matrix<Real>& x,
-  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
+  const BPDNCtrl<Real>& ctrl=BPDNCtrl<Real>() );
 template<typename Real>
 void BPDN
 ( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b,
         Real lambda,
         DistMultiVec<Real>& x,
-  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
+  const BPDNCtrl<Real>& ctrl=BPDNCtrl<Real>() );
 
 // Elastic net (EN): 
 //   min || b - A x ||_2^2 + lambda_1 || x ||_1 + lambda_2 || x ||_2^2

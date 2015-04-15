@@ -403,6 +403,32 @@ ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
     return EL_SUCCESS;
 }
 
+/* Box-constrained
+   --------------- */
+ElError ElQPBoxADMMCtrlDefault_s( ElQPBoxADMMCtrl_s* ctrl )
+{
+    ctrl->rho = 1;
+    ctrl->alpha = 1.2;
+    ctrl->maxIter = 500;
+    ctrl->absTol = 1e-6;
+    ctrl->relTol = 1e-4;
+    ctrl->inv = true;
+    ctrl->print = true;
+    return EL_SUCCESS;
+}
+
+ElError ElQPBoxADMMCtrlDefault_d( ElQPBoxADMMCtrl_d* ctrl )
+{
+    ctrl->rho = 1;
+    ctrl->alpha = 1.2;
+    ctrl->maxIter = 500;
+    ctrl->absTol = 1e-6;
+    ctrl->relTol = 1e-4;
+    ctrl->inv = true;
+    ctrl->print = true;
+    return EL_SUCCESS;
+}
+
 #define C_PROTO_REAL(SIG,Real) \
   /* Linear program
      ============== */ \
@@ -754,6 +780,20 @@ ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
     Real lb, Real ub, ElDistMatrix_ ## SIG Z, ElInt* numIts ) \
   { EL_TRY( *numIts = qp::box::ADMM( *CReflect(Q), *CReflect(C), lb, ub, \
       *CReflect(Z) ) ) } \
+  /* Expert versions
+     ^^^^^^^^^^^^^^^ */ \
+  ElError ElQPBoxADMMX_ ## SIG \
+  ( ElConstMatrix_ ## SIG Q, ElConstMatrix_ ## SIG C, \
+    Real lb, Real ub, ElMatrix_ ## SIG Z, \
+    ElQPBoxADMMCtrl_ ## SIG ctrl, ElInt* numIts ) \
+  { EL_TRY( *numIts = qp::box::ADMM( *CReflect(Q), *CReflect(C), lb, ub, \
+      *CReflect(Z), CReflect(ctrl) ) ) } \
+  ElError ElQPBoxADMMXDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG Q, ElConstDistMatrix_ ## SIG C, \
+    Real lb, Real ub, ElDistMatrix_ ## SIG Z, \
+    ElQPBoxADMMCtrl_ ## SIG ctrl, ElInt* numIts ) \
+  { EL_TRY( *numIts = qp::box::ADMM( *CReflect(Q), *CReflect(C), lb, ub, \
+      *CReflect(Z), CReflect(ctrl) ) ) } \
   /* Affine conic form
      ----------------- */ \
   /* TODO */ \

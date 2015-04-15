@@ -18,7 +18,6 @@ using namespace El;
 // || x ||_1 <= t for some t >= 0.
 
 typedef double Real;
-typedef Complex<Real> C;
 
 int 
 main( int argc, char* argv[] )
@@ -27,6 +26,7 @@ main( int argc, char* argv[] )
 
     try
     {
+        // TODO: Extend to add options for IPM
         const Int m = Input("--m","height of matrix",100);
         const Int n = Input("--n","width of matrix",200);
         const Int maxIter = Input("--maxIter","maximum # of iter's",500);
@@ -38,11 +38,12 @@ main( int argc, char* argv[] )
         const bool inv = Input("--inv","use explicit inverse",true);
         const bool progress = Input("--progress","print progress?",true);
         const bool display = Input("--display","display matrices?",false);
+        const bool useIPM = Input("--useIPM","use Interior Point?",true);
         const bool print = Input("--print","print matrices",false);
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<C> A, b;
+        DistMatrix<Real> A, b;
         Uniform( A, m, n );
         Uniform( b, m, 1 );
         if( print )
@@ -53,23 +54,24 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "A" );
 
-        bpdn::ADMMCtrl<Real> ctrl;
-        ctrl.rho = rho;
-        ctrl.alpha = alpha;
-        ctrl.maxIter = maxIter;
-        ctrl.absTol = absTol;
-        ctrl.relTol = relTol;
-        ctrl.inv = inv;
-        ctrl.progress = progress;
+        BPDNCtrl<Real> ctrl;
+        ctrl.useIPM = useIPM;
+        ctrl.admmCtrl.rho = rho;
+        ctrl.admmCtrl.alpha = alpha;
+        ctrl.admmCtrl.maxIter = maxIter;
+        ctrl.admmCtrl.absTol = absTol;
+        ctrl.admmCtrl.relTol = relTol;
+        ctrl.admmCtrl.inv = inv;
+        ctrl.admmCtrl.progress = progress;
 
-        DistMatrix<C> z;
-        bpdn::ADMM( A, b, lambda, z, ctrl );
+        DistMatrix<Real> z;
+        BPDN( A, b, lambda, z, ctrl );
         if( print )
             Print( z, "z" );
         const Real zOneNorm = OneNorm( z );
         const Int  zZeroNorm = ZeroNorm( z );
         const Real bTwoNorm = FrobeniusNorm( b );
-        Gemv( NORMAL, C(-1), A, z, C(1), b );
+        Gemv( NORMAL, Real(-1), A, z, Real(1), b );
         const Real rTwoNorm = FrobeniusNorm( b );
         if( mpi::Rank(mpi::COMM_WORLD) == 0 )
         {

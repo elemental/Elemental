@@ -292,18 +292,5 @@ Int ADMM
     return numIter;
 }
 
-#define PROTO(F) \
-  template Int ADMM \
-  ( const Matrix<F>& A,   const Matrix<F>& b, \
-          Base<F> lambda,       Matrix<F>& z, \
-    const ADMMCtrl<Base<F>>& ctrl ); \
-  template Int ADMM \
-  ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& b, \
-          Base<F> lambda,                 AbstractDistMatrix<F>& z, \
-    const ADMMCtrl<Base<F>>& ctrl );
-
-#define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
-
 } // namespace bpdn
-} // namepace elem
+} // namepace El
