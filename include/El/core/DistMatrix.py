@@ -1132,7 +1132,7 @@ class DistMatrix(object):
   lib.ElDistMatrixGlobalCol_z.argtypes = \
     [c_void_p,iType,POINTER(iType)]
   def GlobalCol(self,jLoc):
-    j = jType()
+    j = iType()
     args = [self.obj,jLoc,pointer(j)]
     if   self.tag == iTag: lib.ElDistMatrixGlobalCol_i(*args)
     elif self.tag == sTag: lib.ElDistMatrixGlobalCol_s(*args)
