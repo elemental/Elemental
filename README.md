@@ -2,9 +2,6 @@
 <img src="http://libelemental.org/_static/elemental.png">
 </p>
 
-[![Build Status](https://travis-ci.org/elemental/Elemental.svg?branch=master)](https://travis-ci.org/elemental/Elemental)
-[![Coverage Status](https://coveralls.io/repos/elemental/Elemental/badge.svg?branch=master)](https://coveralls.io/r/elemental/Elemental?branch=master)
-
 **Elemental** is a modern C++ library for distributed-memory dense and
 sparse-direct linear algebra and optimization.
 The library was initially released in
