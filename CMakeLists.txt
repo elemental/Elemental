@@ -75,14 +75,6 @@ endif()
 # and is often necessary anyway.
 option(EL_USE_QT5 "Attempt to use Qt5?" OFF)
 
-# NOTE: This is not yet used within Elemental...
-#
-# If BUILD_KISSFFT is set to 'OFF', then an external KISSFFT can be
-# built by defining:
-#   KISSFFT_INCLUDE_DIR: The directory containing kiss_fft.h
-#   KISSFFT_LIBS: The list of KISS-FFT libraries to link
-option(BUILD_KISSFFT "Build KISS FFT" OFF)
-
 option(EL_EXAMPLES "Build simple examples?" OFF)
 option(EL_TESTS "Build performance and correctness tests?" OFF)
 option(EL_EXPERIMENTAL "Build experimental code" OFF)
@@ -101,34 +93,15 @@ endif()
 option(EL_USE_CUSTOM_ALLTOALLV "Avoid MPI_Alltoallv for performance reasons" ON)
 option(EL_BARRIER_IN_ALLTOALLV "Barrier before posting non-blocking recvs" OFF)
 
-# If the version of METIS packaged with Elemental is to be built (the default),
-# then no METIS-specific variables need to be specified, but if the user prefers
-# to use their own version, then the root path of the installation should be
-# passed in via the METIS_ROOT variable.
-option(BUILD_METIS "Build METIS" ON)
-
-# ParMETIS cannot yet be legally distributed under an unrestrictive
-# license and is currently limited to educational and research purposes.
-# (recent versions of METIS can be distributed under the Apache License
-# Version 2).
+# By default, a search is performed for METIS via find_package, and, if this
+# search fails, METIS is cloned from the git repo 
+# https://github.com/poulson/Metis.git.
+# If BUILD_METIS is turned on, then no initial call to find_package is 
+# performed.
 #
-# However, if the user is in an educational or government institution, then
-# it is possible to re-enable support for ParMETIS by specifying the following
-# variables:
-#
-#   METIS_ROOT: the full path to the root of the MeTiS source tree
-#   PARMETIS_ROOT: the full path to the root of the ParMeTiS source tree
-#   PARMETIS_LIBS: the list of ParMETIS libraries to link to
-#   PARMETIS_TLS_PATCH: defined iff there is a GKlib configure file
-#                       (if you have not heard of this, ignore it)
-#   GKLIB_INCLUDE_DIR: if PARMETIS_TLS_PATCH is defined, this should point
-#                      to the directory containing gklib_tls.h
-#
-# and adding in a custom ParMETIS routine for performing nodal bisections
-# in parallel (which was originally part of Clique and can be easily found).
-# Please contact dev@libelemental.org or poulson@stanford.edu for more details.
-#
-#option(BUILD_PARMETIS "Build ParMETIS" OFF)
+# Should you want to manually specify a METIS installation, you can set the
+# variables METIS_INCLUDE_DIRS and METIS_LIBRARIES
+option(BUILD_METIS "Build METIS" OFF)
 
 # Advanced options
 # ----------------
@@ -253,62 +226,8 @@ if(NOT WIN32)
   endforeach()
 endif()
 
-if(BUILD_PARMETIS)
-  message(FATAL_ERROR "ParMETIS cannot be legally distributed with Elemental under a permissive license. A version of Elemental restricted to educational purposes which contains ParMETIS will hopefully soon be available.")
-#  add_subdirectory(external/parmetis)
-#  set(EL_HAVE_METIS TRUE)
-#  set(EL_HAVE_PARMETIS TRUE)
-#
-#  set(PARMETIS_ROOT ${PROJECT_SOURCE_DIR}/external/parmetis)
-#  set(METIS_ROOT ${PROJECT_SOURCE_DIR}/external/parmetis/metis)
-#  set(GKLIB_INCLUDE_DIR ${PROJECT_BINARY_DIR}/external/parmetis/include)
-#
-#  include_directories(${GKLIB_INCLUDE_DIR})
-#  include_directories(${METIS_ROOT}/include)
-#  include_directories(${PARMETIS_ROOT}/include)
-elseif(METIS_ROOT AND PARMETIS_ROOT)
-  message(FATAL_ERROR "ParMETIS cannot be legally distributed with Elemental under a permissive license. A version of Elemental restricted to educational purposes which contains ParMETIS will hopefully soon be available.")
-#  set(EL_HAVE_METIS TRUE)
-#  set(EL_HAVE_PARMETIS TRUE)
-#  if(PARMETIS_TLS_PATCH)
-#    include_directories(${GKLIB_INCLUDE_DIR})
-#  endif()
-#
-#  include_directories(${METIS_ROOT}/include)
-#  include_directories(${PARMETIS_ROOT}/include)
-#  set(MANUAL_PARMETIS TRUE)
-elseif(BUILD_METIS)
-  if(NOT EXISTS "${CMAKE_SOURCE_DIR}/external/metis/CMakeLists.txt")
-    message(FATAL_ERROR
-      "${CMAKE_SOURCE_DIR}/external/metis is not correctly set up. If you are building from source, make sure all git submodules in the source directory are checked out, e.g. with\ncd ${CMAKE_SOURCE_DIR} && git submodule update --recursive --init")
-  endif()
-  add_subdirectory(external/metis)
-  set(METIS_ROOT ${PROJECT_SOURCE_DIR}/external/metis)
-  include_directories(${METIS_ROOT}/include)
-
-  set(EL_HAVE_METIS TRUE)
-else()
-  if(NOT METIS_ROOT)
-    message(FATAL_ERROR
-      "If METIS is not to be built, then METIS_ROOT must be specified")
-  endif()
-  include_directories(${METIS_ROOT}/include)
-
-  set(EL_HAVE_METIS TRUE)
-  set(MANUAL_METIS TRUE)
-endif()
-
-if(BUILD_KISSFFT)
-  if(NOT EXISTS "${CMAKE_SOURCE_DIR}/external/kiss_fft/CMakeLists.txt")
-    message(FATAL_ERROR
-      "${CMAKE_SOURCE_DIR}/external/kiss_fft is not correctly set up. If you are building from source, make sure all git submodules in the source directory are checked out, e.g. with\ncd ${CMAKE_SOURCE_DIR} && git pull --recurse-submodules")
-  endif()
-  add_subdirectory(external/kiss_fft)
-  include_directories(external/kiss_fft)
-elseif(KISSFFT_INCLUDE_DIR AND KISSFFT_LIBS)
-  include_directories(${KISSFFT_INCLUDE_DIR})
-  set(MANUAL_KISSFFT TRUE)
-endif()
+add_custom_target(External)
+include(metis)
 
 if(BUILD_SHARED_LIBS AND WIN32)
   option(EL_DECLSPEC "Use __declspec(dllexport)?" ON)
@@ -414,23 +333,11 @@ if(EL_HAVE_QT5)
   set(LINK_LIBS ${LINK_LIBS} ${Qt5Widgets_LIBRARIES})
 endif()
 
-if(BUILD_KISSFFT)
-  set(LINK_LIBS ${LINK_LIBS} kiss_fft)
-elseif(MANUAL_KISSFFT)
-  set(LINK_LIBS ${LINK_LIBS} ${KISSFFT_LIBS})
-endif()
-
-if(BUILD_PARMETIS)
-  set(LINK_LIBS ${LINK_LIBS} parmetis)
-elseif(MANUAL_PARMETIS)
-  set(LINK_LIBS ${LINK_LIBS} ${PARMETIS_LIBS})
-elseif(BUILD_METIS)
-  set(LINK_LIBS ${LINK_LIBS} metis)
-elseif(MANUAL_METIS)
-  set(LINK_LIBS ${LINK_LIBS} ${METIS_LIBS})
-endif()
+# TODO: ParMETIS support
+set(LINK_LIBS ${LINK_LIBS} ${EXTERNAL_LIBS})
 
 add_library(El ${EL_C_CPP_FILES})
+add_dependencies(El External)
 target_link_libraries(El pmrrr ${LINK_LIBS})
 if(MPI_LINK_FLAGS)
   set_target_properties(El PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
