@@ -12,18 +12,6 @@
 #ifndef EL_SYMBOLIC_NESTEDDISSECTION_HPP
 #define EL_SYMBOLIC_NESTEDDISSECTION_HPP
 
-#ifdef EL_HAVE_PARMETIS
-
-#include "parmetis.h"
-extern "C" {
-void ElParallelBisect
-( idx_t* vtxDist, idx_t* xAdj, idx_t* adjacency, 
-  idx_t* nparseps, idx_t* nseqseps, real_t* imbalance, idx_t* options, 
-  idx_t* perm, idx_t* sizes, MPI_Comm* comm );
-} // extern "C"
-
-#endif
-
 namespace El {
 
 struct BisectCtrl

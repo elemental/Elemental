@@ -93,9 +93,24 @@ endif()
 option(EL_USE_CUSTOM_ALLTOALLV "Avoid MPI_Alltoallv for performance reasons" ON)
 option(EL_BARRIER_IN_ALLTOALLV "Barrier before posting non-blocking recvs" OFF)
 
-# By default, a search is performed for METIS via find_package, and, if this
-# search fails, METIS is cloned from the git repo 
-# https://github.com/poulson/Metis.git.
+# By default, a search is performed for ParMETIS via find_package, and, if this
+# search fails, ParMETIS is downloaded from the official location:
+#    http://glaros.dtc.umn.edu/gkhome/fetch/sw/parmetis/parmetis-4.0.3.tar.gz
+# If BUILD_PARMETIS is turned on, then no initial call to find_package is 
+# performed.
+#
+# Should you want to manually specify a ParMETIS installation, you can set the
+# variables PARMETIS_INCLUDE_DIRS and PARMETIS_LIBRARIES
+#
+option(BUILD_PARMETIS "Build ParMETIS" OFF)
+
+# ParMETIS cannot be commercially used without a license and so users interested
+# in using Elemental in commercial applications should disable ParMETIS
+option(DISABLE_PARMETIS "Disable ParMETIS?" OFF)
+
+# If ParMETIS is disabled, a search is performed for METIS via find_package, 
+# and, if this search fails, METIS is cloned from the git repo 
+#     https://github.com/poulson/Metis.git.
 # If BUILD_METIS is turned on, then no initial call to find_package is 
 # performed.
 #
@@ -227,7 +242,11 @@ if(NOT WIN32)
 endif()
 
 add_custom_target(External)
-include(metis)
+if(NOT DISABLE_PARMETIS)
+  include(parmetis)
+else()
+  include(metis)
+endif()
 
 if(BUILD_SHARED_LIBS AND WIN32)
   option(EL_DECLSPEC "Use __declspec(dllexport)?" ON)
@@ -294,9 +313,9 @@ set(MPI_CXX_LIBSTRING)
 foreach(LIB ${MPI_CXX_LIBRARIES})
   set(MPI_CXX_LIBSTRING "${MPI_CXX_LIBSTRING} ${LIB}")
 endforeach()
-set(METIS_LIBSTRING)
-foreach(LIB ${METIS_LIBS})
-  set(METIS_LIBSTRING "${METIS_LIBSTRING} ${LIB}")
+set(EXTERNAL_LIBSTRING)
+foreach(LIB ${EXTERNAL_LIBS})
+  set(EXTERNAL_LIBSTRING "${EXTERNAL_LIBSTRING} ${LIB}")
 endforeach()
 set(QT5_DEFSTRING)
 foreach(DEF ${Qt5Widgets_DEFINITIONS})
@@ -333,7 +352,6 @@ if(EL_HAVE_QT5)
   set(LINK_LIBS ${LINK_LIBS} ${Qt5Widgets_LIBRARIES})
 endif()
 
-# TODO: ParMETIS support
 set(LINK_LIBS ${LINK_LIBS} ${EXTERNAL_LIBS})
 
 add_library(El ${EL_C_CPP_FILES})

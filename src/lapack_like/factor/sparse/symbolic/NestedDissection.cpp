@@ -10,7 +10,15 @@
 */
 #include "El.hpp"
 
-#ifdef EL_HAVE_METIS
+#ifdef EL_HAVE_PARMETIS
+#include "parmetis.h"
+extern "C" {
+void ElParallelBisect
+( idx_t* vtxDist, idx_t* xAdj, idx_t* adjacency,
+  idx_t* nparseps, idx_t* nseqseps, real_t* imbalance, idx_t* options,
+  idx_t* perm, idx_t* sizes, MPI_Comm* comm );
+} // extern "C"
+#else
 #include "metis.h"
 #endif
 
@@ -559,6 +567,7 @@ Int Bisect
 
         vector<idx_t> perm_idx_t( perm.NumLocalSources() );
         // Use the custom ParMETIS interface
+        idx_t nseqseps = ctrl.numSeqSeps;
         idx_t nparseps = ctrl.numDistSeps;
         real_t imbalance = 1.1;
         ElParallelBisect
