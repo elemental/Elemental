@@ -10,9 +10,6 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 cmake_minimum_required(VERSION 2.8.12)
-include(CheckCSourceCompiles)
-include(CheckCXXSourceCompiles)
-include(CheckFunctionExists)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/cmake/")
 include(GetGitRevisionDescription)
@@ -241,13 +238,6 @@ if(NOT WIN32)
   endforeach()
 endif()
 
-add_custom_target(External)
-if(NOT DISABLE_PARMETIS)
-  include(parmetis)
-else()
-  include(metis)
-endif()
-
 if(BUILD_SHARED_LIBS AND WIN32)
   option(EL_DECLSPEC "Use __declspec(dllexport)?" ON)
 else()
@@ -281,6 +271,13 @@ if(VALGRIND_FOUND)
 endif()
 
 include(tests/Math)
+
+add_custom_target(External)
+if(NOT DISABLE_PARMETIS)
+  include(parmetis)
+else()
+  include(metis)
+endif()
 
 # Now append the extra flags
 set(CXX_FLAGS "${CXX_FLAGS} ${EXTRA_FLAGS}")
@@ -511,5 +508,3 @@ if(EL_EXAMPLES)
     endforeach()
   endforeach()
 endif()
-
-

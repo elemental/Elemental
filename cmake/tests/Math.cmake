@@ -1,3 +1,5 @@
+include(CheckFunctionExists)
+include(CheckCXXSourceCompiles)
 
 # Default locations (currently, Linux-centric) for searching for math libs
 # ========================================================================

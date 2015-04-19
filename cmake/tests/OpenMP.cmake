@@ -1,3 +1,5 @@
+include(CheckCXXSourceCompiles)
+
 if(EL_HYBRID)
   if(OpenMP_CXX_FLAGS)
     set(EL_HAVE_OPENMP TRUE)

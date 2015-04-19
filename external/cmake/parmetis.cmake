@@ -72,7 +72,7 @@ else()
   # files from metis/ and metis/GKlib/
   include_directories(${source_dir}/include 
                       ${source_dir}/libparmetis 
-                      ${source_dir}/metis
+                      ${source_dir}/metis/include
                       ${source_dir}/metis/GKlib)
 
   set(PARMETIS_LIBS libparmetis libmetis)

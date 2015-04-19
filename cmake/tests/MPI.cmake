@@ -1,12 +1,15 @@
+include(CheckFunctionExists)
+include(CheckCSourceCompiles)
+
 find_package(MPI)
-if(NOT MPI_CXX_FOUND)
-  message(FATAL_ERROR "MPI C++ compiler was not found and is required")
+if(NOT MPI_C_FOUND)
+  message(FATAL_ERROR "MPI C compiler was not found and is required")
 endif()
-include_directories(${MPI_CXX_INCLUDE_PATH})
-set(EXTRA_FLAGS "${EXTRA_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
-set(CMAKE_REQUIRED_FLAGS "${MPI_CXX_COMPILE_FLAGS} ${MPI_LINK_FLAGS}")
-set(CMAKE_REQUIRED_INCLUDES ${MPI_CXX_INCLUDE_PATH})
-set(CMAKE_REQUIRED_LIBRARIES ${MPI_CXX_LIBRARIES})
+include_directories(${MPI_C_INCLUDE_PATH})
+set(EXTRA_FLAGS "${EXTRA_FLAGS} ${MPI_C_COMPILE_FLAGS}")
+set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS} ${MPI_LINK_FLAGS}")
+set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
+set(CMAKE_REQUIRED_LIBRARIES ${MPI_C_LIBRARIES})
 
 # Ensure that we have MPI1 by looking for MPI_Reduce_scatter
 # ==========================================================
@@ -34,7 +37,7 @@ set(MPI_LONG_LONG_CODE
          MPI_Finalize();
          return 0;
      }")
-check_cxx_source_compiles("${MPI_LONG_LONG_CODE}" EL_HAVE_MPI_LONG_LONG)
+check_c_source_compiles("${MPI_LONG_LONG_CODE}" EL_HAVE_MPI_LONG_LONG)
 if(EL_USE_64BIT_INTS AND NOT EL_HAVE_MPI_LONG_LONG)
   message(FATAL_ERROR 
     "Did not detect MPI_LONG_LONG_INT and MPI_UNSIGNED_LONG_LONG")
@@ -60,8 +63,8 @@ set(MPI_LONG_DOUBLE_COMPLEX_CODE
          MPI_Finalize();
          return 0;
      }")
-check_cxx_source_compiles("${MPI_LONG_DOUBLE_CODE}" EL_HAVE_MPI_LONG_DOUBLE)
-check_cxx_source_compiles("${MPI_LONG_DOUBLE_COMPLEX_CODE}" 
+check_c_source_compiles("${MPI_LONG_DOUBLE_CODE}" EL_HAVE_MPI_LONG_DOUBLE)
+check_c_source_compiles("${MPI_LONG_DOUBLE_COMPLEX_CODE}" 
   EL_HAVE_MPI_LONG_DOUBLE_COMPLEX)
 
 # Detect support for various optional MPI routines
@@ -85,7 +88,7 @@ set(MPI_IN_PLACE_CODE
          MPI_Finalize();
          return 0;
      }")
-check_cxx_source_compiles("${MPI_IN_PLACE_CODE}" EL_HAVE_MPI_IN_PLACE)
+check_c_source_compiles("${MPI_IN_PLACE_CODE}" EL_HAVE_MPI_IN_PLACE)
 set(MPI_COMM_F2C_CODE
 "#include \"mpi.h\"
  int main( int argc, char* argv[] )
@@ -96,7 +99,7 @@ set(MPI_COMM_F2C_CODE
      MPI_Finalize();
      return 0;
  }")
-check_cxx_source_compiles("${MPI_COMM_F2C_CODE}" EL_HAVE_MPI_COMM_F2C)
+check_c_source_compiles("${MPI_COMM_F2C_CODE}" EL_HAVE_MPI_COMM_F2C)
 
 # Detect whether or not MPI_Comm and MPI_Group are implemented as an int
 # ======================================================================
@@ -121,5 +124,5 @@ set(MPI_GROUP_NOT_INT_CODE
          MPI_Finalize();
          return 0;
      }")
-check_cxx_source_compiles("${MPI_COMM_NOT_INT_CODE}" EL_MPI_COMM_NOT_INT)
-check_cxx_source_compiles("${MPI_GROUP_NOT_INT_CODE}" EL_MPI_GROUP_NOT_INT)
+check_c_source_compiles("${MPI_COMM_NOT_INT_CODE}" EL_MPI_COMM_NOT_INT)
+check_c_source_compiles("${MPI_GROUP_NOT_INT_CODE}" EL_MPI_GROUP_NOT_INT)
