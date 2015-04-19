@@ -11,13 +11,11 @@
 #
 cmake_minimum_required(VERSION 2.8.12)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/cmake/")
-include(GetGitRevisionDescription)
-include(language_support_v2)
-
 project(Elemental)
 set(EL_VERSION_MAJOR 0)
 set(EL_VERSION_MINOR 86-dev)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/cmake/")
 
 # Configuration options
 # =====================
@@ -55,7 +53,9 @@ option(EL_C_INTERFACE "Build C interface" ON)
 if(BUILD_SHARED_LIBS AND EL_C_INTERFACE)
   # Define PYTHON_SITE_PACKAGES if you want to install the python package
   # somewhere other than the default system-wide location (e.g., within your
-  # home directory)
+  # home directory). Alternatively, if you do NOT define PYTHON_SITE_PACKAGES 
+  # and instead define INSTALL_PYTHON_INTO_USER_SITE=ON, Elemental will
+  # install its Python interface into site.USER_SITE in your home directory.
   option(INSTALL_PYTHON_PACKAGE "Install Python interface? (requires Python 2.x)" TRUE)
 
   set(Python_ADDITIONAL_VERSIONS 2.7)
@@ -191,6 +191,7 @@ if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
 endif()
 
 # Get the Git revision
+include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 
 # Ensure that the build type is set to either Release or Debug
@@ -298,44 +299,13 @@ install(FILES ${PROJECT_BINARY_DIR}/include/El/config.h
 
 # Create a file which can be included in Makefile's.
 # This is meant to be analogous to PETSc's 'conf/petscvariables' file
-set(MPI_CXX_INCSTRING)
-foreach(INC_PATH ${MPI_CXX_INCLUDE_PATH})
-  set(MPI_CXX_INCSTRING "${MPI_CXX_INCSTRING} -I${INC_PATH}")
-endforeach()
-set(MATH_LIBSTRING)
-foreach(LIB ${MATH_LIBS})
-  set(MATH_LIBSTRING "${MATH_LIBSTRING} ${LIB}")
-endforeach()
-set(MPI_CXX_LIBSTRING)
-foreach(LIB ${MPI_CXX_LIBRARIES})
-  set(MPI_CXX_LIBSTRING "${MPI_CXX_LIBSTRING} ${LIB}")
-endforeach()
-set(EXTERNAL_LIBSTRING)
-foreach(LIB ${EXTERNAL_LIBS})
-  set(EXTERNAL_LIBSTRING "${EXTERNAL_LIBSTRING} ${LIB}")
-endforeach()
-set(QT5_DEFSTRING)
-foreach(DEF ${Qt5Widgets_DEFINITIONS})
-  set(QT5_DEFSTRING "${QT5_DEFSTRING} ${DEF}")
-endforeach()
-set(QT5_INCSTRING)
-foreach(INC ${Qt5Widgets_INCLUDE_DIRS})
-  set(QT5_INCSTRING "${QT5_INCSTRING} -I${INC}")
-endforeach()
-set(QT5_COMPILESTRING)
-foreach(FLAG ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS})
-  set(QT5_COMPILESTRING "${QT5_COMPILE_STRING} ${FLAG}")
-endforeach()
-# TODO: Generalize this for non-Unix architectures
-set(QT5_LIBSTRING "-L${Qt5_LIBDIR} -lQt5Widgets -lQt5Gui -lQt5Core")
-configure_file(${PROJECT_SOURCE_DIR}/cmake/ElVars.cmake
-               ${PROJECT_BINARY_DIR}/conf/ElVars @ONLY)
-install(FILES ${PROJECT_BINARY_DIR}/conf/ElVars DESTINATION conf)
+include(CreateElVars)
 
 # The main library
 # ================
 
 # Grab the .c and .cpp files
+# --------------------------
 file(GLOB_RECURSE EL_C_CPP_SOURCE RELATIVE ${PROJECT_SOURCE_DIR}
   "src/*.c" "src/*.cpp")
 # Grab the C/C++ headers
@@ -343,14 +313,15 @@ file(GLOB_RECURSE EL_C_CPP_HEADERS RELATIVE ${PROJECT_SOURCE_DIR}
   "include/*.h" "include/*.hpp")
 set(EL_C_CPP_FILES "${EL_C_CPP_SOURCE};${EL_C_CPP_HEADERS};${EL_MOC_SRC}")
 
-set(LINK_LIBS ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
-
+# Form the list of libraries that need to be linked
+# -------------------------------------------------
+set(LINK_LIBS ${EXTERNAL_LIBS} ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
 if(EL_HAVE_QT5)
   set(LINK_LIBS ${LINK_LIBS} ${Qt5Widgets_LIBRARIES})
 endif()
 
-set(LINK_LIBS ${LINK_LIBS} ${EXTERNAL_LIBS})
-
+# Define the main library for Elemental
+# -------------------------------------
 add_library(El ${EL_C_CPP_FILES})
 add_dependencies(El External)
 target_link_libraries(El pmrrr ${LINK_LIBS})
@@ -360,6 +331,7 @@ endif()
 install(TARGETS El DESTINATION lib)
 
 # Define the header-file preparation rules
+# ----------------------------------------
 set(PREPARED_HEADERS)
 foreach(HEADER ${EL_C_CPP_HEADERS})
   add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/${HEADER}
@@ -373,32 +345,36 @@ foreach(HEADER ${EL_C_CPP_HEADERS})
 endforeach()
 add_custom_target(prepare_El_headers DEPENDS ${PREPARED_HEADERS})
 add_dependencies(El prepare_El_headers)
+# TODO: Ensure that source files depend on header files
 
+# Decide if/how to install the Python interface
+# ---------------------------------------------
 if(BUILD_SHARED_LIBS)
   if(INSTALL_PYTHON_PACKAGE)
     if(NOT PYTHON_SITE_PACKAGES)
-      execute_process(
-        COMMAND ${PYTHON_EXECUTABLE} -c
-	"from distutils.sysconfig import get_python_lib; print get_python_lib()"
-        OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE
-      )
-     set(PYTHON_SITE_PACKAGES ${PYTHON_SITE_PACKAGES} CACHE PATH "Destination for Python site package directory")
+      if(INSTALL_PYTHON_INTO_USER_SITE)
+        execute_process(COMMAND ${PYTHON_EXECUTABLE} -c
+          "import site; print site.USER_SITE"
+          OUTPUT_VARIABLE PYTHON_SITE_PACKAGES 
+          OUTPUT_STRIP_TRAILING_WHITESPACE)
+      else()
+        execute_process(COMMAND ${PYTHON_EXECUTABLE} -c
+          "from distutils.sysconfig import get_python_lib; print get_python_lib()"
+          OUTPUT_VARIABLE PYTHON_SITE_PACKAGES 
+          OUTPUT_STRIP_TRAILING_WHITESPACE)
+      endif()  
+      set(PYTHON_SITE_PACKAGES ${PYTHON_SITE_PACKAGES} 
+        CACHE PATH "Destination for Python site package directory")
     endif()
-    install(
-      DIRECTORY ${PROJECT_SOURCE_DIR}/include/
-      DESTINATION ${PYTHON_SITE_PACKAGES}
-      FILES_MATCHING PATTERN "*.py"
-    )
+    install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+      DESTINATION ${PYTHON_SITE_PACKAGES} 
+      FILES_MATCHING PATTERN "*.py")
   else()
-    install(
-      DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+    install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
       DESTINATION ${CMAKE_INSTALL_PREFIX}/include/
-      FILES_MATCHING PATTERN "*.py"
-    )
+      FILES_MATCHING PATTERN "*.py")
   endif()
 endif()
-
-# TODO: Ensure that source files depend on header files
 
 # Make sure the Elemental headers can be found
 include_directories("${PROJECT_BINARY_DIR}/include")
@@ -440,9 +416,10 @@ install(FILES ${PROJECT_SOURCE_DIR}/sandbox/test.cpp DESTINATION sandbox)
 add_executable(sandbox-test ${PROJECT_SOURCE_DIR}/sandbox/test.cpp)
 set_source_files_properties(${PROJECT_SOURCE_DIR}/sandbox/test.cpp PROPERTIES OBJECT_DEPENDS "${PREPARED_HEADERS}")
 target_link_libraries(sandbox-test El)
-set_target_properties(sandbox-test PROPERTIES
-	OUTPUT_NAME sandbox-test RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
-add_test(NAME sandbox/test WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/bin COMMAND sandbox-test)
+set_target_properties(sandbox-test PROPERTIES OUTPUT_NAME sandbox-test 
+  RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+add_test(NAME sandbox/test WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/bin 
+  COMMAND sandbox-test)
 
 # Build the test drivers if necessary
 if(EL_TESTS)
@@ -468,7 +445,8 @@ if(EL_TESTS)
       endif()
       install(TARGETS tests-${TYPE}-${TESTNAME} DESTINATION bin/tests/${TYPE})
       if(NOT TESTNAME STREQUAL "SparseLDLRange") #Skip tests that can time out
-        add_test(NAME Tests/${TYPE}/${TESTNAME} WORKING_DIRECTORY ${TEST_DIR} COMMAND tests-${TYPE}-${TESTNAME})
+        add_test(NAME Tests/${TYPE}/${TESTNAME} 
+          WORKING_DIRECTORY ${TEST_DIR} COMMAND tests-${TYPE}-${TESTNAME})
       endif()
     endforeach()
   endforeach()
@@ -504,7 +482,8 @@ if(EL_EXAMPLES)
       endif()
       install(TARGETS examples-${TYPE}-${EXNAME}
         DESTINATION bin/examples/${TYPE})
-      add_test(NAME Examples/${TYPE}/${EXNAME} WORKING_DIRECTORY ${OUTPUT_DIR} COMMAND examples-${TYPE}-${EXNAME})
+      add_test(NAME Examples/${TYPE}/${EXNAME} WORKING_DIRECTORY ${OUTPUT_DIR}
+        COMMAND examples-${TYPE}-${EXNAME})
     endforeach()
   endforeach()
 endif()

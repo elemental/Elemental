@@ -1,3 +1,5 @@
+include(language_support_v2)
+
 # NOTE: There is not a consistent ABI for Fortran's LOGICAL. Though it is
 #       standard for it to be represented in the same manner as INTEGER,
 #       the value for .true. is often +1 but sometimes -1, whereas .false.
