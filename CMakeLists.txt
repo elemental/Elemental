@@ -256,6 +256,8 @@ include(tests/CXX)
 include(tests/MPI)
 include(tests/OpenMP)
 
+# Import Qt5 if possible
+# ----------------------
 include(tests/Qt5)
 if(EL_HAVE_QT5)
   set(EL_HEADERS_PREMOC
@@ -270,12 +272,16 @@ if(EL_HAVE_QT5)
   get_filename_component(Qt5_LIBDIR ${Qt5_CMAKEDIR} PATH)
 endif()
 
+# Allow valgrind support if possible (if running valgrind, explicitly zero init)
+# ------------------------------------------------------------------------------
 include(FindValgrind)
 if(VALGRIND_FOUND)
   include_directories(${VALGRIND_INCLUDE_DIR})
   set(EL_HAVE_VALGRIND TRUE)
 endif()
 
+# Import several external math libraries (e.g., BLAS/LAPACK/METIS/ParMETIS)
+# -------------------------------------------------------------------------
 add_custom_target(External)
 include(tests/Math)
 if(NOT DISABLE_PARMETIS)
@@ -285,21 +291,17 @@ else()
 endif()
 
 # Now append the extra flags
+# --------------------------
 set(CXX_FLAGS "${CXX_FLAGS} ${EXTRA_FLAGS}")
 set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} ${CXX_FLAGS})
 
 # Add the Parallel Multiple Relatively Robust Representations (PMRRR) project
+# ---------------------------------------------------------------------------
 if(NOT EXISTS "${CMAKE_SOURCE_DIR}/external/pmrrr/CMakeLists.txt")
    message(FATAL_ERROR
       "${CMAKE_SOURCE_DIR}/external/pmrrr is not correctly set up. If you are building from source, make sure all git submodules in the source directory are checked out, e.g. with\ncd ${CMAKE_SOURCE_DIR} && git pull --recurse-submodules")
 endif()
 add_subdirectory(external/pmrrr)
-
-# Create the Elemental configuration header
-configure_file(${PROJECT_SOURCE_DIR}/cmake/config.h.cmake
-               ${PROJECT_BINARY_DIR}/include/El/config.h)
-install(FILES ${PROJECT_BINARY_DIR}/include/El/config.h
-        DESTINATION include/El)
 
 # Create a file which can be included in Makefile's.
 # This is meant to be analogous to PETSc's 'conf/petscvariables' file
@@ -334,6 +336,13 @@ if(MPI_LINK_FLAGS)
 endif()
 install(TARGETS El DESTINATION lib)
 
+# Create the Elemental C/C++ configuration header
+# -----------------------------------------------
+configure_file(${PROJECT_SOURCE_DIR}/cmake/config.h.in
+               ${PROJECT_BINARY_DIR}/include/El/config.h)
+install(FILES ${PROJECT_BINARY_DIR}/include/El/config.h
+        DESTINATION include/El)
+
 # Define the header-file preparation rules
 # ----------------------------------------
 set(PREPARED_HEADERS)
@@ -354,6 +363,33 @@ add_dependencies(El prepare_El_headers)
 # Decide if/how to install the Python interface
 # ---------------------------------------------
 if(BUILD_SHARED_LIBS)
+  # Create the environment file for Python which hardcodes the installation dir
+  # ---------------------------------------------------------------------------
+  configure_file(${PROJECT_SOURCE_DIR}/cmake/environment.py.in
+                 ${PROJECT_BINARY_DIR}/include/El/core/environment.py)
+  install(FILES ${PROJECT_BINARY_DIR}/include/El/core/environment.py
+          DESTINATION include/El/core)
+
+  # Grab the unprocessed python files
+  # ---------------------------------
+  file(GLOB_RECURSE EL_PYTHON_SOURCE 
+    RELATIVE ${PROJECT_SOURCE_DIR} "include/*.py")
+
+  set(PREPARED_PYTHON)
+  foreach(PY_SOURCE ${EL_PYTHON_SOURCE})
+    add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/${PY_SOURCE}
+      COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/${PY_SOURCE}
+              ${PROJECT_BINARY_DIR}/${PY_SOURCE}
+      DEPENDS "${PROJECT_SOURCE_DIR}/${PY_SOURCE}")
+    list(APPEND PREPARED_PYTHON ${PROJECT_BINARY_DIR}/${PY_SOURCE})
+
+    get_filename_component(PY_SOURCE_PATH ${PY_SOURCE} PATH)
+    install(FILES ${PROJECT_BINARY_DIR}/${PY_SOURCE} 
+      DESTINATION ${PY_SOURCE_PATH})
+  endforeach()
+  add_custom_target(prepare_El_python DEPENDS ${PREPARED_PYTHON})
+  add_dependencies(El prepare_El_python)
+
   if(INSTALL_PYTHON_PACKAGE)
     if(NOT PYTHON_SITE_PACKAGES)
       if(INSTALL_PYTHON_INTO_USER_SITE)
@@ -370,11 +406,11 @@ if(BUILD_SHARED_LIBS)
       set(PYTHON_SITE_PACKAGES ${PYTHON_SITE_PACKAGES} 
         CACHE PATH "Destination for Python site package directory")
     endif()
-    install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+    install(DIRECTORY ${PROJECT_BINARY_DIR}/include/
       DESTINATION ${PYTHON_SITE_PACKAGES} 
       FILES_MATCHING PATTERN "*.py")
   else()
-    install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+    install(DIRECTORY ${PROJECT_BINARY_DIR}/include/
       DESTINATION ${CMAKE_INSTALL_PREFIX}/include/
       FILES_MATCHING PATTERN "*.py")
   endif()

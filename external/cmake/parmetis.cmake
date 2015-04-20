@@ -36,6 +36,12 @@ else()
   set(PARMETIS_SOURCE_DIR ${PROJECT_BINARY_DIR}/download/parmetis/source)
   set(PARMETIS_BINARY_DIR ${PROJECT_BINARY_DIR}/download/parmetis/build)
 
+  if(BUILD_SHARED_LIBS)
+    set(shared 1)
+  else()
+    set(shared not-set)
+  endif()
+
   ExternalProject_Add(project_parmetis 
     PREFIX ${CMAKE_INSTALL_PREFIX}
     GIT_REPOSITORY ${PARMETIS_URL}

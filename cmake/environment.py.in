@@ -10,22 +10,7 @@ import sys, ctypes
 import numpy as np
 from ctypes import pythonapi
 
-# TODO: Greatly improve this search functionality.
-from ctypes.util import find_library
-libPath = find_library('El')
-if libPath == None:
-  try:
-    lib = ctypes.cdll.LoadLibrary("libEl.so")
-  except:
-    try:
-      lib = ctypes.cdll.LoadLibrary("El.dll")
-    except:
-      try:
-        lib = ctypes.cdll.LoadLibrary("libEl.dylib")
-      except:
-        raise Exception("Could not find Elemental library")
-else:
-  lib = ctypes.cdll.LoadLibrary(libPath)
+lib = ctypes.cdll.LoadLibrary("@CMAKE_INSTALL_PREFIX@/lib/@CMAKE_SHARED_LIBRARY_PREFIX@El@CMAKE_SHARED_LIBRARY_SUFFIX@")
 
 # Environment
 # ===========
