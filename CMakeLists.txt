@@ -76,10 +76,6 @@ option(EL_EXAMPLES "Build simple examples?" OFF)
 option(EL_TESTS "Build performance and correctness tests?" OFF)
 option(EL_EXPERIMENTAL "Build experimental code" OFF)
 
-# Whether or not to have the Memory class zero initialize what it allocates.
-# If valgrind was detected and is running, this will be forced anyway.
-option(EL_ZERO_INIT "Initialize buffers to zero by default?" OFF)
-
 # Attempt to use 64-bit integers?
 option(EL_USE_64BIT_INTS "Use 64-bit integers for El indexing" OFF)
 option(EL_USE_64BIT_BLAS_INTS "Use 64-bit integers for BLAS/LAPACK" OFF)
@@ -87,8 +83,8 @@ if(EL_USE_64BIT_BLAS_INTS)
     set(EL_USE_64BIT_INTS ON)
 endif()
 
-option(EL_USE_CUSTOM_ALLTOALLV "Avoid MPI_Alltoallv for performance reasons" ON)
-option(EL_BARRIER_IN_ALLTOALLV "Barrier before posting non-blocking recvs" OFF)
+option(AVOID_OPENBLAS "Avoid OpenBLAS and search for reference BLAS" OFF)
+option(PREFER_OPENBLAS "Prefer OpenBLAS to Apple's vecLib/Accelerate?" OFF)
 
 # By default, a search is performed for ParMETIS via find_package, and, if this
 # search fails, ParMETIS is downloaded from the official location:
@@ -117,6 +113,15 @@ option(BUILD_METIS "Build METIS" OFF)
 
 # Advanced options
 # ----------------
+
+# Whether or not to have the Memory class zero initialize what it allocates.
+# If valgrind was detected and is running, this will be forced anyway.
+option(EL_ZERO_INIT "Initialize buffers to zero by default?" OFF)
+mark_as_advanced(EL_ZERO_INIT)
+
+option(EL_USE_CUSTOM_ALLTOALLV "Avoid MPI_Alltoallv for performance reasons" ON)
+option(EL_BARRIER_IN_ALLTOALLV "Barrier before posting non-blocking recvs" OFF)
+mark_as_advanced(EL_USE_CUSTOM_ALLTOALLV EL_BARRIER_IN_ALLTOALLV)
 
 # Since it is surprisingly common for MPI libraries to have bugs in their
 # support for complex data, the following option forces Elemental to cast
@@ -271,9 +276,8 @@ if(VALGRIND_FOUND)
   set(EL_HAVE_VALGRIND TRUE)
 endif()
 
-include(tests/Math)
-
 add_custom_target(External)
+include(tests/Math)
 if(NOT DISABLE_PARMETIS)
   include(parmetis)
 else()

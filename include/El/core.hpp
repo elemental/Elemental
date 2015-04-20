@@ -82,17 +82,26 @@
 #define EL_CONCAT2(name1,name2) name1 ## name2
 #define EL_CONCAT(name1,name2) EL_CONCAT2(name1,name2)
 
-#if defined(EL_HAVE_BLAS_SUFFIX)
-# define EL_BLAS(name) EL_CONCAT(name,EL_BLAS_SUFFIX)
-#else
-# define EL_BLAS(name) name
-#endif
+#ifdef EL_BUILT_OPENBLAS
 
-#if defined(EL_HAVE_LAPACK_SUFFIX)
-# define EL_LAPACK(name) EL_CONCAT(name,EL_LAPACK_SUFFIX)
+# define EL_BLAS(name) BLASFUNC(name)
+# define EL_LAPACK(name) BLASFUNC(name)
+
 #else
-# define EL_LAPACK(name) name
-#endif
+
+# if defined(EL_HAVE_BLAS_SUFFIX)
+#  define EL_BLAS(name) EL_CONCAT(name,EL_BLAS_SUFFIX)
+# else
+#  define EL_BLAS(name) name
+# endif
+
+# if defined(EL_HAVE_LAPACK_SUFFIX)
+#  define EL_LAPACK(name) EL_CONCAT(name,EL_LAPACK_SUFFIX)
+# else
+#  define EL_LAPACK(name) name
+# endif
+
+#endif /* EL_BUILT_OPENBLAS */
 
 #if defined(EL_HAVE_SCALAPACK)
 # if defined(EL_HAVE_SCALAPACK_SUFFIX)
