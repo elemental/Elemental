@@ -23,6 +23,7 @@ using namespace RegularizationNS;
 
 // Basis pursuit: min || x ||_1 such that A x = b
 // ==============================================
+// TODO: Generalize to complex after SOCP support
 
 namespace bp {
 
@@ -38,41 +39,38 @@ struct ADMMCtrl {
   bool progress=true;
 };
 
-// TODO: Put this into BP as an optional backend
-// NOTE: This routine is still a prototype
-template<typename F>
-Int ADMM
-( const Matrix<F>& A, const Matrix<F>& b,
-  Matrix<F>& z,
-  const ADMMCtrl<Base<F>>& ctrl=ADMMCtrl<Base<F>>() );
-template<typename F>
-Int ADMM
-( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& b,
-        AbstractDistMatrix<F>& z,
-  const ADMMCtrl<Base<F>>& ctrl=ADMMCtrl<Base<F>>() );
-
 } // namespace bp
+
+template<typename Real>
+struct BPCtrl {
+  bool useIPM=true;
+  // NOTE: The ADMM implementation is still a prototype
+  bp::ADMMCtrl<Real> admmCtrl;
+  lp::direct::Ctrl<Real> ipmCtrl;
+
+  BPCtrl( bool sparse ) : useIPM(true), ipmCtrl(sparse) { }
+};
 
 template<typename Real>
 void BP
 ( const Matrix<Real>& A, const Matrix<Real>& b,
         Matrix<Real>& x,
-  const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(false) );
+  const BPCtrl<Real>& ctrl=BPCtrl<Real>(false) );
 template<typename Real>
 void BP
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
         AbstractDistMatrix<Real>& x,
-  const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(false) );
+  const BPCtrl<Real>& ctrl=BPCtrl<Real>(false) );
 template<typename Real>
 void BP
 ( const SparseMatrix<Real>& A, const Matrix<Real>& b,
         Matrix<Real>& x,
-  const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(true) );
+  const BPCtrl<Real>& ctrl=BPCtrl<Real>(true) );
 template<typename Real>
 void BP
 ( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b,
         DistMultiVec<Real>& x,
-  const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(true) );
+  const BPCtrl<Real>& ctrl=BPCtrl<Real>(true) );
 
 // Chebyshev point: min || A x - b||_oo
 // ====================================
@@ -99,6 +97,7 @@ void CP
 
 // Least Absolute Value: min || A x - b||_1
 // ========================================
+// TODO: Generalize to complex after SOCP support
 template<typename Real>
 void LAV
 ( const Matrix<Real>& A, const Matrix<Real>& b,
@@ -134,6 +133,7 @@ void LAV
 // Elemental currently defaults to (DS1) for dense matrices and (DS2) for
 // sparse matrices.
 //
+// TODO: Generalize to complex after SOCP support
 
 template<typename Real>
 void DS
@@ -239,7 +239,6 @@ void NNLS
 
 // Non-negative matrix factorization
 // =================================
-// TODO: Generalize to complex
 template<typename Real>
 void NMF
 ( const Matrix<Real>& A, 
@@ -256,6 +255,7 @@ void NMF
 // Least absolute selection and shrinkage operator (Lasso):
 //   min (1/2) || b - A x ||_2^2 + lambda || x ||_1
 // ================================================
+// TODO: Generalize to complex after SOCP support
 
 namespace bpdn {
 
@@ -308,6 +308,7 @@ void BPDN
 // Elastic net (EN): 
 //   min || b - A x ||_2^2 + lambda_1 || x ||_1 + lambda_2 || x ||_2^2
 // ===================================================================
+// TODO: Generalize to complex after SOCP support
 
 template<typename Real>
 void EN
@@ -453,6 +454,7 @@ void SVM
 //
 // where x is in R^n and y is in R^(n-1).
 //
+// TODO: Generalize to complex after SOCP support
 
 template<typename Real>
 void TV

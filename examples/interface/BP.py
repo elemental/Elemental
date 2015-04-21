@@ -29,23 +29,23 @@ def ConcatFD2D(N0,N1):
     x1 = s / N0
     sRel = s + N0*N1
 
-    A.QueueLocalUpdate( sLoc, s,     11 )
-    A.QueueLocalUpdate( sLoc, sRel, -20 )
+    A.QueueUpdate( s, s,     11 )
+    A.QueueUpdate( s, sRel, -20 )
     if x0 > 0:
-      A.QueueLocalUpdate( sLoc, s-1,    -1  )
-      A.QueueLocalUpdate( sLoc, sRel-1, -17 )
+      A.QueueUpdate( s, s-1,    -1  )
+      A.QueueUpdate( s, sRel-1, -17 )
     if x0+1 < N0:
-      A.QueueLocalUpdate( sLoc, s+1,     2  )
-      A.QueueLocalUpdate( sLoc, sRel+1, -20 )
+      A.QueueUpdate( s, s+1,     2  )
+      A.QueueUpdate( s, sRel+1, -20 )
     if x1 > 0:
-      A.QueueLocalUpdate( sLoc, s-N0,    -30 )
-      A.QueueLocalUpdate( sLoc, sRel-N0, -3  )
+      A.QueueUpdate( s, s-N0,    -30 )
+      A.QueueUpdate( s, sRel-N0, -3  )
     if x1+1 < N1:
-      A.QueueLocalUpdate( sLoc, s+N0,    4 )
-      A.QueueLocalUpdate( sLoc, sRel+N0, 3 )
+      A.QueueUpdate( s, s+N0,    4 )
+      A.QueueUpdate( s, sRel+N0, 3 )
 
     # The dense last column
-    A.QueueLocalUpdate( sLoc, width-1, -10/height );
+    A.QueueUpdate( s, width-1, -10/height );
 
   A.ProcessQueues()
   return A
@@ -57,8 +57,8 @@ if display:
   El.Display( A, "A" )
   El.Display( b, "b" )
 
-ctrl = El.LPDirectCtrl_d()
-ctrl.mehrotraCtrl.progress = True
+ctrl = El.BPCtrl_d(isSparse=True)
+ctrl.ipmCtrl.mehrotraCtrl.progress = True
 startBP = time.clock()
 x = El.BP( A, b, ctrl )
 endBP = time.clock()

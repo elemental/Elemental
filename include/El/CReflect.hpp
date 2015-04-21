@@ -2522,6 +2522,100 @@ inline qp::box::ADMMCtrl<double> CReflect( ElQPBoxADMMCtrl_d ctrlC )
 // Models
 // ^^^^^^
 
+// Basis Pursuit
+// """""""""""""
+inline ElBPADMMCtrl_s CReflect( const bp::ADMMCtrl<float>& ctrl )
+{
+    ElBPADMMCtrl_s ctrlC;
+    ctrlC.rho      = ctrl.rho;
+    ctrlC.alpha    = ctrl.alpha;
+    ctrlC.maxIter  = ctrl.maxIter;
+    ctrlC.absTol   = ctrl.absTol;
+    ctrlC.relTol   = ctrl.relTol;
+    ctrlC.usePinv  = ctrl.usePinv;
+    ctrlC.pinvTol  = ctrl.pinvTol;
+    ctrlC.progress = ctrl.progress;
+    return ctrlC;
+}
+
+inline ElBPADMMCtrl_d CReflect( const bp::ADMMCtrl<double>& ctrl )
+{
+    ElBPADMMCtrl_d ctrlC;
+    ctrlC.rho      = ctrl.rho;
+    ctrlC.alpha    = ctrl.alpha;
+    ctrlC.maxIter  = ctrl.maxIter;
+    ctrlC.absTol   = ctrl.absTol;
+    ctrlC.relTol   = ctrl.relTol;
+    ctrlC.usePinv  = ctrl.usePinv;
+    ctrlC.pinvTol  = ctrl.pinvTol;
+    ctrlC.progress = ctrl.progress;
+    return ctrlC;
+}
+
+inline bp::ADMMCtrl<float> CReflect( ElBPADMMCtrl_s ctrlC )
+{
+    bp::ADMMCtrl<float> ctrl;
+    ctrl.rho      = ctrlC.rho;
+    ctrl.alpha    = ctrlC.alpha;
+    ctrl.maxIter  = ctrlC.maxIter;
+    ctrl.absTol   = ctrlC.absTol;
+    ctrl.relTol   = ctrlC.relTol;
+    ctrl.usePinv  = ctrlC.usePinv;
+    ctrl.pinvTol  = ctrlC.pinvTol;
+    ctrl.progress = ctrlC.progress;
+    return ctrl;
+}
+
+inline bp::ADMMCtrl<double> CReflect( ElBPADMMCtrl_d ctrlC )
+{
+    bp::ADMMCtrl<double> ctrl;
+    ctrl.rho      = ctrlC.rho;
+    ctrl.alpha    = ctrlC.alpha;
+    ctrl.maxIter  = ctrlC.maxIter;
+    ctrl.absTol   = ctrlC.absTol;
+    ctrl.relTol   = ctrlC.relTol;
+    ctrl.usePinv  = ctrlC.usePinv;
+    ctrl.pinvTol  = ctrlC.pinvTol;
+    ctrl.progress = ctrlC.progress;
+    return ctrl;
+}
+
+inline ElBPCtrl_s CReflect( const BPCtrl<float>& ctrl )
+{
+    ElBPCtrl_s ctrlC;
+    ctrlC.useIPM   = ctrl.useIPM;
+    ctrlC.admmCtrl = CReflect(ctrl.admmCtrl);
+    ctrlC.ipmCtrl  = CReflect(ctrl.ipmCtrl);
+    return ctrlC;
+}
+
+inline ElBPCtrl_d CReflect( const BPCtrl<double>& ctrl )
+{
+    ElBPCtrl_d ctrlC;
+    ctrlC.useIPM   = ctrl.useIPM;
+    ctrlC.admmCtrl = CReflect(ctrl.admmCtrl);
+    ctrlC.ipmCtrl  = CReflect(ctrl.ipmCtrl);
+    return ctrlC;
+}
+
+inline BPCtrl<float> CReflect( ElBPCtrl_s ctrlC )
+{
+    BPCtrl<float> ctrl(false);
+    ctrl.useIPM   = ctrlC.useIPM;
+    ctrl.admmCtrl = CReflect(ctrlC.admmCtrl);
+    ctrl.ipmCtrl  = CReflect(ctrlC.ipmCtrl);
+    return ctrl;
+}
+
+inline BPCtrl<double> CReflect( ElBPCtrl_d ctrlC )
+{
+    BPCtrl<double> ctrl(false);
+    ctrl.useIPM   = ctrlC.useIPM;
+    ctrl.admmCtrl = CReflect(ctrlC.admmCtrl);
+    ctrl.ipmCtrl  = CReflect(ctrlC.ipmCtrl);
+    return ctrl;
+}
+
 // BPDN / LASSO
 // """"""""""""
 

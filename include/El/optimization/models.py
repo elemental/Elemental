@@ -13,7 +13,36 @@ from ctypes import CFUNCTYPE
 
 # Basis pursuit
 # =============
-# TODO: Switch to more general BP which can call bp::ADMM under the hood
+lib.ElBPADMMCtrlDefault_s.argtypes = \
+lib.ElBPADMMCtrlDefault_d.argtypes = \
+  [c_void_p]
+class BPADMMCtrl_s(ctypes.Structure):
+  _fields_ = [("rho",sType),("alpha",sType),("maxIter",iType),
+              ("absTol",sType),("relTol",sType),
+              ("usePinv",bType),("pinvTol",sType),("progress",bType)]
+  def __init__(self):
+    lib.ElBPADMMCtrlDefault_s(pointer(self))
+class BPADMMCtrl_d(ctypes.Structure):
+  _fields_ = [("rho",dType),("alpha",dType),("maxIter",iType),
+              ("absTol",dType),("relTol",dType),
+              ("usePinv",bType),("pinvTol",dType),("progress",bType)]
+  def __init__(self):
+    lib.ElBPADMMCtrlDefault_d(pointer(self))
+
+lib.ElBPCtrlDefault_s.argtypes = \
+lib.ElBPCtrlDefault_d.argtypes = \
+  [c_void_p,bType]
+class BPCtrl_s(ctypes.Structure):
+  _fields_ = [("useIPM",bType),
+              ("admmCtrl",BPADMMCtrl_s),("ipmCtrl",LPDirectCtrl_s)]
+  def __init__(self,isSparse):
+    lib.ElBPCtrlDefault_s(pointer(self),isSparse)
+class BPCtrl_d(ctypes.Structure):
+  _fields_ = [("useIPM",bType),
+              ("admmCtrl",BPADMMCtrl_d),("ipmCtrl",LPDirectCtrl_d)]
+  def __init__(self,isSparse):
+    lib.ElBPCtrlDefault_d(pointer(self),isSparse)
+
 lib.ElBP_s.argtypes = \
 lib.ElBP_d.argtypes = \
 lib.ElBPDist_s.argtypes = \
@@ -29,13 +58,13 @@ lib.ElBPXDist_s.argtypes = \
 lib.ElBPXSparse_s.argtypes = \
 lib.ElBPXDistSparse_s.argtypes = \
   [c_void_p,c_void_p,c_void_p,
-   LPDirectCtrl_s]
+   BPCtrl_s]
 lib.ElBPX_d.argtypes = \
 lib.ElBPXDist_d.argtypes = \
 lib.ElBPXSparse_d.argtypes = \
 lib.ElBPXDistSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,
-   LPDirectCtrl_d]
+   BPCtrl_d]
 
 def BP(A,b,ctrl=None):
   if A.tag != b.tag:

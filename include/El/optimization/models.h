@@ -38,33 +38,73 @@ EL_EXPORT ElError ElBPDistSparse_d
 
 /* Expert verions
    -------------- */
+typedef struct {
+  float rho;
+  float alpha;
+  ElInt maxIter;
+  float absTol;
+  float relTol;
+  bool usePinv;
+  float pinvTol;
+  bool progress;
+} ElBPADMMCtrl_s;
+
+typedef struct {
+  double rho;
+  double alpha;
+  ElInt maxIter;
+  double absTol;
+  double relTol;
+  bool usePinv;
+  double pinvTol;
+  bool progress;
+} ElBPADMMCtrl_d;
+
+EL_EXPORT ElError ElBPADMMCtrlDefault_s( ElBPADMMCtrl_s* ctrl );
+EL_EXPORT ElError ElBPADMMCtrlDefault_d( ElBPADMMCtrl_d* ctrl );
+
+typedef struct {
+  bool useIPM;
+  ElBPADMMCtrl_s admmCtrl;
+  ElLPDirectCtrl_s ipmCtrl;
+} ElBPCtrl_s;
+
+typedef struct {
+  bool useIPM;
+  ElBPADMMCtrl_d admmCtrl;
+  ElLPDirectCtrl_d ipmCtrl;
+} ElBPCtrl_d;
+
+EL_EXPORT ElError ElBPCtrlDefault_s( ElBPCtrl_s* ctrl, bool isSparse );
+EL_EXPORT ElError ElBPCtrlDefault_d( ElBPCtrl_d* ctrl, bool isSparse );
+
 EL_EXPORT ElError ElBPX_s
 ( ElConstMatrix_s A, ElConstMatrix_s b, ElMatrix_s x,
-  ElLPDirectCtrl_s ctrl );
+  ElBPCtrl_s ctrl );
 EL_EXPORT ElError ElBPX_d
 ( ElConstMatrix_d A, ElConstMatrix_d b, ElMatrix_d x,
-  ElLPDirectCtrl_d ctrl );
+  ElBPCtrl_d ctrl );
 
 EL_EXPORT ElError ElBPXDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_s b, ElDistMatrix_s x,
-  ElLPDirectCtrl_s ctrl );
+  ElBPCtrl_s ctrl );
 EL_EXPORT ElError ElBPXDist_d
 ( ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElDistMatrix_d x,
-  ElLPDirectCtrl_d ctrl );
+  ElBPCtrl_d ctrl );
 
 EL_EXPORT ElError ElBPXSparse_s
 ( ElConstSparseMatrix_s A, ElConstMatrix_s b, ElMatrix_s x,
-  ElLPDirectCtrl_s ctrl );
+  ElBPCtrl_s ctrl );
 EL_EXPORT ElError ElBPXSparse_d
 ( ElConstSparseMatrix_d A, ElConstMatrix_d b, ElMatrix_d x,
-  ElLPDirectCtrl_d ctrl );
+  ElBPCtrl_d ctrl );
 
 EL_EXPORT ElError ElBPXDistSparse_s
 ( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b, ElDistMultiVec_s x,
-  ElLPDirectCtrl_s ctrl );
+  ElBPCtrl_s ctrl );
 EL_EXPORT ElError ElBPXDistSparse_d
 ( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b, ElDistMultiVec_d x,
-  ElLPDirectCtrl_d ctrl );
+  ElBPCtrl_d ctrl );
 
 /* Chebyshev point
    =============== */

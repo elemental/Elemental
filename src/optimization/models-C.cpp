@@ -12,6 +12,50 @@ using namespace El;
 
 extern "C" {
 
+/* Basis Pursuit
+   ============= */
+ElError ElBPADMMCtrlDefault_s( ElBPADMMCtrl_s* ctrl )
+{
+    ctrl->rho = 1;
+    ctrl->alpha = 1.2;
+    ctrl->maxIter = 500;
+    ctrl->absTol = 1e-6;
+    ctrl->relTol = 1e-4;
+    ctrl->usePinv = false;
+    ctrl->pinvTol = 0;
+    ctrl->progress = true;
+    return EL_SUCCESS;
+}
+
+ElError ElBPADMMCtrlDefault_d( ElBPADMMCtrl_d* ctrl )
+{
+    ctrl->rho = 1;
+    ctrl->alpha = 1.2;
+    ctrl->maxIter = 500;
+    ctrl->absTol = 1e-6;
+    ctrl->relTol = 1e-4;
+    ctrl->usePinv = false;
+    ctrl->pinvTol = 0;
+    ctrl->progress = true;
+    return EL_SUCCESS;
+}
+
+ElError ElBPCtrlDefault_s( ElBPCtrl_s* ctrl, bool isSparse )
+{
+    ctrl->useIPM = true;
+    ElBPADMMCtrlDefault_s( &ctrl->admmCtrl );
+    ElLPDirectCtrlDefault_s( &ctrl->ipmCtrl, isSparse );
+    return EL_SUCCESS;
+}
+
+ElError ElBPCtrlDefault_d( ElBPCtrl_d* ctrl, bool isSparse )
+{
+    ctrl->useIPM = true;
+    ElBPADMMCtrlDefault_d( &ctrl->admmCtrl );
+    ElLPDirectCtrlDefault_d( &ctrl->ipmCtrl, isSparse );
+    return EL_SUCCESS;
+}
+
 /* Basis Pursuit Denoising / LASSO
    =============================== */
 ElError ElBPDNADMMCtrlDefault_s( ElBPDNADMMCtrl_s* ctrl )
@@ -127,20 +171,6 @@ ElError ElSparseInvCovCtrlDefault_d( ElSparseInvCovCtrl_d* ctrl )
 }
 
 #define C_PROTO_FIELD(SIG,SIGBASE,F) \
-  /* Basis pursuit
-     ============= */ \
-  /* ADMM
-     ---- */ \
-  ElError ElBPADMM_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
-    ElMatrix_ ## SIG z, ElInt* numIts ) \
-  { EL_TRY( *numIts = bp::ADMM \
-      ( *CReflect(A), *CReflect(b), *CReflect(z) ) ) } \
-  ElError ElBPADMMDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
-    ElDistMatrix_ ## SIG z, ElInt* numIts ) \
-  { EL_TRY( *numIts = bp::ADMM \
-      ( *CReflect(A), *CReflect(b), *CReflect(z) ) ) } \
   /* Robust Principal Component Analysis
      =================================== */ \
   ElError ElRPCA_ ## SIG \
@@ -210,22 +240,22 @@ ElError ElSparseInvCovCtrlDefault_d( ElSparseInvCovCtrl_d* ctrl )
      --------------- */ \
   ElError ElBPX_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
-    ElMatrix_ ## SIG x, ElLPDirectCtrl_ ## SIG ctrl ) \
+    ElMatrix_ ## SIG x, ElBPCtrl_ ## SIG ctrl ) \
   { EL_TRY( BP \
       ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
   ElError ElBPXDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
-    ElDistMatrix_ ## SIG x, ElLPDirectCtrl_ ## SIG ctrl ) \
+    ElDistMatrix_ ## SIG x, ElBPCtrl_ ## SIG ctrl ) \
   { EL_TRY( BP \
       ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
   ElError ElBPXSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
-    ElMatrix_ ## SIG x, ElLPDirectCtrl_ ## SIG ctrl ) \
+    ElMatrix_ ## SIG x, ElBPCtrl_ ## SIG ctrl ) \
   { EL_TRY( BP \
       ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
   ElError ElBPXDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
-    ElDistMultiVec_ ## SIG x, ElLPDirectCtrl_ ## SIG ctrl ) \
+    ElDistMultiVec_ ## SIG x, ElBPCtrl_ ## SIG ctrl ) \
   { EL_TRY( BP \
       ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
   /* Chebyshev point

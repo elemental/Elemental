@@ -9,14 +9,7 @@
 #include "El.hpp"
 using namespace El;
 
-// This driver is an adaptation of the solver described at
-//    http://www.stanford.edu/~boyd/papers/admm/basis_pursuit/basis_pursuit.html
-// which is derived from the distributed ADMM article of Boyd et al.
-//
-// Basis pursuit seeks the solution to A x = b which minimizes || x ||_1
-
 typedef double Real;
-typedef Complex<Real> C;
 
 int 
 main( int argc, char* argv[] )
@@ -27,6 +20,8 @@ main( int argc, char* argv[] )
     {
         const Int m = Input("--m","height of matrix",100);
         const Int n = Input("--n","width of matrix",200);
+        const bool useIPM = Input("--useIPM","use Interior Point?",true);
+        // TODO: Add options for controlling IPM
         const Int maxIter = Input("--maxIter","maximum # of iter's",500);
         const Real rho = Input("--rho","augmented Lagrangian param.",1.);
         const Real alpha = Input("--alpha","over-relaxation",1.2);
@@ -40,7 +35,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<C> A, b, xTrue;
+        DistMatrix<Real> A, b, xTrue;
         Uniform( A, m, n );
         Uniform( b, m, 1 );
         if( print )
@@ -51,18 +46,20 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "A" );
 
-        bp::ADMMCtrl<Real> ctrl;
-        ctrl.rho = rho;
-        ctrl.alpha = alpha;
-        ctrl.maxIter = maxIter;
-        ctrl.absTol = absTol;
-        ctrl.relTol = relTol;
-        ctrl.usePinv = usePinv;
-        ctrl.pinvTol = pinvTol;
-        ctrl.progress = progress;
+        const bool sparse = false;
+        BPCtrl<Real> ctrl(sparse);
+        ctrl.useIPM = useIPM;
+        ctrl.admmCtrl.rho = rho;
+        ctrl.admmCtrl.alpha = alpha;
+        ctrl.admmCtrl.maxIter = maxIter;
+        ctrl.admmCtrl.absTol = absTol;
+        ctrl.admmCtrl.relTol = relTol;
+        ctrl.admmCtrl.usePinv = usePinv;
+        ctrl.admmCtrl.pinvTol = pinvTol;
+        ctrl.admmCtrl.progress = progress;
 
-        DistMatrix<C> x;
-        bp::ADMM( A, b, x, ctrl );
+        DistMatrix<Real> x;
+        BP( A, b, x, ctrl );
         if( print )
             Print( x, "x" );
         const Int xZeroNorm = ZeroNorm( x );

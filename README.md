@@ -6,8 +6,9 @@
 sparse-direct linear algebra and optimization.
 The library was initially released in
 [Elemental: A new framework for distributed memory dense linear algebra](https://dl.acm.org/citation.cfm?doid=2427023.2427030)
-and has recently absorbed the functionality from the sparse-direct solver
-[Clique](http://www.github.com/poulson/Clique.git).
+and absorbed, then greatly expanded upon, the functionality from the 
+sparse-direct solver [Clique](http://www.github.com/poulson/Clique.git), which 
+was originally released during a project on [Parallel Sweeping Preconditioners](http://epubs.siam.org/doi/abs/10.1137/120871985).
 
 Please visit [the download page](http://libelemental.org/download/) for
 details about recent and upcoming releases.
@@ -56,12 +57,16 @@ including:
 
 ### License
 
-All of Elemental is distributed under the terms of the
+The vast majority of Elemental is distributed under the terms of the
 [New BSD License](http://www.opensource.org/licenses/bsd-license.php),
-with the exception of
-[METIS 5.1.0](http://glaros.dtc.umn.edu/gkhome/metis/metis/overview),
+with the exceptions of
+[METIS](http://glaros.dtc.umn.edu/gkhome/metis/metis/overview),
 which is distributed under the (equally permissive)
-[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html).
+[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html),
+[ParMETIS](http://glaros.dtc.umn.edu/gkhome/metis/parmetis/overview), which
+can only be used for research purposes (and can be easily disabled), and 
+[libquadmath](https://gcc.gnu.org/onlinedocs/libquadmath/), which is 
+distributed under the terms of the GPL (and can be similarly easily disabled).
 
 ### Related open-source projects
 

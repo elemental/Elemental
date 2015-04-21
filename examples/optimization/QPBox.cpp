@@ -20,8 +20,7 @@ using namespace El;
 
 typedef double Real;
 
-int 
-main( int argc, char* argv[] )
+int main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
 
