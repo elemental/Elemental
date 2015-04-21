@@ -99,10 +99,16 @@ which is distributed under the (equally permissive)
 * [LAPACK](http://netlib.org/lapack)
 * [libflame](http://www.cs.utexas.edu/~flame/web/libFLAME.html) (optional for faster bidiagonal SVDs)
 
+[OpenBLAS](http://openblas.net) is automatically downloaded and installed if 
+no vendor/tuned BLAS/LAPACK is detected.
+
 **Intranodal graph partitioning**
 
 * [METIS](http://glaros.dtc.umn.edu/gkhome/metis/metis/overview)
-* [ParMETIS](http://glaros.dtc.umn.edu/gkhome/metis/parmetis/overview) (**Note:** support is currently **not** enabled due to the restrictive license)
+* [ParMETIS](http://glaros.dtc.umn.edu/gkhome/metis/parmetis/overview) (**Note:** commercial users must disable this option during configuration)
+
+If ParMETIS is not disabled and cannot be found (including access to internal APIs), then it is automatically downloaded and installed;
+otherwise, if METIS support is not detected, METIS is downloaded and installed.
 
 **Internodal linear algebra**
 
@@ -112,6 +118,10 @@ which is distributed under the (equally permissive)
 **Internodal communication**
 
 * MPI2 (typically [MPICH](http://www.mpich.org/), [MVAPICH](http://mvapich.cse.ohio-state.edu/), or [OpenMPI](http://www.open-mpi.org/))
+
+**Auxiliary libraries**
+
+* [libquadmath](https://gcc.gnu.org/onlinedocs/libquadmath/) for quad-precision support (especially for iterative refinement). (**Note:** Users who prefer to use Elemental under the terms of the New BSD License rather than the GPL should disable support for libquadmath during configuration)
 
 **Python interface**
 
