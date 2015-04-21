@@ -359,4 +359,4 @@ void IPM
 }
 
 } // namespace bpdn
-} // namepace El
+} // namespace El

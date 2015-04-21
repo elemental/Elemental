@@ -422,6 +422,18 @@ def LogisticRegression(G,q,gamma,penalty=L1_PENALTY):
 
 # Model fit
 # =========
+lib.ElModelFitCtrlDefault_s.argtypes = \
+lib.ElModelFitCtrlDefault_d.argtypes = \
+  [c_void_p]
+class ModelFitCtrl_s(ctypes.Structure):
+  _fields_ = [("rho",sType),("maxIter",iType),("inv",bType),("progress",bType)]
+  def __init__(self):
+    lib.ElModelFitCtrlDefault_s(pointer(self)) 
+class ModelFitCtrl_d(ctypes.Structure):
+  _fields_ = [("rho",dType),("maxIter",iType),("inv",bType),("progress",bType)]
+  def __init__(self):
+    lib.ElModelFitCtrlDefault_d(pointer(self)) 
+
 lib.ElModelFit_s.argtypes = \
 lib.ElModelFitDist_s.argtypes = \
   [CFUNCTYPE(None,c_void_p,sType),CFUNCTYPE(None,c_void_p,sType),
@@ -431,7 +443,16 @@ lib.ElModelFitDist_d.argtypes = \
   [CFUNCTYPE(None,c_void_p,dType),CFUNCTYPE(None,c_void_p,dType),
    c_void_p,c_void_p,c_void_p,POINTER(iType)]
 
-def ModelFit(lossProx,regProx,A,b):
+lib.ElModelFitX_s.argtypes = \
+lib.ElModelFitXDist_s.argtypes = \
+  [CFUNCTYPE(None,c_void_p,sType),CFUNCTYPE(None,c_void_p,sType),
+   c_void_p,c_void_p,c_void_p,ModelFitCtrl_s,POINTER(iType)]
+lib.ElModelFitX_d.argtypes = \
+lib.ElModelFitXDist_d.argtypes = \
+  [CFUNCTYPE(None,c_void_p,dType),CFUNCTYPE(None,c_void_p,dType),
+   c_void_p,c_void_p,c_void_p,ModelFitCtrl_d,POINTER(iType)]
+
+def ModelFit(lossProx,regProx,A,b,ctrl=None):
   if type(A) is not type(b):
     raise Exception('Types of A and b must match')
   if A.tag != b.tag:
@@ -442,15 +463,25 @@ def ModelFit(lossProx,regProx,A,b):
   if type(A) is Matrix:
     w = Matrix(A.tag)
     args = [cLoss,cReg,A.obj,b.obj,w.obj,pointer(numIts)]
-    if   A.tag == sTag: lib.ElModelFit_s(*args)
-    elif A.tag == dTag: lib.ElModelFit_d(*args)
+    argsCtrl = [cLoss,cReg,A.obj,b.obj,w.obj,pointer(numIts),ctrl]
+    if   A.tag == sTag: 
+      if ctrl==None: lib.ElModelFit_s(*args)
+      else:          lib.ElModelFitX_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl==None: lib.ElModelFit_d(*args)
+      else:          lib.ElModelFitX_d(*argsCtrl)
     else: DataExcept()
     return w, numIts
   elif type(A) is DistMatrix:
     w = DistMatrix(A.tag,MC,MR,A.Grid())
     args = [cLoss,cReg,A.obj,b.obj,w.obj,pointer(numIts)]
-    if   A.tag == sTag: lib.ElModelFitDist_s(*args)
-    elif A.tag == dTag: lib.ElModelFitDist_d(*args)
+    argsCtrl = [cLoss,cReg,A.obj,b.obj,w.obj,pointer(numIts),ctrl]
+    if   A.tag == sTag: 
+      if ctrl==None: lib.ElModelFitDist_s(*args)
+      else:          lib.ElModelFitXDist_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl==None: lib.ElModelFitDist_d(*args)
+      else:          lib.ElModelFitXDist_d(*argsCtrl)
     else: DataExcept()
     return w, numIts
   else: TypeExcept()
@@ -958,6 +989,20 @@ def SparseInvCov(D,lambdaPre,ctrl=None):
 
 # Support Vector Machine
 # ======================
+lib.ElSVMCtrlDefault_s.argtypes = \
+lib.ElSVMCtrlDefault_d.argtypes = \
+  [c_void_p]
+class SVMCtrl_s(ctypes.Structure):
+  _fields_ = [("useIPM",bType),
+              ("modelFitCtrl",ModelFitCtrl_s),("ipmCtrl",QPAffineCtrl_s)]
+  def __init__(self):
+    lib.ElSVMCtrlDefault_s(pointer(self))
+class SVMCtrl_d(ctypes.Structure):
+  _fields_ = [("useIPM",bType),
+              ("modelFitCtrl",ModelFitCtrl_d),("ipmCtrl",QPAffineCtrl_d)]
+  def __init__(self):
+    lib.ElSVMCtrlDefault_d(pointer(self))
+
 lib.ElSVM_s.argtypes = \
 lib.ElSVMDist_s.argtypes = \
 lib.ElSVMSparse_s.argtypes = \
@@ -974,13 +1019,13 @@ lib.ElSVMXDist_s.argtypes = \
 lib.ElSVMXSparse_s.argtypes = \
 lib.ElSVMXDistSparse_s.argtypes = \
   [c_void_p,c_void_p,sType,c_void_p,
-   QPAffineCtrl_s]
+   SVMCtrl_s]
 lib.ElSVMX_d.argtypes = \
 lib.ElSVMXDist_d.argtypes = \
 lib.ElSVMXSparse_d.argtypes = \
 lib.ElSVMXDistSparse_d.argtypes = \
   [c_void_p,c_void_p,dType,c_void_p,
-   QPAffineCtrl_d]
+   SVMCtrl_d]
 
 def SVM(A,d,lambdPre,ctrl=None):
   if A.tag != d.tag:

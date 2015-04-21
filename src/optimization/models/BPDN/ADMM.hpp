@@ -293,4 +293,4 @@ Int ADMM
 }
 
 } // namespace bpdn
-} // namepace El
+} // namespace El

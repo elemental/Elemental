@@ -290,4 +290,4 @@ Int ADMM
 }
 
 } // namespace bp
-} // namepace El
+} // namespace El

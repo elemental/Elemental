@@ -11,7 +11,6 @@
 // NOTE: This is adapted from a MATLAB script written by AJ Friend.
 
 namespace El {
-
 namespace svm {
 
 template<typename Real>
@@ -94,20 +93,5 @@ Int ADMM
       A, b, w, ctrl );
 }
 
-#define PROTO(Real) \
-  template Int ADMM \
-  ( const Matrix<Real>& G, const Matrix<Real>& q, \
-          Real gamma,            Matrix<Real>& w, \
-    const ModelFitCtrl<Real>& ctrl ); \
-  template Int ADMM \
-  ( const AbstractDistMatrix<Real>& G, const AbstractDistMatrix<Real>& q, \
-          Real gamma,                        AbstractDistMatrix<Real>& w, \
-    const ModelFitCtrl<Real>& ctrl );
-
-#define EL_NO_INT_PROTO
-#define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
-
 } // namespace svm
-
-} // namepace elem
+} // namespace El

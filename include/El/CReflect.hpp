@@ -2860,6 +2860,86 @@ inline SparseInvCovCtrl<double> CReflect( const ElSparseInvCovCtrl_d ctrlC )
     return ctrl;
 }
 
+/* Model Fit
+   """"""""" */
+inline ElModelFitCtrl_s CReflect( const ModelFitCtrl<float>& ctrl )
+{
+    ElModelFitCtrl_s ctrlC;
+    ctrlC.rho      = ctrl.rho;
+    ctrlC.maxIter  = ctrl.maxIter;
+    ctrlC.inv      = ctrl.inv;
+    ctrlC.progress = ctrl.progress;
+    return ctrlC;
+}
+
+inline ElModelFitCtrl_d CReflect( const ModelFitCtrl<double>& ctrl )
+{
+    ElModelFitCtrl_d ctrlC;
+    ctrlC.rho      = ctrl.rho;
+    ctrlC.maxIter  = ctrl.maxIter;
+    ctrlC.inv      = ctrl.inv;
+    ctrlC.progress = ctrl.progress;
+    return ctrlC;
+}
+
+inline ModelFitCtrl<float> CReflect( const ElModelFitCtrl_s ctrlC )
+{
+    ModelFitCtrl<float> ctrl;
+    ctrl.rho      = ctrlC.rho;
+    ctrl.maxIter  = ctrlC.maxIter;
+    ctrl.inv      = ctrlC.inv;
+    ctrl.progress = ctrlC.progress;
+    return ctrl;
+}
+
+inline ModelFitCtrl<double> CReflect( const ElModelFitCtrl_d ctrlC )
+{
+    ModelFitCtrl<double> ctrl;
+    ctrl.rho      = ctrlC.rho;
+    ctrl.maxIter  = ctrlC.maxIter;
+    ctrl.inv      = ctrlC.inv;
+    ctrl.progress = ctrlC.progress;
+    return ctrl;
+}
+
+/* Support Vector Machine
+   """""""""""""""""""""" */
+inline ElSVMCtrl_s CReflect( const SVMCtrl<float>& ctrl )
+{
+    ElSVMCtrl_s ctrlC;
+    ctrlC.useIPM       = ctrl.useIPM;
+    ctrlC.modelFitCtrl = CReflect(ctrl.modelFitCtrl);
+    ctrlC.ipmCtrl      = CReflect(ctrl.ipmCtrl);
+    return ctrlC;
+}
+
+inline ElSVMCtrl_d CReflect( const SVMCtrl<double>& ctrl )
+{
+    ElSVMCtrl_d ctrlC;
+    ctrlC.useIPM       = ctrl.useIPM;
+    ctrlC.modelFitCtrl = CReflect(ctrl.modelFitCtrl);
+    ctrlC.ipmCtrl      = CReflect(ctrl.ipmCtrl);
+    return ctrlC;
+}
+
+inline SVMCtrl<float> CReflect( const ElSVMCtrl_s ctrlC )
+{
+    SVMCtrl<float> ctrl;
+    ctrl.useIPM       = ctrlC.useIPM;
+    ctrl.modelFitCtrl = CReflect(ctrlC.modelFitCtrl);
+    ctrl.ipmCtrl      = CReflect(ctrlC.ipmCtrl);
+    return ctrl;
+}
+
+inline SVMCtrl<double> CReflect( const ElSVMCtrl_d ctrlC )
+{
+    SVMCtrl<double> ctrl;
+    ctrl.useIPM       = ctrlC.useIPM;
+    ctrl.modelFitCtrl = CReflect(ctrlC.modelFitCtrl);
+    ctrl.ipmCtrl      = CReflect(ctrlC.ipmCtrl);
+    return ctrl;
+}
+
 } // namespace El
 
 #endif // ifndef EL_CREFLECT_C_HPP

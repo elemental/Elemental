@@ -401,22 +401,13 @@ Int SparseInvCov
 // The output, x, is set to the concatenation of w and beta, x := [w; beta].
 //
 
-namespace svm {
-
-// TODO: Put this into SVM as an optional backend
-// NOTE: This routine is still a prototype
 template<typename Real>
-Int ADMM
-( const Matrix<Real>& A, const Matrix<Real>& d, 
-        Real lambda,           Matrix<Real>& x,
-  const ModelFitCtrl<Real>& ctrl=ModelFitCtrl<Real>() );
-template<typename Real>
-Int ADMM
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& d, 
-        Real lambda,                       AbstractDistMatrix<Real>& x,
-  const ModelFitCtrl<Real>& ctrl=ModelFitCtrl<Real>() );
-
-} // namespace svm
+struct SVMCtrl 
+{
+    bool useIPM=true;
+    ModelFitCtrl<Real> modelFitCtrl;
+    qp::affine::Ctrl<Real> ipmCtrl; 
+};
 
 // TODO: Switch to explicitly returning w, beta, and z, as it is difficult
 //       for users to unpack a DistMultiVec
@@ -424,22 +415,22 @@ template<typename Real>
 void SVM
 ( const Matrix<Real>& A, const Matrix<Real>& d, 
         Real lambda,           Matrix<Real>& x,
-  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
+  const SVMCtrl<Real>& ctrl=SVMCtrl<Real>() );
 template<typename Real>
 void SVM
 ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& d, 
         Real lambda,                       AbstractDistMatrix<Real>& x,
-  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
+  const SVMCtrl<Real>& ctrl=SVMCtrl<Real>() );
 template<typename Real>
 void SVM
 ( const SparseMatrix<Real>& A, const Matrix<Real>& d, 
         Real lambda,                 Matrix<Real>& x,
-  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
+  const SVMCtrl<Real>& ctrl=SVMCtrl<Real>() );
 template<typename Real>
 void SVM
 ( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& d, 
         Real lambda,                     DistMultiVec<Real>& x,
-  const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
+  const SVMCtrl<Real>& ctrl=SVMCtrl<Real>() );
 
 // 1D total variation denoising (TV):
 //

@@ -209,4 +209,4 @@ Int ModelFit
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
-} // namepace elem
+} // namespace El

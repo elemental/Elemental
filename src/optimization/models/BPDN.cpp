@@ -88,4 +88,4 @@ void BPDN
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
-} // namepace El
+} // namespace El

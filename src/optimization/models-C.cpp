@@ -170,6 +170,44 @@ ElError ElSparseInvCovCtrlDefault_d( ElSparseInvCovCtrl_d* ctrl )
     return EL_SUCCESS;
 }
 
+/* ModelFit
+   ======== */
+ElError ElModelFitCtrlDefault_s( ElModelFitCtrl_s* ctrl )
+{
+    ctrl->rho = 1;
+    ctrl->maxIter = 500;
+    ctrl->inv = true;
+    ctrl->progress = true;
+    return EL_SUCCESS;
+}
+
+ElError ElModelFitCtrlDefault_d( ElModelFitCtrl_d* ctrl )
+{
+    ctrl->rho = 1;
+    ctrl->maxIter = 500;
+    ctrl->inv = true;
+    ctrl->progress = true;
+    return EL_SUCCESS;
+}
+
+/* Support Vector Machine
+   ====================== */
+ElError ElSVMCtrlDefault_s( ElSVMCtrl_s* ctrl )
+{
+    ctrl->useIPM = true;
+    ElModelFitCtrlDefault_s( &ctrl->modelFitCtrl );
+    ElQPAffineCtrlDefault_s( &ctrl->ipmCtrl );
+    return EL_SUCCESS;
+}
+
+ElError ElSVMCtrlDefault_d( ElSVMCtrl_d* ctrl )
+{
+    ctrl->useIPM = true;
+    ElModelFitCtrlDefault_d( &ctrl->modelFitCtrl );
+    ElQPAffineCtrlDefault_d( &ctrl->ipmCtrl );
+    return EL_SUCCESS;
+}
+
 #define C_PROTO_FIELD(SIG,SIGBASE,F) \
   /* Robust Principal Component Analysis
      =================================== */ \
@@ -492,22 +530,22 @@ ElError ElSparseInvCovCtrlDefault_d( ElSparseInvCovCtrl_d* ctrl )
      --------------- */ \
   ElError ElSVMX_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG d, \
-    Real lambda, ElMatrix_ ## SIG x, ElQPAffineCtrl_ ## SIG ctrl ) \
+    Real lambda, ElMatrix_ ## SIG x, ElSVMCtrl_ ## SIG ctrl ) \
   { EL_TRY( SVM \
       ( *CReflect(A), *CReflect(d), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
   ElError ElSVMXDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG d, \
-    Real lambda, ElDistMatrix_ ## SIG x, ElQPAffineCtrl_ ## SIG ctrl ) \
+    Real lambda, ElDistMatrix_ ## SIG x, ElSVMCtrl_ ## SIG ctrl ) \
   { EL_TRY( SVM \
       ( *CReflect(A), *CReflect(d), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
   ElError ElSVMXSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG d, \
-    Real lambda, ElMatrix_ ## SIG x, ElQPAffineCtrl_ ## SIG ctrl ) \
+    Real lambda, ElMatrix_ ## SIG x, ElSVMCtrl_ ## SIG ctrl ) \
   { EL_TRY( SVM \
       ( *CReflect(A), *CReflect(d), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
   ElError ElSVMXDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG d, \
-    Real lambda, ElDistMultiVec_ ## SIG x, ElQPAffineCtrl_ ## SIG ctrl ) \
+    Real lambda, ElDistMultiVec_ ## SIG x, ElSVMCtrl_ ## SIG ctrl ) \
   { EL_TRY( SVM \
       ( *CReflect(A), *CReflect(d), lambda, *CReflect(x), CReflect(ctrl) ) ) } \
   /* Total variation denoising 
@@ -584,6 +622,38 @@ ElError ElSparseInvCovCtrlDefault_d( ElSparseInvCovCtrl_d* ctrl )
           function<void(DistMatrix<Real>&,Real)>(regLambda), \
           *CReflect(A), *CReflect(b), *CReflect(w) ); \
     } EL_CATCH; return EL_SUCCESS; } \
+  /* Expert versions
+     --------------- */ \
+  ElError ElModelFitX_ ## SIG \
+  ( void (*lossProx)(ElMatrix_ ## SIG,Real), \
+    void (*regProx)(ElMatrix_ ## SIG,Real), \
+    ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    ElMatrix_ ## SIG w, ElModelFitCtrl_ ## SIG ctrl, ElInt* numIts ) \
+  { try { \
+      auto lossLambda = \
+        [&]( Matrix<Real>& B, Real tau ) { lossProx(CReflect(&B),tau); }; \
+      auto regLambda = \
+        [&]( Matrix<Real>& B, Real tau ) { regProx(CReflect(&B),tau); }; \
+      *numIts = ModelFit \
+        ( function<void(Matrix<Real>&,Real)>(lossLambda), \
+          function<void(Matrix<Real>&,Real)>(regLambda), \
+          *CReflect(A), *CReflect(b), *CReflect(w), CReflect(ctrl) ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  ElError ElModelFitXDist_ ## SIG \
+  ( void (*lossProx)(ElDistMatrix_ ## SIG,Real), \
+    void (*regProx)(ElDistMatrix_ ## SIG,Real), \
+    ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
+    ElDistMatrix_ ## SIG w, ElModelFitCtrl_ ## SIG ctrl, ElInt* numIts ) \
+  { try { \
+      auto lossLambda = \
+        [&]( DistMatrix<Real>& B, Real tau ) { lossProx(CReflect(&B),tau); }; \
+      auto regLambda = \
+        [&]( DistMatrix<Real>& B, Real tau ) { regProx(CReflect(&B),tau); }; \
+      *numIts = ModelFit \
+        ( function<void(DistMatrix<Real>&,Real)>(lossLambda), \
+          function<void(DistMatrix<Real>&,Real)>(regLambda), \
+          *CReflect(A), *CReflect(b), *CReflect(w), CReflect(ctrl) ); \
+    } EL_CATCH; return EL_SUCCESS; } \
   /* Non-negative matrix factorization
      ================================= */ \
   ElError ElNMF_ ## SIG \
@@ -646,22 +716,7 @@ ElError ElSparseInvCovCtrlDefault_d( ElSparseInvCovCtrl_d* ctrl )
   ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG B, \
     ElDistMultiVec_ ## SIG X, ElNNLSCtrl_ ## SIG ctrl ) \
   { EL_TRY( NNLS( *CReflect(A), *CReflect(B), *CReflect(X), \
-      CReflect(ctrl) ) ) } \
-  /* Support Vector Machine
-     ====================== */ \
-  /* TODO */ \
-  /* ADMM
-     ---- */ \
-  ElError ElSVMADMM_ ## SIG \
-  ( ElConstMatrix_ ## SIG G, ElConstMatrix_ ## SIG q, \
-    Real gamma, ElMatrix_ ## SIG z, ElInt* numIts ) \
-  { EL_TRY( *numIts = \
-      svm::ADMM( *CReflect(G), *CReflect(q), gamma, *CReflect(z) ) ) } \
-  ElError ElSVMADMMDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG G, ElConstDistMatrix_ ## SIG q, \
-    Real gamma, ElDistMatrix_ ## SIG z, ElInt* numIts ) \
-  { EL_TRY( *numIts = \
-      svm::ADMM( *CReflect(G), *CReflect(q), gamma, *CReflect(z) ) ) }
+      CReflect(ctrl) ) ) }
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
   C_PROTO_FIELD(SIG,SIGBASE,F) \

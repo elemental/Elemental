@@ -226,4 +226,4 @@ void IPM
 }
 
 } // namespace bp
-} // namepace elem
+} // namespace El

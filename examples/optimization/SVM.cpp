@@ -20,6 +20,7 @@ main( int argc, char* argv[] )
     {
         const Int m = Input("--numExamples","number of examples",200);
         const Int n = Input("--numFeatures","number of features",100);
+        const bool useIPM = Input("--useIPM","use Interior Point?",true);
         const Int maxIter = Input("--maxIter","maximum # of iter's",500);
         const Real gamma = Input("--gamma","two-norm coefficient",1.);
         const Real rho = Input("--rho","augmented Lagrangian param.",1.);
@@ -70,14 +71,15 @@ main( int argc, char* argv[] )
         if( display )
             Display( G, "G" );
 
-        ModelFitCtrl<Real> ctrl;
-        ctrl.rho = rho;
-        ctrl.maxIter = maxIter;
-        ctrl.inv = inv;
-        ctrl.progress = progress;
+        SVMCtrl<Real> ctrl;
+        ctrl.useIPM = useIPM;
+        ctrl.modelFitCtrl.rho = rho;
+        ctrl.modelFitCtrl.maxIter = maxIter;
+        ctrl.modelFitCtrl.inv = inv;
+        ctrl.modelFitCtrl.progress = progress;
 
         DistMatrix<Real> wHatSVM;
-        svm::ADMM( G, q, gamma, wHatSVM, ctrl );
+        SVM( G, q, gamma, wHatSVM, ctrl );
         auto wSVM = View( wHatSVM, 0, 0, n, 1 );
         const Real offsetSVM = -wHatSVM.Get(n,0);
         const Real wSVMNorm = FrobeniusNorm( wSVM );

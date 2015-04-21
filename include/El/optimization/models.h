@@ -316,7 +316,48 @@ EL_EXPORT ElError ElModelFitDist_d
   ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElDistMatrix_d w, 
   ElInt* numIts );
 
-/* TODO: Expert versions */
+/* Expert versions
+   --------------- */
+typedef struct
+{
+  float rho;
+  ElInt maxIter;
+  bool inv;
+  bool progress;
+} ElModelFitCtrl_s;
+
+typedef struct
+{
+  double rho;
+  ElInt maxIter;
+  bool inv;
+  bool progress;
+} ElModelFitCtrl_d;
+
+EL_EXPORT ElError ElModelFitCtrlDefault_s( ElModelFitCtrl_s* ctrl );
+EL_EXPORT ElError ElModelFitCtrlDefault_d( ElModelFitCtrl_d* ctrl );
+
+EL_EXPORT ElError ElModelFitX_s
+( void (*lossProx)(ElMatrix_s,float), 
+  void (*regProx)(ElMatrix_s,float),
+  ElConstMatrix_s A, ElConstMatrix_s b, ElMatrix_s w,
+  ElModelFitCtrl_s ctrl, ElInt* numIts );
+EL_EXPORT ElError ElModelFitX_d
+( void (*lossProx)(ElMatrix_d,double), 
+  void (*regProx)(ElMatrix_d,double),
+  ElConstMatrix_d A, ElConstMatrix_d b, ElMatrix_d w,
+  ElModelFitCtrl_d ctrl, ElInt* numIts );
+
+EL_EXPORT ElError ElModelFitXDist_s
+( void (*lossProx)(ElDistMatrix_s,float), 
+  void (*regProx)(ElDistMatrix_s,float),
+  ElConstDistMatrix_s A, ElConstDistMatrix_s b, ElDistMatrix_s w,
+  ElModelFitCtrl_s ctrl, ElInt* numIts );
+EL_EXPORT ElError ElModelFitXDist_d
+( void (*lossProx)(ElDistMatrix_d,double), 
+  void (*regProx)(ElDistMatrix_d,double),
+  ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElDistMatrix_d w, 
+  ElModelFitCtrl_d ctrl, ElInt* numIts );
 
 /* Non-negative least squares
    ========================== */
@@ -753,33 +794,50 @@ EL_EXPORT ElError ElSVMDistSparse_d
 
 /* Expert verions
    -------------- */
+typedef struct
+{
+  bool useIPM;
+  ElModelFitCtrl_s modelFitCtrl;
+  ElQPAffineCtrl_s ipmCtrl;
+} ElSVMCtrl_s;
+
+typedef struct
+{
+  bool useIPM;
+  ElModelFitCtrl_d modelFitCtrl;
+  ElQPAffineCtrl_d ipmCtrl;
+} ElSVMCtrl_d;
+
+EL_EXPORT ElError ElSVMCtrlDefault_s( ElSVMCtrl_s* ctrl );
+EL_EXPORT ElError ElSVMCtrlDefault_d( ElSVMCtrl_d* ctrl );
+
 EL_EXPORT ElError ElSVMX_s
 ( ElConstMatrix_s A, ElConstMatrix_s d, float lambda,
-  ElMatrix_s x, ElQPAffineCtrl_s ctrl );
+  ElMatrix_s x, ElSVMCtrl_s ctrl );
 EL_EXPORT ElError ElSVMX_d
 ( ElConstMatrix_d A, ElConstMatrix_d d, double lambda,
-  ElMatrix_d x, ElQPAffineCtrl_d ctrl );
+  ElMatrix_d x, ElSVMCtrl_d ctrl );
 
 EL_EXPORT ElError ElSVMXDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_s d, float lambda,
-  ElDistMatrix_s x, ElQPAffineCtrl_s ctrl );
+  ElDistMatrix_s x, ElSVMCtrl_s ctrl );
 EL_EXPORT ElError ElSVMXDist_d
 ( ElConstDistMatrix_d A, ElConstDistMatrix_d d, double lambda,
-  ElDistMatrix_d x, ElQPAffineCtrl_d ctrl );
+  ElDistMatrix_d x, ElSVMCtrl_d ctrl );
 
 EL_EXPORT ElError ElSVMXSparse_s
 ( ElConstSparseMatrix_s A, ElConstMatrix_s d, float lambda,
-  ElMatrix_s x, ElQPAffineCtrl_s ctrl );
+  ElMatrix_s x, ElSVMCtrl_s ctrl );
 EL_EXPORT ElError ElSVMXSparse_d
 ( ElConstSparseMatrix_d A, ElConstMatrix_d d, double lambda,
-  ElMatrix_d x, ElQPAffineCtrl_d ctrl );
+  ElMatrix_d x, ElSVMCtrl_d ctrl );
 
 EL_EXPORT ElError ElSVMXDistSparse_s
 ( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s d, float lambda,
-  ElDistMultiVec_s x, ElQPAffineCtrl_s ctrl );
+  ElDistMultiVec_s x, ElSVMCtrl_s ctrl );
 EL_EXPORT ElError ElSVMXDistSparse_d
 ( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d d, double lambda,
-  ElDistMultiVec_d x, ElQPAffineCtrl_d ctrl );
+  ElDistMultiVec_d x, ElSVMCtrl_d ctrl );
 
 /* ADMM
    ---- */
