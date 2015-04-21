@@ -5,18 +5,19 @@ include(CheckCXXSourceCompiles)
 # ========================================================================
 # NOTE: The variables BLAS_ROOT, LAPACK_ROOT, MATH_ROOT, BLAS_PATH, LAPACK_PATH,
 #       and MATH_PATH are all optional and to ease the process
-set(MATH_PATHS /usr/lib 
+set(MATH_PATHS /usr/lib
                /usr/lib64
                /usr/local/lib
                /usr/local/lib64
-               /usr/lib/openmpi/lib 
-               /usr/lib/gcc/x86_64-linux-gnu/4.8 
-               /lib/x86_64-linux-gnu 
-               /usr/lib/x86_64-linux-gnu 
+               /usr/lib/openmpi/lib
+               /usr/lib/gcc/x86_64-linux-gnu/4.8
+               /usr/lib/gcc/x86_64-linux-gnu/4.9
+               /lib/x86_64-linux-gnu
+               /usr/lib/x86_64-linux-gnu
                /usr/lib/openblas-base
-               /use/lib64/openblas-base
-               ${BLAS_ROOT}/lib 
-               ${BLAS_ROOT}/lib64 
+               /usr/lib64/openblas-base
+               ${BLAS_ROOT}/lib
+               ${BLAS_ROOT}/lib64
                ${LAPACK_ROOT}/lib
                ${LAPACK_ROOT}/lib64
                ${MATH_ROOT}/lib
@@ -222,6 +223,7 @@ if(NOT EL_DISABLE_QUAD)
     check_cxx_source_compiles("${QUADMATH_CODE}" EL_HAVE_QUADMATH)
     if(EL_HAVE_QUADMATH)
       set(EL_HAVE_QUAD TRUE)
+      list(APPEND MATH_LIBS ${QUADMATH_LIB})
       message(WARNING "The usage of libquadmath effectively moves the Elemental build from the permissive New BSD License to the GPL; if this is not acceptable, it is necessary to reconfigure with the 'EL_DISABLE_QUAD=ON' option")
     else()
       message(WARNING "Found libquadmath but could not use it in C++")
