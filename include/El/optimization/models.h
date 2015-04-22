@@ -839,28 +839,6 @@ EL_EXPORT ElError ElSVMXDistSparse_d
 ( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d d, double lambda,
   ElDistMultiVec_d x, ElSVMCtrl_d ctrl );
 
-/* ADMM
-   ---- */
-EL_EXPORT ElError ElSVMADMM_s
-( ElConstMatrix_s G, ElConstMatrix_s q, 
-  float gamma,       ElMatrix_s z, 
-  ElInt* numIts );
-EL_EXPORT ElError ElSVMADMM_d
-( ElConstMatrix_d G, ElConstMatrix_d q, 
-  double gamma,      ElMatrix_d z, 
-  ElInt* numIts );
-
-EL_EXPORT ElError ElSVMADMMDist_s
-( ElConstDistMatrix_s G, ElConstDistMatrix_s q, 
-  float gamma,           ElDistMatrix_s z, 
-  ElInt* numIts );
-EL_EXPORT ElError ElSVMADMMDist_d
-( ElConstDistMatrix_d G, ElConstDistMatrix_d q, 
-  double gamma,          ElDistMatrix_d z,
-  ElInt* numIts );
-
-/* TODO: Expert versions */
-
 /* Total variation denoising
    ========================= */
 EL_EXPORT ElError ElTV_s

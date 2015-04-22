@@ -1089,37 +1089,6 @@ def SVM(A,d,lambdPre,ctrl=None):
     return x
   else: TypeExcept()
 
-# ADMM
-# ----
-lib.ElSVMADMM_s.argtypes = \
-lib.ElSVMADMMDist_s.argtypes = \
-  [c_void_p,c_void_p,sType,c_void_p,POINTER(iType)]
-lib.ElSVMADMM_d.argtypes = \
-lib.ElSVMADMMDist_d.argtypes = \
-  [c_void_p,c_void_p,dType,c_void_p,POINTER(iType)]
-
-def SVMADMM(G,q,gamma):
-  if type(G) is not type(q):
-    raise Exception('Types of G and q must match')
-  if G.tag != q.tag:
-    raise Exception('Datatypes of G and q must match')
-  numIts = iType()
-  if type(G) is Matrix:
-    z = Matrix(G.tag)
-    args = [G.obj,q.obj,gamma,z.obj,pointer(numIts)]
-    if   G.tag == sTag: lib.ElSVMADMM_s(*args)
-    elif G.tag == dTag: lib.ElSVMADMM_d(*args)
-    else: DataExcept()
-    return z, numIts
-  elif type(G) is DistMatrix:
-    z = DistMatrix(G.tag,MC,MR,G.Grid())
-    args = [G.obj,q.obj,gamma,z.obj,pointer(numIts)]
-    if   G.tag == sTag: lib.ElSVMADMMDist_s(*args)
-    elif G.tag == dTag: lib.ElSVMADMMDist_d(*args)
-    else: DataExcept()
-    return z, numIts
-  else: TypeExcept()
-
 # Total variation denoising
 # =========================
 lib.ElTV_s.argtypes = \
