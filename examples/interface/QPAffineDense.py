@@ -92,8 +92,8 @@ s = El.DistMatrix()
 
 if testMehrotra:
   ctrl.approach = El.QP_MEHROTRA
-  ctrl.mehrotraCtrl.primalInitialized = manualInit
-  ctrl.mehrotraCtrl.dualInitialized = manualInit
+  ctrl.mehrotraCtrl.primalInit = manualInit
+  ctrl.mehrotraCtrl.dualInit = manualInit
   ctrl.mehrotraCtrl.progress = progress
   El.Copy( xOrig, x )
   El.Copy( yOrig, y )
@@ -120,8 +120,8 @@ if testMehrotra:
 
 if testIPF:
   ctrl.approach = El.QP_IPF
-  ctrl.ipfCtrl.primalInitialized = manualInit
-  ctrl.ipfCtrl.dualInitialized = manualInit
+  ctrl.ipfCtrl.primalInit = manualInit
+  ctrl.ipfCtrl.dualInit = manualInit
   ctrl.ipfCtrl.progress = progress
   ctrl.ipfCtrl.lineSearchCtrl.progress = progress
   El.Copy( xOrig, x )
