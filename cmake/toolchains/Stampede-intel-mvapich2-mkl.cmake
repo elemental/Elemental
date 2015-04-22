@@ -31,4 +31,4 @@ endif()
 
 set(OpenMP_CXX_FLAGS "-openmp")
 
-set(MATH_LIBS "-L/opt/apps/intel/13/composer_xe_2013_sp1.1.106/mkl/lib/intel64 -L/opt/apps/intel/13/composer_xe_2013_sp1.1.106/compiler/lib/intel64 -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64 -lmkl_rt")
+set(MATH_LIBS "-L/opt/apps/intel/13/composer_xe_2013_sp1.1.106/mkl/lib/intel64 -L/opt/apps/intel/13/composer_xe_2013_sp1.1.106/compiler/lib/intel64 -lmkl_rt")
