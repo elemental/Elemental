@@ -458,6 +458,9 @@ set_source_files_properties(${PROJECT_SOURCE_DIR}/sandbox/test.cpp PROPERTIES OB
 target_link_libraries(sandbox-test El)
 set_target_properties(sandbox-test PROPERTIES OUTPUT_NAME sandbox-test 
   RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+if(MPI_LINK_FLAGS)
+  set_target_properties(sandbox-test PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
+endif()
 add_test(NAME sandbox/test WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/bin 
   COMMAND sandbox-test)
 
