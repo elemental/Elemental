@@ -572,7 +572,7 @@ Int Bisect
         real_t imbalance = 1.1;
         ElParallelBisect
         ( vtxDist.data(), xAdj.data(), adjacency.data(), &nparseps, &nseqseps, 
-          &imbalance, NULL, perm.Buffer(), sizes.data(), &comm.comm );
+          &imbalance, NULL, perm_idx_t.data(), sizes.data(), &comm.comm );
 
         // Since idx_t might be different than Int
         std::copy( perm_idx_t.begin(), perm_idx_t.end(), perm.Buffer() );
