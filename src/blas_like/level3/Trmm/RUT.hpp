@@ -25,21 +25,20 @@ LocalAccumulateRUT
         DistMatrix<T,MC,STAR>& ZTrans )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::LocalAccumulateRUT");
-        AssertSameGrids( U, XTrans, ZTrans );
-        if( U.Height() != U.Width() ||
-            U.Height() != XTrans.Height() ||
-            U.Height() != ZTrans.Height() ||
-            XTrans.Width() != ZTrans.Width() )
-            LogicError
-            ("Nonconformal: \n",DimsString(U,"U"),"\n",
-             DimsString(XTrans,"X'"),"\n",DimsString(ZTrans,"Z'"));
-        if( XTrans.ColAlign() != U.RowAlign() ||
-            ZTrans.ColAlign() != U.ColAlign() )
-            LogicError("Partial matrix distributions are misaligned");
+      CallStackEntry cse("trmm::LocalAccumulateRUT");
+      AssertSameGrids( U, XTrans, ZTrans );
+      if( U.Height() != U.Width() ||
+          U.Height() != XTrans.Height() ||
+          U.Height() != ZTrans.Height() ||
+          XTrans.Width() != ZTrans.Width() )
+          LogicError
+          ("Nonconformal: \n",DimsString(U,"U"),"\n",
+           DimsString(XTrans,"X'"),"\n",DimsString(ZTrans,"Z'"));
+      if( XTrans.ColAlign() != U.RowAlign() ||
+          ZTrans.ColAlign() != U.ColAlign() )
+          LogicError("Partial matrix distributions are misaligned");
     )
     const Int m = ZTrans.Height();
-    const Int n = ZTrans.Width();
     const Int bsize = Blocksize();
     const Grid& g = U.Grid();
 
@@ -53,10 +52,10 @@ LocalAccumulateRUT
         auto U01 = U( IR(0,k),    IR(k,k+nb) );
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X1Trans = XTrans( IR(k,k+nb), IR(0,n) );
+        auto X1Trans = XTrans( IR(k,k+nb), ALL_IND );
    
-        auto Z0Trans = ZTrans( IR(0,k),    IR(0,n) );
-        auto Z1Trans = ZTrans( IR(k,k+nb), IR(0,n) );
+        auto Z0Trans = ZTrans( IR(0,k),    ALL_IND );
+        auto Z1Trans = ZTrans( IR(k,k+nb), ALL_IND );
 
         D11.AlignWith( U11 );
         D11 = U11;
@@ -75,12 +74,11 @@ RUTA
   const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::RUTA");
-        AssertSameGrids( UPre, XPre );
-        // TODO: More input checks
+      CallStackEntry cse("trmm::RUTA");
+      AssertSameGrids( UPre, XPre );
+      // TODO: More input checks
     )
     const Int m = XPre.Height();
-    const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
     const bool conjugate = ( orientation == ADJOINT );
@@ -100,10 +98,10 @@ RUTA
     {
         const Int nb = Min(bsize,m-k);
 
-        auto X1 = X( IR(k,k+nb), IR(0,n) );
+        auto X1 = X( IR(k,k+nb), ALL_IND );
 
         Transpose( X1, X1Trans_MR_STAR, conjugate );
-        Zeros( Z1Trans_MC_STAR, n, nb );
+        Zeros( Z1Trans_MC_STAR, X.Width(), nb );
         LocalAccumulateRUT
         ( diag, T(1), U, X1Trans_MR_STAR, Z1Trans_MC_STAR );
 
@@ -121,15 +119,14 @@ RUTC
   const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::RUTC");
-        AssertSameGrids( UPre, XPre );
-        if( orientation == NORMAL )
-            LogicError("Expected Adjoint/Transpose option");
-        if( UPre.Height() != UPre.Width() || XPre.Width() != UPre.Height() )
-            LogicError
-            ("Nonconformal: \n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));
+      CallStackEntry cse("trmm::RUTC");
+      AssertSameGrids( UPre, XPre );
+      if( orientation == NORMAL )
+          LogicError("Expected Adjoint/Transpose option");
+      if( UPre.Height() != UPre.Width() || XPre.Width() != UPre.Height() )
+          LogicError
+          ("Nonconformal: \n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));
     )
-    const Int m = XPre.Height();
     const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
@@ -150,8 +147,8 @@ RUTC
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
         auto U12 = U( IR(k,k+nb), IR(k+nb,n) );
 
-        auto X1 = X( IR(0,m), IR(k,k+nb) );
-        auto X2 = X( IR(0,m), IR(k+nb,n) );
+        auto X1 = X( ALL_IND, IR(k,k+nb) );
+        auto X2 = X( ALL_IND, IR(k+nb,n) );
 
         X1_VC_STAR = X1;
         U11_STAR_STAR = U11;

@@ -18,14 +18,14 @@ Cannon_NN
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("gemm::Cannon_NN");
-        AssertSameGrids( APre, BPre, CPre );
-        if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
-            APre.Width() != BPre.Height() )
-            LogicError
-            ("Nonconformal matrices:\n",
-             DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
-             DimsString(CPre,"C"));
+      CallStackEntry cse("gemm::Cannon_NN");
+      AssertSameGrids( APre, BPre, CPre );
+      if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
+          APre.Width() != BPre.Height() )
+          LogicError
+          ("Nonconformal matrices:\n",
+           DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
+           DimsString(CPre,"C"));
     )
     const Grid& g = APre.Grid();
     if( g.Height() != g.Width() )
@@ -102,18 +102,16 @@ SUMMA_NNA
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("gemm::SUMMA_NNA");
-        AssertSameGrids( APre, BPre, CPre );
-        if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
-            APre.Width() != BPre.Height() )
-            LogicError
-            ("Nonconformal matrices:\n",
-             DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
-             DimsString(CPre,"C"));
+      CallStackEntry cse("gemm::SUMMA_NNA");
+      AssertSameGrids( APre, BPre, CPre );
+      if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
+          APre.Width() != BPre.Height() )
+          LogicError
+          ("Nonconformal matrices:\n",
+           DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
+           DimsString(CPre,"C"));
     )
-    const Int m = CPre.Height();
     const Int n = CPre.Width();
-    const Int sumDim = APre.Width();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
@@ -134,8 +132,8 @@ SUMMA_NNA
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto B1 = B( IR(0,sumDim), IR(k,k+nb) );
-        auto C1 = C( IR(0,m),      IR(k,k+nb) );
+        auto B1 = B( ALL_IND, IR(k,k+nb) );
+        auto C1 = C( ALL_IND, IR(k,k+nb) );
 
         // D1[MC,*] := alpha A[MC,MR] B1[MR,*]
         B1_VR_STAR = B1;
@@ -155,18 +153,16 @@ SUMMA_NNB
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("gemm::SUMMA_NNB");
-        AssertSameGrids( APre, BPre, CPre );
-        if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
-            APre.Width() != BPre.Height() )
-            LogicError
-            ("Nonconformal matrices:\n",
-             DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
-             DimsString(CPre,"C"));
+      CallStackEntry cse("gemm::SUMMA_NNB");
+      AssertSameGrids( APre, BPre, CPre );
+      if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
+          APre.Width() != BPre.Height() )
+          LogicError
+          ("Nonconformal matrices:\n",
+           DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
+           DimsString(CPre,"C"));
     )
     const Int m = CPre.Height();
-    const Int n = CPre.Width();
-    const Int sumDim = APre.Width();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
@@ -185,8 +181,8 @@ SUMMA_NNB
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
-        auto A1 = A( IR(k,k+nb), IR(0,sumDim) );
-        auto C1 = C( IR(k,k+nb), IR(0,n)      );
+        auto A1 = A( IR(k,k+nb), ALL_IND );
+        auto C1 = C( IR(k,k+nb), ALL_IND );
 
         // D1^T[MR,* ] := alpha B^T[MR,MC] A1^T[MC,* ]
         A1_STAR_MC = A1;
@@ -205,17 +201,15 @@ SUMMA_NNC
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("gemm::SUMMA_NNC");
-        AssertSameGrids( APre, BPre, CPre );
-        if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
-            APre.Width() != BPre.Height() )
-            LogicError
-            ("Nonconformal matrices:\n",
-             DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
-             DimsString(CPre,"C"));
+      CallStackEntry cse("gemm::SUMMA_NNC");
+      AssertSameGrids( APre, BPre, CPre );
+      if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
+          APre.Width() != BPre.Height() )
+          LogicError
+          ("Nonconformal matrices:\n",
+           DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
+           DimsString(CPre,"C"));
     )
-    const Int m = CPre.Height();
-    const Int n = CPre.Width();
     const Int sumDim = APre.Width();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -235,8 +229,8 @@ SUMMA_NNC
     for( Int k=0; k<sumDim; k+=bsize )
     {
         const Int nb = Min(bsize,sumDim-k);
-        auto A1 = A( IR(0,m),    IR(k,k+nb) );
-        auto B1 = B( IR(k,k+nb), IR(0,n)    );
+        auto A1 = A( ALL_IND,    IR(k,k+nb) );
+        auto B1 = B( IR(k,k+nb), ALL_IND    );
 
         // C[MC,MR] += alpha A1[MC,*] (B1^T[MR,*])^T
         //           = alpha A1[MC,*] B1[*,MR]
@@ -255,18 +249,17 @@ SUMMA_NNDot
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("gemm::SUMMA_NNDot");
-        AssertSameGrids( APre, BPre, CPre );
-        if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
-            APre.Width() != BPre.Height() )
-            LogicError
-            ("Nonconformal matrices:\n",
-             DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
-             DimsString(CPre,"C"));
+      CallStackEntry cse("gemm::SUMMA_NNDot");
+      AssertSameGrids( APre, BPre, CPre );
+      if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
+          APre.Width() != BPre.Height() )
+          LogicError
+          ("Nonconformal matrices:\n",
+           DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
+           DimsString(CPre,"C"));
     )
     const Int m = CPre.Height();
     const Int n = CPre.Width();
-    const Int sumDim = APre.Width();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
@@ -287,7 +280,7 @@ SUMMA_NNDot
             const Int nbOuter = Min(bsize,m-kOuter);
             const Range<Int> indOuter( kOuter, kOuter+nbOuter );
 
-            auto A1 = A( indOuter, IR(0,sumDim) );
+            auto A1 = A( indOuter, ALL_IND );
 
             A1_STAR_VC = A1; 
             B1_VC_STAR.AlignWith( A1_STAR_VC );
@@ -297,8 +290,8 @@ SUMMA_NNDot
                 const Int nbInner = Min(bsize,n-kInner);
                 const Range<Int> indInner( kInner, kInner+nbInner );
 
-                auto B1  = B( IR(0,sumDim), indInner );
-                auto C11 = C( indOuter,     indInner );
+                auto B1  = B( ALL_IND,  indInner );
+                auto C11 = C( indOuter, indInner );
 
                 B1_VC_STAR = B1;
                 LocalGemm
@@ -321,7 +314,7 @@ SUMMA_NNDot
             const Int nbOuter = Min(bsize,n-kOuter);
             const Range<Int> indOuter( kOuter, kOuter+nbOuter );
 
-            auto B1 = B( IR(0,sumDim), indOuter );
+            auto B1 = B( ALL_IND, indOuter );
 
             B1_VR_STAR = B1;
             A1_STAR_VR.AlignWith( B1_VR_STAR );
@@ -331,8 +324,8 @@ SUMMA_NNDot
                 const Int nbInner = Min(bsize,m-kInner);
                 const Range<Int> indInner( kInner, kInner+nbInner );
 
-                auto A1  = A( indInner, IR(0,sumDim) );
-                auto C11 = C( indInner, indOuter     );
+                auto A1  = A( indInner, ALL_IND  );
+                auto C11 = C( indInner, indOuter );
 
                 A1_STAR_VR = A1;
                 LocalGemm

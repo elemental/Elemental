@@ -214,14 +214,11 @@ LUT
             LogicError("QuasiTrsmLUT expects a (Conjugate)Transpose option");
     )
     const Int m = X.Height();
-    const Int n = X.Width();
     const Int bsize = Blocksize();
 
     const bool conjugate = ( orientation==ADJOINT );
     if( conjugate )
         Conjugate( X );
-
-    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -235,8 +232,8 @@ LUT
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1 = X( ind1, outerInd );
-        auto X2 = X( ind2, outerInd );
+        auto X1 = X( ind1, ALL_IND );
+        auto X2 = X( ind2, ALL_IND );
 
         LUTUnb( false, U11, shifts, X1 );
         Gemm( TRANSPOSE, NORMAL, F(-1), U12, X1, F(1), X2 );
@@ -255,19 +252,16 @@ LUT
         Matrix<Real>& XReal, Matrix<Real>& XImag )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("msquasitrsm::LUT");
-        if( orientation == NORMAL )
-            LogicError("QuasiTrsmLUT expects a (Conjugate)Transpose option");
+      CallStackEntry cse("msquasitrsm::LUT");
+      if( orientation == NORMAL )
+          LogicError("QuasiTrsmLUT expects a (Conjugate)Transpose option");
     )
     const Int m = XReal.Height();
-    const Int n = XReal.Width();
     const Int bsize = Blocksize();
 
     const bool conjugate = ( orientation==ADJOINT );
     if( conjugate )
         Scale( Real(-1), XImag );
-
-    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -282,10 +276,10 @@ LUT
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1Real = XReal( ind1, outerInd );
-        auto X1Imag = XImag( ind1, outerInd );
-        auto X2Real = XReal( ind2, outerInd );
-        auto X2Imag = XImag( ind2, outerInd );
+        auto X1Real = XReal( ind1, ALL_IND );
+        auto X1Imag = XImag( ind1, ALL_IND );
+        auto X2Real = XReal( ind2, ALL_IND );
+        auto X2Imag = XImag( ind2, ALL_IND );
 
         LUTUnb( false, U11, shifts, X1Real, X1Imag );
         Gemm( TRANSPOSE, NORMAL, Real(-1), U12, X1Real, Real(1), X2Real );
@@ -304,12 +298,11 @@ LUTLarge
         AbstractDistMatrix<F>& XPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("msquasitrsm::LUTLarge");
-        if( orientation == NORMAL )
-            LogicError("TrsmLUT expects a (Conjugate)Transpose option");
+      CallStackEntry cse("msquasitrsm::LUTLarge");
+      if( orientation == NORMAL )
+          LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
     const Int m = XPre.Height();
-    const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
@@ -324,8 +317,6 @@ LUTLarge
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
-    const Range<Int> outerInd( 0, n );
-
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nbProp = Min(bsize,m-k);
@@ -338,8 +329,8 @@ LUTLarge
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1 = X( ind1, outerInd );
-        auto X2 = X( ind2, outerInd );
+        auto X1 = X( ind1, ALL_IND );
+        auto X2 = X( ind2, ALL_IND );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR.AlignWith( shifts );
@@ -372,13 +363,12 @@ LUTLarge
         AbstractDistMatrix<Real>& XImagPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("msquasitrsm::LUTLarge");
-        if( orientation == NORMAL )
-            LogicError("TrsmLUT expects a (Conjugate)Transpose option");
+      CallStackEntry cse("msquasitrsm::LUTLarge");
+      if( orientation == NORMAL )
+          LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
     typedef Complex<Real> C;
     const Int m = XRealPre.Height();
-    const Int n = XRealPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
@@ -397,8 +387,6 @@ LUTLarge
     DistMatrix<Real,STAR,MR  > X1Real_STAR_MR(g), X1Imag_STAR_MR(g);
     DistMatrix<Real,STAR,VR  > X1Real_STAR_VR(g), X1Imag_STAR_VR(g);
 
-    const Range<Int> outerInd( 0, n );
-
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nbProp = Min(bsize,m-k);
@@ -412,10 +400,10 @@ LUTLarge
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1Real = XReal( ind1, outerInd );
-        auto X1Imag = XImag( ind1, outerInd );
-        auto X2Real = XReal( ind2, outerInd );
-        auto X2Imag = XImag( ind2, outerInd );
+        auto X1Real = XReal( ind1, ALL_IND );
+        auto X1Imag = XImag( ind1, ALL_IND );
+        auto X2Real = XReal( ind2, ALL_IND );
+        auto X2Imag = XImag( ind2, ALL_IND );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1Real_STAR_VR.AlignWith( shifts );
@@ -457,12 +445,11 @@ LUTMedium
         AbstractDistMatrix<F>& XPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("msquasitrsm::LUTMedium");
-        if( orientation == NORMAL )
-            LogicError("TrsmLUT expects a (Conjugate)Transpose option");
+      CallStackEntry cse("msquasitrsm::LUTMedium");
+      if( orientation == NORMAL )
+          LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
     const Int m = XPre.Height();
-    const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
@@ -479,8 +466,6 @@ LUTMedium
     DistMatrix<F,MR,  STAR> shifts_MR_STAR(shifts),
                             shifts_MR_STAR_Align(g);
 
-    const Range<Int> outerInd( 0, n );
-
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nbProp = Min(bsize,m-k);
@@ -493,8 +478,8 @@ LUTMedium
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1 = X( ind1, outerInd );
-        auto X2 = X( ind2, outerInd );
+        auto X1 = X( ind1, ALL_IND );
+        auto X2 = X( ind2, ALL_IND );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         // X1[* ,VR] <- X1[MC,MR]
@@ -531,13 +516,12 @@ LUTMedium
         AbstractDistMatrix<Real>& XImagPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("msquasitrsm::LUTMedium");
-        if( orientation == NORMAL )
-            LogicError("TrsmLUT expects a (Conjugate)Transpose option");
+      CallStackEntry cse("msquasitrsm::LUTMedium");
+      if( orientation == NORMAL )
+          LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
     typedef Complex<Real> C;
     const Int m = XRealPre.Height();
-    const Int n = XRealPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
@@ -558,8 +542,6 @@ LUTMedium
     DistMatrix<Complex<Real>,MR,STAR> shifts_MR_STAR(shifts),
                                       shifts_MR_STAR_Align(g);
 
-    const Range<Int> outerInd( 0, n );
-
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nbProp = Min(bsize,m-k);
@@ -573,10 +555,10 @@ LUTMedium
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1Real = XReal( ind1, outerInd );
-        auto X1Imag = XImag( ind1, outerInd );
-        auto X2Real = XReal( ind2, outerInd );
-        auto X2Imag = XImag( ind2, outerInd );
+        auto X1Real = XReal( ind1, ALL_IND );
+        auto X1Imag = XImag( ind1, ALL_IND );
+        auto X2Real = XReal( ind2, ALL_IND );
+        auto X2Imag = XImag( ind2, ALL_IND );
 
         U11_STAR_STAR = U11; 
         X1RealTrans_MR_STAR.AlignWith( X2Real );
@@ -619,27 +601,24 @@ LUTSmall
         DistMatrix<F,     rowDist,STAR        >& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("msquasitrsm::LUTSmall");
-        AssertSameGrids( U, shifts, X );
-        if( orientation == NORMAL )
-            LogicError("TrsmLUT expects a (Conjugate)Transpose option");
-        if( U.Height() != U.Width() || U.Height() != X.Height() )
-            LogicError
-            ("Nonconformal: \n",
-             "  U ~ ",U.Height()," x ",U.Width(),"\n",
-             "  X ~ ",X.Height()," x ",X.Width(),"\n");
-        if( U.RowAlign() != X.ColAlign() )
-            LogicError("U and X are assumed to be aligned");
+      CallStackEntry cse("msquasitrsm::LUTSmall");
+      AssertSameGrids( U, shifts, X );
+      if( orientation == NORMAL )
+          LogicError("TrsmLUT expects a (Conjugate)Transpose option");
+      if( U.Height() != U.Width() || U.Height() != X.Height() )
+          LogicError
+          ("Nonconformal: \n",
+           "  U ~ ",U.Height()," x ",U.Width(),"\n",
+           "  X ~ ",X.Height()," x ",X.Width(),"\n");
+      if( U.RowAlign() != X.ColAlign() )
+          LogicError("U and X are assumed to be aligned");
     )
     const Int m = X.Height();
-    const Int n = X.Width();
     const Int bsize = Blocksize();
     const Grid& g = U.Grid();
 
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g), X1_STAR_STAR(g),
                             shifts_STAR_STAR(shifts);
-
-    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -653,8 +632,8 @@ LUTSmall
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1 = X( ind1, outerInd );
-        auto X2 = X( ind2, outerInd );
+        auto X1 = X( ind1, ALL_IND );
+        auto X2 = X( ind2, ALL_IND );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[* ,VR]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VR,* ]
@@ -681,30 +660,27 @@ LUTSmall
         DistMatrix<Real,              rowDist,STAR        >& XImag )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("msquasitrsm::LUTSmall");
-        AssertSameGrids( U, shifts, XReal, XImag );
-        if( orientation == NORMAL )
-            LogicError("TrsmLUT expects a (Conjugate)Transpose option");
-        if( U.Height() != U.Width() || U.Height() != XReal.Height() )
-            LogicError
-            ("Nonconformal: \n",
-             "  U ~ ",U.Height()," x ",U.Width(),"\n",
-             "  X ~ ",XReal.Height()," x ",XReal.Width(),"\n");
-        if( U.RowAlign() != XReal.ColAlign() ||
-            U.RowAlign() != XImag.ColAlign() )
-            LogicError("U and X are assumed to be aligned");
+      CallStackEntry cse("msquasitrsm::LUTSmall");
+      AssertSameGrids( U, shifts, XReal, XImag );
+      if( orientation == NORMAL )
+          LogicError("TrsmLUT expects a (Conjugate)Transpose option");
+      if( U.Height() != U.Width() || U.Height() != XReal.Height() )
+          LogicError
+          ("Nonconformal: \n",
+           "  U ~ ",U.Height()," x ",U.Width(),"\n",
+           "  X ~ ",XReal.Height()," x ",XReal.Width(),"\n");
+      if( U.RowAlign() != XReal.ColAlign() ||
+          U.RowAlign() != XImag.ColAlign() )
+          LogicError("U and X are assumed to be aligned");
     )
     typedef Complex<Real> C;
     const Int m = XReal.Height();
-    const Int n = XReal.Width();
     const Int bsize = Blocksize();
     const Grid& g = U.Grid();
 
     DistMatrix<Real,STAR,STAR> U11_STAR_STAR(g), X1Real_STAR_STAR(g),
                                                  X1Imag_STAR_STAR(g);
     DistMatrix<C,STAR,STAR> shifts_STAR_STAR(shifts);
-
-    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -719,10 +695,10 @@ LUTSmall
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1Real = XReal( ind1, outerInd );
-        auto X1Imag = XImag( ind1, outerInd );
-        auto X2Real = XReal( ind2, outerInd );
-        auto X2Imag = XImag( ind2, outerInd );
+        auto X1Real = XReal( ind1, ALL_IND );
+        auto X1Imag = XImag( ind1, ALL_IND );
+        auto X2Real = XReal( ind2, ALL_IND );
+        auto X2Imag = XImag( ind2, ALL_IND );
 
         U11_STAR_STAR = U11;
         X1Real_STAR_STAR = X1Real;  

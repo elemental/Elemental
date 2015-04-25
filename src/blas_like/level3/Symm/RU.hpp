@@ -20,31 +20,30 @@ void LocalAccumulateRU
         DistMatrix<T,MR,  STAR>& ZTrans_MR_STAR )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("symm::LocalAccumulateRU");
-        AssertSameGrids
-        ( A, B_STAR_MC, BTrans_MR_STAR, ZTrans_MC_STAR, ZTrans_MR_STAR );
-        if( A.Height() != A.Width() ||
-            A.Height() != B_STAR_MC.Width() ||
-            A.Height() != BTrans_MR_STAR.Height() ||
-            A.Height() != ZTrans_MC_STAR.Height() ||
-            A.Height() != ZTrans_MR_STAR.Height() ||
-            B_STAR_MC.Height() != BTrans_MR_STAR.Width() ||
-            BTrans_MR_STAR.Width() != ZTrans_MC_STAR.Width() ||
-            ZTrans_MC_STAR.Width() != ZTrans_MR_STAR.Width() )
-            LogicError
-            ("Nonconformal:\n",
-             DimsString(A,"A"),"\n",
-             DimsString(B_STAR_MC,"B[* ,MC]"),"\n",
-             DimsString(BTrans_MR_STAR,"B'[MR,* ]"),"\n",
-             DimsString(ZTrans_MC_STAR,"Z'[MC,* ]"),"\n",
-             DimsString(ZTrans_MR_STAR,"Z'[MR,* ]"));
-        if( B_STAR_MC.RowAlign() != A.ColAlign() ||
-            BTrans_MR_STAR.ColAlign() != A.RowAlign() ||
-            ZTrans_MC_STAR.ColAlign() != A.ColAlign() ||
-            ZTrans_MR_STAR.ColAlign() != A.RowAlign() )
-            LogicError("Partial matrix distributions are misaligned");
+      CallStackEntry cse("symm::LocalAccumulateRU");
+      AssertSameGrids
+      ( A, B_STAR_MC, BTrans_MR_STAR, ZTrans_MC_STAR, ZTrans_MR_STAR );
+      if( A.Height() != A.Width() ||
+          A.Height() != B_STAR_MC.Width() ||
+          A.Height() != BTrans_MR_STAR.Height() ||
+          A.Height() != ZTrans_MC_STAR.Height() ||
+          A.Height() != ZTrans_MR_STAR.Height() ||
+          B_STAR_MC.Height() != BTrans_MR_STAR.Width() ||
+          BTrans_MR_STAR.Width() != ZTrans_MC_STAR.Width() ||
+          ZTrans_MC_STAR.Width() != ZTrans_MR_STAR.Width() )
+          LogicError
+          ("Nonconformal:\n",
+           DimsString(A,"A"),"\n",
+           DimsString(B_STAR_MC,"B[* ,MC]"),"\n",
+           DimsString(BTrans_MR_STAR,"B'[MR,* ]"),"\n",
+           DimsString(ZTrans_MC_STAR,"Z'[MC,* ]"),"\n",
+           DimsString(ZTrans_MR_STAR,"Z'[MR,* ]"));
+      if( B_STAR_MC.RowAlign() != A.ColAlign() ||
+          BTrans_MR_STAR.ColAlign() != A.RowAlign() ||
+          ZTrans_MC_STAR.ColAlign() != A.ColAlign() ||
+          ZTrans_MR_STAR.ColAlign() != A.RowAlign() )
+          LogicError("Partial matrix distributions are misaligned");
     )
-    const Int m = B_STAR_MC.Height();
     const Int n = B_STAR_MC.Width();
     const Grid& g = A.Grid();
     const Int ratio = Max( g.Height(), g.Width() );
@@ -62,15 +61,15 @@ void LocalAccumulateRU
         auto A11 = A( ind1, ind1 );
         auto A12 = A( ind1, ind2 );
 
-        auto B1_STAR_MC = B_STAR_MC( IR(0,m), ind1 );
+        auto B1_STAR_MC = B_STAR_MC( ALL_IND, ind1 );
 
-        auto B1Trans_MR_STAR = BTrans_MR_STAR( ind1, IR(0,m) );
-        auto B2Trans_MR_STAR = BTrans_MR_STAR( ind2, IR(0,m) );
+        auto B1Trans_MR_STAR = BTrans_MR_STAR( ind1, ALL_IND );
+        auto B2Trans_MR_STAR = BTrans_MR_STAR( ind2, ALL_IND );
 
-        auto Z1Trans_MC_STAR = ZTrans_MC_STAR( ind1, IR(0,m) );
+        auto Z1Trans_MC_STAR = ZTrans_MC_STAR( ind1, ALL_IND );
 
-        auto Z1Trans_MR_STAR = ZTrans_MR_STAR( ind1, IR(0,m) );
-        auto Z2Trans_MR_STAR = ZTrans_MR_STAR( ind2, IR(0,m) );
+        auto Z1Trans_MR_STAR = ZTrans_MR_STAR( ind1, ALL_IND );
+        auto Z2Trans_MR_STAR = ZTrans_MR_STAR( ind2, ALL_IND );
 
         D11.AlignWith( A11 );
         D11 = A11;
@@ -99,8 +98,8 @@ RUA
   T beta,        AbstractDistMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("symm::RUA");
-        AssertSameGrids( APre, BPre, CPre );
+      CallStackEntry cse("symm::RUA");
+      AssertSameGrids( APre, BPre, CPre );
     )
     const Int m = CPre.Height();
     const Int n = CPre.Width();
@@ -132,8 +131,8 @@ RUA
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
-        auto B1 = B( IR(k,k+nb), IR(0,n) );
-        auto C1 = C( IR(k,k+nb), IR(0,n) );
+        auto B1 = B( IR(k,k+nb), ALL_IND );
+        auto C1 = C( IR(k,k+nb), ALL_IND );
 
         Transpose( B1, B1Trans_MR_STAR, conjugate );
         B1Trans_VC_STAR = B1Trans_MR_STAR;
@@ -163,7 +162,6 @@ RUC
         CallStackEntry cse("symm::RUC");
         AssertSameGrids( APre, BPre, CPre );
     )
-    const Int m = CPre.Height();
     const Int n = CPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -193,10 +191,10 @@ RUC
         auto A1R = A( ind1, indR );
         auto AT1 = A( indT, ind1 );
 
-        auto B1 = B( IR(0,m), ind1 );
+        auto B1 = B( ALL_IND, ind1 );
 
-        auto CL = C( IR(0,m), indL );
-        auto CR = C( IR(0,m), indR );
+        auto CL = C( ALL_IND, indL );
+        auto CR = C( ALL_IND, indR );
 
         AT1_VR_STAR.AlignWith( CL );
         AT1_VR_STAR = AT1;

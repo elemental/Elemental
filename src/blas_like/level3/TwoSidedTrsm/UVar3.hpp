@@ -18,13 +18,13 @@ inline void
 UVar3( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("twotrsm::UVar4");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( U.Height() != U.Width() )
-            LogicError("Triangular matrices must be square");
-        if( A.Height() != U.Height() )
-            LogicError("A and U must be the same size");
+      CallStackEntry cse("twotrsm::UVar4");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( U.Height() != U.Width() )
+          LogicError("Triangular matrices must be square");
+      if( A.Height() != U.Height() )
+          LogicError("A and U must be the same size");
     )
     const Int n = A.Height();
     const Int bsize = Blocksize();
@@ -94,13 +94,13 @@ UVar3
   AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& UPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("twotrsm::UVar4");
-        if( APre.Height() != APre.Width() )
-            LogicError("A must be square");
-        if( UPre.Height() != UPre.Width() )
-            LogicError("Triangular matrices must be square");
-        if( APre.Height() != UPre.Height() )
-            LogicError("A and U must be the same size");
+      CallStackEntry cse("twotrsm::UVar4");
+      if( APre.Height() != APre.Width() )
+          LogicError("A must be square");
+      if( UPre.Height() != UPre.Width() )
+          LogicError("Triangular matrices must be square");
+      if( APre.Height() != UPre.Height() )
+          LogicError("A and U must be the same size");
     )
     const Int n = APre.Height();
     const Int bsize = Blocksize();
@@ -159,7 +159,7 @@ UVar3
           F(1), A01_VC_STAR.Matrix(), U01_VC_STAR.Matrix(),
           F(0), X11_STAR_STAR.Matrix() );
         MakeTrapezoidal( UPPER, X11_STAR_STAR );
-        A11.SumScatterUpdate( F(-1), X11_STAR_STAR );
+        AxpyContract( F(-1), X11_STAR_STAR, A11 );
 
         // A11 := inv(U11)' A11 inv(U11)
         A11_STAR_STAR = A11;

@@ -14,13 +14,12 @@ template<typename F>
 inline void
 LUNUnb( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 {
-    DEBUG_ONLY
-    (
-        CallStackEntry cse("msquasitrsm::LUNUnb");
-        if( U.Height() != U.Width() )
-            LogicError("U should be square");
-        if( X.Height() != U.Height() )
-            LogicError("X should be the same height as U's size");
+    DEBUG_ONLY(
+      CallStackEntry cse("msquasitrsm::LUNUnb");
+      if( U.Height() != U.Width() )
+          LogicError("U should be square");
+      if( X.Height() != U.Height() )
+          LogicError("X should be the same height as U's size");
     )
 
     const Int m = X.Height();
@@ -101,14 +100,14 @@ LUNUnb
         Matrix<Real>& XReal, Matrix<Real>& XImag )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("msquasitrsm::LUNUnb");
-        if( U.Height() != U.Width() )
-            LogicError("U should be square");
-        if( XReal.Height() != XImag.Height() ||
-            XReal.Width()  != XImag.Width() )
-            LogicError("XReal and XImag should be the same size");
-        if( XReal.Height() != U.Height() )
-            LogicError("X should be the same height as U's size");
+      CallStackEntry cse("msquasitrsm::LUNUnb");
+      if( U.Height() != U.Width() )
+          LogicError("U should be square");
+      if( XReal.Height() != XImag.Height() ||
+          XReal.Width()  != XImag.Width() )
+          LogicError("XReal and XImag should be the same size");
+      if( XReal.Height() != U.Height() )
+          LogicError("X should be the same height as U's size");
     )
     const Int m = XReal.Height();
     const Int n = XReal.Width();
@@ -206,10 +205,7 @@ LUN( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("msquasitrsm::LUN"))
     const Int m = X.Height();
-    const Int n = X.Width();
     const Int bsize = Blocksize();
-
-    const Range<Int> outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -226,8 +222,8 @@ LUN( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0 = X( ind0, outerInd );
-        auto X1 = X( ind1, outerInd );
+        auto X0 = X( ind0, ALL_IND );
+        auto X1 = X( ind1, ALL_IND );
 
         LUNUnb( U11, shifts, X1 );
         Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
@@ -247,10 +243,7 @@ LUN
 {
     DEBUG_ONLY(CallStackEntry cse("msquasitrsm::LUN"))
     const Int m = XReal.Height();
-    const Int n = XReal.Width();
     const Int bsize = Blocksize();
-
-    const Range<Int> outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -267,10 +260,10 @@ LUN
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0Real = XReal( ind0, outerInd );
-        auto X0Imag = XImag( ind0, outerInd );
-        auto X1Real = XReal( ind1, outerInd );
-        auto X1Imag = XImag( ind1, outerInd );
+        auto X0Real = XReal( ind0, ALL_IND );
+        auto X0Imag = XImag( ind0, ALL_IND );
+        auto X1Real = XReal( ind1, ALL_IND );
+        auto X1Imag = XImag( ind1, ALL_IND );
 
         LUNUnb( U11, shifts, X1Real, X1Imag );
         Gemm( NORMAL, NORMAL, Real(-1), U01, X1Real, Real(1), X0Real );
@@ -291,7 +284,6 @@ LUNLarge
 {
     DEBUG_ONLY(CallStackEntry cse("msquasitrsm::LUNLarge"))
     const Int m = XPre.Height();
-    const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
@@ -305,8 +297,6 @@ LUNLarge
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
-
-    const Range<Int> outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -323,8 +313,8 @@ LUNLarge
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0 = X( ind0, outerInd );
-        auto X1 = X( ind1, outerInd );
+        auto X0 = X( ind0, ALL_IND );
+        auto X1 = X( ind1, ALL_IND );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR.AlignWith( shifts );
@@ -362,7 +352,6 @@ LUNLarge
     // TODO: More error checks, especially on alignments?
     typedef Complex<Real> C; 
     const Int m = XRealPre.Height();
-    const Int n = XRealPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
@@ -381,8 +370,6 @@ LUNLarge
     DistMatrix<Real,STAR,MR  > X1Real_STAR_MR(g), X1Imag_STAR_MR(g);
     DistMatrix<Real,STAR,VR  > X1Real_STAR_VR(g), X1Imag_STAR_VR(g);
 
-    const Range<Int> outerInd( 0, n );
-
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
     while( true )
@@ -398,10 +385,10 @@ LUNLarge
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0Real = XReal( ind0, outerInd );
-        auto X0Imag = XImag( ind0, outerInd );
-        auto X1Real = XReal( ind1, outerInd );
-        auto X1Imag = XImag( ind1, outerInd );
+        auto X0Real = XReal( ind0, ALL_IND );
+        auto X0Imag = XImag( ind0, ALL_IND );
+        auto X1Real = XReal( ind1, ALL_IND );
+        auto X1Imag = XImag( ind1, ALL_IND );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1Real_STAR_VR.AlignWith( shifts );
@@ -446,7 +433,6 @@ LUNMedium
 {
     DEBUG_ONLY(CallStackEntry cse("msquasitrsm::LUNMedium"))
     const Int m = XPre.Height();
-    const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
@@ -463,8 +449,6 @@ LUNMedium
     DistMatrix<F,MR,  STAR> shifts_MR_STAR(shifts),
                             shifts_MR_STAR_Align(g);
 
-    const Range<Int> outerInd( 0, n );
-
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
     while( true )
@@ -480,8 +464,8 @@ LUNMedium
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0 = X( ind0, outerInd );
-        auto X1 = X( ind1, outerInd );
+        auto X0 = X( ind0, ALL_IND );
+        auto X1 = X( ind1, ALL_IND );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1Trans_MR_STAR.AlignWith( X0 );
@@ -522,7 +506,6 @@ LUNMedium
     // TODO: Error checks, particularly on alignments?
     typedef Complex<Real> C;
     const Int m = XRealPre.Height();
-    const Int n = XRealPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
@@ -544,8 +527,6 @@ LUNMedium
     DistMatrix<C,MR,  STAR> shifts_MR_STAR(shifts),
                             shifts_MR_STAR_Align(g);
 
-    const Range<Int> outerInd( 0, n );
-
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
     while( true )
@@ -561,10 +542,10 @@ LUNMedium
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0Real = XReal( ind0, outerInd );
-        auto X0Imag = XImag( ind0, outerInd );
-        auto X1Real = XReal( ind1, outerInd );
-        auto X1Imag = XImag( ind1, outerInd );
+        auto X0Real = XReal( ind0, ALL_IND );
+        auto X0Imag = XImag( ind0, ALL_IND );
+        auto X1Real = XReal( ind1, ALL_IND );
+        auto X1Imag = XImag( ind1, ALL_IND );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1RealTrans_MR_STAR.AlignWith( X0Real );
@@ -609,25 +590,22 @@ LUNSmall
         DistMatrix<F,     colDist,STAR        >& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("msquasitrsm::LUNSmall");
-        AssertSameGrids( U, shifts, X );
-        if( U.Height() != U.Width() || U.Width() != X.Height() )
-            LogicError
-            ("Nonconformal: \n",
-             "  U ~ ",U.Height()," x ",U.Width(),"\n",
-             "  X ~ ",X.Height()," x ",X.Width(),"\n");
-        if( U.ColAlign() != X.ColAlign() )
-            LogicError("U and X are assumed to be aligned");
+      CallStackEntry cse("msquasitrsm::LUNSmall");
+      AssertSameGrids( U, shifts, X );
+      if( U.Height() != U.Width() || U.Width() != X.Height() )
+          LogicError
+          ("Nonconformal: \n",
+           "  U ~ ",U.Height()," x ",U.Width(),"\n",
+           "  X ~ ",X.Height()," x ",X.Width(),"\n");
+      if( U.ColAlign() != X.ColAlign() )
+          LogicError("U and X are assumed to be aligned");
     )
     const Int m = X.Height();
-    const Int n = X.Width();
     const Int bsize = Blocksize();
     const Grid& g = U.Grid();
 
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g), X1_STAR_STAR(g),
                             shifts_STAR_STAR(shifts);
-
-    const Range<Int> outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -644,8 +622,8 @@ LUNSmall
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0 = X( ind0, outerInd );
-        auto X1 = X( ind1, outerInd );
+        auto X0 = X( ind0, ALL_IND );
+        auto X1 = X( ind1, ALL_IND );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[VC,* ]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VC,* ]
@@ -675,19 +653,19 @@ LUNSmall
         DistMatrix<Real,              colDist,STAR        >& XImag )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("msquasitrsm::LUNSmall");
-        AssertSameGrids( U, shifts, XReal, XImag );
-        if( XReal.Height() != XImag.Height() || 
-            XReal.Width() != XImag.Width() )
-            LogicError("XReal and XImag must be the same size");
-        if( U.Height() != U.Width() || U.Width() != XReal.Height() )
-            LogicError
-            ("Nonconformal: \n",
-             "  U ~ ",U.Height()," x ",U.Width(),"\n",
-             "  X ~ ",XReal.Height()," x ",XReal.Width(),"\n");
-        if( U.ColAlign() != XReal.ColAlign() || 
-            U.ColAlign() != XImag.ColAlign() )
-            LogicError("U and X are assumed to be aligned");
+      CallStackEntry cse("msquasitrsm::LUNSmall");
+      AssertSameGrids( U, shifts, XReal, XImag );
+      if( XReal.Height() != XImag.Height() || 
+          XReal.Width() != XImag.Width() )
+          LogicError("XReal and XImag must be the same size");
+      if( U.Height() != U.Width() || U.Width() != XReal.Height() )
+          LogicError
+          ("Nonconformal: \n",
+           "  U ~ ",U.Height()," x ",U.Width(),"\n",
+           "  X ~ ",XReal.Height()," x ",XReal.Width(),"\n");
+      if( U.ColAlign() != XReal.ColAlign() || 
+          U.ColAlign() != XImag.ColAlign() )
+          LogicError("U and X are assumed to be aligned");
     )
     typedef Complex<Real> C;
     const Int m = XReal.Height();
@@ -698,8 +676,6 @@ LUNSmall
     DistMatrix<Real,STAR,STAR> U11_STAR_STAR(g), X1Real_STAR_STAR(g),
                                                  X1Imag_STAR_STAR(g);
     DistMatrix<C,STAR,STAR> shifts_STAR_STAR(shifts);
-
-    const Range<Int> outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -716,10 +692,10 @@ LUNSmall
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0Real = XReal( ind0, outerInd );
-        auto X0Imag = XImag( ind0, outerInd );
-        auto X1Real = XReal( ind1, outerInd );
-        auto X1Imag = XImag( ind1, outerInd );
+        auto X0Real = XReal( ind0, ALL_IND );
+        auto X0Imag = XImag( ind0, ALL_IND );
+        auto X1Real = XReal( ind1, ALL_IND );
+        auto X1Imag = XImag( ind1, ALL_IND );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[VC,* ]
         X1Real_STAR_STAR = X1Real; 

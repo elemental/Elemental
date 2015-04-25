@@ -23,7 +23,6 @@ LUNLarge
 {
     DEBUG_ONLY(CallStackEntry cse("trsm::LUNLarge"))
     const Int m = XPre.Height();
-    const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
@@ -34,8 +33,6 @@ LUNLarge
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
-
-    const Range<Int> outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
@@ -48,8 +45,8 @@ LUNLarge
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0 = X( ind0, outerInd );
-        auto X1 = X( ind1, outerInd );
+        auto X0 = X( ind0, ALL_IND );
+        auto X1 = X( ind1, ALL_IND );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
@@ -79,7 +76,6 @@ LUNMedium
 {
     DEBUG_ONLY(CallStackEntry cse("trsm::LUNMedium"))
     const Int m = XPre.Height();
-    const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
@@ -89,8 +85,6 @@ LUNMedium
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<F,MR,  STAR> X1Trans_MR_STAR(g);
-
-    const Range<Int> outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
@@ -103,8 +97,8 @@ LUNMedium
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0 = X( ind0, outerInd );
-        auto X1 = X( ind1, outerInd );
+        auto X0 = X( ind0, ALL_IND );
+        auto X1 = X( ind1, ALL_IND );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1Trans_MR_STAR.AlignWith( X0 );
@@ -134,22 +128,19 @@ LUNSmall
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trsm::LUNSmall");
-        AssertSameGrids( U, X );
-        if( U.Height() != U.Width() || U.Width() != X.Height() )
-            LogicError
-            ("Nonconformal: \n",DimsString(U,"U"),"\n",DimsString(X,"X"));
-        if( U.ColAlign() != X.ColAlign() )
-            LogicError("U and X are assumed to be aligned");
+      CallStackEntry cse("trsm::LUNSmall");
+      AssertSameGrids( U, X );
+      if( U.Height() != U.Width() || U.Width() != X.Height() )
+          LogicError
+          ("Nonconformal: \n",DimsString(U,"U"),"\n",DimsString(X,"X"));
+      if( U.ColAlign() != X.ColAlign() )
+          LogicError("U and X are assumed to be aligned");
     )
     const Int m = X.Height();
-    const Int n = X.Width();
     const Int bsize = Blocksize();
     const Grid& g = U.Grid();
 
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g), X1_STAR_STAR(g);
-
-    const Range<Int> outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
@@ -162,8 +153,8 @@ LUNSmall
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0 = X( ind0, outerInd );
-        auto X1 = X( ind1, outerInd );
+        auto X0 = X( ind0, ALL_IND );
+        auto X1 = X( ind1, ALL_IND );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[VC,* ]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VC,* ]

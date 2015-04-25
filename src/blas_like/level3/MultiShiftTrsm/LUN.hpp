@@ -51,11 +51,8 @@ LUN( F alpha, Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
     DEBUG_ONLY(CallStackEntry cse("mstrsm::LUN"))
     Scale( alpha, X );
     const Int m = X.Height();
-    const Int n = X.Width();
     const Int bsize = Blocksize();
     const Int kLast = LastOffset( m, bsize );
-
-    const Range<Int> outerInd( 0, n );
 
     for( Int k=kLast; k>=0; k-=bsize )
     {
@@ -67,8 +64,8 @@ LUN( F alpha, Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0 = X( ind0, outerInd );
-        auto X1 = X( ind1, outerInd );
+        auto X0 = X( ind0, ALL_IND );
+        auto X1 = X( ind1, ALL_IND );
 
         LeftUnb( UPPER, NORMAL, F(1), U11, shifts, X1 );
         Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
@@ -98,11 +95,8 @@ LUN
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
     const Int m = X.Height();
-    const Int n = X.Width();
     const Int bsize = Blocksize();
     const Int kLast = LastOffset( m, bsize );
-
-    const Range<Int> outerInd( 0, n );
 
     for( Int k=kLast; k>=0; k-=bsize )
     {
@@ -114,8 +108,8 @@ LUN
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0 = X( ind0, outerInd );
-        auto X1 = X( ind1, outerInd );
+        auto X0 = X( ind0, ALL_IND );
+        auto X1 = X( ind1, ALL_IND );
 
         // X1[* ,VR] := U11^-1[* ,* ] X1[* ,VR]
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]

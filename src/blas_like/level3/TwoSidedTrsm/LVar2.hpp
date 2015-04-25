@@ -18,13 +18,13 @@ inline void
 LVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("twotrsm::LVar2");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( L.Height() != L.Width() )
-            LogicError("Triangular matrices must be square");
-        if( A.Height() != L.Height() )
-            LogicError("A and L must be the same size");
+      CallStackEntry cse("twotrsm::LVar2");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( L.Height() != L.Width() )
+          LogicError("Triangular matrices must be square");
+      if( A.Height() != L.Height() )
+          LogicError("A and L must be the same size");
     )
     const Int n = A.Height();
     const Int bsize = Blocksize();
@@ -85,13 +85,13 @@ LVar2
   AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& L )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("twotrsm::LVar2");
-        if( APre.Height() != APre.Width() )
-            LogicError("A must be square");
-        if( LPre.Height() != LPre.Width() )
-            LogicError("Triangular matrices must be square");
-        if( APre.Height() != LPre.Height() )
-            LogicError("A and L must be the same size");
+      CallStackEntry cse("twotrsm::LVar2");
+      if( APre.Height() != APre.Width() )
+          LogicError("A must be square");
+      if( LPre.Height() != LPre.Width() )
+          LogicError("Triangular matrices must be square");
+      if( APre.Height() != LPre.Height() )
+          LogicError("A and L must be the same size");
     )
     const Int n = APre.Height();
     const Int bsize = Blocksize();

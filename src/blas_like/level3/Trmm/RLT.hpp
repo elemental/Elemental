@@ -25,21 +25,20 @@ LocalAccumulateRLT
         DistMatrix<T,MC,STAR>& ZTrans )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::LocalAccumulateRLT");
-        AssertSameGrids( L, XTrans, ZTrans );
-        if( L.Height() != L.Width() ||
-            L.Height() != XTrans.Height() ||
-            L.Height() != ZTrans.Height() ||
-            XTrans.Width() != ZTrans.Width() )
-            LogicError
-            ("Nonconformal:\n",DimsString(L,"L"),"\n",
-             DimsString(XTrans,"X'"),"\n",DimsString(ZTrans,"Z'"));
-        if( XTrans.ColAlign() != L.RowAlign() ||
-            ZTrans.ColAlign() != L.ColAlign() )
-            LogicError("Partial matrix distributions are misaligned");
+      CallStackEntry cse("trmm::LocalAccumulateRLT");
+      AssertSameGrids( L, XTrans, ZTrans );
+      if( L.Height() != L.Width() ||
+          L.Height() != XTrans.Height() ||
+          L.Height() != ZTrans.Height() ||
+          XTrans.Width() != ZTrans.Width() )
+          LogicError
+          ("Nonconformal:\n",DimsString(L,"L"),"\n",
+           DimsString(XTrans,"X'"),"\n",DimsString(ZTrans,"Z'"));
+      if( XTrans.ColAlign() != L.RowAlign() ||
+          ZTrans.ColAlign() != L.ColAlign() )
+          LogicError("Partial matrix distributions are misaligned");
     )
     const Int m = ZTrans.Height();
-    const Int n = ZTrans.Width();
     const Int bsize = Blocksize();
     const Grid& g = L.Grid();
 
@@ -54,10 +53,10 @@ LocalAccumulateRLT
         auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
         auto L21 = L( IR(k+nb,m), IR(k,k+nb) );
 
-        auto X1Trans = XTrans( IR(k,k+nb), IR(0,n) );
+        auto X1Trans = XTrans( IR(k,k+nb), ALL_IND );
 
-        auto Z1Trans = ZTrans( IR(k,k+nb), IR(0,n) );
-        auto Z2Trans = ZTrans( IR(k+nb,m), IR(0,n) );
+        auto Z1Trans = ZTrans( IR(k,k+nb), ALL_IND );
+        auto Z2Trans = ZTrans( IR(k+nb,m), ALL_IND );
 
         D11.AlignWith( L11 );
         D11 = L11;
@@ -76,12 +75,11 @@ RLTA
   const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::RLTA");
-        AssertSameGrids( LPre, XPre );
-        // TODO: More error checks
+      CallStackEntry cse("trmm::RLTA");
+      AssertSameGrids( LPre, XPre );
+      // TODO: More error checks
     )
     const Int m = XPre.Height();
-    const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
     const bool conjugate = ( orientation == ADJOINT );
@@ -101,7 +99,7 @@ RLTA
     {
         const Int nb = Min(bsize,m-k);
 
-        auto X1 = X( IR(k,k+nb), IR(0,n) );
+        auto X1 = X( IR(k,k+nb), ALL_IND );
 
         Transpose( X1, X1Trans_MR_STAR, conjugate );
         Zeros( Z1Trans_MC_STAR, X1.Width(), X1.Height() );
@@ -122,15 +120,14 @@ RLTC
   const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::RLTC");
-        AssertSameGrids( LPre, XPre );
-        if( orientation == NORMAL )
-            LogicError("Expected Adjoint/Transpose option");
-        if( LPre.Height() != LPre.Width() || XPre.Width() != LPre.Height() )
-            LogicError
-            ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
+      CallStackEntry cse("trmm::RLTC");
+      AssertSameGrids( LPre, XPre );
+      if( orientation == NORMAL )
+          LogicError("Expected Adjoint/Transpose option");
+      if( LPre.Height() != LPre.Width() || XPre.Width() != LPre.Height() )
+          LogicError
+          ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
     )
-    const Int m = XPre.Height();
     const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -152,8 +149,8 @@ RLTC
         auto L10 = L( IR(k,k+nb), IR(0,k)    );
         auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X0 = X( IR(0,m), IR(0,k)    );
-        auto X1 = X( IR(0,m), IR(k,k+nb) );
+        auto X0 = X( ALL_IND, IR(0,k)    );
+        auto X1 = X( ALL_IND, IR(k,k+nb) );
 
         X1_VC_STAR = X1;
         L11_STAR_STAR = L11;

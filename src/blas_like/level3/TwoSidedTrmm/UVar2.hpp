@@ -20,13 +20,13 @@ inline void
 UVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("twotrmm::UVar2");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( U.Height() != U.Width() )
-            LogicError("Triangular matrices must be square");
-        if( A.Height() != U.Height() )
-            LogicError("A and U must be the same size");
+      CallStackEntry cse("twotrmm::UVar2");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( U.Height() != U.Width() )
+          LogicError("Triangular matrices must be square");
+      if( A.Height() != U.Height() )
+          LogicError("A and U must be the same size");
     )
     const Int n = A.Height();
     const Int bsize = Blocksize();
@@ -85,13 +85,13 @@ UVar2
   AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& UPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("twotrmm::UVar2");
-        if( APre.Height() != APre.Width() )
-            LogicError("A must be square");
-        if( UPre.Height() != UPre.Width() )
-            LogicError("Triangular matrices must be square");
-        if( APre.Height() != UPre.Height() )
-            LogicError("A and U must be the same size");
+      CallStackEntry cse("twotrmm::UVar2");
+      if( APre.Height() != APre.Width() )
+          LogicError("A must be square");
+      if( UPre.Height() != UPre.Width() )
+          LogicError("Triangular matrices must be square");
+      if( APre.Height() != UPre.Height() )
+          LogicError("A and U must be the same size");
     )
     const Int n = APre.Height();
     const Int bsize = Blocksize();
@@ -189,7 +189,7 @@ UVar2
         ( UPPER, NORMAL,
           F(1), A12_STAR_VR.Matrix(), U12_STAR_VR.Matrix(),
           F(0), X11_STAR_STAR.Matrix() );
-        A11.SumScatterUpdate( F(1), X11_STAR_STAR );
+        AxpyContract( F(1), X11_STAR_STAR, A11 );
 
         // A12 := A12 + 1/2 Y12
         Axpy( F(1)/F(2), Y12, A12 );

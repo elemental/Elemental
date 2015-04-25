@@ -25,23 +25,22 @@ LocalAccumulateLUN
         DistMatrix<T,MC,  STAR>& Z )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::LocalAccumulateLUN");
-        AssertSameGrids( U, XTrans, Z );
-        if( U.Height() != U.Width() ||
-            U.Height() != XTrans.Width() ||
-            U.Height() != Z.Height() ||
-            XTrans.Height() != Z.Width() )
-            LogicError
-            ("Nonconformal:\n",
-             DimsString(U,"U"),"\n",
-             DimsString(XTrans,"X'[* ,MR]"),"\n",
-             DimsString(Z,"Z[MC,* ]"));
-        if( XTrans.RowAlign() != U.RowAlign() ||
-            Z.ColAlign() != U.ColAlign() )
-            LogicError("Partial matrix distributions are misaligned");
+      CallStackEntry cse("trmm::LocalAccumulateLUN");
+      AssertSameGrids( U, XTrans, Z );
+      if( U.Height() != U.Width() ||
+          U.Height() != XTrans.Width() ||
+          U.Height() != Z.Height() ||
+          XTrans.Height() != Z.Width() )
+          LogicError
+          ("Nonconformal:\n",
+           DimsString(U,"U"),"\n",
+           DimsString(XTrans,"X'[* ,MR]"),"\n",
+           DimsString(Z,"Z[MC,* ]"));
+      if( XTrans.RowAlign() != U.RowAlign() ||
+          Z.ColAlign() != U.ColAlign() )
+          LogicError("Partial matrix distributions are misaligned");
     )
     const Int m = Z.Height();
-    const Int n = Z.Width();
     const Int bsize = Blocksize();
     const Grid& g = U.Grid();
 
@@ -55,10 +54,10 @@ LocalAccumulateLUN
         auto U01 = U( IR(0,k),    IR(k,k+nb) );
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X1Trans = XTrans( IR(0,n), IR(k,k+nb) );
+        auto X1Trans = XTrans( ALL_IND, IR(k,k+nb) );
 
-        auto Z0 = Z( IR(0,k),    IR(0,n) );
-        auto Z1 = Z( IR(k,k+nb), IR(0,n) );
+        auto Z0 = Z( IR(0,k),    ALL_IND );
+        auto Z1 = Z( IR(k,k+nb), ALL_IND );
 
         D11.AlignWith( U11 );
         D11 = U11;
@@ -77,11 +76,11 @@ LUNA
   const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::LUNA");
-        AssertSameGrids( UPre, XPre );
-        if( UPre.Height() != UPre.Width() || UPre.Width() != XPre.Height() )
-            LogicError
-            ("Nonconformal:\n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));
+      CallStackEntry cse("trmm::LUNA");
+      AssertSameGrids( UPre, XPre );
+      if( UPre.Height() != UPre.Width() || UPre.Width() != XPre.Height() )
+          LogicError
+          ("Nonconformal:\n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));
     )
     const Int m = XPre.Height();
     const Int n = XPre.Width();
@@ -103,7 +102,7 @@ LUNA
     {
         const Int nb = Min(bsize,n-k);
 
-        auto X1 = X( IR(0,m), IR(k,k+nb) );
+        auto X1 = X( ALL_IND, IR(k,k+nb) );
 
         X1_VR_STAR = X1;
         Transpose( X1_VR_STAR, X1Trans_STAR_MR );
@@ -122,11 +121,11 @@ LUNCOld
   const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::LUNCOld");
-        AssertSameGrids( UPre, XPre );
-        if( UPre.Height() != UPre.Width() || UPre.Width() != XPre.Height() )
-            LogicError
-            ("Nonconformal:\n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));
+      CallStackEntry cse("trmm::LUNCOld");
+      AssertSameGrids( UPre, XPre );
+      if( UPre.Height() != UPre.Width() || UPre.Width() != XPre.Height() )
+          LogicError
+          ("Nonconformal:\n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));
     )
     const Int m = XPre.Height();
     const Int n = XPre.Width();
@@ -150,8 +149,8 @@ LUNCOld
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
         auto U12 = U( IR(k,k+nb), IR(k+nb,m) );
 
-        auto X1 = X( IR(k,k+nb), IR(0,n) );
-        auto X2 = X( IR(k+nb,m), IR(0,n) );
+        auto X1 = X( IR(k,k+nb), ALL_IND );
+        auto X2 = X( IR(k+nb,m), ALL_IND );
 
         X1_STAR_VR = X1;
         U11_STAR_STAR = U11;
@@ -180,14 +179,13 @@ LUNC
   const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::LUNC");
-        AssertSameGrids( UPre, XPre );
-        if( UPre.Height() != UPre.Width() || UPre.Width() != XPre.Height() )
-            LogicError
-            ("Nonconformal:\n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));
+      CallStackEntry cse("trmm::LUNC");
+      AssertSameGrids( UPre, XPre );
+      if( UPre.Height() != UPre.Width() || UPre.Width() != XPre.Height() )
+          LogicError
+          ("Nonconformal:\n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));
     )
     const Int m = XPre.Height();
-    const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
@@ -206,8 +204,8 @@ LUNC
         auto U01 = U( IR(0,k),    IR(k,k+nb) );
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X0 = X( IR(0,k),    IR(0,n) );
-        auto X1 = X( IR(k,k+nb), IR(0,n) );
+        auto X0 = X( IR(0,k),    ALL_IND );
+        auto X1 = X( IR(k,k+nb), ALL_IND );
 
         U01_MC_STAR.AlignWith( X0 );
         U01_MC_STAR = U01;

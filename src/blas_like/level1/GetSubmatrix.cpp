@@ -285,6 +285,16 @@ void GetSubmatrix
         SparseMatrix<T>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
+    if( I == ALL_IND )
+    {
+        I.beg = 0;
+        I.end = A.Height();
+    }
+    if( J == ALL_IND )
+    {
+        J.beg = 0;
+        J.end = A.Width();
+    }
     const Int mSub = I.end-I.beg;
     const Int nSub = J.end-J.beg;
     Zeros( ASub, mSub, nSub );
@@ -325,6 +335,16 @@ void GetRealPartOfSubmatrix
         SparseMatrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("GetRealPartOfSubmatrix"))
+    if( I == ALL_IND )
+    {
+        I.beg = 0;
+        I.end = A.Height();
+    }
+    if( J == ALL_IND )
+    {
+        J.beg = 0;
+        J.end = A.Width();
+    }
     const Int mSub = I.end-I.beg;
     const Int nSub = J.end-J.beg;
     Zeros( ASub, mSub, nSub );
@@ -365,6 +385,16 @@ void GetImagPartOfSubmatrix
         SparseMatrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("GetImagPartOfSubmatrix"))
+    if( I == ALL_IND )
+    {
+        I.beg = 0;
+        I.end = A.Height();
+    }
+    if( J == ALL_IND )
+    {
+        J.beg = 0;
+        J.end = A.Width();
+    }
     const Int mSub = I.end-I.beg;
     const Int nSub = J.end-J.beg;
     Zeros( ASub, mSub, nSub );
@@ -432,6 +462,16 @@ void GetSubmatrix
         DistSparseMatrix<T>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
+    if( I == ALL_IND )
+    {
+        I.beg = 0;
+        I.end = A.Height();
+    }
+    if( J == ALL_IND )
+    {
+        J.beg = 0;
+        J.end = A.Width();
+    }
     const Int mSub = I.end-I.beg;
     const Int nSub = J.end-J.beg;
     const Int numEntries = A.NumLocalEntries();
@@ -491,6 +531,16 @@ void GetRealPartOfSubmatrix
         DistSparseMatrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("GetRealPartOfSubmatrix"))
+    if( I == ALL_IND )
+    {
+        I.beg = 0;
+        I.end = A.Height();
+    }
+    if( J == ALL_IND )
+    {
+        J.beg = 0;
+        J.end = A.Width();
+    }
     const Int mSub = I.end-I.beg;
     const Int nSub = J.end-J.beg;
     const Int numEntries = A.NumLocalEntries();
@@ -550,6 +600,16 @@ void GetImagPartOfSubmatrix
         DistSparseMatrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("GetImagPartOfSubmatrix"))
+    if( I == ALL_IND )
+    {
+        I.beg = 0;
+        I.end = A.Height();
+    }
+    if( J == ALL_IND )
+    {
+        J.beg = 0;
+        J.end = A.Width();
+    }
     const Int mSub = I.end-I.beg;
     const Int nSub = J.end-J.beg;
     const Int numEntries = A.NumLocalEntries();
@@ -636,6 +696,16 @@ void GetSubmatrix
         DistMultiVec<T>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
+    if( I == ALL_IND )
+    {
+        I.beg = 0;
+        I.end = A.Height();
+    }
+    if( J == ALL_IND )
+    {
+        J.beg = 0;
+        J.end = A.Width();
+    }
     const Int mSub = I.end-I.beg;
     const Int nSub = J.end-J.beg;
     const Int localHeight = A.LocalHeight();
@@ -703,6 +773,16 @@ void GetRealPartOfSubmatrix
         DistMultiVec<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("GetRealPartOfSubmatrix"))
+    if( I == ALL_IND )
+    {
+        I.beg = 0;
+        I.end = A.Height();
+    }
+    if( J == ALL_IND )
+    {
+        J.beg = 0;
+        J.end = A.Width();
+    }
     const Int mSub = I.end-I.beg;
     const Int nSub = J.end-J.beg;
     const Int localHeight = A.LocalHeight();
@@ -761,6 +841,16 @@ void GetImagPartOfSubmatrix
         DistMultiVec<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("GetImagPartOfSubmatrix"))
+    if( I == ALL_IND )
+    {
+        I.beg = 0;
+        I.end = A.Height();
+    }
+    if( J == ALL_IND )
+    {
+        J.beg = 0;
+        J.end = A.Width();
+    }
     const Int mSub = I.end-I.beg;
     const Int nSub = J.end-J.beg;
     const Int localHeight = A.LocalHeight();

@@ -23,11 +23,10 @@ RLT
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trsm::RLT");
-        if( orientation == NORMAL )
-            LogicError("Expected (Conjugate)Transpose option");
+      CallStackEntry cse("trsm::RLT");
+      if( orientation == NORMAL )
+          LogicError("Expected (Conjugate)Transpose option");
     )
-    const Int m = XPre.Height();
     const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -41,8 +40,6 @@ RLT
     DistMatrix<F,VC,  STAR> X1_VC_STAR(g);
     DistMatrix<F,STAR,MC  > X1Trans_STAR_MC(g);
 
-    const Range<Int> outerInd( 0, m );
-
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
@@ -53,8 +50,8 @@ RLT
         auto L11 = L( ind1, ind1 );
         auto L21 = L( ind2, ind1 );
 
-        auto X1 = X( outerInd, ind1 );
-        auto X2 = X( outerInd, ind2 );
+        auto X1 = X( ALL_IND, ind1 );
+        auto X2 = X( ALL_IND, ind2 );
 
         L11_STAR_STAR = L11; 
         X1_VC_STAR.AlignWith( X2 );

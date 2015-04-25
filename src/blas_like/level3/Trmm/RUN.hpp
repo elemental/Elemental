@@ -25,18 +25,17 @@ LocalAccumulateRUN
         DistMatrix<T,MR,  STAR>& ZTrans )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::LocalAccumulateRUN");
-        AssertSameGrids( U, X, ZTrans );
-        if( U.Height() != U.Width() || U.Height() != X.Width() ||
-            U.Height() != ZTrans.Height() )
-            LogicError
-            ("Nonconformal:\n",DimsString(U,"U"),"\n",DimsString(X,"X"),"\n",
-             DimsString(ZTrans,"Z'"));
-        if( X.RowAlign() != U.ColAlign() || ZTrans.ColAlign() != U.RowAlign() )
-            LogicError("Partial matrix distributions are misaligned");
+      CallStackEntry cse("trmm::LocalAccumulateRUN");
+      AssertSameGrids( U, X, ZTrans );
+      if( U.Height() != U.Width() || U.Height() != X.Width() ||
+          U.Height() != ZTrans.Height() )
+          LogicError
+          ("Nonconformal:\n",DimsString(U,"U"),"\n",DimsString(X,"X"),"\n",
+           DimsString(ZTrans,"Z'"));
+      if( X.RowAlign() != U.ColAlign() || ZTrans.ColAlign() != U.RowAlign() )
+          LogicError("Partial matrix distributions are misaligned");
     )
     const Int m = ZTrans.Height();
-    const Int n = ZTrans.Width();
     const Int bsize = Blocksize();
     const Grid& g = U.Grid();
 
@@ -50,10 +49,10 @@ LocalAccumulateRUN
         auto U01 = U( IR(0,k),    IR(k,k+nb) );
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X0 = X( IR(0,n), IR(0,k)    );
-        auto X1 = X( IR(0,n), IR(k,k+nb) );
+        auto X0 = X( ALL_IND, IR(0,k)    );
+        auto X1 = X( ALL_IND, IR(k,k+nb) );
         
-        auto Z1Trans = ZTrans( IR(k,k+nb), IR(0,n) );
+        auto Z1Trans = ZTrans( IR(k,k+nb), ALL_IND );
 
         D11.AlignWith( U11 );
         D11 = U11;
@@ -72,12 +71,11 @@ RUNA
   const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::RUNA");
-        AssertSameGrids( UPre, XPre );
-        // TODO: More input checks
+      CallStackEntry cse("trmm::RUNA");
+      AssertSameGrids( UPre, XPre );
+      // TODO: More input checks
     )
     const Int m = XPre.Height();
-    const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
@@ -97,7 +95,7 @@ RUNA
     {
         const Int nb = Min(bsize,m-k);
 
-        auto X1 = X( IR(k,k+nb), IR(0,n) );
+        auto X1 = X( IR(k,k+nb), ALL_IND );
 
         X1_STAR_VC = X1;
         X1_STAR_MC = X1_STAR_VC;
@@ -118,13 +116,12 @@ RUNCOld
   const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::RUNCOld");
-        AssertSameGrids( UPre, XPre );
-        if( UPre.Height() != UPre.Width() || XPre.Width() != UPre.Height() )
-            LogicError
-            ("Nonconformal:\n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));
+      CallStackEntry cse("trmm::RUNCOld");
+      AssertSameGrids( UPre, XPre );
+      if( UPre.Height() != UPre.Width() || XPre.Width() != UPre.Height() )
+          LogicError
+          ("Nonconformal:\n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));
     )
-    const Int m = XPre.Height();
     const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
@@ -145,8 +142,8 @@ RUNCOld
         auto U01 = U( IR(0,k),    IR(k,k+nb) );
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X0 = X( IR(0,m), IR(0,k)    );
-        auto X1 = X( IR(0,m), IR(k,k+nb) );
+        auto X0 = X( ALL_IND, IR(0,k)    );
+        auto X1 = X( ALL_IND, IR(k,k+nb) );
 
         X1_VC_STAR = X1;
         U11_STAR_STAR = U11;
@@ -169,13 +166,12 @@ RUNC
   const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::RUNC");
-        AssertSameGrids( UPre, XPre );
-        if( UPre.Height() != UPre.Width() || XPre.Width() != UPre.Height() )
-            LogicError
-            ("Nonconformal:\n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));
+      CallStackEntry cse("trmm::RUNC");
+      AssertSameGrids( UPre, XPre );
+      if( UPre.Height() != UPre.Width() || XPre.Width() != UPre.Height() )
+          LogicError
+          ("Nonconformal:\n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));
     )
-    const Int m = XPre.Height();
     const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
@@ -196,8 +192,8 @@ RUNC
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
         auto U12 = U( IR(k,k+nb), IR(k+nb,n) );
 
-        auto X1 = X( IR(0,m), IR(k,k+nb) );
-        auto X2 = X( IR(0,m), IR(k+nb,n) );
+        auto X1 = X( ALL_IND, IR(k,k+nb) );
+        auto X2 = X( ALL_IND, IR(k+nb,n) );
 
         X1_MC_STAR.AlignWith( X2 );
         X1_MC_STAR = X1;

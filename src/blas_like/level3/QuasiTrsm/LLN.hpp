@@ -109,10 +109,8 @@ LLN( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 {
     DEBUG_ONLY(CallStackEntry cse("quasitrsm::LLN"))
     const Int m = X.Height();
-    const Int n = X.Width();
     const Int bsize = Blocksize();
 
-    const Range<Int> outerInd( 0, n );
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nbProp = Min(bsize,m-k);
@@ -125,8 +123,8 @@ LLN( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
         auto L11 = L( ind1, ind1 );
         auto L21 = L( ind2, ind1 );
 
-        auto X1 = X( ind1, outerInd );
-        auto X2 = X( ind2, outerInd );
+        auto X1 = X( ind1, ALL_IND );
+        auto X2 = X( ind2, ALL_IND );
 
         LLNUnb( L11, X1, checkIfSingular );
         Gemm( NORMAL, NORMAL, F(-1), L21, X1, F(1), X2 );
@@ -142,7 +140,6 @@ LLNLarge
 {
     DEBUG_ONLY(CallStackEntry cse("quasitrsm::LLNLarge"))
     const Int m = XPre.Height();
-    const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
@@ -154,7 +151,6 @@ LLNLarge
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
-    const Range<Int> outerInd( 0, n );
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nbProp = Min(bsize,m-k);
@@ -167,8 +163,8 @@ LLNLarge
         auto L11 = L( ind1, ind1 );
         auto L21 = L( ind2, ind1 );
 
-        auto X1 = X( ind1, outerInd );
-        auto X2 = X( ind2, outerInd );
+        auto X1 = X( ind1, ALL_IND );
+        auto X2 = X( ind2, ALL_IND );
 
         // X1[* ,VR] := L11^-1[* ,* ] X1[* ,VR]
         L11_STAR_STAR = L11; 
@@ -197,7 +193,6 @@ LLNMedium
 {
     DEBUG_ONLY(CallStackEntry cse("quasitrsm::LLNMedium"))
     const Int m = XPre.Height();
-    const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
@@ -208,7 +203,6 @@ LLNMedium
     DistMatrix<F,MC,  STAR> L21_MC_STAR(g);
     DistMatrix<F,MR,  STAR> X1Trans_MR_STAR(g);
 
-    const Range<Int> outerInd( 0, n );
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nbProp = Min(bsize,m-k);
@@ -221,8 +215,8 @@ LLNMedium
         auto L11 = L( ind1, ind1 );
         auto L21 = L( ind2, ind1 );
 
-        auto X1 = X( ind1, outerInd );
-        auto X2 = X( ind2, outerInd );
+        auto X1 = X( ind1, ALL_IND );
+        auto X2 = X( ind2, ALL_IND );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         X1Trans_MR_STAR.AlignWith( X2 );
@@ -252,18 +246,16 @@ LLNSmall
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("quasitrsm::LLNSmall");
-        if( L.ColAlign() != X.ColAlign() )
-            LogicError("L and X are assumed to be aligned");
+      CallStackEntry cse("quasitrsm::LLNSmall");
+      if( L.ColAlign() != X.ColAlign() )
+          LogicError("L and X are assumed to be aligned");
     )
     const Int m = X.Height();
-    const Int n = X.Width();
     const Int bsize = Blocksize();
     const Grid& g = L.Grid();
 
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g), X1_STAR_STAR(g);
 
-    const Range<Int> outerInd( 0, n );
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nbProp = Min(bsize,m-k);
@@ -276,8 +268,8 @@ LLNSmall
         auto L11 = L( ind1, ind1 );
         auto L21 = L( ind2, ind1 );
 
-        auto X1 = X( ind1, outerInd );
-        auto X2 = X( ind2, outerInd );
+        auto X1 = X( ind1, ALL_IND );
+        auto X2 = X( ind2, ALL_IND );
 
         // X1[* ,* ] := (L11[* ,* ])^-1 X1[* ,* ]
         L11_STAR_STAR = L11; 

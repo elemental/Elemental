@@ -203,12 +203,36 @@ inline void LockedView
 template<typename T>
 inline void View
 ( Matrix<T>& A, Matrix<T>& B, Range<Int> I, Range<Int> J )
-{ View( A, B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); }
+{
+    if( I == ALL_IND )
+    {
+        I.beg = 0;
+        I.end = B.Height();
+    }
+    if( J == ALL_IND )
+    {
+        J.beg = 0;
+        J.end = B.Width();
+    }
+    View( A, B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); 
+}
 
 template<typename T>
 inline void LockedView
 ( Matrix<T>& A, const Matrix<T>& B, Range<Int> I, Range<Int> J )
-{ LockedView( A, B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); }
+{ 
+    if( I == ALL_IND )
+    {
+        I.beg = 0;
+        I.end = B.Height();
+    }
+    if( J == ALL_IND )
+    {
+        J.beg = 0;
+        J.end = B.Width();
+    }
+    LockedView( A, B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); 
+}
 
 // Return by value
 // ^^^^^^^^^^^^^^^
@@ -233,12 +257,36 @@ inline Matrix<T> LockedView
 template<typename T>
 inline Matrix<T> View
 ( Matrix<T>& B, Range<Int> I, Range<Int> J )
-{ return View( B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); }
+{ 
+    if( I == ALL_IND )
+    {
+        I.beg = 0;
+        I.end = B.Height();
+    }
+    if( J == ALL_IND )
+    {
+        J.beg = 0;
+        J.end = B.Width();
+    }
+    return View( B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); 
+}
 
 template<typename T>
 inline Matrix<T> LockedView
 ( const Matrix<T>& B, Range<Int> I, Range<Int> J )
-{ return LockedView( B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); }
+{ 
+    if( I == ALL_IND )
+    {
+        I.beg = 0;
+        I.end = B.Height();
+    }
+    if( J == ALL_IND )
+    {
+        J.beg = 0;
+        J.end = B.Width();
+    }
+    return LockedView( B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); 
+}
 
 // DistMatrix
 // ----------
@@ -301,13 +349,37 @@ template<typename T>
 inline void View
 ( AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, 
   Range<Int> I, Range<Int> J )
-{ View( A, B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); }
+{
+    if( I == ALL_IND )
+    {
+        I.beg = 0;
+        I.end = B.Height();
+    }
+    if( J == ALL_IND )
+    {
+        J.beg = 0;
+        J.end = B.Width();
+    }
+    View( A, B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); 
+}
 
 template<typename T>
 inline void LockedView
 ( AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, 
   Range<Int> I, Range<Int> J )
-{ LockedView( A, B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); }
+{ 
+    if( I == ALL_IND )
+    {
+        I.beg = 0;
+        I.end = B.Height();
+    }
+    if( J == ALL_IND )
+    {
+        J.beg = 0;
+        J.end = B.Width();
+    }
+    LockedView( A, B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); 
+}
 
 // Return by value
 // ^^^^^^^^^^^^^^^
@@ -333,12 +405,36 @@ inline DistMatrix<T,U,V> LockedView
 template<typename T,Dist U,Dist V>
 inline DistMatrix<T,U,V> View
 ( DistMatrix<T,U,V>& B, Range<Int> I, Range<Int> J )
-{ return View( B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); }
+{
+    if( I == ALL_IND )
+    {
+        I.beg = 0;
+        I.end = B.Height();
+    }
+    if( J == ALL_IND )
+    {
+        J.beg = 0;
+        J.end = B.Width();
+    }
+    return View( B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); 
+}
  
 template<typename T,Dist U,Dist V>
 inline DistMatrix<T,U,V> LockedView
 ( const DistMatrix<T,U,V>& B, Range<Int> I, Range<Int> J )
-{ return LockedView( B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); }
+{ 
+    if( I == ALL_IND )
+    {
+        I.beg = 0;
+        I.end = B.Height();
+    }
+    if( J == ALL_IND )
+    {
+        J.beg = 0;
+        J.end = B.Width();
+    }
+    return LockedView( B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); 
+}
 
 } // namespace El
 

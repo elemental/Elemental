@@ -22,14 +22,13 @@ void Trr2kNNNT
   T gamma,       AbstractDistMatrix<T>& EPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trr2k::Trr2kNNNT");
-        if( EPre.Height() != EPre.Width()  || APre.Width()  != CPre.Width()  ||
-            APre.Height() != EPre.Height() || CPre.Height() != EPre.Height() ||
-            BPre.Width()  != EPre.Width()  || DPre.Height() != EPre.Width()  ||
-            APre.Width()  != BPre.Height() || CPre.Width()  != DPre.Width() )
-            LogicError("Nonconformal Trr2kNNNT");
+      CallStackEntry cse("trr2k::Trr2kNNNT");
+      if( EPre.Height() != EPre.Width()  || APre.Width()  != CPre.Width()  ||
+          APre.Height() != EPre.Height() || CPre.Height() != EPre.Height() ||
+          BPre.Width()  != EPre.Width()  || DPre.Height() != EPre.Width()  ||
+          APre.Width()  != BPre.Height() || CPre.Width()  != DPre.Width() )
+          LogicError("Nonconformal Trr2kNNNT");
     )
-    const Int n = EPre.Height();
     const Int r = APre.Width();
     const Int bsize = Blocksize();
     const Grid& g = EPre.Grid();
@@ -51,17 +50,16 @@ void Trr2kNNNT
     D1_VR_STAR.AlignWith( E );
     D1Trans_STAR_MR.AlignWith( E );
 
-    const Range<Int> outerInd( 0, n );
     for( Int k=0; k<r; k+=bsize )
     {
         const Int nb = Min(bsize,r-k);
 
         const Range<Int> ind1( k, k+nb );
 
-        auto A1 = A( outerInd, ind1     );
-        auto B1 = B( ind1,     outerInd );
-        auto C1 = C( outerInd, ind1     );
-        auto D1 = D( outerInd, ind1     );
+        auto A1 = A( ALL_IND, ind1    );
+        auto B1 = B( ind1,    ALL_IND );
+        auto C1 = C( ALL_IND, ind1    );
+        auto D1 = D( ALL_IND, ind1    );
 
         A1_MC_STAR = A1;
         C1_MC_STAR = C1;

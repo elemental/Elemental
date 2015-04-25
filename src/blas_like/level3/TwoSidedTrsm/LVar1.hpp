@@ -18,13 +18,13 @@ inline void
 LVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("twotrsm::LVar1");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( L.Height() != L.Width() )
-            LogicError("Triangular matrices must be square");
-        if( A.Height() != L.Height() )
-            LogicError("A and L must be the same size");
+      CallStackEntry cse("twotrsm::LVar1");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( L.Height() != L.Width() )
+          LogicError("Triangular matrices must be square");
+      if( A.Height() != L.Height() )
+          LogicError("A and L must be the same size");
     )
     const Int n = A.Height();
     const Int bsize = Blocksize();
@@ -78,13 +78,13 @@ LVar1
   AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& LPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("twotrsm::LVar1");
-        if( APre.Height() != APre.Width() )
-            LogicError("A must be square");
-        if( LPre.Height() != LPre.Width() )
-            LogicError("Triangular matrices must be square");
-        if( APre.Height() != LPre.Height() )
-            LogicError("A and L must be the same size");
+      CallStackEntry cse("twotrsm::LVar1");
+      if( APre.Height() != APre.Width() )
+          LogicError("A must be square");
+      if( LPre.Height() != LPre.Width() )
+          LogicError("Triangular matrices must be square");
+      if( APre.Height() != LPre.Height() )
+          LogicError("A and L must be the same size");
     )
     const Int n = APre.Height();
     const Int bsize = Blocksize();
@@ -159,7 +159,7 @@ LVar1
         ( LOWER, NORMAL,
           F(-1), A10_STAR_VR.Matrix(), L10_STAR_VR.Matrix(), 
           F(0), X11_STAR_STAR.Matrix() );
-        A11.SumScatterUpdate( F(1), X11_STAR_STAR );
+        AxpyContract( F(1), X11_STAR_STAR, A11 );
 
         // A11 := inv(L11) A11 inv(L11)'
         A11_STAR_STAR = A11;

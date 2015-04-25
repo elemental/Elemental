@@ -17,13 +17,12 @@ LN
   T beta,        AbstractDistMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("syrk::LN");
-        AssertSameGrids( APre, CPre );
-        if( APre.Height() != CPre.Height() || APre.Height() != CPre.Width() )
-            LogicError
-            ("Nonconformal:\n",DimsString(APre,"A"),"\n",DimsString(CPre,"C"))
+      CallStackEntry cse("syrk::LN");
+      AssertSameGrids( APre, CPre );
+      if( APre.Height() != CPre.Height() || APre.Height() != CPre.Width() )
+          LogicError
+          ("Nonconformal:\n",DimsString(APre,"A"),"\n",DimsString(CPre,"C"))
     )
-    const Int n = APre.Height();
     const Int r = APre.Width();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -44,7 +43,7 @@ LN
     for( Int k=0; k<r; k+=bsize )
     {
         const Int nb = Min(bsize,r-k);
-        auto A1 = A( IR(0,n), IR(k,k+nb) );
+        auto A1 = A( ALL_IND, IR(k,k+nb) );
 
         A1_VR_STAR = A1_MC_STAR = A1;
         Transpose( A1_VR_STAR, A1Trans_STAR_MR, conjugate );

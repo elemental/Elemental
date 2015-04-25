@@ -21,7 +21,6 @@ RUN
   bool checkIfSingular )
 {
     DEBUG_ONLY(CallStackEntry cse("trsm::RUN"))
-    const Int m = XPre.Height();
     const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
@@ -34,8 +33,6 @@ RUN
     DistMatrix<F,VC,  STAR> X1_VC_STAR(g);    
     DistMatrix<F,STAR,MC  > X1Trans_STAR_MC(g);
 
-    const Range<Int> outerInd( 0, m );
-    
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
@@ -46,8 +43,8 @@ RUN
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1 = X( outerInd, ind1 );
-        auto X2 = X( outerInd, ind2 );
+        auto X1 = X( ALL_IND, ind1 );
+        auto X2 = X( ALL_IND, ind2 );
 
         U11_STAR_STAR = U11; 
         X1_VC_STAR.AlignWith( X2 );

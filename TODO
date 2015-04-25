@@ -10,7 +10,7 @@ Functionality priorities
 
 Fundamental functionality additions
 -----------------------------------
-[o] Lanczos eigenvalue estimation (e.g., for condition estimation)
+[o] Non-naive Lanczos
 [o] 2D sparse matrix distributions
 [o] Matrix type tags for, for example, merging {Gemm,Hemm,Trmm,etc.} into "*"
 [o] Estimate for spectral radius
@@ -35,8 +35,6 @@ Incremental functionality improvements
 [o] General redistribution routine between any two matrices with any 
     process grids (with equivalent viewing communicators)
 [o] Add Bunch-Kaufman C now that explicit permutations are used
-[o] Extend operator() submatrix interfaces to support equivalent of ":", e.g.,
-    an enum named "ALL"
 [o] Extend Grid class to support mappings from, e.g., (MDRank,root) -> VCRank
     and use these mappings to build an (owner,root) -> VCRank mapping for 
     [Block]DistMatrix
@@ -109,7 +107,6 @@ External Interfaces
 Build system
 ------------
 [o] Support PMRRR when pthreads are not available (e.g., Windows)
-[o] Support for OpenBLAS [-D MATH_LIBS="-lopenblas;-lpthread;-lm;-lgfortran"]
 [o] Support for BLIS
 [o] Support for netlib BLAS/LAPACK
 [o] Attempt to shorten build via extern templates

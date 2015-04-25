@@ -21,14 +21,13 @@ void TrrkTN
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trrk::TrrkTN");
-        if( CPre.Height() != CPre.Width() || APre.Width() != CPre.Height() || 
-            BPre.Width() != CPre.Width() || APre.Height() != BPre.Height() )
-            LogicError("Nonconformal TrrkTN");
-        if( orientationOfA == NORMAL )
-            LogicError("Orientation must be ADJOINT or NORMAL");
+      CallStackEntry cse("trrk::TrrkTN");
+      if( CPre.Height() != CPre.Width() || APre.Width() != CPre.Height() || 
+          BPre.Width() != CPre.Width() || APre.Height() != BPre.Height() )
+          LogicError("Nonconformal TrrkTN");
+      if( orientationOfA == NORMAL )
+          LogicError("Orientation must be ADJOINT or NORMAL");
     )
-    const Int n = CPre.Height();
     const Int r = APre.Height();
     const Int bsize = Blocksize();
     const Grid& g = CPre.Grid();
@@ -43,15 +42,14 @@ void TrrkTN
     A1_STAR_MC.AlignWith( C );
     B1Trans_MR_STAR.AlignWith( C );
 
-    const Range<Int> outerInd( 0, n );
     for( Int k=0; k<r; k+=bsize )
     {
         const Int nb = Min(bsize,r-k);
 
         const Range<Int> ind1( k, k+nb );
 
-        auto A1 = A( ind1, outerInd );
-        auto B1 = B( ind1, outerInd );
+        auto A1 = A( ind1, ALL_IND );
+        auto B1 = B( ind1, ALL_IND );
 
         A1_STAR_MC = A1;
         Transpose( B1, B1Trans_MR_STAR );

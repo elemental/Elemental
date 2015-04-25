@@ -15,6 +15,16 @@ void GetSubgraph
         Graph& subgraph )
 {
     DEBUG_ONLY(CallStackEntry cse("GetSubgraph"))
+    if( I == ALL_IND )
+    {
+        I.beg = 0;
+        I.end = graph.NumSources();
+    }
+    if( J == ALL_IND )
+    {
+        J.beg = 0;
+        J.end = graph.NumTargets();
+    }
     const Int mSub = I.end-I.beg;
     const Int nSub = J.end-J.beg;
     subgraph.Empty();
@@ -62,6 +72,16 @@ void GetSubgraph
         DistGraph& subgraph )
 {
     DEBUG_ONLY(CallStackEntry cse("GetSubgraph"))
+    if( I == ALL_IND )
+    {
+        I.beg = 0;
+        I.end = graph.NumSources();
+    }
+    if( J == ALL_IND )
+    {
+        J.beg = 0;
+        J.end = graph.NumTargets();
+    }
     const Int mSub = I.end-I.beg;
     const Int nSub = J.end-J.beg;
     const Int numEdges = graph.NumLocalEdges();

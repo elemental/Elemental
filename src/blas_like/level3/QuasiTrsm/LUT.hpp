@@ -116,17 +116,14 @@ LUT
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("quasitrsm::LUT");
-        if( orientation == NORMAL )
-            LogicError("QuasiTrsmLUT expects a (Conjugate)Transpose option");
+      CallStackEntry cse("quasitrsm::LUT");
+      if( orientation == NORMAL )
+          LogicError("QuasiTrsmLUT expects a (Conjugate)Transpose option");
     )
     const Int m = X.Height();
-    const Int n = X.Width();
     const Int bsize = Blocksize();
 
     const bool conjugate = ( orientation==ADJOINT );
-
-    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -140,8 +137,8 @@ LUT
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1 = X( ind1, outerInd );
-        auto X2 = X( ind2, outerInd );
+        auto X1 = X( ind1, ALL_IND );
+        auto X2 = X( ind2, ALL_IND );
 
         LUTUnb( conjugate, U11, X1, checkIfSingular );
         Gemm( orientation, NORMAL, F(-1), U12, X1, F(1), X2 );
@@ -157,12 +154,11 @@ LUTLarge
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("quasitrsm::LUTLarge");
-        if( orientation == NORMAL )
-            LogicError("TrsmLUT expects a (Conjugate)Transpose option");
+      CallStackEntry cse("quasitrsm::LUTLarge");
+      if( orientation == NORMAL )
+          LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
     const Int m = XPre.Height();
-    const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
@@ -173,8 +169,6 @@ LUTLarge
     DistMatrix<F,STAR,MC  > U12_STAR_MC(g);
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
-
-    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -188,8 +182,8 @@ LUTLarge
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1 = X( ind1, outerInd );
-        auto X2 = X( ind2, outerInd );
+        auto X1 = X( ind1, ALL_IND );
+        auto X2 = X( ind2, ALL_IND );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
@@ -221,12 +215,11 @@ LUTMedium
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("quasitrsm::LUTMedium");
-        if( orientation == NORMAL )
-            LogicError("TrsmLUT expects a (Conjugate)Transpose option");
+      CallStackEntry cse("quasitrsm::LUTMedium");
+      if( orientation == NORMAL )
+          LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
     const Int m = XPre.Height();
-    const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
@@ -236,8 +229,6 @@ LUTMedium
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g); 
     DistMatrix<F,STAR,MC  > U12_STAR_MC(g);
     DistMatrix<F,MR,  STAR> X1Trans_MR_STAR(g);
-
-    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -251,8 +242,8 @@ LUTMedium
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1 = X( ind1, outerInd );
-        auto X2 = X( ind2, outerInd );
+        auto X1 = X( ind1, ALL_IND );
+        auto X2 = X( ind2, ALL_IND );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         // X1[* ,VR] <- X1[MC,MR]
@@ -286,24 +277,21 @@ LUTSmall
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("quasitrsm::LUTSmall");
-        AssertSameGrids( U, X );
-        if( orientation == NORMAL )
-            LogicError("TrsmLUT expects a (Conjugate)Transpose option");
-        if( U.Height() != U.Width() || U.Height() != X.Height() )
-            LogicError
-            ("Nonconformal: \n",DimsString(U,"U"),"\n",DimsString(X,"X"));
-        if( U.RowAlign() != X.ColAlign() )
-            LogicError("U and X are assumed to be aligned");
+      CallStackEntry cse("quasitrsm::LUTSmall");
+      AssertSameGrids( U, X );
+      if( orientation == NORMAL )
+          LogicError("TrsmLUT expects a (Conjugate)Transpose option");
+      if( U.Height() != U.Width() || U.Height() != X.Height() )
+          LogicError
+          ("Nonconformal: \n",DimsString(U,"U"),"\n",DimsString(X,"X"));
+      if( U.RowAlign() != X.ColAlign() )
+          LogicError("U and X are assumed to be aligned");
     )
     const Int m = X.Height();
-    const Int n = X.Width();
     const Int bsize = Blocksize();
     const Grid& g = U.Grid();
 
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g), X1_STAR_STAR(g); 
-
-    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -317,8 +305,8 @@ LUTSmall
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1 = X( ind1, outerInd );
-        auto X2 = X( ind2, outerInd );
+        auto X1 = X( ind1, ALL_IND );
+        auto X2 = X( ind2, ALL_IND );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[* ,VR]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VR,* ]

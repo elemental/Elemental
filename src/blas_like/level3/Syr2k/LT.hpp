@@ -17,17 +17,16 @@ LT
   T beta,        AbstractDistMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("syr2k::LT");
-        AssertSameGrids( APre, BPre, CPre );
-        if( APre.Width() != CPre.Height() || APre.Width() != CPre.Width()  ||
-            BPre.Width() != CPre.Height() || BPre.Width() != CPre.Width()  ||
-            APre.Height() != BPre.Height() )
-            LogicError
-            ("Nonconformal:\n",
-             DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
-             DimsString(CPre,"C"));
+      CallStackEntry cse("syr2k::LT");
+      AssertSameGrids( APre, BPre, CPre );
+      if( APre.Width() != CPre.Height() || APre.Width() != CPre.Width()  ||
+          BPre.Width() != CPre.Height() || BPre.Width() != CPre.Width()  ||
+          APre.Height() != BPre.Height() )
+          LogicError
+          ("Nonconformal:\n",
+           DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
+           DimsString(CPre,"C"));
     )
-    const Int n = APre.Width();
     const Int r = APre.Height();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -53,8 +52,8 @@ LT
     {
         const Int nb = Min(bsize,r-k);
 
-        auto A1 = A( IR(k,k+nb), IR(0,n) );
-        auto B1 = B( IR(k,k+nb), IR(0,n) );
+        auto A1 = A( IR(k,k+nb), ALL_IND );
+        auto B1 = B( IR(k,k+nb), ALL_IND );
 
         Transpose( A1, A1Trans_MR_STAR );
         Transpose( A1Trans_MR_STAR, A1_STAR_VR );

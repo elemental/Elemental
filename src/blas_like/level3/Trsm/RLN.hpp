@@ -24,7 +24,6 @@ RLN
   bool checkIfSingular )
 {
     DEBUG_ONLY(CallStackEntry cse("trsm::RLN"))
-    const Int m = XPre.Height();
     const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -37,8 +36,6 @@ RLN
     DistMatrix<F,STAR,MC  > X1Trans_STAR_MC(g);
     DistMatrix<F,VC,  STAR> X1_VC_STAR(g);
 
-    const Range<Int> outerInd( 0, m );
-
     const Int kLast = LastOffset( n, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
     {
@@ -50,8 +47,8 @@ RLN
         auto L10 = L( ind1, ind0 );
         auto L11 = L( ind1, ind1 );
 
-        auto X0 = X( outerInd, ind0 );
-        auto X1 = X( outerInd, ind1 );
+        auto X0 = X( ALL_IND, ind0 );
+        auto X1 = X( ALL_IND, ind1 );
 
         L11_STAR_STAR = L11;
         X1_VC_STAR = X1;

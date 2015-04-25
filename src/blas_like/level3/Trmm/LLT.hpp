@@ -25,18 +25,17 @@ LocalAccumulateLLT
         DistMatrix<T,MR,STAR>& Z )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::LocalAccumulateLLT");
-        AssertSameGrids( L, X, Z );
-        if( L.Height() != L.Width() || L.Height() != X.Height() ||
-            L.Height() != Z.Height() )
-            LogicError
-            ("Nonconformal:\n",DimsString(L,"L"),"\n",DimsString(X,"X"),"\n",
-             DimsString(Z,"Z"));
-        if( X.ColAlign() != L.ColAlign() || Z.ColAlign() != L.RowAlign() )
-            LogicError("Partial matrix distributions are misaligned");
+      CallStackEntry cse("trmm::LocalAccumulateLLT");
+      AssertSameGrids( L, X, Z );
+      if( L.Height() != L.Width() || L.Height() != X.Height() ||
+          L.Height() != Z.Height() )
+          LogicError
+          ("Nonconformal:\n",DimsString(L,"L"),"\n",DimsString(X,"X"),"\n",
+           DimsString(Z,"Z"));
+      if( X.ColAlign() != L.ColAlign() || Z.ColAlign() != L.RowAlign() )
+          LogicError("Partial matrix distributions are misaligned");
     )
     const Int m = Z.Height();
-    const Int n = Z.Width();
     const Int bsize = Blocksize();
     const Grid& g = L.Grid();
     
@@ -50,10 +49,10 @@ LocalAccumulateLLT
         auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
         auto L21 = L( IR(k+nb,m), IR(k,k+nb) );
 
-        auto X1 = X( IR(k,k+nb), IR(0,n) );
-        auto X2 = X( IR(k+nb,m), IR(0,n) );
+        auto X1 = X( IR(k,k+nb), ALL_IND );
+        auto X2 = X( IR(k+nb,m), ALL_IND );
 
-        auto Z1 = Z( IR(k,k+nb), IR(0,n) );
+        auto Z1 = Z( IR(k,k+nb), ALL_IND );
 
         D11.AlignWith( L11 );
         D11 = L11;
@@ -72,13 +71,13 @@ LLTA
   const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::LLTA");
-        AssertSameGrids( LPre, XPre );
-        if( orientation == NORMAL )
-            LogicError("Expected (Conjugate)Transpose option");
-        if( LPre.Height() != LPre.Width() || LPre.Height() != XPre.Height() )
-            LogicError
-            ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
+      CallStackEntry cse("trmm::LLTA");
+      AssertSameGrids( LPre, XPre );
+      if( orientation == NORMAL )
+          LogicError("Expected (Conjugate)Transpose option");
+      if( LPre.Height() != LPre.Width() || LPre.Height() != XPre.Height() )
+          LogicError
+          ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
     )
     const Int m = XPre.Height();
     const Int n = XPre.Width();
@@ -99,7 +98,7 @@ LLTA
     {
         const Int nb = Min(bsize,n-k);
 
-        auto X1 = X( IR(0,m), IR(k,k+nb) );
+        auto X1 = X( ALL_IND, IR(k,k+nb) );
 
         X1_MC_STAR = X1;
         Zeros( Z1_MR_STAR, m, nb );
@@ -118,13 +117,13 @@ LLTCOld
   const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::LLTCOld");
-        AssertSameGrids( LPre, XPre );
-        if( orientation == NORMAL )
-            LogicError("Expected (Conjugate)Transpose option");
-        if( LPre.Height() != LPre.Width() || LPre.Height() != XPre.Height() )
-            LogicError
-            ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
+      CallStackEntry cse("trmm::LLTCOld");
+      AssertSameGrids( LPre, XPre );
+      if( orientation == NORMAL )
+          LogicError("Expected (Conjugate)Transpose option");
+      if( LPre.Height() != LPre.Width() || LPre.Height() != XPre.Height() )
+          LogicError
+          ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
     )
     const Int m = XPre.Height();
     const Int n = XPre.Width();
@@ -149,8 +148,8 @@ LLTCOld
         auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
         auto L21 = L( IR(k+nb,m), IR(k,k+nb) );
 
-        auto X1 = X( IR(k,k+nb), IR(0,n) );
-        auto X2 = X( IR(k+nb,m), IR(0,n) );
+        auto X1 = X( IR(k,k+nb), ALL_IND );
+        auto X2 = X( IR(k+nb,m), ALL_IND );
 
         X1_STAR_VR = X1;
         L11_STAR_STAR = L11;
@@ -179,16 +178,15 @@ LLTC
   const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::LLTC");
-        AssertSameGrids( LPre, XPre );
-        if( orientation == NORMAL )
-            LogicError("Expected (Conjugate)Transpose option");
-        if( LPre.Height() != LPre.Width() || LPre.Height() != XPre.Height() )
-            LogicError
-            ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
+      CallStackEntry cse("trmm::LLTC");
+      AssertSameGrids( LPre, XPre );
+      if( orientation == NORMAL )
+          LogicError("Expected (Conjugate)Transpose option");
+      if( LPre.Height() != LPre.Width() || LPre.Height() != XPre.Height() )
+          LogicError
+          ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
     )
     const Int m = XPre.Height();
-    const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
@@ -207,8 +205,8 @@ LLTC
         auto L10 = L( IR(k,k+nb), IR(0,k)    );
         auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X0 = X( IR(0,k),    IR(0,n) );
-        auto X1 = X( IR(k,k+nb), IR(0,n) );
+        auto X0 = X( IR(0,k),    ALL_IND );
+        auto X1 = X( IR(k,k+nb), ALL_IND );
 
         L10_STAR_MC.AlignWith( X0 );
         L10_STAR_MC = L10;

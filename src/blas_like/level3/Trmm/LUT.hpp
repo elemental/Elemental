@@ -25,19 +25,18 @@ LocalAccumulateLUT
         DistMatrix<T,MR,STAR>& Z )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::LocalAccumulateLUT");
-        AssertSameGrids( U, X, Z );
-        if( U.Height() != U.Width() ||
-            U.Height() != X.Height() ||
-            U.Height() != Z.Height() )
-            LogicError
-            ("Nonconformal:\n",DimsString(U,"U"),"\n",DimsString(X,"X"),"\n",
-             DimsString(Z,"Z"));
-        if( X.ColAlign() != U.ColAlign() || Z.ColAlign() != U.RowAlign() )
-            LogicError("Partial matrix distributions are misaligned");
+      CallStackEntry cse("trmm::LocalAccumulateLUT");
+      AssertSameGrids( U, X, Z );
+      if( U.Height() != U.Width() ||
+          U.Height() != X.Height() ||
+          U.Height() != Z.Height() )
+          LogicError
+          ("Nonconformal:\n",DimsString(U,"U"),"\n",DimsString(X,"X"),"\n",
+           DimsString(Z,"Z"));
+      if( X.ColAlign() != U.ColAlign() || Z.ColAlign() != U.RowAlign() )
+          LogicError("Partial matrix distributions are misaligned");
     )
     const Int m = Z.Height();
-    const Int n = Z.Width();
     const Int bsize = Blocksize();
     const Grid& g = U.Grid();
 
@@ -51,10 +50,10 @@ LocalAccumulateLUT
         auto U01 = U( IR(0,k),    IR(k,k+nb) );
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X0 = X( IR(0,k),    IR(0,n) );
-        auto X1 = X( IR(k,k+nb), IR(0,n) );
+        auto X0 = X( IR(0,k),    ALL_IND );
+        auto X1 = X( IR(k,k+nb), ALL_IND );
  
-        auto Z1 = Z( IR(k,k+nb), IR(0,n) );
+        auto Z1 = Z( IR(k,k+nb), ALL_IND );
 
         D11.AlignWith( U11 );
         D11 = U11;
@@ -73,13 +72,13 @@ LUTA
   const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::LUTA");
-        AssertSameGrids( UPre, XPre );
-        if( orientation == NORMAL )
-            LogicError("Expected (Conjugate)Transpose option");
-        if( UPre.Height() != UPre.Width() || UPre.Height() != XPre.Height() )
-            LogicError
-            ("Nonconformal: \n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"))
+      CallStackEntry cse("trmm::LUTA");
+      AssertSameGrids( UPre, XPre );
+      if( orientation == NORMAL )
+          LogicError("Expected (Conjugate)Transpose option");
+      if( UPre.Height() != UPre.Width() || UPre.Height() != XPre.Height() )
+          LogicError
+          ("Nonconformal: \n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"))
     )
     const Int m = XPre.Height();
     const Int n = XPre.Width();
@@ -100,7 +99,7 @@ LUTA
     {
         const Int nb = Min(bsize,n-k);
 
-        auto X1 = X( IR(0,m), IR(k,k+nb) );
+        auto X1 = X( ALL_IND, IR(k,k+nb) );
 
         X1_MC_STAR = X1;
         Zeros( Z1_MR_STAR, m, nb );
@@ -151,8 +150,8 @@ LUTCOld
         auto U01 = U( IR(0,k),    IR(k,k+nb) );
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X0 = X( IR(0,k),    IR(0,n) );
-        auto X1 = X( IR(k,k+nb), IR(0,n) );
+        auto X0 = X( IR(0,k),    ALL_IND );
+        auto X1 = X( IR(k,k+nb), ALL_IND );
 
         X1_STAR_VR = X1;
         U11_STAR_STAR = U11;
@@ -181,16 +180,15 @@ LUTC
   const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::LUTC");
-        AssertSameGrids( UPre, XPre );
-        if( orientation == NORMAL )
-            LogicError("Expected (Conjugate)Transpose option");
-        if( UPre.Height() != UPre.Width() || UPre.Height() != XPre.Height() )
-            LogicError
-            ("Nonconformal: \n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"))
+      CallStackEntry cse("trmm::LUTC");
+      AssertSameGrids( UPre, XPre );
+      if( orientation == NORMAL )
+          LogicError("Expected (Conjugate)Transpose option");
+      if( UPre.Height() != UPre.Width() || UPre.Height() != XPre.Height() )
+          LogicError
+          ("Nonconformal: \n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"))
     )
     const Int m = XPre.Height();
-    const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
@@ -210,8 +208,8 @@ LUTC
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
         auto U12 = U( IR(k,k+nb), IR(k+nb,m) );
 
-        auto X1 = X( IR(k,k+nb), IR(0,n) );
-        auto X2 = X( IR(k+nb,m), IR(0,n) );
+        auto X1 = X( IR(k,k+nb), ALL_IND );
+        auto X2 = X( IR(k+nb,m), ALL_IND );
 
         U12_STAR_MC.AlignWith( X2 );
         U12_STAR_MC = U12;

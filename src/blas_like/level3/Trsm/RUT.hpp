@@ -23,11 +23,10 @@ RUT
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trsm::RUT");
-        if( orientation == NORMAL )
-            LogicError("Expected (Conjugate)Transpose option");
+      CallStackEntry cse("trsm::RUT");
+      if( orientation == NORMAL )
+          LogicError("Expected (Conjugate)Transpose option");
     )
-    const Int m = XPre.Height();
     const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
@@ -41,8 +40,6 @@ RUT
     DistMatrix<F,VC,  STAR> X1_VC_STAR(g);
     DistMatrix<F,STAR,MC  > X1Trans_STAR_MC(g);
 
-    const Range<Int> outerInd( 0, m );
-    
     const Int kLast = LastOffset( n, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
     {
@@ -54,8 +51,8 @@ RUT
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0 = X( outerInd, ind0 );
-        auto X1 = X( outerInd, ind1 );
+        auto X0 = X( ALL_IND, ind0 );
+        auto X1 = X( ALL_IND, ind1 );
 
         U11_STAR_STAR = U11;
         X1_VC_STAR.AlignWith( X0 );

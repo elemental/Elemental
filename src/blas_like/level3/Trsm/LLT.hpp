@@ -25,12 +25,11 @@ LLTLarge
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trsm::LLTLarge");
-        if( orientation == NORMAL )
-            LogicError("Expected (Conjugate)Transpose option");
+      CallStackEntry cse("trsm::LLTLarge");
+      if( orientation == NORMAL )
+          LogicError("Expected (Conjugate)Transpose option");
     )
     const Int m = XPre.Height();
-    const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
@@ -41,8 +40,6 @@ LLTLarge
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
-
-    const Range<Int> outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
@@ -55,8 +52,8 @@ LLTLarge
         auto L10 = L( ind1, ind0 );
         auto L11 = L( ind1, ind1 );
 
-        auto X0 = X( ind0, outerInd );
-        auto X1 = X( ind1, outerInd );
+        auto X0 = X( ind0, ALL_IND );
+        auto X1 = X( ind1, ALL_IND );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
@@ -88,12 +85,11 @@ LLTMedium
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trsm::LLTMedium");
-        if( orientation == NORMAL )
-            LogicError("Expected (Conjugate)Transpose option");
+      CallStackEntry cse("trsm::LLTMedium");
+      if( orientation == NORMAL )
+          LogicError("Expected (Conjugate)Transpose option");
     )
     const Int m = XPre.Height();
-    const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
@@ -103,8 +99,6 @@ LLTMedium
     DistMatrix<F,STAR,MC  > L10_STAR_MC(g);
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,MR,  STAR> X1Trans_MR_STAR(g);
-
-    const Range<Int> outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
@@ -117,8 +111,8 @@ LLTMedium
         auto L10 = L( ind1, ind0 );
         auto L11 = L( ind1, ind1 );
 
-        auto X0 = X( ind0, outerInd );
-        auto X1 = X( ind1, outerInd );
+        auto X0 = X( ind0, ALL_IND );
+        auto X1 = X( ind1, ALL_IND );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         // X1[* ,MR] <- X1[MC,MR]
@@ -152,24 +146,21 @@ LLTSmall
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trsm::LLTSmall");
-        AssertSameGrids( L, X );
-        if( orientation == NORMAL )
-            LogicError("Expected (Conjugate)Transpose option");
-        if( L.Height() != L.Width() || L.Height() != X.Height() )
-            LogicError
-            ("Nonconformal: \n",DimsString(L,"L"),"\n",DimsString(X,"X"));
-        if( L.ColAlign() != X.ColAlign() )
-            LogicError("L and X must be aligned");
+      CallStackEntry cse("trsm::LLTSmall");
+      AssertSameGrids( L, X );
+      if( orientation == NORMAL )
+          LogicError("Expected (Conjugate)Transpose option");
+      if( L.Height() != L.Width() || L.Height() != X.Height() )
+          LogicError
+          ("Nonconformal: \n",DimsString(L,"L"),"\n",DimsString(X,"X"));
+      if( L.ColAlign() != X.ColAlign() )
+          LogicError("L and X must be aligned");
     )
     const Int m = X.Height();
-    const Int n = X.Width();
     const Int bsize = Blocksize();
     const Grid& g = L.Grid();
 
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g), Z1_STAR_STAR(g);
-
-    const Range<Int> outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
@@ -182,8 +173,8 @@ LLTSmall
         auto L11 = L( ind1, ind1 );
         auto L21 = L( ind2, ind1 );
 
-        auto X1 = X( ind1, outerInd );
-        auto X2 = X( ind2, outerInd );
+        auto X1 = X( ind1, ALL_IND );
+        auto X2 = X( ind2, ALL_IND );
 
         // X1 -= L21' X2
         LocalGemm( orientation, NORMAL, F(-1), L21, X2, Z1_STAR_STAR );
@@ -207,24 +198,21 @@ LLTSmall
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trsm::LLTSmall");
-        AssertSameGrids( L, X );
-        if( orientation == NORMAL )
-            LogicError("Expected (Conjugate)Transpose option");
-        if( L.Height() != L.Width() || L.Height() != X.Height() )
-            LogicError
-            ("Nonconformal: \n",DimsString(L,"L"),"\n",DimsString(X,"X"));
-        if( L.RowAlign() != X.ColAlign() )
-            LogicError("L and X must be aligned");
+      CallStackEntry cse("trsm::LLTSmall");
+      AssertSameGrids( L, X );
+      if( orientation == NORMAL )
+          LogicError("Expected (Conjugate)Transpose option");
+      if( L.Height() != L.Width() || L.Height() != X.Height() )
+          LogicError
+          ("Nonconformal: \n",DimsString(L,"L"),"\n",DimsString(X,"X"));
+      if( L.RowAlign() != X.ColAlign() )
+          LogicError("L and X must be aligned");
     )
     const Int m = X.Height();
-    const Int n = X.Width();
     const Int bsize = Blocksize();
     const Grid& g = L.Grid();
 
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g), X1_STAR_STAR(g);
-
-    const Range<Int> outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
@@ -237,8 +225,8 @@ LLTSmall
         auto L10 = L( ind1, ind0 );
         auto L11 = L( ind1, ind1 );
 
-        auto X0 = X( ind0, outerInd );
-        auto X1 = X( ind1, outerInd );
+        auto X0 = X( ind0, ALL_IND );
+        auto X1 = X( ind1, ALL_IND );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[* ,VR]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VR,* ]

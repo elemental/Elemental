@@ -25,21 +25,20 @@ LocalAccumulateLLN
         DistMatrix<T,MC,  STAR>& Z )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::LocalAccumulateLLN");
-        AssertSameGrids( L, XTrans, Z );
-        if( L.Height() != L.Width() ||
-            L.Height() != XTrans.Width() ||
-            L.Height() != Z.Height() ||
-            XTrans.Height() != Z.Width() )
-            LogicError
-            ("Nonconformal: \n",DimsString(L,"L"),"\n",
-             DimsString(XTrans,"X'"),"\n",DimsString(Z,"Z"));
-        if( XTrans.RowAlign() != L.RowAlign() ||
-            Z.ColAlign() != L.ColAlign() )
-            LogicError("Partial matrix distributions are misaligned");
+      CallStackEntry cse("trmm::LocalAccumulateLLN");
+      AssertSameGrids( L, XTrans, Z );
+      if( L.Height() != L.Width() ||
+          L.Height() != XTrans.Width() ||
+          L.Height() != Z.Height() ||
+          XTrans.Height() != Z.Width() )
+          LogicError
+          ("Nonconformal: \n",DimsString(L,"L"),"\n",
+           DimsString(XTrans,"X'"),"\n",DimsString(Z,"Z"));
+      if( XTrans.RowAlign() != L.RowAlign() ||
+          Z.ColAlign() != L.ColAlign() )
+          LogicError("Partial matrix distributions are misaligned");
     )
     const Int m = Z.Height();
-    const Int n = Z.Width();
     const Int bsize = Blocksize();
     const Grid& g = L.Grid();
 
@@ -52,10 +51,10 @@ LocalAccumulateLLN
         auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
         auto L21 = L( IR(k+nb,m), IR(k,k+nb) );
 
-        auto X1Trans = XTrans( IR(0,n), IR(k,k+nb) );
+        auto X1Trans = XTrans( ALL_IND, IR(k,k+nb) );
 
-        auto Z1 = Z( IR(k,k+nb), IR(0,n) );
-        auto Z2 = Z( IR(k+nb,m), IR(0,n) );
+        auto Z1 = Z( IR(k,k+nb), ALL_IND );
+        auto Z2 = Z( IR(k+nb,m), ALL_IND );
 
         D11.AlignWith( L11 );
         D11 = L11;
@@ -74,11 +73,11 @@ LLNA
   const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::LLNA");
-        AssertSameGrids( LPre, XPre );
-        if( LPre.Height() != LPre.Width() || LPre.Width() != XPre.Height() )
-            LogicError
-            ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
+      CallStackEntry cse("trmm::LLNA");
+      AssertSameGrids( LPre, XPre );
+      if( LPre.Height() != LPre.Width() || LPre.Width() != XPre.Height() )
+          LogicError
+          ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
     )
     const Int m = XPre.Height();
     const Int n = XPre.Width();
@@ -100,7 +99,7 @@ LLNA
     {
         const Int nb = Min(bsize,n-k);
 
-        auto X1 = X( IR(0,m), IR(k,k+nb) );
+        auto X1 = X( ALL_IND, IR(k,k+nb) );
 
         X1_VR_STAR = X1;
         Transpose( X1_VR_STAR, X1Trans_STAR_MR );
@@ -118,11 +117,11 @@ LLNCOld
   const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::LLNCOld");
-        AssertSameGrids( LPre, XPre );
-        if( LPre.Height() != LPre.Width() || LPre.Width() != XPre.Height() )
-            LogicError
-            ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
+      CallStackEntry cse("trmm::LLNCOld");
+      AssertSameGrids( LPre, XPre );
+      if( LPre.Height() != LPre.Width() || LPre.Width() != XPre.Height() )
+          LogicError
+          ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
     )
     const Int m = XPre.Height();
     const Int n = XPre.Width();
@@ -147,8 +146,8 @@ LLNCOld
         auto L10 = L( IR(k,k+nb), IR(0,k)    );
         auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X0 = X( IR(0,k),    IR(0,n) );
-        auto X1 = X( IR(k,k+nb), IR(0,n) );
+        auto X0 = X( IR(0,k),    ALL_IND );
+        auto X1 = X( IR(k,k+nb), ALL_IND );
 
         L11_STAR_STAR = L11;
         X1_STAR_VR = X1;
@@ -176,14 +175,13 @@ LLNC
   const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trmm::LLNC");
-        AssertSameGrids( LPre, XPre );
-        if( LPre.Height() != LPre.Width() || LPre.Width() != XPre.Height() )
-            LogicError
-            ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
+      CallStackEntry cse("trmm::LLNC");
+      AssertSameGrids( LPre, XPre );
+      if( LPre.Height() != LPre.Width() || LPre.Width() != XPre.Height() )
+          LogicError
+          ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
     )
     const Int m = XPre.Height();
-    const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
@@ -203,8 +201,8 @@ LLNC
         auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
         auto L21 = L( IR(k+nb,m), IR(k,k+nb) );
 
-        auto X1 = X( IR(k,k+nb), IR(0,n) );
-        auto X2 = X( IR(k+nb,m), IR(0,n) );
+        auto X1 = X( IR(k,k+nb), ALL_IND );
+        auto X2 = X( IR(k+nb,m), ALL_IND );
 
         L21_MC_STAR.AlignWith( X2 );
         L21_MC_STAR = L21;

@@ -30,9 +30,7 @@ SUMMA_TNA
            DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
            DimsString(CPre,"C"));
     )
-    const Int m = CPre.Height();
     const Int n = CPre.Width();
-    const Int sumDim = BPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
@@ -52,8 +50,8 @@ SUMMA_TNA
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto B1 = B( IR(0,sumDim), IR(k,k+nb) );
-        auto C1 = C( IR(0,m),      IR(k,k+nb) );
+        auto B1 = B( ALL_IND, IR(k,k+nb) );
+        auto C1 = C( ALL_IND, IR(k,k+nb) );
 
         // D1[MR,*] := alpha (A1[MC,MR])^T B1[MC,*]
         //           = alpha (A1^T)[MR,MC] B1[MC,*]
@@ -87,8 +85,6 @@ SUMMA_TNB
            DimsString(CPre,"C"));
     )
     const Int m = CPre.Height();
-    const Int n = CPre.Width();
-    const Int sumDim = BPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
     const bool conjugate = ( orientA == ADJOINT );
@@ -108,8 +104,8 @@ SUMMA_TNB
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
-        auto A1 = A( IR(0,sumDim), IR(k,k+nb) );
-        auto C1 = C( IR(k,k+nb),   IR(0,n)    );
+        auto A1 = A( ALL_IND,    IR(k,k+nb) );
+        auto C1 = C( IR(k,k+nb), ALL_IND    );
 
         // D1[*,MR] := alpha (A1[MC,*])^[T/H] B[MC,MR]
         //           = alpha (A1^[T/H])[*,MC] B[MC,MR]
@@ -139,8 +135,6 @@ SUMMA_TNC
            DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
            DimsString(CPre,"C"));
     )
-    const Int m = CPre.Height();
-    const Int n = CPre.Width();
     const Int sumDim = BPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -160,8 +154,8 @@ SUMMA_TNC
     for( Int k=0; k<sumDim; k+=bsize )
     {
         const Int nb = Min(bsize,sumDim-k);
-        auto A1 = A( IR(k,k+nb), IR(0,m) );
-        auto B1 = B( IR(k,k+nb), IR(0,n) );
+        auto A1 = A( IR(k,k+nb), ALL_IND );
+        auto B1 = B( IR(k,k+nb), ALL_IND );
 
         // C[MC,MR] += alpha (A1[*,MC])^T B1[*,MR]
         //           = alpha (A1^T)[MC,*] B1[*,MR]
