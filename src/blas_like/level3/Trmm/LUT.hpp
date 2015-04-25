@@ -50,10 +50,10 @@ LocalAccumulateLUT
         auto U01 = U( IR(0,k),    IR(k,k+nb) );
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X0 = X( IR(0,k),    ALL_IND );
-        auto X1 = X( IR(k,k+nb), ALL_IND );
+        auto X0 = X( IR(0,k),    ALL );
+        auto X1 = X( IR(k,k+nb), ALL );
  
-        auto Z1 = Z( IR(k,k+nb), ALL_IND );
+        auto Z1 = Z( IR(k,k+nb), ALL );
 
         D11.AlignWith( U11 );
         D11 = U11;
@@ -99,7 +99,7 @@ LUTA
     {
         const Int nb = Min(bsize,n-k);
 
-        auto X1 = X( ALL_IND, IR(k,k+nb) );
+        auto X1 = X( ALL, IR(k,k+nb) );
 
         X1_MC_STAR = X1;
         Zeros( Z1_MR_STAR, m, nb );
@@ -150,8 +150,8 @@ LUTCOld
         auto U01 = U( IR(0,k),    IR(k,k+nb) );
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X0 = X( IR(0,k),    ALL_IND );
-        auto X1 = X( IR(k,k+nb), ALL_IND );
+        auto X0 = X( IR(0,k),    ALL );
+        auto X1 = X( IR(k,k+nb), ALL );
 
         X1_STAR_VR = X1;
         U11_STAR_STAR = U11;
@@ -208,8 +208,8 @@ LUTC
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
         auto U12 = U( IR(k,k+nb), IR(k+nb,m) );
 
-        auto X1 = X( IR(k,k+nb), ALL_IND );
-        auto X2 = X( IR(k+nb,m), ALL_IND );
+        auto X1 = X( IR(k,k+nb), ALL );
+        auto X2 = X( IR(k+nb,m), ALL );
 
         U12_STAR_MC.AlignWith( X2 );
         U12_STAR_MC = U12;

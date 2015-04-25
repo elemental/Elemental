@@ -46,8 +46,8 @@ void TrrkNN
 
         const Range<Int> ind1( k, k+nb );
 
-        auto A1 = A( ALL_IND, ind1    );
-        auto B1 = B( ind1,    ALL_IND );
+        auto A1 = A( ALL,  ind1 );
+        auto B1 = B( ind1, ALL  );
 
         A1_MC_STAR = A1;
         Transpose( B1, B1Trans_MR_STAR );

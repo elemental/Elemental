@@ -45,8 +45,8 @@ LUNLarge
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0 = X( ind0, ALL_IND );
-        auto X1 = X( ind1, ALL_IND );
+        auto X0 = X( ind0, ALL );
+        auto X1 = X( ind1, ALL );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
@@ -97,8 +97,8 @@ LUNMedium
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0 = X( ind0, ALL_IND );
-        auto X1 = X( ind1, ALL_IND );
+        auto X0 = X( ind0, ALL );
+        auto X1 = X( ind1, ALL );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1Trans_MR_STAR.AlignWith( X0 );
@@ -153,8 +153,8 @@ LUNSmall
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0 = X( ind0, ALL_IND );
-        auto X1 = X( ind1, ALL_IND );
+        auto X0 = X( ind0, ALL );
+        auto X1 = X( ind1, ALL );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[VC,* ]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VC,* ]

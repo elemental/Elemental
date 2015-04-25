@@ -52,10 +52,10 @@ LocalAccumulateRUT
         auto U01 = U( IR(0,k),    IR(k,k+nb) );
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X1Trans = XTrans( IR(k,k+nb), ALL_IND );
+        auto X1Trans = XTrans( IR(k,k+nb), ALL );
    
-        auto Z0Trans = ZTrans( IR(0,k),    ALL_IND );
-        auto Z1Trans = ZTrans( IR(k,k+nb), ALL_IND );
+        auto Z0Trans = ZTrans( IR(0,k),    ALL );
+        auto Z1Trans = ZTrans( IR(k,k+nb), ALL );
 
         D11.AlignWith( U11 );
         D11 = U11;
@@ -98,7 +98,7 @@ RUTA
     {
         const Int nb = Min(bsize,m-k);
 
-        auto X1 = X( IR(k,k+nb), ALL_IND );
+        auto X1 = X( IR(k,k+nb), ALL );
 
         Transpose( X1, X1Trans_MR_STAR, conjugate );
         Zeros( Z1Trans_MC_STAR, X.Width(), nb );
@@ -147,8 +147,8 @@ RUTC
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
         auto U12 = U( IR(k,k+nb), IR(k+nb,n) );
 
-        auto X1 = X( ALL_IND, IR(k,k+nb) );
-        auto X2 = X( ALL_IND, IR(k+nb,n) );
+        auto X1 = X( ALL, IR(k,k+nb) );
+        auto X2 = X( ALL, IR(k+nb,n) );
 
         X1_VC_STAR = X1;
         U11_STAR_STAR = U11;

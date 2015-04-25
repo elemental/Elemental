@@ -51,8 +51,8 @@ void TrrkTT
 
         const Range<Int> ind1( k, k+nb );
 
-        auto A1 = A( ind1,    ALL_IND );
-        auto B1 = B( ALL_IND, ind1    );
+        auto A1 = A( ind1, ALL  );
+        auto B1 = B( ALL,  ind1 );
 
         A1_STAR_MC = A1;
         B1_VR_STAR = B1;

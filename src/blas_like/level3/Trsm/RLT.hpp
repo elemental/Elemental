@@ -50,8 +50,8 @@ RLT
         auto L11 = L( ind1, ind1 );
         auto L21 = L( ind2, ind1 );
 
-        auto X1 = X( ALL_IND, ind1 );
-        auto X2 = X( ALL_IND, ind2 );
+        auto X1 = X( ALL, ind1 );
+        auto X2 = X( ALL, ind2 );
 
         L11_STAR_STAR = L11; 
         X1_VC_STAR.AlignWith( X2 );

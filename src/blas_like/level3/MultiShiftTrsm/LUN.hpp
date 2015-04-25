@@ -64,8 +64,8 @@ LUN( F alpha, Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0 = X( ind0, ALL_IND );
-        auto X1 = X( ind1, ALL_IND );
+        auto X0 = X( ind0, ALL );
+        auto X1 = X( ind1, ALL );
 
         LeftUnb( UPPER, NORMAL, F(1), U11, shifts, X1 );
         Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
@@ -108,8 +108,8 @@ LUN
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0 = X( ind0, ALL_IND );
-        auto X1 = X( ind1, ALL_IND );
+        auto X0 = X( ind0, ALL );
+        auto X1 = X( ind1, ALL );
 
         // X1[* ,VR] := U11^-1[* ,* ] X1[* ,VR]
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]

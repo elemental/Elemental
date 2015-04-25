@@ -51,10 +51,10 @@ LocalAccumulateLLN
         auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
         auto L21 = L( IR(k+nb,m), IR(k,k+nb) );
 
-        auto X1Trans = XTrans( ALL_IND, IR(k,k+nb) );
+        auto X1Trans = XTrans( ALL, IR(k,k+nb) );
 
-        auto Z1 = Z( IR(k,k+nb), ALL_IND );
-        auto Z2 = Z( IR(k+nb,m), ALL_IND );
+        auto Z1 = Z( IR(k,k+nb), ALL );
+        auto Z2 = Z( IR(k+nb,m), ALL );
 
         D11.AlignWith( L11 );
         D11 = L11;
@@ -99,7 +99,7 @@ LLNA
     {
         const Int nb = Min(bsize,n-k);
 
-        auto X1 = X( ALL_IND, IR(k,k+nb) );
+        auto X1 = X( ALL, IR(k,k+nb) );
 
         X1_VR_STAR = X1;
         Transpose( X1_VR_STAR, X1Trans_STAR_MR );
@@ -146,8 +146,8 @@ LLNCOld
         auto L10 = L( IR(k,k+nb), IR(0,k)    );
         auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X0 = X( IR(0,k),    ALL_IND );
-        auto X1 = X( IR(k,k+nb), ALL_IND );
+        auto X0 = X( IR(0,k),    ALL );
+        auto X1 = X( IR(k,k+nb), ALL );
 
         L11_STAR_STAR = L11;
         X1_STAR_VR = X1;
@@ -201,8 +201,8 @@ LLNC
         auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
         auto L21 = L( IR(k+nb,m), IR(k,k+nb) );
 
-        auto X1 = X( IR(k,k+nb), ALL_IND );
-        auto X2 = X( IR(k+nb,m), ALL_IND );
+        auto X1 = X( IR(k,k+nb), ALL );
+        auto X2 = X( IR(k+nb,m), ALL );
 
         L21_MC_STAR.AlignWith( X2 );
         L21_MC_STAR = L21;

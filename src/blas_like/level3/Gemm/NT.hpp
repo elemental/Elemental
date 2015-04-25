@@ -50,8 +50,8 @@ SUMMA_NTA
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto B1 = B( IR(k,k+nb), ALL_IND    );
-        auto C1 = C( ALL_IND,    IR(k,k+nb) );
+        auto B1 = B( IR(k,k+nb), ALL        );
+        auto C1 = C( ALL,        IR(k,k+nb) );
 
         // C1[MC,*] := alpha A[MC,MR] (B1^[T/H])[MR,*]
         Transpose( B1, B1Trans_MR_STAR, conjugate );
@@ -103,8 +103,8 @@ SUMMA_NTB
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
-        auto A1 = A( IR(k,k+nb), ALL_IND );
-        auto C1 = C( IR(k,k+nb), ALL_IND );
+        auto A1 = A( IR(k,k+nb), ALL );
+        auto C1 = C( IR(k,k+nb), ALL );
 
         // D1[*,MC] := alpha A1[*,MR] (B[MC,MR])^T
         //           = alpha (A1^T)[MR,*] (B^T)[MR,MC]
@@ -160,8 +160,8 @@ SUMMA_NTC
     for( Int k=0; k<sumDim; k+=bsize )
     {
         const Int nb = Min(bsize,sumDim-k);
-        auto A1 = A( ALL_IND, IR(k,k+nb) );
-        auto B1 = B( ALL_IND, IR(k,k+nb) );
+        auto A1 = A( ALL, IR(k,k+nb) );
+        auto B1 = B( ALL, IR(k,k+nb) );
 
         A1_MC_STAR = A1;
         B1_VR_STAR = B1;

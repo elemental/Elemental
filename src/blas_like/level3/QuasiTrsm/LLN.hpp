@@ -123,8 +123,8 @@ LLN( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
         auto L11 = L( ind1, ind1 );
         auto L21 = L( ind2, ind1 );
 
-        auto X1 = X( ind1, ALL_IND );
-        auto X2 = X( ind2, ALL_IND );
+        auto X1 = X( ind1, ALL );
+        auto X2 = X( ind2, ALL );
 
         LLNUnb( L11, X1, checkIfSingular );
         Gemm( NORMAL, NORMAL, F(-1), L21, X1, F(1), X2 );
@@ -163,8 +163,8 @@ LLNLarge
         auto L11 = L( ind1, ind1 );
         auto L21 = L( ind2, ind1 );
 
-        auto X1 = X( ind1, ALL_IND );
-        auto X2 = X( ind2, ALL_IND );
+        auto X1 = X( ind1, ALL );
+        auto X2 = X( ind2, ALL );
 
         // X1[* ,VR] := L11^-1[* ,* ] X1[* ,VR]
         L11_STAR_STAR = L11; 
@@ -215,8 +215,8 @@ LLNMedium
         auto L11 = L( ind1, ind1 );
         auto L21 = L( ind2, ind1 );
 
-        auto X1 = X( ind1, ALL_IND );
-        auto X2 = X( ind2, ALL_IND );
+        auto X1 = X( ind1, ALL );
+        auto X2 = X( ind2, ALL );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         X1Trans_MR_STAR.AlignWith( X2 );
@@ -268,8 +268,8 @@ LLNSmall
         auto L11 = L( ind1, ind1 );
         auto L21 = L( ind2, ind1 );
 
-        auto X1 = X( ind1, ALL_IND );
-        auto X2 = X( ind2, ALL_IND );
+        auto X1 = X( ind1, ALL );
+        auto X2 = X( ind2, ALL );
 
         // X1[* ,* ] := (L11[* ,* ])^-1 X1[* ,* ]
         L11_STAR_STAR = L11; 

@@ -47,8 +47,8 @@ RLN
         auto L10 = L( ind1, ind0 );
         auto L11 = L( ind1, ind1 );
 
-        auto X0 = X( ALL_IND, ind0 );
-        auto X1 = X( ALL_IND, ind1 );
+        auto X0 = X( ALL, ind0 );
+        auto X1 = X( ALL, ind1 );
 
         L11_STAR_STAR = L11;
         X1_VC_STAR = X1;

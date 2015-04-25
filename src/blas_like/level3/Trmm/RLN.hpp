@@ -53,10 +53,10 @@ LocalAccumulateRLN
         auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
         auto L21 = L( IR(k+nb,m), IR(k,k+nb) );
 
-        auto X1 = X( ALL_IND, IR(k,k+nb) );
-        auto X2 = X( ALL_IND, IR(k+nb,m) );
+        auto X1 = X( ALL, IR(k,k+nb) );
+        auto X2 = X( ALL, IR(k+nb,m) );
 
-        auto Z1Trans = ZTrans( IR(k,k+nb), ALL_IND );
+        auto Z1Trans = ZTrans( IR(k,k+nb), ALL );
 
         D11.AlignWith( L11 );
         D11 = L11;
@@ -100,7 +100,7 @@ RLNA
     {
         const Int nb = Min(bsize,m-k);
 
-        auto X1 = X( IR(k,k+nb), ALL_IND );
+        auto X1 = X( IR(k,k+nb), ALL );
 
         X1_STAR_VC = X1;
         X1_STAR_MC = X1_STAR_VC;
@@ -147,8 +147,8 @@ RLNCOld
         auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
         auto L21 = L( IR(k+nb,n), IR(k,k+nb) );
 
-        auto X1 = X( ALL_IND, IR(k,k+nb) );
-        auto X2 = X( ALL_IND, IR(k+nb,n) );
+        auto X1 = X( ALL, IR(k,k+nb) );
+        auto X2 = X( ALL, IR(k+nb,n) );
 
         X1_VC_STAR = X1;
         L11_STAR_STAR = L11;
@@ -196,8 +196,8 @@ RLNC
         auto L10 = L( IR(k,k+nb), IR(0,k)    );
         auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X0 = X( ALL_IND, IR(0,k)    );
-        auto X1 = X( ALL_IND, IR(k,k+nb) );
+        auto X0 = X( ALL, IR(0,k)    );
+        auto X1 = X( ALL, IR(k,k+nb) );
 
         X1_MC_STAR.AlignWith( X0 );
         X1_MC_STAR = X1;

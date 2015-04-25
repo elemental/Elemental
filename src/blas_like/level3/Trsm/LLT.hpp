@@ -52,8 +52,8 @@ LLTLarge
         auto L10 = L( ind1, ind0 );
         auto L11 = L( ind1, ind1 );
 
-        auto X0 = X( ind0, ALL_IND );
-        auto X1 = X( ind1, ALL_IND );
+        auto X0 = X( ind0, ALL );
+        auto X1 = X( ind1, ALL );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
@@ -111,8 +111,8 @@ LLTMedium
         auto L10 = L( ind1, ind0 );
         auto L11 = L( ind1, ind1 );
 
-        auto X0 = X( ind0, ALL_IND );
-        auto X1 = X( ind1, ALL_IND );
+        auto X0 = X( ind0, ALL );
+        auto X1 = X( ind1, ALL );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         // X1[* ,MR] <- X1[MC,MR]
@@ -173,8 +173,8 @@ LLTSmall
         auto L11 = L( ind1, ind1 );
         auto L21 = L( ind2, ind1 );
 
-        auto X1 = X( ind1, ALL_IND );
-        auto X2 = X( ind2, ALL_IND );
+        auto X1 = X( ind1, ALL );
+        auto X2 = X( ind2, ALL );
 
         // X1 -= L21' X2
         LocalGemm( orientation, NORMAL, F(-1), L21, X2, Z1_STAR_STAR );
@@ -225,8 +225,8 @@ LLTSmall
         auto L10 = L( ind1, ind0 );
         auto L11 = L( ind1, ind1 );
 
-        auto X0 = X( ind0, ALL_IND );
-        auto X1 = X( ind1, ALL_IND );
+        auto X0 = X( ind0, ALL );
+        auto X1 = X( ind1, ALL );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[* ,VR]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VR,* ]

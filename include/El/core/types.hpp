@@ -46,8 +46,8 @@ template<typename T>
 inline bool operator==( const Range<T>& a, const Range<T>& b )
 { return a.beg == b.beg && a.end == b.end; }
 
-// TODO: Find a more consistent setting
-static const IR ALL_IND(-1,-100);
+static const Int END = -100;
+static const IR ALL(0,END);
 
 template<typename Real>
 struct ValueInt

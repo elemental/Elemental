@@ -54,10 +54,10 @@ LocalAccumulateLUN
         auto U01 = U( IR(0,k),    IR(k,k+nb) );
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X1Trans = XTrans( ALL_IND, IR(k,k+nb) );
+        auto X1Trans = XTrans( ALL, IR(k,k+nb) );
 
-        auto Z0 = Z( IR(0,k),    ALL_IND );
-        auto Z1 = Z( IR(k,k+nb), ALL_IND );
+        auto Z0 = Z( IR(0,k),    ALL );
+        auto Z1 = Z( IR(k,k+nb), ALL );
 
         D11.AlignWith( U11 );
         D11 = U11;
@@ -102,7 +102,7 @@ LUNA
     {
         const Int nb = Min(bsize,n-k);
 
-        auto X1 = X( ALL_IND, IR(k,k+nb) );
+        auto X1 = X( ALL, IR(k,k+nb) );
 
         X1_VR_STAR = X1;
         Transpose( X1_VR_STAR, X1Trans_STAR_MR );
@@ -149,8 +149,8 @@ LUNCOld
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
         auto U12 = U( IR(k,k+nb), IR(k+nb,m) );
 
-        auto X1 = X( IR(k,k+nb), ALL_IND );
-        auto X2 = X( IR(k+nb,m), ALL_IND );
+        auto X1 = X( IR(k,k+nb), ALL );
+        auto X2 = X( IR(k+nb,m), ALL );
 
         X1_STAR_VR = X1;
         U11_STAR_STAR = U11;
@@ -204,8 +204,8 @@ LUNC
         auto U01 = U( IR(0,k),    IR(k,k+nb) );
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X0 = X( IR(0,k),    ALL_IND );
-        auto X1 = X( IR(k,k+nb), ALL_IND );
+        auto X0 = X( IR(0,k),    ALL );
+        auto X1 = X( IR(k,k+nb), ALL );
 
         U01_MC_STAR.AlignWith( X0 );
         U01_MC_STAR = U01;

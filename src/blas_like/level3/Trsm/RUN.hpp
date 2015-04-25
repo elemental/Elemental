@@ -43,8 +43,8 @@ RUN
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1 = X( ALL_IND, ind1 );
-        auto X2 = X( ALL_IND, ind2 );
+        auto X1 = X( ALL, ind1 );
+        auto X2 = X( ALL, ind2 );
 
         U11_STAR_STAR = U11; 
         X1_VC_STAR.AlignWith( X2 );

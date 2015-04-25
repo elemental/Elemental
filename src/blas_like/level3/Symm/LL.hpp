@@ -60,15 +60,15 @@ void LocalAccumulateLL
         auto A11 = A( ind1, ind1 );
         auto A21 = A( ind2, ind1 );
 
-        auto B1_MC_STAR = B_MC_STAR( ind1, ALL_IND );
-        auto B2_MC_STAR = B_MC_STAR( ind2, ALL_IND );
+        auto B1_MC_STAR = B_MC_STAR( ind1, ALL );
+        auto B2_MC_STAR = B_MC_STAR( ind2, ALL );
 
-        auto B1Trans_STAR_MR = BTrans_STAR_MR( ALL_IND, ind1 );
+        auto B1Trans_STAR_MR = BTrans_STAR_MR( ALL, ind1 );
 
-        auto Z1_MC_STAR = Z_MC_STAR( ind1, ALL_IND );
-        auto Z2_MC_STAR = Z_MC_STAR( ind2, ALL_IND );
+        auto Z1_MC_STAR = Z_MC_STAR( ind1, ALL );
+        auto Z2_MC_STAR = Z_MC_STAR( ind2, ALL );
 
-        auto Z1_MR_STAR = Z_MR_STAR( ind1, ALL_IND );
+        auto Z1_MR_STAR = Z_MR_STAR( ind1, ALL );
 
         D11.AlignWith( A11 );
         D11 = A11;
@@ -128,8 +128,8 @@ LLA
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto B1 = B( ALL_IND, IR(k,k+nb) );
-        auto C1 = C( ALL_IND, IR(k,k+nb) );
+        auto B1 = B( ALL, IR(k,k+nb) );
+        auto C1 = C( ALL, IR(k,k+nb) );
 
         B1_MC_STAR = B1;
         B1_VR_STAR = B1_MC_STAR;
@@ -187,10 +187,10 @@ LLC
         auto A1L = A( ind1, indL );
         auto AB1 = A( indB, ind1 );
 
-        auto B1 = B( ind1, ALL_IND );
+        auto B1 = B( ind1, ALL );
 
-        auto CT = C( indT, ALL_IND );
-        auto CB = C( indB, ALL_IND );
+        auto CT = C( indT, ALL );
+        auto CB = C( indB, ALL );
 
         AB1_MC_STAR.AlignWith( CB );
         A1L_STAR_MC.AlignWith( CT );

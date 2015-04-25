@@ -49,10 +49,10 @@ LocalAccumulateRUN
         auto U01 = U( IR(0,k),    IR(k,k+nb) );
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X0 = X( ALL_IND, IR(0,k)    );
-        auto X1 = X( ALL_IND, IR(k,k+nb) );
+        auto X0 = X( ALL, IR(0,k)    );
+        auto X1 = X( ALL, IR(k,k+nb) );
         
-        auto Z1Trans = ZTrans( IR(k,k+nb), ALL_IND );
+        auto Z1Trans = ZTrans( IR(k,k+nb), ALL );
 
         D11.AlignWith( U11 );
         D11 = U11;
@@ -95,7 +95,7 @@ RUNA
     {
         const Int nb = Min(bsize,m-k);
 
-        auto X1 = X( IR(k,k+nb), ALL_IND );
+        auto X1 = X( IR(k,k+nb), ALL );
 
         X1_STAR_VC = X1;
         X1_STAR_MC = X1_STAR_VC;
@@ -142,8 +142,8 @@ RUNCOld
         auto U01 = U( IR(0,k),    IR(k,k+nb) );
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X0 = X( ALL_IND, IR(0,k)    );
-        auto X1 = X( ALL_IND, IR(k,k+nb) );
+        auto X0 = X( ALL, IR(0,k)    );
+        auto X1 = X( ALL, IR(k,k+nb) );
 
         X1_VC_STAR = X1;
         U11_STAR_STAR = U11;
@@ -192,8 +192,8 @@ RUNC
         auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
         auto U12 = U( IR(k,k+nb), IR(k+nb,n) );
 
-        auto X1 = X( ALL_IND, IR(k,k+nb) );
-        auto X2 = X( ALL_IND, IR(k+nb,n) );
+        auto X1 = X( ALL, IR(k,k+nb) );
+        auto X2 = X( ALL, IR(k+nb,n) );
 
         X1_MC_STAR.AlignWith( X2 );
         X1_MC_STAR = X1;

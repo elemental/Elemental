@@ -51,8 +51,8 @@ RUT
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0 = X( ALL_IND, ind0 );
-        auto X1 = X( ALL_IND, ind1 );
+        auto X0 = X( ALL, ind0 );
+        auto X1 = X( ALL, ind1 );
 
         U11_STAR_STAR = U11;
         X1_VC_STAR.AlignWith( X0 );

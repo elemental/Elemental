@@ -53,10 +53,10 @@ LocalAccumulateRLT
         auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
         auto L21 = L( IR(k+nb,m), IR(k,k+nb) );
 
-        auto X1Trans = XTrans( IR(k,k+nb), ALL_IND );
+        auto X1Trans = XTrans( IR(k,k+nb), ALL );
 
-        auto Z1Trans = ZTrans( IR(k,k+nb), ALL_IND );
-        auto Z2Trans = ZTrans( IR(k+nb,m), ALL_IND );
+        auto Z1Trans = ZTrans( IR(k,k+nb), ALL );
+        auto Z2Trans = ZTrans( IR(k+nb,m), ALL );
 
         D11.AlignWith( L11 );
         D11 = L11;
@@ -99,7 +99,7 @@ RLTA
     {
         const Int nb = Min(bsize,m-k);
 
-        auto X1 = X( IR(k,k+nb), ALL_IND );
+        auto X1 = X( IR(k,k+nb), ALL );
 
         Transpose( X1, X1Trans_MR_STAR, conjugate );
         Zeros( Z1Trans_MC_STAR, X1.Width(), X1.Height() );
@@ -149,8 +149,8 @@ RLTC
         auto L10 = L( IR(k,k+nb), IR(0,k)    );
         auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X0 = X( ALL_IND, IR(0,k)    );
-        auto X1 = X( ALL_IND, IR(k,k+nb) );
+        auto X0 = X( ALL, IR(0,k)    );
+        auto X1 = X( ALL, IR(k,k+nb) );
 
         X1_VC_STAR = X1;
         L11_STAR_STAR = L11;

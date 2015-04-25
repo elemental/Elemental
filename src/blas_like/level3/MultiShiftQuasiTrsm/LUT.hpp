@@ -232,8 +232,8 @@ LUT
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1 = X( ind1, ALL_IND );
-        auto X2 = X( ind2, ALL_IND );
+        auto X1 = X( ind1, ALL );
+        auto X2 = X( ind2, ALL );
 
         LUTUnb( false, U11, shifts, X1 );
         Gemm( TRANSPOSE, NORMAL, F(-1), U12, X1, F(1), X2 );
@@ -276,10 +276,10 @@ LUT
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1Real = XReal( ind1, ALL_IND );
-        auto X1Imag = XImag( ind1, ALL_IND );
-        auto X2Real = XReal( ind2, ALL_IND );
-        auto X2Imag = XImag( ind2, ALL_IND );
+        auto X1Real = XReal( ind1, ALL );
+        auto X1Imag = XImag( ind1, ALL );
+        auto X2Real = XReal( ind2, ALL );
+        auto X2Imag = XImag( ind2, ALL );
 
         LUTUnb( false, U11, shifts, X1Real, X1Imag );
         Gemm( TRANSPOSE, NORMAL, Real(-1), U12, X1Real, Real(1), X2Real );
@@ -329,8 +329,8 @@ LUTLarge
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1 = X( ind1, ALL_IND );
-        auto X2 = X( ind2, ALL_IND );
+        auto X1 = X( ind1, ALL );
+        auto X2 = X( ind2, ALL );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR.AlignWith( shifts );
@@ -400,10 +400,10 @@ LUTLarge
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1Real = XReal( ind1, ALL_IND );
-        auto X1Imag = XImag( ind1, ALL_IND );
-        auto X2Real = XReal( ind2, ALL_IND );
-        auto X2Imag = XImag( ind2, ALL_IND );
+        auto X1Real = XReal( ind1, ALL );
+        auto X1Imag = XImag( ind1, ALL );
+        auto X2Real = XReal( ind2, ALL );
+        auto X2Imag = XImag( ind2, ALL );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1Real_STAR_VR.AlignWith( shifts );
@@ -478,8 +478,8 @@ LUTMedium
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1 = X( ind1, ALL_IND );
-        auto X2 = X( ind2, ALL_IND );
+        auto X1 = X( ind1, ALL );
+        auto X2 = X( ind2, ALL );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         // X1[* ,VR] <- X1[MC,MR]
@@ -555,10 +555,10 @@ LUTMedium
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1Real = XReal( ind1, ALL_IND );
-        auto X1Imag = XImag( ind1, ALL_IND );
-        auto X2Real = XReal( ind2, ALL_IND );
-        auto X2Imag = XImag( ind2, ALL_IND );
+        auto X1Real = XReal( ind1, ALL );
+        auto X1Imag = XImag( ind1, ALL );
+        auto X2Real = XReal( ind2, ALL );
+        auto X2Imag = XImag( ind2, ALL );
 
         U11_STAR_STAR = U11; 
         X1RealTrans_MR_STAR.AlignWith( X2Real );
@@ -632,8 +632,8 @@ LUTSmall
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1 = X( ind1, ALL_IND );
-        auto X2 = X( ind2, ALL_IND );
+        auto X1 = X( ind1, ALL );
+        auto X2 = X( ind2, ALL );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[* ,VR]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VR,* ]
@@ -695,10 +695,10 @@ LUTSmall
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1Real = XReal( ind1, ALL_IND );
-        auto X1Imag = XImag( ind1, ALL_IND );
-        auto X2Real = XReal( ind2, ALL_IND );
-        auto X2Imag = XImag( ind2, ALL_IND );
+        auto X1Real = XReal( ind1, ALL );
+        auto X1Imag = XImag( ind1, ALL );
+        auto X2Real = XReal( ind2, ALL );
+        auto X2Imag = XImag( ind2, ALL );
 
         U11_STAR_STAR = U11;
         X1Real_STAR_STAR = X1Real;  

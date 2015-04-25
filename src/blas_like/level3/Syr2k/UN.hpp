@@ -53,8 +53,8 @@ UN
     {
         const Int nb = Min(bsize,r-k);
 
-        auto A1 = A( ALL_IND, IR(k,k+nb) );
-        auto B1 = B( ALL_IND, IR(k,k+nb) );
+        auto A1 = A( ALL, IR(k,k+nb) );
+        auto B1 = B( ALL, IR(k,k+nb) );
 
         A1_VR_STAR = A1_MC_STAR = A1;
         Transpose( A1_VR_STAR, A1Trans_STAR_MR, conjugate );

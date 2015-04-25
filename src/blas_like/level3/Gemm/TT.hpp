@@ -50,8 +50,8 @@ SUMMA_TTA
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto B1 = B( IR(k,k+nb), ALL_IND    );
-        auto C1 = C( ALL_IND,    IR(k,k+nb) );
+        auto B1 = B( IR(k,k+nb), ALL        );
+        auto C1 = C( ALL,        IR(k,k+nb) );
 
         B1_STAR_MC = B1; // B1[*,MC] <- B1[MC,MR]
 
@@ -108,8 +108,8 @@ SUMMA_TTB
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
-        auto A1 = A( ALL_IND,    IR(k,k+nb) );
-        auto C1 = C( IR(k,k+nb), ALL_IND    );
+        auto A1 = A( ALL,        IR(k,k+nb) );
+        auto C1 = C( IR(k,k+nb), ALL        );
 
         // D1[*,MC] := alpha (A1[MR,*])^[T/H] (B[MC,MR])^[T/H]
         //           = alpha (A1^[T/H])[*,MR] (B^[T/H])[MR,MC]
@@ -165,8 +165,8 @@ SUMMA_TTC
     for( Int k=0; k<sumDim; k+=bsize )
     {
         const Int nb = Min(bsize,sumDim-k);
-        auto A1 = A( IR(k,k+nb), ALL_IND    );
-        auto B1 = B( ALL_IND,    IR(k,k+nb) );
+        auto A1 = A( IR(k,k+nb), ALL        );
+        auto B1 = B( ALL,        IR(k,k+nb) );
 
         A1_STAR_MC = A1; 
         B1_VR_STAR = B1;

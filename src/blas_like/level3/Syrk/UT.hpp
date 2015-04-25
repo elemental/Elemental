@@ -43,7 +43,7 @@ UT
     for( Int k=0; k<r; k+=bsize )
     {
         const Int nb = Min(bsize,r-k);
-        auto A1 = A( IR(k,k+nb), ALL_IND );
+        auto A1 = A( IR(k,k+nb), ALL );
 
         Transpose( A1, A1Trans_MR_STAR );
         Transpose( A1Trans_MR_STAR, A1_STAR_VR );

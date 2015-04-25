@@ -50,8 +50,8 @@ SUMMA_TNA
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto B1 = B( ALL_IND, IR(k,k+nb) );
-        auto C1 = C( ALL_IND, IR(k,k+nb) );
+        auto B1 = B( ALL, IR(k,k+nb) );
+        auto C1 = C( ALL, IR(k,k+nb) );
 
         // D1[MR,*] := alpha (A1[MC,MR])^T B1[MC,*]
         //           = alpha (A1^T)[MR,MC] B1[MC,*]
@@ -104,8 +104,8 @@ SUMMA_TNB
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
-        auto A1 = A( ALL_IND,    IR(k,k+nb) );
-        auto C1 = C( IR(k,k+nb), ALL_IND    );
+        auto A1 = A( ALL,        IR(k,k+nb) );
+        auto C1 = C( IR(k,k+nb), ALL        );
 
         // D1[*,MR] := alpha (A1[MC,*])^[T/H] B[MC,MR]
         //           = alpha (A1^[T/H])[*,MC] B[MC,MR]
@@ -154,8 +154,8 @@ SUMMA_TNC
     for( Int k=0; k<sumDim; k+=bsize )
     {
         const Int nb = Min(bsize,sumDim-k);
-        auto A1 = A( IR(k,k+nb), ALL_IND );
-        auto B1 = B( IR(k,k+nb), ALL_IND );
+        auto A1 = A( IR(k,k+nb), ALL );
+        auto B1 = B( IR(k,k+nb), ALL );
 
         // C[MC,MR] += alpha (A1[*,MC])^T B1[*,MR]
         //           = alpha (A1^T)[MC,*] B1[*,MR]

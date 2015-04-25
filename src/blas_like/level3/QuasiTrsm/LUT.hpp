@@ -137,8 +137,8 @@ LUT
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1 = X( ind1, ALL_IND );
-        auto X2 = X( ind2, ALL_IND );
+        auto X1 = X( ind1, ALL );
+        auto X2 = X( ind2, ALL );
 
         LUTUnb( conjugate, U11, X1, checkIfSingular );
         Gemm( orientation, NORMAL, F(-1), U12, X1, F(1), X2 );
@@ -182,8 +182,8 @@ LUTLarge
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1 = X( ind1, ALL_IND );
-        auto X2 = X( ind2, ALL_IND );
+        auto X1 = X( ind1, ALL );
+        auto X2 = X( ind2, ALL );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
@@ -242,8 +242,8 @@ LUTMedium
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1 = X( ind1, ALL_IND );
-        auto X2 = X( ind2, ALL_IND );
+        auto X1 = X( ind1, ALL );
+        auto X2 = X( ind2, ALL );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         // X1[* ,VR] <- X1[MC,MR]
@@ -305,8 +305,8 @@ LUTSmall
         auto U11 = U( ind1, ind1 );
         auto U12 = U( ind1, ind2 );
 
-        auto X1 = X( ind1, ALL_IND );
-        auto X2 = X( ind2, ALL_IND );
+        auto X1 = X( ind1, ALL );
+        auto X2 = X( ind2, ALL );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[* ,VR]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VR,* ]

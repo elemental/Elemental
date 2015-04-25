@@ -55,10 +55,10 @@ void Trr2kTNTN
 
         const Range<Int> ind1( k, k+nb );
 
-        auto A1 = A( ind1, ALL_IND );
-        auto B1 = B( ind1, ALL_IND );
-        auto C1 = C( ind1, ALL_IND );
-        auto D1 = D( ind1, ALL_IND );
+        auto A1 = A( ind1, ALL );
+        auto B1 = B( ind1, ALL );
+        auto C1 = C( ind1, ALL );
+        auto D1 = D( ind1, ALL );
 
         A1_STAR_MC = A1;
         C1_STAR_MC = C1;

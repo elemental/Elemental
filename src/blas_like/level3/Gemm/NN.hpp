@@ -132,8 +132,8 @@ SUMMA_NNA
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto B1 = B( ALL_IND, IR(k,k+nb) );
-        auto C1 = C( ALL_IND, IR(k,k+nb) );
+        auto B1 = B( ALL, IR(k,k+nb) );
+        auto C1 = C( ALL, IR(k,k+nb) );
 
         // D1[MC,*] := alpha A[MC,MR] B1[MR,*]
         B1_VR_STAR = B1;
@@ -181,8 +181,8 @@ SUMMA_NNB
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
-        auto A1 = A( IR(k,k+nb), ALL_IND );
-        auto C1 = C( IR(k,k+nb), ALL_IND );
+        auto A1 = A( IR(k,k+nb), ALL );
+        auto C1 = C( IR(k,k+nb), ALL );
 
         // D1^T[MR,* ] := alpha B^T[MR,MC] A1^T[MC,* ]
         A1_STAR_MC = A1;
@@ -229,8 +229,8 @@ SUMMA_NNC
     for( Int k=0; k<sumDim; k+=bsize )
     {
         const Int nb = Min(bsize,sumDim-k);
-        auto A1 = A( ALL_IND,    IR(k,k+nb) );
-        auto B1 = B( IR(k,k+nb), ALL_IND    );
+        auto A1 = A( ALL,        IR(k,k+nb) );
+        auto B1 = B( IR(k,k+nb), ALL        );
 
         // C[MC,MR] += alpha A1[MC,*] (B1^T[MR,*])^T
         //           = alpha A1[MC,*] B1[*,MR]
@@ -280,7 +280,7 @@ SUMMA_NNDot
             const Int nbOuter = Min(bsize,m-kOuter);
             const Range<Int> indOuter( kOuter, kOuter+nbOuter );
 
-            auto A1 = A( indOuter, ALL_IND );
+            auto A1 = A( indOuter, ALL );
 
             A1_STAR_VC = A1; 
             B1_VC_STAR.AlignWith( A1_STAR_VC );
@@ -290,7 +290,7 @@ SUMMA_NNDot
                 const Int nbInner = Min(bsize,n-kInner);
                 const Range<Int> indInner( kInner, kInner+nbInner );
 
-                auto B1  = B( ALL_IND,  indInner );
+                auto B1  = B( ALL,      indInner );
                 auto C11 = C( indOuter, indInner );
 
                 B1_VC_STAR = B1;
@@ -314,7 +314,7 @@ SUMMA_NNDot
             const Int nbOuter = Min(bsize,n-kOuter);
             const Range<Int> indOuter( kOuter, kOuter+nbOuter );
 
-            auto B1 = B( ALL_IND, indOuter );
+            auto B1 = B( ALL, indOuter );
 
             B1_VR_STAR = B1;
             A1_STAR_VR.AlignWith( B1_VR_STAR );
@@ -324,7 +324,7 @@ SUMMA_NNDot
                 const Int nbInner = Min(bsize,m-kInner);
                 const Range<Int> indInner( kInner, kInner+nbInner );
 
-                auto A1  = A( indInner, ALL_IND  );
+                auto A1  = A( indInner, ALL      );
                 auto C11 = C( indInner, indOuter );
 
                 A1_STAR_VR = A1;

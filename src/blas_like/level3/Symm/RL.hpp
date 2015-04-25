@@ -61,15 +61,15 @@ void LocalAccumulateRL
         auto A11 = A( ind1, ind1 );
         auto A21 = A( ind2, ind1 );
 
-        auto B1_STAR_MC = B_STAR_MC( ALL_IND, ind1 );
-        auto B2_STAR_MC = B_STAR_MC( ALL_IND, ind2 );
+        auto B1_STAR_MC = B_STAR_MC( ALL, ind1 );
+        auto B2_STAR_MC = B_STAR_MC( ALL, ind2 );
 
-        auto B1Trans_MR_STAR = BTrans_MR_STAR( ind1, ALL_IND );
+        auto B1Trans_MR_STAR = BTrans_MR_STAR( ind1, ALL );
 
-        auto Z1Trans_MC_STAR = ZTrans_MC_STAR( ind1, ALL_IND ); 
-        auto Z2Trans_MC_STAR = ZTrans_MC_STAR( ind2, ALL_IND );
+        auto Z1Trans_MC_STAR = ZTrans_MC_STAR( ind1, ALL ); 
+        auto Z2Trans_MC_STAR = ZTrans_MC_STAR( ind2, ALL );
    
-        auto Z1Trans_MR_STAR = ZTrans_MR_STAR( ind1, ALL_IND );
+        auto Z1Trans_MR_STAR = ZTrans_MR_STAR( ind1, ALL );
 
         D11.AlignWith( A11 );
         D11 = A11;
@@ -130,8 +130,8 @@ RLA
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
-        auto B1 = B( IR(k,k+nb), ALL_IND );
-        auto C1 = C( IR(k,k+nb), ALL_IND );
+        auto B1 = B( IR(k,k+nb), ALL );
+        auto C1 = C( IR(k,k+nb), ALL );
 
         Z1Trans_MR_MC.AlignWith( C1 );
         Transpose( B1, B1Trans_MR_STAR, conjugate );
@@ -189,10 +189,10 @@ RLC
         auto A1L = A( ind1, indL );
         auto AB1 = A( indB, ind1 );
 
-        auto B1 = B( ALL_IND, ind1 );
+        auto B1 = B( ALL, ind1 );
 
-        auto CL = C( ALL_IND, indL );
-        auto CR = C( ALL_IND, indR );
+        auto CL = C( ALL, indL );
+        auto CR = C( ALL, indR );
 
         A1LTrans_MR_STAR.AlignWith( CL );
         Transpose( A1L, A1LTrans_MR_STAR );
