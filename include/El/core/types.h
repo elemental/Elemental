@@ -37,6 +37,10 @@ typedef unsigned ElUnsigned;
 typedef struct { ElInt  beg, end; } ElRange_i;
 typedef struct { float  beg, end; } ElRange_s;
 typedef struct { double beg, end; } ElRange_d;
+typedef ElRange_i ElIndexRange;
+
+static const ElInt EL_END = -100;
+static const ElIndexRange EL_ALL = { 0, EL_END };
 
 typedef enum
 {

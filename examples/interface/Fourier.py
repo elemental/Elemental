@@ -17,7 +17,7 @@ El.Display(A,"Fourier matrix")
 
 # Display a submatrix and subvector of the Fourier matrix
 El.Display(A[(n/4):(3*n/4),(n/4):(3*n/4)],"Middle submatrix")
-El.Display(A[1,0:n],"Second row")
+El.Display(A[1,:],"Second row")
 
 # Display the spectral portrait
 portrait, box = El.SpectralPortrait(A,realRes,imagRes)

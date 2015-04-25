@@ -134,3 +134,5 @@ class Graph(object):
     else:
       lib.ElGraphTargetBuffer(self.obj,pointer(targetBuf))
     return targetBuf
+
+  # TODO: __getitem__

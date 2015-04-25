@@ -455,6 +455,16 @@ class Matrix(object):
     [c_void_p,c_void_p,IndexRange,IndexRange]
   def __getitem__(self,indTup):
     iInd, jInd = indTup
+    if isinstance(iInd,slice):
+      if iInd.start == None:
+        iInd = slice(0,iInd.stop,iInd.step)
+      if iInd.stop == None:
+        iInd = slice(iInd.start,self.Height(),iInd.step)
+    if isinstance(jInd,slice):
+      if jInd.start == None:
+        jInd = slice(0,jInd.stop,jInd.step)
+      if jInd.stop == None:
+        jInd = slice(jInd.start,self.Width(),jInd.step)
     iRan = IndexRange(iInd)
     jRan = IndexRange(jInd)
     ASub = Matrix(self.tag)
