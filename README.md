@@ -104,7 +104,7 @@ distributed under the terms of the GPL (and can be similarly easily disabled).
 * [LAPACK](http://netlib.org/lapack)
 * [libflame](http://www.cs.utexas.edu/~flame/web/libFLAME.html) (optional for faster bidiagonal SVDs)
 
-[OpenBLAS](http://openblas.net) is automatically downloaded and installed if 
+[OpenBLAS](http://www.openblas.net) is automatically downloaded and installed if 
 no vendor/tuned BLAS/LAPACK is detected.
 
 **Intranodal graph partitioning**
@@ -130,8 +130,8 @@ otherwise, if METIS support is not detected, METIS is downloaded and installed.
 
 **Python interface**
 
-* [matplotlib](http://matplotlib.org/) (optional for python matrix visualization)
-* [NetworkX](https://networkx.github.io/) (optional for python graph visualization)
+* [matplotlib](http://matplotlib.org/) (optional for Python matrix visualization)
+* [NetworkX](https://networkx.github.io/) (optional for Python graph visualization)
 * [NumPy](http://www.numpy.org/)
 
 **C++ visualization**
