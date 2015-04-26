@@ -206,8 +206,7 @@ LPanelPivoted
   Matrix<F>& X, Matrix<F>& Y, Int bsize, Int off )
 {
     DEBUG_ONLY(CallStackEntry cse("cholesky::LPanelPivoted"))
-    const Int nFull = AFull.Height();
-    auto A = AFull( IR(off,nFull), IR(off,nFull) );
+    auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
     DEBUG_ONLY(
         if( A.Width() != n )
@@ -270,8 +269,7 @@ LPanelPivoted
   DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off )
 {
     DEBUG_ONLY(CallStackEntry cse("cholesky::LPanelPivoted"))
-    const Int nFull = AFull.Height();
-    auto A = AFull( IR(off,nFull), IR(off,nFull) );
+    auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
     DEBUG_ONLY(
         if( A.Width() != n )
@@ -353,7 +351,7 @@ LVar3( Matrix<F>& A, Matrix<Int>& p )
         const Int nb = Min(bsize,n-k);
 
         const Range<Int> indB( k, n );
-        auto pB = p( indB, IR(0,1) );
+        auto pB = p( indB, ALL );
         LPanelPivoted( A, pB, XB1, YB1, nb, k );
 
         // Update the bottom-right panel
@@ -396,7 +394,7 @@ LVar3( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
         const Int nb = Min(bsize,n-k);
 
         const Range<Int> indB( k, n );
-        auto pB = p( indB, IR(0,1) );
+        auto pB = p( indB, ALL );
         LPanelPivoted( A, pB, XB1, YB1, nb, k );
 
         // Update the bottom-right panel

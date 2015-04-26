@@ -76,15 +76,13 @@ inline void BusingerGolub
     Int k=0;
     for( ; k<maxSteps; ++k )
     {
-        const Range<Int> ind1(     k,   k+1 ),
-                         indB(     k,   m   ),
-                         ind2Vert( k+1, m   ), ind2Horz( k+1, n );
+        const Range<Int> ind1( k ), ind2( k+1, END ), indB( k, END );
 
-        auto alpha11 = A( ind1,     ind1     );
-        auto a12     = A( ind1,     ind2Horz );
-        auto a21     = A( ind2Vert, ind1     );
-        auto aB1     = A( indB,     ind1     );
-        auto AB2     = A( indB,     ind2Horz );
+        auto alpha11 = A( ind1, ind1 );
+        auto a12     = A( ind1, ind2 );
+        auto a21     = A( ind2, ind1 );
+        auto aB1     = A( indB, ind1 );
+        auto AB2     = A( indB, ind2 );
 
         // Find the next column pivot
         const ValueInt<Real> pivot = FindPivot( norms, k );
@@ -145,7 +143,7 @@ inline void BusingerGolub
     InvertPermutation( pInv, p );
 
     // Form d and rescale R
-    auto R = A( IR(0,k), IR(0,n) );
+    auto R = A( IR(0,k), ALL );
     GetRealPartOfDiagonal(R,d);
     auto sgn = []( Real delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };
@@ -325,15 +323,13 @@ inline void BusingerGolub
     Int k=0;
     for( ; k<maxSteps; ++k )
     {
-        const Range<Int> ind1(     k,   k+1 ),
-                         indB(     k,   m   ),
-                         ind2Vert( k+1, m   ), ind2Horz( k+1, n );
+        const Range<Int> ind1( k ), ind2( k+1, END ), indB( k, END );
 
-        auto alpha11 = A( ind1,     ind1     );
-        auto a12     = A( ind1,     ind2Horz );
-        auto a21     = A( ind2Vert, ind1     );
-        auto aB1     = A( indB,     ind1     );
-        auto AB2     = A( indB,     ind2Horz );
+        auto alpha11 = A( ind1, ind1 );
+        auto a12     = A( ind1, ind2 );
+        auto a21     = A( ind2, ind1 );
+        auto aB1     = A( indB, ind1 );
+        auto AB2     = A( indB, ind2 );
 
         // Find the next column pivot
         const ValueInt<Real> pivot = FindColPivot( A, norms, k );
@@ -442,7 +438,7 @@ inline void BusingerGolub
     InvertPermutation( pInv, p );
 
     // Form d and rescale R
-    auto R = A( IR(0,k), IR(0,n) );
+    auto R = A( IR(0,k), ALL );
     GetRealPartOfDiagonal(R,d);
     auto sgn = []( Real delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };

@@ -25,14 +25,12 @@ UnbObj( Matrix<F>& A )
     const Int minDim = Min(m,n);
     for( Int k=0; k<minDim; ++k )
     {
-        const Range<Int> ind1( k, k+1 ),
-                         ind2Vert( k+1, m ),
-                         ind2Horz( k+1, n );
+        const IR ind1( k ), ind2( k+1, END );
 
-        auto alpha11 = A( ind1,     ind1     );
-        auto a12     = A( ind1,     ind2Horz );
-        auto a21     = A( ind2Vert, ind1     );
-        auto A22     = A( ind2Vert, ind2Horz );
+        auto alpha11 = A( ind1, ind1 );
+        auto a12     = A( ind1, ind2 );
+        auto a21     = A( ind2, ind1 );
+        auto A22     = A( ind2, ind2 );
 
         F alpha = alpha11.Get(0,0);
         if( alpha == F(0) )

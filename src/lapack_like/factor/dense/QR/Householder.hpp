@@ -32,14 +32,14 @@ Householder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
     {
         const Int nb = Min(bsize,minDim-k);
 
-        const Range<Int> ind1(     k,    k+nb ),
-                         indB(     k,    m    ),
-                         ind2Horz( k+nb, n    );
+        const Range<Int> ind1( k,    k+nb ),
+                         indB( k,    END  ),
+                         ind2( k+nb, END  );
 
-        auto AB1 = A( indB, ind1     );
-        auto AB2 = A( indB, ind2Horz );
-        auto t1 = t( ind1, IR(0,1) );
-        auto d1 = d( ind1, IR(0,1) );
+        auto AB1 = A( indB, ind1 );
+        auto AB2 = A( indB, ind2 );
+        auto t1 = t( ind1, ALL );
+        auto d1 = d( ind1, ALL );
 
         PanelHouseholder( AB1, t1, d1 );
         ApplyQ( LEFT, ADJOINT, AB1, t1, d1, AB2 );
@@ -73,14 +73,14 @@ Householder
     {
         const Int nb = Min(bsize,minDim-k);
 
-        const Range<Int> ind1(     k,    k+nb ),
-                         indB(     k,    m    ),
-                         ind2Horz( k+nb, n    );
+        const Range<Int> ind1( k,    k+nb ),
+                         indB( k,    END  ),
+                         ind2( k+nb, END  );
 
-        auto AB1 = A( indB, ind1     );
-        auto AB2 = A( indB, ind2Horz );
-        auto t1 = t( ind1, IR(0,1) );
-        auto d1 = d( ind1, IR(0,1) );
+        auto AB1 = A( indB, ind1 );
+        auto AB2 = A( indB, ind2 );
+        auto t1 = t( ind1, ALL );
+        auto d1 = d( ind1, ALL );
 
         PanelHouseholder( AB1, t1, d1 );
         ApplyQ( LEFT, ADJOINT, AB1, t1, d1, AB2 );

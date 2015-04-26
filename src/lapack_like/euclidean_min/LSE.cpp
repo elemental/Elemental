@@ -319,8 +319,8 @@ void LSE
     Matrix<F> G;
     Zeros( G, n+m+k, numRHS );
     {
-        auto Gr = G( IR(n,n+m),     IR(0,numRHS) );
-        auto Gy = G( IR(n+m,n+m+k), IR(0,numRHS) );
+        auto Gr = G( IR(n,n+m),     ALL );
+        auto Gy = G( IR(n+m,n+m+k), ALL );
         Gr = C;
         Gy = D;
     }
@@ -373,7 +373,7 @@ void LSE
     Zeros( u, n+m+k, 1 );
     for( Int j=0; j<numRHS; ++j )
     {
-        auto g = G( IR(0,n+m+k), IR(j,j+1) );
+        auto g = G( ALL, IR(j) );
         u = g;
         reg_qsd_ldl::SolveAfter
         ( JOrig, reg, invMap, info, JFront, u, ctrl.qsdCtrl );
@@ -382,7 +382,7 @@ void LSE
 
     // Extract X from G = [ Dc*X; -R/alpha; Y/alpha ]
     // ==============================================
-    X = G( IR(0,n), IR(0,numRHS) );
+    X = G( IR(0,n), ALL );
     DiagonalSolve( LEFT, NORMAL, dC, X );
 }
 
@@ -572,10 +572,9 @@ void LSE
     Zeros( u, n+m+k, 1 );
     auto& GLoc = G.Matrix();
     auto& uLoc = u.Matrix();
-    const Int GLocHeight = GLoc.Height();
     for( Int j=0; j<numRHS; ++j )
     {
-        auto gLoc = GLoc( IR(0,GLocHeight), IR(j,j+1) );
+        auto gLoc = GLoc( ALL, IR(j) );
         Copy( gLoc, uLoc );
         reg_qsd_ldl::SolveAfter
         ( JOrig, reg, invMap, info, JFront, u, ctrl.qsdCtrl );
@@ -584,7 +583,7 @@ void LSE
 
     // Extract X from G = [ Dc*X; -R/alpha; Y/alpha ]
     // ==============================================
-    X = G( IR(0,n), IR(0,numRHS) );
+    X = G( IR(0,n), ALL );
     DiagonalSolve( LEFT, NORMAL, dC, X );
 }
 

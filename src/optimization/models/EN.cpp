@@ -71,15 +71,15 @@ void EN
     // c := lambda_1*[1;1;0]
     // =====================
     Zeros( c, 2*n+m, 1 );
-    auto cuv = c( IR(0,2*n), IR(0,1) );
+    auto cuv = c( IR(0,2*n), ALL );
     Fill( cuv, lambda1 );
 
     // \hat A := [A, -A, I]
     // ====================
     Zeros( AHat, m, 2*n+m );
-    auto AHatu = AHat( IR(0,m), uInd );
-    auto AHatv = AHat( IR(0,m), vInd );
-    auto AHatr = AHat( IR(0,m), rInd );
+    auto AHatu = AHat( ALL, uInd );
+    auto AHatv = AHat( ALL, vInd );
+    auto AHatr = AHat( ALL, rInd );
     AHatu = A;
     Axpy( Real(-1), A, AHatv );
     FillDiagonal( AHatr, Real(1) );
@@ -101,8 +101,8 @@ void EN
 
     // x := u - v
     // ==========
-    x = xHat( uInd, IR(0,1) );
-    Axpy( Real(-1), xHat(vInd,IR(0,1)), x );
+    x = xHat( uInd, ALL );
+    Axpy( Real(-1), xHat(vInd,ALL), x );
 }
 
 template<typename Real>
@@ -132,15 +132,15 @@ void EN
     // c := lambda_1*[1;1;0]
     // =====================
     Zeros( c, 2*n+m, 1 );
-    auto cuv = c( IR(0,2*n), IR(0,1) );
+    auto cuv = c( IR(0,2*n), ALL );
     Fill( cuv, lambda1 );
 
     // \hat A := [A, -A, I]
     // ====================
     Zeros( AHat, m, 2*n+m );
-    auto AHatu = AHat( IR(0,m), uInd );
-    auto AHatv = AHat( IR(0,m), vInd );
-    auto AHatr = AHat( IR(0,m), rInd );
+    auto AHatu = AHat( ALL, uInd );
+    auto AHatv = AHat( ALL, vInd );
+    auto AHatr = AHat( ALL, rInd );
     AHatu = A;
     Axpy( Real(-1), A, AHatv );
     FillDiagonal( AHatr, Real(1) );
@@ -162,8 +162,8 @@ void EN
 
     // x := u - v
     // ==========
-    Copy( xHat( uInd, IR(0,1) ), x );
-    Axpy( Real(-1), xHat(vInd,IR(0,1)), x );
+    Copy( xHat( uInd, ALL ), x );
+    Axpy( Real(-1), xHat(vInd,ALL), x );
 }
 
 template<typename Real>
@@ -195,7 +195,7 @@ void EN
     // c := lambda_1*[1;1;0]
     // =====================
     Zeros( c, 2*n+m, 1 );
-    auto cuv = c( IR(0,2*n), IR(0,1) );
+    auto cuv = c( IR(0,2*n), ALL );
     Fill( cuv, lambda1 );
 
     // \hat A := [A, -A, I]
@@ -232,8 +232,8 @@ void EN
 
     // x := u - v
     // ==========
-    x = xHat( uInd, IR(0,1) );
-    Axpy( Real(-1), xHat(vInd,IR(0,1)), x );
+    x = xHat( uInd, ALL );
+    Axpy( Real(-1), xHat(vInd,ALL), x );
 }
 
 template<typename Real>

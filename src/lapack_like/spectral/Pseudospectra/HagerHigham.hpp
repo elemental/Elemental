@@ -241,12 +241,12 @@ HagerHigham
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );
-        auto activeShifts = pivShifts( IR(0,numActive), IR(0,1) );
-        auto activeEsts = estimates( IR(0,numActive), IR(0,1) );
-        auto activeItCounts = itCounts( IR(0,numActive), IR(0,1) );
-        auto activeX = X( IR(0,n), IR(0,numActive) );
+        auto activeShifts = pivShifts( IR(0,numActive), ALL );
+        auto activeEsts = estimates( IR(0,numActive), ALL );
+        auto activeItCounts = itCounts( IR(0,numActive), ALL );
+        auto activeX = X( ALL, IR(0,numActive) );
         if( deflate )
-            View( activePreimage, preimage, IR(0,numActive), IR(0,1) );
+            View( activePreimage, preimage, IR(0,numActive), ALL );
 
         if( progress )
             timer.Start(); 
@@ -396,12 +396,12 @@ HagerHigham
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );
-        auto activeShifts = pivShifts( IR(0,numActive), IR(0,1) );
-        auto activeEsts = estimates( IR(0,numActive), IR(0,1) );
-        auto activeItCounts = itCounts( IR(0,numActive), IR(0,1) );
-        auto activeX = X( IR(0,n), IR(0,numActive) );
+        auto activeShifts = pivShifts( IR(0,numActive), ALL );
+        auto activeEsts = estimates( IR(0,numActive), ALL );
+        auto activeItCounts = itCounts( IR(0,numActive), ALL );
+        auto activeX = X( ALL, IR(0,numActive) );
         if( deflate )
-            View( activePreimage, preimage, IR(0,numActive), IR(0,1) );
+            View( activePreimage, preimage, IR(0,numActive), ALL );
 
         if( progress )
             timer.Start(); 
@@ -484,7 +484,7 @@ HagerHigham
     // cancellation in large entries in inv(U - zI)
     if( numShifts == 0 )
         return itCounts;
-    auto x = X( IR(0,n), IR(0,1) );
+    auto x = X( ALL, IR(0) );
     for( Int i=0; i<n; ++i )
         x.Set( i, 0, (i%2==0 ?  Real(i+n-1)/Real(n-1) 
                              : -Real(i+n-1)/Real(n-1) ) );
@@ -493,7 +493,7 @@ HagerHigham
     Matrix<C> Y( n, numShifts );
     for( Int j=0; j<numShifts; ++j )
     {
-        auto y = Y( IR(0,n), IR(j,j+1) );    
+        auto y = Y( ALL, IR(j) );    
         y = yRep;
     }
     if( psCtrl.schur )
@@ -588,12 +588,12 @@ HagerHigham
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );
-        auto activeShifts = pivShifts( IR(0,numActive), IR(0,1) );
-        auto activeEsts = estimates( IR(0,numActive), IR(0,1) );
-        auto activeItCounts = itCounts( IR(0,numActive), IR(0,1) );
-        auto activeX = X( IR(0,n), IR(0,numActive) );
+        auto activeShifts = pivShifts( IR(0,numActive), ALL );
+        auto activeEsts = estimates( IR(0,numActive), ALL );
+        auto activeItCounts = itCounts( IR(0,numActive), ALL );
+        auto activeX = X( ALL, IR(0,numActive) );
         if( deflate )
-            View( activePreimage, preimage, IR(0,numActive), IR(0,1) );
+            View( activePreimage, preimage, IR(0,numActive), ALL );
 
         if( progress && g.Rank() == 0 )
             timer.Start();
@@ -791,12 +791,12 @@ HagerHigham
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );
-        auto activeShifts = pivShifts( IR(0,numActive), IR(0,1) );
-        auto activeEsts = estimates( IR(0,numActive), IR(0,1) );
-        auto activeItCounts = itCounts( IR(0,numActive), IR(0,1) );
-        auto activeX = X( IR(0,n), IR(0,numActive) );
+        auto activeShifts = pivShifts( IR(0,numActive), ALL );
+        auto activeEsts = estimates( IR(0,numActive), ALL );
+        auto activeItCounts = itCounts( IR(0,numActive), ALL );
+        auto activeX = X( ALL, IR(0,numActive) );
         if( deflate )
-            View( activePreimage, preimage, IR(0,numActive), IR(0,1) );
+            View( activePreimage, preimage, IR(0,numActive), ALL );
 
         if( progress && g.Rank() == 0 )
             timer.Start();
@@ -887,7 +887,7 @@ HagerHigham
     // cancellation in large entries in inv(U - zI)
     if( numShifts == 0 )
         return itCounts;
-    auto x = X( IR(0,n), IR(0,1) );
+    auto x = X( ALL, IR(0) );
     if( x.LocalWidth() == 1 )
     {
         for( Int iLoc=0; iLoc<nLoc; ++iLoc )
@@ -907,7 +907,7 @@ HagerHigham
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
     {
         const Int j = Y.GlobalCol(jLoc);
-        auto y = Y( IR(0,n), IR(j,j+1) );
+        auto y = Y( ALL, IR(j) );
         y = yRep_MC_STAR;
     }
     if( psCtrl.schur )

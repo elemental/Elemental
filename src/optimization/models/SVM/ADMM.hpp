@@ -25,7 +25,7 @@ Int ADMM
     // A = [repmat(q,1,n).*G,q]
     // TODO: Add repmat support into Elemental? It's in Julia.
     Matrix<Real> A( numExamples, numFeatures+1 );
-    auto AL = A( IR(0,numExamples), IR(0,numFeatures) );
+    auto AL = A( ALL, IR(0,numFeatures) );
     AL = G;
     for( Int j=0; j<numFeatures; ++j )
         for( Int i=0; i<numExamples; ++i )
@@ -37,7 +37,7 @@ Int ADMM
                      { HingeLossProx( y, y.Height()*rho ); };
     auto frobProx = 
         [=]( Matrix<Real>& x, Real rho ) 
-        { auto xT = x( IR(0,x.Height()-1), IR(0,1) );
+        { auto xT = x( IR(0,x.Height()-1), ALL );
           FrobeniusProx( xT, gamma/rho ); };
 
     Matrix<Real> b;
@@ -61,7 +61,7 @@ Int ADMM
     // A = [repmat(q,1,n).*G,q]
     // TODO: Add repmat support into Elemental? It's in Julia.
     DistMatrix<Real> A( numExamples, numFeatures+1, G.Grid() );
-    auto AL = A( IR(0,numExamples), IR(0,numFeatures) );
+    auto AL = A( ALL, IR(0,numFeatures) );
     AL = G;
     DistMatrix<Real,MC,STAR> q_MC_STAR(G.Grid());
     q_MC_STAR.AlignWith( A );
@@ -81,7 +81,7 @@ Int ADMM
                      { HingeLossProx( y, y.Height()*rho ); };
     auto frobProx =
         [=]( DistMatrix<Real>& x, Real rho )
-        { auto xT = x( IR(0,x.Height()-1), IR(0,1) );
+        { auto xT = x( IR(0,x.Height()-1), ALL );
           FrobeniusProx( xT, gamma/rho ); };
 
     DistMatrix<Real> b(G.Grid());

@@ -81,15 +81,15 @@ void LPan
 
         auto A20B = A( IR(nW,n), ind0 );
 
-        auto alpha21T = A( IR(k+1,k+2), ind1 );
-        auto a21B     = A( IR(k+2,n),   ind1 );
+        auto alpha21T = A( IR(k+1),     ind1 );
+        auto a21B     = A( IR(k+2,END), ind1 );
 
-        auto W00      = W( ind0,     ind0       );
-        auto W22      = W( ind2,     IR(k+1,nW) );
-        auto W20B     = W( IR(nW,n), ind0       );
+        auto W00      = W( ind0,       ind0        );
+        auto W22      = W( ind2,       IR(k+1,END) );
+        auto W20B     = W( IR(nW,END), ind0        );
 
-        auto tau1     = t( ind1, IR(0,1) );
-        auto epsilon1 = e( ind1, IR(0,1) );
+        auto tau1     = t( ind1, ALL );
+        auto epsilon1 = e( ind1, ALL );
            
         a21_MC_STAR.AlignWith( A22 );
         a21_MR_STAR.AlignWith( A22 );
@@ -100,8 +100,8 @@ void LPan
 
         // View the portions of a21[MC,* ] and p21[MC,* ] below the current
         // panel's square
-        auto a21B_MC_STAR = a21_MC_STAR( IR(nW-(k+1),n-(k+1)), IR(0,1) );
-        auto p21B_MC_STAR = p21_MC_STAR( IR(nW-(k+1),n-(k+1)), IR(0,1) );
+        auto a21B_MC_STAR = a21_MC_STAR( IR(nW-(k+1),END), ALL );
+        auto p21B_MC_STAR = p21_MC_STAR( IR(nW-(k+1),END), ALL );
 
         if( k > 0 )
         {
@@ -337,10 +337,10 @@ void LPan
             // entries. We trash the upper triangle of our panel of A since we 
             // are only doing slightly more work and we can replace it
             // afterwards.
-            auto a21Last_MC_STAR_Bottom = a21Last_MC_STAR( IR(1,n-k), IR(0,1) );
-            auto w21Last_MC_STAR_Bottom = w21Last_MC_STAR( IR(1,n-k), IR(0,1) );
-            auto a21Last_MR_STAR_Bottom = a21Last_MR_STAR( IR(1,n-k), IR(0,1) );
-            auto w21Last_MR_STAR_Bottom = w21Last_MR_STAR( IR(1,n-k), IR(0,1) );
+            auto a21Last_MC_STAR_Bottom = a21Last_MC_STAR( IR(1,n-k), ALL );
+            auto w21Last_MC_STAR_Bottom = w21Last_MC_STAR( IR(1,n-k), ALL );
+            auto a21Last_MR_STAR_Bottom = a21Last_MR_STAR( IR(1,n-k), ALL );
+            auto w21Last_MR_STAR_Bottom = w21Last_MR_STAR( IR(1,n-k), ALL );
             const F* a21_MC_STAR_Buffer = a21Last_MC_STAR_Bottom.Buffer();
             const F* w21_MC_STAR_Buffer = w21Last_MC_STAR_Bottom.Buffer();
             const F* a21_MR_STAR_Buffer = a21Last_MR_STAR_Bottom.Buffer();

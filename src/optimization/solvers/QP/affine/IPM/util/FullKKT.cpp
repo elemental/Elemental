@@ -359,15 +359,15 @@ void KKTRHS
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
     Zeros( d, n+m+k, 1 );
 
-    auto dx = d(xInd,IR(0,1));
+    auto dx = d(xInd,ALL);
     dx = rc;
     Scale( Real(-1), dx );
 
-    auto dy = d(yInd,IR(0,1));
+    auto dy = d(yInd,ALL);
     dy = rb;
     Scale( Real(-1), dy );
 
-    auto dz = d(zInd,IR(0,1));
+    auto dz = d(zInd,ALL);
     dz = rmu;
     DiagonalSolve( LEFT, NORMAL, z, dz );
     Axpy( Real(-1), rh, dz );
@@ -391,15 +391,15 @@ void KKTRHS
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
     Zeros( d, n+m+k, 1 );
 
-    auto dx = d(xInd,IR(0,1));
+    auto dx = d(xInd,ALL);
     Copy( rc, dx );
     Scale( Real(-1), dx );
 
-    auto dy = d(yInd,IR(0,1));
+    auto dy = d(yInd,ALL);
     Copy( rb, dy );
     Scale( Real(-1), dy );
 
-    auto dz = d(zInd,IR(0,1));
+    auto dz = d(zInd,ALL);
     Copy( rmu, dz );
     DiagonalSolve( LEFT, NORMAL, z, dz );
     Axpy( Real(-1), rh, dz );
@@ -475,9 +475,9 @@ void ExpandCoreSolution
         LogicError("Right-hand side was the wrong size");
 
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
-    dx = d(xInd,IR(0,1));
-    dy = d(yInd,IR(0,1));
-    dz = d(zInd,IR(0,1));
+    dx = d(xInd,ALL);
+    dy = d(yInd,ALL);
+    dz = d(zInd,ALL);
 }
 
 template<typename Real>
@@ -496,9 +496,9 @@ void ExpandCoreSolution
         LogicError("Right-hand side was the wrong size");
 
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
-    Copy( d(xInd,IR(0,1)), dx );
-    Copy( d(yInd,IR(0,1)), dy );
-    Copy( d(zInd,IR(0,1)), dz );
+    Copy( d(xInd,ALL), dx );
+    Copy( d(yInd,ALL), dy );
+    Copy( d(zInd,ALL), dz );
 }
 
 template<typename Real>

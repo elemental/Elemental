@@ -67,7 +67,7 @@ void USquare
 
         if( k > 0 )
         {
-            auto t1 = tDiag( IR(k-1,k+nb-1), IR(0,1) );
+            auto t1 = tDiag( IR(k-1,k+nb-1), ALL );
             WPan.AlignWith( A01 );
             WPan.Resize( k+nb, nb );
             APan_MC_STAR.AlignWith( A00 );
@@ -97,7 +97,7 @@ void USquare
         }
         else
         {
-            auto t1 = tDiag( IR(0,nb-1), IR(0,1) );
+            auto t1 = tDiag( IR(0,nb-1), ALL );
             A11_STAR_STAR = A11;
             t1_STAR_STAR.Resize( nb-1, 1 );
             HermitianTridiag

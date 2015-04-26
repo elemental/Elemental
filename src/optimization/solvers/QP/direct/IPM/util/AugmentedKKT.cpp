@@ -243,7 +243,7 @@ void AugmentedKKTRHS
 
     // dx := - (r_c + x <> r_mu)
     // =========================
-    auto dx = d(xInd,IR(0,1));
+    auto dx = d(xInd,ALL);
     dx = rmu;
     DiagonalSolve( LEFT, NORMAL, x, dx );
     Axpy( Real(1), rc, dx );
@@ -251,7 +251,7 @@ void AugmentedKKTRHS
 
     // dy := -r_b
     // ==========
-    auto dy = d(yInd,IR(0,1));
+    auto dy = d(yInd,ALL);
     dy = rb;
     Scale( Real(-1), dy );
 }
@@ -281,7 +281,7 @@ void AugmentedKKTRHS
 
     // dx := - (r_c + x <> r_mu)
     // =========================
-    auto dx = d(xInd,IR(0,1));
+    auto dx = d(xInd,ALL);
     dx = rmu;
     DiagonalSolve( LEFT, NORMAL, x, dx );
     Axpy( Real(1), rc, dx );
@@ -289,7 +289,7 @@ void AugmentedKKTRHS
 
     // dy := -r_b
     // ==========
-    auto dy = d(yInd,IR(0,1));
+    auto dy = d(yInd,ALL);
     dy = rb;
     Scale( Real(-1), dy );
 }
@@ -359,8 +359,8 @@ void ExpandAugmentedSolution
     dx.Resize( n, 1 );
     dy.Resize( m, 1 );
     const IR xInd(0,n), yInd(n,n+m);
-    auto d_x = d(xInd,IR(0,1));
-    auto d_y = d(yInd,IR(0,1));
+    auto d_x = d(xInd,ALL);
+    auto d_y = d(yInd,ALL);
     dx = d_x;
     dy = d_y;
 
@@ -405,8 +405,8 @@ void ExpandAugmentedSolution
     dx.Resize( n, 1 );
     dy.Resize( m, 1 );
     const IR xInd(0,n), yInd(n,n+m);
-    auto d_x = d(xInd,IR(0,1));
-    auto d_y = d(yInd,IR(0,1));
+    auto d_x = d(xInd,ALL);
+    auto d_y = d(yInd,ALL);
     dx = d_x;
     Copy( d_y, dy );
 

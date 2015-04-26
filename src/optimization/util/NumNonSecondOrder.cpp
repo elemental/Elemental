@@ -35,7 +35,7 @@ Int NumNonSecondOrder
             LogicError("Inconsistency in orders and firstInds");
         const Int order = orders.Get(i,0);
         const Real root = x.Get(i,0);
-        const Real vecNrm = Nrm2( x(IR(i+1,i+order),IR(0,1)) );
+        const Real vecNrm = Nrm2( x(IR(i+1,i+order),ALL) );
         if( root < vecNrm )
             ++numNonSO;
         i += order;
@@ -191,7 +191,7 @@ Int NumNonSecondOrder
         const Int i = recvCones[largeCone];
         const Real t = recvCaps[largeCone];
         const Int order = recvOrders[largeCone];
-        auto xBot = x( IR(i+1,i+order), IR(0,1) );
+        auto xBot = x( IR(i+1,i+order), ALL );
         const Real xBotNrm = Nrm2( xBot );
         if( t < xBotNrm )
             ++numNonSO;

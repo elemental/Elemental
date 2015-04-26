@@ -65,7 +65,7 @@ void LSquare
         auto ABR = A( indB, indR );
 
         const Int nbt = Min(bsize,(n-1)-k);
-        auto t1 = tDiag( IR(k,k+nbt), IR(0,1) );
+        auto t1 = tDiag( IR(k,k+nbt), ALL );
             
         if( A22.Height() > 0 )
         {

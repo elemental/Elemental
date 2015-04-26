@@ -65,9 +65,9 @@ void TV
     // c := [-b;lambda]
     // =================
     Zeros( c, 2*n-1, 1 );
-    auto cx = c( xInd, IR(0,1) ); 
+    auto cx = c( xInd, ALL ); 
     cx = b; Scale( Real(-1), cx );
-    auto ct = c( tInd, IR(0,1) );
+    auto ct = c( tInd, ALL );
     Fill( ct, lambda );
 
     // A := []
@@ -108,7 +108,7 @@ void TV
 
     // Extract x from [x;t]
     // ====================
-    x = xHat( xInd, IR(0,1) );
+    x = xHat( xInd, ALL );
 }
 
 template<typename Real>
@@ -223,7 +223,7 @@ void TV
 
     // Extract x from [x;t]
     // ====================
-    GetSubmatrix( xHat, IR(0,n), IR(0,1), x );
+    GetSubmatrix( xHat, IR(0,n), ALL, x );
 }
 
 #define PROTO(Real) \

@@ -64,7 +64,7 @@ LVar1( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
         const Int nbProp = Min(bsize,n-k);
         const bool in2x2 = ( k+nbProp<n && dSub.Get(k+nbProp-1,0) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
-        auto dSub1 = dSub( IR(k,k+nb-1), IR(0,1) );
+        auto dSub1 = dSub( IR(k,k+nb-1), ALL );
 
         const Range<Int> ind0( 0, k    ),
                          ind1( k, k+nb );
@@ -188,7 +188,7 @@ LVar1
         auto L11 = L( ind1, ind1 );
         auto d1 = GetDiagonal(L11);
 
-        auto dSub1 = dSub( IR(k,k+nb-1), IR(0,1) );
+        auto dSub1 = dSub( IR(k,k+nb-1), ALL );
 
         L10_STAR_VR = L10;
         S10_STAR_VC = L10_STAR_VR;

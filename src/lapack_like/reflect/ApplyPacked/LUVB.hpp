@@ -37,7 +37,6 @@ LUVB
   const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("apply_packed_reflectors::LUVB"))
-    const Int nA = A.Width();
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
         if( t.Height() != diagLength )
@@ -57,8 +56,8 @@ LUVB
         const Int kj = k+jOff;
 
         auto HPan = H( IR(0,ki+nb), IR(kj,kj+nb) );
-        auto ATop = A( IR(0,ki+nb), IR(0,nA)     );
-        auto t1   = t( IR(k,k+nb),  IR(0,1)      );
+        auto ATop = A( IR(0,ki+nb), ALL          );
+        auto t1   = t( IR(k,k+nb),  ALL          );
 
         HPanCopy = HPan;
         MakeTrapezoidal( UPPER, HPanCopy, HPanCopy.Width()-HPanCopy.Height() );
@@ -89,7 +88,6 @@ LUVB
     auto tPtr = ReadProxy<F,MC,STAR>( &tPre );    auto& t = *tPtr;
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
 
-    const Int nA = A.Width();
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
         if( t.Height() != diagLength )
@@ -116,8 +114,8 @@ LUVB
         const Int kj = k+jOff;
 
         auto HPan = H( IR(0,ki+nb), IR(kj,kj+nb) );
-        auto ATop = A( IR(0,ki+nb), IR(0,nA)     );
-        auto t1   = t( IR(k,k+nb),  IR(0,1)      );
+        auto ATop = A( IR(0,ki+nb), ALL          );
+        auto t1   = t( IR(k,k+nb),  ALL          );
 
         HPanCopy = HPan;
         MakeTrapezoidal( UPPER, HPanCopy, HPanCopy.Width()-HPanCopy.Height() );

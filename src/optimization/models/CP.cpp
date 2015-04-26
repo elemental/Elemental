@@ -67,8 +67,8 @@ void CP
     //      | -b |
     // ===========
     Zeros( h, 2*m, 1 );
-    auto hT = h( IR(0,m),   IR(0,1) );
-    auto hB = h( IR(m,2*m), IR(0,1) );
+    auto hT = h( IR(0,m),   ALL );
+    auto hB = h( IR(m,2*m), ALL );
     hT = b;
     Axpy( Real(-1), hT, hB );
 
@@ -79,7 +79,7 @@ void CP
 
     // Extract x from [x;t]
     // ====================
-    x = xHat( IR(0,n), IR(0,1) );
+    x = xHat( IR(0,n), ALL );
 }
 
 template<typename Real>
@@ -122,8 +122,8 @@ void CP
     //      | -b |
     // ===========
     Zeros( h, 2*m, 1 );
-    auto hT = h( IR(0,m),   IR(0,1) );
-    auto hB = h( IR(m,2*m), IR(0,1) );
+    auto hT = h( IR(0,m),   ALL );
+    auto hB = h( IR(m,2*m), ALL );
     hT = b;
     Axpy( Real(-1), hT, hB );
 
@@ -134,7 +134,7 @@ void CP
 
     // Extract x from [x;t]
     // ====================
-    Copy( xHat( IR(0,n), IR(0,1) ), x );
+    Copy( xHat( IR(0,n), ALL ), x );
 }
 
 template<typename Real>
@@ -184,8 +184,8 @@ void CP
     //      | -b |
     // ===========
     Zeros( h, 2*m, 1 );
-    auto hT = h( IR(0,m),   IR(0,1) );
-    auto hB = h( IR(m,2*m), IR(0,1) );
+    auto hT = h( IR(0,m),   ALL );
+    auto hB = h( IR(m,2*m), ALL );
     hT = b;
     Axpy( Real(-1), hT, hB );
 
@@ -196,7 +196,7 @@ void CP
 
     // Extract x from [x;t]
     // ====================
-    x = xHat( IR(0,n), IR(0,1) );
+    x = xHat( IR(0,n), ALL );
 }
 
 template<typename Real>
@@ -314,7 +314,7 @@ void CP
 
     // Extract x from [x;t]
     // ====================
-    GetSubmatrix( xHat, IR(0,n), IR(0,1), x );
+    GetSubmatrix( xHat, IR(0,n), ALL, x );
 }
 
 #define PROTO(Real) \

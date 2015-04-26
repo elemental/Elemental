@@ -200,14 +200,14 @@ inline void Equilibrated
     {
         // Form D = [B; 0]
         // ==================
-        auto DT = D( IR(0,m), IR(0,numRHS) );
+        auto DT = D( IR(0,m), ALL );
         DT = B;
     }
     else
     {
         // Form D = [0; B]
         // ===============
-        auto DB = D( IR(n,m+n), IR(0,numRHS) );
+        auto DB = D( IR(n,m+n), ALL );
         DB = B;
     }
 
@@ -238,7 +238,7 @@ inline void Equilibrated
     Zeros( u, m+n, 1 );
     for( Int j=0; j<numRHS; ++j )
     {
-        auto d = D( IR(0,m+n), IR(j,j+1) );
+        auto d = D( ALL, IR(j) );
         u = d;
         reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, u, ctrl );
         d = u;
@@ -249,14 +249,14 @@ inline void Equilibrated
     {
         // Extract X from [R/alpha; X]
         // ===========================
-        auto DB = D( IR(m,m+n), IR(0,numRHS) );
+        auto DB = D( IR(m,m+n), ALL );
         X = DB;
     }
     else
     {
         // Extract X from [X; alpha*Y]
         // ===========================
-        auto DT = D( IR(0,n), IR(0,numRHS) );
+        auto DT = D( IR(0,n), ALL );
         X = DT;
     }
 }
@@ -528,12 +528,11 @@ void Equilibrated
     Zeros( u, m+n, 1 );
     auto& DLoc = D.Matrix();
     auto& uLoc = u.Matrix();
-    const Int DLocHeight = DLoc.Height();
     if( commRank == 0 && time )
         timer.Start();
     for( Int j=0; j<numRHS; ++j )
     {
-        auto dLoc = DLoc( IR(0,DLocHeight), IR(j,j+1) );
+        auto dLoc = DLoc( ALL, IR(j) );
         Copy( dLoc, uLoc );
         reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, u, ctrl );
         Copy( uLoc, dLoc );
@@ -544,9 +543,9 @@ void Equilibrated
     // Extract X from [R/alpha; X] or [X; alpha*Y] and then rescale
     // ============================================================
     if( m >= n )
-        X = D( IR(m,m+n), IR(0,numRHS) );
+        X = D( IR(m,m+n), ALL );
     else
-        X = D( IR(0,n),   IR(0,numRHS) );
+        X = D( IR(0,n),   ALL );
 }
 
 } // namespace ls

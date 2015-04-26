@@ -1085,7 +1085,7 @@ Int LGMRESSolveAfter
 
         // v0 := w / beta
         // ==============
-        auto v0 = V( IR(0,n), IR(0,1) );
+        auto v0 = V( ALL, IR(0) );
         v0 = w;
         Scale( Real(1)/beta, v0 ); 
 
@@ -1100,7 +1100,7 @@ Int LGMRESSolveAfter
         {
             // w := A v_j
             // ----------
-            Multiply( NORMAL, F(1), A, V(IR(0,n),IR(j,j+1)), F(0), w );
+            Multiply( NORMAL, F(1), A, V(ALL,IR(j)), F(0), w );
 
             // w := inv(M) w
             // -------------
@@ -1115,7 +1115,7 @@ Int LGMRESSolveAfter
             {
                 // H(i,j) := v_i' w
                 // ^^^^^^^^^^^^^^^^
-                auto vi = V( IR(0,n), IR(i,i+1) );
+                auto vi = V( ALL, IR(i) );
                 H.Set( i, j, Dot(vi,w) ); 
               
                 // w := w - H(i,j) v_i
@@ -1131,7 +1131,7 @@ Int LGMRESSolveAfter
             {
                 // v_{j+1} := w / delta
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
-                auto vjp1 = V( IR(0,n), IR(j+1,j+2) );
+                auto vjp1 = V( ALL, IR(j+1) );
                 vjp1 = w;
                 Scale( Real(1)/delta, vjp1 );
             }
@@ -1178,7 +1178,7 @@ Int LGMRESSolveAfter
             t.Set( j+1, 0, -sConj*tau_j + c*tau_jp1 );
             // Minimize the residual
             // ^^^^^^^^^^^^^^^^^^^^^
-            auto tT = t( IR(0,j+1), IR(0,1) );
+            auto tT = t( IR(0,j+1), ALL );
             auto HTL = H( IR(0,j+1), IR(0,j+1) );
             auto y = tT;
             Trsv( UPPER, NORMAL, NON_UNIT, HTL, y );
@@ -1188,7 +1188,7 @@ Int LGMRESSolveAfter
             for( Int i=0; i<=j; ++i )
             {
                 const F eta_i = y.Get(i,0);
-                Axpy( eta_i, V( IR(0,n), IR(i,i+1) ), x );
+                Axpy( eta_i, V( ALL, IR(i) ), x );
             }
 
             // w := b - A x
@@ -1283,7 +1283,7 @@ Int LGMRESSolveAfter
 
         // v0 := w / beta
         // ==============
-        auto v0 = V( IR(0,n), IR(0,1) );
+        auto v0 = V( ALL, IR(0) );
         v0 = w;
         Scale( Real(1)/beta, v0 ); 
 
@@ -1298,7 +1298,7 @@ Int LGMRESSolveAfter
         {
             // w := A v_j
             // ----------
-            Multiply( NORMAL, F(1), A, V(IR(0,n),IR(j,j+1)), F(0), w );
+            Multiply( NORMAL, F(1), A, V(ALL,IR(j)), F(0), w );
 
             // w := inv(M) w
             // -------------
@@ -1313,7 +1313,7 @@ Int LGMRESSolveAfter
             {
                 // H(i,j) := v_i' w
                 // ^^^^^^^^^^^^^^^^
-                auto vi = V( IR(0,n), IR(i,i+1) );
+                auto vi = V( ALL, IR(i) );
                 H.Set( i, j, Dot(vi,w) ); 
               
                 // w := w - H(i,j) v_i
@@ -1329,7 +1329,7 @@ Int LGMRESSolveAfter
             {
                 // v_{j+1} := w / delta
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
-                auto vjp1 = V( IR(0,n), IR(j+1,j+2) );
+                auto vjp1 = V( ALL, IR(j+1) );
                 vjp1 = w;
                 Scale( Real(1)/delta, vjp1 );
             }
@@ -1376,7 +1376,7 @@ Int LGMRESSolveAfter
             t.Set( j+1, 0, -sConj*tau_j + c*tau_jp1 );
             // Minimize the residual
             // ^^^^^^^^^^^^^^^^^^^^^
-            auto tT = t( IR(0,j+1), IR(0,1) );
+            auto tT = t( IR(0,j+1), ALL );
             auto HTL = H( IR(0,j+1), IR(0,j+1) );
             auto y = tT;
             Trsv( UPPER, NORMAL, NON_UNIT, HTL, y );
@@ -1386,7 +1386,7 @@ Int LGMRESSolveAfter
             for( Int i=0; i<=j; ++i )
             {
                 const F eta_i = y.Get(i,0);
-                Axpy( eta_i, V( IR(0,n), IR(i,i+1) ), x );
+                Axpy( eta_i, V( ALL, IR(i) ), x );
             }
 
             // w := b - A x
@@ -1468,7 +1468,6 @@ Int LGMRESSolveAfter
         //       rather than requiring access to the local Matrix and staging
         //       through the temporary vector q
         auto& VLoc = V.Matrix();
-        const Int nLoc = V.LocalHeight();
         Zeros( q, n, 1 );
         
         // x0 := x
@@ -1488,7 +1487,7 @@ Int LGMRESSolveAfter
 
         // v0 := w / beta
         // ==============
-        auto v0Loc = VLoc( IR(0,nLoc), IR(0,1) );
+        auto v0Loc = VLoc( ALL, IR(0) );
         v0Loc = w.Matrix();
         Scale( Real(1)/beta, v0Loc ); 
 
@@ -1503,7 +1502,7 @@ Int LGMRESSolveAfter
         {
             // w := A v_j
             // ----------
-            q.Matrix() = VLoc( IR(0,nLoc), IR(j,j+1) );
+            q.Matrix() = VLoc( ALL, IR(j) );
             Multiply( NORMAL, F(1), A, q, F(0), w );
 
             // w := inv(M) w
@@ -1519,7 +1518,7 @@ Int LGMRESSolveAfter
             {
                 // H(i,j) := v_i' w
                 // ^^^^^^^^^^^^^^^^
-                q.Matrix() = VLoc( IR(0,nLoc), IR(i,i+1) );
+                q.Matrix() = VLoc( ALL, IR(i) );
                 H.Set( i, j, Dot(q,w) ); 
               
                 // w := w - H(i,j) v_i
@@ -1535,7 +1534,7 @@ Int LGMRESSolveAfter
             {
                 // v_{j+1} := w / delta
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
-                auto v_jp1Loc = VLoc( IR(0,nLoc), IR(j+1,j+2) );
+                auto v_jp1Loc = VLoc( ALL, IR(j+1) );
                 v_jp1Loc = w.Matrix();
                 Scale( Real(1)/delta, v_jp1Loc );
             }
@@ -1582,7 +1581,7 @@ Int LGMRESSolveAfter
             t.Set( j+1, 0, -sConj*tau_j + c*tau_jp1 );
             // Minimize the residual
             // ^^^^^^^^^^^^^^^^^^^^^
-            auto tT = t( IR(0,j+1), IR(0,1) );
+            auto tT = t( IR(0,j+1), ALL );
             auto HTL = H( IR(0,j+1), IR(0,j+1) );
             auto y = tT;
             Trsv( UPPER, NORMAL, NON_UNIT, HTL, y );
@@ -1592,7 +1591,7 @@ Int LGMRESSolveAfter
             for( Int i=0; i<=j; ++i )
             {
                 const F eta_i = y.Get(i,0);
-                Axpy( eta_i, VLoc( IR(0,nLoc), IR(i,i+1) ), x.Matrix() );
+                Axpy( eta_i, VLoc( ALL, IR(i) ), x.Matrix() );
             }
 
             // w := b - A x
@@ -1675,7 +1674,6 @@ Int LGMRESSolveAfter
         //       rather than requiring access to the local Matrix and staging
         //       through the temporary vector q
         auto& VLoc = V.Matrix();
-        const Int nLoc = V.LocalHeight();
         Zeros( q, n, 1 );
         
         // x0 := x
@@ -1695,7 +1693,7 @@ Int LGMRESSolveAfter
 
         // v0 := w / beta
         // ==============
-        auto v0Loc = VLoc( IR(0,nLoc), IR(0,1) );
+        auto v0Loc = VLoc( ALL, IR(0) );
         v0Loc = w.Matrix();
         Scale( Real(1)/beta, v0Loc ); 
 
@@ -1710,7 +1708,7 @@ Int LGMRESSolveAfter
         {
             // w := A v_j
             // ----------
-            q.Matrix() = VLoc( IR(0,nLoc), IR(j,j+1) );
+            q.Matrix() = VLoc( ALL, IR(j) );
             Multiply( NORMAL, F(1), A, q, F(0), w );
 
             // w := inv(M) w
@@ -1726,7 +1724,7 @@ Int LGMRESSolveAfter
             {
                 // H(i,j) := v_i' w
                 // ^^^^^^^^^^^^^^^^
-                q.Matrix() = VLoc( IR(0,nLoc), IR(i,i+1) );
+                q.Matrix() = VLoc( ALL, IR(i) );
                 H.Set( i, j, Dot(q,w) ); 
               
                 // w := w - H(i,j) v_i
@@ -1742,7 +1740,7 @@ Int LGMRESSolveAfter
             {
                 // v_{j+1} := w / delta
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
-                auto v_jp1Loc = VLoc( IR(0,nLoc), IR(j+1,j+2) );
+                auto v_jp1Loc = VLoc( ALL, IR(j+1) );
                 v_jp1Loc = w.Matrix();
                 Scale( Real(1)/delta, v_jp1Loc );
             }
@@ -1789,7 +1787,7 @@ Int LGMRESSolveAfter
             t.Set( j+1, 0, -sConj*tau_j + c*tau_jp1 );
             // Minimize the residual
             // ^^^^^^^^^^^^^^^^^^^^^
-            auto tT = t( IR(0,j+1), IR(0,1) );
+            auto tT = t( IR(0,j+1), ALL );
             auto HTL = H( IR(0,j+1), IR(0,j+1) );
             auto y = tT;
             Trsv( UPPER, NORMAL, NON_UNIT, HTL, y );
@@ -1799,7 +1797,7 @@ Int LGMRESSolveAfter
             for( Int i=0; i<=j; ++i )
             {
                 const F eta_i = y.Get(i,0);
-                Axpy( eta_i, VLoc( IR(0,nLoc), IR(i,i+1) ), x.Matrix() );
+                Axpy( eta_i, VLoc( ALL, IR(i) ), x.Matrix() );
             }
 
             // w := b - A x
@@ -1895,7 +1893,7 @@ Int FGMRESSolveAfter
 
         // v0 := w / beta
         // ==============
-        auto v0 = V( IR(0,n), IR(0,1) );
+        auto v0 = V( ALL, IR(0) );
         v0 = w;
         Scale( Real(1)/beta, v0 ); 
 
@@ -1910,8 +1908,8 @@ Int FGMRESSolveAfter
         {
             // z_j := inv(M) v_j
             // =================
-            auto vj = V( IR(0,n), IR(j,j+1) );
-            auto zj = Z( IR(0,n), IR(j,j+1) );
+            auto vj = V( ALL, IR(j) );
+            auto zj = Z( ALL, IR(j) );
             zj = vj;
             Int refineIts = RegularizedSolveAfter
             ( A, reg, invMap, info, front, zj, 
@@ -1928,7 +1926,7 @@ Int FGMRESSolveAfter
             {
                 // H(i,j) := v_i' w
                 // ^^^^^^^^^^^^^^^^
-                auto vi = V( IR(0,n), IR(i,i+1) );
+                auto vi = V( ALL, IR(i) );
                 H.Set( i, j, Dot(vi,w) ); 
               
                 // w := w - H(i,j) v_i
@@ -1944,7 +1942,7 @@ Int FGMRESSolveAfter
             {
                 // v_{j+1} := w / delta
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
-                auto vjp1 = V( IR(0,n), IR(j+1,j+2) );
+                auto vjp1 = V( ALL, IR(j+1) );
                 vjp1 = w;
                 Scale( Real(1)/delta, vjp1 );
             }
@@ -1991,7 +1989,7 @@ Int FGMRESSolveAfter
             t.Set( j+1, 0, -sConj*tau_j + c*tau_jp1 );
             // Minimize the residual
             // ^^^^^^^^^^^^^^^^^^^^^
-            auto tT = t( IR(0,j+1), IR(0,1) );
+            auto tT = t( IR(0,j+1), ALL );
             auto HTL = H( IR(0,j+1), IR(0,j+1) );
             auto y = tT;
             Trsv( UPPER, NORMAL, NON_UNIT, HTL, y );
@@ -2001,7 +1999,7 @@ Int FGMRESSolveAfter
             for( Int i=0; i<=j; ++i )
             {
                 const F eta_i = y.Get(i,0);
-                Axpy( eta_i, Z( IR(0,n), IR(i,i+1) ), x );
+                Axpy( eta_i, Z( ALL, IR(i) ), x );
             }
 
             // w := b - A x
@@ -2093,7 +2091,7 @@ Int FGMRESSolveAfter
 
         // v0 := w / beta
         // ==============
-        auto v0 = V( IR(0,n), IR(0,1) );
+        auto v0 = V( ALL, IR(0) );
         v0 = w;
         Scale( Real(1)/beta, v0 ); 
 
@@ -2108,8 +2106,8 @@ Int FGMRESSolveAfter
         {
             // z_j := inv(M) v_j
             // =================
-            auto vj = V( IR(0,n), IR(j,j+1) );
-            auto zj = Z( IR(0,n), IR(j,j+1) );
+            auto vj = V( ALL, IR(j) );
+            auto zj = Z( ALL, IR(j) );
             zj = vj;
             Int refineIts = RegularizedSolveAfter
             ( A, reg, d, invMap, info, front, zj, 
@@ -2126,7 +2124,7 @@ Int FGMRESSolveAfter
             {
                 // H(i,j) := v_i' w
                 // ^^^^^^^^^^^^^^^^
-                auto vi = V( IR(0,n), IR(i,i+1) );
+                auto vi = V( ALL, IR(i) );
                 H.Set( i, j, Dot(vi,w) ); 
               
                 // w := w - H(i,j) v_i
@@ -2142,7 +2140,7 @@ Int FGMRESSolveAfter
             {
                 // v_{j+1} := w / delta
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
-                auto vjp1 = V( IR(0,n), IR(j+1,j+2) );
+                auto vjp1 = V( ALL, IR(j+1) );
                 vjp1 = w;
                 Scale( Real(1)/delta, vjp1 );
             }
@@ -2189,7 +2187,7 @@ Int FGMRESSolveAfter
             t.Set( j+1, 0, -sConj*tau_j + c*tau_jp1 );
             // Minimize the residual
             // ^^^^^^^^^^^^^^^^^^^^^
-            auto tT = t( IR(0,j+1), IR(0,1) );
+            auto tT = t( IR(0,j+1), ALL );
             auto HTL = H( IR(0,j+1), IR(0,j+1) );
             auto y = tT;
             Trsv( UPPER, NORMAL, NON_UNIT, HTL, y );
@@ -2199,7 +2197,7 @@ Int FGMRESSolveAfter
             for( Int i=0; i<=j; ++i )
             {
                 const F eta_i = y.Get(i,0);
-                Axpy( eta_i, Z( IR(0,n), IR(i,i+1) ), x );
+                Axpy( eta_i, Z( ALL, IR(i) ), x );
             }
 
             // w := b - A x
@@ -2285,7 +2283,6 @@ Int FGMRESSolveAfter
         //       through the temporary vector q
         auto& VLoc = V.Matrix();
         auto& ZLoc = Z.Matrix();
-        const Int nLoc = V.LocalHeight();
         Zeros( q, n, 1 );
         
         // x0 := x
@@ -2300,7 +2297,7 @@ Int FGMRESSolveAfter
 
         // v0 := w / beta
         // ==============
-        auto v0Loc = VLoc( IR(0,nLoc), IR(0,1) );
+        auto v0Loc = VLoc( ALL, IR(0) );
         v0Loc = w.Matrix();
         Scale( Real(1)/beta, v0Loc ); 
 
@@ -2315,8 +2312,8 @@ Int FGMRESSolveAfter
         {
             // z_j := inv(M) v_j
             // =================
-            auto vjLoc = VLoc( IR(0,nLoc), IR(j,j+1) );
-            auto zjLoc = ZLoc( IR(0,nLoc), IR(j,j+1) );
+            auto vjLoc = VLoc( ALL, IR(j) );
+            auto zjLoc = ZLoc( ALL, IR(j) );
             q.Matrix() = vjLoc;
             Int refineIts = RegularizedSolveAfter
             ( A, reg, invMap, info, front, q, 
@@ -2335,7 +2332,7 @@ Int FGMRESSolveAfter
             {
                 // H(i,j) := v_i' w
                 // ^^^^^^^^^^^^^^^^
-                q.Matrix() = VLoc( IR(0,nLoc), IR(i,i+1) );
+                q.Matrix() = VLoc( ALL, IR(i) );
                 H.Set( i, j, Dot(q,w) ); 
               
                 // w := w - H(i,j) v_i
@@ -2351,7 +2348,7 @@ Int FGMRESSolveAfter
             {
                 // v_{j+1} := w / delta
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
-                auto v_jp1Loc = VLoc( IR(0,nLoc), IR(j+1,j+2) );
+                auto v_jp1Loc = VLoc( ALL, IR(j+1) );
                 v_jp1Loc = w.Matrix();
                 Scale( Real(1)/delta, v_jp1Loc );
             }
@@ -2398,7 +2395,7 @@ Int FGMRESSolveAfter
             t.Set( j+1, 0, -sConj*tau_j + c*tau_jp1 );
             // Minimize the residual
             // ^^^^^^^^^^^^^^^^^^^^^
-            auto tT = t( IR(0,j+1), IR(0,1) );
+            auto tT = t( IR(0,j+1), ALL );
             auto HTL = H( IR(0,j+1), IR(0,j+1) );
             auto y = tT;
             Trsv( UPPER, NORMAL, NON_UNIT, HTL, y );
@@ -2408,7 +2405,7 @@ Int FGMRESSolveAfter
             for( Int i=0; i<=j; ++i )
             {
                 const F eta_i = y.Get(i,0);
-                Axpy( eta_i, ZLoc( IR(0,nLoc), IR(i,i+1) ), x.Matrix() );
+                Axpy( eta_i, ZLoc( ALL, IR(i) ), x.Matrix() );
             }
 
             // w := b - A x
@@ -2495,7 +2492,6 @@ Int FGMRESSolveAfter
         //       through the temporary vector q
         auto& VLoc = V.Matrix();
         auto& ZLoc = Z.Matrix();
-        const Int nLoc = V.LocalHeight();
         Zeros( q, n, 1 );
         
         // x0 := x
@@ -2510,7 +2506,7 @@ Int FGMRESSolveAfter
 
         // v0 := w / beta
         // ==============
-        auto v0Loc = VLoc( IR(0,nLoc), IR(0,1) );
+        auto v0Loc = VLoc( ALL, IR(0) );
         v0Loc = w.Matrix();
         Scale( Real(1)/beta, v0Loc ); 
 
@@ -2525,8 +2521,8 @@ Int FGMRESSolveAfter
         {
             // z_j := inv(M) v_j
             // =================
-            auto vjLoc = VLoc( IR(0,nLoc), IR(j,j+1) );
-            auto zjLoc = ZLoc( IR(0,nLoc), IR(j,j+1) );
+            auto vjLoc = VLoc( ALL, IR(j) );
+            auto zjLoc = ZLoc( ALL, IR(j) );
             q.Matrix() = vjLoc;
             Int refineIts = RegularizedSolveAfter
             ( A, reg, d, invMap, info, front, q, 
@@ -2545,7 +2541,7 @@ Int FGMRESSolveAfter
             {
                 // H(i,j) := v_i' w
                 // ^^^^^^^^^^^^^^^^
-                q.Matrix() = VLoc( IR(0,nLoc), IR(i,i+1) );
+                q.Matrix() = VLoc( ALL, IR(i) );
                 H.Set( i, j, Dot(q,w) ); 
               
                 // w := w - H(i,j) v_i
@@ -2561,7 +2557,7 @@ Int FGMRESSolveAfter
             {
                 // v_{j+1} := w / delta
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
-                auto v_jp1Loc = VLoc( IR(0,nLoc), IR(j+1,j+2) );
+                auto v_jp1Loc = VLoc( ALL, IR(j+1) );
                 v_jp1Loc = w.Matrix();
                 Scale( Real(1)/delta, v_jp1Loc );
             }
@@ -2608,7 +2604,7 @@ Int FGMRESSolveAfter
             t.Set( j+1, 0, -sConj*tau_j + c*tau_jp1 );
             // Minimize the residual
             // ^^^^^^^^^^^^^^^^^^^^^
-            auto tT = t( IR(0,j+1), IR(0,1) );
+            auto tT = t( IR(0,j+1), ALL );
             auto HTL = H( IR(0,j+1), IR(0,j+1) );
             auto y = tT;
             Trsv( UPPER, NORMAL, NON_UNIT, HTL, y );
@@ -2618,7 +2614,7 @@ Int FGMRESSolveAfter
             for( Int i=0; i<=j; ++i )
             {
                 const F eta_i = y.Get(i,0);
-                Axpy( eta_i, ZLoc( IR(0,nLoc), IR(i,i+1) ), x.Matrix() );
+                Axpy( eta_i, ZLoc( ALL, IR(i) ), x.Matrix() );
             }
 
             // w := b - A x

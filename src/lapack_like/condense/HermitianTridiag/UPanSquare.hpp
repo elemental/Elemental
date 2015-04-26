@@ -93,14 +93,14 @@ void UPanSquare
 
         auto A00Pan   = A( ind0, IR(off,kA) );
 
-        auto a01T     = A( IR(0,kA-1),  ind1 );
-        auto alpha01B = A( IR(kA-1,kA), ind1 );
-        auto A02T     = A( IR(0,off),   ind2 );
+        auto a01T     = A( IR(0,kA-1), ind1 );
+        auto alpha01B = A( IR(kA-1),   ind1 );
+        auto A02T     = A( IR(0,off),  ind2 );
 
-        auto W02T = W( IR(0,off), IR(k+1,nW) );
+        auto W02T = W( IR(0,off), IR(k+1,END) );
 
-        auto tau1     = t( ind1-off, IR(0,1) );
-        auto epsilon1 = e( ind1-off, IR(0,1) );
+        auto tau1     = t( ind1-off, ALL );
+        auto epsilon1 = e( ind1-off, ALL );
 
         a01_MC_STAR.AlignWith( A00 );
         a01_MR_STAR.AlignWith( A00 );
@@ -112,15 +112,15 @@ void UPanSquare
         Zeros( q01_MR_STAR, kA, 1 );
 
         // View the portions of A02 and W0T outside of this panel's square
-        auto a01T_MC_STAR = a01_MC_STAR( IR(0,off), IR(0,1) );
-        auto p01T_MC_STAR = p01_MC_STAR( IR(0,off), IR(0,1) ); 
+        auto a01T_MC_STAR = a01_MC_STAR( IR(0,off), ALL );
+        auto p01T_MC_STAR = p01_MC_STAR( IR(0,off), ALL ); 
 
         if( !firstIteration )
         {
             // TODO: Move these and make them auto
-            View( a01Last_MC_STAR, B_MC_STAR, indT, IR(k+1,k+2) );
-            View( a01Last_MR_STAR, B_MR_STAR, indT, IR(k+1,k+2) );
-            View( w01Last,         W,         indT, IR(k+1,k+2) );
+            View( a01Last_MC_STAR, B_MC_STAR, indT, IR(k+1) );
+            View( a01Last_MR_STAR, B_MR_STAR, indT, IR(k+1) );
+            View( w01Last,         W,         indT, IR(k+1) );
         }
 
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlign() );
@@ -302,12 +302,10 @@ void UPanSquare
             // entries. We trash the lower triangle of our panel of A since we 
             // are only doing slightly more work and we can replace it
             // afterwards.
-            auto a01Last_MC_STAR_Top = a01Last_MC_STAR( ind0, IR(0,1) );
-            auto w01Last_MC_STAR_Top = w01Last_MC_STAR( ind0, IR(0,1) );
-            auto a01Last_MR_STAR_TopPan = 
-                a01Last_MR_STAR( IR(off,kA), IR(0,1) );
-            auto w01Last_MR_STAR_TopPan = 
-                w01Last_MR_STAR( IR(off,kA), IR(0,1) );
+            auto a01Last_MC_STAR_Top = a01Last_MC_STAR( ind0, ALL );
+            auto w01Last_MC_STAR_Top = w01Last_MC_STAR( ind0, ALL );
+            auto a01Last_MR_STAR_TopPan = a01Last_MR_STAR( IR(off,kA), ALL );
+            auto w01Last_MR_STAR_TopPan = w01Last_MR_STAR( IR(off,kA), ALL );
             const F* a01_MC_STAR_Buffer = a01Last_MC_STAR_Top.Buffer();
             const F* w01_MC_STAR_Buffer = w01Last_MC_STAR_Top.Buffer();
             const F* a01_MR_STAR_Buffer = a01Last_MR_STAR_TopPan.Buffer();

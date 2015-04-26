@@ -338,15 +338,15 @@ void KKTRHS
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,2*n+m);
     Zeros( d, 2*n+m, 1 );
 
-    auto dx = d(xInd,IR(0,1));
+    auto dx = d(xInd,ALL);
     dx = rc;
     Scale( Real(-1), dx );
 
-    auto dy = d(yInd,IR(0,1));
+    auto dy = d(yInd,ALL);
     dy = rb;
     Scale( Real(-1), dy );
 
-    auto dz = d(zInd,IR(0,1));
+    auto dz = d(zInd,ALL);
     dz = rmu;
     DiagonalSolve( LEFT, NORMAL, z, dz );
 }
@@ -367,15 +367,15 @@ void KKTRHS
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,2*n+m);
     Zeros( d, 2*n+m, 1 );
 
-    auto dx = d(xInd,IR(0,1));
+    auto dx = d(xInd,ALL);
     Copy( rc, dx );
     Scale( Real(-1), dx );
 
-    auto dy = d(yInd,IR(0,1));
+    auto dy = d(yInd,ALL);
     Copy( rb, dy );
     Scale( Real(-1), dy );
 
-    auto dz = d(zInd,IR(0,1));
+    auto dz = d(zInd,ALL);
     Copy( rmu, dz );
     DiagonalSolve( LEFT, NORMAL, z, dz );
 }

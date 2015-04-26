@@ -48,7 +48,7 @@ LN( F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X )
     // Simultaneously find the LQ factorization and solve against L
     for( Int k=0; k<m-1; ++k )
     {
-        auto hB = H( IR(k+2,m), IR(k+1,k+2) );
+        auto hB = H( IR(k+2,m), IR(k+1) );
         const F etakkp1 = H.Get(k,k+1);
         const F etakp1kp1 = H.Get(k+1,k+1);
         for( Int j=0; j<n; ++j )
@@ -140,7 +140,7 @@ UN( F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X )
     // Simultaneously form the RQ factorization and solve against R
     for( Int k=m-1; k>0; --k )
     {
-        auto hT = H( IR(0,k-1), IR(k-1,k) );
+        auto hT = H( IR(0,k-1), IR(k-1) );
         const F etakkm1 = H.Get(k,k-1);
         const F etakm1km1 = H.Get(k-1,k-1);
         for( Int j=0; j<n; ++j )
@@ -241,7 +241,7 @@ LN
     {
         unique_ptr<AbstractDistMatrix<F>> 
           h0( H.Construct(H.Grid(),H.Root()) );
-        LockedView( *h0, H, IR(0,m), IR(0,1) );
+        LockedView( *h0, H, ALL, IR(0) );
         DistMatrix<F,STAR,STAR> h0_STAR_STAR( *h0 );
         for( Int jLoc=0; jLoc<nLoc; ++jLoc )
         {
@@ -255,7 +255,7 @@ LN
     DistMatrix<F,STAR,STAR> hB_STAR_STAR( H.Grid() );
     for( Int k=0; k<m-1; ++k )
     {
-        LockedView( *hB, H, IR(k+2,m), IR(k+1,k+2) );
+        LockedView( *hB, H, IR(k+2,m), IR(k+1) );
         hB_STAR_STAR = *hB;
         const F etakkp1 = H.Get(k,k+1);
         const F etakp1kp1 = H.Get(k+1,k+1);
@@ -358,7 +358,7 @@ UN
     {
         unique_ptr<AbstractDistMatrix<F>> 
           hLast( H.Construct(H.Grid(),H.Root()) );
-        LockedView( *hLast, H, IR(0,m), IR(m-1,m) );
+        LockedView( *hLast, H, ALL, IR(m-1) );
         DistMatrix<F,STAR,STAR> hLast_STAR_STAR( *hLast );
         for( Int jLoc=0; jLoc<nLoc; ++jLoc )
         {
@@ -372,7 +372,7 @@ UN
     DistMatrix<F,STAR,STAR> hT_STAR_STAR( H.Grid() );
     for( Int k=m-1; k>0; --k )
     {
-        LockedView( *hT, H, IR(0,k-1), IR(k-1,k) );
+        LockedView( *hT, H, IR(0,k-1), IR(k-1) );
         hT_STAR_STAR = *hT;
         const F etakkm1 = H.Get(k,k-1);
         const F etakm1km1 = H.Get(k-1,k-1);

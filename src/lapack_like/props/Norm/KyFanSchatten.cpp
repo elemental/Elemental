@@ -80,7 +80,7 @@ Base<F> KyFanSchattenNorm( const AbstractDistMatrix<F>& A, Int k, Base<F> p )
     SVD( B, s );
 
     Real localSum = 0;
-    auto sTop = s( IR(0,k), IR(0,1) );
+    auto sTop = s( IR(0,k), ALL );
     const Int localHeight = sTop.LocalHeight();
     for( Int j=localHeight-1; j>=0; --j )
         localSum += Pow( sTop.GetLocal(j,0), p );
@@ -102,7 +102,7 @@ Base<F> HermitianKyFanSchattenNorm
     HermitianSVD( uplo, B, s );
 
     Real localSum = 0;
-    auto sTop = s( IR(0,k), IR(0,1) );
+    auto sTop = s( IR(0,k), ALL );
     const Int localHeight = sTop.LocalHeight();
     for( Int j=localHeight-1; j>=0; --j )
         localSum += Pow( sTop.GetLocal(j,0), p );
@@ -125,7 +125,7 @@ Base<F> SymmetricKyFanSchattenNorm
     SVD( B, s );
 
     Real localSum = 0;
-    auto sTop = s( IR(0,k), IR(0,1) );
+    auto sTop = s( IR(0,k), ALL );
     const Int localHeight = sTop.LocalHeight();
     for( Int j=localHeight-1; j>=0; --j )
         localSum += Pow( sTop.GetLocal(j,0), p );

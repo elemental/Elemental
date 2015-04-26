@@ -109,11 +109,11 @@ Restart
                 for( Int k=0; k<basisSize; ++k )
                 {
                     const Matrix<Complex<Real>>& V = VList[k];
-                    auto v = V( IR(0,n), IR(j,j+1) ); 
+                    auto v = V( ALL, IR(j) ); 
                     Axpy( Q.Get(k,maxIdx), v, u );
                 }
                 Matrix<Complex<Real>>& V = VList[0];
-                auto v = V( IR(0,n), IR(j,j+1) );
+                auto v = V( ALL, IR(j) );
                 v = u;
             }
         }
@@ -166,8 +166,8 @@ Restart
                 {
                     const Matrix<Real>& VReal = VRealList[k];
                     const Matrix<Real>& VImag = VImagList[k];
-                    auto vReal = VReal( IR(0,n), IR(j,j+1) ); 
-                    auto vImag = VImag( IR(0,n), IR(j,j+1) ); 
+                    auto vReal = VReal( ALL, IR(j) ); 
+                    auto vImag = VImag( ALL, IR(j) ); 
                     for( Int i=0; i<n; ++i )
                         v.Set( i, 0, Complex<Real>(vReal.Get(i,0),
                                                    vImag.Get(i,0)) );
@@ -175,8 +175,8 @@ Restart
                 }
                 Matrix<Real>& VReal = VRealList[0];
                 Matrix<Real>& VImag = VImagList[0];
-                auto vReal = VReal( IR(0,n), IR(j,j+1) );
-                auto vImag = VImag( IR(0,n), IR(j,j+1) );
+                auto vReal = VReal( ALL, IR(j) );
+                auto vImag = VImag( ALL, IR(j) );
                 for( Int i=0; i<n; ++i )
                 {
                     vReal.Set( i, 0, u.GetRealPart(i,0) );
@@ -285,14 +285,14 @@ IRA
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );
-        auto activeShifts = pivShifts( IR(0,numActive), IR(0,1) );
-        auto activeEsts = estimates( IR(0,numActive), IR(0,1) );
-        auto activeItCounts = itCounts( IR(0,numActive), IR(0,1) );
+        auto activeShifts = pivShifts( IR(0,numActive), ALL );
+        auto activeEsts = estimates( IR(0,numActive), ALL );
+        auto activeItCounts = itCounts( IR(0,numActive), ALL );
         for( Int j=0; j<basisSize+1; ++j )
-            View( activeVList[j], VList[j], IR(0,n), IR(0,numActive) ); 
+            View( activeVList[j], VList[j], ALL, IR(0,numActive) ); 
         if( deflate )
         {
-            View( activePreimage, preimage, IR(0,numActive), IR(0,1) );
+            View( activePreimage, preimage, IR(0,numActive), ALL );
             Zeros( activeConverged, numActive, 1 );
         }
         HList.resize( numActive );
@@ -508,17 +508,17 @@ IRA
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );
-        auto activeShifts = pivShifts( IR(0,numActive), IR(0,1) );
-        auto activeEsts = estimates( IR(0,numActive), IR(0,1) );
-        auto activeItCounts = itCounts( IR(0,numActive), IR(0,1) );
+        auto activeShifts = pivShifts( IR(0,numActive), ALL );
+        auto activeEsts = estimates( IR(0,numActive), ALL );
+        auto activeItCounts = itCounts( IR(0,numActive), ALL );
         for( Int j=0; j<basisSize+1; ++j )
         {
-            activeVRealList[j] = VRealList[j]( IR(0,n), IR(0,numActive) ); 
-            activeVImagList[j] = VImagList[j]( IR(0,n), IR(0,numActive) ); 
+            activeVRealList[j] = VRealList[j]( ALL, IR(0,numActive) ); 
+            activeVImagList[j] = VImagList[j]( ALL, IR(0,numActive) ); 
         }
         if( deflate )
         {
-            activePreimage = preimage( IR(0,numActive), IR(0,1) );
+            activePreimage = preimage( IR(0,numActive), ALL );
             Zeros( activeConverged, numActive, 1 );
         }
         HList.resize( numActive );
@@ -742,14 +742,14 @@ IRA
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );
-        auto activeShifts = pivShifts( IR(0,numActive), IR(0,1) );
-        auto activeEsts = estimates( IR(0,numActive), IR(0,1) );
-        auto activeItCounts = itCounts( IR(0,numActive), IR(0,1) );
+        auto activeShifts = pivShifts( IR(0,numActive), ALL );
+        auto activeEsts = estimates( IR(0,numActive), ALL );
+        auto activeItCounts = itCounts( IR(0,numActive), ALL );
         for( Int j=0; j<basisSize+1; ++j )
-            View( activeVList[j], VList[j], IR(0,n), IR(0,numActive) );
+            View( activeVList[j], VList[j], ALL, IR(0,numActive) );
         if( deflate )
         {
-            View( activePreimage, preimage, IR(0,numActive), IR(0,1) );
+            View( activePreimage, preimage, IR(0,numActive), ALL );
             Zeros( activeConverged, numActive, 1 );
         }
         HList.resize( activeEsts.LocalHeight() );
@@ -1021,17 +1021,17 @@ IRA
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );
-        auto activeShifts = pivShifts( IR(0,numActive), IR(0,1) );
-        auto activeEsts = estimates( IR(0,numActive), IR(0,1) );
-        auto activeItCounts = itCounts( IR(0,numActive), IR(0,1) );
+        auto activeShifts = pivShifts( IR(0,numActive), ALL );
+        auto activeEsts = estimates( IR(0,numActive), ALL );
+        auto activeItCounts = itCounts( IR(0,numActive), ALL );
         for( Int j=0; j<basisSize+1; ++j )
         {
-            View( activeVRealList[j], VRealList[j], IR(0,n), IR(0,numActive) ); 
-            View( activeVImagList[j], VImagList[j], IR(0,n), IR(0,numActive) ); 
+            View( activeVRealList[j], VRealList[j], ALL, IR(0,numActive) ); 
+            View( activeVImagList[j], VImagList[j], ALL, IR(0,numActive) ); 
         }
         if( deflate )
         {
-            View( activePreimage, preimage, IR(0,numActive), IR(0,1) );
+            View( activePreimage, preimage, IR(0,numActive), ALL );
             Zeros( activeConverged, numActive, 1 );
         }
         HList.resize( activeEsts.LocalHeight() );

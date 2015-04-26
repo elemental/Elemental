@@ -55,7 +55,7 @@ void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
         // Geometrically equilibrate the columns
         for( Int j=0; j<n; ++j )
         {
-            auto aCol = A( IR(0,n), IR(j,j+1) );
+            auto aCol = A( ALL, IR(j) );
             auto maxColAbs = VectorMaxAbs( aCol );
             const Real maxColAbsVal = maxColAbs.value;
             if( maxColAbsVal > Real(0) )

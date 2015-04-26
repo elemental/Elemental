@@ -142,7 +142,7 @@ Base<F> ProductLanczosDecomp
     }
     if( basisSize > 0 )
     {
-        auto v0 = V( IR(0,minDim), IR(0,1) );
+        auto v0 = V( ALL, IR(0) );
         v0 = v;
     }
         
@@ -151,7 +151,7 @@ Base<F> ProductLanczosDecomp
     {
         // w := A^H (A v)
         // --------------
-        auto v_k  = V( IR(0,minDim), IR(k,k+1) );
+        auto v_k  = V( ALL, IR(k) );
         if( m >= n )
         {
             Multiply( NORMAL, F(1), A,    v_k, F(0), s );
@@ -167,7 +167,7 @@ Base<F> ProductLanczosDecomp
         // -------------------------
         if( k > 0 )
         {
-            auto v_km1 = V( IR(0,minDim), IR(k-1,k) );
+            auto v_km1 = V( ALL, IR(k-1) );
             Axpy( -T.Get(k-1,k), v_km1, v );
         }
 
@@ -188,7 +188,7 @@ Base<F> ProductLanczosDecomp
         {
             T.Set( k+1, k,   beta );
             T.Set( k,   k+1, beta );
-            auto v_kp1 = V( IR(0,minDim), IR(k+1,k+2) );
+            auto v_kp1 = V( ALL, IR(k+1) );
             v_kp1 = v;
         }
     }
@@ -299,7 +299,6 @@ Base<F> ProductLanczosDecomp
     Zeros( T, basisSize, basisSize );
     Zeros( s, maxDim, 1 );
     auto& VLoc = V.Matrix();
-    const Int VLocHeight = VLoc.Height();
 
     // Cache the adjoint
     // -----------------
@@ -320,7 +319,7 @@ Base<F> ProductLanczosDecomp
     }
     if( basisSize > 0 )
     {
-        auto v0Loc = VLoc( IR(0,VLocHeight), IR(0,1) );
+        auto v0Loc = VLoc( ALL, IR(0) );
         v0Loc = v.Matrix();
     }
 
@@ -329,7 +328,7 @@ Base<F> ProductLanczosDecomp
     {
         // w := A^H (A v_k)
         // ----------------
-        v_k  = V( IR(0,minDim), IR(k,k+1) );
+        v_k  = V( ALL, IR(k) );
         if( m >= n )
         {
             Multiply( NORMAL, F(1), A,    v_k, F(0), s );
@@ -345,7 +344,7 @@ Base<F> ProductLanczosDecomp
         // -------------------------
         if( k > 0 )
         {
-            v_km1 = V( IR(0,minDim), IR(k-1,k) );
+            v_km1 = V( ALL, IR(k-1) );
             Axpy( -T.Get(k-1,k), v_km1, v );
         }
 
@@ -366,7 +365,7 @@ Base<F> ProductLanczosDecomp
         {
             T.Set( k+1, k,   beta );
             T.Set( k,   k+1, beta );
-            auto v_kp1Loc = VLoc( IR(0,VLocHeight), IR(k+1,k+2) );
+            auto v_kp1Loc = VLoc( ALL, IR(k+1) );
             v_kp1Loc = v.Matrix();
         }
     }

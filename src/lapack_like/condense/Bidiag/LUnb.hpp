@@ -36,11 +36,11 @@ inline void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 
     for( Int k=0; k<m; ++k )
     {
-        auto alpha11 = A( IR(k,k+1), IR(k,k+1) );
-        auto a12     = A( IR(k,k+1), IR(k+1,n) );
-        auto a21     = A( IR(k+1,m), IR(k,k+1) );
+        auto alpha11 = A( IR(k),     IR(k)     );
+        auto a12     = A( IR(k),     IR(k+1,n) );
+        auto a21     = A( IR(k+1,m), IR(k)     );
         auto A22     = A( IR(k+1,m), IR(k+1,n) );
-        auto a1R     = A( IR(k,k+1), IR(k,n)   );
+        auto a1R     = A( IR(k),     IR(k,n)   );
         auto A2R     = A( IR(k+1,m), IR(k,n)   );
 
         // Find tauP and v such that
@@ -131,11 +131,11 @@ inline void LUnb
 
     for( Int k=0; k<m; ++k )
     {
-        auto alpha11 = A( IR(k,k+1), IR(k,k+1) );
-        auto a12     = A( IR(k,k+1), IR(k+1,n) );
-        auto a21     = A( IR(k+1,m), IR(k,k+1) );
+        auto alpha11 = A( IR(k),     IR(k)     );
+        auto a12     = A( IR(k),     IR(k+1,n) );
+        auto a21     = A( IR(k+1,m), IR(k)     );
         auto A22     = A( IR(k+1,m), IR(k+1,n) );
-        auto a1R     = A( IR(k,k+1), IR(k,n)   );
+        auto a1R     = A( IR(k),     IR(k,n)   );
         auto A2R     = A( IR(k+1,m), IR(k,n)   );
 
         // Find tauP and v such that

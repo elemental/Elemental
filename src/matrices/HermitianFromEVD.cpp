@@ -31,8 +31,8 @@ void HermitianFromEVD
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto Z1 = Z( IR(0,m),    IR(k,k+nb) );
-        auto w1 = w( IR(k,k+nb), IR(0,1)    );
+        auto Z1 = Z( ALL,        IR(k,k+nb) );
+        auto w1 = w( IR(k,k+nb), ALL        );
 
         Y1 = Z1Copy = Z1;
         DiagonalScale( RIGHT, NORMAL, w1, Y1 );
@@ -69,8 +69,8 @@ void HermitianFromEVD
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto Z1 = Z( IR(0,m),    IR(k,k+nb) );
-        auto w1 = w( IR(k,k+nb), IR(0,1)    );
+        auto Z1 = Z( ALL,        IR(k,k+nb) );
+        auto w1 = w( IR(k,k+nb), ALL        );
 
         Z1_MC_STAR.AlignWith( A );
         Z1_MC_STAR = Z1;

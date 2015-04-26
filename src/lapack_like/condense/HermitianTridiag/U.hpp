@@ -40,7 +40,7 @@ void U( Matrix<F>& A, Matrix<F>& t )
         auto a01      = A( ind0, ind1 );
 
         auto a01T     = A( IR(0,k-1), ind1 ); 
-        auto alpha01B = A( IR(k-1,k), ind1 );
+        auto alpha01B = A( IR(k-1),   ind1 );
 
         const F tau = LeftReflector( alpha01B, a01T );
         const Base<F> epsilon1 = alpha01B.GetRealPart(0,0);
@@ -105,7 +105,7 @@ void U
         
         if( k > 0 )
         {
-            auto t1 = tDiag( IR(k-1,k+nb-1), IR(0,1) );
+            auto t1 = tDiag( IR(k-1,k+nb-1), ALL );
             WPan.AlignWith( A01 );
             WPan.Resize( k+nb, nb );
             APan_MC_STAR.AlignWith( A00 );
@@ -135,7 +135,7 @@ void U
         }
         else
         {
-            auto t1 = tDiag( IR(0,nb-1), IR(0,1) );
+            auto t1 = tDiag( IR(0,nb-1), ALL );
             A11_STAR_STAR = A11;
             t1_STAR_STAR.Resize( nb-1, 1 );
             HermitianTridiag

@@ -46,8 +46,8 @@ Blocked
     {
         const Int nbProp = Min(bsize,n-k);
         const Range<Int> indB( k, n ), indBSub( k, n-1 );
-        auto dSubB = dSub( indBSub, IR(0,1) );
-        auto pB = p( indB, IR(0,1) );
+        auto dSubB = dSub( indBSub, ALL );
+        auto pB = p( indB, ALL );
         Panel( A, dSubB, pB, XB1, YB1, nbProp, k, conjugate, pivotType, gamma );
         const Int nb = XB1.Width();
 
@@ -106,8 +106,8 @@ Blocked
     {
         const Int nbProp = Min(bsize,n-k);
         const Range<Int> indB( k, n ), indBSub( k, n-1 );
-        auto dSubB = dSub( indBSub, IR(0,1) );
-        auto pB = p( indB, IR(0,1) );
+        auto dSubB = dSub( indBSub, ALL );
+        auto pB = p( indB, ALL );
         Panel( A, dSubB, pB, XB1, YB1, nbProp, k, conjugate, pivotType, gamma );
         const Int nb = XB1.Width();
 

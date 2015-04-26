@@ -40,8 +40,8 @@ void L( Matrix<F>& A, Matrix<F>& t )
         auto a21 = A( ind2, ind1 );
         auto A22 = A( ind2, ind2 );
 
-        auto alpha21T = A( IR(k+1,k+2), ind1 );
-        auto a21B     = A( IR(k+2,n),   ind1 );
+        auto alpha21T = A( IR(k+1),     ind1 );
+        auto a21B     = A( IR(k+2,END), ind1 );
 
         const F tau = LeftReflector( alpha21T, a21B );
         const Base<F> epsilon1 = alpha21T.GetRealPart(0,0);
@@ -104,7 +104,7 @@ void L
         auto ABR = A( indB, indR );
 
         const Int nbt = Min(bsize,(n-1)-k);
-        auto t1 = tDiag( IR(k,k+nbt), IR(0,1) );
+        auto t1 = tDiag( IR(k,k+nbt), ALL );
 
         if( A22.Height() > 0 )
         {

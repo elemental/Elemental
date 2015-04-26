@@ -46,7 +46,7 @@ GolubReinsch
     typedef Base<F> Real;
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
                                eHat_STAR_STAR( k, 1, g );
-    auto e_STAR_STAR = eHat_STAR_STAR( IR(0,k-1), IR(0,1) );
+    auto e_STAR_STAR = eHat_STAR_STAR( IR(0,k-1), ALL );
     e_STAR_STAR = e_MD_STAR;
 
     // Initialize U and VAdj to the appropriate identity matrices
@@ -236,7 +236,7 @@ GolubReinsch( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s )
     typedef Base<F> Real;
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
                                eHat_STAR_STAR( k, 1, g );
-    auto e_STAR_STAR = eHat_STAR_STAR( IR(0,k-1), IR(0,1) );
+    auto e_STAR_STAR = eHat_STAR_STAR( IR(0,k-1), ALL );
     e_STAR_STAR = e_MD_STAR;
 
     // Compute the singular values of the bidiagonal matrix via DQDS

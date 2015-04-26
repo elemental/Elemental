@@ -32,7 +32,6 @@ void AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& p )
     TriangularInverse( UPPER, NON_UNIT, A );
 
     const Int n = A.Height();
-    const Range<Int> outerInd( 0, n );
 
     // Solve inv(A) L = inv(U) for inv(A)
     const Int bsize = Blocksize();
@@ -40,12 +39,10 @@ void AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& p )
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,n-k);
+        const IR ind1( k, k+nb ), ind2( k+nb, END );
 
-        const Range<Int> ind1( k,    k+nb ),
-                         ind2( k+nb, n    );
-
-        auto A1 = A( outerInd, ind1 );
-        auto A2 = A( outerInd, ind2 );
+        auto A1 = A( ALL, ind1 );
+        auto A2 = A( ALL, ind2 );
 
         auto A11 = A( ind1, ind1 );
         auto A21 = A( ind2, ind1 );
@@ -106,7 +103,6 @@ void AfterLUPartialPiv
     DistMatrix<F,MC,  STAR> Z1(g);
 
     const Int n = A.Height();
-    const Range<Int> outerInd( 0, n );
 
     // Solve inv(A) L = inv(U) for inv(A)
     const Int bsize = Blocksize();
@@ -114,12 +110,10 @@ void AfterLUPartialPiv
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,n-k);
+        const IR ind1( k, k+nb ), ind2( k+nb, END );
 
-        const Range<Int> ind1( k,    k+nb ),
-                         ind2( k+nb, n    );
-
-        auto A1 = A( outerInd, ind1 );
-        auto A2 = A( outerInd, ind2 );
+        auto A1 = A( ALL, ind1 );
+        auto A2 = A( ALL, ind2 );
 
         auto A11 = A( ind1, ind1 );
         auto A21 = A( ind2, ind1 );

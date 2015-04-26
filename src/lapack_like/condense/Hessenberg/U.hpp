@@ -43,7 +43,7 @@ inline void U( Matrix<F>& A, Matrix<F>& t )
         auto ABR = A( indB, indR );
         auto A22 = A( ind2, ind2 );
 
-        auto t1 = t( ind1, IR(0,1) );
+        auto t1 = t( ind1, ALL );
         UB1.Resize( n-k, nb );
         VB1.Resize( n-k, nb );
         G11.Resize( nb,  nb );
@@ -51,8 +51,8 @@ inline void U( Matrix<F>& A, Matrix<F>& t )
 
         auto A0R = A( ind0, indR );
         auto AB2 = A( indB, ind2 );
-        auto U21 = UB1( IR(nb,n-k), IR(0,nb) );
-        auto V21 = VB1( IR(nb,n-k), IR(0,nb) );
+        auto U21 = UB1( IR(nb,END), ALL );
+        auto V21 = VB1( IR(nb,END), ALL );
 
         // A0R := A0R - ((A0R UB1) inv(G11)^H) UB1^H
         // -----------------------------------------
@@ -107,7 +107,7 @@ inline void U( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
         auto ABR = A( indB, indR );
         auto A22 = A( ind2, ind2 );
 
-        auto t1 = t( ind1, IR(0,1) );
+        auto t1 = t( ind1, ALL );
         UB1_MC_STAR.AlignWith( ABR );
         UB1_MR_STAR.AlignWith( ABR );
         VB1_MC_STAR.AlignWith( ABR );
@@ -121,7 +121,7 @@ inline void U( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
         auto A0R = A( ind0, indR );
         auto AB2 = A( indB, ind2 );
 
-        auto U21_MR_STAR = UB1_MR_STAR( IR(nb,n-k), IR(0,nb) );
+        auto U21_MR_STAR = UB1_MR_STAR( IR(nb,END), ALL );
 
         // A0R := A0R - ((A0R UB1) inv(G11)^H) UB1^H
         // -----------------------------------------

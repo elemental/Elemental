@@ -48,7 +48,7 @@ void LAV
     // c := [0;1;1]
     // ============
     Zeros( c, n+2*m, 1 );
-    auto cuv = c( IR(n,n+2*m), IR(0,1) );
+    auto cuv = c( IR(n,n+2*m), ALL );
     Fill( cuv, Real(1) );
 
     // \hat A := [A, I, -I]
@@ -80,7 +80,7 @@ void LAV
 
     // Extract x
     // ==========
-    x = xHat( xInd, IR(0,1) );
+    x = xHat( xInd, ALL );
 }
 
 template<typename Real>
@@ -99,7 +99,7 @@ void LAV
     // c := [0;1;1]
     // ============
     Zeros( c, n+2*m, 1 );
-    auto cuv = c( IR(n,n+2*m), IR(0,1) );
+    auto cuv = c( IR(n,n+2*m), ALL );
     Fill( cuv, Real(1) );
 
     // \hat A := [A, I, -I]
@@ -131,7 +131,7 @@ void LAV
 
     // Extract x
     // =========
-    Copy( xHat( xInd, IR(0,1) ), x );
+    Copy( xHat( xInd, ALL ), x );
 }
 
 template<typename Real>
@@ -150,7 +150,7 @@ void LAV
     // c := [0;1;1]
     // ============
     Zeros( c, n+2*m, 1 );
-    auto cuv = c( IR(n,n+2*m), IR(0,1) );
+    auto cuv = c( IR(n,n+2*m), ALL );
     Fill( cuv, Real(1) );
 
     // \hat A := [A, I, -I]
@@ -188,7 +188,7 @@ void LAV
 
     // Extract x
     // =========
-    x = xHat( xInd, IR(0,1) );
+    x = xHat( xInd, ALL );
 }
 
 template<typename Real>
@@ -247,7 +247,7 @@ void LAV
 
     // Extract x
     // =========
-    GetSubmatrix( xHat, IR(0,n), IR(0,1), x );
+    GetSubmatrix( xHat, IR(0,n), ALL, x );
 }
 
 #define PROTO(Real) \

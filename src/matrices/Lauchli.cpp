@@ -17,7 +17,7 @@ void Lauchli( Matrix<T>& A, Int n, T mu )
     Zeros( A, n+1, n );
 
     // Set the first row to all ones
-    auto a0 = A( IR(0,1), IR(0,n) );
+    auto a0 = A( IR(0), ALL );
     Fill( a0, T(1) );
 
     // Set the subdiagonal to mu
@@ -32,7 +32,7 @@ void Lauchli( AbstractDistMatrix<T>& A, Int n, T mu )
 
     // Set the first row to all ones
     unique_ptr<AbstractDistMatrix<T>> a0( A.Construct(A.Grid(),A.Root()) );
-    View( *a0, A, IR(0,1), IR(0,n) );
+    View( *a0, A, IR(0), ALL );
     Fill( *a0, T(1) );
 
     // Set the subdiagonal to mu

@@ -26,8 +26,8 @@ LUnblocked( Matrix<F>& L, bool conjugate=false )
 
     for( Int k=0; k<n; ++k )
     {
-        auto L00 = L( IR(0,k),   IR(0,k) );
-        auto l10 = L( IR(k,k+1), IR(0,k) );
+        auto L00 = L( IR(0,k), IR(0,k) );
+        auto l10 = L( IR(k),   IR(0,k) );
 
         // S10 := L10
         s10 = l10;
@@ -167,8 +167,8 @@ UUnblocked( Matrix<F>& U, bool conjugate=false )
 
     for( Int k=0; k<n; ++k )
     {
-        auto U00 = U( IR(0,k), IR(0,k)   );
-        auto u01 = U( IR(0,k), IR(k,k+1) );
+        auto U00 = U( IR(0,k), IR(0,k) );
+        auto u01 = U( IR(0,k), IR(k)   );
 
         s01 = u01;
 

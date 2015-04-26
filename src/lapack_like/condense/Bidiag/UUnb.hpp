@@ -32,11 +32,11 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 
     for( Int k=0; k<n; ++k )
     {
-        auto alpha11 = A( IR(k,k+1), IR(k,k+1) );
-        auto a12     = A( IR(k,k+1), IR(k+1,n) );
-        auto a21     = A( IR(k+1,m), IR(k,k+1) );
+        auto alpha11 = A( IR(k),     IR(k)     );
+        auto a12     = A( IR(k),     IR(k+1,n) );
+        auto a21     = A( IR(k+1,m), IR(k)     );
         auto A22     = A( IR(k+1,m), IR(k+1,n) );
-        auto aB1     = A( IR(k,m),   IR(k,k+1) );
+        auto aB1     = A( IR(k,m),   IR(k)     );
         auto AB2     = A( IR(k,m),   IR(k+1,n) );
 
         // Find tauQ and u such that
@@ -131,11 +131,11 @@ inline void UUnb
 
     for( Int k=0; k<n; ++k )
     {
-        auto alpha11 = A( IR(k,k+1), IR(k,k+1) );
-        auto a12     = A( IR(k,k+1), IR(k+1,n) );
-        auto a21     = A( IR(k+1,m), IR(k,k+1) );
+        auto alpha11 = A( IR(k),     IR(k)     );
+        auto a12     = A( IR(k),     IR(k+1,n) );
+        auto a21     = A( IR(k+1,m), IR(k)     );
         auto A22     = A( IR(k+1,m), IR(k+1,n) );
-        auto aB1     = A( IR(k,m),   IR(k,k+1) );
+        auto aB1     = A( IR(k,m),   IR(k)     );
         auto AB2     = A( IR(k,m),   IR(k+1,n) );
 
         // Find tauQ and u such that

@@ -25,29 +25,25 @@ void Panel( Matrix<F>& A, Matrix<Int>& pivots )
     )
     pivots.Resize( n, 1 );
 
-    const Range<Int> outerInd( 0, n );
-
     for( Int k=0; k<n; ++k )
     {
-        const Range<Int> ind1( k, k+1 ),
-                         ind2Vert( k+1, m ),
-                         ind2Horz( k+1, n );
+        const Range<Int> ind1( k ), ind2( k+1, END );
 
-        auto alpha11 = A( ind1,     ind1     );
-        auto a12     = A( ind1,     ind2Horz );
-        auto a21     = A( ind2Vert, ind1     );
-        auto A22     = A( ind2Vert, ind2Horz );
+        auto alpha11 = A( ind1, ind1 );
+        auto a12     = A( ind1, ind2 );
+        auto a21     = A( ind2, ind1 );
+        auto A22     = A( ind2, ind2 );
 
         // Find the index and value of the pivot candidate
-        auto pivot = VectorMaxAbs( A(IR(k,m),IR(k,k+1)) );
+        auto pivot = VectorMaxAbs( A(IR(k,END),IR(k)) );
         const Int iPiv = pivot.index + k;
         pivots.Set( k, 0, iPiv );
 
         // Swap the pivot row and current row
         if( iPiv != k )
         {
-            auto aCurRow = A( ind1,            outerInd );
-            auto aPivRow = A( IR(iPiv,iPiv+1), outerInd );
+            auto aCurRow = A( ind1,     ALL );
+            auto aPivRow = A( IR(iPiv), ALL );
             Swap( NORMAL, aCurRow, aPivRow );
         }
 
@@ -77,27 +73,21 @@ void Panel
 
     // For packing rows of data for pivoting
     const Int n = A.Width();
-    const Int mB = B.Height();
-    const Int nB = B.Width();
     vector<F> pivotBuffer( n );
 
     pivots.Resize( n, 1 );
 
-    const Range<Int> outerInd( 0, mB );
-
     for( Int k=0; k<n; ++k )
     {
-        const Range<Int> ind1( k,   k+1 ),
-                         ind2( k+1, n   ),
-                         ind2HorzB( k+1, nB );
+        const Range<Int> ind1( k ), ind2( k+1, END );
 
         auto alpha11 = A( ind1, ind1 );
         auto a12     = A( ind1, ind2 );
         auto a21     = A( ind2, ind1 );
         auto A22     = A( ind2, ind2 );
 
-        auto b1      = B( outerInd, ind1      );
-        auto B2      = B( outerInd, ind2HorzB );
+        auto b1      = B( ALL, ind1 );
+        auto B2      = B( ALL, ind2 );
 
         // Store the index/value of the local pivot candidate
         ValueInt<Real> localPivot;

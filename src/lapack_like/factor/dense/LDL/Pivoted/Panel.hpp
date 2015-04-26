@@ -79,18 +79,14 @@ Panel
             LogicError("permutation vector is the wrong size");
     )
 
-    const Range<Int> outerInd( 0, n );
-
     Int k=0;
     while( k < bsize )
     {
-        const Range<Int> ind0( 0, k ),
-                         indB( k, n ),
-                         indR( k, n );
+        const IR ind0( 0, k ), indB( k, END ), indR( k, END );
 
         // Determine the pivot (block)
-        auto X0 = X( outerInd, ind0 );
-        auto Y0 = Y( outerInd, ind0 );
+        auto X0 = X( ALL, ind0 );
+        auto Y0 = Y( ALL, ind0 );
         if( pivotType == BUNCH_KAUFMAN_C )
         {
             LogicError("Have not yet generalized pivot storage");
@@ -120,8 +116,7 @@ Panel
         RowSwap( Y0, to, from );
 
         // Update the active columns and then store the new update factors
-        const Range<Int> ind1( k,          k+pivot.nb ),
-                         ind2( k+pivot.nb, n   );
+        const IR ind1( k, k+pivot.nb ), ind2( k+pivot.nb, n );
         if( pivot.nb == 1 ) 
         {
             // Update A(k:end,k) -= X(k:n-1,0:k-1) Y(k,0:k-1)^T
@@ -213,18 +208,14 @@ Panel
 
     DistMatrix<F,STAR,STAR> D11_STAR_STAR( A.Grid() );
 
-    const Range<Int> outerInd( 0, n );
-
     Int k=0;
     while( k < bsize )
     {
-        const Range<Int> ind0( 0, k ),
-                         indB( k, n ),
-                         indR( k, n );
+        const IR ind0( 0, k ), indB( k, END ), indR( k, END );
 
         // Determine the pivot (block)
-        auto X0 = X( outerInd, ind0 );
-        auto Y0 = Y( outerInd, ind0 );
+        auto X0 = X( ALL, ind0 );
+        auto Y0 = Y( ALL, ind0 );
         if( pivotType == BUNCH_KAUFMAN_C )
         {
             LogicError("Have not yet generalized pivot storage");
@@ -254,8 +245,7 @@ Panel
         RowSwap( Y0, to, from );
 
         // Update the active columns and then store the new update factors
-        const Range<Int> ind1( k,          k+pivot.nb ),
-                         ind2( k+pivot.nb, n   );
+        const IR ind1( k, k+pivot.nb ), ind2( k+pivot.nb, n );
         if( pivot.nb == 1 ) 
         {
             // Update A(k:end,k) -= X(k:n-1,0:k-1) Y(k,0:k-1)^T

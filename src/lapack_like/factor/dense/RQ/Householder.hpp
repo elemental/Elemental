@@ -46,8 +46,8 @@ Householder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 
         auto A0L = A( ind0Vert, indL );
         auto A1L = A( ind1Vert, indL );
-        auto t1 = t( ind1, IR(0,1) );
-        auto d1 = d( ind1, IR(0,1) );
+        auto t1 = t( ind1, ALL );
+        auto d1 = d( ind1, ALL );
 
         PanelHouseholder( A1L, t1, d1 );
         ApplyQ( RIGHT, ADJOINT, A1L, t1, d1, A0L );
@@ -94,8 +94,8 @@ Householder
 
         auto A0L = A( ind0Vert, indL );
         auto A1L = A( ind1Vert, indL );
-        auto t1 = t( ind1, IR(0,1) );
-        auto d1 = d( ind1, IR(0,1) );
+        auto t1 = t( ind1, ALL );
+        auto d1 = d( ind1, ALL );
 
         PanelHouseholder( A1L, t1, d1 );
         ApplyQ( RIGHT, ADJOINT, A1L, t1, d1, A0L );

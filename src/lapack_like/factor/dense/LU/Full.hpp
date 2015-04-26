@@ -32,11 +32,7 @@ Full( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q )
 
     for( Int k=0; k<minDim; ++k )
     {
-        const Range<Int> ind1( k, k+1 ),
-                         indB( k, m   ),
-                         indR( k, n   ),
-                         ind2Vert( k+1, m ),
-                         ind2Horz( k+1, n );
+        const IR ind1( k ), ind2( k+1, END ), indB( k, END ), indR( k, END );
 
         // Find the index and value of the pivot candidate
         auto ABR = A( indB, indR );
@@ -52,9 +48,9 @@ Full( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q )
 
         // Now we can perform the update of the current panel
         const F alpha11 = A.Get(k,k);
-        auto a21 = A( ind2Vert, ind1     );
-        auto a12 = A( ind1,     ind2Horz );
-        auto A22 = A( ind2Vert, ind2Horz );
+        auto a21 = A( ind2, ind1 );
+        auto a12 = A( ind1, ind2 );
+        auto A22 = A( ind2, ind2 );
         if( alpha11 == F(0) )
             throw SingularMatrixException();
         const F alpha11Inv = F(1) / alpha11;
@@ -92,11 +88,7 @@ Full
 
     for( Int k=0; k<minDim; ++k )
     {
-        const Range<Int> ind1( k, k+1 ),
-                         indB( k, m   ),
-                         indR( k, n   ),
-                         ind2Vert( k+1, m ),
-                         ind2Horz( k+1, n );
+        const IR ind1( k ), ind2( k+1, END ), indB( k, END ), indR( k, END );
 
         // Find the index and value of the pivot candidate
         auto ABR = A( indB, indR );
@@ -112,9 +104,9 @@ Full
 
         // Now we can perform the update of the current panel
         const F alpha11 = A.Get(k,k);
-        auto a21 = A( ind2Vert, ind1     );
-        auto a12 = A( ind1,     ind2Horz );
-        auto A22 = A( ind2Vert, ind2Horz );
+        auto a21 = A( ind2, ind1 );
+        auto a12 = A( ind1, ind2 );
+        auto A22 = A( ind2, ind2 );
         if( alpha11 == F(0) )
             throw SingularMatrixException();
         const F alpha11Inv = F(1) / alpha11;

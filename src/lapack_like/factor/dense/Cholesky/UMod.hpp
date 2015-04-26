@@ -29,24 +29,20 @@ UUpdate( Matrix<F>& U, Matrix<F>& V )
             LogicError("V is the wrong height");
     )
     const Int m = V.Height();
-    const Int n = V.Width();
 
     Matrix<F> z12;
-
-    const Range<Int> outerInd( 0, n );
 
     F* UBuf = U.Buffer();
     const Int ldu = U.LDim();
     for( Int k=0; k<m; ++k )
     {
-        const Range<Int> ind1( k,   k+1 ),
-                         ind2( k+1, m   );
+        const IR ind1( k ), ind2( k+1, END );
 
         F& upsilon11 = UBuf[k+k*ldu];
         auto u12 = U( ind1, ind2 );
 
-        auto v1 = V( ind1, outerInd );
-        auto V2 = V( ind2, outerInd );
+        auto v1 = V( ind1, ALL );
+        auto V2 = V( ind2, ALL );
 
         // Find tau and w such that
         //  /I - tau | 1 | | 1 w^H | \ | upsilon11 | = | -beta |
@@ -94,23 +90,19 @@ UUpdate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
     auto VPtr = ReadWriteProxy<F,MC,MR>( &VPre ); auto& V = *VPtr;
 
     const Int m = V.Height();
-    const Int n = V.Width();
     const Grid& g = U.Grid();
     DistMatrix<F,STAR,MC> z12_STAR_MC(g), b12_STAR_MC(g);
     DistMatrix<F,STAR,MR> v1_STAR_MR(g);
 
-    const Range<Int> outerInd( 0, n );
-
     for( Int k=0; k<m; ++k )
     {
-        const Range<Int> ind1( k,   k+1 ),
-                         ind2( k+1, m   );
+        const IR ind1( k ), ind2( k+1, END );
 
         F upsilon11 = U.Get(k,k);
         auto u12 = U( ind1, ind2 );
 
-        auto v1 = V( ind1, outerInd );
-        auto V2 = V( ind2, outerInd );
+        auto v1 = V( ind1, ALL );
+        auto V2 = V( ind2, ALL );
 
         // Find tau and w such that
         //  /I - tau | 1 | | 1 w^H | \ | upsilon11 | = | -beta |
@@ -163,24 +155,20 @@ UDowndate( Matrix<F>& U, Matrix<F>& V )
             LogicError("V is the wrong height");
     )
     const Int m = V.Height();
-    const Int n = V.Width();
 
     Matrix<F> z12;
-
-    const Range<Int> outerInd( 0, n );
 
     F* UBuf = U.Buffer();
     const Int ldu = U.LDim();
     for( Int k=0; k<m; ++k )
     {
-        const Range<Int> ind1( k,   k+1 ),
-                         ind2( k+1, m   );
+        const IR ind1( k ), ind2( k+1, END );
 
         F& upsilon11 = UBuf[k+k*ldu];
         auto u12 = U( ind1, ind2 );
 
-        auto v1 = V( ind1, outerInd );
-        auto V2 = V( ind2, outerInd );
+        auto v1 = V( ind1, ALL );
+        auto V2 = V( ind2, ALL );
 
         // Find tau and w such that
         //  /I - 1/tau | 1 | | 1 w^H | Sigma \ | upsilon11 | = | -beta |
@@ -228,23 +216,19 @@ UDowndate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
     auto VPtr = ReadWriteProxy<F,MC,MR>( &VPre ); auto& V = *VPtr;
 
     const Int m = V.Height();
-    const Int n = V.Width();
     const Grid& g = U.Grid();
     DistMatrix<F,STAR,MC> z12_STAR_MC(g), b12_STAR_MC(g);
     DistMatrix<F,STAR,MR> v1_STAR_MR(g);
 
-    const Range<Int> outerInd( 0, n );
-
     for( Int k=0; k<m; ++k )
     {
-        const Range<Int> ind1( k,   k+1 ),
-                         ind2( k+1, m   );
+        const IR ind1( k ), ind2( k+1, END );
 
         F upsilon11 = U.Get(k,k);
         auto u12 = U( ind1, ind2 );
 
-        auto v1 = V( ind1, outerInd );
-        auto V2 = V( ind2, outerInd );
+        auto v1 = V( ind1, ALL );
+        auto V2 = V( ind2, ALL );
 
         // Find tau and w such that
         //  /I - 1/tau | 1 | | 1 w^H | Sigma \ | upsilon11 | = | -beta |

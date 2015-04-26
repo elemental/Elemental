@@ -90,12 +90,12 @@ inline void LocalColAccumulateUGeneral
  
         auto A11 = A( ind1, ind1 );
         auto A12 = A( ind1, ind2 );
-        auto x1_MC_STAR = x_MC_STAR( ind1, IR(0,1) );
-        auto x1_MR_STAR = x_MR_STAR( ind1, IR(0,1) );
-        auto x2_MR_STAR = x_MR_STAR( ind2, IR(0,1) );
-        auto z1_MC_STAR = z_MC_STAR( ind1, IR(0,1) );
-        auto z1_MR_STAR = z_MR_STAR( ind1, IR(0,1) );
-        auto z2_MR_STAR = z_MR_STAR( ind2, IR(0,1) );
+        auto x1_MC_STAR = x_MC_STAR( ind1, ALL );
+        auto x1_MR_STAR = x_MR_STAR( ind1, ALL );
+        auto x2_MR_STAR = x_MR_STAR( ind2, ALL );
+        auto z1_MC_STAR = z_MC_STAR( ind1, ALL );
+        auto z1_MR_STAR = z_MR_STAR( ind1, ALL );
+        auto z2_MR_STAR = z_MR_STAR( ind2, ALL );
 
         D11.AlignWith( A11 );
         // TODO: These diagonal block updates can be greatly improved
@@ -316,12 +316,12 @@ inline void LocalRowAccumulateU
 
         auto A11 = A( ind1, ind1 );
         auto A12 = A( ind1, ind2 );
-        auto x1_STAR_MC = x_STAR_MC( IR(0,1), ind1 );
-        auto x1_STAR_MR = x_STAR_MR( IR(0,1), ind1 );
-        auto x2_STAR_MR = x_STAR_MR( IR(0,1), ind2 );
-        auto z1_STAR_MC = z_STAR_MC( IR(0,1), ind1 );
-        auto z1_STAR_MR = z_STAR_MR( IR(0,1), ind1 );
-        auto z2_STAR_MR = z_STAR_MR( IR(0,1), ind2 );
+        auto x1_STAR_MC = x_STAR_MC( ALL, ind1 );
+        auto x1_STAR_MR = x_STAR_MR( ALL, ind1 );
+        auto x2_STAR_MR = x_STAR_MR( ALL, ind2 );
+        auto z1_STAR_MC = z_STAR_MC( ALL, ind1 );
+        auto z1_STAR_MR = z_STAR_MR( ALL, ind1 );
+        auto z2_STAR_MR = z_STAR_MR( ALL, ind2 );
 
         D11.AlignWith( A11 );
         // TODO: These diagonal block updates can be greatly improved

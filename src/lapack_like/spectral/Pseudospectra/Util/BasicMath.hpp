@@ -328,11 +328,10 @@ FixColumns( Matrix<F>& X )
     typedef Base<F> Real;
     Matrix<Real> norms;
     ColumnNorms( X, norms );
-    const Int m = X.Height();
     const Int n = X.Width();
     for( Int j=0; j<n; ++j )
     {
-        auto x = X( IR(0,m), IR(j,j+1) );
+        auto x = X( ALL, IR(j) );
         Real norm = norms.Get(j,0);
         if( norm == Real(0) )
         {
@@ -351,12 +350,11 @@ FixColumns( DistMatrix<F,U,V>& X )
     typedef Base<F> Real;
     DistMatrix<Real,V,STAR> norms( X.Grid() );
     ColumnNorms( X, norms );
-    const Int m = X.Height();
     const Int nLocal = X.LocalWidth();
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
         const Int j = X.GlobalCol(jLoc);
-        auto x = X( IR(0,m), IR(j,j+1) );
+        auto x = X( ALL, IR(j) );
         Real norm = norms.GetLocal(jLoc,0);
         if( norm == Real(0) )
         {

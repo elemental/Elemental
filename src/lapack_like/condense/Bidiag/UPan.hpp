@@ -47,36 +47,34 @@ UPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
 
     for( Int k=0; k<nX; ++k )
     {
-        const Range<Int> ind0( 0, k   ),
+        const Range<Int> ind0( 0, k ), ind1( k ), ind2( k+1, END ),
                          indT( 0, k+1 ), indL( 0, k+1 ),
-                         ind1( k, k+1 ),
-                         indB( k, mA  ),
-                         ind2Vert( k+1, mA ), ind2Horz( k+1, nA );
+                         indB( k, END );
 
-        auto a01      = A( ind0,     ind1     );
-        auto A02      = A( ind0,     ind2Horz );
-        auto a10      = A( ind1,     ind0     );
-        auto alpha11  = A( ind1,     ind1     );
-        auto a12      = A( ind1,     ind2Horz );
-        auto a21      = A( ind2Vert, ind1     );
-        auto A22      = A( ind2Vert, ind2Horz );
-        auto AB0      = A( indB,     ind0     );
-        auto aB1      = A( indB,     ind1     );
-        auto AB2      = A( indB,     ind2Horz );
-        auto A2L      = A( ind2Vert, indL     );
+        auto a01      = A( ind0, ind1 );
+        auto A02      = A( ind0, ind2 );
+        auto a10      = A( ind1, ind0 );
+        auto alpha11  = A( ind1, ind1 );
+        auto a12      = A( ind1, ind2 );
+        auto a21      = A( ind2, ind1 );
+        auto A22      = A( ind2, ind2 );
+        auto AB0      = A( indB, ind0 );
+        auto aB1      = A( indB, ind1 );
+        auto AB2      = A( indB, ind2 );
+        auto A2L      = A( ind2, indL );
 
-        auto alpha12L = A( IR(k,k+1), IR(k+1,k+2) );
-        auto a12R     = A( IR(k,k+1), IR(k+2,nA)  );
+        auto alpha12L = A( IR(k), IR(k+1)     );
+        auto a12R     = A( IR(k), IR(k+2,END) );
 
-        auto x10 = X( ind1,     ind0 );
-        auto X20 = X( ind2Vert, ind0 );
-        auto x21 = X( ind2Vert, ind1 );
-        auto XB0 = X( indB,     ind0 );
+        auto x10 = X( ind1, ind0 );
+        auto X20 = X( ind2, ind0 );
+        auto x21 = X( ind2, ind1 );
+        auto XB0 = X( indB, ind0 );
 
-        auto y01 = Y( ind0, ind1     );
-        auto Y02 = Y( ind0, ind2Horz );
-        auto y12 = Y( ind1, ind2Horz );
-        auto YT2 = Y( indT, ind2Horz );
+        auto y01 = Y( ind0, ind1 );
+        auto Y02 = Y( ind0, ind2 );
+        auto y12 = Y( ind1, ind2 );
+        auto YT2 = Y( indT, ind2 );
 
         // Apply all previous reflectors to aB1:
         //   aB1 := aB1 - AB0 y01 - XB0 conj(a01)
@@ -221,42 +219,39 @@ UPan
 
     for( Int k=0; k<nX; ++k )
     {
-        const Range<Int> ind0( 0, k   ),
-                         indT( 0, k+1 ), indL( 0, k+1 ),
-                         ind1( k, k+1 ),
-                         indB( k, mA  ),
-                         ind2Vert( k+1, mA ), ind2Horz( k+1, nA );
+        const Range<Int> ind0( 0, k ), ind1( k ), ind2( k+1, END ),
+                         indT( 0, k+1 ), indL( 0, k+1 ), indB( k, END );
 
-        auto a01      = A( ind0,     ind1     );
-        auto A02      = A( ind0,     ind2Horz );
-        auto a10      = A( ind1,     ind0     );
-        auto alpha11  = A( ind1,     ind1     );
-        auto a12      = A( ind1,     ind2Horz );
-        auto a21      = A( ind2Vert, ind1     );
-        auto A22      = A( ind2Vert, ind2Horz );
-        auto AB0      = A( indB,     ind0     );
-        auto aB1      = A( indB,     ind1     );
-        auto AB2      = A( indB,     ind2Horz );
-        auto A2L      = A( ind2Vert, indL     );
+        auto a01      = A( ind0, ind1 );
+        auto A02      = A( ind0, ind2 );
+        auto a10      = A( ind1, ind0 );
+        auto alpha11  = A( ind1, ind1 );
+        auto a12      = A( ind1, ind2 );
+        auto a21      = A( ind2, ind1 );
+        auto A22      = A( ind2, ind2 );
+        auto AB0      = A( indB, ind0 );
+        auto aB1      = A( indB, ind1 );
+        auto AB2      = A( indB, ind2 );
+        auto A2L      = A( ind2, indL );
 
-        auto alpha12L = A( ind1, IR(k+1,k+2) );
-        auto a12R     = A( ind1, IR(k+2,nA)  );
+        auto alpha12L = A( ind1, IR(k+1)     );
+        auto a12R     = A( ind1, IR(k+2,END) );
 
-        auto x10 = X( ind1,     ind0 );
-        auto X20 = X( ind2Vert, ind0 );
-        auto x21 = X( ind2Vert, ind1 );
-        auto XB0 = X( indB,     ind0 );
+        auto x10 = X( ind1, ind0 );
+        auto X20 = X( ind2, ind0 );
+        auto x21 = X( ind2, ind1 );
+        auto XB0 = X( indB, ind0 );
 
-        auto y01 = Y( ind0, ind1     );
-        auto Y02 = Y( ind0, ind2Horz );
-        auto y12 = Y( ind1, ind2Horz );
-        auto YT2 = Y( indT, ind2Horz );
+        auto y01 = Y( ind0, ind1 );
+        auto Y02 = Y( ind0, ind2 );
+        auto y12 = Y( ind1, ind2 );
+        auto YT2 = Y( indT, ind2 );
 
-        auto a12_STAR_MR = AT_STAR_MR( ind1, ind2Horz );
-        auto aB1_MC_STAR = AL_MC_STAR( indB, ind1     );
+        auto a12_STAR_MR = AT_STAR_MR( ind1, ind2 );
+        auto aB1_MC_STAR = AL_MC_STAR( indB, ind1 );
 
-        auto delta1   = d( ind1, IR(0,1) );
-        auto epsilon1 = e( ind1, IR(0,1) );
+        auto delta1   = d( ind1, ALL );
+        auto epsilon1 = e( ind1, ALL );
 
         // Apply all previous reflectors to aB1:
         //   aB1 := aB1 - AB0 y01 - XB0 conj(a01)

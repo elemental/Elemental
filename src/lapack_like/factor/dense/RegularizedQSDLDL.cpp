@@ -92,8 +92,8 @@ Var3
         auto A21 = A( ind2, ind1 );
         auto A22 = A( ind2, ind2 );
 
-        auto regCand1 = regCand( ind1, IR(0,1) );
-        auto reg1 = reg( ind1, IR(0,1) );
+        auto regCand1 = regCand( ind1, ALL );
+        auto reg1 = reg( ind1, ALL );
 
         Var3Unb( A11, pivTol,regCand1, reg1, aPriori );
         GetDiagonal( A11, d1 );
@@ -153,8 +153,8 @@ Var3
         auto A21 = A( ind2, ind1 );
         auto A22 = A( ind2, ind2 );
 
-        auto regCand1 = regCand( ind1, IR(0,1) );
-        auto reg1 = reg( ind1, IR(0,1) );
+        auto regCand1 = regCand( ind1, ALL );
+        auto reg1 = reg( ind1, ALL );
 
         A11_STAR_STAR = A11;
         regCand1_STAR_STAR = regCand1;

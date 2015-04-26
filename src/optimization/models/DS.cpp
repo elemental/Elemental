@@ -80,15 +80,15 @@ void Var1
     // c := [1;1;0]
     // ==============
     Zeros( c, 3*n, 1 );
-    auto cuv = c( IR(0,2*n), IR(0,1) );
+    auto cuv = c( IR(0,2*n), ALL );
     Fill( cuv, Real(1) );
 
     // \hat A := [ A^T A, -A^T A,  I ]
     // ===============================
     Zeros( AHat, n, 3*n );
-    auto AHatu = AHat( IR(0,n), uInd );
-    auto AHatv = AHat( IR(0,n), vInd );
-    auto AHatt = AHat( IR(0,n), tInd );
+    auto AHatu = AHat( ALL, uInd );
+    auto AHatv = AHat( ALL, vInd );
+    auto AHatt = AHat( ALL, tInd );
     Herk( LOWER, TRANSPOSE, Real(1), A, Real(0), AHatu );
     MakeSymmetric( LOWER, AHatu );
     Axpy( Real(-1), AHatu, AHatv );
@@ -115,7 +115,7 @@ void Var1
     // h := [0;0;lambda e;lambda e]
     // ============================
     Zeros( h, 4*n, 1 );
-    auto ht = h( IR(2*n,4*n), IR(0,1) );
+    auto ht = h( IR(2*n,4*n), ALL );
     Fill( ht, lambda );
 
     // Solve the affine LP
@@ -125,8 +125,8 @@ void Var1
 
     // x := u - v
     // ==========
-    x = xHat( uInd, IR(0,1) );
-    Axpy( Real(-1), xHat(vInd,IR(0,1)), x );
+    x = xHat( uInd, ALL );
+    Axpy( Real(-1), xHat(vInd,ALL), x );
 }
 
 template<typename Real>
@@ -149,15 +149,15 @@ void Var1
     // c := [1;1;0]
     // ==============
     Zeros( c, 3*n, 1 );
-    auto cuv = c( IR(0,2*n), IR(0,1) );
+    auto cuv = c( IR(0,2*n), ALL );
     Fill( cuv, Real(1) );
 
     // \hat A := [ A^T A, -A^T A,  I ]
     // ===============================
     Zeros( AHat, n, 3*n );
-    auto AHatu = AHat( IR(0,n), uInd );
-    auto AHatv = AHat( IR(0,n), vInd );
-    auto AHatt = AHat( IR(0,n), tInd );
+    auto AHatu = AHat( ALL, uInd );
+    auto AHatv = AHat( ALL, vInd );
+    auto AHatt = AHat( ALL, tInd );
     Herk( LOWER, TRANSPOSE, Real(1), A, Real(0), AHatu );
     MakeSymmetric( LOWER, AHatu );
     Axpy( Real(-1), AHatu, AHatv );
@@ -184,7 +184,7 @@ void Var1
     // h := [0;0;lambda e;lambda e]
     // ============================
     Zeros( h, 4*n, 1 );
-    auto ht = h( IR(2*n,4*n), IR(0,1) );
+    auto ht = h( IR(2*n,4*n), ALL );
     Fill( ht, lambda );
 
     // Solve the affine LP
@@ -194,8 +194,8 @@ void Var1
 
     // x := u - v
     // ==========
-    Copy( xHat( uInd, IR(0,1) ), x );
-    Axpy( Real(-1), xHat(vInd,IR(0,1)), x );
+    Copy( xHat( uInd, ALL ), x );
+    Axpy( Real(-1), xHat(vInd,ALL), x );
 }
 
 template<typename Real>
@@ -214,8 +214,8 @@ void Var2
     // c := [1;1;0;0]
     // ==============
     Zeros( c, 3*n+m, 1 );
-    auto c_u = c( uInd, IR(0,1) );
-    auto c_v = c( vInd, IR(0,1) );
+    auto c_u = c( uInd, ALL );
+    auto c_v = c( vInd, ALL );
     Ones( c_u, n, 1 );
     Ones( c_v, n, 1 );
 
@@ -238,7 +238,7 @@ void Var2
     //           | 0 |
     // ===============
     Zeros( bHat, m+n, 1 );
-    auto b0 = bHat( IR(0,m), IR(0,1) );
+    auto b0 = bHat( IR(0,m), ALL );
     b0 = b;
 
     // G := | -I  0 0  0 |
@@ -259,8 +259,8 @@ void Var2
     // h := [0;0;lambda e;lambda e]
     // ============================
     Zeros( h, 4*n, 1 );
-    auto h2 = h( IR(2*n,3*n), IR(0,1) );
-    auto h3 = h( IR(3*n,4*n), IR(0,1) );
+    auto h2 = h( IR(2*n,3*n), ALL );
+    auto h3 = h( IR(3*n,4*n), ALL );
     Fill( h2, lambda );
     Fill( h3, lambda );
 
@@ -271,8 +271,8 @@ void Var2
 
     // x := u - v
     // ==========
-    x = xHat( uInd, IR(0,1) );
-    Axpy( Real(-1), xHat(vInd,IR(0,1)), x );
+    x = xHat( uInd, ALL );
+    Axpy( Real(-1), xHat(vInd,ALL), x );
 }
 
 template<typename Real>
@@ -292,8 +292,8 @@ void Var2
     // c := [1;1;0;0]
     // ==============
     Zeros( c, 3*n+m, 1 );
-    auto c_u = c( uInd, IR(0,1) );
-    auto c_v = c( vInd, IR(0,1) );
+    auto c_u = c( uInd, ALL );
+    auto c_v = c( vInd, ALL );
     Ones( c_u, n, 1 );
     Ones( c_v, n, 1 );
 
@@ -316,7 +316,7 @@ void Var2
     //           | 0 |
     // ===============
     Zeros( bHat, m+n, 1 );
-    auto b0 = bHat( IR(0,m), IR(0,1) );
+    auto b0 = bHat( IR(0,m), ALL );
     b0 = b;
 
     // G := | -I  0 0  0 |
@@ -337,8 +337,8 @@ void Var2
     // h := [0;0;lambda e;lambda e]
     // ============================
     Zeros( h, 4*n, 1 );
-    auto h2 = h( IR(2*n,3*n), IR(0,1) );
-    auto h3 = h( IR(3*n,4*n), IR(0,1) );
+    auto h2 = h( IR(2*n,3*n), ALL );
+    auto h3 = h( IR(3*n,4*n), ALL );
     Fill( h2, lambda );
     Fill( h3, lambda );
 
@@ -349,8 +349,8 @@ void Var2
 
     // x := u - v
     // ==========
-    Copy( xHat( uInd, IR(0,1) ), x );
-    Axpy( Real(-1), xHat(vInd,IR(0,1)), x );
+    Copy( xHat( uInd, ALL ), x );
+    Axpy( Real(-1), xHat(vInd,ALL), x );
 }
 
 template<typename Real>
@@ -371,7 +371,7 @@ void Var2
     // c := [1;1;0;0]
     // ==============
     Zeros( c, 3*n, 1 );
-    auto cuv = c( IR(0,2*n), IR(0,1) );
+    auto cuv = c( IR(0,2*n), ALL );
     Fill( cuv, Real(1) );
 
     // \hat A := | A, -A,  I,  0 |
@@ -396,7 +396,7 @@ void Var2
     //           | 0 |
     // ===============
     Zeros( bHat, m+n, 1 );
-    auto b0 = bHat( IR(0,m), IR(0,1) );
+    auto b0 = bHat( IR(0,m), ALL );
     b0 = b;
 
     // G := | -I  0 0  0 |
@@ -420,7 +420,7 @@ void Var2
     // h := [0;0;lambda e;lambda e]
     // ============================
     Zeros( h, 4*n, 1 );
-    auto ht = h( IR(2*n,4*n), IR(0,1) );
+    auto ht = h( IR(2*n,4*n), ALL );
     Fill( ht, lambda );
 
     // Solve the affine LP
@@ -430,8 +430,8 @@ void Var2
 
     // x := u - v
     // ==========
-    x = xHat( uInd, IR(0,1) );
-    Axpy( Real(-1), xHat(vInd,IR(0,1)), x );
+    x = xHat( uInd, ALL );
+    Axpy( Real(-1), xHat(vInd,ALL), x );
 }
 
 template<typename Real>

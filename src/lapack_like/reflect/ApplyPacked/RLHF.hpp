@@ -40,7 +40,6 @@ RLHF
         if( A.Width() != H.Width() )
             LogicError("A and H must have the same width");
     )
-    const Int mA = A.Height();
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
         if( t.Height() != diagLength )
@@ -59,8 +58,8 @@ RLHF
         const Int kj = k+jOff;
 
         auto HPan  = H( IR(ki,ki+nb), IR(0,kj+nb) );
-        auto ALeft = A( IR(0,mA),     IR(0,kj+nb) );
-        auto t1    = t( IR(k,k+nb),   IR(0,1)     );
+        auto ALeft = A( ALL,          IR(0,kj+nb) );
+        auto t1    = t( IR(k,k+nb),   ALL         );
 
         Conjugate( HPan, HPanConj );
         MakeTrapezoidal( LOWER, HPanConj, HPanConj.Width()-HPanConj.Height() );
@@ -93,7 +92,6 @@ RLHF
     auto tPtr = ReadProxy<F,MC,STAR>( &tPre );    auto& t = *tPtr;
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
 
-    const Int mA = A.Height();
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
         if( t.Height() != diagLength )
@@ -119,8 +117,8 @@ RLHF
         const Int kj = k+jOff;
 
         auto HPan  = H( IR(ki,ki+nb), IR(0,kj+nb) );
-        auto ALeft = A( IR(0,mA),     IR(0,kj+nb) );
-        auto t1    = t( IR(k,k+nb),   IR(0,1)     );
+        auto ALeft = A( ALL,          IR(0,kj+nb) );
+        auto t1    = t( IR(k,k+nb),   ALL         );
 
         Conjugate( HPan, HPanConj );
         MakeTrapezoidal( LOWER, HPanConj, HPanConj.Width()-HPanConj.Height() );

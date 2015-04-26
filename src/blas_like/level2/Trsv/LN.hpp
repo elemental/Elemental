@@ -59,10 +59,10 @@ LN
             LockedView( L11, L, IR(k,k+nb), IR(k,k+nb) );
             LockedView( L21, L, IR(k+nb,m), IR(k,k+nb) );
 
-            View( x1, x, IR(k,k+nb), IR(0,1) );
+            View( x1, x, IR(k,k+nb), ALL );
 
-            View( z1_MC_STAR, z_MC_STAR, IR(k,k+nb), IR(0,1) );
-            View( z2_MC_STAR, z_MC_STAR, IR(k+nb,m), IR(0,1) );
+            View( z1_MC_STAR, z_MC_STAR, IR(k,k+nb), ALL );
+            View( z2_MC_STAR, z_MC_STAR, IR(k+nb,m), ALL );
 
             if( k != 0 )
                 AxpyContract( F(1), z1_MC_STAR, x1 );
@@ -98,10 +98,10 @@ LN
             LockedView( L11, L, IR(k,k+nb), IR(k,k+nb) );
             LockedView( L21, L, IR(k+nb,m), IR(k,k+nb) );
 
-            View( x1, x, IR(0,1), IR(k,k+nb) );
+            View( x1, x, ALL, IR(k,k+nb) );
 
-            View( z1_STAR_MC, z_STAR_MC, IR(0,1), IR(k,k+nb) );
-            View( z2_STAR_MC, z_STAR_MC, IR(0,1), IR(k+nb,m) );
+            View( z1_STAR_MC, z_STAR_MC, ALL, IR(k,k+nb) );
+            View( z2_STAR_MC, z_STAR_MC, ALL, IR(k+nb,m) );
 
             if( k != 0 )
             {

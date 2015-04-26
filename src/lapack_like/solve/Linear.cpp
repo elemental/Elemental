@@ -40,22 +40,20 @@ RowEchelon( Matrix<F>& A, Matrix<F>& B )
     const Int mA = A.Height();
     const Int nA = A.Width();
     const Int minDimA = Min(mA,nA);
-    const Int nB = B.Width();
     const Int bsize = Blocksize();
     for( Int k=0; k<minDimA; k+=bsize )
     {
         const Int nb = Min(bsize,minDimA-k);
-        const Range<Int> ind1( k, k+nb ),
-                         indB( k, mA   ),
-                         ind2Vert( k+nb, mA ), ind2Horz( k+nb, nA );
-        auto A11 = A( ind1,     ind1     );
-        auto A12 = A( ind1,     ind2Horz );
-        auto A21 = A( ind2Vert, ind1     );
-        auto A22 = A( ind2Vert, ind2Horz ); 
-        auto AB2 = A( indB,     ind2Horz );
-        auto B1  = B( ind1,     IR(0,nB)    );
-        auto B2  = B( ind2Vert, IR(0,nB)    );
-        auto BB  = B( indB,     IR(0,nB)    );
+        const Range<Int> ind1( k, k+nb ), ind2( k+nb, END ),
+                         indB( k, mA   );
+        auto A11 = A( ind1, ind1 );
+        auto A12 = A( ind1, ind2 );
+        auto A21 = A( ind2, ind1 );
+        auto A22 = A( ind2, ind2 ); 
+        auto AB2 = A( indB, ind2 );
+        auto B1  = B( ind1, ALL );
+        auto B2  = B( ind2, ALL );
+        auto BB  = B( indB, ALL );
 
         lu::Panel( AB2, p1Piv );
         PivotsToPartialPermutation( p1Piv, p1, p1Inv ); 
@@ -83,7 +81,6 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
     const Int mA = A.Height();
     const Int nA = A.Width();
     const Int minDimA = Min(mA,nA);
-    const Int nB = B.Width();
     const Int bsize = Blocksize();
     const Grid& g = A.Grid();
 
@@ -102,17 +99,15 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
     for( Int k=0; k<minDimA; k+=bsize )
     {
         const Int nb = Min(bsize,minDimA-k);
-        const Range<Int> ind1( k, k+nb ),
-                         indB( k, mA   ),
-                         ind2Vert( k+nb, mA ), ind2Horz( k+nb, nA );
-        auto A11 = A( ind1,     ind1     );
-        auto A12 = A( ind1,     ind2Horz );
-        auto A21 = A( ind2Vert, ind1     );
-        auto A22 = A( ind2Vert, ind2Horz ); 
-        auto AB2 = A( indB,     ind2Horz );
-        auto B1  = B( ind1,     IR(0,nB)    );
-        auto B2  = B( ind2Vert, IR(0,nB)    );
-        auto BB  = B( indB,     IR(0,nB)    );
+        const Range<Int> ind1( k, k+nb ), ind2( k+nb, END ), indB( k, END );
+        auto A11 = A( ind1, ind1 );
+        auto A12 = A( ind1, ind2 );
+        auto A21 = A( ind2, ind1 );
+        auto A22 = A( ind2, ind2 ); 
+        auto AB2 = A( indB, ind2 );
+        auto B1  = B( ind1, ALL  );
+        auto B2  = B( ind2, ALL  );
+        auto BB  = B( indB, ALL  );
 
         A11_STAR_STAR = A11;
         A21_MC_STAR.AlignWith( A22 );

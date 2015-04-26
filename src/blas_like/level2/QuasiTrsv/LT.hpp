@@ -122,8 +122,6 @@ LT
     if( conjugate )
         Conjugate( x );
 
-    const Range<Int> outerInd( 0, 1 );
-
     Matrix<F> x0, x1;
     const Int m = L.Height();
     const Int bsize = Blocksize();
@@ -134,22 +132,20 @@ LT
         const bool in2x2 = ( k>0 && L.Get(k-1,k) != F(0) );
         if( in2x2 )
             --k;
-
-        const Range<Int> ind0( 0, k    );
-        const Range<Int> ind1( k, kOld );
+        const IR ind0( 0, k ), ind1( k, kOld );
 
         auto L10 = LockedView( L, ind1, ind0 );
         auto L11 = LockedView( L, ind1, ind1 );
 
         if( vert )
         {
-            x0 = View( x, ind0, outerInd );
-            x1 = View( x, ind1, outerInd );
+            x0 = View( x, ind0, ALL );
+            x1 = View( x, ind1, ALL );
         }
         else
         {
-            x0 = View( x, outerInd, ind0 );
-            x1 = View( x, outerInd, ind1 );
+            x0 = View( x, ALL, ind0 );
+            x1 = View( x, ALL, ind1 );
         }
 
         quasitrsv::LTUnb( TRANSPOSE, L11, x1, checkIfSingular );
@@ -196,8 +192,6 @@ LT
     auto LPtr = ReadProxy<F,MC,MR>( &LPre );      auto& L = *LPtr;
     auto xPtr = ReadWriteProxy<F,MC,MR>( &xPre ); auto& x = *xPtr;
 
-    const Range<Int> outerInd( 0, 1 );
-
     // Matrix views 
     DistMatrix<F> L10(g), L11(g), x1(g);
 
@@ -221,17 +215,15 @@ LT
             const bool in2x2 = ( k>0 && L.Get(k-1,k) != F(0) );
             if( in2x2 )
                 --k;
-
-            const Range<Int> ind0( 0, k    );
-            const Range<Int> ind1( k, kOld );
+            const IR ind0( 0, k ), ind1( k, kOld );
 
             LockedView( L10, L, ind1, ind0 );
             LockedView( L11, L, ind1, ind1 );
 
-            View( x1, x, ind1, outerInd );
+            View( x1, x, ind1, ALL );
 
-            View( z0_MC_STAR, z_MC_STAR, ind0, outerInd );
-            View( z1_MC_STAR, z_MC_STAR, ind1, outerInd );
+            View( z0_MC_STAR, z_MC_STAR, ind0, ALL );
+            View( z1_MC_STAR, z_MC_STAR, ind1, ALL );
 
             if( kOld != m )
                 AxpyContract( F(1), z1_MC_STAR, x1 );
@@ -272,17 +264,15 @@ LT
             const bool in2x2 = ( k>0 && L.Get(k-1,k) != F(0) );
             if( in2x2 )
                 --k;
-
-            const Range<Int> ind0( 0, k    );
-            const Range<Int> ind1( k, kOld );
+            const IR ind0( 0, k ), ind1( k, kOld );
 
             LockedView( L10, L, ind1, ind0 );
             LockedView( L11, L, ind1, ind1 );
 
-            View( x1, x, outerInd, ind1 );
+            View( x1, x, ALL, ind1 );
 
-            View( z0_STAR_MC, z_STAR_MC, outerInd, ind0 );
-            View( z1_STAR_MC, z_STAR_MC, outerInd, ind1 );
+            View( z0_STAR_MC, z_STAR_MC, ALL, ind0 );
+            View( z1_STAR_MC, z_STAR_MC, ALL, ind1 );
 
             if( kOld != m )
             {

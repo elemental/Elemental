@@ -65,8 +65,8 @@ void IPM
 
     // x := u - v
     // ==========
-    x = xHat( uInd, IR(0,1) );
-    Axpy( Real(-1), xHat(vInd,IR(0,1)), x );
+    x = xHat( uInd, ALL );
+    Axpy( Real(-1), xHat(vInd,ALL), x );
 }
 
 template<typename Real>
@@ -101,8 +101,8 @@ void IPM
 
     // x := u - v
     // ==========
-    Copy( xHat( uInd, IR(0,1) ), x );
-    Axpy( Real(-1), xHat(vInd,IR(0,1)), x );
+    Copy( xHat( uInd, ALL ), x );
+    Axpy( Real(-1), xHat(vInd,ALL), x );
 }
 
 template<typename Real>
@@ -141,8 +141,8 @@ void IPM
 
     // x := u - v
     // ==========
-    x = xHat( uInd, IR(0,1) );
-    Axpy( Real(-1), xHat(vInd,IR(0,1)), x );
+    x = xHat( uInd, ALL );
+    Axpy( Real(-1), xHat(vInd,ALL), x );
 }
 
 template<typename Real>

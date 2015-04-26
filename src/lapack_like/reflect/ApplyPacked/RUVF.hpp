@@ -41,7 +41,6 @@ RUVF
         if( A.Width() != H.Height() )
             LogicError("A's width must match H's height");
     )
-    const Int mA = A.Height();
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
         if( t.Height() != diagLength )
@@ -60,8 +59,8 @@ RUVF
         const Int kj = k+jOff;
 
         auto HPan  = H( IR(0,ki+nb), IR(0,kj+nb) );
-        auto ALeft = A( IR(0,mA),    IR(0,ki+nb) );
-        auto t1    = t( IR(k,k+nb),  IR(0,1)     );
+        auto ALeft = A( ALL,         IR(0,ki+nb) );
+        auto t1    = t( IR(k,k+nb),  ALL         );
 
         HPanCopy = HPan;
         MakeTrapezoidal( UPPER, HPanCopy, HPanCopy.Width()-HPanCopy.Height() );
@@ -94,7 +93,6 @@ RUVF
     auto tPtr = ReadProxy<F,MC,STAR>( &tPre );    auto& t = *tPtr;
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
 
-    const Int mA = A.Height();
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
         if( t.Height() != diagLength )
@@ -120,8 +118,8 @@ RUVF
         const Int kj = k+jOff;
 
         auto HPan  = H( IR(0,ki+nb), IR(kj,kj+nb) );
-        auto ALeft = A( IR(0,mA),    IR(0,ki+nb)  ); 
-        auto t1    = t( IR(k,k+nb),  IR(0,1)      );
+        auto ALeft = A( ALL,         IR(0,ki+nb)  ); 
+        auto t1    = t( IR(k,k+nb),  ALL          );
 
         HPanCopy = HPan;
         MakeTrapezoidal( UPPER, HPanCopy, HPanCopy.Width()-HPanCopy.Height() );

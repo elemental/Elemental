@@ -34,7 +34,6 @@ inline void ProcessFrontVanilla( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate )
       if( AL.Height() != AL.Width() + ABR.Width() )
           LogicError("AL and ABR don't have conformal dimensions");
     )
-    const Int m = AL.Height();
     const Int n = AL.Width();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
@@ -48,11 +47,10 @@ inline void ProcessFrontVanilla( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        const Range<Int> ind1( k, k+nb ), 
-                         ind2Vert( k+nb, m ), ind2Horz( k+nb, n );
-        auto AL11 = AL( ind1,     ind1     );
-        auto AL21 = AL( ind2Vert, ind1     );
-        auto AL22 = AL( ind2Vert, ind2Horz );
+        const Range<Int> ind1( k, k+nb ), ind2( k+nb, END );
+        auto AL11 = AL( ind1, ind1 );
+        auto AL21 = AL( ind2, ind1 );
+        auto AL22 = AL( ind2, ind2 );
 
         LDL( AL11, conjugate );
         GetDiagonal( AL11, d1 );
@@ -184,7 +182,6 @@ inline void ProcessFrontVanilla
           LogicError("AL and ABR must have compatible row alignments");
     )
     const Grid& g = AL.Grid();
-    const Int m = AL.Height();
     const Int n = AL.Width();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
@@ -203,11 +200,10 @@ inline void ProcessFrontVanilla
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        const Range<Int> ind1( k, k+nb ),
-                         ind2Vert( k+nb, m ), ind2Horz( k+nb, n );
-        auto AL11 = AL( ind1,     ind1     );
-        auto AL21 = AL( ind2Vert, ind1     );
-        auto AL22 = AL( ind2Vert, ind2Horz );
+        const Range<Int> ind1( k, k+nb ), ind2( k+nb, END );
+        auto AL11 = AL( ind1, ind1 );
+        auto AL21 = AL( ind2, ind1 );
+        auto AL22 = AL( ind2, ind2 );
 
         AL11_STAR_STAR = AL11; 
         LocalLDL( AL11_STAR_STAR, conjugate );

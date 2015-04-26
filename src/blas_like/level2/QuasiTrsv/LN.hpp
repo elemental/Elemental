@@ -113,8 +113,6 @@ LN( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
     )
     const bool vert = ( x.Width()==1 );
 
-    const Range<Int> outerInd( 0, 1 );
-
     Matrix<F> x1, x2;
     const Int m = L.Height();
     const Int bsize = Blocksize();
@@ -124,22 +122,20 @@ LN( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
         const Int nbProp = Min(bsize,m-k);
         const bool in2x2 = ( k+nbProp<m && L.Get(k+nbProp-1,k+nbProp) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
-
-        const Range<Int> ind1( k,    k+nb );
-        const Range<Int> ind2( k+nb, m    );
+        const IR ind1( k, k+nb ), ind2( k+nb, END );
 
         auto L11 = LockedView( L, ind1, ind1 );
         auto L21 = LockedView( L, ind2, ind1 );
 
         if( vert )
         {
-            x1 = View( x, ind1, outerInd );
-            x2 = View( x, ind2, outerInd );
+            x1 = View( x, ind1, ALL );
+            x2 = View( x, ind2, ALL );
         }
         else
         {
-            x1 = View( x, outerInd, ind1 );
-            x2 = View( x, outerInd, ind2 );
+            x1 = View( x, ALL, ind1 );
+            x2 = View( x, ALL, ind2 );
         }
 
         quasitrsv::LNUnb( L11, x1, checkIfSingular );
@@ -236,8 +232,6 @@ LN
         z_STAR_MC.AlignWith( L );
         Zeros( z_STAR_MC, 1, m );
 
-        const Range<Int> outerInd( 0, 1 );
-
         Int k=0;
         while( k < m )
         {
@@ -245,17 +239,15 @@ LN
             const bool in2x2 = 
                 ( k+nbProp<m && L.Get(k+nbProp-1,k+nbProp) != F(0) );
             const Int nb = ( in2x2 ? nbProp+1 : nbProp );
-
-            const Range<Int> ind1( k,    k+nb );
-            const Range<Int> ind2( k+nb, m    );
+            const IR ind1( k, k+nb ), ind2( k+nb, END );
 
             LockedView( L11, L, ind1, ind1 );
             LockedView( L21, L, ind2, ind1 );
 
-            View( x1, x, outerInd, ind1 );
+            View( x1, x, ALL, ind1 );
 
-            View( z1_STAR_MC, z_STAR_MC, outerInd, ind1 );
-            View( z2_STAR_MC, z_STAR_MC, outerInd, ind2 );
+            View( z1_STAR_MC, z_STAR_MC, ALL, ind1 );
+            View( z2_STAR_MC, z_STAR_MC, ALL, ind2 );
 
             if( k != 0 )
             {

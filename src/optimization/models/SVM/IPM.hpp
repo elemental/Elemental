@@ -49,7 +49,7 @@ void IPM
     // c := [0;0;lambda]
     // =================
     Zeros( c, n+m+1, 1 );
-    auto cz = c( zInd, IR(0,1) );
+    auto cz = c( zInd, ALL );
     Fill( cz, lambda );
 
     // AHat = []
@@ -76,7 +76,7 @@ void IPM
     // h := [-ones(m,1); zeros(m,1)]
     // =============================
     Zeros( h, 2*m, 1 );
-    auto h0 = h( IR(0,m), IR(0,1) );
+    auto h0 = h( IR(0,m), ALL );
     Fill( h0, Real(-1) );
     
     // Solve the affine QP
@@ -110,7 +110,7 @@ void IPM
     // c := [0;0;lambda]
     // ================
     Zeros( c, n+m+1, 1 );
-    auto cz = c( zInd, IR(0,1) );
+    auto cz = c( zInd, ALL );
     Fill( cz, lambda );
 
     // AHat = []
@@ -137,7 +137,7 @@ void IPM
     // h := [-ones(m,1); zeros(m,1)]
     // =============================
     Zeros( h, 2*m, 1 );
-    auto h0 = h( IR(0,m), IR(0,1) );
+    auto h0 = h( IR(0,m), ALL );
     Fill( h0, Real(-1) );
 
     // Solve the affine QP
@@ -173,7 +173,7 @@ void IPM
     // c := [0;0;lambda]
     // =================
     Zeros( c, n+m+1, 1 );
-    auto cz = c( zInd, IR(0,1) );
+    auto cz = c( zInd, ALL );
     Fill( cz, lambda );
 
     // AHat = []
@@ -204,7 +204,7 @@ void IPM
     // h := [-ones(m,1); zeros(m,1)]
     // =============================
     Zeros( h, 2*m, 1 );
-    auto h0 = h( IR(0,m), IR(0,1) );
+    auto h0 = h( IR(0,m), ALL );
     Fill( h0, Real(-1) );
     
     // Solve the affine QP

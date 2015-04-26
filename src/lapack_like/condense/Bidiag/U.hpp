@@ -41,26 +41,25 @@ inline void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
     {
         const Int nb = Min(bsize,n-k);
 
-        const Range<Int> ind1( k, k+nb ),
-                         indB( k, m    ), indR( k, n ),
-                         ind2Vert( k+nb, m ), ind2Horz( k+nb, n );
+        const Range<Int> ind1( k, k+nb ), ind2( k+nb, END ),
+                         indB( k, m    ), indR( k, END );
 
-        auto ABR = A( indB,     indR     );
-        auto A22 = A( ind2Vert, ind2Horz );
+        auto ABR = A( indB, indR );
+        auto A22 = A( ind2, ind2 );
 
-        auto tQ1 = tQ( ind1, IR(0,1) );
+        auto tQ1 = tQ( ind1, ALL );
 
         if( A22.Width() > 0 )
         {
-            auto tP1 = tP( ind1, IR(0,1) );
+            auto tP1 = tP( ind1, ALL );
             X.Resize( m-k, nb  );
             Y.Resize( nb,  n-k );
             bidiag::UPan( ABR, tP1, tQ1, X, Y );
 
-            auto A12 = A( ind1,     ind2Horz );
-            auto A21 = A( ind2Vert, ind1     );
-            auto X21 = X( IR(nb,m-k), IR(0,nb)   );
-            auto Y12 = Y( IR(0,nb),   IR(nb,n-k) );
+            auto A12 = A( ind1, ind2 );
+            auto A21 = A( ind2, ind1 );
+            auto X21 = X( IR(nb,END), ALL        );
+            auto Y12 = Y( ALL,        IR(nb,END) );
 
             // Set bottom-left entry of A12 to 1
             const F epsilon = A12.Get(nb-1,0);
@@ -76,7 +75,7 @@ inline void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
         }
         else
         {
-            auto tP1 = tP( IR(k,k+nb-1), IR(0,1) );
+            auto tP1 = tP( IR(k,k+nb-1), ALL );
             bidiag::UUnb( ABR, tP1, tQ1 );
         }
     }
@@ -124,14 +123,13 @@ U
     {
         const Int nb = Min(bsize,n-k);
 
-        const Range<Int> ind1( k, k+nb ),
-                         indB( k, m    ), indR( k, n ),
-                         ind2Vert( k+nb, m ), ind2Horz( k+nb, n );
+        const Range<Int> ind1( k, k+nb ), ind2( k+nb, END ),
+                         indB( k, END  ), indR( k, END );
 
-        auto A22 = A( ind2Vert, ind2Horz );
-        auto ABR = A( indB,     indR     );
+        auto A22 = A( ind2, ind2 );
+        auto ABR = A( indB, indR );
 
-        auto tQ1 = tQ( ind1, IR(0,1) );
+        auto tQ1 = tQ( ind1, ALL );
 
         if( A22.Width() > 0 )
         {
@@ -145,18 +143,18 @@ U
             AB1_MC_STAR.Resize( m-k, nb  );
             A1R_STAR_MR.Resize( nb,  n-k );
 
-            auto tP1 = tP( ind1, IR(0,1) );
+            auto tP1 = tP( ind1, ALL );
             bidiag::UPan( ABR, tP1, tQ1, X, Y, AB1_MC_STAR, A1R_STAR_MR );
 
-            auto X21 = X( IR(nb,m-k), IR(0,nb)   );
-            auto Y12 = Y( IR(0,nb),   IR(nb,n-k) );
+            auto X21 = X( IR(nb,END), ALL        );
+            auto Y12 = Y( ALL,        IR(nb,END) );
             X21_MC_STAR.AlignWith( A22 );
             Y12Adj_MR_STAR.AlignWith( A22 );
             X21_MC_STAR = X21;
             Adjoint( Y12, Y12Adj_MR_STAR );
 
-            auto A21_MC_STAR = AB1_MC_STAR( IR(nb,m-k), IR(0,nb)   );
-            auto A12_STAR_MR = A1R_STAR_MR( IR(0,nb),   IR(nb,n-k) );
+            auto A21_MC_STAR = AB1_MC_STAR( IR(nb,END), ALL        );
+            auto A12_STAR_MR = A1R_STAR_MR( ALL,        IR(nb,END) );
 
             LocalGemm
             ( NORMAL, ADJOINT, F(-1), A21_MC_STAR, Y12Adj_MR_STAR, F(1), A22 );
@@ -166,7 +164,7 @@ U
         }
         else
         {
-            auto tP1 = tP( IR(k,k+nb-1), IR(0,1) );
+            auto tP1 = tP( IR(k,k+nb-1), ALL );
             bidiag::UUnb( ABR, tP1, tQ1 );
         }
     }

@@ -165,7 +165,7 @@ void LUMod
 
     // Add the modified w v' into U
     {
-        auto a0 = A( IR(0,1), IR(0,n) );
+        auto a0 = A( IR(0), ALL );
         const F omega_0 = w.Get( 0, 0 ); 
         Matrix<F> vTrans;
         Transpose( v, vTrans, conjugate );
@@ -420,7 +420,7 @@ void LUMod
 
     // Add the modified w v' into U
     {
-        auto a0 = A( IR(0,1), IR(0,n) );
+        auto a0 = A( IR(0), ALL );
         const F omega_0 = w.Get( 0, 0 ); 
         DistMatrix<F> vTrans(g);
         vTrans.AlignWith( a0 );

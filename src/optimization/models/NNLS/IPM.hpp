@@ -48,8 +48,8 @@ void IPM
     Matrix<Real> y, z;
     for( Int j=0; j<k; ++j )
     {
-        auto x = X( IR(0,n), IR(j,j+1) );
-        auto b = B( IR(0,m), IR(j,j+1) );
+        auto x = X( ALL, IR(j) );
+        auto b = B( ALL, IR(j) );
 
         Zeros( c, n, 1 );
         Gemv( ADJOINT, Real(-1), A, b, Real(0), c );
@@ -86,8 +86,8 @@ void IPM
     DistMatrix<Real> y(g), z(g);
     for( Int j=0; j<k; ++j )
     {
-        auto x = X( IR(0,n), IR(j,j+1) );
-        auto b = B( IR(0,m), IR(j,j+1) );
+        auto x = X( ALL, IR(j) );
+        auto b = B( ALL, IR(j) );
 
         Zeros( c, n, 1 );
         Gemv( ADJOINT, Real(-1), A, b, Real(0), c );
@@ -121,8 +121,8 @@ void IPM
     Matrix<Real> y, z;
     for( Int j=0; j<k; ++j )
     {
-        auto x = X( IR(0,n), IR(j,j+1) );
-        auto b = B( IR(0,m), IR(j,j+1) );
+        auto x = X( ALL, IR(j) );
+        auto b = B( ALL, IR(j) );
 
         Zeros( c, n, 1 );
         Multiply( ADJOINT, Real(-1), A, b, Real(0), c );
@@ -160,8 +160,8 @@ void IPM
     auto& BLoc = B.LockedMatrix();
     for( Int j=0; j<k; ++j )
     {
-        auto xLoc = XLoc( IR(0,XLoc.Height()), IR(j,j+1) );
-        auto bLoc = BLoc( IR(0,BLoc.Height()), IR(j,j+1) );
+        auto xLoc = XLoc( ALL, IR(j) );
+        auto bLoc = BLoc( ALL, IR(j) );
 
         Zeros( c, n, 1 );
         Zeros( q, m, 1 );

@@ -81,13 +81,13 @@ LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
         ( HPan, HPanT,
                 HPanB, newEffectedWidth /* to match ZNew */ );
 
-        auto HEffected = H( IR(m-effectedHeight,m), IR(n-effectedWidth,n) );
+        auto HEffected = H( IR(m-effectedHeight,END), IR(n-effectedWidth,END) );
         PartitionLeft
         ( HEffected, HEffectedNew, HEffectedOld, oldEffectedWidth );
         PartitionUp
         ( HEffectedOld, HEffectedOldT, HEffectedOldB, oldEffectedHeight );
 
-        auto t1 = t( IR(k-tOff,k-tOff+HPanWidth), IR(0,1) );
+        auto t1 = t( IR(k-tOff,k-tOff+HPanWidth), ALL );
 
         Z.Resize( HPanWidth, effectedWidth );
         PartitionLeft( Z, ZNew, ZOld, oldEffectedWidth );
@@ -109,7 +109,7 @@ LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
 
     // Take care of any untouched columns on the left side of H
     const Int oldEffectedWidth = oldEffectedHeight - mRem;
-    HEffectedNew = H( IR(0,m), IR(0,n-oldEffectedWidth) );
+    HEffectedNew = H( ALL, IR(0,n-oldEffectedWidth) );
     MakeIdentity( HEffectedNew );
 }
 
@@ -182,7 +182,7 @@ LV
         ( HEffectedOld, HEffectedOldT,
                         HEffectedOldB, oldEffectedHeight );
 
-        auto t1 = t( IR(k-tOff,k-tOff+HPanWidth), IR(0,1) );
+        auto t1 = t( IR(k-tOff,k-tOff+HPanWidth), ALL );
 
         Z_STAR_MR.AlignWith( HEffected );
         Z_STAR_MR.Resize( HPanWidth, effectedWidth );
@@ -231,7 +231,7 @@ LV
 
     // Take care of any untouched columns on the left side of H
     const Int oldEffectedWidth = oldEffectedHeight - mRem;
-    HEffectedNew = H( IR(0,m), IR(0,n-oldEffectedWidth) );
+    HEffectedNew = H( ALL, IR(0,n-oldEffectedWidth) );
     MakeIdentity( HEffectedNew );
 }
 

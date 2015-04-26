@@ -41,7 +41,6 @@ LUHB
         if( H.Width() != A.Height() )
             LogicError("H's width and A's height must match");
     )
-    const Int nA = A.Width();
     const Int nH = H.Width(); 
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
@@ -62,8 +61,8 @@ LUHB
         const Int kj = k+jOff;
 
         auto HPan = H( IR(ki,ki+nb), IR(kj,nH) );
-        auto ABot = A( IR(kj,nH),    IR(0,nA)  );
-        auto t1   = t( IR(k,k+nb),   IR(0,1)   );
+        auto ABot = A( IR(kj,nH),    ALL       );
+        auto t1   = t( IR(k,k+nb),   ALL       );
 
         Conjugate( HPan, HPanConj );
         MakeTrapezoidal( UPPER, HPanConj );
@@ -94,7 +93,6 @@ LUHB
     auto tPtr = ReadProxy<F,MC,STAR>( &tPre );    auto& t = *tPtr;
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
 
-    const Int nA = A.Width();
     const Int nH = H.Width();
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
@@ -122,8 +120,8 @@ LUHB
         const Int kj = k+jOff;
 
         auto HPan = H( IR(ki,ki+nb), IR(kj,nH) );
-        auto ABot = A( IR(kj,nH),    IR(0,nA)  );
-        auto t1   = t( IR(k,k+nb),   IR(0,1)   );
+        auto ABot = A( IR(kj,nH),    ALL       );
+        auto t1   = t( IR(k,k+nb),   ALL       );
 
         Conjugate( HPan, HPanConj );
         MakeTrapezoidal( UPPER, HPanConj );

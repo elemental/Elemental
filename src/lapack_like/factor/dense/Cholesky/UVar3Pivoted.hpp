@@ -127,8 +127,7 @@ UPanelPivoted
   Matrix<F>& X, Matrix<F>& Y, Int bsize, Int off )
 {
     DEBUG_ONLY(CallStackEntry cse("cholesky::UPanelPivoted"))
-    const Int nFull = AFull.Height();
-    auto A = AFull( IR(off,nFull), IR(off,nFull) );
+    auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
     DEBUG_ONLY(
         if( A.Width() != n )
@@ -191,8 +190,7 @@ UPanelPivoted
   DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off )
 {
     DEBUG_ONLY(CallStackEntry cse("cholesky::UPanelPivoted"))
-    const Int nFull = AFull.Height();
-    auto A = AFull( IR(off,nFull), IR(off,nFull) );
+    auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
     DEBUG_ONLY(
         if( A.Width() != n )
@@ -275,7 +273,7 @@ UVar3( Matrix<F>& A, Matrix<Int>& p )
 
         const Range<Int> indB( k, n ),
                          indR( k, n );
-        auto pB = p( indB, IR(0,1) );
+        auto pB = p( indB, ALL );
         UPanelPivoted( A, pB, XB1, YB1, nb, k );
 
         // Update the bottom-right panel
@@ -318,7 +316,7 @@ UVar3( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
 
         const Range<Int> indB( k, n ),
                          indR( k, n );
-        auto pB = p( indB, IR(0,1) );
+        auto pB = p( indB, ALL );
         UPanelPivoted( A, pB, XB1, YB1, nb, k );
 
         // Update the bottom-right panel

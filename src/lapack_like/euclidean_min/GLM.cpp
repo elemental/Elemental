@@ -241,7 +241,7 @@ void GLM
     Matrix<F> G;
     Zeros( G, m+n+k, numRHS );
     {
-        auto Gz = G( IR(0,m), IR(0,numRHS) );
+        auto Gz = G( IR(0,m), ALL );
         // Use X as a temporary
         X = D;
         Scale( F(1)/ctrl.alpha, X );
@@ -298,7 +298,7 @@ void GLM
     Zeros( u, m+n+k, 1 );
     for( Int j=0; j<numRHS; ++j )
     {
-        auto g = G( IR(0,m+n+k), IR(j,j+1) );
+        auto g = G( ALL, IR(j) );
         u = g;
         reg_qsd_ldl::SolveAfter
         ( JOrig, reg, invMap, info, JFront, u, ctrl.qsdCtrl );
@@ -309,8 +309,8 @@ void GLM
     // ================================================
     // Well, actually, the solution has been equilibrated, but the division
     // by alpha commutes.
-    X = G( IR(m,m+n),     IR(0,numRHS) );
-    Y = G( IR(m+n,m+n+k), IR(0,numRHS) );
+    X = G( IR(m,m+n),     ALL );
+    Y = G( IR(m+n,m+n+k), ALL );
     Scale( ctrl.alpha, X );
     Scale( ctrl.alpha, Y );
 }
@@ -485,10 +485,9 @@ void GLM
     Zeros( u, m+n+k, 1 );
     auto& GLoc = G.Matrix();
     auto& uLoc = u.Matrix();
-    const Int GLocHeight = GLoc.Height();
     for( Int j=0; j<numRHS; ++j )
     {
-        auto gLoc = GLoc( IR(0,GLocHeight), IR(j,j+1) );
+        auto gLoc = GLoc( ALL, IR(j) );
         Copy( gLoc, uLoc );
         reg_qsd_ldl::SolveAfter
         ( JOrig, reg, invMap, info, JFront, u, ctrl.qsdCtrl );
@@ -499,8 +498,8 @@ void GLM
     // ================================================
     // Well, actually, the solution has been equilibrated, but the division
     // by alpha commutes.
-    X = G( IR(m,m+n),     IR(0,numRHS) );
-    Y = G( IR(m+n,m+n+k), IR(0,numRHS) );
+    X = G( IR(m,m+n),     ALL );
+    Y = G( IR(m+n,m+n+k), ALL );
     Scale( ctrl.alpha, X );
     Scale( ctrl.alpha, Y );
 }

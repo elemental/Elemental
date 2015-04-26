@@ -107,8 +107,6 @@ UN( const Matrix<F>& U, Matrix<F>& x, bool checkIfSingular=false )
     )
     const bool vert = ( x.Width()==1 );
 
-    const Range<Int> outerInd( 0, 1 );
-
     Matrix<F> x0, x1;
     const Int m = U.Height();
     const Int bsize = Blocksize();
@@ -119,9 +117,7 @@ UN( const Matrix<F>& U, Matrix<F>& x, bool checkIfSingular=false )
         const bool in2x2 = ( k>0 && U.Get(k,k-1) != F(0) );
         if( in2x2 )
             --k;
-
-        const Range<Int> ind0( 0, k    );
-        const Range<Int> ind1( k, kOld );
+        const IR ind0( 0, k ), ind1( k, kOld );
 
         auto U01 = LockedView( U, ind0, ind1 );
         auto U11 = LockedView( U, ind1, ind1 );
@@ -179,8 +175,6 @@ UN
     // Temporary distributions
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g), x1_STAR_STAR(g);
 
-    const Range<Int> outerInd( 0, 1 );
-
     if( x.Width() == 1 )
     {
         DistMatrix<F,MR,STAR> x1_MR_STAR(g);
@@ -198,17 +192,15 @@ UN
             const bool in2x2 = ( k>0 && U.Get(k,k-1) != F(0) );
             if( in2x2 )
                 --k;
-
-            const Range<Int> ind0( 0, k    );
-            const Range<Int> ind1( k, kOld );
+            const IR ind0( 0, k ), ind1( k, kOld );
 
             LockedView( U01, U, ind0, ind1 );
             LockedView( U11, U, ind1, ind1 );
 
-            View( x1, x, ind1, outerInd );
+            View( x1, x, ind1, ALL );
 
-            View( z0_MC_STAR, z_MC_STAR, ind0, outerInd );
-            View( z1_MC_STAR, z_MC_STAR, ind1, outerInd );
+            View( z0_MC_STAR, z_MC_STAR, ind0, ALL );
+            View( z1_MC_STAR, z_MC_STAR, ind1, ALL );
 
             if( kOld != m )
                 AxpyContract( F(1), z1_MC_STAR, x1 );
@@ -249,17 +241,15 @@ UN
             const bool in2x2 = ( k>0 && U.Get(k,k-1) != F(0) );
             if( in2x2 )
                 --k;
-
-            const Range<Int> ind0( 0, k    );
-            const Range<Int> ind1( k, kOld );
+            const IR ind0( 0, k ), ind1( k, kOld );
 
             LockedView( U01, U, ind0, ind1 );
             LockedView( U11, U, ind1, ind1 );
 
-            View( x1, x, outerInd, ind1 );
+            View( x1, x, ALL, ind1 );
 
-            View( z0_STAR_MC, z_STAR_MC, outerInd, ind0 );
-            View( z1_STAR_MC, z_STAR_MC, outerInd, ind1 );
+            View( z0_STAR_MC, z_STAR_MC, ALL, ind0 );
+            View( z1_STAR_MC, z_STAR_MC, ALL, ind1 );
 
             if( kOld != m )
             {

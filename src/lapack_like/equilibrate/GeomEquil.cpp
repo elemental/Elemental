@@ -55,7 +55,7 @@ void GeomEquil
         // Geometrically equilibrate the columns
         for( Int j=0; j<n; ++j )
         {
-            auto aCol = A( IR(0,m), IR(j,j+1) );
+            auto aCol = A( ALL, IR(j) );
             auto maxColAbs = VectorMaxAbs( aCol );
             const Real maxColAbsVal = maxColAbs.value;
             if( maxColAbsVal > Real(0) )
@@ -71,7 +71,7 @@ void GeomEquil
         // Geometrically equilibrate the rows
         for( Int i=0; i<m; ++i )
         {
-            auto aRow = A( IR(i,i+1), IR(0,n) );
+            auto aRow = A( IR(i), ALL );
             auto maxRowAbs = VectorMaxAbs( aRow );
             const Real maxRowAbsVal = maxRowAbs.value;
             if( maxRowAbsVal > Real(0) )
@@ -99,7 +99,7 @@ void GeomEquil
     // Scale each column so that its maximum entry is 1 or 0
     for( Int j=0; j<n; ++j )
     {
-        auto aCol = A( IR(0,m), IR(j,j+1) );
+        auto aCol = A( ALL, IR(j) );
         auto maxColAbs = VectorMaxAbs( aCol );
         const Real maxColAbsVal = maxColAbs.value;
         if( maxColAbsVal > Real(0) )
@@ -151,8 +151,8 @@ void StackedGeomEquil
         // Geometrically equilibrate the columns
         for( Int j=0; j<n; ++j )
         {
-            auto aCol = A( IR(0,mA), IR(j,j+1) );
-            auto bCol = B( IR(0,mB), IR(j,j+1) );
+            auto aCol = A( ALL, IR(j) );
+            auto bCol = B( ALL, IR(j) );
             auto maxColAbsA = VectorMaxAbs( aCol );
             auto maxColAbsB = VectorMaxAbs( bCol );
             const Real maxColAbsVal = Max(maxColAbsA.value,maxColAbsB.value);
@@ -172,7 +172,7 @@ void StackedGeomEquil
         // Geometrically equilibrate the rows
         for( Int i=0; i<mA; ++i )
         {
-            auto aRow = A( IR(i,i+1), IR(0,n) );
+            auto aRow = A( IR(i), ALL );
             auto maxRowAbs = VectorMaxAbs( aRow );
             const Real maxRowAbsVal = maxRowAbs.value;
             if( maxRowAbsVal > Real(0) )
@@ -186,7 +186,7 @@ void StackedGeomEquil
         }
         for( Int i=0; i<mB; ++i )
         {
-            auto bRow = B( IR(i,i+1), IR(0,n) );
+            auto bRow = B( IR(i), ALL );
             auto maxRowAbs = VectorMaxAbs( bRow );
             const Real maxRowAbsVal = maxRowAbs.value;
             if( maxRowAbsVal > Real(0) )
@@ -217,8 +217,8 @@ void StackedGeomEquil
     // Scale each column so that its maximum entry is 1 or 0
     for( Int j=0; j<n; ++j )
     {
-        auto aCol = A( IR(0,mA), IR(j,j+1) );
-        auto bCol = B( IR(0,mB), IR(j,j+1) );
+        auto aCol = A( ALL, IR(j) );
+        auto bCol = B( ALL, IR(j) );
         auto maxColAbsA = VectorMaxAbs( aCol );
         auto maxColAbsB = VectorMaxAbs( bCol );
         const Real maxColAbsVal = Max(maxColAbsA.value,maxColAbsB.value);

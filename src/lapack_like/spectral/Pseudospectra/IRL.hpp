@@ -98,11 +98,11 @@ Restart
                 for( Int k=0; k<basisSize; ++k )
                 {
                     const Matrix<Complex<Real>>& V = VList[k];
-                    auto v = V( IR(0,n), IR(j,j+1) ); 
+                    auto v = V( ALL, IR(j) ); 
                     Axpy( q.Get(k,0), v, u );
                 }
                 Matrix<Complex<Real>>& V = VList[0];
-                auto v = V( IR(0,n), IR(j,j+1) );
+                auto v = V( ALL, IR(j) );
                 v = u;
             }
         }
@@ -190,14 +190,14 @@ IRL
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );
-        auto activeShifts = pivShifts( IR(0,numActive), IR(0,1) );
-        auto activeEsts = estimates( IR(0,numActive), IR(0,1) );
-        auto activeItCounts = itCounts( IR(0,numActive), IR(0,1) );
+        auto activeShifts = pivShifts( IR(0,numActive), ALL );
+        auto activeEsts = estimates( IR(0,numActive), ALL );
+        auto activeItCounts = itCounts( IR(0,numActive), ALL );
         for( Int j=0; j<basisSize+1; ++j )
-            View( activeVList[j], VList[j], IR(0,n), IR(0,numActive) ); 
+            View( activeVList[j], VList[j], ALL, IR(0,numActive) ); 
         if( deflate )
         {
-            View( activePreimage, preimage, IR(0,numActive), IR(0,1) );
+            View( activePreimage, preimage, IR(0,numActive), ALL );
             Zeros( activeConverged, numActive, 1 );
         }
 
@@ -437,14 +437,14 @@ IRL
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );
-        auto activeShifts = pivShifts( IR(0,numActive), IR(0,1) );
-        auto activeEsts = estimates( IR(0,numActive), IR(0,1) );
-        auto activeItCounts = itCounts( IR(0,numActive), IR(0,1) );
+        auto activeShifts = pivShifts( IR(0,numActive), ALL );
+        auto activeEsts = estimates( IR(0,numActive), ALL );
+        auto activeItCounts = itCounts( IR(0,numActive), ALL );
         for( Int j=0; j<basisSize+1; ++j )
-            View( activeVList[j], VList[j], IR(0,n), IR(0,numActive) ); 
+            View( activeVList[j], VList[j], ALL, IR(0,numActive) ); 
         if( deflate )
         {
-            View( activePreimage, preimage, IR(0,numActive), IR(0,1) );
+            View( activePreimage, preimage, IR(0,numActive), ALL );
             Zeros( activeConverged, numActive, 1 );
         }
 

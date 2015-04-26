@@ -29,24 +29,20 @@ LUpdate( Matrix<F>& L, Matrix<F>& V )
             LogicError("V is the wrong height");
     )
     const Int m = V.Height();
-    const Int n = V.Width();
 
     Matrix<F> z21;
-
-    const Range<Int> outerInd( 0, n );
 
     F* LBuf = L.Buffer();
     const Int ldl = L.LDim();
     for( Int k=0; k<m; ++k )
     {
-        const Range<Int> ind1( k,   k+1 ),
-                         ind2( k+1, m   );
+        const IR ind1( k ), ind2( k+1, END );
 
         F& lambda11 = LBuf[k+k*ldl];
         auto l21 = L( ind2, ind1 );
 
-        auto v1 = V( ind1, outerInd );
-        auto V2 = V( ind2, outerInd );
+        auto v1 = V( ind1, ALL );
+        auto V2 = V( ind2, ALL );
 
         // Find tau and u such that
         //  | lambda11 u | /I - tau | 1   | | 1 conj(u) |\ = | -beta 0 |
@@ -85,23 +81,19 @@ LUpdate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
     auto VPtr = ReadWriteProxy<F,MC,MR>( &VPre ); auto& V = *VPtr;
 
     const Int m = V.Height();
-    const Int n = V.Width();
     const Grid& g = L.Grid();
     DistMatrix<F,MC,STAR> z21_MC_STAR(g), b21_MC_STAR(g);
     DistMatrix<F,STAR,MR> v1_STAR_MR(g);
 
-    const Range<Int> outerInd( 0, n );
-
     for( Int k=0; k<m; ++k )
     {
-        const Range<Int> ind1( k,   k+1 ),
-                         ind2( k+1, m   );
+        const IR ind1( k ), ind2( k+1, END );
 
         F lambda11 = L.Get( k, k );
         auto l21 = L( ind2, ind1 );
 
-        auto v1 = V( ind1, outerInd );
-        auto V2 = V( ind2, outerInd );
+        auto v1 = V( ind1, ALL );
+        auto V2 = V( ind2, ALL );
 
         // Find tau and u such that
         //  | lambda11 u | /I - tau | 1   | | 1 conj(u) |\ = | -beta 0 |
@@ -142,24 +134,20 @@ LDowndate( Matrix<F>& L, Matrix<F>& V )
             LogicError("V is the wrong height");
     )
     const Int m = V.Height();
-    const Int n = V.Width();
 
     Matrix<F> z21;
-
-    const Range<Int> outerInd( 0, n );
 
     F* LBuf = L.Buffer();
     const Int ldl = L.LDim();
     for( Int k=0; k<m; ++k )
     {
-        const Range<Int> ind1( k,   k+1 ),
-                         ind2( k+1, m   );
+        const IR ind1( k ), ind2( k+1, END );
 
         F& lambda11 = LBuf[k+k*ldl];
         auto l21 = L( ind2, ind1 );
 
-        auto v1 = V( ind1, outerInd );
-        auto V2 = V( ind2, outerInd );
+        auto v1 = V( ind1, ALL );
+        auto V2 = V( ind2, ALL );
 
         // Find tau and u such that
         //  | lambda11 u | /I - 1/tau Sigma | 1   | | 1 conj(u) |\ = | -beta 0 |
@@ -201,23 +189,19 @@ LDowndate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
     auto VPtr = ReadWriteProxy<F,MC,MR>( &VPre ); auto& V = *VPtr;
 
     const Int m = V.Height();
-    const Int n = V.Width();
     const Grid& g = L.Grid();
     DistMatrix<F,MC,STAR> z21_MC_STAR(g), b21_MC_STAR(g);
     DistMatrix<F,STAR,MR> v1_STAR_MR(g);
 
-    const Range<Int> outerInd( 0, n );
-
     for( Int k=0; k<m; ++k )
     {
-        const Range<Int> ind1( k,   k+1 ),
-                         ind2( k+1, m   );
+        const IR ind1( k ), ind2( k+1, END );
 
         F lambda11 = L.Get( k, k );
         auto l21 = L( ind2, ind1 );
 
-        auto v1 = V( ind1, outerInd );
-        auto V2 = V( ind2, outerInd );
+        auto v1 = V( ind1, ALL );
+        auto V2 = V( ind2, ALL );
 
         // Find tau and u such that
         //  | lambda11 u | /I - 1/tau Sigma | 1   | | 1 conj(u) |\ = | -beta 0 |

@@ -42,7 +42,6 @@ LLVB
             LogicError("H and A must have the same height");
     )
     const Int m = H.Height();
-    const Int nA = A.Width();
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
         if( t.Height() != diagLength )
@@ -62,8 +61,8 @@ LLVB
         const Int kj = k+jOff;
 
         auto HPan = H( IR(ki,m),   IR(kj,kj+nb) );
-        auto ABot = A( IR(ki,m),   IR(0,nA)     );
-        auto t1   = t( IR(k,k+nb), IR(0,1)      );
+        auto ABot = A( IR(ki,m),   ALL          );
+        auto t1   = t( IR(k,k+nb), ALL          );
 
         HPanCopy = HPan;
         MakeTrapezoidal( LOWER, HPanCopy );
@@ -97,7 +96,6 @@ LLVB
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
 
     const Int m = H.Height();
-    const Int nA = A.Width();
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
         if( t.Height() != diagLength )
@@ -123,8 +121,8 @@ LLVB
         const Int kj = k+jOff;
 
         auto HPan = H( IR(ki,m),   IR(kj,kj+nb) );
-        auto ABot = A( IR(ki,m),   IR(0,nA)     );
-        auto t1   = t( IR(k,k+nb), IR(0,1)      );
+        auto ABot = A( IR(ki,m),   ALL          );
+        auto t1   = t( IR(k,k+nb), ALL          );
 
         HPanCopy = HPan;
         MakeTrapezoidal( LOWER, HPanCopy );
