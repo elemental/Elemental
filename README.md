@@ -119,7 +119,7 @@ otherwise, if METIS support is not detected, METIS is downloaded and installed.
 In addition to the C++11, C, and Python interfaces included within the project,
 two external interfaces are currently being externally developed:
 
-* [R-El](https://github.com/rconale/R-Elemental) is an [R](http://www.r-project.org) interface to Elemental developed by [Rodrigo Canales](https://github.com/rconale) and [Paolo Bientinesi](http://hpac.rwth-aachen.de/~pauldj/)
+* [R-El](https://github.com/roconale/R-Elemental) is an [R](http://www.r-project.org) interface to Elemental developed by [Rodrigo Canales](https://github.com/roconale) and [Paolo Bientinesi](http://hpac.rwth-aachen.de/~pauldj/)
 
 * [Elemental.jl](https://github.com/JuliaParallel/Elemental.jl) is an (in-progress) [Julia](http://julialang.org) interface to Elemental being developed by [Jake Bolewski](https://github.com/jakebolewski), [Jiahao Chen](https://jiahao.github.io), and [Andreas Noack](http://andreasnoack.github.io/academiccv.html).
 
