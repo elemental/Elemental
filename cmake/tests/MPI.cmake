@@ -7,12 +7,45 @@ if(NOT MPI_C_FOUND)
 endif()
 include_directories(${MPI_C_INCLUDE_PATH})
 set(EXTRA_FLAGS "${EXTRA_FLAGS} ${MPI_C_COMPILE_FLAGS}")
-set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS} ${MPI_LINK_FLAGS}")
-set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
-set(CMAKE_REQUIRED_LIBRARIES ${MPI_C_LIBRARIES})
+
+# Issue an error if a buggy version of OpenMPI is detected
+# ========================================================
+include(LibFindMacros)
+set(MPI_INCLUDE_DIR ${MPI_C_INCLUDE_PATH}) # forces this dir to be checked 1st?
+libfind_header(MPI MPI_HEADER_DIR "mpi.h")
+if(NOT MPI_HEADER_DIR)
+  message(FATAL_ERROR 
+    "Could not find mpi.h using MPI_C_INCLUDE_PATH=${MPI_C_INCLUDE_PATH}")
+endif()
+if(NOT EXISTS "${MPI_HEADER_DIR}/mpi.h")
+  message(FATAL_ERROR "mpi.h was not located within ${MPI_HEADER_DIR}")
+endif()
+file(STRINGS "${MPI_HEADER_DIR}/mpi.h" 
+  OMPI_MAJOR_VERSION REGEX 
+  "#define[\r\n\t ]+OMPI_MAJOR_VERSION[\r\n\t ]+([0-9]+)")
+if(OMPI_MAJOR_VERSION)
+ file(STRINGS "${MPI_HEADER_DIR}/mpi.h" 
+  OMPI_MINOR_VERSION REGEX 
+  "#define[\r\n\t ]+OMPI_MINOR_VERSION[\r\n\t ]+([0-9]+)")
+ file(STRINGS "${MPI_HEADER_DIR}/mpi.h" 
+  OMPI_RELEASE_VERSION REGEX 
+  "#define[\r\n\t ]+OMPI_RELEASE_VERSION[\r\n\t ]+([0-9]+)")
+  message("Detected OpenMPI ${OMPI_MAJOR_VERSION}.${OMPI_MINOR_VERSION}.${OMPI_RELEASE_VERSION}")
+  # Die if OpenMPI version is 1.8.x with x <= 3
+  if(OMPI_MAJOR_VERSION STREQUAL "1" AND OMPI_MINOR_VERSION STREQUAL "8")
+    if(OMPI_RELEASE_VERSION STREQUAL "1" OR
+       OMPI_RELEASE_VERSION STREQUAL "2" OR
+       OMPI_RELEASE_VERSION STREQUAL "3")
+      message(FATAL_ERROR "OpenMPI versions 1.8.${OMPI_RELEASE_VERSION} contains insurmountable bugs in MPI_Comm_dup and MPI_Comm_free (please upgrade to 1.8.4)")
+    endif()
+  endif()
+endif()
 
 # Ensure that we have MPI1 by looking for MPI_Reduce_scatter
 # ==========================================================
+set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS} ${MPI_LINK_FLAGS}")
+set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
+set(CMAKE_REQUIRED_LIBRARIES ${MPI_C_LIBRARIES})
 check_function_exists(MPI_Reduce_scatter EL_HAVE_MPI_REDUCE_SCATTER)
 if(NOT EL_HAVE_MPI_REDUCE_SCATTER)
   message(FATAL_ERROR "Could not find MPI_Reduce_scatter")
