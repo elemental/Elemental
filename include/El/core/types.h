@@ -40,7 +40,8 @@ typedef struct { double beg, end; } ElRange_d;
 typedef ElRange_i ElIndexRange;
 
 static const ElInt EL_END = -100;
-static const ElIndexRange EL_ALL = { 0, EL_END };
+/* NOTE: EL_END is considered a constant by C++ but not by C */
+static const ElIndexRange EL_ALL = { 0, -100 };
 
 typedef enum
 {

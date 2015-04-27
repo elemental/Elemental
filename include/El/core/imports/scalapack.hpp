@@ -12,154 +12,19 @@
 
 #ifdef EL_HAVE_SCALAPACK
 
-namespace El {
-
 // TODO: Decide which routines should be modified to use 64-bit integers if
 //       BLAS/LAPACK were modified to do so...
+#include "./scalapack/blacs.hpp"
+#include "./scalapack/pblas.hpp"
 
-namespace blacs {
-
-int Handle( MPI_Comm comm );
-int GridInit( int bhandle, bool colMajor, int gridHeight, int gridWidth );
-int GridHeight( int context );
-int GridWidth( int context );
-int GridRow( int context );
-int GridCol( int context );
-void FreeHandle( int bhandle );
-void FreeGrid( int context );
-void Exit( bool finished=false );
-
-typedef typename std::array<int,9> Desc;
-
-} // namespace blacs
-
+namespace El {
 namespace scalapack {
-
-// NOTE: The vast majority of these routines are for benchmarking purposes,
-//       but the Hessenberg QR algorithm is actively used by Elemental's
-//       Pseudospectrum routine.
-
-// BLAS 2
-// ======
-
-// Gemv
-// ----
-void Gemv
-( char trans, int m, int n, 
-  float alpha, const float* A, const int* descA, 
-               const float* x, const int* descx, int incx, 
-  float beta,        float* y, const int* descy, int incy );
-void Gemv
-( char trans, int m, int n, 
-  double alpha, const double* A, const int* descA, 
-                const double* x, const int* descx, int incx, 
-  double beta,        double* y, const int* descy, int incy );
-void Gemv
-( char trans, int m, int n, 
-  scomplex alpha, const scomplex* A, const int* descA, 
-                  const scomplex* x, const int* descx, int incx, 
-  scomplex beta,        scomplex* y, const int* descy, int incy );
-void Gemv
-( char trans, int m, int n, 
-  dcomplex alpha, const dcomplex* A, const int* descA, 
-                  const dcomplex* x, const int* descx, int incx, 
-  dcomplex beta,        dcomplex* y, const int* descy, int incy );
-
-// Hemv
-// ----
-void Hemv
-( char uplo, int n,
-  scomplex alpha, const scomplex* A, const int* descA, 
-                  const scomplex* x, const int* descx, int incx,
-  scomplex beta,        scomplex* y, const int* descy, int incy );
-void Hemv
-( char uplo, int n,
-  dcomplex alpha, const dcomplex* A, const int* descA, 
-                  const dcomplex* x, const int* descx, int incx,
-  dcomplex beta,        dcomplex* y, const int* descy, int incy );
-
-// Symv
-// ----
-void Symv
-( char uplo, int n,
-  float alpha, const float* A, const int* descA,
-               const float* x, const int* descx, int incx,
-  float beta,        float* y, const int* descy, int incy );
-void Symv
-( char uplo, int n,
-  double alpha, const double* A, const int* descA,
-                const double* x, const int* descx, int incx,
-  double beta,        double* y, const int* descy, int incy );
-
-// Trmv
-// ----
-void Trmv
-( char uplo, char trans, char diag, int n,
-  const float* A, const int* descA, 
-        float* x, const int* descx, int incx );
-void Trmv
-( char uplo, char trans, char diag, int n,
-  const double* A, const int* descA, 
-        double* x, const int* descx, int incx );
-void Trmv
-( char uplo, char trans, char diag, int n,
-  const scomplex* A, const int* descA, 
-        scomplex* x, const int* descx, int incx );
-void Trmv
-( char uplo, char trans, char diag, int n,
-  const dcomplex* A, const int* descA, 
-        dcomplex* x, const int* descx, int incx );
-
-// Trsv
-// ----
-void Trsv
-( char uplo, char trans, char diag, int n,
-  const float* A, const int* descA, 
-        float* x, const int* descx, int incx );
-void Trsv
-( char uplo, char trans, char diag, int n,
-  const double* A, const int* descA, 
-        double* x, const int* descx, int incx );
-void Trsv
-( char uplo, char trans, char diag, int n,
-  const scomplex* A, const int* descA, 
-        scomplex* x, const int* descx, int incx );
-void Trsv
-( char uplo, char trans, char diag, int n,
-  const dcomplex* A, const int* descA, 
-        dcomplex* x, const int* descx, int incx );
-
-// BLAS 3
-// ======
-
-// Gemm
-// ----
-void Gemm
-( char trans, char transb, int m, int n, int k,
-  float alpha, const float* A, const int* descA,
-               const float* B, const int* descB,
-  float beta,        float* C, const int* descC );
-void Gemm
-( char trans, char transb, int m, int n, int k,
-  double alpha, const double* A, const int* descA,
-                const double* B, const int* descB,
-  double beta,        double* C, const int* descC );
-void Gemm
-( char trans, char transb, int m, int n, int k,
-  scomplex alpha, const scomplex* A, const int* descA,
-                  const scomplex* B, const int* descB,
-  scomplex beta,        scomplex* C, const int* descC );
-void Gemm
-( char trans, char transb, int m, int n, int k,
-  dcomplex alpha, const dcomplex* A, const int* descA,
-                  const dcomplex* B, const int* descB,
-  dcomplex beta,        dcomplex* C, const int* descC );
 
 // Factorizations
 // ==============
 
-// Cholesky decomposition
-// ----------------------
+// Cholesky
+// --------
 void Cholesky( char uplo, int n, float* A, const int* desca );
 void Cholesky( char uplo, int n, double* A, const int* desca );
 void Cholesky( char uplo, int n, scomplex* A, const int* desca );
@@ -168,8 +33,8 @@ void Cholesky( char uplo, int n, dcomplex* A, const int* desca );
 // Spectral analysis
 // =================
 
-// Hermitian eigenvalue decomposition
-// ----------------------------------
+// Hermitian eigenvalue problems
+// -----------------------------
 
 // Compute eigenvalues
 // ^^^^^^^^^^^^^^^^^^^
@@ -267,6 +132,48 @@ void HermitianEig
 ( char uplo, int n, dcomplex* A, const int* desca, double* w, 
   dcomplex* Z, const int* descz, int il, int iu, double abstol=0 );
 
+// Reduction of a generalized HPD EVP to standard form
+// ---------------------------------------------------
+// NOTE: It is required that B have a positive diagonal
+
+// Two-sided Trsm
+// ^^^^^^^^^^^^^^
+void TwoSidedTrsm
+( char uplo, int n, 
+        float* A, const int* descA,
+  const float* B, const int* descB );
+void TwoSidedTrsm
+( char uplo, int n, 
+        double* A, const int* descA, 
+  const double* B, const int* descB );
+void TwoSidedTrsm
+( char uplo, int n, 
+        scomplex* A, const int* descA,
+  const scomplex* B, const int* descB );
+void TwoSidedTrsm
+( char uplo, int n, 
+        dcomplex* A, const int* descA,
+  const dcomplex* B, const int* descB );
+
+// Two-sided Trmm
+// ^^^^^^^^^^^^^^
+void TwoSidedTrmm
+( char uplo, int n, 
+        float* A, const int* descA,
+  const float* B, const int* descB );
+void TwoSidedTrmm
+( char uplo, int n, 
+        double* A, const int* descA,
+  const double* B, const int* descB );
+void TwoSidedTrmm
+( char uplo, int n, 
+        scomplex* A, const int* descA,
+  const scomplex* B, const int* descB );
+void TwoSidedTrmm
+( char uplo, int n, 
+        dcomplex* A, const int* descA,
+  const dcomplex* B, const int* descB );
+
 // Hessenberg Schur decomposition via the QR algorithm
 // ---------------------------------------------------
 // NOTE: In all of these routines, the matrix needs to be explicitly 
@@ -315,5 +222,4 @@ void HessenbergEig( int n, dcomplex* H, const int* desch, dcomplex* w );
 } // namespace El
 
 #endif // ifdef EL_HAVE_SCALAPACK
-
 #endif // ifndef EL_IMPORTS_SCALAPACK_HPP
