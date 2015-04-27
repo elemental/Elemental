@@ -20,16 +20,20 @@ endif()
 if(NOT EXISTS "${MPI_HEADER_DIR}/mpi.h")
   message(FATAL_ERROR "mpi.h was not located within ${MPI_HEADER_DIR}")
 endif()
-file(STRINGS "${MPI_HEADER_DIR}/mpi.h" 
-  OMPI_MAJOR_VERSION REGEX 
-  "#define[\r\n\t ]+OMPI_MAJOR_VERSION[\r\n\t ]+([0-9]+)")
-if(OMPI_MAJOR_VERSION)
- file(STRINGS "${MPI_HEADER_DIR}/mpi.h" 
-  OMPI_MINOR_VERSION REGEX 
-  "#define[\r\n\t ]+OMPI_MINOR_VERSION[\r\n\t ]+([0-9]+)")
- file(STRINGS "${MPI_HEADER_DIR}/mpi.h" 
-  OMPI_RELEASE_VERSION REGEX 
-  "#define[\r\n\t ]+OMPI_RELEASE_VERSION[\r\n\t ]+([0-9]+)")
+# There does not seem to be a way to capture just the version number itself, 
+# and so the following capture the entire line and then search and replace to
+# get the version number capture
+file(STRINGS "${MPI_HEADER_DIR}/mpi.h" MPI_HEADER)
+string(REGEX MATCH "#define[\r\n\t ]+OMPI_MAJOR_VERSION[\r\n\t ]+[0-9]+"
+  OMPI_MAJOR_VERSION "${MPI_HEADER}")
+string(REGEX MATCH "#define[\r\n\t ]+OMPI_MINOR_VERSION[\r\n\t ]+[0-9]+"
+  OMPI_MINOR_VERSION "${MPI_HEADER}")
+string(REGEX MATCH "#define[\r\n\t ]+OMPI_RELEASE_VERSION[\r\n\t ]+[0-9]+"
+  OMPI_RELEASE_VERSION "${MPI_HEADER}")
+if(OMPI_MAJOR_VERSION AND OMPI_MINOR_VERSION AND OMPI_RELEASE_VERSION)
+  string(REGEX REPLACE "#define[\r\n\t ]+OMPI_MAJOR_VERSION[\t\n\t ]+([0-9]+)" "\\1" OMPI_MAJOR_VERSION "${OMPI_MAJOR_VERSION}")
+  string(REGEX REPLACE "#define[\r\n\t ]+OMPI_MINOR_VERSION[\t\n\t ]+([0-9]+)" "\\1" OMPI_MINOR_VERSION "${OMPI_MINOR_VERSION}")
+  string(REGEX REPLACE "#define[\r\n\t ]+OMPI_RELEASE_VERSION[\t\n\t ]+([0-9]+)" "\\1" OMPI_RELEASE_VERSION "${OMPI_RELEASE_VERSION}")
   message("Detected OpenMPI ${OMPI_MAJOR_VERSION}.${OMPI_MINOR_VERSION}.${OMPI_RELEASE_VERSION}")
   # Die if OpenMPI version is 1.8.x with x <= 3
   if(OMPI_MAJOR_VERSION STREQUAL "1" AND OMPI_MINOR_VERSION STREQUAL "8")
