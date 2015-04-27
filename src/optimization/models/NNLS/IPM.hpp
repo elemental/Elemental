@@ -35,7 +35,6 @@ void IPM
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
 
-    const Int m = A.Height();
     const Int n = A.Width();
     const Int k = B.Width();
     Matrix<Real> Q, AHat, bHat, c;
@@ -72,7 +71,6 @@ void IPM
     auto BPtr = ReadProxy<Real,MC,MR>(&BPre);      auto& B = *BPtr;
     auto XPtr = ReadWriteProxy<Real,MC,MR>(&XPre); auto& X = *XPtr;
 
-    const Int m = A.Height();
     const Int n = A.Width();
     const Int k = B.Width();
     const Grid& g = A.Grid();
@@ -106,7 +104,6 @@ void IPM
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
 
-    const Int m = A.Height();
     const Int n = A.Width();
     const Int k = B.Width();
     SparseMatrix<Real> Q, AHat;

@@ -12,17 +12,25 @@
 
 namespace El {
 
-DistMap::DistMap()
-: numSources_(0), comm_(mpi::COMM_WORLD)
-{ SetComm( mpi::COMM_WORLD ); } 
-
 DistMap::DistMap( mpi::Comm comm )
-: numSources_(0), comm_(mpi::COMM_WORLD)
-{ SetComm( comm ); }
+: numSources_(0)
+{ 
+    if( comm == mpi::COMM_WORLD )
+        comm_ = comm;
+    else
+        mpi::Dup( comm, comm_ );
+    InitializeLocalData();
+}
 
 DistMap::DistMap( Int numSources, mpi::Comm comm )
-: numSources_(numSources), comm_(mpi::COMM_WORLD)
-{ SetComm( comm ); }
+: numSources_(numSources)
+{ 
+    if( comm == mpi::COMM_WORLD )
+        comm_ = comm;
+    else
+        mpi::Dup( comm, comm_ );
+    InitializeLocalData();
+}
 
 DistMap::~DistMap()
 { 
@@ -167,8 +175,24 @@ void DistMap::Extend( const DistMap& firstMap, DistMap& compositeMap ) const
 
 Int DistMap::NumSources() const { return numSources_; }
 
+void DistMap::InitializeLocalData()
+{
+    const int commRank = mpi::Rank( comm_ );
+    const int commSize = mpi::Size( comm_ );
+    blocksize_ = numSources_/commSize;
+    firstLocalSource_ = blocksize_*commRank;
+    const Int numLocalSources =
+        ( commRank<commSize-1 ?
+          blocksize_ :
+          numSources_ - (commSize-1)*blocksize_ );
+    map_.resize( numLocalSources );
+}
+
 void DistMap::SetComm( mpi::Comm comm )
 {
+    if( comm == comm_ )
+        return;
+
     if( comm_ != mpi::COMM_WORLD )
         mpi::Free( comm_ );
 
@@ -177,15 +201,7 @@ void DistMap::SetComm( mpi::Comm comm )
     else
         comm_ = comm;
 
-    const int commRank = mpi::Rank( comm );
-    const int commSize = mpi::Size( comm );
-    blocksize_ = numSources_/commSize;
-    firstLocalSource_ = blocksize_*commRank;
-    const Int numLocalSources =
-        ( commRank<commSize-1 ?
-          blocksize_ :
-          numSources_ - (commSize-1)*blocksize_ );
-    map_.resize( numLocalSources );
+    InitializeLocalData();
 }
 
 mpi::Comm DistMap::Comm() const { return comm_; }

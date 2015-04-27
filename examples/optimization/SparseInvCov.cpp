@@ -135,6 +135,7 @@ int main( int argc, char* argv[] )
         ctrl.rho = rho;
         ctrl.alpha = alpha;
         ctrl.maxIter = maxIter;
+        ctrl.absTol = absTol;
         ctrl.relTol = relTol;
         ctrl.progress = progress;
 

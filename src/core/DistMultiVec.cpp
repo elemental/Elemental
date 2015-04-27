@@ -116,6 +116,9 @@ void DistMultiVec<T>::Resize( Int height, Int width )
 template<typename T>
 void DistMultiVec<T>::SetComm( mpi::Comm comm )
 { 
+    if( comm == comm_ )
+        return;
+
     if( comm_ != mpi::COMM_WORLD )
         mpi::Free( comm_ );
 

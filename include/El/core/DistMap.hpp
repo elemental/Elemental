@@ -22,9 +22,8 @@ class DistMap
 {
 public:
     // Constructors and destructors
-    DistMap();
-    DistMap( mpi::Comm comm );
-    DistMap( Int numSources, mpi::Comm comm );
+    DistMap( mpi::Comm comm=mpi::COMM_WORLD );
+    DistMap( Int numSources, mpi::Comm comm=mpi::COMM_WORLD );
     // TODO: Constructor for building from a DistMap
     ~DistMap();
 
@@ -77,6 +76,8 @@ private:
     Int firstLocalSource_;
 
     vector<Int> map_;
+
+    void InitializeLocalData();
 };
 
 void InvertMap( const vector<Int>& map, vector<Int>& inverseMap );
