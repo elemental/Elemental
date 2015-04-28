@@ -92,6 +92,10 @@ otherwise, if METIS support is not detected, METIS is downloaded and installed.
 * [Parallel MRRR](https://code.google.com/p/pmrrr/) (packaged with Elemental)
 * [ScaLAPACK](http://netlib.org/scalapack) (optional for Hessenberg QR algorithm)
 
+If [ScaLAPACK](http://www.netlib.org/scalapack) support is not explicitly 
+disabled, then Elemental looks for a previous installation and, failing that,
+attempts to automatically download and install the library.
+
 **Internodal communication**
 
 * MPI2 (typically [MPICH](http://www.mpich.org/), [MVAPICH](http://mvapich.cse.ohio-state.edu/), or [OpenMPI](http://www.open-mpi.org/))
