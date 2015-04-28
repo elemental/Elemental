@@ -14,6 +14,10 @@
 
 /* TODO: A better include structure for the C interface */
 #include "El/config.h"
+#ifdef EL_HAVE_F90_INTERFACE
+# include "El/FCMangle.h"
+#endif
+
 #include "El/core/types.h"
 #include "El/core/environment.h"
 #include "El/core/imports/mpi.h"

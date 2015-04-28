@@ -8,7 +8,7 @@
 #
 include(ExternalProject)
 
-if(NOT BUILD_METIS)
+if(NOT EL_BUILD_METIS)
   find_package(METIS)
 endif()
 

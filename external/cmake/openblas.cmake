@@ -8,7 +8,7 @@
 #
 include(ExternalProject)
 
-if(NOT BUILD_OPENBLAS)
+if(NOT EL_BUILD_OPENBLAS)
   find_library(OpenBLAS NAMES openblas PATHS ${MATH_PATHS})
   if(OpenBLAS)
     if(CMAKE_COMPILER_IS_GNUCC)

@@ -9,7 +9,7 @@
 include(ExternalProject)
 
 set(USE_FOUND_PARMETIS FALSE)
-if(NOT BUILD_PARMETIS)
+if(NOT EL_BUILD_PARMETIS)
   find_package(ParMETIS)
   if(PARMETIS_FOUND)
     if(EXISTS "${PARMETIS_DIR}/libparmetis/parmetislib.h")

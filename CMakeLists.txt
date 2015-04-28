@@ -83,8 +83,9 @@ if(EL_USE_64BIT_BLAS_INTS)
     set(EL_USE_64BIT_INTS ON)
 endif()
 
-option(AVOID_OPENBLAS "Avoid OpenBLAS and search for reference BLAS" OFF)
-option(PREFER_OPENBLAS "Prefer OpenBLAS to Apple's vecLib/Accelerate?" OFF)
+option(EL_AVOID_OPENBLAS "Avoid OpenBLAS and search for reference BLAS" OFF)
+option(EL_PREFER_OPENBLAS "Prefer OpenBLAS to Apple's vecLib/Accelerate?" OFF)
+option(EL_BUILD_OPENBLAS "Avoid search for OpenBLAS and instead build?" OFF)
 
 # By default, a search is performed for ParMETIS via find_package, and, if this
 # search fails, ParMETIS is downloaded from the official location:
@@ -95,21 +96,20 @@ option(PREFER_OPENBLAS "Prefer OpenBLAS to Apple's vecLib/Accelerate?" OFF)
 # Should you want to manually specify a ParMETIS installation, you can set the
 # variables PARMETIS_INCLUDE_DIRS and PARMETIS_LIBRARIES
 #
-option(BUILD_PARMETIS "Build ParMETIS" OFF)
-
+option(EL_BUILD_PARMETIS "Build ParMETIS?" OFF)
 # ParMETIS cannot be commercially used without a license and so users interested
 # in using Elemental in commercial applications should disable ParMETIS
-option(DISABLE_PARMETIS "Disable ParMETIS?" OFF)
+option(EL_DISABLE_PARMETIS "Disable ParMETIS?" OFF)
 
 # If ParMETIS is disabled, a search is performed for METIS via find_package, 
 # and, if this search fails, METIS is cloned from the git repo 
 #     https://github.com/poulson/Metis.git.
-# If BUILD_METIS is turned on, then no initial call to find_package is 
+# If EL_BUILD_METIS is turned on, then no initial call to find_package is 
 # performed.
 #
 # Should you want to manually specify a METIS installation, you can set the
 # variables METIS_INCLUDE_DIRS and METIS_LIBRARIES
-option(BUILD_METIS "Build METIS" OFF)
+option(EL_BUILD_METIS "Build METIS" OFF)
 
 # Advanced options
 # ----------------
@@ -284,11 +284,6 @@ endif()
 # -------------------------------------------------------------------------
 add_custom_target(External)
 include(tests/Math)
-if(NOT DISABLE_PARMETIS)
-  include(parmetis)
-else()
-  include(metis)
-endif()
 
 # Now append the extra flags
 # --------------------------
