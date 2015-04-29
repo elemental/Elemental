@@ -736,26 +736,7 @@ void GetSubmatrix
   const vector<Int>& I, const vector<Int>& J, 
         Matrix<T>& ASub );
 template<typename T>
-void GetRealPartOfSubmatrix
-( const Matrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
-        Matrix<Base<T>>& ASub );
-template<typename T>
-void GetImagPartOfSubmatrix
-( const Matrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
-        Matrix<Base<T>>& ASub );
-
-template<typename T>
 Matrix<T> GetSubmatrix
-( const Matrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J );
-template<typename T>
-Matrix<Base<T>> GetRealPartOfSubmatrix
-( const Matrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J );
-template<typename T>
-Matrix<Base<T>> GetImagPartOfSubmatrix
 ( const Matrix<T>& A, 
   const vector<Int>& I, const vector<Int>& J );
 
@@ -765,26 +746,7 @@ void GetSubmatrix
   const vector<Int>& I, const vector<Int>& J, 
         AbstractDistMatrix<T>& ASub );
 template<typename T>
-void GetRealPartOfSubmatrix
-( const AbstractDistMatrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
-        AbstractDistMatrix<Base<T>>& ASub );
-template<typename T>
-void GetImagPartOfSubmatrix
-( const AbstractDistMatrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
-        AbstractDistMatrix<Base<T>>& ASub );
-
-template<typename T>
 DistMatrix<T,STAR,STAR> GetSubmatrix
-( const AbstractDistMatrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J );
-template<typename T>
-DistMatrix<Base<T>,STAR,STAR> GetRealPartOfSubmatrix
-( const AbstractDistMatrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J );
-template<typename T>
-DistMatrix<Base<T>,STAR,STAR> GetImagPartOfSubmatrix
 ( const AbstractDistMatrix<T>& A, 
   const vector<Int>& I, const vector<Int>& J );
 
@@ -793,68 +755,23 @@ void GetSubmatrix
 ( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J, 
         SparseMatrix<T>& ASub );
 template<typename T>
-void GetRealPartOfSubmatrix
-( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J, 
-        SparseMatrix<Base<T>>& ASub );
-template<typename T>
-void GetImagPartOfSubmatrix
-( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J, 
-        SparseMatrix<Base<T>>& ASub );
+SparseMatrix<T> GetSubmatrix
+( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J );
 
 template<typename T>
 void GetSubmatrix
 ( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J,
         DistSparseMatrix<T>& ASub );
 template<typename T>
-void GetRealPartOfSubmatrix
-( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J,
-        DistSparseMatrix<Base<T>>& ASub );
-template<typename T>
-void GetImagPartOfSubmatrix
-( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J,
-        DistSparseMatrix<Base<T>>& ASub );
-
-template<typename T>
-SparseMatrix<T> GetSubmatrix
-( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J );
-template<typename T>
-SparseMatrix<Base<T>> GetRealPartOfSubmatrix
-( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J );
-template<typename T>
-SparseMatrix<Base<T>> GetImagPartOfSubmatrix
-( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J );
-
-template<typename T>
 DistSparseMatrix<T> GetSubmatrix
 ( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J );
-template<typename T>
-DistSparseMatrix<Base<T>> GetRealPartOfSubmatrix
-( const DistSparseMatrix<Base<T>>& A, Range<Int> I, Range<Int> J );
-template<typename T>
-DistSparseMatrix<Base<T>> GetImagPartOfSubmatrix
-( const DistSparseMatrix<Base<T>>& A, Range<Int> I, Range<Int> J );
 
 template<typename T>
 void GetSubmatrix
 ( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J,
         DistMultiVec<T>& ASub );
 template<typename T>
-void GetRealPartOfSubmatrix
-( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J,
-        DistMultiVec<Base<T>>& ASub );
-template<typename T>
-void GetImagPartOfSubmatrix
-( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J,
-        DistMultiVec<Base<T>>& ASub );
-
-template<typename T>
 DistMultiVec<T> GetSubmatrix
-( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J );
-template<typename T>
-DistMultiVec<Base<T>> GetRealPartOfSubmatrix
-( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J );
-template<typename T>
-DistMultiVec<Base<T>> GetImagPartOfSubmatrix
 ( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J );
 
 // Hadamard

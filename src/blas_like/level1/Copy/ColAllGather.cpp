@@ -27,13 +27,11 @@ void ColAllGather( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
     const Int width = A.Width();
 #ifdef EL_CACHE_WARNINGS
     if( height != 1 && A.Grid().Rank() == 0 )
-    {
         cerr <<
           "The matrix redistribution [* ,V] <- [U,V] potentially causes a "
           "large amount of cache-thrashing. If possible, avoid it by "
           "performing the redistribution with a (conjugate)-transpose"
           << endl;
-    }
 #endif
     B.AlignRowsAndResize( A.RowAlign(), height, width, false, false );
 

@@ -215,12 +215,6 @@ class Grid(object):
     lib.ElGridViewingRank(self.obj,pointer(rank))
     return rank.value
 
-  lib.ElGridVCToViewingMap.argtypes = [c_void_p,c_int,POINTER(c_int)]
-  def VCToViewingMap(self,vcRank):
-    viewingRank = c_int()
-    lib.ElGridVCToViewingMap(self.obj,vcRank,pointer(viewingRank))
-    return viewingRank.value
-
   lib.ElGridOwningGroup.argtypes = [c_void_p,POINTER(mpi.Group)]
   def OwningGroup(self):
     group = mpi.Group()
@@ -239,23 +233,27 @@ class Grid(object):
     lib.ElGridViewingComm(self.obj,pointer(comm))
     return comm
 
-  lib.ElGridDiagPath.argtypes = [c_void_p,c_int,POINTER(c_int)]
-  def DiagPath(self,vcRank):
-    diagPath = c_int()
-    lib.ElGridDiagPath(self.obj,vcRank,pointer(diagPath))
-    return diagPath.value
+  lib.ElGridDiag.argtypes = [c_void_p,c_int,POINTER(c_int)]
+  def Diag(self,vcRank):
+    diag = c_int()
+    lib.ElGridDiag(self.obj,vcRank,pointer(diag))
+    return diag.value
 
-  lib.ElGridDiagPathRank.argtypes = [c_void_p,c_int,POINTER(c_int)]
-  def DiagPathRank(self,vcRank):
+  lib.ElGridDiagRank.argtypes = [c_void_p,c_int,POINTER(c_int)]
+  def DiagRank(self,vcRank):
     pathRank = c_int()
-    lib.ElGridDiagPathRank(self.obj,vcRank,pointer(pathRank))
+    lib.ElGridDiagRank(self.obj,vcRank,pointer(pathRank))
     return pathRank.value
 
-  lib.ElGridFirstVCRank.argtypes = [c_void_p,c_int,POINTER(c_int)]
-  def FirstVCRank(self,diagPath):
-    firstVCRank = c_int()
-    lib.ElGridFirstVCRank(self.obj,diagPath,pointer(firstVCRank))
-    return firstVCRank.value
+  # TODO: VCToVR
+  # TODO: VRToVC
+  # TODO: CoordsToVC
+
+  lib.ElGridVCToViewing.argtypes = [c_void_p,c_int,POINTER(c_int)]
+  def VCToViewing(self,vcRank):
+    viewingRank = c_int()
+    lib.ElGridVCToViewing(self.obj,vcRank,pointer(viewingRank))
+    return viewingRank.value
 
   # NOTE: The following method is static
   lib.ElGridFindFactor.argtypes = [c_int,POINTER(c_int)]

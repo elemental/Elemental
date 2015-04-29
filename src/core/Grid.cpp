@@ -71,112 +71,108 @@ void Grid::SetUpGrid()
     // Create the communicator for the owning group (mpi::COMM_NULL otherwise)
     mpi::Create( viewingComm_, owningGroup_, owningComm_ );
 
-    vectorColToViewingMap_.resize(size_);
-    diagPathsAndRanks_.resize(2*size_);
-    MemZero( diagPathsAndRanks_.data(), 2*size_ );
+    vcToViewing_.resize(size_);
+    diagsAndRanks_.resize(2*size_);
+    MemZero( diagsAndRanks_.data(), 2*size_ );
     const bool colMajor = (order_==COLUMN_MAJOR);
     if( InGrid() )
     {
         // Create a cartesian communicator
-        int dimensions[2];
+        // TODO: Allow for reordering and non-periodicity
+        int dims[2];
         if( colMajor )
         {
-            dimensions[0] = width;
-            dimensions[1] = height_;
+            dims[0] = width;
+            dims[1] = height_;
         }
         else
         {
-            dimensions[0] = height_;
-            dimensions[1] = width;
+            dims[0] = height_;
+            dims[1] = width;
         }
         int periods[2] = { true, true };
         bool reorder = false;
-        mpi::CartCreate
-        ( owningComm_, 2, dimensions, periods, reorder, cartComm_ );
+        mpi::CartCreate( owningComm_, 2, dims, periods, reorder, cartComm_ );
 
         // Set up the MatrixCol and MatrixRow communicators
-        int remainingDimensions[2];
-        remainingDimensions[0] = ( colMajor ? false : true  );
-        remainingDimensions[1] = ( colMajor ? true  : false );
-        mpi::CartSub( cartComm_, remainingDimensions, matrixColComm_ );
-        remainingDimensions[0] = ( colMajor ? true  : false );
-        remainingDimensions[1] = ( colMajor ? false : true  );
-        mpi::CartSub( cartComm_, remainingDimensions, matrixRowComm_ );
-        const int matrixColRank = mpi::Rank( matrixColComm_ );
-        const int matrixRowRank = mpi::Rank( matrixRowComm_ );
+        int remainingDims[2];
+        remainingDims[0] = ( colMajor ? false : true  );
+        remainingDims[1] = ( colMajor ? true  : false );
+        mpi::CartSub( cartComm_, remainingDims, mcComm_ );
+        remainingDims[0] = ( colMajor ? true  : false );
+        remainingDims[1] = ( colMajor ? false : true  );
+        mpi::CartSub( cartComm_, remainingDims, mrComm_ );
+        const int mcRank = mpi::Rank( mcComm_ );
+        const int mrRank = mpi::Rank( mrComm_ );
 
         // Set up the VectorCol and VectorRow communicators
-        const int vectorColRank = matrixColRank + height_*matrixRowRank;
-        const int vectorRowRank = matrixRowRank + width*matrixColRank;
-        mpi::Split( cartComm_, 0, vectorColRank, vectorColComm_ );
-        mpi::Split( cartComm_, 0, vectorRowRank, vectorRowComm_ );
+        const int vcRank = mcRank + height_*mrRank;
+        const int vrRank = mrRank + width*mcRank;
+        mpi::Split( cartComm_, 0, vcRank, vcComm_ );
+        mpi::Split( cartComm_, 0, vrRank, vrComm_ );
 
         // Set up the map from the VC group to the viewingGroup_ ranks.
-        mpi::Group vectorColGroup;
-        mpi::CommGroup( vectorColComm_, vectorColGroup ); 
+        mpi::Group vcGroup;
+        mpi::CommGroup( vcComm_, vcGroup ); 
         vector<int> ranks(size_);
         for( int i=0; i<size_; ++i )
             ranks[i] = i;
         mpi::Translate
-        ( vectorColGroup, size_, ranks.data(), 
-          viewingGroup_,         vectorColToViewingMap_.data() );
-        mpi::Free( vectorColGroup );
+        ( vcGroup, size_, ranks.data(), viewingGroup_,  vcToViewing_.data() );
+        mpi::Free( vcGroup );
 
-        // Compute which diagonal 'path' we're in, and what our rank is, then
+        // Compute which diagonal we're in, and what our rank is, then
         // perform AllGather world to store everyone's info
-        vector<int> myDiagPathAndRank(2);
-        myDiagPathAndRank[0] = Mod(matrixRowRank-matrixColRank,gcd_);
-        int diagPathRank = 0;
+        vector<int> myDiagAndRank(2);
+        myDiagAndRank[0] = Mod(mrRank-mcRank,gcd_);
+        int diagRank = 0;
         int row = 0;
-        int col = myDiagPathAndRank[0];
+        int col = myDiagAndRank[0];
         for( int j=0; j<lcm; ++j )
         {
-            if( row == matrixColRank && col == matrixRowRank )
+            if( row == mcRank && col == mrRank )
             {
-                myDiagPathAndRank[1] = diagPathRank;
+                myDiagAndRank[1] = diagRank;
                 break;
             }
             else
             {
                 row = (row + 1) % height_;
                 col = (col + 1) % width;
-                ++diagPathRank;
+                ++diagRank;
             }
         }
         mpi::AllGather
-        ( myDiagPathAndRank.data(),  2, 
-          diagPathsAndRanks_.data(), 2, vectorColComm_ );
+        ( myDiagAndRank.data(),  2, 
+          diagsAndRanks_.data(), 2, vcComm_ );
 
-        mpi::Split( cartComm_, DiagPath(), DiagPathRank(), matrixDiagComm_ );
-        mpi::Split
-        ( cartComm_, DiagPathRank(), DiagPath(), matrixDiagPerpComm_ );
+        mpi::Split( cartComm_, Diag(),     DiagRank(), mdComm_     );
+        mpi::Split( cartComm_, DiagRank(), Diag(),     mdPerpComm_ );
 
         DEBUG_ONLY(
-            mpi::ErrorHandlerSet( matrixColComm_,      mpi::ERRORS_RETURN );
-            mpi::ErrorHandlerSet( matrixRowComm_,      mpi::ERRORS_RETURN );
-            mpi::ErrorHandlerSet( vectorColComm_,      mpi::ERRORS_RETURN );
-            mpi::ErrorHandlerSet( vectorRowComm_,      mpi::ERRORS_RETURN );
-            mpi::ErrorHandlerSet( matrixDiagComm_,     mpi::ERRORS_RETURN );
-            mpi::ErrorHandlerSet( matrixDiagPerpComm_, mpi::ERRORS_RETURN );
+          mpi::ErrorHandlerSet( mcComm_,     mpi::ERRORS_RETURN );
+          mpi::ErrorHandlerSet( mrComm_,     mpi::ERRORS_RETURN );
+          mpi::ErrorHandlerSet( vcComm_,     mpi::ERRORS_RETURN );
+          mpi::ErrorHandlerSet( vrComm_,     mpi::ERRORS_RETURN );
+          mpi::ErrorHandlerSet( mdComm_,     mpi::ERRORS_RETURN );
+          mpi::ErrorHandlerSet( mdPerpComm_, mpi::ERRORS_RETURN );
         )
     }
     else
     {
-        matrixColComm_      = mpi::COMM_NULL;
-        matrixRowComm_      = mpi::COMM_NULL;
-        vectorColComm_      = mpi::COMM_NULL;
-        vectorRowComm_      = mpi::COMM_NULL;
-        matrixDiagComm_     = mpi::COMM_NULL; 
-        matrixDiagPerpComm_ = mpi::COMM_NULL;
-        // diag paths and ranks are implicitly set to undefined
+        mcComm_     = mpi::COMM_NULL;
+        mrComm_     = mpi::COMM_NULL;
+        vcComm_     = mpi::COMM_NULL;
+        vrComm_     = mpi::COMM_NULL;
+        mdComm_     = mpi::COMM_NULL; 
+        mdPerpComm_ = mpi::COMM_NULL;
+        // diags and ranks are implicitly set to undefined
     }
     // Translate the rank of the root process of the owningGroup so that we can
     // broadcast data
     int owningRoot = mpi::Translate( owningGroup_, 0, viewingGroup_ );
-    mpi::Broadcast
-    ( vectorColToViewingMap_.data(), size_, owningRoot, viewingComm_ );
-    mpi::Broadcast
-    ( diagPathsAndRanks_.data(), 2*size_, owningRoot, viewingComm_ );
+    mpi::Broadcast( vcToViewing_.data(), size_, owningRoot, viewingComm_ );
+    mpi::Broadcast( diagsAndRanks_.data(), 2*size_, owningRoot, viewingComm_ );
 }
 
 Grid::~Grid()
@@ -185,12 +181,12 @@ Grid::~Grid()
     {
         if( InGrid() )
         {
-            mpi::Free( matrixDiagComm_ );
-            mpi::Free( matrixDiagPerpComm_ );
-            mpi::Free( matrixColComm_ );
-            mpi::Free( matrixRowComm_ );
-            mpi::Free( vectorColComm_ );
-            mpi::Free( vectorRowComm_ );
+            mpi::Free( mdComm_ );
+            mpi::Free( mdPerpComm_ );
+            mpi::Free( mcComm_ );
+            mpi::Free( mrComm_ );
+            mpi::Free( vcComm_ );
+            mpi::Free( vrComm_ );
             mpi::Free( cartComm_ );
             mpi::Free( owningComm_ );
         }
@@ -201,32 +197,29 @@ Grid::~Grid()
     }
 }
 
-int Grid::MCRank() const { return mpi::Rank(matrixColComm_); }
-int Grid::MRRank() const { return mpi::Rank(matrixRowComm_); }
-int Grid::VCRank() const { return mpi::Rank(vectorColComm_); }
-int Grid::VRRank() const { return mpi::Rank(vectorRowComm_); }
+int Grid::MCRank() const { return mpi::Rank(mcComm_); }
+int Grid::MRRank() const { return mpi::Rank(mrComm_); }
+int Grid::VCRank() const { return mpi::Rank(vcComm_); }
+int Grid::VRRank() const { return mpi::Rank(vrComm_); }
 
 int Grid::MCSize() const { return height_;       }
 int Grid::MRSize() const { return size_/height_; }
 int Grid::VCSize() const { return size_;         }
 int Grid::VRSize() const { return size_;         }
 
-mpi::Comm Grid::MCComm()     const { return matrixColComm_;      }
-mpi::Comm Grid::MRComm()     const { return matrixRowComm_;      }
-mpi::Comm Grid::VCComm()     const { return vectorColComm_;      }
-mpi::Comm Grid::VRComm()     const { return vectorRowComm_;      }
-mpi::Comm Grid::MDComm()     const { return matrixDiagComm_;     }
-mpi::Comm Grid::MDPerpComm() const { return matrixDiagPerpComm_; }
+mpi::Comm Grid::MCComm()     const { return mcComm_;     }
+mpi::Comm Grid::MRComm()     const { return mrComm_;     }
+mpi::Comm Grid::VCComm()     const { return vcComm_;     }
+mpi::Comm Grid::VRComm()     const { return vrComm_;     }
+mpi::Comm Grid::MDComm()     const { return mdComm_;     }
+mpi::Comm Grid::MDPerpComm() const { return mdPerpComm_; }
 
 // Provided for simplicity, but redundant
 // ======================================
-
-int 
-Grid::Rank() const { return ( order_==COLUMN_MAJOR ? VCRank() : VRRank() ); }
-
 int Grid::Height() const { return MCSize(); }
 int Grid::Width()  const { return MRSize(); }
 int Grid::Size()   const { return VCSize(); }
+int Grid::Rank() const { return OwningRank(); }
 
 GridOrder Grid::Order() const { return order_; }
 
@@ -271,48 +264,117 @@ bool Grid::InGrid() const
 int Grid::OwningRank() const { return mpi::Rank(owningGroup_); }
 int Grid::ViewingRank() const { return mpi::Rank(viewingComm_); }
 
-int Grid::VCToViewingMap( int VCRank ) const
-{ return vectorColToViewingMap_[VCRank]; }
+int Grid::VCToVR( int vcRank ) const
+{
+    const int height = Height();
+    const int width = Width();
+    const int mcRank = vcRank % height;
+    const int mrRank = vcRank / height;
+    return mrRank + mcRank*width;
+}
+
+int Grid::VRToVC( int vrRank ) const
+{
+    const int height = Height();
+    const int width = Width();
+    const int mcRank = vrRank / width;
+    const int mrRank = vrRank % width;
+    return mcRank + mrRank*height;
+}
+
+int Grid::CoordsToVC
+( Dist colDist, Dist rowDist, 
+  int distRank, int crossRank, int redundantRank ) const
+{
+    int vcRank = 0;
+    if( colDist == CIRC && rowDist == CIRC )
+    {
+        return crossRank;
+    }
+    else if( colDist == MC && rowDist == MR )
+    {
+        return distRank;
+    }
+    else if( (colDist == MC && rowDist == STAR) || 
+             (rowDist == MC && colDist == STAR) )
+    {
+        return distRank + redundantRank*Width();
+    }
+    else if( (colDist == MD && rowDist == STAR) ||
+             (rowDist == MD && colDist == STAR) )
+    {
+        const int row =         DiagRank()  % Height();
+        const int col = (Diag()+DiagRank()) % Width();
+        return row + col*Height();
+    }
+    else if( colDist == MR && rowDist == MC )
+    {
+        return VRToVC(distRank);
+    }
+    else if( (colDist == MR && rowDist == STAR) ||
+             (rowDist == MR && colDist == STAR) )
+    {
+        return redundantRank + distRank*Width();
+    }
+    else if( colDist == STAR && rowDist == STAR )
+    {
+        return redundantRank;
+    }
+    else if( (colDist == STAR && rowDist == VC) ||
+             (rowDist == STAR && colDist == VC) )
+    {
+        return distRank;
+    }
+    else if( (colDist == STAR && rowDist == VR) ||
+             (rowDist == STAR && colDist == VR) )
+    {
+        return VRToVC(distRank);
+    }
+    else
+        LogicError("Invalid data distribution");
+    return vcRank;
+}
+
+int Grid::VCToViewing( int vcRank ) const
+{ return vcToViewing_[vcRank]; }
 
 mpi::Group Grid::OwningGroup() const { return owningGroup_; }
 mpi::Comm Grid::OwningComm()  const { return owningComm_; }
 mpi::Comm Grid::ViewingComm() const { return viewingComm_; }
 
-int Grid::DiagPath() const
+int Grid::Diag() const
 { 
     const int vcRank = VCRank();
     if( vcRank != mpi::UNDEFINED )
-        return diagPathsAndRanks_[2*vcRank];
+        return diagsAndRanks_[2*vcRank];
     else
         return mpi::UNDEFINED;
 }
 
-int Grid::DiagPath( int vectorColRank ) const
+int Grid::Diag( int vcRank ) const
 { 
-    if( vectorColRank != mpi::UNDEFINED )
-        return diagPathsAndRanks_[2*vectorColRank]; 
+    if( vcRank != mpi::UNDEFINED )
+        return diagsAndRanks_[2*vcRank]; 
     else
         return mpi::UNDEFINED;
 }
 
-int Grid::DiagPathRank() const
+int Grid::DiagRank() const
 { 
     const int vcRank = VCRank();
     if( vcRank != mpi::UNDEFINED )
-        return diagPathsAndRanks_[2*vcRank+1];
+        return diagsAndRanks_[2*vcRank+1];
     else
         return mpi::UNDEFINED;
 }
 
-int Grid::DiagPathRank( int vectorColRank ) const
+int Grid::DiagRank( int vcRank ) const
 { 
-    if( vectorColRank != mpi::UNDEFINED )
-        return diagPathsAndRanks_[2*vectorColRank+1]; 
+    if( vcRank != mpi::UNDEFINED )
+        return diagsAndRanks_[2*vcRank+1]; 
     else
         return mpi::UNDEFINED;
 }
-
-int Grid::FirstVCRank( int diagPath ) const{ return diagPath*height_; }
 
 // Comparison functions
 // ====================

@@ -189,7 +189,7 @@ AbstractDistMatrix<T>::MakeConsistent( bool includingViewers )
     }
     if( includingViewers )
     {
-        const Int vcRoot = g.VCToViewingMap(0);
+        const Int vcRoot = g.VCToViewing(0);
         mpi::Broadcast( message, msgLength, vcRoot, g.ViewingComm() );
     }
     const ViewType newViewType    = static_cast<ViewType>(message[0]);
@@ -235,7 +235,7 @@ AbstractDistMatrix<T>::MakeSizeConsistent( bool includingViewers )
         mpi::Broadcast( message, msgSize, Root(), CrossComm() );
     if( includingViewers )
     {
-        const Int vcRoot = g.VCToViewingMap(0);
+        const Int vcRoot = g.VCToViewing(0);
         mpi::Broadcast( message, msgSize, vcRoot, g.ViewingComm() );
     }
     const Int newHeight = message[0]; 
@@ -1061,7 +1061,7 @@ int AbstractDistMatrix<T>::DiagonalRoot( Int offset ) const
             const int procCol = RowAlign();
             owner = procRow + ColStride()*procCol;
         }
-        return grid.DiagPath(owner);
+        return grid.Diag(owner);
     }
     else if( ColDist() == MR && RowDist() == MC )
     {
@@ -1079,7 +1079,7 @@ int AbstractDistMatrix<T>::DiagonalRoot( Int offset ) const
             const int procRow = RowAlign();
             owner = procRow + ColStride()*procCol;
         }
-        return grid.DiagPath(owner);
+        return grid.Diag(owner);
     }
     else
         return Root();
@@ -1107,7 +1107,7 @@ int AbstractDistMatrix<T>::DiagonalAlign( Int offset ) const
             const int procCol = RowAlign();
             owner = procRow + ColStride()*procCol;
         }
-        return grid.DiagPathRank(owner);
+        return grid.DiagRank(owner);
     }
     else if( ColDist() == MR && RowDist() == MC )
     {
@@ -1125,7 +1125,7 @@ int AbstractDistMatrix<T>::DiagonalAlign( Int offset ) const
             const int procRow = RowAlign();
             owner = procRow + ColStride()*procCol;
         }
-        return grid.DiagPathRank(owner);
+        return grid.DiagRank(owner);
     }
     else if( ColDist() == STAR )
     {

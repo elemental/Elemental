@@ -128,8 +128,7 @@ void TranslateBetweenGrids
                   sendBuf, 1, sendHeight );
                 // Send data
                 const Int recvVCRank = recvRow + recvCol*colStride;
-                const Int recvViewingRank =
-                    B.Grid().VCToViewingMap( recvVCRank );
+                const Int recvViewingRank = B.Grid().VCToViewing( recvVCRank );
                 mpi::ISend
                 ( sendBuf, sendHeight*sendWidth, recvViewingRank,
                   B.Grid().ViewingComm(), sendRequest );
@@ -247,7 +246,7 @@ void TranslateBetweenGrids
           A.LockedBuffer(), 1, A.LDim(),
           sendBuf,          1, height );
         // TODO: Use mpi::Translate instead?
-        const Int recvViewingRank = B.Grid().VCToViewingMap(0);
+        const Int recvViewingRank = B.Grid().VCToViewing(0);
         mpi::ISend
         ( sendBuf, height*width, recvViewingRank,
           viewingCommB, sendRequest );
@@ -260,7 +259,7 @@ void TranslateBetweenGrids
         if( rankB == 0 ) 
         {
             // TODO: Use mpi::Translate instead?
-            const Int sendViewingRank = A.Grid().VCToViewingMap(0);
+            const Int sendViewingRank = A.Grid().VCToViewing(0);
             mpi::Recv
             ( bcastBuffer, height*width, sendViewingRank,
               viewingCommB );

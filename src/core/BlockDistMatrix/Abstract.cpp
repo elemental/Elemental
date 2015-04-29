@@ -206,7 +206,7 @@ void AbstractBlockDistMatrix<T>::MakeConsistent( bool includingViewers )
     }
     if( includingViewers )
     {
-        const Int vcRoot = g.VCToViewingMap(0);
+        const Int vcRoot = g.VCToViewing(0);
         mpi::Broadcast( message, msgLength, vcRoot, g.ViewingComm() );
     }
     const ViewType newViewType    = static_cast<ViewType>(message[0]);
@@ -262,7 +262,7 @@ void AbstractBlockDistMatrix<T>::MakeSizeConsistent( bool includingViewers )
     }
     if( includingViewers )
     {
-        const Int vcRoot = g.VCToViewingMap(0);
+        const Int vcRoot = g.VCToViewing(0);
         mpi::Broadcast( message, msgLength, vcRoot, g.ViewingComm() );
     }
     const Int newHeight = message[0]; 

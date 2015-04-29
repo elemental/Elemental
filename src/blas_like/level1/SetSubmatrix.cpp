@@ -76,6 +76,9 @@ void SetImagPartOfSubmatrix
     }
 }
 
+// TODO: Implement the following routines in a manner similar to the new 
+//       GetSubmatrix implementations (which avoid giving every process a full
+//       copy of the submatrix)
 template<typename T>
 void SetSubmatrix
 (       AbstractDistMatrix<T>& A, 

@@ -199,7 +199,6 @@ DM& DM::operator=( const AbstractDistMatrix<T>& A )
 
 // Basic queries
 // =============
-
 template<typename T>
 mpi::Comm DM::DistComm() const { return this->grid_->VRComm(); }
 template<typename T>

@@ -24,10 +24,10 @@ public:
     // Simple interface (simpler version of distributed-based interface)
     int Row() const;           // MCRank()
     int Col() const;           // MRRank()
-    int Rank() const;          // VCRank (VRRank) if COLUMN_MAJOR (ROW_MAJOR)
     int Height() const;        // MCSize()
     int Width() const;         // MRSize()
     int Size() const;          // VCSize() and VRSize()
+    int Rank() const;          // same as OwningRank()
     GridOrder Order() const;   // either COLUMN_MAJOR or ROW_MAJOR
     mpi::Comm ColComm() const; // MCComm()
     mpi::Comm RowComm() const; // MRComm()
@@ -59,15 +59,21 @@ public:
     bool HaveViewers() const;
     int OwningRank() const;
     int ViewingRank() const;
-    int VCToViewingMap( int VCRank ) const;
+
     mpi::Group OwningGroup() const;
     mpi::Comm OwningComm() const;
     mpi::Comm ViewingComm() const;
-    int DiagPath() const;
-    int DiagPath( int vectorColRank ) const;
-    int DiagPathRank() const;
-    int DiagPathRank( int vectorColRank ) const;
-    int FirstVCRank( int diagPath ) const;
+    int Diag() const;
+    int Diag( int vcRank ) const;
+    int DiagRank() const;
+    int DiagRank( int vcRank ) const;
+
+    int VCToVR( int vcRank ) const;
+    int VRToVC( int vrRank ) const;
+    int CoordsToVC
+    ( Dist colDist, Dist rowDist, 
+      int distRank, int crossRank=0, int redundant=0 ) const;
+    int VCToViewing( int VCRank ) const;
 
     static int FindFactor( int p );
 
@@ -75,11 +81,11 @@ private:
     bool haveViewers_;
     int height_, size_, gcd_;
     GridOrder order_;
-    vector<int> diagPathsAndRanks_;
+    vector<int> diagsAndRanks_;
 
     mpi::Comm viewingComm_; // all processes that create the grid
     mpi::Group viewingGroup_;
-    vector<int> vectorColToViewingMap_;
+    vector<int> vcToViewing_;
 
     // Create a communicator for our owning team
     mpi::Comm owningComm_;
@@ -87,9 +93,9 @@ private:
 
     // These will only be valid if we are in the grid
     mpi::Comm cartComm_,  // the processes that are in the grid
-              matrixColComm_, matrixRowComm_,
-              matrixDiagComm_, matrixDiagPerpComm_,
-              vectorColComm_, vectorRowComm_;
+              mcComm_, mrComm_,
+              mdComm_, mdPerpComm_,
+              vcComm_, vrComm_;
 
     void SetUpGrid();
 

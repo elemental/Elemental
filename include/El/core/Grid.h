@@ -163,11 +163,6 @@ EL_EXPORT ElError ElGridOwningRank( ElConstGrid grid, int* owningRank );
    ----------------------------- */
 EL_EXPORT ElError ElGridViewingRank( ElConstGrid grid, int* viewingRank );
 
-/* int Grid::VCToViewingMap( int vcRank ) const 
-   -------------------------------------------- */
-EL_EXPORT ElError ElGridVCToViewingMap
-( ElConstGrid grid, int VCRank, int* viewingRank );
-
 /* mpi::Group Grid::OwningGroup() const
    ------------------------------------ */
 EL_EXPORT ElError ElGridOwningGroup( ElConstGrid grid, MPI_Group* group );
@@ -180,19 +175,19 @@ EL_EXPORT ElError ElGridOwningComm( ElConstGrid grid, MPI_Comm* comm );
    ----------------------------------- */
 EL_EXPORT ElError ElGridViewingComm( ElConstGrid grid, MPI_Comm* comm );
 
-/* int Grid::DiagPath( int vcRank ) const
+/* int Grid::Diag( int vcRank ) const
+   ---------------------------------- */
+EL_EXPORT ElError ElGridDiag( ElConstGrid grid, int VCRank, int* diag );
+
+/* int Grid::DiagRank( int vcRank ) const
    -------------------------------------- */
-EL_EXPORT ElError ElGridDiagPath( ElConstGrid grid, int VCRank, int* diagPath );
+EL_EXPORT ElError ElGridDiagRank( ElConstGrid grid, int VCRank, int* diagRank );
 
-/* int Grid::DiagPathRank( int vcRank ) const
-   ------------------------------------------ */
-EL_EXPORT ElError ElGridDiagPathRank
-( ElConstGrid grid, int VCRank, int* diagPathRank );
-
-/* int Grid::FirstVCRank( int diagPath ) const
-   ------------------------------------------- */
-EL_EXPORT ElError ElGridFirstVCRank
-( ElConstGrid grid, int diagPath, int* firstVCRank );
+/* TODO: VCToVR, VRToVC, CoordsToVC */
+/* int Grid::VCToViewing( int vcRank ) const 
+   ----------------------------------------- */
+EL_EXPORT ElError ElGridVCToViewing
+( ElConstGrid grid, int VCRank, int* viewingRank );
 
 /* static int Grid::FindFactor( int p )
    ------------------------------------ */

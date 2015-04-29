@@ -169,7 +169,6 @@ DM& DM::operator=( const AbstractDistMatrix<T>& A )
 
 // Basic queries
 // =============
-
 template<typename T>
 mpi::Comm DM::DistComm() const { return mpi::COMM_SELF; }
 template<typename T>

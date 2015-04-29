@@ -86,7 +86,6 @@ void DM::CopyFromNonRoot( bool includingViewers )
 
 // Basic queries
 // =============
-
 template<typename T>
 mpi::Comm DM::DistComm() const { return mpi::COMM_SELF; }
 template<typename T>
