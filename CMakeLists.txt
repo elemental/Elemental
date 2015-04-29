@@ -83,7 +83,7 @@ if(EL_USE_64BIT_BLAS_INTS)
     set(EL_USE_64BIT_INTS ON)
 endif()
 
-option(EL_AVOID_OPENBLAS "Avoid OpenBLAS and search for reference BLAS" OFF)
+option(EL_DISABLE_OPENBLAS "Avoid OpenBLAS and search for reference BLAS" OFF)
 option(EL_PREFER_OPENBLAS "Prefer OpenBLAS to Apple's vecLib/Accelerate?" OFF)
 option(EL_BUILD_OPENBLAS "Avoid search for OpenBLAS and instead build?" OFF)
 
