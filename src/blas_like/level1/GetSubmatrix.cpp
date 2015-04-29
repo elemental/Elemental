@@ -20,9 +20,7 @@ void GetSubmatrix
     const Int m = I.size();
     const Int n = J.size();
 
-    ASub.Resize( m, n, m );
     Zeros( ASub, m, n );
-
     for( Int jSub=0; jSub<n; ++jSub )
     {
         const Int j = J[jSub];
@@ -44,7 +42,6 @@ Matrix<T> GetSubmatrix
     return ASub;
 }
 
-// TODO: Avoid the redundancy in the following routine
 template<typename T>
 void GetSubmatrix
 ( const AbstractDistMatrix<T>& A, 
@@ -136,11 +133,11 @@ void GetSubmatrix
 }
 
 template<typename T>
-DistMatrix<T,STAR,STAR> GetSubmatrix
+DistMatrix<T> GetSubmatrix
 ( const AbstractDistMatrix<T>& A, 
   const vector<Int>& I, const vector<Int>& J )
 {
-    DistMatrix<T,STAR,STAR> ASub( A.Grid() );
+    DistMatrix<T> ASub( A.Grid() );
     GetSubmatrix( A, I, J, ASub );
     return ASub;
 }
@@ -362,7 +359,7 @@ DistMultiVec<T> GetSubmatrix
   ( const AbstractDistMatrix<T>& A, \
     const vector<Int>& I, const vector<Int>& J, \
           AbstractDistMatrix<T>& ASub ); \
-  template DistMatrix<T,STAR,STAR> GetSubmatrix \
+  template DistMatrix<T> GetSubmatrix \
   ( const AbstractDistMatrix<T>& A, \
     const vector<Int>& I, const vector<Int>& J ); \
   template void GetSubmatrix \

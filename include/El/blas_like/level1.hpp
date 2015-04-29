@@ -746,7 +746,7 @@ void GetSubmatrix
   const vector<Int>& I, const vector<Int>& J, 
         AbstractDistMatrix<T>& ASub );
 template<typename T>
-DistMatrix<T,STAR,STAR> GetSubmatrix
+DistMatrix<T> GetSubmatrix
 ( const AbstractDistMatrix<T>& A, 
   const vector<Int>& I, const vector<Int>& J );
 
@@ -1125,6 +1125,32 @@ void RealPart
 template<typename T>
 void RealPart
 ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& AReal );
+
+// Reshape
+// =======
+template<typename T>
+void Reshape
+( Int m, Int n, const Matrix<T>& A, Matrix<T>& B );
+template<typename T>
+Matrix<T> Reshape( Int m, Int n, const Matrix<T>& A );
+
+template<typename T>
+void Reshape
+( Int m, Int n, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
+template<typename T>
+DistMatrix<T> Reshape
+( Int m, Int n, const AbstractDistMatrix<T>& A );
+
+template<typename T>
+void Reshape( Int m, Int n, const SparseMatrix<T>& A, SparseMatrix<T>& B );
+template<typename T>
+SparseMatrix<T> Reshape( Int m, Int n, const SparseMatrix<T>& A );
+
+template<typename T>
+void Reshape
+( Int m, Int n, const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B );
+template<typename T>
+DistSparseMatrix<T> GetSubmatrix( Int m, Int n, const DistSparseMatrix<T>& A );
 
 // Scale
 // =====
