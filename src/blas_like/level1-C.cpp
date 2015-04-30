@@ -248,17 +248,27 @@ ElError ElGetSubgraphDist
   ( ElConstDistSparseMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( Full( *CReflect(A), *CReflect(B) ) ) } \
   /* GetSubmatrix */ \
-  ElError ElGetSubmatrixSparse_ ## SIG \
+  ElError ElGetContigSubmatrix_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElRange_i I, ElRange_i J, \
+    ElMatrix_ ## SIG ASub ) \
+  { EL_TRY( GetSubmatrix \
+            ( *CReflect(A), CReflect(I), CReflect(J), *CReflect(ASub) ) ) } \
+  ElError ElGetContigSubmatrixDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElRange_i I, ElRange_i J, \
+    ElDistMatrix_ ## SIG ASub ) \
+  { EL_TRY( GetSubmatrix \
+            ( *CReflect(A), CReflect(I), CReflect(J), *CReflect(ASub) ) ) } \
+  ElError ElGetContigSubmatrixSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, ElRange_i I, ElRange_i J, \
     ElSparseMatrix_ ## SIG ASub ) \
   { EL_TRY( GetSubmatrix \
             ( *CReflect(A), CReflect(I), CReflect(J), *CReflect(ASub) ) ) } \
-  ElError ElGetSubmatrixDistSparse_ ## SIG \
+  ElError ElGetContigSubmatrixDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElRange_i I, ElRange_i J, \
     ElDistSparseMatrix_ ## SIG ASub ) \
   { EL_TRY( GetSubmatrix \
             ( *CReflect(A), CReflect(I), CReflect(J), *CReflect(ASub) ) ) } \
-  ElError ElGetSubmatrixDistMultiVec_ ## SIG \
+  ElError ElGetContigSubmatrixDistMultiVec_ ## SIG \
   ( ElConstDistMultiVec_ ## SIG A, ElRange_i I, ElRange_i J, \
     ElDistMultiVec_ ## SIG ASub ) \
   { EL_TRY( GetSubmatrix \
@@ -435,6 +445,21 @@ ElError ElGetSubgraphDist
   ElError ElRealPartDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE AReal ) \
   { EL_TRY( RealPart( *CReflect(A), *CReflect(AReal) ) ) } \
+  /* Reshape */ \
+  ElError ElReshape_ ## SIG \
+  ( ElInt m, ElInt n, ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
+  { EL_TRY( Reshape( m, n, *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElReshapeDist_ ## SIG \
+  ( ElInt m, ElInt n, ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
+  { EL_TRY( Reshape( m, n, *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElReshapeSparse_ ## SIG \
+  ( ElInt m, ElInt n, \
+    ElConstSparseMatrix_ ## SIG A, ElSparseMatrix_ ## SIG B ) \
+  { EL_TRY( Reshape( m, n, *CReflect(A), *CReflect(B) ) ) } \
+  ElError ElReshapeDistSparse_ ## SIG \
+  ( ElInt m, ElInt n, \
+    ElConstDistSparseMatrix_ ## SIG A, ElDistSparseMatrix_ ## SIG B ) \
+  { EL_TRY( Reshape( m, n, *CReflect(A), *CReflect(B) ) ) } \
   /* ScaleTrapezoid */ \
   ElError ElScaleTrapezoid_ ## SIG \
   ( CREFLECT(T) alpha, ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElInt offset ) \

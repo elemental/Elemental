@@ -730,25 +730,23 @@ DistGraph GetSubgraph( const DistGraph& graph, Range<Int> I, Range<Int> J );
 // TODO: Range<Int> versions of dense GetSubmatrix which simply construct
 //       a view followed by a copy
 
+// Contiguous
+// ----------
 template<typename T>
 void GetSubmatrix
-( const Matrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
-        Matrix<T>& ASub );
+( const Matrix<T>& A, Range<Int> I, Range<Int> J, Matrix<T>& ASub );
 template<typename T>
-Matrix<T> GetSubmatrix
-( const Matrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J );
+Matrix<T> GetSubmatrix( const Matrix<T>& A, Range<Int> I, Range<Int> J );
 
 template<typename T>
 void GetSubmatrix
 ( const AbstractDistMatrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
+  const Range<Int>& I, const Range<Int>& J, 
         AbstractDistMatrix<T>& ASub );
 template<typename T>
 DistMatrix<T> GetSubmatrix
 ( const AbstractDistMatrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J );
+  const Range<Int>& I, const Range<Int>& J );
 
 template<typename T>
 void GetSubmatrix
@@ -773,6 +771,30 @@ void GetSubmatrix
 template<typename T>
 DistMultiVec<T> GetSubmatrix
 ( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J );
+
+// Noncontiguous
+// -------------
+template<typename T>
+void GetSubmatrix
+( const Matrix<T>& A, 
+  const vector<Int>& I, const vector<Int>& J, 
+        Matrix<T>& ASub );
+template<typename T>
+Matrix<T> GetSubmatrix
+( const Matrix<T>& A, 
+  const vector<Int>& I, const vector<Int>& J );
+
+template<typename T>
+void GetSubmatrix
+( const AbstractDistMatrix<T>& A, 
+  const vector<Int>& I, const vector<Int>& J, 
+        AbstractDistMatrix<T>& ASub );
+template<typename T>
+DistMatrix<T> GetSubmatrix
+( const AbstractDistMatrix<T>& A, 
+  const vector<Int>& I, const vector<Int>& J );
+
+// TODO: Sparse versions
 
 // Hadamard
 // ========
@@ -802,6 +824,7 @@ void ImagPart
 template<typename T>
 void ImagPart
 ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& AImag );
+/* TODO: Sparse versions */
 
 // IndexDependentFill
 // ==================
@@ -1125,6 +1148,7 @@ void RealPart
 template<typename T>
 void RealPart
 ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& AReal );
+/* TODO: Sparse versions */
 
 // Reshape
 // =======

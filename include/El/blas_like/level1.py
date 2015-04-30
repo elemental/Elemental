@@ -1120,52 +1120,84 @@ def GetSubgraph(graph,I,J):
 
 # Get submatrix
 # -------------
-lib.ElGetSubmatrixSparse_i.argtypes = \
-lib.ElGetSubmatrixSparse_s.argtypes = \
-lib.ElGetSubmatrixSparse_d.argtypes = \
-lib.ElGetSubmatrixSparse_c.argtypes = \
-lib.ElGetSubmatrixSparse_z.argtypes = \
-lib.ElGetSubmatrixDistSparse_i.argtypes = \
-lib.ElGetSubmatrixDistSparse_s.argtypes = \
-lib.ElGetSubmatrixDistSparse_d.argtypes = \
-lib.ElGetSubmatrixDistSparse_c.argtypes = \
-lib.ElGetSubmatrixDistSparse_z.argtypes = \
-lib.ElGetSubmatrixDistMultiVec_i.argtypes = \
-lib.ElGetSubmatrixDistMultiVec_s.argtypes = \
-lib.ElGetSubmatrixDistMultiVec_d.argtypes = \
-lib.ElGetSubmatrixDistMultiVec_c.argtypes = \
-lib.ElGetSubmatrixDistMultiVec_z.argtypes = \
+lib.ElGetContigSubmatrix_i.argtypes = \
+lib.ElGetContigSubmatrix_s.argtypes = \
+lib.ElGetContigSubmatrix_d.argtypes = \
+lib.ElGetContigSubmatrix_c.argtypes = \
+lib.ElGetContigSubmatrix_z.argtypes = \
+lib.ElGetContigSubmatrixDist_i.argtypes = \
+lib.ElGetContigSubmatrixDist_s.argtypes = \
+lib.ElGetContigSubmatrixDist_d.argtypes = \
+lib.ElGetContigSubmatrixDist_c.argtypes = \
+lib.ElGetContigSubmatrixDist_z.argtypes = \
+lib.ElGetContigSubmatrixSparse_i.argtypes = \
+lib.ElGetContigSubmatrixSparse_s.argtypes = \
+lib.ElGetContigSubmatrixSparse_d.argtypes = \
+lib.ElGetContigSubmatrixSparse_c.argtypes = \
+lib.ElGetContigSubmatrixSparse_z.argtypes = \
+lib.ElGetContigSubmatrixDistSparse_i.argtypes = \
+lib.ElGetContigSubmatrixDistSparse_s.argtypes = \
+lib.ElGetContigSubmatrixDistSparse_d.argtypes = \
+lib.ElGetContigSubmatrixDistSparse_c.argtypes = \
+lib.ElGetContigSubmatrixDistSparse_z.argtypes = \
+lib.ElGetContigSubmatrixDistMultiVec_i.argtypes = \
+lib.ElGetContigSubmatrixDistMultiVec_s.argtypes = \
+lib.ElGetContigSubmatrixDistMultiVec_d.argtypes = \
+lib.ElGetContigSubmatrixDistMultiVec_c.argtypes = \
+lib.ElGetContigSubmatrixDistMultiVec_z.argtypes = \
   [c_void_p,IndexRange,IndexRange,c_void_p]
 
 def GetSubmatrix(A,I,J):
-  if type(A) is SparseMatrix:
+  if type(I) is not IndexRange or type(J) is not IndexRange:
+    TypeExcept()
+  if type(A) is Matrix:
+    ASub = Matrix(A.tag)
+    args = [A.obj,I,J,ASub.obj]
+    if   A.tag == iTag: lib.ElGetContigSubmatrix_i(*args)
+    elif A.tag == sTag: lib.ElGetContigSubmatrix_s(*args)
+    elif A.tag == dTag: lib.ElGetContigSubmatrix_d(*args)
+    elif A.tag == cTag: lib.ElGetContigSubmatrix_c(*args)
+    elif A.tag == zTag: lib.ElGetContigSubmatrix_z(*args)
+    else: DataExcept()
+    return ASub
+  elif type(A) is DistMatrix:
+    ASub = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,I,J,ASub.obj]
+    if   A.tag == iTag: lib.ElGetContigSubmatrixDist_i(*args)
+    elif A.tag == sTag: lib.ElGetContigSubmatrixDist_s(*args)
+    elif A.tag == dTag: lib.ElGetContigSubmatrixDist_d(*args)
+    elif A.tag == cTag: lib.ElGetContigSubmatrixDist_c(*args)
+    elif A.tag == zTag: lib.ElGetContigSubmatrixDist_z(*args)
+    else: DataExcept()
+    return ASub
+  elif type(A) is SparseMatrix:
     ASub = SparseMatrix(A.tag)
     args = [A.obj,I,J,ASub.obj]
-    if   A.tag == iTag: lib.ElGetSubmatrixSparse_i(*args)
-    elif A.tag == sTag: lib.ElGetSubmatrixSparse_s(*args)
-    elif A.tag == dTag: lib.ElGetSubmatrixSparse_d(*args)
-    elif A.tag == cTag: lib.ElGetSubmatrixSparse_c(*args)
-    elif A.tag == zTag: lib.ElGetSubmatrixSparse_z(*args)
+    if   A.tag == iTag: lib.ElGetContigSubmatrixSparse_i(*args)
+    elif A.tag == sTag: lib.ElGetContigSubmatrixSparse_s(*args)
+    elif A.tag == dTag: lib.ElGetContigSubmatrixSparse_d(*args)
+    elif A.tag == cTag: lib.ElGetContigSubmatrixSparse_c(*args)
+    elif A.tag == zTag: lib.ElGetContigSubmatrixSparse_z(*args)
     else: DataExcept()
     return ASub
   elif type(A) is DistSparseMatrix:
     ASub = DistSparseMatrix(A.tag,A.Comm())
     args = [A.obj,I,J,ASub.obj]
-    if   A.tag == iTag: lib.ElGetSubmatrixDistSparse_i(*args)
-    elif A.tag == sTag: lib.ElGetSubmatrixDistSparse_s(*args)
-    elif A.tag == dTag: lib.ElGetSubmatrixDistSparse_d(*args)
-    elif A.tag == cTag: lib.ElGetSubmatrixDistSparse_c(*args)
-    elif A.tag == zTag: lib.ElGetSubmatrixDistSparse_z(*args)
+    if   A.tag == iTag: lib.ElGetContigSubmatrixDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElGetContigSubmatrixDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElGetContigSubmatrixDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElGetContigSubmatrixDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElGetContigSubmatrixDistSparse_z(*args)
     else: DataExcept()
     return ASub
   elif type(A) is DistMultiVec:
     ASub = DistMultiVec(A.tag,A.Comm())
     args = [A.obj,I,J,ASub.obj]
-    if   A.tag == iTag: lib.ElGetSubmatrixDistMultiVec_i(*args)
-    elif A.tag == sTag: lib.ElGetSubmatrixDistMultiVec_s(*args)
-    elif A.tag == dTag: lib.ElGetSubmatrixDistMultiVec_d(*args)
-    elif A.tag == cTag: lib.ElGetSubmatrixDistMultiVec_c(*args)
-    elif A.tag == zTag: lib.ElGetSubmatrixDistMultiVec_z(*args)
+    if   A.tag == iTag: lib.ElGetContigSubmatrixDistMultiVec_i(*args)
+    elif A.tag == sTag: lib.ElGetContigSubmatrixDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElGetContigSubmatrixDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElGetContigSubmatrixDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElGetContigSubmatrixDistMultiVec_z(*args)
     else: DataExcept()
     return ASub
   else: TypeExcept()
@@ -2049,6 +2081,74 @@ def Nrm2(A):
     else: DataExcept()
   else: TypeExcept()
   return gamma.value
+
+# Reshape
+# -------
+lib.ElReshape_i.argtypes = \
+lib.ElReshape_s.argtypes = \
+lib.ElReshape_d.argtypes = \
+lib.ElReshape_c.argtypes = \
+lib.ElReshape_z.argtypes = \
+lib.ElReshapeDist_i.argtypes = \
+lib.ElReshapeDist_s.argtypes = \
+lib.ElReshapeDist_d.argtypes = \
+lib.ElReshapeDist_c.argtypes = \
+lib.ElReshapeDist_z.argtypes = \
+lib.ElReshapeSparse_i.argtypes = \
+lib.ElReshapeSparse_s.argtypes = \
+lib.ElReshapeSparse_d.argtypes = \
+lib.ElReshapeSparse_c.argtypes = \
+lib.ElReshapeSparse_z.argtypes = \
+lib.ElReshapeDistSparse_i.argtypes = \
+lib.ElReshapeDistSparse_s.argtypes = \
+lib.ElReshapeDistSparse_d.argtypes = \
+lib.ElReshapeDistSparse_c.argtypes = \
+lib.ElReshapeDistSparse_z.argtypes = \
+  [iType,iType,c_void_p,c_void_p]
+
+def Reshape(m,n,A):
+  if type(A) is Matrix:
+    B = Matrix(A.tag)
+    args = [m,n,A.obj,B.obj]
+    if   A.tag == iTag: lib.ElReshape_i(*args)
+    elif A.tag == sTag: lib.ElReshape_s(*args)
+    elif A.tag == dTag: lib.ElReshape_d(*args)
+    elif A.tag == cTag: lib.ElReshape_c(*args)
+    elif A.tag == zTag: lib.ElReshape_z(*args)
+    else: DataExcept()
+    return B
+  elif type(A) is DistMatrix:
+    B = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [m,n,A.obj,B.obj]
+    if   A.tag == iTag: lib.ElReshapeDist_i(*args)
+    elif A.tag == sTag: lib.ElReshapeDist_s(*args)
+    elif A.tag == dTag: lib.ElReshapeDist_d(*args)
+    elif A.tag == cTag: lib.ElReshapeDist_c(*args)
+    elif A.tag == zTag: lib.ElReshapeDist_z(*args)
+    else: DataExcept()
+    return B
+  elif type(A) is SparseMatrix:
+    B = SparseMatrix(A.tag)
+    args = [m,n,A.obj,B.obj]
+    if   A.tag == iTag: lib.ElReshapeSparse_i(*args)
+    elif A.tag == sTag: lib.ElReshapeSparse_s(*args)
+    elif A.tag == dTag: lib.ElReshapeSparse_d(*args)
+    elif A.tag == cTag: lib.ElReshapeSparse_c(*args)
+    elif A.tag == zTag: lib.ElReshapeSparse_z(*args)
+    else: DataExcept()
+    return B
+  elif type(A) is DistSparseMatrix:
+    B = DistSparseMatrix(A.tag,A.Comm())
+    args = [m,n,A.obj,B.obj]
+    if   A.tag == iTag: lib.ElReshapeDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElReshapeDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElReshapeDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElReshapeDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElReshapeDistSparse_z(*args)
+    else: DataExcept()
+    return B
+  else:
+    TypeExcept()
 
 # Scale
 # -----

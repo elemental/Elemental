@@ -10,31 +10,21 @@
 
 namespace El {
 
+// Contiguous
+// ==========
 template<typename T>
 void GetSubmatrix
-( const Matrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
+( const Matrix<T>& A, const Range<Int>& I, const Range<Int>& J, 
         Matrix<T>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
-    const Int m = I.size();
-    const Int n = J.size();
-
-    Zeros( ASub, m, n );
-    for( Int jSub=0; jSub<n; ++jSub )
-    {
-        const Int j = J[jSub];
-        for( Int iSub=0; iSub<m; ++iSub )
-        {
-            const Int i = I[iSub];
-            ASub.Set( iSub, jSub, A.Get(i,j) );
-        }
-    }
+    auto ASubView = A(I,J);
+    ASub = ASubView;
 }
 
 template<typename T>
 Matrix<T> GetSubmatrix
-( const Matrix<T>& A, const vector<Int>& I, const vector<Int>& J )
+( const Matrix<T>& A, const Range<Int>& I, const Range<Int>& J )
 {
     DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
     Matrix<T> ASub;
@@ -45,97 +35,20 @@ Matrix<T> GetSubmatrix
 template<typename T>
 void GetSubmatrix
 ( const AbstractDistMatrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
+  const Range<Int>& I, const Range<Int>& J, 
         AbstractDistMatrix<T>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
-    const Int m = I.size();
-    const Int n = J.size();
-    const Grid& g = A.Grid();
-
-    ASub.SetGrid( g ); 
-    Zeros( ASub, m, n );
-    mpi::Comm comm = g.ViewingComm();
-    const int commSize = mpi::Size( comm );  
-
-    // TODO: Intelligently pick the redundant rank to pack from?
-
-    // Compute the metadata
-    // ====================
-    vector<int> sendCounts(commSize,0);    
-    if( A.RedundantRank() == 0 )
-    {
-        for( auto& i : I )
-        {
-            if( A.IsLocalRow(i) )
-            {
-                for( auto& j : J )
-                {
-                    if( A.IsLocalCol(j) )
-                    {
-                        const int owner = 
-                          g.VCToViewing(
-                            g.CoordsToVC
-                            ( ASub.ColDist(), ASub.RowDist(), 
-                              ASub.Owner(i,j), ASub.Root() ) 
-                          );
-                        ++sendCounts[owner];
-                    }
-                }
-            }
-        }
-    }
-
-    // Pack the data
-    // =============
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    vector<Entry<T>> sendBuf(totalSend);
-    if( A.RedundantRank() == 0 )
-    {
-        auto offs = sendOffs;
-        for( size_t iSub=0; iSub<I.size(); ++iSub )
-        {
-            const Int i = I[iSub];
-            if( A.IsLocalRow(i) )
-            {
-                const Int iLoc = A.LocalRow(i);
-                for( size_t jSub=0; jSub<J.size(); ++jSub )
-                {
-                    const Int j = J[jSub];
-                    if( A.IsLocalCol(j) )
-                    {
-                        const Int jLoc = A.LocalCol(j);
-                        const int owner = 
-                          g.VCToViewing(
-                            g.CoordsToVC
-                            ( ASub.ColDist(), ASub.RowDist(), 
-                              ASub.Owner(i,j), ASub.Root() ) 
-                          );
-                        const T value = A.GetLocal(iLoc,jLoc);
-                        sendBuf[offs[owner]++] = 
-                          Entry<T>{ Int(iSub), Int(jSub), value };
-                    }
-                }
-            }
-        }
-    }
-
-    // Exchange and unpack the data
-    // ============================
-    auto recvBuf = mpi::AllToAll(sendBuf,sendCounts,sendOffs,comm);
-    for( auto& entry : recvBuf )
-        ASub.Set( entry );
-
-    // Broadcast from the assigned member of the redundant rank team
-    // =============================================================
-    Broadcast( ASub, ASub.RedundantComm(), 0 );
+    unique_ptr<AbstractDistMatrix<T>> 
+      ASubView( A.Construct(A.Grid(),A.Root()) );
+    View( *ASubView, A, I, J );
+    Copy( *ASubView, ASub );
 }
 
 template<typename T>
 DistMatrix<T> GetSubmatrix
 ( const AbstractDistMatrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J )
+  const Range<Int>& I, const Range<Int>& J )
 {
     DistMatrix<T> ASub( A.Grid() );
     GetSubmatrix( A, I, J, ASub );
@@ -347,7 +260,169 @@ DistMultiVec<T> GetSubmatrix
     return ASub;
 }
 
+// Noncontiguous
+// =============
+template<typename T>
+void GetSubmatrix
+( const Matrix<T>& A, 
+  const vector<Int>& I, const vector<Int>& J, 
+        Matrix<T>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
+    const Int m = I.size();
+    const Int n = J.size();
+
+    Zeros( ASub, m, n );
+    for( Int jSub=0; jSub<n; ++jSub )
+    {
+        const Int j = J[jSub];
+        for( Int iSub=0; iSub<m; ++iSub )
+        {
+            const Int i = I[iSub];
+            ASub.Set( iSub, jSub, A.Get(i,j) );
+        }
+    }
+}
+
+template<typename T>
+Matrix<T> GetSubmatrix
+( const Matrix<T>& A, const vector<Int>& I, const vector<Int>& J )
+{
+    DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
+    Matrix<T> ASub;
+    GetSubmatrix( A, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+void GetSubmatrix
+( const AbstractDistMatrix<T>& A, 
+  const vector<Int>& I, const vector<Int>& J, 
+        AbstractDistMatrix<T>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
+    const Int m = I.size();
+    const Int n = J.size();
+    const Grid& g = A.Grid();
+
+    ASub.SetGrid( g ); 
+    Zeros( ASub, m, n );
+    mpi::Comm comm = g.ViewingComm();
+    const int commSize = mpi::Size( comm );  
+
+    // TODO: Intelligently pick the redundant rank to pack from?
+
+    // Compute the metadata
+    // ====================
+    vector<int> sendCounts(commSize,0);    
+    if( A.RedundantRank() == 0 )
+    {
+        for( auto& i : I )
+        {
+            if( A.IsLocalRow(i) )
+            {
+                for( auto& j : J )
+                {
+                    if( A.IsLocalCol(j) )
+                    {
+                        const int owner = 
+                          g.VCToViewing(
+                            g.CoordsToVC
+                            ( ASub.ColDist(), ASub.RowDist(), 
+                              ASub.Owner(i,j), ASub.Root() ) 
+                          );
+                        ++sendCounts[owner];
+                    }
+                }
+            }
+        }
+    }
+
+    // Pack the data
+    // =============
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
+    vector<Entry<T>> sendBuf(totalSend);
+    if( A.RedundantRank() == 0 )
+    {
+        auto offs = sendOffs;
+        for( size_t iSub=0; iSub<I.size(); ++iSub )
+        {
+            const Int i = I[iSub];
+            if( A.IsLocalRow(i) )
+            {
+                const Int iLoc = A.LocalRow(i);
+                for( size_t jSub=0; jSub<J.size(); ++jSub )
+                {
+                    const Int j = J[jSub];
+                    if( A.IsLocalCol(j) )
+                    {
+                        const Int jLoc = A.LocalCol(j);
+                        const int owner = 
+                          g.VCToViewing(
+                            g.CoordsToVC
+                            ( ASub.ColDist(), ASub.RowDist(), 
+                              ASub.Owner(i,j), ASub.Root() ) 
+                          );
+                        const T value = A.GetLocal(iLoc,jLoc);
+                        sendBuf[offs[owner]++] = 
+                          Entry<T>{ Int(iSub), Int(jSub), value };
+                    }
+                }
+            }
+        }
+    }
+
+    // Exchange and unpack the data
+    // ============================
+    auto recvBuf = mpi::AllToAll(sendBuf,sendCounts,sendOffs,comm);
+    for( auto& entry : recvBuf )
+        ASub.Set( entry );
+
+    // Broadcast from the assigned member of the redundant rank team
+    // =============================================================
+    Broadcast( ASub, ASub.RedundantComm(), 0 );
+}
+
+template<typename T>
+DistMatrix<T> GetSubmatrix
+( const AbstractDistMatrix<T>& A, 
+  const vector<Int>& I, const vector<Int>& J )
+{
+    DistMatrix<T> ASub( A.Grid() );
+    GetSubmatrix( A, I, J, ASub );
+    return ASub;
+}
+
+
 #define PROTO(T) \
+  /* Contiguous */ \
+  template void GetSubmatrix \
+  ( const Matrix<T>& A, Range<Int> I, Range<Int> J, \
+          Matrix<T>& ASub ); \
+  template Matrix<T> GetSubmatrix \
+  ( const Matrix<T>& A, Range<Int> I, Range<Int> J ); \
+  template void GetSubmatrix \
+  ( const AbstractDistMatrix<T>& A, Range<Int> I, Range<Int> J, \
+          AbstractDistMatrix<T>& ASub ); \
+  template DistMatrix<T> GetSubmatrix \
+  ( const AbstractDistMatrix<T>& A, Range<Int> I, Range<Int> J ); \
+  template void GetSubmatrix \
+  ( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J, \
+          SparseMatrix<T>& ASub ); \
+  template SparseMatrix<T> GetSubmatrix \
+  ( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J ); \
+  template void GetSubmatrix \
+  ( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J, \
+          DistSparseMatrix<T>& ASub ); \
+  template DistSparseMatrix<T> GetSubmatrix \
+  ( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J ); \
+  template void GetSubmatrix \
+  ( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J, \
+          DistMultiVec<T>& ASub ); \
+  template DistMultiVec<T> GetSubmatrix \
+  ( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J ); \
+  /* Noncontiguous */ \
   template void GetSubmatrix \
   ( const Matrix<T>& A, \
     const vector<Int>& I, const vector<Int>& J, \
@@ -362,21 +437,7 @@ DistMultiVec<T> GetSubmatrix
   template DistMatrix<T> GetSubmatrix \
   ( const AbstractDistMatrix<T>& A, \
     const vector<Int>& I, const vector<Int>& J ); \
-  template void GetSubmatrix \
-  ( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J, \
-          SparseMatrix<T>& ASub ); \
-  template void GetSubmatrix \
-  ( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J, \
-          DistSparseMatrix<T>& ASub ); \
-  template SparseMatrix<T> GetSubmatrix \
-  ( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J ); \
-  template DistSparseMatrix<T> GetSubmatrix \
-  ( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J ); \
-  template void GetSubmatrix \
-  ( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J, \
-          DistMultiVec<T>& ASub ); \
-  template DistMultiVec<T> GetSubmatrix \
-  ( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J );
+
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
