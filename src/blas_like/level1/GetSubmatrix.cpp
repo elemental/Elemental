@@ -40,7 +40,7 @@ void GetSubmatrix
     DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
     unique_ptr<AbstractDistMatrix<T>> 
       ASubView( A.Construct(A.Grid(),A.Root()) );
-    View( *ASubView, A, I, J );
+    LockedView( *ASubView, A, I, J );
     Copy( *ASubView, ASub );
 }
 
