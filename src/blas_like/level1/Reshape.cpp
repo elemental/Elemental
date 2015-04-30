@@ -204,7 +204,6 @@ void Reshape
         const Int i = A.Row(e);
         const Int j = A.Col(e);
         const Int iNew = (i+j*m) % mNew;
-        const Int jNew = (i+j*m) / mNew;
         ++sendCounts[ B.RowOwner(iNew) ];
     }
 
