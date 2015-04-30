@@ -14,7 +14,7 @@ namespace El {
 // ==========
 template<typename T>
 void GetSubmatrix
-( const Matrix<T>& A, const Range<Int>& I, const Range<Int>& J, 
+( const Matrix<T>& A, Range<Int> I, Range<Int> J, 
         Matrix<T>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
@@ -24,7 +24,7 @@ void GetSubmatrix
 
 template<typename T>
 Matrix<T> GetSubmatrix
-( const Matrix<T>& A, const Range<Int>& I, const Range<Int>& J )
+( const Matrix<T>& A, Range<Int> I, Range<Int> J )
 {
     DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
     Matrix<T> ASub;
@@ -34,8 +34,7 @@ Matrix<T> GetSubmatrix
 
 template<typename T>
 void GetSubmatrix
-( const AbstractDistMatrix<T>& A, 
-  const Range<Int>& I, const Range<Int>& J, 
+( const AbstractDistMatrix<T>& A, Range<Int> I, Range<Int> J, 
         AbstractDistMatrix<T>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
@@ -47,8 +46,7 @@ void GetSubmatrix
 
 template<typename T>
 DistMatrix<T> GetSubmatrix
-( const AbstractDistMatrix<T>& A, 
-  const Range<Int>& I, const Range<Int>& J )
+( const AbstractDistMatrix<T>& A, Range<Int> I, Range<Int> J )
 {
     DistMatrix<T> ASub( A.Grid() );
     GetSubmatrix( A, I, J, ASub );

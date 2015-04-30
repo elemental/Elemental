@@ -740,13 +740,11 @@ Matrix<T> GetSubmatrix( const Matrix<T>& A, Range<Int> I, Range<Int> J );
 
 template<typename T>
 void GetSubmatrix
-( const AbstractDistMatrix<T>& A, 
-  const Range<Int>& I, const Range<Int>& J, 
+( const AbstractDistMatrix<T>& A, Range<Int> I, Range<Int> J, 
         AbstractDistMatrix<T>& ASub );
 template<typename T>
 DistMatrix<T> GetSubmatrix
-( const AbstractDistMatrix<T>& A, 
-  const Range<Int>& I, const Range<Int>& J );
+( const AbstractDistMatrix<T>& A, Range<Int> I, Range<Int> J );
 
 template<typename T>
 void GetSubmatrix
