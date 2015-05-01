@@ -461,11 +461,11 @@ class SparseMatrix(object):
       else: DataExcept()
     return valueBuf
 
-  lib.ElGetSubmatrixSparse_i.argtypes = \
-  lib.ElGetSubmatrixSparse_s.argtypes = \
-  lib.ElGetSubmatrixSparse_d.argtypes = \
-  lib.ElGetSubmatrixSparse_c.argtypes = \
-  lib.ElGetSubmatrixSparse_z.argtypes = \
+  lib.ElGetContigSubmatrixSparse_i.argtypes = \
+  lib.ElGetContigSubmatrixSparse_s.argtypes = \
+  lib.ElGetContigSubmatrixSparse_d.argtypes = \
+  lib.ElGetContigSubmatrixSparse_c.argtypes = \
+  lib.ElGetContigSubmatrixSparse_z.argtypes = \
     [c_void_p,IndexRange,IndexRange,c_void_p]
   def __getitem__(self,indTup):
     iInd, jInd = indTup
@@ -483,10 +483,10 @@ class SparseMatrix(object):
     jRan = IndexRange(jInd)
     ASub = SparseMatrix(self.tag)
     args = [self.obj,iRan,jRan,ASub.obj]
-    if   self.tag == iTag: lib.ElGetSubmatrixSparse_i(*args)
-    elif self.tag == sTag: lib.ElGetSubmatrixSparse_s(*args)
-    elif self.tag == dTag: lib.ElGetSubmatrixSparse_d(*args)
-    elif self.tag == cTag: lib.ElGetSubmatrixSparse_c(*args)
-    elif self.tag == zTag: lib.ElGetSubmatrixSparse_z(*args)
+    if   self.tag == iTag: lib.ElGetContigSubmatrixSparse_i(*args)
+    elif self.tag == sTag: lib.ElGetContigSubmatrixSparse_s(*args)
+    elif self.tag == dTag: lib.ElGetContigSubmatrixSparse_d(*args)
+    elif self.tag == cTag: lib.ElGetContigSubmatrixSparse_c(*args)
+    elif self.tag == zTag: lib.ElGetContigSubmatrixSparse_z(*args)
     else: DataExcept()
     return ASub
