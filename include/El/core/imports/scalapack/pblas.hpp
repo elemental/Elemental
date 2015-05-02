@@ -111,22 +111,22 @@ void Trsv
 // Gemm
 // ----
 void Gemm
-( char trans, char transb, int m, int n, int k,
+( char transa, char transb, int m, int n, int k,
   float alpha, const float* A, const int* descA,
                const float* B, const int* descB,
   float beta,        float* C, const int* descC );
 void Gemm
-( char trans, char transb, int m, int n, int k,
+( char transa, char transb, int m, int n, int k,
   double alpha, const double* A, const int* descA,
                 const double* B, const int* descB,
   double beta,        double* C, const int* descC );
 void Gemm
-( char trans, char transb, int m, int n, int k,
+( char transa, char transb, int m, int n, int k,
   scomplex alpha, const scomplex* A, const int* descA,
                   const scomplex* B, const int* descB,
   scomplex beta,        scomplex* C, const int* descC );
 void Gemm
-( char trans, char transb, int m, int n, int k,
+( char transa, char transb, int m, int n, int k,
   dcomplex alpha, const dcomplex* A, const int* descA,
                   const dcomplex* B, const int* descB,
   dcomplex beta,        dcomplex* C, const int* descC );

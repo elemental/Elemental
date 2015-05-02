@@ -102,13 +102,13 @@ Licensing
 
 External Interfaces
 -------------------
-[o] Build a Julia interface on top of the C interface
+[o] Expose BlockDistMatrix to C and Python (as well as ScaLAPACK interface)
 
 Build system
 ------------
 [o] Support PMRRR when pthreads are not available (e.g., Windows)
-[o] Support for BLIS
-[o] Support for netlib BLAS/LAPACK
+[o] Support for automatically downloading/installing BLIS
+[o] Support for automatically downloading/installing netlib BLAS/LAPACK
 [o] Attempt to shorten build via extern templates
 
 MPI and Threading
