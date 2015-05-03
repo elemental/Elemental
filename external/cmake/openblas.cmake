@@ -65,9 +65,9 @@ elseif(FORTRAN_WORKS)
       TMP_DIR    ${OPENBLAS_BINARY_DIR}/tmp
       INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
       CONFIGURE_COMMAND ""
+      UPDATE_COMMAND "" 
       BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CC=${CMAKE_C_COMPILER} FC=${CMAKE_Fortran_COMPILER} libs netlib shared
       INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install PREFIX=<INSTALL_DIR>
-      UPDATE_COMMAND "" 
     )
     add_dependencies(External project_openblas)
 
