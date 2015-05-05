@@ -79,7 +79,7 @@ template<typename T>
 const AbstractDistMatrix<T>&
 AbstractDistMatrix<T>::operator=( const DistMultiVec<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::operator="))
+    DEBUG_ONLY(CSE cse("ADM::operator="))
     Copy( A, *this );
     return *this;
 }
@@ -126,10 +126,10 @@ void
 AbstractDistMatrix<T>::Resize( Int height, Int width )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ADM::Resize");
-        AssertNotLocked();
-        if( Viewing() && (height > height_ || width > width_) )
-            LogicError("Tried to increase the size of a view");
+      CSE cse("ADM::Resize");
+      AssertNotLocked();
+      if( Viewing() && (height > height_ || width > width_) )
+          LogicError("Tried to increase the size of a view");
     )
     height_ = height; 
     width_ = width;
@@ -144,11 +144,11 @@ void
 AbstractDistMatrix<T>::Resize( Int height, Int width, Int ldim )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ADM::Resize");
-        AssertNotLocked();
-        if( Viewing() && 
-            (height > height_ || width > width_ || ldim > matrix_.LDim()) )
-            LogicError("Tried to increase the size of a view");
+      CSE cse("ADM::Resize");
+      AssertNotLocked();
+      if( Viewing() && 
+          (height > height_ || width > width_ || ldim > matrix_.LDim()) )
+          LogicError("Tried to increase the size of a view");
     )
     height_ = height; 
     width_ = width;
@@ -162,7 +162,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::MakeConsistent( bool includingViewers )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::MakeConsistent"))
+    DEBUG_ONLY(CSE cse("ADM::MakeConsistent"))
 
     const Int msgLength = 9;
     Int message[msgLength];
@@ -218,7 +218,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::MakeSizeConsistent( bool includingViewers )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::MakeSizeConsistent"))
+    DEBUG_ONLY(CSE cse("ADM::MakeSizeConsistent"))
 
     const Int msgSize = 2;
     Int message[msgSize];
@@ -250,7 +250,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::Align( int colAlign, int rowAlign, bool constrain )
 { 
-    DEBUG_ONLY(CallStackEntry cse("ADM::Align"))
+    DEBUG_ONLY(CSE cse("ADM::Align"))
     const bool requireChange = colAlign_ != colAlign || rowAlign_ != rowAlign;
     DEBUG_ONLY(
         if( Viewing() && requireChange )
@@ -273,9 +273,9 @@ void
 AbstractDistMatrix<T>::AlignCols( int colAlign, bool constrain )
 { 
     DEBUG_ONLY(
-        CallStackEntry cse("ADM::AlignCols");
-        if( Viewing() && colAlign_ != colAlign )
-            LogicError("Tried to realign a view");
+      CSE cse("ADM::AlignCols");
+      if( Viewing() && colAlign_ != colAlign )
+          LogicError("Tried to realign a view");
     )
     if( colAlign_ != colAlign )
         EmptyData();
@@ -290,9 +290,9 @@ void
 AbstractDistMatrix<T>::AlignRows( int rowAlign, bool constrain )
 { 
     DEBUG_ONLY(
-        CallStackEntry cse("ADM::AlignRows");
-        if( Viewing() && rowAlign_ != rowAlign )
-            LogicError("Tried to realign a view");
+      CSE cse("ADM::AlignRows");
+      if( Viewing() && rowAlign_ != rowAlign )
+          LogicError("Tried to realign a view");
     )
     if( rowAlign_ != rowAlign )
         EmptyData();
@@ -321,9 +321,9 @@ void
 AbstractDistMatrix<T>::SetRoot( int root, bool constrain )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ADM::SetRoot");
-        if( root < 0 || root >= mpi::Size(CrossComm()) )
-            LogicError("Invalid root");
+      CSE cse("ADM::SetRoot");
+      if( root < 0 || root >= mpi::Size(CrossComm()) )
+          LogicError("Invalid root");
     )
     if( root != root_ )
         Empty();
@@ -337,7 +337,7 @@ void
 AbstractDistMatrix<T>::AlignWith
 ( const El::DistData& data, bool constrain, bool allowMismatch )
 { 
-    DEBUG_ONLY(CallStackEntry cse("ADM::AlignWith"))
+    DEBUG_ONLY(CSE cse("ADM::AlignWith"))
     AlignColsWith( data, constrain, allowMismatch );
     AlignRowsWith( data, constrain, allowMismatch );
 }
@@ -347,7 +347,7 @@ void
 AbstractDistMatrix<T>::AlignColsWith
 ( const El::DistData& data, bool constrain, bool allowMismatch )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::AlignColsWith"))
+    DEBUG_ONLY(CSE cse("ADM::AlignColsWith"))
     SetGrid( *data.grid );
     SetRoot( data.root );
     if(      data.colDist == ColDist() || data.colDist == PartialColDist() )
@@ -368,7 +368,7 @@ template<typename T>
 void AbstractDistMatrix<T>::AlignRowsWith
 ( const El::DistData& data, bool constrain, bool allowMismatch )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::AlignRowsWith"))
+    DEBUG_ONLY(CSE cse("ADM::AlignRowsWith"))
     SetGrid( *data.grid );
     SetRoot( data.root );
     if(      data.colDist == RowDist() || data.colDist == PartialRowDist() )
@@ -391,7 +391,7 @@ AbstractDistMatrix<T>::AlignAndResize
 ( int colAlign, int rowAlign, Int height, Int width, 
   bool force, bool constrain )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::AlignAndResize"))
+    DEBUG_ONLY(CSE cse("ADM::AlignAndResize"))
     if( !Viewing() )
     {
         if( force || !ColConstrained() )
@@ -420,7 +420,7 @@ void
 AbstractDistMatrix<T>::AlignColsAndResize
 ( int colAlign, Int height, Int width, bool force, bool constrain )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::AlignColsAndResize"))
+    DEBUG_ONLY(CSE cse("ADM::AlignColsAndResize"))
     if( !Viewing() && (force || !ColConstrained()) )
     {
         colAlign_ = colAlign;
@@ -438,7 +438,7 @@ void
 AbstractDistMatrix<T>::AlignRowsAndResize
 ( int rowAlign, Int height, Int width, bool force, bool constrain )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::AlignRowsAndResize"))
+    DEBUG_ONLY(CSE cse("ADM::AlignRowsAndResize"))
     if( !Viewing() && (force || !RowConstrained()) )
     {
         rowAlign_ = rowAlign;
@@ -460,7 +460,7 @@ AbstractDistMatrix<T>::Attach
 ( Int height, Int width, const El::Grid& g, 
   int colAlign, int rowAlign, T* buffer, Int ldim, int root )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::Attach"))
+    DEBUG_ONLY(CSE cse("ADM::Attach"))
     Empty();
 
     grid_ = &g;
@@ -496,7 +496,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::Attach( const El::Grid& g, El::Matrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::Attach"))
+    DEBUG_ONLY(CSE cse("ADM::Attach"))
     if( g.Size() != 1 )
         LogicError("Assumed a grid size of one");
     Attach( A.Height(), A.Width(), g, 0, 0, A.Buffer(), A.LDim() );
@@ -508,7 +508,7 @@ AbstractDistMatrix<T>::LockedAttach
 ( Int height, Int width, const El::Grid& g, 
   int colAlign, int rowAlign, const T* buffer, Int ldim, int root )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::LockedAttach"))
+    DEBUG_ONLY(CSE cse("ADM::LockedAttach"))
     Empty();
 
     grid_ = &g;
@@ -545,7 +545,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::LockedAttach( const El::Grid& g, const El::Matrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::LockedAttach"))
+    DEBUG_ONLY(CSE cse("ADM::LockedAttach"))
     if( g.Size() != 1 )
         LogicError("Assumed a grid size of one");
     LockedAttach( A.Height(), A.Width(), g, 0, 0, A.LockedBuffer(), A.LDim() );
@@ -640,10 +640,18 @@ bool AbstractDistMatrix<T>::Participating() const
 
 template<typename T>
 int AbstractDistMatrix<T>::RowOwner( Int i ) const
-{ return int((i+ColAlign()) % ColStride()); }
+{
+    if( i == END ) i = height_ - 1;
+    return int((i+ColAlign()) % ColStride());
+}
+
 template<typename T>
 int AbstractDistMatrix<T>::ColOwner( Int j ) const
-{ return int((j+RowAlign()) % RowStride()); }
+{ 
+    if( j == END ) j = width_ - 1;
+    return int((j+RowAlign()) % RowStride()); 
+}
+
 template<typename T>
 int AbstractDistMatrix<T>::Owner( Int i, Int j ) const
 { return RowOwner(i)+ColOwner(j)*ColStride(); }
@@ -652,9 +660,9 @@ template<typename T>
 Int AbstractDistMatrix<T>::LocalRow( Int i ) const
 { 
     DEBUG_ONLY(
-        CallStackEntry cse("ADM::LocalRow");
-        if( !IsLocalRow(i) )
-            LogicError("Requested local index of non-local row");
+      CSE cse("ADM::LocalRow");
+      if( !IsLocalRow(i) )
+          LogicError("Requested local index of non-local row");
     )
     return LocalRowOffset(i);
 }
@@ -663,26 +671,40 @@ template<typename T>
 Int AbstractDistMatrix<T>::LocalCol( Int j ) const
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ADM::LocalCol");
-        if( !IsLocalCol(j) )
-            LogicError("Requested local index of non-local column");
+      CSE cse("ADM::LocalCol");
+      if( !IsLocalCol(j) )
+          LogicError("Requested local index of non-local column");
     )
     return LocalColOffset(j);
 }
 
 template<typename T>
 Int AbstractDistMatrix<T>::LocalRowOffset( Int i ) const
-{ return Length_(i,ColShift(),ColStride()); }
+{ 
+    if( i == END ) i = height_ - 1;
+    return Length_(i,ColShift(),ColStride()); 
+}
+
 template<typename T>
 Int AbstractDistMatrix<T>::LocalColOffset( Int j ) const
-{ return Length_(j,RowShift(),RowStride()); }
+{ 
+    if( j == END ) j = width_ - 1;
+    return Length_(j,RowShift(),RowStride()); 
+}
 
 template<typename T>
 Int AbstractDistMatrix<T>::GlobalRow( Int iLoc ) const
-{ return ColShift() + iLoc*ColStride(); }
+{ 
+    if( iLoc == END ) iLoc = LocalHeight() - 1;
+    return ColShift() + iLoc*ColStride(); 
+}
+
 template<typename T>
 Int AbstractDistMatrix<T>::GlobalCol( Int jLoc ) const
-{ return RowShift() + jLoc*RowStride(); }
+{ 
+    if( jLoc == END ) jLoc = LocalWidth() - 1;
+    return RowShift() + jLoc*RowStride(); 
+}
 
 template<typename T>
 bool AbstractDistMatrix<T>::IsLocalRow( Int i ) const
@@ -759,9 +781,9 @@ T
 AbstractDistMatrix<T>::Get( Int i, Int j ) const
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ADM::Get");
-        if( !grid_->InGrid() )
-            LogicError("Get should only be called in-grid");
+      CSE cse("ADM::Get");
+      if( !grid_->InGrid() )
+          LogicError("Get should only be called in-grid");
     )
     T value;
     if( CrossRank() == Root() )
@@ -780,9 +802,9 @@ Base<T>
 AbstractDistMatrix<T>::GetRealPart( Int i, Int j ) const
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ADM::GetRealPart");
-        if( !grid_->InGrid() )
-            LogicError("Get should only be called in-grid");
+      CSE cse("ADM::GetRealPart");
+      if( !grid_->InGrid() )
+          LogicError("Get should only be called in-grid");
     )
     Base<T> value;
     if( CrossRank() == Root() )
@@ -801,9 +823,9 @@ Base<T>
 AbstractDistMatrix<T>::GetImagPart( Int i, Int j ) const
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ADM::GetImagPart");
-        if( !grid_->InGrid() )
-            LogicError("Get should only be called in-grid");
+      CSE cse("ADM::GetImagPart");
+      if( !grid_->InGrid() )
+          LogicError("Get should only be called in-grid");
     )
     Base<T> value;
     if( IsComplex<T>::val )
@@ -826,7 +848,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::Set( Int i, Int j, T value )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::Set"))
+    DEBUG_ONLY(CSE cse("ADM::Set"))
     if( IsLocal(i,j) )
         SetLocal( LocalRow(i), LocalCol(j), value );
 }
@@ -840,7 +862,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::SetRealPart( Int i, Int j, Base<T> value )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::SetRealPart"))
+    DEBUG_ONLY(CSE cse("ADM::SetRealPart"))
     if( IsLocal(i,j) )
         SetLocalRealPart( LocalRow(i), LocalCol(j), value );
 }
@@ -854,7 +876,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::SetImagPart( Int i, Int j, Base<T> value )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::SetImagPart"))
+    DEBUG_ONLY(CSE cse("ADM::SetImagPart"))
     if( IsLocal(i,j) )
         SetLocalImagPart( LocalRow(i), LocalCol(j), value );
 }
@@ -868,7 +890,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::Update( Int i, Int j, T value )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::Update"))
+    DEBUG_ONLY(CSE cse("ADM::Update"))
     if( IsLocal(i,j) )
         UpdateLocal( LocalRow(i), LocalCol(j), value );
 }
@@ -882,7 +904,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::UpdateRealPart( Int i, Int j, Base<T> value )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateRealPart"))
+    DEBUG_ONLY(CSE cse("ADM::UpdateRealPart"))
     if( IsLocal(i,j) )
         UpdateLocalRealPart( LocalRow(i), LocalCol(j), value );
 }
@@ -896,7 +918,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::UpdateImagPart( Int i, Int j, Base<T> value )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateImagPart"))
+    DEBUG_ONLY(CSE cse("ADM::UpdateImagPart"))
     if( IsLocal(i,j) )
         UpdateLocalImagPart( LocalRow(i), LocalCol(j), value );
 }
@@ -910,7 +932,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::MakeReal( Int i, Int j )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::MakeReal"))
+    DEBUG_ONLY(CSE cse("ADM::MakeReal"))
     if( IsLocal(i,j) )
         MakeLocalReal( LocalRow(i), LocalCol(j) );
 }
@@ -919,7 +941,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::Conjugate( Int i, Int j )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::Conjugate"))
+    DEBUG_ONLY(CSE cse("ADM::Conjugate"))
     if( IsLocal(i,j) )
         ConjugateLocal( LocalRow(i), LocalCol(j) );
 }
@@ -929,8 +951,8 @@ AbstractDistMatrix<T>::Conjugate( Int i, Int j )
 
 template<typename T>
 T
-AbstractDistMatrix<T>::GetLocal( Int i, Int j ) const
-{ return matrix_.Get(i,j); }
+AbstractDistMatrix<T>::GetLocal( Int iLoc, Int jLoc ) const
+{ return matrix_.Get(iLoc,jLoc); }
 
 template<typename T>
 Base<T>
@@ -1020,7 +1042,7 @@ template<typename T>
 bool AbstractDistMatrix<T>::DiagonalAlignedWith
 ( const El::DistData& d, Int offset ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::DiagonalAlignedWith"))
+    DEBUG_ONLY(CSE cse("ADM::DiagonalAlignedWith"))
     if( Grid() != *d.grid )
         return false;
 
@@ -1042,7 +1064,7 @@ bool AbstractDistMatrix<T>::DiagonalAlignedWith
 template<typename T>
 int AbstractDistMatrix<T>::DiagonalRoot( Int offset ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::DiagonalRoot"))
+    DEBUG_ONLY(CSE cse("ADM::DiagonalRoot"))
     const El::Grid& grid = Grid();
 
     if( ColDist() == MC && RowDist() == MR )
@@ -1088,7 +1110,7 @@ int AbstractDistMatrix<T>::DiagonalRoot( Int offset ) const
 template<typename T>
 int AbstractDistMatrix<T>::DiagonalAlign( Int offset ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::DiagonalAlign"))
+    DEBUG_ONLY(CSE cse("ADM::DiagonalAlign"))
     const El::Grid& grid = Grid();
 
     if( ColDist() == MC && RowDist() == MR )
@@ -1176,6 +1198,8 @@ template<typename T>
 void
 AbstractDistMatrix<T>::AssertValidEntry( Int i, Int j ) const
 {
+    if( i == END ) i = height_ - 1;
+    if( j == END ) j = width_ - 1;
     if( i < 0 || i >= Height() || j < 0 || j >= Width() )
         LogicError
         ("Entry (",i,",",j,") is out of bounds of ",Height(),
@@ -1187,6 +1211,8 @@ void
 AbstractDistMatrix<T>::AssertValidSubmatrix
 ( Int i, Int j, Int height, Int width ) const
 {
+    if( i == END ) i = height_ - 1;
+    if( j == END ) j = width_ - 1;
     if( i < 0 || j < 0 )
         LogicError("Indices of submatrix were negative");
     if( height < 0 || width < 0 )

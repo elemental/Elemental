@@ -26,7 +26,7 @@ namespace El {
 template<typename T>
 DM DM::operator()( Range<Int> indVert, Range<Int> indHorz )
 {
-    DEBUG_ONLY(CallStackEntry cse("DM[VC,STAR]( ind, ind )"))
+    DEBUG_ONLY(CSE cse("DM[VC,STAR]( ind, ind )"))
     if( this->Locked() )
         return LockedView( *this, indVert, indHorz );
     else
@@ -36,7 +36,7 @@ DM DM::operator()( Range<Int> indVert, Range<Int> indHorz )
 template<typename T>
 const DM DM::operator()( Range<Int> indVert, Range<Int> indHorz ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DM[VC,STAR]( ind, ind )"))
+    DEBUG_ONLY(CSE cse("DM[VC,STAR]( ind, ind )"))
     return LockedView( *this, indVert, indHorz );
 }
 
@@ -45,7 +45,7 @@ const DM DM::operator()( Range<Int> indVert, Range<Int> indHorz ) const
 template<typename T>
 DM& DM::operator=( const DM& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("DM[VC,STAR] = DM[VC,STAR]"))
+    DEBUG_ONLY(CSE cse("DM[VC,STAR] = DM[VC,STAR]"))
     copy::Translate( A, *this );
     return *this;
 }
@@ -53,7 +53,7 @@ DM& DM::operator=( const DM& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [MC,MR]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [MC,MR]"))
     copy::ColAllToAllDemote( A, *this );
     return *this;
 }
@@ -61,7 +61,7 @@ DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [MC,STAR]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [MC,STAR]"))
     copy::PartialColFilter( A, *this );
     return *this;
 }
@@ -69,7 +69,7 @@ DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [STAR,MR]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [STAR,MR]"))
     DistMatrix<T,MC,MR> A_MC_MR( A );
     *this = A_MC_MR;
     return *this;
@@ -78,7 +78,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MD,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [MD,STAR]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [MD,STAR]"))
     // TODO: Optimize this later if important
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -88,7 +88,7 @@ DM& DM::operator=( const DistMatrix<T,MD,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MD>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [STAR,MD]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [STAR,MD]"))
     // TODO: Optimize this later if important
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -98,7 +98,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,MD>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [MR,MC]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [MR,MC]"))
     DistMatrix<T,VR,STAR> A_VR_STAR( A );
     *this = A_VR_STAR;
     return *this;
@@ -107,7 +107,7 @@ DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MR,STAR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [MR,STAR]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [MR,STAR]"))
     DistMatrix<T,VR,STAR> A_VR_STAR( A );
     *this = A_VR_STAR;
     return *this;
@@ -116,7 +116,7 @@ DM& DM::operator=( const DistMatrix<T,MR,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [STAR,MC]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [STAR,MC]"))
     auto A_MR_MC = MakeUnique<DistMatrix<T,MR,MC>>( A );
     auto A_VR_STAR = MakeUnique<DistMatrix<T,VR,STAR>>( *A_MR_MC );
     A_MR_MC.reset(); 
@@ -127,7 +127,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [STAR,VC]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [STAR,VC]"))
     auto A_MR_MC = MakeUnique<DistMatrix<T,MR,MC>>( A );
     auto A_VR_STAR = MakeUnique<DistMatrix<T,VR,STAR>>( *A_MR_MC );
     A_MR_MC.reset(); 
@@ -138,7 +138,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [VR,STAR]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [VR,STAR]"))
     copy::ColwiseVectorExchange<T,MR,MC>( A, *this );
     return *this;
 }
@@ -146,7 +146,7 @@ DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [STAR,VR]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [STAR,VR]"))
     DistMatrix<T,MC,MR> A_MC_MR( A );
     *this = A_MC_MR;
     return *this;
@@ -155,7 +155,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [STAR,STAR]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [STAR,STAR]"))
     copy::ColFilter( A, *this );
     return *this;
 }
@@ -163,7 +163,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [CIRC,CIRC]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [CIRC,CIRC]"))
     copy::Scatter( A, *this );
     return *this;
 }
@@ -171,7 +171,7 @@ DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 template<typename T>
 DM& DM::operator=( const AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("DM = ADM"))
+    DEBUG_ONLY(CSE cse("DM = ADM"))
     #define GUARD(CDIST,RDIST) \
       A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \

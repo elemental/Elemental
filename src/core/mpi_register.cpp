@@ -329,7 +329,7 @@ template<> Datatype TypeMap<Entry<Complex<Quad>>>()
 template<typename T>
 static void CreateValueIntType()
 {
-    DEBUG_ONLY(CallStackEntry cse("CreateValueIntType"))
+    DEBUG_ONLY(CSE cse("CreateValueIntType"))
     Datatype typeList[2];
     typeList[0] = TypeMap<T>();
     typeList[1] = TypeMap<Int>();
@@ -367,7 +367,7 @@ template void CreateValueIntType<Complex<Quad>>();
 template<typename T>
 static void CreateEntryType()
 {
-    DEBUG_ONLY(CallStackEntry cse("CreateEntryType"))
+    DEBUG_ONLY(CSE cse("CreateEntryType"))
     Datatype typeList[3];
     typeList[0] = TypeMap<Int>();
     typeList[1] = TypeMap<Int>();

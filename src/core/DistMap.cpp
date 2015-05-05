@@ -42,7 +42,7 @@ DistMap::~DistMap()
 void DistMap::StoreOwners
 ( Int numSources, vector<Int>& localInds, mpi::Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMap::StoreOwners"))
+    DEBUG_ONLY(CSE cse("DistMap::StoreOwners"))
     SetComm( comm );
     Resize( numSources );
     const int commSize = mpi::Size( comm );
@@ -86,7 +86,7 @@ void DistMap::StoreOwners
 
 void DistMap::Translate( vector<Int>& localInds ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMap::Translate"))
+    DEBUG_ONLY(CSE cse("DistMap::Translate"))
     const int commSize = mpi::Size( comm_ );
     const Int numLocalInds = localInds.size();
 
@@ -159,7 +159,7 @@ void DistMap::Translate( vector<Int>& localInds ) const
 void DistMap::Extend( DistMap& firstMap ) const
 {
     DEBUG_ONLY(
-        CallStackEntry cse("DistMap::Extend");
+        CSE cse("DistMap::Extend");
         // TODO: Ensure that the communicators are congruent and that the maps
         //       are compatible sizes.
     )
@@ -168,7 +168,7 @@ void DistMap::Extend( DistMap& firstMap ) const
 
 void DistMap::Extend( const DistMap& firstMap, DistMap& compositeMap ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMap::Extend"))
+    DEBUG_ONLY(CSE cse("DistMap::Extend"))
     compositeMap = firstMap;
     Extend( compositeMap );
 }
@@ -218,7 +218,7 @@ int DistMap::RowOwner( Int i ) const
 Int DistMap::GetLocal( Int localSource ) const
 { 
     DEBUG_ONLY(
-        CallStackEntry cse("DistMap::GetLocal");
+        CSE cse("DistMap::GetLocal");
         if( localSource < 0 || localSource >= (Int)map_.size() )
             LogicError("local source is out of bounds");
     )
@@ -228,7 +228,7 @@ Int DistMap::GetLocal( Int localSource ) const
 void DistMap::SetLocal( Int localSource, Int target )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("DistMap::SetLocal");
+        CSE cse("DistMap::SetLocal");
         if( localSource < 0 || localSource >= (Int)map_.size() )
             LogicError("local source is out of bounds");
     )
@@ -272,7 +272,7 @@ const DistMap& DistMap::operator=( const DistMap& map )
 
 void InvertMap( const vector<Int>& map, vector<Int>& inverseMap ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("InvertMap"))
+    DEBUG_ONLY(CSE cse("InvertMap"))
     const int n = map.size();
     inverseMap.resize( n );
     for( int i=0; i<n; ++i )
@@ -281,7 +281,7 @@ void InvertMap( const vector<Int>& map, vector<Int>& inverseMap )
 
 void InvertMap( const DistMap& map, DistMap& inverseMap ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("InvertMap"))
+    DEBUG_ONLY(CSE cse("InvertMap"))
     mpi::Comm comm = map.Comm();
     const int commSize = mpi::Size( comm );
     const Int numLocalSources = map.NumLocalSources();

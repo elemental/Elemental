@@ -25,7 +25,7 @@ SparseMatrix<T>::SparseMatrix( Int height, Int width )
 template<typename T>
 SparseMatrix<T>::SparseMatrix( const SparseMatrix<T>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::SparseMatrix"))
+    DEBUG_ONLY(CSE cse("SparseMatrix::SparseMatrix"))
     if( &A != this )
         *this = A;
     else
@@ -35,7 +35,7 @@ SparseMatrix<T>::SparseMatrix( const SparseMatrix<T>& A )
 template<typename T>
 SparseMatrix<T>::SparseMatrix( const DistSparseMatrix<T>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::SparseMatrix"))
+    DEBUG_ONLY(CSE cse("SparseMatrix::SparseMatrix"))
     *this = A;
 }
 
@@ -50,7 +50,7 @@ SparseMatrix<T>::~SparseMatrix() { }
 template<typename T>
 const SparseMatrix<T>& SparseMatrix<T>::operator=( const SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::operator="))
+    DEBUG_ONLY(CSE cse("SparseMatrix::operator="))
     graph_ = A.graph_;
     vals_ = A.vals_;
     return *this;
@@ -60,7 +60,7 @@ template<typename T>
 const SparseMatrix<T>&
 SparseMatrix<T>::operator=( const DistSparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::operator="))
+    DEBUG_ONLY(CSE cse("SparseMatrix::operator="))
     mpi::Comm comm = A.Comm();
     const int commSize = mpi::Size( comm );
     if( commSize != 1 )
@@ -77,7 +77,7 @@ template<typename T>
 SparseMatrix<T>
 SparseMatrix<T>::operator()( Range<Int> I, Range<Int> J ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::operator()"))
+    DEBUG_ONLY(CSE cse("SparseMatrix::operator()"))
     return GetSubmatrix( *this, I, J );
 }
 
@@ -112,7 +112,7 @@ void SparseMatrix<T>::Reserve( Int numEntries )
 template<typename T>
 void SparseMatrix<T>::Update( Int row, Int col, T value )
 {
-    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::Update"))
+    DEBUG_ONLY(CSE cse("SparseMatrix::Update"))
     QueueUpdate( row, col, value );
     ProcessQueues();
 }
@@ -124,7 +124,7 @@ void SparseMatrix<T>::Update( const Entry<T>& entry )
 template<typename T>
 void SparseMatrix<T>::Zero( Int row, Int col )
 {
-    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::Zero"))
+    DEBUG_ONLY(CSE cse("SparseMatrix::Zero"))
     QueueZero( row, col );
     ProcessQueues();
 }
@@ -132,7 +132,7 @@ void SparseMatrix<T>::Zero( Int row, Int col )
 template<typename T>
 void SparseMatrix<T>::QueueUpdate( Int row, Int col, T value )
 {
-    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::QueueUpdate"))
+    DEBUG_ONLY(CSE cse("SparseMatrix::QueueUpdate"))
     graph_.QueueConnection( row, col );
     vals_.push_back( value );
 }
@@ -144,7 +144,7 @@ void SparseMatrix<T>::QueueUpdate( const Entry<T>& entry )
 template<typename T>
 void SparseMatrix<T>::QueueZero( Int row, Int col )
 {
-    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::QueueUpdate"))
+    DEBUG_ONLY(CSE cse("SparseMatrix::QueueUpdate"))
     graph_.QueueDisconnection( row, col );
 }
 
@@ -161,14 +161,14 @@ Int SparseMatrix<T>::Width() const { return graph_.NumTargets(); }
 template<typename T>
 Int SparseMatrix<T>::NumEntries() const
 {
-    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::NumEntries"))
+    DEBUG_ONLY(CSE cse("SparseMatrix::NumEntries"))
     return graph_.NumEdges();
 }
 
 template<typename T>
 Int SparseMatrix<T>::Capacity() const
 {
-    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::Capacity"))
+    DEBUG_ONLY(CSE cse("SparseMatrix::Capacity"))
     return graph_.Capacity();
 }
 
@@ -185,28 +185,28 @@ const El::Graph& SparseMatrix<T>::LockedGraph() const { return graph_; }
 template<typename T>
 Int SparseMatrix<T>::Row( Int index ) const
 { 
-    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::Row"))
+    DEBUG_ONLY(CSE cse("SparseMatrix::Row"))
     return graph_.Source( index );
 }
 
 template<typename T>
 Int SparseMatrix<T>::Col( Int index ) const
 { 
-    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::Col"))
+    DEBUG_ONLY(CSE cse("SparseMatrix::Col"))
     return graph_.Target( index );
 }
 
 template<typename T>
 Int SparseMatrix<T>::EntryOffset( Int row ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::EntryOffset"))
+    DEBUG_ONLY(CSE cse("SparseMatrix::EntryOffset"))
     return graph_.EdgeOffset( row );
 }
 
 template<typename T>
 Int SparseMatrix<T>::NumConnections( Int row ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("SparseMatrix::NumConnections"))
+    DEBUG_ONLY(CSE cse("SparseMatrix::NumConnections"))
     return graph_.NumConnections( row );
 }
 
@@ -214,7 +214,7 @@ template<typename T>
 T SparseMatrix<T>::Value( Int index ) const
 { 
     DEBUG_ONLY(
-      CallStackEntry cse("SparseMatrix::Value");
+      CSE cse("SparseMatrix::Value");
       if( index < 0 || index >= vals_.size() )
           LogicError("Entry number out of bounds");
     )
@@ -249,7 +249,7 @@ template<typename T>
 void SparseMatrix<T>::ProcessQueues()
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SparseMatrix::ProcessQueues");
+      CSE cse("SparseMatrix::ProcessQueues");
       if( graph_.sources_.size() != graph_.targets_.size() || 
           graph_.targets_.size() != vals_.size() )
           LogicError("Inconsistent sparse matrix buffer sizes");

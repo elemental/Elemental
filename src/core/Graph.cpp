@@ -35,7 +35,7 @@ Graph::Graph( Int numSources, Int numTargets )
 
 Graph::Graph( const Graph& graph )
 {
-    DEBUG_ONLY(CallStackEntry cse("Graph::Graph"))
+    DEBUG_ONLY(CSE cse("Graph::Graph"))
     if( &graph != this )
         *this = graph;
     else
@@ -44,7 +44,7 @@ Graph::Graph( const Graph& graph )
     
 Graph::Graph( const DistGraph& graph )
 {
-    DEBUG_ONLY(CallStackEntry cse("Graph::Graph"))
+    DEBUG_ONLY(CSE cse("Graph::Graph"))
     *this = graph;
 }
 
@@ -57,14 +57,14 @@ Graph::~Graph() { }
 // -------------
 const Graph& Graph::operator=( const Graph& graph )
 {
-    DEBUG_ONLY(CallStackEntry cse("Graph::operator="))
+    DEBUG_ONLY(CSE cse("Graph::operator="))
     Copy( graph, *this );
     return *this;
 }
 
 const Graph& Graph::operator=( const DistGraph& graph )
 {
-    DEBUG_ONLY(CallStackEntry cse("Graph::operator="))
+    DEBUG_ONLY(CSE cse("Graph::operator="))
     Copy( graph, *this );
     return *this;
 }
@@ -73,7 +73,7 @@ const Graph& Graph::operator=( const DistGraph& graph )
 // ------------------------------------
 Graph Graph::operator()( Range<Int> I, Range<Int> J ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("Graph::operator()"))
+    DEBUG_ONLY(CSE cse("Graph::operator()"))
     return GetSubgraph( *this, I, J );
 }
 
@@ -124,14 +124,14 @@ void Graph::Reserve( Int numEdges )
 
 void Graph::Connect( Int source, Int target )
 {
-    DEBUG_ONLY(CallStackEntry cse("Graph::Connect"))
+    DEBUG_ONLY(CSE cse("Graph::Connect"))
     QueueConnection( source, target );
     ProcessQueues();
 }
 
 void Graph::Disconnect( Int source, Int target )
 {
-    DEBUG_ONLY(CallStackEntry cse("Graph::Disconnect"))
+    DEBUG_ONLY(CSE cse("Graph::Disconnect"))
     QueueDisconnection( source, target );
     ProcessQueues();
 }
@@ -139,12 +139,14 @@ void Graph::Disconnect( Int source, Int target )
 void Graph::QueueConnection( Int source, Int target )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("Graph::QueueConnection");
+      CSE cse("Graph::QueueConnection");
       const Int capacity = Capacity();
       const Int numEdges = NumEdges();
       if( numEdges == capacity )
           cerr << "WARNING: Pushing back without first reserving space" << endl;
     )
+    if( source == END ) source = numSources_ - 1;
+    if( target == END ) target = numTargets_ - 1;
     if( source < 0 || source >= numSources_ )
         LogicError
         ("Source was out of bounds: ",source," is not in [0,",numSources_,")");
@@ -158,7 +160,9 @@ void Graph::QueueConnection( Int source, Int target )
 
 void Graph::QueueDisconnection( Int source, Int target )
 {
-    DEBUG_ONLY(CallStackEntry cse("Graph::QueueDisconnection"))
+    DEBUG_ONLY(CSE cse("Graph::QueueDisconnection"))
+    if( source == END ) source = numSources_ - 1;
+    if( target == END ) target = numTargets_ - 1;
     markedForRemoval_.insert( pair<Int,Int>(source,target) );
     consistent_ = false;
 }
@@ -166,7 +170,7 @@ void Graph::QueueDisconnection( Int source, Int target )
 void Graph::ProcessQueues()
 {
     DEBUG_ONLY(
-      CallStackEntry cse("Graph::ProcessQueues");
+      CSE cse("Graph::ProcessQueues");
       if( sources_.size() != targets_.size() )
           LogicError("Inconsistent graph buffer sizes");
     )
@@ -224,13 +228,13 @@ Int Graph::NumTargets() const { return numTargets_; }
 
 Int Graph::NumEdges() const
 {
-    DEBUG_ONLY(CallStackEntry cse("Graph::NumEdges"))
+    DEBUG_ONLY(CSE cse("Graph::NumEdges"))
     return sources_.size();
 }
 
 Int Graph::Capacity() const
 {
-    DEBUG_ONLY(CallStackEntry cse("Graph::Capacity"))
+    DEBUG_ONLY(CSE cse("Graph::Capacity"))
     return Min(sources_.capacity(),targets_.capacity());
 }
 
@@ -239,7 +243,7 @@ bool Graph::Consistent() const { return consistent_; }
 Int Graph::Source( Int edge ) const
 {
     DEBUG_ONLY(
-      CallStackEntry cse("Graph::Source");
+      CSE cse("Graph::Source");
       if( edge < 0 || edge >= (Int)sources_.size() )
           LogicError("Edge number out of bounds");
     )
@@ -249,7 +253,7 @@ Int Graph::Source( Int edge ) const
 Int Graph::Target( Int edge ) const
 {
     DEBUG_ONLY(
-      CallStackEntry cse("Graph::Target");
+      CSE cse("Graph::Target");
       if( edge < 0 || edge >= (Int)targets_.size() )
           LogicError("Edge number out of bounds");
     )
@@ -258,8 +262,9 @@ Int Graph::Target( Int edge ) const
 
 Int Graph::EdgeOffset( Int source ) const
 {
+    if( source == END ) source = numSources_ - 1;
     DEBUG_ONLY(
-      CallStackEntry cse("Graph::EdgeOffset");
+      CSE cse("Graph::EdgeOffset");
       if( source < 0 )
           LogicError("Negative source index");
       if( source > numSources_ )
@@ -273,8 +278,9 @@ Int Graph::EdgeOffset( Int source ) const
 
 Int Graph::NumConnections( Int source ) const
 {
+    if( source == END ) source = numSources_ - 1;
     DEBUG_ONLY(
-      CallStackEntry cse("Graph::NumConnections");
+      CSE cse("Graph::NumConnections");
       AssertConsistent();
     )
     return EdgeOffset(source+1) - EdgeOffset(source);
@@ -295,7 +301,7 @@ bool Graph::ComparePairs
 
 void Graph::ComputeEdgeOffsets()
 {
-    DEBUG_ONLY(CallStackEntry cse("Graph::ComputeEdgeOffsets"))
+    DEBUG_ONLY(CSE cse("Graph::ComputeEdgeOffsets"))
     // Compute the edge offsets
     Int sourceOffset = 0;
     Int prevSource = -1;

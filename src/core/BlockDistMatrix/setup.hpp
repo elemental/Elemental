@@ -70,7 +70,7 @@ template<typename T>
 BDM::BlockDistMatrix( const BDM& A )
 : ABDM(A.Grid())
 {
-    DEBUG_ONLY(CallStackEntry cse("BlockDistMatrix::BlockDistMatrix"))
+    DEBUG_ONLY(CSE cse("BlockDistMatrix::BlockDistMatrix"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.viewType_ = OWNER;
     this->SetShifts();
@@ -85,7 +85,7 @@ template<Dist U,Dist V>
 BDM::BlockDistMatrix( const BlockDistMatrix<T,U,V>& A )
 : ABDM(A.Grid())
 {
-    DEBUG_ONLY(CallStackEntry cse("BlockDistMatrix::BlockDistMatrix"))
+    DEBUG_ONLY(CSE cse("BlockDistMatrix::BlockDistMatrix"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.viewType_ = OWNER;
     this->SetShifts();
@@ -100,7 +100,7 @@ template<typename T>
 BDM::BlockDistMatrix( const AbstractBlockDistMatrix<T>& A )
 : ABDM(A.Grid())
 {
-    DEBUG_ONLY(CallStackEntry cse("BDM(ABDM)"))
+    DEBUG_ONLY(CSE cse("BDM(ABDM)"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.viewType_ = OWNER;
     this->SetShifts();
@@ -121,7 +121,7 @@ template<Dist U,Dist V>
 BDM::BlockDistMatrix( const DistMatrix<T,U,V>& A )
 : ABDM(A.Grid())
 {
-    DEBUG_ONLY(CallStackEntry cse("BlockDistMatrix::BlockDistMatrix"))
+    DEBUG_ONLY(CSE cse("BlockDistMatrix::BlockDistMatrix"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.viewType_ = OWNER;
     this->SetShifts();
@@ -155,7 +155,7 @@ template<typename T>
 template<Dist U,Dist V>
 BDM& BDM::operator=( const DistMatrix<T,U,V>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("BDM = DM[U,V]"))
+    DEBUG_ONLY(CSE cse("BDM = DM[U,V]"))
     BlockDistMatrix<T,U,V> ABlock(A.Grid());
     LockedView( ABlock, A );
     *this = ABlock;

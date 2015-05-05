@@ -17,7 +17,7 @@ template<typename T>
 void PartitionDown
 ( Matrix<T>& A, Matrix<T>& AT, Matrix<T>& AB, Int heightAT ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("PartitionDown"))
+    DEBUG_ONLY(CSE cse("PartitionDown"))
     heightAT = Max(Min(heightAT,A.Height()),0);
     const Int heightAB = A.Height()-heightAT;
     View( AT, A, 0,        0, heightAT, A.Width() );
@@ -31,7 +31,7 @@ void PartitionDown
   Int heightAT )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("PartitionDown");
+      CSE cse("PartitionDown");
       AssertSameGrids( A, AT, AB );
       AssertSameDists( A, AT, AB );
     )
@@ -45,7 +45,7 @@ template<typename T>
 void LockedPartitionDown
 ( const Matrix<T>& A, Matrix<T>& AT, Matrix<T>& AB, Int heightAT ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionDown"))
+    DEBUG_ONLY(CSE cse("LockedPartitionDown"))
     heightAT = Max(Min(heightAT,A.Height()),0);
     const Int heightAB = A.Height()-heightAT;
     LockedView( AT, A, 0,        0, heightAT, A.Width() );
@@ -59,7 +59,7 @@ void LockedPartitionDown
   Int heightAT )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("LockedPartitionDown");
+      CSE cse("LockedPartitionDown");
       AssertSameGrids( A, AT, AB );
       AssertSameDists( A, AT, AB );
     )
@@ -76,7 +76,7 @@ template<typename T>
 void PartitionUp
 ( Matrix<T>& A, Matrix<T>& AT, Matrix<T>& AB, Int heightAB )
 {
-    DEBUG_ONLY(CallStackEntry cse("PartitionUp"))
+    DEBUG_ONLY(CSE cse("PartitionUp"))
     PartitionDown( A, AT, AB, A.Height()-heightAB );
 }
 
@@ -87,7 +87,7 @@ void PartitionUp
   Int heightAB )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("PartitionUp");
+      CSE cse("PartitionUp");
       AssertSameGrids( A, AT, AB );
       AssertSameDists( A, AT, AB );
     )
@@ -98,7 +98,7 @@ template<typename T>
 void LockedPartitionUp
 ( const Matrix<T>& A, Matrix<T>& AT, Matrix<T>& AB, Int heightAB )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionUp"))
+    DEBUG_ONLY(CSE cse("LockedPartitionUp"))
     LockedPartitionDown( A, AT, AB, A.Height()-heightAB );
 }
 
@@ -109,7 +109,7 @@ void LockedPartitionUp
   Int heightAB )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("LockedPartitionUp");
+      CSE cse("LockedPartitionUp");
       AssertSameGrids( A, AT, AB );
       AssertSameDists( A, AT, AB );
     )
@@ -123,7 +123,7 @@ template<typename T>
 void PartitionRight
 ( Matrix<T>& A, Matrix<T>& AL, Matrix<T>& AR, Int widthAL )
 {
-    DEBUG_ONLY(CallStackEntry cse("PartitionRight"))
+    DEBUG_ONLY(CSE cse("PartitionRight"))
     widthAL = Max(Min(widthAL,A.Width()),0);
     const Int widthAR = A.Width()-widthAL;
     View( AL, A, 0, 0,       A.Height(), widthAL );
@@ -137,7 +137,7 @@ void PartitionRight
   Int widthAL )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("PartitionRight");
+      CSE cse("PartitionRight");
       AssertSameGrids( A, AL, AR );
       AssertSameDists( A, AL, AR );
     )
@@ -151,7 +151,7 @@ template<typename T>
 void LockedPartitionRight
 ( const Matrix<T>& A, Matrix<T>& AL, Matrix<T>& AR, Int widthAL )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionRight"))
+    DEBUG_ONLY(CSE cse("LockedPartitionRight"))
     widthAL = Max(Min(widthAL,A.Width()),0);
     const Int widthAR = A.Width()-widthAL;
     LockedView( AL, A, 0, 0,       A.Height(), widthAL );
@@ -165,7 +165,7 @@ void LockedPartitionRight
   Int widthAL )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("LockedPartitionRight");
+      CSE cse("LockedPartitionRight");
       AssertSameGrids( A, AL, AR );
       AssertSameDists( A, AL, AR );
     )
@@ -182,7 +182,7 @@ template<typename T>
 void PartitionLeft
 ( Matrix<T>& A, Matrix<T>& AL, Matrix<T>& AR, Int widthAR )
 {
-    DEBUG_ONLY(CallStackEntry cse("PartitionLeft"))
+    DEBUG_ONLY(CSE cse("PartitionLeft"))
     PartitionRight( A, AL, AR, A.Width()-widthAR );
 }
 
@@ -193,7 +193,7 @@ void PartitionLeft
   Int widthAR )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("PartitionLeft");
+      CSE cse("PartitionLeft");
       AssertSameGrids( A, AL, AR );
       AssertSameDists( A, AL, AR );
     )
@@ -205,7 +205,7 @@ void LockedPartitionLeft
 ( const Matrix<T>& A, 
         Matrix<T>& AL, Matrix<T>& AR, Int widthAR )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionLeft"))
+    DEBUG_ONLY(CSE cse("LockedPartitionLeft"))
     LockedPartitionRight( A, AL, AR, A.Width()-widthAR );
 }
 
@@ -216,7 +216,7 @@ void LockedPartitionLeft
   Int widthAR )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("LockedPartitionLeft");
+      CSE cse("LockedPartitionLeft");
       AssertSameGrids( A, AL, AR );
       AssertSameDists( A, AL, AR );
     )
@@ -233,7 +233,7 @@ void PartitionDownOffsetDiagonal
   Matrix<T>& ATL, Matrix<T>& ATR,
   Matrix<T>& ABL, Matrix<T>& ABR, Int diagDist )
 {
-    DEBUG_ONLY(CallStackEntry cse("PartitionDownOffsetDiagonal"))
+    DEBUG_ONLY(CSE cse("PartitionDownOffsetDiagonal"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int diagLength = A.DiagonalLength(offset);
@@ -256,7 +256,7 @@ void PartitionDownOffsetDiagonal
   Int diagDist )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("PartitionDownOffsetDiagonal");
+      CSE cse("PartitionDownOffsetDiagonal");
       AssertSameGrids( A, ATL, ATR, ABL, ABR );
       AssertSameDists( A, ATL, ATR, ABL, ABR );
     )
@@ -280,7 +280,7 @@ void LockedPartitionDownOffsetDiagonal
         Matrix<T>& ATL, Matrix<T>& ATR,
         Matrix<T>& ABL, Matrix<T>& ABR, Int diagDist )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionDownOffsetDiagonal"))
+    DEBUG_ONLY(CSE cse("LockedPartitionDownOffsetDiagonal"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int diagLength = A.DiagonalLength(offset);
@@ -303,7 +303,7 @@ void LockedPartitionDownOffsetDiagonal
   Int diagDist )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("LockedPartitionDownOffsetDiagonal");
+      CSE cse("LockedPartitionDownOffsetDiagonal");
       AssertSameGrids( A, ATL, ATR, ABL, ABR );
       AssertSameDists( A, ATL, ATR, ABL, ABR );
     )
@@ -330,7 +330,7 @@ void PartitionUpOffsetDiagonal
   Matrix<T>& ATL, Matrix<T>& ATR,
   Matrix<T>& ABL, Matrix<T>& ABR, Int diagDist )
 {
-    DEBUG_ONLY(CallStackEntry cse("PartitionUpOffsetDiagonal"))
+    DEBUG_ONLY(CSE cse("PartitionUpOffsetDiagonal"))
     PartitionDownOffsetDiagonal
     ( offset, A, ATL, ATR, ABL, ABR, A.DiagonalLength(offset)-diagDist );
 }
@@ -344,7 +344,7 @@ void PartitionUpOffsetDiagonal
   Int diagDist )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("PartitionUpOffsetDiagonal");
+      CSE cse("PartitionUpOffsetDiagonal");
       AssertSameGrids( A, ATL, ATR, ABL, ABR );
       AssertSameDists( A, ATL, ATR, ABL, ABR );
     )
@@ -359,7 +359,7 @@ void LockedPartitionUpOffsetDiagonal
         Matrix<T>& ATL, Matrix<T>& ATR,
         Matrix<T>& ABL, Matrix<T>& ABR, Int diagDist )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionUpOffsetDiagonal"))
+    DEBUG_ONLY(CSE cse("LockedPartitionUpOffsetDiagonal"))
     LockedPartitionDownOffsetDiagonal
     ( offset, A, ATL, ATR, ABL, ABR, A.DiagonalLength(offset)-diagDist );
 }
@@ -373,7 +373,7 @@ void LockedPartitionUpOffsetDiagonal
   Int diagDist )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("LockedPartitionUpOffsetDiagonal");
+      CSE cse("LockedPartitionUpOffsetDiagonal");
       AssertSameGrids( A, ATL, ATR, ABL, ABR );
       AssertSameDists( A, ATL, ATR, ABL, ABR );
     )
@@ -390,7 +390,7 @@ void PartitionDownDiagonal
   Matrix<T>& ATL, Matrix<T>& ATR,
   Matrix<T>& ABL, Matrix<T>& ABR, Int diagDist )
 {
-    DEBUG_ONLY(CallStackEntry cse("PartitionDownDiagonal"))
+    DEBUG_ONLY(CSE cse("PartitionDownDiagonal"))
     PartitionDownOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
@@ -402,7 +402,7 @@ void PartitionDownDiagonal
   Int diagDist )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("PartitionDownDiagonal");
+      CSE cse("PartitionDownDiagonal");
       AssertSameGrids( A, ATL, ATR, ABL, ABR );
       AssertSameDists( A, ATL, ATR, ABL, ABR );
     )
@@ -415,7 +415,7 @@ void LockedPartitionDownDiagonal
         Matrix<T>& ATL, Matrix<T>& ATR,
         Matrix<T>& ABL, Matrix<T>& ABR, Int diagDist )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionDownDiagonal"))
+    DEBUG_ONLY(CSE cse("LockedPartitionDownDiagonal"))
     LockedPartitionDownOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
@@ -427,7 +427,7 @@ void LockedPartitionDownDiagonal
   Int diagDist )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("LockedPartitionDownDiagonal");
+      CSE cse("LockedPartitionDownDiagonal");
       AssertSameGrids( A, ATL, ATR, ABL, ABR );
       AssertSameDists( A, ATL, ATR, ABL, ABR );
     )
@@ -443,7 +443,7 @@ void PartitionUpDiagonal
   Matrix<T>& ATL, Matrix<T>& ATR,
   Matrix<T>& ABL, Matrix<T>& ABR, Int diagDist )
 {
-    DEBUG_ONLY(CallStackEntry cse("PartitionUpDiagonal"))
+    DEBUG_ONLY(CSE cse("PartitionUpDiagonal"))
     PartitionUpOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
@@ -455,7 +455,7 @@ void PartitionUpDiagonal
   Int diagDist )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("PartitionUpDiagonal");
+      CSE cse("PartitionUpDiagonal");
       AssertSameGrids( A, ATL, ATR, ABL, ABR );
       AssertSameDists( A, ATL, ATR, ABL, ABR );
     )
@@ -468,7 +468,7 @@ void LockedPartitionUpDiagonal
         Matrix<T>& ATL, Matrix<T>& ATR,
         Matrix<T>& ABL, Matrix<T>& ABR, Int diagDist )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedPartitionUpDiagonal"))
+    DEBUG_ONLY(CSE cse("LockedPartitionUpDiagonal"))
     LockedPartitionUpOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
@@ -480,7 +480,7 @@ void LockedPartitionUpDiagonal
   Int diagDist )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("LockedPartitionUpDiagonal");
+      CSE cse("LockedPartitionUpDiagonal");
       AssertSameGrids( A, ATL, ATR, ABL, ABR );
       AssertSameDists( A, ATL, ATR, ABL, ABR );
     )

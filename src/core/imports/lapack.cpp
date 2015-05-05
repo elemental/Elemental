@@ -504,7 +504,7 @@ BlasInt SymmetricTridiagEigWrapper
 ( char job, char range, BlasInt n, float* d, float* e, float vl, float vu,
   BlasInt il, BlasInt iu, float absTol, float* w, float* Z, BlasInt ldZ )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEigWrapper"));
+    DEBUG_ONLY(CSE cse("lapack::SymmetricTridiagEigWrapper"));
     if( n == 0 )
         return 0;
 
@@ -537,7 +537,7 @@ BlasInt SymmetricTridiagEigWrapper
 ( char job, char range, BlasInt n, double* d, double* e, double vl, double vu,
   BlasInt il, BlasInt iu, double absTol, double* w, double* Z, BlasInt ldZ )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEigWrapper"));
+    DEBUG_ONLY(CSE cse("lapack::SymmetricTridiagEigWrapper"));
     if( n == 0 )
         return 0;
 
@@ -574,14 +574,14 @@ BlasInt SymmetricTridiagEigWrapper
 void SymmetricTridiagEig
 ( BlasInt n, float* d, float* e, float* w, float absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    DEBUG_ONLY(CSE cse("lapack::SymmetricTridiagEig"));
     SymmetricTridiagEigWrapper
     ( 'N', 'A', n, d, e, 0, 0, 0, 0, absTol, w, 0, 1 );
 }
 void SymmetricTridiagEig
 ( BlasInt n, double* d, double* e, double* w, double absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    DEBUG_ONLY(CSE cse("lapack::SymmetricTridiagEig"));
     SymmetricTridiagEigWrapper
     ( 'N', 'A', n, d, e, 0, 0, 0, 0, absTol, w, 0, 1 );
 }
@@ -592,7 +592,7 @@ BlasInt SymmetricTridiagEig
 ( BlasInt n, float* d, float* e, float* w, float vl, float vu, 
   float absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    DEBUG_ONLY(CSE cse("lapack::SymmetricTridiagEig"));
     return SymmetricTridiagEigWrapper
     ( 'N', 'V', n, d, e, vl, vu, 0, 0, absTol, w, 0, 1 );
 }
@@ -600,7 +600,7 @@ BlasInt SymmetricTridiagEig
 ( BlasInt n, double* d, double* e, double* w, double vl, double vu, 
   double absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    DEBUG_ONLY(CSE cse("lapack::SymmetricTridiagEig"));
     return SymmetricTridiagEigWrapper
     ( 'N', 'V', n, d, e, vl, vu, 0, 0, absTol, w, 0, 1 );
 }
@@ -611,7 +611,7 @@ void SymmetricTridiagEig
 ( BlasInt n, float* d, float* e, float* w, BlasInt il, BlasInt iu, 
   float absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    DEBUG_ONLY(CSE cse("lapack::SymmetricTridiagEig"));
     SymmetricTridiagEigWrapper
     ( 'N', 'I', n, d, e, 0, 0, il+1, iu+1, absTol, w, 0, 1 );
 }
@@ -619,7 +619,7 @@ void SymmetricTridiagEig
 ( BlasInt n, double* d, double* e, double* w, BlasInt il, BlasInt iu, 
   double absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    DEBUG_ONLY(CSE cse("lapack::SymmetricTridiagEig"));
     SymmetricTridiagEigWrapper
     ( 'N', 'I', n, d, e, 0, 0, il+1, iu+1, absTol, w, 0, 1 );
 }
@@ -633,7 +633,7 @@ void SymmetricTridiagEig
 ( BlasInt n, float* d, float* e, float* w, float* Z, BlasInt ldZ, 
   float absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    DEBUG_ONLY(CSE cse("lapack::SymmetricTridiagEig"));
     SymmetricTridiagEigWrapper
     ( 'V', 'A', n, d, e, 0, 0, 0, 0, absTol, w, Z, ldZ );
 }
@@ -641,7 +641,7 @@ void SymmetricTridiagEig
 ( BlasInt n, double* d, double* e, double* w, double* Z, BlasInt ldZ, 
   double absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    DEBUG_ONLY(CSE cse("lapack::SymmetricTridiagEig"));
     SymmetricTridiagEigWrapper
     ( 'V', 'A', n, d, e, 0, 0, 0, 0, absTol, w, Z, ldZ );
 }
@@ -652,7 +652,7 @@ BlasInt SymmetricTridiagEig
 ( BlasInt n, float* d, float* e, float* w, float* Z, BlasInt ldZ,
   float vl, float vu, float absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    DEBUG_ONLY(CSE cse("lapack::SymmetricTridiagEig"));
     return SymmetricTridiagEigWrapper
     ( 'V', 'V', n, d, e, vl, vu, 0, 0, absTol, w, Z, ldZ );
 }
@@ -660,7 +660,7 @@ BlasInt SymmetricTridiagEig
 ( BlasInt n, double* d, double* e, double* w, double* Z, BlasInt ldZ,
   double vl, double vu, double absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    DEBUG_ONLY(CSE cse("lapack::SymmetricTridiagEig"));
     return SymmetricTridiagEigWrapper
     ( 'V', 'V', n, d, e, vl, vu, 0, 0, absTol, w, Z, ldZ );
 }
@@ -671,7 +671,7 @@ void SymmetricTridiagEig
 ( BlasInt n, float* d, float* e, float* w, float* Z, BlasInt ldZ, 
   BlasInt il, BlasInt iu, float absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    DEBUG_ONLY(CSE cse("lapack::SymmetricTridiagEig"));
     SymmetricTridiagEigWrapper
     ( 'V', 'I', n, d, e, 0, 0, il+1, iu+1, absTol, w, Z, ldZ );
 }
@@ -679,7 +679,7 @@ void SymmetricTridiagEig
 ( BlasInt n, double* d, double* e, double* w, double* Z, BlasInt ldZ,
   BlasInt il, BlasInt iu, double absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    DEBUG_ONLY(CSE cse("lapack::SymmetricTridiagEig"));
     SymmetricTridiagEigWrapper
     ( 'V', 'I', n, d, e, 0, 0, il+1, iu+1, absTol, w, Z, ldZ );
 }
@@ -692,7 +692,7 @@ BlasInt HermitianEigWrapper
   float vl, float vu, BlasInt il, BlasInt iu, float absTol, 
   float* w, float* Z, BlasInt ldZ )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEigWrapper"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEigWrapper"))
     if( n == 0 )
         return 0;
 
@@ -726,7 +726,7 @@ BlasInt HermitianEigWrapper
   double vl, double vu, BlasInt il, BlasInt iu, double absTol, 
   double* w, double* Z, BlasInt ldZ )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEigWrapper"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEigWrapper"))
     if( n == 0 )
         return 0;
 
@@ -760,7 +760,7 @@ BlasInt HermitianEigWrapper
   float vl, float vu, BlasInt il, BlasInt iu, float absTol, 
   float* w, scomplex* Z, BlasInt ldZ )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEigWrapper"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEigWrapper"))
     if( n == 0 )
         return 0;
 
@@ -797,7 +797,7 @@ BlasInt HermitianEigWrapper
   double vl, double vu, BlasInt il, BlasInt iu, double absTol, 
   double* w, dcomplex* Z, BlasInt ldZ )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEigWrapper"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEigWrapper"))
     if( n == 0 )
         return 0;
 
@@ -837,28 +837,28 @@ BlasInt HermitianEigWrapper
 void HermitianEig
 ( char uplo, BlasInt n, float* A, BlasInt ldA, float* w, float absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     HermitianEigWrapper
     ( 'N', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, 0, 1 );
 }
 void HermitianEig
 ( char uplo, BlasInt n, double* A, BlasInt ldA, double* w, double absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     HermitianEigWrapper
     ( 'N', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, 0, 1 );
 }
 void HermitianEig
 ( char uplo, BlasInt n, scomplex* A, BlasInt ldA, float* w, float absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     HermitianEigWrapper
     ( 'N', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, 0, 1 );
 }
 void HermitianEig
 ( char uplo, BlasInt n, dcomplex* A, BlasInt ldA, double* w, double absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     HermitianEigWrapper
     ( 'N', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, 0, 1 );
 }
@@ -869,7 +869,7 @@ BlasInt HermitianEig
 ( char uplo, BlasInt n, float* A, BlasInt ldA, float* w, 
   float vl, float vu, float absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     return HermitianEigWrapper
     ( 'N', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, 0, 1 );
 }
@@ -877,7 +877,7 @@ BlasInt HermitianEig
 ( char uplo, BlasInt n, double* A, BlasInt ldA, double* w, 
   double vl, double vu, double absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     return HermitianEigWrapper
     ( 'N', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, 0, 1 );
 }
@@ -885,7 +885,7 @@ BlasInt HermitianEig
 ( char uplo, BlasInt n, scomplex* A, BlasInt ldA, float* w, 
   float vl, float vu, float absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     return HermitianEigWrapper
     ( 'N', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, 0, 1 );
 }
@@ -893,7 +893,7 @@ BlasInt HermitianEig
 ( char uplo, BlasInt n, dcomplex* A, BlasInt ldA, double* w, 
   double vl, double vu, double absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     return HermitianEigWrapper
     ( 'N', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, 0, 1 );
 }
@@ -904,7 +904,7 @@ void HermitianEig
 ( char uplo, BlasInt n, float* A, BlasInt ldA, float* w, 
   BlasInt il, BlasInt iu, float absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     HermitianEigWrapper
     ( 'N', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, 0, 1 );
 }
@@ -912,7 +912,7 @@ void HermitianEig
 ( char uplo, BlasInt n, double* A, BlasInt ldA, double* w, 
   BlasInt il, BlasInt iu, double absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     HermitianEigWrapper
     ( 'N', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, 0, 1 );
 }
@@ -920,7 +920,7 @@ void HermitianEig
 ( char uplo, BlasInt n, scomplex* A, BlasInt ldA, float* w, 
   BlasInt il, BlasInt iu, float absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     HermitianEigWrapper
     ( 'N', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, 0, 1 );
 }
@@ -928,7 +928,7 @@ void HermitianEig
 ( char uplo, BlasInt n, dcomplex* A, BlasInt ldA, double* w, 
   BlasInt il, BlasInt iu, double absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     HermitianEigWrapper
     ( 'N', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, 0, 1 );
 }
@@ -942,7 +942,7 @@ void HermitianEig
 ( char uplo, BlasInt n, float* A, BlasInt ldA, float* w, float* Z, BlasInt ldZ, 
   float absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     HermitianEigWrapper
     ( 'V', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, Z, ldZ );
 }
@@ -951,7 +951,7 @@ void HermitianEig
   double* A, BlasInt ldA, double* w, double* Z, BlasInt ldZ,
   double absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     HermitianEigWrapper
     ( 'V', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, Z, ldZ );
 }
@@ -960,7 +960,7 @@ void HermitianEig
   scomplex* A, BlasInt ldA, float* w, scomplex* Z, BlasInt ldZ,
   float absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     HermitianEigWrapper
     ( 'V', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, Z, ldZ );
 }
@@ -969,7 +969,7 @@ void HermitianEig
   dcomplex* A, BlasInt ldA, double* w, dcomplex* Z, BlasInt ldZ,
   double absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     HermitianEigWrapper
     ( 'V', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, Z, ldZ );
 }
@@ -981,7 +981,7 @@ BlasInt HermitianEig
   float* A, BlasInt ldA, float* w, float* Z, BlasInt ldZ,
   float vl, float vu, float absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     return HermitianEigWrapper
     ( 'V', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, Z, ldZ );
 }
@@ -990,7 +990,7 @@ BlasInt HermitianEig
   double* A, BlasInt ldA, double* w, double* Z, BlasInt ldZ,
   double vl, double vu, double absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     return HermitianEigWrapper
     ( 'V', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, Z, ldZ );
 }
@@ -999,7 +999,7 @@ BlasInt HermitianEig
   scomplex* A, BlasInt ldA, float* w, scomplex* Z, BlasInt ldZ,
   float vl, float vu, float absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     return HermitianEigWrapper
     ( 'V', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, Z, ldZ );
 }
@@ -1008,7 +1008,7 @@ BlasInt HermitianEig
   dcomplex* A, BlasInt ldA, double* w, dcomplex* Z, BlasInt ldZ,
   double vl, double vu, double absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     return HermitianEigWrapper
     ( 'V', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, Z, ldZ );
 }
@@ -1020,7 +1020,7 @@ void HermitianEig
   float* A, BlasInt ldA, float* w, float* Z, BlasInt ldZ,
   BlasInt il, BlasInt iu, float absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     HermitianEigWrapper
     ( 'V', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, Z, ldZ );
 }
@@ -1029,7 +1029,7 @@ void HermitianEig
   double* A, BlasInt ldA, double* w, double* Z, BlasInt ldZ, 
   BlasInt il, BlasInt iu, double absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     HermitianEigWrapper
     ( 'V', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, Z, ldZ );
 }
@@ -1038,7 +1038,7 @@ void HermitianEig
   scomplex* A, BlasInt ldA, float* w, scomplex* Z, BlasInt ldZ,
   BlasInt il, BlasInt iu, float absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     HermitianEigWrapper
     ( 'V', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, Z, ldZ );
 }
@@ -1047,7 +1047,7 @@ void HermitianEig
   dcomplex* A, BlasInt ldA, double* w, dcomplex* Z, BlasInt ldZ,
   BlasInt il, BlasInt iu, double absTol )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CSE cse("lapack::HermitianEig"))
     HermitianEigWrapper
     ( 'V', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, Z, ldZ );
 }
@@ -1057,7 +1057,7 @@ void HermitianEig
 
 void BidiagDQDS( BlasInt n, float* d, float* e )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::BidiagDQDS"))
+    DEBUG_ONLY(CSE cse("lapack::BidiagDQDS"))
     BlasInt info;
     vector<float> work( 4*n );
     EL_LAPACK(slasq1)( &n, d, e, work.data(), &info );
@@ -1078,7 +1078,7 @@ void BidiagDQDS( BlasInt n, float* d, float* e )
 
 void BidiagDQDS( BlasInt n, double* d, double* e )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::BidiagDQDS"))
+    DEBUG_ONLY(CSE cse("lapack::BidiagDQDS"))
     BlasInt info;
     vector<double> work( 4*n );
     EL_LAPACK(dlasq1)( &n, d, e, work.data(), &info );
@@ -1104,7 +1104,7 @@ void BidiagQRAlg
 ( char uplo, BlasInt n, BlasInt numColsVT, BlasInt numRowsU,
   float* d, float* e, float* VTrans, BlasInt ldVT, float* U, BlasInt ldU )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::BidiagQRAlg"))
+    DEBUG_ONLY(CSE cse("lapack::BidiagQRAlg"))
     if( n==0 )
         return;
 
@@ -1125,7 +1125,7 @@ void BidiagQRAlg
 ( char uplo, BlasInt n, BlasInt numColsVT, BlasInt numRowsU, 
   double* d, double* e, double* VTrans, BlasInt ldVT, double* U, BlasInt ldU )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::BidiagQRAlg"))
+    DEBUG_ONLY(CSE cse("lapack::BidiagQRAlg"))
     if( n==0 )
         return;
 
@@ -1146,7 +1146,7 @@ void BidiagQRAlg
 ( char uplo, BlasInt n, BlasInt numColsVH, BlasInt numRowsU, 
   float* d, float* e, scomplex* VH, BlasInt ldVH, scomplex* U, BlasInt ldU )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::BidiagQRAlg"))
+    DEBUG_ONLY(CSE cse("lapack::BidiagQRAlg"))
     if( n==0 )
         return;
 
@@ -1167,7 +1167,7 @@ void BidiagQRAlg
 ( char uplo, BlasInt n, BlasInt numColsVH, BlasInt numRowsU, 
   double* d, double* e, dcomplex* VH, BlasInt ldVH, dcomplex* U, BlasInt ldU )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::BidiagQRAlg"))
+    DEBUG_ONLY(CSE cse("lapack::BidiagQRAlg"))
     if( n==0 )
         return;
 
@@ -1191,7 +1191,7 @@ void DivideAndConquerSVD
 ( BlasInt m, BlasInt n, float* A, BlasInt ldA, 
   float* s, float* U, BlasInt ldu, float* VTrans, BlasInt ldvt )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::DivideAndConquerSVD"))
+    DEBUG_ONLY(CSE cse("lapack::DivideAndConquerSVD"))
     if( m==0 || n==0 )
         return;
 
@@ -1220,7 +1220,7 @@ void DivideAndConquerSVD
 ( BlasInt m, BlasInt n, double* A, BlasInt ldA, 
   double* s, double* U, BlasInt ldu, double* VTrans, BlasInt ldvt )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::DivideAndConquerSVD"))
+    DEBUG_ONLY(CSE cse("lapack::DivideAndConquerSVD"))
     if( m==0 || n==0 )
         return;
 
@@ -1249,7 +1249,7 @@ void DivideAndConquerSVD
 ( BlasInt m, BlasInt n, scomplex* A, BlasInt ldA, 
   float* s, scomplex* U, BlasInt ldu, scomplex* VH, BlasInt ldva )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::DivideAndConquerSVD"))
+    DEBUG_ONLY(CSE cse("lapack::DivideAndConquerSVD"))
     if( m==0 || n==0 )
         return;
 
@@ -1281,7 +1281,7 @@ void DivideAndConquerSVD
 ( BlasInt m, BlasInt n, dcomplex* A, BlasInt ldA, 
   double* s, dcomplex* U, BlasInt ldu, dcomplex* VH, BlasInt ldva )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::DivideAndConquerSVD"))
+    DEBUG_ONLY(CSE cse("lapack::DivideAndConquerSVD"))
     if( m==0 || n==0 )
         return;
 
@@ -1316,7 +1316,7 @@ void QRSVD
 ( BlasInt m, BlasInt n, float* A, BlasInt ldA, 
   float* s, float* U, BlasInt ldu, float* VTrans, BlasInt ldvt )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::QRSVD"))
+    DEBUG_ONLY(CSE cse("lapack::QRSVD"))
     if( m==0 || n==0 )
         return;
 
@@ -1343,7 +1343,7 @@ void QRSVD
 ( BlasInt m, BlasInt n, double* A, BlasInt ldA, 
   double* s, double* U, BlasInt ldu, double* VTrans, BlasInt ldvt )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::QRSVD"))
+    DEBUG_ONLY(CSE cse("lapack::QRSVD"))
     if( m==0 || n==0 )
         return;
 
@@ -1370,7 +1370,7 @@ void QRSVD
 ( BlasInt m, BlasInt n, scomplex* A, BlasInt ldA, 
   float* s, scomplex* U, BlasInt ldu, scomplex* VH, BlasInt ldva )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::QRSVD"))
+    DEBUG_ONLY(CSE cse("lapack::QRSVD"))
     if( m==0 || n==0 )
         return;
 
@@ -1399,7 +1399,7 @@ void QRSVD
 ( BlasInt m, BlasInt n, dcomplex* A, BlasInt ldA, 
   double* s, dcomplex* U, BlasInt ldu, dcomplex* VH, BlasInt ldva )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::QRSVD"))
+    DEBUG_ONLY(CSE cse("lapack::QRSVD"))
     if( m==0 || n==0 )
         return;
 
@@ -1429,7 +1429,7 @@ void QRSVD
 
 void SVD( BlasInt m, BlasInt n, float* A, BlasInt ldA, float* s )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SVD"))
+    DEBUG_ONLY(CSE cse("lapack::SVD"))
     if( m==0 || n==0 )
         return;
 
@@ -1454,7 +1454,7 @@ void SVD( BlasInt m, BlasInt n, float* A, BlasInt ldA, float* s )
 
 void SVD( BlasInt m, BlasInt n, double* A, BlasInt ldA, double* s )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SVD"))
+    DEBUG_ONLY(CSE cse("lapack::SVD"))
     if( m==0 || n==0 )
         return;
 
@@ -1479,7 +1479,7 @@ void SVD( BlasInt m, BlasInt n, double* A, BlasInt ldA, double* s )
 
 void SVD( BlasInt m, BlasInt n, scomplex* A, BlasInt ldA, float* s )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SVD"))
+    DEBUG_ONLY(CSE cse("lapack::SVD"))
     if( m==0 || n==0 )
         return;
 
@@ -1506,7 +1506,7 @@ void SVD( BlasInt m, BlasInt n, scomplex* A, BlasInt ldA, float* s )
 
 void SVD( BlasInt m, BlasInt n, dcomplex* A, BlasInt ldA, double* s )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SVD"))
+    DEBUG_ONLY(CSE cse("lapack::SVD"))
     if( m==0 || n==0 )
         return;
 
@@ -1537,7 +1537,7 @@ void SVD( BlasInt m, BlasInt n, dcomplex* A, BlasInt ldA, double* s )
 void HessenbergSchur
 ( BlasInt n, float* H, BlasInt ldH, scomplex* w, bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
+    DEBUG_ONLY(CSE cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
 
@@ -1567,7 +1567,7 @@ void HessenbergSchur
 void HessenbergSchur
 ( BlasInt n, double* H, BlasInt ldH, dcomplex* w, bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
+    DEBUG_ONLY(CSE cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
 
@@ -1597,7 +1597,7 @@ void HessenbergSchur
 void HessenbergSchur
 ( BlasInt n, scomplex* H, BlasInt ldH, scomplex* w, bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
+    DEBUG_ONLY(CSE cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
 
@@ -1623,7 +1623,7 @@ void HessenbergSchur
 void HessenbergSchur
 ( BlasInt n, dcomplex* H, BlasInt ldH, dcomplex* w, bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
+    DEBUG_ONLY(CSE cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
 
@@ -1650,7 +1650,7 @@ void HessenbergSchur
 ( BlasInt n, float* H, BlasInt ldH, scomplex* w, float* Q, BlasInt ldQ, 
   bool fullTriangle, bool multiplyQ )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
+    DEBUG_ONLY(CSE cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
 
@@ -1681,7 +1681,7 @@ void HessenbergSchur
 ( BlasInt n, double* H, BlasInt ldH, dcomplex* w, double* Q, BlasInt ldQ, 
   bool fullTriangle, bool multiplyQ )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
+    DEBUG_ONLY(CSE cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
 
@@ -1712,7 +1712,7 @@ void HessenbergSchur
 ( BlasInt n, scomplex* H, BlasInt ldH, scomplex* w, scomplex* Q, BlasInt ldQ,
   bool fullTriangle, bool multiplyQ )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
+    DEBUG_ONLY(CSE cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
 
@@ -1739,7 +1739,7 @@ void HessenbergSchur
 ( BlasInt n, dcomplex* H, BlasInt ldH, dcomplex* w, dcomplex* Q, BlasInt ldQ,
   bool fullTriangle, bool multiplyQ )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
+    DEBUG_ONLY(CSE cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
 
@@ -1767,25 +1767,25 @@ void HessenbergSchur
 
 void HessenbergEig( BlasInt n, float* H, BlasInt ldH, scomplex* w )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergEig"))
+    DEBUG_ONLY(CSE cse("lapack::HessenbergEig"))
     HessenbergSchur( n, H, ldH, w, false );
 }
 
 void HessenbergEig( BlasInt n, double* H, BlasInt ldH, dcomplex* w )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergEig"))
+    DEBUG_ONLY(CSE cse("lapack::HessenbergEig"))
     HessenbergSchur( n, H, ldH, w, false );
 }
 
 void HessenbergEig( BlasInt n, scomplex* H, BlasInt ldH, scomplex* w )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergEig"))
+    DEBUG_ONLY(CSE cse("lapack::HessenbergEig"))
     HessenbergSchur( n, H, ldH, w, false );
 }
 
 void HessenbergEig( BlasInt n, dcomplex* H, BlasInt ldH, dcomplex* w )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergEig"))
+    DEBUG_ONLY(CSE cse("lapack::HessenbergEig"))
     HessenbergSchur( n, H, ldH, w, false );
 }
 
@@ -1796,7 +1796,7 @@ void HessenbergEig( BlasInt n, dcomplex* H, BlasInt ldH, dcomplex* w )
 
 void Schur( BlasInt n, float* A, BlasInt ldA, scomplex* w, bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
+    DEBUG_ONLY(CSE cse("lapack::Schur"))
     if( n == 0 )
         return;
 
@@ -1840,7 +1840,7 @@ void Schur( BlasInt n, float* A, BlasInt ldA, scomplex* w, bool fullTriangle )
 
 void Schur( BlasInt n, double* A, BlasInt ldA, dcomplex* w, bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
+    DEBUG_ONLY(CSE cse("lapack::Schur"))
     if( n == 0 )
         return;
 
@@ -1885,7 +1885,7 @@ void Schur( BlasInt n, double* A, BlasInt ldA, dcomplex* w, bool fullTriangle )
 void Schur
 ( BlasInt n, scomplex* A, BlasInt ldA, scomplex* w, bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
+    DEBUG_ONLY(CSE cse("lapack::Schur"))
     if( n == 0 )
         return;
 
@@ -1925,7 +1925,7 @@ void Schur
 void Schur
 ( BlasInt n, dcomplex* A, BlasInt ldA, dcomplex* w, bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
+    DEBUG_ONLY(CSE cse("lapack::Schur"))
     if( n == 0 )
         return;
 
@@ -1966,7 +1966,7 @@ void Schur
 ( BlasInt n, float* A, BlasInt ldA, scomplex* w, float* Q, BlasInt ldQ, 
   bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
+    DEBUG_ONLY(CSE cse("lapack::Schur"))
     if( n == 0 )
         return;
 
@@ -2027,7 +2027,7 @@ void Schur
 ( BlasInt n, double* A, BlasInt ldA, dcomplex* w, double* Q, BlasInt ldQ, 
   bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
+    DEBUG_ONLY(CSE cse("lapack::Schur"))
     if( n == 0 )
         return;
 
@@ -2088,7 +2088,7 @@ void Schur
 ( BlasInt n, scomplex* A, BlasInt ldA, scomplex* w, scomplex* Q, BlasInt ldQ, 
   bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
+    DEBUG_ONLY(CSE cse("lapack::Schur"))
     if( n == 0 )
         return;
 
@@ -2144,7 +2144,7 @@ void Schur
 ( BlasInt n, dcomplex* A, BlasInt ldA, dcomplex* w, dcomplex* Q, BlasInt ldQ, 
   bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
+    DEBUG_ONLY(CSE cse("lapack::Schur"))
     if( n == 0 )
         return;
 
@@ -2204,25 +2204,25 @@ void Schur
 
 void Eig( BlasInt n, float* A, BlasInt ldA, scomplex* w )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    DEBUG_ONLY(CSE cse("lapack::Eig"))
     Schur( n, A, ldA, w, false );
 }
 
 void Eig( BlasInt n, double* A, BlasInt ldA, dcomplex* w )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    DEBUG_ONLY(CSE cse("lapack::Eig"))
     Schur( n, A, ldA, w, false );
 }
 
 void Eig( BlasInt n, scomplex* A, BlasInt ldA, scomplex* w )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    DEBUG_ONLY(CSE cse("lapack::Eig"))
     Schur( n, A, ldA, w, false );
 }
 
 void Eig( BlasInt n, dcomplex* A, BlasInt ldA, dcomplex* w )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    DEBUG_ONLY(CSE cse("lapack::Eig"))
     Schur( n, A, ldA, w, false );
 }
 
@@ -2241,7 +2241,7 @@ void Eig( BlasInt n, dcomplex* A, BlasInt ldA, dcomplex* w )
 void Eig
 ( BlasInt n, float* A, BlasInt ldA, scomplex* w, float* XPacked, BlasInt ldX )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    DEBUG_ONLY(CSE cse("lapack::Eig"))
     const char jobVL='N', jobVR='V';
     const BlasInt fakeLDim = 1;
 
@@ -2266,7 +2266,7 @@ void Eig
 void Eig
 ( BlasInt n, double* A, BlasInt ldA, dcomplex* w, double* XPacked, BlasInt ldX )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    DEBUG_ONLY(CSE cse("lapack::Eig"))
     const char jobVL='N', jobVR='V';
     const BlasInt fakeLDim = 1;
 
@@ -2291,7 +2291,7 @@ void Eig
 void Eig
 ( BlasInt n, float* A, BlasInt ldA, scomplex* w, scomplex* X, BlasInt ldX )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    DEBUG_ONLY(CSE cse("lapack::Eig"))
     float* XPacked = (float*)X;    
     Eig( n, A, ldA, w, XPacked, ldX );
     // Unpack the eigenvectors
@@ -2325,7 +2325,7 @@ void Eig
 void Eig
 ( BlasInt n, double* A, BlasInt ldA, dcomplex* w, dcomplex* X, BlasInt ldX )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    DEBUG_ONLY(CSE cse("lapack::Eig"))
     double* XPacked = (double*)X;    
     Eig( n, A, ldA, w, XPacked, ldX );
     // Unpack the eigenvectors
@@ -2359,7 +2359,7 @@ void Eig
 void Eig
 ( BlasInt n, scomplex* A, BlasInt ldA, scomplex* w, scomplex* X, BlasInt ldX )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    DEBUG_ONLY(CSE cse("lapack::Eig"))
     vector<float> rWork( 2*n );
     const char jobVL='N', jobVR='V';
     const BlasInt fakeLDim = 1;
@@ -2380,7 +2380,7 @@ void Eig
 void Eig
 ( BlasInt n, dcomplex* A, BlasInt ldA, dcomplex* w, dcomplex* X, BlasInt ldX )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    DEBUG_ONLY(CSE cse("lapack::Eig"))
     vector<double> rWork( 2*n );
     const char jobVL='N', jobVR='V';
     const BlasInt fakeLDim = 1;

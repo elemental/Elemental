@@ -17,7 +17,7 @@ template<typename T>
 void Merge1x2( Matrix<T>& A, Matrix<T>& BL, Matrix<T>& BR )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Merge1x2");
+        CSE cse("Merge1x2");
         if( BL.Locked() || BR.Locked() )
             LogicError("Cannot grab an unlocked view of a locked matrix");
         if( BL.Height() != BR.Height() )
@@ -36,7 +36,7 @@ void Merge1x2
   AbstractDistMatrix<T>& BL, AbstractDistMatrix<T>& BR )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Merge1x2");
+        CSE cse("Merge1x2");
         AssertSameGrids( A, BL, BR );
         AssertSameDists( A, BL, BR );
         AssertConforming1x2( BL, BR );
@@ -50,7 +50,7 @@ template<typename T>
 void LockedMerge1x2( Matrix<T>& A, const Matrix<T>& BL, const Matrix<T>& BR )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("LockedMerge1x2");
+        CSE cse("LockedMerge1x2");
         if( BL.Height() != BR.Height() )
             LogicError("1x2 must have consistent height to combine");
         if( BL.LDim() != BR.LDim() )
@@ -68,7 +68,7 @@ void LockedMerge1x2
   const AbstractDistMatrix<T>& BL, const AbstractDistMatrix<T>& BR )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("LockedMerge1x2");
+        CSE cse("LockedMerge1x2");
         AssertSameGrids( A, BL, BR );
         AssertSameDists( A, BL, BR );
         AssertConforming1x2( BL, BR );
@@ -121,7 +121,7 @@ template<typename T>
 void Merge2x1( Matrix<T>& A, Matrix<T>& BT, Matrix<T>& BB )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Merge2x1");
+        CSE cse("Merge2x1");
         if( BT.Locked() || BB.Locked() )
             LogicError("Cannot grab an unlocked view of a locked matrix");
         if( BT.Width() != BB.Width() )
@@ -140,7 +140,7 @@ void Merge2x1
   AbstractDistMatrix<T>& BT, AbstractDistMatrix<T>& BB )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Merge2x1");
+        CSE cse("Merge2x1");
         AssertSameGrids( A, BT, BB );
         AssertSameDists( A, BT, BB );
         AssertConforming2x1( BT, BB );
@@ -154,7 +154,7 @@ template<typename T>
 void LockedMerge2x1( Matrix<T>& A, const Matrix<T>& BT, const Matrix<T>& BB )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("LockedMerge2x1");
+        CSE cse("LockedMerge2x1");
         if( BT.Width() != BB.Width() )
             LogicError("2x1 must have consistent width to combine");
         if( BT.LDim() != BB.LDim() )
@@ -173,7 +173,7 @@ void LockedMerge2x1
   const AbstractDistMatrix<T>& BB )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("LockedMerge2x1");
+        CSE cse("LockedMerge2x1");
         AssertSameGrids( A, BT, BB );
         AssertSameDists( A, BT, BB );
         AssertConforming2x1( BT, BB );
@@ -229,7 +229,7 @@ void Merge2x2
   Matrix<T>& BBL, Matrix<T>& BBR )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Merge2x2");
+        CSE cse("Merge2x2");
         if( BTL.Locked() || BTR.Locked() || BBL.Locked() || BBR.Locked() )
             LogicError("Cannot grab an unlocked view of a locked matrix");
         if( BTL.Width() != BBL.Width()   ||
@@ -258,7 +258,7 @@ void Merge2x2
   AbstractDistMatrix<T>& BBL, AbstractDistMatrix<T>& BBR )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Merge2x2");
+        CSE cse("Merge2x2");
         AssertSameGrids( A, BTL, BTR, BBL, BBR );
         AssertSameDists( A, BTL, BTR, BBL, BBR );
         AssertConforming2x2( BTL, BTR, BBL, BBR );
@@ -275,7 +275,7 @@ void LockedMerge2x2
   const Matrix<T>& BBL, const Matrix<T>& BBR )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("LockedMerge2x2");
+        CSE cse("LockedMerge2x2");
         if( BTL.Width() != BBL.Width()   ||
             BTR.Width() != BBR.Width()   ||
             BTL.Height() != BTR.Height() ||
@@ -302,7 +302,7 @@ void LockedMerge2x2
   const AbstractDistMatrix<T>& BBL, const AbstractDistMatrix<T>& BBR )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("LockedMerge2x2");
+        CSE cse("LockedMerge2x2");
         AssertSameGrids( A, BTL, BTR, BBL, BBR );
         AssertSameDists( A, BTL, BTR, BBL, BBR );
         AssertConforming2x2( BTL, BTR, BBL, BBR );

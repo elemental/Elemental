@@ -1847,7 +1847,7 @@ void Gemm
   float beta,        float* C, BlasInt ldc )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("blas::Gemm");
+      CSE cse("blas::Gemm");
       if( transA == 'N' )
       {
           if( lda < Max(m,1) )
@@ -1888,7 +1888,7 @@ void Gemm
   double beta,        double* C, BlasInt ldc )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("blas::Gemm");
+      CSE cse("blas::Gemm");
 
       if( transA == 'N' )
       {
@@ -1929,7 +1929,7 @@ void Gemm
   scomplex beta,        scomplex* C, BlasInt ldc )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("blas::Gemm");
+      CSE cse("blas::Gemm");
 
       if( transA == 'N' )
       {
@@ -1968,7 +1968,7 @@ void Gemm
   dcomplex beta,        dcomplex* C, BlasInt ldc )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("blas::Gemm");
+      CSE cse("blas::Gemm");
 
       if( transA == 'N' )
       {

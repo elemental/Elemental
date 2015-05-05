@@ -95,19 +95,19 @@ double Time()
 
 void Create( UserFunction* func, bool commutes, Op& op )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Create"))
+    DEBUG_ONLY(CSE cse("mpi::Create"))
     SafeMpi( MPI_Op_create( func, commutes, &op.op ) );
 }
 
 void Free( Op& op )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Free"))
+    DEBUG_ONLY(CSE cse("mpi::Free"))
     SafeMpi( MPI_Op_free( &op.op ) );
 }
 
 void Free( Datatype& type )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Free"))
+    DEBUG_ONLY(CSE cse("mpi::Free"))
     SafeMpi( MPI_Type_free( &type ) );
 }
 
@@ -116,13 +116,13 @@ void Free( Datatype& type )
 
 int WorldRank()
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::WorldRank"))
+    DEBUG_ONLY(CSE cse("mpi::WorldRank"))
     return Rank( mpi::COMM_WORLD ); 
 }
 
 int Rank( Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Rank"))
+    DEBUG_ONLY(CSE cse("mpi::Rank"))
     if( comm != COMM_NULL )
     {
         int rank;
@@ -134,7 +134,7 @@ int Rank( Comm comm )
 
 int Size( Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Size"))
+    DEBUG_ONLY(CSE cse("mpi::Size"))
     if( comm != COMM_NULL )
     {
         int size;
@@ -146,7 +146,7 @@ int Size( Comm comm )
 
 void Create( Comm parentComm, Group subsetGroup, Comm& subsetComm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Create"))
+    DEBUG_ONLY(CSE cse("mpi::Create"))
     SafeMpi( 
         MPI_Comm_create( parentComm.comm, subsetGroup.group, &subsetComm.comm ) 
     );
@@ -154,25 +154,25 @@ void Create( Comm parentComm, Group subsetGroup, Comm& subsetComm )
 
 void Dup( Comm original, Comm& duplicate )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Dup"))
+    DEBUG_ONLY(CSE cse("mpi::Dup"))
     SafeMpi( MPI_Comm_dup( original.comm, &duplicate.comm ) );
 }
 
 void Split( Comm comm, int color, int key, Comm& newComm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Split"))
+    DEBUG_ONLY(CSE cse("mpi::Split"))
     SafeMpi( MPI_Comm_split( comm.comm, color, key, &newComm.comm ) );
 }
 
 void Free( Comm& comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Free"))
+    DEBUG_ONLY(CSE cse("mpi::Free"))
     SafeMpi( MPI_Comm_free( &comm.comm ) );
 }
 
 bool Congruent( Comm comm1, Comm comm2 )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Congruent"))
+    DEBUG_ONLY(CSE cse("mpi::Congruent"))
     int result;
     SafeMpi( MPI_Comm_compare( comm1.comm, comm2.comm, &result ) );
     return ( result == MPI_IDENT || result == MPI_CONGRUENT );
@@ -180,7 +180,7 @@ bool Congruent( Comm comm1, Comm comm2 )
 
 void ErrorHandlerSet( Comm comm, ErrorHandler errorHandler )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::ErrorHandlerSet"))
+    DEBUG_ONLY(CSE cse("mpi::ErrorHandlerSet"))
 #ifdef EL_HAVE_MPI_COMM_SET_ERRHANDLER
     SafeMpi( MPI_Comm_set_errhandler( comm.comm, errorHandler ) );
 #else
@@ -195,7 +195,7 @@ void CartCreate
 ( Comm comm, int numDims, const int* dimensions, const int* periods, 
   bool reorder, Comm& cartComm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::CartCreate"))
+    DEBUG_ONLY(CSE cse("mpi::CartCreate"))
     SafeMpi
     ( MPI_Cart_create
       ( comm.comm, numDims, const_cast<int*>(dimensions), 
@@ -204,7 +204,7 @@ void CartCreate
 
 void CartSub( Comm comm, const int* remainingDims, Comm& subComm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::CartSub"))
+    DEBUG_ONLY(CSE cse("mpi::CartSub"))
     SafeMpi( 
         MPI_Cart_sub
         ( comm.comm, const_cast<int*>(remainingDims), &subComm.comm ) 
@@ -216,7 +216,7 @@ void CartSub( Comm comm, const int* remainingDims, Comm& subComm )
 
 int Rank( Group group )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Rank"))
+    DEBUG_ONLY(CSE cse("mpi::Rank"))
     int rank;
     SafeMpi( MPI_Group_rank( group.group, &rank ) );
     return rank;
@@ -224,7 +224,7 @@ int Rank( Group group )
 
 int Size( Group group )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Size"))
+    DEBUG_ONLY(CSE cse("mpi::Size"))
     int size;
     SafeMpi( MPI_Group_size( group.group, &size ) );
     return size;
@@ -232,26 +232,26 @@ int Size( Group group )
 
 void CommGroup( Comm comm, Group& group )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::CommGroup"))
+    DEBUG_ONLY(CSE cse("mpi::CommGroup"))
     SafeMpi( MPI_Comm_group( comm.comm, &group.group ) );
 }
 
 void Dup( Group group, Group& newGroup )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Dup"))
+    DEBUG_ONLY(CSE cse("mpi::Dup"))
     // For some reason, MPI_Group_dup does not exist
     Excl( group, 0, 0, newGroup ); 
 }
 
 void Union( Group groupA, Group groupB, Group& newGroup )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Union"))
+    DEBUG_ONLY(CSE cse("mpi::Union"))
     SafeMpi( MPI_Group_union( groupA.group, groupB.group, &newGroup.group ) );
 }
 
 void Incl( Group group, int n, const int* ranks, Group& subGroup )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Incl"))
+    DEBUG_ONLY(CSE cse("mpi::Incl"))
     SafeMpi( 
         MPI_Group_incl
         ( group.group, n, const_cast<int*>(ranks), &subGroup.group ) 
@@ -260,7 +260,7 @@ void Incl( Group group, int n, const int* ranks, Group& subGroup )
 
 void Excl( Group group, int n, const int* ranks, Group& subGroup )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Excl"))
+    DEBUG_ONLY(CSE cse("mpi::Excl"))
     SafeMpi(
         MPI_Group_excl
         ( group.group, n, const_cast<int*>(ranks), &subGroup.group )
@@ -269,7 +269,7 @@ void Excl( Group group, int n, const int* ranks, Group& subGroup )
 
 void Difference( Group parent, Group subset, Group& complement )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Difference"))
+    DEBUG_ONLY(CSE cse("mpi::Difference"))
     SafeMpi( 
         MPI_Group_difference( parent.group, subset.group, &complement.group ) 
     );
@@ -277,7 +277,7 @@ void Difference( Group parent, Group subset, Group& complement )
 
 void Free( Group& group )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Free"))
+    DEBUG_ONLY(CSE cse("mpi::Free"))
     SafeMpi( MPI_Group_free( &group.group ) );
 }
 
@@ -286,7 +286,7 @@ void Free( Group& group )
 
 int Translate( Group origGroup, int origRank, Group newGroup )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Translate"))
+    DEBUG_ONLY(CSE cse("mpi::Translate"))
     int newRank;
     Translate( origGroup, 1, &origRank, newGroup, &newRank );
     return newRank;
@@ -294,7 +294,7 @@ int Translate( Group origGroup, int origRank, Group newGroup )
 
 int Translate( Comm origComm, int origRank, Group newGroup )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Translate"))
+    DEBUG_ONLY(CSE cse("mpi::Translate"))
     int newRank;
     Translate( origComm, 1, &origRank, newGroup, &newRank );
     return newRank;
@@ -302,7 +302,7 @@ int Translate( Comm origComm, int origRank, Group newGroup )
 
 int Translate( Group origGroup, int origRank, Comm newComm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Translate"))
+    DEBUG_ONLY(CSE cse("mpi::Translate"))
     int newRank;
     Translate( origGroup, 1, &origRank, newComm, &newRank );
     return newRank;
@@ -310,7 +310,7 @@ int Translate( Group origGroup, int origRank, Comm newComm )
 
 int Translate( Comm origComm, int origRank, Comm newComm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Translate"))
+    DEBUG_ONLY(CSE cse("mpi::Translate"))
     int newRank;
     Translate( origComm, 1, &origRank, newComm, &newRank );
     return newRank;
@@ -320,7 +320,7 @@ void Translate
 ( Group origGroup, int size, const int* origRanks, 
   Group newGroup,                  int* newRanks )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Translate"))
+    DEBUG_ONLY(CSE cse("mpi::Translate"))
     SafeMpi
     ( MPI_Group_translate_ranks
       ( origGroup.group, size, const_cast<int*>(origRanks), 
@@ -331,7 +331,7 @@ void Translate
 ( Comm origComm,  int size, const int* origRanks, 
   Group newGroup,                 int* newRanks )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Translate"))
+    DEBUG_ONLY(CSE cse("mpi::Translate"))
     Group origGroup;
     CommGroup( origComm, origGroup );
     Translate( origGroup, size, origRanks, newGroup, newRanks );
@@ -342,7 +342,7 @@ void Translate
 ( Group origGroup,  int size, const int* origRanks, 
   Comm newComm,                     int* newRanks )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Translate"))
+    DEBUG_ONLY(CSE cse("mpi::Translate"))
     Group newGroup;
     CommGroup( newComm,  newGroup  );
     Translate( origGroup, size, origRanks, newGroup, newRanks );
@@ -353,7 +353,7 @@ void Translate
 ( Comm origComm,  int size, const int* origRanks, 
   Comm newComm,                   int* newRanks )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Translate"))
+    DEBUG_ONLY(CSE cse("mpi::Translate"))
     Group origGroup, newGroup;
     CommGroup( origComm, origGroup );
     CommGroup( newComm,  newGroup  );
@@ -368,14 +368,14 @@ void Translate
 // Wait until every process in comm reaches this statement
 void Barrier( Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Barrier"))
+    DEBUG_ONLY(CSE cse("mpi::Barrier"))
     SafeMpi( MPI_Barrier( comm.comm ) );
 }
 
 // Test for completion
 bool Test( Request& request )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Test"))
+    DEBUG_ONLY(CSE cse("mpi::Test"))
     Status status;
     int flag;
     SafeMpi( MPI_Test( &request, &flag, &status ) );
@@ -385,7 +385,7 @@ bool Test( Request& request )
 // Ensure that the request finishes before continuing
 void Wait( Request& request )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Wait"))
+    DEBUG_ONLY(CSE cse("mpi::Wait"))
     Status status;
     SafeMpi( MPI_Wait( &request, &status ) );
 }
@@ -393,14 +393,14 @@ void Wait( Request& request )
 // Ensure that the request finishes before continuing
 void Wait( Request& request, Status& status )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Wait"))
+    DEBUG_ONLY(CSE cse("mpi::Wait"))
     SafeMpi( MPI_Wait( &request, &status ) );
 }
 
 // Ensure that several requests finish before continuing
 void WaitAll( int numRequests, Request* requests )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::WaitAll"))
+    DEBUG_ONLY(CSE cse("mpi::WaitAll"))
     vector<Status> statuses( numRequests );
     SafeMpi( MPI_Waitall( numRequests, requests, statuses.data() ) );
 }
@@ -408,14 +408,14 @@ void WaitAll( int numRequests, Request* requests )
 // Ensure that several requests finish before continuing
 void WaitAll( int numRequests, Request* requests, Status* statuses )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::WaitAll"))
+    DEBUG_ONLY(CSE cse("mpi::WaitAll"))
     SafeMpi( MPI_Waitall( numRequests, requests, statuses ) );
 }
 
 // Nonblocking test for message completion
 bool IProbe( int source, int tag, Comm comm, Status& status )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::IProbe"))
+    DEBUG_ONLY(CSE cse("mpi::IProbe"))
     int flag;
     SafeMpi( MPI_Iprobe( source, tag, comm.comm, &flag, &status ) );
     return flag;
@@ -426,7 +426,7 @@ bool IProbe( int source, Comm comm, Status& status )
 template<typename T>
 int GetCount( Status& status )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::GetCount"))
+    DEBUG_ONLY(CSE cse("mpi::GetCount"))
     int count;
     SafeMpi( MPI_Get_count( &status, TypeMap<T>(), &count ) );
     return count;
@@ -435,7 +435,7 @@ int GetCount( Status& status )
 template<typename Real>
 void TaggedSend( const Real* buf, int count, int to, int tag, Comm comm )
 { 
-    DEBUG_ONLY(CallStackEntry cse("mpi::Send"))
+    DEBUG_ONLY(CSE cse("mpi::Send"))
     SafeMpi( 
         MPI_Send
         ( const_cast<Real*>(buf), count, TypeMap<Real>(), to, tag, comm.comm )
@@ -446,7 +446,7 @@ template<typename Real>
 void TaggedSend
 ( const Complex<Real>* buf, int count, int to, int tag, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Send"))
+    DEBUG_ONLY(CSE cse("mpi::Send"))
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Send
@@ -476,7 +476,7 @@ template<typename Real>
 void TaggedISend
 ( const Real* buf, int count, int to, int tag, Comm comm, Request& request )
 { 
-    DEBUG_ONLY(CallStackEntry cse("mpi::ISend"))
+    DEBUG_ONLY(CSE cse("mpi::ISend"))
     SafeMpi
     ( MPI_Isend
       ( const_cast<Real*>(buf), count, TypeMap<Real>(), to, 
@@ -488,7 +488,7 @@ void TaggedISend
 ( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
   Request& request )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::ISend"))
+    DEBUG_ONLY(CSE cse("mpi::ISend"))
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Isend
@@ -519,7 +519,7 @@ template<typename Real>
 void TaggedISSend
 ( const Real* buf, int count, int to, int tag, Comm comm, Request& request )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::ISSend"))
+    DEBUG_ONLY(CSE cse("mpi::ISSend"))
     SafeMpi
     ( MPI_Issend
       ( const_cast<Real*>(buf), count, TypeMap<Real>(), to, 
@@ -531,7 +531,7 @@ void TaggedISSend
 ( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
   Request& request )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::ISSend"))
+    DEBUG_ONLY(CSE cse("mpi::ISSend"))
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Issend
@@ -556,7 +556,7 @@ void TaggedISSend( T b, int to, int tag, Comm comm, Request& request )
 template<typename Real>
 void TaggedRecv( Real* buf, int count, int from, int tag, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Recv"))
+    DEBUG_ONLY(CSE cse("mpi::Recv"))
     Status status;
     SafeMpi
     ( MPI_Recv( buf, count, TypeMap<Real>(), from, tag, comm.comm, &status ) );
@@ -565,7 +565,7 @@ void TaggedRecv( Real* buf, int count, int from, int tag, Comm comm )
 template<typename Real>
 void TaggedRecv( Complex<Real>* buf, int count, int from, int tag, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Recv"))
+    DEBUG_ONLY(CSE cse("mpi::Recv"))
     Status status;
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
@@ -593,7 +593,7 @@ template<typename Real>
 void TaggedIRecv
 ( Real* buf, int count, int from, int tag, Comm comm, Request& request )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::IRecv"))
+    DEBUG_ONLY(CSE cse("mpi::IRecv"))
     SafeMpi
     ( MPI_Irecv
       ( buf, count, TypeMap<Real>(), from, tag, comm.comm, &request ) );
@@ -604,7 +604,7 @@ void TaggedIRecv
 ( Complex<Real>* buf, int count, int from, int tag, 
   Comm comm, Request& request )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::IRecv"))
+    DEBUG_ONLY(CSE cse("mpi::IRecv"))
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Irecv( buf, 2*count, TypeMap<Real>(), from, tag, comm.comm, &request ) );
@@ -632,7 +632,7 @@ void TaggedSendRecv
 ( const Real* sbuf, int sc, int to,   int stag,
         Real* rbuf, int rc, int from, int rtag, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::SendRecv"))
+    DEBUG_ONLY(CSE cse("mpi::SendRecv"))
     Status status;
     SafeMpi
     ( MPI_Sendrecv
@@ -646,7 +646,7 @@ void TaggedSendRecv
 ( const Complex<Real>* sbuf, int sc, int to,   int stag,
         Complex<Real>* rbuf, int rc, int from, int rtag, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::SendRecv"))
+    DEBUG_ONLY(CSE cse("mpi::SendRecv"))
     Status status;
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
@@ -686,7 +686,7 @@ template<typename Real>
 void TaggedSendRecv
 ( Real* buf, int count, int to, int stag, int from, int rtag, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::SendRecv"))
+    DEBUG_ONLY(CSE cse("mpi::SendRecv"))
     Status status;
     SafeMpi
     ( MPI_Sendrecv_replace
@@ -697,7 +697,7 @@ template<typename Real>
 void TaggedSendRecv
 ( Complex<Real>* buf, int count, int to, int stag, int from, int rtag, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::SendRecv"))
+    DEBUG_ONLY(CSE cse("mpi::SendRecv"))
     Status status;
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
@@ -719,14 +719,14 @@ void SendRecv( T* buf, int count, int to, int from, Comm comm )
 template<typename Real>
 void Broadcast( Real* buf, int count, int root, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Broadcast"))
+    DEBUG_ONLY(CSE cse("mpi::Broadcast"))
     SafeMpi( MPI_Bcast( buf, count, TypeMap<Real>(), root, comm.comm ) );
 }
 
 template<typename Real>
 void Broadcast( Complex<Real>* buf, int count, int root, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Broadcast"))
+    DEBUG_ONLY(CSE cse("mpi::Broadcast"))
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi( MPI_Bcast( buf, 2*count, TypeMap<Real>(), root, comm.comm ) );
 #else
@@ -741,7 +741,7 @@ void Broadcast( T& b, int root, Comm comm )
 template<typename Real>
 void IBroadcast( Real* buf, int count, int root, Comm comm, Request& request )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::IBroadcast"))
+    DEBUG_ONLY(CSE cse("mpi::IBroadcast"))
 #ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
     SafeMpi
     ( MPI_Ibcast( buf, count, TypeMap<Real>(), root, comm.comm, &request ) );
@@ -754,7 +754,7 @@ template<typename Real>
 void IBroadcast
 ( Complex<Real>* buf, int count, int root, Comm comm, Request& request )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::IBroadcast"))
+    DEBUG_ONLY(CSE cse("mpi::IBroadcast"))
 #ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
@@ -778,7 +778,7 @@ void Gather
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc, int root, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Gather"))
+    DEBUG_ONLY(CSE cse("mpi::Gather"))
     SafeMpi
     ( MPI_Gather
       ( const_cast<Real*>(sbuf), sc, TypeMap<Real>(),
@@ -790,7 +790,7 @@ void Gather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, int rc, int root, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Gather"))
+    DEBUG_ONLY(CSE cse("mpi::Gather"))
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Gather
@@ -810,7 +810,7 @@ void IGather
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc, int root, Comm comm, Request& request )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::IGather"))
+    DEBUG_ONLY(CSE cse("mpi::IGather"))
 #ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
     SafeMpi
     ( MPI_Igather
@@ -826,7 +826,7 @@ void IGather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, int rc, int root, Comm comm, Request& request )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::IGather"))
+    DEBUG_ONLY(CSE cse("mpi::IGather"))
 #ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
@@ -851,7 +851,7 @@ void Gather
 ( const Real* sbuf, int sc,
         Real* rbuf, const int* rcs, const int* rds, int root, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Gather"))
+    DEBUG_ONLY(CSE cse("mpi::Gather"))
     SafeMpi
     ( MPI_Gatherv
       ( const_cast<Real*>(sbuf), 
@@ -870,7 +870,7 @@ void Gather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, const int* rcs, const int* rds, int root, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Gather"))
+    DEBUG_ONLY(CSE cse("mpi::Gather"))
 #ifdef EL_AVOID_COMPLEX_MPI
     const int commRank = Rank( comm );
     const int commSize = Size( comm );
@@ -910,7 +910,7 @@ void AllGather
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::AllGather"))
+    DEBUG_ONLY(CSE cse("mpi::AllGather"))
 #ifdef EL_USE_BYTE_ALLGATHERS
     SafeMpi
     ( MPI_Allgather
@@ -930,7 +930,7 @@ void AllGather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, int rc, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::AllGather"))
+    DEBUG_ONLY(CSE cse("mpi::AllGather"))
 #ifdef EL_USE_BYTE_ALLGATHERS
     SafeMpi
     ( MPI_Allgather
@@ -957,7 +957,7 @@ void AllGather
 ( const Real* sbuf, int sc,
         Real* rbuf, const int* rcs, const int* rds, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::AllGather"))
+    DEBUG_ONLY(CSE cse("mpi::AllGather"))
 #ifdef EL_USE_BYTE_ALLGATHERS
     const int commSize = Size( comm );
     vector<int> byteRcs( commSize ), byteRds( commSize );
@@ -990,7 +990,7 @@ void AllGather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, const int* rcs, const int* rds, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::AllGather"))
+    DEBUG_ONLY(CSE cse("mpi::AllGather"))
 #ifdef EL_USE_BYTE_ALLGATHERS
     const int commSize = Size( comm );
     vector<int> byteRcs( commSize ), byteRds( commSize );
@@ -1037,7 +1037,7 @@ void Scatter
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc, int root, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Scatter"))
+    DEBUG_ONLY(CSE cse("mpi::Scatter"))
     SafeMpi
     ( MPI_Scatter
       ( const_cast<Real*>(sbuf), sc, TypeMap<Real>(),
@@ -1049,7 +1049,7 @@ void Scatter
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, int rc, int root, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Scatter"))
+    DEBUG_ONLY(CSE cse("mpi::Scatter"))
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Scatter
@@ -1067,7 +1067,7 @@ void Scatter
 template<typename Real>
 void Scatter( Real* buf, int sc, int rc, int root, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Scatter"))
+    DEBUG_ONLY(CSE cse("mpi::Scatter"))
     const int commRank = Rank( comm );
     if( commRank == root )
     {
@@ -1098,7 +1098,7 @@ void Scatter( Real* buf, int sc, int rc, int root, Comm comm )
 template<typename Real>
 void Scatter( Complex<Real>* buf, int sc, int rc, int root, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Scatter"))
+    DEBUG_ONLY(CSE cse("mpi::Scatter"))
     const int commRank = Rank( comm );
     if( commRank == root )
     {
@@ -1155,7 +1155,7 @@ void AllToAll
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::AllToAll"))
+    DEBUG_ONLY(CSE cse("mpi::AllToAll"))
     SafeMpi
     ( MPI_Alltoall
       ( const_cast<Real*>(sbuf), sc, TypeMap<Real>(),
@@ -1167,7 +1167,7 @@ void AllToAll
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, int rc, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::AllToAll"))
+    DEBUG_ONLY(CSE cse("mpi::AllToAll"))
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Alltoall
@@ -1186,7 +1186,7 @@ void AllToAll
 ( const Real* sbuf, const int* scs, const int* sds, 
         Real* rbuf, const int* rcs, const int* rds, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::AllToAll"))
+    DEBUG_ONLY(CSE cse("mpi::AllToAll"))
     SafeMpi
     ( MPI_Alltoallv
       ( const_cast<Real*>(sbuf), 
@@ -1205,7 +1205,7 @@ void AllToAll
 ( const Complex<Real>* sbuf, const int* scs, const int* sds,
         Complex<Real>* rbuf, const int* rcs, const int* rds, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::AllToAll"))
+    DEBUG_ONLY(CSE cse("mpi::AllToAll"))
 #ifdef EL_AVOID_COMPLEX_MPI
     int p;
     MPI_Comm_size( comm.comm, &p );
@@ -1261,7 +1261,7 @@ template<typename Real>
 void Reduce
 ( const Real* sbuf, Real* rbuf, int count, Op op, int root, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Reduce"))
+    DEBUG_ONLY(CSE cse("mpi::Reduce"))
     if( count != 0 )
     {
         MPI_Op opC;
@@ -1286,7 +1286,7 @@ void Reduce
 ( const Complex<Real>* sbuf, 
         Complex<Real>* rbuf, int count, Op op, int root, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Reduce"))
+    DEBUG_ONLY(CSE cse("mpi::Reduce"))
     if( count != 0 )
     {
         MPI_Op opC;
@@ -1343,7 +1343,7 @@ T Reduce( T sb, int root, Comm comm )
 template<typename Real>
 void Reduce( Real* buf, int count, Op op, int root, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Reduce"))
+    DEBUG_ONLY(CSE cse("mpi::Reduce"))
     if( count != 0 )
     {
         MPI_Op opC;
@@ -1383,7 +1383,7 @@ void Reduce( Real* buf, int count, Op op, int root, Comm comm )
 template<typename Real>
 void Reduce( Complex<Real>* buf, int count, Op op, int root, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::Reduce"))
+    DEBUG_ONLY(CSE cse("mpi::Reduce"))
     if( count != 0 )
     {
         MPI_Op opC;
@@ -1474,7 +1474,7 @@ void Reduce( T* buf, int count, int root, Comm comm )
 template<typename Real>
 void AllReduce( const Real* sbuf, Real* rbuf, int count, Op op, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::AllReduce"))
+    DEBUG_ONLY(CSE cse("mpi::AllReduce"))
     if( count != 0 )
     {
         MPI_Op opC;
@@ -1498,7 +1498,7 @@ template<typename Real>
 void AllReduce
 ( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::AllReduce"))
+    DEBUG_ONLY(CSE cse("mpi::AllReduce"))
     if( count != 0 )
     {
         MPI_Op opC;
@@ -1546,7 +1546,7 @@ T AllReduce( T sb, Comm comm )
 template<typename Real>
 void AllReduce( Real* buf, int count, Op op, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::AllReduce"))
+    DEBUG_ONLY(CSE cse("mpi::AllReduce"))
     if( count != 0 )
     {
         MPI_Op opC;
@@ -1576,7 +1576,7 @@ void AllReduce( Real* buf, int count, Op op, Comm comm )
 template<typename Real>
 void AllReduce( Complex<Real>* buf, int count, Op op, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::AllReduce"))
+    DEBUG_ONLY(CSE cse("mpi::AllReduce"))
     if( count != 0 )
     {
         MPI_Op opC;
@@ -1642,7 +1642,7 @@ void AllReduce( T* buf, int count, Comm comm )
 template<typename Real>
 void ReduceScatter( Real* sbuf, Real* rbuf, int rc, Op op, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::ReduceScatter"))
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter"))
 #ifdef EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = Size( comm );
     const int commRank = Rank( comm );
@@ -1672,7 +1672,7 @@ template<typename Real>
 void ReduceScatter
 ( Complex<Real>* sbuf, Complex<Real>* rbuf, int rc, Op op, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::ReduceScatter"))
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter"))
     MPI_Op opC;
     if( op == SUM )
         opC = SumOp<Complex<Real>>().op; 
@@ -1716,7 +1716,7 @@ T ReduceScatter( T sb, Comm comm )
 template<typename Real>
 void ReduceScatter( Real* buf, int rc, Op op, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::ReduceScatter"))
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter"))
 #ifdef EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = Size( comm );
     const int commRank = Rank( comm );
@@ -1756,7 +1756,7 @@ void ReduceScatter( Real* buf, int rc, Op op, Comm comm )
 template<typename Real>
 void ReduceScatter( Complex<Real>* buf, int rc, Op op, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::ReduceScatter"))
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter"))
 #ifdef EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = Size( comm );
     const int commRank = Rank( comm );
@@ -1811,7 +1811,7 @@ template<typename Real>
 void ReduceScatter
 ( const Real* sbuf, Real* rbuf, const int* rcs, Op op, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::ReduceScatter"))
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter"))
     MPI_Op opC;
     if( op == SUM )
         opC = SumOp<Real>().op; 
@@ -1832,7 +1832,7 @@ template<typename Real>
 void ReduceScatter
 ( const Complex<Real>* sbuf, Complex<Real>* rbuf, const int* rcs, Op op, Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::ReduceScatter"))
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter"))
     MPI_Op opC;
     if( op == SUM )
         opC = SumOp<Complex<Real>>().op; 
@@ -1877,7 +1877,7 @@ void VerifySendsAndRecvs
 ( const vector<int>& sendCounts,
   const vector<int>& recvCounts, mpi::Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("mpi::VerifySendsAndRecvs"))
+    DEBUG_ONLY(CSE cse("mpi::VerifySendsAndRecvs"))
     const int commSize = mpi::Size( comm );
     vector<int> actualRecvCounts(commSize);
     mpi::AllToAll

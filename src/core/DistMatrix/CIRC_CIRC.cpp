@@ -27,7 +27,7 @@ namespace El {
 template<typename T>
 DM DM::operator()( Range<Int> indVert, Range<Int> indHorz )
 {
-    DEBUG_ONLY(CallStackEntry cse("DM[CIRC,CIRC]( ind, ind )"))
+    DEBUG_ONLY(CSE cse("DM[CIRC,CIRC]( ind, ind )"))
     if( this->Locked() )
         return LockedView( *this, indVert, indHorz );
     else
@@ -37,7 +37,7 @@ DM DM::operator()( Range<Int> indVert, Range<Int> indHorz )
 template<typename T>
 const DM DM::operator()( Range<Int> indVert, Range<Int> indHorz ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DM[CIRC,CIRC]( ind, ind )"))
+    DEBUG_ONLY(CSE cse("DM[CIRC,CIRC]( ind, ind )"))
     return LockedView( *this, indVert, indHorz );
 }
 
@@ -46,7 +46,7 @@ const DM DM::operator()( Range<Int> indVert, Range<Int> indHorz ) const
 template<typename T>
 DM& DM::operator=( const DM& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("DM[CIRC,CIRC] = DM[CIRC,CIRC]"))
+    DEBUG_ONLY(CSE cse("DM[CIRC,CIRC] = DM[CIRC,CIRC]"))
     copy::Translate( A, *this );
     return *this;
 }
@@ -54,7 +54,7 @@ DM& DM::operator=( const DM& A )
 template<typename T>
 DM& DM::operator=( const AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = ADM"));
+    DEBUG_ONLY(CSE cse("[CIRC,CIRC] = ADM"));
     copy::Gather( A, *this );
     return *this;
 }
@@ -64,7 +64,7 @@ DM& DM::operator=( const AbstractDistMatrix<T>& A )
 template<typename T>
 void DM::CopyFromRoot( const Matrix<T>& A, bool includingViewers )
 {
-    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC]::CopyFromRoot"))
+    DEBUG_ONLY(CSE cse("[CIRC,CIRC]::CopyFromRoot"))
     if( this->CrossRank() != this->Root() )
         LogicError("Called CopyFromRoot from non-root");
 
@@ -77,7 +77,7 @@ void DM::CopyFromRoot( const Matrix<T>& A, bool includingViewers )
 template<typename T>
 void DM::CopyFromNonRoot( bool includingViewers )
 {
-    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC]::CopyFromNonRoot"))
+    DEBUG_ONLY(CSE cse("[CIRC,CIRC]::CopyFromNonRoot"))
     if( this->CrossRank() == this->Root() )
         LogicError("Called CopyFromNonRoot from root");
 

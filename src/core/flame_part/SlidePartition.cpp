@@ -19,7 +19,7 @@ void SlidePartitionUp
                  Matrix<T>& A1,
   Matrix<T>& AB, Matrix<T>& A2 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlidePartitionUp"))
+    DEBUG_ONLY(CSE cse("SlidePartitionUp"))
     View( AT, A0 );
     Merge2x1( AB, A1, A2 );
 }
@@ -31,7 +31,7 @@ void SlidePartitionUp
   AbstractDistMatrix<T>& AB, AbstractDistMatrix<T>& A2 )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SlidePartitionUp");
+      CSE cse("SlidePartitionUp");
       AssertSameGrids( AT, AB, A0, A1, A2 );
       AssertSameDists( AT, AB, A0, A1, A2 );
     )
@@ -45,7 +45,7 @@ void SlideLockedPartitionUp
                  const Matrix<T>& A1,
   Matrix<T>& AB, const Matrix<T>& A2 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionUp"))
+    DEBUG_ONLY(CSE cse("SlideLockedPartitionUp"))
     LockedView( AT, A0 );
     LockedMerge2x1( AB, A1, A2 );
 }
@@ -57,7 +57,7 @@ void SlideLockedPartitionUp
   AbstractDistMatrix<T>& AB, const AbstractDistMatrix<T>& A2 )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SlideLockedPartitionUp");
+      CSE cse("SlideLockedPartitionUp");
       AssertSameGrids( AT, AB, A0, A1, A2 );
       AssertSameDists( AT, AB, A0, A1, A2 );
     )
@@ -74,7 +74,7 @@ void SlidePartitionDown
                  Matrix<T>& A1,
   Matrix<T>& AB, Matrix<T>& A2 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlidePartitionDown"))
+    DEBUG_ONLY(CSE cse("SlidePartitionDown"))
     Merge2x1( AT, A0, A1 );
     View( AB, A2 );
 }
@@ -86,7 +86,7 @@ void SlidePartitionDown
   AbstractDistMatrix<T>& AB, AbstractDistMatrix<T>& A2 )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SlidePartitionDown");
+      CSE cse("SlidePartitionDown");
       AssertSameGrids( AT, AB, A0, A1, A2 );
       AssertSameDists( AT, AB, A0, A1, A2 );
     )
@@ -100,7 +100,7 @@ void SlideLockedPartitionDown
                  const Matrix<T>& A1,
   Matrix<T>& AB, const Matrix<T>& A2 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionDown"))
+    DEBUG_ONLY(CSE cse("SlideLockedPartitionDown"))
     LockedMerge2x1( AT, A0, A1 );
     LockedView( AB, A2 );
 }
@@ -112,7 +112,7 @@ void SlideLockedPartitionDown
   AbstractDistMatrix<T>& AB, const AbstractDistMatrix<T>& A2 )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SlideLockedPartitionDown");
+      CSE cse("SlideLockedPartitionDown");
       AssertSameGrids( AT, AB, A0, A1, A2 );
       AssertSameDists( AT, AB, A0, A1, A2 );
     )
@@ -128,7 +128,7 @@ void SlidePartitionLeft
 ( Matrix<T>& AL, Matrix<T>& AR,
   Matrix<T>& A0, Matrix<T>& A1, Matrix<T>& A2 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlidePartitionLeft"))
+    DEBUG_ONLY(CSE cse("SlidePartitionLeft"))
     View( AL, A0 );
     Merge1x2( AR, A1, A2 );
 }
@@ -139,7 +139,7 @@ void SlidePartitionLeft
   AbstractDistMatrix<T>& A0, AbstractDistMatrix<T>& A1, AbstractDistMatrix<T>& A2 )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SlidePartitionLeft");
+      CSE cse("SlidePartitionLeft");
       AssertSameGrids( AL, AR, A0, A1, A2 );
       AssertSameDists( AL, AR, A0, A1, A2 );
     )
@@ -152,7 +152,7 @@ void SlideLockedPartitionLeft
 ( Matrix<T>& AL, Matrix<T>& AR,
   const Matrix<T>& A0, const Matrix<T>& A1, const Matrix<T>& A2 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionLeft"))
+    DEBUG_ONLY(CSE cse("SlideLockedPartitionLeft"))
     LockedView( AL, A0 );
     LockedMerge1x2( AR, A1, A2 );
 }
@@ -163,7 +163,7 @@ void SlideLockedPartitionLeft
   const AbstractDistMatrix<T>& A0, const AbstractDistMatrix<T>& A1, const AbstractDistMatrix<T>& A2 )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SlideLockedPartitionLeft");
+      CSE cse("SlideLockedPartitionLeft");
       AssertSameGrids( AL, AR, A0, A1, A2 );
       AssertSameDists( AL, AR, A0, A1, A2 );
     )
@@ -179,7 +179,7 @@ void SlidePartitionRight
 ( Matrix<T>& AL, Matrix<T>& AR,
   Matrix<T>& A0, Matrix<T>& A1, Matrix<T>& A2 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlidePartitionRight"))
+    DEBUG_ONLY(CSE cse("SlidePartitionRight"))
     Merge1x2( AL, A0, A1 );
     View( AR, A2 );
 }
@@ -190,7 +190,7 @@ void SlidePartitionRight
   AbstractDistMatrix<T>& A0, AbstractDistMatrix<T>& A1, AbstractDistMatrix<T>& A2 )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SlidePartitionRight");
+      CSE cse("SlidePartitionRight");
       AssertSameGrids( AL, AR, A0, A1, A2 );
       AssertSameDists( AL, AR, A0, A1, A2 );
     )
@@ -203,7 +203,7 @@ void SlideLockedPartitionRight
 ( Matrix<T>& AL, Matrix<T>& AR,
   const Matrix<T>& A0, const Matrix<T>& A1, const Matrix<T>& A2 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionRight"))
+    DEBUG_ONLY(CSE cse("SlideLockedPartitionRight"))
     LockedMerge1x2( AL, A0, A1 );
     LockedView( AR, A2 );
 }
@@ -214,7 +214,7 @@ void SlideLockedPartitionRight
   const AbstractDistMatrix<T>& A0, const AbstractDistMatrix<T>& A1, const AbstractDistMatrix<T>& A2 )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SlideLockedPartitionRight");
+      CSE cse("SlideLockedPartitionRight");
       AssertSameGrids( AL, AR, A0, A1, A2 );
       AssertSameDists( AL, AR, A0, A1, A2 );
     )
@@ -233,7 +233,7 @@ void SlidePartitionUpDiagonal
   Matrix<T>& ABL, Matrix<T>& ABR, 
   Matrix<T>& A20, Matrix<T>& A21, Matrix<T>& A22 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlidePartitionUpDiagonal"))
+    DEBUG_ONLY(CSE cse("SlidePartitionUpDiagonal"))
     View( ATL, A00 );
     Merge1x2( ATR, A01, A02 );
     Merge2x1( ABL, A10, A20 );
@@ -250,7 +250,7 @@ void SlidePartitionUpDiagonal
   AbstractDistMatrix<T>& A21, AbstractDistMatrix<T>& A22 )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SlidePartitionUpDiagonal");
+      CSE cse("SlidePartitionUpDiagonal");
       AssertSameGrids
       ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
       AssertSameDists
@@ -271,7 +271,7 @@ void SlideLockedPartitionUpDiagonal
   Matrix<T>& ABL, Matrix<T>& ABR, 
   const Matrix<T>& A20, const Matrix<T>& A21, const Matrix<T>& A22 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionUpDiagonal"))
+    DEBUG_ONLY(CSE cse("SlideLockedPartitionUpDiagonal"))
     LockedView( ATL, A00 );
     LockedMerge1x2( ATR, A01, A02 );
     LockedMerge2x1( ABL, A10, A20 );
@@ -288,7 +288,7 @@ void SlideLockedPartitionUpDiagonal
   const AbstractDistMatrix<T>& A20, const AbstractDistMatrix<T>& A21, const AbstractDistMatrix<T>& A22 )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SlideLockedPartitionUpDiagonal");
+      CSE cse("SlideLockedPartitionUpDiagonal");
       AssertSameGrids
       ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
       AssertSameDists
@@ -312,7 +312,7 @@ void SlidePartitionDownDiagonal
   Matrix<T>& ABL, Matrix<T>& ABR, 
   Matrix<T>& A20, Matrix<T>& A21, Matrix<T>& A22 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlidePartitionDownDiagonal"))
+    DEBUG_ONLY(CSE cse("SlidePartitionDownDiagonal"))
     Merge2x2( ATL, A00, A01,
                    A10, A11 );
     Merge2x1( ATR, A02, A12 );
@@ -329,7 +329,7 @@ void SlidePartitionDownDiagonal
   AbstractDistMatrix<T>& A20, AbstractDistMatrix<T>& A21, AbstractDistMatrix<T>& A22 )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SlidePartitionDownDiagonal");
+      CSE cse("SlidePartitionDownDiagonal");
       AssertSameGrids
       ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
       AssertSameDists
@@ -350,7 +350,7 @@ void SlideLockedPartitionDownDiagonal
   Matrix<T>& ABL, Matrix<T>& ABR, 
   const Matrix<T>& A20, const Matrix<T>& A21, const Matrix<T>& A22 )
 {
-    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionDownDiagonal"))
+    DEBUG_ONLY(CSE cse("SlideLockedPartitionDownDiagonal"))
     LockedMerge2x2( ATL, A00, A01,
                          A10, A11 );
     LockedMerge2x1( ATR, A02, A12 );
@@ -367,7 +367,7 @@ void SlideLockedPartitionDownDiagonal
   const AbstractDistMatrix<T>& A20, const AbstractDistMatrix<T>& A21, const AbstractDistMatrix<T>& A22 )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SlideLockedPartitionDownDiagonal");
+      CSE cse("SlideLockedPartitionDownDiagonal");
       AssertSameGrids
       ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
       AssertSameDists

@@ -149,7 +149,7 @@ namespace scalapack {
 // --------
 void Cholesky( char uplo, int n, float* A, const int* descA )
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::Cholesky"))
+    DEBUG_ONLY(CSE cse("scalapack::Cholesky"))
     int iA=1,jA=1,info;
     EL_SCALAPACK(pspotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
     if( info != 0 )
@@ -158,7 +158,7 @@ void Cholesky( char uplo, int n, float* A, const int* descA )
 
 void Cholesky( char uplo, int n, double* A, const int* descA )
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::Cholesky"))
+    DEBUG_ONLY(CSE cse("scalapack::Cholesky"))
     int iA=1,jA=1,info;
     EL_SCALAPACK(pdpotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
     if( info != 0 )
@@ -167,7 +167,7 @@ void Cholesky( char uplo, int n, double* A, const int* descA )
 
 void Cholesky( char uplo, int n, scomplex* A, const int* descA )
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::Cholesky"))
+    DEBUG_ONLY(CSE cse("scalapack::Cholesky"))
     int iA=1,jA=1,info;
     EL_SCALAPACK(pcpotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
     if( info != 0 )
@@ -176,7 +176,7 @@ void Cholesky( char uplo, int n, scomplex* A, const int* descA )
 
 void Cholesky( char uplo, int n, dcomplex* A, const int* descA )
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::Cholesky"))
+    DEBUG_ONLY(CSE cse("scalapack::Cholesky"))
     int iA=1,jA=1,info;
     EL_SCALAPACK(pzpotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
     if( info != 0 )
@@ -230,7 +230,7 @@ void TwoSidedTrsm
         float* A, const int* descA, 
   const float* B, const int* descB )
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrsm"))
+    DEBUG_ONLY(CSE cse("scalapack::TwoSidedTrsm"))
     int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale, dummyWork;
     EL_SCALAPACK(pssyngst)
@@ -251,7 +251,7 @@ void TwoSidedTrsm
         double* A, const int* descA, 
   const double* B, const int* descB )
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrsm"))
+    DEBUG_ONLY(CSE cse("scalapack::TwoSidedTrsm"))
     int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale, dummyWork;
     EL_SCALAPACK(pdsyngst)
@@ -272,7 +272,7 @@ void TwoSidedTrsm
         scomplex* A, const int* descA, 
   const scomplex* B, const int* descB )
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrsm"))
+    DEBUG_ONLY(CSE cse("scalapack::TwoSidedTrsm"))
     int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale;
     scomplex dummyWork;
@@ -294,7 +294,7 @@ void TwoSidedTrsm
         dcomplex* A, const int* descA, 
   const dcomplex* B, const int* descB )
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrsm"))
+    DEBUG_ONLY(CSE cse("scalapack::TwoSidedTrsm"))
     int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale;
     dcomplex dummyWork;
@@ -318,7 +318,7 @@ void TwoSidedTrmm
         float* A, const int* descA, 
   const float* B, const int* descB )
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrmm"))
+    DEBUG_ONLY(CSE cse("scalapack::TwoSidedTrmm"))
     int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale, dummyWork;
     EL_SCALAPACK(pssyngst)
@@ -339,7 +339,7 @@ void TwoSidedTrmm
         double* A, const int* descA, 
   const double* B, const int* descB )
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrmm"))
+    DEBUG_ONLY(CSE cse("scalapack::TwoSidedTrmm"))
     int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale, dummyWork;
     EL_SCALAPACK(pdsyngst)
@@ -360,7 +360,7 @@ void TwoSidedTrmm
         scomplex* A, const int* descA, 
   const scomplex* B, const int* descB )
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrmm"))
+    DEBUG_ONLY(CSE cse("scalapack::TwoSidedTrmm"))
     int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale;
     scomplex dummyWork;
@@ -382,7 +382,7 @@ void TwoSidedTrmm
         dcomplex* A, const int* descA, 
   const dcomplex* B, const int* descB )
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrmm"))
+    DEBUG_ONLY(CSE cse("scalapack::TwoSidedTrmm"))
     int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale;
     dcomplex dummyWork;
@@ -404,7 +404,7 @@ void TwoSidedTrmm
 void HessenbergSchur
 ( int n, float* H, const int* descH, scomplex* w, bool fullTriangle, bool aed ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
+    DEBUG_ONLY(CSE cse("scalapack::HessenbergSchur"))
     const int ilo=1, ihi=n;
     vector<float> wr(n), wi(n);
     int descQ[9] = 
@@ -480,7 +480,7 @@ void HessenbergSchur
 void HessenbergSchur
 ( int n, double* H, const int* descH, dcomplex* w, bool fullTriangle, bool aed )
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
+    DEBUG_ONLY(CSE cse("scalapack::HessenbergSchur"))
     const int ilo=1, ihi=n;
     vector<double> wr(n), wi(n);
     int descQ[9] = 
@@ -556,7 +556,7 @@ void HessenbergSchur
 ( int n, scomplex* H, const int* descH, scomplex* w, bool fullTriangle, 
   bool aed ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
+    DEBUG_ONLY(CSE cse("scalapack::HessenbergSchur"))
     EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
                     wantz=EL_FORT_FALSE;
     if( aed )
@@ -590,7 +590,7 @@ void HessenbergSchur
 ( int n, dcomplex* H, const int* descH, dcomplex* w, bool fullTriangle,
   bool aed ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
+    DEBUG_ONLY(CSE cse("scalapack::HessenbergSchur"))
     EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
                     wantz=EL_FORT_FALSE;
     if( aed )
@@ -624,7 +624,7 @@ void HessenbergSchur
 ( int n, float* H, const int* descH, scomplex* w, float* Q, const int* descQ, 
   bool fullTriangle, bool multiplyQ, bool aed ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
+    DEBUG_ONLY(CSE cse("scalapack::HessenbergSchur"))
     const int ilo=1, ihi=n;
     vector<float> wr(n), wi(n);
     int info;
@@ -703,7 +703,7 @@ void HessenbergSchur
 ( int n, double* H, const int* descH, dcomplex* w, 
   double* Q, const int* descQ, bool fullTriangle, bool multiplyQ, bool aed ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
+    DEBUG_ONLY(CSE cse("scalapack::HessenbergSchur"))
     const int ilo=1, ihi=n;
     vector<double> wr(n), wi(n);
     int info;
@@ -782,7 +782,7 @@ void HessenbergSchur
 ( int n, scomplex* H, const int* descH, scomplex* w, 
   scomplex* Q, const int* descQ, bool fullTriangle, bool multiplyQ, bool aed ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
+    DEBUG_ONLY(CSE cse("scalapack::HessenbergSchur"))
     if( !multiplyQ )
         LogicError("Forcing the matrix to identity is not yet supported");
     if( aed )
@@ -816,7 +816,7 @@ void HessenbergSchur
 ( int n, dcomplex* H, const int* descH, dcomplex* w, 
   dcomplex* Q, const int* descQ, bool fullTriangle, bool multiplyQ, bool aed ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
+    DEBUG_ONLY(CSE cse("scalapack::HessenbergSchur"))
     if( !multiplyQ )
         LogicError("Forcing the matrix to identity is not yet supported");
     if( aed )
@@ -850,25 +850,25 @@ void HessenbergSchur
 // -------------------------------------------------
 void HessenbergEig( int n, float* H, const int* descH, scomplex* w ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergEig"))
+    DEBUG_ONLY(CSE cse("scalapack::HessenbergEig"))
     HessenbergSchur( n, H, descH, w, false );
 }
 
 void HessenbergEig( int n, double* H, const int* descH, dcomplex* w ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergEig"))
+    DEBUG_ONLY(CSE cse("scalapack::HessenbergEig"))
     HessenbergSchur( n, H, descH, w, false );
 }
 
 void HessenbergEig( int n, scomplex* H, const int* descH, scomplex* w ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergEig"))
+    DEBUG_ONLY(CSE cse("scalapack::HessenbergEig"))
     HessenbergSchur( n, H, descH, w, false );
 }
 
 void HessenbergEig( int n, dcomplex* H, const int* descH, dcomplex* w ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergEig"))
+    DEBUG_ONLY(CSE cse("scalapack::HessenbergEig"))
     HessenbergSchur( n, H, descH, w, false );
 }
 

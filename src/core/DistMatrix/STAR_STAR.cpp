@@ -26,7 +26,7 @@ namespace El {
 template<typename T>
 DM DM::operator()( Range<Int> indVert, Range<Int> indHorz )
 {
-    DEBUG_ONLY(CallStackEntry cse("DM[STAR,STAR]( ind, ind )"))
+    DEBUG_ONLY(CSE cse("DM[STAR,STAR]( ind, ind )"))
     if( this->Locked() )
         return LockedView( *this, indVert, indHorz );
     else
@@ -36,7 +36,7 @@ DM DM::operator()( Range<Int> indVert, Range<Int> indHorz )
 template<typename T>
 const DM DM::operator()( Range<Int> indVert, Range<Int> indHorz ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DM[STAR,STAR]( ind, ind )"))
+    DEBUG_ONLY(CSE cse("DM[STAR,STAR]( ind, ind )"))
     return LockedView( *this, indVert, indHorz );
 }
 
@@ -45,7 +45,7 @@ const DM DM::operator()( Range<Int> indVert, Range<Int> indHorz ) const
 template<typename T>
 DM& DM::operator=( const DM& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [STAR,STAR]"))
+    DEBUG_ONLY(CSE cse("[STAR,STAR] = [STAR,STAR]"))
     copy::Translate( A, *this );
     return *this;
 }
@@ -53,7 +53,7 @@ DM& DM::operator=( const DM& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [MC,MR]"))
+    DEBUG_ONLY(CSE cse("[STAR,STAR] = [MC,MR]"))
     copy::AllGather( A, *this );
     return *this;
 }
@@ -61,7 +61,7 @@ DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [MC,STAR]"))
+    DEBUG_ONLY(CSE cse("[STAR,STAR] = [MC,STAR]"))
     copy::ColAllGather( A, *this );
     return *this;
 }
@@ -69,7 +69,7 @@ DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [STAR,MR]"))
+    DEBUG_ONLY(CSE cse("[STAR,STAR] = [STAR,MR]"))
     copy::RowAllGather( A, *this );
     return *this;
 }
@@ -77,7 +77,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MD,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [MD,STAR]"))
+    DEBUG_ONLY(CSE cse("[STAR,STAR] = [MD,STAR]"))
     copy::ColAllGather( A, *this );
     return *this;
 }
@@ -85,7 +85,7 @@ DM& DM::operator=( const DistMatrix<T,MD,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MD>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [STAR,MD]"))
+    DEBUG_ONLY(CSE cse("[STAR,STAR] = [STAR,MD]"))
     copy::RowAllGather( A, *this );
     return *this;
 }
@@ -93,7 +93,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,MD>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [MR,MC]"))
+    DEBUG_ONLY(CSE cse("[STAR,STAR] = [MR,MC]"))
     copy::AllGather( A, *this );
     return *this;
 }
@@ -101,7 +101,7 @@ DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MR,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [MR,STAR]"))
+    DEBUG_ONLY(CSE cse("[STAR,STAR] = [MR,STAR]"))
     copy::ColAllGather( A, *this );
     return *this;
 }
@@ -109,7 +109,7 @@ DM& DM::operator=( const DistMatrix<T,MR,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [STAR,MC]"))
+    DEBUG_ONLY(CSE cse("[STAR,STAR] = [STAR,MC]"))
     copy::RowAllGather( A, *this );
     return *this;
 }
@@ -117,7 +117,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,VC,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [VC,STAR]"))
+    DEBUG_ONLY(CSE cse("[STAR,STAR] = [VC,STAR]"))
     copy::ColAllGather( A, *this );
     return *this;
 }
@@ -125,7 +125,7 @@ DM& DM::operator=( const DistMatrix<T,VC,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [STAR,VC]"))
+    DEBUG_ONLY(CSE cse("[STAR,STAR] = [STAR,VC]"))
     copy::RowAllGather( A, *this );
     return *this;
 }
@@ -133,7 +133,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [VR,STAR]"))
+    DEBUG_ONLY(CSE cse("[STAR,STAR] = [VR,STAR]"))
     copy::ColAllGather( A, *this );
     return *this;
 }
@@ -141,7 +141,7 @@ DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [STAR,VR]"))
+    DEBUG_ONLY(CSE cse("[STAR,STAR] = [STAR,VR]"))
     copy::RowAllGather( A, *this );
     return *this;
 }
@@ -149,7 +149,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [CIRC,CIRC]"))
+    DEBUG_ONLY(CSE cse("[STAR,STAR] = [CIRC,CIRC]"))
     copy::Scatter( A, *this );
     return *this;
 }
@@ -157,7 +157,7 @@ DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 template<typename T>
 DM& DM::operator=( const AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("DM = ADM"))
+    DEBUG_ONLY(CSE cse("DM = ADM"))
     #define GUARD(CDIST,RDIST) \
       A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \

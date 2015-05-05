@@ -24,7 +24,7 @@ namespace El {
 template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,MC,MR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [MC,MR]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [MC,MR]"))
     copy::ColAllToAllDemote( A, *this );
     return *this;
 }
@@ -32,7 +32,7 @@ BDM& BDM::operator=( const BlockDistMatrix<T,MC,MR>& A )
 template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,MC,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [MC,STAR]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [MC,STAR]"))
     copy::PartialColFilter( A, *this );
     return *this;
 }
@@ -40,7 +40,7 @@ BDM& BDM::operator=( const BlockDistMatrix<T,MC,STAR>& A )
 template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,STAR,MR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [STAR,MR]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [STAR,MR]"))
     BlockDistMatrix<T,MC,MR> A_MC_MR( A );
     *this = A_MC_MR;
     return *this;
@@ -49,7 +49,7 @@ BDM& BDM::operator=( const BlockDistMatrix<T,STAR,MR>& A )
 template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,MD,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [MD,STAR]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [MD,STAR]"))
     // TODO: More efficient implementation?
     BlockDistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -59,7 +59,7 @@ BDM& BDM::operator=( const BlockDistMatrix<T,MD,STAR>& A )
 template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,STAR,MD>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [STAR,MD]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [STAR,MD]"))
     // TODO: More efficient implementation?
     BlockDistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -69,7 +69,7 @@ BDM& BDM::operator=( const BlockDistMatrix<T,STAR,MD>& A )
 template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,MR,MC>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [MR,MC]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [MR,MC]"))
     BlockDistMatrix<T,VR,STAR> A_VR_STAR( A );
     *this = A_VR_STAR;
     return *this;
@@ -78,7 +78,7 @@ BDM& BDM::operator=( const BlockDistMatrix<T,MR,MC>& A )
 template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,MR,STAR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [MR,STAR]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [MR,STAR]"))
     BlockDistMatrix<T,VR,STAR> A_VR_STAR( A );
     *this = A_VR_STAR;
     return *this;
@@ -87,7 +87,7 @@ BDM& BDM::operator=( const BlockDistMatrix<T,MR,STAR>& A )
 template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,STAR,MC>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [STAR,MC]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [STAR,MC]"))
     auto A_MR_MC = MakeUnique<BlockDistMatrix<T,MR,MC>>( A );
     auto A_VR_STAR = MakeUnique<BlockDistMatrix<T,VR,STAR>>( *A_MR_MC );
     A_MR_MC.reset();
@@ -98,7 +98,7 @@ BDM& BDM::operator=( const BlockDistMatrix<T,STAR,MC>& A )
 template<typename T>
 BDM& BDM::operator=( const BDM& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [VC,STAR]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [VC,STAR]"))
     copy::Translate( A, *this );
     return *this;
 }
@@ -106,7 +106,7 @@ BDM& BDM::operator=( const BDM& A )
 template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,STAR,VC>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [STAR,VC]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [STAR,VC]"))
     auto A_MR_MC = MakeUnique<BlockDistMatrix<T,MR,MC>>( A );
     auto A_VR_STAR = MakeUnique<BlockDistMatrix<T,VR,STAR>>( *A_MR_MC );
     A_MR_MC.reset(); 
@@ -117,7 +117,7 @@ BDM& BDM::operator=( const BlockDistMatrix<T,STAR,VC>& A )
 template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,VR,STAR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [VR,STAR]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [VR,STAR]"))
     LogicError("This routine is not yet written");
     return *this;
 }
@@ -125,7 +125,7 @@ BDM& BDM::operator=( const BlockDistMatrix<T,VR,STAR>& A )
 template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,STAR,VR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [STAR,VR]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [STAR,VR]"))
     BlockDistMatrix<T,MC,MR> A_MC_MR( A );
     *this = A_MC_MR;
     return *this;
@@ -134,7 +134,7 @@ BDM& BDM::operator=( const BlockDistMatrix<T,STAR,VR>& A )
 template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,STAR,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [STAR,STAR]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [STAR,STAR]"))
     copy::ColFilter( A, *this );
     return *this;
 }
@@ -142,7 +142,7 @@ BDM& BDM::operator=( const BlockDistMatrix<T,STAR,STAR>& A )
 template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,CIRC,CIRC>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[VC,STAR] = [CIRC,CIRC]"))
+    DEBUG_ONLY(CSE cse("[VC,STAR] = [CIRC,CIRC]"))
     LogicError("This routine is not yet written");
     return *this;
 }
@@ -150,7 +150,7 @@ BDM& BDM::operator=( const BlockDistMatrix<T,CIRC,CIRC>& A )
 template<typename T>
 BDM& BDM::operator=( const AbstractBlockDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("BDM = ABDM"))
+    DEBUG_ONLY(CSE cse("BDM = ABDM"))
     #define GUARD(CDIST,RDIST) \
       A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \

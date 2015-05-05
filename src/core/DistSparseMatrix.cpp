@@ -53,7 +53,7 @@ template<typename T>
 DistSparseMatrix<T>
 DistSparseMatrix<T>::operator()( Range<Int> I, Range<Int> J ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::operator()"))
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::operator()"))
     return GetSubmatrix( *this, I, J );
 }   
 
@@ -101,7 +101,7 @@ void DistSparseMatrix<T>::Reserve( Int numLocalEntries, Int numRemoteEntries )
 template<typename T>
 void DistSparseMatrix<T>::Update( Int row, Int col, T value, bool passive )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::Update"))
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::Update"))
     QueueUpdate( row, col, value, passive );
     ProcessQueues();
 }
@@ -113,7 +113,7 @@ void DistSparseMatrix<T>::Update( const Entry<T>& entry, bool passive )
 template<typename T>
 void DistSparseMatrix<T>::UpdateLocal( Int localRow, Int col, T value )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::UpdateLocal"))
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::UpdateLocal"))
     QueueLocalUpdate( localRow, col, value );
     ProcessQueues();
 }
@@ -125,7 +125,7 @@ void DistSparseMatrix<T>::UpdateLocal( const Entry<T>& localEntry )
 template<typename T>
 void DistSparseMatrix<T>::Zero( Int row, Int col, bool passive )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::Zero"))
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::Zero"))
     QueueZero( row, col, passive );
     ProcessQueues();
 }
@@ -133,7 +133,7 @@ void DistSparseMatrix<T>::Zero( Int row, Int col, bool passive )
 template<typename T>
 void DistSparseMatrix<T>::ZeroLocal( Int localRow, Int col )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::ZeroLocal"))
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::ZeroLocal"))
     QueueLocalZero( localRow, col );
     ProcessQueues();
 }
@@ -141,7 +141,9 @@ void DistSparseMatrix<T>::ZeroLocal( Int localRow, Int col )
 template<typename T>
 void DistSparseMatrix<T>::QueueUpdate( Int row, Int col, T value, bool passive )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::QueueUpdate"))
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::QueueUpdate"))
+    if( row == END ) row = Height() - 1;
+    if( col == END ) col = Width() - 1;
     if( row >= FirstLocalRow() && row < FirstLocalRow()+LocalHeight() )
     {
         QueueLocalUpdate( row-FirstLocalRow(), col, value );
@@ -162,7 +164,7 @@ void DistSparseMatrix<T>::QueueUpdate( const Entry<T>& entry, bool passive )
 template<typename T>
 void DistSparseMatrix<T>::QueueLocalUpdate( Int localRow, Int col, T value )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::QueueLocalUpdate"))
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::QueueLocalUpdate"))
     distGraph_.QueueLocalConnection( localRow, col );
     vals_.push_back( value );
     multMeta.ready = false;
@@ -175,7 +177,9 @@ void DistSparseMatrix<T>::QueueLocalUpdate( const Entry<T>& localEntry )
 template<typename T>
 void DistSparseMatrix<T>::QueueZero( Int row, Int col, bool passive )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::QueueZero"))
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::QueueZero"))
+    if( row == END ) row = Height() - 1;
+    if( col == END ) col = Width() - 1;
     if( row >= FirstLocalRow() && row < FirstLocalRow()+LocalHeight() )
     {
         QueueLocalZero( row-FirstLocalRow(), col );
@@ -190,7 +194,7 @@ void DistSparseMatrix<T>::QueueZero( Int row, Int col, bool passive )
 template<typename T>
 void DistSparseMatrix<T>::QueueLocalZero( Int localRow, Int col )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::QueueZero"))
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::QueueZero"))
     distGraph_.QueueLocalDisconnection( localRow, col );
     multMeta.ready = false;
 }
@@ -199,7 +203,7 @@ template<typename T>
 void DistSparseMatrix<T>::ProcessQueues()
 {
     DEBUG_ONLY(
-      CallStackEntry cse("DistSparseMatrix::ProcessQueues");
+      CSE cse("DistSparseMatrix::ProcessQueues");
       if( distGraph_.sources_.size() != distGraph_.targets_.size() || 
           distGraph_.targets_.size() != vals_.size() )
           LogicError("Inconsistent sparse matrix buffer sizes");
@@ -356,14 +360,14 @@ Int DistSparseMatrix<T>::LocalHeight() const
 template<typename T>
 Int DistSparseMatrix<T>::NumLocalEntries() const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::NumLocalEntries"))
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::NumLocalEntries"))
     return distGraph_.NumLocalEdges();
 }
 
 template<typename T>
 Int DistSparseMatrix<T>::Capacity() const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::Capacity"))
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::Capacity"))
     return distGraph_.Capacity();
 }
 
@@ -380,12 +384,16 @@ Int DistSparseMatrix<T>::Blocksize() const { return distGraph_.Blocksize(); }
 
 template<typename T>
 int DistSparseMatrix<T>::RowOwner( Int i ) const 
-{ return distGraph_.SourceOwner(i); }
+{ 
+    if( i == END ) i = Height() - 1;
+    return distGraph_.SourceOwner(i); 
+}
 
 template<typename T>
 Int DistSparseMatrix<T>::GlobalRow( Int iLoc ) const
 { 
-    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::GlobalRow"))
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::GlobalRow"))
+    if( iLoc == END ) iLoc = LocalHeight() - 1;
     return distGraph_.GlobalSource(iLoc); 
 }
 
@@ -394,28 +402,30 @@ Int DistSparseMatrix<T>::GlobalRow( Int iLoc ) const
 template<typename T>
 Int DistSparseMatrix<T>::Row( Int localInd ) const
 { 
-    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::Row"))
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::Row"))
     return distGraph_.Source( localInd );
 }
 
 template<typename T>
 Int DistSparseMatrix<T>::Col( Int localInd ) const
 { 
-    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::Col"))
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::Col"))
     return distGraph_.Target( localInd );
 }
 
 template<typename T>
 Int DistSparseMatrix<T>::EntryOffset( Int localRow ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::EntryOffset"))
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::EntryOffset"))
+    if( localRow == END ) localRow = LocalHeight() - 1;
     return distGraph_.EdgeOffset( localRow );
 }
 
 template<typename T>
 Int DistSparseMatrix<T>::NumConnections( Int localRow ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSparseMatrix::NumConnections"))
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::NumConnections"))
+    if( localRow == END ) localRow = LocalHeight() - 1;
     return distGraph_.NumConnections( localRow );
 }
 
@@ -423,7 +433,7 @@ template<typename T>
 T DistSparseMatrix<T>::Value( Int localInd ) const
 { 
     DEBUG_ONLY(
-        CallStackEntry cse("DistSparseMatrix::Value");
+        CSE cse("DistSparseMatrix::Value");
         if( localInd < 0 || localInd >= (Int)vals_.size() )
             LogicError("Entry number out of bounds");
         AssertConsistent();

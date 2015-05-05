@@ -363,7 +363,7 @@ void Initialize( int& argc, char**& argv )
 
 void Finalize()
 {
-    DEBUG_ONLY(CallStackEntry cse("Finalize"))
+    DEBUG_ONLY(CSE cse("Finalize"))
     if( ::numElemInits <= 0 )
     { 
         cerr << "Finalized Elemental more times than initialized" << endl;
@@ -431,7 +431,7 @@ void PopBlocksizeStack()
 const Grid& DefaultGrid()
 {
     DEBUG_ONLY(
-        CallStackEntry cse("DefaultGrid");
+        CSE cse("DefaultGrid");
         if( ::defaultGrid == 0 )
             LogicError
             ("Attempted to return a non-existant default grid. Please ensure "
@@ -689,7 +689,7 @@ vector<Int> RelativeIndices( const vector<Int>& sub, const vector<Int>& full )
 
 Int Find( const vector<Int>& sortedInds, Int index, string msg )
 {
-    DEBUG_ONLY(CallStackEntry cse("Find"))
+    DEBUG_ONLY(CSE cse("Find"))
     vector<Int>::const_iterator vecIt;
     vecIt = std::lower_bound( sortedInds.begin(), sortedInds.end(), index );
     DEBUG_ONLY(

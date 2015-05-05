@@ -19,7 +19,7 @@ void RepartitionUp
                  Matrix<T>& A1,
   Matrix<T>& AB, Matrix<T>& A2, Int A1Height )
 {
-    DEBUG_ONLY(CallStackEntry cse("RepartitionUp"))
+    DEBUG_ONLY(CSE cse("RepartitionUp"))
     PartitionUp( AT, A0, A1, A1Height );
     View( A2, AB );
 }
@@ -31,7 +31,7 @@ void RepartitionUp
   AbstractDistMatrix<T>& AB, AbstractDistMatrix<T>& A2, Int A1Height )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("RepartitionUp");
+      CSE cse("RepartitionUp");
       AssertSameGrids( AT, AB, A0, A1, A2 );
       AssertSameDists( AT, AB, A0, A1, A2 );
     )
@@ -45,7 +45,7 @@ void LockedRepartitionUp
                        Matrix<T>& A1,
   const Matrix<T>& AB, Matrix<T>& A2, Int A1Height )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionUp"))
+    DEBUG_ONLY(CSE cse("LockedRepartitionUp"))
     LockedPartitionUp( AT, A0, A1, A1Height );
     LockedView( A2, AB );
 }
@@ -57,7 +57,7 @@ void LockedRepartitionUp
   const AbstractDistMatrix<T>& AB, AbstractDistMatrix<T>& A2, Int A1Height )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("LockedRepartitionUp");
+      CSE cse("LockedRepartitionUp");
       AssertSameGrids( AT, AB, A0, A1, A2 );
       AssertSameDists( AT, AB, A0, A1, A2 );
     )
@@ -74,7 +74,7 @@ void RepartitionDown
                  Matrix<T>& A1,
   Matrix<T>& AB, Matrix<T>& A2, Int A1Height )
 {
-    DEBUG_ONLY(CallStackEntry cse("RepartitionDown"))
+    DEBUG_ONLY(CSE cse("RepartitionDown"))
     View( A0, AT );
     PartitionDown( AB, A1, A2, A1Height );
 }
@@ -86,7 +86,7 @@ void RepartitionDown
   AbstractDistMatrix<T>& AB, AbstractDistMatrix<T>& A2, Int A1Height )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("RepartitionDown");
+      CSE cse("RepartitionDown");
       AssertSameGrids( AT, AB, A0, A1, A2 );
       AssertSameDists( AT, AB, A0, A1, A2 );
     )
@@ -100,7 +100,7 @@ void LockedRepartitionDown
                        Matrix<T>& A1,
   const Matrix<T>& AB, Matrix<T>& A2, Int A1Height )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionDown"))
+    DEBUG_ONLY(CSE cse("LockedRepartitionDown"))
     LockedView( A0, AT );
     LockedPartitionDown( AB, A1, A2, A1Height );
 }
@@ -112,7 +112,7 @@ void LockedRepartitionDown
   const AbstractDistMatrix<T>& AB, AbstractDistMatrix<T>& A2, Int A1Height )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("LockedRepartitionDown");
+      CSE cse("LockedRepartitionDown");
       AssertSameGrids( AT, AB, A0, A1, A2 );
       AssertSameDists( AT, AB, A0, A1, A2 );
     )
@@ -128,7 +128,7 @@ void RepartitionLeft
 ( Matrix<T>& AL, Matrix<T>& AR,
   Matrix<T>& A0, Matrix<T>& A1, Matrix<T>& A2, Int A1Width )
 {
-    DEBUG_ONLY(CallStackEntry cse("RepartitionLeft"))
+    DEBUG_ONLY(CSE cse("RepartitionLeft"))
     PartitionLeft( AL, A0, A1, A1Width );
     View( A2, AR );
 }
@@ -140,7 +140,7 @@ void RepartitionLeft
   AbstractDistMatrix<T>& A2, Int A1Width )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("RepartitionLeft");
+      CSE cse("RepartitionLeft");
       AssertSameGrids( AL, AR, A0, A1, A2 );
       AssertSameDists( AL, AR, A0, A1, A2 );
     )
@@ -153,7 +153,7 @@ void LockedRepartitionLeft
 ( const Matrix<T>& AL, const Matrix<T>& AR,
   Matrix<T>& A0, Matrix<T>& A1, Matrix<T>& A2, Int A1Width )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionLeft"))
+    DEBUG_ONLY(CSE cse("LockedRepartitionLeft"))
     LockedPartitionLeft( AL, A0, A1, A1Width );
     LockedView( A2, AR );
 }
@@ -165,7 +165,7 @@ void LockedRepartitionLeft
   AbstractDistMatrix<T>& A2, Int A1Width )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("LockedRepartitionLeft");
+      CSE cse("LockedRepartitionLeft");
       AssertSameGrids( AL, AR, A0, A1, A2 );
       AssertSameDists( AL, AR, A0, A1, A2 );
     )
@@ -181,7 +181,7 @@ void RepartitionRight
 ( Matrix<T>& AL, Matrix<T>& AR,
   Matrix<T>& A0, Matrix<T>& A1, Matrix<T>& A2, Int A1Width )
 {
-    DEBUG_ONLY(CallStackEntry cse("RepartitionRight"))
+    DEBUG_ONLY(CSE cse("RepartitionRight"))
     View( A0, AL );
     PartitionRight( AR, A1, A2, A1Width );
 }
@@ -193,7 +193,7 @@ void RepartitionRight
   AbstractDistMatrix<T>& A2, Int A1Width )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("RepartitionRight");
+      CSE cse("RepartitionRight");
       AssertSameGrids( AL, AR, A0, A1, A2 );
       AssertSameDists( AL, AR, A0, A1, A2 );
     )
@@ -206,7 +206,7 @@ void LockedRepartitionRight
 ( const Matrix<T>& AL, const Matrix<T>& AR,
   Matrix<T>& A0, Matrix<T>& A1, Matrix<T>& A2, Int A1Width )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionRight"))
+    DEBUG_ONLY(CSE cse("LockedRepartitionRight"))
     LockedView( A0, AL );
     LockedPartitionRight( AR, A1, A2, A1Width );
 }
@@ -218,7 +218,7 @@ void LockedRepartitionRight
   AbstractDistMatrix<T>& A2, Int A1Width )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("LockedRepartitionRight");
+      CSE cse("LockedRepartitionRight");
       AssertSameGrids( AL, AR, A0, A1, A2 );
       AssertSameDists( AL, AR, A0, A1, A2 );
     )
@@ -237,7 +237,7 @@ void RepartitionUpDiagonal
   Matrix<T>& ABL, Matrix<T>& ABR, 
   Matrix<T>& A20, Matrix<T>& A21, Matrix<T>& A22, Int bsize )
 {
-    DEBUG_ONLY(CallStackEntry cse("RepartitionUpDiagonal"))
+    DEBUG_ONLY(CSE cse("RepartitionUpDiagonal"))
     PartitionUpOffsetDiagonal
     ( ATL.Width()-ATL.Height(),
       ATL, A00, A01,
@@ -259,7 +259,7 @@ void RepartitionUpDiagonal
   AbstractDistMatrix<T>& A22, Int bsize )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("RepartitionUpDiagonal");
+      CSE cse("RepartitionUpDiagonal");
       AssertSameGrids
       ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
       AssertSameDists
@@ -282,7 +282,7 @@ void LockedRepartitionUpDiagonal
   const Matrix<T>& ABL, const Matrix<T>& ABR, 
   Matrix<T>& A20, Matrix<T>& A21, Matrix<T>& A22, Int bsize )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionUpDiagonal"))
+    DEBUG_ONLY(CSE cse("LockedRepartitionUpDiagonal"))
     LockedPartitionUpOffsetDiagonal
     ( ATL.Width()-ATL.Height(),
       ATL, A00, A01,
@@ -304,7 +304,7 @@ void LockedRepartitionUpDiagonal
   AbstractDistMatrix<T>& A22, Int bsize )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("LockedRepartitionUpDiagonal");
+      CSE cse("LockedRepartitionUpDiagonal");
       AssertSameGrids
       ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
       AssertSameDists
@@ -330,7 +330,7 @@ void RepartitionDownDiagonal
   Matrix<T>& ABL, Matrix<T>& ABR, 
   Matrix<T>& A20, Matrix<T>& A21, Matrix<T>& A22, Int bsize )
 {
-    DEBUG_ONLY(CallStackEntry cse("RepartitionDownDiagonal"))
+    DEBUG_ONLY(CSE cse("RepartitionDownDiagonal"))
     View( A00, ATL );
     PartitionDownDiagonal( ABR, A11, A12,
                                 A21, A22, bsize );
@@ -350,7 +350,7 @@ void RepartitionDownDiagonal
   AbstractDistMatrix<T>& A22, Int bsize )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("RepartitionDownDiagonal");
+      CSE cse("RepartitionDownDiagonal");
       AssertSameGrids
       ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
       AssertSameDists
@@ -371,7 +371,7 @@ void LockedRepartitionDownDiagonal
   const Matrix<T>& ABL, const Matrix<T>& ABR, 
   Matrix<T>& A20, Matrix<T>& A21, Matrix<T>& A22, Int bsize )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionDownDiagonal"))
+    DEBUG_ONLY(CSE cse("LockedRepartitionDownDiagonal"))
     LockedView( A00, ATL );
     LockedPartitionDownDiagonal( ABR, A11, A12,
                                       A21, A22, bsize );
@@ -391,7 +391,7 @@ void LockedRepartitionDownDiagonal
   AbstractDistMatrix<T>& A22, Int bsize )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("LockedRepartitionDownDiagonal");
+      CSE cse("LockedRepartitionDownDiagonal");
       AssertSameGrids
       ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
       AssertSameDists

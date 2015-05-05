@@ -24,7 +24,7 @@ namespace El {
 template<typename T>
 BDM& BDM::operator=( const AbstractBlockDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = ABDM"))
+    DEBUG_ONLY(CSE cse("[CIRC,CIRC] = ABDM"))
     copy::Gather( A, *this );
     return *this;
 }
@@ -32,7 +32,7 @@ BDM& BDM::operator=( const AbstractBlockDistMatrix<T>& A )
 template<typename T>
 BDM& BDM::operator=( const BDM& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [CIRC,CIRC]"))
+    DEBUG_ONLY(CSE cse("[CIRC,CIRC] = [CIRC,CIRC]"))
     copy::Translate( A, *this );
     return *this;
 }
@@ -40,7 +40,7 @@ BDM& BDM::operator=( const BDM& A )
 template<typename T>
 void BDM::CopyFromRoot( const Matrix<T>& A, bool includingViewers )
 {
-    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC]::CopyFromRoot"))
+    DEBUG_ONLY(CSE cse("[CIRC,CIRC]::CopyFromRoot"))
     if( this->CrossRank() != this->Root() )
         LogicError("Called CopyFromRoot from non-root");
 
@@ -53,7 +53,7 @@ void BDM::CopyFromRoot( const Matrix<T>& A, bool includingViewers )
 template<typename T>
 void BDM::CopyFromNonRoot( bool includingViewers )
 {
-    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC]::CopyFromNonRoot"))
+    DEBUG_ONLY(CSE cse("[CIRC,CIRC]::CopyFromNonRoot"))
     if( this->CrossRank() == this->Root() )
         LogicError("Called CopyFromNonRoot from root");
 

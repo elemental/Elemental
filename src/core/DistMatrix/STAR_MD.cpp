@@ -26,7 +26,7 @@ namespace El {
 template<typename T>
 DM DM::operator()( Range<Int> indVert, Range<Int> indHorz )
 {
-    DEBUG_ONLY(CallStackEntry cse("DM[STAR,MD]( ind, ind )"))
+    DEBUG_ONLY(CSE cse("DM[STAR,MD]( ind, ind )"))
     if( this->Locked() )
         return LockedView( *this, indVert, indHorz );
     else
@@ -36,7 +36,7 @@ DM DM::operator()( Range<Int> indVert, Range<Int> indHorz )
 template<typename T>
 const DM DM::operator()( Range<Int> indVert, Range<Int> indHorz ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DM[STAR,MD]( ind, ind )"))
+    DEBUG_ONLY(CSE cse("DM[STAR,MD]( ind, ind )"))
     return LockedView( *this, indVert, indHorz );
 }
 
@@ -45,7 +45,7 @@ const DM DM::operator()( Range<Int> indVert, Range<Int> indHorz ) const
 template<typename T>
 DM& DM::operator=( const DM& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("DM[STAR,MD] = DM[STAR,MD]"))
+    DEBUG_ONLY(CSE cse("DM[STAR,MD] = DM[STAR,MD]"))
     copy::Translate( A, *this );
     return *this;
 }
@@ -53,7 +53,7 @@ DM& DM::operator=( const DM& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [MC,MR]"))
+    DEBUG_ONLY(CSE cse("[STAR,MD] = [MC,MR]"))
     // TODO: More efficient implementation?
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -63,7 +63,7 @@ DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [MC,STAR]"))
+    DEBUG_ONLY(CSE cse("[STAR,MD] = [MC,STAR]"))
     // TODO: More efficient implementation?
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -73,7 +73,7 @@ DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [STAR,MR]"))
+    DEBUG_ONLY(CSE cse("[STAR,MD] = [STAR,MR]"))
     // TODO: More efficient implementation?
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -83,7 +83,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MD,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [MD,STAR]"))
+    DEBUG_ONLY(CSE cse("[STAR,MD] = [MD,STAR]"))
     // TODO: More efficient implementation?
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -93,7 +93,7 @@ DM& DM::operator=( const DistMatrix<T,MD,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [MR,MC]"))
+    DEBUG_ONLY(CSE cse("[STAR,MD] = [MR,MC]"))
     // TODO: More efficient implementation?
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -103,7 +103,7 @@ DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MR,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [MR,STAR]"))
+    DEBUG_ONLY(CSE cse("[STAR,MD] = [MR,STAR]"))
     // TODO: More efficient implementation?
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -113,7 +113,7 @@ DM& DM::operator=( const DistMatrix<T,MR,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [STAR,MC]"))
+    DEBUG_ONLY(CSE cse("[STAR,MD] = [STAR,MC]"))
     // TODO: More efficient implementation?
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -123,7 +123,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,VC,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [VC,STAR]"))
+    DEBUG_ONLY(CSE cse("[STAR,MD] = [VC,STAR]"))
     // TODO: More efficient implementation?
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -133,7 +133,7 @@ DM& DM::operator=( const DistMatrix<T,VC,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [STAR,VC]"))
+    DEBUG_ONLY(CSE cse("[STAR,MD] = [STAR,VC]"))
     // TODO: More efficient implementation?
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -143,7 +143,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [VR,STAR]"))
+    DEBUG_ONLY(CSE cse("[STAR,MD] = [VR,STAR]"))
     // TODO: More efficient implementation?
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -153,7 +153,7 @@ DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [STAR,VR]"))
+    DEBUG_ONLY(CSE cse("[STAR,MD] = [STAR,VR]"))
     // TODO: More efficient implementation?
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -163,7 +163,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [STAR,STAR]"))
+    DEBUG_ONLY(CSE cse("[STAR,MD] = [STAR,STAR]"))
     copy::RowFilter( A, *this );
     return *this;
 }
@@ -171,7 +171,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [CIRC,CIRC]"))
+    DEBUG_ONLY(CSE cse("[STAR,MD] = [CIRC,CIRC]"))
     DistMatrix<T,MC,MR> A_MC_MR( A.Grid() );
     A_MC_MR.AlignWith( *this );
     A_MC_MR = A;
@@ -182,7 +182,7 @@ DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 template<typename T>
 DM& DM::operator=( const AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("DM = ADM"))
+    DEBUG_ONLY(CSE cse("DM = ADM"))
     #define GUARD(CDIST,RDIST) \
       A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \

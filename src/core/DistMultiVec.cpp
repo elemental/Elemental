@@ -53,7 +53,7 @@ DistMultiVec<T>::~DistMultiVec()
 template<typename T>
 const DistMultiVec<T>& DistMultiVec<T>::operator=( const DistMultiVec<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMultiVec::operator="))
+    DEBUG_ONLY(CSE cse("DistMultiVec::operator="))
     Copy( A, *this );
     return *this;
 }
@@ -62,7 +62,7 @@ template<typename T>
 const DistMultiVec<T>& 
 DistMultiVec<T>::operator=( const AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMultiVec::operator="))
+    DEBUG_ONLY(CSE cse("DistMultiVec::operator="))
     Copy( A, *this );
     return *this;
 }
@@ -73,7 +73,7 @@ template<typename T>
 DistMultiVec<T>
 DistMultiVec<T>::operator()( Range<Int> I, Range<Int> J ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMultiVec::operator()"))
+    DEBUG_ONLY(CSE cse("DistMultiVec::operator()"))
     return GetSubmatrix( *this, I, J );
 }   
 
@@ -152,16 +152,22 @@ const El::Matrix<T>& DistMultiVec<T>::LockedMatrix() const { return multiVec_; }
 // ------------------------
 template<typename T>
 mpi::Comm DistMultiVec<T>::Comm() const { return comm_; }
+
 template<typename T>
 Int DistMultiVec<T>::Blocksize() const { return blocksize_; }
+
 template<typename T>
 int DistMultiVec<T>::RowOwner( Int i ) const 
-{ return RowToProcess( i, blocksize_, mpi::Size(comm_) ); }
+{ 
+    if( i == END ) i = height_ - 1;
+    return RowToProcess( i, blocksize_, mpi::Size(comm_) ); 
+}
 
 template<typename T>
 Int DistMultiVec<T>::GlobalRow( Int iLoc ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMultiVec::GlobalRow"))
+    DEBUG_ONLY(CSE cse("DistMultiVec::GlobalRow"))
+    if( iLoc == END ) iLoc = LocalHeight() - 1;
     if( iLoc < 0 || iLoc > LocalHeight() )
         LogicError("Invalid local row index");
     return iLoc + FirstLocalRow();
@@ -170,24 +176,26 @@ Int DistMultiVec<T>::GlobalRow( Int iLoc ) const
 // Detailed local information
 // --------------------------
 template<typename T>
-T DistMultiVec<T>::Get( Int row, Int col ) const
+T DistMultiVec<T>::Get( Int i, Int j ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMultiVec::Get"))
-    int rowOwner = RowOwner(row);
+    DEBUG_ONLY(CSE cse("DistMultiVec::Get"))
+    if( i == END ) i = height_ - 1;
+    const int rowOwner = RowOwner(i);
     T value;
     if( rowOwner == mpi::Rank(comm_) )
-        value = GetLocal( row-FirstLocalRow(), col );
+        value = GetLocal( i-FirstLocalRow(), j );
     mpi::Broadcast( value, rowOwner, comm_ );
     return value;
 }
 
 template<typename T>
-void DistMultiVec<T>::Set( Int row, Int col, T value )
+void DistMultiVec<T>::Set( Int i, Int j, T value )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMultiVec::Set"))
+    DEBUG_ONLY(CSE cse("DistMultiVec::Set"))
+    if( i == END ) i = height_ - 1;
     const Int firstLocalRow = FirstLocalRow();
-    if( row >= firstLocalRow && row < firstLocalRow+LocalHeight() )
-        SetLocal( row-firstLocalRow, col, value );
+    if( i >= firstLocalRow && i < firstLocalRow+LocalHeight() )
+        SetLocal( i-firstLocalRow, j, value );
 }
 
 template<typename T>
@@ -195,12 +203,13 @@ void DistMultiVec<T>::Set( const Entry<T>& entry )
 { Set( entry.i, entry.j, entry.value ); }
 
 template<typename T>
-void DistMultiVec<T>::Update( Int row, Int col, T value )
+void DistMultiVec<T>::Update( Int i, Int j, T value )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMultiVec::Update"))
+    DEBUG_ONLY(CSE cse("DistMultiVec::Update"))
+    if( i == END ) i = height_ - 1;
     const Int firstLocalRow = FirstLocalRow();
-    if( row >= firstLocalRow && row < firstLocalRow+LocalHeight() )
-        UpdateLocal( row-firstLocalRow, col, value );
+    if( i >= firstLocalRow && i < firstLocalRow+LocalHeight() )
+        UpdateLocal( i-firstLocalRow, j, value );
 }
 
 template<typename T>
@@ -208,17 +217,17 @@ void DistMultiVec<T>::Update( const Entry<T>& entry )
 { Update( entry.i, entry.j, entry.value ); }
 
 template<typename T>
-T DistMultiVec<T>::GetLocal( Int localRow, Int col ) const
+T DistMultiVec<T>::GetLocal( Int iLoc, Int j ) const
 { 
-    DEBUG_ONLY(CallStackEntry cse("DistMultiVec::GetLocal"))
-    return multiVec_.Get(localRow,col);
+    DEBUG_ONLY(CSE cse("DistMultiVec::GetLocal"))
+    return multiVec_.Get(iLoc,j);
 }
 
 template<typename T>
-void DistMultiVec<T>::SetLocal( Int localRow, Int col, T value )
+void DistMultiVec<T>::SetLocal( Int iLoc, Int j, T value )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMultiVec::SetLocal"))
-    multiVec_.Set(localRow,col,value);
+    DEBUG_ONLY(CSE cse("DistMultiVec::SetLocal"))
+    multiVec_.Set(iLoc,j,value);
 }
 
 template<typename T>
@@ -226,10 +235,10 @@ void DistMultiVec<T>::SetLocal( const Entry<T>& localEntry )
 { SetLocal( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
-void DistMultiVec<T>::UpdateLocal( Int localRow, Int col, T value )
+void DistMultiVec<T>::UpdateLocal( Int iLoc, Int j, T value )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMultiVec::UpdateLocal"))
-    multiVec_.Update(localRow,col,value);
+    DEBUG_ONLY(CSE cse("DistMultiVec::UpdateLocal"))
+    multiVec_.Update(iLoc,j,value);
 }
 
 template<typename T>

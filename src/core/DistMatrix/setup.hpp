@@ -47,7 +47,7 @@ template<typename T>
 DM::DistMatrix( const DM& A )
 : ADM(A.Grid())
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMatrix::DistMatrix"))
+    DEBUG_ONLY(CSE cse("DistMatrix::DistMatrix"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.viewType_ = OWNER;
     this->SetShifts();
@@ -62,7 +62,7 @@ template<Dist U,Dist V>
 DM::DistMatrix( const DistMatrix<T,U,V>& A )
 : ADM(A.Grid())
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMatrix::DistMatrix"))
+    DEBUG_ONLY(CSE cse("DistMatrix::DistMatrix"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.viewType_ = OWNER;
     this->SetShifts();
@@ -77,7 +77,7 @@ template<typename T>
 DM::DistMatrix( const AbstractDistMatrix<T>& A )
 : ADM(A.Grid())
 {
-    DEBUG_ONLY(CallStackEntry cse("DM(ADM)"))
+    DEBUG_ONLY(CSE cse("DM(ADM)"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.viewType_ = OWNER;
     this->SetShifts();
@@ -98,7 +98,7 @@ template<Dist U,Dist V>
 DM::DistMatrix( const BlockDistMatrix<T,U,V>& A )
 : ADM(A.Grid())
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMatrix::DistMatrix"))
+    DEBUG_ONLY(CSE cse("DistMatrix::DistMatrix"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.viewType_ = OWNER;
     this->SetShifts();
@@ -132,7 +132,7 @@ template<typename T>
 template<Dist U,Dist V>
 DM& DM::operator=( const BlockDistMatrix<T,U,V>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("DM = BDM[U,V]"))
+    DEBUG_ONLY(CSE cse("DM = BDM[U,V]"))
     BlockDistMatrix<T,COLDIST,ROWDIST> AElem(A.Grid(),1,1);
     AElem = A;
     DistMatrix<T,COLDIST,ROWDIST> AElemView(A.Grid());

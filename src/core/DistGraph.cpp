@@ -60,14 +60,14 @@ DistGraph::DistGraph( Int numSources, Int numTargets, mpi::Comm comm )
 
 DistGraph::DistGraph( const Graph& graph )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistGraph::DistGraph"))
+    DEBUG_ONLY(CSE cse("DistGraph::DistGraph"))
     *this = graph;
 }
 
 DistGraph::DistGraph( const DistGraph& graph )
 : comm_(mpi::COMM_WORLD)
 {
-    DEBUG_ONLY(CallStackEntry cse("DistGraph::DistGraph"))
+    DEBUG_ONLY(CSE cse("DistGraph::DistGraph"))
     if( &graph != this )
         *this = graph;
     else
@@ -88,14 +88,14 @@ DistGraph::~DistGraph()
 // -----------
 const DistGraph& DistGraph::operator=( const Graph& graph )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistGraph::operator="))
+    DEBUG_ONLY(CSE cse("DistGraph::operator="))
     Copy( graph, *this );
     return *this;
 }
 
 const DistGraph& DistGraph::operator=( const DistGraph& graph )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistGraph::operator="))
+    DEBUG_ONLY(CSE cse("DistGraph::operator="))
     Copy( graph, *this );
     return *this;
 }
@@ -104,7 +104,7 @@ const DistGraph& DistGraph::operator=( const DistGraph& graph )
 // ------------------------------------
 DistGraph DistGraph::operator()( Range<Int> I, Range<Int> J ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistGraph::operator()"))
+    DEBUG_ONLY(CSE cse("DistGraph::operator()"))
     return GetSubgraph( *this, I, J );
 }
 
@@ -209,35 +209,37 @@ void DistGraph::Reserve( Int numLocalEdges, Int numRemoteEdges )
 
 void DistGraph::Connect( Int source, Int target, bool passive )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistGraph::Connect"))
+    DEBUG_ONLY(CSE cse("DistGraph::Connect"))
     QueueConnection( source, target, passive );
     ProcessQueues();
 }
 
 void DistGraph::ConnectLocal( Int localSource, Int target )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistGraph::ConnectLocal"))
+    DEBUG_ONLY(CSE cse("DistGraph::ConnectLocal"))
     QueueLocalConnection( localSource, target );
     ProcessQueues();
 }
 
 void DistGraph::Disconnect( Int source, Int target, bool passive )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistGraph::Disconnect"))
+    DEBUG_ONLY(CSE cse("DistGraph::Disconnect"))
     QueueDisconnection( source, target, passive );
     ProcessQueues();
 }
 
 void DistGraph::DisconnectLocal( Int localSource, Int target )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistGraph::DisconnectLocal"))
+    DEBUG_ONLY(CSE cse("DistGraph::DisconnectLocal"))
     QueueLocalDisconnection( localSource, target );
     ProcessQueues();
 }
 
 void DistGraph::QueueConnection( Int source, Int target, bool passive )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistGraph::QueueConnection"))
+    DEBUG_ONLY(CSE cse("DistGraph::QueueConnection"))
+    if( source == END ) source = numSources_ - 1;
+    if( target == END ) target = numTargets_ - 1;
     if( source < firstLocalSource_ || 
         source >= firstLocalSource_+numLocalSources_ )
     {
@@ -254,10 +256,12 @@ void DistGraph::QueueConnection( Int source, Int target, bool passive )
 void DistGraph::QueueLocalConnection( Int localSource, Int target )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("DistGraph::QueueLocalConnection");
+      CSE cse("DistGraph::QueueLocalConnection");
       if( NumLocalEdges() == Capacity() )
           cerr << "WARNING: Pushing back without first reserving space" << endl;
     )
+    if( localSource == END ) localSource = numLocalSources_ - 1;
+    if( target == END ) target = numTargets_ - 1;
     if( localSource < 0 || localSource >= numLocalSources_ )
         LogicError
         ("Local source was out of bounds: ",localSource," is not in [0,",
@@ -272,7 +276,9 @@ void DistGraph::QueueLocalConnection( Int localSource, Int target )
 
 void DistGraph::QueueDisconnection( Int source, Int target, bool passive )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistGraph::QueueDisconnection"))
+    DEBUG_ONLY(CSE cse("DistGraph::QueueDisconnection"))
+    if( source == END ) source = numSources_ - 1;
+    if( target == END ) target = numTargets_ - 1;
     if( source < firstLocalSource_ || 
         source >= firstLocalSource_+numLocalSources_ )
     {
@@ -287,7 +293,9 @@ void DistGraph::QueueDisconnection( Int source, Int target, bool passive )
 
 void DistGraph::QueueLocalDisconnection( Int localSource, Int target )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistGraph::QueueLocalDisconnection"))
+    DEBUG_ONLY(CSE cse("DistGraph::QueueLocalDisconnection"))
+    if( localSource == END ) localSource = numLocalSources_ - 1;
+    if( target == END ) target = numTargets_ - 1;
     if( localSource < 0 || localSource >= numLocalSources_ )
         LogicError
         ("Local source was out of bounds: ",localSource," is not in [0,",
@@ -303,7 +311,7 @@ void DistGraph::QueueLocalDisconnection( Int localSource, Int target )
 void DistGraph::ProcessQueues()
 {
     DEBUG_ONLY(
-      CallStackEntry cse("DistGraph::ProcessQueues");
+      CSE cse("DistGraph::ProcessQueues");
       if( sources_.size() != targets_.size() )
           LogicError("Inconsistent graph buffer sizes");
     )
@@ -435,13 +443,13 @@ Int DistGraph::NumLocalSources() const { return numLocalSources_; }
 
 Int DistGraph::NumLocalEdges() const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistGraph::NumLocalEdges"))
+    DEBUG_ONLY(CSE cse("DistGraph::NumLocalEdges"))
     return sources_.size();
 }
 
 Int DistGraph::Capacity() const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistGraph::Capacity"))
+    DEBUG_ONLY(CSE cse("DistGraph::Capacity"))
     return Min(sources_.capacity(),targets_.capacity());
 }
 
@@ -452,15 +460,17 @@ bool DistGraph::Consistent() const { return consistent_; }
 mpi::Comm DistGraph::Comm() const { return comm_; }
 Int DistGraph::Blocksize() const { return blocksize_; }
 
-int DistGraph::SourceOwner( Int s ) const
+int DistGraph::SourceOwner( Int source ) const
 { 
+    if( source == END ) source = numSources_ - 1;
     // TODO: Get rid of RowToProcess...
-    return RowToProcess( s, Blocksize(), mpi::Size(Comm()) ); 
+    return RowToProcess( source, Blocksize(), mpi::Size(Comm()) ); 
 }
 
 Int DistGraph::GlobalSource( Int sLoc ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistGraph::GlobalSource"))
+    DEBUG_ONLY(CSE cse("DistGraph::GlobalSource"))
+    if( sLoc == END ) sLoc = numLocalSources_ - 1;
     if( sLoc < 0 || sLoc > NumLocalSources() )
         LogicError("Invalid local source index");
     return sLoc + FirstLocalSource();
@@ -471,7 +481,7 @@ Int DistGraph::GlobalSource( Int sLoc ) const
 Int DistGraph::Source( Int localEdge ) const
 {
     DEBUG_ONLY(
-      CallStackEntry cse("DistGraph::Source");
+      CSE cse("DistGraph::Source");
       if( localEdge < 0 || localEdge >= (Int)sources_.size() )
           LogicError("Edge number out of bounds");
     )
@@ -481,7 +491,7 @@ Int DistGraph::Source( Int localEdge ) const
 Int DistGraph::Target( Int localEdge ) const
 {
     DEBUG_ONLY(
-      CallStackEntry cse("DistGraph::Target");
+      CSE cse("DistGraph::Target");
       if( localEdge < 0 || localEdge >= (Int)targets_.size() )
           LogicError("Edge number out of bounds");
     )
@@ -490,8 +500,9 @@ Int DistGraph::Target( Int localEdge ) const
 
 Int DistGraph::EdgeOffset( Int localSource ) const
 {
+    if( localSource == END ) localSource = numLocalSources_ - 1;
     DEBUG_ONLY(
-      CallStackEntry cse("DistGraph::EdgeOffset");
+      CSE cse("DistGraph::EdgeOffset");
       if( localSource < 0 || localSource > numLocalSources_ )
           LogicError
           ("Out of bounds localSource: ",localSource,
@@ -504,9 +515,10 @@ Int DistGraph::EdgeOffset( Int localSource ) const
 Int DistGraph::NumConnections( Int localSource ) const
 {
     DEBUG_ONLY(
-      CallStackEntry cse("DistGraph::NumConnections");
+      CSE cse("DistGraph::NumConnections");
       AssertConsistent();
     )
+    if( localSource == END ) localSource = numLocalSources_ - 1;
     return EdgeOffset(localSource+1) - EdgeOffset(localSource);
 }
 
@@ -525,7 +537,7 @@ bool DistGraph::ComparePairs
 
 void DistGraph::ComputeEdgeOffsets()
 {
-    DEBUG_ONLY(CallStackEntry cse("DistGraph::ComputeEdgeOffsets"))
+    DEBUG_ONLY(CSE cse("DistGraph::ComputeEdgeOffsets"))
     // Compute the local edge offsets
     Int sourceOffset = 0;
     Int prevSource = firstLocalSource_-1;

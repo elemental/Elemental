@@ -225,6 +225,7 @@ DEBUG_ONLY(
                 PopCallStack(); 
         }
     };
+    typedef CallStackEntry CSE;
 )
 
 void ReportException( const exception& e, ostream& os=cerr );
