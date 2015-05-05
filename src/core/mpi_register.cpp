@@ -282,8 +282,12 @@ template<> Datatype TypeMap<double>() { return MPI_DOUBLE; }
 template<> Datatype TypeMap<Quad>()   { return ::QuadType; }
 #endif
 
-template<> Datatype TypeMap<Complex<float>>()  { return MPI_COMPLEX; }
-template<> Datatype TypeMap<Complex<double>>() { return MPI_DOUBLE_COMPLEX; }
+/* NOTE: I'm not sure of whether it is better to manually implement these
+         or not. MPI_COMPLEX and MPI_DOUBLE_COMPLEX are dangerous since it 
+         appears that recent versions of MPICH leave them as NULL when 
+         compiling with Clang. */
+template<> Datatype TypeMap<Complex<float>>()  { return MPI_C_FLOAT_COMPLEX; }
+template<> Datatype TypeMap<Complex<double>>() { return MPI_C_DOUBLE_COMPLEX; }
 #ifdef EL_HAVE_QUAD
 template<> Datatype TypeMap<Complex<Quad>>()   { return ::QuadComplexType; }
 #endif
